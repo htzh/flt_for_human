@@ -1,6 +1,6 @@
 # flt_for_human
 
-Anthropic has published [formalized proof of FLT](https://github.com/anthropics/fermats-last-theorem).
+Anthropic has published [formalized proof of FLT](https://github.com/anthropics/fermats-last-theorem) ([human readable docs](https://htmlpreview.github.io/?https://github.com/anthropics/fermats-last-theorem/blob/main/html/index.html)).
 Our goal is to make the proof accessible to human readers.
 With the proof formalization/search already done, hopefully this task is not as token intensive.
 But since we want the results to be intuitive and accessible to humans the process will likely be labor intensive.
