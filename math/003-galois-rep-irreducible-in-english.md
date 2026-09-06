@@ -81,8 +81,8 @@ field (with decidable equality — a formality the point group law needs;
   2. the **only** Galois-stable $\mathbb{Z}/n$-submodules of $E(K)[n]$ are
      $\{O\}$ ($\bot$) and all of $E(K)[n]$ ($\top$).
 
-**In one sentence:** *the $n$-torsion of the base-changed curve is a nonzero
-$\mathbb{Z}/n$-module on which $\mathrm{Aut}_S(K)$ acts, and that action has
+**In one sentence:** *the $`n`$-torsion of the base-changed curve is a nonzero
+$`\mathbb{Z}/n`$-module on which $\mathrm{Aut}_S(K)$ acts, and that action has
 no invariant submodule other than the two trivial ones.*
 
 Three remarks on the deliberate generality:
