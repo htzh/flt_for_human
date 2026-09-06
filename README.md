@@ -23,6 +23,6 @@ Alternative proofs may be needed to make key steps as accessible as possible.
 
 ## Anthropic Docs
 
-Anthropic generates [human readable docs](https://htmlpreview.github.io/?https://github.com/anthropics/fermats-last-theorem/blob/main/html/index.html), which are enriched with annotations.
-Due to Github limit on the number of files per directory, the online preview will produce mostly dead links at the level of individual theorems/definitions.
-But if you clone the project and drop the top level index.html into your browser it works very well.
+Anthropic generates human readable docs, which are enriched with annotations.
+Github serves the html pages as plain text and the generic html previewer mangles them (js code and data shards don't load), but the docs' author hosts a working static copy: <https://tianyipeng.github.io/fermats-last-theorem/>.
+If you clone the project and drop the top level index.html into your browser it also works very well.

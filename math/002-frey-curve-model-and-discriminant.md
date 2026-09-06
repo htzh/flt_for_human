@@ -13,7 +13,7 @@ algebra expanded. Line numbers refer to
 curve $Y^2 = X(X - a^p)(X + b^p)$ never appears as a `WeierstrassCurve` — it
 lives only in documentation ("the standard integral model of
 $y^2 = x(x - a^p)(x + b^p)$",
-[def page](http://htmlpreview.github.io/?https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/html/def/FLTPrelim_FreyPackage.html)).
+[def page](https://tianyipeng.github.io/fermats-last-theorem/def/FLTPrelim_FreyPackage.html)).
 Both Lean incarnations are defined *directly by their five coefficients*:
 `FreyPackage.freyCurve` over ℚ and `FreyPackage.freyCurveInt` over ℤ
 ([Def_FLTPrelim_FreyPackage.lean, lines 83–95](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/Definitions/Def_FLTPrelim_FreyPackage.lean)).
@@ -97,10 +97,10 @@ is self-contained: its proof's `import` lines are exactly its citations):
 The generated docs already annotate this well — statement, proof sketch and
 context (Frey–Hellegouarch, $\Delta = 2^{-8}(ABC)^2$ with $A = a^p$ etc.):
 [thm.html#FreyPackage.freyCurve_discriminant](https://github.com/anthropics/fermats-last-theorem/blob/main/html/thm.html#FreyPackage.freyCurve_discriminant)
-([previewer](http://htmlpreview.github.io/?https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/html/thm.html#FreyPackage.freyCurve_discriminant)),
-[def/FreyCurve_Basic.html](http://htmlpreview.github.io/?https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/html/def/FreyCurve_Basic.html),
+([rendered](https://tianyipeng.github.io/fermats-last-theorem/thm.html#FreyPackage.freyCurve_discriminant)),
+[def/FreyCurve_Basic.html](https://tianyipeng.github.io/fermats-last-theorem/def/FreyCurve_Basic.html),
 and the index entry in
-[areas/FreyPackage.html](http://htmlpreview.github.io/?https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/html/areas/FreyPackage.html)
+[areas/FreyPackage.html](https://tianyipeng.github.io/fermats-last-theorem/areas/FreyPackage.html)
 ("Discriminant of the Frey curve: (abc)²ᵖ/2⁸"). We don't repeat that here;
 what follows is the algebra the `ring` tactic does silently.
 
@@ -203,10 +203,10 @@ Lean sources (raw; line numbers as above):
 
 Annotated docs (viewable):
 
-- [thm.html#FreyPackage.freyCurve_discriminant](http://htmlpreview.github.io/?https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/html/thm.html#FreyPackage.freyCurve_discriminant)
-- [def/FreyCurve_Basic.html](http://htmlpreview.github.io/?https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/html/def/FreyCurve_Basic.html)
-- [def/FLTPrelim_FreyPackage.html](http://htmlpreview.github.io/?https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/html/def/FLTPrelim_FreyPackage.html)
-- [areas/FreyPackage.html](http://htmlpreview.github.io/?https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/html/areas/FreyPackage.html)
+- [thm.html#FreyPackage.freyCurve_discriminant](https://tianyipeng.github.io/fermats-last-theorem/thm.html#FreyPackage.freyCurve_discriminant)
+- [def/FreyCurve_Basic.html](https://tianyipeng.github.io/fermats-last-theorem/def/FreyCurve_Basic.html)
+- [def/FLTPrelim_FreyPackage.html](https://tianyipeng.github.io/fermats-last-theorem/def/FLTPrelim_FreyPackage.html)
+- [areas/FreyPackage.html](https://tianyipeng.github.io/fermats-last-theorem/areas/FreyPackage.html)
 
 Mathlib v4.33.0:
 

@@ -32,7 +32,7 @@ explicit construction.
 
 A `FreyPackage`
 ([Def_FLTPrelim_FreyPackage.lean, lines 17–38](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/Definitions/Def_FLTPrelim_FreyPackage.lean);
-[annotated doc page](http://htmlpreview.github.io/?https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/html/def/FLTPrelim_FreyPackage.html))
+[annotated doc page](https://tianyipeng.github.io/fermats-last-theorem/def/FLTPrelim_FreyPackage.html))
 bundles:
 
 - nonzero **integers** $a, b, c$ — signs allowed, the fields are `≠ 0`, not `> 0`;
@@ -43,8 +43,8 @@ bundles:
 
 The chain from the headline statement down to this step
 ([route §1](https://github.com/anthropics/fermats-last-theorem/blob/main/html/route/s1.html),
-viewable via
-[previewer](http://htmlpreview.github.io/?https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/html/route/s1.html)):
+rendered at the
+[static docs site](https://tianyipeng.github.io/fermats-last-theorem/route/s1.html)):
 
 1. `fermat_last_theorem` (over ℕ, any $n \ge 3$) is one call to
    `FLT.fermatLastTheorem : FermatLastTheorem`
@@ -79,7 +79,8 @@ viewable via
    package exists (`no_frey_package` — the deep end: irreducibility, modularity,
    level lowering to $\Gamma_0(2)$, and the vanishing of weight-2 cusp forms of
    level 2; see
-   [route §2](https://github.com/anthropics/fermats-last-theorem/blob/main/html/route/s2.html)).
+   [route §2](https://github.com/anthropics/fermats-last-theorem/blob/main/html/route/s2.html),
+   [rendered](https://tianyipeng.github.io/fermats-last-theorem/route/s2.html)).
 
 ## 3. Why these normalizing conditions (and not others)
 
@@ -223,9 +224,9 @@ Lean sources (raw; quote line numbers as above):
 
 Annotated docs (viewable):
 
-- [Def page: FLTPrelim_FreyPackage](http://htmlpreview.github.io/?https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/html/def/FLTPrelim_FreyPackage.html)
-- [Route §1: from the elementary statement to p ≥ 5](http://htmlpreview.github.io/?https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/html/route/s1.html)
-- [Route §2: the Frey package and the four-way contradiction](http://htmlpreview.github.io/?https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/html/route/s2.html)
+- [Def page: FLTPrelim_FreyPackage](https://tianyipeng.github.io/fermats-last-theorem/def/FLTPrelim_FreyPackage.html)
+- [Route §1: from the elementary statement to p ≥ 5](https://tianyipeng.github.io/fermats-last-theorem/route/s1.html)
+- [Route §2: the Frey package and the four-way contradiction](https://tianyipeng.github.io/fermats-last-theorem/route/s2.html)
 
 Mathlib v4.33.0:
 
