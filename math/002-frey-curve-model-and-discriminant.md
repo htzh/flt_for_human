@@ -46,7 +46,7 @@ $$Y^2 = 64x^3 + 16(b^p - 1 - a^p)x^2 - 4a^p b^p x + 16x^2
 
 Reading this back in $(X, Y)$ ($64x^3 = X^3$, $16x^2 = X^2$, $4x = X$):
 
-$$Y^2 = X^3 + (b^p - a^p)X^2 - a^p b^p\,X = X\,(X - a^p)(X + b^p),$$
+$$Y^2 = X^3 + (b^p - a^p)X^2 - a^p b^p X = X(X - a^p)(X + b^p),$$
 
 using $a^p + b^p = c^p$ nowhere — the factorization is formal:
 $(X - a^p)(X + b^p) = X^2 + (b^p - a^p)X - a^p b^p$.
@@ -120,7 +120,7 @@ b_6 = 0, \qquad b_8 = -a_4^2 = -\frac{(AB)^2}{2^8}.$$
 lines 26–30.) Since $b_6 = 0$ and $b_8 = -a_4^2$, the four-term formula
 collapses:
 
-$$\Delta = -b_2^2 b_8 - 8 b_4^3 = a_4^2\,(b_2^2 - 64 a_4).$$
+$$\Delta = -b_2^2 b_8 - 8 b_4^3 = a_4^2 (b_2^2 - 64 a_4).$$
 
 Now the crux — the only step that uses the Fermat relation $a^p + b^p = c^p$:
 
@@ -128,7 +128,7 @@ $$b_2^2 - 64 a_4 = (B - A)^2 + 4AB = (A + B)^2 = (c^p)^2 = c^{2p}.$$
 
 Assembling:
 
-$$\Delta = a_4^2 \cdot c^{2p} = \frac{(AB)^2}{2^8}\, c^{2p}
+$$\Delta = a_4^2 \cdot c^{2p} = \frac{(AB)^2}{2^8} c^{2p}
 = \frac{a^{2p} b^{2p} c^{2p}}{2^8} = \frac{(abc)^{2p}}{2^8}.$$
 
 In the Lean proofs this whole paragraph is mechanized: the theorem proof
@@ -147,7 +147,7 @@ $a^p + b^p = c^p$ — hence $\Delta_{\text{orig}} = 16 (abc)^{2p}$. The change
 $(u,r,s,t) = (2,0,1,0)$ divides $\Delta$ by $u^{12} = 2^{12}$:
 $16(abc)^{2p} / 2^{12} = (abc)^{2p}/2^8$ ✓. The same scaling checks
 $c_4$: the original form has
-$c_4 = 16\,(a^{2p} + a^p b^p + b^{2p})$, and $c_4 \mapsto u^{-4} c_4$ gives
+$c_4 = 16(a^{2p} + a^p b^p + b^{2p})$, and $c_4 \mapsto u^{-4} c_4$ gives
 $c_4(E_p) = a^{2p} + a^p b^p + b^{2p}$, matching
 [`FreyCurve.c₄`](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/Definitions/Def_FreyCurve_Basic.lean)
 (lines 32–34; `c₄'` rewrites it via the Fermat relation as
