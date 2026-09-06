@@ -86,7 +86,7 @@ viewable via
 The conditions are dictated by the Frey curve defined in the same file
 (lines 83–95), the integral Weierstrass model
 
-$$E_P:\ y^2 + xy = x^3 + \frac{b^p - 1 - a^p}{4}\x^2 - \frac{a^p b^p}{16}\x$$
+$$E_P:\ y^2 + xy = x^3 + \frac{b^p - 1 - a^p}{4}x^2 - \frac{a^p b^p}{16}x$$
 
 an integral model of $y^2 = x(x - a^p)(x + b^p)$. For the coefficients to be
 *integers*:
