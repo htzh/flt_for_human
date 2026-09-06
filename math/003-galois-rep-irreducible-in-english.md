@@ -219,8 +219,8 @@ the proof does this: `GL (Fin 2)` (= `Matrix.GeneralLinearGroup`) appears in
 the repo only on the *automorphic* side — adeles, archimedean factors, local
 newvectors
 ([Def_AdelicDock_LocalEmbedding.lean](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/Definitions/Def_AdelicDock_LocalEmbedding.lean)).
-GL₂ is kept as the automorphic object; the Galois object stays "2-dim module
-+ `End`-hom", and the two meet only through charpoly/trace/det comparisons.
+GL₂ is kept as the automorphic object; the Galois object stays "2-dim module + `End`-hom",
+and the two meet only through charpoly/trace/det comparisons.
 The worlds are tied by
 `WeierstrassCurve.residualGaloisRepOf_isIrreducible_iff`
 ([S_WeierstrassCurve_residualGaloisRepOf_isIrreducible_iff.lean, line 12](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/P2M/Sol/S_WeierstrassCurve_residualGaloisRepOf_isIrreducible_iff.lean)):
