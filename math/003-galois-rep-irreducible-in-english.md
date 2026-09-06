@@ -150,7 +150,7 @@ hand in the same file.** The generality costs the argument nothing.
 At $R = S = \mathbb{Q}$, $K = \overline{\mathbb{Q}}$, $W' = E_P$ (the Frey
 curve), $n = p$: the automorphism group $\mathrm{Aut}_{\mathbb{Q}}(\overline{\mathbb{Q}})$
 *is* the absolute Galois group $\mathrm{Gal}(\overline{\mathbb{Q}}/\mathbb{Q})$,
-and $E_P[p](\overline{\mathbb{Q}}) \cong \mathbb{F}_p^2$. The proposition
+and $`E_P[p](\overline{\mathbb{Q}}) \cong \mathbb{F}_p^2`$. The proposition
 reads:
 
 > The $p$-torsion points of the Frey curve over $\overline{\mathbb{Q}}$ form a
@@ -158,7 +158,7 @@ reads:
 > $\mathrm{Gal}(\overline{\mathbb{Q}}/\mathbb{Q})$ are $\{O\}$ and the whole
 > group
 
-— i.e. the mod-$p$ representation
+— i.e. the mod-$`p`$ representation
 $\bar\rho_{E_P,p} : \mathrm{Gal}(\overline{\mathbb{Q}}/\mathbb{Q}) \to \mathrm{GL}_2(\mathbb{F}_p)$
 is irreducible. It is *proved* at exactly this instantiation by
 `FreyPackage.Mazur_Frey` (Mazur's Eisenstein-ideal argument in the large
