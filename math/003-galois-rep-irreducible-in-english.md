@@ -82,7 +82,7 @@ field (with decidable equality — a formality the point group law needs;
      $\{O\}$ ($\bot$) and all of $E(K)[n]$ ($\top$).
 
 **In one sentence:** *the $`n`$-torsion of the base-changed curve is a nonzero
-$`\mathbb{Z}/n`$-module on which $\mathrm{Aut}_S(K)$ acts, and that action has
+$`\mathbb{Z}/n`$-module on which $`\mathrm{Aut}_S(K)`$ acts, and that action has
 no invariant submodule other than the two trivial ones.*
 
 Three remarks on the deliberate generality:
