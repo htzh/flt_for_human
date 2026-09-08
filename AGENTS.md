@@ -28,8 +28,10 @@ The main author is hosting a static website so for user convenience we could poi
 
 ## Github issues
 
-Github math processer needs `\\,` in the equation for thin space.
-It is also very finicky about \$ touching alpha-numeric symbols (including punctuation marks) when used as the inline math delimiter.
-Either leave spaces around the delimiters or use \$\` and \`\$ (with the backslash) as inline math delimiters.
-A second breaker: math containing `]()` (e.g. `$E_P[p](K)$`) gets parsed as a markdown link before math processing — always backtick those.
-`\operatorname{...}` is not supported in equations — use `\mathrm{...}` instead (e.g. `$\mathrm{card}\\,M$`, `$\mathrm{GL}_2$`).
+Inline math must use the backtick form: open with a `$` immediately followed by a backtick, close with a backtick immediately followed by `$`. Inside this form everything is literal — no double backslash is needed, so `\#` and `\,` are enough.
+
+Display math `$$...$$` is the one place where `\\` is still needed to produce a single `\` (e.g. `$$\mathrm{card}\\,E[n]$$`).
+
+Never use bare `$...$` inline math: its escaping rules differ from the backtick form and are easy to get wrong. `tools/check_math_delimiters.py` flags any bare `$`.
+
+`\operatorname{...}` is not supported in equations — use `\mathrm{...}` instead (e.g. `\mathrm{card}\,M`, `\mathrm{GL}_2`).
