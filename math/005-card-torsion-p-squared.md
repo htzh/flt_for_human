@@ -34,7 +34,7 @@ Unpacking the pieces:
   $`E[n](K) = \{P \mid nP = O\}`$. So the statement is the classical one:
   for an elliptic curve $`E`$ over an algebraically closed field $`K`$ in
   which $`n \neq 0`$,
-  $$\#E[n]\\,(K) = n^2 .$$
+  $$\\#E[n]\\,(K) = n^2 .$$
 - `[W.IsElliptic]` is nonsingularity ($`\Delta`$ a unit); `[IsAlgClosed K]`
   supplies the roots; `(n : K) ≠ 0` is "$`\mathrm{char}\\,K \nmid n`$"
   (including $`n = 0`$, which it rules out); `[DecidableEq K]` is the
