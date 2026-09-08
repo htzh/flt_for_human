@@ -32,3 +32,4 @@ Github math processer needs `\\,` in the equation for thin space.
 It is also very finicky about closing \$ touching alpha-numeric symbols.
 If it is not clear use \$` and `\$ (with the backslash) as inline math delimiters.
 A second breaker: math containing `]()` (e.g. `$E_P[p](K)$`) gets parsed as a markdown link before math processing — always backtick those.
+`\operatorname{...}` is not supported in equations — use `\mathrm{...}` instead (e.g. `$\mathrm{card}\\,M$`, `$\mathrm{GL}_2$`).

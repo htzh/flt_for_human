@@ -9,7 +9,8 @@ relationship between them (reducible ⇒ cofixed line, and the contrapositive
 the proof actually uses); (3) the details of how the cofixed-line detour lets
 this whole step avoid ever referring to a *representation* — no
 `Representation` structure, no basis of $`E_P[p]`$, no $\mathrm{GL}_2(\mathbb{F}_p)$ —
-continuing the pattern of note 003's GL₂ aside. Line numbers refer to
+with the basis-free / no-$\mathrm{GL}_2$ discussion that originated as an
+aside in note 003 moved here in full (§4). Line numbers refer to
 `anthropics/fermats-last-theorem@aa2d8b3` (main, 2026-09-03); Mathlib line
 numbers refer to tag v4.33.0.
 
@@ -50,7 +51,7 @@ def page):
    so that a cofixed line is visibly a submodule of the kind
    `GaloisRepIsIrreducible` quantifies over.
 2. **"Line" is only a name.** No rank condition is imposed. In the intended
-   application $n = p$ is prime and $\operatorname{card} M = p^2$
+   application $n = p$ is prime and $\mathrm{card}\\,M = p^2$
    (`WeierstrassCurve.card_torsion_of_isAlgClosed`,
    [Thm_WeierstrassCurve_card_torsion_of_isAlgClosed.lean, line 9](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_WeierstrassCurve_card_torsion_of_isAlgClosed.lean)),
    and then a proper nonzero $\mathbb{Z}/p$-submodule of a $p^2$-element
@@ -91,7 +92,7 @@ and its proof is short enough to quote whole
 
 Reading it: `push Not` turns "not irreducible" into "a proper nonzero stable
 submodule $N$ exists" (the nontriviality half of the predicate holds anyway,
-using $\operatorname{card} E_P[p] = p^2$). Then the proof splits on a
+using $\mathrm{card}\\,E_P[p] = p^2$). Then the proof splits on a
 **Frey-curve-specific dichotomy**,
 `FreyPackage.frey_stable_submodule_fixed_or_cofixed`
 ([Thm_FreyPackage_frey_stable_submodule_fixed_or_cofixed.lean, line 10](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_FreyPackage_frey_stable_submodule_fixed_or_cofixed.lean)):
@@ -154,49 +155,89 @@ possible", with the second half supplied case by case:
 | $p = 11$ | `frey_no_cofixed_eleven` ([line 13](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_FreyPackage_frey_no_cofixed_eleven.lean)) | likewise vacuous, via `fermatLastTheoremEleven` |
 | $p \geq 17$ | `frey_no_cofixed_large` ([line 70](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_FreyPackage_frey_no_cofixed_large.lean)) | the real content: Mazur's Eisenstein-ideal argument (PROOF-PATH.md, step 3) |
 
-## 4. The payoff: no representation, no $\mathrm{GL}_2$
+## 4. The payoff: no representation, no $\mathrm{GL}_2$ — three layers, one short of matrices
 
-Note 003's aside observed that the *predicate* `GaloisRepIsIrreducible` never
-chooses a basis. The cofixed-line detour continues this one level down: the
-entire irreducibility step — hypothesis, intermediate objects, and
-contradictions — is carried out without ever referring to a representation.
+(This section subsumes what was §5 of note 003; it lives here now, because
+the cofixed-line step is where the basis-freeness is exploited.)
 
-1. **The objects are bare submodules.** `HasGaloisStableCofixedLine`
-   quantifies over a submodule $N$ and points $x$, with clauses
-   $\sigma \cdot x \in N$ and $\sigma \cdot x - x \in N$. No
-   `Representation` structure, no $\mathbb{F}_p$-dimension, no
-   $\operatorname{GL}_2$; the module does not even assume
-   $\operatorname{card} E[p] = p^2$ (that count enters only at the proof of
-   nontriviality, §2). Its imports are just the Frey package and the Galois
-   action
-   ([Def_FLTPrelim_CofixedLine.lean, lines 1–2](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_CofixedLine.lean)).
-2. **The only matrix-like invariant used is $\det$, taken of a module
-   endomorphism, never of a matrix.** The Galois action is repackaged as a
-   monoid hom into endomorphisms,
-   `galoisRepModuleEnd : (K ≃ₐ[S] K) →* Module.End (ZMod n) (torsionBy …)`
-   ([Def_EllipticCurve_FrobeniusTrace.lean, lines 25–27](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_EllipticCurve_FrobeniusTrace.lean),
-   built on Mathlib's `DistribMulAction.toModuleEnd`,
-   [LinearMap/End.lean, line 250, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/Algebra/Module/LinearMap/End.lean)).
-   Everything the cofixed step needs about "characters" is then extracted
-   from `LinearMap.det` of that endomorphism:
-   - on a cofixed line, $\sigma$ acts on $N$ **by the scalar $\det \sigma$** —
-     `WeierstrassCurve.smul_eq_det_smul_of_cofixed`
-     ([Thm_WeierstrassCurve_smul_eq_det_smul_of_cofixed.lean, lines 10–21](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_WeierstrassCurve_smul_eq_det_smul_of_cofixed.lean));
-   - $\det \sigma$ is the mod-$p$ **cyclotomic character** — on $p$-power
-     roots of unity, $\sigma \zeta = \zeta^{\det \sigma}$
-     (`WeierstrassCurve.apply_eq_pow_det_galoisRep_of_pow_eq_one`,
-     [line 10](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_WeierstrassCurve_apply_eq_pow_det_galoisRep_of_pow_eq_one.lean));
-   these are exactly the two inputs the $p \geq 17$ argument imports.
-3. **The actual `Representation` lives on the automorphic side.** The
-   packaged representation `WeierstrassCurve.residualGaloisRepOf`
-   ([Def_GaloisRep_Residual.lean, lines 87–88](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_GaloisRep_Residual.lean))
-   takes $\operatorname{card} E[p] = p^2$ as an explicit hypothesis `hcard`
-   and feeds modularity and level lowering; `GL (Fin 2)` appears only in
-   adelic/automorphic files (note 003, §5). The two worlds meet through the
-   equivalence
-   `ResidualGaloisRep.IsIrreducible ↔ GaloisRepIsIrreducible`, cited in note
-   003 — so `Mazur_Frey`, proved entirely in basis-free submodule language,
-   still feeds the representation-valued machine downstream.
+The phrase "the mod-$`p`$ representation
+$`\bar\rho_{E_P,p} : \mathrm{Gal}(\overline{\mathbb{Q}}/\mathbb{Q}) \to \mathrm{GL}_2(\mathbb{F}_p)`$"
+is a mathematical gloss of what `Mazur_Frey` proves, not code: nothing named
+`GL₂` appears anywhere on the Galois side. What actually brings a
+*representation* into context happens in layers, and the proof stops one
+layer short of matrices. The cofixed-line detour (§§2–3) is what makes the
+lowest layers sufficient for the entire irreducibility step.
+
+**Layer 0 — bare submodules: where the cofixed step works.**
+`HasGaloisStableCofixedLine` quantifies over a submodule $N$ and points $x$,
+with clauses $\sigma \cdot x \in N$ and $\sigma \cdot x - x \in N$. No
+`Representation` structure, no $\mathbb{F}_p$-dimension, no $\mathrm{GL}_2$;
+the module does not even assume $\mathrm{card}\\,E[p] = p^2$ (that count
+enters only at the proof of nontriviality, §2). Its imports are just the
+Frey package and the Galois action
+([Def_FLTPrelim_CofixedLine.lean, lines 1–2](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_CofixedLine.lean)).
+
+**Layer 1 — the action repackaged as a hom into module automorphisms**
+(still basis-free):
+`galoisRep W' n : (K ≃ₐ[S] K) →* (torsionBy ℤ (W'⁄K).Point n) ≃ₗ[ZMod n] _`
+is one line, Mathlib's `DistribMulAction.toModuleAut`
+([Def_FreyPackage_GaloisRep.lean, lines 18–21](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FreyPackage_GaloisRep.lean));
+`FreyPackage.freyGaloisRep` (lines 38–42) is the Frey-curve instantiation.
+The `End`-valued twin `galoisRepModuleEnd`
+([Def_EllipticCurve_FrobeniusTrace.lean, lines 25–27](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_EllipticCurve_FrobeniusTrace.lean),
+built on Mathlib's `DistribMulAction.toModuleEnd`,
+[LinearMap/End.lean, line 250, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/Algebra/Module/LinearMap/End.lean))
+is what Frobenius traces are taken of (`galoisTrace`, lines 36–37) — a trace
+needs no basis.
+
+The cofixed step lives at this layer, and the only "character" it ever uses
+is $\det$, taken of that endomorphism, never of a matrix:
+
+- on a cofixed line, $\sigma$ acts on $N$ **by the scalar $\det \sigma$** —
+  `WeierstrassCurve.smul_eq_det_smul_of_cofixed`
+  ([Thm_WeierstrassCurve_smul_eq_det_smul_of_cofixed.lean, lines 10–21](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_WeierstrassCurve_smul_eq_det_smul_of_cofixed.lean));
+- $\det \sigma$ is the mod-$p$ **cyclotomic character** — on $p$-power roots
+  of unity, $\sigma \zeta = \zeta^{\det \sigma}$
+  (`WeierstrassCurve.apply_eq_pow_det_galoisRep_of_pow_eq_one`,
+  [line 10](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_WeierstrassCurve_apply_eq_pow_det_galoisRep_of_pow_eq_one.lean));
+
+these are exactly the two inputs the $p \geq 17$ argument imports.
+
+**Layer 2 — "2-dimensional" enters as a *cardinality* input, buying
+charpoly/det.** The structure `ResidualGaloisRep k`
+([Def_GaloisRep_Residual.lean, lines 22–32](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_GaloisRep_Residual.lean))
+packages an abstract $`k`$-module $`V`$ with `Module.finrank k V = 2`, a hom
+`ρ : Gal(Q̄/Q) →* Module.End k V`, and a factors-through-a-finite-extension
+field. Now the GL₂-shaped invariants exist, still basis-free:
+`LinearMap.charpoly` in `IsAttachedTo` (line 55 — Frobenius charpoly
+$`X^2 - a_\ell X + \ell`$, the eigenform attachment), `LinearMap.det` in
+`IsOdd` (line 59), and `IsIrreducible` (lines 61–63) again in
+stable-submodule form. The constructor from the curve,
+`WeierstrassCurve.residualGaloisRepOf` (lines 87–103), takes the rank-2 fact
+as an explicit hypothesis in counting form,
+`hcard : Nat.card (torsionBy ℤ (W⁄(AlgebraicClosure ℚ)).Point p) = p ^ 2`,
+converted to `finrank = 2` via `Module.natCard_eq_pow_finrank`. That `hcard`
+*is* the formal content of $`E[p](\overline{\mathbb{Q}}) \cong \mathbb{F}_p^2`$
+— the fact ICL's `Torsion.lean` still has as `sorry`.
+
+**Layer 3 — actual matrices: available, never taken.** A literal
+`Gal(Q̄/Q) →* GL (Fin 2) (ZMod p)` would need a basis
+`E[p] ≃ₗ[ZMod p] (Fin 2 → ZMod p)`; the machinery exists from the same
+cardinality input (`basisOfCard`, `free`, `finrank_eq_two`,
+[Def_EllipticCurve_TateModule.lean, lines 596–630](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_EllipticCurve_TateModule.lean)),
+and conjugation by the basis equiv would land in matrix units. Nothing in
+the proof does this: `GL (Fin 2)` (= `Matrix.GeneralLinearGroup`) appears in
+the repo only on the *automorphic* side — adeles, archimedean factors, local
+newvectors
+([Def_AdelicDock_LocalEmbedding.lean](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_AdelicDock_LocalEmbedding.lean)).
+GL₂ is kept as the automorphic object; the Galois object stays "2-dim module + `End`-hom",
+and the two meet only through charpoly/trace/det comparisons.
+The worlds are tied by
+`WeierstrassCurve.residualGaloisRepOf_isIrreducible_iff`
+([S_WeierstrassCurve_residualGaloisRepOf_isIrreducible_iff.lean, line 12](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_WeierstrassCurve_residualGaloisRepOf_isIrreducible_iff.lean)):
+`ResidualGaloisRep.IsIrreducible ↔ GaloisRepIsIrreducible` — so `Mazur_Frey`
+is proved entirely in the basis-free language yet feeds the `End`-valued
+level-lowering machine.
 
 For a human reader, the matrix picture of a cofixed line is: choose a basis
 of $`E[p] \cong \mathbb{F}_p^2`$ whose first vector spans $N$; then "cofixed"
@@ -215,13 +256,13 @@ the irreducibility step at all.
 | Key point | Mathematical content | Where in the code |
 |---|---|---|
 | cofixed line, in English | proper nonzero stable $\mathbb{Z}/n$-submodule $N \subseteq M = (W'/K).Point[n]$ with $\sigma \cdot x - x \in N$ for all $x \in M$ — trivial action on $M/N$ | [Def_FLTPrelim_CofixedLine.lean:15–18](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_CofixedLine.lean) |
-| "line" is only a name | no rank hypothesis; order $p$ follows from $\operatorname{card} M = p^2$ when needed | Def_FLTPrelim_CofixedLine.lean:15–18; [Thm_WeierstrassCurve_card_torsion_of_isAlgClosed.lean:9](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_WeierstrassCurve_card_torsion_of_isAlgClosed.lean) |
+| "line" is only a name | no rank hypothesis; order $p$ follows from $M$ having $p^2$ elements when needed | Def_FLTPrelim_CofixedLine.lean:15–18; [Thm_WeierstrassCurve_card_torsion_of_isAlgClosed.lean:9](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_WeierstrassCurve_card_torsion_of_isAlgClosed.lean) |
 | reducible ⇒ cofixed | negating irreducibility gives stable $N$; Frey dichotomy: $N$ fixed or cofixed; fixed dies (no rational $p$-torsion) | [Thm_FreyPackage_frey_reducible_hasCofixedLine.lean:15](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_FreyPackage_frey_reducible_hasCofixedLine.lean); [S file:43–52](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_FreyPackage_frey_reducible_hasCofixedLine.lean) |
 | the dichotomy is Frey-specific | unramified away from $2p$; inertia at $2$ trivial on $N$; inertia at $p$ trivial on $N$ or $M/N$ | [Thm_FreyPackage_frey_stable_submodule_fixed_or_cofixed.lean:10](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_FreyPackage_frey_stable_submodule_fixed_or_cofixed.lean); [S file imports:1–7](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_FreyPackage_frey_stable_submodule_fixed_or_cofixed.lean) |
 | `Mazur_Frey` = no cofixed line | case split $a \equiv 3 \pmod 8$ (own 2-adic argument) + trichotomy $p \in \{5,7,13\}$ / $11$ (vacuous) / $\geq 17$ (Eisenstein ideal) | [Thm_FreyPackage_Mazur_Frey.lean:70](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_FreyPackage_Mazur_Frey.lean); [S file:77–91](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_FreyPackage_Mazur_Frey.lean) |
-| no representation named | predicates quantify over submodules/points; no `Representation`, no basis, no `hcard` in the cofixed module | [Def_FLTPrelim_CofixedLine.lean:1–2, 15–18](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_CofixedLine.lean) |
-| $\det$ as the only "character" | $\sigma\|_N = \det \sigma$; $\det \sigma$ = mod-$p$ cyclotomic; both taken of `galoisRepModuleEnd` (an `End`-hom), never of a matrix | [Thm_WeierstrassCurve_smul_eq_det_smul_of_cofixed.lean:10–21](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_WeierstrassCurve_smul_eq_det_smul_of_cofixed.lean); [Thm_WeierstrassCurve_apply_eq_pow_det_galoisRep_of_pow_eq_one.lean:10](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_WeierstrassCurve_apply_eq_pow_det_galoisRep_of_pow_eq_one.lean); [Def_EllipticCurve_FrobeniusTrace.lean:25–27](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_EllipticCurve_FrobeniusTrace.lean) |
-| where the real $\bar\rho$ lives | `residualGaloisRepOf` with explicit `hcard`, feeding the automorphic side; `GL (Fin 2)` automorphic only | [Def_GaloisRep_Residual.lean:87–88](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_GaloisRep_Residual.lean); note 003, §5 |
+| Layer 0: bare submodules | predicates quantify over submodules/points; no `Representation`, no basis, no `hcard` in the cofixed module | [Def_FLTPrelim_CofixedLine.lean:1–2, 15–18](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_CofixedLine.lean) |
+| Layer 1: `End`-hom; $\det$ the only "character" | `galoisRep`/`galoisRepModuleEnd` repackage the action basis-free; $\sigma\|_N = \det \sigma$; $\det \sigma$ = mod-$p$ cyclotomic | [Def_FreyPackage_GaloisRep.lean:18–21](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FreyPackage_GaloisRep.lean); [Def_EllipticCurve_FrobeniusTrace.lean:25–27](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_EllipticCurve_FrobeniusTrace.lean); [Thm_WeierstrassCurve_smul_eq_det_smul_of_cofixed.lean:10–21](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_WeierstrassCurve_smul_eq_det_smul_of_cofixed.lean); [Thm_WeierstrassCurve_apply_eq_pow_det_galoisRep_of_pow_eq_one.lean:10](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_WeierstrassCurve_apply_eq_pow_det_galoisRep_of_pow_eq_one.lean) |
+| Layers 2–3: the real $\bar\rho$, matrices never taken | `ResidualGaloisRep` (`finrank = 2` from explicit `hcard`) buys charpoly/det basis-free; basis machinery exists but `GL (Fin 2)` is automorphic-only; the worlds tied by `residualGaloisRepOf_isIrreducible_iff` | [Def_GaloisRep_Residual.lean:22–32, 87–88](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_GaloisRep_Residual.lean); [Def_EllipticCurve_TateModule.lean:596–630](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_EllipticCurve_TateModule.lean); [S_WeierstrassCurve_residualGaloisRepOf_isIrreducible_iff.lean:12](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_WeierstrassCurve_residualGaloisRepOf_isIrreducible_iff.lean) |
 
 ## 6. Links
 
@@ -231,6 +272,9 @@ Lean sources (raw; quote line numbers as above):
 - <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_GaloisRep.lean>
 - <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_EllipticCurve_FrobeniusTrace.lean>
 - <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_GaloisRep_Residual.lean>
+- <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FreyPackage_GaloisRep.lean>
+- <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_EllipticCurve_TateModule.lean>
+- <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_AdelicDock_LocalEmbedding.lean>
 - <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_FreyPackage_Mazur_Frey.lean>
 - <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_FreyPackage_Mazur_Frey_of_a_mod_eight.lean>
 - <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_FreyPackage_frey_reducible_hasCofixedLine.lean>
@@ -246,6 +290,7 @@ Lean sources (raw; quote line numbers as above):
 - <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_WeierstrassCurve_card_torsion_of_isAlgClosed.lean>
 - <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_FreyPackage_Mazur_Frey.lean>
 - <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_FreyPackage_frey_reducible_hasCofixedLine.lean>
+- <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_WeierstrassCurve_residualGaloisRepOf_isIrreducible_iff.lean>
 
 Annotated docs (viewable):
 
