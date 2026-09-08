@@ -29,7 +29,7 @@ The main author is hosting a static website so for user convenience we could poi
 ## Github issues
 
 Github math processer needs `\\,` in the equation for thin space.
-It is also very finicky about closing \$ touching alpha-numeric symbols.
-If it is not clear use \$` and `\$ (with the backslash) as inline math delimiters.
+It is also very finicky about \$ touching alpha-numeric symbols (including punctuation marks) when used as the inline math delimiter.
+Either leave spaces around the delimiters or use \$\` and \`\$ (with the backslash) as inline math delimiters.
 A second breaker: math containing `]()` (e.g. `$E_P[p](K)$`) gets parsed as a markdown link before math processing — always backtick those.
 `\operatorname{...}` is not supported in equations — use `\mathrm{...}` instead (e.g. `$\mathrm{card}\\,M$`, `$\mathrm{GL}_2$`).
