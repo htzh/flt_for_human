@@ -1,4 +1,4 @@
-# $`\mathrm{card}\\, E[n](K) = n^2`$ over an algebraically closed field — the foundation of the $`\mathrm{GL}_2`$ picture
+# $`\mathrm{card}\, E[n](K) = n^2`$ over an algebraically closed field — the foundation of the $`\mathrm{GL}_2`$ picture
 
 Companion to [note 003](003-galois-rep-irreducible-in-english.md) (the
 `GaloisRepIsIrreducible` predicate) and [note 004](004-irreducible-and-cofixed-line.md)
