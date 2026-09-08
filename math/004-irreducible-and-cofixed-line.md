@@ -1,4 +1,4 @@
-# Irreducibility and the cofixed line — how the mod-$p$ representation is excluded without ever being named
+# Irreducibility and the cofixed line — how the mod-$`p`$ representation is excluded without ever being named
 
 Companion to [note 003](003-galois-rep-irreducible-in-english.md) (the
 `GaloisRepIsIrreducible` predicate). The irreducibility leg of the proof,
@@ -196,7 +196,7 @@ is $\det$, taken of that endomorphism, never of a matrix:
 - on a cofixed line, $\sigma$ acts on $N$ **by the scalar $\det \sigma$** —
   `WeierstrassCurve.smul_eq_det_smul_of_cofixed`
   ([Thm_WeierstrassCurve_smul_eq_det_smul_of_cofixed.lean, lines 10–21](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_WeierstrassCurve_smul_eq_det_smul_of_cofixed.lean));
-- $\det \sigma$ is the mod-$p$ **cyclotomic character** — on $p$-power roots
+- $\det \sigma$ is the mod-$`p`$ **cyclotomic character** — on $p$-power roots
   of unity, $\sigma \zeta = \zeta^{\det \sigma}$
   (`WeierstrassCurve.apply_eq_pow_det_galoisRep_of_pow_eq_one`,
   [line 10](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_WeierstrassCurve_apply_eq_pow_det_galoisRep_of_pow_eq_one.lean));
@@ -242,7 +242,7 @@ level-lowering machine.
 For a human reader, the matrix picture of a cofixed line is: choose a basis
 of $`E[p] \cong \mathbb{F}_p^2`$ whose first vector spans $N$; then "cofixed"
 says
-$\bar\rho(\sigma) = \begin{pmatrix} \chi(\sigma) & b(\sigma) \\ 0 & 1 \end{pmatrix}$,
+$`\bar\rho(\sigma) = \begin{pmatrix} \chi(\sigma) & b(\sigma) \\ 0 & 1 \end{pmatrix}`$,
 i.e. the quotient character is trivial, and on $N$ the action is
 $\chi(\sigma) = \det \bar\rho(\sigma) = \chi_p(\sigma)$, the cyclotomic
 character. The formalization never chooses this basis: "stable line with
