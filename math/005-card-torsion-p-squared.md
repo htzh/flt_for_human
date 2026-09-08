@@ -1,4 +1,4 @@
-# $`\mathrm{card}\, E[n](K) = n^2`$ over an algebraically closed field — the foundation of the $`\mathrm{GL}_2`$ picture
+# $`\\#\, E[n](K) = n^2`$ over an algebraically closed field — the foundation of the $`\mathrm{GL}_2`$ picture
 
 Companion to [note 003](003-galois-rep-irreducible-in-english.md) (the
 `GaloisRepIsIrreducible` predicate) and [note 004](004-irreducible-and-cofixed-line.md)
@@ -8,7 +8,7 @@ $`\mathbb{F}_p`$ — the fact that makes the mod-$`p`$ Galois action a
 2-dimensional representation (and, after choosing a basis, a map into
 $`\mathrm{GL}_2(\mathbb{F}_p)`$). This note covers the theorem that feeds that
 fact, `WeierstrassCurve.card_torsion_of_isAlgClosed`: its statement (§1), a
-sketch of the proof as carried out in the project (§2), how $`\mathrm{card}\, E[p] = p^2`$
+sketch of the proof as carried out in the project (§2), how $`\\#\, E[p] = p^2`$
 becomes "dimension 2 over $`\mathbb{F}_p`$" (§3), and how the theorem is used
 downstream (§4). Line numbers refer to
 `anthropics/fermats-last-theorem@aa2d8b3` (main, 2026-09-03); Mathlib line
@@ -34,7 +34,7 @@ Unpacking the pieces:
   $`E[n](K) = \{P \mid nP = O\}`$. So the statement is the classical one:
   for an elliptic curve $`E`$ over an algebraically closed field $`K`$ in
   which $`n \neq 0`$,
-  $$\mathrm{card}\,E[n]\\,(K) = n^2 .$$
+  $$\\#\,E[n]\\,(K) = n^2 .$$
 - `[W.IsElliptic]` is nonsingularity ($`\Delta`$ a unit); `[IsAlgClosed K]`
   supplies the roots; `(n : K) ≠ 0` is "$`\mathrm{char}\\,K \nmid n`$"
   (including $`n = 0`$, which it rules out); `[DecidableEq K]` is the
@@ -95,27 +95,27 @@ $`\\{P \mid n \bullet P = 0\\}`$. The steps:
    $`\Psi_n^2(x_0) \neq 0`$, so $`n \cdot (x_0, y_0)`$ is a finite point
    with $`x`$-coordinate $`x_Q`$, i.e. it equals $`\pm Q`$; negate the
    preimage if needed.
-4. **All fibers of** $`[n]`$ **have size** $`\mathrm{card}\, E[n]`$ (`card_smul_fiber`,
+4. **All fibers of** $`[n]`$ **have size** $`\\#\, E[n]`$ (`card_smul_fiber`,
    line 533; `card_smul_fiber_all`, line 1035): picking any preimage
    $`P_0`$ of $`Q`$, translation $`P \mapsto P + P_0`$ bijects $`E[n]`$
    with the fiber over $`Q`$.
 5. **Odd** $`n`$: **counting via a double fiber**
    (`card_nTorsion_odd_fibers`, line 847). A full-size fiber of
    $`x \circ [n]`$ produces a $`Q`$ with
-   $`\mathrm{card}\, \{P : nP = \pm Q\} = 2n^2`$ (`exists_double_fiber_card`, line 614).
-   Since $`n`$ is odd, $`Q \neq -Q`$ — otherwise $`2 \mid \mathrm{card}\, E[n]`$, giving
+   $`\\#\, \{P : nP = \pm Q\} = 2n^2`$ (`exists_double_fiber_card`, line 614).
+   Since $`n`$ is odd, $`Q \neq -Q`$ — otherwise $`2 \mid \\#\, E[n]`$, giving
    a point of order 2 killed by the odd number $`n`$ (lines 853–873). The
-   two fibers are then disjoint, each of size $`\mathrm{card}\, E[n]`$ by step 4, so
-   $`2 \cdot \mathrm{card}\, E[n] = 2n^2`$.
+   two fibers are then disjoint, each of size $`\\#\, E[n]`$ by step 4, so
+   $`2 \cdot \\#\, E[n] = 2n^2`$.
 6. $`n = 2`$ **directly** (`card_nTorsion_two`, line 1054): $`E[2]`$
    consists of $`O`$ and the points $`(x, -(a_1 x + a_3)/2)`$ for $`x`$ a
    root of the two-torsion cubic; the cubic has 3 distinct roots because
    its discriminant is nonzero ($`E`$ nonsingular, $`2 \neq 0`$). Hence
-   $`\mathrm{card}\, E[2] = 4 = 2^2`$.
+   $`\\#\, E[2] = 4 = 2^2`$.
 7. **Prime powers by induction** (`card_nTorsion_prime_pow`, line 1168):
    $`E[p^{k+1}]`$ is the disjoint union over $`Q \in E[p]`$ of the fibers
-   $`\{P : p^k P = Q\}`$, each of size $`\mathrm{card}\, E[p^k]`$ by step 4, so
-   $`\mathrm{card}\, E[p^{k+1}] = \mathrm{card}\, E[p] \cdot \mathrm{card}\, E[p^k] = p^2 \cdot p^{2k}`$.
+   $`\{P : p^k P = Q\}`$, each of size $`\\#\, E[p^k]`$ by step 4, so
+   $`\\#\, E[p^{k+1}] = \\#\, E[p] \cdot \\#\, E[p^k] = p^2 \cdot p^{2k}`$.
 8. **Coprime gluing** (`card_nTorsion_mul_of_coprime`, line 1217): Bézout
    coefficients $`ma + nb = 1`$ give an explicit equivalence
    $`E[mn] \simeq E[m] \times E[n]`$ via
@@ -128,7 +128,7 @@ $`\\{P \mid n \bullet P = 0\\}`$. The steps:
     `Submodule.torsionBy ℤ (W⁄K).Point n` by `Submodule.mem_torsionBy_iff`
     plus `natCast_zsmul`, yielding the stated equation.
 
-## 3. From $`\mathrm{card}\, E[p] = p^2`$ to "$`E[p]`$ is 2-dimensional over $`\mathbb{F}_p`$"
+## 3. From $`\\#\, E[p] = p^2`$ to "$`E[p]`$ is 2-dimensional over $`\mathbb{F}_p`$"
 
 Two abelian-group facts turn the cardinality into linear algebra:
 
@@ -208,7 +208,7 @@ argument — is the formal content of "the residual representation is
 2-dimensional". Choosing a basis of $`V`$ would turn
 `ρ : Gal(ℚ̄/ℚ) → V ≃ₗ V` into matrices $`\bar\rho : \mathrm{Gal}(\overline{\mathbb{Q}}/\mathbb{Q}) \to \mathrm{GL}_2(\mathbb{F}_p)`$,
 but as documented in note 004 (§4) the project deliberately never chooses
-one; `hcard` is the precise point where the $`\mathrm{card}\, E[p] = p^2`$ theorem enters
+one; `hcard` is the precise point where the $`\\#\, E[p] = p^2`$ theorem enters
 that basis-free picture, and it is discharged at use sites by
 `card_torsion_of_isAlgClosed`.
 
@@ -231,7 +231,7 @@ note 004
       nlinarith
 ```
 
-— $`p \geq 5`$ gives $`1 < p^2 = \mathrm{card}\, E_P[p]`$, and that `Nontrivial` instance
+— $`p \geq 5`$ gives $`1 < p^2 = \\#\, E_P[p]`$, and that `Nontrivial` instance
 is the side condition `GaloisRepIsIrreducible` requires before "reducible"
 can even be unfolded (note 003). The same one-line justification appears at:
 
@@ -255,12 +255,12 @@ over an algebraically closed residue field is needed.
 
 - $`(n : K) \neq 0`$: in characteristic $`\ell \mid n`$ the map $`[n]`$ is
   inseparable and the count drops — famously
-  $`\mathrm{card}\, E[p](\overline{\mathbb{F}}_p) \in \{1, p\}`$ (supersingular vs
+  $`\\#\, E[p](\overline{\mathbb{F}}_p) \in \{1, p\}`$ (supersingular vs
   ordinary). In the proof the hypothesis is propagated through every
   lemma, but its mathematical content is consumed at the Wronskian step
   (§2.2).
 - $`K`$ algebraically closed: over a general field,
-  $`\mathrm{card}\, E[n](K) \leq n^2`$; equality says all $`n`$-torsion is
+  $`\\#\, E[n](K) \leq n^2`$; equality says all $`n`$-torsion is
   $`K`$-rational. Surjectivity of $`[n]`$ (§2.3) is the step that needs
   roots of degree-$`n^2`$ polynomials.
 - $`W`$ nonsingular: the two-torsion count and the division-polynomial
@@ -272,21 +272,21 @@ over an algebraically closed residue field is needed.
 
 | Mathematical point | Lean declaration (file, line) |
 | --- | --- |
-| $`\mathrm{card}\, E[n](K) = n^2`$ | `WeierstrassCurve.card_torsion_of_isAlgClosed` (`Thm_WeierstrassCurve_card_torsion_of_isAlgClosed.lean:9`) |
+| $`\\#\, E[n](K) = n^2`$ | `WeierstrassCurve.card_torsion_of_isAlgClosed` (`Thm_WeierstrassCurve_card_torsion_of_isAlgClosed.lean:9`) |
 | Proof: 1335-line division-polynomial argument | `P2MW.S_WeierstrassCurve_card_torsion_of_isAlgClosed.solution` (`S_…card_torsion_of_isAlgClosed.lean:1330`) |
 | Local torsion subgroup | `nTorsion` (`S_…:308`) |
 | $`x(nP) = \Phi_n/\Psi_n^2`$ | `smul_x_eq` (`S_…:196`) |
 | $`\Phi_n \perp \Psi_n^2`$; $`\Psi_n^2 \perp \Psi_{n+1}^2`$ | `isCoprime_Φ_ΨSq` (`S_…:213`); `isCoprime_ΨSq_succ` (`S_…:77`) |
 | $`[n]`$ separable when $`(n:K)\neq 0`$ | `wronskian_Φ_ΨSq_ne_zero` (`S_…:343`) |
 | $`[n]`$ surjective over $`\bar K`$ | `smul_surjective` (`S_…:452`), `smul_surjective_all` (`S_…:955`) |
-| All fibers of $`[n]`$ have size $`\mathrm{card}\, E[n]`$ | `card_smul_fiber` (`S_…:533`), `card_smul_fiber_all` (`S_…:1035`) |
-| Odd $`n`$: $`\mathrm{card}\, E[n] = n^2`$ | `card_nTorsion_odd_fibers` (`S_…:847`) |
-| $`n = 2`$: $`\mathrm{card}\, E[2] = 4`$ | `card_nTorsion_two` (`S_…:1054`) |
+| All fibers of $`[n]`$ have size $`\\#\, E[n]`$ | `card_smul_fiber` (`S_…:533`), `card_smul_fiber_all` (`S_…:1035`) |
+| Odd $`n`$: $`\\#\, E[n] = n^2`$ | `card_nTorsion_odd_fibers` (`S_…:847`) |
+| $`n = 2`$: $`\\#\, E[2] = 4`$ | `card_nTorsion_two` (`S_…:1054`) |
 | Prime powers / coprime gluing / assembly | `card_nTorsion_prime_pow` (`S_…:1168`), `card_nTorsion_mul_of_coprime` (`S_…:1217`), `card_nTorsion` (`S_…:1294`) |
 | $`E[p]`$ a $`\mathbb{Z}/p`$-module | `instModuleZModTorsionBy` (`Def_FLTPrelim_GaloisRep.lean:60`) |
 | $`\dim_{\mathbb{F}_p} E[p] = 2`$ | `WeierstrassCurve.finrank_zmod_torsionBy_point_eq_two` (`Thm_…finrank_zmod…:10`) |
 | $`E[n] \cong \mathbb{Z}/n \times \mathbb{Z}/n`$ | `WeierstrassCurve.nonempty_torsionBy_addEquiv_zmod_prod_of_isAlgClosed` (`Thm_…nonempty_torsionBy…:9`) |
-| 2-dim residual rep from $`\mathrm{card}\, E[p] = p^2`$ | `WeierstrassCurve.residualGaloisRepOf` (`Def_GaloisRep_Residual.lean:87`) |
+| 2-dim residual rep from $`\\#\, E[p] = p^2`$ | `WeierstrassCurve.residualGaloisRepOf` (`Def_GaloisRep_Residual.lean:87`) |
 
 ## Links
 
