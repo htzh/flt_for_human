@@ -20,6 +20,7 @@ Work with the local copy but reference the public copy in public (git tracked) f
 Because Github limit 1000 files per directory not all files in the local clone are rendered by Github.
 
 * For Lean files we should use the raw addresses: e.g. `Definitions/Def_FLTPrelim_FreyPackage.lean` -> `https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/Definitions/Def_FLTPrelim_FreyPackage.lean`
+* When citing line numbers, pin the source to a git version — `/main` is not stable. Use the commit sha (full or short) instead of `refs/heads/main`, e.g. `https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_FreyPackage.lean` and `https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/html/route/s1.html`. The current pin is `aa2d8b3` (see the workflow note for how to re-pin).
 * Most of html files can be reached as normal, with the top url `https://github.com/anthropics/fermats-last-theorem/blob/main/html/index.html`. 
 However there are 1450 definition modules, htmls in the `def/` can only be reached through the raw urls.
 Github serves all htmls as texts.

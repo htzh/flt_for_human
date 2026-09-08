@@ -16,15 +16,15 @@ $y^2 = x(x - a^p)(x + b^p)$",
 [def page](https://tianyipeng.github.io/fermats-last-theorem/def/FLTPrelim_FreyPackage.html)).
 Both Lean incarnations are defined *directly by their five coefficients*:
 `FreyPackage.freyCurve` over ℚ and `FreyPackage.freyCurveInt` over ℤ
-([Def_FLTPrelim_FreyPackage.lean, lines 83–95](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/Definitions/Def_FLTPrelim_FreyPackage.lean)).
+([Def_FLTPrelim_FreyPackage.lean, lines 83–95](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_FreyPackage.lean)).
 Consequently **no change of variables to the original form is formalized
 anywhere** — none is needed. The only *explicit* second model in the
 `FreyPackage` namespace is `freyCurveInt`, identified with `freyCurve` by
 `FreyPackage.freyCurveInt_map : P.freyCurveInt.map (Int.castRingHom ℚ) = P.freyCurve`,
 the base change along ℤ ↪ ℚ with the *same* coefficients
-([Thm_FreyPackage_freyCurveInt_map.lean](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/Theorems/Thm_FreyPackage_freyCurveInt_map.lean);
+([Thm_FreyPackage_freyCurveInt_map.lean](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_FreyPackage_freyCurveInt_map.lean);
 proof in
-[S_FreyPackage_freyCurveInt_map.lean, lines 17–46](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/P2M/Sol/S_FreyPackage_freyCurveInt_map.lean)).
+[S_FreyPackage_freyCurveInt_map.lean, lines 17–46](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_FreyPackage_freyCurveInt_map.lean)).
 (Other integral models occur only abstractly, through the existential
 `IsIntegralModelOf` discussed below.) The `freyCurveInt_map` proof is also
 where the exactness of the integer divisions from note 001
@@ -65,7 +65,7 @@ point — passing to $E_p$ divides the discriminant by $u^{12} = 2^{12}$
 [Mathlib/AlgebraicGeometry/EllipticCurve/VariableChange.lean, line 218, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/AlgebraicGeometry/EllipticCurve/VariableChange.lean)),
 and the project states "integral model of a ℚ-curve" in exactly these terms
 (`IsIntegralModelOf`, an existential over `VariableChange ℚ`,
-[Def_FLTPrelim_Modularity.lean, lines 88–90](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/Definitions/Def_FLTPrelim_Modularity.lean))
+[Def_FLTPrelim_Modularity.lean, lines 88–90](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_Modularity.lean))
 — but the specific change to the roots form is never instantiated for the Frey
 curve.
 
@@ -76,16 +76,16 @@ a consequence of the project's architecture (each `Theorems/Thm_*.lean` module
 is self-contained: its proof's `import` lines are exactly its citations):
 
 1. `FreyCurve.Δ`,
-   [Def_FreyCurve_Basic.lean, lines 9–15](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/Definitions/Def_FreyCurve_Basic.lean)
+   [Def_FreyCurve_Basic.lean, lines 9–15](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FreyCurve_Basic.lean)
    — the definition-module home, alongside the invariants `b₂`, `b₄`, `c₄`,
    `c₄'` and the `IsElliptic` instance (lines 18–39).
 2. `FreyPackage.freyCurve_discriminant`,
-   [Thm_FreyPackage_freyCurve_discriminant.lean](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/Theorems/Thm_FreyPackage_freyCurve_discriminant.lean)
-   + [S_FreyPackage_freyCurve_discriminant.lean](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/P2M/Sol/S_FreyPackage_freyCurve_discriminant.lean)
+   [Thm_FreyPackage_freyCurve_discriminant.lean](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_FreyPackage_freyCurve_discriminant.lean)
+   + [S_FreyPackage_freyCurve_discriminant.lean](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_FreyPackage_freyCurve_discriminant.lean)
    — the citation-graph home; its proof does **not** import
    `Def_FreyCurve_Basic` but recomputes via a `key` identity + `ring`.
 3. `FreyArith.freyCurve_Δ`,
-   [S_FreyPackage_freyCurveInt_map.lean, lines 48–55](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/P2M/Sol/S_FreyPackage_freyCurveInt_map.lean)
+   [S_FreyPackage_freyCurveInt_map.lean, lines 48–55](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_FreyPackage_freyCurveInt_map.lean)
    — a local helper used to derive the **integral** version
    `FreyArith.freyCurveInt_Δ_mul : (freyCurveInt P).Δ * 2 ^ 8 = (P.a * P.b * P.c) ^ (2 * P.p)`
    (lines 105–117), by injectivity of ℤ ↪ ℚ through `freyCurveInt_map`. The
@@ -96,7 +96,7 @@ is self-contained: its proof's `import` lines are exactly its citations):
 
 The generated docs already annotate this well — statement, proof sketch and
 context (Frey–Hellegouarch, $\Delta = 2^{-8}(ABC)^2$ with $A = a^p$ etc.):
-[thm.html#FreyPackage.freyCurve_discriminant](https://github.com/anthropics/fermats-last-theorem/blob/main/html/thm.html#FreyPackage.freyCurve_discriminant)
+[thm.html#FreyPackage.freyCurve_discriminant](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/html/thm.html#FreyPackage.freyCurve_discriminant)
 ([rendered](https://tianyipeng.github.io/fermats-last-theorem/thm.html#FreyPackage.freyCurve_discriminant)),
 [def/FreyCurve_Basic.html](https://tianyipeng.github.io/fermats-last-theorem/def/FreyCurve_Basic.html),
 and the index entry in
@@ -116,7 +116,7 @@ $$b_2 = 1 + 4a_2 = B - A, \qquad b_4 = 2a_4 = -\frac{AB}{8}, \qquad
 b_6 = 0, \qquad b_8 = -a_4^2 = -\frac{(AB)^2}{2^8}.$$
 
 (The first two are
-[`FreyCurve.b₂`, `FreyCurve.b₄`](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/Definitions/Def_FreyCurve_Basic.lean),
+[`FreyCurve.b₂`, `FreyCurve.b₄`](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FreyCurve_Basic.lean),
 lines 26–30.) Since $b_6 = 0$ and $b_8 = -a_4^2$, the four-term formula
 collapses:
 
@@ -149,7 +149,7 @@ $16(abc)^{2p} / 2^{12} = (abc)^{2p}/2^8$ ✓. The same scaling checks
 $c_4$: the original form has
 $c_4 = 16(a^{2p} + a^p b^p + b^{2p})$, and $c_4 \mapsto u^{-4} c_4$ gives
 $c_4(E_p) = a^{2p} + a^p b^p + b^{2p}$, matching
-[`FreyCurve.c₄`](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/Definitions/Def_FreyCurve_Basic.lean)
+[`FreyCurve.c₄`](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FreyCurve_Basic.lean)
 (lines 32–34; `c₄'` rewrites it via the Fermat relation as
 $c^{2p} - (ab)^p$). And $j = c_4^3/\Delta$ is isomorphism-invariant:
 $j = 2^8 (a^{2p} + a^p b^p + b^{2p})^3 / (abc)^{2p}$ either way.
@@ -165,7 +165,7 @@ use `freyCurveInt_map` + `freyCurve_Δ`, descend by injectivity), not recomputed
 
 - **Ellipticity**: $\Delta$ is a unit of ℚ because $abc \ne 0$ — the
   `IsElliptic` instance for `freyCurve`
-  ([Def_FreyCurve_Basic.lean, lines 18–23](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/Definitions/Def_FreyCurve_Basic.lean)),
+  ([Def_FreyCurve_Basic.lean, lines 18–23](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FreyCurve_Basic.lean)),
   giving `Δ'` and the $j$-invariant in Mathlib's sense. Over ℤ:
   `FreyPackage.freyCurveInt_discr_ne_zero`.
 - **Bad reduction = primes of abc**:
@@ -181,9 +181,9 @@ use `freyCurveInt_map` + `freyCurve_Δ`, descend by injectivity), not recomputed
   the level comes out to $2$ (rather than $1$).
 - **Semistability**: `FreyPackage.frey_isSemistableModel : P.freyCurveInt.IsSemistableModel`,
   where `IsSemistableModel W := ∀ p prime, p ∣ W.Δ → ¬ p ∣ W.c₄`
-  ([Def_FLTPrelim_Modularity.lean, lines 85–87](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/Definitions/Def_FLTPrelim_Modularity.lean)).
+  ([Def_FLTPrelim_Modularity.lean, lines 85–87](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_Modularity.lean)).
   The arithmetic input is `FreyArith.not_dvd_c₄Int`
-  ([S_FreyPackage_freyCurveInt_map.lean, lines 71–98](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/P2M/Sol/S_FreyPackage_freyCurveInt_map.lean)):
+  ([S_FreyPackage_freyCurveInt_map.lean, lines 71–98](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_FreyPackage_freyCurveInt_map.lean)):
   if a prime $q \mid abc$ divided $c_4 = a^{2p} + a^p b^p + b^{2p}$, then
   e.g. $q \mid a$ forces $q \mid b^{2p}$ (the other two terms contain $a$),
   contradicting $\gcd(a,b) = 1$; the $q \mid c$ case uses
@@ -194,12 +194,12 @@ use `freyCurveInt_map` + `freyCurve_Δ`, descend by injectivity), not recomputed
 
 Lean sources (raw; line numbers as above):
 
-- <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/Definitions/Def_FreyCurve_Basic.lean>
-- <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/Definitions/Def_FLTPrelim_FreyPackage.lean>
-- <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/Definitions/Def_FLTPrelim_Modularity.lean>
-- <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/Theorems/Thm_FreyPackage_freyCurve_discriminant.lean>
-- <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/P2M/Sol/S_FreyPackage_freyCurve_discriminant.lean>
-- <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/refs/heads/main/P2M/Sol/S_FreyPackage_freyCurveInt_map.lean>
+- <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FreyCurve_Basic.lean>
+- <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_FreyPackage.lean>
+- <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_Modularity.lean>
+- <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_FreyPackage_freyCurve_discriminant.lean>
+- <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_FreyPackage_freyCurve_discriminant.lean>
+- <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_FreyPackage_freyCurveInt_map.lean>
 
 Annotated docs (viewable):
 
