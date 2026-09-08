@@ -8,7 +8,7 @@ is mediated by a second predicate, `HasGaloisStableCofixedLine`. Here:
 relationship between them (reducible ⇒ cofixed line, and the contrapositive
 the proof actually uses); (3) the details of how the cofixed-line detour lets
 this whole step avoid ever referring to a *representation* — no
-`Representation` structure, no basis of $`E_P[p]`$, no $'\mathrm{GL}_2(\mathbb{F}_p)`$ —
+`Representation` structure, no basis of $`E_P[p]`$, no $`\mathrm{GL}_2(\mathbb{F}_p)`$ —
 with the basis-free / no-$\mathrm{GL}_2$ discussion that originated as an
 aside in note 003 moved here in full (§4). Line numbers refer to
 `anthropics/fermats-last-theorem@aa2d8b3` (main, 2026-09-03); Mathlib line
