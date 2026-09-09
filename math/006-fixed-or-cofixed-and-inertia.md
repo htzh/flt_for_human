@@ -352,8 +352,8 @@ $`\tau \in I_q`$ in matrix form (basis adapted to $`N`$):
 | $`q = p`$, $`p \nmid abc`$ | good reduction | unipotent w.r.t. the reduction kernel $`M`$ | inertia trivial on the special fiber |
 | $`q = p`$, $`p \mid abc`$ | multiplicative | unipotent w.r.t. the zero component $`M \cong \mu_p`$ | Tate filtration |
 
-Only at $`q = p`$ is the triviality *relative to a possibly different line
-$`M`$ * ; the stable-line lemma of §2 then decides whether $`N`$ coincides with
+Only at $`q = p`$ is the triviality <i>relative to a possibly different line
+$`M`$</i>; the stable-line lemma of §2 then decides whether $`N`$ coincides with
 $`M`$ (cofixed) or is transverse to it (fixed). Everywhere else inertia is
 already trivial on the nose ($`q \neq 2p`$) or on both graded pieces of the
 given flag ($`q = 2`$). After the closure lemma, the global dichotomy is
