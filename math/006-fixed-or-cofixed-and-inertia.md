@@ -68,7 +68,7 @@ The proof is one screenful and is quoted in full
 
 The logical shape is a **branch-and-close**:
 
-1. Branch on a dichotomy *localized at the prime $`p`$ * : inertia at $`p`$ acts
+1. Branch on a dichotomy <i>localized at the prime $`p`$</i>: inertia at $`p`$ acts
    trivially either on $`N`$ (`hsub`) or on $`M/N`$ (`hquot`)
    (`FreyPackage.frey_inertia_at_p_trivial_on_submodule_or_quotient`,
    [Thm, line 11](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_FreyPackage_frey_inertia_at_p_trivial_on_submodule_or_quotient.lean)).
