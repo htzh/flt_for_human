@@ -68,7 +68,7 @@ The proof is one screenful and is quoted in full
 
 The logical shape is a **branch-and-close**:
 
-1. Branch on a dichotomy *localized at the prime $`p`$ *: inertia at $`p`$ acts
+1. Branch on a dichotomy *localized at the prime $`p`$ * : inertia at $`p`$ acts
    trivially either on $`N`$ (`hsub`) or on $`M/N`$ (`hquot`)
    (`FreyPackage.frey_inertia_at_p_trivial_on_submodule_or_quotient`,
    [Thm, line 11](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_FreyPackage_frey_inertia_at_p_trivial_on_submodule_or_quotient.lean)).
@@ -353,7 +353,7 @@ $`\tau \in I_q`$ in matrix form (basis adapted to $`N`$):
 | $`q = p`$, $`p \mid abc`$ | multiplicative | unipotent w.r.t. the zero component $`M \cong \mu_p`$ | Tate filtration |
 
 Only at $`q = p`$ is the triviality *relative to a possibly different line
-$`M`$ *; the stable-line lemma of §2 then decides whether $`N`$ coincides with
+$`M`$ * ; the stable-line lemma of §2 then decides whether $`N`$ coincides with
 $`M`$ (cofixed) or is transverse to it (fixed). Everywhere else inertia is
 already trivial on the nose ($`q \neq 2p`$) or on both graded pieces of the
 given flag ($`q = 2`$). After the closure lemma, the global dichotomy is
