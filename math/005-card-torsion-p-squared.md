@@ -17,7 +17,7 @@ numbers refer to tag v4.33.0.
 ## 1. The theorem
 
 The whole theorem file
-[Thm_WeierstrassCurve_card_torsion_of_isAlgClosed.lean, lines 8–9](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_WeierstrassCurve_card_torsion_of_isAlgClosed.lean)
+[Thm_WeierstrassCurve_card_torsion_of_isAlgClosed.lean, lines 8–9](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_WeierstrassCurve_card_torsion_of_isAlgClosed.lean#L8-L9)
 is one line of real content:
 
 ```lean
@@ -46,22 +46,22 @@ Unpacking the pieces:
 
 Two sibling statements share the name and should not be confused with it:
 `card_torsionBy_eq_sq_of_isAlgClosed`
-([Thm file](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_WeierstrassCurve_card_torsionBy_eq_sq_of_isAlgClosed.lean))
+([Thm file](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_WeierstrassCurve_card_torsionBy_eq_sq_of_isAlgClosed.lean))
 is the variant where $`F`$ itself is already algebraically closed (no
 separate $`K`$) with an extra $`(2 : F) \neq 0`$ hypothesis, and
 `card_torsion_of_isAlgClosed_light`
-([Thm file](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_WeierstrassCurve_card_torsion_of_isAlgClosed_light.lean))
+([Thm file](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_WeierstrassCurve_card_torsion_of_isAlgClosed_light.lean))
 is the *same* statement as ours re-exported through a 12-line Sol file with
 leaner imports — the CuspForm patching solutions cite the `_light` name.
 
 ## 2. Proof sketch, as done in the project
 
 The proof lives in
-[P2M/Sol/S_WeierstrassCurve_card_torsion_of_isAlgClosed.lean](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_WeierstrassCurve_card_torsion_of_isAlgClosed.lean)
+[P2M/Sol/S_WeierstrassCurve_card_torsion_of_isAlgClosed.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_card_torsion_of_isAlgClosed.lean)
 (1335 lines, sections named `Port…`). It is the classical
 division-polynomial proof (Silverman, *AEC* III.6.4), organized around a
 local definition of the torsion subgroup
-([line 308](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_WeierstrassCurve_card_torsion_of_isAlgClosed.lean)):
+([line 308](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_card_torsion_of_isAlgClosed.lean#L308)):
 `nTorsion W n` is the `AddSubgroup` of $`(W⁄K).Point`$ with carrier
 $`\\{P \mid n \bullet P = 0\\}`$. The steps:
 
@@ -134,7 +134,7 @@ Two abelian-group facts turn the cardinality into linear algebra:
 
 - $`E[p](K)`$ is killed by $`p`$, hence is a module over
   $`\mathbb{Z}/p`$: the instance `instModuleZModTorsionBy`
-  ([Def_FLTPrelim_GaloisRep.lean, lines 60–64](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_GaloisRep.lean))
+  ([Def_FLTPrelim_GaloisRep.lean, lines 60–64](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_GaloisRep.lean#L60-L64))
   is mathlib's `AddCommGroup.zmodModule`
   ([ZMod.lean, line 44](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/Algebra/Module/ZMod.lean)).
   For $`p`$ prime, `ZMod p` is the field $`\mathbb{F}_p`$, so
@@ -142,9 +142,9 @@ Two abelian-group facts turn the cardinality into linear algebra:
 - A finite $`\mathbb{F}_p`$-vector space of cardinality $`p^2`$ has
   dimension 2. The repo packages exactly this as
   `WeierstrassCurve.finrank_zmod_torsionBy_point_eq_two`
-  ([Thm_WeierstrassCurve_finrank_zmod_torsionBy_point_eq_two.lean, lines 10–14](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_WeierstrassCurve_finrank_zmod_torsionBy_point_eq_two.lean)),
+  ([Thm_WeierstrassCurve_finrank_zmod_torsionBy_point_eq_two.lean, lines 10–14](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_WeierstrassCurve_finrank_zmod_torsionBy_point_eq_two.lean#L10-L14)),
   whose entire proof
-  ([Sol, lines 22–33](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_WeierstrassCurve_finrank_zmod_torsionBy_point_eq_two.lean))
+  ([Sol, lines 22–33](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_finrank_zmod_torsionBy_point_eq_two.lean#L22-L33))
   is our theorem plus mathlib's
   `Module.card_eq_pow_finrank`
   ([Finiteness.lean, line 91](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Finiteness.lean)):
@@ -167,7 +167,7 @@ Two abelian-group facts turn the cardinality into linear algebra:
 i.e. $`p^{\dim} = p^2 \Rightarrow \dim = 2`$ by injectivity of
 $`p^{(\cdot)}`$. There is also a group-structure upgrade,
 `WeierstrassCurve.nonempty_torsionBy_addEquiv_zmod_prod_of_isAlgClosed`
-([Thm file, lines 9–12](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_WeierstrassCurve_nonempty_torsionBy_addEquiv_zmod_prod_of_isAlgClosed.lean)):
+([Thm file, lines 9–12](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_WeierstrassCurve_nonempty_torsionBy_addEquiv_zmod_prod_of_isAlgClosed.lean#L9-L12)):
 $`E[n](K) \cong \mathbb{Z}/n \times \mathbb{Z}/n`$ as abelian groups. Its
 Sol file is a five-line reduction to a generic group lemma
 (`AddCommGroup.nonempty_zmod_prod_addEquiv_torsionBy_of_card_torsionBy_eq_sq`),
@@ -178,7 +178,7 @@ with the cardinality hypothesis for every $`d \mid n`$ discharged by
 
 **The residual representation's dimension.** The mod-$`p`$ representation
 is built by `WeierstrassCurve.residualGaloisRepOf`
-([Def_GaloisRep_Residual.lean, lines 87–103](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_GaloisRep_Residual.lean)),
+([Def_GaloisRep_Residual.lean, lines 87–103](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_GaloisRep_Residual.lean#L87-L103)),
 which takes the cardinality as an explicit hypothesis and converts it into
 the dimension field of the representation package:
 
@@ -216,7 +216,7 @@ that basis-free picture, and it is discharged at use sites by
 nontriviality of $`E_P[p]`$ whenever the Frey curve's torsion is
 manipulated. The cleanest example is the reducible ⇒ cofixed-line step of
 note 004
-([S_FreyPackage_frey_reducible_hasCofixedLine.lean, lines 29–42](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_FreyPackage_frey_reducible_hasCofixedLine.lean)):
+([S_FreyPackage_frey_reducible_hasCofixedLine.lean, lines 29–42](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_FreyPackage_frey_reducible_hasCofixedLine.lean#L29-L42)):
 
 ```lean
   have hp : ((P.p : ℕ) : AlgebraicClosure ℚ) ≠ 0 := by exact_mod_cast P.hp0
@@ -235,18 +235,18 @@ note 004
 is the side condition `GaloisRepIsIrreducible` requires before "reducible"
 can even be unfolded (note 003). The same one-line justification appears at:
 
-- [S_FreyPackage_frey_inertia_at_p_trivial_on_submodule_or_quotient_at.lean, line 26](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_FreyPackage_frey_inertia_at_p_trivial_on_submodule_or_quotient_at.lean)
+- [S_FreyPackage_frey_inertia_at_p_trivial_on_submodule_or_quotient_at.lean, line 26](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_FreyPackage_frey_inertia_at_p_trivial_on_submodule_or_quotient_at.lean#L26)
   and
-  [S_FreyPackage_frey_inertia_at_two_trivial_on_stable_submodule.lean, line 160](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_FreyPackage_frey_inertia_at_two_trivial_on_stable_submodule.lean)
+  [S_FreyPackage_frey_inertia_at_two_trivial_on_stable_submodule.lean, line 160](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_FreyPackage_frey_inertia_at_two_trivial_on_stable_submodule.lean#L160)
   (inertia-triviality arguments),
-- [S_FreyPackage_frey_no_cofixed_large.lean, line 698](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_FreyPackage_frey_no_cofixed_large.lean),
-- [S_FreyPackage_frey_exists_p_torsion_integral_abscissa.lean, line 570](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_FreyPackage_frey_exists_p_torsion_integral_abscissa.lean)
+- [S_FreyPackage_frey_no_cofixed_large.lean, line 698](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_FreyPackage_frey_no_cofixed_large.lean#L698),
+- [S_FreyPackage_frey_exists_p_torsion_integral_abscissa.lean, line 570](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_FreyPackage_frey_exists_p_torsion_integral_abscissa.lean#L570)
   ($`p^2 > 1`$ puts a non-$`O`$ $`p`$-torsion point on the curve, the first
   step toward one with integral $`x`$-coordinate).
 
 **Via the finrank corollary**, e.g. the determinant-of-Frobenius
 computation cites `finrank_zmod_torsionBy_point_eq_two` twice
-([S_WeierstrassCurve_det_galoisRepModuleEnd_frobenius_eq.lean, lines 218, 233](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_WeierstrassCurve_det_galoisRepModuleEnd_frobenius_eq.lean)).
+([S_WeierstrassCurve_det_galoisRepModuleEnd_frobenius_eq.lean, lines 218, 233](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_det_galoisRepModuleEnd_frobenius_eq.lean#L218)).
 Further afield, the Cerednik–Drinfeld and CuspForm-patching solutions use
 the theorem (and its `_light` re-export) whenever a torsion cardinality
 over an algebraically closed residue field is needed.
@@ -290,18 +290,18 @@ over an algebraically closed residue field is needed.
 
 ## Links
 
-- [Thm_WeierstrassCurve_card_torsion_of_isAlgClosed.lean](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_WeierstrassCurve_card_torsion_of_isAlgClosed.lean)
+- [Thm_WeierstrassCurve_card_torsion_of_isAlgClosed.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_WeierstrassCurve_card_torsion_of_isAlgClosed.lean)
   and its
-  [P2M solution](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_WeierstrassCurve_card_torsion_of_isAlgClosed.lean)
-- [Thm_WeierstrassCurve_finrank_zmod_torsionBy_point_eq_two.lean](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_WeierstrassCurve_finrank_zmod_torsionBy_point_eq_two.lean)
+  [P2M solution](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_card_torsion_of_isAlgClosed.lean)
+- [Thm_WeierstrassCurve_finrank_zmod_torsionBy_point_eq_two.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_WeierstrassCurve_finrank_zmod_torsionBy_point_eq_two.lean)
   and its
-  [P2M solution](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_WeierstrassCurve_finrank_zmod_torsionBy_point_eq_two.lean)
-- [Thm_WeierstrassCurve_nonempty_torsionBy_addEquiv_zmod_prod_of_isAlgClosed.lean](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_WeierstrassCurve_nonempty_torsionBy_addEquiv_zmod_prod_of_isAlgClosed.lean)
-- [Def_GaloisRep_Residual.lean](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_GaloisRep_Residual.lean)
+  [P2M solution](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_finrank_zmod_torsionBy_point_eq_two.lean)
+- [Thm_WeierstrassCurve_nonempty_torsionBy_addEquiv_zmod_prod_of_isAlgClosed.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_WeierstrassCurve_nonempty_torsionBy_addEquiv_zmod_prod_of_isAlgClosed.lean)
+- [Def_GaloisRep_Residual.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_GaloisRep_Residual.lean)
   (`residualGaloisRepOf`, the `hcard` consumer) and
-  [Def_FLTPrelim_GaloisRep.lean](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_GaloisRep.lean)
+  [Def_FLTPrelim_GaloisRep.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_GaloisRep.lean)
   (the $`\mathbb{Z}/n`$-module instance)
-- [S_FreyPackage_frey_reducible_hasCofixedLine.lean](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_FreyPackage_frey_reducible_hasCofixedLine.lean)
+- [S_FreyPackage_frey_reducible_hasCofixedLine.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_FreyPackage_frey_reducible_hasCofixedLine.lean)
   (the Frey-line use site quoted in §4)
 - Mathlib at v4.33.0:
   [Module.card_eq_pow_finrank](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Finiteness.lean),

@@ -26,6 +26,16 @@ However there are 1450 definition modules, htmls in the `def/` can only be reach
 Github serves all htmls as texts.
 The main author is hosting a static website so for user convenience we could point there: `https://tianyipeng.github.io/fermats-last-theorem/def/ModularCurve_XHDRModelAtP.html`.
 
+### Line anchors
+
+Github renders `/blob/` pages and supports line fragments: `#L66` highlights line 66 and `#L66-L69` highlights that range. Prefer them over a line number in the link label, so that mathlib and FLT citations are clickable:
+
+* Rendered: `https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Galois/Basic.lean#L54-L59`
+* Rendered: `https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_GaloisRep.lean#L74-L77`
+* Not rendered: `https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_GaloisRep.lean` — `#L66` would do nothing here.
+
+`raw.githubusercontent.com` stays correct when the content must be quoted verbatim or fetched by a tool; it just cannot carry an anchor. Only a *directory listing* is truncated at 1000 files, so a file page under `Definitions/` is fine even though the directory cannot be browsed.
+
 ## Github issues
 
 Inline math must use the backtick form: open with a `$` immediately followed by a backtick, close with a backtick immediately followed by `$`. Inside this form everything is literal — no double backslash is needed, so `\#` and `\,` are enough.

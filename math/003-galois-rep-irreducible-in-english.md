@@ -17,7 +17,7 @@ numbers refer to tag v4.33.0, which is exactly the rev pinned in
 ## 1. The full name, and what `Affine R` actually is
 
 The file
-[Def_FLTPrelim_GaloisRep.lean](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_GaloisRep.lean)
+[Def_FLTPrelim_GaloisRep.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_GaloisRep.lean)
 opens `namespace WeierstrassCurve.Affine.Point` (line 17), so the
 definition's full name is
 `WeierstrassCurve.Affine.Point.GaloisRepIsIrreducible`, and the `Affine` in
@@ -102,12 +102,12 @@ Three remarks on the deliberate generality:
 
 The use site is
 `GaloisRepIsIrreducible (K := AlgebraicClosure ℚ) ℚ P.freyCurve P.p`
-(e.g. [Thm_FreyPackage_Mazur_Frey.lean, line 70](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_FreyPackage_Mazur_Frey.lean)).
+(e.g. [Thm_FreyPackage_Mazur_Frey.lean, line 70](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_FreyPackage_Mazur_Frey.lean#L70)).
 After section-variable inclusion the binders are pinned as follows:
 
 | Binder | Kind | How the application discharges it |
 |---|---|---|
-| `{R : Type r}` | implicit | unification: expected type `Affine ?R` unfolds (abbrev) to `WeierstrassCurve ?R`; the argument `P.freyCurve : WeierstrassCurve ℚ` ([Def_FLTPrelim_FreyPackage.lean, line 90](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_FreyPackage.lean)) forces `?R := ℚ` |
+| `{R : Type r}` | implicit | unification: expected type `Affine ?R` unfolds (abbrev) to `WeierstrassCurve ?R`; the argument `P.freyCurve : WeierstrassCurve ℚ` ([Def_FLTPrelim_FreyPackage.lean, line 90](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_FreyPackage.lean#L90)) forces `?R := ℚ` |
 | `(S : Type s)` | explicit, 1st positional (via `variable (S) in`, line 72) | `ℚ` |
 | `{K : Type v}` | implicit, named | `(K := AlgebraicClosure ℚ)` |
 | `(W' : Affine R)` | explicit, 2nd positional | `P.freyCurve` (no coercion — `Affine R` *is* `WeierstrassCurve R`, §1) |
@@ -166,11 +166,11 @@ range; PROOF-PATH.md step 3) and *consumed* at the same instantiation by the
 level-lowering chain:
 `FreyPackage.level_lowering_to_two (hmod : P.freyCurve.IsModular) (hirr : GaloisRepIsIrreducible ...)`
 produces a nonzero weight-2 cusp form on $\Gamma_0(2)$
-([Thm_FreyPackage_level_lowering_to_two.lean, line 131](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_FreyPackage_level_lowering_to_two.lean)),
+([Thm_FreyPackage_level_lowering_to_two.lean, line 131](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_FreyPackage_level_lowering_to_two.lean#L131)),
 and there is none. In the reducible direction, a failed clause 2 unfolds
 (`unfold GaloisRepIsIrreducible`) to a Galois-stable line —
 `FreyPackage.frey_reducible_hasCofixedLine`
-([Thm_FreyPackage_frey_reducible_hasCofixedLine.lean, line 15](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_FreyPackage_frey_reducible_hasCofixedLine.lean)) —
+([Thm_FreyPackage_frey_reducible_hasCofixedLine.lean, line 15](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_FreyPackage_frey_reducible_hasCofixedLine.lean#L15)) —
 which is what the Mazur-side arguments rule out.
 
 ## 5. Aside: the map into $`\mathrm{GL}_2(\mathbb{F}_p)`$ — see note 004
@@ -189,23 +189,23 @@ cofixed-line step exploiting exactly this — is developed in
 
 | Key point | Mathematical content | Where in the code |
 |---|---|---|
-| `Affine R` looks like a new type | it is `WeierstrassCurve.Affine`, an `abbrev` for `WeierstrassCurve R`; elaboration unfolds it, so `P.freyCurve : WeierstrassCurve ℚ` pins `R := ℚ` with no coercion | [Affine/Basic.lean:73–75, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/AlgebraicGeometry/EllipticCurve/Affine/Basic.lean); [Def_FLTPrelim_FreyPackage.lean:90](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_FreyPackage.lean) |
-| Galois group without matrices | the acting group is literally `K ≃ₐ[S] K`, acting by `Point.map`; basis-free irreducibility | [Def_FLTPrelim_GaloisRep.lean:25–37, 68–77](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_GaloisRep.lean) |
+| `Affine R` looks like a new type | it is `WeierstrassCurve.Affine`, an `abbrev` for `WeierstrassCurve R`; elaboration unfolds it, so `P.freyCurve : WeierstrassCurve ℚ` pins `R := ℚ` with no coercion | [Affine/Basic.lean:73–75, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/AlgebraicGeometry/EllipticCurve/Affine/Basic.lean); [Def_FLTPrelim_FreyPackage.lean, line 90](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_FreyPackage.lean#L90) |
+| Galois group without matrices | the acting group is literally `K ≃ₐ[S] K`, acting by `Point.map`; basis-free irreducibility | [Def_FLTPrelim_GaloisRep.lean, lines 25–37, 68–77](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_GaloisRep.lean#L25-L37) |
 | $n$-torsion as a $\mathbb{Z}/n$-module | `Submodule.torsionBy ℤ _ n` plus `AddCommGroup.zmodModule` ($n$ annihilates it) | [Torsion/Basic.lean:178, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/Algebra/Module/Torsion/Basic.lean); [ZMod.lean:44, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/Algebra/Module/ZMod.lean); Def_FLTPrelim_GaloisRep.lean:60–64 |
 | why `[DecidableEq K]` is in the signature | Mathlib's `AddCommGroup W.Point` requires decidable equality of the coordinate field | [Affine/Point.lean:656, 782, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/AlgebraicGeometry/EllipticCurve/Affine/Point.lean) |
 | who supplies `DecidableEq (AlgebraicClosure ℚ)` | nobody constructibly — the definition file adds a classical instance; same move as ICL FLT | Def_FLTPrelim_GaloisRep.lean:81–83; [FLT/EllipticCurve/Torsion.lean](https://github.com/ImperialCollegeLondon/FLT/blob/main/FLT/EllipticCurve/Torsion.lean) |
 | which binders are explicit | `S` (via `variable (S) in`), `W'`, `n` positional; `K` named implicit; `R` implicit pinned by unification | Def_FLTPrelim_GaloisRep.lean:72–77 |
-| what it means at $\mathbb{Q}, \overline{\mathbb{Q}}, p$ | $`E_P[p](\overline{\mathbb{Q}})`$ nonzero, no Galois-stable $\mathbb{Z}/p$-submodule besides $\bot, \top$ — $\bar\rho_{E_P,p}$ irreducible; a proper stable submodule is a stable line | [Thm_FreyPackage_Mazur_Frey.lean:70](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_FreyPackage_Mazur_Frey.lean); [Thm_FreyPackage_frey_reducible_hasCofixedLine.lean:15](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_FreyPackage_frey_reducible_hasCofixedLine.lean) |
+| what it means at $\mathbb{Q}, \overline{\mathbb{Q}}, p$ | $`E_P[p](\overline{\mathbb{Q}})`$ nonzero, no Galois-stable $\mathbb{Z}/p$-submodule besides $\bot, \top$ — $\bar\rho_{E_P,p}$ irreducible; a proper stable submodule is a stable line | [Thm_FreyPackage_Mazur_Frey.lean, line 70](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_FreyPackage_Mazur_Frey.lean#L70); [Thm_FreyPackage_frey_reducible_hasCofixedLine.lean, line 15](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_FreyPackage_frey_reducible_hasCofixedLine.lean#L15) |
 
 ## 7. Links
 
 Lean sources (raw; quote line numbers as above):
 
-- <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_GaloisRep.lean>
-- <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_FreyPackage.lean>
-- <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_FreyPackage_Mazur_Frey.lean>
-- <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_FreyPackage_level_lowering_to_two.lean>
-- <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_FreyPackage_frey_reducible_hasCofixedLine.lean>
+- <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_GaloisRep.lean>
+- <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_FreyPackage.lean>
+- <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_FreyPackage_Mazur_Frey.lean>
+- <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_FreyPackage_level_lowering_to_two.lean>
+- <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_FreyPackage_frey_reducible_hasCofixedLine.lean>
 
 Annotated docs (viewable):
 

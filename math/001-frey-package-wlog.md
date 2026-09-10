@@ -13,7 +13,7 @@ Line numbers below refer to
 ## 1. What is actually claimed
 
 The precise Lean statement
-([Thm_FreyPackage_of_counterexample.lean, line 6](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_FreyPackage_of_counterexample.lean)):
+([Thm_FreyPackage_of_counterexample.lean, line 6](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_FreyPackage_of_counterexample.lean#L6)):
 
 ```lean
 theorem FreyPackage.of_counterexample
@@ -31,7 +31,7 @@ honest: the conclusion is an existence claim (`Nonempty`), and the proof is an
 explicit construction.
 
 A `FreyPackage`
-([Def_FLTPrelim_FreyPackage.lean, lines 17–38](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_FreyPackage.lean);
+([Def_FLTPrelim_FreyPackage.lean, lines 17–38](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_FreyPackage.lean#L17-L38);
 [annotated doc page](https://tianyipeng.github.io/fermats-last-theorem/def/FLTPrelim_FreyPackage.html))
 bundles:
 
@@ -48,18 +48,18 @@ rendered at the
 
 1. `fermat_last_theorem` (over ℕ, any $n \ge 3$) is one call to
    `FLT.fermatLastTheorem : FermatLastTheorem`
-   ([Thm_fermat_last_theorem.lean, line 128](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_fermat_last_theorem.lean)).
+   ([Thm_fermat_last_theorem.lean, line 128](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_fermat_last_theorem.lean#L128)).
 2. That applies Mathlib's `FermatLastTheorem.of_odd_primes`
    ([Mathlib/NumberTheory/FLT/Four.lean, line 276, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/FLT/Four.lean)):
    every $n \ge 3$ is divisible by 4 or by an odd prime; exponent 4 is settled
    (`fermatLastTheoremFour`), and FLT descends along divisibility of exponents
    (`FermatLastTheoremWith.mono`). So only odd prime exponents remain
-   ([S_FLT_fermatLastTheorem.lean, lines 130–139](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_FLT_fermatLastTheorem.lean)).
+   ([S_FLT_fermatLastTheorem.lean, lines 130–139](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_FLT_fermatLastTheorem.lean#L130-L139)).
    Odd primes below 5 are just $p = 3$, settled by Mathlib's
    `fermatLastTheoremThree`; the `interval_cases` branches $p = 2, 4$ are
    discharged by `decide` as not-odd / not-prime.
 3. For $p \ge 5$,
-   [S_FreyPackage_fermatLastTheoremFor_of_five_le.lean, lines 131–135](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_FreyPackage_fermatLastTheoremFor_of_five_le.lean):
+   [S_FreyPackage_fermatLastTheoremFor_of_five_le.lean, lines 131–135](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_FreyPackage_fermatLastTheoremFor_of_five_le.lean#L131-L135):
 
    ```lean
    rw [fermatLastTheoremFor_iff_int]
@@ -118,7 +118,7 @@ solutions to solutions:
   $a^p + (-c)^p = a^p - c^p = -b^p = (-b)^p$.
 
 One lemma makes the symmetries respect coprimality
-([Def_FLTPrelim_FreyPackage.lean, lines 49–67](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_FreyPackage.lean)):
+([Def_FLTPrelim_FreyPackage.lean, lines 49–67](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_FreyPackage.lean#L49-L67)):
 given the equation and $p > 0$, $\gcd(a,b) = \gcd(a,c)$ — any common divisor of
 two of $a, b, c$ divides the third through the equation. So under $\gcd(a,b)=1$
 the triple is *pairwise* coprime, and swap/negate/rotate all preserve that.
@@ -126,7 +126,7 @@ the triple is *pairwise* coprime, and swap/negate/rotate all preserve that.
 ## 5. The four steps of `of_counterexample`
 
 The proof is
-[S_FreyPackage_of_counterexample.lean, lines 12–66](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_FreyPackage_of_counterexample.lean),
+[S_FreyPackage_of_counterexample.lean, lines 12–66](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_FreyPackage_of_counterexample.lean#L12-L66),
 three staged `have`s, each producing a better triple, then assembly.
 
 **Step 1 — make $\gcd(a,b) = 1$** (lines 17–29).
@@ -193,10 +193,10 @@ the structure uses.
 
 | Key point | Mathematical content | Where in the code |
 |---|---|---|
-| a, b, c can be negative | packages live over ℤ; the ℕ⇔ℤ equivalence is nontrivial and is invoked before normalization | `fermatLastTheoremFor_iff_int`, rewrite at [S_FreyPackage_fermatLastTheoremFor_of_five_le.lean:132](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_FreyPackage_fermatLastTheoremFor_of_five_le.lean); fields `ha0/hb0/hc0 : ≠ 0` in [Def_FLTPrelim_FreyPackage.lean:24–26](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_FreyPackage.lean) |
-| WLOG a, c odd, b even | exactly one of a, b, c is even; swap/rotate it into the b-slot | step 2, [S_FreyPackage_of_counterexample.lean:31–45](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_FreyPackage_of_counterexample.lean); coprimality preserved via `gcdab_eq_gcdac`, [Def_FLTPrelim_FreyPackage.lean:49–67](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_FreyPackage.lean) |
-| b ≡ 0 mod 4, therefore a ≡ c mod 4 | precisely: $b^p \equiv 0 \pmod 4$ (b even, p ≥ 2; in fact mod 32), and $x^p \equiv x \pmod 4$ for odd x, so $a \equiv c \pmod 4$ | not a standalone lemma — folded into the step-3 case analysis, [S_FreyPackage_of_counterexample.lean:47–59](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_FreyPackage_of_counterexample.lean) |
-| a ≡ c ≡ 1 ⇒ negate; WLOG a ≡ c ≡ 3 mod 4 | negation sends x ≡ 1 to −x ≡ 3 mod 4 and preserves the equation (p odd) | the `a ≡ 1` branch, [S_FreyPackage_of_counterexample.lean:55–57](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_FreyPackage_of_counterexample.lean); the package keeps only a ≡ 3 (field `ha4`) |
+| a, b, c can be negative | packages live over ℤ; the ℕ⇔ℤ equivalence is nontrivial and is invoked before normalization | `fermatLastTheoremFor_iff_int`, rewrite at [S_FreyPackage_fermatLastTheoremFor_of_five_le.lean, line 132](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_FreyPackage_fermatLastTheoremFor_of_five_le.lean#L132); fields `ha0/hb0/hc0 : ≠ 0` in [Def_FLTPrelim_FreyPackage.lean, lines 24–26](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_FreyPackage.lean#L24-L26) |
+| WLOG a, c odd, b even | exactly one of a, b, c is even; swap/rotate it into the b-slot | step 2, [S_FreyPackage_of_counterexample.lean, lines 31–45](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_FreyPackage_of_counterexample.lean#L31-L45); coprimality preserved via `gcdab_eq_gcdac`, [Def_FLTPrelim_FreyPackage.lean, lines 49–67](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_FreyPackage.lean#L49-L67) |
+| b ≡ 0 mod 4, therefore a ≡ c mod 4 | precisely: $b^p \equiv 0 \pmod 4$ (b even, p ≥ 2; in fact mod 32), and $x^p \equiv x \pmod 4$ for odd x, so $a \equiv c \pmod 4$ | not a standalone lemma — folded into the step-3 case analysis, [S_FreyPackage_of_counterexample.lean, lines 47–59](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_FreyPackage_of_counterexample.lean#L47-L59) |
+| a ≡ c ≡ 1 ⇒ negate; WLOG a ≡ c ≡ 3 mod 4 | negation sends x ≡ 1 to −x ≡ 3 mod 4 and preserves the equation (p odd) | the `a ≡ 1` branch, [S_FreyPackage_of_counterexample.lean, lines 55–57](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_FreyPackage_of_counterexample.lean#L55-L57); the package keeps only a ≡ 3 (field `ha4`) |
 
 ## 7. Reading the Lean: a mini-glossary
 
@@ -216,11 +216,11 @@ the structure uses.
 
 Lean sources (raw; quote line numbers as above):
 
-- <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_FreyPackage.lean>
-- <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_FreyPackage_of_counterexample.lean>
-- <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_FreyPackage_of_counterexample.lean>
-- <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_FreyPackage_fermatLastTheoremFor_of_five_le.lean>
-- <https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_FLT_fermatLastTheorem.lean>
+- <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_FreyPackage.lean>
+- <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_FreyPackage_of_counterexample.lean>
+- <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_FreyPackage_of_counterexample.lean>
+- <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_FreyPackage_fermatLastTheoremFor_of_five_le.lean>
+- <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_FLT_fermatLastTheorem.lean>
 
 Annotated docs (viewable):
 
