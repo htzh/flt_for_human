@@ -14,7 +14,14 @@ series are deliberately separate:
 Both series follow the writing and citation rules in [`../AGENTS.md`](../AGENTS.md)
 and the research loop in [`../notes/research-workflow-math-notes.md`](../notes/research-workflow-math-notes.md):
 pin every FLT citation to the sha `aa2d8b3`, cite mathlib at tag `v4.33.0`,
-quote Lean verbatim, and never cite an untracked local file.
+quote Lean verbatim, and never cite an untracked local file. Line-number
+citations are rendered GitHub links carrying `#L` anchors.
+
+**Reading order and assumed background.** Note 001 is the notation primer: it
+fixes how the project writes field extensions (`Algebra`, the `R → S → K`
+tower), Galois groups (`K ≃ₐ[S] K`), and algebraic closures, and later notes do
+not re-explain those. Notes 002 onward assume 001 and move faster over
+notation, spending their space on the subject at hand.
 
 ## Notes so far
 
@@ -24,6 +31,13 @@ quote Lean verbatim, and never cite an untracked local file.
   the Galois group as the type `K ≃ₐ[S] K`, `Point.map` as the action,
   decomposition/inertia subgroups, and the finite vs. infinite Galois
   correspondence. The running example is `AlgebraicClosure ℚ`.
+- [002 — Modular forms at the mathlib level](002-modular-forms-basics.md):
+  the `SlashInvariantForm`/`ModularForm`/`CuspForm` chain, why the level is a
+  subgroup of `GL (Fin 2) ℝ`, `qExpansion` and the one-line `qCoeff` wrapper,
+  an explicit inventory of what mathlib lacks (Hecke operators, eigenforms,
+  newforms, any level above one), the Hecke operators and Hecke algebra FLT
+  builds instead, `IsNormalizedEigenform` as four recursions on `q`-coefficients,
+  and the `S₂(Γ₀(2)) = 0` endgame.
 
 ## Candidate topics (not yet written, no order implied)
 
@@ -39,8 +53,11 @@ material already covered in `../math/`:
 - **Group actions on modules**: `SMul`/`DistribMulAction`/`SMulCommClass`,
   `IsGaloisStable`, trivial action on a quotient, the fixed/cofixed
   linear-algebra core, `DistribMulAction.toModuleAut`/`toModuleEnd`.
-- **The automorphic side**: `CuspForm`, `CongruenceSubgroup.Gamma0`,
-  `q`-expansions, Hecke operators, eigenforms, and how "weight 2 level N" is
-  spelled in mathlib.
+- **Deformation theory and Hecke algebras as rings**: `HeckeAlg`,
+  eigenideals, `DeformationRingData`, and how `R = T` is stated — the bridge
+  from note 002 to the modularity-lifting step of the proof.
+- **Adeles and automorphic representations**: the `AdelicGL2` layer, local
+  newvectors, Hecke characters — the language notes 002's projective side
+  eventually feeds.
 
 When a new note is added, extend the list above rather than renumbering.
