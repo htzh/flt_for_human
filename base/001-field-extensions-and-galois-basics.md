@@ -14,7 +14,9 @@ automorphism group as mathlib and FLT actually spell them.
 
 Line numbers refer to `anthropics/fermats-last-theorem@aa2d8b3`
 (main, 2026-09-03); mathlib line numbers refer to tag **v4.33.0**
-(`db584cd6…`, the rev pinned in `lake-manifest.json`).
+(`db584cd6…`, the rev pinned in `lake-manifest.json`). Citations are rendered
+GitHub links with `#L` anchors, so a cited line is highlighted on click; the
+convention is in [AGENTS.md](../AGENTS.md).
 
 ## 1. Why field theory is the substrate
 
@@ -84,7 +86,7 @@ the definitions live*, not a feature any step of the FLT argument exercises:
    `R` was the coefficient ring rather than the field of definition. It costs
    nothing: `[CommRing R]` is what the base-change and group-law theory is
    stated under anyway. (FLT does separately use `P.freyCurveInt :
-   WeierstrassCurve ℤ` ([Def_FLTPrelim_FreyPackage.lean, lines 83–89](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_FreyPackage.lean)),
+   WeierstrassCurve ℤ` ([Def_FLTPrelim_FreyPackage.lean, lines 83–89](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_FreyPackage.lean#L83-L89)),
    but for the reduction and semistability arguments, not through this
    predicate.)
 2. **`S` the base of the action** — the reason `S` is a parameter and not
@@ -93,7 +95,7 @@ the definitions live*, not a feature any step of the FLT argument exercises:
    requires it. At the concrete level, the local-at-$`p`$ automorphisms are
    indeed over `ℚ_[p]`, but FLT builds them as their own type
    (`localAut : primeLocalGaloisGroup (pPrime p) → PadicAlgCl p ≃ₐ[ℚ_[p]] PadicAlgCl p`,
-   [Def_GaloisRep_LocalFlatClasses.lean, line 14](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_GaloisRep_LocalFlatClasses.lean))
+   [Def_GaloisRep_LocalFlatClasses.lean, line 14](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_GaloisRep_LocalFlatClasses.lean#L14))
    rather than by instantiating this tower.
 3. **`S = R`** — the case of the Frey curve. The exotic-looking binders then
    collapse to `[Algebra ℚ ℚ]` and the identity `[IsScalarTower ℚ ℚ ℚ̄]`.
@@ -108,14 +110,14 @@ inherited rather than needed.
 ### The base change notation
 
 `W'⁄K` is `WeierstrassCurve.Affine.baseChange W' K`, a **scoped notation**
-mathlib defines ([Affine/Basic.lean, line 268, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/AlgebraicGeometry/EllipticCurve/Affine/Basic.lean)):
+mathlib defines ([Affine/Basic.lean, line 268, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/AlgebraicGeometry/EllipticCurve/Affine/Basic.lean#L268)):
 
 ```lean
 scoped notation:max W:max "⁄" S:max => baseChange W S
 ```
 
 FLT files therefore carry `open scoped WeierstrassCurve.Affine` to see it (e.g.
-[Def_FreyPackage_GaloisRep.lean, line 33](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FreyPackage_GaloisRep.lean)).
+[Def_FreyPackage_GaloisRep.lean, line 33](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FreyPackage_GaloisRep.lean#L33)).
 For coefficients already in `ℚ`, `P.freyCurve⁄(AlgebraicClosure ℚ)` is the same
 equation read over $`\overline{\mathbb{Q}}`$ — which is why the notation is
 needed at all: `Point.map` acts on the base-changed curve, not on the curve
@@ -129,11 +131,11 @@ algebraic closures.
 
 | Lean | Math | Where |
 |---|---|---|
-| `Algebra.IsAlgebraic R K` | every $`x \in K`$ is a root of a nonzero polynomial over `R` | [RingTheory/Algebraic/Defs.lean, line 68, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/RingTheory/Algebraic/Defs.lean) |
-| `IsAlgClosed K` | every nonconstant polynomial over `K` has a root | [FieldTheory/IsAlgClosed/Basic.lean, line 62, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/IsAlgClosed/Basic.lean) |
-| `IsAlgClosure R K` | `IsAlgClosed K` **and** `Algebra.IsAlgebraic R K` (with `IsTorsionFree R K` an instance argument) | same file, line 264, v4.33.0 |
-| `Normal R K` | minpolys over `R` split in `K` | [FieldTheory/Normal/Basic.lean](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Normal/Basic.lean) |
-| `Algebra.IsSeparable R K` | minpolys have distinct roots (a field-level notion) | [FieldTheory/Separable.lean](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Separable.lean) |
+| `Algebra.IsAlgebraic R K` | every $`x \in K`$ is a root of a nonzero polynomial over `R` | [RingTheory/Algebraic/Defs.lean, line 68, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/RingTheory/Algebraic/Defs.lean#L68) |
+| `IsAlgClosed K` | every nonconstant polynomial over `K` has a root | [FieldTheory/IsAlgClosed/Basic.lean, line 62, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/IsAlgClosed/Basic.lean#L62) |
+| `IsAlgClosure R K` | `IsAlgClosed K` **and** `Algebra.IsAlgebraic R K` (with `IsTorsionFree R K` an instance argument) | [IsAlgClosed/Basic.lean, line 264, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/IsAlgClosed/Basic.lean#L264) |
+| `Normal R K` | minpolys over `R` split in `K` | [FieldTheory/Normal/Basic.lean, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Normal/Basic.lean) |
+| `Algebra.IsSeparable R K` | minpolys have distinct roots (a field-level notion) | [FieldTheory/Separable.lean, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Separable.lean) |
 
 `IsAlgClosure` is the only one carrying an `Algebra R K` argument among the
 "closure" notions, and mathlib's instances do the work:
@@ -159,7 +161,7 @@ next section.
 ## 4. Layer 3: the Galois group, and `IsGalois`
 
 The type is an **algebra equivalence**
-([Algebra/Algebra/Equiv.lean, line 31, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/Algebra/Algebra/Equiv.lean)), with notation at line 42:
+([Algebra/Algebra/Equiv.lean, lines 31 and 42, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/Algebra/Algebra/Equiv.lean#L31-L42)):
 
 ```lean
 structure AlgEquiv (R : Type u) (A : Type v) (B : Type w) [CommSemiring R] [Semiring A] [Semiring B]
@@ -169,7 +171,7 @@ notation:50 A " ≃ₐ[" R "] " A' => AlgEquiv R A A'
 
 An element of `A ≃ₐ[R] A` is a bijective `R`-algebra homomorphism; group
 structure comes from composition. mathlib also has a scoped notation for the
-Galois group of a *named* extension ([FieldTheory/Galois/Notation.lean, line 35, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Galois/Notation.lean)):
+Galois group of a *named* extension ([FieldTheory/Galois/Notation.lean, line 35, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Galois/Notation.lean#L35)):
 
 ```lean
 macro "Gal(" L:term:100 "/" K:term ")" : term => `($L ≃ₐ[$K] $L)
@@ -182,14 +184,14 @@ reader: the absolute Galois group of $`\mathbb{Q}`$ appears in the sources as
 AlgebraicClosure ℚ ≃ₐ[ℚ] AlgebraicClosure ℚ
 ```
 
-e.g. [Def_GaloisRep_ComplexConjugation.lean, line 30](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_GaloisRep_ComplexConjugation.lean),
-[Def_FreyPackage_GaloisRep.lean, lines 38–42](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FreyPackage_GaloisRep.lean).
+e.g. [Def_GaloisRep_ComplexConjugation.lean, line 30](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_GaloisRep_ComplexConjugation.lean#L30),
+[Def_FreyPackage_GaloisRep.lean, lines 38–42](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FreyPackage_GaloisRep.lean#L38-L42).
 mathlib happens to name this same object `Field.absoluteGaloisGroup`
-([FieldTheory/AbsoluteGaloisGroup.lean, line 43, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/AbsoluteGaloisGroup.lean)), but only for its topological
+([FieldTheory/AbsoluteGaloisGroup.lean, line 43, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/AbsoluteGaloisGroup.lean#L43)), but only for its topological
 abelianization; FLT does not use it.
 
 **`IsGalois`** is exactly two of the adjectives above
-([FieldTheory/Galois/Basic.lean, lines 54–59, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Galois/Basic.lean)):
+([FieldTheory/Galois/Basic.lean, lines 54–59, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Galois/Basic.lean#L54-L59)):
 
 ```lean
 class IsGalois : Prop where
@@ -198,7 +200,7 @@ class IsGalois : Prop where
 ```
 
 Mathlib's general theorem that an algebraic closure is Galois needs a
-characteristic-zero hypothesis ([FieldTheory/Galois/Basic.lean, lines 590–591, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Galois/Basic.lean)):
+characteristic-zero hypothesis ([FieldTheory/Galois/Basic.lean, lines 590–591, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Galois/Basic.lean#L590-L591)):
 
 ```lean
 instance (priority := 100) IsAlgClosure.isGalois (k K : Type*) [Field k] [Field K] [Algebra k K]
@@ -206,7 +208,7 @@ instance (priority := 100) IsAlgClosure.isGalois (k K : Type*) [Field k] [Field 
 ```
 
 FLT spells the resulting instance out once, as a named global instance
-([Def_FieldTheory_RatAlgClosureGalois.lean, lines 5–7](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FieldTheory_RatAlgClosureGalois.lean)):
+([Def_FieldTheory_RatAlgClosureGalois.lean, lines 5–7](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FieldTheory_RatAlgClosureGalois.lean#L5-L7)):
 
 ```lean
 instance AlgebraicClosure.Rat.isGalois :
@@ -222,7 +224,7 @@ pinned, not left to synthesis.
 expensive for typeclass search, and FLT disables it file by file with
 `attribute [-instance] AlgebraicClosure.Rat.isGalois`, usually inside a long
 list of other disabled instances (e.g.
-[Thm_MonoidHom_isOpen_ker_of_cycloCharSpec.lean](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_MonoidHom_isOpen_ker_of_cycloCharSpec.lean),
+[Thm_MonoidHom_isOpen_ker_of_cycloCharSpec.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_MonoidHom_isOpen_ker_of_cycloCharSpec.lean),
 which is where it is enabled). A reader who greps a `P2M/Sol/` file and finds
 a Galois-theoretic step that is not "obviously" available should suspect a
 locally re-enabled instance rather than a missing lemma.
@@ -231,7 +233,7 @@ locally re-enabled instance rather than a missing lemma.
 
 The Galois group acts on torsion points through base change, and the chain is
 short enough to quote. `Point.map` is a homomorphism of *groups*
-([AlgebraicGeometry/EllipticCurve/Affine/Point.lean, lines 797–799, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/AlgebraicGeometry/EllipticCurve/Affine/Point.lean)):
+([AlgebraicGeometry/EllipticCurve/Affine/Point.lean, lines 793, 799, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/AlgebraicGeometry/EllipticCurve/Affine/Point.lean#L793-L799)):
 
 ```lean
 variable [Algebra R S] ... [Algebra R K] [Algebra S K] [IsScalarTower R S K] ... (f : F →ₐ[S] K)
@@ -241,7 +243,7 @@ noncomputable def map : (W'⁄F).Point →+ (W'⁄K).Point where
 note the binder: `map` is *defined for an `S`-algebra homomorphism* `F →ₐ[S] K`,
 which is precisely why the `R → S → K` tower of §2 is in scope before any
 Galois action can be spoken of. FLT then packages the action
-([Def_FLTPrelim_GaloisRep.lean, lines 25–41](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_GaloisRep.lean)):
+([Def_FLTPrelim_GaloisRep.lean, lines 25–41](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_GaloisRep.lean#L25-L41)):
 
 ```lean
 noncomputable instance instSMulAlgEquiv : SMul (K ≃ₐ[S] K) (W'⁄K).Point :=
@@ -249,7 +251,7 @@ noncomputable instance instSMulAlgEquiv : SMul (K ≃ₐ[S] K) (W'⁄K).Point :=
 ```
 
 and the module-automorphism repackaging of [note 004 §4](../math/004-irreducible-and-cofixed-line.md)
-is mathlib's [Algebra/Module/Equiv/Basic.lean, line 201, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/Algebra/Module/Equiv/Basic.lean) `toModuleAut`:
+is mathlib's [Algebra/Module/Equiv/Basic.lean, line 201, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/Algebra/Module/Equiv/Basic.lean#L201) `toModuleAut`:
 
 ```lean
 noncomputable def galoisRep (W' : Affine R) (n : ℕ) :
@@ -267,7 +269,7 @@ So "the Galois action" is three ordinary mathlib constructions: an `SMul` from
 
 The one genuinely Galois-theoretic notion FLT invents a name for is unramified
 at a prime; mathlib supplies the two subgroups
-([RingTheory/Valuation/RamificationGroup.lean, lines 30 and 50, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/RingTheory/Valuation/RamificationGroup.lean)):
+([RingTheory/Valuation/RamificationGroup.lean, lines 30 and 50, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/RingTheory/Valuation/RamificationGroup.lean#L30-L50)):
 
 ```lean
 abbrev decompositionSubgroup (A : ValuationSubring L) : Subgroup (L ≃ₐ[K] L) :=
@@ -286,7 +288,7 @@ that preserve `A` and act trivially on `A` modulo its maximal ideal. Note that
 the decomposition group lands directly in `L ≃ₐ[K] L`, whereas `inertiaSubgroup`
 is a subgroup of the decomposition group — which is why FLT has to push it
 forward
-([Def_FLTPrelim_Ramification.lean, lines 21–22](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_Ramification.lean)):
+([Def_FLTPrelim_Ramification.lean, lines 21–22](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_Ramification.lean#L21-L22)):
 
 ```lean
 def inertiaSubgroupIn (A : ValuationSubring L) : Subgroup (L ≃ₐ[K] L) :=
@@ -295,7 +297,7 @@ def inertiaSubgroupIn (A : ValuationSubring L) : Subgroup (L ≃ₐ[K] L) :=
 
 and then says "unramified at `q`" as "every inertia element of every valuation
 ring `q` lies over acts trivially on the `n`-torsion"
-([Def_FLTPrelim_Ramification.lean, lines 35–38](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_Ramification.lean)):
+([Def_FLTPrelim_Ramification.lean, lines 35–38](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_Ramification.lean#L35-L38)):
 
 ```lean
 def GaloisRepUnramifiedAt (W' : Affine R) (n : ℕ) (q : ℕ) : Prop :=
@@ -322,22 +324,26 @@ project, and knowing which is which prevents a lot of confusion.
 **Finite layer.** For a finite extension, mathlib proves the fundamental
 theorem and the useful special cases. The two operations are
 `IntermediateField.fixedField` (a subgroup ↦ its fixed field,
-[FieldTheory/Galois/Basic.lean, line 210, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Galois/Basic.lean)) and
+[FieldTheory/Galois/Basic.lean, line 210, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Galois/Basic.lean#L210)) and
 `IntermediateField.fixingSubgroup` (an intermediate field ↦ the subgroup fixing
-it, line 229), with the adjunction `K ≤ fixedField H ↔ H ≤ fixingSubgroup K`
-(line 232) and definiteness `fixingSubgroup (fixedField H) = H` (line 273).
+it, [line 229](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Galois/Basic.lean#L229)), with the adjunction
+`K ≤ fixedField H ↔ H ≤ fixingSubgroup K`
+([line 232](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Galois/Basic.lean#L232)) and definiteness
+`fixingSubgroup (fixedField H) = H` under `[FiniteDimensional F E]`
+([line 273](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Galois/Basic.lean#L273)).
 Typical uses in FLT are to define "an element fixed by a subgroup", e.g.
 `F.fixingSubgroup` with `F : IntermediateField ℚ ℚ̄` in
-[Def_GaloisRep_OrdinaryUnitClasses.lean, lines 37–39](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_GaloisRep_OrdinaryUnitClasses.lean),
+[Def_GaloisRep_OrdinaryUnitClasses.lean, lines 37–39](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_GaloisRep_OrdinaryUnitClasses.lean#L37-L39),
 or to descend scalars: `AlgEquiv.ofRingEquiv` produces
 `ℚ̄_p ≃ₐ[ringOfIntegers p K] ℚ̄_p` from an element of `K.fixingSubgroup`
-([Def_PadicAlgCl_RingOfIntegers.lean, lines 110–128](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_PadicAlgCl_RingOfIntegers.lean)).
+([Def_PadicAlgCl_RingOfIntegers.lean, lines 110–128](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_PadicAlgCl_RingOfIntegers.lean#L110-L128)).
 
 **Infinite layer.** For $`K/S`$ algebraic but not finite — the actual case,
 $`\overline{\mathbb{Q}}/\mathbb{Q}`$ — the correspondence must be with *closed*
 subgroups for the Krull topology: `IntermediateFieldEquivClosedSubgroup`
-([FieldTheory/Galois/Infinite.lean, line 196, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Galois/Infinite.lean)), together with
-`fixingSubgroup_isClosed` (line 64) and `normal_iff_isGalois` (line 261).
+([FieldTheory/Galois/Infinite.lean, line 196, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Galois/Infinite.lean#L196)), together with
+`fixingSubgroup_isClosed` ([line 64](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Galois/Infinite.lean#L64)) and `normal_iff_isGalois`
+([line 261](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Galois/Infinite.lean#L261)).
 Equivalently `Gal(K/S)` is a profinite group
 ([FieldTheory/Galois/Profinite.lean, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Galois/Profinite.lean)).
 The moral for the FLT side: "the representation is continuous" is *not*
@@ -350,22 +356,22 @@ clause above.
 
 | Use | Mathematical content | Where |
 |---|---|---|
-| the ambient field | $`\overline{\mathbb{Q}}`$ as *a* type with `IsAlgClosure ℚ`, not a chosen field | `AlgebraicClosure ℚ`, `IsAlgClosure` ([FieldTheory/IsAlgClosed/Basic.lean:264](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/IsAlgClosed/Basic.lean)) |
-| $`\overline{\mathbb{Q}}/\mathbb{Q}`$ is Galois | normal (all minpolys split) + separable (characteristic 0) | [Def_FieldTheory_RatAlgClosureGalois.lean:5–7](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FieldTheory_RatAlgClosureGalois.lean) |
-| the group is `K ≃ₐ[S] K` | $`S`$-algebra automorphisms, with `S` the *field of definition* of the action | [Def_FLTPrelim_GaloisRep.lean:21–23](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_GaloisRep.lean) |
-| the action on points | `Point.map` for an `S`-algebra map, then `SMul`/`DistribMulAction` | [Def_FLTPrelim_GaloisRep.lean:25–41](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_GaloisRep.lean) |
-| the group as a monoid hom | `DistribMulAction.toModuleAut` | [Def_FreyPackage_GaloisRep.lean:18–21](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FreyPackage_GaloisRep.lean) |
-| a Galois character | `LinearEquiv.det` of that automorphism | [Def_FreyPackage_DetCyclotomic.lean:20–26](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FreyPackage_DetCyclotomic.lean) |
-| cyclotomic character | needs the count of roots of unity, hence `IsAlgClosed` at characteristic 0 | `IsAlgClosed.card_rootsOfUnity_eq` ([Def_ExtCitation_AdmissibleExtension.lean:7–10](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_ExtCitation_AdmissibleExtension.lean)); `modularCyclotomicCharacter` ([CyclotomicCharacter.lean:212, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/Cyclotomic/CyclotomicCharacter.lean)) |
-| complex conjugation as an element of the group | a real place, cut out via `AlgEquiv.restrictNormalHom` from an automorphism of $`\mathbb{C}`$ | [Def_GaloisRep_ComplexConjugation.lean:14–31](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_GaloisRep_ComplexConjugation.lean) |
-| ramification | `ValuationSubring.decompositionSubgroup`, `.inertiaSubgroup`; two extension levels bridged by `.inertiaSubgroupIn` | [RamificationGroup.lean:30,50, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/RingTheory/Valuation/RamificationGroup.lean); [Def_FLTPrelim_Ramification.lean:16–38](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_Ramification.lean) |
+| the ambient field | $`\overline{\mathbb{Q}}`$ as *a* type with `IsAlgClosure ℚ`, not a chosen field | `AlgebraicClosure ℚ`, `IsAlgClosure` ([FieldTheory/IsAlgClosed/Basic.lean, line 264](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/IsAlgClosed/Basic.lean#L264)) |
+| $`\overline{\mathbb{Q}}/\mathbb{Q}`$ is Galois | normal (all minpolys split) + separable (characteristic 0) | [Def_FieldTheory_RatAlgClosureGalois.lean, lines 5–7](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FieldTheory_RatAlgClosureGalois.lean#L5-L7) |
+| the group is `K ≃ₐ[S] K` | $`S`$-algebra automorphisms, with `S` the *field of definition* of the action | [Def_FLTPrelim_GaloisRep.lean, lines 21–23](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_GaloisRep.lean#L21-L23) |
+| the action on points | `Point.map` for an `S`-algebra map, then `SMul`/`DistribMulAction` | [Def_FLTPrelim_GaloisRep.lean, lines 25–41](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_GaloisRep.lean#L25-L41) |
+| the group as a monoid hom | `DistribMulAction.toModuleAut` | [Def_FreyPackage_GaloisRep.lean, lines 18–21](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FreyPackage_GaloisRep.lean#L18-L21) |
+| a Galois character | `LinearEquiv.det` of that automorphism | [Def_FreyPackage_DetCyclotomic.lean, lines 20–26](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FreyPackage_DetCyclotomic.lean#L20-L26) |
+| cyclotomic character | needs the count of roots of unity, hence `IsAlgClosed` at characteristic 0 | `IsAlgClosed.card_rootsOfUnity_eq` ([Def_ExtCitation_AdmissibleExtension.lean, lines 7–10](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ExtCitation_AdmissibleExtension.lean#L7-L10)); `modularCyclotomicCharacter` ([CyclotomicCharacter.lean, line 212, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/Cyclotomic/CyclotomicCharacter.lean#L212)) |
+| complex conjugation as an element of the group | a real place, cut out via `AlgEquiv.restrictNormalHom` from an automorphism of $`\mathbb{C}`$ | [Def_GaloisRep_ComplexConjugation.lean, lines 14–31](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_GaloisRep_ComplexConjugation.lean#L14-L31) |
+| ramification | `ValuationSubring.decompositionSubgroup`, `.inertiaSubgroup`; two extension levels bridged by `.inertiaSubgroupIn` | [RamificationGroup.lean, lines 30 and 50, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/RingTheory/Valuation/RamificationGroup.lean#L30-L50); [Def_FLTPrelim_Ramification.lean, lines 16–38](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_Ramification.lean#L16-L38) |
 
 ## 9. Small traps
 
 - **`≃ₐ[S]` versus `≃+*`.** They are different types. FLT passes Galois
   elements where ring automorphisms are wanted by explicit ascription:
   `(σ : AlgebraicClosure ℚ ≃+* AlgebraicClosure ℚ)` in
-  [Def_ExtCitation_AdmissibleExtension.lean, line 27](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_ExtCitation_AdmissibleExtension.lean),
+  [Def_ExtCitation_AdmissibleExtension.lean, line 27](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ExtCitation_AdmissibleExtension.lean#L27),
   because mathlib's `modularCyclotomicCharacter` is a monoid hom on `L ≃+* L`.
   The coercion `AlgEquiv → RingEquiv` exists; the reverse direction exists only
   through explicit constructions (`AlgEquiv.ofRingEquiv`, or the `ℕ`/`ℤ`-base
@@ -389,31 +395,34 @@ clause above.
 
 ## 10. Links
 
-FLT sources at the pinned sha `aa2d8b3` (raw):
+File-level pointers: these go to the top of each file, without a line anchor
+(the anchored citations are inline above).
 
-- [Def_FLTPrelim_GaloisRep.lean](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_GaloisRep.lean) — the `R`/`S`/`K` tower, `SMul`/`DistribMulAction`, the two predicates
-- [Def_FreyPackage_GaloisRep.lean](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FreyPackage_GaloisRep.lean) — `galoisRep`, `freyGaloisRep`
-- [Def_FreyPackage_DetCyclotomic.lean](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FreyPackage_DetCyclotomic.lean) — `galoisRepDet`, `GaloisRepDetEqCyclotomic`
-- [Def_FLTPrelim_Ramification.lean](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_Ramification.lean) — `LiesOverPrime`, `inertiaSubgroupIn`, `GaloisRepUnramifiedAt`
-- [Def_FieldTheory_RatAlgClosureGalois.lean](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FieldTheory_RatAlgClosureGalois.lean) — the `IsGalois ℚ ℚ̄` instance
-- [Def_GaloisRep_ComplexConjugation.lean](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_GaloisRep_ComplexConjugation.lean) — complex conjugation in the absolute group
-- [Def_ExtCitation_AdmissibleExtension.lean](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_ExtCitation_AdmissibleExtension.lean) — roots-of-unity counting, `modularCyclotomicCharacter` in use
-- [Def_GaloisRep_OrdinaryUnitClasses.lean](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_GaloisRep_OrdinaryUnitClasses.lean) and [Def_PadicAlgCl_RingOfIntegers.lean](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_PadicAlgCl_RingOfIntegers.lean) — intermediate-field uses of `fixingSubgroup`
-- [Def_FLTPrelim_FreyPackage.lean](https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_FLTPrelim_FreyPackage.lean) — `freyCurveInt` over `ℤ` and `freyCurve` over `ℚ`
+FLT sources at the pinned sha `aa2d8b3` (rendered):
 
-Mathlib v4.33.0 (line numbers as cited above):
+- [Def_FLTPrelim_GaloisRep.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_GaloisRep.lean) — the `R`/`S`/`K` tower, `SMul`/`DistribMulAction`, the two predicates
+- [Def_FreyPackage_GaloisRep.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FreyPackage_GaloisRep.lean) — `galoisRep`, `freyGaloisRep`
+- [Def_FreyPackage_DetCyclotomic.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FreyPackage_DetCyclotomic.lean) — `galoisRepDet`, `GaloisRepDetEqCyclotomic`
+- [Def_FLTPrelim_Ramification.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_Ramification.lean) — `LiesOverPrime`, `inertiaSubgroupIn`, `GaloisRepUnramifiedAt`
+- [Def_FieldTheory_RatAlgClosureGalois.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FieldTheory_RatAlgClosureGalois.lean) — the `IsGalois ℚ ℚ̄` instance
+- [Def_GaloisRep_ComplexConjugation.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_GaloisRep_ComplexConjugation.lean) — complex conjugation in the absolute group
+- [Def_ExtCitation_AdmissibleExtension.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ExtCitation_AdmissibleExtension.lean) — roots-of-unity counting, `modularCyclotomicCharacter` in use
+- [Def_GaloisRep_OrdinaryUnitClasses.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_GaloisRep_OrdinaryUnitClasses.lean) and [Def_PadicAlgCl_RingOfIntegers.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_PadicAlgCl_RingOfIntegers.lean) — intermediate-field uses of `fixingSubgroup`
+- [Def_FLTPrelim_FreyPackage.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_FreyPackage.lean) — `freyCurveInt` over `ℤ` and `freyCurve` over `ℚ`
 
-- [`AlgEquiv` and the `≃ₐ` notation](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/Algebra/Algebra/Equiv.lean)
+Mathlib v4.33.0 (tag `v4.33.0`; line numbers are cited inline above):
+
+- [`AlgEquiv` and the `≃ₐ` notation](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/Algebra/Algebra/Equiv.lean) — see [lines 31–42](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/Algebra/Algebra/Equiv.lean#L31-L42)
 - [`IsScalarTower`](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/Algebra/Group/Action/Defs.lean)
-- [`Algebra.IsAlgebraic`](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/RingTheory/Algebraic/Defs.lean)
-- [`IsAlgClosed`, `IsAlgClosure`, and the normal/separable instances](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/IsAlgClosed/Basic.lean)
-- [`IsGalois`, fixed field, fixing subgroup, `IsAlgClosure.isGalois`](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Galois/Basic.lean)
-- [The `Gal(L/K)` notation](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Galois/Notation.lean)
-- [Infinite Galois theory (closed subgroups, Krull topology)](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Galois/Infinite.lean)
+- [`Algebra.IsAlgebraic`](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/RingTheory/Algebraic/Defs.lean) — [line 68](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/RingTheory/Algebraic/Defs.lean#L68)
+- [`IsAlgClosed`, `IsAlgClosure`, and the normal/separable instances](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/IsAlgClosed/Basic.lean) — [line 62](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/IsAlgClosed/Basic.lean#L62), [line 264](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/IsAlgClosed/Basic.lean#L264)
+- [`IsGalois`, fixed field, fixing subgroup, `IsAlgClosure.isGalois`](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Galois/Basic.lean) — [lines 54–59](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Galois/Basic.lean#L54-L59), [210](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Galois/Basic.lean#L210), [229](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Galois/Basic.lean#L229), [590](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Galois/Basic.lean#L590)
+- [The `Gal(L/K)` notation](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Galois/Notation.lean) — [line 35](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Galois/Notation.lean#L35)
+- [Infinite Galois theory (closed subgroups, Krull topology)](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Galois/Infinite.lean) — [line 196](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Galois/Infinite.lean#L196)
 - [Profinite Galois groups](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Galois/Profinite.lean)
-- [`AlgEquiv.restrictNormalHom`](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Normal/Defs.lean)
-- [`DistribMulAction.toModuleAut`](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/Algebra/Module/Equiv/Basic.lean)
-- [`Point.map` and the `⁄` base-change notation](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/AlgebraicGeometry/EllipticCurve/Affine/Basic.lean)
-- [Decomposition and inertia subgroups](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/RingTheory/Valuation/RamificationGroup.lean)
-- [`modularCyclotomicCharacter`](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/Cyclotomic/CyclotomicCharacter.lean)
-- [`Field.absoluteGaloisGroup`](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/AbsoluteGaloisGroup.lean)
+- [`AlgEquiv.restrictNormalHom`](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Normal/Defs.lean) — [line 195](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Normal/Defs.lean#L195)
+- [`DistribMulAction.toModuleAut`](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/Algebra/Module/Equiv/Basic.lean) — [line 201](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/Algebra/Module/Equiv/Basic.lean#L201)
+- [`Point.map`](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/AlgebraicGeometry/EllipticCurve/Affine/Point.lean#L799) and [the `⁄` base-change notation](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/AlgebraicGeometry/EllipticCurve/Affine/Basic.lean#L268)
+- [Decomposition and inertia subgroups](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/RingTheory/Valuation/RamificationGroup.lean#L30-L50)
+- [`modularCyclotomicCharacter`](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/Cyclotomic/CyclotomicCharacter.lean#L212)
+- [`Field.absoluteGaloisGroup`](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/AbsoluteGaloisGroup.lean#L43)
