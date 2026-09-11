@@ -120,7 +120,7 @@ multiplicative, so its conductor exponent is $`1`$ (see
 [note 007 §3–4](007-modularity-and-computation.md)), and the true conductor and
 the radical agree.
 
-## 3. Where the Fermat exponent enters: $`v_q(\Delta) = 2p`$
+## 3. Where the Fermat exponent enters: $`p \mid v_q(\Delta)`$
 
 The second thing that makes the Frey case work is that the discriminant's
 valuation at a bad prime is *divisible by $`p`$*. The identity is
@@ -144,13 +144,41 @@ theorem FreyPackage.padicValInt_two_freyCurveInt_discr (P : FreyPackage) :
 ```
 
 A Frey package has $`\gcd(a,b) = \gcd(a,c) = \gcd(b,c) = 1`$ (`hgcdab`,
-`hgcdac`, `hgcdbc`), so for a prime $`q \mid abc`$ the valuation
-$`v_q(abc)`$ is $`1`$, and therefore
+`hgcdac`, `hgcdbc`), so a prime $`q \mid abc`$ divides exactly one of $`a, b, c`$.
+The displayed formula then reads
 
-$$v_q(\\Delta) = 2p \\qquad (q \\neq 2,\\ q \\mid abc).$$
+$$v_q(\\Delta) = 2p \\cdot v_q(abc) \\qquad (q \\neq 2,\\ q \\mid abc),$$
 
-For $`q = 2`$ the extra $`2^8`$ shifts things, but $`p \mid v_2(\Delta) + 8`$, and
-what matters below is only divisibility by $`p`$.
+and the factor $`2p`$ already contains $`p`$. So, for every odd $`q \mid abc`$,
+
+$$p \\mid v_q(\\Delta).$$
+
+Note what is *not* needed here: the argument does **not** require
+$`v_q(abc) = 1`$, and the Frey package does not assume $`a, b, c`$ squarefree or
+$`p`$-th-power-free. The exponent $`2p`$ supplies the divisibility on its own, and
+it is used in this generality. (In the common textbook normalization where
+$`a, b, c`$ are taken $`p`$-th-power-free, $`v_q(abc) = 1`$ and the formula reads
+$`v_q(\Delta) = 2p`$; the formalisation does not assume that normalization.)
+Pairwise coprimality is used elsewhere: it is what turns $`q \mid abc`$ into
+$`q \nmid c_4`$ — multiplicative reduction, hence semistability — and it makes the
+bad primes exactly the primes of $`abc`$.
+
+For $`q = 2`$ the formula carries the extra $`2^8`$, so
+$`v_2(\Delta) = 2p\,v_2(abc) - 8`$ is **not** divisible by $`p`$ (because
+$`p \geq 5`$). The formalisation extracts this from the displayed identity: if
+$`p \mid v_2(\Delta)`$, then since $`p \mid v_2(\Delta) + 8`$ as well, $`p`$ would
+divide $`8`$, forcing $`p = 2`$ — impossible
+([`FreyPackage.not_p_dvd_padicValInt_two_freyCurveInt_discr`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_FreyPackage_not_p_dvd_padicValInt_two_freyCurveInt_discr.lean#L6),
+whose proof
+[does exactly this](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_FreyPackage_not_p_dvd_padicValInt_two_freyCurveInt_discr.lean#L7-L16)).
+This is the *opposite* of the odd-prime case, and it is **not** used in level
+lowering: the odd-prime stripping below has the hypothesis $`q \neq 2`$, so
+$`2`$ is never removed and survives to give the final bound $`M \mid 2`$. The
+non-divisibility $`p \nmid v_2(\Delta)`$ is consumed instead by the
+*irreducibility* step, where it makes the inertia action at $`2`$ nontrivial
+([`FreyPackage.frey_exists_inertia_not_fixed_at_two`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_FreyPackage_frey_exists_inertia_not_fixed_at_two.lean#L11));
+see [note 004](004-irreducible-and-cofixed-line.md) and
+[note 006](006-fixed-or-cofixed-and-inertia.md).
 
 **Why divisibility by $`p`$ is the condition.** For a curve with multiplicative
 reduction at $`q`$, the mod-$`p`$ representation is unramified at $`q`$ exactly
@@ -171,7 +199,7 @@ $`\zeta_p`$ together with $`q_T^{1/p}`$; the cyclotomic part is unramified at
 $`q \neq p`$, and $`q_T^{1/p}`$ requires adjoining a $`p`$-th root of
 $`q_T`$, which is unramified precisely when
 $`p \mid v_q(q_T) = v_q(\Delta)`$. This is where "$`p`$ is a condition" enters the
-Frey argument: $`v_q(\Delta) = 2p`$ is divisible by $`p`$, so
+Frey argument: $`p \mid v_q(\Delta)`$ by the factor $`2p`$ above, so
 $`\bar\rho_{E_P,p}`$ is unramified at every odd $`q \mid abc`$ with
 $`q \neq p`$. In Lean this is
 [`FreyPackage.freyGaloisRep_isUnramifiedAt`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_FreyPackage_freyGaloisRep_isUnramifiedAt.lean#L15):
@@ -419,7 +447,7 @@ level-lowered representation cannot exist, so there is no Frey package
 | modularity at conductor level | `FreyPackage.modularRepOfConductorLevel` | [Thm 131](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_FreyPackage_modularRepOfConductorLevel.lean#L131) |
 | $`\Delta \cdot 2^8 = (abc)^{2p}`$ | `freyCurveInt_Δ_mul` | [S 104–105](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_FreyPackage_freyGaloisRep_isUnramifiedAt.lean#L104-L105) |
 | $`v_q(\Delta) = 2p\,v_q(abc)`$ | `padicValInt_freyCurveInt_discr` | [Thm 6–7](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_FreyPackage_padicValInt_freyCurveInt_discr.lean#L6-L7) |
-| $`v_2(\Delta) + 8 = 2p\,v_2(abc)`$ | `padicValInt_two_freyCurveInt_discr` | [Thm 6–7](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_FreyPackage_padicValInt_two_freyCurveInt_discr.lean#L6-L7) |
+| $`v_2(\Delta) + 8 = 2p\,v_2(abc)`$, hence $`p \nmid v_2(\Delta)`$ (feeds irreducibility, not level lowering) | `padicValInt_two_freyCurveInt_discr`, `not_p_dvd_padicValInt_two_freyCurveInt_discr` | [Thm 6–7](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_FreyPackage_padicValInt_two_freyCurveInt_discr.lean#L6-L7), [Thm 6](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_FreyPackage_not_p_dvd_padicValInt_two_freyCurveInt_discr.lean#L6) |
 | unramified from multiplicative reduction | `galoisRepUnramifiedAt_of_multiplicativeReduction` | [Thm 12–18](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_WeierstrassCurve_galoisRepUnramifiedAt_of_multiplicativeReduction.lean#L12-L18) |
 | $`\bar\rho`$ unramified at odd $`q \neq p`$ | `FreyPackage.freyGaloisRep_isUnramifiedAt` | [Thm 15](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_FreyPackage_freyGaloisRep_isUnramifiedAt.lean#L15) |
 | "peu ramifiée" at $`p`$ | `IsPeuRamifieeAt` | [Def 10](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_WeierstrassCurve_PeuRamifiee.lean#L10) |
