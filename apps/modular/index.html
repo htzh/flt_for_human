@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Modularity, computed — an elliptic-curve workbench</title>
+<style>
+  :root {
+    --ink: #1b1f24; --muted: #5b6672; --line: #d9dee5; --bg: #f6f7f9;
+    --card: #ffffff; --accent: #2f5d8a; --accent2: #7a4f9e; --good: #1d7a46;
+    --bad: #a23b2f; --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  header { background: linear-gradient(135deg, #23384f, #3d2a52); color: #fff; padding: 28px 20px 24px; }
+  header .wrap { max-width: 980px; margin: 0 auto; }
+  header h1 { margin: 0 0 6px; font-size: 1.7rem; letter-spacing: .2px; }
+  header p { margin: 4px 0; color: #d7dce6; max-width: 760px; }
+  header a { color: #cfe0ff; }
+  main { max-width: 980px; margin: 0 auto; padding: 20px 20px 80px; }
+  section {
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 18px 20px; margin: 16px 0; box-shadow: 0 1px 2px rgba(20,30,40,.04);
+  }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: var(--accent); }
+  h2 .step { color: var(--muted); font-weight: 600; font-size: .9rem; margin-right: 6px; }
+  h3 { font-size: 1rem; margin: 16px 0 6px; }
+  p.lead { color: var(--muted); }
+  code, .mono { font-family: var(--mono); font-size: .92em; }
+  .eq { font-family: var(--mono); font-size: 1.02rem; background: #f2f5f8; border: 1px solid var(--line);
+        border-radius: 6px; padding: 8px 12px; display: inline-block; margin: 4px 0; }
+  .grid { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: flex-end; }
+  .field { display: flex; flex-direction: column; gap: 3px; }
+  .field label { font-size: .78rem; color: var(--muted); }
+  input[type=text], select, input[type=number] {
+    font-family: var(--mono); font-size: .95rem; padding: 6px 8px;
+    border: 1px solid var(--line); border-radius: 6px; background: #fff; color: var(--ink);
+  }
+  input[type=text] { width: 72px; }
+  button {
+    font: inherit; padding: 7px 14px; border-radius: 6px; border: 1px solid var(--accent);
+    background: var(--accent); color: #fff; cursor: pointer;
+  }
+  button.secondary { background: #fff; color: var(--accent); }
+  button:hover { filter: brightness(1.08); }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: .92rem; }
+  th, td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { background: #eef2f6; font-weight: 600; }
+  td.num, th.num { text-align: right; font-family: var(--mono); }
+  tr:nth-child(even) td { background: #fafbfc; }
+  .pill { display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: .78rem;
+          font-family: var(--mono); border: 1px solid var(--line); background: #eef2f6; }
+  .good { color: var(--good); } .bad { color: var(--bad); }
+  .note { border-left: 3px solid var(--accent2); background: #f7f4fb; padding: 10px 14px; border-radius: 0 6px 6px 0; margin: 10px 0; }
+  .err { border-left: 3px solid var(--bad); background: #fdf1ef; padding: 10px 14px; border-radius: 0 6px 6px 0; }
+  .muted { color: var(--muted); }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; font-size: .94rem; }
+  .kv .k { color: var(--muted); }
+  .scroll { overflow-x: auto; }
+  footer { max-width: 980px; margin: 0 auto; padding: 0 20px 60px; color: var(--muted); font-size: .88rem; }
+  a { color: var(--accent); }
+  sup { font-size: .72em; }
+  .rec { font-family: var(--mono); font-size: .86rem; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Modularity, computed</h1>
+    <p>A workbench for the arithmetic input to Wiles's modularity theorem: give it a
+       Weierstrass equation, and it finds the minimal model, the discriminant, the
+       conductor, the traces of Frobenius <span class="mono">a<sub>p</sub></span> by
+       counting points, and the weight-2 eigenform <span class="mono">q</span>-expansion
+       the theorem attaches to them.</p>
+    <p>Companion to math note 007
+       <a href="https://github.com/htzh/flt_for_human/blob/main/math/007-modularity-and-computation.md">“Modularity and computation”</a>
+       &middot; <a href="../../index.html">all notes &amp; apps</a>
+       &middot; the Lean proof: <a href="https://tianyipeng.github.io/fermats-last-theorem/">anthropics/fermats-last-theorem</a></p>
+  </div>
+</header>
+<main>
+
+  <section>
+    <h2><span class="step">Input</span> A Weierstrass equation</h2>
+    <p class="lead">Coefficients of
+      <span class="mono">y<sup>2</sup> + a<sub>1</sub>xy + a<sub>3</sub>y = x<sup>3</sup> + a<sub>2</sub>x<sup>2</sup> + a<sub>4</sub>x + a<sub>6</sub></span>,
+      as integers (the curve must be smooth, i.e. Δ ≠ 0).</p>
+    <div class="grid">
+      <div class="field"><label>a<sub>1</sub></label><input type="text" id="a1" value="0"></div>
+      <div class="field"><label>a<sub>2</sub></label><input type="text" id="a2" value="-1"></div>
+      <div class="field"><label>a<sub>3</sub></label><input type="text" id="a3" value="1"></div>
+      <div class="field"><label>a<sub>4</sub></label><input type="text" id="a4" value="-10"></div>
+      <div class="field"><label>a<sub>6</sub></label><input type="text" id="a6" value="-20"></div>
+      <div class="field"><label>preset</label>
+        <select id="preset">
+          <option value="0,-1,1,-10,-20">11a1 — N = 11 (split multiplicative)</option>
+          <option value="0,0,1,-1,0">37a1 — N = 37 (non-split multiplicative)</option>
+          <option value="0,1,1,-2,0">389a1 — N = 389 (prime, split)</option>
+          <option value="0,0,0,-1,0">y² = x³ − x — N = 32 (additive at 2)</option>
+          <option value="0,0,0,0,1">y² = x³ + 1 — N = 36 (additive at 2, 3)</option>
+          <option value="0,0,1,0,0">y² + y = x³ — N = 27 (type II at 3)</option>
+          <option value="0,0,0,-4,0">y² = x³ − 4x — N = 64 (type I₂* at 2)</option>
+          <option value="0,-1,0,-4,4">y² = x³ − x² − 4x + 4 — N = 24 (type I₁* at 2)</option>
+          <option value="0,0,0,81,0">non-minimal: y² = x³ + 81x</option>
+          <option value="1,-53,0,-486,0">Frey-type: a = 3, b = 2, p = 5 (N = 330)</option>
+        </select>
+      </div>
+      <button id="compute">Compute</button>
+    </div>
+    <div id="inputError"></div>
+    <p class="muted" style="margin-top:10px">
+      <strong>What is assumed.</strong> We take the full modularity theorem as a black box
+      (every semistable elliptic curve over ℚ is modular) and therefore do <em>not</em>
+      verify semistability here. The app computes exactly the data the theorem consumes,
+      and shows the eigenform recursion it produces. Nothing is proved by the app; the
+      proof lives in the Lean files linked at the bottom.</p>
+  </section>
+
+  <div id="output"></div>
+
+  <section id="trace">
+    <h2><span class="step">Trace</span> From each computed step to the Lean proof</h2>
+    <p class="lead">Every quantity below is a Lean object. Line numbers are pinned to
+      <span class="mono">anthropics/fermats-last-theorem@aa2d8b3</span>.</p>
+    <div class="scroll">
+    <table>
+      <thead><tr><th>Computed here</th><th>Mathematics</th><th>Lean (pinned sha)</th></tr></thead>
+      <tbody>
+        <tr><td>integral model</td><td>E : y²+a₁xy+a₃y = x³+a₂x²+a₄x+a₆, aᵢ ∈ ℤ</td>
+            <td><span class="mono">WeierstrassCurve ℤ</span></td></tr>
+        <tr><td>minimal model</td><td>integral model with v<sub>p</sub>(Δ) minimal at every p</td>
+            <td><a href="https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_Modularity.lean#L88-L90"><span class="mono">IsIntegralModelOf</span>, lines 88–90</a>
+                (an existential over <span class="mono">VariableChange ℚ</span>)</td></tr>
+        <tr><td>discriminant Δ</td><td>Δ = −b₂²b₈ − 8b₄³ − 27b₆² + 9b₂b₄b₆</td>
+            <td><span class="mono">WeierstrassCurve.Δ</span></td></tr>
+        <tr><td>conductor level</td><td>the squarefree level supported on the bad primes</td>
+            <td><a href="https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_WeierstrassCurve_ConductorLevel.lean#L11-L12"><span class="mono">conductorLevel W := radical W.Δ.natAbs</span></a>;
+                for the Frey package <a href="https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FreyPackage_IsConductorLevel.lean#L8-L14"><span class="mono">IsConductorLevel</span>, lines 8–14</a></td></tr>
+        <tr><td>reduction mod p</td><td>reduce the coefficients modulo p</td>
+            <td><a href="https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_Modularity.lean#L76-L77"><span class="mono">reductionMod</span>, lines 76–77</a></td></tr>
+        <tr><td>#E(𝔽<sub>p</sub>)</td><td>1 + #{(x,y) ∈ 𝔽<sub>p</sub>² : the equation holds}</td>
+            <td><a href="https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_Modularity.lean#L61-L70"><span class="mono">Point.instFinite</span> / <span class="mono">WeierstrassCurve.card</span>, lines 61–70</a></td></tr>
+        <tr><td>trace a<sub>p</sub></td><td>a<sub>p</sub> = p + 1 − #E(𝔽<sub>p</sub>)</td>
+            <td><a href="https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_Modularity.lean#L72-L80"><span class="mono">traceOfFrobenius</span>, <span class="mono">apOfModel</span>, lines 72–80</a></td></tr>
+        <tr><td>good prime</td><td>p ∤ Δ</td>
+            <td><a href="https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_Modularity.lean#L82-L83"><span class="mono">IsGoodPrimeFor</span>, lines 82–83</a></td></tr>
+        <tr><td>eigenform recursion</td><td>a₁ = 1; a<sub>mn</sub> = a<sub>m</sub>a<sub>n</sub> (coprime);
+            a<sub>p<sup>r+2</sup></sub> = a<sub>p</sub>a<sub>p<sup>r+1</sup></sub> − p·a<sub>p<sup>r</sup></sub> (p ∤ N);
+            a<sub>p<sup>r+2</sup></sub> = a<sub>p</sub>a<sub>p<sup>r+1</sup></sub> (p | N)</td>
+            <td><a href="https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_Modularity.lean#L28-L40"><span class="mono">IsNormalizedEigenform</span>, lines 28–40</a></td></tr>
+        <tr><td>modularity</td><td>a<sub>p</sub>(f) = a<sub>p</sub>(E) at all good p ∤ N</td>
+            <td><a href="https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_Modularity.lean#L93-L102"><span class="mono">IsModularModelOfLevel</span> / <span class="mono">IsModularModel</span> / <span class="mono">IsModular</span>, lines 93–102</a></td></tr>
+        <tr><td>semistability <span class="muted">(assumed, not checked)</span></td>
+            <td>p | Δ ⇒ p ∤ c₄</td>
+            <td><a href="https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_Modularity.lean#L85-L87"><span class="mono">IsSemistableModel</span>, lines 85–87</a></td></tr>
+        <tr><td>the theorem</td><td>semistable E/ℚ ⇒ E is modular (Wiles)</td>
+            <td><a href="https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_WeierstrassCurve_modularity_of_semistableModel.lean#L131"><span class="mono">WeierstrassCurve.modularity_of_semistableModel</span></a>;
+                Frey case <a href="https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_FreyPackage_frey_isModular.lean#L131"><span class="mono">FreyPackage.frey_isModular</span></a></td></tr>
+        <tr><td>level lowering</td><td>Frey curve modular + E[p] irreducible ⇒ a nonzero form at level 2</td>
+            <td><a href="https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_FreyPackage_level_lowering_to_two.lean#L131"><span class="mono">FreyPackage.level_lowering_to_two</span></a></td></tr>
+        <tr><td>the endgame</td><td>S₂(Γ₀(2)) = 0 — no such form exists</td>
+            <td><a href="https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularForm_S2_Gamma0_2_eq_zero.lean#L131"><span class="mono">ModularForm.S2_Gamma0_2_eq_zero</span></a></td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <section id="why">
+    <h2><span class="step">Why</span> What the computation has to do with Fermat</h2>
+    <p>A counterexample a<sup>p</sup> + b<sup>p</sup> = c<sup>p</sup> (p ≥ 5 prime,
+    abc ≠ 0, primitive) produces the <strong>Frey curve</strong>
+    <span class="mono">E<sub>P</sub> : y² + xy = x³ + ((b<sup>p</sup>−1−a<sup>p</sup>)/4)x² − (a<sup>p</sup>b<sup>p</sup>/16)x</span>.
+    Its discriminant is <span class="mono">Δ = (abc)<sup>2p</sup>/2⁸</span>, so its bad
+    primes are exactly the primes of <span class="mono">abc</span>, and it is semistable.
+    Wiles's theorem makes it modular; Ribet's level-lowering theorem strips the bad primes
+    one at a time, leaving a nonzero weight-2 cusp form of level 2; and
+    <span class="mono">S₂(Γ₀(2)) = 0</span>. Contradiction.</p>
+    <p>The app is a window on the first and last of those links: it computes the level
+    <span class="mono">N</span> that Wiles's theorem feeds on, and the coefficient
+    sequence that Ribet's congruence then has to force to zero at level 2. (A genuine Frey
+    curve requires a genuine counterexample, which does not exist; the “Frey-type” preset
+    uses arbitrary a, b, p of the right shape to show the arithmetic.)</p>
+  </section>
+
+</main>
+<footer>
+  <p>Engine: <span class="mono">ec.js</span> (self-contained BigInt arithmetic). Minimal models
+  and conductors come from Tate's algorithm; the eigenform coefficients come from the
+  Hecke recursions. The level-11 check uses the eta product
+  <span class="mono">η(τ)²η(11τ)²</span> of the newform <span class="mono">11.2.a.a</span>.</p>
+  <p><a href="../../index.html">← all notes &amp; apps</a></p>
+</footer>
+
+<script src="ec.js"></script>
+<script>
+"use strict";
+
+const $ = (id) => document.getElementById(id);
+const fmt = (x) => x.toString();
+
+function term(coef, mono, first) {
+  if (coef === 0n) return "";
+  const neg = coef < 0n;
+  const c = neg ? -coef : coef;
+  let out = first ? (neg ? "\u2212" : "") : (neg ? " \u2212 " : " + ");
+  if (mono === "") out += c.toString();
+  else if (c === 1n) out += mono;
+  else out += c.toString() + mono;
+  return out;
+}
+
+function formatCurve(a) {
+  const [a1, a2, a3, a4, a6] = a;
+  let lhs = "y<sup>2</sup>" + term(a1, "xy", false) + term(a3, "y", false);
+  let rhs = "x<sup>3</sup>" + term(a2, "x<sup>2</sup>", false) + term(a4, "x", false) + term(a6, "", false);
+  return lhs + " = " + rhs;
+}
+
+function readCoeffs() {
+  const ids = ["a1", "a2", "a3", "a4", "a6"];
+  return ids.map((id) => {
+    const raw = $(id).value.trim().replace(/\u2212/g, "-");
+    if (!/^[+-]?\d+$/.test(raw)) throw new Error("coefficient " + id + " must be an integer");
+    return BigInt(raw);
+  });
+}
+
+function pill(text, cls) { return '<span class="pill ' + (cls || "") + '">' + text + '</span>'; }
+
+let state = null;   // last successful computation
+
+function compute() {
+  const out = $("output");
+  $("inputError").innerHTML = "";
+  let a;
+  try { a = readCoeffs(); }
+  catch (e) { $("inputError").innerHTML = '<div class="err">' + e.message + '</div>'; out.innerHTML = ""; return; }
+
+  let inv, mm, invMin;
+  try {
+    inv = EC.invariants(a);
+    if (inv.Delta === 0n) throw new Error("the discriminant is 0: this equation is singular, not an elliptic curve");
+    mm = EC.minimalModel(a);
+    invMin = EC.invariants(mm.model);
+  } catch (e) {
+    $("inputError").innerHTML = '<div class="err">' + e.message + '</div>';
+    out.innerHTML = "";
+    return;
+  }
+
+  const steps = mm.steps.filter((s) => s.redType !== "good");
+  let N = 1;
+  for (const s of steps) N *= Math.pow(s.p, s.fp);
+
+  const aps = EC.apTable(mm.model, mm.steps, 20);
+  const { coeffs, rules } = EC.eigenCoeffs(aps, N, 20);
+  const eta = (N === 11) ? EC.eta11(20) : null;
+
+  state = { a, inv, mm, invMin, steps, N, aps, coeffs, rules, eta };
+  render();
+}
+
+function render() {
+  const { a, inv, mm, invMin, steps, N, aps, coeffs, rules, eta } = state;
+  const out = $("output");
+  let html = "";
+
+  // ---- 1. input model and invariants
+  const j = EC.jInvariant(inv);
+  html += `<section><h2><span class="step">Step 1</span> Input model and invariants</h2>
+    <div class="eq">E : ${formatCurve(a)}</div>
+    <div class="kv">
+      <span class="k">b₂, b₄, b₆, b₈</span><span class="mono">${fmt(inv.b2)}, ${fmt(inv.b4)}, ${fmt(inv.b6)}, ${fmt(inv.b8)}</span>
+      <span class="k">c₄, c₆</span><span class="mono">${fmt(inv.c4)}, ${fmt(inv.c6)}</span>
+      <span class="k">Δ</span><span class="mono">${fmt(inv.Delta)}</span>
+      <span class="k">j = c₄³/Δ</span><span class="mono">${j ? fmt(j.n) + " / " + fmt(j.d) : "—"}</span>
+    </div></section>`;
+
+  // ---- 2. minimal model
+  const changed = mm.model.some((v, i) => v !== a[i]);
+  html += `<section><h2><span class="step">Step 2</span> Minimal model</h2>`;
+  if (!changed) {
+    html += `<p>The input is already minimal: ${pill("v<sub>p</sub>(Δ) is minimal at every p")}</p>
+      <div class="eq">${formatCurve(mm.model)}</div>`;
+  } else {
+    html += `<p>The input was not minimal. Replacing x by x/u² + r, y by y/u³ + s·x/u² + t
+      (u = ∏ p<sup>k<sub>p</sub></sup>) lowers the discriminant at the bad primes:</p>
+      <div class="eq">minimal model: ${formatCurve(mm.model)}</div>
+      <div class="kv">
+        <span class="k">Δ<sub>input</sub></span><span class="mono">${fmt(inv.Delta)}</span>
+        <span class="k">Δ<sub>min</sub></span><span class="mono">${fmt(invMin.Delta)}</span>
+      </div>`;
+  }
+  html += `</section>`;
+
+  // ---- 3. discriminant factorisation
+  const fac = EC.factorize(invMin.Delta);
+  html += `<section><h2><span class="step">Step 3</span> Discriminant and its primes</h2>
+    <div class="eq">Δ<sub>min</sub> = ${fmt(invMin.Delta)} = ${invMin.Delta < 0n ? "−" : ""}${EC.factorString(fac)}</div>
+    <p class="muted">The bad primes are exactly the primes dividing Δ. At each one Tate's
+    algorithm gives the Kodaira type, the conductor exponent f<sub>p</sub>, the Tamagawa
+    number c<sub>p</sub>, and the split/non-split sign when the reduction is multiplicative.</p>
+    </section>`;
+
+  // ---- 4. conductor
+  let condRows = "";
+  for (const s of steps) {
+    const redDesc = s.redType === "good" ? "good (I₀)"
+      : s.redType === "multiplicative" ? (s.split ? "multiplicative, split" : "multiplicative, non-split")
+      : "additive";
+    const ap = EC.localAp(s);
+    condRows += `<tr><td class="num">${s.p}</td><td class="num">${s.valDisc}</td>
+      <td class="mono">${s.kodaira}</td><td>${redDesc}</td>
+      <td class="num">${s.fp}</td><td class="num">${s.cp}</td>
+      <td class="num">${ap === null ? "—" : ap}</td></tr>`;
+  }
+  html += `<section><h2><span class="step">Step 4</span> Conductor</h2>
+    <div class="scroll"><table>
+      <thead><tr><th class="num">p</th><th class="num">v<sub>p</sub>(Δ)</th><th>Kodaira</th>
+        <th>reduction</th><th class="num">f<sub>p</sub></th><th class="num">c<sub>p</sub></th>
+        <th class="num">a<sub>p</sub> (local)</th></tr></thead>
+      <tbody>${condRows}</tbody></table></div>
+    <div class="eq">N = ∏ p<sup>f<sub>p</sub></sup> = ${N}</div>
+    <p class="muted">The Lean formalisation uses the squarefree
+      <span class="mono">conductorLevel W = radical |Δ|</span>
+      (= ${EC.factorString(EC.factorize(invMin.Delta))} here, i.e. ${[...EC.factorize(invMin.Delta).keys()].reduce((m, p) => m * Number(p), 1) || 1}),
+      not the full conductor: that is all the level-lowering step needs. For a semistable
+      curve every f<sub>p</sub> = 1, so the two agree.</p>
+    </section>`;
+
+  // ---- 5. point counts / traces
+  const badMap = new Map(steps.map((s) => [s.p, s]));
+  const primeList = EC.primesUpTo(20);
+  let apRows = "";
+  for (const p of primeList) {
+    const bad = badMap.get(p);
+    const cnt = EC.countPoints(mm.model, p);
+    const naive = p + 1 - cnt;
+    const used = aps.get(p);
+    apRows += `<tr><td class="num">${p}</td><td class="num">${cnt}</td>
+      <td class="num">${naive}</td>
+      <td>${bad ? '<span class="bad">bad (' + bad.kodaira + ')</span>' : '<span class="good">good</span>'}</td>
+      <td class="num">${used}</td></tr>`;
+  }
+  html += `<section><h2><span class="step">Step 5</span> Traces of Frobenius by counting points</h2>
+    <p>For a prime p, reduce the minimal model mod p and count
+    <span class="mono">#E(𝔽<sub>p</sub>) = 1 + #{(x,y) : y²+a₁xy+a₃y ≡ x³+a₂x²+a₄x+a₆ (mod p)}</span>.
+    Then <span class="mono">a<sub>p</sub> = p + 1 − #E(𝔽<sub>p</sub>)</span>. At a <em>bad</em> prime
+    this naive count is not the eigenform's coefficient (the reduction is singular); the
+    local L-factor is instead 1, −1 or 0 according to the reduction type, and that is the
+    value the recursion uses.</p>
+    <div class="scroll"><table>
+      <thead><tr><th class="num">p</th><th class="num">#E(𝔽<sub>p</sub>)</th>
+        <th class="num">p+1−#E</th><th>reduction</th><th class="num">a<sub>p</sub> used</th></tr></thead>
+      <tbody>${apRows}</tbody></table></div>
+    </section>`;
+
+  // ---- 6. recurrence table
+  let recRows = "";
+  for (let n = 1; n <= 20; n++) {
+    const f = EC.factorNum(n);
+    const fs = [...f.entries()].map(([p, e]) => e === 1 ? `${p}` : `${p}^${e}`).join(" · ") || "1";
+    let ref = "";
+    if (eta) {
+      const e = eta.get(n);
+      ref = (e === coeffs.get(n))
+        ? `<td class="num good">${e} ✓</td>`
+        : `<td class="num bad">${e} ✗</td>`;
+    }
+    recRows += `<tr><td class="num">${n}</td><td class="mono">${fs}</td>
+      <td class="num">${coeffs.get(n)}</td><td class="rec">${rules.get(n)}</td>${ref}</tr>`;
+  }
+  const refHead = eta ? '<th class="num">11.2.a.a (η-product)</th>' : '';
+  const refNote = eta
+    ? `<p class="muted">The last column is computed independently from the eta product
+       <span class="mono">η(τ)²η(11τ)²</span>; the ✓ means the point-count traces, run through
+       the Hecke recursion, reproduce the known newform <span class="mono">11.2.a.a</span>
+       coefficient for coefficient. This is modularity made visible, for the curve where the
+       q-expansion is available in closed form.</p>`
+    : '';
+  html += `<section><h2><span class="step">Step 6</span> The eigenform coefficients a<sub>n</sub>, n ≤ 20</h2>
+    <p>Feed the a<sub>p</sub> into the three recursion clauses of
+    <span class="mono">IsNormalizedEigenform</span>. Multiplicativity fills in the composite n;
+    the prime-power clauses fill in the higher powers.</p>
+    <div class="scroll"><table>
+      <thead><tr><th class="num">n</th><th>factorisation</th><th class="num">a<sub>n</sub></th>
+        <th>recursion applied</th>${refHead}</tr></thead>
+      <tbody>${recRows}</tbody></table></div>
+    ${refNote}
+    <div class="note"><strong>The theorem (assumed):</strong> because E is semistable,
+      Wiles's theorem gives a normalised weight-2 eigenform f on Γ₀(N), N = ${N}, with
+      a<sub>p</sub>(f) = a<sub>p</sub>(E) at every good p. The table above is that f's
+      q-expansion, reconstructed from the point counts alone.</div>
+    </section>`;
+
+  // ---- 7. FLT link
+  const semistable = steps.every((s) => s.redType === "multiplicative");
+  const squarefree = steps.every((s) => s.fp === 1);
+  html += `<section><h2><span class="step">Step 7</span> The route to Fermat</h2>`;
+  if (semistable && squarefree) {
+    html += `<p>All bad primes are multiplicative, so N = ${N} is squarefree — this is the
+      situation Ribet's level-lowering theorem acts on. For the Frey curve one removes the
+      primes of abc one at a time, reaching level 2, where
+      <span class="mono">S₂(Γ₀(2)) = 0</span> kills the form and hence the counterexample.</p>`;
+  } else {
+    html += `<p>Here the reduction is not everywhere multiplicative (or N is not squarefree),
+      so this particular curve is not of Frey type. The computed N = ${N} and the
+      q-expansion are still the arithmetic input to modularity; the FLT route additionally
+      needs the Frey normalisation, which makes every bad prime multiplicative and N
+      squarefree.</p>`;
+  }
+  html += `</section>`;
+
+  out.innerHTML = html;
+}
+
+$("compute").addEventListener("click", compute);
+$("preset").addEventListener("change", (e) => {
+  const vals = e.target.value.split(",");
+  ["a1", "a2", "a3", "a4", "a6"].forEach((id, i) => { $(id).value = vals[i]; });
+  compute();
+});
+["a1", "a2", "a3", "a4", "a6"].forEach((id) =>
+  $(id).addEventListener("keydown", (e) => { if (e.key === "Enter") compute(); }));
+
+compute();
+</script>
+</body>
+</html>

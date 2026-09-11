@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FLT for human</title>
+<style>
+  :root { --ink:#1b1f24; --muted:#5b6672; --line:#d9dee5; --bg:#f6f7f9; --card:#fff; --accent:#2f5d8a; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  header { background:linear-gradient(135deg,#23384f,#3d2a52); color:#fff; padding:36px 20px 30px; }
+  header .wrap, main, footer { max-width:900px; margin:0 auto; }
+  header h1 { margin:0 0 8px; font-size:1.8rem; }
+  header p { margin:4px 0; color:#d7dce6; max-width:720px; }
+  header a { color:#cfe0ff; }
+  main { padding:22px 20px 40px; }
+  section { background:var(--card); border:1px solid var(--line); border-radius:10px;
+            padding:18px 20px; margin:16px 0; }
+  h2 { font-size:1.15rem; margin:0 0 10px; color:var(--accent); }
+  ul { margin:6px 0; padding-left:20px; }
+  li { margin:5px 0; }
+  .muted { color:var(--muted); }
+  code { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:.92em; }
+  .app { display:inline-block; margin-top:6px; padding:8px 16px; border-radius:7px;
+         background:var(--accent); color:#fff; text-decoration:none; }
+  footer { padding:0 20px 60px; color:var(--muted); font-size:.88rem; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>FLT for human</h1>
+    <p>Math notes and tools for reading the
+       <a href="https://github.com/anthropics/fermats-last-theorem">formalised proof of Fermat's Last Theorem</a>
+       as a human. The notes are grounded in the Lean sources, with every line-number
+       citation pinned to a fixed commit.</p>
+    <p><a href="https://github.com/htzh/flt_for_human">github.com/htzh/flt_for_human</a></p>
+  </div>
+</header>
+<main>
+
+  <section>
+    <h2>Interactive app</h2>
+    <ul>
+      <li><strong>Modularity, computed</strong> — a Weierstrass-equation workbench: minimal
+          model, discriminant, conductor, traces of Frobenius by point counting, and the
+          weight-2 eigenform <code>q</code>-expansion reconstructed from the Hecke
+          recursions. Companion to note 007.<br>
+          <a class="app" href="apps/modular/index.html">Open the app →</a></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Math notes</h2>
+    <ul>
+      <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/007-modularity-and-computation.md">007 — Modularity and computation</a>
+          <span class="muted">(the modularity theorem, computed; companion to the app)</span></li>
+      <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/006-fixed-or-cofixed-and-inertia.md">006 — Fixed or cofixed, and inertia</a></li>
+      <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/005-card-torsion-p-squared.md">005 — #E[p] = p²</a></li>
+      <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/004-irreducible-and-cofixed-line.md">004 — Irreducibility and the cofixed line</a></li>
+      <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/003-galois-rep-irreducible-in-english.md">003 — <code>GaloisRepIsIrreducible</code>, in English</a></li>
+      <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/002-frey-curve-model-and-discriminant.md">002 — The Frey curve: model and discriminant</a></li>
+      <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/001-frey-package-wlog.md">001 — The Frey package and WLOG normalisation</a></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Base notes</h2>
+    <ul>
+      <li><a href="https://github.com/htzh/flt_for_human/blob/main/base/002-modular-forms-basics.md">002 — Modular forms at the mathlib level</a></li>
+      <li><a href="https://github.com/htzh/flt_for_human/blob/main/base/001-field-extensions-and-galois-basics.md">001 — Field extensions and Galois basics</a></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Reading the FLT proof</h2>
+    <ul>
+      <li><a href="https://github.com/anthropics/fermats-last-theorem">anthropics/fermats-last-theorem</a> — the formalisation.</li>
+      <li><a href="https://tianyipeng.github.io/fermats-last-theorem/">Annotated docs</a> — the author's rendered static site
+          (GitHub's 1000-file directory cap breaks browsing <code>html/def/</code>).</li>
+    </ul>
+  </section>
+
+</main>
+<footer>
+  <p>Notes and app are works in progress. The app performs its own arithmetic in the
+  browser; it is an illustration, not a proof.</p>
+</footer>
+</body>
+</html>
