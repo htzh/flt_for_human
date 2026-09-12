@@ -72,7 +72,7 @@ and $`G = \mathrm{SL}_2(\mathbb{Z})`$. The claim is $`[G : \Gamma_0(2)] = 3`$,
 equivalently that $`G/\Gamma_0(2)`$ has three elements. The proof exhibits a
 bijection
 
-$$G/\Gamma_0(2) \;\longleftrightarrow\; (\mathbb{Z}/2)^2 \setminus \{0\},$$
+$$G/\Gamma_0(2) \\;\longleftrightarrow\\; (\mathbb{Z}/2)^2 \setminus \\{0\\},$$
 
 the three nonzero vectors. The map is: send a matrix to its **first column**
 modulo $`2`$. That is the whole idea; the rest is checking that it is
@@ -97,9 +97,9 @@ $`\mathbb{F}_2`$; the only invertible element of $`\mathbb{F}_2`$ is $`1`$,
 hence $`\bar a' = \bar d' = 1`$. Therefore the first column of $`h`$ is
 $`(1, 0)`$, and
 
-$$gh = \begin{pmatrix} a & b \\ c & d\end{pmatrix} h
+$$gh = \begin{pmatrix} a & b \\\\ c & d\end{pmatrix} h
 \quad\Longrightarrow\quad
-\text{first column of } gh = g \cdot \begin{pmatrix} 1 \\ 0\end{pmatrix}
+\text{first column of } gh = g \cdot \begin{pmatrix} 1 \\\\ 0\end{pmatrix}
 = \text{first column of } g .$$
 
 So $`\phi(gh) = \phi(g)`$ for every $`h \in \Gamma_0(2)`$, which is exactly what
@@ -115,12 +115,12 @@ and $`c_1 \equiv c_2`$ mod $`2`$. We must show
 $`g_1^{-1} g_2 \in \Gamma_0(2)`$, i.e. that the lower-left entry of the product is
 even. Since $`\det g_1 = 1`$,
 
-$$g_1^{-1} = \begin{pmatrix} d_1 & -b_1 \\ -c_1 & a_1\end{pmatrix},$$
+$$g_1^{-1} = \begin{pmatrix} d_1 & -b_1 \\\\ -c_1 & a_1\end{pmatrix},$$
 
 so the lower-left entry of $`g_1^{-1} g_2`$ is $`(-c_1)a_2 + a_1 c_2`$. Reducing
 mod $`2`$ and substituting $`a_1 \equiv a_2 =: a`$, $`c_1 \equiv c_2 =: c`$,
 
-$$-c_1 a_2 + a_1 c_2 \;\equiv\; -c\,a + a\,c \;=\; 0 \pmod 2 .$$
+$$-c_1 a_2 + a_1 c_2 \\;\equiv\\; -c\\,a + a\\,c \\;=\\; 0 \pmod 2 .$$
 
 Hence $`g_1^{-1} g_2 \in \Gamma_0(2)`$ and $`g_1, g_2`$ are in the same left
 coset. (This is `cosetToProj_injective`; it is the only place where the explicit
@@ -129,9 +129,9 @@ inverse matrix is needed.)
 **Step 4: surjectivity.** The three nonzero vectors of $`(\mathbb{Z}/2)^2`$ are
 realized by
 
-$$I = \begin{pmatrix} 1 & 0 \\ 0 & 1\end{pmatrix} \mapsto (1,0), \qquad
-S = \begin{pmatrix} 0 & -1 \\ 1 & 0\end{pmatrix} \mapsto (0,1), \qquad
-\begin{pmatrix} 1 & 0 \\ 1 & 1\end{pmatrix} \mapsto (1,1),$$
+$$I = \begin{pmatrix} 1 & 0 \\\\ 0 & 1\end{pmatrix} \mapsto (1,0), \qquad
+S = \begin{pmatrix} 0 & -1 \\\\ 1 & 0\end{pmatrix} \mapsto (0,1), \qquad
+\begin{pmatrix} 1 & 0 \\\\ 1 & 1\end{pmatrix} \mapsto (1,1),$$
 
 all three matrices lying in $`\mathrm{SL}_2(\mathbb{Z})`$ (determinant $`1`$).
 This is `cosetToProj_surjective`, with the three cases discharged by `decide`.
@@ -154,13 +154,52 @@ same count.
 
 ## 3. Move 2: the norm multiplies the weight by the index
 
+### The slash action, briefly
+
+The norm is built by **translating** $`f`$ by matrices, so we need the slash
+action on functions. Note 002 §1 records that the notation $`f \mid_k \gamma`$ is
+the typeclass method `SlashAction.map` rather than a function named `slash`; here
+is the formula and the two properties this section uses.
+
+For
+$`\gamma = \begin{pmatrix} a & b \\ c & d\end{pmatrix} \in \mathrm{GL}_2(\mathbb{R})`$
+and $`z \in \mathbb{H}`$, write $`\gamma z = (az+b)/(cz+d)`$ for the Möbius action
+and $`cz+d`$ for the denominator (mathlib's `denom γ z`). Then
+
+$$(f \mid_k \gamma)(z) = \sigma_\gamma\bigl(f(\gamma z)\bigr)\\,|\det\gamma|^{k-1}\\,(cz+d)^{-k},$$
+
+where $`\sigma_\gamma`$ is the identity if $`\det\gamma > 0`$ and complex
+conjugation if $`\det\gamma < 0`$ (mathlib's `slash_apply`,
+[SlashActions.lean, lines 143–145](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/SlashActions.lean#L143-L145)).
+Two properties are all we use:
+
+1. **Composition.** $`f \mid_k (\gamma\delta) = (f \mid_k \gamma) \mid_k \delta`$,
+   i.e. $`\mid_k`$ is a right action (mathlib's `slash_mul`,
+   [SlashActions.lean, lines 99–111](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/SlashActions.lean#L99-L111)).
+2. **Invariance *is* the definition of a form.** A weight-$`k`$ form on a subgroup
+   $`\Gamma`$ is a function with $`f \mid_k \gamma = f`$ for every
+   $`\gamma \in \Gamma`$; that is exactly the field `slash_action_eq'` of
+   `SlashInvariantForm`.
+
+For $`\gamma \in \mathrm{SL}_2(\mathbb{Z})`$ the determinant is $`1`$ and
+$`\sigma_\gamma`$ is the identity, so the formula collapses to
+
+$$(f \mid_k \gamma)(z) = (cz+d)^{-k} f(\gamma z),$$
+
+and invariance reads $`f(\gamma z) = (cz+d)^k f(z)`$ — the identity used in §4.2
+Step B. The $`|\det\gamma|^{k-1}`$ factor is what makes composition hold at
+determinants other than $`1`$; everything in this note has determinant $`\pm 1`$,
+where it is $`1`$.
+
+### The norm, and its four properties
+
 Let $`\Gamma \le \mathcal{H} \le \mathrm{GL}_2(\mathbb{R})`$ with $`\Gamma`$ of
 finite index $`N`$ in $`\mathcal{H}`$, and suppose
 $`\mathcal{H} \subset \{\det = \pm 1\}`$ (in the application both groups lie in
 $`\mathrm{SL}_2(\mathbb{Z})`$, so this is automatic). For a form $`f`$ of weight
 $`k`$ on $`\Gamma`$, define, on the coset space $`\mathcal{H}/\Gamma`$,
 
-$$\mathrm{Norm}(f)(\tau) \;=\; \prod_{q \in \mathcal{H}/\Gamma}
+$$\mathrm{Norm}(f)(\tau) \\;=\\; \prod_{q \in \mathcal{H}/\Gamma}
 \bigl(f \mid_k g_q^{-1}\bigr)(\tau),$$
 
 where $`g_q`$ is any representative of the coset $`q`$ and $`\mid_k`$ is the
@@ -261,7 +300,7 @@ and it has two properties that make it the right tool:
 
 These give a bijection, for every $`k \in \mathbb{Z}`$,
 
-$$\Phi : S_k(\mathrm{SL}_2(\mathbb{Z})) \;\longrightarrow\; M_{k-12}(\mathrm{SL}_2(\mathbb{Z})),
+$$\Phi : S_k(\mathrm{SL}_2(\mathbb{Z})) \\;\longrightarrow\\; M_{k-12}(\mathrm{SL}_2(\mathbb{Z})),
 \qquad \Phi(f) = \frac{f}{\Delta},$$
 
 with inverse $`g \mapsto \Delta g`$. Let us check the two directions, because this
@@ -287,7 +326,7 @@ and the rank statement is then one line
 ([lines 153–155](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/LevelOne/DimensionFormula.lean#L153-L155)):
 $`S_k`$ has the rank of $`M_{k-12}`$. For $`k = 6`$ this reads
 
-$$S_6(\mathrm{SL}_2(\mathbb{Z})) \;\cong\; M_{-6}(\mathrm{SL}_2(\mathbb{Z})).$$
+$$S_6(\mathrm{SL}_2(\mathbb{Z})) \\;\cong\\; M_{-6}(\mathrm{SL}_2(\mathbb{Z})).$$
 
 So "no weight-6 cusp forms" becomes "no negative-weight modular forms", and we
 now prove the latter.
@@ -300,7 +339,7 @@ weight $`\le 0`$ is constant", and then discards the constant when $`k < 0`$.
 
 **The one analytic input.** Write $`q = e^{2\pi i z}`$ and define
 
-$$G(q) \;=\; f(z) \qquad (q = e^{2\pi i z}).$$
+$$G(q) \\;=\\; f(z) \qquad (q = e^{2\pi i z}).$$
 
 Because a level-one modular form is periodic with period $`1`$, this is a
 well-defined function of $`q`$ on the punctured unit disc, holomorphic there; and
@@ -322,7 +361,7 @@ $`|cz + d| \le 1`$.** Let $`z \in \mathbb{H}`$.
   [Modular.lean, lines 400–426](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/Modular.lean#L400-L426)).
   Since $`\mathrm{Im}\,z < 1/2 \le \mathrm{Im}(\gamma z)`$, and Möbius
   transformations satisfy the identity
-  $$\mathrm{Im}(\gamma z) = \frac{\mathrm{Im}\,z}{|cz+d|^2},$$
+  $$\mathrm{Im}(\gamma z) = \frac{\mathrm{Im}\\,z}{|cz+d|^2},$$
   we get $`\mathrm{Im}\,z \le \mathrm{Im}(\gamma z)`$, i.e.
   $`1 \le 1/|cz+d|^2`$, i.e. $`|cz+d| \le 1`$.
 
@@ -334,22 +373,22 @@ Both the identity and this package of statements are mathlib's
 $`f`$ is $`\gamma`$-invariant and the slash factor for $`\gamma`$ is
 $`(cz+d)^{-k}`$, we have $`f(\gamma z) = (cz+d)^k f(z)`$, i.e.
 
-$$|f(z)| \;=\; |cz+d|^{-k}\,|f(\gamma z)| .$$
+$$|f(z)| \\;=\\; |cz+d|^{-k}\\,|f(\gamma z)| .$$
 
 Here is where the sign of the weight enters. For $`k \le 0`$, the exponent
 $`-k \ge 0`$, and $`0 < |cz+d| \le 1`$ implies $`|cz+d|^{-k} \le 1`$. Hence
 
-$$|f(z)| \;\le\; |f(\gamma z)| .$$
+$$|f(z)| \\;\le\\; |f(\gamma z)| .$$
 
 **Step C: the dominant point lies in a small disc.** Put $`\xi = \gamma z`$. The
 $`q`$-coordinate of $`\xi`$ is $`e^{2\pi i \xi}`$, whose modulus is
 $`e^{-2\pi\,\mathrm{Im}\,\xi}`$, and $`\mathrm{Im}\,\xi \ge 1/2`$ gives
 
-$$|e^{2\pi i \xi}| \;\le\; e^{-\pi} \;<\; 1 .$$
+$$|e^{2\pi i \xi}| \\;\le\\; e^{-\pi} \\;<\\; 1 .$$
 
 Combining with Step B,
 
-$$|G(e^{2\pi i z})| = |f(z)| \;\le\; |f(\xi)| = |G(e^{2\pi i \xi})|,
+$$|G(e^{2\pi i z})| = |f(z)| \\;\le\\; |f(\xi)| = |G(e^{2\pi i \xi})|,
 \qquad |e^{2\pi i \xi}| \le e^{-\pi}.$$
 
 So: for every $`q \in D(0,1)`$ there is $`w`$ in the *closed* disc of radius

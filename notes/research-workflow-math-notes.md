@@ -129,6 +129,12 @@ Galois side — `GL (Fin 2)` is automorphic-side only).
 
   `lake build Definitions/<Module>.lean` builds a single module (and its
   deps); `lake build --help` lists the module/facet target syntax.
+- **Display math eats backslash escapes.** Inside `$$…$$`, GitHub applies
+  Markdown backslash escapes *before* KaTeX (only the backtick inline form is a
+  literal code span), so a matrix row separator must be typed `\\\\` and the
+  punctuation macros as `\\,`, `\\;`, `\\{`, `\\}`; a single backslash before a
+  letter (`\Delta`, `\mathrm`, `\frac`, …) is fine. A `pmatrix` typed with `\\`
+  renders as a collapsed single row — this cost a round on `base/003`.
 
 ## 5. Writing checklist for a new math/ note
 
@@ -143,3 +149,36 @@ Galois side — `GL (Fin 2)` is automorphic-side only).
 4. Math hygiene per AGENTS.md: `$`…`$` inline whenever in doubt (always for
    `E_P[p](K)`-shaped terms), `\\,` for thin space.
 5. Do not commit — the user commits and pushes.
+
+## 6. Lean as a route map for a math narrative
+
+The `base/` notes aim at a different reader than the `math/` notes: someone who
+wants the *mathematics* of a step, with the Lean available as a citation but not
+as the medium. Model: `base/003-no-level-2-weight-2-cusp-forms.md`. The method is
+to let the Lean proof fix the outline and the truth, then re-tell it in math.
+
+1. **Outline from the Lean, prose from the math.** Read the proof's declaration
+   order; write one mathematical sentence per declaration; that list is the
+   section plan. Tactics, coercions and private helper names do not enter the
+   narrative.
+2. **State declarations as mathematics.** `ModularForm.norm` becomes "product of
+   the translates over the cosets, weight `k·N`"; `eq_const_of_exists_le`
+   becomes "a holomorphic function dominated by a smaller closed disc is
+   constant". The Lean name appears once, as a signpost with a pinned link.
+3. **Quote sparingly.** One or two lines of a headline signature per move is
+   enough; long verbatim blocks stay in the `math/` notes.
+4. **Go past the Lean on the key input.** When the crux is an imported theorem,
+   open its proof and unwind it until the argument is a standard fact
+   (fundamental domain, maximum modulus, identity theorem). `base/003` §4.2 does
+   this for `CuspForm.rank_eq_zero_of_weight_lt_twelve`.
+5. **Quarantine the formal detours.** Encoding artefacts — `Γ(1)` vs `𝒮ℒ`, the
+   `index`/`Nat.card` transport, extensionality through `DFunLike.coe_injective`
+   — go in a short "Lean detours" section at the end; the narrative never depends
+   on them.
+6. **Test: delete the Lean.** If removing every identifier leaves a
+   self-contained proof sketch, the note has succeeded; if it leaves a list of
+   theorem names, the math translation is incomplete.
+
+Correctness still resolves toward the Lean (PROOF-PATH.md: "Where this prose and
+the Lean differ, the Lean is right"); the order of exposition resolves toward the
+mathematics.

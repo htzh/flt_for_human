@@ -40,7 +40,7 @@ Github renders `/blob/` pages and supports line fragments: `#L66` highlights lin
 
 Inline math must use the backtick form: open with a `$` immediately followed by a backtick, close with a backtick immediately followed by `$`. Inside this form everything is literal — no double backslash is needed, so `\#` and `\,` are enough.
 
-Display math `$$...$$` is the one place where `\\` is still needed to produce a single `\` (e.g. `$$\mathrm{card}\\,E[n]$$`).
+Display math `$$...$$` is the one place where `\\` is still needed to produce a single `\` (e.g. `$$\mathrm{card}\\,E[n]$$`). In particular a matrix row separator is typed `\\\\`, and the punctuation macros `\{`, `\}`, `\;`, `\,` are typed `\\{`, `\\}`, `\\;`, `\\,`; a single backslash before a letter (`\Delta`, `\mathrm`, …) is left alone. A `pmatrix` written with `\\` collapses to one row.
 
 Never use bare `$...$` inline math: its escaping rules differ from the backtick form and are easy to get wrong. `tools/check_math_delimiters.py` flags any bare `$`.
 
