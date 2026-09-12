@@ -384,7 +384,12 @@ theorem ModularForm.S2_Gamma0_2_eq_zero (f : CuspForm (CongruenceSubgroup.Gamma0
 
 The proof is self-contained and worth spelling out, because it shows how a
 statement about level 2 is reduced to the classical vanishing below weight 12.
-Three ingredients:
+The three ingredients are worked out as mathematics in
+[base/003](../base/003-no-level-2-weight-2-cusp-forms.md): the index in matrix
+terms in its §2, the norm and the weight bookkeeping in §3, and the level-one
+vanishing taken all the way down to the maximum-modulus principle in §4. What
+follows is the FLT-side summary; read base/003 for the proofs. The three
+ingredients:
 
 1. **The index is 3.**
    [`Gamma0_two_index_eq_three`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularForm_S2_Gamma0_2_eq_zero.lean#L170-L174):
@@ -397,6 +402,8 @@ Three ingredients:
    and the three nonzero vectors in $`(\mathbb{Z}/2)^2`$ (the first column mod 2),
    which is injective because a matrix in $`\Gamma_0(2)`$ has first column
    $`\equiv (1,0)`$, and surjective by three explicit coset representatives.
+   The matrix computations behind those three claims are in
+   [base/003 §2](../base/003-no-level-2-weight-2-cusp-forms.md).
 
 2. **The norm multiplies the weight by the index.** For a subgroup of finite
    index, mathlib's `CuspForm.norm` is the product of the translates over the
@@ -405,13 +412,18 @@ Three ingredients:
    For $`k = 2`$ and index $`3`$ this is weight $`6`$. Crucially,
    [`ModularForm.norm_eq_zero_iff`](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/NormTrace.lean#L130-L131)
    says the norm vanishes if and only if the form does, so a nonzero level-2
-   form would give a nonzero level-1 form of weight 6.
+   form would give a nonzero level-1 form of weight 6. The slash action it is
+   built from, and the determinant bookkeeping that produces the weight
+   $`k \cdot N`$, are spelled out in
+   [base/003 §3](../base/003-no-level-2-weight-2-cusp-forms.md).
 
 3. **There are no weight-6 cusp forms at level 1.** Mathlib's
    [`CuspForm.rank_eq_zero_of_weight_lt_twelve`](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/LevelOne/DimensionFormula.lean#L153-L155)
    says $`S_k(\Gamma(1)) = 0`$ for $`k < 12`$ (the first cusp form is
    $`\Delta`$ in weight 12), and $`6 < 12`$. In Lean this is
-   `S6_levelOne_eq_zero`.
+   `S6_levelOne_eq_zero`. The proof of that mathlib theorem — division by
+   $`\Delta`$, and why negative-weight modular forms vanish — is unwound in
+   [base/003 §4](../base/003-no-level-2-weight-2-cusp-forms.md).
 
 Assembled
 ([lines 195–206](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularForm_S2_Gamma0_2_eq_zero.lean#L195-L206)):
