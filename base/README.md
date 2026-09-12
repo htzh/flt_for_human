@@ -38,6 +38,12 @@ notation, spending their space on the subject at hand.
   newforms, any level above one), the Hecke operators and Hecke algebra FLT
   builds instead, `IsNormalizedEigenform` as four recursions on `q`-coefficients,
   and the `S₂(Γ₀(2)) = 0` endgame.
+- [003 — No level-2 weight-2 cusp forms](003-no-level-2-weight-2-cusp-forms.md):
+  the proof of `S₂(Γ₀(2)) = 0` as mathematics rather than as Lean — the index
+  `[SL₂(ℤ) : Γ₀(2)] = 3` by counting the first column mod 2, the norm
+  construction (weight multiplied by the index, vanishing only on zero forms),
+  and the level-one vanishing of §4 taken all the way down to the
+  maximum-modulus principle and the fundamental domain.
 
 ## Candidate topics (not yet written, no order implied)
 
