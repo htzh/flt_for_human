@@ -159,8 +159,8 @@ divisors*, $`\psi_* \circ \varphi^*`$
 where pullback and pushforward along $`\iota : F \to F'`$ are the two basic
 operations of function-field arithmetic ([lines 67 and 99](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_Correspondence.lean#L67)):
 
-$$\iota^*\big(\textstyle\sum_P n_P P\big) = \sum_P n_P \sum_{Q \mid P} e(Q/P)\,Q, \qquad
-  \iota_*\big(\textstyle\sum_Q m_Q Q\big) = \sum_Q m_Q\, f(Q/\iota^*Q)\, \iota^*Q,$$
+$$\iota^{\ast}\big(\textstyle\sum_P n_P P\big) = \sum_P n_P \sum_{Q \mid P} e(Q/P)\\,Q, \qquad
+  \iota_{\ast}\big(\textstyle\sum_Q m_Q Q\big) = \sum_Q m_Q\\, f(Q/\iota^{\ast}Q)\\, \iota^{\ast}Q,$$
 
 pullback weighted by ramification indices $`e`$, pushforward by residue degrees
 $`f`$. To *descend* this to $`\mathrm{Pic}^0`$, three facts are needed, each a
@@ -173,7 +173,7 @@ named hypothesis in the project:
   (`FundamentalIdentityAlong`);
 - $`\iota_*`$ sends principal to principal: if $`D = \mathrm{div}(g)`$ then
   $`\iota_* D = \mathrm{div}(\mathrm{Norm}_{F'/F}\, g)`$ — the **norm formula**
-  (`Norm formulaAlong`; `isPrincipal_pushforwardAlong`).
+  (`NormFormulaAlong`; `isPrincipal_pushforwardAlong`).
 
 Bundled, these five bits of structure (integrality of each map, principal
 divisors at level $`N\ell`$, the fundamental identity along $`\beta`$, the norm
@@ -243,7 +243,7 @@ so the middle pair must be exchanged. Predicate-ised
 ([Def_ModularCurve_DegeneracyTower.lean, lines 121–132](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_DegeneracyTower.lean#L121-L132)),
 the requirement is: for every divisor $`D`$ on $`\bar F_{N\ell'}`$,
 
-$$\bar\beta^*\, \big(\bar\alpha_{(\ell'),*}\, D\big) \quad=\quad \mathrm{incl}_*\, \big(\mathrm{subst}^*\, D\big),$$
+$$\bar\beta^{\ast}\; \big(\bar\alpha_{(\ell'),\ast}\; D\big) \quad=\quad \mathrm{incl}_{\ast}\; \big(\mathrm{subst}^{\ast}\; D\big),$$
 
 pull-then-push down the left legs equals pull-then-push round the roof. The
 reduction theorem `heckeOperatorsCommuteBar_of_heckeExchangeAt`
