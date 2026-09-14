@@ -285,6 +285,24 @@ disc $`D`$ and its Laurent expansion determines it — two holomorphic functions
 the connected $`D^{*}`$ with the same expansion agree. Because $`j`$ is a function
 of $`q`$, this is a complete description of the function.
 
+**Each value is taken infinitely often.** The disc picture also shows how far
+$`j`$ is from injective. $`Y(1) = \mathrm{SL}_2(\mathbb{Z}) \backslash
+\mathbb{H}`$ has $`j`$ as a bijection onto $`\mathbb{C}`$, but
+$`D^{*} = \mathbb{Z} \backslash \mathbb{H}`$ is only the quotient by translations,
+so $`D^{*} \to Y(1)`$ is an infinite-sheeted covering and
+$`j : D^{*} \to \mathbb{C}`$ is infinite-to-one: for every $`c \in \mathbb{C}`$
+the equation $`j(q) = c`$ has countably infinitely many solutions in $`D^{*}`$.
+Near $`q = 0`$ there is exactly one (the local inverse of the pole, since
+$`j = q^{-1} \cdot (\text{unit})`$), and the rest accumulate at the boundary: the
+$`\mathrm{SL}_2(\mathbb{Z})`$-orbit of a solution $`\tau_c \in \mathbb{H}`$
+accumulates at every cusp $`p/q`$, so its $`q`$-values accumulate at every root of
+unity on $`|q| = 1`$. The solution set is thus discrete inside $`D^{*}`$, with all
+of its accumulation exactly on the unit circle — the natural boundary of the next
+paragraph, seen from the fibre side. Nothing here clashes with "zeros are
+isolated": isolation is a statement about the *domain*, the identity theorem
+forbids accumulation only at an interior point, and an infinite discrete subset
+of a bounded domain must therefore accumulate on the boundary.
+
 *The real line is a natural boundary.* No continuation of $`j`$ beyond
 $`\mathbb{H}`$ exists, and the reason is the cusps. Every rational
 $`p/q \in \mathbb{Q} \subset \mathbb{R}`$ is a cusp of
