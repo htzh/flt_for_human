@@ -61,13 +61,24 @@ def modularFunctionFieldFull : IntermediateField ℚ (LaurentSeries ℚ) :=
 
 is the subfield $`F_N^{\mathrm{full}} = \mathbb{Q}(\,j(q^d) : d \mid N\,)`$ of
 $`\mathbb{Q}((q))`$: the function field of $`X_0(N)`$, realised *concretely*
-inside Laurent series. Classically the whole field of $`\Gamma_0(N)`$-invariant
-functions is $`\mathbb{Q}(j, j(q^N))`$, and each $`j(q^d)`$ is already rational
-in those two; keeping all $`d \mid N`$ as named generators is what makes every
-degeneracy map of §3 land *inside* an ambient field, so that they compose as
-functions rather than as "maps between different curves". This is one of the
-places where Lean's mechanics dictate a choice, and the choice happens to be
-mathematically felicitous.
+inside Laurent series. Classically the whole field of weight-zero modular
+functions is $`\mathbb{Q}(j, j(q^N))`$ — at level one, $`\mathbb{Q}(j)`$ — with
+each $`j(q^d)`$ a rational function of those two. That classical statement is
+not imported: mathlib has no modular $`j`$-invariant and no notion of
+meromorphic modular function. The formalisation instead takes the adjoin above
+as the *definition* of the curve and proves, from the modular equation, that the
+two descriptions agree — `FunctionFieldGeneration N`, i.e. every $`j(q^d)`$ with
+$`d \mid N`$ lies in $`\mathbb{Q}(j, j(q^N))`$
+([Def_ModularCurve_X0.lean, line 233](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_X0.lean#L233);
+[Thm_ModularCurve_functionFieldGeneration.lean, line 8](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_functionFieldGeneration.lean#L8)),
+equivalently `modularFunctionFieldFull N = modularFunctionField N`
+([line 6](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_functionFieldGeneration_iff_full_eq.lean#L6)).
+One definition, one proved collapse; there is no second theory of modular
+functions to reconcile. Keeping all $`d \mid N`$ as named generators is what
+makes every degeneracy map of §3 land *inside* an ambient field, so that they
+compose as functions rather than as "maps between different curves". This is one
+of the places where Lean's mechanics dictate a choice, and the choice happens to
+be mathematically felicitous.
 
 The geometric base is $`\bar{\mathbb{Q}}`$: `laurentBaseChange`
 ([Def_ModularCurve_LaurentCoeff.lean, line 103](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_LaurentCoeff.lean#L103))
@@ -106,8 +117,13 @@ abbrev JZero : Type _ :=
   Pic0 (AlgebraicClosure ℚ) (modularFunctionFieldBar N)
 ```
 
-Over $`\bar{\mathbb{Q}}`$ the classical comparison says
-$`\mathrm{Pic}^0(X_0(N)) = J_0(N)(\bar{\mathbb{Q}})`$, so nothing is lost.
+Over $`\bar{\mathbb{Q}}`$ this is the group one classically writes
+$`J_0(N)(\bar{\mathbb{Q}}) = \mathrm{Pic}^0(X_0(N))`$: on a smooth projective
+curve the degree-zero divisor classes *are* the points of its Jacobian. No
+variety is ever built here, so that identity is a reading of `JZero` rather than
+a theorem about a constructed object; the honest substitute is the
+Hecke-equivariant Abel–Jacobi injection into the analytic torus proved
+downstream (§7).
 
 One honest remark about what is gained. This $`J_0(N)`$ is an abelian *group*,
 and that group is enormous — it contains $`J_0(N)(\mathbb{Q})`$, a finitely
@@ -314,8 +330,8 @@ two have real content, both supplied by the modular polynomial:
   $`q \mapsto q^\ell`$-image of $`\bar F_{N\ell'}`$. Reason: the two ranges
   contain $`j(q)`$ and $`j(q^{\ell \cdot \ell'})`$ (among others; the function
   field $`F_M^{\mathrm{full}}`$ is generated over $`\mathbb{Q}`$ by $`j`$ and
-  $`j(q^M)`$ — `FunctionFieldGeneration M`, proved from congruence-subgroup
-  index considerations), and $`j(q^{\ell'})`$ is *integral* over $`\bar F_{N\ell'}`$
+  $`j(q^M)`$ — `FunctionFieldGeneration M`, proved from the modular polynomial
+  $`\Phi_M`$ and its degree (§5)), and $`j(q^{\ell'})`$ is *integral* over $`\bar F_{N\ell'}`$
   via the modular equation of §5, so adjoining it closes the field.
 - *The degree match* (`finrankAlong_towerSubstBar_comp_heckeAlphaBar`,
   [Thm file, line 11](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_finrankAlong_towerSubstBar_comp_heckeAlphaBar.lean#L11)):
@@ -354,6 +370,16 @@ for every prime $`\ell`$ there is $`\Phi_\ell \in \mathbb{Z}[X, Y]`$ with
   `heckeAlphaBarIntegral_of_prime`, `heckeBetaBarIntegral_of_prime`);
 - $`\Phi_\ell(X, Y) = \Phi_\ell(Y, X)`$ — the symmetry that reflects
   $`E \to E'`$ being degree-$`\ell`$ on both sides.
+
+In the formalisation $`\Phi_N`$ is produced by `nonempty_modularPolynomialData`
+as the *minimal polynomial of $`j(q^N)`$ over $`\mathbb{Z}[X] = \mathbb{Z}[j]`$*
+([Thm_ModularCurve_nonempty_modularPolynomialData.lean, line 8](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_nonempty_modularPolynomialData.lean#L8)):
+$`\mathbb{Q}(j)`$ is the fraction field of $`\mathbb{Z}[X]`$, $`j(q^N)`$ is
+integral over it, and its minimal polynomial is monic of degree
+$`\psi(N) = [\mathbb{Q}(j, j(q^N)) : \mathbb{Q}(j)]`$. This is the Lean
+replacement for the classical statements "the level-one modular functions are
+$`\mathbb{Q}(j)`$" and "$`j(q^N)`$ is algebraic over $`\mathbb{Q}(j)`$"; the
+generation collapse of §1 is read off from the same minimal polynomial.
 
 Classically $`\Phi_\ell`$ exists because the functions
 $`j((a\tau + b)/d)`$, $`ad = \ell`$, are permuted by
@@ -437,6 +463,19 @@ Eichler–Shimura, the maximal ideals $`\mathfrak m`$ and the
 $`\mathfrak m`$-torsion of note 008's geometric heart. The theorem of this note
 is the license to say "$`\mathbb{T}`$" at all.
 
+One more comparison deserves naming, because it is the honest sense in which the
+divisor-class $`J_0(N)`$ and the classical one coincide. Downstream the project
+proves a *Hecke-equivariant injective* homomorphism into the analytic torus,
+$$J_0(N)(\bar{\mathbb{Q}}) \hookrightarrow S_2(\Gamma_0(N))^\vee / \Lambda_N,$$
+whose image contains all the torsion, where $`\Lambda_N`$ is the period lattice
+of $`X_0(N)`$ and the correspondence-theoretic $`T_\ell`$ on the left is
+intertwined with the transpose `dualHeckeRep N (heckeGen ℓ)` of the cusp-form
+Hecke operator on the right
+(`exists_injective_heckeEquivariant_addMonoidHom_jZero_quotient_periodLattice`,
+[Thm file, line 18](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_exists_injective_heckeEquivariant_addMonoidHom_jZero_quotient_periodLattice.lean#L18)).
+That is where the divisor-side and automorphic-side Hecke actions meet; nothing
+in the commutation proof above depends on it.
+
 ## 8. Links
 
 Lean sources at the pinned sha `aa2d8b3`:
@@ -457,9 +496,12 @@ Lean sources at the pinned sha `aa2d8b3`:
 - [Thm_ModularCurve_finrankAlong_towerSubstBar_comp_heckeAlphaBar.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_finrankAlong_towerSubstBar_comp_heckeAlphaBar.lean) — the degree match
 - [Thm_ModularCurve_hasPrincipalDivisors_modularFunctionFieldBar.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_hasPrincipalDivisors_modularFunctionFieldBar.lean) — principal divisors
 - [Thm_ModularCurve_modularPolynomialFamily.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_modularPolynomialFamily.lean) — `Φₗ` exists
+- [Thm_ModularCurve_nonempty_modularPolynomialData.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_nonempty_modularPolynomialData.lean) — `Φ_N` as the minimal polynomial of `j(q^N)` over `ℤ[j]`
+- [Thm_ModularCurve_functionFieldGeneration.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_functionFieldGeneration.lean) — `ℚ(j, j(q^N))` generates `F_N^full`
 - [Thm_ModularCurve_heckeOperatorsCommuteBar_of_heckeExchangeAt.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_heckeOperatorsCommuteBar_of_heckeExchangeAt.lean) — the reduction
 - [Thm_ModularCurve_heckeOperatorsCommuteBar.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_heckeOperatorsCommuteBar.lean) — the headline
 - [Thm_ModularCurve_smulCommClass_JZero_of_heckeOperatorsCommuteBar.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_smulCommClass_JZero_of_heckeOperatorsCommuteBar.lean) — Galois–Hecke commutation
+- [Thm_ModularCurve_exists_injective_heckeEquivariant_addMonoidHom_jZero_quotient_periodLattice.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_exists_injective_heckeEquivariant_addMonoidHom_jZero_quotient_periodLattice.lean) — the Abel–Jacobi comparison with `S₂(Γ₀(N))^∨/Λ_N`
 
 Generated glosses (per-module English): the
 [ModularCurve_HeckeModule def page](https://tianyipeng.github.io/fermats-last-theorem/def/ModularCurve_HeckeModule.html),
@@ -469,7 +511,11 @@ Generated glosses (per-module English): the
 
 Mathlib at v4.33.0:
 [Mathlib/Algebra/MvPolynomial/Eval.lean](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/Algebra/MvPolynomial/Eval.lean)
-(`MvPolynomial.aeval` — the universal-property evaluation).
+(`MvPolynomial.aeval` — the universal-property evaluation);
+[NumberTheory/ModularForms/LevelOne/Basic.lean](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/LevelOne/Basic.lean#L109)
+(`ModularForm.levelOne_weight_zero_rank_one` — the *holomorphic* weight-zero
+level-one space is just the constants; the modular `j`-invariant is not in
+mathlib).
 
 Companion notes:
 

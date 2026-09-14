@@ -142,11 +142,15 @@ formal shadow:
 
 This is the key conceptual point for the note: `J_0(N)(ℚ̄)` is realized as
 `Div^0 / Prin`, with no `H^1`, no Abel–Jacobi map and no Riemann–Roch in play
-in this theorem. The scheme-theoretic relative Jacobian
+*in this theorem*. The comparison with the analytic Jacobian is a separate,
+later statement — a Hecke-equivariant injection
+`JZero N → S₂(Γ₀(N))^∨/Λ_N` onto the torsion
+([`Thm_..._exists_injective_heckeEquivariant_addMonoidHom_jZero_quotient_periodLattice.lean`, line 18](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_exists_injective_heckeEquivariant_addMonoidHom_jZero_quotient_periodLattice.lean#L18)).
+Likewise the scheme-theoretic relative Jacobian
 (`ModularCurve.exists_relJacobian_jZero`,
 [`Thm_ModularCurve_exists_relJacobian_jZero.lean`, line 46](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_exists_relJacobian_jZero.lean#L46))
-is a *different* construction used elsewhere (Néron models, good reduction);
-the note should say so explicitly to avoid a misreading.
+is a *different* construction used elsewhere (Néron models, good reduction).
+The note should say both explicitly to avoid a misreading.
 
 ## 3. The Hecke action: a divisor correspondence
 
@@ -593,7 +597,10 @@ Generated English glosses (hosted by the author):
    `Def_ModularCurve_HeckeOperator`). Candidate: the `heckeOperatorBar_points_eq_comp_of_transform`
    / `pic0Correspondence_pts_eq_comp_of_poincare_pullbackAlong_iso` results.
 2. Should the note treat the scheme-theoretic Jacobian (`exists_relJacobian_jZero`)
-   at all, or only flag it? The commutation theorem does not use it.
+   at all, or only flag it? The commutation theorem does not use it. Same
+   question for the Abel–Jacobi/period-lattice comparison
+   (`exists_injective_heckeEquivariant_addMonoidHom_jZero_quotient_periodLattice`),
+   which is the substantive link to the analytic Hecke action.
 3. How much of §8.2 (normal closure, Galois bifibre count) to unwind? `base/`
    style would unwind it to the level of the fundamental identity
    `∑ e_w f_w = [E:F]`, which is standard and self-contained.
