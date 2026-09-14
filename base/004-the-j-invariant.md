@@ -352,7 +352,11 @@ is $`\Gamma_0(N)`$-invariant, so it really is a function on $`X_0(N)`$; its
 $`q`$-expansion is free, just $`j(q)`$ with $`q \mapsto q^N`$, which is why the
 formal model can name it at all; and it has a moduli meaning — if
 $`E = \mathbb{C}/(\mathbb{Z}+\mathbb{Z}\tau)`$ and $`C`$ is its cyclic subgroup of
-order $`N`$, then $`j(N\tau)`$ is the $`j`$-invariant of the quotient $`E/C`$. So
+order $`N`$, then $`j(N\tau)`$ is the $`j`$-invariant of the quotient $`E/C`$. The
+direction of the substitution matters: $`j(N\tau)`$ has period $`1/N`$ — finer
+than $`1`$, hence still $`1`$-periodic — so it descends to the $`q`$-disc and has
+a genuine $`q`$-expansion $`j(q^N)`$; by contrast $`j(\tau/N)`$ has period
+$`N`$, is not $`1`$-periodic, and needs the fractional variable $`q^{1/N}`$. So
 $`(j(\tau), j(N\tau))`$ is the pair "$`j`$-invariant of $`E`$, $`j`$-invariant of
 $`E/C`$", which is exactly a point of $`X_0(N)`$; the algebraic relation it
 satisfies is the modular polynomial
@@ -366,7 +370,11 @@ $`j(N\tau)`$ does not generate $`j(\tau)`$, because $`j(\tau)`$ has degree
 $`\psi(N)`$ over $`\mathbb{C}(j(N\tau))`$ — its minimal polynomial there is
 $`\Phi_N(X, j(N\tau))`$ — so for $`N > 1`$ neither of the two is a rational
 function of the other. They are siblings, not parent and child: both have degree
-$`\psi(N)`$ over the common base, and only their compositum is the curve.
+$`\psi(N)`$ over the common base, and only their compositum is the curve. (Honest
+$`q`$-expansions exist because $`\Gamma_0(N)`$ contains the translation $`T`$,
+forcing period $`1`$. Not every congruence subgroup does: $`\Gamma(N)`$ misses
+$`T`$ once $`N > 1`$, its cusp at $`\infty`$ has width $`N`$, and the local
+parameter there is $`q^{1/N}`$.)
 
 **The special values.** The two elliptic points of $`\mathrm{SL}_2(\mathbb{Z})
 \backslash \mathbb{H}`$ carry the two simplest values of $`j`$:
