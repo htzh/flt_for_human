@@ -38,10 +38,10 @@ Github renders `/blob/` pages and supports line fragments: `#L66` highlights lin
 
 ## Github issues
 
-Inline math must use the backtick form: open with a `$` immediately followed by a backtick, close with a backtick immediately followed by `$`. Inside this form everything is literal — no double backslash is needed, so `\#` and `\,` are enough.
+Inline math must use the backtick form: open with a `$` immediately followed by a backtick, close with a backtick immediately followed by `$`. Inside this form backslashes are literal — no double backslash is needed, so `\#` and `\,` are enough. That literalism is Markdown-only: GitHub still HTML-escapes `<`, `>` and `&` here, so write `\lt`, `\gt` and avoid a bare `&` ([notes/github-markdown-math.md](notes/github-markdown-math.md)).
 
 Display math `$$...$$` is the one place where `\\` is still needed to produce a single `\` (e.g. `$$\mathrm{card}\\,E[n]$$`). In particular a matrix row separator is typed `\\\\`, and the punctuation macros `\{`, `\}`, `\;`, `\,` are typed `\\{`, `\\}`, `\\;`, `\\,`; a single backslash before a letter (`\Delta`, `\mathrm`, …) is left alone. A `pmatrix` written with `\\` collapses to one row.
 
 Never use bare `$...$` inline math: its escaping rules differ from the backtick form and are easy to get wrong. `tools/check_math_delimiters.py` flags any bare `$`.
 
-`\operatorname{...}` is not supported in equations — use `\mathrm{...}` instead (e.g. `\mathrm{card}\,M`, `\mathrm{GL}_2`).
+Use `\mathrm{...}` rather than `\operatorname{...}` in equations (e.g. `\mathrm{card}\,M`, `\mathrm{GL}_2`).

@@ -240,7 +240,7 @@ sign). Three inputs:
    $`Q`$ with $`Q(j(q)) \in \mathbb{Z}((q))`$ must have $`Q \in \mathbb{Z}[X]`$.
    Indeed, if $`\deg Q = d`$ then
    $`j(q)^d = q^{-d}\,(1 + 744q + \cdots)`$ has leading term $`q^{-d}`$ with
-   coefficient $`1`$, while $`j^k`$ for $`k < d`$ contributes nothing to
+   coefficient $`1`$, while $`j^k`$ for $`k \lt d`$ contributes nothing to
    $`q^{-d}`$. So the coefficient of $`q^{-d}`$ in $`Q(j(q))`$ is exactly the
    leading coefficient of $`Q`$; it is an integer, so that coefficient is an
    integer. Subtract it and repeat: every coefficient is an integer.
@@ -421,9 +421,9 @@ the classical words of §§1–6.
   $`\zeta_M^{\,ab}`$ is the numerator $`b`$. These are the "two pieces of coset data".
 - **"right cosets of $`\Gamma_0(M)`$ in $`\mathrm{SL}_2(\mathbb{Z})`$".** The
   matrices $`\begin{pmatrix} a & b \\ 0 & d\end{pmatrix}`$ with $`ad = M`$,
-  $`0 \le b < d`$, $`\gcd(a,b,d) = 1`$ are a set of right-coset representatives;
+  $`0 \le b \lt d`$, $`\gcd(a,b,d) = 1`$ are a set of right-coset representatives;
   their number is the index $`\psi(M)`$. Note 010's slot set
-  $`\{(a,b) : a \mid M,\ b < M/a,\ \gcd(\gcd(a,b), M/a) = 1\}`$ is the same set, and
+  $`\{(a,b) : a \mid M,\ b \lt M/a,\ \gcd(\gcd(a,b), M/a) = 1\}`$ is the same set, and
   the $`\psi(M)`$ roots $`j(\zeta_M^{\,ab}q^{a^2})`$ are the conjugates of
   $`j(q^M)`$.
 - **"the affine self-map $`\tau \mapsto a^2\tau + ab`$".** This is the same coset
@@ -449,7 +449,7 @@ check integrality. It goes the other way, and this order is worth knowing:
 
 1. **Build the conjugate product.** The polynomial `phiProd` of
    [Def_ModularCurve_PhiGen.lean, lines 257–258](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_PhiGen.lean#L257-L258)
-   is $`\prod_{b<p}\bigl(X - j(\zeta_p^{\,b}q)\bigr) \cdot \bigl(X - j(q^{p^2})\bigr)`$,
+   is $`\prod_{b \lt p}\bigl(X - j(\zeta_p^{\,b}q)\bigr) \cdot \bigl(X - j(q^{p^2})\bigr)`$,
    written directly from the splitting list of §5.
 2. **Descent.** Each coefficient of the product is shown to be a base-changed
    rational series in $`q^p`$: it is fixed by the twist $`q \mapsto \zeta_p q`$
