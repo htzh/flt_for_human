@@ -324,8 +324,12 @@ functions; without it, agreement of $`q`$-expansions would prove nothing.
 $`X_0(N) \to X(1)`$, $`\tau \mapsto j(\tau)`$, is a cover of degree
 $`\psi(N) = [\mathrm{SL}_2(\mathbb{Z}) : \Gamma_0(N)]`$, so a function of
 $`j(\tau)`$ alone sees only the base: it cannot tell apart the $`\psi(N)`$ points
-of $`X_0(N)`$ lying over one value of $`j`$. The second generator is what moves
-in the fibre. The classical choice $`j(N\tau)`$ is forced by three properties: it
+of $`X_0(N)`$ lying over one value of $`j`$. It is of course true that
+$`j(\tau)`$ is itself $`\Gamma_0(N)`$-invariant — "level $`1`$ implies level
+$`N`$" — but that gives only an inclusion of fields,
+$`\mathbb{C}(j(\tau)) \subseteq`$ (level-$`N`$ functions), and the inclusion is
+strict for $`N > 1`$: its index is $`\psi(N)`$. The second generator is what
+moves in the fibre. The classical choice $`j(N\tau)`$ is forced by three properties: it
 is $`\Gamma_0(N)`$-invariant, so it really is a function on $`X_0(N)`$; its
 $`q`$-expansion is free, just $`j(q)`$ with $`q \mapsto q^N`$, which is why the
 formal model can name it at all; and it has a moduli meaning — if
@@ -339,7 +343,12 @@ Fricke/Atkin–Lehner involution
 $`w_N = \begin{pmatrix} 0 & -1 \\ N & 0\end{pmatrix}`$ interchanges the two
 generators: $`j(w_N\tau) = j(N\tau)`$ and $`j(N w_N \tau) = j(\tau)`$. That
 symmetry is why neither generator alone suffices and why $`\Phi_N`$ is symmetric
-in its two variables.
+in its two variables. In particular the inclusion does not reverse either:
+$`j(N\tau)`$ does not generate $`j(\tau)`$, because $`j(\tau)`$ has degree
+$`\psi(N)`$ over $`\mathbb{C}(j(N\tau))`$ — its minimal polynomial there is
+$`\Phi_N(X, j(N\tau))`$ — so for $`N > 1`$ neither of the two is a rational
+function of the other. They are siblings, not parent and child: both have degree
+$`\psi(N)`$ over the common base, and only their compositum is the curve.
 
 **The special values.** The two elliptic points of $`\mathrm{SL}_2(\mathbb{Z})
 \backslash \mathbb{H}`$ carry the two simplest values of $`j`$:
@@ -419,6 +428,8 @@ Invent. Math. 109 (1992).
 | leading term $`q^{-1}`$ | `coeff_jq_neg_one`, `coeff_jq_of_lt` | [X0 182–186](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_X0.lean#L182-L186) |
 | $`j`$ has a simple pole at the cusp | `order_jq` | [QAdicPlace 12](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_QAdicPlace.lean#L12) |
 | $`F_N^{\mathrm{full}} = \mathbb{Q}(j, j(q^N))`$ | `FunctionFieldGeneration` | [X0 233](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_X0.lean#L233) |
+| $`[\mathbb{Q}(j, j(q^N)) : \mathbb{Q}(j)] = \psi(N)`$ | `finrank_adjoin_jqN_eq_dedekindPsi` | [Thm 8](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_finrank_adjoin_jqN_eq_dedekindPsi.lean#L8) |
+| $`w_N`$ exchanges $`j`$ and $`j(q^N)`$ | `frickeInvolution`, `IsFrickeAut` | [AtkinLehner 16–21](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_AtkinLehner.lean#L16-L21) |
 | analytic $`j`$ | `jAnalytic` | [LevelNFunctionField 22](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_LevelNFunctionField.lean#L22) |
 | base-changed formal series | `jqModC`, `jqModC_rat` | [JqCoeff 15](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_JqCoeff.lean#L15) |
 | analytic $`j`$ maps to formal series | `exists_algHom_laurentSeries_qExpansion` | [Thm 16–18](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_LevelN_exists_algHom_laurentSeries_qExpansion.lean#L16-L18) |
