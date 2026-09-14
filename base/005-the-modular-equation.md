@@ -79,20 +79,29 @@ The $`N`$-torsion is
 $$E_\tau[N] \\;=\\; \tfrac{1}{N}\Lambda_\tau \big/ \Lambda_\tau
   \\;\cong\\; (\mathbb{Z}/N)^2 .$$
 
-For $`p`$ prime this is a two-dimensional vector space over $`\mathbb{F}_p`$. A
-**cyclic $`p`$-isogeny out of $`E_\tau`$** is a surjective group homomorphism
-$`\phi : E_\tau \to E'`$ with finite kernel of order $`p`$. Since $`p`$ is prime, any
-such kernel is a subgroup of order $`p`$,
+For $`p`$ prime this is a two-dimensional vector space over $`\mathbb{F}_p`$.
+Let $`E' = \mathbb{C}/\Lambda'`$ be another complex torus — again an elliptic curve
+$`E_{\tau'}`$ for some $`\tau'`$ (so $`E'`$ is the *target*, and it is not fixed in
+advance). A **cyclic $`p`$-isogeny out of $`E_\tau`$** is a surjective homomorphism
+of complex tori
 
-$$C \\;=\\; \langle (m + n\tau)/p \rangle \\;\le\\; E_\tau[p],$$
+$$\phi : E_\tau \\;\longrightarrow\\; E',$$
 
-and $`\phi`$ is the quotient map $`E_\tau \to E_\tau/C`$. Conversely every order-$`p`$
-subgroup $`C`$ gives such a quotient, and $`E_\tau/C`$ is again a complex torus (a
-lattice quotient), hence again an elliptic curve. So the three languages
+whose kernel is finite of order $`p`$; the target $`E'`$ is the **quotient**. Since
+$`p`$ is prime, that kernel is a subgroup of order $`p`$,
+
+$$\mathcal{C} \\;=\\; \langle (m + n\tau)/p \rangle \\;\le\\; E_\tau[p]
+  \qquad (m, n \in \mathbb{Z}),$$
+
+and $`\phi`$ is the quotient map $`E_\tau \to E_\tau/\mathcal{C}`$, so
+$`E' \cong E_\tau/\mathcal{C}`$ is determined by $`\mathcal{C}`$ up to isomorphism.
+Conversely every order-$`p`$ subgroup $`\mathcal{C}`$ gives such a quotient, and
+$`E_\tau/\mathcal{C}`$ is again a complex torus (a lattice quotient), hence again an
+elliptic curve. So the three languages
 
 > cyclic $`p`$-isogeny out of $`E_\tau`$ $`\;\longleftrightarrow\;`$
-> order-$`p`$ subgroup $`C \le E_\tau`$ $`\;\longleftrightarrow\;`$
-> quotient $`E_\tau/C`$
+> order-$`p`$ subgroup $`\mathcal{C} \le E_\tau`$ $`\;\longleftrightarrow\;`$
+> quotient $`E_\tau/\mathcal{C}`$
 
 name the same thing. Counting them: $`E_\tau[p]`$ has $`p^2-1`$ nonzero elements,
 each order-$`p`$ subgroup contains $`p-1`$ of them, so
@@ -105,17 +114,17 @@ $`E_\tau[p]`$, of which there are $`p+1`$.
 **The quotients, explicitly.** Computing the quotient lattice turns the $`p+1`$ lines
 into $`p+1`$ curves of the same shape $`E_{\tau'}`$:
 
-- the line $`n = 0`$, i.e. $`C = \langle 1/p\rangle`$:
+- the line $`n = 0`$, i.e. $`\mathcal{C} = \langle 1/p\rangle`$:
   $`\Lambda_\tau + \tfrac1p\mathbb{Z} = \tfrac1p(\mathbb{Z} + p\tau\mathbb{Z})`$, so
   the quotient is $`E_{p\tau}`$;
-- the $`p`$ lines $`n \ne 0`$, normalized to $`C = \langle(\tau+b)/p\rangle`$ with
+- the $`p`$ lines $`n \ne 0`$, normalized to $`\mathcal{C} = \langle(\tau+b)/p\rangle`$ with
   $`b \in \mathbb{F}_p`$: the quotient lattice is
   $`\mathbb{Z} + \tfrac{\tau+b}{p}\mathbb{Z}`$, so the quotient is
   $`E_{(\tau+b)/p}`$.
 
 Thus the quoted sentence is a complete list:
 
-$$E_\tau/C \\;\in\\; \bigl\\{\\, E_{p\tau} \\,\bigr\\} \\;\cup\\;
+$$E_\tau/\mathcal{C} \\;\in\\; \bigl\\{\\, E_{p\tau} \\,\bigr\\} \\;\cup\\;
   \bigl\\{\\, E_{(\tau+b)/p} \\;:\\; b = 0,1,\dots,p-1 \\,\bigr\\}.$$
 
 The one curve $`E_{p\tau}`$ is the "line at infinity"; the other $`p`$ are indexed by
@@ -128,8 +137,8 @@ $$j(p\tau) = j(q^p), \qquad
 which is where fractional powers of $`q`$ — and the roots of unity of the splitting
 formula — first appear.
 
-**Duality.** The quotient map $`E_\tau \to E_\tau/C`$ has a dual isogeny
-$`E_\tau/C \to E_\tau`$, of the same degree, whose kernel is the dual subgroup. So
+**Duality.** The quotient map $`E_\tau \to E_\tau/\mathcal{C}`$ has a dual isogeny
+$`E_\tau/\mathcal{C} \to E_\tau`$, of the same degree, whose kernel is the dual subgroup. So
 "being $`p`$-isogenous" is a symmetric relation; this is the source of the symmetry
 $`\Phi_p(X,Y) = \Phi_p(Y,X)`$ below.
 
@@ -146,19 +155,24 @@ $`p+1`$, and the $`p+1`$ subgroups above are the first case.
 ## 3. The modular polynomial
 
 Fix $`N`$ and an elliptic curve $`E`$ with $`j(E) = X`$. Over $`X`$ sit the
-$`\psi(N)`$ curves $`E/C`$, one for each cyclic order-$`N`$ subgroup $`C \le E`$. Put
+$`\psi(N)`$ curves $`E/\mathcal{C}`$, one for each cyclic order-$`N`$ subgroup $`\mathcal{C} \le E`$. Put
 
-$$\Phi_N(X, Y) \\;=\\; \prod_{C} \bigl(Y - j(E/C)\bigr),$$
+$$\Phi_N(X, Y) \\;=\\; \prod_{\mathcal{C}} \bigl(Y - j(E/\mathcal{C})\bigr),$$
 
-the product over the $`\psi(N)`$ cyclic subgroups. This is the **modular polynomial**;
+the product over the $`\psi(N)`$ cyclic subgroups. Two conventions, to keep the two
+roles of each letter apart. $`X`$ and $`Y`$ are the *polynomial variables* of
+$`\Phi_N`$, while the classical names of the modular curves — $`X(1)`$, $`Y(1)`$,
+$`X_0(N)`$ — always carry an argument or a subscript (§1, [004 §5](004-the-j-invariant.md)).
+And $`\mathcal{C}`$ (script) is always a cyclic subgroup, never the complex plane
+$`\mathbb{C}`$ (§2). This is the **modular polynomial**;
 the equation $`\Phi_N(X,Y) = 0`$ is the **modular equation**, and its zero locus is
 the image of the modular curve $`X_0(N)`$ in $`X(1) \times X(1)`$:
 
-$$X_0(N) \\;\longrightarrow\\; X(1) \times X(1), \qquad (E, C) \\;\longmapsto\\;
-  \bigl(j(E),\\, j(E/C)\bigr).$$
+$$X_0(N) \\;\longrightarrow\\; X(1) \times X(1), \qquad (E, \mathcal{C}) \\;\longmapsto\\;
+  \bigl(j(E),\\, j(E/\mathcal{C})\bigr).$$
 
 Since $`E`$ is determined by $`X`$ up to isomorphism and the multiset
-$`\{j(E/C)\}`$ depends only on the isomorphism class, the product is a function of
+$`\{j(E/\mathcal{C})\}`$ depends only on the isomorphism class, the product is a function of
 $`X`$: as a polynomial in $`Y`$,
 
 $$\Phi_N(X,Y) \\;=\\; Y^{\psi(N)} - e_1(X)\\,Y^{\psi(N)-1} + \cdots + (-1)^{\psi(N)}e_{\psi(N)}(X),$$
@@ -170,10 +184,10 @@ classical theory:
 - **monic, of degree $`\psi(N)`$ in $`Y`$** — by construction, one linear factor per
   cyclic subgroup;
 - **symmetric**: $`\Phi_N(X,Y) = \Phi_N(Y,X)`$ — by duality (§2), the Fricke
-  involution $`w_N`$ exchanges $`E`$ and $`E/C`$;
+  involution $`w_N`$ exchanges $`E`$ and $`E/\mathcal{C}`$;
 - **integral**: $`\Phi_N \in \mathbb{Z}[X,Y]`$ — this is the nontrivial one, §4.
 
-Because $`\Phi_N(j(\tau), Y)`$ has exactly the $`\psi(N)`$ roots $`j(E_\tau/C)`$, and
+Because $`\Phi_N(j(\tau), Y)`$ has exactly the $`\psi(N)`$ roots $`j(E_\tau/\mathcal{C})`$, and
 because the cosets of $`\Gamma_0(N)`$ form a single Galois orbit (the cover
 $`X_0(N) \to X(1)`$ is connected), $`\Phi_N`$ is the minimal polynomial of
 $`j(N\tau)`$ over $`\mathbb{C}(j(\tau))`$ and is irreducible there. Its degree is the
@@ -194,7 +208,7 @@ proves it as `ModularCurve.modularPolynomial_kronecker`.
 ## 4. Why the coefficients are integers
 
 This is the part that is easy to state and easy to misjudge. The roots
-$`j(E_\tau/C)`$ are *not* integers — they are transcendental complex numbers. What
+$`j(E_\tau/\mathcal{C})`$ are *not* integers — they are transcendental complex numbers. What
 is integral is their *symmetric* combination, and the reason is a small, completely
 explicit argument with the $`q`$-expansion.
 
@@ -237,7 +251,7 @@ top coefficient of the polynomial. Combining (1)–(3),
 
 $$\Phi_N \\;\in\\; \mathbb{Z}[X,Y], \qquad \text{monic in } Y,\\ \deg_Y = \psi(N),$$
 
-and evaluating at $`X = j(\tau)`$, $`Y = j(N\tau)`$ (the $`C = \langle 1/N\rangle`$
+and evaluating at $`X = j(\tau)`$, $`Y = j(N\tau)`$ (the $`\mathcal{C} = \langle 1/N\rangle`$
 factor, or simply the defining identity) gives the relation
 
 $$\Phi_N\bigl(j(\tau),\\, j(N\tau)\bigr) \\;=\\; 0 .$$
@@ -320,9 +334,11 @@ $$r_1 = j(2\tau) = j(q^2), \qquad
 where $`q = e^{2\pi i\tau}`$ and $`j(-q^{1/2})`$ means the substitution
 $`q^{1/2} \mapsto -q^{1/2}`$. Write $`X = j(q)`$. Then
 
-$$\Phi_2(X,Y) \\;=\\; (Y-r_1)(Y-r_2)(Y-r_3)
-  \\;=\\; Y^3 - e_1 Y^2 + e_2 Y - e_3,
-  \qquad e_1 = r_1+r_2+r_3,\\ \\ e_2 = \sum_{i<j} r_ir_j,\\ \\ e_3 = r_1r_2r_3 .$$
+$$\Phi_2(X,Y) \\;=\\; (Y-r_1)(Y-r_2)(Y-r_3) \\;=\\;
+  Y^3 - e_1 Y^2 + e_2 Y - e_3,$$
+
+with $`e_1 = r_1+r_2+r_3`$, $`e_2 = r_1r_2+r_1r_3+r_2r_3`$ and
+$`e_3 = r_1r_2r_3`$.
 
 By §4 each $`e_k`$ is a polynomial in $`X`$; the pole orders at the cusp are
 $`2, 2, 3`$, so $`\deg e_1, \deg e_2 \le 2`$ and $`\deg e_3 \le 3`$. The $`q`$-expansions
@@ -384,8 +400,8 @@ The following phrases in [math/010](../math/010-function-field-generation.md) ar
 the classical words of §§1–6.
 
 - **"level $`N`$", $`\Gamma_0(N)`$, $`X_0(N)`$.** $`X_0(N)`$ parametrizes pairs
-  $`(E, C)`$ of an elliptic curve with a cyclic subgroup of order $`N`$; the map
-  $`(E,C) \mapsto E`$ is the cover $`X_0(N) \to X(1)`$ of degree $`\psi(N)`$. A
+  $`(E, \mathcal{C})`$ of an elliptic curve with a cyclic subgroup of order $`N`$; the map
+  $`(E,\mathcal{C}) \mapsto E`$ is the cover $`X_0(N) \to X(1)`$ of degree $`\psi(N)`$. A
   "function of level $`N`$" is a function on $`X_0(N)`$. The point
   $`(E_\tau, \langle 1/N\rangle)`$ has the two $`j`$-coordinates
   $`j(\tau) = j(E_\tau)`$ and $`j(N\tau) = j(E_\tau/\langle 1/N\rangle)`$; these are
@@ -421,8 +437,8 @@ the classical words of §§1–6.
   $`j`$ (§1). This is what lets a $`q`$-expansion computation be read back as a
   statement about curves.
 - **"the extra isogeny relation cuts it down".** The fibre of $`X_0(N) \to X(1)`$
-  over $`X`$ has $`\psi(N)`$ points $`j(E/C)`$, but only the one corresponding to
-  $`\langle 1/N\rangle`$ satisfies the additional relation that $`E/C`$ be
+  over $`X`$ has $`\psi(N)`$ points $`j(E/\mathcal{C})`$, but only the one corresponding to
+  $`\langle 1/N\rangle`$ satisfies the additional relation that $`E/\mathcal{C}`$ be
   $`N`$-isogenous to $`E`$ in the prescribed way. The splitting formula of §5 is the
   explicit form of that relation.
 
