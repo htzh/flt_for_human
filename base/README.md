@@ -52,6 +52,16 @@ notation, spending their space on the subject at hand.
   q-expansion faithfully models the function field, and the values
   `j(i) = 1728`, `j(ρ) = 0`, with the compactification `X(1) ≅ ℙ¹`, the
   Hauptmodul property `ℂ(j)`, CM and moonshine stated and cited but not proved.
+- [005 — The modular equation: isogenies, integrality, and splitting](005-the-modular-equation.md):
+  the classical language behind [math/010 §3](../math/010-function-field-generation.md#3-the-modular-polynomial-and-the-roots-of-the-modular-equation) —
+  complex tori and the moduli reading of `j`, order-`N` subgroups / cyclic
+  isogenies / the `p+1` quotient curves `E_{pτ}` and `E_{(τ+b)/p}`, the modular
+  polynomial `Φ_N` and its zero locus in `X(1) × X(1)`, why the symmetric
+  functions of the roots have integer coefficients (algebraic-integer
+  q-expansions, Galois descent, `ℤ` integrally closed in `ℚ`, and the residue-one
+  pole reading off the top coefficient), the prime-level splitting and the
+  coset/slot parametrization `j(ζ_M^{ab} q^{a²})`, the Lean route quoted as a
+  route map, and a hand computation of `Φ₂`.
 
 ## Candidate topics (not yet written, no order implied)
 
