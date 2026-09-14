@@ -199,6 +199,9 @@ mathlib v4.33.0's `Mathlib/NumberTheory/ModularForms/` (39 files) there is:
   Eisenstein series `E₄`, `E₆` as `ModularForm 𝒮ℒ 4`, `𝒮ℒ 6`
   ([EisensteinSeries/Basic.lean, lines 51, 54](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/EisensteinSeries/Basic.lean#L51-L54)),
   Jacobi theta, Dedekind eta, Petersson inner product, `LFunction`;
+- **no modular $`j`$-invariant** — the library stops at $`\Delta`$; the
+  $`q`$-expansion is assembled separately in FLT, and its coefficients computed,
+  in [004 — The j-invariant](004-the-j-invariant.md);
 - one caveat on `E₂`: mathlib's `EisensteinSeries.E2` is only the *function*
   `ℍ → ℂ` ([E2/Defs.lean, line 60](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/EisensteinSeries/E2/Defs.lean#L60)) —
   it is holomorphic and bounded at $`\infty`$ but not slash-invariant, so it is

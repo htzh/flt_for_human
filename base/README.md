@@ -44,6 +44,14 @@ notation, spending their space on the subject at hand.
   construction (weight multiplied by the index, vanishing only on zero forms),
   and the level-one vanishing of §4 taken all the way down to the
   maximum-modulus principle and the fundamental domain.
+- [004 — The j-invariant: its q-expansion and first properties](004-the-j-invariant.md):
+  where FLT's `eisenstein4`, `etaProd` and `Δ/q` come from, the long division
+  that produces `j = q⁻¹ + 744 + 196884q + ⋯`, the formal proof that the
+  coefficients are integers, weight-zero invariance, the simple pole at the cusp,
+  the disc picture and the natural boundary on the real line, why the
+  q-expansion faithfully models the function field, and the values
+  `j(i) = 1728`, `j(ρ) = 0`, with the compactification `X(1) ≅ ℙ¹`, the
+  Hauptmodul property `ℂ(j)`, CM and moonshine stated and cited but not proved.
 
 ## Candidate topics (not yet written, no order implied)
 
