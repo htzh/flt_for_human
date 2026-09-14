@@ -38,6 +38,8 @@ Github renders `/blob/` pages and supports line fragments: `#L66` highlights lin
 
 ## Github issues
 
+**Scope.** These delimiters are for Markdown that GitHub renders — the tracked note files, issues and pull requests. They are not what the DSH GUI renders: chat replies and the document preview use KaTeX with standard LaTeX, so write inline math as `$...$` (or `\(...\)`) and display math as `$$...$$` (or `\[...\]`), with single backslashes throughout (KaTeX lands when the message settles, not mid-stream). The backtick form and the `\\` display escaping below show up as raw text in the GUI.
+
 Inline math must use the backtick form: open with a `$` immediately followed by a backtick, close with a backtick immediately followed by `$`. Inside this form backslashes are literal — no double backslash is needed, so `\#` and `\,` are enough. That literalism is Markdown-only: GitHub still HTML-escapes `<`, `>` and `&` here, so write `\lt`, `\gt` and avoid a bare `&` ([notes/github-markdown-math.md](notes/github-markdown-math.md)).
 
 Display math `$$...$$` is the one place where `\\` is still needed to produce a single `\` (e.g. `$$\mathrm{card}\\,E[n]$$`). In particular a matrix row separator is typed `\\\\`, and the punctuation macros `\{`, `\}`, `\;`, `\,` are typed `\\{`, `\\}`, `\\;`, `\\,`; a single backslash before a letter (`\Delta`, `\mathrm`, …) is left alone. A `pmatrix` written with `\\` collapses to one row.
