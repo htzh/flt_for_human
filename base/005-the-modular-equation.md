@@ -6,7 +6,7 @@ its `q`-expansion; this note supplies the classical language behind
 That section rests on two facts about the *modular polynomial* $`\Phi_N`$:
 
 - **integrality**: there is a monic $`\Phi_N \in \mathbb{Z}[X,Y]`$, of degree
-  $`\psi(N)` in $`Y`$, with $`\Phi_N(j(\tau), j(N\tau)) = 0`$;
+  $`\psi(N)`$ in $`Y`$, with $`\Phi_N(j(\tau), j(N\tau)) = 0`$;
 - **splitting**: over a field containing a primitive $`p`$-th root of unity,
   $`\Phi_p`$ factors into linear factors whose roots are the $`j`$-invariants of the
   $`p+1`$ quotients of $`E_\tau`$ by its order-$`p`$ subgroups.
@@ -481,7 +481,7 @@ $`X,Y`$ (visible in the display), monic of degree $`3 = \psi(2)`$ in each variab
 with integer coefficients. Two cheap checks. First, setting $`Y = X`$ singles out the
 $`j`$-invariants with a self-$`2`$-isogeny: the quartic $`\Phi_2(X,X)`$ factors as
 $`-(X-1728)(X-8000)(X+3375)^2`$, the class-number-one CM points of discriminant
-$`-4, -8, -7`. Second, the leading coefficient of $`e_3`$ is $`-1`$, matching
+$`-4, -8, -7`$. Second, the leading coefficient of $`e_3`$ is $`-1`$, matching
 $`r_1r_2r_3 \sim q^{-2}\cdot(-q^{-1})`$.
 
 One caveat when reading §2's $`p+1`$ quotients as $`p+1`$ *curves*: they are $`p+1`$
