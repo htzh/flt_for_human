@@ -345,7 +345,7 @@ two have real content, both supplied by the modular polynomial:
 ## 5. Two inputs: principal divisors and the modular equation
 
 **Principal divisors.** The ledger repeatedly needs the class
-`HasPrincipalDivisors L (\bar F_M)`: every nonzero function of the
+$`HasPrincipalDivisors L (\bar F_M)`$: every nonzero function of the
 $`q`$-expansion field has a finitely supported, degree-zero divisor. This is
 *not* automatic for a random subfield of $`L((q))`$ — the point is that
 $`\bar F_M`$ is a finite extension of the rational function field
