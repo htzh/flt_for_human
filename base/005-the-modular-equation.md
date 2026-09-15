@@ -136,16 +136,22 @@ $$\\#\\{\text{order-}p\text{ subgroups}\\} \\;=\\; \frac{p^2-1}{p-1} \\;=\\; p+1
 Equivalently, the subgroups are the **lines** of the $`\mathbb{F}_p`$-plane
 $`E_\tau[p]`$, of which there are $`p+1`$.
 
-**The quotients, explicitly.** Computing the quotient lattice turns the $`p+1`$ lines
-into $`p+1`$ curves of the same shape $`E_{\tau'}`$:
+**The quotients, explicitly.** The quotient by $`\mathcal{C} = \langle x\rangle`$ has
+lattice $`\Lambda_\tau + \mathbb{Z}x`$ — a *sum* of lattices, so every simplification
+below is either absorption of a span inside another or pulling a common factor out of
+a sum, never a split of one span. Computing it turns the $`p+1`$ lines into $`p+1`$
+curves of the same shape $`E_{\tau'}`$:
 
-- the line $`n = 0`$, i.e. $`\mathcal{C} = \langle 1/p\rangle`$:
-  $`\Lambda_\tau + \tfrac1p\mathbb{Z} = \tfrac1p(\mathbb{Z} + p\tau\mathbb{Z})`$, so
-  the quotient is $`E_{p\tau}`$;
+- the line $`n = 0`$, i.e. $`\mathcal{C} = \langle 1/p\rangle`$: the quotient lattice is
+  $`\Lambda_\tau + \tfrac1p\mathbb{Z} = \mathbb{Z} + \tfrac1p\mathbb{Z} + \mathbb{Z}\tau
+  = \tfrac1p\mathbb{Z} + \mathbb{Z}\tau = \tfrac1p(\mathbb{Z} + p\tau\mathbb{Z})`$
+  (first $`\mathbb{Z} \subseteq \tfrac1p\mathbb{Z}`$ is absorbed, then $`\tfrac1p`$ is
+  pulled out of the sum), so the quotient is $`E_{p\tau}`$;
 - the $`p`$ lines $`n \ne 0`$, normalized to $`\mathcal{C} = \langle(\tau+b)/p\rangle`$ with
   $`b \in \mathbb{F}_p`$: the quotient lattice is
-  $`\mathbb{Z} + \tfrac{\tau+b}{p}\mathbb{Z}`$, so the quotient is
-  $`E_{(\tau+b)/p}`$.
+  $`\Lambda_\tau + \mathbb{Z}\tfrac{\tau+b}{p} = \mathbb{Z} + \mathbb{Z}\tfrac{\tau+b}{p}`$,
+  absorbing $`\mathbb{Z}\tau`$ via $`\tau = p\,\tfrac{\tau+b}{p} - b`$, so the quotient
+  is $`E_{(\tau+b)/p}`$.
 
 Thus the quoted sentence is a complete list:
 
