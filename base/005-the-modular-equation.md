@@ -71,6 +71,75 @@ $`q = e^{2\pi i\tau}`$, is the bridge to the $`q`$-expansions that FLT actually
 computes with; the substitution $`\tau \mapsto \gamma\tau`$ becomes the formal,
 "slot"-indexed substitution $`q \mapsto \zeta_M^{\,ab} q^{a^2}`$ of §7.
 
+### What a point of $`Y(1)`$ determines: the curve, its model, and $`j`$
+
+Everything above is analytic, through lattices and $`\mathbb{C}`$. From here on the words
+are algebraic, and the Lean pins them down, so it is worth fixing them now. A point of
+$`Y(1)`$ does **not** determine an equation. It determines an isomorphism class of
+elliptic curves, and the code carries an explicit *model* — the coefficients — to
+represent that class.
+
+**A moduli point is a curve plus level data.** `Gamma0Pair N L` is the structure
+([Def_ModularCurve_ModuliPoint.lean, lines 15–40](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_ModuliPoint.lean#L15-L40)):
+`toCurve : WeierstrassCurve L`, the model, i.e. the coefficients $`a_1,\dots,a_6`$;
+`isElliptic : toCurve.IsElliptic`; and
+`gen : toCurve.toAffine.Point` with `addOrderOf gen = N`, the level datum, a point whose
+multiples are the cyclic subgroup $`\langle \mathrm{gen}\rangle`$ of order $`N`$. Two
+such data are identified in `ModuliPoint N L` when a *variable change* carries one model
+to the other and the generators differ by a unit $`k`$ coprime to $`N`$. So a moduli
+point is an isomorphism class, and its level datum is the $`\mathcal{C}`$ of §2 — here a
+subgroup of the point group of a curve, not a quotient lattice. For $`N = 1`$ the level
+datum is trivial, so `ModuliPoint 1 L` is curves up to variable change.
+
+**The map to the $`j`$-line is a function of the coefficients.** `WeierstrassCurve.j` is
+the expression
+
+$$j \\;=\\; \frac{c_4^3}{\Delta} \\;\in\\; R$$
+
+([Weierstrass.lean, line 385](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/AlgebraicGeometry/EllipticCurve/Weierstrass.lean#L385)),
+computed from the coefficients and unchanged by variable change. That invariance is what
+lets it descend to `ModuliPoint.j : ModuliPoint N L → L`, which sends a point to the
+$`j`$ of any model representing it. So a moduli point has a well-defined $`j`$, and
+forgetting the model and the level structure lands on $`Y(1)`$ with coordinate $`j`$ —
+the same coordinate as in the table above, now over any field instead of $`\mathbb{C}`$.
+
+**A $`j`$-value determines the class, and one model is canonical.** For a field $`F`$ and
+$`j \in F`$, `WeierstrassCurve.ofJ j` is an explicit curve with
+`(WeierstrassCurve.ofJ j).j = j`
+([ModelsWithJ.lean, lines 65–182](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/AlgebraicGeometry/EllipticCurve/ModelsWithJ.lean#L65-L182)),
+by cases on $`j`$:
+
+$$j = 0: \quad Y^2 + Y = X^3, \qquad j = 1728: \quad Y^2 = X^3 + X,$$
+
+$$j \ne 0, 1728: \quad Y^2 + (j-1728)XY \\;=\\; X^3 - 36(j-1728)^3X - (j-1728)^5 .$$
+
+Conversely, if two elliptic curves over $`F`$ have the same $`j`$, then a *single*
+variable change carries one to the other (`exists_variableChange_of_j_eq`,
+[IsomOfJ.lean, line 333](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/AlgebraicGeometry/EllipticCurve/IsomOfJ.lean#L333)).
+So "a point of $`Y(1)`$ determines a curve" means exactly this: the isomorphism class is
+determined, `ofJ` is a chosen representative of it, and every other model of that curve
+is reached from `ofJ` by a variable change.
+
+**Which model the code uses at a point.** Attaching `ofJ` everywhere would be awkward
+locally, so the FLT development attaches a model adapted to the point and then proves it
+is `ofJ` up to variable change. For $`j_0 \in \bar{\mathbb{Q}}`$:
+
+- `nearCurve j₀ = WeierstrassCurve.ofJ (jNear j₀)` and
+  `goodModel j₀ = scaleVC j₀ • nearCurve j₀`
+  ([TatePoint.lean, line 21](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_TatePoint.lean#L21),
+  [SpecialisationVocab.lean, lines 103 and 124](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_SpecialisationVocab.lean#L103-L124));
+- and the identification `fibreVC j₀ • specialFibre (goodModel j₀) = WeierstrassCurve.ofJ j₀`
+  ([SpecialisationBridge.lean, lines 181–185](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_SpecialisationBridge.lean#L181-L185)).
+
+That last line is the pattern to expect throughout: explicit coefficients at the point,
+plus an explicit variable change back to the canonical model.
+
+**And $`Y(1)`$ itself.** Formally its function field is $`\mathbb{Q}(j)`$:
+`jLineRingEquiv : RatFunc ℚ ≃+* ℚ⟮jq⟯`. The three distinguished points are named as
+places — `jLinePlaceZero`, `jLinePlace1728`, `jLinePlaceInfty`
+([JLinePlaces.lean, lines 36–58](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_JLinePlaces.lean#L36-L58)) —
+the three values at which the curve has extra symmetry or degenerates.
+
 ## 2. Subgroups, quotients, cyclic isogenies: why $`p+1`$
 
 On $`E_\tau = \mathbb{C}/\Lambda_\tau`$ the group law is inherited from $`\mathbb{C}`$.
