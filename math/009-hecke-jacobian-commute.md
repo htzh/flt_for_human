@@ -372,7 +372,7 @@ for every prime $`\ell`$ there is $`\Phi_\ell \in \mathbb{Z}[X, Y]`$ with
   $`E \to E'`$ being degree-$`\ell`$ on both sides.
 
 In the formalisation $`\Phi_N`$ is produced by `nonempty_modularPolynomialData`
-as the *minimal polynomial of $`j(q^N)`$ over $`\mathbb{Z}[X] = \mathbb{Z}[j]`$*
+as the *minimal polynomial* of $`j(q^N)`$ over $`\mathbb{Z}[X] = \mathbb{Z}[j]`$
 ([Thm_ModularCurve_nonempty_modularPolynomialData.lean, line 8](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_nonempty_modularPolynomialData.lean#L8)):
 $`\mathbb{Q}(j)`$ is the fraction field of $`\mathbb{Z}[X]`$, $`j(q^N)`$ is
 integral over it, and its minimal polynomial is monic of degree
