@@ -441,6 +441,112 @@ two polynomials. The splitting formula is what makes that list possible; the
 "circuitousness" of the formal proof is the price of replacing the geometry by a
 root count.
 
+### $`p = 3`$, concretely: lines, quotients, roots, action
+
+Every notion of §§1–5 can be watched in one example. Fix $`p = 3`$ and a generic
+$`\tau`$, and let $`E_\tau = \mathbb{C}/\Lambda_\tau`$ with
+$`\Lambda_\tau = \mathbb{Z} + \mathbb{Z}\tau`$ be the base curve.
+
+**Curve, torsion, lines (§§1–2).** $`E_\tau[3] = \frac13\Lambda_\tau/\Lambda_\tau`$
+is $`(\mathbb{Z}/3)^2`$, with basis
+$$e_1 = \frac13, \qquad e_2 = \frac{\tau}{3}.$$
+Its four cyclic subgroups are the four lines
+$$L_\infty = \langle e_1\rangle, \qquad
+  L_b = \langle b\,e_1 + e_2\rangle
+      = \Bigl\langle \frac{\tau+b}{3}\Bigr\rangle, \qquad b = 0,1,2,$$
+one fixed line plus three carrying an affine label, as in §2; their number is
+$`\psi(3) = 1 + 3 = 4`$. The index contrast of §2 is now numeric:
+$`[\Lambda_\tau + \mathbb{Z}\frac13 : \Lambda_\tau] = 3`$ — this sum is $`L_\infty`$,
+one of the four lines — whereas $`[\frac13\Lambda_\tau : \Lambda_\tau] = 9`$ is all of
+$`E_\tau[3]`$. Both are lattices because $`\tau \notin \mathbb{R}`$: the directions
+added to $`\Lambda_\tau`$ here are $`\frac13`$ and $`\frac{\tau+b}{3}`$, not an
+irrational real number.
+
+**Line → quotient → root (§§3, §5).** The root attached to a line is the
+$`j`$-invariant of the quotient curve $`E_\tau/L`$:
+
+| line $`L`$ | quotient lattice | $`j(E_\tau/L)`$ |
+|---|---|---|
+| $`L_\infty = \langle\frac13\rangle`$ | $`\mathbb{Z}\frac13 + \mathbb{Z}\tau`$, rescaled by $`3`$ to $`\mathbb{Z} + \mathbb{Z}\,3\tau`$ | $`j(3\tau)`$ |
+| $`L_b = \langle\frac{\tau+b}{3}\rangle`$ | $`\Lambda_\tau + \mathbb{Z}\frac{\tau+b}{3} = \mathbb{Z} + \mathbb{Z}\frac{\tau+b}{3}`$ | $`j\bigl(\frac{\tau+b}{3}\bigr)`$ |
+
+A point of $`X_0(3)`$ is a pair (curve, line): the base point $`j(\tau)`$ is the image
+of the forgetful map $`(E,L) \mapsto E`$, and each root in the table is the image of
+the quotient map $`(E,L) \mapsto E/L`$. By §1 such a pair determines its quotient curve
+only up to isomorphism, recorded by $`j`$; the canonical model of §1 (`ofJ` in the
+code) represents any of them, so no Weierstrass equation is needed here.
+
+In the second row, $`\tau = 3\cdot\frac{\tau+b}{3} - b`$, so the lattice is already
+presented on the basis $`\bigl(1, \frac{\tau+b}{3}\bigr)`$; in the first, rescaling a
+lattice changes neither the curve nor $`j`$ (§1). So the roots of $`\Phi_3`$ at
+$`X = j(\tau)`$ are exactly the four quotients of $`E_\tau`$ by its four order-$`3`$
+subgroups:
+$$\Phi_3\bigl(j(\tau), Y\bigr) = \bigl(Y - j(3\tau)\bigr)
+  \prod_{b=0}^{2}\Bigl(Y - j\bigl(\tfrac{\tau+b}{3}\bigr)\Bigr).$$
+No explicit $`\Phi_3`$ is needed: it has degree $`4 = \psi(3)`$ in each variable and
+integer coefficients, by §3 and §4. The roots are distinct for generic $`\tau`$,
+separated as in §5's last bullet: in the variable $`Q = q^{1/3} = e^{2\pi i\tau/3}`$
+the root $`j(3\tau) = j(Q^9)`$ has a pole $`Q^{-9}`$, while each
+$`j\bigl(\frac{\tau+b}{3}\bigr) = j(\zeta_3^{\,b}Q)`$ has a simple pole $`Q^{-1}`$ with
+residue $`\zeta_3^{-b}`$.
+
+**A matrix moves lines, hence roots.** Write $`r_\infty = j(3\tau)`$ and
+$`r_b = j\bigl(\frac{\tau+b}{3}\bigr)`$. Modulo scalars,
+$`\mathrm{GL}_2(\mathbb{F}_3)`$ acts on the four lines; since the roots are labelled by
+the lines, every matrix permutes the roots by
+$$g \cdot r(L) := r(gL).$$
+
+| $`g`$ | on the four lines | on the four roots |
+|---|---|---|
+| `u = [[1,1],[0,1]]` | $`\infty \mapsto \infty`$, $`b \mapsto b+1`$ | $`r_0 \to r_1 \to r_2 \to r_0`$, $`r_\infty`$ fixed |
+| `d = [[-1,0],[0,1]]` | $`\infty \mapsto \infty`$, $`b \mapsto -b`$ | $`r_1 \leftrightarrow r_2`$ |
+| `w = [[0,-1],[1,0]]` | $`\infty \leftrightarrow 0`$, $`1 \leftrightarrow 2`$ | $`r_\infty \leftrightarrow r_0`$, $`r_1 \leftrightarrow r_2`$ |
+
+Two of the computations: $`u`$ sends $`b\,e_1 + e_2`$ to
+$`b\,e_1 + (e_1 + e_2) = (b+1)e_1 + e_2`$, so the label moves by $`+1`$; and $`w`$
+sends it to $`-e_2 + b\,e_1 = e_1 - b\,e_2`$, the line of slope $`-1/b`$, which
+exchanges $`\infty \leftrightarrow 0`$ and $`1 \leftrightarrow 2`$. This is a
+statement about the labels; which of these permutations is realized by a symmetry of a
+particular base point is a separate question, answered next.
+
+**Which matrices act over the base (§8's two invariances).** On $`E_\tau`$ itself no
+line is distinguished, and the element is $`r_\infty = j(3\tau)`$. Move the base one
+level up, to the curve of $`j`$-value $`j(3\tau)`$ — note 010's base. That curve is
+$`E_{3\tau}`$, whose $`3`$-torsion has basis $`\frac13`$ and $`\tau`$; its canonical
+line $`\langle\frac13\rangle`$ gives the element $`j(9\tau)`$, and its other three
+lines give $`j\bigl(\tau + \frac b3\bigr)`$, $`b = 0,1,2`$ — the slot list of §5. The
+matrices fixing the canonical line, modulo scalars, form the Borel subgroup of order
+$`p(p-1) = 6`$, generated by $`u`$ and $`d`$; they are exactly the symmetries over
+this base:
+
+- $`u`$ is the *shift* $`\tau \mapsto \tau + \frac13`$: it fixes $`j(3\tau)`$ because
+  $`j(3\tau+1) = j(3\tau)`$, and on the nome it is $`q \mapsto \zeta_3 q`$ (the twist).
+  It fixes the element $`j(9\tau)`$ and cycles the other three roots. This is `qTwist`.
+- $`d`$ is the *diamond*, the constant-field automorphism
+  $`\zeta_3 \mapsto \zeta_3^{-1}`$ (in a basis normalised by the Weil pairing, so its
+  determinant is the cyclotomic character). It fixes $`j(9\tau)`$ and $`j(\tau)`$, and
+  swaps $`j\bigl(\tau \pm \frac13\bigr)`$. This is the Galois step of the descent.
+- $`w`$ swaps the canonical line with another, so it does not preserve the element
+  $`j(9\tau)`$; it is a symmetry of the labelling only.
+
+**Under the code's names.** `primCosetReps 3` is the four triples with $`ad = 3`$ and
+the coprimality condition, $`(3,0,1), (1,0,3), (1,1,3), (1,2,3)`$; the value attached to
+$`(a,b)`$ is $`\zeta_3^{\,ab}q^{a^2}`$, that is $`q^9, q, \zeta_3q, \zeta_3^2q`$;
+`phiProd` is $`\prod (X - \text{value})`$ over these four, i.e.
+$`(X - q)(X - \zeta_3q)(X - \zeta_3^2q)(X - q^9)`$; `TS K e u` is $`j(uq^e)`$, so
+`TS K 9 1` is $`j(q^9)`$ and `TS K 1 ζ_3^b` is $`j(\zeta_3^{\,b}q)`$; `qExpand 3` is
+$`q \mapsto q^3`$, and `cosetSubst` composes an expansion with a twist.
+
+**The descent in this example.** The fourth factor $`(X - j(q^9))`$ has integral
+coefficients and is fixed by both actions below, so only the three twist factors
+matter. Their product is fixed by the twist $`q \mapsto \zeta_3q`$, which permutes the
+three factors; hence every coefficient is a series in $`q^3`$, since only exponents
+divisible by $`3`$ survive. It is also fixed by $`\zeta_3 \mapsto \zeta_3^{-1}`$, the
+nontrivial automorphism of $`\mathbb{Q}(\zeta_3)`$, hence every coefficient is
+rational. So every coefficient lies in $`\mathbb{Q}((q^3))`$, i.e. is the
+$`q \mapsto q^3`$ pullback of a rational series — exactly the conclusion of
+`exists_phiGenDescends` for $`p = 3`$.
+
 ## 6. A hand calculation: $`\Phi_2`$
 
 Let us verify that §§1–5 determine the first nontrivial modular polynomial. Take
@@ -530,13 +636,15 @@ off). This is the classical route, and it is a fair test that §§1–5 are enou
 ## 7. Reading note 010: a short dictionary
 
 The following phrases in [math/010](../math/010-function-field-generation.md) are
-the classical words of §§1–6. The coset representative appearing in them is the
-upper-triangular matrix
+the classical words of §§1–6. The label appearing in them is the upper-triangular
+matrix
 
 $$\gamma = \begin{pmatrix} a & b \\\\ 0 & d\end{pmatrix}, \qquad
   ad = M, \qquad 0 \le b \lt d,$$
 
-and the two pieces of coset data are read off its entries $`a`$ and $`b`$.
+of determinant $`M`$: an isogeny (Hecke) label, *not* an element of
+$`\mathrm{SL}_2(\mathbb{Z})`$ unless $`M = 1`$. The two pieces of data are read off
+its entries $`a`$ and $`b`$.
 
 - **"level $`N`$", $`\Gamma_0(N)`$, $`X_0(N)`$.** $`X_0(N)`$ parametrizes pairs
   $`(E, \mathcal{C})`$ of an elliptic curve with a cyclic subgroup of order $`N`$; the map
@@ -549,7 +657,7 @@ and the two pieces of coset data are read off its entries $`a`$ and $`b`$.
   there are forgetful maps $`X_0(N) \to X_0(M)`$ (forget part of the cyclic
   subgroup); note 010's generation theorem says the *function field* sees only the
   two ends, $`\mathbb{Q}(j, j(q^N)) = \mathbb{Q}(X_0(N))`$.
-- **"denominator-square $`a^2`$".** The coset representative $`\gamma`$ above acts by
+- **"denominator-square $`a^2`$".** The label $`\gamma`$ above acts by
   $`\tau \mapsto (a\tau+b)/d`$. With $`q_1 = e^{2\pi i\tau}`$,
   $`e^{2\pi i (a\tau+b)/d} = \zeta_M^{\,ab}\,q_1^{\,a/d}`$; over the common
   denominator $`M = ad`$ this is $`\zeta_M^{\,ab}\,q_1^{\,a^2/M}`$. So after the
@@ -557,12 +665,18 @@ and the two pieces of coset data are read off its entries $`a`$ and $`b`$.
   $`j(\zeta_M^{\,ab}\,q^{a^2})`$: the exponent $`a^2`$ is the numerator $`a`$ of the
   fractional power $`a/d`$ written over the denominator $`M`$, and the twist
   $`\zeta_M^{\,ab}`$ is the numerator $`b`$. These are the "two pieces of coset data".
-- **"right cosets of $`\Gamma_0(M)`$ in $`\mathrm{SL}_2(\mathbb{Z})`$".** The
-  matrices $`\gamma`$ above with $`\gcd(a,b,d) = 1`$ are a set of right-coset
-  representatives; their number is the index $`\psi(M)`$. Note 010's slot set
-  $`\{(a,b) : a \mid M,\ b \lt M/a,\ \gcd(\gcd(a,b), M/a) = 1\}`$ is the same set, and
-  the $`\psi(M)`$ roots $`j(\zeta_M^{\,ab}q^{a^2})`$ are the conjugates of
-  $`j(q^M)`$.
+- **"right cosets of $`\Gamma_0(M)`$ in $`\mathrm{SL}_2(\mathbb{Z})`$".** Two
+  $`\psi(M)`$-element sets are in play here, identified by the isogeny kernel but not
+  by the same matrices. The cover $`X_0(M) \to X(1)`$ has fibre the right cosets
+  $`\Gamma_0(M)\backslash\mathrm{SL}_2(\mathbb{Z})`$, of size the index $`\psi(M)`$,
+  whose representatives are honest unimodular matrices (equivalently: the lines of
+  $`(\mathbb{Z}/M)^2`$). The matrices $`\gamma`$ above have determinant $`M`$, so they
+  are not among them; with $`\gcd(a,\gcd(b,d)) = 1`$ they are the standard labels of
+  the $`\psi(M)`$ $`M`$-isogenies — the Hecke operator $`T_M`$'s representatives —
+  which is what the root list of §5 uses, through $`\tau \mapsto (a\tau+b)/d`$. Same
+  cardinality and the same $`j`$-values, different matrices. Note 010's slot set
+  $`\{(a,b) : a \mid M,\ b \lt M/a,\ \gcd(\gcd(a,b), M/a) = 1\}`$ is exactly this
+  label set.
 - **"the affine self-map $`\tau \mapsto a^2\tau + ab`$".** This is the same coset
   data written on the level-$`M`$ nome: $`\zeta_M^{\,ab}q^{a^2}`$ is the nome of
   $`a^2\tau+ab`$ (for $`q = e^{2\pi i\tau/M}`$), which is the action of the
