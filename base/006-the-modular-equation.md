@@ -340,6 +340,27 @@ untouched" are the same statement. A loop is not a label either: the coset
 representatives of §5, equivalently the lines of $`\mathbb{F}_p^2`$, *are* the fibre
 points, and a loop acts on them.
 
+**Where the permutations come from.** The cover is
+$`\Gamma_0(p)\backslash\mathbb{H} \to \mathrm{SL}_2(\mathbb{Z})\backslash\mathbb{H}`$,
+so the fibre over a generic point is the set of $`p+1`$ cosets
+$`\Gamma_0(p)\backslash\mathrm{SL}_2(\mathbb{Z})`$ — the cosets `primCosetReps`
+enumerates — and $`\mathrm{SL}_2(\mathbb{Z})`$ permutes them by right multiplication.
+That permutation *is* the monodromy, and under 005 §2's dictionary the cosets are the
+lines of $`E[p] \cong \mathbb{F}_p^2`$ (the $`p^2-1`$ nonzero vectors fall $`p-1`$ to a
+line, giving $`p+1`$ lines; for $`p = 3`$, $`8 = 4\cdot2`$). Two matrices act alike
+exactly when they agree modulo $`p`$ up to sign, so the action is the reduction
+$`\mathrm{SL}_2(\mathbb{Z}) \to \mathrm{SL}_2(\mathbb{F}_p)`$ followed by the action of
+$`\mathrm{PSL}_2(\mathbb{F}_p) := \mathrm{SL}_2(\mathbb{F}_p)/\{\pm I\}`$ on the lines.
+The monodromy group therefore has order $`p(p^2-1)/2`$ for odd $`p`$, and all of its
+elements are even permutations of the $`p+1`$ lines. The cusp monodromy alone is a
+single $`p`$-cycle fixing the line at infinity, so it is not transitive; the full group
+is, which is the connectedness of $`X_0(p)`$ over $`X(1)`$. For $`p = 3`$ this group is
+$`\mathrm{PSL}_2(\mathbb{F}_3) = A_4`$, the $`12`$ even permutations of the four lines,
+while the full symmetry group of those four lines is
+$`\mathrm{PGL}_2(\mathbb{F}_3) := \mathrm{GL}_2(\mathbb{F}_3)/\{\text{scalars}\} = S_4`$:
+the odd permutations missing from the monodromy are exactly the arithmetic action
+described next.
+
 **The other two local monodromies.** The cusp loop is the twist of the opening,
 $`q' \mapsto \zeta_p q'`$. Around $`j = 1728`$ and $`j = 0`$ one gets the local
 monodromies of order dividing $`2`$ and $`3`$ attached to the elliptic points of
@@ -349,10 +370,11 @@ $`X(1)`$; these three local monodromies generate the monodromy.
 $`\zeta_p \mapsto \zeta_p^a`$ is not a loop and is not monodromy: it is
 $`\mathrm{Gal}(\mathbb{Q}(\zeta_p)/\mathbb{Q})`$ acting on the coefficients of the
 slots, permuting them by $`b \mapsto ab`$ (for $`p = 3`$, swapping
-$`r_1 \leftrightarrow r_2`$). It is a symmetry of the root list that no loop
-produces, and §6 checks it alongside the twist. "The symmetries over the base" and
-"the symmetries fixing the element" are therefore different groups, and §6 uses the
-second.
+$`r_1 \leftrightarrow r_2`$). It is a symmetry of the root list that no loop produces:
+for $`p = 3`$ the loops are exactly the $`12`$ even permutations of the four roots —
+$`u`$ and $`w`$ already generate them — while the diamond is a single transposition,
+hence odd. §6 checks it alongside the twist. "The symmetries over the base" and "the
+symmetries fixing the element" are therefore different groups, and §6 uses the second.
 
 **Why exactly two invariances.** The two are the twist, a geometric symmetry (a loop),
 and the diamond, an arithmetic one (a Galois action on the labels). A coefficient of
@@ -479,14 +501,20 @@ all four roots):
 - $`u`$ is the cusp monodromy: on the base it is the translation $`\tau \mapsto \tau+1`$,
   which fixes the base point, $`j(\tau+1) = j(\tau)`$, and on the level-$`3`$ nome it
   is the twist $`q' \mapsto \zeta_3 q'`$. It fixes the element $`j(3\tau) = j(q'^9)`$
-  and cycles the other three roots. This is `qTwist`.
+  and cycles the other three roots. This is `qTwist`. In the coset picture below it is
+  right multiplication by $`T = [[1,1],[0,1]]`$, which lies in $`\Gamma_0(3)`$ and so
+  fixes the identity coset.
 - $`d`$ is the *diamond*, the constant-field automorphism
   $`\zeta_3 \mapsto \zeta_3^{-1}`$ (in a basis normalised by the Weil pairing, so its
   determinant is the cyclotomic character). It fixes the element $`j(3\tau)`$ and the
   base $`j(\tau)`$, and swaps $`j\bigl(\frac{\tau+1}{3}\bigr)`$ with
-  $`j\bigl(\frac{\tau+2}{3}\bigr)`$. This is the Galois step of the descent.
-- $`w`$ swaps the canonical line with another, so it does not preserve the element
-  $`j(3\tau)`$; it is a symmetry of the labelling only.
+  $`j\bigl(\frac{\tau+2}{3}\bigr)`$. This is the Galois step of the descent: note that
+  $`\det d = -1`$, so $`d`$ is not in $`\mathrm{SL}_2(\mathbb{Z})`$ at all and cannot
+  come from the coset action — only from the arithmetic of the coefficients.
+- `w = [[0,-1],[1,0]]` is the local monodromy at the elliptic point $`j = 1728`$:
+  this matrix generates the stabilizer of $`\tau = i`$, so $`w`$ is a loop, like the
+  cusp monodromy. It swaps the canonical line with another, hence does not preserve the
+  element $`j(3\tau)`$; the descent does not use it.
 
 **Under the code's names.** `primCosetReps 3` is the four triples with $`ad = 3`$ and
 the coprimality condition, $`(3,0,1), (1,0,3), (1,1,3), (1,2,3)`$; the value attached to
