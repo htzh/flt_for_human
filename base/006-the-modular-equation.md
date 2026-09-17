@@ -136,7 +136,9 @@ sign). Three inputs:
 1. **Each conjugate has an algebraic-integer $`q`$-expansion.** By §1 the conjugates of
    $`j(N\tau)`$ over $`K = \mathbb{Q}(j)`$ are the $`\psi(N)`$ roots of
    $`\Phi_N(j(\tau), Y)`$; after the substitution $`q \mapsto q^N`$ on the coefficients
-   (the normalization of §1) they are the slot values $`j(\zeta_N^{\,ab} q^{a^2})`$
+   (the normalization of §1) they are the slot values $`j(\zeta_N^{\,ab} q^{a^2})`$ —
+   the letter $`q`$ here is the renamed one, §3's **level-$`N`$ nome** $`q'`$; the code,
+   which never needs both names at once, keeps the single letter —
    attached to the determinant-$`N`$ labels of §5 — labels in $`M_2(\mathbb{Z})`$, not
    coset representatives in $`\mathrm{SL}_2(\mathbb{Z})`$. Since
    $`j(q) \in \mathbb{Z}((q))`$ ([004 §4](004-the-j-invariant.md)) and $`\zeta_N^{\,ab}`$
@@ -206,61 +208,96 @@ The right-hand side is a product of $`p+1`$ linear factors, one per cyclic
 $`p`$-isogeny: the "extra" root $`j(p\tau)`$ (the line at infinity) and the $`p`$
 roots $`j((\tau+b)/p)`$ (the finite-slope lines). This explicit list of roots is the
 **splitting of the modular equation**. $`\Phi_p`$ is irreducible over
-$`\mathbb{Q}(j)`$, so it does not factor there; the list says that its roots are
-indexed by $`b \in \mathbb{Z}/p`$ and resolve into the $`p+1`$ linear factors above
-once the $`p`$-th root of the nome, $`q^{1/p}`$, and the root of unity $`\zeta_p`$
-that keeps track of $`b`$ are available. That is the generic base point
-$`X = j(\tau)`$: there the extra root is $`j(q^p)`$, while the conjugates are
-$`j(\zeta_p^{\,b}q^{1/p})`$ — it is the conjugates, not the element, that need the
-fractional nome. Note 010 therefore uses the specialization $`X = j(u^p q^{pe})`$
-with $`e \ge 1`$ (the code's `[NeZero e]`), which is the same identity read at the
-base point $`\tau' = p\tau`$ when $`e = 1`$: the base field is then
-$`\mathbb{Q}(j(q^p))`$ and the conjugates are $`j(\zeta_p^{\,b}q)`$ — honest Laurent
-series in the one name $`q`$. Equivalently, one renames the uniformizer and writes
-the old nome as $`q^p`$; either way the fractional exponents are gone and the
-identity is an equality in $`K(\!(q)\!)`$ for any field $`K \ni \zeta_p`$.
+$`\mathbb{Q}(j)`$, so it does not factor there; the list becomes an actual
+factorization only after the nome is renormalized, which is what the next paragraphs
+do.
+
+**Monodromy, intuitively.** Over a point of the $`j`$-line sits the $`p+1`$-element
+fibre of 005 §2: the quotients of the curve by its cyclic order-$`p`$ subgroups. Walk
+a closed loop in the base that avoids $`j = 0, 1728, \infty`$, and carry the fibre
+along. Each quotient comes back as *some* quotient over the same base point, but
+nothing forces it to come back as itself, so the loop induces a permutation of the
+$`p+1`$ fibre points. Let $`S_{p+1}`$ be the group of all permutations of $`p+1`$
+points; the permutations that arise from loops form a subgroup of $`S_{p+1}`$, called
+the **monodromy**. Two consequences are all we use, and neither is proved here — the
+proofs in §6 expand in the nome, they never use loops.
+
+- The individual roots are not functions of the base point, since a loop may permute
+  them; but any *symmetric* function of the $`p+1`$ roots comes back unchanged, i.e.
+  is single-valued on the base. This is the geometric reason a coefficient of
+  $`\Phi_p`$, being such a symmetric function, is a function of $`j`$.
+- The loop around the cusp is the translation $`\tau \mapsto \tau+1`$. It fixes the
+  extra root and cycles the other $`p`$ by $`b \mapsto b+1`$: the quotient by the line
+  $`\langle(\tau+b)/p\rangle`$ returns as the quotient by
+  $`\langle(\tau+b+1)/p\rangle`$. §6 calls this symmetry the **twist**.
+
+**Two nomes, and why the second is needed.** Now write the fibre in series. Let
+
+$$q \\;=\\; e^{2\\pi i\\tau}$$
+
+be the nome of the generic point — the code's `jq`, the variable in which
+$`j(\tau) = j(q)`$; this is the letter used in the rest of the note. In $`q`$ the extra
+root is an honest series, $`j(p\tau) = j(q^{p})`$, but the other $`p`$ roots are not:
+they need a $`p`$-th root of the nome,
+
+$$j\bigl(\tfrac{\tau+b}{p}\bigr) \\;=\\;
+  j\bigl(\zeta_p^{\,b}\\,q^{1/p}\bigr).$$
+
+That is the monodromy of the previous paragraph in formula form: $`q^{1/p}`$ is not
+single-valued on the base, and the cusp loop multiplies it by $`\zeta_p`$. So give
+that fractional power its own name and use it as the uniformizer:
+
+$$q' \\;:=\\; q^{1/p} \\;=\\; e^{2\\pi i\\tau/p},
+  \qquad\text{equivalently}\qquad q \\;=\\; q'^{p}.$$
+
+This $`q'`$ is the **level-$`p`$ nome**. In it every root of $`\Phi_p`$ is an honest
+Laurent series, and that is the form in which the descent below is computed:
+
+| object | in $`\tau`$ | generic nome $`q`$ | level-$`p`$ nome $`q'`$ |
+|---|---|---|---|
+| base field | $`\mathbb{Q}(j(\tau))`$ | $`\mathbb{Q}(j(q))`$ | $`\mathbb{Q}(j(q'^{p}))`$ |
+| the extra root | $`j(p\tau)`$ | $`j(q^{p})`$ | $`j(q'^{p^2})`$ |
+| the other $`p`$ roots | $`j((\tau+b)/p)`$ | $`j(\zeta_p^{\,b}q^{1/p})`$ | $`j(\zeta_p^{\,b}q')`$ |
+
+The passage from the second column to the third is the substitution
+$`q \mapsto q'^{p}`$, i.e. the code's `qExpand ℚ p`. The abstract base field
+$`\mathbb{Q}(j) \cong \mathrm{RatFunc}\,\mathbb{Q}`$ is thus realized inside the
+ambient ring $`\mathbb{Q}((q'))`$ as the subfield $`\mathbb{Q}(j(q'^p))`$ generated by
+the single series $`j(q'^p)`$, which equals $`j(\tau)`$. The uniformizer $`q'`$ itself
+is not an element of that subfield, so substitutions such as
+$`q' \mapsto \zeta_p q'`$ act on the ambient ring, not on $`Y(1)`$.
 
 **Group-theoretic reading.** The $`p+1`$ roots are the lines of
 $`\mathbb{F}_p^2`$: one fixed line plus $`p`$ lines carrying the affine label
 $`b \in \mathbb{F}_p`$. The labels are permuted by the units of $`\mathbb{F}_p`$,
-which is how the cyclotomic field enters; concretely, in the normalization of the
-table below — base field $`\mathbb{Q}(j(q^p))`$, extra root $`j(q^{p^2})`$,
-conjugates $`j(\zeta_p^{\,b}q)`$ — the substitution $`q \mapsto \zeta_p q`$
-(multiply the nome by $`\zeta_p`$) fixes $`j(q^{p^2})`$, since
-$`\zeta_p^{\,p^2} = 1`$, cycles $`j(\zeta_p^{\,b}q)`$ through
-$`b = 0,\dots,p-1`$, and fixes $`j(q^p)`$, hence fixes the base field pointwise.
+which is how the cyclotomic field enters; concretely, in the level-$`p`$ nome — base
+field $`\mathbb{Q}(j(q'^p))`$, extra root $`j(q'^{p^2})`$, conjugates
+$`j(\zeta_p^{\,b}q')`$ — the substitution $`q' \mapsto \zeta_p q'`$ (multiply the nome
+by $`\zeta_p`$, the twist) fixes $`j(q'^{p^2})`$, since $`\zeta_p^{\,p^2} = 1`$,
+cycles $`j(\zeta_p^{\,b}q')`$ through $`b = 0,\dots,p-1`$, and fixes $`j(q'^p)`$,
+hence fixes the base field pointwise.
 That is exactly the hypothesis of the irreducibility criterion
 `Polynomial.irreducible_of_transitive_ringAut`: a monic polynomial that splits with
 distinct roots, one root outside the base field and all the others cycled by a
 base-field automorphism, is irreducible.
 
-**Nome form, and the two fields.** With $`X = j(\tau)`$ the roots are the
-$`j`$-values of 005 §2. Note 010 uses the same identity at the base point
-$`\tau' = p\tau`$ — equivalently, after the substitution $`q \mapsto q^p`$ on the nome.
-Two fields are then in play, and it pays to keep them apart. The abstract base field is
-the rational function field $`\mathbb{Q}(j) \cong \mathrm{RatFunc}\,\mathbb{Q}`$;
-concretely it is realized inside the ambient Laurent series ring $`\mathbb{Q}((q))`$ as
-the subfield $`\mathbb{Q}(j(q^p))`$ generated by the single *series* $`j(q^p)`$. The
-letter $`q`$ is not an element of that field — it is only the uniformizer of the ambient
-ring — so the substitutions $`q \mapsto q^p`$ and $`q \mapsto \zeta_p^{\,b}q`$ act on
-the ambient ring, not on $`Y(1)`$: they carry the base field *into* larger fields, which
-is where the conjugates live. Writing $`q = e^{2\pi i\tau}`$ for the code's variable:
-
-| object | classical | as a series in $`q`$ |
-|---|---|---|
-| base field | $`\mathbb{Q}(j(p\tau))`$ | $`\mathbb{Q}(j(q^p))`$ |
-| the element, $`j(p\tau')`$ | $`j(p^2\tau)`$ | $`j(q^{p^2})`$ |
-| the other $`p`$ conjugates, $`j((\tau'+b)/p)`$ | $`j(\tau + b/p)`$ | $`j(\zeta_p^{\,b}q)`$ |
-
-Allowing an arbitrary level datum $`(e,u)`$ with $`e \ge 1`$ — the substitution
-$`\tau \mapsto e\tau + \text{const}`$, i.e. $`q \mapsto u q^e`$ — gives the statement
-in the exact shape quoted by note 010,
+Allowing an arbitrary level datum $`(e,u)`$ with $`e \ge 1`$ — the base point
+$`e\tau + \text{const}`$, i.e. the substitution $`q \mapsto u^p q^{e}`$ in the generic
+nome — gives the statement in the exact shape quoted by note 010,
 
 $$\Phi_p\bigl(j(u^p q^{pe}),\\, Y\bigr) \\;=\\;
   \bigl(Y - j(u^{p^2} q^{p^2 e})\bigr)
   \prod_{b=0}^{p-1}\bigl(Y - j(u\\,\zeta_p^{\\,b}\\,q^{e})\bigr),$$
 
-which is Lean's `ModularCurve.PhiGen.splits_prime_at_slot`.
+which is Lean's `ModularCurve.PhiGen.splits_prime_at_slot`, written in the code's
+letter $`q`$, the generic nome of this note. Here the base field is
+$`\mathbb{Q}(j(u^p q^{pe}))`$, the extra root is $`j(u^{p^2}q^{p^2e})`$ and the
+conjugates are $`j(u\zeta_p^{\,b}q^{e})`$ — honest Laurent series in the one name
+$`q`$, so the identity is an equality in $`K(\!(q)\!)`$ for any field
+$`K \ni \zeta_p`$, and the hypothesis $`e \ge 1`$ (the code's `[NeZero e]`) keeps
+every exponent nonnegative. At $`e = 1`$, $`u = 1`$ the base point is
+$`\tau' = p\tau`$; the table above is the same identity read at the base point
+$`\tau`$ in the level-$`p`$ nome.
 
 **The roots are distinct, and two coefficients show it.** In the prime case it takes only
 two coefficients to see that different cosets give different $`j`$. The code's normal form
@@ -299,50 +336,38 @@ $$Y([E,L]) := j(E/L),$$
 so the $`p+1`$ roots of $`\Phi_p(j(\tau),Y)`$ are exactly the values of $`Y`$ on that
 fibre — 005 §2's dictionary in one line.
 
-**Loops permute the fibre, not the base.** A loop in $`X(1)`$ that avoids the branch
-points $`j = 0, 1728, \infty`$ lifts to a permutation of the $`p+1`$ points above the
-base point — the monodromy
-$`\pi_1\bigl(X(1) \smallsetminus \{0,1728,\infty\}\bigr) \to S_{p+1}`$. Composed with
-$`Y`$ it permutes the roots and fixes $`X`$; so "an action permutes the roots" and "the
-indeterminate $`Y`$ is untouched" are the same statement, and a coefficient of
-$`\Phi_p`$, being a symmetric function of the roots, is fixed.
+**Loops permute the fibre, not the base.** This is the monodromy picture of the
+opening of this section, stated on the cover: a loop in $`X(1)`$ avoiding
+$`j = 0, 1728, \infty`$ comes back as a permutation of the $`p+1`$ points above the
+base point, i.e. as an element of $`S_{p+1}`$. Composed with $`Y`$ it permutes the
+roots and fixes $`X`$; so "a loop permutes the roots" and "the indeterminate $`Y`$ is
+untouched" are the same statement, and a coefficient of $`\Phi_p`$, being a symmetric
+function of the roots, is fixed. A loop is not a label: the coset representatives of
+§5, equivalently the lines of $`\mathbb{F}_p^2`$, *are* the fibre points, and a loop
+acts on them.
 
-**The image is not all of $`S_{p+1}`$.** The cover is the quotient of the Galois cover
-$`X(p) \to X(1)`$ (deck group $`\mathrm{PSL}_2(\mathbb{F}_p)`$, of degree
-$`p(p^2-1)/2`$ for odd $`p`$) by the Borel, and the fibre is
-$`\mathbb{P}^1(\mathbb{F}_p)`$; so the monodromy group is
-$`\mathrm{PSL}_2(\mathbb{F}_p)`$ acting on the $`p+1`$ lines, by even permutations for
-odd $`p`$. For $`p = 3`$ that is $`A_4 \subset S_4`$, of order $`12`$; for $`p = 2`$ it
-is all of $`S_3`$ on three points.
-
-**The local monodromies are the substitutions above.** Going once around the cusp
-multiplies a $`p`$-th root of the base uniformizer by $`\zeta_p`$; in the normalization
-above, where the base field is $`\mathbb{Q}(j(q^p))`$, that is exactly the twist
-$`q \mapsto \zeta_p q`$ — the shift $`b \mapsto b+1`$, of order $`p`$, fixing the
-infinity slot. Around $`j = 1728`$ and $`j = 0`$ one gets the local monodromies of order
-dividing $`2`$ and $`3`$ attached to the elliptic points of $`X(1)`$; at the level of the
-universal cover these two are the standard generators of
-$`\mathrm{PSL}_2(\mathbb{Z}) = \mathbb{Z}/2 * \mathbb{Z}/3`$, and the three local
-monodromies generate the monodromy group.
+**The cusp is the twist.** Going once around the cusp multiplies a $`p`$-th root of
+the base uniformizer by $`\zeta_p`$; at the base point $`\tau`$ the base uniformizer is
+$`q = q'^p`$, so this is exactly the twist $`q' \mapsto \zeta_p q'`$ — the shift
+$`b \mapsto b+1`$, of order $`p`$, fixing the extra root. Around $`j = 1728`$ and
+$`j = 0`$ one gets the local monodromies of order dividing $`2`$ and $`3`$ attached to
+the elliptic points of $`X(1)`$; these three local monodromies generate the monodromy.
 
 **Half of the symmetry is arithmetic, not topological.** The diamond
-$`\zeta_p \mapsto \zeta_p^a`$ is not a loop: it is
-$`\mathrm{Gal}(\mathbb{Q}(\zeta_p)/\mathbb{Q})`$ acting on the coefficients of the slots,
-and it supplies the odd permutations — for $`p = 3`$,
-$`r_1 \leftrightarrow r_2`$. Loops and diamond together generate
-$`\mathrm{PGL}_2(\mathbb{F}_p)`$ ($`S_4`$, of order $`24`$, for $`p = 3`$), whereas the
-subgroup fixing the distinguished root is the Borel of order $`p(p-1)`$ ($`6`$ for
-$`p = 3`$, generated by shift and diamond). "The symmetries over the base" and "the
-symmetries fixing the element" are therefore different groups, and §6 uses the second.
+$`\zeta_p \mapsto \zeta_p^a`$ is not a loop and is not monodromy: it is
+$`\mathrm{Gal}(\mathbb{Q}(\zeta_p)/\mathbb{Q})`$ acting on the coefficients of the
+slots, permuting them by $`b \mapsto ab`$ (for $`p = 3`$, swapping
+$`r_1 \leftrightarrow r_2`$). It is a symmetry of the root list that no loop
+produces, and §6 checks it alongside the twist. "The symmetries over the base" and
+"the symmetries fixing the element" are therefore different groups, and §6 uses the
+second.
 
 **Why those two invariances.** A coefficient of $`\Phi_p`$ is a single-valued function
-on the base, that is a rational function of $`j`$, so the monodromy has to fix it. The
-symmetry that must be checked is generated by the substitutions above, so proving a
-coefficient fixed by the twist and by the diamond is what single-valuedness demands: the
-twist kills the exponents outside $`p\mathbb{Z}`$, making the coefficient a
-$`q \mapsto q^p`$ pullback, and the diamond makes it rational. Those are items (i) and
-(iii) of §6 — and the reason the proof checks those two rather than all of
-$`\mathrm{PGL}_2`$.
+on the base, that is a rational function of $`j`$, so the monodromy has to fix it;
+among the substitutions above, the twist alone forces a coefficient into
+$`K((q'^p))`$, i.e. makes it a $`q' \mapsto q'^p`$ pullback, and the diamond then makes
+it rational. Those are items (i) and (iii) of §6 — and the reason the proof checks
+those two rather than every symmetry of the root list.
 
 ### What proves algebraicity of $`Y`$ over $`X`$
 
@@ -423,10 +448,11 @@ $$\Phi_3\bigl(j(\tau), Y\bigr) = \bigl(Y - j(3\tau)\bigr)
   \prod_{b=0}^{2}\Bigl(Y - j\bigl(\tfrac{\tau+b}{3}\bigr)\Bigr).$$
 No explicit $`\Phi_3`$ is needed: it has degree $`4 = \psi(3)`$ in each variable and
 integer coefficients, by §§1–2. The roots are distinct for generic $`\tau`$,
-separated as in the coefficient comparison above: in the variable
-$`Q = q^{1/3} = e^{2\pi i\tau/3}`$ the root $`j(3\tau) = j(Q^9)`$ has a pole $`Q^{-9}`$,
-while each $`j\bigl(\frac{\tau+b}{3}\bigr) = j(\zeta_3^{\,b}Q)`$ has a simple pole
-$`Q^{-1}`$ with residue $`\zeta_3^{-b}`$.
+separated as in the coefficient comparison above: in the level-$`3`$ nome
+$`q' = e^{2\pi i\tau/3}`$ (with generic nome $`q = e^{2\pi i\tau} = q'^3`$) the root
+$`j(3\tau) = j(q'^9)`$ has a pole $`q'^{-9}`$, while each
+$`j\bigl(\frac{\tau+b}{3}\bigr) = j(\zeta_3^{\,b}q')`$ has a simple pole $`q'^{-1}`$
+with residue $`\zeta_3^{-b}`$.
 
 **A matrix moves lines, hence roots.** Write $`r_\infty = j(3\tau)`$ and
 $`r_b = j\bigl(\frac{\tau+b}{3}\bigr)`$. Modulo scalars,
@@ -447,44 +473,46 @@ exchanges $`\infty \leftrightarrow 0`$ and $`1 \leftrightarrow 2`$. This concern
 labels only; which permutations are realized over a given base point is a separate
 question.
 
-**Which matrices act over the base.** On $`E_\tau`$ itself no line is distinguished, and
-the element — the $`j`$-value of the curve itself, as opposed to its conjugates — is
-$`r_\infty = j(3\tau)`$. Move the base one
-level up, to the curve of $`j`$-value $`j(3\tau)`$ — note 010's base. That curve is
-$`E_{3\tau}`$, whose $`3`$-torsion has basis $`\frac13`$ and $`\tau`$; its canonical
-line $`\langle\frac13\rangle`$ gives the element $`j(9\tau)`$, and its other three
-lines give $`j\bigl(\tau + \frac b3\bigr)`$, $`b = 0,1,2`$ — the slot list above. The
-matrices fixing the canonical line, modulo scalars, form the Borel subgroup of order
-$`p(p-1) = 6`$, generated by $`u`$ and $`d`$; it is exactly the subgroup of the
-symmetries over this base that fixes the element $`j(9\tau)`$ (the full symmetry group
-permutes all four roots):
+**Which matrices act over the base.** The base is $`j(\tau)`$ — note 010's base,
+realized in the level-$`3`$ nome as $`j(q'^3)`$. The element, the $`j`$-value attached
+to the canonical line $`L_\infty = \langle\frac13\rangle`$, is
+$`r_\infty = j(3\tau) = j(q'^9)`$, and the other three lines give
+$`j\bigl(\tau + \frac b3\bigr) = j(\zeta_3^{\,b}q')`$, $`b = 0,1,2`$ — the slot list
+above. The matrices fixing the canonical line, modulo scalars, have order
+$`p(p-1) = 6`$ and are generated by $`u`$ and $`d`$; this is exactly the subgroup of
+the symmetries over the base that fixes the element (the full symmetry group permutes
+all four roots):
 
-- $`u`$ is the *shift* $`\tau \mapsto \tau + \frac13`$: it fixes $`j(3\tau)`$ because
-  $`j(3\tau+1) = j(3\tau)`$, and on the nome it is $`q \mapsto \zeta_3 q`$ (the twist).
-  It fixes the element $`j(9\tau)`$ and cycles the other three roots. This is `qTwist`.
+- $`u`$ is the cusp monodromy: on the base it is the translation $`\tau \mapsto \tau+1`$,
+  which fixes the base point, $`j(\tau+1) = j(\tau)`$, and on the level-$`3`$ nome it
+  is the twist $`q' \mapsto \zeta_3 q'`$. It fixes the element $`j(3\tau) = j(q'^9)`$
+  and cycles the other three roots. This is `qTwist`.
 - $`d`$ is the *diamond*, the constant-field automorphism
   $`\zeta_3 \mapsto \zeta_3^{-1}`$ (in a basis normalised by the Weil pairing, so its
-  determinant is the cyclotomic character). It fixes $`j(9\tau)`$ and $`j(\tau)`$, and
-  swaps $`j\bigl(\tau \pm \frac13\bigr)`$. This is the Galois step of the descent.
+  determinant is the cyclotomic character). It fixes the element $`j(3\tau)`$ and the
+  base $`j(\tau)`$, and swaps $`j\bigl(\frac{\tau+1}{3}\bigr)`$ with
+  $`j\bigl(\frac{\tau+2}{3}\bigr)`$. This is the Galois step of the descent.
 - $`w`$ swaps the canonical line with another, so it does not preserve the element
-  $`j(9\tau)`$; it is a symmetry of the labelling only.
+  $`j(3\tau)`$; it is a symmetry of the labelling only.
 
 **Under the code's names.** `primCosetReps 3` is the four triples with $`ad = 3`$ and
 the coprimality condition, $`(3,0,1), (1,0,3), (1,1,3), (1,2,3)`$; the value attached to
-$`(a,b)`$ is $`\zeta_3^{\,ab}q^{a^2}`$, that is $`q^9, q, \zeta_3q, \zeta_3^2q`$;
+$`(a,b)`$ is $`\zeta_3^{\,ab}q'^{a^2}`$ in the level-$`3`$ nome, that is
+$`q'^9, q', \zeta_3q', \zeta_3^2q'`$ (the code writes $`q`$ for $`q'`$ here);
 `phiProd` is $`\prod (X - \text{value})`$ over these four, i.e.
-$`(X - q)(X - \zeta_3q)(X - \zeta_3^2q)(X - q^9)`$; `TS K e u` is $`j(uq^e)`$, so
-`TS K 9 1` is $`j(q^9)`$ and `TS K 1 ζ_3^b` is $`j(\zeta_3^{\,b}q)`$; `qExpand 3` is
-$`q \mapsto q^3`$, and `cosetSubst` composes an expansion with a twist.
+$`(X - q')(X - \zeta_3q')(X - \zeta_3^2q')(X - q'^9)`$; the code's `TS K e u` is
+$`j(uq'^e)`$ (its $`j(uq^e)`$), so `TS K 9 1` is $`j(q'^9)`$ and `TS K 1 ζ_3^b` is
+$`j(\zeta_3^{\,b}q')`$; `qExpand 3` is the renaming $`q = q'^3`$, and `cosetSubst`
+composes an expansion with a twist.
 
-**The descent in this example.** The fourth factor $`(X - j(q^9))`$ has integral
+**The descent in this example.** The fourth factor $`(X - j(q'^9))`$ has integral
 coefficients and is fixed by both actions below, so only the three twist factors
-matter. Their product is fixed by the twist $`q \mapsto \zeta_3q`$, which permutes the
-three factors; hence every coefficient is a series in $`q^3`$, since only exponents
+matter. Their product is fixed by the twist $`q' \mapsto \zeta_3q'`$, which permutes the
+three factors; hence every coefficient is a series in $`q'^3 = q`$, since only exponents
 divisible by $`3`$ survive. It is also fixed by $`\zeta_3 \mapsto \zeta_3^{-1}`$, the
 nontrivial automorphism of $`\mathbb{Q}(\zeta_3)`$, hence every coefficient is
-rational. So every coefficient lies in $`\mathbb{Q}((q^3))`$, i.e. is the
-$`q \mapsto q^3`$ pullback of a rational series — exactly the conclusion of
+rational. So every coefficient lies in $`\mathbb{Q}((q'^3))`$, i.e. is the
+$`q' \mapsto q'^3`$ pullback of a rational series — exactly the conclusion of
 `exists_phiGenDescends` for $`p = 3`$.
 
 ## 4. A hand calculation: $`\Phi_2`$
@@ -598,11 +626,11 @@ its entries $`a`$ and $`b`$.
   subgroup); note 010's generation theorem says the *function field* sees only the
   two ends, $`\mathbb{Q}(j, j(q^N)) = \mathbb{Q}(X_0(N))`$.
 - **"denominator-square $`a^2`$".** The label $`\gamma`$ above acts by
-  $`\tau \mapsto (a\tau+b)/d`$. With $`q_1 = e^{2\pi i\tau}`$,
-  $`e^{2\pi i (a\tau+b)/d} = \zeta_M^{\,ab}\,q_1^{\,a/d}`$; over the common
-  denominator $`M = ad`$ this is $`\zeta_M^{\,ab}\,q_1^{\,a^2/M}`$. So after the
-  level-$`M`$ substitution $`q^M = q_1`$ the conjugate is
-  $`j(\zeta_M^{\,ab}\,q^{a^2})`$: the exponent $`a^2`$ is the numerator $`a`$ of the
+  $`\tau \mapsto (a\tau+b)/d`$. With $`q = e^{2\pi i\tau}`$,
+  $`e^{2\pi i (a\tau+b)/d} = \zeta_M^{\,ab}\,q^{\,a/d}`$; over the common
+  denominator $`M = ad`$ this is $`\zeta_M^{\,ab}\,q^{\,a^2/M}`$. So after the
+  level-$`M`$ substitution $`q = q'^M`$ the conjugate is
+  $`j(\zeta_M^{\,ab}\,q'^{a^2})`$: the exponent $`a^2`$ is the numerator $`a`$ of the
   fractional power $`a/d`$ written over the denominator $`M`$, and the twist
   $`\zeta_M^{\,ab}`$ is the numerator $`b`$. These are the "two pieces of coset data".
 - **"right cosets of $`\Gamma_0(M)`$ in $`\mathrm{SL}_2(\mathbb{Z})`$".** Two
@@ -618,11 +646,11 @@ its entries $`a`$ and $`b`$.
   $`\{(a,b) : a \mid M,\ b \lt M/a,\ \gcd(\gcd(a,b), M/a) = 1\}`$ is exactly this
   label set.
 - **"the affine self-map $`\tau \mapsto a^2\tau + ab`$".** This is the same coset
-  data written on the level-$`M`$ nome: $`\zeta_M^{\,ab}q^{a^2}`$ is the nome of
-  $`a^2\tau+ab`$ (for $`q = e^{2\pi i\tau/M}`$), which is the action of the
-  Hecke/coset matrix in the $`q`$-world. For $`M = p`$ it degenerates to the two
-  cases of §3: $`a = 1`$ gives the twists $`\zeta_p^{\,b}q`$, and $`a = p`$ gives
-  $`q^{p^2}`$.
+  data written on the level-$`M`$ nome: $`\zeta_M^{\,ab}q'^{a^2}`$ is the nome of
+  $`a^2\tau+ab`$ (for $`q' = e^{2\pi i\tau/M} = q^{1/M}`$), which is the action of the
+  Hecke/coset matrix in the $`q'`$-world. For $`M = p`$ it degenerates to the two
+  cases of §3: $`a = 1`$ gives the twists $`\zeta_p^{\,b}q'`$, and $`a = p`$ gives
+  $`q'^{p^2}`$.
 - **"Hauptmodul", "j separates points".** $`j`$ is a coordinate on
   $`X(1) = \mathbb{P}^1`$: two elliptic curves are isomorphic iff they have the same
   $`j`$ (005 §1). This is what lets a $`q`$-expansion computation be read back as a
@@ -636,7 +664,10 @@ its entries $`a`$ and $`b`$.
 ## 6. The Lean route as a map
 
 The Lean does not *first* define $`\Phi_N`$ by the product over subgroups and then
-check integrality. It goes the other way, and this order is worth knowing:
+check integrality. It goes the other way, and this order is worth knowing. Throughout
+this section $`q`$ is the code's single variable — the generic nome of §3, where the
+code's `jq` lives; the level-$`p`$ nome $`q'`$ is reached from it by `qExpand`, the
+passage $`q \mapsto q'^p`$ of §3's table.
 
 1. **Build the conjugate product.** The polynomial `phiProd` of
    [Def_ModularCurve_PhiGen.lean, lines 257–258](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_PhiGen.lean#L257-L258)
@@ -671,7 +702,7 @@ check integrality. It goes the other way, and this order is worth knowing:
    ([S file, lines 130–177](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_PhiGen_exists_modularPolynomialData_coeff_eq.lean#L130-L177)).
 4. **Uniqueness.** Both the given datum and the constructed one are monic of degree
    $`p+1`$ and annihilate the same element, which has degree $`p+1`$ over the base
-   (§3's table records the element and the base in both notations); so they are equal.
+   (§3's table records the element and the base in its three notations); so they are equal.
    This identifies the product with
    $`\Phi_p`$ — the step that the phrase "the product's own coefficient family is a
    valid modular polynomial datum, hence is *the* datum" abbreviates.
