@@ -208,19 +208,28 @@ roots $`j((\tau+b)/p)`$ (the finite-slope lines). This explicit list of roots is
 **splitting of the modular equation**. $`\Phi_p`$ is irreducible over
 $`\mathbb{Q}(j)`$, so it does not factor there; the list says that its roots are
 indexed by $`b \in \mathbb{Z}/p`$ and resolve into the $`p+1`$ linear factors above
-once the fractional nome $`q^{1/p}`$ and the root of unity $`\zeta_p`$ that keeps
-track of $`b`$ are available. In the specialization used by note 010 — evaluate
-$`X`$ not at the generic $`j(\tau)`$ but at $`j(u^p q^{pe})`$ — both the point and
-all the roots are honest Laurent series in $`q`$, and the identity is an equality in
-$`K(\!(q)\!)`$ for any field $`K \ni \zeta_p`$.
+once the $`p`$-th root of the nome, $`q^{1/p}`$, and the root of unity $`\zeta_p`$
+that keeps track of $`b`$ are available. That is the generic base point
+$`X = j(\tau)`$: there the extra root is $`j(q^p)`$, while the conjugates are
+$`j(\zeta_p^{\,b}q^{1/p})`$ — it is the conjugates, not the element, that need the
+fractional nome. Note 010 therefore uses the specialization $`X = j(u^p q^{pe})`$
+with $`e \ge 1`$ (the code's `[NeZero e]`), which is the same identity read at the
+base point $`\tau' = p\tau`$ when $`e = 1`$: the base field is then
+$`\mathbb{Q}(j(q^p))`$ and the conjugates are $`j(\zeta_p^{\,b}q)`$ — honest Laurent
+series in the one name $`q`$. Equivalently, one renames the uniformizer and writes
+the old nome as $`q^p`$; either way the fractional exponents are gone and the
+identity is an equality in $`K(\!(q)\!)`$ for any field $`K \ni \zeta_p`$.
 
 **Group-theoretic reading.** The $`p+1`$ roots are the lines of
 $`\mathbb{F}_p^2`$: one fixed line plus $`p`$ lines carrying the affine label
 $`b \in \mathbb{F}_p`$. The labels are permuted by the units of $`\mathbb{F}_p`$,
-which is how the cyclotomic field enters; concretely, the substitution
-$`q^{1/p} \mapsto \zeta_p q^{1/p}`$ (multiply the nome by $`\zeta_p`$) fixes the
-extra root $`j(q^{p^2})`$ and cycles $`j(\zeta_p^{\,b}q^{1/p})`$ through
-$`b = 0,\dots,p-1`$. That is exactly the hypothesis of the irreducibility criterion
+which is how the cyclotomic field enters; concretely, in the normalization of the
+table below — base field $`\mathbb{Q}(j(q^p))`$, extra root $`j(q^{p^2})`$,
+conjugates $`j(\zeta_p^{\,b}q)`$ — the substitution $`q \mapsto \zeta_p q`$
+(multiply the nome by $`\zeta_p`$) fixes $`j(q^{p^2})`$, since
+$`\zeta_p^{\,p^2} = 1`$, cycles $`j(\zeta_p^{\,b}q)`$ through
+$`b = 0,\dots,p-1`$, and fixes $`j(q^p)`$, hence fixes the base field pointwise.
+That is exactly the hypothesis of the irreducibility criterion
 `Polynomial.irreducible_of_transitive_ringAut`: a monic polynomial that splits with
 distinct roots, one root outside the base field and all the others cycled by a
 base-field automorphism, is irreducible.
@@ -243,7 +252,7 @@ is where the conjugates live. Writing $`q = e^{2\pi i\tau}`$ for the code's vari
 | the element, $`j(p\tau')`$ | $`j(p^2\tau)`$ | $`j(q^{p^2})`$ |
 | the other $`p`$ conjugates, $`j((\tau'+b)/p)`$ | $`j(\tau + b/p)`$ | $`j(\zeta_p^{\,b}q)`$ |
 
-Allowing an arbitrary level datum $`(e,u)`$ — the substitution
+Allowing an arbitrary level datum $`(e,u)`$ with $`e \ge 1`$ — the substitution
 $`\tau \mapsto e\tau + \text{const}`$, i.e. $`q \mapsto u q^e`$ — gives the statement
 in the exact shape quoted by note 010,
 
