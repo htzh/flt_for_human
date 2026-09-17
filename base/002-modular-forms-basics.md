@@ -397,7 +397,8 @@ and does not appear.
   `Subgroup.mem_map`/`MonoidHom.mem_range` reasoning (`coe_Gamma_one_eq_SL`,
   [lines 77–80](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularForm_S2_Gamma0_2_eq_zero.lean#L77-L80)).
 - **The residual statements are congruences, not equalities.** The Galois-side
-  notes (004, 006) meet the automorphic side only through
+  notes ([math/004](../math/004-irreducible-and-cofixed-line.md),
+  [math/006](../math/006-fixed-or-cofixed-and-inertia.md)) meet the automorphic side only through
   `ModularRepOfLevel`'s `a - ((W.apOfModel ℓ : ℤ) : integralClosure ℤ ℂ) ∈ 𝔪`
   clause — an ideal membership, which is why the coefficient comparisons live in
   `integralClosure ℤ ℂ` rather than in `ℂ`.

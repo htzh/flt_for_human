@@ -1,9 +1,10 @@
-# The modular equation: isogenies, integrality, and splitting
+# The modular equation: integrality and splitting
 
-Fifth of the `base/` notes. [004](004-the-j-invariant.md) built the `j`-invariant and
-its `q`-expansion; this note supplies the classical language behind
+Sixth of the `base/` notes. [005](005-cyclic-isogenies-and-level.md) built the lattice
+picture — tori $`E_\tau`$, their cyclic isogenies, and the quotient curves — and this note
+builds the *modular polynomial* on top of it, supplying the classical language behind
 [math/010 §3](../math/010-function-field-generation.md#3-the-modular-polynomial-and-the-roots-of-the-modular-equation).
-That section rests on two facts about the *modular polynomial* $`\Phi_N`$:
+That section rests on two facts about $`\Phi_N`$:
 
 - **integrality**: there is a monic $`\Phi_N \in \mathbb{Z}[X,Y]`$, of degree
   $`\psi(N)`$ in $`Y`$, with $`\Phi_N(j(\tau), j(N\tau)) = 0`$;
@@ -11,243 +12,21 @@ That section rests on two facts about the *modular polynomial* $`\Phi_N`$:
   $`\Phi_p`$ factors into linear factors whose roots are the $`j`$-invariants of the
   $`p+1`$ quotients of $`E_\tau`$ by its order-$`p`$ subgroups.
 
-The aim is to make sense of a sentence like
+The definition and the splitting are where 005's quotient dictionary is consumed. The aim
+here is to make sense of a sentence like
 
-> "the $`p+1`$ cyclic $`p`$-isogenies out of $`E_\tau`$ have quotients
-> $`E_{p\tau}`$ and $`E_{(\tau+b)/p}`$"
+> "the root attached to $`(a,b)`$ is $`j(\zeta_M^{ab} q^{a^2})`$"
 
-and of the surrounding words — *level*, *cusp*, *coset*, *slot*, *Hauptmodul* — that
-note 010 uses without pausing. We are **not** repeating the proof: the mathematics is the
-classical one, the Lean fixes the order of the story, and it is quoted as a route map.
-§5 ends with $`p = 3`$ carried out in full, and §6 computes $`\Phi_2`$ by hand as a test
-of whether §§1–5 contain enough.
+and of the surrounding words — *cusp*, *slot*, *coset*, *denominator-square* — that note 010
+uses without pausing. We are **not** repeating the proof: the mathematics is the classical
+one, the Lean fixes the order of the story, and it is quoted as a route map. §3 ends with
+$`p = 3`$ carried out in full, and §4 computes $`\Phi_2`$ by hand as a test of whether
+§§1–3 contain enough.
 
 Line-number citations point at `anthropics/fermats-last-theorem@aa2d8b3`; mathlib
 citations point at tag **v4.33.0**. Both are rendered GitHub links.
 
-## 1. The torus $`E_\tau`$, and what $`j`$ classifies
-
-Fix $`\tau`$ in the upper half plane $`\mathbb{H}`$ and let
-
-$$\Lambda_\tau \\;=\\; \mathbb{Z} + \mathbb{Z}\tau \\;\subset\\; \mathbb{C}, \qquad
-  E_\tau \\;=\\; \mathbb{C}/\Lambda_\tau .$$
-
-$`E_\tau`$ is a *complex torus*: a compact Riemann surface which is also a group,
-with origin the class of $`0`$. That group structure is what makes it an **elliptic
-curve**, and it is why the letter $`E`$ appears throughout note 010 — $`E_\tau`$ is
-the elliptic curve whose periods are $`1`$ and $`\tau`$. (Every elliptic curve over
-$`\mathbb{C}`$ is of this form; this is the uniformization theorem, and it is the
-reason a curve is never far away from an explicit lattice computation.)
-
-**Isomorphism.** The lattice $`\Lambda_\tau`$ depends on the *choice of basis*
-$`(1,\tau)`$. Changing the basis by $`\gamma \in \mathrm{SL}_2(\mathbb{Z})`$
-replaces $`\tau`$ by $`\gamma\tau = \frac{a\tau+b}{c\tau+d}`$ (here $`a,b,c,d`$ are
-the entries of $`\gamma`$), and $`\Lambda_{\gamma\tau}`$ is homothetic
-to $`\Lambda_\tau`$; conversely, homothetic lattices give isomorphic tori. So
-
-$$E_\tau \\;\cong\\; E_{\tau'} \quad\Longleftrightarrow\quad
-  \tau' = \gamma\tau \\ \text{ for some } \gamma \in \mathrm{SL}_2(\mathbb{Z}).$$
-
-**Moduli.** There is a single function that sees the isomorphism class and nothing
-else, the $`j`$-invariant of [004](004-the-j-invariant.md):
-
-$$j(\gamma\tau) = j(\tau), \qquad
-  j : \mathrm{SL}_2(\mathbb{Z})\backslash\mathbb{H} \\;\xrightarrow{\\ \sim\\ }\\; \mathbb{C}.$$
-
-The quotient $`Y(1) = \mathrm{SL}_2(\mathbb{Z})\backslash\mathbb{H}`$ is the *moduli
-space of elliptic curves*; adding the cusp gives $`X(1) \cong \mathbb{P}^1`$, and
-$`j`$ is its *Hauptmodul* — the coordinate, "the function that ranges over moduli".
-This gives the three levels at which the same object is described:
-
-| level | object | meaning |
-|---|---|---|
-| local / marked | $`\tau \in \mathbb{H}`$ | a lattice with a chosen basis $`(1,\tau)`$ |
-| global / unmarked | $`E_\tau`$, the class of $`\tau`$ | an elliptic curve up to isomorphism |
-| coordinate | $`j(\tau) \in \mathbb{C}`$ | the point of the moduli space it occupies |
-
-"$`E_\tau`$ is a point of the moduli space that $`j`$ ranges over" means exactly
-this: as $`\tau`$ varies, $`E_\tau`$ sweeps out the moduli space, and $`j(\tau)`$ is
-the coordinate of the swept point. The local coordinate at the cusp,
-$`q = e^{2\pi i\tau}`$, is the bridge to the $`q`$-expansions that FLT actually
-computes with; the substitution $`\tau \mapsto \gamma\tau`$ becomes the formal,
-"slot"-indexed substitution $`q \mapsto \zeta_M^{\,ab} q^{a^2}`$ of §7.
-
-### What a point of $`Y(1)`$ determines: the curve, its model, and $`j`$
-
-Everything above is analytic, through lattices and $`\mathbb{C}`$. From here on the words
-are algebraic, and the Lean pins them down, so it is worth fixing them now. A point of
-$`Y(1)`$ does **not** determine an equation. It determines an isomorphism class of
-elliptic curves, and the code carries an explicit *model* — the coefficients — to
-represent that class.
-
-**A moduli point is a curve plus level data.** `Gamma0Pair N L` is the structure
-([Def_ModularCurve_ModuliPoint.lean, lines 15–40](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_ModuliPoint.lean#L15-L40)):
-`toCurve : WeierstrassCurve L`, the model, i.e. the coefficients $`a_1,\dots,a_6`$;
-`isElliptic : toCurve.IsElliptic`; and
-`gen : toCurve.toAffine.Point` with `addOrderOf gen = N`, the level datum, a point whose
-multiples are the cyclic subgroup $`\langle \mathrm{gen}\rangle`$ of order $`N`$. Two
-such data are identified in `ModuliPoint N L` when a *variable change* carries one model
-to the other and the generators differ by a unit $`k`$ coprime to $`N`$. So a moduli
-point is an isomorphism class, and its level datum is the $`\mathcal{C}`$ of §2 — here a
-subgroup of the point group of a curve, not a quotient lattice. For $`N = 1`$ the level
-datum is trivial, so `ModuliPoint 1 L` is curves up to variable change.
-
-**The map to the $`j`$-line is a function of the coefficients.** `WeierstrassCurve.j` is
-the expression
-
-$$j \\;=\\; \frac{c_4^3}{\Delta} \\;\in\\; R$$
-
-([Weierstrass.lean, line 385](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/AlgebraicGeometry/EllipticCurve/Weierstrass.lean#L385)),
-computed from the coefficients and unchanged by variable change. That invariance is what
-lets it descend to `ModuliPoint.j : ModuliPoint N L → L`, which sends a point to the
-$`j`$ of any model representing it. So a moduli point has a well-defined $`j`$, and
-forgetting the model and the level structure lands on $`Y(1)`$ with coordinate $`j`$ —
-the same coordinate as in the table above, now over any field instead of $`\mathbb{C}`$.
-
-**A $`j`$-value determines the class, and one model is canonical.** For a field $`F`$ and
-$`j \in F`$, `WeierstrassCurve.ofJ j` is an explicit curve with
-`(WeierstrassCurve.ofJ j).j = j`
-([ModelsWithJ.lean, lines 65–182](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/AlgebraicGeometry/EllipticCurve/ModelsWithJ.lean#L65-L182)),
-by cases on $`j`$:
-
-$$j = 0: \quad Y^2 + Y = X^3, \qquad j = 1728: \quad Y^2 = X^3 + X,$$
-
-$$j \ne 0, 1728: \quad Y^2 + (j-1728)XY \\;=\\; X^3 - 36(j-1728)^3X - (j-1728)^5 .$$
-
-Conversely, if two elliptic curves over $`F`$ have the same $`j`$, then a *single*
-variable change carries one to the other (`exists_variableChange_of_j_eq`,
-[IsomOfJ.lean, line 333](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/AlgebraicGeometry/EllipticCurve/IsomOfJ.lean#L333)).
-So "a point of $`Y(1)`$ determines a curve" means exactly this: the isomorphism class is
-determined, `ofJ` is a chosen representative of it, and every other model of that curve
-is reached from `ofJ` by a variable change.
-
-**Which model the code uses at a point.** Attaching `ofJ` everywhere would be awkward
-locally, so the FLT development attaches a model adapted to the point and then proves it
-is `ofJ` up to variable change. For $`j_0 \in \bar{\mathbb{Q}}`$:
-
-- `nearCurve j₀ = WeierstrassCurve.ofJ (jNear j₀)` and
-  `goodModel j₀ = scaleVC j₀ • nearCurve j₀`
-  ([TatePoint.lean, line 21](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_TatePoint.lean#L21),
-  [SpecialisationVocab.lean, lines 103 and 124](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_SpecialisationVocab.lean#L103-L124));
-- and the identification `fibreVC j₀ • specialFibre (goodModel j₀) = WeierstrassCurve.ofJ j₀`
-  ([SpecialisationBridge.lean, lines 181–185](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_SpecialisationBridge.lean#L181-L185)).
-
-That last line is the pattern to expect throughout: explicit coefficients at the point,
-plus an explicit variable change back to the canonical model.
-
-**The function field of $`Y(1)`$.** Formally it is $`\mathbb{Q}(j)`$:
-`jLineRingEquiv : RatFunc ℚ ≃+* ℚ⟮jq⟯`. The three distinguished points are named as
-places — `jLinePlaceZero`, `jLinePlace1728`, `jLinePlaceInfty`
-([JLinePlaces.lean, lines 36–58](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_JLinePlaces.lean#L36-L58)) —
-the three values at which the curve has extra symmetry or degenerates.
-
-## 2. Subgroups, quotients, cyclic isogenies: why $`p+1`$
-
-On $`E_\tau = \mathbb{C}/\Lambda_\tau`$ the group law is inherited from $`\mathbb{C}`$.
-The $`N`$-torsion is
-
-$$E_\tau[N] \\;=\\; \tfrac{1}{N}\Lambda_\tau \big/ \Lambda_\tau
-  \\;\cong\\; (\mathbb{Z}/N)^2 .$$
-
-For $`p`$ prime this is a two-dimensional vector space over $`\mathbb{F}_p`$.
-Let $`E' = \mathbb{C}/\Lambda'`$ be another complex torus — again an elliptic curve
-$`E_{\tau'}`$ for some $`\tau'`$ (so $`E'`$ is the *target*, and it is not fixed in
-advance). A **cyclic $`p`$-isogeny out of $`E_\tau`$** is a surjective homomorphism
-of complex tori
-
-$$\phi : E_\tau \\;\longrightarrow\\; E',$$
-
-whose kernel is finite of order $`p`$; the target $`E'`$ is the **quotient**. Since
-$`p`$ is prime, that kernel is a subgroup of order $`p`$,
-
-$$\mathcal{C} \\;=\\; \langle (m + n\tau)/p \rangle \\;\le\\; E_\tau[p]
-  \qquad (m, n \in \mathbb{Z}),$$
-
-where $`\langle x\rangle`$ is the cyclic subgroup generated by the single element $`x`$.
-So $`\mathcal{C}`$ has $`p`$ elements inside the $`p^2`$-element group $`E_\tau[p]`$: it
-is not all of $`E_\tau[p]`$. Since $`(m,n)`$ is read modulo $`p`$, we may take
-$`(m,n) \in \mathbb{F}_p^2`$ nonzero; then $`(m,n)`$ and $`\lambda(m,n)`$ generate the
-same $`\mathcal{C}`$ for every nonzero $`\lambda \in \mathbb{F}_p`$ — the scalar
-ambiguity behind the word "lines" below.
-$`\phi`$ is the quotient map $`E_\tau \to E_\tau/\mathcal{C}`$, so
-$`E' \cong E_\tau/\mathcal{C}`$ is determined by $`\mathcal{C}`$ up to isomorphism.
-Conversely every order-$`p`$ subgroup $`\mathcal{C}`$ gives such a quotient, and
-$`E_\tau/\mathcal{C}`$ is again a complex torus (a lattice quotient), hence again an
-elliptic curve. So the three languages
-
-> cyclic $`p`$-isogeny out of $`E_\tau`$ $`\;\longleftrightarrow\;`$
-> order-$`p`$ subgroup $`\mathcal{C} \le E_\tau`$ $`\;\longleftrightarrow\;`$
-> quotient $`E_\tau/\mathcal{C}`$
-
-name the same thing. Counting them: $`E_\tau[p]`$ has $`p^2-1`$ nonzero elements,
-each order-$`p`$ subgroup contains $`p-1`$ of them, so
-
-$$\\#\\{\text{order-}p\text{ subgroups}\\} \\;=\\; \frac{p^2-1}{p-1} \\;=\\; p+1 .$$
-
-Equivalently, the subgroups are the **lines** of the $`\mathbb{F}_p`$-plane
-$`E_\tau[p]`$, of which there are $`p+1`$.
-
-**The quotients, explicitly.** An order-$`p`$ subgroup $`\mathcal{C} = \langle x\rangle`$
-has a lattice $`L = \Lambda_\tau + \mathbb{Z}x \supsetneq \Lambda_\tau`$, with
-$`E_\tau/\mathcal{C} \cong \mathbb{C}/L`$. Two facts about $`L`$ are all we use: it
-depends on $`\mathcal{C}`$ alone, not on the generator chosen to present it, and its
-index is $`[L : \Lambda_\tau] = p`$ — adjoining one point of order $`p`$ adds just one
-coset of $`\Lambda_\tau`$. The quotient curve is read off a basis of $`L`$, up to
-homothety: scaling a basis by $`\lambda \in \mathbb{C}^\times`$ leaves the torus
-unchanged, since $`\mathbb{C}/\lambda L \cong \mathbb{C}/L`$. Thus
-
-| line | $`\mathcal{C}`$ | $`L`$ | basis of $`L`$ | $`[L : \Lambda_\tau]`$ | quotient |
-|---|---|---|---|---|---|
-| $`n = 0`$ | $`\langle 1/p\rangle`$ | $`\Lambda_\tau + \tfrac1p\mathbb{Z}`$ | $`(\tfrac1p,\,\tau)`$ | $`p`$ | $`E_{p\tau}`$ |
-| $`n \ne 0`$, $`b \in \mathbb{F}_p`$ | $`\langle(\tau+b)/p\rangle`$ | $`\Lambda_\tau + \mathbb{Z}\tfrac{\tau+b}{p}`$ | $`(1,\,\tfrac{\tau+b}{p})`$ | $`p`$ | $`E_{(\tau+b)/p}`$ |
-
-Dividing a whole lattice by $`p`$ is not the same as adjoining a single point of order
-$`p`$, and the two resulting expressions look almost identical:
-
-$$\tfrac1p\Lambda_\tau \\;=\\; \mathbb{Z}\tfrac1p + \mathbb{Z}\tfrac1p\tau
-  \\;\supsetneq\\; \Lambda_\tau, \qquad
-  \bigl[\tfrac1p\Lambda_\tau : \Lambda_\tau\bigr] = p^2, \qquad
-  \tfrac1p\Lambda_\tau/\Lambda_\tau \\;=\\; E_\tau[p],$$
-
-$$\Lambda_\tau + \mathbb{Z}\tfrac1p \\;=\\; \mathbb{Z}\tfrac1p + \mathbb{Z}\tau
-  \\;=\\; \tfrac1p\Lambda_{p\tau} \\;\supsetneq\\; \Lambda_\tau, \qquad
-  \bigl[\Lambda_\tau + \mathbb{Z}\tfrac1p : \Lambda_\tau\bigr] = p, \qquad
-  \bigl(\Lambda_\tau + \mathbb{Z}\tfrac1p\bigr)/\Lambda_\tau \\;=\\; \mathcal{C}.$$
-
-The first is the whole $`p`$-torsion; only the second is one of the $`p+1`$ lines. So
-the $`p+1`$ lines become $`p+1`$ curves of the same shape $`E_{\tau'}`$.
-
-Thus the quoted sentence is a complete list:
-
-$$E_\tau/\mathcal{C} \\;\in\\; \bigl\\{\\, E_{p\tau} \\,\bigr\\} \\;\cup\\;
-  \bigl\\{\\, E_{(\tau+b)/p} \\;:\\; b = 0,1,\dots,p-1 \\,\bigr\\}.$$
-
-The one curve $`E_{p\tau}`$ is the "line at infinity"; the other $`p`$ are indexed by
-the slope $`b`$. In the nome $`q = e^{2\pi i\tau}`$ they read
-
-$$j(p\tau) = j(q^p), \qquad
-  j\\!\left(\tfrac{\tau+b}{p}\right) = j\\!\left(\zeta_p^{\\,b}\\,q^{1/p}\right),
-  \qquad \zeta_p = e^{2\pi i/p},$$
-
-which is where fractional powers of $`q`$ — and the roots of unity of the splitting
-formula — first appear.
-
-**Duality.** The quotient map $`E_\tau \to E_\tau/\mathcal{C}`$ has a dual isogeny
-$`E_\tau/\mathcal{C} \to E_\tau`$, of the same degree, whose kernel is the dual subgroup. So
-"being $`p`$-isogenous" is a symmetric relation; this is the source of the symmetry
-$`\Phi_p(X,Y) = \Phi_p(Y,X)`$ below.
-
-**General level.** Replacing "order $`p`$" by "cyclic of order $`N`$" gives the same
-story with $`\psi(N)`$ in place of $`p+1`$. The number of cyclic order-$`N`$
-subgroups of $`(\mathbb{Z}/N)^2`$ is the Dedekind function
-
-$$\psi(N) \\;=\\; \sum_{\substack{d \mid N \\\\ d\\ \text{squarefree}}} \frac{N}{d}
-  \\;=\\; N \prod_{p \mid N}\Bigl(1 + \frac1p\Bigr),$$
-
-the index $`[\mathrm{SL}_2(\mathbb{Z}) : \Gamma_0(N)]`$. For $`N = p`$ this is
-$`p+1`$, and the $`p+1`$ subgroups above are the first case.
-
-## 3. The modular polynomial
+## 1. The modular polynomial
 
 Fix $`N`$ and an elliptic curve $`E`$ with $`j(E) = X`$. Over $`X`$ sit the
 $`\psi(N)`$ curves $`E/\mathcal{C}`$, one for each cyclic order-$`N`$ subgroup $`\mathcal{C} \le E`$. Put
@@ -256,9 +35,9 @@ $$\Phi_N(X, Y) \\;=\\; \prod_{\mathcal{C}} \bigl(Y - j(E/\mathcal{C})\bigr),$$
 
 the product over the $`\psi(N)`$ cyclic subgroups. On notation: $`X`$ and $`Y`$ are the
 *polynomial variables* of $`\Phi_N`$, while the classical names of the modular curves —
-$`X(1)`$, $`Y(1)`$, $`X_0(N)`$ — always carry an argument or a subscript (§1,
+$`X(1)`$, $`Y(1)`$, $`X_0(N)`$ — always carry an argument or a subscript (005 §1,
 [004 §5](004-the-j-invariant.md)); and $`\mathcal{C}`$ (script) is always a cyclic
-subgroup, never the complex plane $`\mathbb{C}`$ (§2). This is the **modular polynomial**;
+subgroup, never the complex plane $`\mathbb{C}`$ (005 §2). This is the **modular polynomial**;
 the equation $`\Phi_N(X,Y) = 0`$ is the **modular equation**, and its zero locus is
 the image of the modular curve $`X_0(N)`$ in $`X(1) \times X(1)`$:
 
@@ -277,9 +56,9 @@ classical theory:
 
 - **monic, of degree $`\psi(N)`$ in $`Y`$** — by construction, one linear factor per
   cyclic subgroup;
-- **symmetric**: $`\Phi_N(X,Y) = \Phi_N(Y,X)`$ — by duality (§2), the Fricke
+- **symmetric**: $`\Phi_N(X,Y) = \Phi_N(Y,X)`$ — by duality (005 §2), the Fricke
   involution $`w_N`$ exchanges $`E`$ and $`E/\mathcal{C}`$;
-- **integral**: $`\Phi_N \in \mathbb{Z}[X,Y]`$ — this is the nontrivial one, §4.
+- **integral**: $`\Phi_N \in \mathbb{Z}[X,Y]`$ — this is the nontrivial one, §2.
 
 Because $`\Phi_N(j(\tau), Y)`$ has exactly the $`\psi(N)`$ roots $`j(E_\tau/\mathcal{C})`$, and
 because the cosets of $`\Gamma_0(N)`$ form a single Galois orbit (the cover
@@ -290,16 +69,16 @@ degree of the cover:
 $$[\mathbb{C}(j(\tau), j(N\tau)) : \mathbb{C}(j(\tau))] \\;=\\; \psi(N).$$
 
 **Level one.** For $`N = 1`$ there is one subgroup, $`\Phi_1(X,Y) = X - Y`$; for
-$`N = 2`$ there are three, and §6 computes them.
+$`N = 2`$ there are three, and §4 computes them.
 
 **A classical companion.** Reducing the integral polynomial modulo a prime $`p`$
 gives *Kronecker's congruence*
 $`\Phi_p(X,Y) \equiv (X^p - Y)(X - Y^p) \pmod p`$: in characteristic $`p`$ the
 $`p+1`$ split roots collapse, because the Frobenius substitution $`q \mapsto q^p`$
-turns the $`p`$ twisted roots into one. It is the arithmetic shadow of §5, and FLT
+turns the $`p`$ twisted roots into one. It is the arithmetic shadow of §3, and FLT
 proves it as `ModularCurve.modularPolynomial_kronecker`.
 
-## 4. Why the coefficients are integers
+## 2. Why the coefficients are integers
 
 This is the part that is easy to state and easy to misjudge. The roots
 $`j(E_\tau/\mathcal{C})`$ are *not* integers — they are transcendental complex numbers. What
@@ -311,7 +90,7 @@ sign). Three inputs:
 
 1. **Each conjugate has an algebraic-integer $`q`$-expansion.** The conjugates are
    the values $`j(\gamma\tau)`$ for coset representatives $`\gamma`$; in the nome they
-   are $`j(\zeta_N^{\,ab} q^{a^2})`$ (§7). Since $`j(q) \in \mathbb{Z}((q))`$
+   are $`j(\zeta_N^{\,ab} q^{a^2})`$ (§5). Since $`j(q) \in \mathbb{Z}((q))`$
    ([004 §4](004-the-j-invariant.md)) and $`\zeta_N^{\,ab}`$ is a root of unity,
    hence an algebraic integer, substitution $`q \mapsto \zeta q^e`$ returns
    $`q`$-coefficients in $`\mathbb{Z}[\zeta_N]`$: every conjugate has
@@ -323,12 +102,12 @@ sign). Three inputs:
    $`e_k(j(\tau))`$ has **ordinary integer** $`q`$-coefficients.
 2. **Each $`e_k`$ is a polynomial in $`j`$.** It is symmetric in the conjugates, hence
    unchanged when the monodromy permutes the $`\psi(N)`$ points of the fibre of
-   $`X_0(N) \to X(1)`$ (the covering-space picture of §5); it is holomorphic on
+   $`X_0(N) \to X(1)`$ (the covering-space picture of §3); it is holomorphic on
    $`\mathbb{H}`$ because each conjugate is; and its pole order at the cusp is finite and
    bounded by the classical bidegree of $`\Phi_N`$, namely $`\psi(N)`$. A weight-zero modular
    function that is holomorphic on $`\mathbb{H}`$ and has a pole of order $`\le
    \psi(N)`$ at the cusp is a polynomial in $`j`$ of degree $`\le \psi(N)`$ (this is
-   the Hauptmodul property of §1). So
+   the Hauptmodul property of 005 §1). So
    $`e_k = Q_k(j)`$ with $`Q_k \in \mathbb{C}[X]`$, $`\deg Q_k \le \psi(N)`$.
 3. **Integral $`q`$-expansion forces integral coefficients.** A rational polynomial
    $`Q`$ with $`Q(j(q)) \in \mathbb{Z}((q))`$ must have $`Q \in \mathbb{Z}[X]`$.
@@ -358,9 +137,9 @@ prime-level $`\Phi_p`$), and what
 `exists_phiIrreducible_of_finrank_eq` then turns into an irreducible
 `ModularPolynomialData` once the degree $`\psi(N)`$ is known.
 
-## 5. Splitting of the modular equation, and the cover behind it
+## 3. Splitting of the modular equation, and the cover behind it
 
-Let $`p`$ be prime. Reading §2 with $`N = p`$ gives the factorization
+Let $`p`$ be prime. Reading 005 §2 with $`N = p`$ gives the factorization
 
 $$\Phi_p\bigl(j(\tau),\\, Y\bigr) \\;=\\;
   \bigl(Y - j(p\tau)\bigr)\prod_{b=0}^{p-1}
@@ -390,7 +169,7 @@ distinct roots, one root outside the base field and all the others cycled by a
 base-field automorphism, is irreducible.
 
 **Nome form, and the two fields.** With $`X = j(\tau)`$ the roots are the
-$`j`$-values of §2. Note 010 uses the same identity at the base point
+$`j`$-values of 005 §2. Note 010 uses the same identity at the base point
 $`\tau' = p\tau`$ — equivalently, after the substitution $`q \mapsto q^p`$ on the nome.
 Two fields are then in play, and it pays to keep them apart. The abstract base field is
 the rational function field $`\mathbb{Q}(j) \cong \mathrm{RatFunc}\,\mathbb{Q}`$;
@@ -438,13 +217,13 @@ note 010 instead *lists all roots* and observes that exactly one can be common t
 two polynomials. The splitting formula is what makes that list possible; the
 "circuitousness" of the formal proof is the price of replacing the geometry by a
 root count. The next two subsections describe that geometry — the cover, its monodromy,
-and what it proves about algebraicity — so that §8's calculation can be read as the
+and what it proves about algebraicity — so that §6's calculation can be read as the
 constructive counterpart.
 
 ### The cover $`X_0(p) \to X(1)`$, monodromy, and why exactly two invariances
 
 The group-theoretic reading above is a covering-space statement in disguise, and that
-version explains why §8 checks the two symmetries it does.
+version explains why §6 checks the two symmetries it does.
 
 **The cover.** For prime $`p`$ the affine curve $`\Phi_p(X,Y) = 0`$ is a model of
 $`X_0(p)`$, and its projection to the $`X`$-line is the forgetful map
@@ -452,7 +231,7 @@ $`[E,L] \mapsto E`$, of degree $`p+1`$: the fibre over a generic $`[E]`$ is the 
 lines $`L \subset E[p]`$. The fibre coordinate is the quotient map
 $$Y([E,L]) := j(E/L),$$
 so the $`p+1`$ roots of $`\Phi_p(j(\tau),Y)`$ are exactly the values of $`Y`$ on that
-fibre — §2's dictionary in one line.
+fibre — 005 §2's dictionary in one line.
 
 **Loops permute the fibre, not the base.** A loop in $`X(1)`$ that avoids the branch
 points $`j = 0, 1728, \infty`$ lifts to a permutation of the $`p+1`$ points above the
@@ -488,7 +267,7 @@ $`r_1 \leftrightarrow r_2`$. Loops and diamond together generate
 $`\mathrm{PGL}_2(\mathbb{F}_p)`$ ($`S_4`$, of order $`24`$, for $`p = 3`$), whereas the
 subgroup fixing the distinguished root is the Borel of order $`p(p-1)`$ ($`6`$ for
 $`p = 3`$, generated by shift and diamond). "The symmetries over the base" and "the
-symmetries fixing the element" are therefore different groups, and §8 uses the second.
+symmetries fixing the element" are therefore different groups, and §6 uses the second.
 
 **Why those two invariances.** A coefficient of $`\Phi_p`$ is a single-valued function
 on the base, that is a rational function of $`j`$, so the monodromy has to fix it. The
@@ -496,7 +275,7 @@ symmetry that must be checked is generated by the substitutions above, so provin
 coefficient fixed by the twist and by the diamond is what single-valuedness demands: the
 twist kills the exponents outside $`p\mathbb{Z}`$, making the coefficient a
 $`q \mapsto q^p`$ pullback, and the diamond makes it rational. Those are items (i) and
-(iii) of §8 — and the reason the proof checks those two rather than all of
+(iii) of §6 — and the reason the proof checks those two rather than all of
 $`\mathrm{PGL}_2`$.
 
 ### What proves algebraicity of $`Y`$ over $`X`$
@@ -511,9 +290,9 @@ forbids a new transcendental generator, and it uses neither the roots nor monodr
 of the roots is unchanged along any loop, hence is a function of the base point rather
 than a multivalued branch. *Growth*: monodromy says nothing about the cusps; one still has
 to know that a coefficient is at worst polar at $`\infty`$ and at the elliptic points
-before calling it rational in $`j`$, and that comes from the $`q`$-expansions (§8 step 3).
+before calling it rational in $`j`$, and that comes from the $`q`$-expansions (§6 step 3).
 This produces coefficients in $`\mathbb{Q}(j)`$ — the existence of an equation. That the
-coefficients are integers rather than merely rational functions of $`j`$ is §4's separate
+coefficients are integers rather than merely rational functions of $`j`$ is §2's separate
 arithmetic step.
 
 **Symmetry predicts; with the roots in hand, calculation confirms.** The covering-space
@@ -524,38 +303,38 @@ theory can be replaced by arithmetic. Write down the product
 $$\prod_{b=0}^{p-1}\bigl(Y - j(\zeta_p^{\\,b}q)\bigr)\cdot\bigl(Y - j(q^{p^2})\bigr),$$
 and check its coefficients directly: the twist permutes the factors, the
 $`\zeta_p`$-action permutes them by $`b \mapsto ab`$, and a coefficient fixed by both is a
-$`q^p`$ pullback with rational coefficients (items (i)–(ii) of §8 for the pullback, (iii)
+$`q^p`$ pullback with rational coefficients (items (i)–(ii) of §6 for the pullback, (iii)
 for rationality). The symmetry that *predicted* algebraicity is exactly what makes the
 check possible: it names the two substitutions a coefficient has to survive. What is left
 is to identify the product with the minimal polynomial of $`j(q^{p^2})`$ over
-$`\mathbb{Q}(j(q^p))`$, which is the degree and uniqueness step of §8. So the formal proof
+$`\mathbb{Q}(j(q^p))`$, which is the degree and uniqueness step of §6. So the formal proof
 never argues that an algebraic equation must exist — it writes the equation down, verifies
 its coefficients, and matches it with the minimal polynomial: `phiProd`,
 `exists_phiGenDescends`, and at general level `minpoly_jqN_map_eq_prod_slots`.
 
 ### $`p = 3`$, concretely: lines, quotients, roots, action
 
-Every notion of §§1–5 appears in one example — the cover and its two symmetry
-substitutions included. Fix $`p = 3`$ and a generic $`\tau`$, and let
+Everything in 005 and in §§1–3 of this note appears in one example — the cover and its
+two symmetry substitutions included. Fix $`p = 3`$ and a generic $`\tau`$, and let
 $`E_\tau = \mathbb{C}/\Lambda_\tau`$ with $`\Lambda_\tau = \mathbb{Z} + \mathbb{Z}\tau`$
 be the base curve.
 
-**Curve, torsion, lines (§§1–2).** $`E_\tau[3] = \frac13\Lambda_\tau/\Lambda_\tau`$
+**Curve, torsion, lines (005 §§1–2).** $`E_\tau[3] = \frac13\Lambda_\tau/\Lambda_\tau`$
 is $`(\mathbb{Z}/3)^2`$, with basis
 $$e_1 = \frac13, \qquad e_2 = \frac{\tau}{3}.$$
 Its four cyclic subgroups are the four lines
 $$L_\infty = \langle e_1\rangle, \qquad
   L_b = \langle b\,e_1 + e_2\rangle
       = \Bigl\langle \frac{\tau+b}{3}\Bigr\rangle, \qquad b = 0,1,2,$$
-one fixed line plus three carrying an affine label, as in §2; their number is
-$`\psi(3) = 1 + 3 = 4`$. The index contrast of §2 is now numeric:
+one fixed line plus three carrying an affine label, as in 005 §2; their number is
+$`\psi(3) = 1 + 3 = 4`$. The index contrast of 005 §2 is now numeric:
 $`[\Lambda_\tau + \mathbb{Z}\frac13 : \Lambda_\tau] = 3`$ — this sum is $`L_\infty`$,
 one of the four lines — whereas $`[\frac13\Lambda_\tau : \Lambda_\tau] = 9`$ is all of
 $`E_\tau[3]`$. Both are lattices because $`\tau \notin \mathbb{R}`$: the directions
 added to $`\Lambda_\tau`$ here are $`\frac13`$ and $`\frac{\tau+b}{3}`$, not an
 irrational real number.
 
-**Line → quotient → root (§§2–3).** The root attached to a line is the
+**Line → quotient → root (005 §2).** The root attached to a line is the
 $`j`$-invariant of the quotient curve $`E_\tau/L`$:
 
 | line $`L`$ | quotient lattice | $`j(E_\tau/L)`$ |
@@ -565,19 +344,19 @@ $`j`$-invariant of the quotient curve $`E_\tau/L`$:
 
 A point of $`X_0(3)`$ is a pair (curve, line): the base point $`j(\tau)`$ is the image
 of the forgetful map $`(E,L) \mapsto E`$, and each root in the table is the image of
-the quotient map $`(E,L) \mapsto E/L`$. By §1 such a pair determines its quotient curve
-only up to isomorphism, recorded by $`j`$; the canonical model of §1 (`ofJ` in the
+the quotient map $`(E,L) \mapsto E/L`$. By 005 §1 such a pair determines its quotient curve
+only up to isomorphism, recorded by $`j`$; the canonical model of 005 §1 (`ofJ` in the
 code) represents any of them, so no Weierstrass equation is needed here.
 
 In the second row, $`\tau = 3\cdot\frac{\tau+b}{3} - b`$, so the lattice is already
 presented on the basis $`\bigl(1, \frac{\tau+b}{3}\bigr)`$; in the first, rescaling a
-lattice changes neither the curve nor $`j`$ (§1). So the roots of $`\Phi_3`$ at
+lattice changes neither the curve nor $`j`$ (005 §1). So the roots of $`\Phi_3`$ at
 $`X = j(\tau)`$ are exactly the four quotients of $`E_\tau`$ by its four order-$`3`$
 subgroups:
 $$\Phi_3\bigl(j(\tau), Y\bigr) = \bigl(Y - j(3\tau)\bigr)
   \prod_{b=0}^{2}\Bigl(Y - j\bigl(\tfrac{\tau+b}{3}\bigr)\Bigr).$$
 No explicit $`\Phi_3`$ is needed: it has degree $`4 = \psi(3)`$ in each variable and
-integer coefficients, by §3 and §4. The roots are distinct for generic $`\tau`$,
+integer coefficients, by §§1–2. The roots are distinct for generic $`\tau`$,
 separated as in the coefficient comparison above: in the variable
 $`Q = q^{1/3} = e^{2\pi i\tau/3}`$ the root $`j(3\tau) = j(Q^9)`$ has a pole $`Q^{-9}`$,
 while each $`j\bigl(\frac{\tau+b}{3}\bigr) = j(\zeta_3^{\,b}Q)`$ has a simple pole
@@ -642,9 +421,9 @@ rational. So every coefficient lies in $`\mathbb{Q}((q^3))`$, i.e. is the
 $`q \mapsto q^3`$ pullback of a rational series — exactly the conclusion of
 `exists_phiGenDescends` for $`p = 3`$.
 
-## 6. A hand calculation: $`\Phi_2`$
+## 4. A hand calculation: $`\Phi_2`$
 
-Let us verify that §§1–5 determine the first nontrivial modular polynomial. Take
+Let us verify that §§1–3 determine the first nontrivial modular polynomial. Take
 $`N = p = 2`$. The three order-$`2`$ subgroups of $`E_\tau`$ are generated by
 $`1/2`$, $`\tau/2`$, $`(\tau+1)/2`$, so the roots of $`\Phi_2(j(\tau), Y)`$ are
 
@@ -661,7 +440,7 @@ $$\Phi_2(X,Y) \\;=\\; (Y-r_1)(Y-r_2)(Y-r_3) \\;=\\;
 with $`e_1 = r_1+r_2+r_3`$, $`e_2 = r_1r_2+r_1r_3+r_2r_3`$ and
 $`e_3 = r_1r_2r_3`$.
 
-By §4 each $`e_k`$ is a polynomial in $`X`$; the pole orders at the cusp are
+By §2 each $`e_k`$ is a polynomial in $`X`$; the pole orders at the cusp are
 $`2, 2, 3`$, so $`\deg e_1, \deg e_2 \le 2`$ and $`\deg e_3 \le 3`$. The $`q`$-expansions
 begin (using $`j(q) = q^{-1}+744+196884q+21493760q^2+\cdots`$):
 
@@ -709,7 +488,7 @@ $`-(X-1728)(X-8000)(X+3375)^2`$, the class-number-one CM points of discriminant
 $`-4, -8, -7`$. Second, the leading coefficient of $`e_3`$ is $`-1`$, matching
 $`r_1r_2r_3 \sim q^{-2}\cdot(-q^{-1})`$.
 
-One caveat when reading §2's $`p+1`$ quotients as $`p+1`$ *curves*: they are $`p+1`$
+One caveat when reading 005 §2's $`p+1`$ quotients as $`p+1`$ *curves*: they are $`p+1`$
 quotient maps, and two distinct subgroups can have isomorphic targets — but only at CM
 points. The double root above is the case $`X = -3375`$:
 $`\Phi_2(-3375,Y) = (Y+3375)^2(Y-16581375)`$, so two of the three quotients are $`E`$
@@ -722,16 +501,16 @@ $`\mathcal{C}`$, not all of $`E_\tau[p]`$, so it is not $`[\pm p]`$ — hence
 $`\mathrm{End}(E_\tau)`$ is larger than $`\mathbb{Z}`$. For a non-CM $`E_\tau`$ the
 $`p+1`$ targets are pairwise non-isomorphic.
 
-The point of the computation is how little it needed: the quotient dictionary of §2
+The point of the computation is how little it needed: the quotient dictionary of 005 §2
 (so that the three roots are known), the $`q`$-expansion of $`j`$ from
-[004](004-the-j-invariant.md), the pole bound of §4 (so that finitely many
+[004](004-the-j-invariant.md), the pole bound of §2 (so that finitely many
 coefficients suffice), and integrality (so the coefficients are integers to be read
-off). This is the classical route, and it is a fair test that §§1–5 are enough.
+off). This is the classical route, and it is a fair test that §§1–3 are enough.
 
-## 7. Reading note 010: a short dictionary
+## 5. Reading note 010: a short dictionary
 
 The following phrases in [math/010](../math/010-function-field-generation.md) are
-the classical words of §§1–6. The label appearing in them is the upper-triangular
+the classical words of 005 and §§1–4. The label appearing in them is the upper-triangular
 matrix
 
 $$\gamma = \begin{pmatrix} a & b \\\\ 0 & d\end{pmatrix}, \qquad
@@ -768,7 +547,7 @@ its entries $`a`$ and $`b`$.
   $`(\mathbb{Z}/M)^2`$). The matrices $`\gamma`$ above have determinant $`M`$, so they
   are not among them; with $`\gcd(a,\gcd(b,d)) = 1`$ they are the standard labels of
   the $`\psi(M)`$ $`M`$-isogenies — the Hecke operator $`T_M`$'s representatives —
-  which is what the root list of §5 uses, through $`\tau \mapsto (a\tau+b)/d`$. Same
+  which is what the root list of §3 uses, through $`\tau \mapsto (a\tau+b)/d`$. Same
   cardinality and the same $`j`$-values, different matrices. Note 010's slot set
   $`\{(a,b) : a \mid M,\ b \lt M/a,\ \gcd(\gcd(a,b), M/a) = 1\}`$ is exactly this
   label set.
@@ -776,19 +555,19 @@ its entries $`a`$ and $`b`$.
   data written on the level-$`M`$ nome: $`\zeta_M^{\,ab}q^{a^2}`$ is the nome of
   $`a^2\tau+ab`$ (for $`q = e^{2\pi i\tau/M}`$), which is the action of the
   Hecke/coset matrix in the $`q`$-world. For $`M = p`$ it degenerates to the two
-  cases of §5: $`a = 1`$ gives the twists $`\zeta_p^{\,b}q`$, and $`a = p`$ gives
+  cases of §3: $`a = 1`$ gives the twists $`\zeta_p^{\,b}q`$, and $`a = p`$ gives
   $`q^{p^2}`$.
 - **"Hauptmodul", "j separates points".** $`j`$ is a coordinate on
   $`X(1) = \mathbb{P}^1`$: two elliptic curves are isomorphic iff they have the same
-  $`j`$ (§1). This is what lets a $`q`$-expansion computation be read back as a
+  $`j`$ (005 §1). This is what lets a $`q`$-expansion computation be read back as a
   statement about curves.
 - **"the extra isogeny relation cuts it down".** The fibre of $`X_0(N) \to X(1)`$
   over $`X`$ has $`\psi(N)`$ points $`j(E/\mathcal{C})`$, but only the one corresponding to
   $`\langle 1/N\rangle`$ satisfies the additional relation that $`E/\mathcal{C}`$ be
-  $`N`$-isogenous to $`E`$ in the prescribed way. The splitting formula of §5 is the
+  $`N`$-isogenous to $`E`$ in the prescribed way. The splitting formula of §3 is the
   explicit form of that relation.
 
-## 8. The Lean route as a map
+## 6. The Lean route as a map
 
 The Lean does not *first* define $`\Phi_N`$ by the product over subgroups and then
 check integrality. It goes the other way, and this order is worth knowing:
@@ -796,7 +575,7 @@ check integrality. It goes the other way, and this order is worth knowing:
 1. **Build the conjugate product.** The polynomial `phiProd` of
    [Def_ModularCurve_PhiGen.lean, lines 257–258](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_PhiGen.lean#L257-L258)
    is $`\prod_{b \lt p}\bigl(X - j(\zeta_p^{\,b}q)\bigr) \cdot \bigl(X - j(q^{p^2})\bigr)`$,
-   written directly from the splitting list of §5.
+   written directly from the splitting list of §3.
 2. **Descent, in three steps.** Each coefficient of the product must be shown to lie in
    the base, and the prime case uses one permutation and two invariances.
    (i) The twist $`q \mapsto \zeta_pq`$ fixes the infinity slot, since
@@ -815,18 +594,18 @@ check integrality. It goes the other way, and this order is worth knowing:
    Neither invariance suffices alone — the twist leaves coefficients in $`K((q^p))`$,
    Galois leaves them in $`\mathbb{Q}((q))`$ — and "in the base" means "a
    $`q \mapsto q^p`$ pullback" precisely because the base is $`\mathbb{Q}(j(q^p))`$
-   (the table in §5). The cover picture in §5 says why these are the right two
+   (the table in §3). The cover picture in §3 says why these are the right two
    symmetries: the twist is the local monodromy at the cusp, the diamond is the
    arithmetic action on the coefficients.
 3. **Pole bound.** The product's pole order at the cusp bounds the degree, which
    together with holomorphy makes each coefficient a *polynomial* in $`j(q)`$
    rather than a rational function; and the residue-$`1`$ pole of $`j`$ converts
-   integral $`q`$-coefficients into integral polynomial coefficients (§4). This is
+   integral $`q`$-coefficients into integral polynomial coefficients (§2). This is
    `exists_modularPolynomialData_coeff_eq`
    ([S file, lines 130–177](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_PhiGen_exists_modularPolynomialData_coeff_eq.lean#L130-L177)).
 4. **Uniqueness.** Both the given datum and the constructed one are monic of degree
    $`p+1`$ and annihilate the same element, which has degree $`p+1`$ over the base
-   (§5's table records the element and the base in both notations); so they are equal.
+   (§3's table records the element and the base in both notations); so they are equal.
    This identifies the product with
    $`\Phi_p`$ — the step that the phrase "the product's own coefficient family is a
    valid modular polynomial datum, hence is *the* datum" abbreviates.
@@ -837,7 +616,7 @@ check integrality. It goes the other way, and this order is worth knowing:
    `minpoly_jqN_map_eq_prod_slots` is the same splitting list iterated over the
    divisor lattice, and is what note 010's §4 descent consumes.
 
-Two features of §2's picture have no counterpart in the code, which is worth knowing
+Two features of 005 §2's picture have no counterpart in the code, which is worth knowing
 before reading it. There is no $`\mathbb{C}/\Lambda_\tau`$ model, and no quantification
 over generators of $`\mathcal{C}`$: the count $`p+1`$ enters as $`\psi`$, through an
 abstract group statement — for any additive group whose $`n`$-torsion is additively
@@ -852,7 +631,7 @@ $`q^{\ell^2}`$ one and slot $`b+1`$ the twist $`\zeta_\ell^{\,b}q`$. So neither
 choosing a generator nor reducing one modulo $`M`$ is a step the proof performs: the
 normalization $`\zeta_M^{\,ab}q^{a^2}`$ is built into the indexing.
 
-## 9. Key point → declaration map
+## 7. Key point → declaration map
 
 | Mathematics | Lean declaration | Location |
 |---|---|---|
@@ -869,7 +648,7 @@ normalization $`\zeta_M^{\,ab}q^{a^2}`$ is built into the indexing.
 | weight-zero invariant $`q`$-series is a polynomial in $`j`$ | `mem_adjoin_jq_of_hasSum_of_slash_invariant` | [Thm 9](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_mem_adjoin_jq_of_hasSum_of_slash_invariant.lean#L9) |
 | weight-zero modular form is constant | `ModularForm.eq_const_of_weight_zero` | [mathlib 164](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/NormTrace.lean#L164) |
 
-## 10. Links
+## 8. Links
 
 FLT sources at the pinned sha `aa2d8b3`:
 
@@ -883,6 +662,7 @@ FLT sources at the pinned sha `aa2d8b3`:
 Companion notes:
 
 - [004 — The j-invariant](004-the-j-invariant.md) — the series `jq` and its integral $`q`$-expansion
+- [005 — Cyclic isogenies, congruence level, and the $`j`$-invariant](005-cyclic-isogenies-and-level.md) — the lattice and quotient dictionary used in §1 and §3
 - [math/010 §3](../math/010-function-field-generation.md#3-the-modular-polynomial-and-the-roots-of-the-modular-equation) — the section this note supplements
 - [math/009 — The Hecke action on the Jacobian](../math/009-hecke-jacobian-commute.md) — where the modular polynomial is consumed
 
@@ -890,4 +670,3 @@ Background:
 
 - F. Diamond and J. Shurman, *A First Course in Modular Forms*, GTM 228, Springer 2005, §5.2 — the modular equation and the function field of $`X_0(N)`$.
 - S. Lang, *Elliptic Functions*, 2nd ed., GTM 112, Springer 1987, Ch. 5, §§2–3 — the modular equation and its roots.
-- J. Silverman, *Advanced Topics in the Arithmetic of Elliptic Curves*, GTM 151, Springer 1994, Ch. I — complex tori, isogenies, and the $`j`$-invariant.

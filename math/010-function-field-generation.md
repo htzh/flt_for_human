@@ -570,6 +570,8 @@ Companion notes:
 
 - [009 — The Hecke action on the Jacobian](009-hecke-jacobian-commute.md) — this theorem as an input to the roof generation and degree match
 - [base/004 — The j-invariant](../base/004-the-j-invariant.md) — where `jq` and its $`q`$-expansion come from
+- [base/005 — Cyclic isogenies, congruence level, and the j-invariant](../base/005-cyclic-isogenies-and-level.md) — the lattice and quotient dictionary behind the prime splitting
+- [base/006 — The modular equation: integrality and splitting](../base/006-the-modular-equation.md) — integrality, the splitting of §3, and the Lean route in full
 - [base/001 — Field extensions and Galois basics](../base/001-field-extensions-and-galois-basics.md) — the field-extension vocabulary used throughout
 
 Background:

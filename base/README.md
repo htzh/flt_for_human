@@ -52,16 +52,21 @@ notation, spending their space on the subject at hand.
   q-expansion faithfully models the function field, and the values
   `j(i) = 1728`, `j(ρ) = 0`, with the compactification `X(1) ≅ ℙ¹`, the
   Hauptmodul property `ℂ(j)`, CM and moonshine stated and cited but not proved.
-- [005 — The modular equation: isogenies, integrality, and splitting](005-the-modular-equation.md):
+- [005 — Cyclic isogenies, congruence level, and the j-invariant](005-cyclic-isogenies-and-level.md):
+  complex tori as lattices and the moduli reading of `j` (with the Lean model
+  `ofJ`, `nearCurve`/`goodModel`, `jLineRingEquiv`), order-`N` subgroups / cyclic
+  isogenies / the `p+1` quotient curves `E_{pτ}` and `E_{(τ+b)/p}`, the index
+  contrast `[Λ + ℤ(1/p) : Λ] = p` versus `[(1/p)Λ : Λ] = p²`, the Dedekind count
+  `ψ(N)`, duality, and the congruence level `Γ₀(N)`.
+- [006 — The modular equation: integrality and splitting](006-the-modular-equation.md):
   the classical language behind [math/010 §3](../math/010-function-field-generation.md#3-the-modular-polynomial-and-the-roots-of-the-modular-equation) —
-  complex tori and the moduli reading of `j`, order-`N` subgroups / cyclic
-  isogenies / the `p+1` quotient curves `E_{pτ}` and `E_{(τ+b)/p}`, the modular
-  polynomial `Φ_N` and its zero locus in `X(1) × X(1)`, why the symmetric
+  the modular polynomial `Φ_N` and its zero locus in `X(1) × X(1)`, why the symmetric
   functions of the roots have integer coefficients (algebraic-integer
   q-expansions, Galois descent, `ℤ` integrally closed in `ℚ`, and the residue-one
   pole reading off the top coefficient), the prime-level splitting and the
-  coset/slot parametrization `j(ζ_M^{ab} q^{a²})`, the Lean route quoted as a
-  route map, and a hand computation of `Φ₂`.
+  coset/slot parametrization `j(ζ_M^{ab} q^{a²})`, the cover `X_0(p) → X(1)` with
+  its monodromy and what proves algebraicity, a `p = 3` example carried through in
+  full, the Lean route quoted as a route map, and a hand computation of `Φ₂`.
 
 ## Candidate topics (not yet written, no order implied)
 

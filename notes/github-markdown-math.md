@@ -1,6 +1,7 @@
 # GitHub Markdown math: writing rules and a debugging recipe
 
-`base/005` looked perfect in the DSH GUI and rendered error boxes on GitHub.
+`base/006` (numbered `base/005` when this was written) looked perfect in the DSH GUI
+and rendered error boxes on GitHub.
 This note records what was learned: (1) what GitHub does to math, stated as
 writing rules, and (2) the method that located the offending spans — the part
 worth keeping, because this class of bug is invisible locally.
@@ -156,7 +157,7 @@ against both engines locally; single observations are flagged as such.
 Fetch a served page and extract what the engine will see:
 
 ```bash
-mkdir -p .tmp; SHA=500f7c6; F=base/005-the-modular-equation.md
+mkdir -p .tmp; SHA=500f7c6; F=base/006-the-modular-equation.md
 python3 - <<PY
 import urllib.request, re, html, json
 url = f"https://github.com/htzh/flt_for_human/blob/$SHA/$F"
