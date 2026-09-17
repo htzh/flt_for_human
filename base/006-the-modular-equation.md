@@ -50,9 +50,9 @@ $`X`$: as a polynomial in $`Y`$,
 
 $$\Phi_N(X,Y) \\;=\\; Y^{\psi(N)} - e_1(X)\\,Y^{\psi(N)-1} + \cdots + (-1)^{\psi(N)}e_{\psi(N)}(X),$$
 
-where $`e_k`$ is the $`k`$-th elementary symmetric function of the $`\psi(N)`$
-conjugate $`j`$-values. Three structural facts are the whole content of the
-classical theory:
+where $`e_k`$ is the $`k`$-th elementary symmetric function of the $`\psi(N)`$ values
+$`j(E/\mathcal{C})`$. Three structural facts are the whole content of the classical
+theory:
 
 - **monic, of degree $`\psi(N)`$ in $`Y`$** — by construction, one linear factor per
   cyclic subgroup;
@@ -60,13 +60,46 @@ classical theory:
   involution $`w_N`$ exchanges $`E`$ and $`E/\mathcal{C}`$;
 - **integral**: $`\Phi_N \in \mathbb{Z}[X,Y]`$ — this is the nontrivial one, §2.
 
-Because $`\Phi_N(j(\tau), Y)`$ has exactly the $`\psi(N)`$ roots $`j(E_\tau/\mathcal{C})`$, and
-because the cosets of $`\Gamma_0(N)`$ form a single Galois orbit (the cover
-$`X_0(N) \to X(1)`$ is connected), $`\Phi_N`$ is the minimal polynomial of
-$`j(N\tau)`$ over $`\mathbb{C}(j(\tau))`$ and is irreducible there. Its degree is the
-degree of the cover:
+**Which field, and what "conjugate" means.** The base field is the rational function
+field of the $`j`$-coordinate,
 
-$$[\mathbb{C}(j(\tau), j(N\tau)) : \mathbb{C}(j(\tau))] \\;=\\; \psi(N).$$
+$$K \\;=\\; \mathbb{Q}(j) \\;\\cong\\; \mathbb{Q}(X), \qquad
+  \text{over } \mathbb{C}: \ \mathbb{C}(j) \\cong \mathbb{C}(X),$$
+
+with $`X`$ the indeterminate of $`\Phi_N`$; that $`j`$ is transcendental, so that this
+really is a rational function field, is the faithful-$`q`$-expansion statement of
+[004](004-the-j-invariant.md) (the code's `jLineRingEquiv : RatFunc ℚ ≃+* ℚ⟮jq⟯`). The
+element is $`a = j(N\tau)`$ — the code's `jqN N = j(q^N)` — and it generates the extension
+
+$$F_N \\;=\\; K(a) \\;=\\; \mathbb{Q}(j,\\, j(q^N)) \\;\\cong\\; \mathbb{Q}(X_0(N)),$$
+
+the function field of the modular curve (note 010's generation theorem), of degree over
+$`K`$ equal to the degree of the cover:
+
+$$[F_N : K] \\;=\\; [\mathbb{C}(j(\tau), j(N\tau)) : \mathbb{C}(j(\tau))] \\;=\\; \psi(N)$$
+
+(the code's `finrank` computation, with `Gamma0_index` supplying the index). A
+**conjugate** of $`a`$ then has its usual meaning: the image of $`a`$ under a
+$`K`$-embedding of $`F_N`$ into an algebraic closure, equivalently a root of the minimal
+polynomial $`\mathrm{minpoly}_K(a)`$ — in the code, literally `minpoly ℚ⟮jq⟯ (jqN N)`.
+Because $`\Phi_N`$ is monic of degree $`\psi(N)`$, has coefficients in $`K`$ (the product
+is stable under $`\mathrm{Gal}(\bar{K}/K)`$, which permutes its factors; §2 makes them
+integral), and annihilates $`a`$, while $`[K(a) : K] = \psi(N)`$, it *is* that minimal
+polynomial — the code records the same identity, after the substitution
+$`q \mapsto q^N`$ on the coefficients, as `minpoly_jqN_map_eq_prod_slots`. So
+"$`\Phi_N`$ is minimal for $`j(N\tau)`$ over $`K`$" and "the $`\psi(N)`$
+roots are the conjugates of $`j(N\tau)`$ over $`K`$" say the same thing, and in
+characteristic $`0`$ the conjugates are distinct. Equivalently, the conjugates form a
+single $`\mathrm{Gal}(\bar{K}/K)`$-orbit — the field-theoretic form of the connectedness
+of $`X_0(N)`$, that is, of the transitivity of the monodromy of $`X_0(N) \to X(1)`$.
+
+Two points of language, so that neither is smuggled in. First, $`F_N/K`$ is **not Galois
+in general** — $`\Gamma_0(N)`$ need not be normal in $`\mathrm{SL}_2(\mathbb{Z})`$ — so
+"one Galois orbit" refers to the action of $`\mathrm{Gal}(\bar{K}/K)`$ on the
+$`K`$-embeddings of $`F_N`$, not to a group of automorphisms of $`F_N`$ over $`K`$.
+Second, $`X`$ above is a genuine indeterminate: $`X \mapsto j(q)`$ is an embedding
+$`\mathbb{Q}(X) \hookrightarrow \mathbb{Q}((q))`$, which is what lets the abstract
+statement specialize to the explicit series of §3.
 
 **Level one.** For $`N = 1`$ there is one subgroup, $`\Phi_1(X,Y) = X - Y`$; for
 $`N = 2`$ there are three, and §4 computes them.
@@ -88,26 +121,38 @@ explicit argument with the $`q`$-expansion.
 Write $`e_k(j(\tau))`$ for the $`k`$-th coefficient of $`\Phi_N(j(\tau),Y)`$ (up to
 sign). Three inputs:
 
-1. **Each conjugate has an algebraic-integer $`q`$-expansion.** The conjugates are
-   the values $`j(\gamma\tau)`$ for coset representatives $`\gamma`$; in the nome they
-   are $`j(\zeta_N^{\,ab} q^{a^2})`$ (§5). Since $`j(q) \in \mathbb{Z}((q))`$
-   ([004 §4](004-the-j-invariant.md)) and $`\zeta_N^{\,ab}`$ is a root of unity,
+1. **Each conjugate has an algebraic-integer $`q`$-expansion.** By §1 the conjugates of
+   $`j(N\tau)`$ over $`K = \mathbb{Q}(j)`$ are the $`\psi(N)`$ roots of
+   $`\Phi_N(j(\tau), Y)`$; after the substitution $`q \mapsto q^N`$ on the coefficients
+   (the normalization of §1) they are the slot values $`j(\zeta_N^{\,ab} q^{a^2})`$
+   attached to the determinant-$`N`$ labels of §5 — labels in $`M_2(\mathbb{Z})`$, not
+   coset representatives in $`\mathrm{SL}_2(\mathbb{Z})`$. Since
+   $`j(q) \in \mathbb{Z}((q))`$ ([004 §4](004-the-j-invariant.md)) and $`\zeta_N^{\,ab}`$
+   is a root of unity,
    hence an algebraic integer, substitution $`q \mapsto \zeta q^e`$ returns
    $`q`$-coefficients in $`\mathbb{Z}[\zeta_N]`$: every conjugate has
    *algebraic-integer* $`q`$-coefficients. A symmetric polynomial in the conjugates,
-   such as $`e_k`$, again has algebraic-integer $`q`$-coefficients, and it is fixed
-   by the Galois action (which permutes the conjugates), so those coefficients lie
-   in $`\mathbb{Q}`$. A rational algebraic integer is an integer, because
-   $`\mathbb{Z}`$ is integrally closed in $`\mathbb{Q}`$. Hence every
+   such as $`e_k`$, again has algebraic-integer $`q`$-coefficients. These are fixed by
+   the arithmetic action $`\zeta_N \mapsto \zeta_N^{u}`$, that is
+   $`\mathrm{Gal}(\mathbb{Q}(\zeta_N)/\mathbb{Q})`$: it permutes the conjugates — by
+   $`b \mapsto ub`$ on the labels — and fixes $`j(q)`$, hence fixes the base field $`K`$
+   pointwise, so a coefficient lying in $`\mathbb{Z}[\zeta_N]`$ and fixed by it lies in
+   $`\mathbb{Q}`$. (This is not the monodromy action of item 2: both permute the same
+   conjugates, but this one acts on the coefficients of the $`q`$-expansions while
+   leaving every element of $`K`$ alone.) A rational algebraic integer is an integer,
+   because $`\mathbb{Z}`$ is integrally closed in $`\mathbb{Q}`$. Hence every
    $`e_k(j(\tau))`$ has **ordinary integer** $`q`$-coefficients.
-2. **Each $`e_k`$ is a polynomial in $`j`$.** It is symmetric in the conjugates, hence
-   unchanged when the monodromy permutes the $`\psi(N)`$ points of the fibre of
-   $`X_0(N) \to X(1)`$ (the covering-space picture of §3); it is holomorphic on
-   $`\mathbb{H}`$ because each conjugate is; and its pole order at the cusp is finite and
-   bounded by the classical bidegree of $`\Phi_N`$, namely $`\psi(N)`$. A weight-zero modular
-   function that is holomorphic on $`\mathbb{H}`$ and has a pole of order $`\le
-   \psi(N)`$ at the cusp is a polynomial in $`j`$ of degree $`\le \psi(N)`$ (this is
-   the Hauptmodul property of 005 §1). So
+2. **Each $`e_k`$ is a polynomial in $`j`$.** The conjugates are the branches of a
+   multivalued function over the base, and $`e_k`$, being symmetric in them, is fixed by
+   the *geometric* action: the monodromy of $`X_0(N) \to X(1)`$, that is the action of
+   $`\mathrm{Gal}(\bar{K}/K)`$ on the $`\psi(N)`$ conjugates (the covering-space picture
+   of §3), which likewise fixes $`K`$ pointwise. So $`e_k`$ is a single-valued function
+   of the base point rather than a branch. It is holomorphic on $`\mathbb{H}`$ because
+   each conjugate is; and its pole order at the cusp is finite and bounded by the
+   classical bidegree of $`\Phi_N`$, namely $`\psi(N)`$. A weight-zero modular function
+   that is holomorphic on $`\mathbb{H}`$ and has a pole of order $`\le \psi(N)`$ at the
+   cusp is a polynomial in $`j`$ of degree $`\le \psi(N)`$ (this is the Hauptmodul
+   property of 005 §1). So
    $`e_k = Q_k(j)`$ with $`Q_k \in \mathbb{C}[X]`$, $`\deg Q_k \le \psi(N)`$.
 3. **Integral $`q`$-expansion forces integral coefficients.** A rational polynomial
    $`Q`$ with $`Q(j(q)) \in \mathbb{Z}((q))`$ must have $`Q \in \mathbb{Z}[X]`$.
