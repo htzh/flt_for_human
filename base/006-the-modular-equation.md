@@ -66,10 +66,22 @@ field of the $`j`$-coordinate,
 $$K \\;=\\; \mathbb{Q}(j) \\;\\cong\\; \mathbb{Q}(X), \qquad
   \text{over } \mathbb{C}: \ \mathbb{C}(j) \\cong \mathbb{C}(X),$$
 
-with $`X`$ the indeterminate of $`\Phi_N`$; that $`j`$ is transcendental, so that this
-really is a rational function field, is the faithful-$`q`$-expansion statement of
-[004](004-the-j-invariant.md) (the code's `jLineRingEquiv : RatFunc ℚ ≃+* ℚ⟮jq⟯`). The
-element is $`a = j(N\tau)`$ — the code's `jqN N = j(q^N)` — and it generates the extension
+with $`X`$ the indeterminate of $`\Phi_N`$. That $`j`$ really is transcendental, so that
+$`\mathbb{Q}(j)`$ is a rational function field and not a finite extension of one, is
+proved without analysis: $`j(q) = q^{-1}u`$ with $`u`$ a power series of constant term
+$`1`$, so for a nonzero polynomial $`p`$ of degree $`d`$ the $`q^{-d}`$-coefficient of
+$`p(j(q))`$ is the leading coefficient of $`p`$ — $`j(q)^d`$ contributes $`1`$ there, and
+$`j(q)^i`$ with $`i \lt d`$ contributes nothing — hence $`p(j(q)) \ne 0`$. (Equivalently:
+$`p`$ splits over $`\bar{\mathbb{Q}}`$ inside $`\bar{\mathbb{Q}}((q))`$, so an algebraic
+$`j(q)`$ would have to equal one of finitely many *constant* series, and the only constant
+series in $`\mathbb{Q}((q))`$ are the rational numbers.) This is the code's
+`transcendental_jq`, and it is the same pole-order mechanism as §2 item 3. With it,
+`jLineRingEquiv : RatFunc ℚ ≃+* ℚ⟮jq⟯` identifies the base with $`\mathbb{Q}(X)`$; the
+companion fact, that a modular function is determined by its $`q`$-expansion, is
+[004 §5](004-the-j-invariant.md).
+
+The element is $`a = j(N\tau)`$ — the code's `jqN N = j(q^N)` — and it generates the
+extension
 
 $$F_N \\;=\\; K(a) \\;=\\; \mathbb{Q}(j,\\, j(q^N)) \\;\\cong\\; \mathbb{Q}(X_0(N)),$$
 
@@ -163,7 +175,7 @@ sign). Three inputs:
    leading coefficient of $`Q`$; it is an integer, so that coefficient is an
    integer. Subtract it and repeat: every coefficient is an integer.
 
-The mechanism in (3) is worth naming: $`j`$ has a **simple pole of residue $`1`** at
+The mechanism in (3) is worth naming: $`j`$ has a **simple pole of residue $`1`$** at
 the cusp, so the deepest power of $`q`$ in a polynomial in $`j`$ reads off the
 top coefficient of the polynomial. Combining (1)–(3),
 
@@ -680,6 +692,7 @@ normalization $`\zeta_M^{\,ab}q^{a^2}`$ is built into the indexing.
 
 | Mathematics | Lean declaration | Location |
 |---|---|---|
+| $`j(q)`$ transcendental over $`\mathbb{Q}`$: the base is $`\mathbb{Q}(X)`$ | `transcendental_jq` | [Thm 6](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_transcendental_jq.lean#L6) |
 | monic $`\Phi_N \in \mathbb{Z}[X][Y]`$, $`\deg_Y = \psi(N)`$, $`\Phi_N(j,j_N)=0`$ | `ModularPolynomialData` | [X0 215–223](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_X0.lean#L215-L223) |
 | $`j(q^N)`$ integral over $`\mathbb{Z}[j(q)]`$ | `exists_monic_evalAtJ_jqN_eq_zero` | [Thm 8](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_exists_monic_evalAtJ_jqN_eq_zero.lean#L8) |
 | degree $`\psi(N)`$ ⟹ irreducible $`\Phi_N`$ | `exists_phiIrreducible_of_finrank_eq` | [Thm 9](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_exists_phiIrreducible_of_finrank_eq.lean#L9) |
