@@ -319,6 +319,45 @@ on lines, $`\gamma`$ and $`-\gamma`$ give the same permutation, and the rule onl
 $`\gamma`$ modulo $`3`$ up to sign: the loops that act trivially are those with
 $`\gamma \equiv \pm I \pmod 3`$.
 
+**The picture to keep: sheets are functions of $`\tau`$.** The path is the primary
+object. Let $`\tau`$ vary slowly along a path in $`\mathbb{H}`$ from $`\tau`$ to
+$`\gamma\tau`$ — not itself closed, but with closed image in $`X(1)`$ — and let it track
+the loop. Pull the cover back to $`\mathbb{H}`$: since $`\mathbb{H}`$ is simply
+connected the pullback is trivial — four globally labelled sheets, indexed by the four
+cosets $`\Gamma_0(3)\backslash\mathrm{SL}_2(\mathbb{Z})`$. So **a sheet is a function of
+the base point**: as $`\tau`$ moves, the sheet over it carries its value $`q(\tau(t))`$
+along, and the only move available is to substitute the new value of $`\tau`$. Applying
+the Möbius map $`\gamma`$ to a value is not a move in this picture. And since
+$`\mathbb{H}`$ is simply connected, the endpoint of the lift — the permutation — depends
+only on the homotopy class of the loop in $`X(1)`$, that is, only on $`\gamma`$.
+
+**A shorter route to the same permutation.** The four sheets can also be followed by
+their quotient values alone, with no lattice basis in sight. A sheet over the base
+$`\tau`$ has value $`q(\tau) \in \{3\tau,\ (\tau+b)/3\}`$; keeping coordinates fixed in
+the moving basis means that the same sheet carries the value $`q(\tau(t))`$ at time
+$`t`$, so at the end it carries $`q(\gamma\tau)`$ — substitute
+$`\tau \mapsto \gamma\tau`$ in the expression, so $`3\tau \mapsto 3\gamma\tau`$ and
+$`(\tau+b)/3 \mapsto (\gamma\tau+b)/3`$. Values are read up to
+$`\mathrm{SL}_2(\mathbb{Z})`$: $`q`$ and $`q'`$ name the same sheet exactly when
+$`\mathbb{Z} + \mathbb{Z}q`$ and $`\mathbb{Z} + \mathbb{Z}q'`$ are homothetic, that is
+$`q' = \gamma'q`$; for generic $`\tau`$ the four values are distinct, so this does name
+a sheet. Two instances, matching the table below:
+
+- $`\gamma = [[1,1],[0,1]]`$: the value $`3(\tau+1) = 3\tau+3`$ has lattice
+  $`\mathbb{Z} + \mathbb{Z}(3\tau+3) = \mathbb{Z} + 3\mathbb{Z}\tau
+  = \mathbb{Z} + \mathbb{Z}\cdot 3\tau`$, so $`\infty`$ is fixed; and
+  $`(\tau+b)/3`$ is already the standard value for slot $`b+1`$, so $`b \mapsto b+1`$;
+- $`\gamma = [[0,-1],[1,0]]`$: the value $`3\tau`$ becomes $`-3/\tau`$, and
+  $`-3/\tau = [[0,1],[-1,0]]\cdot(\tau/3)`$ names slot $`0`$, so $`\infty \mapsto 0`$;
+  the value $`\tau/3`$ becomes $`-1/(3\tau)`$, which scaled by $`-3\tau`$ is
+  $`\mathbb{Z} + \mathbb{Z}\cdot 3\tau`$, so $`0 \mapsto \infty`$; and
+  $`(\tau+1)/3`$ becomes $`(\tau-1)/(3\tau)
+  = [[1,0],[3,1]]\cdot(\tau-1)/3`$, where $`(\tau-1)/3`$ is the same lattice as
+  $`(\tau+2)/3`$, so $`1 \mapsto 2`$ and symmetrically $`2 \mapsto 1`$.
+
+The lattice computation above is what shows, for every $`\gamma`$ at once, that this
+shortcut is legitimate.
+
 **The three local monodromies.** The loops at the cusp and at the two elliptic points
 already generate all of them:
 
