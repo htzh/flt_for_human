@@ -5,7 +5,9 @@ $`q`$-expansion; this note fixes the classical picture that the rest of the seri
 complex tori as lattices, the cyclic isogenies out of a torus, and the level structure that
 indexes them. §1 collects what a $`j`$-value determines — the moduli reading, and the
 natural place to say more later about isomorphism classes of elliptic curves and their
-models; §2 does the counting and builds the quotient dictionary. The **modular equation** on
+models; §2 does the counting and builds the quotient dictionary; §3 walks the resulting
+four-sheeted cover $`X_0(3) \to X(1)`$ in the $`\tau`$-picture and catalogues its
+monodromy. The **modular equation** on
 top of that picture, its integrality and its splitting, is
 [006](006-the-modular-equation.md), which consumes the dictionary below. The aim here is to
 make sense of a sentence like
@@ -246,12 +248,136 @@ $$\psi(N) \\;=\\; \sum_{\substack{d \mid N \\\\ d\\ \text{squarefree}}} \frac{N}
 the index $`[\mathrm{SL}_2(\mathbb{Z}) : \Gamma_0(N)]`$. For $`N = p`$ this is
 $`p+1`$, and the $`p+1`$ subgroups above are the first case.
 
-## 3. Links
+## 3. The four sheets over $`\tau`$: monodromy of $`X_0(3) \to X(1)`$
+
+§2 listed the four order-$`3`$ subgroups of $`E_\tau`$ and their quotients. Those same
+four objects are the four points of $`X_0(3)`$ above the point $`[\tau]`$ of $`X(1)`$:
+the cover $`X_0(3) \to X(1)`$ has four sheets, and away from the cusps and the two
+elliptic points they sit over $`[\tau]`$ distinctly. This section walks that cover in
+$`\tau`$ alone — no function fields, no $`q`$-expansions, only points of
+$`\mathbb{H}`$, lattices, and paths.
+
+**Base point, loop, sheets.** Fix a generic $`\tau`$ and $`\gamma`$ in
+$`\mathrm{SL}_2(\mathbb{Z})`$. By §1, $`j(\gamma\tau) = j(\tau)`$: the marked curves
+$`E_\tau`$ and $`E_{\gamma\tau}`$ occupy the *same* point of $`X(1)`$ even though they
+are different lattices, so the image of a path in $`\mathbb{H}`$ from $`\tau`$ to
+$`\gamma\tau`$ is a loop in $`X(1)`$ based at $`[\tau]`$. The matrix $`\gamma`$ does move
+the marked curve — it changes the period basis — and $`j`$ is exactly what forgets that;
+the path closes because $`j`$ does not see the change. Meanwhile each of the four
+subgroups $`\mathcal{C} \le E_\tau[3]`$ is a point of $`X_0(3)`$ above $`[\tau]`$; as
+$`\tau`$ travels along the path the four points travel with it, and when the base point
+returns to $`[\tau]`$ the four return *as a set*, generally permuted. That permutation,
+computed below, is the monodromy of the cover.
+
+**The four sheets, labelled.** A subgroup of order $`3`$ in
+$`E_\tau[3] \cong \mathbb{F}_3^2`$ is a line $`\langle(m,n)\rangle`$; §2 gives the
+quotient it cuts out. Label each sheet by that quotient:
+
+| slot | line | kernel | quotient |
+|---|---|---|---|
+| $`\infty`$ | $`(1,0)`$ | $`\langle 1/3\rangle`$ | $`E_{3\tau}`$ |
+| $`b = 0,1,2`$ | $`(b,1)`$ | $`\langle(\tau+b)/3\rangle`$ | $`E_{(\tau+b)/3}`$ |
+
+A line with $`n \ne 0`$ is a scalar multiple of $`(m/n,1)`$ and carries the slot
+$`b = m/n`$ in $`\mathbb{F}_3`$; the line $`(m,0)`$ carries the slot $`\infty`$. So the
+four points above $`[\tau]`$ have quotient curves $`E_{3\tau}`$ and
+$`E_{(\tau+b)/3}`$ — the four images of $`[\tau]`$ under the $`3`$-isogeny
+correspondence. The four sheets are also the four cosets of $`\Gamma_0(3)`$ in
+$`\mathrm{SL}_2(\mathbb{Z})`$ — the same count,
+$`[\mathrm{SL}_2(\mathbb{Z}) : \Gamma_0(3)] = \psi(3) = 4`$ (`Gamma0_index`,
+[Thm_ModularCurve_Gamma0_index.lean, line 10](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_Gamma0_index.lean#L10)) —
+which the code lists as `primCosetReps 3`
+([Def_ModularCurve_PrimCosetReps.lean, line 8](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_PrimCosetReps.lean#L8)).
+
+**How a sheet moves.** Write $`\gamma = [[a,b],[c,d]]`$ and let $`\tau(t)`$,
+$`0 \le t \le 1`$, run from $`\tau`$ to $`\gamma\tau`$, chosen to avoid the elliptic
+points (which one may do within a homotopy class). A lift of the loop is a continuous
+choice of line $`\mathcal{L}(t) \le E_{\tau(t)}[3]`$; the simplest choice keeps the
+coordinates fixed in the moving basis $`(1,\tau(t))`$:
+
+$$\mathcal{L}_{(m,n)}(t) \\;=\\; \langle (m + n\tau(t))/3 \rangle .$$
+
+At $`t = 1`$ this line lies in $`E_{\gamma\tau}`$, and to name it back in the fixed curve
+$`E_\tau`$ we use the explicit isomorphism of §1, multiplication by
+$`\lambda = c\tau + d`$:
+
+$$\lambda\Lambda_{\gamma\tau} \\;=\\; \mathbb{Z}(c\tau+d) + \mathbb{Z}(a\tau+b)
+  \\;=\\; \Lambda_\tau .$$
+
+Pushing the generator across it,
+
+$$\lambda\cdot\frac{m + n\gamma\tau}{3} \\;=\\;
+  \frac{m(c\tau+d) + n(a\tau+b)}{3} \\;=\\;
+  \frac{(md+nb) + (mc+na)\tau}{3},$$
+
+so on coordinates the loop acts by
+
+$$(m,n) \\;\longmapsto\\; (dm + bn,\\; cm + an),$$
+
+that is, by the matrix $`[[d,b],[c,a]]`$, read modulo $`3`$. Since $`-1`$ acts trivially
+on lines, $`\gamma`$ and $`-\gamma`$ give the same permutation, and the rule only sees
+$`\gamma`$ modulo $`3`$ up to sign: the loops that act trivially are those with
+$`\gamma \equiv \pm I \pmod 3`$.
+
+**The three local monodromies.** The loops at the cusp and at the two elliptic points
+already generate all of them:
+
+| loop | $`\gamma`$ | coordinates | slots | role |
+|---|---|---|---|---|
+| $`\tau \mapsto \tau+1`$ | $`[[1,1],[0,1]]`$ | $`(m+n,n)`$ | $`(0\,1\,2)`$, fixes $`\infty`$ | cusp; the twist |
+| $`\tau \mapsto -1/\tau`$ | $`[[0,-1],[1,0]]`$ | $`(-n,m)`$ | $`(\infty\,0)(1\,2)`$ | $`j = 1728`$ |
+| $`\tau \mapsto -1/(\tau+1)`$ | $`[[0,-1],[1,1]]`$ | $`(m-n,m)`$ | $`(\infty\,1\,0)`$, fixes $`2`$ | $`j = 0`$ |
+
+The first is the twist of 006 §3 read on the four slots: it fixes $`\infty`$ and cycles
+$`0,1,2`$. In that note's names the first two rows are $`u`$ and $`w`$.
+
+**The catalogue.** Twelve classes of matrices give twelve permutations, and all twelve
+occur:
+
+| permutation of $`\{\infty,0,1,2\}`$ | a loop realizing it |
+|---|---|
+| identity | $`[[1,0],[0,1]]`$ |
+| $`(0\,1\,2)`$ | $`[[1,1],[0,1]]`$ |
+| $`(0\,2\,1)`$ | $`[[1,2],[0,1]]`$ |
+| $`(\infty\,0)(1\,2)`$ | $`[[0,-1],[1,0]]`$ |
+| $`(\infty\,1)(0\,2)`$ | $`[[1,-1],[-1,-1]]`$ |
+| $`(\infty\,2)(0\,1)`$ | $`[[1,1],[1,-1]]`$ |
+| $`(\infty\,0\,1)`$ | $`[[1,1],[-1,0]]`$ |
+| $`(\infty\,0\,2)`$ | $`[[1,-1],[1,0]]`$ |
+| $`(\infty\,1\,0)`$ | $`[[0,-1],[1,1]]`$ |
+| $`(\infty\,1\,2)`$ | $`[[1,0],[1,1]]`$ |
+| $`(\infty\,2\,0)`$ | $`[[0,1],[-1,1]]`$ |
+| $`(\infty\,2\,1)`$ | $`[[1,0],[-1,1]]`$ |
+
+The count is $`1 + 8 + 3`$: the identity, the eight $`3`$-cycles, and the three double
+transpositions — precisely the twelve *even* permutations of the four slots. So:
+
+- every loop is an even permutation, and no element of $`\mathrm{SL}_2(\mathbb{Z})`$
+  produces an odd one;
+- the loops are transitive ($`[[0,-1],[1,0]]`$ sends $`\infty`$ to $`0`$, and the powers
+  of $`[[1,1],[0,1]]`$ then run through $`0,1,2`$), which is the connectedness of
+  $`X_0(3)`$ over $`X(1)`$; the cusp loop alone fixes $`\infty`$, so one local monodromy
+  is not enough;
+- the odd permutations are *not* loops. The one closest to hand is
+  $`d = [[-1,0],[0,1]]`$, acting by $`(m,n) \mapsto (-m,n)`$, the transposition
+  $`(1\,2)`$ fixing $`\infty`$ and $`0`$; it is not even an element of
+  $`\mathrm{SL}_2(\mathbb{Z})`$ ($`\det d = -1`$). It is arithmetic rather than
+  topological — the diamond of 006 §3 — and together with the loops it generates all
+  $`24`$ permutations of the four slots; the other eleven odd permutations are its
+  composites with the loops, so no loop realizes any of them.
+
+**A remark on $`X(3)`$.** The four sheets above are the cover by *lines*: the level
+datum of a point of $`X_0(3)`$ is a subgroup of order $`3`$. The finer curve $`X(3)`$,
+whose level datum is a full basis of $`E[3]`$, lies above it with several sheets over
+each line; a loop permutes those too, and the four-slot permutation above is the one it
+induces on lines.
+
+## 4. Links
 
 Companion notes:
 
 - [004 — The j-invariant](004-the-j-invariant.md) — the series `jq` and its integral $`q`$-expansion
-- [006 — The modular equation](006-the-modular-equation.md) — integrality and splitting of $`\Phi_N`$, which use the quotient dictionary of §2
+- [006 — The modular equation](006-the-modular-equation.md) — integrality and splitting of $`\Phi_N`$, which use the quotient dictionary of §2 and the monodromy of §3
 - [math/010 §3](../math/010-function-field-generation.md#3-the-modular-polynomial-and-the-roots-of-the-modular-equation) — the section this pair of notes supplements
 
 Background:

@@ -359,7 +359,8 @@ $`\mathrm{PSL}_2(\mathbb{F}_3) = A_4`$, the $`12`$ even permutations of the four
 while the full symmetry group of those four lines is
 $`\mathrm{PGL}_2(\mathbb{F}_3) := \mathrm{GL}_2(\mathbb{F}_3)/\{\text{scalars}\} = S_4`$:
 the odd permutations missing from the monodromy are exactly the arithmetic action
-described next.
+described next. For $`p = 3`$ the twelve loops and their matrices are catalogued in
+[005 §3](005-cyclic-isogenies-and-level.md).
 
 **The other two local monodromies.** The cusp loop is the twist of the opening,
 $`q' \mapsto \zeta_p q'`$. Around $`j = 1728`$ and $`j = 0`$ one gets the local
