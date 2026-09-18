@@ -56,9 +56,25 @@ theory:
 
 - **monic, of degree $`\psi(N)`$ in $`Y`$** — by construction, one linear factor per
   cyclic subgroup;
-- **symmetric**: $`\Phi_N(X,Y) = \Phi_N(Y,X)`$ — by duality (005 §2), the Fricke
-  involution $`w_N`$ exchanges $`E`$ and $`E/\mathcal{C}`$;
+- **symmetric**: $`\Phi_N(X,Y) = \Phi_N(Y,X)`$ — duality (005 §2): the two directions of
+  a cyclic $`N`$-isogeny are interchangeable, and the next paragraph gives the algebraic
+  form of this;
 - **integral**: $`\Phi_N \in \mathbb{Z}[X,Y]`$ — this is the nontrivial one, §2.
+
+**Symmetry as a transposed minimal polynomial.** The relation "is $`N`$-isogenous to" is
+symmetric (005 §2), and the Fricke involution $`w_N`$ realizes the exchange
+$`E \leftrightarrow E/\mathcal{C}`$. One can also *prove* the symmetry by exchanging the
+roles of the two functions: run the construction of §6 with base
+$`\mathbb{Q}(j(q^N))`$ and element $`j(q)`$ instead of base $`\mathbb{Q}(j(q))`$ and
+element $`j(q^N)`$. It gives a monic polynomial of degree $`\psi(N)`$ with the same root,
+hence the transposed minimal polynomial — that is $`\Phi_N(Y,X) = \Phi_N(X,Y)`$. The code
+carries exactly this: `EvalSymm` is the evaluated statement
+$`\Phi(x,y) = \Phi(y,x)`$ for all $`x,y`$, and `evalSymm_of_irreducible` derives it from
+irreducibility plus three facts about the transposed polynomial — that $`j`$ is a root of
+it (`data.Φ.eval₂ (evalAtJqN N) jq = 0`), that it is monic, and that its degree is at
+most $`\psi(N)`$ (the last two supplied by `transposeToAdjoin_monic_of_qExpansion`).
+`swapBivar Φ = Φ` is the coefficientwise form of the same statement, `swapBivar` being
+literally the exchange of the two variables.
 
 **Which field, and what "conjugate" means.** The base field is the rational function
 field of the $`j`$-coordinate,
@@ -736,6 +752,8 @@ normalization $`\zeta_M^{\,ab}q^{a^2}`$ is built into the indexing.
 | $`\psi(M) = [\mathrm{SL}_2(\mathbb{Z}):\Gamma_0(M)]`$ | `ModularCurve.Gamma0_index` | [Thm 10](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_Gamma0_index.lean#L10) |
 | $`\psi(M)`$ slots = coset representatives | `card_primCosetReps_eq_dedekindPsi` | [Thm 8](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_card_primCosetReps_eq_dedekindPsi.lean#L8) |
 | transitive automorphism ⟹ irreducible | `Polynomial.irreducible_of_transitive_ringAut` | [Thm 5](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_Polynomial_irreducible_of_transitive_ringAut.lean#L5) |
+| $`\Phi_N(X,Y) = \Phi_N(Y,X)`$ in evaluated form | `EvalSymm` | [PhiGen 139](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_PhiGen.lean#L139) |
+| symmetry from the transposed minimal polynomial | `evalSymm_of_irreducible` | [Thm 7](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_ModularPolynomialData_evalSymm_of_irreducible.lean#L7) |
 | Kronecker congruence $`\Phi_p \equiv (X^p-Y)(X-Y^p) \bmod p`$ | `modularPolynomial_kronecker` | [Thm 9](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_modularPolynomial_kronecker.lean#L9) |
 | $`\Phi_p`$ from the conjugate product | `PhiGen.exists_phiGenDescends` | [S 278–297](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_PhiGen_exists_phiGenDescends.lean#L278-L297) |
 | the slot value $`j(uq^e)`$ as a Laurent series | `TS K e u` | [S 28–29](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_modularFunctionField_eq_full_of.lean#L28-L29) |
