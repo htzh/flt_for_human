@@ -738,6 +738,8 @@ normalization $`\zeta_M^{\,ab}q^{a^2}`$ is built into the indexing.
 | transitive automorphism ⟹ irreducible | `Polynomial.irreducible_of_transitive_ringAut` | [Thm 5](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_Polynomial_irreducible_of_transitive_ringAut.lean#L5) |
 | Kronecker congruence $`\Phi_p \equiv (X^p-Y)(X-Y^p) \bmod p`$ | `modularPolynomial_kronecker` | [Thm 9](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_modularPolynomial_kronecker.lean#L9) |
 | $`\Phi_p`$ from the conjugate product | `PhiGen.exists_phiGenDescends` | [S 278–297](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_PhiGen_exists_phiGenDescends.lean#L278-L297) |
+| the slot value $`j(uq^e)`$ as a Laurent series | `TS K e u` | [S 28–29](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_modularFunctionField_eq_full_of.lean#L28-L29) |
+| distinct slots: $`j(uq^e) = j(u'q^{e'}) \Rightarrow e = e',\ u = u'`$ | `TS_injective` | [S 62](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_modularFunctionField_eq_full_of.lean#L62) |
 | weight-zero invariant $`q`$-series is a polynomial in $`j`$ | `mem_adjoin_jq_of_hasSum_of_slash_invariant` | [Thm 9](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_mem_adjoin_jq_of_hasSum_of_slash_invariant.lean#L9) |
 | weight-zero modular form is constant | `ModularForm.eq_const_of_weight_zero` | [mathlib 164](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/NormTrace.lean#L164) |
 
