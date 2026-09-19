@@ -80,19 +80,17 @@ notation, spending their space on the subject at hand.
   examples from `../pymath/weil_pairing.py`; and how the FLT proof uses it (the
   Frey determinant and `IsOdd`, `frey_reducible_hasCofixedLine`, the cyclotomic
   multiplier on the Tate module of `J₀(N)`, and rank `2g`).
-- [008 — Divisors and Pic⁰ for a function field](008-divisors-and-pic0.md):
-  the arithmetic function-field layer FLT supplies because mathlib has none —
-  `Place` as a valuation subring with its residue field and degree, `ord` and
-  its laws, divisors as finitely supported integer functions (`Divisor` is a
-  `Finsupp`), `degree` as an additive homomorphism and `degZero` as its kernel,
-  principal divisors with the residue theorem packaged as the class
-  `HasPrincipalDivisors`, `Pic` and `Pic0` as quotients (and why `Pic0` uses
-  `addSubgroupOf` instead of a kernel), torsion and `AbelJacobiCard` as the
-  rank-`2g` count, the modular instance `JZero N` with its Galois action, the
-  three separate "Jacobians" the project keeps apart, the
-  restriction/ramification/pushforward/pullback calculus, and the canonical
-  divisor and genus; the genus-one case where the Jacobian is the curve is
-  carried through from `../pymath/divisors_and_pic0.py`.
+- [008 — Divisors, linear equivalence, and Pic⁰](008-divisors-and-pic0.md):
+  the classical divisor theory behind the proof's use of the Jacobian — a point
+  as a discrete valuation ring, the order of vanishing, residue fields and the
+  degree of a point; divisors as finite integer combinations of points, their
+  degree and degree-zero part; principal divisors, the residue theorem, linear
+  equivalence, and `Pic`/`Pic0`; the Jacobian of `X₀(N)` with its Hecke and
+  Galois actions and the rank-`2g` count; ramification, the fundamental
+  identity, pushforward and pullback, and the correspondence that becomes `T_ℓ`;
+  differentials, the canonical class and Riemann–Roch; and one summary section
+  (§8) on how the code encodes all of it, with the key-point table, plus the
+  genus-one computation from `../pymath/divisors_and_pic0.py`.
 
 ## Candidate topics (not yet written, no order implied)
 
