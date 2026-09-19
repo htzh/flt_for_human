@@ -80,12 +80,29 @@ notation, spending their space on the subject at hand.
   examples from `../pymath/weil_pairing.py`; and how the FLT proof uses it (the
   Frey determinant and `IsOdd`, `frey_reducible_hasCofixedLine`, the cyclotomic
   multiplier on the Tate module of `J₀(N)`, and rank `2g`).
+- [008 — Divisors and Pic⁰ for a function field](008-divisors-and-pic0.md):
+  the arithmetic function-field layer FLT supplies because mathlib has none —
+  `Place` as a valuation subring with its residue field and degree, `ord` and
+  its laws, divisors as finitely supported integer functions (`Divisor` is a
+  `Finsupp`), `degree` as an additive homomorphism and `degZero` as its kernel,
+  principal divisors with the residue theorem packaged as the class
+  `HasPrincipalDivisors`, `Pic` and `Pic0` as quotients (and why `Pic0` uses
+  `addSubgroupOf` instead of a kernel), torsion and `AbelJacobiCard` as the
+  rank-`2g` count, the modular instance `JZero N` with its Galois action, the
+  three separate "Jacobians" the project keeps apart, the
+  restriction/ramification/pushforward/pullback calculus, and the canonical
+  divisor and genus; the genus-one case where the Jacobian is the curve is
+  carried through from `../pymath/divisors_and_pic0.py`.
 
 ## Candidate topics (not yet written, no order implied)
 
 A working list, kept so the series does not drift into the FLT-specific
 material already covered in `../math/`:
 
+- **Differentials, residues and Riemann–Roch**: `Ω[F⁄K]` and `ordDifferential`,
+  the canonical divisor's class in `Pic`, Serre duality, and the Riemann–Roch
+  rows that 008's hypotheses (`HasPrincipalDivisors`, `FundamentalIdentity`,
+  `SumRamificationInertia`) are proved from.
 - **`ZMod n` and the mod-`n` world**: `ZMod` as a ring, its `Z`-module
   structure, `ZMod p` a field, cardinality and `Nat.card` facts. The substrate
   of `E[n]`.
