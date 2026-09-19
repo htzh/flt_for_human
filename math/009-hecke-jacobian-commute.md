@@ -259,7 +259,7 @@ so the middle pair must be exchanged. Predicate-ised
 ([Def_ModularCurve_DegeneracyTower.lean, lines 121–132](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_DegeneracyTower.lean#L121-L132)),
 the requirement is: for every divisor $`D`$ on $`\bar F_{N\ell'}`$,
 
-$$\bar\beta^{\ast}\; \big(\bar\alpha_{(\ell'),\ast}\; D\big) \quad=\quad \mathrm{incl}_{\ast}\; \big(\mathrm{subst}^{\ast}\; D\big),$$
+$$\bar\beta^{\ast}\\; \big(\bar\alpha_{(\ell'),\ast}\\; D\big) \quad=\quad \mathrm{incl}_{\ast}\\; \big(\mathrm{subst}^{\ast}\\; D\big),$$
 
 pull-then-push down the left legs equals pull-then-push round the roof. The
 reduction theorem `heckeOperatorsCommuteBar_of_heckeExchangeAt`

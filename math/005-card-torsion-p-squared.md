@@ -36,7 +36,7 @@ Unpacking the pieces:
   which $`n \neq 0`$,
   $$\\#E[n]\\,(K) = n^2 .$$
 - `[W.IsElliptic]` is nonsingularity ($`\Delta`$ a unit); `[IsAlgClosed K]`
-  supplies the roots; `(n : K) ≠ 0` is "$`\mathrm{char}\\,K \nmid n`$"
+  supplies the roots; `(n : K) ≠ 0` is "$`\mathrm{char}\,K \nmid n`$"
   (including $`n = 0`$, which it rules out); `[DecidableEq K]` is the
   technical instance the `AddCommGroup` structure on `Point` sits under —
   the same classical-instance issue as in note 003, discharged for
@@ -63,7 +63,7 @@ division-polynomial proof (Silverman, *AEC* III.6.4), organized around a
 local definition of the torsion subgroup
 ([line 308](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_card_torsion_of_isAlgClosed.lean#L308)):
 `nTorsion W n` is the `AddSubgroup` of $`(W⁄K).Point`$ with carrier
-$`\\{P \mid n \bullet P = 0\\}`$. The steps:
+$`\{P \mid n \bullet P = 0\}`$. The steps:
 
 1. **Division polynomials** (`PortTorsionSmulFormulaEngine`,
    `PortGenNetIdentities`, `PortGenInduction`, `PortGenSmulFormula`, lines
@@ -84,7 +84,7 @@ $`\\{P \mid n \bullet P = 0\\}`$. The steps:
    of the rational map $`x \circ [n]`$ is nonzero
    (`wronskian_Φ_ΨSq_ne_zero`, line 343) — this is exactly where the
    hypothesis $`(n : K) \neq 0`$ is spent: $`[n]`$ is a separable rational
-   map only when $`\mathrm{char}\\,K \nmid n`$. Consequences: all but
+   map only when $`\mathrm{char}\,K \nmid n`$. Consequences: all but
    finitely many fibers of $`x \circ [n]`$ have full size
    (`finite_not_squarefree_fiber`, line 397).
 3. **Surjectivity of** $`[n]`$ (`smul_surjective`, line 452, for odd $`n`$;
@@ -119,7 +119,7 @@ $`\\{P \mid n \bullet P = 0\\}`$. The steps:
 8. **Coprime gluing** (`card_nTorsion_mul_of_coprime`, line 1217): Bézout
    coefficients $`ma + nb = 1`$ give an explicit equivalence
    $`E[mn] \simeq E[m] \times E[n]`$ via
-   $`P \mapsto (nb \cdot P,\\, ma \cdot P)`$.
+   $`P \mapsto (nb \cdot P,\, ma \cdot P)`$.
 9. **Assembly** (`card_nTorsion`, line 1294) by
    `Nat.recOnPosPrimePosCoprime`: the cases $`n = 1`$, prime powers
    (step 7), and coprime products (step 8) cover every $`n`$ with

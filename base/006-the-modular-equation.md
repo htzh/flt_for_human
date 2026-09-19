@@ -256,7 +256,7 @@ root is an honest series, $`j(p\tau) = j(q^{p})`$, but the other $`p`$ roots are
 they need a $`p`$-th root of the nome,
 
 $$j\bigl(\tfrac{\tau+b}{p}\bigr) \\;=\\;
-  j\bigl(\zeta_p^{\,b}\\,q^{1/p}\bigr).$$
+  j\bigl(\zeta_p^{\\,b}\\,q^{1/p}\bigr).$$
 
 That is the monodromy of the previous paragraph in formula form: $`q^{1/p}`$ is not
 single-valued on the base, and the cusp loop multiplies it by $`\zeta_p`$. So give
@@ -422,7 +422,7 @@ is $`(\mathbb{Z}/3)^2`$, with basis
 $$e_1 = \frac13, \qquad e_2 = \frac{\tau}{3}.$$
 Its four cyclic subgroups are the four lines
 $$L_\infty = \langle e_1\rangle, \qquad
-  L_b = \langle b\,e_1 + e_2\rangle
+  L_b = \langle b\\,e_1 + e_2\rangle
       = \Bigl\langle \frac{\tau+b}{3}\Bigr\rangle, \qquad b = 0,1,2,$$
 one fixed line plus three carrying an affine label, as in 005 §2; their number is
 $`\psi(3) = 1 + 3 = 4`$. The index contrast of 005 §2 is now numeric:
