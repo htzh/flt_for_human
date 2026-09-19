@@ -3,7 +3,7 @@
 Eighth of the `base/` notes. [007](007-weil-pairing.md) covered torsion and the
 Weil pairing; this note covers the other half of the curve vocabulary the FLT
 proof runs on — **divisors, linear equivalence, and the degree-zero divisor
-class group** $`\operatorname{Pic}^0`$ — which is how the proof speaks about the
+class group** $`\mathrm{Pic}^0`$ — which is how the proof speaks about the
 Jacobian of a modular curve without ever constructing a variety.
 
 Math first: §§1–7 are the classical theory of divisors on a curve, with the
@@ -28,8 +28,8 @@ a **uniformizer** $`\pi_P`$, and every nonzero function factors as
 
 $$f \;=\; u\,\pi_P^{\,n}, \qquad u \in \mathcal{O}_P^\times,\ n \in \mathbb{Z}.$$
 
-The exponent is the **order of vanishing** $`\operatorname{ord}_P(f)`$, with the
-sign convention $`\operatorname{ord}_P(\pi_P) = 1`$; it is the unique
+The exponent is the **order of vanishing** $`\mathrm{ord}_P(f)`$, with the
+sign convention $`\mathrm{ord}_P(\pi_P) = 1`$; it is the unique
 $`K`$-trivial discrete valuation of $`F`$ attached to $`P`$. The **residue
 field** is $`\kappa(P) = \mathcal{O}_P/\mathfrak{m}_P`$ — the field of values of
 functions at $`P`$, which need not be $`K`$ — and the **degree** of the point is
@@ -38,12 +38,12 @@ $$\deg P \;=\; [\kappa(P) : K].$$
 
 Three consequences of this picture are used constantly below.
 
-- The order is a valuation: $`\operatorname{ord}_P(fg) =
-  \operatorname{ord}_P(f) + \operatorname{ord}_P(g)`$,
-  $`\operatorname{ord}_P(1) = 0`$, and
-  $`\operatorname{ord}_P(f^{-1}) = -\operatorname{ord}_P(f)`$.
+- The order is a valuation: $`\mathrm{ord}_P(fg) =
+  \mathrm{ord}_P(f) + \mathrm{ord}_P(g)`$,
+  $`\mathrm{ord}_P(1) = 0`$, and
+  $`\mathrm{ord}_P(f^{-1}) = -\mathrm{ord}_P(f)`$.
 - For $`f \neq 0`$, only finitely many points have
-  $`\operatorname{ord}_P(f) \neq 0`$: a nonzero function has finitely many zeros
+  $`\mathrm{ord}_P(f) \neq 0`$: a nonzero function has finitely many zeros
   and poles. This is what makes the divisors of §2 finite sums.
 - The degree is the right weight, because it is multiplicative in extensions:
   $`[F' : F] = \sum_{P' \mid P} e_{P'} f_{P'}`$ (§5). Degree-weighting is what
@@ -67,8 +67,8 @@ $$D \;=\; \sum_{P} n_P\,[P], \qquad n_P \in \mathbb{Z},
   \ \text{all but finitely many } n_P = 0 .$$
 
 So the divisors form the free abelian group on the points of $`C`$, written
-$`\operatorname{Div}(C)`$; the finite set
-$`\operatorname{supp}(D) = \{\, P : n_P \neq 0 \,\}`$ is the **support**, the
+$`\mathrm{Div}(C)`$; the finite set
+$`\mathrm{supp}(D) = \{\, P : n_P \neq 0 \,\}`$ is the **support**, the
 coefficients $`n_P`$ are the multiplicities of the divisor at those points, and
 $`D`$ is **effective** (written $`D \ge 0`$) when all $`n_P \ge 0`$.
 
@@ -76,35 +76,35 @@ The **degree** of a divisor is the degree-weighted sum of its multiplicities,
 
 $$\deg D \;=\; \sum_{P} n_P \deg P,$$
 
-which is a group homomorphism $`\operatorname{Div}(C) \to \mathbb{Z}`$; its
-kernel is the subgroup $`\operatorname{Div}^0(C)`$ of **degree-zero divisors**.
+which is a group homomorphism $`\mathrm{Div}(C) \to \mathbb{Z}`$; its
+kernel is the subgroup $`\mathrm{Div}^0(C)`$ of **degree-zero divisors**.
 Over $`\bar{\mathbb{Q}}`$ the weights are all one, so $`\deg D`$ is the total
-multiplicity of $`D`$, and $`\operatorname{Div}^0`$ is "as many zeros as poles"
+multiplicity of $`D`$, and $`\mathrm{Div}^0`$ is "as many zeros as poles"
 in the crudest counting.
 
 Divisors are the bookkeeping device for zeros and poles of functions: for a
 nonzero $`f`$,
 
-$$\operatorname{div}(f) \;=\; \sum_{P} \operatorname{ord}_P(f)\,[P],$$
+$$\mathrm{div}(f) \;=\; \sum_{P} \mathrm{ord}_P(f)\,[P],$$
 
 whose support is the finite union of the zero set and the pole set of $`f`$
 (§1). This is the bridge between functions and points: every later argument
 either produces a divisor from a function or asks whether a given divisor comes
 from one.
 
-## 3. Principal divisors, linear equivalence, and $`\operatorname{Pic}^0`$
+## 3. Principal divisors, linear equivalence, and $`\mathrm{Pic}^0`$
 
 The divisor of a nonzero function is called **principal**, and the principal
 divisors are closed under the group law for the three reasons of §1:
 
-$$\operatorname{div}(1) = 0, \qquad
-  \operatorname{div}(fg) = \operatorname{div}(f) + \operatorname{div}(g), \qquad
-  \operatorname{div}(f^{-1}) = -\operatorname{div}(f).$$
+$$\mathrm{div}(1) = 0, \qquad
+  \mathrm{div}(fg) = \mathrm{div}(f) + \mathrm{div}(g), \qquad
+  \mathrm{div}(f^{-1}) = -\mathrm{div}(f).$$
 
 The third of them has a sharp refinement, and it is the theorem this whole
 subject is built on:
 
-$$f \neq 0 \quad\Longrightarrow\quad \deg \operatorname{div}(f) \;=\; 0 .$$
+$$f \neq 0 \quad\Longrightarrow\quad \deg \mathrm{div}(f) \;=\; 0 .$$
 
 This is the **residue theorem** in divisor form: a nonzero function on a curve
 has as many zeros as poles, counted with degree. It is *not* a formal
@@ -112,19 +112,19 @@ consequence of the definitions — it is a theorem about curves — and it is wo
 noting that the Lean layer states it as a hypothesis whenever it is used for a
 field extension that is not (yet) known to come from a curve (§8). In genus one
 the statement is sharp in a stronger form: the points of
-$`\operatorname{div}(f)`$, summed in the group law, give the identity. §6 checks
+$`\mathrm{div}(f)`$, summed in the group law, give the identity. §6 checks
 that numerically.
 
 Since principal divisors have degree zero and form a subgroup, one may quotient
 by them. Two divisors are **linearly equivalent**, written $`D \sim D'`$, when
 $`D - D'`$ is principal; the quotient groups are
 
-$$\operatorname{Pic}(C) \;=\; \operatorname{Div}(C)\big/\operatorname{Prin}(C),
+$$\mathrm{Pic}(C) \;=\; \mathrm{Div}(C)\big/\mathrm{Prin}(C),
   \qquad
-  \operatorname{Pic}^0(C) \;=\; \operatorname{Div}^0(C)\big/\operatorname{Prin}(C).$$
+  \mathrm{Pic}^0(C) \;=\; \mathrm{Div}^0(C)\big/\mathrm{Prin}(C).$$
 
 The first is the divisor class group of the curve, the second its degree-zero
-part. For a curve with a $`K`$-point, $`\operatorname{Pic}^0(C)`$ is exactly the
+part. For a curve with a $`K`$-point, $`\mathrm{Pic}^0(C)`$ is exactly the
 group of $`K`$-points of the **Jacobian** $`J(C)`$ — an abelian variety of
 dimension $`g`$, the genus of $`C`$. The divisor-class description is how one
 computes with points of $`J(C)`$ without ever mentioning the variety, and it is
@@ -132,14 +132,14 @@ the description the FLT proof uses.
 
 **Genus one.** For an elliptic curve $`E`$ the Jacobian is the curve itself, via
 
-$$\varphi \;:\; E \longrightarrow \operatorname{Pic}^0(E), \qquad
+$$\varphi \;:\; E \longrightarrow \mathrm{Pic}^0(E), \qquad
   \varphi(P) \;=\; [P] - [O],$$
 
 which is an isomorphism of groups: addition on the left is the chord–tangent
 law, addition on the right is addition of divisor classes, and the
 chord–tangent identity
 
-$$[P] + [Q] - [P+Q] - [O] \;=\; \operatorname{div}(\ell) - \operatorname{div}(v)$$
+$$[P] + [Q] - [P+Q] - [O] \;=\; \mathrm{div}(\ell) - \mathrm{div}(v)$$
 
 — the difference of the line through $`P, Q`$ and the vertical through $`P+Q`$ —
 is what makes them agree. In genus one the classification is also complete: a
@@ -151,7 +151,7 @@ into the Hecke action.
 **Three objects called "the Jacobian."** The phrase is used in three senses in
 this project, worth keeping apart:
 
-1. the divisor-class group $`\operatorname{Pic}^0`$ above — a group defined by a
+1. the divisor-class group $`\mathrm{Pic}^0`$ above — a group defined by a
    quotient of divisors, used wherever the proof manipulates divisor classes;
 2. the analytic Jacobian: the comparison of that group with the complex torus
    $`S_2(\Gamma_0(N))^\vee/\Lambda_N`$, a Hecke-equivariant injection onto the
@@ -175,12 +175,12 @@ two actions the FLT proof needs, both on the divisor classes of §3:
   $`\mathbb{Q}`$ permutes the points of $`X_0(N)`$: it carries a point to the
   point with conjugate residue field and conjugate local ring. Hence it acts on
   divisors, preserves the principal ones, and so acts on
-  $`\operatorname{Pic}^0`$. This is the origin of the Galois representation on
+  $`\mathrm{Pic}^0`$. This is the origin of the Galois representation on
   $`J_0(N)`$; on torsion it is the representation whose determinant and
   ramification behaviour [007 §8](007-weil-pairing.md) uses.
 
 The two actions commute, and the modularity steps of the proof are statements
-about how they interact on $`\operatorname{Pic}^0`$ and on its torsion. The size
+about how they interact on $`\mathrm{Pic}^0`$ and on its torsion. The size
 of what is being represented is fixed by two numerical facts:
 
 - the $`p`$-adic Tate module of the Jacobian of a curve of genus $`g`$ is a free
@@ -198,7 +198,7 @@ $`F'/F`$ be a finite extension of function fields, $`\pi : C' \to C`$ the
 corresponding map of curves, and $`P' \in C'`$ a point above $`P = \pi(P')`$.
 Two invariants measure the local behaviour:
 
-$$e_{P'} \;=\; \operatorname{ord}_{P'}(\pi_P)
+$$e_{P'} \;=\; \mathrm{ord}_{P'}(\pi_P)
   \quad\text{(ramification index)}, \qquad
   f_{P'} \;=\; [\kappa(P') : \kappa(P)] \quad\text{(inertia degree)},$$
 
@@ -228,11 +228,11 @@ So pushforward preserves degree zero, while pullback multiplies degree by the
 extension degree and preserves degree zero only when that degree is one (or
 under the corresponding identity in the code, §8). Both operations respect
 linear equivalence, so both descend to group homomorphisms on
-$`\operatorname{Pic}^0`$ — in particular the pullback
-$`\operatorname{Pic}^0(C) \to \operatorname{Pic}^0(C')`$ that acts on Jacobians.
+$`\mathrm{Pic}^0`$ — in particular the pullback
+$`\mathrm{Pic}^0(C) \to \mathrm{Pic}^0(C')`$ that acts on Jacobians.
 
 This calculus *is* the theory of Hecke operators. A **correspondence** between
-two curves is a pair of maps, and its action on $`\operatorname{Pic}^0`$ is the
+two curves is a pair of maps, and its action on $`\mathrm{Pic}^0`$ is the
 sum of pushforward along one leg and pullback along the other. For the modular
 curve the two legs are the degeneracy maps $`X_0(N\ell) \to X_0(N)`$, and the
 resulting operator on $`J_0(N)`$ is $`T_\ell`$;
@@ -253,8 +253,8 @@ behind it.
 **Degrees and the residue theorem.** On the Weierstrass model the functions
 $`x`$ and $`y`$ have divisors read off from the geometry:
 
-$$\operatorname{div}(x) = 2[(0,0)] - 2[O], \qquad
-  \operatorname{div}(y) = [(0,0)] + [(1,0)] + [(6,0)] - 3[O],$$
+$$\mathrm{div}(x) = 2[(0,0)] - 2[O], \qquad
+  \mathrm{div}(y) = [(0,0)] + [(1,0)] + [(6,0)] - 3[O],$$
 
 both of degree $`0`$: $`x`$ has a double zero at the origin of the curve and a
 double pole at infinity, while $`y`$ vanishes simply at the three
@@ -266,12 +266,12 @@ that form.
 **The group law is the divisor class group.** Let $`\ell`$ be the line through
 $`P`$ and $`Q`$, and $`v`$ the vertical through $`P+Q`$. A line meets the curve
 in three points counted with multiplicity, so
-$`\operatorname{div}(\ell) = [P] + [Q] + [-(P+Q)] - 3[O]`$ and
-$`\operatorname{div}(v) = [P+Q] + [-(P+Q)] - 2[O]`$; the quotient has divisor
+$`\mathrm{div}(\ell) = [P] + [Q] + [-(P+Q)] - 3[O]`$ and
+$`\mathrm{div}(v) = [P+Q] + [-(P+Q)] - 2[O]`$; the quotient has divisor
 
-$$[P] + [Q] - [P+Q] - [O] \;=\; \operatorname{div}(\ell) - \operatorname{div}(v),$$
+$$[P] + [Q] - [P+Q] - [O] \;=\; \mathrm{div}(\ell) - \mathrm{div}(v),$$
 
-which is principal, hence zero in $`\operatorname{Pic}^0`$. So
+which is principal, hence zero in $`\mathrm{Pic}^0`$. So
 $`[P] + [Q] = [P+Q]`$: the addition law on the curve *is* addition of divisor
 classes. That is the identity §3 quoted in the abstract; §5 is its
 generalization to correspondences.
@@ -279,11 +279,11 @@ generalization to correspondences.
 **The isomorphism, and the classification.** With $`\varphi(P) = [P] - [O]`$,
 the identity above says $`\varphi(P) + \varphi(Q) = \varphi(P+Q)`$, so
 $`\varphi`$ is a homomorphism; it is injective because $`[P] - [Q]`$ principal
-forces $`P = Q`$; and $`\#E = \#\operatorname{Pic}^0 = 8`$, so it is bijective.
+forces $`P = Q`$; and $`\#E = \#\mathrm{Pic}^0 = 8`$, so it is bijective.
 More generally the demo verifies that $`[P] + [Q] - [R] - [T]`$ is principal
 exactly when $`P + Q = R + T`$: degree-zero divisors are classified, modulo
 principal ones, by the group sum of their points — the genus-one form of
-$`\operatorname{Pic}^0(C) = J(C)`$.
+$`\mathrm{Pic}^0(C) = J(C)`$.
 
 **The demo's checks, against this note.** Its $`13`$ `check` lines fall into the
 following groups: degree of the divisors of $`x`$ and $`y`$, and additivity of
@@ -292,7 +292,7 @@ to $`O`$" — §3; the chord–tangent divisor, the homomorphism property and
 injectivity of $`\varphi`$ — the paragraphs above; the distinctness of the eight
 classes and the general criterion — §4. Its own §5 is a prose summary of this
 note's §§2–4 in miniature, including both modular-curve uses: the Hecke action
-on $`\operatorname{Pic}^0`$, and the Galois representation on its torsion.
+on $`\mathrm{Pic}^0`$, and the Galois representation on its torsion.
 
 ## 7. Differentials, the canonical divisor, and the genus
 
@@ -300,9 +300,9 @@ Divisors also encode the differentials of a curve. The Kähler differentials
 $`\Omega_{F/K}`$ form a one-dimensional $`F`$-vector space (for a curve), and
 for a nonzero $`\omega`$ the same finiteness argument as in §1 gives a divisor
 
-$$\operatorname{div}(\omega) \;=\; \sum_{P} \operatorname{ord}_P(\omega)\,[P],$$
+$$\mathrm{div}(\omega) \;=\; \sum_{P} \mathrm{ord}_P(\omega)\,[P],$$
 
-whose class in $`\operatorname{Pic}(C)`$ does not depend on the choice of
+whose class in $`\mathrm{Pic}(C)`$ does not depend on the choice of
 $`\omega`$: it is the **canonical class** $`K_C`$, represented by any
 **canonical divisor**. Its degree determines the genus,
 
@@ -316,10 +316,10 @@ $$\ell(D) - \ell(K_C - D) \;=\; \deg D + 1 - g,$$
 
 where $`\ell(D)`$ is the dimension of the space of functions whose poles are
 bounded by $`D`$,
-$`\ell(D) = \dim\{\, f \in F^\times : \operatorname{div}(f) + D \ge 0 \,\} \cup
+$`\ell(D) = \dim\{\, f \in F^\times : \mathrm{div}(f) + D \ge 0 \,\} \cup
 \{0\}`$. Two consequences are used implicitly above: taking $`D = 0`$ gives
 $`\ell(K_C) = g`$ (the canonical divisor has exactly $`g`$ independent
-differentials), and taking $`D = \operatorname{div}(f)`$ recovers the
+differentials), and taking $`D = \mathrm{div}(f)`$ recovers the
 degree-zero statement of §3. The **Riemann–Roch inequality**
 $`\ell(D) \ge \deg D + 1 - g`$ is the half that holds without duality, and is
 often all a proof needs.
@@ -415,7 +415,7 @@ later if at all.
 The rest of the API follows the mathematics directly: `Pic0.mk` is the class
 map, with `mk_surjective`, `mk_add` and `mk_zero`; `Pic0.torsion n` is the
 $`n`$-torsion subgroup; `AbelJacobiCard p g` states §4's count as
-$`\#\operatorname{Pic}^0[p^n] = p^{2gn}`$ for all $`n`$, the rank-$`2g`$ fact
+$`\#\mathrm{Pic}^0[p^n] = p^{2gn}`$ for all $`n`$, the rank-$`2g`$ fact
 without a Tate module. The modular instance is `JZero N`, the `Pic0` of
 $`\bar{\mathbb{Q}}(X_0(N))`$, and the code records that the absolute Galois
 group acts on it as a `DistribMulAction` — §4's Galois action. The calculus of
@@ -430,14 +430,14 @@ and `genus := (degree (canonicalDivisorOf ·) + 2)/2`.
 |---|---|---|
 | a closed point as a local ring | `Place` | [DivisorClassGroup 22–29](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean#L22-L29) |
 | residue field and degree $`\deg P = [\kappa(P) : K]`$ | `Place.ResidueField`, `Place.deg` | [88–90](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean#L88-L90) |
-| order of vanishing $`\operatorname{ord}_P`$ and its laws | `Place.ord`, `ord_mul`, `ord_inv` | [122](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean#L122), [130–149](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean#L130-L149) |
+| order of vanishing $`\mathrm{ord}_P`$ and its laws | `Place.ord`, `ord_mul`, `ord_inv` | [122](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean#L122), [130–149](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean#L130-L149) |
 | divisors as finite integer combinations of points | `Divisor` | [179](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean#L179) |
 | degree as a homomorphism | `Divisor.degree`, `degree_single` | [185–189](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean#L185-L189) |
 | degree-zero divisors | `Divisor.degZero` | [193](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean#L193) |
 | divisors of functions, and their closure laws | `Divisor.IsPrincipal`, `Divisor.principal` | [198–210](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean#L198-L210) |
 | the residue theorem, as a hypothesis | `HasPrincipalDivisors` | [217–219](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean#L217-L219) |
 | divisor classes, degree-zero divisor classes | `Pic`, `Pic0` | [221–225](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean#L221-L225) |
-| torsion of $`\operatorname{Pic}^0`$, rank $`2g`$ | `Pic0.torsion`, `AbelJacobiCard` | [244–253](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean#L244-L253) |
+| torsion of $`\mathrm{Pic}^0`$, rank $`2g`$ | `Pic0.torsion`, `AbelJacobiCard` | [244–253](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean#L244-L253) |
 | the Jacobian $`J_0(N)(\bar{\mathbb{Q}})`$ as divisor classes | `JZero` | [ArithmeticGalois 111–116](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_ArithmeticGalois.lean#L111-L116) |
 | Galois action on points, hence on divisor classes | `Place.smulRingEquiv` | [262](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean#L262) |
 | the residue theorem for $`\bar{\mathbb{Q}}(X_0(N))`$ | `hasPrincipalDivisors_modularFunctionFieldBar` | [Thm 10](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_hasPrincipalDivisors_modularFunctionFieldBar.lean#L10) |
@@ -445,7 +445,7 @@ and `genus := (degree (canonicalDivisorOf ·) + 2)/2`.
 | restriction of a point, finite fibres | `Place.restrict`, `restrict_fiber_finite` | [PushPull 277](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorPushPull.lean#L277), [334](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorPushPull.lean#L334) |
 | ramification index and inertia degree | `ramificationIndex`, `inertiaDeg` | [135](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorPushPull.lean#L135), [427](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorPushPull.lean#L427) |
 | the two missing inputs of §5, as hypotheses | `FundamentalIdentity`, `SumRamificationInertia` | [611](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorPushPull.lean#L611), [656](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorPushPull.lean#L656) |
-| pushforward, pullback, and the map on $`\operatorname{Pic}^0`$ | `pushforward`, `pullback`, `pullbackHom` | [448](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorPushPull.lean#L448), [549](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorPushPull.lean#L549), [697](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorPushPull.lean#L697) |
+| pushforward, pullback, and the map on $`\mathrm{Pic}^0`$ | `pushforward`, `pullback`, `pullbackHom` | [448](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorPushPull.lean#L448), [549](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorPushPull.lean#L549), [697](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorPushPull.lean#L697) |
 | canonical divisor, canonical class, genus | `HasCanonicalDivisor`, `canonicalClass`, `genus` | [CanonicalDivisor 14–40](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_CanonicalDivisor.lean#L14-L40) |
 | the analytic Jacobian comparison | `exists_injective_heckeEquivariant_addMonoidHom_jZero_quotient_periodLattice` | [Thm 18](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_exists_injective_heckeEquivariant_addMonoidHom_jZero_quotient_periodLattice.lean#L18) |
 | the scheme-theoretic relative Jacobian | `exists_relJacobian_jZero` | [Thm 46](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_exists_relJacobian_jZero.lean#L46) |
@@ -455,7 +455,7 @@ above: `GluedPic0` and `NodalPic0` (the class group of a nodal fibre, where the
 local rings are no longer discrete valuation rings and the theory is glued from
 the normalization); `Pic0BaseChange` and `Pic0Congr` (functoriality under base
 change and field isomorphisms); `FrobeniusEndo` and `FrobeniusEndoPic0`
-(Frobenius on divisors and on $`\operatorname{Pic}^0`$); and `UniversalDivisor`
+(Frobenius on divisors and on $`\mathrm{Pic}^0`$); and `UniversalDivisor`
 with `RelCartier` (relative effective divisors and the Cartier condition, where
 the divisor theory meets the scheme-theoretic side).
 
