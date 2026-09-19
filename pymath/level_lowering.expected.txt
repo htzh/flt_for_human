@@ -1,0 +1,85 @@
+Level lowering
+
+  A Galois representation attached to a modular form has a level, and Ribet's
+  theorem lets odd primes be removed from that level one at a time, provided
+  the representation is irreducible and unramified there. This demo does the
+  level bookkeeping exactly: the Frey curve's conductor level descends to
+  level 2, where there are no nonzero weight-2 cusp forms.
+
+== 1. The conductor level ==
+
+  FreyPackage.IsConductorLevel records what the argument needs of the level N:
+  it is positive, it is squarefree, and it is supported on the primes dividing
+  a b c. For the Frey curve N = rad(a b c).
+    package-shaped example: a = 3, b = 2, p = 5;  a b C = 3 * 2 * 275
+    conductor level N = rad(a b C) = 330 = 2 * 3 * 5 * 11
+    ok   N is squarefree
+    ok   every prime of N divides a b C (the support condition)
+    ok   no prime square, and not 4, divides N (sq_not_dvd, not_four_dvd)
+
+== 2. The lowering step ==
+
+    if  q prime, q != 2, q != p, q | N,
+        ModularRepOfLevel N, irreducible, unramified at q,
+    then  exists M with M | N, q not dividing M, ModularRepOfLevel M
+
+  The conclusion is the existence of a smaller level M dividing N and not
+  divisible by q -- not literally N/q, which is enough for the descent. The
+  hypothesis q | N is used through exact division: a conductor level is
+  squarefree, but the check below shows what a repeated prime would do, namely
+  block the step.
+    removable odd primes for N = 330, p = 5: [3, 11]
+    ok   each step removes a prime dividing the level exactly once
+    ok   removable primes are odd and different from p
+    ok   a squared factor blocks lowering: q = 3 is not removable from 18
+
+== 3. The descent to level 2 ==
+
+  Removing the odd primes different from p, then p, leaves the 2-part of the
+  conductor level, which is 2 because b is even. Each intermediate level is
+  again a conductor level (of_dvd), so the theorem applies again.
+    descent: 330  ->  110 (remove 3)  ->  10 (remove 11)  ->  2 (remove 5)
+    ok   the chain for N = 330, p = 5 is 330 -> 110 -> 10 -> 2
+    ok   every step divides the previous level exactly once
+    ok   every intermediate level is a conductor level (squarefree, supported on a b C)
+    ok   the descent ends at the 2-part of N
+
+== 4. The step at p ==
+
+  The step at p needs no unramifiedness hypothesis: it uses instead that the
+  residual representation is finite at p (peu ramifiee), which for the Frey
+  curve follows from its integral model. The level condition is p | N exactly
+  when p | a b c, by IsConductorLevel.support and not_p_dvd.
+    ok   p | N and p | a b C in the example
+    another example: a = 3, b = 2, p = 7 gives N = 13890; p | N is False, p | a b C is False
+    ok   p | N if and only if p | a b c
+    ok   the p-step is the last step and removes p from the level
+
+== 5. The contradiction at level 2 ==
+
+  What remains is a nonzero weight-2 cusp form of level 2. But Gamma0(2) has
+  index psi(2) = 3 in SL_2(Z) and S_2(Gamma0(2)) = 0: every such form
+  vanishes. That is the contradiction closing the FLT argument, and it is
+  proved from mathlib alone in base/003.
+    index [SL_2(Z) : Gamma0(2)] = psi(2) = 3
+    ModularForm.S2_Gamma0_2_eq_zero : every level-2 weight-2 cusp form is 0
+    ok   the final level is 2, whose weight-2 cusp forms all vanish
+    ok   no odd prime survives in the final level
+
+== 6. The formalization ==
+
+  ModularRepOfLevel is the input notion: it says a cusp form f of level N has
+  q-coefficients congruent to the traces of Frobenius of an integral model of
+  the Frey curve modulo a prime above p -- a congruence of traces, not an
+  isomorphism of representations. The two lowering theorems then produce
+  ModularRepOfLevel M for M | N with the chosen prime removed, and
+  level_lowering_to_two packages the iteration as the existence of a nonzero f
+  in CuspForm (Gamma0 2) 2.
+
+  The hypotheses of the odd-prime step are exactly the facts gathered in the
+  other demos: irreducibility (galois_rep, Mazur's argument), unramifiedness
+  at q (the multiplicative reduction of frey_curve), and the conductor-level
+  properties above. The p-step uses the integral model of the Frey curve
+  instead, through IsPeuRamifieeAt.
+
+all checks passed (15 checks)

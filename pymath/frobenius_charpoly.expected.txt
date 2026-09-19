@@ -1,0 +1,97 @@
+Frobenius and its characteristic polynomial
+
+  For E over F_q the q-power Frobenius pi is an endomorphism, and it is
+  algebraic of degree 2: pi satisfies pi^2 - a_q pi + q = 0 with a_q = q + 1 -
+  #E(F_q). So the characteristic polynomial of Frobenius is T^2 - a_q T + q,
+  whose trace is a_q and whose determinant is q.
+
+== 1. The characteristic polynomial and Hasse's bound ==
+
+    pi^2 - a_q pi + q = 0,    a_q = q + 1 - #E(F_q)
+    char poly: T^2 - a_q T + q   (trace a_q, determinant q)
+    Hasse:  |a_q| <= 2 sqrt(q)   <=>   a_q^2 <= 4 q
+
+  The determinant q is not an extra hypothesis: it is exactly the statement
+  that the Weil pairing is multiplied by q under Frobenius (base/007). Hasse's
+  bound says the two roots have modulus sqrt(q).
+
+== 2. Point counts and Hasse for several curves ==
+
+      p | curve                   |  #E |  a_p | a_p^2 |  4p | Hasse
+      7 | y^2 = x^3 + (0)x + (2)  |   9 |   -1 |     1 |  28 | ok
+      7 | y^2 = x^3 + (-1)x + (0) |   8 |    0 |     0 |  28 | ok
+      7 | y^2 = x^3 + (1)x + (1)  |   5 |    3 |     9 |  28 | ok
+      5 | y^2 = x^3 + (0)x + (1)  |   6 |    0 |     0 |  20 | ok
+      5 | y^2 = x^3 + (1)x + (1)  |   9 |   -3 |     9 |  20 | ok
+     11 | y^2 = x^3 + (1)x + (6)  |  13 |   -1 |     1 |  44 | ok
+     41 | y^2 = x^3 + (15)x + (0) |  50 |   -8 |    64 | 164 | ok
+    ok   Hasse's bound a_q^2 <= 4q holds for every curve above
+    ok   the constant term of the characteristic polynomial is q
+    ok   the trace is a_q
+
+== 3. The polynomial determines the counts over extensions ==
+
+  If alpha, beta are the roots then a_{q^k} = alpha^k + beta^k obeys a_{q^k} =
+  a_q a_{q^{k-1}} - q a_{q^{k-2}}. Hence #E(F_{q^k}) = q^k + 1 - a_{q^k},
+  which we verify against brute-force point counts over the extension fields.
+    curve y^2 = x^3 + (2)x + (1) over GF(3):  a_3 = -3
+        k | a_(p^k) | q^k + 1 - a_(p^k) | brute force | match
+        2 |       3 |                 7 |           7 | ok
+        3 |       0 |                28 |          28 | ok
+    curve y^2 = x^3 + (1)x + (1) over GF(5):  a_5 = -3
+        k | a_(p^k) | q^k + 1 - a_(p^k) | brute force | match
+        2 |      -1 |                27 |          27 | ok
+    curve y^2 = x^3 + (1)x + (1) over GF(7):  a_7 = 3
+        k | a_(p^k) | q^k + 1 - a_(p^k) | brute force | match
+        2 |      -5 |                55 |          55 | ok
+    ok   the recurrence reproduces every brute-force count above
+    ok   the recurrence is linear with coefficients a_q and q
+
+== 4. The roots are conjugate and have modulus sqrt(q) ==
+
+  Over the complex numbers T^2 - a_q T + q factors as (T - alpha)(T - beta),
+  so alpha + beta = a_q, alpha beta = q and |alpha|^2 = |beta|^2 = q. The last
+  identity is Hasse's bound in modulus form -- and it is why the Frobenius
+  eigenvalues are the "Weil numbers" of weight 1.
+    a_7 = -1:  roots -1/2 - 3*sqrt(3)*I/2, -1/2 + 3*sqrt(3)*I/2
+            sum = -1 (a_q), product = 7 (q), |root|^2 = 7
+    a_7 = 0:  roots -sqrt(7)*I, sqrt(7)*I
+            sum = 0 (a_q), product = 7 (q), |root|^2 = 7
+    a_7 = 3:  roots 3/2 - sqrt(19)*I/2, 3/2 + sqrt(19)*I/2
+            sum = 3 (a_q), product = 7 (q), |root|^2 = 7
+    a_5 = 0:  roots -sqrt(5)*I, sqrt(5)*I
+            sum = 0 (a_q), product = 5 (q), |root|^2 = 5
+    ok   alpha + beta = a_q, alpha beta = q, |alpha|^2 = q
+
+== 5. Frobenius on E[n]: rank 2, and the matrix ==
+
+  E[n] is a free Z/n-module of rank 2, the elliptic-curve case of the Tate
+  module T_l E being free of rank 2 = 2g. Frobenius acts on it by a 2x2 matrix
+  whose trace is a_q mod n and whose determinant is q mod n.
+    E: y^2 = x^3 + (-1)x + (0) over GF(7):  #E[2] = 4 = 2^2
+    E: y^2 = x^3 + (0)x + (2) over GF(7):  #E[3] = 9 = 3^2
+    ok   E[2] and E[3] are free of rank 2 (n^2 points)
+
+  To see a nontrivial action we move to a field where the torsion is rational:
+  for E: y^2 = x^3 + 1 over GF(5) the 3-torsion appears over GF(25), and there
+  the 5-power Frobenius acts with trace a_5 = 0 and determinant 5 mod 3.
+    matrix of Frobenius in the basis (P,Q): [[1, 0], [0, 2]]  mod 3
+    trace = 0 = a_5 mod 3 = 0;  determinant = 2 = 5 mod 3 = 2
+    ok   Frobenius on E[n] has trace a_q and determinant q
+    ok   the Frobenius matrix satisfies M^2 - a_q M + q = 0 on E[n]
+
+== 6. The formalization ==
+
+  ResidualGaloisRep.IsAttachedTo records exactly this polynomial as the link
+  between a Galois representation and a modular form: at a good prime l the
+  characteristic polynomial of rho(Frob_l) is X^2 - a_l X + l. The constant
+  term l is the determinant, i.e. the cyclotomic character value (base/007);
+  a_l is the trace, bounded by Hasse and matched against the Hecke eigenvalue
+  of a cusp form.
+
+  The rank statement is Pic0.finrank_rationalTateModule_eq_two_mul_genusFF:
+  the rational Tate module of Pic^0 is free of rank 2g. For an elliptic curve
+  g = 1 and that is the rank-2 module computed above; for J_0(N) it is the
+  symplectic Galois module carrying the Hecke action (math/009).
+
+all checks passed (9 checks)

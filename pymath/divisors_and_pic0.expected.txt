@@ -1,0 +1,96 @@
+Divisors and Pic^0
+
+  A divisor on a smooth curve C is a formal finite sum of points with integer
+  coefficients. Its degree is the sum of the coefficients, and it is principal
+  when it is div(f) for some nonzero rational function f. The degree-zero
+  divisors modulo principal divisors form the group Pic^0(C), the Jacobian of
+  C.
+
+  For an elliptic curve E (genus 1) the Jacobian is E itself, through P |->
+  [P] - [O]. This demo exhibits that isomorphism by writing down the principal
+  divisors that realise the group law, on the curve y^2 = x^3 - x over GF(7),
+  whose full 2-torsion is rational.
+
+== 1. The curve and its points ==
+
+    E: y^2 = x^3 + (6)*x + (0) over GF(7)
+    #E = 8,  infinity written O
+    points, infinity last: (0, 0), (1, 0), (4, 2), (4, 5), (5, 1), (5, 6), (6, 0), O
+    (0, 0) order 2, (1, 0) order 2, (4, 2) order 4, (4, 5) order 4, (5, 1) order 4, (5, 6) order 4, (6, 0) order 2, O order 1
+
+  The orders are 1, 2, 2, 2, 4, 4, 4, 4, so E is isomorphic to Z/2 x Z/4. In
+  particular the full 2-torsion is rational: the three points with y = 0,
+  namely (0,0), (1,0), (6,0).
+
+== 2. Divisors, degree, and the divisors of x and y ==
+
+  A divisor is written as a formal sum, e.g. [P] + [Q] - [R] - [O]. The
+  functions x and y of the Weierstrass model have divisors read off from the
+  geometry: x has a double zero at (0,0) and a double pole at O, while y
+  vanishes simply at the three 2-torsion points and has a triple pole at O.
+    div(x) = 2[(0, 0)] - 2[O]
+    div(y) = [(0, 0)] + [(1, 0)] + [(6, 0)] - 3[O]
+    degree of each = 0, 0
+    ok   deg(div x) = 0
+    ok   deg(div y) = 0
+    ok   Abel-Jacobi sum of div(x) is O
+    ok   Abel-Jacobi sum of div(y) is O
+
+  Degree zero is forced: a nonzero rational function on a curve has as many
+  zeros as poles. The vanishing of the group sum is the genus-1 form of the
+  Abel-Jacobi theorem, and here it is sharp: for an elliptic curve a
+  degree-zero divisor is principal exactly when the points, summed in the
+  group law, give O.
+
+== 3. The chord-tangent divisor ==
+
+  A line meets E in three points counted with multiplicity, so div(line
+  through P and Q) = [P] + [Q] + [-(P+Q)] - 3[O], and the vertical through P+Q
+  has divisor [P+Q] + [-(P+Q)] - 2[O]. The quotient of the two functions
+  therefore has divisor [P] + [Q] - [P+Q] - [O], which is principal.
+    P = (4, 2),  Q = (5, 1),  P+Q = (6, 0)
+    D(P,Q) = div(line) - div(vertical) = [(4, 2)] + [(5, 1)] - [(6, 0)] - [O]
+    ok   D(P,Q) has degree 0
+    ok   D(P,Q) is principal, i.e. its points sum to O
+    ok   D(P,Q) = div(line) - div(vertical)
+    ok   D(P,Q) is principal for every pair P, Q
+
+  So [P] + [Q] and [P+Q] differ by a principal divisor: they are the same
+  class in Pic^0. The group law on E is the group law on divisor classes, not
+  merely a formal analogue of it.
+
+== 4. Pic^0 is E ==
+
+  Define phi(P) = class of [P] - [O]. Section 3 says phi(P) + phi(Q) =
+  phi(P+Q), so phi is a group homomorphism. It is injective because [P] - [Q]
+  is principal only when P = Q: its points must sum to O, i.e. P - Q = O.
+    ok   phi(P) + phi(Q) = phi(P+Q) for all P, Q
+    ok   [P] - [Q] is principal if and only if P = Q
+
+  Both E and Pic^0 have 8 elements, so an injective homomorphism is also onto.
+  Concretely, a degree-zero divisor sum n_P [P] is principal exactly when the
+  group sum of its points is O, so its class is [S] - [O] for the single point
+  S = sum n_P P.
+    ok   phi is injective: the 8 classes are distinct
+    ok   [P] + [Q] - [R] - [T] principal iff P + Q = R + T
+    ok   degree is additive: deg(D + E) = deg D + deg E
+    #E = 8,  #Pic^0 = 8,  phi is a bijection
+
+== 5. What the formalization does with this ==
+
+  The formalization runs the same dictionary for an arbitrary function field:
+  a Place is a valuation ring of the field (the algebraic substitute for a
+  point), Divisor K F := Place K F →₀ ℤ, degree multiplies each coefficient by
+  the residue degree of the place, and IsPrincipal asks for a function with
+  the prescribed order at every place. HasPrincipalDivisors asserts that those
+  functions exist, and Pic K F := Divisor ⧸ principal, with Pic0 its
+  degree-zero part.
+
+  For the modular curve, Pic^0 of X_0(N) is the Jacobian carrying the Hecke
+  action (math/009) and the Galois representation on its torsion (base/007).
+  The elliptic-curve computation above is the case where the Jacobian is the
+  curve itself, and its two ingredients -- principal divisors exist, and
+  degree-zero classes are classified by the group sum -- are the genus-1
+  shadow of the general theory.
+
+all checks passed (13 checks)

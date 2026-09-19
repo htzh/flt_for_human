@@ -1,0 +1,87 @@
+Residues and the residue theorem
+
+  A meromorphic differential on a curve has finitely many poles, each carrying
+  a residue, and the residues always cancel. This demo computes both sides of
+  that statement on the projective line, where residues are coefficient
+  extractions, and checks the logarithmic-derivative form on an elliptic
+  curve, where the residues are the multiplicities in the divisor of a
+  function.
+
+== 1. The statement ==
+
+    sum_P res_P(omega) = 0    for a nonzero meromorphic differential omega
+    for omega = f(x) dx on P^1:  res_a = coeff of 1/(x-a) in f;
+    res_infinity from x = 1/t:  omega = -f(1/t)/t^2 dt, residue at t = 0
+
+  For a principal differential omega = d log F = F'/F dx the residue at P is
+  the order of F at P -- positive at a zero, negative at a pole -- so the
+  theorem reduces to the fact that a rational function has as many zeros as
+  poles. The formalization states the adelic version, where the sum runs over
+  the places of the function field.
+
+== 2. Residues on the projective line ==
+
+    f                    | finite poles and residues        | res_inf | total
+    1/x                  | 0: 1                             | -1      | 0
+    1/(x+1)              | -1: 1                            | -1      | 0
+    1/(x*(x-1))          | 1: 1, 0: -1                      | 0       | 0
+    1/(x**3 - x)         | -1: 1/2, 1: 1/2, 0: -1           | 0       | 0
+    x/(x**2 + 1)**2      | -I: 0, I: 0                      | 0       | 0
+    1/x**2               | 0: 0                             | 0       | 0
+    ok   the residues sum to zero for every example
+    ok   dx/(x^3 - x) has residues -1 at 0 and 1/2 at each of +-1
+    ok   the residues of dx/x are +1 at 0 and -1 at infinity
+    ok   a double pole has residue zero (1/x^2 and x/(x^2+1)^2)
+
+== 3. The residue at infinity ==
+
+  Whether the point at infinity contributes depends on the degrees: for f =
+  P/Q the residue at infinity vanishes once deg Q >= deg P + 2, and the two
+  examples 1/x and 1/(x+1) sit exactly at deg Q = deg P + 1, where it is -1.
+  That single residue is what cancels the finite one.
+    f          | deg Q - deg P | res_infinity
+    1/x          |             1 | -1
+    1/(x+1)      |             1 | -1
+    1/x**2       |             2 | 0
+    1/(x**3 - x) |             3 | 0
+    ok   res_infinity = -1 exactly when deg Q = deg P + 1, and 0 for deg Q >= deg P + 2
+
+== 4. Logarithmic derivatives, and an elliptic curve ==
+
+  For omega = d log F = F'/F dx the residues are the orders of F. On P^1 they
+  are read off from the factorisation of F, plus the order at infinity
+  deg(denominator) - deg(numerator); the sum is zero again. On a curve the
+  same statement is deg(div F) = 0, and there the residues are the
+  coefficients of the divisor -- which the divisors demo computed for x, y and
+  the chord-tangent function.
+    F = x*(x-1)/(x+2)**2     orders: 1: 1, 0: 1, -2: -2, oo: 0   sum = 0
+    F = 1/(x**2 - 1)         orders: -1: -1, 1: -1, oo: 2   sum = 0
+    F = (x-1)**2/(x+1)       orders: 1: 2, -1: -1, oo: -1   sum = 0
+    ok   sum of the orders of F is zero, including the order at infinity
+    ok   the infinity order is what cancels the finite ones for 1/(x^2 - 1)
+    E: y^2 = x^3 - x over GF(7); residues of d log F are the coefficients
+      F with div(x)        : 2 at (0, 0), -2 at O   sum = 0
+      F with div(y)        : 1 at (0, 0), 1 at (1, 0), 1 at (6, 0), -3 at O   sum = 0
+      F with chord-tangent : 1 at (4, 2), 1 at (5, 1), -1 at (6, 0), -1 at O   sum = 0
+    ok   the residues of d log F sum to zero for x, y and the chord-tangent function
+    ok   equivalently deg(div F) = 0 for each of them
+    ok   the chord-tangent function has only simple zeros and poles, so its residues are +-1 as in res_simplePole
+
+== 5. The formalization ==
+
+  LocalResidueData records what a residue at a place is: a K-linear map to the
+  residue field that vanishes on the valuation ring (res_of_mem) and, at a
+  simple pole, is the residue of uniformizer * f (res_simplePole).
+  weilOfKaehler assembles these into a dual of the adele space, and
+  ResidueTheorem is the statement that its value on the principal adele of any
+  f vanishes -- the adelic sum of residues.
+
+  The theorem is proved for the fields the FLT argument uses:
+  residueTheorem_of_isAlgClosed, residueTheorem_of_perfectField, and
+  residueTheorem_functionField_of_smoothOfRelativeDimension_one. It is what
+  makes the Serre pairing nondegenerate (ResiduePairingSurjective,
+  WeilKaehlerAgree) and so underlies the duality theory of the Jacobian that
+  math/009 uses for the Hecke action. The logarithmic case checked above is
+  the shadow of it visible on a single elliptic curve.
+
+all checks passed (10 checks)

@@ -1,0 +1,79 @@
+Modular q-expansions
+
+  This demo works in the ring Z[[q]] of formal q-expansions with integer
+  coefficients, truncated to q^63. Its arithmetic is exact integer arithmetic,
+  so the classical identities below are checked coefficient by coefficient
+  rather than numerically.
+
+== 1. The Eisenstein series E_4 and E_6 ==
+
+  E_4 and E_6 are the level-one Eisenstein series: their q-coefficients are
+  divisor sums, 240 sigma_3(n) and -504 sigma_5(n), and both have constant
+  term 1. They generate the ring of level-one modular forms.
+    E_4 = 1 + 240 sum sigma_3(n) q^n = 1, 240, 2160, 6720, 17520, 30240 + ...
+    E_6 = 1 - 504 sum sigma_5(n) q^n = 1, -504, -16632, -122976, -532728, -1575504 + ...
+    ok   E_4 has constant term 1 and integer coefficients
+    ok   E_6 has constant term 1 and integer coefficients
+    ok   the coefficients are the divisor sums 240 sigma_3(n), -504 sigma_5(n)
+
+== 2. Delta two ways, and the Ramanujan tau function ==
+
+  Delta is a cusp form of weight 12 and level 1. It can be written as the eta
+  product q prod (1 - q^n)^24 or as (E_4^3 - E_6^2)/1728; the two definitions
+  agree to every computed coefficient. Its coefficients are Ramanujan's tau
+  function.
+    Delta = q prod (1 - q^n)^24  = 0, 1, -24, 252, -1472, 4830 + ...
+    Delta = (E_4^3 - E_6^2)/1728 = 0, 1, -24, 252, -1472, 4830 + ...
+    tau(n) for n = 1..11: 1, -24, 252, -1472, 4830, -6048, -16744, 84480, -113643, -115920, 534612
+    ok   the eta product and the Eisenstein expression define the same series
+    ok   E_4^3 - E_6^2 = 1728 Delta
+    ok   Delta/q has constant term 1, integer coefficients and is a unit
+    ok   tau(1) = 1 and Delta starts q - 24q^2 + 252q^3 - 1472q^4 + 4830q^5
+
+== 3. The Hecke recursions for an eigenform ==
+
+  A normalized eigenform is multiplicative on coprime indices and its
+  prime-power coefficients satisfy a_{p^(r+2)} = a_p a_{p^(r+1)} - p^(k-1)
+  a_{p^r} for p not dividing the level. Delta is the level-one weight-12 case,
+  so the correction is p^11; the formalization states the weight-2 version
+  with -p (plus a variant with no correction term when p does divide the
+  level).
+    prime-power check  tau(p^(r+2)) = tau(p) tau(p^(r+1)) - p^11 tau(p^r)
+      p = 2, r = 0:  -1472 = tau(2) tau(2) - 2^11 tau(1) = -1472
+      p = 2, r = 1:  84480 = tau(2) tau(4) - 2^11 tau(2) = 84480
+      p = 2, r = 2:  987136 = tau(2) tau(8) - 2^11 tau(4) = 987136
+      p = 2, r = 3:  -196706304 = tau(2) tau(16) - 2^11 tau(8) = -196706304
+      p = 3, r = 0:  -113643 = tau(3) tau(3) - 3^11 tau(1) = -113643
+      p = 3, r = 1:  -73279080 = tau(3) tau(9) - 3^11 tau(3) = -73279080
+    ok   tau(m n) = tau(m) tau(n) for all coprime m, n
+    ok   the weight-12 prime-power recursion holds for every computed prime
+
+== 4. The Hauptmodul j ==
+
+  j = E_4^3 / Delta has a simple pole at the cusp and integer coefficients.
+  The formalization stores it as jq = q^-1 * jNum with jNum = E_4^3 *
+  (Delta/q)^-1, which is the same series with the pole divided out: jNum = 1 +
+  744 q + 196884 q^2 + ... .
+    jNum = E_4^3 * (Delta/q)^-1 = 1, 744, 196884, 21493760, 864299970, 20245856256 + ...
+    j = q^-1 + 744 + 196884 q + 21493760 q^2 + ...
+    ok   jNum has constant term 1 and integer coefficients
+    ok   j = q^-1 + 744 + 196884 q + 21493760 q^2 + ...
+    ok   j has a simple pole at the cusp (the lowest exponent is -1)
+    ok   jNum * (Delta/q) = E_4^3
+
+== 5. The formalization ==
+
+  All of the above are power series over Z in the formalization: eisenstein4
+  and eisenstein6 by divisor sums, etaProd as the product prod (1 - q^(n+1)),
+  dedekindEtaUnit = etaProd^24 (that is Delta/q, not Delta),
+  dedekindEtaUnitInv its inverse, jNum = eisenstein4^3 * dedekindEtaUnitInv,
+  and jq = q^-1 * jNum. Keeping Delta/q rather than Delta is why jNum is a
+  unit in Z[[q]] with constant term 1.
+
+  CuspForm.IsNormalizedEigenform records the eigenform axioms as four clauses
+  on qCoeff: a_1 = 1; a_{mn} = a_m a_n for coprime m, n; the weight-2
+  recursion a_{p^(r+2)} = a_p a_{p^(r+1)} - p a_{p^r} for p not dividing the
+  level; and a_{p^(r+2)} = a_p a_{p^(r+1)} for p dividing it. The demo checks
+  the weight-12 case of the same shape, which is what Delta satisfies.
+
+all checks passed (13 checks)
