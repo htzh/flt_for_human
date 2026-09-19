@@ -89,7 +89,7 @@ $`\\{P \mid n \bullet P = 0\\}`$. The steps:
    (`finite_not_squarefree_fiber`, line 397).
 3. **Surjectivity of** $`[n]`$ (`smul_surjective`, line 452, for odd $`n`$;
    `smul_surjective_all`, line 955, in general). For $`Q = (x_Q, y_Q)`$ the
-   polynomial $`\Phi_n - x_Q \cdot \Psi_n^2`$ has degree $`n^2 > 0`$
+   polynomial $`\Phi_n - x_Q \cdot \Psi_n^2`$ has degree $`n^2 \gt 0`$
    (mathlib's `natDegree_Φ` / `natDegree_ΨSq`), hence a root $`x_0`$ since
    $`K`$ is algebraically closed; coprimality of $`\Phi_n, \Psi_n^2`$ forces
    $`\Psi_n^2(x_0) \neq 0`$, so $`n \cdot (x_0, y_0)`$ is a finite point
@@ -231,7 +231,7 @@ note 004
       nlinarith
 ```
 
-— $`p \geq 5`$ gives $`1 < p^2 = \# E_P[p]`$, and that `Nontrivial` instance
+— $`p \geq 5`$ gives $`1 \lt p^2 = \# E_P[p]`$, and that `Nontrivial` instance
 is the side condition `GaloisRepIsIrreducible` requires before "reducible"
 can even be unfolded (note 003). The same one-line justification appears at:
 
@@ -241,7 +241,7 @@ can even be unfolded (note 003). The same one-line justification appears at:
   (inertia-triviality arguments),
 - [S_FreyPackage_frey_no_cofixed_large.lean, line 698](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_FreyPackage_frey_no_cofixed_large.lean#L698),
 - [S_FreyPackage_frey_exists_p_torsion_integral_abscissa.lean, line 570](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_FreyPackage_frey_exists_p_torsion_integral_abscissa.lean#L570)
-  ($`p^2 > 1`$ puts a non-$`O`$ $`p`$-torsion point on the curve, the first
+  ($`p^2 \gt 1`$ puts a non-$`O`$ $`p`$-torsion point on the curve, the first
   step toward one with integral $`x`$-coordinate).
 
 **Via the finrank corollary**, e.g. the determinant-of-Frobenius

@@ -105,7 +105,7 @@ The congruence subgroups are defined in one file
 | `CongruenceSubgroup.Gamma N`, scoped notation `Γ(N)` | $`\Gamma(N) = \ker(\mathrm{SL}_2(\mathbb{Z}) \to \mathrm{SL}_2(\mathbb{Z}/N))`$ | [line 41](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/CongruenceSubgroups.lean#L41) |
 | `CongruenceSubgroup.Gamma0 N` | $`\Gamma_0(N)`$: lower-left entry $`\equiv 0`$ mod $`N`$ | [line 79](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/CongruenceSubgroups.lean#L79) |
 | `CongruenceSubgroup.Gamma1 N` | $`\Gamma_1(N)`$: lower-left $`\equiv 0`$, diagonal $`\equiv 1`$ | [line 131](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/CongruenceSubgroups.lean#L131) |
-| `CongruenceSubgroup.Gamma0Map N : Gamma0 N →* ZMod N` | the map $`\begin{pmatrix} a & b \\ 0 & d \end{pmatrix} \mapsto d`$ | [line 95](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/CongruenceSubgroups.lean#L95) |
+| `CongruenceSubgroup.Gamma0Map N : Gamma0 N →* ZMod N` | the map $`[[a,b],[0,d]] \mapsto d`$ | [line 95](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/CongruenceSubgroups.lean#L95) |
 
 **Mathlib does not know $`[\mathrm{SL}_2(\mathbb{Z}) : \Gamma_0(N)]`$ for any
 $`N`$.** It has the general finite-index machinery (`Subgroup.index`,
@@ -247,10 +247,10 @@ def heckeT (k : ℤ) (p : ℕ) (f : UpperHalfPlane → ℂ) : UpperHalfPlane →
 ```
 
 So the classical sums over coset representatives of the double coset
-$`\Gamma \begin{pmatrix} p & 0 \\ 0 & 1 \end{pmatrix} \Gamma`$ are, in Lean,
+$`\Gamma [[p,0],[0,1]] \Gamma`$ are, in Lean,
 literally finite sums `∑ j ∈ Finset.range p` of slash actions by the explicit
-matrices $`\begin{pmatrix} 1 & j \\ 0 & p \end{pmatrix}`$ and
-$`\begin{pmatrix} p & 0 \\ 0 & 1 \end{pmatrix}`$. From there FLT wraps them as
+matrices $`[[1,j],[0,p]]`$ and
+$`[[p,0],[0,1]]`$. From there FLT wraps them as
 linear maps on the bundled spaces, splitting on whether the prime divides the
 level ([Def_ModularForm_HeckeOperatorForms.lean, lines 20 and 34](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularForm_HeckeOperatorForms.lean#L20-L34)):
 
@@ -326,9 +326,9 @@ clause encoding multiplicativity of the coefficients. Normalisation
 $`u_1 = 1`$ is what makes the eigen*value* equal to $`u_p`$, which is why
 `qCoeff f p` can be used as the eigenvalue with no extra data.
 
-The $`U_p`$ computation is the easy one: $`(f \mid_k \begin{pmatrix} 1 & j \\ 0 & p \end{pmatrix})(\tau) = p^{-k} f((\tau+j)/p)`$,
+The $`U_p`$ computation is the easy one: $`(f \mid_k [[1,j],[0,p]])(\tau) = p^{-k} f((\tau+j)/p)`$,
 and summing over $`j`$ extracts the $`q`$-coefficients with $`p \mid m`$. For
-$`T_p`$ the extra term is $`f \mid_k \begin{pmatrix} p & 0 \\ 0 & 1 \end{pmatrix} = p^{k-1} f(p\tau)`$,
+$`T_p`$ the extra term is $`f \mid_k [[p,0],[0,1]] = p^{k-1} f(p\tau)`$,
 which contributes $`p^{k-1} u_{m/p}`$; the two together give the first display.
 The same dictionary is used in the project for the $`\Gamma_1`$ case with a
 Dirichlet character (Nebentypus), where the eigenform property is likewise a
@@ -351,7 +351,7 @@ its coefficient sequence.
 | the $`a_p`$ on the elliptic side | point count on the reduction: $`a_p = \#\mathbb{F}_p + 1 - \#E(\mathbb{F}_p)`$ | `traceOfFrobenius`, `apOfModel`, [lines 70–80](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_Modularity.lean#L70-L80) |
 | residual level lowering | congruence of `qCoeff f ℓ` with $`a_\ell(W)`$ **modulo a maximal ideal** $`\mathfrak{m} \ni p`$, not equality | `ModularRepOfLevel`, [Def_FLTPrelim_ModularRep.lean, lines 62–69](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_ModularRep.lean#L62-L69) |
 | residual modularity of a model | the same congruence with the level as a parameter | `IsResiduallyModularOfLevel`, [lines 75–80](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_ModularRep.lean#L75-L80) |
-| **the endgame, $`S_2(\Gamma_0(2)) = 0`$** | $`[\mathrm{SL}_2(\mathbb{Z}):\Gamma_0(2)] = 3`$ and the norm multiplies weight by the index, so a weight-2 form would give a level-one form of weight $`2 \cdot 3 = 6 < 12`$, killed by mathlib's dimension formula | `ModularForm.S2_Gamma0_2_eq_zero`, [S file, lines 170–211](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularForm_S2_Gamma0_2_eq_zero.lean#L170-L211) |
+| **the endgame, $`S_2(\Gamma_0(2)) = 0`$** | $`[\mathrm{SL}_2(\mathbb{Z}):\Gamma_0(2)] = 3`$ and the norm multiplies weight by the index, so a weight-2 form would give a level-one form of weight $`2 \cdot 3 = 6 \lt 12`$, killed by mathlib's dimension formula | `ModularForm.S2_Gamma0_2_eq_zero`, [S file, lines 170–211](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularForm_S2_Gamma0_2_eq_zero.lean#L170-L211) |
 
 The last row is worth expanding, because it is the one place where the
 automorphic side of FLT is genuinely short. The proof is three moves

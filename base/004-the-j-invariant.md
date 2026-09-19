@@ -60,7 +60,7 @@ Two facts frame everything below.
   [EisensteinSeries/Basic.lean, lines 51–54](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/EisensteinSeries/Basic.lean#L51-L54)),
   and the discriminant as a bundled cusp form
   ([Discriminant.lean, line 237](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/Discriminant.lean#L237)),
-  with the product formula $`\Delta(z) = q \prod (1-q^n)^{24}`$
+  with the product formula $`\Delta(\tau) = q \prod (1-q^n)^{24}`$
   ([line 115](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/Discriminant.lean#L115))
   and nonvanishing on $`\mathbb{H}`$
   ([line 123](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/Discriminant.lean#L123)).
@@ -248,7 +248,7 @@ of the classical function; on the formal side the analogous statement is the
 substitution identity behind `qExpand`, not an identity between formal series.
 
 **Holomorphic on $`\mathbb{H}`$, simple pole at the cusp.** $`E_4`$ is holomorphic
-and $`\Delta(z) \ne 0`$ for $`z \in \mathbb{H}`$ (mathlib's
+and $`\Delta(\tau) \ne 0`$ for $`\tau \in \mathbb{H}`$ (mathlib's
 `discriminant_ne_zero`), so $`j`$ is holomorphic on $`\mathbb{H}`$. At the cusp,
 the $`q`$-expansion opens with $`q^{-1}`$ and has nothing below it:
 
@@ -276,7 +276,7 @@ while $`j`$ is meromorphic with a pole. The classical name for the object is
 
 **The disc picture, and the natural boundary.** The exponential
 $`\tau \mapsto q = e^{2\pi i\tau}`$ maps $`\mathbb{H}`$ onto the punctured open
-unit disc $`D^{*} = \{0 < |q| < 1\}`$, and the periodicity $`j(\tau+1) = j(\tau)`$
+unit disc $`D^{*} = \{0 \lt |q| \lt 1\}`$, and the periodicity $`j(\tau+1) = j(\tau)`$
 is exactly what makes $`j`$ descend to a holomorphic function on $`D^{*}`$. In the
 $`q`$-disc the whole function is visible at once: the expansion
 $`q^{-1} + 744 + \cdots`$ has radius of convergence $`1`$, with a simple pole at
@@ -346,7 +346,7 @@ of $`X_0(N)`$ lying over one value of $`j`$. It is of course true that
 $`j(\tau)`$ is itself $`\Gamma_0(N)`$-invariant — "level $`1`$ implies level
 $`N`$" — but that gives only an inclusion of fields,
 $`\mathbb{C}(j(\tau)) \subseteq`$ (level-$`N`$ functions), and the inclusion is
-strict for $`N > 1`$: its index is $`\psi(N)`$. The second generator is what
+strict for $`N \gt 1`$: its index is $`\psi(N)`$. The second generator is what
 moves in the fibre. The classical choice $`j(N\tau)`$ is forced by three properties: it
 is $`\Gamma_0(N)`$-invariant, so it really is a function on $`X_0(N)`$; its
 $`q`$-expansion is free, just $`j(q)`$ with $`q \mapsto q^N`$, which is why the
@@ -362,18 +362,18 @@ $`E/C`$", which is exactly a point of $`X_0(N)`$; the algebraic relation it
 satisfies is the modular polynomial
 $`\Phi_N(j(\tau), j(N\tau)) = 0`$, of degree $`\psi(N)`$ in each variable. The
 Fricke/Atkin–Lehner involution
-$`w_N = \begin{pmatrix} 0 & -1 \\ N & 0\end{pmatrix}`$ interchanges the two
+$`w_N = [[0,-1],[N,0]]`$ interchanges the two
 generators: $`j(w_N\tau) = j(N\tau)`$ and $`j(N w_N \tau) = j(\tau)`$. That
 symmetry is why neither generator alone suffices and why $`\Phi_N`$ is symmetric
 in its two variables. In particular the inclusion does not reverse either:
 $`j(N\tau)`$ does not generate $`j(\tau)`$, because $`j(\tau)`$ has degree
 $`\psi(N)`$ over $`\mathbb{C}(j(N\tau))`$ — its minimal polynomial there is
-$`\Phi_N(X, j(N\tau))`$ — so for $`N > 1`$ neither of the two is a rational
+$`\Phi_N(X, j(N\tau))`$ — so for $`N \gt 1`$ neither of the two is a rational
 function of the other. They are siblings, not parent and child: both have degree
 $`\psi(N)`$ over the common base, and only their compositum is the curve. (Honest
 $`q`$-expansions exist because $`\Gamma_0(N)`$ contains the translation $`T`$,
 forcing period $`1`$. Not every congruence subgroup does: $`\Gamma(N)`$ misses
-$`T`$ once $`N > 1`$, its cusp at $`\infty`$ has width $`N`$, and the local
+$`T`$ once $`N \gt 1`$, its cusp at $`\infty`$ has width $`N`$, and the local
 parameter there is $`q^{1/N}`$.)
 
 **The special values.** The two elliptic points of $`\mathrm{SL}_2(\mathbb{Z})
@@ -382,11 +382,11 @@ parameter there is $`q^{1/N}`$.)
 $$j(i) = 1728, \qquad j(\rho) = 0, \qquad \rho = e^{2\pi i/3}.$$
 
 Both follow from one-line symmetry arguments. For $`i`$: the matrix
-$`S = \begin{pmatrix} 0 & -1 \\ 1 & 0\end{pmatrix}`$ fixes $`i`$, and
+$`S = [[0,-1],[1,0]]`$ fixes $`i`$, and
 $`E_6(-1/\tau) = \tau^6 E_6(\tau)`$; at $`\tau = i`$ this reads
 $`E_6(i) = i^6 E_6(i) = -E_6(i)`$, hence $`E_6(i) = 0`$, and then
 $`j(i) = 1728 E_4(i)^3 / E_4(i)^3 = 1728`$. For $`\rho`$: the matrix
-$`ST = \begin{pmatrix} 0 & -1 \\ 1 & 1\end{pmatrix}`$ fixes $`\rho`$, and
+$`ST = [[0,-1],[1,1]]`$ fixes $`\rho`$, and
 $`E_4(ST\tau) = (\tau+1)^4 E_4(\tau)`$; at $`\tau = \rho`$ this reads
 $`E_4(\rho) = (\rho+1)^4 E_4(\rho)`$, and $`(\rho+1)^4 = e^{4\pi i/3} \ne 1`$,
 so $`E_4(\rho) = 0`$ and $`j(\rho) = 0`$. These are the $`j`$-invariants of the

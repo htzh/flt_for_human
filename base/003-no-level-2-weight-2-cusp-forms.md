@@ -7,7 +7,9 @@ built the automorphic one (`SlashInvariantForm`/`CuspForm`, `qExpansion`,
 
 $$S_2(\Gamma_0(2)) = 0,$$
 
-every weight-2 cusp form on $`\Gamma_0(2)`$ is zero. It is the last automorphic
+where $`S_k(G)`$ denotes the space of cusp forms of weight $`k`$ for the group $`G`$
+(and $`M_k(G)`$ the space of modular forms of that weight, which §4 also uses): every
+weight-2 cusp form on $`\Gamma_0(2)`$ is zero. It is the last automorphic
 input of the FLT route: after Ribet's level lowering has pushed a nonzero residual
 representation down to a level dividing $`2`$, this is the statement that kills
 it ([math/008 §5](../math/008-ribet-level-lowering.md)). The companion note
@@ -22,7 +24,7 @@ The proof has exactly three moves:
    finite-index subgroup into a nonzero level-one cusp form of weight
    $`k \cdot [\mathrm{SL}_2(\mathbb{Z}) : \Gamma_0(2)]`$ — here $`2 \cdot 3 = 6`$.
 3. $`S_6(\mathrm{SL}_2(\mathbb{Z})) = 0`$, because in fact
-   $`S_k(\mathrm{SL}_2(\mathbb{Z})) = 0`$ for every $`k < 12`$.
+   $`S_k(\mathrm{SL}_2(\mathbb{Z})) = 0`$ for every $`k \lt 12`$.
 
 Move 3 is the only one with analytic content, and it is worth doing honestly: it
 reduces to *a holomorphic function on the unit disc whose modulus at every point
@@ -42,11 +44,13 @@ The headline declaration is
 theorem ModularForm.S2_Gamma0_2_eq_zero (f : CuspForm (CongruenceSubgroup.Gamma0 2) 2) : f = 0
 ```
 
-The same statement at level 1, $`S_2(\mathrm{SL}_2(\mathbb{Z})) = 0`$, holds for
-the simpler reason $`2 < 12`$ directly
-([`Thm_ModularForm_S2_Gamma0_one_eq_zero.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularForm_S2_Gamma0_one_eq_zero.lean)); level $`2`$ is
-the one case where move 2 is needed, because $`2`$ by itself is not $`< 12`$ but
-$`2 \cdot 3`$ is.
+At level 1 the analogous statement, $`S_2(\mathrm{SL}_2(\mathbb{Z})) = 0`$, needs no
+norm at all: move 3 applies to it directly, since its weight is already $`2 \lt 12`$
+([`Thm_ModularForm_S2_Gamma0_one_eq_zero.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularForm_S2_Gamma0_one_eq_zero.lean)). Level $`2`$ is
+where move 2 becomes necessary — not because the weight $`2`$ is large, but because
+move 3 is a *level-one* statement: to use it one must first carry the form up to level
+$`1`$, which the norm does at the price of multiplying the weight by the index $`3`$,
+and the resulting weight $`2 \cdot 3 = 6`$ is still below $`12`$.
 
 The contradiction runs as follows. Assume $`0 \ne f \in S_2(\Gamma_0(2))`$.
 Move 2 gives a level-one cusp form $`\mathrm{Norm}(f)`$ of weight $`6`$, and
@@ -67,7 +71,7 @@ the norm is built, its weight is computed to be $`6`$, and
 ## 2. Move 1: the index is three
 
 Let
-$`\Gamma_0(2) = \{\begin{pmatrix} a & b \\ c & d\end{pmatrix} \in \mathrm{SL}_2(\mathbb{Z}) : c \equiv 0 \bmod 2\}`$
+$`\Gamma_0(2) = \{[[a,b],[c,d]] \in \mathrm{SL}_2(\mathbb{Z}) : c \equiv 0 \bmod 2\}`$
 and $`G = \mathrm{SL}_2(\mathbb{Z})`$. The claim is $`[G : \Gamma_0(2)] = 3`$,
 equivalently that $`G/\Gamma_0(2)`$ has three elements. The proof exhibits a
 bijection
@@ -81,8 +85,11 @@ computation. In the Lean sources this is the block
 `firstColMod2`/`cosetToProj`
 ([S file, lines 94–168](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularForm_S2_Gamma0_2_eq_zero.lean#L94-L168)).
 
-Write $`g = \begin{pmatrix} a & b \\ c & d\end{pmatrix}`$ and let
-$`\phi(g) = (a, c) \in (\mathbb{Z}/2)^2`$.
+Concretely, write $`g = [[a,b],[c,d]]`$ and define
+$$\phi(g) \\;=\\; (a, c) \bmod 2, \qquad
+  \phi : G \\;\longrightarrow\\; (\mathbb{Z}/2)^2 \\setminus \\{0\\},$$
+so $`\phi(g)`$ is the first column of $`g`$ modulo $`2`$. The bijection displayed
+above is the map that $`\phi`$ induces on $`G/\Gamma_0(2)`$.
 
 **Step 1: the first column is never zero.** Reducing $`\det g = ad - bc = 1`$
 modulo $`2`$ gives $`\bar a \bar d - \bar b \bar c = 1`$ in $`\mathbb{F}_2`$. If
@@ -91,7 +98,7 @@ $`\phi(g) \ne 0`$. (This is `firstColMod2_ne_zero`, whose input is the
 determinant identity `det_eq_one_mod2`; the identity is used again below.)
 
 **Step 2: $`\phi`$ is constant on left cosets.** Let
-$`h = \begin{pmatrix} a' & b' \\ c' & d'\end{pmatrix} \in \Gamma_0(2)`$, so
+$`h = [[a',b'],[c',d']] \in \Gamma_0(2)`$, so
 $`\bar c' = 0`$. Its determinant is $`1`$ too, so $`\bar a' \bar d' = 1`$ in
 $`\mathbb{F}_2`$; the only invertible element of $`\mathbb{F}_2`$ is $`1`$,
 hence $`\bar a' = \bar d' = 1`$. Therefore the first column of $`h`$ is
@@ -162,14 +169,15 @@ the typeclass method `SlashAction.map` rather than a function named `slash`; her
 is the formula and the two properties this section uses.
 
 For
-$`\gamma = \begin{pmatrix} a & b \\ c & d\end{pmatrix} \in \mathrm{GL}_2(\mathbb{R})`$
-and $`z \in \mathbb{H}`$, write $`\gamma z = (az+b)/(cz+d)`$ for the Möbius action
-and $`cz+d`$ for the denominator (mathlib's `denom γ z`). Then
+$`\gamma = [[a,b],[c,d]] \in \mathrm{GL}_2(\mathbb{R})`$
+and $`\tau \in \mathbb{H}`$, write $`\gamma \tau = (a\tau+b)/(c\tau+d)`$ for the
+Möbius action
+and $`c\tau+d`$ for the denominator (mathlib's `denom γ z`). Then
 
-$$(f \mid_k \gamma)(z) = \sigma_\gamma\bigl(f(\gamma z)\bigr)\\,|\det\gamma|^{k-1}\\,(cz+d)^{-k},$$
+$$(f \mid_k \gamma)(\tau) = \sigma_\gamma\bigl(f(\gamma \tau)\bigr)\\,|\det\gamma|^{k-1}\\,(c\tau+d)^{-k},$$
 
-where $`\sigma_\gamma`$ is the identity if $`\det\gamma > 0`$ and complex
-conjugation if $`\det\gamma < 0`$ (mathlib's `slash_apply`,
+where $`\sigma_\gamma`$ is the identity if $`\det\gamma \gt 0`$ and complex
+conjugation if $`\det\gamma \lt 0`$ (mathlib's `slash_apply`,
 [SlashActions.lean, lines 143–145](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/SlashActions.lean#L143-L145)).
 Two properties are all we use:
 
@@ -184,9 +192,9 @@ Two properties are all we use:
 For $`\gamma \in \mathrm{SL}_2(\mathbb{Z})`$ the determinant is $`1`$ and
 $`\sigma_\gamma`$ is the identity, so the formula collapses to
 
-$$(f \mid_k \gamma)(z) = (cz+d)^{-k} f(\gamma z),$$
+$$(f \mid_k \gamma)(\tau) = (c\tau+d)^{-k} f(\gamma \tau),$$
 
-and invariance reads $`f(\gamma z) = (cz+d)^k f(z)`$ — the identity used in §4.2
+and invariance reads $`f(\gamma \tau) = (c\tau+d)^k f(\tau)`$ — the identity used in §4.2
 Step B. The $`|\det\gamma|^{k-1}`$ factor is what makes composition hold at
 determinants other than $`1`$; everything in this note has determinant $`\pm 1`$,
 where it is $`1`$.
@@ -194,7 +202,7 @@ where it is $`1`$.
 ### The norm, and its four properties
 
 Let $`\Gamma \le \mathcal{H} \le \mathrm{GL}_2(\mathbb{R})`$ with $`\Gamma`$ of
-finite index $`N`$ in $`\mathcal{H}`$, and suppose
+finite index $`n`$ in $`\mathcal{H}`$, and suppose
 $`\mathcal{H} \subset \{\det = \pm 1\}`$ (in the application both groups lie in
 $`\mathrm{SL}_2(\mathbb{Z})`$, so this is automatic). For a form $`f`$ of weight
 $`k`$ on $`\Gamma`$, define, on the coset space $`\mathcal{H}/\Gamma`$,
@@ -224,10 +232,10 @@ and the project's `CuspForm.norm`
 ([S file, lines 34–51](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularForm_S2_Gamma0_2_eq_zero.lean#L34-L51))
 supplies the missing `zero_at_cusps'` field.
 
-**(c) It has weight $`kN`$.** Each factor has weight $`k`$ and there are $`N`$
-of them, so the product should have weight $`kN`$. The one thing to check is the
-determinant bookkeeping. Slashing the product of $`N`$ functions by
-$`h \in \mathcal{H}`$ produces a factor $`|\det h|^{N-1}`$ times the product of
+**(c) It has weight $`kn`$.** Each factor has weight $`k`$ and there are $`n`$
+of them, so the product should have weight $`kn`$. The one thing to check is the
+determinant bookkeeping. Slashing the product of $`n`$ functions by
+$`h \in \mathcal{H}`$ produces a factor $`|\det h|^{n-1}`$ times the product of
 the individual slashes:
 
 ```lean
@@ -237,9 +245,9 @@ lemma prod_slash : (∏ i ∈ s, f i) ∣[k * #s] g = |g.det.val| ^ (#s - 1 : �
 
 Because $`\mathcal{H} \subset \{\det = \pm1\}`$ that factor is $`1`$, and the
 individual slashes act on the cosets by $`q \mapsto h^{-1} q`$, which permutes
-them. So $`\mathrm{Norm}(f) \mid_{kN} h = \mathrm{Norm}(f)`$ — the norm is
+them. So $`\mathrm{Norm}(f) \mid_{kn} h = \mathrm{Norm}(f)`$ — the norm is
 level-one. In the application $`\mathcal{H} = \mathrm{SL}_2(\mathbb{Z})`$ and
-$`N = 3`$, so a weight-$`2`$ form goes to a weight-$`6`$ form.
+$`n = 3`$, so a weight-$`2`$ form goes to a weight-$`6`$ form.
 
 **(d) It vanishes only on zero forms.** This is the useful direction. The
 function $`\mathrm{Norm}(f)`$ is a finite product of the holomorphic functions
@@ -258,8 +266,8 @@ whose nonvanishing half uses exactly the holomorphy-plus-connectedness argument
 above (`UpperHalfPlane.prod_eq_zero_iff`,
 [Manifold.lean, lines 140–146](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/Analysis/Complex/UpperHalfPlane/Manifold.lean#L140-L146)).
 The project's `CuspForm.norm_eq_zero_iff` is the transport of this to cusp forms.
-A caution: the norm is *not* a linear map — it is homogeneous of degree $`N`$, so
-$`\mathrm{Norm}(cf) = c^N \mathrm{Norm}(f)`$ — but the statement we need is only
+A caution: the norm is *not* a linear map — it is homogeneous of degree $`n`$, so
+$`\mathrm{Norm}(cf) = c^n \mathrm{Norm}(f)`$ — but the statement we need is only
 the zero-set statement above, and that is what "injective" means here.
 
 Applying (a)–(d) with $`\Gamma = \Gamma_0(2)`$ and
@@ -278,20 +286,21 @@ lemma CuspForm.rank_eq_zero_of_weight_lt_twelve (hk : k < 12) :
 ```
 
 The proof has two parts: shift the *cusp* form of weight $`k`$ down by $`12`$ to a
-*modular* form of weight $`k - 12 < 0`$, then show there is no nonzero modular
+*modular* form of weight $`k - 12 \lt 0`$, then show there is no nonzero modular
 form of negative weight at level one. We take them in turn.
 
 ### 4.1 Division by $`\Delta`$: cusp forms are $`\Delta`$ times modular forms
 
 Let
 
-$$\Delta(z) = \eta(z)^{24} = q \prod_{n \ge 1} (1 - q^n)^{24}, \qquad q = e^{2\pi i z},$$
+$$\Delta(\tau) = \eta(\tau)^{24} = q \prod_{n \ge 1} (1 - q^n)^{24},
+  \qquad q = e^{2\pi i \tau},$$
 
 the modular discriminant. It is a cusp form of weight $`12`$ at level one
 ([Discriminant.lean, lines 237–252](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/Discriminant.lean#L237-L252)),
 and it has two properties that make it the right tool:
 
-- $`\Delta(z) \ne 0`$ for all $`z \in \mathbb{H}`$
+- $`\Delta(\tau) \ne 0`$ for all $`\tau \in \mathbb{H}`$
   ([line 123](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/Discriminant.lean#L123)); this is the nonvanishing of the eta
   product / of the weight-12 cusp form on the upper half plane.
 - its $`q`$-expansion has order exactly $`1`$: the product has constant term
@@ -300,11 +309,11 @@ and it has two properties that make it the right tool:
 
 These give a bijection, for every $`k \in \mathbb{Z}`$,
 
-$$\Phi : S_k(\mathrm{SL}_2(\mathbb{Z})) \\;\longrightarrow\\; M_{k-12}(\mathrm{SL}_2(\mathbb{Z})),
-\qquad \Phi(f) = \frac{f}{\Delta},$$
+$$S_k(\mathrm{SL}_2(\mathbb{Z})) \\;\longrightarrow\\; M_{k-12}(\mathrm{SL}_2(\mathbb{Z})),
+\qquad f \\;\longmapsto\\; \frac{f}{\Delta},$$
 
-with inverse $`g \mapsto \Delta g`$. Let us check the two directions, because this
-is where the $`q`$-order matters:
+division by $`\Delta`$, with inverse $`g \mapsto \Delta g`$. Let us check the two
+directions, because this is where the $`q`$-order matters:
 
 - **$`\Delta g`$ is a cusp form of weight $`k`$.** It is holomorphic (product of
   holomorphic functions), it has weight $`12 + (k-12) = k`$, and it vanishes at
@@ -333,13 +342,13 @@ now prove the latter.
 
 ### 4.2 Why there are no negative-weight modular forms
 
-The statement is: for $`k < 0`$, every level-one modular form of weight $`k`$ is
+The statement is: for $`k \lt 0`$, every level-one modular form of weight $`k`$ is
 zero. Mathlib proves the slightly stronger $`k \le 0`$ version "a modular form of
-weight $`\le 0`$ is constant", and then discards the constant when $`k < 0`$.
+weight $`\le 0`$ is constant", and then discards the constant when $`k \lt 0`$.
 
-**The one analytic input.** Write $`q = e^{2\pi i z}`$ and define
+**The one analytic input.** Write $`q = e^{2\pi i \tau}`$ and define
 
-$$G(q) \\;=\\; f(z) \qquad (q = e^{2\pi i z}).$$
+$$G(q) \\;=\\; f(\tau) \qquad (q = e^{2\pi i \tau}).$$
 
 Because a level-one modular form is periodic with period $`1`$, this is a
 well-defined function of $`q`$ on the punctured unit disc, holomorphic there; and
@@ -349,46 +358,46 @@ function on the unit disc $`D(0,1)`$. Mathlib calls it `cuspFunction 1 f`
 ([QExpansion.lean, lines 77–100](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/QExpansion.lean#L77-L100));
 $`q`$ is exactly the local parameter at the cusp.
 
-**Step A: any $`z`$ can be moved to $`\mathrm{Im} \ge 1/2`$ with
-$`|cz + d| \le 1`$.** Let $`z \in \mathbb{H}`$.
+**Step A: any $`\tau`$ can be moved to $`\mathrm{Im} \ge 1/2`$ with
+$`|c\tau + d| \le 1`$.** Let $`\tau \in \mathbb{H}`$.
 
-- If $`\mathrm{Im}\,z \ge 1/2`$, take $`\gamma = 1`$.
+- If $`\mathrm{Im}\,\tau \ge 1/2`$, take $`\gamma = 1`$.
 - Otherwise, use the standard fundamental domain: there is
-  $`\gamma = \begin{pmatrix} a & b \\ c & d\end{pmatrix} \in \mathrm{SL}_2(\mathbb{Z})`$
-  with $`\mathrm{Im}(\gamma z) \ge 1/2`$ (mathlib's `exists_one_half_le_im_smul`,
+  $`\gamma = [[a,b],[c,d]] \in \mathrm{SL}_2(\mathbb{Z})`$
+  with $`\mathrm{Im}(\gamma \tau) \ge 1/2`$ (mathlib's `exists_one_half_le_im_smul`,
   from the fact that a fundamental-domain point has
   $`4\,(\mathrm{Im})^2 \ge 3`$,
   [Modular.lean, lines 400–426](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/Modular.lean#L400-L426)).
-  Since $`\mathrm{Im}\,z < 1/2 \le \mathrm{Im}(\gamma z)`$, and Möbius
+  Since $`\mathrm{Im}\,\tau \lt 1/2 \le \mathrm{Im}(\gamma \tau)`$, and Möbius
   transformations satisfy the identity
-  $$\mathrm{Im}(\gamma z) = \frac{\mathrm{Im}\\,z}{|cz+d|^2},$$
-  we get $`\mathrm{Im}\,z \le \mathrm{Im}(\gamma z)`$, i.e.
-  $`1 \le 1/|cz+d|^2`$, i.e. $`|cz+d| \le 1`$.
+  $$\mathrm{Im}(\gamma \tau) = \frac{\mathrm{Im}\\,\tau}{|c\tau+d|^2},$$
+  we get $`\mathrm{Im}\,\tau \le \mathrm{Im}(\gamma \tau)`$, i.e.
+  $`1 \le 1/|c\tau+d|^2`$, i.e. $`|c\tau+d| \le 1`$.
 
 Both the identity and this package of statements are mathlib's
 `exists_one_half_le_im_smul_and_norm_denom_le`
 ([Modular.lean, lines 993–1003](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/Modular.lean#L993-L1003)).
 
-**Step B: the value at $`z`$ is dominated by the value at $`\gamma z`$.** Since
+**Step B: the value at $`\tau`$ is dominated by the value at $`\gamma \tau`$.** Since
 $`f`$ is $`\gamma`$-invariant and the slash factor for $`\gamma`$ is
-$`(cz+d)^{-k}`$, we have $`f(\gamma z) = (cz+d)^k f(z)`$, i.e.
+$`(c\tau+d)^{-k}`$, we have $`f(\gamma \tau) = (c\tau+d)^k f(\tau)`$, i.e.
 
-$$|f(z)| \\;=\\; |cz+d|^{-k}\\,|f(\gamma z)| .$$
+$$|f(\tau)| \\;=\\; |c\tau+d|^{-k}\\,|f(\gamma \tau)| .$$
 
 Here is where the sign of the weight enters. For $`k \le 0`$, the exponent
-$`-k \ge 0`$, and $`0 < |cz+d| \le 1`$ implies $`|cz+d|^{-k} \le 1`$. Hence
+$`-k \ge 0`$, and $`0 \lt |c\tau+d| \le 1`$ implies $`|c\tau+d|^{-k} \le 1`$. Hence
 
-$$|f(z)| \\;\le\\; |f(\gamma z)| .$$
+$$|f(\tau)| \\;\le\\; |f(\gamma \tau)| .$$
 
-**Step C: the dominant point lies in a small disc.** Put $`\xi = \gamma z`$. The
+**Step C: the dominant point lies in a small disc.** Put $`\xi = \gamma \tau`$. The
 $`q`$-coordinate of $`\xi`$ is $`e^{2\pi i \xi}`$, whose modulus is
 $`e^{-2\pi\,\mathrm{Im}\,\xi}`$, and $`\mathrm{Im}\,\xi \ge 1/2`$ gives
 
-$$|e^{2\pi i \xi}| \\;\le\\; e^{-\pi} \\;<\\; 1 .$$
+$$|e^{2\pi i \xi}| \\;\le\\; e^{-\pi} \\;\lt\\; 1 .$$
 
 Combining with Step B,
 
-$$|G(e^{2\pi i z})| = |f(z)| \\;\le\\; |f(\xi)| = |G(e^{2\pi i \xi})|,
+$$|G(e^{2\pi i \tau})| = |f(\tau)| \\;\le\\; |f(\xi)| = |G(e^{2\pi i \xi})|,
 \qquad |e^{2\pi i \xi}| \le e^{-\pi}.$$
 
 So: for every $`q \in D(0,1)`$ there is $`w`$ in the *closed* disc of radius
@@ -413,8 +422,8 @@ lemma eq_const_of_exists_le [ProperSpace E] {f : E → F} {r b : ℝ}
     Set.EqOn f (Function.const E (f 0)) (ball 0 b)
 ```
 
-So $`f`$ is constant on $`\mathbb{H}`$: every $`z`$ has
-$`e^{2\pi i z} \in D(0,1)`$, and $`f(z) = G(e^{2\pi i z})`$ is the constant
+So $`f`$ is constant on $`\mathbb{H}`$: every $`\tau`$ has
+$`e^{2\pi i \tau} \in D(0,1)`$, and $`f(\tau) = G(e^{2\pi i \tau})`$ is the constant
 $`G(0)`$. This is the
 "weight $`\le 0`$ implies constant" half, mathlib's
 `levelOne_nonpos_wt_const`
@@ -424,11 +433,11 @@ whose analytic core is `cuspFunction_eqOn_const_of_nonpos_wt`
 
 **Step E: a negative-weight constant is zero.** Suppose $`f`$ is the constant
 function $`c`$. Apply invariance under the matrix
-$`S = \begin{pmatrix} 0 & -1 \\ 1 & 0\end{pmatrix} \in \mathrm{SL}_2(\mathbb{Z})`$.
+$`S = [[0,-1],[1,0]] \in \mathrm{SL}_2(\mathbb{Z})`$.
 For $`S`$ the denominator is
-$`cz + d = z`$, so invariance reads $`f(Sz) = z^k f(z)`$, and since $`f`$ is
-constant this says $`c = z^k c`$ for every $`z`$. Evaluating at $`z = i`$ and
-$`z = 2i`$ (both in $`\mathbb{H}`$), and using $`(2i)^k = 2^k i^k`$, gives
+$`c\tau + d = \tau`$, so invariance reads $`f(S\tau) = \tau^k f(\tau)`$, and since $`f`$ is
+constant this says $`c = \tau^k c`$ for every $`\tau`$. Evaluating at $`\tau = i`$ and
+$`\tau = 2i`$ (both in $`\mathbb{H}`$), and using $`(2i)^k = 2^k i^k`$, gives
 
 $$c = i^k c, \qquad c = 2^k i^k c = 2^k c .$$
 
@@ -458,7 +467,7 @@ $`f`$ exists, which is $`S_2(\Gamma_0(2)) = 0`$.
 | norm kills only zero | $`\mathrm{Norm}(f) = 0 \iff f = 0`$ | `ModularForm.norm_eq_zero_iff` | [NormTrace 130–137](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/NormTrace.lean#L130-L137) |
 | weight arithmetic | $`2 \cdot 3 = 6`$ | `hweight` | [S 197–199](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularForm_S2_Gamma0_2_eq_zero.lean#L197-L199) |
 | $`\Delta`$ shift | $`S_k \cong M_{k-12}`$ | `CuspForm.discriminantEquiv` | [DimensionFormula 63–88](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/LevelOne/DimensionFormula.lean#L63-L88) |
-| no small-weight cusp forms | $`S_k(\mathrm{SL}_2\mathbb{Z}) = 0`$ for $`k < 12`$ | `CuspForm.rank_eq_zero_of_weight_lt_twelve` | [DimensionFormula 153–155](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/LevelOne/DimensionFormula.lean#L153-L155) |
+| no small-weight cusp forms | $`S_k(\mathrm{SL}_2\mathbb{Z}) = 0`$ for $`k \lt 12`$ | `CuspForm.rank_eq_zero_of_weight_lt_twelve` | [DimensionFormula 153–155](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/LevelOne/DimensionFormula.lean#L153-L155) |
 | max modulus core | constant when dominated by a smaller disc | `eq_const_of_exists_le` | [AbsMax 337–348](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/Analysis/Complex/AbsMax.lean#L337-L348) |
 | negative weight is zero | constant $`\Rightarrow`$ zero | `levelOne_neg_weight_eq_zero` | [LevelOne/Basic 97–101](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/LevelOne/Basic.lean#L97-L101) |
 | weight 6 level one | $`S_6(\mathrm{SL}_2\mathbb{Z}) = 0`$ | `S6_levelOne_eq_zero` | [S 86–89](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularForm_S2_Gamma0_2_eq_zero.lean#L86-L89) |
@@ -495,7 +504,7 @@ FLT sources at the pinned sha `aa2d8b3`:
 - [P2M/Sol/S_ModularForm_S2_Gamma0_2_eq_zero.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularForm_S2_Gamma0_2_eq_zero.lean) — the whole proof
 - [Theorems/Thm_ModularForm_S2_Gamma0_2_eq_zero.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularForm_S2_Gamma0_2_eq_zero.lean) — the exported statement
 - [Theorems/Thm_ModularForm_S2_Gamma0_one_eq_zero.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularForm_S2_Gamma0_one_eq_zero.lean) — the level-one analogue
-- [P2M/Sol/S_ModularForm_S2_Gamma0_one_eq_zero.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularForm_S2_Gamma0_one_eq_zero.lean) — level one, directly from $`2 < 12`$
+- [P2M/Sol/S_ModularForm_S2_Gamma0_one_eq_zero.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularForm_S2_Gamma0_one_eq_zero.lean) — level one, directly from $`2 \lt 12`$
 
 Mathlib at tag `v4.33.0`:
 

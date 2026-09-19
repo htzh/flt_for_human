@@ -29,12 +29,12 @@ $`\mathbb{Z}/p`$-submodule which is Galois-stable (`IsGaloisStable`), nonzero
 
 In the matrix picture of note 004 §4 (basis of
 $`E_P[p] \cong \mathbb{F}_p^2`$ with first vector spanning $`N`$):
-$`\bar\rho(\sigma) = \begin{pmatrix} \lambda(\sigma) & b(\sigma) \\ 0 & \nu(\sigma) \end{pmatrix}`$,
+$`\bar\rho(\sigma) = [[\lambda(\sigma),b(\sigma)],[0,\nu(\sigma)]]`$,
 and the dichotomy says the diagonal characters are not just anything —
 either $`\lambda = 1`$ globally, or $`\nu = 1`$ globally. There is no
 representation-theoretic reason for this to hold for a general elliptic
 curve (a general mod-$`p`$ representation can be
-$`\begin{pmatrix} \chi_1 & * \\ 0 & \chi_2 \end{pmatrix}`$ with both $`\chi_i`$
+$`[[\chi_1,*],[0,\chi_2]]`$ with both $`\chi_i`$
 nontrivial); it is forced by the Frey curve's arithmetic, §§3–4.
 
 The proof is one screenful and is quoted in full
@@ -118,7 +118,7 @@ cardinality, $`\mathrm{finrank}\,N = 1`$):
   (stability) *and* in $`M`$ (absorbing), hence is zero — fixed.
 
 Matrix picture: in a basis adapted to the flag $`M \subset V`$, every
-$`g \in S`$ is $`\begin{pmatrix} * & * \\ 0 & 1 \end{pmatrix}`$. A second stable
+$`g \in S`$ is $`[[*,*],[0,1]]`$. A second stable
 line $`N`$ is either the first column's span (cofixed case) or is spanned by
 an eigenvector transverse to $`M`$, whose eigenvalue must be $`1`$ (fixed case).
 So **the whole content of the local dichotomy is the existence of one
@@ -229,7 +229,7 @@ of the two graded pieces is trivial on $`N`$ is exactly the dichotomy.
 ### 3.3. The prime $`2`$: wild inertia dies, tame inertia is unipotent
 
 At $`2`$ the Frey curve is bad of multiplicative type
-($`v_2(\Delta) = 2p\,v_2(abc) - 8 > 0`$ since $`4 \mid b`$), and
+($`v_2(\Delta) = 2p\,v_2(abc) - 8 \gt 0`$ since $`4 \mid b`$), and
 `frey_inertia_at_two_trivial_on_stable_submodule`
 ([Thm, line 11](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_FreyPackage_frey_inertia_at_two_trivial_on_stable_submodule.lean#L11))
 proves that inertia at $`2`$ is trivial on $`N`$ *and* on $`M/N`$ for the given
@@ -270,7 +270,7 @@ $`T|_N = \mathrm{id}`$. The same argument on the 1-dimensional quotient $`M/N`$
 gives triviality there. In other words: the tame relation forces both
 eigenvalues of $`\tau`$ to satisfy $`\lambda = \lambda^2`$, so inertia at $`2`$
 lands in
-$`\begin{pmatrix} 1 & * \\ 0 & 1 \end{pmatrix}`$ — trivial on $`N`$ *and* on
+$`[[1,*],[0,1]]`$ — trivial on $`N`$ *and* on
 $`M/N`$ simultaneously, which is why the $`q = 2`$ case feeds both branches of
 the global assembly (the `.1` / `.2` projections in §1).
 
@@ -346,9 +346,9 @@ $`\tau \in I_q`$ in matrix form (basis adapted to $`N`$):
 
 | Prime | Input | Action of $`I_q`$ on $`N \subset E_P[p]`$ | Why |
 |---|---|---|---|
-| $`q \neq 2, p`$, $`q \nmid abc`$ | good reduction | $`\begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix}`$ | Néron–Ogg–Shafarevich |
-| $`q \neq 2, p`$, $`q \mid abc`$ | multiplicative, $`p \mid v_q(\Delta)`$ | $`\begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix}`$ | Tate curve unramified criterion |
-| $`q = 2`$ | multiplicative type; wild is pro-$`2`$ | $`\begin{pmatrix} 1 & * \\ 0 & 1 \end{pmatrix}`$ | tame relation $`\varphi\tau\varphi^{-1} \equiv \tau^2`$ $`\Rightarrow`$ $`\lambda = \lambda^2`$ on both graded pieces |
+| $`q \neq 2, p`$, $`q \nmid abc`$ | good reduction | $`[[1,0],[0,1]]`$ | Néron–Ogg–Shafarevich |
+| $`q \neq 2, p`$, $`q \mid abc`$ | multiplicative, $`p \mid v_q(\Delta)`$ | $`[[1,0],[0,1]]`$ | Tate curve unramified criterion |
+| $`q = 2`$ | multiplicative type; wild is pro-$`2`$ | $`[[1,*],[0,1]]`$ | tame relation $`\varphi\tau\varphi^{-1} \equiv \tau^2`$ $`\Rightarrow`$ $`\lambda = \lambda^2`$ on both graded pieces |
 | $`q = p`$, $`p \nmid abc`$ | good reduction | unipotent w.r.t. the reduction kernel $`M`$ | inertia trivial on the special fiber |
 | $`q = p`$, $`p \mid abc`$ | multiplicative | unipotent w.r.t. the zero component $`M \cong \mu_p`$ | Tate filtration |
 
@@ -363,10 +363,10 @@ acts on $`N`$ as scalars with trivial quotient (cofixed) or as the identity
 
 For the human reader this is Serre's observation from note 004 §2 in its
 proven form: the representation is
-$`\begin{pmatrix} \chi & * \\ 0 & 1 \end{pmatrix}`$ or
-$`\begin{pmatrix} 1 & * \\ 0 & \chi \end{pmatrix}`$, and the conductor-2 /
+$`[[\chi,*],[0,1]]`$ or
+$`[[1,*],[0,\chi]]`$, and the conductor-2 /
 semistable analysis is what excludes the mixed case
-$`\begin{pmatrix} \chi_1 & * \\ 0 & \chi_2 \end{pmatrix}`$ with both
+$`[[\chi_1,*],[0,\chi_2]]`$ with both
 characters nontrivial.
 
 ## 5. Key-point → code map
@@ -442,4 +442,4 @@ Background:
   at $`p`$ acts through the fundamental characters of level 1).
 - H. Darmon, F. Diamond, R. Taylor, *Fermat's Last Theorem*, Current
   Developments in Mathematics 1995, §2 — the semistable Frey curve and the
-  shape of $`\bar\rho`$ restricted to inertia ($`\begin{pmatrix} \chi & * \\ 0 & 1 \end{pmatrix}`$-type statements).
+  shape of $`\bar\rho`$ restricted to inertia ($`[[\chi,*],[0,1]]`$-type statements).

@@ -242,7 +242,7 @@ level-lowering machine.
 For a human reader, the matrix picture of a cofixed line is: choose a basis
 of $`E[p] \cong \mathbb{F}_p^2`$ whose first vector spans $N$; then "cofixed"
 says
-$`\bar\rho(\sigma) = \begin{pmatrix} \chi(\sigma) & b(\sigma) \\ 0 & 1 \end{pmatrix}`$,
+$`\bar\rho(\sigma) = [[\chi(\sigma),b(\sigma)],[0,1]]`$,
 i.e. the quotient character is trivial, and on $N$ the action is
 $\chi(\sigma) = \det \bar\rho(\sigma) = \chi_p(\sigma)$, the cyclotomic
 character. The formalization never chooses this basis: "stable line with

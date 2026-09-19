@@ -92,8 +92,9 @@ against both engines locally; single observations are flagged as such.
   \end{pmatrix}` raises no MathJax error at all, and KaTeX's visible text for it
   is `(aamp;bcamp;d)`. A bare `x &amp; y` outside an alignment does error
   (`Misplaced &`).
-- A lint over `base/` and `math/` (§2.2) currently finds **78 math spans
-  containing a raw `<`, `>` or `&`**, mostly inline `pmatrix`. Triage matters:
+- A lint over `base/` and `math/` (§2.2) found **78 math spans containing a raw
+  `<`, `>` or `&`**, mostly inline `pmatrix`; after the sweep they are 0, and
+  `tools/check_math_escaping.py` keeps them there. Triage matters:
   the inline hits are live defects — a red box for `<`/`>` outside an alignment
   environment, silent junk for `&` inside one — while the top-level display hits
   render correctly today and are only the uniform rule's outstanding debt.
@@ -245,6 +246,14 @@ PY
 
 and the delimiter checker (`python3 tools/check_math_delimiters.py <file>`,
 which skips fenced code blocks and so can be run on this note).
+
+The escaping side of the rules above is checked by
+`python3 tools/check_math_escaping.py` (over `math/`, `base/`, `studies/` and
+`notes/` by default; `--diff` prints the proposed changes and `--fix` applies
+them). It flags a bare `<`/`>` or `&` in the backtick-inline form, an inline
+`\begin{pmatrix}…&…\\…\end{pmatrix}` (rewritten as `[[a,b],[c,d]]`), and a
+display-matrix row separator written `\\` instead of `\\\\`. This note is in
+its `EXEMPT` set, since it quotes the offending forms deliberately.
 
 ### 2.3 Wrong turns taken here (don't repeat)
 

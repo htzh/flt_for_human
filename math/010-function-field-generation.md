@@ -144,7 +144,7 @@ Why does one induction carry both? Because each half at level $`d`$ needs the *o
 half only at proper divisors of $`d`$:
 
 - **Gen $`d`$** is proved by walking down the divisor lattice of $`d`$ one prime at a
-  time; each step needs $`\mathrm{Gen}(M)`$ for $`M < d`$, and the descent argument
+  time; each step needs $`\mathrm{Gen}(M)`$ for $`M \lt d`$, and the descent argument
   itself needs the *degree* facts at those smaller $`M`$ (§4).
 - **Tight $`d`$** is proved by the tower law along a chain of prime-power levels; each
   step needs $`\mathrm{Tight}`$ at a smaller level and both halves below it (§6).
@@ -204,7 +204,7 @@ This is `ModularCurve.minpoly_jqN_map_eq_prod_slots`
 ([Thm file, line 8](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_minpoly_jqN_map_eq_prod_slots.lean#L8)); the proof is by
 induction on $`M`$ from the prime case. Two remarks on the index set.
 
-- The pairs $`(a,b)`$ with $`a \mid M`$, $`0 \le b < M/a`$,
+- The pairs $`(a,b)`$ with $`a \mid M`$, $`0 \le b \lt M/a`$,
   $`\gcd(\gcd(a,b), M/a) = 1`$ number exactly $`\psi(M)`$, and they are the
   standard index set for the $`\psi(M)`$ roots of the modular equation,
   equivalently for the right cosets of $`\Gamma_0(M)`$ in
@@ -213,7 +213,7 @@ induction on $`M`$ from the prime case. Two remarks on the index set.
   two pieces of coset data.
 - The root attached to $`(a,b)`$ is $`j(\zeta_M^{ab} q^{a^2})`$; the exponent $`a^2`$
   is the denominator-square familiar from $`q`$-expansions at the cusps. For $`M=p`$
-  this reads: $`j(\zeta_p^b q)`$ for $`b < p`$ (the $`a=1`$ slots) and $`j(q^{p^2})`$
+  this reads: $`j(\zeta_p^b q)`$ for $`b \lt p`$ (the $`a=1`$ slots) and $`j(q^{p^2})`$
   (the $`a=p`$ slot), matching the prime splitting after one more substitution
   $`q \mapsto q^p`$ — which is exactly the way the proof of §4 uses it.
 
@@ -257,7 +257,7 @@ root in $`L`$, then $`x \in F`$. This is
 `Polynomial.mem_range_of_unique_common_root`
 ([Thm file, line 5](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_Polynomial_mem_range_of_unique_common_root.lean#L5)): intuitively, the
 minimal polynomial of $`x`$ over $`F`$ divides both $`A`$ and $`B`$, so it has $`x`$ as
-a root; if $`x`$ were not in $`F`$ that minimal polynomial would have degree $`>1`$ and
+a root; if $`x`$ were not in $`F`$ that minimal polynomial would have degree $`\gt1`$ and
 some other common root.
 
 Apply this with
@@ -280,18 +280,18 @@ description of §3 is used, and it is a short counting argument. Over $`K = \mat
   $`e = M^2 p`$,
   $$j\bigl(q^{M^2 p^3}\bigr) \quad\text{and}\quad j\bigl(\zeta_p^{\\,b} q^{M^2 p}\bigr), \qquad b = 0,\dots,p-1 ;$$
 - the roots of $`B`$ are, by the slot description,
-  $$j\bigl(\zeta_M^{\\,a b'} q^{\\,p\\,a^2}\bigr), \qquad a \mid M,\\ \\ b' < M/a,\\ \\ \gcd\bigl(\gcd(a,b'), M/a\bigr) = 1 .$$
+  $$j\bigl(\zeta_M^{\\,a b'} q^{\\,p\\,a^2}\bigr), \qquad a \mid M,\\ \\ b' \lt M/a,\\ \\ \gcd\bigl(\gcd(a,b'), M/a\bigr) = 1 .$$
 
 A common root therefore either is the "extra" root $`j(q^{M^2p^3})`$ or matches a
 $`p`$-family root against a slot. Comparing the two displayed families:
 
 - The extra root $`j(q^{M^2p^3})`$ is *not* a root of $`B`$: equality would force the
-  nome exponents to agree, $`p\,a^2 = M^2p^3`$, i.e. $`a = Mp > M`$, contradicting
+  nome exponents to agree, $`p\,a^2 = M^2p^3`$, i.e. $`a = Mp \gt M`$, contradicting
   $`a \mid M`$. This is the hypothesis called `hsp` in the Lean
   ([S file, lines 590–609](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_functionFieldGeneration.lean#L590-L609)).
 - A $`p`$-family root has the form $`j(w\,q^{M^2p})`$ with $`w = \zeta_p^{\,b}`$.
   Matching it with the slot $`j(\zeta_M^{ab'}q^{pa^2})`$ forces
-  $`pa^2 = M^2p`$, hence $`a = M`$; then the slot condition $`b' < M/a = 1`$ forces
+  $`pa^2 = M^2p`$, hence $`a = M`$; then the slot condition $`b' \lt M/a = 1`$ forces
   $`b' = 0`$, and the unit $`w`$ is $`1`$. Thus every common root in this family is
   $`j(q^{M^2p}) = x_0`$. The Lean packages "any common root of the shape
   $`j(w\,q^{M^2p})`$ has $`w = 1`$" as the hypothesis `htw`
@@ -337,7 +337,7 @@ $$F^{\mathrm{full}}_{M p^{a+1}} \\;=\\; \mathbb{Q}\Bigl(F^{\mathrm{full}}_{M p^{
 immediate (both generators have divisor dividing $`Mp^{a+1}`$). For $`\subseteq`$, take
 $`j(q^d)`$ with $`d \mid Mp^{a+1}`$; if $`d \mid Mp^a`$ it is already a generator of the
 lower field. Otherwise $`d = m\,p^{a+1}`$ with $`m \mid M`$ and $`p \nmid m`$; if
-$`m = 1`$ then $`j(q^d)`$ is the new generator itself, and if $`m > 1`$ pick a prime
+$`m = 1`$ then $`j(q^d)`$ is the new generator itself, and if $`m \gt 1`$ pick a prime
 $`q \mid m`$, $`q \ne p`$. Then
 
 $$d/p = m\\,p^{a} \\ \text{ lies below the level } Mp^a, \qquad d/q \\ \text{ is a proper divisor of } d,$$
@@ -348,7 +348,7 @@ on $`d`$; the two-prime lemma gives $`j(q^{d})`$ in the target. This is
 ([S file, lines 533–592](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_full_eq_adjoin_full_div_prime.lean#L533-L592)).
 
 **Collapse at a general level.** Now let $`d \mid N`$, $`d \ne N`$. Write
-$`m = N/d > 1`$, let $`p`$ be a prime factor of $`m`$ and $`m = p\,m'`$, so
+$`m = N/d \gt 1`$, let $`p`$ be a prime factor of $`m`$ and $`m = p\,m'`$, so
 $`N = (d m')\,p`$. By §4 (descent), $`j(q^{dm'}) \in F_N`$, and by induction
 $`\mathrm{Gen}(dm')`$, the field $`F_{dm'}`$ is the full field at level $`dm'`$, which
 is contained in $`F_N`$ because every $`j(q^{d'})`$ with $`d' \mid dm'`$ is a
@@ -381,9 +381,9 @@ These are `jqN_prime_not_mem_full`
 description of §3, this time for a degree count. For the first: if $`j(q^p)`$ lay
 in $`F^{\mathrm{full}}_M`$, then by $`\mathrm{Gen}(M)`$ it would lie in
 $`\mathbb{Q}(j(q))(j(q^M))`$, say $`j(q^p) = g(j(q^M))`$ with
-$`\deg g < \psi(M)`$; evaluating $`g`$ at the $`\psi(M)`$ distinct slots of the
+$`\deg g \lt \psi(M)`$; evaluating $`g`$ at the $`\psi(M)`$ distinct slots of the
 minimal polynomial of $`j(q^M)`$ shows it takes the same value at all of them, and a
-polynomial of degree $`< \psi(M)`$ that is constant on $`\psi(M)`$ points has its
+polynomial of degree $`\lt \psi(M)`$ that is constant on $`\psi(M)`$ points has its
 constant value in $`\mathbb{Q}(j(q))`$ — so $`j(q^p) \in \mathbb{Q}(j(q))`$,
 contradicting the prime-level degree
 $`[\mathbb{Q}(j(q))(j(q^p)) : \mathbb{Q}(j(q))] = p+1`$ (which, like $`\mathrm{Gen}(p)`$,
@@ -406,7 +406,7 @@ $`j(q)`$:
   of $`\Phi_p`$. The minimal polynomial of $`j(q^p)`$ over $`E`$ divides
   $`\Phi_p(j(q), Y)`$; after the coefficient substitution $`q \mapsto q^p`$ and base
   change to a field containing $`\zeta_p`$ it becomes $`\Phi_p(j(q^p), Y)`$, with the
-  $`p+1`$ roots $`j(q^{p^2})`$ and $`j(\zeta_p^b q)`$, $`b < p`$. Multiplication of
+  $`p+1`$ roots $`j(q^{p^2})`$ and $`j(\zeta_p^b q)`$, $`b \lt p`$. Multiplication of
   the nome by $`\zeta_p`$ (the `qTwist` substitution, an $`E`$-algebra automorphism of
   the coefficient extension) cycles the $`p`$ roots $`j(\zeta_p^b q)`$ and fixes
   $`j(q^{p^2})`$; and $`j(q^{p^2}) \notin E`$ because $`j(q^{p^2}) \in E`$ would force

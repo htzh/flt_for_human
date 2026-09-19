@@ -419,8 +419,8 @@ ingredients:
 
 3. **There are no weight-6 cusp forms at level 1.** Mathlib's
    [`CuspForm.rank_eq_zero_of_weight_lt_twelve`](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/LevelOne/DimensionFormula.lean#L153-L155)
-   says $`S_k(\Gamma(1)) = 0`$ for $`k < 12`$ (the first cusp form is
-   $`\Delta`$ in weight 12), and $`6 < 12`$. In Lean this is
+   says $`S_k(\Gamma(1)) = 0`$ for $`k \lt 12`$ (the first cusp form is
+   $`\Delta`$ in weight 12), and $`6 \lt 12`$. In Lean this is
    `S6_levelOne_eq_zero`. The proof of that mathlib theorem — division by
    $`\Delta`$, and why negative-weight modular forms vanish — is unwound in
    [base/003 §4](../base/003-no-level-2-weight-2-cusp-forms.md).
@@ -441,7 +441,7 @@ theorem S2_Gamma0_2_eq_zero' (f : CuspForm (CongruenceSubgroup.Gamma0 2) 2) : f 
   exact DFunLike.coe_injective (hf0.trans CuspForm.coe_zero.symm)
 ```
 
-Level 1 is the same argument with $`k = 2 < 12`$ directly
+Level 1 is the same argument with $`k = 2 \lt 12`$ directly
 ([`ModularForm.S2_Gamma0_one_eq_zero`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularForm_S2_Gamma0_one_eq_zero.lean#L13)),
 and the two are combined in
 `ModularForm.S2_Gamma0_eq_zero_of_dvd_two`. This closes the Frey argument: the
@@ -474,7 +474,7 @@ level-lowered representation cannot exist, so there is no Frey package
 | level lowering to two | `FreyPackage.level_lowering_to_two` | [Thm 131](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_FreyPackage_level_lowering_to_two.lean#L131) |
 | index 3 | `Gamma0_two_index_eq_three` | [S 170–174](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularForm_S2_Gamma0_2_eq_zero.lean#L170-L174) |
 | norm kills nothing | `ModularForm.norm_eq_zero_iff` | [mathlib NormTrace 130–131](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/NormTrace.lean#L130-L131) |
-| weight $`< 12`$ vanishes | `CuspForm.rank_eq_zero_of_weight_lt_twelve` | [mathlib DimensionFormula 153–155](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/LevelOne/DimensionFormula.lean#L153-L155) |
+| weight $`\lt 12`$ vanishes | `CuspForm.rank_eq_zero_of_weight_lt_twelve` | [mathlib DimensionFormula 153–155](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/LevelOne/DimensionFormula.lean#L153-L155) |
 | $`\dim S_2(\Gamma_0(2)) = 0`$ | `ModularForm.S2_Gamma0_2_eq_zero` | [Thm 13](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularForm_S2_Gamma0_2_eq_zero.lean#L13) |
 | no Frey package | `FreyPackage.no_frey_package` | [Thm 129](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_FreyPackage_no_frey_package.lean#L129) |
 
