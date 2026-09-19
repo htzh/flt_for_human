@@ -398,7 +398,7 @@ $$\bigl[\\,F^{\mathrm{full}}_{a+1} : F^{\mathrm{full}}_a\\,\bigr] \\;=\\; \begin
 This is `relfinrank_full_eq_mul`
 ([S file, lines 49–72](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_relfinrank_full_eq_mul.lean#L49-L72)). It rests on two
 degree statements about adjoining a $`p`$-power of $`j`$ to a field containing
-$`j(q)`:
+$`j(q)`$:
 
 - **(first prime power, degree $`p+1`$)** if $`j(q) \in E`$ and $`j(q^p) \notin E`$, then
   $`[E(j(q^p)) : E] = p+1`$

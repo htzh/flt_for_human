@@ -107,7 +107,7 @@ The congruence subgroups are defined in one file
 | `CongruenceSubgroup.Gamma1 N` | $`\Gamma_1(N)`$: lower-left $`\equiv 0`$, diagonal $`\equiv 1`$ | [line 131](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/CongruenceSubgroups.lean#L131) |
 | `CongruenceSubgroup.Gamma0Map N : Gamma0 N →* ZMod N` | the map $`\begin{pmatrix} a & b \\ 0 & d \end{pmatrix} \mapsto d`$ | [line 95](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/CongruenceSubgroups.lean#L95) |
 
-**Mathlib does not know $`[\mathrm{SL}_2(\mathbb{Z}) : \Gamma_0(N)]` for any
+**Mathlib does not know $`[\mathrm{SL}_2(\mathbb{Z}) : \Gamma_0(N)]`$ for any
 $`N`$.** It has the general finite-index machinery (`Subgroup.index`,
 `IsFiniteRelIndex`, the `finiteIndex_of_le` lemmas around lines 293–319 of the
 same file) but no evaluation for $`\Gamma_0(N)`$. FLT supplies the one case it
