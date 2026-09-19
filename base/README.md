@@ -67,6 +67,19 @@ notation, spending their space on the subject at hand.
   coset/slot parametrization `j(ζ_M^{ab} q^{a²})`, the cover `X_0(p) → X(1)` with
   its monodromy and what proves algebraicity, a `p = 3` example carried through in
   full, the Lean route quoted as a route map, and a hand computation of `Φ₂`.
+- [007 — The Weil pairing](007-weil-pairing.md):
+  the pairing and its six laws, matched to the fields of FLT's `IsWeilPairing`;
+  why nondegeneracy on a basis is primitivity of `e_n(P,Q)`; the two-line
+  derivation that `det ρ_{E,n} = χ_n` and hence that the representation is odd;
+  the divisorial definition `e_n(P,Q) = (-1)^n f_P(Q)/f_Q(P)` and Miller's
+  algorithm, which is `WeilDatum.pairing` in the formalization; the
+  characteristic-zero cases — the explicit formula
+  `e_n(u/n, v/n) = ζ_n^{ad-bc}` on `ℂ/Λ` with the `ℤ[i]`, `n = 3` example,
+  Galois equivariance over a number field, and the Tate module and its
+  cyclotomic multiplier; the finite-field/Frobenius shadow; the four worked
+  examples from `../pymath/weil_pairing.py`; and how the FLT proof uses it (the
+  Frey determinant and `IsOdd`, `frey_reducible_hasCofixedLine`, the cyclotomic
+  multiplier on the Tate module of `J₀(N)`, and rank `2g`).
 
 ## Candidate topics (not yet written, no order implied)
 

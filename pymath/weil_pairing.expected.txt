@@ -1,0 +1,129 @@
+Weil pairing  e_n : E[n] x E[n] -> mu_n
+
+  This demo computes the Weil pairing on three small curves and checks the
+  laws that make it useful. The first two are over prime fields and show the
+  pairing itself; the third shows how Frobenius acts on a pairing value and
+  why its determinant is the cyclotomic character; the last recovers the
+  pairing from Miller's function, which is the definition the FLT
+  formalization uses.
+
+== 1. A perfect alternating pairing: GF(7), n = 3 ==
+
+  Take E: y^2 = x^3 + 2 over GF(7). It has 9 points, and 3 is coprime to 7, so
+  the 3-torsion E[3] = {T : 3T = O} is a subgroup of order 9 = 3^2, hence is
+  isomorphic to (Z/3)^2. We pick a basis and pair it:
+    E: y^2 = x^3 + (0)*x + (2) over GF(7)
+    #E = 9,  n = 3,  #E[n] = 9
+    basis  P = (0, 3),  Q = (3, 1)
+    zeta = e_n(P,Q) = 4
+
+    ok   e_n(P,Q)^n = 1
+    ok   order(e_n(P,Q)) = n  (nondegenerate, primitive)
+    ok   e_n(P,P) = 1  (alternating)
+    ok   e_n(Q,Q) = 1  (alternating)
+    ok   e_n(Q,P) = e_n(P,Q)^-1
+    ok   bilinear: e_n(aP, bQ) = zeta^(ab) for all a,b
+    ok   alternating on all of E[n]
+    Gram matrix in the basis (P,Q): [[1, 4], [2, 1]]
+
+  The value zeta = 4 is the whole pairing on this basis: it has exact order 3
+  in GF(7)^*, so the pairing is nondegenerate, and bilinearity says every
+  other value is a power of it, e_n(aP, bQ) = zeta^(ab). Being alternating,
+  e_n(T,T) = 1, is the extra symmetry that makes the pairing symplectic. In
+  the basis (P,Q) the Gram matrix is [[1, zeta], [zeta^-1, 1]]: zero diagonal,
+  and zeta primitive.
+
+== 2. The same for another prime: GF(41), n = 5 ==
+
+  Nothing above is special to 3. Here E: y^2 = x^3 + 15x over GF(41) has 50
+  points, so E[5] = (Z/5)^2 again, and the pairing takes the basis to a
+  primitive fifth root of unity.
+    E: y^2 = x^3 + (15)*x + (0) over GF(41)
+    #E = 50,  n = 5,  #E[n] = 25
+    basis  P = (1, 4),  Q = (4, 1)
+    zeta = e_n(P,Q) = 18
+
+    ok   e_n(P,Q)^n = 1
+    ok   order(e_n(P,Q)) = n  (nondegenerate, primitive)
+    ok   e_n(P,P) = 1  (alternating)
+    ok   e_n(Q,Q) = 1  (alternating)
+    ok   e_n(Q,P) = e_n(P,Q)^-1
+    ok   bilinear: e_n(aP, bQ) = zeta^(ab) for all a,b
+    ok   alternating on all of E[n]
+    Gram matrix in the basis (P,Q): [[1, 18], [16, 1]]
+
+== 3. Galois equivariance, and det = the cyclotomic character ==
+
+  Let E: y^2 = x^3 + 1 over GF(5). It has 6 points, so a_5 = 5 + 1 - 6 = 0.
+  The 3-torsion of this curve is not rational over GF(5); it first appears
+  over GF(25) = GF(5)[t]/(t^2 + t + 1), where #E = 36 and E[3] is rational. So
+  we move to that field and pair a basis there:
+    base curve over GF(5): #E = 6,  a_5 = 0
+    E: y^2 = x^3 + (0)*x + (1) over GF(5^2) = GF(5)[t]/(t^2 + t + 1)
+    #E = 36,  n = 3,  #E[n] = 9
+    basis  P = (0, 1),  Q = (1, 2*t + 1)
+    zeta = e_n(P,Q) = 4*t + 4
+
+    ok   e_n(P,Q)^n = 1
+    ok   order(e_n(P,Q)) = n  (nondegenerate, primitive)
+    ok   e_n(P,P) = 1  (alternating)
+    ok   e_n(Q,Q) = 1  (alternating)
+    ok   e_n(Q,P) = e_n(P,Q)^-1
+    ok   bilinear: e_n(aP, bQ) = zeta^(ab) for all a,b
+    ok   alternating on all of E[n]
+    Gram matrix in the basis (P,Q): [[1, 4*t + 4], [t, 1]]
+
+  Let pi be the 5-power Frobenius, (x, y) -> (x^5, y^5). It permutes the
+  points of E[3], so in the basis (P,Q) it is a 2x2 matrix with entries in
+  Z/3:
+    pi(P) = (0, 1),  pi(Q) = (1, 3*t + 4)
+    matrix of pi = [[1, 0], [0, 2]]  in Z/3;  trace = 0,  det = 2
+
+    ok   pi(P), pi(Q) lie in E[n]
+
+  Galois equivariance says e_n(pi P, pi Q) = e_n(P,Q)^p: Frobenius raises a
+  pairing value to the p-th power. Equivalently the determinant of the matrix
+  is p mod n. That determinant is exactly the cyclotomic character chi_p, so
+  the pairing forces the Galois action on E[n] to be symplectic with
+  determinant chi_p.
+    e_n(pi P, pi Q) = t,   e_n(P,Q)^p = t
+    ok   Galois equivariance  e_n(pi P, pi Q) = e_n(P,Q)^p
+    ok   det(pi) = 2 equals p mod n = 2  (cyclotomic character)
+    ok   trace(pi) = 0 equals a_5 mod n = 0
+    ok   pi^2 fixes E[n] (E[n] is rational over GF(25))
+
+  The trace is a_5 mod n, matching the characteristic polynomial T^2 - a_5 T +
+  5 = T^2 + 5 of Frobenius, whose constant term is the determinant. Because
+  E[3] is rational over GF(25), pi^2 = pi_25 acts as the identity on E[3]; its
+  characteristic polynomial is T^2 + 10 T + 25 (a_25 = -10).
+
+  Over Q the same statement reads det rho_{E,l} = chi_l for the mod-l Galois
+  representation rho_{E,l}. Complex conjugation then has determinant -1, so
+  rho_{E,l} is odd -- one of the hypotheses in Serre's conjecture, and an
+  input to the modularity lifting and level lowering steps of the FLT proof.
+
+== 4. The divisorial definition (Miller's function) ==
+
+  Abstractly the pairing is defined by functions, not by an algorithm. The
+  divisor n[P] - n[O] is principal, so there is a function f_P with that
+  divisor, and one sets
+
+  e_n(P, Q) = (-1)^n f_P(Q) / f_Q(P).
+
+  Miller's algorithm evaluates f_P(Q) without ever writing f_P down. On the
+  GF(7) curve from section 1, with n = 3:
+    y^2 = x^3 + (0)*x + (2) over GF(7)
+    P = (0, 3),  Q = (3, 1)
+    f_P(Q) = 5,  f_Q(P) = 4
+    (-1)^3 * f_P(Q)/f_Q(P) = 4 = e_3(P,Q)
+
+    ok   Miller's formula reproduces the pairing
+
+  That formula is exactly WeilDatum.pairing in the FLT formalization: evalFun
+  f1 D2 / evalFun f2 D1 with ord f1 = n*D1 and ord f2 = n*D2
+  (Def_AlgebraicCurve_WeilDatum.lean). The formalization carries the pairing
+  for the Jacobian of a general function field; this demo is the
+  elliptic-curve case, where divisors are points and the same formula computes
+  the classical Weil pairing.
+
+all checks passed (27 checks)
