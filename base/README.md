@@ -17,10 +17,10 @@ pin every FLT citation to the sha `aa2d8b3`, cite mathlib at tag `v4.33.0`,
 quote Lean verbatim, and never cite an untracked local file. Line-number
 citations are rendered GitHub links carrying `#L` anchors.
 
-**Reading order and assumed background.** Note 001 is the notation primer: it
-fixes how the project writes field extensions (`Algebra`, the `R → S → K`
-tower), Galois groups (`K ≃ₐ[S] K`), and algebraic closures, and later notes do
-not re-explain those. Notes 002 onward assume 001 and move faster over
+**Reading order and assumed background.** Note 001 is the primer on field and
+Galois theory: it fixes how the project writes field extensions (`Algebra`, the
+`R → S → K` tower), Galois groups (`K ≃ₐ[S] K`), algebraic closures, and the
+Galois action on modules, and later notes do not re-explain those. Notes 002 onward assume 001 and move faster over
 notation, spending their space on the subject at hand.
 
 ## Notes so far
@@ -129,15 +129,13 @@ notation, spending their space on the subject at hand.
   `HeckeAlg`/`heckeGen`/`eigenIdeal`, `heckeTorsion`/`mTorsionGaloisRep` and the
   dichotomy data. Notes that the code has no single declaration named for the
   equality.
-
-## Candidate topics (not yet written, no order implied)
-
-A working list, kept so the series does not drift into the FLT-specific
-material already covered in `../math/`:
-
-
-- **Adeles and automorphic representations**: the `AdelicGL2` layer, local
-  newvectors, Hecke characters — the language notes 002's projective side
-  eventually feeds.
-
-When a new note is added, extend the list above rather than renumbering.
+- [012 — Adeles and automorphic representations](012-adeles-and-automorphic-representations.md):
+  the adelic language the projective side of 002 eventually feeds — the adele
+  ring as a restricted product and the idele class group; `GL₂` over the adeles
+  and the compact-open `K₀(N)`; automorphic representations and the local–global
+  picture (with an explicit note that the restricted tensor product is not
+  formalized in the code, and what stands in for it); the classical ↔ adelic
+  dictionary; Hecke operators and the eigenvalue dictionary; local newvectors,
+  conductor and level; Hecke characters and the cyclotomic character's
+  idele-class description; and one summary section (§10) with the 30-row
+  key-point table.
