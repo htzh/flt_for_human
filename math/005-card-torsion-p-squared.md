@@ -9,8 +9,9 @@ $`\mathbb{F}_p`$ — the fact that makes the mod-$`p`$ Galois action a
 $`\mathrm{GL}_2(\mathbb{F}_p)`$). This note covers the theorem that feeds that
 fact, `WeierstrassCurve.card_torsion_of_isAlgClosed`: its statement (§1), a
 sketch of the proof as carried out in the project (§2), how $`\# E[p] = p^2`$
-becomes "dimension 2 over $`\mathbb{F}_p`$" (§3), and how the theorem is used
-downstream (§4). Line numbers refer to
+becomes "dimension 2 over $`\mathbb{F}_p`$" (§3), how the theorem is used
+downstream (§4), and — since the `pymath` demos now exist — how it is watched on
+finite fields (§6). Line numbers refer to
 `anthropics/fermats-last-theorem@aa2d8b3` (main, 2026-09-03); Mathlib line
 numbers refer to tag v4.33.0.
 
@@ -267,6 +268,42 @@ over an algebraically closed residue field is needed.
   coprimality lemmas use $`\Delta \neq 0`$; nodal/cuspidal cubics have
   different torsion (their point groups are additive/multiplicative groups
   of the field).
+
+## 6. Seeing it run, over finite fields
+
+The theorem is stated over an algebraic closure, but its content is visible on a
+finite field, and the demos do exactly that.
+
+[`../pymath/weil_pairing.py`](../pymath/weil_pairing.py) takes
+$`E : y^2 = x^3 + 2`$ over $`\mathbb{F}_7`$, which has $`9`$ points. Since
+$`3`$ is coprime to $`7`$, the $`3`$-torsion $`\{T : 3T = O\}`$ is a subgroup of
+order $`9 = 3^2`$, so it already fills all of $`E[3]`$: the theorem's
+cardinality is read off from the $`\mathbb{F}_7`$-points. The demo then does
+$`n = 5`$ over $`\mathbb{F}_{41}`$, and a later section works over
+$`\mathbb{F}_{25} = \mathbb{F}_5[t]/(t^2 + t + 1)`$, where $`\#E = 36`$ and
+$`E[3]`$ is rational once more — the same statement over a field that is not
+prime, and one where the Galois action on the parts of $`E[n]`$ that are *not*
+rational is the real content.
+
+[`../pymath/frobenius_charpoly.py`](../pymath/frobenius_charpoly.py) computes
+$`\#E(\mathbb{F}_q)`$, the trace $`a_q = q + 1 - \#E(\mathbb{F}_q)`$ with
+Hasse's bound $`a_q^2 \le 4q`$, the characteristic polynomial
+$`T^2 - a_qT + q`$ of Frobenius, and — in its §5 — that $`E[n]`$ is a *free*
+$`\mathbb{Z}/n`$-module of rank $`2`$. That last claim is this note's theorem
+together with the group structure it comes with:
+`WeierstrassCurve.nonempty_torsionBy_addEquiv_zmod_prod_of_isAlgClosed` says
+$`E[n] \cong \mathbb{Z}/n \times \mathbb{Z}/n`$ over $`K`$, which is a free
+module of rank $`2`$ — and in the limit, the rank-$`2`$ rational Tate module of
+[base/007 §8](../base/007-weil-pairing.md).
+
+Both demos print their explanation rather than only numbers
+(`weil_pairing.expected.txt`, `frobenius_charpoly.expected.txt`), and
+[`../pymath/README.md`](../pymath/README.md) indexes them. The base notes that
+consume this material are [007](../base/007-weil-pairing.md) (the pairing and
+the Tate module), [008](../base/008-divisors-and-pic0.md) (divisors,
+$`\mathrm{Pic}^0`$, and the rank-$`2g`$ count) and
+[009](../base/009-differentials-residues-riemann-roch.md) (differentials,
+residues and Riemann–Roch).
 
 ## Key-point → code map
 

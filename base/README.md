@@ -102,21 +102,28 @@ notation, spending their space on the subject at hand.
   `../pymath/riemann_roch.py`; and one summary section (§6) on the code, where
   `IsCurveOver` carries the residue theorem and the Riemann/duality/Riemann–Roch
   rows are four named `Prop`s.
+- [010 — Finite fields, Frobenius, and point counts](010-finite-fields-frobenius-and-point-counts.md):
+  the arithmetic of a curve over a finite field — rational points as the fixed
+  points of the `q`-power map; the Frobenius endomorphism, `deg φ_q = q`, and
+  `#E(𝔽_q) = deg(φ_q - 1)`; the characteristic polynomial `T² - a_q T + q`,
+  Hasse's bound `a_q² ≤ 4q`, and the counts over every extension; the free
+  rank-2 (rank-2g) Tate module, with the `p`-torsion caveat; why the polynomial
+  is the bridge from an elliptic curve to a modular form
+  (`ResidualGaloisRep.IsAttachedTo`) and the constant term is the cyclotomic
+  character; the point counts of `../pymath/frobenius_charpoly.py`; and one
+  summary section (§7) on the code, with the key-point table.
 
 ## Candidate topics (not yet written, no order implied)
 
 A working list, kept so the series does not drift into the FLT-specific
 material already covered in `../math/`:
 
-- **`ZMod n` and the mod-`n` world**: `ZMod` as a ring, its `Z`-module
-  structure, `ZMod p` a field, cardinality and `Nat.card` facts. The substrate
-  of `E[n]`.
-- **Torsion submodules and cardinality**: `Submodule.torsionBy`, the
-  `ZMod n`-module structure on `E[n]`, `natCard_eq_pow_finrank`, freeness and
-  `finrank`, the basis construction behind `E[p] ≅ 𝔽_p²`.
-- **Group actions on modules**: `SMul`/`DistribMulAction`/`SMulCommClass`,
-  `IsGaloisStable`, trivial action on a quotient, the fixed/cofixed
-  linear-algebra core, `DistribMulAction.toModuleAut`/`toModuleEnd`.
+
+- **Group actions on modules** (to be folded into a revision of
+  [001](001-field-extensions-and-galois-basics.md) rather than a note of its
+  own): `SMul`/`DistribMulAction`/`SMulCommClass`, `IsGaloisStable`, trivial
+  action on a quotient, the fixed/cofixed linear-algebra core,
+  `DistribMulAction.toModuleAut`/`toModuleEnd`.
 - **Deformation theory and Hecke algebras as rings**: `HeckeAlg`,
   eigenideals, `DeformationRingData`, and how `R = T` is stated — the bridge
   from note 002 to the modularity-lifting step of the proof.
