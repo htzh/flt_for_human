@@ -288,6 +288,30 @@ conclusion is unchanged. So $`[P] + [Q] = [P+Q]`$: the addition law on the curve
 *is* addition of divisor classes. That is the identity §3 quoted in the abstract; §5 is its
 generalization to correspondences.
 
+**Why the intersections are zeros, and why this reduces to $`[S] - [O]`$.** Two
+remarks turn the computation into the isomorphism $`\varphi`$ of §3.
+
+On the curve a linear form *is* a function. In the coordinate ring
+$`k[C] = k[x, y]/(y^2 - x^3 - ax - b)`$ the class of $`\ell`$ vanishes exactly
+at the points where the line meets the curve — that is what "modulo the equation
+of $`C`$" buys — so the intersection points are precisely the zeros in
+$`\mathrm{div}(\ell)`$, with the pole at $`O`$ accounting for the degree. And the
+identity above is exactly what licenses moving a pair of points: since
+$`[P] + [Q] - [P+Q] - [O] = \mathrm{div}(\ell/v)`$ is principal, in
+$`\mathrm{Pic}^0`$
+
+$$[P] + [Q] \\;\sim\\; [P+Q] + [O].$$
+
+Iterating that move — and cancelling $`[O]`$ against $`[O]`$ — turns any
+degree-zero divisor $`\sum_i [P_i] - \sum_j [Q_j]`$, with as many terms on each
+side, into $`[S] - [O]`$ for the single point
+$`S = \sum_i P_i - \sum_j Q_j`$ of the group law. So every class in
+$`\mathrm{Pic}^0`$ has that form and $`\varphi`$ is surjective. The converse —
+that $`[S] - [O]`$ is principal only for $`S = O`$, which makes $`\varphi`$
+injective — is the sharp direction; the demo checks it separately, and in
+general it is the degree-zero case of Riemann–Roch
+([009 §4](009-differentials-residues-riemann-roch.md)).
+
 **The isomorphism, and the classification.** With $`\varphi(P) = [P] - [O]`$,
 the identity above says $`\varphi(P) + \varphi(Q) = \varphi(P+Q)`$, so
 $`\varphi`$ is a homomorphism; it is injective because $`[P] - [Q]`$ principal
