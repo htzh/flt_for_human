@@ -83,7 +83,7 @@ against both engines locally; single observations are flagged as such.
 - **A star touching a delimiter.** A single `*` immediately after a closing
   `` `$ `` or immediately before an opening `` $` `` makes GitHub miss the math
   at that spot: `… $`x`$*` and `… *$`x`$ …` fail to render, while `… $`x`$**`
-  (bold) and `… $`x`$ *spaced*` are fine. Found once in `base/001` §4, in
+  (bold) and `… $`x`$ *spaced*` are fine. Confirmed live at three sites, first in `base/001` §4, in
   `*over $`\mathbb{Q}`$*`, and fixed by dropping the emphasis; the sibling prose
   italics in `base/004` and `math/008` were de-emphasised for the same reason.
   `tools/check_math_escaping.py` now flags the pattern.

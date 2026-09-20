@@ -63,10 +63,29 @@ It is an **endomorphism**. The addition laws on a Weierstrass model have
 coefficients in $`\mathbb{F}_q`$, and $`a^q = a`$ for $`a \in \mathbb{F}_q`$,
 so the group law is carried to itself; equivalently, $`x \mapsto x^q`$ is a field
 endomorphism of $`\mathbb{F}_q(E)`$ fixing $`\mathbb{F}_q`$ and commuting with
-the group structure. Two numerical facts about it matter:
+the group structure.
 
-- it is **purely inseparable of degree $`q`$**: the induced extension of
-  function fields has degree $`q`$, so $`\deg \varphi_q = q`$ as an isogeny;
+**Isogenies, degree, and separability.** An *isogeny* $`\alpha : E \to E'`$ is a
+surjective morphism of curves with $`\alpha(O) = O`$; it is automatically a group
+homomorphism. Its **degree** is the degree of the pullback of function fields,
+
+$$\deg \alpha \\;=\\; [\\,K(E) : \alpha^{\ast}K(E')\\,],$$
+
+and it equals the number of points in the kernel over $`\bar{K}`$ exactly when
+$`\alpha`$ is **separable** — then the kernel is a finite group of order
+$`\deg \alpha`$. If instead the field extension is *purely inseparable* — every
+element of $`K(E)`$ has its $`p`$-th power in $`\alpha^*K(E')`$ — then the kernel
+has no non-identity points at all, and the degree is invisible to a point count.
+
+Two numerical facts about $`\varphi_q`$ now matter:
+
+- it is **purely inseparable of degree $`q`$**: $`K(E)`$ is generated over
+  $`\varphi_q^*K(E) = K(E)^q`$ by $`x`$ and $`y`$, whose $`q`$-th powers lie in
+  that subfield, and the extension has degree $`q`$ — one dimension of
+  transcendence degree, not two, because $`x`$ and $`y`$ are tied by the
+  Weierstrass equation. So $`\deg \varphi_q = q`$, while $`\ker \varphi_q`$ has
+  only $`O`$ as a point: the number $`q`$ is the *degree* here, not a kernel
+  count;
 - its **separable companion** $`\varphi_q - 1`$ is separable, and its kernel is
   exactly the rational points:
 
