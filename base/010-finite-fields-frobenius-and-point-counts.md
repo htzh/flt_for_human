@@ -71,7 +71,18 @@ homomorphism. Its **degree** is the degree of the pullback of function fields,
 
 $$\deg \alpha \\;=\\; [\\,K(E) : \alpha^{\ast}K(E')\\,],$$
 
-and it equals the number of points in the kernel over $`\bar{K}`$ exactly when
+The extension here is the *source's* function field: $`\alpha`$ pulls functions
+back, so $`K(E')`$ embeds in $`K(E)`$ and it is $`K(E)`$ that grows. The lattice
+model matches the index. Write $`E = \mathbb{C}/\Lambda`$ and
+$`E' = \mathbb{C}/\Lambda'`$; then $`\alpha`$ is induced by a scalar $`\lambda`$
+with $`\lambda\Lambda \subseteq \Lambda'`$, so after rescaling $`\lambda = 1`$
+the source lattice is the sublattice, the degree is $`[\Lambda' : \Lambda]`$, and
+the kernel is $`\Lambda'/\Lambda`$ — a smaller lattice imposes fewer periodicity
+conditions, hence carries the larger function field. The dual isogeny has the
+same degree and reverses the direction, so which of the two lattices one calls
+"the sublattice" is a matter of which map is in hand.
+
+It equals the number of points in the kernel over $`\bar{K}`$ exactly when
 $`\alpha`$ is **separable** — then the kernel is a finite group of order
 $`\deg \alpha`$. If instead the field extension is *purely inseparable* — every
 element of $`K(E)`$ has its $`p`$-th power in $`\alpha^*K(E')`$ — then the kernel
