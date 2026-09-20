@@ -82,7 +82,7 @@ conditions, hence carries the larger function field. The dual isogeny has the
 same degree and reverses the direction, so which of the two lattices one calls
 "the sublattice" is a matter of which map is in hand.
 
-It equals the number of points in the kernel over $`\bar{K}`$ exactly when
+The **degree** equals the number of points in the kernel over $`\bar{K}`$ exactly when
 $`\alpha`$ is **separable** — then the kernel is a finite group of order
 $`\deg \alpha`$. If instead the field extension is *purely inseparable* — every
 element of $`K(E)`$ has its $`p`$-th power in $`\alpha^*K(E')`$ — then the kernel
@@ -224,6 +224,20 @@ which has rank $`2g`$ with $`g`$ the genus of $`X_0(N)`$ computed in
 operators act ([math/009](../math/009-hecke-jacobian-commute.md)). The elliptic
 case of §4 is the same statement with $`g = 1`$, and it is the one the demo
 checks.
+
+**Separability is a matter of characteristic.** The distinction of §2 has a
+characteristic-dependent shape that is easy to misplace. A degree-$`p`$ map whose
+local form is $`t \mapsto t^p`$ is *purely inseparable* over a field of
+characteristic $`p`$ — that is §2's Frobenius — but *separable* over a field of
+characteristic $`0`$. So the covering of
+[005](005-cyclic-isogenies-and-level.md) and
+[006](006-the-modular-equation.md), whose local form at the cusps is the nome
+substitution $`q = q'^p`$ with ramification index $`p`$, is separable throughout:
+over $`\mathbb{Q}`$ it is a degree-$`p+1`$ map with $`p+1`$ distinct sheets, which
+is why the modular equation has that many roots. The inseparable version of the
+very same substitution lives in characteristic $`p`$, on the reduction of the
+modular curve: the `CharLFrobenius*` declarations of
+[011 §6](011-deformations-hecke-algebras-and-r-equals-t.md).
 
 ## 6. The computation: `pymath/frobenius_charpoly.py`
 
