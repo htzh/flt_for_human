@@ -123,7 +123,7 @@ the radical agree.
 ## 3. Where the Fermat exponent enters: $`p \mid v_q(\Delta)`$
 
 The second thing that makes the Frey case work is that the discriminant's
-valuation at a bad prime is *divisible by $`p`$*. The identity is
+valuation at a bad prime is divisible by $`p`$. The identity is
 ([S_FreyPackage_freyGaloisRep_isUnramifiedAt.lean, lines 104–105](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_FreyPackage_freyGaloisRep_isUnramifiedAt.lean#L104-L105))
 
 $$\\Delta \\cdot 2^8 = (abc)^{2p},$$

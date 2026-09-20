@@ -436,7 +436,7 @@ series.
 Background: J. Silverman, *Advanced Topics in the Arithmetic of Elliptic Curves*,
 GTM 151, Springer 1994, Ch. I–II (the $`j`$-invariant, uniformization); S. Lang,
 *Elliptic Functions*, GTM 112, Springer 1987, Ch. 5 (modular functions and the
-Hauptmodul); D. Cox, *Primes of the Form $`x^2 + ny^2`$*, Wiley 1989 (CM and
+Hauptmodul); D. Cox, Primes of the Form $`x^2 + ny^2`$, Wiley 1989 (CM and
 class fields); J. Conway and S. Norton, *Monstrous moonshine*, Bull. LMS 11
 (1979); R. Borcherds, *Monstrous moonshine and monstrous Lie superalgebras*,
 Invent. Math. 109 (1992).
