@@ -151,7 +151,7 @@ there" and its residue field $`A/\mathfrak{m}_A`$ the field of values.
   of every place above $`q`$ acts trivially on it.
 
 That is the entire local vocabulary of the proof. In particular, the local
-questions at $`q`$ are answered by these subgroups *over $`\mathbb{Q}`$*: the
+questions at $`q`$ are answered by these subgroups over $`\mathbb{Q}`$ itself: the
 relevant local group is the inflation of a decomposition group at a place of
 $`\bar{\mathbb{Q}}`$, not a group over $`\mathbb{Q}_q`$, and
 [math/006](../math/006-fixed-or-cofixed-and-inertia.md) is where that
