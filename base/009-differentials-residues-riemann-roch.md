@@ -35,6 +35,30 @@ single separating element generates it. That single dimension is what makes the
 divisor theory of differentials work, exactly as the single maximal ideal of a
 point made the divisor theory of functions work in [008 §1](008-divisors-and-pic0.md).
 
+**Over any field, and why no analysis is needed.** Nothing above used the
+complex topology. $`\Omega_{F/K}`$ is the module of *Kähler* differentials of
+the field extension, built from the universal derivation $`d`$, and
+"one-dimensional" is the statement that one element generates it — locally, that
+a single $`\mathrm{d}\pi_P`$ spans it over $`F`$. That holds for the function
+field of a curve over a *perfect* field, and in particular over any finite
+field. The code states it pointwise, as a hypothesis:
+
+```lean
+def dCoord : Ω[F⁄K] := KaehlerDifferential.D K F v.uniformizer
+
+class DCoordGenerates : Prop where
+  span_eq_top : Submodule.span F {v.dCoord} = ⊤
+```
+
+([Def_ModularCurve_CanonicalDivisor.lean, lines 30–33](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_CanonicalDivisor.lean#L30-L33)).
+So everything in §1 is characteristic-free: over $`\mathbb{F}_q`$, a
+differential is a symbol $`f\,\mathrm{d}\pi_P`$, its order is the order of
+$`f`$, and no integral is involved. What a finite field changes is not the
+definitions but the *counting*: over $`\mathbb{F}_q`$ the closed points are the
+Galois orbits, with degree the orbit size ([008 §1](008-divisors-and-pic0.md)),
+while over $`\bar{\mathbb{F}}_q`$ every point has degree one, exactly as over
+$`\bar{\mathbb{Q}}`$.
+
 Fix a point $`P`$ and a uniformizer $`\pi_P`$ (008 §1). Since $`\Omega_{F/K}`$
 is one-dimensional, every $`\omega \in \Omega_{F/K}`$ can be written locally as
 
@@ -91,7 +115,8 @@ $$\mathrm{res}_P(\omega) \\;:=\\; a_{-1}.$$
 Three properties are what make residues useful, and the first two are immediate
 from the definition:
 
-- additivity: $`\mathrm{res}_P(\omega+\omega')=\mathrm{res}_P(\omega)+\mathrm{res}_P(\omega')`$;
+- additivity:
+  $`\mathrm{res}_P(\omega+\omega')=\mathrm{res}_P(\omega)+\mathrm{res}_P(\omega')`$;
 - vanishing on holomorphic differentials:
   $`\mathrm{ord}_P(\omega) \ge 0 \Rightarrow \mathrm{res}_P(\omega) = 0`$;
 - invariance under a change of uniformizer: the coefficient of
@@ -100,6 +125,42 @@ from the definition:
   rule for $`\mathrm{d}\pi_P`$ together with the expansion of the unit — and it
   is what makes the residue a property of the *differential*, not of the
   coordinate.
+
+**Residues beyond $`\mathbb{C}`$.** The definition above — the coefficient of
+$`\pi_P^{-1}`$ — is the classical one, and over $`\mathbb{C}`$ it is what the
+integral computes. Algebraically it needs two precautions. The residue takes
+values in the *residue field* $`\kappa(P)`$, not in $`K`$, so when
+$`\kappa(P) \neq K`$ the invariant residue is the trace of that coefficient down
+to $`K`$; and in characteristic $`p`$ the coefficient by itself is not the
+invariant notion — the trace is essential, and the residue theorem for the
+resulting $`K`$-valued residue is a theorem of Tate and Serre rather than a
+trivial computation. The code encodes exactly that structure, as data rather
+than as a formula:
+
+```lean
+structure LocalResidueData where
+  res : F →ₗ[K] v.ResidueField
+  res_of_mem : ∀ f : F, f ∈ v.toValuationSubring → res f = 0
+  res_simplePole : ∀ (f : F) (hf : v.uniformizer * f ∈ v.toValuationSubring),
+    res f = IsLocalRing.residue _ ⟨v.uniformizer * f, hf⟩
+
+structure CanonicalLocalResidueDataK extends v.LocalResidueData where
+  res_higherPoleMonomial : ∀ (n : ℕ), 1 ≤ n → res (v.uniformizer ^ (n + 1))⁻¹ = 0
+```
+
+([Def_AlgebraicCurve_LocalResidue.lean, lines 20–34](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_LocalResidue.lean#L20-L34)):
+a $`K`$-linear map to the residue field, vanishing on the functions regular at
+$`P`$, reading the simple pole through the local residue map, and killing the
+higher-pole monomials — in other words "the coefficient of $`\pi_P^{-1}`$", made
+invariant. Existence of such data at every point is the class
+`HasCanonicalLocalResidueKStar`; `Def_AlgebraicCurve_CanonicalLocalResidueInstance.lean`
+sets up the case $`K = \mathbb{Q}`$ and $`K = \bar{\mathbb{Q}}`$ with
+$`F = K(t)`$ and carries a `PerfectDischarge` section, and the hypotheses are
+then spent through `WeilDuality`/`FunctionFieldRiemannRoch` (§6) and the
+residue-theorem content of `IsCurveOver`. What §1 and §3 need — orders,
+divisors, the canonical class, the genus, $`\ell(D)`$ — never touches residues
+at all, which is why Riemann–Roch is the one row where the characteristic
+question becomes visible.
 
 The global statement is the **residue theorem**:
 
@@ -419,11 +480,15 @@ Mathlib at tag `v4.33.0`:
 
 Demos at the same revision:
 
-- [pymath/riemann_roch.py](../pymath/riemann_roch.py) — the computation of §5, and its [golden output](../pymath/riemann_roch.expected.txt)
+- [pymath/riemann_roch.py](../pymath/riemann_roch.py) — the computation of §5, and its
+  [golden output](../pymath/riemann_roch.expected.txt)
 - [pymath/README.md](../pymath/README.md) — the demo index
 
 Companion notes:
 
-- [008 — Divisors, linear equivalence, and Pic⁰](008-divisors-and-pic0.md) — divisors, $`\mathrm{Pic}^0`$, the canonical divisor and the genus this note uses
-- [007 — The Weil pairing](007-weil-pairing.md) — torsion, the Tate module, and the rank $`2g`$ whose genus comes from here
-- [math/009 §2](../math/009-hecke-jacobian-commute.md) — where the dimension counts feed the Hecke action
+- [008 — Divisors, linear equivalence, and Pic⁰](008-divisors-and-pic0.md) — divisors,
+  $`\mathrm{Pic}^0`$, the canonical divisor and the genus this note uses
+- [007 — The Weil pairing](007-weil-pairing.md) — torsion, the Tate module, and the rank
+  $`2g`$ whose genus comes from here
+- [math/009 §2](../math/009-hecke-jacobian-commute.md) — where the dimension counts feed
+  the Hecke action
