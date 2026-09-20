@@ -25,12 +25,17 @@ notation, spending their space on the subject at hand.
 
 ## Notes so far
 
-- [001 — Field extensions and Galois theory at the mathlib level](001-field-extensions-and-galois-basics.md):
-  `Algebra` instead of "field tower", the `R → S → K` binders and why they are
-  inherited rather than needed, algebraic/separable/normal, `IsAlgClosure`,
-  the Galois group as the type `K ≃ₐ[S] K`, `Point.map` as the action,
-  decomposition/inertia subgroups, and the finite vs. infinite Galois
-  correspondence. The running example is `AlgebraicClosure ℚ`.
+- [001 — Field extensions, Galois groups, and Galois actions](001-field-extensions-and-galois-basics.md):
+  the field and Galois theory every later note assumes — extensions and their
+  adjectives (algebraic, separable, normal, Galois), the absolute Galois group
+  of `ℚ` and what it acts on, decomposition and inertia, the Galois action on
+  modules with Galois-stable submodules and the fixed/cofixed dichotomy, and the
+  finite versus infinite Galois correspondence; then the Lean encoding in one
+  summary section (`Algebra` towers, `IsAlgClosure`, the type `K ≃ₐ[S] K`,
+  `Point.map`, `IsGaloisStable`, `HasGaloisStableCofixedLine`, inertia
+  subgroups) with its reading traps. The running example is `AlgebraicClosure ℚ`;
+  the module-action section is where `GaloisRepIsIrreducible` and
+  `HasGaloisStableCofixedLine` come from.
 - [002 — Modular forms at the mathlib level](002-modular-forms-basics.md):
   the `SlashInvariantForm`/`ModularForm`/`CuspForm` chain, why the level is a
   subgroup of `GL (Fin 2) ℝ`, `qExpansion` and the one-line `qCoeff` wrapper,
@@ -112,6 +117,18 @@ notation, spending their space on the subject at hand.
   (`ResidualGaloisRep.IsAttachedTo`) and the constant term is the cyclotomic
   character; the point counts of `../pymath/frobenius_charpoly.py`; and one
   summary section (§7) on the code, with the key-point table.
+- [011 — Deformations, Hecke algebras, and `R = T`](011-deformations-hecke-algebras-and-r-equals-t.md):
+  the layer joining the modular-forms side to the Galois side — deformations of
+  a residual representation and the universal deformation ring with its
+  universal property; the Hecke algebra as a ring, its generators and
+  eigenideals; the map `R → T` built from the Eichler–Shimura representation,
+  and what `R = T` asserts (a size statement, proved by the numerical criterion
+  plus Taylor–Wiles patching); the Eisenstein/non-Eisenstein dichotomy; and one
+  summary section (§6) on the code with the key-point table, quoting
+  `DeformationRingData`, the deformation functors,
+  `HeckeAlg`/`heckeGen`/`eigenIdeal`, `heckeTorsion`/`mTorsionGaloisRep` and the
+  dichotomy data. Notes that the code has no single declaration named for the
+  equality.
 
 ## Candidate topics (not yet written, no order implied)
 
@@ -119,14 +136,6 @@ A working list, kept so the series does not drift into the FLT-specific
 material already covered in `../math/`:
 
 
-- **Group actions on modules** (to be folded into a revision of
-  [001](001-field-extensions-and-galois-basics.md) rather than a note of its
-  own): `SMul`/`DistribMulAction`/`SMulCommClass`, `IsGaloisStable`, trivial
-  action on a quotient, the fixed/cofixed linear-algebra core,
-  `DistribMulAction.toModuleAut`/`toModuleEnd`.
-- **Deformation theory and Hecke algebras as rings**: `HeckeAlg`,
-  eigenideals, `DeformationRingData`, and how `R = T` is stated — the bridge
-  from note 002 to the modularity-lifting step of the proof.
 - **Adeles and automorphic representations**: the `AdelicGL2` layer, local
   newvectors, Hecke characters — the language notes 002's projective side
   eventually feeds.

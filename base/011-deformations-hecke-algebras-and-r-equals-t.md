@@ -1,0 +1,388 @@
+# Deformations, Hecke algebras, and $`R = T`$
+
+Eleventh of the `base/` notes. [002](002-modular-forms-basics.md) built the
+modular-forms side (Hecke operators on $`S_2(\Gamma_0(N))`$),
+[010](010-finite-fields-frobenius-and-point-counts.md) the residual Galois
+representations and their characteristic polynomials, and
+[001](001-field-extensions-and-galois-basics.md) the field theory. This note is
+the layer that joins them: **deformations** of a residual representation, the
+**Hecke algebra** as a ring, the map between them, and the theorem $`R = T`$
+that makes the map an isomorphism. It is the bridge from 002 to the
+modularity-lifting step of the FLT proof.
+
+Math first: §§1–2 the deformation theory, §§3–4 the Hecke algebra and the map,
+§5 why the proof needs the equality, and §6 the Lean encoding with the key-point
+table. There is no `pymath` demo for this topic; the anchors are the
+`Definitions/Def_Deformations_*` and `Definitions/Def_HeckeGalois_*` families,
+whose declarations §6 quotes.
+
+Line-number citations point at `anthropics/fermats-last-theorem@aa2d8b3`; mathlib
+citations point at tag **v4.33.0**. Both are rendered GitHub links.
+
+## 1. Deformations of a residual representation
+
+Fix a finite field $`k`$ and a continuous absolutely irreducible representation
+
+$$\bar\rho \\;:\\; G_{\mathbb{Q}} \longrightarrow \mathrm{GL}_2(k).$$
+
+In FLT $`\bar\rho`$ is the mod-$`\ell`$ representation attached to the Frey
+curve, and $`\bar\rho`$ being *absolutely irreducible* is the hypothesis under
+which the deformation theory below is well behaved.
+
+A **deformation** of $`\bar\rho`$ to a coefficient ring $`A`$ is a lift: a
+continuous representation $`\rho : G_{\mathbb{Q}} \to \mathrm{GL}_2(A)`$ whose
+reduction modulo the maximal ideal of $`A`$ is $`\bar\rho`$. The allowed
+coefficient rings are the **complete local Noetherian** $`\mathcal{O}`$-algebras
+with residue field $`k`$ (and with the residue map surjective), where
+$`\mathcal{O}`$ is the ring of the problem — for FLT the $`\ell`$-adic integers
+or a localisation of the Hecke algebra's coefficient ring. "Complete" and
+"Noetherian" are what make the universal object of §2 exist; "local" is what
+makes "reduction modulo the maximal ideal" mean something.
+
+Two variations are used:
+
+- **framed** deformations carry a chosen basis of the underlying rank-$`2`$
+  module over $`A`$; **unframed** ones are considered only up to conjugacy, so
+  that the deformation is a representation rather than a matrix;
+- **of a prescribed type**: one can demand that the deformation be unramified
+  outside a finite set of primes, that its local behaviour at $`\ell`$ lie in a
+  prescribed set (ordinary, semistable, crystalline, flat, …), or that
+  ramification be minimal. All of this is data on the functor.
+
+The mathematical content of §2 is that this classification problem has a
+*finest* solution.
+
+## 2. The deformation functor, and the universal ring $`R`$
+
+The deformations of $`\bar\rho`$ of a fixed type form a **functor** on the
+category of coefficient rings — assign to $`A`$ the set of deformations of that
+type over $`A`$ — and what one wants is a representing object. The theorem,
+going back to Mazur and made to work in the cases FLT needs by Wiles and
+Taylor–Wiles, is:
+
+**There is a complete local Noetherian ring $`R`$ and a deformation
+$`\rho^{\mathrm{univ}}`$ of $`\bar\rho`$ over $`R`$, of the prescribed type, such
+that every other deformation over any coefficient ring $`A`$ is obtained from it
+by a unique map $`R \to A`$.**
+
+So $`R`$ is the **universal deformation ring**: it carries the universal
+representation, and its maps to other rings classify the deformations. Two
+consequences are used constantly:
+
+- the deformation functor is recoverable from $`R`$, so questions about
+  deformations become questions about the ring $`R`$ and its ideals;
+- the **tangent space**, i.e. the deformations over the ring of dual numbers
+  $`k[\varepsilon]/(\varepsilon^2)`$ — the "square-zero" deformations — is
+  $`\mathrm{Hom}_k(\mathfrak{m}_R/\mathfrak{m}_R^2, k)`$, the $`k`$-dual of the
+  cotangent space. Its dimension is the minimal number of generators of $`R`$
+  (Nakayama), which is why ring-theoretic *size* statements about $`R`$ can be
+  read off from cohomological dimension counts.
+
+The universal property is exactly what lets one construct maps *out of* $`R`$:
+to give $`R \to A`$ is to give a deformation of $`\bar\rho`$ over $`A`$ of the
+prescribed type. §4 uses this to build the map to the Hecke algebra.
+
+## 3. Hecke algebras as rings
+
+On the modular-forms side, the object that plays the role of "all the operators
+at once" is the **Hecke algebra**
+
+$$\mathbb{T} \\;=\\;
+  \mathbb{Z}\bigl[\\,T_\ell,\ U_q,\ \langle d\rangle
+  \\;\bigm|\\; \ell,q \text{ prime},\ d \in (\mathbb{Z}/N)^\times \\,\bigr]
+  \\;\subseteq\\; \mathrm{End}\bigl(S_2(\Gamma_0(N))\bigr),$$
+
+the $`\mathbb{Z}`$-subalgebra generated by the Hecke operators. It is a
+commutative ring (the operators commute, [002](002-modular-forms-basics.md)),
+finitely generated as a $`\mathbb{Z}`$-module, and an eigenform $`f`$ is the
+same data as a ring homomorphism out of it:
+
+$$\lambda_f \\;:\\; \mathbb{T} \longrightarrow \mathcal{O}_f,
+  \qquad T_\ell \longmapsto a_\ell(f),$$
+
+where $`\mathcal{O}_f`$ is the ring generated by the eigenvalues. The kernel of
+$`\lambda_f`$ is the **eigenideal** of $`f`$; for a mod-$`\ell`$ eigenform it is
+a maximal ideal $`\mathfrak{m} \subseteq \mathbb{T}`$, and the pair
+$`(\mathbb{T}, \mathfrak{m})`$ is what the deformation side is compared with.
+
+The reason $`\mathbb{T}`$ can be written as a *quotient presentation* is that
+there are no relations to impose at the level of the abstract algebra: one takes
+the free commutative $`\mathbb{Z}`$-algebra on the generators and then maps it
+onto the operators. Two presentations appear in the code, matching the two
+levels:
+
+- $`\mathbb{Z}[T_\ell : \ell \text{ prime}]`$ for the operators coming from the
+  primes;
+- $`\mathbb{Z}[T_\ell, \langle d \rangle]`$ when the diamond operators at level
+  $`N`$ are also generators.
+
+Everything proved about the operators is then a statement about this polynomial
+ring modulo the relations that hold in $`\mathrm{End}(S_2)`$ — and *that*
+quotient, not the free presentation, is the algebra whose size $`R`$ is compared
+with.
+
+## 4. The map $`R \to T`$, and what $`R = T`$ says
+
+The two sides meet through the Galois representation attached to an eigenform.
+Given a Hecke eigenform with eigenvalue system $`\lambda_f`$, the
+Eichler–Shimura construction produces a representation
+$`\rho_f : G_{\mathbb{Q}} \to \mathrm{GL}_2(\mathcal{O}_f)`$ whose residual
+representation is $`\bar\rho`$ and whose characteristic polynomials are those of
+§10: at a good prime $`q`$, $`\mathrm{charpoly}(\rho_f(\mathrm{Frob}_q)) =
+X^2 - a_q(f)X + q`$. That representation is a deformation of $`\bar\rho`$ of the
+prescribed type, so the universal property of §2 gives a ring homomorphism
+
+$$R \\;\longrightarrow\\; \mathbb{T}_f,$$
+
+where $`\mathbb{T}_f`$ is the localised Hecke algebra at the maximal ideal
+$`\mathfrak{m}_f`$. Applying the universal property at *every* eigenform at once
+— or, equivalently, at the level of the full Hecke algebra — produces
+
+$$R \\;\longrightarrow\\; \mathbb{T},$$
+
+and this map is surjective in the cases of interest: the universal deformation
+ring is generated by the traces of Frobenius, and those are exactly the Hecke
+eigenvalues.
+
+**The theorem $`R = T`$ is the statement that this map is an isomorphism.** Its
+content is therefore a *size* statement: $`R`$ is no bigger than the Hecke
+algebra. Two ingredients make it provable.
+
+- **A numerical criterion.** If $`R \to \mathbb{T}`$ is surjective and the
+  cohomological (Selmer-side) count of deformations is no larger than the length
+  of the Hecke algebra, then $`R = T`$. The criterion is usually phrased through
+  the cotangent spaces of §2, i.e. through the comparison of the
+  deformation-theoretic tangent space with the Hecke side's $`\mathfrak{m}/\mathfrak{m}^2`$.
+- **Patching.** Taylor–Wiles introduced an auxiliary set of primes and a
+  patching construction that produces a ring in which the numerical criterion is
+  *checkable* — the patched ring is a power series ring in the auxiliary
+  variables, so its size is transparent, and $`R = T`$ follows by descending
+  back. This is the step whose technical content is largest, and the reason the
+  development carries whole families of auxiliary-level Hecke modules.
+
+The equality is a *modularity-lifting* statement: because the universal
+deformation is modular (it comes from the Hecke side), any deformation of
+$`\bar\rho`$ of the prescribed type is modular. With $`\bar\rho`$ absolutely
+irreducible, minimality hypotheses on the ramification, and the right local
+conditions, this is what turns "the residual representation is modular" into
+"the representation itself is modular".
+
+## 5. Why FLT needs it
+
+The Frey curve's route through the proof is: assume a counterexample, form the
+Frey curve $`E_P`$, and consider its mod-$`\ell`$ representation
+$`\bar\rho = \rho_{E_P,\ell}`$. If $`\bar\rho`$ is modular — attached to a cusp
+form, in the sense of the `IsAttachedTo` predicate of
+[010 §7](010-finite-fields-frobenius-and-point-counts.md) — then $`R = T`$
+upgrades that to the modularity of the full $`\ell`$-adic representation
+$`\rho_{E_P,\ell}`$, hence (by the modularity theorem's shape used in this
+route) to the modularity of $`E_P`$ itself. Ribet's level lowering then removes
+the level to $`2`$, where there are no cusp forms
+([003](003-no-level-2-weight-2-cusp-forms.md)): contradiction.
+
+Two features of the layer matter for how the proof is read:
+
+- **The dichotomy.** The map $`R \to \mathbb{T}`$ is studied at *maximal
+  ideals* of $`\mathbb{T}`$, and the interesting case is the non-Eisenstein
+  ones; at Eisenstein ideals the two sides are known and the patching argument
+  is not needed. This dichotomy is a structural feature of the development, not
+  a remark: the theorems are stated for non-Eisenstein
+  $`\mathfrak{m}`$, with separate Eisenstein statements alongside.
+- **Local conditions are data.** "Minimal", "ordinary", "unramified outside
+  $`\Sigma`$" are hypotheses on the *functor* of §2, and the choice of type
+  determines both $`R`$ and the local conditions on the Hecke side. Most of the
+  deformation files in §6 are about making these conditions precise and
+  checking they are preserved under the constructions of the patching argument.
+
+## 6. How the code says all this
+
+**The universal ring, as a structure.** `DeformationRingData` packages the ring
+$`R`$ of §2, its properties, the universal representation, and the universal
+property itself:
+
+```lean
+structure DeformationRingData (𝒪 : Type) [CommRing 𝒪] [IsDomain 𝒪] [IsDiscreteValuationRing 𝒪]
+    [IsAdicComplete (IsLocalRing.maximalIdeal 𝒪) 𝒪]
+    (ρbar : ResidualGaloisRep (IsLocalRing.ResidueField 𝒪))
+    (𝒟 : ∀ ⦃A : Type⦄ [CommRing A] [IsLocalRing A] [Algebra 𝒪 A], GaloisRepAdic A → Prop) :
+    Type 1 where
+  R : Type
+  [instCommRing : CommRing R]
+  [instIsLocalRing : IsLocalRing R]
+  [instIsNoetherianRing : IsNoetherianRing R]
+  [instIsAdicComplete : IsAdicComplete (IsLocalRing.maximalIdeal R) R]
+  [instAlgebra : Algebra 𝒪 R]
+  [instIsLocalHom : IsLocalHom (algebraMap 𝒪 R)]
+  residue_surjective : Function.Surjective (IsLocalRing.residue R ∘ algebraMap 𝒪 R)
+  absIrr : ρbar.IsAbsolutelyIrreducible
+  ρ : GaloisRepAdic R
+  isOfType : 𝒟 ρ
+  residual_isEquiv : ρ.residual.IsEquiv
+    (ρbar.baseChangeAlong (IsLocalRing.ResidueField.map (algebraMap 𝒪 R)))
+  universal : ∀ (A : Type) [CommRing A] [IsLocalRing A] [IsNoetherianRing A]
+      [IsAdicComplete (IsLocalRing.maximalIdeal A) A] [Algebra 𝒪 A] [IsLocalHom (algebraMap 𝒪 A)],
+      Function.Surjective (IsLocalRing.residue A ∘ algebraMap 𝒪 A) →
+      ∀ ρA : GaloisRepAdic A, 𝒟 ρA →
+        ρA.residual.IsEquiv
+          (ρbar.baseChangeAlong (IsLocalRing.ResidueField.map (algebraMap 𝒪 A))) →
+        ∃! φ : R →ₐ[𝒪] A, ∃ hφ : IsLocalHom (φ : R →+* A),
+          (ρ.baseChangeAlong (φ : R →+* A) hφ).IsEquiv ρA
+```
+
+([Def_GaloisRep_DeformationRingData.lean, lines 8–40](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_GaloisRep_DeformationRingData.lean#L8-L40)).
+Read it against §2: the fields `CommRing R` through `IsLocalHom` are "$`R`$ is a
+complete local Noetherian $`\mathcal{O}`$-algebra", `residue_surjective` is the
+residue condition, `absIrr` is absolute irreducibility of $`\bar\rho`$, `ρ` is
+the universal representation, `isOfType` is the prescribed type $`\mathcal{D}`$,
+`residual_isEquiv` says its reduction is $`\bar\rho`$ (up to the base change
+along the residue map), and `universal` is the unique-factorisation property —
+with the deformation functor `𝒟` itself a *parameter*, which is how the local
+conditions of §5 become data.
+
+**The functors.** The deformation functor and its relatives are spelled out as
+functors on the category of pro-artinian coefficient rings:
+`repnFunctor` ([Def_Deformations_LiftFunctor.lean, line 18](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Deformations_LiftFunctor.lean#L18)),
+`repnQuotFunctor` ([line 39](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Deformations_LiftFunctor.lean#L39)),
+`liftFunctor` ([line 62](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Deformations_LiftFunctor.lean#L62))
+and
+`deformationFunctor` ([line 66](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Deformations_LiftFunctor.lean#L66)),
+over `ProartinianCat 𝓞`
+([Def_Deformations_ProartinianCat.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Deformations_ProartinianCat.lean)).
+The tangent space of §2 is `IsTangentVector` and `tangentSubmodule`
+([Def_Deformations_TangentSubmodule.lean, lines 48 and 71](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Deformations_TangentSubmodule.lean#L48-L71)),
+with the dual numbers supplying the square-zero deformations
+([Def_Deformations_DualNumbers.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Deformations_DualNumbers.lean));
+`IsResidueAlgebra`
+([Def_Deformations_IsResidueAlgebra.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Deformations_IsResidueAlgebra.lean))
+is the residue-field condition, `Def_Deformations_Frobenius.lean` carries the
+Frobenius conditions on coefficient rings and deformations,
+`Def_Deformations_ConjQuotSubfunctor.lean` is "up to conjugacy", and
+`Def_Deformations_LocalSplitting.lean` / `Def_Deformations_TameDescent.lean`
+are the local/tame conditions that the patching argument needs.
+
+**The Hecke algebra, as a free ring and its generators.** The abstract Hecke
+algebra of §3 is a polynomial ring, and the operators are the images of its
+variables:
+
+```lean
+abbrev HeckeAlg : Type := MvPolynomial Nat.Primes ℤ
+```
+```lean
+def heckeGen (ℓ : Nat.Primes) : HeckeAlg := MvPolynomial.X ℓ
+```
+```lean
+lemma adjoin_range_heckeGen : Algebra.adjoin ℤ (Set.range heckeGen) = ⊤
+```
+
+([Def_HeckeGalois_EichlerShimura.lean, lines 14, 16 and 23](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_HeckeGalois_EichlerShimura.lean#L14-L23)),
+with the level-one variant carrying the diamond generators as well,
+`HeckeAlgOne := MvPolynomial (Nat.Primes ⊕ ℕ) ℤ`
+([Def_ModularCurve_X1HeckeModule.lean, line 16](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_X1HeckeModule.lean#L16)).
+A Hecke module is a module over this ring, i.e. a ring homomorphism to the
+endomorphisms, as in `endHom : HeckeAlg →+* Module.End ℤ J'`
+([Def_ModularCurve_SpecializationWitness.lean, line 35](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_SpecializationWitness.lean#L35))
+and `hecke : HeckeAlg →+* Module.End ℤ T`
+([Def_CerednikDrinfeld_JPrimeTorsionDatum.lean, line 24](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_CerednikDrinfeld_JPrimeTorsionDatum.lean#L24)).
+
+**The eigenideal, and the comparison point.** §3's eigenvalue map is encoded by
+evaluating the polynomial ring at the system of eigenvalues, and its kernel is
+the eigenideal:
+
+```lean
+def eigenIdeal (a : Nat.Primes → k) : Ideal HeckeAlg :=
+```
+```lean
+lemma mem_eigenIdeal_iff (a : Nat.Primes → k) (t : HeckeAlg) :
+    t ∈ eigenIdeal a ↔ MvPolynomial.aeval a t = 0
+```
+
+([Def_HeckeGalois_EichlerShimura.lean, lines 30 and 33](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_HeckeGalois_EichlerShimura.lean#L30-L34)).
+For an eigenform $`f`$ this ideal is cut out by the $`q`$-coefficients,
+$`\mathfrak{m} = \mathrm{eigenIdeal}(\ell \mapsto \varphi(a_\ell(f)))`$
+([Def_ModularCurve_EigenformIdeal.lean, line 14](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_EigenformIdeal.lean#L14)).
+The **Hecke side of the deformation** is the Galois representation on the
+$`\mathfrak{m}`$-torsion of $`J`$:
+
+```lean
+abbrev heckeTorsion (𝔪 : Ideal HeckeAlg) : Submodule HeckeAlg J :=
+```
+```lean
+def mTorsionGaloisRep (𝔪 : Ideal HeckeAlg) :
+```
+
+([Def_HeckeGalois_EichlerShimura.lean, lines 49 and 63](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_HeckeGalois_EichlerShimura.lean#L49-L63)),
+with `smul_mem_heckeTorsion` ([line 57](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_HeckeGalois_EichlerShimura.lean#L57))
+and `mem_heckeTorsion_iff` ([line 52](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_HeckeGalois_EichlerShimura.lean#L52))
+recording that the torsion is a Hecke-stable submodule. That pair — an
+eigenideal on one side, a Galois representation on the other — is the local form
+of the map $`R \to \mathbb{T}`$ of §4.
+
+**The dichotomy.** The Eisenstein/non-Eisenstein split of §5 is a named
+predicate over maximal ideals,
+`IsEventuallyEisenstein 𝔪` with the toric-dichotomy statements in
+[Def_ModularCurve_ToricDichotomyData.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_ToricDichotomyData.lean),
+with the Eisenstein side evaluated by `eisensteinEval`
+([Def_ModularCurve_EisensteinIdeal.lean, line 10](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_EisensteinIdeal.lean#L10)),
+`eisensteinKernel` and `EisensteinQuotientInvariantsFinite`
+([Def_HeckeGalois_EichlerShimura.lean, lines 86 and 104](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_HeckeGalois_EichlerShimura.lean#L86-L104)).
+The auxiliary-level Hecke modules of the patching argument appear as
+`Def_CuspForm_AuxLevelHeckeModule*.lean` and `Def_CuspForm_TWLevelHeckeModule.lean`
+(TW for Taylor–Wiles), whose `Spec`-valued and Neron-model companions
+(`Def_ModularCurve_JZeroNeronIdentityComponentGood.lean`,
+`Def_WeierstrassCurve_PeuRamifiee.lean`) supply the geometric input.
+
+Note what is *not* in the code: there is no single declaration named after the
+equality. The equality is the conclusion of the patching-and-criterion argument,
+and the development encodes its two sides — the universal ring with its
+universal property, and the Hecke algebra with its eigenideals — rather than the
+statement. Reading a file for "$`R = T`$" therefore means reading for
+`DeformationRingData` applied to the Hecke side, plus the dichotomy and the
+auxiliary-level apparatus that make the numerical criterion available.
+
+### Key point → declaration map
+
+| Mathematics | Lean declaration | Location |
+|---|---|---|
+| coefficient rings: complete local Noetherian, residue $`k`$ | `IsLocalRing`, `IsAdicComplete`, `IsDiscreteValuationRing` | [AdicCompletion/Basic.lean, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/RingTheory/AdicCompletion/Basic.lean), [DiscreteValuationRing/Basic.lean](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/RingTheory/DiscreteValuationRing/Basic.lean) |
+| the residue field of a local ring | `IsLocalRing.ResidueField`, `IsLocalRing.residue` | [LocalRing/ResidueField/Defs.lean 30, v4.33.0](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/RingTheory/LocalRing/ResidueField/Defs.lean#L30) |
+| the residual representation, absolute irreducibility | `ResidualGaloisRep`, `IsAbsolutelyIrreducible`, `IsEquiv` | [Def_GaloisRep_Residual.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_GaloisRep_Residual.lean) |
+| a deformation to $`A`$ | `GaloisRepAdic` | [Def_GaloisRep_Adic.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_GaloisRep_Adic.lean) |
+| the universal deformation ring and its property | `DeformationRingData` | [DeformationRingData 8–40](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_GaloisRep_DeformationRingData.lean#L8-L40) |
+| the deformation functor, framed / up to conjugacy | `repnFunctor`, `repnQuotFunctor`, `liftFunctor`, `deformationFunctor` | [LiftFunctor 18, 39, 62, 66](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Deformations_LiftFunctor.lean#L18-L66) |
+| the tangent space (square-zero deformations) | `IsTangentVector`, `tangentSubmodule` | [TangentSubmodule 48, 71](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Deformations_TangentSubmodule.lean#L48-L71) |
+| the prescribed type of a deformation | the functor argument `𝒟` of `DeformationRingData` | [DeformationRingData 8–14](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_GaloisRep_DeformationRingData.lean#L8-L14) |
+| the Hecke algebra, free on its generators | `HeckeAlg`, `heckeGen`, `adjoin_range_heckeGen` | [HeckeGalois_EichlerShimura 14, 16, 23](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_HeckeGalois_EichlerShimura.lean#L14-L23) |
+| with diamond generators at level $`N`$ | `HeckeAlgOne` | [X1HeckeModule 16](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_X1HeckeModule.lean#L16) |
+| a Hecke module | `HeckeAlg →+* Module.End ℤ J'`, `Module HeckeAlg J` | [SpecializationWitness 35](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_SpecializationWitness.lean#L35) |
+| the eigenvalues of a form, as a map out of $`\mathbb{T}`$ | `eigenIdeal`, `mem_eigenIdeal_iff` | [HeckeGalois_EichlerShimura 30, 33](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_HeckeGalois_EichlerShimura.lean#L30-L34) |
+| the maximal ideal of an eigenform | `eigenIdeal` applied to the $`q`$-coefficients | [EigenformIdeal 14](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_EigenformIdeal.lean#L14) |
+| the Hecke-side Galois representation | `heckeTorsion`, `mTorsionGaloisRep`, `smul_mem_heckeTorsion` | [HeckeGalois_EichlerShimura 49, 57, 63](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_HeckeGalois_EichlerShimura.lean#L49-L63) |
+| the Eisenstein/non-Eisenstein dichotomy | `IsEventuallyEisenstein`, toric-dichotomy statements | [ToricDichotomyData 13–29](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_ToricDichotomyData.lean#L13-L29) |
+| the Eisenstein side | `eisensteinEval`, `eisensteinKernel` | [EisensteinIdeal 10](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_EisensteinIdeal.lean#L10), [HeckeGalois_EichlerShimura 86](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_HeckeGalois_EichlerShimura.lean#L86) |
+| patching: auxiliary-level Hecke modules | `Def_CuspForm_AuxLevelHeckeModule*`, `Def_CuspForm_TWLevelHeckeModule` | [Definitions/](https://github.com/anthropics/fermats-last-theorem/tree/aa2d8b3/Definitions) |
+
+## 7. Links
+
+FLT sources at the pinned sha `aa2d8b3`:
+
+- [Def_GaloisRep_DeformationRingData.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_GaloisRep_DeformationRingData.lean) — `DeformationRingData`
+- [Def_GaloisRep_Adic.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_GaloisRep_Adic.lean) and [Def_GaloisRep_Residual.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_GaloisRep_Residual.lean) — `GaloisRepAdic`, `ResidualGaloisRep`
+- [Def_Deformations_LiftFunctor.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Deformations_LiftFunctor.lean) — the deformation and lift functors
+- [Def_Deformations_TangentSubmodule.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Deformations_TangentSubmodule.lean) and [Def_Deformations_DualNumbers.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Deformations_DualNumbers.lean) — the tangent space
+- [Def_Deformations_IsResidueAlgebra.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Deformations_IsResidueAlgebra.lean), [Def_Deformations_Frobenius.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Deformations_Frobenius.lean), [Def_Deformations_LocalSplitting.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Deformations_LocalSplitting.lean) — local conditions
+- [Def_Deformations_ProartinianCat.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Deformations_ProartinianCat.lean) and [Def_Deformations_ConjQuotSubfunctor.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Deformations_ConjQuotSubfunctor.lean) — the coefficient category and conjugacy
+- [Def_HeckeGalois_EichlerShimura.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_HeckeGalois_EichlerShimura.lean) — `HeckeAlg`, `eigenIdeal`, `heckeTorsion`, `mTorsionGaloisRep`
+- [Def_ModularCurve_EigenformIdeal.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_EigenformIdeal.lean), [Def_ModularCurve_EisensteinIdeal.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_EisensteinIdeal.lean), [Def_ModularCurve_ToricDichotomyData.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_ToricDichotomyData.lean) — eigenideals and the dichotomy
+
+Mathlib at tag `v4.33.0`:
+
+- [RingTheory/AdicCompletion/Basic.lean](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/RingTheory/AdicCompletion/Basic.lean) — `IsAdicComplete`
+- [RingTheory/DiscreteValuationRing/Basic.lean](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/RingTheory/DiscreteValuationRing/Basic.lean) — `IsDiscreteValuationRing`
+- [RingTheory/LocalRing/ResidueField/Defs.lean](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/RingTheory/LocalRing/ResidueField/Defs.lean) — the residue field and residue map
+- [Algebra/Polynomial/MvPolynomial/Basic.lean](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/Algebra/Polynomial/MvPolynomial/Basic.lean) — `MvPolynomial`, `aeval`
+
+Companion notes:
+
+- [002 — Modular forms basics](002-modular-forms-basics.md) — the Hecke operators whose algebra this note abstracts
+- [003 — No level-2 weight-2 cusp forms](003-no-level-2-weight-2-cusp-forms.md) — the end of the route
+- [010 — Finite fields, Frobenius, and point counts](010-finite-fields-frobenius-and-point-counts.md) — the characteristic polynomial the map $`R \to \mathbb{T}`$ matches
