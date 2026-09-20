@@ -135,7 +135,7 @@ at good primes. The reason is that at a bad prime the eigenform's coefficient is
 | good | $`I_0`$ | $`p + 1 - \#E(\mathbb{F}_p)`$ | 0 |
 | multiplicative, split | $`I_n`$ | $`1`$ | 1 |
 | multiplicative, non-split | $`I_n`$ | $`-1`$ | 1 |
-| additive | $`II, III, IV, I_0^*, I_n^*, IV^*, III^*, II^*`$ | $`0`$ | $`\geq 2`$ |
+| additive | $`II, III, IV, I_0^{\ast}, I_n^{\ast}, IV^{\ast}, III^{\ast}, II^{\ast}`$ | $`0`$ | $`\geq 2`$ |
 
 The app obtains this table from **Tate's algorithm**, run at each prime dividing
 $`\Delta`$ of the minimal model. The same run produces the Kodaira symbol, the
@@ -146,9 +146,9 @@ $$N = \prod_{p \mid \Delta} p^{f_p}.$$
 
 For $`p \geq 5`$ every additive type has $`f_p = 2`$ exactly; the algorithm reads
 it off as $`f_p = v_p(\Delta)`$ minus an offset fixed by the type ($`0`$ for
-$`II`$, $`1`$ for $`III`$, $`2`$ for $`IV`$, $`4`$ for $`I_0^*`$,
-$`n+4`$ for $`I_n^*`$, $`6`$ for $`IV^*`$, $`7`$ for $`III^*`$, $`8`$ for
-$`II^*`$). At $`p = 2, 3`$ wild ramification can push $`f_p`$ up to 8, which is why
+$`II`$, $`1`$ for $`III`$, $`2`$ for $`IV`$, $`4`$ for $`I_0^{\ast}`$,
+$`n+4`$ for $`I_n^{\ast}`$, $`6`$ for $`IV^{\ast}`$, $`7`$ for $`III^{\ast}`$, $`8`$ for
+$`II^{\ast}`$). At $`p = 2, 3`$ wild ramification can push $`f_p`$ up to 8, which is why
 the app reports $`v_p(\Delta)`$ alongside the type. Tate's algorithm is also what
 turns a non-minimal equation into a minimal one: when the model is non-minimal at
 $`p`$ it divides the coefficients by $`p, p^2, p^3, p^4, p^6`$ and starts over.

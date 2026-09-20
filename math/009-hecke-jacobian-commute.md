@@ -20,7 +20,7 @@ takes exactly four mathematical moves:
 
 1. build $`J_0(N)`$ *from $`q`$-expansions alone*, as a divisor class group of a
    function field (§1–§2);
-2. build $`T_\ell`$ as the correspondences $`\alpha_*\circ\beta^*`$ attached to
+2. build $`T_\ell`$ as the correspondences $`\alpha_{\ast}\circ\beta^{\ast}`$ attached to
    the two degeneracy maps (§3);
 3. reduce commutation to a single *exchange identity* for divisors in a
    "roof square", and unwind that identity to a local sum over valuations (§4);
@@ -136,7 +136,7 @@ modules in the co-input list of §7). Later notes will open those; here the poin
 is that the Hecke action is *defined* on the divisor group directly, with no
 variety in sight.
 
-## 3. Degeneracy maps, and the correspondence $`T_\ell = \alpha_*\circ\beta^*`$
+## 3. Degeneracy maps, and the correspondence $`T_\ell = \alpha_{\ast}\circ\beta^{\ast}`$
 
 Recall the classical picture. $`X_0(N)`$ parametrises (generically) cyclic
 isogenies $`\varphi : E \to E'`$ of degree $`N`$. At prime level there are two
@@ -151,10 +151,10 @@ $$\beta : X_0(N\ell) \to X_0(N), \qquad (E \xrightarrow{N\ell} E'') \mapsto (E' 
 the "quotient by the $`\ell`$-part" map, which on functions is substitution
 $`q \mapsto q^\ell`$. The correspondence
 $`X_0(N) \leftarrow X_0(N\ell) \to X_0(N)`$ induces
-$`T_\ell = \alpha_* \circ \beta^*`$ on divisors: pull a point back to the
+$`T_\ell = \alpha_{\ast} \circ \beta^{\ast}`$ on divisors: pull a point back to the
 $`(\ell+1)`$-point fibre of $`\beta`$, then push forward along $`\alpha`$. On
 modular forms this is exactly the formula
-$`T_\ell f = \ell^{k-1}\,\mathrm{tr}\,(\beta^* f)`$ of Diamond–Shurman §5.2,
+$`T_\ell f = \ell^{k-1}\,\mathrm{tr}\,(\beta^{\ast} f)`$ of Diamond–Shurman §5.2,
 transposed to divisors.
 
 In the field model the two maps are two $`L`$-algebra maps out of the same
@@ -170,7 +170,7 @@ field into the level-$`N\ell`$ field
   $`j(q^d) \mapsto j(q^{\ell d}) \in \bar F_{N\ell}`$.
 
 Any two integral maps $`\varphi, \psi : F \to F'`$ define a *correspondence on
-divisors*, $`\psi_* \circ \varphi^*`$
+divisors*, $`\psi_{\ast} \circ \varphi^{\ast}`$
 ([Def_AlgebraicCurve_Correspondence.lean, line 137](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_Correspondence.lean#L137)),
 where pullback and pushforward along $`\iota : F \to F'`$ are the two basic
 operations of function-field arithmetic ([lines 67 and 99](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_Correspondence.lean#L67)):
@@ -182,13 +182,13 @@ pullback weighted by ramification indices $`e`$, pushforward by residue degrees
 $`f`$. To *descend* this to $`\mathrm{Pic}^0`$, three facts are needed, each a
 named hypothesis in the project:
 
-- $`\iota^*`$ sends a principal divisor to a principal divisor
+- $`\iota^{\ast}`$ sends a principal divisor to a principal divisor
   (`isPrincipal_pullbackAlong`);
-- $`\iota^*`$ multiplies degrees by $`[F' : F]`$ — the **fundamental identity**
+- $`\iota^{\ast}`$ multiplies degrees by $`[F' : F]`$ — the **fundamental identity**
   $`\sum_{Q \mid P} e(Q/P) f(Q/P) = [F' : F]`$, so degree-zero is preserved
   (`FundamentalIdentityAlong`);
-- $`\iota_*`$ sends principal to principal: if $`D = \mathrm{div}(g)`$ then
-  $`\iota_* D = \mathrm{div}(\mathrm{Norm}_{F'/F}\, g)`$ — the **norm formula**
+- $`\iota_{\ast}`$ sends principal to principal: if $`D = \mathrm{div}(g)`$ then
+  $`\iota_{\ast} D = \mathrm{div}(\mathrm{Norm}_{F'/F}\, g)`$ — the **norm formula**
   (`NormFormulaAlong`; `isPrincipal_pushforwardAlong`).
 
 Bundled, these five bits of structure (integrality of each map, principal
@@ -254,7 +254,7 @@ This is the payoff of the §1 design: what is classically "these two moduli
 interpretations agree" is here "both composites are $`f(q) \mapsto f(q^\ell)`$".
 
 **Step two: exchange is the whole game.** Compositions of functors give
-$`T_\ell \circ T_{\ell'} = \bar\alpha_{(\ell),*}\, \bar\beta^*\, \bar\alpha_{(\ell'),*}\, \bar\beta_{(\ell')}^*`$,
+$`T_\ell \circ T_{\ell'} = \bar\alpha_{(\ell),\ast}\, \bar\beta^{\ast}\, \bar\alpha_{(\ell'),\ast}\, \bar\beta_{(\ell')}^{\ast}`$,
 so the middle pair must be exchanged. Predicate-ised
 ([Def_ModularCurve_DegeneracyTower.lean, lines 121–132](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_DegeneracyTower.lean#L121-L132)),
 the requirement is: for every divisor $`D`$ on $`\bar F_{N\ell'}`$,
@@ -430,7 +430,7 @@ and in the junk branch both sides are $`0`$. The theorem makes sure the
 fallback branch is unreachable mathematics, not just unreachable code.
 
 The reader can forget both quirks now: *as mathematics*, every operator in this
-note is the genuine $`\alpha_*\beta^*`$ correspondence.
+note is the genuine $`\alpha_{\ast}\beta^{\ast}`$ correspondence.
 
 ## 7. What it buys: the abstract Hecke algebra
 

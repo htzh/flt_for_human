@@ -91,16 +91,23 @@ notation, spending their space on the subject at hand.
   differentials, the canonical class and Riemann–Roch; and one summary section
   (§8) on how the code encodes all of it, with the key-point table, plus the
   genus-one computation from `../pymath/divisors_and_pic0.py`.
+- [009 — Differentials, residues, and Riemann–Roch](009-differentials-residues-riemann-roch.md):
+  the machinery behind 008's two standing facts — the one-dimensional space of
+  differentials `Ω[F⁄K]`, the order and divisor of a differential, the canonical
+  class and `genus = (deg K + 2)/2`; local residues and the residue theorem, and
+  how its log-derivative case yields "a nonzero function has as many zeros as
+  poles"; the function space `L(D)`, its dimension `ell D` and the index of
+  specialty; the Riemann inequality and Riemann–Roch, with the genus-0, genus-1
+  and degree-zero cases; the genera-0-to-4 computation from
+  `../pymath/riemann_roch.py`; and one summary section (§6) on the code, where
+  `IsCurveOver` carries the residue theorem and the Riemann/duality/Riemann–Roch
+  rows are four named `Prop`s.
 
 ## Candidate topics (not yet written, no order implied)
 
 A working list, kept so the series does not drift into the FLT-specific
 material already covered in `../math/`:
 
-- **Differentials, residues and Riemann–Roch**: `Ω[F⁄K]` and `ordDifferential`,
-  the canonical divisor's class in `Pic`, Serre duality, and the Riemann–Roch
-  rows that 008's hypotheses (`HasPrincipalDivisors`, `FundamentalIdentity`,
-  `SumRamificationInertia`) are proved from.
 - **`ZMod n` and the mod-`n` world**: `ZMod` as a ring, its `Z`-module
   structure, `ZMod p` a field, cardinality and `Nat.card` facts. The substrate
   of `E[n]`.

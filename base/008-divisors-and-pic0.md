@@ -136,15 +136,20 @@ $$\varphi \\;:\\; E \longrightarrow \mathrm{Pic}^0(E), \qquad
   \varphi(P) \\;=\\; [P] - [O],$$
 
 which is an isomorphism of groups: addition on the left is the chord–tangent
-law, addition on the right is addition of divisor classes, and the
-chord–tangent identity
+law, addition on the right is addition of divisor classes, and the two agree
+because of the chord–tangent identity
 
-$$[P] + [Q] - [P+Q] - [O] \\;=\\; \mathrm{div}(\ell) - \mathrm{div}(v)$$
+$$[P] + [Q] - [P+Q] - [O] \\;=\\; \mathrm{div}(\ell) - \mathrm{div}(v),$$
 
-— the difference of the line through $`P, Q`$ and the vertical through $`P+Q`$ —
-is what makes them agree. In genus one the classification is also complete: a
-degree-zero divisor is principal exactly when its points sum to $`O`$, so every
-class is $`[P] - [O]`$ for a unique $`P`$. §6 works this case through, and
+where the right-hand side is the difference of the divisors of two linear
+*functions*: the one whose zero set is the line through $`P`$ and $`Q`$, and the
+vertical $`x - x(P+Q)`$. Equivalently, $`\ell/v`$ has exactly that divisor
+(for the vertical case $`P + Q = O`$ the chord *is* the vertical, and the
+divisor is $`\mathrm{div}(v)`$ itself).
+
+In genus one the classification is also complete: a degree-zero divisor is
+principal exactly when its points sum to $`O`$, so every class is
+$`[P] - [O]`$ for a unique $`P`$. §6 works this case through, and
 [math/009 §2](../math/009-hecke-jacobian-commute.md) grows the same dictionary
 into the Hecke action.
 
@@ -215,14 +220,14 @@ A point $`P'`$ maps to its image $`P`$, and a divisor pushes forward by adding
 multiplicities; a divisor on $`C`$ pulls back by distributing each point over
 the points above it, weighted by ramification:
 
-$$\pi_*\\!\left(\sum_{P'} n_{P'}\\,[P']\right)
+$$\pi_{\ast}\\!\left(\sum_{P'} n_{P'}\\,[P']\right)
    \\;=\\; \sum_{P'} n_{P'}\\,[\pi(P')], \qquad
-  \pi^*\\!\left([P]\right) \\;=\\; \sum_{P' \mid P} e_{P'}\\,[P'].$$
+  \pi^{\ast}\\!\left([P]\right) \\;=\\; \sum_{P' \mid P} e_{P'}\\,[P'].$$
 
 Their degree behaviour is what makes them useful on degree-zero divisors:
 
-$$\deg \pi_* D' \\;=\\; \deg D', \qquad
-  \deg \pi^* D \\;=\\; [F' : F] \cdot \deg D .$$
+$$\deg \pi_{\ast} D' \\;=\\; \deg D', \qquad
+  \deg \pi^{\ast} D \\;=\\; [F' : F] \cdot \deg D .$$
 
 So pushforward preserves degree zero, while pullback multiplies degree by the
 extension degree and preserves degree zero only when that degree is one (or
@@ -263,17 +268,24 @@ that, and also that each divisor's points sum to $`O`$ in the group law — the
 genus-one case of the residue theorem, which on an elliptic curve is sharp in
 that form.
 
-**The group law is the divisor class group.** Let $`\ell`$ be the line through
-$`P`$ and $`Q`$, and $`v`$ the vertical through $`P+Q`$. A line meets the curve
-in three points counted with multiplicity, so
+**The group law is the divisor class group.** Work on a plane model of $`E`$,
+and let $`\ell`$ be a *linear form* whose zero set is the line through $`P`$ and
+$`Q`$ — for a non-vertical chord, $`\ell = y - (mx + c)`$ — and let
+$`v = x - x(P+Q)`$ be the vertical through $`P+Q`$. Restricting either form to
+the curve gives a function; its divisor is read off from the geometry, since a
+non-vertical line meets the cubic in three points counted with multiplicity and
+has a triple pole at $`O`$ ($`x`$ has a double pole there and $`y`$ a triple
+one), while a vertical has a double pole. Hence
 $`\mathrm{div}(\ell) = [P] + [Q] + [-(P+Q)] - 3[O]`$ and
-$`\mathrm{div}(v) = [P+Q] + [-(P+Q)] - 2[O]`$; the quotient has divisor
+$`\mathrm{div}(v) = [P+Q] + [-(P+Q)] - 2[O]`$, and the quotient $`\ell/v`$ has
+divisor
 
 $$[P] + [Q] - [P+Q] - [O] \\;=\\; \mathrm{div}(\ell) - \mathrm{div}(v),$$
 
-which is principal, hence zero in $`\mathrm{Pic}^0`$. So
-$`[P] + [Q] = [P+Q]`$: the addition law on the curve *is* addition of divisor
-classes. That is the identity §3 quoted in the abstract; §5 is its
+which is principal, hence zero in $`\mathrm{Pic}^0`$; when $`P + Q = O`$ the
+chord is vertical and the same divisor is $`\mathrm{div}(v)`$ itself, so the
+conclusion is unchanged. So $`[P] + [Q] = [P+Q]`$: the addition law on the curve
+*is* addition of divisor classes. That is the identity §3 quoted in the abstract; §5 is its
 generalization to correspondences.
 
 **The isomorphism, and the classification.** With $`\varphi(P) = [P] - [O]`$,
