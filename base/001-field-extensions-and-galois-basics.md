@@ -101,17 +101,25 @@ with composition as the group law. For a finite Galois extension its order is
 the degree, $`\#\mathrm{Gal}(K/S) = [K : S]`$; for the infinite absolute group
 that counting statement is replaced by the profinite structure of §6.
 
-**The action on a curve.** An automorphism $`\sigma`$ of $`K`$ fixing $`S`$
-acts on everything built from $`K`$ by coefficients: on the polynomial equations
-of a curve defined over $`S`$, and hence on the curve and on its points. Two
-concretely useful consequences:
+**The action on a curve.** Let $`W`$ be a curve whose defining coefficients all
+lie in $`S`$ — so $`S`$ is its *field of definition*. An automorphism $`\sigma`$
+of $`K`$ fixing $`S`$ fixes those coefficients, hence maps $`W`$ to itself, and
+applying it to coordinates gives an action on the point group,
 
-- a curve $`W`$ over $`R`$ base-changed to $`K`$ has its point group acted on by
-  $`\mathrm{Gal}(K/S)`$, provided the automorphisms are taken over the field of
-  definition of the *action* $`S`$ — this is why $`S`$ is a parameter, and why
-  at the concrete level $`S = \mathbb{Q}`$ throughout FLT;
-- the $`n`$-torsion is stable under the action, because the group law and
-  multiplication by $`n`$ are defined over $`S`$.
+$$\sigma \cdot (x, y) \\;=\\; (\sigma x, \sigma y), \qquad \sigma \cdot O = O .$$
+
+Because the formulas for the group law also have their coefficients in $`S`$,
+this action is by *group* automorphisms: $`\sigma(P + Q) = \sigma P + \sigma Q`$,
+and $`\sigma(nP) = n(\sigma P)`$ for every $`n`$. By contrast, an automorphism
+that moved the coefficients would carry $`W`$ to a different curve $`W^\sigma`$
+and give no action on $`W`$ itself; that is why the automorphisms are taken over
+the field of definition $`S`$, and not over the larger field $`K`$. Two
+consequences are used constantly:
+
+- the $`n`$-torsion is stable under the action, because "$`nP = O`$" is again a
+  condition with coefficients in $`S`$;
+- in the FLT applications the curve has rational coefficients, so the acting
+  group is the absolute Galois group of $`\mathbb{Q}`$ and $`S = \mathbb{Q}`$.
 
 **Representation language.** Once the action on $`E[n] \cong (\mathbb{Z}/n)^2`$
 is fixed, choosing a basis turns it into a group homomorphism
