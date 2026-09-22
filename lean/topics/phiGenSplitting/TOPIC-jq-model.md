@@ -273,7 +273,7 @@ slash action.
 3. **Did any mathlib lemma blow up the way `qExpansion_coeff_unique` did?** If
    so, name it and how it was restated.
 
-## 8. Where this sits: the R1 sequence
+## 8. Where this sits: the sub-effort sequence (R1 = T5–T7; T8 = the cone)
 
 For orientation only — do not start any of these.
 

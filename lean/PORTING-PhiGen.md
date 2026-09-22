@@ -1,8 +1,7 @@
 # Blueprint: the Φₚ splitting cone — `PhiGen.splits_prime_at_slot`
 
-**Status: analysis done; T5 (R1's constancy kernel) and T6 (the analytic model of
-`jq`) landed, T7 next (2026-09-22).** This file is the math-content inventory of
-the 44-node cone below
+**Status: analysis done; T5–T7 landed — R1 complete — T8 next
+(2026-09-22).** This file is the math-content inventory of the 44-node cone below
 `ModularCurve.PhiGen.splits_prime_at_slot`, the measurement that the headline
 line count overstates it by ~1.6×, and the plan for the next topic: isolating
 the cone's one genuinely analytic input, the **level-one q-expansion principle**.
@@ -302,8 +301,8 @@ fourth:
 |---|---|---|---|---|
 | **T5 (done)** | the constancy kernel, plus the `n = 0` corollary | `coeff_eq_zero_of_hasSum_of_slash_invariant` | 186 | [TOPIC-r1-kernel.md](topics/phiGenSplitting/TOPIC-r1-kernel.md) |
 | **T6 (done)** | the analytic model of `jq` | `qExpansion_*`, `hasSum_jNum_qParam`, `hasSum_jq_qParam`, `E4_cube_div_discriminant_smul` | ~589 | [TOPIC-jq-model.md](topics/phiGenSplitting/TOPIC-jq-model.md) |
-| **T7 (next)** | the Hauptmodul form | `hasSum_qParam_mul{,_laurent}`, `exists_aeval_jq_sub_holomorphicAtInfty`, `mem_adjoin_jq_of_hasSum_of_slash_invariant` | ~462 | [TOPIC-hauptmodul.md](topics/phiGenSplitting/TOPIC-hauptmodul.md) |
-| T8 | the cone application: the descended coefficients lie in `ℚ[jq]` | the Hecke translates, `cosetPoly_smul`, `hasSum_cosetPoly_coeff`, `mem_adjoin_jq_of_phiGenDescends` | ~680 | — |
+| **T7 (done)** | the Hauptmodul form | `hasSum_qParam_mul{,_laurent}`, `exists_aeval_jq_sub_holomorphicAtInfty`, `mem_adjoin_jq_of_hasSum_of_slash_invariant` | ~462 | [TOPIC-hauptmodul.md](topics/phiGenSplitting/TOPIC-hauptmodul.md) |
+| **T8 (next)** | the cone application: the descended coefficients lie in `ℚ[jq]` | the Hecke translates, `cosetPoly_smul`, `hasSum_cosetPoly_coeff`, `mem_adjoin_jq_of_phiGenDescends` | ~680 | — |
 
 R1 = T5–T7; T8 is the cone's (c) and needs all three. The split is by
 mathematical object, not by file: T5 is generic modular-form analysis with no
@@ -353,20 +352,31 @@ both is clean, the checker moved 151 → 153, and the consumer gained Zone D (th
 *savings* again diverged. Measured cost and the audit table are in
 [logs/phiGen-port.md](logs/phiGen-port.md) §3.
 
-**T7 is next: the Hauptmodul form.** Its work order is written and audited:
-[topics/phiGenSplitting/TOPIC-hauptmodul.md](topics/phiGenSplitting/TOPIC-hauptmodul.md).
-It consumes T6's `hasSum_jq_qParam` and `E4_cube_div_discriminant_smul`, and T5's
-kernel `coeff_eq_zero_of_hasSum_of_slash_invariant` on the remainder, so all of
-its analytic inputs already exist. Its audit came out as the T6 log predicted —
-**this is the glue topic**: no public mathlib lemma replaces `RealL`, its
-closure, the pole-killing `exists_aeval_jq_sub_holomorphicAtInfty`, or the
-headline; mathlib supplies only the Cauchy-product core inside
-`hasSum_qParam_mul{,_laurent}` and the `HahnSeries`/`qParam` API around it. The
-pin is ~462 lines, and the port is expected at roughly 1:1 (T5 was 1.79, T6
-1.06). One deliberate divergence: T7 **exports** `RealL` + closure and
-`hasSum_qParam_mul{,_laurent}` public, because FLT duplicates the `RealL` block
-in T8's pin file and T8 should import T7's instead of re-deriving it. T7
-completes R1.
+**T7 is done** (2026-09-22, one goal round) — **R1 is complete.** Its work order
+was
+[topics/phiGenSplitting/TOPIC-hauptmodul.md](topics/phiGenSplitting/TOPIC-hauptmodul.md),
+now the executed plan. It delivered the headline
+`mem_adjoin_jq_of_hasSum_of_slash_invariant` in
+`FLTForHuman/ModularForms/Hauptmodul.lean`, composing T5's kernel with this
+topic's pole killing and T6's realization, and **exported** `RealL` + closure and
+`hasSum_qParam_mul{,_laurent}` as T8's interface (FLT duplicates the `RealL`
+block in T8's pin file; the port does it once). The audit came out exactly as
+predicted — this is the glue topic: no public mathlib lemma replaces `RealL`, its
+closure, pole killing, or the headline; mathlib supplies only the Cauchy-product
+core and the `HahnSeries`/`qParam` API. The port is 483 lines against the
+462-line pin (ratio 1.05, T5 was 1.79, T6 1.06), over 15 public and 16 private
+declarations. No blow-up; the only drift was `if_pos` → `ite_eq_left`. The
+checker moved 153 → 168 (the `RealL` block and the headline are verified as
+transcribed statements), the consumer gained Zone E (the wire test runs the
+headline on `jq` with T6's two theorems as its hypotheses), and R1's analytic
+input is now a complete, compiled chain. The measured cost is in
+[logs/phiGen-port.md](logs/phiGen-port.md) §7.
+
+**T8 is next: the cone application.** Its work order is unwritten. It imports
+this topic's `RealL` closure and `hasSum_qParam_mul{,_laurent}` (not a copy), and
+its content is the Hecke translates, `cosetPoly_smul`, `hasSum_cosetPoly_coeff`
+and `mem_adjoin_jq_of_phiGenDescends`. R1 is no longer on its critical path: the
+analytic input is done, so T8 is the algebra of the cone's (c).
 
 **Cost honesty.** The cone's own `jq`-coefficients precedent is the warning:
 math/010 priced the `744`/`196884` coefficients against the same 11,034-line

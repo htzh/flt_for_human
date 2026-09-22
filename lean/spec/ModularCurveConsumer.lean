@@ -61,6 +61,8 @@ import FLTForHuman.ModularCurve.JqCoefficients
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Spine
 -- The R1 analytic model of `jq` (topic 6): `jq` sums to `E₄³/Δ` on `ℍ`.
 import FLTForHuman.ModularForms.JqAnalyticModel
+-- T7: R1's Hauptmodul form, and the `RealL`/Cauchy-product interface for T8.
+import FLTForHuman.ModularForms.Hauptmodul
 
 set_option autoImplicit false
 
@@ -241,6 +243,27 @@ example (γ : Matrix.SpecialLinearGroup (Fin 2) ℤ) (τ : UpperHalfPlane) :
       = ModularForm.E₄ τ ^ 3 / ModularForm.discriminant τ :=
   E4_cube_div_discriminant_smul γ τ
 
+/-! ## Zone E — [T7] R1 completed: the Hauptmodul form
+
+`FLTForHuman/ModularForms/Hauptmodul.lean` proves the headline
+`mem_adjoin_jq_of_hasSum_of_slash_invariant`: a Laurent series realized by an
+`SL₂(ℤ)`-invariant function on `ℍ` lies in `ℚ[jq]`. Its proof composes T5's
+kernel with this module's pole killing and T6's realization; its T8 interface
+(`RealL` + closure, `hasSum_qParam_mul{,_laurent}`) is exported public.
+
+The **wire test** below is the whole hypothesis chain across three modules: the
+headline (T7) applied to `f = jq` and `F = E₄³/Δ`, with `hF` from T6's
+`hasSum_jq_qParam` and `hinv` from T6's `E4_cube_div_discriminant_smul`. The
+conclusion `jq ∈ ℚ[jq]` is trivial mathematically, so the test is exactly that
+the *interface* holds: T7's statement accepts T6's two theorems.
+-/
+
+example : jq ∈ Algebra.adjoin ℚ {jq} :=
+  mem_adjoin_jq_of_hasSum_of_slash_invariant jq
+    (fun τ => ModularForm.E₄ τ ^ 3 / ModularForm.discriminant τ)
+    (fun τ => hasSum_jq_qParam τ)
+    (fun γ τ => E4_cube_div_discriminant_smul γ τ)
+
 /-! ## The measure
 
     cd lean
@@ -312,6 +335,16 @@ unchanged: **0 errors**, one `sorry`.
 with `Defs/Jq.lean`'s `coeff_jq_neg_one` and `JqCoefficients.lean`'s
 `coeff_jq_zero`/`coeff_jq_one`, exhibiting the classical
 `j(q) = q⁻¹ + 744 + 196884 q + ⋯`. This file is still **0 errors**, one `sorry`.
+
+**Hauptmodul result (2026-09-22).** Zone E is added and bound:
+`FLTForHuman/ModularForms/Hauptmodul.lean` proves the headline
+`mem_adjoin_jq_of_hasSum_of_slash_invariant`, completing R1. The zone's wire test
+runs the headline on `f = jq`, `F = E₄³/Δ` with `hF` from T6's `hasSum_jq_qParam`
+and `hinv` from T6's `E4_cube_div_discriminant_smul` — a cross-module composition
+over three modules whose conclusion (`jq ∈ ℚ[jq]`) is trivial but whose
+hypotheses are the whole interface. The module also exports the `RealL` closure
+and `hasSum_qParam_mul{,_laurent}` that T8 imports. Still **0 errors**, one
+`sorry`.
 
 ## Friction list (mathlib `v4.34.0` against FLT's `v4.33.0`)
 
@@ -415,6 +448,20 @@ every entry.
     `ModularFormClass.qExpansion_coeff_unique` call is already on the *bundled*
     `CuspForm.discriminant`, which is exactly what avoids T5's `DFunLike.coe`
     blow-up — no restatement was needed here.
+15. **Topic 7 — the glue topic, and the checker's raw-text requirement.**
+    (a) No blow-up: nothing is instantiated at a bare function type, and the
+    module typechecked on the first bounded `lake env lean` (6 s build). The one
+    drift was `if_pos` → `ite_eq_left` in `hasSum_single_mul_coe_iff` (entry 2's
+    family; the same file also hits `LaurentSeries.coeff_coe_powerSeries`).
+    (b) **A real spec constraint, not drift.** The exported statements had to be
+    written in the *wrappers'* raw form, not the port's convenient one: the
+    wrappers write `UpperHalfPlane → ℂ` and `Function.Periodic.qParam`, while the
+    `S_` files write `ℍ` and the local `𝕢`. The two are definitionally equal but
+    the checker's `norm` is a text diff, so `RealL` (whose comparable source is
+    the `S_` file) keeps `ℍ`/`𝕢` while `hasSum_qParam_mul{,_laurent}` and the
+    headline (whose comparable sources are the wrappers) use the long forms.
+    **The rule for later topics: match the wrapper's spelling, not the S file's,
+    for any public declaration the checker verifies.**
 
 The `sorry`s are not errors and do not count: their job is to keep the
 *statements* checkable while the proofs are out of scope.

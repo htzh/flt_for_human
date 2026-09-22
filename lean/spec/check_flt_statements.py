@@ -70,6 +70,17 @@ SOURCES = [
     # never sees it (the two wrappers are the comparable copies).
     "Theorems/Thm_ModularCurve_hasSum_jq_qParam.lean",
     "Theorems/Thm_ModularCurve_E4_cube_div_discriminant_smul.lean",
+    # Topic 7, `FLTForHuman/ModularForms/Hauptmodul.lean`: the Hauptmodul form.
+    # The headline and the two Cauchy-product lemmas are the pin wrappers verbatim.
+    # `RealL` and its closure are *transcribed* rather than wrapper-declared (FLT
+    # has no `Thm_` file for them), so the `S_` file's own public block is the
+    # comparable copy. The `S_` file comes after the wrappers: it is the only
+    # source for `RealL`/`add`/`neg`/... , and those generic names do not occur in
+    # any earlier source.
+    "Theorems/Thm_ModularCurve_hasSum_qParam_mul.lean",
+    "Theorems/Thm_ModularCurve_hasSum_qParam_mul_laurent.lean",
+    "Theorems/Thm_ModularCurve_mem_adjoin_jq_of_hasSum_of_slash_invariant.lean",
+    "P2M/Sol/S_ModularCurve_mem_adjoin_jq_of_hasSum_of_slash_invariant.lean",
 ]
 
 PORT_FILES = [
@@ -87,6 +98,7 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/FunctionFieldGeneration/Spine.lean",
     "FLTForHuman/ModularForms/QExpansionPrinciple.lean",
     "FLTForHuman/ModularForms/JqAnalyticModel.lean",
+    "FLTForHuman/ModularForms/Hauptmodul.lean",
 ]
 
 # Declarations whose *statement* has no FLT source, so there is nothing to diff:

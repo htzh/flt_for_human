@@ -341,7 +341,7 @@ Same shape as the parent effort's topics. Three things specifically:
 3. **Is the corollary worth keeping?** If topic 7's headline will subsume it
    cleanly, say whether it should survive as a convenience or be removed then.
 
-## 8. Where this sits: the R1 sequence
+## 8. Where this sits: the sub-effort sequence (R1 = T5–T7; T8 = the cone)
 
 For orientation only — do not start any of these. Each is sized from the pin's
 own file lengths, and each gets its own work order when its turn comes.

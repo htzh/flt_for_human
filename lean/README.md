@@ -103,6 +103,7 @@ alongside `.lake/` in case it does.
 | `FLTForHuman/ModularCurve/FunctionFieldGeneration/Spine.lean` | the conditional capstone | `Tight`/`Gen`/`Hall`, the proved strong induction `hall_all`, the structure `Inputs` (FLT's 7 significant remaining statements), and `functionFieldGeneration_of (h : Inputs) : FunctionFieldGeneration N` — proved, with no `sorryAx` |
 | `FLTForHuman/ModularForms/QExpansionPrinciple.lean` | R1, the level-one q-expansion principle | `coeff_eq_zero_of_hasSum_of_slash_invariant` (verbatim from its pin wrapper): a holomorphic, `SL₂(ℤ)`-invariant `q`-series is constant. Plus our `mem_adjoin_jq_of_poleOrderLE_zero`, the `n = 0` end of R1's Hauptmodul form and the wire test. The port's first analytic module: the analysis is mathlib's `ModularForm.eq_const_of_weight_zero`; of the pin's 14 helpers only `mdifferentiable` needed a proof, one (`coeff_unique`) kept its pin argument because mathlib's replacement blows up on the bare function type, and the rest became mathlib calls. FLT `S_ModularCurve_coeff_eq_zero_of_hasSum_of_slash_invariant` (186 lines) |
 | `FLTForHuman/ModularForms/JqAnalyticModel.lean` | the analytic model of `jq` | `hasSum_jq_qParam` (verbatim): the formal Laurent series `jq` sums to `E₄(τ)³/Δ(τ)` on `ℍ`, coefficient by coefficient — the realization hypothesis T7 consumes, and the only bridge from `Defs/Jq.lean`'s `PowerSeries`-built `jq` to mathlib's `E₄`/`Δ`. Plus `E4_cube_div_discriminant_smul`, its `SL₂(ℤ)`-invariance. The pin's `qExpansion_*` cluster and its gluing to `eisenstein4`/`dedekindEtaUnit`/`jNum`; `hasSum_jNum_qParam` stays private. FLT `S_ModularCurve_hasSum_jq_qParam` + `…_hasSum_jNum_qParam` + `qExpansion_{E4,discriminant_*}` (~589 lines) |
+| `FLTForHuman/ModularForms/Hauptmodul.lean` | the Hauptmodul form — R1 complete | `mem_adjoin_jq_of_hasSum_of_slash_invariant` (verbatim): a Laurent series realized by an `SL₂(ℤ)`-invariant function on `ℍ` lies in `ℚ[jq]`. It composes T5's kernel (on the holomorphic remainder) with this module's pole killing and T6's realization. Also **exports** `RealL` + its closure and `hasSum_qParam_mul{,_laurent}`: FLT duplicates the `RealL` block in its T8 file, so the port defines it once here and T8 imports it. FLT `S_ModularCurve_hasSum_qParam_mul` + `…_mul_laurent` + `…_exists_aeval_jq_sub_holomorphicAtInfty` + `…_mem_adjoin_jq_of_hasSum_of_slash_invariant` (~462 lines) |
 
 The port of `#E[n](K) = n²` (math/005) has its own working record:
 [logs/card-torsion-port.md](logs/card-torsion-port.md) — dependency trace,
@@ -143,7 +144,7 @@ errors** with Zones A, B and C all bound. Its only remaining `sorry` is the
 deferred theorem's capstone. `PORTING-FFG.md` records why the theorem itself stays
 deferred; the consumer's tail carries the v4.34.0 friction list, and
 [spec/check_flt_statements.py](spec/check_flt_statements.py) diffs every port
-declaration's statement against the pinned source (153 of 153 identical, with the
+declaration's statement against the pinned source (168 of 168 identical, with the
 own-proof declarations exempted explicitly).
 
 Both Layer 0 work orders are gone: they were finished, their durable material
@@ -218,13 +219,17 @@ argument was ported. The port is 622 lines against the ~589-line pin, and the
 consumer gained Zone D (the model composed with the `jq`-coefficient module);
 [logs/phiGen-port.md](logs/phiGen-port.md) §6 carries the accounting.
 
-The sub-effort's third topic is written and audited:
-[TOPIC-hauptmodul.md](topics/phiGenSplitting/TOPIC-hauptmodul.md) is the
+The sub-effort's third topic is complete, and it **completes R1**:
+[TOPIC-hauptmodul.md](topics/phiGenSplitting/TOPIC-hauptmodul.md) proves the
 Hauptmodul form — a pole-bounded realized invariant series is a polynomial in
-`jq` — which completes R1. Its audit confirms it is the **glue topic** (no
-mathlib-replaceable leaves: `RealL`, its closure, the pole-killing lemma and the
-headline are all ported), and it exports the `RealL` API so the cone application
-(T8) reuses it instead of duplicating FLT's copy.
+`jq` — in `FLTForHuman/ModularForms/Hauptmodul.lean`. Its audit confirmed it is
+the **glue topic**: no mathlib-replaceable leaves (`RealL`, its closure, the
+pole-killing lemma and the headline are all ported), and the port is 483 lines
+against the ~462-line pin (ratio 1.05). It exports the `RealL` API so the cone
+application (T8) reuses it instead of duplicating FLT's copy, and the consumer
+gained Zone E (the wire test runs the headline on `jq` with T6's two theorems);
+[logs/phiGen-port.md](logs/phiGen-port.md) §7 carries the accounting and the one
+checker constraint it discovered.
 
 ## Where things live
 
@@ -244,9 +249,11 @@ level into `topics/<effort>/`, and the log gains the entry that summarises it.
 `topics/functionFieldGeneration/` holds the four topics of the
 `functionFieldGeneration` effort, and `topics/phiGenSplitting/` holds the topics
 of its Φ_p splitting / R1 sub-effort
-([PORTING-PhiGen.md](PORTING-PhiGen.md)); its first two work orders,
-[TOPIC-r1-kernel.md](topics/phiGenSplitting/TOPIC-r1-kernel.md) and
-[TOPIC-jq-model.md](topics/phiGenSplitting/TOPIC-jq-model.md), are complete, and
+([PORTING-PhiGen.md](PORTING-PhiGen.md)); its first three work orders,
+[TOPIC-r1-kernel.md](topics/phiGenSplitting/TOPIC-r1-kernel.md),
+[TOPIC-jq-model.md](topics/phiGenSplitting/TOPIC-jq-model.md) and
+[TOPIC-hauptmodul.md](topics/phiGenSplitting/TOPIC-hauptmodul.md), are complete
+(R1 is done), and
 [logs/phiGen-port.md](logs/phiGen-port.md) is the sub-effort's record.
 
 ## Sources

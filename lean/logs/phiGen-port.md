@@ -1,16 +1,17 @@
 # The Φₚ splitting / R1 sub-effort — record
 
-**Status: T5 and T6 complete (2026-09-22).** This is the running record for the
-sub-effort [PORTING-PhiGen.md](../PORTING-PhiGen.md) opens: the R1 (level-one
-q-expansion principle) sequence that gives the Φₚ splitting cone its one analytic
-input. It is separate from the parent `functionFieldGeneration` record
-([ffg-port.md](ffg-port.md)) — the parent's cone and this sub-effort share no
-declaration, and the sub-effort's topics are not on `ffg-port.md`'s layer
+**Status: T5–T7 complete (2026-09-22) — R1 is complete.** This is the running
+record for the sub-effort [PORTING-PhiGen.md](../PORTING-PhiGen.md) opens: the R1
+(level-one q-expansion principle) sequence that gives the Φₚ splitting cone its
+one analytic input. It is separate from the parent `functionFieldGeneration`
+record ([ffg-port.md](ffg-port.md)) — the parent's cone and this sub-effort share
+no declaration, and the sub-effort's topics are not on `ffg-port.md`'s layer
 table, so the measured cost lives here rather than as an append there.
 
 The executed plans are
-[TOPIC-r1-kernel.md](../topics/phiGenSplitting/TOPIC-r1-kernel.md) (T5) and
-[TOPIC-jq-model.md](../topics/phiGenSplitting/TOPIC-jq-model.md) (T6); the
+[TOPIC-r1-kernel.md](../topics/phiGenSplitting/TOPIC-r1-kernel.md) (T5),
+[TOPIC-jq-model.md](../topics/phiGenSplitting/TOPIC-jq-model.md) (T6) and
+[TOPIC-hauptmodul.md](../topics/phiGenSplitting/TOPIC-hauptmodul.md) (T7); the
 mathematics of record is
 [base/013](../../base/013-riemann-existence-and-the-q-expansion-principle.md) §3,
 §5.4, §6. FLT is pinned at `aa2d8b3`; mathlib at `v4.34.0`.
@@ -21,15 +22,17 @@ mathematics of record is
 |---|---|---|---|
 | **T5** | R1's constancy kernel + the `n = 0` corollary, in `FLTForHuman/ModularForms/` | **done**, 1 module, 2 public + 6 private, 333 lines | kernel verbatim; axioms clean |
 | **T6** | the analytic model of `jq` (`jq` sums to `E₄³/Δ`; its `SL₂(ℤ)`-invariance) | **done**, 1 module, 2 public + 43 private, 622 lines | both statements verbatim; consumer Zone D bound; axioms clean |
-| T7 | the Hauptmodul form | not started | — |
+| **T7** | the Hauptmodul form (R1 complete) | **done**, 1 module, 15 public + 16 private, 483 lines | headline + T8 interface verbatim; consumer Zone E bound; axioms clean |
 | T8 | the cone application (Hecke translates) | not started | — |
 
-R1 = T5–T7; T8 is the cone's (c). The sub-effort's deliverables are two files:
+R1 = T5–T7 (**now complete**); T8 is the cone's (c). The sub-effort's deliverables
+are three files:
 
 | module | lines | decls | FLT source (`aa2d8b3`) |
 |---|---|---|---|
 | `FLTForHuman/ModularForms/QExpansionPrinciple.lean` | 333 | 2 public + 6 `private` (+1 `example`) | `P2M/Sol/S_ModularCurve_coeff_eq_zero_of_hasSum_of_slash_invariant.lean` (186) |
-| `FLTForHuman/ModularForms/JqAnalyticModel.lean` | 622 | 2 public + 43 `private` | `hasSum_jq_qParam` (45), `hasSum_jNum_qParam` (235), `qExpansion_discriminant_eq_X_mul_tprod` (199), `…_map_X_mul_dedekindEtaUnit` (76), `qExpansion_E4_…` (34), `…_E4_cube_div_discriminant_smul`
+| `FLTForHuman/ModularForms/JqAnalyticModel.lean` | 622 | 2 public + 43 `private` | `hasSum_jq_qParam` (45), `hasSum_jNum_qParam` (235), `qExpansion_discriminant_eq_X_mul_tprod` (199), `…_map_X_mul_dedekindEtaUnit` (76), `qExpansion_E4_…` (34), `…_E4_cube_div_discriminant_smul` |
+| `FLTForHuman/ModularForms/Hauptmodul.lean` | 483 | 15 public + 16 `private` | `hasSum_qParam_mul` (80), `…_laurent` (84), `exists_aeval_jq_sub_holomorphicAtInfty` (84), `mem_adjoin_jq_of_hasSum_of_slash_invariant` (214) |
 
 ## 1. What T5 cost
 
@@ -217,3 +220,81 @@ Zone D of `spec/ModularCurveConsumer.lean` composes this module's
 `HasSum` itself does not expose its terms, so the composition is stated as the
 `HasSum` plus the three coefficient values — the form the work order names. The
 zone also checks `E4_cube_div_discriminant_smul`; the real consumer is T7.
+
+## 7. T7: the Hauptmodul form — R1 complete
+
+Module: `FLTForHuman/ModularForms/Hauptmodul.lean`, 483 lines, **15 public** and
+**16 `private`** declarations. The headline
+`mem_adjoin_jq_of_hasSum_of_slash_invariant` is verbatim from its pin wrapper;
+the other public declarations are the T8 interface (`RealL` + 11 closure lemmas,
+`hasSum_qParam_mul`, `hasSum_qParam_mul_laurent`). Pole killing (5 helpers),
+`realL_aeval_jq`, the `jt`/`jqC` glue and `mem_adjoin_jq_of_realL_invariant` are
+private. One goal round (of 3).
+
+| | |
+|---|---|
+| goal rounds | **1** (the 3-round budget was for the blow-up risk that never materialised) |
+| declarations | 15 public, 16 `private` |
+| lines written | 483 total: ~100 header/imports, ~100 Cauchy products, ~120 `RealL` + closure, ~95 pole killing, ~70 glue + headline |
+| build | `lake build` 3769 jobs, green, **0 warnings**, no `sorry` |
+| `#print axioms` | the headline, both Cauchy lemmas and `RealL.mul`: only `propext, Classical.choice, Quot.sound` |
+| checker | `168 statements identical, 0 mismatched, 0 missing, 8 own-proof exempted` (153 → 168) |
+| consumer | Zone E added and bound; **0 errors**, still one `sorry` (the deferred capstone) |
+
+### 7.1 Did "glue is 1:1" hold?
+
+Yes — better. **483 port lines against a ~462-line pin, ratio 1.05** (T5 1.79,
+T6 1.06). The §2.1 audit predicted that no public mathlib lemma would replace
+`RealL`, its closure, `coeff_prod_X_sub_C`, `realL_aeval_jq`, pole killing or the
+headline, and that held: the port is a faithful transcription with mathlib only
+inside `hasSum_qParam_mul` (the Cauchy-product core:
+`tsum_mul_tsum_eq_tsum_sum_antidiagonal_of_summable_norm` /
+`summable_norm_sum_mul_antidiagonal_of_summable_norm`), in the Laurent order
+split (`single_order_mul_powerSeriesPart`, `coeff_coe_powerSeries`, …), in the
+pole-killing coefficient API (`le_order_iff_forall`,
+`coeff_eq_zero_of_lt_order`), and via T5/T6. The only proof with real content
+that is entirely ours is `summable_norm_of_hasSum_qParam` (the comparison-radius
+argument from a `HasSum` on `ℍ` to absolute summability on the disc).
+
+### 7.2 The exported API
+
+Exactly as scoped. The public closure is `RealL.add`, `.neg`, `.sub`, `.mul`,
+`.single`, `.C`, `.one`, `.zero`, `.congr`, `.prod`, `.coeff_prod_X_sub_C`, plus
+`hasSum_qParam_mul` and `hasSum_qParam_mul_laurent`. FLT duplicates the `RealL`
+block in T8's pin file
+(`S_ModularCurve_PhiGen_PhiGenDescends_hasSum_cosetPoly_coeff.lean`); the port
+defines it once here, so **T8 imports rather than copies**, and T8's `RealL.mul`
+will need exactly the two exported Cauchy lemmas. Nothing else was exported.
+
+### 7.3 Did any mathlib lemma blow up?
+
+No. Nothing is instantiated at a bare function type, and the module typechecked
+on the first bounded `lake env lean` (6 s build). The only drift was `if_pos` →
+`ite_eq_left` in `hasSum_single_mul_coe_iff`.
+
+**One constraint worth its own entry (checker, not mathematics).** The exported
+statements had to be written in the *wrappers'* raw spelling, not the port's
+convenient one. The wrappers write `UpperHalfPlane → ℂ` and
+`Function.Periodic.qParam`, while the `S_` files write `ℍ` and the local `𝕢`;
+these are definitionally equal, but `spec/check_flt_statements.py` is a text diff.
+So `RealL` (comparable source: the `S_` file) keeps `ℍ`/`𝕢`, while
+`hasSum_qParam_mul{,_laurent}` and the headline (comparable sources: the
+wrappers) use the long forms. **Rule for T8 and later: match the wrapper's
+spelling for any public declaration the checker verifies.**
+
+### 7.4 The wire test
+
+Zone E of `spec/ModularCurveConsumer.lean` runs the headline on `f = jq` and
+`F = E₄³/Δ`, with `hF` from T6's `hasSum_jq_qParam` and `hinv` from T6's
+`E4_cube_div_discriminant_smul`, concluding `jq ∈ ℚ[jq]`. The conclusion is
+trivial mathematically; the test is that T7's statement *accepts* T6's two
+theorems — the whole interface across three modules. It is the R1 completion
+check, and `#print axioms` on the headline is clean.
+
+### 7.5 R1 is complete
+
+T5 (kernel) → T6 (realization) → T7 (Hauptmodul) now form a compiled chain:
+`coeff_eq_zero_of_hasSum_of_slash_invariant` is applied inside
+`mem_adjoin_jq_of_realL_invariant` to the holomorphic remainder of an arbitrary
+pole-bounded invariant series, and the realization of the polynomials in `jq` is
+T6's. T8 is the cone's algebra and no longer has R1 on its critical path.

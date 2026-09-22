@@ -1,6 +1,12 @@
 # Topic 7: the Hauptmodul form
 
-**Status: work order, not started (2026-09-22).** Third topic of the Φ_p
+**Status: done (2026-09-22), one goal round — R1 is complete.** The module is
+`FLTForHuman/ModularForms/Hauptmodul.lean`, green with 0 warnings and no `sorry`;
+the measured cost and the audit accounting are in
+[logs/phiGen-port.md](../../logs/phiGen-port.md) §7. The next topic is T8, the
+cone application ([PORTING-PhiGen.md](../../PORTING-PhiGen.md) §5); this topic's
+`RealL` closure and `hasSum_qParam_mul{,_laurent}` are its interface. This file is
+kept as the executed plan. Third topic of the Φ_p
 splitting / R1 sub-effort. The plan is
 [PORTING-PhiGen.md](../../PORTING-PhiGen.md); the mathematics is
 [base/013](../../../base/013-riemann-existence-and-the-q-expansion-principle.md)
@@ -159,6 +165,18 @@ for mathlib analogues and to budget the port as a port. The `FunLike` trap is no
 expected (nothing is instantiated at a bare function type), but the discipline
 stands.
 
+**Post-execution note (2026-09-22).** The audit held exactly: no blow-up, and the
+module typechecked on the first bounded `lake env lean`. The port is **483 lines**
+against the ~462-line pin (ratio 1.05), 15 public and 16 private declarations —
+the "glue is 1:1" prediction. The one drift was `if_pos` → `ite_eq_left` in
+`hasSum_single_mul_coe_iff`. Two things worth carrying to T8: (i) the exported
+`RealL` closure came out exactly as scoped (T8 can import all of it), and
+(ii) **a statement-checker constraint, not a mathematical one**: public
+statements had to be written in the *wrappers'* raw spelling (`UpperHalfPlane → ℂ`
+and `Function.Periodic.qParam`), while `RealL` — whose comparable source is the
+`S_` file — keeps `ℍ` and the local `𝕢`; the checker's diff is textual. Full
+accounting in [logs/phiGen-port.md](../../logs/phiGen-port.md) §7.
+
 ## 3. What is different about this topic
 
 - **It exports an API, not just a result.** The `RealL` block is FLT-duplicated
@@ -210,20 +228,21 @@ predicate.
 
 ## 6. Definition of done
 
-- [ ] `FLTForHuman/ModularForms/Hauptmodul.lean`: the headline public, verbatim
+- [x] `FLTForHuman/ModularForms/Hauptmodul.lean`: the headline public, verbatim
       from its wrapper; `RealL` + closure and `hasSum_qParam_mul{,_laurent}`
       public (the T8 interface, with a header note that FLT duplicates the block);
       pole killing, `realL_aeval_jq`, the `jt`/`jqC` glue and
       `mem_adjoin_jq_of_realL_invariant` private.
-- [ ] `lake build` green, 0 warnings, no `sorry`.
-- [ ] `#print axioms` clean.
-- [ ] `spec/check_flt_statements.py`: the wrappers added to `SOURCES`, 0
-      mismatched; `PORT_FILES` gains the module.
-- [ ] the cross-module wire test from §4 recorded, with its form named.
-- [ ] `PORTING-PhiGen.md` §5 marks T7 done (R1 complete) and names T8; the log
+- [x] `lake build` green, 0 warnings, no `sorry`.
+- [x] `#print axioms` clean.
+- [x] `spec/check_flt_statements.py`: the wrappers added to `SOURCES` (153 → 168),
+      0 mismatched; `PORT_FILES` gains the module.
+- [x] the cross-module wire test from §4 recorded, with its form named (consumer
+      Zone E).
+- [x] `PORTING-PhiGen.md` §5 marks T7 done (R1 complete) and names T8; the log
       gains T7's cost and the audit accounting; README module table gains the
       module.
-- [ ] report in the §7 shape.
+- [x] report in the §7 shape.
 
 ## 7. Reporting back
 
@@ -234,7 +253,7 @@ predicate.
    This is the interface T8 cannot change.
 3. **Did any mathlib lemma blow up?** If so, name it and the restatement.
 
-## 8. Where this sits: the R1 sequence
+## 8. Where this sits: the sub-effort sequence (R1 = T5–T7; T8 = the cone)
 
 For orientation only — do not start T8.
 
@@ -242,7 +261,7 @@ For orientation only — do not start T8.
 |---|---|---|---|
 | 5 (done) | the constancy kernel + the `n = 0` corollary | `coeff_eq_zero_of_hasSum_of_slash_invariant` | 186 |
 | 6 (done) | the analytic model of `jq` | `qExpansion_*`, `hasSum_jNum_qParam`, `hasSum_jq_qParam`, `E4_cube_div_discriminant_smul` | ~589 |
-| **7 (this)** | the Hauptmodul form: `RealL` + closure, pole killing, `mem_adjoin_jq_of_hasSum_of_slash_invariant` | `hasSum_qParam_mul{,_laurent}`, `exists_aeval_jq_sub_holomorphicAtInfty`, `mem_adjoin_jq_of_hasSum_of_slash_invariant` | ~462 |
+| 7 (done) | the Hauptmodul form: `RealL` + closure, pole killing, `mem_adjoin_jq_of_hasSum_of_slash_invariant` | `hasSum_qParam_mul{,_laurent}`, `exists_aeval_jq_sub_holomorphicAtInfty`, `mem_adjoin_jq_of_hasSum_of_slash_invariant` | ~462 |
 | 8 | the cone application: the descended coefficients lie in `ℚ[jq]` | the Hecke translates, `cosetPoly_smul`, `hasSum_cosetPoly_coeff`, `mem_adjoin_jq_of_phiGenDescends` | ~680 |
 
 R1 is topics 5–7; **T7 completes it**. T8 is the cone's (c), and it imports this
