@@ -1,16 +1,18 @@
 # Blueprint: `ModularCurve.functionFieldGeneration`
 
-**Status (2026-09-22): Layer 0, its four topics, the Φ_p splitting cone and T14
-are done; the theorem's 17-node remainder is the live work.** The library of
-`lean/FLTForHuman/ModularCurve/` plus `FLTForHuman/FieldTheory/CommonRoot.lean` and
-the `FLTForHuman/ModularForms/` cone modules is green with zero warnings and zero
-`sorry`, the deliverable measure `spec/ModularCurveConsumer.lean` reports
+**Status (2026-09-22): Layer 0, its four topics, the Φ_p splitting cone and
+T14–T15 are done; the theorem's remaining nodes (T16–T20) are the live work.** The library
+of `lean/FLTForHuman/ModularCurve/` plus `FLTForHuman/FieldTheory/CommonRoot.lean`
+and the `FLTForHuman/ModularForms/` cone modules is green with zero warnings and
+zero `sorry`, the deliverable measure `spec/ModularCurveConsumer.lean` reports
 **0 errors**, and the effort now owns two halves of the theorem: the proved
 conditional capstone `functionFieldGeneration_of (h : Inputs)`, and the Φ_p cone
-(T5–T13 landed) that discharges its inputs. T14 has since written the pin's shared
-slot prelude once (`Defs/PhiAtSlot.lean`, `PhiSlotRoots.lean` and the `Defs/` extensions),
-so T15–T19 import it. **The live plan is §7.8**: the 17-node remainder, the
-measured ≈4.5k–4.9k line budget, and topics T15–T20.
+(T5–T13 landed) that discharges its inputs. T14 wrote the pin's shared slot prelude
+once (`Defs/PhiAtSlot.lean`, `PhiSlotRoots.lean` and the `Defs/` extensions), so
+T15–T19 import it, and T15 has since discharged two `Inputs` fields
+(`FunctionFieldGeneration/Descent.lean`), taking the capstone's debt to **5**.
+**The live plan is §7.8**: the 17-node remainder, the measured ≈4.8k–5.0k line
+budget, and topics T16–T20.
 
 The scope has moved on from Layer 0. §1 is the design rules that still govern the
 remaining work; §2 records the decision to finish and why; §3–§6 are the Layer 0
@@ -56,7 +58,7 @@ spine, the significant lemmas, the counting detours — were deferred while thei
 cost was gated by the unported Φ_p cone and therefore unknown. The gate is being
 removed by the sub-effort: when T11–T13 of [PORTING-PhiGen.md](topics/PORTING-PhiGen.md)
 land, `PhiGen.splits_prime_at_slot` is a ported theorem, and the remaining proof is
-the **17-node, ≈4.5k–4.9k-line** port of the seven `Inputs` fields and their
+the **17-node, ≈4.8k–5.0k-line** port of the seven `Inputs` fields and their
 internal dependencies. §7.8 is the schedule.
 
 **Why the work is finished rather than harvested.** The remainder buys the first
@@ -124,7 +126,7 @@ was zero, and **truth** was zero by assumption — so the original decision was 
 0 only, and the theorem only if a topic was later measured to support it.
 
 **Reassessment (2026-09-22).** The condition is met. The one unported input, the
-Φ_p cone, is being ported, and §7.8 measures the remainder at **≈4.5k–4.9k
+Φ_p cone, is being ported, and §7.8 measures the remainder at **≈4.8k–5.0k
 deduplicated lines over 17 nodes** — not the 12,605-line headline, and closer to
 **1.4×** the first port than the table's "4–10×" proxy. Two rows also move:
 
@@ -521,7 +523,7 @@ import-level, and two of the seventeen — `exists_phiIrreducible_of_finrank_eq`
 no `Inputs` field cites; the node `ModularCurve.functionFieldGeneration` "cites"
 them only because the pin's generator reads the whole solution file. The port's
 `Inputs` confirms the pruning. So the theorem's own price is the 15-node one,
-**≈4.3k–4.7k**; the two corollaries are worth ~250 lines and buy the downstream API
+**≈4.6k–4.8k**; the two corollaries are worth ~250 lines and buy the downstream API
 (`exists_phiIrreducible`, `finrank_adjoin_jqN_eq_dedekindPsi`,
 `relfinrank_full_eq_dedekindPsi`) that the rest of FLT consumes. T20 carries them as
 an explicit, optional tail.
@@ -562,17 +564,20 @@ block", re-measured.
 | shared prelude (≈375 × 12) written once | −4,143 |
 | `minpoly_jqN_map_eq_prod_slots` ≡ `jqN_prime_not_mem_full` (one file, two nodes) | −1,577 |
 | `modularFunctionField_eq_full_of` ≡ `jqN_div_mem_modularFunctionField` | −325 |
-| one of the two `jqN_prime_not_mem_adjoin` proofs (the 2,002-line file has its own) | −244 (up to −650) |
-| **deduplicated structural** | **≈4,600–5,000** |
-| less the prelude already in the port (`Defs/TS.lean`, `iota_jqN`, the cyclotomic block ≈ 135) | **≈4,450–4,900** |
+| ~~one of the two `jqN_prime_not_mem_adjoin` proofs~~ | **0 — falsified by the 2026-09-22 audit**: the two are distinct statements (public Finset vs private M-arbitrary), and the file's private one is load-bearing, so nothing is redundant |
+| **deduplicated structural** | **≈5,270** |
+| less the prelude already in the port (`Defs/TS.lean`, `iota_jqN`, the cyclotomic block ≈ 135) | **≈5,130** |
+| less the T19 route win the slot-counting audit found (§7.8 "Audit outcomes") | **−≈200 → ≈4,930** |
 
-So the remainder is **≈4.5k–4.9k genuinely new port lines** including the two
-trailing corollaries, or **≈4.3k–4.7k** for `functionFieldGeneration` alone — about
+So the remainder is **≈4.8k–5.0k genuinely new port lines** including the two
+trailing corollaries, or **≈4.6k–4.8k** for `functionFieldGeneration` alone — about
 **1.4×** the first port (3,362 lines) and **about the size of the whole Φ_p
-sub-effort** (T5–T10 shipped 2,981; T11–T13 budget ~2,800 more). That is a
-structural count, not a proof budget — T8 and T9 both showed lines are not effort
-— but it is the first measured price this theorem has had, and it is 2.5× below the
-12,605 headline.
+sub-effort** (T5–T10 shipped 2,981; T11–T13 budget ~2,800 more). The headline is
+close to the earlier ≈4.5k–4.9k for two offsetting reasons: the audit voided the
+`jqN_prime_not_mem_adjoin` dedup (+244) and found a ~200-line route win in T19.
+That is a structural count, not a proof budget — T8 and T9 both showed lines are
+not effort — but it is the first measured price this theorem has had, and it is
+2.5× below the 12,605 headline.
 
 **The topics (T14–T20).** The cut is by mathematical object, one shared development
 per topic, so each proof is written once — but the measured intra-remainder
@@ -587,11 +592,11 @@ the descent (T15) and the prelude (T14) are independent of that chain.
 | topic | object | content | ≈ new lines | prereq |
 |---|---|---|---|---|
 | **T14** ✅ | the slot machinery | **done (2026-09-22)** — the shared prelude is written once: `Defs/PhiAtSlot.lean` (the `conj`/`TS` bridges `iota_jq`/`conj_zero_eq`/`conj_succ_eq`, `phiProd_conj_eq`, `roots_phiProd_conj(_nodup)`, `phiAtSeed` + its eight lemmas, `aeval_intermediateField_eq_zero`, `phiAtSeed_eval_of_injective`/`_symm`, `phiAtSeed_jqN_eval_down`), `Defs/Twist.lean` (`qTwist_iota_of_pow_eq_one`, `qTwistEquiv` + `_apply`/`coe_`), `Defs/TS.lean` (`iota_jqN`, `qTwist_TS_one_cycle`, `qExpand_qTwist_TS`, `qExpand_qTwist_notMem_range_qExpand`), `Defs/Jq.lean` (`jqN_congr`), and the downstream `ModularCurve/PhiSlotRoots.lean` (`prod_form_ne_zero`, `roots_prime_at_slot*`, `isRoot_prime_at_slot_iff`). Six `private` twins in `Spine.lean`/`PhiGenSplits.lean` are deleted. The cyclotomic block was already promoted by T13. | **503 measured** (237 + 153 + 51 + 56 + 6; ratio ≈1.64) | Φ_p defs |
-| **T15** | descent and the collapse (math/010 §4–§5) | `jqN_div_mem_modularFunctionField`, `modularFunctionField_eq_full_of` (one 735-line development) | ~350 | T14, Φ_p T12–T13 |
+| **T15** ✅ | descent and the collapse (math/010 §4–§5) | **done (2026-09-22)** — `FunctionFieldGeneration/Descent.lean`: `jqN_div_mem_modularFunctionField` (the unique-common-root descent, with `htw`/`hsp` left as arguments for T19) and `modularFunctionField_eq_full_of` (the one-prime `Gen` reduction). One 735-line pin development, but ~542 of those lines are T14's prelude; the tail is **173** lines. Both are `Inputs` fields, so the capstone's debt is now **5**. Work order [TOPIC-descent.md](topics/functionFieldGeneration/TOPIC-descent.md) | **252 measured** (ratio ≈1.46) | T14, Φ_p T12–T13 |
 | **T16** | the degree step (math/010 §6b) | `finrank_adjoin_jqN_prime_of_not_mem`, `finrank_adjoin_jqN_pow_succ_of_not_mem`, `relfinrank_full_eq_mul` | ~500 | T14, Φ_p T13, `CommonRoot` |
-| **T17** | non-membership, base and tower (math/010 §6a) | `jqN_pow_not_mem_adjoin_full`, `jqN_prime_not_mem_adjoin` | ~830 | T14, T16 |
+| **T17** | non-membership, base and tower (math/010 §6a) | `jqN_pow_not_mem_adjoin_full`, `jqN_prime_not_mem_adjoin` (the **public Finset** lemma; the 2026-09-22 audit confirms it is not reducible to the full-file private lemma and vice versa) | ~830 | T14, T16 |
 | **T18** | generation and the squarefree degree (math/010 §5–§6b) | `full_eq_adjoin_full_div_prime`, `full_eq_adjoin_primes`, `dedekindPsi_of_squarefree`, `relfinrank_full_of_squarefree`, `finrank_adjoin_jqN_eq_of_squarefree`, `functionFieldGeneration_of_squarefree` | ~1,150 | T15, T16, T17 |
-| **T19** | the slot product and prime non-membership (math/010 §3, §6a) | `minpoly_jqN_map_eq_prod_slots`, `jqN_prime_not_mem_full` (one 2,002-line development; it also contains a second `jqN_prime_not_mem_adjoin`, redundant with T17) | ~1,300–1,600 | T18, Φ_p `splits_prime_at_slot` |
+| **T19** | the slot product and prime non-membership (math/010 §3, §6a) | `minpoly_jqN_map_eq_prod_slots` (= the pin's `rval_aux`) and `jqN_prime_not_mem_full` (one 2,002-line development, which also carries its own **private M-arbitrary** `jqN_prime_not_mem_adjoin` — a different statement from T17's public Finset lemma, not a duplicate). Route win: closed-form `slotAt` + the `CommonRoot` engine import (2026-09-22 audits) | **~1,100–1,400** | T18, Φ_p `splits_prime_at_slot` |
 | **T20** | the unconditional capstone | construct `Inputs` from T15–T18 and apply `functionFieldGeneration_of`; replace the consumer's `sorry` with the proved `functionFieldGeneration N`; **optional tail:** `exists_monic_evalAtJ_jqN_eq_zero`, `exists_phiIrreducible_of_finrank_eq` (+~250, for the downstream corollaries) | ~50 (+250) | T15–T18, plus T19 for two fields |
 
 **T14 measured (2026-09-22), and the row corrected.** T14 landed in **one** goal
@@ -624,6 +629,98 @@ replaced by the measured **503**. Two findings correct the work order:
   an import cycle. They live beside `TS` in `Defs/TS.lean` instead. Every
   declaration still has exactly one home.
 
+**T15 scouted (2026-09-22), and its row corrected.** The work order is
+[TOPIC-descent.md](topics/functionFieldGeneration/TOPIC-descent.md). The two
+`Theorems/` nodes are one development shipped twice
+(`S_ModularCurve_jqN_div_mem_modularFunctionField.lean` ≡
+`S_ModularCurve_modularFunctionField_eq_full_of.lean`, modulo the `solution` line),
+and **~542 of its 735 lines are the T14 prelude already written once** — so T15's
+own content is only the 173-line tail (`jqN_div_mem_modularFunctionField`
+139 + `modularFunctionField_eq_full_of` 34). The row's `~350` was priced from the file
+size before T14 landed, and is replaced by **~200–280**. Every prerequisite is
+public (T14's prelude, T13's `splits_prime_at_slot`, T12's
+`exists_phiIrreducible_evalSymm`, T4's `mem_range_of_unique_common_root`), so T15
+is a pure consumer with no promotion and no mathlib-absent lemma. Proving its two
+nodes discharges **two** `Inputs` fields, taking the capstone's debt **7 → 5**.
+One correction for the note: math/010 §5's link places `jqN_mem_of_div_primes` in
+this file, but it is a T18 helper (in `S_ModularCurve_full_eq_adjoin_full_div_prime.lean`
+line 397), not T15's.
+
+**T15 measured (2026-09-22), and the row corrected.** T15 landed in **one** goal
+round as **252 port lines** against the 173-line tail, ratio **≈1.46** — inside
+its scouted `~200–280` band and far under the `~350` the pre-T14 row priced. The
+two declarations are public, their statements the `Theorems/` wrappers' verbatim,
+`#print axioms` clean, and the checker moved **276 → 278** (0 mismatched, 0
+missing). All four route risks resolved on the first build: the `Algebra F
+(LaurentSeries K)` `letI` and the `ι₀`/`hcomp` bridge closed by `rfl` exactly as
+transcribed (no `respectTransparency`, no named bridge), and
+`isRoot_prime_at_slot_iff` and `mem_range_of_unique_common_root` fired at the pin's
+call shape with no argument-order repair. The only warning was the
+`linter.style.haveILetI` pair on two genuinely-needed local instances, cleared by
+the module-level disable T13 also uses. Zone M's wire test builds a partially
+discharged `Inputs` with these two fields filled, so **the capstone's debt is
+7 → 5**; the five remaining fields are T16–T19's. The dedup premise held: the two
+`S_` files are one development and **none of the ~542 prelude lines was
+re-copied**.
+
+**Audit outcomes (2026-09-22), reviewed and spot-checked.** Four read-only
+engineering audits landed in `logs/` while T15 was being scoped. Their
+load-bearing claims were re-derived here before being recorded:
+
+- [audit-slot-counting-mathlib.md](logs/audit-slot-counting-mathlib.md) — **T19's
+  slot-counting block (299 pin lines) has a real ≈110–150-line route win.**
+  `dedekindPsi` is genuinely absent from mathlib (0 hits) and there is no Γ₀ index
+  formula to delegate to, but `slotAt_mul`'s 108-line CRT fibre argument is
+  replaceable by the closed form
+  `slotAt n d = (d / gcd (n/d) d) * φ (gcd (n/d) d)` plus mathlib
+  `Nat.Coprime.divisors_mul`; and the four `dedekindPsi_*` re-proofs are already
+  public in the port. The closed form was checked exhaustively for `n, d ≤ 40`
+  (0 mismatches) and `slots n = dedekindPsi n` for `n ≤ 79`; the named mathlib
+  ingredients (`Nat.periodic_coprime`, `Nat.filter_coprime_Ico_eq_totient`,
+  `Nat.Coprime.divisors_mul`) all exist in `v4.34.0`. The block should shrink to
+  ~150–190 lines with one public `Finset.card = dedekindPsi` export and
+  `slots`/`slotAt` kept `private`.
+- [audit-jqN-nonmemory.md](logs/audit-jqN-nonmemory.md) — **a negative result that
+  saves a wasted route: do not try to reduce `jqN_prime_not_mem_adjoin`.** The
+  private M-arbitrary lemma inside the 2,002-line file is genuinely independent of
+  the public Finset lemma; powerful `M` is load-bearing (`d = 36` at `hall_all`),
+  and every separation tool in the repository is keyed to prime generators. Net
+  saving **≈ 0**. The port keeps both statements (they are different), and T17's
+  estimate stands.
+- [audit-rval-aux-compressibility.md](logs/audit-rval-aux-compressibility.md) —
+  **T19's `rval_aux` (the slot product, 680-line body) is ~64% irreducible
+  mathematics**; the realistic shrink is only ~50–60 lines local plus ~18 outside
+  (the private `mem_range_of_eval_eq_const` is a verbatim copy of
+  `FieldTheory/CommonRoot.lean`'s engine lemma and should be imported, not
+  re-proved). A verbosity cleanup, not a structural reduction.
+- [audit-prelude-bridges.md](logs/audit-prelude-bridges.md) — **T14's dedup is the
+  dominant win**, larger than measured: 41 files carry the `TS` prelude, 38 of
+  them all 41 declarations verbatim (≈10–12k duplicated lines, plus ~2–3k in the
+  parallel `jqModC` prelude). Only **two genuine mathlib collisions** exist in it,
+  both primitive-roots: the `cycUnit` quartet is mathlib's
+  `IsCyclotomicExtension.zeta`/`zeta_spec`/`zeta_pow` + `IsPrimitiveRoot.isUnit`,
+  and `isPrimitiveRoot_pow_div` is `IsPrimitiveRoot.pow` (all confirmed present).
+  In the bridges, only `coeffMapEquiv` (`RingEquiv.ofBijective`) and
+  `exists_pow_eq_of_coprime` (`exists_pow_eq_self_of_coprime`) are mathlib wins;
+  the rest is de-duplication.
+
+Two consequences for the schedule:
+
+- **T19's estimate drops, and the ledger's `jqN_prime_not_mem_adjoin` deduction
+  is void.** The row's `~1,300–1,600` becomes **~1,100–1,400** (≈110–150 from the
+  counting block, ≈18 from the engine import, ≈50–80 from `rval_aux`), and its
+  work order must prescribe the closed-form slot route and the `CommonRoot`
+  import. The nonmemory audit simultaneously removes the old `−244` "redundant
+  proof" line, so the net headline is ≈4.8k–5.0k, not ≈4.5k–4.9k.
+- **A T13 follow-up: `Defs/Cyclotomic.lean`.** T13 ported the cyclotomic quartet
+  verbatim; the audit shows ~18 lines of it are a re-proof of mathlib's `zeta`
+  family. Replacing it is small and mechanical, but it is a real mathlib alignment
+  and should be done before T16/T18 lean on those declarations. It also adds a
+  promotion item for the later topics: the transfer lemmas
+  (`coeffMap_qTwist`, `coeffMap_TS`, `jqN_congr`, `iota_injective`,
+  `w1_relfinrank_insert`) are duplicated across files and want one home each —
+  `jqN_congr` is already in `Defs/Jq.lean` from T14.
+
 **Route risks, in the order they will bite.** Each is a candidate for the
 "cost tracks the route" treatment before its topic is priced:
 
@@ -634,10 +731,12 @@ replaced by the measured **503**. Two findings correct the work order:
   `RingEquiv.ofBijective` route and it closed (log §2g), so the `FunLike` fallback
   was not needed.
 - **T19's 2,002-line development is the riskiest single file.** It is three
-  proofs — the slot product, prime non-membership, and the redundant
-  `jqN_prime_not_mem_adjoin` — and the survey leaves open which copy is
-  load-bearing. Count the named nodes' lines versus the helper chain before
-  committing, as the standing rule requires.
+  proofs — the slot product (`rval_aux`), `jqN_prime_not_mem_full`, and a private
+  **M-arbitrary** `jqN_prime_not_mem_adjoin` that the 2026-09-22 audit showed is
+  *not* a duplicate of T17's public Finset lemma and is load-bearing for powerful
+  `M`. Count the named nodes' lines versus the helper chain before committing, as
+  the standing rule requires; the slot-counting audit's closed-form route is the
+  one compression that survived review.
 - **T16/T18's Tier-1 bridges are the most likely mathlib win.** The survey marks
   `IntermediateField.relfinrank`, `extendScalars_adjoin`, `adjoin.finrank` and the
   tower law as mathlib-present; FLT restates them monomorphically. Import mathlib's
@@ -653,8 +752,8 @@ replaced by the measured **503**. Two findings correct the work order:
 
 **Definition of done for the effort.** `lake build` green, 0 warnings, no `sorry`;
 `#print axioms` on `functionFieldGeneration` clean; the consumer's only `sorry`
-gone and its capstone unconditional; the statement checker extended with T15–T19's
-wrappers (T14's are already in) and T20's capstone. At that point
+gone and its capstone unconditional; the statement checker extended with T16–T19's
+wrappers (T14's and T15's are already in) and T20's capstone. At that point
 `ModularCurve.functionFieldGeneration` is a proved theorem of the port, the
 segment's one conditional is discharged, and — by §2.1's ledger — the **out-of-cone
 ≥5-indegree tier is 100% covered**: every declaration through which the rest of FLT
@@ -666,19 +765,21 @@ reference.
 - **Will Layer 0a be used? — answered: yes**, narrowly by itself (the transport
   layer, the pole of `j`, the statable target) and fully through the topic modules
   that consume it. The written-down use is `spec/ModularCurveConsumer.lean`.
-- **Is the theorem still a "revisit"? — resolved: it is scheduled (§7.8).** The
-  graph remainder is 17 nodes / 11,312 structural pin lines / ≈4.5k–4.9k after
-  dedup; the theorem's own path is 15 nodes / ≈4.3k–4.7k. What is *not* yet
-  measured is the route each heavy development should take; that is each topic's
-  own work order, per the standing rule.
+- **Is the theorem still a "revisit"? — resolved: it is scheduled and under way
+  (§7.8).** The graph remainder is 17 nodes / 11,312 structural pin lines /
+  ≈4.8k–5.0k after dedup; **T15's two nodes are done**, so 15 nodes remain
+  (T16–T20). The theorem's own path is 15 of those, of which 13 remain. What is
+  *not* yet measured is the route each heavy development should take; that is each
+  topic's own work order, per the standing rule — though the 2026-09-22 audits
+  have already priced T19's route (§7.8 "Audit outcomes").
 - **What gates the remainder now? — nothing external.** T13's
   `PhiGen.splits_prime_at_slot` and T14's prelude are both landed, and every
   remaining node's Φ_p dependency (`exists_phiIrreducible_evalSymm`,
   `splits_prime_at_slot`/`splits_of_prime`) is public and statement-checked. The
-  critical path is T15–T19 followed by T20's capstone discharge; there is no
+  critical path is T16–T19 followed by T20's capstone discharge; there is no
   unported input left.
 - **Stop-and-harvest, restated.** The conditional capstone, the whole cone and the
-  shared prelude are already a coherent artifact. Finishing costs ≈4.5k–4.9k lines
+  shared prelude are already a coherent artifact. Finishing costs ≈4.8k–5.0k lines
   and buys the first unconditional FLT headline the port would own plus a complete
   outbound interface. T14 was the clean stopping point (the interface exposed); if
   that trade were ever refused, it would be here rather than midway through T16.

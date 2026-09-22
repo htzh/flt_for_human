@@ -40,7 +40,8 @@ FLT is pinned at `aa2d8b3`; mathlib at `v4.34.0`.
 | topic 3 | the cone's outbound interface | **done**, 9 public lemmas added to 2 existing modules; `Inputs` 10 → 8 | consumer unchanged (0 errors, 1 `sorry`) |
 | topic 4 | the generic kernel (`FLTForHuman/FieldTheory/CommonRoot.lean`) and the `relfinrank` peel | **done**, 1 new module, 3 public lemmas + 3 instantiations; `Inputs` 8 → 7 | consumer unchanged (0 errors, 1 `sorry`); checker 150 |
 | T14 | the shared slot prelude, written once | **done**, 2 new modules + 3 extended; 32 declarations, 503 port lines | consumer **Zone L** (0 errors); checker 276 |
-| theorem | PORTING-FFG §7's 24-node remainder behind the Φ_p input | **in progress**: Φ_p cone (T5–T13) and T14 done; T15–T20 remain; `Inputs` is a structure of 7 fields | — |
+| T15 | descent by one prime and the one-prime reduction | **done**, 1 new module; 2 declarations, 252 port lines; `Inputs` 7 → 5 | consumer **Zone M** (0 errors); checker 278 |
+| theorem | PORTING-FFG §7's 24-node remainder behind the Φ_p input | **in progress**: Φ_p cone (T5–T13) and T14–T15 done; T16–T20 remain; `Inputs` is a structure of 5 fields | — |
 
 The tree was restructured twice, neither time touching the mathematics.
 
@@ -457,6 +458,59 @@ section for `qTwist_iota_of_pow_eq_one` (the only member that uses
 `coe_qTwistEquiv`; and the pin's `convert h using 2 <;> try rfl` trips
 `linter.unnecessarySeqFocus`, so the port writes `convert h using 2; try rfl`
 (friction entry 2's family, the statement unchanged).
+
+## 2h. T15: descent by one prime, and the one-prime reduction — what it cost
+
+T15 is the parent effort's first topic whose output is proof content rather than
+vocabulary. It proves the two `Inputs` fields that are math/010 §4–§5, so the
+conditional capstone's debt drops **7 → 5**.
+
+| | |
+|---|---|
+| goal rounds | **1** |
+| declarations | 2 (both public, both `Inputs` fields) |
+| new module | `FunctionFieldGeneration/Descent.lean`, **252 lines** |
+| **port lines** | **252** against the 173-line pin tail, ratio **≈1.46** (within the scouted ~200–280; the row's `~350` priced the whole 735-line file before T14) |
+| build | full `lake build` green, 0 warnings, no `sorry`; **3866 jobs** |
+| axioms | `#print axioms` clean on both: only `propext, Classical.choice, Quot.sound` |
+| checker | **278** identical (276 → +2), 0 mismatched, 0 missing, 8 own-proof exemptions (286 checked) |
+| wire | consumer **Zone M** (0 errors): a partially discharged `Inputs` with the two T15 fields filled |
+
+**The dedup premise held.** `S_ModularCurve_jqN_div_mem_modularFunctionField.lean`
+and `S_ModularCurve_modularFunctionField_eq_full_of.lean` are byte-identical
+except for the `solution` line — one development shipped twice — and their lines
+28–542 are T14's prelude. The port re-copies **none** of it: `Descent.lean`
+imports `Defs/PhiAtSlot`, `PhiSlotRoots`, `Defs/TS`, `Defs/Fields` and
+`PhiGenSplits`. Every mathematical ingredient is a ported theorem (T14's
+`phiAtSeed*`/`isRoot_prime_at_slot_iff`/`roots_prime_at_slot_roots_nodup`/`iota_jqN`,
+T13's `splits_prime_at_slot`, T12's `exists_phiIrreducible_evalSymm`, T4's
+`Polynomial.mem_range_of_unique_common_root`) or a mathlib call, so T15 adds no
+promotion and no new engine.
+
+**The route risks all resolved on the first build — none of the four bit.**
+
+- **The `Algebra F (LaurentSeries K)` instance and the `ι₀`/`hcomp` bridge closed
+  as transcribed.** The pin's `letI : Algebra F (LaurentSeries K) := (…).toAlgebra`
+  and `hcomp : (algebraMap F _).comp ι₀ = (…).comp (algebraMap _ _) := RingHom.ext
+  fun x => rfl` both elaborated without `respectTransparency` and without a named
+  bridge — the transparency family that bit T8 (`mapGL`) and T5 (`FunLike`) did
+  **not** bite here.
+- **`isRoot_prime_at_slot_iff`'s call shape fired** at `rw [Polynomial.aeval_def,
+  ← Polynomial.eval_map, hmapA, hseed]; exact isRoot_prime_at_slot_iff (M*p) ζ hζ p
+  hpN data (M*p*M) 1 y`; the T14 statement needed no repair.
+- **`Polynomial.mem_range_of_unique_common_root`'s argument order matched** the
+  pin's `A B hA0 hAs hAnd x₀ hxA hxB huniq` with no repair.
+- **The `minpoly`/`map` strip transcribed** in the pin's re-ordered form
+  (`aeval_def`, `← eval_map`, `map_map`, `hcomp`, `← map_map`, `eval_map`,
+  `eval₂_hom`, `minpoly.aeval`).
+
+**Two small friction items.** The `letI`/`haveI` pair tripped
+`linter.style.haveILetI` twice — both instances are genuinely consumed by
+typeclass search (`algebraMap F (LaurentSeries K)` and the `modularFunctionField`
+family), so the module uses the same local disable as `PhiGenSplits.lean`. And the
+`htw`/`hsp` binders are kept exactly as the wrapper writes them (the wrapper's
+`hp : Fact (Nat.Prime p)` for the descent, a bare `p.Prime` for the reduction), so
+the checker matches by direct name.
 
 ## 3. What was verified
 

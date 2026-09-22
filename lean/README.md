@@ -120,6 +120,7 @@ alongside `.lake/` in case it does.
 | `FLTForHuman/ModularCurve/Defs/Cyclotomic.lean` | a primitive root of unity in `CyclotomicField N ℚ` | `exists_isPrimitiveRoot_cyclotomicField` and the chosen `cycUnit`, its `cycUnit_spec`/`cycUnit_pow`, and `isPrimitiveRoot_pow_div` — promoted by T13 from the private twins in the FFG spine and in `PhiGenSplits.lean`, so both import one copy. FLT `S_ModularCurve_PhiGen_splits_of_prime` (188–203) + `S_ModularCurve_PhiGen_splits_prime_at_slot` (123–133) |
 | `FLTForHuman/ModularCurve/Defs/PhiAtSlot.lean` | the modular polynomial at the slot, written once (T14) | the `conj`/`TS` bridges `iota_jq`/`conj_zero_eq`/`conj_succ_eq` (promoted out of T13's private copies), the conjugate product `phiProd_conj_eq` with its roots `roots_phiProd_conj`/`_nodup`, and `phiAtSeed` with its eight naturality/monicity/degree/vanishing lemmas plus `aeval_intermediateField_eq_zero`, `phiAtSeed_eval_of_injective`/`_symm` and `phiAtSeed_jqN_eval_down`. Upstream of the cone; T15–T19 import it instead of re-copying the pin's shared block (which up to thirteen files repeat). FLT `S_ModularCurve_jqN_prime_not_mem_full` 106–194, 351–404 + `S_ModularCurve_jqN_pow_not_mem_adjoin_full` 400–430 |
 | `FLTForHuman/ModularCurve/PhiSlotRoots.lean` | the at-slot roots API (T14) | `prod_form_ne_zero`, `roots_prime_at_slot`, `roots_prime_at_slot_nodup`, `roots_prime_at_slot_roots_nodup` and `isRoot_prime_at_slot_iff` — the roots of `Φ`, read at the twisted/dilated slot, via T13's `PhiGen.splits_prime_at_slot`. The one T14 module downstream of the cone (which is why the API cannot live in `Defs/`); `prod_form_ne_zero` is `private` in the pin and is promoted here. FLT `S_ModularCurve_jqN_prime_not_mem_full` 252–350 |
+| `FLTForHuman/ModularCurve/FunctionFieldGeneration/Descent.lean` | descent by one prime, and the one-prime reduction (T15) | `jqN_div_mem_modularFunctionField` (verbatim from its wrapper): math/010 §4's unique-common-root descent `j(q^M) ∈ ℚ(j(q), j(q^{Mp}))`, with the slot hypotheses `htw`/`hsp` left as arguments for T19. Composes T14's `phiAtSeed*`/`isRoot_prime_at_slot_iff`/`roots_prime_at_slot_roots_nodup`/`iota_jqN`, T13's `splits_prime_at_slot` and T4's `Polynomial.mem_range_of_unique_common_root`, plus the `coeffEmb`/`qExpand` injectivity strip. And `modularFunctionField_eq_full_of` (verbatim): math/010 §5's one-prime `Gen` reduction. Both are `Inputs` fields, so the capstone's debt is **7 → 5**. The pin's 735-line file is one development shipped twice and ~542 of its lines are T14's prelude; nothing is re-copied. FLT `S_ModularCurve_jqN_div_mem_modularFunctionField` ≡ `S_ModularCurve_modularFunctionField_eq_full_of` 553–727 |
 
 The port of `#E[n](K) = n²` (math/005) has its own working record:
 [logs/card-torsion-port.md](logs/card-torsion-port.md) — dependency trace,
@@ -162,8 +163,8 @@ errors** with Zones A, B and C all bound. Its only remaining `sorry` is the
 deferred theorem's capstone. `PORTING-FFG.md` records why the theorem itself stays
 deferred; the consumer's tail carries the v4.34.0 friction list, and
 [spec/check_flt_statements.py](spec/check_flt_statements.py) diffs every port
-declaration's statement against the pinned source (276 of 276 identical through
-T14, with the own-proof declarations exempted explicitly).
+declaration's statement against the pinned source (278 of 278 identical through
+T15, with the own-proof declarations exempted explicitly).
 
 Both Layer 0 work orders are gone: they were finished, their durable material
 moved into §7 of [porting-playbook.md](porting-playbook.md) — the math-clarity
@@ -327,6 +328,19 @@ consumer gained Zone L, whose chosen wire is `roots_phiProd_conj_nodup` at
 `p = 2`, `K = ℂ`, `ζ = -1`. `PORTING-FFG.md` §7.8's row estimated ~250 lines; the
 port is **503**. [logs/ffg-port.md](logs/ffg-port.md) §2g carries the measured cost
 and the layering finding.
+
+T15, the first topic whose output is proof content, then proved the two `Inputs`
+fields that are math/010 §4–§5 in `FunctionFieldGeneration/Descent.lean`:
+`jqN_div_mem_modularFunctionField` (the unique-common-root descent, `htw`/`hsp`
+left as arguments for T19) and `modularFunctionField_eq_full_of` (the one-prime
+`Gen` reduction). It is a pure consumer — T14's prelude, T13's
+`splits_prime_at_slot`, T12's `exists_phiIrreducible_evalSymm` and T4's
+`mem_range_of_unique_common_root` were all public — and the pin's 735-line file is
+one development shipped twice, ~542 lines of which are the T14 prelude. The port
+is **252 lines** against the 173-line tail (ratio ≈1.46); the checker moved
+276 → 278 and the consumer gained Zone M, whose wire builds a *partially
+discharged* `Inputs` with the two T15 fields filled, so the capstone's debt is now
+**5**. [logs/ffg-port.md](logs/ffg-port.md) §2h carries the measured cost.
 
 ## Where things live
 

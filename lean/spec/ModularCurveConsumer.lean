@@ -16,7 +16,9 @@
 
   It **compiles today** — the error count, which is the metric, is 0 — but it is
   deliberately kept out of every library, so it can never break a verified build.
-  The one remaining `sorry` is the deferred capstone theorem, which is by design.
+  The remaining `sorry`s are deliberate: the deferred capstone theorem, and (from
+  Zone M on) the still-unported `Inputs` fields in the partial-structure wire
+  tests. None counts as an error.
 
   HOW TO READ IT
   --------------
@@ -84,6 +86,8 @@ import FLTForHuman.ModularCurve.PhiGenSplits
 -- at-slot roots API.
 import FLTForHuman.ModularCurve.Defs.PhiAtSlot
 import FLTForHuman.ModularCurve.PhiSlotRoots
+-- T15: descent by one prime, and the one-prime reduction of `Gen`.
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.Descent
 -- The cyclotomic instances for the end-to-end wire tests of Zones I, J and K.
 import Mathlib.NumberTheory.Cyclotomic.Basic
 
@@ -657,6 +661,36 @@ example : (ModularCurve.phiAtSeed ModularCurve.modularPolynomialDataOne (0 : ℚ
     ModularCurve.dedekindPsi 1 :=
   ModularCurve.phiAtSeed_natDegree _ _
 
+/-! ## Zone M — [T15] descent by one prime and the one-prime reduction
+
+`FLTForHuman/ModularCurve/FunctionFieldGeneration/Descent.lean` proves the two
+`Inputs` fields `jqN_div_mem_modularFunctionField` (math/010 §4, the
+unique-common-root descent) and `modularFunctionField_eq_full_of` (math/010 §5,
+the one-prime reduction of `Gen`). It composes T14's slot prelude
+(`phiAtSeed*`, `isRoot_prime_at_slot_iff`, `roots_prime_at_slot_roots_nodup`,
+`iota_jqN`) with T13's `splits_prime_at_slot` and T4's
+`Polynomial.mem_range_of_unique_common_root`; its `htw`/`hsp` stay arguments,
+exactly as the pin's node has them and as T19 will later discharge them.
+
+**The wire test is T20's own move, not a binding.** It builds a *partially
+discharged* `Inputs` value: the two fields T15 proves are filled by the new
+theorems, and the five still-unported fields are `sorry`. That is literally the
+capstone's debt being paid down, so the test fails if either theorem's type
+stops matching its `Inputs` field. -/
+
+#check @ModularCurve.jqN_div_mem_modularFunctionField
+#check @ModularCurve.modularFunctionField_eq_full_of
+
+-- T15 fills its two `Inputs` fields (the other five are the unported debt).
+example : ModularCurve.Inputs :=
+  { full_eq_adjoin_full_div_prime := sorry
+    jqN_prime_not_mem_full := sorry
+    jqN_pow_not_mem_adjoin_full := sorry
+    minpoly_jqN_map_eq_prod_slots := sorry
+    modularFunctionField_eq_full_of := ModularCurve.modularFunctionField_eq_full_of
+    jqN_div_mem_modularFunctionField := ModularCurve.jqN_div_mem_modularFunctionField
+    relfinrank_full_eq_mul := sorry }
+
 /-! ## The measure
 
     cd lean
@@ -667,9 +701,10 @@ Zone B and Zone C errors are expected to remain — if they drop without a
 decision to port the theorem, the scope has crept.
 
 The error count is the number of unbound names. Since the topic module landed it
-is **0**: Zones A, B and C are all bound. What remains unproved is exactly one
-`sorry`, the Zone A capstone — the deferred theorem, which is the design. (Zone C
-was originally expected to stay red; the topic showed it was reachable from the
+is **0**: Zones A, B and C are all bound. What remains unproved is the deferred
+theorem (the Zone A capstone) plus, from Zone M on, the `Inputs` fields not yet
+ported — every one a deliberate `sorry`, none an error. (Zone C was originally
+expected to stay red; the topic showed it was reachable from the
 Definitions layer plus mathlib, and the scope decision to take it is recorded in
 `topics/functionFieldGeneration/TOPIC-jq-coefficients.md`.)
 
@@ -993,6 +1028,18 @@ every entry.
     T13 also promoted the cyclotomic roots to the public `Defs/Cyclotomic.lean`
     (removing the FFG spine's private twins), so the checker moved 233 → 242. The
     one remaining `sorry` below is the FFG `Inputs` gap, not this cone's.
+
+**Descent result (2026-09-22).** Zone M is added and bound:
+`FLTForHuman/ModularCurve/FunctionFieldGeneration/Descent.lean` proves the two
+`Inputs` fields `jqN_div_mem_modularFunctionField` (math/010 §4's
+unique-common-root descent, with `htw`/`hsp` left as arguments for T19) and
+`modularFunctionField_eq_full_of` (math/010 §5's one-prime `Gen` reduction). The
+zone's wire test is a *partially discharged* `Inputs` value — the two fields
+filled by the new theorems, the other five `sorry` — which is exactly T20's
+construction minus T16–T19, and it fails if either theorem's type stops matching
+its `Inputs` field. So the file now carries **six** `sorry`s: the Zone A capstone
+plus the five unported `Inputs` fields in the Zone M example. The `Inputs`
+statements were not touched; the debt is 7 → 5.
 
 The `sorry`s are not errors and do not count: their job is to keep the
 *statements* checkable while the proofs are out of scope.

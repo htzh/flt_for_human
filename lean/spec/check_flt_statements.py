@@ -200,6 +200,13 @@ SOURCES = [
     # the `Theorems/`/`Defs` sources so no existing match can flip.
     "P2M/Sol/S_ModularCurve_jqN_prime_not_mem_full.lean",
     "P2M/Sol/S_ModularCurve_jqN_pow_not_mem_adjoin_full.lean",
+    # Topic 15, descent by one prime and the one-prime reduction. Both nodes have
+    # `Theorems/` wrappers, and the wrappers are public with matching last names,
+    # so they verify by direct match; no `S_` carrier is needed. (The pin's own
+    # copies are `private` in the two byte-identical `S_` files, which also carry
+    # T14's prelude.)
+    "Theorems/Thm_ModularCurve_jqN_div_mem_modularFunctionField.lean",
+    "Theorems/Thm_ModularCurve_modularFunctionField_eq_full_of.lean",
 ]
 
 PORT_FILES = [
@@ -236,6 +243,8 @@ PORT_FILES = [
     # downstream at-slot roots API.
     "FLTForHuman/ModularCurve/Defs/PhiAtSlot.lean",
     "FLTForHuman/ModularCurve/PhiSlotRoots.lean",
+    # Topic 15, the descent and the one-prime reduction.
+    "FLTForHuman/ModularCurve/FunctionFieldGeneration/Descent.lean",
 ]
 
 # Declarations whose *statement* has no FLT source, so there is nothing to diff:
