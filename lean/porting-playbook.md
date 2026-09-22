@@ -24,7 +24,7 @@ Where the 3362 lines went:
 | setup | `Basic`, `Universal` | 274 | 41 |
 | EDS + `ω` engine | `DivisionPolynomial`, `EDS`, `EllSequence`, `Complement`, `RedInvar`, `Net`, `Omega` | 1207 | 128 |
 | multiplication bridge | `MulFormula`, `JacobianMulFormula`, `Bridge` | 717 | 92 |
-| counting | `Fiber` | 1164 | 31 |
+| counting | `TorsionCard` | 1164 | 31 |
 
 Two things this table says that are worth internalising:
 
@@ -290,7 +290,7 @@ The port exists for these, so where they conflict with convenience, they win.
   directory linearly. Each module header says: its subject, the FLT source and
   pin, and what it assumes from earlier modules.
 - **Monomorphic helpers are documentation.** When a proof relies on a generic
-  mathlib lemma in a specific form, give that form a name and a docstring (§1.3,
+  mathlib lemma in a specific form, give that form a name and a docstring (§1,
   §3.5). But *measure before assuming you need them*: the rewrite-search gap was
   predicted to dominate this layer and never appeared, because FLT proved every
   one of those lemmas coefficientwise and its own `[simp]` coefficient lemmas
@@ -337,6 +337,8 @@ repeating:
 | 0a | 68 | 20 | **1** |
 | 0b | 69 | 4 | **1** |
 | topic (`jq` coefficients) | 24 (2 public + 22 `private`) | 4 | **1** |
+| topic (conditional capstone) | 29 (5 public + 24 `private`) | 4 | **1** |
+| topic (interface tier) | 9 public added to 2 modules; `Spine` −4 | 2 | **1** |
 
 Transcribing a pinned, definitional source with the statements dictated is
 cheap. The cost lives in *shape* mismatches — typeclass, coercion, defeq,
@@ -344,18 +346,44 @@ renamed API — not in volume, so budget in "number of shape risks", not lines.
 Both layers' named shape risks failed to materialize; the only real friction was
 three renames and two spec bugs the consumer caught by being executed.
 
-The topic is the first *proof* data point, and it was cheap for a different
-reason: mathlib had absorbed the hard part (`etaProd` *is* the topological product
-that `tprod_one_sub_X_pow` equates to `pentagonalSeries`), so the whole job was a
-finite low-order coefficient computation. The lesson that covers all three rows:
-**expense is the route's distance from mathlib, and a topic must be priced against
-the actual FLT proof of its specific statements — not against the subtree those
-statements appear under.** This topic's plan assumed the latter and overpriced the
-work by roughly 50×: FLT's real proof of the `744` / `196884` coefficients is a
-standalone 237-line file, while the 11k-line cluster the plan cited is not on the
-route at all. Locate the analogous FLT declaration first (it may be a small
-`S_`/`Thm_` file, as here), and only then quote a size. See
+The `jq`-coefficients topic is the first *proof* data point, and it was cheap for
+a different reason: mathlib had absorbed the hard part (`etaProd` *is* the
+topological product that `tprod_one_sub_X_pow` equates to `pentagonalSeries`), so
+the whole job was a finite low-order coefficient computation. The lesson that
+covers all five rows: **expense is the route's distance from mathlib, and a topic
+must be priced against the actual FLT proof of its specific statements — not
+against the subtree those statements appear under.** That topic's plan assumed the
+latter and overpriced the work by roughly 50×: FLT's real proof of the `744` /
+`196884` coefficients is a standalone 237-line file, while the 11k-line cluster the
+plan cited is not on the route at all. Locate the analogous FLT declaration first
+(it may be a small `S_`/`Thm_` file, as here), and only then quote a size. See
 [logs/ffg-port.md](logs/ffg-port.md) §2c, §8.3.
+
+**The conditional capstone is the cheapest way to a theorem-shaped artifact.**
+`Spine.lean` proves `functionFieldGeneration_of (h : Inputs)` outright — no
+`sorryAx` — by porting only FLT's *glue* (the strong induction and its helper
+block, ≈1:1 with the pin's ≈373 lines) and bundling the significant lemmas as the
+fields of a structure. Two properties make it worth doing before any of those
+lemmas: `#print axioms` comes back clean, so the architecture is checked rather
+than asserted; and each field is a first-class named hypothesis, so the remaining
+work becomes an ordered list instead of a subtree. When a theorem's proof is a
+long induction over largely independent inputs, build this artifact first. Keep
+the structure frozen once it lands — input creep is what would silently weaken
+it — and keep the capstone *conditional*: do not discharge fields opportunistically.
+See [logs/ffg-port.md](logs/ffg-port.md) §2d, §8.4.
+
+**Exposing an interface is cheap when the interface is small — measure it first.**
+The interface-tier topic added nine public lemmas that carry 520 of the cone's 946
+≥5-indegree weight, and every one transcribed on the first try: they are 5–50-line
+leaves, and FLT proves them precisely because downstream code depends on them. The
+generalizable move is to read the dependency graph *before* choosing the next
+work: the gain test is about what a port buys, and outbound indegree is a
+measurable proxy for that. Two cautions from the same topic: an indegree count is
+global (a node can be load-bearing elsewhere while irrelevant here — check it is
+in the cone), and the *public interface* can be split across namespaces in the pin
+(`coeffEmb_qExpand` exists both as a wrapper with explicit `L` and as a `W1` copy
+with implicit `K`), so a statement checker must be told which copy is the
+interface. See [logs/ffg-port.md](logs/ffg-port.md) §2e.
 
 ### 7.4 Make faithfulness mechanical
 
@@ -363,12 +391,58 @@ With a pinned source, faithfulness is checkable rather than a matter of trust.
 Three cheap instruments, all used here:
 
 - a checker that diffs every ported **statement** against the pin
-  (`spec/check_flt_statements.py`; 137 of 137 identical) — and verify the checker
+  (`spec/check_flt_statements.py`; 146 of 146 identical) — and verify the checker
   itself with a deliberately mutated statement. When a declaration is *ours*
-  rather than transcribed (the topic's `coeff_jq_zero` / `coeff_jq_one`), add it
-  to an explicit exemption list with the reason, so "0 missing" keeps meaning
-  something; a declaration that is merely unlisted still fails the check;
+  rather than transcribed (`coeff_jq_zero` / `coeff_jq_one`, `Inputs`,
+  `functionFieldGeneration_of`) or is a *public promotion of an FLT-private* name
+  (`Tight` / `Gen` / `Hall`), add it to an explicit exemption list with the reason,
+  so "0 missing" keeps meaning something; a declaration that is merely unlisted
+  still fails the check. Keeping the auxiliary block `private` is what makes this
+  list short. Two refinements from the interface-tier topic: normalise the pin's
+  namespace qualification away (the `Theorems/` wrappers write `ModularCurve.`
+  everywhere) and, when a name exists in more than one pin namespace, order
+  `SOURCES` so the *interface* copy wins;
 - a **consumer** outside every library, whose error count is the deliverable
   metric and whose cross-module composition is the wire test;
 - `#print axioms` on the layer's result, to confirm no `sorryAx` crept in
   (here: only `propext, Classical.choice, Quot.sound`).
+
+## 8. Directory layout: one directory per theory
+
+§7.1 states the module-level rule ("a module is a mathematical role, not a source
+file"). This is its directory-level companion, and it came out of the
+`functionFieldGeneration` rename.
+
+A directory holds **one theory**, with that area's shared vocabulary outside it:
+
+```
+<Area>/
+  Basic.lean        -- setup shared by every theory in the area, mathlib-only
+  Defs/*.lean       -- shared vocabulary, when it is big enough to need a directory
+  <Theory>/*.lean   -- one theory's modules, whatever role each plays in its proof
+```
+
+**The second theory is what triggers the split, not the first.** `ModularCurve/`
+grew `Defs/` beside `FunctionFieldGeneration/` when its theory modules — `Spine.lean`
+among them — stopped reading as subjects and started reading as positions in one
+proof. `Elliptic/` has not: it holds one theory, `Basic.lean` is its only shared
+module, and of the other twelve only `Bridge` is a role-flavoured name (`Net`,
+`Omega`, `RedInvar`, `Complement` name objects). So no move was made there, and
+making one now would be churn — the collision the rule prevents only exists once
+there are two theories to collide. (One *module* was renamed anyway, for the
+subject-naming reason rather than the collision one: `Fiber.lean`, which had been
+named after the fibre device, became `TorsionCard.lean`, matching the name the port
+order had already given that content.)
+
+When the split *is* warranted it is mechanical: rename the file, fix the modules
+that import it, update the record's module table. Nothing else refers to a module
+path, and the lakefile globs the whole namespace with `.submodules`, so a new
+subdirectory needs no build-file change. In the first port the import graph is
+linear (`Basic → Universal → … → Bridge → TorsionCard`), so a single rename
+touches at most one import line plus that module's successor.
+
+One caveat the rename does not fix: **docstrings carry the same role/subject
+distinction as filenames**, and they rot faster. `TorsionCard.lean`'s header still
+said "the counting argument, part 1" and listed two FLT source sections long after
+the whole argument had landed in it. Re-read a module's header when its content
+stops matching its name — and again after a rename.

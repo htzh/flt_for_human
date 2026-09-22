@@ -7,8 +7,10 @@ generalize go to [porting-playbook.md](../porting-playbook.md); decisions and
 measurements stay here.
 
 The blueprint is [PORTING-FFG.md](../PORTING-FFG.md) — it holds the scope
-argument, the deferral menu, and the §7 plan for the theorem. The completed topic
-work order is [TOPIC-jq-coefficients.md](../TOPIC-jq-coefficients.md). The
+argument, the deferral menu, and the §7 plan for the theorem. The topic work
+orders are [TOPIC-jq-coefficients.md](../TOPIC-jq-coefficients.md),
+[TOPIC-conditional-capstone.md](../TOPIC-conditional-capstone.md) and
+[TOPIC-interface-tier.md](../TOPIC-interface-tier.md), all completed. The
 deliverable measure is [spec/ModularCurveConsumer.lean](../spec/ModularCurveConsumer.lean),
 and [spec/check_flt_statements.py](../spec/check_flt_statements.py) diffs the
 port's statements against the pin.
@@ -26,16 +28,32 @@ FLT is pinned at `aa2d8b3`; mathlib at `v4.34.0`.
 |---|---|---|---|
 | 0a | `qExpand`, `coeffMap`/`coeffEmb`, `qTwist`, the `j`-series, `FunctionFieldGeneration` | **done**, 4 modules, 68 decls, 627 lines | consumer **Zone A at 0 errors** |
 | 0b | the two fields, the polynomial datum, the slot vocabulary, `TS`, the §2 collapse | **done**, 5 modules, 69 decls, 622 lines | consumer **0 errors**; `TS` and the collapse bound |
-| topic | the low coefficients of `jq` (`744`, `196884`) | **done**, 1 module, 24 decls, 207 lines | consumer Zone C bound; only the capstone `sorry` remains |
-| theorem | PORTING-FFG §7's 24-node remainder behind the Φ_p input | **deferred**, not scheduled | — |
+| topic 1 | the low coefficients of `jq` (`744`, `196884`) | **done**, 1 module, 24 decls, 207 lines | consumer Zone C bound |
+| topic 2 | the conditional capstone (`Spine.lean`) | **done**, 1 module, 29 decls, 494 lines | consumer Zone B bound; `Inputs` is the remaining debt |
+| topic 3 | the cone's outbound interface | **done**, 9 public lemmas added to 2 existing modules; `Inputs` 10 → 8 | consumer unchanged (0 errors, 1 `sorry`) |
+| theorem | PORTING-FFG §7's 24-node remainder behind the Φ_p input | **deferred**, not scheduled; now a structure of 8 fields | — |
 
-The tree was restructured once, after 0b: the definitions had lived in a separate
-`lean_lib ModularCurveX0`, and since Layer 0 landed with no `sorry` that reason
-disappeared, so they were merged into the single `FLTForHuman` library as
+The tree was restructured twice, neither time touching the mathematics.
+
+**Once, after 0b, to merge the libraries.** The definitions had lived in a
+separate `lean_lib ModularCurveX0`, and since Layer 0 landed with no `sorry` that
+reason disappeared, so they were merged into the single `FLTForHuman` library as
 `FLTForHuman/ModularCurve/`, beside `FLTForHuman/Elliptic/`. Module paths became
 `FLTForHuman.ModularCurve.*`; the namespace stayed `ModularCurve`. Commands in
 the historical tables below refer to the two-library layout as it was when the
 measurement was taken.
+
+**Once, after topic 2, to name the theory.** `Spine.lean`, `Collapse.lean` and
+`Defs/Target.lean` were generic names — "the spine", "the collapse", "the target"
+of *what*? — and a second `ModularCurve` theory would have inherited them as
+collisions. They moved to `ModularCurve/FunctionFieldGeneration/`, a directory
+named for the theorem (and for math/010's title), leaving `Defs/` as the shared
+X₀(N) vocabulary (`qExpand`, `jq`, the two function fields, the slot vocabulary)
+that any later theory reuses, and `JqCoefficients.lean` where it was. Paths in the
+tables below were updated to the new locations so nothing is stale; the *namespace*
+is unchanged at `ModularCurve`, so declaration names, the checker, the consumer
+and math/010 §9's map were unaffected. The pattern for the next theory is
+therefore: share `Defs/`, add your own `<Theory>/`.
 
 ## 1. Why this effort is definitions-only
 
@@ -72,7 +90,7 @@ Measured from the session that did it:
 | `Defs/Laurent.lean` | 286 | 28 | `Def_ModularCurve_X0` 25–105, 340; `Def_ModularCurve_LaurentCoeff` 16–123 |
 | `Defs/Twist.lean` | 131 | 11 | `Def_ModularCurve_PhiGen` 18–96 |
 | `Defs/Jq.lean` | 165 | 27 | `Def_ModularCurve_X0` 111–212 |
-| `Defs/Target.lean` | 45 | 2 | `Def_ModularCurve_X0` 233–242 |
+| `FunctionFieldGeneration/Target.lean` | 45 | 2 | `Def_ModularCurve_X0` 233–242 |
 
 Two side facts about the tree, both from this effort's period:
 
@@ -149,6 +167,139 @@ default build's planned job count (2086 → 2632). They are covered by the share
 oleans, so the warm build is unchanged at a few seconds; nothing in this tree
 compiles them from source.
 
+## 2d. Topic 2: the conditional capstone — what it cost
+
+`FLTForHuman/ModularCurve/FunctionFieldGeneration/Spine.lean` is the `PORTING-FFG.md` §7.4 artifact: a
+**proved** conditional capstone with FLT's significant remaining statements
+bundled as the structure `Inputs`. It is the first module whose public surface is
+tiny (5 declarations) while the work lives in private glue.
+
+| | |
+|---|---|
+| goal rounds | **1** (of the 4 budgeted; the round-1 scouting checkpoint passed) |
+| declarations | 29: 5 public (`Tight`, `Gen`, `Hall`, `Inputs`, `functionFieldGeneration_of`), 24 `private` |
+| lines written | 494, of which 74 are the `Inputs` field statements and 38 the header — about **382 proved lines** |
+| build | `lake build` green, 0 warnings, no `sorry`; **2890 planned jobs** against 2632 after topic 1 |
+| axioms | `#print axioms functionFieldGeneration_of`: only `propext, Classical.choice, Quot.sound` |
+| checker | 137 identical, 0 mismatched, 0 missing, **7 own-proof exemptions** (2 from topic 1, 5 here) |
+
+**The route held, and the auxiliaries were glue.** FLT's scouted closure for
+`hall_all` is 32 declarations / 286 lines plus `hall_all` itself (87 lines) ≈ 373
+lines; the port's proved content is ≈377 lines, a ratio of ≈1.0 : 1. Every helper
+transcribed with at most a rename. `full_le_adjoin_chain` and
+`jqN_pow_not_mem_full` are set/tower manipulation; `root_shape`, `htw_of` and
+`hsp_of` are polynomial-root bookkeeping *over* the assumed
+`minpoly_jqN_map_eq_prod_slots`. None needed machinery outside the port and
+mathlib. The one unanticipated ingredient was `Nat.exists_eq_pow_mul_and_not_dvd`
+(mathlib) for `dedekindPsi_mul_prime_dvd`; the only shape friction was
+`Fact`-vs-instance plumbing and one pinned universe (see the module header).
+
+**What is left is exactly `Inputs`.** With `hall_all` proved and
+`functionFieldGeneration_of` applying Layer 0's collapse, the whole distance to
+the unconditional theorem is the `Inputs` fields — 10 when this topic landed, 8
+after topic 3 (§2e, §8.4). That is the artifact's payload: the remainder is no
+longer "the 24-node subtree" but a named, ordered list of statements to discharge
+one at a time.
+
+### 2d.1 Post-review corrections
+
+A review of the finished module, after the agent's turn had ended, raised four
+points. Two were real and are fixed; two were mistaken and are recorded as such
+so the same flags are not raised again.
+
+1. **Two dead declarations, removed.** `iota_jq` (FLT 110–112) and `cycUnit_pow`
+   (FLT 213) were transcribed but had no consumer in the spine — `cycUnit_pow`
+   was not even in the scouted closure. The project's own rule ("no self-consumed
+   lemmas", playbook §7.1) says they are not ported, so both were deleted; the
+   declaration count went 31 → 29 and the module header now says so. This is the
+   one change to the agent's output, and the build, warnings, consumer and
+   checker were all re-run afterwards.
+2. **The `Hall`-form fields are now documented.** Two of the ten `Inputs` fields
+   state the pin's `hall : ∀ d ∣ M, ⋯ = dedekindPsi d ∧ ⋯` hypothesis as
+   `Hall M →`. `Hall` is an `abbrev` for exactly that conjunction, so they are
+   definitionally the pin's, and the abbreviation is the shape the induction
+   consumes; the module header now records this rather than leaving the claim
+   "stated as in the pin" unqualified.
+3. **Mistaken: "no pruning record".** The 24 → 10 pruning is in §8.4 below, with
+   a reason for each surviving field and the 13 dropped nodes named together with
+   why they drop (they occur only inside the proofs of the assumed fields).
+4. **Mistaken: "`hall_all` must be public".** The work order's definition of done
+   asks for `#print axioms` on `functionFieldGeneration_of` only, and that is
+   satisfied; `hall_all` is `private` by a recorded design choice ("the auxiliary
+   block is `private`"), and since the capstone depends on it, a `sorry` inside it
+   would surface as `sorryAx` in the capstone's own axiom list anyway. No change.
+
+## 2e. Topic 3: the outbound interface — what it cost
+
+Nine public lemmas added to existing modules, placed with the objects they
+concern: `coeffMap_qExpand`, `coeffEmb_qExpand`, `coeffMap_injective`,
+`coeffEmb_injective` in `Defs/Laurent.lean`; `dedekindPsi_prime`,
+`dedekindPsi_prime_pow`, `dedekindPsi_mul_of_coprime`, `aeval_jq_eq_zero`,
+`transcendental_jq` in `Defs/Jq.lean`.
+
+| | |
+|---|---|
+| goal rounds | **1** (of the 2 budgeted; the checkpoint at 1 passed) |
+| declarations added | **9** public (4 + 5), every statement verified against its `Theorems/` wrapper |
+| lines written | ~60 in `Defs/Laurent.lean`, ~130 in `Defs/Jq.lean` (proofs + docstrings; the pin's own proofs are 5–50 lines each) |
+| `Spine.lean` | −4 private lemmas, `Inputs` 10 → 8 fields, the `ψ` helpers lost `h : Inputs`; 494 → 478 lines, 29 → 25 declarations |
+| build | `lake build` green, 0 warnings, no `sorry`; **2890 planned jobs**, unchanged (both new mathlib imports were already in the closure) |
+| axioms | `#print axioms functionFieldGeneration_of`: only `propext, Classical.choice, Quot.sound` |
+| checker | **146** identical (137 → +9), 0 mismatched, 0 missing, 7 own-proof exemptions; `SOURCES` gained the 9 wrappers, `OWN_PROOFS` unchanged; a mutated `dedekindPsi_prime` is caught |
+
+**Exposure was free.** Every lemma transcribed on the first try from its pin
+proof. The only shape issue was *source selection*: `coeffEmb_qExpand` exists
+twice in the pin — the public wrapper with explicit `(L : Type*)` and the
+`solution` file's `W1` copy with implicit `{K}` — and the wrapper is the interface,
+so the nine wrappers now precede the solution file in `SOURCES`. The one
+substantive port remained `dedekindPsi_mul_of_coprime`, whose ψ section needs
+`ArithmeticFunction` (mathlib); as scouted, that file's remaining ~399 lines are
+an off-path resultant development and were skipped.
+
+**Two of the four `Spine` deletions were duplicates, not moves.** Besides the two
+`qExpand` transport facts (which moved to `Defs/Laurent.lean`), two private
+helpers turned out to be verbatim copies of lemmas the port already had or had
+just gained and were deleted outright: `qExpand_congr'` ≡ Layer 0a's
+`qExpand_congr`, and `dedekindPsi_prime'` ≡ the `dedekindPsi_prime` this topic
+made public. Both came from FLT's solution file, where they are local copies
+because the public versions are imported under different names, so transcribing
+the helper block by transitive closure reproduces them. The lesson for scouting:
+a closure over a pinned *solution* file will include the file's private
+re-derivations of already-ported facts; diff each candidate against the port
+before transcribing, exactly as the playbook's "diff before porting the second"
+rule says. The audit after this cleanup found no remaining `Spine` private lemma
+without a consumer.
+
+### 2e.1 The interface table
+
+Indegrees re-derived from the doc-site graph (`tools/deps`, `FltData.indeg`),
+pinned `aa2d8b3`:
+
+| declaration | indeg | FLT proof (lines) | module |
+|---|---|---|---|
+| `coeffMap_qExpand` | **194** | 15 | `Defs/Laurent.lean` |
+| `dedekindPsi_prime` | 72 | 13 | `Defs/Jq.lean` |
+| `coeffEmb_qExpand` | 66 | 5 | `Defs/Laurent.lean` |
+| `transcendental_jq` | 56 | 13 | `Defs/Jq.lean` |
+| `dedekindPsi_mul_of_coprime` | 46 | 23–72 | `Defs/Jq.lean` |
+| `dedekindPsi_prime_pow` | 33 | 38 | `Defs/Jq.lean` |
+| `coeffMap_injective` | 32 | 10 | `Defs/Laurent.lean` |
+| `coeffEmb_injective` | 19 | 9 | `Defs/Laurent.lean` |
+| `aeval_jq_eq_zero` | 2 | 28 | `Defs/Jq.lean` |
+| **sum** | **520** | ~181 | |
+
+The cone — the `cites`-closure of `ModularCurve.functionFieldGeneration`, 70
+nodes — has **40 nodes with indeg ≥ 5, summing to 946**, and 1007 over indeg ≥ 1.
+The nine above therefore expose **520 of 946, 55%**, of the ≥5 tier: a majority,
+but not "most" in the strong sense the work order's parenthetical suggested. The
+unexposed mass is concentrated and named; the next interface candidates are
+`qExpansion_discriminant_eq_map_X_mul_dedekindEtaUnit` (66, the modular-form
+cluster), `PhiGen.splits_prime_at_slot` (42), `exists_phiIrreducible_evalSymm`
+(29), `hasSum_qParam_mul_laurent` (24), `qExpansion_E4_eq_map_eisenstein4` (20)
+and `minpoly_jqN_map_eq_prod_slots` (20). The last is an `Inputs` field, so
+exposing it would raise the ratio *and* shrink the debt — but it is a 2,002-line
+node, the opposite trade to this topic.
+
 ## 3. What was verified
 
 Independent QA of 0a after it landed:
@@ -183,6 +334,27 @@ The topic, on landing:
 | `spec/check_flt_statements.py` | 137 identical, 0 mismatched, 0 missing, 2 own-proof declarations exempted |
 | checker non-vacuity | an unlisted new declaration is caught as `MISSING IN FLT` |
 | consumer | **0 errors**; the only remaining `sorry` is the capstone |
+
+Topic 2, on landing:
+
+| check | result |
+|---|---|
+| `sorry` / `admit` / `axiom` / `native_decide` in `FLTForHuman/ModularCurve/` | none (checked by `grep`) |
+| `#print axioms` on `functionFieldGeneration_of` | only `propext, Classical.choice, Quot.sound` — the point of a conditional artifact |
+| `spec/check_flt_statements.py` | 137 identical, 0 mismatched, 0 missing, 7 own-proof exemptions |
+| every `Inputs` field referenced | 10 of 10 (the field-use check below) |
+| consumer | **0 errors**; `functionFieldGeneration_of` bound in Zone B; `sorry` count still 1 |
+
+Topic 3, on landing:
+
+| check | result |
+|---|---|
+| 9 interface statements identical to their pin wrappers (`spec/check_flt_statements.py`) | **146** identical, 0 mismatched, 0 missing |
+| the checker is non-vacuous on the new sources | a mutated `dedekindPsi_prime` (`p + 2`) is caught |
+| `sorry` / `admit` / `axiom` / `native_decide` in `FLTForHuman/ModularCurve/` | none |
+| `#print axioms` on `functionFieldGeneration_of` | only `propext, Classical.choice, Quot.sound` |
+| `Inputs` field set | **8**, every field still referenced; `ψ` helpers no longer take `h : Inputs` |
+| consumer | **0 errors**, one `sorry` (unchanged) |
 
 The statement-identity result is the one to carry forward: with a pinned source
 dictating the statements, faithfulness is *mechanically checkable*, and it should
@@ -307,7 +479,8 @@ Layer 0b is done: `Defs/Polynomial.lean`, `Defs/Fields.lean`, `Defs/PhiGen.lean`
 and none of the three shape risks named for it appeared (the table in §6).
 
 The effort has reached the floor it set itself: Layer 0 is complete and
-mechanically verified — 137 of 137 statements identical to the pin, no `sorry`,
+mechanically verified — 137 of 137 statements identical to the pin (146 after
+topic 3), no `sorry`,
 no `import Mathlib`, `#print axioms` clean. Two `jq.coeff` claims in consumer
 Zone C (`744`, `196884`) were expected to stay red because they live inside the
 deferred Φ_p subtree. The final check found that expectation to be wrong, the
@@ -320,8 +493,24 @@ topic below was taken, and it finished in one round (§2c). Zone C is now closed
   `∏' n, (1 - X ^ (n+1)) = pentagonalSeries`, with explicit coefficient lemmas, and
   the route is a finite low-order computation — `1 + 744q + 196884q² + ⋯` — with no
   part of the 44-node subtree. The hybrid held; the measured ratio against FLT's
-  closest analogue is ≈0.87 : 1. What remains is the deferred theorem of §7, to be
-  taken only if a future session picks a topic out of it.
+  closest analogue is ≈0.87 : 1.
+
+- **[TOPIC-conditional-capstone.md](../TOPIC-conditional-capstone.md)** — **done**.
+  `FLTForHuman/ModularCurve/FunctionFieldGeneration/Spine.lean` proves the strong induction `hall_all`
+  and the conditional capstone `functionFieldGeneration_of (h : Inputs)`, with
+  FLT's significant remaining statements bundled as the fields of `Inputs`
+  (§2d). The unconditional theorem is now exactly that field set away, and the
+  auxiliaries proved to be glue (§8.4).
+
+- **[TOPIC-interface-tier.md](../TOPIC-interface-tier.md)** — **done**.
+  Nine public interface lemmas — the declarations a fifth of FLT reaches this
+  segment through — now live in `Defs/Laurent.lean` and `Defs/Jq.lean` beside the
+  objects they concern, and two of them discharge `Inputs` fields (§2e). The
+  structure is down to **8**. The cone's ≥5-indegree tier sums to 946; the nine
+  carry 520 of it, 55%.
+
+What remains is the deferred theorem of §7, no longer an undifferentiated
+subtree but a named list of 8 fields to discharge one at a time (§8.4).
 
 ### 8.1 Two findings from the final check
 
@@ -390,30 +579,121 @@ forbids. They become relevant only when a note asks a question one of them
 answers. (`S_ModularCurve_coeff_jNum_le_six`, the analogue of the `jq`
 coefficients, is one of them.)
 
-**The theorem's remainder** is unchanged: 24 nodes below the capstone, behind the
-Φ_p input (PORTING-FFG §7). Its per-node line sum is 12,420, and that is an
-*upper bound*, for two reasons now measured: §8.1's three `Polynomial` nodes
-share one proof, and §8.3 shows the same statements can live in a far smaller
-standalone file than the subtree they appear under. Pricing it properly means
-scouting each node's actual FLT proof.
+**The theorem's remainder** was 24 nodes below the capstone, behind the Φ_p input
+(PORTING-FFG §7). Its per-node line sum is 12,420, and that is an *upper bound*,
+for two reasons now measured: §8.1's three `Polynomial` nodes share one proof, and
+§8.3 shows the same statements can live in a far smaller standalone file than the
+subtree they appear under. Pricing it properly means scouting each node's actual
+FLT proof. After topic 2 it is no longer an undifferentiated subtree: it is the
+10 named fields below.
 
-**The conditional capstone is the one remaining cheap item with a clear gain.**
-`hall_all` — the single strong induction carrying `Tight ∧ Gen` over the divisor
-lattice, which is math/010 §2 and §7 — is 86 lines of the solution file, sitting
-on about 190 lines of private helpers (`jqN_congr`/`full_congr`/`mff_congr`,
-the `dedekindPsi` arithmetic, `tight_one`/`gen_one`, `relfinrank_full_of`,
-`full_le_adjoin_chain`, `jqN_pow_not_mem_full`, `root_shape`, `htw_of`, `hsp_of`).
-Stated with the 24 remainder nodes as the fields of an `Inputs` structure, that
-would check the *architecture* of the proof — and make every input a first-class
-named assumption — for a few hundred lines instead of ~10k, and it is exactly the
-"sound conditional capstone" PORTING-FFG §7.4 describes. It needs the same
-scouting as any topic: whether the helpers are glue over the inputs or carry
-work of their own is not yet known.
+**The conditional capstone is done, and the remainder is now a structure.**
+`Spine.lean` proves `hall_all` and `functionFieldGeneration_of` (§2d), so the
+distance to the unconditional theorem is exactly the fields of `Inputs`, each
+stated as in the pin. The candidate set started as the 24-node manifest; pruning
+left 10, every one of which is referenced by the spine (10 of 10), and topic 3
+then discharged two of them, leaving **8**:
+
+| `Inputs` field | why it survives |
+|---|---|
+| ~~`dedekindPsi_mul_of_coprime`~~ | **discharged** in topic 3 — now a public lemma in `Defs/Jq.lean` |
+| ~~`dedekindPsi_prime_pow`~~ | **discharged** in topic 3 — now a public lemma in `Defs/Jq.lean` |
+| `relfinrank_modularFunctionField` | `relfinrank_full_of` turns `Gen + Tight` into a relative degree |
+| `full_eq_adjoin_full_div_prime` | the `Gen` tower step (`full_le_adjoin_chain`, `hall_all`) |
+| `jqN_prime_not_mem_full` | the prime case of `jqN_pow_not_mem_full` |
+| `jqN_pow_not_mem_adjoin_full` | the prime-power induction of `jqN_pow_not_mem_full` |
+| `minpoly_jqN_map_eq_prod_slots` | the slot description `root_shape` reads the roots off |
+| `modularFunctionField_eq_full_of` | the `Gen` step of `hall_all` |
+| `jqN_div_mem_modularFunctionField` | the slot-analysis input the `Gen` step calls |
+| `relfinrank_full_eq_mul` | the `Tight` tower step of `hall_all` |
+
+The 14 pruned are `functionFieldGeneration_iff_full_eq` (already proved in
+`Collapse.lean`) plus the 13 nodes that occur only *inside the proofs* of the
+originally assumed fields: `finrank_adjoin_jqN_eq_of_squarefree`,
+`finrank_adjoin_jqN_pow_succ_of_not_mem`, `jqN_prime_not_mem_adjoin`,
+`full_eq_adjoin_primes`, `relfinrank_full_of_squarefree`,
+`finrank_adjoin_jqN_prime_of_not_mem`, the three `Polynomial.*`,
+`exists_monic_evalAtJ_jqN_eq_zero`, `dedekindPsi_of_squarefree` and
+`functionFieldGeneration_of_squarefree`. Assuming a node discharges its
+dependencies, they drop out; `exists_phiIrreducible_of_finrank_eq` is used only by
+the trailing `exists_phiIrreducible`, which the spine does not include.
+Discharging the fields one at a time is now the natural next topic, and §7.3's
+per-node line counts are the cost estimate for each.
 
 **Stop-and-harvest is a real option.** The library now supplies the vocabulary of
-math/010 and base/004, with the statement landscape mechanically checked and two
-concrete claims proved. What it does not supply is proof-level clarity of §§4–7;
-that is the one thing left, and it is the expensive one.
+math/010 and base/004, with the statement landscape mechanically checked, two
+concrete claims proved, and the proof's architecture a checked theorem whose only
+hypotheses are the named debt. What it does not supply is the *unconditional*
+theorem; that is the one thing left, and it is the expensive one.
+
+### 8.5 The two studies, and what they change
+
+Two independent surveys landed in `studies/` on 2026-09-21:
+[flt-ffg-field-theory.md](../../studies/flt-ffg-field-theory.md) (this segment) and
+[flt-function-field-theory-and-mathlib.md](../../studies/flt-function-field-theory-and-mathlib.md)
+(the repository's whole curve layer). Their measurements were re-derived here
+before being relied on, and they change four of this record's conclusions.
+
+**The cone is the floor of FLT's arithmetic tower.** Verified from the doc-site
+graph: 70 nodes, of which **26 cite no FLT theorem at all** and **0** are
+`AlgebraicCurve`; **500** direct citers and **5,804 transitive dependents** —
+19.7% of the 29,511 theorem nodes. Nothing in the Frey, modularity or
+Galois-representation layers feeds it. A wrong *statement* here is therefore
+maximally expensive and a wrong *proof* maximally cheap to replace, which makes
+the statement checker and `#print axioms` a measurement-backed investment rather
+than a preference.
+
+**Layer 0's product is the interface, and it is load-bearing.** The outbound
+traffic flows through small declarations, not the headline theorem:
+`coeffMap_qExpand` **indeg 194** (the most-shared declaration in the cone),
+`dedekindPsi_prime` 72, `coeffEmb_qExpand` 66, `qExpansion_discriminant_…` 66,
+`transcendental_jq` 56, `functionFieldGeneration` 52 — and the capstone is
+consumed as an *input* by `IgusaScheme.exists_mul_mem_adjoin_jFull_jqN` and the
+CharP/fibre-model `hdeg` hypothesis. That settles the "will Layer 0 be used?"
+question §8 kept reopening: it is used by a fifth of the repository, which the
+original pitch ("the transport layer, the pole of `j`, a statable target") badly
+undersold. Topic 3 then built this interface out: nine of the declarations above
+are now public lemmas in `Defs/Laurent.lean` and `Defs/Jq.lean` (§2e).
+
+**The next target is the generic kernel, and this record missed it.** §8.4 called
+the three `Polynomial.*` nodes "cheap but unchosen — porting one would be 'because
+the graph has nodes'". That was wrong. They are the *engine* of the segment:
+math/010 §4 is `mem_range_of_unique_common_root`, §6's non-membership is
+`mem_range_of_eval_eq_const`, §6's `p+1`/`p` degrees are
+`irreducible_of_transitive_ringAut`; they are **absent from mathlib** (a grep for
+each name over `Mathlib/` returns nothing); they are ~180 distinct lines; and they
+are in neither mathlib nor the port. They sit *under* the 24-node remainder and
+can be built without discharging it — a third path inside this segment that
+§8.4's "stop or grind" framing did not have.
+
+**The remainder is structurally smaller than the 12,420 headline.** Spot-checking
+the studies' de-duplication ledger: the stripped `diff` of the two 2,002-line
+files is **0 lines** (not the 62 the study reports — the residual is namespace
+plumbing), of the two 735-line files **0**, and `grep -l '^def TS '` finds **50**
+files carrying the same prelude.
+
+| correction | lines |
+|---|---|
+| 12,420 headline | |
+| −2,002 second copy of the `jqN_prime_not_mem_full` file | |
+| −735 second copy of the `modularFunctionField_eq_full_of` file | |
+| −364 two extra `S_Polynomial_*` copies | |
+| −653 `jqN_prime_not_mem_adjoin`, re-proved inside the 2,002-line file | |
+| −399 resultant development off the capstone path, inside the `dedekindPsi` file | |
+| −38 duplicate `dedekindPsi_prime_pow` file | |
+| de-duplicated remainder | ≈ **8,229** |
+| −2,880 eight of the nine copies of the 360-line prelude | |
+| prelude written once | ≈ **5,349** |
+
+That is a structural line count, not a proof budget — cost here tracks shape risk
+(§6). But it means the deferred remainder, deduplicated, is about the size of the
+first port rather than 3.7× it, and that the real bottleneck is the Φ_p slot
+subtree (44 nodes, 11,034 lines) — which FLT *proves* and the port chose to cut.
+
+One correction to the studies: `coeff_jqModC_neg_one` (indeg 120, 3,801
+dependents) is **not** in this cone, so "the pole is load-bearing everywhere" is
+about the characteristic-`p` pole in the ModPForms sector, a different fact from
+the char-0 `coeff_jq_neg_one` the port carries.
 
 ## 9. Records map
 
@@ -421,6 +701,8 @@ that is the one thing left, and it is the expensive one.
 |---|---|
 | [PORTING-FFG.md](../PORTING-FFG.md) | the top plan: scope argument, gain test, deferred theorem menu |
 | [TOPIC-jq-coefficients.md](../TOPIC-jq-coefficients.md) | the completed topic plan: the `jq` coefficients |
+| [TOPIC-conditional-capstone.md](../TOPIC-conditional-capstone.md) | the completed topic plan: the proof's spine, conditionally |
+| [TOPIC-interface-tier.md](../TOPIC-interface-tier.md) | the completed topic plan: the cone's outbound interface |
 | [spec/ModularCurveConsumer.lean](../spec/ModularCurveConsumer.lean) | the deliverable measure, and the friction log |
 | [spec/check_flt_statements.py](../spec/check_flt_statements.py) | diffs every port statement against the pin |
 | this file | the record: what the effort did, cost, and decided |
@@ -432,9 +714,10 @@ the start: a work order is scaffolding, and once a layer is done its content is
 either in the code (the module list, the statements, the proofs), in the
 playbook (the principles, the overlap, the calibration — now §7), or in this
 record (the measurements, the decisions, the friction). What was kept is only
-what a later session cannot re-derive: `PORTING-FFG.md` as the top plan,
-`TOPIC-jq-coefficients.md` as the completed topic record, the playbook, and this
-file.
+what a later session cannot re-derive: `PORTING-FFG.md` as the top plan, the two
+completed topic records (`TOPIC-jq-coefficients.md`,
+`TOPIC-conditional-capstone.md`, `TOPIC-interface-tier.md`), the playbook, and
+this file.
 
 Nothing durable was lost in the move. The principles and the overlap section —
 the most reusable things this effort has produced, more so than the module list,

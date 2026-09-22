@@ -14,12 +14,12 @@
   The proof is definitional (`le_antisymm`, `adjoin_le_iff`, `jqd_mem_full`), so
   it needs nothing beyond Layer 0's definitions.
 
-  Assumes `FunctionFieldGeneration` (`Defs/Target`) and `modularFunctionField`,
+  Assumes `FunctionFieldGeneration` (`FunctionFieldGeneration/Target`) and `modularFunctionField`,
   `modularFunctionFieldFull`, `modularFunctionField_le_full`, `jqd_mem_full`
   (`Defs/Fields`). Not under `Defs/` because it is a result, not a definition.
 -/
 import FLTForHuman.ModularCurve.Defs.Fields
-import FLTForHuman.ModularCurve.Defs.Target
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.Target
 
 set_option autoImplicit false
 

@@ -1,19 +1,22 @@
 # Blueprint: `ModularCurve.functionFieldGeneration` — Layer 0
 
-**Status: Layer 0 and the first topic are done.** The ten modules of
-`lean/FLTForHuman/ModularCurve/` — 68 declarations in 0a, 69 in 0b, and the 24 of
-`JqCoefficients.lean` — are green with zero warnings and zero `sorry`, and the
-deliverable measure `spec/ModularCurveConsumer.lean` reports **0 errors**: Zones
-A, B and C are all bound. Its only remaining `sorry` is the deferred theorem's
-capstone. Layer 0's two work orders and the
-[`jq`-coefficients topic](TOPIC-jq-coefficients.md) each finished in a single goal
-round, and [logs/ffg-port.md](logs/ffg-port.md) carries the record, the measured
-proof cost, and the calibration. This
+**Status: Layer 0 and all three topics are done.** The eleven modules of
+`lean/FLTForHuman/ModularCurve/` — 68 declarations in 0a, 69 in 0b, 24 in
+`JqCoefficients.lean` and 27 in `Spine.lean`, plus 9 public interface lemmas added
+to `Defs/Laurent.lean` and `Defs/Jq.lean` — are green with zero warnings and
+zero `sorry`, and the deliverable measure `spec/ModularCurveConsumer.lean` reports
+**0 errors**: Zones A, B and C are all bound. Its only remaining `sorry` is the
+deferred theorem's capstone, now the *unconditional* counterpart of the proved
+conditional capstone `functionFieldGeneration_of (h : Inputs)`. Layer 0's two work
+orders and all three topics each finished in a single goal round, and
+[logs/ffg-port.md](logs/ffg-port.md) carries the record, the measured proof cost,
+and the calibration. This
 file previously planned a sorry-bounded port of the whole theorem; that is now
-deferred and kept only as a menu in §7. The scope decision and its evidence are
+deferred and kept only as a menu in §7, with the remainder reduced to the 8
+fields of `Inputs` (see §7.4). The scope decision and its evidence are
 §2, and the v4.34.0 friction list is at the tail of the consumer file, with
-`spec/check_flt_statements.py` diffing all 137 transcribed port statements against
-the pin (plus the two own-proof `jq.coeff` theorems, exempted explicitly).
+`spec/check_flt_statements.py` diffing all 146 transcribed port statements against
+the pin (plus the own-proof declarations, exempted explicitly).
 
 Companion records:
 
@@ -25,6 +28,10 @@ Companion records:
   measurements, decisions, friction, and predictions that were wrong.
 - [porting-playbook.md](porting-playbook.md) — what the next port should know.
   Its measurements are used throughout this file.
+- [../studies/flt-ffg-field-theory.md](../studies/flt-ffg-field-theory.md) — the
+  segment-scoped survey: how much of this cone is generic field theory versus
+  modular instantiation, the three mathlib-absent polynomial lemmas that are the
+  proof's engine, and the corrected (smaller) line budget.
 
 FLT line numbers and paths are against `anthropics/fermats-last-theorem@aa2d8b3`.
 mathlib is our pinned `v4.34.0`.
@@ -189,6 +196,46 @@ deferred.
 **Decision (recorded).** Layer 0 now. The theorem only if a specific topic is
 chosen later and the measurement supports it.
 
+### 2.1 The gain test was too pessimistic about Layer 0 — measured
+
+The reasoning above scores the *theorem* and concludes Layer 0 is worth it for
+organization. Two independent surveys in `studies/` (2026-09-21) measured what
+the port could not: this cone's position in FLT. Re-derived from the doc-site
+graph:
+
+- the cone is **70 nodes**, of which **26 cite no FLT theorem at all** and **0**
+  are `AlgebraicCurve` — it sits at the floor of FLT's arithmetic tower;
+- it has **500 direct citers** and **5,804 transitive dependents**, **19.7%** of
+  the 29,511 theorem nodes, all outbound: nothing in the Frey, modularity or
+  Galois-representation layers feeds it;
+- the outbound traffic reaches it through a handful of **interface
+  declarations** — `coeffMap_qExpand` (indeg **194**, the most-shared in the
+  cone), `dedekindPsi_prime` (72), `coeffEmb_qExpand` (66),
+  `qExpansion_discriminant_…` (66), `transcendental_jq` (56) — not through the
+  headline theorem, which is itself consumed as an *input* by the Igusa and
+  CharP/fibre-model packages.
+
+So Layer 0's real product is that interface, and its gain was understated rather
+than overstated: the declarations 0a/0b transcribed are the channel through which
+**a fifth of the repository** reaches this segment. That also makes the cone's
+position a verification argument: at the floor, a wrong *statement* is maximally
+expensive and a wrong *proof* maximally cheap to replace — which is why
+`spec/check_flt_statements.py` and `#print axioms` are the highest-value things
+the port has built. See [logs/ffg-port.md](logs/ffg-port.md) §8.5.
+
+**The interface is now built (topic 3, 2026-09-21).** Nine of these declarations
+are public lemmas in `Defs/Laurent.lean` and `Defs/Jq.lean`, stated verbatim from
+their pin wrappers and mechanically checked: `coeffMap_qExpand` (194),
+`dedekindPsi_prime` (72), `coeffEmb_qExpand` (66), `transcendental_jq` (56),
+`dedekindPsi_mul_of_coprime` (46), `dedekindPsi_prime_pow` (33),
+`coeffMap_injective` (32), `coeffEmb_injective` (19) and `aeval_jq_eq_zero` (2) —
+**520** of the cone's **946** ≥5-indegree tier (55%). The unexposed mass is
+concentrated and named: `qExpansion_discriminant_eq_map_X_mul_dedekindEtaUnit`
+(66, the modular-form cluster), `PhiGen.splits_prime_at_slot` (42),
+`exists_phiIrreducible_evalSymm` (29), `hasSum_qParam_mul_laurent` (24). Two of
+the nine also discharged `Inputs` fields, taking the conditional capstone's debt
+from 10 to 8. See [logs/ffg-port.md](logs/ffg-port.md) §2e.
+
 ## 3. Layer 0: sources and scope
 
 | source | lines | what it gives |
@@ -267,7 +314,7 @@ Source: `Def_X0` 111–212.
 | `Def_X0:201` | `dedekindPsi` | `ψ(N) = N ∏_{p∣N} (1 + 1/p)` |
 | `Def_X0:208`, `212` | `evalAtJ`, `evalAtJ_X` | evaluation at `jq` |
 
-### `FLTForHuman/ModularCurve/Defs/Target.lean`
+### `FLTForHuman/ModularCurve/FunctionFieldGeneration/Target.lean`
 
 The target statement's definition, plus the one case of it that 0a can prove.
 Source: `Def_X0` 233–242.
@@ -318,17 +365,31 @@ lean/FLTForHuman/ModularCurve/
   Defs/Laurent.lean     -- §4
   Defs/Twist.lean       -- §4
   Defs/Jq.lean          -- §4
-  Defs/Target.lean      -- §4: FunctionFieldGeneration + functionFieldGeneration_one
   Defs/Polynomial.lean  -- §5: ModularPolynomialData
   Defs/Fields.lean      -- §5: the two function fields
   Defs/PhiGen.lean      -- §5: the slot vocabulary
   Defs/TS.lean          -- §5: TS = j(u q^e), from the solution file
-  Collapse.lean         -- §5: functionFieldGeneration_iff_full_eq (Layer 0's only theorem)
+  JqCoefficients.lean   -- the low coefficients of `jq` (the first topic)
+
+  FunctionFieldGeneration/          -- the theory; everything named for it lives here
+    Target.lean         -- §4: FunctionFieldGeneration + functionFieldGeneration_one
+    Collapse.lean       -- §5: functionFieldGeneration_iff_full_eq (Layer 0's only theorem)
+    Spine.lean          -- the conditional capstone: `Inputs` + functionFieldGeneration_of
 
 lean/spec/
   ModularCurveConsumer.lean      -- the consumer; not in any library, see below
   check_flt_statements.py        -- diffs every port statement against the pin
 ```
+
+`Defs/` is the shared **X₀(N) vocabulary** — `qExpand`, `jq`, the two function
+fields, the slot vocabulary — which any later `ModularCurve` theory would reuse.
+The three modules that exist only for this theorem (`Target`, `Collapse`,
+`Spine`) sit in a directory named for it, so a second theory can add its own
+`<Theory>/` beside them without either inheriting generic names like "the spine"
+or "the collapse". Directory and namespace differ: the path is
+`...ModularCurve.FunctionFieldGeneration.Spine`, the declarations are
+`ModularCurve.*`, so math/010 §9's map and the checker are unaffected by the
+layout.
 
 Namespace `ModularCurve`, so declaration names match FLT's and math/010's §9 map
 applies unchanged. This is a **trade**, worth recording: the first port used its
@@ -535,13 +596,18 @@ PY
   `p2m_exact_reverting` delegation.
 - **R3 — ground-up only for the significant lemmas.** Use §7.3 for the list.
 
-A sound conditional capstone — `functionFieldGeneration_of (h : Inputs)` proved
-outright, with `Inputs` a structure whose fields are the significant lemmas — is
-the right headline artifact, because it contains no `sorryAx`. Derive the field
-set mechanically: put all 24 nodes in, build, then discharge and remove fields
-one at a time, so the structure is honest at every instant. Freeze `Inputs` once
-Layer 3 starts; input creep is the main threat to such a deliverable, and a
-freeze is the only mechanism that catches it.
+**The sound conditional capstone is built.** `FLTForHuman/ModularCurve/FunctionFieldGeneration/Spine.lean`
+proves `functionFieldGeneration_of (h : Inputs)` outright, with `Inputs` a
+structure whose fields are the significant lemmas, so the artifact contains no
+`sorryAx`. The field set was derived from the 24-node manifest by pruning to the
+10 the spine actually consumes; what dropped out is the 13 nodes that occur only
+inside the proofs of the 10 (assuming a node discharges its dependencies) plus the
+already-proved §2 collapse. Topic 3 then discharged two of the ten
+(`dedekindPsi_mul_of_coprime`, `dedekindPsi_prime_pow`, now public in
+`Defs/Jq.lean`), so the structure stands at **8** fields. The field list, with a
+one-line reason each, is [logs/ffg-port.md](logs/ffg-port.md) §8.4. Freeze
+`Inputs` before Layer 3 starts; input creep is the main threat to such a
+deliverable, and a freeze is the only mechanism that catches it.
 
 ### 7.5 Sorry protocol and drop list (for reference)
 
@@ -556,6 +622,46 @@ freeze is the only mechanism that catches it.
   first port lost two rounds to a truncated listing.
 - Do not drop `Def_ModularForm_HeckeOperator` by hand — the §7.1 cut removes it
   automatically, and the graph confirms it is absent from the remainder.
+
+### 7.6 Field-theoretic content, and a bottom-up option
+
+[../studies/flt-ffg-field-theory.md](../studies/flt-ffg-field-theory.md) surveys
+what of this cone is field theory and what of that is generic. Three findings bear
+on the menu above.
+
+- **The generic core is three lemmas, and mathlib lacks them.**
+  `Polynomial.mem_range_of_unique_common_root`,
+  `Polynomial.mem_range_of_eval_eq_const` and
+  `Polynomial.irreducible_of_transitive_ringAut` — one 182-line file, shipped
+  three times as the `S_Polynomial_*` modules — are the engine of math/010 §4–§6:
+  descent is the unique-common-root principle, the non-membership lemmas are
+  "constant on enough points", and the $`p+1`$ / $`p`$ degree steps are the
+  cyclic-automorphism criterion. `grep` over `Mathlib/` finds none of the three,
+  none is in the port, and all three are stated over an arbitrary field extension.
+  They are the natural first topic of a bottom-up effort, and the layer the spine
+  currently assumes through `Inputs`.
+- **The §7.3 line counts are a loose upper bound.** The three `S_Polynomial_*`
+  files are one file; `jqN_prime_not_mem_full` / `minpoly_jqN_map_eq_prod_slots`
+  (2,002 lines each) and `jqN_div_mem_modularFunctionField` /
+  `modularFunctionField_eq_full_of` (735 each) are likewise one file each; a
+  ~360-line `TS`/`phiAtSeed` prelude is copied into 12 of the 13 remainder files;
+  and `dedekindPsi_mul_of_coprime`'s 471-line file spends ~399 lines on a
+  resultant development that is not a graph node at all. De-duplicated, 12,420 is
+  about 8,200, and about 5,300 with the prelude written once — still a structural
+  count, not a proof budget, but a smaller remainder than the headline.
+- **The curve layer cannot replace this theorem.** The cone has zero
+  `AlgebraicCurve` nodes by design, and the direction is measured, not assumed:
+  the modular `IsCurveOver` and Riemann–Roch instances are proved *from* the same
+  degree and Φ_p-splitting inputs (`isCurveOver_modularFunctionFieldBar` cites
+  `functionFieldGeneration` directly; the other instances cite its corollaries).
+  Using the repository's curve theory here would be circular. Survey §7 has the
+  dependency table.
+
+The rest of the remainder is instantiated field theory of
+$`\mathbb{Q}(j) \subseteq \mathbb{Q}(j_N)`$ and does not generalize: it is the
+theorem. So the bottom-up question is not whether the segment's field theory can
+be a library — most of it cannot — but whether the 180-line generic kernel is
+worth building first, and the survey argues that it is.
 
 ## 8. Open questions
 
@@ -598,7 +704,7 @@ freeze is the only mechanism that catches it.
   one place where a mistake is silent until much later. It is now mechanically
   checked: `spec/check_flt_statements.py` extracts every port declaration's
   statement and diffs it against the pinned source —
-  **137 of 137 identical, 0 mismatched, 0 missing** — and the consumer's
+  **146 of 146 identical, 0 mismatched, 0 missing** — and the consumer's
   cross-module compositions remain the runtime wire test.
 - **If the theorem is revisited**, the first act is the §2 measurement — one `S_`
   module, named node's proof lines versus helpers — recorded here. Until it is

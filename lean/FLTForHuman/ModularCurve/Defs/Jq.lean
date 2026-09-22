@@ -13,15 +13,28 @@
 
   The regular coefficients of `jq` (`744`, `196884`) are *not* available here:
   `etaProd` is a topological product, so `jNum` is not an evaluable expression.
-  See `spec/ModularCurveConsumer.lean` Zone C.
+  See `spec/ModularCurveConsumer.lean` Zone C (they are proved in
+  `FLTForHuman/ModularCurve/JqCoefficients.lean`).
 
-  Names are FLT's verbatim; `PowerSeries`, `HahnSeries`, `Finset` are mathlib's.
+  This module also carries the part of the cone's **outbound interface** stated
+  over `jq` and `dedekindPsi`: `dedekindPsi_prime`, `dedekindPsi_prime_pow`,
+  `dedekindPsi_mul_of_coprime` (FLT `S_ModularCurve_dedekindPsi_*`, whose ψ
+  section is ~50 lines and whose remaining resultant development is off-path),
+  `aeval_jq_eq_zero` and `transcendental_jq`. They are transcribed verbatim from
+  their `Theorems/Thm_ModularCurve_*` wrappers in the pin and are public; the
+  indegrees in FLT's graph are 72, 33, 46, 2 and 56. See
+  `logs/ffg-port.md` §2e.
+
+  Names are FLT's verbatim; `PowerSeries`, `HahnSeries`, `Finset`,
+  `ArithmeticFunction` are mathlib's.
   Assumes `qExpand` and its coefficient lemmas from `FLTForHuman.ModularCurve.Defs.Laurent`.
 -/
 import Mathlib.RingTheory.PowerSeries.PiTopology
 import Mathlib.RingTheory.PowerSeries.Inverse
 import Mathlib.NumberTheory.Divisors
+import Mathlib.NumberTheory.ArithmeticFunction.Misc
 import Mathlib.Data.Nat.Squarefree
+import Mathlib.Tactic.IntervalCases
 import FLTForHuman.ModularCurve.Defs.Laurent
 
 set_option autoImplicit false
@@ -132,6 +145,38 @@ theorem jq_ne_zero : jq ≠ 0 := fun h => by simpa [h] using coeff_jq_neg_one
 
 end JFunction
 
+/-! ## `jq` is transcendental
+
+`jq` has a simple pole at `q = 0` with residue `1`; that alone forces it to be
+transcendental over `ℚ`, since a nonzero polynomial relation would make a
+leading coefficient vanish at the pole. FLT's `transcendental_jq` (indeg 56) is
+part of the cone's outbound interface. -/
+
+/-- There is no nonzero rational polynomial relation satisfied by `jq`: the
+`q ^ (-natDegree)` coefficient of `p(jq)` is the leading coefficient of `p`. -/
+theorem aeval_jq_eq_zero {p : Polynomial ℚ} (hp : Polynomial.aeval jq p = 0) : p = 0 := by
+  by_contra hp0
+  set n := p.natDegree with hn
+  have hcoeff : (Polynomial.aeval jq p).coeff (-(n : ℤ)) = p.coeff n := by
+    rw [Polynomial.aeval_def, Polynomial.eval₂_eq_sum_range, HahnSeries.coeff_sum,
+      Finset.sum_eq_single n]
+    · rw [algebraMap_apply_eq_single, HahnSeries.coeff_single_zero_mul, coeff_jq_pow_self,
+        mul_one]
+    · intro i hi hin
+      have hilt : i < n := lt_of_le_of_ne (Nat.lt_succ_iff.mp (Finset.mem_range.mp hi)) hin
+      rw [algebraMap_apply_eq_single, HahnSeries.coeff_single_zero_mul, coeff_jq_pow_of_lt,
+        mul_zero]
+      omega
+    · intro hn'
+      exact absurd (Finset.self_mem_range_succ n) hn'
+  rw [hp] at hcoeff
+  simp only [HahnSeries.coeff_zero] at hcoeff
+  exact hp0 (Polynomial.leadingCoeff_eq_zero.mp hcoeff.symm)
+
+/-- `jq` is transcendental over `ℚ`. -/
+theorem transcendental_jq : Transcendental ℚ jq :=
+  transcendental_iff.mpr fun _ hp => aeval_jq_eq_zero hp
+
 /-- `j(q ^ N)`, the `q ^ N`-substitution of `jq`. -/
 def jqN (N : ℕ) [NeZero N] : LaurentSeries ℚ := qExpand ℚ N jq
 
@@ -148,6 +193,82 @@ def dedekindPsi (N : ℕ) : ℕ := ∑ d ∈ N.divisors with Squarefree d, N / d
 theorem dedekindPsi_one : dedekindPsi 1 = 1 := by
   rw [dedekindPsi, Nat.divisors_one, Finset.filter_singleton, ite_eq_left squarefree_one]
   simp
+
+/-- `ψ(p) = p + 1` for a prime `p`. Part of the cone's outbound interface
+(indeg 72). -/
+theorem dedekindPsi_prime {p : ℕ} (hp : p.Prime) : dedekindPsi p = p + 1 := by
+  rw [dedekindPsi, Finset.sum_filter, hp.divisors, Finset.sum_pair hp.one_lt.ne]
+  simp [hp.squarefree, Nat.div_self hp.pos]
+
+/-- `ψ(p ^ k) = p ^ k + p ^ (k - 1)` for a prime `p` and `k ≠ 0`. Part of the
+cone's outbound interface (indeg 33). -/
+theorem dedekindPsi_prime_pow (p k : ℕ) (hp : p.Prime) (hk : k ≠ 0) :
+    dedekindPsi (p ^ k) = p ^ k + p ^ (k - 1) := by
+  have hsqfree : ∀ j, Squarefree (p ^ j) ↔ j ≤ 1 := fun j => by
+    constructor
+    · intro hsq
+      by_contra hj
+      exact hp.one_lt.ne'
+        (Nat.isUnit_iff.mp (hsq p (by rw [← pow_two]; exact pow_dvd_pow p (by omega))))
+    · intro hj
+      interval_cases j
+      · simp
+      · simpa using hp.prime.squarefree
+  have hfilter : {d ∈ (p ^ k).divisors | Squarefree d} = {1, p} := by
+    ext d
+    simp only [Finset.mem_filter, Nat.mem_divisors, Finset.mem_insert, Finset.mem_singleton]
+    constructor
+    · rintro ⟨⟨hdvd, -⟩, hsq⟩
+      obtain ⟨j, hj, rfl⟩ := (Nat.dvd_prime_pow hp).mp hdvd
+      have : j ≤ 1 := (hsqfree j).mp hsq
+      interval_cases j
+      · exact Or.inl (pow_zero p)
+      · exact Or.inr (pow_one p)
+    · rintro (rfl | rfl)
+      · exact ⟨⟨one_dvd _, pow_ne_zero _ hp.pos.ne'⟩, squarefree_one⟩
+      · exact ⟨⟨dvd_pow_self _ hk, pow_ne_zero _ hp.pos.ne'⟩, hp.prime.squarefree⟩
+  have hdiv : p ^ k / p = p ^ (k - 1) := by
+    conv_lhs => rw [show k = (k - 1) + 1 by omega, pow_succ]
+    exact Nat.mul_div_cancel _ hp.pos
+  rw [dedekindPsi, hfilter, Finset.sum_pair hp.one_lt.ne, Nat.div_one, hdiv]
+
+/-- The squarefree indicator as an arithmetic function. -/
+private def squarefreeIndicator : ArithmeticFunction ℕ :=
+  ⟨fun n => if Squarefree n then 1 else 0, by simp [not_squarefree_zero]⟩
+
+@[simp]
+private theorem squarefreeIndicator_apply {n : ℕ} :
+    squarefreeIndicator n = if Squarefree n then 1 else 0 :=
+  rfl
+
+private theorem isMultiplicative_squarefreeIndicator :
+    squarefreeIndicator.IsMultiplicative := by
+  refine ⟨by simp, fun {m n} h => ?_⟩
+  simp only [squarefreeIndicator_apply, Nat.squarefree_mul h]
+  by_cases hm : Squarefree m <;> by_cases hn : Squarefree n <;> simp [hm, hn]
+
+private theorem dedekindPsi_eq_mul_apply (N : ℕ) :
+    dedekindPsi N = (squarefreeIndicator * ArithmeticFunction.id) N :=
+  calc dedekindPsi N
+      = ∑ d ∈ N.divisors, squarefreeIndicator d * ArithmeticFunction.id (N / d) := by
+        rw [dedekindPsi, Finset.sum_filter]
+        refine Finset.sum_congr rfl fun d _ => ?_
+        by_cases hd : Squarefree d <;> simp [hd]
+    _ = ∑ x ∈ N.divisorsAntidiagonal, squarefreeIndicator x.1 * ArithmeticFunction.id x.2 :=
+        (Nat.sum_divisorsAntidiagonal fun d e =>
+          squarefreeIndicator d * ArithmeticFunction.id e).symm
+    _ = (squarefreeIndicator * ArithmeticFunction.id) N := ArithmeticFunction.mul_apply.symm
+
+private theorem isMultiplicative_squarefreeIndicator_mul_id :
+    (squarefreeIndicator * ArithmeticFunction.id).IsMultiplicative :=
+  isMultiplicative_squarefreeIndicator.mul ArithmeticFunction.isMultiplicative_id
+
+/-- `ψ` is multiplicative: `ψ(mn) = ψ(m)ψ(n)` for coprime `m`, `n`. Part of the
+cone's outbound interface (indeg 46). -/
+theorem dedekindPsi_mul_of_coprime (M N : ℕ) (h : Nat.Coprime M N) :
+    dedekindPsi (M * N) = dedekindPsi M * dedekindPsi N := by
+  simp only [dedekindPsi_eq_mul_apply]
+  exact isMultiplicative_squarefreeIndicator_mul_id.map_mul_of_coprime h
 
 /-- Evaluation of an integer polynomial at `jq`, as a ring hom into the Laurent
 series over `ℚ`. -/

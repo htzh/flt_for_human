@@ -30,6 +30,21 @@ SOURCES = [
     "Definitions/Def_ModularCurve_X0.lean",
     "Definitions/Def_ModularCurve_LaurentCoeff.lean",
     "Definitions/Def_ModularCurve_PhiGen.lean",
+    # The cone's outbound interface. These nine live in `Defs/Laurent.lean` and
+    # `Defs/Jq.lean` with the objects they concern; their pin statements are the
+    # `Theorems/` wrappers, so they are *verified* rather than exempted. The
+    # wrappers come before the solution file because `coeffEmb_qExpand` also
+    # occurs there in the `W1` implicit-`K` form; the public wrapper (explicit
+    # `L`, matching our `coeffEmb`) is the interface we match.
+    "Theorems/Thm_ModularCurve_coeffMap_qExpand.lean",
+    "Theorems/Thm_ModularCurve_coeffEmb_qExpand.lean",
+    "Theorems/Thm_ModularCurve_coeffMap_injective.lean",
+    "Theorems/Thm_ModularCurve_coeffEmb_injective.lean",
+    "Theorems/Thm_ModularCurve_dedekindPsi_prime.lean",
+    "Theorems/Thm_ModularCurve_dedekindPsi_prime_pow.lean",
+    "Theorems/Thm_ModularCurve_dedekindPsi_mul_of_coprime.lean",
+    "Theorems/Thm_ModularCurve_aeval_jq_eq_zero.lean",
+    "Theorems/Thm_ModularCurve_transcendental_jq.lean",
     "P2M/Sol/S_ModularCurve_functionFieldGeneration.lean",
     "Theorems/Thm_ModularCurve_functionFieldGeneration_iff_full_eq.lean",
 ]
@@ -38,13 +53,14 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/Defs/Laurent.lean",
     "FLTForHuman/ModularCurve/Defs/Twist.lean",
     "FLTForHuman/ModularCurve/Defs/Jq.lean",
-    "FLTForHuman/ModularCurve/Defs/Target.lean",
+    "FLTForHuman/ModularCurve/FunctionFieldGeneration/Target.lean",
     "FLTForHuman/ModularCurve/Defs/Polynomial.lean",
     "FLTForHuman/ModularCurve/Defs/Fields.lean",
     "FLTForHuman/ModularCurve/Defs/PhiGen.lean",
     "FLTForHuman/ModularCurve/Defs/TS.lean",
-    "FLTForHuman/ModularCurve/Collapse.lean",
+    "FLTForHuman/ModularCurve/FunctionFieldGeneration/Collapse.lean",
     "FLTForHuman/ModularCurve/JqCoefficients.lean",
+    "FLTForHuman/ModularCurve/FunctionFieldGeneration/Spine.lean",
 ]
 
 # Declarations whose *statement* has no FLT source, so there is nothing to diff:
@@ -60,6 +76,19 @@ PORT_FILES = [
 OWN_PROOFS = {
     "coeff_jq_zero",
     "coeff_jq_one",
+    # `Spine.lean`'s public surface. `Tight`/`Gen`/`Hall` are FLT's private
+    # abbreviations in `P2M/Sol/S_ModularCurve_functionFieldGeneration.lean`
+    # (lines 413–419), promoted to public here so a later discharge can name them;
+    # the script only reads non-private declarations, so it cannot see the pin's.
+    # `Inputs` and `functionFieldGeneration_of` are ours: `Inputs` bundles FLT's
+    # significant statements and has no counterpart to diff, and the capstone is
+    # the conditional artifact of TOPIC-conditional-capstone.md, not a node in the
+    # pin. Their auxiliaries are `private` and so are invisible to the checker.
+    "Tight",
+    "Gen",
+    "Hall",
+    "Inputs",
+    "functionFieldGeneration_of",
 }
 
 # Declaration keywords. `instance` matters for PhiGen; `structure` for Polynomial.
@@ -102,7 +131,12 @@ def top_level_cut(text: str) -> int:
 
 
 def norm(text: str) -> str:
-    return re.sub(r"\s+", " ", strip_comments(text)).strip()
+    # Both the port and the definitions layer spell these declarations inside
+    # `namespace ModularCurve`, but the `Theorems/` wrappers additionally qualify
+    # every occurrence with the namespace. That qualification is noise for a
+    # statement diff, so drop it on both sides before comparing.
+    text = re.sub(r"\bModularCurve\.", "", strip_comments(text))
+    return re.sub(r"\s+", " ", text).strip()
 
 
 def declarations(text: str) -> dict[str, tuple[str, str]]:

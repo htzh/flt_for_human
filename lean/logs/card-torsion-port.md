@@ -2,7 +2,7 @@
 
 **Status: complete.** The capstone is
 `FLTForHuman.Elliptic.card_torsion_of_isAlgClosed`
-(`FLTForHuman/Elliptic/Fiber.lean`); `lake build` is green with 0 warnings and no
+(`FLTForHuman/Elliptic/TorsionCard.lean`); `lake build` is green with 0 warnings and no
 `sorry`.
 
 | | |
@@ -278,7 +278,7 @@ rather than FLT's compat shim.
 
 **Steps 5-6, the counting argument** (`P2M/Sol/S_WeierstrassCurve_card_torsion_of_isAlgClosed.lean`,
 1335 lines, ~35 declarations). All ported, in
-`FLTForHuman/Elliptic/Fiber.lean`: `sub_negY_sq_eq_Ψ₂Sq_eval`,
+`FLTForHuman/Elliptic/TorsionCard.lean`: `sub_negY_sq_eq_Ψ₂Sq_eval`,
 `ΨSq_eval_eq_zero_of_preΨ`, `isCoprime_ΨSq_succ` (the first consumer of the
 multiplication bridge — a common root of `ΨSq n` and `ΨSq (n + 1)` gives a point
 killed by both `n` and `n + 1`, hence by `1`), `smul_formula_or_zero`,

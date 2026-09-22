@@ -1,14 +1,23 @@
 /-
-The counting argument, part 1: separability of the division polynomials.
+The counting argument for `#E[n](K) = n²`.
 
 Ported from `P2M/Sol/S_WeierstrassCurve_card_torsion_of_isAlgClosed.lean`, pinned
-at `aa2d8b3`, sections `PortTorsionSmulFormulaEngine` and
-`PortGenNetIdentities`. See `logs/card-torsion-port.md`.
+at `aa2d8b3` (sections `PortTorsionSmulFormulaEngine`, `PortGenNetIdentities`,
+`PortGenInduction`, `PortGenSmulFormula`, `PortGenCardViaFibers`, `PortGenCard`,
+`PortGenCardAll`). See `logs/card-torsion-port.md`.
 
 `isCoprime_ΨSq_succ` is the first place the multiplication bridge is consumed:
 `ΨSq n` and `ΨSq (n + 1)` are coprime because a common root would give a point
 killed by both `n` and `n + 1`, hence zero — and the bridge
 `smul_eq_zero_iff_evalEval_ψ` turns each vanishing into a torsion statement.
+
+The module is named for its subject — the cardinality of the `n`-torsion, as the
+port order's `TorsionCard` — rather than for the fibre device it uses. It holds
+the whole argument as one narrative, because splitting the fibre engine out would
+cut the thread between `ΨSq`-coprimality and the count: separability
+(`isCoprime_Φ_ΨSq`, `wronskian_Φ_ΨSq_ne_zero`), the double-fibre engine
+(`exists_double_fiber_card`), the odd-`n` and 2-torsion cases, and the assembly
+`card_nTorsion` ending in `card_torsion_of_isAlgClosed`.
 -/
 import FLTForHuman.Elliptic.Bridge
 import Mathlib.FieldTheory.IsAlgClosed.Basic
@@ -352,7 +361,7 @@ theorem finite_not_squarefree_fiber [IsAlgClosed K] [W.IsElliptic] {n : ℕ}
 
 end Wronskian
 
-section Fiber
+section FiberEngine
 
 open WeierstrassCurve WeierstrassCurve.Affine Polynomial
 open scoped WeierstrassCurve.Affine
@@ -467,7 +476,7 @@ theorem card_smul_fiber [IsAlgClosed K] [W.IsElliptic] {n : ℕ}
       exact add_right_cancel (h.trans (zero_add Q).symm)
   exact (Nat.card_congr e).symm
 
-end Fiber
+end FiberEngine
 
 section AlgClosed
 

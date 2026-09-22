@@ -49,14 +49,16 @@
 import FLTForHuman.ModularCurve.Defs.Laurent
 import FLTForHuman.ModularCurve.Defs.Twist
 import FLTForHuman.ModularCurve.Defs.Jq
-import FLTForHuman.ModularCurve.Defs.Target
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.Target
 import FLTForHuman.ModularCurve.Defs.Polynomial
 import FLTForHuman.ModularCurve.Defs.Fields
 import FLTForHuman.ModularCurve.Defs.PhiGen
 import FLTForHuman.ModularCurve.Defs.TS
-import FLTForHuman.ModularCurve.Collapse
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.Collapse
 -- The topic module: the low coefficients of `jq`, via mathlib's pentagonal route.
 import FLTForHuman.ModularCurve.JqCoefficients
+-- The conditional capstone: the spine, with FLT's significant statements as `Inputs`.
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.Spine
 
 set_option autoImplicit false
 
@@ -136,9 +138,11 @@ example (N : ℕ) [NeZero N] : FunctionFieldGeneration N := by sorry  -- the cap
 
 /-! ## Zone B — [0b] the fields and the polynomial datum
 
-Bound by Layer 0b. Nothing here is needed to state the target
-(`FunctionFieldGeneration` does not mention `modularFunctionField`), which is
-why Zone A could ship without it. -/
+Bound by Layer 0b, plus the *conditional* capstone from `Spine.lean` (a topic
+module). Nothing here is needed to state the target (`FunctionFieldGeneration`
+does not mention `modularFunctionField`), which is why Zone A could ship without
+it. The conditional capstone is the collapse's companion and is **proved**; only
+the unconditional Zone A example remains a `sorry`. -/
 
 #check ModularPolynomialData       -- (N : ℕ) [NeZero N] : Type
 #check modularFunctionField      -- (N : ℕ) [NeZero N] : IntermediateField ℚ (LaurentSeries ℚ)
@@ -151,10 +155,18 @@ why Zone A could ship without it. -/
 -- because Lean omits the section variable when the body does not use it. The
 -- checks still bind; this only corrects the expected signature in the comment.
 
--- The collapse, which is Layer 0b's one theorem (`FLTForHuman/ModularCurve/Collapse.lean`).
+-- The collapse, which is Layer 0b's one theorem (`FLTForHuman/ModularCurve/FunctionFieldGeneration/Collapse.lean`).
 example (N : ℕ) [NeZero N] :
     FunctionFieldGeneration N ↔ modularFunctionFieldFull N = modularFunctionField N :=
   functionFieldGeneration_iff_full_eq N
+
+-- The *conditional* capstone (`FLTForHuman/ModularCurve/FunctionFieldGeneration/Spine.lean`), the
+-- collapse's companion: it proves `FunctionFieldGeneration` outright from FLT's
+-- significant remaining statements bundled as `Inputs`, so unlike the Zone A
+-- example below it carries no `sorry`. The Zone A example is the *unconditional*
+-- theorem, which stays deferred.
+example (h : Inputs) (N : ℕ) [NeZero N] : FunctionFieldGeneration N :=
+  functionFieldGeneration_of h N
 
 /-! ## Zone C — the claims the Definitions layer does not deliver
 
@@ -232,6 +244,23 @@ not port any of the modular-form cluster: `etaProd` is identified with mathlib's
 `pentagonalSeries` by `tprod_one_sub_X_pow`, and the rest is a low-order
 `PowerSeries` coefficient computation.
 
+**Conditional-capstone result (2026-09-21).**
+`FLTForHuman/ModularCurve/FunctionFieldGeneration/Spine.lean` adds a *proved* Zone B item,
+`functionFieldGeneration_of (h : Inputs)`, carrying no `sorry`. It is the
+`PORTING-FFG.md` §7.4 artifact: a strong induction (`hall_all`, the helper block
+above it is glue) with FLT's significant remaining statements bundled as the
+structure `Inputs`, whose fields are the exact debt a full port would still
+owe. It is *not* the deferred theorem: the Zone A example stays the
+unconditional statement and stays `sorry`. Zone B's example is discharged by
+applying `functionFieldGeneration_of` to an arbitrary `Inputs`, so the count of
+`sorry`s in this file is unchanged at 1.
+
+**Interface-tier result (2026-09-21).** Nine public interface lemmas were added
+to `Defs/Laurent.lean` and `Defs/Jq.lean`, and two of the `Inputs` fields
+(`dedekindPsi_mul_of_coprime`, `dedekindPsi_prime_pow`) were discharged into
+`Defs/Jq.lean`, so `Inputs` is down to **8** fields. Nothing in this file
+changed: still **0 errors** and one `sorry`.
+
 ## Friction list (mathlib `v4.34.0` against FLT's `v4.33.0`)
 
 Recorded while porting, as the playbook asks. The mathematics is unchanged in
@@ -248,7 +277,7 @@ every entry.
    `functionFieldGeneration_one` is flagged — the goal is a proposition, so
    `have` is preferred, and the `NeZero d` introduced by `intro` is already a
    local instance in context. Dropping the line keeps the proof and clears the
-   warning. `Defs/Target.lean`.
+   warning. `FunctionFieldGeneration/Target.lean`.
 4. **Two Zone A examples in *this* file were wrong as first drafted** (our spec
    bug, not FLT's; FLT's own `qTwist_qExpand` is correct and was transcribed
    verbatim):
@@ -307,8 +336,19 @@ every entry.
     worked as transcribed.
 12. **Statement correspondence is now mechanical.** `spec/check_flt_statements.py`
     extracts each port declaration's statement and diffs it against the pinned
-    source: **137 of 137 identical** (68 from 0a, 69 from 0b), 0 mismatched, 0
-    missing. The check is non-vacuous (a mutated statement is caught).
+    source: **146 of 146 identical** (68 from 0a, 69 from 0b, 9 interface
+    lemmas), 0 mismatched, 0 missing. The check is non-vacuous (a mutated
+    statement is caught).
+13. **Topic 3 — the interface tier, and two source-selection wrinkles.** The
+    `Theorems/` wrappers qualify every occurrence with `ModularCurve.`, so the
+    checker now strips that namespace prefix from both sides before comparing;
+    and `coeffEmb_qExpand` exists twice in the pin (the public wrapper with
+    explicit `(L : Type*)`, the `solution` file's `W1` copy with implicit `{K}`),
+    so the wrappers precede the solution file in `SOURCES`. `dif_neg` →
+    `dite_eq_right` appeared once already (0b entry 7's family). The one real
+    dependency addition is `Mathlib.NumberTheory.ArithmeticFunction.Misc`, for
+    `dedekindPsi_mul_of_coprime`; it was already in the build closure, so the
+    planned job count did not move.
 
 The `sorry`s are not errors and do not count: their job is to keep the
 *statements* checkable while the proofs are out of scope.

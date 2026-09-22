@@ -24,6 +24,13 @@
   every other declaration here keeps FLT's name verbatim so that a `#check`
   against the pinned source is mechanical.
 
+  The tail of the module carries the part of the cone's **outbound interface**
+  stated over these two maps: `coeffMap_qExpand` (indeg 194 in FLT's graph, the
+  most-shared declaration in the cone), `coeffEmb_qExpand` (66),
+  `coeffMap_injective` (32) and `coeffEmb_injective` (19). They are transcribed
+  verbatim from their `Theorems/Thm_ModularCurve_*` wrappers in the pin and are
+  public. See `logs/ffg-port.md` §2e.
+
   Assumes nothing from earlier 0a modules; this is the first one.
 -/
 import Mathlib.RingTheory.LaurentSeries
@@ -280,6 +287,45 @@ theorem coeffMap_mem_laurentBaseChange (σ : L ≃ₐ[ℚ] L) {x : LaurentSeries
   | mul x y _ _ hx hy => simpa using mul_mem hx hy
 
 end BaseChange
+
+/-! ## The outbound interface
+
+The rest of FLT reaches this segment through a handful of small declarations
+rather than the headline theorem. The four below are the ones stated over
+`coeffMap` / `coeffEmb`; their indegrees in FLT's dependency graph are 194
+(`coeffMap_qExpand`, the most-shared declaration in the cone), 66, 32 and 19.
+They are transcribed from their `Theorems/Thm_ModularCurve_*` wrappers in the pin
+and deliberately **public**. -/
+
+/-- `coeffMap` commutes with the `q`-substitution: extending coefficients and
+substituting `q ↦ q ^ n` commute. -/
+theorem coeffMap_qExpand {R S : Type*} [CommRing R] [CommRing S] (f : R →+* S)
+    (n : ℕ) [NeZero n] (x : LaurentSeries R) :
+    coeffMap f (qExpand R n x) = qExpand S n (coeffMap f x) := by
+  ext k
+  by_cases hk : (n : ℤ) ∣ k
+  · obtain ⟨m, rfl⟩ := hk
+    rw [coeffMap_coeff, qExpand_coeff_mul, qExpand_coeff_mul, coeffMap_coeff]
+  · rw [coeffMap_coeff, qExpand_coeff_of_not_dvd n _ hk, qExpand_coeff_of_not_dvd n _ hk,
+      map_zero]
+
+/-- `coeffEmb` commutes with the `q`-substitution. -/
+theorem coeffEmb_qExpand (L : Type*) [Field L] [Algebra ℚ L] (n : ℕ) [NeZero n]
+    (x : LaurentSeries ℚ) : coeffEmb L (qExpand ℚ n x) = qExpand L n (coeffEmb L x) :=
+  coeffMap_qExpand (algebraMap ℚ L) n x
+
+/-- `coeffMap` preserves injectivity. -/
+theorem coeffMap_injective {R S : Type*} [CommRing R] [CommRing S] {f : R →+* S}
+    (hf : Function.Injective f) : Function.Injective (coeffMap f) :=
+  fun x y hxy => by
+    ext k
+    exact hf (by simpa using congrArg (fun z => HahnSeries.coeff z k) hxy)
+
+/-- `coeffEmb` preserves injectivity: a Laurent series over `ℚ` is determined by
+its coefficients, and `ℚ → L` is injective. -/
+theorem coeffEmb_injective (L : Type*) [Field L] [Algebra ℚ L] :
+    Function.Injective (coeffEmb L) :=
+  coeffMap_injective (FaithfulSMul.algebraMap_injective ℚ L)
 
 end ModularCurve
 
