@@ -25,10 +25,12 @@
   `dedekindPsi_prime_pow`, now public lemmas in `Defs/Jq.lean` beside
   `dedekindPsi`, and `relfinrank_modularFunctionField`, now a public lemma in
   `Defs/Fields.lean` beside `adjoin_jq_le` — so the structure has **seven**
-  fields. Nothing else is discharged: the unconditional capstone stays the
-  consumer's deferred `sorry`. The auxiliary block is `private`; the public
-  surface is `Inputs` and `functionFieldGeneration_of`. T18 moved the
-  `Tight`/`Gen`/`Hall` invariants and `tight_one`/`gen_one` (and the T19
+  fields. **T15–T19 proved all seven**, so this file's conditional artifact is no
+  longer the end of the story: `Capstone.lean` constructs `inputs : Inputs` from
+  them and proves the unconditional `functionFieldGeneration`. `hall_all` is
+  public here for that module's corollary layer. The auxiliary block is `private`;
+  the public surface is `Inputs`, `hall_all` and `functionFieldGeneration_of`. T18
+  moved the `Tight`/`Gen`/`Hall` invariants and `tight_one`/`gen_one` (and the T19
   substitution `gen_prime`) to `Defs/Fields.lean`; they are imported, not declared
   here.
 
@@ -305,7 +307,13 @@ end Shapes
 
 /-! ## The strong induction and the conditional capstone -/
 
-private theorem hall_all (h : Inputs) : ∀ N : ℕ, N ≠ 0 → Hall N := by
+/-- **The strong induction of math/010 §7.** From the seven significant
+statements bundled in `Inputs`, `Tight` and `Gen` hold at every divisor of every
+`N ≠ 0`. It is the source of the capstone's corollary layer
+(`modularFunctionField_eq_full`, `finrank_adjoin_jqN_eq_dedekindPsi`,
+`relfinrank_full_eq_dedekindPsi`), so it is public; `functionFieldGeneration_of`
+consumes it just below. -/
+theorem hall_all (h : Inputs) : ∀ N : ℕ, N ≠ 0 → Hall N := by
   intro N
   induction N using Nat.strong_induction_on with
   | _ N ih =>

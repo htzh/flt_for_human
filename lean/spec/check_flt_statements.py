@@ -242,6 +242,25 @@ SOURCES = [
     # verify through the `S_ModularCurve_functionFieldGeneration.lean` dotted
     # fallback (that file is already listed above, under topic 2 / T14).
     "Theorems/Thm_ModularCurve_full_eq_adjoin_full_div_prime.lean",
+    # Topic 19, the slot product and the prime non-membership. Both nodes are public
+    # wrappers, so they verify by direct match. The slot-count helpers, `sv`,
+    # `rval_aux` and the private M-arbitrary `jqN_prime_not_mem_adjoin` are
+    # `private` in the port, so the checker never sees them.
+    "Theorems/Thm_ModularCurve_minpoly_jqN_map_eq_prod_slots.lean",
+    "Theorems/Thm_ModularCurve_jqN_prime_not_mem_full.lean",
+    # Topic 20, the unconditional capstone. The theorem and its three corollaries
+    # are public `Theorems/` wrappers, so they verify by direct match. `inputs` and
+    # the now-public `hall_all` are handled in `OWN_PROOFS` (the latter is FLT's
+    # strong induction, restated against the port's `Inputs` bundle).
+    "Theorems/Thm_ModularCurve_functionFieldGeneration.lean",
+    "Theorems/Thm_ModularCurve_modularFunctionField_eq_full.lean",
+    "Theorems/Thm_ModularCurve_finrank_adjoin_jqN_eq_dedekindPsi.lean",
+    "Theorems/Thm_ModularCurve_relfinrank_full_eq_dedekindPsi.lean",
+    # Topic 20's interface tail: the last of §2.1's five out-of-cone nodes and its
+    # two neighbours. All three are public wrappers.
+    "Theorems/Thm_ModularCurve_exists_monic_evalAtJ_jqN_eq_zero.lean",
+    "Theorems/Thm_ModularCurve_exists_phiIrreducible_of_finrank_eq.lean",
+    "Theorems/Thm_ModularCurve_exists_phiIrreducible.lean",
 ]
 
 PORT_FILES = [
@@ -286,6 +305,10 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/FunctionFieldGeneration/Nonmembership.lean",
     # Topic 18, one new generator per prime power.
     "FLTForHuman/ModularCurve/FunctionFieldGeneration/Generation.lean",
+    # Topic 19, the slot product and the prime non-membership.
+    "FLTForHuman/ModularCurve/FunctionFieldGeneration/SlotProduct.lean",
+    # Topic 20, the unconditional capstone.
+    "FLTForHuman/ModularCurve/FunctionFieldGeneration/Capstone.lean",
 ]
 
 # Declarations whose *statement* has no FLT source, so there is nothing to diff:
@@ -314,6 +337,16 @@ OWN_PROOFS = {
     "Hall",
     "Inputs",
     "functionFieldGeneration_of",
+    # `hall_all` (T20) is FLT's strong induction, but the pin states its seven
+    # hypotheses as section variables (`: ∀ N : ℕ, N ≠ 0 → Hall N`), while the port
+    # bundles them as `Inputs` — the device immediately above, which is ours.
+    # So the port's statement is the pin's modulo that bundling, exactly as
+    # `functionFieldGeneration_of` is.
+    "hall_all",
+    # `inputs` (T20) is the port's assembly of the seven proved field theorems
+    # into `Inputs`. FLT has no counterpart: its `hall_all` is applied directly to
+    # the hypotheses. This is the one declaration the capstone adds that is ours.
+    "inputs",
     # `mem_adjoin_jq_of_poleOrderLE_zero` is ours, like `coeff_jq_zero` /
     # `coeff_jq_one`: it states the `n = 0` end of R1's Hauptmodul form
     # (base/013 §3, §5.5) as a corollary of the transcribed kernel. FLT has no
@@ -330,6 +363,12 @@ OWN_PROOFS = {
     # there is no name/statement to diff. The promoted `tight_one`/`gen_one` are
     # FLT's and verify through the pin's `private` copies instead.
     "gen_prime",
+    # `card_slotFilter_eq_dedekindPsi` (T19) is the audit's recommended single
+    # public counting export (`audit-slot-counting-mathlib.md` §5). FLT's nearest
+    # statement is `card_primCosetReps_eq_dedekindPsi`, a different (triple) shape,
+    # so there is no name/statement to diff; the pin's own `slots_eq_dedekindPsi`
+    # is `private`.
+    "card_slotFilter_eq_dedekindPsi",
 }
 
 # Declaration keywords. `instance` matters for PhiGen; `structure` for Polynomial.

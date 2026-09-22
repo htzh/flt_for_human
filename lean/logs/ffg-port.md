@@ -44,7 +44,9 @@ FLT is pinned at `aa2d8b3`; mathlib at `v4.34.0`.
 | T16 | the degree of one prime-power step | **done**, 1 new module + 4 extended; 10 declarations, 605 port lines; `Inputs` 5 → 4 | consumer **Zone N** (0 errors); checker 288 |
 | T17 | the non-membership tower and the two-prime separation | **done**, 1 new module; 2 declarations + 14 private declarations, 843 port lines; `Inputs` 4 → 3 | consumer **Zone O** (0 errors); checker 290 |
 | T18 | one new generator per prime power (node 1 only; the squarefree block deferred) | **done**, 1 new module + `Defs/Fields` move; 1 public node + 2 private helpers, 309 module lines + 36 net; `Inputs` 3 → 2; `gen_prime` landed | consumer **Zone P** (0 errors); checker 293 |
-| theorem | PORTING-FFG §7's 24-node remainder behind the Φ_p input | **in progress**: Φ_p cone (T5–T13) and T14–T18 done; T19–T20 remain; `Inputs` is a structure of 2 fields | — |
+| T19 | the slot product and the prime non-membership | **done**, 1 new module; 2 public nodes + the private M-arbitrary lemma, 1,502 port lines; `Inputs` 2 → 0 (total) | consumer **Zone Q** (0 errors); checker 297 |
+| T20 | the unconditional capstone and the interface tail | **done**, 1 new module; 11 declarations + `hall_all` promoted, ≈300 port lines; the headline is unconditional | consumer **Zone R** (0 errors); checker 304 |
+| **theorem** | PORTING-FFG §7's 24-node remainder behind the Φ_p input | **complete (2026-09-22)**: the Φ_p cone (T5–T13) and T14–T20 all landed; `Inputs` total; `ModularCurve.functionFieldGeneration` unconditional; out-of-cone tier **100%** | — |
 
 The tree was restructured twice, neither time touching the mathematics.
 
@@ -665,6 +667,113 @@ as before.
 are not ported; neither is in §2.1's measured outbound tier, and either can be
 added later for ≈150 pin lines without the `IsLevel`/`eq_of_isRoot_of_isLevel`
 work. `TOPIC-generation.md` §2 keeps the full inventory.
+
+## 2l. T19: the slot product and the prime non-membership — what it cost
+
+T19 is the last topic before the capstone. It proves the slot list
+(`minpoly_jqN_map_eq_prod_slots`, the pin's `rval_aux`) and the prime
+non-membership (`jqN_prime_not_mem_full`), the last two `Inputs` fields, so the
+structure is **total (debt 2 → 0)** and T20 only has to construct it.
+
+| | |
+|---|---|
+| goal rounds | **1** session, several build rounds during the splice (slot count, `sv` helpers, `rval_aux`, M-arbitrary); each phase green before the next |
+| declarations | 2 public nodes; the private M-arbitrary `jqN_prime_not_mem_adjoin`; ≈25 private helpers (slot count, `sv`/`sv_inj`/`map_qExpand_minpoly_eq`, the `rval_aux` internals) |
+| new module | `FunctionFieldGeneration/SlotProduct.lean`, **1,502 lines** |
+| dedup | `jqN_mem_of_div_primes`-style reuse: T14's prelude, `tight_one`/`gen_one`, `mem_range_of_eval_eq_const` and the `ψ` lemmas are all imported; the pin's `slotAt_mul`/`gcd_mul_*`/`gcd_eq_of_modEq`/`slotCond_mod_iff` and four `dedekindPsi_*` re-proofs are dropped |
+| **port lines** | **1,502** against the scouted ≈1,387 pre-win pin lines, ratio **≈1.08** (wins offset by the port's fuller header/docstrings) |
+| build | full `lake build` green, 0 warnings, no `sorry`; the module alone 44 s |
+| axioms | `#print axioms` clean on both public nodes |
+| checker | **297** identical (295 → +2; 16 promoted), 0 mismatched, 0 missing (306 checked) |
+| wire | consumer **Zone Q** (0 errors): the fully discharged `Inputs` and the derived unconditional `FunctionFieldGeneration N` |
+
+**The closed-form slot count held.** `slotAt n d = slotH (n/d, d)` with
+`slotH (a,d) = (d / gcd a d) * φ (gcd a d)`, from mathlib
+`Nat.periodic_coprime`/`Nat.count_eq_card_filter_range`; `slots_mul` via
+`Nat.Coprime.divisors_mul`. Net drop: `slotAt_mul` (108), `gcd_mul_left/right_of_dvd`
+(17), `gcd_eq_of_modEq`/`slotCond_mod_iff` (8), the four `dedekindPsi_*` re-proofs
+(64); the prime-power spine (`slotAt_prime_pow_mid`, `slots_prime_pow`) is kept
+verbatim (already mathlib-driven). One detail the audit's sketch omitted: after
+`Nat.Coprime.divisors_mul` + `Finset.sum_map`, the `attach` body must be `change`d
+to the projected pair and `Finset.sum_attach` given its `f` explicitly, otherwise
+the rewrite cannot see through the embedding. The audit's single public export,
+`card_slotFilter_eq_dedekindPsi`, is kept (it is `OWN_PROOFS` — our own addition;
+FLT's nearest is the different triple-shaped `card_primCosetReps_eq_dedekindPsi`),
+so a consumer of the slot list has one statement to cite; the in-module `hTcard`
+sites still use the pin's private `slotAt`/`slots` route, so that ≈30-line
+consumer collapse was not taken.
+
+**`rval_aux` transcribed as-is, and did not stall.** The 493-line `hslot_root` and
+the `¬ p ∣ a * d''` branch went in verbatim. The pin's local
+`set_option maxHeartbeats 6400000 in` was **not** transcribed: the module builds
+under the project's global `4000000` via `lake build`. A build-discipline note:
+`lake env lean <file>` uses the default `200000`, not the lakefile's global, so the
+`timeout 60 lake env lean` probe is red for this module (two `rval_aux` steps need
+more) even though `lake build` is green — the probe under-reports only because it
+bypasses `leanOptions`.
+
+**Two route details.**
+- **`Module.Free` supplied explicitly.** The `synthInstance` search for
+  `Module.finrank_mul_finrank` over the adjoin tower `ℚ⟮jq⟯⟮jqN (a*d'')⟯` timed out
+  at 20 000 heartbeats; `haveI : Module.Free … := Module.Free.of_divisionRing _ _`
+  closed it immediately. This is Friction entry 19's family and the recommended
+  remedy (supply the instance, do not raise a cap).
+- **The M-arbitrary `hallp` uses T18's substitution.** The pin's
+  `functionFieldGeneration_of_squarefree p` line became `gen_prime p`, and the
+  `d = 1` branch is `⟨tight_one, gen_one⟩`; no squarefree-block declaration is
+  referenced. `mem_range_of_eval_eq_const` is imported from
+  `FieldTheory/CommonRoot.lean`, not restated.
+
+**The statements.** Both public nodes are the `Theorems/` wrappers' verbatim, with
+the explicit `hall` conjunction (not the port's `Hall M` abbreviation) — this is
+what makes the checker match, since the wrappers write the conjunction out.
+
+**What T20 now needs.** Zone Q already exhibits the total `Inputs` and the derived
+`FunctionFieldGeneration N`; T20 has only to replace the consumer's Zone A `sorry`
+and record the unconditional theorem. The optional tail
+(`exists_monic_evalAtJ_jqN_eq_zero`, `exists_phiIrreducible_of_finrank_eq`, ≈250)
+is unchanged.
+
+## 2m. T20: the unconditional capstone — what it cost, and the effort closes
+
+T20 assembles what T15–T19 proved. `FunctionFieldGeneration/Capstone.lean` defines
+`inputs : Inputs` (the port's own assembly — FLT has no counterpart) from the
+seven theorems, then `functionFieldGeneration` (verbatim from its wrapper) as
+`functionFieldGeneration_of inputs N`, the corollary layer, and the interface
+tail. **The headline is now unconditional**, and the consumer's Zone A `example`
+is that theorem rather than a `sorry`.
+
+| | |
+|---|---|
+| goal rounds | **1**; the mandatory half built first try, the fraction-ring tail second try (one instance-signature adaptation) |
+| declarations | `inputs`, `functionFieldGeneration`, 3 corollaries, 3 tail nodes + 3 private evaluation helpers = **11 new**, plus `hall_all` promoted to public |
+| new module | `FunctionFieldGeneration/Capstone.lean` |
+| **port lines** | **≈300** against the work order's ≈220–280 estimate; the tail's fraction-ring node is ≈130 of it |
+| build | full `lake build` green (3874 jobs), 0 warnings, no `sorry` |
+| axioms | `#print axioms` clean on all eleven; `functionFieldGeneration` itself is `[propext, Classical.choice, Quot.sound]` |
+| checker | **304** identical (301 → +4 wrappers; `inputs`/`hall_all` exempted), 0 mismatched, 0 missing, 12 own-proof exempted |
+| consumer | **0 errors**; Zone A's capstone is the theorem; Zone R added; the remaining `sorry`s are Zones M–P's historical partial `Inputs` |
+
+**The `Inputs` literal needed no wrapper.** The work order's one predicted friction
+point — the two `Hall M`-typed fields against the standalone theorems' explicit
+conjunctions — did not bite: `Hall` is an `abbrev`, so the bare field assignments
+elaborated. The literal is seven lines.
+
+**A discovery on the tail: the fraction-ring node closed on the second build.**
+The pin's `exists_phiIrreducible_of_finrank_eq` looks formidable (109 lines, an
+`IsFractionRing (Polynomial ℤ) ℚ⟮jq⟯` instance built by hand), but its body is a
+faithful transcription; the only adaptation v4.34.0 forced was the integrality
+instance, where `isIntegral_algebraMap_iff` now takes `FaithfulSMul` rather than an
+injectivity proof, so `isIntegral_algHom_iff` with the coercion's injectivity
+replaces the pin's argument. The final comparison
+`minpoly ℚ⟮jq⟯ (jqN N) = (minpoly (Polynomial ℤ) (jqN N)).map evalAtJGen` then
+gives irreducibility for free. This is the last of §2.1's five out-of-cone nodes.
+
+**The effort's definition of done is met.** §7.8's checklist: build green, no
+`sorry`, `functionFieldGeneration` axiom-clean, the consumer's capstone `sorry`
+gone, the checker extended, and the out-of-cone ≥5-indegree tier at **100%**. The
+conditional of math/010 §2 is discharged and the segment's outbound interface — the
+analytic declarations included — is ported theorem, not reference.
 
 ## 3. What was verified
 

@@ -94,6 +94,10 @@ import FLTForHuman.ModularCurve.FunctionFieldGeneration.DegreeStep
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Nonmembership
 -- T18: one new generator per prime power.
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Generation
+-- T19: the slot product and the prime non-membership.
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.SlotProduct
+-- T20: the unconditional capstone — the total `Inputs`, the theorem, the corollaries.
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.Capstone
 -- The cyclotomic instances for the end-to-end wire tests of Zones I, J and K.
 import Mathlib.NumberTheory.Cyclotomic.Basic
 
@@ -168,9 +172,9 @@ example {L : Type*} [Field L] [Algebra ℚ L] (u : Lˣ) (N : ℕ) [NeZero N] :
   -- right); see the friction list at the end of this file.
   exact qTwist_qExpand u N (coeffEmb (L := L) jq)
 
--- The target statement is *expressible* from Zone A alone, and its degenerate
--- case is *provable* from Zone A alone.
-example (N : ℕ) [NeZero N] : FunctionFieldGeneration N := by sorry  -- the capstone, unproved
+-- The target statement is *expressible* from Zone A alone; the unconditional
+-- theorem is T20's `Capstone.lean` (Zone R), which closes this example.
+example (N : ℕ) [NeZero N] : FunctionFieldGeneration N := functionFieldGeneration N
 #check functionFieldGeneration_one   -- FunctionFieldGeneration 1, proved in the Def layer
 
 /-! ## Zone B — [0b] the fields and the polynomial datum
@@ -828,6 +832,60 @@ example (p : ℕ) [hp : Fact (Nat.Prime p)] : ModularCurve.Gen p := by
   haveI : NeZero p := ⟨hp.out.ne_zero⟩
   exact ModularCurve.gen_prime p
 
+/-! ## Zone Q — [T19] the slot product and the prime non-membership
+
+`FLTForHuman/ModularCurve/FunctionFieldGeneration/SlotProduct.lean` proves
+`minpoly_jqN_map_eq_prod_slots` (the slot list, the pin's `rval_aux`) and
+`jqN_prime_not_mem_full` (the prime non-membership), the last two `Inputs` fields.
+The slot count is the audit's closed form (`slotAt n d = (d / gcd (n/d) d) * φ
+(gcd (n/d) d)`, with `slots_mul` via mathlib `Nat.Coprime.divisors_mul`, replacing
+the pin's 108-line CRT `slotAt_mul`); the `ψ` facts are the public `Defs/Jq.lean`
+lemmas; `mem_range_of_eval_eq_const` is T4's engine imported from
+`FieldTheory/CommonRoot`; and the M-arbitrary lemma's `hallp` uses T18's
+`gen_prime`/`tight_one`/`gen_one` instead of the pin's
+`functionFieldGeneration_of_squarefree`. The slot product transcribes the pin's
+680-line `rval_aux` (its `hslot_root` is irreducible mathematics per the audit),
+with the `Module.Free` instance over the adjoin tower supplied explicitly rather
+than left to instance search.
+
+**The wire test is the fully discharged `Inputs`: the debt reaches zero.** All
+seven fields are the proved theorems, so this is exactly T20's capstone input —
+applying `functionFieldGeneration_of` to it makes the capstone unconditional. -/
+
+#check @ModularCurve.minpoly_jqN_map_eq_prod_slots
+#check @ModularCurve.jqN_prime_not_mem_full
+#check @ModularCurve.card_slotFilter_eq_dedekindPsi
+
+-- T19 fills the last two `Inputs` fields; T20's `Capstone.lean` bundles all seven.
+example : ModularCurve.Inputs := ModularCurve.inputs
+
+-- The capstone's debt is paid: the unconditional `FunctionFieldGeneration N`,
+-- now the public theorem rather than a locally built term.
+example (N : ℕ) [NeZero N] : FunctionFieldGeneration N := ModularCurve.functionFieldGeneration N
+
+/-! ## Zone R — [T20] the unconditional capstone and its corollary layer
+
+`FLTForHuman/ModularCurve/FunctionFieldGeneration/Capstone.lean` constructs the
+total `Inputs` from T15–T19's seven theorems and discharges the conditional
+capstone: `ModularCurve.functionFieldGeneration` is now unconditional, and the
+corollary layer (`modularFunctionField_eq_full`, `finrank_adjoin_jqN_eq_dedekindPsi`,
+`relfinrank_full_eq_dedekindPsi`) plus the interface tail
+(`exists_monic_evalAtJ_jqN_eq_zero`, `exists_phiIrreducible_of_finrank_eq`,
+`exists_phiIrreducible`) is public. The Zone A example above is that same theorem.
+The file's remaining `sorry`s are the partially-discharged `Inputs` of Zones M–P,
+kept as the historical wire tests. -/
+
+#check @ModularCurve.inputs
+#check @ModularCurve.modularFunctionField_eq_full
+#check @ModularCurve.finrank_adjoin_jqN_eq_dedekindPsi
+#check @ModularCurve.relfinrank_full_eq_dedekindPsi
+#check @ModularCurve.exists_monic_evalAtJ_jqN_eq_zero
+#check @ModularCurve.exists_phiIrreducible_of_finrank_eq
+#check @ModularCurve.exists_phiIrreducible
+
+example (N : ℕ) [NeZero N] : ∃ data : ModularPolynomialData N, PhiIrreducible data :=
+  ModularCurve.exists_phiIrreducible N
+
 /-! ## The measure
 
     cd lean
@@ -1213,6 +1271,19 @@ for the pin's `functionFieldGeneration_of_squarefree` call. The wire test is the
 partially discharged `Inputs` with the five proved fields filled and the two
 unported ones `sorry`; the file now carries the Zone A capstone plus the
 `Inputs`-field `sorry`s of Zones M (five), N (four), O (three) and P (two).
+
+**Slot-product result (2026-09-22).** Zone Q is added and bound:
+`FLTForHuman/ModularCurve/FunctionFieldGeneration/SlotProduct.lean` proves the last
+two `Inputs` fields — `minpoly_jqN_map_eq_prod_slots` (the pin's `rval_aux`, 680
+lines, transcribed as-is) and `jqN_prime_not_mem_full` (with the private
+M-arbitrary `jqN_prime_not_mem_adjoin` using T18's `gen_prime`) — so **the debt is
+2 → 0 and `Inputs` is total**. The zone's wire test is the fully discharged
+`Inputs`, and it also derives the unconditional `FunctionFieldGeneration N` by
+applying the proved `functionFieldGeneration_of`; that is the deferred Zone A
+theorem, now reachable, which T20 makes unconditional. The slot count is the
+audit's closed form with `Nat.Coprime.divisors_mul`; the `ψ` facts are the public
+`Defs/Jq.lean` lemmas; `mem_range_of_eval_eq_const` is imported from
+`FieldTheory/CommonRoot`. The `sorry` count is unchanged here (Zone Q adds none).
 
 The `sorry`s are not errors and do not count: their job is to keep the
 *statements* checkable while the proofs are out of scope.
