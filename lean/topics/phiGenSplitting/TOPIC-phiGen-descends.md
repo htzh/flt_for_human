@@ -7,10 +7,10 @@ the cone's (c) is discharged.** The modules are
 `FLTForHuman/ModularForms/PhiGenDescends.lean`, green with 0 warnings and no
 `sorry`; the measured cost, the audit accounting and the three shape issues are
 in [logs/phiGen-port.md](../../logs/phiGen-port.md) §8. What remains of the cone
-is its other five pieces, and [PORTING-PhiGen.md](../../PORTING-PhiGen.md) §6 is
+is its other five pieces, and [PORTING-PhiGen.md](../PORTING-PhiGen.md) §6 is
 the re-route menu. This file is kept as the executed plan. Fourth and last topic
 of the Φ_p splitting / R1 sub-effort's planned sequence. The plan is
-[PORTING-PhiGen.md](../../PORTING-PhiGen.md); the mathematics is
+[PORTING-PhiGen.md](../PORTING-PhiGen.md); the mathematics is
 [base/013](../../../base/013-riemann-existence-and-the-q-expansion-principle.md)
 §4.3 and §6. T5–T7 are executed and **R1 is complete**; their records are
 [TOPIC-r1-kernel.md](TOPIC-r1-kernel.md), [TOPIC-jq-model.md](TOPIC-jq-model.md),
@@ -37,7 +37,7 @@ of the Φ_p splitting / R1 sub-effort's planned sequence. The plan is
 
 **Audience.** A fresh session taking this topic. Read, in this order:
 
-1. [PORTING-PhiGen.md](../../PORTING-PhiGen.md) §3–§6 — the cone's six pieces,
+1. [PORTING-PhiGen.md](../PORTING-PhiGen.md) §3–§6 — the cone's six pieces,
    the R1/R2 split, and the re-route question this topic feeds;
 2. [base/013](../../../base/013-riemann-existence-and-the-q-expansion-principle.md)
    §4.3 (the Hecke-coset construction that makes the coefficients level-one
@@ -129,7 +129,7 @@ them.
   cone's (c) is discharged. The cone's remaining pieces — (a) `exists_phiGenDescends`,
   (b) integrality/pole bounds, (d) assembly + uniqueness, (e)
   irreducibility/symmetry, (f) the splitting statement — are a separate, larger
-  effort; [PORTING-PhiGen.md](../../PORTING-PhiGen.md) §6 records the re-route
+  effort; [PORTING-PhiGen.md](../PORTING-PhiGen.md) §6 records the re-route
   options now that the analytic input is in hand.
 
 ## 2. The scouted inventory
@@ -305,5 +305,5 @@ cannot make).
 | (e) | `phiIrreducible_of_splits`, `evalSymm_of_splits` (the 895-line block) | not started |
 
 R1 (T5–T7) supplied the analytic input (c) needs; **T8 discharges (c)**. The
-remaining five pieces are the cone's algebra, and [PORTING-PhiGen.md](../../PORTING-PhiGen.md)
+remaining five pieces are the cone's algebra, and [PORTING-PhiGen.md](../PORTING-PhiGen.md)
 §6 is the menu for how to route them now that (c) is available.

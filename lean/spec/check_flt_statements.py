@@ -79,6 +79,11 @@ SOURCES = [
     # never sees it (the two wrappers are the comparable copies).
     "Theorems/Thm_ModularCurve_hasSum_jq_qParam.lean",
     "Theorems/Thm_ModularCurve_E4_cube_div_discriminant_smul.lean",
+    # The two outbound >=5-indegree exports promoted on 2026-09-22 (PORTING-FFG
+    # §2.1): both were `private` even though their statements are the wrappers
+    # verbatim. They live in T6's module, so they are listed with it.
+    "Theorems/Thm_ModularCurve_qExpansion_discriminant_eq_map_X_mul_dedekindEtaUnit.lean",
+    "Theorems/Thm_ModularCurve_qExpansion_E4_eq_map_eisenstein4.lean",
     # Topic 7, `FLTForHuman/ModularForms/Hauptmodul.lean`: the Hauptmodul form.
     # The headline and the two Cauchy-product lemmas are the pin wrappers verbatim.
     # `RealL` and its closure are *transcribed* rather than wrapper-declared (FLT

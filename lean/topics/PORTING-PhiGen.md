@@ -1,5 +1,11 @@
 # Blueprint: the Φₚ splitting cone — `PhiGen.splits_prime_at_slot`
 
+> **Retired (2026-09-22).** This plan was written and executed top-level; with the
+> cone closed it lives here in `topics/` as the record of the decision and its
+> measured cost, per `README.md`'s "Where things live". The topic work orders and
+> the sub-effort's log ([../logs/phiGen-port.md](../logs/phiGen-port.md), §14 for
+> the closing review) are its companions.
+
 **Status: T5–T13 landed — the Φₚ splitting cone is closed (2026-09-22).** R1 is
 complete, the cone's (c) is discharged, the construction (a) + the 328 block + (d)
 is built, the datum's properties (positivity, irreducibility, symmetry, existence)
@@ -8,7 +14,7 @@ are proved, and the headline `PhiGen.splits_prime_at_slot` is a ported theorem: 
 of the 44-node cone below `ModularCurve.PhiGen.splits_prime_at_slot`, the
 measurement that the headline line count overstates it by ~1.6×, and the plan for
 the remaining cone algebra. The analytic input's mathematics is written up in
-[base/013](../base/013-riemann-existence-and-the-q-expansion-principle.md) (the
+[base/013](../../base/013-riemann-existence-and-the-q-expansion-principle.md) (the
 R1/R2 separation and the exact declaration chain); this file is the port-side
 companion — sizes, work orders, re-route options — and §5 records the sequence
 with each topic's measured outcome. **T13, the consequence (uniqueness and the
@@ -19,23 +25,23 @@ final consequence topic; each step that grew split out into
 
 Companion records:
 
-- [math/010](../math/010-function-field-generation.md) — the mathematics of the
+- [math/010](../../math/010-function-field-generation.md) — the mathematics of the
   target. Its §3 is the splitting statement, §4 the descent.
-- [base/013](../base/013-riemann-existence-and-the-q-expansion-principle.md) —
+- [base/013](../../base/013-riemann-existence-and-the-q-expansion-principle.md) —
   the mathematics of record for the analytic input. It separates the two
   Riemann-existence facts (R1, level-one q-expansion; R2, degree and
   connectedness at level `N`), shows R2's algebraic substitute, and walks the
   exact declaration chain this note plans. §3–§4 here are the port-side summary
   of it; do not re-derive it.
-- [base/006](../base/006-the-modular-equation.md) — the modular equation in
+- [base/006](../../base/006-the-modular-equation.md) — the modular equation in
   prose: §3 the cover and the two invariances, §6 the five-step Lean route.
-- [PORTING-FFG.md](PORTING-FFG.md) — the parent effort. Its §7.1 cuts this cone,
+- [PORTING-FFG.md](../PORTING-FFG.md) — the parent effort. Its §7.1 cuts this cone,
   §7.6 already deduplicates the *remainder*'s line counts, and §7.7 records that
   the cone gates all 7 remaining `Inputs` fields.
-- [logs/ffg-port.md](logs/ffg-port.md) — the parent effort's record.
-- [porting-playbook.md](porting-playbook.md) — the reusable method. §7.3's
+- [logs/ffg-port.md](../logs/ffg-port.md) — the parent effort's record.
+- [porting-playbook.md](../porting-playbook.md) — the reusable method. §7.3's
   "cost tracks the route, not the subtree" is the cautionary tale this note uses.
-- [../studies/flt-ffg-field-theory.md](../studies/flt-ffg-field-theory.md) — the
+- [../studies/flt-ffg-field-theory.md](../../studies/flt-ffg-field-theory.md) — the
   segment survey.
 
 FLT line numbers and paths are against `anthropics/fermats-last-theorem@aa2d8b3`.
@@ -67,7 +73,7 @@ stands.
 4. **The next topic is (c), the level-one q-expansion principle.** It is the one
    input with no mathlib-free substitute in the cone, and isolating it as a
    standalone theorem is what lets the algebra of (a)/(b)/(d)/(e) be re-routed
-   (§5, §6). [base/013](../base/013-riemann-existence-and-the-q-expansion-principle.md)
+   (§5, §6). [base/013](../../base/013-riemann-existence-and-the-q-expansion-principle.md)
    supplies the mathematics: R1 is the analytic input, specialized to `X(1)`;
    R2 is reconstructed algebraically by (a)/(d)/(e). This note keeps the port
    side — sizes, work orders, re-route options.
@@ -170,7 +176,7 @@ closure).
 | (e) | irreducibility, symmetry, non-membership | `one_le_coeff_jq` plus the 895-line block | 1,280 | no |
 | (f) | the splitting statement and its wrapper | `splits_of_prime`, `splits_of_coeff_evalAtJ_eq` | 400 | no |
 
-In [base/013](../base/013-riemann-existence-and-the-q-expansion-principle.md)'s
+In [base/013](../../base/013-riemann-existence-and-the-q-expansion-principle.md)'s
 notation, **(c) is R1** — the level-one q-expansion principle — and **(a), (d),
 (e) are the algebraic substitute for R2**, the degree/connectedness statement
 about `X₀(N) → X(1)`. The whole cone is thus "R2 by algebra, R1 by analysis",
@@ -276,7 +282,7 @@ The chain, bottom-up:
    to each $`c_k`$.
 
 **What this is classically.** Step 5 is R1 of
-[base/013](../base/013-riemann-existence-and-the-q-expansion-principle.md), the
+[base/013](../../base/013-riemann-existence-and-the-q-expansion-principle.md), the
 level-one *q-expansion principle*: a holomorphic, bounded,
 $`\mathrm{SL}_2(\mathbb{Z})`$-invariant function on $`\mathbb{H}`$ is constant,
 equivalently the only holomorphic weight-zero level-one modular form is
@@ -307,10 +313,10 @@ fourth:
 
 | topic | deliverable | pin material | pin lines | work order |
 |---|---|---|---|---|
-| **T5 (done)** | the constancy kernel, plus the `n = 0` corollary | `coeff_eq_zero_of_hasSum_of_slash_invariant` | 186 | [TOPIC-r1-kernel.md](topics/phiGenSplitting/TOPIC-r1-kernel.md) |
-| **T6 (done)** | the analytic model of `jq` | `qExpansion_*`, `hasSum_jNum_qParam`, `hasSum_jq_qParam`, `E4_cube_div_discriminant_smul` | ~589 | [TOPIC-jq-model.md](topics/phiGenSplitting/TOPIC-jq-model.md) |
-| **T7 (done)** | the Hauptmodul form | `hasSum_qParam_mul{,_laurent}`, `exists_aeval_jq_sub_holomorphicAtInfty`, `mem_adjoin_jq_of_hasSum_of_slash_invariant` | ~462 | [TOPIC-hauptmodul.md](topics/phiGenSplitting/TOPIC-hauptmodul.md) |
-| **T8 (done)** | the cone application: the descended coefficients lie in `ℚ[jq]` | the Hecke translates, `cosetPoly_smul`, `hasSum_cosetPoly_coeff`, `mem_adjoin_jq_of_phiGenDescends` | ~681 | [TOPIC-phiGen-descends.md](topics/phiGenSplitting/TOPIC-phiGen-descends.md) |
+| **T5 (done)** | the constancy kernel, plus the `n = 0` corollary | `coeff_eq_zero_of_hasSum_of_slash_invariant` | 186 | [TOPIC-r1-kernel.md](phiGenSplitting/TOPIC-r1-kernel.md) |
+| **T6 (done)** | the analytic model of `jq` | `qExpansion_*`, `hasSum_jNum_qParam`, `hasSum_jq_qParam`, `E4_cube_div_discriminant_smul` | ~589 | [TOPIC-jq-model.md](phiGenSplitting/TOPIC-jq-model.md) |
+| **T7 (done)** | the Hauptmodul form | `hasSum_qParam_mul{,_laurent}`, `exists_aeval_jq_sub_holomorphicAtInfty`, `mem_adjoin_jq_of_hasSum_of_slash_invariant` | ~462 | [TOPIC-hauptmodul.md](phiGenSplitting/TOPIC-hauptmodul.md) |
+| **T8 (done)** | the cone application: the descended coefficients lie in `ℚ[jq]` | the Hecke translates, `cosetPoly_smul`, `hasSum_cosetPoly_coeff`, `mem_adjoin_jq_of_phiGenDescends` | ~681 | [TOPIC-phiGen-descends.md](phiGenSplitting/TOPIC-phiGen-descends.md) |
 
 R1 = T5–T7; T8 is the cone's (c) and needs all three. The split is by
 mathematical object, not by file: T5 is generic modular-form analysis with no
@@ -318,7 +324,7 @@ mathematical object, not by file: T5 is generic modular-form analysis with no
 membership statement that completes R1; T8 is the Hecke-coset consumer.
 
 **T5 is done** (2026-09-21, one goal round). Its work order was
-[topics/phiGenSplitting/TOPIC-r1-kernel.md](topics/phiGenSplitting/TOPIC-r1-kernel.md),
+[topics/phiGenSplitting/TOPIC-r1-kernel.md](phiGenSplitting/TOPIC-r1-kernel.md),
 now the executed plan. It delivered `coeff_eq_zero_of_hasSum_of_slash_invariant` —
 R1's minimal named form, per base/013 §6 — in the new
 `FLTForHuman/ModularForms/` area, plus the own-proof corollary
@@ -337,10 +343,10 @@ package's 4 000 000 heartbeat caps), so the pin's 26-line argument was ported
 instead. The port is 332 lines over two public declarations and six private
 helpers; `#print axioms` on both public declarations is clean, the statement
 checker is at 151 (up 1, 0 mismatched), and the measured cost is in
-[logs/phiGen-port.md](logs/phiGen-port.md).
+[logs/phiGen-port.md](../logs/phiGen-port.md).
 
 **T6 is done** (2026-09-22, one goal round). Its work order was
-[topics/phiGenSplitting/TOPIC-jq-model.md](topics/phiGenSplitting/TOPIC-jq-model.md),
+[topics/phiGenSplitting/TOPIC-jq-model.md](phiGenSplitting/TOPIC-jq-model.md),
 now the executed plan. It delivered `hasSum_jq_qParam` (the realization T7
 consumes) and `E4_cube_div_discriminant_smul` in
 `FLTForHuman/ModularForms/JqAnalyticModel.lean`, with the intermediate
@@ -358,11 +364,11 @@ both is clean, the checker moved 151 → 153, and the consumer gained Zone D (th
 `jq` model composed with the `jq`-coefficient module). T5's philosophy held: a
 622-line port against a ~589-line pin, so the audit's *rightness* and its
 *savings* again diverged. Measured cost and the audit table are in
-[logs/phiGen-port.md](logs/phiGen-port.md) §3.
+[logs/phiGen-port.md](../logs/phiGen-port.md) §3.
 
 **T7 is done** (2026-09-22, one goal round) — **R1 is complete.** Its work order
 was
-[topics/phiGenSplitting/TOPIC-hauptmodul.md](topics/phiGenSplitting/TOPIC-hauptmodul.md),
+[topics/phiGenSplitting/TOPIC-hauptmodul.md](phiGenSplitting/TOPIC-hauptmodul.md),
 now the executed plan. It delivered the headline
 `mem_adjoin_jq_of_hasSum_of_slash_invariant` in
 `FLTForHuman/ModularForms/Hauptmodul.lean`, composing T5's kernel with this
@@ -378,11 +384,11 @@ checker moved 153 → 168 (the `RealL` block and the headline are verified as
 transcribed statements), the consumer gained Zone E (the wire test runs the
 headline on `jq` with T6's two theorems as its hypotheses), and R1's analytic
 input is now a complete, compiled chain. The measured cost is in
-[logs/phiGen-port.md](logs/phiGen-port.md) §7.
+[logs/phiGen-port.md](../logs/phiGen-port.md) §7.
 
 **T8 is done** (2026-09-22, one goal round) — **the planned sequence is complete
 and the cone's (c) is discharged.** Its work order was
-[topics/phiGenSplitting/TOPIC-phiGen-descends.md](topics/phiGenSplitting/TOPIC-phiGen-descends.md),
+[topics/phiGenSplitting/TOPIC-phiGen-descends.md](phiGenSplitting/TOPIC-phiGen-descends.md),
 now the executed plan. It delivered `PhiGen.mem_adjoin_jq_of_phiGenDescends` over
 three new modules — `Defs/HeckeOperator.lean`, `HeckeQExpansion.lean` and
 `PhiGenDescends.lean` — plus the Hecke/coset interface
@@ -398,11 +404,11 @@ public and 43 private declarations, against ~741 lines of pin content (ratio
 a `mapGL`-entry transparency issue did, fixed with mathlib's own
 `set_option backward.isDefEq.respectTransparency.types false`. The checker moved
 168 → 176; the consumer gained Zone F. The measured cost and the three shape
-issues are in [logs/phiGen-port.md](logs/phiGen-port.md) §8.
+issues are in [logs/phiGen-port.md](../logs/phiGen-port.md) §8.
 
 **T9 is done** (2026-09-22, one goal round) — **the cone's (b) has its
 integrality half.** Its work order was
-[topics/phiGenSplitting/TOPIC-integrality.md](topics/phiGenSplitting/TOPIC-integrality.md),
+[topics/phiGenSplitting/TOPIC-integrality.md](phiGenSplitting/TOPIC-integrality.md),
 now the executed plan. It delivered `PhiGen.PhiGenDescends.intCoeffs` (the
 descended family has integer `q`-expansion coefficients) and
 `PhiGen.aeval_jq_intCoeffs_descent` (`IntCoeffs (P(jq))` forces `P ∈ ℤ[X]`) in
@@ -423,11 +429,11 @@ and `poleOrderLE_aeval_jq` (to `Defs/PhiGen.lean`), which the pin repeats
 privately in 9 files. The checker moved 176 → 180 (178 on the promotion); the
 consumer gained Zone G (with the named `P = X` instance
 `aeval_jq_intCoeffs_descent_X`); the measured cost and the route decision are in
-[logs/phiGen-port.md](logs/phiGen-port.md) §9.
+[logs/phiGen-port.md](../logs/phiGen-port.md) §9.
 
 **T10 is done** (2026-09-22, one goal round) — **the cone's (b) is complete.**
 Its work order was
-[topics/phiGenSplitting/TOPIC-pole-bounds.md](topics/phiGenSplitting/TOPIC-pole-bounds.md),
+[topics/phiGenSplitting/TOPIC-pole-bounds.md](phiGenSplitting/TOPIC-pole-bounds.md),
 now the executed plan. It delivered `PhiGen.phiProd_conj_coeff_zero_lead` (the
 constant term's leading coefficient: the pole is exactly `q ^ (-(ℓ * ℓ + ℓ))`
 with residue `1`) and `PhiGen.phiProd_conj_coeff_eq_zero_of_le` (the same bound
@@ -455,11 +461,11 @@ against the 391-line representative pin file, ratio **1.27**; unlike T9's
 module. `#print axioms` on both is clean, the checker moved 180 → 205 (11 of the
 new statements are promoted from pin-`private` declarations, verified through a
 new dotted-name fallback), and the consumer gained Zone H. Measured cost and the
-dedup count are in [logs/phiGen-port.md](logs/phiGen-port.md) §10.
+dedup count are in [logs/phiGen-port.md](../logs/phiGen-port.md) §10.
 
 **T11 is done** (2026-09-22, one goal round) — **the cone's construction is
 built.** Its work order was
-[topics/phiGenSplitting/TOPIC-datum-assembly.md](topics/phiGenSplitting/TOPIC-datum-assembly.md),
+[topics/phiGenSplitting/TOPIC-datum-assembly.md](phiGenSplitting/TOPIC-datum-assembly.md),
 now the executed plan, which re-cut the remainder by mathematical object
 (construction → properties → consequence). It delivered three modules:
 
@@ -483,11 +489,11 @@ ratio **1.19**; `#print axioms` on all eight is clean, the checker moved
 dependency fact of the work order's §4 was confirmed: the 328 block and the
 assembly are upstream of (e), so the blueprint's old T11 (328 + the whole 502-line
 (d) bucket) was not one executable unit. Measured cost and the division are in
-[logs/phiGen-port.md](logs/phiGen-port.md) §11.
+[logs/phiGen-port.md](../logs/phiGen-port.md) §11.
 
 **T12 is done** (2026-09-22, one goal round) — **the datum has its properties.**
 Its work order was
-[topics/phiGenSplitting/TOPIC-irreducibility-symmetry.md](topics/phiGenSplitting/TOPIC-irreducibility-symmetry.md),
+[topics/phiGenSplitting/TOPIC-irreducibility-symmetry.md](phiGenSplitting/TOPIC-irreducibility-symmetry.md),
 now the executed plan. It delivered three modules:
 
 - `FLTForHuman/ModularCurve/JqCoeffPositivity.lean` — `one_le_coeff_jq` (every
@@ -515,7 +521,7 @@ against 1467 deduplicated pin lines, ratio **1.14**; `#print axioms` on all
 nineteen public declarations is clean, the checker moved 213 → 233, and the
 consumer gained Zone J with the first **unconditional** wire test
 (`exists_phiIrreducible_evalSymm` at `ℓ = 2`). Measured cost, the two substitutions
-and the shape issues are in [logs/phiGen-port.md](logs/phiGen-port.md) §12.
+and the shape issues are in [logs/phiGen-port.md](../logs/phiGen-port.md) §12.
 
 **The cone is closed.** R1 (T5–T7), the cone's (c) (T8), the
 two halves of (b) (T9, T10), the construction (a) + 328 + (d) (T11), the
@@ -523,7 +529,7 @@ properties (T12) and the consequence (T13) are all done:
 
 **T13 is done** (2026-09-22, one goal round) — **the cone is closed.** Its work
 order was
-[topics/phiGenSplitting/TOPIC-splitting.md](topics/phiGenSplitting/TOPIC-splitting.md),
+[topics/phiGenSplitting/TOPIC-splitting.md](phiGenSplitting/TOPIC-splitting.md),
 now the executed plan. It delivered two modules —
 `ModularPolynomialUniqueness.lean` (`finrank_adjoin_jqN_eq_of_prime`,
 `ModularPolynomialData.eq_of_prime`) and `PhiGenSplits.lean`
@@ -535,15 +541,15 @@ for the exported theorems and were dropped. The port is 407 lines against 766
 deduplicated pin lines, ratio **0.53**; the checker moved 233 → 242; the consumer
 gained Zone K with the capstone wire (`splits_prime_at_slot` at
 `K = CyclotomicField 2 ℚ`, `N = p = 2`, `e = u = 1`). Measured cost and the dedup
-are in [logs/phiGen-port.md](logs/phiGen-port.md) §13.
+are in [logs/phiGen-port.md](../logs/phiGen-port.md) §13.
 
 | topic | piece | deliverable | dedup pin | work order |
 |---|---|---|---|---|
-| **T9 (done)** | (b) integrality | `intCoeffs`, `aeval_jq_intCoeffs_descent` | ~347 | [TOPIC-integrality.md](topics/phiGenSplitting/TOPIC-integrality.md) |
-| **T10 (done)** | (b) pole bounds | `phiProd_conj_coeff_{eq_zero_of_le,zero_lead}` + the shared `TPoleOrderLE` block | 391 + ~180 (dup ×12) | [TOPIC-pole-bounds.md](topics/phiGenSplitting/TOPIC-pole-bounds.md) |
-| **T11 (done)** | the construction: (a) + the 328 block + (d) assembly | `exists_phiGenDescends`; `c_top`/`c_eq_zero`/`poleOrderLE`/`sum_mul_jqN_pow_eq_zero`/`evalAtJ_injective`; `exists_modularPolynomialData_coeff_eq`, `splits_of_coeff_evalAtJ_eq` | 315 + 328 (dup ×7, 84 distinctive) + 191 | [TOPIC-datum-assembly.md](topics/phiGenSplitting/TOPIC-datum-assembly.md) |
-| **T12 (done)** | the properties: irreducibility/symmetry | `one_le_coeff_jq`; the 895 block's exports (`phiIrreducible_of_splits`, `transposeToAdjoin_monic_of_qExpansion`, `evalSymm_of_splits`); `evalSymm_of_coeff_evalAtJ_eq`; `exists_phiIrreducible_evalSymm` | 386 + 895 (dup ×5) + 124 + 62 | [TOPIC-irreducibility-symmetry.md](topics/phiGenSplitting/TOPIC-irreducibility-symmetry.md) |
-| **T13 (done)** | the consequence: uniqueness + the splitting | `finrank_adjoin_jqN_eq_of_prime`, `ModularPolynomialData.eq_of_prime`, `splits_of_prime`, `splits_prime_at_slot` | 52 + 73 + 353 + 288 | [TOPIC-splitting.md](topics/phiGenSplitting/TOPIC-splitting.md) |
+| **T9 (done)** | (b) integrality | `intCoeffs`, `aeval_jq_intCoeffs_descent` | ~347 | [TOPIC-integrality.md](phiGenSplitting/TOPIC-integrality.md) |
+| **T10 (done)** | (b) pole bounds | `phiProd_conj_coeff_{eq_zero_of_le,zero_lead}` + the shared `TPoleOrderLE` block | 391 + ~180 (dup ×12) | [TOPIC-pole-bounds.md](phiGenSplitting/TOPIC-pole-bounds.md) |
+| **T11 (done)** | the construction: (a) + the 328 block + (d) assembly | `exists_phiGenDescends`; `c_top`/`c_eq_zero`/`poleOrderLE`/`sum_mul_jqN_pow_eq_zero`/`evalAtJ_injective`; `exists_modularPolynomialData_coeff_eq`, `splits_of_coeff_evalAtJ_eq` | 315 + 328 (dup ×7, 84 distinctive) + 191 | [TOPIC-datum-assembly.md](phiGenSplitting/TOPIC-datum-assembly.md) |
+| **T12 (done)** | the properties: irreducibility/symmetry | `one_le_coeff_jq`; the 895 block's exports (`phiIrreducible_of_splits`, `transposeToAdjoin_monic_of_qExpansion`, `evalSymm_of_splits`); `evalSymm_of_coeff_evalAtJ_eq`; `exists_phiIrreducible_evalSymm` | 386 + 895 (dup ×5) + 124 + 62 | [TOPIC-irreducibility-symmetry.md](phiGenSplitting/TOPIC-irreducibility-symmetry.md) |
+| **T13 (done)** | the consequence: uniqueness + the splitting | `finrank_adjoin_jqN_eq_of_prime`, `ModularPolynomialData.eq_of_prime`, `splits_of_prime`, `splits_prime_at_slot` | 52 + 73 + 353 + 288 | [TOPIC-splitting.md](phiGenSplitting/TOPIC-splitting.md) |
 
 The pin-line column is the deduplicated count from the estimate below; **it is not
 effort** — T8 measured 741 pin lines in one round at ratio 0.98, T9 347 at 0.93,
@@ -681,12 +687,12 @@ topic rather than a faithful port of the cone.
 - **Ruled out: FLT's algebraic Riemann–Roch.** The `AlgebraicCurve` layer proves
   a Riemann–Roch for function fields with *no analysis at all* — via adic
   completions and Tate residues, or via Stichtenoth's repartition route
-  ([studies/flt-function-field-theory-and-mathlib.md §13](../studies/flt-function-field-theory-and-mathlib.md)).
+  ([studies/flt-function-field-theory-and-mathlib.md §13](../../studies/flt-function-field-theory-and-mathlib.md)).
   It is still not a substitute for (c), for three measured reasons: it is absent
   from this cone (0 `AlgebraicCurve` nodes); using it would be circular, because
   FLT's modular `CurveModel`s are built and proved *downstream* of
   `functionFieldGeneration` and cite `splits_prime_at_slot`
-  ([studies/flt-ffg-field-theory.md §7](../studies/flt-ffg-field-theory.md));
+  ([studies/flt-ffg-field-theory.md §7](../../studies/flt-ffg-field-theory.md));
   and it is orthogonal in kind — RR is a dimension count on an *algebraic* curve,
   while R1 is the *analytic* constancy-and-realization statement on `X(1)`. To
   apply RR one must already have the algebraic model of `X(1)` and know that the
@@ -768,13 +774,13 @@ FLT sources at the pinned sha `aa2d8b3`:
 - [P2M/Sol/S_ModularCurve_coeff_eq_zero_of_hasSum_of_slash_invariant.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_coeff_eq_zero_of_hasSum_of_slash_invariant.lean) — the analytic step
 - [P2M/Sol/S_ModularCurve_PhiGen_evalSymm_of_splits.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_PhiGen_evalSymm_of_splits.lean) — the 895-line shared block
 
-Companion notes: [math/010](../math/010-function-field-generation.md),
-[base/013](../base/013-riemann-existence-and-the-q-expansion-principle.md) (the
+Companion notes: [math/010](../../math/010-function-field-generation.md),
+[base/013](../../base/013-riemann-existence-and-the-q-expansion-principle.md) (the
 mathematics of the analytic input),
-[base/006](../base/006-the-modular-equation.md),
-[base/005](../base/005-cyclic-isogenies-and-level.md),
-[base/004](../base/004-the-j-invariant.md),
-[base/003](../base/003-no-level-2-weight-2-cusp-forms.md).
+[base/006](../../base/006-the-modular-equation.md),
+[base/005](../../base/005-cyclic-isogenies-and-level.md),
+[base/004](../../base/004-the-j-invariant.md),
+[base/003](../../base/003-no-level-2-weight-2-cusp-forms.md).
 
 Background: F. Diamond and J. Shurman, *A First Course in Modular Forms*,
 GTM 228, §5.2; S. Lang, *Elliptic Functions*, GTM 112, Ch. 5; G. Shimura,

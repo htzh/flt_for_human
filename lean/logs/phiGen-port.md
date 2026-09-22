@@ -6,7 +6,7 @@ the cone's construction (a) + the 328 block + (d) is built, the datum's properti
 (positivity, irreducibility, symmetry, existence) are proved, and the cone's
 headline `PhiGen.splits_prime_at_slot` is a ported theorem: all 44 nodes below it
 are public. This is the running record for the sub-effort
-[PORTING-PhiGen.md](../PORTING-PhiGen.md) opens: the R1 (level-one q-expansion
+[PORTING-PhiGen.md](../topics/PORTING-PhiGen.md) opens: the R1 (level-one q-expansion
 principle) sequence that gives the Φₚ splitting cone its one analytic input. It is
 separate from the parent `functionFieldGeneration` record ([ffg-port.md](ffg-port.md))
 — the parent's cone and this sub-effort share no declaration, and the
@@ -942,6 +942,138 @@ every wrapper is verified**. The consumer's remaining `sorry` — the unconditio
 
 ### 13.5 What T13 leaves
 
-The cone is closed. Nothing of `PORTING-PhiGen.md` remains; the parent FFG effort
+The cone is closed. Nothing of the plan remains to be executed; it is retired to
+[topics/PORTING-PhiGen.md](../topics/PORTING-PhiGen.md), and the parent FFG effort
 (PORTING-FFG §7.8's T14–T19) proceeds from here, with `splits_prime_at_slot` now
 a ported theorem.
+
+## 14. Closing review: math clarity and clutter reduction
+
+The cone is closed and the plan retired to
+[topics/PORTING-PhiGen.md](../topics/PORTING-PhiGen.md). This section is the
+sub-effort's closing review: what the port made clear, what duplication it
+removed, and what did not go to plan.
+
+### 14.1 Math clarity
+
+The pin's cone is one 44-node closure whose doc-site graph explains *what depends
+on what* but not *what any of it means*. The port's decomposition gave it six
+separable mathematical pieces, each now a named module with a one-page account:
+
+| piece | mathematics | topic | module(s) |
+|---|---|---|---|
+| (a) | coefficients of the conjugate product descend to `ℚ((q))` | T11 | `PhiGenDescent.lean` |
+| (b) | integrality (`intCoeffs`) and the pole bounds | T9, T10 | `PhiGenIntegrality.lean`, `PhiGenPoleBounds.lean` |
+| (c) | membership in `ℚ[jq]` — the level-one q-expansion principle, the one analytic input | T5–T8 | `ModularForms/*`, `PhiGenDescends.lean` |
+| (d) | assembly into a datum; degree, symmetry, existence, uniqueness | T11, T12, T13 | `ModularPolynomialAssembly.lean`, `ModularPolynomialIrreducible.lean`, `ModularPolynomialProperties.lean`, `ModularPolynomialUniqueness.lean` |
+| (e) | the 328 block plus irreducibility/symmetry | T11, T12 | `PhiGenDescendsStructure.lean`, `ModularPolynomialIrreducible.lean` |
+| (f) | the splitting statement and its wrapper | T13 | `PhiGenSplits.lean` |
+
+What the port made explicit that the pin left implicit:
+
+- **The dependency order is a partial order, not the pin's file order.** T11's
+  work order found that the old "T11 = 328 + the whole (d) bucket" straddles four
+  waves: the 328 block and assembly are upstream of (e), while symmetry,
+  existence, `finrank` and `eq_of_prime` are downstream of it and of (a). The
+  construction → properties → consequence cut is what made the topic executable.
+- **`eq_of_prime` is load-bearing, not bookkeeping.** It is the step that
+  identifies the *caller's* datum with the one assembled from the descended
+  family; without it `splits_of_prime` would only prove the identity for the
+  constructed datum. Reading the 73-line file as a side lemma misses the
+  structure of the whole proof.
+- **Where positivity actually enters.** `one_le_coeff_jq` is stated for all `n`,
+  but the whole cone uses it only at `n = ℓ` (`coeff_sum_conj_succ_ne_zero`); the
+  strength of the statement is understood, and `coeff_jq_ne_zero` names the
+  weaker form.
+- **The old Option 1 "circularity" worry is resolved.** PORTING-PhiGen §6 feared
+  that the degree `ℓ+1` came from the degree it was proving. It does not: the
+  assembly reads `ℓ+1` off the explicit product (`c_top`, `c_eq_zero`), while
+  `finrank_adjoin_jqN_eq_of_prime` reads it off the *other*, irreducible datum
+  T12 constructs. There is no cycle, only a missing prerequisite.
+- **base/006 §6.3 compresses two facts into one.** Its "pole bound plus
+  holomorphy makes each coefficient a polynomial in `j`" is, in the Lean, a
+  hypothesis (`mem_adjoin_jq_of_phiGenDescends`, piece (c), the analytic input)
+  and a separate degree bound; a reader following the prose walks past a third of
+  the cone. It is flagged in PORTING-PhiGen §7.
+
+The measurements corrected three of the plan's own counts: the `TPoleOrderLE`
+prelude is carried by **twelve** pin files, not six; the 895-line block ships
+**five** times, not three (two hidden exports have their own copies); the 328
+block ships in **seven** files, not five. And T13 found that **~200 lines** of
+the `splits_*` files' prelude are dead for their exported theorems — they exist
+for the char-`p` variants outside the cone.
+
+The mathlib-first audit's character stayed the same throughout: **negative on
+statements, positive on primitives**. No mathlib lemma replaces an export, but
+the useful substitutions were still worth finding — T5's three, T12's two
+(`coeff_mul_prod_one_sub_of_lt_order`, `PowerSeries.expand` +
+`mk_one_mul_one_sub_eq_one`), and T13 needed none at all. The near-misses were all
+of one shape, hypothesis-versus-conclusion: `pow_sum_range_isPrimitiveRoot` is the
+*product* of powers of a primitive root where mathlib has the *sum*;
+`IsPrimitiveRoot.isIntegral` needs primitivity where the cone only has
+`ζ ^ ℓ = 1`; the partition generating functions give no `1 ≤ coeff` lemma. Each
+is recorded so the next reader does not repeat the search.
+
+### 14.2 Clutter reduction
+
+The pin ships three developments repeatedly; the port writes each once. Measured:
+
+| shared development | pin copies | pin lines shipped | port | duplicate lines not written |
+|---|---|---|---|---|
+| the 895 block (irreducibility/symmetry) | **5** | ~4,475 | 1,070 | ~3,405 |
+| the 328 block (the descended family's shape) | **7** | 2,296 | 161 | ~2,135 |
+| the `TPoleOrderLE` prelude | **12** carriers | ~2,040 | 202 (`Defs/PhiGen.lean`) | ~1,838 |
+| T13's shared `TS` prelude + dead code | 2 (+ variants) | ~641 | 274 | ~367 |
+| `coeff_aeval_jq_neg` | 9 private copies | ~144 | 1 (`Defs/Jq.lean`) | ~128 |
+| T7's `RealL`/glue, duplicated into T8 | 2 | ~97 | imported | ~97 |
+| the cyclotomic roots | spine + T13 + 2 pin files | ~140 | 58 (`Defs/Cyclotomic.lean`) | ~82 |
+| `evalAtJ_eq_aeval_map` | 3 private copies | ~18 | 1 (`Defs/Jq.lean`) | ~12 |
+
+(The first three rows overlap — the 328 block's shipped count includes the
+prelude — so the aggregate is a conservative "several thousand pin lines the port
+never wrote", consistent with PORTING-PhiGen §2's 9,304 → 5,811 measurement, now
+corrected upward by the ×5 and ×12 findings.) The point is not the line saving:
+it is that each of these is now one declaration with one proof, in dependency
+order, so a later topic imports it instead of carrying a copy that can drift.
+
+The promotions did the same for the *outbound* interface: `coeff_aeval_jq_neg`
+and `poleOrderLE_aeval_jq` (T9), `evalAtJ_eq_aeval_map` (T12), the cyclotomic
+roots (T13), and finally the two analytic exports §2.1 named
+(`qExpansion_discriminant_eq_map_X_mul_dedekindEtaUnit`,
+`qExpansion_E4_eq_map_eisenstein4`), which raised the checked out-of-cone
+interface coverage to 94% and the checker to **244** statements. The one
+promotion deliberately left open is `coeffMap_qTwist` (§13.4).
+
+### 14.3 What did not go to plan
+
+Honest accounting, so the next effort prices its topics better:
+
+- **Ratios above 1 for the cone-algebra topics** (T10 1.27, T11 1.19, T12 1.14)
+  against 0.93–1.06 for the analytic ones. The excess is not mathematics: it is
+  module headers, a deliberately tight public surface, and private bridging
+  helpers. Lines are not effort, but they *are* surface, and the port chose the
+  smaller surface every time.
+- **Two of T12's three mathlib substitutions landed, the third did not save
+  lines.** `coeff_prod_one_sub_X_pow_eventually_eq` reaches `pentagonalSeries`,
+  not the specific finite truncation the proof needs, so the pin's truncation
+  machinery was ported; the positivity module came in at ratio ≈1.1, not the
+  predicted 0.5–0.65.
+- **The wrapper-binding rule took several topics to internalize.** It recurred
+  through T12 (the consumer's notes count the T12 case as the "fourth time") and
+  was restated in the T10–T12 work orders; T13 is the first topic to apply it from
+  the start. Public declarations verified against a `Theorems/` wrapper must carry
+  the wrapper's binders, not the `S_` file's section variables. It is written down
+  in T7's log §7.3, in every later work order, and now in the playbook's §7.4.
+- **One promotion deferred** (`coeffMap_qTwist`), because its three copies are not
+  the same statement.
+
+### 14.4 How to read the cone now
+
+- the mathematics: [math/010](../../math/010-function-field-generation.md) §3, and
+  [base/006](../../base/006-the-modular-equation.md) §3 and §6;
+- the analytic input: [base/013](../../base/013-riemann-existence-and-the-q-expansion-principle.md);
+- the decisions and sizes: the retired plan
+  [topics/PORTING-PhiGen.md](../topics/PORTING-PhiGen.md);
+- the per-topic work orders and their measured outcomes: the nine files in
+  [topics/phiGenSplitting/](../topics/phiGenSplitting/), and §5–§13 here;
+- the interface: the 44 nodes are public; `splits_prime_at_slot` is a theorem.

@@ -8,7 +8,7 @@ The measured cost, the route decision and the dedup payoff are in
 [logs/phiGen-port.md](../../logs/phiGen-port.md) §9. First cone-algebra topic
 after R1; R1 (T5–T7) is complete and the cone's (c) is discharged by T8. The next
 topic is T10, the pole bounds, the second half of (b). This file is kept as the
-executed plan. The plan is [PORTING-PhiGen.md](../../PORTING-PhiGen.md); the
+executed plan. The plan is [PORTING-PhiGen.md](../PORTING-PhiGen.md); the
 estimate and route-check are its §6 Option 2, now measured; the mathematics is
 [math/010](../../../math/010-function-field-generation.md) §3 and
 [base/006](../../../base/006-the-modular-equation.md) §2.
@@ -40,7 +40,7 @@ estimate and route-check are its §6 Option 2, now measured; the mathematics is
 
 **Audience.** A fresh session taking this topic. Read, in this order:
 
-1. [PORTING-PhiGen.md](../../PORTING-PhiGen.md) §5 (the sequence) and §6 Option 2
+1. [PORTING-PhiGen.md](../PORTING-PhiGen.md) §5 (the sequence) and §6 Option 2
    (the estimate and the route-check this work order implements);
 2. [math/010](../../../math/010-function-field-generation.md) §3 — why the
    modular polynomial's coefficients are integers;
@@ -276,6 +276,6 @@ reachable from `Defs/Jq.lean`'s definition without unfolding `jNumQ`.
 | 12 | (e) irreducibility/symmetry | 1,281 | the 895-line block ×3 + `one_le_coeff_jq` |
 | 13 | (a) descent + (f) the statement | 315 + 394 (+288 seed) | `exists_phiGenDescends`, `splits_of_prime` |
 
-The sizes are the deduplicated pin lines from [PORTING-PhiGen.md](../../PORTING-PhiGen.md)
+The sizes are the deduplicated pin lines from [PORTING-PhiGen.md](../PORTING-PhiGen.md)
 §6, and T8 taught that they are not effort: T8's 741 pin lines took one round and
 produced a 0.98 ratio. Budget each by route risk and shape variety, not lines.

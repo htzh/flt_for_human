@@ -404,7 +404,7 @@ R1 applies directly. The Hecke operator is thus the device that buys the whole
 cone the right to use the cheap, already-isolated analytic input.
 
 This also resolves the compression flagged in
-[PORTING-PhiGen §7](../lean/PORTING-PhiGen.md): base/006 §6.3's "the pole bound
+[PORTING-PhiGen §7](../lean/topics/PORTING-PhiGen.md): base/006 §6.3's "the pole bound
 together with holomorphy makes each coefficient a polynomial in $`j(q)`$" is
 really two facts. The pole bound bounds the *degree* of the witnessing polynomial;
 the *membership* $`c_k \in \mathbb{Q}[j]`$ is R1, and R1's hypothesis is

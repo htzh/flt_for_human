@@ -328,16 +328,21 @@ private theorem qExpansion_discriminant_eq_X_mul_tprod :
   rw [CuspForm.coe_discriminant] at h
   rw [← h]
 
-/-- The discriminant's `q`-expansion against the port's `dedekindEtaUnit`. -/
-private theorem qExpansion_discriminant_eq_map_X_mul_dedekindEtaUnit :
+/-- The discriminant's `q`-expansion against the port's `dedekindEtaUnit`.
+Public since 2026-09-22: it is an outbound ≥5-indegree interface lemma
+(`PORTING-FFG.md` §2.1, outbound indegree 65) and its statement is the pin wrapper
+verbatim. -/
+theorem qExpansion_discriminant_eq_map_X_mul_dedekindEtaUnit :
     UpperHalfPlane.qExpansion 1 ModularForm.discriminant =
       PowerSeries.map (Int.castRingHom ℂ) (PowerSeries.X * dedekindEtaUnit) := by
   rw [qExpansion_discriminant_eq_X_mul_tprod, etaPow_eq_map_dedekindEtaUnit, map_mul,
     PowerSeries.map_X]
 
 /-- The `q`-expansion of `E₄`, its coefficients read off mathlib's
-`EisensteinSeries.E_qExpansion_coeff`. -/
-private theorem qExpansion_E4_eq_map_eisenstein4 :
+`EisensteinSeries.E_qExpansion_coeff`. Public since 2026-09-22: an outbound
+≥5-indegree interface lemma (`PORTING-FFG.md` §2.1, outbound indegree 19), the pin
+wrapper verbatim. -/
+theorem qExpansion_E4_eq_map_eisenstein4 :
     UpperHalfPlane.qExpansion 1 ⇑ModularForm.E₄ =
       PowerSeries.map (Int.castRingHom ℂ) eisenstein4 := by
   ext m

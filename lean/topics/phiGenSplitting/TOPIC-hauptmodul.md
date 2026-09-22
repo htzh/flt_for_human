@@ -4,11 +4,11 @@
 `FLTForHuman/ModularForms/Hauptmodul.lean`, green with 0 warnings and no `sorry`;
 the measured cost and the audit accounting are in
 [logs/phiGen-port.md](../../logs/phiGen-port.md) §7. The next topic is T8, the
-cone application ([PORTING-PhiGen.md](../../PORTING-PhiGen.md) §5); this topic's
+cone application ([PORTING-PhiGen.md](../PORTING-PhiGen.md) §5); this topic's
 `RealL` closure and `hasSum_qParam_mul{,_laurent}` are its interface. This file is
 kept as the executed plan. Third topic of the Φ_p
 splitting / R1 sub-effort. The plan is
-[PORTING-PhiGen.md](../../PORTING-PhiGen.md); the mathematics is
+[PORTING-PhiGen.md](../PORTING-PhiGen.md); the mathematics is
 [base/013](../../../base/013-riemann-existence-and-the-q-expansion-principle.md)
 §5.3–§5.5. T5 (the kernel) and T6 (the analytic model of `jq`) are executed; their
 records are [TOPIC-r1-kernel.md](TOPIC-r1-kernel.md),
@@ -35,7 +35,7 @@ records are [TOPIC-r1-kernel.md](TOPIC-r1-kernel.md),
 
 **Audience.** A fresh session taking this topic. Read, in this order:
 
-1. [PORTING-PhiGen.md](../../PORTING-PhiGen.md) §3–§5 — the cone, the R1/R2
+1. [PORTING-PhiGen.md](../PORTING-PhiGen.md) §3–§5 — the cone, the R1/R2
    split, and this topic's place in the sequence;
 2. [base/013](../../../base/013-riemann-existence-and-the-q-expansion-principle.md)
    §5.3 (pole killing), §5.4 (the constancy kernel), §5.5 (the headline);

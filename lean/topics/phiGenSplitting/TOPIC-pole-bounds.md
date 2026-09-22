@@ -7,7 +7,7 @@ now public in `Defs/PhiGen.lean`. **No route deviation: FLT's script compiled as
 transcribed.** The measured cost, the dedup count and the closed audit near-miss
 are in [logs/phiGen-port.md](../../logs/phiGen-port.md) §10. This file is kept as
 the executed plan. The plan is
-[PORTING-PhiGen.md](../../PORTING-PhiGen.md); the mathematics is
+[PORTING-PhiGen.md](../PORTING-PhiGen.md); the mathematics is
 [math/010](../../../math/010-function-field-generation.md) §3 and
 [base/006](../../../base/006-the-modular-equation.md) §6 step 3; **T11 (the 328
 block and the (d) assembly) is next and imports the promoted prelude.**
@@ -39,7 +39,7 @@ block and the (d) assembly) is next and imports the promoted prelude.**
 
 **Audience.** A fresh session taking this topic. Read, in this order:
 
-1. [PORTING-PhiGen.md](../../PORTING-PhiGen.md) §5 (the sequence) and §6 (the
+1. [PORTING-PhiGen.md](../PORTING-PhiGen.md) §5 (the sequence) and §6 (the
    remaining-cone estimate, whose (b) row this topic closes);
 2. [math/010](../../../math/010-function-field-generation.md) §3 — where the pole
    bound enters the datum assembly;
@@ -260,5 +260,5 @@ it does not have.
 | 12 | (e) irreducibility/symmetry | 1,281 | the 895-line block ×3 + `one_le_coeff_jq` |
 | 13 | (a) descent + (f) the statement | 315 + 394 (+288 seed) | `exists_phiGenDescends`, `splits_of_prime` |
 
-Sizes are the deduplicated pin lines from [PORTING-PhiGen.md](../../PORTING-PhiGen.md)
+Sizes are the deduplicated pin lines from [PORTING-PhiGen.md](../PORTING-PhiGen.md)
 §6; T8 and T9 both showed they are not effort.

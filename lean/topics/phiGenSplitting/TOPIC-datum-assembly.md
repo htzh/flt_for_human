@@ -8,7 +8,7 @@ eight public statements are the pin wrappers verbatim; `evalAtJ_injective` took
 the mathlib `transcendental_jq` route as planned. The measured cost and the
 answers to the §10 questions are in
 [logs/phiGen-port.md](../../logs/phiGen-port.md) §11. This file is kept as the
-executed plan. The plan is [PORTING-PhiGen.md](../../PORTING-PhiGen.md) §5–§6; the
+executed plan. The plan is [PORTING-PhiGen.md](../PORTING-PhiGen.md) §5–§6; the
 mathematics is [math/010](../../../math/010-function-field-generation.md) §3 and
 [base/006](../../../base/006-the-modular-equation.md) §2 and §6 steps 3–4. **T12,
 the properties (irreducibility and symmetry), is next.**
@@ -39,7 +39,7 @@ withdrawn.
 
 **Audience.** A fresh session taking this topic. Read, in this order:
 
-1. [PORTING-PhiGen.md](../../PORTING-PhiGen.md) §3 (b)/(d) and §5 (the sequence);
+1. [PORTING-PhiGen.md](../PORTING-PhiGen.md) §3 (b)/(d) and §5 (the sequence);
 2. [base/006](../../../base/006-the-modular-equation.md) §2 and §6 steps 3–4 —
    the integrality mechanism, the pole bound, the assembly and the uniqueness;
 3. [math/010](../../../math/010-function-field-generation.md) §3 — the modular
@@ -500,5 +500,5 @@ construction (this topic), **T12** the properties (irreducibility and symmetry),
 starts immediately; T12 and T13 follow in that order.
 
 Sizes are the deduplicated pin lines from
-[PORTING-PhiGen.md](../../PORTING-PhiGen.md) §6; T8 and T9 both showed they are
+[PORTING-PhiGen.md](../PORTING-PhiGen.md) §6; T8 and T9 both showed they are
 not effort, and the division is by mathematical object rather than by line count.

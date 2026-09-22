@@ -302,9 +302,10 @@ Two non-rename facts from the definitions layer (§7), both warning-related:
     playbook the way this pair is split: one file says what *this* port did, the
     other says what *the next* port should know.
 11. **Make faithfulness mechanical when the source is pinned.** Diff the ported
-    statements against the source, make the consumer do a cross-module
-    composition rather than only `#check`s, and confirm `#print axioms` is clean.
-    See §7.4.
+    statements against the source, spelling each public declaration's binders as
+    its chosen source does (in practice the `Theorems/` wrapper, §7.4), make the
+    consumer do a cross-module composition rather than only `#check`s, and confirm
+    `#print axioms` is clean. See §7.4.
 
 ## 6. Open questions
 
@@ -457,7 +458,8 @@ With a pinned source, faithfulness is checkable rather than a matter of trust.
 Three cheap instruments, all used here:
 
 - a checker that diffs every ported **statement** against the pin
-  (`spec/check_flt_statements.py`; 150 of 150 identical) — and verify the checker
+  (`spec/check_flt_statements.py`; 150 of 150 identical at the first effort's
+  close, 244 with the Φ_p cone) — and verify the checker
   itself with a deliberately mutated statement. When a declaration is *ours*
   rather than transcribed (`coeff_jq_zero` / `coeff_jq_one`, `Inputs`,
   `functionFieldGeneration_of`) or is a *public promotion of an FLT-private* name
@@ -467,7 +469,18 @@ Three cheap instruments, all used here:
   list short. Two refinements from the interface-tier topic: normalise the pin's
   namespace qualification away (the `Theorems/` wrappers write `ModularCurve.`
   everywhere) and, when a name exists in more than one pin namespace, order
-  `SOURCES` so the *interface* copy wins;
+  `SOURCES` so the *interface* copy wins. The third refinement is the one that
+  recurred through the cone-algebra topics (recorded from T7's log §7.3): because
+  the diff is **textual, not elaborated**, a public declaration must spell its
+  binders exactly as the copy the checker will match — in practice the
+  `Theorems/` wrapper, not the `S_` file. The two can bind the same statement
+  differently (`coeffEmb_qExpand`'s explicit `L` against the `W1` copy's implicit
+  `K`; `aeval_jqN_toAdjoin` and `minpoly_jqN_eq` written with the `S_` file's
+  section variables where their wrappers are explicit, which is what the checker
+  flagged in T12). The file builds either way, because the *elaborated* types
+  agree; only the checker notices. So when a wrapper exists, take the signature's
+  binders from the wrapper in the first place and use the `S_` file only for the
+  proof body;
 - a **consumer** outside every library, whose error count is the deliverable
   metric and whose cross-module composition is the wire test;
 - `#print axioms` on the layer's result, to confirm no `sorryAx` crept in

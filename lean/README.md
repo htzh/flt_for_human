@@ -126,9 +126,11 @@ v4.34.0 API drift, and a checklist) in [porting-playbook.md](porting-playbook.md
 The `functionFieldGeneration` effort keeps its record in
 [logs/ffg-port.md](logs/ffg-port.md).
 
-A second top-level plan, [PORTING-PhiGen.md](PORTING-PhiGen.md), inventories the
-Φₚ splitting cone that gates the conditional capstone (PORTING-FFG §7.1/§7.7).
-It records the cone's math-content decomposition, the measurement that its
+The Φₚ splitting plan,
+[PORTING-PhiGen.md](topics/PORTING-PhiGen.md) — **retired into `topics/` when the
+cone closed** — inventories the Φₚ splitting cone that gates the conditional
+capstone (PORTING-FFG §7.1/§7.7). It records the cone's math-content
+decomposition, the measurement that its
 headline 11,034-line count is ~1.6× inflated by the one-`S_`-file-per-theorem
 layout, and the decision to isolate the cone's only analytic input — the
 level-one q-expansion principle — as the next topic. The mathematics of that
@@ -313,25 +315,28 @@ The documentation has four roles, and they are kept apart on purpose:
 
 | path | role |
 |---|---|
-| `PORTING-FFG.md`, `PORTING-PhiGen.md`, and any other plan at the top level | an **active plan** — the blueprint for work in progress |
+| `PORTING-FFG.md` and any other plan at the top level | an **active plan** — the blueprint for work in progress |
 | `topics/<effort>/TOPIC-*.md` | **work orders, then executed plans**: one per topic. New work orders open with the mandatory build-discipline block (playbook §3.11); finished ones keep the record of what was learned and what it cost |
 | `logs/` | the **linear record** of what happened, in order — `card-torsion-port.md` for the first port, `ffg-port.md` for this one |
 | `porting-playbook.md` | the **reusable method**, not tied to any one effort |
 | `spec/` | the **deliverable measures**: the consumer and the statement checker |
 
 An executed plan is not deleted: it is the record of a decision and its cost, and
-`logs/` cross-references it. When a topic finishes, its plan moves from the top
-level into `topics/<effort>/`, and the log gains the entry that summarises it.
+`logs/` cross-references it. When an effort finishes, its plan is retired from the
+top level into `topics/`, and the log gains the entry that summarises it.
 `topics/functionFieldGeneration/` holds the four topics of the
-`functionFieldGeneration` effort, and `topics/phiGenSplitting/` holds the topics
-of its Φ_p splitting / R1 sub-effort
-([PORTING-PhiGen.md](PORTING-PhiGen.md)); its four work orders,
+`functionFieldGeneration` effort, and `topics/phiGenSplitting/` holds the nine
+topics of its Φ_p splitting / R1 sub-effort, whose plan
+[PORTING-PhiGen.md](topics/PORTING-PhiGen.md) is retired there; the R1 work orders
 [TOPIC-r1-kernel.md](topics/phiGenSplitting/TOPIC-r1-kernel.md),
 [TOPIC-jq-model.md](topics/phiGenSplitting/TOPIC-jq-model.md),
 [TOPIC-hauptmodul.md](topics/phiGenSplitting/TOPIC-hauptmodul.md) and
-[TOPIC-phiGen-descends.md](topics/phiGenSplitting/TOPIC-phiGen-descends.md), are
-complete (R1 is done and the cone's (c) is discharged), and
-[logs/phiGen-port.md](logs/phiGen-port.md) is the sub-effort's record.
+[TOPIC-phiGen-descends.md](topics/phiGenSplitting/TOPIC-phiGen-descends.md) are
+complete (R1 is done and the cone's (c) is discharged), the cone-algebra topics
+[TOPIC-integrality.md](topics/phiGenSplitting/TOPIC-integrality.md) through
+[TOPIC-splitting.md](topics/phiGenSplitting/TOPIC-splitting.md) are complete (the
+cone is closed), and [logs/phiGen-port.md](logs/phiGen-port.md) is the
+sub-effort's record.
 
 ## Sources
 

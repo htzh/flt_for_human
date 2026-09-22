@@ -5,11 +5,11 @@
 `sorry`; the measured cost, the audit accounting (including the one prediction
 that failed) and the wire test are in
 [logs/phiGen-port.md](../../logs/phiGen-port.md) §6. The next topic is T7, the
-Hauptmodul form ([PORTING-PhiGen.md](../../PORTING-PhiGen.md) §5); this topic's
+Hauptmodul form ([PORTING-PhiGen.md](../PORTING-PhiGen.md) §5); this topic's
 `hasSum_jq_qParam` and `E4_cube_div_discriminant_smul` are its interface. This
 file is kept as the executed plan. Second topic of the Φ_p
 splitting / R1 sub-effort. The plan is
-[PORTING-PhiGen.md](../../PORTING-PhiGen.md); the mathematics is
+[PORTING-PhiGen.md](../PORTING-PhiGen.md); the mathematics is
 [base/013](../../../base/013-riemann-existence-and-the-q-expansion-principle.md);
 T5 (R1's kernel) is executed and recorded in
 [TOPIC-r1-kernel.md](TOPIC-r1-kernel.md) and
@@ -35,7 +35,7 @@ T5 (R1's kernel) is executed and recorded in
 
 **Audience.** A fresh session taking this topic. Read, in this order:
 
-1. [PORTING-PhiGen.md](../../PORTING-PhiGen.md) §3–§5 — the cone, the R1/R2
+1. [PORTING-PhiGen.md](../PORTING-PhiGen.md) §3–§5 — the cone, the R1/R2
    split, and this topic's place in the sequence;
 2. [base/013](../../../base/013-riemann-existence-and-the-q-expansion-principle.md)
    §5.1 (the realization predicate) and §5.2 (why `jq`'s model is the bridge T7

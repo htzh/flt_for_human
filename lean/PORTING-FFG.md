@@ -28,7 +28,7 @@ Companion records:
 
 - [math/010](../math/010-function-field-generation.md) — the mathematics. Source of
   truth for *what the proof says*.
-- [PORTING-PhiGen.md](PORTING-PhiGen.md) — the Φ_p cone: content decomposition,
+- [PORTING-PhiGen.md](topics/PORTING-PhiGen.md) — the Φ_p cone: content decomposition,
   corrected size, and the T5–T13 sequence.
 - [logs/ffg-port.md](logs/ffg-port.md) — this effort's measured record.
 - [logs/card-torsion-port.md](logs/card-torsion-port.md) — the first port
@@ -53,7 +53,7 @@ table; its measured cost and decisions are [logs/ffg-port.md](logs/ffg-port.md)
 **The theorem is now in scope.** Layers 1–4 — the statement layer, the induction
 spine, the significant lemmas, the counting detours — were deferred while their
 cost was gated by the unported Φ_p cone and therefore unknown. The gate is being
-removed by the sub-effort: when T11–T13 of [PORTING-PhiGen.md](PORTING-PhiGen.md)
+removed by the sub-effort: when T11–T13 of [PORTING-PhiGen.md](topics/PORTING-PhiGen.md)
 land, `PhiGen.splits_prime_at_slot` is a ported theorem, and the remaining proof is
 the **17-node, ≈4.5k–4.9k-line** port of the seven `Inputs` fields and their
 internal dependencies. §7.8 is the schedule.
@@ -189,19 +189,19 @@ the capstone's own 52 citers closing it. Either way the shape is the same:
 **pre-Φ_p covered the cheap 55%; Φ_p takes it to the low 90s; the parent remainder
 closes it.**
 
-**Promotion gap (open, 2026-09-22, reviewed against the landed T11–T13).** The Φ_p
-row above is what T5–T13 *will* cover once its two analytic exports are public. As
-landed, **two of the eight are still `private`**, so the measured out-of-cone
-coverage is currently **572/701 ≈ 82%**, not 94%:
+**Promotion gap (closed 2026-09-22).** The Φ_p row above is what T5–T13 covers
+now that its two analytic exports are public. As T5–T13 landed, **two of the eight
+were still `private`**, so the measured out-of-cone coverage was **572/701 ≈ 82%**,
+not 94%; both are now promoted, so the row reads 94%:
 
 | declaration | outbound | port status | action |
 |---|---|---|---|
-| `qExpansion_discriminant_eq_map_X_mul_dedekindEtaUnit` | 65 | `private`, `ModularForms/JqAnalyticModel.lean:332` | drop `private`; add its `Thm_` wrapper to the checker |
-| `qExpansion_E4_eq_map_eisenstein4` | 19 | `private`, same file `:340` | same |
+| `qExpansion_discriminant_eq_map_X_mul_dedekindEtaUnit` | 65 | **public** (`ModularForms/JqAnalyticModel.lean`) | promoted; `Thm_` wrapper added to `SOURCES` |
+| `qExpansion_E4_eq_map_eisenstein4` | 19 | **public** (same file) | promoted; same |
 
-Both statements are already verbatim from their `Theorems/` wrappers, so the change
-is visibility plus two `SOURCES` lines; neither is needed by T14–T20, so this is
-purely the outbound interface. The other 31 outbound declarations — including every
+Both statements were already verbatim from their `Theorems/` wrappers, so the
+change was visibility plus two `SOURCES` lines; neither is needed by T14–T20, so
+this was purely the outbound interface (the checker moved 242 → 244). The other 31 outbound declarations — including every
 Φ_p export the parent remainder imports (`splits_prime_at_slot`,
 `exists_phiIrreducible_evalSymm`, `finrank_adjoin_jqN_eq_of_prime`,
 `evalAtJ_injective`, `splits_of_prime`, and the `coeffMap_*` / `dedekindPsi_prime`
@@ -360,7 +360,7 @@ The earlier draft cut the Φ_p subtree as a `sorry`-bounded input: 44 nodes belo
 45% of the cone. That is **no longer the plan** — the sub-effort ports it. The
 cut's measurement (deduplicated the subtree is 5,811 `S_` lines over 37
 developments, of which only the ≈1,909-line level-one q-expansion principle is
-analytic) survives in [PORTING-PhiGen.md](PORTING-PhiGen.md).
+analytic) survives in [PORTING-PhiGen.md](topics/PORTING-PhiGen.md).
 
 ### 7.2 Verified against `tools/deps`
 
@@ -484,7 +484,7 @@ slot cluster).
 
 ### 7.8 Reassessment after Φ_p: the measured remainder and the topic plan
 
-**Premise (2026-09-22).** [PORTING-PhiGen.md](PORTING-PhiGen.md) T11–T13 will land,
+**Premise (2026-09-22).** [PORTING-PhiGen.md](topics/PORTING-PhiGen.md) T11–T13 will land,
 so `PhiGen.splits_prime_at_slot` becomes a ported theorem. This section assumes that
 and re-derives the frontier.
 

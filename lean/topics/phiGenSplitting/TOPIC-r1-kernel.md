@@ -4,10 +4,10 @@
 `FLTForHuman/ModularForms/QExpansionPrinciple.lean`, green with 0 warnings and no
 `sorry`; the measured cost, the audit accounting and the two deviations from §2.1
 are in [logs/phiGen-port.md](../../logs/phiGen-port.md). The next topic is T6,
-the analytic model of `jq` ([PORTING-PhiGen.md](../../PORTING-PhiGen.md) §5).
+the analytic model of `jq` ([PORTING-PhiGen.md](../PORTING-PhiGen.md) §5).
 This file is kept as the executed plan. First topic of the Φ_p
 splitting / R1 sub-effort. The plan is
-[PORTING-PhiGen.md](../../PORTING-PhiGen.md); the mathematics is
+[PORTING-PhiGen.md](../PORTING-PhiGen.md); the mathematics is
 [base/013](../../../base/013-riemann-existence-and-the-q-expansion-principle.md);
 the parent effort is [PORTING-FFG.md](../../PORTING-FFG.md).
 
@@ -30,7 +30,7 @@ the parent effort is [PORTING-FFG.md](../../PORTING-FFG.md).
 
 **Audience.** A fresh session taking this topic. Read, in this order:
 
-1. [PORTING-PhiGen.md](../../PORTING-PhiGen.md) §3–§5 — what the Φ_p cone is, why
+1. [PORTING-PhiGen.md](../PORTING-PhiGen.md) §3–§5 — what the Φ_p cone is, why
    R1 (not R2) is the analytic input, and this topic's place in the sequence;
 2. [base/013](../../../base/013-riemann-existence-and-the-q-expansion-principle.md)
    §3 (R1 in kernel and Hauptmodul form), §5.4 (the declaration chain, and the

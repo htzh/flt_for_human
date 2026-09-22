@@ -7,7 +7,7 @@ generalize go to [porting-playbook.md](../porting-playbook.md); decisions and
 measurements stay here.
 
 The Φₚ splitting / R1 sub-effort that gates the deferred theorem
-([PORTING-PhiGen.md](../PORTING-PhiGen.md)) keeps its own measured record in
+([PORTING-PhiGen.md](../topics/PORTING-PhiGen.md)) keeps its own measured record in
 [phiGen-port.md](phiGen-port.md); its first topic, R1's constancy kernel, is
 complete. It shares no declaration with this effort, so its cost is not counted
 in the tables below.

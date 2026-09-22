@@ -10,7 +10,7 @@ the `evalAtJ_eq_aeval_map` promotion landed and T11 rebuilt green; the end-to-en
 wire test is the first **unconditional** capstone. The measured cost and the
 answers to the §10 questions are in
 [logs/phiGen-port.md](../../logs/phiGen-port.md) §12. This file is kept as the
-executed plan. The plan is [PORTING-PhiGen.md](../../PORTING-PhiGen.md); the
+executed plan. The plan is [PORTING-PhiGen.md](../PORTING-PhiGen.md); the
 mathematics is
 [math/010](../../../math/010-function-field-generation.md) §3 and
 [base/006](../../../base/006-the-modular-equation.md) §2 and §6 step 3. **T13,
@@ -37,7 +37,7 @@ topic.**
 
 **Audience.** A fresh session taking this topic. Read, in this order:
 
-1. [PORTING-PhiGen.md](../../PORTING-PhiGen.md) §3(e) and §5–§6;
+1. [PORTING-PhiGen.md](../PORTING-PhiGen.md) §3(e) and §5–§6;
 2. [base/006 §3 and §6 step 3](../../../base/006-the-modular-equation.md) — the
    splitting, the cover, and why exactly two invariances;
 3. [math/010 §3](../../../math/010-function-field-generation.md) — the slot

@@ -5,10 +5,10 @@ closed.** This was the **last topic of the cone**. T11 built the datum, T12 prov
 its properties, and T13 drew the consequence: the datum is unique, and it splits
 into the `p+1` conjugates. The cone's headline `PhiGen.splits_prime_at_slot` is a
 ported theorem and the 44-node closure of
-[PORTING-PhiGen.md](../../PORTING-PhiGen.md) is discharged. The execution record
+[PORTING-PhiGen.md](../PORTING-PhiGen.md) is discharged. The execution record
 is §10 below and [logs/phiGen-port.md](../../logs/phiGen-port.md) §13.
 
-The plan is [PORTING-PhiGen.md](../../PORTING-PhiGen.md) §5–§6; the mathematics is
+The plan is [PORTING-PhiGen.md](../PORTING-PhiGen.md) §5–§6; the mathematics is
 [math/010](../../../math/010-function-field-generation.md) §3 and
 [base/006](../../../base/006-the-modular-equation.md) §3 and §6 steps 4–5.
 
@@ -32,7 +32,7 @@ The plan is [PORTING-PhiGen.md](../../PORTING-PhiGen.md) §5–§6; the mathemat
 
 **Audience.** A fresh session taking this topic. Read, in this order:
 
-1. [PORTING-PhiGen.md](../../PORTING-PhiGen.md) §1 (the wrapper), §3(f) and §5;
+1. [PORTING-PhiGen.md](../PORTING-PhiGen.md) §1 (the wrapper), §3(f) and §5;
 2. [base/006 §3 and §6 steps 4–5](../../../base/006-the-modular-equation.md) —
    uniqueness and the general-`N` step;
 3. [math/010 §3](../../../math/010-function-field-generation.md) — the splitting
@@ -386,5 +386,5 @@ effort's remaining `Inputs` fields (PORTING-FFG §7.8's T14–T19) can now be pr
 using `splits_prime_at_slot` as a theorem rather than an input.
 
 Sizes are the deduplicated pin lines from
-[PORTING-PhiGen.md](../../PORTING-PhiGen.md) §6; the measured ratios across the
+[PORTING-PhiGen.md](../PORTING-PhiGen.md) §6; the measured ratios across the
 cone (T5–T13) are 0.53–1.79, and the cone's last topic is its cheapest.
