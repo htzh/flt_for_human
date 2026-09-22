@@ -166,3 +166,23 @@ notation, spending their space on the subject at hand.
   to level one so R1 suffices; with the four faces of the operator and a
   forward map to the divisor correspondence `T_ℓ = α_*β^*` on `J₀(N)`
   ([math/009](../math/009-hecke-jacobian-commute.md)).
+
+## Planned notes (outlines for review)
+
+The generic curve layer that the `AlgebraicCurve` port
+([../lean/PORTING-AC.md](../lean/PORTING-AC.md)) owns is not yet covered by notes
+001–014: 008 gives the classical divisor/Pic⁰ story and its encoding, but not the
+place-extension machinery, the exchange lemma, or the ℙ¹/principal-divisor route.
+Three skeletons are in place and await review before the prose is written; each
+carries its scope, section plan, declaration inventory and open questions.
+
+- [015 — Places and their extensions](015-places-and-extensions.md) *(outline)* —
+  the `Place`↔mathlib bridge, the fibre-centre dictionary, and Galois/semilinear
+  equivariance; the port's T1–T3.
+- [016 — Correspondences, the exchange lemma, and the norm formula](016-correspondences-and-exchange.md)
+  *(outline)* — the `...Along` encoding, the linearly-disjoint square, the bifibre
+  count, and the norm formula; the port's T4–T7.
+- [017 — The rational function field and principal divisors](017-rational-function-field-and-principal-divisors.md)
+  *(outline)* — Ostrowski and the places of `K(t)`, the degree-zero principal
+  divisor, and the norm transfer that discharges `HasPrincipalDivisors`; the port's
+  T8–T9.
