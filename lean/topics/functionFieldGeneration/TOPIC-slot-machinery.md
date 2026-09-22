@@ -36,9 +36,9 @@ and the route results. T13 is done and committed (`a20e711`, `5fd38be`).
 **Audience.** A fresh session taking T14 of the `functionFieldGeneration` effort.
 Read, in this order:
 
-1. [PORTING-FFG.md](../../PORTING-FFG.md) §7.8 (the plan and why T14 is first) and
+1. [PORTING-FFG.md](../PORTING-FFG.md) §7.8 (the plan and why T14 is first) and
    §2.1 (the interface ledger);
-2. [PORTING-PhiGen.md](../../PORTING-PhiGen.md) §5–§6 and T13's module header
+2. [PORTING-PhiGen.md](../PORTING-PhiGen.md) §5–§6 and T13's module header
    (`PhiGenSplits.lean`), which records what the cone's route does *not* need;
 3. [math/010](../../../math/010-function-field-generation.md) §3–§6 — the slot
    description, descent, generation and the degree steps;
@@ -316,4 +316,4 @@ plumbing: it hands T15–T19 the vocabulary the pin repeats in up to thirteen fi
 (descent and the collapse), T16 (the degree step), T17 (non-membership), T18
 (generation) and T19 (the slot product) follow, each importing this topic and none
 copying it. The frontier and their dependency order are
-[PORTING-FFG.md](../../PORTING-FFG.md) §7.8.
+[PORTING-FFG.md](../PORTING-FFG.md) §7.8.

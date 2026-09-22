@@ -41,7 +41,7 @@ consumes is a ported theorem (T12's `exists_phiIrreducible_evalSymm`, T13's
 **Audience.** A fresh session taking T15 of the `functionFieldGeneration` effort.
 Read, in this order:
 
-1. [PORTING-FFG.md](../../PORTING-FFG.md) §7.8 (the frontier and the topic order)
+1. [PORTING-FFG.md](../PORTING-FFG.md) §7.8 (the frontier and the topic order)
    and §1 (the design rules);
 2. [math/010](../../../math/010-function-field-generation.md) §4 and §5 — the
    unique-common-root descent and the divisor-lattice collapse; this topic is
@@ -282,4 +282,4 @@ vocabulary: with it, the capstone's debt is five fields. It composes with T14
 (which supplies the slot prelude) and T19 (which discharges `htw`/`hsp` through
 the slot product). T16 (the degree step), T17 (non-membership), T18 (generation)
 and T19 (the slot product) follow; the dependency order and the frontier are
-[PORTING-FFG.md](../../PORTING-FFG.md) §7.8.
+[PORTING-FFG.md](../PORTING-FFG.md) §7.8.

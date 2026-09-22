@@ -9,7 +9,7 @@ This file is kept as the executed plan. First topic of the Φ_p
 splitting / R1 sub-effort. The plan is
 [PORTING-PhiGen.md](../PORTING-PhiGen.md); the mathematics is
 [base/013](../../../base/013-riemann-existence-and-the-q-expansion-principle.md);
-the parent effort is [PORTING-FFG.md](../../PORTING-FFG.md).
+the parent effort is [PORTING-FFG.md](../PORTING-FFG.md).
 
 > **Build discipline — read this first.** Every build is bounded and a blow-up is
 > quarantined, not waited on. Measured with mathlib prebuilt: a green

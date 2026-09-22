@@ -3,7 +3,7 @@
 Written after the first port, `#E[n](K) = n²`, whose record is
 [logs/card-torsion-port.md](logs/card-torsion-port.md). Read that file for *what* that port
 did; read this one before starting the next one. The second effort already has a
-blueprint in [PORTING-FFG.md](PORTING-FFG.md).
+blueprint in [PORTING-FFG.md](topics/PORTING-FFG.md).
 
 Everything below is measured from the first port or hit while doing it.
 
@@ -315,7 +315,7 @@ Recorded honestly, because they are the parts of the method that are not settled
   mix.** Here the engine was re-derived and the bridge was ported. Nobody has
   measured what happens when mathlib absorbs the *core* but not the periphery, or
   the reverse — which is exactly the situation
-  [PORTING-FFG.md](PORTING-FFG.md) describes for the second port.
+  [PORTING-FFG.md](topics/PORTING-FFG.md) describes for the second port.
 - **Round counts are not a good cost model.** They depend on how often the agent
   stalled on a defeq or a name. The line and declaration counts in §1 are the
   stable measurements.
@@ -325,7 +325,7 @@ Recorded honestly, because they are the parts of the method that are not settled
 
 ## 7. Porting a definitions layer — the `functionFieldGeneration` experience
 
-Layer 0 of [PORTING-FFG.md](PORTING-FFG.md) was the second port and the first
+Layer 0 of [PORTING-FFG.md](topics/PORTING-FFG.md) was the second port and the first
 that was *definitions only*: 137 declarations across nine modules, from
 `qExpand`/`coeffMap`/`qTwist` to the two function fields, `TS` and the §2
 collapse. Its record is [logs/ffg-port.md](logs/ffg-port.md). The reusable part:

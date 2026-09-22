@@ -5,7 +5,7 @@ independent sub-audits and two Lean-checked route tests.** One result changes th
 plan: the serial chain T17 → T18 is an artifact of a single replaceable proof
 line, and removing it drops ≈1.1k lines from the required remainder.
 
-Read against [PORTING-FFG.md](../../PORTING-FFG.md) §7.8 and the topic notes. All
+Read against [PORTING-FFG.md](../PORTING-FFG.md) §7.8 and the topic notes. All
 pin line numbers are `anthropics/fermats-last-theorem@aa2d8b3`.
 
 ## 0. Bottom line

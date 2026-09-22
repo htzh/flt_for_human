@@ -12,7 +12,7 @@ The Φₚ splitting / R1 sub-effort that gates the deferred theorem
 complete. It shares no declaration with this effort, so its cost is not counted
 in the tables below.
 
-The blueprint is [PORTING-FFG.md](../PORTING-FFG.md) — it holds the scope
+The blueprint is [PORTING-FFG.md](../topics/PORTING-FFG.md) — it holds the scope
 argument, the deferral menu, and the §7 plan for the theorem. The topic work
 orders are [TOPIC-jq-coefficients.md](../topics/functionFieldGeneration/TOPIC-jq-coefficients.md),
 [TOPIC-conditional-capstone.md](../topics/functionFieldGeneration/TOPIC-conditional-capstone.md),
@@ -72,7 +72,7 @@ therefore: share `Defs/`, add your own `<Theory>/`.
 
 ## 1. Why this effort is definitions-only
 
-The gain test in [PORTING-FFG.md](../PORTING-FFG.md) §2 governs everything here.
+The gain test in [PORTING-FFG.md](../topics/PORTING-FFG.md) §2 governs everything here.
 Truth is not in doubt; the question was what a port buys. The first port bought
 four things: organization (197 importers of one 1869-line engine → 13
 role-named modules), clutter never written (~650 lines, 18% of its cone), mathlib
@@ -1156,7 +1156,7 @@ Discharging the fields one at a time is now the natural next topic, and §7.3's
 per-node line counts are the cost estimate for each.
 
 **The live frontier has its own table in the active plan:**
-[PORTING-FFG.md](../PORTING-FFG.md) §7.7 — the seven remaining fields with their pin
+[PORTING-FFG.md](../topics/PORTING-FFG.md) §7.7 — the seven remaining fields with their pin
 sizes and what each says, the de-duplicated structural total (~3,357 lines, ~3,200
 of it new), the single gating input `PhiGen.splits_prime_at_slot` (44 nodes, 11,034
 lines, 42 dependents), the three ways forward, and the route-check and top-heavy
@@ -1276,7 +1276,7 @@ the better small topic if one is ever wanted.
 
 | file | role |
 |---|---|
-| [PORTING-FFG.md](../PORTING-FFG.md) | the top plan: scope argument, gain test, deferred theorem menu |
+| [PORTING-FFG.md](../topics/PORTING-FFG.md) | the top plan: scope argument, gain test, deferred theorem menu |
 | [TOPIC-jq-coefficients.md](../topics/functionFieldGeneration/TOPIC-jq-coefficients.md) | the completed topic plan: the `jq` coefficients |
 | [TOPIC-conditional-capstone.md](../topics/functionFieldGeneration/TOPIC-conditional-capstone.md) | the completed topic plan: the proof's spine, conditionally |
 | [TOPIC-interface-tier.md](../topics/functionFieldGeneration/TOPIC-interface-tier.md) | the completed topic plan: the cone's outbound interface |

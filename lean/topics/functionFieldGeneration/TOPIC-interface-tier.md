@@ -16,7 +16,7 @@ with implicit `K`). The interface table and measured cost are in
 **Audience.** A fresh session taking the third topic of the
 `functionFieldGeneration` effort. Layer 0, the `jq`-coefficients topic and the
 conditional capstone are done ([logs/ffg-port.md](../../logs/ffg-port.md) §0). Read
-[PORTING-FFG.md](../../PORTING-FFG.md) §2 and §2.1 once — the second measures why this
+[PORTING-FFG.md](../PORTING-FFG.md) §2 and §2.1 once — the second measures why this
 topic exists — and [porting-playbook.md](../../porting-playbook.md) §3–§5 and §7 for
 the method. The two surveys in [studies/](../../../studies/) are the background:
 [flt-ffg-field-theory.md](../../../studies/flt-ffg-field-theory.md) §0.1 and §8.

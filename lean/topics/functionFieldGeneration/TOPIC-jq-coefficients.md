@@ -13,7 +13,7 @@ standalone 237-line file rather than the 11k-line cluster are in
 **Audience.** A fresh session taking the first *topic* of the
 `functionFieldGeneration` effort, now that Layer 0 is complete
 ([logs/ffg-port.md](../../logs/ffg-port.md) §8). Read
-[PORTING-FFG.md](../../PORTING-FFG.md) §0 and §2 once for the scope argument, and
+[PORTING-FFG.md](../PORTING-FFG.md) §0 and §2 once for the scope argument, and
 [porting-playbook.md](../../porting-playbook.md) §3–§5 for the method. Everything
 Layer 0 established still binds.
 

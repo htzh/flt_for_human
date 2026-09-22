@@ -26,7 +26,7 @@ did not bite, and the fraction-ring tail closed on the second build. See
 
 **Audience.** A fresh session taking T20. Read, in this order:
 
-1. [PORTING-FFG.md](../../PORTING-FFG.md) §7.8 (including the T20 row and the
+1. [PORTING-FFG.md](../PORTING-FFG.md) §7.8 (including the T20 row and the
    effort's definition of done) and §1;
 2. [TOPIC-conditional-capstone.md](TOPIC-conditional-capstone.md) — the
    *conditional* artifact T20 makes total; do not re-derive `Spine.lean`;
@@ -271,4 +271,4 @@ unconditional and empties the consumer's `sorry`s; its tail closes §2.1's
 out-of-cone ≥5-indegree tier at 100%, so every declaration through which the rest
 of FLT reaches this segment — the analytic ones included — is a ported theorem
 rather than a reference. The dependency order, the audit outcomes and the effort's
-definition of done are [PORTING-FFG.md](../../PORTING-FFG.md) §7.8.
+definition of done are [PORTING-FFG.md](../PORTING-FFG.md) §7.8.

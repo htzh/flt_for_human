@@ -368,7 +368,7 @@ The documentation has four roles, and they are kept apart on purpose:
 
 | path | role |
 |---|---|
-| `PORTING-FFG.md` and any other plan at the top level | an **active plan** — the blueprint for work in progress |
+| any plan still at the top level | an **active plan** — the blueprint for work in progress. A finished effort's plan is retired into `topics/` (see below); the `functionFieldGeneration` plan is now [topics/PORTING-FFG.md](topics/PORTING-FFG.md) |
 | `topics/<effort>/TOPIC-*.md` | **work orders, then executed plans**: one per topic. New work orders open with the mandatory build-discipline block (playbook §3.11); finished ones keep the record of what was learned and what it cost |
 | `logs/` | the **linear record** of what happened, in order — `card-torsion-port.md` for the first port, `ffg-port.md` for this one |
 | `porting-playbook.md` | the **reusable method**, not tied to any one effort |
@@ -377,10 +377,14 @@ The documentation has four roles, and they are kept apart on purpose:
 An executed plan is not deleted: it is the record of a decision and its cost, and
 `logs/` cross-references it. When an effort finishes, its plan is retired from the
 top level into `topics/`, and the log gains the entry that summarises it.
-`topics/functionFieldGeneration/` holds the four topics of the
+`topics/functionFieldGeneration/` holds the seven topics of the
 `functionFieldGeneration` effort, and `topics/phiGenSplitting/` holds the nine
 topics of its Φ_p splitting / R1 sub-effort, whose plan
-[PORTING-PhiGen.md](topics/PORTING-PhiGen.md) is retired there; the R1 work orders
+[PORTING-PhiGen.md](topics/PORTING-PhiGen.md) is retired there. That effort is now
+**complete** too: its plan [PORTING-FFG.md](topics/PORTING-FFG.md) is retired to
+`topics/` (with a RETIRED banner), and
+[ffg-retrospective.md](topics/ffg-retrospective.md) is the closing review of its
+decisions, clarity and redundancy cuts. The R1 work orders
 [TOPIC-r1-kernel.md](topics/phiGenSplitting/TOPIC-r1-kernel.md),
 [TOPIC-jq-model.md](topics/phiGenSplitting/TOPIC-jq-model.md),
 [TOPIC-hauptmodul.md](topics/phiGenSplitting/TOPIC-hauptmodul.md) and

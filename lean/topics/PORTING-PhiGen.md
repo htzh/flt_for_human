@@ -35,7 +35,7 @@ Companion records:
   of it; do not re-derive it.
 - [base/006](../../base/006-the-modular-equation.md) — the modular equation in
   prose: §3 the cover and the two invariances, §6 the five-step Lean route.
-- [PORTING-FFG.md](../PORTING-FFG.md) — the parent effort. Its §7.1 cuts this cone,
+- [PORTING-FFG.md](PORTING-FFG.md) — the parent effort. Its §7.1 cuts this cone,
   §7.6 already deduplicates the *remainder*'s line counts, and §7.7 records that
   the cone gates all 7 remaining `Inputs` fields.
 - [logs/ffg-port.md](../logs/ffg-port.md) — the parent effort's record.

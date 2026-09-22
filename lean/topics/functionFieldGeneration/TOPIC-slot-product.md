@@ -31,7 +31,7 @@ squarefree block is not needed.
 **Audience.** A fresh session taking T19 — the last topic before the capstone.
 Read, in this order:
 
-1. [PORTING-FFG.md](../../PORTING-FFG.md) §7.8, its "Audit outcomes", and §1;
+1. [PORTING-FFG.md](../PORTING-FFG.md) §7.8, its "Audit outcomes", and §1;
 2. [math/010](../../../math/010-function-field-generation.md) §3 and §6a — the
    slot description of the conjugates and the non-membership that reads it;
 3. [TOPIC-slot-machinery.md](TOPIC-slot-machinery.md) (T14 — the vocabulary this
@@ -328,4 +328,4 @@ T19 is the last topic before the capstone. With its two fields discharged, the
 `Inputs` structure is total and T20 needs only to construct it, apply the proved
 `functionFieldGeneration_of`, and replace the consumer's deferred `sorry` — the
 one remaining `sorry` in the library. The dependency order, the T19 route wins and
-the deferred T18 tail are [PORTING-FFG.md](../../PORTING-FFG.md) §7.8.
+the deferred T18 tail are [PORTING-FFG.md](../PORTING-FFG.md) §7.8.

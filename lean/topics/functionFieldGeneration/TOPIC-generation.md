@@ -30,7 +30,7 @@ substitution instead of `functionFieldGeneration_of_squarefree`.
 
 **Audience.** A fresh session taking T18. Read, in this order:
 
-1. [PORTING-FFG.md](../../PORTING-FFG.md) §7.8 and §1;
+1. [PORTING-FFG.md](../PORTING-FFG.md) §7.8 and §1;
 2. [math/010](../../../math/010-function-field-generation.md) §5–§6b — the
    generation walk and the squarefree degree count;
 3. [TOPIC-descent.md](TOPIC-descent.md) (T15), [TOPIC-degree-step.md](TOPIC-degree-step.md)
@@ -351,4 +351,4 @@ formalizes is the redundant squarefree branch that math/010 §8 flags and that
 `hall_all` already covers. T19 (the slot product and `jqN_prime_not_mem_full`) is
 then the last topic before the capstone, and it follows T17 directly rather than
 waiting on this block. The dependency order, the T19 route win and the drop/keep
-decisions are [PORTING-FFG.md](../../PORTING-FFG.md) §7.8.
+decisions are [PORTING-FFG.md](../PORTING-FFG.md) §7.8.

@@ -42,7 +42,7 @@ public theorem: T12's `exists_phiIrreducible_evalSymm`, T13's
 **Audience.** A fresh session taking T16 of the `functionFieldGeneration` effort.
 Read, in this order:
 
-1. [PORTING-FFG.md](../../PORTING-FFG.md) §7.8 (the topic order and the audited
+1. [PORTING-FFG.md](../PORTING-FFG.md) §7.8 (the topic order and the audited
    routes) and §1 (the design rules);
 2. [math/010](../../../math/010-function-field-generation.md) §6 — the two degree
    statements and their proofs; this topic is that section's second half;
@@ -283,4 +283,4 @@ T16 is the second `Inputs`-field topic and the last purely field-theoretic one:
 with it, `Tight`'s degree input is proved and the debt is four. T17
 (non-membership) and T18 (generation) follow from the slot product T19 supplies;
 the dependency order and the audited T19 route are
-[PORTING-FFG.md](../../PORTING-FFG.md) §7.8.
+[PORTING-FFG.md](../PORTING-FFG.md) §7.8.

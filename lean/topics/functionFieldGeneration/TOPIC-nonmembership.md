@@ -32,7 +32,7 @@ two-prime separation additionally needs T16's
 **Audience.** A fresh session taking T17 of the `functionFieldGeneration` effort.
 Read, in this order:
 
-1. [PORTING-FFG.md](../../PORTING-FFG.md) §7.8 (the topic order and the audited
+1. [PORTING-FFG.md](../PORTING-FFG.md) §7.8 (the topic order and the audited
    routes) and §1 (the design rules);
 2. [math/010](../../../math/010-function-field-generation.md) §6a — the two
    non-membership statements and why the tower needs them;
@@ -321,4 +321,4 @@ degree and its non-membership, leaving T18 (generation and the squarefree degree
 and T19 (the slot product, which supplies the `htw`/`hsp` that T15 left as
 arguments and discharges the two remaining fields). The dependency order, the T19
 route win and the drop/keep decisions are
-[PORTING-FFG.md](../../PORTING-FFG.md) §7.8.
+[PORTING-FFG.md](../PORTING-FFG.md) §7.8.

@@ -16,7 +16,7 @@ post-review corrections (two unused declarations removed) are §2d.1.
 **Audience.** A fresh session taking the second *topic* of the
 `functionFieldGeneration` effort. Layer 0 and the `jq`-coefficients topic are
 done ([logs/ffg-port.md](../../logs/ffg-port.md) §0). Read
-[PORTING-FFG.md](../../PORTING-FFG.md) §0, §2 and §7.4 once for the scope argument and
+[PORTING-FFG.md](../PORTING-FFG.md) §0, §2 and §7.4 once for the scope argument and
 the shape of this artifact, and [porting-playbook.md](../../porting-playbook.md) §3–§5
 and §7 for the method. Everything those files settled still binds.
 

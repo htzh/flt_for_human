@@ -62,7 +62,7 @@ layer is a *library*: its top declarations are cited from outside the hecke cone
 at high indegree (`Place.mem_iff_ord_nonneg` 184 external citers,
 `Place.ord_algebraMap` 142, `Place.mem_of_ord_nonneg` 106,
 `separableAlong_of_charZero` 84 — §2.3). The gain test of
-[PORTING-FFG §2](PORTING-FFG.md) therefore scores differently here: mathlib
+[PORTING-FFG §2](topics/PORTING-FFG.md) therefore scores differently here: mathlib
 alignment is real (the whole layer sits on mathlib's `ValuationSubring` /
 `DedekindDomain` / `Kaehler` API, §3.4), the interface is broad rather than
 concentrated, and organization is the main product — FLT's `AlgebraicCurve` layer
@@ -71,7 +71,7 @@ the Hecke theory actually uses.
 
 ## 1. Organization for math clarity
 
-The rules of [PORTING-FFG §1](PORTING-FFG.md) and playbook §7.1–§7.2 govern
+The rules of [PORTING-FFG §1](topics/PORTING-FFG.md) and playbook §7.1–§7.2 govern
 unchanged. The AC-specific statements:
 
 - **Namespace `AlgebraicCurve`** (and its existing sub-namespaces `Place`,
