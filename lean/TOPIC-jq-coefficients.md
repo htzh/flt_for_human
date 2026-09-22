@@ -1,5 +1,15 @@
 # Topic: the low coefficients of `jq` — `744` and `196884`
 
+**Status: done (2026-09-21), 1 goal round of 4.** `coeff_jq_zero` and
+`coeff_jq_one` are proved in `FLTForHuman/ModularCurve/JqCoefficients.lean`
+(2 public theorems + 22 `private` helpers, 207 lines); the consumer is at 0
+errors with only the capstone `sorry`, and `lake build` is green, warning-free and
+`sorry`-free. The route is the one in §2 below; the only unanticipated API was
+the two `coeff_two_*` helpers. The measured cost, the **≈0.87 : 1** ratio against
+FLT's closest analogue, and the finding that FLT proves these coefficients in a
+standalone 237-line file rather than the 11k-line cluster are in
+[logs/ffg-port.md](logs/ffg-port.md) §2c and §8.3.
+
 **Audience.** A fresh session taking the first *topic* of the
 `functionFieldGeneration` effort, now that Layer 0 is complete
 ([logs/ffg-port.md](logs/ffg-port.md) §8). Read
@@ -125,20 +135,20 @@ topic", not "port the cluster".
 
 ## 5. Definition of done
 
-- [ ] `coeff_jq_zero` and `coeff_jq_one` proved in
+- [x] `coeff_jq_zero` and `coeff_jq_one` proved in
       `FLTForHuman/ModularCurve/JqCoefficients.lean`, with a header recording the source of
       the *statement* (base/004) and the deliberate divergence in the *proof*
       (mathlib's pentagonal route, not FLT's).
-- [ ] `lake build` green, 0 warnings, no `sorry` — the module now lives in the
+- [x] `lake build` green, 0 warnings, no `sorry` — the module now lives in the
       default target, so nothing half-finished lands in it (see §3).
-- [ ] `#print axioms` on both: only `propext, Classical.choice, Quot.sound`.
-- [ ] Consumer: the two Zone C `sorry`s replaced by references to the new
+- [x] `#print axioms` on both: only `propext, Classical.choice, Quot.sound`.
+- [x] Consumer: the two Zone C `sorry`s replaced by references to the new
       theorems; the file's only remaining `sorry` is the capstone.
-- [ ] `spec/check_flt_statements.py` still reports 0 mismatches (with the two new
+- [x] `spec/check_flt_statements.py` still reports 0 mismatches (with the two new
       declarations handled explicitly, not silently).
-- [ ] `logs/ffg-port.md` gains a short section: measured cost of this topic, the
+- [x] `logs/ffg-port.md` gains a short section: measured cost of this topic, the
       proof-cost ratio, and whether the mathlib route held up.
-- [ ] README module table and PORTING-FFG updated.
+- [x] README module table and PORTING-FFG updated.
 
 ## 6. Reporting back
 

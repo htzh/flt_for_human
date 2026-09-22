@@ -336,12 +336,26 @@ repeating:
 |---|---|---|---|
 | 0a | 68 | 20 | **1** |
 | 0b | 69 | 4 | **1** |
+| topic (`jq` coefficients) | 24 (2 public + 22 `private`) | 4 | **1** |
 
 Transcribing a pinned, definitional source with the statements dictated is
 cheap. The cost lives in *shape* mismatches — typeclass, coercion, defeq,
 renamed API — not in volume, so budget in "number of shape risks", not lines.
 Both layers' named shape risks failed to materialize; the only real friction was
 three renames and two spec bugs the consumer caught by being executed.
+
+The topic is the first *proof* data point, and it was cheap for a different
+reason: mathlib had absorbed the hard part (`etaProd` *is* the topological product
+that `tprod_one_sub_X_pow` equates to `pentagonalSeries`), so the whole job was a
+finite low-order coefficient computation. The lesson that covers all three rows:
+**expense is the route's distance from mathlib, and a topic must be priced against
+the actual FLT proof of its specific statements — not against the subtree those
+statements appear under.** This topic's plan assumed the latter and overpriced the
+work by roughly 50×: FLT's real proof of the `744` / `196884` coefficients is a
+standalone 237-line file, while the 11k-line cluster the plan cited is not on the
+route at all. Locate the analogous FLT declaration first (it may be a small
+`S_`/`Thm_` file, as here), and only then quote a size. See
+[logs/ffg-port.md](logs/ffg-port.md) §2c, §8.3.
 
 ### 7.4 Make faithfulness mechanical
 
@@ -350,7 +364,10 @@ Three cheap instruments, all used here:
 
 - a checker that diffs every ported **statement** against the pin
   (`spec/check_flt_statements.py`; 137 of 137 identical) — and verify the checker
-  itself with a deliberately mutated statement;
+  itself with a deliberately mutated statement. When a declaration is *ours*
+  rather than transcribed (the topic's `coeff_jq_zero` / `coeff_jq_one`), add it
+  to an explicit exemption list with the reason, so "0 missing" keeps meaning
+  something; a declaration that is merely unlisted still fails the check;
 - a **consumer** outside every library, whose error count is the deliverable
   metric and whose cross-module composition is the wire test;
 - `#print axioms` on the layer's result, to confirm no `sorryAx` crept in

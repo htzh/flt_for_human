@@ -14,29 +14,33 @@
       cd lean
       lake env lean spec/ModularCurveConsumer.lean 2>&1 | grep -c error
 
-  It **does not compile today** and is not expected to: it names declarations
-  that do not exist yet. That is the point — the error count is the metric.
+  It **compiles today** — the error count, which is the metric, is 0 — but it is
+  deliberately kept out of every library, so it can never break a verified build.
+  The one remaining `sorry` is the deferred capstone theorem, which is by design.
 
   HOW TO READ IT
   --------------
   Every block is labelled:
 
-    [0a]  must be bound when Layer 0a ships.  ZONE A: must reach 0 errors.
-    [0b]  held; bound only when the theorem is picked up.  ZONE B: stays red.
-    [--]  NOT expected from the Definitions layer at all.  ZONE C: stays red.
+    [0a]  bound by Layer 0a.  ZONE A: reached 0 errors.
+    [0b]  bound by Layer 0b.  ZONE B: bound.
+    [--]  not delivered by the Definitions layer; bound later.  ZONE C: bound
+          (the `jq` coefficients by the topic module, `TS` by Layer 0b).
 
-  When Zone A reaches 0 errors, Layer 0a is done by this measure. Zones B and C
-  are supposed to stay red; if they ever go green without a deliberate decision,
-  something has been ported that this plan did not ask for.
+  When Zone A reached 0 errors, Layer 0a was done by this measure. Zones B and C
+  were then allowed to go green only by explicit decisions — Zone B in Layer 0b,
+  `TS` and the two coefficients later — never by scope creep.
 
   WHY ZONE C IS IN HERE
   ---------------------
   The justification for Layer 0a is that computable `jq` / `qExpand` / `qTwist`
   serve base/004's `j`-invariant claims and math/010's q-expansion statements.
-  Zone C writes those claims down, and thereby records the finding that Layer 0a
-  does *not* deliver them: the low coefficients of `jq` come from the
-  modular-form q-expansion cluster, which is inside the 44-node subtree that
-  §7.1 of the blueprint designates an input. This file is where that shows up.
+  Zone C writes those claims down, and thereby recorded the finding that Layer 0a
+  does *not* deliver the low coefficients of `jq` by itself. They were expected to
+  come from the modular-form q-expansion cluster inside the 44-node subtree that
+  §7.1 of the blueprint designates an input; `JqCoefficients.lean` reaches them
+  without it, from `etaProd` plus mathlib's pentagonal theorem. The zone is kept
+  as the record of that finding.
 -/
 
 -- The Layer 0 modules. They exist now, so these are live imports and the
@@ -51,6 +55,8 @@ import FLTForHuman.ModularCurve.Defs.Fields
 import FLTForHuman.ModularCurve.Defs.PhiGen
 import FLTForHuman.ModularCurve.Defs.TS
 import FLTForHuman.ModularCurve.Collapse
+-- The topic module: the low coefficients of `jq`, via mathlib's pentagonal route.
+import FLTForHuman.ModularCurve.JqCoefficients
 
 set_option autoImplicit false
 
@@ -155,20 +161,27 @@ example (N : ℕ) [NeZero N] :
 Written down so the gap is visible.
 
 `[0b]` The `TS` block below is now bound: `TS` was decided in for Layer 0b, and
-`Defs/TS.lean` provides it. `[--]` The two `jq.coeff` claims are the claims of
-base/004 that Layer 0 does **not** make available. -/
+`Defs/TS.lean` provides it. `[topic]` The two `jq.coeff` claims of base/004 — the
+item this zone was named for — are now bound too, by
+`FLTForHuman/ModularCurve/JqCoefficients.lean`. Layer 0 itself does not deliver
+them; the topic module reaches them from the Definitions layer *plus* mathlib's
+pentagonal number theorem, a deliberate divergence from FLT's modular-form route.
+-/
 
 -- base/004: `j(q) = q⁻¹ + 744 + 196884 q + ⋯`. The pole (`q⁻¹`) is in the Def
--- layer (Zone A above); the *regular* coefficients are not.
+-- layer (Zone A above); the *regular* coefficients were the first item this zone
+-- held open.
 --
 -- `Def_ModularCurve_X0.lean` defines `eisenstein4` by an explicit coefficient
 -- formula but `etaProd` as a `∏'` (a topological product), so `jNum` is not an
 -- evaluable expression: `#eval`/`decide` cannot reach these numbers. FLT proves
 -- them in the modular-form q-expansion cluster — `Thm_ModularCurve_hasSum_jq_qParam`,
--- `qExpansion_*`, `hasSum_qParam_*` — which is inside the 44-node subtree that
--- PORTING-FFG.md §7.1 designates an input.
-example : jq.coeff 0 = 744 := by sorry       -- needs the q-expansion cluster
-example : jq.coeff 1 = 196884 := by sorry    -- needs the q-expansion cluster
+-- `qExpansion_*`, `hasSum_qParam_*` — inside the 44-node subtree that
+-- PORTING-FFG.md §7.1 designates an input; the topic module avoids that subtree by
+-- rewriting `etaProd` to mathlib's `pentagonalSeries` and computing the low
+-- coefficients. These two examples are now discharged by real proofs.
+example : jq.coeff 0 = 744 := coeff_jq_zero
+example : jq.coeff 1 = 196884 := coeff_jq_one
 
 -- math/010's `TS K e u`, the series of math/010 §1, is introduced in the
 -- *solution* file, not in `Definitions/`. It was held out of Layer 0a and
@@ -188,6 +201,13 @@ Zone A errors: the count of Zone A items still unbound. It must reach 0.
 Zone B and Zone C errors are expected to remain — if they drop without a
 decision to port the theorem, the scope has crept.
 
+The error count is the number of unbound names. Since the topic module landed it
+is **0**: Zones A, B and C are all bound. What remains unproved is exactly one
+`sorry`, the Zone A capstone — the deferred theorem, which is the design. (Zone C
+was originally expected to stay red; the topic showed it was reachable from the
+Definitions layer plus mathlib, and the scope decision to take it is recorded in
+`TOPIC-jq-coefficients.md`.)
+
 **Layer 0a result (2026-09-21).** Zone A is at **0 errors**; the file reports
 **10 errors**, all of them Zone B (8: the six `#check`s plus the two unbound
 names in the collapse example) and Zone C (2: the two `TS` occurrences). The one
@@ -204,6 +224,13 @@ two `jq.coeff` claims in Zone C (`744`, `196884`), which belong to the modular-f
 cluster inside the deferred Φ_p subtree and are expected to stay red. The Zone B
 collapse is now discharged by `functionFieldGeneration_iff_full_eq`, Layer 0's
 only theorem.
+
+**Topic result (2026-09-21).** `FLTForHuman/ModularCurve/JqCoefficients.lean`
+discharges the two Zone C `jq.coeff` examples (`coeff_jq_zero`, `coeff_jq_one`),
+so the only remaining `sorry` in this file is the Zone A capstone. The topic did
+not port any of the modular-form cluster: `etaProd` is identified with mathlib's
+`pentagonalSeries` by `tprod_one_sub_X_pow`, and the rest is a low-order
+`PowerSeries` coefficient computation.
 
 ## Friction list (mathlib `v4.34.0` against FLT's `v4.33.0`)
 

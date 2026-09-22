@@ -1,17 +1,19 @@
 # Blueprint: `ModularCurve.functionFieldGeneration` — Layer 0
 
-**Status: Layer 0 is done.** All nine modules of `lean/FLTForHuman/ModularCurve/` — 68
-declarations in 0a and 69 in 0b — are green with zero warnings and zero `sorry`,
-and the deliverable measure `spec/ModularCurveConsumer.lean` reports **0
-errors**: Zone A, Zone B and the `TS` half of Zone C are all bound. Its only
-remaining `sorry`s are the deferred theorem's capstone and the two Zone C
-`jq.coeff` claims (`744`, `196884`). Both work orders finished in a single goal
-round, and [logs/ffg-port.md](logs/ffg-port.md) carries the record and the
-calibration. This
+**Status: Layer 0 and the first topic are done.** The ten modules of
+`lean/FLTForHuman/ModularCurve/` — 68 declarations in 0a, 69 in 0b, and the 24 of
+`JqCoefficients.lean` — are green with zero warnings and zero `sorry`, and the
+deliverable measure `spec/ModularCurveConsumer.lean` reports **0 errors**: Zones
+A, B and C are all bound. Its only remaining `sorry` is the deferred theorem's
+capstone. Layer 0's two work orders and the
+[`jq`-coefficients topic](TOPIC-jq-coefficients.md) each finished in a single goal
+round, and [logs/ffg-port.md](logs/ffg-port.md) carries the record, the measured
+proof cost, and the calibration. This
 file previously planned a sorry-bounded port of the whole theorem; that is now
 deferred and kept only as a menu in §7. The scope decision and its evidence are
 §2, and the v4.34.0 friction list is at the tail of the consumer file, with
-`spec/check_flt_statements.py` diffing all 137 port statements against the pin.
+`spec/check_flt_statements.py` diffing all 137 transcribed port statements against
+the pin (plus the two own-proof `jq.coeff` theorems, exempted explicitly).
 
 Companion records:
 
@@ -374,18 +376,26 @@ It is organised in three zones with different expectations:
 - **Zone B `[0b]`** — `modularFunctionField`, `ModularPolynomialData`. Stays red
   until the theorem is picked up.
 - **Zone C `[--]`** — claims the Definitions layer does *not* deliver: the
-  regular coefficients of `jq` (`744`, `196884`) and `TS`. Stays red.
+  regular coefficients of `jq` (`744`, `196884`) and `TS`. Both are now bound —
+  `TS` by Layer 0b, the coefficients by the `jq`-coefficients topic — but by
+  modules outside the Definitions layer, so the zone's point stands.
 
 Zone C is the point of the file. It records a finding that only shows up when
 the consumer is actually written: **base/004's `j = q⁻¹ + 744 + 196884q + ⋯`
 is only half available from Layer 0a.** The pole (`q⁻¹`) is Def-layer
 (`coeff_jq_neg_one`, `coeff_jq_of_lt`), but the regular coefficients are not —
 `etaProd` is a `∏'` (topological product), so `jNum` is not an evaluable
-expression, and FLT proves those numbers in the modular-form q-expansion cluster,
-which is inside the 44-node subtree §7.1 designates an input. Writing the
-consumer therefore answers the "will 0a be used?" question *before* the 1,000
-lines are transcribed: it is used for the pole and for the ring maps, and it is
-not used for the classical coefficients.
+expression. Writing the consumer therefore answers the "will 0a be used?"
+question *before* the 1,000 lines are transcribed: it is used for the pole and for
+the ring maps, and it is not used for the classical coefficients. Those were
+expected to need the modular-form q-expansion cluster inside the 44-node subtree
+§7.1 designates an input; the
+[`jq`-coefficients topic](TOPIC-jq-coefficients.md) then showed that mathlib's
+pentagonal theorem reaches them from the Definitions layer alone (via
+`PowerSeries.WithPiTopology.tprod_one_sub_X_pow`), and closed Zone C without
+touching the cluster. FLT's own proof of these coefficients turns out to be a
+standalone 237-line file, not the cluster either — see
+[logs/ffg-port.md](logs/ffg-port.md) §8.3.
 
 **Wire test, not just a compile test.** "Green definitions" says nothing about
 whether they are *connected*: in the first port `Universal.lean` sat in no import
@@ -549,12 +559,14 @@ freeze is the only mechanism that catches it.
 
 ## 8. Open questions
 
-- **Will 0a be used?** *Partly answered by the consumer.*
-  `spec/ModularCurveConsumer.lean` is now the written-down use, and writing it
-  already produced a result: the pole of `j` and the two ring maps are Layer 0a
-  material, but the classical regular coefficients (`744`, `196884`) are **not** —
-  they sit in the deferred modular-form cluster. So the honest statement of 0a's
-  value is narrower than the original pitch: it gives the transport layer
+- **Will 0a be used?** *Answered: yes, narrowly.*
+  `spec/ModularCurveConsumer.lean` is the written-down use, and writing it
+  produced a result: the pole of `j` and the two ring maps are Layer 0a
+  material, but the classical regular coefficients (`744`, `196884`) are **not**
+  available from Layer 0a alone. (The `jq`-coefficients topic later supplied them
+  *from* 0a's `etaProd` plus mathlib, so 0a is load-bearing for them after all —
+  but only through the topic module, not by itself.) So the honest statement of
+  0a's value is narrower than the original pitch: it gives the transport layer
   (`qExpand`, `qTwist`, `coeffEmb`), the pole of `j`, and the ability to *state*
   the target. If that is not enough to justify ~1,000 transcribed lines, the
   consumer is the evidence for saying so, and it should be re-argued before the

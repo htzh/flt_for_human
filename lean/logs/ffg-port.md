@@ -7,9 +7,9 @@ generalize go to [porting-playbook.md](../porting-playbook.md); decisions and
 measurements stay here.
 
 The blueprint is [PORTING-FFG.md](../PORTING-FFG.md) — it holds the scope
-argument, the deferral menu, and the §7 plan for the theorem. The current work
-order is [TOPIC-jq-coefficients.md](../TOPIC-jq-coefficients.md). The deliverable
-measure is [spec/ModularCurveConsumer.lean](../spec/ModularCurveConsumer.lean),
+argument, the deferral menu, and the §7 plan for the theorem. The completed topic
+work order is [TOPIC-jq-coefficients.md](../TOPIC-jq-coefficients.md). The
+deliverable measure is [spec/ModularCurveConsumer.lean](../spec/ModularCurveConsumer.lean),
 and [spec/check_flt_statements.py](../spec/check_flt_statements.py) diffs the
 port's statements against the pin.
 
@@ -26,7 +26,7 @@ FLT is pinned at `aa2d8b3`; mathlib at `v4.34.0`.
 |---|---|---|---|
 | 0a | `qExpand`, `coeffMap`/`coeffEmb`, `qTwist`, the `j`-series, `FunctionFieldGeneration` | **done**, 4 modules, 68 decls, 627 lines | consumer **Zone A at 0 errors** |
 | 0b | the two fields, the polynomial datum, the slot vocabulary, `TS`, the §2 collapse | **done**, 5 modules, 69 decls, 622 lines | consumer **0 errors**; `TS` and the collapse bound |
-| topic | the low coefficients of `jq` (`744`, `196884`) | **next**, planned in TOPIC-jq-coefficients.md | consumer Zone C to 0 `sorry`s |
+| topic | the low coefficients of `jq` (`744`, `196884`) | **done**, 1 module, 24 decls, 207 lines | consumer Zone C bound; only the capstone `sorry` remains |
 | theorem | PORTING-FFG §7's 24-node remainder behind the Φ_p input | **deferred**, not scheduled | — |
 
 The tree was restructured once, after 0b: the definitions had lived in a separate
@@ -103,6 +103,52 @@ The split (as built) puts `ModularPolynomialData` apart from
 the fields because it is the *type* of the Φ_p input rather than a field, and
 `TS` is the one block taken from a **solution** file rather than `Definitions/`.
 
+## 2c. Topic: the low coefficients of `jq` — what it cost
+
+The first *proof* layer of this effort, and the first whose proof is ours rather
+than a transcription — the statement is base/004's and FLT has no declaration of
+it, so there is no FLT name to keep.
+
+| | |
+|---|---|
+| goal rounds | **1** (of the 4 budgeted; the round-1 scouting checkpoint passed on the first try) |
+| declarations | 24 in the module: 2 public (`coeff_jq_zero`, `coeff_jq_one`), 22 `private` helpers |
+| lines written | 207 (`FLTForHuman/ModularCurve/JqCoefficients.lean`) |
+| build | `lake build` green, 0 warnings, no `sorry`; **2632 planned jobs** against 2086 before |
+| axioms | `#print axioms` on both: only `propext, Classical.choice, Quot.sound` |
+| checker | `spec/check_flt_statements.py`: 137 identical, 0 mismatched, 0 missing, **2 own-proof exemptions** |
+
+**The hybrid held.** `etaProd` is definitionally `∏' n, (1 - X ^ (n + 1))`, and
+mathlib's `PowerSeries.WithPiTopology.tprod_one_sub_X_pow` identifies that product
+with `pentagonalSeries`, whose coefficients are explicit
+(`coeff_pentagonalSeries_pentagonal`); `coeff_pentagonalSeries_eq_zero` covers the
+rest. From there the computation is finite and low-order: `coeff_one_pow` for the
+first coefficient of a power, a hand-written `coeff_two_mul` / `coeff_two_pow` for
+the second, and `Δ * Δ⁻¹ = 1` (not `coeff_invOfUnit`'s recursion) for the inverse.
+No part of FLT's modular-form cluster is ported. The only friction the plan did
+not name was that mathlib has no `coeff`-at-`2` power formula, so the two
+`coeff_two_*` helpers are written out — 12 lines, the whole of the extra API.
+
+**The cost ratio, and a correction to the topic's premise.** The topic priced this
+against "the modular-form q-expansion cluster (44 nodes, ~11k lines)". That is not
+where FLT proves these coefficients. FLT has a dedicated, standalone file —
+[`P2M/Sol/S_ModularCurve_coeff_jNum_le_six.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_coeff_jNum_le_six.lean),
+**237 lines / 21 declarations**, importing only `Mathlib`,
+`Definitions.Def_ModularCurve_X0` and `P2M.Util` — which proves the first *six*
+coefficients of `jNum` (our `744` and `196884` among them) by truncating the
+product and convolving hard-coded coefficient lists. That file, not the cluster,
+is the like-for-like analogue, so the measured ratio is **207 / 237 ≈ 0.87 : 1**
+in lines (24 / 21 ≈ 1.14 : 1 in declarations). Against the 11k-line cluster the
+topic feared the ratio is ~0.02 : 1, but the cluster was not FLT's route either.
+The honest reading is the same lesson as §8.1, one layer on: the coefficients are
+cheap, but *which* FLT code is the analogue was mis-identified, and FLT itself did
+not spend the 11k lines on them.
+
+One measured side effect: the pentagonal import adds ~546 mathlib modules to the
+default build's planned job count (2086 → 2632). They are covered by the shared
+oleans, so the warm build is unchanged at a few seconds; nothing in this tree
+compiles them from source.
+
 ## 3. What was verified
 
 Independent QA of 0a after it landed:
@@ -126,6 +172,17 @@ Layer 0b, on landing:
 | `sorry` / `admit` / `axiom` / `native_decide` in `FLTForHuman/ModularCurve/` | none |
 | `#print axioms` on `functionFieldGeneration_iff_full_eq` | only `propext, Classical.choice, Quot.sound` |
 | consumer | **0 errors**: Zone A, Zone B and the `TS` half of Zone C bound; 3 deliberate `sorry`s (the capstone and the two Zone C `jq.coeff` claims) |
+
+The topic, on landing:
+
+| check | result |
+|---|---|
+| `sorry` / `admit` / `axiom` / `native_decide` in `FLTForHuman/ModularCurve/` | none (checked by `grep`) |
+| `import Mathlib` (bare) anywhere in the tree | none |
+| `#print axioms` on `coeff_jq_zero`, `coeff_jq_one` | only `propext, Classical.choice, Quot.sound` |
+| `spec/check_flt_statements.py` | 137 identical, 0 mismatched, 0 missing, 2 own-proof declarations exempted |
+| checker non-vacuity | an unlisted new declaration is caught as `MISSING IN FLT` |
+| consumer | **0 errors**; the only remaining `sorry` is the capstone |
 
 The statement-identity result is the one to carry forward: with a pinned source
 dictating the statements, faithfulness is *mechanically checkable*, and it should
@@ -251,20 +308,20 @@ and none of the three shape risks named for it appeared (the table in §6).
 
 The effort has reached the floor it set itself: Layer 0 is complete and
 mechanically verified — 137 of 137 statements identical to the pin, no `sorry`,
-no `import Mathlib`, `#print axioms` clean. What remains is a *judiciously chosen
-topic* from the 24-node remainder in PORTING-FFG §7.3 — not the cone. Two
-`jq.coeff` claims in consumer Zone C (`744`, `196884`) were expected to stay red
-because they live inside the deferred Φ_p subtree. The final check found that
-expectation to be wrong, and the topic is now planned:
+no `import Mathlib`, `#print axioms` clean. Two `jq.coeff` claims in consumer
+Zone C (`744`, `196884`) were expected to stay red because they live inside the
+deferred Φ_p subtree. The final check found that expectation to be wrong, the
+topic below was taken, and it finished in one round (§2c). Zone C is now closed:
 
-- **[TOPIC-jq-coefficients.md](../TOPIC-jq-coefficients.md)** — close Zone C by
-  computing the two coefficients. FLT reaches `η`'s coefficients through
-  `S_ModularCurve_StarBank_deltaNorm` and the modular-form cluster, but
-  mathlib's `PowerSeries.tprod_one_sub_X_pow` gives `∏' n, (1 - X ^ (n+1)) = pentagonalSeries R`
-  with explicit coefficient lemmas, and `etaProd` *is* that product. So the route
-  is a finite low-order coefficient computation — `1 + 744q + 196884q² + ⋯` — with
-  no part of the 44-node subtree. This is the hybrid strategy again, and it is
-  the first topic whose *proof* is ours rather than a transcription.
+- **[TOPIC-jq-coefficients.md](../TOPIC-jq-coefficients.md)** — **done**.
+  `coeff_jq_zero` and `coeff_jq_one` are proved in
+  `FLTForHuman/ModularCurve/JqCoefficients.lean`. `etaProd` *is* mathlib's
+  topological product, so `PowerSeries.WithPiTopology.tprod_one_sub_X_pow` gives
+  `∏' n, (1 - X ^ (n+1)) = pentagonalSeries`, with explicit coefficient lemmas, and
+  the route is a finite low-order computation — `1 + 744q + 196884q² + ⋯` — with no
+  part of the 44-node subtree. The hybrid held; the measured ratio against FLT's
+  closest analogue is ≈0.87 : 1. What remains is the deferred theorem of §7, to be
+  taken only if a future session picks a topic out of it.
 
 ### 8.1 Two findings from the final check
 
@@ -300,12 +357,70 @@ what the port is for, namely that the vocabulary exists and composes — but any
 future definition of done should state the expected `sorry` set explicitly rather
 than inferring it from the error count, as 0b's definition of done did.
 
+### 8.3 A third finding, from the topic's execution
+
+**The coefficients were never in the 11k-line cluster.** The topic was justified
+by the belief that FLT reaches `η`'s coefficients through
+`S_ModularCurve_StarBank_deltaNorm` and the modular-form cluster, and that
+avoiding FLT's route therefore saved ~11k lines. FLT actually proves them in a
+standalone 237-line file,
+[`P2M/Sol/S_ModularCurve_coeff_jNum_le_six.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_coeff_jNum_le_six.lean)
+(six coefficients, importing no cluster), by truncating the product and convolving
+hard-coded lists. The 11k-line figure was the *cluster's*, not this item's — §8.1's
+lesson once more: cost is a property of the route, not of the node. It is worth
+recording because the 11k figure was the topic's whole justification for diverging
+from FLT, and the correct analogue is a quarter of the assumed size; future topics
+should locate the actual FLT proof of the specific statements before pricing it by
+the subtree it appears under.
+
+### 8.4 The option space after the topic
+
+The effort has reached a plateau: everything cheap and clearly motivated is done.
+This survey is recorded because the surveying is the expensive part and should
+not be redone.
+
+**The wider development is vast and mostly irrelevant.** The FLT clone holds
+**7,711 `S_ModularCurve_*` solution files**; the capstone's cone is 144 of them.
+Of the rest, **659 are ≤ 300 lines and self-contained** — mathlib plus one
+`Definitions/` module plus `P2M.Util`, e.g.
+`S_ModularCurve_twelve_mul_genusFormula` (12 lines) or
+`S_ModularCurve_laurentBaseChange_mono` (11). They are cheap but *unchosen*:
+porting one would be "because the graph has nodes", which is what the gain test
+forbids. They become relevant only when a note asks a question one of them
+answers. (`S_ModularCurve_coeff_jNum_le_six`, the analogue of the `jq`
+coefficients, is one of them.)
+
+**The theorem's remainder** is unchanged: 24 nodes below the capstone, behind the
+Φ_p input (PORTING-FFG §7). Its per-node line sum is 12,420, and that is an
+*upper bound*, for two reasons now measured: §8.1's three `Polynomial` nodes
+share one proof, and §8.3 shows the same statements can live in a far smaller
+standalone file than the subtree they appear under. Pricing it properly means
+scouting each node's actual FLT proof.
+
+**The conditional capstone is the one remaining cheap item with a clear gain.**
+`hall_all` — the single strong induction carrying `Tight ∧ Gen` over the divisor
+lattice, which is math/010 §2 and §7 — is 86 lines of the solution file, sitting
+on about 190 lines of private helpers (`jqN_congr`/`full_congr`/`mff_congr`,
+the `dedekindPsi` arithmetic, `tight_one`/`gen_one`, `relfinrank_full_of`,
+`full_le_adjoin_chain`, `jqN_pow_not_mem_full`, `root_shape`, `htw_of`, `hsp_of`).
+Stated with the 24 remainder nodes as the fields of an `Inputs` structure, that
+would check the *architecture* of the proof — and make every input a first-class
+named assumption — for a few hundred lines instead of ~10k, and it is exactly the
+"sound conditional capstone" PORTING-FFG §7.4 describes. It needs the same
+scouting as any topic: whether the helpers are glue over the inputs or carry
+work of their own is not yet known.
+
+**Stop-and-harvest is a real option.** The library now supplies the vocabulary of
+math/010 and base/004, with the statement landscape mechanically checked and two
+concrete claims proved. What it does not supply is proof-level clarity of §§4–7;
+that is the one thing left, and it is the expensive one.
+
 ## 9. Records map
 
 | file | role |
 |---|---|
 | [PORTING-FFG.md](../PORTING-FFG.md) | the top plan: scope argument, gain test, deferred theorem menu |
-| [TOPIC-jq-coefficients.md](../TOPIC-jq-coefficients.md) | the next plan: the `jq` coefficients |
+| [TOPIC-jq-coefficients.md](../TOPIC-jq-coefficients.md) | the completed topic plan: the `jq` coefficients |
 | [spec/ModularCurveConsumer.lean](../spec/ModularCurveConsumer.lean) | the deliverable measure, and the friction log |
 | [spec/check_flt_statements.py](../spec/check_flt_statements.py) | diffs every port statement against the pin |
 | this file | the record: what the effort did, cost, and decided |
@@ -318,7 +433,8 @@ either in the code (the module list, the statements, the proofs), in the
 playbook (the principles, the overlap, the calibration — now §7), or in this
 record (the measurements, the decisions, the friction). What was kept is only
 what a later session cannot re-derive: `PORTING-FFG.md` as the top plan,
-`TOPIC-jq-coefficients.md` as the next one, the playbook, and this file.
+`TOPIC-jq-coefficients.md` as the completed topic record, the playbook, and this
+file.
 
 Nothing durable was lost in the move. The principles and the overlap section —
 the most reusable things this effort has produced, more so than the module list,

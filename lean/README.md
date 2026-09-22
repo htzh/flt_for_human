@@ -98,6 +98,7 @@ alongside `.lake/` in case it does.
 | `FLTForHuman/ModularCurve/Defs/PhiGen.lean` | the slot vocabulary | `cosetSubst`, `conj`, `phiProd`, `EvalSymm`, `PhiGenDescends`, … — the vocabulary math/010 §3's splitting input must mention. FLT `Def_ModularCurve_PhiGen` 111–309 |
 | `FLTForHuman/ModularCurve/Defs/TS.lean` | `j(u q ^ e)` | `TS` and its nine coefficient/substitution lemmas. FLT `P2M/Sol/S_ModularCurve_functionFieldGeneration` 39–101 (a *solution* file) |
 | `FLTForHuman/ModularCurve/Collapse.lean` | the §2 collapse | `functionFieldGeneration_iff_full_eq`, Layer 0's only theorem. FLT `Thm_…_iff_full_eq` line 6 / `S_…_iff_full_eq` 11–21 |
+| `FLTForHuman/ModularCurve/JqCoefficients.lean` | the low coefficients of `jq` | `coeff_jq_zero` (`744`), `coeff_jq_one` (`196884`). A *result*, not a definition: statement from base/004, proof by mathlib's pentagonal route (`tprod_one_sub_X_pow`) rather than FLT's cluster |
 
 The port of `#E[n](K) = n²` (math/005) has its own working record:
 [logs/card-torsion-port.md](logs/card-torsion-port.md) — dependency trace,
@@ -107,19 +108,20 @@ The `functionFieldGeneration` effort keeps its record in
 [logs/ffg-port.md](logs/ffg-port.md).
 
 `FLTForHuman/ModularCurve/` holds the definitions of `PORTING-FFG.md` Layer 0
-(the `jq` / `qExpand` / `qTwist` objects of math/010). It sits beside
-`FLTForHuman/Elliptic/` under the **single** `FLTForHuman` library — Layer 0
-landed with no `sorry`, so the separate build target it used to have was no
-longer needed. There is no `import Mathlib` anywhere. **Layer 0 is done**: nine
-modules (68 declarations in 0a, 69 in 0b) are green with zero warnings and zero
-`sorry`, and the deliverable measure
+(the `jq` / `qExpand` / `qTwist` objects of math/010), plus the one topic module
+that followed. It sits beside `FLTForHuman/Elliptic/` under the **single**
+`FLTForHuman` library — Layer 0 landed with no `sorry`, so the separate build
+target it used to have was no longer needed. There is no `import Mathlib` anywhere.
+**Layer 0 is done and the `jq`-coefficients topic is done**: ten modules (68
+declarations in 0a, 69 in 0b, and 2 public + 22 private in the topic) are green
+with zero warnings and zero `sorry`, and the deliverable measure
 [spec/ModularCurveConsumer.lean](spec/ModularCurveConsumer.lean) reports **0
-errors** — Zone A, Zone B and the `TS` half of Zone C are all bound. Its only
-remaining `sorry`s are the deferred theorem's capstone and the two Zone C
-`jq.coeff` claims (`744`, `196884`). `PORTING-FFG.md` records why the theorem
-itself stays deferred; the consumer's tail carries the v4.34.0 friction list, and
+errors** with Zones A, B and C all bound. Its only remaining `sorry` is the
+deferred theorem's capstone. `PORTING-FFG.md` records why the theorem itself stays
+deferred; the consumer's tail carries the v4.34.0 friction list, and
 [spec/check_flt_statements.py](spec/check_flt_statements.py) diffs every port
-declaration's statement against the pinned source (137 of 137 identical).
+declaration's statement against the pinned source (137 of 137 identical, with the
+two own-proof `jq.coeff` theorems exempted explicitly).
 
 Both Layer 0 work orders are gone: they were finished, their durable material
 moved into §7 of [porting-playbook.md](porting-playbook.md) — the math-clarity
@@ -127,12 +129,14 @@ principles, the overlap with the first port, and the measured cost model — and
 [logs/ffg-port.md](logs/ffg-port.md) carries the record and the calibration.
 Both layers finished in a single goal round against a much larger budget.
 
-The next piece of work is not a layer but a topic:
-[TOPIC-jq-coefficients.md](TOPIC-jq-coefficients.md) closes the last two consumer
+The first topic is also complete:
+[TOPIC-jq-coefficients.md](TOPIC-jq-coefficients.md) closed the last two consumer
 items (`jq.coeff 0 = 744`, `jq.coeff 1 = 196884`) by a mathlib route FLT does not
 use — the pentagonal theorem for `∏' n, (1 - X ^ (n+1))` — rather than the
 modular-form cluster. It is the first topic whose proof is ours rather than a
-transcription.
+transcription; [logs/ffg-port.md](logs/ffg-port.md) §2c and §8.3 carry its
+measured cost and the finding that FLT's own proof of these coefficients is a
+standalone 237-line file, not the cluster.
 
 ## Sources
 

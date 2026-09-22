@@ -44,7 +44,23 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/Defs/PhiGen.lean",
     "FLTForHuman/ModularCurve/Defs/TS.lean",
     "FLTForHuman/ModularCurve/Collapse.lean",
+    "FLTForHuman/ModularCurve/JqCoefficients.lean",
 ]
+
+# Declarations whose *statement* has no FLT source, so there is nothing to diff:
+# they are our own, not transcribed. `coeff_jq_zero` / `coeff_jq_one` state the
+# regular low coefficients of `jq` (base/004: `q⁻¹ + 744 + 196884 q + ⋯`). FLT
+# reaches those numbers only inside the deferred modular-form q-expansion cluster
+# (`hasSum_jq_qParam` is a different statement), and its declarations there carry
+# different names, so the pin has no name/statement to compare against. The proof
+# here uses mathlib's pentagonal route over `etaProd`; see
+# `FLTForHuman/ModularCurve/JqCoefficients.lean` and `TOPIC-jq-coefficients.md`.
+# Listing them explicitly keeps "0 missing" meaningful: an unlisted new
+# declaration still fails the check.
+OWN_PROOFS = {
+    "coeff_jq_zero",
+    "coeff_jq_one",
+}
 
 # Declaration keywords. `instance` matters for PhiGen; `structure` for Polynomial.
 DECL_RE = re.compile(
@@ -129,10 +145,13 @@ def main() -> int:
         for name, (kind, stmt) in declarations(p.read_text(encoding="utf-8")).items():
             source.setdefault(name, (kind, stmt, rel))
 
-    ok = missing = mismatch = 0
+    ok = missing = mismatch = own = 0
     for rel in PORT_FILES:
         p = LEAN / rel
         for name, (kind, stmt) in declarations(p.read_text(encoding="utf-8")).items():
+            if name in OWN_PROOFS:
+                own += 1
+                continue
             if name not in source:
                 print(f"MISSING IN FLT  {rel}: {name}")
                 missing += 1
@@ -147,8 +166,9 @@ def main() -> int:
                 print(f"    flt : {sstmt}")
 
     print(
-        f"\n{ok} statements identical, {mismatch} mismatched, {missing} missing "
-        f"({ok + mismatch + missing} port declarations checked)"
+        f"\n{ok} statements identical, {mismatch} mismatched, {missing} missing, "
+        f"{own} own-proof declarations exempted "
+        f"({ok + mismatch + missing + own} port declarations checked)"
     )
     return 0 if mismatch == 0 and missing == 0 else 1
 
