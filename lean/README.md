@@ -101,6 +101,7 @@ alongside `.lake/` in case it does.
 | `FLTForHuman/ModularCurve/FunctionFieldGeneration/Collapse.lean` | the §2 collapse | `functionFieldGeneration_iff_full_eq`, Layer 0's only theorem. FLT `Thm_…_iff_full_eq` line 6 / `S_…_iff_full_eq` 11–21 |
 | `FLTForHuman/ModularCurve/JqCoefficients.lean` | the low coefficients of `jq` | `coeff_jq_zero` (`744`), `coeff_jq_one` (`196884`). A *result*, not a definition: statement from base/004, proof by mathlib's pentagonal route (`tprod_one_sub_X_pow`) rather than FLT's cluster |
 | `FLTForHuman/ModularCurve/FunctionFieldGeneration/Spine.lean` | the conditional capstone | `Tight`/`Gen`/`Hall`, the proved strong induction `hall_all`, the structure `Inputs` (FLT's 7 significant remaining statements), and `functionFieldGeneration_of (h : Inputs) : FunctionFieldGeneration N` — proved, with no `sorryAx` |
+| `FLTForHuman/ModularForms/QExpansionPrinciple.lean` | R1, the level-one q-expansion principle | `coeff_eq_zero_of_hasSum_of_slash_invariant` (verbatim from its pin wrapper): a holomorphic, `SL₂(ℤ)`-invariant `q`-series is constant. Plus our `mem_adjoin_jq_of_poleOrderLE_zero`, the `n = 0` end of R1's Hauptmodul form and the wire test. The port's first analytic module: the analysis is mathlib's `ModularForm.eq_const_of_weight_zero`; of the pin's 14 helpers only `mdifferentiable` needed a proof, one (`coeff_unique`) kept its pin argument because mathlib's replacement blows up on the bare function type, and the rest became mathlib calls. FLT `S_ModularCurve_coeff_eq_zero_of_hasSum_of_slash_invariant` (186 lines) |
 
 The port of `#E[n](K) = n²` (math/005) has its own working record:
 [logs/card-torsion-port.md](logs/card-torsion-port.md) — dependency trace,
@@ -114,15 +115,21 @@ A second top-level plan, [PORTING-PhiGen.md](PORTING-PhiGen.md), inventories the
 It records the cone's math-content decomposition, the measurement that its
 headline 11,034-line count is ~1.6× inflated by the one-`S_`-file-per-theorem
 layout, and the decision to isolate the cone's only analytic input — the
-level-one q-expansion principle — as the next topic.
+level-one q-expansion principle — as the next topic. The mathematics of that
+input is in
+[base/013](../base/013-riemann-existence-and-the-q-expansion-principle.md),
+which separates the level-one q-expansion principle (R1, the analytic input)
+from the level-`N` degree statement (R2, reconstructed algebraically).
 
 `FLTForHuman/ModularCurve/` holds the definitions of `PORTING-FFG.md` Layer 0
 (the `jq` / `qExpand` / `qTwist` objects of math/010), plus the topic modules
 that followed. `FLTForHuman/FieldTheory/` is its generic companion: the
 mathematical engine the segment runs on, stated for an arbitrary `F ⊆ L` and
 mentioning no curve — the place a future `ModularCurve` theory puts its generic
-prerequisites, not a theory directory itself. Both sit beside
-`FLTForHuman/Elliptic/` under the **single**
+prerequisites, not a theory directory itself. `FLTForHuman/ModularForms/` is the
+`Φ_p`-splitting sub-effort's analytic area (R1, the level-one q-expansion
+principle): modular forms on `ℍ`, with no modular-curve object in sight. All
+three sit beside `FLTForHuman/Elliptic/` under the **single**
 `FLTForHuman` library — Layer 0 landed with no `sorry`, so the separate build
 target it used to have was no longer needed. There is no `import Mathlib` anywhere.
 **Layer 0 and all four topics are done**: twelve modules (68 declarations in 0a,
@@ -135,7 +142,7 @@ errors** with Zones A, B and C all bound. Its only remaining `sorry` is the
 deferred theorem's capstone. `PORTING-FFG.md` records why the theorem itself stays
 deferred; the consumer's tail carries the v4.34.0 friction list, and
 [spec/check_flt_statements.py](spec/check_flt_statements.py) diffs every port
-declaration's statement against the pinned source (150 of 150 identical, with the
+declaration's statement against the pinned source (151 of 151 identical, with the
 own-proof declarations exempted explicitly).
 
 Both Layer 0 work orders are gone: they were finished, their durable material
@@ -185,6 +192,18 @@ and the survey's own recommendation
 [logs/ffg-port.md](logs/ffg-port.md) §2f carries its measured cost and §8.4 the
 shrunk field table.
 
+The `Φ_p`-splitting / R1 sub-effort's first topic is complete:
+[TOPIC-r1-kernel.md](topics/phiGenSplitting/TOPIC-r1-kernel.md) named R1's
+analytic input as
+`ModularCurve.coeff_eq_zero_of_hasSum_of_slash_invariant` (base/013 §6's
+recommendation) in the new `FLTForHuman/ModularForms/` area, together with the
+`n = 0` corollary that is the wire test. It is the port's first module whose
+content is analysis on `ℍ`: mathlib's `ModularForm.eq_const_of_weight_zero`
+supplied the mathematics, the audit replaced almost all of the pin's 186-line
+helper block with public mathlib lemmas, and only the `MDiff`-from-`HasSum`
+bridge needed a proof of its own. [logs/phiGen-port.md](logs/phiGen-port.md)
+carries the measured cost and the two audit deviations.
+
 ## Where things live
 
 The documentation has four roles, and they are kept apart on purpose:
@@ -192,7 +211,7 @@ The documentation has four roles, and they are kept apart on purpose:
 | path | role |
 |---|---|
 | `PORTING-FFG.md`, `PORTING-PhiGen.md`, and any other plan at the top level | an **active plan** — the blueprint for work in progress |
-| `topics/<effort>/TOPIC-*.md` | **executed plans**: one per finished topic, carrying what was learned as well as what was done |
+| `topics/<effort>/TOPIC-*.md` | **work orders, then executed plans**: one per topic. New work orders open with the mandatory build-discipline block (playbook §3.11); finished ones keep the record of what was learned and what it cost |
 | `logs/` | the **linear record** of what happened, in order — `card-torsion-port.md` for the first port, `ffg-port.md` for this one |
 | `porting-playbook.md` | the **reusable method**, not tied to any one effort |
 | `spec/` | the **deliverable measures**: the consumer and the statement checker |
@@ -201,7 +220,11 @@ An executed plan is not deleted: it is the record of a decision and its cost, an
 `logs/` cross-references it. When a topic finishes, its plan moves from the top
 level into `topics/<effort>/`, and the log gains the entry that summarises it.
 `topics/functionFieldGeneration/` holds the four topics of the
-`functionFieldGeneration` effort.
+`functionFieldGeneration` effort, and `topics/phiGenSplitting/` holds the topics
+of its Φ_p splitting / R1 sub-effort
+([PORTING-PhiGen.md](PORTING-PhiGen.md)); its first work order,
+[TOPIC-r1-kernel.md](topics/phiGenSplitting/TOPIC-r1-kernel.md), is complete, and
+[logs/phiGen-port.md](logs/phiGen-port.md) is the sub-effort's record.
 
 ## Sources
 

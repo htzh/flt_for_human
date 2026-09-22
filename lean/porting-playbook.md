@@ -196,6 +196,56 @@ the port. It is the highest-value artefact for the next effort — more than the
 module list, because the module list is derivable from the code and the drift list
 is not.
 
+### 3.11 Bound every build; a heartbeat blow-up is not a slow build
+
+**This block is the first thing in every work order.** Build time is the one
+unbounded cost in this work: a session can lose minutes to a build that will
+never finish, and the loss compounds because it re-runs. Copy the following
+verbatim to the top of each new `TOPIC-*.md`:
+
+> **Build discipline — read this first.** Every build is bounded and a blow-up is
+> quarantined, not waited on. Measured with mathlib prebuilt: a green
+> `lake env lean <module>` of this size is **~4 s**, `lake build <module>` with
+> deps cached **~2–5 s**, and a `whnf`/heartbeat timeout at the default cap
+> **errors in ~15–20 s** — it does not hang.
+>
+> - Run every build under a bound: `timeout 60 lake env lean <file>`,
+>   `timeout 120 lake build <module>`. Non-return at 60 s is a blow-up.
+> - **Quarantine immediately.** On a timeout, comment the declaration out and
+>   bisect, or reproduce in the gitignored `Scratch.lean` with
+>   `set_option diagnostics true`. Do not re-run the same file hoping for a
+>   different result.
+> - **Never raise `maxHeartbeats`.** The cap already fails in under 20 s; raising
+>   it turns that into an unbounded wait. The usual cause is a `FunLike`-quantified
+>   lemma instantiated at a bare function type (`DFunLike.coe` unfolds without
+>   bound) — restate it over the concrete function instead.
+
+The measurements behind it, on this machine with mathlib prebuilt (`v4.34.0`):
+
+| command | expected |
+|---|---|
+| `lake env lean <module>` on a green port module (~200–350 lines) | **~4 s** |
+| `lake build <module>` with dependencies cached | **~2–5 s** |
+| `lake build` of the whole `FLTForHuman` after one file edit | under a minute |
+| a `whnf`/heartbeat blow-up at the default cap | **~15–20 s**, then an error |
+
+The failure mode is not a long build: the default 200 000-heartbeat cap fires in
+under 20 s. The trap is **raising `maxHeartbeats`** — it converts an 18-second
+error into a multi-minute wait for the same non-termination. Never do it to "let a
+build finish". Instead:
+
+- run every build under a bound (`timeout 60 lake env lean <file>`) and treat
+  non-return at 60 s as a blow-up;
+- on a `whnf`/heartbeat timeout, find the offending declaration by bisection
+  (comment it out; use `set_option diagnostics true` in a *copy*), not by waiting;
+- the usual cause is a lemma quantified over `FunLike F ℍ ℂ` (or another
+  higher-order instance) instantiated at a bare function type, which unfolds
+  `DFunLike.coe` without bound. The worked example is in
+  `topics/phiGenSplitting/TOPIC-r1-kernel.md`'s header:
+  `UpperHalfPlane.qExpansion_coeff_unique` cost 5.1M `DFunLike.coe` reductions at
+  `ℍ → ℂ`, and the fix was to restate its content over the concrete function, not
+  to raise the cap.
+
 ## 4. v4.34.0 drift checklist
 
 Renames and shape changes hit during this port, with the replacement:

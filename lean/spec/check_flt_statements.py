@@ -58,6 +58,12 @@ SOURCES = [
     # The peel: `ModularCurve.relfinrank_modularFunctionField`, now a public
     # lemma in `Defs/Fields.lean` beside the fields it concerns.
     "Theorems/Thm_ModularCurve_relfinrank_modularFunctionField.lean",
+    # R1's constancy kernel, `FLTForHuman/ModularForms/QExpansionPrinciple.lean`.
+    # Its statement is the pin wrapper verbatim; the pin's proof is the `S_` file
+    # of the same name (namespace `ModularCurve.Realized`), whose 14 helpers are
+    # private and either replaced by public mathlib lemmas or re-derived privately
+    # in the port (see the module header). The wrapper is the comparable copy.
+    "Theorems/Thm_ModularCurve_coeff_eq_zero_of_hasSum_of_slash_invariant.lean",
 ]
 
 PORT_FILES = [
@@ -73,6 +79,7 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/FunctionFieldGeneration/Collapse.lean",
     "FLTForHuman/ModularCurve/JqCoefficients.lean",
     "FLTForHuman/ModularCurve/FunctionFieldGeneration/Spine.lean",
+    "FLTForHuman/ModularForms/QExpansionPrinciple.lean",
 ]
 
 # Declarations whose *statement* has no FLT source, so there is nothing to diff:
@@ -101,6 +108,15 @@ OWN_PROOFS = {
     "Hall",
     "Inputs",
     "functionFieldGeneration_of",
+    # `mem_adjoin_jq_of_poleOrderLE_zero` is ours, like `coeff_jq_zero` /
+    # `coeff_jq_one`: it states the `n = 0` end of R1's Hauptmodul form
+    # (base/013 §3, §5.5) as a corollary of the transcribed kernel. FLT has no
+    # declaration for it — the pin's nearest statement,
+    # `mem_adjoin_jq_of_hasSum_of_slash_invariant`, drops the pole bound and is a
+    # different (topic 7) theorem, reached through pole killing — so there is no
+    # name/statement to diff. See
+    # `FLTForHuman/ModularForms/QExpansionPrinciple.lean`.
+    "mem_adjoin_jq_of_poleOrderLE_zero",
 }
 
 # Declaration keywords. `instance` matters for PhiGen; `structure` for Polynomial.

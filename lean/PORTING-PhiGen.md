@@ -1,19 +1,28 @@
 # Blueprint: the Φₚ splitting cone — `PhiGen.splits_prime_at_slot`
 
-**Status: analysis done (2026-09-21); no port started.** This file is the
-math-content inventory of the 44-node cone below
+**Status: analysis done; T5 (R1's constancy kernel) landed, T6 next
+(2026-09-21).** This file is the math-content inventory of the 44-node cone below
 `ModularCurve.PhiGen.splits_prime_at_slot`, the measurement that the headline
 line count overstates it by ~1.6×, and the plan for the next topic: isolating
-the cone's one genuinely analytic input, the **level-one q-expansion principle**
-— the Riemann-existence-flavoured step the FLT proof substitutes for the
-classical function-theoretic argument. The topic is sketched here as work orders
-because it is already more than one; if it grows, it splits out into
+the cone's one genuinely analytic input, the **level-one q-expansion principle**.
+That input's mathematics is now written up in
+[base/013](../base/013-riemann-existence-and-the-q-expansion-principle.md) (the
+R1/R2 separation and the exact declaration chain); this file is the port-side
+companion — sizes, work orders, re-route options — and §5 records T5's measured
+outcome. The topic is sketched here as work orders because it is already more
+than one; if it grows, it splits out into
 `topics/phiGenSplitting/TOPIC-*.md` and this file keeps only the decision.
 
 Companion records:
 
 - [math/010](../math/010-function-field-generation.md) — the mathematics of the
   target. Its §3 is the splitting statement, §4 the descent.
+- [base/013](../base/013-riemann-existence-and-the-q-expansion-principle.md) —
+  the mathematics of record for the analytic input. It separates the two
+  Riemann-existence facts (R1, level-one q-expansion; R2, degree and
+  connectedness at level `N`), shows R2's algebraic substitute, and walks the
+  exact declaration chain this note plans. §3–§4 here are the port-side summary
+  of it; do not re-derive it.
 - [base/006](../base/006-the-modular-equation.md) — the modular equation in
   prose: §3 the cover and the two invariances, §6 the five-step Lean route.
 - [PORTING-FFG.md](PORTING-FFG.md) — the parent effort. Its §7.1 cuts this cone,
@@ -54,12 +63,16 @@ stands.
 4. **The next topic is (c), the level-one q-expansion principle.** It is the one
    input with no mathlib-free substitute in the cone, and isolating it as a
    standalone theorem is what lets the algebra of (a)/(b)/(d)/(e) be re-routed
-   (§5, §6).
+   (§5, §6). [base/013](../base/013-riemann-existence-and-the-q-expansion-principle.md)
+   supplies the mathematics: R1 is the analytic input, specialized to `X(1)`;
+   R2 is reconstructed algebraically by (a)/(d)/(e). This note keeps the port
+   side — sizes, work orders, re-route options.
 
-**What is not settled.** Whether (c) as a standalone theorem actually simplifies
-the algebra, and whether the right statement of (c) is the "holomorphic
-invariant q-series is constant" kernel or the full
-`mem_adjoin_jq_of_realL_invariant` headline. §5–§6 carry both sides.
+**What is not settled.** Whether (c) as a standalone theorem actually shortens
+the algebra. The *statement* question is settled: base/013 §6 recommends naming
+R1's kernel and stating the headline on top, which is §5's c1/c2. And the
+analytic cost is now known to be small: base/013 §5.4 reduces the whole bucket's
+analysis to one mathlib theorem, so the open risk is plumbing, not mathematics.
 
 ## 1. The cone in one page
 
@@ -137,17 +150,23 @@ several more results (§3(e)).
 Six separable pieces. "Bucket" is the deduplicated sum over the piece's node
 files; the representative is the most characteristic declaration, and its own
 file is often much smaller (the analytic bucket's headline,
-`mem_adjoin_jq_of_phiGenDescends`, is 47 lines and carries 1,910 lines of
+`mem_adjoin_jq_of_phiGenDescends`, is 47 lines and carries 1,909 lines of
 closure).
 
 | piece | what it proves | representative | ≈ bucket | analysis on ℍ? |
 |---|---|---|---|---|
 | (a) | coefficients of `phiProd` descend to `ℚ((q))` | `exists_phiGenDescends` | 315 | no |
 | (b) | the descended family is integral, monic, degree `ℓ+1`, pole ≤ `ℓ+1` | `intCoeffs`, `aeval_jq_intCoeffs_descent`, `phiProd_conj_coeff_*`, the 328-block | 1,270 | no |
-| (c) | the descended family lies in `ℚ[j]` | `mem_adjoin_jq_of_phiGenDescends`, then the Hecke and `HasSum` modules | 1,909 | **yes** |
+| (c) | the descended family lies in `ℚ[j]` — **R1** | `mem_adjoin_jq_of_phiGenDescends`, then the Hecke and `HasSum` modules | 1,909 | **yes** |
 | (d) | assembly + uniqueness of the level-`ℓ` modular polynomial | `exists_modularPolynomialData_coeff_eq`, `eq_of_prime`, `finrank_adjoin_jqN_eq_of_prime`, `exists_phiIrreducible_evalSymm` | 500 | no (inherits c) |
 | (e) | irreducibility, symmetry, non-membership | `one_le_coeff_jq` plus the 895-line block | 1,280 | no |
 | (f) | the splitting statement and its wrapper | `splits_of_prime`, `splits_of_coeff_evalAtJ_eq` | 400 | no |
+
+In [base/013](../base/013-riemann-existence-and-the-q-expansion-principle.md)'s
+notation, **(c) is R1** — the level-one q-expansion principle — and **(a), (d),
+(e) are the algebraic substitute for R2**, the degree/connectedness statement
+about `X₀(N) → X(1)`. The whole cone is thus "R2 by algebra, R1 by analysis",
+and only the R1 bucket leaves the algebraic world.
 
 The six buckets sum to ≈5,675; the remaining ≈136 lines are the small interface
 nodes (`coeffMap_qExpand`, `coeffEmb_*`, `dedekindPsi_prime`, `aeval_jq_eq_zero`,
@@ -222,13 +241,19 @@ The chain, bottom-up:
    $`q`$-expansions on $`\mathbb{H}`$, with $`j = E_4^3/\Delta`$.
 2. **`RealL` and its closure** — a hand-rolled predicate saying a Laurent series
    is realized by a function on $`\mathbb{H}`$; closed under
-   `+ - *` and finite products (`hasSum_qParam_mul{,_laurent}`).
+   `+ - *` and finite products (`hasSum_qParam_mul{,_laurent}`). The predicate
+   carries a general period $`h`$ because the Hecke translates change it;
+   $`h = 1`$ is used only at the final constancy step (base/013 §5.1).
 3. **Hecke translates** — `hasSum_qParam_heckeMatrix_smul` and
    `hasSum_qParam_heckeDiagMatrix_smul`: the substitutions
    $`\tau \mapsto (\tau+b)/\ell`$ and $`\tau \mapsto \ell\tau`$ act on the
    $`q`$-expansion by the corresponding coefficient twist, and `cosetPoly_smul`
    plus `PhiGenDescends.hasSum_cosetPoly_coeff` show the product's coefficients
-   are $`\mathrm{SL}_2(\mathbb{Z})`$-invariant.
+   are $`\mathrm{SL}_2(\mathbb{Z})`$-invariant. This is *why level one suffices*:
+   the Hecke-coset construction makes the descended coefficients level-one
+   invariant, so the level-$`N`$ q-expansion principle — which would need the
+   compactness and connectedness of $`X_0(N)`$ — is never invoked
+   (base/013 §4.3, §6).
 4. **`exists_aeval_jq_sub_holomorphicAtInfty`** — pure Laurent algebra: $`j`$
    has a simple pole, so a series with pole order $`\le n`$ differs from a
    polynomial in $`j`$ of degree $`\le n`$ by something holomorphic at $`\infty`$.
@@ -242,72 +267,95 @@ The chain, bottom-up:
    implies $`f \in \mathbb{Q}[j]`$. `mem_adjoin_jq_of_phiGenDescends` applies it
    to each $`c_k`$.
 
-**What this is classically.** Step 5 is the level-one *q-expansion principle*:
-the only holomorphic weight-0 modular form of level one is constant, equivalently
-that $`X(1)`$ has genus $`0`$ and the $`q`$-expansion is a coordinate at the
-cusp. It is the shadow of the valence formula / Riemann-surface theory of
-$`X(1)`$, and it is what proves a coefficient that is *a priori* a rational
-function of $`j`$ is actually a *polynomial* — the property the datum assembly
-in (d) needs.
+**What this is classically.** Step 5 is R1 of
+[base/013](../base/013-riemann-existence-and-the-q-expansion-principle.md), the
+level-one *q-expansion principle*: a holomorphic, bounded,
+$`\mathrm{SL}_2(\mathbb{Z})`$-invariant function on $`\mathbb{H}`$ is constant,
+equivalently the only holomorphic weight-zero level-one modular form is
+constant. Classically it is Liouville on the compact curve $`X(1)`$ — the
+Hauptmodul property of $`j`$ — and it is what proves a coefficient that is *a
+priori* a rational function of $`j`$ is actually a *polynomial*, the property the
+datum assembly in (d) needs.
 
-**One framing caution, recorded deliberately.** math/010 §4 says the FLT proof is
-"circuitous without Riemann existence" in the sense of the classical statement
-"$`j`$ is a function of degree $`\psi(M)`$ on $`X_0(M)`$", which the proof
-replaces by the root list plus the unique-common-root principle. That is a
-*different* gap from (c): it is a degree statement about $`X_0(N) \to X(1)`$,
-filled by (a)/(d)/(e), whereas (c) is a statement about $`X(1)`$ itself. Both are
-"specialized Riemann existence" statements in spirit, and the next topic should
-pin which one it is proving before it starts. The recommendation here is (c),
-because (c) is the one with no algebraic substitute and the one whose isolation
-is a prerequisite for any re-route.
+**The framing question is settled by base/013.** math/010 §4's "circuitous
+without Riemann existence" refers to **R2** — the degree-$`\psi(M)`$ statement
+about $`X_0(M) \to X(1)`$ — which the cone replaces by the root list and the
+unique-common-root principle, i.e. by (a), (d) and (e). **(c) is the different,
+level-one statement R1**, and base/013 §6 establishes that the two have different
+status: R2 is not an analytic input of the formal proof, while R1 has no known
+algebraic substitute. So (c) is the right next topic, and the earlier caution
+("pin which statement is meant before starting") is discharged. base/013 §5.4
+also localizes the analysis inside the 1,909-line bucket: the analytic content is
+the single mathlib theorem `ModularForm.eq_const_of_weight_zero`; the rest is
+bookkeeping turning `HasSum` on $`\mathbb{H}`$ into a power series on the disc
+and back.
 
-## 5. The next topic: isolate (c)
+## 5. The topic sequence: R1 in four work orders
 
-**Goal.** One mathlib-only module that states and proves the level-one
-q-expansion principle and its corollary for the descended family, with the
-analytic step isolated and named, so that the algebra of (a)/(b)/(d)/(e) can be
-attempted without it.
+**Decided (2026-09-21).** R1 is not one work order. Sized from the pin's own file
+lengths and the parent effort's calibration (its topics came in at 207–494 port
+lines, one goal round each), it is **three topics**, with the cone application a
+fourth:
 
-Proposed landing spot (name is the session's choice):
-`FLTForHuman/ModularCurve/QExpansionPrinciple.lean`, beside
-`Defs/PhiGen.lean`.
+| topic | deliverable | pin material | pin lines | work order |
+|---|---|---|---|---|
+| **T5 (done)** | the constancy kernel, plus the `n = 0` corollary | `coeff_eq_zero_of_hasSum_of_slash_invariant` | 186 | [TOPIC-r1-kernel.md](topics/phiGenSplitting/TOPIC-r1-kernel.md) |
+| **T6 (next)** | the analytic model of `jq` | `qExpansion_*`, `hasSum_jNum_qParam`, `hasSum_jq_qParam`, `E4_cube_div_discriminant_smul` | ~630 | — |
+| T7 | the Hauptmodul form | `hasSum_qParam_mul{,_laurent}`, `exists_aeval_jq_sub_holomorphicAtInfty`, `mem_adjoin_jq_of_hasSum_of_slash_invariant` | ~370 | — |
+| T8 | the cone application: the descended coefficients lie in `ℚ[jq]` | the Hecke translates, `cosetPoly_smul`, `hasSum_cosetPoly_coeff`, `mem_adjoin_jq_of_phiGenDescends` | ~680 | — |
 
-**Work orders, in dependency order.** (Sketched here; if the topic is picked up
-these become `topics/phiGenSplitting/TOPIC-*.md`.)
+R1 = T5–T7; T8 is the cone's (c) and needs all three. The split is by
+mathematical object, not by file: T5 is generic modular-form analysis with no
+`jq` in it; T6 is the formal↔analytic bridge for `jq`; T7 is the pole-bounded
+membership statement that completes R1; T8 is the Hecke-coset consumer.
 
-- **c1 — pick the interface.** Decide between the minimal kernel
-  (`holomorphic SL₂(ℤ)-invariant q-series is constant`) and the headline
-  (`mem_adjoin_jq_of_realL_invariant`). Recommendation: port the kernel, state
-  the headline on top. *Uncertainty:* the FLT `RealL` predicate may be
-  avoidable entirely by stating the kernel directly over `HasSum`; measure.
-- **c2 — the analytic kernel.** Prove c1's kernel. This is the one genuine
-  analysis: package the function as a weight-0 `ModularForm`, use
-  `ModularForm.eq_const_of_weight_zero`, and check the boundedness-at-cusps
-  obligation. *Tradeoff:* this is a transcription of mathlib-usable material,
-  not new mathematics; the value is the *statement* and its placement, not the
-  proof.
-- **c3 — pole killing.** `exists_aeval_jq_sub_holomorphicAtInfty`; pure Laurent
-  algebra, ~84 lines, likely the cheapest work order and already close to the
-  port's `Defs/Jq.lean` vocabulary.
-- **c4 — the headline.** `mem_adjoin_jq_of_realL_invariant` = c2 + c3.
-- **c5 — the coset application.** The Hecke translate lemmas,
-  `cosetPoly_smul`, `hasSum_cosetPoly_coeff`, and
-  `mem_adjoin_jq_of_phiGenDescends`. *Uncertainty:* whether the Hecke translates
-  are needed at all, or whether a more direct realization of the coset product's
-  coefficients shortens this. This is the largest and least predictable order.
+**T5 is done** (2026-09-21, one goal round). Its work order was
+[topics/phiGenSplitting/TOPIC-r1-kernel.md](topics/phiGenSplitting/TOPIC-r1-kernel.md),
+now the executed plan. It delivered `coeff_eq_zero_of_hasSum_of_slash_invariant` —
+R1's minimal named form, per base/013 §6 — in the new
+`FLTForHuman/ModularForms/` area, plus the own-proof corollary
+`mem_adjoin_jq_of_poleOrderLE_zero` (the `n = 0` end of T7's headline and the wire
+test). The analytic risk was as low as base/013 §5.4 said: the content is
+mathlib's `ModularForm.eq_const_of_weight_zero`, and the §2.1 audit held — of the
+pin's 14 helpers, `tendsto_atImInfty`, `isBoundedAtImInfty` and
+`norm_qParam_lt_one_of_pos` became public mathlib calls, `discFun` and its four
+lemmas and `periodic` were dropped, and only `mdifferentiable` needed a proof
+(plus its two mathlib-private disc-route dependencies, re-derived). One audited
+substitution did **not** go through: `UpperHalfPlane.qExpansion_coeff_unique`
+states the pin's `coeff_unique` but its `{F : Type*} [FunLike F ℍ ℂ]` signature
+instantiates at the bare function type `ℍ → ℂ` and unfolds `DFunLike.coe`
+~5.1M times (a deterministic `whnf` timeout at both the default 200 000 and the
+package's 4 000 000 heartbeat caps), so the pin's 26-line argument was ported
+instead. The port is 332 lines over two public declarations and six private
+helpers; `#print axioms` on both public declarations is clean, the statement
+checker is at 151 (up 1, 0 mismatched), and the measured cost is in
+[logs/phiGen-port.md](logs/phiGen-port.md).
 
-**Success test.** `#print axioms` clean; the analytic kernel is a single named
-declaration whose statement a reader can compare with the classical
-q-expansion principle; the consumer
-([spec/ModularCurveConsumer.lean](spec/ModularCurveConsumer.lean)) gains a Zone
-item binding it.
+**T6 is next: the analytic model of `jq`.** Its work order is unwritten. The
+T5 finding sharpens its audit: the `qExpansion` API is public and cheap, but
+watch for the same `FunLike`/bare-function-type defeq trap when the `HasSum` of
+`jq` is compared with a mathlib presentation — pass bundled forms where the
+statement allows, and check build time, not just success.
+
+**T6 should check mathlib first.** mathlib has `qExpansion` for modular forms,
+`EisensteinSeries/QExpansion.lean` and `discriminant_qExpansion_*`
+(`LevelOne/DimensionFormula.lean`), and the `jq`-coefficients topic already
+showed mathlib's power-series route can replace one of FLT's clusters (a 47×
+price error). If that substitution works here, T6 may be much smaller than 630
+lines — the route-check the parent effort's §7.7 insists on.
 
 **Cost honesty.** The cone's own `jq`-coefficients precedent is the warning:
-math/010 priced the `744`/`196884` coefficients against this same 11,034-line
-cluster and they turned out to be a 237-line standalone file (47× error). (c)'s
-1,909 lines are a *route* count, not a proof budget; c2/c3 could be small, or
-c5 could be most of the 1,909. The playbook rule applies: route-check each
-order before pricing it.
+math/010 priced the `744`/`196884` coefficients against the same 11,034-line
+cluster and they turned out to be a 237-line standalone file. (c)'s 1,909 lines
+are a *route* count, not a proof budget, and base/013 lowers the analytic risk to
+near zero — the analysis is one mathlib theorem. The budget is the bookkeeping
+(T5, T7) and the realization (T6); T8 is the largest and the one to measure
+first.
+
+**Success test.** `#print axioms` clean; the kernel is a single named declaration
+whose statement a reader can compare with the classical q-expansion principle;
+the `n = 0` corollary is a genuine cross-module composition over the port's
+`jq`/`PoleOrderLE`.
 
 ## 6. If (c) lands: the algebra re-route options
 
@@ -329,17 +377,36 @@ topic rather than a faithful port of the cone.
   general "q-expansion integrality" lemma over the port's `Defs/Jq.lean`
   vocabulary might discharge it more directly. *Tradeoff:* touches the 239-line
   integrality file and the 308-line descent file; unknown whether it is shorter.
-- **Option 3 — strengthen (c) and skip the descended family.** If (c) is stated
-  for Laurent series directly — "a series fixed by both the twist and the Galois
-  action, with pole order $`\le n`$, lies in $`\mathbb{Z}[j]`$" — then the
-  intermediate rationality of (a) and the pole bounds of (b) may be avoidable.
-  *Tradeoff:* a stronger, less classical statement; the analytic input is no
-  longer recognizable as the q-expansion principle, which defeats part of the
-  point. Recommend against unless Options 1–2 stall.
+- **Option 3 — strengthen (c) and skip the descended family.** *Constrained by
+  base/013 §6:* any restatement that drops the realization on $`\mathbb{H}`$ is
+  false. `f = 1 + q` is a nonconstant power series in $`\mathbb{Q}((q))`$, hence
+  not a polynomial in `jq`, and it is the `HasSum` hypothesis that rules it out.
+  Adding twist- and Galois-invariance does not repair it either: `q^ℓ` is
+  twist-fixed, rational and holomorphic at $`\infty`$, yet not in
+  $`\mathbb{Z}[j]`$. So a strengthened (c) must keep the realization, at which
+  point it is close to the existing headline and there is little to gain.
+  *Recommend against.*
 - **Option 4 — re-route the *caller*.** PORTING-FFG §7.7's third way: make Φₚ an
   eighth `Inputs` field and prove the seven fields from it. This note does not
   change that arithmetic; it only says the field's *content* is (f) and that (c)
   is what a later re-route would need.
+- **Ruled out: FLT's algebraic Riemann–Roch.** The `AlgebraicCurve` layer proves
+  a Riemann–Roch for function fields with *no analysis at all* — via adic
+  completions and Tate residues, or via Stichtenoth's repartition route
+  ([studies/flt-function-field-theory-and-mathlib.md §13](../studies/flt-function-field-theory-and-mathlib.md)).
+  It is still not a substitute for (c), for three measured reasons: it is absent
+  from this cone (0 `AlgebraicCurve` nodes); using it would be circular, because
+  FLT's modular `CurveModel`s are built and proved *downstream* of
+  `functionFieldGeneration` and cite `splits_prime_at_slot`
+  ([studies/flt-ffg-field-theory.md §7](../studies/flt-ffg-field-theory.md));
+  and it is orthogonal in kind — RR is a dimension count on an *algebraic* curve,
+  while R1 is the *analytic* constancy-and-realization statement on `X(1)`. To
+  apply RR one must already have the algebraic model of `X(1)` and know that the
+  q-series is a function on it, which is the analytic comparison R1 supplies; the
+  one independent curve model, the automorphic field over `ℂ`, is unbridged to
+  the q-expansion side. The studies locate the missing analysis exactly where
+  base/013 does: Riemann existence and a complex model of `X₀(N)` compared with
+  the q-expansion field — not the algebraic theory of curves.
 
 **Shared tradeoff.** The parent effort's measured lesson is that cost tracks the
 route, not the subtree. None of Options 1–3 should be started before the
@@ -350,6 +417,10 @@ standing rule).
 
 - **math/010 §3** states the splitting and gives the classical root description
   ($`p+1`$ cyclic isogenies). It is accurate and is the statement of record.
+- **base/013** is the mathematics of record for (c): §3 names R1 and R2, §4
+  shows R2's algebraic substitute, §5 walks the exact declaration chain, and §6
+  answers the specialization question. §3–§4 here are the port-side summary and
+  should not be read in place of it.
 - **base/006 §3** gives the cover, the monodromy and the two invariances —
   exactly (a) — and explicitly says the proofs "expand in the nome, they never
   use loops".
@@ -362,23 +433,24 @@ standing rule).
   rational function". In the Lean these are two independent facts:
   `exists_modularPolynomialData_coeff_eq` *takes*
   $`c_k \in \mathbb{Q}[j]`$ as a hypothesis, and the pole bound only bounds the
-  degree of the witnessing polynomial. The membership is (c), the analytic
-  kernel, and it is 1,909 lines — a third of the cone. A reader following the
-  note literally would walk past that third.
+  degree of the witnessing polynomial. The membership is (c): its *analysis* is
+  one mathlib theorem, but the bucket it sits in is 1,909 lines, a third of the
+  cone, because of the realization and Hecke-coset bookkeeping around it. A
+  reader following base/006 §6.3 literally would walk past that third.
 - **Hidden results.** The 895-line block contains `aeval_jq_ne_jqN` and
   `jqN_not_mem_adjoin_jq`, which are §5–§6 subject matter but are not graph
   nodes. A re-route should decide deliberately whether to expose them.
 
 ## 8. Open questions and uncertainties
 
-- **Is (c) the right "Riemann existence" statement?** See §4's caution. (c) is
-  the level-one q-expansion principle; the degree-$`\psi(M)`$ statement math/010
-  §4 has in mind is a different gap, filled by (a)/(d)/(e). A session that starts
-  the topic should state which it is proving; the recommendation is (c) because
-  it has no algebraic substitute.
-- **Does (c) actually unblock a shorter algebra?** Untested by design. §6 lists
-  four options; the first act of the topic after c2–c4 is to count the affected
-  nodes' proof lines before committing.
+- **Is (c) the right "Riemann existence" statement? — answered by base/013 §6:
+  yes, R1 specialized to `X(1)`.** R2 (degree `ψ(N)`, connectedness) has an
+  algebraic substitute in the cone and is not an analytic input of the formal
+  proof. What remains is only to pick R1's minimal form (c1).
+- **Does (c) actually unblock a shorter algebra?** Untested, but base/013 lowers
+  the stakes: the analysis is one mathlib theorem, so the re-route options of §6
+  are about saving algebra, not about analytic cost. §6 lists four; the first act
+  after c2–c4 is to count the affected nodes' proof lines before committing.
 - **Should `PORTING-FFG.md` §7.1's 11,034 be corrected?** Recommend a one-line
   pointer to §2 of this note rather than editing the parent's number, which is
   correct as a structural file count.
@@ -390,6 +462,10 @@ standing rule).
 - **The interface tier.** PORTING-FFG §2.1 records `hasSum_qParam_mul_laurent`
   (indeg 24) as an unexposed ≥5-indegree declaration. If (c) is ported, it may
   also discharge that interface item; check before building it separately.
+- **mathlib version drift.** base/013 cites mathlib `v4.33.0` (FLT's pin); the
+  port is on `v4.34.0`. The declarations it names all exist in v4.34.0 — only the
+  private `levelOne_nonpos_wt_const` moved (line 89 → 91). Re-pin any citation to
+  `v4.34.0` when the topic starts.
 
 ## 9. Links
 
@@ -405,9 +481,12 @@ FLT sources at the pinned sha `aa2d8b3`:
 - [P2M/Sol/S_ModularCurve_PhiGen_evalSymm_of_splits.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_PhiGen_evalSymm_of_splits.lean) — the 895-line shared block
 
 Companion notes: [math/010](../math/010-function-field-generation.md),
+[base/013](../base/013-riemann-existence-and-the-q-expansion-principle.md) (the
+mathematics of the analytic input),
 [base/006](../base/006-the-modular-equation.md),
 [base/005](../base/005-cyclic-isogenies-and-level.md),
-[base/004](../base/004-the-j-invariant.md).
+[base/004](../base/004-the-j-invariant.md),
+[base/003](../base/003-no-level-2-weight-2-cusp-forms.md).
 
 Background: F. Diamond and J. Shurman, *A First Course in Modular Forms*,
 GTM 228, §5.2; S. Lang, *Elliptic Functions*, GTM 112, Ch. 5; G. Shimura,

@@ -6,6 +6,12 @@ first: what *this* effort did, what it cost, and what it decided. Lessons that
 generalize go to [porting-playbook.md](../porting-playbook.md); decisions and
 measurements stay here.
 
+The Φₚ splitting / R1 sub-effort that gates the deferred theorem
+([PORTING-PhiGen.md](../PORTING-PhiGen.md)) keeps its own measured record in
+[phiGen-port.md](phiGen-port.md); its first topic, R1's constancy kernel, is
+complete. It shares no declaration with this effort, so its cost is not counted
+in the tables below.
+
 The blueprint is [PORTING-FFG.md](../PORTING-FFG.md) — it holds the scope
 argument, the deferral menu, and the §7 plan for the theorem. The topic work
 orders are [TOPIC-jq-coefficients.md](../topics/functionFieldGeneration/TOPIC-jq-coefficients.md),
