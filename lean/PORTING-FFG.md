@@ -1,21 +1,22 @@
 # Blueprint: `ModularCurve.functionFieldGeneration` — Layer 0
 
-**Status: Layer 0 and all three topics are done.** The eleven modules of
+**Status: Layer 0 and all four topics are done.** The eleven modules of
 `lean/FLTForHuman/ModularCurve/` — 68 declarations in 0a, 69 in 0b, 24 in
-`JqCoefficients.lean` and 27 in `Spine.lean`, plus 9 public interface lemmas added
+`JqCoefficients.lean` and 25 in `Spine.lean`, plus 9 public interface lemmas added
 to `Defs/Laurent.lean` and `Defs/Jq.lean` — are green with zero warnings and
-zero `sorry`, and the deliverable measure `spec/ModularCurveConsumer.lean` reports
+zero `sorry`, as is the new generic module `FLTForHuman/FieldTheory/CommonRoot.lean`,
+and the deliverable measure `spec/ModularCurveConsumer.lean` reports
 **0 errors**: Zones A, B and C are all bound. Its only remaining `sorry` is the
 deferred theorem's capstone, now the *unconditional* counterpart of the proved
 conditional capstone `functionFieldGeneration_of (h : Inputs)`. Layer 0's two work
-orders and all three topics each finished in a single goal round, and
+orders and all four topics each finished in a single goal round, and
 [logs/ffg-port.md](logs/ffg-port.md) carries the record, the measured proof cost,
 and the calibration. This
 file previously planned a sorry-bounded port of the whole theorem; that is now
-deferred and kept only as a menu in §7, with the remainder reduced to the 8
+deferred and kept only as a menu in §7, with the remainder reduced to the 7
 fields of `Inputs` (see §7.4). The scope decision and its evidence are
 §2, and the v4.34.0 friction list is at the tail of the consumer file, with
-`spec/check_flt_statements.py` diffing all 146 transcribed port statements against
+`spec/check_flt_statements.py` diffing all 150 transcribed port statements against
 the pin (plus the own-proof declarations, exempted explicitly).
 
 Companion records:
@@ -451,7 +452,7 @@ question *before* the 1,000 lines are transcribed: it is used for the pole and f
 the ring maps, and it is not used for the classical coefficients. Those were
 expected to need the modular-form q-expansion cluster inside the 44-node subtree
 §7.1 designates an input; the
-[`jq`-coefficients topic](TOPIC-jq-coefficients.md) then showed that mathlib's
+[`jq`-coefficients topic](topics/functionFieldGeneration/TOPIC-jq-coefficients.md) then showed that mathlib's
 pentagonal theorem reaches them from the Definitions layer alone (via
 `PowerSeries.WithPiTopology.tprod_one_sub_X_pow`), and closed Zone C without
 touching the cluster. FLT's own proof of these coefficients turns out to be a
@@ -602,9 +603,11 @@ structure whose fields are the significant lemmas, so the artifact contains no
 `sorryAx`. The field set was derived from the 24-node manifest by pruning to the
 10 the spine actually consumes; what dropped out is the 13 nodes that occur only
 inside the proofs of the 10 (assuming a node discharges its dependencies) plus the
-already-proved §2 collapse. Topic 3 then discharged two of the ten
+already-proved §2 collapse. Topic 3 discharged two of the ten
 (`dedekindPsi_mul_of_coprime`, `dedekindPsi_prime_pow`, now public in
-`Defs/Jq.lean`), so the structure stands at **8** fields. The field list, with a
+`Defs/Jq.lean`) and the generic-kernel topic discharged a third
+(`relfinrank_modularFunctionField`, now public in `Defs/Fields.lean`), so the
+structure stands at **7** fields. The field list, with a
 one-line reason each, is [logs/ffg-port.md](logs/ffg-port.md) §8.4. Freeze
 `Inputs` before Layer 3 starts; input creep is the main threat to such a
 deliverable, and a freeze is the only mechanism that catches it.
@@ -637,9 +640,12 @@ on the menu above.
   descent is the unique-common-root principle, the non-membership lemmas are
   "constant on enough points", and the $`p+1`$ / $`p`$ degree steps are the
   cyclic-automorphism criterion. `grep` over `Mathlib/` finds none of the three,
-  none is in the port, and all three are stated over an arbitrary field extension.
-  They are the natural first topic of a bottom-up effort, and the layer the spine
-  currently assumes through `Inputs`.
+  and all three are stated over an arbitrary field extension.
+  They were the natural first topic of a bottom-up effort, and the layer the spine
+  assumed through `Inputs`; the generic-kernel topic has since built them in
+  `FLTForHuman/FieldTheory/CommonRoot.lean` (statements verbatim from their
+  `Theorems/` wrappers, mathlib-only, with the three concrete instantiations as
+  its wire test), so they are in the port now.
 - **The §7.3 line counts are a loose upper bound.** The three `S_Polynomial_*`
   files are one file; `jqN_prime_not_mem_full` / `minpoly_jqN_map_eq_prod_slots`
   (2,002 lines each) and `jqN_div_mem_modularFunctionField` /
@@ -704,7 +710,7 @@ worth building first, and the survey argues that it is.
   one place where a mistake is silent until much later. It is now mechanically
   checked: `spec/check_flt_statements.py` extracts every port declaration's
   statement and diffs it against the pinned source —
-  **146 of 146 identical, 0 mismatched, 0 missing** — and the consumer's
+  **150 of 150 identical, 0 mismatched, 0 missing** — and the consumer's
   cross-module compositions remain the runtime wire test.
 - **If the theorem is revisited**, the first act is the §2 measurement — one `S_`
   module, named node's proof lines versus helpers — recorded here. Until it is

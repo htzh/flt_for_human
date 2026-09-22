@@ -10,16 +10,16 @@ unchanged; the consumer is unchanged at 0 errors / one `sorry`. Exposure was
 **free** — every lemma transcribed on the first try, the only wrinkle being that
 the pin carries `coeffEmb_qExpand` twice (wrapper with explicit `L`, `W1` copy
 with implicit `K`). The interface table and measured cost are in
-[logs/ffg-port.md](logs/ffg-port.md) §2e; the nine carry **520 of the cone's 946**
+[logs/ffg-port.md](../../logs/ffg-port.md) §2e; the nine carry **520 of the cone's 946**
 ≥5-indegree tier (55%).
 
 **Audience.** A fresh session taking the third topic of the
 `functionFieldGeneration` effort. Layer 0, the `jq`-coefficients topic and the
-conditional capstone are done ([logs/ffg-port.md](logs/ffg-port.md) §0). Read
-[PORTING-FFG.md](PORTING-FFG.md) §2 and §2.1 once — the second measures why this
-topic exists — and [porting-playbook.md](porting-playbook.md) §3–§5 and §7 for
-the method. The two surveys in [studies/](../studies/) are the background:
-[flt-ffg-field-theory.md](../studies/flt-ffg-field-theory.md) §0.1 and §8.
+conditional capstone are done ([logs/ffg-port.md](../../logs/ffg-port.md) §0). Read
+[PORTING-FFG.md](../../PORTING-FFG.md) §2 and §2.1 once — the second measures why this
+topic exists — and [porting-playbook.md](../../porting-playbook.md) §3–§5 and §7 for
+the method. The two surveys in [studies/](../../../studies/) are the background:
+[flt-ffg-field-theory.md](../../../studies/flt-ffg-field-theory.md) §0.1 and §8.
 
 **Goal.** Add the cone's **outbound interface** to the port — the declarations
 the rest of FLT reaches this segment through — as public lemmas placed with the
@@ -31,7 +31,7 @@ from 10 fields to 8.
 The cone is the floor of FLT's arithmetic tower: **70 nodes**, **5,804 transitive
 dependents** (19.7% of the repository), and the traffic flows not through the
 headline theorem but through a handful of small declarations
-([logs/ffg-port.md](logs/ffg-port.md) §8.5). The port today transcribes the
+([logs/ffg-port.md](../../logs/ffg-port.md) §8.5). The port today transcribes the
 *definitions* those declarations are stated over and exposes almost none of them —
 and the single most-shared declaration in the whole cone, `coeffMap_qExpand`
 (indeg **194**), is `private` inside `Spine.lean`.

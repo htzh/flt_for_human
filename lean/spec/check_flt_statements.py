@@ -47,9 +47,21 @@ SOURCES = [
     "Theorems/Thm_ModularCurve_transcendental_jq.lean",
     "P2M/Sol/S_ModularCurve_functionFieldGeneration.lean",
     "Theorems/Thm_ModularCurve_functionFieldGeneration_iff_full_eq.lean",
+    # The generic kernel of `FLTForHuman/FieldTheory/CommonRoot.lean`. The three
+    # `Polynomial.*` lemmas are stated verbatim from their `Theorems/` wrappers;
+    # the pin's `S_Polynomial_mem_range_of_unique_common_root.lean` carries them
+    # as `private` declarations, which the checker skips, so the wrappers are the
+    # only comparable copy.
+    "Theorems/Thm_Polynomial_mem_range_of_unique_common_root.lean",
+    "Theorems/Thm_Polynomial_mem_range_of_eval_eq_const.lean",
+    "Theorems/Thm_Polynomial_irreducible_of_transitive_ringAut.lean",
+    # The peel: `ModularCurve.relfinrank_modularFunctionField`, now a public
+    # lemma in `Defs/Fields.lean` beside the fields it concerns.
+    "Theorems/Thm_ModularCurve_relfinrank_modularFunctionField.lean",
 ]
 
 PORT_FILES = [
+    "FLTForHuman/FieldTheory/CommonRoot.lean",
     "FLTForHuman/ModularCurve/Defs/Laurent.lean",
     "FLTForHuman/ModularCurve/Defs/Twist.lean",
     "FLTForHuman/ModularCurve/Defs/Jq.lean",
@@ -70,7 +82,7 @@ PORT_FILES = [
 # (`hasSum_jq_qParam` is a different statement), and its declarations there carry
 # different names, so the pin has no name/statement to compare against. The proof
 # here uses mathlib's pentagonal route over `etaProd`; see
-# `FLTForHuman/ModularCurve/JqCoefficients.lean` and `TOPIC-jq-coefficients.md`.
+# `FLTForHuman/ModularCurve/JqCoefficients.lean` and `topics/functionFieldGeneration/TOPIC-jq-coefficients.md`.
 # Listing them explicitly keeps "0 missing" meaningful: an unlisted new
 # declaration still fails the check.
 OWN_PROOFS = {

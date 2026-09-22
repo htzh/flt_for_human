@@ -8,13 +8,13 @@ errors with only the capstone `sorry`, and `lake build` is green, warning-free a
 the two `coeff_two_*` helpers. The measured cost, the **≈0.87 : 1** ratio against
 FLT's closest analogue, and the finding that FLT proves these coefficients in a
 standalone 237-line file rather than the 11k-line cluster are in
-[logs/ffg-port.md](logs/ffg-port.md) §2c and §8.3.
+[logs/ffg-port.md](../../logs/ffg-port.md) §2c and §8.3.
 
 **Audience.** A fresh session taking the first *topic* of the
 `functionFieldGeneration` effort, now that Layer 0 is complete
-([logs/ffg-port.md](logs/ffg-port.md) §8). Read
-[PORTING-FFG.md](PORTING-FFG.md) §0 and §2 once for the scope argument, and
-[porting-playbook.md](porting-playbook.md) §3–§5 for the method. Everything
+([logs/ffg-port.md](../../logs/ffg-port.md) §8). Read
+[PORTING-FFG.md](../../PORTING-FFG.md) §0 and §2 once for the scope argument, and
+[porting-playbook.md](../../porting-playbook.md) §3–§5 for the method. Everything
 Layer 0 established still binds.
 
 **Goal.** Prove
@@ -32,7 +32,7 @@ theorem by design.
 
 ## 1. Why this topic, and what is settled
 
-This is the payoff of [base/004](../base/004-the-j-invariant.md)'s
+This is the payoff of [base/004](../../../base/004-the-j-invariant.md)'s
 `j(q) = q⁻¹ + 744 + 196884 q + ⋯`. Consumer Zone C has carried those two claims
 as `sorry` since Layer 0, on the assumption that reaching them meant porting the
 modular-form q-expansion cluster — 44 nodes and 11k lines inside the deferred Φ_p

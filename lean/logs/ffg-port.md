@@ -8,9 +8,10 @@ measurements stay here.
 
 The blueprint is [PORTING-FFG.md](../PORTING-FFG.md) — it holds the scope
 argument, the deferral menu, and the §7 plan for the theorem. The topic work
-orders are [TOPIC-jq-coefficients.md](../TOPIC-jq-coefficients.md),
-[TOPIC-conditional-capstone.md](../TOPIC-conditional-capstone.md) and
-[TOPIC-interface-tier.md](../TOPIC-interface-tier.md), all completed. The
+orders are [TOPIC-jq-coefficients.md](../topics/functionFieldGeneration/TOPIC-jq-coefficients.md),
+[TOPIC-conditional-capstone.md](../topics/functionFieldGeneration/TOPIC-conditional-capstone.md),
+[TOPIC-interface-tier.md](../topics/functionFieldGeneration/TOPIC-interface-tier.md) and
+[TOPIC-generic-kernel.md](../topics/functionFieldGeneration/TOPIC-generic-kernel.md), all completed. The
 deliverable measure is [spec/ModularCurveConsumer.lean](../spec/ModularCurveConsumer.lean),
 and [spec/check_flt_statements.py](../spec/check_flt_statements.py) diffs the
 port's statements against the pin.
@@ -31,7 +32,8 @@ FLT is pinned at `aa2d8b3`; mathlib at `v4.34.0`.
 | topic 1 | the low coefficients of `jq` (`744`, `196884`) | **done**, 1 module, 24 decls, 207 lines | consumer Zone C bound |
 | topic 2 | the conditional capstone (`Spine.lean`) | **done**, 1 module, 29 decls, 494 lines | consumer Zone B bound; `Inputs` is the remaining debt |
 | topic 3 | the cone's outbound interface | **done**, 9 public lemmas added to 2 existing modules; `Inputs` 10 → 8 | consumer unchanged (0 errors, 1 `sorry`) |
-| theorem | PORTING-FFG §7's 24-node remainder behind the Φ_p input | **deferred**, not scheduled; now a structure of 8 fields | — |
+| topic 4 | the generic kernel (`FLTForHuman/FieldTheory/CommonRoot.lean`) and the `relfinrank` peel | **done**, 1 new module, 3 public lemmas + 3 instantiations; `Inputs` 8 → 7 | consumer unchanged (0 errors, 1 `sorry`); checker 150 |
+| theorem | PORTING-FFG §7's 24-node remainder behind the Φ_p input | **deferred**, not scheduled; now a structure of 7 fields | — |
 
 The tree was restructured twice, neither time touching the mathematics.
 
@@ -300,6 +302,63 @@ and `minpoly_jqN_map_eq_prod_slots` (20). The last is an `Inputs` field, so
 exposing it would raise the ratio *and* shrink the debt — but it is a 2,002-line
 node, the opposite trade to this topic.
 
+## 2f. Topic 4: the generic kernel — what it cost
+
+`FLTForHuman/FieldTheory/CommonRoot.lean` is the port's first *generic* module:
+three lemmas about an arbitrary `F ⊆ L`, no `jq`, no `LaurentSeries`, no import
+from the port at all (the pin's two mathlib imports, plus
+`Mathlib.Analysis.Complex.Basic` for the instantiations).
+
+**A third top-level area.** `FLTForHuman/` now has three: `Elliptic/` (the first
+port), `ModularCurve/` (this one's definitions and theory modules) and
+`FieldTheory/`, which is where future **generic prerequisites** go — anything that
+is neither `Elliptic/` nor `ModularCurve/`. `CommonRoot.lean` is its first
+member and sets the pattern: mathlib-only, no curve-specific name, statements
+generic over the field extension. A future `ModularCurve` theory's generic
+prerequisites therefore land here, not inside a theory directory; the theory
+directory keeps only what mentions the curve.
+
+The topic's second
+deliverable is the peel: `relfinrank_modularFunctionField`, the third `cites = 0`
+`Inputs` field.
+
+| | |
+|---|---|
+| goal rounds | **1** (of the 2 budgeted; the checkpoint at 1 passed) |
+| declarations | 3 public in `CommonRoot` (= the three kernel lemmas) + 3 anonymous instantiation `example`s; 1 public in `Defs/Fields.lean` |
+| lines written | 346 in `CommonRoot.lean` (≈170 the three proofs, ≈90 the instantiations and their prose); +29 in `Defs/Fields.lean` (the peel); `Spine.lean` −4 (`Inputs` field and the `h` threading) |
+| `Spine.lean` | `Inputs` 8 → 7 fields; `relfinrank_full_of` lost its `h : Inputs` and calls the real lemma; 478 → 474 lines, 25 declarations |
+| build | `lake build` green, 0 warnings, no `sorry`; **2891 planned jobs**, one more than 2890 (the new module; the `Complex` import was already in the closure) |
+| axioms | `#print axioms` on the three lemmas, the peel and `functionFieldGeneration_of`: only `propext, Classical.choice, Quot.sound` |
+| checker | **150** identical (146 → +4), 0 mismatched, 0 missing, 7 own-proof exemptions; `SOURCES` gained the three `Thm_Polynomial_*` wrappers and `Thm_ModularCurve_relfinrank_modularFunctionField`, `PORT_FILES` gained `CommonRoot.lean` |
+| wire tests | (1) three concrete `example`s over `ℚ ⊆ ℂ` in the module; (2) the peel, proved in `Defs/Fields.lean` and *used* by `Spine.lean` — a cross-module composition |
+
+**The kernel was as self-contained as scouted.** All three lemmas proved on the
+first try from the pin's text, with no private helper needed and no statement
+change: the only edits were `private` → public and dropping the `p2m_*` lines.
+The distinct generic content is the pin's *one* 182-line file (the three
+`S_Polynomial_*` files are copies), and the three proofs are ≈170 lines here — a
+ratio of ≈0.93 : 1, and the 182 lines are genuinely 182, not "182 looking like
+182". The module header, the docstrings and the instantiation section are the
+overhead above the pin.
+
+**The peel was exactly two mathlib lemmas.** `relfinrank_eq_finrank_of_le` and
+`extendScalars_adjoin`, applied to the port's own `adjoin_jq_le`, transcribed from
+the pin's 31-line proof, with no restatement. `Inputs` therefore went 8 → 7 by
+*subtraction only*: one field deleted, `relfinrank_full_of` simplified, nothing
+else in the spine moved. The `#print axioms` result is unchanged.
+
+**Where the instantiation lives, and what it exercises.** The three `example`s are
+in `CommonRoot.lean` itself (not the consumer, which the definition of done keeps
+at "0 errors, one `sorry`"), and being anonymous they are invisible to
+`spec/check_flt_statements.py`. Lemmas 1 and 2 are fully concrete over `ℚ ⊆ ℂ`.
+For lemma 3 the automorphism is `RingEquiv.refl`: a *nontrivial* `σ` instance needs
+a cubic with exactly one real root — so that complex conjugation fixes that root
+and 2-cycles the other two, which is the only shape `n = 2` can take over `ℂ` —
+and mathlib has no explicit real cube roots, so that instantiation is not
+available cheaply. The identity satisfies `hσ` and `hcycle` (with `n = 1`) and the
+example does conclude `Irreducible (X² + 1)`.
+
 ## 3. What was verified
 
 Independent QA of 0a after it landed:
@@ -356,10 +415,56 @@ Topic 3, on landing:
 | `Inputs` field set | **8**, every field still referenced; `ψ` helpers no longer take `h : Inputs` |
 | consumer | **0 errors**, one `sorry` (unchanged) |
 
+Topic 4, on landing:
+
+| check | result |
+|---|---|
+| the 3 kernel + 1 peel statements identical to their pin wrappers (`spec/check_flt_statements.py`) | **150** identical, 0 mismatched, 0 missing, 7 own-proof exemptions |
+| `sorry` / `admit` / `axiom` / `native_decide` in `FLTForHuman/` | none (the word `sorry` occurs only in prose) |
+| `#print axioms` on the three lemmas, the peel and `functionFieldGeneration_of` | only `propext, Classical.choice, Quot.sound` |
+| `Inputs` field set | **7**, every field still referenced; `relfinrank_full_of` no longer takes `h : Inputs` |
+| wire test 1 (instantiation) | three checked `example`s over `ℚ ⊆ ℂ` in `CommonRoot.lean`'s last section |
+| wire test 2 (cross-module) | `FunctionFieldGeneration/Spine.lean` calls `Fields.relfinrank_modularFunctionField` |
+| consumer | **0 errors**, one `sorry` (unchanged) |
+
+### 3.1 Coverage in original FLT lines
+
+The tables above say what is *checked*; this says how much of FLT's own source the
+port accounts for, measured as the spans of the pin declarations it transcribes.
+One caveat on the method: `JqCoefficients.lean` contributes **zero**, because its
+two theorems have no pin counterpart — the statement is base/004's and FLT's
+analogue is a different, 237-line file.
+
+| source layer | FLT lines covered | of what |
+|---|---|---|
+| the three `Def_ModularCurve_*` definition files | **745** | 801 lines; **126 of 126 declarations** |
+| `S_ModularCurve_functionFieldGeneration.lean` (the `TS` block and the auxiliary/induction block) | **388** | of 753 |
+| the eight small interface proofs (topic 3) | **131** | |
+| the ψ section of `S_…_dedekindPsi_mul_of_coprime.lean` | ~35 | of 471; the rest is the off-path resultant development |
+| `S_…_functionFieldGeneration_iff_full_eq.lean` | 22 | |
+| **total** | **≈ 1,320** | |
+
+Against the cone — 140 theorem-node files plus 4 definition modules: 24,283 lines,
+~1,810 declarations — that is **~5.4% of the lines and ~9% of the declarations**;
+against the repository (60,474 files, 13.5M lines) it is ~0.01%. The port is
+**2,102 lines** for those ~1,320, a **1.6 : 1** expansion: docstrings, headers, the
+`Inputs` structure and the interface exposition, i.e. the reorganization made
+visible (the first port was ~1 : 1).
+
+Two readings, and the second is the truthful one. The line figure **understates**
+the coverage: it is 100% of the *statements* (146 verified identical to the pin at
+that point), the target's definition, the collapse, and the proof's whole
+architecture. It also **understates the remaining work**: the seven fields left are
+only ~3,357 structural lines, but they are gated by the Φ_p subtree — 44 nodes,
+11,034 lines, 45% of the cone — so the unconditional theorem sits behind ~59% of
+the cone. After four topics and ~1,320 original lines, the distance is **seven
+named statements and one input**.
+
 The statement-identity result is the one to carry forward: with a pinned source
-dictating the statements, faithfulness is *mechanically checkable*, and it should
-be checked every time rather than assumed. A script in `spec/` that diffs the
-port's statements against the pinned files would be a welcome addition to 0b.
+dictating the statements, faithfulness is *mechanically checkable*, and it should be
+checked every time rather than assumed — which is what
+`spec/check_flt_statements.py` now does: 146 statements verified after topic 3, 150
+after topic 4.
 
 ## 4. Decisions taken, and why
 
@@ -486,7 +591,7 @@ Zone C (`744`, `196884`) were expected to stay red because they live inside the
 deferred Φ_p subtree. The final check found that expectation to be wrong, the
 topic below was taken, and it finished in one round (§2c). Zone C is now closed:
 
-- **[TOPIC-jq-coefficients.md](../TOPIC-jq-coefficients.md)** — **done**.
+- **[TOPIC-jq-coefficients.md](../topics/functionFieldGeneration/TOPIC-jq-coefficients.md)** — **done**.
   `coeff_jq_zero` and `coeff_jq_one` are proved in
   `FLTForHuman/ModularCurve/JqCoefficients.lean`. `etaProd` *is* mathlib's
   topological product, so `PowerSeries.WithPiTopology.tprod_one_sub_X_pow` gives
@@ -495,22 +600,33 @@ topic below was taken, and it finished in one round (§2c). Zone C is now closed
   part of the 44-node subtree. The hybrid held; the measured ratio against FLT's
   closest analogue is ≈0.87 : 1.
 
-- **[TOPIC-conditional-capstone.md](../TOPIC-conditional-capstone.md)** — **done**.
+- **[TOPIC-conditional-capstone.md](../topics/functionFieldGeneration/TOPIC-conditional-capstone.md)** — **done**.
   `FLTForHuman/ModularCurve/FunctionFieldGeneration/Spine.lean` proves the strong induction `hall_all`
   and the conditional capstone `functionFieldGeneration_of (h : Inputs)`, with
   FLT's significant remaining statements bundled as the fields of `Inputs`
   (§2d). The unconditional theorem is now exactly that field set away, and the
   auxiliaries proved to be glue (§8.4).
 
-- **[TOPIC-interface-tier.md](../TOPIC-interface-tier.md)** — **done**.
+- **[TOPIC-interface-tier.md](../topics/functionFieldGeneration/TOPIC-interface-tier.md)** — **done**.
   Nine public interface lemmas — the declarations a fifth of FLT reaches this
   segment through — now live in `Defs/Laurent.lean` and `Defs/Jq.lean` beside the
   objects they concern, and two of them discharge `Inputs` fields (§2e). The
   structure is down to **8**. The cone's ≥5-indegree tier sums to 946; the nine
   carry 520 of it, 55%.
 
+- **[TOPIC-generic-kernel.md](../topics/functionFieldGeneration/TOPIC-generic-kernel.md)** — **done**. The
+  three `Polynomial.*` lemmas the surveys identify as the segment's mathematical
+  engine (math/010 §4 *is* the unique-common-root principle; §6's
+  non-membership and degree steps are the other two) are now proved in a new
+  `FLTForHuman/FieldTheory/` area — the port's first generic, non-curve-specific
+  material — with three concrete instantiations over `ℚ ⊆ ℂ` as their wire test;
+  the topic also peeled `relfinrank_modularFunctionField`, the third `cites = 0`
+  `Inputs` field, into `Defs/Fields.lean`, taking the debt from 8 to 7. §2f has
+  the cost.
+
 What remains is the deferred theorem of §7, no longer an undifferentiated
-subtree but a named list of 8 fields to discharge one at a time (§8.4).
+subtree but a named list of 7 fields to discharge one at a time (§8.4), and
+increasingly dominated by the 1,000–2,000-line nodes.
 
 ### 8.1 Two findings from the final check
 
@@ -591,14 +707,14 @@ FLT proof. After topic 2 it is no longer an undifferentiated subtree: it is the
 `Spine.lean` proves `hall_all` and `functionFieldGeneration_of` (§2d), so the
 distance to the unconditional theorem is exactly the fields of `Inputs`, each
 stated as in the pin. The candidate set started as the 24-node manifest; pruning
-left 10, every one of which is referenced by the spine (10 of 10), and topic 3
-then discharged two of them, leaving **8**:
+left 10, every one of which is referenced by the spine (10 of 10); topic 3
+discharged two of them and topic 4 a third, leaving **7**:
 
 | `Inputs` field | why it survives |
 |---|---|
 | ~~`dedekindPsi_mul_of_coprime`~~ | **discharged** in topic 3 — now a public lemma in `Defs/Jq.lean` |
 | ~~`dedekindPsi_prime_pow`~~ | **discharged** in topic 3 — now a public lemma in `Defs/Jq.lean` |
-| `relfinrank_modularFunctionField` | `relfinrank_full_of` turns `Gen + Tight` into a relative degree |
+| ~~`relfinrank_modularFunctionField`~~ | **discharged** in topic 4 — now a public lemma in `Defs/Fields.lean` |
 | `full_eq_adjoin_full_div_prime` | the `Gen` tower step (`full_le_adjoin_chain`, `hall_all`) |
 | `jqN_prime_not_mem_full` | the prime case of `jqN_pow_not_mem_full` |
 | `jqN_pow_not_mem_adjoin_full` | the prime-power induction of `jqN_pow_not_mem_full` |
@@ -616,7 +732,10 @@ originally assumed fields: `finrank_adjoin_jqN_eq_of_squarefree`,
 `exists_monic_evalAtJ_jqN_eq_zero`, `dedekindPsi_of_squarefree` and
 `functionFieldGeneration_of_squarefree`. Assuming a node discharges its
 dependencies, they drop out; `exists_phiIrreducible_of_finrank_eq` is used only by
-the trailing `exists_phiIrreducible`, which the spine does not include.
+the trailing `exists_phiIrreducible`, which the spine does not include. Topic 4
+then built the three `Polynomial.*` anyway, as a *generic* module rather than a
+discharge — they are not `Inputs` fields, and their consumer here is the remainder
+(plus `relfinrank_modularFunctionField`'s Tier-1 bridges, which are mathlib's).
 Discharging the fields one at a time is now the natural next topic, and §7.3's
 per-node line counts are the cost estimate for each.
 
@@ -695,31 +814,73 @@ dependents) is **not** in this cone, so "the pole is load-bearing everywhere" is
 about the characteristic-`p` pole in the ModPForms sector, a different fact from
 the char-0 `coeff_jq_neg_one` the port carries.
 
+### 8.6 Open question: a nontrivial instance for `irreducible_of_transitive_ringAut`
+
+The third wire test in `FieldTheory/CommonRoot.lean` instantiates the lemma with
+`σ = RingEquiv.refl` and `n = 1`, so `hcycle` degenerates to `r 0 = r 0`. The test
+proves the lemma *fires*; it does not exercise the automorphism mechanism, which is
+the whole content of that lemma. The module note says so honestly. Two things
+sharpen the question.
+
+- **mathlib really has no cube roots.** `Real.cbrt`, `Complex.cbrt` and `cbrt` all
+  return **0 hits** over `Mathlib/`. So the natural instance — a cubic over
+  `ℚ ⊆ ℂ` with one real root, complex conjugation fixing it and 2-cycling the other
+  two — is unavailable without constructing the roots.
+- **FLT's own instantiation is nontrivial, and that is the non-vacuity evidence.**
+  The lemma is used for real in at least four pin files, with σ = `qTwistEquiv ζ`
+  (the cyclotomic twist) at
+  `S_ModularCurve_finrank_adjoin_jqN_prime_of_not_mem.lean:320` and σ =
+  `coeffMapEquiv …` at `S_…_pow_succ_of_not_mem.lean:728`. So the lemma is not
+  vacuous in the mathematics; only our *wire test* is weak.
+
+Two routes if it is ever worth closing, neither free:
+
+1. **A finite-field instance** — `𝔽₂ ⊆ 𝔽₈`, `P = X³ + X + 1`, σ the Frobenius
+   `x ↦ x²`, which cycles the three roots. mathlib has the pieces (`GaloisField`,
+   37 `Frobenius` hits); exhibiting the automorphism and the root cycle is real
+   work, not a one-liner.
+2. **Port `qTwistEquiv`** — it is in the shared prelude (pin line 130, ~16 lines)
+   and is the automorphism FLT actually uses. Our port has `qTwist` but not its
+   packaged equivalence, so a nontrivial test could be built from it — but a
+   *concrete* `P` still has to be produced, which drags in the slot machinery.
+
+**Recommendation: leave it open.** The lemma is verified character-identical to the
+pin, and its nontrivial use is on record in FLT; the wire test's weakness is
+documented here and in the module, which is what the wire test was for. Route 1 is
+the better small topic if one is ever wanted.
+
 ## 9. Records map
 
 | file | role |
 |---|---|
 | [PORTING-FFG.md](../PORTING-FFG.md) | the top plan: scope argument, gain test, deferred theorem menu |
-| [TOPIC-jq-coefficients.md](../TOPIC-jq-coefficients.md) | the completed topic plan: the `jq` coefficients |
-| [TOPIC-conditional-capstone.md](../TOPIC-conditional-capstone.md) | the completed topic plan: the proof's spine, conditionally |
-| [TOPIC-interface-tier.md](../TOPIC-interface-tier.md) | the completed topic plan: the cone's outbound interface |
+| [TOPIC-jq-coefficients.md](../topics/functionFieldGeneration/TOPIC-jq-coefficients.md) | the completed topic plan: the `jq` coefficients |
+| [TOPIC-conditional-capstone.md](../topics/functionFieldGeneration/TOPIC-conditional-capstone.md) | the completed topic plan: the proof's spine, conditionally |
+| [TOPIC-interface-tier.md](../topics/functionFieldGeneration/TOPIC-interface-tier.md) | the completed topic plan: the cone's outbound interface |
+| [TOPIC-generic-kernel.md](../topics/functionFieldGeneration/TOPIC-generic-kernel.md) | the completed topic plan: the generic engine lemmas, and a peel |
 | [spec/ModularCurveConsumer.lean](../spec/ModularCurveConsumer.lean) | the deliverable measure, and the friction log |
 | [spec/check_flt_statements.py](../spec/check_flt_statements.py) | diffs every port statement against the pin |
 | this file | the record: what the effort did, cost, and decided |
 | [porting-playbook.md](../porting-playbook.md) | lessons for the next port, independent of this one |
 
-**The layer work orders were used and then deleted.** Layer 0 ran as two of them,
-0a and 0b, each finishing in a single goal round. Deleting them was the plan from
-the start: a work order is scaffolding, and once a layer is done its content is
-either in the code (the module list, the statements, the proofs), in the
-playbook (the principles, the overlap, the calibration — now §7), or in this
-record (the measurements, the decisions, the friction). What was kept is only
-what a later session cannot re-derive: `PORTING-FFG.md` as the top plan, the two
-completed topic records (`TOPIC-jq-coefficients.md`,
-`TOPIC-conditional-capstone.md`, `TOPIC-interface-tier.md`), the playbook, and
-this file.
+**The layer work orders were used and then deleted; the topic plans were kept.**
+That split is now the convention, and it is worth stating because it took two
+rounds of tidying to arrive at:
 
-Nothing durable was lost in the move. The principles and the overlap section —
+- a **layer work order** is scaffolding — 0a and 0b each ran once and their
+  content is in the code, in the playbook's §7 (the principles, the overlap, the
+  calibration), and here. They were deleted.
+- a **topic plan is an executed plan**, not scaffolding: it records a decision and
+  its cost, and the log cross-references it. All four moved to
+  `lean/topics/functionFieldGeneration/` once finished
+  ([the `jq` coefficients](../topics/functionFieldGeneration/TOPIC-jq-coefficients.md),
+  [the conditional capstone](../topics/functionFieldGeneration/TOPIC-conditional-capstone.md),
+  [the interface tier](../topics/functionFieldGeneration/TOPIC-interface-tier.md),
+  [the generic kernel](../topics/functionFieldGeneration/TOPIC-generic-kernel.md)).
+- **`logs/` is the linear record** of what happened, in order — this file for the
+  FFG effort, `card-torsion-port.md` for the first port.
+
+Nothing durable was lost in the deletions. The principles and the overlap section —
 the most reusable things this effort has produced, more so than the module list,
 which is derivable from the code — are §7.1 and §7.2 of the playbook, and the
 post-mortem with the measured cost is §6 above.

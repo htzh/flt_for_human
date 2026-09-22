@@ -218,7 +218,7 @@ is **0**: Zones A, B and C are all bound. What remains unproved is exactly one
 `sorry`, the Zone A capstone — the deferred theorem, which is the design. (Zone C
 was originally expected to stay red; the topic showed it was reachable from the
 Definitions layer plus mathlib, and the scope decision to take it is recorded in
-`TOPIC-jq-coefficients.md`.)
+`topics/functionFieldGeneration/TOPIC-jq-coefficients.md`.)
 
 **Layer 0a result (2026-09-21).** Zone A is at **0 errors**; the file reports
 **10 errors**, all of them Zone B (8: the six `#check`s plus the two unbound
@@ -260,6 +260,13 @@ to `Defs/Laurent.lean` and `Defs/Jq.lean`, and two of the `Inputs` fields
 (`dedekindPsi_mul_of_coprime`, `dedekindPsi_prime_pow`) were discharged into
 `Defs/Jq.lean`, so `Inputs` is down to **8** fields. Nothing in this file
 changed: still **0 errors** and one `sorry`.
+
+**Generic-kernel result (2026-09-21).** The third `cites = 0` field,
+`relfinrank_modularFunctionField`, was discharged into `Defs/Fields.lean` beside
+`adjoin_jq_le`, so `Inputs` is down to **7** fields; the generic engine behind the
+segment (`FLTForHuman/FieldTheory/CommonRoot.lean`) is mathlib-only and touches
+nothing here. Its instantiations live in that module, so this file is again
+unchanged: **0 errors**, one `sorry`.
 
 ## Friction list (mathlib `v4.34.0` against FLT's `v4.33.0`)
 

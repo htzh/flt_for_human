@@ -89,6 +89,7 @@ alongside `.lake/` in case it does.
 | `FLTForHuman/Elliptic/JacobianMulFormula.lean` | projective form | `smulPoly`/`smulField`, `dblXYZ`/`addXYZ`, `zsmul_eq_smulEval` |
 | `FLTForHuman/Elliptic/Bridge.lean` | torsion bridge | `evalEval_ψ_sq`, `evalEval_φ`, `smul_eq_zero_iff_evalEval_ψ` |
 | `FLTForHuman/Elliptic/TorsionCard.lean` | `n`-torsion cardinality | the Wronskian coprimality, the double-fiber engine, and **`card_torsion_of_isAlgClosed`** (`#E[n] = n²`) |
+| `FLTForHuman/FieldTheory/CommonRoot.lean` | the generic kernel | `Polynomial.mem_range_of_unique_common_root`, `Polynomial.mem_range_of_eval_eq_const`, `Polynomial.irreducible_of_transitive_ringAut` — the segment's mathematical engine (math/010 §4, §6), over an arbitrary `F ⊆ L`, mathlib-only, with three concrete instantiations over `ℚ ⊆ ℂ` as the wire test. The port's first generic area, beside (not inside) either curve theory. FLT `P2M/Sol/S_Polynomial_mem_range_of_unique_common_root` / the three `Thm_Polynomial_*` wrappers |
 | `FLTForHuman/ModularCurve/Defs/Laurent.lean` | q-substitution + coefficient change | `qExpand`, `qExpandₐ`, `coeffMap`, `coeffEmb`, `laurentBaseChange`, plus the interface lemmas `coeffMap_qExpand`, `coeffEmb_qExpand`, `coeffMap_injective`, `coeffEmb_injective`. FLT `Def_ModularCurve_X0` 25–105, `Def_ModularCurve_LaurentCoeff` 16–123 |
 | `FLTForHuman/ModularCurve/Defs/Twist.lean` | the unit twist `q ↦ u q` | `qTwistFun`, `qTwist` + functoriality, `qTwist_qExpand`. FLT `Def_ModularCurve_PhiGen` 18–96 |
 | `FLTForHuman/ModularCurve/Defs/Jq.lean` | the `j`-series | `eisenstein4`, `etaProd`, the `Δ` unit, `jNum`, `jq` + its pole lemmas, `jqN`, `dedekindPsi`, `evalAtJ`, plus the interface lemmas `dedekindPsi_prime`, `dedekindPsi_prime_pow`, `dedekindPsi_mul_of_coprime`, `aeval_jq_eq_zero`, `transcendental_jq`. FLT `Def_ModularCurve_X0` 111–212 |
@@ -99,7 +100,7 @@ alongside `.lake/` in case it does.
 | `FLTForHuman/ModularCurve/Defs/TS.lean` | `j(u q ^ e)` | `TS` and its nine coefficient/substitution lemmas. FLT `P2M/Sol/S_ModularCurve_functionFieldGeneration` 39–101 (a *solution* file) |
 | `FLTForHuman/ModularCurve/FunctionFieldGeneration/Collapse.lean` | the §2 collapse | `functionFieldGeneration_iff_full_eq`, Layer 0's only theorem. FLT `Thm_…_iff_full_eq` line 6 / `S_…_iff_full_eq` 11–21 |
 | `FLTForHuman/ModularCurve/JqCoefficients.lean` | the low coefficients of `jq` | `coeff_jq_zero` (`744`), `coeff_jq_one` (`196884`). A *result*, not a definition: statement from base/004, proof by mathlib's pentagonal route (`tprod_one_sub_X_pow`) rather than FLT's cluster |
-| `FLTForHuman/ModularCurve/FunctionFieldGeneration/Spine.lean` | the conditional capstone | `Tight`/`Gen`/`Hall`, the proved strong induction `hall_all`, the structure `Inputs` (FLT's 8 significant remaining statements), and `functionFieldGeneration_of (h : Inputs) : FunctionFieldGeneration N` — proved, with no `sorryAx` |
+| `FLTForHuman/ModularCurve/FunctionFieldGeneration/Spine.lean` | the conditional capstone | `Tight`/`Gen`/`Hall`, the proved strong induction `hall_all`, the structure `Inputs` (FLT's 7 significant remaining statements), and `functionFieldGeneration_of (h : Inputs) : FunctionFieldGeneration N` — proved, with no `sorryAx` |
 
 The port of `#E[n](K) = n²` (math/005) has its own working record:
 [logs/card-torsion-port.md](logs/card-torsion-port.md) — dependency trace,
@@ -109,12 +110,17 @@ The `functionFieldGeneration` effort keeps its record in
 [logs/ffg-port.md](logs/ffg-port.md).
 
 `FLTForHuman/ModularCurve/` holds the definitions of `PORTING-FFG.md` Layer 0
-(the `jq` / `qExpand` / `qTwist` objects of math/010), plus the two topic modules
-that followed. It sits beside `FLTForHuman/Elliptic/` under the **single**
+(the `jq` / `qExpand` / `qTwist` objects of math/010), plus the topic modules
+that followed. `FLTForHuman/FieldTheory/` is its generic companion: the
+mathematical engine the segment runs on, stated for an arbitrary `F ⊆ L` and
+mentioning no curve — the place a future `ModularCurve` theory puts its generic
+prerequisites, not a theory directory itself. Both sit beside
+`FLTForHuman/Elliptic/` under the **single**
 `FLTForHuman` library — Layer 0 landed with no `sorry`, so the separate build
 target it used to have was no longer needed. There is no `import Mathlib` anywhere.
-**Layer 0 and all three topics are done**: eleven modules (68 declarations in 0a,
-69 in 0b, 24 in `JqCoefficients`, 25 in `Spine`, plus 9 public interface lemmas in
+**Layer 0 and all four topics are done**: twelve modules (68 declarations in 0a,
+69 in 0b, 24 in `JqCoefficients`, 25 in `Spine`, 3 in `CommonRoot` plus its three
+checked instantiation `example`s, and 9 public interface lemmas in
 `Defs/Laurent.lean` and `Defs/Jq.lean`) are green with zero warnings and zero
 `sorry`, and the deliverable measure
 [spec/ModularCurveConsumer.lean](spec/ModularCurveConsumer.lean) reports **0
@@ -122,7 +128,7 @@ errors** with Zones A, B and C all bound. Its only remaining `sorry` is the
 deferred theorem's capstone. `PORTING-FFG.md` records why the theorem itself stays
 deferred; the consumer's tail carries the v4.34.0 friction list, and
 [spec/check_flt_statements.py](spec/check_flt_statements.py) diffs every port
-declaration's statement against the pinned source (146 of 146 identical, with the
+declaration's statement against the pinned source (150 of 150 identical, with the
 own-proof declarations exempted explicitly).
 
 Both Layer 0 work orders are gone: they were finished, their durable material
@@ -132,7 +138,7 @@ principles, the overlap with the first port, and the measured cost model — and
 Both layers finished in a single goal round against a much larger budget.
 
 The first topic is also complete:
-[TOPIC-jq-coefficients.md](TOPIC-jq-coefficients.md) closed the last two consumer
+[TOPIC-jq-coefficients.md](topics/functionFieldGeneration/TOPIC-jq-coefficients.md) closed the last two consumer
 items (`jq.coeff 0 = 744`, `jq.coeff 1 = 196884`) by a mathlib route FLT does not
 use — the pentagonal theorem for `∏' n, (1 - X ^ (n+1))` — rather than the
 modular-form cluster. It is the first topic whose proof is ours rather than a
@@ -141,7 +147,7 @@ measured cost and the finding that FLT's own proof of these coefficients is a
 standalone 237-line file, not the cluster.
 
 The second topic is complete too:
-[TOPIC-conditional-capstone.md](TOPIC-conditional-capstone.md) checked the
+[TOPIC-conditional-capstone.md](topics/functionFieldGeneration/TOPIC-conditional-capstone.md) checked the
 *architecture* of the theorem — `hall_all`, the strong induction carrying
 `Tight ∧ Gen` over the divisor lattice — with FLT's significant remaining
 statements as the named fields of an `Inputs` structure, and proved
@@ -151,7 +157,7 @@ one at a time. [logs/ffg-port.md](logs/ffg-port.md) §2d carries its measured co
 and §8.4 the field list with the reason each survives.
 
 The third topic is complete:
-[TOPIC-interface-tier.md](TOPIC-interface-tier.md) added the cone's **outbound
+[TOPIC-interface-tier.md](topics/functionFieldGeneration/TOPIC-interface-tier.md) added the cone's **outbound
 interface** — the nine declarations the rest of FLT reaches this segment through,
 `coeffMap_qExpand` (indeg 194) down to `coeffEmb_injective` (19) — as public
 lemmas placed with the objects they concern. Two of them are also `Inputs` fields,
@@ -159,6 +165,36 @@ so it shrank the debt from 10 fields to 8 while exposing 520 of the cone's
 ≥5-indegree tier (which sums to 946, so 55%). The two surveys in
 [studies/](../studies/) are why it exists; see
 [logs/ffg-port.md](logs/ffg-port.md) §2e and §8.5, and `PORTING-FFG.md` §2.1.
+
+The fourth topic is complete too:
+[TOPIC-generic-kernel.md](topics/functionFieldGeneration/TOPIC-generic-kernel.md) built the three
+`Polynomial.*` lemmas that are the segment's mathematical engine — absent
+from mathlib, ~166 lines, generic over any `F ⊆ L` — as the new
+`FLTForHuman/FieldTheory/` area, and peeled the third `cites = 0` `Inputs` field,
+`relfinrank_modularFunctionField`, into `Defs/Fields.lean`; the debt is now **7**
+fields. It is the first module in this port that belongs to neither curve theory,
+and the survey's own recommendation
+([studies/flt-ffg-field-theory.md](../studies/flt-ffg-field-theory.md) §4);
+[logs/ffg-port.md](logs/ffg-port.md) §2f carries its measured cost and §8.4 the
+shrunk field table.
+
+## Where things live
+
+The documentation has four roles, and they are kept apart on purpose:
+
+| path | role |
+|---|---|
+| `PORTING-FFG.md`, and any other plan at the top level | an **active plan** — the blueprint for work in progress |
+| `topics/<effort>/TOPIC-*.md` | **executed plans**: one per finished topic, carrying what was learned as well as what was done |
+| `logs/` | the **linear record** of what happened, in order — `card-torsion-port.md` for the first port, `ffg-port.md` for this one |
+| `porting-playbook.md` | the **reusable method**, not tied to any one effort |
+| `spec/` | the **deliverable measures**: the consumer and the statement checker |
+
+An executed plan is not deleted: it is the record of a decision and its cost, and
+`logs/` cross-references it. When a topic finishes, its plan moves from the top
+level into `topics/<effort>/`, and the log gains the entry that summarises it.
+`topics/functionFieldGeneration/` holds the four topics of the
+`functionFieldGeneration` effort.
 
 ## Sources
 

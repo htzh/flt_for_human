@@ -20,16 +20,16 @@
   `functionFieldGeneration_iff_full_eq` to `hall_all`.
 
   `Inputs` collects the significant statements the spine consumes, stated as in
-  the pin so that discharging one is a drop-in replacement. Two of the original
+  the pin so that discharging one is a drop-in replacement. Three of the original
   ten have since been discharged — `dedekindPsi_mul_of_coprime` and
   `dedekindPsi_prime_pow`, now public lemmas in `Defs/Jq.lean` beside
-  `dedekindPsi` — so the structure has **eight** fields, and the `ψ` helpers
-  below use those real lemmas. Nothing else is discharged: the unconditional
-  capstone stays the consumer's deferred `sorry`. The auxiliary block is
-  `private`; the public surface is `Tight`, `Gen`, `Hall`, `Inputs` and
-  `functionFieldGeneration_of`.
+  `dedekindPsi`, and `relfinrank_modularFunctionField`, now a public lemma in
+  `Defs/Fields.lean` beside `adjoin_jq_le` — so the structure has **seven**
+  fields. Nothing else is discharged: the unconditional capstone stays the
+  consumer's deferred `sorry`. The auxiliary block is `private`; the public
+  surface is `Tight`, `Gen`, `Hall`, `Inputs` and `functionFieldGeneration_of`.
 
-  Two of the eight fields state FLT's `hall` hypothesis as `Hall M →` rather than
+  Two of the seven fields state FLT's `hall` hypothesis as `Hall M →` rather than
   writing the conjunction out. `Hall` is an `abbrev` for exactly that conjunction
   (`Tight`-and-`Gen` at every divisor), so the two are definitionally the pin's;
   the abbreviation is what the induction actually consumes. FLT's `iota_jq`
@@ -37,8 +37,9 @@
 
   Assumes `coeffMap`/`coeffEmb`/`qExpand` (`Defs/Laurent`), `qTwist`
   (`Defs/Twist`), `jq`/`jqN`/`dedekindPsi`/`jGen` (`Defs/Jq`), the two function
-  fields and `jqd_mem_full`/`full_degeneracy_le` (`Defs/Fields`), `TS` and its
-  lemmas (`Defs/TS`), and the §2 collapse (`Collapse.lean`).
+  fields and `jqd_mem_full`/`full_degeneracy_le`/`relfinrank_modularFunctionField`
+  (`Defs/Fields`), `TS` and its lemmas (`Defs/TS`), and the §2 collapse
+  (`Collapse.lean`).
 -/
 import Mathlib.NumberTheory.Cyclotomic.Basic
 import Mathlib.FieldTheory.Relrank
@@ -140,18 +141,13 @@ abbrev Hall (N : ℕ) : Prop := ∀ d : ℕ, d ∣ N → ∀ [NeZero d], Tight d
 
 Each field is one of the 24 nodes of `PORTING-FFG.md` §7.3 that the spine
 consumes but does not prove, stated as in the pin. The docstring on each says why
-it survives pruning. The two `ψ` fields the spine originally carried
-(`dedekindPsi_mul_of_coprime`, `dedekindPsi_prime_pow`) have since been discharged
-and moved to `Defs/Jq.lean`, beside `dedekindPsi`; the `ψ` helpers below now use
-those real lemmas. -/
+it survives pruning. The three fields the spine originally carried for
+`dedekindPsi_mul_of_coprime`, `dedekindPsi_prime_pow` and
+`relfinrank_modularFunctionField` have since been discharged, into `Defs/Jq.lean`
+and `Defs/Fields.lean`; the `ψ` helpers below now use the real lemmas, and
+`relfinrank_full_of` calls the real `relfinrank_modularFunctionField`. -/
 
 structure Inputs where
-  /-- `relfinrank ℚ⟮jq⟯ (modularFunctionField N)` is the degree of `jqN N` over
-  `ℚ⟮jq⟯`: converts `Gen` + `Tight` into the relative degree `relfinrank_full_of` reports. -/
-  relfinrank_modularFunctionField :
-    ∀ (N : ℕ) [NeZero N],
-      IntermediateField.relfinrank ℚ⟮jq⟯ (modularFunctionField N) =
-        Module.finrank ℚ⟮jq⟯ (IntermediateField.adjoin ℚ⟮jq⟯ ({jqN N} : Set (LaurentSeries ℚ)))
   /-- The tower step for `Gen`: `jqN (p ^ (a+1))` generates `modularFunctionFieldFull`
   over `modularFunctionFieldFull (M * p ^ a)` when `p ∤ M`. -/
   full_eq_adjoin_full_div_prime :
@@ -263,11 +259,11 @@ private theorem gen_one : Gen 1 := by
   rw [qExpand_one_apply]
   exact jq_mem 1
 
-private theorem relfinrank_full_of (h : Inputs) (N : ℕ) [NeZero N] (ht : Tight N) (hg : Gen N) :
+private theorem relfinrank_full_of (N : ℕ) [NeZero N] (ht : Tight N) (hg : Gen N) :
     IntermediateField.relfinrank ℚ⟮jq⟯ (modularFunctionFieldFull N) = dedekindPsi N := by
   unfold Gen at hg
   unfold Tight at ht
-  rw [← hg, h.relfinrank_modularFunctionField N, ht]
+  rw [← hg, relfinrank_modularFunctionField N, ht]
 
 private theorem F0_le_full (N : ℕ) [NeZero N] : ℚ⟮jq⟯ ≤ modularFunctionFieldFull N := by
   rw [IntermediateField.adjoin_le_iff, Set.singleton_subset_iff]
@@ -447,12 +443,12 @@ private theorem hall_all (h : Inputs) : ∀ N : ℕ, N ≠ 0 → Hall N := by
   have hlowdeg : IntermediateField.relfinrank ℚ⟮jq⟯ (modularFunctionFieldFull (M * p ^ a)) =
       dedekindPsi (M * p ^ a) := by
     have hh := hall_low (M * p ^ a) dvd_rfl
-    exact relfinrank_full_of h _ hh.1 hh.2
+    exact relfinrank_full_of _ hh.1 hh.2
   have hstep := h.relfinrank_full_eq_mul M p a
     (h.full_eq_adjoin_full_div_prime M p a hpM) (jqN_pow_not_mem_full h M p hpM hallM a)
   have htower := IntermediateField.relfinrank_mul_relfinrank (F0_le_full (M * p ^ a))
     (full_degeneracy_le (N := M * p ^ a) (M := M * p ^ (a + 1)) ⟨p, by rw [pow_succ, mul_assoc]⟩)
-  rw [← h.relfinrank_modularFunctionField d]
+  rw [← relfinrank_modularFunctionField d]
   unfold Gen at hgen
   rw [hgen, full_congr hdM', ← htower, hlowdeg, hstep]
   have hpsi : dedekindPsi d = dedekindPsi (M * p ^ a) * (if a = 0 then p + 1 else p) := by

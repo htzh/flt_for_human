@@ -339,6 +339,7 @@ repeating:
 | topic (`jq` coefficients) | 24 (2 public + 22 `private`) | 4 | **1** |
 | topic (conditional capstone) | 29 (5 public + 24 `private`) | 4 | **1** |
 | topic (interface tier) | 9 public added to 2 modules; `Spine` −4 | 2 | **1** |
+| topic (generic kernel) | 3 public + 3 instantiations; 1 peel in `Fields`; `Spine` 8 → 7 | 2 | **1** |
 
 Transcribing a pinned, definitional source with the statements dictated is
 cheap. The cost lives in *shape* mismatches — typeclass, coercion, defeq,
@@ -385,13 +386,28 @@ in the cone), and the *public interface* can be split across namespaces in the p
 with implicit `K`), so a statement checker must be told which copy is the
 interface. See [logs/ffg-port.md](logs/ffg-port.md) §2e.
 
+**A mathlib-absent generic proof is still cheap when the pin dictates it.** The
+generic-kernel topic is the clearest case yet: three lemmas that are *not* in
+mathlib, with real mathematical content, and all three transcribed on the first
+try (the only edits were `private` → public). This is the strongest evidence for
+the "statements dictated ⇒ cheap" rule, because nothing about the source being
+*ordinary definitions* was doing the work — the pin's proofs were simply good
+proofs against the same mathlib API. The topic's actual cost was not the lemmas
+but their **wire test**: designing a concrete instantiation of the
+cyclic-automorphism lemma that all hypotheses accept took longer than the lemma
+itself, because over `ℚ ⊆ ℂ` the only nontrivial base-fixing automorphism is
+complex conjugation and a nontrivial cycle then needs a cubic with one real root
+and explicit cube roots, which mathlib lacks. Budget a generic lemma's
+*instantiation*, not its transcription. See [logs/ffg-port.md](logs/ffg-port.md)
+§2f.
+
 ### 7.4 Make faithfulness mechanical
 
 With a pinned source, faithfulness is checkable rather than a matter of trust.
 Three cheap instruments, all used here:
 
 - a checker that diffs every ported **statement** against the pin
-  (`spec/check_flt_statements.py`; 146 of 146 identical) — and verify the checker
+  (`spec/check_flt_statements.py`; 150 of 150 identical) — and verify the checker
   itself with a deliberately mutated statement. When a declaration is *ours*
   rather than transcribed (`coeff_jq_zero` / `coeff_jq_one`, `Inputs`,
   `functionFieldGeneration_of`) or is a *public promotion of an FLT-private* name
