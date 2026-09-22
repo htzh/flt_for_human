@@ -85,23 +85,10 @@ section Transport
 
 variable {K₀ : Type*} [Field K₀] [Algebra ℚ K₀]
 
-omit [Algebra ℚ K] [Algebra ℚ K₀] in
-private theorem coeffMap_qTwist (σ : K₀ →+* K) (u : K₀ˣ) (f : LaurentSeries K₀) :
-    coeffMap σ (qTwist u f) = qTwist (Units.map σ.toMonoidHom u) (coeffMap σ f) := by
-  ext k
-  simp only [coeffMap_coeff, qTwist_coeff, map_mul]
-  congr 1
-  rw [← map_zpow, Units.coe_map]
-  rfl
-
-private theorem coeffMap_coeffEmb_algHom (σ : K₀ →ₐ[ℚ] K) (x : LaurentSeries ℚ) :
-    coeffMap (σ : K₀ →+* K) (coeffEmb K₀ x) = coeffEmb K x := by
-  rw [coeffEmb, coeffEmb, coeffMap_coeffMap]
-  exact coeffMap_congr (σ.comp_algebraMap) x
-
-private theorem coeffMap_TS (σ : K₀ →ₐ[ℚ] K) (e : ℕ) [NeZero e] (u : K₀ˣ) :
-    coeffMap (σ : K₀ →+* K) (TS K₀ e u) = TS K e (Units.map (σ : K₀ →+* K).toMonoidHom u) := by
-  rw [TS, TS, coeffMap_qExpand, coeffMap_qTwist, coeffMap_coeffEmb_algHom]
+/-! `coeffMap_qTwist`, `coeffMap_coeffEmb_algHom` and `coeffMap_TS` were this
+module's `private` transport copies; T16 promoted the canonical copies to
+`Defs/Twist.lean`, `Defs/Laurent.lean` and `Defs/TS.lean` (all imported here), so
+the twins are gone. `coeffMap_conj` below now uses the public `coeffMap_TS`. -/
 
 private theorem coeffMap_conj (σ : K₀ →ₐ[ℚ] K) (p : ℕ) [Fact p.Prime] (ζ : K₀ˣ)
     (i : Fin (p + 1)) :

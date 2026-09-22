@@ -170,6 +170,40 @@ theorem full_degeneracy_map_le (ℓ : ℕ) [NeZero ℓ] :
 
 end AllDivisors
 
+/-! ## T16 — the relative degree of adjoining one generator
+
+`w1_relfinrank_insert` is Tier 1 of math/010 §6: adjoining a single element `α`
+to `E` inside `ℚ(α, E)` has relative degree equal to `[E(α) : E]`. FLT repeats
+it across three files; it already uses mathlib's relative-degree/tower API
+(`relfinrank_eq_finrank_of_le`, `extendScalars_adjoin`), so there is nothing to
+replace. Statement verbatim from
+`S_ModularCurve_relfinrank_full_eq_mul.lean`. -/
+
+section RelfinrankInsert
+
+/-- The relative degree of `ℚ(α, E)` over `E` is the degree of `α` over `E`. -/
+theorem w1_relfinrank_insert (E : IntermediateField ℚ (LaurentSeries ℚ))
+    (α : LaurentSeries ℚ) :
+    IntermediateField.relfinrank E
+      (IntermediateField.adjoin ℚ (insert α (E : Set (LaurentSeries ℚ))))
+      = Module.finrank E
+          (IntermediateField.adjoin E ({α} : Set (LaurentSeries ℚ))) := by
+  have h : E ≤ IntermediateField.adjoin ℚ (insert α (E : Set (LaurentSeries ℚ))) :=
+    fun x hx => IntermediateField.subset_adjoin ℚ _ (Set.mem_insert_of_mem _ hx)
+  have hEq : IntermediateField.adjoin E (insert α (E : Set (LaurentSeries ℚ)))
+      = IntermediateField.adjoin E ({α} : Set (LaurentSeries ℚ)) := by
+    refine le_antisymm ?_ ?_
+    · rw [IntermediateField.adjoin_le_iff]
+      rintro x (rfl | hxE)
+      · exact IntermediateField.subset_adjoin _ _ rfl
+      · exact (IntermediateField.adjoin E _).algebraMap_mem (⟨x, hxE⟩ : E)
+    · exact IntermediateField.adjoin.mono _ _ _
+        (Set.singleton_subset_iff.mpr (Set.mem_insert α _))
+  rw [IntermediateField.relfinrank_eq_finrank_of_le h,
+    IntermediateField.extendScalars_adjoin h, hEq]
+
+end RelfinrankInsert
+
 end ModularCurve
 
 end

@@ -327,6 +327,76 @@ theorem coeffEmb_injective (L : Type*) [Field L] [Algebra ℚ L] :
     Function.Injective (coeffEmb L) :=
   coeffMap_injective (FaithfulSMul.algebraMap_injective ℚ L)
 
+/-! ## T16 — the coefficient-transport bridges
+
+The degree step (T16) and the slot product (T19) share a small transport API:
+`coeffMap` against `coeffEmb`, against a `ℚ`-algebra automorphism, and the
+injectivity of `coeffEmb ∘ qExpand`. FLT repeats them across up to 41 files
+(the 2026-09-22 bridge audit); they are written once here. Two siblings live
+beside the objects they mention: `coeffMap_qTwist` in `Defs/Twist.lean` (it
+mentions `qTwist`, which is downstream of this module) and `coeffMap_TS` in
+`Defs/TS.lean` (it mentions `TS`).
+
+Statements from `S_ModularCurve_PhiGen_splits_of_prime.lean`
+(`coeffMap_coeffEmb_algHom`), `S_ModularCurve_finrank_adjoin_jqN_pow_succ_of_not_mem.lean`
+(`coeffMapEquiv`, `coeffMapEquiv_apply`, `iota_injective`). -/
+
+section TransportBridges
+
+variable {K₀ K : Type*} [Field K₀] [Algebra ℚ K₀] [Field K] [Algebra ℚ K]
+
+/-- A `ℚ`-algebra homomorphism commutes with `coeffEmb` on the nose. -/
+theorem coeffMap_coeffEmb_algHom (σ : K₀ →ₐ[ℚ] K) (x : LaurentSeries ℚ) :
+    coeffMap (σ : K₀ →+* K) (coeffEmb K₀ x) = coeffEmb K x := by
+  rw [coeffEmb, coeffEmb, coeffMap_coeffMap]
+  exact coeffMap_congr (σ.comp_algebraMap) x
+
+end TransportBridges
+
+section CoeffMapEquiv
+
+variable {K : Type*} [Field K] [Algebra ℚ K]
+
+/-- A `ℚ`-algebra automorphism of `K`, extended coefficientwise, as a ring
+equivalence of Laurent series. Routed through mathlib's
+`RingEquiv.ofBijective` (the audit's positive ingredient); the pin's explicit
+`where` is the fallback. -/
+def coeffMapEquiv (τ : K ≃ₐ[ℚ] K) : LaurentSeries K ≃+* LaurentSeries K :=
+  RingEquiv.ofBijective (coeffMap ((τ : K →ₐ[ℚ] K) : K →+* K)) (by
+    constructor
+    · intro f g h
+      have hcomp : ((τ.symm : K →ₐ[ℚ] K) : K →+* K).comp ((τ : K →ₐ[ℚ] K) : K →+* K)
+          = RingHom.id K := RingHom.ext fun x => τ.symm_apply_apply x
+      have h2 : coeffMap ((τ.symm : K →ₐ[ℚ] K) : K →+* K)
+          (coeffMap ((τ : K →ₐ[ℚ] K) : K →+* K) f) = f := by
+        rw [coeffMap_coeffMap, coeffMap_congr hcomp f, coeffMap_id]
+      have h3 : coeffMap ((τ.symm : K →ₐ[ℚ] K) : K →+* K)
+          (coeffMap ((τ : K →ₐ[ℚ] K) : K →+* K) g) = g := by
+        rw [coeffMap_coeffMap, coeffMap_congr hcomp g, coeffMap_id]
+      rw [← h2, ← h3, h]
+    · intro f
+      refine ⟨coeffMap ((τ.symm : K →ₐ[ℚ] K) : K →+* K) f, ?_⟩
+      have hcomp : ((τ : K →ₐ[ℚ] K) : K →+* K).comp ((τ.symm : K →ₐ[ℚ] K) : K →+* K)
+          = RingHom.id K := RingHom.ext fun x => τ.apply_symm_apply x
+      rw [coeffMap_coeffMap, coeffMap_congr hcomp f, coeffMap_id])
+
+@[scoped simp] theorem coeffMapEquiv_apply (τ : K ≃ₐ[ℚ] K) (f : LaurentSeries K) :
+    coeffMapEquiv τ f = coeffMap ((τ : K →ₐ[ℚ] K) : K →+* K) f := rfl
+
+end CoeffMapEquiv
+
+section IotaInjective
+
+variable {K : Type*} [Field K] [Algebra ℚ K]
+
+/-- `coeffEmb ∘ qExpand` is injective: the coefficient embedding and the
+substitution are each injective. -/
+theorem iota_injective (A : ℕ) [NeZero A] :
+    Function.Injective ((coeffEmb K).comp (qExpand ℚ A)) :=
+  (coeffEmb_injective K).comp (qExpand_injective A)
+
+end IotaInjective
+
 end ModularCurve
 
 end

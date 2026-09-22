@@ -41,7 +41,8 @@ FLT is pinned at `aa2d8b3`; mathlib at `v4.34.0`.
 | topic 4 | the generic kernel (`FLTForHuman/FieldTheory/CommonRoot.lean`) and the `relfinrank` peel | **done**, 1 new module, 3 public lemmas + 3 instantiations; `Inputs` 8 → 7 | consumer unchanged (0 errors, 1 `sorry`); checker 150 |
 | T14 | the shared slot prelude, written once | **done**, 2 new modules + 3 extended; 32 declarations, 503 port lines | consumer **Zone L** (0 errors); checker 276 |
 | T15 | descent by one prime and the one-prime reduction | **done**, 1 new module; 2 declarations, 252 port lines; `Inputs` 7 → 5 | consumer **Zone M** (0 errors); checker 278 |
-| theorem | PORTING-FFG §7's 24-node remainder behind the Φ_p input | **in progress**: Φ_p cone (T5–T13) and T14–T15 done; T16–T20 remain; `Inputs` is a structure of 5 fields | — |
+| T16 | the degree of one prime-power step | **done**, 1 new module + 4 extended; 10 declarations, 605 port lines; `Inputs` 5 → 4 | consumer **Zone N** (0 errors); checker 288 |
+| theorem | PORTING-FFG §7's 24-node remainder behind the Φ_p input | **in progress**: Φ_p cone (T5–T13) and T14–T16 done; T17–T20 remain; `Inputs` is a structure of 4 fields | — |
 
 The tree was restructured twice, neither time touching the mathematics.
 
@@ -511,6 +512,62 @@ family), so the module uses the same local disable as `PhiGenSplits.lean`. And t
 `htw`/`hsp` binders are kept exactly as the wrapper writes them (the wrapper's
 `hp : Fact (Nat.Prime p)` for the descent, a bare `p.Prime` for the reduction), so
 the checker matches by direct name.
+
+## 2i. T16: the degree of one prime-power step — what it cost
+
+T16 is the last purely field-theoretic topic. It proves the degree half of the
+strong induction — the two prime-power degree statements and the tower dispatcher
+— and discharges the third `Inputs` field, so the capstone's debt is **5 → 4**.
+
+| | |
+|---|---|
+| goal rounds | **1** (of the 2 budgeted) |
+| declarations | 3 public nodes + 7 promoted bridges; 3 private helpers (`phiAtSeed_iota_jq_eq_phiProd`, `rUnit`, `range_map_eq_rUnit`) |
+| new module | `FunctionFieldGeneration/DegreeStep.lean`, **455 lines** |
+| extensions | `Defs/Laurent.lean` +70, `Defs/Fields.lean` +34, `Defs/Twist.lean` +25, `Defs/TS.lean` +21 |
+| dedup | `PhiGenDescent.lean` −11, `PhiGenSplits.lean` −13, `PhiGenIntegrality.lean` −4 (the private transport twins) |
+| **port lines** | **605** (455 + 150) against ≈435 pin lines, ratio **≈1.39** — inside the scouted `~500–650` |
+| build | full `lake build` green, 0 warnings, no `sorry`; **3869 jobs** |
+| axioms | `#print axioms` clean on all three nodes and all seven promotions |
+| checker | **288** identical (278 → +10; **14** promoted, +2), 0 mismatched, 0 missing (296 checked) |
+| wire | consumer **Zone N** (0 errors): a partially discharged `Inputs` with the three proved fields filled |
+
+**The pow-succ node transcribed on the first build.** The whole of the hard node
+— the factor peel `Q /ₘ (X - C jkF)`, the `p - 1` multiset re-indexing
+`range_map_eq_rUnit`, and the cyclotomic coefficient automorphism block — went in
+verbatim and compiled with no stall. `coeffMapEquiv` took
+`RingEquiv.ofBijective` (the audit's positive ingredient); the pin's explicit
+`where` was the fallback and was not needed. The only warnings were the two
+`if_pos`/`if_neg` deprecations (friction entry 2's family), fixed with
+`ite_eq_left`/`ite_eq_right`.
+
+**The promotions, and a third layering correction.** The work order's §4 put all
+three `coeffMap_*` bridges in `Defs/Laurent.lean`, but the import layering forbids
+it a third time (after T14's `iota_jqN` and T15's `Algebra` instance):
+`coeffMap_qTwist` mentions `qTwist` (downstream of `Laurent`), so it lives in
+`Defs/Twist.lean`; `coeffMap_TS` mentions `TS`, so it lives in `Defs/TS.lean`; only
+`coeffMap_coeffEmb_algHom` (with `coeffMapEquiv` and `iota_injective`) is
+genuinely in `Defs/Laurent.lean`. `w1_relfinrank_insert` went to `Defs/Fields.lean`
+beside `modularFunctionFieldFull`. No cycle was introduced, and the three private
+twins are gone. The redundant `coeffEmb_injective'` and `jqN_congr'` were dropped
+in favour of the public `coeffEmb_injective` and `jqN_congr`.
+
+**The checker needed the `S_` carriers, not just the wrappers.** §6.2 named only
+the three `Them_` wrappers, but `coeffMapEquiv`, `coeffMapEquiv_apply` and
+`iota_injective` are not exported by a wrapper (they are public in the pow-succ
+`S_` file) and `w1_relfinrank_insert` is `private` in the relfinrank `S_` file, so
+the three `S_` carriers were appended to `SOURCES` (last, after every existing
+source, so no existing match flipped). The checker moved 278 → 288 with 0
+mismatched and 0 missing.
+
+**The `p = 3` non-vacuity test for `irreducible_of_transitive_ringAut` is still
+out of reach.** A concrete instance needs a cubic over `ℚ` with Galois group `S₃`
+whose roots mathlib can name — `X³ - 2` is canonical, with complex conjugation
+fixing the real root and 2-cycling the other two — but mathlib has no explicit
+cube roots (log §8.6's finding stands). The engine is not vacuous in the
+mathematics — T16's pow-succ node applies it over the abstract `F` with the
+non-identity `σ = coeffMapEquiv τ` — so the open question is recorded, not
+resolved, and Zone N documents the obstruction.
 
 ## 3. What was verified
 

@@ -182,6 +182,31 @@ theorem coe_qTwistEquiv (u : Kˣ) :
 
 end UnitTwistEquiv
 
+/-! ## T16 — `coeffMap` against a unit twist
+
+FLT repeats this transport lemma across 41 files (the 2026-09-22 bridge audit);
+it lives here, beside `qTwist`, because it mentions `qTwist` and this module is
+upstream of `Defs/TS.lean` (where `coeffMap_TS` composes it). Statement verbatim
+from `S_ModularCurve_PhiGen_exists_phiGenDescends.lean`. -/
+
+section CoeffMapTwist
+
+variable {R S : Type*} [CommRing R] [CommRing S]
+
+/-- `coeffMap` commutes with a unit twist: extending coefficients and twisting
+`q ↦ u q` commute, with the twist carried across by `Units.map`. -/
+theorem coeffMap_qTwist (σ : R →+* S) (u : Rˣ) (v : Sˣ) (huv : (v : S) = σ (u : R))
+    (f : LaurentSeries R) : coeffMap σ (qTwist u f) = qTwist v (coeffMap σ f) := by
+  have hmap : Units.map (σ : R →* S) u = v :=
+    Units.ext (by rw [Units.coe_map, huv]; rfl)
+  ext k
+  rw [coeffMap_coeff, qTwist_coeff, qTwist_coeff, coeffMap_coeff, map_mul]
+  congr 1
+  rw [← hmap, ← map_zpow, Units.coe_map]
+  rfl
+
+end CoeffMapTwist
+
 end ModularCurve
 
 end

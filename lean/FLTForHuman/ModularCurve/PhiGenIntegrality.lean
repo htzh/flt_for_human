@@ -99,19 +99,10 @@ private theorem coeffMap_ofPowerSeries {R S : Type*} [CommRing R] [CommRing S]
     rw [hcast]
     simp only [coeffMap_coeff, HahnSeries.ofPowerSeries_apply_coeff, PowerSeries.coeff_map]
 
-private theorem coeffMap_qTwist {R S : Type*} [CommRing R] [CommRing S] (f : R →+* S)
-    (u : Rˣ) (x : LaurentSeries R) :
-    coeffMap f (qTwist u x) = qTwist (Units.map f.toMonoidHom u) (coeffMap f x) := by
-  ext m
-  rw [coeffMap_coeff, qTwist_coeff, qTwist_coeff, coeffMap_coeff, map_mul]
-  congr 1
-  have h : (Units.map f.toMonoidHom u) ^ m = Units.map f.toMonoidHom (u ^ m) := by
-    induction m using Int.induction_on with
-    | zero => simp
-    | succ n ih => rw [zpow_add_one, zpow_add_one, map_mul, ih]
-    | pred n ih => rw [zpow_sub_one, zpow_sub_one, map_mul, ih, map_inv]
-  rw [congrArg Units.val h, Units.coe_map]
-  rfl
+/-! `coeffMap_qTwist` was this module's `private` 3-argument transport copy; T16
+promoted the canonical 5-argument form (with the explicit `v`/`huv`) to
+`Defs/Twist.lean`, which this module imports transitively through `Defs/PhiGen`.
+The one call site below now names the public lemma explicitly. -/
 
 private theorem coeffMap_jqZ : coeffMap (algebraMap ℤ K) jqZ = coeffEmb K jq := by
   have hcomp : (algebraMap ℚ K).comp (Int.castRingHom ℚ) = algebraMap ℤ K :=
@@ -176,7 +167,12 @@ private def conjO (ζ : Kˣ) (hζ1 : ζ ^ ℓ = 1) (i : Fin (ℓ + 1)) :
 
 private theorem coeffMap_conjO (ζ : Kˣ) (hζ1 : ζ ^ ℓ = 1) (i : Fin (ℓ + 1)) :
     coeffMap (algebraMap (integralClosure ℤ K) K) (conjO ζ hζ1 i) = conj ℓ ζ i := by
-  rw [conjO, coeffMap_qExpand, coeffMap_qTwist, coeffMap_jqO, coeffMap_zetaUnit]
+  rw [conjO, coeffMap_qExpand,
+    coeffMap_qTwist (algebraMap (integralClosure ℤ K) K)
+      (zetaUnit ζ hζ1 (cosetA ℓ i * cosetB ℓ i))
+      (Units.map (algebraMap (integralClosure ℤ K) K).toMonoidHom
+        (zetaUnit ζ hζ1 (cosetA ℓ i * cosetB ℓ i))) rfl,
+    coeffMap_jqO, coeffMap_zetaUnit]
   unfold conj cosetSubst
   rw [RingHom.comp_apply]
 

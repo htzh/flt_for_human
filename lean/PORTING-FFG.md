@@ -1,18 +1,20 @@
 # Blueprint: `ModularCurve.functionFieldGeneration`
 
 **Status (2026-09-22): Layer 0, its four topics, the Φ_p splitting cone and
-T14–T15 are done; the theorem's remaining nodes (T16–T20) are the live work.** The library
-of `lean/FLTForHuman/ModularCurve/` plus `FLTForHuman/FieldTheory/CommonRoot.lean`
-and the `FLTForHuman/ModularForms/` cone modules is green with zero warnings and
-zero `sorry`, the deliverable measure `spec/ModularCurveConsumer.lean` reports
-**0 errors**, and the effort now owns two halves of the theorem: the proved
-conditional capstone `functionFieldGeneration_of (h : Inputs)`, and the Φ_p cone
-(T5–T13 landed) that discharges its inputs. T14 wrote the pin's shared slot prelude
-once (`Defs/PhiAtSlot.lean`, `PhiSlotRoots.lean` and the `Defs/` extensions), so
-T15–T19 import it, and T15 has since discharged two `Inputs` fields
-(`FunctionFieldGeneration/Descent.lean`), taking the capstone's debt to **5**.
+T14–T16 are done; the theorem's remaining nodes (T17–T20) are the live work.** The
+library of `lean/FLTForHuman/ModularCurve/` plus
+`FLTForHuman/FieldTheory/CommonRoot.lean` and the `FLTForHuman/ModularForms/` cone
+modules is green with zero warnings and zero `sorry`, the deliverable measure
+`spec/ModularCurveConsumer.lean` reports **0 errors**, and the effort now owns two
+halves of the theorem: the proved conditional capstone
+`functionFieldGeneration_of (h : Inputs)`, and the Φ_p cone (T5–T13 landed) that
+discharges its inputs. T14 wrote the pin's shared slot prelude once
+(`Defs/PhiAtSlot.lean`, `PhiSlotRoots.lean` and the `Defs/` extensions), so
+T15–T19 import it; T15 discharged two `Inputs` fields
+(`FunctionFieldGeneration/Descent.lean`) and T16 the third
+(`FunctionFieldGeneration/DegreeStep.lean`), taking the capstone's debt to **4**.
 **The live plan is §7.8**: the 17-node remainder, the measured ≈4.8k–5.0k line
-budget, and topics T16–T20.
+budget, and topics T17–T20.
 
 The scope has moved on from Layer 0. §1 is the design rules that still govern the
 remaining work; §2 records the decision to finish and why; §3–§6 are the Layer 0
@@ -593,7 +595,7 @@ the descent (T15) and the prelude (T14) are independent of that chain.
 |---|---|---|---|---|
 | **T14** ✅ | the slot machinery | **done (2026-09-22)** — the shared prelude is written once: `Defs/PhiAtSlot.lean` (the `conj`/`TS` bridges `iota_jq`/`conj_zero_eq`/`conj_succ_eq`, `phiProd_conj_eq`, `roots_phiProd_conj(_nodup)`, `phiAtSeed` + its eight lemmas, `aeval_intermediateField_eq_zero`, `phiAtSeed_eval_of_injective`/`_symm`, `phiAtSeed_jqN_eval_down`), `Defs/Twist.lean` (`qTwist_iota_of_pow_eq_one`, `qTwistEquiv` + `_apply`/`coe_`), `Defs/TS.lean` (`iota_jqN`, `qTwist_TS_one_cycle`, `qExpand_qTwist_TS`, `qExpand_qTwist_notMem_range_qExpand`), `Defs/Jq.lean` (`jqN_congr`), and the downstream `ModularCurve/PhiSlotRoots.lean` (`prod_form_ne_zero`, `roots_prime_at_slot*`, `isRoot_prime_at_slot_iff`). Six `private` twins in `Spine.lean`/`PhiGenSplits.lean` are deleted. The cyclotomic block was already promoted by T13. | **503 measured** (237 + 153 + 51 + 56 + 6; ratio ≈1.64) | Φ_p defs |
 | **T15** ✅ | descent and the collapse (math/010 §4–§5) | **done (2026-09-22)** — `FunctionFieldGeneration/Descent.lean`: `jqN_div_mem_modularFunctionField` (the unique-common-root descent, with `htw`/`hsp` left as arguments for T19) and `modularFunctionField_eq_full_of` (the one-prime `Gen` reduction). One 735-line pin development, but ~542 of those lines are T14's prelude; the tail is **173** lines. Both are `Inputs` fields, so the capstone's debt is now **5**. Work order [TOPIC-descent.md](topics/functionFieldGeneration/TOPIC-descent.md) | **252 measured** (ratio ≈1.46) | T14, Φ_p T12–T13 |
-| **T16** | the degree step (math/010 §6b) | `finrank_adjoin_jqN_prime_of_not_mem`, `finrank_adjoin_jqN_pow_succ_of_not_mem`, `relfinrank_full_eq_mul` | ~500 | T14, Φ_p T13, `CommonRoot` |
+| **T16** ✅ | the degree step (math/010 §6b) | **done (2026-09-22)** — `FunctionFieldGeneration/DegreeStep.lean`: `finrank_adjoin_jqN_prime_of_not_mem` (the twist `p + 1`), `finrank_adjoin_jqN_pow_succ_of_not_mem` (the coefficient-automorphism `p`) and `relfinrank_full_eq_mul` (the tower dispatcher). ≈435 pin lines. Three transport bridges promoted once (with `coeffMapEquiv`/`iota_injective`/`w1_relfinrank_insert`), the redundant `coeffEmb_injective'`/`jqN_congr'` dropped, and the private twins in `PhiGenDescent.lean`/`PhiGenSplits.lean`/`PhiGenIntegrality.lean` deleted. `relfinrank_full_eq_mul` is an `Inputs` field, so the debt is now **4**. Work order [TOPIC-degree-step.md](topics/functionFieldGeneration/TOPIC-degree-step.md) | **605 measured** (455 new module + 150 promoted; ratio ≈1.39) | T14, Φ_p T13, `CommonRoot` |
 | **T17** | non-membership, base and tower (math/010 §6a) | `jqN_pow_not_mem_adjoin_full`, `jqN_prime_not_mem_adjoin` (the **public Finset** lemma; the 2026-09-22 audit confirms it is not reducible to the full-file private lemma and vice versa) | ~830 | T14, T16 |
 | **T18** | generation and the squarefree degree (math/010 §5–§6b) | `full_eq_adjoin_full_div_prime`, `full_eq_adjoin_primes`, `dedekindPsi_of_squarefree`, `relfinrank_full_of_squarefree`, `finrank_adjoin_jqN_eq_of_squarefree`, `functionFieldGeneration_of_squarefree` | ~1,150 | T15, T16, T17 |
 | **T19** | the slot product and prime non-membership (math/010 §3, §6a) | `minpoly_jqN_map_eq_prod_slots` (= the pin's `rval_aux`) and `jqN_prime_not_mem_full` (one 2,002-line development, which also carries its own **private M-arbitrary** `jqN_prime_not_mem_adjoin` — a different statement from T17's public Finset lemma, not a duplicate). Route win: closed-form `slotAt` + the `CommonRoot` engine import (2026-09-22 audits) | **~1,100–1,400** | T18, Φ_p `splits_prime_at_slot` |
@@ -720,6 +722,50 @@ Two consequences for the schedule:
   (`coeffMap_qTwist`, `coeffMap_TS`, `jqN_congr`, `iota_injective`,
   `w1_relfinrank_insert`) are duplicated across files and want one home each —
   `jqN_congr` is already in `Defs/Jq.lean` from T14.
+
+**T16 scouted (2026-09-22), and its row corrected.** The work order is
+[TOPIC-degree-step.md](topics/functionFieldGeneration/TOPIC-degree-step.md). The
+three degree nodes are separate files, and most of files 1–2 is again T14's
+prelude, so T16's own content is **≈435 pin lines**, not the `~500` the row
+carried: the prime node (52) is the twist argument, the pow-succ node (187) the
+hard one, `relfinrank_full_eq_mul` (24) a dispatcher over them, plus ~145 helper
+lines. Three of those helpers are **redundant** with public declarations
+(`coeffEmb_injective'` ≡ `coeffEmb_injective`, `jqN_congr` appears twice), and
+three are **promotions**: `coeffMap_qTwist` (the audit's 41-copy lemma),
+`coeffMap_TS` (14 copies) and `coeffMap_coeffEmb_algHom` are private in T11/T13's
+cone modules and should live once in `Defs/Laurent.lean`. The genuinely new
+mathematics is the pow-succ automorphism: not the nome twist but a cyclotomic
+coefficient automorphism `coeffMapEquiv τ` cycling the `p - 1` roots of the
+degree-`p` factor — mathlib's `IsCyclotomicExtension.autEquivPow` /
+`IsPrimitiveRoot.autToPow` API, which nothing in the port exercises yet and is
+T16's one real route test. Port estimate **~500–650**, two goal rounds.
+
+**T16 measured (2026-09-22) — one round, and the row corrected.** T16 landed in
+**one** goal round as **605 port lines**: the new `DegreeStep.lean` (455) plus
+150 promotion lines (`Defs/Laurent.lean` +70, `Defs/Fields.lean` +34,
+`Defs/Twist.lean` +25, `Defs/TS.lean` +21), against ≈435 pin lines, ratio
+**≈1.39** — inside the scouted `~500–650` band. All three declarations are
+public, their statements the wrappers' verbatim, `#print axioms` clean; the
+checker moved **278 → 288** (0 mismatched, 0 missing) and the consumer gained
+Zone N, whose wire builds a partially discharged `Inputs` with the three proved
+fields filled, so **the capstone's debt is 5 → 4**. Every route risk resolved on
+the first build: the whole pow-succ node — the factor peel, the multiset
+re-indexing `range_map_eq_rUnit` and the cyclotomic automorphism block —
+transcribed without a stall, and `coeffMapEquiv` took `RingEquiv.ofBijective` as
+the audit predicted. Two corrections:
+
+- **The `coeffMap_*` home is `Defs/Twist.lean`/`Defs/TS.lean`, not
+  `Defs/Laurent.lean`.** As with T14's `iota_jqN`, the import layering forbids
+  §4's table: `coeffMap_qTwist` mentions `qTwist` (downstream of `Laurent`), so it
+  lives in `Defs/Twist.lean`, and `coeffMap_TS` mentions `TS`, so it lives beside
+  `TS` in `Defs/TS.lean`. Only `coeffMap_coeffEmb_algHom` (plus `coeffMapEquiv`
+  and `iota_injective`) is genuinely `Defs/Laurent.lean`. Every declaration still
+  has exactly one home, and no cycle was introduced.
+- **The three `S_` carriers join the checker `SOURCES`.** §6.2 named only the
+  three `Them_` wrappers, but the promoted `coeffMapEquiv`, `iota_injective` and
+  the private `w1_relfinrank_insert` have no wrapper, so the prime/pow-succ/
+  relfinrank `S_` files are appended (last, so no existing match flips); they are
+  what the checker's direct and dotted routes read for those promotions.
 
 **Route risks, in the order they will bite.** Each is a candidate for the
 "cost tracks the route" treatment before its topic is priced:

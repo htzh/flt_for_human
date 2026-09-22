@@ -207,6 +207,19 @@ SOURCES = [
     # T14's prelude.)
     "Theorems/Thm_ModularCurve_jqN_div_mem_modularFunctionField.lean",
     "Theorems/Thm_ModularCurve_modularFunctionField_eq_full_of.lean",
+    # Topic 16, the degree step. The three nodes are public wrappers, so they
+    # verify by direct match. The three `S_` carriers are appended last for the
+    # promoted bridges: the prime and pow-succ files carry `iota_injective`
+    # (public) and `coeffMapEquiv`/`_apply` (public in pow-succ); the relfinrank
+    # file carries the `private` `w1_relfinrank_insert`, which the checker's
+    # dotted fallback reads. They are appended after every existing source so no
+    # earlier match can flip.
+    "Theorems/Thm_ModularCurve_finrank_adjoin_jqN_prime_of_not_mem.lean",
+    "Theorems/Thm_ModularCurve_finrank_adjoin_jqN_pow_succ_of_not_mem.lean",
+    "Theorems/Thm_ModularCurve_relfinrank_full_eq_mul.lean",
+    "P2M/Sol/S_ModularCurve_finrank_adjoin_jqN_prime_of_not_mem.lean",
+    "P2M/Sol/S_ModularCurve_finrank_adjoin_jqN_pow_succ_of_not_mem.lean",
+    "P2M/Sol/S_ModularCurve_relfinrank_full_eq_mul.lean",
 ]
 
 PORT_FILES = [
@@ -245,6 +258,8 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/PhiSlotRoots.lean",
     # Topic 15, the descent and the one-prime reduction.
     "FLTForHuman/ModularCurve/FunctionFieldGeneration/Descent.lean",
+    # Topic 16, the degree step.
+    "FLTForHuman/ModularCurve/FunctionFieldGeneration/DegreeStep.lean",
 ]
 
 # Declarations whose *statement* has no FLT source, so there is nothing to diff:

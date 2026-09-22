@@ -192,21 +192,10 @@ private theorem phiProd_coeff_mem_range_qExpand (ℓ : ℕ) [hℓ : Fact (Nat.Pr
 
 end RangeDescent
 
-section GaloisMap
-
-variable {R S : Type*} [CommRing R] [CommRing S]
-
-private theorem coeffMap_qTwist (σ : R →+* S) (u : Rˣ) (v : Sˣ) (huv : (v : S) = σ (u : R))
-    (f : LaurentSeries R) : coeffMap σ (qTwist u f) = qTwist v (coeffMap σ f) := by
-  have hmap : Units.map (σ : R →* S) u = v :=
-    Units.ext (by rw [Units.coe_map, huv]; rfl)
-  ext k
-  rw [coeffMap_coeff, qTwist_coeff, qTwist_coeff, coeffMap_coeff, map_mul]
-  congr 1
-  rw [← hmap, ← map_zpow, Units.coe_map]
-  rfl
-
-end GaloisMap
+/-! `coeffMap_qTwist` was this module's `private` copy; T16 promoted the
+canonical copy to `Defs/Twist.lean` (public), which this module imports
+transitively through `Defs/PhiGen`, so the twin is gone and the call sites below
+resolve to the public lemma. -/
 
 section GaloisCoeff
 

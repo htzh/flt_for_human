@@ -150,6 +150,27 @@ theorem qExpand_qTwist_notMem_range_qExpand {r e : ℕ} [NeZero r] [NeZero e]
   rw [hz, h1] at h2
   exact (w⁻¹ : Kˣ).ne_zero h2
 
+/-! ## T16 — `coeffMap` against `TS`
+
+FLT repeats this transport lemma across 14 files (the 2026-09-22 bridge audit);
+it lives here, beside `TS`, because it mentions `TS`. Statement verbatim from
+`S_ModularCurve_finrank_adjoin_jqN_pow_succ_of_not_mem.lean` (and
+`S_ModularCurve_PhiGen_splits_of_prime.lean`). -/
+
+section CoeffMapTS
+
+variable {K₀ : Type*} [Field K₀] [Algebra ℚ K₀]
+
+/-- `coeffMap` commutes with `TS`: pushing coefficients through a `ℚ`-algebra
+homomorphism carries `TS K₀ e u` to `TS K e (Units.map σ u)`. -/
+theorem coeffMap_TS (σ : K₀ →ₐ[ℚ] K) (e : ℕ) [NeZero e] (u : K₀ˣ) :
+    coeffMap (σ : K₀ →+* K) (TS K₀ e u) = TS K e (Units.map (σ : K₀ →+* K).toMonoidHom u) := by
+  rw [TS, TS, coeffMap_qExpand,
+    coeffMap_qTwist σ u (Units.map (σ : K₀ →+* K).toMonoidHom u) rfl,
+    coeffMap_coeffEmb_algHom]
+
+end CoeffMapTS
+
 end ModularCurve
 
 end

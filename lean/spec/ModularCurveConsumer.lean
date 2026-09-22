@@ -88,6 +88,8 @@ import FLTForHuman.ModularCurve.Defs.PhiAtSlot
 import FLTForHuman.ModularCurve.PhiSlotRoots
 -- T15: descent by one prime, and the one-prime reduction of `Gen`.
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Descent
+-- T16: the degree of one prime-power step.
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.DegreeStep
 -- The cyclotomic instances for the end-to-end wire tests of Zones I, J and K.
 import Mathlib.NumberTheory.Cyclotomic.Basic
 
@@ -691,6 +693,53 @@ example : ModularCurve.Inputs :=
     jqN_div_mem_modularFunctionField := ModularCurve.jqN_div_mem_modularFunctionField
     relfinrank_full_eq_mul := sorry }
 
+/-! ## Zone N — [T16] the degree of one prime-power step
+
+`FLTForHuman/ModularCurve/FunctionFieldGeneration/DegreeStep.lean` proves the two
+degree statements `finrank_adjoin_jqN_prime_of_not_mem` (the first prime power,
+`p + 1`) and `finrank_adjoin_jqN_pow_succ_of_not_mem` (later powers, `p`), and
+the tower dispatcher `relfinrank_full_eq_mul`. It composes the T14 prelude, T13's
+`splits_of_prime`, T12's `exists_phiIrreducible_evalSymm`, T4's
+`irreducible_of_transitive_ringAut` (with the nome twist `qTwistEquiv` in the
+prime node and the coefficient automorphism `coeffMapEquiv` in the later one) and
+mathlib's cyclotomic-automorphism API (`IsCyclotomicExtension.autEquivPow`,
+`IsPrimitiveRoot.autToPow`). T16 also promoted the transport bridges
+`coeffMap_qTwist`/`coeffMap_coeffEmb_algHom`/`coeffMap_TS`/`coeffMapEquiv`/
+`iota_injective`/`w1_relfinrank_insert`, deleting the private twins in
+`PhiGenDescent.lean`/`PhiGenSplits.lean`/`PhiGenIntegrality.lean`.
+
+**The wire test is the `Inputs` composition, so the debt visibly drops to four.**
+`relfinrank_full_eq_mul` is the third `Inputs` field discharged (5 → 4); this
+example fills all three proved fields and leaves the four still-unported ones as
+`sorry`.
+
+**The nontrivial `irreducible_of_transitive_ringAut` wire test is still out of
+reach.** A concrete `p = 3` instance needs a cubic over `ℚ` with Galois group
+`S₃` whose three roots mathlib can name — `X³ - 2` is the canonical choice, with
+complex conjugation fixing the real root and 2-cycling the other two — but
+mathlib has no explicit cube roots (log §8.6's finding stands), and the T16 node
+already exercises the engine for real over the abstract `F` with the non-identity
+`σ = coeffMapEquiv τ`. -/
+
+#check @ModularCurve.finrank_adjoin_jqN_prime_of_not_mem
+#check @ModularCurve.finrank_adjoin_jqN_pow_succ_of_not_mem
+#check @ModularCurve.relfinrank_full_eq_mul
+#check @ModularCurve.coeffMap_qTwist
+#check @ModularCurve.coeffMap_TS
+#check @ModularCurve.coeffMapEquiv
+#check @ModularCurve.iota_injective
+#check @ModularCurve.w1_relfinrank_insert
+
+-- T16 fills the third `Inputs` field; the other four are the unported debt.
+example : ModularCurve.Inputs :=
+  { full_eq_adjoin_full_div_prime := sorry
+    jqN_prime_not_mem_full := sorry
+    jqN_pow_not_mem_adjoin_full := sorry
+    minpoly_jqN_map_eq_prod_slots := sorry
+    modularFunctionField_eq_full_of := ModularCurve.modularFunctionField_eq_full_of
+    jqN_div_mem_modularFunctionField := ModularCurve.jqN_div_mem_modularFunctionField
+    relfinrank_full_eq_mul := ModularCurve.relfinrank_full_eq_mul }
+
 /-! ## The measure
 
     cd lean
@@ -1040,6 +1089,19 @@ construction minus T16–T19, and it fails if either theorem's type stops matchi
 its `Inputs` field. So the file now carries **six** `sorry`s: the Zone A capstone
 plus the five unported `Inputs` fields in the Zone M example. The `Inputs`
 statements were not touched; the debt is 7 → 5.
+
+**Degree-step result (2026-09-22).** Zone N is added and bound:
+`FLTForHuman/ModularCurve/FunctionFieldGeneration/DegreeStep.lean` proves the two
+prime-power degree statements and the tower dispatcher `relfinrank_full_eq_mul`,
+the third `Inputs` field, so the debt is **5 → 4**. The zone also `#check`s the
+transport bridges T16 promoted (`coeffMap_qTwist`, `coeffMap_TS`, `coeffMapEquiv`,
+`iota_injective`, `w1_relfinrank_insert`), and its wire test is the
+partially-discharged `Inputs` with the three proved fields filled. The `sorry`
+count grows by the four unported fields in the Zone N example; the deliberate
+total is the Zone A capstone plus the Zone M (five) and Zone N (four) partial
+structures. The non-vacuity `p = 3` instance for
+`irreducible_of_transitive_ringAut` remains out of reach (no cube roots in
+mathlib); Zone N's comment records why.
 
 The `sorry`s are not errors and do not count: their job is to keep the
 *statements* checkable while the proofs are out of scope.
