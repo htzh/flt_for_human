@@ -38,7 +38,7 @@ and the current release is the better long-term base.
 
 ```bash
 cd lean
-lake build
+lake build                   # the default target, FLTForHuman (both efforts)
 ```
 
 The prebuilt mathlib oleans are already in place for the pinned release, so a
@@ -76,8 +76,6 @@ alongside `.lake/` in case it does.
 
 | module | topic | notes |
 |---|---|---|
-| `FLTForHuman/Basic.lean` | smoke test | toolchain and mathlib wiring only; no mathematics |
-| `FLTForHuman/CountableModule.lean` | cardinality | a finite module over a countable ring is countable; number fields are countable. From [`Def_Mathlib_LinearAlgebra_Countable.lean`][src-countable] |
 | `FLTForHuman/Elliptic/Basic.lean` | shared setup | base change preserves `IsElliptic`; the `W⟮S⟯` point-group notation |
 | `FLTForHuman/Elliptic/Universal.lean` | universal curve | coefficients as indeterminates, `polyToField`, `ringEval`, `specialize`. Ported from `Def_WeierstrassCurve_EDSEngine.lean` |
 | `FLTForHuman/Elliptic/DivisionPolynomial.lean` | `ω` extras | `invar`, `ψc` + `ψc_spec`, `invarNum`/`invarDenom`, `complEDSAux`, `redInvarNum`; the rest of the multiplication-formula bridge follows |
@@ -91,15 +89,50 @@ alongside `.lake/` in case it does.
 | `FLTForHuman/Elliptic/JacobianMulFormula.lean` | projective form | `smulPoly`/`smulField`, `dblXYZ`/`addXYZ`, `zsmul_eq_smulEval` |
 | `FLTForHuman/Elliptic/Bridge.lean` | torsion bridge | `evalEval_ψ_sq`, `evalEval_φ`, `smul_eq_zero_iff_evalEval_ψ` |
 | `FLTForHuman/Elliptic/Fiber.lean` | counting | the Wronskian coprimality, the double-fiber engine, and **`card_torsion_of_isAlgClosed`** (`#E[n] = n²`) |
+| `FLTForHuman/ModularCurve/Defs/Laurent.lean` | q-substitution + coefficient change | `qExpand`, `qExpandₐ`, `coeffMap`, `coeffEmb`, `laurentBaseChange`. FLT `Def_ModularCurve_X0` 25–105, `Def_ModularCurve_LaurentCoeff` 16–123 |
+| `FLTForHuman/ModularCurve/Defs/Twist.lean` | the unit twist `q ↦ u q` | `qTwistFun`, `qTwist` + functoriality, `qTwist_qExpand`. FLT `Def_ModularCurve_PhiGen` 18–96 |
+| `FLTForHuman/ModularCurve/Defs/Jq.lean` | the `j`-series | `eisenstein4`, `etaProd`, the `Δ` unit, `jNum`, `jq` + its pole lemmas, `jqN`, `dedekindPsi`, `evalAtJ`. FLT `Def_ModularCurve_X0` 111–212 |
+| `FLTForHuman/ModularCurve/Defs/Target.lean` | the target statement | `FunctionFieldGeneration` and its `M = 1` case. FLT `Def_ModularCurve_X0` 233–242 |
+| `FLTForHuman/ModularCurve/Defs/Polynomial.lean` | the polynomial datum | `ModularPolynomialData`, `modularPolynomialDataOne`. FLT `Def_ModularCurve_X0` 215–232 |
+| `FLTForHuman/ModularCurve/Defs/Fields.lean` | the two function fields | `modularFunctionField`, `modularFunctionFieldFull`, `toAdjoin`, the degeneracy lemmas. FLT `Def_ModularCurve_X0` 246–348 |
+| `FLTForHuman/ModularCurve/Defs/PhiGen.lean` | the slot vocabulary | `cosetSubst`, `conj`, `phiProd`, `EvalSymm`, `PhiGenDescends`, … — the vocabulary math/010 §3's splitting input must mention. FLT `Def_ModularCurve_PhiGen` 111–309 |
+| `FLTForHuman/ModularCurve/Defs/TS.lean` | `j(u q ^ e)` | `TS` and its nine coefficient/substitution lemmas. FLT `P2M/Sol/S_ModularCurve_functionFieldGeneration` 39–101 (a *solution* file) |
+| `FLTForHuman/ModularCurve/Collapse.lean` | the §2 collapse | `functionFieldGeneration_iff_full_eq`, Layer 0's only theorem. FLT `Thm_…_iff_full_eq` line 6 / `S_…_iff_full_eq` 11–21 |
 
 The port of `#E[n](K) = n²` (math/005) has its own working record:
 [logs/card-torsion-port.md](logs/card-torsion-port.md) — dependency trace,
 dropped clutter, and port order — with the reusable lessons (method, gotchas,
 v4.34.0 API drift, and a checklist) in [porting-playbook.md](porting-playbook.md).
+The `functionFieldGeneration` effort keeps its record in
+[logs/ffg-port.md](logs/ffg-port.md).
 
-The next effort is scoped to definitions: [PORTING-FFG.md](PORTING-FFG.md) plans
-the `ModularCurveX0/` library (the `jq` / `qExpand` / `qTwist` objects of
-math/010) and records why the theorem itself is deferred.
+`FLTForHuman/ModularCurve/` holds the definitions of `PORTING-FFG.md` Layer 0
+(the `jq` / `qExpand` / `qTwist` objects of math/010). It sits beside
+`FLTForHuman/Elliptic/` under the **single** `FLTForHuman` library — Layer 0
+landed with no `sorry`, so the separate build target it used to have was no
+longer needed. There is no `import Mathlib` anywhere. **Layer 0 is done**: nine
+modules (68 declarations in 0a, 69 in 0b) are green with zero warnings and zero
+`sorry`, and the deliverable measure
+[spec/ModularCurveConsumer.lean](spec/ModularCurveConsumer.lean) reports **0
+errors** — Zone A, Zone B and the `TS` half of Zone C are all bound. Its only
+remaining `sorry`s are the deferred theorem's capstone and the two Zone C
+`jq.coeff` claims (`744`, `196884`). `PORTING-FFG.md` records why the theorem
+itself stays deferred; the consumer's tail carries the v4.34.0 friction list, and
+[spec/check_flt_statements.py](spec/check_flt_statements.py) diffs every port
+declaration's statement against the pinned source (137 of 137 identical).
+
+Both Layer 0 work orders are gone: they were finished, their durable material
+moved into §7 of [porting-playbook.md](porting-playbook.md) — the math-clarity
+principles, the overlap with the first port, and the measured cost model — and
+[logs/ffg-port.md](logs/ffg-port.md) carries the record and the calibration.
+Both layers finished in a single goal round against a much larger budget.
+
+The next piece of work is not a layer but a topic:
+[TOPIC-jq-coefficients.md](TOPIC-jq-coefficients.md) closes the last two consumer
+items (`jq.coeff 0 = 744`, `jq.coeff 1 = 196884`) by a mathlib route FLT does not
+use — the pentagonal theorem for `∏' n, (1 - X ^ (n+1))` — rather than the
+modular-form cluster. It is the first topic whose proof is ours rather than a
+transcription.
 
 ## Sources
 
@@ -113,4 +146,3 @@ math/010) and records why the theorem itself is deferred.
 
 [flt]: https://github.com/anthropics/fermats-last-theorem
 [proof-path]: https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/PROOF-PATH.md
-[src-countable]: https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_LinearAlgebra_Countable.lean

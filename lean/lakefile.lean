@@ -14,6 +14,10 @@ package flt_for_human where
 require mathlib from git
   "https://github.com/leanprover-community/mathlib4.git" @ "v4.34.0"
 
+-- One library holding both efforts, organised by subject:
+--   FLTForHuman/Elliptic     -- the `#E[n] = n²` port (verified, no `sorry`)
+--   FLTForHuman/ModularCurve -- the `functionFieldGeneration` definitions
+-- Layer 0 carried no `sorry`, so the two are no longer separate build targets.
 @[default_target]
 lean_lib FLTForHuman where
   globs := #[.submodules `FLTForHuman]

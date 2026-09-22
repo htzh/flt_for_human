@@ -7,7 +7,7 @@
 
 | | |
 |---|---|
-| modules | 13 under `FLTForHuman/Elliptic/`, plus a smoke test |
+| modules | 13 under `FLTForHuman/Elliptic/` |
 | lines written | 3362 |
 | declarations | 292 |
 | FLT cone (import closure) | 4 files, 3671 lines |

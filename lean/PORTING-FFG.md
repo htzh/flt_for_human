@@ -1,8 +1,17 @@
 # Blueprint: `ModularCurve.functionFieldGeneration` — Layer 0
 
-**Status: Layer 0 agreed as the current goal.** This file previously planned a
-sorry-bounded port of the whole theorem; that is now deferred and kept only as a
-menu in §7. The scope decision and its evidence are §2.
+**Status: Layer 0 is done.** All nine modules of `lean/FLTForHuman/ModularCurve/` — 68
+declarations in 0a and 69 in 0b — are green with zero warnings and zero `sorry`,
+and the deliverable measure `spec/ModularCurveConsumer.lean` reports **0
+errors**: Zone A, Zone B and the `TS` half of Zone C are all bound. Its only
+remaining `sorry`s are the deferred theorem's capstone and the two Zone C
+`jq.coeff` claims (`744`, `196884`). Both work orders finished in a single goal
+round, and [logs/ffg-port.md](logs/ffg-port.md) carries the record and the
+calibration. This
+file previously planned a sorry-bounded port of the whole theorem; that is now
+deferred and kept only as a menu in §7. The scope decision and its evidence are
+§2, and the v4.34.0 friction list is at the tail of the consumer file, with
+`spec/check_flt_statements.py` diffing all 137 port statements against the pin.
 
 Companion records:
 
@@ -10,6 +19,8 @@ Companion records:
   the source of truth for *what the proof says*; this file says *what we build*.
 - [logs/card-torsion-port.md](logs/card-torsion-port.md) — what the first port
   did: `#E[n](K) = n²`, 13 modules, 3362 lines, capstone green.
+- [logs/ffg-port.md](logs/ffg-port.md) — the running record of *this* effort:
+  measurements, decisions, friction, and predictions that were wrong.
 - [porting-playbook.md](porting-playbook.md) — what the next port should know.
   Its measurements are used throughout this file.
 
@@ -187,23 +198,33 @@ chosen later and the measurement supports it.
 
 Split into two sub-scopes, because they have different consumers:
 
-- **0a — the computable series objects (the deliverable).** `qExpand`, `coeffMap`,
-  `coeffEmb`, `qTwist`, and the explicit series `jq` with its coefficient lemmas.
-  These are what makes the library *usable*; nothing here needs the theorem.
+- **0a — the computable series objects and the target's definition (the
+  deliverable).** `qExpand`, `coeffMap`, `coeffEmb`, `qTwist`, the explicit
+  series `jq` with its coefficient lemmas, `jqN`, `dedekindPsi`, `evalAtJ`, and
+  **`FunctionFieldGeneration`**. The last belongs here for a specific reason:
+  the target theorem's content *is* a `def`, and that def mentions only 0a
+  objects (`jq`, `qExpand`, `IntermediateField.adjoin`) — not
+  `modularFunctionField`. So 0a can *state* the target, and can even *prove* its
+  degenerate case `functionFieldGeneration_one`. Neither needs the theorem.
 - **0b — the field and polynomial vocabulary (only if the theorem is picked up).**
   `ModularPolynomialData`, `modularFunctionField`, `modularFunctionFieldFull`,
-  `FunctionFieldGeneration`, `conj`, `phiProd`, `EvalSymm`, `PhiGenDescends`, …
+  `conj`, `phiProd`, `EvalSymm`, `PhiGenDescends`, …
 
 Ship 0a. Hold 0b: it is definitions and therefore cheap, but its only consumer is
 the deferred theorem, so porting it now would be building the map before deciding
 to read it.
+
+**The consumer is `spec/ModularCurveConsumer.lean`** — see §6. It writes down
+what Layer 0 is supposed to make possible, section by section, and its error
+count is the deliverable metric. The port's record, including the measurement
+that settled its cost, is [logs/ffg-port.md](logs/ffg-port.md).
 
 ## 4. Layer 0a: object inventory
 
 The point of this table is the *order*: it is dependency order, and the module
 split follows it. Line numbers are the declaration's line in the pinned source.
 
-### `ModularCurveX0/Defs/Laurent.lean`
+### `FLTForHuman/ModularCurve/Defs/Laurent.lean`
 
 The q-substitution and the coefficient change — the two ring maps everything else
 composes. Sources: `Def_X0` 25–105, `Def_LaurentCoeff` 16–123.
@@ -219,7 +240,7 @@ composes. Sources: `Def_X0` 25–105, `Def_LaurentCoeff` 16–123.
 | `Def_LaurentCoeff:81` | `coeffEmb` | the `ℚ → K` case |
 | `Def_LaurentCoeff:85`–`123` | `coeffEmb_coeff`, `coeffMap_coeffEmb`, `laurentBaseChange`, `_mem_`, `mem_…_iff`, `coeffMap_mem_…` | how the base field sits inside |
 
-### `ModularCurveX0/Defs/Twist.lean`
+### `FLTForHuman/ModularCurve/Defs/Twist.lean`
 
 The unit twist. Source: `Def_PhiGen` 18–96.
 
@@ -230,7 +251,7 @@ The unit twist. Source: `Def_PhiGen` 18–96.
 | `Def_PhiGen:66`–`90` | `qTwist_coeff`, `support_qTwist`, `_single`, `_one_apply`, `_qTwist`, `_injective` | functoriality and injectivity |
 | `Def_PhiGen:96` | `qTwist_qExpand` | the composite is `q ⟼ uq^N` |
 
-### `ModularCurveX0/Defs/Jq.lean`
+### `FLTForHuman/ModularCurve/Defs/Jq.lean`
 
 The explicit q-expansion of the j-invariant, and the objects read off it.
 Source: `Def_X0` 111–212.
@@ -244,20 +265,35 @@ Source: `Def_X0` 111–212.
 | `Def_X0:201` | `dedekindPsi` | `ψ(N) = N ∏_{p∣N} (1 + 1/p)` |
 | `Def_X0:208`, `212` | `evalAtJ`, `evalAtJ_X` | evaluation at `jq` |
 
-## 5. Layer 0b: object inventory (held)
+### `FLTForHuman/ModularCurve/Defs/Target.lean`
 
-Recorded for the future, not to be built now. Source: `Def_X0` 215–348,
-`Def_PhiGen` 111–309.
+The target statement's definition, plus the one case of it that 0a can prove.
+Source: `Def_X0` 233–242.
 
-- **fields** (`ModularCurveX0/Defs/Fields.lean`): `ModularPolynomialData` (215),
-  `modularPolynomialDataOne` (225), `FunctionFieldGeneration` (233),
-  `functionFieldGeneration_one` (237), `modularFunctionField` (250) with
+| FLT source | declaration | mathematical content |
+|---|---|---|
+| `Def_X0:233` | `FunctionFieldGeneration` | for every `d ∣ M`, `j(q^d) ∈ ℚ(j(q), j(q^M))` — the theorem's content, as a `def` |
+| `Def_X0:237` | `functionFieldGeneration_one` | the `M = 1` case, provable from 0a alone |
+
+This module is the payoff of the 0a scope: with it, the capstone
+`ModularCurve.functionFieldGeneration (N) [NeZero N] : FunctionFieldGeneration N`
+is *statable* — not provable — using only Layer 0a. That the target is a `def`
+mentioning no field-theoretic infrastructure is why 0a can get this far.
+
+## 5. Layer 0b: object inventory (built)
+
+Source: `Def_X0` 215–348, `Def_PhiGen` 111–309. Split (as built) into
+`Polynomial.lean`, `Fields.lean`, `PhiGen.lean`, plus `TS.lean` and
+`Collapse.lean`; all are built and green.
+
+- **fields** (`FLTForHuman/ModularCurve/Defs/Fields.lean`): `ModularPolynomialData` (215),
+  `modularPolynomialDataOne` (225), `modularFunctionField` (250) with
   `jq_mem`/`jqN_mem`/`_one`/`adjoin_jq_le`, `jGen` (268), `evalAtJGen` (270),
   `algebraMap_comp_evalAtJGen` (273), `toAdjoin` (287) + `_monic` (289),
   `divisorExpansions` (297) + `mem_` (301), `modularFunctionFieldFull` (305),
   `jqd_mem_full` (309), `modularFunctionField_le_full` (313),
   `full_degeneracy_le` (321), `full_degeneracy_map_le` (330).
-- **slot vocabulary** (`ModularCurveX0/Defs/PhiGen.lean`): `cosetSubst` (111),
+- **slot vocabulary** (`FLTForHuman/ModularCurve/Defs/PhiGen.lean`): `cosetSubst` (111),
   `evalAtJqN` (121) + `_X`/`_def`/`_one`, `EvalSymm` (139),
   `aeval_toRingHom_X` (145), `PoleOrderLE` (151), `ModularPolynomialFamily` (154),
   `PhiIrreducible` (161), `adjoinJq` (168), `jAdj` (170), `evalAtJAdj` (172),
@@ -271,17 +307,25 @@ Recorded for the future, not to be built now. Source: `Def_X0` 215–348,
 Note that these are the `Prop`-valued vocabulary of the splitting input. If a
 future effort takes up math/010 §3 as a *statement*, this group must be ported
 first, because the statement mentions it — the first port's `Universal.lean`
-problem in reverse.
+problem in reverse. It is now available: `Defs/PhiGen.lean` carries it.
 
 ## 6. Layout, build, and verification
 
 ```
-lean/ModularCurveX0/
+lean/FLTForHuman/ModularCurve/
   Defs/Laurent.lean     -- §4
   Defs/Twist.lean       -- §4
   Defs/Jq.lean          -- §4
-  Check.lean            -- #check correspondence against FLT (see below)
-  -- held for 0b: Defs/Fields.lean, Defs/PhiGen.lean
+  Defs/Target.lean      -- §4: FunctionFieldGeneration + functionFieldGeneration_one
+  Defs/Polynomial.lean  -- §5: ModularPolynomialData
+  Defs/Fields.lean      -- §5: the two function fields
+  Defs/PhiGen.lean      -- §5: the slot vocabulary
+  Defs/TS.lean          -- §5: TS = j(u q^e), from the solution file
+  Collapse.lean         -- §5: functionFieldGeneration_iff_full_eq (Layer 0's only theorem)
+
+lean/spec/
+  ModularCurveConsumer.lean      -- the consumer; not in any library, see below
+  check_flt_statements.py        -- diffs every port statement against the pin
 ```
 
 Namespace `ModularCurve`, so declaration names match FLT's and math/010's §9 map
@@ -290,40 +334,71 @@ own namespace (`FLTForHuman.Elliptic`) so its names could never collide with
 mathlib's. Matching FLT buys mechanical `#check` correspondence, which is the
 right call for a map; the safety comes from the mathlib *pin*, not the choice.
 
-Add a second library so the default target stays the verified port:
+There is **one library**, not two. During Layer 0 the definitions lived in a
+separate `lean_lib ModularCurveX0` so that a `sorry`-carrying skeleton could not
+slow the verified port. Layer 0 landed with no `sorry` at all, so that reason
+evaporated and the two were merged: `FLTForHuman/Elliptic/` and
+`FLTForHuman/ModularCurve/` now sit side by side under the single
+`@[default_target] lean_lib FLTForHuman`. The consequence to keep in mind is that
+**work in progress must stay out of the library**: experiment in the gitignored
+`Scratch.lean`, and only land code that is green, warning-free and `sorry`-free.
 
-```lean
--- lakefile.lean -- leave @[default_target] lean_lib FLTForHuman alone.
-lean_lib ModularCurveX0 where
-  globs := #[.submodules `ModularCurveX0]
-```
-
-Two targets is also two build clocks: anything in the default target would be
-re-elaborated on every iteration of the verified library, whose seconds-warm
-build is a property worth keeping. Add a pointer in `lean/README.md` naming
-`ModularCurveX0/` as a definitions library distinct from the verified port.
+The `spec/` directory is outside every library on purpose, so the consumer cannot
+break the build; `lake build` never sees it. Removing the two smoke-test modules
+(`FLTForHuman/Basic.lean`, `FLTForHuman/CountableModule.lean`) on 2026-09-21 did
+the same for the default target: those two files were the only `import Mathlib`
+in the tree and were dragging the whole library into the build plan.
 
 **Verification.** Layer 0 has no `sorry`, so there is no sorry protocol here.
 
 ```bash
 cd lean
-lake build                        # FLTForHuman: green, 0 warnings, no sorry
-lake build ModularCurveX0         # 0a: green, 0 warnings, no sorry
-grep -rn 'sorry' ModularCurveX0/  # must be empty
+lake build                                 # green, 0 warnings, no sorry
+grep -rn 'sorry' FLTForHuman/ModularCurve/ # must be empty
 ```
+
+**The consumer is the deliverable measure.** `spec/ModularCurveConsumer.lean`
+is a standalone Lean file — not imported anywhere, not globbed by any library, so
+it cannot break the build — that writes down what Layer 0a is supposed to make
+possible. It names declarations that do not exist yet, so it does not compile
+today and is not meant to; the error count is the metric:
+
+```bash
+lake env lean spec/ModularCurveConsumer.lean 2>&1 | grep -c error
+```
+
+It is organised in three zones with different expectations:
+
+- **Zone A `[0a]`** — the objects, the pole-of-`j` lemmas, and the target
+  statement `FunctionFieldGeneration N`. This zone must reach **0 errors**.
+- **Zone B `[0b]`** — `modularFunctionField`, `ModularPolynomialData`. Stays red
+  until the theorem is picked up.
+- **Zone C `[--]`** — claims the Definitions layer does *not* deliver: the
+  regular coefficients of `jq` (`744`, `196884`) and `TS`. Stays red.
+
+Zone C is the point of the file. It records a finding that only shows up when
+the consumer is actually written: **base/004's `j = q⁻¹ + 744 + 196884q + ⋯`
+is only half available from Layer 0a.** The pole (`q⁻¹`) is Def-layer
+(`coeff_jq_neg_one`, `coeff_jq_of_lt`), but the regular coefficients are not —
+`etaProd` is a `∏'` (topological product), so `jNum` is not an evaluable
+expression, and FLT proves those numbers in the modular-form q-expansion cluster,
+which is inside the 44-node subtree §7.1 designates an input. Writing the
+consumer therefore answers the "will 0a be used?" question *before* the 1,000
+lines are transcribed: it is used for the pole and for the ring maps, and it is
+not used for the classical coefficients.
 
 **Wire test, not just a compile test.** "Green definitions" says nothing about
 whether they are *connected*: in the first port `Universal.lean` sat in no import
-chain at all, and nothing failed until a round-12 attempt to use `polyEval`. So
-`Check.lean` must do more than `#check` the names in isolation — it must state at
-least one result that *composes* two modules, across a module boundary. The
-natural one: `coeffEmb K (qExpand ℚ N jq) = TS`-style composition, i.e. apply
-`qExpand` from `Laurent.lean` on `jq` from `Jq.lean` and state the coefficient
-formula from `Twist.lean`. That exercises the import graph and the typeclass
-assumptions once before anything is built on them.
+chain at all, and nothing failed until a round-12 attempt to use `polyEval`. The
+consumer's Zone A therefore contains an explicit cross-module composition —
+`(qExpand ℚ N jq).coeff (-(N : ℤ)) = 1`, which uses `qExpand` from
+`Laurent.lean`, `jq` from `Jq.lean`, and the coefficient formula from
+`Laurent.lean`. It is not satisfied by definitions that merely compile.
 
-`Check.lean` is also where the FLT correspondence is recorded: each object
-`#check`ed side by side with its FLT signature, so drift is visible in one file.
+The consumer also doubles as the FLT correspondence record: each object is
+`#check`ed against its pinned FLT signature, so drift is visible in one file. The
+playbook calls the friction log the highest-value artifact because it is the one
+thing not derivable from the code; this file is where it accumulates.
 
 ## 7. Deferred: the theorem (menu, not a plan)
 
@@ -465,7 +540,7 @@ freeze is the only mechanism that catches it.
   first port's one deferral was recoverable in two rounds because it was recorded
   that way; a bare `sorry` would have lost all of it.
 - Count sorries from the **build warning count**
-  (`lake build ModularCurveX0 2>&1 | grep -c warning`), not from a grep: `grep`
+  (`lake build 2>&1 | grep -c warning`), not from a grep: `grep`
   matches the word inside this document's own prose. Keep the grep for locating.
 - A drop is not verified until `grep -c` has been run and its count recorded. The
   first port lost two rounds to a truncated listing.
@@ -474,21 +549,45 @@ freeze is the only mechanism that catches it.
 
 ## 8. Open questions
 
-- **Will 0a be used?** The justification for Layer 0 is that computable `jq`,
-  `qExpand`, `qTwist` serve base/004's j-invariant claims and math/010's
-  q-expansion statements. If no concrete use appears, 0a is organization without
-  a consumer and should be re-argued. The first thing to write, therefore, is the
-  `#eval`/`#check` list that 0a is supposed to make possible.
+- **Will 0a be used?** *Partly answered by the consumer.*
+  `spec/ModularCurveConsumer.lean` is now the written-down use, and writing it
+  already produced a result: the pole of `j` and the two ring maps are Layer 0a
+  material, but the classical regular coefficients (`744`, `196884`) are **not** —
+  they sit in the deferred modular-form cluster. So the honest statement of 0a's
+  value is narrower than the original pitch: it gives the transport layer
+  (`qExpand`, `qTwist`, `coeffEmb`), the pole of `j`, and the ability to *state*
+  the target. If that is not enough to justify ~1,000 transcribed lines, the
+  consumer is the evidence for saying so, and it should be re-argued before the
+  transcription starts.
+- **Should `TS` be in scope? — resolved: yes, and built in Layer 0b.** math/010
+  §1's `TS K e u`, "the Lean name for `j(uq^e)`", is introduced in the *solution*
+  file rather than `Definitions/`, so it needed a deliberate decision. It is in:
+  it depends only on 0a, it is ten declarations, it is the note's central
+  notation, and without it Consumer Zone C stays unnecessarily red. It is built
+  in `Defs/TS.lean` with its provenance recorded as the solution file; the
+  reasoning is in [logs/ffg-port.md](logs/ffg-port.md) §8. **Recorded divergence:** FLT keeps `TS`
+  inside a per-file `namespace W1` (`ModularCurve.W1.TS`) and never exports it,
+  whereas the port puts it at `ModularCurve.TS`; the ten statements are FLT's
+  verbatim. The same decision brought in `functionFieldGeneration_iff_full_eq`,
+  the 22-line `cites = 0` node from §7.3 that is math/010 §2's collapse and the
+  only theorem in Layer 0 — and it is proved, with `#print axioms` showing only
+  `propext`, `Classical.choice`, `Quot.sound`.
 - **Drift on unchanged mathematics.** The first port's friction list has 12
   entries, two of them pure v4.34.0 API changes on unchanged statements. Layer 0
-  touches `LaurentSeries`, `HahnSeries` and `IntermediateField`, so expect a
-  comparable list; keep it in `Check.lean` while it is being hit — the playbook
-  calls the friction log the highest-value artifact because it is the one thing
-  not derivable from the code.
+  touches `LaurentSeries`, `HahnSeries`, `IntermediateField` and `Polynomial`, so
+  a comparable list was expected; keep it in the consumer file while it is being
+  hit — the playbook calls the friction log the highest-value artifact because it
+  is the one thing not derivable from the code. Layer 0 produced twelve entries:
+  two API renames, two linter recurrences, two spec-comment bugs the consumer
+  caught, one recorded `TS` name divergence, and the non-events (the
+  rewrite-search gap and the §4 shape risks all failed to appear).
 - **Transcription risk.** The definitions must be transcribed verbatim in shape
   (names, argument order, instances) or `#check` correspondence fails. This is the
-  one place where a mistake is silent until much later; the §6 wire test and the
-  side-by-side `Check.lean` are the mitigations.
+  one place where a mistake is silent until much later. It is now mechanically
+  checked: `spec/check_flt_statements.py` extracts every port declaration's
+  statement and diffs it against the pinned source —
+  **137 of 137 identical, 0 mismatched, 0 missing** — and the consumer's
+  cross-module compositions remain the runtime wire test.
 - **If the theorem is revisited**, the first act is the §2 measurement — one `S_`
   module, named node's proof lines versus helpers — recorded here. Until it is
   made, any line budget for Layers 1–4 is an assumption, not an estimate.

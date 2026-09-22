@@ -214,9 +214,23 @@ Renames and shape changes hit during this port, with the replacement:
 | `Affine.Point.some_ne_zero` | does not exist — `cases` on the equality |
 | `ext i` on `Fin 3 → MvPolynomial …` | recurses into `MvPolynomial.ext`; use `funext i` |
 | `nTorsion n` (`n : ℕ`) | `Submodule.torsionBy ℤ M n` takes `n : ℤ`, so `↑2` ≠ `2` syntactically |
+| `HahnSeries.embDomain_notin_range` | `HahnSeries.embDomain_of_notMem_range` (same signature, drop-in) |
 
 Also: `Submodule.torsionBy.zmodModule` supersedes FLT's `instModuleZModTorsionBy`,
 and `(W.map f).IsElliptic` is all a base-change `IsElliptic` instance needs.
+
+Two non-rename facts from the definitions layer (§7), both warning-related:
+
+- **Unused section variables are auto-omitted.** A `def` whose body never
+  mentions a section variable does not take it as an argument, so a declaration
+  written under `variable (N : ℕ) [NeZero N]` can come out with no `[NeZero N]`
+  (this happened to `modularFunctionFieldFull`/`divisorExpansions`). Transcribe
+  verbatim and check the signature; do not "restore" the variable.
+- **`linter.style.haveILetI` fires on `haveI` in a `Prop` goal,** even when the
+  instance is genuinely used. If the instance came from `intro`/`rintro`, the
+  `haveI` is redundant — delete it. If it did not, prefer `have` (typeclass
+  search still finds it for a class-typed local). A `haveI` inside a `def`'s
+  term is not flagged and can stay.
 
 ## 5. Checklist for the next port
 
@@ -237,6 +251,10 @@ and `(W.map f).IsElliptic` is all a base-change `IsElliptic` instance needs.
 10. **Keep the friction log current**, and at the end split the record from the
     playbook the way this pair is split: one file says what *this* port did, the
     other says what *the next* port should know.
+11. **Make faithfulness mechanical when the source is pinned.** Diff the ported
+    statements against the source, make the consumer do a cross-module
+    composition rather than only `#check`s, and confirm `#print axioms` is clean.
+    See §7.4.
 
 ## 6. Open questions
 
@@ -253,3 +271,87 @@ Recorded honestly, because they are the parts of the method that are not settled
 - **Nothing here was validated against a third-party port**; the "removed clutter"
   numbers are what this effort avoided writing, measured from FLT's own files, not
   an independent audit of whether the dropped items were truly dead.
+
+## 7. Porting a definitions layer — the `functionFieldGeneration` experience
+
+Layer 0 of [PORTING-FFG.md](PORTING-FFG.md) was the second port and the first
+that was *definitions only*: 137 declarations across nine modules, from
+`qExpand`/`coeffMap`/`qTwist` to the two function fields, `TS` and the §2
+collapse. Its record is [logs/ffg-port.md](logs/ffg-port.md). The reusable part:
+
+### 7.1 Principles for math clarity
+
+The port exists for these, so where they conflict with convenience, they win.
+
+- **A module is a mathematical role, not a source file.** FLT splits by artifact
+  kind (`Def_`/`Thm_`/`S_`); split by concept instead. FLT's
+  `Def_ModularCurve_X0.lean` covers four subjects and became four modules.
+- **Reading order is dependency order.** A reader should be able to walk the
+  directory linearly. Each module header says: its subject, the FLT source and
+  pin, and what it assumes from earlier modules.
+- **Monomorphic helpers are documentation.** When a proof relies on a generic
+  mathlib lemma in a specific form, give that form a name and a docstring (§1.3,
+  §3.5). But *measure before assuming you need them*: the rewrite-search gap was
+  predicted to dominate this layer and never appeared, because FLT proved every
+  one of those lemmas coefficientwise and its own `[simp]` coefficient lemmas
+  (`qExpand_coeff_mul`, `coeffMap_coeff`, `qTwist_coeff`, …) were already the
+  named bridges. Write the helper the moment a `rw` reports no progress, not
+  before.
+- **Adopt mathlib's names where mathlib has them; keep FLT's where it does not.**
+  `LaurentSeries`, `HahnSeries`, `IntermediateField`, `PowerSeries` are
+  mathlib's; everything else in this cone is FLT's, kept verbatim so `#check`
+  comparison against the pin stays mechanical. Say which is which in the header.
+- **Docstrings carry the mathematics.** A declaration whose name does not state
+  its content gets a one-line gloss; a construction (`qExpand`, `jq`, `qTwist`)
+  gets a sentence saying what the object *is*.
+- **No self-consumed lemmas, and count before dropping.** A lemma whose only
+  consumer is itself is not ported, and a dropped item needs a `grep -c` count,
+  not an impression.
+- **Freedom to reorganize**, with two constraints: FLT's declaration names stay,
+  and the consumer's zones keep passing.
+
+### 7.2 Overlap with the first port
+
+At the *lemma* level there is none. The two cones share zero theorem nodes and
+zero definition modules, and nothing in `FLTForHuman/` is imported, reused or
+renamed. Do not go looking for EDS, division-polynomial or `polyToField`
+analogies — they are not there.
+
+At the *process* level there is a lot, and §3–§5 carry it. Two traps worth
+repeating:
+
+- **The `Universal.lean` lesson.** A module can be ported, build green, and sit
+  in *no import chain at all*; nothing fails until a later attempt to use it. So
+  the consumer must contain a cross-module **composition**, not only `#check`s —
+  and a `sorry`-terminated composition is not enough either. The wire test here
+  is `(qExpand ℚ N jq).coeff (-(N : ℤ)) = 1`, needing `qExpand` from one module
+  and `jq` from another, and it is discharged by a real proof.
+- **Do not re-import the whole library.** Two `import Mathlib` files took the
+  first port's default build from 2086 to 8936 planned jobs. Keep every import
+  specific, and keep the definitions library separate from the verified one.
+
+### 7.3 The calibration
+
+| layer | declarations | budgeted rounds | actual |
+|---|---|---|---|
+| 0a | 68 | 20 | **1** |
+| 0b | 69 | 4 | **1** |
+
+Transcribing a pinned, definitional source with the statements dictated is
+cheap. The cost lives in *shape* mismatches — typeclass, coercion, defeq,
+renamed API — not in volume, so budget in "number of shape risks", not lines.
+Both layers' named shape risks failed to materialize; the only real friction was
+three renames and two spec bugs the consumer caught by being executed.
+
+### 7.4 Make faithfulness mechanical
+
+With a pinned source, faithfulness is checkable rather than a matter of trust.
+Three cheap instruments, all used here:
+
+- a checker that diffs every ported **statement** against the pin
+  (`spec/check_flt_statements.py`; 137 of 137 identical) — and verify the checker
+  itself with a deliberately mutated statement;
+- a **consumer** outside every library, whose error count is the deliverable
+  metric and whose cross-module composition is the wire test;
+- `#print axioms` on the layer's result, to confirm no `sorryAx` crept in
+  (here: only `propext, Classical.choice, Quot.sound`).
