@@ -26,9 +26,9 @@
 
   ## Reuse
 
-  The pin's private `coeff_aeval_jq_neg` is T9's public `Defs/Jq.lean` lemma, so
-  it is imported rather than re-declared; the pin's private `evalAtJ_eq_aeval_map`
-  is kept private here as well (the pin's two files each carry a copy).
+  The pin's private `coeff_aeval_jq_neg` is T9's public `Defs/Jq.lean` lemma, and
+  the pin's private `evalAtJ_eq_aeval_map` is the public `Defs/Jq.lean` bridge
+  (promoted by T12); both are imported rather than re-declared.
 
   ## Assumptions
 
@@ -52,13 +52,6 @@ open Polynomial
 
 namespace ModularCurve
 namespace PhiGen
-
-private theorem evalAtJ_eq_aeval_map (Q : Polynomial ℤ) :
-    evalAtJ Q = Polynomial.aeval jq (Q.map (Int.castRingHom ℚ)) := by
-  have hcomp : (algebraMap ℚ (LaurentSeries ℚ)).comp (Int.castRingHom ℚ)
-      = algebraMap ℤ (LaurentSeries ℚ) := Subsingleton.elim _ _
-  rw [Polynomial.aeval_def, Polynomial.eval₂_map, hcomp]
-  rfl
 
 /-- A polynomial in `jq` of pole order `≤ n` has degree `≤ n`: the `q ^ (-d)`
 coefficient of `P(jq)` is `P`'s top coefficient (`coeff_aeval_jq_neg`). -/

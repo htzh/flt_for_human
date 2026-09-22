@@ -33,7 +33,9 @@
   writing the conjunction out. `Hall` is an `abbrev` for exactly that conjunction
   (`Tight`-and-`Gen` at every divisor), so the two are definitionally the pin's;
   the abbreviation is what the induction actually consumes. FLT's `iota_jq`
-  (110–112) and `cycUnit_pow` (213) are not ported: nothing here consumes them.
+  (110–112) is not ported here. The cyclotomic roots (`cycUnit`, `cycUnit_spec`,
+  `isPrimitiveRoot_pow_div`) are public in `Defs/Cyclotomic.lean` and are
+  imported, not re-declared.
 
   Assumes `coeffMap`/`coeffEmb`/`qExpand` (`Defs/Laurent`), `qTwist`
   (`Defs/Twist`), `jq`/`jqN`/`dedekindPsi`/`jGen` (`Defs/Jq`), the two function
@@ -46,6 +48,7 @@ import Mathlib.FieldTheory.Relrank
 import Mathlib.Data.Nat.Factorization.Basic
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Collapse
 import FLTForHuman.ModularCurve.Defs.TS
+import FLTForHuman.ModularCurve.Defs.Cyclotomic
 
 set_option autoImplicit false
 
@@ -72,42 +75,12 @@ private theorem iota_jqN (N d : ℕ) [NeZero N] [NeZero d] :
 
 end FieldTransport
 
-/-! ## Cyclotomic roots -/
+/-! ## Cyclotomic roots
 
-private theorem exists_isPrimitiveRoot_cyclotomicField (N : ℕ) [NeZero N] :
-    ∃ z : CyclotomicField N ℚ, IsPrimitiveRoot z N := by
-  have : NeZero ((N : ℕ) : ℚ) := ⟨Nat.cast_ne_zero.mpr (NeZero.ne N)⟩
-  have : IsCyclotomicExtension {N} ℚ (CyclotomicField N ℚ) :=
-    CyclotomicField.isCyclotomicExtension N ℚ
-  exact IsCyclotomicExtension.exists_isPrimitiveRoot ℚ (CyclotomicField N ℚ)
-    (Set.mem_singleton N) (NeZero.ne N)
-
-private def cycUnit (N : ℕ) [NeZero N] : (CyclotomicField N ℚ)ˣ :=
-  ((exists_isPrimitiveRoot_cyclotomicField N).choose_spec.isUnit (NeZero.ne N)).unit
-
-private theorem cycUnit_spec (N : ℕ) [NeZero N] :
-    IsPrimitiveRoot ((cycUnit N : (CyclotomicField N ℚ)ˣ) : CyclotomicField N ℚ) N := by
-  rw [cycUnit, IsUnit.unit_spec]
-  exact (exists_isPrimitiveRoot_cyclotomicField N).choose_spec
-
-section PropDiv
-
-variable {K : Type*} [Field K] [Algebra ℚ K]
-
-omit [Algebra ℚ K] in
-private theorem isPrimitiveRoot_pow_div {N : ℕ} [NeZero N] {ζ : Kˣ} (hζ : IsPrimitiveRoot (ζ : K) N)
-    {p : ℕ} (hpN : p ∣ N) : IsPrimitiveRoot ((ζ ^ (N / p) : Kˣ) : K) p := by
-  have hN : N ≠ 0 := NeZero.ne N
-  have hd0 : N / p ≠ 0 := by
-    intro h0
-    have hc := Nat.div_mul_cancel hpN
-    rw [h0, zero_mul] at hc
-    exact hN hc.symm
-  have h := hζ.pow_of_dvd hd0 (Nat.div_dvd_of_dvd hpN)
-  rw [Nat.div_div_self hpN hN] at h
-  rwa [← Units.val_pow_eq_pow_val] at h
-
-end PropDiv
+`exists_isPrimitiveRoot_cyclotomicField`, `cycUnit`, `cycUnit_spec` and
+`isPrimitiveRoot_pow_div` are public in `Defs/Cyclotomic.lean`, promoted by T13
+from this module's private copies (the pin repeats them in the two
+`splits_*` files as well); they are imported rather than declared here. -/
 
 /-! ## Congruence plumbing and `ψ` arithmetic -/
 

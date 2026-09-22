@@ -74,7 +74,13 @@ import FLTForHuman.ModularCurve.PhiGenPoleBounds
 -- T11: the construction — (a)'s descent, the 328 block, and (d)'s assembly.
 import FLTForHuman.ModularCurve.PhiGenDescent
 import FLTForHuman.ModularCurve.ModularPolynomialAssembly
--- The cyclotomic instances for the end-to-end wire test of Zone I.
+-- T12: the properties — coefficient positivity, the 895 block, and existence.
+import FLTForHuman.ModularCurve.JqCoeffPositivity
+import FLTForHuman.ModularCurve.ModularPolynomialProperties
+-- T13: the consequence — uniqueness, the degree, and the cone's headline.
+import FLTForHuman.ModularCurve.ModularPolynomialUniqueness
+import FLTForHuman.ModularCurve.PhiGenSplits
+-- The cyclotomic instances for the end-to-end wire tests of Zones I, J and K.
 import Mathlib.NumberTheory.Cyclotomic.Basic
 
 set_option autoImplicit false
@@ -466,6 +472,113 @@ example (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] :
     ModularCurve.PhiGen.exists_modularPolynomialData_coeff_eq hc hint hmem
   exact ⟨c, data, hcoeff, hint, hmem, fun k => hc.poleOrderLE k⟩
 
+/-! ## Zone J — [T12] the properties: irreducibility, symmetry, existence
+
+`FLTForHuman/ModularCurve/JqCoeffPositivity.lean` proves `one_le_coeff_jq` (every
+regular coefficient of `j(q)` is at least `1`), with the audit's two mathlib
+substitutions. `FLTForHuman/ModularCurve/ModularPolynomialIrreducible.lean` is the
+895 block written once: `conj_injective`, `aeval_jq_ne_jqN`/
+`jqN_not_mem_adjoin_jq`, `phiIrreducible_of_splits`,
+`swapBivar_monic_of_coeff_bounds`, `transposeToAdjoin_monic_of_qExpansion`,
+`evalSymm_of_irreducible`, `evalSymm_of_splits`, `evalAtJGen_injective`,
+`swapBivar_eq_of_evalSymm` and the two minimal-polynomial facts.
+`FLTForHuman/ModularCurve/ModularPolynomialProperties.lean` concludes:
+`evalSymm_of_coeff_evalAtJ_eq` (T10's pole bounds feed the transpose degree count)
+and `exists_phiIrreducible_evalSymm`.
+
+**The wire test is unconditional — the first.** `exists_phiIrreducible_evalSymm`
+needs no unported hypothesis, so it instantiates at `ℓ = 2`; `one_le_coeff_jq` is
+unconditional at `n = 0`; and `aeval_jq_ne_jqN`/`jqN_not_mem_adjoin_jq` become
+unconditional once `one_le_coeff_jq` is supplied for their `hpos`.
+-/
+
+#check @ModularCurve.one_le_coeff_jq
+#check @ModularCurve.PhiGen.phiIrreducible_of_splits
+#check @ModularCurve.PhiGen.evalSymm_of_splits
+#check @ModularCurve.ModularPolynomialData.transposeToAdjoin_monic_of_qExpansion
+#check @ModularCurve.PhiGen.evalSymm_of_coeff_evalAtJ_eq
+#check @ModularCurve.exists_phiIrreducible_evalSymm
+#check @ModularCurve.evalAtJGen_injective
+#check @ModularCurve.swapBivar_monic_of_coeff_bounds
+#check @ModularCurve.ModularPolynomialData.evalSymm_of_irreducible
+#check @ModularCurve.swapBivar_eq_of_evalSymm
+#check @ModularCurve.PhiGen.conj_injective
+#check @ModularCurve.aeval_jqN_toAdjoin
+#check @ModularCurve.ModularPolynomialData.minpoly_jqN_eq
+
+-- The unconditional capstone: at `ℓ = 2` there is an irreducible symmetric datum.
+example : ∃ data : ModularCurve.ModularPolynomialData 2,
+    ModularCurve.PhiIrreducible data ∧ ModularCurve.EvalSymm data.Φ :=
+  ModularCurve.exists_phiIrreducible_evalSymm (ℓ := 2) (hℓ := ⟨Nat.prime_two⟩)
+
+-- `one_le_coeff_jq` at a concrete value, against `JqCoefficients`' `coeff_jq_zero`.
+example : (1 : ℚ) ≤ ModularCurve.jq.coeff (0 : ℤ) := ModularCurve.one_le_coeff_jq 0
+
+-- `j(q ^ ℓ)` is not a polynomial in `j(q)` — unconditional once `hpos` is supplied.
+example (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] (P : Polynomial ℚ) :
+    Polynomial.aeval ModularCurve.jq P ≠ ModularCurve.jqN ℓ :=
+  ModularCurve.PhiGen.aeval_jq_ne_jqN ℓ ModularCurve.one_le_coeff_jq P
+
+example (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] :
+    ModularCurve.jqN ℓ ∉ Algebra.adjoin ℚ {ModularCurve.jq} :=
+  ModularCurve.PhiGen.jqN_not_mem_adjoin_jq ℓ ModularCurve.one_le_coeff_jq
+
+/-! ## Zone K — [T13] the consequence and the cone's capstone
+
+`FLTForHuman/ModularCurve/ModularPolynomialUniqueness.lean` proves
+`finrank_adjoin_jqN_eq_of_prime` (the relative degree is `p + 1`) and
+`ModularPolynomialData.eq_of_prime` (any two prime-level data are equal).
+`FLTForHuman/ModularCurve/PhiGenSplits.lean` proves `PhiGen.splits_of_prime` and
+the cone's headline `PhiGen.splits_prime_at_slot`.
+
+**The wire is the cone, end to end.** `splits_prime_at_slot` is instantiated at a
+concrete field and level datum — `K = CyclotomicField 2 ℚ`, `N = p = 2`, `e = 1`,
+`u = 1` — for any primitive square root in that field, over an arbitrary
+`ModularPolynomialData 2`. `eq_of_prime` and `finrank_adjoin_jqN_eq_of_prime` are
+unconditional and are bound too.
+
+The consumer's remaining `sorry` — the *unconditional*
+`FunctionFieldGeneration N` — is the FFG `Inputs` gap, not this cone's: with
+`splits_prime_at_slot` now a theorem, the seven `Inputs` fields of
+`PORTING-FFG.md` §7.8 (T14–T19) can be discharged downstream.
+-/
+
+#check @ModularCurve.finrank_adjoin_jqN_eq_of_prime
+#check @ModularCurve.ModularPolynomialData.eq_of_prime
+#check @ModularCurve.PhiGen.splits_of_prime
+#check @ModularCurve.PhiGen.splits_prime_at_slot
+
+-- Uniqueness: two data at `p = 2` agree.
+example (d d' : ModularCurve.ModularPolynomialData 2) : d = d' :=
+  ModularCurve.ModularPolynomialData.eq_of_prime 2 (hp := ⟨Nat.prime_two⟩) d d'
+
+-- The degree `[ℚ(j)(j(q ^ 2)) : ℚ(j)] = 2 + 1`.
+example : Module.finrank (IntermediateField.adjoin ℚ ({ModularCurve.jq} : Set (LaurentSeries ℚ)))
+    (IntermediateField.adjoin (IntermediateField.adjoin ℚ ({ModularCurve.jq} : Set (LaurentSeries ℚ)))
+      ({ModularCurve.jqN 2} : Set (LaurentSeries ℚ))) = 3 :=
+  ModularCurve.finrank_adjoin_jqN_eq_of_prime (ℓ := 2) (hℓ := ⟨Nat.prime_two⟩)
+
+open scoped BigOperators
+
+-- The capstone: the cone's headline at `K = CyclotomicField 2 ℚ`, `N = p = 2`,
+-- `e = 1`, `u = 1`, for an arbitrary datum and primitive square root.
+set_option linter.style.haveILetI false in
+example (data : ModularCurve.ModularPolynomialData 2) (ζ : (CyclotomicField 2 ℚ)ˣ)
+    (hζ : IsPrimitiveRoot (ζ : CyclotomicField 2 ℚ) 2) :
+    data.Φ.map (Polynomial.eval₂RingHom (Int.castRingHom (LaurentSeries (CyclotomicField 2 ℚ)))
+      (qExpand (CyclotomicField 2 ℚ) (2 * 1)
+        (qTwist ((1 : (CyclotomicField 2 ℚ)ˣ) ^ 2)
+          (coeffEmb (CyclotomicField 2 ℚ) ModularCurve.jq)))) =
+      (Polynomial.X - Polynomial.C (qExpand (CyclotomicField 2 ℚ) (2 * (2 * 1))
+        (qTwist ((1 : (CyclotomicField 2 ℚ)ˣ) ^ (2 * 2))
+          (coeffEmb (CyclotomicField 2 ℚ) ModularCurve.jq)))) *
+        ∏ b ∈ Finset.range 2,
+          (Polynomial.X - Polynomial.C (qExpand (CyclotomicField 2 ℚ) 1
+            (qTwist ((1 : (CyclotomicField 2 ℚ)ˣ) * ζ ^ (b * (2 / 2)))
+              (coeffEmb (CyclotomicField 2 ℚ) ModularCurve.jq)))) :=
+  ModularCurve.PhiGen.splits_prime_at_slot (K := CyclotomicField 2 ℚ) (N := 2) (ζ := ζ) (hζ := hζ)
+    (p := 2) (hp := ⟨Nat.prime_two⟩) (hpN := dvd_rfl) (data := data) (e := 1) (u := 1)
+
 /-! ## The measure
 
     cd lean
@@ -587,6 +700,21 @@ imports it rather than carrying the pin's private copy);
 integrality, T8 membership and T10/T11 pole bound, and assembles the datum — the
 first zone that exercises the whole (a)→(b)→(c)→(d) chain concretely. Still
 **0 errors**, one `sorry`.
+
+**Properties result (2026-09-22).** Zone J is added and bound: T12's three modules
+prove the datum's properties. `JqCoeffPositivity.lean` gives `one_le_coeff_jq`
+(two of the audit's mathlib substitutions landed);
+`ModularPolynomialIrreducible.lean` is the 895 block written once (FLT ships it
+five times), including `conj_injective`, `aeval_jq_ne_jqN`/
+`jqN_not_mem_adjoin_jq`, `phiIrreducible_of_splits`,
+`transposeToAdjoin_monic_of_qExpansion`, `evalSymm_of_splits` and
+`swapBivar_eq_of_evalSymm`; `ModularPolynomialProperties.lean` concludes
+`evalSymm_of_coeff_evalAtJ_eq` and the capstone
+`exists_phiIrreducible_evalSymm`. The Zone J wire test is the first
+**unconditional** one: `exists_phiIrreducible_evalSymm` at `ℓ = 2` produces an
+irreducible symmetric datum with no unported hypothesis, and
+`aeval_jq_ne_jqN`/`jqN_not_mem_adjoin_jq` become unconditional once
+`one_le_coeff_jq` supplies their `hpos`. Still **0 errors**, one `sorry`.
 
 ## Friction list (mathlib `v4.34.0` against FLT's `v4.33.0`)
 
@@ -758,6 +886,35 @@ every entry.
     (c) `PoleOrderLE` and `evalAtJ` live at the `ModularCurve` level, not
     `ModularCurve.PhiGen`; the `PhiGenDescends.*` methods and `evalAtJ_injective`
     do live under `PhiGen`.
+19. **Topic 12 — the scoped fraction-field instances, and the wrapper-spelling
+    rule again.**
+    (a) **The one real blocker.** `Algebra (Algebra.adjoin F S) (adjoin F S)` and
+    the matching `IsFractionRing` are mathlib's **scoped** instances in
+    `IntermediateField.algebraAdjoinAdjoin`. FLT's `p2m_open` activated that
+    namespace; a textual translation drops it, and the port needed an explicit
+    `open scoped IntermediateField.algebraAdjoinAdjoin`. The
+    `IsIntegrallyClosed adjoinJq` instance the work order worried about was *not*
+    needed — the private scoped `UniqueFactorizationMonoid adjoinJq` from
+    `transcendental_jq` plus mathlib's UFD → integrally-closed path suffices.
+    (b) **Wrapper binders, fourth time.** `aeval_jqN_toAdjoin` and
+    `minpoly_jqN_eq` were first written with the `S_` file's section variables and
+    the checker flagged both against their wrappers' explicit binders (the same
+    rule as entries 7, 10 and 17). Public declarations verified against a
+    `Theorems/` wrapper must carry the wrapper's binders.
+    (c) `Polynomial.degree_sub_lt` is deprecated in favour of
+    `Polynomial.degree_sub_lt_left`; the `haveI` style linter fired once (the
+    cyclotomic instances) and was disabled locally. The Vieta step's
+    `Polynomial.eq_of_natDegree_lt_card_of_eval_eq` and
+    `prod_X_sub_C_coeff_card_pred` matched the pin's spelling unchanged.
+
+    **T13 closed the cone.** `ModularPolynomialUniqueness.lean` (the degree
+    `ℓ + 1` and uniqueness) and `PhiGenSplits.lean` (`splits_of_prime` and the
+    headline `splits_prime_at_slot`) landed in one round — 407 lines against 766
+    deduplicated pin lines (ratio 0.53), with ~200 dead pin prelude lines dropped
+    and all four public statements matching their wrappers on the first build.
+    T13 also promoted the cyclotomic roots to the public `Defs/Cyclotomic.lean`
+    (removing the FFG spine's private twins), so the checker moved 233 → 242. The
+    one remaining `sorry` below is the FFG `Inputs` gap, not this cone's.
 
 The `sorry`s are not errors and do not count: their job is to keep the
 *statements* checkable while the proofs are out of scope.

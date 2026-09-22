@@ -1,9 +1,11 @@
 # The Φₚ splitting / R1 sub-effort — record
 
-**Status: T5–T11 complete (2026-09-22) — R1 is complete, the cone's (c) is
-discharged, the cone's (b) is complete in both halves, and the cone's
-construction (a) + the 328 block + (d) is built.** This is the running
-record for the sub-effort
+**Status: T5–T13 complete (2026-09-22) — the Φₚ splitting cone is closed.** R1 is
+complete, the cone's (c) is discharged, the cone's (b) is complete in both halves,
+the cone's construction (a) + the 328 block + (d) is built, the datum's properties
+(positivity, irreducibility, symmetry, existence) are proved, and the cone's
+headline `PhiGen.splits_prime_at_slot` is a ported theorem: all 44 nodes below it
+are public. This is the running record for the sub-effort
 [PORTING-PhiGen.md](../PORTING-PhiGen.md) opens: the R1 (level-one q-expansion
 principle) sequence that gives the Φₚ splitting cone its one analytic input. It is
 separate from the parent `functionFieldGeneration` record ([ffg-port.md](ffg-port.md))
@@ -20,7 +22,9 @@ The executed plans are
 [TOPIC-integrality.md](../topics/phiGenSplitting/TOPIC-integrality.md) (T9),
 [TOPIC-pole-bounds.md](../topics/phiGenSplitting/TOPIC-pole-bounds.md) (T10) and
 [TOPIC-datum-assembly.md](../topics/phiGenSplitting/TOPIC-datum-assembly.md)
-(T11); the
+(T11) and
+[TOPIC-irreducibility-symmetry.md](../topics/phiGenSplitting/TOPIC-irreducibility-symmetry.md)
+(T12); the
 mathematics of record is
 [base/013](../../base/013-riemann-existence-and-the-q-expansion-principle.md) §3,
 §4.3, §5.4, §6. FLT is pinned at `aa2d8b3`; mathlib at `v4.34.0`.
@@ -36,12 +40,13 @@ mathematics of record is
 | **T9** | the cone's (b) integrality (descended coefficients are integral; the triangularity descent) | **done**, 1 module, **2 public** + 19 private, 322 lines | Route A shipped (deviation); both statements verbatim; consumer Zone G bound; axioms clean |
 | **T10** | the cone's (b) pole bounds + the shared `TPoleOrderLE` prelude | **done**, 1 module + `Defs/PhiGen.lean`, 25 public + 18 private, 497 lines | FLT's script ported verbatim (no deviation); both statements verbatim; prelude promoted for T11; consumer Zone H bound; axioms clean |
 | **T11** | the construction: (a) descent + the 328 block + (d) assembly | **done**, 3 modules, **8 public** + 25 private, 701 lines | all eight statements verbatim; `evalAtJ_injective` by the mathlib route; consumer Zone I bound end-to-end; axioms clean |
+| **T12** | the properties: positivity + the 895 block + symmetry/existence | **done**, 3 modules, **19 public** + 93 private, 1670 lines | all statements verbatim; the 895 block written once; `evalAtJ_eq_aeval_map` promoted to `Defs/Jq`; consumer Zone J bound (first unconditional wire); axioms clean |
 
 R1 = T5–T7 (**complete**); T8 discharges the cone's (c) (**complete**); T9 and
 T10 discharge the two halves of the cone's (b) (**complete**); T11 builds the
-construction (**complete**). The
-sub-effort's deliverables are eleven files (plus the shared-block addition to
-`Defs/PhiGen.lean`):
+construction (**complete**); T12 proves its properties (**complete**). The
+sub-effort's deliverables are fourteen files (plus the shared-block addition to
+`Defs/PhiGen.lean` and the `evalAtJ_eq_aeval_map` promotion in `Defs/Jq.lean`):
 
 | module | lines | decls | FLT source (`aa2d8b3`) |
 |---|---|---|---|
@@ -57,6 +62,10 @@ sub-effort's deliverables are eleven files (plus the shared-block addition to
 | `FLTForHuman/ModularCurve/PhiGenDescent.lean` | 339 | 1 public + 18 `private` | `exists_phiGenDescends` (315) |
 | `FLTForHuman/ModularCurve/PhiGenDescendsStructure.lean` | 161 | 5 public + 2 `private` | the 328 block (×7 copies, 84 distinctive; the ~170-line prelude is T10's) |
 | `FLTForHuman/ModularCurve/ModularPolynomialAssembly.lean` | 201 | 2 public + 5 `private` | `exists_modularPolynomialData_coeff_eq` (191) |
+| `FLTForHuman/ModularCurve/JqCoeffPositivity.lean` | 425 | 2 public + 27 `private` | `one_le_coeff_jq` (386) |
+| `FLTForHuman/ModularCurve/ModularPolynomialIrreducible.lean` | 1070 | 15 public + 62 `private` | the 895 block (×5 copies; plus `swapBivar_eq_of_evalSymm`, 95) |
+| `FLTForHuman/ModularCurve/ModularPolynomialProperties.lean` | 175 | 2 public + 4 `private` | `evalSymm_of_coeff_evalAtJ_eq` (124), `exists_phiIrreducible_evalSymm` (62) |
+| `FLTForHuman/ModularCurve/Defs/Jq.lean` (T12 addition) | +12 | 1 public | `evalAtJ_eq_aeval_map`, with T11's two private copies and the block's `_rat` copy removed |
 
 ## 1. What T5 cost
 
@@ -738,3 +747,201 @@ and `exists_phiIrreducible_evalSymm` (62). It imports T11's public
 `evalAtJ_injective` and `exists_phiGenDescends`, T10's prelude and both pole-bound
 exports, T9 and T8. **T13** then closes the cone: `finrank_adjoin_jqN_eq_of_prime`,
 `ModularPolynomialData.eq_of_prime`, `splits_of_prime` and `splits_prime_at_slot`.
+
+## 12. T12: the properties — the 895 block, once
+
+Three new modules, **1670 lines**, **19 public** and 93 `private` declarations:
+
+- `FLTForHuman/ModularCurve/JqCoeffPositivity.lean` (425 lines, 2 public + 27
+  private) — `one_le_coeff_jq` and `coeff_jq_ne_zero`;
+- `FLTForHuman/ModularCurve/ModularPolynomialIrreducible.lean` (1070 lines, 15
+  public + 62 private) — the 895 block, once;
+- `FLTForHuman/ModularCurve/ModularPolynomialProperties.lean` (175 lines, 2 public
+  + 4 private) — `evalSymm_of_coeff_evalAtJ_eq` and the capstone
+  `exists_phiIrreducible_evalSymm`.
+
+Plus the `Defs/Jq.lean` promotion of `evalAtJ_eq_aeval_map` (T11's two private
+copies and the block's `_rat` copy removed; T11 rebuilt green). All public
+statements are the `Theorems/` wrappers verbatim, or the `S_` files' own public
+declarations for the four non-wrapper exports. One goal round (of the 2–3
+budgeted).
+
+| | |
+|---|---|
+| goal rounds | **1** (of the 2–3 budgeted) |
+| declarations | **19 public**, 93 `private` |
+| lines written | **1670**: 425 positivity, 1070 block, 175 properties (+12 the `Defs/Jq` promotion) |
+| build | `lake build` 3817 jobs, green, **0 warnings**, no `sorry` |
+| `#print axioms` | all nineteen public declarations: only `propext, Classical.choice, Quot.sound` |
+| checker | `233 statements identical (11 promoted from pin-private), 0 mismatched, 0 missing` (213 → 233) |
+| consumer | Zone J added and bound, with the first **unconditional** wire test; **0 errors**, one `sorry` |
+
+### 12.1 The dedup — the 895 block ships five times
+
+`PORTING-PhiGen.md` §2's table recorded the 895-line block as **×3** (its three
+graph nodes `evalSymm_of_splits`, `phiIrreducible_of_splits`,
+`transposeToAdjoin_monic_of_qExpansion`). Measured, it ships in **five** files:
+the two hidden exports `swapBivar_monic_of_coeff_bounds` and
+`ModularPolynomialData.evalSymm_of_irreducible` each have their own ~894-line copy
+too. So the pin spends **≈ 4,475** lines on one development; the port writes it
+once at 1070 (including a ~55-line header and the ~60-line `SepFibre` block for
+`swapBivar_eq_of_evalSymm`). The three reuse items landed: `conj_injective` and
+`evalAtJGen_injective` are written once and public, `evalAtJ_injective` is T11's,
+`coeff_aeval_jq_neg` is T9's, and `evalAtJ_eq_aeval_map` moved to `Defs/Jq.lean`
+with all three copies deleted. T12's public `evalAtJ_injective` is what T13's
+`eq_of_prime` will import.
+
+### 12.2 The cost
+
+**1670 port lines against 1467 deduplicated pin lines** (386 + 895 + 124 + 62),
+ratio **1.14** (T5 1.79, T6 1.06, T7 1.05, T8 0.98, T9 0.93, T10 1.27, T11 1.19).
+The block itself is the largest single artefact of the sub-effort; three module
+headers (~150 lines total) account for most of the excess over 1:1.
+
+### 12.3 `one_le_coeff_jq`'s route — the substitution closed, the estimate did not
+
+The work order's §3.1.9 mathlib substitution **did close**, in the two places it
+could:
+
+| piece | pin | port replacement |
+|---|---|---|
+| `coeff_prod_one_sub_X_pow_eq_coeff_one` (40-line induction) | `PowerSeries.coeff_mul_prod_one_sub_of_lt_order` + `order_X_pow` | one mathlib call in a 10-line wrapper |
+| `geomSeries` + `one_sub_X_pow_mul_geomSeries` + its `coeff_*` lemmas (~45 lines) | `PowerSeries.expand d hd (PowerSeries.mk 1)` | `mk_one_mul_one_sub_eq_one` + `coeff_expand` |
+
+`PowerSeries.coeff_prod_one_sub_X_pow_eventually_eq` was inspected but not used:
+it relates the partial product to `pentagonalSeries`, and reaching the *specific*
+truncation `∏_{i < n+1}` from it still needs the tail-coefficient argument, so the
+pin's `coeff_etaProd_eq_coeff_partialProd` (`Tendsto` to a discrete limit) was
+ported. The truncation-stable `coeff_inv_congr` and the `one_le_coeff_partialGeom_pow`
+split are local. **Net: the predicted 190–250 lines (ratio ≈ 0.5–0.65) did not
+materialise** — the module is 425 lines (≈370 of code) against the 386-line pin,
+ratio ≈ 1.1. This is the T6/T9 "the audit's rightness and its savings diverge"
+outcome: the two substitutions are real, but the irreplaceable truncation machinery
+they do not cover dominates the file.
+
+### 12.4 The shape issues
+
+- **The fraction-field instances are scoped.** `Algebra (Algebra.adjoin F S)
+  (adjoin F S)` and `IsFractionRing` are mathlib's **scoped** instances in
+  `IntermediateField.algebraAdjoinAdjoin`; the pin activated them through its
+  `p2m_open "… IntermediateField.algebraAdjoinAdjoin"`, which the port's textual
+  translation dropped. The fix is an explicit
+  `open scoped IntermediateField.algebraAdjoinAdjoin`. This was the only real
+  blocker and it cost one build.
+- **`IsIntegrallyClosed adjoinJq` needed no instance.** The pin's private scoped
+  `UniqueFactorizationMonoid adjoinJq` (from `transcendental_jq.uniqueFactorizationMonoid_adjoin`)
+  plus mathlib's UFD → integrally-closed path sufficed for
+  `Monic.irreducible_iff_irreducible_map_fraction_map`; the instance stays in scope
+  in the same module, as the work order's §8 asked.
+- **Vieta matched `v4.34.0`.** `Polynomial.eq_of_natDegree_lt_card_of_eval_eq`
+  (with the `eval`/`max`-degree side condition) and
+  `Polynomial.prod_X_sub_C_coeff_card_pred` elaborated in the pin's spelling; no
+  reshaping was needed. `Polynomial.degree_sub_lt` is deprecated in favour of
+  `Polynomial.degree_sub_lt_left`. The `haveI` style linter fired once (the
+  cyclotomic instances in `aeval_jq_ne_jqN`) and was disabled locally.
+- **Wrapper spellings again.** Two public declarations verified against a
+  `Theorems/` wrapper had been written with the `S_` file's section variables
+  (`aeval_jqN_toAdjoin`, `minpoly_jqN_eq`); the checker flagged both, and explicit
+  wrapper binders fixed them. The T7-log §7.3 rule — *match the wrapper, not the
+  `S_` file, for any public declaration the checker verifies* — holds for the
+  fourth topic running.
+
+### 12.5 What T12 leaves
+
+**T13 is next and last.** It consumes `exists_phiIrreducible_evalSymm` (for
+`finrank_adjoin_jqN_eq_of_prime` and `eq_of_prime`) and T11's public
+`evalAtJ_injective`, and delivers `finrank_adjoin_jqN_eq_of_prime`,
+`ModularPolynomialData.eq_of_prime`, `splits_of_prime` and
+`splits_prime_at_slot` — the cone's exported statement.
+
+## 13. T13: the consequence — uniqueness, the degree, and the cone closed
+
+Two new modules, **407 lines**, **4 public** and 12 `private` declarations:
+
+- `FLTForHuman/ModularCurve/ModularPolynomialUniqueness.lean` (133 lines, 2 public
+  + 4 private) — `ModularCurve.finrank_adjoin_jqN_eq_of_prime` and
+  `ModularCurve.ModularPolynomialData.eq_of_prime`;
+- `FLTForHuman/ModularCurve/PhiGenSplits.lean` (274 lines, 2 public + 8 private) —
+  `ModularCurve.PhiGen.splits_of_prime` and the cone's headline
+  `ModularCurve.PhiGen.splits_prime_at_slot`.
+
+All four public statements are the pin wrappers verbatim, and this is the first
+topic whose public surface matched the wrappers on the first build (the T7 §7.3
+rule was applied by construction, not debugged). One goal round (of the 1–2
+budgeted); module 2's first build had no proof errors, only linter clean-up.
+
+| | |
+|---|---|
+| goal rounds | **1** (of the 1–2 budgeted) |
+| declarations | **4 public**, 12 `private` (+5 public in `Defs/Cyclotomic.lean`) |
+| lines written | **407** (133 + 274) + `Defs/Cyclotomic.lean` (58) |
+| build | `lake build` 3863 jobs, green, **0 warnings**, no `sorry` |
+| `#print axioms` | all four: only `propext, Classical.choice, Quot.sound` |
+| checker | `242 statements identical (11 promoted from pin-private), 0 mismatched, 0 missing` (233 → 237 → 242) |
+| consumer | Zone K added and bound, with the cone's end-to-end capstone wire; **0 errors**, one `sorry` (the FFG capstone) |
+
+### 13.1 The dedup — the prelude was already ported, and ~200 lines were dead
+
+The two big pin files (353 + 288 lines) share a ~95-line `TS` prelude of 16
+declarations. **Eleven are already public in the port**: `Defs/TS.lean` carries
+`TS` and its ten lemmas verbatim, and `Defs/Laurent.lean` carries
+`coeffEmb_qExpand`. T13 needed only three 1–3-line bridges (`iota_jq`,
+`conj_zero_eq`, `conj_succ_eq`), written once.
+
+The larger find is that **neither exported theorem uses ~200 lines of the pin's
+prelude**:
+
+- in `splits_of_prime`: `iota_jqN`, `qTwist_iota_of_pow_eq_one`,
+  `qTwistEquiv`/`qTwistEquiv_apply`/`coe_qTwistEquiv`, `qTwist_TS_one_cycle`,
+  `phiProd_conj_eq`, `roots_phiProd_conj`, `roots_phiProd_conj_nodup`, and the
+  whole `phiAtSeed` block (8 declarations, 214–257);
+- in `splits_prime_at_slot`: the roots API `prod_form_ne_zero`,
+  `roots_prime_at_slot`, `roots_prime_at_slot_nodup`,
+  `roots_prime_at_slot_roots_nodup`, `isRoot_prime_at_slot_iff` (the theorem ends
+  at line 180; the block is a self-contained description for other consumers).
+
+None is a node of the 44-node closure; they exist so the two 607-line
+`*_of_isPrimitiveRoot` char-`p` variants (byte-identical to each other, over
+`jqModC`, which the port has not ported) can share a body. T13 drops them.
+
+### 13.2 The cost
+
+**407 port lines against 766 deduplicated pin lines** (52 + 73 + 353 + 288),
+ratio **0.53** — the sub-effort's cheapest, and the first below 0.93. The two
+modules' headers account for most of the difference above the ~350 live pin
+lines.
+
+### 13.3 The capstone wire, and the cone closed
+
+Zone K instantiates the headline at `K = CyclotomicField 2 ℚ`, `N = p = 2`,
+`e = 1`, `u = 1` — the first genuine application of `splits_prime_at_slot` with no
+unported hypothesis — and binds `eq_of_prime` (two data at `p = 2` agree) and
+`finrank_adjoin_jqN_eq_of_prime` (`[ℚ(j)(j(q^2)) : ℚ(j)] = 3`).
+
+With T13 landed, **all 44 nodes below `PhiGen.splits_prime_at_slot` are public and
+every wrapper is verified**. The consumer's remaining `sorry` — the unconditional
+`FunctionFieldGeneration N` — is the FFG `Inputs` gap, not this cone's: the seven
+`Inputs` fields of `PORTING-FFG.md` §7.8 (T14–T19) can now be proved with
+`splits_prime_at_slot` as a theorem rather than an input.
+
+### 13.4 Promotions, and one carried forward
+
+- **Done.** The cyclotomic roots (`exists_isPrimitiveRoot_cyclotomicField`,
+  `cycUnit`, `cycUnit_spec`, `cycUnit_pow`, `isPrimitiveRoot_pow_div`) were
+  private twins in this topic's module and in
+  `FunctionFieldGeneration/Spine.lean`; T13 promoted them to the new public
+  `Defs/Cyclotomic.lean` and deleted both private copies. The checker verifies
+  them against the two pin `splits_*` `S_` files, which is why the count is 242
+  rather than 237.
+- **Carried forward.** `coeffMap_qTwist` remains private in `PhiGenSplits.lean`,
+  duplicating the *more general* private copy in `PhiGenIntegrality.lean` (and
+  T11's `PhiGenDescent.lean` copy is a genuinely different statement, with an
+  explicit `v`/`huv`). Promoting the general form to `Defs/Twist.lean` and
+  rewriting its three consumers is a dedicated cleanup of T9/T11's surfaces, not
+  part of the capstone; it is recorded here so it is not lost.
+
+### 13.5 What T13 leaves
+
+The cone is closed. Nothing of `PORTING-PhiGen.md` remains; the parent FFG effort
+(PORTING-FFG §7.8's T14–T19) proceeds from here, with `splits_prime_at_slot` now
+a ported theorem.

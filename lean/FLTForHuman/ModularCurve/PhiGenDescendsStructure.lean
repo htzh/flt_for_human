@@ -127,17 +127,6 @@ theorem PhiGenDescends.sum_mul_jqN_pow_eq_zero {K : Type*} [Field K] [Algebra �
   rw [← Polynomial.eval_eq_sum_range' (n := ℓ + 2) (by rw [phiProd_natDegree]; omega)]
   exact phiProd_eval_conj ℓ _ 0
 
-/-- The bridge from the integer evaluation `evalAtJ` to mathlib's `ℚ`-algebra
-evaluation `aeval jq` after the coefficient map `ℤ → ℚ`. Kept `private`; the
-assembly module (which is downstream of this one and imports it) carries its own
-copy because the pin's two files each do. -/
-private theorem evalAtJ_eq_aeval_map (Q : Polynomial ℤ) :
-    evalAtJ Q = Polynomial.aeval jq (Q.map (Int.castRingHom ℚ)) := by
-  have hcomp : (algebraMap ℚ (LaurentSeries ℚ)).comp (Int.castRingHom ℚ)
-      = algebraMap ℤ (LaurentSeries ℚ) := Subsingleton.elim _ _
-  rw [Polynomial.aeval_def, Polynomial.eval₂_map, hcomp]
-  rfl
-
 /-- Evaluation at `jq` from `ℤ[X]` is injective — `jq` is transcendental. This is
 the public entry point T12's 895 block imports. -/
 theorem evalAtJ_injective : Function.Injective evalAtJ := by

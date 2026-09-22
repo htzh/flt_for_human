@@ -289,6 +289,17 @@ def evalAtJ : Polynomial ℤ →+* LaurentSeries ℚ :=
 theorem evalAtJ_X : evalAtJ Polynomial.X = jq := by
   simp [evalAtJ]
 
+/-- The bridge from the integer evaluation `evalAtJ` to mathlib's `ℚ`-algebra
+evaluation `aeval jq` after the coefficient map `ℤ → ℚ`. FLT repeats it privately
+in the 328 block, the assembly file and the 895 block (`evalAtJ_eq_aeval_map_rat`);
+the port writes it once here, beside `evalAtJ`, and T11/T12 import it. -/
+theorem evalAtJ_eq_aeval_map (Q : Polynomial ℤ) :
+    evalAtJ Q = Polynomial.aeval jq (Q.map (Int.castRingHom ℚ)) := by
+  have hcomp : (algebraMap ℚ (LaurentSeries ℚ)).comp (Int.castRingHom ℚ)
+      = algebraMap ℤ (LaurentSeries ℚ) := Subsingleton.elim _ _
+  rw [Polynomial.aeval_def, Polynomial.eval₂_map, hcomp]
+  rfl
+
 end NamedInputs
 
 end ModularCurve

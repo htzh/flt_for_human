@@ -112,6 +112,12 @@ alongside `.lake/` in case it does.
 | `FLTForHuman/ModularCurve/PhiGenDescent.lean` | the cone's (a): descent to `ℚ((q))` | `PhiGen.exists_phiGenDescends` (verbatim): the coefficients of `phiProd ℓ (conj ℓ ζ)` are fixed by the nome twist `q ↦ ζq` — hence in the range of `qExpand ℚ ℓ` — and by every `σ : K ≃ₐ[ℚ] K` — hence in the range of `coeffEmb K`; intersecting the ranges gives the descended family. base/006 §6.2 verbatim, no analysis. FLT `S_ModularCurve_PhiGen_exists_phiGenDescends` (315 lines) |
 | `FLTForHuman/ModularCurve/PhiGenDescendsStructure.lean` | the 328 block: the shape of a descended family | `PhiGenDescends.c_top` (`c (ℓ+1) = 1`), `.c_eq_zero` (vanishing above degree `ℓ+1`), `.poleOrderLE` (pole `≤ ℓ+1`, from T10's `ℓ²+ℓ` bound divided by the level substitution), `.sum_mul_jqN_pow_eq_zero` (the modular-equation relation) and the public `evalAtJ_injective` — the last by the **mathlib route** through the public `transcendental_jq`, so T12's 895 block imports it rather than carrying the pin's private copy. The ~170-line `TPoleOrderLE` prelude is T10's. FLT the 328-line `PhiGenDescends` block (shipped in seven files; 84 distinctive lines) |
 | `FLTForHuman/ModularCurve/ModularPolynomialAssembly.lean` | the cone's (d): the assembled datum | `PhiGen.exists_modularPolynomialData_coeff_eq` (verbatim from its wrapper): a descended integral family in `ℚ[jq]` assembles into a `ModularPolynomialData ℓ` with `evalAtJ (Φ.coeff k) = c k`, using T9's `aeval_jq_intCoeffs_descent` and `Polynomial.lifts`. Plus `splits_of_coeff_evalAtJ_eq` (verbatim), the coefficient comparison that turns the datum back into the product and feeds (e)/(f). FLT `S_ModularCurve_PhiGen_exists_modularPolynomialData_coeff_eq` (191 lines) |
+| `FLTForHuman/ModularCurve/JqCoeffPositivity.lean` | the coefficients of `j` are positive | `one_le_coeff_jq` (verbatim): every regular coefficient of `j = q⁻¹ + 744 + 196884q + ⋯` is at least `1`, via the eta product `jNum = E₄³·Δ⁻¹` (no analysis). Two of the audit's mathlib substitutions landed (`coeff_mul_prod_one_sub_of_lt_order`, `PowerSeries.expand` + `mk_one_mul_one_sub_eq_one`); the eta-truncation comparison and the truncation-stable inverse comparison are the pin's. Plus the one-line `coeff_jq_ne_zero`. FLT `S_ModularCurve_one_le_coeff_jq` (386 lines) |
+| `FLTForHuman/ModularCurve/ModularPolynomialIrreducible.lean` | the properties I: irreducibility and the transpose | The **895 block written once** — FLT ships it in five files (`5 × 895 ≈ 4,475` lines). `conj_injective` (the conjugates are distinct), `aeval_jq_ne_jqN`/`jqN_not_mem_adjoin_jq` (the twist-sum refutation, using `one_le_coeff_jq` at `n = ℓ`), `phiIrreducible_of_splits` (the factor-counting engine), `swapBivar_monic_of_coeff_bounds` and `transposeToAdjoin_monic_of_qExpansion` (the transpose's degree from the pole bounds), `evalSymm_of_irreducible`/`evalSymm_of_splits` (symmetry by minimal-polynomial uniqueness), `evalAtJGen_injective`, `swapBivar_eq_of_evalSymm`, `aeval_jqN_toAdjoin`, `minpoly_jqN_eq`. `evalAtJGen_injective` reuses T11's `evalAtJ_injective`; `evalAtJ_eq_aeval_map` is the new `Defs/Jq` lemma. FLT `S_ModularCurve_PhiGen_evalSymm_of_splits` (895) + `S_ModularCurve_swapBivar_eq_of_evalSymm` (95) |
+| `FLTForHuman/ModularCurve/ModularPolynomialProperties.lean` | the properties II: symmetry from the family, and existence | `evalSymm_of_coeff_evalAtJ_eq` (verbatim): T10's two pole-bound exports give the three coefficient hypotheses of `transposeToAdjoin_monic_of_qExpansion`, and `evalSymm_of_splits` concludes. Plus the capstone `exists_phiIrreducible_evalSymm` (verbatim), the cone's own construction of an irreducible symmetric datum — the join of (a)–(e) in `CyclotomicField ℓ ℚ`. FLT `S_ModularCurve_PhiGen_evalSymm_of_coeff_evalAtJ_eq` (124) + `S_ModularCurve_exists_phiIrreducible_evalSymm` (62) |
+| `FLTForHuman/ModularCurve/ModularPolynomialUniqueness.lean` | the cone's consequence I: uniqueness and the degree | `ModularCurve.finrank_adjoin_jqN_eq_of_prime` (verbatim: `[ℚ(j)(j(q^ℓ)) : ℚ(j)] = ℓ + 1`, from T12's `exists_phiIrreducible_evalSymm` and `dedekindPsi_prime`) and `ModularPolynomialData.eq_of_prime` (verbatim: any two prime-level data are equal, both `toAdjoin`s being the minimal polynomial of `j(q^ℓ)`). FLT `S_ModularCurve_finrank_adjoin_jqN_eq_of_prime` (52) + `S_ModularCurve_ModularPolynomialData_eq_of_prime` (73) |
+| `FLTForHuman/ModularCurve/PhiGenSplits.lean` | the cone's consequence II: the splitting — **the cone's headline** | `PhiGen.splits_of_prime` (verbatim): the datum, read at the level-`p` nome, is the conjugate product; proved over `CyclotomicField p ℚ` (T11's descent + T9's integrality + T8's membership + T11's assembly + `eq_of_prime` + T11's `splits_of_coeff_evalAtJ_eq`) and transported along an embedding `CyclotomicField p ℚ →ₐ[ℚ] K`. `PhiGen.splits_prime_at_slot` (verbatim), the cone's exported statement, is one `qExpand K e ∘ qTwist u` transport. The shared `TS` prelude is `Defs/TS.lean`'s; ~200 pin prelude lines dead for the exports (they belong to the char-`p` variants) are dropped. FLT `S_ModularCurve_PhiGen_splits_of_prime` (353) + `S_ModularCurve_PhiGen_splits_prime_at_slot` (288) |
+| `FLTForHuman/ModularCurve/Defs/Cyclotomic.lean` | a primitive root of unity in `CyclotomicField N ℚ` | `exists_isPrimitiveRoot_cyclotomicField` and the chosen `cycUnit`, its `cycUnit_spec`/`cycUnit_pow`, and `isPrimitiveRoot_pow_div` — promoted by T13 from the private twins in the FFG spine and in `PhiGenSplits.lean`, so both import one copy. FLT `S_ModularCurve_PhiGen_splits_of_prime` (188–203) + `S_ModularCurve_PhiGen_splits_prime_at_slot` (123–133) |
 
 The port of `#E[n](K) = n²` (math/005) has its own working record:
 [logs/card-torsion-port.md](logs/card-torsion-port.md) — dependency trace,
@@ -272,11 +278,34 @@ T11 then built the cone's **construction** end-to-end in three modules:
 mathlib `transcendental_jq` route) and `ModularPolynomialAssembly.lean` (d,
 `exists_modularPolynomialData_coeff_eq` + `splits_of_coeff_evalAtJ_eq`). Together
 with T9/T8 the whole (a)→(b)→(c)→(d) chain now runs concretely — the consumer's
-Zone I wire test does exactly that on `K = CyclotomicField ℓ ℚ`. The three topics
-moved the consumer to Zones G/H/I and the checker 176 → 213;
-[logs/phiGen-port.md](logs/phiGen-port.md) §9–§11 carry the measured cost and the
-route decisions. **T12 (the properties: irreducibility and symmetry) is next**,
-then T13 (uniqueness and the splitting).
+Zone I wire test does exactly that on `K = CyclotomicField ℓ ℚ`.
+
+T12 then proved the datum's **properties** in three more modules:
+`JqCoeffPositivity.lean` (`one_le_coeff_jq`, with two of the audit's mathlib
+substitutions landing), `ModularPolynomialIrreducible.lean` (the 895 block written
+once, where FLT ships it **five** times) and `ModularPolynomialProperties.lean`
+(`evalSymm_of_coeff_evalAtJ_eq` and the capstone
+`exists_phiIrreducible_evalSymm`). It also promoted `evalAtJ_eq_aeval_map` to
+`Defs/Jq.lean`, deleting T11's two private copies. The consumer's Zone J wire test
+is the first **unconditional** one (`exists_phiIrreducible_evalSymm` at `ℓ = 2`).
+The five topics moved the consumer to Zones G/H/I/J and the checker 176 → 233;
+[logs/phiGen-port.md](logs/phiGen-port.md) §9–§12 carry the measured cost and the
+route decisions.
+
+T13 then closed the cone: `ModularPolynomialUniqueness.lean` proves the degree
+`[ℚ(j)(j(q^ℓ)) : ℚ(j)] = ℓ + 1` and the uniqueness of the datum, and
+`PhiGenSplits.lean` proves `splits_of_prime` and the headline
+`splits_prime_at_slot`. It also promoted the cyclotomic roots from the FFG spine's
+private copies to the public `Defs/Cyclotomic.lean`, and dropped ~200 pin prelude
+lines that the exports never use (they belong to the char-`p`
+`*_of_isPrimitiveRoot` variants, outside the cone). The port is 407 lines against
+766 deduplicated pin lines, ratio **0.53** — the sub-effort's cheapest. The checker
+moved 233 → 242 and the consumer gained Zone K with the capstone wire
+(`splits_prime_at_slot` at `K = CyclotomicField 2 ℚ`, `N = p = 2`, `e = u = 1`).
+**All 44 nodes of the cone are now ported.** The consumer's remaining `sorry` is
+the FFG `Inputs` gap; PORTING-FFG §7.8's T14–T19 proceed with
+`splits_prime_at_slot` as a theorem.
+[logs/phiGen-port.md](logs/phiGen-port.md) §13 carries the measured cost.
 
 ## Where things live
 

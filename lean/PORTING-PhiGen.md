@@ -1,18 +1,20 @@
 # Blueprint: the Φₚ splitting cone — `PhiGen.splits_prime_at_slot`
 
-**Status: T5–T11 landed — R1 is complete, the cone's (c) is discharged, and the
-cone's construction (a) + the 328 block + (d) is built (2026-09-22).** This file
-is the math-content inventory
+**Status: T5–T13 landed — the Φₚ splitting cone is closed (2026-09-22).** R1 is
+complete, the cone's (c) is discharged, the construction (a) + the 328 block + (d)
+is built, the datum's properties (positivity, irreducibility, symmetry, existence)
+are proved, and the headline `PhiGen.splits_prime_at_slot` is a ported theorem: all
+44 nodes below it are public. This file is the math-content inventory
 of the 44-node cone below `ModularCurve.PhiGen.splits_prime_at_slot`, the
 measurement that the headline line count overstates it by ~1.6×, and the plan for
 the remaining cone algebra. The analytic input's mathematics is written up in
 [base/013](../base/013-riemann-existence-and-the-q-expansion-principle.md) (the
 R1/R2 separation and the exact declaration chain); this file is the port-side
 companion — sizes, work orders, re-route options — and §5 records the sequence
-with each topic's measured outcome. **T12, the properties (irreducibility and
-symmetry), is the next topic.** What began
-as a plan for one analytic input is now a seven-topic executed chain plus the
-remaining properties/consequence topics; each step that grew split out into
+with each topic's measured outcome. **T13, the consequence (uniqueness and the
+splitting), was the last topic and it is done.** What began
+as a plan for one analytic input is now a nine-topic executed chain plus the
+final consequence topic; each step that grew split out into
 `topics/phiGenSplitting/TOPIC-*.md`, and this file keeps the decisions.
 
 Companion records:
@@ -127,9 +129,13 @@ finds exactly three duplicate groups and no others:
 
 | block | copies | nodes | savings |
 |---|---|---|---|
-| 895 lines | **×3** | `evalSymm_of_splits`, `phiIrreducible_of_splits`, `transposeToAdjoin_monic_of_qExpansion` | 1,790 |
-| 328 lines | **×5** | `PhiGenDescends.{c_eq_zero,c_top,poleOrderLE,sum_mul_jqN_pow_eq_zero}`, `evalAtJ_injective` | 1,312 |
+| 895 lines | **×5** | `evalSymm_of_splits`, `phiIrreducible_of_splits`, `transposeToAdjoin_monic_of_qExpansion` (the three graph nodes) plus the hidden exports `swapBivar_monic_of_coeff_bounds` and `ModularPolynomialData.evalSymm_of_irreducible` | 3,580 |
+| 328 lines | **×7** | `PhiGenDescends.{c_eq_zero,c_top,poleOrderLE,sum_mul_jqN_pow_eq_zero}`, `evalAtJ_injective` (the five graph nodes) plus `tPoleOrderLE_coeffEmb_iff` and `tPoleOrderLE_of_qExpand` | 1,968 |
 | 391 lines | **×2** | `phiProd_conj_coeff_eq_zero_of_le`, `phiProd_conj_coeff_zero_lead` | 391 |
+
+(The `×3`/`×5` in this table count the **graph nodes**; T10 measured the 328 body in
+seven `S_` files and the `TPoleOrderLE` prelude in twelve, and T12 measured the 895
+block in five. The corrections are in logs §10 and §12.)
 
 So:
 
@@ -479,23 +485,72 @@ assembly are upstream of (e), so the blueprint's old T11 (328 + the whole 502-li
 (d) bucket) was not one executable unit. Measured cost and the division are in
 [logs/phiGen-port.md](logs/phiGen-port.md) §11.
 
-**What remains of the cone, decomposed.** R1 (T5–T7), the cone's (c) (T8), the
-two halves of (b) (T9, T10) and the construction (a) + 328 + (d) (T11) are done.
-The remainder is the properties and the consequence, and each topic gets its own
-work order:
+**T12 is done** (2026-09-22, one goal round) — **the datum has its properties.**
+Its work order was
+[topics/phiGenSplitting/TOPIC-irreducibility-symmetry.md](topics/phiGenSplitting/TOPIC-irreducibility-symmetry.md),
+now the executed plan. It delivered three modules:
+
+- `FLTForHuman/ModularCurve/JqCoeffPositivity.lean` — `one_le_coeff_jq` (every
+  regular coefficient of `j(q)` is `≥ 1`), with two of the work order's mathlib
+  substitutions closing (`coeff_mul_prod_one_sub_of_lt_order`, and
+  `PowerSeries.expand` + `mk_one_mul_one_sub_eq_one`);
+- `FLTForHuman/ModularCurve/ModularPolynomialIrreducible.lean` — the 895 block
+  written once: `conj_injective`, `aeval_jq_ne_jqN`/`jqN_not_mem_adjoin_jq`,
+  `phiIrreducible_of_splits`, `swapBivar_monic_of_coeff_bounds`,
+  `transposeToAdjoin_monic_of_qExpansion`, `evalSymm_of_irreducible`,
+  `evalSymm_of_splits`, `evalAtJGen_injective`, `swapBivar_eq_of_evalSymm`,
+  `aeval_jqN_toAdjoin`, `minpoly_jqN_eq`;
+- `FLTForHuman/ModularCurve/ModularPolynomialProperties.lean` —
+  `evalSymm_of_coeff_evalAtJ_eq` and the capstone
+  `exists_phiIrreducible_evalSymm`.
+
+**The dedup is the cone's largest:** the 895 block ships in **five** pin files
+(`5 × 895 ≈ 4,475` lines) — §2's "×3" counted only its three graph nodes and
+missed the two hidden exports `swapBivar_monic_of_coeff_bounds` and
+`evalSymm_of_irreducible`; the table is corrected. The port writes it once, and
+the block's `evalAtJ_injective`/`coeff_aeval_jq_neg`/`evalAtJ_eq_aeval_map_rat`
+private copies are T11's, T9's and the new `Defs/Jq.lean` promotion respectively
+(T11 rebuilt green after the promotion). The port is 1670 lines (425 + 1070 + 175)
+against 1467 deduplicated pin lines, ratio **1.14**; `#print axioms` on all
+nineteen public declarations is clean, the checker moved 213 → 233, and the
+consumer gained Zone J with the first **unconditional** wire test
+(`exists_phiIrreducible_evalSymm` at `ℓ = 2`). Measured cost, the two substitutions
+and the shape issues are in [logs/phiGen-port.md](logs/phiGen-port.md) §12.
+
+**The cone is closed.** R1 (T5–T7), the cone's (c) (T8), the
+two halves of (b) (T9, T10), the construction (a) + 328 + (d) (T11), the
+properties (T12) and the consequence (T13) are all done:
+
+**T13 is done** (2026-09-22, one goal round) — **the cone is closed.** Its work
+order was
+[topics/phiGenSplitting/TOPIC-splitting.md](topics/phiGenSplitting/TOPIC-splitting.md),
+now the executed plan. It delivered two modules —
+`ModularPolynomialUniqueness.lean` (`finrank_adjoin_jqN_eq_of_prime`,
+`ModularPolynomialData.eq_of_prime`) and `PhiGenSplits.lean`
+(`PhiGen.splits_of_prime`, `PhiGen.splits_prime_at_slot`) — plus a promotion: the
+cyclotomic roots moved from the FFG spine's private copies into the public
+`Defs/Cyclotomic.lean`. The two pin files' shared `TS` prelude was already ported
+(`Defs/TS.lean` + `coeffEmb_qExpand`), and ~200 of their prelude lines are dead
+for the exported theorems and were dropped. The port is 407 lines against 766
+deduplicated pin lines, ratio **0.53**; the checker moved 233 → 242; the consumer
+gained Zone K with the capstone wire (`splits_prime_at_slot` at
+`K = CyclotomicField 2 ℚ`, `N = p = 2`, `e = u = 1`). Measured cost and the dedup
+are in [logs/phiGen-port.md](logs/phiGen-port.md) §13.
 
 | topic | piece | deliverable | dedup pin | work order |
 |---|---|---|---|---|
 | **T9 (done)** | (b) integrality | `intCoeffs`, `aeval_jq_intCoeffs_descent` | ~347 | [TOPIC-integrality.md](topics/phiGenSplitting/TOPIC-integrality.md) |
 | **T10 (done)** | (b) pole bounds | `phiProd_conj_coeff_{eq_zero_of_le,zero_lead}` + the shared `TPoleOrderLE` block | 391 + ~180 (dup ×12) | [TOPIC-pole-bounds.md](topics/phiGenSplitting/TOPIC-pole-bounds.md) |
 | **T11 (done)** | the construction: (a) + the 328 block + (d) assembly | `exists_phiGenDescends`; `c_top`/`c_eq_zero`/`poleOrderLE`/`sum_mul_jqN_pow_eq_zero`/`evalAtJ_injective`; `exists_modularPolynomialData_coeff_eq`, `splits_of_coeff_evalAtJ_eq` | 315 + 328 (dup ×7, 84 distinctive) + 191 | [TOPIC-datum-assembly.md](topics/phiGenSplitting/TOPIC-datum-assembly.md) |
-| **T12 (next)** | the properties: irreducibility/symmetry | `one_le_coeff_jq`; the 895 block's exports (`phiIrreducible_of_splits`, `transposeToAdjoin_monic_of_qExpansion`, `evalSymm_of_splits`); `evalSymm_of_coeff_evalAtJ_eq`; `exists_phiIrreducible_evalSymm` | 1,281 + 124 + 62 | — |
-| T13 | the consequence: uniqueness + the splitting | `finrank_adjoin_jqN_eq_of_prime`, `ModularPolynomialData.eq_of_prime`, `splits_of_prime`, `splits_prime_at_slot` | 52 + 73 + 353 + 288 | — |
+| **T12 (done)** | the properties: irreducibility/symmetry | `one_le_coeff_jq`; the 895 block's exports (`phiIrreducible_of_splits`, `transposeToAdjoin_monic_of_qExpansion`, `evalSymm_of_splits`); `evalSymm_of_coeff_evalAtJ_eq`; `exists_phiIrreducible_evalSymm` | 386 + 895 (dup ×5) + 124 + 62 | [TOPIC-irreducibility-symmetry.md](topics/phiGenSplitting/TOPIC-irreducibility-symmetry.md) |
+| **T13 (done)** | the consequence: uniqueness + the splitting | `finrank_adjoin_jqN_eq_of_prime`, `ModularPolynomialData.eq_of_prime`, `splits_of_prime`, `splits_prime_at_slot` | 52 + 73 + 353 + 288 | [TOPIC-splitting.md](topics/phiGenSplitting/TOPIC-splitting.md) |
 
 The pin-line column is the deduplicated count from the estimate below; **it is not
-effort** — T8 measured 741 pin lines in one round at ratio 0.98, T9 347 at 0.93
-and T11 590 at 1.19 — so budgets are set by route risk and shape variety, not
-lines. §6 below is the re-route menu for the pieces not yet scheduled.
+effort** — T8 measured 741 pin lines in one round at ratio 0.98, T9 347 at 0.93,
+T11 590 at 1.19, T12 1467 at 1.14 and T13 766 at 0.53 — so budgets are set by
+route risk and shape variety, not lines. §6's re-route menu is now history: the
+cone is fully ported, and the parent FFG effort (PORTING-FFG §7.8's T14–T19)
+proceeds with `splits_prime_at_slot` as a theorem.
 
 **T12's entry points are now public.** It imports from T11's
 `PhiGenDescendsStructure.lean` the public `evalAtJ_injective` (so the 895 block
@@ -520,24 +575,22 @@ the `n = 0` corollary is a genuine cross-module composition over the port's
 
 ## 6. If (c) lands: the algebra re-route options
 
-**What is left after (c), measured (2026-09-22; updated after T11).** The
+**What is left after (c), measured (2026-09-22; updated after T12).** The
 deduplicated cone is
 **5,811 lines over 37 developments**; T5–T8 cover **1,956** of it (their 16 nodes
-are all singletons), T9–T10 the whole (b) bucket (**1,266**) and T11 the
+are all singletons), T9–T10 the whole (b) bucket (**1,266**), T11 the
 construction — (a)'s 315, the 328 block's 84 distinctive lines and the assembly's
-191 — so the remaining two pieces are the properties and the consequence, **≈1,986
-lines** (of which ≈98 are the interface nodes already in `Defs/`). At the measured
-port ratios (T5 1.79, T6 1.06, T7 1.05, T8 ≈1.0, T9 0.93, T10 1.27, T11 1.19)
-that is **≈2,100–2,400 port lines**, or 2–3 topics at the current granularity:
+191 — and T12 the properties (386 + 895 + 124 + 62 = **1,467**), so the only
+remaining piece is the consequence, **≈519 lines** (52 + 73 + 353, plus the
+288-line seed):
 
 | piece | dedup pin | est. port | topics |
 |---|---|---|---|
 | (a) descent `exists_phiGenDescends` | 315 | **339 shipped** (T11) | **done** |
 | (b) integrality + pole bounds | 1,266 | **322 + 497 shipped** (T9 integrality, T10 pole bounds + the shared prelude) | **done** |
 | the 328 block (distinctive) + (d) assembly | 84 + 191 | **161 + 201 shipped** (T11) | **done** |
-| (d) tail: symmetry/existence + `finrank`/`eq_of_prime` | 186 + 125 | 330–400 | T12/T13 |
-| (e) irreducibility/symmetry + `one_le_coeff_jq` | 1,281 | 1,350–1,500 | T12 (2 rounds) |
-| (f) the statement `splits_of_prime` | 394 (+288 seed) | 430–500 | T13 |
+| (e) irreducibility/symmetry + `one_le_coeff_jq` + the (d) tail | 386 + 895 + 124 + 62 | **425 + 1070 + 175 shipped** (T12) | **done** |
+| (f) the consequence: `finrank`/`eq_of_prime` + `splits_of_prime` | 52 + 73 + 353 (+288 seed) | 430–500 | T13 |
 
 The (b) row's route-check (Option 2 below) is now fully **resolved**, and the
 bucket is closed. T9 shipped Route A for the integrality half in one round: **322
@@ -555,10 +608,15 @@ carries a 60-line header. T11 then closed the construction in one round at **701
 port lines (339 + 161 + 201) against 590 deduplicated pin (ratio 1.19)**; the
 blueprint's old T11, which bundled the 328 block with the whole 502-line (d)
 bucket, was **not executable as one unit** — (d)'s symmetry/existence/uniqueness
-tail is downstream of (e), and the work order's §4 fixed the boundary.
+tail is downstream of (e), and the work order's §4 fixed the boundary. T12 closed
+the properties in one round at **1670 port lines (425 + 1070 + 175) against 1467
+deduplicated pin (ratio 1.14)**; its `one_le_coeff_jq` prediction of 190–250 lines
+(ratio ≈ 0.5–0.65) **did not hold** — two mathlib substitutions landed, but the
+irreplaceable eta-truncation and inverse-comparison machinery dominates, so the
+module came in at 1:1 (logs §12.3).
 
 Several pieces are single developments shipped many times by p2m (the 895-line
-block ×3, the 328-line block body ×7, the 391-line block ×2, and the ~170-line
+block **×5**, the 328-line block body ×7, the 391-line block ×2, and the ~170-line
 `TPoleOrderLE` prelude ×12); deduplicating at the
 source, as T5–T8 did, is what makes the table's numbers the ones to price. The
 remaining pieces use **no Hecke operators** (their only `hecke*` occurrence is

@@ -147,6 +147,42 @@ SOURCES = [
     "P2M/Sol/S_ModularCurve_PhiGen_PhiGenDescends_c_top.lean",
     "P2M/Sol/S_ModularCurve_PhiGen_exists_phiGenDescends.lean",
     "P2M/Sol/S_ModularCurve_PhiGen_exists_modularPolynomialData_coeff_eq.lean",
+    # Topic 12, the properties. Thirteen wrappers for the positivity, the 895
+    # block's public surface and the two (e)-join statements; the `S_` files
+    # supply the block's non-wrapper public declarations (`aeval_jq_ne_jqN`,
+    # `jqN_not_mem_adjoin_jq`, `evalSymm_of_swapBivar_eq`,
+    # `eval_swap_eq_zero_of_splits`, `aeval_jq_ne_jqN_of_isPrimitiveRoot`,
+    # `swapBivar_monic_of_coeff_bounds`) and `coeff_jq_ne_zero`.
+    "Theorems/Thm_ModularCurve_one_le_coeff_jq.lean",
+    "Theorems/Thm_ModularCurve_PhiGen_phiIrreducible_of_splits.lean",
+    "Theorems/Thm_ModularCurve_PhiGen_evalSymm_of_splits.lean",
+    "Theorems/Thm_ModularCurve_ModularPolynomialData_transposeToAdjoin_monic_of_qExpansion.lean",
+    "Theorems/Thm_ModularCurve_PhiGen_evalSymm_of_coeff_evalAtJ_eq.lean",
+    "Theorems/Thm_ModularCurve_exists_phiIrreducible_evalSymm.lean",
+    "Theorems/Thm_ModularCurve_evalAtJGen_injective.lean",
+    "Theorems/Thm_ModularCurve_swapBivar_monic_of_coeff_bounds.lean",
+    "Theorems/Thm_ModularCurve_ModularPolynomialData_evalSymm_of_irreducible.lean",
+    "Theorems/Thm_ModularCurve_swapBivar_eq_of_evalSymm.lean",
+    "Theorems/Thm_ModularCurve_PhiGen_conj_injective.lean",
+    "Theorems/Thm_ModularCurve_aeval_jqN_toAdjoin.lean",
+    "Theorems/Thm_ModularCurve_ModularPolynomialData_minpoly_jqN_eq.lean",
+    "P2M/Sol/S_ModularCurve_PhiGen_evalSymm_of_splits.lean",
+    "P2M/Sol/S_ModularCurve_one_le_coeff_jq.lean",
+    # Topic 13, the consequence and the cone's last topic: uniqueness, the degree,
+    # and the splitting. The four public statements are the pin wrappers verbatim:
+    # `ModularPolynomialUniqueness.lean` and `PhiGenSplits.lean`. The pin's
+    # `splits_of_prime`/`splits_prime_at_slot` prelude declarations are `private`
+    # in the port, so no `S_` file is listed for them.
+    "Theorems/Thm_ModularCurve_finrank_adjoin_jqN_eq_of_prime.lean",
+    "Theorems/Thm_ModularCurve_ModularPolynomialData_eq_of_prime.lean",
+    "Theorems/Thm_ModularCurve_PhiGen_splits_of_prime.lean",
+    "Theorems/Thm_ModularCurve_PhiGen_splits_prime_at_slot.lean",
+    # T13 also promoted the cyclotomic roots out of the FFG spine's private copies
+    # into the public `Defs/Cyclotomic.lean`. They are public in the two pin
+    # `splits_*` files (the `_of_isPrimitiveRoot` siblings repeat them), so those
+    # `S_` files are the comparable copies.
+    "P2M/Sol/S_ModularCurve_PhiGen_splits_of_prime.lean",
+    "P2M/Sol/S_ModularCurve_PhiGen_splits_prime_at_slot.lean",
 ]
 
 PORT_FILES = [
@@ -162,6 +198,7 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/FunctionFieldGeneration/Collapse.lean",
     "FLTForHuman/ModularCurve/JqCoefficients.lean",
     "FLTForHuman/ModularCurve/FunctionFieldGeneration/Spine.lean",
+    "FLTForHuman/ModularCurve/Defs/Cyclotomic.lean",
     "FLTForHuman/ModularForms/QExpansionPrinciple.lean",
     "FLTForHuman/ModularForms/JqAnalyticModel.lean",
     "FLTForHuman/ModularForms/Hauptmodul.lean",
@@ -173,6 +210,11 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/PhiGenDescent.lean",
     "FLTForHuman/ModularCurve/PhiGenDescendsStructure.lean",
     "FLTForHuman/ModularCurve/ModularPolynomialAssembly.lean",
+    "FLTForHuman/ModularCurve/JqCoeffPositivity.lean",
+    "FLTForHuman/ModularCurve/ModularPolynomialIrreducible.lean",
+    "FLTForHuman/ModularCurve/ModularPolynomialProperties.lean",
+    "FLTForHuman/ModularCurve/ModularPolynomialUniqueness.lean",
+    "FLTForHuman/ModularCurve/PhiGenSplits.lean",
 ]
 
 # Declarations whose *statement* has no FLT source, so there is nothing to diff:

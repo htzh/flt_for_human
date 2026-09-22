@@ -1,16 +1,21 @@
 # Topic 12: the properties — irreducibility and symmetry
 
-**Status: work order (2026-09-22), T11 is done.** This is the second of the three
-remaining cone topics cut by mathematical object (§4.1 of
-[TOPIC-datum-assembly.md](TOPIC-datum-assembly.md)): **T11 construction → T12
-properties → T13 consequence**. T12 proves that the datum T11 assembled is the
-level-`ℓ` modular polynomial: coefficient positivity, irreducibility over
-`ℚ(j)`, symmetry, and existence. T13 then draws the consequence (uniqueness and
-the splitting).
-
-The plan is [PORTING-PhiGen.md](../../PORTING-PhiGen.md); the mathematics is
+**Status: done (2026-09-22), one goal round — the cone's datum has its
+properties.** Three modules: `FLTForHuman/ModularCurve/JqCoeffPositivity.lean`
+(`one_le_coeff_jq`), `ModularPolynomialIrreducible.lean` (the 895 block written
+once) and `ModularPolynomialProperties.lean` (`evalSymm_of_coeff_evalAtJ_eq`,
+`exists_phiIrreducible_evalSymm`), green with 0 warnings and no `sorry`. The 895
+block is shipped in **five** pin files (not three — §2's correction is recorded);
+the `evalAtJ_eq_aeval_map` promotion landed and T11 rebuilt green; the end-to-end
+wire test is the first **unconditional** capstone. The measured cost and the
+answers to the §10 questions are in
+[logs/phiGen-port.md](../../logs/phiGen-port.md) §12. This file is kept as the
+executed plan. The plan is [PORTING-PhiGen.md](../../PORTING-PhiGen.md); the
+mathematics is
 [math/010](../../../math/010-function-field-generation.md) §3 and
-[base/006](../../../base/006-the-modular-equation.md) §2 and §6 step 3.
+[base/006](../../../base/006-the-modular-equation.md) §2 and §6 step 3. **T13,
+the consequence (uniqueness and the splitting), is next and is the cone's last
+topic.**
 
 > **Build discipline — read this first.** Every build is bounded and a blow-up is
 > quarantined, not waited on. Measured with mathlib prebuilt: a green
@@ -445,41 +450,72 @@ one that matches the statement; keep it.
 
 ## 9. Definition of done
 
-- [ ] `FLTForHuman/ModularCurve/JqCoeffPositivity.lean`: `one_le_coeff_jq`
+- [x] `FLTForHuman/ModularCurve/JqCoeffPositivity.lean`: `one_le_coeff_jq`
       public and verbatim; `coeff_jq_zero`/`coeff_jq_one` (T11-era
-      `JqCoefficients.lean`) still green.
-- [ ] `FLTForHuman/ModularCurve/ModularPolynomialIrreducible.lean`: the block's
-      public surface above, all verbatim or transcribed from the pin's public
-      declarations; private helpers `private`.
-- [ ] `FLTForHuman/ModularCurve/ModularPolynomialProperties.lean`:
+      `JqCoefficients.lean`) still green. **425 lines, 2 public + 27 `private`**
+      (the module also exports the one-line `coeff_jq_ne_zero`).
+- [x] `FLTForHuman/ModularCurve/ModularPolynomialIrreducible.lean`: the block's
+      public surface, all verbatim or transcribed from the pin's public
+      declarations; private helpers `private`. **1070 lines, 15 public + 62
+      `private`.**
+- [x] `FLTForHuman/ModularCurve/ModularPolynomialProperties.lean`:
       `evalSymm_of_coeff_evalAtJ_eq` and `exists_phiIrreducible_evalSymm` public
-      and verbatim.
-- [ ] `Defs/Jq.lean` gains `evalAtJ_eq_aeval_map`; the two T11 private copies and
-      the block's `_rat` copy are deleted; T11 modules rebuilt.
-- [ ] `lake build` green, 0 warnings, no `sorry`.
-- [ ] `#print axioms` clean on every public declaration.
-- [ ] `spec/check_flt_statements.py`: thirteen wrappers added plus the two block
-      `S_` files, 213 → 226, 0 mismatched; `PORT_FILES` gains the three modules.
-- [ ] the wire item from §5.4 recorded, green in Zone J.
-- [ ] `PORTING-PhiGen.md` §5 marks T12 done and names T13; §2's dedup table
+      and verbatim. **175 lines, 2 public + 4 `private`.**
+- [x] `Defs/Jq.lean` gains `evalAtJ_eq_aeval_map`; the two T11 private copies and
+      the block's `_rat` copy are deleted; T11 modules rebuilt green.
+- [x] `lake build` green, 0 warnings, no `sorry` (3817 jobs).
+- [x] `#print axioms` clean on every public declaration.
+- [x] `spec/check_flt_statements.py`: thirteen wrappers added plus the two block
+      `S_` files, **213 → 233, 0 mismatched, 0 missing**; `PORT_FILES` gains the
+      three modules.
+- [x] the wire item from §5.4 recorded, green in Zone J.
+- [x] `PORTING-PhiGen.md` §5 marks T12 done and names T13; §2's dedup table
       corrects the 895 block to ×5; the log gains T12's cost and the reuse
       outcomes; README module table gains the three modules.
-- [ ] report in the §10 shape.
+- [x] report in the §10 shape.
 
 ## 10. Reporting back
 
-1. **The dedup** — confirm the ×5 block and whether `conj_injective`/
-   `evalAtJGen_injective`/`evalAtJ_eq_aeval_map` landed once each; report the
-   `evalAtJ_eq_aeval_map` promotion and whether T11's rebuild stayed green.
-2. **The cost** — rounds, declarations, lines, port/pin ratio.
-3. **`one_le_coeff_jq`'s route** — did the §3.1.9 mathlib substitution
-   (`coeff_mul_prod_one_sub_of_lt_order`,
-   `coeff_prod_one_sub_X_pow_eventually_eq`, `PowerSeries.expand`) close, or was
-   the pin's finite truncation ported? Record the spike and the measured ratio.
-4. **The shape issues** — how the v4.34
-   `eq_of_natDegree_lt_card_of_eval_eq`/`prod_X_sub_C_coeff_card_pred` signatures
-   in the Vieta step were handled; whether the `IsIntegrallyClosed adjoinJq`
-   instance needed to be a `local instance`; any `respectTransparency` friction.
+1. **The dedup.** The 895 block ships in **five** pin files (`5 × 895 ≈ 4,475`
+   lines) — the three graph nodes plus the two hidden exports
+   `swapBivar_monic_of_coeff_bounds` and `evalSymm_of_irreducible`, each with its
+   own ~894-line copy; `PORTING-PhiGen.md` §2's "×3" is corrected to ×5. The port
+   writes it once. `conj_injective`, `evalAtJGen_injective` and
+   `evalAtJ_eq_aeval_map` each landed exactly once (the last promoted to
+   `Defs/Jq.lean`, its three copies deleted, T11 rebuilt green).
+2. **The cost** — **1 goal round**, 19 public + 93 `private` declarations,
+   **1670 lines** (425 + 1070 + 175), port/pin ratio **1670/1467 ≈ 1.14** against
+   the deduplicated pin (386 + 895 + 124 + 62).
+3. **`one_le_coeff_jq`'s route.** The two §3.1.9 substitutions **closed**:
+   `PowerSeries.coeff_mul_prod_one_sub_of_lt_order` replaced the 40-line
+   `coeff_prod_one_sub_X_pow_eq_coeff_one`, and `PowerSeries.expand` +
+   `mk_one_mul_one_sub_eq_one` replaced the 45-line `geomSeries` block (including
+   all its `coeff_*` lemmas, via `coeff_expand`). But the prediction of
+   **190–250 lines (ratio ≈ 0.5–0.65) did not hold**: the pin's eta-truncation
+   comparison (`coeff_etaProd_eq_coeff_partialProd`, the `Tendsto`-to-a-discrete
+   limit argument) and the truncation-stable inverse comparison
+   (`coeff_inv_congr`) have no mathlib replacement and together dominate, so the
+   module is 425 lines (≈370 of code) against 386 — ratio ≈ 1.1, essentially 1:1.
+   This is the T6/T9 "rightness ≠ savings" outcome again.
+4. **The shape issues.** (a) The missing `Algebra (Algebra.adjoin F S) (adjoin F S)`
+   and `IsFractionRing` instances are mathlib's **scoped** instances in
+   `IntermediateField.algebraAdjoinAdjoin`; the pin activated them with its
+   `p2m_open`, and the port needed an explicit
+   `open scoped IntermediateField.algebraAdjoinAdjoin`. (b) The
+   `IsIntegrallyClosed adjoinJq` instance was not needed: the private scoped
+   `UniqueFactorizationMonoid adjoinJq` (from `transcendental_jq`) and mathlib's
+   `UniqueFactorizationMonoid` → `IsIntegrallyClosed` path sufficed, and the
+   instance stayed in scope where `Monic.irreducible_iff_irreducible_map_fraction_map`
+   is applied. (c) The Vieta step's
+   `Polynomial.eq_of_natDegree_lt_card_of_eval_eq` (with the `eval`/`max`-degree
+   side condition) and `Polynomial.prod_X_sub_C_coeff_card_pred` matched the
+   pin's spelling in `v4.34.0`; no reshaping was needed. (d) `Polynomial.degree_sub_lt`
+   is deprecated in favour of `Polynomial.degree_sub_lt_left`; the `haveI` style
+   linter fired once (the cyclotomic instances) and was disabled locally. (e)
+   Public declarations verified against a `Theorems/` wrapper must carry the
+   **wrapper's explicit binders**, not the `S_` file's section variables — the
+   checker caught exactly this on `aeval_jqN_toAdjoin`/`minpoly_jqN_eq` (the
+   T7-log §7.3 rule, restated).
 
 ## 11. Where this sits
 
