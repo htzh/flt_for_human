@@ -102,6 +102,7 @@ alongside `.lake/` in case it does.
 | `FLTForHuman/ModularCurve/JqCoefficients.lean` | the low coefficients of `jq` | `coeff_jq_zero` (`744`), `coeff_jq_one` (`196884`). A *result*, not a definition: statement from base/004, proof by mathlib's pentagonal route (`tprod_one_sub_X_pow`) rather than FLT's cluster |
 | `FLTForHuman/ModularCurve/FunctionFieldGeneration/Spine.lean` | the conditional capstone | `Tight`/`Gen`/`Hall`, the proved strong induction `hall_all`, the structure `Inputs` (FLT's 7 significant remaining statements), and `functionFieldGeneration_of (h : Inputs) : FunctionFieldGeneration N` — proved, with no `sorryAx` |
 | `FLTForHuman/ModularForms/QExpansionPrinciple.lean` | R1, the level-one q-expansion principle | `coeff_eq_zero_of_hasSum_of_slash_invariant` (verbatim from its pin wrapper): a holomorphic, `SL₂(ℤ)`-invariant `q`-series is constant. Plus our `mem_adjoin_jq_of_poleOrderLE_zero`, the `n = 0` end of R1's Hauptmodul form and the wire test. The port's first analytic module: the analysis is mathlib's `ModularForm.eq_const_of_weight_zero`; of the pin's 14 helpers only `mdifferentiable` needed a proof, one (`coeff_unique`) kept its pin argument because mathlib's replacement blows up on the bare function type, and the rest became mathlib calls. FLT `S_ModularCurve_coeff_eq_zero_of_hasSum_of_slash_invariant` (186 lines) |
+| `FLTForHuman/ModularForms/JqAnalyticModel.lean` | the analytic model of `jq` | `hasSum_jq_qParam` (verbatim): the formal Laurent series `jq` sums to `E₄(τ)³/Δ(τ)` on `ℍ`, coefficient by coefficient — the realization hypothesis T7 consumes, and the only bridge from `Defs/Jq.lean`'s `PowerSeries`-built `jq` to mathlib's `E₄`/`Δ`. Plus `E4_cube_div_discriminant_smul`, its `SL₂(ℤ)`-invariance. The pin's `qExpansion_*` cluster and its gluing to `eisenstein4`/`dedekindEtaUnit`/`jNum`; `hasSum_jNum_qParam` stays private. FLT `S_ModularCurve_hasSum_jq_qParam` + `…_hasSum_jNum_qParam` + `qExpansion_{E4,discriminant_*}` (~589 lines) |
 
 The port of `#E[n](K) = n²` (math/005) has its own working record:
 [logs/card-torsion-port.md](logs/card-torsion-port.md) — dependency trace,
@@ -142,7 +143,7 @@ errors** with Zones A, B and C all bound. Its only remaining `sorry` is the
 deferred theorem's capstone. `PORTING-FFG.md` records why the theorem itself stays
 deferred; the consumer's tail carries the v4.34.0 friction list, and
 [spec/check_flt_statements.py](spec/check_flt_statements.py) diffs every port
-declaration's statement against the pinned source (151 of 151 identical, with the
+declaration's statement against the pinned source (153 of 153 identical, with the
 own-proof declarations exempted explicitly).
 
 Both Layer 0 work orders are gone: they were finished, their durable material
@@ -204,6 +205,27 @@ helper block with public mathlib lemmas, and only the `MDiff`-from-`HasSum`
 bridge needed a proof of its own. [logs/phiGen-port.md](logs/phiGen-port.md)
 carries the measured cost and the two audit deviations.
 
+The sub-effort's second topic is complete too:
+[TOPIC-jq-model.md](topics/phiGenSplitting/TOPIC-jq-model.md) gives `jq` its
+analytic model (`jq` sums to `E₄³/Δ` on `ℍ`) and its `SL₂(ℤ)`-invariance, in
+`FLTForHuman/ModularForms/JqAnalyticModel.lean`. Its mathlib-first audit came out
+**half** the way the work order predicted: `EisensteinSeries.E_qExpansion_coeff`,
+`discriminant_eq_q_prod`, `differentiableOn_tprod_one_sub_pow_pow` and
+`hasSum_qExpansion` all applied, but `discriminant_cuspFunction_eqOn` did **not**
+replace the pin's 199-line eta-product file — it gives the value of
+`cuspFunction 1 Δ`, not the Taylor coefficients of `∏' (1-qⁿ)²⁴` — so that
+argument was ported. The port is 622 lines against the ~589-line pin, and the
+consumer gained Zone D (the model composed with the `jq`-coefficient module);
+[logs/phiGen-port.md](logs/phiGen-port.md) §6 carries the accounting.
+
+The sub-effort's third topic is written and audited:
+[TOPIC-hauptmodul.md](topics/phiGenSplitting/TOPIC-hauptmodul.md) is the
+Hauptmodul form — a pole-bounded realized invariant series is a polynomial in
+`jq` — which completes R1. Its audit confirms it is the **glue topic** (no
+mathlib-replaceable leaves: `RealL`, its closure, the pole-killing lemma and the
+headline are all ported), and it exports the `RealL` API so the cone application
+(T8) reuses it instead of duplicating FLT's copy.
+
 ## Where things live
 
 The documentation has four roles, and they are kept apart on purpose:
@@ -222,8 +244,9 @@ level into `topics/<effort>/`, and the log gains the entry that summarises it.
 `topics/functionFieldGeneration/` holds the four topics of the
 `functionFieldGeneration` effort, and `topics/phiGenSplitting/` holds the topics
 of its Φ_p splitting / R1 sub-effort
-([PORTING-PhiGen.md](PORTING-PhiGen.md)); its first work order,
-[TOPIC-r1-kernel.md](topics/phiGenSplitting/TOPIC-r1-kernel.md), is complete, and
+([PORTING-PhiGen.md](PORTING-PhiGen.md)); its first two work orders,
+[TOPIC-r1-kernel.md](topics/phiGenSplitting/TOPIC-r1-kernel.md) and
+[TOPIC-jq-model.md](topics/phiGenSplitting/TOPIC-jq-model.md), are complete, and
 [logs/phiGen-port.md](logs/phiGen-port.md) is the sub-effort's record.
 
 ## Sources

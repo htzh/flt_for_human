@@ -1,15 +1,16 @@
 # The Φₚ splitting / R1 sub-effort — record
 
-**Status: T5 complete (2026-09-21).** This is the running record for the
+**Status: T5 and T6 complete (2026-09-22).** This is the running record for the
 sub-effort [PORTING-PhiGen.md](../PORTING-PhiGen.md) opens: the R1 (level-one
 q-expansion principle) sequence that gives the Φₚ splitting cone its one analytic
 input. It is separate from the parent `functionFieldGeneration` record
 ([ffg-port.md](ffg-port.md)) — the parent's cone and this sub-effort share no
-declaration, and the sub-effort's first topic is not on `ffg-port.md`'s layer
+declaration, and the sub-effort's topics are not on `ffg-port.md`'s layer
 table, so the measured cost lives here rather than as an append there.
 
-The executed plan is
-[TOPIC-r1-kernel.md](../topics/phiGenSplitting/TOPIC-r1-kernel.md); the
+The executed plans are
+[TOPIC-r1-kernel.md](../topics/phiGenSplitting/TOPIC-r1-kernel.md) (T5) and
+[TOPIC-jq-model.md](../topics/phiGenSplitting/TOPIC-jq-model.md) (T6); the
 mathematics of record is
 [base/013](../../base/013-riemann-existence-and-the-q-expansion-principle.md) §3,
 §5.4, §6. FLT is pinned at `aa2d8b3`; mathlib at `v4.34.0`.
@@ -18,16 +19,17 @@ mathematics of record is
 
 | topic | deliverable | status | measure |
 |---|---|---|---|
-| **T5** | R1's constancy kernel + the `n = 0` corollary, in `FLTForHuman/ModularForms/` | **done**, 1 module, 2 public + 6 private, 333 lines | kernel verbatim; checker 151; axioms clean |
-| T6 | the analytic model of `jq` | not started | — |
+| **T5** | R1's constancy kernel + the `n = 0` corollary, in `FLTForHuman/ModularForms/` | **done**, 1 module, 2 public + 6 private, 333 lines | kernel verbatim; axioms clean |
+| **T6** | the analytic model of `jq` (`jq` sums to `E₄³/Δ`; its `SL₂(ℤ)`-invariance) | **done**, 1 module, 2 public + 43 private, 622 lines | both statements verbatim; consumer Zone D bound; axioms clean |
 | T7 | the Hauptmodul form | not started | — |
 | T8 | the cone application (Hecke translates) | not started | — |
 
-R1 = T5–T7; T8 is the cone's (c). The topic's whole deliverable is one file:
+R1 = T5–T7; T8 is the cone's (c). The sub-effort's deliverables are two files:
 
 | module | lines | decls | FLT source (`aa2d8b3`) |
 |---|---|---|---|
 | `FLTForHuman/ModularForms/QExpansionPrinciple.lean` | 333 | 2 public + 6 `private` (+1 `example`) | `P2M/Sol/S_ModularCurve_coeff_eq_zero_of_hasSum_of_slash_invariant.lean` (186) |
+| `FLTForHuman/ModularForms/JqAnalyticModel.lean` | 622 | 2 public + 43 `private` | `hasSum_jq_qParam` (45), `hasSum_jNum_qParam` (235), `qExpansion_discriminant_eq_X_mul_tprod` (199), `…_map_X_mul_dedekindEtaUnit` (76), `qExpansion_E4_…` (34), `…_E4_cube_div_discriminant_smul`
 
 ## 1. What T5 cost
 
@@ -139,8 +141,79 @@ consumer, in which case it can be removed with its `OWN_PROOFS` entry.
   mentions no modular curve. Recorded rather than chosen silently, per the work
   order.
 - **The checker verifies the kernel as a transcribed statement** (wrapper added
-  to `SOURCES`; the verified count is 151) and exempts the corollary explicitly
-  in `OWN_PROOFS`, with the reason commented there.
-- **T6 should check mathlib first**, and specifically watch the `FunLike` trap of
-  §2.2 when comparing a `HasSum` presentation of `jq` with a mathlib `qExpansion`
-  presentation.
+  to `SOURCES`) and exempts the corollary explicitly in `OWN_PROOFS`, with the
+  reason commented there. After T6 the count is **153** (T5's 151 plus T6's two
+  wrappers), 0 mismatched.
+- **T6's forward note — resolved.** The `FunLike` trap of §2.2 did *not* appear
+  in T6, because the pin's `ModularFormClass.qExpansion_coeff_unique` call is
+  already on the bundled `CuspForm.discriminant`; the recommendation to pass
+  bundled forms where possible held, but the specific call needed no change.
+
+## 6. T6: the analytic model of `jq`
+
+Module: `FLTForHuman/ModularForms/JqAnalyticModel.lean`, 622 lines, **2 public**
+(`hasSum_jq_qParam`, `E4_cube_div_discriminant_smul`, both verbatim from their
+pin wrappers) and **43 `private`** declarations. The pin's intermediate
+`hasSum_jNum_qParam` is private, as the work order required. One goal round (of 3).
+
+| | |
+|---|---|
+| goal rounds | **1** (of the 3 budgeted; checkpoint at 1 not needed) |
+| declarations | 2 public, 43 `private` |
+| lines written | 622 total: ~100 header/imports, ~180 eta-product Taylor series, ~200 gluing, 24 `q⁻¹` step, 23 invariance |
+| build | `lake build` 3827 jobs, green, **0 warnings**, no `sorry` |
+| `#print axioms` | both public declarations: `propext, Classical.choice, Quot.sound` |
+| checker | `153 statements identical, 0 mismatched, 0 missing, 8 own-proof exempted` (151 → 153) |
+| consumer | Zone D added and bound; **0 errors**, still one `sorry` (the deferred capstone) |
+
+Pin material is ~589 lines across five files; the port is 622 lines, a ratio of
+**1.06** (T5's was 333/186 = 1.79). The audit's *rightness* and its *savings*
+diverged again, in the same direction: the mathlib substitutions that landed
+(`E_qExpansion_coeff`, `discriminant_eq_q_prod`,
+`differentiableOn_tprod_one_sub_pow_pow`, `hasSum_qExpansion`,
+`slash_action_eqn''`) did not shrink the port, because the pin's own file is
+mostly *glue* — the bridge from mathlib's analytic objects to the port's
+`eisenstein4`/`dedekindEtaUnit`/`jNum`, which has no mathlib counterpart.
+
+### 6.1 The audit, measured again
+
+| pin piece | outcome |
+|---|---|
+| `qExpansion_E4_eq_map_eisenstein4` (34) | mathlib engine `EisensteinSeries.E_qExpansion_coeff`; the port proof is 22 lines (pin 34) |
+| `qExpansion_discriminant_eq_X_mul_tprod` (199) | **kept.** `discriminant_cuspFunction_eqOn` gives the value of `cuspFunction 1 Δ`, not the Taylor coefficients of `∏' (1-qⁿ)²⁴`; no mathlib lemma computes those. The pin's `coeff_trunc_eq_coeff_etaPow` + truncated-polynomial/locally-uniform-convergence argument is ported (~180 lines) |
+| `qExpansion_discriminant_eq_map_X_mul_dedekindEtaUnit` (76) | reduced to the 8-line `etaPow_eq_map_dedekindEtaUnit`, by the generic `coeff_trunc_eq_coeff_tprod` over `ℤ` |
+| `qExpansion_E4` / `discriminant_eq_qParam_mul_gfun` value lemmas | mathlib `discriminant_eq_q_prod`, `differentiableOn_tprod_one_sub_pow_pow 24` |
+| `solution` of the `qExpansion_*` files | `ModularFormClass.qExpansion_coeff_unique` on the bundled `CuspForm.discriminant` |
+| `hasSum_jNum_qParam`'s engine | `UpperHalfPlane.hasSum_qExpansion` |
+| gluing `qJ_eq`, `qJ_mul_Dq`, `cuspFunction_eqOn`, `cuspFunction_{Dq,qJ}`, `qExpansion_{qParam_fun,Dq',qJ}`, `periodic_qJ`, `mdiff_qJ`, `isBoundedAtImInfty_qJ`, `gfun_ne_zero`, `continuousAt_gfun` | **ported** (~200 lines; no mathlib counterpart) |
+| `analyticAt_cuspFunction_{Dq,qJ}` | **kept** (pin's `cuspFunction_eqOn` route); mathlib's public `analyticAt_cuspFunction_zero` was audited and would require re-deriving `Periodic`/`MDiff`/`IsBoundedAtImInfty` for `Dq` |
+| `tendsto_gfun_qParam` | **kept** (2 lines); mathlib's `tendsto_atImInfty_tprod_one_sub_eta_q_pow` is the neighbouring `eta_q` form |
+| `hasSum_jq_qParam` (`q⁻¹` step, 45) | **ported** in 24 lines (`HasSum.mul_left` + `Function.Injective.hasSum_iff` + `coeff_jq_of_lt`) |
+| `E4_cube_div_discriminant_smul` | mathlib `SlashInvariantForm.slash_action_eqn''`; 23 lines against the pin's 38 |
+
+So of the five pin files: **one is genuinely replaced** (the 76-line map file
+collapses to 8 lines, and the two value lemmas to mathlib calls), **one is
+retained in substance** (the 199-line tprod file), and the 235-line gluing file
+is ported essentially 1:1. The work order's headline — "the audit's most to
+gain" — did not hold: the heaviest file was not replaceable. This is the second
+T5-shaped finding for the R1 sequence, and the recommendation for T7 is to price
+the *glue*, not the mathlib-replaceable leaves.
+
+### 6.2 Did any mathlib lemma blow up?
+
+No. The `FunLike`/`DFunLike.coe` blow-up of T5 §2.2 did not recur: the one
+`qExpansion_coeff_unique` call already passes the bundled `CuspForm.discriminant`.
+The only frictions were cosmetic and are recorded in the consumer's friction list
+entry 14: `if_neg` → `ite_eq_right` (the T5 drift family) and the
+`derivative`/`Polynomial.derivative` ambiguity if `PowerSeries` is opened at
+top level.
+
+### 6.3 The wire test
+
+Zone D of `spec/ModularCurveConsumer.lean` composes this module's
+`hasSum_jq_qParam` with `Defs/Jq.lean`'s `coeff_jq_neg_one` and
+`JqCoefficients.lean`'s `coeff_jq_zero`/`coeff_jq_one`, exhibiting the classical
+`j(q) = q⁻¹ + 744 + 196884 q + ⋯` as the coefficients of the realized sum. The
+`HasSum` itself does not expose its terms, so the composition is stated as the
+`HasSum` plus the three coefficient values — the form the work order names. The
+zone also checks `E4_cube_div_discriminant_smul`; the real consumer is T7.

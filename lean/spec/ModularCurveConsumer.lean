@@ -59,6 +59,8 @@ import FLTForHuman.ModularCurve.FunctionFieldGeneration.Collapse
 import FLTForHuman.ModularCurve.JqCoefficients
 -- The conditional capstone: the spine, with FLT's significant statements as `Inputs`.
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Spine
+-- The R1 analytic model of `jq` (topic 6): `jq` sums to `E₄³/Δ` on `ℍ`.
+import FLTForHuman.ModularForms.JqAnalyticModel
 
 set_option autoImplicit false
 
@@ -204,6 +206,41 @@ example : jq.coeff 1 = 196884 := coeff_jq_one
 example {K : Type*} [Field K] [Algebra ℚ K] (e : ℕ) [NeZero e] (u : Kˣ) :
     TS K e u = qExpand K e (qTwist u (coeffEmb (L := K) jq)) := rfl
 
+/-! ## Zone D — [T6] the R1 analytic model of `jq`
+
+`FLTForHuman/ModularForms/JqAnalyticModel.lean` binds `hasSum_jq_qParam`: for
+every `τ : ℍ`, the formal Laurent series `jq` sums to `E₄(τ)³ / Δ(τ)`. That is
+the realization hypothesis R1's Hauptmodul form (T7) will consume, and the only
+bridge from the port's `PowerSeries`-built `jq` to mathlib's analytic `E₄` and
+`Δ`; `E4_cube_div_discriminant_smul` is the model's `SL₂(ℤ)`-invariance.
+
+The **wire test** below is a genuine cross-module composition: `hasSum_jq_qParam`
+(the model, topic 6) composed with `coeff_jq_neg_one` (`Defs/Jq.lean`) and
+`coeff_jq_zero`/`coeff_jq_one` (`JqCoefficients.lean`, the `jq`-coefficients
+topic). Together they say the realized sum is the classical
+`j(q) = q⁻¹ + 744 + 196884 q + ⋯`: the model supplies the `HasSum`, the
+coefficient modules supply the three leading coefficients. Extracting the
+coefficients *from* the `HasSum` alone is not attempted (a `HasSum` does not
+expose its terms), so the composition is stated as the `HasSum` plus the
+coefficient values — the form named in the work order.
+-/
+
+-- The model at any point (the pin's `hasSum_jq_qParam`, verbatim).
+example (τ : UpperHalfPlane) :
+    HasSum (fun m : ℤ => ((jq.coeff m : ℚ) : ℂ) * Function.Periodic.qParam 1 (τ : ℂ) ^ m)
+      (ModularForm.E₄ τ ^ 3 / ModularForm.discriminant τ) :=
+  hasSum_jq_qParam τ
+
+-- The leading coefficients the model realizes, from the two `jq` modules.
+example : (jq.coeff (-1), jq.coeff 0, jq.coeff 1) = (1, 744, 196884) := by
+  rw [coeff_jq_neg_one, coeff_jq_zero, coeff_jq_one]
+
+-- The model's `SL₂(ℤ)`-invariance (the second public statement).
+example (γ : Matrix.SpecialLinearGroup (Fin 2) ℤ) (τ : UpperHalfPlane) :
+    ModularForm.E₄ (γ • τ) ^ 3 / ModularForm.discriminant (γ • τ)
+      = ModularForm.E₄ τ ^ 3 / ModularForm.discriminant τ :=
+  E4_cube_div_discriminant_smul γ τ
+
 /-! ## The measure
 
     cd lean
@@ -267,6 +304,14 @@ changed: still **0 errors** and one `sorry`.
 segment (`FLTForHuman/FieldTheory/CommonRoot.lean`) is mathlib-only and touches
 nothing here. Its instantiations live in that module, so this file is again
 unchanged: **0 errors**, one `sorry`.
+
+**R1-model result (2026-09-22).** Zone D is added and bound:
+`FLTForHuman/ModularForms/JqAnalyticModel.lean` supplies `hasSum_jq_qParam`
+(the realization R1's Hauptmodul form consumes) and
+`E4_cube_div_discriminant_smul`. The zone's wire test composes topic 6's model
+with `Defs/Jq.lean`'s `coeff_jq_neg_one` and `JqCoefficients.lean`'s
+`coeff_jq_zero`/`coeff_jq_one`, exhibiting the classical
+`j(q) = q⁻¹ + 744 + 196884 q + ⋯`. This file is still **0 errors**, one `sorry`.
 
 ## Friction list (mathlib `v4.34.0` against FLT's `v4.33.0`)
 
@@ -356,6 +401,20 @@ every entry.
     dependency addition is `Mathlib.NumberTheory.ArithmeticFunction.Misc`, for
     `dedekindPsi_mul_of_coprime`; it was already in the build closure, so the
     planned job count did not move.
+14. **Topic 6 — the audit's one wrong prediction, and two small drifts.**
+    (a) The work order expected `ModularForm.discriminant_cuspFunction_eqOn` to
+    replace the pin's 199-line eta-product Taylor series. It does not: it gives
+    the *value* of `cuspFunction 1 Δ` on the disc, while the `q`-expansion needs
+    the *Taylor coefficients* of `∏' (1-qⁿ)²⁴`, which no mathlib lemma computes.
+    The pin's truncated-polynomial/locally-uniform-convergence argument was
+    ported (with `if_neg` → `ite_eq_right`; entry 2's family). The 4-line value
+    lemma *is* replaced by `ModularForm.discriminant_eq_q_prod`.
+    (b) `open PowerSeries` makes `derivative` ambiguous with
+    `Polynomial.derivative` in the truncated-polynomial lemmas; the port does
+    not open `PowerSeries` and qualifies instead. (c) The pin's
+    `ModularFormClass.qExpansion_coeff_unique` call is already on the *bundled*
+    `CuspForm.discriminant`, which is exactly what avoids T5's `DFunLike.coe`
+    blow-up — no restatement was needed here.
 
 The `sorry`s are not errors and do not count: their job is to keep the
 *statements* checkable while the proofs are out of scope.

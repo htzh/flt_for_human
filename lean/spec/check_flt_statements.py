@@ -64,6 +64,12 @@ SOURCES = [
     # private and either replaced by public mathlib lemmas or re-derived privately
     # in the port (see the module header). The wrapper is the comparable copy.
     "Theorems/Thm_ModularCurve_coeff_eq_zero_of_hasSum_of_slash_invariant.lean",
+    # Topic 6, `FLTForHuman/ModularForms/JqAnalyticModel.lean`: the analytic model
+    # of `jq`. Both public statements are the pin wrappers verbatim; the pin's
+    # intermediate `hasSum_jNum_qParam` is `private` in the port, so the checker
+    # never sees it (the two wrappers are the comparable copies).
+    "Theorems/Thm_ModularCurve_hasSum_jq_qParam.lean",
+    "Theorems/Thm_ModularCurve_E4_cube_div_discriminant_smul.lean",
 ]
 
 PORT_FILES = [
@@ -80,6 +86,7 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/JqCoefficients.lean",
     "FLTForHuman/ModularCurve/FunctionFieldGeneration/Spine.lean",
     "FLTForHuman/ModularForms/QExpansionPrinciple.lean",
+    "FLTForHuman/ModularForms/JqAnalyticModel.lean",
 ]
 
 # Declarations whose *statement* has no FLT source, so there is nothing to diff:

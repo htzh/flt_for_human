@@ -1,7 +1,8 @@
 # Blueprint: the Φₚ splitting cone — `PhiGen.splits_prime_at_slot`
 
-**Status: analysis done; T5 (R1's constancy kernel) landed, T6 next
-(2026-09-21).** This file is the math-content inventory of the 44-node cone below
+**Status: analysis done; T5 (R1's constancy kernel) and T6 (the analytic model of
+`jq`) landed, T7 next (2026-09-22).** This file is the math-content inventory of
+the 44-node cone below
 `ModularCurve.PhiGen.splits_prime_at_slot`, the measurement that the headline
 line count overstates it by ~1.6×, and the plan for the next topic: isolating
 the cone's one genuinely analytic input, the **level-one q-expansion principle**.
@@ -300,8 +301,8 @@ fourth:
 | topic | deliverable | pin material | pin lines | work order |
 |---|---|---|---|---|
 | **T5 (done)** | the constancy kernel, plus the `n = 0` corollary | `coeff_eq_zero_of_hasSum_of_slash_invariant` | 186 | [TOPIC-r1-kernel.md](topics/phiGenSplitting/TOPIC-r1-kernel.md) |
-| **T6 (next)** | the analytic model of `jq` | `qExpansion_*`, `hasSum_jNum_qParam`, `hasSum_jq_qParam`, `E4_cube_div_discriminant_smul` | ~630 | — |
-| T7 | the Hauptmodul form | `hasSum_qParam_mul{,_laurent}`, `exists_aeval_jq_sub_holomorphicAtInfty`, `mem_adjoin_jq_of_hasSum_of_slash_invariant` | ~370 | — |
+| **T6 (done)** | the analytic model of `jq` | `qExpansion_*`, `hasSum_jNum_qParam`, `hasSum_jq_qParam`, `E4_cube_div_discriminant_smul` | ~589 | [TOPIC-jq-model.md](topics/phiGenSplitting/TOPIC-jq-model.md) |
+| **T7 (next)** | the Hauptmodul form | `hasSum_qParam_mul{,_laurent}`, `exists_aeval_jq_sub_holomorphicAtInfty`, `mem_adjoin_jq_of_hasSum_of_slash_invariant` | ~462 | [TOPIC-hauptmodul.md](topics/phiGenSplitting/TOPIC-hauptmodul.md) |
 | T8 | the cone application: the descended coefficients lie in `ℚ[jq]` | the Hecke translates, `cosetPoly_smul`, `hasSum_cosetPoly_coeff`, `mem_adjoin_jq_of_phiGenDescends` | ~680 | — |
 
 R1 = T5–T7; T8 is the cone's (c) and needs all three. The split is by
@@ -331,18 +332,41 @@ helpers; `#print axioms` on both public declarations is clean, the statement
 checker is at 151 (up 1, 0 mismatched), and the measured cost is in
 [logs/phiGen-port.md](logs/phiGen-port.md).
 
-**T6 is next: the analytic model of `jq`.** Its work order is unwritten. The
-T5 finding sharpens its audit: the `qExpansion` API is public and cheap, but
-watch for the same `FunLike`/bare-function-type defeq trap when the `HasSum` of
-`jq` is compared with a mathlib presentation — pass bundled forms where the
-statement allows, and check build time, not just success.
+**T6 is done** (2026-09-22, one goal round). Its work order was
+[topics/phiGenSplitting/TOPIC-jq-model.md](topics/phiGenSplitting/TOPIC-jq-model.md),
+now the executed plan. It delivered `hasSum_jq_qParam` (the realization T7
+consumes) and `E4_cube_div_discriminant_smul` in
+`FLTForHuman/ModularForms/JqAnalyticModel.lean`, with the intermediate
+`hasSum_jNum_qParam` private. The audit came out the opposite way from T5's in
+one respect and the same way in another: `EisensteinSeries.E_qExpansion_coeff`,
+`ModularForm.discriminant_eq_q_prod`, `differentiableOn_tprod_one_sub_pow_pow`
+and `hasSum_qExpansion` all delivered, but **`discriminant_cuspFunction_eqOn` did
+not replace the pin's 199-line eta-product file** — it gives the value of
+`cuspFunction 1 Δ`, not the Taylor coefficients of `∏' (1-qⁿ)²⁴`, and mathlib has
+no lemma for the latter, so the pin's truncated-polynomial/locally-uniform
+argument was ported. The `FunLike` trap did not appear, because the pin's
+`qExpansion_coeff_unique` call is already on the bundled `CuspForm.discriminant`.
+The port is 622 lines over, again, two public declarations; `#print axioms` on
+both is clean, the checker moved 151 → 153, and the consumer gained Zone D (the
+`jq` model composed with the `jq`-coefficient module). T5's philosophy held: a
+622-line port against a ~589-line pin, so the audit's *rightness* and its
+*savings* again diverged. Measured cost and the audit table are in
+[logs/phiGen-port.md](logs/phiGen-port.md) §3.
 
-**T6 should check mathlib first.** mathlib has `qExpansion` for modular forms,
-`EisensteinSeries/QExpansion.lean` and `discriminant_qExpansion_*`
-(`LevelOne/DimensionFormula.lean`), and the `jq`-coefficients topic already
-showed mathlib's power-series route can replace one of FLT's clusters (a 47×
-price error). If that substitution works here, T6 may be much smaller than 630
-lines — the route-check the parent effort's §7.7 insists on.
+**T7 is next: the Hauptmodul form.** Its work order is written and audited:
+[topics/phiGenSplitting/TOPIC-hauptmodul.md](topics/phiGenSplitting/TOPIC-hauptmodul.md).
+It consumes T6's `hasSum_jq_qParam` and `E4_cube_div_discriminant_smul`, and T5's
+kernel `coeff_eq_zero_of_hasSum_of_slash_invariant` on the remainder, so all of
+its analytic inputs already exist. Its audit came out as the T6 log predicted —
+**this is the glue topic**: no public mathlib lemma replaces `RealL`, its
+closure, the pole-killing `exists_aeval_jq_sub_holomorphicAtInfty`, or the
+headline; mathlib supplies only the Cauchy-product core inside
+`hasSum_qParam_mul{,_laurent}` and the `HahnSeries`/`qParam` API around it. The
+pin is ~462 lines, and the port is expected at roughly 1:1 (T5 was 1.79, T6
+1.06). One deliberate divergence: T7 **exports** `RealL` + closure and
+`hasSum_qParam_mul{,_laurent}` public, because FLT duplicates the `RealL` block
+in T8's pin file and T8 should import T7's instead of re-deriving it. T7
+completes R1.
 
 **Cost honesty.** The cone's own `jq`-coefficients precedent is the warning:
 math/010 priced the `744`/`196884` coefficients against the same 11,034-line
