@@ -1077,3 +1077,34 @@ Honest accounting, so the next effort prices its topics better:
 - the per-topic work orders and their measured outcomes: the nine files in
   [topics/phiGenSplitting/](../topics/phiGenSplitting/), and §5–§13 here;
 - the interface: the 44 nodes are public; `splits_prime_at_slot` is a theorem.
+
+## 15. Post-close follow-up: the cyclotomic root now sources from mathlib
+
+The 2026-09-22 bridge audit ([audit-prelude-bridges.md](audit-prelude-bridges.md)
+§a.1) found the one genuine mathlib collision T13 left: `Defs/Cyclotomic.lean`'s
+five declarations were a re-proof of `IsCyclotomicExtension.zeta`/`zeta_spec`/
+`zeta_pow` and `IsPrimitiveRoot.pow`. They are now mathlib-sourced, with every
+statement untouched:
+
+| declaration | was | now |
+|---|---|---|
+| `exists_isPrimitiveRoot_cyclotomicField` | `IsCyclotomicExtension.exists_isPrimitiveRoot` | `⟨zeta N ℚ _, zeta_spec N ℚ _⟩` |
+| `cycUnit` | `.choose_spec.isUnit … \|>.unit` | `(zeta_spec N ℚ _).isUnit … \|>.unit` |
+| `cycUnit_spec` | `.choose_spec` | `rw [cycUnit, IsUnit.unit_spec]` + `zeta_spec` |
+| `cycUnit_pow` | `(cycUnit_spec N).pow_eq_one` | unchanged (`zeta_pow` is the equally short alternative) |
+| `isPrimitiveRoot_pow_div` | 9 lines of `pow_of_dvd`/`div_div_self` | 2 lines of `IsPrimitiveRoot.pow` + `Nat.div_mul_cancel` |
+
+**Verification.** `lake build` green (3869 jobs), the statement checker
+**288 identical, 0 mismatched, 0 missing** (unchanged — the statements are the
+pin's verbatim), `#print axioms` clean. The route was checked in `Scratch.lean`
+first; the section/`variable` form was rejected because
+`spec/check_flt_statements.py` parses declarations textually, so the binders must
+stay on each declaration line.
+
+**Honest measurement.** `Defs/Cyclotomic.lean` went **70 → 78 lines**, of which 12
+are the new header note, so the proof content is **−4 net**: the one `haveI`
+instance argument `zeta` needs costs about what the shortened proofs save, and
+the pin's redundant `haveI : NeZero ((N : ℕ) : ℚ)` is dropped (mathlib synthesizes
+it from `[NeZero N]`). The larger gain is mathlib alignment — `cycUnit` is now
+defeq to mathlib's chosen root — and the removal of the re-proof; the audit's
+"≈18 lines" was per pin copy, and the pin carries 40 of them.

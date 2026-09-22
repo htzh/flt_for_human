@@ -42,7 +42,8 @@ FLT is pinned at `aa2d8b3`; mathlib at `v4.34.0`.
 | T14 | the shared slot prelude, written once | **done**, 2 new modules + 3 extended; 32 declarations, 503 port lines | consumer **Zone L** (0 errors); checker 276 |
 | T15 | descent by one prime and the one-prime reduction | **done**, 1 new module; 2 declarations, 252 port lines; `Inputs` 7 → 5 | consumer **Zone M** (0 errors); checker 278 |
 | T16 | the degree of one prime-power step | **done**, 1 new module + 4 extended; 10 declarations, 605 port lines; `Inputs` 5 → 4 | consumer **Zone N** (0 errors); checker 288 |
-| theorem | PORTING-FFG §7's 24-node remainder behind the Φ_p input | **in progress**: Φ_p cone (T5–T13) and T14–T16 done; T17–T20 remain; `Inputs` is a structure of 4 fields | — |
+| T17 | the non-membership tower and the two-prime separation | **done**, 1 new module; 2 declarations + 14 private declarations, 843 port lines; `Inputs` 4 → 3 | consumer **Zone O** (0 errors); checker 290 |
+| theorem | PORTING-FFG §7's 24-node remainder behind the Φ_p input | **in progress**: Φ_p cone (T5–T13) and T14–T17 done; T18–T20 remain; `Inputs` is a structure of 3 fields | — |
 
 The tree was restructured twice, neither time touching the mathematics.
 
@@ -568,6 +569,51 @@ cube roots (log §8.6's finding stands). The engine is not vacuous in the
 mathematics — T16's pow-succ node applies it over the abstract `F` with the
 non-identity `σ = coeffMapEquiv τ` — so the open question is recorded, not
 resolved, and Zone N documents the obstruction.
+
+## 2j. T17: the non-membership tower and the two-prime separation — what it cost
+
+T17 completes the non-membership half of the strong induction. It proves the
+prime-power tower (the fourth `Inputs` field, so the capstone's debt is
+**4 → 3**) and the public Finset base lemma, in one new module, tower first.
+
+| | |
+|---|---|
+| goal rounds | **1** session, two build rounds (tower, then base); both halves green on their first `lake env lean` |
+| declarations | 2 public nodes; 14 private declarations (`nat_ne_of_mul`, `mem_range_qExpand_of_mul`, `range_qExpand_congr`, `chainField` + its five lemmas, `chain_extend`, `chain_endgame`, the tower key, `step_contradiction`, the base key) |
+| new module | `FunctionFieldGeneration/Nonmembership.lean`, **843 lines** (tower ≈528, base ≈223) |
+| dedup | none re-copied: the pin's ~370-line prelude is T14's; the six tower and two base helpers are imported |
+| **port lines** | **843** against the scouted ≈741 new pin lines, ratio **≈1.14** — inside the estimated 750–950 |
+| build | module green, 0 warnings, no `sorry` |
+| axioms | `#print axioms` clean on both public nodes |
+| checker | **290** identical (288 → +2; still **14** promoted), 0 mismatched, 0 missing (298 checked) |
+| wire | consumer **Zone O** (0 errors): a partially discharged `Inputs` with the four proved fields filled |
+
+**Both route risks closed on the first build.** `chain_extend`'s explicitly built
+`RingHom` — `{ toFun := fun z => ψ ⟨z.1, hle z.2⟩, … }` with the
+`adjoin_induction` coercion `hle` — typed as the pin wrote it, so the work order's
+`FunLike`/`DFunLike.coe` stall family (T5's log §2.2) did not bite and no
+monomorphic bridge was needed. `chain_endgame` — the longest and least structured
+proof, with the `TS_injective` comparisons and the final `q^{-p^a}` coefficient
+clash — closed under the global `maxHeartbeats 4000000`; the pin's two local
+`set_option maxHeartbeats 3200000 in` were omitted, as directed. The
+`Algebra F (LaurentSeries K) := σ.toAlgebra` device copied from T15 unchanged.
+
+**One drift, mechanical.** `Set.mem_setOf_eq` is deprecated in `v4.34.0` (friction
+entry 2's family); the base's `hsets` `simp only` now names `Set.mem_ofPred_eq`.
+That was the only edit the transcription needed beyond dropping the pin's
+namespace scaffolding and `set_option`s.
+
+**Privacy, not scope.** The pin's `step_contradiction` and
+`jqN_prime_not_mem_adjoin_key` are public in the pin's local `W1` namespace but
+have no `Theorems/` wrapper, and the pin's own `S_` carrier is not one of the
+checker's `SOURCES`; the port keeps both `private` (as it does the tower's
+`jqN_pow_not_mem_adjoin_full_key`), so there is nothing for the checker to look up
+and no self-consumed public interface is added. The tower's `chainField` remains
+`private` for the same reason. The base's `step_contradiction` imports T4's
+`mem_range_of_eval_eq_const` from `FieldTheory/CommonRoot.lean` rather than
+restating it — the engine T19's private M-arbitrary lemma also uses; **T17 landed
+first**, and T19 should import the same theorem, with its own `ψ(M)`-slot root
+list rather than T17's `p + 1` roots of `Φ_p(jq, ·)`.
 
 ## 3. What was verified
 

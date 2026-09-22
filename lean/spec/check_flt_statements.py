@@ -220,6 +220,15 @@ SOURCES = [
     "P2M/Sol/S_ModularCurve_finrank_adjoin_jqN_prime_of_not_mem.lean",
     "P2M/Sol/S_ModularCurve_finrank_adjoin_jqN_pow_succ_of_not_mem.lean",
     "P2M/Sol/S_ModularCurve_relfinrank_full_eq_mul.lean",
+    # Topic 17, the non-membership tower and the two-prime separation. Both nodes
+    # are public wrappers, so they verify by direct match. No `S_` carrier is
+    # needed: the tower file is already listed above (T14) and the port's
+    # `jqN_pow_not_mem_adjoin_full_key`/`step_contradiction`/
+    # `jqN_prime_not_mem_adjoin_key` are `private`, so the checker never sees
+    # them. The base file's own public block would otherwise supply the two
+    # helpers, but neither is part of the port's public surface.
+    "Theorems/Thm_ModularCurve_jqN_pow_not_mem_adjoin_full.lean",
+    "Theorems/Thm_ModularCurve_jqN_prime_not_mem_adjoin.lean",
 ]
 
 PORT_FILES = [
@@ -260,6 +269,8 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/FunctionFieldGeneration/Descent.lean",
     # Topic 16, the degree step.
     "FLTForHuman/ModularCurve/FunctionFieldGeneration/DegreeStep.lean",
+    # Topic 17, the non-membership tower and the two-prime separation.
+    "FLTForHuman/ModularCurve/FunctionFieldGeneration/Nonmembership.lean",
 ]
 
 # Declarations whose *statement* has no FLT source, so there is nothing to diff:

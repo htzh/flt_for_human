@@ -90,6 +90,8 @@ import FLTForHuman.ModularCurve.PhiSlotRoots
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Descent
 -- T16: the degree of one prime-power step.
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.DegreeStep
+-- T17: the non-membership tower and the two-prime separation.
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.Nonmembership
 -- The cyclotomic instances for the end-to-end wire tests of Zones I, J and K.
 import Mathlib.NumberTheory.Cyclotomic.Basic
 
@@ -740,6 +742,45 @@ example : ModularCurve.Inputs :=
     jqN_div_mem_modularFunctionField := ModularCurve.jqN_div_mem_modularFunctionField
     relfinrank_full_eq_mul := ModularCurve.relfinrank_full_eq_mul }
 
+/-! ## Zone O — [T17] the non-membership tower and the two-prime separation
+
+`FLTForHuman/ModularCurve/FunctionFieldGeneration/Nonmembership.lean` proves
+`jqN_pow_not_mem_adjoin_full` (the prime-power tower, an `Inputs` field) and
+`jqN_prime_not_mem_adjoin` (the two-prime separation, public `Theorems/` API). The
+tower composes the T14 prelude (`phiAtSeed*`, `isRoot_prime_at_slot_iff`,
+`roots_prime_at_slot_roots_nodup`, `iota_jq`, `TS`), T13's `splits_prime_at_slot`,
+T12's `exists_phiIrreducible_evalSymm`, T16's degree step and mathlib's
+`algHomAdjoinIntegralEquiv`/`adjoin.powerBasis` machinery. The base composes T4's
+`mem_range_of_eval_eq_const` engine with T16's `finrank_adjoin_jqN_prime_of_not_mem`
+and T13's `finrank_adjoin_jqN_eq_of_prime`.
+
+**The wire test is the `Inputs` composition again, so the debt visibly drops to
+three.** `jqN_pow_not_mem_adjoin_full` is the fourth `Inputs` field discharged
+(4 → 3); this example fills all four proved fields and leaves the three
+still-unported ones as `sorry`. The base's statement is added as a second,
+non-`Inputs` entry — it is public API consumed by `relfinrank_adjoin_primes`,
+`relfinrank_full_mul_prime` and `jqN_sq_not_mem_adjoin`, not a capstone input. -/
+
+#check @ModularCurve.jqN_pow_not_mem_adjoin_full
+#check @ModularCurve.jqN_prime_not_mem_adjoin
+
+-- T17 fills the fourth `Inputs` field; the other three are the unported debt.
+example : ModularCurve.Inputs :=
+  { full_eq_adjoin_full_div_prime := sorry
+    jqN_prime_not_mem_full := sorry
+    jqN_pow_not_mem_adjoin_full := ModularCurve.jqN_pow_not_mem_adjoin_full
+    minpoly_jqN_map_eq_prod_slots := sorry
+    modularFunctionField_eq_full_of := ModularCurve.modularFunctionField_eq_full_of
+    jqN_div_mem_modularFunctionField := ModularCurve.jqN_div_mem_modularFunctionField
+    relfinrank_full_eq_mul := ModularCurve.relfinrank_full_eq_mul }
+
+-- The base: the two-prime separation in hypothesis form.
+example (S : Finset ℕ) (hS : ∀ p ∈ S, p.Prime) (r : ℕ) [hr : Fact (Nat.Prime r)]
+    (hrS : r ∉ S) : ModularCurve.jqN r ∉ IntermediateField.adjoin ℚ
+      (insert ModularCurve.jq {x : LaurentSeries ℚ | ∃ p ∈ S, ∃ _ : NeZero p,
+        x = ModularCurve.jqN p}) :=
+  ModularCurve.jqN_prime_not_mem_adjoin S hS r hrS
+
 /-! ## The measure
 
     cd lean
@@ -1102,6 +1143,18 @@ total is the Zone A capstone plus the Zone M (five) and Zone N (four) partial
 structures. The non-vacuity `p = 3` instance for
 `irreducible_of_transitive_ringAut` remains out of reach (no cube roots in
 mathlib); Zone N's comment records why.
+
+**Non-membership result (2026-09-22).** Zone O is added and bound:
+`FLTForHuman/ModularCurve/FunctionFieldGeneration/Nonmembership.lean` proves the
+prime-power tower `jqN_pow_not_mem_adjoin_full` (the fourth `Inputs` field, so the
+debt is **4 → 3**) and the two-prime separation `jqN_prime_not_mem_adjoin` (public
+`Theorems/` API, the zone's second and non-`Inputs` entry). The tower's `chain_extend`
+built the explicit `RingHom` literal as-is on the first build (no `FunLike` bridge
+was needed), and `chain_endgame` closed under the global `maxHeartbeats`
+(`4000000`), without the pin's local `3200000` bump. The wire test is the
+partially-discharged `Inputs` with the four proved fields filled and the three
+unported ones `sorry`; the file now carries the Zone A capstone plus the
+`Inputs`-field `sorry`s of Zones M (five), N (four) and O (three).
 
 The `sorry`s are not errors and do not count: their job is to keep the
 *statements* checkable while the proofs are out of scope.
