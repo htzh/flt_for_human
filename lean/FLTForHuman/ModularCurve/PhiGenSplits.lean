@@ -44,6 +44,7 @@
 -/
 import FLTForHuman.ModularCurve.ModularPolynomialUniqueness
 import FLTForHuman.ModularCurve.Defs.TS
+import FLTForHuman.ModularCurve.Defs.PhiAtSlot
 import FLTForHuman.ModularCurve.Defs.Cyclotomic
 import Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots
 import Mathlib.NumberTheory.Cyclotomic.PrimitiveRoots
@@ -65,22 +66,11 @@ namespace PhiGen
 
 variable {K : Type*} [Field K] [Algebra ℚ K]
 
-/-! ## The live bridges from `conj` to `TS` -/
+/-! ## The live bridges from `conj` to `TS`
 
-/-- `coeffEmb K (qExpand ℚ N jq) = j(q ^ N)` as a `TS` value. -/
-private theorem iota_jq (N : ℕ) [NeZero N] :
-    coeffEmb K (qExpand ℚ N jq) = TS K N 1 := by
-  rw [coeffEmb_qExpand K, TS, qTwist_one_apply]
-
-/-- The extra conjugate is `j(q ^ (p * p))`. -/
-private theorem conj_zero_eq (p : ℕ) [Fact p.Prime] (ζ : Kˣ) :
-    conj p ζ (0 : Fin (p + 1)) = TS K (p * p) 1 := by
-  rw [conj_zero, TS, qTwist_one_apply]
-
-/-- The `b`-th finite conjugate is `j(ζ ^ b q)`. -/
-private theorem conj_succ_eq (p : ℕ) [Fact p.Prime] (ζ : Kˣ) (b : Fin p) :
-    conj p ζ b.succ = TS K 1 (ζ ^ (b : ℕ)) := by
-  rw [conj_succ, TS, qExpand_one_apply]
+`iota_jq`, `conj_zero_eq` and `conj_succ_eq` were this module's `private`
+copies; T14 promoted the canonical copies to `Defs/PhiAtSlot.lean` (public), which
+this module imports, so the twins are gone. -/
 
 /-! ## A primitive `p`-th root in `CyclotomicField p ℚ`
 
@@ -181,11 +171,10 @@ theorem splits_of_prime {K : Type*} [Field K] [Algebra ℚ K] (p : ℕ) [hp : Fa
   simp only [RingHom.comp_apply, evalAtJ_X]
   rw [coeffMap_coeffEmb_algHom]
 
-/-! ## The splitting at a general slot -/
+/-! ## The splitting at a general slot
 
-private theorem qExpand_qTwist_TS (e : ℕ) [NeZero e] (u : Kˣ) (m : ℕ) [NeZero m] (w : Kˣ) :
-    qExpand K e (qTwist u (TS K m w)) = TS K (e * m) (u ^ (m : ℤ) * w) := by
-  rw [qTwist_TS, qExpand_TS]
+`qExpand_qTwist_TS`, this module's former `private` bridge, is now public in
+`Defs/TS.lean` beside `TS` (T14), and `Defs/TS` is imported above. -/
 
 /-- The cone's headline: the twisted, dilated slot splitting. Verbatim from the
 pin wrapper `Theorems/Thm_ModularCurve_PhiGen_splits_prime_at_slot.lean`. -/

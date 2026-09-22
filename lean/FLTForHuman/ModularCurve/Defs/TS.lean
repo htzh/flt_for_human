@@ -99,6 +99,57 @@ theorem qExpand_TS (m e : ℕ) [NeZero m] [NeZero e] (u : Kˣ) : qExpand K m (TS
 theorem TS_congr {e e' : ℕ} [NeZero e] [NeZero e'] (h : e = e') (u : Kˣ) : TS K e u = TS K e' u := by
   subst h; rfl
 
+/-! ## T14 — the `TS`-dependent shared prelude
+
+FLT's shared prelude carries four facts that the pin writes `private` or exports
+only through its local `W1` namespace: the bridge `iota_jqN` from
+`coeffEmb (qExpand ℚ N (jqN d))` to `TS`, the cyclicity of `TS` under a
+`p`-th-root twist, the twist/expand composition `qExpand_qTwist_TS` (T13 also
+used it privately), and the fact that a twisted `j`-slice misses a
+non-matching `qExpand` range. They all mention `TS`, so they live here beside
+it rather than in `Defs/Twist.lean`, which is upstream of this module.
+
+Verbatim from `P2M/Sol/S_ModularCurve_jqN_prime_not_mem_full.lean` lines
+102–105, 149–156, 237–251 and
+`P2M/Sol/S_ModularCurve_jqN_pow_not_mem_adjoin_full.lean` lines 431–442. -/
+
+/-- `coeffEmb K (qExpand ℚ N (jqN d)) = j(q ^ (N * d))`: the `TS` form of the
+`N`-substituted `j(q ^ d)`. -/
+theorem iota_jqN (N d : ℕ) [NeZero N] [NeZero d] :
+    coeffEmb K (qExpand ℚ N (jqN d)) = TS K (N * d) 1 := by
+  rw [jqN, coeffEmb_qExpand, coeffEmb_qExpand, qExpand_qExpand, TS, qTwist_one_apply]
+
+/-- Twisting by a unit `ζ` with `ζ ^ p = 1` cycles the `p` finite `TS` roots:
+`qTwist ζ (TS K 1 (ζ ^ b)) = TS K 1 (ζ ^ ((b + 1) % p))`. -/
+theorem qTwist_TS_one_cycle (ζ : Kˣ) {p : ℕ} (hζp : ζ ^ p = 1) (b : ℕ) :
+    qTwist ζ (TS K 1 (ζ ^ b)) = TS K 1 (ζ ^ ((b + 1) % p)) := by
+  rw [qTwist_TS]
+  congr 1
+  have : ζ ^ ((1 : ℕ) : ℤ) * ζ ^ b = ζ ^ (b + 1) := by rw [zpow_natCast, pow_one, pow_succ']
+  rw [this]
+  conv_lhs => rw [← Nat.mod_add_div (b + 1) p, pow_add, pow_mul, hζp, one_pow, mul_one]
+
+/-- Twisting then expanding a `TS` value is a `TS` value at the product level
+with the twist picked up by `u ^ m`. -/
+theorem qExpand_qTwist_TS (e : ℕ) [NeZero e] (u : Kˣ) (m : ℕ) [NeZero m] (w : Kˣ) :
+    qExpand K e (qTwist u (TS K m w)) = TS K (e * m) (u ^ (m : ℤ) * w) := by
+  rw [qTwist_TS, qExpand_TS]
+
+/-- A twisted `j`-slice at exponent `e` misses the `qExpand K r` range when
+`r ∤ e`: the `q ^ (-e)` coefficient of the slice is the nonzero `w⁻¹`, while
+every element of the range has zero there. -/
+theorem qExpand_qTwist_notMem_range_qExpand {r e : ℕ} [NeZero r] [NeZero e]
+    (hre : ¬ ((r : ℤ) ∣ (e : ℤ))) (w : Kˣ) :
+    qExpand K e (qTwist w (coeffEmb K jq)) ∉ (qExpand K r).range := by
+  intro hmem
+  obtain ⟨z, hz⟩ := RingHom.mem_range.mp hmem
+  have h1 : (qExpand K e (qTwist w (coeffEmb K jq))).coeff (-(e : ℤ)) = ((w⁻¹ : Kˣ) : K) :=
+    TS_coeff_neg e w
+  have h2 : (qExpand K r z).coeff (-(e : ℤ)) = 0 :=
+    qExpand_coeff_of_not_dvd r z (by rwa [dvd_neg])
+  rw [hz, h1] at h2
+  exact (w⁻¹ : Kˣ).ne_zero h2
+
 end ModularCurve
 
 end

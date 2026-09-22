@@ -1,15 +1,16 @@
 # Blueprint: `ModularCurve.functionFieldGeneration`
 
-**Status (2026-09-22): Layer 0 and its four topics are done; the Φ_p splitting
-cone is finishing; the theorem is scheduled.** The library of
+**Status (2026-09-22): Layer 0, its four topics, the Φ_p splitting cone and T14
+are done; the theorem's 17-node remainder is the live work.** The library of
 `lean/FLTForHuman/ModularCurve/` plus `FLTForHuman/FieldTheory/CommonRoot.lean` and
 the `FLTForHuman/ModularForms/` cone modules is green with zero warnings and zero
 `sorry`, the deliverable measure `spec/ModularCurveConsumer.lean` reports
 **0 errors**, and the effort now owns two halves of the theorem: the proved
 conditional capstone `functionFieldGeneration_of (h : Inputs)`, and the Φ_p cone
-(T5–T10 landed, T11–T13 planned) that discharges its inputs. **The live plan is
-§7.8**: the 17-node remainder, the measured ≈4.5k–4.9k line budget, and topics
-T14–T20.
+(T5–T13 landed) that discharges its inputs. T14 has since written the pin's shared
+slot prelude once (`Defs/PhiAtSlot.lean`, `PhiSlotRoots.lean` and the `Defs/` extensions),
+so T15–T19 import it. **The live plan is §7.8**: the 17-node remainder, the
+measured ≈4.5k–4.9k line budget, and topics T15–T20.
 
 The scope has moved on from Layer 0. §1 is the design rules that still govern the
 remaining work; §2 records the decision to finish and why; §3–§6 are the Layer 0
@@ -67,7 +68,7 @@ record; §2.1 is the interface measurement.
 
 The port's one unambiguous gain is that 144 files of `Thm_`/`S_`/`Def_` triples
 become modules named for their mathematical role, readable in dependency order.
-The same rules that shaped Layer 0 govern T14–T20; the playbook §7.1–§7.2 carries
+The same rules that shaped Layer 0 govern T15–T20; the playbook §7.1–§7.2 carries
 the fuller statement.
 
 - **Module = mathematical role, not FLT's file taxonomy.** FLT splits by artifact
@@ -200,7 +201,7 @@ not 94%; both are now promoted, so the row reads 94%:
 | `qExpansion_E4_eq_map_eisenstein4` | 19 | **public** (same file) | promoted; same |
 
 Both statements were already verbatim from their `Theorems/` wrappers, so the
-change was visibility plus two `SOURCES` lines; neither is needed by T14–T20, so
+change was visibility plus two `SOURCES` lines; neither is needed by T15–T20, so
 this was purely the outbound interface (the checker moved 242 → 244). The other 31 outbound declarations — including every
 Φ_p export the parent remainder imports (`splits_prime_at_slot`,
 `exists_phiIrreducible_evalSymm`, `finrank_adjoin_jqN_eq_of_prime`,
@@ -315,7 +316,7 @@ differ on purpose: the path is `...ModularCurve.FunctionFieldGeneration.Spine`, 
 declarations are `ModularCurve.*`.
 
 **Verification.** The library has no `sorry`; the one deferred `sorry` is the
-unconditional capstone in the consumer file, outside the build. With T14–T20 in
+unconditional capstone in the consumer file, outside the build. With T15–T20 in
 scope, §7.5's sorry protocol is live again.
 
 ```bash
@@ -441,7 +442,7 @@ mathematical engine (math/010 §4 is the first, §6's non-membership the second,
 `FLTForHuman/FieldTheory/CommonRoot.lean`. **Tier 1** — `IntermediateField`
 degree and transport — is mostly mathlib restated monomorphically, and is the most
 likely source of line savings in T16/T18. **Tier 2–3** — `phiAtSeed` and the
-cyclotomic roots — are the shared prelude T14 exposes. **Tier 6** — the Dedekind ψ
+cyclotomic roots — are the shared prelude T14 exposed. **Tier 6** — the Dedekind ψ
 arithmetic — is number theory; the parts the spine consumes
 (`dedekindPsi_mul_of_coprime`, `dedekindPsi_prime_pow`) are already public, leaving
 only `dedekindPsi_of_squarefree`.
@@ -585,7 +586,7 @@ the descent (T15) and the prelude (T14) are independent of that chain.
 
 | topic | object | content | ≈ new lines | prereq |
 |---|---|---|---|---|
-| **T14** | the slot machinery | expose the shared prelude publicly: `qTwistEquiv` + cycle, `phiProd_conj_eq`, `roots_phiProd_conj(_nodup)`, `qExpand_qTwist_TS`, `prod_form_ne_zero`, `roots_prime_at_slot*`, `isRoot_prime_at_slot_iff`, `phiAtSeed*` and its six lemmas, `qExpand_qTwist_notMem_range_qExpand`; promote the `Spine.lean` `private` cyclotomic block and `iota_jqN`/`jqN_congr` to `Defs/` | ~250 | Φ_p defs |
+| **T14** ✅ | the slot machinery | **done (2026-09-22)** — the shared prelude is written once: `Defs/PhiAtSlot.lean` (the `conj`/`TS` bridges `iota_jq`/`conj_zero_eq`/`conj_succ_eq`, `phiProd_conj_eq`, `roots_phiProd_conj(_nodup)`, `phiAtSeed` + its eight lemmas, `aeval_intermediateField_eq_zero`, `phiAtSeed_eval_of_injective`/`_symm`, `phiAtSeed_jqN_eval_down`), `Defs/Twist.lean` (`qTwist_iota_of_pow_eq_one`, `qTwistEquiv` + `_apply`/`coe_`), `Defs/TS.lean` (`iota_jqN`, `qTwist_TS_one_cycle`, `qExpand_qTwist_TS`, `qExpand_qTwist_notMem_range_qExpand`), `Defs/Jq.lean` (`jqN_congr`), and the downstream `ModularCurve/PhiSlotRoots.lean` (`prod_form_ne_zero`, `roots_prime_at_slot*`, `isRoot_prime_at_slot_iff`). Six `private` twins in `Spine.lean`/`PhiGenSplits.lean` are deleted. The cyclotomic block was already promoted by T13. | **503 measured** (237 + 153 + 51 + 56 + 6; ratio ≈1.64) | Φ_p defs |
 | **T15** | descent and the collapse (math/010 §4–§5) | `jqN_div_mem_modularFunctionField`, `modularFunctionField_eq_full_of` (one 735-line development) | ~350 | T14, Φ_p T12–T13 |
 | **T16** | the degree step (math/010 §6b) | `finrank_adjoin_jqN_prime_of_not_mem`, `finrank_adjoin_jqN_pow_succ_of_not_mem`, `relfinrank_full_eq_mul` | ~500 | T14, Φ_p T13, `CommonRoot` |
 | **T17** | non-membership, base and tower (math/010 §6a) | `jqN_pow_not_mem_adjoin_full`, `jqN_prime_not_mem_adjoin` | ~830 | T14, T16 |
@@ -593,14 +594,45 @@ the descent (T15) and the prelude (T14) are independent of that chain.
 | **T19** | the slot product and prime non-membership (math/010 §3, §6a) | `minpoly_jqN_map_eq_prod_slots`, `jqN_prime_not_mem_full` (one 2,002-line development; it also contains a second `jqN_prime_not_mem_adjoin`, redundant with T17) | ~1,300–1,600 | T18, Φ_p `splits_prime_at_slot` |
 | **T20** | the unconditional capstone | construct `Inputs` from T15–T18 and apply `functionFieldGeneration_of`; replace the consumer's `sorry` with the proved `functionFieldGeneration N`; **optional tail:** `exists_monic_evalAtJ_jqN_eq_zero`, `exists_phiIrreducible_of_finrank_eq` (+~250, for the downstream corollaries) | ~50 (+250) | T15–T18, plus T19 for two fields |
 
+**T14 measured (2026-09-22), and the row corrected.** T14 landed in **one** goal
+round (of the two budgeted) as 32 declarations: six promotions (`iota_jqN`,
+`jqN_congr`, `iota_jq`, `conj_zero_eq`, `conj_succ_eq`, `qExpand_qTwist_TS`),
+twenty-one fresh upstream declarations and five downstream ones. **503 port
+lines** (new `Defs/PhiAtSlot.lean` 237, new `PhiSlotRoots.lean` 153, `Defs/TS.lean` +51,
+`Defs/Twist.lean` +56, `Defs/Jq.lean` +6) against the pin's ~306, ratio **≈1.64**
+— above the §7 band (~320–420) because two new modules carry full headers and
+every declaration a docstring. The row's `~250` was a pre-scouting estimate and is
+replaced by the measured **503**. Two findings correct the work order:
+
+- **Most of the prelude was already public.** The work order said every T14
+  declaration is `private` in the pin. In fact
+  `P2M/Sol/S_ModularCurve_functionFieldGeneration.lean` (already a checker source)
+  carries the whole block *publicly*, so the checker verified 31 of the 32 by a
+  direct last-name match; only `prod_form_ne_zero` needed the dotted fallback.
+  (The 31st is `qTwistEquiv_apply`, which the pin writes
+  `@[scoped simp] theorem …` on one line; the checker's `DECL_RE` gained an
+  optional leading-attribute group so it is visible on both sides.) The two new
+  `S_` carriers were still needed for
+  `aeval_intermediateField_eq_zero`, `phiAtSeed_eval_of_injective`/`_symm`,
+  `phiAtSeed_jqN_eval_down` and `qExpand_qTwist_notMem_range_qExpand`. The checker
+  moved **244 → 276** identical (11 → 12 promoted), 0 mismatched, 0 missing.
+- **The layering constraint bit one level earlier than §4 assumed.** `Defs/TS.lean`
+  already imports `Defs/Twist.lean`, so the three `TS`-dependent prelude members
+  (`qTwist_TS_one_cycle`, `qExpand_qTwist_TS`,
+  `qExpand_qTwist_notMem_range_qExpand`) and `iota_jqN` **cannot** live in
+  `Defs/Twist.lean`/`Defs/Jq.lean` as §4 planned; putting them there would create
+  an import cycle. They live beside `TS` in `Defs/TS.lean` instead. Every
+  declaration still has exactly one home.
+
 **Route risks, in the order they will bite.** Each is a candidate for the
 "cost tracks the route" treatment before its topic is priced:
 
-- **T14 decides T15–T19's interface.** Every remaining file starts with the same
-  block; if the port exposes it in the shape the proofs want (the pin's `TS`,
-  `qTwistEquiv` and `phiAtSeed` spellings), the rest are transcriptions. The one
-  known trap is Tier 4's `qTwistEquiv` — T8 already hit a `mapGL`-transparency
-  issue with this family; T5's log §2.2 has the `FunLike` fallback.
+- **T14 decided T15–T19's interface, and it held.** Every remaining file starts
+  with the same block, now written once (`Defs/PhiAtSlot.lean`, `Defs/TS.lean`,
+  `Defs/Twist.lean`, `ModularCurve/PhiSlotRoots.lean`); the rest are transcriptions.
+  The one known trap was Tier 4's `qTwistEquiv`; T14 took the
+  `RingEquiv.ofBijective` route and it closed (log §2g), so the `FunLike` fallback
+  was not needed.
 - **T19's 2,002-line development is the riskiest single file.** It is three
   proofs — the slot product, prime non-membership, and the redundant
   `jqN_prime_not_mem_adjoin` — and the survey leaves open which copy is
@@ -621,8 +653,8 @@ the descent (T15) and the prelude (T14) are independent of that chain.
 
 **Definition of done for the effort.** `lake build` green, 0 warnings, no `sorry`;
 `#print axioms` on `functionFieldGeneration` clean; the consumer's only `sorry`
-gone and its capstone unconditional; the statement checker extended with T14–T19's
-wrappers and T20's capstone. At that point
+gone and its capstone unconditional; the statement checker extended with T15–T19's
+wrappers (T14's are already in) and T20's capstone. At that point
 `ModularCurve.functionFieldGeneration` is a proved theorem of the port, the
 segment's one conditional is discharged, and — by §2.1's ledger — the **out-of-cone
 ≥5-indegree tier is 100% covered**: every declaration through which the rest of FLT
@@ -639,23 +671,23 @@ reference.
   dedup; the theorem's own path is 15 nodes / ≈4.3k–4.7k. What is *not* yet
   measured is the route each heavy development should take; that is each topic's
   own work order, per the standing rule.
-- **What if Φ_p slips?** Only T14 (the slot machinery) is independent of the cone's
-  *proofs*. Every remaining node cites `exists_phiIrreducible_evalSymm` (T12),
-  directly or through T16's finrank chain, and T15–T19 additionally cite
-  `PhiGen.splits_prime_at_slot`/`splits_of_prime` (T13). So T14 can proceed in
-  parallel and nothing more; the critical path is T12 → T13 → T15–T19, and the
-  parent should not start before T12–T13 are green.
-- **Stop-and-harvest, restated.** The conditional capstone plus the whole cone is
-  already a coherent artifact. Finishing costs ≈4.5k–4.9k lines and buys the first
-  unconditional FLT headline the port would own plus a complete outbound interface.
-  If that trade were ever refused, the honest stopping point is after T14 (the
-  interface exposed) rather than midway through T16.
+- **What gates the remainder now? — nothing external.** T13's
+  `PhiGen.splits_prime_at_slot` and T14's prelude are both landed, and every
+  remaining node's Φ_p dependency (`exists_phiIrreducible_evalSymm`,
+  `splits_prime_at_slot`/`splits_of_prime`) is public and statement-checked. The
+  critical path is T15–T19 followed by T20's capstone discharge; there is no
+  unported input left.
+- **Stop-and-harvest, restated.** The conditional capstone, the whole cone and the
+  shared prelude are already a coherent artifact. Finishing costs ≈4.5k–4.9k lines
+  and buys the first unconditional FLT headline the port would own plus a complete
+  outbound interface. T14 was the clean stopping point (the interface exposed); if
+  that trade were ever refused, it would be here rather than midway through T16.
 - **Drift on unchanged mathematics.** Layer 0 produced twelve friction entries,
   kept at the tail of the consumer file; the playbook calls the friction log the
   highest-value artifact because it is the one thing not derivable from the code.
-  T14–T20 should keep accumulating there.
+  T15–T20 should keep accumulating there.
 - **Transcription risk.** Declarations must be transcribed verbatim in shape
   (names, argument order, instances) or `#check` correspondence fails. This is
   mechanically checked: `spec/check_flt_statements.py` diffs every port statement
-  against the pinned source — **205 of 205 identical, 0 mismatched, 0 missing** —
+  against the pinned source — **276 of 276 identical, 0 mismatched, 0 missing** —
   and the consumer's cross-module compositions are the runtime wire test.

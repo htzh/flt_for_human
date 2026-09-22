@@ -80,6 +80,10 @@ import FLTForHuman.ModularCurve.ModularPolynomialProperties
 -- T13: the consequence — uniqueness, the degree, and the cone's headline.
 import FLTForHuman.ModularCurve.ModularPolynomialUniqueness
 import FLTForHuman.ModularCurve.PhiGenSplits
+-- T14: the shared slot prelude — the upstream vocabulary and the downstream
+-- at-slot roots API.
+import FLTForHuman.ModularCurve.Defs.PhiAtSlot
+import FLTForHuman.ModularCurve.PhiSlotRoots
 -- The cyclotomic instances for the end-to-end wire tests of Zones I, J and K.
 import Mathlib.NumberTheory.Cyclotomic.Basic
 
@@ -578,6 +582,80 @@ example (data : ModularCurve.ModularPolynomialData 2) (ζ : (CyclotomicField 2 �
               (coeffEmb (CyclotomicField 2 ℚ) ModularCurve.jq)))) :=
   ModularCurve.PhiGen.splits_prime_at_slot (K := CyclotomicField 2 ℚ) (N := 2) (ζ := ζ) (hζ := hζ)
     (p := 2) (hp := ⟨Nat.prime_two⟩) (hpN := dvd_rfl) (data := data) (e := 1) (u := 1)
+
+/-! ## Zone L — [T14] the shared slot prelude
+
+`FLTForHuman/ModularCurve/Defs/PhiAtSlot.lean` is the slot vocabulary written once:
+the `conj`/`TS` bridges, the conjugate product's expansion and roots, and
+`phiAtSeed` with its naturality/monicity/degree/vanishing lemmas.
+`FLTForHuman/ModularCurve/Defs/Twist.lean` gains the twist equivalence
+`qTwistEquiv` and `qTwist_iota_of_pow_eq_one`; `Defs/TS.lean` and `Defs/Jq.lean`
+gain the remaining `TS`-dependent bridges; and
+`FLTForHuman/ModularCurve/PhiSlotRoots.lean` is the one downstream module: the
+at-slot roots API `roots_prime_at_slot*`/`isRoot_prime_at_slot_iff` read off
+T13's `splits_prime_at_slot`.
+
+**The chosen wire is `roots_phiProd_conj_nodup` at `p = 2`, `K = ℂ`, `ζ = -1`.**
+It is the strongest cross-module composition in the topic: it joins
+`Defs/PhiGen`'s `conj`/`phiProd`, `Defs/PhiAtSlot`'s `roots_phiProd_conj_nodup` and
+`Defs/TS`'s `TS_injective`, over a concrete primitive square root supplied by
+mathlib's `IsPrimitiveRoot.neg_one`. The other two candidates from the work
+order are kept beside it as supporting compositions: the `qTwistEquiv`
+round-trip (against a concrete `f = coeffEmb ℂ jq`, so it also touches
+`Defs/Jq`) and `phiAtSeed`'s monicity/degree at `modularPolynomialDataOne`
+(against `Defs/Polynomial`). -/
+
+#check @ModularCurve.qTwistEquiv
+#check @ModularCurve.qTwist_iota_of_pow_eq_one
+#check @ModularCurve.qTwist_TS_one_cycle
+#check @ModularCurve.qExpand_qTwist_TS
+#check @ModularCurve.qExpand_qTwist_notMem_range_qExpand
+#check @ModularCurve.iota_jqN
+#check @ModularCurve.jqN_congr
+#check @ModularCurve.phiProd_conj_eq
+#check @ModularCurve.roots_phiProd_conj
+#check @ModularCurve.roots_phiProd_conj_nodup
+#check @ModularCurve.phiAtSeed
+#check @ModularCurve.phiAtSeed_monic
+#check @ModularCurve.phiAtSeed_natDegree
+#check @ModularCurve.phiAtSeed_eval_symm
+#check @ModularCurve.phiAtSeed_jqN_eval_down
+#check @ModularCurve.prod_form_ne_zero
+#check @ModularCurve.roots_prime_at_slot
+#check @ModularCurve.roots_prime_at_slot_nodup
+#check @ModularCurve.isRoot_prime_at_slot_iff
+
+-- The chosen wire: the `p + 1 = 3` conjugate values at `ζ = -1` over `ℂ` are
+-- distinct, via the primitive square root `IsPrimitiveRoot.neg_one`.
+example : (ModularCurve.TS ℂ (2 * 2) 1 ::ₘ
+    (Multiset.range 2).map (fun b => ModularCurve.TS ℂ 1 ((-1 : ℂˣ) ^ b))).Nodup :=
+  @ModularCurve.roots_phiProd_conj_nodup ℂ _ _ 2 ⟨Nat.prime_two⟩ (-1) (by
+    show IsPrimitiveRoot (((-1 : ℂˣ) : ℂ)) 2
+    rw [Units.val_neg, Units.val_one]
+    exact IsPrimitiveRoot.neg_one 0 two_ne_zero.symm)
+
+-- Its underlying root identity, from the same module.
+example : (ModularCurve.PhiGen.phiProd 2 (ModularCurve.PhiGen.conj 2 (-1 : ℂˣ))).roots =
+    ModularCurve.TS ℂ (2 * 2) 1 ::ₘ
+      (Multiset.range 2).map (fun b => ModularCurve.TS ℂ 1 ((-1 : ℂˣ) ^ b)) :=
+  @ModularCurve.roots_phiProd_conj ℂ _ _ 2 ⟨Nat.prime_two⟩ (-1)
+
+-- Supporting wire: the `qTwistEquiv` round-trip at `f = coeffEmb ℂ jq`.
+example :
+    ModularCurve.qTwistEquiv (-1 : ℂˣ)
+      (ModularCurve.qTwist ((-1 : ℂˣ))⁻¹ (ModularCurve.coeffEmb ℂ ModularCurve.jq)) =
+        ModularCurve.coeffEmb ℂ ModularCurve.jq := by
+  rw [ModularCurve.qTwistEquiv_apply, ModularCurve.qTwist_qTwist, mul_inv_cancel,
+    ModularCurve.qTwist_one_apply]
+
+-- Supporting wire: `phiAtSeed`'s degree at `modularPolynomialDataOne`,
+-- against `Defs/Polynomial`.
+example : (ModularCurve.phiAtSeed ModularCurve.modularPolynomialDataOne (0 : ℚ)).Monic :=
+  ModularCurve.phiAtSeed_monic _ _
+
+example : (ModularCurve.phiAtSeed ModularCurve.modularPolynomialDataOne (0 : ℚ)).natDegree =
+    ModularCurve.dedekindPsi 1 :=
+  ModularCurve.phiAtSeed_natDegree _ _
 
 /-! ## The measure
 

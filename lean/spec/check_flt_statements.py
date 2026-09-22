@@ -188,6 +188,18 @@ SOURCES = [
     # `S_` files are the comparable copies.
     "P2M/Sol/S_ModularCurve_PhiGen_splits_of_prime.lean",
     "P2M/Sol/S_ModularCurve_PhiGen_splits_prime_at_slot.lean",
+    # Topic 14, the shared slot prelude. Its declarations have no `Theorems/`
+    # wrapper, so the pin's own `S_` files are the comparable copies. Most are
+    # already *public* in `P2M/Sol/S_ModularCurve_functionFieldGeneration.lean`
+    # (listed far above, and so still the first `source` hit); these two carry
+    # the rest: the `_prime_not_mem_full` file has the `private`
+    # `prod_form_ne_zero`/`jqN_congr`, and the `_pow_not_mem_adjoin_full` file
+    # carries `aeval_intermediateField_eq_zero`, `phiAtSeed_eval_of_injective`,
+    # `phiAtSeed_eval_symm`, `phiAtSeed_jqN_eval_down` and
+    # `qExpand_qTwist_notMem_range_qExpand` *publicly*. Both are appended after
+    # the `Theorems/`/`Defs` sources so no existing match can flip.
+    "P2M/Sol/S_ModularCurve_jqN_prime_not_mem_full.lean",
+    "P2M/Sol/S_ModularCurve_jqN_pow_not_mem_adjoin_full.lean",
 ]
 
 PORT_FILES = [
@@ -220,6 +232,10 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/ModularPolynomialProperties.lean",
     "FLTForHuman/ModularCurve/ModularPolynomialUniqueness.lean",
     "FLTForHuman/ModularCurve/PhiGenSplits.lean",
+    # Topic 14, the shared slot prelude: the upstream vocabulary and the
+    # downstream at-slot roots API.
+    "FLTForHuman/ModularCurve/Defs/PhiAtSlot.lean",
+    "FLTForHuman/ModularCurve/PhiSlotRoots.lean",
 ]
 
 # Declarations whose *statement* has no FLT source, so there is nothing to diff:
@@ -266,8 +282,14 @@ OWN_PROOFS = {
 # command the text checker cannot follow), yet the port promotes it into `Defs/`
 # so later modules can import it. Port declarations are still read without the
 # prefix, so a `private` port helper is never diffed.
+# The optional leading `attrs` group makes an attributed declaration on a single
+# line (`@[scoped simp] theorem qTwistEquiv_apply …`, T14) visible. Without it
+# the regex anchors on `theorem`, so such a declaration was invisible on *both*
+# sides; with it, the port's copy is verified like any other. Adding it changed
+# no other match (T14 re-ran the checker: 0 mismatched, 0 missing).
 DECL_RE = re.compile(
-    r"^(?P<priv>private\s+)?(?P<kind>def|theorem|lemma|abbrev|structure|instance)\s+"
+    r"^(?P<attrs>(?:@\[[^\]\n]*\]\s*)*)(?P<priv>private\s+)?"
+    r"(?P<kind>def|theorem|lemma|abbrev|structure|instance)\s+"
     r"(?P<name>[\w.'ₐ]+)",
     re.MULTILINE,
 )

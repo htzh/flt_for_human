@@ -193,6 +193,12 @@ def jqN (N : ℕ) [NeZero N] : LaurentSeries ℚ := qExpand ℚ N jq
 @[simp]
 theorem jqN_one : jqN 1 = jq := qExpand_one_apply jq
 
+/-- `jqN` depends only on the value of `N`: equal levels give equal series. The
+pin repeats this `private` in the FFG spine and in
+`S_ModularCurve_jqN_prime_not_mem_full.lean`; T14 promotes it here. -/
+theorem jqN_congr {n m : ℕ} [NeZero n] [NeZero m] (h : n = m) : jqN n = jqN m := by
+  subst h; rfl
+
 section NamedInputs
 
 /-- The Dedekind psi function: `ψ(N) = ∑_{d ∣ N, d squarefree} N / d`, which

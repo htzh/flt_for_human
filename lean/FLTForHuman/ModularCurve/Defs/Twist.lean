@@ -126,6 +126,62 @@ theorem qTwist_qExpand (v : Rˣ) (N : ℕ) [NeZero N] (f : LaurentSeries R) :
 
 end QTwist
 
+/-! ## T14 — the twist as an isomorphism
+
+FLT's shared prelude carries four more twist facts beside `qTwist`: the twist
+fixes an `N`-substituted series when the twisting unit is an `N`-th root of
+unity, `qTwist u` packaged as a ring equivalence (used for real in the
+char-`p` degree steps), and that equivalence's unfolding/coercion lemmas. They
+are upstream of `TS` (they do not mention it), so they live here; the three
+`TS`-dependent members of the prelude live in `Defs/TS.lean`.
+
+Verbatim from `P2M/Sol/S_ModularCurve_jqN_prime_not_mem_full.lean` lines
+115–147. `qTwistEquiv` is routed through mathlib's `RingEquiv.ofBijective`
+rather than the pin's `where` (the T14 route check; see `logs/ffg-port.md`); the
+statements are unchanged. -/
+
+section UnitTwistIota
+
+variable {K : Type*} [Field K] [Algebra ℚ K]
+
+/-- A twist by a unit that is an `N`-th root of unity fixes the `N`-substituted
+series: `qTwist v (qExpand K (v ^ N = 1) x) = qExpand K N x`. -/
+theorem qTwist_iota_of_pow_eq_one (N : ℕ) [NeZero N] (v : Kˣ) (hv : v ^ N = 1)
+    (x : LaurentSeries ℚ) :
+    qTwist v (coeffEmb K (qExpand ℚ N x)) = coeffEmb K (qExpand ℚ N x) := by
+  rw [coeffEmb_qExpand, qTwist_qExpand]
+  have : v ^ (N : ℤ) = 1 := by exact_mod_cast hv
+  rw [this, qTwist_one_apply]
+
+end UnitTwistIota
+
+section UnitTwistEquiv
+
+variable {K : Type*} [Field K]
+
+/-- The unit twist `qTwist u` packaged as a ring equivalence, with inverse
+`qTwist u⁻¹`. -/
+def qTwistEquiv (u : Kˣ) : LaurentSeries K ≃+* LaurentSeries K :=
+  RingEquiv.ofBijective (qTwist u) (by
+    constructor
+    · intro f g h
+      have := congrArg (qTwist u⁻¹) h
+      rwa [qTwist_qTwist, qTwist_qTwist, inv_mul_cancel, qTwist_one_apply, qTwist_one_apply]
+        at this
+    · intro f
+      exact ⟨qTwist u⁻¹ f, by rw [qTwist_qTwist, mul_inv_cancel, qTwist_one_apply]⟩)
+
+@[scoped simp] theorem qTwistEquiv_apply (u : Kˣ) (f : LaurentSeries K) :
+    qTwistEquiv u f = qTwist u f := rfl
+
+/-- The coercion of `qTwistEquiv u` to a ring homomorphism is `qTwist u`. -/
+theorem coe_qTwistEquiv (u : Kˣ) :
+    ((qTwistEquiv u : LaurentSeries K ≃+* LaurentSeries K) :
+      LaurentSeries K →+* LaurentSeries K) = qTwist u :=
+  RingHom.ext fun _ => rfl
+
+end UnitTwistEquiv
+
 end ModularCurve
 
 end

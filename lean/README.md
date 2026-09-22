@@ -91,13 +91,13 @@ alongside `.lake/` in case it does.
 | `FLTForHuman/Elliptic/TorsionCard.lean` | `n`-torsion cardinality | the Wronskian coprimality, the double-fiber engine, and **`card_torsion_of_isAlgClosed`** (`#E[n] = n²`) |
 | `FLTForHuman/FieldTheory/CommonRoot.lean` | the generic kernel | `Polynomial.mem_range_of_unique_common_root`, `Polynomial.mem_range_of_eval_eq_const`, `Polynomial.irreducible_of_transitive_ringAut` — the segment's mathematical engine (math/010 §4, §6), over an arbitrary `F ⊆ L`, mathlib-only, with three concrete instantiations over `ℚ ⊆ ℂ` as the wire test. The port's first generic area, beside (not inside) either curve theory. FLT `P2M/Sol/S_Polynomial_mem_range_of_unique_common_root` / the three `Thm_Polynomial_*` wrappers |
 | `FLTForHuman/ModularCurve/Defs/Laurent.lean` | q-substitution + coefficient change | `qExpand`, `qExpandₐ`, `coeffMap`, `coeffEmb`, `laurentBaseChange`, plus the interface lemmas `coeffMap_qExpand`, `coeffEmb_qExpand`, `coeffMap_injective`, `coeffEmb_injective`. FLT `Def_ModularCurve_X0` 25–105, `Def_ModularCurve_LaurentCoeff` 16–123 |
-| `FLTForHuman/ModularCurve/Defs/Twist.lean` | the unit twist `q ↦ u q` | `qTwistFun`, `qTwist` + functoriality, `qTwist_qExpand`. FLT `Def_ModularCurve_PhiGen` 18–96 |
-| `FLTForHuman/ModularCurve/Defs/Jq.lean` | the `j`-series | `eisenstein4`, `etaProd`, the `Δ` unit, `jNum`, `jq` + its pole lemmas, `jqN`, `dedekindPsi`, `evalAtJ`, plus the interface lemmas `dedekindPsi_prime`, `dedekindPsi_prime_pow`, `dedekindPsi_mul_of_coprime`, `aeval_jq_eq_zero`, `transcendental_jq`, and the shared triangularity `coeff_aeval_jq_neg` (promoted from T7 by T9; FLT repeats it privately in nine files). FLT `Def_ModularCurve_X0` 111–212 |
+| `FLTForHuman/ModularCurve/Defs/Twist.lean` | the unit twist `q ↦ u q` | `qTwistFun`, `qTwist` + functoriality, `qTwist_qExpand`. **T14 adds** the unit-root iota `qTwist_iota_of_pow_eq_one` and the twist equivalence `qTwistEquiv` with its `qTwistEquiv_apply`/`coe_qTwistEquiv` unfolding lemmas. FLT `Def_ModularCurve_PhiGen` 18–96 + `S_ModularCurve_jqN_prime_not_mem_full` 115–147 |
+| `FLTForHuman/ModularCurve/Defs/Jq.lean` | the `j`-series | `eisenstein4`, `etaProd`, the `Δ` unit, `jNum`, `jq` + its pole lemmas, `jqN`, `dedekindPsi`, `evalAtJ`, plus the interface lemmas `dedekindPsi_prime`, `dedekindPsi_prime_pow`, `dedekindPsi_mul_of_coprime`, `aeval_jq_eq_zero`, `transcendental_jq`, and the shared triangularity `coeff_aeval_jq_neg` (promoted from T7 by T9; FLT repeats it privately in nine files). **T14 adds** `jqN_congr`, which FLT repeats `private` in the FFG spine and the `jqN` files. FLT `Def_ModularCurve_X0` 111–212 + `S_ModularCurve_jqN_prime_not_mem_full` 739–742 |
 | `FLTForHuman/ModularCurve/FunctionFieldGeneration/Target.lean` | the target statement | `FunctionFieldGeneration` and its `M = 1` case. FLT `Def_ModularCurve_X0` 233–242 |
 | `FLTForHuman/ModularCurve/Defs/Polynomial.lean` | the polynomial datum | `ModularPolynomialData`, `modularPolynomialDataOne`. FLT `Def_ModularCurve_X0` 215–232 |
 | `FLTForHuman/ModularCurve/Defs/Fields.lean` | the two function fields | `modularFunctionField`, `modularFunctionFieldFull`, `toAdjoin`, the degeneracy lemmas. FLT `Def_ModularCurve_X0` 246–348 |
 | `FLTForHuman/ModularCurve/Defs/PhiGen.lean` | the slot vocabulary | `cosetSubst`, `conj`, `phiProd`, `EvalSymm`, `PhiGenDescends`, `PoleOrderLE`/`TPoleOrderLE` + the promoted triangularity `poleOrderLE_aeval_jq`, **and the shared `TPoleOrderLE` prelude T10 promoted** (the closure `mono`/`zero`/`one`/`neg`/`add`/`mul`/`qTwist`/`qExpand`, `jSimplePole_jqK`/`tPoleOrderLE_coeffEmb_iff`/`tPoleOrderLE_of_qExpand`, the conjugate bounds `conjPoleBound`/`tPoleOrderLE_conj*` and the coefficient bounds `tPoleOrderLE_coeff_X_sub_C`/`_mul`/`_prod`/`tPoleOrderLE_phiProd_coeff`) — FLT repeats that block across six developments (physically twelve `S_` files), so it is written once here and **T11 imports it**. FLT `Def_ModularCurve_PhiGen` 111–309 + the `S_` copies |
-| `FLTForHuman/ModularCurve/Defs/TS.lean` | `j(u q ^ e)` | `TS` and its nine coefficient/substitution lemmas. FLT `P2M/Sol/S_ModularCurve_functionFieldGeneration` 39–101 (a *solution* file) |
+| `FLTForHuman/ModularCurve/Defs/TS.lean` | `j(u q ^ e)` | `TS` and its nine coefficient/substitution lemmas. **T14 adds** the `TS`-dependent shared prelude: `iota_jqN` (`coeffEmb (qExpand ℚ N (jqN d)) = TS K (N*d) 1`), the cycle `qTwist_TS_one_cycle`, the composition `qExpand_qTwist_TS` and `qExpand_qTwist_notMem_range_qExpand`. FLT `P2M/Sol/S_ModularCurve_functionFieldGeneration` 39–101 + `S_ModularCurve_jqN_prime_not_mem_full` 102–105, 149–156, 237–251 + `S_ModularCurve_jqN_pow_not_mem_adjoin_full` 431–442 |
 | `FLTForHuman/ModularCurve/FunctionFieldGeneration/Collapse.lean` | the §2 collapse | `functionFieldGeneration_iff_full_eq`, Layer 0's only theorem. FLT `Thm_…_iff_full_eq` line 6 / `S_…_iff_full_eq` 11–21 |
 | `FLTForHuman/ModularCurve/JqCoefficients.lean` | the low coefficients of `jq` | `coeff_jq_zero` (`744`), `coeff_jq_one` (`196884`). A *result*, not a definition: statement from base/004, proof by mathlib's pentagonal route (`tprod_one_sub_X_pow`) rather than FLT's cluster |
 | `FLTForHuman/ModularCurve/FunctionFieldGeneration/Spine.lean` | the conditional capstone | `Tight`/`Gen`/`Hall`, the proved strong induction `hall_all`, the structure `Inputs` (FLT's 7 significant remaining statements), and `functionFieldGeneration_of (h : Inputs) : FunctionFieldGeneration N` — proved, with no `sorryAx` |
@@ -118,6 +118,8 @@ alongside `.lake/` in case it does.
 | `FLTForHuman/ModularCurve/ModularPolynomialUniqueness.lean` | the cone's consequence I: uniqueness and the degree | `ModularCurve.finrank_adjoin_jqN_eq_of_prime` (verbatim: `[ℚ(j)(j(q^ℓ)) : ℚ(j)] = ℓ + 1`, from T12's `exists_phiIrreducible_evalSymm` and `dedekindPsi_prime`) and `ModularPolynomialData.eq_of_prime` (verbatim: any two prime-level data are equal, both `toAdjoin`s being the minimal polynomial of `j(q^ℓ)`). FLT `S_ModularCurve_finrank_adjoin_jqN_eq_of_prime` (52) + `S_ModularCurve_ModularPolynomialData_eq_of_prime` (73) |
 | `FLTForHuman/ModularCurve/PhiGenSplits.lean` | the cone's consequence II: the splitting — **the cone's headline** | `PhiGen.splits_of_prime` (verbatim): the datum, read at the level-`p` nome, is the conjugate product; proved over `CyclotomicField p ℚ` (T11's descent + T9's integrality + T8's membership + T11's assembly + `eq_of_prime` + T11's `splits_of_coeff_evalAtJ_eq`) and transported along an embedding `CyclotomicField p ℚ →ₐ[ℚ] K`. `PhiGen.splits_prime_at_slot` (verbatim), the cone's exported statement, is one `qExpand K e ∘ qTwist u` transport. The shared `TS` prelude is `Defs/TS.lean`'s; ~200 pin prelude lines dead for the exports (they belong to the char-`p` variants) are dropped. FLT `S_ModularCurve_PhiGen_splits_of_prime` (353) + `S_ModularCurve_PhiGen_splits_prime_at_slot` (288) |
 | `FLTForHuman/ModularCurve/Defs/Cyclotomic.lean` | a primitive root of unity in `CyclotomicField N ℚ` | `exists_isPrimitiveRoot_cyclotomicField` and the chosen `cycUnit`, its `cycUnit_spec`/`cycUnit_pow`, and `isPrimitiveRoot_pow_div` — promoted by T13 from the private twins in the FFG spine and in `PhiGenSplits.lean`, so both import one copy. FLT `S_ModularCurve_PhiGen_splits_of_prime` (188–203) + `S_ModularCurve_PhiGen_splits_prime_at_slot` (123–133) |
+| `FLTForHuman/ModularCurve/Defs/PhiAtSlot.lean` | the modular polynomial at the slot, written once (T14) | the `conj`/`TS` bridges `iota_jq`/`conj_zero_eq`/`conj_succ_eq` (promoted out of T13's private copies), the conjugate product `phiProd_conj_eq` with its roots `roots_phiProd_conj`/`_nodup`, and `phiAtSeed` with its eight naturality/monicity/degree/vanishing lemmas plus `aeval_intermediateField_eq_zero`, `phiAtSeed_eval_of_injective`/`_symm` and `phiAtSeed_jqN_eval_down`. Upstream of the cone; T15–T19 import it instead of re-copying the pin's shared block (which up to thirteen files repeat). FLT `S_ModularCurve_jqN_prime_not_mem_full` 106–194, 351–404 + `S_ModularCurve_jqN_pow_not_mem_adjoin_full` 400–430 |
+| `FLTForHuman/ModularCurve/PhiSlotRoots.lean` | the at-slot roots API (T14) | `prod_form_ne_zero`, `roots_prime_at_slot`, `roots_prime_at_slot_nodup`, `roots_prime_at_slot_roots_nodup` and `isRoot_prime_at_slot_iff` — the roots of `Φ`, read at the twisted/dilated slot, via T13's `PhiGen.splits_prime_at_slot`. The one T14 module downstream of the cone (which is why the API cannot live in `Defs/`); `prod_form_ne_zero` is `private` in the pin and is promoted here. FLT `S_ModularCurve_jqN_prime_not_mem_full` 252–350 |
 
 The port of `#E[n](K) = n²` (math/005) has its own working record:
 [logs/card-torsion-port.md](logs/card-torsion-port.md) — dependency trace,
@@ -160,8 +162,8 @@ errors** with Zones A, B and C all bound. Its only remaining `sorry` is the
 deferred theorem's capstone. `PORTING-FFG.md` records why the theorem itself stays
 deferred; the consumer's tail carries the v4.34.0 friction list, and
 [spec/check_flt_statements.py](spec/check_flt_statements.py) diffs every port
-declaration's statement against the pinned source (176 of 176 identical, with the
-own-proof declarations exempted explicitly).
+declaration's statement against the pinned source (276 of 276 identical through
+T14, with the own-proof declarations exempted explicitly).
 
 Both Layer 0 work orders are gone: they were finished, their durable material
 moved into §7 of [porting-playbook.md](porting-playbook.md) — the math-clarity
@@ -308,6 +310,23 @@ moved 233 → 242 and the consumer gained Zone K with the capstone wire
 the FFG `Inputs` gap; PORTING-FFG §7.8's T14–T19 proceed with
 `splits_prime_at_slot` as a theorem.
 [logs/phiGen-port.md](logs/phiGen-port.md) §13 carries the measured cost.
+
+T14, the first topic of the parent remainder, then wrote the pin's **shared slot
+prelude once**: `Defs/PhiAtSlot.lean` (the `conj`/`TS` bridges, `phiProd_conj_eq` and
+the roots, `phiAtSeed` and its eight lemmas), the twist equivalence
+`qTwistEquiv` + `qTwist_iota_of_pow_eq_one` in `Defs/Twist.lean`, four
+`TS`-dependent bridges in `Defs/TS.lean`/`Defs/Jq.lean`, and the downstream
+`PhiSlotRoots.lean` with the at-slot roots API. It also promoted six `private`
+twins out of `Spine.lean`/`PhiGenSplits.lean`, so no shared declaration has two
+homes. The prelude is carried by up to thirteen of the seventeen remaining pin
+files (`phiAtSeed` at 26–74 uses per carrier), so writing it once is the largest
+single dedup left. The checker moved 244 → 276, all 32 declarations verified (its
+`DECL_RE` gained an optional leading-attribute group so the pin's one-line
+`@[scoped simp] theorem qTwistEquiv_apply` is visible on both sides), and the
+consumer gained Zone L, whose chosen wire is `roots_phiProd_conj_nodup` at
+`p = 2`, `K = ℂ`, `ζ = -1`. `PORTING-FFG.md` §7.8's row estimated ~250 lines; the
+port is **503**. [logs/ffg-port.md](logs/ffg-port.md) §2g carries the measured cost
+and the layering finding.
 
 ## Where things live
 

@@ -39,7 +39,8 @@ FLT is pinned at `aa2d8b3`; mathlib at `v4.34.0`.
 | topic 2 | the conditional capstone (`Spine.lean`) | **done**, 1 module, 29 decls, 494 lines | consumer Zone B bound; `Inputs` is the remaining debt |
 | topic 3 | the cone's outbound interface | **done**, 9 public lemmas added to 2 existing modules; `Inputs` 10 → 8 | consumer unchanged (0 errors, 1 `sorry`) |
 | topic 4 | the generic kernel (`FLTForHuman/FieldTheory/CommonRoot.lean`) and the `relfinrank` peel | **done**, 1 new module, 3 public lemmas + 3 instantiations; `Inputs` 8 → 7 | consumer unchanged (0 errors, 1 `sorry`); checker 150 |
-| theorem | PORTING-FFG §7's 24-node remainder behind the Φ_p input | **deferred**, not scheduled; now a structure of 7 fields | — |
+| T14 | the shared slot prelude, written once | **done**, 2 new modules + 3 extended; 32 declarations, 503 port lines | consumer **Zone L** (0 errors); checker 276 |
+| theorem | PORTING-FFG §7's 24-node remainder behind the Φ_p input | **in progress**: Φ_p cone (T5–T13) and T14 done; T15–T20 remain; `Inputs` is a structure of 7 fields | — |
 
 The tree was restructured twice, neither time touching the mathematics.
 
@@ -364,6 +365,98 @@ and 2-cycles the other two, which is the only shape `n = 2` can take over `ℂ` 
 and mathlib has no explicit real cube roots, so that instantiation is not
 available cheaply. The identity satisfies `hσ` and `hcycle` (with `n = 1`) and the
 example does conclude `Irreducible (X² + 1)`.
+
+## 2g. T14: the shared slot prelude — what it cost
+
+T14 is the parent effort's first topic after the Φ_p cone. Its job was to write
+the pin's ~370-line shared prelude **once** — the block
+`P2M/Sol/S_ModularCurve_jqN_prime_not_mem_full.lean` (and its
+`_pow_not_mem_adjoin_full` sibling) repeat in up to thirteen of the seventeen
+remaining files — so T15–T19 import it instead of each re-copying it.
+
+| | |
+|---|---|
+| goal rounds | **1** (of the 2 budgeted) |
+| declarations | **32**: 6 promotions + 21 fresh upstream + 5 downstream |
+| new modules | `Defs/PhiAtSlot.lean` (237 lines), `ModularCurve/PhiSlotRoots.lean` (153) |
+| extensions | `Defs/TS.lean` +51, `Defs/Twist.lean` +56, `Defs/Jq.lean` +6; `Spine.lean`/`PhiGenSplits.lean` lose their six `private` twins and their imports are re-pointed |
+| **port lines** | **503** against the pin's ~306, ratio **≈1.64** (the row's `~250` was pre-scouting; two new modules carry headers + docstrings) |
+| build | full `lake build` green, 0 warnings, no `sorry`; **3865 jobs** |
+| axioms | `#print axioms` on all **32** public T14 declarations: only `propext, Classical.choice, Quot.sound` |
+| checker | **276** identical (244 → +32; **12** promoted, +1), 0 mismatched, 0 missing, 8 own-proof exemptions (284 checked) |
+| wire | consumer **Zone L**, 0 errors; chosen wire `roots_phiProd_conj_nodup` at `p = 2`, `K = ℂ`, `ζ = -1` |
+
+**One home per declaration held.** The six promotions are public in
+`Defs/TS.lean` (`iota_jqN`, `qExpand_qTwist_TS`), `Defs/Jq.lean` (`jqN_congr`),
+`Defs/PhiAtSlot.lean` (`iota_jq`, `conj_zero_eq`, `conj_succ_eq`), and `Spine.lean`
+and `PhiGenSplits.lean` import them (adding `Defs/PhiAtSlot` to the latter) with no
+private copy left. The remaining 26 fresh declarations have one home each.
+
+**The prelude was already public in the pin — the work order's premise was
+wrong.** §2.1 of the work order says every T14 declaration is `private` in the
+pin and that the checker must therefore reach them through the `S_`-carrier
+dotted route. In fact `P2M/Sol/S_ModularCurve_functionFieldGeneration.lean` —
+already a checker `SOURCES` entry from the FFG spine — carries almost the whole
+block **publicly**: the `TS` lemmas, `iota_jqN`/`iota_jq`/`conj_zero_eq`/
+`conj_succ_eq`, `qTwist_iota_of_pow_eq_one`, `qTwistEquiv`, `coeff_qTwistEquiv`,
+`qTwist_TS_one_cycle`, `phiProd_conj_eq`, `roots_phiProd_conj(_nodup)`, the
+cyclotomic roots, `qExpand_qTwist_TS`, `roots_prime_at_slot*` and
+`isRoot_prime_at_slot_iff`. So 30 of the 32 verified immediately by a direct
+first-source last-name match; only `prod_form_ne_zero` (private in both carriers)
+took the dotted fallback. The two new `S_` sources were still needed for the five
+declarations absent from the spine file (`aeval_intermediateField_eq_zero`,
+`phiAtSeed_eval_of_injective`, `phiAtSeed_eval_symm`,
+`phiAtSeed_jqN_eval_down`, `qExpand_qTwist_notMem_range_qExpand`; all public in
+`…_pow_not_mem_adjoin_full`), and they are appended **after** the
+`Theorems/`/`Defs` sources so no existing match flips.
+
+**The layering constraint bit earlier than §4 predicted.** The work order's §4
+split puts `iota_jqN` in `Defs/Jq.lean` and the seven twist items in
+`Defs/Twist.lean`. But `Defs/TS.lean` already imports `Defs/Twist.lean`, and
+`iota_jqN`/`qTwist_TS_one_cycle`/`qExpand_qTwist_TS`/
+`qExpand_qTwist_notMem_range_qExpand` all mention `TS`; putting them in
+`Twist`/`Jq` would create an import cycle. They live beside `TS` in
+`Defs/TS.lean` instead, and the four `TS`-free twist items
+(`qTwist_iota_of_pow_eq_one`, `qTwistEquiv`, `qTwistEquiv_apply`,
+`coe_qTwistEquiv`) are in `Defs/Twist.lean` as planned. The rest of the split
+held: `Defs/PhiAtSlot.lean` upstream of the cone, `PhiSlotRoots.lean` the one downstream
+module, so nothing in `Defs/` imports a cone module.
+
+**Routes: two positive, one negative, one unchanged.**
+
+- **`RingEquiv.ofBijective` closed** (the audit's positive ingredient). The
+  bijectivity proof is the pin's left/right-inverse pair, and
+  `coe_qTwistEquiv`'s coercion still closes by `RingHom.ext fun _ => rfl`
+  because `RingEquiv.coe_ofBijective` is `rfl`; `qTwistEquiv_apply` is `rfl`
+  via `ofBijective_apply`. The pin's 11-line `where` was the fallback and was
+  not needed.
+- **`IntermediateField.aeval_coe` did *not* collapse
+  `aeval_intermediateField_eq_zero`.** The lemma's first argument `S` is
+  explicit in this mathlib version and its right side is the coercion
+  `↑(aeval x P)`, so the pin's 8-line subtype-injection argument is kept
+  verbatim; the collapse attempts either fail to rewrite or need an extra
+  `simpa` that the subtype coercion blocks.
+- **`phiAtSeed_eval_symm` closed verbatim.** The `hhom` coercion
+  `Polynomial.eval₂RingHom (Int.castRingHom _) z = (Polynomial.aeval z).toRingHom`
+  through `ringHom_ext'` + `simp [Polynomial.coe_eval₂RingHom]` worked on the
+  first build, so the named monomorphic bridge the work order held in reserve was
+  **not** needed — the one coercion-family risk that did not bite.
+- **`qTwistEquiv_apply` needed a one-line checker fix.** The pin writes it
+  `@[scoped simp] theorem qTwistEquiv_apply ...` on one line, and the checker's
+  `DECL_RE` anchors at a line start, so neither the pin nor the port copy was
+  read. The port keeps the pin's spelling (the work order forbids promoting the
+  attribute), and `DECL_RE` gained an optional leading-attribute group
+  (`(?P<attrs>(?:@\[[^\]\n]*\]\s*)*)`) so the declaration is visible on both
+  sides. Re-running confirmed the change flips nothing: the count went 275 → 276,
+  still 0 mismatched and 0 missing, and no other port declaration was hidden by
+  an inline attribute.
+
+**Two friction notes.** The `RingEquiv.ofBijective` route needed a separate
+section for `qTwist_iota_of_pow_eq_one` (the only member that uses
+`[Algebra ℚ K]`), or the unused-section-variable linter fires on
+`coe_qTwistEquiv`; and the pin's `convert h using 2 <;> try rfl` trips
+`linter.unnecessarySeqFocus`, so the port writes `convert h using 2; try rfl`
+(friction entry 2's family, the statement unchanged).
 
 ## 3. What was verified
 

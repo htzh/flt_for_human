@@ -63,17 +63,9 @@ namespace ModularCurve
 
 `coeffMap_qExpand` and `coeffEmb_qExpand` are part of the cone's outbound
 interface and now live beside `coeffMap`/`coeffEmb` in `Defs/Laurent.lean`; this
-module imports them rather than redeclaring them. -/
-
-section FieldTransport
-
-variable {K : Type*} [Field K] [Algebra ℚ K]
-
-private theorem iota_jqN (N d : ℕ) [NeZero N] [NeZero d] :
-    coeffEmb K (qExpand ℚ N (jqN d)) = TS K (N * d) 1 := by
-  rw [jqN, coeffEmb_qExpand, coeffEmb_qExpand, qExpand_qExpand, TS, qTwist_one_apply]
-
-end FieldTransport
+module imports them rather than redeclaring them. T14 promoted `iota_jqN` to
+`Defs/TS.lean` beside `TS`, and `Defs/TS` is imported below, so the private twin
+that used to sit here is gone. -/
 
 /-! ## Cyclotomic roots
 
@@ -82,10 +74,10 @@ end FieldTransport
 from this module's private copies (the pin repeats them in the two
 `splits_*` files as well); they are imported rather than declared here. -/
 
-/-! ## Congruence plumbing and `ψ` arithmetic -/
+/-! ## Congruence plumbing and `ψ` arithmetic
 
-private theorem jqN_congr {n m : ℕ} [NeZero n] [NeZero m] (h : n = m) : jqN n = jqN m := by
-  subst h; rfl
+`jqN_congr` was promoted by T14 to `Defs/Jq.lean` beside `jqN`; `Defs/TS`
+imports `Defs/Jq`, so it is in scope here and the private twin is gone. -/
 
 private theorem full_congr {n m : ℕ} [NeZero n] [NeZero m] (h : n = m) :
     modularFunctionFieldFull n = modularFunctionFieldFull m := by
