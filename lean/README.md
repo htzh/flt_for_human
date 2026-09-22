@@ -263,6 +263,13 @@ triangularity `coeff_aeval_jq_neg` (to `Defs/Jq.lean`) and `poleOrderLE_aeval_jq
 [logs/phiGen-port.md](logs/phiGen-port.md) §9 carries the measured cost and the
 route decision.
 
+The next cone-algebra topic is written and audited:
+[TOPIC-pole-bounds.md](topics/phiGenSplitting/TOPIC-pole-bounds.md) is the pole
+bounds — the other half of (b) — and it exports the ~180-line `TPoleOrderLE`
+prelude that FLT copies into six files, so the 328 block (T11) imports it. Unlike
+T9 it has **no planned deviation**: FLT's script is pure coefficient algebra and
+known to compile.
+
 ## Where things live
 
 The documentation has four roles, and they are kept apart on purpose:

@@ -1,18 +1,18 @@
 # Blueprint: the Φₚ splitting cone — `PhiGen.splits_prime_at_slot`
 
-**Status: analysis done; T5–T8 landed — R1 complete and the cone's (c)
-discharged (2026-09-22).** This file is the math-content inventory of the 44-node
-cone below
-`ModularCurve.PhiGen.splits_prime_at_slot`, the measurement that the headline
-line count overstates it by ~1.6×, and the plan for the next topic: isolating
-the cone's one genuinely analytic input, the **level-one q-expansion principle**.
-That input's mathematics is now written up in
+**Status: T5–T9 landed — R1 is complete, the cone's (c) is discharged, and (b)
+has its integrality half (2026-09-22).** This file is the math-content inventory
+of the 44-node cone below `ModularCurve.PhiGen.splits_prime_at_slot`, the
+measurement that the headline line count overstates it by ~1.6×, and the plan for
+the remaining cone algebra. The analytic input's mathematics is written up in
 [base/013](../base/013-riemann-existence-and-the-q-expansion-principle.md) (the
 R1/R2 separation and the exact declaration chain); this file is the port-side
-companion — sizes, work orders, re-route options — and §5 records T5's measured
-outcome. The topic is sketched here as work orders because it is already more
-than one; if it grows, it splits out into
-`topics/phiGenSplitting/TOPIC-*.md` and this file keeps only the decision.
+companion — sizes, work orders, re-route options — and §5 records the sequence
+with each topic's measured outcome. **T10, the pole bounds, is the next topic**
+([TOPIC-pole-bounds.md](topics/phiGenSplitting/TOPIC-pole-bounds.md)). What began
+as a plan for one analytic input is now a five-topic executed chain plus a
+decomposed remainder; each step that grew split out into
+`topics/phiGenSplitting/TOPIC-*.md`, and this file keeps the decisions.
 
 Companion records:
 
@@ -291,7 +291,7 @@ the single mathlib theorem `ModularForm.eq_const_of_weight_zero`; the rest is
 bookkeeping turning `HasSum` on $`\mathbb{H}`$ into a power series on the disc
 and back.
 
-## 5. The topic sequence: R1 in four work orders
+## 5. The topic sequence: R1, then the cone
 
 **Decided (2026-09-21).** R1 is not one work order. Sized from the pin's own file
 lengths and the parent effort's calibration (its topics came in at 207–494 port
@@ -418,21 +418,35 @@ consumer gained Zone G (with the named `P = X` instance
 `aeval_jq_intCoeffs_descent_X`); the measured cost and the route decision are in
 [logs/phiGen-port.md](logs/phiGen-port.md) §9.
 
-**What remains of the cone.** §6 below is the re-route menu; the four other
-algebraic pieces — and the one interface node (`hasSum_qParam_mul_laurent`) that
-the cone's later pieces reach (`indeg` 24 in FLT's graph) — are the next effort.
+**What remains of the cone, decomposed.** R1 (T5–T7) and the cone's (c) (T8) are
+done; the integrality half of (b) landed as T9. The remainder is split by
+mathematical object, and each topic gets its own work order:
 
-**The next topic is T10, the pole bounds** — the second half of (b). Its work
-order is not yet written; the source is
-`P2M/Sol/S_ModularCurve_PhiGen_phiProd_conj_coeff_eq_zero_of_le.lean` (391, the
-`phiProd_conj_coeff_*` pair, deduplicated ×2) plus the `TPoleOrderLE` closure
-block that T9 left in place (~180 lines, the pin's `aeval_jq_intCoeffs_descent`
-file and two others). Its shared entry points exist: `poleOrderLE_aeval_jq` is
-public in `Defs/PhiGen.lean`, and `TPoleOrderLE`/`JSimplePole` are the port's
-`Defs/PhiGen`. T9's route decision is recorded in the log §9; the deviation
-protocol at the head of
-[topics/phiGenSplitting/TOPIC-integrality.md](topics/phiGenSplitting/TOPIC-integrality.md)
-is what governed it.
+| topic | piece | deliverable | dedup pin | work order |
+|---|---|---|---|---|
+| **T9 (done)** | (b) integrality | `intCoeffs`, `aeval_jq_intCoeffs_descent` | ~347 | [TOPIC-integrality.md](topics/phiGenSplitting/TOPIC-integrality.md) |
+| **T10 (next)** | (b) pole bounds | `phiProd_conj_coeff_{eq_zero_of_le,zero_lead}` + the shared `TPoleOrderLE` block | 391 + ~180 (dup ×6) | [TOPIC-pole-bounds.md](topics/phiGenSplitting/TOPIC-pole-bounds.md) |
+| T11 | (d) the 328 block + assembly/uniqueness | `c_top`/`c_eq_zero`/`poleOrderLE`/`sum_mul_jqN_pow_eq_zero`/`evalAtJ_injective`, `exists_modularPolynomialData_coeff_eq`, `eq_of_prime` | 328 (dup ×5) + 502 | — |
+| T12 | (e) irreducibility/symmetry | the 895-line block + `one_le_coeff_jq` | 1,281 | — |
+| T13 | (a) descent + (f) the statement | `exists_phiGenDescends`, `splits_of_prime` | 315 + 394 (+288 seed) | — |
+
+The pin-line column is the deduplicated count from the estimate below; **it is not
+effort** — T8 measured 741 pin lines in one round at ratio 0.98 and T9 347 at
+0.93 — so budgets are set by route risk and shape variety, not lines. §6 below is
+the re-route menu for the pieces not yet scheduled.
+
+**T10's work order is written and audited:**
+[topics/phiGenSplitting/TOPIC-pole-bounds.md](topics/phiGenSplitting/TOPIC-pole-bounds.md).
+It ports FLT's `TPoleOrderLE` script (**no planned deviation** — T9's Route A
+bought no line saving), exports the ~180-line prelude that the pin copies into
+**six** files (the `phiProd_conj` pair and all five 328-block copies) so T11
+imports it, and delivers the two pole-bound statements. Its audit is negative in
+the T7 sense: mathlib supplies the coefficient/order primitives and no statement
+replacement, with one near-miss recorded — `pow_sum_range_isPrimitiveRoot` is the
+*product* of powers of a primitive root, where mathlib's
+`IsPrimitiveRoot.geom_sum_eq_zero` is the *sum*, the same
+hypothesis-versus-conclusion trap T9 hit with `IsPrimitiveRoot.isIntegral`
+(log §9.1). Budget 2 rounds.
 
 **Cost honesty.** The cone's own `jq`-coefficients precedent is the warning:
 math/010 priced the `744`/`196884` coefficients against the same 11,034-line
