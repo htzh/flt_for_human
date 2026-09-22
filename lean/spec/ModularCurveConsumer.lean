@@ -68,6 +68,14 @@ import FLTForHuman.ModularForms.PhiGenDescends
 -- T9: the cone's (b) integrality, `PhiGenDescends.intCoeffs` and
 -- `aeval_jq_intCoeffs_descent`, in the `ModularCurve` algebraic layer.
 import FLTForHuman.ModularCurve.PhiGenIntegrality
+-- T10: the cone's (b) pole bounds, `phiProd_conj_coeff_{zero_lead,eq_zero_of_le}`,
+-- plus the shared `TPoleOrderLE` prelude now public in `Defs/PhiGen.lean`.
+import FLTForHuman.ModularCurve.PhiGenPoleBounds
+-- T11: the construction — (a)'s descent, the 328 block, and (d)'s assembly.
+import FLTForHuman.ModularCurve.PhiGenDescent
+import FLTForHuman.ModularCurve.ModularPolynomialAssembly
+-- The cyclotomic instances for the end-to-end wire test of Zone I.
+import Mathlib.NumberTheory.Cyclotomic.Basic
 
 set_option autoImplicit false
 
@@ -337,6 +345,127 @@ example (P : Polynomial ℚ) (hP : ModularCurve.PhiGen.IntCoeffs (Polynomial.aev
     (k : ℕ) : ∃ z : ℤ, P.coeff k = (z : ℚ) :=
   ModularCurve.PhiGen.aeval_jq_intCoeffs_descent P hP k
 
+/-! ## Zone H — [T10] the cone's (b) pole bounds: the product's coefficients
+
+`FLTForHuman/ModularCurve/PhiGenPoleBounds.lean` proves the second half of (b).
+`phiProd_conj_coeff_zero_lead` computes the leading coefficient of the constant
+term of `phiProd ℓ (conj ℓ ζ)`: the pole is exactly `q ^ (-(ℓ * ℓ + ℓ))` with
+residue `1`. `phiProd_conj_coeff_eq_zero_of_le` bounds every non-constant
+coefficient to the same order. Their shared `TPoleOrderLE` prelude (the closure
+`mono`/`zero`/`one`/`neg`/`add`/`mul`/`qTwist`/`qExpand`, the conjugate bounds and
+the polynomial-coefficient bounds) is public in `Defs/PhiGen.lean`; FLT copies it
+into six files and T11 imports it from there.
+
+**The wire test is concrete, unlike T9's.** Both statements take only
+`hζ : IsPrimitiveRoot (ζ : K) ℓ` over an arbitrary field, so they instantiate:
+`K = ℂ`, `ℓ = 2`, `ζ = -1` (`IsPrimitiveRoot.neg_one`), carried out and named
+inside the module (`wire_zero_lead`, `wire_eq_zero_of_le`). Zone H binds both
+exported statements and their hypothesis forms.
+-/
+
+#check @ModularCurve.PhiGen.phiProd_conj_coeff_zero_lead
+#check @ModularCurve.PhiGen.phiProd_conj_coeff_eq_zero_of_le
+
+-- The statement in hypothesis form for the leading coefficient.
+example {K : Type*} [Field K] [Algebra ℚ K] (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)]
+    (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) ℓ) :
+    ((ModularCurve.PhiGen.phiProd ℓ (ModularCurve.PhiGen.conj ℓ ζ)).coeff 0).coeff
+      (-((ℓ * ℓ + ℓ : ℕ) : ℤ)) = 1 :=
+  ModularCurve.PhiGen.phiProd_conj_coeff_zero_lead ℓ ζ hζ
+
+-- The statement in hypothesis form for the non-constant bound.
+example {K : Type*} [Field K] [Algebra ℚ K] (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)]
+    (ζ : Kˣ) (k : ℕ) (hk : k ≠ 0) (m : ℕ) (hm : ℓ * ℓ + ℓ ≤ m) :
+    ((ModularCurve.PhiGen.phiProd ℓ (ModularCurve.PhiGen.conj ℓ ζ)).coeff k).coeff
+      (-(m : ℤ)) = 0 :=
+  ModularCurve.PhiGen.phiProd_conj_coeff_eq_zero_of_le ℓ ζ k hk m hm
+
+/-! ## Zone I — [T11] the construction: descent, the 328 block, the datum
+
+`FLTForHuman/ModularCurve/PhiGenDescent.lean` proves (a),
+`PhiGen.exists_phiGenDescends`: the coefficients of the conjugate product descend
+to `ℚ((q))`. `FLTForHuman/ModularCurve/PhiGenDescendsStructure.lean` proves the
+328 block's shape exports (`c_top`, `c_eq_zero`, `poleOrderLE`,
+`sum_mul_jqN_pow_eq_zero`, `evalAtJ_injective`), the last by the mathlib route
+through the public `transcendental_jq`. `FLTForHuman/ModularCurve/ModularPolynomialAssembly.lean`
+proves (d): `exists_modularPolynomialData_coeff_eq` assembles the datum and
+`splits_of_coeff_evalAtJ_eq` turns it back into the product. Together with T9's
+integrality and T8's membership they compose into the cone's construction.
+
+**The wire test is end-to-end.** Unlike Zones F/G, (a) is now ported, so the whole
+chain can be run on a concrete field: `K = CyclotomicField ℓ ℚ` with mathlib's
+primitive root (the instances are set up as the pin's
+`exists_phiIrreducible_evalSymm` does). The example below produces a descended
+family `c`, verifies its integrality (T9), membership in `ℚ[jq]` (T8) and pole
+bound (T11), and assembles `data` with `evalAtJ (data.Φ.coeff k) = c k` — (a) +
+(b) + (c) + (d) in one instance. `evalAtJ_injective` is unconditional and also
+bound.
+-/
+
+#check @ModularCurve.PhiGen.exists_phiGenDescends
+#check @ModularCurve.PhiGen.PhiGenDescends.c_top
+#check @ModularCurve.PhiGen.PhiGenDescends.c_eq_zero
+#check @ModularCurve.PhiGen.PhiGenDescends.poleOrderLE
+#check @ModularCurve.PhiGen.PhiGenDescends.sum_mul_jqN_pow_eq_zero
+#check @ModularCurve.PhiGen.evalAtJ_injective
+#check @ModularCurve.PhiGen.exists_modularPolynomialData_coeff_eq
+#check @ModularCurve.PhiGen.splits_of_coeff_evalAtJ_eq
+
+-- The 328 block in hypothesis form.
+example {K : Type*} [Field K] [Algebra ℚ K] {ℓ : ℕ} [hℓ : Fact (Nat.Prime ℓ)]
+    {ζ : Kˣ} {c : ℕ → LaurentSeries ℚ} (hc : ModularCurve.PhiGen.PhiGenDescends ℓ ζ c) :
+    c (ℓ + 1) = 1 :=
+  ModularCurve.PhiGen.PhiGenDescends.c_top hc
+
+example {K : Type*} [Field K] [Algebra ℚ K] {ℓ : ℕ} [hℓ : Fact (Nat.Prime ℓ)]
+    {ζ : Kˣ} {c : ℕ → LaurentSeries ℚ} (hc : ModularCurve.PhiGen.PhiGenDescends ℓ ζ c)
+    (k : ℕ) : PoleOrderLE (c k) (ℓ + 1) :=
+  ModularCurve.PhiGen.PhiGenDescends.poleOrderLE hc k
+
+example : Function.Injective evalAtJ :=
+  ModularCurve.PhiGen.evalAtJ_injective
+
+-- The assembly in hypothesis form.
+example {K : Type*} [Field K] [Algebra ℚ K] {ℓ : ℕ} [hℓ : Fact (Nat.Prime ℓ)]
+    {ζ : Kˣ} {c : ℕ → LaurentSeries ℚ} (hc : ModularCurve.PhiGen.PhiGenDescends ℓ ζ c)
+    (hint : ∀ k, ModularCurve.PhiGen.IntCoeffs (c k))
+    (hmem : ∀ k, c k ∈ Algebra.adjoin ℚ {jq}) :
+    ∃ data : ModularCurve.ModularPolynomialData ℓ,
+      ∀ k, evalAtJ (data.Φ.coeff k) = c k :=
+  ModularCurve.PhiGen.exists_modularPolynomialData_coeff_eq hc hint hmem
+
+-- The end-to-end wire test: (a) + (b) + (c) + (d) on `K = CyclotomicField ℓ ℚ`.
+set_option linter.style.haveILetI false in
+example (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] :
+    ∃ c : ℕ → LaurentSeries ℚ, ∃ data : ModularCurve.ModularPolynomialData ℓ,
+      (∀ k, evalAtJ (data.Φ.coeff k) = c k) ∧
+      (∀ k, ModularCurve.PhiGen.IntCoeffs (c k)) ∧
+      (∀ k, c k ∈ Algebra.adjoin ℚ {jq}) ∧
+      (∀ k, PoleOrderLE (c k) (ℓ + 1)) := by
+  haveI : NeZero ((ℓ : ℕ) : ℚ) := ⟨Nat.cast_ne_zero.mpr hℓ.out.ne_zero⟩
+  haveI : IsCyclotomicExtension {ℓ} ℚ (CyclotomicField ℓ ℚ) :=
+    CyclotomicField.isCyclotomicExtension (n := ℓ) (K := ℚ)
+  haveI : FiniteDimensional ℚ (CyclotomicField ℓ ℚ) :=
+    IsCyclotomicExtension.finiteDimensional {ℓ} ℚ (CyclotomicField ℓ ℚ)
+  haveI : IsGalois ℚ (CyclotomicField ℓ ℚ) :=
+    IsCyclotomicExtension.isGalois (S := {ℓ}) (K := ℚ) (L := CyclotomicField ℓ ℚ)
+  obtain ⟨z, hz⟩ := IsCyclotomicExtension.exists_isPrimitiveRoot ℚ (CyclotomicField ℓ ℚ)
+    (Set.mem_singleton ℓ) hℓ.out.ne_zero
+  have hzu : IsUnit z := hz.isUnit hℓ.out.ne_zero
+  have hζ : IsPrimitiveRoot ((hzu.unit : (CyclotomicField ℓ ℚ)ˣ) : CyclotomicField ℓ ℚ) ℓ := by
+    rw [hzu.unit_spec]
+    exact hz
+  have hζ1 : hzu.unit ^ ℓ = 1 := by
+    refine Units.ext ?_
+    rw [Units.val_pow_eq_pow_val, hζ.pow_eq_one, Units.val_one]
+  obtain ⟨c, hc⟩ := ModularCurve.PhiGen.exists_phiGenDescends ℓ hzu.unit hζ
+  have hint : ∀ k, ModularCurve.PhiGen.IntCoeffs (c k) := fun k => hc.intCoeffs hζ1 k
+  have hmem : ∀ k, c k ∈ Algebra.adjoin ℚ {jq} :=
+    fun k => ModularCurve.PhiGen.mem_adjoin_jq_of_phiGenDescends ℓ hzu.unit hζ c hc k
+  obtain ⟨data, hcoeff⟩ :=
+    ModularCurve.PhiGen.exists_modularPolynomialData_coeff_eq hc hint hmem
+  exact ⟨c, data, hcoeff, hint, hmem, fun k => hc.poleOrderLE k⟩
+
 /-! ## The measure
 
     cd lean
@@ -437,6 +566,26 @@ closure, replacing FLT's `CoeffsIntegral` closure machinery).
 (not ported), so — as in Zone F — no concrete instance is invented;
 `aeval_jq_intCoeffs_descent`'s concrete `P = X` instance is the module's private
 `aeval_jq_intCoeffs_descent_X`, and Zone G binds its hypothesis form. Still
+**0 errors**, one `sorry`.
+
+**Pole-bounds result (2026-09-22).** Zone H is added and bound:
+`FLTForHuman/ModularCurve/PhiGenPoleBounds.lean` proves the second half of the
+cone's (b) — the leading coefficient of `phiProd`'s constant term and the sharp
+pole bound for the other coefficients — and promotes the shared ~180-line
+`TPoleOrderLE` prelude into `Defs/PhiGen.lean`, which T11 imports. The wire test
+is concrete here (`ℂ`, `ℓ = 2`, `ζ = -1`) and named inside the module. Still
+**0 errors**, one `sorry`.
+
+**Construction result (2026-09-22).** Zone I is added and bound: T11's three
+modules build the cone's object end-to-end. `PhiGenDescent.lean` proves (a)
+`exists_phiGenDescends`; `PhiGenDescendsStructure.lean` the 328 block's five shape
+exports (`evalAtJ_injective` by the mathlib `transcendental_jq` route, so T12
+imports it rather than carrying the pin's private copy);
+`ModularPolynomialAssembly.lean` (d) `exists_modularPolynomialData_coeff_eq` and
+`splits_of_coeff_evalAtJ_eq`. The Zone I wire test is **end-to-end** —
+`K = CyclotomicField ℓ ℚ` produces a descended family, verifies its T9
+integrality, T8 membership and T10/T11 pole bound, and assembles the datum — the
+first zone that exercises the whole (a)→(b)→(c)→(d) chain concretely. Still
 **0 errors**, one `sorry`.
 
 ## Friction list (mathlib `v4.34.0` against FLT's `v4.33.0`)
@@ -579,6 +728,36 @@ every entry.
     disabled locally for that declaration rather than silently weakening the
     proof. `if_pos`/`if_neg` → `ite_eq_left`/`ite_eq_right` again (entry 2's
     family), four times.
+17. **Topic 10 — the shared-block promotion, and `ite_eq_*` again.**
+    (a) FLT keeps the `TPoleOrderLE` closure `private` (or exposes it only through
+    the `p2m_export` alias) in all six files that repeat it, so the text checker
+    has no *public* statement to diff for eleven of the promoted declarations;
+    the port promotes them anyway (T11 has to name them from `Defs/`), and the
+    checker gained a dotted-name fallback that reads the pin's `private`
+    declarations (entry below). This is the first promotion the checker can
+    verify only through a `private` source.
+    (b) `if_pos`/`if_neg` → `ite_eq_left`/`ite_eq_right` six times in the ported
+    block (entry 2's family), all flagged by the deprecation linter.
+    (c) The wire test's `Fact (Nat.Prime 2)` has no global instance in mathlib
+    (only `Quaternion.lean` supplies one locally), so the instance is passed
+    explicitly as `(hℓ := ⟨Nat.prime_two⟩)` rather than with `haveI`, which the
+    style linter would flag.
+18. **Topic 11 — the mathlib route for `evalAtJ_injective`, and the cyclotomic
+    instances.**
+    (a) The work order's `transcendental_jq` route closed on the first attempt:
+    `transcendental_iff_injective.mp transcendental_jq` composed with
+    `Polynomial.map_injective _ Int.cast_injective` through the six-line
+    `evalAtJ_eq_aeval_map` bridge. The pin's private 19-line `aeval_jq_eq_zero` is
+    not ported here; the port's public `aeval_jq_eq_zero` (from `Defs/Jq.lean`,
+    and the `Thm_ModularCurve_aeval_jq_eq_zero` interface) stays as it is.
+    (b) `IsGalois`/`FiniteDimensional` for `CyclotomicField ℓ ℚ` are theorems, not
+    instances, so the Zone I wire test and the pin's `exists_phiIrreducible_evalSymm`
+    both install them with `haveI` (`IsCyclotomicExtension.isGalois`/
+    `.finiteDimensional`); the style linter flags those `haveI`s, and the example
+    disables `linter.style.haveILetI` locally rather than weakening the proof.
+    (c) `PoleOrderLE` and `evalAtJ` live at the `ModularCurve` level, not
+    `ModularCurve.PhiGen`; the `PhiGenDescends.*` methods and `evalAtJ_injective`
+    do live under `PhiGen`.
 
 The `sorry`s are not errors and do not count: their job is to keep the
 *statements* checkable while the proofs are out of scope.

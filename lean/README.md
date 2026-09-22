@@ -96,7 +96,7 @@ alongside `.lake/` in case it does.
 | `FLTForHuman/ModularCurve/FunctionFieldGeneration/Target.lean` | the target statement | `FunctionFieldGeneration` and its `M = 1` case. FLT `Def_ModularCurve_X0` 233–242 |
 | `FLTForHuman/ModularCurve/Defs/Polynomial.lean` | the polynomial datum | `ModularPolynomialData`, `modularPolynomialDataOne`. FLT `Def_ModularCurve_X0` 215–232 |
 | `FLTForHuman/ModularCurve/Defs/Fields.lean` | the two function fields | `modularFunctionField`, `modularFunctionFieldFull`, `toAdjoin`, the degeneracy lemmas. FLT `Def_ModularCurve_X0` 246–348 |
-| `FLTForHuman/ModularCurve/Defs/PhiGen.lean` | the slot vocabulary | `cosetSubst`, `conj`, `phiProd`, `EvalSymm`, `PhiGenDescends`, `PoleOrderLE`/`TPoleOrderLE` + the promoted triangularity `poleOrderLE_aeval_jq`, … — the vocabulary math/010 §3's splitting input must mention. FLT `Def_ModularCurve_PhiGen` 111–309 |
+| `FLTForHuman/ModularCurve/Defs/PhiGen.lean` | the slot vocabulary | `cosetSubst`, `conj`, `phiProd`, `EvalSymm`, `PhiGenDescends`, `PoleOrderLE`/`TPoleOrderLE` + the promoted triangularity `poleOrderLE_aeval_jq`, **and the shared `TPoleOrderLE` prelude T10 promoted** (the closure `mono`/`zero`/`one`/`neg`/`add`/`mul`/`qTwist`/`qExpand`, `jSimplePole_jqK`/`tPoleOrderLE_coeffEmb_iff`/`tPoleOrderLE_of_qExpand`, the conjugate bounds `conjPoleBound`/`tPoleOrderLE_conj*` and the coefficient bounds `tPoleOrderLE_coeff_X_sub_C`/`_mul`/`_prod`/`tPoleOrderLE_phiProd_coeff`) — FLT repeats that block across six developments (physically twelve `S_` files), so it is written once here and **T11 imports it**. FLT `Def_ModularCurve_PhiGen` 111–309 + the `S_` copies |
 | `FLTForHuman/ModularCurve/Defs/TS.lean` | `j(u q ^ e)` | `TS` and its nine coefficient/substitution lemmas. FLT `P2M/Sol/S_ModularCurve_functionFieldGeneration` 39–101 (a *solution* file) |
 | `FLTForHuman/ModularCurve/FunctionFieldGeneration/Collapse.lean` | the §2 collapse | `functionFieldGeneration_iff_full_eq`, Layer 0's only theorem. FLT `Thm_…_iff_full_eq` line 6 / `S_…_iff_full_eq` 11–21 |
 | `FLTForHuman/ModularCurve/JqCoefficients.lean` | the low coefficients of `jq` | `coeff_jq_zero` (`744`), `coeff_jq_one` (`196884`). A *result*, not a definition: statement from base/004, proof by mathlib's pentagonal route (`tprod_one_sub_X_pow`) rather than FLT's cluster |
@@ -108,6 +108,10 @@ alongside `.lake/` in case it does.
 | `FLTForHuman/ModularForms/HeckeQExpansion.lean` | the Hecke translates of a `q`-expansion | `hasSum_qParam_heckeMatrix_smul` (`τ ↦ (τ+b)/ℓ` twists the coefficients and changes the period `1 ↦ ℓ`) and `hasSum_qParam_heckeDiagMatrix_smul` (`τ ↦ ℓτ`, coefficients `qExpand ℂ (ℓ*ℓ)`). base/013 §5.2's analytic face of the Hecke action. FLT `S_ModularCurve_hasSum_qParam_hecke{Matrix,DiagMatrix}_smul` (~109 lines) |
 | `FLTForHuman/ModularForms/PhiGenDescends.lean` | the cone's (c) | `PhiGen.mem_adjoin_jq_of_phiGenDescends` (verbatim): a descended coefficient of the conjugate product lies in `ℚ[jq]`. It proves `cosetPoly_smul` (the coset polynomial's `SL₂(ℤ)`-invariance through the action on `ℙ¹(𝔽_ℓ)`) and privately realizes `c k` via the Hecke translates (the `σ : ℚ(ζ_ℓ) → ℂ` embedding), then applies T7's headline. The pin duplicates T7's `RealL`/glue here; the port imports instead (~97 lines saved). FLT `S_ModularCurve_cosetPoly_smul` + `…_hasSum_cosetPoly_coeff` + `…_mem_adjoin_jq_of_phiGenDescends` (~572 lines) |
 | `FLTForHuman/ModularCurve/PhiGenIntegrality.lean` | the cone's (b) integrality | `PhiGen.PhiGenDescends.intCoeffs` (the descended family has integer `q`-expansion coefficients) and `PhiGen.aeval_jq_intCoeffs_descent` (`IntCoeffs (P(jq))` forces `P ∈ ℤ[X]`), both verbatim from their pin wrappers. The module is the first **deliberate route deviation**: Route A lifts `jq` and the conjugates to `LaurentSeries (integralClosure ℤ K)` and pushes `coeffMap` through `qExpand`/`qTwist`/`phiProd`, replacing FLT's `CoeffsIntegral` closure block (~83 pin lines, plus 24 of manual root-of-unity lemmas) with ring structure; the two root-of-unity lemmas become one `mem_integralClosure_of_pow_eq_one`. It also **promotes** the shared triangularity `coeff_aeval_jq_neg` (to `Defs/Jq.lean`) and `poleOrderLE_aeval_jq` (to `Defs/PhiGen.lean`), which FLT repeats privately in nine files. FLT `S_ModularCurve_PhiGen_PhiGenDescends_intCoeffs` + the descent half of `S_ModularCurve_PhiGen_aeval_jq_intCoeffs_descent` (~347 lines, of which ~180 is an out-of-scope `TPoleOrderLE` block) |
+| `FLTForHuman/ModularCurve/PhiGenPoleBounds.lean` | the cone's (b) pole bounds | `PhiGen.phiProd_conj_coeff_zero_lead` (the constant term of `phiProd` has pole exactly `q ^ (-(ℓ * ℓ + ℓ))` with residue `1`) and `PhiGen.phiProd_conj_coeff_eq_zero_of_le` (every non-constant coefficient is bounded by the same order), both verbatim from their pin wrappers — with T9's integrality, the completed (b). The distinctive part only: the shared `TPoleOrderLE` prelude is **public in `Defs/PhiGen.lean`** because FLT repeats it in twelve `S_` files and T11 imports it. The pin's `pow_sum_range_isPrimitiveRoot` (the *product* of the powers of a primitive root, where mathlib has only the *sum*) is the one near-miss of the audit and ported whole. Both exports have a concrete wire instance (`ℂ`, `ℓ = 2`, `ζ = -1`, via `IsPrimitiveRoot.neg_one`), named `wire_zero_lead`/`wire_eq_zero_of_le`. FLT `S_ModularCurve_PhiGen_phiProd_conj_coeff_eq_zero_of_le` (391 lines; its `_zero_lead` twin is byte-equivalent) |
+| `FLTForHuman/ModularCurve/PhiGenDescent.lean` | the cone's (a): descent to `ℚ((q))` | `PhiGen.exists_phiGenDescends` (verbatim): the coefficients of `phiProd ℓ (conj ℓ ζ)` are fixed by the nome twist `q ↦ ζq` — hence in the range of `qExpand ℚ ℓ` — and by every `σ : K ≃ₐ[ℚ] K` — hence in the range of `coeffEmb K`; intersecting the ranges gives the descended family. base/006 §6.2 verbatim, no analysis. FLT `S_ModularCurve_PhiGen_exists_phiGenDescends` (315 lines) |
+| `FLTForHuman/ModularCurve/PhiGenDescendsStructure.lean` | the 328 block: the shape of a descended family | `PhiGenDescends.c_top` (`c (ℓ+1) = 1`), `.c_eq_zero` (vanishing above degree `ℓ+1`), `.poleOrderLE` (pole `≤ ℓ+1`, from T10's `ℓ²+ℓ` bound divided by the level substitution), `.sum_mul_jqN_pow_eq_zero` (the modular-equation relation) and the public `evalAtJ_injective` — the last by the **mathlib route** through the public `transcendental_jq`, so T12's 895 block imports it rather than carrying the pin's private copy. The ~170-line `TPoleOrderLE` prelude is T10's. FLT the 328-line `PhiGenDescends` block (shipped in seven files; 84 distinctive lines) |
+| `FLTForHuman/ModularCurve/ModularPolynomialAssembly.lean` | the cone's (d): the assembled datum | `PhiGen.exists_modularPolynomialData_coeff_eq` (verbatim from its wrapper): a descended integral family in `ℚ[jq]` assembles into a `ModularPolynomialData ℓ` with `evalAtJ (Φ.coeff k) = c k`, using T9's `aeval_jq_intCoeffs_descent` and `Polynomial.lifts`. Plus `splits_of_coeff_evalAtJ_eq` (verbatim), the coefficient comparison that turns the datum back into the product and feeds (e)/(f). FLT `S_ModularCurve_PhiGen_exists_modularPolynomialData_coeff_eq` (191 lines) |
 
 The port of `#E[n](K) = n²` (math/005) has its own working record:
 [logs/card-torsion-port.md](logs/card-torsion-port.md) — dependency trace,
@@ -250,25 +254,29 @@ Zone F; [logs/phiGen-port.md](logs/phiGen-port.md) §8 carries the accounting an
 the `mapGL`-transparency finding. What remains of the cone is its other five
 pieces, not this sub-effort.
 
-The cone-algebra effort's first topic is complete:
-[TOPIC-integrality.md](topics/phiGenSplitting/TOPIC-integrality.md) proves the
-integrality of the descended coefficients (the first half of piece (b)) in
-`FLTForHuman/ModularCurve/PhiGenIntegrality.lean`. It is the **first deliberate
-deviation from a compiled FLT script**, and **Route A shipped**: `jq` and the
-conjugate family lift to `LaurentSeries (integralClosure ℤ K)`, and `coeffMap` is
-pushed through `qExpand`/`qTwist`/`phiProd`, replacing FLT's `CoeffsIntegral`
-closure block with ring structure. The topic also promotes the shared
-triangularity `coeff_aeval_jq_neg` (to `Defs/Jq.lean`) and `poleOrderLE_aeval_jq`
-(to `Defs/PhiGen.lean`); the consumer gained Zone G and the checker 176 → 180;
-[logs/phiGen-port.md](logs/phiGen-port.md) §9 carries the measured cost and the
-route decision.
+The cone's (b) is now **complete**. T9 proved the integrality of the descended
+coefficients in `FLTForHuman/ModularCurve/PhiGenIntegrality.lean` — the first
+deliberate deviation from a compiled FLT script, and **Route A shipped** (`jq` and
+the conjugate family lift to `LaurentSeries (integralClosure ℤ K)`, and `coeffMap`
+is pushed through `qExpand`/`qTwist`/`phiProd`, replacing FLT's `CoeffsIntegral`
+closure block with ring structure); it also promoted the shared triangularity
+`coeff_aeval_jq_neg` (to `Defs/Jq.lean`) and `poleOrderLE_aeval_jq` (to
+`Defs/PhiGen.lean`). T10 added the pole bounds in
+`FLTForHuman/ModularCurve/PhiGenPoleBounds.lean` and promoted the shared
+`TPoleOrderLE` prelude (23 public declarations) into `Defs/PhiGen.lean` — the pin
+copies it into twelve `S_` files, so **T11 imports it unchanged**.
 
-The next cone-algebra topic is written and audited:
-[TOPIC-pole-bounds.md](topics/phiGenSplitting/TOPIC-pole-bounds.md) is the pole
-bounds — the other half of (b) — and it exports the ~180-line `TPoleOrderLE`
-prelude that FLT copies into six files, so the 328 block (T11) imports it. Unlike
-T9 it has **no planned deviation**: FLT's script is pure coefficient algebra and
-known to compile.
+T11 then built the cone's **construction** end-to-end in three modules:
+`PhiGenDescent.lean` (a, `exists_phiGenDescends`),
+`PhiGenDescendsStructure.lean` (the 328 block, with `evalAtJ_injective` by the
+mathlib `transcendental_jq` route) and `ModularPolynomialAssembly.lean` (d,
+`exists_modularPolynomialData_coeff_eq` + `splits_of_coeff_evalAtJ_eq`). Together
+with T9/T8 the whole (a)→(b)→(c)→(d) chain now runs concretely — the consumer's
+Zone I wire test does exactly that on `K = CyclotomicField ℓ ℚ`. The three topics
+moved the consumer to Zones G/H/I and the checker 176 → 213;
+[logs/phiGen-port.md](logs/phiGen-port.md) §9–§11 carry the measured cost and the
+route decisions. **T12 (the properties: irreducibility and symmetry) is next**,
+then T13 (uniqueness and the splitting).
 
 ## Where things live
 

@@ -8,6 +8,15 @@ statement (signature up to the first top-level `:=` / `where`; for a `structure`
 the header plus the ordered field names). Proof bodies are deliberately ignored —
 the port adapts proofs, never statements.
 
+Matching is by the last name component, so the port's namespacing need not match
+the pin's. That is ambiguous for the few declarations the port *promotes* out of
+FLT's `private` shared prelude (e.g. `TPoleOrderLE.neg`, whose last component
+`neg` also names an unrelated top-level lemma): when the last-name lookup does not
+reproduce the port's statement, the checker retries against the pin's `private`
+declarations under the port declaration's dotted name (`TPoleOrderLE.neg`), which
+is what the port writes. Those are reported as "promoted from pin-private
+declarations".
+
 Usage:
 
     python3 spec/check_flt_statements.py [--flt ~/proj/fermats-last-theorem]
@@ -104,6 +113,40 @@ SOURCES = [
     # invisible to the checker.
     "Theorems/Thm_ModularCurve_PhiGen_PhiGenDescends_intCoeffs.lean",
     "Theorems/Thm_ModularCurve_PhiGen_aeval_jq_intCoeffs_descent.lean",
+    # Topic 10, the cone's (b) pole bounds and the shared `TPoleOrderLE` prelude.
+    # The two public statements of `FLTForHuman/ModularCurve/PhiGenPoleBounds.lean`
+    # are the pin wrappers verbatim. The shared prelude promoted into
+    # `Defs/PhiGen.lean` is *public* in
+    # `S_ModularCurve_PhiGen_aeval_jq_intCoeffs_descent.lean` (the closure, the
+    # conjugate bounds and the polynomial-coefficient bounds) and in
+    # `S_ModularCurve_PhiGen_PhiGenDescends_c_eq_zero.lean` (`jSimplePole_jqK`,
+    # `tPoleOrderLE_coeffEmb_iff`, `tPoleOrderLE_of_qExpand`); the `phiProd_conj`
+    # `S_` file is listed for the declarations that pin keeps `private` there
+    # (`.mono`/`.neg`/`.mul`/`.qTwist`/`.qExpand`, `tPoleOrderLE_zero`,
+    # `conjPoleBound*`, `sum_conjPoleBound`, `tPoleOrderLE_conj`), which the
+    # checker's dotted fallback reads.
+    "Theorems/Thm_ModularCurve_PhiGen_phiProd_conj_coeff_zero_lead.lean",
+    "Theorems/Thm_ModularCurve_PhiGen_phiProd_conj_coeff_eq_zero_of_le.lean",
+    "P2M/Sol/S_ModularCurve_PhiGen_aeval_jq_intCoeffs_descent.lean",
+    "P2M/Sol/S_ModularCurve_PhiGen_PhiGenDescends_c_eq_zero.lean",
+    "P2M/Sol/S_ModularCurve_PhiGen_phiProd_conj_coeff_eq_zero_of_le.lean",
+    # Topic 11, the construction: (a)'s descent, the 328 block and the (d)
+    # assembly. The eight public statements are the pin wrappers verbatim, so the
+    # wrappers alone suffice for them; the three `S_` files listed last carry the
+    # `private` originals the checker's dotted fallback reads for the promoted
+    # helper lemmas (and would verify the block's `c_top` etc. if a later topic
+    # promotes more of it).
+    "Theorems/Thm_ModularCurve_PhiGen_PhiGenDescends_c_top.lean",
+    "Theorems/Thm_ModularCurve_PhiGen_PhiGenDescends_c_eq_zero.lean",
+    "Theorems/Thm_ModularCurve_PhiGen_PhiGenDescends_poleOrderLE.lean",
+    "Theorems/Thm_ModularCurve_PhiGen_PhiGenDescends_sum_mul_jqN_pow_eq_zero.lean",
+    "Theorems/Thm_ModularCurve_PhiGen_evalAtJ_injective.lean",
+    "Theorems/Thm_ModularCurve_PhiGen_exists_phiGenDescends.lean",
+    "Theorems/Thm_ModularCurve_PhiGen_exists_modularPolynomialData_coeff_eq.lean",
+    "Theorems/Thm_ModularCurve_PhiGen_splits_of_coeff_evalAtJ_eq.lean",
+    "P2M/Sol/S_ModularCurve_PhiGen_PhiGenDescends_c_top.lean",
+    "P2M/Sol/S_ModularCurve_PhiGen_exists_phiGenDescends.lean",
+    "P2M/Sol/S_ModularCurve_PhiGen_exists_modularPolynomialData_coeff_eq.lean",
 ]
 
 PORT_FILES = [
@@ -126,6 +169,10 @@ PORT_FILES = [
     "FLTForHuman/ModularForms/HeckeQExpansion.lean",
     "FLTForHuman/ModularForms/PhiGenDescends.lean",
     "FLTForHuman/ModularCurve/PhiGenIntegrality.lean",
+    "FLTForHuman/ModularCurve/PhiGenPoleBounds.lean",
+    "FLTForHuman/ModularCurve/PhiGenDescent.lean",
+    "FLTForHuman/ModularCurve/PhiGenDescendsStructure.lean",
+    "FLTForHuman/ModularCurve/ModularPolynomialAssembly.lean",
 ]
 
 # Declarations whose *statement* has no FLT source, so there is nothing to diff:
@@ -166,8 +213,14 @@ OWN_PROOFS = {
 }
 
 # Declaration keywords. `instance` matters for PhiGen; `structure` for Polynomial.
+# The optional `private` prefix is what lets the *source* side see the pin's
+# `private` helpers: FLT keeps the shared `TPoleOrderLE` prelude private in the
+# six files that repeat it (or exposes it only through its `p2m_export` alias, a
+# command the text checker cannot follow), yet the port promotes it into `Defs/`
+# so later modules can import it. Port declarations are still read without the
+# prefix, so a `private` port helper is never diffed.
 DECL_RE = re.compile(
-    r"^(?P<kind>def|theorem|lemma|abbrev|structure|instance)\s+"
+    r"^(?P<priv>private\s+)?(?P<kind>def|theorem|lemma|abbrev|structure|instance)\s+"
     r"(?P<name>[\w.'ₐ]+)",
     re.MULTILINE,
 )
@@ -213,15 +266,21 @@ def norm(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
-def declarations(text: str) -> dict[str, tuple[str, str]]:
-    """name -> (kind, normalized statement)."""
+def raw_declarations(text: str, include_private: bool = False) -> list[tuple[str, str, str]]:
+    """(raw name, kind, normalized statement) for each declaration in `text`.
+
+    With `include_private`, the pin's `private` declarations are read too; the
+    port side never passes it (a private port helper is not part of the surface
+    being verified).
+    """
     text = strip_comments(text)
     matches = list(DECL_RE.finditer(text))
-    out: dict[str, tuple[str, str]] = {}
+    out: list[tuple[str, str, str]] = []
     for idx, m in enumerate(matches):
+        if m.group("priv") and not include_private:
+            continue
         end = matches[idx + 1].start() if idx + 1 < len(matches) else len(text)
         chunk = text[m.end() : end]
-        name = m.group("name").rsplit(".", 1)[-1]
         kind = m.group("kind")
         if kind == "structure":
             stmt = norm(chunk[: top_level_cut(chunk)]) + " FIELDS " + " ".join(
@@ -229,9 +288,34 @@ def declarations(text: str) -> dict[str, tuple[str, str]]:
             )
         else:
             stmt = norm(chunk[: top_level_cut(chunk)])
-        # First occurrence wins; later duplicates would be redefinitions.
-        out.setdefault(name, (kind, stmt))
+        out.append((m.group("name"), kind, stmt))
     return out
+
+
+def declarations(text: str) -> dict[str, tuple[str, str]]:
+    """last name component -> (kind, normalized statement)."""
+    out: dict[str, tuple[str, str]] = {}
+    for raw, kind, stmt in raw_declarations(text):
+        # First occurrence wins; later duplicates would be redefinitions.
+        out.setdefault(raw.rsplit(".", 1)[-1], (kind, stmt))
+    return out
+
+
+def promoted_key(raw: str) -> str:
+    """The dotted name of a promoted declaration, for matching a public port
+    declaration against the pin's `private` original.
+
+    The port writes the shared prelude's methods as `theorem TPoleOrderLE.mono`
+    (two components); the pin writes them as
+    `private theorem _root_.ModularCurve.PhiGen.TPoleOrderLE.mono` (many). Both
+    reduce to the last two components. Single-component names are unchanged, so
+    `conjPoleBound` et al. still match, while the generic `neg`/`mul`/`qTwist`/
+    `qExpand` no longer collide with the unrelated top-level declarations the
+    last-name public lookup finds first.
+    """
+    raw = re.sub(r"^_root_\.", "", raw)
+    parts = raw.split(".")
+    return ".".join(parts[-2:]) if len(parts) >= 2 else parts[-1]
 
 
 def main() -> int:
@@ -245,36 +329,68 @@ def main() -> int:
     flt = Path(args.flt)
 
     source: dict[str, tuple[str, str, str]] = {}
+    # The pin's `private` declarations, keyed by their dotted name. Consulted
+    # only when the public last-name lookup fails, so it can never change a
+    # match that the public surface already supplies; it verifies the promoted
+    # prelude against FLT's own (private) statements instead of exempting them.
+    dotted_source: dict[str, tuple[str, str, str]] = {}
     for rel in SOURCES:
         p = flt / rel
         if not p.exists():
             print(f"warning: missing source {p}", file=sys.stderr)
             continue
-        for name, (kind, stmt) in declarations(p.read_text(encoding="utf-8")).items():
+        text = p.read_text(encoding="utf-8")
+        for name, (kind, stmt) in declarations(text).items():
             source.setdefault(name, (kind, stmt, rel))
+        for raw, kind, stmt in raw_declarations(text, include_private=True):
+            dotted_source.setdefault(promoted_key(raw), (kind, stmt, rel))
 
-    ok = missing = mismatch = own = 0
+    ok = promoted = missing = mismatch = own = 0
     for rel in PORT_FILES:
         p = LEAN / rel
-        for name, (kind, stmt) in declarations(p.read_text(encoding="utf-8")).items():
+        for raw, kind, stmt in raw_declarations(p.read_text(encoding="utf-8")):
+            name = raw.rsplit(".", 1)[-1]
             if name in OWN_PROOFS:
                 own += 1
                 continue
-            if name not in source:
-                print(f"MISSING IN FLT  {rel}: {name}")
+            if name in source and source[name][0] == kind and source[name][1] == stmt:
+                ok += 1
+                continue
+            # Promoted from a pin-private declaration: the last-name lookup
+            # either missed it (attributed `@[scoped simp]` in the public pin
+            # copy) or found an unrelated same-named declaration; the dotted
+            # name disambiguates.
+            srel = None
+            sstmt = None
+            skind = None
+            for key in (promoted_key(raw), name):
+                if key in dotted_source and dotted_source[key][0] == kind \
+                        and dotted_source[key][1] == stmt:
+                    skind, sstmt, srel = dotted_source[key]
+                    break
+            if srel is not None:
+                ok += 1
+                promoted += 1
+                continue
+            if name in source:
+                skind, sstmt, srel = source[name]
+            elif promoted_key(raw) in dotted_source:
+                skind, sstmt, srel = dotted_source[promoted_key(raw)]
+            elif name in dotted_source:
+                skind, sstmt, srel = dotted_source[name]
+            else:
+                print(f"MISSING IN FLT  {rel}: {raw}")
                 missing += 1
                 continue
-            skind, sstmt, srel = source[name]
-            if kind == skind and stmt == sstmt:
-                ok += 1
-            else:
+            if skind != kind or sstmt != stmt:
                 mismatch += 1
                 print(f"MISMATCH  {rel}: {name}  (source {srel}, {skind})")
                 print(f"    port: {stmt}")
                 print(f"    flt : {sstmt}")
 
     print(
-        f"\n{ok} statements identical, {mismatch} mismatched, {missing} missing, "
+        f"\n{ok} statements identical ({promoted} promoted from pin-private "
+        f"declarations), {mismatch} mismatched, {missing} missing, "
         f"{own} own-proof declarations exempted "
         f"({ok + mismatch + missing + own} port declarations checked)"
     )

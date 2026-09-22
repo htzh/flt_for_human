@@ -1,12 +1,16 @@
 # Topic 10: the pole bounds — the other half of (b)
 
-**Status: work order, not started (2026-09-22).** Second cone-algebra topic. T9
-landed the integrality half of (b) and promoted the shared triangularity; this
-topic delivers the pole bounds and the shared `TPoleOrderLE` block that the 328
-block (T11) also needs. The plan is
+**Status: done (2026-09-22), one goal round — the cone's (b) is complete.** The
+module is `FLTForHuman/ModularCurve/PhiGenPoleBounds.lean`, green with 0 warnings
+and no `sorry`, and the shared `TPoleOrderLE` prelude (23 public declarations) is
+now public in `Defs/PhiGen.lean`. **No route deviation: FLT's script compiled as
+transcribed.** The measured cost, the dedup count and the closed audit near-miss
+are in [logs/phiGen-port.md](../../logs/phiGen-port.md) §10. This file is kept as
+the executed plan. The plan is
 [PORTING-PhiGen.md](../../PORTING-PhiGen.md); the mathematics is
 [math/010](../../../math/010-function-field-generation.md) §3 and
-[base/006](../../../base/006-the-modular-equation.md) §6 step 3.
+[base/006](../../../base/006-the-modular-equation.md) §6 step 3; **T11 (the 328
+block and the (d) assembly) is next and imports the promoted prelude.**
 
 > **Build discipline — read this first.** Every build is bounded and a blow-up is
 > quarantined, not waited on. Measured with mathlib prebuilt: a green
@@ -206,30 +210,46 @@ it does not have.
 
 ## 6. Definition of done
 
-- [ ] the shared `TPoleOrderLE` block public in `Defs/PhiGen.lean`, in dependency
+- [x] the shared `TPoleOrderLE` block public in `Defs/PhiGen.lean`, in dependency
       order, with a header note that FLT repeats it in six files and T11 imports
-      it.
-- [ ] `FLTForHuman/ModularCurve/PhiGenPoleBounds.lean`: both statements public and
-      verbatim from their wrappers.
-- [ ] `lake build` green, 0 warnings, no `sorry`.
-- [ ] `#print axioms` clean.
-- [ ] `spec/check_flt_statements.py`: both wrappers in `SOURCES`, 0 mismatched;
-      `PORT_FILES` gains the module.
-- [ ] the wire item from §4 recorded, with its concrete form named.
-- [ ] `PORTING-PhiGen.md` §5 marks T10 done and names T11; §6's (b) row is closed
-      with the measured result; the log gains T10's cost (§10); README module
-      table gains the module.
-- [ ] report in the §7 shape.
+      it. **187 lines, 23 public + 2 `private` declarations** (the 2 private are
+      `coeff_coeffEmb_jq_of_lt`, kept in `Defs/`, and `phiProd_def`; the module
+      re-declares the latter privately because the pin does).
+- [x] `FLTForHuman/ModularCurve/PhiGenPoleBounds.lean`: both statements public and
+      verbatim from their wrappers. **310 lines, 2 public + 16 `private`.**
+- [x] `lake build` green, 0 warnings, no `sorry` (3840 jobs).
+- [x] `#print axioms` clean (`propext, Classical.choice, Quot.sound`) on both.
+- [x] `spec/check_flt_statements.py`: both wrappers in `SOURCES`, 0 mismatched;
+      `PORT_FILES` gains the module. **180 → 205, 0 missing; 11 of the new
+      statements verified against the pin's `private` declarations** through a new
+      dotted-name fallback (`Defs/PhiGen.lean`'s existing `PORT_FILES` entry
+      covers the prelude, and the fallback was needed for the pin-private ones).
+- [x] the wire item from §4 recorded, with its concrete form named: **`K = ℂ`,
+      `ℓ = 2`, `ζ = -1` (`IsPrimitiveRoot.neg_one`)**, named `wire_zero_lead` /
+      `wire_eq_zero_of_le` inside the module (private; the public surface is the
+      two wrappers). `#check`s plus both hypothesis forms are in consumer Zone H.
+- [x] `PORTING-PhiGen.md` §5 marks T10 done and names T11; §6's (b) row is closed
+      with the measured result (819 port lines against 1,266 deduplicated pin);
+      the log gains T10's cost (§10); README module table gains the module.
+- [x] report in the §7 shape (below, in this file's status block and log §10).
 
 ## 7. Reporting back
 
-1. **The dedup** — how many lines the six copies of the prelude would have cost,
-   and whether T11 can now import the block without additions.
-2. **The cost** — rounds, declarations, lines, port/pin ratio (T5 1.79, T6 1.06,
-   T7 1.05, T8 0.98, T9 0.93).
-3. **`pow_sum_range_isPrimitiveRoot`** — did mathlib's `IsPrimitiveRoot` API
-   supply any of it, or was the pin's case split ported whole? This closes the
-   audit's one near-miss.
+1. **The dedup** — the ~146-line common prelude appears across **six**
+   developments (the `phiProd_conj` development, shipped twice, and the five
+   328-block copies) but physically in **twelve** `S_` files, so it would have
+   cost **≈1,752 lines** written per `S_` file (**≈876** across the six
+   developments); the 328-only coefficient sub-block adds ≈405 more. The port
+   writes the union once at 187, and **T11 imports it without additions**.
+2. **The cost** — **1 goal round**, 25 + 2 declarations (23 public prelude, 2
+   public exports, plus 18 private), **497 lines** (187 + 310), port/pin ratio
+   **1.27** (T5 1.79, T6 1.06, T7 1.05, T8 0.98, T9 0.93).
+3. **`pow_sum_range_isPrimitiveRoot`** — the pin's `ℓ = 2`-versus-odd case split
+   was **ported whole**; mathlib supplied `Nat.Prime.eq_two_or_odd'`,
+   `IsPrimitiveRoot.eq_neg_one_of_two_right`, `IsPrimitiveRoot.pow_eq_one`,
+   `Finset.sum_range_id_mul_two` and `Even.neg_one_pow`, but **no lemma replaces
+   the statement** — `IsPrimitiveRoot.geom_sum_eq_zero` is the sum, not the
+   product.
 
 ## 8. Where this sits: the remaining cone after T10
 

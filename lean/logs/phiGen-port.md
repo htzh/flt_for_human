@@ -1,7 +1,8 @@
 # The Φₚ splitting / R1 sub-effort — record
 
-**Status: T5–T9 complete (2026-09-22) — R1 is complete, the cone's (c) is
-discharged, and the cone's (b) has its integrality half.** This is the running
+**Status: T5–T11 complete (2026-09-22) — R1 is complete, the cone's (c) is
+discharged, the cone's (b) is complete in both halves, and the cone's
+construction (a) + the 328 block + (d) is built.** This is the running
 record for the sub-effort
 [PORTING-PhiGen.md](../PORTING-PhiGen.md) opens: the R1 (level-one q-expansion
 principle) sequence that gives the Φₚ splitting cone its one analytic input. It is
@@ -15,8 +16,11 @@ The executed plans are
 [TOPIC-jq-model.md](../topics/phiGenSplitting/TOPIC-jq-model.md) (T6),
 [TOPIC-hauptmodul.md](../topics/phiGenSplitting/TOPIC-hauptmodul.md) (T7),
 [TOPIC-phiGen-descends.md](../topics/phiGenSplitting/TOPIC-phiGen-descends.md)
-(T8) and the first cone-algebra topic
-[TOPIC-integrality.md](../topics/phiGenSplitting/TOPIC-integrality.md) (T9); the
+(T8), the first cone-algebra topic
+[TOPIC-integrality.md](../topics/phiGenSplitting/TOPIC-integrality.md) (T9),
+[TOPIC-pole-bounds.md](../topics/phiGenSplitting/TOPIC-pole-bounds.md) (T10) and
+[TOPIC-datum-assembly.md](../topics/phiGenSplitting/TOPIC-datum-assembly.md)
+(T11); the
 mathematics of record is
 [base/013](../../base/013-riemann-existence-and-the-q-expansion-principle.md) §3,
 §4.3, §5.4, §6. FLT is pinned at `aa2d8b3`; mathlib at `v4.34.0`.
@@ -30,10 +34,14 @@ mathematics of record is
 | **T7** | the Hauptmodul form (R1 complete) | **done**, 1 module, 15 public + 16 private, 483 lines | headline + T8 interface verbatim; consumer Zone E bound; axioms clean |
 | **T8** | the cone application (the descended coefficients lie in `ℚ[jq]`) | **done**, 3 modules, 8 public + 43 private, 725 lines | four statements verbatim; consumer Zone F bound; axioms clean |
 | **T9** | the cone's (b) integrality (descended coefficients are integral; the triangularity descent) | **done**, 1 module, **2 public** + 19 private, 322 lines | Route A shipped (deviation); both statements verbatim; consumer Zone G bound; axioms clean |
+| **T10** | the cone's (b) pole bounds + the shared `TPoleOrderLE` prelude | **done**, 1 module + `Defs/PhiGen.lean`, 25 public + 18 private, 497 lines | FLT's script ported verbatim (no deviation); both statements verbatim; prelude promoted for T11; consumer Zone H bound; axioms clean |
+| **T11** | the construction: (a) descent + the 328 block + (d) assembly | **done**, 3 modules, **8 public** + 25 private, 701 lines | all eight statements verbatim; `evalAtJ_injective` by the mathlib route; consumer Zone I bound end-to-end; axioms clean |
 
-R1 = T5–T7 (**complete**); T8 discharges the cone's (c) (**complete**); T9
-discharges the integrality half of the cone's (b) (**complete**). The
-sub-effort's deliverables are seven files:
+R1 = T5–T7 (**complete**); T8 discharges the cone's (c) (**complete**); T9 and
+T10 discharge the two halves of the cone's (b) (**complete**); T11 builds the
+construction (**complete**). The
+sub-effort's deliverables are eleven files (plus the shared-block addition to
+`Defs/PhiGen.lean`):
 
 | module | lines | decls | FLT source (`aa2d8b3`) |
 |---|---|---|---|
@@ -44,6 +52,11 @@ sub-effort's deliverables are seven files:
 | `FLTForHuman/ModularForms/HeckeQExpansion.lean` | 100 | 2 public | `hasSum_qParam_heckeMatrix_smul` (54), `…_heckeDiagMatrix_smul` (55) |
 | `FLTForHuman/ModularForms/PhiGenDescends.lean` | 510 | 2 public + 36 `private` | `cosetPoly_smul` (244), `…_hasSum_cosetPoly_coeff` (281), `…_mem_adjoin_jq_of_phiGenDescends` (47) |
 | `FLTForHuman/ModularCurve/PhiGenIntegrality.lean` | 322 | 2 public + 19 `private` | `PhiGenDescends_intCoeffs` (239), the integrality half of `aeval_jq_intCoeffs_descent` (~108; the file's ~180-line `TPoleOrderLE` block is out of scope) |
+| `FLTForHuman/ModularCurve/PhiGenPoleBounds.lean` | 310 | 2 public + 16 `private` | `phiProd_conj_coeff_eq_zero_of_le` (391; the `_zero_lead` twin is byte-equivalent) |
+| `FLTForHuman/ModularCurve/Defs/PhiGen.lean` (T10 addition) | +187 (287 → 489 total) | 23 public + 2 `private` | the shared `TPoleOrderLE` prelude, repeated in twelve pin `S_` files |
+| `FLTForHuman/ModularCurve/PhiGenDescent.lean` | 339 | 1 public + 18 `private` | `exists_phiGenDescends` (315) |
+| `FLTForHuman/ModularCurve/PhiGenDescendsStructure.lean` | 161 | 5 public + 2 `private` | the 328 block (×7 copies, 84 distinctive; the ~170-line prelude is T10's) |
+| `FLTForHuman/ModularCurve/ModularPolynomialAssembly.lean` | 201 | 2 public + 5 `private` | `exists_modularPolynomialData_coeff_eq` (191) |
 
 ## 1. What T5 cost
 
@@ -513,3 +526,215 @@ and the `TPoleOrderLE` closure block — the ~180 lines this topic deliberately 
 not port. The promoted `poleOrderLE_aeval_jq` is T10's shared entry point. Then
 the 328-block and assembly (T11) consumes both `PhiGenDescends.intCoeffs` and
 `aeval_jq_intCoeffs_descent`.
+
+## 10. T10: the cone's (b) pole bounds — the prelude promoted
+
+One new module, **310 lines, 2 public** and 16 `private` declarations
+(`FLTForHuman/ModularCurve/PhiGenPoleBounds.lean`), plus the shared prelude,
+**187 lines, 23 public** and 2 `private` declarations, added to
+`FLTForHuman/ModularCurve/Defs/PhiGen.lean` (287 → 489). The two public statements
+— `PhiGen.phiProd_conj_coeff_zero_lead` and
+`PhiGen.phiProd_conj_coeff_eq_zero_of_le` — are verbatim from their `Theorems/`
+wrappers. **No route deviation**: FLT's script is pure coefficient algebra and
+compiled as transcribed. One goal round (of the 2 budgeted; the round-1
+checkpoint was not needed).
+
+| | |
+|---|---|
+| goal rounds | **1** (of the 2 budgeted) |
+| declarations | module **2 public**, 16 `private` (incl. 2 named wire tests); prelude **23 public**, 2 `private` |
+| lines written | **497**: 187 the shared prelude in `Defs/PhiGen.lean`, 310 the module (~60 header, ~205 the leading-coefficient/bound chain, ~12 the two wire tests) |
+| build | `lake build` 3840 jobs, green, **0 warnings**, no `sorry` |
+| `#print axioms` | both public declarations: only `propext, Classical.choice, Quot.sound` |
+| checker | `205 statements identical (11 promoted from pin-private declarations), 0 mismatched, 0 missing, 8 own-proof exempted` (180 → 205) |
+| consumer | Zone H added and bound; **0 errors**, still one `sorry` (the deferred capstone) |
+
+### 10.1 The dedup — the six copies, measured
+
+The prelude the pin repeats is the closure
+(`mono`/`zero`/`one`/`neg`/`add`/`mul`/`qTwist`/`qExpand`, `of_jSimplePole`), the
+`jq`-pole facts (`jSimplePole_jqK`, `tPoleOrderLE_coeffEmb_iff`,
+`tPoleOrderLE_of_qExpand`), the conjugate bounds (`conjPoleBound`,
+`conjPoleBound_zero`/`_succ`, `sum_conjPoleBound`, `tPoleOrderLE_conj_zero`/`_succ`/
+`_conj`), the polynomial-coefficient bound `tPoleOrderLE_coeff_X_sub_C` and
+`phiProd_def`. That is **146 lines** in the representative
+`S_ModularCurve_PhiGen_phiProd_conj_coeff_eq_zero_of_le.lean` (lines 24–169), and
+the two 391-line `phiProd_conj` twins and the five 328-line `PhiGenDescends`
+copies are the **six developments** the work order names.
+
+**Measured, the duplication is larger than the work order's "six".** A grep for
+the prelude's marker (`tPoleOrderLE_coeff_X_sub_C`) finds it in **twelve** `S_`
+files: the six developments above, plus five single-theorem files that each carry
+the whole prelude (`S_…_aeval_jq_intCoeffs_descent`, `S_…_intCoeffs_jq_pow`,
+`S_…_tPoleOrderLE_coeffEmb_iff`, `S_…_tPoleOrderLE_of_qExpand`,
+`S_…_tPoleOrderLE_phiProd_conj_of_ne_zero` — the last three have `Thm_` wrappers,
+so they are exported nodes, not dead files). So the prelude would have cost
+**≈ 12 × 146 = 1,752 lines** if written per `S_` file (**≈ 6 × 146 = 876** across
+the six byte-duplicate developments). The 328-only coefficient sub-block
+(`tPoleOrderLE_coeff_mul`/`_prod`/`_phiProd_coeff`, ~45 lines) appears in **nine**
+files, another ≈405 duplicated lines. The port writes the whole union **once**,
+187 lines, and because that single copy carries the 328-only sub-block as well,
+**T11 imports it with no additions.** T11's `PhiGenDescends.poleOrderLE` needs
+`tPoleOrderLE_phiProd_coeff` and `.mono`, both now public in `Defs/PhiGen`; only
+the 328 block's own theorems remain T11's work.
+
+### 10.2 The cost
+
+**497 port lines against the 391-line representative pin file, ratio 1.27** — the
+sub-effort's highest (T5 1.79, T6 1.06, T7 1.05, T8 0.98, T9 0.93). Two structural
+reasons, both real and both in the port's favour: the 187-line prelude is the
+*union* of six pin copies (the 391 file omits the 328-only coefficient bounds), so
+the denominator under-counts the deduplicated content; and the module carries a
+~60-line header and two wire tests that the pin's 391 lines do not. Priced against
+the deduplicated six-copy content (146 × 6 prelude lines once, plus the 391 file's
+distinctive ~222 lines), the port is comfortably under 1:1.
+
+### 10.3 `pow_sum_range_isPrimitiveRoot` — the audit's near-miss, closed
+
+The work order flagged this as the audit's one near-miss: mathlib's
+`IsPrimitiveRoot.geom_sum_eq_zero` is the *sum* `∑ ζ^i = 0`, while FLT needs the
+*product* `z ^ (∑ i ∈ range ℓ, i) = (-1)^(ℓ+1)`. **The pin's case split was ported
+whole** (`rcases hℓ.eq_two_or_odd' with rfl | hodd`), and mathlib supplied every
+step inside it: `Nat.Prime.eq_two_or_odd'` for the split,
+`IsPrimitiveRoot.eq_neg_one_of_two_right` for `ℓ = 2`, `IsPrimitiveRoot.pow_eq_one`
+and `Finset.sum_range_id_mul_two` for the odd case, and `Even.neg_one_pow` for the
+final sign. No re-derivation was needed, but no single mathlib lemma replaces the
+statement — the `geom_sum` name is a trap, exactly as the work order warned, and
+`prod_inv_pow_isPrimitiveRoot` (its `Fin`-indexed inverse form) is FLT's own.
+
+### 10.4 The wire test, the checker, and the consumer
+
+Both exports take `hζ : IsPrimitiveRoot (ζ : K) ℓ` over an arbitrary field, so
+unlike T9's `intCoeffs` they have a **concrete instance**: `K = ℂ`, `ℓ = 2`,
+`ζ = -1` via `IsPrimitiveRoot.neg_one`, carried out and named
+`wire_zero_lead` (leading coefficient `= 1`) and `wire_eq_zero_of_le`
+(`q ^ (-6)` coefficient of `(phiProd …).coeff 1` vanishes) inside the module. The
+public surface is held at exactly the two wrappers. `Fact (Nat.Prime 2)` has no
+global mathlib instance, so it is passed explicitly as `(hℓ := ⟨Nat.prime_two⟩)`
+rather than with `haveI` (the style linter flags the latter).
+
+**The checker needed one real extension.** FLT keeps the closure
+`mono`/`neg`/`mul`/`qTwist`/`qExpand` and `conjPoleBound`/`tPoleOrderLE_conj`
+`private` in all six files (several are exposed only through the `p2m_export`
+alias, which a text differ cannot follow), and the generic last components
+`neg`/`mul`/`qTwist`/`qExpand` already name *unrelated* public declarations in
+`SOURCES` (`RealL.neg`, the `qTwist` def, …). So `spec/check_flt_statements.py`
+now keeps a second source map of the pin's `private` declarations, keyed by the
+port declaration's **dotted** name, and consults it only when the public
+last-name lookup does not reproduce the statement; the port writes those methods
+as `theorem TPoleOrderLE.neg` and the pin writes
+`private theorem _root_.ModularCurve.PhiGen.TPoleOrderLE.neg`, so both reduce to
+`TPoleOrderLE.neg`. The result: **11 of T10's 25 new statements are verified
+against the pin's own `private` statements** rather than exempted, and the
+checker reports them separately. It was tested non-vacuously (a mutated
+`sum_conjPoleBound` is caught). The checker moved **180 → 205**.
+
+The consumer gained Zone H: both exports bound, both in hypothesis form. Error
+count still **0**; the single remaining `sorry` is the Zone A capstone. (The
+look-ahead [TOPIC-datum-assembly.md](../topics/phiGenSplitting/TOPIC-datum-assembly.md)
+for T11, written while this topic was in flight, plans its core bindings in
+"Zone H"; this topic's own work order names Zone H, so **T11 takes Zone I**.)
+
+### 10.5 What T10 leaves
+
+The cone's (b) is complete: T9's `PhiGenDescends.intCoeffs` /
+`aeval_jq_intCoeffs_descent` supply the integrality, and T10's two exports supply
+the pole bounds, with the shared prelude public. **T11 is next**: the 328 block
+(`c_top`/`c_eq_zero`/`poleOrderLE`/`sum_mul_jqN_pow_eq_zero`/`evalAtJ_injective`)
+and the (d) assembly (`exists_modularPolynomialData_coeff_eq`, `eq_of_prime`). It
+imports the whole prelude from `Defs/PhiGen.lean`; it does **not** need this
+module's sharp `tPoleOrderLE_phiProd_coeff_of_ne_zero` (it uses the weaker
+`tPoleOrderLE_phiProd_coeff`).
+
+## 11. T11: the construction — descent, the 328 block, the datum
+
+Three new modules, **701 lines**, **8 public** and 25 `private` declarations:
+
+- `FLTForHuman/ModularCurve/PhiGenDescent.lean` (339 lines, 1 public + 18
+  private) — (a)'s `PhiGen.exists_phiGenDescends`;
+- `FLTForHuman/ModularCurve/PhiGenDescendsStructure.lean` (161 lines, 5 public + 2
+  private) — the 328 block: `PhiGenDescends.c_top`, `.c_eq_zero`, `.poleOrderLE`,
+  `.sum_mul_jqN_pow_eq_zero`, `evalAtJ_injective`;
+- `FLTForHuman/ModularCurve/ModularPolynomialAssembly.lean` (201 lines, 2 public +
+  5 private) — (d)'s `exists_modularPolynomialData_coeff_eq` and
+  `splits_of_coeff_evalAtJ_eq`.
+
+All eight public statements are the pin wrappers verbatim. One goal round (of the
+4 budgeted; no checkpoint needed).
+
+| | |
+|---|---|
+| goal rounds | **1** (of the 4 budgeted) |
+| declarations | **8 public**, 25 `private` |
+| lines written | **701**: 339 descent, 161 structure, 201 assembly |
+| build | `lake build` 2594 jobs, green, **0 warnings**, no `sorry` |
+| `#print axioms` | all eight: only `propext, Classical.choice, Quot.sound` |
+| checker | `213 statements identical (11 promoted from pin-private), 0 mismatched, 0 missing` (205 → 213) |
+| consumer | Zone I added and bound, with the first **end-to-end** wire test; **0 errors**, one `sorry` |
+
+### 11.1 The dedup and the mathlib reuse
+
+- **The 328 block.** Shipped in **seven** pin files (`7 × 328 = 2,296` lines); its
+  distinctive content is 84 lines, the ~170-line prelude is T10's, so the port
+  writes the block once at 161 lines (including a ~35-line header). The prelude's
+  twelve-carrier count is T10's finding (log §10.1).
+- **`evalAtJ_injective` by the mathlib route — closed first try.** The work order's
+  §4.2 substitution worked exactly as hoped:
+  `transcendental_iff_injective.mp transcendental_jq` composed with
+  `Polynomial.map_injective _ Int.cast_injective` through the six-line
+  `evalAtJ_eq_aeval_map` bridge. The pin's private 19-line `aeval_jq_eq_zero` is
+  **not** ported; the port's own public `aeval_jq_eq_zero` (from `Defs/Jq.lean`,
+  the `Thm_ModularCurve_aeval_jq_eq_zero` interface) is untouched and remains the
+  named form of the same fact.
+- **`coeff_aeval_jq_neg` is T9's.** The assembly pin's private copy was dropped and
+  the `Defs/Jq.lean` lemma imported.
+- **T12 imports `evalAtJ_injective`.** It is public in the structure module, so the
+  895 block drops its private copy (the work order's §6). `coeff_coeffEmb_jq_of_lt`
+  was likewise not ported — T10's block already carries the `jq`-pole facts.
+- **`splits_of_coeff_evalAtJ_eq` is written once**, in the assembly module, and
+  feeds both (e) and (f).
+
+### 11.2 The cost
+
+**701 port lines against ~590 deduplicated pin lines** — (a)'s 315, the block's
+84 distinctive lines and the assembly's 191 — ratio **1.19** (T5 1.79, T6 1.06,
+T7 1.05, T8 0.98, T9 0.93, T10 1.27). The excess is the three ~35–60-line module
+headers plus the descent's 18 small private helpers (the pin makes most of them
+public; the tight public surface is worth the extra private bridging).
+
+### 11.3 The division, and the dependency finding
+
+The work order's §4 cut is confirmed and was necessary: the blueprint's old T11
+(the 328 block plus the whole 502-line (d) bucket) is **not executable as one
+unit**. `evalSymm_of_coeff_evalAtJ_eq` imports T12's 895 block,
+`exists_phiIrreducible_evalSymm` imports (a) + T8 + T9 + the assembly + the 895
+block, and `finrank`/`eq_of_prime` sit downstream again. T11 therefore stopped at
+the assembly; the symmetry/existence/uniqueness tail is T12/T13's, cut by
+mathematical object (construction → properties → consequence). PORTING-PhiGen §6
+Option 1's "circularity" worry is misplaced for the same reason: the assembly gets
+degree `ℓ+1` from `c_top`/`c_eq_zero`, and `finrank` from the *other*,
+irreducible datum.
+
+### 11.4 The variable convention (the work order's §8 stop-early risk)
+
+The assembled datum is `Φ = ∑_{k ≤ ℓ+1} Polynomial.C (Q k) * Polynomial.X ^ k`
+with `C : Polynomial ℤ →+* Polynomial (Polynomial ℤ)` and `X` the **outer**
+variable, so `Φ.coeff k = Q k` is the `Y^k` coefficient; the port's
+`ModularPolynomialData.eval_eq_zero` (`Φ.eval₂ evalAtJ (jqN ℓ) = 0`) reads exactly
+that outer variable. The pin's `hΦcoeff : evalAtJ (Φ.coeff k) = c k` and the
+`Polynomial.eval₂_eq_sum_range' evalAtJ … (jqN ℓ)` step carried over verbatim —
+**no rebinding was needed**. The three other stop-early items did not bite:
+`Polynomial.lifts`' API matched, `tPoleOrderLE_of_qExpand`'s direction is T10's
+export direction, and `IsCyclotomicExtension.exists_isPrimitiveRoot` needed only
+the `haveI` instances the pin's `exists_phiIrreducible_evalSymm` already installs.
+
+### 11.5 What T11 leaves
+
+**T12 is next** — the properties: `one_le_coeff_jq` (386), the 895 block
+(894 ×3, whose exports are `phiIrreducible_of_splits`,
+`transposeToAdjoin_monic_of_qExpansion`, `evalSymm_of_splits`, plus the hidden
+`aeval_jq_ne_jqN`/`jqN_not_mem_adjoin_jq`), `evalSymm_of_coeff_evalAtJ_eq` (124)
+and `exists_phiIrreducible_evalSymm` (62). It imports T11's public
+`evalAtJ_injective` and `exists_phiGenDescends`, T10's prelude and both pole-bound
+exports, T9 and T8. **T13** then closes the cone: `finrank_adjoin_jqN_eq_of_prime`,
+`ModularPolynomialData.eq_of_prime`, `splits_of_prime` and `splits_prime_at_slot`.

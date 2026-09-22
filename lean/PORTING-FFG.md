@@ -1,9 +1,10 @@
 # Blueprint: `ModularCurve.functionFieldGeneration` — Layer 0
 
-**Status: Layer 0 and all four topics are done.** The eleven modules of
+**Status: Layer 0 and its four topics are done; the theorem is back in scope
+(2026-09-22 reassessment, §7.8).** The eleven modules of
 `lean/FLTForHuman/ModularCurve/` — 68 declarations in 0a, 69 in 0b, 24 in
-`JqCoefficients.lean` and 25 in `Spine.lean`, plus 9 public interface lemmas added
-to `Defs/Laurent.lean` and `Defs/Jq.lean` — are green with zero warnings and
+`JqCoefficients.lean` and 25 in `Spine.lean`, plus the 9 public interface lemmas
+of `Defs/Laurent.lean`/`Defs/Jq.lean` — are green with zero warnings and
 zero `sorry`, as is the new generic module `FLTForHuman/FieldTheory/CommonRoot.lean`,
 and the deliverable measure `spec/ModularCurveConsumer.lean` reports
 **0 errors**: Zones A, B and C are all bound. Its only remaining `sorry` is the
@@ -11,12 +12,19 @@ deferred theorem's capstone, now the *unconditional* counterpart of the proved
 conditional capstone `functionFieldGeneration_of (h : Inputs)`. Layer 0's two work
 orders and all four topics each finished in a single goal round, and
 [logs/ffg-port.md](logs/ffg-port.md) carries the record, the measured proof cost,
-and the calibration. This
-file previously planned a sorry-bounded port of the whole theorem; that is now
-deferred and kept only as a menu in §7, with the remainder reduced to the 7
-fields of `Inputs` (see §7.4). The scope decision and its evidence are
-§2, and the v4.34.0 friction list is at the tail of the consumer file, with
-`spec/check_flt_statements.py` diffing all 150 transcribed port statements against
+and the calibration.
+
+What changed since that status was written: the Φ_p splitting cone — the single
+input that gated **all seven** remaining `Inputs` fields (§7.7) — is being ported.
+[PORTING-PhiGen.md](PORTING-PhiGen.md) reports T5–T10 done and T11–T13 (the
+construction, the properties, the consequence) planned; when they land,
+`PhiGen.splits_prime_at_slot` is a ported theorem and the seven fields can be
+discharged. §7.8 re-derives the frontier from that: the remainder is **17 nodes**,
+**11,312 structural pin lines**, **≈4.5k–4.9k deduplicated**, over **six porting
+topics (T14–T19) plus the capstone discharge (T20)**. So this file now carries a
+schedule, not only the menu §7 was. The scope decision and its evidence are §2,
+and the v4.34.0 friction list is at the tail of the consumer file, with
+`spec/check_flt_statements.py` diffing all 205 transcribed port statements against
 the pin (plus the own-proof declarations, exempted explicitly).
 
 Companion records:
@@ -43,15 +51,23 @@ mathlib is our pinned `v4.34.0`.
 `modularFunctionField`, and the vocabulary around them, transcribed into a
 mathlib-only library that compiles, has no `sorry`, and can be evaluated.
 
-**The theorem is out of scope.** Layers 1–4 — the statement layer, the induction
-spine, the significant lemmas, the counting detours — are not planned here. §7
-records what a future effort would need; it is a menu, not a schedule.
+**The theorem was out of scope; it is now scheduled (2026-09-22).** Layers 1–4 —
+the statement layer, the induction spine, the significant lemmas, the counting
+detours — were not planned when this file was written, because their cost was
+gated by the unported Φ_p cone and therefore unknown. That gate is being removed
+by the sub-effort: when T11–T13 of [PORTING-PhiGen.md](PORTING-PhiGen.md) land,
+`PhiGen.splits_prime_at_slot` is available, and the remaining proof is a measured
+**17-node, ≈4.5k–4.9k-line** port of the seven `Inputs` fields and their internal
+dependencies. §7.8 is that schedule; §7 remains the record of why the deferral was
+right while the gate stood.
 
-**Why this split.** The two halves have different gains. Layer 0 buys a
-*capability*: objects we can compute with, check coefficients against, and
-experiment on, which neither FLT's prose nor our notes provide. Layers 1–4 buy
-*organization only*, and math/010 already provides most of that organization in
-prose. §2 is the full accounting.
+**Why the split was made, and why it now ends.** The two halves have different
+gains. Layer 0 buys a *capability*: objects we can compute with, check
+coefficients against, and experiment on, which neither FLT's prose nor our notes
+provide. Layers 1–4 buy *organization and an unconditional theorem* — and
+math/010 already provides most of the organization in prose, so only the
+unconditional theorem is genuinely new. §2 is the full accounting, including the
+reassessment.
 
 **Future topics, judiciously chosen.** If a later session picks up part of the
 theorem, it should pick a *topic* — the strong induction of math/010 §7, or the
@@ -143,7 +159,7 @@ Before a Layer 0 module is called done:
   §7.5;
 - the module compiles with zero warnings and zero `sorry`.
 
-## 2. The gain test, and why the theorem is deferred
+## 2. The gain test, and the deferral it once justified
 
 Truth is not in doubt and is not what we are buying. The first port's gain was
 measured, and it was **not volume**: the playbook's own summary is that "a
@@ -194,8 +210,45 @@ named node's proof lines versus its helpers) and record both counts here. Until
 then the theorem's price is unknown, which is itself a reason to leave it
 deferred.
 
-**Decision (recorded).** Layer 0 now. The theorem only if a specific topic is
-chosen later and the measurement supports it.
+**Decision (recorded 2026-09-21).** Layer 0 now. The theorem only if a specific
+topic is chosen later and the measurement supports it.
+
+**Reassessment (2026-09-22).** The condition is met, and the earlier arithmetic was
+pessimistic in one measured respect. The theorem's price is no longer unknown: the
+one unported input, the Φ_p cone, is being ported, and §7.8 measures the remainder
+at **≈4.5k–4.9k deduplicated lines over 17 nodes** — not the 12,605-line headline,
+and closer to **1.4×** the first port than the table's "4–10×" proxy. Two of the
+table's four rows also move:
+
+- **clutter** stays weak, but the remainder is now known to be three shared
+  developments shipped repeatedly, not 17 independent proofs;
+- **truth** stops being "zero by assumption": discharging the fields makes
+  `functionFieldGeneration` an *unconditional, machine-checked* theorem, which is
+  the first proved FLT headline this port would own rather than a definition or a
+  conditional capstone.
+
+**What actually motivates the push (recorded 2026-09-22).** The line count above is
+context, not the argument. The argument is two-part, and neither part is about cost:
+
+1. **The cone is the segment's sole bridge to analysis.** R1 — the level-one
+   q-expansion principle — is the only place this part of FLT leaves algebra and
+   touches `ℍ`; base/013 shows it has no algebraic substitute, and Φ_p is how the
+   formal proof consumes it. §2.1's outbound ledger shows the analysis-facing
+   declarations (`qExpansion_discriminant_…`, `splits_prime_at_slot`,
+   `hasSum_qParam_*`) carry the largest external indegrees left in the cone — the
+   Γ₀(N), Fricke, cuspidal-divisor, modular-unit and fibre-model layers reach this
+   segment *through* the analytic facts. Porting Φ_p is what makes that connection
+   ours and checked rather than assumed.
+2. **The port pays lines for math and structural clarity, and that trade is
+   accepted.** The playbook's own lesson is that faithful ports are not
+   line-for-line smaller; the return is a module named for its mathematics, a
+   statement a reader can compare with the classical one, and a mechanically
+   checked correspondence. The line estimates exist to keep the plan honest about
+   scale, not to decide whether the work is worth doing.
+
+So the decision is to **finish it**: port Φ_p (sub-effort), then T14–T20 (§7.8).
+Cost is not the veto; if a topic's route is expensive but the clarity gain is real,
+the route is taken and the cost recorded, as T9's Route A was.
 
 ### 2.1 The gain test was too pessimistic about Layer 0 — measured
 
@@ -237,6 +290,53 @@ concentrated and named: `qExpansion_discriminant_eq_map_X_mul_dedekindEtaUnit`
 the nine also discharged `Inputs` fields, taking the conditional capstone's debt
 from 10 to 8. See [logs/ffg-port.md](logs/ffg-port.md) §2e.
 
+**The unexposed mass is being ported by the sub-effort (2026-09-22).** The four
+named declarations are in the Φ_p cone: `hasSum_qParam_mul_laurent` is T7's,
+`qExpansion_discriminant_eq_map_X_mul_dedekindEtaUnit` is T6's,
+`exists_phiIrreducible_evalSymm` is T12's and `splits_prime_at_slot` is T13's — but
+they are not the whole addition. Re-derived from the graph as the **out-of-cone
+≥5-indegree tier** (every cone declaration the rest of FLT reaches the segment
+through, counting only citers outside the 70-node cone), the frontier is a measured
+ledger. That tier is **24 declarations / 701 citations**, and its coverage by
+effort is:
+
+| status | decls | citations | share | cumulative |
+|---|---|---|---|---|
+| pre-Φ_p (Layer 0 + topics 1–4, the cheap interface) | 11 | 482 | 69% | 69% |
+| Φ_p T5–T13 | 8 | 174 | 25% | **94%** |
+| parent T14–T20 (the 5 remainder nodes still above the bar) | 5 | 45 | 6% | **100%** |
+
+Under the earlier convention (total indegree over the 70-node cone, the "946" of
+§2.1) the same three rows read 55% → 82% → 92%, with the capstone's own 52 citers
+closing it. Either way the shape is the same: **pre-Φ_p covered the cheap 55%;
+Φ_p takes it to the low 90s, and the parent remainder closes it.**
+
+**What Φ_p adds is exactly the analysis-facing half**, which is why the interface
+argument and the "sole connection to analysis" argument are the same argument. The
+eight ΔΦ_p declarations and their external citers:
+
+| declaration | topic | ext. | what cites it |
+|---|---|---|---|
+| `qExpansion_discriminant_eq_map_X_mul_dedekindEtaUnit` | T6 | 65 | the modular-unit series (`hasSum_modularUnitSeries_*`), `eisenstein4_*` relations, `exists_continuous_pow_eq_of_isPrincipal_smul_cuspidalDivisor` |
+| `PhiGen.splits_prime_at_slot` | T13 | 30 | the level-`N`/`Γ₀(N)` layer (`isIntegral_adjoin_jq_of_hasSum_of_gamma0_invariant`, `mem_modularFunctionField_of_hasSum_of_gamma0_invariant`), `FullLevel.AuxLevel*`, the Fricke involution `coe_frickeInvolutionFull_*` |
+| `hasSum_qParam_mul_laurent` | T7 | 22 | `hasSum_modularUnitSeries_*`, the cuspidal-divisor q-expansion bridges |
+| `qExpansion_E4_eq_map_eisenstein4` | T6 | 19 | the same modular-unit / Eisenstein sector |
+| `exists_phiIrreducible_evalSymm` | T12 | 15 | `ModularPolynomialData.*`, the level-`N` field layer |
+| `hasSum_jq_qParam` | T6 | 9 | the q-expansion bridges |
+| `hasSum_qParam_mul` | T7 | 8 | the same |
+| `E4_cube_div_discriminant_smul` | T6 | 6 | the same |
+
+The five that remain to T14–T20 are purely field-theoretic — `minpoly_jqN_map_eq_prod_slots`
+(19), `jqN_prime_not_mem_full` (7), `exists_phiIrreducible_of_finrank_eq` (7),
+`full_eq_adjoin_full_div_prime` (7), `finrank_adjoin_jqN_prime_of_not_mem` (5) — and
+they feed the degree/corollary layer (`exists_phiIrreducible`,
+`finrank_adjoin_jqN_eq_dedekindPsi`, `relfinrank_full_eq_dedekindPsi`,
+`modularFunctionField_eq_full`) plus the CharP/fibre-model and Atkin–Lehner
+consumers. No analysis is left behind after Φ_p. That is the strongest statement of
+why the cone is the right thing to finish first: it is the interface a fifth of FLT
+reaches this segment through, the four most-shared declarations in it were
+unportable, and every one of them is analysis.
+
 ## 3. Layer 0: sources and scope
 
 | source | lines | what it gives |
@@ -244,7 +344,7 @@ from 10 to 8. See [logs/ffg-port.md](logs/ffg-port.md) §2e.
 | `Definitions/Def_ModularCurve_X0.lean` | 348 | `qExpand`, `jq`, `jqN`, `dedekindPsi`, the two fields |
 | `Definitions/Def_ModularCurve_LaurentCoeff.lean` | 144 | coefficient change of the Laurent series |
 | `Definitions/Def_ModularCurve_PhiGen.lean` | 309 | the `q`-twist, the slot vocabulary |
-| `Definitions/Def_ModularForm_HeckeOperator.lean` | 204 | **not ported** — belongs to the §7 cut |
+| `Definitions/Def_ModularForm_HeckeOperator.lean` | 204 | **not ported in Layer 0**; the Φ_p sub-effort later took the 60-line `heckeMatrix`/`heckeDiagMatrix` subset into `FLTForHuman/ModularForms/Defs/HeckeOperator.lean` (T8). The `heckeU`/`heckeT` block stays unported — 0 occurrences in the cone |
 
 Split into two sub-scopes, because they have different consumers:
 
@@ -262,7 +362,9 @@ Split into two sub-scopes, because they have different consumers:
 
 Ship 0a. Hold 0b: it is definitions and therefore cheap, but its only consumer is
 the deferred theorem, so porting it now would be building the map before deciding
-to read it.
+to read it. (**Superseded:** 0b was built anyway once the conditional capstone
+made its shape precise — see §5 — and the reassessment of §7.8 is the "deciding to
+read it".)
 
 **The consumer is `spec/ModularCurveConsumer.lean`** — see §6. It writes down
 what Layer 0 is supposed to make possible, section by section, and its error
@@ -413,7 +515,10 @@ break the build; `lake build` never sees it. Removing the two smoke-test modules
 the same for the default target: those two files were the only `import Mathlib`
 in the tree and were dragging the whole library into the build plan.
 
-**Verification.** Layer 0 has no `sorry`, so there is no sorry protocol here.
+**Verification.** The library itself has no `sorry`; the one deferred `sorry` is the
+unconditional capstone in the consumer file, outside the build (§6's zone A). With
+T14–T20 in scope, §7.5's sorry protocol becomes live again: any temporary `sorry`
+carries a diagnosis and stays out of the library.
 
 ```bash
 cd lean
@@ -435,8 +540,8 @@ It is organised in three zones with different expectations:
 
 - **Zone A `[0a]`** — the objects, the pole-of-`j` lemmas, and the target
   statement `FunctionFieldGeneration N`. This zone must reach **0 errors**.
-- **Zone B `[0b]`** — `modularFunctionField`, `ModularPolynomialData`. Stays red
-  until the theorem is picked up.
+- **Zone B `[0b]`** — `modularFunctionField`, `ModularPolynomialData`. Bound since
+  Layer 0b landed; it was expected to stay red until the theorem was picked up.
 - **Zone C `[--]`** — claims the Definitions layer does *not* deliver: the
   regular coefficients of `jq` (`744`, `196884`) and `TS`. Both are now bound —
   `TS` by Layer 0b, the coefficients by the `jq`-coefficients topic — but by
@@ -472,11 +577,13 @@ The consumer also doubles as the FLT correspondence record: each object is
 playbook calls the friction log the highest-value artifact because it is the one
 thing not derivable from the code; this file is where it accumulates.
 
-## 7. Deferred: the theorem (menu, not a plan)
+## 7. Deferred no longer: the theorem's menu, and the schedule
 
-Everything below was the earlier draft of this blueprint. It is kept because it
-is measured and `tools/deps`-verified, and because a future session may want one
-*topic* of it. It is explicitly not scheduled.
+Everything in §7.1–§7.7 was the earlier draft of this blueprint. It is kept because
+it is measured and `tools/deps`-verified, and because it is the record of why the
+deferral was right while the Φ_p gate stood. **As of 2026-09-22 the gate is being
+removed and the theorem is scheduled: §7.8 is the reassessed frontier and the topic
+plan (T14–T19).** Read §7.1–§7.7 as history and §7.8 as the live plan.
 
 ### 7.1 The one big cut, if the theorem is ever attempted
 
@@ -707,21 +814,23 @@ the prelude's 43 declarations are already in the port (`Defs/TS.lean`,
 `coeffEmb_qExpand`, `iota_jqN`, the cyclotomic block): **~3,200 lines of genuinely
 new proof**, not 7,174.
 
-**Tier 2 — the one input that gates all seven.** `PhiGen.splits_prime_at_slot` is
-*not* in `Inputs`; it is the Φ_p subtree §7.1 **cut**: **44 nodes, 11,034 lines, 42
-direct dependents**. Its content decomposition, corrected size and the plan to
-isolate the analytic input are in
-[PORTING-PhiGen.md](PORTING-PhiGen.md). Every field above needs it in FLT's
-proof, so there are exactly
-three ways forward, and they should be chosen deliberately:
+**Tier 2 — the input that gated all seven, now being removed.**
+`PhiGen.splits_prime_at_slot` is *not* in `Inputs`; it is the Φ_p subtree §7.1
+**cut**: **44 nodes below it, 11,034 structural lines, 42 direct dependents**. Its
+content decomposition, corrected size and topic sequence are in
+[PORTING-PhiGen.md](PORTING-PhiGen.md). Every field above needs it in FLT's proof,
+so there were exactly three ways forward:
 
-1. **port the Φ_p subtree**, then discharge the seven;
-2. **make Φ_p an eighth field** and prove the seven *from* it — this turns the
-   capstone into a two-level conditional, `functionFieldGeneration` modulo Φ_p, and
-   isolates the one hard input as a named object rather than a subtree;
-3. **re-route** a field so it never needs Φ_p.
+1. **port the Φ_p subtree**, then discharge the seven — **chosen**. T5–T10 are done
+   and T11–T13 (construction, properties, consequence) are planned in the
+   sub-effort; §7.8 schedules the discharge.
+2. **make Φ_p an eighth field** — superseded. It was the fallback while the
+   subtree's cost was unknown, and it buys only a *two-level* conditional.
+3. **re-route** a field so it never needs Φ_p — not taken. The cone's analysis
+   (base/013) shows the level-one q-expansion principle has no algebraic
+   substitute, so the gate could be moved but not removed.
 
-Two reminders from this effort's own record, because they govern any estimate:
+Two reminders from this effort's own record still govern the schedule:
 
 - **cost tracks the route, not the subtree** (playbook §7.3). The `jq` coefficients
   were priced against this same 11,034-line cluster and turned out to be a 237-line
@@ -732,6 +841,158 @@ Two reminders from this effort's own record, because they govern any estimate:
   cluster. After four peels the remaining debt is dominated by 1,000–2,000-line
   nodes — the opposite of the interface tier's profile, and the reason the cheap work
   has run out.
+
+### 7.8 Reassessment after Φ_p: the measured remainder and the topic plan
+
+**Premise (2026-09-22).** [PORTING-PhiGen.md](PORTING-PhiGen.md) T11–T13 will land,
+so `PhiGen.splits_prime_at_slot` becomes a ported theorem. This section assumes that
+and re-derives the parent's frontier. It changes no code and no committed module; it
+is the schedule §7 previously lacked.
+
+**The gate really is removed, node by node.** The slot's 44-node closure maps
+exhaustively onto the sub-effort and the already-landed interface tier:
+
+| source | nodes below the slot |
+|---|---|
+| interface tier + Layer 0 (`coeffMap_*`, `coeffEmb_*`, `dedekindPsi_prime`, `aeval_jq_eq_zero`, `transcendental_jq`) | 7 |
+| T5–T7 (R1: the constancy kernel, the `jq` model, the Hauptmodul form) | 11 |
+| T8–T10 ((c) membership and the Hecke layer, (b) integrality, (b) pole bounds) | 9 |
+| T11 ((a) descent, the 328 block, (d) assembly) | 8 |
+| T12 ((e) the 895 block, `one_le_coeff_jq`, symmetry, existence) | 6 |
+| T13 ((d) uniqueness, (f) the splitting; the slot wrapper itself is the 45th) | 3 |
+
+There is no orphan node: 7 + 11 + 9 + 8 + 6 + 3 = 44, matching the graph's
+`meta.below = 44`. So porting T11–T13 completes the cone, and with it the whole
+Tier-2 gate.
+
+**The frontier is the 24-node remainder minus the seven already done.** Regenerated
+from `tools/deps` exactly as §7.3's script does, the remainder below the capstone
+and outside the slot closure is 24 nodes. Seven are already discharged — the
+`functionFieldGeneration_iff_full_eq` collapse (`Collapse.lean`), both `dedekindPsi`
+lemmas (`Defs/Jq.lean`), `relfinrank_modularFunctionField` (`Defs/Fields.lean`) and
+the three `Polynomial.*` lemmas (`FieldTheory/CommonRoot.lean`). **Seventeen nodes
+remain**, and they are the seven `Inputs` fields *plus the ten internal nodes their
+proofs need* — which is why discharging the fields cannot be priced at the fields'
+own 7,174 raw lines. The pin and the sub-effort agree on where they sit:
+`jqN_prime_not_mem_full` and `minpoly_jqN_map_eq_prod_slots`, for instance, are the
+two `Inputs` fields that cite `PhiGen.splits_prime_at_slot` directly.
+
+**Fifteen of the seventeen are on the theorem's proof path.** The graph closure is
+import-level, and two of the seventeen — `exists_phiIrreducible_of_finrank_eq`
+(158) and `exists_monic_evalAtJ_jqN_eq_zero` (108) — are trailing corollaries that
+no `Inputs` field cites; the node `ModularCurve.functionFieldGeneration` "cites"
+them only because the pin's generator reads the whole solution file. §8.4 recorded
+exactly this pruning when the spine was built, and the port's `Inputs` confirms it:
+no field mentions either. So the theorem's own price is the 15-node one,
+**≈4.3k–4.7k**; the two corollaries are worth ~250 lines and buy the downstream API
+(`exists_phiIrreducible`, `finrank_adjoin_jqN_eq_dedekindPsi`,
+`relfinrank_full_eq_dedekindPsi`) that the rest of FLT consumes. T20 carries them as
+an explicit, optional tail.
+
+**Measured (2026-09-22).** For each remaining node, the whole `S_` file, the lines
+in declarations shared with at least five of the seventeen (the repeated prelude),
+and the remainder ("own"). The shared prelude is ~375 lines / 45 declarations
+carried by twelve of the seventeen files — the survey's "≈360-line `TS`/`phiAtSeed`
+block", re-measured.
+
+| node | pin file | shared | own | topic |
+|---|---|---|---|---|
+| `minpoly_jqN_map_eq_prod_slots` | 2,002 | 391 | 1,577 | T19 |
+| `jqN_prime_not_mem_full` | 2,002 | 391 | (same file) | T19 |
+| `jqN_pow_not_mem_adjoin_full` | 995 | 387 | 580 | T17 |
+| `finrank_adjoin_jqN_eq_of_squarefree` | 864 | 385 | 445 | T18 |
+| `finrank_adjoin_jqN_pow_succ_of_not_mem` | 758 | 396 | 333 | T16 |
+| `modularFunctionField_eq_full_of` | 735 | 383 | 325 | T15 |
+| `jqN_div_mem_modularFunctionField` | 735 | 383 | (same file) | T15 |
+| `jqN_prime_not_mem_adjoin` | 653 | 376 | 244 | T17 |
+| `full_eq_adjoin_full_div_prime` | 624 | 373 | 224 | T18 |
+| `full_eq_adjoin_primes` | 600 | 373 | 200 | T18 |
+| `relfinrank_full_of_squarefree` | 526 | 373 | 124 | T18 |
+| `finrank_adjoin_jqN_prime_of_not_mem` | 348 | 245 | 77 | T16 |
+| `exists_phiIrreducible_of_finrank_eq` | 158 | 4 | 135 | T20 (optional) |
+| `exists_monic_evalAtJ_jqN_eq_zero` | 108 | 51 | 42 | T20 (optional) |
+| `relfinrank_full_eq_mul` | 81 | 4 | 57 | T16 |
+| `dedekindPsi_of_squarefree` | 69 | 4 | 51 | T18 |
+| `functionFieldGeneration_of_squarefree` | 54 | 4 | 30 | T18 |
+| **total (17 nodes)** | **11,312** | **4,523** | **6,346** | |
+
+"Deduplicated" is not the own-column sum, because the three duplicate developments
+of §2/§7.6 reappear here. The ledger:
+
+| correction | lines |
+|---|---|
+| 17-node structural sum | 11,312 |
+| shared prelude (≈375 × 12) written once | −4,143 |
+| `minpoly_jqN_map_eq_prod_slots` ≡ `jqN_prime_not_mem_full` (one file, two nodes) | −1,577 |
+| `modularFunctionField_eq_full_of` ≡ `jqN_div_mem_modularFunctionField` | −325 |
+| one of the two `jqN_prime_not_mem_adjoin` proofs (the 2,002-line file has its own) | −244 (up to −650) |
+| **deduplicated structural** | **≈4,600–5,000** |
+| less the prelude already in the port (`Defs/TS.lean`, `iota_jqN`, the cyclotomic block ≈ 135) | **≈4,450–4,900** |
+
+So the remainder is **≈4.5k–4.9k genuinely new port lines** including the two
+trailing corollaries, or **≈4.3k–4.7k** for `functionFieldGeneration` alone — about
+**1.4×** the first port (3,362 lines) and **about the size of the whole Φ_p
+sub-effort** (T5–T10 shipped 2,981; T11–T13 budget ~2,800 more). That is a structural
+count, not a proof budget — T8 and T9 both showed lines are not effort — but it is
+the first measured price this theorem has had, and it is 2.5× below the 12,605
+headline.
+
+**The topics (T14–T20).** The cut is by mathematical object, one shared development
+per topic, so each proof is written once — but the measured intra-remainder
+dependency graph does **not** follow math/010's section order, and the topics below
+respect the real order. The surprise is that the two 2,002-line `Inputs` fields sit
+*downstream* of everything: both cite `functionFieldGeneration_of_squarefree`, which
+cites the squarefree degree nodes. The prime-power *degree* step (T16) is upstream of
+the non-membership base (T17), which is upstream of the squarefree generation/degree
+block (T18), which is upstream of the slot product (T19). Only the descent (T15)
+and the prelude (T14) are independent of that chain.
+
+| topic | object | content | ≈ new lines | prereq |
+|---|---|---|---|---|
+| **T14** | the slot machinery | expose the shared prelude publicly: `qTwistEquiv` + cycle, `phiProd_conj_eq`, `roots_phiProd_conj(_nodup)`, `qExpand_qTwist_TS`, `prod_form_ne_zero`, `roots_prime_at_slot*`, `isRoot_prime_at_slot_iff`, `phiAtSeed*` and its six lemmas, `qExpand_qTwist_notMem_range_qExpand`; promote the `Spine.lean` `private` cyclotomic block and `iota_jqN`/`jqN_congr` to `Defs/` | ~250 | Φ_p defs |
+| **T15** | descent and the collapse (math/010 §4–§5) | `jqN_div_mem_modularFunctionField`, `modularFunctionField_eq_full_of` (one 735-line development) | ~350 | T14, Φ_p T12–T13 |
+| **T16** | the degree step (math/010 §6b) | `finrank_adjoin_jqN_prime_of_not_mem`, `finrank_adjoin_jqN_pow_succ_of_not_mem`, `relfinrank_full_eq_mul` | ~500 | T14, Φ_p T13, `CommonRoot` |
+| **T17** | non-membership, base and tower (math/010 §6a) | `jqN_pow_not_mem_adjoin_full`, `jqN_prime_not_mem_adjoin` | ~830 | T14, T16 |
+| **T18** | generation and the squarefree degree (math/010 §5–§6b) | `full_eq_adjoin_full_div_prime`, `full_eq_adjoin_primes`, `dedekindPsi_of_squarefree`, `relfinrank_full_of_squarefree`, `finrank_adjoin_jqN_eq_of_squarefree`, `functionFieldGeneration_of_squarefree` | ~1,150 | T15, T16, T17 |
+| **T19** | the slot product and prime non-membership (math/010 §3, §6a) | `minpoly_jqN_map_eq_prod_slots`, `jqN_prime_not_mem_full` (one 2,002-line development; it also contains a second `jqN_prime_not_mem_adjoin`, redundant with T17) | ~1,300–1,600 | T18, Φ_p `splits_prime_at_slot` |
+| **T20** | the unconditional capstone | construct `Inputs` from T15–T18 and apply `functionFieldGeneration_of`; replace the consumer's `sorry` with the proved `functionFieldGeneration N`; **optional tail:** `exists_monic_evalAtJ_jqN_eq_zero`, `exists_phiIrreducible_of_finrank_eq` (+~250, for the downstream corollaries) | ~50 (+250) | T15–T18, plus T19 for two fields |
+
+**Route risks, in the order they will bite.** Each is a candidate for the
+"cost tracks the route" treatment before its topic is priced:
+
+- **T14 decides T15–T19's interface.** Every remaining file starts with the same
+  block; if the port exposes it in the shape the proofs want (the pin's `TS`,
+  `qTwistEquiv` and `phiAtSeed` spellings), the rest are transcriptions. The one
+  known trap is Tier 4's `qTwistEquiv` — T8 already hit a `mapGL`-transparency
+  issue with this family; T5's log §2.2 has the `FunLike` fallback.
+- **T19's 2,002-line development is the riskiest single file.** It is three
+  proofs — the slot product, prime non-membership, and the redundant
+  `jqN_prime_not_mem_adjoin` — and the survey leaves open which copy is
+  load-bearing. Count the named nodes' lines versus the helper chain before
+  committing, as §2's standing rule requires.
+- **T16/T18's Tier-1 bridges are the most likely mathlib win.** The survey marks
+  `IntermediateField.relfinrank`, `extendScalars_adjoin`, `adjoin.finrank` and the
+  tower law as mathlib-present; FLT restates them monomorphically. Import mathlib's
+  and write only the named monomorphic restatements the `rw`/`simp` calls need
+  (rule §1.3).
+- **T20's optional `exists_phiIrreducible_of_finrank_eq`** is only 158 lines and may
+  now be a short corollary of Φ_p's `exists_phiIrreducible_evalSymm` plus minpoly
+  degree; route-check before porting the pin's construction. It is off the
+  theorem's proof path, so it can be deferred without blocking T20's capstone.
+- **`Inputs` stays frozen.** T20 must *construct* the existing structure, not add
+  fields: the ten internal nodes are proofs, not assumptions. If any internal node
+  resists, the honest move is a `sorry` with the playbook's diagnosis (§7.5), not a
+  new field.
+
+**Definition of done for the parent effort.** `lake build` green, 0 warnings, no
+`sorry`; `#print axioms` on `functionFieldGeneration` clean; the consumer's only
+`sorry` gone and Zone A's capstone unconditional; the statement checker extended
+with T14–T19's wrappers and T20's capstone. At that point
+`ModularCurve.functionFieldGeneration` is a proved theorem of the port, the
+segment's one conditional is discharged, and — by §2.1's ledger — the **out-of-cone
+≥5-indegree tier is 100% covered**: every declaration through which the rest of FLT
+reaches this segment, the analytic ones included, is a ported theorem rather than a
+reference.
 
 ## 8. Open questions
 
@@ -774,8 +1035,25 @@ Two reminders from this effort's own record, because they govern any estimate:
   one place where a mistake is silent until much later. It is now mechanically
   checked: `spec/check_flt_statements.py` extracts every port declaration's
   statement and diffs it against the pinned source —
-  **150 of 150 identical, 0 mismatched, 0 missing** — and the consumer's
+  **205 of 205 identical, 0 mismatched, 0 missing** — and the consumer's
   cross-module compositions remain the runtime wire test.
-- **If the theorem is revisited**, the first act is the §2 measurement — one `S_`
-  module, named node's proof lines versus helpers — recorded here. Until it is
-  made, any line budget for Layers 1–4 is an assumption, not an estimate.
+- **Is the theorem still a "revisit"? — resolved by §7.8: it is scheduled.** The
+  §2 measurement the previous version of this bullet demanded has been made. The
+  graph remainder is 17 nodes, 11,312 structural pin lines, ≈4.5k–4.9k after dedup;
+  the theorem's own proof path is 15 nodes, ≈4.3k–4.7k, the difference being two
+  trailing corollaries no `Inputs` field cites. The plan is T14–T20. What is *not*
+  yet measured is the route each of the heavy developments should take; that is each
+  topic's own work order, per §2's standing rule.
+- **What if Φ_p slips?** Only T14 (the slot machinery) is independent of the cone's
+  *proofs*. Every remaining node cites `exists_phiIrreducible_evalSymm` (T12),
+  directly or through T16's finrank chain, and T15–T19 additionally cite
+  `PhiGen.splits_prime_at_slot`/`splits_of_prime` (T13). So the parent can land T14
+  in parallel with the sub-effort and nothing more; the critical path is
+  T12 → T13 → T15–T19. That is worth stating because it means the two efforts are
+  sequential, not concurrent, and the parent should not be started until T12–T13 are
+  green.
+- **Stop-and-harvest, restated.** The conditional capstone plus the whole cone is
+  already a coherent artifact. Finishing costs ≈4.5k–4.9k lines and buys the first
+  *unconditional* FLT headline the port would own. If that trade is ever refused,
+  the honest stopping point is after T14 (the interface exposed) rather than
+  midway through T16.
