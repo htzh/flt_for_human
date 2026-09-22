@@ -1,20 +1,22 @@
 # The Φₚ splitting / R1 sub-effort — record
 
-**Status: T5–T7 complete (2026-09-22) — R1 is complete.** This is the running
-record for the sub-effort [PORTING-PhiGen.md](../PORTING-PhiGen.md) opens: the R1
-(level-one q-expansion principle) sequence that gives the Φₚ splitting cone its
-one analytic input. It is separate from the parent `functionFieldGeneration`
-record ([ffg-port.md](ffg-port.md)) — the parent's cone and this sub-effort share
-no declaration, and the sub-effort's topics are not on `ffg-port.md`'s layer
-table, so the measured cost lives here rather than as an append there.
+**Status: T5–T8 complete (2026-09-22) — R1 is complete and the cone's (c) is
+discharged.** This is the running record for the sub-effort
+[PORTING-PhiGen.md](../PORTING-PhiGen.md) opens: the R1 (level-one q-expansion
+principle) sequence that gives the Φₚ splitting cone its one analytic input. It is
+separate from the parent `functionFieldGeneration` record ([ffg-port.md](ffg-port.md))
+— the parent's cone and this sub-effort share no declaration, and the
+sub-effort's topics are not on `ffg-port.md`'s layer table, so the measured cost
+lives here rather than as an append there.
 
 The executed plans are
 [TOPIC-r1-kernel.md](../topics/phiGenSplitting/TOPIC-r1-kernel.md) (T5),
-[TOPIC-jq-model.md](../topics/phiGenSplitting/TOPIC-jq-model.md) (T6) and
-[TOPIC-hauptmodul.md](../topics/phiGenSplitting/TOPIC-hauptmodul.md) (T7); the
-mathematics of record is
+[TOPIC-jq-model.md](../topics/phiGenSplitting/TOPIC-jq-model.md) (T6),
+[TOPIC-hauptmodul.md](../topics/phiGenSplitting/TOPIC-hauptmodul.md) (T7) and
+[TOPIC-phiGen-descends.md](../topics/phiGenSplitting/TOPIC-phiGen-descends.md)
+(T8); the mathematics of record is
 [base/013](../../base/013-riemann-existence-and-the-q-expansion-principle.md) §3,
-§5.4, §6. FLT is pinned at `aa2d8b3`; mathlib at `v4.34.0`.
+§4.3, §5.4, §6. FLT is pinned at `aa2d8b3`; mathlib at `v4.34.0`.
 
 ## 0. Where the sub-effort stands
 
@@ -23,16 +25,19 @@ mathematics of record is
 | **T5** | R1's constancy kernel + the `n = 0` corollary, in `FLTForHuman/ModularForms/` | **done**, 1 module, 2 public + 6 private, 333 lines | kernel verbatim; axioms clean |
 | **T6** | the analytic model of `jq` (`jq` sums to `E₄³/Δ`; its `SL₂(ℤ)`-invariance) | **done**, 1 module, 2 public + 43 private, 622 lines | both statements verbatim; consumer Zone D bound; axioms clean |
 | **T7** | the Hauptmodul form (R1 complete) | **done**, 1 module, 15 public + 16 private, 483 lines | headline + T8 interface verbatim; consumer Zone E bound; axioms clean |
-| T8 | the cone application (Hecke translates) | not started | — |
+| **T8** | the cone application (the descended coefficients lie in `ℚ[jq]`) | **done**, 3 modules, 8 public + 43 private, 725 lines | four statements verbatim; consumer Zone F bound; axioms clean |
 
-R1 = T5–T7 (**now complete**); T8 is the cone's (c). The sub-effort's deliverables
-are three files:
+R1 = T5–T7 (**complete**); T8 discharges the cone's (c) (**complete**). The
+sub-effort's deliverables are six files:
 
 | module | lines | decls | FLT source (`aa2d8b3`) |
 |---|---|---|---|
 | `FLTForHuman/ModularForms/QExpansionPrinciple.lean` | 333 | 2 public + 6 `private` (+1 `example`) | `P2M/Sol/S_ModularCurve_coeff_eq_zero_of_hasSum_of_slash_invariant.lean` (186) |
 | `FLTForHuman/ModularForms/JqAnalyticModel.lean` | 622 | 2 public + 43 `private` | `hasSum_jq_qParam` (45), `hasSum_jNum_qParam` (235), `qExpansion_discriminant_eq_X_mul_tprod` (199), `…_map_X_mul_dedekindEtaUnit` (76), `qExpansion_E4_…` (34), `…_E4_cube_div_discriminant_smul` |
 | `FLTForHuman/ModularForms/Hauptmodul.lean` | 483 | 15 public + 16 `private` | `hasSum_qParam_mul` (80), `…_laurent` (84), `exists_aeval_jq_sub_holomorphicAtInfty` (84), `mem_adjoin_jq_of_hasSum_of_slash_invariant` (214) |
+| `FLTForHuman/ModularForms/Defs/HeckeOperator.lean` | 115 | 4 public + 7 `private` | `Def_ModularForm_HeckeOperator` 11–70 (of 204) |
+| `FLTForHuman/ModularForms/HeckeQExpansion.lean` | 100 | 2 public | `hasSum_qParam_heckeMatrix_smul` (54), `…_heckeDiagMatrix_smul` (55) |
+| `FLTForHuman/ModularForms/PhiGenDescends.lean` | 510 | 2 public + 36 `private` | `cosetPoly_smul` (244), `…_hasSum_cosetPoly_coeff` (281), `…_mem_adjoin_jq_of_phiGenDescends` (47) |
 
 ## 1. What T5 cost
 
@@ -298,3 +303,101 @@ T5 (kernel) → T6 (realization) → T7 (Hauptmodul) now form a compiled chain:
 `mem_adjoin_jq_of_realL_invariant` to the holomorphic remainder of an arbitrary
 pole-bounded invariant series, and the realization of the polynomials in `jq` is
 T6's. T8 is the cone's algebra and no longer has R1 on its critical path.
+
+## 8. T8: the cone application — (c) discharged
+
+Three new modules, **725 lines**, 8 public and 43 private declarations:
+`Defs/HeckeOperator.lean` (115), `HeckeQExpansion.lean` (100),
+`PhiGenDescends.lean` (510). The four exported statements —
+`hasSum_qParam_heckeMatrix_smul`, `hasSum_qParam_heckeDiagMatrix_smul`,
+`cosetPoly_smul`, `PhiGen.mem_adjoin_jq_of_phiGenDescends` — are verbatim from
+their wrappers; `hasSum_coeff_of_phiGenDescends` and the whole `ZMod`/`OnePoint`
+group theory are private. One goal round (of the 4 budgeted; the documented
+T8a/T8b split was not needed).
+
+| | |
+|---|---|
+| goal rounds | **1** (of the 4 budgeted; checkpoint at 1 not needed) |
+| declarations | 8 public, 43 `private` |
+| lines written | 725 total: 115 Hecke defs, 100 Hecke q-expansions, 510 coset + descend |
+| build | `lake build` 3792 jobs, green, **0 warnings**, no `sorry` |
+| `#print axioms` | all 8 public declarations: only `propext, Classical.choice, Quot.sound` |
+| checker | `176 statements identical, 0 mismatched, 0 missing, 8 own-proof exempted` (168 → 176) |
+| consumer | Zone F added and bound; **0 errors**, still one `sorry` (the deferred capstone) |
+
+### 8.1 Cost, and the dedup payoff
+
+**725 port lines against ~741 of pin content** (681 in the five S files + the
+60-line Hecke subset of FLT's 204-line def file) — ratio **0.98**, the
+sub-effort's cheapest (T5 1.79, T6 1.06, T7 1.05). The deduplication is what made
+it: FLT's `…hasSum_cosetPoly_coeff.lean` copies the `RealL` + closure block
+(~90 lines) and the `jt`/`jqC` glue (~17) from T7's file; the port imports T7's
+public `RealL`/closure and redefines only ~10 lines of private `jt`/`jqC` glue, so
+**~97 lines were never written**. This is the payoff of T7 exporting the API, and
+it is the first topic where the deduplication rule visibly moved the ratio.
+
+### 8.2 The Hecke definitions
+
+The minimal subset sufficed, exactly as the `grep -c` survey predicted:
+`heckeMatrix` (3 of T8's 5 pin files), `heckeDiagMatrix` (3),
+`coe_heckeMatrix_smul` (1), `coe_heckeDiagMatrix_smul` (1) — nothing else. The
+port takes `upperTriangularGL`, `heckeMatrix`, `heckeDiagMatrix`, `val_*`,
+`det_*`, `denom_*` and `coe_*_smul` (the last four private except the two
+`coe_*_smul`, which the next module needs).
+
+**The dropped block is genuinely unused.** `heckeU`, `heckeT`, `coeffHeckeT`,
+`coeffHeckeU`, `slash_hecke*`, `σ_hecke*`: **0 occurrences** in T8's five pin
+files. Across the cone's other 44 node files, `heckeU`/`heckeT` appear only in the
+doc-site toolchain's `attribute [-simp] ModularForm.heckeU_zero …` pragma
+(5 files: `ModularPolynomialData_eq_of_prime`, `PhiGen_splits_of_prime`,
+`PhiGen_splits_prime_at_slot`, `exists_phiIrreducible_evalSymm`,
+`finrank_adjoin_jqN_eq_of_prime`) and `coeffHeckeT`/`coeffHeckeU`/`slash_hecke*`/
+`σ_hecke*` are 0. So the cone's remaining pieces do **not** need the Hecke
+operators; a later effort that does extends the module then.
+
+### 8.3 Did the `ZMod`/`OnePoint` group theory behave?
+
+The predicted `FunLike` trap did not occur, but a different mathlib-facing issue
+did, and it is the interesting finding:
+
+- **The `mapGL`-entry transparency issue.** The pin's `@[scoped simp]
+  mapGL_apply` (and every explicit restatement, `mapGL_coe_matrix`,
+  `Matrix.SpecialLinearGroup.map_apply_coe`, `RingHom.mapMatrix_apply`,
+  `Matrix.map_apply` in isolation) failed to rewrite the entries of the anonymous
+  `SL(2,ℤ)` matrix `⟨!![…], _⟩` produced by `refine`, with Lean reporting "target
+  expression is not type-correct under the implicit transparency level". The fix
+  is mathlib's own `set_option backward.isDefEq.respectTransparency.types false`
+  before the four commutation lemmas (the same directive `Discriminant.lean`
+  uses); with it, the default `simp [hp, Matrix.mul_apply, Fin.sum_univ_two]`
+  reduces the entries and `mapGL_apply` is not needed at all. **Not a heartbeat
+  blow-up** — the typecheck is 6.4 s.
+- **Explicit `(p := p)` for `redMatrix`.** In `heckeRep_mul` the `Fact p.Prime`
+  instance stayed stuck on an unresolved `p` (`Fact (Nat.Prime (?m g'))`) until
+  the implicit `p` was given explicitly.
+- **`have` vs `haveI` in `sigma_zeta`.** A local `have : IsCyclotomicExtension …`
+  is *not* found by instance search where `haveI` is, so the
+  `linter.style.haveILetI` warning is disabled locally for that one declaration
+  rather than silently weakening the proof. This refines T7's log §7.3: the
+  playbook's "prefer `have` for class-typed locals" is not universal.
+- `if_pos`/`if_neg` → `ite_eq_left`/`ite_eq_right` four times (T5's drift
+  family).
+
+### 8.4 The wire test
+
+Zone F of `spec/ModularCurveConsumer.lean` binds
+`PhiGen.mem_adjoin_jq_of_phiGenDescends` plus the T8 interface and the
+correspondence, and states the theorem in hypothesis form (so the full signature,
+including `PhiGenDescends`, elaborates). There is **no concrete instance**: the
+hypothesis `hc : PhiGenDescends ℓ ζ c` is the cone's piece (a), which is not
+ported, and the work order forbids inventing one. The node's real consumer is the
+cone's (d) `exists_modularPolynomialData_coeff_eq`, also not ported. The internal
+chain is nonetheless genuine — `hasSum_coeff_of_phiGenDescends` builds the
+realization, T7's headline consumes it, and the two Hecke lemmas plus
+`cosetPoly_smul` feed it — and it spans all four R1/cone modules.
+
+### 8.5 The planned sequence is complete
+
+T5–T8 are done; R1 is complete and the cone's (c) is discharged. What remains of
+the cone is its other five pieces (see `PORTING-PhiGen.md` §6 and §8's table),
+and the one interface node the later pieces reach. The sub-effort's record here
+is closed.

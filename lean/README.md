@@ -104,6 +104,9 @@ alongside `.lake/` in case it does.
 | `FLTForHuman/ModularForms/QExpansionPrinciple.lean` | R1, the level-one q-expansion principle | `coeff_eq_zero_of_hasSum_of_slash_invariant` (verbatim from its pin wrapper): a holomorphic, `SL₂(ℤ)`-invariant `q`-series is constant. Plus our `mem_adjoin_jq_of_poleOrderLE_zero`, the `n = 0` end of R1's Hauptmodul form and the wire test. The port's first analytic module: the analysis is mathlib's `ModularForm.eq_const_of_weight_zero`; of the pin's 14 helpers only `mdifferentiable` needed a proof, one (`coeff_unique`) kept its pin argument because mathlib's replacement blows up on the bare function type, and the rest became mathlib calls. FLT `S_ModularCurve_coeff_eq_zero_of_hasSum_of_slash_invariant` (186 lines) |
 | `FLTForHuman/ModularForms/JqAnalyticModel.lean` | the analytic model of `jq` | `hasSum_jq_qParam` (verbatim): the formal Laurent series `jq` sums to `E₄(τ)³/Δ(τ)` on `ℍ`, coefficient by coefficient — the realization hypothesis T7 consumes, and the only bridge from `Defs/Jq.lean`'s `PowerSeries`-built `jq` to mathlib's `E₄`/`Δ`. Plus `E4_cube_div_discriminant_smul`, its `SL₂(ℤ)`-invariance. The pin's `qExpansion_*` cluster and its gluing to `eisenstein4`/`dedekindEtaUnit`/`jNum`; `hasSum_jNum_qParam` stays private. FLT `S_ModularCurve_hasSum_jq_qParam` + `…_hasSum_jNum_qParam` + `qExpansion_{E4,discriminant_*}` (~589 lines) |
 | `FLTForHuman/ModularForms/Hauptmodul.lean` | the Hauptmodul form — R1 complete | `mem_adjoin_jq_of_hasSum_of_slash_invariant` (verbatim): a Laurent series realized by an `SL₂(ℤ)`-invariant function on `ℍ` lies in `ℚ[jq]`. It composes T5's kernel (on the holomorphic remainder) with this module's pole killing and T6's realization. Also **exports** `RealL` + its closure and `hasSum_qParam_mul{,_laurent}`: FLT duplicates the `RealL` block in its T8 file, so the port defines it once here and T8 imports it. FLT `S_ModularCurve_hasSum_qParam_mul` + `…_mul_laurent` + `…_exists_aeval_jq_sub_holomorphicAtInfty` + `…_mem_adjoin_jq_of_hasSum_of_slash_invariant` (~462 lines) |
+| `FLTForHuman/ModularForms/Defs/HeckeOperator.lean` | the Hecke matrices | `heckeMatrix` (`!![1, j; 0, p]`) and `heckeDiagMatrix` (`!![p, 0; 0, 1]`) with their action on `ℍ`. mathlib has **no** Hecke operators, so this is a definitions port: the 60-line subset the Φ_p cone uses, from FLT's 204-line `Def_ModularForm_HeckeOperator`; the `heckeU`/`heckeT` operator block is not ported (0 occurrences in the cone) |
+| `FLTForHuman/ModularForms/HeckeQExpansion.lean` | the Hecke translates of a `q`-expansion | `hasSum_qParam_heckeMatrix_smul` (`τ ↦ (τ+b)/ℓ` twists the coefficients and changes the period `1 ↦ ℓ`) and `hasSum_qParam_heckeDiagMatrix_smul` (`τ ↦ ℓτ`, coefficients `qExpand ℂ (ℓ*ℓ)`). base/013 §5.2's analytic face of the Hecke action. FLT `S_ModularCurve_hasSum_qParam_hecke{Matrix,DiagMatrix}_smul` (~109 lines) |
+| `FLTForHuman/ModularForms/PhiGenDescends.lean` | the cone's (c) | `PhiGen.mem_adjoin_jq_of_phiGenDescends` (verbatim): a descended coefficient of the conjugate product lies in `ℚ[jq]`. It proves `cosetPoly_smul` (the coset polynomial's `SL₂(ℤ)`-invariance through the action on `ℙ¹(𝔽_ℓ)`) and privately realizes `c k` via the Hecke translates (the `σ : ℚ(ζ_ℓ) → ℂ` embedding), then applies T7's headline. The pin duplicates T7's `RealL`/glue here; the port imports instead (~97 lines saved). FLT `S_ModularCurve_cosetPoly_smul` + `…_hasSum_cosetPoly_coeff` + `…_mem_adjoin_jq_of_phiGenDescends` (~572 lines) |
 
 The port of `#E[n](K) = n²` (math/005) has its own working record:
 [logs/card-torsion-port.md](logs/card-torsion-port.md) — dependency trace,
@@ -144,7 +147,7 @@ errors** with Zones A, B and C all bound. Its only remaining `sorry` is the
 deferred theorem's capstone. `PORTING-FFG.md` records why the theorem itself stays
 deferred; the consumer's tail carries the v4.34.0 friction list, and
 [spec/check_flt_statements.py](spec/check_flt_statements.py) diffs every port
-declaration's statement against the pinned source (168 of 168 identical, with the
+declaration's statement against the pinned source (176 of 176 identical, with the
 own-proof declarations exempted explicitly).
 
 Both Layer 0 work orders are gone: they were finished, their durable material
@@ -231,6 +234,30 @@ gained Zone E (the wire test runs the headline on `jq` with T6's two theorems);
 [logs/phiGen-port.md](logs/phiGen-port.md) §7 carries the accounting and the one
 checker constraint it discovered.
 
+The sub-effort's fourth topic is complete too, **completing the planned sequence
+and discharging the Φ_p cone's item (c)**:
+[TOPIC-phiGen-descends.md](topics/phiGenSplitting/TOPIC-phiGen-descends.md) proves
+`PhiGen.mem_adjoin_jq_of_phiGenDescends` — the descended coefficients lie in
+`ℚ[jq]` — in `FLTForHuman/ModularForms/PhiGenDescends.lean`, over the new Hecke
+layer (`Defs/HeckeOperator.lean`, `HeckeQExpansion.lean`). Its audit found that
+**mathlib has no Hecke operators** at all, so it adds the sub-effort's first
+definition module (the minimal `heckeMatrix`/`heckeDiagMatrix` subset; the
+`heckeU`/`heckeT` block is unused by the cone), and it imports T7's `RealL` API
+rather than copying the ~97 lines FLT duplicates — the port is 725 lines against
+~741 of pin content (ratio 0.98, the sub-effort's cheapest). The consumer gained
+Zone F; [logs/phiGen-port.md](logs/phiGen-port.md) §8 carries the accounting and
+the `mapGL`-transparency finding. What remains of the cone is its other five
+pieces, not this sub-effort.
+
+The cone-algebra effort's first topic is written and audited:
+[TOPIC-integrality.md](topics/phiGenSplitting/TOPIC-integrality.md) is the
+integrality of the descended coefficients (the first half of piece (b)), with all
+prerequisites in place. It is the **first deliberate deviation from a compiled FLT
+script** — Route A works in `LaurentSeries (integralClosure ℤ K)` and pushes down
+`HahnSeries.map`, replacing ~83 lines of closure machinery — and the work order
+carries a deviation protocol (spike in scratch, fall back to FLT's route at the
+checkpoint) plus the build-discipline block at its head.
+
 ## Where things live
 
 The documentation has four roles, and they are kept apart on purpose:
@@ -249,11 +276,12 @@ level into `topics/<effort>/`, and the log gains the entry that summarises it.
 `topics/functionFieldGeneration/` holds the four topics of the
 `functionFieldGeneration` effort, and `topics/phiGenSplitting/` holds the topics
 of its Φ_p splitting / R1 sub-effort
-([PORTING-PhiGen.md](PORTING-PhiGen.md)); its first three work orders,
+([PORTING-PhiGen.md](PORTING-PhiGen.md)); its four work orders,
 [TOPIC-r1-kernel.md](topics/phiGenSplitting/TOPIC-r1-kernel.md),
-[TOPIC-jq-model.md](topics/phiGenSplitting/TOPIC-jq-model.md) and
-[TOPIC-hauptmodul.md](topics/phiGenSplitting/TOPIC-hauptmodul.md), are complete
-(R1 is done), and
+[TOPIC-jq-model.md](topics/phiGenSplitting/TOPIC-jq-model.md),
+[TOPIC-hauptmodul.md](topics/phiGenSplitting/TOPIC-hauptmodul.md) and
+[TOPIC-phiGen-descends.md](topics/phiGenSplitting/TOPIC-phiGen-descends.md), are
+complete (R1 is done and the cone's (c) is discharged), and
 [logs/phiGen-port.md](logs/phiGen-port.md) is the sub-effort's record.
 
 ## Sources

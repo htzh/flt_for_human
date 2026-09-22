@@ -1,7 +1,8 @@
 # Blueprint: the Φₚ splitting cone — `PhiGen.splits_prime_at_slot`
 
-**Status: analysis done; T5–T7 landed — R1 complete — T8 next
-(2026-09-22).** This file is the math-content inventory of the 44-node cone below
+**Status: analysis done; T5–T8 landed — R1 complete and the cone's (c)
+discharged (2026-09-22).** This file is the math-content inventory of the 44-node
+cone below
 `ModularCurve.PhiGen.splits_prime_at_slot`, the measurement that the headline
 line count overstates it by ~1.6×, and the plan for the next topic: isolating
 the cone's one genuinely analytic input, the **level-one q-expansion principle**.
@@ -302,7 +303,7 @@ fourth:
 | **T5 (done)** | the constancy kernel, plus the `n = 0` corollary | `coeff_eq_zero_of_hasSum_of_slash_invariant` | 186 | [TOPIC-r1-kernel.md](topics/phiGenSplitting/TOPIC-r1-kernel.md) |
 | **T6 (done)** | the analytic model of `jq` | `qExpansion_*`, `hasSum_jNum_qParam`, `hasSum_jq_qParam`, `E4_cube_div_discriminant_smul` | ~589 | [TOPIC-jq-model.md](topics/phiGenSplitting/TOPIC-jq-model.md) |
 | **T7 (done)** | the Hauptmodul form | `hasSum_qParam_mul{,_laurent}`, `exists_aeval_jq_sub_holomorphicAtInfty`, `mem_adjoin_jq_of_hasSum_of_slash_invariant` | ~462 | [TOPIC-hauptmodul.md](topics/phiGenSplitting/TOPIC-hauptmodul.md) |
-| **T8 (next)** | the cone application: the descended coefficients lie in `ℚ[jq]` | the Hecke translates, `cosetPoly_smul`, `hasSum_cosetPoly_coeff`, `mem_adjoin_jq_of_phiGenDescends` | ~680 | — |
+| **T8 (done)** | the cone application: the descended coefficients lie in `ℚ[jq]` | the Hecke translates, `cosetPoly_smul`, `hasSum_cosetPoly_coeff`, `mem_adjoin_jq_of_phiGenDescends` | ~681 | [TOPIC-phiGen-descends.md](topics/phiGenSplitting/TOPIC-phiGen-descends.md) |
 
 R1 = T5–T7; T8 is the cone's (c) and needs all three. The split is by
 mathematical object, not by file: T5 is generic modular-form analysis with no
@@ -372,11 +373,47 @@ headline on `jq` with T6's two theorems as its hypotheses), and R1's analytic
 input is now a complete, compiled chain. The measured cost is in
 [logs/phiGen-port.md](logs/phiGen-port.md) §7.
 
-**T8 is next: the cone application.** Its work order is unwritten. It imports
-this topic's `RealL` closure and `hasSum_qParam_mul{,_laurent}` (not a copy), and
-its content is the Hecke translates, `cosetPoly_smul`, `hasSum_cosetPoly_coeff`
-and `mem_adjoin_jq_of_phiGenDescends`. R1 is no longer on its critical path: the
-analytic input is done, so T8 is the algebra of the cone's (c).
+**T8 is done** (2026-09-22, one goal round) — **the planned sequence is complete
+and the cone's (c) is discharged.** Its work order was
+[topics/phiGenSplitting/TOPIC-phiGen-descends.md](topics/phiGenSplitting/TOPIC-phiGen-descends.md),
+now the executed plan. It delivered `PhiGen.mem_adjoin_jq_of_phiGenDescends` over
+three new modules — `Defs/HeckeOperator.lean`, `HeckeQExpansion.lean` and
+`PhiGenDescends.lean` — plus the Hecke/coset interface
+(`hasSum_qParam_heckeMatrix_smul`, `hasSum_qParam_heckeDiagMatrix_smul`,
+`cosetPoly_smul`). The audit's headline was positive: mathlib has **no** Hecke
+operators, so the topic adds the sub-effort's first definition module, taking only
+the 60-line subset the cone uses (the `heckeU`/`heckeT` block is genuinely unused
+— 0 occurrences in T8's files, and elsewhere only in the doc-site
+`attribute [-simp]` pragma of 5 cone nodes). It imports T7's `RealL`/closure
+rather than copying the pin's ~97 duplicated lines. The port is 725 lines, 8
+public and 43 private declarations, against ~741 lines of pin content (ratio
+0.98 — the sub-effort's cheapest); the predicted `FunLike` trap did not occur, but
+a `mapGL`-entry transparency issue did, fixed with mathlib's own
+`set_option backward.isDefEq.respectTransparency.types false`. The checker moved
+168 → 176; the consumer gained Zone F. The measured cost and the three shape
+issues are in [logs/phiGen-port.md](logs/phiGen-port.md) §8.
+
+**What remains of the cone.** §6 below is the re-route menu; the four other
+algebraic pieces — and the one interface node (`hasSum_qParam_mul_laurent`) that
+the cone's later pieces reach (`indeg` 24 in FLT's graph) — are the next effort.
+
+**The next topic is T9, the integrality** (written and audited):
+[topics/phiGenSplitting/TOPIC-integrality.md](topics/phiGenSplitting/TOPIC-integrality.md).
+It is the first cone-algebra topic and the first half of (b): the pin's
+`PhiGenDescends.intCoeffs` (239) and the integrality half of
+`aeval_jq_intCoeffs_descent` (~108). Its prerequisites are all in place —
+`IntCoeffs`, `PhiGenDescends`, `jq`/`jNum : PowerSeries ℤ`, `coeffMap_qExpand` —
+with two lemmas to promote (`coeff_aeval_jq_neg` and `poleOrderLE_aeval_jq`,
+private in T7's `Hauptmodul.lean`; the pin repeats `coeff_aeval_jq_neg` in **9**
+files, so this is the remaining cone's best dedup). It is also the **first
+deliberate deviation from a compiled FLT script**: §2.1 offers Route A
+(`LaurentSeries 𝒪` + `HahnSeries.map` + `IsPrimitiveRoot.isIntegral`, which
+replaces ~83 lines of closure machinery with ring structure) against Route B
+(FLT's `integralClosure` script), and the work order carries a deviation protocol:
+spike A in `Scratch.lean` under a 60 s bound, fall back to B at the round-1
+checkpoint, record which shipped. Budget 2 rounds by *route risk*, not lines —
+T8 measured the user's point in the negative: 741 pin lines, one round, ratio
+0.98, so pin lines are not effort.
 
 **Cost honesty.** The cone's own `jq`-coefficients precedent is the warning:
 math/010 priced the `744`/`196884` coefficients against the same 11,034-line
@@ -393,7 +430,37 @@ the `n = 0` corollary is a genuine cross-module composition over the port's
 
 ## 6. If (c) lands: the algebra re-route options
 
-All speculative; none is a plan. They are the reason (c) is the interesting
+**What is left after (c), measured (2026-09-22).** The deduplicated cone is
+**5,811 lines over 37 developments**; T5–T8 cover **1,956** of it (their 16 nodes
+are all singletons), so the remaining five pieces are **3,855 lines over 21
+distinct developments** (of which ≈98 are the interface nodes already in `Defs/`,
+leaving ≈3,760 to port). At the measured port ratios (T5 1.79, T6 1.06, T7 1.05,
+T8 ≈1.0) that is **≈3,900–4,400 port lines** — about **1.8–2.0× the whole R1
+sub-effort** (T5–T8 wrote ≈2,160 lines), or 7 topics at the current granularity:
+
+| piece | dedup pin | est. port | topics |
+|---|---|---|---|
+| (a) descent `exists_phiGenDescends` | 315 | 330–360 | 1 |
+| (b) integrality + pole bounds | 1,266 | 1,330–1,460 | 2 |
+| (d) assembly + uniqueness | 502 | 530–580 | 1 |
+| (e) irreducibility/symmetry + `one_le_coeff_jq` | 1,281 | 1,350–1,500 | 2 |
+| (f) the statement `splits_of_prime` | 394 (+288 seed) | 430–500 | 1 |
+
+The (b) row carries an open route-check (Option 2 below): its integrality half is
+plausibly ~150–250 port lines after the `LaurentSeries 𝒪` reformulation and the
+triangularity/`TPoleOrderLE` dedup, which would put (b) at ~600–800 and the total
+closer to **3,200–3,700**.
+
+Three of those are single developments shipped several times by p2m (the 895-line
+block ×3, the 328-line block ×5, the 391-line block ×2); deduplicating at the
+source, as T5–T8 did, is what makes the table's numbers the ones to price. The
+remaining pieces use **no Hecke operators** (their only `hecke*` occurrence is
+the mechanical `attribute [-simp]` line p2m emits), so T8's minimal Hecke subset
+needs no extension. The default remains a faithful port at roughly 1:1 — the
+same "price the glue, not the mathlib-replaceable leaves" profile as T6/T7 —
+unless one of the options below is route-checked and shown shorter.
+
+All speculative; none is a plan. They are the reason (c) was the interesting
 topic rather than a faithful port of the cone.
 
 - **Option 0 — unchanged.** (a),(b),(d),(e) are ported as FLT has them and (c)
@@ -406,11 +473,35 @@ topic rather than a faithful port of the cone.
   *Potential:* if `finrank_adjoin_jqN_eq_of_prime` can be obtained from the
   candidate instead of from an independently constructed irreducible datum, (d)
   and part of (e) collapse.
-- **Option 2 — replace (b)'s integrality route.** `PhiGenDescends.intCoeffs`
-  goes through `integralClosure ℤ K` and its own eta-product integrality. A
-  general "q-expansion integrality" lemma over the port's `Defs/Jq.lean`
-  vocabulary might discharge it more directly. *Tradeoff:* touches the 239-line
-  integrality file and the 308-line descent file; unknown whether it is shorter.
+- **Option 2 — the integrality route: checked, and it can be done better.**
+  (Route-checked 2026-09-22.) The integrality is **not avoidable**: the datum's
+  type is `Polynomial (Polynomial ℤ)`, and the triangularity forces
+  $`P_k`$'s coefficients to be the descended series' negative-degree coefficients
+  ($`P_k.\mathrm{coeff}\,m = (c_k).\mathrm{coeff}\,(-m)`$), so the descended
+  family must be shown to have integer $`q`$-expansion coefficients. But the
+  pin's proof of *that* is inflatable in three measured ways, and mathlib has
+  grown the parts it was missing:
+  1. `IsPrimitiveRoot.isIntegral` (RootsOfUnity/Minpoly.lean:41) gives
+     `IsIntegral ℤ μ` for a primitive root of unity, replacing the pin's manual
+     `val_mem_integralClosure_of_pow_eq_one` and
+     `zpow_val_mem_integralClosure_of_pow_eq_one`;
+  2. the pin's coefficient-wise `CoeffsIntegral` predicate and its six closure
+     lemmas can be replaced by working in `LaurentSeries (integralClosure ℤ K)`
+     and mapping down along `HahnSeries.map`, a ring hom
+     (`HahnSeries.map_mul`/`map_add`/`map_one`), which makes add/mul/one closure
+     automatic;
+  3. the port's `jq` is built from `jNum : PowerSeries ℤ`, so `IntCoeffs (jq ^ n)`
+     is immediate by construction, and the descent
+     `IntCoeffs (aeval jq P) → P ∈ ℤ[X]` is ~20 lines given the triangularity.
+  Two deduplications dominate the measured savings: the triangularity
+  `coeff_aeval_jq_neg` appears in **9** pin files, and the `TPoleOrderLE` closure
+  block in **3** of the (b)-bucket files — `aeval_jq_intCoeffs_descent` alone
+  spends ~180 of its 308 lines on a copy of it. Defined once in `Defs/`, (b)'s
+  integrality content is plausibly **~150–250 port lines** and the whole (b)
+  bucket **~600–800**, against the table's 1,330–1,460. *This is a route-check,
+  not a measurement:* T5–T8's lesson is that the audit buys correctness more
+  reliably than lines, so a small compile spike must confirm the
+  `LaurentSeries 𝒪` formulation before the estimate is trusted.
 - **Option 3 — strengthen (c) and skip the descended family.** *Constrained by
   base/013 §6:* any restatement that drops the realization on $`\mathbb{H}`$ is
   false. `f = 1 + q` is a nonconstant power series in $`\mathbb{Q}((q))`$, hence

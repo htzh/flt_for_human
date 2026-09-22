@@ -81,6 +81,15 @@ SOURCES = [
     "Theorems/Thm_ModularCurve_hasSum_qParam_mul_laurent.lean",
     "Theorems/Thm_ModularCurve_mem_adjoin_jq_of_hasSum_of_slash_invariant.lean",
     "P2M/Sol/S_ModularCurve_mem_adjoin_jq_of_hasSum_of_slash_invariant.lean",
+    # Topic 8, the Φ_p application. Four wrappers for the exported theorem and the
+    # Hecke/coset interface, plus FLT's own Hecke-operator *definitions* file:
+    # mathlib has no `heckeMatrix`, so `FLTForHuman/ModularForms/Defs/HeckeOperator.lean`
+    # transcribes the subset the cone uses and is diffed against the pin's def file.
+    "Theorems/Thm_ModularCurve_hasSum_qParam_heckeMatrix_smul.lean",
+    "Theorems/Thm_ModularCurve_hasSum_qParam_heckeDiagMatrix_smul.lean",
+    "Theorems/Thm_ModularCurve_cosetPoly_smul.lean",
+    "Theorems/Thm_ModularCurve_PhiGen_mem_adjoin_jq_of_phiGenDescends.lean",
+    "Definitions/Def_ModularForm_HeckeOperator.lean",
 ]
 
 PORT_FILES = [
@@ -99,6 +108,9 @@ PORT_FILES = [
     "FLTForHuman/ModularForms/QExpansionPrinciple.lean",
     "FLTForHuman/ModularForms/JqAnalyticModel.lean",
     "FLTForHuman/ModularForms/Hauptmodul.lean",
+    "FLTForHuman/ModularForms/Defs/HeckeOperator.lean",
+    "FLTForHuman/ModularForms/HeckeQExpansion.lean",
+    "FLTForHuman/ModularForms/PhiGenDescends.lean",
 ]
 
 # Declarations whose *statement* has no FLT source, so there is nothing to diff:

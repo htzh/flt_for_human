@@ -63,6 +63,8 @@ import FLTForHuman.ModularCurve.FunctionFieldGeneration.Spine
 import FLTForHuman.ModularForms.JqAnalyticModel
 -- T7: R1's Hauptmodul form, and the `RealL`/Cauchy-product interface for T8.
 import FLTForHuman.ModularForms.Hauptmodul
+-- T8: the cone's (c), `mem_adjoin_jq_of_phiGenDescends`, and the Hecke layer.
+import FLTForHuman.ModularForms.PhiGenDescends
 
 set_option autoImplicit false
 
@@ -264,6 +266,39 @@ example : jq ∈ Algebra.adjoin ℚ {jq} :=
     (fun τ => hasSum_jq_qParam τ)
     (fun γ τ => E4_cube_div_discriminant_smul γ τ)
 
+/-! ## Zone F — [T8] the cone's (c): the descended coefficients lie in `ℚ[jq]`
+
+`FLTForHuman/ModularForms/PhiGenDescends.lean` proves
+`PhiGen.mem_adjoin_jq_of_phiGenDescends`, the application R1 was isolated for: a
+descended coefficient of the conjugate product lies in `ℚ[jq]`. Its proof
+composes the whole sub-effort — this topic's two Hecke-translate q-expansions and
+`cosetPoly_smul`, T7's `RealL` closure and headline, and T6's realization.
+
+**The wire test is a binding, not a concrete instance.** The internal chain is
+genuine (`hasSum_coeff_of_phiGenDescends` produces the realization, T7's headline
+consumes it, the two Hecke lemmas feed the former), but its hypothesis
+`hc : PhiGenDescends ℓ ζ c` is the cone's piece **(a)**, which is *not* ported, so
+no concrete `hc` exists to instantiate. The zone therefore binds the exported
+statement, the T8 interface T8's siblings use, and the correspondence; the node's
+real consumer is the cone's (d) `exists_modularPolynomialData_coeff_eq`, which is
+also not ported.
+-/
+
+#check @ModularCurve.PhiGen.mem_adjoin_jq_of_phiGenDescends
+#check @cosetPoly_smul
+#check @hasSum_qParam_heckeMatrix_smul
+#check @hasSum_qParam_heckeDiagMatrix_smul
+#check @ModularForm.heckeMatrix
+#check @ModularForm.coe_heckeMatrix_smul
+
+-- The statement in hypothesis form: the full signature, including the
+-- `PhiGenDescends` descent hypothesis, elaborates against the port's `Defs/`.
+example (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] (ζ : (CyclotomicField ℓ ℚ)ˣ)
+    (hζ : IsPrimitiveRoot (ζ : CyclotomicField ℓ ℚ) ℓ)
+    (c : ℕ → LaurentSeries ℚ) (hc : ModularCurve.PhiGen.PhiGenDescends ℓ ζ c) (k : ℕ) :
+    c k ∈ Algebra.adjoin ℚ {jq} :=
+  ModularCurve.PhiGen.mem_adjoin_jq_of_phiGenDescends ℓ ζ hζ c hc k
+
 /-! ## The measure
 
     cd lean
@@ -345,6 +380,16 @@ over three modules whose conclusion (`jq ∈ ℚ[jq]`) is trivial but whose
 hypotheses are the whole interface. The module also exports the `RealL` closure
 and `hasSum_qParam_mul{,_laurent}` that T8 imports. Still **0 errors**, one
 `sorry`.
+
+**Φ_p application result (2026-09-22).** Zone F is added and bound:
+`FLTForHuman/ModularForms/PhiGenDescends.lean` proves the cone's (c),
+`PhiGen.mem_adjoin_jq_of_phiGenDescends`, over the new Hecke layer
+(`Defs/HeckeOperator.lean`, `HeckeQExpansion.lean`). The topic's plan sequence is
+now complete and (c) is discharged. Zone F binds the statement, the T8 interface
+and the correspondence; it has **no concrete wire instance**, because the
+hypothesis `hc : PhiGenDescends ℓ ζ c` is the cone's piece (a), which is not
+ported — the internal chain is nonetheless a genuine four-module composition.
+Still **0 errors**, one `sorry`.
 
 ## Friction list (mathlib `v4.34.0` against FLT's `v4.33.0`)
 
@@ -462,6 +507,30 @@ every entry.
     headline (whose comparable sources are the wrappers) use the long forms.
     **The rule for later topics: match the wrapper's spelling, not the S file's,
     for any public declaration the checker verifies.**
+16. **Topic 8 — no Hecke operators in mathlib, and three real shape issues.**
+    (a) `grep -rln heckeMatrix Mathlib/` is empty: mathlib has no Hecke
+    matrices, so `Defs/HeckeOperator.lean` is a definitions port, the first since
+    Layer 0b. Only the subset the cone uses (4 public declarations plus private
+    `val_*`/`det_*`/`denom_*`) is taken; the `heckeU`/`heckeT`/`coeffHecke*`/
+    `slash_hecke*`/`σ_hecke*` block has **0 occurrences** in T8's five pin files
+    and appears in the cone's other node files only in the doc-site
+    `attribute [-simp] ModularForm.heckeU_zero …` pragma (5 files), never
+    mathematically.
+    (b) **A transparency issue, fixed by mathlib's own workaround.** The pin's
+    `@[scoped simp] mapGL_apply` (and every explicit variant) failed to rewrite
+    the entries of the *anonymous* `SL(2,ℤ)` matrix `⟨!![…], _⟩` produced by
+    `refine`, with Lean reporting "not type-correct under the implicit
+    transparency level". `set_option backward.isDefEq.respectTransparency.types
+    false in` before the four commutation lemmas — the same directive mathlib uses
+    in `Discriminant.lean` — makes the default `simp` reduce the entries, and
+    `mapGL_apply` is not needed at all. Not a heartbeat blow-up.
+    (c) Two smaller shape issues: `redMatrix g` needed explicit `(p := p)` (the
+    `Fact p.Prime` instance stayed stuck on an unresolved `p`), and in
+    `sigma_zeta` a local `have : IsCyclotomicExtension …` is *not* found by
+    instance search where `haveI` is, so the `linter.style.haveILetI` warning is
+    disabled locally for that declaration rather than silently weakening the
+    proof. `if_pos`/`if_neg` → `ite_eq_left`/`ite_eq_right` again (entry 2's
+    family), four times.
 
 The `sorry`s are not errors and do not count: their job is to keep the
 *statements* checkable while the proofs are out of scope.
