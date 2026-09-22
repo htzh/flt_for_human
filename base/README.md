@@ -153,3 +153,16 @@ notation, spending their space on the subject at hand.
   coset application), and the direct answer that the genuine analytic input is R1
   specialized to `X(1)`, stated minimally as the kernel; with the key-point
   table.
+- [014 — Hecke operators: cosets, q-expansions, and the two matrices](014-hecke-operators.md):
+  the classical Hecke operator as an average of slash actions over the `ℓ+1`
+  representatives of a double coset, and the two matrices (`heckeMatrix`,
+  `heckeDiagMatrix`) that the port defines — the `τ ↦ (τ+b)/ℓ` and `τ ↦ ℓτ`
+  substitutions; the `T_p`/`U_p` level split, the `q`-expansion coefficient
+  rules and the eigenform recursion, and the Lean encoding (the port's subset,
+  FLT's `heckeU`/`heckeT`, the bundled `heckeTLin`/`heckeULin`, the commutative
+  `heckeAlgebra`, `IsNormalizedEigenform`, `HeckeAlg`); then the heart — the
+  Hecke-coset polynomial `(X - j(ℓτ))·∏_{b<ℓ}(X - j((τ+b)/ℓ))` of the PhiGen
+  segment, why `SL₂(ℤ)` permutes its roots, and how that upgrades the invariance
+  to level one so R1 suffices; with the four faces of the operator and a
+  forward map to the divisor correspondence `T_ℓ = α_*β^*` on `J₀(N)`
+  ([math/009](../math/009-hecke-jacobian-commute.md)).
