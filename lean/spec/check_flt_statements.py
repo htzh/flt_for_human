@@ -52,6 +52,11 @@ SOURCES = [
     "Theorems/Thm_ModularCurve_dedekindPsi_prime.lean",
     "Theorems/Thm_ModularCurve_dedekindPsi_prime_pow.lean",
     "Theorems/Thm_ModularCurve_dedekindPsi_mul_of_coprime.lean",
+    # Two out-of-cone ψ facts FLT publishes but the port did not carry until the
+    # 2026-09-22 audit sweep (`Defs/Jq.lean`); both are `Them_` wrappers, so they
+    # verify by direct name match.
+    "Theorems/Thm_ModularCurve_dedekindPsi_mul_prime.lean",
+    "Theorems/Thm_ModularCurve_dedekindPsi_pos.lean",
     "Theorems/Thm_ModularCurve_aeval_jq_eq_zero.lean",
     "Theorems/Thm_ModularCurve_transcendental_jq.lean",
     "P2M/Sol/S_ModularCurve_functionFieldGeneration.lean",
@@ -229,6 +234,14 @@ SOURCES = [
     # helpers, but neither is part of the port's public surface.
     "Theorems/Thm_ModularCurve_jqN_pow_not_mem_adjoin_full.lean",
     "Theorems/Thm_ModularCurve_jqN_prime_not_mem_adjoin.lean",
+    # Topic 18, one new generator per prime power. The node is a public wrapper, so
+    # it verifies by direct match. No `S_` carrier is needed: the pin's
+    # `jqN_mem_of_div_primes`/`w1_jqN_mem_adjoin_top_insert` are `private` in
+    # files that are not listed. `gen_prime` (the audit's T19 substitution) is our
+    # own and is exempted in `OWN_PROOFS`; the promoted `tight_one`/`gen_one`
+    # verify through the `S_ModularCurve_functionFieldGeneration.lean` dotted
+    # fallback (that file is already listed above, under topic 2 / T14).
+    "Theorems/Thm_ModularCurve_full_eq_adjoin_full_div_prime.lean",
 ]
 
 PORT_FILES = [
@@ -271,6 +284,8 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/FunctionFieldGeneration/DegreeStep.lean",
     # Topic 17, the non-membership tower and the two-prime separation.
     "FLTForHuman/ModularCurve/FunctionFieldGeneration/Nonmembership.lean",
+    # Topic 18, one new generator per prime power.
+    "FLTForHuman/ModularCurve/FunctionFieldGeneration/Generation.lean",
 ]
 
 # Declarations whose *statement* has no FLT source, so there is nothing to diff:
@@ -308,6 +323,13 @@ OWN_PROOFS = {
     # name/statement to diff. See
     # `FLTForHuman/ModularForms/QExpansionPrinciple.lean`.
     "mem_adjoin_jq_of_poleOrderLE_zero",
+    # `gen_prime` (T18) is ours, like `Tight`/`Gen`/`Hall`: it is the 2026-09-22
+    # route audit's replacement for the pin's `functionFieldGeneration_of_squarefree`
+    # detour at `S_ModularCurve_jqN_prime_not_mem_full.lean:1638`. FLT has no such
+    # declaration (`Gen p` is definitional: both sides are `ℚ(jq, jqN p)`), so
+    # there is no name/statement to diff. The promoted `tight_one`/`gen_one` are
+    # FLT's and verify through the pin's `private` copies instead.
+    "gen_prime",
 }
 
 # Declaration keywords. `instance` matters for PhiGen; `structure` for Polynomial.

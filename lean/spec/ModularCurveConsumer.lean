@@ -92,6 +92,8 @@ import FLTForHuman.ModularCurve.FunctionFieldGeneration.Descent
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.DegreeStep
 -- T17: the non-membership tower and the two-prime separation.
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Nonmembership
+-- T18: one new generator per prime power.
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.Generation
 -- The cyclotomic instances for the end-to-end wire tests of Zones I, J and K.
 import Mathlib.NumberTheory.Cyclotomic.Basic
 
@@ -781,6 +783,51 @@ example (S : Finset ℕ) (hS : ∀ p ∈ S, p.Prime) (r : ℕ) [hr : Fact (Nat.P
         x = ModularCurve.jqN p}) :=
   ModularCurve.jqN_prime_not_mem_adjoin S hS r hrS
 
+/-! ## Zone P — [T18] one new generator per prime power
+
+`FLTForHuman/ModularCurve/FunctionFieldGeneration/Generation.lean` proves
+`full_eq_adjoin_full_div_prime`, the fifth `Inputs` field:
+`F^full_{M p ^ (a + 1)} = ℚ(F^full_{M p ^ a}, j(q ^ (p ^ (a + 1))))` for
+`p ∤ M`. Its engine is the once-ported two-prime descent `jqN_mem_of_div_primes`
+(the unique-common-root principle on `φ_p` and `φ_q`), driven by the strong
+induction `w1_jqN_mem_adjoin_top_insert`; it composes T14's slot vocabulary,
+T13's `splits_prime_at_slot` and T4's `mem_range_of_unique_common_root`.
+
+The zone also binds the T19 substitution landed in `Defs/Fields.lean`: the
+`Tight`/`Gen`/`Hall` invariants and `tight_one`/`gen_one` promoted out of
+`Spine.lean`, plus `gen_prime` (`Gen p` is definitional). This is the audit's
+replacement (`TOPIC-t17-t19-route-audit.md` §1) for the pin's
+`functionFieldGeneration_of_squarefree p` call at
+`S_ModularCurve_jqN_prime_not_mem_full.lean:1638`, so T19 does not depend on the
+deferred squarefree block.
+
+**The wire test is the `Inputs` composition, so the debt visibly drops to two.**
+`full_eq_adjoin_full_div_prime` is the fifth field discharged (3 → 2); this example
+fills all five proved fields and leaves the two still-unported ones as `sorry`. -/
+
+#check @ModularCurve.full_eq_adjoin_full_div_prime
+#check @ModularCurve.tight_one
+#check @ModularCurve.gen_one
+#check @ModularCurve.gen_prime
+
+-- T18 fills the fifth `Inputs` field; the other two are the unported debt.
+example : ModularCurve.Inputs :=
+  { full_eq_adjoin_full_div_prime := ModularCurve.full_eq_adjoin_full_div_prime
+    jqN_prime_not_mem_full := sorry
+    jqN_pow_not_mem_adjoin_full := ModularCurve.jqN_pow_not_mem_adjoin_full
+    minpoly_jqN_map_eq_prod_slots := sorry
+    modularFunctionField_eq_full_of := ModularCurve.modularFunctionField_eq_full_of
+    jqN_div_mem_modularFunctionField := ModularCurve.jqN_div_mem_modularFunctionField
+    relfinrank_full_eq_mul := ModularCurve.relfinrank_full_eq_mul }
+
+-- The T19 substitution: `Gen p` at a concrete prime, from `gen_prime`.
+example : ModularCurve.Gen 2 := ModularCurve.gen_prime 2 (hp := ⟨Nat.prime_two⟩)
+
+-- …and in hypothesis form for any prime.
+example (p : ℕ) [hp : Fact (Nat.Prime p)] : ModularCurve.Gen p := by
+  haveI : NeZero p := ⟨hp.out.ne_zero⟩
+  exact ModularCurve.gen_prime p
+
 /-! ## The measure
 
     cd lean
@@ -1155,6 +1202,17 @@ was needed), and `chain_endgame` closed under the global `maxHeartbeats`
 partially-discharged `Inputs` with the four proved fields filled and the three
 unported ones `sorry`; the file now carries the Zone A capstone plus the
 `Inputs`-field `sorry`s of Zones M (five), N (four) and O (three).
+
+**Generation result (2026-09-22).** Zone P is added and bound:
+`FLTForHuman/ModularCurve/FunctionFieldGeneration/Generation.lean` proves
+`full_eq_adjoin_full_div_prime`, the fifth `Inputs` field, so the debt is
+**3 → 2**. The zone also binds the T19 substitution landed in `Defs/Fields.lean` —
+the `Tight`/`Gen`/`Hall` invariants and `tight_one`/`gen_one` promoted out of
+`Spine.lean`, plus `gen_prime` — which is the 2026-09-22 route audit's replacement
+for the pin's `functionFieldGeneration_of_squarefree` call. The wire test is the
+partially discharged `Inputs` with the five proved fields filled and the two
+unported ones `sorry`; the file now carries the Zone A capstone plus the
+`Inputs`-field `sorry`s of Zones M (five), N (four), O (three) and P (two).
 
 The `sorry`s are not errors and do not count: their job is to keep the
 *statements* checkable while the proofs are out of scope.

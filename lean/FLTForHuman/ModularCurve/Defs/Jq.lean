@@ -18,11 +18,13 @@
 
   This module also carries the part of the cone's **outbound interface** stated
   over `jq` and `dedekindPsi`: `dedekindPsi_prime`, `dedekindPsi_prime_pow`,
-  `dedekindPsi_mul_of_coprime` (FLT `S_ModularCurve_dedekindPsi_*`, whose ψ
-  section is ~50 lines and whose remaining resultant development is off-path),
-  `aeval_jq_eq_zero` and `transcendental_jq`. They are transcribed verbatim from
-  their `Theorems/Thm_ModularCurve_*` wrappers in the pin and are public; the
-  indegrees in FLT's graph are 72, 33, 46, 2 and 56. See
+  `dedekindPsi_mul_of_coprime`, and — added 2026-09-22 from the audit sweep — the
+  two out-of-cone ψ facts `dedekindPsi_mul_prime` and `dedekindPsi_pos`, which FLT
+  publishes as `Them_` wrappers (indeg 20 and 76) and which the port had been
+  re-proving privately in `Spine.lean` and again in the T19 pin's slot-counting
+  block. Then `aeval_jq_eq_zero` and `transcendental_jq`. They are transcribed
+  verbatim from their `Theorems/Thm_ModularCurve_*` wrappers in the pin and are
+  public; the indegrees in FLT's graph are 72, 33, 46, 20, 76, 2 and 56. See
   `logs/ffg-port.md` §2e.
 
   Names are FLT's verbatim; `PowerSeries`, `HahnSeries`, `Finset`,
@@ -285,6 +287,45 @@ theorem dedekindPsi_mul_of_coprime (M N : ℕ) (h : Nat.Coprime M N) :
     dedekindPsi (M * N) = dedekindPsi M * dedekindPsi N := by
   simp only [dedekindPsi_eq_mul_apply]
   exact isMultiplicative_squarefreeIndicator_mul_id.map_mul_of_coprime h
+
+/-- The prime step of `ψ`: `ψ(Mℓ) = (if ℓ ∣ M then ℓ else ℓ + 1) · ψ(M)`. Part of
+the cone's neighbourhood interface (indeg 20). FLT publishes it as a `Them_`
+wrapper; the port had re-proved its two cases privately in `Spine.lean` and again
+in the T19 pin's slot-counting block, so it is written once here. Verbatim from
+`Thm_ModularCurve_dedekindPsi_mul_prime`. -/
+theorem dedekindPsi_mul_prime (M ℓ : ℕ) [NeZero M] (hℓ : ℓ.Prime) :
+    dedekindPsi (M * ℓ) = (if ℓ ∣ M then ℓ else ℓ + 1) * dedekindPsi M := by
+  have hM : M ≠ 0 := NeZero.ne M
+  obtain ⟨k, M', hM', rfl⟩ := Nat.exists_eq_pow_mul_and_not_dvd hM ℓ hℓ.ne_one
+  have hcop : Nat.Coprime (ℓ ^ k) M' :=
+    Nat.Coprime.pow_left k ((Nat.Prime.coprime_iff_not_dvd hℓ).mpr hM')
+  have hcop' : Nat.Coprime M' ℓ := ((Nat.Prime.coprime_iff_not_dvd hℓ).mpr hM').symm
+  rcases Nat.eq_zero_or_pos k with rfl | hk
+  · simp only [pow_zero, one_mul] at hcop ⊢
+    rw [ite_eq_right hM', dedekindPsi_mul_of_coprime M' ℓ hcop', dedekindPsi_prime hℓ,
+      mul_comm]
+  · have hdvd : ℓ ∣ ℓ ^ k * M' := dvd_mul_of_dvd_left (dvd_pow_self ℓ hk.ne') M'
+    rw [ite_eq_left hdvd]
+    have e1 : ℓ ^ k * M' * ℓ = ℓ ^ (k + 1) * M' := by ring
+    have hcop1 : Nat.Coprime (ℓ ^ (k + 1)) M' :=
+      Nat.Coprime.pow_left (k + 1) ((Nat.Prime.coprime_iff_not_dvd hℓ).mpr hM')
+    rw [e1, dedekindPsi_mul_of_coprime _ _ hcop1, dedekindPsi_mul_of_coprime _ _ hcop,
+      dedekindPsi_prime_pow ℓ (k + 1) hℓ (Nat.succ_ne_zero k),
+      dedekindPsi_prime_pow ℓ k hℓ hk.ne', Nat.add_sub_cancel]
+    obtain ⟨j, rfl⟩ := Nat.exists_eq_add_of_lt hk
+    simp only [Nat.zero_add, Nat.add_sub_cancel]
+    ring
+
+/-- `ψ` is positive at every nonzero level. Part of the cone's neighbourhood
+interface (indeg 76); the pin proves it from `le_dedekindPsi`, whose argument is
+inlined here. Verbatim statement from `Thm_ModularCurve_dedekindPsi_pos`. -/
+theorem dedekindPsi_pos (N : ℕ) (hN : N ≠ 0) : 0 < dedekindPsi N := by
+  rw [dedekindPsi]
+  have h1 : (1 : ℕ) ∈ {d ∈ N.divisors | Squarefree d} :=
+    Finset.mem_filter.mpr ⟨Nat.one_mem_divisors.mpr hN, squarefree_one⟩
+  have hs : N ≤ ∑ d ∈ {d ∈ N.divisors | Squarefree d}, N / d := by
+    simpa using Finset.single_le_sum (f := fun d => N / d) (fun d _ => Nat.zero_le _) h1
+  exact lt_of_lt_of_le (Nat.pos_of_ne_zero hN) hs
 
 /-- Evaluation of an integer polynomial at `jq`, as a ring hom into the Laurent
 series over `ℚ`. -/

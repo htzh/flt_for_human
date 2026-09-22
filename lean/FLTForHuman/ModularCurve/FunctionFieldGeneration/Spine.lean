@@ -27,7 +27,10 @@
   `Defs/Fields.lean` beside `adjoin_jq_le` — so the structure has **seven**
   fields. Nothing else is discharged: the unconditional capstone stays the
   consumer's deferred `sorry`. The auxiliary block is `private`; the public
-  surface is `Tight`, `Gen`, `Hall`, `Inputs` and `functionFieldGeneration_of`.
+  surface is `Inputs` and `functionFieldGeneration_of`. T18 moved the
+  `Tight`/`Gen`/`Hall` invariants and `tight_one`/`gen_one` (and the T19
+  substitution `gen_prime`) to `Defs/Fields.lean`; they are imported, not declared
+  here.
 
   Two of the seven fields state FLT's `hall` hypothesis as `Hall M →` rather than
   writing the conjunction out. `Hall` is an `abbrev` for exactly that conjunction
@@ -87,20 +90,12 @@ private theorem mff_congr {n m : ℕ} [NeZero n] [NeZero m] (h : n = m) :
     modularFunctionField n = modularFunctionField m := by
   subst h; rfl
 
-/-! ## The invariants -/
+/-! ## The invariants
 
-/-- The two invariants of the strong induction, bundled. `Tight d` says the
-relative degree of `ℚ⟮jq⟯(jqN d)` over `ℚ⟮jq⟯` is exactly `ψ(d)`. -/
-abbrev Tight (d : ℕ) [NeZero d] : Prop :=
-  Module.finrank ℚ⟮jq⟯ (IntermediateField.adjoin ℚ⟮jq⟯ ({jqN d} : Set (LaurentSeries ℚ))) =
-    dedekindPsi d
-
-/-- `Gen d` says the two-generator field already contains every `j(q ^ e)`, `e ∣ d`. -/
-abbrev Gen (d : ℕ) [NeZero d] : Prop := modularFunctionField d = modularFunctionFieldFull d
-
-/-- `Hall N` is the strong-induction hypothesis: `Tight` and `Gen` hold at every
-divisor of `N`. -/
-abbrev Hall (N : ℕ) : Prop := ∀ d : ℕ, d ∣ N → ∀ [NeZero d], Tight d ∧ Gen d
+`Tight`/`Gen`/`Hall` and the one-step facts `tight_one`/`gen_one` were promoted by
+T13 and moved by T18 to `Defs/Fields.lean` beside the two fields they concern;
+`Defs/TS`/`Collapse` import that module, so they are in scope here without a
+local copy. `gen_prime` (T19's substitution) lives there too. -/
 
 /-! ## `Inputs`: the significant statements
 
@@ -183,46 +178,7 @@ private theorem dedekindPsi_mul_prime_not_dvd {m p : ℕ} (hp : p.Prime) (hpm : 
 
 private theorem dedekindPsi_mul_prime_dvd {m p : ℕ} (hm : m ≠ 0) (hp : p.Prime)
     (hpm : p ∣ m) : dedekindPsi (m * p) = dedekindPsi m * p := by
-  obtain ⟨k, u, hpu, hmu⟩ := Nat.exists_eq_pow_mul_and_not_dvd hm p hp.ne_one
-  obtain ⟨k', rfl⟩ : ∃ k', k = k' + 1 := by
-    rcases k with - | k'
-    · exfalso
-      rw [hmu, pow_zero, one_mul] at hpm
-      exact hpu hpm
-    · exact ⟨k', rfl⟩
-  subst hmu
-  have hcou : ∀ j : ℕ, j ≠ 0 → Nat.Coprime (p ^ j) u :=
-    fun j _ => Nat.Coprime.pow_left j ((Nat.Prime.coprime_iff_not_dvd hp).mpr hpu)
-  have h1 : p ^ (k' + 1) * u * p = p ^ (k' + 2) * u := by ring
-  rw [h1, dedekindPsi_mul_of_coprime _ u (hcou _ (Nat.succ_ne_zero _)),
-    dedekindPsi_mul_of_coprime _ u (hcou _ (Nat.succ_ne_zero _)),
-    dedekindPsi_prime_pow p (k' + 2) hp (Nat.succ_ne_zero _),
-    dedekindPsi_prime_pow p (k' + 1) hp (Nat.succ_ne_zero _)]
-  have h2 : k' + 2 - 1 = k' + 1 := rfl
-  have h3 : k' + 1 - 1 = k' := rfl
-  rw [h2, h3]
-  ring
-
-private theorem tight_one : Tight 1 := by
-  unfold Tight
-  have h1 : jqN 1 = jq := by rw [jqN, qExpand_one_apply]
-  rw [h1, dedekindPsi_one]
-  have h2 : IntermediateField.adjoin ℚ⟮jq⟯ ({jq} : Set (LaurentSeries ℚ)) =
-      (⊥ : IntermediateField ℚ⟮jq⟯ (LaurentSeries ℚ)) := by
-    rw [IntermediateField.adjoin_simple_eq_bot_iff, IntermediateField.mem_bot]
-    exact ⟨jGen, rfl⟩
-  rw [h2]
-  exact IntermediateField.finrank_bot
-
-private theorem gen_one : Gen 1 := by
-  unfold Gen
-  refine le_antisymm (modularFunctionField_le_full 1) ?_
-  rw [modularFunctionFieldFull, IntermediateField.adjoin_le_iff]
-  rintro x ⟨d, hne, hdvd, rfl⟩
-  have hd1 : d = 1 := Nat.dvd_one.mp hdvd
-  subst hd1
-  rw [qExpand_one_apply]
-  exact jq_mem 1
+  rw [@dedekindPsi_mul_prime m p ⟨hm⟩ hp, ite_eq_left hpm, mul_comm]
 
 private theorem relfinrank_full_of (N : ℕ) [NeZero N] (ht : Tight N) (hg : Gen N) :
     IntermediateField.relfinrank ℚ⟮jq⟯ (modularFunctionFieldFull N) = dedekindPsi N := by

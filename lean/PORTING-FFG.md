@@ -1,7 +1,7 @@
 # Blueprint: `ModularCurve.functionFieldGeneration`
 
 **Status (2026-09-22): Layer 0, its four topics, the Φ_p splitting cone and
-T14–T17 are done; the theorem's remaining nodes (T18–T20) are the live work.** The
+T14–T18 are done; the theorem's remaining nodes (T19–T20) are the live work.** The
 library of `lean/FLTForHuman/ModularCurve/` plus
 `FLTForHuman/FieldTheory/CommonRoot.lean` and the `FLTForHuman/ModularForms/` cone
 modules is green with zero warnings and zero `sorry`, the deliverable measure
@@ -12,10 +12,13 @@ discharges its inputs. T14 wrote the pin's shared slot prelude once
 (`Defs/PhiAtSlot.lean`, `PhiSlotRoots.lean` and the `Defs/` extensions), so
 T15–T19 import it; T15 discharged two `Inputs` fields
 (`FunctionFieldGeneration/Descent.lean`), T16 the third
-(`FunctionFieldGeneration/DegreeStep.lean`) and T17 the fourth
-(`FunctionFieldGeneration/Nonmembership.lean`), taking the capstone's debt to **3**.
-**The live plan is §7.8**: the 17-node remainder, the measured ≈4.8k–5.0k line
-budget, and topics T18–T20.
+(`FunctionFieldGeneration/DegreeStep.lean`), T17 the fourth
+(`FunctionFieldGeneration/Nonmembership.lean`) and T18 the fifth
+(`FunctionFieldGeneration/Generation.lean`), taking the capstone's debt to **2**.
+**The live plan is §7.8**: the remainder, the measured line budget, and topics
+T19–T20. T18 also adopted the 2026-09-22 route audit's scope decision: it ports
+only `full_eq_adjoin_full_div_prime` and lands the `gen_prime` substitution, so
+T19 does not depend on the deferred squarefree generation/degree block.
 
 The scope has moved on from Layer 0. §1 is the design rules that still govern the
 remaining work; §2 records the decision to finish and why; §3–§6 are the Layer 0
@@ -585,12 +588,15 @@ not effort — but it is the first measured price this theorem has had, and it i
 **The topics (T14–T20).** The cut is by mathematical object, one shared development
 per topic, so each proof is written once — but the measured intra-remainder
 dependency graph does **not** follow math/010's section order, and the topics below
-respect the real order. The surprise is that the two 2,002-line `Inputs` fields sit
-*downstream* of everything: both cite `functionFieldGeneration_of_squarefree`, which
-cites the squarefree degree nodes. The prime-power *degree* step (T16) is upstream
-of the non-membership base (T17), which is upstream of the squarefree
-generation/degree block (T18), which is upstream of the slot product (T19). Only
-the descent (T15) and the prelude (T14) are independent of that chain.
+respect the real order. §7.8 originally read the two 2,002-line `Inputs` fields as
+*downstream* of everything, because the pin's private non-membership cites
+`functionFieldGeneration_of_squarefree`. The 2026-09-22 route audit showed that
+citation is the chain's only real link and is replaceable by the definitional
+`Gen p`, so **the serial chain T17 → T18 → T19 disappears**: T18 keeps only its
+`Inputs` node, and T19 sits directly on T17. The prime-power *degree* step (T16),
+the non-membership tower (T17) and the generation step (T18) are level-0 topics on
+T14 and the Φ_p cone; the descent (T15) and the prelude (T14) are independent of
+the chain.
 
 | topic | object | content | ≈ new lines | prereq |
 |---|---|---|---|---|
@@ -598,8 +604,8 @@ the descent (T15) and the prelude (T14) are independent of that chain.
 | **T15** ✅ | descent and the collapse (math/010 §4–§5) | **done (2026-09-22)** — `FunctionFieldGeneration/Descent.lean`: `jqN_div_mem_modularFunctionField` (the unique-common-root descent, with `htw`/`hsp` left as arguments for T19) and `modularFunctionField_eq_full_of` (the one-prime `Gen` reduction). One 735-line pin development, but ~542 of those lines are T14's prelude; the tail is **173** lines. Both are `Inputs` fields, so the capstone's debt is now **5**. Work order [TOPIC-descent.md](topics/functionFieldGeneration/TOPIC-descent.md) | **252 measured** (ratio ≈1.46) | T14, Φ_p T12–T13 |
 | **T16** ✅ | the degree step (math/010 §6b) | **done (2026-09-22)** — `FunctionFieldGeneration/DegreeStep.lean`: `finrank_adjoin_jqN_prime_of_not_mem` (the twist `p + 1`), `finrank_adjoin_jqN_pow_succ_of_not_mem` (the coefficient-automorphism `p`) and `relfinrank_full_eq_mul` (the tower dispatcher). ≈435 pin lines. Three transport bridges promoted once (with `coeffMapEquiv`/`iota_injective`/`w1_relfinrank_insert`), the redundant `coeffEmb_injective'`/`jqN_congr'` dropped, and the private twins in `PhiGenDescent.lean`/`PhiGenSplits.lean`/`PhiGenIntegrality.lean` deleted. `relfinrank_full_eq_mul` is an `Inputs` field, so the debt is now **4**. Work order [TOPIC-degree-step.md](topics/functionFieldGeneration/TOPIC-degree-step.md) | **605 measured** (455 new module + 150 promoted; ratio ≈1.39) | T14, Φ_p T13, `CommonRoot` |
 | **T17** ✅ | non-membership, base and tower (math/010 §6a) | **done (2026-09-22)** — `FunctionFieldGeneration/Nonmembership.lean`: `jqN_pow_not_mem_adjoin_full` (the prime-power tower, an `Inputs` field) and `jqN_prime_not_mem_adjoin` (the public Finset lemma; the 2026-09-22 audit confirms it is not reducible to the full-file private lemma and vice versa). One module, tower declared first; `chain_extend`'s explicit `RingHom` literal closed as written and `chain_endgame` needed no heartbeat bump. The tower is an `Inputs` field, so the debt is now **3**. Work order [TOPIC-nonmembership.md](topics/functionFieldGeneration/TOPIC-nonmembership.md) | **843 measured** (ratio ≈1.14 against ≈741) | T14, T16 |
-| **T18** | generation and the squarefree degree (math/010 §5–§6b) | `full_eq_adjoin_full_div_prime`, `full_eq_adjoin_primes`, `dedekindPsi_of_squarefree`, `relfinrank_full_of_squarefree`, `finrank_adjoin_jqN_eq_of_squarefree`, `functionFieldGeneration_of_squarefree` | ~1,150 | T15, T16, T17 |
-| **T19** | the slot product and prime non-membership (math/010 §3, §6a) | `minpoly_jqN_map_eq_prod_slots` (= the pin's `rval_aux`) and `jqN_prime_not_mem_full` (one 2,002-line development, which also carries its own **private M-arbitrary** `jqN_prime_not_mem_adjoin` — a different statement from T17's public Finset lemma, not a duplicate). Route win: closed-form `slotAt` + the `CommonRoot` engine import (2026-09-22 audits) | **~1,100–1,400** | T18, Φ_p `splits_prime_at_slot` |
+| **T18** ✅ | one new generator per prime power (math/010 §5) | **done (2026-09-22)** — `FunctionFieldGeneration/Generation.lean`: `full_eq_adjoin_full_div_prime` (the fifth `Inputs` field, so the debt is now **2**), on the once-ported two-prime descent `jqN_mem_of_div_primes` and the strong induction `w1_jqN_mem_adjoin_top_insert`. **Scope decision:** the original topic's squarefree generation/degree block (nodes 2–6) is a **deferred optional API tail**; T19 adopts the 2026-09-22 route audit's `gen_prime` substitution instead of `functionFieldGeneration_of_squarefree`, and `tight_one`/`gen_one`/`gen_prime` landed in `Defs/Fields.lean`. Work order [TOPIC-generation.md](topics/functionFieldGeneration/TOPIC-generation.md) | **309 module + 36 net** (`Defs/Fields` +71, `Spine` −35; ratio ≈1.27 against ≈271) | T14, Φ_p |
+| **T19** | the slot product and prime non-membership (math/010 §3, §6a) | `minpoly_jqN_map_eq_prod_slots` (= the pin's `rval_aux`) and `jqN_prime_not_mem_full` (one 2,002-line development, which also carries its own **private M-arbitrary** `jqN_prime_not_mem_adjoin` — a different statement from T17's public Finset lemma, not a duplicate). Route win: closed-form `slotAt` + the `CommonRoot` engine import (2026-09-22 audits). **T18's `gen_prime` replaces the pin's `functionFieldGeneration_of_squarefree p` call at `S_ModularCurve_jqN_prime_not_mem_full.lean:1638`**, so T19's prereq is T17, not T18; its `d = 1` branch uses `tight_one`/`gen_one` | **~1,100–1,400** | T17, Φ_p `splits_prime_at_slot` |
 | **T20** | the unconditional capstone | construct `Inputs` from T15–T18 and apply `functionFieldGeneration_of`; replace the consumer's `sorry` with the proved `functionFieldGeneration N`; **optional tail:** `exists_monic_evalAtJ_jqN_eq_zero`, `exists_phiIrreducible_of_finrank_eq` (+~250, for the downstream corollaries) | ~50 (+250) | T15–T18, plus T19 for two fields |
 
 **T14 measured (2026-09-22), and the row corrected.** T14 landed in **one** goal
@@ -814,6 +820,44 @@ wrapper, and the pin's own `S_` carrier is not in `SOURCES`), and the tower's
 `jqN_pow_not_mem_adjoin_full_key` is `private` too, so the checker verifies only
 the two public wrappers — the promoted-declaration count is unchanged at 14.
 
+**T18 measured (2026-09-22) — one round, node 1 only, and the scope decision.**
+T18's mandatory scope landed in **one** goal round as **309 port lines** in the new
+`FunctionFieldGeneration/Generation.lean`, plus **36 net** lines for the
+`Defs/Fields.lean` promotion (`+71`) and the `Spine.lean` removal (`−35`): the
+`Tight`/`Gen`/`Hall` invariants and `tight_one`/`gen_one` moved beside the fields
+they concern, and the audit's `gen_prime` was added there. Against the scouted
+≈221 mandatory pin lines plus the ≈50-line promotion (≈271), the ratio is
+**≈1.27**; the module alone is 309/221 ≈ 1.40, inside the estimated 250–320. No
+stall: the descent transcribed as-is against T14's slot API, and the only drift
+was the port's usual `jqN_congr'` → `jqN_congr`. `#print axioms` is clean on
+`full_eq_adjoin_full_div_prime`, `tight_one`, `gen_one` and `gen_prime`; the
+checker moved **290 → 293** (0 mismatched, 0 missing; 16 promoted) and the
+consumer gained Zone P, whose `Inputs` composition fills the five proved fields so
+**the capstone's debt is 3 → 2**.
+
+**The scope decision, recorded.** The 2026-09-22 route audit
+([TOPIC-t17-t19-route-audit.md](topics/functionFieldGeneration/TOPIC-t17-t19-route-audit.md) §1)
+showed T19's only real use of the squarefree cluster is
+`functionFieldGeneration_of_squarefree p` at `S_…jqN_prime_not_mem_full.lean:1638`,
+and that `Gen p` is definitional. `TOPIC-generation.md` §1 now adopts the drop:
+nodes 2–6 (`full_eq_adjoin_primes`, `dedekindPsi_of_squarefree`,
+`relfinrank_full_of_squarefree`, `finrank_adjoin_jqN_eq_of_squarefree`,
+`functionFieldGeneration_of_squarefree`) are a deferred optional API tail, and T19's
+edit is a two-line replacement. The full inventory stays in `TOPIC-generation.md` §2
+so a future effort need not re-scout. The one API cost is that
+`relfinrank_adjoin_primes` and `relfinrank_full_mul_prime` are not ported; neither
+is in §2.1's outbound tier.
+
+**The dedup.** `jqN_mem_of_div_primes` is **one** declaration in the port
+(`Generation.lean:85`); the pin's `grep -c "theorem jqN_mem_of_div_primes"` is 1
+in each of six `S_` files (three in T18's scope: `full_eq_adjoin_full_div_prime`,
+`full_eq_adjoin_primes`, `modularFunctionField_eq_full_of`; three more in the
+squarefree cluster), so five copies are dropped. The pin's `jqN_congr'` (2 grep
+hits in `full_eq_adjoin_full_div_prime`) is dropped for `Defs/Jq.lean`'s
+`jqN_congr`. The dead `psi_prime_pow_aux`/local `dedekindPsi_prime_pow`,
+`phiIrreducible_of_squarefree` and `exists_pow_eq_of_coprime` are in the deferred
+tail and were not ported.
+
 **Route risks, in the order they will bite.** Each is a candidate for the
 "cost tracks the route" treatment before its topic is priced:
 
@@ -845,8 +889,8 @@ the two public wrappers — the promoted-declaration count is unchanged at 14.
 
 **Definition of done for the effort.** `lake build` green, 0 warnings, no `sorry`;
 `#print axioms` on `functionFieldGeneration` clean; the consumer's only `sorry`
-gone and its capstone unconditional; the statement checker extended with T18–T19's
-wrappers (T14's–T17's are already in) and T20's capstone. At that point
+gone and its capstone unconditional; the statement checker extended with T19's
+wrappers (T14's–T18's are already in) and T20's capstone. At that point
 `ModularCurve.functionFieldGeneration` is a proved theorem of the port, the
 segment's one conditional is discharged, and — by §2.1's ledger — the **out-of-cone
 ≥5-indegree tier is 100% covered**: every declaration through which the rest of FLT
@@ -860,9 +904,9 @@ reference.
   that consume it. The written-down use is `spec/ModularCurveConsumer.lean`.
 - **Is the theorem still a "revisit"? — resolved: it is scheduled and under way
   (§7.8).** The graph remainder is 17 nodes / 11,312 structural pin lines /
-  ≈4.8k–5.0k after dedup; **T15's two nodes, T16's three and T17's two are done**,
-  so 10 nodes remain (T18–T20). The theorem's own path is 15 of those, of which 8
-  remain. What
+  ≈4.8k–5.0k after dedup; **T15's two nodes, T16's three, T17's two and T18's one
+  are done**, so 9 nodes remain (T19–T20). The theorem's own path is 15 of those,
+  of which 7 remain. What
   is *not* yet measured is the route each heavy development should take; that is
   each topic's own work order, per the standing rule — though the 2026-09-22
   audits have already priced T19's route (§7.8 "Audit outcomes").
@@ -870,7 +914,7 @@ reference.
   `PhiGen.splits_prime_at_slot` and T14's prelude are both landed, and every
   remaining node's Φ_p dependency (`exists_phiIrreducible_evalSymm`,
   `splits_prime_at_slot`/`splits_of_prime`) is public and statement-checked. The
-  critical path is T18–T19 followed by T20's capstone discharge; there is no
+  critical path is T19 followed by T20's capstone discharge; there is no
   unported input left.
 - **Stop-and-harvest, restated.** The conditional capstone, the whole cone and the
   shared prelude are already a coherent artifact. Finishing costs ≈4.8k–5.0k lines
@@ -884,5 +928,5 @@ reference.
 - **Transcription risk.** Declarations must be transcribed verbatim in shape
   (names, argument order, instances) or `#check` correspondence fails. This is
   mechanically checked: `spec/check_flt_statements.py` diffs every port statement
-  against the pinned source — **290 of 290 identical, 0 mismatched, 0 missing** —
+  against the pinned source — **293 of 293 identical, 0 mismatched, 0 missing** —
   and the consumer's cross-module compositions are the runtime wire test.

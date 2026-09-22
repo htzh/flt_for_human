@@ -43,7 +43,8 @@ FLT is pinned at `aa2d8b3`; mathlib at `v4.34.0`.
 | T15 | descent by one prime and the one-prime reduction | **done**, 1 new module; 2 declarations, 252 port lines; `Inputs` 7 → 5 | consumer **Zone M** (0 errors); checker 278 |
 | T16 | the degree of one prime-power step | **done**, 1 new module + 4 extended; 10 declarations, 605 port lines; `Inputs` 5 → 4 | consumer **Zone N** (0 errors); checker 288 |
 | T17 | the non-membership tower and the two-prime separation | **done**, 1 new module; 2 declarations + 14 private declarations, 843 port lines; `Inputs` 4 → 3 | consumer **Zone O** (0 errors); checker 290 |
-| theorem | PORTING-FFG §7's 24-node remainder behind the Φ_p input | **in progress**: Φ_p cone (T5–T13) and T14–T17 done; T18–T20 remain; `Inputs` is a structure of 3 fields | — |
+| T18 | one new generator per prime power (node 1 only; the squarefree block deferred) | **done**, 1 new module + `Defs/Fields` move; 1 public node + 2 private helpers, 309 module lines + 36 net; `Inputs` 3 → 2; `gen_prime` landed | consumer **Zone P** (0 errors); checker 293 |
+| theorem | PORTING-FFG §7's 24-node remainder behind the Φ_p input | **in progress**: Φ_p cone (T5–T13) and T14–T18 done; T19–T20 remain; `Inputs` is a structure of 2 fields | — |
 
 The tree was restructured twice, neither time touching the mathematics.
 
@@ -614,6 +615,56 @@ and no self-consumed public interface is added. The tower's `chainField` remains
 restating it — the engine T19's private M-arbitrary lemma also uses; **T17 landed
 first**, and T19 should import the same theorem, with its own `ψ(M)`-slot root
 list rather than T17's `p + 1` roots of `Φ_p(jq, ·)`.
+
+## 2k. T18: one new generator per prime power — what it cost
+
+T18's mandatory scope is the single `Inputs` field `full_eq_adjoin_full_div_prime`
+(the debt is **3 → 2**) plus the two-prime descent `jqN_mem_of_div_primes` ported
+once. The original topic's squarefree generation/degree block (nodes 2–6) was
+deferred to an optional API tail by the 2026-09-22 route audit, whose
+`gen_prime` substitution landed here as T19's prerequisite.
+
+| | |
+|---|---|
+| goal rounds | **1** (the work order's one-round budget) |
+| declarations | 1 public node + 2 private helpers in `Generation.lean`; 3 invariants + `tight_one`/`gen_one`/`gen_prime` public in `Defs/Fields.lean` |
+| new module | `FunctionFieldGeneration/Generation.lean`, **309 lines** |
+| extensions | `Defs/Fields.lean` +71 (the `Tight`/`Gen`/`Hall` move + `tight_one`/`gen_one`/`gen_prime`); `Spine.lean` −35 (abbrevs and `tight_one`/`gen_one` removed) |
+| **port lines** | **309 module + 36 net** against ≈221 mandatory pin lines + ≈50 promotion, ratio **≈1.27** (module alone 309/221 ≈ 1.40) |
+| build | full `lake build` green, 0 warnings, no `sorry` |
+| axioms | `#print axioms` clean on `full_eq_adjoin_full_div_prime`, `tight_one`, `gen_one`, `gen_prime` |
+| checker | **293** identical (290 → +3; **16** promoted), 0 mismatched, 0 missing (302 checked); `gen_prime` exempted as our own |
+| wire | consumer **Zone P** (0 errors): a partially discharged `Inputs` with the five proved fields filled, plus a `gen_prime` example |
+
+**The descent transcribed as-is.** `jqN_mem_of_div_primes` (133 pin lines) and the
+strong induction `w1_jqN_mem_adjoin_top_insert` (68) went in verbatim against
+T14's slot API; the only edit was the port's usual `jqN_congr'` → `jqN_congr`. No
+stall. The node's `full_degeneracy_le` half is the `Defs/Fields` degeneracy lemma.
+
+**The dedup, counted.** `grep -c "theorem jqN_mem_of_div_primes"` is 1 in each of
+six pin `S_` files — three in T18's scope (`full_eq_adjoin_full_div_prime`,
+`full_eq_adjoin_primes`, `modularFunctionField_eq_full_of`) and three in the
+squarefree cluster — so the port's **one** copy drops five. The pin's `jqN_congr'`
+(2 grep hits in `full_eq_adjoin_full_div_prime`) is dropped for `jqN_congr`;
+`psi_prime_pow_aux`, the local `dedekindPsi_prime_pow`,
+`phiIrreducible_of_squarefree` and `exists_pow_eq_of_coprime` are all in the
+deferred tail and were not ported.
+
+**The scope decision.** Nodes 2–6 have exactly one external consumer — the pin's
+`functionFieldGeneration_of_squarefree p` call at
+`S_ModularCurve_jqN_prime_not_mem_full.lean:1638` — and `Gen p` is definitional
+(`modularFunctionField p = modularFunctionFieldFull p = ℚ(j, j(q^p))`), so
+`gen_prime` replaces it. `tight_one`/`gen_one` cover the `d = 1` branch of the
+pin's `hallp`. `gen_prime` is our own declaration (hence the `OWN_PROOFS`
+exemption); `tight_one`/`gen_one` are FLT's and verify through the pin's `private`
+copies in `S_ModularCurve_functionFieldGeneration.lean` via the checker's dotted
+fallback. The `Tight`/`Gen`/`Hall` abbreviations moved with them and stay exempted
+as before.
+
+**The one API cost.** `relfinrank_adjoin_primes` and `relfinrank_full_mul_prime`
+are not ported; neither is in §2.1's measured outbound tier, and either can be
+added later for ≈150 pin lines without the `IsLevel`/`eq_of_isRoot_of_isLevel`
+work. `TOPIC-generation.md` §2 keeps the full inventory.
 
 ## 3. What was verified
 

@@ -204,6 +204,77 @@ theorem w1_relfinrank_insert (E : IntermediateField ℚ (LaurentSeries ℚ))
 
 end RelfinrankInsert
 
+/-! ## T18 — the strong-induction invariants and the prime generator
+
+`Tight`/`Gen`/`Hall` are FLT's own abbreviations for the strong induction of
+math/010 §7; they were public in `FunctionFieldGeneration/Spine.lean` and T18
+moves them here, beside the two fields they concern, so that `tight_one`/`gen_one`
+and the T19 substitution `gen_prime` can be stated beside them.
+
+`tight_one`/`gen_one` are FLT's (private in
+`S_ModularCurve_functionFieldGeneration.lean`); `gen_prime` is the audit's
+replacement (`TOPIC-t17-t19-route-audit.md` §1) for the pin's
+`functionFieldGeneration_of_squarefree` detour at
+`S_ModularCurve_jqN_prime_not_mem_full.lean:1638`. -/
+
+section StrongInduction
+
+/-- The two invariants of the strong induction, bundled. `Tight d` says the
+relative degree of `ℚ⟮jq⟯(jqN d)` over `ℚ⟮jq⟯` is exactly `ψ(d)`. -/
+abbrev Tight (d : ℕ) [NeZero d] : Prop :=
+  Module.finrank ℚ⟮jq⟯ (IntermediateField.adjoin ℚ⟮jq⟯ ({jqN d} : Set (LaurentSeries ℚ))) =
+    dedekindPsi d
+
+/-- `Gen d` says the two-generator field already contains every `j(q ^ e)`, `e ∣ d`. -/
+abbrev Gen (d : ℕ) [NeZero d] : Prop := modularFunctionField d = modularFunctionFieldFull d
+
+/-- `Hall N` is the strong-induction hypothesis: `Tight` and `Gen` hold at every
+divisor of `N`. -/
+abbrev Hall (N : ℕ) : Prop := ∀ d : ℕ, d ∣ N → ∀ [NeZero d], Tight d ∧ Gen d
+
+/-- The base of the strong induction: `Tight 1` is `[ℚ⟮jq⟯ : ℚ⟮jq⟯] = ψ(1) = 1`. -/
+theorem tight_one : Tight 1 := by
+  unfold Tight
+  have h1 : jqN 1 = jq := by rw [jqN, qExpand_one_apply]
+  rw [h1, dedekindPsi_one]
+  have h2 : IntermediateField.adjoin ℚ⟮jq⟯ ({jq} : Set (LaurentSeries ℚ)) =
+      (⊥ : IntermediateField ℚ⟮jq⟯ (LaurentSeries ℚ)) := by
+    rw [IntermediateField.adjoin_simple_eq_bot_iff, IntermediateField.mem_bot]
+    exact ⟨jGen, rfl⟩
+  rw [h2]
+  exact IntermediateField.finrank_bot
+
+/-- The base of `Gen`: at `N = 1` the two-generator field is the full field. -/
+theorem gen_one : Gen 1 := by
+  unfold Gen
+  refine le_antisymm (modularFunctionField_le_full 1) ?_
+  rw [modularFunctionFieldFull, IntermediateField.adjoin_le_iff]
+  rintro x ⟨d, hne, hdvd, rfl⟩
+  have hd1 : d = 1 := Nat.dvd_one.mp hdvd
+  subst hd1
+  rw [qExpand_one_apply]
+  exact jq_mem 1
+
+/-- **`Gen` at a prime is definitional**: `modularFunctionField p =
+modularFunctionFieldFull p = ℚ(j, j(q ^ p))`. This is T19's substitution: it
+replaces the pin's `functionFieldGeneration_of_squarefree p` call at
+`S_ModularCurve_jqN_prime_not_mem_full.lean:1638`
+(`TOPIC-t17-t19-route-audit.md` §1), so T19 does not depend on the squarefree
+generation/degree block. -/
+theorem gen_prime (p : ℕ) [NeZero p] [hp : Fact (Nat.Prime p)] : Gen p := by
+  unfold Gen
+  refine le_antisymm (modularFunctionField_le_full p) ?_
+  rw [modularFunctionField, modularFunctionFieldFull, divisorExpansions,
+    IntermediateField.adjoin_le_iff]
+  rintro x ⟨d, -, hdvd, rfl⟩
+  rcases hp.out.eq_one_or_self_of_dvd d hdvd with h1 | h2
+  · subst h1; rw [qExpand_one_apply]
+    exact IntermediateField.subset_adjoin ℚ _ (Set.mem_insert _ _)
+  · subst h2
+    exact IntermediateField.subset_adjoin ℚ _ (Set.mem_insert_of_mem _ rfl)
+
+end StrongInduction
+
 end ModularCurve
 
 end
