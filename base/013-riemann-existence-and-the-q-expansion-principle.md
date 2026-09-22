@@ -87,8 +87,8 @@ elliptic points and the cusps. This corollary is the classical source of every
 
 Fix `N ≥ 1` and
 
-$$\Gamma_0(N) \\;=\\; \Bigl\{ \begin{pmatrix} a & b \\\\ c & d \end{pmatrix}
-  \in \mathrm{SL}_2(\mathbb{Z}) \;:\; c \equiv 0 \pmod N \Bigr\}.$$
+$$\Gamma_0(N) \\;=\\; \Bigl\\{ \begin{pmatrix} a & b \\\\ c & d \end{pmatrix}
+  \in \mathrm{SL}_2(\mathbb{Z}) \\;:\\; c \equiv 0 \pmod N \Bigr\\}.$$
 
 Write `X₀(N) = X(Γ₀(N))` and `X(1) = X(PSL₂(ℤ))`. The index is the Dedekind
 function
@@ -137,7 +137,7 @@ holomorphic on `ℍ` and has its only pole at the cusp `∞`, of order exactly `
 surface has as many poles as its degree as a map to `ℙ¹`, so `j : X(1) → ℙ¹` has
 degree `1`, hence is biholomorphic. Thus
 
-$$X(1) \\;\\cong\\; \mathbb{P}^1, \qquad M(X(1)) \\;=\\; \mathbb{C}(j),$$
+$$X(1) \\;\cong\\; \mathbb{P}^1, \qquad M(X(1)) \\;=\\; \mathbb{C}(j),$$
 
 the **Hauptmodul** property. This is the level-one half of the corollary, and it
 is the half the formal proof still needs.
@@ -152,7 +152,7 @@ have different logical status in the formal proof. Call them R1 and R2.
 **Kernel form.** Let `F : ℍ → ℂ` and `c : ℕ → ℂ`. Suppose that for every
 `τ ∈ ℍ` the power series converges to `F(τ)`,
 
-$$F(\tau) \\;=\\; \sum_{m \ge 0} c_m\, q(\tau)^m, \qquad q(\tau) = e^{2\pi i \tau},$$
+$$F(\tau) \\;=\\; \sum_{m \ge 0} c_m\\, q(\tau)^m, \qquad q(\tau) = e^{2\pi i \tau},$$
 
 and that `F(γτ) = F(τ)` for every `γ ∈ SL₂(ℤ)`. Then `c_m = 0` for every `m ≠ 0`.
 In words: **a holomorphic `SL₂(ℤ)`-invariant `q`-series is constant.** The
@@ -217,7 +217,7 @@ any field `K` of characteristic `0` containing `ζ_p`:
 
 $$\Phi_p\bigl(j(u^p q^{pe}),\\, Y\bigr) \\;=\\;
   \bigl(Y - j(u^{p^2} q^{p^2 e})\bigr)
-  \prod_{b=0}^{p-1}\bigl(Y - j(u\,\zeta_p^{\,b}\,q^{e})\bigr).$$
+  \prod_{b=0}^{p-1}\bigl(Y - j(u\\,\zeta_p^{\\,b}\\,q^{e})\bigr).$$
 
 This is `ModularCurve.PhiGen.splits_prime_at_slot`
 ([Thm file, line 10](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_PhiGen_splits_prime_at_slot.lean#L10));
@@ -295,8 +295,8 @@ The formal proof never says "`q`-expansion" abstractly. It says: a Laurent serie
 converges to `F(τ)`:
 
 $$\mathrm{RealL}(h, A, F) \\;:\Longleftrightarrow\\;
-  \forall\, \tau \in \mathbb{H}, \quad
-  \sum_{m \in \mathbb{Z}} A_m\, q(\tau)^m \\;=\\; F(\tau),
+  \forall\\, \tau \in \mathbb{H}, \quad
+  \sum_{m \in \mathbb{Z}} A_m\\, q(\tau)^m \\;=\\; F(\tau),
   \qquad q(\tau) = e^{2\pi i \tau / h}.$$
 
 This is `ModularCurve.RealL`
@@ -310,7 +310,7 @@ That the analytic `j = E₄³/Δ` and the formal `jq` agree is
 `ModularCurve.hasSum_jq_qParam`
 ([Thm file, line 7](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_hasSum_jq_qParam.lean#L7)):
 
-$$\forall\, \tau, \quad \sum_{m \in \mathbb{Z}} \bigl(\mathrm{jq.coeff}\; m\bigr)\, q(\tau)^m
+$$\forall\\, \tau, \quad \sum_{m \in \mathbb{Z}} \bigl(\mathrm{jq.coeff}\\; m\bigr)\\, q(\tau)^m
   \\;=\\; j(\tau) \\;=\\; \frac{E_4(\tau)^3}{\Delta(\tau)},$$
 
 together with the `SL₂(ℤ)`-invariance of the right-hand side
@@ -368,7 +368,7 @@ and descending induction on `n` kills the whole principal part. Mathematically:
 every principal part of pole order at most `n` has a unique representative in
 `ℚ[j]` of degree at most `n`, i.e. the map
 
-$$P \\;\longmapsto\\; P(j) \bmod \mathbb{Q}[\![q]\!]$$
+$$P \\;\longmapsto\\; P(j) \bmod \mathbb{Q}[\\![q]\\!]$$
 
 is an isomorphism from the polynomials of degree at most `n` onto the class of
 `q^{−n}\mathbb{Q}[q^{−1}]` modulo nonnegative powers. This is the quantitative
