@@ -92,11 +92,11 @@ alongside `.lake/` in case it does.
 | `FLTForHuman/FieldTheory/CommonRoot.lean` | the generic kernel | `Polynomial.mem_range_of_unique_common_root`, `Polynomial.mem_range_of_eval_eq_const`, `Polynomial.irreducible_of_transitive_ringAut` — the segment's mathematical engine (math/010 §4, §6), over an arbitrary `F ⊆ L`, mathlib-only, with three concrete instantiations over `ℚ ⊆ ℂ` as the wire test. The port's first generic area, beside (not inside) either curve theory. FLT `P2M/Sol/S_Polynomial_mem_range_of_unique_common_root` / the three `Thm_Polynomial_*` wrappers |
 | `FLTForHuman/ModularCurve/Defs/Laurent.lean` | q-substitution + coefficient change | `qExpand`, `qExpandₐ`, `coeffMap`, `coeffEmb`, `laurentBaseChange`, plus the interface lemmas `coeffMap_qExpand`, `coeffEmb_qExpand`, `coeffMap_injective`, `coeffEmb_injective`. FLT `Def_ModularCurve_X0` 25–105, `Def_ModularCurve_LaurentCoeff` 16–123 |
 | `FLTForHuman/ModularCurve/Defs/Twist.lean` | the unit twist `q ↦ u q` | `qTwistFun`, `qTwist` + functoriality, `qTwist_qExpand`. FLT `Def_ModularCurve_PhiGen` 18–96 |
-| `FLTForHuman/ModularCurve/Defs/Jq.lean` | the `j`-series | `eisenstein4`, `etaProd`, the `Δ` unit, `jNum`, `jq` + its pole lemmas, `jqN`, `dedekindPsi`, `evalAtJ`, plus the interface lemmas `dedekindPsi_prime`, `dedekindPsi_prime_pow`, `dedekindPsi_mul_of_coprime`, `aeval_jq_eq_zero`, `transcendental_jq`. FLT `Def_ModularCurve_X0` 111–212 |
+| `FLTForHuman/ModularCurve/Defs/Jq.lean` | the `j`-series | `eisenstein4`, `etaProd`, the `Δ` unit, `jNum`, `jq` + its pole lemmas, `jqN`, `dedekindPsi`, `evalAtJ`, plus the interface lemmas `dedekindPsi_prime`, `dedekindPsi_prime_pow`, `dedekindPsi_mul_of_coprime`, `aeval_jq_eq_zero`, `transcendental_jq`, and the shared triangularity `coeff_aeval_jq_neg` (promoted from T7 by T9; FLT repeats it privately in nine files). FLT `Def_ModularCurve_X0` 111–212 |
 | `FLTForHuman/ModularCurve/FunctionFieldGeneration/Target.lean` | the target statement | `FunctionFieldGeneration` and its `M = 1` case. FLT `Def_ModularCurve_X0` 233–242 |
 | `FLTForHuman/ModularCurve/Defs/Polynomial.lean` | the polynomial datum | `ModularPolynomialData`, `modularPolynomialDataOne`. FLT `Def_ModularCurve_X0` 215–232 |
 | `FLTForHuman/ModularCurve/Defs/Fields.lean` | the two function fields | `modularFunctionField`, `modularFunctionFieldFull`, `toAdjoin`, the degeneracy lemmas. FLT `Def_ModularCurve_X0` 246–348 |
-| `FLTForHuman/ModularCurve/Defs/PhiGen.lean` | the slot vocabulary | `cosetSubst`, `conj`, `phiProd`, `EvalSymm`, `PhiGenDescends`, … — the vocabulary math/010 §3's splitting input must mention. FLT `Def_ModularCurve_PhiGen` 111–309 |
+| `FLTForHuman/ModularCurve/Defs/PhiGen.lean` | the slot vocabulary | `cosetSubst`, `conj`, `phiProd`, `EvalSymm`, `PhiGenDescends`, `PoleOrderLE`/`TPoleOrderLE` + the promoted triangularity `poleOrderLE_aeval_jq`, … — the vocabulary math/010 §3's splitting input must mention. FLT `Def_ModularCurve_PhiGen` 111–309 |
 | `FLTForHuman/ModularCurve/Defs/TS.lean` | `j(u q ^ e)` | `TS` and its nine coefficient/substitution lemmas. FLT `P2M/Sol/S_ModularCurve_functionFieldGeneration` 39–101 (a *solution* file) |
 | `FLTForHuman/ModularCurve/FunctionFieldGeneration/Collapse.lean` | the §2 collapse | `functionFieldGeneration_iff_full_eq`, Layer 0's only theorem. FLT `Thm_…_iff_full_eq` line 6 / `S_…_iff_full_eq` 11–21 |
 | `FLTForHuman/ModularCurve/JqCoefficients.lean` | the low coefficients of `jq` | `coeff_jq_zero` (`744`), `coeff_jq_one` (`196884`). A *result*, not a definition: statement from base/004, proof by mathlib's pentagonal route (`tprod_one_sub_X_pow`) rather than FLT's cluster |
@@ -107,6 +107,7 @@ alongside `.lake/` in case it does.
 | `FLTForHuman/ModularForms/Defs/HeckeOperator.lean` | the Hecke matrices | `heckeMatrix` (`!![1, j; 0, p]`) and `heckeDiagMatrix` (`!![p, 0; 0, 1]`) with their action on `ℍ`. mathlib has **no** Hecke operators, so this is a definitions port: the 60-line subset the Φ_p cone uses, from FLT's 204-line `Def_ModularForm_HeckeOperator`; the `heckeU`/`heckeT` operator block is not ported (0 occurrences in the cone) |
 | `FLTForHuman/ModularForms/HeckeQExpansion.lean` | the Hecke translates of a `q`-expansion | `hasSum_qParam_heckeMatrix_smul` (`τ ↦ (τ+b)/ℓ` twists the coefficients and changes the period `1 ↦ ℓ`) and `hasSum_qParam_heckeDiagMatrix_smul` (`τ ↦ ℓτ`, coefficients `qExpand ℂ (ℓ*ℓ)`). base/013 §5.2's analytic face of the Hecke action. FLT `S_ModularCurve_hasSum_qParam_hecke{Matrix,DiagMatrix}_smul` (~109 lines) |
 | `FLTForHuman/ModularForms/PhiGenDescends.lean` | the cone's (c) | `PhiGen.mem_adjoin_jq_of_phiGenDescends` (verbatim): a descended coefficient of the conjugate product lies in `ℚ[jq]`. It proves `cosetPoly_smul` (the coset polynomial's `SL₂(ℤ)`-invariance through the action on `ℙ¹(𝔽_ℓ)`) and privately realizes `c k` via the Hecke translates (the `σ : ℚ(ζ_ℓ) → ℂ` embedding), then applies T7's headline. The pin duplicates T7's `RealL`/glue here; the port imports instead (~97 lines saved). FLT `S_ModularCurve_cosetPoly_smul` + `…_hasSum_cosetPoly_coeff` + `…_mem_adjoin_jq_of_phiGenDescends` (~572 lines) |
+| `FLTForHuman/ModularCurve/PhiGenIntegrality.lean` | the cone's (b) integrality | `PhiGen.PhiGenDescends.intCoeffs` (the descended family has integer `q`-expansion coefficients) and `PhiGen.aeval_jq_intCoeffs_descent` (`IntCoeffs (P(jq))` forces `P ∈ ℤ[X]`), both verbatim from their pin wrappers. The module is the first **deliberate route deviation**: Route A lifts `jq` and the conjugates to `LaurentSeries (integralClosure ℤ K)` and pushes `coeffMap` through `qExpand`/`qTwist`/`phiProd`, replacing FLT's `CoeffsIntegral` closure block (~83 pin lines, plus 24 of manual root-of-unity lemmas) with ring structure; the two root-of-unity lemmas become one `mem_integralClosure_of_pow_eq_one`. It also **promotes** the shared triangularity `coeff_aeval_jq_neg` (to `Defs/Jq.lean`) and `poleOrderLE_aeval_jq` (to `Defs/PhiGen.lean`), which FLT repeats privately in nine files. FLT `S_ModularCurve_PhiGen_PhiGenDescends_intCoeffs` + the descent half of `S_ModularCurve_PhiGen_aeval_jq_intCoeffs_descent` (~347 lines, of which ~180 is an out-of-scope `TPoleOrderLE` block) |
 
 The port of `#E[n](K) = n²` (math/005) has its own working record:
 [logs/card-torsion-port.md](logs/card-torsion-port.md) — dependency trace,
@@ -249,14 +250,18 @@ Zone F; [logs/phiGen-port.md](logs/phiGen-port.md) §8 carries the accounting an
 the `mapGL`-transparency finding. What remains of the cone is its other five
 pieces, not this sub-effort.
 
-The cone-algebra effort's first topic is written and audited:
-[TOPIC-integrality.md](topics/phiGenSplitting/TOPIC-integrality.md) is the
-integrality of the descended coefficients (the first half of piece (b)), with all
-prerequisites in place. It is the **first deliberate deviation from a compiled FLT
-script** — Route A works in `LaurentSeries (integralClosure ℤ K)` and pushes down
-`HahnSeries.map`, replacing ~83 lines of closure machinery — and the work order
-carries a deviation protocol (spike in scratch, fall back to FLT's route at the
-checkpoint) plus the build-discipline block at its head.
+The cone-algebra effort's first topic is complete:
+[TOPIC-integrality.md](topics/phiGenSplitting/TOPIC-integrality.md) proves the
+integrality of the descended coefficients (the first half of piece (b)) in
+`FLTForHuman/ModularCurve/PhiGenIntegrality.lean`. It is the **first deliberate
+deviation from a compiled FLT script**, and **Route A shipped**: `jq` and the
+conjugate family lift to `LaurentSeries (integralClosure ℤ K)`, and `coeffMap` is
+pushed through `qExpand`/`qTwist`/`phiProd`, replacing FLT's `CoeffsIntegral`
+closure block with ring structure. The topic also promotes the shared
+triangularity `coeff_aeval_jq_neg` (to `Defs/Jq.lean`) and `poleOrderLE_aeval_jq`
+(to `Defs/PhiGen.lean`); the consumer gained Zone G and the checker 176 → 180;
+[logs/phiGen-port.md](logs/phiGen-port.md) §9 carries the measured cost and the
+route decision.
 
 ## Where things live
 

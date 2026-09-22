@@ -152,23 +152,33 @@ transcendental over `ℚ`, since a nonzero polynomial relation would make a
 leading coefficient vanish at the pole. FLT's `transcendental_jq` (indeg 56) is
 part of the cone's outbound interface. -/
 
+/-- Triangularity of `aeval jq`: for `m ≥ P.natDegree`, the `q ^ (-m)` coefficient
+of `P(jq)` is the `m`-th coefficient of `P`. This is the shared form of the
+`q`-expansion triangularity that the cone's integrality and pole-bound topics
+(`PhiGenDescends.intCoeffs`, `aeval_jq_intCoeffs_descent`, the 328-block) all use;
+FLT repeats it privately in nine of its `S_` files. -/
+theorem coeff_aeval_jq_neg (P : Polynomial ℚ) {m : ℕ} (hm : P.natDegree ≤ m) :
+    (Polynomial.aeval jq P).coeff (-(m : ℤ)) = P.coeff m := by
+  rw [Polynomial.aeval_def, Polynomial.eval₂_eq_sum_range, HahnSeries.coeff_sum,
+    Finset.sum_eq_single m]
+  · rw [algebraMap_apply_eq_single, HahnSeries.coeff_single_zero_mul, coeff_jq_pow_self,
+      mul_one]
+  · intro i hi hin
+    have hilt : i < m :=
+      lt_of_le_of_ne (le_trans (Nat.lt_succ_iff.mp (Finset.mem_range.mp hi)) hm) hin
+    rw [algebraMap_apply_eq_single, HahnSeries.coeff_single_zero_mul,
+      coeff_jq_pow_of_lt (by omega), mul_zero]
+  · intro hm'
+    rw [algebraMap_apply_eq_single, HahnSeries.coeff_single_zero_mul,
+      Polynomial.coeff_eq_zero_of_natDegree_lt
+        (by simp only [Finset.mem_range, not_lt] at hm'; omega),
+      zero_mul]
+
 /-- There is no nonzero rational polynomial relation satisfied by `jq`: the
 `q ^ (-natDegree)` coefficient of `p(jq)` is the leading coefficient of `p`. -/
 theorem aeval_jq_eq_zero {p : Polynomial ℚ} (hp : Polynomial.aeval jq p = 0) : p = 0 := by
   by_contra hp0
-  set n := p.natDegree with hn
-  have hcoeff : (Polynomial.aeval jq p).coeff (-(n : ℤ)) = p.coeff n := by
-    rw [Polynomial.aeval_def, Polynomial.eval₂_eq_sum_range, HahnSeries.coeff_sum,
-      Finset.sum_eq_single n]
-    · rw [algebraMap_apply_eq_single, HahnSeries.coeff_single_zero_mul, coeff_jq_pow_self,
-        mul_one]
-    · intro i hi hin
-      have hilt : i < n := lt_of_le_of_ne (Nat.lt_succ_iff.mp (Finset.mem_range.mp hi)) hin
-      rw [algebraMap_apply_eq_single, HahnSeries.coeff_single_zero_mul, coeff_jq_pow_of_lt,
-        mul_zero]
-      omega
-    · intro hn'
-      exact absurd (Finset.self_mem_range_succ n) hn'
+  have hcoeff := coeff_aeval_jq_neg p le_rfl
   rw [hp] at hcoeff
   simp only [HahnSeries.coeff_zero] at hcoeff
   exact hp0 (Polynomial.leadingCoeff_eq_zero.mp hcoeff.symm)

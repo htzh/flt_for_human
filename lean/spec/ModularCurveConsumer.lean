@@ -65,6 +65,9 @@ import FLTForHuman.ModularForms.JqAnalyticModel
 import FLTForHuman.ModularForms.Hauptmodul
 -- T8: the cone's (c), `mem_adjoin_jq_of_phiGenDescends`, and the Hecke layer.
 import FLTForHuman.ModularForms.PhiGenDescends
+-- T9: the cone's (b) integrality, `PhiGenDescends.intCoeffs` and
+-- `aeval_jq_intCoeffs_descent`, in the `ModularCurve` algebraic layer.
+import FLTForHuman.ModularCurve.PhiGenIntegrality
 
 set_option autoImplicit false
 
@@ -299,6 +302,41 @@ example (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] (ζ : (CyclotomicField ℓ ℚ
     c k ∈ Algebra.adjoin ℚ {jq} :=
   ModularCurve.PhiGen.mem_adjoin_jq_of_phiGenDescends ℓ ζ hζ c hc k
 
+/-! ## Zone G — [T9] the cone's (b) integrality: descended coefficients are integral
+
+`FLTForHuman/ModularCurve/PhiGenIntegrality.lean` proves the first half of the
+cone's piece (b): `PhiGenDescends.intCoeffs` says the descended family `c` has
+integer `q`-expansion coefficients, and `aeval_jq_intCoeffs_descent` turns that
+triangularity into "a rational `P` with `IntCoeffs (P(jq))` lies in `ℤ[X]`".
+Route A (the deviation) shipped: `LaurentSeries 𝒪` + `coeffMap` + mathlib's
+integral closure, replacing FLT's `CoeffsIntegral` closure machinery.
+
+**The wire test is a binding plus a hypothesis-form instance.** As with Zone F,
+`PhiGenDescends.intCoeffs`'s hypothesis `hc : PhiGenDescends ℓ ζ c` is the cone's
+piece (a), which is not ported, so no concrete `hc` exists and none is invented.
+Its real consumer is the cone's (d) `exists_modularPolynomialData_coeff_eq`, not
+yet ported. `aeval_jq_intCoeffs_descent` *does* have a concrete instance
+(`P = X`, `hP` the port's `intCoeffs_jq`); it is proved and named
+`aeval_jq_intCoeffs_descent_X` inside the module, where the private
+`intCoeffs_jq` is in scope. Zone G binds the exported statement and its
+hypothesis form.
+-/
+
+#check @ModularCurve.PhiGen.PhiGenDescends.intCoeffs
+#check @ModularCurve.PhiGen.aeval_jq_intCoeffs_descent
+
+-- The statement in hypothesis form: the full `intCoeffs` signature, including
+-- the `PhiGenDescends` descent hypothesis, elaborates against the port's `Defs/`.
+example {K : Type*} [Field K] [Algebra ℚ K] {ℓ : ℕ} [hℓ : Fact (Nat.Prime ℓ)]
+    (ζ : Kˣ) (c : ℕ → LaurentSeries ℚ) (hc : ModularCurve.PhiGen.PhiGenDescends ℓ ζ c)
+    (hζ1 : ζ ^ ℓ = 1) (k : ℕ) : ModularCurve.PhiGen.IntCoeffs (c k) :=
+  ModularCurve.PhiGen.PhiGenDescends.intCoeffs hc hζ1 k
+
+-- The statement in hypothesis form for the descent.
+example (P : Polynomial ℚ) (hP : ModularCurve.PhiGen.IntCoeffs (Polynomial.aeval jq P))
+    (k : ℕ) : ∃ z : ℤ, P.coeff k = (z : ℚ) :=
+  ModularCurve.PhiGen.aeval_jq_intCoeffs_descent P hP k
+
 /-! ## The measure
 
     cd lean
@@ -390,6 +428,16 @@ and the correspondence; it has **no concrete wire instance**, because the
 hypothesis `hc : PhiGenDescends ℓ ζ c` is the cone's piece (a), which is not
 ported — the internal chain is nonetheless a genuine four-module composition.
 Still **0 errors**, one `sorry`.
+
+**Integrality result (2026-09-22).** Zone G is added and bound:
+`FLTForHuman/ModularCurve/PhiGenIntegrality.lean` proves the first half of the
+cone's (b) by **Route A** (`LaurentSeries 𝒪` + `coeffMap` + mathlib's integral
+closure, replacing FLT's `CoeffsIntegral` closure machinery).
+`PhiGenDescends.intCoeffs` is a binding whose hypothesis `hc` is the cone's (a)
+(not ported), so — as in Zone F — no concrete instance is invented;
+`aeval_jq_intCoeffs_descent`'s concrete `P = X` instance is the module's private
+`aeval_jq_intCoeffs_descent_X`, and Zone G binds its hypothesis form. Still
+**0 errors**, one `sorry`.
 
 ## Friction list (mathlib `v4.34.0` against FLT's `v4.33.0`)
 

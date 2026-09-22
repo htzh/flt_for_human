@@ -94,6 +94,19 @@ end Symmetry
 def PoleOrderLE (f : LaurentSeries ℚ) (n : ℕ) : Prop :=
   ∀ k : ℤ, k < -(n : ℤ) → f.coeff k = 0
 
+/-- Triangularity of `jq`'s pole: a polynomial in `jq` of degree `n` has pole
+order at most `n`. Promoted from T7's private copy (`Hauptmodul.lean`) so that the
+cone's pole-bound topics share it; FLT keeps it private in
+`S_ModularCurve_exists_aeval_jq_sub_holomorphicAtInfty.lean`. -/
+theorem poleOrderLE_aeval_jq (P : Polynomial ℚ) :
+    PoleOrderLE (Polynomial.aeval jq P) P.natDegree := by
+  intro k hk
+  rw [Polynomial.aeval_def, Polynomial.eval₂_eq_sum_range, HahnSeries.coeff_sum]
+  refine Finset.sum_eq_zero fun i hi => ?_
+  have hile : i ≤ P.natDegree := Nat.lt_succ_iff.mp (Finset.mem_range.mp hi)
+  rw [algebraMap_apply_eq_single, HahnSeries.coeff_single_zero_mul,
+    coeff_jq_pow_of_lt (by omega), mul_zero]
+
 /-- The splitting input as a family: for every prime `ℓ` there is a symmetric
 modular polynomial datum at `ℓ`. -/
 def ModularPolynomialFamily : Prop :=

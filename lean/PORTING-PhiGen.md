@@ -393,27 +393,46 @@ a `mapGL`-entry transparency issue did, fixed with mathlib's own
 168 → 176; the consumer gained Zone F. The measured cost and the three shape
 issues are in [logs/phiGen-port.md](logs/phiGen-port.md) §8.
 
+**T9 is done** (2026-09-22, one goal round) — **the cone's (b) has its
+integrality half.** Its work order was
+[topics/phiGenSplitting/TOPIC-integrality.md](topics/phiGenSplitting/TOPIC-integrality.md),
+now the executed plan. It delivered `PhiGen.PhiGenDescends.intCoeffs` (the
+descended family has integer `q`-expansion coefficients) and
+`PhiGen.aeval_jq_intCoeffs_descent` (`IntCoeffs (P(jq))` forces `P ∈ ℤ[X]`) in
+`FLTForHuman/ModularCurve/PhiGenIntegrality.lean`, both verbatim from their pin
+wrappers. It is the **first deliberate route deviation** in the sub-effort, and
+**Route A shipped in round 1**: `jq` and the conjugate family lift to
+`LaurentSeries (integralClosure ℤ K)`, and `coeffMap` is pushed through
+`qExpand`/`qTwist`/`phiProd`, replacing FLT's `CoeffsIntegral` closure block and
+its three polynomial-coefficient lemmas with ring structure. The audit's one
+negative result: the work order predicted `IsPrimitiveRoot.isIntegral` would
+replace the pin's two manual root-of-unity lemmas, but the hypothesis is only
+`ζ ^ ℓ = 1` (not primitivity), so the port uses one generic
+`mem_integralClosure_of_pow_eq_one` over `X ^ ℓ - 1` instead. The route-check's
+predicted **line** saving did not materialize (83 replaced pin lines became ~90
+lines of bridges), but the module is 322 lines against ~347 of in-scope pin
+content (ratio 0.93), and it promotes `coeff_aeval_jq_neg` (to `Defs/Jq.lean`)
+and `poleOrderLE_aeval_jq` (to `Defs/PhiGen.lean`), which the pin repeats
+privately in 9 files. The checker moved 176 → 180 (178 on the promotion); the
+consumer gained Zone G (with the named `P = X` instance
+`aeval_jq_intCoeffs_descent_X`); the measured cost and the route decision are in
+[logs/phiGen-port.md](logs/phiGen-port.md) §9.
+
 **What remains of the cone.** §6 below is the re-route menu; the four other
 algebraic pieces — and the one interface node (`hasSum_qParam_mul_laurent`) that
 the cone's later pieces reach (`indeg` 24 in FLT's graph) — are the next effort.
 
-**The next topic is T9, the integrality** (written and audited):
-[topics/phiGenSplitting/TOPIC-integrality.md](topics/phiGenSplitting/TOPIC-integrality.md).
-It is the first cone-algebra topic and the first half of (b): the pin's
-`PhiGenDescends.intCoeffs` (239) and the integrality half of
-`aeval_jq_intCoeffs_descent` (~108). Its prerequisites are all in place —
-`IntCoeffs`, `PhiGenDescends`, `jq`/`jNum : PowerSeries ℤ`, `coeffMap_qExpand` —
-with two lemmas to promote (`coeff_aeval_jq_neg` and `poleOrderLE_aeval_jq`,
-private in T7's `Hauptmodul.lean`; the pin repeats `coeff_aeval_jq_neg` in **9**
-files, so this is the remaining cone's best dedup). It is also the **first
-deliberate deviation from a compiled FLT script**: §2.1 offers Route A
-(`LaurentSeries 𝒪` + `HahnSeries.map` + `IsPrimitiveRoot.isIntegral`, which
-replaces ~83 lines of closure machinery with ring structure) against Route B
-(FLT's `integralClosure` script), and the work order carries a deviation protocol:
-spike A in `Scratch.lean` under a 60 s bound, fall back to B at the round-1
-checkpoint, record which shipped. Budget 2 rounds by *route risk*, not lines —
-T8 measured the user's point in the negative: 741 pin lines, one round, ratio
-0.98, so pin lines are not effort.
+**The next topic is T10, the pole bounds** — the second half of (b). Its work
+order is not yet written; the source is
+`P2M/Sol/S_ModularCurve_PhiGen_phiProd_conj_coeff_eq_zero_of_le.lean` (391, the
+`phiProd_conj_coeff_*` pair, deduplicated ×2) plus the `TPoleOrderLE` closure
+block that T9 left in place (~180 lines, the pin's `aeval_jq_intCoeffs_descent`
+file and two others). Its shared entry points exist: `poleOrderLE_aeval_jq` is
+public in `Defs/PhiGen.lean`, and `TPoleOrderLE`/`JSimplePole` are the port's
+`Defs/PhiGen`. T9's route decision is recorded in the log §9; the deviation
+protocol at the head of
+[topics/phiGenSplitting/TOPIC-integrality.md](topics/phiGenSplitting/TOPIC-integrality.md)
+is what governed it.
 
 **Cost honesty.** The cone's own `jq`-coefficients precedent is the warning:
 math/010 priced the `744`/`196884` coefficients against the same 11,034-line
@@ -441,15 +460,21 @@ sub-effort** (T5–T8 wrote ≈2,160 lines), or 7 topics at the current granular
 | piece | dedup pin | est. port | topics |
 |---|---|---|---|
 | (a) descent `exists_phiGenDescends` | 315 | 330–360 | 1 |
-| (b) integrality + pole bounds | 1,266 | 1,330–1,460 | 2 |
+| (b) integrality + pole bounds | 1,266 | **322 shipped** (integrality) + ~600–800 (pole bounds) | 1 done, 1 left |
 | (d) assembly + uniqueness | 502 | 530–580 | 1 |
 | (e) irreducibility/symmetry + `one_le_coeff_jq` | 1,281 | 1,350–1,500 | 2 |
 | (f) the statement `splits_of_prime` | 394 (+288 seed) | 430–500 | 1 |
 
-The (b) row carries an open route-check (Option 2 below): its integrality half is
-plausibly ~150–250 port lines after the `LaurentSeries 𝒪` reformulation and the
-triangularity/`TPoleOrderLE` dedup, which would put (b) at ~600–800 and the total
-closer to **3,200–3,700**.
+The (b) row's route-check (Option 2 below) is now **resolved**. T9 shipped Route A
+for the integrality half in one round: **322 port lines against ~347 of in-scope
+pin content (ratio 0.93)**, so the predicted ~150–250 lines was pessimistic
+(the 83 replaced closure/polynomial lines became ~90 lines of reusable `coeffMap`
+bridges, not a line saving) but the dedup did land — `coeff_aeval_jq_neg` and
+`poleOrderLE_aeval_jq` are public in `Defs/`, and T7 shrank by 25 lines. The (b)
+row's remaining half is the pole bounds (T10): the `phiProd_conj_coeff_*` pair
+(391, ×2) plus the ~180-line `TPoleOrderLE` block, so the *whole* (b) bucket is
+now measured-plus-estimated at **~950–1,150** rather than 1,330–1,460, closer to
+Option 2's ~600–800 once the 328-block's own duplicates are priced at T11.
 
 Three of those are single developments shipped several times by p2m (the 895-line
 block ×3, the 328-line block ×5, the 391-line block ×2); deduplicating at the
@@ -473,35 +498,33 @@ topic rather than a faithful port of the cone.
   *Potential:* if `finrank_adjoin_jqN_eq_of_prime` can be obtained from the
   candidate instead of from an independently constructed irreducible datum, (d)
   and part of (e) collapse.
-- **Option 2 — the integrality route: checked, and it can be done better.**
-  (Route-checked 2026-09-22.) The integrality is **not avoidable**: the datum's
+- **Option 2 — the integrality route: route-checked, shipped, and measured.**
+  (Route-checked 2026-09-22; **implemented as T9**, one round, log §9.) The
+  integrality is **not avoidable**: the datum's
   type is `Polynomial (Polynomial ℤ)`, and the triangularity forces
   $`P_k`$'s coefficients to be the descended series' negative-degree coefficients
   ($`P_k.\mathrm{coeff}\,m = (c_k).\mathrm{coeff}\,(-m)`$), so the descended
-  family must be shown to have integer $`q`$-expansion coefficients. But the
-  pin's proof of *that* is inflatable in three measured ways, and mathlib has
-  grown the parts it was missing:
-  1. `IsPrimitiveRoot.isIntegral` (RootsOfUnity/Minpoly.lean:41) gives
-     `IsIntegral ℤ μ` for a primitive root of unity, replacing the pin's manual
-     `val_mem_integralClosure_of_pow_eq_one` and
-     `zpow_val_mem_integralClosure_of_pow_eq_one`;
-  2. the pin's coefficient-wise `CoeffsIntegral` predicate and its six closure
-     lemmas can be replaced by working in `LaurentSeries (integralClosure ℤ K)`
-     and mapping down along `HahnSeries.map`, a ring hom
-     (`HahnSeries.map_mul`/`map_add`/`map_one`), which makes add/mul/one closure
-     automatic;
-  3. the port's `jq` is built from `jNum : PowerSeries ℤ`, so `IntCoeffs (jq ^ n)`
-     is immediate by construction, and the descent
-     `IntCoeffs (aeval jq P) → P ∈ ℤ[X]` is ~20 lines given the triangularity.
-  Two deduplications dominate the measured savings: the triangularity
-  `coeff_aeval_jq_neg` appears in **9** pin files, and the `TPoleOrderLE` closure
-  block in **3** of the (b)-bucket files — `aeval_jq_intCoeffs_descent` alone
-  spends ~180 of its 308 lines on a copy of it. Defined once in `Defs/`, (b)'s
-  integrality content is plausibly **~150–250 port lines** and the whole (b)
-  bucket **~600–800**, against the table's 1,330–1,460. *This is a route-check,
-  not a measurement:* T5–T8's lesson is that the audit buys correctness more
-  reliably than lines, so a small compile spike must confirm the
-  `LaurentSeries 𝒪` formulation before the estimate is trusted.
+  family must be shown to have integer $`q`$-expansion coefficients. The pin's
+  proof of *that* is inflatable in three ways, and the measurement is now in:
+  1. ~~`IsPrimitiveRoot.isIntegral` replaces the pin's manual root-of-unity
+     lemmas.~~ **Falsified by the spike:** the statement's hypothesis is only
+     `ζ ^ ℓ = 1`, not primitivity, so `IsPrimitiveRoot.isIntegral` does not apply.
+     Route A uses one generic `mem_integralClosure_of_pow_eq_one` over `X ^ ℓ - 1`
+     (the pin's argument, in one lemma instead of two).
+  2. **Confirmed.** The pin's coefficient-wise `CoeffsIntegral` predicate and its
+     six closure lemmas became a lift to `LaurentSeries (integralClosure ℤ K)`
+     plus `coeffMap`/`HahnSeries.map` commutation (~90 lines of bridges in place
+     of 83 lines of closure plus the 42-line polynomial-coefficient block).
+  3. **Confirmed, with a correction.** The descent
+     `IntCoeffs (aeval jq P) → P ∈ ℤ[X]` is the pin's strong induction (~40
+     lines), not the ~20 the estimate hoped: triangularity only reads the *top*
+     coefficient directly, so the lower coefficients need the induction. The
+     `intCoeffs_jq`/`IntCoeffs.sub` helpers were ported.
+  The two deduplications did land: `coeff_aeval_jq_neg` (9 pin files) and
+  `poleOrderLE_aeval_jq` are public in `Defs/`, T7 shrank 25 lines, and the
+  integrality half is **322 port lines against ~347 in-scope pin** (ratio 0.93).
+  The predicted ~150–250 was pessimistic; the *whole* (b) bucket is now
+  ~950–1,150 rather than the table's 1,330–1,460.
 - **Option 3 — strengthen (c) and skip the descended family.** *Constrained by
   base/013 §6:* any restatement that drops the realization on $`\mathbb{H}`$ is
   false. `f = 1 + q` is a nonconstant power series in $`\mathbb{Q}((q))`$, hence

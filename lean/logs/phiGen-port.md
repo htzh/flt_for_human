@@ -1,7 +1,8 @@
 # The Φₚ splitting / R1 sub-effort — record
 
-**Status: T5–T8 complete (2026-09-22) — R1 is complete and the cone's (c) is
-discharged.** This is the running record for the sub-effort
+**Status: T5–T9 complete (2026-09-22) — R1 is complete, the cone's (c) is
+discharged, and the cone's (b) has its integrality half.** This is the running
+record for the sub-effort
 [PORTING-PhiGen.md](../PORTING-PhiGen.md) opens: the R1 (level-one q-expansion
 principle) sequence that gives the Φₚ splitting cone its one analytic input. It is
 separate from the parent `functionFieldGeneration` record ([ffg-port.md](ffg-port.md))
@@ -12,9 +13,11 @@ lives here rather than as an append there.
 The executed plans are
 [TOPIC-r1-kernel.md](../topics/phiGenSplitting/TOPIC-r1-kernel.md) (T5),
 [TOPIC-jq-model.md](../topics/phiGenSplitting/TOPIC-jq-model.md) (T6),
-[TOPIC-hauptmodul.md](../topics/phiGenSplitting/TOPIC-hauptmodul.md) (T7) and
+[TOPIC-hauptmodul.md](../topics/phiGenSplitting/TOPIC-hauptmodul.md) (T7),
 [TOPIC-phiGen-descends.md](../topics/phiGenSplitting/TOPIC-phiGen-descends.md)
-(T8); the mathematics of record is
+(T8) and the first cone-algebra topic
+[TOPIC-integrality.md](../topics/phiGenSplitting/TOPIC-integrality.md) (T9); the
+mathematics of record is
 [base/013](../../base/013-riemann-existence-and-the-q-expansion-principle.md) §3,
 §4.3, §5.4, §6. FLT is pinned at `aa2d8b3`; mathlib at `v4.34.0`.
 
@@ -26,18 +29,21 @@ The executed plans are
 | **T6** | the analytic model of `jq` (`jq` sums to `E₄³/Δ`; its `SL₂(ℤ)`-invariance) | **done**, 1 module, 2 public + 43 private, 622 lines | both statements verbatim; consumer Zone D bound; axioms clean |
 | **T7** | the Hauptmodul form (R1 complete) | **done**, 1 module, 15 public + 16 private, 483 lines | headline + T8 interface verbatim; consumer Zone E bound; axioms clean |
 | **T8** | the cone application (the descended coefficients lie in `ℚ[jq]`) | **done**, 3 modules, 8 public + 43 private, 725 lines | four statements verbatim; consumer Zone F bound; axioms clean |
+| **T9** | the cone's (b) integrality (descended coefficients are integral; the triangularity descent) | **done**, 1 module, **2 public** + 19 private, 322 lines | Route A shipped (deviation); both statements verbatim; consumer Zone G bound; axioms clean |
 
-R1 = T5–T7 (**complete**); T8 discharges the cone's (c) (**complete**). The
-sub-effort's deliverables are six files:
+R1 = T5–T7 (**complete**); T8 discharges the cone's (c) (**complete**); T9
+discharges the integrality half of the cone's (b) (**complete**). The
+sub-effort's deliverables are seven files:
 
 | module | lines | decls | FLT source (`aa2d8b3`) |
 |---|---|---|---|
 | `FLTForHuman/ModularForms/QExpansionPrinciple.lean` | 333 | 2 public + 6 `private` (+1 `example`) | `P2M/Sol/S_ModularCurve_coeff_eq_zero_of_hasSum_of_slash_invariant.lean` (186) |
 | `FLTForHuman/ModularForms/JqAnalyticModel.lean` | 622 | 2 public + 43 `private` | `hasSum_jq_qParam` (45), `hasSum_jNum_qParam` (235), `qExpansion_discriminant_eq_X_mul_tprod` (199), `…_map_X_mul_dedekindEtaUnit` (76), `qExpansion_E4_…` (34), `…_E4_cube_div_discriminant_smul` |
-| `FLTForHuman/ModularForms/Hauptmodul.lean` | 483 | 15 public + 16 `private` | `hasSum_qParam_mul` (80), `…_laurent` (84), `exists_aeval_jq_sub_holomorphicAtInfty` (84), `mem_adjoin_jq_of_hasSum_of_slash_invariant` (214) |
+| `FLTForHuman/ModularForms/Hauptmodul.lean` | 462 | 15 public + 14 `private` | `hasSum_qParam_mul` (80), `…_laurent` (84), `exists_aeval_jq_sub_holomorphicAtInfty` (84), `mem_adjoin_jq_of_hasSum_of_slash_invariant` (214) |
 | `FLTForHuman/ModularForms/Defs/HeckeOperator.lean` | 115 | 4 public + 7 `private` | `Def_ModularForm_HeckeOperator` 11–70 (of 204) |
 | `FLTForHuman/ModularForms/HeckeQExpansion.lean` | 100 | 2 public | `hasSum_qParam_heckeMatrix_smul` (54), `…_heckeDiagMatrix_smul` (55) |
 | `FLTForHuman/ModularForms/PhiGenDescends.lean` | 510 | 2 public + 36 `private` | `cosetPoly_smul` (244), `…_hasSum_cosetPoly_coeff` (281), `…_mem_adjoin_jq_of_phiGenDescends` (47) |
+| `FLTForHuman/ModularCurve/PhiGenIntegrality.lean` | 322 | 2 public + 19 `private` | `PhiGenDescends_intCoeffs` (239), the integrality half of `aeval_jq_intCoeffs_descent` (~108; the file's ~180-line `TPoleOrderLE` block is out of scope) |
 
 ## 1. What T5 cost
 
@@ -401,3 +407,109 @@ T5–T8 are done; R1 is complete and the cone's (c) is discharged. What remains 
 the cone is its other five pieces (see `PORTING-PhiGen.md` §6 and §8's table),
 and the one interface node the later pieces reach. The sub-effort's record here
 is closed.
+
+## 9. T9: the cone's (b) integrality — Route A shipped
+
+One new module, **322 lines**, **2 public** and 19 `private` declarations:
+`FLTForHuman/ModularCurve/PhiGenIntegrality.lean`. The two public statements —
+`PhiGen.PhiGenDescends.intCoeffs` and `PhiGen.aeval_jq_intCoeffs_descent` — are
+verbatim from their `Theorems/` wrappers. It also promoted T7's two private
+triangularity lemmas into `Defs/` (below). One goal round (of the 3 budgeted,
+including the round-1 checkpoint).
+
+| | |
+|---|---|
+| goal rounds | **1** (of the 3 budgeted; checkpoint at 1 not needed) |
+| declarations | **2 public**, 19 `private` (of which 1 is the named wire test) |
+| lines written | 322 total: ~60 header/imports, ~157 Route A bridges, ~30 the `intCoeffs` statement, ~75 triangularity descent + wire test |
+| build | `lake build` 3839 jobs, green, **0 warnings**, no `sorry` |
+| `#print axioms` | both public declarations: only `propext, Classical.choice, Quot.sound` |
+| checker | `180 statements identical, 0 mismatched, 0 missing, 8 own-proof exempted` (178 → 180) |
+| consumer | Zone G added and bound; **0 errors**, still one `sorry` (the deferred capstone) |
+
+### 9.1 Route A vs Route B — A shipped, in round 1
+
+The work order's deviation protocol asked for a Route A spike first (the first
+deliberate route deviation in the sub-effort). The spike was written in
+`Scratch.lean` and the route **closed**: Route A shipped, decided in round 1.
+
+The three stop-early risks the work order named were all cleared by the spike:
+
+- **`coeffMap`/`HahnSeries.map` commuting with `qExpand`** — already public as
+  `coeffMap_qExpand`; the spike used it unchanged.
+- **`coeffMap` commuting with `qTwist` and the `𝒪`-unit lift of `ζ`** — both
+  worked. `coeffMap_qTwist` is a coefficientwise computation; the unit is the
+  explicit `Units.mkOfMulEqOne` of `ζ ^ e` and its inverse (each a root of
+  `X ^ ℓ - 1`), so mathlib synthesized the `Units` structure with no fight.
+- **`jq_ℤ` reachable from `Defs/Jq.lean` without unfolding `jNumQ`** — reachable:
+  `jqZ := single (-1) 1 * ofPowerSeries ℤ ℤ jNum`, and `coeffMap (algebraMap ℤ K)
+  jqZ = coeffEmb K jq` is a two-line `map_mul` computation.
+
+**Did the route-check's predicted saving materialize?** Partly. FLT's replaced
+closure machinery is:
+
+| FLT block | pin lines | Route A replacement |
+|---|---|---|
+| `CoeffsIntegral` + `zero/one/neg/mul/qExpand/qTwist` | 41 | `jqZ`, `coeffMap_ofPowerSeries`, `coeffMap_qTwist`, `coeffMap_jqZ`, `jqO`, `coeffMap_jqO`, `conjO`, `coeffMap_conjO`, `phiProdO`, `map_phiProdO` (~90 lines, 10 declarations) |
+| `coeffsIntegral_coeff_X_sub_C/_mul/_prod` | 42 | ring structure (`map_phiProdO` + `Polynomial.map`) |
+| two manual root-of-unity lemmas | 24 | `mem_integralClosure_of_pow_eq_one` + `zetaUnit`/`coeffMap_zetaUnit` (~20 lines) |
+
+So the 83 lines of closure + polynomial-coefficient machinery became ~90 lines of
+bridging lemmas: **no line saving**, but the bridges are reusable ring-hom
+bookkeeping rather than a bespoke predicate, and the two root-of-unity lemmas
+shrank. The prediction that `IsPrimitiveRoot.isIntegral` would be the
+root-of-unity call did **not** hold: the hypothesis is only `ζ ^ ℓ = 1`, not
+primitivity, so `IsPrimitiveRoot.isIntegral` does not apply directly; the port
+uses `X ^ ℓ - 1` (`mem_integralClosure_of_pow_eq_one`), the same monic-polynomial
+argument as the pin but in one generic lemma. This is the audit's one negative
+result, and it is the kind of "rightness ≠ savings" outcome T6 also recorded.
+
+### 9.2 The cost
+
+**322 port lines against ~347 of in-scope pin content** (the 239-line
+`intCoeffs` file plus the ~108-line integrality half of the descent file; the
+descent file's ~180-line `TPoleOrderLE` block belongs to the pole-bound topic and
+is not ported). Ratio **0.93**, the sub-effort's first sub-1.0 ratio below T8's
+0.98 (T5 1.79, T6 1.06, T7 1.05, T8 0.98). Two structural notes on the
+denominator: the 322 includes a ~60-line header, and Route A's bridges are
+counted in full against pin blocks the pin itself duplicates in 9 files.
+
+### 9.3 The dedup
+
+`coeff_aeval_jq_neg` and `poleOrderLE_aeval_jq` were **private and unused** in
+T7's `Hauptmodul.lean`; deleting them shrinks that module by **25 lines** (482 →
+462, net of a 5-line header note; 16 → 14 private declarations). More important,
+the pin repeats `coeff_aeval_jq_neg` privately in
+**9** `S_` files — (b), (d), (e), the 895-line block and others — so every
+remaining cone topic now has a clean public entry point instead of a private
+copy. `coeff_aeval_jq_neg` lives in `Defs/Jq.lean` (with `jq`); T9's second
+statement uses it directly. `poleOrderLE_aeval_jq` needs `PoleOrderLE`, which is
+defined in `Defs/PhiGen.lean`, and `Defs/PhiGen.lean` imports `Defs/Jq.lean`
+through `Defs/Fields`/`Defs/Polynomial`, so it was promoted into
+`Defs/PhiGen.lean` rather than `Defs/Jq.lean` as the work order's letter said —
+a structural necessity, not a choice. Both promoted lemmas are verified against
+`P2M/Sol/S_ModularCurve_exists_aeval_jq_sub_holomorphicAtInfty.lean`, where the
+pin has them public; the checker rose 176 → 178 on the promotion and 178 → 180 on
+the two wrappers.
+
+### 9.4 The wire test
+
+Zone G of `spec/ModularCurveConsumer.lean` binds both public statements and
+states them in hypothesis form. `PhiGenDescends.intCoeffs` has **no concrete
+instance**: its hypothesis `hc : PhiGenDescends ℓ ζ c` is the cone's piece (a),
+which is not ported, and the work order forbids inventing one; its real consumer
+is (d)'s `exists_modularPolynomialData_coeff_eq`, also not ported.
+`aeval_jq_intCoeffs_descent` *does* have the concrete `P = X` instance (taking
+`hP := intCoeffs_jq` and concluding `X.coeff 1 = 1 ∈ ℤ`), and it is named
+`aeval_jq_intCoeffs_descent_X` inside the module, where the private helper
+`intCoeffs_jq` is in scope — the module's public surface is held at exactly the
+two wrappers, so the instance cannot live in the consumer without exporting a
+third declaration.
+
+### 9.5 What T9 leaves
+
+The cone's (b) still owes the pole bounds (T10): `phiProd_conj_coeff_eq_zero_of_le`
+and the `TPoleOrderLE` closure block — the ~180 lines this topic deliberately did
+not port. The promoted `poleOrderLE_aeval_jq` is T10's shared entry point. Then
+the 328-block and assembly (T11) consumes both `PhiGenDescends.intCoeffs` and
+`aeval_jq_intCoeffs_descent`.

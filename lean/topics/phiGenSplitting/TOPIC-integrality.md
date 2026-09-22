@@ -1,9 +1,15 @@
 # Topic 9: the integrality of the descended coefficients
 
-**Status: work order, not started (2026-09-22).** First cone-algebra topic after
-R1. R1 (T5–T7) is complete and the cone's (c) is discharged by T8; this topic
-starts (b). The plan is [PORTING-PhiGen.md](../../PORTING-PhiGen.md); the
-estimate and route-check are its §6 Option 2; the mathematics is
+**Status: done (2026-09-22), one goal round — the cone's (b) has its integrality
+half.** The module is `FLTForHuman/ModularCurve/PhiGenIntegrality.lean`, green with
+0 warnings and no `sorry`; **Route A shipped** (the first deliberate route
+deviation of the sub-effort), decided in round 1 without needing the fallback.
+The measured cost, the route decision and the dedup payoff are in
+[logs/phiGen-port.md](../../logs/phiGen-port.md) §9. First cone-algebra topic
+after R1; R1 (T5–T7) is complete and the cone's (c) is discharged by T8. The next
+topic is T10, the pole bounds, the second half of (b). This file is kept as the
+executed plan. The plan is [PORTING-PhiGen.md](../../PORTING-PhiGen.md); the
+estimate and route-check are its §6 Option 2, now measured; the mathematics is
 [math/010](../../../math/010-function-field-generation.md) §3 and
 [base/006](../../../base/006-the-modular-equation.md) §2.
 
@@ -228,20 +234,26 @@ reachable from `Defs/Jq.lean`'s definition without unfolding `jNumQ`.
 
 ## 6. Definition of done
 
-- [ ] `coeff_aeval_jq_neg` and `poleOrderLE_aeval_jq` public in `Defs/Jq.lean`;
-      T7's `Hauptmodul.lean` points at them (still green).
-- [ ] the new module: both statements public and verbatim from their wrappers,
-      with the route decision (A or B) and its reason in the header.
-- [ ] `lake build` green, 0 warnings, no `sorry`.
-- [ ] `#print axioms` clean.
-- [ ] `spec/check_flt_statements.py`: both wrappers in `SOURCES`, 0 mismatched;
-      `PORT_FILES` gains the module.
-- [ ] the wire item from §4 recorded, with the `P = X` instantiation named.
-- [ ] `PORTING-PhiGen.md` §5 adds T9 as the next cone topic and marks it done;
+- [x] `coeff_aeval_jq_neg` and `poleOrderLE_aeval_jq` public in `Defs/`;
+      T7's `Hauptmodul.lean` points at them (still green). **Structural
+      deviation:** `poleOrderLE_aeval_jq` needs `PoleOrderLE`, defined in
+      `Defs/PhiGen.lean` (which imports `Defs/Jq.lean`), so it was promoted into
+      `Defs/PhiGen.lean`; `coeff_aeval_jq_neg` went to `Defs/Jq.lean` as planned.
+- [x] the new module `FLTForHuman/ModularCurve/PhiGenIntegrality.lean`: both
+      statements public and verbatim from their wrappers, with the route decision
+      (**A**) and its reason in the header.
+- [x] `lake build` green, 0 warnings, no `sorry`.
+- [x] `#print axioms` clean (`propext, Classical.choice, Quot.sound`).
+- [x] `spec/check_flt_statements.py`: both wrappers in `SOURCES`, 0 mismatched
+      (176 → 180, with the promotion at 178); `PORT_FILES` gains the module.
+- [x] the wire item from §4 recorded, with the `P = X` instantiation named
+      (`aeval_jq_intCoeffs_descent_X`, private in the module because the public
+      surface is held at exactly the two wrappers); consumer Zone G bound.
+- [x] `PORTING-PhiGen.md` §5 adds T9 as the next cone topic and marks it done;
       §6's estimate table's (b) row is updated with the *measured* result (the
-      route-check is resolved); the log gains T9's cost; README module table gains
-      the module.
-- [ ] report in the §7 shape.
+      route-check is resolved); the log gains T9's cost (§9); the README module
+      table gains the module.
+- [x] report in the §7 shape (below, in this file's status block and log §9).
 
 ## 7. Reporting back
 

@@ -90,6 +90,20 @@ SOURCES = [
     "Theorems/Thm_ModularCurve_cosetPoly_smul.lean",
     "Theorems/Thm_ModularCurve_PhiGen_mem_adjoin_jq_of_phiGenDescends.lean",
     "Definitions/Def_ModularForm_HeckeOperator.lean",
+    # Topic 9, the integrality. Two shared triangularity lemmas were promoted out
+    # of T7's `Hauptmodul.lean` into `Defs/Jq.lean` and `Defs/PhiGen.lean`:
+    # `coeff_aeval_jq_neg` and `poleOrderLE_aeval_jq`. FLT keeps both `private` in
+    # most of the nine `S_` files that repeat them; this one file has them public,
+    # so it is the comparable copy. It is listed last because its other
+    # declarations (`poleOrderLE_iff_le_order`, `exists_poleOrderLE`) are private
+    # in the port and so never diffed.
+    "P2M/Sol/S_ModularCurve_exists_aeval_jq_sub_holomorphicAtInfty.lean",
+    # Topic 9, the integrality itself. The two public statements of
+    # `FLTForHuman/ModularCurve/PhiGenIntegrality.lean` are the pin wrappers
+    # verbatim; Route A's bridging helpers are `private` in the port and so are
+    # invisible to the checker.
+    "Theorems/Thm_ModularCurve_PhiGen_PhiGenDescends_intCoeffs.lean",
+    "Theorems/Thm_ModularCurve_PhiGen_aeval_jq_intCoeffs_descent.lean",
 ]
 
 PORT_FILES = [
@@ -111,6 +125,7 @@ PORT_FILES = [
     "FLTForHuman/ModularForms/Defs/HeckeOperator.lean",
     "FLTForHuman/ModularForms/HeckeQExpansion.lean",
     "FLTForHuman/ModularForms/PhiGenDescends.lean",
+    "FLTForHuman/ModularCurve/PhiGenIntegrality.lean",
 ]
 
 # Declarations whose *statement* has no FLT source, so there is nothing to diff:
