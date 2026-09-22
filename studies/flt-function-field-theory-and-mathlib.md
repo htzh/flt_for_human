@@ -646,6 +646,9 @@ Generic curve theory, in reading order:
 - **Do not** assume the modular curve is presented by the automorphic field of the upper
   half plane; every `CurveModel` uses a q-expansion Laurent-series field, and the
   automorphic track is unbridged (§7.4).
+- **Do not** say the algebraic Riemann–Roch depends on complex analysis. It is proved
+  from `IsCurveOver` by the adic/Tate residue route, and the complex-analytic
+  Abel–Jacobi branch is off the Riemann–Roch path (§13).
 - **Do not** trust `… | xargs wc -l | tail -1` for layer sizes (§12).
 
 ## 11. Citation index
@@ -716,4 +719,89 @@ cd .lake/packages/mathlib/Mathlib
 for t in RiemannRoch WeilPairing genus 'AlgebraicGeometry/Curve'; do
   printf '%-24s ' "$t"; grep -rli "$t" --include='*.lean' . | wc -l
 done
+```
+
+## 13. Does the algebraic Riemann–Roch need analysis?
+
+Short answer: **no.** FLT's Riemann–Roch for function fields is proved
+algebraically, and the complex-analytic material FLT contains is a separate
+branch that the Riemann–Roch path never enters.
+
+Measured by *content* over the transitive import closure of
+`S_AlgebraicCurve_functionFieldRiemannRoch_of_isAlgClosed_of_isCurveOver`
+(38 FLT files, 30 explicitly named mathlib modules): **zero** occurrences of
+$`\mathbb{C}`$, `Complex.*`, `AnalyticAt`, `MeromorphicAt`, `deriv`, `HasDerivAt`,
+`intervalIntegral`, $`\int`$, `ContDiffOn`, or of the FLT analytic extras
+(`ComplexLineIntegral`, `CellDissection`, `ChordalProximity`, `pathIntegral`,
+`chartRead`, `readDifferential`). The only `Mathlib.Analysis.*` module named
+anywhere on the path is `Mathlib.Analysis.Normed.Ring.Lemmas` (normed-ring
+algebra); the rest is valuation, Dedekind, Kähler and the topology of valued
+fields. The whole closure is `sorry`-free and `axiom`-free.
+
+What carries it instead:
+
+- **`IsCurveOver` is algebraic.** Its discharge
+  `isCurveOver_of_isIntegral_of_smoothOfRelativeDimension_one` uses mathlib's
+  `SmoothOfRelativeDimension 1` with `RingTheory.Smooth.StandardSmoothCotangent`,
+  `RingTheory.Etale.Kaehler`, `RingTheory.Kaehler.Polynomial` and
+  `LinearAlgebra.Dimension.*`; the characterization
+  `isCurveOver_iff_exists_transcendental_finiteDimensional` is purely
+  field-theoretic: $`\exists t`$ transcendental with $`K(t) \subseteq F`$ finite
+  and separable.
+- **The packaged endgame takes the residue route.** `functionFieldRiemannRoch_of_isAlgClosed`
+  goes `residueTheoremK_of_isAlgClosed` →
+  `functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed` →
+  `FunctionFieldRiemannRoch`. `residueTheoremK` is built from **adic completions**
+  and **Tate residues**: `PlaceCompletion`, `TateResidueCurrency`,
+  `CanonicalLocalResidueInstance`, `PlacesOverDVR`,
+  `Def_DedekindDomain_AdicValuation_InlineSpecific`. `ResidueTheorem` is then
+  `residueTheorem_of_residueTheoremK`. This is valuation theory, resting on
+  mathlib's adic-completion/Dedekind API.
+- **The Stichtenoth route is the other algebraic route.**
+  `stichtenothGenusExists_of_isCurveOver` →
+  `riemannGenusReached_of_stichtenothGenusExists` →
+  `riemannIndexFormula_of_genusReached` → `exists_genus_riemannIndex_of_isCurveOver`
+  is the repartition/adele proof, also analysis-free. It reaches the same theory by
+  a different path; the packaged RR theorem above does not use it.
+
+Where the analytic material actually lives: the Abel–Jacobi/period branch —
+`ComplexLineIntegral.lean` (`chartRead`, `readDifferential`, `pathIntegral`,
+`abelJacobiVec`, `pathPeriodLattice`) and `CellDissection.lean` (a `CellDissection`
+packages a dissection of the place space; `Cell`/`AnalyticCoord` carry
+`ContDiffOn`/`AnalyticAt` data). Those proofs do use mathlib complex analysis
+(`AnalyticAt`, `deriv`, `HasDerivAt`, `MeromorphicAt`) and feed the
+Jacobian/Weil-pairing story, not Riemann–Roch. The archimedean estimates
+(`ChordalProximity`, `CycleChowForm`) belong to the same branch.
+
+So the "mathlib has no analysis" gap is real but located elsewhere: Riemann
+existence and a complex model of $`X_0(N)`$, and its comparison with the
+q-expansion field (§7.4) — not in the algebraic Riemann–Roch.
+
+Reproduce the audit:
+
+```bash
+cd ~/proj/fermats-last-theorem
+# transitive FLT import closure of the RR endgame, then grep each file for analytic tokens
+python3 - <<'PY'
+import re
+from pathlib import Path
+files={}
+for d in ['Definitions','Theorems','P2M/Sol','P2M']:
+    for p in Path(d).glob('*.lean'):
+        files[p.with_suffix('').as_posix().replace('/','.')]=p
+imp={m:re.findall(r'^import\s+(\S+)',open(p,encoding='utf-8').read(),re.M) for m,p in files.items()}
+def closure(m):
+    seen,stack=set(),[m]
+    while stack:
+        x=stack.pop()
+        if x in seen: continue
+        seen.add(x); stack.extend(imp.get(x,[]))
+    return seen
+tok=re.compile(r'ℂ|Complex\.|AnalyticAt|MeromorphicAt|HasDerivAt|intervalIntegral|ContDiffOn|pathIntegral|chartRead')
+C=closure('P2M.Sol.S_AlgebraicCurve_functionFieldRiemannRoch_of_isAlgClosed_of_isCurveOver')
+for x in sorted(C):
+    if x in files and tok.search(open(files[x],encoding='utf-8').read()):
+        print('ANALYTIC TOKEN:', files[x])
+print('scanned FLT files:', sum(1 for x in C if x in files))
+PY
 ```

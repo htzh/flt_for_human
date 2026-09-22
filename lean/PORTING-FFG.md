@@ -487,7 +487,10 @@ counted — about 45% of the cone by lines. It contains the modular-form / Hecke
 q-expansion underbelly (`hasSum_qParam_*`, `qExpansion_*`,
 `Def_ModularForm_HeckeOperator`). math/010 §3 calls the modular equation's
 splitting "the one genuinely analytic-looking input", so it should be *stated and
-stopped*: `sorry`, nothing beneath it ported.
+stopped*: `sorry`, nothing beneath it ported. Both readings are re-measured in
+[PORTING-PhiGen.md](PORTING-PhiGen.md): deduplicated the subtree is **5,811 `S_`
+lines over 37 developments**, and only the ≈1,909-line level-one q-expansion
+principle is analytic — the rest is algebra that a later route may avoid.
 
 What remains is **24 of the 69 nodes — 48 `Thm_`/`S_` files, 12605 lines** — the
 field theory and the strong induction, exactly math/010 §§2, 4, 5, 6, 7. (The 69
@@ -666,8 +669,69 @@ on the menu above.
 The rest of the remainder is instantiated field theory of
 $`\mathbb{Q}(j) \subseteq \mathbb{Q}(j_N)`$ and does not generalize: it is the
 theorem. So the bottom-up question is not whether the segment's field theory can
-be a library — most of it cannot — but whether the 180-line generic kernel is
-worth building first, and the survey argues that it is.
+be a library — most of it cannot — but whether the generic kernel is worth building
+first. The survey argued that it is, and it has been built:
+`FLTForHuman/FieldTheory/CommonRoot.lean` holds the three lemmas, and the one
+`Inputs` field they reach (`relfinrank_modularFunctionField`) has been peeled.
+
+### 7.7 The frontier: what is assumed, and what gates it
+
+Live state, for anyone resuming. Two tiers, and the second is a single node.
+
+```
+functionFieldGeneration
+  ← hall_all + the collapse                    proved, `Spine.lean`
+  ← 7 named fields (the `Inputs` structure)    assumed; ~3,357 structural lines
+      ← every one of them gated by `PhiGen.splits_prime_at_slot`
+```
+
+**Tier 1 — the 7 `Inputs` fields.** "Pin proof" is the whole solution file of the
+node; the last column is where math/010 consumes it.
+
+| field | pin proof | what it says | math/010 |
+|---|---|---|---|
+| `minpoly_jqN_map_eq_prod_slots` | 2,002 | the explicit slot product for `minpoly ℚ⟮jq⟯ (jqN M)` mapped into `K` | §4 |
+| `jqN_prime_not_mem_full` | 2,002 | `jqN p ∉ modularFunctionFieldFull M` for `p ∤ M` | §5–§6 |
+| `jqN_pow_not_mem_adjoin_full` | 995 | that non-membership propagated up the prime-power tower | §5–§6 |
+| `modularFunctionField_eq_full_of` | 735 | the descent closure, `F_N = F_N^{full}` from one-prime steps | §5 |
+| `jqN_div_mem_modularFunctionField` | 735 | descent by one prime: `j(q^M) ∈ ℚ(j(q), j(q^{Mp}))` | §4 |
+| `full_eq_adjoin_full_div_prime` | 624 | one new generator at level `Mp^{a+1}` | §5 |
+| `relfinrank_full_eq_mul` | 81 | the prime-power degree step: `p + 1`, then `p` | §6 |
+
+Raw sum **7,174**. Two pairs are *the same file* — `minpoly_jqN_map_eq_prod_slots`
+≡ `jqN_prime_not_mem_full` and `jqN_div_mem_modularFunctionField` ≡
+`modularFunctionField_eq_full_of` (stripped `diff` **0** each) — and the shared
+`TS`/`phiAtSeed` prelude (≈370 lines, 43 declarations) is copied into four of the
+five distinct files. So the structural content is ≈ **3,357 lines**, of which ~16 of
+the prelude's 43 declarations are already in the port (`Defs/TS.lean`,
+`coeffEmb_qExpand`, `iota_jqN`, the cyclotomic block): **~3,200 lines of genuinely
+new proof**, not 7,174.
+
+**Tier 2 — the one input that gates all seven.** `PhiGen.splits_prime_at_slot` is
+*not* in `Inputs`; it is the Φ_p subtree §7.1 **cut**: **44 nodes, 11,034 lines, 42
+direct dependents**. Its content decomposition, corrected size and the plan to
+isolate the analytic input are in
+[PORTING-PhiGen.md](PORTING-PhiGen.md). Every field above needs it in FLT's
+proof, so there are exactly
+three ways forward, and they should be chosen deliberately:
+
+1. **port the Φ_p subtree**, then discharge the seven;
+2. **make Φ_p an eighth field** and prove the seven *from* it — this turns the
+   capstone into a two-level conditional, `functionFieldGeneration` modulo Φ_p, and
+   isolates the one hard input as a named object rather than a subtree;
+3. **re-route** a field so it never needs Φ_p.
+
+Two reminders from this effort's own record, because they govern any estimate:
+
+- **cost tracks the route, not the subtree** (playbook §7.3). The `jq` coefficients
+  were priced against this same 11,034-line cluster and turned out to be a 237-line
+  standalone file with mathlib supplying the hard part — a **47×** error. Route-check
+  each field before pricing it; the degree/tower nodes are the most promising
+  (`relfinrank_full_eq_mul` is 81 lines).
+- **the frontier is top-heavy.** Three of the seven are the 2,002 / 2,002 / 995 slot
+  cluster. After four peels the remaining debt is dominated by 1,000–2,000-line
+  nodes — the opposite of the interface tier's profile, and the reason the cheap work
+  has run out.
 
 ## 8. Open questions
 

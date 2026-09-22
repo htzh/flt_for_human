@@ -109,6 +109,13 @@ v4.34.0 API drift, and a checklist) in [porting-playbook.md](porting-playbook.md
 The `functionFieldGeneration` effort keeps its record in
 [logs/ffg-port.md](logs/ffg-port.md).
 
+A second top-level plan, [PORTING-PhiGen.md](PORTING-PhiGen.md), inventories the
+Φₚ splitting cone that gates the conditional capstone (PORTING-FFG §7.1/§7.7).
+It records the cone's math-content decomposition, the measurement that its
+headline 11,034-line count is ~1.6× inflated by the one-`S_`-file-per-theorem
+layout, and the decision to isolate the cone's only analytic input — the
+level-one q-expansion principle — as the next topic.
+
 `FLTForHuman/ModularCurve/` holds the definitions of `PORTING-FFG.md` Layer 0
 (the `jq` / `qExpand` / `qTwist` objects of math/010), plus the topic modules
 that followed. `FLTForHuman/FieldTheory/` is its generic companion: the
@@ -184,7 +191,7 @@ The documentation has four roles, and they are kept apart on purpose:
 
 | path | role |
 |---|---|
-| `PORTING-FFG.md`, and any other plan at the top level | an **active plan** — the blueprint for work in progress |
+| `PORTING-FFG.md`, `PORTING-PhiGen.md`, and any other plan at the top level | an **active plan** — the blueprint for work in progress |
 | `topics/<effort>/TOPIC-*.md` | **executed plans**: one per finished topic, carrying what was learned as well as what was done |
 | `logs/` | the **linear record** of what happened, in order — `card-torsion-port.md` for the first port, `ffg-port.md` for this one |
 | `porting-playbook.md` | the **reusable method**, not tied to any one effort |

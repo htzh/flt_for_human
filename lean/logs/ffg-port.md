@@ -739,6 +739,13 @@ discharge — they are not `Inputs` fields, and their consumer here is the remai
 Discharging the fields one at a time is now the natural next topic, and §7.3's
 per-node line counts are the cost estimate for each.
 
+**The live frontier has its own table in the active plan:**
+[PORTING-FFG.md](../PORTING-FFG.md) §7.7 — the seven remaining fields with their pin
+sizes and what each says, the de-duplicated structural total (~3,357 lines, ~3,200
+of it new), the single gating input `PhiGen.splits_prime_at_slot` (44 nodes, 11,034
+lines, 42 dependents), the three ways forward, and the route-check and top-heavy
+cautions. This section is the history; §7.7 is the current reference.
+
 **Stop-and-harvest is a real option.** The library now supplies the vocabulary of
 math/010 and base/004, with the statement landscape mechanically checked, two
 concrete claims proved, and the proof's architecture a checked theorem whose only

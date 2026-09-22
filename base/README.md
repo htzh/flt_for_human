@@ -139,3 +139,17 @@ notation, spending their space on the subject at hand.
   conductor and level; Hecke characters and the cyclotomic character's
   idele-class description; and one summary section (§10) with the 30-row
   key-point table.
+- [013 — Riemann existence for modular curves, and the level-one q-expansion
+  principle](013-riemann-existence-and-the-q-expansion-principle.md):
+  the classical Riemann existence theorem in its function-field form and its
+  modular-curve corollary — the compact curve `X₀(N)`, the cover
+  `X₀(N) → X(1)` of degree `ψ(N)`, its cusps, genus and monodromy; then the
+  separation of the two facts the modular-equation argument needs (R1, the
+  level-one q-expansion principle / Liouville on `X(1)`, and R2, degree and
+  connectedness at level `N`), the observation that the FLT proof keeps R1 only
+  at level one and reconstructs R2 from the explicit root list of `Φ_p` and the
+  twist automorphism, a walk through the analytic segment
+  (`RealL` → pole killing → the constancy kernel → the `ℚ[j]` headline → the
+  coset application), and the direct answer that the genuine analytic input is R1
+  specialized to `X(1)`, stated minimally as the kernel; with the key-point
+  table.
