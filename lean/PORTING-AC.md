@@ -7,7 +7,7 @@ opened as `PORTING-FFG.md` runs down (T19–T20), because the two efforts share 
 `math/009-hecke-jacobian-commute.md`'s theorem is the natural consumer that makes
 the `AlgebraicCurve` layer worth building.
 
-Three records feed this blueprint, all read-only and already written for other
+Four records feed this blueprint, all read-only and already written for other
 purposes:
 
 - [math/009](../math/009-hecke-jacobian-commute.md) — the mathematics of the
@@ -17,6 +17,11 @@ purposes:
   §9's list of what the note must not claim.
 - [studies/flt-function-field-theory-and-mathlib.md](../studies/flt-function-field-theory-and-mathlib.md) —
   the repository-wide FLT↔mathlib seam map for the curve layer.
+- [topics/ffg-retrospective.md](topics/ffg-retrospective.md) — the process
+  lessons from the FFG effort. Its transfers are applied in **§3.5** (the
+  mathematical core and the recorded negatives), **§4.4** (the budget is named
+  shape risks, not lines), **§6.1** (what is deliberately not cut), **§7.2** (the
+  conditional capstone built first) and **§7.3** (the friction log).
 
 Companion records once work starts: `logs/ac-port.md` (the measured record) and
 `topics/algebraicCurve/TOPIC-*.md` (one work order per topic). The reusable method
@@ -281,6 +286,44 @@ and `ord_eq_neg_log_of_valuationSubring_eq` are mathlib-shaped already;
 `toValuationSubring_eq_of_forall_ne_ofHeightOneSpectrum` should be stated against
 it, not against a port-local copy.
 
+### 3.5 The mathematical core, and the recorded negatives
+
+The FFG retrospective
+([topics/ffg-retrospective.md](topics/ffg-retrospective.md) §3) records that "the
+mathematics is three abstract lemmas, not 3.8k lines". The AC cone has the same
+shape: the exchange (T6–T7) assembles two statements, and the principal-divisors
+theorem (T9) is a third plus the ℙ¹ base case.
+
+- **the fibre-over identity** $`\sum_{w \mid v} e\,f = [F' : F]`$ — mathlib's
+  `Ideal.sum_ramification_inertia_eq_finrank` read through the fibre-centre
+  dictionary (T2);
+- **the orbit-intersection count** $`|H_1x_1 \cap H_2x_2| \cdot |X| = |H_1x_1| \cdot |H_2x_2|`$
+  and the **index product** $`H_1H_2 = G`$ — the two generic statements (T5) for
+  which mathlib has the orbit–stabiliser and index ingredients but not the
+  statements;
+- **the norm formula** $`\mathrm{ord}_v(N_{F'/F} f) = \sum_{w \mid v} e\,f\,\mathrm{ord}_w(f)`$
+  (T9), built on the fibre-centre dictionary and `Ideal.relNorm`.
+
+The rest of the cone is concretisation: places, divisors, and the two transports
+that let these be stated for the modular function fields. Pricing the port is
+pricing these routes, not the 4k lines around them.
+
+**Recorded negatives** (searches that found nothing, kept so a future session does
+not repeat them):
+
+- mathlib has no `Place`, divisor or curve API (survey §4.2); the whole layer is
+  FLT's.
+- no mathlib statement of `MulAction.ncard_orbit_inter_orbit_mul_card` or
+  `Subgroup.exists_eq_mul_of_index_inf_eq`; only their ingredients
+  (`MulAction.card_orbit_mul_card_stabilizer_eq_card_group`,
+  `Subgroup.index_inf_le`, `Subgroup.relIndex_mul_index`).
+- `Def_AlgebraicCurve_RatFuncPlaces`'s `placeOfPoint` and `Place.Congr` sections
+  are **not** used by this cone — they occur only in `attribute [-simp]` noise —
+  so leaving them out is a measured saving, not a gap.
+- `Ideal.relNorm_eq_pow_of_isMaximal` requires `[PerfectField (FractionRing R)]` in
+  v4.34; there is no characteristic-zero variant to reach for, so the port must
+  make the instance fire rather than weaken a statement.
+
 ## 4. Deduplication, scaffolding, and the measured budget
 
 ### 4.1 The shared fibre dictionary — a 4-way copy
@@ -385,6 +428,34 @@ is priced, per the standing rule (PORTING-FFG §7.9, playbook §7.3).
 The size is comparable to the FFG remainder, and that is the honest headline: the
 AC layer is a *library* port, so a larger fraction of what it writes is reusable
 outside the hecke cone (§2.3) than FFG's remainder was.
+
+### 4.4 The budget unit is the named shape risk
+
+The FFG retrospective
+([topics/ffg-retrospective.md](topics/ffg-retrospective.md) §6) is explicit that
+"cost is shape risk, not line count": its Layer 0 budgeted 20 rounds and took 1,
+its 2,002-line T19 was the right size while its *route* was the whole decision,
+and its one unplanned adaptation was a single mathlib signature change. The line
+count above is context, not the budget. Each topic's work order must open with its
+route decision, and progress should be tracked in the named shape risks below.
+
+| topic | named shape risks (what can actually stall it) |
+|---|---|
+| **AC0** | the `Place`↔`ValuationSubring`↔`HeightOneSpectrum` bridge chosen once; the `@[reducible]` `valuationSubringAlgebra`/`integralClosureAt`; `abbrev` unfolding |
+| **T1** | the `exp`/`log` `rfl` identifications; the deprecated `Ideal` aliases; `DecidableEq` |
+| **T2** | the 4-way dictionary's `letI`/`haveI` walls; the reducibility the `IsFractionRing` instance needs |
+| **T3** | `SemilinearAut`'s `MulSemiringAction`; mathlib's `Ideal.exists_smul_eq_of_isGaloisGroup`/`galRestrict` |
+| **T4** | the `algebraAlong` definitional unfolding that the `eA`/`fB`/`fF`/`eF` `rfl` bridges depend on |
+| **T5** | the orbit-intersection count and the index product (no mathlib statement); the `resHom`/`MulAction` packaging |
+| **T6** | the normal-closure instance block (`Env`, `algebraEnv`, six `IsScalarTower`s) |
+| **T7** | `Finsupp.addHom_ext` + `Finset.sum_apply'` plumbing; `DecidableEq (Place K E)` |
+| **T8** | Ostrowski in mathlib's shape; the `P2M.Dup` duplicate; `DecidableEq (RatFunc K)` |
+| **T9** | `Ideal.relNorm` of the fibre-centre; the `normalizedFactors` factorisation; `PerfectField` firing |
+
+Two predicted **non-events** are recorded so they are not budgeted for: the
+`p2m_*`/`attribute` scaffolding is dropped wholesale and cannot bite, and the
+"rewrite-search gap" FFG predicted and never hit is not expected here either (the
+pin's proofs are already written against the same mathlib API).
 
 ## 5. The topics
 
@@ -533,6 +604,27 @@ Directory and namespace differ on purpose, as in FFG: the path is
 `...AlgebraicCurve.WeilExchange.LocalExchange`, the declarations are
 `AlgebraicCurve.*`.
 
+### 6.1 What is deliberately not cut
+
+Following the FFG retrospective's §5, the port records what it leaves in place
+rather than golfing:
+
+- **The `relNorm`/`normalizedFactors` block of T9.** FFG's `rval_aux` was measured
+  at ~64% irreducible and only ~50 lines were recovered by cleanup; the AC analogue
+  is T9's norm computation, presumed irreducible until §10's route audit says
+  otherwise. Golfing it without that audit would be a false economy.
+- **The parts of the pin definition modules other consumers need.** The Galois
+  `≃ₐ`-action on `Place`/`Divisor`/`Pic0`, the
+  `Pic`/`Pic0`/`torsion`/`AbelJacobiCard` block, `SemilinearAut`'s action on
+  `Pic0`-torsion and `Place.finite_setOf_forall_mem_and_ord_pos` are outside this
+  cone but are real API for the modular Hecke/Galois-rep and Riemann–Roch layers.
+  They are deferred, not judged worthless.
+- **`placeOfPoint`/`Place.Congr`** is the one genuine cut, and it is measured
+  (unused; attribute noise only), not assumed.
+- **Repo-wide prelude dedup.** The AC port writes the fibre dictionary once for its
+  own cone; deduplicating the whole `AlgebraicCurve` layer across FLT is a larger,
+  separate effort.
+
 ## 7. Verification
 
 The instruments are the ones FFG built; nothing new is required.
@@ -545,13 +637,18 @@ pin. The AC effort appends its `Theorems/Thm_AlgebraicCurve_*.lean` wrappers to
 (`Theorems/Thm_MulAction_ncard_orbit_inter_orbit_mul_card.lean`,
 `Theorems/Thm_Subgroup_exists_eq_mul_of_index_inf_eq.lean`) — and for the promoted
 private dictionary the comparison falls back to the dotted `S_` name exactly as it
-does for FFG's promotions. Two refinements carry over from the FFG record:
+does for FFG's promotions. Three refinements carry over from the FFG record:
 
 - take the declaration's binders from the `Theorems/` wrapper, not the `S_` file
   (playbook §7.4); the wrappers above are the source of the statements in §3;
 - the pin uses `P2M.Dup.AlgebraicCurve.*` aliases for a handful of
   `RationalFunctionField` statements (`deg_ofHeightOneSpectrum` is one) as a
-  `#p2m_type_eq_warn` check; match the *unaliased* `AlgebraicCurve.*` name.
+  `#p2m_type_eq_warn` check; match the *unaliased* `AlgebraicCurve.*` name;
+- every declaration the port *authors* rather than transcribes goes on an explicit
+  exemption list with its reason, so "0 missing" keeps meaning something (FFG's
+  list is `inputs`/`hall_all`/`gen_prime`). The AC layer is mostly transcription,
+  so this list should be short — the promoted dictionary keeps its pinned names
+  and is checked by the dotted fallback, not exempted.
 
 ### 7.2 The consumer
 
@@ -574,8 +671,10 @@ zones:
 - **Zone E `[hecke-inputs]`** — the conditional capstone: package the AC
   hypotheses that `HeckeExchangeAt` needs (`hP`, `hsep`, and the exchange at every
   roof) and show they imply `HeckeExchangeAt` *given* the ModularCurve layer as a
-  hypothesis. This is the AC-side analogue of FFG's `Spine.lean`: it fixes the AC
-  port's outbound interface before the heavy proofs land.
+  hypothesis. This is the AC-side analogue of FFG's `Spine.lean`, and like it,
+  should be built *first* among the AC artifacts: a proved conditional with no
+  `sorryAx` fixes the outbound interface and turns the remaining work into an
+  ordered debt rather than a subtree.
 
 ### 7.3 Axioms, build discipline, definition of done
 
@@ -588,7 +687,9 @@ non-return at 60 s is a blow-up to bisect, never a reason to raise
 
 Definition of done: `lake build` green with 0 warnings and no `sorry`; the AC
 consumer at 0 errors; the checker extended and reporting 0 mismatched / 0 missing;
-and the two `#print axioms` clean. At that point every generic input of
+the two `#print axioms` clean; and the **friction log** kept current — the FFG
+retrospective calls it the highest-value artifact because it is the one thing not
+derivable from the code. At that point every generic input of
 `math/009`'s exchange reduction — the Weil exchange lemma, `finiteAlong_comp`,
 `separableAlong_of_charZero` and `HasPrincipalDivisors` for the modular function
 field — is a ported theorem rather than a reference, and the remaining work on the

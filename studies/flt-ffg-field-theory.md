@@ -12,7 +12,7 @@ which surveys the whole repository's curve layer (places, divisors, Riemann–Ro
 Weil pairing). That note answers "does FLT develop function-field theory?" with
 "almost all of it". This note asks the narrower question: **inside
 `functionFieldGeneration`, what field theory is there, and is it a library or
-just a proof?** The plan this feeds is [../lean/PORTING-FFG.md](../lean/PORTING-FFG.md).
+just a proof?** The plan this feeds is [../lean/PORTING-FFG.md](../lean/topics/PORTING-FFG.md).
 
 Terminology. "Function-field theory" here means the field-theoretic machinery the
 segment uses; the segment contains no `Place`, `Divisor`, `genus` or valuation —
@@ -115,7 +115,7 @@ with [../tools/deps](../tools/deps).
 The 24-node remainder is the field-theory half: 13 big `S_ModularCurve_*.lean`
 proof files plus three `S_Polynomial_*` files, the small `dedekindPsi_*` files and
 `relfinrank_*`. Its per-node file-size sum, as recorded in
-[PORTING-FFG §7.3](../lean/PORTING-FFG.md), is **12,420 lines** — and §8.1 of the
+[PORTING-FFG §7.3](../lean/topics/PORTING-FFG.md), is **12,420 lines** — and §8.1 of the
 port record already flags that this is a file-size sum, not a work estimate. §5
 below shows it is a loose upper bound by a wider margin than recorded.
 
@@ -293,7 +293,7 @@ neither in mathlib nor in the port.
 
 ## 5. Corrections to the manifest: file size is not node cost
 
-The 12,420-line per-node sum in [PORTING-FFG §7.3](../lean/PORTING-FFG.md)
+The 12,420-line per-node sum in [PORTING-FFG §7.3](../lean/topics/PORTING-FFG.md)
 attributes whole `S_` files to single nodes. Measured against the files
 themselves, that sum is a loose upper bound. Four effects:
 
@@ -581,6 +581,6 @@ Companion notes:
 
 - [flt-function-field-theory-and-mathlib.md](flt-function-field-theory-and-mathlib.md) — the repository-wide curve-layer survey
 - [../math/010-function-field-generation.md](../math/010-function-field-generation.md) — the mathematics of this segment
-- [../lean/PORTING-FFG.md](../lean/PORTING-FFG.md) — the plan
+- [../lean/PORTING-FFG.md](../lean/topics/PORTING-FFG.md) — the plan
 - [../lean/logs/ffg-port.md](../lean/logs/ffg-port.md) — the port record and the duplication findings
 - [../lean/porting-playbook.md](../lean/porting-playbook.md) — the cost model
