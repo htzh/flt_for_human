@@ -48,7 +48,7 @@ which is what makes the finite averages below linear.
 
 **The double coset.** Let
 
-$$\Gamma_0(N) \\;=\\; \left\\{\begin{pmatrix}a&b\\c&d\end{pmatrix} \in
+$$\Gamma_0(N) \\;=\\; \left\\{\begin{pmatrix}a&b\\\\c&d\end{pmatrix} \in
   \mathrm{SL}_2(\mathbb{Z}) \\;:\\; c \equiv 0 \pmod N\right\\}.$$
 
 The Hecke operator at a prime $`\ell`$ is attached to the double coset
