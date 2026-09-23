@@ -166,21 +166,34 @@ notation, spending their space on the subject at hand.
   to level one so R1 suffices; with the four faces of the operator and a
   forward map to the divisor correspondence `T_ℓ = α_*β^*` on `J₀(N)`
   ([math/009](../math/009-hecke-jacobian-commute.md)).
-
-## Planned notes (outlines for review)
-
-Three foundational subjects are not yet covered by notes 001–014. Note 008 gives
-the classical divisor and Pic⁰ story, but not the local theory of how a place
-extends to a finite extension of function fields, not the exchange identity for a
-fibre square, and not the rational function field or the residue theorem it
-transfers. Outlines are in place and await review before the prose is written.
-
-- [015 — Places and their extensions](015-places-and-extensions.md) *(outline)* —
-  valuation rings and orders, extending a place, ramification and inertia, the
-  fundamental identity, and Galois/semilinear equivariance.
-- [016 — Correspondences and the exchange lemma](016-correspondences-and-exchange.md)
-  *(outline)* — the pull–push calculus, the linearly disjoint square, the bifibre
-  count, and the norm formula.
-- [017 — The rational function field and principal divisors](017-rational-function-field-and-principal-divisors.md)
-  *(outline)* — the places of `K(t)`, Ostrowski's theorem, the degree-zero
-  principal divisor, and the norm transfer of the residue theorem.
+- [015 — Places and their extensions](015-places-and-extensions.md):
+  the local theory of how a place of a function field extends to a finite
+  extension — places as discrete valuation rings and the normalized order; the
+  integral closure and the bijection between the fibre and the primes over the
+  base maximal ideal; the ramification index and inertia degree and their
+  identification with mathlib's `ramificationIdx'`/`inertiaDeg'`; the fundamental
+  identity `[F':F] = Σ e f` and the divisor calculus it makes available; Galois
+  transitivity and constancy (`|fibre|·e·f = [F':F]`), the semilinear action of
+  base-moving automorphisms, and multiplicativity in towers; and one summary
+  section (§6) on the code, with the key-point table and the map-level `...Along`
+  vocabulary.
+- [016 — Correspondences and the exchange lemma](016-correspondences-and-exchange.md):
+  correspondences as `ψ_* ∘ φ^*` and the pull–push calculus; the linearly
+  disjoint square of function fields (the generation hypothesis `hgen` plus the
+  degree condition `hLD`); the exchange identity `b^*(a_* D) = b'_*(a'^* D)`, its
+  reduction by additivity to a single place, and the resulting finite count over
+  the bifibre; the Galois count via the index product `H₁H₂ = G` and the
+  orbit-intersection identity, with the normal-closure reduction to the general
+  separable case; the norm formula `ord_v(N f) = Σ f(w/v)·ord_w(f)` and the
+  pushforward of principal divisors; and one summary section (§6) on the code,
+  with the key-point table.
+- [017 — The rational function field and principal divisors](017-rational-function-field-and-principal-divisors.md):
+  the places of `K(t)` — finite places from irreducible polynomials and the place
+  at infinity, Ostrowski's classification and the "at most one infinite place"
+  lemmas; the order function; the degree-zero principal divisor
+  `div(p) = [p] - deg(p)[∞]` on the projective line, proved by unique
+  factorization in `K[t]`; the transfer to a general function field via the norm
+  (`deg div(f) = deg div(N f) = 0`), with the finiteness of support and the
+  `CharZero`/separability hypotheses; the transcendental and adjoin forms and the
+  alternative Galois-averaging route; and one summary section (§5) on the code,
+  with the key-point table.

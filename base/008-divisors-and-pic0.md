@@ -217,12 +217,17 @@ the finiteness of $`\{P' : P' \mid P\}`$ — which follows from the finiteness o
 zeros and poles in §1 — it is what lets divisors be moved along $`\pi`$.
 
 A point $`P'`$ maps to its image $`P`$, and a divisor pushes forward by adding
-multiplicities; a divisor on $`C`$ pulls back by distributing each point over
-the points above it, weighted by ramification:
+multiplicities weighted by inertia; a divisor on $`C`$ pulls back by distributing
+each point over the points above it, weighted by ramification:
 
 $$\pi_{\ast}\\!\left(\sum_{P'} n_{P'}\\,[P']\right)
-   \\;=\\; \sum_{P'} n_{P'}\\,[\pi(P')], \qquad
+   \\;=\\; \sum_{P'} n_{P'}\\, f_{P'}\\,[\pi(P')], \qquad
   \pi^{\ast}\\!\left([P]\right) \\;=\\; \sum_{P' \mid P} e_{P'}\\,[P'].$$
+
+The inertia weight is what keeps degrees honest — $`\deg P' = f_{P'} \cdot
+\deg \pi(P')`$, so $`\deg \pi_{\ast} D' = \deg D'`$ — and it is also what makes
+pushforward send the divisor of a function to the divisor of its norm, so that
+both operations respect principal divisors.
 
 Their degree behaviour is what makes them useful on degree-zero divisors:
 
