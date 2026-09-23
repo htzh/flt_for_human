@@ -30,7 +30,10 @@
 
   The block's private `evalAtJ_injective` is T11's public one; its private
   `coeff_aeval_jq_neg` is T9's; its private `evalAtJ_eq_aeval_map_rat` is the
-  `Defs/Jq.lean` promotion; `evalAtJGen_injective` is derived from
+  `Defs/Jq.lean` promotion; its private `coeff_aeval_jq_of_lt` is
+  `Defs/PhiGen.lean`'s `poleOrderLE_aeval_jq` and its private
+  `coeff_aeval_jq_neg_natDegree` is `Defs/Jq.lean`'s `coeff_aeval_jq_neg` at
+  `m = P.natDegree`; `evalAtJGen_injective` is derived from
   `evalAtJ_injective` through `algebraMap_comp_evalAtJGen` (the `eq_of_prime` file's
   two-line proof), and `conj_injective` is written once and exported.
 
@@ -194,29 +197,6 @@ end ScalarEmbedding
 
 section PoleOrder
 
-private theorem coeff_aeval_jq_of_lt (P : Polynomial ℚ) {m : ℤ}
-    (hm : m < -(P.natDegree : ℤ)) : (Polynomial.aeval jq P).coeff m = 0 := by
-  rw [Polynomial.aeval_def, Polynomial.eval₂_eq_sum_range, HahnSeries.coeff_sum]
-  refine Finset.sum_eq_zero fun i hi => ?_
-  rw [algebraMap_apply_eq_single, HahnSeries.coeff_single_zero_mul, coeff_jq_pow_of_lt,
-    mul_zero]
-  have : i ≤ P.natDegree := Nat.lt_succ_iff.mp (Finset.mem_range.mp hi)
-  omega
-
-private theorem coeff_aeval_jq_neg_natDegree (P : Polynomial ℚ) :
-    (Polynomial.aeval jq P).coeff (-(P.natDegree : ℤ)) = P.coeff P.natDegree := by
-  rw [Polynomial.aeval_def, Polynomial.eval₂_eq_sum_range, HahnSeries.coeff_sum,
-    Finset.sum_eq_single P.natDegree]
-  · rw [algebraMap_apply_eq_single, HahnSeries.coeff_single_zero_mul, coeff_jq_pow_self,
-      mul_one]
-  · intro i hi hin
-    have hilt : i < P.natDegree :=
-      lt_of_le_of_ne (Nat.lt_succ_iff.mp (Finset.mem_range.mp hi)) hin
-    rw [algebraMap_apply_eq_single, HahnSeries.coeff_single_zero_mul, coeff_jq_pow_of_lt
-      (by omega), mul_zero]
-  · intro hn'
-    exact absurd (Finset.self_mem_range_succ P.natDegree) hn'
-
 variable (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] {P : Polynomial ℚ}
 
 private theorem ne_zero_of_aeval_jq_eq_jqN (h : Polynomial.aeval jq P = jqN ℓ) : P ≠ 0 := by
@@ -232,16 +212,16 @@ private theorem natDegree_eq_of_aeval_jq_eq_jqN (h : Polynomial.aeval jq P = jqN
   by_contra hne
   rcases lt_or_gt_of_ne hne with hlt | hgt
   · have h1 : (Polynomial.aeval jq P).coeff (-(ℓ : ℤ)) = 0 :=
-      coeff_aeval_jq_of_lt P (by omega)
+      poleOrderLE_aeval_jq P (-(ℓ : ℤ)) (by omega)
     rw [h, coeff_jqN_self] at h1
     exact one_ne_zero h1
-  · have h1 := coeff_aeval_jq_neg_natDegree P
+  · have h1 := coeff_aeval_jq_neg P le_rfl
     rw [h, coeff_jqN_of_lt ℓ (by omega)] at h1
     exact hP0 (Polynomial.leadingCoeff_eq_zero.mp h1.symm)
 
 private theorem monic_of_aeval_jq_eq_jqN (h : Polynomial.aeval jq P = jqN ℓ) : P.Monic := by
   have hd := natDegree_eq_of_aeval_jq_eq_jqN ℓ h
-  have h1 := coeff_aeval_jq_neg_natDegree P
+  have h1 := coeff_aeval_jq_neg P le_rfl
   rw [h, hd, coeff_jqN_self] at h1
   show P.coeff P.natDegree = 1
   rw [hd]
@@ -478,16 +458,12 @@ private theorem qEmbedT_injective : Function.Injective (qEmbedT K ℓ) :=
 private theorem qEmbedT_jq : qEmbedT K ℓ jq = qExpand K ℓ (coeffEmb K jq) := by
   rw [qEmbedT_apply, coeffMap_jq]
 
-private theorem qEmbedT_eq_coeffEmb_qExpand (x : LaurentSeries ℚ) :
-    qEmbedT K ℓ x = coeffEmb K (qExpand ℚ ℓ x) := by
-  rw [coeffEmb_qExpand]
-  rfl
-
 private theorem coeffEmb_comp_qExpand_comp_evalAtJ :
     ((coeffEmb K).comp (qExpand ℚ ℓ)).comp evalAtJ = (qEmbedT K ℓ).comp evalAtJ := by
   refine RingHom.ext fun p => ?_
   simp only [RingHom.comp_apply]
-  rw [qEmbedT_eq_coeffEmb_qExpand]
+  rw [show qEmbedT K ℓ (evalAtJ p) = qExpand K ℓ (coeffEmb K (evalAtJ p)) from rfl]
+  exact coeffEmb_qExpand K ℓ (evalAtJ p)
 
 end Embed
 
@@ -683,30 +659,72 @@ end Irreducibility
 
 end PhiGen
 
+/-! ## Glue to mathlib's bivariate API
+
+`swapBivar` is mathlib's `Bivariate.swap` as a ring hom on `ℤ[X][Y]`
+(`swapBivar_eq_swap`). Keeping that single bridge lets the transpose and symmetry
+proofs cite mathlib's bivariate lemmas instead of re-deriving them, without
+touching the `Defs` API. The `ev`/`aevalAeval` pair below is the coefficient-cast
+evaluation (`ℤ[X][Y]` at points of a commutative ring), which mathlib's
+same-ring `Polynomial.evalEval` does not cover. -/
+
+section SwapBivarGlue
+
+/-- `swapBivar` is mathlib's `Bivariate.swap`, as ring homs. -/
+private theorem swapBivar_eq_swap (Φ : Polynomial (Polynomial ℤ)) :
+    swapBivar Φ = Bivariate.swap Φ := by
+  have h : swapBivar = (Bivariate.swap (R := ℤ)).toAlgHom.toRingHom :=
+    Polynomial.ringHom_ext' (Polynomial.ringHom_ext' (RingHom.ext_int _ _)
+      (by simp [Bivariate.swap_X])) (by simp [Bivariate.swap_Y])
+  exact RingHom.congr_fun h Φ
+
+variable {A : Type*} [CommRing A]
+
+/-- The evaluated form of `Φ` in two variables of a commutative ring. -/
+private def ev (Φ : Polynomial (Polynomial ℤ)) (x y : A) : A :=
+  Φ.eval₂ (eval₂RingHom (Int.castRingHom A) x) y
+
+private theorem aeval_toRingHom_eq [Algebra ℤ A] (x : A) :
+    (Polynomial.aeval (R := ℤ) x).toRingHom = eval₂RingHom (Int.castRingHom A) x :=
+  Polynomial.ringHom_ext' (RingHom.ext_int _ _) (by simp)
+
+private theorem ev_eq_aevalAeval (Φ : Polynomial (Polynomial ℤ)) (x y : A) :
+    ev Φ x y = aevalAeval x y Φ := by
+  have h : eval₂RingHom (eval₂RingHom (Int.castRingHom A) x) y
+      = (aevalAeval (R := ℤ) x y).toRingHom := by
+    refine Polynomial.ringHom_ext' (Polynomial.ringHom_ext' (RingHom.ext_int _ _) ?_) ?_
+    · simp
+    · simp
+  exact RingHom.congr_fun h Φ
+
+private theorem ev_swap (Φ : Polynomial (Polynomial ℤ)) (x y : A) :
+    ev (Bivariate.swap Φ) x y = ev Φ y x := by
+  rw [ev_eq_aevalAeval, ev_eq_aevalAeval, Bivariate.aevalAeval_swap]
+
+private theorem ev_int (Φ : Polynomial (Polynomial ℤ)) (a b : ℤ) :
+    ev Φ (a : A) (b : A) = ((Φ.evalEval a b : ℤ) : A) := by
+  rw [ev, eval₂_eval₂RingHom_apply]
+  exact map_mapRingHom_evalEval (Int.castRingHom A) Φ a b
+
+private theorem ev_sub (Φ Ψ : Polynomial (Polynomial ℤ)) (x y : A) :
+    ev (Φ - Ψ) x y = ev Φ x y - ev Ψ x y := by
+  rw [ev_eq_aevalAeval, map_sub, ← ev_eq_aevalAeval, ← ev_eq_aevalAeval]
+
+end SwapBivarGlue
+
 /-! ## The transpose engine: `swapBivar` of a coefficient-bounded polynomial -/
 
 section SwapBivarEval
 
+/-- The transpose commutes with evaluation: `(swapBivar Φ)(x, y) = Φ(y, x)`.
+Mathlib's `Bivariate.aevalAeval_swap`, read through `swapBivar_eq_swap` and the
+`ev = aevalAeval` bridge. -/
 private theorem swapBivar_eval₂ (Φ : Polynomial (Polynomial ℤ)) (x y : LaurentSeries ℚ) :
     (swapBivar Φ).eval₂ (Polynomial.aeval (R := ℤ) x).toRingHom y
       = Φ.eval₂ (Polynomial.aeval (R := ℤ) y).toRingHom x := by
-  set h : Polynomial (Polynomial ℤ) →+* LaurentSeries ℚ :=
-    Polynomial.eval₂RingHom (Polynomial.aeval (R := ℤ) x).toRingHom y with hh
-  have key : h (swapBivar Φ) = Φ.eval₂ (h.comp swapInner) (h (Polynomial.C Polynomial.X)) :=
-    Polynomial.hom_eval₂ Φ swapInner h (Polynomial.C Polynomial.X)
-  have hCX : h (Polynomial.C Polynomial.X) = x := by
-    rw [hh, Polynomial.coe_eval₂RingHom, Polynomial.eval₂_C, aeval_toRingHom_X]
-  have hcomp : h.comp swapInner = (Polynomial.aeval (R := ℤ) y).toRingHom := by
-    refine Polynomial.ringHom_ext' (Subsingleton.elim _ _) ?_
-    show h (swapInner Polynomial.X) = (Polynomial.aeval (R := ℤ) y).toRingHom Polynomial.X
-    rw [aeval_toRingHom_X]
-    show h ((Polynomial.aeval (R := ℤ)
-      (Polynomial.X : Polynomial (Polynomial ℤ))) Polynomial.X) = y
-    rw [Polynomial.aeval_X, hh, Polynomial.coe_eval₂RingHom, Polynomial.eval₂_X]
-  calc (swapBivar Φ).eval₂ (Polynomial.aeval (R := ℤ) x).toRingHom y
-      = h (swapBivar Φ) := rfl
-    _ = Φ.eval₂ (h.comp swapInner) (h (Polynomial.C Polynomial.X)) := key
-    _ = Φ.eval₂ (Polynomial.aeval (R := ℤ) y).toRingHom x := by rw [hCX, hcomp]
+  rw [swapBivar_eq_swap, aeval_toRingHom_eq, aeval_toRingHom_eq]
+  change ev (Bivariate.swap Φ) x y = ev Φ y x
+  exact ev_swap Φ x y
 
 /-- `swapBivar Φ = Φ` implies `EvalSymm Φ`. -/
 theorem evalSymm_of_swapBivar_eq {Φ : Polynomial (Polynomial ℤ)} (h : swapBivar Φ = Φ) :
@@ -762,16 +780,8 @@ section Engine
 
 private theorem swapBivar_C (c : Polynomial ℤ) :
     swapBivar (Polynomial.C c) = c.map Polynomial.C := by
-  have hext : swapBivar.comp (Polynomial.C : Polynomial ℤ →+* Polynomial (Polynomial ℤ))
-      = Polynomial.mapRingHom (Polynomial.C : ℤ →+* Polynomial ℤ) := by
-    refine Polynomial.ringHom_ext' (Subsingleton.elim _ _) ?_
-    show swapBivar (Polynomial.C Polynomial.X)
-      = Polynomial.mapRingHom (Polynomial.C : ℤ →+* Polynomial ℤ) Polynomial.X
-    rw [swapBivar_C_X, Polynomial.coe_mapRingHom, Polynomial.map_X]
-  calc swapBivar (Polynomial.C c)
-      = swapBivar.comp (Polynomial.C : Polynomial ℤ →+* Polynomial (Polynomial ℤ)) c := rfl
-    _ = Polynomial.mapRingHom (Polynomial.C : ℤ →+* Polynomial ℤ) c := by rw [hext]
-    _ = c.map Polynomial.C := rfl
+  rw [swapBivar_eq_swap]
+  exact Bivariate.swap_C c
 
 private theorem degree_swapBivar_lt {Ψ : Polynomial (Polynomial ℤ)} {D : ℕ}
     (h : ∀ k, (Ψ.coeff k).degree < (D : WithBot ℕ)) :
@@ -959,57 +969,7 @@ theorem PhiGen.evalSymm_of_splits {K : Type*} [Field K] [Algebra ℚ K] (ℓ : �
 
 /-! ## The converse: evaluated symmetry forces `swapBivar Φ = Φ` -/
 
-section SepFibre
-
-variable {A B : Type*} [CommRing A] [CommRing B]
-
-/-- The evaluated form of `Φ` in two variables of a commutative ring. -/
-private def ev (Φ : Polynomial (Polynomial ℤ)) (x y : A) : A :=
-  Φ.eval₂ (eval₂RingHom (Int.castRingHom A) x) y
-
-private theorem aeval_toRingHom_eq [Algebra ℤ A] (x : A) :
-    (Polynomial.aeval (R := ℤ) x).toRingHom = eval₂RingHom (Int.castRingHom A) x :=
-  Polynomial.ringHom_ext' (RingHom.ext_int _ _) (by simp)
-
-private theorem ev_eq_evalEval (Φ : Polynomial (Polynomial ℤ)) (x y : A) :
-    ev Φ x y = (Φ.map (mapRingHom (Int.castRingHom A))).evalEval x y := by
-  rw [ev, ← eval₂_eval₂RingHom_apply]
-
-private theorem map_ev (φ : A →+* B) (Φ : Polynomial (Polynomial ℤ)) (x y : A) :
-    φ (ev Φ x y) = ev Φ (φ x) (φ y) := by
-  rw [ev_eq_evalEval, ev_eq_evalEval, ← map_mapRingHom_evalEval φ, Polynomial.map_map,
-    mapRingHom_comp,
-    RingHom.ext_int (φ.comp (Int.castRingHom A)) (Int.castRingHom B)]
-
-private theorem ev_eq_aevalAeval (Φ : Polynomial (Polynomial ℤ)) (x y : A) :
-    ev Φ x y = aevalAeval x y Φ := by
-  have h : eval₂RingHom (eval₂RingHom (Int.castRingHom A) x) y
-      = (aevalAeval (R := ℤ) x y).toRingHom := by
-    refine Polynomial.ringHom_ext' (Polynomial.ringHom_ext' (RingHom.ext_int _ _) ?_) ?_
-    · simp
-    · simp
-  exact RingHom.congr_fun h Φ
-
-private theorem ev_swap (Φ : Polynomial (Polynomial ℤ)) (x y : A) :
-    ev (Bivariate.swap Φ) x y = ev Φ y x := by
-  rw [ev_eq_aevalAeval, ev_eq_aevalAeval, Bivariate.aevalAeval_swap]
-
-private theorem ev_int (Φ : Polynomial (Polynomial ℤ)) (a b : ℤ) : ev Φ a b = Φ.evalEval a b := by
-  rw [ev_eq_evalEval]
-  congr 1
-  have h : mapRingHom (Int.castRingHom ℤ) = RingHom.id (Polynomial ℤ) := by
-    rw [RingHom.ext_int (Int.castRingHom ℤ) (RingHom.id ℤ)]
-    exact mapRingHom_id
-  rw [h]
-  exact Polynomial.map_id
-
-private theorem ev_sub (Φ Ψ : Polynomial (Polynomial ℤ)) (x y : A) :
-    ev (Φ - Ψ) x y = ev Φ x y - ev Ψ x y := by
-  rw [ev_eq_aevalAeval, map_sub, ← ev_eq_aevalAeval, ← ev_eq_aevalAeval]
-
-end SepFibre
-
-section SepFibreMain
+section EvalSymmSwap
 
 private theorem swap_eq_of_evalSymm {Φ : Polynomial (Polynomial ℤ)} (h : EvalSymm Φ) :
     Bivariate.swap Φ = Φ := by
@@ -1020,12 +980,12 @@ private theorem swap_eq_of_evalSymm {Φ : Polynomial (Polynomial ℤ)} (h : Eval
     rw [aeval_toRingHom_eq, aeval_toRingHom_eq] at hxy
     rw [hG, ev_sub, ev_swap, sub_eq_zero]
     exact hxy.symm
-  let ι : ℤ →+* LaurentSeries ℚ :=
-    (algebraMap ℚ (LaurentSeries ℚ)).comp (Int.castRingHom ℚ)
-  have hι : Function.Injective ι :=
-    (algebraMap ℚ (LaurentSeries ℚ)).injective.comp Int.cast_injective
-  have hZ : ∀ a b : ℤ, G.evalEval a b = 0 := fun a b =>
-    hι (by rw [← ev_int, map_ev, hL, map_zero])
+  have hZ : ∀ a b : ℤ, G.evalEval a b = 0 := fun a b => by
+    have h0 : ((G.evalEval a b : ℤ) : LaurentSeries ℚ) = 0 := by
+      rw [← ev_int G a b]
+      simpa using hL (a : LaurentSeries ℚ) (b : LaurentSeries ℚ)
+    exact Int.cast_injective (α := ℚ)
+      ((algebraMap ℚ (LaurentSeries ℚ)).injective (by simpa using h0))
 
   have h1 : ∀ b : ℤ, G.eval (Polynomial.C b) = 0 := fun b =>
     Polynomial.eq_zero_of_infinite_isRoot _ (Set.infinite_of_injective_forall_mem
@@ -1035,14 +995,7 @@ private theorem swap_eq_of_evalSymm {Φ : Polynomial (Polynomial ℤ)} (h : Eval
       (f := fun b : ℤ => Polynomial.C b) (fun _ _ h => Polynomial.C_injective h) fun b => h1 b)
   exact sub_eq_zero.mp h2
 
-private theorem swapBivar_eq_swap (Φ : Polynomial (Polynomial ℤ)) :
-    swapBivar Φ = Bivariate.swap Φ := by
-  have h : swapBivar = (Bivariate.swap (R := ℤ)).toAlgHom.toRingHom :=
-    Polynomial.ringHom_ext' (Polynomial.ringHom_ext' (RingHom.ext_int _ _)
-      (by simp [Bivariate.swap_X])) (by simp [Bivariate.swap_Y])
-  exact RingHom.congr_fun h Φ
-
-end SepFibreMain
+end EvalSymmSwap
 
 /-- Evaluated symmetry forces the transpose to be `Φ` itself. Verbatim from the
 pin wrapper `Theorems/Thm_ModularCurve_swapBivar_eq_of_evalSymm.lean`. -/

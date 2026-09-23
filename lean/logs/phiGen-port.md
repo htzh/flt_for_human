@@ -789,7 +789,8 @@ once at 1070 (including a ~55-line header and the ~60-line `SepFibre` block for
 `evalAtJGen_injective` are written once and public, `evalAtJ_injective` is T11's,
 `coeff_aeval_jq_neg` is T9's, and `evalAtJ_eq_aeval_map` moved to `Defs/Jq.lean`
 with all three copies deleted. T12's public `evalAtJ_injective` is what T13's
-`eq_of_prime` will import.
+`eq_of_prime` will import. Post-close, the module was trimmed to **1023 lines /
+57 private**; the redundancy found and removed is recorded in §16.
 
 ### 12.2 The cost
 
@@ -1020,7 +1021,7 @@ The pin ships three developments repeatedly; the port writes each once. Measured
 
 | shared development | pin copies | pin lines shipped | port | duplicate lines not written |
 |---|---|---|---|---|
-| the 895 block (irreducibility/symmetry) | **5** | ~4,475 | 1,070 | ~3,405 |
+| the 895 block (irreducibility/symmetry) | **5** | ~4,475 | 1,023 | ~3,452 |
 | the 328 block (the descended family's shape) | **7** | 2,296 | 161 | ~2,135 |
 | the `TPoleOrderLE` prelude | **12** carriers | ~2,040 | 202 (`Defs/PhiGen.lean`) | ~1,838 |
 | T13's shared `TS` prelude + dead code | 2 (+ variants) | ~641 | 274 | ~367 |
@@ -1108,3 +1109,52 @@ the pin's redundant `haveI : NeZero ((N : ℕ) : ℚ)` is dropped (mathlib synth
 it from `[NeZero N]`). The larger gain is mathlib alignment — `cycUnit` is now
 defeq to mathlib's chosen root — and the removal of the re-proof; the audit's
 "≈18 lines" was per pin copy, and the pin carries 40 of them.
+
+## 16. Post-close review: T12's private layer, and mathlib for `swapBivar`
+
+A review of `ModularPolynomialIrreducible.lean` — prompted by the "large file
+with a lot of private theorems" smell — found five private declarations that were
+redundant and three proofs that re-derived mathlib. Public statements are
+untouched; the change is confined to private helpers and proof bodies.
+
+| deleted / collapsed | replacement |
+|---|---|
+| `coeff_aeval_jq_of_lt` (~8 lines) | `Defs/PhiGen.lean`'s `poleOrderLE_aeval_jq` — literally the same body |
+| `coeff_aeval_jq_neg_natDegree` (~13) | `Defs/Jq.lean`'s `coeff_aeval_jq_neg P le_rfl` (T11 already used this form) |
+| `qEmbedT_eq_coeffEmb_qExpand` (~5) | `Defs/Laurent.lean`'s `coeffEmb_qExpand` |
+| `ev_eq_evalEval` (~3) | `Polynomial.eval₂_eval₂RingHom_apply` |
+| `map_ev` (~5) | naturality `Polynomial.map_mapRingHom_evalEval` |
+| `ev_int` (8-line `map_id` proof) | two mathlib calls, restated `A`-generic so it absorbs `map_ev`'s job |
+| `swapBivar_eval₂` (~20) | `Bivariate.aevalAeval_swap`, via the private bridge `swapBivar_eq_swap` |
+| `swapBivar_C` (~12) | `Bivariate.swap_C`, via the same bridge |
+
+The `SepFibre`/`SepFibreMain` sections became `SwapBivarGlue`/`EvalSymmSwap`:
+`swapBivar_eq_swap` is the one conversion helper, and the `ev`/`aevalAeval` glue
+lives beside it so the transpose and symmetry proofs can cite mathlib. **No `Defs`
+API change** — `swapBivar`, `swapBivar_X`, `swapBivar_C_X` and `swapInner` stay,
+and `swapInner` remains in use by `swapBivar`'s own definition.
+
+**The instance wrinkle.** `EvalSymm` evaluates with
+`(Polynomial.aeval (R := ℤ) x).toRingHom`, while mathlib's `aevalAeval` is
+indexed by an `Algebra ℤ` instance, and at `LaurentSeries ℚ` the
+`powerSeriesAlgebra` and `Ring.toIntAlgebra` structures are propositionally but
+not definitionally equal — so a direct `aevalAeval` rewrite does not unify. The
+`ev` layer (`eval₂RingHom (Int.castRingHom A)`) plus `aeval_toRingHom_eq` (proved
+by `RingHom.ext_int`, instance-agnostic) is the meeting point. It is
+load-bearing, not duplication, and is the reason the review did *not* delete the
+whole `ev` section.
+
+| | |
+|---|---|
+| module | **1070 → 1023 lines**; 15 public + **57** private (was 62; the one `private scoped instance` excluded) |
+| T12 total | **1670 → 1623 lines**; private **93 → 88**; port/pin ratio **1.14 → 1.11** |
+| build | `lake build` green, no `sorry` |
+| `#print axioms` | clean on all public declarations |
+| checker | 0 mismatched, 0 missing (the removed declarations are private helpers, not public statements) |
+
+This is §14.2's point applied recursively: those promotions removed *pin* copies,
+and this pass removed the *port's own* copies of what it had promoted. The five
+deletions were all reuse misses the §3.1 list had not named — including the two
+coefficient lemmas, where T11 wrote the short public form and T12 re-proved it
+privately.
+

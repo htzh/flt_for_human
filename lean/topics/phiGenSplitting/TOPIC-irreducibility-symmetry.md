@@ -7,7 +7,10 @@ once) and `ModularPolynomialProperties.lean` (`evalSymm_of_coeff_evalAtJ_eq`,
 `exists_phiIrreducible_evalSymm`), green with 0 warnings and no `sorry`. The 895
 block is shipped in **five** pin files (not three — §2's correction is recorded);
 the `evalAtJ_eq_aeval_map` promotion landed and T11 rebuilt green; the end-to-end
-wire test is the first **unconditional** capstone. The measured cost and the
+wire test is the first **unconditional** capstone. A post-close pass
+(2026-09-23) removed five redundant private declarations and routed the
+`swapBivar`/`qEmbedT`/`ev` helpers through mathlib, public statements untouched
+(§3.2); the block module is now **1023 lines**. The measured cost and the
 answers to the §10 questions are in
 [logs/phiGen-port.md](../../logs/phiGen-port.md) §12. This file is kept as the
 executed plan. The plan is [PORTING-PhiGen.md](../PORTING-PhiGen.md); the
@@ -215,18 +218,27 @@ own public declarations.
 
 ### 2.2 The block's declaration inventory
 
+Current (after the §3.2 cleanup); the pin's private `coeff_aeval_jq_of_lt` /
+`coeff_aeval_jq_neg_natDegree` copies are gone, and the section names are the
+port's.
+
 | section | declarations |
 |---|---|
 | jqN lead | `coeff_jqN_self`, `coeff_jqN_of_lt` |
-| injectivity | `evalAtJ_injective` (private), `evalAtJGen_injective` (public) |
+| injectivity | `evalAtJ_injective` (T11's, private here), `evalAtJGen_injective` (public) |
 | distinctness | `coeff_coeffEmb_jq_neg_one`, `conj_zero_coeff_neg_one`, `conj_succ_coeff_neg_one`, `conj_injective` |
 | scalar embedding | `ratC`, `ratC_apply`, `coeff_ratC_of_ne`, `coeffMap_jq` |
-| refutation | `coeff_aeval_jq_of_lt`, `coeff_aeval_jq_neg_natDegree`, `ne_zero_of_aeval_jq_eq_jqN`, `natDegree_eq_of_aeval_jq_eq_jqN`, `monic_of_aeval_jq_eq_jqN`, `zeta_pow_eq_one`, `zeta_pow_zpow_eq_one`, `eval₂_ratC_jqK_of_aeval_jq_eq`, `eval₂_ratC_conj_succ_of_aeval_jq_eq`, `sum_conj_succ_eq_ratC_of_aeval_jq_eq`, `coeff_sum_conj_succ_self`, `coeff_sum_conj_succ_ne_zero`, `aeval_jq_ne_jqN_of_isPrimitiveRoot`, `aeval_jq_ne_jqN`, `jqN_not_mem_adjoin_jq` |
+| pole order | `ne_zero_of_aeval_jq_eq_jqN`, `natDegree_eq_of_aeval_jq_eq_jqN`, `monic_of_aeval_jq_eq_jqN` (the two coefficient lemmas are now T9's public `coeff_aeval_jq_neg` and `poleOrderLE_aeval_jq`) |
+| transfer / Vieta / refutation | `zeta_pow_eq_one`, `zeta_pow_zpow_eq_one`, `eval₂_ratC_jqK_of_aeval_jq_eq`, `eval₂_ratC_conj_succ_of_aeval_jq_eq`, `sum_conj_succ_eq_ratC_of_aeval_jq_eq`, `coeff_sum_conj_succ_self`, `coeff_sum_conj_succ_ne_zero`, `aeval_jq_ne_jqN_of_isPrimitiveRoot`, `aeval_jq_ne_jqN`, `jqN_not_mem_adjoin_jq` |
 | fraction field | `instUFMAdjoinJq`, `algebraMap_comp_evalAtJAdj`, `ModularPolynomialData.aeval_jqN_toAdjoin`, `ModularPolynomialData.minpoly_jqN_eq` |
-| embeddings | `qEmbedT`, `qEmbedT_apply`, `qEmbedT_injective`, `qEmbedT_jq`, `qEmbedT_eq_coeffEmb_qExpand`, `coeffEmb_comp_qExpand_comp_evalAtJ`, `qEmbedT_jqN`, `qTwist_comp_qEmbedT`, `conj_succ_zero`, `adjoinEmbedT`, `adjoinEmbedT_apply`, `adjoinEmbedT_injective`, `adjoinEmbedT_comp_evalAtJAdj` |
+| embeddings | `qEmbedT`, `qEmbedT_apply`, `qEmbedT_injective`, `qEmbedT_jq`, `coeffEmb_comp_qExpand_comp_evalAtJ`, `qEmbedT_jqN`, `qTwist_comp_qEmbedT`, `conj_succ_zero`, `adjoinEmbedT`, `adjoinEmbedT_apply`, `adjoinEmbedT_injective`, `adjoinEmbedT_comp_evalAtJAdj` |
 | factor analysis | `eval_map_conj_succ_eq_zero`, `le_natDegree_of_eval_map_jqK_eq_zero`, `eval_map_evalAtJAdj_ne_zero`, `isUnit_of_dvd_of_natDegree_le_one` |
-| irreducibility | `irreducible_map_evalAtJAdj_of_splits`, `toAdjoin_eq_map_evalAtJAdj`, `phiIrreducible_of_splits` |
-| symmetry | `swapBivar_eval₂`, `evalSymm_of_swapBivar_eq`, `aeval_jqN_transposeToAdjoin`, `swapBivar_eq_of_irreducible`, `evalSymm_of_irreducible`, `swapBivar_C`, `degree_swapBivar_lt`, `swapBivar_monic_of_coeff_bounds`, `evalAtJ_eq_aeval_map_rat`, `coeff_aeval_jq_neg`, `degree_lt_of_evalAtJ_coeff_eq_zero`, `monic_of_evalAtJ_coeff_eq_one`, `natDegree_le_of_evalAtJ_coeff_eq_zero`, `transposeToAdjoin_monic_of_coeff_bounds`, `transposeToAdjoin_monic_of_qExpansion`, `eval_swap_eq_zero_of_splits`, `evalSymm_of_splits` |
+| irreducibility | `irreducible_map_evalAtJAdj_of_splits`, `toAdjoin_eq_map_evalAtJAdj`, `phiIrreducible_of_splits_aux`, `phiIrreducible_of_splits` |
+| swapBivar glue (§3.2) | `swapBivar_eq_swap`, `ev`, `aeval_toRingHom_eq`, `ev_eq_aevalAeval`, `ev_swap`, `ev_int`, `ev_sub` |
+| transpose engine | `swapBivar_eval₂`, `evalSymm_of_swapBivar_eq`, `aeval_jqN_transposeToAdjoin`, `swapBivar_eq_of_irreducible`, `evalSymm_of_irreducible` |
+| degree bookkeeping / dictionary | `swapBivar_C`, `degree_swapBivar_lt`, `swapBivar_monic_of_coeff_bounds`, `degree_lt_of_evalAtJ_coeff_eq_zero`, `monic_of_evalAtJ_coeff_eq_one`, `natDegree_le_of_evalAtJ_coeff_eq_zero`, `transposeToAdjoin_monic_of_coeff_bounds`, `transposeToAdjoin_monic_of_qExpansion` |
+| symmetry from splitting | `eval_swap_eq_zero_of_splits`, `evalSymm_of_splits_aux`, `evalSymm_of_splits` |
+| the converse | `swap_eq_of_evalSymm`, `swapBivar_eq_of_evalSymm` |
 
 ## 3. The mathlib-first audit
 
@@ -316,6 +328,53 @@ T12 should pay them down rather than carry them:
    `coeff_jq_ne_zero`; the block mathematically uses only `hpos ℓ`.
 10. **Do not port the `attribute [-simp]` pragma** the doc-site toolchain emits
     (T8's module header records the finding).
+
+### 3.2 Post-close cleanup (2026-09-23)
+
+A review of the 1070-line module against the "large file with a lot of private
+theorems" smell found five private declarations that could be deleted outright
+and three proofs that were re-deriving mathlib. Landed; **no public statement
+changed.**
+
+- **Two reuse misses the §3.1 list did not name.** `coeff_aeval_jq_of_lt` is
+  T9's public `poleOrderLE_aeval_jq` under another name (the bodies were
+  identical), and `coeff_aeval_jq_neg_natDegree` is `coeff_aeval_jq_neg P le_rfl`.
+  Both deleted; the three call sites now name the `Defs` lemmas. T11's
+  `ModularPolynomialAssembly.lean` already wrote `coeff_aeval_jq_neg P le_rfl`,
+  so T12 was the outlier.
+- **`qEmbedT_eq_coeffEmb_qExpand` deleted.** It is `Defs/Laurent.lean`'s
+  `coeffEmb_qExpand` read through the definition of `qEmbedT`;
+  `coeffEmb_comp_qExpand_comp_evalAtJ` now cites that lemma directly.
+- **The `ev` layer collapses onto mathlib.** `ev_eq_evalEval` is
+  `Polynomial.eval₂_eval₂RingHom_apply`; `ev_int` is
+  `Polynomial.map_mapRingHom_evalEval`; `map_ev` is the same naturality. They
+  were deleted or inlined, and `ev_int` was restated in the `A`-generic form
+  `ev Φ (a : A) (b : A) = ((Φ.evalEval a b : ℤ) : A)`, so that one bridge does
+  the work the old `ev_int` + `map_ev` split between them.
+- **`swapBivar` is mathlib's `Bivariate.swap`, cited privately.** A new
+  `SwapBivarGlue` section holds the single bridge
+  `swapBivar_eq_swap : swapBivar Φ = Bivariate.swap Φ`. From it,
+  `swapBivar_eval₂` (≈20 lines → 3) is `Bivariate.aevalAeval_swap` and
+  `swapBivar_C` (≈12 lines → 2) is `Bivariate.swap_C`. The old `SepFibre`
+  section is gone: its `ev`/`aevalAeval` glue moved up beside the bridge, and
+  `swap_eq_of_evalSymm` sits in `EvalSymmSwap`. **No `Defs` API changes** —
+  `swapBivar`, `swapBivar_X`, `swapBivar_C_X` and `swapInner` are untouched.
+
+One wrinkle worth recording: `EvalSymm` evaluates with
+`(Polynomial.aeval (R := ℤ) x).toRingHom`, while mathlib's `aevalAeval` is
+indexed by an `Algebra ℤ` instance; at `LaurentSeries ℚ` the `powerSeriesAlgebra`
+and `Ring.toIntAlgebra` structures are propositionally, not definitionally,
+equal, so a direct `aevalAeval` rewrite does not unify. The `ev` layer
+(`eval₂RingHom (Int.castRingHom A)`) plus `aeval_toRingHom_eq` (proved by
+`RingHom.ext_int`, instance-agnostic) is the neutral ground where the two meet —
+which is why `ev`/`ev_eq_aevalAeval` survive as load-bearing rather than as
+redundancy.
+
+**Net:** `ModularPolynomialIrreducible.lean` **1070 → 1023 lines**; private
+declarations (theorem/def/abbrev, excluding the one `private scoped instance`)
+**62 → 57**; the three T12 modules total **1670 → 1623 lines**. `lake build`
+green, no `sorry`, `#print axioms` clean, statement checker 0 mismatched /
+0 missing.
 
 ## 4. Dependencies and the division
 
@@ -456,8 +515,8 @@ one that matches the statement; keep it.
       (the module also exports the one-line `coeff_jq_ne_zero`).
 - [x] `FLTForHuman/ModularCurve/ModularPolynomialIrreducible.lean`: the block's
       public surface, all verbatim or transcribed from the pin's public
-      declarations; private helpers `private`. **1070 lines, 15 public + 62
-      `private`.**
+      declarations; private helpers `private`. **1023 lines, 15 public + 57
+      `private`** (was 1070 / 62 before the §3.2 cleanup).
 - [x] `FLTForHuman/ModularCurve/ModularPolynomialProperties.lean`:
       `evalSymm_of_coeff_evalAtJ_eq` and `exists_phiIrreducible_evalSymm` public
       and verbatim. **175 lines, 2 public + 4 `private`.**
@@ -485,7 +544,8 @@ one that matches the statement; keep it.
    `Defs/Jq.lean`, its three copies deleted, T11 rebuilt green).
 2. **The cost** — **1 goal round**, 19 public + 93 `private` declarations,
    **1670 lines** (425 + 1070 + 175), port/pin ratio **1670/1467 ≈ 1.14** against
-   the deduplicated pin (386 + 895 + 124 + 62).
+   the deduplicated pin (386 + 895 + 124 + 62). *After the §3.2 cleanup:* 19
+   public + 88 `private`, **1623 lines**, ratio **1623/1467 ≈ 1.11**.
 3. **`one_le_coeff_jq`'s route.** The two §3.1.9 substitutions **closed**:
    `PowerSeries.coeff_mul_prod_one_sub_of_lt_order` replaced the 40-line
    `coeff_prod_one_sub_X_pow_eq_coeff_one`, and `PowerSeries.expand` +
