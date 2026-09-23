@@ -12,6 +12,11 @@ Everything is read from the local clone `~/proj/fermats-last-theorem` pinned at
 `aa2d8b3`; all citations are public URLs at that sha. Conventions are those of
 [../AGENTS.md](../AGENTS.md).
 
+**Re-measured 2026-09-23 after the Hecke-operator effort (SETs 1–4).** The cone
+numbers below are **unchanged** — closure 225, remaining 82 nodes / 10,569 raw /
+7,579 content. §9 records why the automorphic Hecke-operator port does not move
+them, and the decision that finiteness is out of scope for now.
+
 ## 0. What is measured, and how
 
 The target is one Lean theorem
@@ -73,6 +78,7 @@ generic input.
 | the Φ_p cone: `exists_phiIrreducible`, `splits_prime_at_slot`, `modularPolynomialFamily`, `ModularPolynomialData`, `eq_of_prime`, the degree `finrank_adjoin_jqN_eq_of_prime` | `ModularCurve/PhiGen*`, `ModularPolynomial*`, `JqCoefficients`, `JqCoeffPositivity` | [logs/phiGen-port.md](../lean/logs/phiGen-port.md) |
 | the R1 / analytic q-expansion input: `QExpansionPrinciple`, `JqAnalyticModel`, `Hauptmodul`, `PhiGenDescends`, `HeckeQExpansion` | `ModularForms/*` | [logs/phiGen-port.md](../lean/logs/phiGen-port.md) |
 | **the generic curve layer**: `Place`, `Divisor`, `Pic0`, push/pull, the correspondence API, the Weil exchange, `HasPrincipalDivisors` by norms | `AlgebraicCurve/Defs/*`, `WeilExchange/*`, `PrincipalDivisors/*`, `FieldTheory/FiniteGroupAction.lean` | [ac-retrospective.md](../lean/topics/ac-retrospective.md), [logs/ac-port.md](../lean/logs/ac-port.md) |
+| **the automorphic Hecke face — *outside this cone***: the operator block `heckeU`/`heckeT`, the Γ₀ representatives and invariance, the Fricke pair, the analytic/`q`-coefficient layers, the bundled `heckeTLin`/`heckeULin`, commutation and `heckeAlgebra`, the eigenform interface, the integral lattice | `ModularForms/Defs/{HeckeOperator,HeckeRepresentatives,FormalHeckeOperators,Eigenform,IntegralStructure}.lean`, `ModularForms/{HeckeInvariance,HeckeFricke,HeckeAnalytic,HeckeQCoeff,HeckeOperatorForms,HeckeCommute,HeckeAlgebra,HeckeEigenform,HeckeLattice}.lean`, `ModularCurve/Defs/LaurentSeriesHecke.lean` | [logs/hecke-port.md](../lean/logs/hecke-port.md), [hecke-operator-survey.md](hecke-operator-survey.md) (§9). It touches no node of `heckeOperatorsCommuteBar`'s cone and does **not** reduce the remaining count |
 
 ## 3. The four moves of `math/009`, mapped
 
@@ -234,3 +240,63 @@ mathlib is the project's pinned `v4.34.0`.
   efforts' reviews.
 - [../lean/spec/AlgebraicCurveConsumer.lean](../lean/spec/AlgebraicCurveConsumer.lean)
   — the consumer that fixes the AC interface (Zones A–J).
+- [hecke-operator-survey.md](hecke-operator-survey.md) — the *automorphic* Hecke
+  face's inventory (where FLT defines the operators and what it proves); the
+  face this report's cone does **not** include (§9).
+- [../lean/logs/hecke-port.md](../lean/logs/hecke-port.md) — the SETs 1–4 record
+  (operator block, invariance, Fricke, analytic/coefficient, bundling, algebra,
+  eigenform, lattice), with the SET-2/3/4 reviews.
+- [../lean/topics/hecke/](../lean/topics/hecke/) — the work orders
+  (`SET-2.md`–`SET-4.md`, `TOPIC-t8`–`TOPIC-t10`, including §7's measured
+  finiteness decision).
+
+## 9. The other Hecke face, and the finiteness decision (2026-09-23)
+
+**The cone measured above is the *divisor-correspondence* Hecke face.** Its
+remaining nodes are the correspondences and their transport:
+`ModularCurve.heckeAlphaBar`/`heckeBetaBar`, `towerInclBar`/`towerSubstBar`,
+`heckeRoof_adjoin_range_union_eq_top`,
+`finrankAlong_towerSubstBar_comp_heckeAlphaBar`, and the predicates
+`HeckeExchangeAt`/`HeckeOperatorsCommuteBar`.
+
+Between the original measurement and this one the port gained the **automorphic
+slash face** — the operator block (`Defs/HeckeOperator.lean`), the Γ₀
+representatives and invariance (`Defs/HeckeRepresentatives.lean`,
+`HeckeInvariance.lean`), the Fricke dedup (`HeckeFricke.lean`), the
+analytic/coefficient layers (`HeckeAnalytic.lean`, `HeckeQCoeff.lean`), the
+bundling (`HeckeOperatorForms.lean`), commutation and the algebra
+(`HeckeCommute.lean`, `HeckeAlgebra.lean`), the eigenform interface
+(`HeckeEigenform.lean`) and the integral lattice (`HeckeLattice.lean`,
+`Defs/IntegralStructure.lean`). The record is
+[logs/hecke-port.md](../lean/logs/hecke-port.md); the inventory is
+[hecke-operator-survey.md](hecke-operator-survey.md).
+
+**It does not move this report's numbers, and the §7 recipe re-run confirms it**
+— closure 225, remaining **82 nodes / 10,569 raw / 7,579 content**, exactly as
+before. The two faces are disjoint at the declaration level: the slash face's
+names (`heckeU`, `heckeT`, `heckeTLin`, `heckeULin`, `heckeAlgebra`,
+`mdifferentiable_heckeU`, …) do not occur among this cone's nodes, whose names
+are the correspondences `heckeAlphaBar`/`heckeBetaBar` and the roof/tower
+transport. They meet only in FLT at the period-map comparison
+(`ModularCurve.periodMap_heckeTLin`/`periodMap_heckeULin`, survey §12), which is
+outside this cone. So "the Hecke operators are ported" must **not** be read as
+"the Hecke layer of `math/009` is ported": the former is the automorphic average
+over the `ℓ+1` cosets, the latter is the `T_ℓ = α_* β^*` correspondence on
+`Pic⁰`; the survey's §5.3 states the duality, and the port now has one side.
+
+**Finiteness is out of scope for now.** On the automorphic side,
+`Module.Finite ℤ (heckeAlgebra N k S)` and `HasIntegralStructure` were scoped as
+SET 4's T10 and deliberately stopped: the general targets need the
+Eichler–Shimura/cohomology comparison, whose cone is **657 nodes / 263,720 raw
+`S_` lines** — most of the remaining FLT arithmetic tower — and the only cheap
+route is the standalone 4,308-line `moduleFinite_heckeAlgebra_two` at `k = 2`,
+which is a programme rather than a topic. The measured cones and the two routes
+are in [TOPIC-t10-finite-algebra.md](../lean/topics/hecke/TOPIC-t10-finite-algebra.md)
+§7.
+
+**This decision does not touch the cone measured here.** This report's finiteness
+nodes are the FFG/divisor-side `finiteAlong_heckeAlphaBar_of_modularPolynomialData`
+(91 raw), `finiteAlong_heckeBetaBar_of_modularPolynomialData` (136),
+`finiteDimensional_adjoin_jqNModC` (116) and the `finrank_adjoin_jqNModC_*`
+lemmas — none is the automorphic `heckeAlgebra` finiteness. They remain in the
+remaining 82 and are priced in §6.

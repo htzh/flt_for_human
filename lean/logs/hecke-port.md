@@ -773,3 +773,270 @@ equality; a mis-parse can at worst produce a `MISSING`, which the run reports.
 The other session's FFG commit (`e21217a FFG improvements on irreducibility`)
 landed while SET-3 ran; our working tree still holds every Hecke file uncommitted
 and the runner did not touch the FFG modules.
+
+## SET-4 §T8 — the eigenform interface
+
+New modules
+
+* `FLTForHuman/ModularForms/Defs/Eigenform.lean` (45 lines, 1 declaration) — the
+  pin's `CuspForm.IsNormalizedEigenform` structure, verbatim from
+  `Definitions/Def_FLTPrelim_Modularity.lean:26–40` (field names unchanged).
+* `FLTForHuman/ModularForms/HeckeEigenform.lean` (675 lines, 15 public
+  declarations + 12 private helpers) — the operator/eigenvector dictionary.
+
+### The eigenform dictionary (exact names and binder order)
+
+Under `namespace CuspForm`, with `Γ₀ N := CongruenceSubgroup.Gamma0 N`:
+
+| name | binders | statement head |
+|---|---|---|
+| `CuspForm.IsNormalizedEigenform` | `{N : ℕ} (f : CuspForm (Γ₀ N) 2)` | `Prop`, fields `qCoeff_one`, `qCoeff_mul_of_coprime`, `qCoeff_prime_pow_of_not_dvd`, `qCoeff_prime_pow_of_dvd` |
+| `CuspForm.qCoeff_zero` | `{N : ℕ} {k : ℤ} (f : CuspForm (Γ₀ N) k)` | `ModularFormClass.qCoeff f 0 = 0` |
+| `CuspForm.isNormalizedEigenform_iff_coeffHecke` | `{N : ℕ} (f : CuspForm (Γ₀ N) 2)` | the coefficient characterisation |
+| `CuspForm.isNormalizedEigenform_iff_heckeT` | `{N : ℕ} [NeZero N] (f : CuspForm (Γ₀ N) 2)` | the surface-operator characterisation |
+| `CuspForm.isNormalizedEigenform_iff_heckeTLin` | `{N : ℕ} [NeZero N] (f : CuspForm (Γ₀ N) 2)` | the bundled-operator characterisation |
+| `CuspForm.heckeTLin_apply_eq_smul_iff` | `{N : ℕ} (k : ℤ) {p : ℕ} (hp : p.Prime) (hpN : ¬ p ∣ N) (f : CuspForm (Γ₀ N) k) (c : ℂ)` | `heckeTLin k hp hpN f = c • f ↔ ∀ n, coeffHeckeT k p (qCoeff f) n = c * qCoeff f n` |
+| `CuspForm.heckeULin_apply_eq_smul_iff` | `{N : ℕ} [NeZero N] (k : ℤ) {p : ℕ} (hpN : p ∣ N) (f …) (c : ℂ)` | the same with `heckeULin`/`coeffHeckeU` |
+| `ModularFormClass.heckeT_eq_smul_iff` | `{F : Type*} [FunLike F ℍ ℂ] {Γ : Subgroup (GL(2,ℝ))} {k : ℤ} [ModularFormClass F Γ k] (f : F) (hΓ : (1:ℝ) ∈ Γ.strictPeriods) {p : ℕ} (hp : p ≠ 0) (c : ℂ)` | `heckeT k p ⇑f = c • ⇑f ↔ ∀ n, …` |
+| `ModularFormClass.heckeU_eq_smul_iff` | same binders | the `heckeU`/`coeffHeckeU` version |
+| `CuspForm.IsNormalizedEigenform.heckeTLin_apply_eq_qCoeff_smul` | `(N : ℕ) (f : CuspForm (Γ₀ N) 2) (hf : f.IsNormalizedEigenform) (ℓ : ℕ) (hℓ : ℓ.Prime) (hℓN : ¬ ℓ ∣ N)` | `heckeTLin 2 hℓ hℓN f = qCoeff f ℓ • f` |
+| `CuspForm.IsNormalizedEigenform.heckeULin_apply_eq_qCoeff_smul` | `(N : ℕ) [NeZero N] (f …) (hf) (q : ℕ) (hq : q.Prime) (hqN : q ∣ N)` | `heckeULin 2 hqN f = qCoeff f q • f` |
+| `ModularForm.eq_zero_of_coeffHecke_eigen_of_apply_one_eq_zero` | `(k : ℤ) (N : ℕ) (a c : ℕ → ℂ) (hT) (hU) (h1 : a 1 = 0)` | `∀ n, n ≠ 0 → a n = 0` |
+| `ModularForm.coeffHecke_eigenvalue_eq_apply_of_apply_one_eq_one` | `(k : ℤ) (N : ℕ) (a c : ℕ → ℂ) (hT) (hU) (h1 : a 1 = 1)` | `∀ p, p.Prime → c p = a p` |
+| `LaurentSeries.eq_zero_of_heckeT_eq_smul_of_heckeU_eq_smul_of_coeff_one_eq_zero` | `(R : Type*) [CommRing R] (M k : ℕ) (θ : Nat.Primes → R) (f : LaurentSeries R) (hneg) (hT) (hU) (h1 : f.coeff 1 = 0)` | `f = 0` |
+| `PowerSeries.coeff_heckeT_pow_sub_mem_span` | `(p : ℕ) [Fact p.Prime] {N : ℕ} {f : CuspForm (Γ₀ N) 2} (hf) (a : ℕ → integralClosure ℤ ℂ) (ha) (j k : ℕ) (hk : 2 ≤ k) (hk2 : (p-1) ∣ k-2) (ℓ : ℕ) (hℓ : ℓ.Prime) (hℓN : ¬ ℓ ∣ N) (n : ℕ)` | the mod-`p` span membership |
+
+### Were the three `iff`s derived from one? Yes.
+
+* `isNormalizedEigenform_iff_coeffHecke` is proved (the pin's 200-line four-clause
+  recursion, including the private coefficient algebra `coeffHeckeT_two`,
+  `heckeT_eigen_of_rec`, `heckeU_eigen_of_rec`, `rec_of_hecke*_eigen`,
+  `pow_mul_of_hecke*_eigen`, `mul_of_coprime_of_pow_mul`). It consumes a new
+  public `CuspForm.qCoeff_zero` (the pin's own wrapper, one line from mathlib's
+  `CuspFormClass.qExpansion_coeff_zero`).
+* `isNormalizedEigenform_iff_heckeT` is **derived** from `…_iff_coeffHecke` by
+  rewriting the two branches with the `ModularFormClass.hecke{T,U}_eq_smul_iff`
+  pair (5 proof lines against the pin's 26-line standalone file).
+* `isNormalizedEigenform_iff_heckeTLin` is **derived** from `…_iff_heckeT` by
+  unfolding the coercion (`DFunLike.ext'_iff` + the four `coe_*`/`FunLike.coe_smul`
+  simp lemmas; 6 proof lines against the pin's 13-line file).
+* The two `IsNormalizedEigenform.hecke*Lin_apply_eq_qCoeff_smul` targets are the
+  forward directions of `…_iff_heckeTLin` (one line each). The pin's 175- and
+  132-line `S_` files re-derive `hasSum_hecke{U,T}`; the port writes **zero**
+  copies (`grep -c hasSum_hecke` in `HeckeEigenform.lean` = 0; the shared tail is
+  `HeckeQCoeff.lean`'s private block).
+* The two single-operator `iff`s are the coefficient comparison through T5's
+  `UpperHalfPlane.qCoeff_hecke{T,U}` + `UpperHalfPlane.eq_of_forall_qCoeff_eq`;
+  the pin's three private `W2WsF` twins (`eq_of_forall_qCoeff_eq`,
+  `qCoeff_const_smul`, `periodic_const_smul`) are replaced by T5's public lemma
+  (only `qCoeff_const_smul`/`periodic_const_smul`/`mf_periodic`/`mf_bdd` stay
+  local, as in `HeckeCommute.lean`).
+
+### Did `iff_coeffHecke` stall?
+
+No. The four-clause recursion elaborated with the global 4,000,000 heartbeats and
+no local override; `lake env lean` on the module is ~6 s. The only friction was
+mathlib `v4.34.0`'s deprecation of `if_pos`/`if_neg` (replaced by
+`ite_eq_left`/`ite_eq_right`) and the fact that the appended sections needed their
+own `open`/`noncomputable section` after the first `end`.
+
+### Verification
+
+* checker **after T8**: **787 identical (53 promoted), 0 mismatched, 0 missing,
+  14 own-proof** (772 → 787; the +15 is the structure + `qCoeff_zero` + the 13
+  targets).
+* `#print axioms` on all 15 public declarations: only
+  `propext, Classical.choice, Quot.sound`.
+* `lake build FLTForHuman.ModularForms.HeckeEigenform` 6 s; full `lake build`
+  green, **4054 jobs, 0 warnings**, no `sorry`.
+
+## SET-4 §T9 — the integral lattice
+
+New modules
+
+* `FLTForHuman/ModularForms/Defs/IntegralStructure.lean` (36 lines, 2
+  declarations) — `CuspForm.intLattice`/`CuspForm.HasIntegralStructure` verbatim
+  from the pin's 8-line `Def_CuspForm_IntegralStructure.lean`.
+* `FLTForHuman/ModularForms/HeckeLattice.lean` (134 lines, 3 public declarations
+  + 7 private helpers) — the lattice action.
+
+### The span-induction shape actually used
+
+The pin does **not** induct on `Submodule.span`: it observes that the defining set
+`{f | ∀ n, ∃ m : ℤ, qCoeff f n = ↑m}` is already a `ℤ`-submodule
+(`intSubmodule`, with `add_mem'`/`zero_mem'`/`smul_mem'` from the private
+`qCoeff_add`/`qCoeff_zero'`/`qCoeff_zsmul`), and then `Submodule.span_eq` gives
+`intLattice N k = intSubmodule N k`, hence the characterisation
+`mem_intLattice_iff : f ∈ intLattice N k ↔ ∀ n, ∃ m : ℤ, qCoeff f n = ↑m`. The
+three public targets are then coefficient computations:
+
+* `mem_intLattice_of_coe_eq_heckeT`: `mem_intLattice_iff` on both sides, T5's
+  `ModularForm.coeffHeckeT_int k hk p hf n`, and
+  `ModularFormClass.qCoeff_heckeT f hΓ hp n` to identify `qCoeff g` with the
+  transformed coefficient sequence.
+* `mem_intLattice_of_coe_eq_heckeU`: the same with `coeffHeckeU_int` and
+  `qCoeff_heckeU`, no `hk`.
+* `mem_intLattice_of_mem_heckeAlgebra`: `revert f` then
+  `Algebra.adjoin_induction` on `ht : t ∈ heckeAlgebra N k S` with motive
+  `fun t _ => ∀ {f}, f ∈ intLattice N k → t f ∈ intLattice N k`; generators
+  dispatch to the `T`/`U` targets through `CuspForm.coe_hecke{T,U}Lin_apply`, the
+  `algebraMap` case is `(intLattice N k).smul_mem r hf`, and `add`/`mul` are
+  `add_mem`/`hx (hy hf)`.
+
+The closure induction needed no T7 lemma beyond the wrapper's API
+(`heckeGenerators`, `heckeAlgebra`, and `coe_hecke{T,U}Lin_apply` from T6); the
+`Algebra.adjoin_induction` signature matched mathlib `v4.34.0` exactly.
+
+### Verification
+
+* checker **after T9**: **792 identical (53 promoted), 0 mismatched, 0 missing,
+  14 own-proof** (787 → 792; `intLattice` + `HasIntegralStructure` + the three
+  targets).
+* `#print axioms` on the three targets: only
+  `propext, Classical.choice, Quot.sound`.
+* `grep -c qIntegralLattice` in both T9 modules = **0** (the weight-2 vocabulary
+  is absent).
+* full `lake build` green, **4054 jobs, 0 warnings**, no `sorry`.
+
+### The T10 hand-off
+
+`HasIntegralStructure` is a hypothesis everywhere downstream: the pin's
+`HasIntegralStructure.moduleFinite_heckeAlgebra {N} [NeZero N] {k} (hN :
+HasIntegralStructure N k) (hk : 1 ≤ k) (S) : Module.Finite ℤ (heckeAlgebra N k S)`
+takes it as an argument (see §T10). The lattice API T10 consumes is exactly
+`CuspForm.intLattice`, `CuspForm.HasIntegralStructure` and T9's
+`mem_intLattice_of_mem_heckeAlgebra`.
+
+## SET-4 §T10 — the finite/free algebra: definitions landed, theorem targets blocked
+
+### What landed
+
+* `FLTForHuman/ModularForms/Defs/EisensteinChiNegThree.lean` (46 lines, 5
+  declarations) — the pin's 27-line `Def_ModularForm_EisensteinChiNegThree.lean`
+  verbatim: `chiNegThree`, `sigmaChi`, `e1Chi3`, `e1Chi3In`, `E1Chi3IsModular`.
+  Self-contained; imports mathlib `QExpansion` + `PowerSeries.Basic` only.
+* `FLTForHuman/ModularForms/Defs/IntegralLattice.lean` (50 lines, 5
+  declarations) — the pin's 32-line `Def_CuspForm_IntegralLattice.lean` verbatim:
+  `qIntegralSet`, `qIntegralLattice`, `HasIntegralBasis`, `bridgeProduct`,
+  `IsLatticeRealized` (the weight-2 vocabulary, distinct from T9's all-weight
+  `intLattice`).
+
+`HeckeFiniteAlgebra.lean` was **not** created: every one of its twelve targets is
+blocked on infrastructure the port does not carry, and nothing may land with a
+`sorry`. The blocker is not a one-liner failure — the general theorems the
+one-liners specialise are themselves not provable in SET-4 scope.
+
+### The measured dedup could not be taken
+
+The headline dedup (`moduleFinite_heckeAlgebra_two` = the `k = 2` case of
+`moduleFinite_heckeAlgebra`, and `hasIntegralStructure_two` =
+`hasIntegralStructure_of_two_le N 2 le_rfl`) requires the general theorems. The
+pin's general proofs are:
+
+* `CuspForm.hasIntegralStructure_of_two_le` — `S_` file **515 lines**, but its
+  imports are the blocker:
+  `Definitions/Def_CuspForm_ModPForms.lean` (explicitly out of SET-4 scope),
+  `Def_HeckeEis_BinaryFormRep`, `Def_Gamma0CoeffCohomology`,
+  `Def_Gamma0HeckeOperatorHom`, plus eleven `Thm_*` including
+  `HeckeEis_exists_eichlerShimura_coeffH1par_binaryFormRepSL_forall_prime`,
+  `HeckeEis_exists_basis_coeffH1par_int_complex`,
+  `HeckeEis_span_range_coeffH1par_map_int_complex_eq_top`,
+  `HeckeEis_exists_coeffH1par_map_ringHom`,
+  `HeckeEis_exists_coeffH1par_linearMap_coeffHeckeFun`,
+  `CuspForm_linearIndependent_complex_of_linearIndependent_int_of_periodPackage`
+  and `CuspForm_hasIntegralStructure_of_moduleFinite_of_linearIndependent`.
+  None of `HeckeEis`, `coeffH1par`, the Eichler–Shimura period package or
+  `Def_CuspForm_ModPForms` exists in the port (`grep -rl` counts 0).
+* `CuspForm.moduleFinite_heckeAlgebra` — `S_` file 78 lines; its `2 ≤ k` branch
+  is `(hasIntegralStructure_of_two_le N k hk).moduleFinite_heckeAlgebra …`
+  (blocked above). Its `k ≤ 1` branch (subsingleton from
+  `CuspForm.ModuleFiniteHeckeAlgebra.eq_zero_of_weight_le_one`) is
+  self-contained but cannot be stated as the theorem without the other branch.
+* `CuspForm.HasIntegralStructure.moduleFinite_heckeAlgebra` (49) needs
+  `CuspForm.intLattice_fg` (`S_` file 74 lines, whose engine is the **Sturm
+  bound** `ModularForm.sturm_bound_Gamma0` — absent from mathlib `v4.34.0` and
+  from the port) plus
+  `HasIntegralStructure.eq_zero_of_forall_mem_intLattice` (a portable one-liner:
+  `LinearMap.ext_on hN`). `moduleFree_heckeAlgebra` follows from the finite one.
+* The eigenbasis family needs the **Petersson inner product**:
+  `span_heckeTLin_eigen_eq_top` (69) imports `Def_CuspForm_Petersson`,
+  `CuspForm.finiteDimensional_Gamma0` and mathlib's
+  `LinearMap.IsSymmetric.iSup_iInf_eq_top_of_commute`; the port has no
+  `petersson` and no `finiteDimensional_Gamma0` (`grep -rl` = 0). `fg_toSubmodule_heckeAlgebra`
+  needs `moduleFinite_heckeAlgebra_two`; `heckeEvalForms_range_eq_top` needs
+  `Def_CuspForm_HeckeEvalForms`, which imports `Def_HeckeGalois_EichlerShimura`
+  (out of scope); `exists_cyclic_span_heckeAlgebra`/`finrank_span_heckeAlgebra_eq_finrank`
+  need the span family; `exists_top_eq_heckeAlgebra_adjoin_smul` needs
+  `exists_cyclic_span_heckeAlgebra`.
+
+This is exactly TOPIC-t10 §4's second stop condition: "`hasIntegralStructure_of_two_le`
+needing the mod-`p`/galois machinery". The route note's `χ₋₃`-Eisenstein picture
+does not match the pin's actual 515-line file: the `Def_CuspForm_IntegralLattice`
+vocabulary (`qIntegralSet`/`bridgeProduct`/`IsLatticeRealized`) is used only by
+the mod-`3` congruence machinery, not by `hasIntegralStructure_of_two_le`.
+
+### The 515-line proof's block structure (read, not transcribed)
+
+| lines | block | role |
+|---|---|---|
+| 35–116 | `ConjugateFormGlue` | the `J`-conjugation involution `conjForm` on cusp forms (`flip` on `SL₂(ℤ)`, `mapGL_flip`, `toConjAct_J_inv_smul_Gamma0`) and `exists_conjForm`, a conjugation with a prescribed pointwise formula |
+| 120–212 | `PeriodPackagePlumbing` | transport of an involution across a decomposition `V = range ES ⊔ range ESbar`: `exists_involution`, `exists_eq_add(_involution)`, `comm_involution`, `exists_rat_equivFun` |
+| 214–241 | `ConjugateFormIsAntilinear` | `ρ` is additive and conjugate-linear, `ρ ∘ ρ = id` |
+| 245–313 | `linearIndependent_complex_of_linearIndependent_int_of_successor` | the Eichler–Shimura transport; this is where it bites — it calls the whole `HeckeEis` coefficient-cohomology package |
+| 315–504 | `HeckeAlgebraFiniteness` | `exists_int_equivFun`, `End_ext_of_isCompl`, `intMatrixCast`, the finiteness engine `moduleFinite_of_transport`, and `moduleFinite_heckeAlgebra_of_successor` |
+| 506–515 | assembly | `hasIntegralStructure_of_two_le_of_successor` = `hasIntegralStructure_of_moduleFinite_of_linearIndependent` applied to the two preceding block outputs; `solution` |
+
+### Verification
+
+* checker **after T10**: **802 identical (53 promoted), 0 mismatched, 0 missing,
+  14 own-proof** (792 → 802; the ten new definitions).
+* Both new modules build with no warnings; full `lake build` green,
+  **4054 jobs, 0 warnings**, no `sorry`.
+* The twelve T10 target wrappers were **not** appended to `SOURCES` (there is no
+  port declaration for them to verify); see the explanatory note in
+  `spec/check_flt_statements.py`.
+
+### Checker changes in SET-4
+
+**No code change to `spec/check_flt_statements.py`.** Only list appends: the T8
+section (an extra wrapper, `Thm_CuspForm_qCoeff_zero`, beyond the topic's
+inventory, because `qCoeff_zero` is a genuine dependency ported publicly rather
+than hidden as a private helper), the T9 section, and the two T10 definition
+modules. No new `OWN_PROOFS` entries.
+
+## SET-4 review (2026-09-23)
+
+Reviewed independently, not from the runner's report. Checker re-run: **802
+identical (53 promoted), 0 mismatched, 0 missing, 14 own-proof**; full
+`lake build` exit 0, **4054 jobs, 0 warnings**, no `sorry`; `#print axioms`
+re-run clean on 12 T8/T9 headlines. No checker code change (the diff is appends
+only — verified by filtering the diff for non-list lines). FFG modules untouched;
+`HeckeFiniteAlgebra.lean` correctly absent.
+
+**T8 verified.** The three `iff`s are derived from the coefficient one; there is
+no `hasSum_hecke` *declaration* in `HeckeEigenform.lean` (the runner's
+"`grep -c` = 0" was a comment-count overstatement — the three hits are the
+header's prose documenting the dedup). The extra public `CuspForm.qCoeff_zero` is
+a genuine dependency with its own pin wrapper; its addition to `SOURCES` is
+justified.
+
+**T9 verified.** `grep -c qIntegralLattice` = 0 in both modules, as required. The
+runner's route (show the defining set is a `ℤ`-submodule, `Submodule.span_eq` →
+`mem_intLattice_iff`, then `Algebra.adjoin_induction`) is cleaner than the work
+order's sketch and replaces it.
+
+**T10 reviewed as a correct stop, and the work order was wrong.** The work order's
+premise — that `hasIntegralStructure_of_two_le` is reachable through the `χ₋₃`
+Eisenstein series and `Def_CuspForm_IntegralLattice` — is false: `grep -c` for
+`qIntegralSet`/`bridgeProduct`/`IsLatticeRealized`/`E1Chi3` in the pin's 515-line
+`S_` file is **0**, and its imports are `Def_CuspForm_ModPForms`,
+`Def_HeckeEis_BinaryFormRep`, `Def_Gamma0CoeffCohomology`,
+`Def_Gamma0HeckeOperatorHom` plus ten `Thm_HeckeEis_*`/`Thm_CuspForm_*`
+Eichler–Shimura/period-package wrappers — none present in the port. The other
+finiteness targets need the Sturm bound (absent from mathlib `v4.34.0`) and the
+Petersson inner product. So the one-liners could not even be *stated*, the 4,308-
+and 212-line `_two` bodies were rightly not transcribed, and only the two
+self-contained definition modules landed. This is the effort's first **work-order
+scouting error**, caught at the right gate; the corrected dependency list and the
+SET-5 topic order are in `TOPIC-t10-finite-algebra.md` §7, and SET 4 is now
+**2 of 3 topics delivered**.

@@ -459,6 +459,49 @@ other notes, but a reader counting `grep` hits should know they exist:
 
 ## 13. Port implications
 
+**Status (2026-09-23, after SETs 1–4).** Stages A, B and C are **done** and
+independently verified (checker 802 identical, 0 mismatched; full build green;
+[../lean/logs/hecke-port.md](../lean/logs/hecke-port.md),
+[../lean/topics/hecke/](../lean/topics/hecke/)). Stage D is **half done**: its
+formal-operator part landed, its Γ_H / Γ₁ / level-lowering part did not.
+
+| stage | content | state | port modules |
+|---|---|---|---|
+| A | the operator block (pin 72–200) | **done** | `ModularForms/Defs/HeckeOperator.lean` |
+| B | the analytic lemmas (§5) | **done** | `HeckeAnalytic.lean`, `HeckeCusps.lean` |
+| C | bundling + commutation + the algebra structure (§3, §7, §9's algebra half) | **done** | `HeckeOperatorForms.lean`, `HeckeCommute.lean`, `HeckeAlgebra.lean` |
+| D | Γ_H / Γ₁ / level lowering | **remaining** | — |
+| D | the formal `PowerSeries`/`LaurentSeries` operators | **done** | `Defs/FormalHeckeOperators.lean`, `ModularCurve/Defs/LaurentSeriesHecke.lean` |
+| — | the coefficient action (§6) | **done** | `HeckeQCoeff.lean` |
+| — | the eigenform dictionary (§8) | **done** | `Defs/Eigenform.lean`, `HeckeEigenform.lean` |
+| — | the Hecke algebra's finite/free half (§9) | **out of scope (decided)** | `Defs/IntegralStructure.lean`, `HeckeLattice.lean` are the definitions only |
+| §12 | the boundary faces | **out of scope** | — |
+
+**What Stage D still needs**, with the pin's module sizes:
+`Def_CuspForm_HeckeULower.lean` (46 lines, 2 decls — `heckeULowerLin` and its
+`coe_*`), consumed by the §10 level-lowering wrappers (`exists_coe_eq_heckeU`,
+`exists_coe_eq_heckeU_of_mul_eq_of_dvd`, `exists_gamma1_*`);
+`Def_CuspForm_HeckeOperatorFormsGammaH.lean` (262 lines, 25 decls — the Γ_H
+diamond/`T`/`U` layer, the survey's Tier 3); and
+`Def_CuspForm_Gamma1HeckeOperators.lean` (680 lines, 56 decls — the
+Γ₁/Nebentypus layer, with its own `heckeMatrixQ`/`heckeRep` matrix block, the
+survey's Tier 2). Atkin–Lehner (`Def_ModularForm_AtkinLehnerDatum.lean`, 157
+lines, plus the `alSlash`/`diamondLinH`/`traceLin` tree — the survey's Tier 4) is
+a fourth, unlettered remainder. Port state confirmed by `grep`: `heckeULowerLin`,
+`heckeTLinH`, `heckeULinH`, `diamondLinH`, `heckeTLinOne`, `diamondLinOne`,
+`slashOfMemGamma0` all occur **0** times in `FLTForHuman/`.
+
+**The finiteness decision.** The §9 *structure* (generators, `heckeAlgebra`,
+commutativity) is ported; the §9 *finite/free* half is deliberately out of scope:
+the general `moduleFinite_heckeAlgebra`/`HasIntegralStructure` need the
+Eichler–Shimura/cohomology comparison (657 nodes / 263,720 raw `S_` lines), and
+the only cheap route is the standalone 4,308-line `moduleFinite_heckeAlgebra_two`
+at `k = 2`. See [../lean/topics/hecke/TOPIC-t10-finite-algebra.md](../lean/topics/hecke/TOPIC-t10-finite-algebra.md)
+§7 for the measured cones.
+
+The staged reading below is the *original* sketch, kept for the record; the table
+above supersedes its tense.
+
 The port's `Defs/HeckeOperator.lean` currently stops after
 `coe_heckeDiagMatrix_smul` (port line 110). The FLT file continues for another
 130 lines. The staged reading below is what the §2–§10 map suggests; it keeps

@@ -513,6 +513,50 @@ SOURCES = [
     "Theorems/Thm_LaurentSeries_commute_heckeV_heckeV.lean",
     "Theorems/Thm_LaurentSeries_commute_heckeU_heckeT.lean",
     "Theorems/Thm_LaurentSeries_commute_heckeT_heckeT.lean",
+    # --- SET-4 T8: the eigenform interface ------------------------------------
+    # The structure `CuspForm.IsNormalizedEigenform` is verified against the
+    # already-listed `Definitions/Def_FLTPrelim_Modularity.lean` (which SET-3 T5
+    # appended for `ModularFormClass.qCoeff`). The thirteen targets are public
+    # `Theorems/` wrappers. `Thm_CuspForm_qCoeff_zero` is an extra dependency the
+    # topic consumes (`isNormalizedEigenform_iff_coeffHecke` needs `qCoeff f 0 = 0`)
+    # and which the port had not carried; it is ported publicly here and its
+    # wrapper appended, rather than hidden as a private helper.
+    "Theorems/Thm_CuspForm_qCoeff_zero.lean",
+    "Theorems/Thm_CuspForm_isNormalizedEigenform_iff_coeffHecke.lean",
+    "Theorems/Thm_ModularFormClass_heckeT_eq_smul_iff.lean",
+    "Theorems/Thm_ModularFormClass_heckeU_eq_smul_iff.lean",
+    "Theorems/Thm_CuspForm_heckeTLin_apply_eq_smul_iff.lean",
+    "Theorems/Thm_CuspForm_heckeULin_apply_eq_smul_iff.lean",
+    "Theorems/Thm_CuspForm_isNormalizedEigenform_iff_heckeT.lean",
+    "Theorems/Thm_CuspForm_isNormalizedEigenform_iff_heckeTLin.lean",
+    "Theorems/Thm_CuspForm_IsNormalizedEigenform_heckeTLin_apply_eq_qCoeff_smul.lean",
+    "Theorems/Thm_CuspForm_IsNormalizedEigenform_heckeULin_apply_eq_qCoeff_smul.lean",
+    "Theorems/Thm_ModularForm_eq_zero_of_coeffHecke_eigen_of_apply_one_eq_zero.lean",
+    "Theorems/Thm_ModularForm_coeffHecke_eigenvalue_eq_apply_of_apply_one_eq_one.lean",
+    "Theorems/Thm_LaurentSeries_eq_zero_of_heckeT_eq_smul_of_heckeU_eq_smul_of_coeff_one_eq_zero.lean",
+    "Theorems/Thm_PowerSeries_coeff_heckeT_pow_sub_mem_span.lean",
+    # --- SET-4 T9: the integral lattice ---------------------------------------
+    # The two definitions have no `Theorems/` wrapper and verify by name against
+    # the pin's 8-line definition file. The three lattice-action targets are
+    # public `Theorems/` wrappers. The weight-2 auxiliary vocabulary
+    # (`Def_CuspForm_IntegralLattice.lean`) is T10's and is not appended here.
+    "Definitions/Def_CuspForm_IntegralStructure.lean",
+    "Theorems/Thm_CuspForm_mem_intLattice_of_coe_eq_heckeT.lean",
+    "Theorems/Thm_CuspForm_mem_intLattice_of_coe_eq_heckeU.lean",
+    "Theorems/Thm_CuspForm_mem_intLattice_of_mem_heckeAlgebra.lean",
+    # --- SET-4 T10: the two self-contained definition modules ----------------
+    # The `χ₋₃` Eisenstein vocabulary and the weight-2 auxiliary lattice have no
+    # `Theorems/` wrapper in the pin and verify by name against their definition
+    # files. T10's *theorem* targets (`hasIntegralStructure_of_two_le`,
+    # `moduleFinite_heckeAlgebra`, the `_two` one-liners and the eigenbasis-span
+    # family) are NOT ported in SET 4: they need infrastructure the port does not
+    # carry (HeckeEis coefficient cohomology / Eichler-Shimura / `Def_CuspForm_ModPForms`
+    # for the 515-line existence proof; the Petersson inner product for the span
+    # family; the Sturm bound for `intLattice_fg`). Their wrappers are therefore
+    # not appended, and `HeckeFiniteAlgebra.lean` is not created; see
+    # `logs/hecke-port.md` §T10.
+    "Definitions/Def_ModularForm_EisensteinChiNegThree.lean",
+    "Definitions/Def_CuspForm_IntegralLattice.lean",
 ]
 
 PORT_FILES = [
@@ -547,6 +591,16 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/Defs/LaurentSeriesHecke.lean",
     "FLTForHuman/ModularForms/HeckeCommute.lean",
     "FLTForHuman/ModularForms/HeckeAlgebra.lean",
+    # SET-4 T8: the normalized-eigenform structure and its operator dictionary.
+    "FLTForHuman/ModularForms/Defs/Eigenform.lean",
+    "FLTForHuman/ModularForms/HeckeEigenform.lean",
+    # SET-4 T9: the integral-lattice definitions and the lattice action.
+    "FLTForHuman/ModularForms/Defs/IntegralStructure.lean",
+    "FLTForHuman/ModularForms/HeckeLattice.lean",
+    # SET-4 T10 (definitions only; the theorem targets are blocked, see the
+    # `SOURCES` note and `logs/hecke-port.md` §T10).
+    "FLTForHuman/ModularForms/Defs/EisensteinChiNegThree.lean",
+    "FLTForHuman/ModularForms/Defs/IntegralLattice.lean",
     "FLTForHuman/ModularForms/HeckeQExpansion.lean",
     "FLTForHuman/ModularForms/PhiGenDescends.lean",
     "FLTForHuman/ModularCurve/PhiGenIntegrality.lean",
