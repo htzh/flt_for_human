@@ -261,6 +261,144 @@ SOURCES = [
     "Theorems/Thm_ModularCurve_exists_monic_evalAtJ_jqN_eq_zero.lean",
     "Theorems/Thm_ModularCurve_exists_phiIrreducible_of_finrank_eq.lean",
     "Theorems/Thm_ModularCurve_exists_phiIrreducible.lean",
+    # --- The AlgebraicCurve layer (SET 1: AC0 + T1) -------------------------
+    # T1's nineteen ord/valuation interface nodes. They are declared in the pin
+    # under `P2M.Dup.AlgebraicCurve.*`, so the checker matches the last name
+    # component; their statements are the wrappers, hence the port writes the
+    # wrappers' explicit binders and these files come *before* the definition
+    # files (SET-1 §5: the definition files are appended after the wrappers that
+    # share a last name).
+    "Theorems/Thm_AlgebraicCurve_Place_ord_nonneg_of_mem.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_mem_of_ord_nonneg.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_mem_iff_ord_nonneg.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_ord_algebraMap.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_ord_smul_of_ne_zero.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_mem_toValuationSubring_of_isIntegral_adjoin.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_ord_eq_zero_of_isIntegral_adjoin.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_mem_iff_adicValuation_le_one.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_mem_maximalIdeal_iff_adicValuation_lt_one.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_adicValuation_valuationSubring.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_isEquiv_adicValuation_of_valuationSubring_eq.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_ord_eq_neg_log_of_valuationSubring_eq.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_adicValuation_isRankOneDiscrete.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_adicValuation_isTrivialOn.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_isEquiv_adicValuation_ofHeightOneSpectrum.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_ord_ofHeightOneSpectrum_ne_zero_iff.lean",
+    "Theorems/Thm_AlgebraicCurve_isIntegral_adjoin_intermediateField_mk.lean",
+    "Theorems/Thm_AlgebraicCurve_isIntegral_adjoin_map_algHom.lean",
+    "Theorems/Thm_AlgebraicCurve_isIntegral_adjoin_of_isScalarTower.lean",
+    # Three pin-`private` ord helpers AC0 promotes because the cone reaches them
+    # through wrappers (they are written with the wrappers' explicit binders).
+    "Theorems/Thm_AlgebraicCurve_Place_exists_ord_pos.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_comap_algebraMap_ne_top.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_mem_comap_iff_ord_nonneg.lean",
+    # The AlgebraicCurve *definition* modules the port transcribes. They are
+    # listed after the wrappers above so those wrappers' binders stay the
+    # authority for the shared last names. `Def_AlgebraicCurve_RatFuncPlaceInfty`
+    # is the module `PORTING-AC.md` §2.2's six-module table omits; AC0 adds it.
+    # `BaseChangeGalois` precedes `DivisorClassGroup`: the latter carries a
+    # *second*, dropped Galois action (`F ≃ₐ[K] F` on `Pic0`) whose `smul_def`/
+    # `ord_smul`/`deg_smul` share last names with the `SemilinearAut` block the
+    # port transcribes.
+    "Definitions/Def_AlgebraicCurve_BaseChangeGalois.lean",
+    "Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean",
+    "Definitions/Def_AlgebraicCurve_DivisorPushPull.lean",
+    "Definitions/Def_AlgebraicCurve_PlacesOverDVR.lean",
+    "Definitions/Def_AlgebraicCurve_Correspondence.lean",
+    "Definitions/Def_AlgebraicCurve_RatFuncPlaces.lean",
+    "Definitions/Def_AlgebraicCurve_RatFuncPlaceInfty.lean",
+    # T2 (the fibre dictionary). The three nodes are public wrappers, so they
+    # match by direct last-name lookup with the wrappers' binders. The pin's
+    # `S_..._fiberOver.lean` carries the 17 promoted dictionary declarations as
+    # `private`; it is appended after the wrappers so the checker's dotted
+    # fallback reads those originals (their port copies are the public statements
+    # at the pinned names under `AlgebraicCurve.Place`).
+    "Theorems/Thm_AlgebraicCurve_Place_sum_ramificationIndex_mul_inertiaDeg_fiberOver.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_sum_ramificationIndex_mul_inertiaDeg_le_finrank.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_inertiaDeg_pos.lean",
+    "P2M/Sol/S_AlgebraicCurve_Place_sum_ramificationIndex_mul_inertiaDeg_fiberOver.lean",
+    # T3 (Galois ramification/inertia). All seven are public wrappers with
+    # explicit binders, so they verify by direct last-name lookup.
+    "Theorems/Thm_AlgebraicCurve_Place_exists_algEquiv_smul_eq_of_restrict_eq.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_restrict_ofAlgAut_smul.lean",
+    "Theorems/Thm_AlgebraicCurve_SemilinearAut_ramificationIndex_smul.lean",
+    "Theorems/Thm_AlgebraicCurve_SemilinearAut_inertiaDeg_smul.lean",
+    "Theorems/Thm_AlgebraicCurve_SemilinearAut_ord_algebraMap_smul.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_ramificationIndex_eq_of_restrict_eq.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_inertiaDeg_eq_of_restrict_eq.lean",
+    # T4 (along-map transport + `Pic0` descent). The sixteen nodes are public
+    # wrappers; the pin's `bifiber` `S_` file then carries the six public prelude
+    # declarations (`inertiaDegAlong_congr`, `isIntegral_toAlgHom`,
+    # `toAlgHom_comp_toAlgHom`, `restrict_restrict` and the two `Place.*_restrict`)
+    # that the port writes once in `Transport.lean`.
+    "Theorems/Thm_AlgebraicCurve_Place_restrictAlong_restrictAlong.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_ramificationIndexAlong_comp.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_inertiaDegAlong_comp.lean",
+    "Theorems/Thm_AlgebraicCurve_Divisor_pushforwardAlong_pushforwardAlong.lean",
+    "Theorems/Thm_AlgebraicCurve_Divisor_pullbackAlong_pullbackAlong.lean",
+    "Theorems/Thm_AlgebraicCurve_Divisor_correspondence_congr.lean",
+    "Theorems/Thm_AlgebraicCurve_Divisor_correspondence_correspondence.lean",
+    "Theorems/Thm_AlgebraicCurve_Pic0_correspondence_correspondence_comm.lean",
+    "Theorems/Thm_AlgebraicCurve_Pic0_mk_eq_zero_iff.lean",
+    "Theorems/Thm_AlgebraicCurve_Pic0_zsmul_mk.lean",
+    "Theorems/Thm_AlgebraicCurve_Pic0_nsmul_mk_eq_zero_of_isPrincipal.lean",
+    "Theorems/Thm_AlgebraicCurve_Pic0_zsmul_mk_eq_zero_of_isPrincipal.lean",
+    "Theorems/Thm_AlgebraicCurve_Pic0_addOrderOf_mk_dvd_of_isPrincipal.lean",
+    "Theorems/Thm_AlgebraicCurve_finiteAlong_comp.lean",
+    "Theorems/Thm_AlgebraicCurve_finiteAlong_of_surjective.lean",
+    "Theorems/Thm_AlgebraicCurve_separableAlong_of_charZero.lean",
+    # T5's wrappers come **before** the pin's `bifiber` `S_` file: that file's
+    # internal `BifibreDev` copy of `sum_ramificationIndex_mul_inertiaDeg_bifiber`
+    # makes `M` implicit (`{K F F₁ F₂ E M : Type*}`), while the wrapper makes it an
+    # explicit binder (`{K F F₁ F₂ E : Type*} (M : Type*)`). The wrapper is the
+    # statement authority (SET-2 §1.2), so it must win the checker's first-name
+    # lookup; the divergence is recorded in `logs/ac-port.md`.
+    "Theorems/Thm_MulAction_ncard_orbit_inter_orbit_mul_card.lean",
+    "Theorems/Thm_Subgroup_exists_eq_mul_of_index_inf_eq.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_card_fiberOver_mul_ramificationIndex_mul_inertiaDeg.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_exists_restrict_eq.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_sum_ramificationIndex_mul_inertiaDeg_bifiber.lean",
+    "P2M/Sol/S_AlgebraicCurve_Place_sum_ramificationIndex_mul_inertiaDeg_bifiber.lean",
+    # T6 (the local exchange + the normal closure). The public node is the wrapper;
+    # the pin's `S_` file carries its two public stages (`exchange_of_isGalois`,
+    # `sum_ramificationIndex_mul_inertiaDeg_bifiber_of_isSeparable`) whose names have
+    # no wrapper of their own. The envelope plumbing is `private` in the port, so the
+    # checker never asks for the pin's public `BifibreW2.Env`/`algebraEnv`.
+    "Theorems/Thm_AlgebraicCurve_Place_sum_ramificationIndex_mul_inertiaDeg_exchange.lean",
+    "P2M/Sol/S_AlgebraicCurve_Place_sum_ramificationIndex_mul_inertiaDeg_exchange.lean",
+    # T8 (the `P¹` places and degree). All eleven nodes have wrappers; ten have no
+    # other source, and `deg_ofHeightOneSpectrum` is already AC0's (the
+    # definition-file copy wins this name's lookup, and the port matches it, not
+    # the `P2M.Dup` wrapper's explicit-`K` spelling).
+    "Theorems/Thm_AlgebraicCurve_RationalFunctionField_finite_setOf_ord_ne_zero.lean",
+    "Theorems/Thm_AlgebraicCurve_RationalFunctionField_subsingleton_setOf_forall_ne_ofHeightOneSpectrum.lean",
+    "Theorems/Thm_AlgebraicCurve_RationalFunctionField_exists_forall_ne_ofHeightOneSpectrum.lean",
+    "Theorems/Thm_AlgebraicCurve_RationalFunctionField_degree_eq_zero_of_forall_eq_ord_algebraMap.lean",
+    "Theorems/Thm_AlgebraicCurve_RationalFunctionField_deg_ofHeightOneSpectrum.lean",
+    "Theorems/Thm_AlgebraicCurve_RationalFunctionField_deg_eq_one_of_forall_ne_ofHeightOneSpectrum.lean",
+    "Theorems/Thm_AlgebraicCurve_RationalFunctionField_degree_eq_zero_of_forall_eq_ord.lean",
+    "Theorems/Thm_AlgebraicCurve_RationalFunctionField_ord_eq_neg_intDegree_of_forall_ne_ofHeightOneSpectrum.lean",
+    "Theorems/Thm_AlgebraicCurve_RationalFunctionField_ord_ofHeightOneSpectrum_of_span.lean",
+    "Theorems/Thm_AlgebraicCurve_RationalFunctionField_ord_ofHeightOneSpectrum_eq_neg_log.lean",
+    "Theorems/Thm_AlgebraicCurve_RationalFunctionField_toValuationSubring_eq_of_forall_ne_ofHeightOneSpectrum.lean",
+    # T9 (`HasPrincipalDivisors` via transcendence). The three nodes have
+    # wrappers. The pin's `of_finiteDimensional_ratFunc` `S_` file makes the shared
+    # finite-dimensional statement public (as `solution`); the `of_transcendental`
+    # `S_` file carries it `private` under its proper name and the adjoin `S_` file
+    # carries `W2.hasPrincipalDivisors_adjoin`. Both stages are appended so those
+    # public/private originals are available.
+    "Theorems/Thm_AlgebraicCurve_hasPrincipalDivisors_of_finiteDimensional_ratFunc.lean",
+    "Theorems/Thm_AlgebraicCurve_hasPrincipalDivisors_of_transcendental.lean",
+    "Theorems/Thm_AlgebraicCurve_hasPrincipalDivisors_adjoin_of_transcendental.lean",
+    "P2M/Sol/S_AlgebraicCurve_hasPrincipalDivisors_of_finiteDimensional_ratFunc.lean",
+    "P2M/Sol/S_AlgebraicCurve_hasPrincipalDivisors_of_transcendental.lean",
+    "P2M/Sol/S_AlgebraicCurve_hasPrincipalDivisors_adjoin_of_transcendental.lean",
+    # --- T7, the divisor-exchange capstone (the human's topic) ---------------
+    # The one wrapper. The pin's `S_` file is *not* listed: its only other public
+    # declaration is `BifibreWEX.restrict_restrict`, which the port does not
+    # reproduce (it imports `AlgebraicCurve.BifibreDev.restrict_restrict` from
+    # `WeilExchange/Transport.lean`, already verified through the `bifiber` source).
+    "Theorems/Thm_AlgebraicCurve_Divisor_pullbackAlong_pushforwardAlong_eq_pushforwardAlong_pullbackAlong.lean",
 ]
 
 PORT_FILES = [
@@ -309,6 +447,33 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/FunctionFieldGeneration/SlotProduct.lean",
     # Topic 20, the unconditional capstone.
     "FLTForHuman/ModularCurve/FunctionFieldGeneration/Capstone.lean",
+    # SET 1 (AC0 + T1), the generic curve vocabulary and the ord interface.
+    "FLTForHuman/AlgebraicCurve/Defs/Place.lean",
+    "FLTForHuman/AlgebraicCurve/Defs/Divisor.lean",
+    "FLTForHuman/AlgebraicCurve/Defs/PushPull.lean",
+    "FLTForHuman/AlgebraicCurve/Defs/PlacesOverDVR.lean",
+    "FLTForHuman/AlgebraicCurve/Defs/Correspondence.lean",
+    "FLTForHuman/AlgebraicCurve/Defs/SemilinearAut.lean",
+    "FLTForHuman/AlgebraicCurve/Defs/RatFuncPlaces.lean",
+    "FLTForHuman/AlgebraicCurve/Defs/IntegralAdjoin.lean",
+    # T2 (the promoted fibre dictionary and the bifibre count).
+    "FLTForHuman/AlgebraicCurve/Defs/PlaceDictionary.lean",
+    "FLTForHuman/AlgebraicCurve/WeilExchange/FiberOverCount.lean",
+    # T3 (Galois ramification/inertia).
+    "FLTForHuman/AlgebraicCurve/WeilExchange/GaloisRamification.lean",
+    # T4 (along-map transport + `Pic0` descent, and the shared prelude).
+    "FLTForHuman/AlgebraicCurve/WeilExchange/Transport.lean",
+    # T5 (the generic orbit/index engine + the bifibre count).
+    "FLTForHuman/FieldTheory/FiniteGroupAction.lean",
+    "FLTForHuman/AlgebraicCurve/WeilExchange/Bifibre.lean",
+    # T6 (the local exchange + the normal closure).
+    "FLTForHuman/AlgebraicCurve/WeilExchange/LocalExchange.lean",
+    # T8 (the `P¹` places and degree).
+    "FLTForHuman/AlgebraicCurve/PrincipalDivisors/RatFuncDegree.lean",
+    # T9 (`HasPrincipalDivisors` via transcendence).
+    "FLTForHuman/AlgebraicCurve/PrincipalDivisors/Transcendence.lean",
+    # T7, the divisor-exchange capstone (reserved for the human reviewer).
+    "FLTForHuman/AlgebraicCurve/WeilExchange/DivisorExchange.lean",
 ]
 
 # Declarations whose *statement* has no FLT source, so there is nothing to diff:
@@ -369,6 +534,13 @@ OWN_PROOFS = {
     # so there is no name/statement to diff; the pin's own `slots_eq_dedekindPsi`
     # is `private`.
     "card_slotFilter_eq_dedekindPsi",
+    # `correspondence` (SET 1, `Defs/Correspondence.lean`) is the one last-name
+    # collision the AC block cannot resolve: `Def_AlgebraicCurve_Correspondence.lean`
+    # declares `Divisor.correspondence` (line 137) and `Pic0.correspondence`
+    # (line 183) with the same last name, and `declarations()` keeps only the
+    # first, so no `SOURCES` ordering can verify the second. Both port copies are
+    # transcribed verbatim from that file; the exemption covers the pair.
+    "correspondence",
 }
 
 # Declaration keywords. `instance` matters for PhiGen; `structure` for Polynomial.
@@ -424,10 +596,12 @@ def top_level_cut(text: str) -> int:
 
 def norm(text: str) -> str:
     # Both the port and the definitions layer spell these declarations inside
-    # `namespace ModularCurve`, but the `Theorems/` wrappers additionally qualify
-    # every occurrence with the namespace. That qualification is noise for a
-    # statement diff, so drop it on both sides before comparing.
+    # `namespace ModularCurve`/`namespace AlgebraicCurve`, but the `Theorems/`
+    # wrappers additionally qualify every occurrence with the namespace. That
+    # qualification is noise for a statement diff, so drop it on both sides
+    # before comparing.
     text = re.sub(r"\bModularCurve\.", "", strip_comments(text))
+    text = re.sub(r"\bAlgebraicCurve\.", "", text)
     return re.sub(r"\s+", " ", text).strip()
 
 

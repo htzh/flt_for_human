@@ -1,11 +1,37 @@
 # Blueprint: the `AlgebraicCurve` layer for `ModularCurve.heckeOperatorsCommuteBar`
 
-**Status (2026-09-22): scoped, not started.** This is the third Lean port and the
+**Status (2026-09-23): the effort is complete and verified — AC0, T1–T9 and the
+T7 capstone.** This is the third Lean port and the
 first that targets the *generic* curve layer rather than a modular instance. It is
 opened as `PORTING-FFG.md` runs down (T19–T20), because the two efforts share the
 `ModularCurve/Defs` vocabulary and the same verification machinery, and because
 `math/009-hecke-jacobian-commute.md`'s theorem is the natural consumer that makes
 the `AlgebraicCurve` layer worth building.
+
+| set | topics | result |
+|---|---|---|
+| SET 1 | AC0, T1–T4 | 12 modules / 3,244 lines / 269 public decls; build 4,022 jobs; checker 586; consumer Zones A–E |
+| SET 2 | T5, T6, T8, T9 | 5 modules / 1,780 lines; checker 617; consumer Zones A–I |
+| capstone | T7 (the human reviewer) | `WeilExchange/DivisorExchange.lean`, 137 lines; checker 618; consumer Zone J |
+
+Final: `lake build` **4,034 jobs, 0 warnings, no `sorry`**; checker **618
+identical (34 promoted from pin-`private`), 0 mismatched, 0 missing**, 14
+exempted; consumer `spec/AlgebraicCurveConsumer.lean` **Zones A–J at 0 errors**;
+`#print axioms` on the divisor exchange, the local exchange, the bifibre count and
+`hasPrincipalDivisors_of_transcendental` all `[propext, Classical.choice,
+Quot.sound]`; no commits. The effort wrote **5,553 module lines**, inside §4.3's
+≈5.1k–5.9k written budget. **Every generic input of `math/009`'s exchange
+reduction is now a ported theorem**: the Weil exchange, `separableAlong_of_charZero`,
+and `HasPrincipalDivisors` for the modular function field. The measured record is
+[logs/ac-port.md](logs/ac-port.md).
+
+The run briefs are
+[topics/algebraicCurve/SET-1.md](topics/algebraicCurve/SET-1.md) and
+[topics/algebraicCurve/SET-2.md](topics/algebraicCurve/SET-2.md), and the per-topic
+work orders are [topics/algebraicCurve/TOPIC-*.md](topics/algebraicCurve/). What
+remains for the *target theorem* is the `ModularCurve` Hecke layer named in §0's
+table, not this layer.
+
 
 Four records feed this blueprint, all read-only and already written for other
 purposes:
@@ -23,9 +49,11 @@ purposes:
   shape risks, not lines), **§6.1** (what is deliberately not cut), **§7.2** (the
   conditional capstone built first) and **§7.3** (the friction log).
 
-Companion records once work starts: `logs/ac-port.md` (the measured record) and
-`topics/algebraicCurve/TOPIC-*.md` (one work order per topic). The reusable method
-is [porting-playbook.md](porting-playbook.md); this document inherits §7–§8 of it
+Companion records: [topics/algebraicCurve/SET-1.md](topics/algebraicCurve/SET-1.md)
+is the SET-1 run brief, `topics/algebraicCurve/TOPIC-*.md` are the per-topic work
+orders (SET 1 written, SET 2 written after SET 1 is reviewed), and `logs/ac-port.md`
+is the measured record once work starts. The reusable method is
+[porting-playbook.md](porting-playbook.md); this document inherits §7–§8 of it
 wholesale and records only what is new.
 
 FLT line numbers and paths are against `anthropics/fermats-last-theorem@aa2d8b3`.
@@ -36,7 +64,7 @@ mathlib is our pinned `v4.34.0`.
 **The target is the whole `AlgebraicCurve` cone of
 `ModularCurve.heckeOperatorsCommuteBar`** — measured with the local pin graph
 (refresh recipe in §9.1) at **63 `AlgebraicCurve.*` theorem nodes in 5,210 `S_`
-lines, 6 `Def_AlgebraicCurve_*` modules in 2,823 lines, and 2 generic
+lines, 7 `Def_AlgebraicCurve_*` modules in 2,867 lines, and 2 generic
 group-theory nodes (`MulAction.ncard_orbit_inter_orbit_mul_card` 165,
 `Subgroup.exists_eq_mul_of_index_inf_eq` 48) that the bifibre count needs and that
 are neither `AlgebraicCurve` nor mathlib**. The AC layer is the *generic* half of
@@ -71,7 +99,7 @@ at high indegree (`Place.mem_iff_ord_nonneg` 184 external citers,
 alignment is real (the whole layer sits on mathlib's `ValuationSubring` /
 `DedekindDomain` / `Kaehler` API, §3.4), the interface is broad rather than
 concentrated, and organization is the main product — FLT's `AlgebraicCurve` layer
-is 72 definition modules and 1,577 proof files, and this port takes the 6 + 63 that
+is 72 definition modules and 1,577 proof files, and this port takes the 7 + 63 that
 the Hecke theory actually uses.
 
 ## 1. Organization for math clarity
@@ -117,16 +145,23 @@ lines, comments and blank lines.
 | group | nodes | raw | content |
 |---|---|---|---|
 | **T1** `Place` ord/valuation interface | 19 | 818 | 399 |
-| **T2** fibre-centre + `fiberOver`/`le_finrank` | 2 | 882 | 684 |
+| **T2** fibre dictionary, `fiberOver`, `le_finrank`, `inertiaDeg_pos` | 3 | 1,096 | 834 |
 | **T3** Galois ramification/inertia | 7 | 304 | 160 |
 | **T4** along-map transport + `Pic0` descent | 16 | 245 | 120 |
-| **T5** bifibre count + `exists_restrict_eq` | 4 | 677 | 452 |
+| **T5** bifibre count, `card_fiberOver`, `exists_restrict_eq` + the generic orbit/index engine | 5 | 676 | 465 |
 | **T6** local exchange + normal closure | 1 | 255 | 174 |
-| **T7** divisor exchange | 1 | 121 | 99 |
+| **T7** divisor exchange (capstone, human) | 1 | 121 | 99 |
 | **T8** rational function field `P¹` | 11 | 1,024 | 643 |
 | **T9** `HasPrincipalDivisors` via transcendence | 2 | 884 | 641 |
-| **T5g** generic orbit/index engine | 2 | 213 | 163 |
 | **total** | **65** | **5,423** | **3,535** |
+
+The T5 row absorbs the blueprint's former `T5g` row: the two generic engine nodes
+are proved as part of T5 because their only consumer is its bifibre count. T2 owns
+`inertiaDeg_pos` (it consumes the same promoted dictionary but no other T2
+declaration); `exists_restrict_eq` and `card_fiberOver_mul_ramificationIndex_mul_inertiaDeg`
+are T5's, not T1/T4's, because T5 is their first consumer. This assignment is the
+one the work orders are written against and it sums to the measured totals.
+
 
 The two heaviest *developments* are the two halves of one story:
 `hasPrincipalDivisors_of_transcendental` (799 raw) and the fibre-centre block
@@ -142,7 +177,7 @@ including the two that looked like trailing corollaries: `le_finrank` (443) and
 generic group nodes enter through the bifibre count (`T5`). There is no off-path
 node to prune.
 
-### 2.2 The 6 definition modules
+### 2.2 The 7 definition modules
 
 | module | lines | decls | name-referenced by the cone |
 |---|---|---|---|
@@ -152,7 +187,8 @@ node to prune.
 | `Def_AlgebraicCurve_PlacesOverDVR` | 506 | 50 | 29 |
 | `Def_AlgebraicCurve_RatFuncPlaces` | 397 | 39 | 22 |
 | `Def_AlgebraicCurve_BaseChangeGalois` | 355 | 51 | 28 |
-| **total** | **2,823** | **322** | **161** |
+| `Def_AlgebraicCurve_RatFuncPlaceInfty` | 44 | 3 | 2 |
+| **total** | **2,867** | **325** | **163** |
 
 "Name-referenced" is a lower bound: it greps the AC cone's `S_` files plus the
 hecke solution for each module's declaration names, so it sees direct uses but not
@@ -160,9 +196,13 @@ declarations reachable only through another definition's statement. The
 `DivisorPushPull` number is low (18/70) because its pushforward/pullback lemmas are
 mostly invoked from the `Theorems/` wrappers and from `Correspondence`, but those
 declarations are load-bearing; the honest reading is "the port takes a majority of
-each module and counts the rest per topic". One declaration the cone needs is not
-in these six modules at all: `Place.ord_algebraMap` lives in
-`Def_AlgebraicCurve_ConstantReduction.lean:57` (risk 7).
+each module and counts the rest per topic". Two declarations the cone needs are not
+in these six modules. `Place.ord_algebraMap` lives in
+`Def_AlgebraicCurve_ConstantReduction.lean:57` (risk 7) and, with the port's home
+decision, goes into `Defs/Place.lean`. `RationalFunctionField.placeInfty` and
+`nontrivial_valueGroup_inftyValuation` live in the 44-line
+`Def_AlgebraicCurve_RatFuncPlaceInfty.lean`, which the table above omitted; the port
+adds it to `Defs/RatFuncPlaces.lean` and to the checker's `SOURCES`.
 
 ### 2.3 The outbound interface tier
 
@@ -415,7 +455,7 @@ between the `raw` and `content` columns of §2.1.
 | `bifiber`/`exchange` shared prelude | −60 |
 | `restrict_restrict` copies | −16 |
 | **deduplicated `S_` content** | **≈2,508** |
-| 6 definition modules, raw | 2,823 |
+| 7 definition modules, raw | 2,867 |
 | definition declarations the cone does not use (≈45%) | −≈1,270 |
 | **deduplicated structural total** | **≈4,060** |
 
@@ -462,19 +502,64 @@ pin's proofs are already written against the same mathlib API).
 The cut is by mathematical object, one shared development per topic. Prerequisites
 are real dependencies, not the pin's section order.
 
-| topic | object | pin nodes | dedup content | ≈ port | prereq |
-|---|---|---|---|---|---|
-| **AC0** | the vocabulary | 6 def modules | ≈1,550 | ≈1,900–2,200 | mathlib |
-| **T1** | `Place` ord/valuation interface | 19 | 399 | ≈520–580 | AC0 |
-| **T2** | fibre centre, `fiberOver`, `le_finrank` | 2 | 388 | ≈500–570 | AC0, T1 |
-| **T3** | Galois ramification/inertia | 7 | 160 | ≈210–240 | AC0, T1 |
-| **T4** | along-map transport + `Pic0` descent | 16 | 120 | ≈160–190 | AC0, T1, T2, T3 |
-| **T5** | bifibre count + the generic orbit/index engine | 6 | 410 | ≈560–650 | T2, T3, T4 |
-| **T6** | local exchange + normal closure | 1 | 174 | ≈230–270 | T4, T5 |
-| **T7** | divisor exchange | 1 | 99 | ≈130–160 | T6 |
-| **T8** | `P¹` places and degree | 11 | 429 | ≈560–680 | AC0, T1 |
-| **T9** | `HasPrincipalDivisors` via transcendence | 2 | 345 | ≈450–540 | T8, T2 |
-| **total** | | **65** | **≈2,520** | **≈5.1k–5.9k** | |
+| topic | object | pin nodes | dedup content | ≈ port | prereq | work order |
+|---|---|---|---|---|---|---|
+| **AC0** | the vocabulary | 8 def modules | ≈1,550 | ≈1,900–2,200 | mathlib | [SET 1](topics/algebraicCurve/TOPIC-ac0-vocabulary.md) |
+| **T1** | `Place` ord/valuation interface | 19 | 399 | ≈520–580 | AC0 | [SET 1](topics/algebraicCurve/TOPIC-t1-ord-interface.md) |
+| **T2** | fibre dictionary, `fiberOver`, `le_finrank`, `inertiaDeg_pos` | 3 | 388 | ≈500–570 | AC0, T1 | [SET 1](topics/algebraicCurve/TOPIC-t2-fibre-dictionary.md) |
+| **T3** | Galois ramification/inertia | 7 | 160 | ≈210–240 | AC0, T1, T2 | [SET 1](topics/algebraicCurve/TOPIC-t3-galois-ramification.md) |
+| **T4** | along-map transport + `Pic0` descent + the shared prelude | 16 | 120 | ≈160–190 | AC0, T1, T2, T3 | [SET 1](topics/algebraicCurve/TOPIC-t4-transport.md) |
+| **T5** | bifibre count + the generic orbit/index engine | 5 | 410 | ≈560–650 | T2, T3, T4 | [SET 2](topics/algebraicCurve/TOPIC-t5-bifibre.md) |
+| **T6** | local exchange + normal closure | 1 | 174 | ≈230–270 | T4, T5 | [SET 2](topics/algebraicCurve/TOPIC-t6-local-exchange.md) |
+| **T7** | divisor exchange (**capstone, human**) | 1 | 99 | ≈130–160 | T6 | [SET 2](topics/algebraicCurve/TOPIC-t7-divisor-exchange.md), **done by the reviewer** |
+| **T8** | `P¹` places and degree | 11 | 429 | ≈560–680 | AC0, T1 | [SET 2](topics/algebraicCurve/TOPIC-t8-ratfunc-degree.md) |
+| **T9** | `HasPrincipalDivisors` via transcendence | 2 | 345 | ≈450–540 | T8, T2 | [SET 2](topics/algebraicCurve/TOPIC-t9-transcendence.md) |
+| **total** | | **65** | **≈2,520** | **≈5.1k–5.9k** | | |
+
+T3's prerequisite list now names T2: `exists_algEquiv_smul_eq_of_restrict_eq` consumes
+the promoted fibre dictionary (`fiberCenter`, `mem_fiberCenter_iff_ord_pos`,
+`eq_of_fiberCenter_eq`), which the earlier dependency sketch missed. AC0 is eight
+definition modules, not six: `RatFuncPlaceInfty` is added (see §2.2) and
+`Place.ord_algebraMap` lands in `Defs/Place.lean`. T5 absorbs the former `T5g` row;
+T2 owns `inertiaDeg_pos`, T5 owns `exists_restrict_eq` and
+`card_fiberOver_mul_ramificationIndex_mul_inertiaDeg`.
+
+### 5.1 SET 2's measured outcomes
+
+| topic | module(s) | port lines | public decls | note |
+|---|---|---|---|---|
+| T5 | `FieldTheory/FiniteGroupAction` + `WeilExchange/Bifibre` | 264 + 361 | 2 + 12 | the two generic statements transcribed unchanged (scout 3.2 s); 7 helpers `private` |
+| T6 | `WeilExchange/LocalExchange` | 206 | 3 | `Env`/`algebraEnv`/`isScalarTower_env_*` `private`; the two stages public |
+| T8 | `PrincipalDivisors/RatFuncDegree` | 435 | 10 | `deg_ofHeightOneSpectrum` was already AC0's, so 10 of 11 nodes are new; no `'`-copy prelude |
+| T9 | `PrincipalDivisors/Transcendence` | 514 | 4 | the finite-dimensional theorem exposed publicly (§8 risk 9); norm block `private` |
+
+SET 2 wrote **1,780 module lines against the work orders' 1,800–2,140 estimate**
+(low end; 2,029 including the consumer). The predicted savings are measured, not
+assumed: T8 wrote no `'`-copy prelude (the pin repeats an ≈90-raw-line private
+bridge in each of three files and AC0 already publishes all but the dichotomy — a
+saving *larger* than §4.1's ≈214 estimate), and T9 restated none of T2's ≈350-line
+dictionary.
+
+Four further drifts and decisions, all recorded in
+[logs/ac-port.md](logs/ac-port.md):
+
+- **`RatFunc.inftyValuation` now takes `[DecidableEq (RatFunc F)]`** in v4.34, so
+  T8's private `WFg` helper carries it and `deg_eq_one…` opens `classical`;
+  `Polynomial.degree_sub_lt` is deprecated → `degree_sub_lt_left`;
+  `UniqueFactorizationMonoid.prime_of_normalized_factor` and
+  `IntermediateField.finiteDimensional_adjoin` are the new names.
+- **T9's `PerfectField` fired with no help** (§8 risk 5): a private
+  `CharZero v.toValuationSubring` instance plus `IsFractionRing.charZero` →
+  `PerfectField.ofCharZero`. No statement weakened, no hypothesis added.
+- **The norm block is irreducible to mathlib `relNorm` lemmas** — the §10 question's
+  measured negative: mathlib has `relNorm`, `Ideal.relNorm_eq_pow_of_isMaximal` and
+  `Ideal.relNorm_singleton`, but not the fibre-centre inertia computation nor the
+  `normalizedFactors` factorisation. Keeping the block was right.
+- **One statement divergence, resolved in the wrapper's favour:**
+  `Place.sum_ramificationIndex_mul_inertiaDeg_bifiber`'s wrapper makes the
+  compositum explicit (`{K F F₁ F₂ E} (M : Type*) …`) where the `S_` file binds
+  `M` implicitly, so the five T5 wrappers are listed **before** the pin's `bifiber`
+  `S_` file in `SOURCES`. No port statement mismatched its wrapper at the end.
 
 Notes that change the shape of a topic:
 
@@ -559,10 +644,9 @@ lean/FLTForHuman/AlgebraicCurve/
     SemilinearAut.lean    -- SemilinearAut + the Place action and its ord/ramification/inertia lemmas
     RatFuncPlaces.lean    -- adic bridge, heightOneSpectrumOfIrreducible, placeInfty, deg_ofHeightOneSpectrum
   WeilExchange/
-    OrdInterface.lean     -- T1
     FiberOverCount.lean   -- T2
     GaloisRamification.lean -- T3
-    Transport.lean        -- T4
+    Transport.lean        -- T4 (incl. the shared prelude T5/T6/T7 import)
     Bifibre.lean          -- T5 (incl. the orbit/index argument)
     LocalExchange.lean    -- T6
     DivisorExchange.lean  -- T7
@@ -574,6 +658,21 @@ lean/FLTForHuman/FieldTheory/
 lean/spec/
   AlgebraicCurveConsumer.lean   -- the consumer; outside every library
 ```
+
+Two layout decisions made when SET 1's work orders were written:
+
+- **T1 has no `OrdInterface.lean`.** The FFG interface-tier precedent
+  (`functionFieldGeneration/TOPIC-interface-tier.md` §1) settled that the interface
+  is a *usage* property and the modules are named for *mathematical roles*, so a
+  lemma goes beside the object it is about: T1's declarations live in
+  `Defs/Place.lean` (the `ord`/valuation leaves and `Place.ord_algebraMap`),
+  `Defs/RatFuncPlaces.lean` (the `ofHeightOneSpectrum` bridge) and a new
+  `Defs/IntegralAdjoin.lean` (the three generic `isIntegral_adjoin_*` transport
+  facts, also consumed by T5 and T9).
+- **`Defs/PlaceDictionary.lean` holds the whole 17-declaration block, public.** The
+  pin keeps it `private` in four files; the checker verifies the promoted names
+  through its dotted fallback, so no `OWN_PROOFS` exemption is needed. T2 writes the
+  single copy of the Assembly in `WeilExchange/FiberOverCount.lean`.
 
 `Defs/SemilinearAut.lean` and `Defs/RatFuncPlaces.lean` are the two pin modules
 the port can trim, and both trims are measured. From
@@ -621,6 +720,11 @@ rather than golfing:
   They are deferred, not judged worthless.
 - **`placeOfPoint`/`Place.Congr`** is the one genuine cut, and it is measured
   (unused; attribute noise only), not assumed.
+- **`Place.card_fiberOver_eq` and `Place.fiber_eq_fiberOver`** are deferred with a
+  `grep -c 0` in the corpus. SET 1 did not write them; T5's
+  `card_fiberOver_mul_ramificationIndex_mul_inertiaDeg` is their first plausible
+  consumer, so T5 may re-add the first. `finite_setOf_forall_mem_and_ord_pos` is
+  deferred the same way (Riemann–Roch API, not this cone).
 - **Repo-wide prelude dedup.** The AC port writes the fibre dictionary once for its
   own cone; deduplicating the whole `AlgebraicCurve` layer across FLT is a larger,
   separate effort.
@@ -637,8 +741,15 @@ pin. The AC effort appends its `Theorems/Thm_AlgebraicCurve_*.lean` wrappers to
 (`Theorems/Thm_MulAction_ncard_orbit_inter_orbit_mul_card.lean`,
 `Theorems/Thm_Subgroup_exists_eq_mul_of_index_inf_eq.lean`) — and for the promoted
 private dictionary the comparison falls back to the dotted `S_` name exactly as it
-does for FFG's promotions. Three refinements carry over from the FFG record:
+does for FFG's promotions. Four refinements carry over from the FFG record:
 
+- **the checker's `norm` must strip `AlgebraicCurve.` as well as `ModularCurve.`**
+  (it currently strips only the latter); without it every AC statement written
+  under `namespace AlgebraicCurve` diffs against the pin's unqualified wrapper;
+- the AC definition modules are diffed against `Definitions/Def_AlgebraicCurve_*.lean`,
+  appended **after** every existing source (the checker keys by last name component
+  and first occurrence wins); `Definitions/Def_AlgebraicCurve_RatFuncPlaceInfty.lean`
+  is one of them (see §2.2);
 - take the declaration's binders from the `Theorems/` wrapper, not the `S_` file
   (playbook §7.4); the wrappers above are the source of the statements in §3;
 - the pin uses `P2M.Dup.AlgebraicCurve.*` aliases for a handful of
@@ -649,6 +760,31 @@ does for FFG's promotions. Three refinements carry over from the FFG record:
   list is `inputs`/`hall_all`/`gen_prime`). The AC layer is mostly transcription,
   so this list should be short — the promoted dictionary keeps its pinned names
   and is checked by the dotted fallback, not exempted.
+
+**SET 1's measured resolution** (what the above turned into; see
+[logs/ac-port.md](logs/ac-port.md) §1.4):
+
+- the two pin `S_` files are appended to `SOURCES` for the declarations that have
+  no wrapper: `S_AlgebraicCurve_Place_sum_ramificationIndex_mul_inertiaDeg_fiberOver.lean`
+  (the promoted dictionary's dotted fallback) and
+  `S_AlgebraicCurve_Place_sum_ramificationIndex_mul_inertiaDeg_bifiber.lean` (the
+  T4 shared prelude — `restrict_restrict`, `isIntegral_toAlgHom`,
+  `toAlgHom_comp_toAlgHom`, `inertiaDegAlong_congr`, matched by last name);
+- `BaseChangeGalois` is listed **before** `DivisorClassGroup`: the latter carries
+  the *dropped* second Galois action whose `smul_def`/`ord_smul`/`deg_smul` share
+  last names with the `SemilinearAut` block the port transcribes;
+- the one AC `OWN_PROOFS` entry is **`correspondence`**: the pin declares
+  `Divisor.correspondence` and `Pic0.correspondence` with the same last name and
+  the checker keeps the first, so no ordering can verify the second. Both port
+  copies were manually diffed against `Def_AlgebraicCurve_Correspondence.lean`
+  and match. The predicted `restrict`/`mk`/`deg`/`ord`/`ext` collisions did not
+  bite;
+- three AC statements carry the pin's deprecated primed `Ideal` text under
+  `set_option linter.deprecated false` (risk 4 above), and the promoted
+  dictionary is **16 public declarations plus `eq_ord_of_addHom_of_nonneg_iff`
+  kept `private`** — it has no consumer outside `neg_log_valuation_fiberCenter_eq_ord`,
+  so the whole-block surface decision settles at "public except the internal
+  uniqueness step".
 
 ### 7.2 The consumer
 
@@ -662,19 +798,27 @@ zones:
 - **Zone B `[interface]`** — T1's leaves at their pinned statements, plus a
   cross-module wire test: a concrete `ord`/degree computation that consumes a
   `Place` lemma from one port module and a `Divisor` lemma from another.
-- **Zone C `[exchange]`** — state `Divisor.pullbackAlong_pushforwardAlong_eq_...`
-  and apply it to a concrete abstract square (the `algebraAlong`/`IsScalarTower`
-  setup is itself the wire test), then compose with
-  `Pic0.correspondence_correspondence_comm`.
-- **Zone D `[principal]`** — `HasPrincipalDivisors K (RatFunc K)` and the
-  transcendence statement, and a composition of the two.
-- **Zone E `[hecke-inputs]`** — the conditional capstone: package the AC
-  hypotheses that `HeckeExchangeAt` needs (`hP`, `hsep`, and the exchange at every
-  roof) and show they imply `HeckeExchangeAt` *given* the ModularCurve layer as a
-  hypothesis. This is the AC-side analogue of FFG's `Spine.lean`, and like it,
-  should be built *first* among the AC artifacts: a proved conditional with no
-  `sorryAx` fixes the outbound interface and turns the remaining work into an
-  ordered debt rather than a subtree.
+- **Zone C `[dictionary]`** (after T2) — the promoted dictionary's
+  `ramificationIndex_eq_ramificationIdx_fiberCenter` and
+  `inertiaDeg_eq_inertiaDeg_fiberCenter` at their pin statements, plus
+  `sum_ramificationIndex_mul_inertiaDeg_le_finrank` on an abstract separable
+  extension. **Zone D** (T3, `[galois]`) — the Galois action/invariance checks.
+  **Zone E** (T4, `[transport]`) — `finiteAlong_comp`/`separableAlong_of_charZero`
+  on a concrete tower and a `Pic0` descent. **Zone F `[bifibre]`** (T5) and
+  **Zone G `[exchange]`** (T6) — the generic orbit count instantiated concretely,
+  and the local exchange on an abstract square. **Zone H `[principal]`** (T8) and
+  **Zone I `[transcendence]`** (T9) — the `P¹` classification/degree and
+  `HasPrincipalDivisors` composed. **Zone J `[exchange]`** (the human's T7) — state
+  `Divisor.pullbackAlong_pushforwardAlong_eq_...`, apply it to an abstract square,
+  and compose it with T4's `Divisor.correspondence_correspondence` by discharging
+  that theorem's `hex` hypothesis with the capstone.
+- **There is no `Spine.lean`-style conditional capstone for AC, and that is a
+  finding.** FFG needed one because its capstone had seven unported premises; here
+  every premise of T7 is an explicit argument or a `HasPrincipalDivisors` instance
+  that T9 *proves*. So the AC work is unconditional, and the analogue of the
+  conditional capstone is the consumer itself: Zone J's abstract-square wire test
+  fixes the outbound interface, and the only debt (the `ModularCurve` Hecke layer,
+  which is out of scope) is named in §0's table rather than bundled.
 
 ### 7.3 Axioms, build discipline, definition of done
 
@@ -684,6 +828,9 @@ zones:
 `timeout 60 lake env lean <file>` / `timeout 120 lake build <module>`; a
 non-return at 60 s is a blow-up to bisect, never a reason to raise
 `maxHeartbeats` (playbook §3.11). `Scratch.lean` (gitignored) carries probes.
+**Note the lakefile sets `maxHeartbeats` to 4,000,000 globally**, so a blow-up does
+*not* error at the default cap's ~20 s; the `timeout` bound is what quarantines it,
+and it is the first thing in every work order.
 
 Definition of done: `lake build` green with 0 warnings and no `sorry`; the AC
 consumer at 0 errors; the checker extended and reporting 0 mismatched / 0 missing;
@@ -697,13 +844,19 @@ note is the ModularCurve Hecke layer of §0.
 
 ## 8. Risks, in the order they will bite
 
-1. **T5's Galois-orbit count is the one genuinely new proof.** Everything else is
-   transcription against a mathlib API; the bifibre argument re-derives an
-   orbit-stabiliser count in a place-theoretic setting, and its two generic engine
-   nodes (`MulAction.ncard_orbit_inter_orbit_mul_card`,
-   `Subgroup.exists_eq_mul_of_index_inf_eq`) have no direct mathlib statement. Scout
-   it before pricing, and if the route is expensive but the clarity gain real, take
-   the route and record the cost, as FFG's T9 did.
+1. **T5's Galois-orbit count is the one genuinely new proof — resolved, and it was
+   cheap.** Everything else is transcription against a mathlib API; the bifibre
+   argument re-derives an orbit-stabiliser count in a place-theoretic setting, and
+   its two generic engine nodes (`MulAction.ncard_orbit_inter_orbit_mul_card`,
+   `Subgroup.exists_eq_mul_of_index_inf_eq`) have no direct mathlib statement. SET 2
+   ran the work order's scout gate first: the pin's proof of both statements
+   **transcribed unchanged** against mathlib v4.34's orbit–stabiliser API
+   (`MulAction.index_stabilizer`/`index_stabilizer_of_transitive`,
+   `QuotientGroup.eq`, `Equiv.sigmaFiberEquiv`, `Subgroup.card_mul_index`) in a
+   **3.2 s** `Scratch.lean` build, all seven private helpers unchanged. This is the
+   strongest instance yet of the FFG rule that *statements dictated ⇒ cheap*, even
+   for a generic proof mathlib does not have: the cost was the transcription, not
+   the mathematics. Recorded as a positive, not a lucky escape.
 2. **The `Place`↔mathlib bridge is a one-time decision in AC0/T1.** `Place` wraps
    a `ValuationSubring` with an `isPrincipalIdealRing'` field that `placeOfPrime`
    needs, plus a bespoke `Algebra`/`IsScalarTower` pair; the classification proofs
@@ -721,24 +874,39 @@ note is the ModularCurve Hecke layer of §0.
    load-bearing for the `IsFractionRing` instance. Transcribe literally, keep the
    reducibility attributes, and expect the module-level `linter.style.haveILetI`
    disable the FFG cone-algebra topics used.
-4. **The pin's mathlib aliases are deprecated.** `Ideal.sum_ramification_inertia`
-   (`le_finrank:388`), `Ideal.ramificationIdx_spec` (`:197`),
-   `Ideal.inertiaDeg_algebraMap` (`:352`) and `Ideal.inertiaDeg'_pos`
-   (`inertiaDeg_pos:213`) are deprecated in v4.33/v4.34; write the port against
-   `Ideal.sum_ramification_inertia_eq_finrank`, `Ideal.ramificationIdx'`,
-   `Ideal.inertiaDeg'` and the new unprimed API from the first declaration, or the
-   library carries warnings now and breaks at the next pin.
+4. **The pin's mathlib aliases are deprecated — and the replacement is *not* a
+   rename (measured in SET 1).** `Ideal.inertiaDeg'`, `Ideal.inertiaDeg_algebraMap`,
+   `Ideal.inertiaDeg'_pos` and `Ideal.ramificationIdx_spec` warn; their documented
+   replacements are `Ideal.inertiaDeg` (different argument order),
+   `Ideal.inertiaDeg'_algebraMap` (still primed), `Ideal.inertiaDeg_pos` and
+   `Ideal.ramificationIdx'_spec`. `Ideal.ramificationIdx'` is **not** deprecated.
+   The pin's `Ideal.sum_ramification_inertia` lives only in
+   `Mathlib.NumberTheory.RamificationInertia.Basic`, a **deprecated module** whose
+   import warning cannot be silenced (options cannot precede imports), and v4.34's
+   `Ideal.sum_ramification_inertia_eq_finrank` changed the statement shape
+   (`∑ q : p.primesOver S` with `Fintype`, RHS `Module.finrank R S`, against the
+   pin's `∑ P ∈ primesOverFinset p S`, `Module.finrank K L`). The settled handling
+   (T2, and T9's norm block): keep the pin's **statement** text so the checker stays
+   an exact diff, carry `set_option linter.deprecated false` with a one-line reason
+   in the affected module, and migrate the **proofs** using three bridges —
+   `IsFractionRing.finrank_eq`, `Finset.sum_subtype` +
+   `IsDedekindDomain.coe_primesOverFinset`/`mem_primesOverFinset_iff`, and
+   `Ideal.ramificationIdx'_eq_ramificationIdx`/`Ideal.inertiaDeg'_eq_inertiaDeg`.
+   The residual item is to migrate the statements themselves at the next pin.
 5. **`Ideal.relNorm_eq_pow_of_isMaximal` needs `PerfectField (FractionRing R)` in
-   v4.34.** The pin's T9 supplies only `[CharZero F]`; the port must let
-   `PerfectField` fire (a characteristic-zero field is perfect) rather than weaken
-   the statement. This is the reason the pin's separate `_of_isSeparable` route
-   exists, and it is why T9's norm block should not be merged with it.
-6. **Instance diamonds in the `P¹` route.** `Def_AlgebraicCurve_RatFuncPlaces:34-39`
-   declares global `IsRankOneDiscrete`/`IsTrivialOn` instances for
-   `adicValuation`; the pin's `S_` files disable them and re-prove `'` copies in
-   three files. The port must have exactly one instance set, or `synthInstance`
-   loops — the pin's sibling separable route already needs
-   `synthInstance.maxHeartbeats 1600000`.
+   v4.34 — resolved, fired without help.** The pin's T9 supplies only
+   `[CharZero F]`; SET 2 installs a private `CharZero v.toValuationSubring`
+   instance and `PerfectField (FractionRing v.toValuationSubring)` synthesizes from
+   `PerfectField.ofCharZero` via `IsFractionRing.charZero`. No statement weakened,
+   no hypothesis added. This is the reason the pin's separate `_of_isSeparable`
+   route exists, and it is why T9's norm block should not be merged with it.
+6. **Instance diamonds in the `P¹` route — did not materialize.** T8 kept exactly
+   one instance set (AC0's), wrote no `'` copies of the
+   `IsRankOneDiscrete`/`IsTrivialOn` bridge, and needed no `synthInstance` help;
+   `toValuationSubring_eq_of_forall_ne_ofHeightOneSpectrum` consumes Ostrowski
+   (`RatFunc.valuation_isEquiv_infty_or_adic`) directly. The only P¹-route drift
+   that did appear was `RatFunc.inftyValuation` now requiring
+   `[DecidableEq (RatFunc F)]` (see §5.1).
 7. **`Place.ord_algebraMap` lives outside the six modules.** It is at
    `Def_AlgebraicCurve_ConstantReduction.lean:57`, in a heavy unrelated module, and
    is consumed only by T8's base-degree file; port it as a standalone lemma in
@@ -748,11 +916,14 @@ note is the ModularCurve Hecke layer of §0.
    `DecidableEq (Place K E)` for the `Finset.filter` on `fiberAlong`, so keep the
    `classical` open and make the instance explicit if the port's `Place` does not
    synthesize it.
-9. **The out-of-cone duplicate is a library-consolidation win, not a cone saving.**
+9. **The out-of-cone duplicate — resolved by exposure.**
    `hasPrincipalDivisors_of_transcendental`'s ~720-line core equals
-   `S_AlgebraicCurve_hasPrincipalDivisors_of_finiteDimensional_ratFunc.lean`, and
-   `deg_ofHeightOneSpectrum`'s `WFf` block equals `Def_RatFuncPlaces:128-232`;
-   expose the finite-dimensional theorem publicly once so both consumers share it.
+   `S_AlgebraicCurve_hasPrincipalDivisors_of_finiteDimensional_ratFunc.lean` (and
+   `deg_ofHeightOneSpectrum`'s `WFf` block equals `Def_RatFuncPlaces:128-232`,
+   which AC0 wrote once). SET 2 exposed
+   `hasPrincipalDivisors_of_finiteDimensional_ratFunc` publicly and the checker
+   verifies it against the pin's second wrapper;
+   `deg_ofHeightOneSpectrum` was not rewritten at all.
 10. **`HasPrincipalDivisors` is stated at `K`-level, not `ℚ`-level.** The
     statement is generic in `K` of characteristic zero and `F` a finite separable
     extension of `K(t)`. Keep it generic; do not specialise to
@@ -827,25 +998,28 @@ python3 tools/deps/explore.py ModularCurve.heckeOperatorsCommuteBar   # the note
   re-defined locally by the degree file. The remaining choice is which of the two
   copies of `deg_ofHeightOneSpectrum` (the `S_` file's `WFf` block, or
   `Def_RatFuncPlaces:128-232`) to keep; write exactly one.
-- **How much of the promoted fibre dictionary should be public?** It has low
-  external indegree (it is `private` in all four pin copies), but T2, T5 and T9 all
-  consume it, so it gets one home (`Defs/PlaceDictionary.lean`). The open part is
-  the surface: the FFG precedent (`Defs/PhiAtSlot.lean`) exposes the whole block
-  and lets the checker verify it; a narrower interface (only
-  `inertiaDeg_eq_inertiaDeg_fiberCenter` and `ramificationIndex_eq_ramificationIdx_fiberCenter`)
-  would be smaller but would leave the uniqueness and residue-iso lemmas private
-  and unverified. Decide when the module is written, and record the `grep -c`.
+- **How much of the promoted fibre dictionary should be public? — answered by
+  SET 1: public except the internal uniqueness step.** `Defs/PlaceDictionary.lean`
+  exposes 16 declarations at the pinned names under `AlgebraicCurve.Place` and
+  keeps `eq_ord_of_addHom_of_nonneg_iff` `private` (its only consumer is
+  `neg_log_valuation_fiberCenter_eq_ord`). The whole block is verified: the pin's
+  `S_..._fiberOver.lean` is in `SOURCES` and the checker matches the promoted
+  names by last name / dotted fallback. The narrower-interface option was
+  rejected, as the FFG `Defs/PhiAtSlot.lean` precedent suggested.
 - **Is there a mathlib `Ideal.relNorm` route that skips the `normalizedFactors`
-  block?** T9's `relNorm_span_singleton` factors an ideal over the fibre-centre
-  primes by hand. mathlib has `Ideal.relNorm`, `Ideal.inertiaDeg'` and
-  `Ideal.count_normalizedFactors_eq`; whether the 100-line block is reducible to a
-  mathlib `relNorm`-of-a-power lemma is the one "route not mathematics" question
-  in T9, and should be audited the way T19's slot counting was.
+  block? — answered: no (measured negative).** T9's `relNorm_span_singleton`
+  factors an ideal over the fibre-centre primes by hand. SET 2's audit: mathlib has
+  `Ideal.relNorm`, `Ideal.relNorm_eq_pow_of_isMaximal` and
+  `Ideal.relNorm_singleton`, but not the fibre-centre inertia computation
+  (`relNorm (fiberCenter) = maximalIdeal ^ inertiaDeg`) nor the
+  `normalizedFactors` factorisation, so none of the ten norm-block declarations is
+  reducible. Keeping the block was the right call; the recorded negative saves a
+  future search.
 
 ## 11. Links
 
 The 63 AC nodes, the two generic engine nodes and their `Theorems/` wrappers are
-listed in §2; the six definition modules and the two studies in the header.
+listed in §2; the seven definition modules and the two studies in the header.
 Load-bearing public statements quoted above:
 
 - [`AlgebraicCurve.Divisor.pullbackAlong_pushforwardAlong_eq_pushforwardAlong_pullbackAlong`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_AlgebraicCurve_Divisor_pullbackAlong_pushforwardAlong_eq_pushforwardAlong_pullbackAlong.lean#L10)
