@@ -428,11 +428,84 @@ Three cautions, each grounded in the tree:
 
 ## 5. Where the port already is, and candidate next targets
 
-Already ported (all in the non-Frey region): `FLTForHuman/AlgebraicCurve/`
+Already ported — each of the three efforts finished, not in progress (all in the
+non-Frey region): `FLTForHuman/AlgebraicCurve/`
 (§3.1), `FLTForHuman/FieldTheory/` (the generic common-root kernel),
 `FLTForHuman/ModularCurve/` (the function-field-generation cone, inside §3.3),
 `FLTForHuman/ModularForms/` (the level-one q-expansion principle / R1, inside
 §3.4), and `FLTForHuman/Elliptic/` (the EDS / $`n`$-torsion part of §3.2).
+
+### 5.1 The three efforts are complete; their line budget is a fraction of the tree
+
+All three efforts are **finished**, each as a proof of its target statement with
+no `sorryAx`, a clean `#print axioms`, and its consumer spec at 0 errors:
+
+| effort | status | port lines | FLT shipped lines for the same target | ratio |
+|---|---|---:|---|---:|
+| card-torsion (`Elliptic/`) | complete | 3,371 | cone: 4 files / 3,671 lines | 0.92 |
+| functionFieldGeneration + $`\Phi_p`$/R1 (`ModularCurve/` + `FieldTheory/` + `ModularForms/`) | complete | 12,862 | FFG cone: 144 files / 24,402 lines | 0.53 |
+| AlgebraicCurve (`AlgebraicCurve/`) | complete | 5,295 | AC target: 5,210 `S_` + 2,867 def + 213 generic = ≈8,290 lines | 0.64 |
+
+**The ratio column is a line budget, not a completion percentage.** Each effort
+is 100% of its target theorem; FFG finishes at 53% of FLT's shipped lines
+because FLT repeats its shared prelude across files — the FFG survey measured
+the headline count as ~1.6× inflated by the one-`S_`-file-per-theorem layout —
+the port writes each shared block once, and the ports drop dead code (the AC
+record counts 737 content lines never written; the $`\Phi_p`$ port dropped ~200
+pin prelude lines belonging to char-$`p`$ variants outside the cone). So the
+three numbers that matter are "complete / complete / complete".
+
+Against the **whole** non-Frey tree there are two different numerators, and the
+second is the fair one:
+
+* **ported lines** (our rewrite) — 21,528 of 13,484,920 = **0.16%**;
+* **covered FLT lines** (the union of the cones the three efforts replace) —
+  24,402 (FFG cone) + 8,290 (AC target) + 3,671 (card-torsion cone) = **36,363**,
+  i.e. **0.27%** of the non-Frey tree. In theorem nodes the covered set is 133
+  distinct cones (70 FFG + 63 `AlgebraicCurve`, disjoint), **0.45%** of 29,511.
+
+The whole non-Frey tree is the wrong denominator to aim at, though: the project
+ports *chosen* cones (it is "portions of proofs … to enhance some of the
+material we are studying"), so the target set is open-ended and each closed cone
+is 100% done. If one wants a global target anyway, the "library-like generic"
+subset of §0 — the function-field curve layer, elliptic EDS/Vélu, the
+formal-group/$`p`$-divisible/Dieudonné layers, group cohomology and Hopf orders,
+Kummer, and the Čerednik–Drinfeld geometry — is on the order of **2.5M lines**
+(≈2.5M by summing those namespaces from §3), against which the covered 36,363
+lines are **≈1.4%**.
+
+### 5.2 The cones are nested, so the denominator decides the ratio
+
+The three efforts did **not** measure themselves against the whole tree. The
+`AlgebraicCurve` port measured its target as the `AlgebraicCurve` slice of
+`ModularCurve.heckeOperatorsCommuteBar`, and the coverage report for that
+theorem counts the whole `heckeOperatorsCommuteBar` cone. But that cone is a
+*subsection* of the Ribet level-lowering cone — all 225 of its nodes lie in the
+level-lowering closure. The ladder, computed the same way (transitive `S_`
+closures of the pinned target nodes):
+
+| cone | FLT nodes | FLT `S_` lines | ported | ratio |
+|---|---:|---:|---:|---:|
+| whole non-Frey tree | 29,447 | 13,484,920 | 36,363 covered (incl. defs) | 0.27% |
+| Ribet level-lowering cone (odd-prime step ∪ $`p`$-step) | 12,892 | 4,176,236 | 27,975 (133 nodes) | 0.7% |
+| `ModularCurve.heckeOperatorsCommuteBar` cone | 225 | 42,099 raw / 30,559 content | 31,530 raw / 22,980 content (143 nodes) | 75% of lines, 64% of nodes |
+
+Two facts keep the ladder honest:
+
+* the **level-lowering cone excludes modularity** — neither
+  `WeierstrassCurve.modularity_of_semistableModel` nor the Langlands–Tunnell
+  statement is in it. It is the `ModularCurve` (2,884 nodes) +
+  `CerednikDrinfeld` (2,376) + `AlgebraicGeometry` (2,891) +
+  `AlgebraicCurve` (891) + good-reduction/quaternion apparatus;
+* the **Frey-level** targets (`FreyPackage.level_lowering_to_two` and friends)
+  have a 27,852-node closure — 94% of the tree — because they consume
+  modularity of the Frey curve as well. Quoting a ratio against *those* would
+  be meaningless; the general steps above are the right cone.
+
+So the answer to "how far along is the port" is: **64% of the hecke-commute
+subsection, 0.7% of the Ribet level-lowering cone, 0.27% of the tree** — same
+work, three denominators. The level-lowering cone is the one that matches the
+`math/008` goal, and against it the three closed efforts have barely started.
 
 Candidates, in rough order of "generic content per unit of proof":
 
@@ -463,6 +536,105 @@ which slightly distorts the namespaces that serve two route steps; proof-line
 counts include boilerplate; and the "mostly under" step is a first-landmark
 heuristic. The counts in §2 for the Frey cap are the most robust numbers here,
 because that set is small enough to enumerate by hand.
+
+## 7. Arithmetic intensity: where the number theory is, and where it is not
+
+"Non-Frey" is not the same as "non-arithmetic". The Kummer segment is Frey-free
+and yet is pure algebraic number theory; conversely parts of the Frey cap are
+elementary. So, separately from §0, score each namespace by **how much of its
+content is about arithmetic-specific objects** — Galois representations,
+Frobenius, modular forms/eigenforms, Hecke, cyclotomic fields, class groups,
+conductors, ramification, inertia, Artin/$`L`$-functions, idèles, $`p`$-adic
+representations, Witt/Dieudonné, isogenies, torsion and reduction, Frey, Tate,
+Shimura, quaternion, Bruhat–Tits, Drinfeld, Néron, Kummer.
+
+The measure used: the fraction of a namespace's **English theorem titles** (from
+the docs site's `titles.js`, one per node) matching that vocabulary. It is a
+heuristic — a title can be vague — but the ordering below matches a direct
+reading of the statements.
+
+| group | nodes | `S_` lines | arithmetic share | what it is |
+|---|---:|---:|---:|---|
+| scheme theory & cohomology (`AlgebraicGeometry`, `TwoChartCech`) | 3,359 | 687,858 | ~4% | schemes, proper/smooth morphisms, `O`-modules, Čech, descent, flat base change, relative Picard, polarisations |
+| commutative algebra & linear algebra (`Module`, `Matrix`, `Ideal`, `Polynomial`, `Submodule`, `LinearMap`, `RingHom`, `AlgHom`, `IsIntegrallyClosed`, `IsRegularLocalRing`, `IsLocalRing`, `PowerSeries`, `MvPolynomial`, `MvPowerSeries`) | 1,458 | 312,789 | ~4–20% | regular local rings, depth/Krull dimension, Cohen–Macaulay, integral closedness/Hartogs, flatness, weakly regular sequences, localisation, Kummer/étale presentations |
+| function-field curve layer (`AlgebraicCurve`, `ValuationSubring`, `IsDedekindDomain`, `IsDiscreteValuationRing`) | 2,049 | 728,533 | ~14–42% | places, valuations, divisors, `Pic⁰`, differentials, residue, Riemann–Roch, Weil pairing, correspondences |
+| abelian schemes & good reduction (`GoodReductionJacobian`, `NeronModelInfra`, `WeierstrassProjModel`) | 943 | 254,917 | ~11–33% | abelian schemes, relative group laws, fibres, Néron-model readings |
+| formal / Hopf / Dieudonné algebra (`HopfAlgebra`, `groupCohomology`, `MvFormalGroup`, `FormalGroup`, `PDivisibleGroup`, `WittVector`, `Deformation`, `CohCarrier`) | 1,608 | 486,643 | formal algebra | Hopf orders/Raynaud forms, corestriction/restriction, Dieudonné modules, Witt vectors, $`p`$-divisible towers, Tate duality |
+| analysis (`MeasureTheory`, `Complex`, `RegularSingular`) | 209 | 59,709 | ~2–3% | $`L^2`$/convolution/compact operators on adelic groups, residue theorem and several complex variables, regular-singular ODE systems |
+| group theory (`Ihara`) | 36 | 46,914 | ~3% | $`\mathrm{SL}_2(\mathbb{Z})`$ amalgams, Schur multipliers, stem extensions, Ihara's lemma |
+
+For contrast, the arithmetic core: `LanglandsTunnell` and `AutomorphicForm`
+(adelic representations, $`L`$-functions, Tunnell), `GaloisRep`,
+`ResidualGaloisRep`, `GaloisRepAdic`, `Deformation`, `CohCarrier` ($`R = T`$),
+`CerednikDrinfeld`, `QuaternionAlgebra`, `TateCurve`, `DrinfeldCurve` (level
+lowering), the `ModularCurve` Hecke/Eisenstein layer, `NumberField`,
+`PadicAlgCl`, the Kummer files, and `FreyPackage`.
+
+Three cautions:
+
+* the score has false lows where a title is generic — `RubinSilverberg` scores
+  0% but is the arithmetic 3–5 switch, and `LT` scores 10% but is class field
+  theory. Treat the table as an ordering of *bulk* content, not a verdict on
+  individual files;
+* it also inflates the formal $`p`$-adic namespaces, since "Witt",
+  "Dieudonné", "formal group" and "$`p`$-divisible" match the vocabulary though
+  the work is formal algebra rather than Galois/automorphic arithmetic;
+* **less arithmetic is not easier.** The scheme-theoretic substrate and the
+  commutative-algebra block are large and technical; what they lack is number
+  theory, not difficulty.
+
+The ported areas are exactly the low-intensity ones — the function-field curve
+layer, the EDS/division-polynomial arithmetic, the generic field-theory kernel
+and the R1 analysis — which is why they were tractable to rewrite in mathlib
+style. The remaining low-arithmetic mass that is unported is the scheme/
+cohomology substrate, the commutative-algebra block, the analysis namespaces,
+and the formal-group/Hopf/Dieudonné algebra.
+
+### 7.1 The Galois representations attached to elliptic curves and modular forms
+
+The attached representations are the objects the whole proof reasons about, and
+they sit **between** the tiers: the *constructions* are formal, the *theorems
+about them* are arithmetic.
+
+| side | definition modules | lines | what it builds |
+|---|---|---:|---|
+| elliptic curve | `Def_EllipticCurve_TateModule`, `FrobeniusTrace`, `FrobeniusEndo`, `PointReduction`, `Def_WeierstrassCurve_ModularityProps` | 883 + 66 + 57 + 34 + 54 | `TateModule p M` as the projective limit of the $`M[p^n]`$; `proj`/`basisOfCard`/`finrank_eq_two`/`free`; `tateModuleRep` for `W : WeierstrassCurve ℚ`; Frobenius trace and reduction |
+| residual vocabulary | `Def_GaloisRep_Residual` | 105 | `ResidualGaloisRep`, `IsAttachedTo`, `IsOdd`, `IsUnramifiedAt`, `IsIrreducible`, `IsAbsolutelyIrreducible`, base change, `WeierstrassCurve.residualGaloisRepOf` |
+| modular form | `Def_ModularCurve_JZeroTateModule`, `EichlerShimuraData`, `Def_HeckeGalois_EichlerShimura`, `HeckeSeam`, `Def_CuspForm_HeckeGaloisRepDatum` | 113 + 240 + 228 + 327 + 38 | `tateHeckeRep`/`rationalGaloisRep`/`rationalHeckeRep` on $`T_pJ_0(N)`$; `EichlerShimuraData`/`IsLambdaAdicRealization`; the Hecke seam; the datum consumed by $`R = T`$; the Eichler–Shimura map $`H^1 \to S_2`$ (18 nodes) |
+
+Why they are on the low side of the scale:
+
+* the elliptic-curve construction is **$`\mathbb{Z}_p`$-linear algebra** — torsion
+  subgroups, projective limits, `ZMod`/`PadicInt`, bases and freeness — under a
+  single arithmetic hypothesis,
+  `hcard : ∀ n, Nat.card (M[p^n]) = (p^n)^2`. The module imports **mathlib plus
+  one local file** (`Def_GaloisRep_Adic`): `Padics.RingHoms`,
+  `LinearAlgebra.Dimension.Free`, `Algebra.Module.ZMod`, …;
+* the modular-form side is **module theory over the Hecke algebra**
+  (`HeckeAlg`-submodules of $`\prod_n J`$, `FreeOfRankTwo`, `IsPPowTorsion`);
+* the predicates (`IsOdd`, `IsUnramifiedAt`, `IsIrreducible`, `IsAttachedTo`)
+  are elementary representation theory, *defined* by Frobenius/inertia
+  conditions rather than proved arithmetic.
+
+The arithmetic sits in the **property theorems** over these definitions:
+absolute irreducibility of the residual representation
+(`WeierstrassCurve.exists_residualGaloisRep_isAbsolutelyIrreducible_trace_eq_apOfModel`),
+Frobenius characteristic polynomials equal to Hecke eigenvalues, local
+flat/ordinary conditions, and the $`R = T`$ machinery — the `ResidualGaloisRep`
+(92 nodes), `GaloisRepAdic` (135) and `GaloisRep` (127) clusters and the
+`CuspForm.IsNewform.*` family. Their cones are small as cones
+(`WeierstrassCurve.det_galoisRepModuleEnd_frobenius_eq`: 46 nodes / 6,361 lines;
+the residual-attachment equivalence through `HeckeGaloisRepDatum`: 77 nodes /
+15,486 lines) because they rest on the constructions, but they are the
+arithmetic core.
+
+**Porting angle.** The one arithmetic input to the elliptic-curve Tate-module
+construction is `hcard`, and this project's card-torsion effort already proves
+it (`card_torsion_of_isAlgClosed`). The 883-line definition module is otherwise
+$`\mathbb{Z}_p`$-linear algebra importing mathlib plus one local file, so it is
+a natural next port that connects directly to the finished `Elliptic/` effort —
+with the caveat that what it unlocks downstream (the property theorems,
+deformation theory) is arithmetic again.
 
 ## Sources
 
