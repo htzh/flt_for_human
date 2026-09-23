@@ -25,8 +25,14 @@
   `RealL` block and the `jt`/`jqC` glue from T7's file. The port imports T7's
   public `RealL` + closure instead (the payoff of T7 exporting it) and keeps only
   the tiny `jt`/`jqC`/`realL_jqC` glue private here. The Hecke matrices come from
-  `FLTForHuman.ModularForms.Defs.HeckeOperator` and the translates from
-  `FLTForHuman.ModularForms.HeckeQExpansion`.
+  `FLTForHuman.ModularForms.Defs.HeckeOperator`; the Hecke representatives on
+  `ℙ¹(𝔽_ℓ)` (`heckeRep`, `redMatrix`, `heckeRep_mul`, the four commutation
+  lemmas) come from `FLTForHuman.ModularForms.Defs.HeckeRepresentatives`, which
+  supersedes the *weakened* private copies this file used to carry (the pin's
+  `S_ModularCurve_cosetPoly_smul.lean` states them without the `g' 1 0 = …`
+  conjuncts the slash-invariance layer needs; the shared module ports the
+  stronger `S_ModularForm_heckeU_…_Gamma0` statements instead). The translates
+  come from `FLTForHuman.ModularForms.HeckeQExpansion`.
 
   The four public statements are verbatim from their `Theorems/` wrappers (so
   they use the wrappers' spelling, per T7's log §7.3); `hasSum_coeff_of_phiGenDescends`
@@ -46,6 +52,7 @@ import FLTForHuman.ModularCurve.Defs.Twist
 import FLTForHuman.ModularCurve.Defs.PhiGen
 import FLTForHuman.ModularCurve.Defs.Jq
 import FLTForHuman.ModularForms.Defs.HeckeOperator
+import FLTForHuman.ModularForms.Defs.HeckeRepresentatives
 import FLTForHuman.ModularForms.HeckeQExpansion
 import FLTForHuman.ModularForms.JqAnalyticModel
 import FLTForHuman.ModularForms.Hauptmodul
@@ -71,179 +78,17 @@ system. Reindexing the product by `Equiv.prod_comp` then gives invariance. -/
 namespace CosetPoly
 
 open ModularForm
-
-private theorem det_eq (g : SL(2, ℤ)) : g 0 0 * g 1 1 - g 0 1 * g 1 0 = 1 := by
-  have h := g.det_coe
-  rwa [Matrix.det_fin_two] at h
-
-section commutation
-
-variable {p : ℕ} (hp : p ≠ 0)
-include hp
-
-set_option backward.isDefEq.respectTransparency.types false in
-private theorem heckeMatrix_mul_of_eq (g : SL(2, ℤ)) (j j' : ℕ) (e : ℤ)
-    (he : g 0 1 + j * g 1 1 = j' * (g 0 0 + j * g 1 0) + p * e) :
-    ∃ g' : SL(2, ℤ), heckeMatrix p j * mapGL ℝ g = mapGL ℝ g' * heckeMatrix p j' := by
-  have hdet := det_eq g
-  refine ⟨⟨!![g 0 0 + j * g 1 0, e; p * g 1 0, g 1 1 - g 1 0 * j'], ?_⟩, ?_⟩
-  · rw [Matrix.det_fin_two_of]
-    linear_combination hdet + (g 1 0) * he
-  · ext i j
-    fin_cases i <;> fin_cases j <;>
-      simp [hp, Matrix.mul_apply, Fin.sum_univ_two]
-    all_goals first
-      | (have := congrArg (Int.cast : ℤ → ℝ) he; push_cast at this ⊢; linear_combination this)
-      | (have := congrArg (Int.cast : ℤ → ℝ) he; push_cast at this ⊢; linear_combination -this)
-      | ring1
-
-set_option backward.isDefEq.respectTransparency.types false in
-private theorem heckeMatrix_mul_of_eq' (g : SL(2, ℤ)) (j : ℕ) (e : ℤ)
-    (he : g 0 0 + j * g 1 0 = p * e) :
-    ∃ g' : SL(2, ℤ), heckeMatrix p j * mapGL ℝ g = mapGL ℝ g' * heckeDiagMatrix p := by
-  have hdet := det_eq g
-  refine ⟨⟨!![e, g 0 1 + j * g 1 1; g 1 0, p * g 1 1], ?_⟩, ?_⟩
-  · rw [Matrix.det_fin_two_of]
-    linear_combination hdet - (g 1 1) * he
-  · ext i j
-    fin_cases i <;> fin_cases j <;>
-      simp [hp, Matrix.mul_apply, Fin.sum_univ_two]
-    all_goals first
-      | (have := congrArg (Int.cast : ℤ → ℝ) he; push_cast at this ⊢; linear_combination this)
-      | (have := congrArg (Int.cast : ℤ → ℝ) he; push_cast at this ⊢; linear_combination -this)
-      | ring1
-
-set_option backward.isDefEq.respectTransparency.types false in
-private theorem heckeDiagMatrix_mul_of_eq (g : SL(2, ℤ)) (j' : ℕ) (e : ℤ)
-    (he : g 1 1 = g 1 0 * j' + p * e) :
-    ∃ g' : SL(2, ℤ), heckeDiagMatrix p * mapGL ℝ g = mapGL ℝ g' * heckeMatrix p j' := by
-  have hdet := det_eq g
-  refine ⟨⟨!![p * g 0 0, g 0 1 - g 0 0 * j'; g 1 0, e], ?_⟩, ?_⟩
-  · rw [Matrix.det_fin_two_of]
-    linear_combination hdet - (g 0 0) * he
-  · ext i j
-    fin_cases i <;> fin_cases j <;>
-      simp [hp, Matrix.mul_apply, Fin.sum_univ_two]
-    all_goals first
-      | (have := congrArg (Int.cast : ℤ → ℝ) he; push_cast at this ⊢; linear_combination this)
-      | (have := congrArg (Int.cast : ℤ → ℝ) he; push_cast at this ⊢; linear_combination -this)
-      | ring1
-
-set_option backward.isDefEq.respectTransparency.types false in
-private theorem heckeDiagMatrix_mul_of_eq' (g : SL(2, ℤ)) (e : ℤ) (he : g 1 0 = p * e) :
-    ∃ g' : SL(2, ℤ), heckeDiagMatrix p * mapGL ℝ g = mapGL ℝ g' * heckeDiagMatrix p := by
-  have hdet := det_eq g
-  refine ⟨⟨!![g 0 0, p * g 0 1; e, g 1 1], ?_⟩, ?_⟩
-  · rw [Matrix.det_fin_two_of]
-    linear_combination hdet + (g 0 1) * he
-  · ext i j
-    fin_cases i <;> fin_cases j <;>
-      simp [hp, Matrix.mul_apply, Fin.sum_univ_two]
-    all_goals first
-      | (have := congrArg (Int.cast : ℤ → ℝ) he; push_cast at this ⊢; linear_combination this)
-      | (have := congrArg (Int.cast : ℤ → ℝ) he; push_cast at this ⊢; linear_combination -this)
-      | ring1
-
-end commutation
+open ModularForm.HeckeRepresentatives
 
 section projectiveLine
 
-variable {p : ℕ}
-
-/-- The coset representative labelled by `x ∈ ℙ¹(𝔽_p)`: `heckeDiagMatrix p` at
-`∞` and `heckeMatrix p j` at `j`. -/
-private def heckeRep (p : ℕ) (x : OnePoint (ZMod p)) : GL (Fin 2) ℝ :=
-  x.elim (heckeDiagMatrix p) (fun j ↦ heckeMatrix p j.val)
-
-@[scoped simp] private theorem heckeRep_infty : heckeRep p ∞ = heckeDiagMatrix p := rfl
-
-@[scoped simp] private theorem heckeRep_coe (j : ZMod p) : heckeRep p j = heckeMatrix p j.val := rfl
-
-variable [Fact p.Prime]
-
-/-- `SL₂(ℤ)`'s action on `ℙ¹(𝔽_p)`: the transpose-inverse of `g` mod `p`. -/
-private def redMatrix (g : SL(2, ℤ)) : GL (Fin 2) (ZMod p) :=
-  Matrix.GeneralLinearGroup.mkOfDetNeZero
-    !![((g 1 1 : ℤ) : ZMod p), ((g 0 1 : ℤ) : ZMod p);
-      ((g 1 0 : ℤ) : ZMod p), ((g 0 0 : ℤ) : ZMod p)]
-    (by
-      have := congrArg (Int.cast : ℤ → ZMod p) (det_eq g)
-      push_cast at this
-      rw [Matrix.det_fin_two_of,
-        show ((g 1 1 : ℤ) : ZMod p) * ((g 0 0 : ℤ) : ZMod p) -
-            ((g 0 1 : ℤ) : ZMod p) * ((g 1 0 : ℤ) : ZMod p) = 1 by linear_combination this]
-      exact one_ne_zero)
-
-@[scoped simp] private theorem redMatrix_apply_zero_zero (g : SL(2, ℤ)) :
-    redMatrix (p := p) g 0 0 = ((g 1 1 : ℤ) : ZMod p) := by
-  simp [redMatrix]
-
-@[scoped simp] private theorem redMatrix_apply_zero_one (g : SL(2, ℤ)) :
-    redMatrix (p := p) g 0 1 = ((g 0 1 : ℤ) : ZMod p) := by
-  simp [redMatrix]
-
-@[scoped simp] private theorem redMatrix_apply_one_zero (g : SL(2, ℤ)) :
-    redMatrix (p := p) g 1 0 = ((g 1 0 : ℤ) : ZMod p) := by
-  simp [redMatrix]
-
-@[scoped simp] private theorem redMatrix_apply_one_one (g : SL(2, ℤ)) :
-    redMatrix (p := p) g 1 1 = ((g 0 0 : ℤ) : ZMod p) := by
-  simp [redMatrix]
-
-private instance : NeZero p := ⟨(Fact.out : p.Prime).ne_zero⟩
-
-private theorem heckeRep_mul (g : SL(2, ℤ)) (x : OnePoint (ZMod p)) :
-    ∃ g' : SL(2, ℤ), heckeRep p x * mapGL ℝ g = mapGL ℝ g' * heckeRep p (redMatrix (p := p) g • x) := by
-  have hp : p ≠ 0 := (Fact.out : p.Prime).ne_zero
-  induction x using OnePoint.rec with
-  | infty =>
-    rw [OnePoint.smul_infty_eq_ite]
-    by_cases hc : ((g 1 0 : ℤ) : ZMod p) = 0
-    ·
-      rw [ite_eq_left (by simpa using hc), heckeRep_infty]
-      obtain ⟨e, he⟩ := (ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mp hc
-      exact heckeDiagMatrix_mul_of_eq' hp g e he
-    ·
-      rw [ite_eq_right (by simpa using hc), heckeRep_infty, heckeRep_coe]
-      set y : ZMod p := redMatrix (p := p) g 0 0 / redMatrix (p := p) g 1 0 with hy
-      obtain ⟨e, he⟩ : (p : ℤ) ∣ g 1 1 - g 1 0 * y.val := by
-        rw [← ZMod.intCast_zmod_eq_zero_iff_dvd]
-        push_cast
-        rw [ZMod.natCast_zmod_val, hy, redMatrix_apply_zero_zero, redMatrix_apply_one_zero,
-          mul_div_cancel₀ _ hc, sub_self]
-      exact heckeDiagMatrix_mul_of_eq hp g y.val e (by linear_combination he)
-  | coe j =>
-    rw [OnePoint.smul_some_eq_ite]
-    by_cases h : redMatrix (p := p) g 1 0 * j + redMatrix (p := p) g 1 1 = 0
-    ·
-      rw [ite_eq_left h, heckeRep_infty, heckeRep_coe]
-      rw [redMatrix_apply_one_zero, redMatrix_apply_one_one] at h
-      obtain ⟨e, he⟩ : (p : ℤ) ∣ g 0 0 + j.val * g 1 0 := by
-        rw [← ZMod.intCast_zmod_eq_zero_iff_dvd]
-        push_cast
-        rw [ZMod.natCast_zmod_val]
-        linear_combination h
-      exact heckeMatrix_mul_of_eq' hp g j.val e he
-    ·
-      rw [ite_eq_right h, heckeRep_coe, heckeRep_coe]
-      set y : ZMod p := (redMatrix (p := p) g 0 0 * j + redMatrix (p := p) g 0 1) /
-        (redMatrix (p := p) g 1 0 * j + redMatrix (p := p) g 1 1) with hy
-      obtain ⟨e, he⟩ : (p : ℤ) ∣ g 0 1 + j.val * g 1 1 - y.val * (g 0 0 + j.val * g 1 0) := by
-        rw [← ZMod.intCast_zmod_eq_zero_iff_dvd]
-        push_cast
-        rw [ZMod.natCast_zmod_val, ZMod.natCast_zmod_val,
-          show ((g 0 0 : ℤ) : ZMod p) + j * ((g 1 0 : ℤ) : ZMod p)
-            = redMatrix (p := p) g 1 0 * j + redMatrix (p := p) g 1 1 by
-              rw [redMatrix_apply_one_zero, redMatrix_apply_one_one]; ring,
-          hy, div_mul_cancel₀ _ h, redMatrix_apply_zero_zero, redMatrix_apply_zero_one]
-        ring
-      exact heckeMatrix_mul_of_eq hp g j.val y.val e (by linear_combination he)
+variable {p : ℕ} [Fact p.Prime]
 
 private theorem apply_heckeRep_smul_smul (F : ℍ → ℂ)
     (hF : ∀ (γ : SL(2, ℤ)) (τ : ℍ), F (γ • τ) = F τ) (g : SL(2, ℤ))
     (x : OnePoint (ZMod p)) (τ : ℍ) :
     F (heckeRep p x • g • τ) = F (heckeRep p (redMatrix (p := p) g • x) • τ) := by
-  obtain ⟨g', hmul⟩ := heckeRep_mul g x
+  obtain ⟨g', -, hmul⟩ := heckeRep_mul (N := 1) (Fact.out : p.Prime).not_dvd_one g (one_dvd _) x
   have h1 : heckeRep p x • g • τ = (heckeRep p x * mapGL ℝ g) • τ := by
     rw [mul_smul]; rfl
   have h2 : (mapGL ℝ g' * heckeRep p (redMatrix (p := p) g • x)) • τ

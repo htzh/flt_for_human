@@ -17,6 +17,12 @@ declarations under the port declaration's dotted name (`TPoleOrderLE.neg`), whic
 is what the port writes. Those are reported as "promoted from pin-private
 declarations".
 
+Since SET-3 T5 the fallback additionally registers each pin declaration under its
+**enclosing-namespace-qualified** name, so a last name that occurs twice in the
+pin under two namespaces (e.g. `ModularForm.heckeTLin` and `CuspForm.heckeTLin`)
+also resolves; the bare last-name key is still registered, so earlier matches are
+unchanged.
+
 Usage:
 
     python3 spec/check_flt_statements.py [--flt ~/proj/fermats-last-theorem]
@@ -399,6 +405,114 @@ SOURCES = [
     # reproduce (it imports `AlgebraicCurve.BifibreDev.restrict_restrict` from
     # `WeilExchange/Transport.lean`, already verified through the `bifiber` source).
     "Theorems/Thm_AlgebraicCurve_Divisor_pullbackAlong_pushforwardAlong_eq_pushforwardAlong_pullbackAlong.lean",
+    # --- The Hecke-operator topic (Tier 0 + Tier 1) --------------------------
+    # The five Tier-1 slash-invariance nodes are public `Theorems/` wrappers, so
+    # they verify by direct name match. The wrappers come *before* the pin's `S_`
+    # carrier so their binder spelling is the authority. The `S_` file supplies
+    # the shared representative block promoted into
+    # `FLTForHuman/ModularForms/Defs/HeckeRepresentatives.lean` (`det_eq`, the
+    # four `_mul_of_eq` lemmas, `heckeRep`/`redMatrix`/`heckeRep_mul`,
+    # `sum_range_eq_sum_zmod`, `affinePerm`, `heckeMatrix_mul_of_dvd` and the two
+    # `_slash_mapGL` workhorses); it is the exact Γ₀ copy whose statements carry
+    # the `g' 1 0 = …` conjunct the port's old private copy had dropped.
+    "Theorems/Thm_ModularForm_heckeU_slash_eq_self_of_mem_Gamma0.lean",
+    "Theorems/Thm_ModularForm_heckeT_slash_eq_self_of_mem_Gamma0.lean",
+    "Theorems/Thm_ModularForm_heckeU_slash_eq_self_of_mem_Gamma0_div.lean",
+    "Theorems/Thm_ModularForm_heckeU_add_slash_fricke_eq_zero.lean",
+    "Theorems/Thm_ModularForm_exists_levelOne_coe_eq_zpow_smul_add_heckeU_slash_fricke.lean",
+    "P2M/Sol/S_ModularForm_heckeU_slash_eq_self_of_mem_Gamma0.lean",
+    # --- SET-2 T3: the analytic regularity layer ----------------------------
+    # The seven regularity targets are public `Theorems/` wrappers, so they
+    # verify by direct name match. The wrappers come before the pin's `S_`
+    # carriers because the checker is textual and the wrappers' explicit binders
+    # are the statement authority. The pin repeats this analytic head in ten
+    # `S_` files; only the first is listed, for the two promoted `1 0 = 0`
+    # matrix helpers if a later topic makes them public (they stay `private`
+    # here, so the checker never asks for them).
+    "Theorems/Thm_ModularForm_mdifferentiable_heckeU.lean",
+    "Theorems/Thm_ModularForm_mdifferentiable_heckeT.lean",
+    "Theorems/Thm_ModularForm_mdifferentiable_slash_heckeDiagMatrix.lean",
+    "Theorems/Thm_ModularForm_periodic_heckeU_comp_ofComplex.lean",
+    "Theorems/Thm_ModularForm_periodic_heckeT_comp_ofComplex.lean",
+    "Theorems/Thm_ModularForm_isBoundedAtImInfty_heckeU.lean",
+    "Theorems/Thm_ModularForm_isBoundedAtImInfty_heckeT.lean",
+    "P2M/Sol/S_ModularForm_mdifferentiable_heckeU.lean",
+    # --- SET-2 T4: the cusp-class layer -------------------------------------
+    # The four nodes are public `Theorems/` wrappers, so they verify by direct
+    # name match. The pin's four `S_` files are 132 lines each with an identical
+    # block; everything in the block is `private` in the port, so no carrier is
+    # needed. `upperTriangularGL`/`val_upperTriangularGL` were promoted public in
+    # `Defs/HeckeOperator.lean` and match the pin's definition file (listed far
+    # above).
+    "Theorems/Thm_ModularFormClass_isBoundedAt_heckeU.lean",
+    "Theorems/Thm_ModularFormClass_isBoundedAt_heckeT.lean",
+    "Theorems/Thm_CuspFormClass_isZeroAt_heckeU.lean",
+    "Theorems/Thm_CuspFormClass_isZeroAt_heckeT.lean",
+    # --- SET-3 T5: the `q`-coefficient layer ---------------------------------
+    # The fifteen targets are public `Theorems/` wrappers, so they verify by name.
+    # The three pairs with the same last name in two namespaces
+    # (`qCoeff_hecke{U,T}`, `qCoeff_comp_heckeDiagMatrix_smul`: once under
+    # `UpperHalfPlane`, once under `ModularFormClass`) are declared in the port
+    # with their dotted wrapper names so the checker's dotted fallback routes each
+    # copy to its own wrapper; `SOURCES` order is therefore irrelevant for them.
+    # `ModularFormClass.qCoeff` is the pin's definition from
+    # `Definitions/Def_FLTPrelim_Modularity.lean`, whose definition module is
+    # appended last (its only overlapping last name is `qCoeff` itself).
+    # `Definitions/Def_PowerSeries_FormalHeckeOperators.lean` is the source for
+    # the five non-colliding `PowerSeries` declarations; its `heckeU`/`heckeT`
+    # are the dotted `OWN_PROOFS` exemptions.
+    "Theorems/Thm_UpperHalfPlane_qCoeff_heckeU.lean",
+    "Theorems/Thm_UpperHalfPlane_qCoeff_heckeT.lean",
+    "Theorems/Thm_UpperHalfPlane_qCoeff_comp_heckeDiagMatrix_smul.lean",
+    "Theorems/Thm_UpperHalfPlane_eq_of_forall_qCoeff_eq.lean",
+    "Theorems/Thm_ModularFormClass_qCoeff_heckeU.lean",
+    "Theorems/Thm_ModularFormClass_qCoeff_heckeT.lean",
+    "Theorems/Thm_ModularFormClass_qCoeff_comp_heckeDiagMatrix_smul.lean",
+    "Theorems/Thm_ModularFormClass_qExpansion_heckeU_eq_heckeU.lean",
+    "Theorems/Thm_ModularFormClass_qExpansion_heckeT_eq_heckeT.lean",
+    "Theorems/Thm_ModularForm_qExpansion_heckeDiagMatrix_smul_eq_qExpand_of_levelOne.lean",
+    "Theorems/Thm_ModularForm_coeffHeckeT_comm.lean",
+    "Theorems/Thm_ModularForm_coeffHeckeU_comm.lean",
+    "Theorems/Thm_ModularForm_coeffHeckeT_coeffHeckeU_comm.lean",
+    "Theorems/Thm_ModularForm_coeffHeckeT_int.lean",
+    "Theorems/Thm_ModularForm_coeffHeckeU_int.lean",
+    "Definitions/Def_PowerSeries_FormalHeckeOperators.lean",
+    "Definitions/Def_FLTPrelim_Modularity.lean",
+    # --- SET-3 T6: the bundled linear maps -----------------------------------
+    # The twelve bundled declarations have no `Theorems/` wrapper; they verify by
+    # name against the pin's `Definitions/Def_ModularForm_HeckeOperatorForms.lean`.
+    # The pin declares them once under `namespace ModularForm` and once under
+    # `namespace CuspForm`; the checker's namespace-qualified fallback (SET-3 T5)
+    # is what lets the `CuspForm` copies match their own declarations. The three
+    # thin downstream wrappers are public `Theorems/` files.
+    "Definitions/Def_ModularForm_HeckeOperatorForms.lean",
+    "Theorems/Thm_CuspForm_qExpansion_heckeTLin.lean",
+    "Theorems/Thm_CuspForm_exists_coe_eq_heckeT.lean",
+    "Theorems/Thm_CuspForm_exists_coe_eq_heckeU.lean",
+    # --- SET-3 T7: commutation and the Hecke algebra -------------------------
+    # The five `LaurentSeries` definition declarations have no `Theorems/`
+    # wrapper in the pin, so their two definition modules are the comparable
+    # copies; `heckeU`/`heckeT`/`coeff_hecke{U,T}` also occur in the PowerSeries
+    # and ModularForm definition files, and the checker's namespace-qualified
+    # fallback separates the `LaurentSeries.*` copies. The Hecke algebra's
+    # fourteen declarations likewise verify against
+    # `Definitions/Def_CuspForm_HeckeAlgebra.lean`. The thirteen commutation
+    # targets are public `Theorems/` wrappers.
+    "Definitions/Def_LaurentSeries_HeckeU.lean",
+    "Definitions/Def_LaurentSeries_HeckeV.lean",
+    "Definitions/Def_CuspForm_HeckeAlgebra.lean",
+    "Theorems/Thm_ModularFormClass_heckeU_heckeU_comm.lean",
+    "Theorems/Thm_ModularFormClass_heckeT_heckeT_comm.lean",
+    "Theorems/Thm_ModularFormClass_heckeT_heckeU_comm.lean",
+    "Theorems/Thm_CuspForm_heckeTLin_comm.lean",
+    "Theorems/Thm_CuspForm_heckeULin_comm.lean",
+    "Theorems/Thm_CuspForm_heckeTLin_heckeULin_comm.lean",
+    "Theorems/Thm_ModularForm_heckeTLin_comm.lean",
+    "Theorems/Thm_LaurentSeries_commute_heckeU_heckeU.lean",
+    "Theorems/Thm_LaurentSeries_commute_heckeU_heckeV.lean",
+    "Theorems/Thm_LaurentSeries_commute_heckeV_heckeV.lean",
+    "Theorems/Thm_LaurentSeries_commute_heckeU_heckeT.lean",
+    "Theorems/Thm_LaurentSeries_commute_heckeT_heckeT.lean",
 ]
 
 PORT_FILES = [
@@ -419,6 +533,20 @@ PORT_FILES = [
     "FLTForHuman/ModularForms/JqAnalyticModel.lean",
     "FLTForHuman/ModularForms/Hauptmodul.lean",
     "FLTForHuman/ModularForms/Defs/HeckeOperator.lean",
+    "FLTForHuman/ModularForms/Defs/HeckeRepresentatives.lean",
+    "FLTForHuman/ModularForms/HeckeInvariance.lean",
+    "FLTForHuman/ModularForms/HeckeFricke.lean",
+    "FLTForHuman/ModularForms/HeckeAnalytic.lean",
+    "FLTForHuman/ModularForms/HeckeCusps.lean",
+    # SET-3 T5: the formal `PowerSeries` operators and the shared `q`-coefficient tail.
+    "FLTForHuman/ModularForms/Defs/FormalHeckeOperators.lean",
+    "FLTForHuman/ModularForms/HeckeQCoeff.lean",
+    # SET-3 T6: the bundled `heckeTLin`/`heckeULin` and the three thin wrappers.
+    "FLTForHuman/ModularForms/HeckeOperatorForms.lean",
+    # SET-3 T7: the formal-series operators, the commutations and the algebra.
+    "FLTForHuman/ModularCurve/Defs/LaurentSeriesHecke.lean",
+    "FLTForHuman/ModularForms/HeckeCommute.lean",
+    "FLTForHuman/ModularForms/HeckeAlgebra.lean",
     "FLTForHuman/ModularForms/HeckeQExpansion.lean",
     "FLTForHuman/ModularForms/PhiGenDescends.lean",
     "FLTForHuman/ModularCurve/PhiGenIntegrality.lean",
@@ -485,7 +613,8 @@ PORT_FILES = [
 # here uses mathlib's pentagonal route over `etaProd`; see
 # `FLTForHuman/ModularCurve/JqCoefficients.lean` and `topics/functionFieldGeneration/TOPIC-jq-coefficients.md`.
 # Listing them explicitly keeps "0 missing" meaningful: an unlisted new
-# declaration still fails the check.
+# declaration still fails the check. Entries may be either a last name (the usual
+# form) or a dotted name, which exempts only that qualified declaration.
 OWN_PROOFS = {
     "coeff_jq_zero",
     "coeff_jq_one",
@@ -544,24 +673,69 @@ OWN_PROOFS = {
 }
 
 # Declaration keywords. `instance` matters for PhiGen; `structure` for Polynomial.
-# The optional `private` prefix is what lets the *source* side see the pin's
-# `private` helpers: FLT keeps the shared `TPoleOrderLE` prelude private in the
-# six files that repeat it (or exposes it only through its `p2m_export` alias, a
-# command the text checker cannot follow), yet the port promotes it into `Defs/`
-# so later modules can import it. Port declarations are still read without the
-# prefix, so a `private` port helper is never diffed.
+# The optional `mods` group carries `private` and/or `noncomputable`. `private`
+# is what lets the *source* side see the pin's `private` helpers: FLT keeps the
+# shared `TPoleOrderLE` prelude private in the six files that repeat it (or
+# exposes it only through its `p2m_export` alias, a command the text checker
+# cannot follow), yet the port promotes it into `Defs/` so later modules can
+# import it. Port declarations are still read without the `private` flag, so a
+# `private` port helper is never diffed. `noncomputable` (SET-3 T7) exposes the
+# pin's inline `noncomputable def`s, e.g. `Def_LaurentSeries_Hecke{U,V}.lean`'s
+# `heckeU`/`heckeV`/`heckeT`; the port writes `noncomputable section` + plain
+# `def`, so only the source side needed the extra alternative.
 # The optional leading `attrs` group makes an attributed declaration on a single
 # line (`@[scoped simp] theorem qTwistEquiv_apply …`, T14) visible. Without it
 # the regex anchors on `theorem`, so such a declaration was invisible on *both*
 # sides; with it, the port's copy is verified like any other. Adding it changed
 # no other match (T14 re-ran the checker: 0 mismatched, 0 missing).
 DECL_RE = re.compile(
-    r"^(?P<attrs>(?:@\[[^\]\n]*\]\s*)*)(?P<priv>private\s+)?"
+    r"^(?P<attrs>(?:@\[[^\]\n]*\]\s*)*)(?P<mods>(?:(?:private|noncomputable)\s+)*)"
     r"(?P<kind>def|theorem|lemma|abbrev|structure|instance)\s+"
     r"(?P<name>[\w.'ₐ]+)",
     re.MULTILINE,
 )
 FIELD_RE = re.compile(r"^\s{2,}([\w'ₐ]+)\s*:", re.MULTILINE)
+
+# Enclosing-namespace tracking.  The same last name can occur twice in one pinned
+# file under two different namespaces (e.g. `ModularForm.heckeTLin` and
+# `CuspForm.heckeTLin` in `Def_ModularForm_HeckeOperatorForms.lean`, or
+# `PowerSeries.heckeU` and `ModularForm.heckeU` across two definition files).  The
+# last-name lookup keeps only the first; qualifying each declaration by its
+# enclosing `namespace` gives the checker's dotted fallback a key for the second.
+# `section`/`mutual` openers are tracked too, because `end` closes whichever is
+# innermost.  Only key construction changes; the last-name (`name`) lookups are
+# untouched.
+ENCLOSE_RE = re.compile(
+    r"^(?P<indent>\s*)(?:(?P<ns>namespace)\s+(?P<nsname>[\w.']+)"
+    r"|(?P<sec>(?:(?:noncomputable|private|protected)\s+)*section)\b"
+    r"|(?P<mut>mutual)\b"
+    r"|(?P<end>end)\b)",
+    re.MULTILINE,
+)
+
+
+def strip_line_comments(text: str) -> str:
+    """Drop `--` comments (used only for the namespace scan)."""
+    return re.sub(r"--[^\n]*", "", text)
+
+
+def namespace_events(text: str) -> list[tuple[int, str, str | None]]:
+    """(position, kind, name) for every namespace/section/mutual/end at line start."""
+    out: list[tuple[int, str, str | None]] = []
+    for m in ENCLOSE_RE.finditer(strip_line_comments(text)):
+        if m.group("ns"):
+            out.append((m.start(), "ns", m.group("nsname")))
+        elif m.group("mut"):
+            out.append((m.start(), "sec", None))
+        elif m.group("sec"):
+            out.append((m.start(), "sec", None))
+        else:
+            out.append((m.start(), "end", None))
+    return out
+
+
+def enclosing_namespace(stack: list[str | None]) -> str:
+    return ".".join(x for x in stack if x)
 
 
 def strip_comments(text: str) -> str:
@@ -614,9 +788,21 @@ def raw_declarations(text: str, include_private: bool = False) -> list[tuple[str
     """
     text = strip_comments(text)
     matches = list(DECL_RE.finditer(text))
+    events = namespace_events(text)
     out: list[tuple[str, str, str]] = []
+    stack: list[str | None] = []
+    ei = 0
     for idx, m in enumerate(matches):
-        if m.group("priv") and not include_private:
+        while ei < len(events) and events[ei][0] < m.start():
+            _, ekind, ename = events[ei]
+            if ekind == "ns":
+                stack.append(ename)
+            elif ekind == "sec":
+                stack.append(None)
+            elif stack:
+                stack.pop()
+            ei += 1
+        if "private" in m.group("mods") and not include_private:
             continue
         end = matches[idx + 1].start() if idx + 1 < len(matches) else len(text)
         chunk = text[m.end() : end]
@@ -627,7 +813,10 @@ def raw_declarations(text: str, include_private: bool = False) -> list[tuple[str
             )
         else:
             stmt = norm(chunk[: top_level_cut(chunk)])
-        out.append((m.group("name"), kind, stmt))
+        prefix = enclosing_namespace(stack)
+        name = m.group("name")
+        raw = f"{prefix}.{name}" if prefix else name
+        out.append((raw, kind, stmt))
     return out
 
 
@@ -652,7 +841,9 @@ def promoted_key(raw: str) -> str:
     `qExpand` no longer collide with the unrelated top-level declarations the
     last-name public lookup finds first.
     """
-    raw = re.sub(r"^_root_\.", "", raw)
+    # `_root_.` may now be preceded by an enclosing-namespace prefix, so strip it
+    # wherever it occurs rather than only at the start.
+    raw = re.sub(r"(?:^|\.)_root_\.", ".", raw).lstrip(".")
     parts = raw.split(".")
     return ".".join(parts[-2:]) if len(parts) >= 2 else parts[-1]
 
@@ -683,13 +874,20 @@ def main() -> int:
             source.setdefault(name, (kind, stmt, rel))
         for raw, kind, stmt in raw_declarations(text, include_private=True):
             dotted_source.setdefault(promoted_key(raw), (kind, stmt, rel))
+            # Keep the pre-namespace-tracking behaviour as well: the bare last
+            # name is registered too, so a port declaration that spells the pin's
+            # promoted prelude as `ModularCurve.tight_one` (whose dotted key the
+            # pin's nested `W1` namespace would not supply) still matches by last
+            # name. The qualified key is what disambiguates a genuine same-file
+            # collision (`CuspForm.heckeTLin` vs `ModularForm.heckeTLin`).
+            dotted_source.setdefault(promoted_key(raw.rsplit(".", 1)[-1]), (kind, stmt, rel))
 
     ok = promoted = missing = mismatch = own = 0
     for rel in PORT_FILES:
         p = LEAN / rel
         for raw, kind, stmt in raw_declarations(p.read_text(encoding="utf-8")):
             name = raw.rsplit(".", 1)[-1]
-            if name in OWN_PROOFS:
+            if raw in OWN_PROOFS or name in OWN_PROOFS:
                 own += 1
                 continue
             if name in source and source[name][0] == kind and source[name][1] == stmt:
