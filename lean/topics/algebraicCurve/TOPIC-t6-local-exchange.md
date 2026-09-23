@@ -6,7 +6,7 @@ T2/T3/T4.
 
 **Audience.** A fresh session continuing SET 2 after T5's `Bifibre.lean` lands. The
 method is [porting-playbook.md](../../porting-playbook.md) §3–§5; the plan is
-[PORTING-AC.md](../../PORTING-AC.md) §3.1, §3.3 and §8 (risk 3).
+[PORTING-AC.md](../PORTING-AC.md) §3.1, §3.3 and §8 (risk 3).
 
 **Goal.** Prove `Place.sum_ramificationIndex_mul_inertiaDeg_exchange` in
 `FLTForHuman/AlgebraicCurve/WeilExchange/LocalExchange.lean`, by the pin's two-stage

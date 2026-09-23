@@ -7,7 +7,7 @@ done even if the T5 scout stalls.
 
 **Audience.** A fresh session continuing SET 2. The method is
 [porting-playbook.md](../../porting-playbook.md) §3–§5; the plan is
-[PORTING-AC.md](../../PORTING-AC.md) §3.2 (Route B), §5 (T8's note) and §8
+[PORTING-AC.md](../PORTING-AC.md) §3.2 (Route B), §5 (T8's note) and §8
 (risk 6). Read the SET 1 hand-off in [SET-2.md](SET-2.md) §0 — in particular that
 **AC0 already ported the `P¹` vocabulary and the `WFf` residue-field block** into
 `Defs/RatFuncPlaces.lean`.

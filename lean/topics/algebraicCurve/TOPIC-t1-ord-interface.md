@@ -7,7 +7,7 @@ checker work in §5). Depends on **AC0**.
 **Audience.** A fresh session continuing the `AlgebraicCurve` port after AC0's
 `Defs/` vocabulary builds green and consumer Zone A is at 0 errors. The method is
 [porting-playbook.md](../../porting-playbook.md) §3–§5; the plan is
-[PORTING-AC.md](../../PORTING-AC.md) §5 (T1's note) and §8 (risks 2 and 4).
+[PORTING-AC.md](../PORTING-AC.md) §5 (T1's note) and §8 (risks 2 and 4).
 
 **Goal.** Expose the cone's **outbound interface**: the `ord`/valuation lemmas the
 rest of FLT reaches the `AlgebraicCurve` layer through, plus the two generic

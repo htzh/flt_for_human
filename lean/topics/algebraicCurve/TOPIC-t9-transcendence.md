@@ -6,7 +6,7 @@ SET 2; read [SET-2.md](SET-2.md) first. Depends on **T8** and SET 1's **T2**
 
 **Audience.** A fresh session closing SET 2. The method is
 [porting-playbook.md](../../porting-playbook.md) §3–§5; the plan is
-[PORTING-AC.md](../../PORTING-AC.md) §3.2 (Route B), §5 (T9's note) and §8 (risks 5
+[PORTING-AC.md](../PORTING-AC.md) §3.2 (Route B), §5 (T9's note) and §8 (risks 5
 and 9). Read the SET 1 hand-off in [SET-2.md](SET-2.md) §0 — the 16-declaration
 fibre dictionary is already public in `Defs/PlaceDictionary.lean` and **must be
 imported, not restated**.

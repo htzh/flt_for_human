@@ -11,7 +11,7 @@ here.
 The run brief is [topics/algebraicCurve/SET-1.md](../topics/algebraicCurve/SET-1.md)
 and the per-topic work orders are `topics/algebraicCurve/TOPIC-*.md`. SET 2
 (T5, T6, T8, T9) is written only after SET 1 is reviewed; T7 is the human
-capstone. The blueprint is [PORTING-AC.md](../PORTING-AC.md).
+capstone. The blueprint is [PORTING-AC.md](../topics/PORTING-AC.md).
 
 FLT is pinned at `aa2d8b3`; mathlib at `v4.34.0`.
 
@@ -765,7 +765,7 @@ place `wA` of `A`, exactly as `TOPIC-t7-divisor-exchange.md` §1 describes.
 
 Written by the reviewer, per [TOPIC-t7-divisor-exchange.md](../topics/algebraicCurve/TOPIC-t7-divisor-exchange.md).
 
-One module, `WeilExchange/DivisorExchange.lean`, 137 lines, one public declaration:
+One module, `WeilExchange/DivisorExchange.lean`, 143 lines, one public declaration:
 `AlgebraicCurve.Divisor.pullbackAlong_pushforwardAlong_eq_pushforwardAlong_pullbackAlong`,
 statement verbatim from its wrapper. This is the declaration
 `ModularCurve.heckeOperatorsCommuteBar` calls at
@@ -826,11 +826,11 @@ The ported layer, in dependency order:
 | `WeilExchange/LocalExchange` | T6 | 206 |
 | `PrincipalDivisors/RatFuncDegree` | T8 (10 of 11 nodes; `deg_ofHeightOneSpectrum` is AC0's) | 435 |
 | `PrincipalDivisors/Transcendence` | T9 | 514 |
-| `WeilExchange/DivisorExchange` | T7, the capstone | 137 |
-| **total** | | **5,553** |
+| `WeilExchange/DivisorExchange` | T7, the capstone | 143 |
+| **total** | | **5,559** |
 
-Against [PORTING-AC.md](../PORTING-AC.md) §4.3's ≈4,060 deduplicated structural total
-and ≈5.1k–5.9k written-line budget, the effort landed at **5,553 module lines** —
+Against [PORTING-AC.md](../topics/PORTING-AC.md) §4.3's ≈4,060 deduplicated structural total
+and ≈5.1k–5.9k written-line budget, the effort landed at **5,559 module lines** —
 inside the budget, at the lower-middle. The two structural savings the plan
 predicted are real and measured: the fibre dictionary written once (398 port lines
 against a 737-content-line 4-copy estimate), the `P¹` classification prelude never
@@ -850,7 +850,7 @@ Recorded, not judged worthless:
 
 - **The `ModularCurve` Hecke layer** (`DegeneracyTower`, `HeckeOperatorTotal`,
   `HeckeModule`, the roof square) is out of this port's scope
-  ([PORTING-AC.md](../PORTING-AC.md) §0's table). The AC side is unconditional; only
+  ([PORTING-AC.md](../topics/PORTING-AC.md) §0's table). The AC side is unconditional; only
   that layer separates the port from `heckeOperatorsCommuteBar` itself.
 - **The deprecated-`Ideal` statement migration.** Three statements
   (`PlaceDictionary`'s two centre identifications and T9's `relNorm_fiberCenter`

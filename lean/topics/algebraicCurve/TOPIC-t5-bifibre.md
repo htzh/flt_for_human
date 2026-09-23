@@ -6,7 +6,7 @@ Depends on SET 1's **T2, T3, T4**.
 
 **Audience.** A fresh session opening SET 2. The method is
 [porting-playbook.md](../../porting-playbook.md) §3–§5; the plan is
-[PORTING-AC.md](../../PORTING-AC.md) §3.1, §5 (T5's note) and §8 (risk 1). Read the
+[PORTING-AC.md](../PORTING-AC.md) §3.1, §5 (T5's note) and §8 (risk 1). Read the
 SET 1 hand-off in [SET-2.md](SET-2.md) §0 — in particular that the pin's
 `BifibreDev` prelude is **already public in `WeilExchange/Transport.lean`** and must
 be imported, not restated.

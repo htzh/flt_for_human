@@ -6,7 +6,7 @@ read [SET-1.md](SET-1.md) first. Depends on **AC0** and **T1** (and consumes AC0
 
 **Audience.** A fresh session continuing the port after T2's dictionary is public.
 The method is [porting-playbook.md](../../porting-playbook.md) §3–§5; the plan is
-[PORTING-AC.md](../../PORTING-AC.md) §3.1 and §8 (risk 3).
+[PORTING-AC.md](../PORTING-AC.md) §3.1 and §8 (risk 3).
 
 **Goal.** Prove that the Galois action on places preserves restriction, ramification
 index and inertia degree — the input T5's bifibre count and T6's local exchange both

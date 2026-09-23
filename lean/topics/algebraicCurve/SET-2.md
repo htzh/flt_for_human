@@ -1,7 +1,7 @@
 # SET 2 — the bifibre count, the local exchange and the principal-divisors route (T5, T6, T8, T9)
 
 **Status (2026-09-23): work orders written, not started.** This is the run brief for
-the **second** coding set of [PORTING-AC.md](../../PORTING-AC.md), written *after*
+the **second** coding set of [PORTING-AC.md](../PORTING-AC.md), written *after*
 reviewing SET 1 and against what SET 1 actually produced. It authorizes exactly four
 topics:
 
@@ -132,6 +132,6 @@ checker **586 identical, 0 mismatched, 0 missing**, consumer **0 errors**,
    `DecidableEq (RatFunc K)`; T9's `relNorm`/`normalizedFactors` block and
    `PerfectField` firing) — and which did not.
 4. Any statement that would not match its wrapper, quoted rather than weakened.
-5. The measured cost against [PORTING-AC.md](../../PORTING-AC.md) §4.3's budget,
+5. The measured cost against [PORTING-AC.md](../PORTING-AC.md) §4.3's budget,
    and the SET-2 hand-off to the human's T7: exactly what `Bifibre.lean` and
    `LocalExchange.lean` expose.

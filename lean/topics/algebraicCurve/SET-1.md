@@ -2,7 +2,7 @@
 
 **Status (2026-09-22): work orders written, not started.** This is the run brief for
 the **first** of the two coding sets of the effort planned in
-[PORTING-AC.md](../../PORTING-AC.md). It authorizes exactly five topics:
+[PORTING-AC.md](../PORTING-AC.md). It authorizes exactly five topics:
 
 | order | work order | object | ≈ port |
 |---|---|---|---|
@@ -130,7 +130,7 @@ Two conventions that are non-negotiable here:
   pin does; transcribe its binders literally).
 - **Keep the pin's `letI`/`haveI` walls and its `@[reducible]`/`abbrev`
   attributes literal.** They are load-bearing for instance search in T2/T3/T4/T6;
-  see the risk table in [PORTING-AC.md](../../PORTING-AC.md) §8. The
+  see the risk table in [PORTING-AC.md](../PORTING-AC.md) §8. The
   `linter.style.haveILetI` warnings that follow are disabled at module level in
   the pin's own cone-algebra files; do the same rather than rewriting the
   instances.
@@ -245,7 +245,7 @@ Report concise, measured facts, not prose. For the run as a whole:
 2. **The measured `Def_` drop list**: per definition module, the declarations
    actually ported and the ones dropped, each dropped name with its `grep -c`
    count in the 65-node corpus (recipe in
-   [PORTING-AC.md](../../PORTING-AC.md) §9.1). "Not needed" is not evidence; a
+   [PORTING-AC.md](../PORTING-AC.md) §9.1). "Not needed" is not evidence; a
    count is.
 3. **Whether the named shape risks materialized** — for T1 the `exp`/`log` `rfl`
    identifications and the deprecated `Ideal` aliases; for T2 the `letI`/`haveI`

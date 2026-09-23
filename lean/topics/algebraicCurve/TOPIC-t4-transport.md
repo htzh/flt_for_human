@@ -5,7 +5,7 @@ SET 1; read [SET-1.md](SET-1.md) first. Depends on **AC0**, **T1**, **T2**, **T3
 
 **Audience.** A fresh session closing SET 1 after T3's Galois lemmas land. The
 method is [porting-playbook.md](../../porting-playbook.md) §3–§5; the plan is
-[PORTING-AC.md](../../PORTING-AC.md) §3.1, §4.1 (the `bifiber`/`exchange`
+[PORTING-AC.md](../PORTING-AC.md) §3.1, §4.1 (the `bifiber`/`exchange`
 duplication) and §8 (risk 3).
 
 **Goal.** Two things:

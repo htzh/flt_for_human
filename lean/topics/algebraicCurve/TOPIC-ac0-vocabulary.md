@@ -8,9 +8,9 @@ lakefile raises `maxHeartbeats` to 4,000,000, so every build must be wrapped in
 extended to strip `AlgebraicCurve.`).
 
 **Audience.** A fresh session opening the third Lean port
-([PORTING-AC.md](../../PORTING-AC.md)). Read
+([PORTING-AC.md](../PORTING-AC.md)). Read
 [porting-playbook.md](../../porting-playbook.md) §3–§5, §7 and §8 once, then
-[PORTING-AC.md](../../PORTING-AC.md) §0–§4 and §6. The pin is
+[PORTING-AC.md](../PORTING-AC.md) §0–§4 and §6. The pin is
 `anthropics/fermats-last-theorem@aa2d8b3`, locally at `~/proj/fermats-last-theorem`.
 
 **Goal.** Write the generic curve vocabulary the whole cone is stated over —
@@ -64,7 +64,7 @@ The two declarations outside these files that the cone needs, both handled here:
 
 Reference counts are the pin's declaration names' occurrences in the 65-node corpus
 (the 63 AC + 2 generic `S_` files plus their `Theorems/` wrappers; recipe in
-[PORTING-AC.md](../../PORTING-AC.md) §9.1). A name marked **keep** has ≥1 corpus
+[PORTING-AC.md](../PORTING-AC.md) §9.1). A name marked **keep** has ≥1 corpus
 hit or is needed by a kept declaration's *body*; **drop** has 0 corpus hits and no
 kept-body use. **Count before dropping**: for every name you drop, record
 `grep -c` in the corpus in the log (§6 of [SET-1.md](SET-1.md)), and for the

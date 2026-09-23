@@ -1,5 +1,11 @@
 # Blueprint: the `AlgebraicCurve` layer for `ModularCurve.heckeOperatorsCommuteBar`
 
+> **RETIRED (2026-09-23).** This blueprint is complete: AC0, T1–T9 and the T7
+> capstone all landed, and the `AlgebraicCurve` layer is unconditional, green and
+> statement-checked. It is kept as the effort's planning record. The closing review
+> is [ac-retrospective.md](ac-retrospective.md); the measured costs are
+> [../logs/ac-port.md](../logs/ac-port.md).
+
 **Status (2026-09-23): the effort is complete and verified — AC0, T1–T9 and the
 T7 capstone.** This is the third Lean port and the
 first that targets the *generic* curve layer rather than a modular instance. It is
@@ -12,23 +18,23 @@ the `AlgebraicCurve` layer worth building.
 |---|---|---|
 | SET 1 | AC0, T1–T4 | 12 modules / 3,244 lines / 269 public decls; build 4,022 jobs; checker 586; consumer Zones A–E |
 | SET 2 | T5, T6, T8, T9 | 5 modules / 1,780 lines; checker 617; consumer Zones A–I |
-| capstone | T7 (the human reviewer) | `WeilExchange/DivisorExchange.lean`, 137 lines; checker 618; consumer Zone J |
+| capstone | T7 (the human reviewer) | `WeilExchange/DivisorExchange.lean`, 143 lines; checker 618; consumer Zone J |
 
 Final: `lake build` **4,034 jobs, 0 warnings, no `sorry`**; checker **618
 identical (34 promoted from pin-`private`), 0 mismatched, 0 missing**, 14
 exempted; consumer `spec/AlgebraicCurveConsumer.lean` **Zones A–J at 0 errors**;
 `#print axioms` on the divisor exchange, the local exchange, the bifibre count and
 `hasPrincipalDivisors_of_transcendental` all `[propext, Classical.choice,
-Quot.sound]`; no commits. The effort wrote **5,553 module lines**, inside §4.3's
+Quot.sound]`; no commits. The effort wrote **5,559 module lines**, inside §4.3's
 ≈5.1k–5.9k written budget. **Every generic input of `math/009`'s exchange
 reduction is now a ported theorem**: the Weil exchange, `separableAlong_of_charZero`,
 and `HasPrincipalDivisors` for the modular function field. The measured record is
-[logs/ac-port.md](logs/ac-port.md).
+[logs/ac-port.md](../logs/ac-port.md).
 
 The run briefs are
-[topics/algebraicCurve/SET-1.md](topics/algebraicCurve/SET-1.md) and
-[topics/algebraicCurve/SET-2.md](topics/algebraicCurve/SET-2.md), and the per-topic
-work orders are [topics/algebraicCurve/TOPIC-*.md](topics/algebraicCurve/). What
+[topics/algebraicCurve/SET-1.md](algebraicCurve/SET-1.md) and
+[topics/algebraicCurve/SET-2.md](algebraicCurve/SET-2.md), and the per-topic
+work orders are [topics/algebraicCurve/TOPIC-*.md](algebraicCurve/). What
 remains for the *target theorem* is the `ModularCurve` Hecke layer named in §0's
 table, not this layer.
 
@@ -36,24 +42,24 @@ table, not this layer.
 Four records feed this blueprint, all read-only and already written for other
 purposes:
 
-- [math/009](../math/009-hecke-jacobian-commute.md) — the mathematics of the
+- [math/009](../../math/009-hecke-jacobian-commute.md) — the mathematics of the
   target. Source of truth for *what the proof says*.
-- [studies/hecke-commute-bar-survey.md](../studies/hecke-commute-bar-survey.md) —
+- [studies/hecke-commute-bar-survey.md](../../studies/hecke-commute-bar-survey.md) —
   the reduction chain, the two degeneracy maps, the local bifibre identity, and
   §9's list of what the note must not claim.
-- [studies/flt-function-field-theory-and-mathlib.md](../studies/flt-function-field-theory-and-mathlib.md) —
+- [studies/flt-function-field-theory-and-mathlib.md](../../studies/flt-function-field-theory-and-mathlib.md) —
   the repository-wide FLT↔mathlib seam map for the curve layer.
-- [topics/ffg-retrospective.md](topics/ffg-retrospective.md) — the process
+- [topics/ffg-retrospective.md](ffg-retrospective.md) — the process
   lessons from the FFG effort. Its transfers are applied in **§3.5** (the
   mathematical core and the recorded negatives), **§4.4** (the budget is named
   shape risks, not lines), **§6.1** (what is deliberately not cut), **§7.2** (the
   conditional capstone built first) and **§7.3** (the friction log).
 
-Companion records: [topics/algebraicCurve/SET-1.md](topics/algebraicCurve/SET-1.md)
+Companion records: [topics/algebraicCurve/SET-1.md](algebraicCurve/SET-1.md)
 is the SET-1 run brief, `topics/algebraicCurve/TOPIC-*.md` are the per-topic work
 orders (SET 1 written, SET 2 written after SET 1 is reviewed), and `logs/ac-port.md`
 is the measured record once work starts. The reusable method is
-[porting-playbook.md](porting-playbook.md); this document inherits §7–§8 of it
+[porting-playbook.md](../porting-playbook.md); this document inherits §7–§8 of it
 wholesale and records only what is new.
 
 FLT line numbers and paths are against `anthropics/fermats-last-theorem@aa2d8b3`.
@@ -95,7 +101,7 @@ layer is a *library*: its top declarations are cited from outside the hecke cone
 at high indegree (`Place.mem_iff_ord_nonneg` 184 external citers,
 `Place.ord_algebraMap` 142, `Place.mem_of_ord_nonneg` 106,
 `separableAlong_of_charZero` 84 — §2.3). The gain test of
-[PORTING-FFG §2](topics/PORTING-FFG.md) therefore scores differently here: mathlib
+[PORTING-FFG §2](PORTING-FFG.md) therefore scores differently here: mathlib
 alignment is real (the whole layer sits on mathlib's `ValuationSubring` /
 `DedekindDomain` / `Kaehler` API, §3.4), the interface is broad rather than
 concentrated, and organization is the main product — FLT's `AlgebraicCurve` layer
@@ -104,7 +110,7 @@ the Hecke theory actually uses.
 
 ## 1. Organization for math clarity
 
-The rules of [PORTING-FFG §1](topics/PORTING-FFG.md) and playbook §7.1–§7.2 govern
+The rules of [PORTING-FFG §1](PORTING-FFG.md) and playbook §7.1–§7.2 govern
 unchanged. The AC-specific statements:
 
 - **Namespace `AlgebraicCurve`** (and its existing sub-namespaces `Place`,
@@ -329,7 +335,7 @@ it, not against a port-local copy.
 ### 3.5 The mathematical core, and the recorded negatives
 
 The FFG retrospective
-([topics/ffg-retrospective.md](topics/ffg-retrospective.md) §3) records that "the
+([topics/ffg-retrospective.md](ffg-retrospective.md) §3) records that "the
 mathematics is three abstract lemmas, not 3.8k lines". The AC cone has the same
 shape: the exchange (T6–T7) assembles two statements, and the principal-divisors
 theorem (T9) is a third plus the ℙ¹ base case.
@@ -472,7 +478,7 @@ outside the hecke cone (§2.3) than FFG's remainder was.
 ### 4.4 The budget unit is the named shape risk
 
 The FFG retrospective
-([topics/ffg-retrospective.md](topics/ffg-retrospective.md) §6) is explicit that
+([topics/ffg-retrospective.md](ffg-retrospective.md) §6) is explicit that
 "cost is shape risk, not line count": its Layer 0 budgeted 20 rounds and took 1,
 its 2,002-line T19 was the right size while its *route* was the whole decision,
 and its one unplanned adaptation was a single mathlib signature change. The line
@@ -504,16 +510,16 @@ are real dependencies, not the pin's section order.
 
 | topic | object | pin nodes | dedup content | ≈ port | prereq | work order |
 |---|---|---|---|---|---|---|
-| **AC0** | the vocabulary | 8 def modules | ≈1,550 | ≈1,900–2,200 | mathlib | [SET 1](topics/algebraicCurve/TOPIC-ac0-vocabulary.md) |
-| **T1** | `Place` ord/valuation interface | 19 | 399 | ≈520–580 | AC0 | [SET 1](topics/algebraicCurve/TOPIC-t1-ord-interface.md) |
-| **T2** | fibre dictionary, `fiberOver`, `le_finrank`, `inertiaDeg_pos` | 3 | 388 | ≈500–570 | AC0, T1 | [SET 1](topics/algebraicCurve/TOPIC-t2-fibre-dictionary.md) |
-| **T3** | Galois ramification/inertia | 7 | 160 | ≈210–240 | AC0, T1, T2 | [SET 1](topics/algebraicCurve/TOPIC-t3-galois-ramification.md) |
-| **T4** | along-map transport + `Pic0` descent + the shared prelude | 16 | 120 | ≈160–190 | AC0, T1, T2, T3 | [SET 1](topics/algebraicCurve/TOPIC-t4-transport.md) |
-| **T5** | bifibre count + the generic orbit/index engine | 5 | 410 | ≈560–650 | T2, T3, T4 | [SET 2](topics/algebraicCurve/TOPIC-t5-bifibre.md) |
-| **T6** | local exchange + normal closure | 1 | 174 | ≈230–270 | T4, T5 | [SET 2](topics/algebraicCurve/TOPIC-t6-local-exchange.md) |
-| **T7** | divisor exchange (**capstone, human**) | 1 | 99 | ≈130–160 | T6 | [SET 2](topics/algebraicCurve/TOPIC-t7-divisor-exchange.md), **done by the reviewer** |
-| **T8** | `P¹` places and degree | 11 | 429 | ≈560–680 | AC0, T1 | [SET 2](topics/algebraicCurve/TOPIC-t8-ratfunc-degree.md) |
-| **T9** | `HasPrincipalDivisors` via transcendence | 2 | 345 | ≈450–540 | T8, T2 | [SET 2](topics/algebraicCurve/TOPIC-t9-transcendence.md) |
+| **AC0** | the vocabulary | 8 def modules | ≈1,550 | ≈1,900–2,200 | mathlib | [SET 1](algebraicCurve/TOPIC-ac0-vocabulary.md) |
+| **T1** | `Place` ord/valuation interface | 19 | 399 | ≈520–580 | AC0 | [SET 1](algebraicCurve/TOPIC-t1-ord-interface.md) |
+| **T2** | fibre dictionary, `fiberOver`, `le_finrank`, `inertiaDeg_pos` | 3 | 388 | ≈500–570 | AC0, T1 | [SET 1](algebraicCurve/TOPIC-t2-fibre-dictionary.md) |
+| **T3** | Galois ramification/inertia | 7 | 160 | ≈210–240 | AC0, T1, T2 | [SET 1](algebraicCurve/TOPIC-t3-galois-ramification.md) |
+| **T4** | along-map transport + `Pic0` descent + the shared prelude | 16 | 120 | ≈160–190 | AC0, T1, T2, T3 | [SET 1](algebraicCurve/TOPIC-t4-transport.md) |
+| **T5** | bifibre count + the generic orbit/index engine | 5 | 410 | ≈560–650 | T2, T3, T4 | [SET 2](algebraicCurve/TOPIC-t5-bifibre.md) |
+| **T6** | local exchange + normal closure | 1 | 174 | ≈230–270 | T4, T5 | [SET 2](algebraicCurve/TOPIC-t6-local-exchange.md) |
+| **T7** | divisor exchange (**capstone, human**) | 1 | 99 | ≈130–160 | T6 | [SET 2](algebraicCurve/TOPIC-t7-divisor-exchange.md), **done by the reviewer** |
+| **T8** | `P¹` places and degree | 11 | 429 | ≈560–680 | AC0, T1 | [SET 2](algebraicCurve/TOPIC-t8-ratfunc-degree.md) |
+| **T9** | `HasPrincipalDivisors` via transcendence | 2 | 345 | ≈450–540 | T8, T2 | [SET 2](algebraicCurve/TOPIC-t9-transcendence.md) |
 | **total** | | **65** | **≈2,520** | **≈5.1k–5.9k** | | |
 
 T3's prerequisite list now names T2: `exists_algEquiv_smul_eq_of_restrict_eq` consumes
@@ -541,7 +547,7 @@ saving *larger* than §4.1's ≈214 estimate), and T9 restated none of T2's ≈3
 dictionary.
 
 Four further drifts and decisions, all recorded in
-[logs/ac-port.md](logs/ac-port.md):
+[logs/ac-port.md](../logs/ac-port.md):
 
 - **`RatFunc.inftyValuation` now takes `[DecidableEq (RatFunc F)]`** in v4.34, so
   T8's private `WFg` helper carries it and `deg_eq_one…` opens `classical`;
@@ -762,7 +768,7 @@ does for FFG's promotions. Four refinements carry over from the FFG record:
   and is checked by the dotted fallback, not exempted.
 
 **SET 1's measured resolution** (what the above turned into; see
-[logs/ac-port.md](logs/ac-port.md) §1.4):
+[logs/ac-port.md](../logs/ac-port.md) §1.4):
 
 - the two pin `S_` files are appended to `SOURCES` for the declarations that have
   no wrapper: `S_AlgebraicCurve_Place_sum_ramificationIndex_mul_inertiaDeg_fiberOver.lean`

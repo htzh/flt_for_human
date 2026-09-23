@@ -1,7 +1,7 @@
 # T7 — the divisor exchange (CAPSTONE, reserved for the human reviewer)
 
 **Status (2026-09-23): done by the human reviewer.** The capstone is proved in
-`FLTForHuman/AlgebraicCurve/WeilExchange/DivisorExchange.lean` (137 lines, statement
+`FLTForHuman/AlgebraicCurve/WeilExchange/DivisorExchange.lean` (143 lines, statement
 verbatim); consumer Zone J composes it with T4's
 `Divisor.correspondence_correspondence`; the checker reports 618 identical / 0
 mismatched / 0 missing; `#print axioms` is clean. See `logs/ac-port.md` §10–§11. This

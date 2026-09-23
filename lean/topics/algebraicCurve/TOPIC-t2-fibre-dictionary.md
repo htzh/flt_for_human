@@ -6,7 +6,7 @@ read [SET-1.md](SET-1.md) first. Depends on **AC0** and **T1**.
 **Audience.** A fresh session continuing the port after T1's interface is public and
 consumer Zone B is at 0 errors. The method is
 [porting-playbook.md](../../porting-playbook.md) §3–§5 and §7; the plan is
-[PORTING-AC.md](../../PORTING-AC.md) §4.1 (the 4-way copy), §5 (T2's note) and §8
+[PORTING-AC.md](../PORTING-AC.md) §4.1 (the 4-way copy), §5 (T2's note) and §8
 (risks 3 and 4).
 
 **Goal.** Two things, in this order:
