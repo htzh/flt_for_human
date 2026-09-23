@@ -1,190 +1,192 @@
-# Places and their extensions: the fibre-centre dictionary
+# Places and their extensions
 
-**Status: OUTLINE — for review. The prose is not yet written; this file fixes the
-scope, the section plan and the declaration inventory so the coverage can be
-checked first.** Planned as `base/015`, the first of the three notes that carry the
-mathlib-level mathematics of the `AlgebraicCurve` port
-([../lean/PORTING-AC.md](../lean/PORTING-AC.md), topics **T1–T3**).
+**Status: OUTLINE — the mathematical scope and section plan, for review before the
+prose is written.**
 
-## Why this note
+On a smooth projective curve over $`K`$, the points are the **places** of its
+function field $`F/K`$: the discrete valuation rings $`\mathcal{O} \subset F`$ with
+fraction field $`F`$ and containing $`K`$. The order of vanishing
+$`\mathrm{ord}_P`$ and the residue field $`\kappa(P)`$ are read off from
+$`\mathcal{O}`$, and the degree $`\deg P = [\kappa(P) : K]`$ weights divisors. Note
+[008](008-divisors-and-pic0.md) develops that dictionary for a single field.
 
-[008](008-divisors-and-pic0.md) §1 and §8 introduce `Place`, `ord` and `deg`, and
-§5 gives the classical ramification/inertia/fundamental-identity story. What 008
-does **not** cover is what the port actually has to write:
+This note develops what happens when the field is **extended**. A place of $`F`$
+generally does not remain a place of a finite extension $`F'/F`$; it splits into
+finitely many places of $`F'`$, and two numbers govern the splitting. The
+**ramification index** $`e`$ records how the uniformizer pulls apart, the
+**inertia degree** $`f`$ records how the residue field grows, and their product
+sums to the extension degree — the *fundamental identity*. When $`F'/F`$ is
+Galois, the places over a given one form a single orbit and $`e`$ and $`f`$ are
+constant on it; in general one passes to the separable closure and keeps a
+*semilinear* action, because the automorphisms move the base field. Both numbers
+are multiplicative in towers.
 
-1. the **interface** by which `Place.ord` is compared with mathlib's
-   `Valuation`/`HeightOneSpectrum`/`adicValuation` — the port's highest-indegree
-   surface (`Place.mem_iff_ord_nonneg` has 184 external citers);
-2. the **extension of a place** to an integral extension `F'/F`, through the
-   integral closure at the valuation ring, the fibre-centre prime, and the
-   identification of FLT's `ramificationIndex`/`inertiaDeg` with mathlib's
-   `Ideal.ramificationIdx'`/`Ideal.inertiaDeg'`;
-3. the **Galois and semilinear equivariance** of all of that.
+This is the local theory every pushforward or pullback computation rests on, and
+it is the input to the exchange lemma of
+[016](016-correspondences-and-exchange.md). It assumes 008 (the divisor
+dictionary) and 001 §4 (decomposition and inertia as subgroups).
 
-Note [001](001-field-extensions-and-galois-basics.md) §4 supplies the *abstract*
-decomposition and inertia subgroups; this note supplies the place-level calculus
-those abstractions are used through in the exchange argument. It is the local half
-of [016](016-correspondences-and-exchange.md).
+## 1. Places, valuation rings, and the order function
 
-## Planned sections
+- A place is a discrete valuation ring $`\mathcal{O} \subset F`$ with fraction
+  field $`F`$, containing $`K`$ and not equal to $`F`$; equivalently a
+  $`K`$-trivial discrete valuation of $`F`$ up to equivalence. The maximal ideal
+  $`\mathfrak{m}`$, a uniformizer $`\pi`$, the residue field
+  $`\kappa = \mathcal{O}/\mathfrak{m}`$, and the degree $`[\kappa : K]`$.
+- The normalized order $`\mathrm{ord}_P`$: every nonzero $`f`$ is
+  $`u\pi^n`$, and $`\mathrm{ord}_P(f) = n`$. Its laws (additive, $`\mathrm{ord}(1)=0`$,
+  $`\mathrm{ord}(f^{-1}) = -\mathrm{ord}(f)`$) and the finiteness of
+  $`\{P : \mathrm{ord}_P(f) \neq 0\}`$.
+- The order is a normalized $`\mathbb{Z}`$-valued valuation, and the other way
+  round: the sign convention is a choice, and the valuation is recovered from its
+  ring by $`\mathrm{ord}_P = -\log`$ of the associated adic valuation. The
+  **uniqueness statement** — a $`\mathbb{Z}`$-valued valuation function whose
+  nonnegative locus is exactly the ring is $`\mathrm{ord}_P`$ — is what makes the
+  later dictionary computations legitimate.
+- The three faces of the same data: a place, its valuation ring, its
+  height-one prime in the relevant Dedekind domain, and its normalized valuation;
+  the equivalences between them.
 
-### 0. Scope and placement
-- What is a place, again (one paragraph, pointing at 008 §1 for the classical
-  picture); the two actions this note needs — the `K`-linear `F ≃ₐ[K] F` action
-  of 008 §4 and the **semilinear** action that moves `K`.
-- Reading order: this note → [016](016-correspondences-and-exchange.md) →
-  [017](017-rational-function-field-and-principal-divisors.md).
+## 2. Extending a place to a finite extension
 
-### 1. The `Place`↔mathlib bridge (T1)
-- `Place` is a `ValuationSubring` with three fields; `Place.ext`,
-  `toValuationSubring_injective`; the derived `IsDiscreteValuationRing`,
-  `IsPrincipalIdealRing`, `Algebra K v.toValuationSubring`, `IsScalarTower`.
-- `heightOneSpectrum`, `adicValuation := v.heightOneSpectrum.valuation F`, and
-  `ord := -WithZero.log (v.adicValuation f)`: why `ord` is normalised the way it
-  is, and why `ord` is not literally a mathlib `Valuation`.
-- The interface lemmas and what each transports:
-  `mem_iff_ord_nonneg`, `ord_nonneg_of_mem`, `mem_of_ord_nonneg`,
-  `ord_algebraMap`, `ord_mul`, `ord_inv`, `ord_zpow`, `ord_coe_unit`,
-  `ord_coe_irreducible`, `exists_unit_mul_zpow`.
-- The valuation-subring dictionary:
-  `ord_eq_neg_log_of_valuationSubring_eq`,
-  `isEquiv_adicValuation_of_valuationSubring_eq`,
-  `isEquiv_adicValuation_ofHeightOneSpectrum`,
-  `adicValuation_valuationSubring`, `mem_iff_adicValuation_le_one`,
-  `mem_maximalIdeal_iff_adicValuation_lt_one`,
-  `adicValuation_isRankOneDiscrete`, `adicValuation_isTrivialOn`,
-  `ord_ofHeightOneSpectrum_ne_zero_iff`.
-- The converse construction `Place.ofHeightOneSpectrum` and its
-  `toValuationSubring` computation — the bridge the ℙ¹ note (017) builds its
-  places on.
-- Two integration lemmas used by the principal-divisor route:
-  `mem_toValuationSubring_of_isIntegral_adjoin`,
-  `ord_eq_zero_of_isIntegral_adjoin`.
+- Let $`F'/F`$ be finite and $`\mathcal{O}`$ a place of $`F`$. The **integral
+  closure** $`\mathcal{O}'`$ of $`\mathcal{O}`$ in $`F'`$: a Dedekind domain,
+  finite as an $`\mathcal{O}`$-module, with fraction field $`F'`$, and — since
+  $`\mathcal{O}`$ is a DVR — a principal ideal domain.
+- The places of $`F'`$ above the place $`v`$ of $`F`$ correspond to the nonzero
+  prime ideals of $`\mathcal{O}'`$, i.e. to the points of the fibre; **the fibre
+  is finite**. This is the algebraic form of "a point has finitely many
+  preimages".
+- The **centre** of a place $`w`$ of $`F'`$ on a subring, and the fact that the
+  place over $`v`$ is determined by the corresponding maximal ideal
+  $`\mathfrak{P} \subset \mathcal{O}'`$; the residue field of $`w`$ is
+  $`\mathcal{O}'/\mathfrak{P}`$.
+- The local picture: completing at $`v`$ turns the fibre into
+  $`\prod_{w \mid v} F'_w`$ over the local field $`F_v`$, one factor per place
+  above $`v`$ — the reason the fibre is finite and the local degrees add up.
+- Why the integral closure is the right object rather than the field alone: it is
+  the coordinate ring of the cover over the local ring of the point, so the fibre
+  is literally its closed fibre.
 
-### 2. Extending a place to an integral extension (T2)
-- The setup `F ⊆ F'` integral (later finite); `Place.restrict` and
-  `restrict_toValuationSubring`, `mem_restrict_iff`, `ord_restrict`.
-- `valuationSubringAlgebra` (a `@[reducible]` `Algebra v.toValuationSubring F'`)
-  and `integralClosureAt F' v := integralClosure v.toValuationSubring F'`, with the
-  `IsDedekindDomain`/`IsFractionRing`/finite/`IsTorsionFree` instances and
-  `algebraMap_integralClosureAt_injective`. Why the reducibility is load-bearing.
-- The centre of a place over a subring: `center`, `mem_center_iff`,
-  `mem_center_iff_ord_pos`, `center_ne_bot`, `centerHeightOneSpectrum`,
-  `toValuationSubring_eq_of_forall_mem`.
-- The fibre-centre prime: `fiberCenter (hw : w.restrict F = v)`,
-  `mem_fiberCenter_iff_ord_pos`, `fiberCenter_liesOver`,
-  `toValuationSubring_eq_of_restrict_eq`, `forall_mem_of_restrict_eq`.
-- `placeOfPrime`, `restrict_placeOfPrime`, `fiberCenter_placeOfPrime`,
-  `eq_of_fiberCenter_eq`: the bijection between the places over `v` and the
-  height-one primes of `integralClosureAt F' v`.
-- `fiberEquiv`, `finite_setOf_restrict_eq`, `fiberOver`, `mem_fiberOver`,
-  `restrict_mem_fiberOver`, `restrict_eq_of_mem_fiberOver`; and why the exchange
-  uses `fiberOver` (class-free) rather than `fiber` (which needs
-  `HasPrincipalDivisors`): `fiber_eq_fiberOver`.
+## 3. Ramification, inertia, and the fundamental identity
 
-### 3. The residue dictionary and the mathlib ramification identity (T2)
-- The residue-field computation: `residueOfCenter`, `residueOfCenter_apply`,
-  `ker_residueOfCenter`, `surjective_residueOfCenter`,
-  `residueFieldEquivQuotientCenter` — the isomorphism
-  `integralClosureAt ⧸ fiberCenter ≃+* w.ResidueField`, and
-  `Algebra.finrank_eq_of_equiv_equiv` as the reason it computes `inertiaDeg`.
-- `inertiaDeg_eq_inertiaDeg_fiberCenter`: FLT's `inertiaDeg` **is** mathlib's
-  `Ideal.inertiaDeg'` of the fibre prime.
-- `le_ord_iff_mem_pow_fiberCenter` and
-  `ramificationIndex_eq_ramificationIdx_fiberCenter`: FLT's `ramificationIndex`
-  **is** `Ideal.ramificationIdx'`.
-- `neg_log_valuation_fiberCenter_eq_ord` and `eq_ord_of_addHom_of_nonneg_iff`:
-  the uniqueness argument that identifies `-log ∘ fiberCenter.valuation` with
-  `ord`, and why this lemma is the conceptual centre of the dictionary.
-- mathlib on the other side: `primesOverFinset`,
-  `IsDedekindDomain.mem_primesOverFinset_iff`, `Ideal.under`,
-  `Ideal.ramificationIdx'`/`Ideal.inertiaDeg'`, `Ideal.sum_ramification_inertia_eq_finrank`.
+- **Ramification index**: $`e(w/v) = \mathrm{ord}_w(\pi)`$, the exponent with
+  $`\mathfrak{P}^{e}`$ exactly dividing $`\pi\mathcal{O}'`$; equivalently the
+  ramification index of the local extension $`F'_w/F_v`$.
+- **Inertia degree**: $`f(w/v) = [\kappa(w) : \kappa(v)]`$, the residue degree.
+- The residue field as a quotient of the integral closure, and the two numbers as
+  the ramification index and inertia degree of the corresponding extension of
+  local rings; the local degree is $`e f`$.
+- **The fundamental identity**
+  $$[F' : F] \;=\; \sum_{w \mid v} e(w/v)\, f(w/v),$$
+  and its meaning: the fibre weights $`e f`$ sum to the global degree. Consequence
+  for divisors: pullback multiplies degree by $`[F':F]`$, pushforward preserves it,
+  and both respect principal divisors.
+- Finiteness of the fibre as a corollary, and the special case of an unramified
+  place ($`e = 1`$, so $`f = [F':F]`$ when the fibre is a single point).
 
-### 4. The fibre-over degree formula (T2)
-- `sum_ramificationIndex_mul_inertiaDeg_fiberOver`:
-  $`\sum_{w \mid v} e(w)\,f(w) = [F' : F]`$ — statement, the `Finset.sum_bij`
-  along `placeOfPrime`, and the appeal to
-  `Ideal.sum_ramification_inertia_eq_finrank`.
-- `subset_fiberOver_of_forall_restrict_eq` and the `le_finrank` corollary.
-- `exists_restrict_eq`: every place of `F'` restricts to one of `F`.
-- `card_fiberOver_mul_ramificationIndex_mul_inertiaDeg`: the Galois constancy
-  lemma `|fiberOver| · e · f = [F' : F]` when `F'/F` is Galois — the single-prime
-  input to the bifibre count of 016.
+## 4. Galois and semilinear equivariance
 
-### 5. Galois and semilinear equivariance (T3)
-- `SemilinearAut K F`: automorphisms of `F` that move the base through a
-  `baseAut : K ≃+* K`, i.e. the Galois action without assuming `F/K` Galois;
-  `toRingAut`, `baseAut`, `commutes`, `ofAlgAut`.
-- The action on places: `SMul`/`MulAction` on `Place`, `smul_toValuationSubring`,
-  `ord_smul` ($`\mathrm{ord}_{gv}(gf) = \mathrm{ord}_v(f)`$), `deg_smul`,
-  `smulResidueRingEquiv`.
-- `exists_algEquiv_smul_eq_of_restrict_eq`: the places over a common `v` form one
-  orbit — the statement that replaces "decomposition group" from 001 §4 with a
-  place-level equality. Uses mathlib's
-  `Ideal.exists_smul_eq_of_isGaloisGroup`/`galRestrict`.
-- `restrict_ofAlgAut_smul`, `ramificationIndex_eq_of_restrict_eq`,
-  `inertiaDeg_eq_of_restrict_eq`, `ord_smul_of_ne_zero`.
-- Tower multiplicativity: `ramificationIndex_eq_mul_ramificationIndex_restrict`,
-  `inertiaDeg_eq_mul_inertiaDeg_restrict`, and the `Along` forms
-  `ramificationIndexAlong_comp`, `inertiaDegAlong_comp`,
-  `restrictAlong_restrictAlong`. This is the §5 identity of 008 in the shape the
-  port needs.
+- Suppose $`F'/F`$ is Galois with group $`G`$. Then $`G`$ acts on the places of
+  $`F'`$ preserving orders and degrees, and it acts **transitively** on the places
+  above a fixed $`v`$: the fibre is one orbit. Hence $`e`$ and $`f`$ are constant
+  on the fibre, and $`|\text{fibre}| \cdot e \cdot f = [F':F]`$.
+- The **decomposition group** of $`w`$ (its stabilizer) and its **inertia
+  subgroup** (those acting trivially on the residue field); $`e = |I|`$ and
+  $`f = |D/I|`$. This is where 001 §4's abstract subgroups acquire their
+  arithmetic meaning.
+- For a non-normal $`F'/F`$ there is no Galois group to act, but the
+  automorphisms of the Galois closure that **move the base** still act, and the
+  equivariance statements survive as *semilinear* ones: an automorphism sends a
+  place to a place while twisting the constants, and $`\mathrm{ord}`$,
+  $`\mathrm{deg}`$, $`e`$, $`f`$ are preserved. The transitivity statement becomes
+  "the places above a common place are in one orbit" for the group over the
+  base's Galois closure.
+- **Multiplicativity in towers**: for $`F \subseteq E \subseteq F'`$,
+  $$e(w/v) = e(w/w')\, e(w'/v), \qquad f(w/v) = f(w/w')\, f(w'/v)$$
+  where $`w' = w|_E`$. These are the identities that let local computations at
+  different levels be compared, and they are used in the bifibre count of 016.
 
-### 6. How the code says this
-- Encoding choices: `Place` as the valuation subring; the `'`-copies and the
-  instance diamonds they work around; the `@[reducible]` `integralClosureAt`;
-  `fiberOver` vs `fiber`.
-- Key-point → declaration map (the table above, as a rendered table with pinned
-  `#L` links).
-- Traps: `Place`'s `isPrincipalIdealRing'` field; the `exp`/`log` `rfl`
-  identifications; `DecidableEq (Place K F)`; the deprecated `Ideal` alias set
-  (`sum_ramification_inertia`, `ramificationIndex_spec`, `inertiaDeg_algebraMap`).
+## 5. The fibre over a place, intrinsically
 
-### 7. Links
-- FLT sources at `aa2d8b3`: `Def_AlgebraicCurve_DivisorClassGroup`,
-  `Def_AlgebraicCurve_DivisorPushPull`, `Def_AlgebraicCurve_PlacesOverDVR`,
-  `Def_AlgebraicCurve_BaseChangeGalois`, the `S_` files of T1–T3, and their
-  `Theorems/` wrappers.
-- mathlib at `v4.33.0`: `Valuation/ValuationSubring`, `DedekindDomain/AdicValuation`,
-  `DedekindDomain/IntegralClosure`, `RamificationInertia/*`,
-  `IntegralClosure/IntegrallyClosed`, `LocalRing/ResidueField`.
-- Companion notes: [008](008-divisors-and-pic0.md) (the classical layer and the
-  encoding of `Place`), [001](001-field-extensions-and-galois-basics.md) §4
-  (decomposition/inertia as subgroups),
-  [016](016-correspondences-and-exchange.md) (the exchange that consumes all of
-  this), [math/009](../math/009-hecke-jacobian-commute.md) §4.
+- The fibre $`\{w : w \mid v\}`$ as a finite set, and the two competing
+  descriptions: places of $`F'`$ restricting to $`v`$, versus maximal ideals of
+  the integral closure above the maximal ideal of $`\mathcal{O}`$. The bijection
+  between them, and its compatibility with orders and residue fields, is the
+  technical core that the rest of the theory is stated through.
+- The class-free nature of the fibre-over description: it needs no hypothesis
+  beyond finiteness and integrality, unlike the divisor-level `fiber` of 008 §5
+  which is tied to principal divisors. (This is why the exchange argument can use
+  the fibre before knowing the residue theorem.)
 
-## Planned key-point → declaration map
+## 6. How the code says all this
 
-| Mathematics | Lean declaration | AC topic |
-|---|---|---|
-| place as a valuation subring | `Place`, `Place.ext` | T1 |
-| adic valuation and order of vanishing | `Place.adicValuation`, `Place.ord` | T1 |
-| `ord` vs `valuation` | `ord_eq_neg_log_of_valuationSubring_eq`, `isEquiv_adicValuation_of_valuationSubring_eq` | T1 |
-| `ord`-membership interface | `mem_iff_ord_nonneg`, `mem_of_ord_nonneg`, `ord_nonneg_of_mem` | T1 |
-| `ord` of constants | `ord_algebraMap` | T1 |
-| place from a height-one prime | `Place.ofHeightOneSpectrum` | T1 |
-| restriction of a place | `Place.restrict`, `ord_restrict` | T2 |
-| integral closure at a place | `integralClosureAt`, its instances | T2 |
-| fibre-centre prime | `fiberCenter`, `mem_fiberCenter_iff_ord_pos`, `fiberCenter_liesOver` | T2 |
-| places over `v` ↔ primes over the maximal ideal | `fiberEquiv`, `fiberOver`, `mem_fiberOver` | T2 |
-| residue dictionary | `residueFieldEquivQuotientCenter`, `inertiaDeg_eq_inertiaDeg_fiberCenter` | T2 |
-| ramification dictionary | `ramificationIndex_eq_ramificationIdx_fiberCenter` | T2 |
-| the fibre-over identity | `sum_ramificationIndex_mul_inertiaDeg_fiberOver` | T2 |
-| Galois constancy at one prime | `card_fiberOver_mul_ramificationIndex_mul_inertiaDeg` | T2 |
-| semilinear automorphisms | `SemilinearAut`, `baseAut` | T3 |
-| Galois equivariance of `ord`/`deg` | `ord_smul`, `deg_smul` | T3 |
-| places over `v` form one orbit | `exists_algEquiv_smul_eq_of_restrict_eq` | T3 |
-| equivariance of `e` and `f` | `ramificationIndex_eq_of_restrict_eq`, `inertiaDeg_eq_of_restrict_eq` | T3 |
-| multiplicativity of `e`, `f` in towers | `ramificationIndex_eq_mul_ramificationIndex_restrict`, `inertiaDeg_eq_mul_inertiaDeg_restrict` | T3 |
+- A place is a `Place K F`, a `ValuationSubring` plus three fields; the residue
+  field, degree, height-one spectrum, adic valuation and normalized `ord` are
+  derived from it. The normalized order is `-log` of the adic valuation, and the
+  uniqueness/dictionary lemmas are stated against mathlib's `Valuation` and
+  `HeightOneSpectrum`.
+- The extension is built on `integralClosureAt F' v`, with its Dedekind, fraction
+  ring and finiteness instances; the fibre-centre prime and the bijection to the
+  places above $`v`$ are `fiberCenter`/`placeOfPrime`/`fiberEquiv`, and the fibre
+  set is `fiberOver`.
+- The identification of FLT's `ramificationIndex`/`inertiaDeg` with mathlib's
+  `Ideal.ramificationIdx'`/`Ideal.inertiaDeg'` of the fibre-centre prime, via the
+  residue isomorphism
+  $`\mathcal{O}'/\mathfrak{P} \cong \kappa(w)`$; the fundamental identity is an
+  application of mathlib's `Ideal.sum_ramification_inertia_eq_finrank`.
+- The Galois action is `SemilinearAut K F` (automorphisms that move the base),
+  with the orbit and equivariance lemmas; the `K`-linear action of 008 §8 is the
+  special case of automorphisms fixing `K`.
 
-## Open questions for the review
+### Key point → declaration map
 
-- Should the two generic orbit/index lemmas
-  (`MulAction.ncard_orbit_inter_orbit_mul_card`,
-  `Subgroup.exists_eq_mul_of_index_inf_eq`) be explained here or in 016? Plan:
-  **016**, where the bifibre count uses them.
-- Should the `Place`/`HeightOneSpectrum` bridge also cover the older
-  `Place.smul`/`degZeroSMulHom` Galois action from 008 §8, or leave that to 008?
-  Plan: leave the `F ≃ₐ[K] F` action to 008, keep only `SemilinearAut` here.
-- Length target: ~450–550 lines, mirroring 008.
+| Mathematics | Lean declaration |
+|---|---|
+| place as a valuation subring | `Place`, `Place.ext`, `toValuationSubring_injective` |
+| discrete valuation ring instances | `Place.instIsDiscreteValuationRing`, `Place.instIsPrincipalIdealRing` |
+| residue field, degree | `Place.ResidueField`, `Place.deg` |
+| height-one prime, adic valuation, order | `Place.heightOneSpectrum`, `Place.adicValuation`, `Place.ord` |
+| order laws | `Place.ord_mul`, `ord_inv`, `ord_zpow`, `ord_coe_unit`, `exists_unit_mul_zpow` |
+| order vs valuation | `ord_eq_neg_log_of_valuationSubring_eq`, `isEquiv_adicValuation_of_valuationSubring_eq` |
+| order-membership dictionary | `Place.mem_iff_ord_nonneg`, `mem_of_ord_nonneg`, `ord_nonneg_of_mem` |
+| order of constants | `Place.ord_algebraMap` |
+| place from a height-one prime | `Place.ofHeightOneSpectrum` |
+| restriction of a place | `Place.restrict`, `ord_restrict`, `mem_restrict_iff` |
+| integral closure at a place | `integralClosureAt`, its Dedekind/fraction-ring/finite instances |
+| centre of a place | `Place.center`, `mem_center_iff_ord_pos`, `center_ne_bot` |
+| fibre-centre prime | `Place.fiberCenter`, `mem_fiberCenter_iff_ord_pos`, `fiberCenter_liesOver` |
+| places above $`v`$ ↔ primes of the integral closure | `Place.placeOfPrime`, `fiberEquiv`, `fiberOver`, `mem_fiberOver` |
+| residue dictionary | `residueFieldEquivQuotientCenter`, `inertiaDeg_eq_inertiaDeg_fiberCenter` |
+| ramification dictionary | `le_ord_iff_mem_pow_fiberCenter`, `ramificationIndex_eq_ramificationIdx_fiberCenter` |
+| fundamental identity | `sum_ramificationIndex_mul_inertiaDeg_fiberOver`, `Ideal.sum_ramification_inertia_eq_finrank` |
+| Galois constancy | `card_fiberOver_mul_ramificationIndex_mul_inertiaDeg` |
+| semilinear automorphisms | `SemilinearAut`, `toRingAut`, `baseAut` |
+| equivariance of order and degree | `Place.ord_smul`, `Place.deg_smul` |
+| places above $`v`$ in one orbit | `Place.exists_algEquiv_smul_eq_of_restrict_eq` |
+| equivariance of $`e`$ and $`f`$ | `ramificationIndex_eq_of_restrict_eq`, `inertiaDeg_eq_of_restrict_eq` |
+| multiplicativity in towers | `ramificationIndex_eq_mul_ramificationIndex_restrict`, `inertiaDeg_eq_mul_inertiaDeg_restrict`, `Place.ramificationIndexAlong_comp`, `inertiaDegAlong_comp` |
+
+## 7. Links
+
+FLT sources at the pinned sha `aa2d8b3`:
+
+- [Def_AlgebraicCurve_DivisorClassGroup.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean) — `Place`, `ord`, `ofHeightOneSpectrum`
+- [Def_AlgebraicCurve_DivisorPushPull.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorPushPull.lean) — `restrict`, `ramificationIndex`, `inertiaDeg`, `deg_restrict_mul_inertiaDeg`
+- [Def_AlgebraicCurve_PlacesOverDVR.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_PlacesOverDVR.lean) — `integralClosureAt`, `center`, `fiberCenter`, `placeOfPrime`, `fiberEquiv`, `fiberOver`
+- [Def_AlgebraicCurve_BaseChangeGalois.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_BaseChangeGalois.lean) — `SemilinearAut` and its action on places
+- [`S_AlgebraicCurve_Place_sum_ramificationIndex_mul_inertiaDeg_fiberOver.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_Place_sum_ramificationIndex_mul_inertiaDeg_fiberOver.lean) — the residue/ramification dictionary and the fibre-over identity
+
+Mathlib at tag `v4.33.0`:
+
+- [Valuation/ValuationSubring.lean](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/RingTheory/Valuation/ValuationSubring.lean) — `ValuationSubring`
+- [DedekindDomain/AdicValuation.lean](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/RingTheory/DedekindDomain/AdicValuation.lean) — `HeightOneSpectrum` and its valuation
+- [DedekindDomain/IntegralClosure.lean](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/RingTheory/DedekindDomain/IntegralClosure.lean) — primes over a prime
+- [NumberTheory/RamificationInertia/Basic.lean](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/RamificationInertia/Basic.lean) — `Ideal.ramificationIdx'`, `Ideal.inertiaDeg'`
+- [NumberTheory/RamificationInertia/Galois.lean](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/RamificationInertia/Galois.lean) — the Galois action on primes over a prime
+
+Companion notes:
+
+- [008 — Divisors, linear equivalence, and Pic⁰](008-divisors-and-pic0.md) — the divisor dictionary, and §5's classical ramification
+- [001 — Field extensions and Galois basics](001-field-extensions-and-galois-basics.md) §4 — decomposition and inertia as subgroups
+- [016 — Correspondences and the exchange lemma](016-correspondences-and-exchange.md) — the exchange that consumes this note

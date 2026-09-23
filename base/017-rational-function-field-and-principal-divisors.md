@@ -1,181 +1,174 @@
 # The rational function field and principal divisors
 
-**Status: OUTLINE — for review. The prose is not yet written; this file fixes the
-scope, the section plan and the declaration inventory so the coverage can be
-checked first.** Planned as `base/017`, the third of the three notes carrying the
-mathlib-level mathematics of the `AlgebraicCurve` port
-([../lean/PORTING-AC.md](../lean/PORTING-AC.md), topics **T8–T9**).
+**Status: OUTLINE — the mathematical scope and section plan, for review before the
+prose is written.**
 
-## Why this note
+On a curve, a nonzero function has as many zeros as poles, counted with degree:
+$`\deg \mathrm{div}(f) = 0`$. This is the residue theorem in divisor form, and it is
+a theorem about curves rather than a formal consequence of the definitions — for an
+arbitrary field extension it can fail. Note
+[008](008-divisors-and-pic0.md) §3 and §8 therefore states it as a hypothesis and
+records that it is discharged for the modular function field; this note explains
+*how*, in the form the proof actually uses.
 
-[008](008-divisors-and-pic0.md) §3 and §8 introduce
-`HasPrincipalDivisors` — the residue theorem stated as a *hypothesis*, because it
-is not automatic for an arbitrary field extension — and record that it is
-discharged for `ℚ̄(X₀(N))` by
-`hasPrincipalDivisors_modularFunctionFieldBar`, "conditional on the
-modular-polynomial family". What 008 does not explain is **how** that discharge
-works, and the FLT proof does not go through the modular polynomial for it: the
-generic theorem is `hasPrincipalDivisors_of_transcendental`, and the concrete
-input on the `P¹` side is the classical place theory of `K(t)`.
+The argument is a two-step reduction. The **base case** is the rational function
+field $`K(t)`$, i.e. the projective line, where the places are completely explicit
+— finite places from irreducible polynomials, one place at infinity — and the
+divisor of a function can be written down. The **transfer** to a general function
+field uses the norm: every function field $`F/K`$ of transcendence degree one is a
+finite extension of some $`K(t)`$, the norm of a function is a rational function,
+and the divisor of the norm is the pushforward of the divisor of the function; so
+degree zero on $`F`$ follows from degree zero on $`K(t)`$.
 
-This note supplies both:
+It assumes [015](015-places-and-extensions.md) (extensions and the fibre-centre
+dictionary) and [016](016-correspondences-and-exchange.md) §5 (the norm formula).
 
-1. the **places of the rational function field** `K(t)` — Ostrowski's dichotomy,
-   the finite places from `HeightOneSpectrum K[X]`, the infinite place, the
-   residue degree `deg = p.natDegree` at a finite place and `1` at infinity;
-2. the **degree-zero principal divisor** $`\mathrm{div}(p) =
-   [\mathfrak{p}] - (\deg p)[\infty]`$ and the corresponding statement for a
-   rational function;
-3. the **transfer to a finite extension** by the norm, which is what turns the
-   `P¹` case into `HasPrincipalDivisors K F` for `F` a finite separable extension
-   of `K(t)` with `t` transcendental.
+## 1. The places of $`K(t)`$
 
-This is the mathematics behind `hasPrincipalDivisors_modularFunctionFieldBar` and
-behind the `hP` input of the Hecke exchange in
-[math/009](../math/009-hecke-jacobian-commute.md) §5. It consumes
-[015](015-places-and-extensions.md) §3 (the fibre-centre dictionary) and the norm
-formula stated in [016](016-correspondences-and-exchange.md) §5.
+- The rational function field $`K(t)`$, as the function field of the projective
+  line $`\mathbb{P}^1_K`$, and the two kinds of place.
+- **Finite places**: irreducible polynomials $`p \in K[X]`$ correspond to the
+  height-one primes of $`K[X]`$, hence to places of $`K(t)`$; the residue field is
+  $`K[X]/(p)`$, and the degree of the place is $`\deg p`$. Each $`a \in K`$
+  gives a degree-one place, the point $`t = a`$.
+- **The place at infinity**: the valuation that measures the order of the pole at
+  infinity, i.e. $`-\deg`$ on nonzero rational functions; its residue field is
+  $`K`$, so it has degree one.
+- **Ostrowski's theorem**: every place of $`K(t)`$ is one of these — a finite place
+  at an irreducible polynomial, or the place at infinity. Equivalently, the finite
+  places are exactly the places other than infinity, and there is exactly one
+  place "above infinity". The proof is the classification of valuations on
+  $`K(t)`$ trivial on $`K`$.
+- The consequence used constantly: the set of places that are *not* finite consists
+  of at most one point, and it is nonempty.
 
-## Planned sections
+## 2. The order function on $`K(t)`$
 
-### 0. Scope and placement
-- Why `HasPrincipalDivisors` is a hypothesis at all (008 §3/§8): the residue
-  theorem is a theorem about curves, not a formal consequence.
-- The two-layer route: `P¹` explicitly, then finite extensions by norms. Contrast
-  with the "conditional on `Φ_N`" remark in 008 §8 — the generic theorem does not
-  need the modular polynomial; only the *modular instantiation* as stated there
-  does.
-- Reading order: [015](015-places-and-extensions.md) → this note;
-  [016](016-correspondences-and-exchange.md) supplies `ord_norm_eq_sum_fiberOver`.
+- At a finite place $`\mathfrak{p}`$: $`\mathrm{ord}_\mathfrak{p}(f)`$ is the
+  multiplicity of $`p`$ in the numerator minus in the denominator, in lowest terms.
+  In particular $`\mathrm{ord}_\mathfrak{p}(p) = 1`$.
+- At infinity: $`\mathrm{ord}_\infty(f) = -\deg f`$, the negative of the degree of
+  the rational function; a polynomial of degree $`n`$ has a pole of order $`n`$ at
+  infinity, and a constant has none.
+- The compatibility that makes the two descriptions one theory: the order at a
+  finite place is $`-\log`$ of the corresponding normalized valuation, and the
+  order at infinity is $`-\log`$ of the valuation at infinity; both are normalized
+  discrete valuations of $`K(t)`$ trivial on $`K`$.
 
-### 1. The places of `K(t)` (T8)
-- `RatFunc K`, `RatFunc.inftyValuation`; the **infinite place** `placeInfty` as the
-  `Place` whose valuation subring is `(RatFunc.inftyValuation K).valuationSubring`.
-- The **finite places**: `HeightOneSpectrum K[X]`, `heightOneSpectrumOfIrreducible`,
-  `Place.ofHeightOneSpectrum`, `finitePlace`, `algebraMap_mem_ofHeightOneSpectrum`.
-- **Ostrowski's dichotomy**: any place of `K(t)` is a finite place or the infinite
-  place. mathlib's `RatFunc.valuation_isEquiv_infty_or_adic` is the mathematical
-  input; the FLT packaging is `eq_ofHeightOneSpectrum_or_eq_placeInfty'` plus
-  `Place.ext` and `Valuation.isEquiv_iff_valuationSubring`. Consequence:
-  `subsingleton_setOf_forall_ne_ofHeightOneSpectrum` (the complement of the finite
-  places has at most one point) and `exists_forall_ne_ofHeightOneSpectrum` (it is
-  nonempty), hence
-  `toValuationSubring_eq_of_forall_ne_ofHeightOneSpectrum` (a non-finite place is
-  the infinite one).
-- **Residue degrees**: `deg_ofHeightOneSpectrum` (at `w` with
-  `w.asIdeal = span{p}`, the degree is `p.natDegree`, via
-  `finrank_quotient_span_eq_natDegree` and the residue iso
-  `residueFieldEquivOfHeightOneSpectrum`), `deg_eq_one_of_forall_ne_ofHeightOneSpectrum`
-  (a non-finite place has degree `1`). Note the `P2M.Dup` duplication between the
-  `S_` proof and `Def_AlgebraicCurve_RatFuncPlaces`: one development, shipped twice.
+## 3. Principal divisors on the projective line
 
-### 2. Orders at the two kinds of place (T8)
-- At a finite place: `ord_ofHeightOneSpectrum_of_span` — the order of the generator
-  `p` is `1`; `ord_ofHeightOneSpectrum_eq_neg_log` — in general
-  `ord_w(f) = -log(w.valuation f)`; `ord_ofHeightOneSpectrum_ne_zero_iff`.
-- At the infinite place: `ord_eq_neg_intDegree_of_forall_ne_ofHeightOneSpectrum` —
-  $`\mathrm{ord}_\infty(f) = -\mathrm{intDegree}(f)`$, the "pole at infinity has
-  order equal to the degree" statement. `RatFunc.intDegree` and the
-  `num`/`denom` normal form are the tools.
-- The bridge lemmas from [015](015-places-and-extensions.md) §1 that these consume:
-  `ord_eq_neg_log_of_valuationSubring_eq`, `isEquiv_adicValuation_of_valuationSubring_eq`.
+- For an irreducible polynomial $`p`$ of degree $`n`$ the divisor of $`p`$, viewed
+  as a function on $`\mathbb{P}^1`$, is
+  $$\mathrm{div}(p) \;=\; [\mathfrak{p}] \;-\; n\,[\infty],$$
+  a zero of order one at the corresponding point and a pole of order $`n`$ at
+  infinity. Its degree is $`1 - n \cdot 1 = 0`$.
+- For a general polynomial, split into irreducibles and add. For a general rational
+  function $`f = g/h`$, use $`\mathrm{div}(f) = \mathrm{div}(g) -
+  \mathrm{div}(h)`$; the degree is zero because both sides are.
+- The **support is finite**: only the finitely many irreducible factors of the
+  numerator or denominator can have nonzero order, together with at most infinity.
+  This is the finiteness that makes the divisor a finite sum, and it is why the
+  principal divisor is well defined.
+- This is the residue theorem for $`\mathbb{P}^1`$: on the projective line every
+  nonzero rational function has as many zeros as poles, and it is proved by unique
+  factorization rather than by any geometric input.
 
-### 3. The degree-zero principal divisor on $`P^1`$ (T8)
-- A polynomial `q` has divisor `single(finitePlace, 1) + single(vinf, -q.natDegree)`
-  when `q` is irreducible, and `degree_single_add_single` shows the degree is `0`;
-  the general statement `degree_eq_zero_of_forall_eq_ord_algebraMap` reduces along
-  the unique factorisation of `q`, using `UniqueFactorizationMonoid.induction_on_prime`.
-- The rational-function case `degree_eq_zero_of_forall_eq_ord`: for `f = num/denom`,
-  apply the polynomial case to `num` and `denom`, using
-  `finite_setOf_ord_ne_zero` for the support and additivity of `degree`.
-- **Finiteness of the support**: `finite_setOf_ord_ne_zero` — only the finitely many
-  irreducible factors of `num` or `denom` can have order nonzero, plus at most the
-  infinite place; `Ideal.finite_factors` and the subsingleton above.
-- Why this is exactly the residue theorem of 008 §3 for `K(t)`.
+## 4. Transfer to a general function field
 
-### 4. Principal divisors for a finite extension of `K(t)` (T9)
-- The reduction `hasPrincipalDivisors_of_finiteDimensional_ratFunc`: for
-  `K` of characteristic zero, `t` transcendental, `F` finite over `K(t)`, and
-  `f ≠ 0`, build the divisor `D = Finsupp.onFinset (finite_setOf_ord_ne_zero_of_finiteDimensional f) (ord f)`,
-  then prove `degree D = 0` by pushing `D` forward to `K(t)` and applying §3.
-- **The pushforward identity**: `pushforwardNormFormula_of_finiteDimensional`,
-  i.e. `φ_* div f = div (Norm f)` for `φ : K(t) → F`, via
-  `ord_norm_eq_sum_fiberOver`
-  ($`\mathrm{ord}_v(N f) = \sum_{w \mid v} e(w) f(w) \mathrm{ord}_w(f)`$).
-- **The norm computation**, the heart of the note:
-  - the normalised-valuation uniqueness lemma `eq_ord_of_addHom_of_nonneg_iff`
-    and `neg_log_valuation_fiberCenter_eq_ord` (from
-    [015](015-places-and-extensions.md) §3);
-  - `relNorm_fiberCenter`: the relative norm of the fibre-centre prime is the
-    maximal ideal to the inertia degree;
-  - `count_normalizedFactors_span_singleton`, `relNorm_span_singleton`: factor
-    `span{c}` into `normalizedFactors` and compute `Ideal.relNorm` prime by prime;
-  - `ord_norm_algebraMap_integralClosureAt`, then `ord_norm_eq_sum_fiberOver` for
-    arbitrary `f` by clearing denominators.
-- The two public statements: `hasPrincipalDivisors_of_transcendental`
-  (`Transcendental K x` + `FiniteDimensional K⟮x⟯ F`) and
-  `hasPrincipalDivisors_adjoin_of_transcendental` (the `adjoin K (insert x T)`
-  form with `T` integral over `K⟮x⟯`). One sentence on the separate
-  `_of_isSeparable` route and why it is not used here.
+- **Every function field is a finite extension of a rational one.** A function
+  field $`F/K`$ (finitely generated, transcendence degree one) contains an element
+  $`t`$ transcendental over $`K`$ with $`F`$ finite — and, in characteristic zero,
+  separable — over $`K(t)`$. So the base case of §3 reaches every $`F`$ through a
+  finite extension.
+- **The norm transfers the residue theorem.** For $`f \in F`$, the norm
+  $`N_{F/K(t)}(f)`$ lies in $`K(t)`$; the divisor of the norm is the pushforward of
+  the divisor of $`f`$; pushforward preserves degree. Hence
+  $`\deg \mathrm{div}(f) = \deg \mathrm{div}(N f) = 0`$ once the base case is known.
+- **The local computation.** The norm formula of
+  [016](016-correspondences-and-exchange.md) §5,
+  $$\mathrm{ord}_v\big(N_{F/K(t)} f\big) \;=\;
+    \sum_{w \mid v} e(w/v)\, f(w/v)\, \mathrm{ord}_w(f),$$
+  is what identifies the divisor of the norm with the pushforward. It is proved
+  from the fibre-centre picture of 015 §2–§3: the relative norm of the
+  fibre-centre prime is the maximal ideal to the inertia degree, computed prime by
+  prime over the factorisation of a principal ideal.
+- **Finiteness in the extension** follows the same way: a nonzero function of
+  $`F`$ is integral over the local ring at all but finitely many places, so its
+  divisor has finite support. Combined with degree zero this is
+  `HasPrincipalDivisors`.
+- **The adjoin form**: if $`T`$ is a finite set of elements integral over
+  $`K(t)`$, then $`K(t)(T)`$ again has the residue theorem — the form in which the
+  statement is applied to a field presented by generators.
+- A remark on the alternative route: the residue theorem can also be obtained
+  without the norm, from the fundamental identity and the degree of a divisor
+  directly; the note records why the norm route is the one used.
 
-### 5. How the code says this
-- Encoding choices: `HasPrincipalDivisors` is a `class`; the `P¹` route works with
-  `Place K (RatFunc K)` but the transfer works with `Place K F` for a finite
-  `F/K⟮x⟯`; `Ideal.relNorm` needs `PerfectField` in v4.34 (`[CharZero F]` suffices,
-  but the instance must fire); the duplicate
-  `hasPrincipalDivisors_of_finiteDimensional_ratFunc` development.
-- Key-point → declaration map.
-- Traps: `DecidableEq (RatFunc K)` for Ostrowski; the `exp`/`log` `rfl`
-  identifications; the `P2M.Dup` copy of `deg_ofHeightOneSpectrum`; the
-  `placeOfPoint`/`Place.Congr` machinery that this route does **not** use.
+## 5. How the code says all this
 
-### 6. Links
-- FLT sources at `aa2d8b3`: `Def_AlgebraicCurve_RatFuncPlaces`,
-  `Def_AlgebraicCurve_RatFuncPlaceInfty` (for `placeInfty`),
-  `Def_AlgebraicCurve_DivisorClassGroup` (`Place.ofHeightOneSpectrum`),
-  `Def_AlgebraicCurve_PlacesOverDVR`, the `S_` files of T8–T9, and the
-  `Theorems/` wrappers.
-- mathlib at `v4.33.0`: `FieldTheory/RatFunc/{Basic,Degree,Valuation,AsPolynomial}`,
-  `NumberTheory/RatFunc/Ostrowski`, `RingTheory/Ideal/Norm/RelNorm`,
-  `RingTheory/DedekindDomain/{Factorization,AdicValuation}`,
-  `RingTheory/AdjoinRoot` (`finrank_quotient_span_eq_natDegree`),
-  `RingTheory/UniqueFactorizationDomain/Basic`.
-- Companion notes: [008](008-divisors-and-pic0.md) §3,
-  [015](015-places-and-extensions.md), [016](016-correspondences-and-exchange.md) §5,
-  [math/009](../math/009-hecke-jacobian-commute.md) §5,
-  [math/010](../math/010-function-field-generation.md) (the modular instantiation).
+- `HasPrincipalDivisors K F` is a class with one field, asserting that every
+  nonzero $`f`$ has a finite-support divisor of degree zero; it is the hypothesis
+  under which `Pic0` and the divisor calculus are the geometric objects of 008.
+- The base case is a development over `RatFunc K`: the place at infinity is the
+  valuation ring of `RatFunc.inftyValuation`; finite places are built from
+  height-one primes of `K[X]`; Ostrowski's theorem is mathlib's classification of
+  valuations on `K(t)`; the residue degree at a finite place is
+  `finrank_quotient_span_eq_natDegree`.
+- The transfer is `hasPrincipalDivisors_of_transcendental`: for $`K`$ of
+  characteristic zero and $`F`$ finite over $`K(t)`$ with $`t`$ transcendental,
+  build the divisor from the finite support and prove degree zero by pushing
+  forward to $`K(t)`$ and applying the base case. The local input is the relative
+  norm of the fibre-centre prime, `Ideal.relNorm` together with the factorisation
+  of a principal ideal.
+- Two encoding notes worth recording: the norm computation needs the field to be
+  perfect (characteristic zero is enough, and mathlib needs the instance to fire);
+  and the base-case degree computation is shipped twice in the project (one
+  wrapper is marked `P2M.Dup`), so only one copy has to be read.
 
-## Planned key-point → declaration map
+### Key point → declaration map
 
-| Mathematics | Lean declaration | AC topic |
-|---|---|---|
-| the infinite place of `K(t)` | `placeInfty`, `RatFunc.inftyValuation` | T8 |
-| finite places from height-one primes | `heightOneSpectrumOfIrreducible`, `finitePlace`, `Place.ofHeightOneSpectrum` | T8 |
-| Ostrowski: finite or infinite | `RatFunc.valuation_isEquiv_infty_or_adic`, `eq_ofHeightOneSpectrum_or_eq_placeInfty'` | T8 |
-| the complement of the finite places | `subsingleton_setOf_forall_ne_ofHeightOneSpectrum`, `exists_forall_ne_ofHeightOneSpectrum` | T8 |
-| residue degree at a finite place | `deg_ofHeightOneSpectrum` | T8 |
-| residue degree at infinity | `deg_eq_one_of_forall_ne_ofHeightOneSpectrum` | T8 |
-| order at a finite place | `ord_ofHeightOneSpectrum_of_span`, `ord_ofHeightOneSpectrum_eq_neg_log` | T8 |
-| order at infinity | `ord_eq_neg_intDegree_of_forall_ne_ofHeightOneSpectrum` | T8 |
-| degree-zero divisor of a polynomial | `degree_eq_zero_of_forall_eq_ord_algebraMap` | T8 |
-| degree-zero divisor of a rational function | `degree_eq_zero_of_forall_eq_ord` | T8 |
-| finite support of `div f` | `finite_setOf_ord_ne_zero` | T8 |
-| norm of the fibre-centre prime | `relNorm_fiberCenter` | T9 |
-| norm of a principal ideal | `relNorm_span_singleton`, `count_normalizedFactors_span_singleton` | T9 |
-| local norm formula | `ord_norm_eq_sum_fiberOver` | T9 |
-| norm of a principal divisor | `pushforwardNormFormula_of_finiteDimensional` | T9 |
-| principal divisors of a finite extension | `hasPrincipalDivisors_of_finiteDimensional_ratFunc` | T9 |
-| the public generic theorem | `hasPrincipalDivisors_of_transcendental` | T9 |
-| the adjoin form | `hasPrincipalDivisors_adjoin_of_transcendental` | T9 |
+| Mathematics | Lean declaration |
+|---|---|
+| rational function field | `RatFunc K` |
+| the place at infinity | `placeInfty`, `RatFunc.inftyValuation` |
+| finite places from irreducible polynomials | `heightOneSpectrumOfIrreducible`, `finitePlace`, `Place.ofHeightOneSpectrum` |
+| Ostrowski's classification | `RatFunc.valuation_isEquiv_infty_or_adic`, `eq_ofHeightOneSpectrum_or_eq_placeInfty'` |
+| non-finite places form at most one point | `subsingleton_setOf_forall_ne_ofHeightOneSpectrum` |
+| and at least one | `exists_forall_ne_ofHeightOneSpectrum`, `toValuationSubring_eq_of_forall_ne_ofHeightOneSpectrum` |
+| residue degree at a finite place | `deg_ofHeightOneSpectrum` |
+| residue degree at infinity | `deg_eq_one_of_forall_ne_ofHeightOneSpectrum` |
+| order at a finite place | `ord_ofHeightOneSpectrum_of_span`, `ord_ofHeightOneSpectrum_eq_neg_log` |
+| order at infinity | `ord_eq_neg_intDegree_of_forall_ne_ofHeightOneSpectrum` |
+| divisor of a polynomial | `degree_eq_zero_of_forall_eq_ord_algebraMap` |
+| divisor of a rational function | `degree_eq_zero_of_forall_eq_ord` |
+| finite support | `finite_setOf_ord_ne_zero` |
+| relative norm of the fibre-centre prime | `relNorm_fiberCenter` |
+| norm of a principal ideal | `relNorm_span_singleton`, `count_normalizedFactors_span_singleton` |
+| the local norm formula | `ord_norm_eq_sum_fiberOver` |
+| degree zero in a finite extension | `hasPrincipalDivisors_of_finiteDimensional_ratFunc` |
+| the transcendental form | `hasPrincipalDivisors_of_transcendental` |
+| the adjoin form | `hasPrincipalDivisors_adjoin_of_transcendental` |
 
-## Open questions for the review
+## 6. Links
 
-- Does the note want a small §7 with a `K = ℚ` worked example (say `p = X² + 1`
-  over `ℚ` and its two conjugate places), or is the mathematics enough? The other
-  base notes usually carry a `pymath/` computation; there is no existing demo for
-  this, so a worked example would need a new script. Plan: **no demo** unless
-  requested; note the gap.
-- Should the `_of_isSeparable` route (uses `sum_ramification × inertia` and
-  `Divisor.degree_eq_sum`, no `relNorm`) be documented as an alternative, or
-  omitted? Plan: one paragraph in §4, no full treatment.
-- Length target: ~450–600 lines.
+FLT sources at the pinned sha `aa2d8b3`:
+
+- [Def_AlgebraicCurve_RatFuncPlaces.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_RatFuncPlaces.lean) — the finite places, residue degrees, and the classification
+- [Def_AlgebraicCurve_RatFuncPlaceInfty.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_RatFuncPlaceInfty.lean) — `placeInfty`
+- [Def_AlgebraicCurve_DivisorClassGroup.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean) — `HasPrincipalDivisors`, `Place.ofHeightOneSpectrum`
+- [`S_AlgebraicCurve_hasPrincipalDivisors_of_transcendental.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_hasPrincipalDivisors_of_transcendental.lean) — the norm transfer
+- [`S_AlgebraicCurve_hasPrincipalDivisors_adjoin_of_transcendental.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_hasPrincipalDivisors_adjoin_of_transcendental.lean) — the adjoin form
+
+Mathlib at tag `v4.33.0`:
+
+- [FieldTheory/RatFunc/Valuation.lean](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/RatFunc/Valuation.lean) — `RatFunc.inftyValuation`
+- [NumberTheory/RatFunc/Ostrowski.lean](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/RatFunc/Ostrowski.lean) — the classification of valuations on `K(t)`
+- [RingTheory/Ideal/Norm/RelNorm.lean](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/RingTheory/Ideal/Norm/RelNorm.lean) — `Ideal.relNorm`
+- [RingTheory/AdjoinRoot.lean](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/RingTheory/AdjoinRoot.lean) — `finrank_quotient_span_eq_natDegree`
+
+Companion notes:
+
+- [008 — Divisors, linear equivalence, and Pic⁰](008-divisors-and-pic0.md) §3, §8 — the residue theorem as a hypothesis
+- [015 — Places and their extensions](015-places-and-extensions.md) — the fibre-centre dictionary
+- [016 — Correspondences and the exchange lemma](016-correspondences-and-exchange.md) §5 — the norm formula
+- [009 — Differentials, residues, and Riemann–Roch](009-differentials-residues-riemann-roch.md) — the residue theorem in its other forms
+- [math/009](../math/009-hecke-jacobian-commute.md) §5 — where principal divisors enter the Hecke argument

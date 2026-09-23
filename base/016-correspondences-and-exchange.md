@@ -1,185 +1,196 @@
-# Correspondences, the exchange lemma, and the norm formula
+# Correspondences and the exchange lemma
 
-**Status: OUTLINE — for review. The prose is not yet written; this file fixes the
-scope, the section plan and the declaration inventory so the coverage can be
-checked first.** Planned as `base/016`, the second of the three notes carrying the
-mathlib-level mathematics of the `AlgebraicCurve` port
-([../lean/PORTING-AC.md](../lean/PORTING-AC.md), topics **T4–T7**).
+**Status: OUTLINE — the mathematical scope and section plan, for review before the
+prose is written.**
 
-## Why this note
+A **correspondence** between two curves is a multivalued map; on divisor classes it
+acts by pulling back along one leg and pushing forward along the other. The Hecke
+operators on $`X_0(N)`$ are correspondences, and the fact that they commute is what
+turns an indexed family of endomorphisms into a ring action on the Jacobian. Note
+[008](008-divisors-and-pic0.md) §5 introduces the calculus and the shape
+$`T_\ell = \alpha_\ast \beta^\ast`$; [math/009](../math/009-hecke-jacobian-commute.md)
+§4 states the identity the commutativity proof turns on.
 
-[008](008-divisors-and-pic0.md) §5 states the classical calculus — `e`, `f`, the
-fundamental identity, pushforward, pullback, "a correspondence is pushforward
-along one leg and pullback along the other" — and math/009 §4 states the exchange
-identity the Hecke commutativity proof turns on. What neither covers is the layer
-the port actually writes:
+This note supplies the mathematics in between. Its subject is the **exchange
+identity** for a square of function fields that is a fibre product — the algebraic
+form of the geometric fact that, over a fibre square of curves, pulling back after
+pushing forward is pushing forward after pulling back. The proof has two layers:
+the equality of divisors reduces to a single place, and the place-level identity is
+a finite count over the **bifibre**, proved first in the Galois case by an orbit
+argument and then in general by passing to the normal closure. The note closes with
+the derived statement about pushforward of principal divisors — the **norm
+formula** — which [017](017-rational-function-field-and-principal-divisors.md)
+uses to prove the residue theorem for a general function field.
 
-1. the **`...Along` encoding** (`algebraAlong`, `FiniteAlong`, `SeparableAlong`,
-   `finrankAlong`, `pullbackAlong`, `pushforwardAlong`) that replaces the older
-   `pullback`/`pushforward`/`pullbackHom` API of 008 §8;
-2. the **linearly-disjoint (fibre-product) square** and the identity
-   `b^* a_* = b'_* a'^*`, together with the local identity it reduces to;
-3. the **bifibre count** and the Galois orbit argument that proves it;
-4. the **norm formula**, `ord(N_{F'/F} f) = Σ_{w|v} e(w) f(w) ord_w(f)`, which 017
-   uses to discharge `HasPrincipalDivisors`.
+It assumes [015](015-places-and-extensions.md) (places, ramification, inertia,
+semilinear equivariance) and 008 §5 (the pull–push calculus).
 
-This note is where the mathematics of `T_ℓ T_{ℓ'} = T_{ℓ'} T_ℓ` sits at the
-mathlib level; [math/009](../math/009-hecke-jacobian-commute.md) is the FLT-step
-narrative that consumes it.
+## 1. Correspondences, and the pull–push action
 
-## Planned sections
+- The two basic operations along a finite separable map $`\varphi : F \to F'`$ of
+  function fields: **pullback** $`\varphi^\ast`$ distributes a point over the
+  places above it weighted by ramification index; **pushforward**
+  $`\varphi_\ast`$ adds multiplicities over the fibre, weighted by inertia degree.
+- Degree behaviour: $`\deg \varphi^\ast D = [F':F] \cdot \deg D`$,
+  $`\deg \varphi_\ast D' = \deg D'`$; both respect principal divisors, hence both
+  descend to $`\mathrm{Pic}^0`$. (008 §5, restated in the map language.)
+- A **correspondence** is a pair of maps out of a common cover,
+  $`C \leftarrow C'' \to C`$, acting on divisor classes by
+  $`\varphi_\ast \circ \psi^\ast`$; the Hecke operator $`T_\ell`$ is the
+  correspondence attached to the two degeneracy maps $`X_0(N\ell) \to X_0(N)`$.
+- Composition of correspondences and the transposed correspondence; the question
+  "when do two correspondences commute" is the question answered in §3.
 
-### 0. Scope and placement
-- What a correspondence is (008 §5); why the Hecke operator is one; the two faces
-  of the theorem — the generic exchange and the Hecke instance.
-- Reading order: [015](015-places-and-extensions.md) → this note →
-  [017](017-rational-function-field-and-principal-divisors.md); the Hecke
-  instance itself is math/009.
+## 2. The linearly disjoint square
 
-### 1. The `...Along` encoding (T4)
-- Why an `AlgHom φ : F →ₐ[K] F'` is not enough: `PushforwardNormFormula`,
-  `FundamentalIdentity` etc. are stated for a *field extension*, while the
-  exchange square is built from maps. `algebraAlong φ` turns `φ` into the
-  `Algebra F F'` structure; `isScalarTower_along`, `isIntegral_along` are the two
-  side conditions.
-- The four bundled predicates and what each buys:
-  `FiniteAlong` (finiteness, for pushforward),
-  `SeparableAlong` (separability, so the tensor square is étale),
-  `FundamentalIdentityAlong` (`Σ e·f = [F':F]`, degree preservation on pullback),
-  `NormFormulaAlong` (principal preservation on pushforward),
-  and `finrankAlong`.
-- The leaf lemmas the cone uses: `finiteAlong_comp`,
-  `finiteAlong_of_surjective`, `separableAlong_of_charZero` (characteristic zero
-  makes separable automatic), `restrictAlong_congr`.
+- A commutative square of function fields
+  $$F \xrightarrow{\ a\ } A, \qquad F \xrightarrow{\ b\ } B, \qquad
+    A \xrightarrow{\ a'\ } E, \qquad B \xrightarrow{\ b'\ } E,$$
+  with $`b' \circ b = a' \circ a`$, everything finite and separable.
+- The square is a **fibre product** over $`F`$ exactly when $`E`$ is generated by
+  the images of $`A`$ and $`B`$ and the degrees multiply:
+  $`[E:F] = [A:F]\,[B:F]`$. Over an algebraically closed base this is precisely
+  that the two extensions are **linearly disjoint**; geometrically, that the two
+  covers meet transversally over the base.
+- **The exchange (projection) identity**: for every divisor $`D`$ on $`A`$,
+  $$b^\ast \big(a_\ast D\big) \;=\; b'_\ast \big(a'^\ast D\big).$$
+  Pull down one side, push up the other, both ways give the same divisor.
+- Why the hypotheses are what they are: finiteness makes $`a_\ast`$ defined and
+  principal-preserving, separability makes the tensor square étale (a product of
+  fields rather than a local algebra), generation makes the map to the roof
+  surjective on fields, and the degree condition makes the two legs' degrees
+  exactly complementary.
 
-### 2. Pushforward and pullback along a map (T4)
-- `Divisor.pullbackAlong`, `Divisor.pushforwardAlong`, their defining equations on
-  singles (`pullbackAlong_single`, `pushforwardAlong_single`), and the point-level
-  formulas via `Place.restrictAlong`, `Place.ramificationIndexAlong`,
-  `Place.inertiaDegAlong`, `Place.fiberAlong`, `Place.mem_fiberAlong`,
-  `Place.ord_restrictAlong`.
-- Degree and principality: `degree_pullbackAlong`, `pullbackAlong_mem_degZero`,
-  `isPrincipal_pullbackAlong`, `degree_pushforwardAlong`,
-  `pushforwardAlong_mem_degZero`, `isPrincipal_pushforwardAlong`; the composite
-  `Divisor.correspondence`, `correspondence_correspondence`,
-  `pullbackAlong_pullbackAlong`, `pushforwardAlong_pushforwardAlong`.
-- Descent to `Pic0`: `Pic0.correspondence`, `Pic0.correspondence_correspondence_comm`,
-  `Pic0.mk_eq_zero_iff`, `Pic0.zsmul_mk`, `Pic0.zsmul_mk_eq_zero_of_isPrincipal`,
-  `Pic0.nsmul_mk_eq_zero_of_isPrincipal`,
-  `Pic0.addOrderOf_mk_dvd_of_isPrincipal`; why the quotient is handled by choosing
-  a representative (`Pic0.mk_surjective`).
+## 3. Reduction to a single place
 
-### 3. The linearly-disjoint square and the exchange identity (T7)
-- The square `F → A → E`, `F → B → E`; the five hypotheses in words:
-  commutativity `hsq`, finiteness, separability, generation
-  `Algebra.adjoin K (range a' ∪ range b') = ⊤`, and the degree match
-  `finrankAlong (a'.comp a) = finrankAlong a * finrankAlong b`.
-- Why `hgen` + `hLD` are "the square is a fibre product / the two legs are
-  linearly disjoint" over an algebraically closed base.
-- The statement
-  `Divisor.pullbackAlong_pushforwardAlong_eq_pushforwardAlong_pullbackAlong`, and
-  its reading: pull-then-push down the left legs equals push-then-pull across the
-  roof.
-- **Layer 1 (the reduction).** Additivity reduces to a single place `w_A`;
-  `Finsupp.addHom_ext`, `ext w_B`, `Finset.sum_apply'`, the two cases
-  (`w_B` restricting to the same place as `w_A` or not), and the `rfl` bridges
-  `eA`/`fB`/`fF`/`eF` that convert `...Along` invariants to `Place` invariants.
-- **Layer 2 (the local identity).** The coefficient identity becomes
-  `Place.sum_ramificationIndex_mul_inertiaDeg_exchange`, stated with an arbitrary
-  finset `T` and the membership hypothesis
-  `∀ W, W ∈ T ↔ W.restrict F₁ = w₁ ∧ W.restrict F₂ = w₂`.
+- Both sides are additive in $`D`$, so it suffices to check a single point $`P`$ of
+  $`A`$ with multiplicity one.
+- For a point $`Q`$ of $`B`$: if $`P`$ and $`Q`$ lie over **different** points of
+  $`F`$, both coefficients at $`Q`$ vanish; if they lie over the same $`v`$, the
+  identity becomes a finite numerical statement about the places of $`E`$ above
+  $`v`$.
+- The coefficient on the left is a sum over the places of $`E`$ restricting to both
+  $`P`$ and $`Q`$, weighted by the ramification index over $`P`$ and the inertia
+  degree over $`Q`$; the coefficient on the right is
+  $`e(Q/v)\, f(P/v)`$. The exchange identity is exactly the equality of these two
+  numbers. Nothing about divisors remains.
 
-### 4. The local identity, taken apart (T5–T6)
-- The two-layer structure: the **Galois case** `exchange_of_isGalois`, then the
-  **separable reduction** through the normal closure.
-- **The bifibre count** `sum_ramificationIndex_mul_inertiaDeg_bifiber`: for a
-  compositum `E` of `F₁, F₂` inside a finite Galois `M/F`,
-  $`\sum_{W} e_F(W) f_F(W) = (e_F(w_1) f_F(w_1)) (e_F(w_2) f_F(w_2))`$.
-- **Tower multiplicativity** (from [015](015-places-and-extensions.md) §5):
-  `e_F(W) = e_{F_1}(W) e_F(w_1)`, `f_F(W) = f_{F_2}(W) f_F(w_2)`, and the
-  cancellation of the positive factor `e_F(w_1) f_F(w_2)`; positivity of
-  `w_2.inertiaDeg F` via `card_fiberOver_mul_ramificationIndex_mul_inertiaDeg`
-  and `Module.finrank_pos`.
-- **The orbit argument** and its two generic lemmas. The Galois group acts on the
-  places over `v`; with `resHom : Gal(M/F) → Gal(M/F_i)` (restriction),
-  `card_range_resHom`, `index_range_resHom`,
-  `orbit_range_resHom_eq`, `orbit_gal_eq`,
-  `forall_apply_algebraMap_eq_of_adjoin_eq_top`. The count
-  $`|H_1 x_1 \cap H_2 x_2| \cdot |X| = |H_1 x_1| \cdot |H_2 x_2|`$ is the
-  generic lemma `MulAction.ncard_orbit_inter_orbit_mul_card` (165 `S_` lines, not
-  in mathlib), and the index hypothesis is turned into `H_1 H_2 = Gal` by
-  `Subgroup.exists_eq_mul_of_index_inf_eq` (48 lines, not in mathlib). mathlib
-  provides `MulAction.card_orbit_mul_card_stabilizer_eq_card_group`,
-  `Subgroup.index_inf_le`, `Subgroup.relIndex_mul_index` but not these statements.
-- **The normal-closure reduction:** `Env F E :=
-  IntermediateField.normalClosure F E (AlgebraicClosure E)`, `isGalois_env`,
-  `algebraEnv` and the six local `IsScalarTower` instances, then
-  `sum_ramificationIndex_mul_inertiaDeg_bifiber_of_isSeparable` and the final
-  `exchange_of_isGalois`/`solution` at `M = Env F E`.
+## 4. The local identity: counting the bifibre
 
-### 5. The norm formula (T4/T9 boundary)
-- `PushforwardNormFormula K F F'`, `pushforward_eq_of_normFormula`,
-  `isPrincipal_pushforward_of_normFormula`: a finite map pushes principal divisors
-  to principal divisors because `φ_* div(g) = div(Norm_{F'/F} g)`.
-- Its local form `ord_norm_eq_sum_fiberOver`:
-  $`\mathrm{ord}_v(N_{F'/F} f) = \sum_{w \mid v} \mathrm{inertiaDeg}(w)\cdot \mathrm{ord}_w(f)`$,
-  proved from the fibre-centre dictionary of [015](015-places-and-extensions.md)
-  §3 and `Ideal.relNorm`. This is the lemma 017 consumes; the note states it and
-  records the boundary, leaving the `relNorm` computation itself to 017.
+- The **bifibre** $`T = \{\, W : W|_A = P,\ W|_B = Q\,\}`$, a finite set of places
+  of $`E`$. The identity to prove is
+  $$\sum_{W \in T} e(W/P)\, f(W/Q) \;=\; f(P/v)\, e(Q/v).$$
+- **The Galois case.** When $`E/F`$ is Galois, the places above $`v`$ are one
+  orbit under the group. Writing $`H_A, H_B`$ for the images of the
+  decomposition groups, the bifibre is an intersection of orbits, and the count is
+  the orbit-intersection identity
+  $$|H_A x_A \cap H_B x_B| \cdot |X| \;=\; |H_A x_A| \cdot |H_B x_B|,$$
+  where $`X`$ is the orbit of a chosen place over $`v`$. The hypothesis
+  $`[E:F] = [A:F][B:F]`$ is precisely what forces $`H_A H_B`$ to be the whole
+  group, so that the two orbits are not disjoint; the orbit sizes are then the
+  fibre-over cardinalities.
+- **The single-place constancy** feeding this: for a compositum of two
+  subextensions inside a Galois extension, the number of places over a given pair
+  times $`e f`$ is the local degree —
+  $`|\text{fibre}| \cdot e \cdot f = [E:F]`$ — which is 015 §4's constancy
+  statement.
+- **Tower bookkeeping.** The Galois count is a sum of terms
+  $`e_F(W)\,f_F(W)`$; the tower multiplicativity of 015 §4 rewrites them as
+  $`e_F(W) = e_{F_1}(W)\,e_F(P/v)`$ and
+  $`f_F(W) = f_{F_2}(W)\,f_F(Q/v)`$, so the common positive factor
+  $`e_F(P/v)\,f_F(Q/v)`$ cancels and the sum *is* the local identity
+  $`\sum_{W} e(W/P)\,f(W/Q) = f(P/v)\,e(Q/v)`$. This is the only place the
+  multiplicativity identities are used, and it is why the local identity is a
+  statement about the bifibre rather than about a single extension.
+- **The general separable case.** A separable (not necessarily Galois) $`E/F`$ is
+  replaced by its **normal closure** $`\overline{E}`$ inside an algebraic closure;
+  the Galois theorem is applied there, and the count is transported back down. The
+  bookkeeping is that the places of $`E`$ over $`v`$ are exactly the restrictions
+  of the places of $`\overline{E}`$ over $`v`$, with $`e`$ and $`f`$ multiplicative
+  in the tower.
+- The degenerate case $`\ell = \ell'`$ needs no exchange: a correspondence
+  commutes with itself.
 
-### 6. How the code says this
-- Encoding choices: `algebraAlong` and the `letI`/`haveI` walls; why the exchange's
-  `rfl` bridges depend on the definitional unfolding of `algebraAlong`;
-  `HasPrincipalDivisors` needed on `B` and `E` for the final statement but not for
-  the class-free `fiberOver` computation.
-- Key-point → declaration map.
-- Traps: instance diamonds in the normal-closure block; `DecidableEq (Place K E)`
-  for the `Finset.filter`; the deprecated `Ideal` alias set; the `p2m_*` namespace
-  machinery that is dropped; the duplicated `BifibreDev`/`BifibreW2`/`BifibreWEX`
-  preludes that the port writes once.
+## 5. Pushforward of principal divisors, and the norm formula
 
-### 7. Links
-- FLT sources at `aa2d8b3`: `Def_AlgebraicCurve_Correspondence`,
-  `Def_AlgebraicCurve_DivisorPushPull`, `Def_AlgebraicCurve_DegeneracyTower` (the
-  Hecke instance), the `S_` files of T4–T7, the two generic `S_MulAction_*` /
-  `S_Subgroup_*` files, and the `Theorems/` wrappers.
-- mathlib at `v4.33.0`: `AlgebraicGeometry/FunctionField` (the scheme seam, cited
-  only to say it is *not* used), `FieldTheory/Galois/Basic`,
-  `FieldTheory/Normal/Closure`, `FieldTheory/SeparableClosure`,
-  `GroupTheory/Index`, `LinearAlgebra/Dimension/Finrank`.
-- Companion notes: [008](008-divisors-and-pic0.md) §5,
-  [015](015-places-and-extensions.md), [math/009](../math/009-hecke-jacobian-commute.md) §3–§4.
+- A finite map pushes **principal** divisors to principal divisors, because it
+  sends a function to its norm:
+  $`\varphi_\ast \mathrm{div}(g) = \mathrm{div}(N_{F'/F} g)`$. This is the second
+  input — besides degree preservation — that lets a correspondence descend to
+  $`\mathrm{Pic}^0`$.
+- Its local form, the **norm formula**:
+  $$\mathrm{ord}_v\big(N_{F'/F} f\big) \;=\;
+    \sum_{w \mid v} f(w/v)\,\mathrm{ord}_w(f) \cdot e(w/v),$$
+  equivalently $`\mathrm{div}(N f) = \varphi_\ast \mathrm{div}(f)`$. It is a
+  statement about the fibre-centre primes of 015 §2–§3 together with the relative
+  norm of an ideal, and it is proved by computing the norm prime by prime.
+- The consequence used later: $`\deg \mathrm{div}(N f) = \deg \varphi_\ast
+  \mathrm{div}(f) = 0`$ *if* the base field's residue theorem is known — the
+  transfer step of 017.
 
-## Planned key-point → declaration map
+## 6. How the code says all this
 
-| Mathematics | Lean declaration | AC topic |
-|---|---|---|
-| a map as an algebra structure | `algebraAlong`, `isScalarTower_along` | T4 |
-| bundled finiteness / separability | `FiniteAlong`, `SeparableAlong` | T4 |
-| relative degree of a map | `finrankAlong` | T4 |
-| pushforward / pullback along a map | `pullbackAlong`, `pushforwardAlong` | T4 |
-| the correspondence on divisors and `Pic0` | `Divisor.correspondence`, `Pic0.correspondence` | T4 |
-| correspondence composition | `correspondence_correspondence`, `Pic0.correspondence_correspondence_comm` | T4 |
-| fibre along a map | `Place.fiberAlong`, `Place.mem_fiberAlong` | T4 |
-| linearly disjoint square | `hgen`, `hLD` of the exchange | T7 |
-| the exchange identity | `Divisor.pullbackAlong_pushforwardAlong_eq_pushforwardAlong_pullbackAlong` | T7 |
-| the local identity | `Place.sum_ramificationIndex_mul_inertiaDeg_exchange` | T6 |
-| reduction to a place | `Finsupp.addHom_ext`, `pullbackAlong_single`, `pushforwardAlong_single` | T7 |
-| bifibre count | `sum_ramificationIndex_mul_inertiaDeg_bifiber` | T5 |
-| orbit-intersection count | `MulAction.ncard_orbit_inter_orbit_mul_card` | T5 |
-| index product | `Subgroup.exists_eq_mul_of_index_inf_eq` | T5 |
-| normal closure reduction | `Env`, `isGalois_env`, `exchange_of_isGalois` | T6 |
-| norm pushes principal to principal | `PushforwardNormFormula`, `isPrincipal_pushforward_of_normFormula` | T4 |
-| local norm formula | `ord_norm_eq_sum_fiberOver` | T4/T9 |
+- The map-level calculus is built from an algebra homomorphism $`\varphi`$ by
+  turning it into an `Algebra F F'` structure (`algebraAlong`) and bundling the
+  side conditions as `FiniteAlong`, `SeparableAlong`, `FundamentalIdentityAlong`
+  and `NormFormulaAlong`; `finrankAlong` is the relative degree. This replaces the
+  older `pullback`/`pushforward`/`pullbackHom` names of 008 §8.
+- The exchange theorem is stated for the square and proved by the two layers above:
+  a `Finsupp`-ext reduction to a single place, then the local identity
+  `Place.sum_ramificationIndex_mul_inertiaDeg_exchange`. The class-free fibre set
+  `Place.fiberOver` of 015 is what makes the reduction possible before principal
+  divisors are known.
+- The local identity's Galois case uses `IntermediateField.normalClosure` for the
+  roof and mathlib's Galois action on primes over a prime; the two combinatorial
+  inputs — the orbit-intersection count and the index product — are generic lemmas
+  that mathlib does not have and that the project proves (`MulAction`- and
+  `Subgroup`-level statements).
+- The general case is the normal-closure reduction: `Env F E`, the local
+  `Algebra`/`IsScalarTower` instances that view the closure as an $`E`$-algebra,
+  and the Galois theorem applied there.
 
-## Open questions for the review
+### Key point → declaration map
 
-- Should the Hecke instance (`heckeSquareBar_commutes`, `towerInclBar`,
-  `towerSubstBar`, `heckeRoof_adjoin_range_union_eq_top`,
-  `finrankAlong_towerSubstBar_comp_heckeAlphaBar`) be *stated* here as the worked
-  example, or left entirely to math/009? Plan: a short pointer in §0 plus the
-  generic statement, with math/009 owning the instance.
-- Should `ord_norm_eq_sum_fiberOver` be proved here or in 017? It is used only by
-  017, but its proof is the dictionary of 015 §3. Plan: state it here, prove it in
-  017 (or cross-reference whichever is written first) — decide at writing time.
-- Length target: ~500–650 lines.
+| Mathematics | Lean declaration |
+|---|---|
+| a map as an algebra structure | `algebraAlong`, `isScalarTower_along`, `isIntegral_along` |
+| bundled finiteness and separability | `FiniteAlong`, `SeparableAlong` |
+| relative degree | `finrankAlong` |
+| pullback and pushforward along a map | `Divisor.pullbackAlong`, `Divisor.pushforwardAlong`, `..._single` |
+| fibre along a map | `Place.fiberAlong`, `Place.mem_fiberAlong` |
+| the correspondence on divisors and on Pic⁰ | `Divisor.correspondence`, `Pic0.correspondence` |
+| composition of correspondences | `Divisor.correspondence_correspondence`, `Pic0.correspondence_correspondence_comm` |
+| the linearly disjoint square | the `hgen`/`hLD` hypotheses of the exchange |
+| the exchange identity | `Divisor.pullbackAlong_pushforwardAlong_eq_pushforwardAlong_pullbackAlong` |
+| reduction to one place | `Finsupp.addHom_ext`, `Divisor.pullbackAlong_single`, `Divisor.pushforwardAlong_single` |
+| the local identity | `Place.sum_ramificationIndex_mul_inertiaDeg_exchange` |
+| the bifibre count | `Place.sum_ramificationIndex_mul_inertiaDeg_bifiber` |
+| orbit-intersection count | `MulAction.ncard_orbit_inter_orbit_mul_card` |
+| index product $`H_A H_B = G`$ | `Subgroup.exists_eq_mul_of_index_inf_eq` |
+| normal-closure reduction | `Env`, `isGalois_env`, `exchange_of_isGalois`, `sum_ramificationIndex_mul_inertiaDeg_bifiber_of_isSeparable` |
+| norm pushes principal to principal | `PushforwardNormFormula`, `isPrincipal_pushforward_of_normFormula` |
+| the norm formula | `ord_norm_eq_sum_fiberOver` |
+
+## 7. Links
+
+FLT sources at the pinned sha `aa2d8b3`:
+
+- [Def_AlgebraicCurve_Correspondence.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_Correspondence.lean) — `algebraAlong`, the `...Along` predicates, `pullbackAlong`, `pushforwardAlong`, `correspondence`
+- [Def_AlgebraicCurve_DivisorPushPull.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorPushPull.lean) — `pushforward`, `pullback`, `PushforwardNormFormula`
+- [Def_ModularCurve_DegeneracyTower.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_DegeneracyTower.lean) — the Hecke roof square and `HeckeExchangeAt`
+- [`S_AlgebraicCurve_Divisor_pullbackAlong_pushforwardAlong_eq_pushforwardAlong_pullbackAlong.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_Divisor_pullbackAlong_pushforwardAlong_eq_pushforwardAlong_pullbackAlong.lean) — the exchange proof
+- [`S_AlgebraicCurve_Place_sum_ramificationIndex_mul_inertiaDeg_exchange.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_Place_sum_ramificationIndex_mul_inertiaDeg_exchange.lean) — the local identity
+
+Mathlib at tag `v4.33.0`:
+
+- [FieldTheory/Normal/Closure.lean](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/Normal/Closure.lean) — `IntermediateField.normalClosure`
+- [FieldTheory/SeparableClosure.lean](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/FieldTheory/SeparableClosure.lean) — separability of the closure
+- [GroupTheory/Index.lean](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/GroupTheory/Index.lean) — subgroup indices
+- [Algebra/Group/Action/...](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/Algebra/Group/Action/Basic.lean) — orbit–stabiliser
+
+Companion notes:
+
+- [008 — Divisors, linear equivalence, and Pic⁰](008-divisors-and-pic0.md) §5 — the classical pull–push and correspondence
+- [015 — Places and their extensions](015-places-and-extensions.md) — ramification, inertia, and their multiplicativity
+- [017 — The rational function field and principal divisors](017-rational-function-field-and-principal-divisors.md) — where the norm formula is used
+- [math/009](../math/009-hecke-jacobian-commute.md) §3–§4 — the Hecke instance of the square
