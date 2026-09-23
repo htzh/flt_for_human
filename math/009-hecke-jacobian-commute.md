@@ -119,22 +119,86 @@ abbrev JZero : Type _ :=
 
 Over $`\bar{\mathbb{Q}}`$ this is the group one classically writes
 $`J_0(N)(\bar{\mathbb{Q}}) = \mathrm{Pic}^0(X_0(N))`$: on a smooth projective
-curve the degree-zero divisor classes *are* the points of its Jacobian. No
-variety is ever built here, so that identity is a reading of `JZero` rather than
-a theorem about a constructed object; the honest substitute is the
-Hecke-equivariant Abel–Jacobi injection into the analytic torus proved
-downstream (§7).
+curve the degree-zero divisor classes *are* the points of its Jacobian. Here is
+why, and then what the formalization does instead.
 
-One honest remark about what is gained. This $`J_0(N)`$ is an abelian *group*,
-and that group is enormous — it contains $`J_0(N)(\mathbb{Q})`$, a finitely
-generated group about which almost anything can be hard. So the formalisation
-does *not* try to prove that $`J_0(N)`$ is an abelian variety and import
-theorems about abelian varieties; it keeps the concrete divisor group and proves
-the individual finiteness theorems it needs (e.g. the finiteness of
-$`\mathfrak{m}`$-torsion used downstream, or the finite generation of Tate
-modules in the co-input list of §7). Later notes will open those; here the point
-is that the Hecke action is *defined* on the divisor group directly, with no
-variety in sight.
+### 2.1 Why the degree-zero classes are the Jacobian
+
+A degree-zero divisor is a finite weighted configuration of points whose weights
+sum to zero, and two configurations are the same class when they differ by the
+zeros and poles of a rational function. That set of classes is *a priori* only a
+group. That it is also the point set of a $`g`$-dimensional projective group
+variety — the Jacobian — is the classical theory of the Jacobian, and its
+intuition is cleanest over $`\mathbb{C}`$.
+
+Choose a base point $`P_0`$ and a basis $`\omega_1,\dots,\omega_g`$ of the
+holomorphic differentials on $`C`$ (there are exactly $`g`$ of them; that is the
+canonical-divisor computation of
+[base/009](../base/009-differentials-residues-riemann-roch.md)). Integrating
+gives the **Abel–Jacobi map**
+$$AJ : C \longrightarrow \mathbb{C}^g/\Lambda, \qquad
+  P \mapsto \Big(\int_{P_0}^{P}\omega_1,\\;\dots,\\; \int_{P_0}^{P}\omega_g\Big)
+  \bmod \Lambda,$$
+where $`\Lambda = H_1(C,\mathbb{Z})`$ is the period lattice, of rank $`2g`$.
+Extend it additively to degree-zero divisors,
+$`AJ(\sum n_P P) = \sum n_P AJ(P)`$; this is well defined because the value on a
+closed loop lies in $`\Lambda`$. Two classical theorems then describe it:
+
+* **Abel's theorem** — $`AJ(D) = 0`$ exactly when $`D`$ is principal. So $`AJ`$
+  descends to an *injective* map
+  $`\mathrm{Pic}^0(C) \hookrightarrow \mathbb{C}^g/\Lambda`$;
+* **Jacobi inversion** — that map is also surjective.
+
+Hence $`\mathrm{Pic}^0(C) \cong \mathbb{C}^g/\Lambda`$: a compact complex torus
+of dimension $`g`$, with group law induced by addition of classes — in genus one
+this is the chord–tangent law worked out in
+[base/008 §3](../base/008-divisors-and-pic0.md). It is not merely a torus:
+Riemann's theta divisor makes it projective, so it is an abelian variety, and it
+has the universal property (the Albanese property) that every morphism
+$`C \to A`$ to an abelian variety carrying $`P_0`$ to $`0`$ factors uniquely
+through $`AJ`$. Equivalently, $`\mathrm{Pic}^0`$ represents the degree-zero
+Picard functor, which is the categorical reason it deserves to be called *the*
+Jacobian, and why $`J_0(N)`$ can be read off from divisor classes alone.
+
+Two features of the construction are worth keeping in view.
+
+* **Degree zero is the identity component.** The degree is a homomorphism
+  $`\deg : \mathrm{Pic}(C) \to \mathbb{Z}`$ with $`\deg[P] = 1`$, hence
+  surjective, and $`\mathrm{Pic}^0`$ is its kernel; non-canonically
+  $`\mathrm{Pic}(C) \cong \mathrm{Pic}^0(C) \times \mathbb{Z}`$. The Jacobian is
+  the connected component of the identity of the Picard variety, not the whole
+  Picard group.
+* **The balanced degree is $`g`$.** Jacobi inversion plus Riemann–Roch show that
+  the Abel–Jacobi map on the $`g`$-fold symmetric product,
+  $`\mathrm{Sym}^g(C) \to J(C)`$, is birational. That is where
+  $`\dim J = g`$ comes from, and it is the same $`g`$ that fixes the rank
+  $`2g`$ of the Tate module the proof uses downstream
+  ([base/008 §4](../base/008-divisors-and-pic0.md),
+  [note 011 §4](011-tate-module.md)).
+
+### 2.2 What is actually built
+
+The formalization never leaves the divisor-class side. Its `Pic0` is exactly the
+kernel of the degree map on the class group, and the identification with the
+variety is a *theorem of algebraic geometry* that it does not invoke. No variety
+is ever built here, so
+$`J_0(N)(\bar{\mathbb{Q}}) = \mathrm{Pic}^0(X_0(N))`$ is a reading of `JZero`
+rather than a theorem about a constructed object. In the function-field language
+this is even starker: the "points" are the places $`v`$ of the function field,
+divisors are finite $`\mathbb{Z}`$-sums $`\sum n_v v`$, and principal divisors
+are $`\mathrm{div}(f) = \sum_v \mathrm{ord}_v(f)\,v`$ — all of it field theory,
+with no scheme and no curve object in sight.
+
+The honest substitute is the concrete arithmetic downstream: the
+Hecke-equivariant Abel–Jacobi injection into the analytic torus, and the
+individual finiteness theorems the proof needs (the finiteness of
+$`\mathfrak{m}`$-torsion, the finite generation of Tate modules in the co-input
+list of §7). This $`J_0(N)`$ is an abelian *group*, and an enormous one — it
+contains $`J_0(N)(\mathbb{Q})`$, a finitely generated group about which almost
+anything can be hard — so the formalisation does *not* prove that $`J_0(N)`$ is
+an abelian variety in order to import theorems about abelian varieties. It keeps
+the concrete divisor group. Here the point is that the Hecke action is *defined*
+on it directly, with no variety in sight.
 
 ## 3. Degeneracy maps, and the correspondence $`T_\ell = \alpha_{\ast}\circ\beta^{\ast}`$
 
