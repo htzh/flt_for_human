@@ -2,9 +2,9 @@
 
 Read-only audit. Sources:
 
-- FLT clone `/home/haitao/proj/fermats-last-theorem`, git `aa2d8b34692b16c70f699536de0d8e75b9a3e9ef`
+- FLT clone `~/proj/fermats-last-theorem`, git `aa2d8b34692b16c70f699536de0d8e75b9a3e9ef`
   (short `aa2d8b3`, "Lean 4.33.1, Mathlib v4.33.0").
-- Port `/home/haitao/proj/reasonix-sandbox/flt_for_human/lean/FLTForHuman/`.
+- Port `lean/FLTForHuman/` (in this repo).
 
 **Verdict in one line.** **No.** Neither the pin nor the port states
 `phiProd ℓ (conj ℓ ζ) = cosetTwoVarPoly ζ ℓ (coeffEmb K jq)` (or the analogous

@@ -2,12 +2,12 @@
 
 Read-only audit. Sources:
 
-- FLT clone `/home/haitao/proj/fermats-last-theorem`, git HEAD `aa2d8b34`
+- FLT clone `~/proj/fermats-last-theorem`, git HEAD `aa2d8b34`
   (`aa2d8b34692b16c70f699536de0d8e75b9a3e9ef`, "Lean 4.33.1, Mathlib v4.33.0").
-- Pinned mathlib `/home/haitao/proj/reasonix-sandbox/flt_for_human/lean/.lake/packages/mathlib`,
+- Pinned mathlib `lean/.lake/packages/mathlib` (workspace checkout),
   tag `v4.34.0`, commit `5ed2965256430c3649e86755f9576b54eca72435`.
   All `path:line` mathlib citations below are against **this** checkout.
-- Port `/home/haitao/proj/reasonix-sandbox/flt_for_human/lean/FLTForHuman/`.
+- Port `lean/FLTForHuman/` (workspace checkout).
 
 Reference copy of the prelude: `P2M/Sol/S_ModularCurve_jqN_prime_not_mem_full.lean`
 lines 35–404 (370 lines; 321 of them are declaration lines counted with their

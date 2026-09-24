@@ -1,7 +1,7 @@
 # Compressibility / mathlib-reuse audit of `rval_aux`
 
 Source: `P2M/Sol/S_ModularCurve_jqN_prime_not_mem_full.lean`,
-git HEAD `aa2d8b34` of `/home/haitao/proj/fermats-last-theorem`.
+git HEAD `aa2d8b34` of `~/proj/fermats-last-theorem`.
 mathlib at `lean/.lake/packages/mathlib` (workspace checkout).
 Read-only audit: nothing in either repo was modified.
 

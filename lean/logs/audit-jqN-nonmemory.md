@@ -2,7 +2,7 @@
 
 Read-only audit of `anthropics/fermats-last-theorem` at git `aa2d8b34692b16c70f699536de0d8e75b9a3e9ef` (short `aa2d8b3`).
 
-Files (all paths relative to the clone `/home/haitao/proj/fermats-last-theorem`):
+Files (all paths relative to the clone `~/proj/fermats-last-theorem`):
 
 | tag | path | lines |
 |---|---|---|

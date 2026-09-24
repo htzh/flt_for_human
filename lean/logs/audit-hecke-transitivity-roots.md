@@ -1,7 +1,7 @@
 # Audit — Hecke-matrix theorems and transitivity of the roots of `Φ_ℓ`
 
-Read-only audit. Sources: FLT clone `/home/haitao/proj/fermats-last-theorem` at
-`aa2d8b3`; port `/home/haitao/proj/reasonix-sandbox/flt_for_human/lean/FLTForHuman/`.
+Read-only audit. Sources: FLT clone `~/proj/fermats-last-theorem` at
+`aa2d8b3`; port `lean/FLTForHuman/` (in this repo).
 Question: can the Hecke-matrix side prove *transitivity of roots* by simple group
 theory, replacing the manipulations in
 `lean/FLTForHuman/ModularCurve/ModularPolynomialIrreducible.lean` (T12, the
