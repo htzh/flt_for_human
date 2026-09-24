@@ -767,6 +767,16 @@ SOURCES = [
     "Theorems/Thm_ModularForm_S2_Gamma0_one_eq_zero.lean",
     "P2M/Sol/S_ModularForm_S2_Gamma0_2_eq_zero.lean",
     "P2M/Sol/S_ModularForm_S2_Gamma0_one_eq_zero.lean",
+    # --- The Sturm bound: the arithmetic-level form and its inputs. All eight
+    # declarations below are `Theorems/` wrapper targets.
+    "Theorems/Thm_ModularForm_sturm_bound_of_isArithmetic.lean",
+    "Theorems/Thm_ModularForm_sturm_bound_Gamma0.lean",
+    "Theorems/Thm_ModularForm_eq_zero_of_lt_order_qExpansion_of_isArithmetic.lean",
+    "Theorems/Thm_ModularForm_levelOne_eq_zero_of_lt_order_qExpansion.lean",
+    "Theorems/Thm_Subgroup_IsArithmetic_exists_nat_mem_strictPeriods_conj.lean",
+    "Theorems/Thm_UpperHalfPlane_qExpansion_coeff_nat_mul.lean",
+    "Theorems/Thm_UpperHalfPlane_qExpansion_prod.lean",
+    "Theorems/Thm_CongruenceSubgroup_one_mem_strictPeriods_Gamma0.lean",
 ]
 
 PORT_FILES = [
@@ -938,6 +948,13 @@ PORT_FILES = [
     "FLTForHuman/ModularForms/CuspFormNorm.lean",
     "FLTForHuman/ModularForms/Gamma0TwoIndex.lean",
     "FLTForHuman/ModularForms/LevelTwoCuspVanishing.lean",
+    # The Sturm bound (the finiteness sub-cone): the two `q`-expansion order
+    # lemmas, the arithmetic period input, the level-one and general vanishing,
+    # and the two headline statements. All eight public declarations are wrapper
+    # targets; `relIndex_map_mapGL_W2D` and the norm-analyticity helper stay
+    # `private`.
+    "FLTForHuman/ModularForms/QExpansionOrder.lean",
+    "FLTForHuman/ModularForms/SturmBound.lean",
 ]
 
 

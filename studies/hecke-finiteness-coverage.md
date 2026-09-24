@@ -182,6 +182,14 @@ with `intLattice_fg` also needing `CongruenceSubgroup.one_mem_strictPeriods_Gamm
 (closure 1, indeg 46 — a widely wanted leaf), and the `Module.Free` sibling at
 closure 19. That whole sub-cone is about **18 nodes**.
 
+**Status (2026-09-23): the Sturm bound half is ported.** The eight declarations of
+the cone above are in `FLTForHuman/ModularForms/QExpansionOrder.lean` and
+`SturmBound.lean`, verified (checker 1,258 identical, 0 mismatched, 0 missing);
+`CuspForm.intLattice_fg` and the two
+`HasIntegralStructure.moduleFinite/Free_heckeAlgebra` instances remain. The
+mathematics is in [../math/012-sturm-bound.md](../math/012-sturm-bound.md), the
+record in [../lean/logs/sturm-bound-port.md](../lean/logs/sturm-bound-port.md).
+
 This matters because `moduleFinite_heckeAlgebra`'s own proof cites
 `HasIntegralStructure.moduleFinite_heckeAlgebra`. **Sturm is therefore on the
 expensive route's critical path too** — it is a small, cheap prerequisite of both
