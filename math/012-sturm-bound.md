@@ -250,6 +250,20 @@ Sturm bound is the analytic leaf under that finiteness; the route structure is
 priced in [studies/hecke-finiteness-coverage.md](../studies/hecke-finiteness-coverage.md)
 §4.
 
+The same injectivity gives finite-dimensionality directly. FLT states the
+coefficient-form bounds `CuspForm.eq_zero_of_qExpansion_coeff_eq_zero` (arithmetic
+level, $`k \cdot [\mathcal{SL} : \mathcal{G}] \lt 12d`$) and
+`CuspForm.Gamma0_eq_zero_of_qExpansion_coeff_eq_zero` in the `section SturmBound`
+of `S_CuspForm_finiteDimensional_cuspForm.lean`, then feeds the `Γ₀` one to
+`qCoeffTrunc` and `FiniteDimensional.of_injective`, giving
+$`\dim_{\mathbb{C}} S_k(\Gamma_0(N)) \le \lfloor k[\mathcal{SL}:\Gamma_0(N)]/12 \rfloor + 1`$.
+FLT proves those two bounds through the norm; the port re-derives them from
+`sturm_bound_of_isArithmetic` (`relIndex = Nat.card` is `rfl`,
+`PowerSeries.nat_le_order` converts vanishing coefficients to the order
+hypothesis, and `k < 0` is `ModularForm.isZero_of_neg_weight`). Neither
+`CuspForm.norm` nor its ~300-line `norm`/`normCofactor` block is needed; this
+answers open question 5 of the coverage study.
+
 ## 9. The Lean route map
 
 Everything above is imported from mathlib or transcribed from FLT; no new
@@ -272,7 +286,10 @@ mathematics was needed. The declarations, in the order the narrative uses them:
 | arithmetic-level bound | `ModularForm.eq_zero_of_lt_order_qExpansion_of_isArithmetic` | ported, ibid. |
 | $`\Gamma_0(N)`$ contains $`T`$ | `CongruenceSubgroup.one_mem_strictPeriods_Gamma0` | ported, ibid. |
 | the two headlines | `ModularForm.sturm_bound_of_isArithmetic`, `sturm_bound_Gamma0` | ported, ibid. |
+| coefficient-form bounds | `CuspForm.eq_zero_of_qExpansion_coeff_eq_zero`, `Gamma0_eq_zero_of_qExpansion_coeff_eq_zero` | ported, ibid. |
+| no negative-weight forms, any level | `ModularForm.isZero_of_neg_weight` | mathlib `NormTrace.lean` |
 | finiteness use (not yet ported) | `CuspForm.intLattice_fg` | FLT `S_CuspForm_intLattice_fg.lean` |
+| finite-dimensionality use (not yet ported) | `CuspForm.finiteDimensional_cuspForm` | FLT `S_CuspForm_finiteDimensional_cuspForm.lean` |
 
 Formal points that do not enter the narrative:
 
@@ -284,11 +301,13 @@ Formal points that do not enter the narrative:
   expansion lemmas separate (`qExpansion_coeff_nat_mul` and the period-$`M`$
   level-one bound) precisely so the period bookkeeping stays out of the norm
   argument.
-- **Statements are transcribed, not restated.** All eight public declarations are
-  verbatim from their `Theorems/` wrappers (the checker reports `1,258 identical,
-  0 mismatched, 0 missing`); the only proof-level adaptations are the v4.33 →
-  v4.34 renames `ENat.toNat_coe` → `ENat.toNat_natCast`, `if_pos` → `ite_eq_left`,
-  and the deprecation of `ModularForm.coe_zero`.
+- **Statements are transcribed, not restated.** All eight public Sturm
+  declarations are verbatim from their `Theorems/` wrappers, and the two
+  coefficient-form bounds are verbatim from their `S_` source (they have no
+  wrapper); the checker reports `1,258 identical, 0 mismatched, 0 missing`. The
+  only proof-level adaptations are the v4.33 → v4.34 renames `ENat.toNat_coe` →
+  `ENat.toNat_natCast`, `if_pos` → `ite_eq_left`, and the deprecation of
+  `ModularForm.coe_zero`.
 
 ## 10. Links
 
@@ -315,6 +334,9 @@ FLT at `aa2d8b3`:
   — the norm reduction.
 - [`S_CuspForm_intLattice_fg.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CuspForm_intLattice_fg.lean)
   — the finiteness use.
+- [`S_CuspForm_finiteDimensional_cuspForm.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CuspForm_finiteDimensional_cuspForm.lean)
+  — the coefficient-form bounds (330–346) and the `normCofactor` proof (151–321)
+  the port does not need.
 
 Project records:
 

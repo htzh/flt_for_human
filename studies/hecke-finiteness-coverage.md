@@ -326,13 +326,22 @@ wc -l ~/proj/fermats-last-theorem/P2M/Sol/S_CuspForm_{moduleFinite_heckeAlgebra{
    Sturm bound*: the second file's section is literally `section SturmBound`, its
    `eq_zero_of_qExpansion_coeff_eq_zero`/`Gamma0_eq_zero_of_qExpansion_coeff_eq_zero`
    are the arithmetic-level and `Γ₀` bounds in coefficient form, and its
-   ~300-line `normCofactor` prelude serves only that proof — the
+   ~300-line `CuspForm.norm`/`normCofactor` block serves only that proof — the
    finite-dimensionality argument itself (`qCoeffTrunc` +
    `FiniteDimensional.of_injective`) uses only the vanishing lemma. So the ported
    `sturm_bound_of_isArithmetic`/`sturm_bound_Gamma0` should replace it when
    `CuspForm.finiteDimensional_*` is ported, which would make the reserve
    `CuspFormNorm.lean` unnecessary even for its second consumer. (It is a `def`,
    so the citation graph does not show these uses; they come from source grep.)
+   **Answered: no.** The coefficient-form bounds are ported and re-derived from
+   `sturm_bound_of_isArithmetic` in `FLTForHuman/ModularForms/SturmBound.lean`
+   (`relIndex = Nat.card` is `rfl`; `PowerSeries.nat_le_order` supplies the order
+   hypothesis; `k < 0` is `ModularForm.isZero_of_neg_weight`). The spec consumer's
+   Zone E re-runs FLT's `qCoeffTrunc` + `FiniteDimensional.of_injective` on the
+   ported bound and derives `FiniteDimensional ℂ (CuspForm (Γ₀ N) k)` with no
+   norm, so neither FLT site needs `CuspForm.norm` or the `normCofactor`
+   prelude. `Reserve/ModularForms/CuspFormNorm.lean` is now a standalone
+   mathlib-gap API with no critical-path consumer.
 
 ## 10. Pointers
 

@@ -39,7 +39,9 @@ The norm is not a separate phenomenon: the general Sturm bound
 reserve route and the Sturm route are the same mathematics packaged at
 different levels. The reserve copy exists because the norm route is the one
 `base/003` narrates, and because a from-scratch norm construction
-(`CuspForm.norm`) is a genuine mathlib gap.
+(`CuspForm.norm`) is a genuine mathlib gap. (Later, `sturm-bound-port.md` shows
+the norm is not needed at either of FLT's two uses — the reserve copy is now
+only `base/003`'s narrative route.)
 
 ## Route history
 

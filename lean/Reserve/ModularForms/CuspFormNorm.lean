@@ -14,19 +14,24 @@
   rather than deleted. (It is a `def`, so the theorem-node graph does not show
   it; the second site was found by source grep.)
 
-  **Caveat: it may turn out unnecessary at both sites.** Both FLT uses of the
-  norm are proofs of the Sturm bound. The second file's section is literally
+  **Resolved: it is not needed at either site.** Both FLT uses of the norm are
+  proofs of the Sturm bound. The second file's section is literally
   `section SturmBound`, its
   `eq_zero_of_qExpansion_coeff_eq_zero`/`Gamma0_eq_zero_of_qExpansion_coeff_eq_zero`
   are the arithmetic-level and `Γ₀` Sturm bounds in coefficient form, and its
-  ~300-line `normCofactor` prelude serves only that proof — the
-  finite-dimensionality argument itself (`qCoeffTrunc` +
-  `FiniteDimensional.of_injective`) uses only the vanishing lemma. When
-  `CuspForm.finiteDimensional_*` is ported, the ported
-  `sturm_bound_of_isArithmetic`/`sturm_bound_Gamma0` should replace the whole
-  norm block, and this module may then stay unused; investigate before promoting
-  it back into `FLTForHuman`. (See
-  `studies/hecke-finiteness-coverage.md` §9.)
+  ~300-line `CuspForm.norm`/`normCofactor` block serves only that proof. The port re-derives
+  both statements from `sturm_bound_of_isArithmetic` in
+  `FLTForHuman/ModularForms/SturmBound.lean` (the `relIndex = Nat.card` bridge is
+  `rfl`, `PowerSeries.nat_le_order` converts the coefficient hypothesis to the
+  order form, and negative weights go through
+  `ModularForm.isZero_of_neg_weight`); the spec consumer's Zone E re-runs FLT's
+  `qCoeffTrunc` + `FiniteDimensional.of_injective` argument on that bound, so
+  `CuspForm.norm` and `normCofactor` drop out of
+  `CuspForm.finiteDimensional_cuspForm` entirely. This module is therefore no
+  longer required by any FLT site and is retained only as a standalone
+  mathlib-gap API (and as the proof route of
+  `Reserve.ModularForms.LevelTwoCuspVanishing`). (See
+  `studies/hecke-finiteness-coverage.md` §9, now answered.)
 
   Mathlib has `ModularForm.norm` (`Mathlib/NumberTheory/ModularForms/NormTrace.lean:108`),
   the product of the translates `f ∣[k] g_q⁻¹` over `ℋ ⧸ (𝒢 ⊓ ℋ)`, but it is a

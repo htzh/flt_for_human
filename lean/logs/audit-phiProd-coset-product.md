@@ -6,21 +6,33 @@ Read-only audit. Sources:
   (short `aa2d8b3`, "Lean 4.33.1, Mathlib v4.33.0").
 - Port `lean/FLTForHuman/` (in this repo).
 
-**Verdict in one line.** **No.** Neither the pin nor the port states
-`phiProd ℓ (conj ℓ ζ) = cosetTwoVarPoly ζ ℓ (coeffEmb K jq)` (or the analogous
-`= minpoly_jqN_map_eq_prod_slots` slot product), and no FLT file even mentions
-`phiProd` together with `primCosetReps`, `cosetConj` or `cosetTwoVarPoly`: the
-two are **parallel, mutually-ignorant constructions of the same product**. The
-identity is nonetheless *true* and cheap — it is a reindexing of literally equal
-factors — and the port already carries all but one of its ingredients.
+**Verdict in one line.** It depends which "coset product", and there are **two**:
+
+- The **analytic coset polynomial** `(X - F(ℓτ)) · ∏_{b<ℓ} (X - F((τ+b)/ℓ))` is an
+  *expression*, **not a `def`** (there is no `def cosetPoly` in the pin or the
+  port; `cosetPoly_smul` is the name of a *fact* about it). It **is** bridged to
+  `phiProd` in the port, through three lemmas — `map_phiProd` →
+  `realL_phiProd_coeff` → `hasSum_coeff_of_phiGenDescends`, joined in
+  `mem_adjoin_jq_of_phiGenDescends` (`ModularForms/PhiGenDescends.lean:270,277,313,343`).
+  In this sense the answer is **yes, we already have it**.
+- FLT's **`cosetTwoVarPoly ζ N J`** (`Def_ModularCurve_PrimCosetReps.lean:44`, a
+  real `def` over `primCosetReps`, all levels) is **not** bridged to `phiProd`:
+  no file in the pin or the port mentions `phiProd` together with
+  `primCosetReps`, `cosetConj` or `cosetTwoVarPoly`. Its prime-level
+  specialization is literally the same product, but the reindexing is not stated.
+
+`phiProd` and the analytic coset polynomial are therefore **the same polynomial on
+the two sides of the `RealL` realization map** — equal coefficient-by-coefficient
+through the bridges, not definitionally — while the algebraic `cosetTwoVarPoly`
+equality is true and cheap but unstated (§2, §3).
 
 ---
 
-## 1. The two objects, verbatim
+## 1. The objects, verbatim
 
 Pin line numbers are against `aa2d8b3`; port line numbers are current.
 
-### 1a. The `PhiGen` side (prime level)
+### 1a. `phiProd` — a real `def`, prime level
 
 `Definitions/Def_ModularCurve_PhiGen.lean` = port `ModularCurve/Defs/PhiGen.lean`:
 
@@ -38,7 +50,7 @@ and `conj_succ b : conj ℓ ζ b.succ = qTwist (ζ ^ b) (coeffEmb K jq)`.
 Note `conj` needs `[Fact ℓ.Prime]` and `[Algebra ℚ K]`; it does **not** need `ζ`
 to be primitive.
 
-### 1b. The coset side (all levels)
+### 1b. `cosetTwoVarPoly` — a real `def`, all levels
 
 `Definitions/Def_ModularCurve_PrimCosetReps.lean` (no port counterpart):
 
@@ -61,6 +73,23 @@ noncomputable def cosetTwoVarPoly (ζ : Kˣ) (N : ℕ) (J : LaurentSeries K) :=
 
 Because `cosetSubst` is shared, both sides build their factors from the same
 three operations.
+
+### 1c. the analytic "cosetPoly" — an expression, not a `def`
+
+FLT's `cosetPoly_smul` is a statement *about* the expression
+
+```
+(X - C (F (heckeDiagMatrix ℓ • τ))) * ∏ b : Fin ℓ, (X - C (F (heckeMatrix ℓ (b : ℕ) • τ)))
+```
+
+over `Polynomial ℂ`, a function of `τ`: the product over the `ℓ+1` Hecke coset
+representatives of `Y - F(rep • τ)`. It is never named by a `def` —
+`grep -rn "def cosetPoly"` is empty in both trees. `cosetPoly` is the name of the
+*fact* (`cosetPoly_smul`, `Theorems/Thm_ModularCurve_cosetPoly_smul.lean:5`; port
+public at `ModularForms/PhiGenDescends.lean:143`) and of the expression it is
+about. The port's private restatements are `cosetPoly_eq_prod_onePoint`
+(`:118`) and `cosetPoly_smul'` (`:126`), and the `ℓ+1` family `rep i` it is built
+from is at `:225`. This is the object that §4d bridges to `phiProd`.
 
 ---
 
@@ -106,15 +135,19 @@ object the coset route produces (`§4c`).
 
 ## 3. The search: no statement mentions both
 
-File-level co-occurrence over FLT `Definitions/` and `Theorems/`:
+File-level co-occurrence over the **whole pin tree** (`Definitions/`, `Theorems/`,
+`P2M/`):
 
 ```
-comm -12 <(grep -rl phiProd  --include=*.lean Definitions/ Theorems/ | sort) \
-         <(grep -rl <KEY>   --include=*.lean Definitions/ Theorems/ | sort)
+comm -12 <(grep -rl phiProd --include=*.lean . | sort) \
+         <(grep -rl <KEY>  --include=*.lean . | sort)
 ```
 
 is **empty** for `KEY` = `cosetTwoVarPoly`, `primCosetReps`, `cosetConj`,
-`heckeRep`, `OnePoint`. The same holds for
+`heckeRep`, `OnePoint`. (The port's `ModularForms/PhiGenDescends.lean` is the one
+file that carries both `phiProd` and `heckeRep`, because it imports the shared
+`Defs/HeckeRepresentatives` block and keeps the same two-part factoring in one
+module.) The same holds for
 `P2M/Sol/S_ModularCurve_minpoly_jqN_map_eq_prod_slots.lean` (the general slot
 product) versus the whole `cosetTwoVarPoly` family: **no file in the pin
 mentions both**, so even the two *general* coset products are never bridged to
@@ -130,9 +163,10 @@ Port counts (`grep -rn` over `lean/FLTForHuman`):
 | `cosetConj` | 0 |
 | `cosetTwoVarPoly` | 0 |
 
-The port therefore cannot state the equivalence at all: it has no coset-index
-vocabulary. The `ModularPolynomialData`/`X0` side that FLT builds on
-`primCosetReps` has not been ported.
+The port therefore cannot state the **algebraic** `cosetTwoVarPoly` equivalence
+at all: it has no coset-index vocabulary, and the `ModularPolynomialData`/`X0`
+side FLT builds on `primCosetReps` has not been ported. The **analytic** coset
+polynomial is a different matter: that bridge is present (§4d).
 
 ---
 
@@ -143,7 +177,7 @@ vocabulary. The `ModularPolynomialData`/`X0` side that FLT builds on
 | **a** | `phiProd` vs the TS product at prime `p`: `phiProd p (conj p ζ) = (X - C (TS K (p*p) 1)) * ∏_{b<p} (X - C (TS K 1 (ζ^b)))` | `S_…minpoly_jqN_map_eq_prod_slots.lean:157` (private), roots at `:166` | **public** `Defs/PhiAtSlot.lean:91` (`phiProd_conj_eq`), `:102` (`roots_phiProd_conj`), `:121` (nodup) |
 | **b** | general slot product: `(minpoly ℚ⟮jq⟯ (jqN M)).map … = ∏_{a ∣ M} ∏_{b < M/a, gcd} (X - C (qExpand K (a*a) (qTwist (ζ^(b*a)) (coeffEmb K jq))))` | `Thm_…minpoly_jqN_map_eq_prod_slots.lean:8`, body `S_…:1999` | **ported** `FunctionFieldGeneration/SlotProduct.lean:1084` |
 | **c** | datum vs coset product: `(data.toJqNField K).map = cosetTwoVarPoly ζ M (jqModC K) ∧ Splits ∧ Separable ∧ rootSet = cosetConj ζ (jqModC K) '' primCosetReps M` | `Thm_…ModularPolynomialData_map_adjoin_jqNModC_eq_cosetTwoVarPoly.lean:9` | **absent** |
-| **d** | analytic Hecke-coset product: `HasSum (fun m => (c k).coeff m * qParam 1 τ^m) (((X - j(ℓτ)) * ∏_{b<ℓ} (X - j((τ+b)/ℓ))).coeff k)` under `PhiGenDescends ℓ ζ c` | node `PhiGen.PhiGenDescends.hasSum_cosetPoly_coeff` (`Thm_…:11`; body `S_…:255`) | `ModularForms/PhiGenDescends.lean:313` (`hasSum_coeff_of_phiGenDescends`, private), over `:277` (`realL_phiProd_coeff`, private) |
+| **d** | analytic Hecke-coset product: `HasSum (fun m => (c k).coeff m * qParam 1 τ^m) (((X - j(ℓτ)) * ∏_{b<ℓ} (X - j((τ+b)/ℓ))).coeff k)` under `PhiGenDescends ℓ ζ c` | node `PhiGen.PhiGenDescends.hasSum_cosetPoly_coeff` (`Thm_…:11`; body `S_…:255`) | **the full chain** `map_phiProd :270` → `realL_phiProd_coeff :277` → `hasSum_coeff_of_phiGenDescends :313`, joined in `mem_adjoin_jq_of_phiGenDescends :343` (`ModularForms/PhiGenDescends.lean`) |
 | **e** | invariance / reindex of the analytic coset polynomial `(X - F(ℓτ)) * ∏_{b<ℓ} (X - F((τ+b)/ℓ))` | `S_…cosetPoly_smul.lean:214` (`cosetPoly_eq_prod_onePoint`), `:222` (`cosetPoly_smul'`) | public `ModularForms/PhiGenDescends.lean:143` (`cosetPoly_smul`); the two helpers are private `:118`/`:126` |
 
 Reading the table:
@@ -165,6 +199,29 @@ Reading the table:
   coset polynomial. This is the sense in which the port already "has the
   equivalence" — but only privately, and only as a `HasSum` statement, never as a
   polynomial identity, and never against the algebraic `cosetTwoVarPoly`.
+
+**The (d) chain, precisely.** `map_phiProd` (`:270`) pushes `phiProd` through
+`coeffMap (σ : ℚ(ζ_ℓ) → ℂ)`, yielding `∏ i, (X - C (conjC i))`;
+`realL_phiProd_coeff` (`:277`) realizes that product by the coset polynomial in
+`jt (rep i • τ)` via `RealL.coeff_prod_X_sub_C`; `hasSum_coeff_of_phiGenDescends`
+(`:313`) rewrites the descent hypothesis `hc` into the realization, reduces period
+`ℓ` to `1` (`realL_one_of_realL_qExpand`, `:284`), and lands on the
+coset-polynomial coefficient; the public join is
+`mem_adjoin_jq_of_phiGenDescends` (`:343`). The two halves are **independent and
+complementary**: (e) is pure Hecke-representative group theory and never mentions
+`phiProd` or a Laurent series, while (d) needs `phiProd` and the `q`-expansion
+dictionary and proves no invariance. The equality they establish is
+coefficient-by-coefficient *through* the bridges, not definitional.
+
+*Citation caveat.* An earlier report on this topic gives `298 / 425 / 432 / 468 /
+498` for `cosetPoly_smul` / `map_phiProd` / `realL_phiProd_coeff` /
+`hasSum_coeff_of_phiGenDescends` / `mem_adjoin_jq_of_phiGenDescends`. Those are
+the same declarations in port commit `4cd7b06` (`PhiGenDescends.lean` = 509
+lines), which inlined the `RealL` block; commit `c7d668b` ("Hecke operators")
+removed it (12 insertions, 167 deletions, net −155) and now imports it from
+`Hauptmodul.lean:230`. Against the current file (`c7d668b`, 354 lines) the
+corresponding anchors are `143 / 270 / 277 / 313 / 343`; every offset is
+uniformly `+155`, so the earlier citations map one-to-one.
 
 **How (c) and the cone agree without a bridge.** FLT's `eq_of_prime`
 (`ModularPolynomialData.eq_of_prime`, port `ModularPolynomialUniqueness.lean:115`)
@@ -217,13 +274,21 @@ Two cautions:
 
 ## 6. Answer to the research question
 
-- **Does FLT have the equivalence `phiProd` = coset product?** No theorem,
-  and no statement that mentions both sides. It has the *one-sided* facts: the
-  datum-vs-coset theorem (c) at every level, the general slot product (b), and
-  the analytic realization (d)/(e).
-- **Does the port have it?** No — the port has (a), (b), (d), (e) but none of
-  the `primCosetReps` vocabulary, so the algebraic equivalence is not even
-  statable; the analytic equivalence is present only as private lemmas
-  `realL_phiProd_coeff` and `hasSum_coeff_of_phiGenDescends`.
-- **Is it true?** Yes, by a reindexing of identical factors; the only missing
-  ingredient is the `Fin (p+1) ↔ primCosetReps p` bijection.
+Split by which "coset product":
+
+- **Analytic coset polynomial** (`cosetPoly_smul`'s expression, not a `def`):
+  **yes, we already have the bridge.** `map_phiProd` → `realL_phiProd_coeff` →
+  `hasSum_coeff_of_phiGenDescends` (port `ModularForms/PhiGenDescends.lean`
+  `:270/:277/:313`) says `phiProd` is `qExpand ℓ` of the coset polynomial's
+  `q`-expansion — the same polynomial on the two sides of the `RealL` map, equal
+  coefficient-by-coefficient, not definitionally. FLT's exported form is the node
+  `PhiGen.PhiGenDescends.hasSum_cosetPoly_coeff`. The invariance half
+  (`cosetPoly_smul`) and the realization half are independent, glued once in
+  `mem_adjoin_jq_of_phiGenDescends`.
+- **Algebraic `cosetTwoVarPoly`** (a real FLT `def`, all levels): **no** theorem
+  equates it with `phiProd` in either tree, and no file mentions both sides. FLT
+  has the one-sided facts: the datum-vs-coset theorem (c) at every level and the
+  general slot product (b).
+- **Is the algebraic identity true?** Yes, by a reindexing of identical factors;
+  the only missing ingredient is the `Fin (p+1) ↔ primCosetReps p` bijection.
+  It is not load-bearing (§5.2).

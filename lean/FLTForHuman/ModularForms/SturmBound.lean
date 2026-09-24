@@ -37,6 +37,17 @@
   cusp form has vanishing constant term, so the bound applies immediately. The
   older norm-route proof of the same two theorems is kept in the `Reserve`
   library (`Reserve.ModularForms.LevelTwoCuspVanishing`).
+
+  The **coefficient-form bounds** `CuspForm.eq_zero_of_qExpansion_coeff_eq_zero`
+  and its `Γ₀` companion are the two declarations FLT proves in the
+  `section SturmBound` of
+  `P2M/Sol/S_CuspForm_finiteDimensional_cuspForm.lean` with a ~300-line
+  `CuspForm.norm`/`normCofactor` block. Re-derived here from
+  `sturm_bound_of_isArithmetic`, they need neither: the `relIndex = Nat.card`
+  bridge is `rfl`, the `ℤ`/`ℕ∞` arithmetic is a `k ≥ 0` case (`k < 0` is
+  `ModularForm.isZero_of_neg_weight`), and `PowerSeries.nat_le_order` turns the
+  coefficient hypothesis into the order hypothesis. This removes the second
+  consumer of `CuspForm.norm` (see `studies/hecke-finiteness-coverage.md` §9).
 -/
 import FLTForHuman.ModularForms.QExpansionOrder
 import FLTForHuman.ModularForms.Gamma0TwoIndex
@@ -53,6 +64,7 @@ set_option linter.style.haveILetI false
 noncomputable section
 
 open UpperHalfPlane ModularForm SlashInvariantForm Matrix.SpecialLinearGroup ConjAct
+  CongruenceSubgroup
 open scoped MatrixGroups ModularForm Topology Manifold Pointwise CongruenceSubgroup
 
 /-- `(1 : ℝ)` is a strict period of `Γ₀(N)`: `Γ₀(N)` contains `T`. -/
@@ -281,5 +293,79 @@ theorem S2_Gamma0_2_eq_zero (f : CuspForm (CongruenceSubgroup.Gamma0 2) 2) : f =
 end CuspFormVanishing
 
 end ModularForm
+
+/-! ## Cusp-form coefficient-form Sturm bounds
+
+FLT's `S_CuspForm_finiteDimensional_cuspForm.lean` states the arithmetic-level
+Sturm bound in coefficient form, then feeds it to `qCoeffTrunc` and
+`FiniteDimensional.of_injective`. FLT proves it through `CuspForm.norm` and a
+~300-line `CuspForm.norm`/`normCofactor` block; the port derives the same statements from
+`sturm_bound_of_isArithmetic`, so the norm is not needed at this site.
+
+The bridge from the coefficient hypothesis to the order form is
+`PowerSeries.nat_le_order`, and the only arithmetic input is
+
+`k · Nat.card (𝒮ℒ ⧸ 𝒢) < 12 · d  ⟹  (k · 𝒢.relIndex 𝒮ℒ).toNat / 12 < d`,
+
+whose `relIndex = Nat.card` step is `rfl`. For `k < 0` the left side of `hd`
+forces the weight negative, and `ModularForm.isZero_of_neg_weight` closes the
+goal directly (this is the case split the `ℤ`/`ℕ∞` arithmetic needs, since the
+Sturm order hypothesis `↑(0 / 12) < order` would demand `qExpansion ≠ 0`). -/
+
+section CuspFormCoeffSturm
+
+namespace CuspForm
+
+variable {𝒢 : Subgroup (GL (Fin 2) ℝ)} {k : ℤ} [𝒢.IsArithmetic]
+
+local notation "𝒬" => 𝒮ℒ ⧸ (𝒢.subgroupOf 𝒮ℒ)
+
+/-- **Coefficient-form Sturm bound.** If the `q`-expansion coefficients of a
+cusp form vanish below `d`, and `k · [𝒮ℒ : 𝒢] < 12 d`, then the form is zero.
+This is FLT's `eq_zero_of_qExpansion_coeff_eq_zero`, re-derived from
+`ModularForm.sturm_bound_of_isArithmetic`. -/
+theorem eq_zero_of_qExpansion_coeff_eq_zero (f : CuspForm 𝒢 k)
+    (hT : (1 : ℝ) ∈ 𝒢.strictPeriods) (d : ℕ)
+    (hd : k * Nat.card 𝒬 < 12 * d)
+    (hcoeff : ∀ m < d, (qExpansion 1 ⇑f).coeff m = 0) : f = 0 := by
+  by_cases hk : k < 0
+  · have hm : (f : ModularForm 𝒢 k) = 0 :=
+      ModularForm.isZero_of_neg_weight hk (f : ModularForm 𝒢 k)
+    exact DFunLike.coe_injective (by
+      have h := congrArg (fun g : ModularForm 𝒢 k => (g : ℍ → ℂ)) hm
+      simpa using h)
+  · rw [not_lt] at hk
+    have hm : (f : ModularForm 𝒢 k) = 0 := by
+      refine ModularForm.sturm_bound_of_isArithmetic hT ?_
+      have horder : (d : ℕ∞) ≤ (qExpansion 1 (f : ModularForm 𝒢 k)).order :=
+        PowerSeries.nat_le_order _ d (fun m hm => by simpa using hcoeff m hm)
+      have hc : 𝒢.relIndex 𝒮ℒ = Nat.card (𝒮ℒ ⧸ 𝒢.subgroupOf 𝒮ℒ) := rfl
+      rw [hc]
+      have hk_eq : k = (k.toNat : ℤ) := (Int.toNat_of_nonneg hk).symm
+      have hnat : k.toNat * Nat.card (𝒮ℒ ⧸ 𝒢.subgroupOf 𝒮ℒ) < 12 * d := by
+        have h := hd
+        rw [hk_eq] at h
+        exact_mod_cast h
+      have hlt : (k * (Nat.card (𝒮ℒ ⧸ 𝒢.subgroupOf 𝒮ℒ) : ℤ)).toNat / 12 < d := by
+        rw [hk_eq, ← Nat.cast_mul, Int.toNat_natCast]
+        exact (Nat.div_lt_iff_lt_mul (by norm_num : 0 < 12)).mpr
+          (by simpa [mul_comm] using hnat)
+      exact lt_of_lt_of_le (by exact_mod_cast hlt) horder
+    exact DFunLike.coe_injective (by
+      have h := congrArg (fun g : ModularForm 𝒢 k => (g : ℍ → ℂ)) hm
+      simpa using h)
+
+/-- **Coefficient-form Sturm bound for `Γ₀(N)`**, the specialisation of
+`eq_zero_of_qExpansion_coeff_eq_zero` along `strictPeriods_Gamma0`. -/
+theorem Gamma0_eq_zero_of_qExpansion_coeff_eq_zero {N : ℕ} [NeZero N]
+    (f : CuspForm (Gamma0 N) k) (d : ℕ)
+    (hd : k * Nat.card (𝒮ℒ ⧸ ((Gamma0 N : Subgroup (GL (Fin 2) ℝ)).subgroupOf 𝒮ℒ)) < 12 * d)
+    (hcoeff : ∀ m < d, (qExpansion 1 ⇑f).coeff m = 0) : f = 0 :=
+  eq_zero_of_qExpansion_coeff_eq_zero f
+    (by rw [CongruenceSubgroup.strictPeriods_Gamma0]; exact AddSubgroup.mem_zmultiples 1) d hd hcoeff
+
+end CuspForm
+
+end CuspFormCoeffSturm
 
 end

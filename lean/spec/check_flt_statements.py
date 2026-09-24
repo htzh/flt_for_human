@@ -777,6 +777,12 @@ SOURCES = [
     "Theorems/Thm_UpperHalfPlane_qExpansion_coeff_nat_mul.lean",
     "Theorems/Thm_UpperHalfPlane_qExpansion_prod.lean",
     "Theorems/Thm_CongruenceSubgroup_one_mem_strictPeriods_Gamma0.lean",
+    # The coefficient-form Sturm bounds. FLT states both in the `section
+    # SturmBound` of this file, with a ~300-line `normCofactor` prelude around
+    # `CuspForm.norm`; the port re-derives them from
+    # `sturm_bound_of_isArithmetic` (see `SturmBound.lean`'s header). This file
+    # is the only source for these two names, so it is appended last.
+    "P2M/Sol/S_CuspForm_finiteDimensional_cuspForm.lean",
 ]
 
 PORT_FILES = [
