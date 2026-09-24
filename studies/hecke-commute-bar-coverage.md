@@ -306,7 +306,11 @@ Eichler–Shimura/cohomology comparison, whose cone is **657 nodes / 263,720 raw
 route is the standalone 4,308-line `moduleFinite_heckeAlgebra_two` at `k = 2`,
 which is a programme rather than a topic. The measured cones and the two routes
 are in [TOPIC-t10-finite-algebra.md](../lean/topics/hecke/TOPIC-t10-finite-algebra.md)
-§7.
+§7. The endgame consequences — that the general forms are unavoidable for
+`FLT.fermatLastTheorem`, that the standalone `k = 2` proof is not reusable by
+them, and the place of the Sturm bound and the proposed integral-spanning
+shortcut — are measured in
+[hecke-finiteness-coverage.md](hecke-finiteness-coverage.md).
 
 **This decision does not touch the cone measured here.** This report's finiteness
 nodes are the FFG/divisor-side `finiteAlong_heckeAlphaBar_of_modularPolynomialData`

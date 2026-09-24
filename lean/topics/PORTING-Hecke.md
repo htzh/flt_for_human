@@ -166,7 +166,11 @@ measurements:
   the 263k-line programme — the wrong trade.
 
 Full detail, including the corrected two-route analysis:
-[hecke/TOPIC-t10-finite-algebra.md](hecke/TOPIC-t10-finite-algebra.md) §7.
+[hecke/TOPIC-t10-finite-algebra.md](hecke/TOPIC-t10-finite-algebra.md) §7. The
+endgame version of the decision — the general forms are unavoidable for
+`FLT.fermatLastTheorem`, the standalone `k = 2` proof is not reusable by them,
+and the Sturm-bound sub-cone is a small mandatory prerequisite — is measured in
+[../../studies/hecke-finiteness-coverage.md](../../studies/hecke-finiteness-coverage.md).
 
 **Parked modules.** `Defs/EisensteinChiNegThree.lean` and
 `Defs/IntegralLattice.lean` (SET 4's T10) are the mod-3 / `HasIntegralBasis`
