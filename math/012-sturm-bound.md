@@ -1,203 +1,325 @@
 # The Sturm bound
 
-A modular form is determined by finitely many of its Fourier coefficients:
-roughly the first `k/12` times the index of its level. This note states the bound
-as FLT uses it, explains why it holds, and maps the port. It is the analytic input
-of the **finiteness** of the Hecke algebra over `ℤ`
-([studies/hecke-finiteness-coverage.md](../studies/hecke-finiteness-coverage.md)
-§4): the bound makes the `q`-coefficient truncation injective, so the integral
-lattice of cusp forms sits inside a finite free `ℤ`-module.
+A modular form is determined by finitely many of its Fourier coefficients. This
+note does the mathematics: the level-one bound is *division by the discriminant*,
+reducing a form of weight $`k`$ to one of weight $`k - 12`$ until the weight is
+below $`12`$, where there are no cusp forms; the analytic input is that there are
+no modular forms of negative weight. The arithmetic-level bound then follows by
+multiplying the form's translates together — the norm — which trades the level for
+a factor of the index in the weight. FLT uses the bound to make the coefficient
+truncation injective, which is what makes the integral lattice of cusp forms
+finitely generated.
 
-The Lean port is
+The analytic part (§3) is the same argument as
+[base/003](../base/003-no-level-2-weight-2-cusp-forms.md) §4.2, which unwinds it to
+the maximum-modulus principle; this note does not repeat that, and concentrates on
+what the Sturm bound adds. The Lean port is
 [`../lean/FLTForHuman/ModularForms/SturmBound.lean`](../lean/FLTForHuman/ModularForms/SturmBound.lean)
 and
 [`../lean/FLTForHuman/ModularForms/QExpansionOrder.lean`](../lean/FLTForHuman/ModularForms/QExpansionOrder.lean),
 with the measured record in
-[../lean/logs/sturm-bound-port.md](../lean/logs/sturm-bound-port.md). Line
-citations point at `anthropics/fermats-last-theorem@aa2d8b3`; mathlib citations
-at the project pin `v4.34.0`, one minor version on from the `base/` notes.
-
-The mathematics is the same at every level: **level one is the whole content**,
-and the arithmetic level is reached by the norm. The level-one end is already in
-mathlib; FLT contributes the reduction.
+[../lean/logs/sturm-bound-port.md](../lean/logs/sturm-bound-port.md); §9 is the
+declaration map, kept to the end. FLT citations are pinned at `aa2d8b3`; mathlib
+citations at the project pin `v4.34.0`.
 
 ## 1. The statement
 
-For an arithmetic subgroup `𝒢 ≤ GL₂(ℝ)` and a modular form
-`f ∈ M_k(𝒢)`, the `q`-expansion at the cusp `∞` is a power series in `q`; its
-`order` is the smallest index with a nonzero coefficient. FLT's general form is
-([`Thm_ModularForm_sturm_bound_of_isArithmetic.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularForm_sturm_bound_of_isArithmetic.lean)):
+Let $`f`$ be a modular form of weight $`k`$ for a finite-index subgroup
+$`\Gamma \le \mathrm{SL}_2(\mathbb{Z})`$, holomorphic on $`\mathbb{H}`$ and
+bounded at the cusps, with $`q`$-expansion $`f = \sum_{n \ge 0} a_n q^n`$ at
+the cusp $`\infty`$. Write $`\mathrm{ord}(f)`$ for the smallest $`n`$ with
+$`a_n \ne 0`$. The **Sturm bound** says that if the order is large enough
+relative to the weight and the index, the form is zero:
+
+$`\mathrm{ord}(f) \gt  \frac{k \cdot [\mathrm{SL}_2(\mathbb{Z}) : \Gamma]}{12} \;\Longrightarrow\; f = 0`$.
+
+Equivalently: a nonzero form has
+$`\mathrm{ord}(f) \le k \cdot [\mathrm{SL}_2(\mathbb{Z}) : \Gamma]/12`$, so its
+first $`\lfloor k \cdot [\mathrm{SL}_2(\mathbb{Z}) : \Gamma]/12 \rfloor + 1`$
+coefficients are a complete set of invariants. For $`\Gamma = \Gamma_0(N)`$ the
+index is $`N \prod_{p \mid N}(1 + 1/p)`$, and the bound reads
+$`k\,N\prod_{p \mid N}(1 + 1/p)/12`$.
+
+This is the statement FLT ports, in two forms (the general one in order form, the
+$`\Gamma_0(N)`$ one coefficientwise):
 
 ```lean
 theorem ModularForm.sturm_bound_of_isArithmetic {𝒢 : Subgroup (GL (Fin 2) ℝ)}
     [𝒢.IsArithmetic] {k : ℤ} {f : ModularForm 𝒢 k} (h1 : (1 : ℝ) ∈ 𝒢.strictPeriods)
     (h : (↑((k * 𝒢.relIndex 𝒮ℒ).toNat / 12) : ℕ∞) < (qExpansion 1 f).order) : f = 0
-```
 
-and the `Γ₀(N)` form, phrased coefficientwise
-([`Thm_ModularForm_sturm_bound_Gamma0.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularForm_sturm_bound_Gamma0.lean)):
-
-```lean
 theorem ModularForm.sturm_bound_Gamma0 (N : ℕ) [NeZero N] {k : ℤ}
     (f : ModularForm (CongruenceSubgroup.Gamma0 N) k)
     (h : ∀ n : ℕ, n ≤ (k * (CongruenceSubgroup.Gamma0 N).index).toNat / 12 →
       (qExpansion 1 f).coeff n = 0) : f = 0
 ```
 
-So: if the expansion vanishes below the bound, the form is zero. The order
-formulation and the coefficient formulation are the same statement, since a
-power series of order `b` has its coefficients `0, 1, …, b-1` equal to zero.
+The mathematics below is level one plus a reduction to it; the $`\Gamma_0(N)`$
+form is the specialisation in §7.
 
-## 2. Level one is mathlib's theorem
+## 2. The engine: division by the discriminant
 
-Mathlib proves the level-one bound
-([`DimensionFormula.lean`](https://github.com/leanprover-community/mathlib4/blob/v4.34.0/Mathlib/NumberTheory/ModularForms/LevelOne/DimensionFormula.lean)):
+The discriminant $`\Delta(\tau) = \eta(\tau)^{24} = q \prod_{n \ge 1}(1 - q^n)^{24}`$
+is the one weight-$`12`$ cusp form we have for free. Three facts make it the
+engine of the whole proof.
 
-```lean
-theorem ModularForm.sturm_bound_levelOne {k : ℤ} {f : ModularForm 𝒮ℒ k}
-    (h : (↑(k.toNat / 12) : ℕ∞) < (qExpansion 1 f).order) : f = 0
-```
+1. **$`\Delta`$ does not vanish on $`\mathbb{H}`$.** The eta product has no
+   zeros on the upper half plane, so $`f/\Delta`$ is holomorphic whenever $`f`$
+   is.
+2. **$`\Delta`$ has weight $`12`$.** Dividing a weight-$`k`$ form by $`\Delta`$
+   gives a function of weight $`k - 12`$: the slash quotient rule is
+   $`(f/\Delta)\mid_{k-12}\gamma = (f\mid_k\gamma)/(\Delta\mid_{12}\gamma) = f/\Delta`$
+   for $`\gamma \in \mathrm{SL}_2(\mathbb{Z})`$.
+3. **$`\Delta`$ has a simple zero at the cusp:** $`\Delta = q \cdot (\text{a unit})`$,
+   i.e. $`\mathrm{ord}(\Delta) = 1`$. A higher-order zero would give $`f/\Delta`$
+   a pole at the cusp; the order being exactly $`1`$ is what keeps the quotient
+   inside modular forms.
 
-Its content is the **dimension formula**, and it is the same mathematics as
-[base/003](../base/003-no-level-2-weight-2-cusp-forms.md) §4. Two ingredients:
+Combining 1–3: **division by $`\Delta`$ is a linear isomorphism**
+$`S_k(\mathrm{SL}_2(\mathbb{Z})) \cong M_{k-12}(\mathrm{SL}_2(\mathbb{Z}))`$,
+$`f \mapsto f/\Delta`$, with inverse $`g \mapsto \Delta g`$. In one direction
+$`\Delta g`$ is a cusp form of weight $`k`$ (it vanishes where $`\Delta`$ does);
+in the other $`f/\Delta`$ is holomorphic, of weight $`k-12`$, and at the cusp it
+has order $`\mathrm{ord}(f) - 1 \ge 0`$ because $`f`$ is a cusp form (order
+$`\ge 1`$) and $`\Delta`$ has order $`1`$. The two compositions are the identity
+by cancelling the nowhere-zero $`\Delta`$. This is mathlib's
+`CuspForm.discriminantEquiv : CuspForm 𝒮ℒ k ≃ₗ[ℂ] ModularForm 𝒮ℒ (k - 12)`.
 
-- **Division by `Δ`.** The discriminant `Δ = η²⁴` is a cusp form of weight `12`
-  whose `q`-expansion has order exactly `1` and which is nonzero on `ℍ`, so
-  `f ↦ f/Δ` is a `ℂ`-linear equivalence
-  `CuspForm.discriminantEquiv : CuspForm 𝒮ℒ k ≃ₗ[ℂ] ModularForm 𝒮ℒ (k - 12)`.
-  A cusp form of weight `k < 12` becomes a modular form of negative weight.
-- **No negative-weight modular forms.** For `k < 0`, invariance under
-  `S = [[0,-1],[1,0]]` reads `f(Sτ) = τ^k f(τ)`, so a constant form would obey
-  `c = 2^k c`; combined with the fact that a weight `≤ 0` form is constant (the
-  maximum-modulus argument of base/003 §4.2), this gives `f = 0`.
+**The Sturm bound is now an induction on the weight.** Suppose
+$`\mathrm{ord}(f) \gt  k/12`$.
 
-A form of weight `k` whose coefficients below `k/12` vanish therefore lies in the
-image of `Δ`-multiplication by a *cusp* form of weight `k - 12` (its quotient is
-a modular form vanishing at the cusp), which is zero for `k < 12`; iterating by
-`12` handles all `k`. This is exactly `sturm_bound_levelOne`'s route through
-`sturm_bound_levelOne_nat` and `levelOne_neg_weight_rank_zero`.
+- Since $`k/12 \ge 0`$, the constant term vanishes, so $`f`$ is a cusp form.
+- Write $`f = \Delta \cdot (f/\Delta)`$. The $`q`$-expansion is multiplicative and
+  $`q`$-order is additive, with $`\mathrm{ord}(\Delta) = 1`$; hence
+  $`\mathrm{ord}(f/\Delta) = \mathrm{ord}(f) - 1 \gt  k/12 - 1 = (k-12)/12`$.
+- If $`k \lt  12`$ then $`k - 12 \lt  0`$ and $`M_{k-12} = 0`$ (§3), so
+  $`f/\Delta = 0`$ and $`f = 0`$.
+- If $`k \ge 12`$, apply the bound inductively to $`f/\Delta`$, whose weight
+  $`k - 12`$ is smaller; then $`f = \Delta \cdot (f/\Delta) = 0`$.
 
-FLT's `levelOne_eq_zero_of_lt_order_qExpansion` is the **period-`M`** form of
-this: if the `q`-expansion of period `M` (that is, in `q_M = e^{2πiτ/M}`) has
-order beyond `M · (k/12)`, then `F = 0`. The reduction is the coefficient
-reindexing: $`(qExpansion (M h) F).coeff n`$ equals
-$`(qExpansion h F).coeff (n / M)`$ when $`M \mid n`$, and $`0`$ otherwise —
-that is `UpperHalfPlane.qExpansion_coeff_nat_mul`. Taking `h = 1` and
-contradicting the order bound gives the level-one lemma the port uses.
+The strong induction terminates because the weight drops by $`12`$ each step. This
+is exactly mathlib's `ModularForm.sturm_bound_levelOne_nat`; the coefficient
+identity $`\mathrm{ord}(f/\Delta) = \mathrm{ord}(f) - 1`$ is the imported fact
+`ModularForm.qExpansion_eq_qExpansion_discriminant_mul` together with
+`ModularForm.discriminant_qExpansion_order`.
 
-## 3. From arithmetic level to level one: the norm
+## 3. The analytic input: there are no negative-weight forms
 
-Mathlib's `ModularForm.norm` packages the product of the translates,
-$`\mathrm{Norm}(f)(\tau) = \prod_{q \in \mathcal{SL}/\mathcal{G}} (f \mid_k g_q^{-1})(\tau)`$,
-of weight $`k \cdot [\mathcal{SL} : \mathcal{G}]`$, and
-`ModularForm.norm_eq_zero_iff` says it vanishes only on zero forms. The order of
-a finite product of power series over a domain is the sum of the orders, so the
-factor of the identity coset alone already bounds the total:
-$`\mathrm{order}(qExpansion M f) \le \mathrm{order}(qExpansion M (\mathrm{Norm}(f)))`$.
+The induction lands in weight $`k - 12 \lt  0`$, so the proof needs the classical
+fact: a modular form of weight $`k \le 0`$ at level one is constant, and one of
+weight $`k \lt  0`$ is zero.
 
-Now suppose `M · (k · [\mathcal{SL}:\mathcal{G}] / 12) < order(qExpansion M f)`.
-The same strict inequality holds for `Norm(f)`, whose weight is
-`k · [\mathcal{SL}:\mathcal{G}]`; the level-one period-`M` lemma makes `Norm(f)`
-zero, and `norm_eq_zero_iff` makes `f` zero. That is
-`ModularForm.eq_zero_of_lt_order_qExpansion_of_isArithmetic`.
+**Constant.** For $`\tau \in \mathbb{H}`$, the fundamental domain supplies
+$`\gamma = [[a,b],[c,d]] \in \mathrm{SL}_2(\mathbb{Z})`$
+with $`\mathrm{Im}(\gamma\tau) \ge 1/2`$ and $`|c\tau + d| \le 1`$. Invariance
+gives $`f(\gamma\tau) = (c\tau+d)^k f(\tau)`$, so for $`k \le 0`$,
+$`|f(\tau)| = |c\tau+d|^{-k}|f(\gamma\tau)| \le |f(\gamma\tau)|`$. Every value of
+$`|f|`$ is therefore dominated by a value at a point of $`\{\mathrm{Im} \ge 1/2\}`$.
+In the $`q`$-coordinate $`q = e^{2\pi i\tau}`$ that region is the disc
+$`|q| \le e^{-\pi} \lt  1`$, and $`f`$ is a holomorphic function $`G(q)`$ on the
+unit disc (it is bounded at the cusp). So $`|G|`$ is dominated on the whole disc
+by its values on a smaller closed disc, and the maximum-modulus principle forces
+$`G`$ — hence $`f`$ — to be constant. This is the packaged statement
+`eq_const_of_exists_le`, with the geometry of $`\mathrm{Im} \ge 1/2`$ and
+$`|q| \le e^{-\pi}`$ in `exists_one_half_le_im_smul_and_norm_denom_le` and
+`norm_qParam_le_of_one_half_le_im`; base/003 §4.2 unwinds it in full.
 
-## 4. Why a common period `M` is needed
+**Zero.** The only constant that can be modular of weight $`k \lt  0`$ is $`0`$.
+Apply invariance to $`S = [[0,-1],[1,0]]`$, whose
+denominator is $`c\tau + d = \tau`$: a constant form $`c`$ satisfies
+$`c = f(S\tau) = \tau^k f(\tau) = \tau^k c`$ for every $`\tau`$. At $`\tau = i`$
+and $`\tau = 2i`$ this is $`c = i^k c`$ and $`c = (2i)^k c = 2^k c`$, so
+$`(2^k - 1)c = 0`$. For $`k \ne 0`$, $`2^k \ne 1`$ (it is $`2^{|k|}`$ or
+$`2^{-|k|}`$), so $`c = 0`$. For $`k = 0`$ the argument stops, correctly: the
+weight-zero forms are the constants.
 
-At level one (and for `Γ₀(N)`) the group contains `T = [[1,1],[0,1]]`, so `1` is
-a strict period and the expansion in `q = e^{2πiτ}` is the period-`1` one. A
-general arithmetic `𝒢` need not contain `T`: its strict periods form `hℤ` for
-some `h`, and if `𝒢` contains no unipotent it may have none at all. The translates
-appearing in the norm live at *different* levels `γ𝒢γ⁻¹`, so a single period
-must work for all of them at once. `Subgroup.IsArithmetic.exists_nat_mem_strictPeriods_conj`
-supplies one: let `Λ` be the normal core of `𝒢.comap mapGL` in `SL₂(ℤ)`, of finite
-index, and take `M = [SL₂(ℤ) : Λ]`. Then `T^M ∈ Λ`, and `Λ` is normal, so
-`γ⁻¹ T^M γ ∈ Γ` for every `γ ∈ SL₂(ℤ)` — that is, `M` is a strict period of every
-conjugate `γΓγ⁻¹`. This is the only group theory in the proof.
+This is `levelOne_nonpos_wt_const` and `levelOne_neg_weight_eq_zero`, and it is
+the only genuinely analytic input of the Sturm bound.
 
-## 5. The `Γ₀(N)` specialisation
+## 4. Where the number $`12`$ comes from
 
-`Γ₀(N)` is a congruence subgroup, so it contains `T`; hence `1 ∈ (Γ₀ N).strictPeriods`
-(`CongruenceSubgroup.one_mem_strictPeriods_Gamma0`, from
-`Subgroup.strictPeriods_eq_zmultiples_one_of_T_mem`). Its relative index in
-`GL₂(ℝ)` against `𝒮ℒ` is its ordinary index in `SL₂(ℤ)`:
-`(Γ₀ N).relIndex 𝒮ℒ = (Γ₀ N).index`, because the index in `GL₂` is computed after
-pulling back along `mapGL` (`Subgroup.index_comap`) and
-`comap_map_eq_self_of_injective` removes the pullback. With those two facts the
-general statement becomes the coefficientwise `Γ₀(N)` statement, and the bound
-`k · (Γ₀ N).index / 12` is the familiar `k · N ∏_{p ∣ N}(1 + 1/p) / 12`.
+The weight-$`12`$ discriminant and the Eisenstein series organise the level-one
+space. The cusp forms are exactly the image of $`\Delta`$-multiplication (§2), and
+for even $`k \ge 4`$ the non-cusp forms are spanned by the single Eisenstein
+series $`E_k`$: $`M_k = S_k \oplus \mathbb{C}E_k`$, $`S_k \cong M_{k-12}`$, hence
+$`\dim M_k = 1 + \dim M_{k-12}`$. Iterating, and using that $`M_2 = 0`$ (there is
+no weight-$`2`$ Eisenstein series for $`\mathrm{SL}_2(\mathbb{Z})`$ — which is why
+the level-$`2`$ case of base/003 needs the norm and this note does not),
 
-## 6. Why finiteness needs it
+$`\dim M_k(\mathrm{SL}_2(\mathbb{Z})) = \lfloor k/12 \rfloor`$ when
+$`k \equiv 2 \pmod{12}`$, and $`\lfloor k/12 \rfloor + 1`$ otherwise,
 
-The bound is what makes a **finite** coefficient vector determine a form. In
-`S_CuspForm_intLattice_fg.lean`:
+for even $`k \ge 0`$; odd weights are killed by $`-1 \in \mathrm{SL}_2(\mathbb{Z})`$.
+The dimension grows like $`k/12`$ — the numerology of the bound — and the Sturm
+bound is the *injectivity* of the first $`\lfloor k/12\rfloor + 1`$ coefficients,
+proved directly by the $`\Delta`$-division of §2. This is mathlib's
+`dimension_level_one` and `rank_eq_one_add_rank_cuspForm`.
 
-- `sturmB N k = (k · (Γ₀ N).index).toNat / 12`;
-- `trunc N k : CuspForm (Γ₀ N) k →ₗ[ℤ] (Fin (sturmB + 1) → ℂ)` is the first
-  `sturmB + 1` `q`-coefficients;
-- `trunc_injective` is exactly `sturm_bound_Gamma0`: a form truncated to zero
-  vanishes;
-- the integral lattice `CuspForm.intLattice N k` (the `ℤ`-span of the forms with
-  integral `q`-coefficients) therefore embeds into the finite free `ℤ`-module
-  `Fin (sturmB + 1) → ℂ`, so it is finitely generated by
-  `Submodule.fg_of_fg_map_injective`.
+## 5. Arithmetic level: multiply the translates
 
-That is `CuspForm.intLattice_fg`, and from it
+For a general finite-index $`\Gamma`$, level one is recovered by the **norm**: the
+product of the translates over the cosets of $`\Gamma`$ in
+$`\mathrm{SL}_2(\mathbb{Z})`$,
+
+$`\mathrm{Norm}(f)(\tau) = \prod_{q \in \mathrm{SL}_2(\mathbb{Z})/\Gamma} (f \mid_k g_q^{-1})(\tau)`$,
+
+where $`g_q`$ is any representative of the coset $`q`$. Mathlib's
+`ModularForm.norm` packages this, and `ModularForm.norm_eq_zero_iff` records the
+two facts the reduction needs:
+
+- **The weight multiplies by the index:** each factor has weight $`k`$ and there
+  are $`[\mathrm{SL}_2(\mathbb{Z}) : \Gamma]`$ of them, so $`\mathrm{Norm}(f)`$ is
+  a level-one form of weight $`k \cdot [\mathrm{SL}_2(\mathbb{Z}) : \Gamma]`$. (The
+  determinant bookkeeping is why the slash action carries $`|\det|^{k-1}`$; on
+  $`\mathrm{SL}_2`$ it is invisible.)
+- **It vanishes only on zero forms:** a finite product of holomorphic functions on
+  the connected set $`\mathbb{H}`$ is zero only if one factor is, and a translate
+  $`f \mid_k g_q^{-1}`$ is zero only if $`f`$ is — slashing by an invertible
+  element is invertible.
+
+The order of a product is the sum of the orders, and the term of the identity
+coset is $`f`$ itself, so $`\mathrm{ord}(f) \le \mathrm{ord}(\mathrm{Norm}(f))`$.
+Now if $`\mathrm{ord}(f) \gt  k \cdot [\mathrm{SL}_2(\mathbb{Z}) : \Gamma]/12`$, the
+same strict inequality holds for the level-one form $`\mathrm{Norm}(f)`$ of weight
+$`k \cdot [\mathrm{SL}_2(\mathbb{Z}) : \Gamma]`$; the level-one bound of §2 makes
+the norm zero, and the norm vanishes iff $`f`$ does. That is the reduction, and it
+is FLT's `ModularForm.eq_zero_of_lt_order_qExpansion_of_isArithmetic`.
+
+The one point the Lean proof has to be careful about is that the $`q`$-order
+comparison is made on the expansion of period $`M`$ rather than $`1`$; §6 is why.
+
+## 6. Periods, and why one common $`M`$ is needed
+
+A modular form has a $`q`$-expansion in $`q = e^{2\pi i\tau}`$ only when its group
+contains $`T = [[1,1],[0,1]]`$ (or at least a power,
+giving a period $`h`$ and an expansion in $`q_h = e^{2\pi i\tau/h}`$). A general
+arithmetic $`\Gamma`$ need not contain any unipotent: its strict periods are
+$`h\mathbb{Z}`$ for some $`h`$, or $`\{0\}`$. Since the norm's factors live at the
+*different* levels $`\gamma\Gamma\gamma^{-1}`$, one period must work for all of
+them at once.
+
+The common period is the index of the normal core. Let
+$`\Gamma_0 = \Gamma \cap \mathrm{SL}_2(\mathbb{Z})`$ and let $`\Lambda`$ be the
+normal core $`\bigcap_{\gamma} \gamma\Gamma_0\gamma^{-1}`$, the largest normal
+subgroup of $`\mathrm{SL}_2(\mathbb{Z})`$ contained in $`\Gamma_0`$; it has finite
+index. Put $`M = [\mathrm{SL}_2(\mathbb{Z}) : \Lambda]`$. Then
+$`T^M \in \Lambda`$ (Lagrange), and $`\Lambda`$ is normal, so for every $`\gamma`$
+we have $`\gamma^{-1} T^M \gamma \in \Gamma_0 \subseteq \Gamma`$: that is, $`M`$ is
+a strict period of every conjugate $`\gamma\Gamma\gamma^{-1}`$. This is
+`Subgroup.IsArithmetic.exists_nat_mem_strictPeriods_conj`; it is the only group
+theory in the proof, and its content is exactly "a finite-index subgroup of
+$`\mathrm{SL}_2(\mathbb{Z})`$ contains a normal subgroup of finite index containing
+a power of $`T`$", i.e. the cusp $`\infty`$ is a cusp of every conjugate at a
+common width.
+
+## 7. The $`\Gamma_0(N)`$ specialisation
+
+$`\Gamma_0(N)`$ contains $`T`$, so its strict periods are $`\mathbb{Z}`$ and a
+single common period is $`M = 1`$; and its index in $`\mathrm{SL}_2(\mathbb{Z})`$ is
+$`[\mathrm{SL}_2(\mathbb{Z}) : \Gamma_0(N)] = N \prod_{p \mid N}(1 + 1/p)`$, which for
+$`N = 2`$ is $`3`$ — the index base/003 computes by hand. Substituting $`M = 1`$,
+the index and $`q_1 = q`$ into the general statement gives the coefficientwise
+form of §1. The Lean bridge is that the relative index of $`\Gamma_0(N)`$ in
+$`GL_2(\mathbb{R})`$ against the image $`\mathcal{SL}`$ of
+$`\mathrm{SL}_2(\mathbb{Z})`$ equals its ordinary index (`Subgroup.index_comap`
+plus `comap_map_eq_self_of_injective`), so the abstract $`\mathcal{SL}`$-normalised
+bound becomes the concrete $`(\Gamma_0 N).index`$.
+
+## 8. What the bound is for: finitely many coefficients
+
+The bound is what makes the $`q`$-coefficient truncation **injective**, and
+injective truncation is finite generation in disguise. Let
+$`B = \lfloor k \cdot [\mathrm{SL}_2(\mathbb{Z}) : \Gamma_0(N)]/12 \rfloor`$ and
+$`\mathrm{trunc}(f) = (a_0, a_1, \dots, a_B) \in \mathbb{C}^{B+1}`$. If
+$`\mathrm{trunc}(f) = 0`$ then $`f`$ vanishes below the Sturm bound, so $`f = 0`$.
+The integral lattice $`\mathrm{intLattice} \subset S_k(\Gamma_0(N))`$ — the
+$`\mathbb{Z}`$-span of the forms with integral $`q`$-coefficients — therefore
+injects into $`\mathbb{C}^{B+1}`$, and its image lies in the finitely generated
+$`\mathbb{Z}`$-module spanned by the $`B+1`$ coordinate vectors; hence
+$`\mathrm{intLattice}`$ is finitely generated:
+
+$`\mathrm{intLattice} \hookrightarrow \mathbb{C}^{B+1} \;\Longrightarrow\; \mathrm{intLattice} \text{ is a finitely generated } \mathbb{Z}\text{-module.}`$
+
+That is FLT's `CuspForm.intLattice_fg`, whose proof is literally this: a
+$`\mathbb{Z}`$-linear truncation map, its injectivity from `sturm_bound_Gamma0`, and
+the containment of its image in the finite span
+(`Submodule.fg_of_fg_map_injective`). From it,
 `HasIntegralStructure.moduleFinite_heckeAlgebra` gives
-`Module.Finite ℤ (CuspForm.heckeAlgebra N k S)` — the finiteness target. The
-Sturm bound is thus a small but mandatory leaf on the T-side route; the
-[coverage study](../studies/hecke-finiteness-coverage.md) §4 prices its whole
-cone at 18 nodes and shows it also lies on the expensive general route.
+`Module.Finite ℤ (heckeAlgebra N k S)` — the finiteness target of the T side. The
+Sturm bound is the analytic leaf under that finiteness; the route structure is
+priced in [studies/hecke-finiteness-coverage.md](../studies/hecke-finiteness-coverage.md)
+§4.
 
-## 7. Key point → declaration map
+## 9. The Lean route map
 
-| Step | Mathematics | Lean declaration | Location |
-|---|---|---|---|
-| coefficient reindexing | period `M` coefficients are period-`1` ones at `n/M` | `UpperHalfPlane.qExpansion_coeff_nat_mul` | port; [S](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_UpperHalfPlane_qExpansion_coeff_nat_mul.lean) |
-| product of expansions | `qExp(∏ Fᵢ) = ∏ qExp(Fᵢ)` | `UpperHalfPlane.qExpansion_prod` | port; [S](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_UpperHalfPlane_qExpansion_prod.lean) |
-| `Γ₀(N)` contains `T` | `1 ∈ (Γ₀ N).strictPeriods` | `CongruenceSubgroup.one_mem_strictPeriods_Gamma0` | port; [S](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CongruenceSubgroup_one_mem_strictPeriods_Gamma0.lean) |
-| common period | `M = [SL₂(ℤ) : normalCore]` | `Subgroup.IsArithmetic.exists_nat_mem_strictPeriods_conj` | port; [S](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_Subgroup_IsArithmetic_exists_nat_mem_strictPeriods_conj.lean) |
-| level-one, period `M` | mathlib `sturm_bound_levelOne` + reindexing | `ModularForm.levelOne_eq_zero_of_lt_order_qExpansion` | port; [S](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularForm_levelOne_eq_zero_of_lt_order_qExpansion.lean) |
-| norm reduction | `order(f) ≤ order(Norm f)`, `norm_eq_zero_iff` | `ModularForm.eq_zero_of_lt_order_qExpansion_of_isArithmetic` | port; [S](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularForm_eq_zero_of_lt_order_qExpansion_of_isArithmetic.lean) |
-| the general bound | `k · relIndex 𝒮ℒ / 12` | `ModularForm.sturm_bound_of_isArithmetic` | port; [Thm](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularForm_sturm_bound_of_isArithmetic.lean) |
-| the `Γ₀(N)` bound | `k · index / 12` | `ModularForm.sturm_bound_Gamma0` | port; [Thm](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularForm_sturm_bound_Gamma0.lean) |
-| level-one engine | dimension formula + negative weight | `ModularForm.sturm_bound_levelOne` | mathlib `v4.34.0` |
-| the finiteness use | truncation is injective | `CuspForm.intLattice_fg` | FLT [S](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CuspForm_intLattice_fg.lean), not yet ported |
+Everything above is imported from mathlib or transcribed from FLT; no new
+mathematics was needed. The declarations, in the order the narrative uses them:
 
-## 8. Links
+| Mathematics | Declaration | Source |
+|---|---|---|
+| division by $`\Delta`$ is an isomorphism | `CuspForm.discriminantEquiv` | mathlib `LevelOne/DimensionFormula.lean` |
+| $`\mathrm{ord}(\Delta) = 1`$ | `ModularForm.discriminant_qExpansion_order` | mathlib, ibid. |
+| $`f = \Delta \cdot (f/\Delta)`$ on $`q`$-expansions | `ModularForm.qExpansion_eq_qExpansion_discriminant_mul` | mathlib, ibid. |
+| induction on the weight | `ModularForm.sturm_bound_levelOne_nat`, `sturm_bound_levelOne` | mathlib, ibid. |
+| no negative-weight forms | `levelOne_nonpos_wt_const`, `levelOne_neg_weight_eq_zero` | mathlib `LevelOne/Basic.lean` |
+| dimension formula | `ModularForm.dimension_level_one`, `rank_eq_one_add_rank_cuspForm` | mathlib `LevelOne/DimensionFormula.lean` |
+| norm: weight and zero set | `ModularForm.norm`, `norm_eq_zero_iff` | mathlib `NormTrace.lean` |
+| order of a product | `PowerSeries.order_prod` | mathlib |
+| period reindexing | `UpperHalfPlane.qExpansion_coeff_nat_mul` | ported, `QExpansionOrder.lean` |
+| product of $`q`$-expansions | `UpperHalfPlane.qExpansion_prod` | ported, ibid. |
+| common period | `Subgroup.IsArithmetic.exists_nat_mem_strictPeriods_conj` | ported, `SturmBound.lean` |
+| level-one period-$`M`$ bound | `ModularForm.levelOne_eq_zero_of_lt_order_qExpansion` | ported, ibid. |
+| arithmetic-level bound | `ModularForm.eq_zero_of_lt_order_qExpansion_of_isArithmetic` | ported, ibid. |
+| $`\Gamma_0(N)`$ contains $`T`$ | `CongruenceSubgroup.one_mem_strictPeriods_Gamma0` | ported, ibid. |
+| the two headlines | `ModularForm.sturm_bound_of_isArithmetic`, `sturm_bound_Gamma0` | ported, ibid. |
+| finiteness use (not yet ported) | `CuspForm.intLattice_fg` | FLT `S_CuspForm_intLattice_fg.lean` |
 
-FLT sources at the pinned sha `aa2d8b3`:
+Formal points that do not enter the narrative:
+
+- **The level is $`\mathcal{SL}`$, not $`\mathrm{SL}_2(\mathbb{Z})`$.** Mathlib's
+  level-one statements are for the image of $`\mathrm{SL}_2(\mathbb{Z})`$ in
+  $`GL_2(\mathbb{R})`$; the $`\Gamma(1)`$-versus-$`\mathcal{SL}`$ bridge is
+  `CongruenceSubgroup.Gamma_one_top` plus `Subgroup.comap_map_eq_self_of_injective`.
+- **$`q`$-expansions are computed at period $`M`$.** The port keeps the two
+  expansion lemmas separate (`qExpansion_coeff_nat_mul` and the period-$`M`$
+  level-one bound) precisely so the period bookkeeping stays out of the norm
+  argument.
+- **Statements are transcribed, not restated.** All eight public declarations are
+  verbatim from their `Theorems/` wrappers (the checker reports `1,258 identical,
+  0 mismatched, 0 missing`); the only proof-level adaptations are the v4.33 →
+  v4.34 renames `ENat.toNat_coe` → `ENat.toNat_natCast`, `if_pos` → `ite_eq_left`,
+  and the deprecation of `ModularForm.coe_zero`.
+
+## 10. Links
+
+Mathlib at tag `v4.34.0` (the project pin; the `base/` notes cite `v4.33.0`):
+
+- [LevelOne/DimensionFormula.lean](https://github.com/leanprover-community/mathlib4/blob/v4.34.0/Mathlib/NumberTheory/ModularForms/LevelOne/DimensionFormula.lean)
+  — `discriminantEquiv`, the order-`1` expansion of $`\Delta`$, the dimension
+  formula, `sturm_bound_levelOne`.
+- [LevelOne/Basic.lean](https://github.com/leanprover-community/mathlib4/blob/v4.34.0/Mathlib/NumberTheory/ModularForms/LevelOne/Basic.lean)
+  — no negative-weight forms: the maximum-modulus and $`S`$-invariance arguments.
+- [Discriminant.lean](https://github.com/leanprover-community/mathlib4/blob/v4.34.0/Mathlib/NumberTheory/ModularForms/Discriminant.lean)
+  — $`\Delta = \eta^{24}`$, its nonvanishing and its simple cusp zero.
+- [NormTrace.lean](https://github.com/leanprover-community/mathlib4/blob/v4.34.0/Mathlib/NumberTheory/ModularForms/NormTrace.lean)
+  — the norm, its weight and its zero set.
+- [Cusps.lean](https://github.com/leanprover-community/mathlib4/blob/v4.34.0/Mathlib/NumberTheory/ModularForms/Cusps.lean)
+  — strict periods and cusps.
+
+FLT at `aa2d8b3`:
 
 - [`S_ModularForm_sturm_bound_of_isArithmetic.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularForm_sturm_bound_of_isArithmetic.lean)
-  — the general headline (29 lines).
-- [`S_ModularForm_sturm_bound_Gamma0.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularForm_sturm_bound_Gamma0.lean)
-  — the `Γ₀(N)` headline (26 lines).
+  and [`S_ModularForm_sturm_bound_Gamma0.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularForm_sturm_bound_Gamma0.lean)
+  — the two headlines.
 - [`S_ModularForm_eq_zero_of_lt_order_qExpansion_of_isArithmetic.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularForm_eq_zero_of_lt_order_qExpansion_of_isArithmetic.lean)
   — the norm reduction.
-- [`S_ModularForm_levelOne_eq_zero_of_lt_order_qExpansion.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularForm_levelOne_eq_zero_of_lt_order_qExpansion.lean)
-  — the level-one period-`M` vanishing.
-- [`S_Subgroup_IsArithmetic_exists_nat_mem_strictPeriods_conj.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_Subgroup_IsArithmetic_exists_nat_mem_strictPeriods_conj.lean)
-  — the common period.
 - [`S_CuspForm_intLattice_fg.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CuspForm_intLattice_fg.lean)
   — the finiteness use.
 
-Mathlib at tag `v4.34.0`:
-
-- [LevelOne/DimensionFormula.lean](https://github.com/leanprover-community/mathlib4/blob/v4.34.0/Mathlib/NumberTheory/ModularForms/LevelOne/DimensionFormula.lean)
-  — `sturm_bound_levelOne`, `discriminantEquiv`, the dimension formula.
-- [LevelOne/Basic.lean](https://github.com/leanprover-community/mathlib4/blob/v4.34.0/Mathlib/NumberTheory/ModularForms/LevelOne/Basic.lean)
-  — negative weight vanishes; the maximum-modulus route.
-- [NormTrace.lean](https://github.com/leanprover-community/mathlib4/blob/v4.34.0/Mathlib/NumberTheory/ModularForms/NormTrace.lean)
-  — `ModularForm.norm`, `norm_eq_zero_iff`.
-- [QExpansion.lean](https://github.com/leanprover-community/mathlib4/blob/v4.34.0/Mathlib/NumberTheory/ModularForms/QExpansion.lean)
-  — `qExpansion`, `cuspFunction`, `qExpansion_mul`, `qExpansion_coeff_unique`.
-- [Cusps.lean](https://github.com/leanprover-community/mathlib4/blob/v4.34.0/Mathlib/NumberTheory/ModularForms/Cusps.lean)
-  — `strictPeriods`, `isCusp_of_mem_strictPeriods`.
-
-Companion project records:
+Project records:
 
 - [base/003 — No level-2 weight-2 cusp forms](../base/003-no-level-2-weight-2-cusp-forms.md)
-  — the level-one dimension formula and the maximum-modulus argument, done in
-  full.
+  §4 — the maximum-modulus argument and the dimension formula in full.
 - [studies/hecke-finiteness-coverage.md](../studies/hecke-finiteness-coverage.md)
   — the finiteness targets and the routes through them.
 - [../lean/logs/sturm-bound-port.md](../lean/logs/sturm-bound-port.md) — the
