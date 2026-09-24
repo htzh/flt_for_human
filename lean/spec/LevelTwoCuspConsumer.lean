@@ -1,36 +1,27 @@
 /-
-  The cusp-form-vanishing layer (`base/003`) — the definition of done for the
-  `ModularForm.S2_Gamma0_{2,1}_eq_zero` port.
+  Consumer for the weight-2 cusp-form vanishing (`base/003`).
 
-  Four zones, each a real instantiation rather than a `#check` alone:
+  Both theorems are now corollaries of the Sturm bound: the weight-`2` bound is
+  `⌊2 · [SL(2, ℤ) : Γ] / 12⌋ = 0` at `Γ(1)` and `Γ₀(2)`, and a cusp form has
+  vanishing constant term. This file applies them and exercises the route's
+  ingredients.
 
-  * **A `[norm]`** — the generic cusp-form norm API;
-  * **B `[index]`** — `[SL(2, ℤ) : Γ₀(2)] = 3`;
-  * **C `[vanishing]`** — the two wrapper theorems, unconditional;
-  * **D `[compose]`** — the norm into the level-one vanishing, the composition
-    the FLT modularity/level-lowering route consumes.
+  * **A `[vanishing]`** — the two wrapper theorems;
+  * **B `[index]`** — the weight-`2` bound is `0` because `(Γ₀ 2).index = 3`;
+  * **C `[sturm]`** — the two Sturm headlines, applied;
+  * **D `[bridge]`** — `Γ(1) = 𝒮ℒ` and the subgroup-equality transport.
 -/
 import FLTForHuman.ModularForms.LevelTwoCuspVanishing
+import FLTForHuman.ModularForms.Gamma0TwoIndex
 
 set_option autoImplicit false
 
 noncomputable section
 
-open UpperHalfPlane SlashInvariantForm CongruenceSubgroup
-open scoped MatrixGroups ModularForm Topology Filter Manifold
+open UpperHalfPlane ModularForm SlashInvariantForm Subgroup Matrix Matrix.SpecialLinearGroup
+open scoped MatrixGroups ModularForm Topology Filter Manifold CongruenceSubgroup
 
-/-! ## Zone A — `[norm]` the generic cusp-form norm -/
-
-#check @CuspForm.norm
-#check @CuspForm.norm_eq_zero_iff
-#check @CuspForm.coe_norm_eq_coe_modularFormNorm
-
-/-! ## Zone B — `[index]` `Γ₀(2)` has index three -/
-
-#check @ModularForm.Gamma0_two_index_eq_three
-example : (CongruenceSubgroup.Gamma0 2).index = 3 := ModularForm.Gamma0_two_index_eq_three
-
-/-! ## Zone C — `[vanishing]` the two wrapper theorems -/
+/-! ## Zone A — `[vanishing]` the two wrapper theorems -/
 
 #check @ModularForm.S2_Gamma0_2_eq_zero
 #check @ModularForm.S2_Gamma0_one_eq_zero
@@ -39,15 +30,26 @@ example (f : CuspForm (CongruenceSubgroup.Gamma0 2) 2) : f = 0 :=
 example (f : CuspForm (CongruenceSubgroup.Gamma0 1) 2) : f = 0 :=
   ModularForm.S2_Gamma0_one_eq_zero f
 
-/-! ## Zone D — `[compose]` the norm into the level-one vanishing -/
+/-! ## Zone B — `[index]` the weight-2 Sturm bound vanishes at `Γ₀(2)` -/
 
-/-- The route's use of the API: the norm of a form on `Γ₀(2)` is a level-one
-cusp form of weight `6`; the vanishing theorem makes it zero, and
-`CuspForm.norm_eq_zero_iff` reads that back as the form being zero. -/
-example (f : CuspForm (CongruenceSubgroup.Gamma0 2) 2) :
-    CuspForm.norm (↑(CongruenceSubgroup.Gamma 1) : Subgroup (GL (Fin 2) ℝ)) f = 0 := by
-  rw [CuspForm.norm_eq_zero_iff]
-  simpa using congrArg (fun g : CuspForm (CongruenceSubgroup.Gamma0 2) 2 => (g : ℍ → ℂ))
-    (ModularForm.S2_Gamma0_2_eq_zero f)
+#check @ModularForm.Gamma0_two_index_eq_three
+example : (((2 : ℤ) * (CongruenceSubgroup.Gamma0 2).index).toNat / 12) = 0 := by
+  rw [ModularForm.Gamma0_two_index_eq_three]; norm_num
+
+/-! ## Zone C — `[sturm]` the Sturm headlines, applied -/
+
+example (F : ModularForm (CongruenceSubgroup.Gamma0 2) 2)
+    (h : ∀ n : ℕ, n ≤ (((2 : ℤ) * (CongruenceSubgroup.Gamma0 2).index).toNat / 12) →
+      (qExpansion 1 F).coeff n = 0) : F = 0 :=
+  ModularForm.sturm_bound_Gamma0 2 F h
+
+example (F : ModularForm 𝒮ℒ 2)
+    (h : (↑((2 : ℤ).toNat / 12) : ℕ∞) < (qExpansion 1 F).order) : F = 0 :=
+  ModularForm.sturm_bound_levelOne (k := 2) (f := F) h
+
+/-! ## Zone D — `[bridge]` `Γ(1) = 𝒮ℒ` and subgroup transport -/
+
+#check @ModularForm.coe_Gamma_one_eq_SL
+#check @ModularForm.cuspForm_eq_zero_of_subgroup_eq
 
 end

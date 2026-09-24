@@ -940,14 +940,16 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/HeckeExchange/Reduction.lean",
     # m13, the capstone (written by the reviewer; assembly over m9-m12).
     "FLTForHuman/ModularCurve/HeckeCommuteBar.lean",
-    # The cusp-form vanishing layer (`base/003`): the generic cusp-form norm, the
-    # `Γ₀(2)` first-column index count, and the two wrapper theorems. The pin's
-    # private coset helpers are reproduced `private`; the public surface is
-    # `CuspForm.{norm, norm_eq_zero_iff, coe_norm_eq_...}`, the `Γ(1)`/`𝒮ℒ`
-    # bridges and the two `S2_Gamma0_*_eq_zero` theorems.
-    "FLTForHuman/ModularForms/CuspFormNorm.lean",
+    # The cusp-form vanishing layer (`base/003`): the `Γ₀(2)` first-column index
+    # count and the two wrapper theorems, now Sturm-bound corollaries. The pin's
+    # private coset helpers are reproduced `private`; the public surface is the
+    # `Γ(1)`/`𝒮ℒ` bridges and the two `S2_Gamma0_*_eq_zero` theorems.
     "FLTForHuman/ModularForms/Gamma0TwoIndex.lean",
     "FLTForHuman/ModularForms/LevelTwoCuspVanishing.lean",
+    # Reserve: the cusp-form norm (`CuspForm.{norm, norm_eq_zero_iff,
+    # coe_norm_eq_...}`), kept as a standalone mathlib-gap API after the Sturm
+    # route superseded it.
+    "Reserve/ModularForms/CuspFormNorm.lean",
     # The Sturm bound (the finiteness sub-cone): the two `q`-expansion order
     # lemmas, the arithmetic period input, the level-one and general vanishing,
     # and the two headline statements. All eight public declarations are wrapper

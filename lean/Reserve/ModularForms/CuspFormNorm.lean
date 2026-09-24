@@ -1,14 +1,18 @@
 /-
-  The **norm of a cusp form** — the generic construction FLT adds on top of
-  mathlib.
+  **Reserve.** The norm of a cusp form — a generic construction FLT adds on top
+  of mathlib. Kept out of the critical-path port: the `base/003` cusp-form
+  vanishing is now a corollary of the Sturm bound
+  (`FLTForHuman/ModularForms/LevelTwoCuspVanishing.lean`), whose general proof
+  (`ModularForm.sturm_bound_of_isArithmetic`) internalises this norm. The module
+  stays verified as a standalone mathlib-gap API — mathlib has `ModularForm.norm`
+  but not `CuspForm.norm` — and may be imported by later reserve work.
 
   Mathlib has `ModularForm.norm` (`Mathlib/NumberTheory/ModularForms/NormTrace.lean:108`),
   the product of the translates `f ∣[k] g_q⁻¹` over `ℋ ⧸ (𝒢 ⊓ ℋ)`, but it is a
   *modular* form: it carries the bounded-at-cusps condition of its factors. The
   `S_ModularForm_S2_Gamma0_2_eq_zero` file needs the analogous **cusp** form, so it
   supplies the one missing field `zero_at_cusps'`: each factor is a translate of a
-  cusp form, and a product of functions tending to `0` tends to `0`. That is the
-  only statement in the level-2 vanishing proof not already in mathlib.
+  cusp form, and a product of functions tending to `0` tends to `0`.
 
   This module is that construction, once:
   `CuspForm.norm`, the coercion bridge

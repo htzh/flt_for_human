@@ -21,3 +21,10 @@ require mathlib from git
 @[default_target]
 lean_lib FLTForHuman where
   globs := #[.submodules `FLTForHuman]
+
+-- Reserve: verified modules kept out of the critical-path port — superseded
+-- routes and deferred API. They may import `FLTForHuman`; `FLTForHuman` must
+-- never import them. Built by default so they stay green and checked.
+@[default_target]
+lean_lib Reserve where
+  globs := #[.submodules `Reserve]
