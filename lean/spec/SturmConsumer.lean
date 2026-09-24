@@ -7,10 +7,10 @@
   * **B `[periods]`** — the arithmetic-period input;
   * **C `[levelone]`** — the level-one vanishing;
   * **D `[sturm]`** — the two headline Sturm bounds, applied at `Γ₀(2)` and `𝒮ℒ`;
-  * **E `[coeffsturm]`** — the coefficient-form bounds and the norm-free wire test:
-    FLT's own `qCoeffTrunc` + `FiniteDimensional.of_injective` argument re-run on
-    `CuspForm.Gamma0_eq_zero_of_qExpansion_coeff_eq_zero`, with no `CuspForm.norm`
-    and no `normCofactor`.
+  * **E `[coeffsturm]`** — the coefficient-form bounds and the finite-dimensionality
+    corollary: FLT's `qCoeffTrunc` + `FiniteDimensional.of_injective` argument is
+    a library corollary in `SturmBound.lean` (no `CuspForm.norm`, no
+    `normCofactor`), and the consumer applies it at arbitrary `N`, `k`.
 -/
 import FLTForHuman.ModularForms.SturmBound
 
@@ -76,59 +76,29 @@ example (f : ModularForm 𝒮ℒ 12)
     (h : (↑(((12 : ℤ) * (𝒮ℒ).relIndex 𝒮ℒ).toNat / 12) : ℕ∞) < (qExpansion 1 f).order) : f = 0 :=
   ModularForm.sturm_bound_of_isArithmetic one_mem_strictPeriods_SL h
 
-/-! ## Zone E — `[coeffsturm]` the coefficient-form bounds and the norm-free
-finiteness wire test
+/-! ## Zone E — `[coeffsturm]` the coefficient-form bounds and the
+finite-dimensionality corollary
 
-FLT proves `CuspForm.eq_zero_of_qExpansion_coeff_eq_zero` through
-`CuspForm.norm` and its ~300-line norm block; the port derives it from
-`sturm_bound_of_isArithmetic`. The wire test below re-runs FLT's own
-`qCoeffTrunc` + `FiniteDimensional.of_injective` argument on the ported bound,
-so the norm is not needed anywhere in the finite-dimensionality proof. -/
+FLT proves `CuspForm.eq_zero_of_qExpansion_coeff_eq_zero` through `CuspForm.norm`
+and its ~300-line norm block; the port derives it from
+`sturm_bound_of_isArithmetic`. The same bound drives `qCoeffTrunc` +
+`FiniteDimensional.of_injective`, giving FLT's `finiteDimensional_cuspForm` — an
+endgame corollary (closure 1, 4 consumers, all inside `fermatLastTheorem`). The
+wire test consumes the library corollary rather than re-proving it. -/
 
 #check @CuspForm.eq_zero_of_qExpansion_coeff_eq_zero
 #check @CuspForm.Gamma0_eq_zero_of_qExpansion_coeff_eq_zero
+#check @CuspForm.qCoeffTrunc
+#check @CuspForm.finiteDimensional_cuspForm
 
-/-- The coefficient-truncation linear map of FLT's `qCoeffTrunc`. -/
-private def qCoeffTrunc (N : ℕ) [NeZero N] (k : ℤ) (d : ℕ) :
-    CuspForm (CongruenceSubgroup.Gamma0 N) k →ₗ[ℂ] (Fin d → ℂ) where
-  toFun f := fun i => (qExpansion 1 ⇑f).coeff i
-  map_add' f g := by
-    have hf := ModularFormClass.analyticAt_cuspFunction_zero f one_pos
-      (by rw [CongruenceSubgroup.strictPeriods_Gamma0]; exact AddSubgroup.mem_zmultiples 1)
-    have hg := ModularFormClass.analyticAt_cuspFunction_zero g one_pos
-      (by rw [CongruenceSubgroup.strictPeriods_Gamma0]; exact AddSubgroup.mem_zmultiples 1)
-    funext i
-    simp only [FunLike.coe_add, Pi.add_apply, qExpansion_add hf hg, map_add]
-  map_smul' c f := by
-    have hf := ModularFormClass.analyticAt_cuspFunction_zero f one_pos
-      (by rw [CongruenceSubgroup.strictPeriods_Gamma0]; exact AddSubgroup.mem_zmultiples 1)
-    funext i
-    have hcoe : ⇑(c • f) = c • ⇑f := rfl
-    simp only [RingHom.id_apply, Pi.smul_apply, smul_eq_mul]
-    rw [hcoe, UpperHalfPlane.qExpansion_smul hf c, map_smul, smul_eq_mul]
-
-/-- **The norm-free finiteness.** `CuspForm (Γ₀ N) k` embeds into `Fin d → ℂ`
-with `d = k.toNat · [𝒮ℒ : Γ₀ N] + 1`; the kernel is zero by the coefficient-form
-Sturm bound, so FLT's `normCofactor` prelude and `CuspForm.norm` drop out of
-`CuspForm.finiteDimensional_cuspForm`. -/
+/-- The consumed corollary, at level `N` and arbitrary weight. -/
 example (N : ℕ) [NeZero N] (k : ℤ) :
-    FiniteDimensional ℂ (CuspForm (CongruenceSubgroup.Gamma0 N) k) := by
-  classical
-  set c : ℕ := Nat.card (𝒮ℒ ⧸ ((CongruenceSubgroup.Gamma0 N : Subgroup (GL (Fin 2) ℝ)).subgroupOf 𝒮ℒ)) with hc
-  set d : ℕ := k.toNat * c + 1 with hd_def
-  have hd : k * (c : ℤ) < 12 * (d : ℤ) := by
-    have h1 : k * (c : ℤ) ≤ (k.toNat : ℤ) * c :=
-      mul_le_mul_of_nonneg_right (Int.self_le_toNat k) (Int.natCast_nonneg c)
-    have h2 : (0 : ℤ) ≤ (k.toNat : ℤ) * c := by positivity
-    have h3 : (12 : ℤ) * (d : ℤ) = 12 * ((k.toNat : ℤ) * c) + 12 := by
-      rw [hd_def]; push_cast; ring
-    linarith
-  refine FiniteDimensional.of_injective (qCoeffTrunc N k d) ?_
-  rw [← LinearMap.ker_eq_bot, LinearMap.ker_eq_bot']
-  intro f hf
-  refine CuspForm.Gamma0_eq_zero_of_qExpansion_coeff_eq_zero f d (by rw [← hc]; exact hd) ?_
-  intro m hm
-  have hfm := congrFun hf ⟨m, hm⟩
-  simpa [qCoeffTrunc] using hfm
+    FiniteDimensional ℂ (CuspForm (CongruenceSubgroup.Gamma0 N) k) :=
+  CuspForm.finiteDimensional_cuspForm N k
+
+/-- The file-local instance interface (no consumer outside the pin file). -/
+example (N : ℕ) [NeZero N] (k : ℤ) :
+    FiniteDimensional ℂ (CuspForm (CongruenceSubgroup.Gamma0 N) k) :=
+  CuspForm.finiteDimensional_Gamma0
 
 end

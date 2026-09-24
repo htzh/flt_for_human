@@ -21,11 +21,21 @@ through `CuspForm.norm` and its ~300-line norm block. They are
 re-derived here from `sturm_bound_of_isArithmetic`: the `relIndex = Nat.card`
 bridge is `rfl`, `PowerSeries.nat_le_order` turns the coefficient hypothesis into
 the order hypothesis, and the `k < 0` case is `ModularForm.isZero_of_neg_weight`.
-The spec consumer's Zone E re-runs FLT's `qCoeffTrunc` +
-`FiniteDimensional.of_injective` on the `Γ₀` bound and recovers
-`FiniteDimensional ℂ (CuspForm (Γ₀ N) k)` with no norm, so the `NormCofactor`
+Their consumer in the same FLT file is `CuspForm.qCoeffTrunc` plus
+`FiniteDimensional.of_injective`, and its published output is `solution`, which
+the wrapper `Thm_CuspForm_finiteDimensional_cuspForm.lean` turns into
+`CuspForm.finiteDimensional_cuspForm` (closure 1, indeg 4, all consumers inside
+the endgame). The port carries `qCoeffTrunc` and that corollary in
+`SturmBound.lean`. One attribution caveat, measured 2026-09-24: the graph's
+`CuspForm.finiteDimensional_Gamma0` node (closure 7, indeg 38) is **not** this
+file's `scoped instance` of the same name — it is the sibling
+`S_CuspForm_finiteDimensional_Gamma0.lean`, whose `solution` specialises
+`CuspForm.finiteDimensional_of_isArithmetic`; all 38 consumers import
+`Thm_CuspForm_finiteDimensional_Gamma0`. This file's instance is a duplicate
+used only by this file's own `solution`. So the `NormCofactor`
 section is not needed in the port and `Reserve/ModularForms/CuspFormNorm.lean` is
-left a standalone API.
+left a standalone API; the spec consumer's Zone E now consumes the library
+corollary rather than re-proving it.
 
 This is the cheap mandatory sub-cone of the Hecke finiteness targets
 ([../../studies/hecke-finiteness-coverage.md](../../studies/hecke-finiteness-coverage.md)
@@ -37,29 +47,33 @@ This is the cheap mandatory sub-cone of the Hecke finiteness targets
 | module | role | lines |
 |---|---|---|
 | `ModularForms/QExpansionOrder.lean` | `qExpansion_coeff_nat_mul`, `qExpansion_prod` | 106 |
-| `ModularForms/SturmBound.lean` | the level-one and general vanishing, the period input, both headlines, the two coefficient-form bounds, the weight-2 vanishing corollaries | 371 |
-| `spec/SturmConsumer.lean` | Zones A–E wire test | 134 |
+| `ModularForms/SturmBound.lean` | the level-one and general vanishing, the period input, both headlines, the two coefficient-form bounds, `qCoeffTrunc` + the finite-dimensionality corollaries, the weight-2 vanishing corollaries | 446 |
+| `spec/SturmConsumer.lean` | Zones A–E wire test | 105 |
 
 ## Checker
 
-- `SOURCES` gains the eight wrappers and, for the coefficient-form addendum,
-  `P2M/Sol/S_CuspForm_finiteDimensional_cuspForm.lean`; `PORT_FILES` the two
+- `SOURCES` gains the eight wrappers and, for the coefficient-form addendum, the
+  `S_CuspForm_finiteDimensional_cuspForm.lean` source and the
+  `Thm_CuspForm_finiteDimensional_cuspForm.lean` wrapper; `PORT_FILES` the two
   modules.
-- **1,258 identical (69 promoted), 0 mismatched, 0 missing**, 14 own-proof
-  exemptions, 1,272 port declarations. The eight Sturm nodes and the two
-  coefficient-form bounds are transcribed statements, so none is promoted; the
-  addendum is the +2 over the Sturm port's 1,256/1,270.
+- **1,260 identical (69 promoted), 0 mismatched, 0 missing**, 14 own-proof
+  exemptions, 1,274 port declarations. The eight Sturm nodes, the two
+  coefficient-form bounds, `qCoeffTrunc` and `finiteDimensional_cuspForm` are
+  transcribed statements, so none is promoted; the addendum is the +4 over the
+  Sturm port's 1,256/1,270. FLT's `scoped instance finiteDimensional_Gamma0` is
+  transcribed but invisible to the checker (`DECL_RE` reads no `scoped`).
 
 ## Verification
 
 - `timeout 240 lake build`: **4,113 jobs, 0 warnings, no `sorry`**.
-- `#print axioms` on all eight Sturm declarations:
+- `#print axioms` on all eight Sturm declarations and on the addendum's
+  `qCoeffTrunc`/`finiteDimensional_Gamma0`/`finiteDimensional_cuspForm`:
   `[propext, Classical.choice, Quot.sound]`.
 - `spec/SturmConsumer.lean`: exit 0, **0 errors, 0 warnings**; Zone D applies
   `sturm_bound_Gamma0` at `Γ₀(2)` and `sturm_bound_of_isArithmetic` at `𝒮ℒ`;
-  Zone E applies the coefficient-form `Γ₀` bound and derives
-  `FiniteDimensional ℂ (CuspForm (Γ₀ N) k)` through FLT's own `qCoeffTrunc` +
-  `FiniteDimensional.of_injective`, with no `CuspForm.norm`.
+  Zone E consumes `CuspForm.qCoeffTrunc` and the corollary
+  `CuspForm.finiteDimensional_cuspForm` (and the instance
+  `finiteDimensional_Gamma0`) at arbitrary `N`, `k`, with no `CuspForm.norm`.
 
 ## v4.33 (note) → v4.34 (project) drift — proofs only
 
@@ -93,10 +107,43 @@ This is the cheap mandatory sub-cone of the Hecke finiteness targets
   `NormCofactor` section (pin lines 151–321, 171 lines) plus the `CuspForm.norm`
   definition and zero-set block (lines 7–60, 54 lines) and FLT's own level-one
   induction (lines 72–148, 77 lines) — ≈300 pin lines — are not ported at all,
-  and the eventual `CuspForm.finiteDimensional_cuspForm` port consumes the two
+  and the ported `CuspForm.qCoeffTrunc` +
+  `CuspForm.finiteDimensional_{Gamma0,cuspForm}` corollaries consume the two
   coefficient-form bounds instead. This is the answer to
   [../../studies/hecke-finiteness-coverage.md](../../studies/hecke-finiteness-coverage.md)
   §9 question 5.
+
+## Consumers of the pin file's public surface
+
+Measured 2026-09-24 by source grep over the pin plus the graph. The only file
+importing `S_CuspForm_finiteDimensional_cuspForm.lean` is its wrapper, and of the
+file's public declarations **only `solution` has a consumer**: the wrapper
+`Thm_CuspForm_finiteDimensional_cuspForm.lean`, i.e.
+`CuspForm.finiteDimensional_cuspForm` (graph closure 1, indeg 4). The other 22
+public names are referenced by no other FLT file:
+
+- the two `p2m_export`ed privates `CuspForm.norm`, `CuspForm.norm_eq_zero_iff`;
+- `CuspForm.coe_norm_eq_coe_modularFormNorm`;
+- `CuspForm.levelOne_eq_zero_of_qExpansion_coeff_eq_zero`;
+- the fourteen-declaration `NormCofactor` cluster (`upperRight_one_mem_SL`,
+  `slash_upperRightHom_apply`, `mdiff_quotientFunc`,
+  `isBoundedAtImInfty_quotientFunc`, `smul_mk_one_eq`, `normCofactor`,
+  `coe_norm_eq_mul_normCofactor`, `mdiff_normCofactor`,
+  `isBoundedAtImInfty_normCofactor`, `normCofactor_vadd_one`,
+  `periodic_normCofactor`, `analyticAt_cuspFunction_normCofactor`,
+  `qExpansion_norm_eq_mul`, `qExpansion_norm_coeff_eq_zero`);
+- the two coefficient-form bounds and `qCoeffTrunc`;
+- the `scoped instance finiteDimensional_Gamma0`.
+
+Three false-positive traps, all checked: `CuspForm.coe_norm_eq_coe_modularFormNorm`
+and `CuspForm.norm_eq_zero_iff` recur in `S_ModularForm_S2_Gamma0_2_eq_zero.lean`
+as that file's own private copies (its norm-route site), not as references;
+`slash_upperRightHom_apply` recurs as a local definition in
+`S_CuspForm_exists_qCoeff_eq_ite_dvd_of_prime.lean`; and the 38
+`CuspForm.finiteDimensional_Gamma0` references all import
+`Thm_CuspForm_finiteDimensional_Gamma0`, i.e. the sibling
+`S_CuspForm_finiteDimensional_Gamma0.lean` (`finiteDimensional_of_isArithmetic`),
+not this file's instance.
 
 ## Pointers
 

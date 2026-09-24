@@ -260,9 +260,16 @@ $`\dim_{\mathbb{C}} S_k(\Gamma_0(N)) \le \lfloor k[\mathcal{SL}:\Gamma_0(N)]/12 
 FLT proves those two bounds through the norm; the port re-derives them from
 `sturm_bound_of_isArithmetic` (`relIndex = Nat.card` is `rfl`,
 `PowerSeries.nat_le_order` converts vanishing coefficients to the order
-hypothesis, and `k < 0` is `ModularForm.isZero_of_neg_weight`). Neither
-`CuspForm.norm` nor its ~300-line `norm`/`normCofactor` block is needed; this
-answers open question 5 of the coverage study.
+hypothesis, and `k < 0` is `ModularForm.isZero_of_neg_weight`). The truncation
+`CuspForm.qCoeffTrunc` and the resulting `CuspForm.finiteDimensional_cuspForm`
+are ported alongside them, so neither `CuspForm.norm` nor its ~300-line
+`norm`/`normCofactor` block is needed; this answers open question 5 of the
+coverage study. (`finiteDimensional_cuspForm` is inside
+`FLT.fermatLastTheorem`'s closure and has 4 consumers, all in the endgame. The
+38-consumer `CuspForm.finiteDimensional_Gamma0` node is a *sibling* file,
+`S_CuspForm_finiteDimensional_Gamma0.lean`, proved via
+`CuspForm.finiteDimensional_of_isArithmetic`; this file's same-named instance is
+file-local.)
 
 ## 9. The Lean route map
 
@@ -288,8 +295,9 @@ mathematics was needed. The declarations, in the order the narrative uses them:
 | the two headlines | `ModularForm.sturm_bound_of_isArithmetic`, `sturm_bound_Gamma0` | ported, ibid. |
 | coefficient-form bounds | `CuspForm.eq_zero_of_qExpansion_coeff_eq_zero`, `Gamma0_eq_zero_of_qExpansion_coeff_eq_zero` | ported, ibid. |
 | no negative-weight forms, any level | `ModularForm.isZero_of_neg_weight` | mathlib `NormTrace.lean` |
+| coefficient truncation | `CuspForm.qCoeffTrunc` | ported, ibid. |
+| finite-dimensionality | `CuspForm.finiteDimensional_cuspForm` (and the file-local instance `finiteDimensional_Gamma0`) | ported, ibid. |
 | finiteness use (not yet ported) | `CuspForm.intLattice_fg` | FLT `S_CuspForm_intLattice_fg.lean` |
-| finite-dimensionality use (not yet ported) | `CuspForm.finiteDimensional_cuspForm` | FLT `S_CuspForm_finiteDimensional_cuspForm.lean` |
 
 Formal points that do not enter the narrative:
 
@@ -302,10 +310,11 @@ Formal points that do not enter the narrative:
   level-one bound) precisely so the period bookkeeping stays out of the norm
   argument.
 - **Statements are transcribed, not restated.** All eight public Sturm
-  declarations are verbatim from their `Theorems/` wrappers, and the two
-  coefficient-form bounds are verbatim from their `S_` source (they have no
-  wrapper); the checker reports `1,258 identical, 0 mismatched, 0 missing`. The
-  only proof-level adaptations are the v4.33 → v4.34 renames `ENat.toNat_coe` →
+  declarations are verbatim from their `Theorems/` wrappers; the two
+  coefficient-form bounds and `CuspForm.qCoeffTrunc` are verbatim from their
+  `S_` source, and `CuspForm.finiteDimensional_cuspForm` from its wrapper; the
+  checker reports `1,260 identical, 0 mismatched, 0 missing`. The only
+  proof-level adaptations are the v4.33 → v4.34 renames `ENat.toNat_coe` →
   `ENat.toNat_natCast`, `if_pos` → `ite_eq_left`, and the deprecation of
   `ModularForm.coe_zero`.
 

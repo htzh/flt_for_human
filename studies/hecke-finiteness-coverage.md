@@ -182,10 +182,18 @@ with `intLattice_fg` also needing `CongruenceSubgroup.one_mem_strictPeriods_Gamm
 (closure 1, indeg 46 — a widely wanted leaf), and the `Module.Free` sibling at
 closure 19. That whole sub-cone is about **18 nodes**.
 
-**Status (2026-09-23): the Sturm bound half is ported.** The eight declarations of
-the cone above are in `FLTForHuman/ModularForms/QExpansionOrder.lean` and
-`SturmBound.lean`, verified (checker 1,256 identical, 0 mismatched, 0 missing);
-`CuspForm.intLattice_fg` and the two
+**Status (2026-09-23; addendum 2026-09-24): the Sturm bound half is ported.**
+The eight declarations of the cone above are in
+`FLTForHuman/ModularForms/QExpansionOrder.lean` and `SturmBound.lean`, verified
+(checker 1,260 identical, 0 mismatched, 0 missing). The addendum adds FLT's two
+coefficient-form bounds plus the finite-dimensionality cone of
+`S_CuspForm_finiteDimensional_cuspForm.lean` — `CuspForm.qCoeffTrunc` and
+`CuspForm.finiteDimensional_cuspForm` (closure 1, 4 consumers) — again with no
+norm. Note the attribution: the graph's 38-consumer
+`CuspForm.finiteDimensional_Gamma0` node is the **sibling**
+`S_CuspForm_finiteDimensional_Gamma0.lean` (via
+`finiteDimensional_of_isArithmetic`), not the same-named `scoped instance` in this
+file, which is file-local. `CuspForm.intLattice_fg` and the two
 `HasIntegralStructure.moduleFinite/Free_heckeAlgebra` instances remain. The
 mathematics is in [../math/012-sturm-bound.md](../math/012-sturm-bound.md), the
 record in [../lean/logs/sturm-bound-port.md](../lean/logs/sturm-bound-port.md).
@@ -195,13 +203,19 @@ This matters because `moduleFinite_heckeAlgebra`'s own proof cites
 expensive route's critical path too** — it is a small, cheap prerequisite of both
 routes, not an alternative to either.
 
-A third route exists only as a **port proposal**, not an FLT proof:
+A third route was only a **port proposal**, not an FLT proof:
 `exists_basis_gamma1_qCoeff_mem_range_intCast` plus the small
 `sturm_bound_of_isArithmetic` would give an explicit integral spanning family,
 reaching `hasIntegralStructure_of_two_le` without the Eichler–Shimura tower. The
-T10 brief measures that cone at ~287 nodes against 657, but it has not been
-scouted, so it may or may not hold. This is the only route on which Sturm is
-"the next thing" rather than a step inside a larger plan.
+T10 brief guessed that cone at ~287 nodes against 657. **Scouted 2026-09-24:
+C′ holds, at 53 nodes / 33,719 raw `S_` lines standalone, and at zero additional
+nodes once the endgame's weight-one branch is ported; Sturm is not needed. The
+real ingredient is the *slash* form
+`exists_basis_gamma1_qCoeff_slash_mem_range_intCast`, and the missing step is a
+short trace lemma.** See [route-c-prime-scout.md](route-c-prime-scout.md). (The
+scout further shows Sturm is not "the next thing" on C′ at all: the trace
+argument certifies spanning directly, so the small Sturm bound is not part of the
+route.)
 
 ## 5. The route decision
 
@@ -210,7 +224,7 @@ scouted, so it may or may not hold. This is the only route on which Sturm is
 | **A — general** | `hasIntegralStructure_of_two_le` (657) then `moduleFinite_heckeAlgebra` (669); `_two` statements as one-liners | 263k+ raw `S_` lines, the Eichler–Shimura/`HeckeEis`/`PeriodPair`/`ModPForms` tower | it **is** the endgame route; mandatory |
 | **B — standalone `k = 2`** | transcribe `S_CuspForm_moduleFinite_heckeAlgebra_two.lean` (4,308 lines) | closure 1, but 4,308 written lines | **no** — replaced by one-liners once A lands |
 | **C — reusable sub-cone** | Sturm + `intLattice_fg` + `HasIntegralStructure.moduleFinite/Free_heckeAlgebra` (closure 18–19) | ~18 nodes | **yes** — it is on A's path |
-| **C′ — proposed shortcut** | `exists_basis_gamma1_qCoeff_mem_range_intCast` + small Sturm → `hasIntegralStructure_of_two_le` | ~287 nodes (claimed) | would *replace* the 657-node tower; unscouted |
+| **C′ — scouted shortcut** | `exists_basis_gamma1_qCoeff_slash_mem_range_intCast` + a trace lemma → `hasIntegralStructure_of_two_le` for all `k` | **53 nodes / 33,719 raw lines** standalone; 0 extra nodes once the weight-one branch is ported; no Sturm, no `HeckeEis` | **yes** — its whole cone is inside `FLT.No2BridgeWiring` ⊂ the endgame |
 
 The decision rule:
 
@@ -248,10 +262,13 @@ therefore has only two exits: pay route A, or make route C′ work.
    `sturm_bound_Gamma0`, `one_mem_strictPeriods_Gamma0`, `intLattice_fg`,
    `HasIntegralStructure.moduleFinite/Free_heckeAlgebra` (~18 nodes). It is on
    route A's path and is the reusable half regardless of scope.
-3. **Scout route C′ before committing to the tower.** The single decision-relevant
-   unknown is whether `exists_basis_gamma1_qCoeff_mem_range_intCast` + the small
-   Sturm bound actually yields `hasIntegralStructure_of_two_le` without
-   `HeckeEis`/`ModPForms`. A scouting round answers it either way.
+3. **C′ is scouted and holds — do not pay route A for the integral structure.**
+   `exists_basis_gamma1_qCoeff_slash_mem_range_intCast` (general `k`, Γ₀-slash
+   integrality) plus the trace lemma gives `HasIntegralStructure N k` without
+   `HeckeEis`/`ModPForms`/Sturm; route A's marginal content over the weight-one
+   branch is 73 nodes of Eichler–Shimura comparison, and C′'s whole cone is
+   already inside that branch. See
+   [route-c-prime-scout.md](route-c-prime-scout.md).
 4. **The span family is cheap** (closures 1–101) and only needs T7/T8 plus
    `finiteDimensional_Gamma0`; port it with the finiteness-adjacent work rather
    than deferring it to the tower.
@@ -308,9 +325,15 @@ wc -l ~/proj/fermats-last-theorem/P2M/Sol/S_CuspForm_{moduleFinite_heckeAlgebra{
 
 ## 9. Open questions
 
-1. **Does route C′ hold?** If `exists_basis_gamma1_qCoeff_mem_range_intCast` +
-   `sturm_bound_of_isArithmetic` yields `hasIntegralStructure_of_two_le`, the
-   657-node tower is avoidable and the whole picture changes.
+1. **Does route C′ hold?** **Answered: yes**, scouted 2026-09-24. The working
+   ingredient is the general-weight slash form
+   `exists_basis_gamma1_qCoeff_slash_mem_range_intCast` (not the brief's
+   `…qCoeff_mem_range_intCast`, which does not exist), and a short trace lemma —
+   not the Sturm bound — gives `HasIntegralStructure N k` for all `k`. Measured
+   53 nodes / 33,719 raw lines standalone, and entirely inside the endgame's
+   weight-one (`FLT.No2BridgeWiring`) branch, so its marginal cost there is just
+   the trace lemma. The 657-node tower is avoidable for this target. See
+   [route-c-prime-scout.md](route-c-prime-scout.md).
 2. **Is there an endgame node that needs the `k = 2` statement strictly before the
    general one?** If not, route B has no sequencing value even inside the
    endgame.
@@ -336,12 +359,17 @@ wc -l ~/proj/fermats-last-theorem/P2M/Sol/S_CuspForm_{moduleFinite_heckeAlgebra{
    **Answered: no.** The coefficient-form bounds are ported and re-derived from
    `sturm_bound_of_isArithmetic` in `FLTForHuman/ModularForms/SturmBound.lean`
    (`relIndex = Nat.card` is `rfl`; `PowerSeries.nat_le_order` supplies the order
-   hypothesis; `k < 0` is `ModularForm.isZero_of_neg_weight`). The spec consumer's
-   Zone E re-runs FLT's `qCoeffTrunc` + `FiniteDimensional.of_injective` on the
-   ported bound and derives `FiniteDimensional ℂ (CuspForm (Γ₀ N) k)` with no
-   norm, so neither FLT site needs `CuspForm.norm` or the `normCofactor`
-   prelude. `Reserve/ModularForms/CuspFormNorm.lean` is now a standalone
-   mathlib-gap API with no critical-path consumer.
+   hypothesis; `k < 0` is `ModularForm.isZero_of_neg_weight`). FLT's consumer of
+   them — `CuspForm.qCoeffTrunc` plus `FiniteDimensional.of_injective`, whose
+   output is `solution` → the wrapper `CuspForm.finiteDimensional_cuspForm`
+   (closure 1, indeg 4, all consumers inside `fermatLastTheorem`) — is ported in
+   the same module. The file's same-named `scoped instance
+   finiteDimensional_Gamma0` is file-local; the graph's 38-consumer node of that
+   name is the sibling `S_CuspForm_finiteDimensional_Gamma0.lean`. So neither FLT
+   site needs `CuspForm.norm` or the `normCofactor` prelude, and the spec
+   consumer's Zone E consumes the library corollary rather than re-proving it.
+   `Reserve/ModularForms/CuspFormNorm.lean` is now a standalone mathlib-gap API
+   with no critical-path consumer.
 
 ## 10. Pointers
 
@@ -349,6 +377,8 @@ wc -l ~/proj/fermats-last-theorem/P2M/Sol/S_CuspForm_{moduleFinite_heckeAlgebra{
   the raw-line measurements.
 - [hecke/TOPIC-t10-finite-algebra.md](../lean/topics/hecke/TOPIC-t10-finite-algebra.md)
   §7 — the corrected two-route analysis and the C′ proposal.
+- [route-c-prime-scout.md](route-c-prime-scout.md) — the C′ scout: the trace
+  lemma, the corrected ingredient, and the measured cones and overlap.
 - [hecke-port.md](../lean/logs/hecke-port.md) §T10 — the verified blocker against
   the pin's imports.
 - [hecke-commute-bar-coverage.md](hecke-commute-bar-coverage.md) — the other

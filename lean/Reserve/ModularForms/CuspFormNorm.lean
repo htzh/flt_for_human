@@ -24,9 +24,9 @@
   `FLTForHuman/ModularForms/SturmBound.lean` (the `relIndex = Nat.card` bridge is
   `rfl`, `PowerSeries.nat_le_order` converts the coefficient hypothesis to the
   order form, and negative weights go through
-  `ModularForm.isZero_of_neg_weight`); the spec consumer's Zone E re-runs FLT's
-  `qCoeffTrunc` + `FiniteDimensional.of_injective` argument on that bound, so
-  `CuspForm.norm` and `normCofactor` drop out of
+  `ModularForm.isZero_of_neg_weight`); FLT's `qCoeffTrunc` and the resulting
+  `finiteDimensional_cuspForm` (the file's published corollary, an endgame node)
+  are ported with them, so `CuspForm.norm` and `normCofactor` drop out of
   `CuspForm.finiteDimensional_cuspForm` entirely. This module is therefore no
   longer required by any FLT site and is retained only as a standalone
   mathlib-gap API (and as the proof route of

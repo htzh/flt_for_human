@@ -279,14 +279,21 @@ routes** and the original re-scope picked the wrong one.
 `hasIntegralStructure_two = hasIntegralStructure_of_two_le N 2 le_rfl` likewise —
 but route A is the 263k-line programme, so paying it to dedup a 4,308-line block
 is the wrong trade. On route B the block is **kept** (not deduped) and becomes the
-*definition* of the k=2 finiteness. `HasIntegralStructure` itself stays out of
-reach on both routes and should be declared out of scope unless a genuinely new
-route (e.g. an explicit integral spanning family via
-`exists_basis_gamma1_qCoeff_mem_range_intCast` + the small Sturm bound,
-`sturm_bound_of_isArithmetic` 29 lines / 287-line cone) is scouted and holds.
+*definition* of the k=2 finiteness. `HasIntegralStructure` itself is reachable on
+neither A-as-budgeted nor B, but the shortcut **holds**: scouted 2026-09-24, the
+general-weight slash form
+`CuspForm.exists_basis_gamma1_qCoeff_slash_mem_range_intCast` plus a short
+**trace lemma** (coset sums over `Γ₁ ⊴ Γ₀`, not the Sturm bound) gives
+`HasIntegralStructure N k` for all `k`; 53 nodes / 33,719 raw lines standalone,
+and every node already lies inside the endgame's weight-one
+`FLT.No2BridgeWiring` branch, so the marginal cost there is just the lemma. The
+brief's `exists_basis_gamma1_qCoeff_mem_range_intCast` does not exist and the
+`+ small Sturm` / "287-line cone" is superseded. See
+[../../../studies/route-c-prime-scout.md](../../../studies/route-c-prime-scout.md).
 
-**The two landed definition modules are the wrong prerequisites for route B.**
-`Defs/EisensteinChiNegThree.lean` and `Defs/IntegralLattice.lean` serve the mod-3
-congruence / `HasIntegralBasis` route, which neither route above uses. They are
-green and harmless; keep them as parked definitions (a future congruence topic
-will want them) or revert them, but route B needs neither.
+**The two landed definition modules are prerequisites of the shortcut, not of
+route B.** `Defs/EisensteinChiNegThree.lean` and `Defs/IntegralLattice.lean`
+serve the mod-3 congruence / `HasIntegralBasis` route; the χ₋₃ weight-one
+Eisenstein machinery (`EisensteinWeightOne.e1Chi3IsModular`) is the analytic
+content of the C′ ingredient, so keep them — route B needs neither, but C′ does.
+FLT's own `hasIntegralStructure_of_two_le` uses them at neither site.

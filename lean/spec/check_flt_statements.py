@@ -780,8 +780,14 @@ SOURCES = [
     # The coefficient-form Sturm bounds. FLT states both in the `section
     # SturmBound` of this file, with a ~300-line `normCofactor` prelude around
     # `CuspForm.norm`; the port re-derives them from
-    # `sturm_bound_of_isArithmetic` (see `SturmBound.lean`'s header). This file
-    # is the only source for these two names, so it is appended last.
+    # `sturm_bound_of_isArithmetic` (see `SturmBound.lean`'s header). The same
+    # file carries `qCoeffTrunc`, whose truncation the port's finite-dimensionality
+    # corollary uses. The wrapper is the statement authority for
+    # `CuspForm.finiteDimensional_cuspForm`; FLT's `scoped instance
+    # finiteDimensional_Gamma0` is invisible to the checker (its `DECL_RE` reads
+    # no `scoped` modifier), so it is transcribed without a diff. Both this file
+    # and the wrapper are appended last.
+    "Theorems/Thm_CuspForm_finiteDimensional_cuspForm.lean",
     "P2M/Sol/S_CuspForm_finiteDimensional_cuspForm.lean",
 ]
 

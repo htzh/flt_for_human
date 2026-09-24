@@ -48,6 +48,15 @@
   `ModularForm.isZero_of_neg_weight`), and `PowerSeries.nat_le_order` turns the
   coefficient hypothesis into the order hypothesis. This removes the second
   consumer of `CuspForm.norm` (see `studies/hecke-finiteness-coverage.md` §9).
+  The same section also carries FLT's consumer of them: `CuspForm.qCoeffTrunc`
+  plus the corollary `CuspForm.finiteDimensional_cuspForm` (`FiniteDimensional ℂ
+  (CuspForm (Γ₀ N) k)`, graph closure 1, 4 consumers, all inside
+  `FLT.fermatLastTheorem`'s closure), and the file-local `scoped instance
+  finiteDimensional_Gamma0` it is proved from. (The graph's 38-consumer
+  `CuspForm.finiteDimensional_Gamma0` node is the *sibling*
+  `S_CuspForm_finiteDimensional_Gamma0.lean`, proved by specialising
+  `CuspForm.finiteDimensional_of_isArithmetic`; this file's same-named instance
+  has no consumer outside the file.)
 -/
 import FLTForHuman.ModularForms.QExpansionOrder
 import FLTForHuman.ModularForms.Gamma0TwoIndex
@@ -367,5 +376,76 @@ theorem Gamma0_eq_zero_of_qExpansion_coeff_eq_zero {N : ℕ} [NeZero N]
 end CuspForm
 
 end CuspFormCoeffSturm
+
+/-! ## Finite-dimensionality of the `Γ₀(N)` cusp-form space
+
+FLT's `CuspForm.finiteDimensional_cuspForm` is an endgame corollary (graph
+closure 1, 4 consumers, every one inside `FLT.fermatLastTheorem`). FLT proves it
+in `S_CuspForm_finiteDimensional_cuspForm.lean` by truncating the `q`-expansion
+to the first `k.toNat · [𝒮ℒ : Γ₀(N)] + 1` coefficients and applying the
+coefficient-form bound `Gamma0_eq_zero_of_qExpansion_coeff_eq_zero` to the
+kernel; that file proves that bound through `CuspForm.norm`, so here it is a
+Sturm-bound corollary. The file's `scoped instance finiteDimensional_Gamma0` is
+a duplicate of the sibling `S_CuspForm_finiteDimensional_Gamma0.lean`'s theorem
+of the same name and serves only this file's `solution` (the 38 consumers of
+`CuspForm.finiteDimensional_Gamma0` use the sibling). -/
+
+section CuspFormFiniteDim
+
+namespace CuspForm
+
+variable {N : ℕ} [NeZero N] {k : ℤ}
+
+/-- FLT's `qCoeffTrunc`: the first `d` `q`-expansion coefficients of a cusp form,
+as a linear map to `Fin d → ℂ`. -/
+def qCoeffTrunc (N : ℕ) [NeZero N] (k : ℤ) (d : ℕ) :
+    CuspForm (Gamma0 N) k →ₗ[ℂ] (Fin d → ℂ) where
+  toFun f := fun i => (qExpansion 1 ⇑f).coeff i
+  map_add' f g := by
+    have hf := ModularFormClass.analyticAt_cuspFunction_zero f one_pos
+      (by rw [CongruenceSubgroup.strictPeriods_Gamma0]; exact AddSubgroup.mem_zmultiples 1)
+    have hg := ModularFormClass.analyticAt_cuspFunction_zero g one_pos
+      (by rw [CongruenceSubgroup.strictPeriods_Gamma0]; exact AddSubgroup.mem_zmultiples 1)
+    funext i
+    simp only [FunLike.coe_add, Pi.add_apply, qExpansion_add hf hg, map_add]
+  map_smul' c f := by
+    have hf := ModularFormClass.analyticAt_cuspFunction_zero f one_pos
+      (by rw [CongruenceSubgroup.strictPeriods_Gamma0]; exact AddSubgroup.mem_zmultiples 1)
+    funext i
+    have hcoe : ⇑(c • f) = c • ⇑f := rfl
+    simp only [RingHom.id_apply, Pi.smul_apply, smul_eq_mul]
+    rw [hcoe, UpperHalfPlane.qExpansion_smul hf c, map_smul, smul_eq_mul]
+
+/-- **Finite-dimensionality of `S_k(Γ₀(N))`** (FLT's `scoped instance
+finiteDimensional_Gamma0`), from the coefficient-form Sturm bound: the
+`q`-coefficient truncation is injective once `k.toNat · [𝒮ℒ : Γ₀(N)] < 12 d`. -/
+scoped instance finiteDimensional_Gamma0 : FiniteDimensional ℂ (CuspForm (Gamma0 N) k) := by
+  classical
+  set c : ℕ := Nat.card (𝒮ℒ ⧸ ((Gamma0 N : Subgroup (GL (Fin 2) ℝ)).subgroupOf 𝒮ℒ)) with hc
+  set d : ℕ := k.toNat * c + 1 with hd_def
+  have hd : k * (c : ℤ) < 12 * (d : ℤ) := by
+    have h1 : k * (c : ℤ) ≤ (k.toNat : ℤ) * c :=
+      mul_le_mul_of_nonneg_right (Int.self_le_toNat k) (Int.natCast_nonneg c)
+    have h2 : (0 : ℤ) ≤ (k.toNat : ℤ) * c := by positivity
+    have h3 : (12 : ℤ) * (d : ℤ) = 12 * ((k.toNat : ℤ) * c) + 12 := by
+      rw [hd_def]; push_cast; ring
+    linarith
+  refine FiniteDimensional.of_injective (qCoeffTrunc N k d) ?_
+  rw [← LinearMap.ker_eq_bot, LinearMap.ker_eq_bot']
+  intro f hf
+  refine Gamma0_eq_zero_of_qExpansion_coeff_eq_zero f d (by rw [← hc]; exact hd) ?_
+  intro m hm
+  have hfm := congrFun hf ⟨m, hm⟩
+  simpa [qCoeffTrunc] using hfm
+
+/-- **FLT's published wrapper.** `S_k(Γ₀(N))` is finite-dimensional, as a direct
+corollary of `CuspForm.finiteDimensional_Gamma0`. -/
+theorem finiteDimensional_cuspForm (N : ℕ) [NeZero N] (k : ℤ) :
+    FiniteDimensional ℂ (CuspForm (CongruenceSubgroup.Gamma0 N) k) :=
+  CuspForm.finiteDimensional_Gamma0
+
+end CuspForm
+
+end CuspFormFiniteDim
 
 end
