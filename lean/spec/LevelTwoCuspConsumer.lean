@@ -11,7 +11,7 @@
   * **C `[sturm]`** — the two Sturm headlines, applied;
   * **D `[bridge]`** — `Γ(1) = 𝒮ℒ` and the subgroup-equality transport.
 -/
-import Reserve.ModularForms.LevelTwoCuspVanishing
+import FLTForHuman.ModularForms.SturmBound
 import FLTForHuman.ModularForms.Gamma0TwoIndex
 
 set_option autoImplicit false

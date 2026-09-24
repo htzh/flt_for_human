@@ -30,8 +30,16 @@
   the single copy from `QExpansionOrder.lean`. `HeckeEigenform.lean` had a
   `private` `CuspForm.one_mem_strictPeriods_Gamma0` (a one-line twin of the leaf
   below); the public leaf here is the wrapper target.
+
+  The final section carries the weight-`2` **cusp-form vanishing corollaries**
+  (`S2_Gamma0_2_eq_zero`, `S2_Gamma0_one_eq_zero`): for weight `2` the bound is
+  `⌊2 · index / 12⌋ = ⌊index / 6⌋`, which is `0` at `Γ(1)` and `Γ₀(2)`, and a
+  cusp form has vanishing constant term, so the bound applies immediately. The
+  older norm-route proof of the same two theorems is kept in the `Reserve`
+  library (`Reserve.ModularForms.LevelTwoCuspVanishing`).
 -/
 import FLTForHuman.ModularForms.QExpansionOrder
+import FLTForHuman.ModularForms.Gamma0TwoIndex
 import Mathlib.NumberTheory.ModularForms.LevelOne.DimensionFormula
 import Mathlib.NumberTheory.ModularForms.NormTrace
 import Mathlib.NumberTheory.ModularForms.CongruenceSubgroups
@@ -45,7 +53,7 @@ set_option linter.style.haveILetI false
 noncomputable section
 
 open UpperHalfPlane ModularForm SlashInvariantForm Matrix.SpecialLinearGroup ConjAct
-open scoped MatrixGroups ModularForm Topology Manifold Pointwise
+open scoped MatrixGroups ModularForm Topology Manifold Pointwise CongruenceSubgroup
 
 /-- `(1 : ℝ)` is a strict period of `Γ₀(N)`: `Γ₀(N)` contains `T`. -/
 theorem CongruenceSubgroup.one_mem_strictPeriods_Gamma0 (N : ℕ) :
@@ -209,6 +217,68 @@ theorem sturm_bound_Gamma0 (N : ℕ) [NeZero N] {k : ℤ}
   refine lt_of_lt_of_le (by exact_mod_cast Nat.lt_succ_self _)
     (PowerSeries.nat_le_order _ _ fun n hn ↦ ?_)
   exact h n (by lia)
+
+/-! ## Weight-2 cusp-form vanishing (corollaries)
+
+For weight `2` the Sturm bound is `⌊2 · index / 12⌋ = ⌊index / 6⌋`, which is `0`
+at `Γ(1)` (index 1) and `Γ₀(2)` (index 3). A cusp form has vanishing constant
+term, so the bound applies with no other input: the only coefficient to check
+below the bound is the constant term. -/
+
+section CuspFormVanishing
+
+/-- `Γ(1)` is `𝒮ℒ`, the image of `SL(2, ℤ)` in `GL(2, ℝ)`; the bridge between
+mathlib's level-one statements and FLT's congruence-subgroup spelling. -/
+lemma coe_Gamma_one_eq_SL : (↑Γ(1) : Subgroup (GL (Fin 2) ℝ)) = 𝒮ℒ := by
+  rw [CongruenceSubgroup.Gamma_one_top]
+  ext x
+  simp [Subgroup.mem_map, MonoidHom.mem_range]
+
+/-- Transport a vanishing statement across an equality of level subgroups. -/
+lemma cuspForm_eq_zero_of_subgroup_eq {Γ₁ Γ₂ : Subgroup (GL (Fin 2) ℝ)} (h : Γ₂ = Γ₁)
+    {k : ℤ} (H : ∀ g : CuspForm Γ₂ k, g = 0) (f : CuspForm Γ₁ k) : f = 0 := by
+  subst h; exact H f
+
+private lemma Gamma0_one_eq_top :
+    (CongruenceSubgroup.Gamma0 1 : Subgroup SL(2, ℤ)) = ⊤ := by
+  ext A
+  simp [CongruenceSubgroup.Gamma0_mem, eq_iff_true_of_subsingleton]
+
+private lemma coe_Gamma0_one_eq_SL :
+    ((CongruenceSubgroup.Gamma0 1 : Subgroup SL(2, ℤ)) : Subgroup (GL (Fin 2) ℝ)) = 𝒮ℒ := by
+  rw [Gamma0_one_eq_top, ← CongruenceSubgroup.Gamma_one_top]
+  exact coe_Gamma_one_eq_SL
+
+/-- **Level one.** `S₂(SL(2, ℤ)) = 0`: the weight-`2` Sturm bound is
+`⌊2 / 12⌋ = 0`, and a cusp form has vanishing constant term. -/
+theorem S2_Gamma0_one_eq_zero (f : CuspForm (CongruenceSubgroup.Gamma0 1) 2) : f = 0 :=
+  cuspForm_eq_zero_of_subgroup_eq coe_Gamma0_one_eq_SL.symm
+    (fun g => CuspForm.toModularFormₗ_injective (by
+      simpa using sturm_bound_levelOne (f := CuspForm.toModularFormₗ g) (by
+        have h1 : (1 : ℕ∞) ≤ (qExpansion 1 ⇑g).order :=
+          PowerSeries.one_le_order_iff_constCoeff_eq_zero.mpr (by
+            simpa [PowerSeries.coeff_zero_eq_constantCoeff] using
+              CuspFormClass.qExpansion_coeff_zero g one_pos one_mem_strictPeriods_SL)
+        change (↑((2 : ℤ).toNat / 12) : ℕ∞) < (qExpansion 1 ⇑g).order
+        norm_num
+        exact lt_of_lt_of_le (by norm_num : (0 : ℕ∞) < 1) h1))) f
+
+/-- **Level two.** `S₂(Γ₀(2)) = 0`: the weight-`2` Sturm bound is
+`⌊2 · 3 / 12⌋ = 0`, and a cusp form has vanishing constant term. -/
+theorem S2_Gamma0_2_eq_zero (f : CuspForm (CongruenceSubgroup.Gamma0 2) 2) : f = 0 := by
+  have hB : (((2 : ℤ) * (CongruenceSubgroup.Gamma0 2).index).toNat / 12) = 0 := by
+    rw [Gamma0_two_index_eq_three]; norm_num
+  have hM : CuspForm.toModularFormₗ (Γ := CongruenceSubgroup.Gamma0 2) (k := 2) f = 0 := by
+    refine sturm_bound_Gamma0 2 _ (fun n hn => ?_)
+    rw [hB] at hn
+    have hn0 : n = 0 := by omega
+    subst hn0
+    change (qExpansion 1 ⇑f).coeff 0 = 0
+    exact CuspFormClass.qExpansion_coeff_zero f one_pos
+      (CongruenceSubgroup.one_mem_strictPeriods_Gamma0 2)
+  exact CuspForm.toModularFormₗ_injective (by simpa using hM)
+
+end CuspFormVanishing
 
 end ModularForm
 

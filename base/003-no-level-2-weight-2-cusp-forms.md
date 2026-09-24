@@ -17,16 +17,18 @@ already sketched the Lean mechanism; here we do the mathematics and use the Lean
 declarations only as a route map.
 
 The proof is ported to Lean in
-[`../lean/FLTForHuman/ModularForms/`](../lean/FLTForHuman/ModularForms/) —
-`Gamma0TwoIndex.lean` (move 1, the index `= 3`) and
-`LevelTwoCuspVanishing.lean` (the two headline theorems, verbatim from their
-`Theorems/` wrappers). The port proves them as corollaries of the **Sturm bound**
+[`../lean/FLTForHuman/ModularForms/`](../lean/FLTForHuman/ModularForms/) — the two
+headline theorems (verbatim from their `Theorems/` wrappers) sit at the end of
+`SturmBound.lean`, with the index `= 3` (move 1) in `Gamma0TwoIndex.lean`. The
+port proves them as corollaries of the **Sturm bound**
 ([math/012](../math/012-sturm-bound.md)) rather than by the norm below: for weight
 $`2`$ that bound is $`\lfloor 2\cdot 3/12\rfloor = 0`$, so the vanishing
 constant term of a cusp form already suffices. The norm in §3 is the content of
 the general Sturm bound, so the two proofs are the same mathematics packaged at
-different levels; the cusp-form norm (move 2 in Lean) is kept in the reserve
-library, [`../lean/Reserve/ModularForms/CuspFormNorm.lean`](../lean/Reserve/ModularForms/CuspFormNorm.lean).
+different levels; the original norm route (move 2 and the theorems) is kept
+verbatim from commit `4c4f588` in the reserve library,
+[`../lean/Reserve/ModularForms/LevelTwoCuspVanishing.lean`](../lean/Reserve/ModularForms/LevelTwoCuspVanishing.lean)
+with its [`CuspFormNorm.lean`](../lean/Reserve/ModularForms/CuspFormNorm.lean).
 The measured record is
 [`../lean/logs/level2-cusp-port.md`](../lean/logs/level2-cusp-port.md). The Lean
 port is against mathlib `v4.34.0`, one minor version on from this note's
