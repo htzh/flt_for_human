@@ -7,7 +7,7 @@ is also the final review instrument: it consumes m9's roof, m10's integrality,
 m11's principal divisors, m12's reduction and AC's exchange, so a binder or a
 missing lemma anywhere upstream surfaces as a compile failure here.
 
-**Goal.** One module, `FLTForHuman/ModularCurve/Capstone.lean`, porting the
+**Goal.** One module, `FLTForHuman/ModularCurve/HeckeCommuteBar.lean`, porting the
 pin's `S_ModularCurve_heckeOperatorsCommuteBar.lean` (112 raw / 63 content):
 
 - the local `heckeExchangeAt_of_WEX` (the ported AC exchange applied to the
@@ -49,7 +49,7 @@ with FFG's `functionFieldGeneration M`.
 ## 2. Verification
 
 - Append `Theorems/Thm_ModularCurve_heckeOperatorsCommuteBar.lean` to `SOURCES`
-  and `Capstone.lean` to `PORT_FILES`; checker 0 mismatched / 0 missing, and the
+  and `HeckeCommuteBar.lean` to `PORT_FILES`; checker 0 mismatched / 0 missing, and the
   identical count increases by 1.
 - `#print axioms ModularCurve.heckeOperatorsCommuteBar` =
   `[propext, Classical.choice, Quot.sound]`.

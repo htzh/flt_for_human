@@ -549,7 +549,7 @@ modules is **0** for all fourteen names (`TS`, `conj`, `phiAtSeed`,
   (the `hgen`) and `finrankAlong_towerSubstBar_comp_heckeAlphaBar L N ℓ ℓ' M hM
   hne` (the `hLD`), together with m10's integrality predicates and AC's ported
   `pullbackAlong_pushforwardAlong_eq_…`.
-- **Capstone** (`Capstone.lean`, human): needs `HeckeExchangeAt L N ℓ ℓ' M hM`
+- **Capstone** (`HeckeCommuteBar.lean`, human): needs `HeckeExchangeAt L N ℓ ℓ' M hM`
   (m1) and the two `HasPrincipalDivisors` instances on
   `laurentBaseChange L F^full_{Nℓ}`/`F^full_M` (m11), as in
   `Defs/DegeneracyTower.lean`'s `HeckeExchangeAt` binder list.
@@ -725,7 +725,7 @@ The statement is unchanged.
 
 ### §SET-M4 hand-off — the exact capstone binders
 
-The capstone (`Capstone.lean`, human) needs:
+The capstone (`HeckeCommuteBar.lean`, human) needs:
 
 - **`HeckeExchangeAt` (m1, `Defs/DegeneracyTower.lean`)**, verbatim
   `HeckeExchangeAt (L) (N ℓ ℓ' M : ℕ) [NeZero N] [NeZero ℓ] [NeZero ℓ'] [NeZero M]
@@ -769,13 +769,13 @@ m12 "consumes `heckeRoof_adjoin_range_union_eq_top` (the `hgen`) and
 
 **Reviewed by the manager (2026-09-23 19:00). Verdict: PASS, and the effort's
 target is reached.** SET-M4 delivered m10–m12; the manager then wrote the
-reserved capstone (`Capstone.lean`).
+reserved capstone (`HeckeCommuteBar.lean`).
 
 | check | independent result |
 |---|---|
 | SET-M4 modules | `HeckeInputs/Integrality` 393, `PrincipalDivisors/ModularCurveBar` 81, `HeckeExchange/Reduction` 144 lines, 0 `sorry` |
-| capstone | `FLTForHuman/ModularCurve/Capstone.lean`, 178 lines, builds **first try in 13 s** |
-| `timeout 180 lake build` | **4,107 jobs, 0 warnings, exit 0, no `sorry`** (Capstone built in 12 s) |
+| capstone | `FLTForHuman/ModularCurve/HeckeCommuteBar.lean`, 178 lines, builds **first try in 13 s** |
+| `timeout 180 lake build` | **4,107 jobs, 0 warnings, exit 0, no `sorry`** (the capstone built in 12 s) |
 | checker | **1,237 identical (67 promoted), 0 mismatched, 0 missing**, 1,251 checked |
 | `#print axioms ModularCurve.heckeOperatorsCommuteBar` | `[propext, Classical.choice, Quot.sound]` |
 | consumer | Zones A–K at **0 errors, 0 warnings**; Zone K checks the unconditional target |
@@ -798,6 +798,31 @@ tower integrality. Recorded, no work lost.
 writing it was the final wire test: a wrong `HeckeExchangeAt` binder, a missing
 tower integrality or a mis-stated roof would have failed to compile. It compiled
 first try, so every upstream interface is intact.
+
+### §Post-effort follow-ups (2026-09-23)
+
+The capstone module was renamed `Capstone.lean` → `HeckeCommuteBar.lean` (module
+`FLTForHuman.ModularCurve.HeckeCommuteBar`), and the retrospective's residual
+items 2–4 were dealt with:
+
+- the three AC `finrankAlong` helpers were promoted from `private` in
+  `Degree/Roof.lean` to public in `AlgebraicCurve/Defs/Correspondence.lean`
+  (which gained the `Mathlib.FieldTheory.Relrank` import); the checker rose to
+  **1,240 identical (67 promoted), 0 mismatched, 0 missing**, 1,254 port
+  declarations;
+- the anonymous `SMul (F ≃ₐ[K] F) (Place K F)` moved from `Defs/AtkinLehner.lean`
+  to its AC home `AlgebraicCurve/Defs/SemilinearAut.lean`, and the
+  `PicAction`/`torsionGaloisRep` home was decided (the generic
+  `SMul (SemilinearAut K F) (Pic0 K F)`/`torsionRep` in AC `SemilinearAut.lean`,
+  the modular wrappers in `Defs/ArithmeticGalois.lean`; both still deferred, 0
+  cone occurrences);
+- `laurentBaseChange_mono`/`qExpand_mem_laurentBaseChange` moved from
+  `Defs/HeckeOperator.lean` to `Defs/Laurent.lean`, beside `laurentBaseChange`
+  (the first friction entry below no longer applies).
+
+`timeout 180 lake build` green (4,107 jobs, 0 warnings); the
+`ModularCurveHeckeConsumer` and `AlgebraicCurveConsumer` spec files exit 0 with 0
+errors/0 warnings, and the checker re-runs clean.
 
 ## §Friction
 

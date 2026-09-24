@@ -712,9 +712,8 @@ SOURCES = [
     # --- SET-M3 m9: the roof generation and the diagonal degree. The two
     # wrappers are the headlines of `Degree/Roof.lean`; the three AC
     # `finrankAlong` wrappers are the generic helpers the pin defines privately
-    # in its two degree/roof `S_` files and the port proves `private` here
-    # (promotion candidates for `AlgebraicCurve/Defs/Correspondence.lean`), so
-    # they are listed for the record and will verify once promoted.
+    # in its two degree/roof `S_` files. The port promoted them to
+    # `AlgebraicCurve/Defs/Correspondence.lean`, where they verify as identical.
     "Theorems/Thm_ModularCurve_heckeRoof_adjoin_range_union_eq_top.lean",
     "Theorems/Thm_ModularCurve_finrankAlong_towerSubstBar_comp_heckeAlphaBar.lean",
     "P2M/Sol/S_ModularCurve_heckeRoof_adjoin_range_union_eq_top.lean",
@@ -761,6 +760,13 @@ SOURCES = [
     "P2M/Sol/S_ModularCurve_heckeDivBar_comm_of_heckeExchangeAt.lean",
     "P2M/Sol/S_ModularCurve_heckeOperatorBar_comm_of_heckeExchangeAt.lean",
     "P2M/Sol/S_ModularCurve_heckeOperatorsCommuteBar_of_heckeExchangeAt.lean",
+    # --- The level-2/level-1 cusp-form vanishing: FLT's own norm/index layer on
+    # top of mathlib's level-one dimension formula. The two `Theorems/` wrappers
+    # are the statement authority; the two `S_` files carry the public helpers.
+    "Theorems/Thm_ModularForm_S2_Gamma0_2_eq_zero.lean",
+    "Theorems/Thm_ModularForm_S2_Gamma0_one_eq_zero.lean",
+    "P2M/Sol/S_ModularForm_S2_Gamma0_2_eq_zero.lean",
+    "P2M/Sol/S_ModularForm_S2_Gamma0_one_eq_zero.lean",
 ]
 
 PORT_FILES = [
@@ -903,8 +909,8 @@ PORT_FILES = [
     # SET-M3 m7: `relfinrank_laurentBaseChange` (the pin's `TransportDev` block).
     "FLTForHuman/ModularCurve/Degree/Relfinrank.lean",
     # SET-M3 m9: the roof generation and the diagonal degree. The three generic
-    # `AlgebraicCurve.finrankAlong` helpers are `private` here (promotion
-    # candidates for `AlgebraicCurve/Defs/Correspondence.lean`).
+    # `AlgebraicCurve.finrankAlong` helpers were promoted (post-effort) to
+    # `AlgebraicCurve/Defs/Correspondence.lean`; only the roof nodes live here.
     "FLTForHuman/ModularCurve/Degree/Roof.lean",
     # SET-M4 m10: tower integrality/finiteness and the Hecke integrality
     # predicates. The pin's private `gens`/`isIntegral_gens` supply block is
@@ -923,7 +929,15 @@ PORT_FILES = [
     # type check); the statement is unchanged.
     "FLTForHuman/ModularCurve/HeckeExchange/Reduction.lean",
     # m13, the capstone (written by the reviewer; assembly over m9-m12).
-    "FLTForHuman/ModularCurve/Capstone.lean",
+    "FLTForHuman/ModularCurve/HeckeCommuteBar.lean",
+    # The cusp-form vanishing layer (`base/003`): the generic cusp-form norm, the
+    # `Γ₀(2)` first-column index count, and the two wrapper theorems. The pin's
+    # private coset helpers are reproduced `private`; the public surface is
+    # `CuspForm.{norm, norm_eq_zero_iff, coe_norm_eq_...}`, the `Γ(1)`/`𝒮ℒ`
+    # bridges and the two `S2_Gamma0_*_eq_zero` theorems.
+    "FLTForHuman/ModularForms/CuspFormNorm.lean",
+    "FLTForHuman/ModularForms/Gamma0TwoIndex.lean",
+    "FLTForHuman/ModularForms/LevelTwoCuspVanishing.lean",
 ]
 
 

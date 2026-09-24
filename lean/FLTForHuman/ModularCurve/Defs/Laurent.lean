@@ -397,6 +397,50 @@ theorem iota_injective (A : ℕ) [NeZero A] :
 
 end IotaInjective
 
+/-! ## The generic base-change supply lemmas
+
+Two `Theorems/`-wrapper targets the Hecke-operator prelude consumes:
+monotonicity of `laurentBaseChange`, and `qExpand`-closure of a base change.
+They belong beside `laurentBaseChange` and the `coeffEmb`/`qExpand` lemmas they
+use. The pin writes the monotonicity lemma twice privately
+(`laurentBaseChange_mono'`/`''`) and the `qExpand` one once; the port writes both
+**once, publicly**, here (mc-retrospective §8 item 4 moved them off
+`Defs/HeckeOperator.lean`). -/
+
+section BaseChangeSupply
+
+/-- `laurentBaseChange` is monotone in the source field. -/
+theorem laurentBaseChange_mono (L : Type*) [Field L] [Algebra ℚ L]
+    {F₀ F₁ : IntermediateField ℚ (LaurentSeries ℚ)} (h : F₀ ≤ F₁) :
+    laurentBaseChange L F₀ ≤ laurentBaseChange L F₁ := by
+  rw [laurentBaseChange, IntermediateField.adjoin_le_iff]
+  rintro _ ⟨y, hy, rfl⟩
+  exact coeffEmb_mem_laurentBaseChange L (h hy)
+
+/-- If `qExpand` maps `F₀` into `F₁`, it maps the base change of `F₀` into the
+base change of `F₁`. -/
+theorem qExpand_mem_laurentBaseChange {L : Type*} [Field L] [Algebra ℚ L]
+    {F₀ : IntermediateField ℚ (LaurentSeries ℚ)} (n : ℕ) [NeZero n]
+    {F₁ : IntermediateField ℚ (LaurentSeries ℚ)} (hF : ∀ y ∈ F₀, qExpand ℚ n y ∈ F₁)
+    {x : LaurentSeries L} (hx : x ∈ laurentBaseChange L F₀) :
+    qExpand L n x ∈ laurentBaseChange L F₁ := by
+  rw [mem_laurentBaseChange_iff] at hx
+  induction hx using Subfield.closure_induction with
+  | mem y hy =>
+      rcases hy with ⟨a, rfl⟩ | ⟨z, hz, rfl⟩
+      · rw [algebraMap_laurentSeries_eq_single, qExpand_single, mul_zero,
+          ← algebraMap_laurentSeries_eq_single]
+        exact (laurentBaseChange L F₁).algebraMap_mem _
+      · rw [← coeffEmb_qExpand]
+        exact coeffEmb_mem_laurentBaseChange L (hF z hz)
+  | one => simp
+  | add x y _ _ hx hy => simpa using add_mem hx hy
+  | neg x _ hx => simpa using neg_mem hx
+  | inv x _ hx => simpa using inv_mem hx
+  | mul x y _ _ hx hy => simpa using mul_mem hx hy
+
+end BaseChangeSupply
+
 end ModularCurve
 
 end

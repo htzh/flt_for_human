@@ -4,9 +4,14 @@ places, after FLT's `Definitions/Def_AlgebraicCurve_BaseChangeGalois.lean` lines
 15–206
 (<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_BaseChangeGalois.lean>).
 
-The Divisor/`Pic0` action-and-torsion section (lines 206–356) is dropped: it is
-API for the modular Hecke/Galois-representation layer, not for the exchange cone
-(`TOPIC-ac0-vocabulary.md` §2.6).
+The Divisor/`Pic0` action-and-torsion section (lines 206–356) is **deferred, with
+this module as its decided home**: the `SMul (SemilinearAut K F) (Pic0 K F)`
+instance and `SemilinearAut.torsionRep` belong here, consumed by
+`ModularCurve/Defs/ArithmeticGalois.lean`. It is API for the modular
+Hecke/Galois-representation layer, not for the exchange cone
+(`TOPIC-ac0-vocabulary.md` §2.6); the port does not need it yet. The
+`F ≃ₐ[K] F`-action on `Place K F` **is** restored here, since the Fricke
+vocabulary needs it (mc-retrospective §8 item 3).
 -/
 import FLTForHuman.AlgebraicCurve.Defs.Place
 import Mathlib.Algebra.Ring.Action.End
@@ -157,6 +162,15 @@ instance : MulAction (SemilinearAut K F) (Place K F) where
     ext1
     simp only [smul_toValuationSubring]
     rw [mul_smul]
+
+/-- The `F ≃ₐ[K] F`-action on `Place K F`, through `ofAlgAut`. The pin states it
+directly on the pointwise smul of the valuation subring
+(`Def_AlgebraicCurve_DivisorClassGroup.lean:285`); this is the same action routed
+through the ported `ofAlgAut`, and it is the only place-smul the Fricke
+vocabulary needs. It lived in `ModularCurve/Defs/AtkinLehner.lean` until
+mc-retrospective §8 item 3 moved it to its AC home. -/
+instance : SMul (F ≃ₐ[K] F) (Place K F) where
+  smul σ v := ofAlgAut σ • v
 
 theorem ord_smul (f : F) : (g • v).ord (g • f) = v.ord f := by
   rcases eq_or_ne f 0 with rfl | hf

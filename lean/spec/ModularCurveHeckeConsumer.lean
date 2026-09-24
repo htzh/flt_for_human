@@ -62,7 +62,7 @@ import FLTForHuman.ModularCurve.Degree.Roof
 import FLTForHuman.ModularCurve.HeckeInputs.Integrality
 import FLTForHuman.ModularCurve.PrincipalDivisors.ModularCurveBar
 import FLTForHuman.ModularCurve.HeckeExchange.Reduction
-import FLTForHuman.ModularCurve.Capstone
+import FLTForHuman.ModularCurve.HeckeCommuteBar
 
 open ModularCurve
 open ModularCurve.QexpN
@@ -457,7 +457,7 @@ example (hP : ∀ (M : ℕ) [NeZero M],
 /-! ## Zone K — `[capstone]` the unconditional target -/
 
 -- The headline of the effort: `ModularCurve.heckeOperatorsCommuteBar`, proved
--- in `Capstone.lean` from m9's roof, m10's integrality, m11's principal divisors,
+-- in `HeckeCommuteBar.lean` from m9's roof, m10's integrality, m11's principal divisors,
 -- m12's reduction and the ported `AlgebraicCurve` exchange.
 #check @ModularCurve.heckeOperatorsCommuteBar
 example (N : ℕ) [NeZero N] : ModularCurve.HeckeOperatorsCommuteBar N :=

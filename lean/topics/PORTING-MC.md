@@ -514,8 +514,8 @@ lean/FLTForHuman/ModularCurve/
   HeckeExchange/
     Reduction.lean            -- m12: heckeDivBar_heckeDivBar/comm, heckeOperatorBar_comm,
                               --      heckeOperatorsCommuteBar_of_heckeExchangeAt
-lean/FLTForHuman/ModularCurve/Capstone.lean  -- the human's: heckeExchangeAt_of_WEX +
-                                             -- heckeOperatorsCommuteBar
+lean/FLTForHuman/ModularCurve/HeckeCommuteBar.lean  -- the human's: heckeExchangeAt_of_WEX +
+                                                    -- heckeOperatorsCommuteBar
 lean/spec/ModularCurveHeckeConsumer.lean     -- the consumer; zones added per set
 ```
 

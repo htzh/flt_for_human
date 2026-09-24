@@ -22,7 +22,7 @@ the capstone.
 | check | result |
 |---|---|
 | `lake build` | **4,107 jobs, 0 warnings, no `sorry`** in `FLTForHuman/` |
-| `spec/check_flt_statements.py` | **1,237 identical (67 promoted), 0 mismatched, 0 missing**, 14 exemptions (1,251 port declarations) |
+| `spec/check_flt_statements.py` | **1,240 identical (67 promoted), 0 mismatched, 0 missing**, 14 exemptions (1,254 port declarations) — 1,237/1,251 at close; §8 promoted three helpers |
 | coverage (the §7 recipe of the report) | **remaining 0 nodes, 0 raw, 0 content** |
 | `spec/ModularCurveHeckeConsumer.lean` | **0 errors, 0 warnings**, Zones A–K |
 | `#print axioms ModularCurve.heckeOperatorsCommuteBar` | `[propext, Classical.choice, Quot.sound]` |
@@ -44,13 +44,20 @@ The modules, in dependency order:
 | m10 | `HeckeInputs/Integrality` | tower integrality/finiteness and the Hecke integrality predicates |
 | m11 | `PrincipalDivisors/ModularCurveBar` | `HasPrincipalDivisors` for the modular function fields |
 | m12 | `HeckeExchange/Reduction` | the divisor/`Pic0` exchange reduction |
-| **m13** | `Capstone` | **`ModularCurve.heckeOperatorsCommuteBar`** |
+| **m13** | `HeckeCommuteBar` | **`ModularCurve.heckeOperatorsCommuteBar`** |
 
 **Every input of `math/009`'s exchange reduction is now a ported theorem**: the
 Weil exchange and `separableAlong_of_charZero` (AC), the function-field generation
 (FFG), the modular polynomial family (Φ_p), the roof generation and diagonal
 degree, the integrality/finiteness, `HasPrincipalDivisors` for the modular
 function field, and the exchange reduction — with the capstone applying them.
+
+**Post-effort rename (2026-09-23).** The m13 module was renamed
+`Capstone.lean` → `HeckeCommuteBar.lean` (module
+`FLTForHuman.ModularCurve.HeckeCommuteBar`): `Capstone` was too generic next to
+the FFG effort's `FunctionFieldGeneration/Capstone.lean`, and the new name states
+the target theorem. Imports, `PORT_FILES`, the consumer, the README row and the
+run records were updated in the same change; the declarations are unchanged.
 
 ## 2. The decisions that shaped it
 
@@ -60,7 +67,7 @@ function field, and the exchange reduction — with the capstone applying them.
 | **One subagent per set, review between sets** | the next set's orders must name the modules that actually exist | every set's hand-off names real declarations; one real binder mismatch was caught at review (`exists_isFrickeAut_of_modularPolynomialData`) |
 | **The capstone reserved for the reviewer** | writing it is the final wire test, not ceremony | it compiled **first try in 13 s**, so every upstream interface is intact |
 | **The vocabulary split into two definition topics (m1/m2)** | the 13 pin definition modules are the whole interface; a wrong shape redoes everything | `HeckeExchangeAt` ended byte-identical to the pin; `geomAut`'s tensor model held to the end |
-| **Statements from the `Theorems/` wrappers, diffed mechanically** | a wrong statement is maximally expensive | 1,237 verified; the one mismatch was a missing explicit binder, fixed |
+| **Statements from the `Theorems/` wrappers, diffed mechanically** | a wrong statement is maximally expensive | 1,240 verified; the one mismatch was a missing explicit binder, fixed |
 | **Dedup by measurement, not inspection** | "redundant" is a claim about the graph | the four prelude cuts below are all `diff`/`grep -c`-measured |
 | **The `m5b` re-scope when a topic blocked** | one blocked topic should not stall the effort | the blocked `CuspDichotomy` was re-scoped, re-dispatched and solved in two rounds |
 | **No `maxHeartbeats` ever raised** | the pin's own bumps are not needed | both pin `maxHeartbeats`/`synthInstance.maxHeartbeats` sites were avoided by restructuring |
@@ -119,12 +126,14 @@ the reason the effort was tractable.
   rational `cuspZero`/`cuspZeroFull`, `cuspidalClass`, the transposes, the
   `ArithmeticGalois` `≃ₐ`-action. Ported or deferred with counts; they are the
   modular Hecke/Galois-rep and Riemann–Roch layers' API.
-- **The deferred `PicAction`/`JZero.torsionGaloisRep`** (0 cone occurrences); they
-  need the `SMul (SemilinearAut K F) (Pic0 K F)` the AC port dropped, and the
-  anonymous `SMul (F ≃ₐ[K] F) (Place K F)` was restored in `AtkinLehner.lean`.
-- **The three generic AC `finrankAlong` helpers** — `private` in
-  `Degree/Roof.lean`, recommended for promotion to
-  `AlgebraicCurve/Defs/Correspondence.lean` (AC is a closed effort; not done).
+- **The deferred `PicAction`/`JZero.torsionGaloisRep`** (0 cone occurrences). The
+  decided home is two layers: the generic `SMul (SemilinearAut K F) (Pic0 K F)`
+  and `SemilinearAut.torsionRep` in `AlgebraicCurve/Defs/SemilinearAut.lean`, and
+  the modular wrappers in `Defs/ArithmeticGalois.lean`; they wait for the modular
+  Hecke/Galois-rep layer. The anonymous `SMul (F ≃ₐ[K] F) (Place K F)` moved to
+  its AC home, `SemilinearAut.lean` (§8).
+- **The three generic AC `finrankAlong` helpers** — promoted (post-effort) to
+  `AlgebraicCurve/Defs/Correspondence.lean`, beside `finrankAlong` (§8).
 
 ## 6. Predictions vs measurements, and the two blow-ups
 
@@ -182,17 +191,39 @@ worth recording:
 
 ## 8. Residual items
 
+**The three follow-ups this section originally listed were dealt with on
+2026-09-23**, in the same pass as the capstone rename (§1):
+
+- **The three AC `finrankAlong` promotion candidates are promoted.**
+  `finrankAlong_comp`, `finrankAlong_id` and
+  `finrankAlong_eq_relfinrank_fieldRange` are public in
+  `AlgebraicCurve/Defs/Correspondence.lean`, beside `finrankAlong`, and
+  `Degree/Roof.lean` imports them. `Correspondence.lean` gained the
+  `Mathlib.FieldTheory.Relrank` import that `relfinrank` needs. The checker now
+  reads them as identical (the pin publishes them in the
+  `Theorems/Thm_AlgebraicCurve_finrankAlong_*` wrappers), so the count is **1,240
+  identical (67 promoted), 0 mismatched, 0 missing** (1,254 port declarations) —
+  up three from the close.
+- **The `ArithmeticGalois` `PicAction`/`torsionGaloisRep` home is decided.** The
+  generic `SMul (SemilinearAut K F) (Pic0 K F)` and `SemilinearAut.torsionRep`
+  belong in `AlgebraicCurve/Defs/SemilinearAut.lean`; the modular
+  `PicAction`/`torsionGaloisRep` wrappers belong in
+  `Defs/ArithmeticGalois.lean`. Both stay deferred (0 cone occurrences) until
+  the modular Hecke/Galois-rep layer. The restored anonymous
+  `SMul (F ≃ₐ[K] F) (Place K F)` moved from `AtkinLehner.lean` to its AC home,
+  `SemilinearAut.lean`, beside `ofAlgAut`.
+- **The two generic supply lemmas moved** from `Defs/HeckeOperator.lean` to
+  `Defs/Laurent.lean` (`laurentBaseChange_mono`,
+  `qExpand_mem_laurentBaseChange`), beside `laurentBaseChange` and the
+  `coeffEmb`/`qExpand` lemmas they use. `DegeneracyTower.lean` and `Roof.lean`
+  still resolve them through their imports.
+
+Still open:
+
 1. **The paused automorphic Hecke face** (`PORTING-Hecke.md` SET 5: T10's
    re-scoped infrastructure, then Γ₁/Nebentypus/Γ_H/Atkin–Lehner tiers) — a
    different face, unaffected by this effort.
-2. **The three AC `finrankAlong` promotion candidates** — promote to
-   `AlgebraicCurve/Defs/Correspondence.lean`.
-3. **The deferred `ArithmeticGalois` `PicAction`/`torsionGaloisRep`** and the
-   restored anonymous `Place`-`SMul` — decide the AC home.
-4. **The two generic supply lemmas** live in `Defs/HeckeOperator.lean` rather than
-   `Defs/Laurent.lean` (the workspace rule forbade editing the latter at the
-   time); FFG is now editable, so they can move.
-5. **The friction log** — the v4.34 entries and the two blow-up fixes at the tail
+2. **The friction log** — the v4.34 entries and the two blow-up fixes at the tail
    of [../logs/mc-port.md](../logs/mc-port.md) §Friction; the playbook calls it the
    highest-value artifact because it is not derivable from the code.
 

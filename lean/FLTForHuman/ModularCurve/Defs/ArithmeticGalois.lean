@@ -5,11 +5,13 @@
   `JZero`.
 
   The pin's `PicAction` section (the `SMul`/`DistribMulAction` of `L ≃ₐ[ℚ] L` on
-  `Pic0`) and `JZero.torsionGaloisRep` (+ its two lemmas) are **deferred**: they
-  need the `SMul (SemilinearAut K F) (Pic0 K F)` instance that the AC port
-  deliberately dropped (`AlgebraicCurve/Defs/SemilinearAut.lean` header), so
-  porting them would re-open the AC module. They are out of the exchange cone
-  (zero occurrences in the 82-node cone's proofs).
+  `Pic0`) and `JZero.torsionGaloisRep` (+ its two lemmas) are **deferred**. The
+  decided home is two layers: the generic `SMul (SemilinearAut K F) (Pic0 K F)`
+  and `SemilinearAut.torsionRep` in `AlgebraicCurve/Defs/SemilinearAut.lean`,
+  and the modular `PicAction`/`torsionGaloisRep` wrappers here. They are out of
+  the exchange cone (zero occurrences in the 82-node cone's proofs), so the
+  restoration waits for the modular Hecke/Galois-rep layer
+  (mc-retrospective §8 item 3).
 
   FLT provenance, pinned `aa2d8b3`:
   `Definitions/Def_ModularCurve_ArithmeticGalois.lean` (140 lines), sections

@@ -23,19 +23,9 @@ open IntermediateField AlgebraicCurve
 namespace ModularCurve
 
 /- The pin's `F ≃ₐ[K] F`-action on `Place K F` is
-`Def_AlgebraicCurve_DivisorClassGroup.lean:285`; the AC port deliberately dropped
-that file's `Pic0`/`F ≃ₐ[K] F` block (see `Defs/SemilinearAut.lean` header), so
-the instance is restored here through the ported `SemilinearAut.ofAlgAut`. It is
-anonymous, so the statement checker never reads it; recorded as a promoted AC
-helper. It is the only place-smul the Fricke vocabulary needs. -/
-section PlaceAction
-
-variable {K F : Type*} [Field K] [Field F] [Algebra K F]
-
-instance : SMul (F ≃ₐ[K] F) (Place K F) where
-  smul σ v := SemilinearAut.ofAlgAut σ • v
-
-end PlaceAction
+`Def_AlgebraicCurve_DivisorClassGroup.lean:285`. Its decided home is the AC
+semilinear vocabulary, `AlgebraicCurve/Defs/SemilinearAut.lean` (next to
+`ofAlgAut`); mc-retrospective §8 item 3 moved it there from this module. -/
 
 section Fricke
 

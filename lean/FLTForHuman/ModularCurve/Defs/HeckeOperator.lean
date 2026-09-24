@@ -9,14 +9,12 @@
 
   The pin's private prelude is four supply lemmas. Two dedup to the ported public
   `Defs/Laurent.lean` (`coeffMap_qExpand`, `coeffEmb_qExpand`); the two generic
-  ones (`laurentBaseChange_mono`, `qExpand_mem_laurentBaseChange`) are **not**
-  ported in this generic form, and they are themselves `Theorems/` wrapper targets
-  (`Thm_ModularCurve_{laurentBaseChange_mono,qExpand_mem_laurentBaseChange}.lean`).
-  They are written once here, **publicly**, from those wrappers (binders
-  verbatim) — one home for a lemma the pin writes twice privately
-  (`laurentBaseChange_mono'` in `HeckeOperator`, `laurentBaseChange_mono''` in
-  `DegeneracyTower`). The workspace rule forbids editing `Defs/Laurent.lean`, so
-  they are not moved there.
+  ones (`laurentBaseChange_mono`, `qExpand_mem_laurentBaseChange`) now also live
+  in `Defs/Laurent.lean`, beside `laurentBaseChange` and the `coeffEmb`/`qExpand`
+  lemmas they use. They are `Theorems/` wrapper targets and stay public; the pin
+  writes `laurentBaseChange_mono` twice privately (`laurentBaseChange_mono'` in
+  `HeckeOperator`, `laurentBaseChange_mono''` in `DegeneracyTower`). They were
+  written here until mc-retrospective §8 item 4 moved them to their home.
 
   The pin's `section ModularInstance` carries two `example`s (typecheck-only, no
   declaration); they are dropped (not API).
@@ -32,39 +30,6 @@ noncomputable section
 open AlgebraicCurve IntermediateField HahnSeries
 
 namespace ModularCurve
-
-section PrivateSupply
-
-variable {L : Type*} [Field L] [Algebra ℚ L]
-
-theorem laurentBaseChange_mono (L : Type*) [Field L] [Algebra ℚ L]
-    {F₀ F₁ : IntermediateField ℚ (LaurentSeries ℚ)} (h : F₀ ≤ F₁) :
-    laurentBaseChange L F₀ ≤ laurentBaseChange L F₁ := by
-  rw [laurentBaseChange, IntermediateField.adjoin_le_iff]
-  rintro _ ⟨y, hy, rfl⟩
-  exact coeffEmb_mem_laurentBaseChange L (h hy)
-
-theorem qExpand_mem_laurentBaseChange {L : Type*} [Field L] [Algebra ℚ L]
-    {F₀ : IntermediateField ℚ (LaurentSeries ℚ)} (n : ℕ) [NeZero n]
-    {F₁ : IntermediateField ℚ (LaurentSeries ℚ)} (hF : ∀ y ∈ F₀, qExpand ℚ n y ∈ F₁)
-    {x : LaurentSeries L} (hx : x ∈ laurentBaseChange L F₀) :
-    qExpand L n x ∈ laurentBaseChange L F₁ := by
-  rw [mem_laurentBaseChange_iff] at hx
-  induction hx using Subfield.closure_induction with
-  | mem y hy =>
-      rcases hy with ⟨a, rfl⟩ | ⟨z, hz, rfl⟩
-      · rw [algebraMap_laurentSeries_eq_single, qExpand_single, mul_zero,
-          ← algebraMap_laurentSeries_eq_single]
-        exact (laurentBaseChange L F₁).algebraMap_mem _
-      · rw [← coeffEmb_qExpand]
-        exact coeffEmb_mem_laurentBaseChange L (hF z hz)
-  | one => simp
-  | add x y _ _ hx hy => simpa using add_mem hx hy
-  | neg x _ hx => simpa using neg_mem hx
-  | inv x _ hx => simpa using inv_mem hx
-  | mul x y _ _ hx hy => simpa using mul_mem hx hy
-
-end PrivateSupply
 
 variable {L : Type*} [Field L] [Algebra ℚ L]
 variable (N ℓ : ℕ) [NeZero N] [NeZero ℓ]

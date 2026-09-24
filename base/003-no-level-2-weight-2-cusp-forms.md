@@ -16,6 +16,15 @@ it ([math/008 §5](../math/008-ribet-level-lowering.md)). The companion note
 already sketched the Lean mechanism; here we do the mathematics and use the Lean
 declarations only as a route map.
 
+The proof is ported to Lean in
+[`../lean/FLTForHuman/ModularForms/`](../lean/FLTForHuman/ModularForms/) —
+`CuspFormNorm.lean` (the norm), `Gamma0TwoIndex.lean` (move 1) and
+`LevelTwoCuspVanishing.lean` (the two headline theorems, verbatim from their
+`Theorems/` wrappers); the measured record is
+[`../lean/logs/level2-cusp-port.md`](../lean/logs/level2-cusp-port.md). The Lean
+port is against mathlib `v4.34.0`, one minor version on from this note's
+citations.
+
 The proof has exactly three moves:
 
 1. $`[\mathrm{SL}_2(\mathbb{Z}) : \Gamma_0(2)] = 3`$, counted through the first

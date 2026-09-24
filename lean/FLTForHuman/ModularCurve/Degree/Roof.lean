@@ -11,9 +11,9 @@
   prelude, which the port already publishes (`Defs/TS.lean`,
   `Defs/PhiAtSlot.lean`, `PhiSlotRoots.lean`, `Defs/Cyclotomic.lean`,
   `Defs/Twist.lean`) and imports here; none of it is rewritten. The three
-  generic `AlgebraicCurve.finrankAlong` helpers the pin defines privately in its
-  file are proved `private` here and recorded as promotion candidates for
-  `AlgebraicCurve/Defs/Correspondence.lean`.
+  generic `AlgebraicCurve.finrankAlong` helpers the pin defines privately live
+  in `AlgebraicCurve/Defs/Correspondence.lean` (promoted there by
+  mc-retrospective §8 item 2).
 
   FLT provenance, pinned `aa2d8b3`:
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_heckeRoof_adjoin_range_union_eq_top.lean
@@ -32,52 +32,6 @@ set_option autoImplicit false
 noncomputable section
 
 open IntermediateField Polynomial
-
-namespace AlgebraicCurve
-
-section FinrankAlongHelpers
-
-/-! ## The three generic `finrankAlong` helpers (promotion candidates)
-
-The pin defines these `private` inside its two degree/roof `S_` files; the port's
-`AlgebraicCurve/Defs/Correspondence.lean` publishes only `finrankAlong` itself.
-They belong beside it and are recorded as promotion candidates. -/
-
-private theorem finrankAlong_comp {K F F' F'' : Type*} [Field K] [Field F] [Field F']
-    [Field F''] [Algebra K F] [Algebra K F'] [Algebra K F''] (φ : F →ₐ[K] F')
-    (χ : F' →ₐ[K] F'') :
-    finrankAlong K (χ.comp φ) = finrankAlong K φ * finrankAlong K χ := by
-  let : Algebra F F' := algebraAlong φ
-  let : Algebra F' F'' := algebraAlong χ
-  let : Algebra F F'' := algebraAlong (χ.comp φ)
-  have : IsScalarTower F F' F'' := IsScalarTower.of_algebraMap_eq fun _ => rfl
-  show Module.finrank F F'' = Module.finrank F F' * Module.finrank F' F''
-  exact (Module.finrank_mul_finrank F F' F'').symm
-
-private theorem finrankAlong_id {K F : Type*} [Field K] [Field F] [Algebra K F] :
-    finrankAlong K (AlgHom.id K F) = 1 := by
-  let : Algebra F F := algebraAlong (AlgHom.id K F)
-  show Module.finrank F F = 1
-  exact Module.finrank_self F
-
-private theorem finrankAlong_eq_relfinrank_fieldRange {K E : Type*} [Field K] [Field E]
-    [Algebra K E] (A B : IntermediateField K E) (φ : A →ₐ[K] B) :
-    finrankAlong K φ = IntermediateField.relfinrank ((B.val.comp φ).fieldRange) B := by
-  have hRB : (B.val.comp φ).fieldRange ≤ B := by
-    rintro x ⟨a, rfl⟩
-    exact (φ a).2
-  rw [IntermediateField.relfinrank_eq_finrank_of_le hRB]
-  let : Algebra A B := algebraAlong φ
-  let i : A ≃+* ((B.val.comp φ).fieldRange) :=
-    (AlgEquiv.ofInjectiveField (B.val.comp φ)).toRingEquiv
-  let j : B ≃+* (IntermediateField.extendScalars hRB) := RingEquiv.refl _
-  exact Algebra.finrank_eq_of_equiv_equiv i j (by
-    refine RingHom.ext fun a => Subtype.ext ?_
-    rfl)
-
-end FinrankAlongHelpers
-
-end AlgebraicCurve
 
 namespace ModularCurve
 

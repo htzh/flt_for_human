@@ -1,5 +1,5 @@
 /-
-  m13 — the capstone: `heckeExchangeAt_of_WEX` and
+  m13 — the capstone (`HeckeCommuteBar`): `heckeExchangeAt_of_WEX` and
   `ModularCurve.heckeOperatorsCommuteBar`.
 
   Reserved for the human reviewer. This module is the port's analogue of the
