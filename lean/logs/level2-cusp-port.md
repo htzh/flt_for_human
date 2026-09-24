@@ -13,7 +13,7 @@ FLT's dependency graph (`cites: []`). They are consumed by
 |---|---|---|
 | `FLTForHuman/ModularForms/SturmBound.lean` | the Sturm bound and its inputs, **plus the two cusp-form vanishing corollaries** at the end | 285 |
 | `FLTForHuman/ModularForms/Gamma0TwoIndex.lean` | `[SL(2,ℤ) : Γ₀(2)] = 3` by the first column mod 2 | 137 |
-| `Reserve/ModularForms/LevelTwoCuspVanishing.lean` | the **reserve norm route**: the two theorems by `CuspForm.norm` + weight-6 level-one vanishing, verbatim from commit `4c4f588` | 140 |
+| `Reserve/ModularForms/LevelTwoCuspVanishing.lean` | the **reserve norm route**: the two theorems by `CuspForm.norm` + weight-6 level-one vanishing, verbatim from commit `4c4f588`. Built by the `Reserve` library but **not** in `PORT_FILES` (its wrapper statements are already diffed in `SturmBound.lean`) | 140 |
 | `Reserve/ModularForms/CuspFormNorm.lean` | the cusp-form norm, the reserve route's input | 85 |
 | `spec/LevelTwoCuspConsumer.lean` | Zones A–D wire test (vanishing, index, Sturm headlines, bridge) | 55 |
 
@@ -23,7 +23,6 @@ fixed), so `FLTForHuman/ModularForms/SturmBound.lean` and
 together. Each route alone is consistent: the reserve copy imports
 `Reserve.ModularForms.CuspFormNorm` and `FLTForHuman.ModularForms.Gamma0TwoIndex`,
 never `SturmBound`.
-
 ## Why the Sturm route, and how trivial it is
 
 For weight `2` the Sturm bound is
@@ -57,14 +56,14 @@ different levels. The reserve copy exists because the norm route is the one
 ## Checker
 
 - `SOURCES` carries the two `Theorems/Thm_ModularForm_S2_Gamma0_{2,1}_eq_zero`
-  wrappers and the two `S_` files; `PORT_FILES` the modules above.
-- Final: **1,262 identical (69 promoted), 0 mismatched, 0 missing**, 14
-  own-proof exemptions, 1,276 port declarations. The six declarations of the
-  reserve norm route (`coe_Gamma_one_eq_SL`,
-  `cuspForm_eq_zero_of_subgroup_eq`, `S6_levelOne_eq_zero`,
-  `S6_levelOne_eq_zero'`, `S2_Gamma0_2_eq_zero`, `S2_Gamma0_one_eq_zero`) are the
-  increase over the 1,256 of the pre-merge state, where the norm-route module had
-  already been dropped.
+  wrappers and the two `S_` files.
+- `PORT_FILES` lists `Gamma0TwoIndex.lean`, `SturmBound.lean` (which now carries
+  the two wrapper theorems) and the reserve `CuspFormNorm.lean`. The reserve
+  norm-route module `Reserve/ModularForms/LevelTwoCuspVanishing.lean` is **not**
+  listed: it proves the same wrapper theorems as `SturmBound.lean`, so there is
+  nothing new to diff. It is still compiled by the `Reserve` library build.
+- Final: **1,256 identical (69 promoted), 0 mismatched, 0 missing**, 14
+  own-proof exemptions, 1,270 port declarations.
 
 ## Verification
 

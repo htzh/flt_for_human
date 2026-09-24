@@ -1,18 +1,39 @@
 /-
   **Reserve.** The norm of a cusp form — a generic construction FLT adds on top
-  of mathlib. Kept out of the critical-path port: the `base/003` cusp-form
-  vanishing is now a corollary of the Sturm bound
-  (`FLTForHuman/ModularForms/LevelTwoCuspVanishing.lean`), whose general proof
-  (`ModularForm.sturm_bound_of_isArithmetic`) internalises this norm. The module
-  stays verified as a standalone mathlib-gap API — mathlib has `ModularForm.norm`
-  but not `CuspForm.norm` — and may be imported by later reserve work.
+  of mathlib (FLT's, not the port's; see the provenance below). Kept out of the
+  critical-path port: the `base/003` cusp-form vanishing is now a corollary of
+  the Sturm bound (`FLTForHuman/ModularForms/SturmBound.lean`), whose general
+  proof (`ModularForm.sturm_bound_of_isArithmetic`) internalises this norm.
+
+  **It is not base/003-only.** FLT defines the same three declarations `private`
+  and `p2m_export`s them a second time in
+  `P2M/Sol/S_CuspForm_finiteDimensional_cuspForm.lean` lines 23–59, where they
+  feed `CuspForm.finiteDimensional_cuspForm` and the wider cusp-form
+  finite-dimensionality family — all inside `FLT.fermatLastTheorem`'s closure.
+  This port writes the construction once for both sites, which is why it is kept
+  rather than deleted. (It is a `def`, so the theorem-node graph does not show
+  it; the second site was found by source grep.)
+
+  **Caveat: it may turn out unnecessary at both sites.** Both FLT uses of the
+  norm are proofs of the Sturm bound. The second file's section is literally
+  `section SturmBound`, its
+  `eq_zero_of_qExpansion_coeff_eq_zero`/`Gamma0_eq_zero_of_qExpansion_coeff_eq_zero`
+  are the arithmetic-level and `Γ₀` Sturm bounds in coefficient form, and its
+  ~300-line `normCofactor` prelude serves only that proof — the
+  finite-dimensionality argument itself (`qCoeffTrunc` +
+  `FiniteDimensional.of_injective`) uses only the vanishing lemma. When
+  `CuspForm.finiteDimensional_*` is ported, the ported
+  `sturm_bound_of_isArithmetic`/`sturm_bound_Gamma0` should replace the whole
+  norm block, and this module may then stay unused; investigate before promoting
+  it back into `FLTForHuman`. (See
+  `studies/hecke-finiteness-coverage.md` §9.)
 
   Mathlib has `ModularForm.norm` (`Mathlib/NumberTheory/ModularForms/NormTrace.lean:108`),
   the product of the translates `f ∣[k] g_q⁻¹` over `ℋ ⧸ (𝒢 ⊓ ℋ)`, but it is a
-  *modular* form: it carries the bounded-at-cusps condition of its factors. The
-  `S_ModularForm_S2_Gamma0_2_eq_zero` file needs the analogous **cusp** form, so it
-  supplies the one missing field `zero_at_cusps'`: each factor is a translate of a
-  cusp form, and a product of functions tending to `0` tends to `0`.
+  *modular* form: it carries the bounded-at-cusps condition of its factors. Both
+  FLT sites need the analogous **cusp** form, so they supply the one missing field
+  `zero_at_cusps'`: each factor is a translate of a cusp form, and a product of
+  functions tending to `0` tends to `0`.
 
   This module is that construction, once:
   `CuspForm.norm`, the coercion bridge

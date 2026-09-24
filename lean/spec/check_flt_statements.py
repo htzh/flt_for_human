@@ -944,12 +944,13 @@ PORT_FILES = [
     # count (`Gamma0TwoIndex`) and the two wrapper theorems, now Sturm-bound
     # corollaries in `SturmBound.lean`.
     "FLTForHuman/ModularForms/Gamma0TwoIndex.lean",
-    # Reserve: the alternative norm route (`CuspForm.{norm, norm_eq_zero_iff,
-    # coe_norm_eq_...}` and the norm-based `S2_Gamma0_*_eq_zero`), kept verified
-    # after the Sturm route superseded it. It declares the same wrapper theorems
-    # as `SturmBound.lean`, so the two modules must not be imported together.
+    # Reserve: the cusp-form norm (`CuspForm.{norm, norm_eq_zero_iff,
+    # coe_norm_eq_...}`), kept verified as a standalone mathlib-gap API. The
+    # reserve norm-route module `Reserve/ModularForms/LevelTwoCuspVanishing.lean`
+    # is built by the `Reserve` library but deliberately not listed here: it
+    # proves the same wrapper theorems as `SturmBound.lean`, so there is nothing
+    # new to diff.
     "Reserve/ModularForms/CuspFormNorm.lean",
-    "Reserve/ModularForms/LevelTwoCuspVanishing.lean",
     # The Sturm bound (the finiteness sub-cone): the two `q`-expansion order
     # lemmas, the arithmetic period input, the level-one and general vanishing,
     # and the two headline statements. All eight public declarations are wrapper

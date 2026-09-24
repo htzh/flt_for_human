@@ -184,7 +184,7 @@ closure 19. That whole sub-cone is about **18 nodes**.
 
 **Status (2026-09-23): the Sturm bound half is ported.** The eight declarations of
 the cone above are in `FLTForHuman/ModularForms/QExpansionOrder.lean` and
-`SturmBound.lean`, verified (checker 1,258 identical, 0 mismatched, 0 missing);
+`SturmBound.lean`, verified (checker 1,256 identical, 0 mismatched, 0 missing);
 `CuspForm.intLattice_fg` and the two
 `HasIntegralStructure.moduleFinite/Free_heckeAlgebra` instances remain. The
 mathematics is in [../math/012-sturm-bound.md](../math/012-sturm-bound.md), the
@@ -320,6 +320,19 @@ wc -l ~/proj/fermats-last-theorem/P2M/Sol/S_CuspForm_{moduleFinite_heckeAlgebra{
    arithmetic Sturm bound in mathlib would shrink route A materially, as
    `CuspForm.rank_eq_zero_of_weight_lt_twelve` already shrank the level-2
    cusp-form vanishing ([level2-cusp-port.md](../lean/logs/level2-cusp-port.md)).
+5. **Is FLT's `CuspForm.norm` needed at all?** Its two FLT definition sites
+   (`S_ModularForm_S2_Gamma0_2_eq_zero.lean` and
+   `S_CuspForm_finiteDimensional_cuspForm.lean`) both use it only to *prove the
+   Sturm bound*: the second file's section is literally `section SturmBound`, its
+   `eq_zero_of_qExpansion_coeff_eq_zero`/`Gamma0_eq_zero_of_qExpansion_coeff_eq_zero`
+   are the arithmetic-level and `Γ₀` bounds in coefficient form, and its
+   ~300-line `normCofactor` prelude serves only that proof — the
+   finite-dimensionality argument itself (`qCoeffTrunc` +
+   `FiniteDimensional.of_injective`) uses only the vanishing lemma. So the ported
+   `sturm_bound_of_isArithmetic`/`sturm_bound_Gamma0` should replace it when
+   `CuspForm.finiteDimensional_*` is ported, which would make the reserve
+   `CuspFormNorm.lean` unnecessary even for its second consumer. (It is a `def`,
+   so the citation graph does not show these uses; they come from source grep.)
 
 ## 10. Pointers
 
