@@ -267,7 +267,10 @@ therefore has only two exits: pay route A, or make route C′ work.
    integrality) plus the trace lemma gives `HasIntegralStructure N k` without
    `HeckeEis`/`ModPForms`/Sturm; route A's marginal content over the weight-one
    branch is 73 nodes of Eichler–Shimura comparison, and C′'s whole cone is
-   already inside that branch. See
+   already inside that branch. The trace lemma is **additional to** the cone, not
+   a substitute for it: the cone is on the endgame path (shortest premise chain
+   15 from `fermatLastTheorem`, through `frey_isModular` and the weight-one
+   branch), so it is never deleted. See
    [route-c-prime-scout.md](route-c-prime-scout.md).
 4. **The span family is cheap** (closures 1–101) and only needs T7/T8 plus
    `finiteDimensional_Gamma0`; port it with the finiteness-adjacent work rather
@@ -331,8 +334,11 @@ wc -l ~/proj/fermats-last-theorem/P2M/Sol/S_CuspForm_{moduleFinite_heckeAlgebra{
    `…qCoeff_mem_range_intCast`, which does not exist), and a short trace lemma —
    not the Sturm bound — gives `HasIntegralStructure N k` for all `k`. Measured
    53 nodes / 33,719 raw lines standalone, and entirely inside the endgame's
-   weight-one (`FLT.No2BridgeWiring`) branch, so its marginal cost there is just
-   the trace lemma. The 657-node tower is avoidable for this target. See
+   weight-one (`FLT.No2BridgeWiring`) branch. The cone is on the critical path
+   (shortest premise chain 15 from `fermatLastTheorem`, through `frey_isModular`
+   and the weight-one branch), so unlike route B it is not a duplicate to be
+   deleted; the trace lemma is **additional** to it. The 657-node tower is
+   avoidable for this target. See
    [route-c-prime-scout.md](route-c-prime-scout.md).
 2. **Is there an endgame node that needs the `k = 2` statement strictly before the
    general one?** If not, route B has no sequencing value even inside the

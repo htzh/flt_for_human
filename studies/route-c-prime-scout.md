@@ -105,24 +105,69 @@ C′ cone \ closure(No2BridgeWiring) = 0
 ```
 
 So if the port does the weight-one/`No2BridgeWiring` branch — which the endgame
-requires — C′ costs **only the trace lemma**; its 53 declarations come for free.
+requires — the C′ cone is ported as part of that work, and the route-specific
+addition is only the trace lemma. **The lemma is additive: it replaces none of the
+53 declarations**, all of which are load-bearing in the branch.
+
 `CuspForm.exists_basis_gamma1_qCoeff_slash_mem_range_intCast` is a direct premise
 of that branch (via `CuspForm.IsPrimitiveForm.*` and `DeligneSerre.*`), not a
-coincidence of closure.
-
-Route A behaves differently: of its 657 nodes, 584 / 246,483 lines are also in the
-`No2BridgeWiring` closure, and only 73 / 17,237 lines are its own — the
-`HeckeEis.*` Eichler–Shimura comparison (`eichlerShimuraMap_heckeTLin`,
-`range_eichlerShimuraMap_inf_range_conj_eq_bot`, …) plus the generic criterion
+coincidence of closure. Route A behaves differently: of its 657 nodes,
+584 / 246,483 lines are also in the `No2BridgeWiring` closure, and only
+73 / 17,237 lines are its own — the `HeckeEis.*` Eichler–Shimura comparison
+(`eichlerShimuraMap_heckeTLin`, `range_eichlerShimuraMap_inf_range_conj_eq_bot`,
+…) plus the generic criterion
 `hasIntegralStructure_of_moduleFinite_of_linearIndependent`. So:
 
-| scenario | route A marginal | C′ marginal |
+| scenario | route A marginal | C′ marginal (cone + lemma) |
 |---|---|---|
-| weight-one branch ported | 73 nodes / 17,237 lines | **trace lemma** |
-| weight-one branch not ported | 657 nodes / 263,720 lines | 53 nodes / 33,719 lines |
+| weight-one branch ported | 73 nodes / 17,237 lines | **trace lemma** (cone already ported) |
+| weight-one branch not ported | 657 nodes / 263,720 lines | 53 nodes / 33,719 lines **+ lemma** |
 
 C′ is cheaper in both, by construction in the first and $`\approx 8\times`$ in the
-second.
+second. The trace lemma never substitutes for the cone.
+
+## 4b. The path is in the endgame, and the cone is not throwaway
+
+Unlike route B — a parallel duplicate of a statement route A already implies,
+written and then deleted — the C′ declarations sit on the critical path to
+`FLT.fermatLastTheorem`, through the No. 2 bridge and weight-one branch. BFS over
+the premise graph gives a shortest chain of 15 steps:
+
+```text
+FLT.fermatLastTheorem
+→ FreyPackage.fermatLastTheoremFor_of_five_le
+→ FreyPackage.no_frey_package
+→ FreyPackage.frey_isModular
+→ WeierstrassCurve.modularity_of_semistableModel
+→ WeierstrassCurve.isResiduallyModular_three_and_noInertiaFixedTorsion_and_not_cube_dvd_of_isSemistableModel
+→ FLT.No2BridgeWiring.weightOneNewformExists_levelAtThree_not_cube_dvd
+→ LanglandsTunnell.exists_isWeightOneChiNegThreeRealized_not_nine_dvd_not_cube_dvd_of_natCard_inertia_eq_two_of_coprime
+→ … (LanglandsTunnell cusp-pair chain) …
+→ DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen
+→ DeligneSerre.exists_finset_qCoeff_mem_of_upperDensity_le_of_weightOne_hecke_eigen
+→ DeligneSerre.exists_subalgebra_qCoeff_mem_forall_ringHom_exists_qCoeff_eq_of_weightOne_hecke_eigen
+→ CuspForm.exists_basis_gamma1_qCoeff_slash_mem_range_intCast
+```
+
+The basis theorem feeds `frey_isModular` through the Deligne–Serre primitive-form
+rationality used by the weight-one newform existence, independently of the
+integral-structure goal. Its other consumers (`CuspForm.IsPrimitiveForm.*`,
+`ModularCurve.XOneP.*`, `CuspForm.IsEigenformWith.fg_adjoin_qCoeff`) are likewise
+on the modularity side; one of them,
+`CuspForm.IsPrimitiveForm.ringHom_rationalHeckeOne_mul_eq_of_dvd_of_not_sq_dvd_of_dvd_conductor_of_dvd_level`,
+is a *second*, independent endgame path (19 premise steps from
+`fermatLastTheorem`, through the Taylor–Wiles/`HeckeRing` branch). The cone is
+therefore not merely "in the closure": it is a multi-path prerequisite of the
+endgame:
+
+- the cone is **in the endgame** (closure of `fermatLastTheorem`; shortest chain
+  15, `explore`-reported depth 16, 52 theorems below, cited by 8);
+- the cone is **not a duplicate** of anything route A proves — it is shared with
+  the endgame's weight-one modularity work, so it survives whatever integral-
+  structure route is chosen;
+- the **trace lemma is the only route-specific addition**, and the only piece that
+  would be superseded if route A were *also* ported (which is exactly what C′
+  avoids paying for).
 
 ## 5. Verdict and consequences
 
@@ -146,3 +191,10 @@ second.
    file may contain other declarations, and 33,719 is not 33,719 lines of new
    proof. The node counts and the overlap are the robust measurements; the raw
    line number is comparable only against route A's identically-computed 263,720.
+6. **The cone is endgame and not throwaway.** It is in `fermatLastTheorem`'s
+   closure (shortest premise chain 15; §4b) and shared with the endgame's
+   weight-one modularity work, so no future integral-structure choice deletes it.
+   The trace lemma is the route-specific addition, not a replacement for any C′
+   declaration. This is the difference from route B, whose 4,308-line standalone
+   proof *is* a duplicate of a specialisation and is written only to be deleted
+   once the general statement lands.
