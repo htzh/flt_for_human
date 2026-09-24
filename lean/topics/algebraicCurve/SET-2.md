@@ -113,7 +113,7 @@ checker **586 identical, 0 mismatched, 0 missing**, consumer **0 errors**,
 
 - Modules as named in the work order, statements verbatim from the wrappers,
   mathlib-only imports, namespace `AlgebraicCurve`.
-- `timeout 300 lake build` green, **0 warnings**, no `sorry`.
+- `timeout 90 lake build` green, **0 warnings**, no `sorry`.
 - The topic's consumer zone at 0 errors with a real wire test.
 - `spec/check_flt_statements.py`: the topic's sources appended; **0 mismatched,
   0 missing**.

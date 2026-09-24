@@ -233,7 +233,7 @@ declarations failing the checker with no clean `SOURCES` ordering.
 - [ ] `spec/check_flt_statements.py`: the 16 AC wrappers in `SOURCES`; the prelude
       matched by last name/dotted fallback or listed in `OWN_PROOFS` with reasons;
       0 mismatched, 0 missing.
-- [ ] `timeout 300 lake build` green, 0 warnings, no `sorry`.
+- [ ] `timeout 90 lake build` green, 0 warnings, no `sorry`.
 - [ ] `logs/ac-port.md` T4 section: cost, the prelude's home and the line saving
       (vs the ≈60+16 estimate), and the `rfl`-bridge record.
 - [ ] SET 1 run complete: report the full per-topic table, the checker line and the

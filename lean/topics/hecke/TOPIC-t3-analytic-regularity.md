@@ -171,7 +171,7 @@ All items held as written.
       block appears in exactly one port module (`grep -c` recorded).
 - [x] the deferred tail is **absent** — `grep -c` for `hasSum_qCoeff`,
       `hasSum_average`, `qCoeff_heckeU_bare` in the new module is 0.
-- [x] `timeout 300 lake build` green, 0 warnings, no `sorry`.
+- [x] `timeout 90 lake build` green, 0 warnings, no `sorry`.
 - [x] checker: the seven wrappers appended to `SOURCES`, `HeckeAnalytic.lean`
       appended to `PORT_FILES`, **0 mismatched, 0 missing**.
 - [x] `#print axioms` on the seven clean.

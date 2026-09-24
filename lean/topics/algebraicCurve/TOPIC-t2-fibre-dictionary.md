@@ -289,7 +289,7 @@ choice making the promoted dictionary unusable from T9's context; or a
 - [ ] `spec/check_flt_statements.py`: the three AC wrappers plus the pin's
       `P2M/Sol/S_AlgebraicCurve_Place_sum_ramificationIndex_mul_inertiaDeg_fiberOver.lean`
       (for the dotted fallback) in `SOURCES`; 0 mismatched, 0 missing.
-- [ ] `timeout 300 lake build` green, 0 warnings, no `sorry`.
+- [ ] `timeout 90 lake build` green, 0 warnings, no `sorry`.
 - [ ] `#print axioms` on `sum_ramificationIndex_mul_inertiaDeg_fiberOver` is
       `[propext, Classical.choice, Quot.sound]`.
 - [ ] `logs/ac-port.md` T2 section: the measured savings (dictionary lines actually

@@ -557,6 +557,210 @@ SOURCES = [
     # `logs/hecke-port.md` §T10.
     "Definitions/Def_ModularForm_EisensteinChiNegThree.lean",
     "Definitions/Def_CuspForm_IntegralLattice.lean",
+    # --- SET-M1 m1: the Hecke correspondence vocabulary -----------------------
+    # The five definition modules have no `Theorems/` wrapper, so they verify by
+    # name against their `Definitions/` files (binders verbatim). Two of the
+    # pin's *private* supply lemmas in `HeckeOperator` are themselves wrapper
+    # targets: `laurentBaseChange_mono` (pin-private `'` in `HeckeOperator`,
+    # `''` in `DegeneracyTower`) and `qExpand_mem_laurentBaseChange` are ported
+    # **publicly** from their wrappers, so the wrappers are listed first and the
+    # port writes one home for a lemma the pin writes twice privately. The other
+    # two supply lemmas dedup to the already-ported public
+    # `Defs/Laurent.lean` `coeffMap_qExpand`/`coeffEmb_qExpand`.
+    "Theorems/Thm_ModularCurve_laurentBaseChange_mono.lean",
+    "Theorems/Thm_ModularCurve_qExpand_mem_laurentBaseChange.lean",
+    "Definitions/Def_ModularCurve_ArithmeticGalois.lean",
+    "Definitions/Def_ModularCurve_HeckeOperator.lean",
+    "Definitions/Def_ModularCurve_DegeneracyTower.lean",
+    "Definitions/Def_ModularCurve_HeckeOperatorTotal.lean",
+    "Definitions/Def_ModularCurve_HeckeInputsAll.lean",
+    "Definitions/Def_ModularCurve_HeckeModule.lean",
+    # The two `HeckeAlg`/`heckeGen` definitions the optional Hecke-module payoff
+    # needs. The pin's `Def_ModularCurve_HeckeModule.lean` imports them from this
+    # large-cone file; the port restates them locally (3 lines) and registers the
+    # pin original here so the checker verifies them. Appended last so its other
+    # declarations cannot shadow any existing first-name match.
+    "Definitions/Def_HeckeGalois_EichlerShimura.lean",
+    # --- SET-M1 m2: geometric base change, cusps, q-adic place, modular unit ---
+    # The six definition modules verify by name against their `Definitions/`
+    # files. `GeometricBaseChange` is the pin's tensor-product shape; its
+    # `PicAction`-free declarations are all transcribed. `QAdicPlace` and
+    # `ModularUnit` adapt to v4.34 (`Subalgebra.toIntermediateField'` instead of
+    # the removed `Subfield.toIntermediateField'`, `Set.mem_ofPred_eq`,
+    # `dite_eq_left`/`dite_eq_right`), but the statements are the pin's verbatim.
+    "Definitions/Def_ModularCurve_JqCoeff.lean",
+    "Definitions/Def_ModularCurve_GeometricBaseChange.lean",
+    "Definitions/Def_ModularCurve_QAdicPlace.lean",
+    "Definitions/Def_ModularCurve_ModularUnit.lean",
+    "Definitions/Def_ModularCurve_AtkinLehner.lean",
+    "Definitions/Def_ModularCurve_CuspidalClass.lean",
+    # --- SET-M1 m3: the modular-unit q-expansion core -------------------------
+    # The nine targets are public `Theorems/` wrappers, so they verify by direct
+    # name match. The port's public generic heads `hasSum_modularUnit` /
+    # `hasSum_modularUnitInv` are the pin's *private* per-file heads, repeated in
+    # four `S_` files; the first `qParam` and first `inv` files are listed so the
+    # checker's dotted fallback reads those private originals (the port's
+    # statements use the pin's `𝕢`/`ℍ` notation, so the text matches). All other
+    # prelude helpers are `private` in the port and invisible to the checker.
+    "Theorems/Thm_ModularCurve_hasSum_modularUnitSeries_qParam.lean",
+    "Theorems/Thm_ModularCurve_hasSum_modularUnitSeries_inv_qParam.lean",
+    "Theorems/Thm_ModularCurve_hasSum_smul_modularUnitSeries_qParam.lean",
+    "Theorems/Thm_ModularCurve_hasSum_smul_modularUnitSeries_inv_qParam.lean",
+    "Theorems/Thm_ModularCurve_qParam_coeff_unique.lean",
+    "Theorems/Thm_ModularCurve_laurent_qParam_coeff_unique.lean",
+    "Theorems/Thm_ModularCurve_exists_perm_gamma0_cosetReps.lean",
+    "Theorems/Thm_ModularCurve_exists_sl2_heckeDiagMatrix_smul_eq.lean",
+    "Theorems/Thm_ModularCurve_discriminant_div_discriminant_heckeDiagMatrix_smul.lean",
+    "P2M/Sol/S_ModularCurve_hasSum_modularUnitSeries_qParam.lean",
+    "P2M/Sol/S_ModularCurve_hasSum_modularUnitSeries_inv_qParam.lean",
+    # SET-M2 m4: the Fricke/inclusion core and the first two headlines. The two
+    # `of_hasSum_of_gamma0_invariant` wrappers are the statement authority; the
+    # shared 651-content-line prelude is transcribed from the first `S_` file
+    # (the dotted fallback resolves the `ModularCurve.QExpN` names), and the
+    # third `S_` file is the comparable copy for the transport block
+    # (`natDegree_interpPoly_lt`, `realL_jtN_S`, `realL_sum_qExpand_mul_jq_pow`,
+    # `coeffMap_castC_injective`, `embW*`, `fricke_transport`).
+    "Theorems/Thm_ModularCurve_mem_modularFunctionField_of_hasSum_of_gamma0_invariant.lean",
+    "Theorems/Thm_ModularCurve_isIntegral_adjoin_jq_of_hasSum_of_gamma0_invariant.lean",
+    "Theorems/Thm_ModularCurve_modularUnitSeries_mem_modularFunctionField.lean",
+    "Theorems/Thm_ModularCurve_modularUnitSeries_mem_modularFunctionFieldFull.lean",
+    "Theorems/Thm_ModularCurve_isIntegral_adjoin_jq_modularUnitSeries.lean",
+    "Theorems/Thm_ModularCurve_isIntegral_adjoin_jq_modularUnitSeries_inv.lean",
+    "P2M/Sol/S_ModularCurve_mem_modularFunctionField_of_hasSum_of_gamma0_invariant.lean",
+    "P2M/Sol/S_ModularCurve_coe_frickeInvolutionFull_eq_of_hasSum_of_gamma0_invariant.lean",
+    # SET-M2 m4, the third headline (delivered with m5 in `FrickeAut.lean`): its
+    # two `Thm_` wrappers are the statement authority.
+    "Theorems/Thm_ModularCurve_coe_frickeInvolutionFull_eq_of_hasSum_of_gamma0_invariant.lean",
+    "Theorems/Thm_ModularCurve_coe_frickeInvolutionFull_modularUnitSeries.lean",
+    # SET-M2 m5, the Fricke-automorphism module's internal helpers: the pin's
+    # `S_` file is their comparable copy (the port exposes them publicly; the
+    # dotted fallback resolves the names).
+    "P2M/Sol/S_ModularCurve_exists_isFrickeAut_of_modularPolynomialData.lean",
+    # SET-M2 m6: the Φ datum family and its degree tail.
+    "Theorems/Thm_ModularCurve_exists_modularPolynomialData_evalSymm.lean",
+    "Theorems/Thm_ModularCurve_modularPolynomialFamily.lean",
+    "Theorems/Thm_ModularCurve_full_eq_of_prime.lean",
+    "Theorems/Thm_ModularCurve_functionFieldGeneration_of_prime.lean",
+    "Theorems/Thm_ModularCurve_ModularPolynomialData_isIntegral_jqN.lean",
+    "Theorems/Thm_ModularCurve_isIntegral_jqNModC_mul.lean",
+    "Theorems/Thm_ModularCurve_ModularPolynomialData_eval_jqNModC_mul_eq_zero.lean",
+    "Theorems/Thm_ModularCurve_ModularPolynomialData_eval_jqNModC_of_mul_eq_zero.lean",
+    "Theorems/Thm_ModularCurve_isIntegral_jqNModC_all_of_modularPolynomialFamily.lean",
+    "Theorems/Thm_ModularCurve_nonempty_modularPolynomialData_of_squarefree.lean",
+    "Theorems/Thm_ModularCurve_transcendental_jqModC.lean",
+    "Theorems/Thm_ModularCurve_finiteDimensional_adjoin_jqNModC.lean",
+    "Theorems/Thm_ModularCurve_finrank_adjoin_jqNModC_le.lean",
+    # --- SET-M2 m5: the cusp bookkeeping and the Fricke automorphisms ---------
+    # The 15 M9 nodes whose modules landed before the m5 `CuspDichotomy` re-scope.
+    # The remaining m5 wrappers (`eq_cuspInftyBar_or_eq_cuspZeroBar`,
+    # `finrank_adjoin_jqNModC_eq_of_prime`, `modularFunctionFieldBar_eq_restrictScalars`)
+    # and m4's third headline are (re)delivered by the focused `m5b` topic; see
+    # `logs/mc-port.md` §Friction.
+    "Theorems/Thm_ModularCurve_ord_qInftyPlaceBar.lean",
+    "Theorems/Thm_ModularCurve_ord_cuspInftyBar.lean",
+    "Theorems/Thm_ModularCurve_ord_cuspInftyBar_coeffEmb_jq.lean",
+    "Theorems/Thm_ModularCurve_ord_cuspInftyBar_coeffEmb_qExpand.lean",
+    "Theorems/Thm_ModularCurve_ord_cuspZeroBar_coeffEmb_jq.lean",
+    "Theorems/Thm_ModularCurve_ord_cuspZeroBar_coeffEmb_qExpand.lean",
+    "Theorems/Thm_ModularCurve_cuspZeroBar_ne_cuspInftyBar.lean",
+    "Theorems/Thm_ModularCurve_isCusp_iff_ord_neg.lean",
+    "Theorems/Thm_ModularCurve_isCusp_cuspInftyBar.lean",
+    "Theorems/Thm_ModularCurve_isCusp_cuspZeroBar.lean",
+    "Theorems/Thm_ModularCurve_frickeInvolutionBar_coeffEmb_qExpand.lean",
+    "Theorems/Thm_ModularCurve_exists_isFrickeAut_of_modularPolynomialData.lean",
+    "Theorems/Thm_ModularCurve_exists_isFrickeAut.lean",
+    "Theorems/Thm_ModularCurve_exists_isFrickeAutFull.lean",
+    "Theorems/Thm_ModularCurve_isFrickeAutFull_frickeInvolutionFull_prime.lean",
+    # --- m13, the capstone: the target theorem (reserved for the reviewer) ------
+    "Theorems/Thm_ModularCurve_heckeOperatorsCommuteBar.lean",
+    # The capstone's internal helpers (`heckeExchangeAt_of_WEX`, `hfin_of_legR`,
+    # `heckeExchangeAt_of_rows`, `heckeOperatorsCommuteBar_of_rows`, the three
+    # dischargers) are the pin's `S_` file written once; it is their comparable
+    # copy (the port exposes them publicly).
+    "P2M/Sol/S_ModularCurve_heckeOperatorsCommuteBar.lean",
+    # --- SET-M2 m5b: the `RatFunc` cusp model, the cusp dichotomy, the folded
+    # prime degree and the restrict-scalars identity (the re-scope of the blocked
+    # `CuspDichotomy`). The two `S_` files are the comparable copies for the
+    # shared 160-content-line `TwoCuspAux` model (`jTr`, `φ`, `finrank_tower_eq`,
+    # …); they are byte-identical there, so either supplies the statements. The
+    # third target's pin proof takes the `DivUSol` divisor route and the port
+    # proves it from `TwoCuspAux.bar_eq_restrictScalars`, so that `S_` file is
+    # not needed for a statement match.
+    "Theorems/Thm_ModularCurve_eq_cuspInftyBar_or_eq_cuspZeroBar.lean",
+    "Theorems/Thm_ModularCurve_finrank_adjoin_jqNModC_eq_of_prime.lean",
+    "Theorems/Thm_ModularCurve_modularFunctionFieldBar_eq_restrictScalars.lean",
+    "P2M/Sol/S_ModularCurve_eq_cuspInftyBar_or_eq_cuspZeroBar.lean",
+    "P2M/Sol/S_ModularCurve_finrank_adjoin_jqNModC_eq_of_prime.lean",
+    # --- SET-M3 m7: the Laurent/`coeffEmb` glue and the two relative-degree
+    # theorems. The eight short M4 nodes are `Degree/LaurentGlue.lean`; the two
+    # heavy ones live in `Degree/Relfinrank.lean`. The `S_` files share the
+    # `TS`/slot prelude, which the port already publishes in
+    # `Defs/{TS,PhiAtSlot,Twist,Cyclotomic}.lean`/`PhiSlotRoots.lean`; they are
+    # listed so the statement checker sees the pin's private originals too.
+    "Theorems/Thm_ModularCurve_coeffEmb_jq.lean",
+    "Theorems/Thm_ModularCurve_coeffEmb_jqN.lean",
+    "Theorems/Thm_ModularCurve_order_qExpand.lean",
+    "Theorems/Thm_ModularCurve_order_coeffEmb.lean",
+    "Theorems/Thm_ModularCurve_laurentBaseChange_adjoin.lean",
+    "Theorems/Thm_ModularCurve_laurentBaseChange_modularFunctionField.lean",
+    "Theorems/Thm_ModularCurve_laurentBaseChange_modularFunctionFieldFull.lean",
+    "Theorems/Thm_ModularCurve_transcendental_jqN.lean",
+    "Theorems/Thm_ModularCurve_relfinrank_laurentBaseChange.lean",
+    "Theorems/Thm_ModularCurve_relfinrank_qExpand_full.lean",
+    "P2M/Sol/S_ModularCurve_relfinrank_laurentBaseChange.lean",
+    "P2M/Sol/S_ModularCurve_relfinrank_qExpand_full.lean",
+    # --- SET-M3 m9: the roof generation and the diagonal degree. The two
+    # wrappers are the headlines of `Degree/Roof.lean`; the three AC
+    # `finrankAlong` wrappers are the generic helpers the pin defines privately
+    # in its two degree/roof `S_` files and the port proves `private` here
+    # (promotion candidates for `AlgebraicCurve/Defs/Correspondence.lean`), so
+    # they are listed for the record and will verify once promoted.
+    "Theorems/Thm_ModularCurve_heckeRoof_adjoin_range_union_eq_top.lean",
+    "Theorems/Thm_ModularCurve_finrankAlong_towerSubstBar_comp_heckeAlphaBar.lean",
+    "P2M/Sol/S_ModularCurve_heckeRoof_adjoin_range_union_eq_top.lean",
+    "P2M/Sol/S_ModularCurve_finrankAlong_towerSubstBar_comp_heckeAlphaBar.lean",
+    "Theorems/Thm_AlgebraicCurve_finrankAlong_comp.lean",
+    "Theorems/Thm_AlgebraicCurve_finrankAlong_id.lean",
+    "Theorems/Thm_AlgebraicCurve_finrankAlong_eq_relfinrank_fieldRange.lean",
+    # --- SET-M4 m10: tower integrality/finiteness and the Hecke integrality
+    # predicates. The 13 wrappers are the statement authority; the two heavy `S_`
+    # files carry the pin's private `gens`/`isIntegral_gens` blocks (the port
+    # keeps them `private` in `HeckeInputs/Integrality.lean`), so they are listed
+    # for the record.
+    "Theorems/Thm_ModularCurve_towerInclBar_isIntegral.lean",
+    "Theorems/Thm_ModularCurve_towerSubstBar_isIntegral.lean",
+    "Theorems/Thm_ModularCurve_towerInclBar_finiteAlong.lean",
+    "Theorems/Thm_ModularCurve_towerSubstBar_finiteAlong.lean",
+    "Theorems/Thm_ModularCurve_towerInclBar_surjective_of_dvd_dvd.lean",
+    "Theorems/Thm_ModularCurve_finiteAlong_heckeAlphaBar_of_modularPolynomialData.lean",
+    "Theorems/Thm_ModularCurve_finiteAlong_heckeBetaBar_of_modularPolynomialData.lean",
+    "Theorems/Thm_ModularCurve_heckeAlphaBarIntegral_of_modularPolynomialData.lean",
+    "Theorems/Thm_ModularCurve_heckeBetaBarIntegral_of_modularPolynomialData.lean",
+    "Theorems/Thm_ModularCurve_finiteAlong_heckeAlphaBar_of_prime.lean",
+    "Theorems/Thm_ModularCurve_finiteAlong_heckeBetaBar_of_prime.lean",
+    "Theorems/Thm_ModularCurve_heckeAlphaBarIntegral_of_prime.lean",
+    "Theorems/Thm_ModularCurve_heckeBetaBarIntegral_of_prime.lean",
+    "P2M/Sol/S_ModularCurve_finiteAlong_heckeAlphaBar_of_modularPolynomialData.lean",
+    "P2M/Sol/S_ModularCurve_finiteAlong_heckeBetaBar_of_modularPolynomialData.lean",
+    # --- SET-M4 m11: `HasPrincipalDivisors` for the modular function fields.
+    # The layer form collapses onto AC's `hasPrincipalDivisors_adjoin_of_transcendental`
+    # (the coverage report's "nearly a corollary" prediction); the `bar` form is
+    # the layer form at `AlgebraicClosure ℚ`.
+    "Theorems/Thm_ModularCurve_hasPrincipalDivisors_laurentBaseChange_modularFunctionFieldFull.lean",
+    "Theorems/Thm_ModularCurve_hasPrincipalDivisors_modularFunctionFieldBar.lean",
+    "P2M/Sol/S_ModularCurve_hasPrincipalDivisors_laurentBaseChange_modularFunctionFieldFull.lean",
+    # --- SET-M4 m12: the exchange reduction. The four `Theorems/` wrappers are
+    # the statement authority; the pin's four `S_` files are short transcriptions
+    # over the ported `Divisor.correspondence_correspondence`/`correspondence_congr`
+    # and `Pic0.correspondence_correspondence_comm`, so they are listed too.
+    "Theorems/Thm_ModularCurve_heckeDivBar_heckeDivBar_of_heckeExchangeAt.lean",
+    "Theorems/Thm_ModularCurve_heckeDivBar_comm_of_heckeExchangeAt.lean",
+    "Theorems/Thm_ModularCurve_heckeOperatorBar_comm_of_heckeExchangeAt.lean",
+    "Theorems/Thm_ModularCurve_heckeOperatorsCommuteBar_of_heckeExchangeAt.lean",
+    "P2M/Sol/S_ModularCurve_heckeDivBar_heckeDivBar_of_heckeExchangeAt.lean",
+    "P2M/Sol/S_ModularCurve_heckeDivBar_comm_of_heckeExchangeAt.lean",
+    "P2M/Sol/S_ModularCurve_heckeOperatorBar_comm_of_heckeExchangeAt.lean",
+    "P2M/Sol/S_ModularCurve_heckeOperatorsCommuteBar_of_heckeExchangeAt.lean",
 ]
 
 PORT_FILES = [
@@ -656,7 +860,72 @@ PORT_FILES = [
     "FLTForHuman/AlgebraicCurve/PrincipalDivisors/Transcendence.lean",
     # T7, the divisor-exchange capstone (reserved for the human reviewer).
     "FLTForHuman/AlgebraicCurve/WeilExchange/DivisorExchange.lean",
+    # SET-M1 m1: the Hecke correspondence vocabulary.
+    "FLTForHuman/ModularCurve/Defs/HeckeOperator.lean",
+    "FLTForHuman/ModularCurve/Defs/DegeneracyTower.lean",
+    "FLTForHuman/ModularCurve/Defs/HeckeTotal.lean",
+    "FLTForHuman/ModularCurve/Defs/ArithmeticGalois.lean",
+    "FLTForHuman/ModularCurve/Defs/HeckeModule.lean",
+    # SET-M1 m2: the geometric/cusp/q-adic/modular-unit vocabulary.
+    "FLTForHuman/ModularCurve/Defs/JqCoeff.lean",
+    "FLTForHuman/ModularCurve/Defs/GeometricBaseChange.lean",
+    "FLTForHuman/ModularCurve/Defs/QAdicPlace.lean",
+    "FLTForHuman/ModularCurve/Defs/ModularUnit.lean",
+    "FLTForHuman/ModularCurve/Defs/AtkinLehner.lean",
+    "FLTForHuman/ModularCurve/Defs/CuspidalClass.lean",
+    # SET-M1 m3: the analytic modular-unit q-expansion core.
+    "FLTForHuman/ModularCurve/Analytic/QParamUnique.lean",
+    "FLTForHuman/ModularCurve/Analytic/Gamma0Cosets.lean",
+    "FLTForHuman/ModularCurve/Analytic/ModularUnitQExpansion.lean",
+    # SET-M2 m4: the shared Γ₀-invariant prelude, written once, and the first
+    # two M8 headlines plus the four small `modularUnitSeries` targets. The third
+    # headline and `coe_frickeInvolutionFull_modularUnitSeries` are downstream of
+    # m5's `exists_isFrickeAutFull` and are delivered with m5.
+    "FLTForHuman/ModularCurve/Analytic/Gamma0InvariantCore.lean",
+    "FLTForHuman/ModularCurve/Analytic/FrickeInvariance.lean",
+    # SET-M2 m6: the Φ datum family (the biresultant, the jqNModC evaluation
+    # and integrality tails, the prime generation facts) and its degree tail.
+    "FLTForHuman/ModularCurve/Degree/PhiData.lean",
+    "FLTForHuman/ModularCurve/Degree/PhiDegree.lean",
+    # SET-M2 m5 (first half): the cusp bookkeeping and the Fricke automorphisms.
+    # The remaining m5 module (`Analytic/CuspDichotomy.lean`) is re-scoped to
+    # `m5b`; see `logs/mc-port.md` §Friction.
+    "FLTForHuman/ModularCurve/Analytic/CuspBookkeeping.lean",
+    "FLTForHuman/ModularCurve/Analytic/FrickeAut.lean",
+    # SET-M2 m5b: the `RatFunc` cusp model written once (the dichotomy and the
+    # folded prime degree share it), the restrict-scalars identity, and the two
+    # Fricke-automorphism consumers. `jTr` is built through the private generic
+    # `ifRE` so the kernel never normalises `mem_bar_iff`'s heavy proof; see
+    # `logs/mc-port.md` §Friction.
+    "FLTForHuman/ModularCurve/Analytic/CuspDichotomy.lean",
+    # SET-M3 m7: the Laurent/`coeffEmb` glue (the eight short M4 nodes).
+    "FLTForHuman/ModularCurve/Degree/LaurentGlue.lean",
+    # SET-M3 m7: `relfinrank_laurentBaseChange` (the pin's `TransportDev` block).
+    "FLTForHuman/ModularCurve/Degree/Relfinrank.lean",
+    # SET-M3 m9: the roof generation and the diagonal degree. The three generic
+    # `AlgebraicCurve.finrankAlong` helpers are `private` here (promotion
+    # candidates for `AlgebraicCurve/Defs/Correspondence.lean`).
+    "FLTForHuman/ModularCurve/Degree/Roof.lean",
+    # SET-M4 m10: tower integrality/finiteness and the Hecke integrality
+    # predicates. The pin's private `gens`/`isIntegral_gens` supply block is
+    # transcribed `private` here (the four `_of_prime` forms are
+    # `exists_modularPolynomialData_evalSymm` at the general forms).
+    "FLTForHuman/ModularCurve/HeckeInputs/Integrality.lean",
+    # SET-M4 m11: `HasPrincipalDivisors` for the modular function fields (the
+    # AC `hasPrincipalDivisors_adjoin_of_transcendental` corollary). The pin's
+    # private `gens`/`mem_gens_iff`/`insert_gens` `Finset` block is transcribed
+    # `private` here.
+    "FLTForHuman/ModularCurve/PrincipalDivisors/ModularCurveBar.lean",
+    # SET-M4 m12: the exchange reduction. The junk branches of the operator node
+    # use `heckeOperatorAlong_of_not` at the bare linear-map shape rather than the
+    # pin's `heckeOperatorBar_apply` pointwise rewrite (the port's `Nat.Primes`
+    # subtype proof makes the pointwise goal fail `rw`'s implicit-transparency
+    # type check); the statement is unchanged.
+    "FLTForHuman/ModularCurve/HeckeExchange/Reduction.lean",
+    # m13, the capstone (written by the reviewer; assembly over m9-m12).
+    "FLTForHuman/ModularCurve/Capstone.lean",
 ]
+
 
 # Declarations whose *statement* has no FLT source, so there is nothing to diff:
 # they are our own, not transcribed. `coeff_jq_zero` / `coeff_jq_one` state the

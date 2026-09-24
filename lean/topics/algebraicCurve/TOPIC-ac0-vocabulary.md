@@ -451,7 +451,7 @@ alias whose replacement changes a statement.
 - [ ] `spec/check_flt_statements.py`: `norm` strips `AlgebraicCurve.`; the AC
       definition files appended to `SOURCES`; `OWN_PROOFS` additions justified;
       final line `N identical, 0 mismatched, 0 missing`.
-- [ ] `timeout 300 lake build` green, **0 warnings**, no `sorry` in
+- [ ] `timeout 90 lake build` green, **0 warnings**, no `sorry` in
       `FLTForHuman/`.
 - [ ] `logs/ac-port.md` with the §0 table and the AC0 section (`module | lines |
       decls | FLT source`), plus the drop list and the friction log.

@@ -155,7 +155,7 @@ trace* declarations and the rest of the generator block are gone.
 - [x] one `R = S * T^j` lemma; one `fricke_mul_heckeMatrix`; one general
       `heckeU_slash_W`; one general `slash_scalar` (with `slash_two_scalar` now a
       two-line corollary of it); `sum_zmod_val` gone.
-- [x] `timeout 300 lake build` green, 0 warnings, no `sorry`.
+- [x] `timeout 90 lake build` green, 0 warnings, no `sorry`.
 - [x] checker: **0 mismatched, 0 missing**; `PORT_FILES` gains
       `HeckeFricke.lean`; `SOURCES` unchanged (no new wrappers).
 - [x] `#print axioms` on the two public theorems clean.

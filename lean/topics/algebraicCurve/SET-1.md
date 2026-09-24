@@ -179,9 +179,9 @@ pin file, raw/content size, external indegree and verbatim statement), its route
 notes, its budget and its definition of done. The shared definition of done for
 every topic in this run:
 
-1. `timeout 300 lake build` is green, **0 warnings, no `sorry`** anywhere in
+1. `timeout 90 lake build` is green, **0 warnings, no `sorry`** anywhere in
    `FLTForHuman/`.
-2. `timeout 120 lake env lean spec/AlgebraicCurveConsumer.lean` reports the
+2. `timeout 60 lake env lean spec/AlgebraicCurveConsumer.lean` reports the
    zone's expected error count, and the zone's wire test is a real (not
    `sorry`-terminated) composition.
 3. `python3 spec/check_flt_statements.py` reports **0 mismatched, 0 missing**, with

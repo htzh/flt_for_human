@@ -133,7 +133,7 @@ production of an impossible goal shape (quote it).
 - [ ] `#print axioms` on the theorem is `[propext, Classical.choice, Quot.sound]`.
 - [ ] `spec/check_flt_statements.py`: the AC wrapper in `SOURCES`; 0 mismatched,
       0 missing.
-- [ ] `timeout 300 lake build` green, **0 warnings**, no `sorry`; the consumer at
+- [ ] `timeout 90 lake build` green, **0 warnings**, no `sorry`; the consumer at
       0 errors.
 - [ ] `logs/ac-port.md` T7 section, and its §0 table row for the capstone.
 - [ ] `PORTING-AC.md` status set to **complete**, the §0 "what this port is not"

@@ -219,7 +219,7 @@ discipline.
 
 ```bash
 cd lean
-timeout 600 lake build                       # green, 4,054 jobs
+timeout 180 lake build                       # green, 4,054 jobs
 python3 spec/check_flt_statements.py         # 802 identical, 0 mismatched, 0 missing
 ```
 

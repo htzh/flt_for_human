@@ -120,7 +120,7 @@ superseded by a cleaner one (below) and the statements still match their wrapper
 - [x] `FLTForHuman/ModularForms/HeckeLattice.lean` created; the three targets
       verbatim from their wrappers.
 - [x] the weight-2 auxiliary vocabulary is **absent** (`grep -c qIntegralLattice` = 0).
-- [x] `timeout 600 lake build` green, 0 warnings, no `sorry`.
+- [x] `timeout 180 lake build` green, 0 warnings, no `sorry`.
 - [x] checker: the three wrappers appended to `SOURCES`, both modules to
       `PORT_FILES`, **0 mismatched, 0 missing**.
 - [x] `#print axioms` on the three clean.

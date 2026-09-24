@@ -193,7 +193,7 @@ needing a statement the T2/T3/T4 surface does not expose.
       `Thm_Subgroup_exists_eq_mul_of_index_inf_eq.lean`, the three
       `Thm_AlgebraicCurve_Place_*`) in `SOURCES`; 0 mismatched, 0 missing.
 - [ ] `#print axioms` on the bifibre count and the two generic statements clean.
-- [ ] `timeout 300 lake build` green, 0 warnings, no `sorry`.
+- [ ] `timeout 90 lake build` green, 0 warnings, no `sorry`.
 - [ ] `logs/ac-port.md` T5 section (with the scout outcome) and `README.md` rows.
 - [ ] The T6/T7 hand-off: `Bifibre.lean` exposes the bifibre count, and its
       `card_fiberOver_…`/`exists_restrict_eq` are public for T6/T7.

@@ -170,7 +170,7 @@ inventory, `CuspForm.qCoeff_zero`, is a genuine dependency of the coefficient
 - [x] `FLTForHuman/ModularForms/HeckeEigenform.lean` created; the 13 targets
       verbatim from their wrappers (plus the justified `qCoeff_zero`).
 - [x] the two thin `iff`s derived from the coefficient one.
-- [x] `timeout 600 lake build` green, 0 warnings, no `sorry`.
+- [x] `timeout 180 lake build` green, 0 warnings, no `sorry`.
 - [x] checker: the wrappers appended to `SOURCES`, both modules to `PORT_FILES`,
       **0 mismatched, 0 missing**.
 - [x] `#print axioms` on the three `iff`s and the two `apply_eq_smul_iff`s clean.

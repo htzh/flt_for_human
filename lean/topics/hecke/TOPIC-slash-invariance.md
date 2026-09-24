@@ -25,7 +25,7 @@ transcription — and the weakening has to be undone, not inherited (§1).
 > default cap errors in tens of seconds — it does not hang — so a non-return is a
 > real blow-up, not patience.
 >
-> - Run every build under a bound: `timeout 120 lake env lean <file>`,
+> - Run every build under a bound: `timeout 60 lake env lean <file>`,
 >   `timeout 180 lake build <module>`. Non-return at 120 s is a blow-up.
 > - **Quarantine immediately.** On a timeout, comment the declaration out and
 >   bisect, or reproduce in the gitignored `Scratch.lean` with
@@ -334,8 +334,8 @@ Tier 1 only; Tiers 2–4 are explicitly out of scope. **All items satisfied
    leaving them silently unchecked.
 3. **`PORT_FILES`** gains the new modules (and `Defs/HeckeOperator.lean` is
    already listed).
-4. **Build.** Bounded, per the blockquote: `timeout 120 lake env lean <file>`
-   during development, `timeout 300 lake build FLTForHuman.ModularForms.HeckeInvariance`
+4. **Build.** Bounded, per the blockquote: `timeout 60 lake env lean <file>`
+   during development, `timeout 90 lake build FLTForHuman.ModularForms.HeckeInvariance`
    at the module seam, then a full `lake build` at the end — green, 0 warnings,
    no `sorry`; library-wide `grep -rn "sorry\|admit" FLTForHuman/`.
 5. **Dedup check.** `grep -c` the private names in `PhiGenDescends.lean` before

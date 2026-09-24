@@ -223,7 +223,7 @@ result the AC0 `RatFuncPlaces` surface does not expose.
       0 missing.
 - [ ] `#print axioms` on `finite_setOf_ord_ne_zero` and
       `degree_eq_zero_of_forall_eq_ord_algebraMap` clean.
-- [ ] `timeout 300 lake build` green, 0 warnings, no `sorry`.
+- [ ] `timeout 90 lake build` green, 0 warnings, no `sorry`.
 - [ ] `logs/ac-port.md` T8 section (with the real prelude saving vs the 214-line
       estimate); `README.md` row.
 - [ ] The T9 hand-off: `finite_setOf_ord_ne_zero` and

@@ -187,7 +187,7 @@ the right call: the one-liners could not even be *stated*.
       general theorems' special cases, … — **not measured**: the general theorems
       were not ported. The 4,308- and 212-line pin bodies were not transcribed
       (the correct outcome).
-- [x] `timeout 600 lake build` green, 0 warnings, no `sorry`.
+- [x] `timeout 180 lake build` green, 0 warnings, no `sorry`.
 - [ ] checker: the wrappers appended to `SOURCES`, the three modules to
       `PORT_FILES`, **0 mismatched, 0 missing**. — only the two definition modules
       are registered; the theorem wrappers are correctly absent.

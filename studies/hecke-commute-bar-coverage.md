@@ -17,6 +17,20 @@ numbers below are **unchanged** — closure 225, remaining 82 nodes / 10,569 raw
 7,579 content. §9 records why the automorphic Hecke-operator port does not move
 them, and the decision that finiteness is out of scope for now.
 
+> **CLOSED (2026-09-23, later the same day): remaining 0 nodes / 0 raw / 0
+> content.** The `ModularCurve` Hecke-layer effort
+> ([../lean/topics/PORTING-MC.md](../lean/topics/PORTING-MC.md), run briefs
+> [SET-M1](../lean/topics/hecke/SET-M1.md)–[SET-M4](../lean/topics/hecke/SET-M4.md),
+> record [../lean/logs/mc-port.md](../lean/logs/mc-port.md)) ported all 82 nodes
+> plus the 13 definition modules and the capstone. The §7 recipe now prints
+> **`remaining 0 nodes, 0 raw, 0 content`**; `spec/check_flt_statements.py` reports
+> **1,237 identical, 0 mismatched, 0 missing**; `lake build` is **4,107 jobs,
+> 0 warnings, no `sorry`**; and
+> `#print axioms ModularCurve.heckeOperatorsCommuteBar` is
+> `[propext, Classical.choice, Quot.sound]`. The body below is kept as the
+> measured *starting* position of that effort. The closing review is
+> [../lean/topics/mc-retrospective.md](../lean/topics/mc-retrospective.md).
+
 ## 0. What is measured, and how
 
 The target is one Lean theorem

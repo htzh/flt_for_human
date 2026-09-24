@@ -166,7 +166,7 @@ mismatch (the checker's own T5 extension is statement-exact, not a relaxation).
       the targets above verbatim from their wrappers.
 - [x] `grep -c` shows the tail exists in exactly one port module; the four
       353-line pin files are covered.
-- [x] `timeout 600 lake build` green, 0 warnings, no `sorry`.
+- [x] `timeout 180 lake build` green, 0 warnings, no `sorry`.
 - [x] checker: the T5 wrappers appended to `SOURCES`, both new modules to
       `PORT_FILES`, **0 mismatched, 0 missing**.
 - [x] `#print axioms` on the T5 targets clean.

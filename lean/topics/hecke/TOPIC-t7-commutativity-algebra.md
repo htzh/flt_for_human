@@ -175,7 +175,7 @@ match the pin's.
       of `Def_CuspForm_HeckeAlgebra.lean`, verbatim, with the pin's instance names.
 - [x] the pin's private `eq_of_forall_qCoeff_eq` twins are **not** copied; T5's
       public lemma is imported (`grep -c` recorded).
-- [x] `timeout 600 lake build` green, 0 warnings, no `sorry`.
+- [x] `timeout 180 lake build` green, 0 warnings, no `sorry`.
 - [x] checker: the T7 wrappers appended to `SOURCES`, the three new modules to
       `PORT_FILES`, **0 mismatched, 0 missing**.
 - [x] `#print axioms` on the commutations and `heckeAlgebra.instIsMulCommutative`

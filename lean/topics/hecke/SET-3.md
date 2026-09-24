@@ -82,8 +82,8 @@ warm (~20 s cold); `lake build <module>` deps-cached **~4–6 s**; full `lake bu
 green at **4042 jobs**, nearly all cached. The lakefile sets `maxHeartbeats`
 to 4,000,000 globally, so the `timeout` is the only real guard.
 
-- Bound every build: `timeout 120 lake env lean <file>`,
-  `timeout 180 lake build <module>`, `timeout 600 lake build`. A non-return at
+- Bound every build: `timeout 60 lake env lean <file>`,
+  `timeout 180 lake build <module>`, `timeout 180 lake build`. A non-return at
   120 s is a blow-up.
 - Quarantine immediately on a timeout: comment out/bisect, or reproduce in the
   gitignored `Scratch*.lean` with `set_option diagnostics true`.
@@ -119,7 +119,7 @@ to 4,000,000 globally, so the `timeout` is the only real guard.
 ## 4. Definition of done (per topic)
 
 - Module(s) as named in the work order; statements verbatim; specific imports.
-- `timeout 600 lake build` green, **0 warnings**, no `sorry`/`admit`.
+- `timeout 180 lake build` green, **0 warnings**, no `sorry`/`admit`.
 - `#print axioms` on the topic's public headlines: only
   `propext, Classical.choice, Quot.sound`.
 - `spec/check_flt_statements.py`: sources appended; **0 mismatched, 0 missing**.

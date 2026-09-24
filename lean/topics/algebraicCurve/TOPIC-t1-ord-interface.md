@@ -249,7 +249,7 @@ choice between two AC declarations with the same last name.
 - [ ] Consumer **Zone B** at 0 errors, with the cross-module wire test proved.
 - [ ] `spec/check_flt_statements.py`: the 19 AC wrappers in `SOURCES`; line
       `N identical, 0 mismatched, 0 missing`.
-- [ ] `timeout 300 lake build` green, 0 warnings, no `sorry`.
+- [ ] `timeout 90 lake build` green, 0 warnings, no `sorry`.
 - [ ] `logs/ac-port.md` T1 section: the **interface table**
       (declaration → external indegree → port module), the measured cost, and any
       overlap with AC0.

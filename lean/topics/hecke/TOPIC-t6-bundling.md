@@ -134,7 +134,7 @@ against the assembly table: `slash_action_eq'` ← T1, `holo'` ← T3,
       `exists_coe_eq_heckeT/U`) verbatim from their `Theorems/` wrappers.
 - [x] every `toFun` field resolves to a named SET 1–2 export (list them in the
       log).
-- [x] `timeout 600 lake build` green, 0 warnings, no `sorry`.
+- [x] `timeout 180 lake build` green, 0 warnings, no `sorry`.
 - [x] checker: `HeckeOperatorForms.lean` in `PORT_FILES`; the three wrappers in
       `SOURCES`; **0 mismatched, 0 missing**.
 - [x] `#print axioms` on the wrappers clean.

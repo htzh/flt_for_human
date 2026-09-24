@@ -176,7 +176,7 @@ firing; or `SemilinearAut`'s `smul` API missing something AC0 trimmed.
       lesson: budget the *instantiation*, not the transcription).
 - [ ] `spec/check_flt_statements.py`: the 7 AC wrappers in `SOURCES`; 0 mismatched,
       0 missing.
-- [ ] `timeout 300 lake build` green, 0 warnings, no `sorry`.
+- [ ] `timeout 90 lake build` green, 0 warnings, no `sorry`.
 - [ ] `logs/ac-port.md` T3 section: cost, the `IsGaloisGroup` API record, and the
       wire-test choice.
 

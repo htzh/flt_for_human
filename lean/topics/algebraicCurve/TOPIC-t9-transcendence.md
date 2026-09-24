@@ -149,7 +149,7 @@ node needing an `IntermediateField` lemma mathlib lacks.
       files in `SOURCES`; 0 mismatched, 0 missing.
 - [ ] `#print axioms` on `hasPrincipalDivisors_of_transcendental` and
       `hasPrincipalDivisors_adjoin_of_transcendental` clean.
-- [ ] `timeout 300 lake build` green, 0 warnings, no `sorry`.
+- [ ] `timeout 90 lake build` green, 0 warnings, no `sorry`.
 - [ ] `logs/ac-port.md` T9 section (the `PerfectField` outcome, the norm-block cost);
       `README.md` rows.
 - [ ] SET 2 complete report: the per-topic table, checker line, consumer zones, and

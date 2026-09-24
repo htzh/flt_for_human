@@ -207,18 +207,28 @@ verbatim to the top of each new `TOPIC-*.md`:
 > quarantined, not waited on. Measured with mathlib prebuilt: a green
 > `lake env lean <module>` of this size is **~4 s**, `lake build <module>` with
 > deps cached **~2–5 s**, and a `whnf`/heartbeat timeout at the default cap
-> **errors in ~15–20 s** — it does not hang.
+> **errors in ~15–20 s** — it does not hang. A healthy full `lake build` of this
+> tree is **seconds to about a minute**.
 >
-> - Run every build under a bound: `timeout 60 lake env lean <file>`,
->   `timeout 120 lake build <module>`. Non-return at 60 s is a blow-up.
-> - **Quarantine immediately.** On a timeout, comment the declaration out and
+> - Run every build under a hard bound: `timeout 60 lake env lean <file>`,
+>   `timeout 90 lake build <module>`, `timeout 180 lake build`. **A multi-minute
+>   build is never acceptable, not even while experimenting** — a fifteen-minute
+>   bound is a bug in the work order, not a licence to wait.
+> - **Expect ≤ 30 s.** Any single build past ~60 s must be treated as a blow-up
+>   and bisected, not watched; a bound that lets a build run to 15 minutes is
+>   itself the failure.
+> - **Quarantine immediately.** On a non-return, comment the declaration out and
 >   bisect, or reproduce in the gitignored `Scratch.lean` with
->   `set_option diagnostics true`. Do not re-run the same file hoping for a
->   different result.
-> - **Never raise `maxHeartbeats`.** The cap already fails in under 20 s; raising
->   it turns that into an unbounded wait. The usual cause is a `FunLike`-quantified
->   lemma instantiated at a bare function type (`DFunLike.coe` unfolds without
->   bound) — restate it over the concrete function instead.
+>   `set_option diagnostics true` and a low cap (`set_option maxHeartbeats 20000`).
+>   Do not re-run the same file hoping for a different result.
+> - **Never raise `maxHeartbeats` (or `maxRecDepth`).** The cap already fails in
+>   under 20 s; raising it turns that into an unbounded wait. The usual causes are
+>   a `FunLike`-quantified lemma at a bare function type, or a concrete
+>   `IntermediateField` carrier defeq (see the two failure modes below).
+> - **Tell a blow-up from contention by CPU time.** Measure with `time` (or
+>   `/usr/bin/time -v`): high user CPU + timeout is a real blow-up (bisect);
+>   ~0 CPU wall-time is lock contention with another agent's build (re-run when
+>   idle; never build concurrently with another agent).
 
 The measurements behind it, on this machine with mathlib prebuilt (`v4.34.0`):
 
@@ -245,6 +255,45 @@ build finish". Instead:
   `UpperHalfPlane.qExpansion_coeff_unique` cost 5.1M `DFunLike.coe` reductions at
   `ℍ → ℂ`, and the fix was to restate its content over the concrete function, not
   to raise the cap.
+
+**Second failure mode, found by the `ModularCurve` Hecke effort's SET-M2/m5b
+(2026-09-23): a kernel `Subtype.val` defeq between two concrete
+`IntermediateField.adjoin` carriers.** The symptom is different from the
+`DFunLike` one and just as misleading: a `(kernel) deterministic timeout` on a
+coercion lemma whose proof looks like a one-line `rfl`, followed by cascading
+`unknown constant` errors for every later declaration that used it. The module
+that hit it (`Analytic/CuspDichotomy.lean`, the `RatFunc` model of
+`modularFunctionFieldBar`) went from a **3 m 09 s** non-build to **16 s** without
+any cap change.
+
+- **Diagnose by isolation at a low heartbeat cap, not by staring at the proof.**
+  In a `Scratch*.lean` with `set_option maxHeartbeats 20000`, test the pieces:
+  a plain `Equiv` and a plain `RingHom` between the two concrete fields both time
+  out; `↥⊤ ≃+* ↥bar`, `↥T ≃+* ↥⊤`, and an abstract `Subtype p ≃+* Subtype q`
+  are all cheap. It is only **both concrete `adjoin` subtypes at once** that the
+  kernel cannot normalise. Crucially, abstracting the membership *proof* changed
+  nothing — the cost is the carrier defeq, not the proof term.
+- **The fix is to prove the coercion lemma generically, once.** Write
+  `private def ifRE (S T : IntermediateField K L) (h : S = T) : ↥S ≃+* ↥T` with
+  `toFun x := ⟨↑x, h ▸ x.2⟩` (and `invFun y := ⟨↑y, h.symm ▸ y.2⟩`), and prove
+  `private theorem ifRE_coe … := rfl` at the **abstract** `S, T, h`. Then state
+  the concrete equivalence as `ifRE _ _ (eq_of_carriers …)` and its coercion
+  lemma as `by unfold …; exact ifRE_coe …`; the kernel checks only the generic
+  `rfl` and never normalises the concrete carriers.
+- Secondary costs in the same file, both v4.34-era: a cross-`IntermediateField`
+  `algebraMap` `rfl` should go through `IntermediateField.coe_algebraMap_apply`
+  on both sides, and a propositional `haveI` should be `have`
+  (`linter.style.haveILetI`).
+
+**Tell a blow-up from contention by the CPU time.** Measure every bounded build
+with `time` (or `/usr/bin/time -v`):
+
+- a real Lean/kernel blow-up shows **high user CPU** and then the `timeout` kill —
+  the `CuspDichotomy` failure was real 3 m 09 s with **user 3 m 17 s**. Bisect it.
+- a wall-time stall with **near-zero user/sys** is lock/serialization contention,
+  not Lean compute — an earlier reading of the same file was real 4 m 34 s with
+  **user 0.5 s**, because another agent was building the same tree. Re-run when
+  idle; do not bisect, and do not build concurrently with another agent.
 
 ## 4. v4.34.0 drift checklist
 

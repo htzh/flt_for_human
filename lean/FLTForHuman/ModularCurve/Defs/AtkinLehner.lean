@@ -1,0 +1,135 @@
+/-
+  m2 — the Atkin–Lehner/Fricke involutions (`IsFrickeAut`, `frickeInvolution`,
+  `IsFrickeAutFull`, `frickeInvolutionFull`), the rational cusps
+  (`cuspZero`/`cuspZeroFull`), `order_coeffEmb_jq`, and the `bar`-level cusp
+  `cuspInftyBar`.
+
+  FLT provenance, pinned `aa2d8b3`:
+  `Definitions/Def_ModularCurve_AtkinLehner.lean` (107 lines).
+  https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_AtkinLehner.lean
+
+  `dif_pos`/`dif_neg` are v4.34-deprecated; the port uses
+  `dite_eq_left`/`dite_eq_right`.
+-/
+import FLTForHuman.ModularCurve.Defs.QAdicPlace
+import FLTForHuman.ModularCurve.Defs.ArithmeticGalois
+
+set_option autoImplicit false
+
+noncomputable section
+
+open IntermediateField AlgebraicCurve
+
+namespace ModularCurve
+
+/- The pin's `F ≃ₐ[K] F`-action on `Place K F` is
+`Def_AlgebraicCurve_DivisorClassGroup.lean:285`; the AC port deliberately dropped
+that file's `Pic0`/`F ≃ₐ[K] F` block (see `Defs/SemilinearAut.lean` header), so
+the instance is restored here through the ported `SemilinearAut.ofAlgAut`. It is
+anonymous, so the statement checker never reads it; recorded as a promoted AC
+helper. It is the only place-smul the Fricke vocabulary needs. -/
+section PlaceAction
+
+variable {K F : Type*} [Field K] [Field F] [Algebra K F]
+
+instance : SMul (F ≃ₐ[K] F) (Place K F) where
+  smul σ v := SemilinearAut.ofAlgAut σ • v
+
+end PlaceAction
+
+section Fricke
+
+variable (N : ℕ) [NeZero N]
+
+def IsFrickeAut (σ : modularFunctionField N ≃ₐ[ℚ] modularFunctionField N) : Prop :=
+  σ ⟨jq, jq_mem N⟩ = ⟨jqN N, jqN_mem N⟩ ∧ σ ⟨jqN N, jqN_mem N⟩ = ⟨jq, jq_mem N⟩
+
+open Classical in
+
+def frickeInvolution : modularFunctionField N ≃ₐ[ℚ] modularFunctionField N :=
+  if h : ∃ σ : modularFunctionField N ≃ₐ[ℚ] modularFunctionField N, IsFrickeAut N σ
+  then h.choose else AlgEquiv.refl
+
+theorem isFrickeAut_frickeInvolution
+    (h : ∃ σ : modularFunctionField N ≃ₐ[ℚ] modularFunctionField N, IsFrickeAut N σ) :
+    IsFrickeAut N (frickeInvolution N) := by
+  rw [frickeInvolution, dite_eq_left h]
+  exact h.choose_spec
+
+theorem frickeInvolution_eq_refl
+    (h : ¬ ∃ σ : modularFunctionField N ≃ₐ[ℚ] modularFunctionField N, IsFrickeAut N σ) :
+    frickeInvolution N = AlgEquiv.refl := by
+  rw [frickeInvolution, dite_eq_right h]
+
+def cuspZero : Place ℚ (modularFunctionField N) := frickeInvolution N • cuspInfty N
+
+theorem cuspZero_def : cuspZero N = frickeInvolution N • cuspInfty N := rfl
+
+end Fricke
+
+section Full
+
+def IsFrickeAutFull (N : ℕ) [NeZero N]
+    (σ : modularFunctionFieldFull N ≃ₐ[ℚ] modularFunctionFieldFull N) : Prop :=
+  ∀ (a b : ℕ) (hab : a * b = N) (_ : NeZero a) (_ : NeZero b),
+    σ ⟨qExpand ℚ a jq, jqd_mem_full N (Dvd.intro b hab)⟩
+      = ⟨qExpand ℚ b jq, jqd_mem_full N (Dvd.intro_left a hab)⟩
+
+open Classical in
+
+def frickeInvolutionFull (N : ℕ) [NeZero N] :
+    modularFunctionFieldFull N ≃ₐ[ℚ] modularFunctionFieldFull N :=
+  if h : ∃ σ : modularFunctionFieldFull N ≃ₐ[ℚ] modularFunctionFieldFull N, IsFrickeAutFull N σ
+  then h.choose else AlgEquiv.refl
+
+theorem isFrickeAutFull_frickeInvolutionFull (N : ℕ) [NeZero N]
+    (h : ∃ σ : modularFunctionFieldFull N ≃ₐ[ℚ] modularFunctionFieldFull N,
+      IsFrickeAutFull N σ) :
+    IsFrickeAutFull N (frickeInvolutionFull N) := by
+  rw [frickeInvolutionFull, dite_eq_left h]
+  exact h.choose_spec
+
+theorem frickeInvolutionFull_eq_refl (N : ℕ) [NeZero N]
+    (h : ¬ ∃ σ : modularFunctionFieldFull N ≃ₐ[ℚ] modularFunctionFieldFull N,
+      IsFrickeAutFull N σ) :
+    frickeInvolutionFull N = AlgEquiv.refl := by
+  rw [frickeInvolutionFull, dite_eq_right h]
+
+variable (N : ℕ) [NeZero N]
+
+def cuspZeroFull : Place ℚ (modularFunctionFieldFull N) :=
+  frickeInvolutionFull N • cuspInftyFull N
+
+theorem cuspZeroFull_def : cuspZeroFull N = frickeInvolutionFull N • cuspInftyFull N := rfl
+
+end Full
+
+section Bar
+
+theorem order_coeffEmb_jq (L : Type*) [Field L] [Algebra ℚ L] : (coeffEmb L jq).order = -1 := by
+  have h1 : (coeffEmb L jq).coeff (-1) ≠ 0 := by
+    rw [coeffEmb_coeff, coeff_jq_neg_one, map_one]
+    exact one_ne_zero
+  have h0 : coeffEmb L jq ≠ 0 := fun h => h1 (by rw [h, HahnSeries.coeff_zero])
+  refine le_antisymm (HahnSeries.order_le_of_coeff_ne_zero h1) ?_
+  by_contra! h
+  exact HahnSeries.coeff_order_eq_zero.not.mpr h0
+    (by rw [coeffEmb_coeff, coeff_jq_of_lt h, map_zero])
+
+variable (N : ℕ) [NeZero N]
+
+def cuspInftyBar : Place (AlgebraicClosure ℚ) (modularFunctionFieldBar N) :=
+  qInftyPlaceBar (AlgebraicClosure ℚ) (modularFunctionFieldBar N)
+    ⟨⟨coeffEmb (AlgebraicClosure ℚ) jq,
+      coeffEmb_mem_laurentBaseChange (L := AlgebraicClosure ℚ) (hx := jq_mem_full N)⟩,
+      order_coeffEmb_jq (AlgebraicClosure ℚ)⟩
+
+theorem cuspInftyBar_toValuationSubring :
+    (cuspInftyBar N).toValuationSubring
+      = qIntegersBar (AlgebraicClosure ℚ) (modularFunctionFieldBar N) := rfl
+
+end Bar
+
+end ModularCurve
+
+end

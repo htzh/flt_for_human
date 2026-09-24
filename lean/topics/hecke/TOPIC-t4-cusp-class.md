@@ -145,7 +145,7 @@ All items held as written.
 - [x] `upperTriangularGL` (and `val_upperTriangularGL`) public in
       `Defs/HeckeOperator.lean`; header amended; `grep -c` for the private copy
       is 0.
-- [x] `timeout 300 lake build` green, 0 warnings, no `sorry`.
+- [x] `timeout 90 lake build` green, 0 warnings, no `sorry`.
 - [x] checker: the four wrappers appended to `SOURCES`, `HeckeCusps.lean`
       appended to `PORT_FILES`, **0 mismatched, 0 missing**.
 - [x] `#print axioms` on the four clean.

@@ -94,7 +94,7 @@ this checkout with mathlib prebuilt (`v4.34.0`, `leanprover/lean4:v4.34.0`):
 (`lean/lakefile.lean`), so a deterministic `whnf`/defeq blow-up does **not**
 error quickly; the `timeout` bound is load-bearing.
 
-- Run every build under a bound: `timeout 120 lake env lean <file>` and
+- Run every build under a bound: `timeout 60 lake env lean <file>` and
   `timeout 180 lake build <module>`; a non-return at 120 s is a blow-up, not a
   slow build.
 - On a timeout, quarantine immediately: comment the declaration out and bisect,
@@ -139,7 +139,7 @@ error quickly; the `timeout` bound is load-bearing.
 
 - Module(s) as named in the work order; statements verbatim from the wrappers;
   specific imports; namespace matching the pin.
-- `timeout 300 lake build` green, **0 warnings**, no `sorry`/`admit`.
+- `timeout 90 lake build` green, **0 warnings**, no `sorry`/`admit`.
 - `#print axioms` on the topic's public headlines: only
   `propext, Classical.choice, Quot.sound`.
 - `spec/check_flt_statements.py`: the topic's sources appended; **0 mismatched,
