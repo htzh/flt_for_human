@@ -480,13 +480,20 @@ Phase 5 if the gate is passed.
   (Kuga–Sato, de Rham comparison, or a `CohCarrier.H1` identification at
   $`n > 0`$) — i.e. cohomology beyond route B's `addChars`/`Hom` type (§3);
 - no form-side, E-S-free weight reduction existing (architecture B fails) —
-  **TRIGGERED, LOCALIZED (Phase 1 + expansion, scout §4):** the general mod-p
-  reduction (`ModPForms.exists_weight_le_succ_…`) is E-S-free modulo C′ (its 10
-  analytic nodes all enter via `hasIntegralStructure_of_two_le`), interfaces 5/6
-  are C′-dissolved, and the weight-$`(p+1)`$ → 2 descent exists; the missing
-  brick is a form-side $`[2, p+1] \to 2`$ descent (or a reduction landing at
-  $`p+1`$). The intrinsic core
-  `ModPForms.exists_isEigensystemH1_…_of_isModPEigen` remains analytic;
+  **TRIGGERED, LOCALIZED (scout §4.5):** the general mod-p reduction
+  (`ModPForms.exists_weight_le_succ_…`) is E-S-free modulo C′ (its 10 analytic
+  nodes all enter via `hasIntegralStructure_of_two_le`), interfaces 5/6 are
+  C′-dissolved, and the weight-$`(p+1)`$ → 2 descent exists. What is missing is
+  the interior $`\theta`$-descent from a canonical even weight
+  $`k' \in \{4, \dots, p-1\}`$ to weight 2: the reduction lands in $`[2, p+1]`$,
+  weights differing by $`p-1`$ are Hecke-equivalent, but interior weights differ
+  by the nontrivial character $`\ell^{k'-2}`$ and need the
+  Serre-derivative/Hasse filtration. No node in the pin performs it, and no piece
+  of the E-S slice supplies it: the slice's 213 nodes are only **43**
+  analytic-dependent (the 12-node core plus 31 downstream), and the
+  $`\theta`$/Hasse toolkit is in the 170 E-S-free nodes. The intrinsic core
+  `ModPForms.exists_isEigensystemH1_…_of_isModPEigen` bypasses the gap by
+  producing the degree-$`(k-2)`$ eigensystem directly;
 - a candidate citing any node of the 21-node analytic cone (circularity) —
   **observed for candidate 3** (Katz / mod-p reduction, 10–12 nodes); candidates
   0/1/2/4 are clean;

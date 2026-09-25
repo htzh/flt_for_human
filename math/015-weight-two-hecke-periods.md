@@ -434,6 +434,11 @@ Pointers:
 - The C′ route (the one the port actually takes):
   [013-integral-structure-gamma1-basis.md](013-integral-structure-gamma1-basis.md),
   [../studies/route-c-prime-scout.md](../studies/route-c-prime-scout.md).
+- Why weight two is enough, and where it stops being enough: the mod-$`p`$ weight
+  filtration and the interior-weight gap are the subject of
+  [016-mod-p-weight-filtration.md](016-mod-p-weight-filtration.md); the measured
+  bypass study is
+  [../studies/eichler-shimura-bypass-scout.md](../studies/eichler-shimura-bypass-scout.md).
 - Standard background: G. Shimura, *Introduction to the Arithmetic Theory of
   Automorphic Functions*, Ch. III–IV (periods of cusp forms and Eichler–Shimura);
   S. Lang, *Introduction to Modular Forms*, Ch. V; Deligne–Serre, *Formes

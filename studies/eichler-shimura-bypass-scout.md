@@ -9,7 +9,9 @@ against the FLT pin `aa2d8b3` with `tools/deps` (docs-site graph closure) plus
 source greps of the pin's `S_`/`Thm_` files. The port's mathlib is `v4.34.0`.
 Companion provenance: [flt-non-frey-segments.md](flt-non-frey-segments.md)
 §8–§8.1, [route-c-prime-scout.md](route-c-prime-scout.md) §4 addendum,
-[../math/015-weight-two-hecke-periods.md](../math/015-weight-two-hecke-periods.md).
+[../math/015-weight-two-hecke-periods.md](../math/015-weight-two-hecke-periods.md),
+and [../math/016-mod-p-weight-filtration.md](../math/016-mod-p-weight-filtration.md)
+(the mathematics of the gap in §4.5).
 
 **Established.**
 
@@ -464,13 +466,67 @@ $`p+1`$ to weight 2. Interface 5 is the maximal-ideal version
 
 ### 4.5 The remaining gap
 
-The general reduction lands at some $`k'`$ with $`2 \le k' \le p+1`$, not
-necessarily $`p+1`$, and the pin has no descent $`[2, p+1] \to 2`$. Three ways
-forward:
+The full mathematical account of this section, with the motivation and the routes
+past it, is [../math/016-mod-p-weight-filtration.md](../math/016-mod-p-weight-filtration.md);
+what follows is the summary.
+
+**What it is mathematically.** The reduction of §4.1 produces an eigenform of
+weight $`k'`$ with $`2 \le k' \le p+1`$ and $`(p-1) \mid (k - k')`$. Since
+$`p-1`$ is even and nonzero classical forms have even weight
+(`CuspForm.eq_zero_of_odd_gamma0`, `ModPForms.modPMod_eq_bot_of_odd`), the
+canonical weights are $`\{2, 4, \dots, p-1, p+1\}`$. Weights differing by
+$`p-1`$ have identical Hecke action — `heckePS k ℓ` multiplies the old part by
+$`\ell^{k-1}`$, and $`\ell^{p-1} = 1`$ — so $`k' = p+1`$ is Hecke-equivalent to
+$`k' = 2`$. That is exactly the existing $`p+1 \to 2`$ lever, which carries a
+level–weight exchange with it
+(`ModPForms.modPCusp_add_one_le_modPCusp_mul_two_…`: weight $`p+1`$ at level $`N`$
+embeds in weight 2 at level $`Np`$). The interior even weights $`4 \le k' \le p-1`$
+are **not** Hecke-equivalent to weight 2 — the actions differ by the nontrivial
+character $`\ell^{k'-2}`$ — so the form itself must move through the mod-p weight
+filtration. The devices are the Hasse invariant (weight $`p-1`$, a unit on the
+ordinary locus) and the Serre derivative
+($`12\,\theta\varphi - k E_2\varphi \in \mathrm{modPMod}(k+2)`$); for
+$`2 \le k' \le p-1`$ the Hasse step is empty ($`k' - (p-1) \le 0`$), so the
+filtration predicts a $`\theta`$-descent to weight 2, iterated. Formally that is a
+*membership* statement —
+$`\mathrm{modPMod}(k') \subseteq \theta^m(\mathrm{modPMod}(2))`$, or the descent
+$`\varphi \in \mathrm{modPMod}(k') \Rightarrow \exists \psi \in \mathrm{modPMod}(k'-2),\ \theta\psi = \varphi`$
+— with level bookkeeping.
+
+**What the pin has, and what is absent.** The $`\theta`$/Hasse toolkit is present
+and E-S-free: $`\theta = q\,d/dq`$ (`ModPForms.thetaPS`), its product rules
+(`thetaPS_add_smul_mul_mem_modPMod_add_two`,
+`smul_mul_thetaPS_sub_smul_thetaPS_mul_mem_modPMod_add_add_two`), the
+Serre-derivative identity, the Hasse inclusion
+(`modPMod_le_modPMod_add_sub_one`:
+$`\mathrm{modPMod}(k) \subseteq \mathrm{modPMod}(k+(p-1))`$), the non-membership
+criterion (`thetaPS_not_mem_modPMod_add_two_of_not_mem_sub_of_not_dvd`), a
+conditional drop by $`p-1`$ (`mem_modPMod_sub_of_qP_mul_mem`), and two descents to
+weight 2: weight $`p+1`$ when the $`p`$-multiples of the q-expansion vanish
+(`mem_modPMod_two_of_mem_modPMod_of_forall_coeff_mul_eq_zero`, which is what feeds
+interface 6) and the char-3 weight-4 case
+(`mem_modPMod_two_of_mem_modPMod_four_of_…`). What is **absent** is the general
+interior descent: no node anywhere in the pin takes $`3 \le k' \le p-1`$ to
+weight 2.
+
+**Does the slice supply it? No.** Measured over the E-S-ish namespaces, the slice
+is 213 nodes, but only **43** are analytic-dependent — the 12 core analytic nodes
+of §2.3 plus 31 downstream of them — while **170** are E-S-free (`ModPForms`
+56/65, `HeckeEis` 96/130, `PeriodPair` 18/18). The $`\theta`$/Hasse toolkit just
+listed is in the E-S-free part. The analytic nodes do not descend weight at all;
+they *bypass* the gap by producing the degree-$`(k-2)`$ eigensystem directly from
+a weight-k mod-p eigenform
+(`ModPForms.exists_isEigensystemH1_binaryFormRepSL_of_isModPEigen`, §4.3). So the
+gap is not supplied by any piece of the slice — it is the alternative to the
+slice — and building it needs only E-S-free material. The worst case (gap
+unfillable) therefore costs the 12-node / 2,301-line analytic core, not the whole
+213 / 71,865 package.
+
+**Ways forward.**
 
 1. sharpen the reduction so it lands at $`p+1`$ (then interface 6 + route B +
    CohCarrier close interface 3);
-2. build a form-side descent $`k' \in [2, p] \to 2`$;
+2. build the form-side $`\theta`$-descent $`[2, p+1] \to 2`$;
 3. build the general-weight $`\mathrm{Sym}^n`$ eigenclass geometrically
    (architecture A; the `intLattice ≅ regularDifferentials` and `KatzLevelPForm`
    clusters are the candidates to host it).
@@ -754,6 +810,40 @@ for q in [
  'ModPForms.exists_isEigensystemH1_binaryFormRepSL_of_isModPEigen']:
     C, Cx = cl(I[q]), cl(I[q], skip={H})
     print(f'{q}: analytic {len(C & AN)} -> {len(Cx & AN)} with C-prime')
+PY
+```
+
+### 7.4 How much of the slice is actually analytic
+
+```bash
+cd tools/deps && python3 - <<'PY'
+import sys; sys.path.insert(0, '.')
+from fltdata import FltData
+d = FltData(); I = d.index
+AN = {I[q] for q in [
+ 'HeckeEis.exists_isEichlerIntegral',
+ 'HeckeEis.isEquivariantPrimitiveWith_of_isEichlerIntegral',
+ 'HeckeEis.IsEichlerIntegral.slash',
+ 'HeckeEis.IsEichlerIntegral.exists_sub_eq_const',
+ 'HeckeEis.IsEichlerIntegral.eq_zero_of_eval_eq_const',
+ 'HeckeEis.IsEichlerIntegral.hasDerivAt_eval_iterate_pderiv',
+ 'HeckeEis.IsEichlerIntegral.isBoundedAtImInfty_eval',
+ 'HeckeEis.IsEichlerIntegral.binarySubst_adjugate_comp_smul',
+ 'HeckeEis.IsEquivariantPrimitiveWith.cocycle_sub_cocycle_mem_coeffCoboundaries',
+ 'HeckeEis.jFactor_pow_mul_eval_binaryFormRepSL',
+ 'HeckeEis.coeffH1Mk_cocycle_heckeTLin_modularForm',
+ 'HeckeEis.modularForm_eq_zero_of_coeffH1Mk_cocycle_eq_zero']}
+def cl(i):
+    seen, st = set(), [i]
+    while st:
+        j = st.pop()
+        if j in seen: continue
+        seen.add(j); st.extend(d.cites(j))
+    return seen
+for ns in ('HeckeEis.', 'ModPForms.', 'PeriodPair.'):
+    nodes = [q for q in I if q.startswith(ns)]
+    free = [q for q in nodes if not (cl(I[q]) & AN)]
+    print(f'{ns:12s} {len(nodes):4d} nodes: {len(free):4d} E-S-free, {len(nodes)-len(free):3d} analytic-dependent')
 PY
 ```
 
