@@ -93,6 +93,12 @@ frickeFunction/`levelN` nodes (≈9k lines together),
 `qExpansion_prod`,
 `qExpansion_discriminant_eq_map_X_mul_dedekindEtaUnit`.
 
+The mathematics of the dominant node, `EisensteinWeightOne.e1Chi3IsModular`, is
+in [../math/014-chi-minus-3-eisenstein.md](../math/014-chi-minus-3-eisenstein.md)
+(the coefficient identity `r(n) = 6σ_χ(n)`, the splitting laws in ℤ[ζ₆], and the
+Poisson/Fricke modularity), with the computation in
+[../pymath/hexagonal_theta.py](../pymath/hexagonal_theta.py).
+
 ## 4. The decisive overlap: the cone is already inside an endgame branch
 
 `FLT.No2BridgeWiring.weightOneNewformExists_not_cube_dvd` has closure **7,222**
@@ -198,3 +204,8 @@ endgame:
    declaration. This is the difference from route B, whose 4,308-line standalone
    proof *is* a duplicate of a specialisation and is written only to be deleted
    once the general statement lands.
+
+**Work order.** [../lean/topics/hecke/TOPIC-route-c-prime-integral-structure.md](../lean/topics/hecke/TOPIC-route-c-prime-integral-structure.md)
+— the module split, the tier order, the trace-lemma proof obligations and the
+checker/consumer plan. The mathematics is
+[../math/013-integral-structure-gamma1-basis.md](../math/013-integral-structure-gamma1-basis.md).

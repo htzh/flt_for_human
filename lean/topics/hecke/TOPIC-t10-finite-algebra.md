@@ -289,7 +289,9 @@ and every node already lies inside the endgame's weight-one
 `FLT.No2BridgeWiring` branch, so the marginal cost there is just the lemma. The
 brief's `exists_basis_gamma1_qCoeff_mem_range_intCast` does not exist and the
 `+ small Sturm` / "287-line cone" is superseded. See
-[../../../studies/route-c-prime-scout.md](../../../studies/route-c-prime-scout.md).
+[../../../studies/route-c-prime-scout.md](../../../studies/route-c-prime-scout.md)
+and the work order
+[TOPIC-route-c-prime-integral-structure.md](TOPIC-route-c-prime-integral-structure.md).
 
 **The two landed definition modules are prerequisites of the shortcut, not of
 route B.** `Defs/EisensteinChiNegThree.lean` and `Defs/IntegralLattice.lean`

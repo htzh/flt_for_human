@@ -789,6 +789,153 @@ SOURCES = [
     # and the wrapper are appended last.
     "Theorems/Thm_CuspForm_finiteDimensional_cuspForm.lean",
     "P2M/Sol/S_CuspForm_finiteDimensional_cuspForm.lean",
+    # --- SET-5 order 1: the weight-one toolbox layer --------------------------
+    # The seven headlines are public `Theorems/` wrappers, so they verify by
+    # direct name match; the wrappers are the statement authority (the port's
+    # binders are the wrappers' verbatim). The pin's `S_` carriers are *not*
+    # listed: every helper the port needs is `private`, so the checker never
+    # sees them. The two `finiteDimensional_of_isArithmetic` nodes depend on the
+    # already-listed `SturmBound.lean` declarations.
+    "Theorems/Thm_PowerSeries_mem_range_map_of_monic_of_mul_mem_range.lean",
+    "Theorems/Thm_IsIntegral_mem_span_of_adjoin_simple_constants.lean",
+    "Theorems/Thm_IsIntegral_mem_span_of_adjoin_simple_constants_transcendental.lean",
+    "Theorems/Thm_IsAlgClosed_exists_algEquiv_apply_ne_of_notMem_range.lean",
+    "Theorems/Thm_UpperHalfPlane_linearIndependent_complex_of_qExpansion_coeff_mem.lean",
+    "Theorems/Thm_ModularForm_finiteDimensional_of_isArithmetic.lean",
+    "Theorems/Thm_CuspForm_finiteDimensional_of_isArithmetic.lean",
+    # --- SET-5 order 2: the Eisenstein series --------------------------------
+    # The two headlines are public `Theorems/` wrappers (direct match). The
+    # series itself, `EisensteinSeries.eisensteinG`, has no wrapper; its
+    # definition file is the comparable copy and is appended last so its single
+    # last name cannot shadow anything already listed.
+    "Theorems/Thm_EisensteinSeries_exists_modularForm_coe_eq_eisensteinG.lean",
+    "Theorems/Thm_EisensteinSeries_qExpansion_eisensteinG_coeff.lean",
+    "Definitions/Def_EisensteinSeries_EisensteinG.lean",
+    # --- SET-6 order 1: the four closure-1 Hauptmodul leaves ------------------
+    # All four are public `Theorems/` wrappers (direct name match); the pin's
+    # self-contained `S_` helpers are all `private` here, so the checker never
+    # sees them. The two order-2 declarations follow below.
+    "Theorems/Thm_ModularCurve_surjective_specialLinearGroup_map_zmod.lean",
+    "Theorems/Thm_ModularCurve_qExpansion_discriminant_eq_X_mul_tprod.lean",
+    "Theorems/Thm_WLight_isZeroAtImInfty_mul_disc_iff_qExpansion_coeff_le.lean",
+    "Theorems/Thm_WLight_linearIndependent_complex_of_qExpansion_rational.lean",
+    # --- SET-6 order 2: the χ₋₃ weight-one Eisenstein series -------------------
+    # The single public headline is the wrapper verbatim. Its vocabulary
+    # (`chiNegThree`, `sigmaChi`, `e1Chi3`, `E1Chi3IsModular`) is imported from
+    # the already-registered `Definitions/Def_ModularForm_EisensteinChiNegThree.lean`
+    # (listed above); every one of the ~400 ported analytic/arithmetic helpers is
+    # `private`, so the checker sees only the headline.
+    "Theorems/Thm_EisensteinWeightOne_e1Chi3IsModular.lean",
+    # --- SET-7 order 1: the two big level-one Hauptmodul packages -------------
+    # Both are public `Theorems/` wrappers (direct name match). The pin's
+    # self-contained `S_` developments are transcribed `private` here, so the
+    # checker sees only the two new headlines in the already-listed
+    # `FLTForHuman/ModularForms/WeightOne/LevelOneHauptmodul.lean`.
+    "Theorems/Thm_WLight_levelOne_hauptmodul_package.lean",
+    "Theorems/Thm_WLight_weierstrassP_qExpansion_package.lean",
+    # --- SET-7 order 2: the torsion ℘ q-expansion bundle ----------------------
+    # The single public headline is the wrapper verbatim; the pin's 1,317-line
+    # self-contained helper development is `private` in `WeierstrassPTorsion.lean`.
+    "Theorems/Thm_ModularForm_weierstrassP_torsion_qExpansion_package.lean",
+    # --- SET-8 order 1: the four monic-relation leaves ------------------------
+    # All four are public `Theorems/` wrappers (direct name match). The pin
+    # repeats its valuation-engine and flat-descent blocks across the four `S_`
+    # files; the port writes each block once and keeps every helper `private`, so
+    # the checker sees only the four headlines in `MonicRel.lean`.
+    "Theorems/Thm_WLight_exists_analyticOnNhd_div_of_monicRel.lean",
+    "Theorems/Thm_WLight_exists_mdifferentiable_div_of_monicRel.lean",
+    "Theorems/Thm_WLight_exists_twist_of_flat.lean",
+    "Theorems/Thm_WLight_span_inter_rational_of_twist_stable.lean",
+    # --- SET-8 order 2: the three fricke-function packages --------------------
+    # All three are public `Theorems/` wrappers (direct name match). The pin's
+    # helpers are `private` in `FrickeFunction.lean`, one namespace per package
+    # (the three pin `S_` files repeat `periodPairOfTau`/`zetaN`/`wpNorm`/
+    # `frickeF`/`KPoleAt`/... and would otherwise collide), so the checker sees
+    # only the three headlines. The packages' cross-edges are the pin's own and
+    # are all ported: orbit → modularity + `levelOne_hauptmodul_package`;
+    # intBaseChange → modularity + orbit + the order-1
+    # `exists_mdifferentiable_div_of_monicRel` + SET-5's two `IsIntegral` leaves.
+    "Theorems/Thm_WLight_frickeFunction_modularity_package.lean",
+    "Theorems/Thm_WLight_frickeFunction_orbit_package.lean",
+    "Theorems/Thm_WLight_frickeFunction_intBaseChange.lean",
+    # --- SET-9 order 1: the level-fraction packages ---------------------------
+    # All four are public `Theorems/` wrappers (direct name match). The pin's four
+    # self-contained `S_` developments are transcribed with every helper `private`
+    # inside the pin's own (renamed) namespace, so the checker sees only the four
+    # headlines in `LevelFraction.lean`. The cross-edges are the pin's own:
+    # `exists_levelFraction_...`/`levelN_structure_package` consume SET-7's
+    # `levelOne_hauptmodul_package` plus SET-8's `frickeFunction_*` packages;
+    # `exists_monicRel_j_K_...` additionally consumes order 1's
+    # `exists_monicRel_j_of_mdifferentiable_levelFraction` and SET-5's
+    # `UpperHalfPlane.linearIndependent_complex_of_qExpansion_coeff_mem`.
+    "Theorems/Thm_WLight_qExpansion_sigmaTransport_package.lean",
+    "Theorems/Thm_WLight_exists_qExpansion_coeff_mem_of_mdifferentiable_levelFraction.lean",
+    "Theorems/Thm_WLight_exists_levelFraction_of_stable_family.lean",
+    "Theorems/Thm_WLight_exists_monicRel_j_of_mdifferentiable_levelFraction.lean",
+    # --- SET-9 order 2: the level-N structure and sigmaTransport --------------
+    # All three are public `Theorems/` wrappers (direct name match); the pin's
+    # self-contained `S_` developments are transcribed `private`, so the checker
+    # sees only the three headlines in `LevelN.lean`. The
+    # `ModularFunction....sigmaTransport` node consumes order 1's
+    # `qExpansion_sigmaTransport_package` and
+    # `exists_qExpansion_coeff_mem_...` plus SET-8's
+    # `exists_mdifferentiable_div_of_monicRel`.
+    "Theorems/Thm_WLight_levelN_structure_package.lean",
+    "Theorems/Thm_WLight_exists_monicRel_j_K_of_mdifferentiable_frickeQuotient.lean",
+    "Theorems/Thm_ModularFunction_exists_mdifferentiable_sigmaTransport_of_frickeQuotient.lean",
+    # --- SET-10 order 1: Γ₀-rationality ---------------------------------------
+    # All four are public `Theorems/` wrappers (direct name match); the pin's four
+    # self-contained `S_` developments are transcribed with every helper
+    # `private` inside the pin's own (renamed) namespace, so the checker sees only
+    # the four headlines in `Gamma0Rationality.lean`. The cross-edges are the
+    # pin's own: SET-7's `weierstrassP_qExpansion_package`, SET-8's
+    # `frickeFunction_modularity_package`/`frickeFunction_intBaseChange` and
+    # SET-9's five level-fraction / level-N headlines.
+    "Theorems/Thm_ModularCurve_exists_ne_zero_forall_mul_qExpansion_coeff_fricke_mem_adjoin.lean",
+    "Theorems/Thm_ModularForm_gamma1_qExpansion_coeff_mem_of_frickeRational.lean",
+    "Theorems/Thm_ModularCurve_exists_ratCast_qExpansion_comp_smul_of_mem_Gamma0.lean",
+    "Theorems/Thm_ModularCurve_exists_mvPolynomial_mul_aeval_fricke_eq_of_qExpansion_coeff_mem.lean",
+    # --- SET-10 order 2: bounded-denominator integrality ----------------------
+    # The three headlines are public `Theorems/` wrappers; the pin's `S_`
+    # developments are transcribed `private`. `Def_ModularCurve_X1.lean` is the
+    # source for `ModularCurve.IsIntegralQExp`, a public *definition* that the
+    # third wrapper's statement names (the pin's two proof-only X1 helpers are
+    # carried `private` in the port, so they are not diffed).
+    "Theorems/Thm_ModularCurve_exists_ne_zero_forall_intCast_mul_qExpansion_coeff_of_gamma_invariant.lean",
+    "Theorems/Thm_ModularCurve_exists_ratCast_qExpansion_slash_of_mem_Gamma0.lean",
+    "Theorems/Thm_ModularCurve_exists_isIntegralQExp_smul_of_ratCast_qExpansion.lean",
+    "Definitions/Def_ModularCurve_X1.lean",
+    # --- SET-11 order 1: the Γ₁-basis from Galois rationality ----------------
+    # All six are public `Theorems/` wrappers (direct name match); the pin's six
+    # self-contained `S_` developments are transcribed with every helper
+    # `private` in the pin's own inner namespace, so the checker sees only the
+    # six headlines in `Gamma1Basis.lean`. The `ModularCurve.IsIntegralQExp`
+    # definition is consumed from SET-10 (already listed). Cross-edges are the
+    # pin's own: SET-7/8/9 packages, plus SET-10's `Def_ModularCurve_X1`
+    # definition for the Eisenstein headline.
+    "Theorems/Thm_CuspForm_exists_mul_E4_pow_mul_E6_pow_eq_iff.lean",
+    "Theorems/Thm_ModularCurve_exists_gamma1_eisenstein_isIntegralQExp_and_slash_eq.lean",
+    "Theorems/Thm_CuspForm_exists_gamma1_frickeRational_sigmaTransport.lean",
+    "Theorems/Thm_CuspForm_span_frickeRational_E4_pow_E6_pow_eq_top.lean",
+    "Theorems/Thm_CuspForm_exists_gamma1_qCoeff_eq_algEquiv_apply_of_even.lean",
+    "Theorems/Thm_CuspForm_exists_gamma1_qCoeff_eq_algEquiv_apply.lean",
+    # --- SET-11 order 2: the integral-slash Γ₁-basis -------------------------
+    # The four are public `Theorems/` wrappers (direct name match); the pin's
+    # four `S_` developments are transcribed `private`, so the checker sees only
+    # the four headlines in `Gamma1IntegralBasis.lean`. Inside the module the
+    # dependency chain is `adjoin_exp_of_even → adjoin_exp → ratCast →
+    # slash_intCast`.
+    "Theorems/Thm_CuspForm_exists_basis_gamma1_qCoeff_mem_adjoin_exp_of_even.lean",
+    "Theorems/Thm_CuspForm_exists_basis_gamma1_qCoeff_mem_adjoin_exp.lean",
+    "Theorems/Thm_CuspForm_exists_basis_gamma1_qCoeff_mem_range_ratCast.lean",
+    "Theorems/Thm_CuspForm_exists_basis_gamma1_qCoeff_slash_mem_range_intCast.lean",
+    # --- The capstone: the trace lemma and the integral structure ------------
+    # The two corollaries are public `Theorems/` wrappers (direct name match).
+    # `CuspForm.hasIntegralStructure_of_basis_gamma1` is *ours* (the pin reaches
+    # this statement only through the Eichler–Shimura tower), so it is exempted
+    # in `OWN_PROOFS`. Every helper above the three headlines is `private`.
+    "Theorems/Thm_CuspForm_hasIntegralStructure_of_two_le.lean",
+    "Theorems/Thm_CuspForm_hasIntegralStructure_two.lean",
 ]
 
 PORT_FILES = [
@@ -970,6 +1117,64 @@ PORT_FILES = [
     # `private`.
     "FLTForHuman/ModularForms/QExpansionOrder.lean",
     "FLTForHuman/ModularForms/SturmBound.lean",
+    # SET-5, the route-C' foundations: the weight-one toolbox layer and the
+    # general Eisenstein series. Only the headlines are public; every ported
+    # `S_` helper is `private` (the pin keeps them in `WLightR7b`/`WLightR8a`/
+    # `WLightR11g`/`WLight`/`CardG1`/`CardC`, made `private` here).
+    "FLTForHuman/ModularForms/WeightOne/Basic.lean",
+    "FLTForHuman/ModularForms/WeightOne/EisensteinSeries.lean",
+    # SET-6, order 1: the four closure-1 Hauptmodul leaves. Only the four
+    # headlines are public; the pin's self-contained `S_` helpers are `private`.
+    "FLTForHuman/ModularForms/WeightOne/LevelOneHauptmodul.lean",
+    # SET-6, order 2: the χ₋₃ weight-one Eisenstein series. The single headline
+    # is public; the pin's ~400 helpers are all `private` here.
+    "FLTForHuman/ModularForms/WeightOne/EisensteinChiNegThree.lean",
+    # SET-7, order 2: the torsion ℘ q-expansion bundle. The single headline is
+    # public; the pin's self-contained helpers are all `private` here. The
+    # extended order-1 module above carries SET-7's other two headlines.
+    "FLTForHuman/ModularForms/WeightOne/WeierstrassPTorsion.lean",
+    # SET-8, order 1: the four monic-relation leaves. Only the four headlines are
+    # public; the pin's repeated valuation-engine/flat-descent helpers are
+    # `private` here, and the pin's unused
+    # `mdifferentiable_eq_zero_or_eq_zero_of_mul_eq_zero` (mathlib's
+    # `UpperHalfPlane.mul_eq_zero_iff`) is not transcribed.
+    "FLTForHuman/ModularForms/WeightOne/MonicRel.lean",
+    # SET-8, order 2: the three fricke-function packages. Only the three
+    # headlines are public; each package's pin helpers are `private` in their own
+    # namespace inside `WLight`, so the pin's repeated definitions do not collide.
+    "FLTForHuman/ModularForms/WeightOne/FrickeFunction.lean",
+    # SET-9, order 1: the four level-fraction packages. Only the four headlines
+    # are public; each pin file's helpers are `private` in the pin's own namespace
+    # (renamed `WLightS9.*`), so the four packages' repeated vocabulary does not
+    # collide. Cross-package reuse is through the already-ported public headlines.
+    "FLTForHuman/ModularForms/WeightOne/LevelFraction.lean",
+    # SET-9, order 2: the level-N structure package, the frickeQuotient
+    # monic-relation node and the `ModularFunction` sigmaTransport node. Only the
+    # three headlines are public; the pin's helpers are `private` throughout.
+    "FLTForHuman/ModularForms/WeightOne/LevelN.lean",
+    # SET-10, order 1: the four Γ₀-rationality headlines. Pin helpers are
+    # `private` inside the pin's own `FrickeIntegral`/`FrickeToInfinity`/
+    # `X1DiamondRational`/`GammaNDescent` namespaces (nested in `WLightS10.*`).
+    "FLTForHuman/ModularForms/WeightOne/Gamma0Rationality.lean",
+    # SET-10, order 2: the three bounded-denominator headlines plus the public
+    # `ModularCurve.IsIntegralQExp` definition the third statement names; all
+    # other pin helpers `private`. Imports order 1.
+    "FLTForHuman/ModularForms/WeightOne/Gamma0Integral.lean",
+    # SET-11, order 1: the six Γ₁-basis headlines. Each pin `S_` file's helpers
+    # are `private` in the pin's own inner namespace (`WeightLoweringCriterion` /
+    # `Gamma1Eisenstein` / `FrickeCuspTransport` / `FrickeSpan` /
+    # `GammaOneGaloisEven` / `GammaOneGaloisAllWeights`, nested in
+    # `WLightS11.*`), so the checker sees only the six headlines.
+    "FLTForHuman/ModularForms/WeightOne/Gamma1Basis.lean",
+    # SET-11, order 2: the four integral-slash Γ₁-basis headlines; imports
+    # order 1. The four pin inner namespaces are `GammaOneCyclotomicEven` /
+    # `GammaOneCyclotomic` / `GammaOneRationalStructure` / `DeligneSerre271`.
+    "FLTForHuman/ModularForms/WeightOne/Gamma1IntegralBasis.lean",
+    # The capstone: the trace lemma and the two corollaries. Only the three
+    # headlines are public; the `IsFiniteRelIndex` instance, the `Γ₀ → Γ₁`
+    # restriction, the translate bundle, the `qCoeff` linear map and the trace
+    # additivity are all `private`.
+    "FLTForHuman/ModularForms/WeightOne/IntegralStructure.lean",
 ]
 
 
@@ -1039,6 +1244,12 @@ OWN_PROOFS = {
     # first, so no `SOURCES` ordering can verify the second. Both port copies are
     # transcribed verbatim from that file; the exemption covers the pair.
     "correspondence",
+    # The capstone trace lemma. FLT has no wrapper for it: the pin's route to
+    # this statement is the Eichler–Shimura tower (`S_CuspForm_hasIntegralStructure_of_two_le`
+    # and the 657-node HeckeEis/Eichler–Shimura development), which the port
+    # replaces with mathlib's `CuspForm.trace` plus SET-11's integral-slash
+    # Γ₁-basis. See `WeightOne/IntegralStructure.lean` and math/013 §5.
+    "hasIntegralStructure_of_basis_gamma1",
 }
 
 # Declaration keywords. `instance` matters for PhiGen; `structure` for Polynomial.

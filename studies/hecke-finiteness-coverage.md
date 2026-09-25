@@ -338,8 +338,13 @@ wc -l ~/proj/fermats-last-theorem/P2M/Sol/S_CuspForm_{moduleFinite_heckeAlgebra{
    (shortest premise chain 15 from `fermatLastTheorem`, through `frey_isModular`
    and the weight-one branch), so unlike route B it is not a duplicate to be
    deleted; the trace lemma is **additional** to it. The 657-node tower is
-   avoidable for this target. See
-   [route-c-prime-scout.md](route-c-prime-scout.md).
+   avoidable for this target. **Delivered (2026-09-24):** the whole cone and the
+   trace lemma are ported in `FLTForHuman/ModularForms/WeightOne/` (11 modules,
+   ~33.6k lines) — `IntegralStructure.lean` proves `HasIntegralStructure` for all
+   `k` from the slash basis with **zero** `HeckeEis`/`ModPForms`/`PeriodPair`
+   dependency; checker 1312 identical / 0 mismatched / 0 missing. See
+   [route-c-prime-scout.md](route-c-prime-scout.md) and
+   [../lean/topics/hecke/TOPIC-capstone-integral-structure.md](../lean/topics/hecke/TOPIC-capstone-integral-structure.md).
 2. **Is there an endgame node that needs the `k = 2` statement strictly before the
    general one?** If not, route B has no sequencing value even inside the
    endgame.
@@ -385,6 +390,15 @@ wc -l ~/proj/fermats-last-theorem/P2M/Sol/S_CuspForm_{moduleFinite_heckeAlgebra{
   §7 — the corrected two-route analysis and the C′ proposal.
 - [route-c-prime-scout.md](route-c-prime-scout.md) — the C′ scout: the trace
   lemma, the corrected ingredient, and the measured cones and overlap.
+- [../math/014-chi-minus-3-eisenstein.md](../math/014-chi-minus-3-eisenstein.md)
+  — the mathematics of the weight-one χ₋₃ generator that C′ leans on:
+  `r(n) = 6σ_χ(n)` for the hexagonal form, the six units of ℤ[ζ₆], the
+  ramified/split/inert laws, and the Poisson–Fricke analytic half; the
+  companion computation is
+  [../pymath/hexagonal_theta.py](../pymath/hexagonal_theta.py).
+- [hecke/TOPIC-route-c-prime-integral-structure.md](../lean/topics/hecke/TOPIC-route-c-prime-integral-structure.md)
+  — the C′ work order: module split, tier order, trace-lemma obligations,
+  checker/consumer plan.
 - [hecke-port.md](../lean/logs/hecke-port.md) §T10 — the verified blocker against
   the pin's imports.
 - [hecke-commute-bar-coverage.md](hecke-commute-bar-coverage.md) — the other
