@@ -265,16 +265,16 @@ therefore has only two exits: pay route A, or make route C′ work.
 3. **C′ is scouted and holds — do not pay route A for the integral structure.**
    `exists_basis_gamma1_qCoeff_slash_mem_range_intCast` (general `k`, Γ₀-slash
    integrality) plus the trace lemma gives `HasIntegralStructure N k` without
-   `HeckeEis`/`ModPForms`/Sturm; route A's marginal content over the weight-one
-   branch is 73 nodes of Eichler–Shimura comparison, of which C′ removes only the
-   40 nodes / 11,533 lines that are cited solely inside route A. The other
-   32 nodes / 5,189 lines are the analytic E-S core reused by the
-   Hecke–Galois/mod-p eigenclass branch; they are **not** avoided by C′ (addendum,
-   [route-c-prime-scout.md](route-c-prime-scout.md) §4). C′'s whole cone is
-   already inside the weight-one branch. The trace lemma is **additional to** the
-   cone, not a substitute for it: the cone is on the endgame path (shortest
-   premise chain 15 from `fermatLastTheorem`, through `frey_isModular` and the
-   weight-one branch), so it is never deleted. See
+   `HeckeEis`/`ModPForms`/Sturm. But the closure-accurate saving is **4 nodes /
+   800 lines**, not route A's marginal cone: 653 of route A's 657 nodes are
+   independently needed by the four endgame interfaces that consume the analytic
+   E-S (addendum, [route-c-prime-scout.md](route-c-prime-scout.md) §4;
+   [flt-non-frey-segments.md](flt-non-frey-segments.md) §8.1). The endgame E-S
+   cost is an interface cost — 119 of the 130 `HeckeEis` nodes / 41,815 lines,
+   plus `ModPForms` — not an integral-structure cost. C′'s whole cone is already
+   inside the weight-one branch; the trace lemma is **additional to** that cone
+   (shortest premise chain 15 from `fermatLastTheorem`, through `frey_isModular`
+   and the weight-one branch), so it is never deleted. See
    [route-c-prime-scout.md](route-c-prime-scout.md).
 4. **The span family is cheap** (closures 1–101) and only needs T7/T8 plus
    `finiteDimensional_Gamma0`; port it with the finiteness-adjacent work rather

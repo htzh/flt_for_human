@@ -132,29 +132,32 @@ coincidence of closure. Route A behaves differently: of its 657 nodes,
 C′ is cheaper in both, by construction in the first and $`\approx 8\times`$ in the
 second. The trace lemma never substitutes for the cone.
 
-**Addendum (measured 2026-09-25): the 73-node margin is not all C′-exclusive.**
-The margin above is route A's marginal *relative to the weight-one branch* `W =
-closure(No2BridgeWiring.weightOneNewformExists_not_cube_dvd)`. It is not the same
-as the set C′ avoids paying, because part of it is cited by endgame branches
-outside both route A (`A = closure(hasIntegralStructure_of_two_le)`) and `W`.
-Splitting the 72 nodes other than `hasIntegralStructure_of_two_le` (515 lines) by
-whether they have a consumer in `closure(fermatLastTheorem) \ A`:
+**Addendum (measured 2026-09-25; corrected 2026-09-26): the 73-node margin is
+shared, not C′-exclusive.**
+The margin above is route A's marginal *relative to the weight-one branch*
+$`W = \mathrm{closure}(\texttt{No2BridgeWiring.weightOneNewformExists\_not\_cube\_dvd})`$.
+It is not what C′ avoids paying. The closure-accurate measurement replaces route
+A's proof by C′ — drop the outgoing edges of `hasIntegralStructure_of_two_le` and
+recompute the closure of `fermatLastTheorem` — and finds that exactly **4 nodes /
+800 raw `S_` lines** leave the endgame:
 
-| marginal part | nodes | raw `S_` lines |
-|---|---|---|
-| cited only inside route A → C′ removes | 40 | 11,533 |
-| cited from outside route A → paid regardless | 32 | 5,189 |
-| total (excl. the 515-line target) | 72 | 16,722 |
+```text
+CuspForm.conjForm_heckeTLin_heckeULin_comm
+CuspForm.hasIntegralStructure_of_moduleFinite_of_linearIndependent
+CuspForm.linearIndependent_complex_of_linearIndependent_int_of_periodPackage
+HeckeEis.span_range_coeffH1par_map_int_complex_eq_top    (54 lines)
+```
 
-The 32 surviving nodes are 24 `HeckeEis.*` (3,929 lines) plus 8 modular-curve
-geometry/dimension nodes (1,260 lines). They are the **analytic E-S core**: the
-E-S map and its integral basis (`existsEichlerShimuraMapLinear`,
-`eichlerShimuraMap_heckeTLin`, `eichlerShimuraMap_injective`,
-`exists_basis_coeffH1par_int_complex`), the binary-form Hecke correspondence
-(`binaryFormAlphaAdj_comp_binaryFormRepSL_heckeConj`), and the Eichler-integral
-existence (`exists_isEichlerIntegral`). They are reused by the Hecke–Galois /
-mod-p eigenclass branch, on a shortest endgame chain that never passes through
-`hasIntegralStructure_of_two_le`:
+The other 653 of route A's 657 nodes stay, because the analytic E-S in them is
+consumed independently by the four endgame interfaces of
+[flt-non-frey-segments.md](flt-non-frey-segments.md) §8.1 — e.g.
+`HeckeEis.eichlerShimuraMap_injective`, `HeckeEis.exists_basis_coeffH1par_int_complex`
+and the finrank/span lemmas all survive in the C′ closure. So C′ removes route A's
+*proof of integral structure*, not its E-S cone; the endgame E-S cost is an
+interface cost (119 of the 130 `HeckeEis` nodes / 41,815 lines, plus `ModPForms`).
+
+The interfaces do not pass through `hasIntegralStructure_of_two_le`; a shortest
+chain into one of them is:
 
 ```text
 FLT.fermatLastTheorem
@@ -173,9 +176,13 @@ basis of `coeffH1par`, and the binary-form correspondence;
 `S_ModPForms_exists_isEigensystemH1_binaryFormRepSL_of_isModPEigen.lean` uses
 `exists_isEichlerIntegral`; and `S_HeckeEis_finite_int_heckeAlgebra.lean` (298
 lines) proves `Module.Finite ℤ (heckeAlgebra N (n+2) S)` for all weights *via the
-E-S map*. So C′ removes route A's **integral-structure deduction from E-S**, not
-the analytic E-S itself: the route-specific saving is 40 nodes / 11,533 lines,
-not 73 / 17,237.
+E-S map*.
+
+The previous version of this addendum reported 40 nodes / 11,533 lines removed,
+using the criterion "has no direct consumer outside route A". That criterion is
+wrong: a node with no *direct* outside-$`A`$ consumer can still be a transitive
+dependency of one. The four-node figure is the closure-accurate one, and it means
+the C′/route-A comparison is *not* where the E-S line budget is decided.
 
 ## 4b. The path is in the endgame, and the cone is not throwaway
 

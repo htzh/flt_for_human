@@ -667,28 +667,28 @@ independent in the citation graph:
    `HeckeEis.exists_coeffH1par_int_modp_eigenclass_of_eigenform`, and on through
    the patching branch. C′ does not touch this.
 
-Measured against the pin `aa2d8b3` (`tools/deps`, transitive `S_` imports). Let
-`A = closure(CuspForm.hasIntegralStructure_of_two_le)` and
-`W = closure(FLT.No2BridgeWiring.weightOneNewformExists_not_cube_dvd)`. Route A's
-marginal `A \ W` is 73 nodes / 17,237 raw `S_` lines. Splitting the 72 nodes other
-than the target (515 lines) by whether they have a consumer in
-`closure(FLT.fermatLastTheorem) \ A`:
+Measured against the pin `aa2d8b3` (`tools/deps`, transitive `S_` imports). The
+closure-accurate test of what C′ saves is to replace route A's proof — drop the
+outgoing edges of `CuspForm.hasIntegralStructure_of_two_le` and recompute the
+closure of `FLT.fermatLastTheorem`. Exactly **4 nodes / 800 raw `S_` lines** leave
+the endgame:
 
-| marginal part | nodes | raw `S_` lines |
-|---|---:|---:|
-| cited only inside route A → C′ removes | 40 | 11,533 |
-| cited from outside route A → paid regardless | 32 | 5,189 |
-| total (excl. the 515-line target) | 72 | 16,722 |
+```text
+CuspForm.conjForm_heckeTLin_heckeULin_comm
+CuspForm.hasIntegralStructure_of_moduleFinite_of_linearIndependent
+CuspForm.linearIndependent_complex_of_linearIndependent_int_of_periodPackage
+HeckeEis.span_range_coeffH1par_map_int_complex_eq_top    (54 lines)
+```
 
-The 32 retained nodes are 24 `HeckeEis.*` (3,929 lines) plus 8 modular-curve
-geometry/dimension nodes (1,260 lines:
-`CuspForm.dimFormula_le_finrank_gamma0`, `ModularCurve.genus_eq_genusFF_modularFunctionFieldBar`,
-the Riemann–Roch chain, `AlgebraicCurve.weilDualityAdelic_of_isAlgClosed`,
-`ModularCurve.natCard_orbitRelQuotient_zpowers_T_gamma0_eq_cuspCount`). The
-`HeckeEis` part is the analytic core: `existsEichlerShimuraMapLinear`,
-`eichlerShimuraMap_heckeTLin`, `eichlerShimuraMap_injective`,
-`exists_basis_coeffH1par_int_complex`,
-`binaryFormAlphaAdj_comp_binaryFormRepSL_heckeConj`, `exists_isEichlerIntegral`.
+The other 653 of route A's 657 nodes stay, because the analytic E-S in them is
+consumed independently by the four interfaces below. (Route A's marginal over the
+weight-one branch, `A \ W` with
+`A = closure(hasIntegralStructure_of_two_le)` and
+`W = closure(No2BridgeWiring.weightOneNewformExists_not_cube_dvd)`, is 73 nodes /
+17,237 lines — but those nodes are shared with the interfaces and the
+modular-curve geometry, not C′-exclusive. An earlier version of this section
+reported 40 nodes / 11,533 lines removed using the criterion "no direct consumer
+outside route A", which misses transitive dependencies.)
 
 A shortest premise chain to `HeckeEis.finite_int_heckeAlgebra` that never passes
 through `hasIntegralStructure_of_two_le`:
@@ -721,9 +721,10 @@ uses `exists_isEichlerIntegral`;
   supplied by C′. That is a statement about formal necessity, not mathematical
   necessity — see §8.1. It should be read with §3.4–§3.5, not with the
   level-lowering geometry of §3.6.
-* **C′'s saving over route A is 40 nodes / 11,533 lines, not 73 / 17,237.** The
-  other 32 nodes / 5,189 lines are on the arithmetic spine and are paid
-  regardless of the integral-structure route. This corrects
+* **C′'s saving over route A is 4 nodes / 800 lines, not the 73-node margin.**
+  Replacing route A's proof removes only the nodes reachable solely through
+  `hasIntegralStructure_of_two_le`; 653 of route A's 657 nodes are needed
+  independently by the four interfaces below. This corrects
   [route-c-prime-scout.md](route-c-prime-scout.md) §4 (addendum) and
   [hecke-finiteness-coverage.md](hecke-finiteness-coverage.md) §7.3.
 * The **arithmetic** Eichler–Shimura cone is genuinely distinct —
@@ -747,29 +748,34 @@ uses `exists_isEichlerIntegral`;
   [../math/015-weight-two-hecke-periods.md](../math/015-weight-two-hecke-periods.md).
 
 **Porting angle.** For a port bounded to the integral-structure statement, the C′
-cone plus the trace lemma suffices and this E-S margin is not needed. For an
-endgame-complete port, `HeckeEis` must be paid on the mod-$`p`$/patching spine;
-the integral-structure choice (A vs C′) changes only which 40 of its marginal
-nodes are still needed. Reproduce the split:
+cone plus the trace lemma suffices and the E-S interfaces are not needed. For an
+endgame-complete port, the E-S cost is set by the four interfaces — 119 of the 130
+`HeckeEis` nodes / 41,815 lines, plus `ModPForms` — not by the integral-structure
+route; C′ changes only 4 nodes. Reproduce:
 
 ```bash
 cd tools/deps && python3 - <<'PY'
 import sys; sys.path.insert(0, '.')
 from fltdata import FltData
 d = FltData(); I = d.index
-def cl(i):
+H = I['CuspForm.hasIntegralStructure_of_two_le']
+def cl(i, drop_h=False):
     seen, st = set(), [i]
     while st:
         j = st.pop()
         if j in seen: continue
-        seen.add(j); st.extend(d.cites(j))
+        seen.add(j)
+        st.extend([] if (drop_h and j == H) else d.cites(j))
     return seen
-end = cl(I['FLT.fermatLastTheorem'])
-A = cl(I['CuspForm.hasIntegralStructure_of_two_le'])
-W = cl(I['FLT.No2BridgeWiring.weightOneNewformExists_not_cube_dvd'])
-marg = (A - W) - {I['CuspForm.hasIntegralStructure_of_two_le']}
-indep = {n for n in marg if any(m in end and m not in A for m in d.cited_by[n])}
-print('marginal', len(marg), 'C-prime removes', len(marg - indep), 'kept', len(indep))
+end, endC = cl(I['FLT.fermatLastTheorem']), cl(I['FLT.fermatLastTheorem'], drop_h=True)
+print('C-prime removes', sorted(d.qual(i) for i in end - endC))
+exits = ['WeierstrassCurve.exists_ideal_heckeAlgebra_mul_two_of_ideal_heckeAlgebra_two_or_succ',
+         'WeierstrassCurve.exists_H1_parabolic_not_dvd_diamondRaw_heckeT_congr_apOfModel_level_div_of_forall_linearMap_psCarrier_eq_zero',
+         'GaloisRep.exists_galoisRep_trace_eq_eigenchar_and_det_eq_pow_of_three_le',
+         'WeierstrassCurve.exists_ideal_heckeAlgebra_three_weight_le_four_pow_mul_apOfModel_of_exists_prime_dvd_mod_three_eq_two']
+E = {k: {i for i in cl(I[v]) if d.qual(i).startswith('HeckeEis.')} for k, v in enumerate(exits, 1)}
+print('per-interface HeckeEis:', {k: len(v) for k, v in E.items()})
+print('union 1,2,4 minus 3:', len(set().union(E[1], E[2], E[4]) - E[3]), 'nodes')
 PY
 ```
 
@@ -786,8 +792,8 @@ the replacement.
   bullet).
 * **The Galois-representation side is already E-S-free in FLT.**
   `CuspForm.IsNewform.exists_eigenPlane_tateModule_jZero` builds the eigenplane on
-  the Tate module of `JZero N`; its closure is 1,291 nodes, it contains **0** of
-  the 24 analytic-E-S `HeckeEis` nodes above, and it uses neither
+  the Tate module of `JZero N`; its closure is 1,291 nodes, it contains **0**
+  analytic-E-S `HeckeEis` nodes, and it uses neither
   `hasIntegralStructure_of_two_le` nor general `moduleFinite_heckeAlgebra` (only
   the `k = 2` finiteness). Its arithmetic input is the E-S congruence relation,
   packaged abstractly as `EichlerShimuraData` / `FrobeniusQuadratic` /
@@ -803,11 +809,11 @@ the replacement.
   the period map. For higher weight / characteristic $`p`$ there is the
   `KatzModularForm.*` cluster (19 nodes).
 
-Where the analytic E-S *is* used in the endgame is a small interface surface. The
-24 retained `HeckeEis` nodes reach, inside the `HeckeEis`/`ModPForms` block, an
-80-node eigenvector/eigensystem development which exits into the rest of the
-endgame at **four maximal interfaces**, all of the shape "produce a mod-$`p`$
-Hecke eigenvector / eigensystem / congruence":
+Where the analytic E-S *is* used in the endgame is a bounded interface surface:
+the four interfaces below collectively consume **119 of the 130 `HeckeEis` nodes**
+(41,815 of 44,516 lines), all of the shape "produce a mod-$`p`$ Hecke eigenvector
+/ eigensystem / congruence". They are the maximal exits of the
+`HeckeEis`/`ModPForms` eigenvector development into the rest of the endgame:
 
 | interface (maximal endgame exit) | analytic-E-S premises |
 |---|---|
@@ -815,6 +821,24 @@ Hecke eigenvector / eigensystem / congruence":
 | `WeierstrassCurve.exists_H1_parabolic_not_dvd_diamondRaw_heckeT_congr_apOfModel_level_div_of_forall_linearMap_psCarrier_eq_zero` | `HeckeEis.isEigensystemH1_ind_comp_or_eisenstein_of_isEigensystemH1_of_steinberg_quotient(_of_charP_three)`, `…_one_mul_of_isEigensystemH1_ind_comp` |
 | `GaloisRep.exists_galoisRep_trace_eq_eigenchar_and_det_eq_pow_of_three_le` | `HeckeEis.isEigensystemH1_binaryFormRepSL_of_heckeTLin_eq_smul` |
 | `WeierstrassCurve.exists_ideal_heckeAlgebra_three_weight_le_four_pow_mul_apOfModel_of_exists_prime_dvd_mod_three_eq_two` | `ModPForms.exists_three_weight_le_four_mem_modPMod_isModPEigen_pow_mul_…`, `ModPForms.modPCusp_le_modPMod` |
+
+**The interface cost, and the interface-3-only variant.** Measured by the
+per-interface downward closure over the `HeckeEis` namespace:
+
+| interfaces retaining analytic E-S | `HeckeEis` nodes | raw `S_` lines |
+|---|---:|---:|
+| all four (status quo, with or without C′) | 119 | 41,815 |
+| interface 3 only | 36 | 13,293 |
+
+So de-E-S-ifying interfaces 1, 2 and 4 while retaining E-S for interface 3 alone
+removes **83 nodes / 28,522 lines** — about 68% of the `HeckeEis` package.
+Interface 3's residual share is the Eichler-integral existence plus the
+`isEigensystemH1` development (`exists_isEichlerIntegral`,
+`isEquivariantPrimitiveWith_of_isEichlerIntegral`, `isEigensystemH1_*`,
+`coeffHeckeFun_mem_*`). This is the only lever: with all four interfaces retained,
+C′ removes just the 4 nodes of §8, because the interfaces independently need the
+E-S cone (`HeckeEis ∩ A \ interfaces = 0`). The `ModPForms` namespace adds 4
+further nodes to the interface cone; the rest of it is consumed elsewhere.
 
 So a "de-E-S-ified" architecture would re-prove those four eigenvector-existence
 interfaces on the Jacobian/$`\Omega^1`$ side (or directly on the $`q`$-expansion
@@ -830,6 +854,39 @@ lattice, using C′'s integral structure), and keep the rest. The caveats behind
   deletion;
 * the other retained nodes in the marginal set (the Riemann–Roch / `JZero` /
   thetaL geometry) are not E-S at all and are paid regardless.
+
+**What FLT already has, and where the recipe is short.** Two of the bricks are
+already in the pin, E-S-free:
+
+* the **geometric E-S congruence**: `ModularCurve.frobeniusQuadratic_JZero`
+  (closure 995) and `W54.jZeroPPowTorsion_frobeniusQuadratic` (1,035) prove
+  $`\mathrm{Frob}^2 - T_\ell\,\mathrm{Frob} + \ell = 0`$ for `JZero` and its
+  $`p`$-power torsion with **zero** analytic-E-S nodes;
+  `W54.tateModule_frobeniusQuadratic` is the Tate-module form. The
+  "un-bypassable arithmetic part" is therefore already formalized without
+  periods;
+* the $`S_2 \cong \Omega^1`$ identity and the `KatzModularForm` cluster above.
+
+What is missing is the **wiring**: none of the four interfaces' current closures
+contains those geometric nodes (intersection 0), and each reaches the analytic
+E-S eigenclass instead (23, 2, 11 and 24 of the retained `HeckeEis` nodes
+respectively). Three of the four have E-S-free statements — interfaces 1, 3 and 4
+are Hecke-ideal congruences or a Galois representation — so re-proving them is
+proof-local in blast radius; interface 2 concludes
+$`\exists \varphi_0 : \texttt{CohCarrier.H1}\ (L/q)\ \bot\ \mathbb{Z}`$, but its
+analytic-E-S dependence is only two cocycle-bookkeeping nodes
+(`coeffHeckeFun_mem_coeffCocycles` / `…CoeffCoboundaries`), and `CohCarrier.H1`
+is the patching carrier, not the period module.
+
+The one place the "C′ lattice + $`S_2 \cong \Omega^1`$" recipe is *not* enough is
+interface 3: `GaloisRep.exists_galoisRep_trace_eq_eigenchar_and_det_eq_pow_of_three_le`
+is stated for **all weights $`k \ge 3`$**, and its replacement needs the
+general-weight Galois-representation construction (étale cohomology of the
+modular curve / Kuga–Sato, $`\det = \chi_{\mathrm{cyc}}^{k-1}`$), not differentials
+on $`X_0`$. FLT's E-S-free Frobenius-quadratic route is weight-2 (`JZero`). So a
+fully de-E-S-ified codebase is mathematically possible, as the outside opinion
+says, but this weight-general interface is genuine work rather than a carrier
+swap; interfaces 1, 2 and 4 are the plausible part of the recipe.
 
 **Net.** §8's "shared spine" is a statement about FLT as written, not about
 mathematics. The analytic E-S is a convenience that packages finiteness and the
