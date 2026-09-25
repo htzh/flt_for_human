@@ -254,6 +254,12 @@ modularity work (`FLT.No2BridgeWiring → DeligneSerre → …`), so they are po
 regardless, and the trace lemma is a small addition on top. This is why the route
 is not throwaway in the way a standalone $`k=2`$ finiteness proof is.
 
+A third mechanism is FLT's standalone weight-two blob
+(`S_CuspForm_moduleFinite_heckeAlgebra_two.lean`), which proves only the
+$`k=2`$ finiteness statement, by a period-cocycle/triple-algebra argument rather
+than by integral $`q`$-expansions. It is not this note's route; the mathematics
+is in [015-weight-two-hecke-periods.md](015-weight-two-hecke-periods.md).
+
 ## 8. Lean technicalities and pointers
 
 - **The two halves of the ingredient.** The working declaration is
@@ -278,3 +284,7 @@ is not throwaway in the way a standalone $`k=2`$ finiteness proof is.
   scout and measurements), [sturm-bound-port.md](../lean/logs/sturm-bound-port.md)
   (the neighbouring Sturm cone, whose vanishing lemmas are among the five
   already-ported nodes of this cone).
+- **The other cheap $`k=2`$ route.** [015-weight-two-hecke-periods.md](015-weight-two-hecke-periods.md)
+  — FLT's standalone period-cocycle proof of `moduleFinite_heckeAlgebra_two`
+  (route B): finiteness from the integral group-cocycle lattice, no
+  `HasIntegralStructure`, no general $`k`$.

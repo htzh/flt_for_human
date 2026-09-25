@@ -390,6 +390,10 @@ wc -l ~/proj/fermats-last-theorem/P2M/Sol/S_CuspForm_{moduleFinite_heckeAlgebra{
   §7 — the corrected two-route analysis and the C′ proposal.
 - [route-c-prime-scout.md](route-c-prime-scout.md) — the C′ scout: the trace
   lemma, the corrected ingredient, and the measured cones and overlap.
+- [../math/015-weight-two-hecke-periods.md](../math/015-weight-two-hecke-periods.md)
+  — the mathematics of route B (the standalone `_two` blob): the weight-two
+  period-cocycle argument that proves `Module.Finite` of the $`k=2`$ Hecke
+  algebra from the integral group-cocycle lattice alone.
 - [../math/014-chi-minus-3-eisenstein.md](../math/014-chi-minus-3-eisenstein.md)
   — the mathematics of the weight-one χ₋₃ generator that C′ leans on:
   `r(n) = 6σ_χ(n)` for the hexagonal form, the six units of ℤ[ζ₆], the
