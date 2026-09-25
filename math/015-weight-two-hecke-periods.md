@@ -13,7 +13,10 @@ It is **not** the Γ₁-basis/trace route of
 [013-integral-structure-gamma1-basis.md](013-integral-structure-gamma1-basis.md)
 (route C′), and it is not the general Eichler–Shimura package of route A. It is
 a self-contained weight-two argument whose integral lattice lives on the
-**period/cohomology side**: the Hecke operators act compatibly on ℤ-valued
+**period side** — periods understood as additive characters, i.e. the
+trivial-coefficient cocycles of the classical Eichler–Shimura period lattice,
+with no cohomology machinery formalized (see the remark in §3). The Hecke
+operators act compatibly on ℤ-valued
 group cocycles, on ℂ-valued group cocycles, and on cusp forms, and a compatible
 triple is determined by its cocycle component. The ℤ-module of cocycles is
 finitely generated for trivial reasons (Γ₀(N) is finitely generated), so the
@@ -163,6 +166,23 @@ route B needs only injectivity, not the identification of the image or
 surjectivity. The reason the weak form suffices is exactly the triple-algebra
 argument of §6 — the period map only has to be faithful enough to let the third
 component of a compatible triple be recovered from the second.
+
+**Remark (what "cohomology" does and does not mean here).** Nothing
+cohomological is formalized. `addChars R G M` (L1695) is literally the type of
+additive characters $`G \to M`$: a submodule of the function type $`G \to M`$
+cut out by the additivity predicate. These are the 1-cocycles for the trivial
+action of $`G`$ on $`M`$, and with trivial coefficients every 1-coboundary
+vanishes ($`g \cdot m - m = 0`$), so "cocycle" and "cohomology class" coincide
+and the module is just $`\mathrm{Hom}(G, M)`$. There is no $`H^1`$, no quotient
+by coboundaries, no resolution, no sheaf and no scheme anywhere in the file. The
+phrase "period/cohomology side" names the *classical provenance* — Eichler–
+Shimura exhibits these periods as classes in
+$`H^1_{\mathrm{par}}(\Gamma, \mathbb{C})`$ — not the machinery used. The parabolic
+subspace is formalized as `parabolicChars` (L1797) and then never used, because
+$`\mathrm{Hom}`$ is already finitely generated. The whole proof is
+finite-dimensional ℤ-algebra: one small commuting diagram (§4), one analytic
+injection (§3), and the fact that $`\mathrm{Hom}`$ of a finitely generated
+abelian group is finitely generated (§5).
 
 ## 4. Hecke operators on periods
 
@@ -353,7 +373,7 @@ different reuse profile.
 | | route A (`hasIntegralStructure_of_two_le`) | route C′ (note 013) | route B (this note) |
 |---|---|---|---|
 | statement | integral structure for all $`k \ge 2`$, then finiteness | integral structure for all $`k`$, then finiteness | weight-two finiteness directly |
-| integral lattice | period/cohomology (`coeffH1par`, Eichler–Shimura map, `HeckeEis`) | $`q`$-expansion lattice ($`\Gamma_1`$-basis, bounded denominators, trace) | group cocycles $`\mathrm{addChars}_\mathbb{Z}(\Gamma_0(N), \mathbb{Z})`$ |
+| integral lattice | period/cohomology (`coeffH1par`, Eichler–Shimura map, `HeckeEis`) | $`q`$-expansion lattice ($`\Gamma_1`$-basis, bounded denominators, trace) | additive characters $`\mathrm{Hom}(\Gamma_0(N), \mathbb{Z})`$ (`addChars`), no cohomology machinery |
 | weight range | all $`k \ge 2`$ | all $`k`$ | $`k = 2`$ only |
 | inputs | Eichler–Shimura comparison, `ModPForms`, period package | fricke/Hauptmodul analysis, $`\chi_{-3}`$ Eisenstein series, Deligne–Serre Prop. 2.7 | weight-two primitive and its period cocycle, coset bookkeeping |
 | measured cone | 657 nodes / 263,720 raw `S_` lines | 53 nodes / 33,719 lines, inside the endgame weight-one branch | 4,308 lines, **closure 1** (self-contained) |
