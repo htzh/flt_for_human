@@ -17,6 +17,32 @@ mathlib is `v4.34.0`. Companion provenance:
 [route-c-prime-scout.md](route-c-prime-scout.md) §4 addendum,
 [../math/015-weight-two-hecke-periods.md](../math/015-weight-two-hecke-periods.md).
 
+**Thesis.** Strip the interface bookkeeping away and the question is: do Route C′
+(integrality of the Hecke algebra, all weights) and the $`k = 2`$ period map
+(Route B) supply all the analytic-Eichler–Shimura content the Wiles–Taylor
+endgame consumes? The endgame takes analytic E-S through exactly **two doors**:
+Hecke-algebra finiteness/integrality, and the mod-$`p`$ Hecke eigenvector /
+Galois attachment. C′ covers the first; Route B plus the geometric E-S congruence
+and $`S_2 \cong \Omega^1`$ (both already in the pin) covers the second. "All
+analytic content" means all *period-map* content, not all complex analysis: the
+$`\mathbb{H}`$ / q-expansion layer that C′ itself rests on stays, and so does the
+residual `JZero`/Riemann–Roch geometry (§8). The two open conditions are the
+form-side weight reduction for the higher-weight interfaces, and the wiring.
+
+**Clarification (measured): all-weight integrality is still needed.** The two
+doors are not interchangeable. Interfaces 4, 5 and 6 consume
+`CuspForm.hasIntegralStructure_of_two_le` (all weights $`\ge 2`$) directly, and 13
+endgame nodes cite it — Katz weight-raising
+(`WeierstrassCurve.exists_ideal_heckeAlgebra_two_or_succ_…_of_katz_…`,
+`…_three_weight_le_four_…`, `…_weight_le_succ_…`), level-raising ideals, and the
+`CuspForm.heckeLocal.*` patching datums. Its downstream `CuspForm.moduleFinite_heckeAlgebra`
+(all weights) is consumed by six more endgame nodes, including interface 3's own
+consumer `GaloisRep.exists_finiteField_galoisRep_trace_eq_heckeT_mod_of_isMaximal`.
+Separately, interfaces 1, 2, 3 and 8 consume the **`k = 2`** finiteness
+`CuspForm.moduleFinite_heckeAlgebra_two` (Route B). So the endgame needs both:
+all-weight integrality (door 1, supplied by C′) and the $`k = 2`$ period (door 2,
+supplied by Route B). The $`k = 2`$ finiteness does not replace C′.
+
 ## 0. Verdict and Phase 0 gate
 
 **The gate passes.** Interface 3's analytic-Eichler–Shimura footprint is
@@ -326,6 +352,333 @@ PY
   set to test candidate cones against (the plan's §5 stop condition).
 - Untouched: Phase 1's five candidates, Phase 2 compatibility, Phase 3 measured
   gain, Phase 4 novelty, Phase 5 spike.
+
+## 8. The ultimate payout
+
+Interface 3 is the cheapest probe, not the prize. If route B's tame period type
+(Candidate 0) can be wired into *every* interface, the endgame loses its entire
+analytic-Eichler–Shimura layer. Measured over the closure of
+`FLT.fermatLastTheorem` (the FLT proof cone):
+
+| quantity | nodes | raw `S_` lines | share of endgame |
+|---|---:|---:|---:|
+| FLT proof cone | 29,488 | 11,926,355 | 100% |
+| E-S-ish package in it: `HeckeEis` 130 / 44,516 + `ModPForms` 65 / 15,084 + `PeriodPair` 18 / 12,265 | 213 | 71,865 | 0.72% / 0.60% |
+| ... reachable under the ten maximal interfaces (union of their E-S-ish cones) | 207 | 70,558 | |
+| ... residual `ModPForms` nodes with their own entries | 6 | 1,307 | |
+
+**The payout: the E-S layer goes to zero.** Those 213 nodes / 71,865 lines are
+the whole formal price of the analytic period map in the endgame; a de-E-S-ified
+architecture carries none of them. In port terms this is the
+de-`HeckeEis`-ification of the endgame: the E-S spine that §8 of
+[flt-non-frey-segments.md](flt-non-frey-segments.md) shows is shared between the
+modularity and patching segments disappears from the dependency graph.
+
+**The replacement is already inside the endgame.** Every ingredient of the
+replacement is in the FLT proof cone today, so the marginal *new* mathematics is
+the wiring, not the theory:
+
+| ingredient | node | role |
+|---|---|---|
+| route B blob | `CuspForm.moduleFinite_heckeAlgebra_two` | weight-2 period carrier (4,308-line `S_` file, closure 1) |
+| C′ lattice | `CuspForm.exists_basis_gamma1_qCoeff_slash_mem_range_intCast` | integral structure |
+| geometric E-S congruence | `ModularCurve.frobeniusQuadratic_JZero`, `W54.jZeroPPowTorsion_frobeniusQuadratic` | $`\mathrm{Frob}^2 - T_\ell\,\mathrm{Frob} + \ell = 0`$, zero analytic-E-S nodes |
+| $`S_2 \cong \Omega^1`$ | `ModularCurve.exists_linearEquiv_tensor_intLattice_regularDifferentials_qExpansionDiffAlong_eq` | weight-2 identification, no period map |
+| eigenplane | `CuspForm.IsNewform.exists_eigenPlane_tateModule_jZero` | E-S-free on the `JZero` Tate module |
+
+All five are already in the endgame closure, so the prize is not offset by a
+comparable new cone.
+
+**Why this is not route A's 657-node cone.** Route A's cone is 657 nodes /
+263,720 lines, but ~528 of those are modular-curve / elliptic geometry the
+endgame needs regardless (Riemann–Roch, `JZero`, patching). The analytic-E-S part
+of it is the 213 / 71,865 sliver — which is why C′ alone removes only 4 nodes /
+800 lines ([route-c-prime-scout.md](route-c-prime-scout.md) §4 addendum). The
+payout is the sliver, and it is the only lever of this size in the interface
+family.
+
+**Three targets, one package.** If route B reaches only interface 3, that removes
+46 nodes / 23,363 lines. De-E-S-ifying the other nine while retaining interface 3
+removes 161 nodes / 47,195 lines. All ten removes the full 213 / 71,865. The first
+two are disjoint and partition the ten-interface union (46 + 161 = 207); the
+residual six complete the package.
+
+**Two conditions, and one refinement.**
+
+1. *Higher weight is the real condition.* Route B as written is weight 2.
+   Interfaces 4, 5 and 6 involve weight $`> 2`$ and the `KatzModularForm.*`
+   cluster, so "workable for all interfaces" means the form-side weight reduction
+   is E-S-free at general weight — exactly the Phase 1 gate of §0 and §7, and the
+   plan's §5 stop condition if it fails.
+2. *The surface is not literally ten nodes.* The ten maximal interfaces cover 207
+   of the 213 E-S-ish nodes, but 12 further non-E-S-ish endgame nodes outside
+   their cones (mostly `ModularCurve.SSHeckeV2.*`) directly cite E-S-ish nodes,
+   and the 6 residual `ModPForms` nodes have their own entries. A complete
+   de-E-S-ification must rewire those too. The prize (213 / 71,865) is unchanged;
+   the wiring inventory is the ten interfaces plus a further twelve direct citers
+   and the entry points of the residual six.
+3. *The residual geometry is paid regardless.* The `JZero`/Tate/Riemann–Roch
+   geometry the interfaces consume stays; only the E-S layer leaves.
+
+Reproduction:
+
+```bash
+cd tools/deps && python3 - <<'PY'
+import sys, os; sys.path.insert(0, '.')
+from fltdata import FltData
+d = FltData(); I = d.index
+root = os.path.expanduser('~/proj/fermats-last-theorem')
+def lines(i):
+    stem = d.stem_of.get(i, '')
+    for sub in ('P2M/Sol', 'Theorems'):
+        for pre in ('S_', 'Thm_'):
+            p = os.path.join(root, sub, f'{pre}{stem}.lean')
+            if os.path.exists(p):
+                return sum(1 for _ in open(p, encoding='utf-8', errors='replace'))
+    return 0
+def cl(i):
+    seen, st = set(), [i]
+    while st:
+        j = st.pop()
+        if j in seen: continue
+        seen.add(j); st.extend(d.cites(j))
+    return seen
+ES = ('HeckeEis.', 'ModPForms.', 'PeriodPair.')
+ifaces = [
+ 'WeierstrassCurve.exists_ideal_heckeAlgebra_mul_two_of_ideal_heckeAlgebra_two_or_succ',
+ 'WeierstrassCurve.exists_H1_parabolic_not_dvd_diamondRaw_heckeT_congr_apOfModel_level_div_of_forall_linearMap_psCarrier_eq_zero',
+ 'GaloisRep.exists_galoisRep_trace_eq_eigenchar_and_det_eq_pow_of_three_le',
+ 'WeierstrassCurve.exists_ideal_heckeAlgebra_three_weight_le_four_pow_mul_apOfModel_of_exists_prime_dvd_mod_three_eq_two',
+ 'CuspForm.heckeAlgebra.exists_isMaximal_two_ringHom_of_succ_of_map_T_eq_zero_of_five_le_or_exists_prime_dvd',
+ 'CuspForm.heckeAlgebra.thetaCycle_exists_ringHom_mul_two_apply_eq_of_ringHom_succ_of_eq_three_imp_exists_prime_dvd_mod_three_eq_two',
+ 'CuspForm.exists_mem_heckeAlgebra_singleton_heckeTLin_eq_add_smul_of_ne_two',
+ 'LevelRaising.qNewSupport_comap_of_isNormalizedEigenform_oddPrime',
+ 'ModularCurve.exists_eq_smul_of_diffQExpBar_eq_ofPowerSeries_smul_of_kaehlerH0_of_ratCurveModel_of_cuspSection_compat_of_neZero',
+ 'WeierstrassCurve.exists_ne_zero_mem_rationalHomSet_of_comp_self_add_smul_eq_smul']
+end = cl(I['FLT.fermatLastTheorem'])
+Eend = {i for i in end if d.qual(i).startswith(ES)}
+U = set()
+for q in ifaces:
+    U |= {i for i in cl(I[q]) if d.qual(i).startswith(ES)}
+print('endgame', len(end), 'nodes /', sum(lines(i) for i in end), 'lines')
+print('E-S-ish', len(Eend), '/', sum(lines(i) for i in Eend))
+print('ten-interface union', len(U), '/', sum(lines(i) for i in U))
+print('residual', len(Eend - U), '/', sum(lines(i) for i in (Eend - U)))
+PY
+```
+
+## 9. Phase 1 — the candidate matrix
+
+Measured against the pin `aa2d8b3` (`tools/deps` cones). "analytic" is the
+intersection with the 12-node analytic set of §3. The gate question is whether a
+candidate can produce the contract's eigensystem **without** the Eichler
+integral, and whether its carrier matches `coeffH1` of the binary-form system.
+
+| # | candidate | key declaration(s) | carrier produced | cone (nodes / lines) | `HeckeEis` | analytic | degree |
+|---|---|---|---:|---:|---:|---|
+| 0 | Route B / Period (leading) | `ModularCurve.Period.exists_parabolicRealization` | `ModularCurve.Period.parabolicHoms k Γ₀ k` | 31 / 7,166 | 0 | **0** | 0 |
+| 1 | CohCarrier | `CohCarrier.isEigensystemH1_one_of_heckeT_eq_smul` | `CohCarrier.H1 N ⊤ k = Additive Γ₀ →+ k` | 3 / 307 | 1 | **0** | 0 |
+| 2 | JZero / Frobenius | `CuspForm.IsNewform.exists_eigenPlane_tateModule_jZero` | Tate module of `JZero N` / regular differentials | 882–1,291 / 383k–551k | 0–1 | **0** | 0 |
+| 3 | Katz / mod-p form side | `ModPForms.exists_weight_le_succ_…_of_isModPEigen_algebraicClosure` | Katz / mod-p forms of weight k | 43–1,311 / 8.9k–521k | 20–73 | **10–12** | all k |
+| 4 | Abstract E-S data | `ModularCurve.EichlerShimuraData`; `FrobeniusQuadratic.of_specializationExists` | abstract datum / `FrobeniusQuadratic` | 1 / 28 | 0 | **0** | n/a |
+
+**The headline: 0 and 1 compose, and the composition produces the exact degree-0
+contract, E-S-free.** It is the only E-S-free route to the contract, and it is
+weight-2 only.
+
+### 9.1 Candidate 0 — Route B / Period (leading)
+
+`ModularCurve.Period.exists_parabolicRealization`:
+
+```lean
+(f : CuspForm (Γ₀ N) 2) (hf : f.IsNormalizedEigenform) (hint : f.PrimeCoeffsIntegral)
+    (k : Type) [Field k] (red : integralClosure ℤ ℂ →+* k) :
+  ∃ f₀ : parabolicHoms k (Γ₀ N) k, f₀ ≠ 0 ∧
+    ∀ (ℓ) [NeZero ℓ] (hℓp : ℓ.Prime),
+      heckeOperatorHom N ℓ k (f₀ : Additive (Γ₀ N) →+ k) =
+        (red (eigenLift hint ⟨ℓ, hℓp⟩)) • (f₀ : Additive (Γ₀ N) →+ k)
+```
+
+Supporting lemmas, each E-S-free: `exists_equivariantPrimitive_gamma0` (1 / 289),
+`periodHom_ne_zero_of_ne_zero` (3 / 503), `periodMap_heckeTLin` (4 / 1,307),
+`periodHomPair_injective` (7 / 1,839), `periodHomPair_range_eq_parabolicHoms`
+(range = `parabolicHoms ℂ Γ₀ ℂ`). Carrier: `parabolicHoms k Γ₀ k` is a submodule
+of `Additive Γ₀ →+ k` — route B's tame `Hom` type with the parabolic condition.
+
+**Carrier bridge (already in the pin, in a harder form).** At $`n = 0`$,
+`binaryFormRepSL k 0` is the trivial representation on the constants, so
+`coeffCocycles 1 = Additive Γ₀ →+ k`, `coeffCoboundaries 1 = ⊥`, and
+`coeffH1 (1 : Representation k Γ₀ k) ≃ₗ[k] Additive Γ₀ →+ k`. The Hecke action
+matches because `binaryFormAlphaAdj k 0 ℓ = id` and
+`coeffHeckeFun N ℓ 1 id = heckeOperatorHom N ℓ k` on functions
+(`Definitions/Def_Gamma0CoeffCohomology.lean:129` vs
+`Definitions/Def_Gamma0HeckeOperatorHom.lean:285`). The pin already formalizes this
+bridge for the **non-trivial** projective-line representation:
+`HeckeEis.exists_coeffH1par_projLineRepSL_equiv_parabolicHoms` gives
+`coeffH1par (projLineRepSL p k) ≃ₗ[k] parabolicHoms k (Γ₀ (Np)) k`
+(cone 10 / 2,945, 7 `HeckeEis`, **0 analytic**), and
+`HeckeEis.coeffHeckeFun_projLineAlphaAdj_apply_iota0_infty_eq_heckeOperatorHom`
+(5 / 1,121, 3 / 0) matches the Hecke actions. The $`n = 0`$ bridge is the
+lower-dimensional analogue of that, but no `binaryFormRepSL 0` instance of it
+exists yet.
+
+### 9.2 Candidate 1 — CohCarrier: the exact degree-0 contract
+
+`CohCarrier.H1 M H A := Additive ↥(Γ_H(M,H)) →+ A`
+(`Definitions/Def_CohCarrier_Level.lean:162`) — again the tame `Hom` type, no
+quotient, and `Γ_H(M, ⊤) = Γ₀(M)`. The decisive lemma is
+
+```lean
+theorem CohCarrier.isEigensystemH1_one_of_heckeT_eq_smul
+    (N : ℕ) {K : Type} [Field K] (S₀ : Set ℕ) (lam : ℕ → K)
+    (v : CohCarrier.H1 N ⊤ K) (hv : v ≠ 0)
+    (heig : ∀ (ℓ) (hℓ : ℓ.Prime), ¬ ℓ ∣ N → ℓ ∉ S₀ →
+      (haveI : NeZero ℓ := ⟨hℓ.ne_zero⟩; CohCarrier.heckeT N ⊤ ℓ K v) = lam ℓ • v) :
+    HeckeEis.IsEigensystemH1 N (1 : Representation K (Γ₀ N) K)
+      (fun _ => LinearMap.id) S₀ lam
+```
+
+cone 3 / 307, 1 `HeckeEis` (`CohCarrier`→`HeckeEis.coresHom_eq_transfer`, a
+transfer bookkeeping lemma), **0 analytic**. This is the *exact* trivial-coefficient
+`IsEigensystemH1` that interface 3's step 2 produces and step 3 consumes. The
+bridge to `HeckeEis.heckeOperatorHom` is
+`CohCarrier.heckeT_top_apply_eq_heckeOperatorHom` (2 / 141, 1 / 0); the
+supporting package is `exists_complex_heckeT_eigen_reduction_eq_of_mem_span_int`
+(6 / 2,018, 0 / 0), `mem_span_int_of_forall_isOfFinOrder_apply_eq_zero`
+(2 / 1,155, 0 / 0), and
+`exists_ringHom_heckeAlgebra_apply_smul_eq_heckeT_of_mem_parabolicHoms`
+(594 / 245,864, 2 / 0).
+
+**The composition 0 ∘ 1.** Route B's `exists_parabolicRealization` produces a
+nonzero `f₀ ∈ parabolicHoms k Γ₀ k ⊂ CohCarrier.H1 N ⊤ k` with
+`heckeOperatorHom N ℓ k f₀ = red(eigenLift hint ℓ) • f₀`; candidate 1 turns it
+into the exact degree-0 `IsEigensystemH1` with eigenvalues
+`lam ℓ = red (eigenLift hint ℓ)`. Both halves are in the pin, E-S-free, and the
+carrier/Hecke-operator match is already formalized for the projLine analogue. So
+**the degree-0 contract is E-S-free reachable today** — for a weight-2 input.
+
+### 9.3 Candidate 2 — JZero / Frobenius (architecture B, geometric)
+
+`CuspForm.IsNewform.exists_eigenPlane_tateModule_jZero` (1,291 / 551,238, 1
+`HeckeEis`, 0 analytic) builds an eigenplane in the Tate module of `JZero N`;
+`ModularCurve.frobeniusQuadratic_JZero` (995 / 430,110, 1 / 0) and
+`W54.jZeroPPowTorsion_frobeniusQuadratic` (1,035 / 433,950, 1 / 0) supply the
+geometric E-S congruence; `exists_linearEquiv_tensor_intLattice_regularDifferentials_qExpansionDiffAlong_eq`
+(882 / 382,850, 0 / 0) supplies $`k \otimes intLattice(N,2) \cong \mathrm{regularDifferentials}`$.
+Carrier: Tate module / regular differentials — **not** `coeffH1`. All 31 nodes
+concluding `IsEigensystemH1` are disjoint from the cones of the Frobenius
+congruence nodes, and no glue theorem connects them. So this route is E-S-free
+but its carrier is the wrong side of the de Rham comparison; using it would need
+new comparison theory (architecture A).
+
+### 9.4 Candidate 3 — Katz / mod-p form side: exists but is analytic
+
+`KatzModularForm R k` (`Definitions/Def_ModularForm_KatzLevelOne.lean:10`) is the
+mod-p/Katz modular-form type; every `KatzModularForm.*` node's cone is small and
+0-analytic. But the general-weight reduction statements are not E-S-free:
+`ModPForms.exists_weight_le_succ_mem_modPMod_isModPEigen_pow_mul_of_isModPEigen_algebraicClosure`
+reduces a weight-k mod-p eigenform to weight `k'` with `2 ≤ k' ≤ p+1` (cone
+1,311 / 520,774, **10** analytic nodes in cone), and
+`ModPForms.exists_isEigensystemH1_binaryFormRepSL_of_isModPEigen` (43 / 8,855,
+**12/12** analytic — it directly cites `exists_isEichlerIntegral`,
+`isEquivariantPrimitiveWith_of_isEichlerIntegral`,
+`coeffH1Mk_cocycle_heckeTLin_modularForm`,
+`modularForm_eq_zero_of_coeffH1Mk_cocycle_eq_zero`). So the one existing
+general-weight form-side reduction is **circular** as a replacement: its proof
+already uses the analytic period map.
+
+### 9.5 Candidate 4 — abstract E-S data: dead interface, no path
+
+`ModularCurve.EichlerShimuraData`
+(`Definitions/Def_ModularCurve_EichlerShimuraData.lean:100`) has **zero consumers**
+anywhere in the pin; `EichlerShimuraDataReduced`, `EichlerShimuraRelationOn` and
+`FreyPackage.MazurEichlerShimuraFamily` are equally unused. The live clause is
+`FrobeniusQuadratic` / `SpecialFibreRelation`, instantiated E-S-free on `JZero`
+by `frobeniusQuadratic_JZero`, but its consumers live entirely in the
+Tate-module / `heckeTorsion` / Mazur level-lowering branch (e.g.
+`ModularCurve.exists_torsionEmbedding_of_congruences`, 122 / 0 / 0), which is
+disjoint from every `IsEigensystemH1` node. The only consumer that turns the
+analytic map into an eigensystem-like object,
+`HeckeEis.existsEichlerShimuraMapLinear` (20 / 1,709, 17 `HeckeEis`, **5**
+analytic), is itself the analytic period map. Verdict: the abstract datum cannot
+be substituted for the analytic lemma, and no glue exists.
+
+### 9.6 Phase 1 gate verdict
+
+- **Passes, conditionally.** Candidates 0 + 1 compose to the *exact* degree-0
+  `IsEigensystemH1`, E-S-free, using declarations already in the pin. The
+  refactor of interface 3 is justified (§10.1).
+- **The unresolved blocker is degree.** The composition is weight-2 only.
+  Interface 3 has $`k \ge 3`$, so $`n = k-2 \ge 1`$; reaching weight 2 needs
+  the form-side reduction, and the only existing such reduction is analytic
+  (§9.4). This is the plan's §5 stop condition
+  "no form-side, E-S-free weight reduction existing (architecture B fails)".
+
+## 10. Phase 2 — statement compatibility and circularity
+
+### 10.1 The one-token swap fails; the minimal refactor is at step 1+2
+
+The target lemma concludes the **degree-`n`** eigensystem. Its consumer chain in
+interface 3 (`P2M/Sol/S_GaloisRep_exists_galoisRep_trace_eq_eigenchar_and_det_eq_pow_of_three_le.lean` L104–L120)
+is:
+
+1. `eig χ ℓ := χ(T_ℓ)`; `heig` converts `hχ` into the `heckeTLin` eigenvalue form;
+2. the analytic lemma (step 1) → degree-`n` eigensystem;
+3. `GaloisRep.exists_galoisRep_trace_eq_of_isEigensystemH1_binaryFormRepSL_of_ringHom`
+   (degree-`n` wrapper), which internally is step 2
+   (`HeckeEis.exists_isEigensystemH1_one_dvd_mul_sq_…`, degree-`n` → degree-0,
+   level `M \mid Np^2`, eigenvalues twisted by $`\ell^{n/2}`$) followed by
+   `GaloisRep.exists_galoisRep_trace_eq_of_isEigensystemH1_one_of_ringHom`
+   (degree-0 → $`\rho`$, $`\det = \ell`$) and a cyclotomic twist to
+   $`\det = \ell^{n+1}`$.
+
+Steps 2 and 3 are **E-S-free** (cones 18 / 9,854 and 1,350 / 566,832, **0**
+analytic nodes), so only step 1 needs replacing. But candidates 0 + 1 deliver
+degree 0, not degree `n`. So the swap is *not* one token at the lemma; the
+minimal refactor is:
+
+- **drop step 1 and step 2**;
+- insert [form-side weight reduction $`k \to 2`$] then route B
+  (`exists_parabolicRealization`) then `CohCarrier.isEigensystemH1_one_of_heckeT_eq_smul`,
+  yielding the degree-0 `IsEigensystemH1` at level `N`;
+- keep `exists_galoisRep_trace_eq_of_isEigensystemH1_one_of_ringHom` and the
+  existing cyclotomic twist (the twist lemmas live in the degree-`n` wrapper and
+  are reusable).
+
+The refactor is local to interface 3's proof (its own 120-line file), and the
+downstream consumers are untouched.
+
+### 10.2 Hypothesis derivability
+
+Interface 3's inputs are: a cusp eigenform `f` of weight $`k \ge 3`$, `f \neq 0`,
+and `χ : heckeAlgebra N k S →+* integralClosure ℤ ℂ`. Route B's
+`exists_parabolicRealization` needs a **weight-2** `IsNormalizedEigenform` with
+`PrimeCoeffsIntegral`. So:
+
+- for $`k = 2`$ (outside interface 3's stated range) the hypotheses are the
+  weight-2 specialization and the refactor is immediate;
+- for $`k \ge 3`$ the hypotheses are **not** derivable without the form-side
+  reduction. That reduction is exactly the missing E-S-free brick (§9.4), and it
+  is the single condition standing between Phase 1's conditional pass and a
+  full replacement.
+
+### 10.3 Circularity
+
+The plan's stop condition is "a candidate citing any node of the 21-node analytic
+cone". Measured on the 12-node analytic set (§3):
+
+| candidate | analytic nodes in cone | circular? |
+|---|---:|---|
+| 0 (route B / Period) | 0 | no |
+| 1 (CohCarrier, incl. `isEigensystemH1_one_…`) | 0 | no |
+| 2 (JZero / Frobenius) | 0 | no |
+| 3 (Katz / mod-p reduction) | 10–12 | **yes, as written** |
+| 4 (abstract E-S data) | 0 (but no path; `existsEichlerShimuraMapLinear` has 5) | n/a |
+
+So the E-S-free candidates are non-circular, and candidate 3 is excluded
+precisely because it already depends on the analytic period map. A replacement
+must re-prove the weight reduction without `exists_isEichlerIntegral` and the
+other eleven nodes; that re-proof is the work order's central obligation.
 
 ## Appendix — the 15 tail-only `HeckeEis` nodes (8,188 lines)
 
