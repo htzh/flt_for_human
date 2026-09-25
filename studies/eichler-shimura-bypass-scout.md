@@ -251,6 +251,70 @@ E-S-free. All four call-site facts build the period class and its two properties
 | route B ingredients present (`exists_equivariantPrimitive_gamma0`, `periodHom_injective`, `periodHom_hecke`, `span_range_ofIntChars`) | yes |
 | all provenance files exist | yes |
 
+### 2.6 The level of the 12 nodes: analysis and cohomology
+
+The 12 analytic nodes look like a tower, but their external inputs are only three
+lemmas:
+
+| external input | used by |
+|---|---|
+| `Complex.exists_hasDerivAt_of_starConvex` | `exists_isEichlerIntegral` |
+| `UpperHalfPlane.isBoundedAtImInfty_of_hasDerivAt_of_periodic` | `IsEichlerIntegral.isBoundedAtImInfty_eval`, `modularForm_eq_zero_of_coeffH1Mk_cocycle_eq_zero` |
+| `MvPolynomial.IsHomogeneous.iterate_pderiv_eq_zero_of_lt` | `IsEichlerIntegral.eq_zero_of_eval_eq_const`, `…isBoundedAtImInfty_eval`, `modularForm_eq_zero_of_coeffH1Mk_cocycle_eq_zero` |
+
+Everything else in their cones is internal `HeckeEis` bookkeeping.
+
+**The analysis is one-variable complex analysis on $`\mathbb{H}`$.** The
+antiderivative is built as a radial path integral and differentiated under the
+integral sign (`Complex.exists_hasDerivAt_of_starConvex`:
+$`g(w) = \int_0^1 (w-q) f(q + t(w-q))\,dt`$, via
+`intervalIntegral.hasDerivAt_integral_of_dominated_loc_of_deriv_le`), using only
+analyticity of holomorphic functions (`DifferentiableOn → AnalyticOnNhd`),
+continuity, and compactness bounds. The growth input is Liouville-type
+(`UpperHalfPlane.isBoundedAtImInfty_of_hasDerivAt_of_periodic`: $`v' = u`$ with
+$`u`$ bounded and periodic, $`v`$ periodic, implies $`v`$ bounded at the
+cusp), and the third input is polynomial algebra, not analysis. There is no
+Dolbeault or Hodge theory, no harmonic analysis, no several-variable analysis.
+
+**The cohomology required is group cohomology in degree 1, hand-rolled.** The
+relevant definitions are `coeffCocycles ρ` (the $`1`$-cocycles
+$`z(gh) = z(g) + \rho(g)z(h)`$, a submodule of `G → V`), `coeffCoboundaries ρ`
+(the range of $`v \mapsto (\rho(g)v - v)_g`$), `coeffH1 ρ` (their quotient),
+and the parabolic variants `coeffParabolicCocycles` / `coeffH1par`. No derived
+functors, no resolutions, no spectral sequences. Only **2** of the 12 nodes even
+mention the quotient: 7 mention only `IsEichlerIntegral`,
+`isEquivariantPrimitiveWith_of_isEichlerIntegral` and
+`IsEquivariantPrimitiveWith.cocycle_sub_cocycle_mem_coeffCoboundaries` stop at the
+cocycle/coboundary submodules, and `jFactor_pow_mul_eval_binaryFormRepSL` is pure
+matrix algebra.
+
+**No sheaves or schemes on this path.** The interface-3 cone (1,390 nodes)
+contains zero nodes with `Scheme`, `Sheaf` or `Cohomology` in their names, and the
+target lemma's 25-node cone likewise; the only occurrence of the word in the
+underlying definitions is the file name `Def_Gamma0CoeffCohomology.lean`. The pin
+does use schemes and sheaves heavily elsewhere (Cerednik–Drinfeld,
+Mazur–Rapoport, the modular-curve geometry), but not in the Eichler–Shimura
+construction or anything interface 3 consumes.
+
+**Reading: this is a route-B-style strategy.** The analytic E-S is not removed —
+it is *replaced by its weight-2 case*. The general-weight E-S (coefficient system
+`Sym^{k-2}`, cohomology quotient `coeffH1`) is exchanged for route B's weight-2
+theory, which is already in the pin (analytic primitive existence plus period
+injectivity, self-contained at closure 1) and whose carrier is the tame
+`addChars`/`parabolicHoms` type. What the replacement has to reproduce is
+therefore not general-weight cohomology but a nonzero class in `Hom`: at trivial
+coefficients `coeffCoboundaries 1 = ⊥`, so the quotient disappears. The one
+obligation that is *not* inherited from route B is the form-side weight-filtration
+descent of §4.5 — and that obligation is not cohomological either. So the
+strategy is: keep a small, elementary analytic argument (one-variable complex
+analysis on $`\mathbb{H}`$), keep only degree-1 group cohomology and in practice
+only the `Hom` case, and pay a new form-side weight-descent step. The
+mathematics of this section — the general-weight primitive as the parent of route
+B's, its three analytic inputs, and the cohomology audit — is written up in
+[../math/015-weight-two-hecke-periods.md](../math/015-weight-two-hecke-periods.md)
+§8; the mod-$`p`$ weight-filtration step is note
+[../math/016-mod-p-weight-filtration.md](../math/016-mod-p-weight-filtration.md).
+
 ## 3. The candidate constructions
 
 Measured against the pin (`tools/deps` cones). "analytic" is the intersection with

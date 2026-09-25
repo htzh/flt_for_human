@@ -229,7 +229,11 @@ cheaper where the function-field model already exists.
 
 **D. Fallback: keep the analytic period map.** The pin's Eichler–Shimura map
 supplies the degree-$`(k-2)`$ eigensystem directly, at the cost of the analytic
-core — twelve modules and 2,301 lines, not the whole package.
+core — twelve modules and 2,301 lines, not the whole package. That core's
+mathematics is audited in
+[015-weight-two-hecke-periods.md](015-weight-two-hecke-periods.md) §8: its
+inputs are three lemmas of one-variable complex analysis, and its cohomology is
+degree-one group cohomology that at trivial coefficients collapses to `Hom`.
 
 Routes A and C are the ones that preserve the point of the bypass; B is the
 honest but expensive alternative; D bounds the loss if the gap stays open.

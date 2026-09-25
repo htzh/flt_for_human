@@ -398,7 +398,110 @@ lands, and is then deleted rather than superseded in place. See
 [../studies/hecke-finiteness-coverage.md](../studies/hecke-finiteness-coverage.md)
 §2 and §5.
 
-## 8. Declarations and pointers
+## 8. The general-weight primitive, and what the analytic core really costs
+
+The construction of §2 is the $`n = 0`$ case of one that the pin performs at every
+weight. For $`n \ge 0`$ put $`\mathrm{linePow}_n(\tau) = (\tau X_0 + X_1)^n`$, a
+binary form of degree $`n`$, and say that
+$`F : \mathbb{H} \to \mathrm{BinaryForm}\,\mathbb{C}\,n`$ is an *Eichler
+integral* for $`f`$ when every coefficient satisfies
+
+$$\frac{d}{d\tau}\\,\mathrm{coeff}_d(F) = f \cdot \mathrm{coeff}_d(\mathrm{linePow}_n) \qquad (d \in \mathbb{N}^2),$$
+
+as functions of $`\tau`$. At $`n = 0`$ the binary form is a constant and
+$`\mathrm{linePow}_0 = 1`$, so the condition is exactly $`F' = f`$, the primitive
+of §2. The general-$`n`$ object is therefore the general-weight parent of route
+B's primitive, and route B is its $`n = 0`$ specialization. Quasi-invariance
+appears with coefficients in the same way: $`F`$ is equivariant for the
+representation `binaryFormRepSL ℂ n` on $`\mathrm{Sym}^n`$, and its period is a
+cocycle with values in $`\mathrm{Sym}^n`$; at $`n = 0`$ both degenerate to the
+scalar primitive of §2 and its `addChars` period.
+
+**What the analysis requires.** The pin's formalization of this construction is
+twelve modules, and their inputs from outside the Eichler–Shimura development are
+only three lemmas:
+
+| input | content |
+|---|---|
+| `Complex.exists_hasDerivAt_of_starConvex` | an antiderivative on a star-convex open set, built as a radial path integral and differentiated under the integral sign |
+| `UpperHalfPlane.isBoundedAtImInfty_of_hasDerivAt_of_periodic` | a Liouville-type statement: $`v' = u`$ with $`u`$ bounded and periodic and $`v`$ periodic forces $`v`$ bounded at the cusp |
+| `MvPolynomial.IsHomogeneous.iterate_pderiv_eq_zero_of_lt` | polynomial algebra, not analysis |
+
+Everything else in those twelve cones is bookkeeping. So the analytic content of
+the general-weight period map is one-variable complex analysis on
+$`\mathbb{H}`$: antiderivatives, derivative calculus, and growth at the cusp.
+There is no Dolbeault or Hodge theory, no harmonic analysis, and no
+several-variable analysis. The antiderivative is literally an integral along a
+segment,
+
+$$g(w) = \int_0^1 (w - q) f(q + t(w-q))\\, dt,$$
+
+and the proof uses only analyticity of holomorphic functions, continuity, and
+compactness.
+
+**What the cohomology requires.** The "cohomology" here is group cohomology in
+degree 1, defined by hand rather than through any cohomological machinery.
+`coeffCocycles ρ` is the submodule of `G → V` cut out by
+$`z(gh) = z(g) + \rho(g)z(h)`$; `coeffCoboundaries ρ` is the range of
+$`v \mapsto (\rho(g)v - v)_g`$; `coeffH1 ρ` is their quotient; the parabolic
+variants `coeffParabolicCocycles` / `coeffH1par` cut out the elements vanishing on
+parabolic group elements. There are no derived functors, no resolutions and no
+spectral sequences. Of the twelve modules, seven mention only `IsEichlerIntegral`,
+`isEquivariantPrimitiveWith_of_isEichlerIntegral` stops at quasi-invariance,
+`IsEquivariantPrimitiveWith.cocycle_sub_cocycle_mem_coeffCoboundaries` at the
+coboundary submodule, `jFactor_pow_mul_eval_binaryFormRepSL` is matrix algebra,
+and only two — `coeffH1Mk_cocycle_heckeTLin_modularForm` and
+`modularForm_eq_zero_of_coeffH1Mk_cocycle_eq_zero` — mention the quotient.
+
+At trivial coefficients the quotient disappears: at the trivial representation
+$`\rho(g)v - v = 0`$, so `coeffCoboundaries 1 = ⊥` and `coeffH1 1` is just
+$`\mathrm{Hom}(\Gamma, \kappa)`$ — the `addChars` type in which §3–§6 work.
+Nothing sheaf- or scheme-theoretic occurs on this path: the whole interface-3 cone
+(1,390 nodes) contains no node whose name mentions `Scheme`, `Sheaf` or
+`Cohomology`, and the only such word in the definitions is the file name
+`Def_Gamma0CoeffCohomology.lean`. The pin uses schemes and sheaves extensively
+elsewhere, but not in the period construction.
+
+**Reading.** This is why the bypass is a route-B-style strategy rather than a
+removal of analysis. The general-weight construction costs a small, elementary
+piece of one-variable complex analysis, and its cohomology is the tame degree-one
+group cohomology that at trivial coefficients is `Hom`. Replacing the
+general-weight period map by route B's weight-2 case therefore does not change the
+*kind* of mathematics involved; it changes the coefficient system from
+$`\mathrm{Sym}^{k-2}`$ to the trivial one. The one obligation that does not come
+for free is the mod-$`p`$ weight-filtration step from an interior weight to
+weight 2, which is neither analytic nor cohomological; it is the subject of
+[016-mod-p-weight-filtration.md](016-mod-p-weight-filtration.md).
+
+**This does not make route B redundant.** The general-weight construction
+specializes to route B's primitive at $`n = 0`$, but the two are *parallel*
+formalizations of the same weight-two mathematics, not one derived from the
+other: the blob and the `HeckeEis` development do not import each other. And route
+B carries content the general development does not offer in isolation — the
+integral lattice `addChars ℤ Γ₀ ℤ`, its spanning, the Hecke triple algebra, and
+the weight-two finiteness theorem — which the endgame consumes directly (44
+consumers of `moduleFinite_heckeAlgebra_two`). What the bypass does is *reuse*
+route B as its carrier; the general-weight period map is the thing being replaced.
+The relationship is complementary in both directions: the general-weight E-S
+supplies all weights but bundles the $`\mathrm{Sym}^n`$ machinery, route B supplies
+weight two self-containedly, and the gap of note 016 is the missing bridge
+between them.
+
+**What is shared is the primitive, not its proof.** Route B's primitive is built
+from the $`q`$-expansion: write the cusp form as $`\Phi(q)`$ with
+$`\Phi(0) = 0`$, divide by $`q`$ (a divided difference), and integrate the
+resulting power series on the unit disc; the output additionally tends to $`0`$ at
+the cusp. The general-weight construction instead takes the radial antiderivative
+of an arbitrary holomorphic function, which is why it needs the star-convex
+integral and differentiation under the integral sign, and it does *not* produce
+the vanishing. So the two share the shape $`F' = f`$ but not a proof, and route
+B's version is both more elementary and stronger at the cusp. After the primitive,
+route B keeps going: `exists_equivariantPrimitive_gamma0`, the period character
+and `periodHom`, their injectivity and Hecke equivariance, and then the
+$`\mathbb{Z}`$-lattice and the Hecke triple algebra. The primitive is route B's
+entry point, not its content.
+
+## 9. Declarations and pointers
 
 All Lean line numbers below refer to
 [`S_CuspForm_moduleFinite_heckeAlgebra_two.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CuspForm_moduleFinite_heckeAlgebra_two.lean)
