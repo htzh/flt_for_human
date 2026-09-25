@@ -15,16 +15,20 @@ is 12 nodes / 2,301 lines, all only reachable through the target lemma, and no
 tail node depends on it. The contract and the partition tables are in
 [../../../studies/eichler-shimura-bypass-scout.md](../../../studies/eichler-shimura-bypass-scout.md).
 
-**Phase 1–2 result (scout §9–§10):** the degree-0 contract is E-S-free reachable
+**Phase 1–2 result (scout §3, §5):** the degree-0 contract is E-S-free reachable
 today — route B's `ModularCurve.Period.exists_parabolicRealization` composed with
 `CohCarrier.isEigensystemH1_one_of_heckeT_eq_smul` yields exactly
 `IsEigensystemH1 N (1) (fun _ => LinearMap.id) S₀ lam` with **0 analytic nodes**
 in their cones; interface 3's steps 2 and 3 are E-S-free, so the swap is a
 justified local refactor rather than a one-token replacement. The blocker is
-degree: the composition is weight-2 only, and the one existing general-weight
-form-side reduction (Katz / `ModPForms`) is itself analytic (10–12 of the 12
-analytic nodes in its cone). That is the plan's architecture-B stop condition,
-triggered.
+degree: the composition is weight-2 only. Expanding the blocker (scout §4)
+shows the general mod-p weight reduction is E-S-free **modulo C′** — its 10
+analytic nodes all enter through route A's proof of
+`hasIntegralStructure_of_two_le`, which C′ replaces — and interfaces 5 and 6 are
+C′-dissolved; the weight-$`(p+1)`$ → 2 descent already exists (interface 6's
+θ-cycle, interface 5's maximal-ideal form). What is missing is only a form-side
+$`[2, p+1] \to 2`$ descent, or a reduction landing at $`p+1`$. The
+architecture-B stop condition is triggered but localized to that one brick.
 
 **Thesis (scout note, header).** The endgame takes analytic-Eichler–Shimura
 content through exactly two doors — Hecke-algebra finiteness/integrality, and the
@@ -126,7 +130,7 @@ Either way the prize is far smaller than route A's 657-node cone, because ~528 o
 those nodes are geometry that the endgame needs anyway. The full ten-interface
 figure is also the correct answer to "is it more than just the interface?": yes —
 four times the four-interface estimate, but still not the 657-node cone. The scout
-note [§8](../../studies/eichler-shimura-bypass-scout.md) records the full payout:
+note [§6](../../studies/eichler-shimura-bypass-scout.md) records the full payout:
 the 213 / 71,865 package measured against the 29,488-node / 11,926,355-line FLT
 proof cone, the three nested targets, the replacement ingredients already inside
 the endgame, the two conditions on "all interfaces" (higher weight / Katz forms,
@@ -284,7 +288,7 @@ build); Phase 5 is the optional spike.
 
 Artifact: §"Contract" table in the scout note
 ([../../../studies/eichler-shimura-bypass-scout.md](../../../studies/eichler-shimura-bypass-scout.md)
-§1–§4).
+§1–§2).
 Gate: if more than this one lemma is analytic, re-scope the topic before Phase 1.
 
 **Done 2026-09-25 — gate passes.** The 36-node partition is 14 reachable only
@@ -334,7 +338,7 @@ contract compatibility).
 Gate: at least one candidate must plausibly produce the *exact* `coeffH1`
 eigensystem (or a refactor of interface 3 must be justified).
 
-**Done 2026-09-25 — gate passes conditionally; scout §9.** Candidates 0 and 1
+**Done 2026-09-25 — gate passes conditionally; scout §3.** Candidates 0 and 1
 *compose* to the exact degree-0 contract E-S-free: route B's
 `ModularCurve.Period.exists_parabolicRealization` (31 nodes / 7,166 lines, 0
 `HeckeEis`, 0 analytic) gives a nonzero parabolic Hecke eigenvector in
@@ -346,10 +350,13 @@ The carrier/Hecke match is already formalized for the harder projLine analogue
 `HeckeEis.coeffHeckeFun_projLineAlphaAdj_apply_iota0_infty_eq_heckeOperatorHom`).
 Candidates 2 (JZero/Frobenius) and 4 (abstract `EichlerShimuraData`) are E-S-free
 but have no glue to `coeffH1` — and the abstract datum is a dead interface with
-zero consumers. Candidate 3 (Katz / mod-p form reduction) is the blocker: the one
-existing general-weight form-side reduction is analytic (10–12 of the 12 analytic
-nodes in its cone). So the gate passes only with the refactor, and the form-side
-weight reduction is the open obligation.
+zero consumers. Candidate 3 (Katz / mod-p form side) is the blocker, but the
+expanded analysis (scout §4) splits it: the general reduction
+(`exists_weight_le_succ_…`) and interfaces 5/6 are E-S-free modulo C′, while the
+intrinsic core `ModPForms.exists_isEigensystemH1_…_of_isModPEigen` (the
+general-weight $`\mathrm{Sym}^{k-2}`$ period map, 12/12 analytic) is not. So the
+gate passes with the refactor, and the open obligation narrows to a form-side
+$`[2, p+1] \to 2`$ descent.
 
 ### Phase 2 — Statement compatibility and circularity (1–2 rounds)
 
@@ -364,8 +371,7 @@ weight reduction is the open obligation.
   supplies those)? The candidate cones in §3 have 0–2 `HeckeEis` nodes, none
   analytic.
 
-**Done 2026-09-25 — one-token swap fails; minimal refactor is at step 1+2; scout
-§10.** Interface 3 concludes the degree-$`n`$ eigensystem; the 0∘1 composition is
+**Done 2026-09-25 — one-token swap fails; minimal refactor is at step 1+2; scout §5.** Interface 3 concludes the degree-$`n`$ eigensystem; the 0∘1 composition is
 degree-0. Steps 2 and 3 are E-S-free (cones 18 / 9,854 and 1,350 / 566,832, 0
 analytic nodes), so the refactor is: drop step 1 and step 2, insert [form-side
 $`k \to 2`$ reduction] then route B then
@@ -474,10 +480,13 @@ Phase 5 if the gate is passed.
   (Kuga–Sato, de Rham comparison, or a `CohCarrier.H1` identification at
   $`n > 0`$) — i.e. cohomology beyond route B's `addChars`/`Hom` type (§3);
 - no form-side, E-S-free weight reduction existing (architecture B fails) —
-  **TRIGGERED (Phase 1):** the one existing general-weight mod-p reduction
-  (`ModPForms.exists_weight_le_succ_mem_modPMod_isModPEigen_pow_mul_of_isModPEigen_algebraicClosure`)
-  has 10 of the 12 analytic nodes in its cone, so architecture B is blocked at
-  degree $`n > 0`$ and the replacement is weight-2 only as it stands;
+  **TRIGGERED, LOCALIZED (Phase 1 + expansion, scout §4):** the general mod-p
+  reduction (`ModPForms.exists_weight_le_succ_…`) is E-S-free modulo C′ (its 10
+  analytic nodes all enter via `hasIntegralStructure_of_two_le`), interfaces 5/6
+  are C′-dissolved, and the weight-$`(p+1)`$ → 2 descent exists; the missing
+  brick is a form-side $`[2, p+1] \to 2`$ descent (or a reduction landing at
+  $`p+1`$). The intrinsic core
+  `ModPForms.exists_isEigensystemH1_…_of_isModPEigen` remains analytic;
 - a candidate citing any node of the 21-node analytic cone (circularity) —
   **observed for candidate 3** (Katz / mod-p reduction, 10–12 nodes); candidates
   0/1/2/4 are clean;
@@ -497,12 +506,12 @@ Phase 5 if the gate is passed.
 
 ## 7. Definition of done (for the scouting topic)
 
-- [x] contract frozen (§2) and the two-partition table produced (scout note §1–§4);
-- [x] candidate matrix with `HeckeEis` counts for every candidate (scout §9);
+- [x] contract frozen (§2) and the two-partition table produced (scout §1–§2);
+- [x] candidate matrix with `HeckeEis` counts for every candidate (scout §3);
 - [x] at least one replacement signature type-compatible with interface 3, or a
       justified refactor (0∘1 gives the exact degree-0 contract; refactor in
-      scout §10.1);
-- [x] circularity check done against the 36-node cone (scout §10.3);
+      scout §5.1);
+- [x] circularity check done against the 36-node cone (scout §5.3);
 - [ ] measured saving reproduced with the command above;
 - [ ] novelty/literature assessment written;
 - [x] `studies/eichler-shimura-bypass-scout.md` written and cross-linked (Phase 0);
@@ -513,7 +522,7 @@ Phase 5 if the gate is passed.
 
 - Phase 0 contract and E-S partition:
   [../../../studies/eichler-shimura-bypass-scout.md](../../../studies/eichler-shimura-bypass-scout.md)
-  §1–§4 and reproduction §6.
+  §1–§2 and reproduction §7.
 - Interface map and corrections:
   [../../../studies/flt-non-frey-segments.md](../../../studies/flt-non-frey-segments.md)
   §8, §8.1.
