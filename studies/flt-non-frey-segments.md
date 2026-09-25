@@ -878,15 +878,35 @@ analytic-E-S dependence is only two cocycle-bookkeeping nodes
 (`coeffHeckeFun_mem_coeffCocycles` / `…CoeffCoboundaries`), and `CohCarrier.H1`
 is the patching carrier, not the period module.
 
-The one place the "C′ lattice + $`S_2 \cong \Omega^1`$" recipe is *not* enough is
-interface 3: `GaloisRep.exists_galoisRep_trace_eq_eigenchar_and_det_eq_pow_of_three_le`
-is stated for **all weights $`k \ge 3`$**, and its replacement needs the
-general-weight Galois-representation construction (étale cohomology of the
-modular curve / Kuga–Sato, $`\det = \chi_{\mathrm{cyc}}^{k-1}`$), not differentials
-on $`X_0`$. FLT's E-S-free Frobenius-quadratic route is weight-2 (`JZero`). So a
-fully de-E-S-ified codebase is mathematically possible, as the outside opinion
-says, but this weight-general interface is genuine work rather than a carrier
-swap; interfaces 1, 2 and 4 are the plausible part of the recipe.
+**Interface 3 is much thinner than it first looked.** Its analytic-E-S dependence
+is a **single lemma**: `HeckeEis.isEigensystemH1_binaryFormRepSL_of_heckeTLin_eq_smul`
+(523 `S_` lines; closure 25 nodes / 21 `HeckeEis`), which converts a nonzero
+weight-$`k`$ Hecke eigenform into a nonzero eigensystem on the binary-form H¹ with
+the mod-$`p`$ eigenvalues. Everything downstream is E-S-free:
+
+* the weight reduction
+  `HeckeEis.exists_isEigensystemH1_one_dvd_mul_sq_of_isEigensystemH1_binaryFormRepSL`
+  turns the degree-$`n`$ (weight $`n+2`$) eigensystem into a trivial-coefficient
+  (weight-2) eigensystem at level $`M \mid Np^2`$, with eigenvalues twisted by
+  $`\ell^{n/2}`$;
+* `GaloisRep.exists_galoisRep_trace_eq_of_isEigensystemH1_one_of_ringHom` builds the
+  Galois representation from that weight-2 eigensystem; closure 1,350 with only
+  **4** `HeckeEis` nodes, and those are cocycle/transfer bookkeeping
+  (`coresHom_eq_transfer`, `existsUnique_coeffCocycles_sl2z_apply_S_ST_eq`,
+  `heckeOperatorHom_smul`, `postcomp_heckeOperatorHom`), not the analytic period
+  map.
+
+So the general-weight "étale cohomology / Kuga–Sato" is *provenance*, not a formal
+requirement: FLT already reduces to weight 2 internally. The replacement needed at
+interface 3 is the same shape as for the others — a non-period construction of the
+Hecke eigenvector on the carrier, from the C′ lattice plus the geometric E-S
+congruence — applied to one transfer lemma, not a new general-weight cohomology
+theory. In particular interface 3 is **used** for: attaching the 2-dimensional
+mod-$`p`$ Galois representation to a mod-$`p`$ Hecke eigencharacter
+($`\mathrm{trace} = T_\ell`$, $`\det = \ell^{k-1}`$, unramified outside $`Np`$),
+which feeds the Katz weight-raising step
+(`WeierstrassCurve.exists_ideal_heckeAlgebra_two_or_succ_…_of_katz_…`) and then
+residual modularity and modularity lifting.
 
 **Net.** §8's "shared spine" is a statement about FLT as written, not about
 mathematics. The analytic E-S is a convenience that packages finiteness and the
