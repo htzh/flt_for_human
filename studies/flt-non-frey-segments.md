@@ -681,7 +681,8 @@ HeckeEis.span_range_coeffH1par_map_int_complex_eq_top    (54 lines)
 ```
 
 The other 653 of route A's 657 nodes stay, because the analytic E-S in them is
-consumed independently by the four interfaces below. (Route A's marginal over the
+consumed independently by the interface family below (§8.1: four `HeckeEis`-side
+interfaces, ten once `ModPForms`/`PeriodPair` consumers are counted). (Route A's marginal over the
 weight-one branch, `A \ W` with
 `A = closure(hasIntegralStructure_of_two_le)` and
 `W = closure(No2BridgeWiring.weightOneNewformExists_not_cube_dvd)`, is 73 nodes /
@@ -724,7 +725,7 @@ uses `exists_isEichlerIntegral`;
 * **C′'s saving over route A is 4 nodes / 800 lines, not the 73-node margin.**
   Replacing route A's proof removes only the nodes reachable solely through
   `hasIntegralStructure_of_two_le`; 653 of route A's 657 nodes are needed
-  independently by the four interfaces below. This corrects
+  independently by the interface family below. This corrects
   [route-c-prime-scout.md](route-c-prime-scout.md) §4 (addendum) and
   [hecke-finiteness-coverage.md](hecke-finiteness-coverage.md) §7.3.
 * The **arithmetic** Eichler–Shimura cone is genuinely distinct —
@@ -749,8 +750,9 @@ uses `exists_isEichlerIntegral`;
 
 **Porting angle.** For a port bounded to the integral-structure statement, the C′
 cone plus the trace lemma suffices and the E-S interfaces are not needed. For an
-endgame-complete port, the E-S cost is set by the four interfaces — 119 of the 130
-`HeckeEis` nodes / 41,815 lines, plus `ModPForms` — not by the integral-structure
+endgame-complete port, the E-S cost is set by the interface family — 119 of the 130
+`HeckeEis` nodes / 41,815 lines on the four `HeckeEis`-side exits, and 207 of the
+213 E-S-ish nodes / 70,558 lines across all ten (§8.1) — not by the integral-structure
 route; C′ changes only 4 nodes. Reproduce:
 
 ```bash
@@ -810,7 +812,8 @@ the replacement.
   `KatzModularForm.*` cluster (19 nodes).
 
 Where the analytic E-S *is* used in the endgame is a bounded interface surface:
-the four interfaces below collectively consume **119 of the 130 `HeckeEis` nodes**
+the four `HeckeEis`-side interfaces below collectively consume **119 of the 130
+`HeckeEis` nodes**
 (41,815 of 44,516 lines), all of the shape "produce a mod-$`p`$ Hecke eigenvector
 / eigensystem / congruence". They are the maximal exits of the
 `HeckeEis`/`ModPForms` eigenvector development into the rest of the endgame:
@@ -822,26 +825,34 @@ the four interfaces below collectively consume **119 of the 130 `HeckeEis` nodes
 | `GaloisRep.exists_galoisRep_trace_eq_eigenchar_and_det_eq_pow_of_three_le` | `HeckeEis.isEigensystemH1_binaryFormRepSL_of_heckeTLin_eq_smul` |
 | `WeierstrassCurve.exists_ideal_heckeAlgebra_three_weight_le_four_pow_mul_apOfModel_of_exists_prime_dvd_mod_three_eq_two` | `ModPForms.exists_three_weight_le_four_mem_modPMod_isModPEigen_pow_mul_…`, `ModPForms.modPCusp_le_modPMod` |
 
-**The interface cost, and the interface-3-only variant.** Measured by the
-per-interface downward closure over the `HeckeEis` namespace:
+**The interface cost, and the interface-3-only variant.** Measured over the
+E-S-ish namespaces `HeckeEis` (130 nodes / 44,516 lines), `ModPForms` (65 /
+15,084) and `PeriodPair` (18 / 12,265) — **213 nodes / 71,865 lines** in the
+endgame. The surface is **ten maximal interfaces**, not four: the four of the
+table above are the `HeckeEis`-side exits, and `ModPForms`/`PeriodPair` reach six
+more (per-interface closures overlap; the union of all ten is 207 of the 213
+nodes / 70,558 of 71,865 lines):
 
-| interfaces retaining analytic E-S | `HeckeEis` nodes | raw `S_` lines |
+| additional interface | E-S-ish nodes | lines |
 |---|---:|---:|
-| all four (status quo, with or without C′) | 119 | 41,815 |
-| interface 3 only | 36 | 13,293 |
+| `CuspForm.heckeAlgebra.exists_isMaximal_two_ringHom_of_succ_…` | 107 | 31,660 |
+| `CuspForm.heckeAlgebra.thetaCycle_exists_ringHom_mul_two_apply_eq_…` | 93 | 28,401 |
+| `CuspForm.exists_mem_heckeAlgebra_singleton_heckeTLin_eq_add_smul_of_ne_two` | 16 | 10,768 |
+| `LevelRaising.qNewSupport_comap_of_isNormalizedEigenform_oddPrime` | 22 | 12,609 |
+| `WeierstrassCurve.exists_ne_zero_mem_rationalHomSet_of_comp_self_add_smul_eq_smul` | 6 | 4,265 |
+| `ModularCurve.exists_eq_smul_of_diffQExpBar_eq_…_of_kaehlerH0_…` | 1 | 26 |
 
-So de-E-S-ifying interfaces 1, 2 and 4 while retaining E-S for interface 3 alone
-removes **83 nodes / 28,522 lines** — about 68% of the `HeckeEis` package.
-Interface 3's residual share is the Eichler-integral existence plus the
-`isEigensystemH1` development (`exists_isEichlerIntegral`,
-`isEquivariantPrimitiveWith_of_isEichlerIntegral`, `isEigensystemH1_*`,
-`coeffHeckeFun_mem_*`). This is the only lever: with all four interfaces retained,
-C′ removes just the 4 nodes of §8, because the interfaces independently need the
-E-S cone (`HeckeEis ∩ A \ interfaces = 0`). The `ModPForms` namespace adds 4
-further nodes to the interface cone; the rest of it is consumed elsewhere.
+Interface 3's share of the E-S-ish package is 46 nodes / 23,363 lines — 36 /
+13,293 in the `HeckeEis` namespace alone, the rest `PeriodPair`. So de-E-S-ifying
+the other nine interfaces while retaining E-S for interface 3 removes **161
+nodes / 47,195 lines**; de-E-S-ifying all ten targets the whole 213 / 71,865.
+Either way this is the only lever: with every interface retained, C′ removes just
+the 4 nodes of §8, because every `HeckeEis` node route A uses is itself consumed
+by an interface.
 
-So a "de-E-S-ified" architecture would re-prove those four eigenvector-existence
-interfaces on the Jacobian/$`\Omega^1`$ side (or directly on the $`q`$-expansion
+So a "de-E-S-ified" architecture would re-prove the interface family — four on the
+`HeckeEis` side, ten in all — on the Jacobian/$`\Omega^1`$ side (or directly on
+the $`q`$-expansion
 lattice, using C′'s integral structure), and keep the rest. The caveats behind
 "challenging with the existing proof base":
 
@@ -867,7 +878,7 @@ already in the pin, E-S-free:
   periods;
 * the $`S_2 \cong \Omega^1`$ identity and the `KatzModularForm` cluster above.
 
-What is missing is the **wiring**: none of the four interfaces' current closures
+What is missing is the **wiring**: none of the interfaces' current closures
 contains those geometric nodes (intersection 0), and each reaches the analytic
 E-S eigenclass instead (23, 2, 11 and 24 of the retained `HeckeEis` nodes
 respectively). Three of the four have E-S-free statements — interfaces 1, 3 and 4
@@ -914,7 +925,7 @@ mod-$`p`$ eigenvector existence: C′ supplies the first, and the E-S congruence
 the Jacobian plus $`S_2 \cong \Omega^1`$ supplies the second. FLT already has
 both halves — the `JZero` Tate-module route and the `intLattice ≅
 regularDifferentials` linear equivalence — but has not wired the second into the
-four interfaces above.
+interfaces above.
 
 ## Sources
 
