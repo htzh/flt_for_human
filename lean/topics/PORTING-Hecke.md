@@ -61,6 +61,13 @@ this port does not reduce it.
 | SET 2 | T2 Fricke dedup, T3 analytic regularity, T4 cusp-class | `HeckeFricke`, `HeckeAnalytic`, `HeckeCusps` | 823 | 682 → 696 |
 | SET 3 | T5 `q`-coefficient, T6 bundling, T7 commutation + algebra | `Defs/FormalHeckeOperators`, `HeckeQCoeff`, `HeckeOperatorForms`, `ModularCurve/Defs/LaurentSeriesHecke`, `HeckeCommute`, `HeckeAlgebra` | 1,401 | 696 → 772 |
 | SET 4 | T8 eigenform interface, T9 integral lattice, T10 **blocked** | `Defs/Eigenform`, `HeckeEigenform`, `Defs/IntegralStructure`, `HeckeLattice`, `Defs/EisensteinChiNegThree`, `Defs/IntegralLattice` | 986 | 772 → 802 |
+| SET 5–11 + capstone | route C′ — the integral structure from an integral `Γ₁`-basis (successor effort, §3.2) | `ModularForms/WeightOne/*` (11 modules) | ~33,600 | 1260 → 1312 |
+
+The SET 5–11 row is a **successor effort**, not a Hecke set: it discharges T10's
+blocked premise (`HasIntegralStructure`) and is recorded here because it is what
+unblocks the finiteness half. Its orders are
+[hecke/SET-5.md](hecke/SET-5.md) … [hecke/SET-11.md](hecke/SET-11.md) and
+[hecke/TOPIC-capstone-integral-structure.md](hecke/TOPIC-capstone-integral-structure.md).
 
 Module inventory (pin lines in brackets where the module mirrors one):
 
@@ -96,7 +103,7 @@ Module inventory (pin lines in brackets where the module mirrors one):
 | D | Γ_H / Γ₁ / level lowering | **remaining** (§3.1) |
 | — | the coefficient action (§6) | **done** (not a lettered stage) |
 | — | the eigenform dictionary (§8) | **done** (not a lettered stage) |
-| — | the Hecke algebra's finite/free half (§9) | **out of scope** (§3.2) |
+| — | the Hecke algebra's finite/free half (§9) | **integral-structure half delivered** (route C′, §3.2); `Module.Finite`/`Free` remaining |
 | §12 | the boundary faces | **out of scope** |
 
 ## 3. What remains
@@ -144,11 +151,11 @@ Confirmed absent from `FLTForHuman/` (`grep -c` = 0): `heckeULowerLin`,
 `heckeTLinH`, `heckeULinH`, `diamondLinH`, `heckeTLinOne`, `diamondLinOne`,
 `slashOfMemGamma0`.
 
-### 3.2 The finiteness — out of scope (decided 2026-09-23)
+### 3.2 The finiteness — the integral structure delivered via C′; the `Module.Finite` half remains
 
 `Module.Finite`/`Free ℤ (heckeAlgebra N k S)`, `HasIntegralStructure` and the
 eigenbasis-span family were scoped as SET 4's T10 and deliberately stopped. The
-measurements:
+measurements (2026-09-23):
 
 - The **general** targets need the Eichler–Shimura / cohomology comparison:
   `hasIntegralStructure_of_two_le` has a **657-node / 263,720 raw-S-line** cone,
@@ -172,11 +179,53 @@ endgame version of the decision — the general forms are unavoidable for
 and the Sturm-bound sub-cone is a small mandatory prerequisite — is measured in
 [../../studies/hecke-finiteness-coverage.md](../../studies/hecke-finiteness-coverage.md).
 
-**Parked modules.** `Defs/EisensteinChiNegThree.lean` and
-`Defs/IntegralLattice.lean` (SET 4's T10) are the mod-3 / `HasIntegralBasis`
-vocabulary. Neither route above uses them; they are green and harmless. Keep them
-for a future congruence topic or revert them — they are not prerequisites of
-anything ported.
+**Outcome (2026-09-24): `HasIntegralStructure` is ported without the
+Eichler–Shimura tower.** The cheap route was scouted
+([route-c-prime-scout.md](../../studies/route-c-prime-scout.md)) and executed as
+SET 5–11 plus a capstone: eleven modules under
+`ModularForms/WeightOne/` (~33.6k lines, the 53-node cone) and
+`WeightOne/IntegralStructure.lean` (374 lines). Checker **1312 identical / 0
+mismatched / 0 missing**; full build green; `IntegralStructure.lean` contains
+**zero** occurrences of `HeckeEis`, `ModPForms`, `PeriodPair` or the route-A
+criterion. So `hasIntegralStructure_of_two_le`/`_two` cost ≈1/8 of route A's raw
+`S_`-line cone instead of 263,720 lines.
+
+**The insight worth keeping: the trace lemma.** The brief's proposed ingredient
+`exists_basis_gamma1_qCoeff_mem_range_intCast` does not exist in the pin, and the
+"small Sturm bound" it was paired with is irrelevant. The real statement is the
+*slash* form `CuspForm.exists_basis_gamma1_qCoeff_slash_mem_range_intCast` — a
+`ℂ`-basis of `S_k(Γ₁(N))` whose every **`Γ₀(N)`-translate** has integral
+`q`-expansion — and the step FLT never takes is a **trace**: summing over the
+finite quotient `Γ₀ ⧸ Γ₁` carries an integral `Γ₁`-slash-basis to a spanning
+family of integral `Γ₀`-forms, because the trace is `[Γ₀ : Γ₁] •` the identity on
+`S_k(Γ₀(N))`. It is elementary but decisive: `Γ₁` is where integrality is proved
+(Deligne–Serre's Proposition 2.7, via bounded denominators), and `Γ₀` is where the
+Hecke algebra needs it, and the finite-index transfer between the two is the
+whole gap. Mathlib's `CuspForm.trace` supplies the bundled map; the port adds an
+`IsFiniteRelIndex` instance, a restriction `CuspForm Γ₀ → CuspForm Γ₁`, trace
+linearity, and the `qCoeff`-of-trace transport. The route is not throwaway: its
+cone is shared with the endgame's weight-one modularity branch (`frey_isModular`),
+so only the lemma is route-specific, whereas route B's 4,308-line standalone proof
+is a duplicate of a specialisation and is written to be deleted.
+
+**Parked modules, re-classified.** `Defs/EisensteinChiNegThree.lean` and
+`Defs/IntegralLattice.lean` (SET 4's T10) were recorded here as unused by either
+route. That is now known to be wrong for the first: the weight-one `χ₋₃`
+Eisenstein modularity (`EisensteinWeightOne.e1Chi3IsModular`) is the analytic heart
+of the C′ ingredient, so keep it. `Defs/IntegralLattice.lean` (the weight-2
+`HasIntegralBasis` vocabulary) is still unused by this route.
+
+**Residual work (deferred to a fresh session).** The `Module.Finite`/`Free` half
+is untouched: `CuspForm.HasIntegralStructure.moduleFinite_heckeAlgebra` /
+`moduleFree_heckeAlgebra` (closures 18–19) now have their hypothesis, `intLattice_fg`
+and `moduleFinite_heckeAlgebra` follow on the finiteness side, and the
+eigenbasis-span family still needs the Petersson inner product and
+`finiteDimensional_Gamma0`. Separately, the C′ payoff should be written up as a
+**redundancy-reduction record**: a short note quantifying what route C′ avoided
+(route A's 657 nodes / 263,720 lines vs the 53-node cone / ~33.6k lines plus the
+374-line capstone) and naming the reusable pattern — *prove integrality on the
+smaller (index-finite) subgroup and transfer by the trace* — as the first entry in
+a standing "redundancy reduction" line of work.
 
 ### 3.3 The boundary (survey §12) — not this effort
 
@@ -187,6 +236,25 @@ Langlands Hecke operators are separate faces with their own consumers.
 
 ## 4. Findings worth keeping
 
+- **The trace lemma — the insight that made route C′ work.** Prove integrality on
+  the *smaller* subgroup and transfer it up by the trace. Concretely: FLT proves
+  the integral-slash basis for `S_k(Γ₁(N))` (Deligne–Serre Prop. 2.7: rational
+  structure + bounded denominators, no cohomology), but the Hecke algebra needs
+  integrality for `S_k(Γ₀(N))`. `Γ₁ ⊴ Γ₀` has finite index, and the trace
+  `Σ_{q : Γ₀ ⧸ Γ₁} (−) ∣[k] q` is `[Γ₀ : Γ₁] •` the identity on `Γ₀`-forms, so the
+  traces of the basis **span** `S_k(Γ₀(N))` and stay integral. One lemma, no Sturm
+  bound, every weight, and it replaces a 657-node / 263,720-line Eichler–Shimura
+  comparison with a 53-node cone plus 374 lines
+  (`ModularForms/WeightOne/IntegralStructure.lean`). The scout had the ingredient
+  name wrong (`…mem_range_intCast` does not exist; the working one is the *slash*
+  form `…qCoeff_slash_mem_range_intCast`) and paired it with the wrong crutch (the
+  Sturm bound) — but the *shape* of the proposal was right, and the missing step
+  was not in FLT at all. Full record:
+  [../../studies/route-c-prime-scout.md](../../studies/route-c-prime-scout.md),
+  [../../math/013-integral-structure-gamma1-basis.md](../../math/013-integral-structure-gamma1-basis.md),
+  [hecke/TOPIC-capstone-integral-structure.md](hecke/TOPIC-capstone-integral-structure.md).
+  **This is the first entry in a standing redundancy-reduction line of work** (§3.2
+  residual).
 - **FLT duplicates whole proof blocks per `S_` file, and the port's job is to
   write each once.** Measured dedups: the Γ₀ representative block (3 files), the
   analytic head (six 353-line files), the `q`-coefficient tail (four more of the
@@ -249,16 +317,24 @@ commits); do not touch the FFG modules.
 
 **If you take Stage D**, start with Atkin–Lehner (self-contained, 57 consumers),
 and write its work order with the §3.1 numbers. **If you take the finiteness**,
-do not reach for the Eichler–Shimura route without first scouting a cheaper
-`HasIntegralStructure` proof (an explicit integral spanning family via
-`exists_basis_gamma1_qCoeff_mem_range_intCast` plus the small Sturm bound,
-`sturm_bound_of_isArithmetic` 29 lines / 287-line cone) — the two-route analysis
-is in `TOPIC-t10-finite-algebra.md` §7.
+`HasIntegralStructure` is already ported via route C′ (§3.2) — the scouting this
+paragraph used to ask for was done and succeeded, and the route's numbers and the
+trace-lemma lesson are §3.2 and §4. What remains is the `Module.Finite`/`Free`
+half (`HasIntegralStructure.moduleFinite/Free_heckeAlgebra`), `intLattice_fg`,
+`moduleFinite_heckeAlgebra`, and the eigenbasis-span family — plus the
+redundancy-reduction write-up §3.2 names as residual.
 
 ## 6. Pointers
 
 - [hecke-operator-survey.md](../../studies/hecke-operator-survey.md) — the pin
   inventory and the stage reading.
+- [route-c-prime-scout.md](../../studies/route-c-prime-scout.md) — the C′ scout:
+  the trace lemma, the corrected ingredient, the measured cones.
+- [../math/013-integral-structure-gamma1-basis.md](../../math/013-integral-structure-gamma1-basis.md)
+  — the mathematics of §3.2/§4 (rational structure, bounded denominators, trace).
+- [hecke/](hecke/) — this effort's work orders, including
+  [SET-5](hecke/SET-5.md) … [SET-11](hecke/SET-11.md) and the capstone
+  [TOPIC-capstone-integral-structure.md](hecke/TOPIC-capstone-integral-structure.md).
 - [hecke-commute-bar-coverage.md](../../studies/hecke-commute-bar-coverage.md) —
   the other Hecke face and its measured coverage.
 - [../logs/hecke-port.md](../logs/hecke-port.md) — the per-set record and reviews.
