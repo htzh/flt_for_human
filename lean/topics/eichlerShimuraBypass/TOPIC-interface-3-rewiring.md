@@ -1,11 +1,19 @@
 # Topic: de-E-S-ifying interface 3 — verification plan
 
-**Status: reconnaissance plan (2026-09-26). Not started.** This is a scouting /
-feasibility plan, not a port order. It exists to decide — with pinned measurements
-— whether the single analytic-Eichler–Shimura premise of FLT's interface 3 can be
-replaced by E-S-free machinery, how much that saves, and whether the replacement
-is type-compatible with the existing proof. If the verdict is positive, this file
-becomes the parent of a Lean work order (see §7).
+**Status: reconnaissance plan (2026-09-26). Phase 0 complete (2026-09-25);
+Phases 1–6 not started.** This is a scouting / feasibility plan, not a port order.
+It exists to decide — with pinned measurements — whether the single
+analytic-Eichler–Shimura premise of FLT's interface 3 can be replaced by E-S-free
+machinery, how much that saves, and whether the replacement is type-compatible
+with the existing proof. If the verdict is positive, this file becomes the parent
+of a Lean work order (see §7).
+
+**Phase 0 result:** the plan is coherent and its Phase 0 gate **passes**. All
+figures in §1/§2 reproduced against the pin (§3 closure 25 nodes / 21 `HeckeEis`,
+interface 3 `HeckeEis` footprint 36 nodes / 13,293 `S_` lines); the analytic cone
+is 12 nodes / 2,301 lines, all only reachable through the target lemma, and no
+tail node depends on it. The contract and the partition tables are in
+[../../../studies/eichler-shimura-bypass-scout.md](../../../studies/eichler-shimura-bypass-scout.md).
 
 Provenance (read all three before acting):
 
@@ -169,6 +177,21 @@ architectures:
   `intLattice ≅ regularDifferentials` comparison. Interface 3's E-S-free tail then
   applies unchanged. **This is the leading hypothesis.**
 
+**Carrier constraint (the main thing; added after the Phase 0 review).** The
+replacement must not carry a cohomology argument beyond the *tame implicit type*
+of route B's blob — `addChars`, i.e. `Hom` at trivial coefficients, with every
+1-coboundary zero and no quotient
+([../../studies/eichler-shimura-bypass-scout.md](../../studies/eichler-shimura-bypass-scout.md)
+§0, [../../../math/015-weight-two-hecke-periods.md](../../../math/015-weight-two-hecke-periods.md)
+§3). Concretely, a candidate whose cone builds a genuine
+$`H^1(\Gamma_0, \mathrm{Sym}^n)`$ — Kuga–Sato, de Rham comparison, or an
+identification of `CohCarrier.H1` with `coeffH1 (binaryFormRepSL κ n)` at
+$`n > 0`$ — is outside the constraint and needs a separate justification before
+it counts. Architecture B / Candidate 0 is compatible by construction: at
+$`n = 0`$ the coefficients are trivial, so `coeffCoboundaries 1 = ⊥` and
+`coeffH1 1` *is* route B's type; the bridge is thin and adds no cohomology. This
+is a Phase 1 filter and a §5 stop condition.
+
 **Candidate 0 — the route B bridge (leading).** The weight-2
 (trivial-coefficient) E-S is already in the pin, twice:
 
@@ -236,8 +259,21 @@ build); Phase 5 is the optional spike.
    `binaryFormRepSL`, `binaryFormAlphaAdj`, `coeffH1`, `coeffCocycles`.
 3. Produce the 36-node partition of §2 and the 21-node fact table.
 
-Artifact: §"Contract" table in the scout note.
+Artifact: §"Contract" table in the scout note
+([../../../studies/eichler-shimura-bypass-scout.md](../../../studies/eichler-shimura-bypass-scout.md)
+§1–§4).
 Gate: if more than this one lemma is analytic, re-scope the topic before Phase 1.
+
+**Done 2026-09-25 — gate passes.** The 36-node partition is 14 reachable only
+through the lemma / 22 reachable without it; the 21-node cone splits into 9
+analytic nodes (2,137 lines), 3 E-S-packaging nodes (164 lines), 8 E-S-free
+algebra nodes (2,281 lines), plus the 523-line lemma. No tail node's closure
+meets the analytic set, so the analytic construction is confined to the target
+lemma. Refinement: two of the 14 only-through nodes
+(`span_coeffCocycles_binaryFormRepSL_map_intCast_eq_top`,
+`exists_injective_baseChange_coeffH1_binaryFormRepSL`, 781 lines) are E-S-free
+algebra, so Phase 2's circularity set is the 12-node / 2,301-line analytic cone,
+not all 14.
 
 ### Phase 1 — Candidate constructions, stated as theorems (2–3 rounds)
 
@@ -365,7 +401,7 @@ header): bound every build (`timeout 60 lake env lean <file>`,
 
 - Decision matrix: **feasible / conditionally feasible (state X) / blocked (state
   the concrete blocker)**.
-- Write `studies/interface-3-rewiring-scout.md` (pinned, measured) and cross-link
+- Write `studies/eichler-shimura-bypass-scout.md` (pinned, measured) and cross-link
   it from [../../../studies/flt-non-frey-segments.md](../../../studies/flt-non-frey-segments.md)
   §8.1.
 - If positive, draft the Lean work order as
@@ -382,6 +418,9 @@ Phase 5 if the gate is passed.
 - more than the one analytic lemma in interface 3's E-S cone (Phase 0 gate);
 - the carrier bridge requiring the E-S comparison itself (architecture A), which
   needs unported general-weight theory;
+- a candidate that must formalize a genuine $`H^1(\Gamma_0, \mathrm{Sym}^n)`$
+  (Kuga–Sato, de Rham comparison, or a `CohCarrier.H1` identification at
+  $`n > 0`$) — i.e. cohomology beyond route B's `addChars`/`Hom` type (§3);
 - no form-side, E-S-free weight reduction existing (architecture B fails);
 - a candidate citing any node of the 21-node analytic cone (circularity);
 - a measured saving materially below the 161-node / 47,195-line figure (or, for
@@ -400,19 +439,22 @@ Phase 5 if the gate is passed.
 
 ## 7. Definition of done (for the scouting topic)
 
-- [ ] contract frozen (§2) and the two-partition table produced;
+- [x] contract frozen (§2) and the two-partition table produced (scout note §1–§4);
 - [ ] candidate matrix with `HeckeEis` counts for every candidate;
 - [ ] at least one replacement signature type-compatible with interface 3, or a
       justified refactor;
 - [ ] circularity check done against the 36-node cone;
 - [ ] measured saving reproduced with the command above;
 - [ ] novelty/literature assessment written;
-- [ ] `studies/interface-3-rewiring-scout.md` written and cross-linked;
+- [x] `studies/eichler-shimura-bypass-scout.md` written and cross-linked (Phase 0);
 - [ ] verdict recorded; if positive, the port work order drafted as
       `TOPIC-interface-3-rewiring-port.md`.
 
 ## 8. Pointers
 
+- Phase 0 contract and E-S partition:
+  [../../../studies/eichler-shimura-bypass-scout.md](../../../studies/eichler-shimura-bypass-scout.md)
+  §1–§4 and reproduction §6.
 - Interface map and corrections:
   [../../../studies/flt-non-frey-segments.md](../../../studies/flt-non-frey-segments.md)
   §8, §8.1.
