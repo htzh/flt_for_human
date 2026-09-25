@@ -101,6 +101,17 @@ those nodes are geometry that the endgame needs anyway. The full ten-interface
 figure is also the correct answer to "is it more than just the interface?": yes —
 four times the four-interface estimate, but still not the 657-node cone.
 
+**The weight-2 E-S is already in the pin.** `Definitions/Def_ModularCurve_PeriodMap.lean`
+defines `ModularCurve.Period.IsEquivariantPrimitive` / `period` / `periodHom` /
+`parabolicHoms` (and interface 3's tail already imports it), and route B's blob
+supplies the substantive weight-2 theory — primitive existence, period
+injectivity, Hecke equivariance, the integral cocycle lattice `addChars ℤ Γ₀ ℤ`,
+its spanning and the Hecke triple algebra — self-contained at graph closure 1.
+So the $`n = 0`$ (trivial-coefficient) instance of interface 3's analytic step can
+come from what is already written, not from the `HeckeEis` package. §3 Candidate 0
+is this bridge and is the first thing Phase 1 tests; the open question it leaves
+is the form-side reduction from weight $`k`$ to weight 2.
+
 ## 2. The contract: exactly what must be replaced
 
 The analytic content of interface 3 is the single lemma
@@ -158,6 +169,49 @@ architectures:
   `intLattice ≅ regularDifferentials` comparison. Interface 3's E-S-free tail then
   applies unchanged. **This is the leading hypothesis.**
 
+**Candidate 0 — the route B bridge (leading).** The weight-2
+(trivial-coefficient) E-S is already in the pin, twice:
+
+- **definitions**: `ModularCurve.Period.IsEquivariantPrimitive`, `period`,
+  `periodHom`, `IsParabolicHom`, `parabolicHoms` live in
+  `Definitions/Def_ModularCurve_PeriodMap.lean`, which interface 3's own tail
+  (step 3, `exists_galoisRep_trace_eq_of_isEigensystemH1_one_of_ringHom`) already
+  imports;
+- **substance**: primitive existence, period injectivity, Hecke equivariance, the
+  integral cocycle lattice `addChars ℤ Γ₀ ℤ`, its spanning
+  (`span_range_ofIntChars`) and the Hecke triple algebra are proved
+  self-contained in route B's blob
+  (`S_CuspForm_moduleFinite_heckeAlgebra_two.lean`, 4,308 lines, graph closure 1).
+
+At degree $`n = 0`$ the target of step 1 degenerates to a nonzero Hecke
+eigenvector in `coeffH1 (1 : Representation κ Γ₀ κ)`. Since
+`coeffH1 1 = coeffCocycles 1 ⧸ 0 = Hom(Γ₀, κ) = addChars κ Γ₀ κ`, that is exactly
+the shape route B produces, so the $`n = 0`$ instance of step 1 should come from
+route B plus a **thin carrier bridge**
+`addChars κ Γ₀ κ ≃ coeffH1 (1 : Representation κ Γ₀ κ)` (a quotient by the zero
+coboundary submodule) — not from the `HeckeEis` package.
+
+What route B does **not** give is degree $`n \gt 0`$: its primitive exists only for
+weight 2. So the bridge closes interface 3 iff the transfer from weight $`k`$ to
+weight 2 can be made *before* step 1 — a **form-side weight reduction** (Katz
+forms / the θ-cycle machinery). The pin's step 2
+(`exists_isEigensystemH1_one_dvd_mul_sq_…`) is E-S-free but consumes step 1's
+degree-$`n`$ output; the question is whether an E-S-free form-side analogue
+exists.
+
+**Obligations for Candidate 0.** (a) the carrier bridge above, or a direct
+`IsEigensystemH1` construction; (b) the form-side weight reduction $`k \to 2`$,
+E-S-free; (c) the mod-$`p`$ eigenvector from route B's ℂ periods plus the integral
+cocycle lattice — the integrality step step 1 performs. Route B's
+`span_range_ofIntChars` says the integral cocycles ℂ-span, not that a specific
+period class is integral; that gap is the same subtlety as §2.
+
+**Reframing.** If Candidate 0 works, the topic is really
+**de-`HeckeEis`-ification**: the analytic E-S is not removed, it is replaced by
+route B's weight-2 instance, which is already written and dependency-free. That is
+a much better outcome than a new general-weight construction, and it is the first
+thing Phase 1 should test.
+
 Architecture B is only viable if the form-side weight reduction is itself
 E-S-free. The pin's step 2
 (`HeckeEis.exists_isEigensystemH1_one_dvd_mul_sq_of_isEigensystemH1_binaryFormRepSL`)
@@ -190,21 +244,29 @@ Gate: if more than this one lemma is analytic, re-scope the topic before Phase 1
 For each candidate, write the Lean-style signature it can supply, grep its cone
 for `HeckeEis`, and check the carrier match:
 
-1. **CohCarrier route.** `CohCarrier.heckeT_top_apply_eq_heckeOperatorHom`,
+1. **Route B bridge (Candidate 0, leading).** `ModularCurve.Period.periodHom`
+   (`Definitions/Def_ModularCurve_PeriodMap.lean`) plus route B's
+   `exists_equivariantPrimitive_gamma0`, `periodHom_injective`,
+   `periodHom_hecke`, `addChars ℤ Γ₀ ℤ`, `span_range_ofIntChars` and the triple
+   algebra. Produce the $`n = 0`$ `IsEigensystemH1` directly, via the carrier
+   bridge `addChars κ Γ₀ κ ≃ coeffH1 (1 : Representation κ Γ₀ κ)`. This is the
+   candidate that uses what the pin already has.
+2. **CohCarrier route.** `CohCarrier.heckeT_top_apply_eq_heckeOperatorHom`,
    `CohCarrier.exists_complex_heckeT_eigen_reduction_eq_of_mem_span_int`,
    `CohCarrier.mem_span_int_of_forall_isOfFinOrder_apply_eq_zero`,
    `CohCarrier.exists_ringHom_heckeAlgebra_apply_smul_eq_heckeT_of_mem_parabolicHoms`.
    Does it give a nonzero Hecke eigenvector from an eigenform/eigencharacter
    without the Eichler integral? Is `CohCarrier.H1` identifiable with
    `coeffH1 (binaryFormRepSL κ n)`?
-2. **JZero/Frobenius route (architecture B, $`n = 0`$).**
+3. **JZero/Frobenius route (architecture B, $`n = 0`$).**
    `ModularCurve.frobeniusQuadratic_JZero`, `W54.jZeroPPowTorsion_frobeniusQuadratic`,
    `CuspForm.IsNewform.exists_eigenPlane_tateModule_jZero`, composed with
    `ModularCurve.exists_linearEquiv_tensor_intLattice_regularDifferentials_qExpansionDiffAlong_eq`.
-3. **Katz-forms route (architecture B, form side).** `KatzModularForm.*`,
+4. **Katz-forms route (architecture B, form side).** `KatzModularForm.*`,
    `ModularCurve.KatzGamma0Form`/`KatzLevelPForm`. Locate the weight-reduction
-   statement on forms (the analogue of step 2) and check it is E-S-free.
-4. **Abstract route.** Can `ModularCurve.EichlerShimuraData` /
+   statement on forms (the analogue of step 2) and check it is E-S-free. This is
+   the gate for Candidate 0 at degree $`n \gt 0`$.
+5. **Abstract route.** Can `ModularCurve.EichlerShimuraData` /
    `FrobeniusQuadratic` / `SpecialFibreRelation` be instantiated E-S-free and fed
    to `IsEigensystemH1`?
 
