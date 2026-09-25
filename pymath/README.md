@@ -30,6 +30,8 @@ pymath/
   level_lowering.expected.txt
   residue_theorem.py         demo 10 — residues and the residue theorem
   residue_theorem.expected.txt
+  hexagonal_theta.py         demo 11 — the hexagonal theta series and chi_{-3}
+  hexagonal_theta.expected.txt
   report.py                  presentation: note / data / check / finish
   ffcurve/                   the shared foundation for all demos
     __init__.py
@@ -44,6 +46,7 @@ pymath/
     frey.py                  Weierstrass invariants and the Frey specialisations
     level.py                 conductor levels, exact division, descent chains
     residue.py               residues on P^1, logarithmic derivatives, sums
+    hexagonal.py             the hexagonal form x^2 + xy + y^2 and Z[zeta_6]
 ```
 
 ## Foundation: what sympy gives us, and what `ffcurve` adds
@@ -331,6 +334,30 @@ to a putative Fermat counterexample, symbolically in `X = a^p`, `Y = b^p`:
 
 10 checks, all passing.
 
+## Demo 11: the hexagonal theta series
+
+`hexagonal_theta.py` computes the representation numbers of the hexagonal form
+`Q(x, y) = x^2 + x y + y^2` and checks that its theta series is the weight-one
+`chi_{-3}` Eisenstein series `e1Chi3 = 1 + 6 sum sigma_chi(n) q^n`:
+
+- the ring `Z[zeta_6]` of Eisenstein integers: `Q` is the norm, multiplication
+  and conjugation preserve it, the six units are exactly the norm-one elements,
+  rotation by `zeta` is `(x, y) -> (-y, x + y)`, and the nearest-lattice-point
+  division makes the ring Euclidean;
+- the unit orbits partition the representations, each of size 6, so
+  `6 | r(n)` and `r(n) / 6` counts representations up to a unit;
+- the main identity `r(n) = 6 sigma_chi(n) = 6 (d_1(n) - d_2(n))` up to `q^63`,
+  with `chi_{-3}` the nontrivial character mod 3;
+- the three local laws: `3` ramifies (`r(3^k) = 6`, `r(3m) = r(m)`), split
+  primes `p = 1 mod 3` give `r(p^k) = 6(k+1)`, inert primes `p = 2 mod 3` give
+  `6` or `0` for even or odd `k`, and `6 r(m n) = r(m) r(n)` for coprime
+  `m, n` (coprimality checked to be necessary);
+- the analytic half at `tau = 2i`: the T, Fricke
+  `theta(-1/(3 tau)) = -i sqrt(3) tau theta(tau)` and `U_3` functional
+  equations, evaluated from the truncated lattice sum.
+
+26 checks, all passing.
+
 ## Roadmap
 
 Concepts worth a demo, roughly in dependency order. Each entry names the math and the
@@ -348,6 +375,7 @@ formalization it should instantiate.
 | `frey_curve` ✅ | the Frey curve, its discriminant, conductor, semistability | `FreyPackage`, `IsSemistableModel` |
 | `level_lowering` ✅ | level invariants and what Ribet's theorem removes | `FreyPackage.level_lowering_to_two` |
 | `residue_theorem` ✅ | `sum of residues = 0` for a differential on a curve | `AlgebraicCurve.ResidueTheorem`, `WeilOfKaehler` |
+| `hexagonal_theta` ✅ | `r(n) = 6 sigma_chi(n)`, the three splitting laws, and `theta = e1Chi3` | `EisensteinWeightOne.e1Chi3IsModular`, `HexagonalLattice.summable_thetaTerm_and_tsum_neg_inv_three_mul` |
 
 ## Conventions inherited from the repo
 

@@ -126,7 +126,9 @@ level-one reduction plus a monic relation:
 
 The weight-one **$`\chi_{-3}`$ Eisenstein series** $`E_1(1,\chi_{-3})`$ enters as the
 low-weight generator of the $`\Gamma_1`$-space
-(`EisensteinWeightOne.e1Chi3IsModular`, the pin's 3,816-line analytic lemma); the
+(`EisensteinWeightOne.e1Chi3IsModular`, the pin's 3,816-line analytic lemma; its
+mathematics is spelled out in
+[014-chi-minus-3-eisenstein.md](014-chi-minus-3-eisenstein.md)); the
 explicit Eisenstein family $`G : \mathbb{Z}/M \to M_k(\Gamma_1(M))`$ with integral
 divisor-sum $`q`$-expansions and the slash-equivariance
 $`G(c)\mid_k\gamma = G\bigl(c\,\gamma_{00}\bigr)`$ is

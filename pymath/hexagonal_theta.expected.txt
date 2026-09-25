@@ -1,0 +1,119 @@
+The hexagonal theta series and the chi_{-3} Eisenstein series
+
+== 1. The hexagonal form and the ring Z[zeta_6] ==
+
+  Q(x, y) = x^2 + x y + y^2 is the norm form of the Eisenstein integers
+  Z[zeta_6], where zeta = exp(i pi / 3) satisfies zeta^2 = zeta - 1 and zeta^6
+  = 1. Writing z = a + b zeta as the pair (a, b), the norm is N(z) = z *
+  conj(z) = a^2 + a b + b^2. The form is positive definite and its
+  discriminant is -3: the identity 4 Q = (2x + y)^2 + 3 y^2 exhibits it as (a
+  square) + 3 (a square).
+    Q(x, y) = x^2 + x y + y^2  is the norm of x + y zeta,  zeta^6 = 1
+    Q(1,0) = 1, Q(1,1) = 3, Q(2,1) = 7, Q(1,2) = 7, Q(2,3) = 19
+    ok   4 Q(x, y) = (2x + y)^2 + 3 y^2 for a grid of (x, y)
+    ok   N is multiplicative: N(z w) = N(z) N(w) on a box
+    ok   z * conj(z) = N(z) and conj(z w) = conj(z) conj(w) on a box
+    ok   Euclidean division: z = y q + r with N(r) < N(y), and gcd by iteration
+
+== 2. The six units, and why every count is a multiple of six ==
+
+  Rotating by zeta, (a, b) -> (-b, a + b), is multiplication by the unit zeta
+  and preserves the norm. The norm-one elements are exactly the six powers of
+  zeta (FLT's unitFinset); for n > 0 they act freely on the solutions of Q(x,
+  y) = n, so each nonzero representation lies in a six-element orbit and 6
+  divides r(n). The quotient r(n) / 6 counts orbits, i.e. elements of norm n
+  up to multiplication by a unit.
+    units of Z[zeta_6] = ((1, 0), (0, 1), (-1, 1), (-1, 0), (0, -1), (1, -1))
+    ok   the six listed elements have norm 1
+    ok   every norm-one element of the box is one of those six
+    ok   zeta^6 = 1 and the orbit of a nonzero element has six distinct points
+    n :   0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19   20
+    r(n):   1    6    0    6    6    0    0   12    0    6    0    0    6   12    0    0    6    0    0   12    0
+    ok   6 divides r(n) for every n = 1 .. 63
+    ok   the unit orbits partition the solutions, each of size six
+    ok   r(0) = 1, the exceptional orbit of the origin
+
+== 3. The character chi_{-3}, the divisor sum, and the main identity ==
+
+  chi_{-3} is the nontrivial character mod 3: it is multiplicative and
+  vanishes exactly on the multiples of 3. The divisor sum sigma_chi(n) =
+  sum_{d | n} chi_{-3}(d) counts divisors congruent to 1 mod 3 minus those
+  congruent to 2 mod 3. The main identity of the arithmetic half is r(n) = 6
+  sigma_chi(n) for n >= 1.
+    n      :   1    2    3    4    5    6    7    8    9   10   11   12   13   14   15
+    chi(n) :   1   -1    0    1   -1    0    1   -1    0    1   -1    0    1   -1    0
+    sig(n) :   1    0    1    1    0    0    2    0    1    0    0    1    2    0    0
+    r(n)   :   6    0    6    6    0    0   12    0    6    0    0    6   12    0    0
+    representations of 7:  ((-3, 1), (-3, 2), (-2, -1), (-2, 3), (-1, -2), (-1, 3), (1, -3), (1, 2), (2, -3), (2, 1), (3, -2), (3, -1))
+    13 has 12 representations in 2 unit orbits, e.g. ((-3, -1), (1, -4), (4, -3), (3, 1), (-1, 4), (-4, 3))
+    ok   chi_{-3} is multiplicative on coprime arguments and vanishes iff 3 | n
+    ok   r(n) = 6 sigma_chi(n) for n = 1 .. 63 (FLT: reprCountEqCoeffE1Chi3)
+    ok   r(n) = 6 (d_1(n) - d_2(n)): divisors mod 3
+
+== 4. The local laws: 3 ramifies, p = 1 mod 3 splits, p = 2 mod 3 is inert ==
+
+  The proof of r(n) = 6 sigma_chi(n) is local. In Z[zeta_6], the rational
+  prime 3 ramifies as (1 - zeta)^2 up to a unit, a prime p = 1 mod 3 splits as
+  p = pi * conj(pi) with N(pi) = p, and a prime p = 2 mod 3 stays prime with
+  norm p^2. Counting elements of norm p^k (up to the six units) gives 6(k + 1)
+  in the split case, 6 or 0 according as k is even or odd in the inert case,
+  and 6 for all k when p = 3. These are exactly the values of 6
+  sigma_chi(p^k). FLT isolates the two nontrivial residuals as
+  SplitPrimePowCount and OrbitCountMultiplicative and then assembles them by
+  induction over the prime factorization of n.
+    p = 1 mod 3 (split): [7, 13, 19, 31, 37, 43, 61, 67, 73, 79, 97]
+    p = 2 mod 3 (inert): [2, 5, 11, 17, 23, 29, 41, 47, 53, 59, 71, 83, 89]
+    ok   split p = 1 mod 3: r(p^k) = 6 (k + 1) for every p < 100, p^k < 64
+    ok   inert p = 2 mod 3: r(p^k) = 6 for even k, 0 for odd k
+    ok   a split prime is represented: r(p) = 12 for every p = 1 mod 3 below 100
+    ok   an inert prime is not represented: r(p) = 0 for every p = 2 mod 3 below 100
+    ok   p = 3 ramifies: r(3^k) = 6 and r(3 m) = r(m) for every computed m
+    ok   coprime multiplicativity: 6 r(m n) = r(m) r(n) for coprime m, n < 24
+    ok   multiplicativity genuinely needs coprimality: 6 r(4) != r(2) r(2)
+
+== 5. The q-expansion: theta is e1Chi3 ==
+
+  Collecting the representation counts into a power series gives the theta
+  series of the hexagonal lattice; the main identity says it is FLT's e1Chi3,
+  the q-expansion of the weight-one Eisenstein series E_1(1, chi_{-3}). Its
+  constant term is 1 (the origin), and every positive-degree coefficient is 6
+  sigma_chi(n), hence divisible by 6 and congruent to 1 modulo 3.
+    theta  = 1 + 6 q + 6 q^3 + 6 q^4 + ...
+    e1Chi3 = 1 + 6 q + 6 q^3 + 6 q^4 + ...
+    ok   theta and 1 + 6 sum sigma_chi(n) q^n agree to q^63
+    ok   the positive coefficients are 6 sigma_chi(n), divisible by 6
+    ok   e1Chi3 - 1 is divisible by 3 coefficientwise (FLT: three_dvd_coeff_mul_e1Chi3_sub)
+
+== 6. The analytic half: T, Fricke and U_3 functional equations ==
+
+  Poisson summation for the rank-two lattice Z[zeta_6] turns the theta series
+  into itself at the Fricke translate: theta(-1/(3 tau)) = -i sqrt(3) tau
+  theta(tau). Together with the evident theta(tau + 1) = theta(tau) and the
+  derived law theta(tau/(1 - 3 tau)) = (1 - 3 tau) theta(tau) for the other
+  generator U_3 of Gamma_0(3), this is the weight-one modularity. The checks
+  below evaluate the (rapidly convergent) sum numerically at tau = 2i; they
+  illustrate the identities rather than proving them.
+    tau = 2i, truncation |x|, |y| <= 12;  theta(tau) = 1.000021 + 0.000000i
+    ok   theta(-1/(3 tau)) = -i sqrt(3) tau theta(tau) (Fricke)
+    ok   theta(tau + 1) = theta(tau) (the T generator)
+    ok   theta(tau/(1 - 3 tau)) = (1 - 3 tau) theta(tau) (the U_3 generator)
+
+== 7. The formalization ==
+
+  FLT's proof (P2M/Sol/S_EisensteinWeightOne_e1Chi3IsModular.lean) has the
+  same two halves. The arithmetic half defines the custom Euclidean domain
+  HexInt = Z[zeta_6], proves the splitting law for primes and the orbit count,
+  and concludes reprCountEqCoeffE1Chi3. The analytic half defines hexTheta,
+  proves the Poisson/Fricke identity hexTheta_eq_mul_self_neg_inv, and
+  assembles a modular form of weight 1 on Gamma_1(3) from the T and U_3 slash
+  laws and boundedness at the cusps. The headline
+  EisensteinWeightOne.e1Chi3IsModular is the statement that e1Chi3 is that
+  form's q-expansion; the demo's section 3 is the coefficient identity it
+  rests on, and section 6 is the functional equation.
+
+  For the integral-structure route (math/013) the point is that this
+  weight-one form generates the low-weight part of the Gamma_1(N) spaces with
+  integral q-expansions, and its mod-3 congruence to 1 powers the weight-two
+  mod-3 congruence lift.
+
+all checks passed (26 checks)
