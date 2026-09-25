@@ -132,6 +132,51 @@ coincidence of closure. Route A behaves differently: of its 657 nodes,
 C′ is cheaper in both, by construction in the first and $`\approx 8\times`$ in the
 second. The trace lemma never substitutes for the cone.
 
+**Addendum (measured 2026-09-25): the 73-node margin is not all C′-exclusive.**
+The margin above is route A's marginal *relative to the weight-one branch* `W =
+closure(No2BridgeWiring.weightOneNewformExists_not_cube_dvd)`. It is not the same
+as the set C′ avoids paying, because part of it is cited by endgame branches
+outside both route A (`A = closure(hasIntegralStructure_of_two_le)`) and `W`.
+Splitting the 72 nodes other than `hasIntegralStructure_of_two_le` (515 lines) by
+whether they have a consumer in `closure(fermatLastTheorem) \ A`:
+
+| marginal part | nodes | raw `S_` lines |
+|---|---|---|
+| cited only inside route A → C′ removes | 40 | 11,533 |
+| cited from outside route A → paid regardless | 32 | 5,189 |
+| total (excl. the 515-line target) | 72 | 16,722 |
+
+The 32 surviving nodes are 24 `HeckeEis.*` (3,929 lines) plus 8 modular-curve
+geometry/dimension nodes (1,260 lines). They are the **analytic E-S core**: the
+E-S map and its integral basis (`existsEichlerShimuraMapLinear`,
+`eichlerShimuraMap_heckeTLin`, `eichlerShimuraMap_injective`,
+`exists_basis_coeffH1par_int_complex`), the binary-form Hecke correspondence
+(`binaryFormAlphaAdj_comp_binaryFormRepSL_heckeConj`), and the Eichler-integral
+existence (`exists_isEichlerIntegral`). They are reused by the Hecke–Galois /
+mod-p eigenclass branch, on a shortest endgame chain that never passes through
+`hasIntegralStructure_of_two_le`:
+
+```text
+FLT.fermatLastTheorem
+→ … WeierstrassCurve.exists_finite_extension_heckeGaloisRepDatum_patchingDatum_…
+→ … WeierstrassCurve.exists_heckeGaloisRepDatum_…
+→ … WeierstrassCurve.isResiduallyModularOfLevel_…
+→ … WeierstrassCurve.exists_ideal_heckeAlgebra_mul_two_…
+→ HeckeEis.exists_coeffH1par_int_modp_eigenclass_of_ideal_heckeAlgebra
+→ HeckeEis.finite_int_heckeAlgebra
+```
+
+Confirmed in the pin's sources, not only the import graph:
+`S_HeckeEis_exists_coeffH1par_int_modp_eigenclass_of_eigenform.lean` (205 lines)
+imports and uses the E-S map, its injectivity/Hecke-equivariance, the integral
+basis of `coeffH1par`, and the binary-form correspondence;
+`S_ModPForms_exists_isEigensystemH1_binaryFormRepSL_of_isModPEigen.lean` uses
+`exists_isEichlerIntegral`; and `S_HeckeEis_finite_int_heckeAlgebra.lean` (298
+lines) proves `Module.Finite ℤ (heckeAlgebra N (n+2) S)` for all weights *via the
+E-S map*. So C′ removes route A's **integral-structure deduction from E-S**, not
+the analytic E-S itself: the route-specific saving is 40 nodes / 11,533 lines,
+not 73 / 17,237.
+
 ## 4b. The path is in the endgame, and the cone is not throwaway
 
 Unlike route B — a parallel duplicate of a statement route A already implies,

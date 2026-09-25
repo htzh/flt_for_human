@@ -218,7 +218,7 @@ The largest family by a wide margin. Principal namespaces:
 | `MvFormalGroup` | 166 | 73,706 | Artin–Hasse, Witt vectors, formal group laws |
 | `WeierstrassProjModel` | 173 | 51,868 | projective models and their group law |
 | `PDivisibleGroup` | 138 | 44,985 | $`p`$-divisible groups, Tate modules, Cartier pairing |
-| `HeckeEis` | 130 | 44,516 | Eichler integrals, periods, Eisenstein series |
+| `HeckeEis` | 130 | 44,516 | Eichler integrals, periods, Eisenstein series — a **shared spine**, not a single-target tower (§8) |
 | `MvPowerSeries` | 81 | 33,568 | multivariate power series |
 | `MvPolynomial` | 99 | 24,618 | multivariate polynomials |
 | `FormalGroup` | 78 | 14,234 | formal group laws |
@@ -288,7 +288,10 @@ $`\bar\rho_3`$ with cyclotomic determinant (see `PROOF-PATH.md`).
 
 Mathlib has cusp forms, $`\Gamma_0(N)`$, $`q`$-expansions and modular forms;
 it has no automorphic representations, no Artin L-functions, no Langlands–
-Tunnell.
+Tunnell. The mod-$`p`$ cusp-form layer here is not self-contained: its eigenclass
+step (`ModPForms.exists_isEigensystemH1_binaryFormRepSL_of_isModPEigen`) consumes
+the analytic `HeckeEis` Eichler-integral machinery, which is why that package is
+a shared spine rather than a single target's tower (§8).
 
 ### 3.5 Galois deformations and Taylor–Wiles patching — 2,234 nodes / 617,081 lines
 
@@ -635,6 +638,206 @@ $`\mathbb{Z}_p`$-linear algebra importing mathlib plus one local file, so it is
 a natural next port that connects directly to the finished `Elliptic/` effort —
 with the caveat that what it unlocks downstream (the property theorems,
 deformation theory) is arithmetic again.
+
+## 8. The Eichler–Shimura spine: an architectural correction
+
+An earlier route analysis in this project treated the analytic Eichler–Shimura
+package (`HeckeEis`, §3.3: 130 nodes / 44,516 lines) as the price of one target —
+the general-weight finiteness of the Hecke algebra via
+`CuspForm.hasIntegralStructure_of_two_le` ("route A") — and proposed to bypass it
+with the $`\Gamma_1`$-slash-basis + trace route ("route C′"). A graph check against
+the pin shows that is only half right, and the correction changes where `HeckeEis`
+sits in the architecture.
+
+**The package is dual-use.** `HeckeEis` serves two endgame purposes that are
+independent in the citation graph:
+
+1. *Integral structure / finiteness, route A.* `HeckeEis.eichlerShimuraMap` and
+   the integral basis of `coeffH1par` feed
+   `CuspForm.linearIndependent_complex_of_linearIndependent_int_of_periodPackage`
+   and `CuspForm.hasIntegralStructure_of_moduleFinite_of_linearIndependent`,
+   hence `CuspForm.hasIntegralStructure_of_two_le`, hence
+   `CuspForm.moduleFinite_heckeAlgebra` (all weights). This is the part C′
+   replaces.
+2. *Mod-$`p`$ eigenclasses / Hecke–Galois, arithmetic.* The same E-S map, its
+   injectivity and Hecke-equivariance, the integral basis of `coeffH1par`, the
+   binary-form Hecke correspondence and the Eichler-integral existence feed
+   `HeckeEis.finite_int_heckeAlgebra` (an **all-weight** finiteness proof,
+   `Module.Finite ℤ (heckeAlgebra N ((n:ℤ)+2) S)`) and
+   `HeckeEis.exists_coeffH1par_int_modp_eigenclass_of_eigenform`, and on through
+   the patching branch. C′ does not touch this.
+
+Measured against the pin `aa2d8b3` (`tools/deps`, transitive `S_` imports). Let
+`A = closure(CuspForm.hasIntegralStructure_of_two_le)` and
+`W = closure(FLT.No2BridgeWiring.weightOneNewformExists_not_cube_dvd)`. Route A's
+marginal `A \ W` is 73 nodes / 17,237 raw `S_` lines. Splitting the 72 nodes other
+than the target (515 lines) by whether they have a consumer in
+`closure(FLT.fermatLastTheorem) \ A`:
+
+| marginal part | nodes | raw `S_` lines |
+|---|---:|---:|
+| cited only inside route A → C′ removes | 40 | 11,533 |
+| cited from outside route A → paid regardless | 32 | 5,189 |
+| total (excl. the 515-line target) | 72 | 16,722 |
+
+The 32 retained nodes are 24 `HeckeEis.*` (3,929 lines) plus 8 modular-curve
+geometry/dimension nodes (1,260 lines:
+`CuspForm.dimFormula_le_finrank_gamma0`, `ModularCurve.genus_eq_genusFF_modularFunctionFieldBar`,
+the Riemann–Roch chain, `AlgebraicCurve.weilDualityAdelic_of_isAlgClosed`,
+`ModularCurve.natCard_orbitRelQuotient_zpowers_T_gamma0_eq_cuspCount`). The
+`HeckeEis` part is the analytic core: `existsEichlerShimuraMapLinear`,
+`eichlerShimuraMap_heckeTLin`, `eichlerShimuraMap_injective`,
+`exists_basis_coeffH1par_int_complex`,
+`binaryFormAlphaAdj_comp_binaryFormRepSL_heckeConj`, `exists_isEichlerIntegral`.
+
+A shortest premise chain to `HeckeEis.finite_int_heckeAlgebra` that never passes
+through `hasIntegralStructure_of_two_le`:
+
+```text
+FLT.fermatLastTheorem
+→ … WeierstrassCurve.exists_finite_extension_heckeGaloisRepDatum_patchingDatum_…
+→ … WeierstrassCurve.exists_heckeGaloisRepDatum_…
+→ … WeierstrassCurve.isResiduallyModularOfLevel_…
+→ … WeierstrassCurve.exists_ideal_heckeAlgebra_mul_two_…
+→ HeckeEis.exists_coeffH1par_int_modp_eigenclass_of_ideal_heckeAlgebra
+→ HeckeEis.finite_int_heckeAlgebra
+```
+
+Confirmed in the pin's sources, not only the import graph:
+[`S_HeckeEis_exists_coeffH1par_int_modp_eigenclass_of_eigenform.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HeckeEis_exists_coeffH1par_int_modp_eigenclass_of_eigenform.lean)
+(205 lines) imports and uses the E-S map, its injectivity/Hecke-equivariance, the
+integral basis of `coeffH1par` and the binary-form correspondence;
+[`S_ModPForms_exists_isEigensystemH1_binaryFormRepSL_of_isModPEigen.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModPForms_exists_isEigensystemH1_binaryFormRepSL_of_isModPEigen.lean)
+uses `exists_isEichlerIntegral`;
+[`S_HeckeEis_finite_int_heckeAlgebra.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HeckeEis_finite_int_heckeAlgebra.lean)
+(298 lines) proves the all-weight finiteness via the E-S map.
+
+**Architectural consequences.**
+
+* `HeckeEis` is **not a droppable tower attached to one target** *in FLT as
+  written*. It is a shared spine between the modularity/automorphic segment
+  (§3.4) and the Galois-deformation/patching segment (§3.5): dropping it would
+  break the mod-$`p`$ eigenclass/patching branch even with `HasIntegralStructure`
+  supplied by C′. That is a statement about formal necessity, not mathematical
+  necessity — see §8.1. It should be read with §3.4–§3.5, not with the
+  level-lowering geometry of §3.6.
+* **C′'s saving over route A is 40 nodes / 11,533 lines, not 73 / 17,237.** The
+  other 32 nodes / 5,189 lines are on the arithmetic spine and are paid
+  regardless of the integral-structure route. This corrects
+  [route-c-prime-scout.md](route-c-prime-scout.md) §4 (addendum) and
+  [hecke-finiteness-coverage.md](hecke-finiteness-coverage.md) §7.3.
+* The **arithmetic** Eichler–Shimura cone is genuinely distinct —
+  `Def_HeckeGalois_EichlerShimura.lean` (`ModularCurve.HeckeAlg`, `eigenIdeal`,
+  `EichlerShimuraData`, `EichlerShimuraRelationOn`),
+  `Def_ModularCurve_EichlerShimuraData.lean`, and
+  `FreyPackage.MazurEichlerShimuraFamily` — and feeds the Tate-module
+  eigenplane / Galois-attachment machinery (§7.1). It does **not** replace the
+  analytic E-S: the mod-$`p`$ eigenclass step between them consumes the analytic
+  map. The two are not alternatives.
+* FLT contains **two all-weight finiteness proofs of the Hecke algebra**: route
+  A's `CuspForm.moduleFinite_heckeAlgebra` (via integral structure) and
+  `HeckeEis.finite_int_heckeAlgebra` (via E-S, for `S` containing the bad
+  primes). The second is a special case of the first, so a C′-style port can
+  substitute the instance and delete its ~298 lines — but not the surrounding
+  eigenclass cone.
+* The standalone weight-two blob (`S_CuspForm_moduleFinite_heckeAlgebra_two.lean`,
+  route B) is a third artefact: a $`k=2`$ statement with no integral structure,
+  throwaway once a general route lands. Its mathematics is the weight-two
+  period-cocycle argument recorded in
+  [../math/015-weight-two-hecke-periods.md](../math/015-weight-two-hecke-periods.md).
+
+**Porting angle.** For a port bounded to the integral-structure statement, the C′
+cone plus the trace lemma suffices and this E-S margin is not needed. For an
+endgame-complete port, `HeckeEis` must be paid on the mod-$`p`$/patching spine;
+the integral-structure choice (A vs C′) changes only which 40 of its marginal
+nodes are still needed. Reproduce the split:
+
+```bash
+cd tools/deps && python3 - <<'PY'
+import sys; sys.path.insert(0, '.')
+from fltdata import FltData
+d = FltData(); I = d.index
+def cl(i):
+    seen, st = set(), [i]
+    while st:
+        j = st.pop()
+        if j in seen: continue
+        seen.add(j); st.extend(d.cites(j))
+    return seen
+end = cl(I['FLT.fermatLastTheorem'])
+A = cl(I['CuspForm.hasIntegralStructure_of_two_le'])
+W = cl(I['FLT.No2BridgeWiring.weightOneNewformExists_not_cube_dvd'])
+marg = (A - W) - {I['CuspForm.hasIntegralStructure_of_two_le']}
+indep = {n for n in marg if any(m in end and m not in A for m in d.cited_by[n])}
+print('marginal', len(marg), 'C-prime removes', len(marg - indep), 'kept', len(indep))
+PY
+```
+
+### 8.1 Mathematical versus formal necessity: the analytic E-S is replaceable
+
+The measurements above show that the analytic E-S map is *formally* load-bearing
+in FLT as it stands. They do not show it is *mathematically* necessary; an
+outside reading is right that it is not, and FLT already contains both halves of
+the replacement.
+
+* **Finiteness is replaceable by C′.** `HeckeEis.finite_int_heckeAlgebra` is the
+  E-S proof of `Module.Finite ℤ (heckeAlgebra N ((n:ℤ)+2) S)`; the general
+  statement via C′'s integral structure has it as a special case (§8, fourth
+  bullet).
+* **The Galois-representation side is already E-S-free in FLT.**
+  `CuspForm.IsNewform.exists_eigenPlane_tateModule_jZero` builds the eigenplane on
+  the Tate module of `JZero N`; its closure is 1,291 nodes, it contains **0** of
+  the 24 analytic-E-S `HeckeEis` nodes above, and it uses neither
+  `hasIntegralStructure_of_two_le` nor general `moduleFinite_heckeAlgebra` (only
+  the `k = 2` finiteness). Its arithmetic input is the E-S congruence relation,
+  packaged abstractly as `EichlerShimuraData` / `FrobeniusQuadratic` /
+  `SpecialFibreRelation` (`Def_ModularCurve_EichlerShimuraData.lean`,
+  `Def_HeckeGalois_EichlerShimura.lean`) — a geometric statement about the
+  Jacobian over finite fields, not the period map.
+* **The identity the arithmetic route needs is already formalized.**
+  `ModularCurve.exists_linearEquiv_tensor_intLattice_regularDifferentials_qExpansionDiffAlong_eq`
+  proves, for algebraically closed `k` with `(N : k) ≠ 0`,
+  $`k \otimes_{\mathbb{Z}} \mathrm{intLattice}(N,2) \cong \mathrm{regularDifferentials}(k, \mathrm{modularFunctionFieldC}\ k\ N)`$,
+  with the differential realized by `qExpansionDiffAlong` — the
+  $`S_2 \cong \Omega^1`$ identification, in the function-field model and without
+  the period map. For higher weight / characteristic $`p`$ there is the
+  `KatzModularForm.*` cluster (19 nodes).
+
+Where the analytic E-S *is* used in the endgame is a small interface surface. The
+24 retained `HeckeEis` nodes reach, inside the `HeckeEis`/`ModPForms` block, an
+80-node eigenvector/eigensystem development which exits into the rest of the
+endgame at **four maximal interfaces**, all of the shape "produce a mod-$`p`$
+Hecke eigenvector / eigensystem / congruence":
+
+| interface (maximal endgame exit) | analytic-E-S premises |
+|---|---|
+| `WeierstrassCurve.exists_ideal_heckeAlgebra_mul_two_of_ideal_heckeAlgebra_two_or_succ` (level raising) | `HeckeEis.exists_coeffH1par_binaryFormRepSL_eigenclass_of_ideal_heckeAlgebra_of_ne_two`, `…_projLineRepSL_equiv_parabolicHoms`, `…_coeffH1par_map_of_equivariant_retraction`, the binary-form eval/Hecke lemmas |
+| `WeierstrassCurve.exists_H1_parabolic_not_dvd_diamondRaw_heckeT_congr_apOfModel_level_div_of_forall_linearMap_psCarrier_eq_zero` | `HeckeEis.isEigensystemH1_ind_comp_or_eisenstein_of_isEigensystemH1_of_steinberg_quotient(_of_charP_three)`, `…_one_mul_of_isEigensystemH1_ind_comp` |
+| `GaloisRep.exists_galoisRep_trace_eq_eigenchar_and_det_eq_pow_of_three_le` | `HeckeEis.isEigensystemH1_binaryFormRepSL_of_heckeTLin_eq_smul` |
+| `WeierstrassCurve.exists_ideal_heckeAlgebra_three_weight_le_four_pow_mul_apOfModel_of_exists_prime_dvd_mod_three_eq_two` | `ModPForms.exists_three_weight_le_four_mem_modPMod_isModPEigen_pow_mul_…`, `ModPForms.modPCusp_le_modPMod` |
+
+So a "de-E-S-ified" architecture would re-prove those four eigenvector-existence
+interfaces on the Jacobian/$`\Omega^1`$ side (or directly on the $`q`$-expansion
+lattice, using C′'s integral structure), and keep the rest. The caveats behind
+"challenging with the existing proof base":
+
+* the level-raising statement covers weights $`k = 2`$ and $`k = p+1`$; $`\Omega^1`$
+  is weight 2, so the $`p+1`$ case needs the higher-weight analogue (Katz forms /
+  symmetric-power differentials), which is present in principle in the
+  `KatzModularForm` cluster but proof-shaped;
+* those interfaces are currently *defined in terms of* `coeffH1par` and the
+  binary-form model, so the change is a re-architecture of that layer, not a
+  deletion;
+* the other retained nodes in the marginal set (the Riemann–Roch / `JZero` /
+  thetaL geometry) are not E-S at all and are paid regardless.
+
+**Net.** §8's "shared spine" is a statement about FLT as written, not about
+mathematics. The analytic E-S is a convenience that packages finiteness and the
+mod-$`p`$ eigenvector existence: C′ supplies the first, and the E-S congruence on
+the Jacobian plus $`S_2 \cong \Omega^1`$ supplies the second. FLT already has
+both halves — the `JZero` Tate-module route and the `intLattice ≅
+regularDifferentials` linear equivalence — but has not wired the second into the
+four interfaces above.
 
 ## Sources
 
