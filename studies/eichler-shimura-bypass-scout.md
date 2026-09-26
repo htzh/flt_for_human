@@ -708,49 +708,90 @@ analytic-Eichler–Shimura layer. Measured over the closure of `FLT.fermatLastTh
 **The payout depends on the variant (§4.5).** In the tables "dropped" is the
 payout (not ported) and "ported" is what the port still carries.
 
+**How "dropped" is counted.** A replaced node does not automatically take its
+dependencies with it: the graph is not a tree, and a dependency shared with a
+retained consumer stays. The saving is therefore the *prunable* set
+
+```
+prunable(R) = closure(root) \ closure(root) with R deleted
+```
+
+i.e. a node can go iff **every** path from `FLT.fermatLastTheorem` to it passes
+through the removed set `R`. The consumer-side count ("the nodes that depend on
+`R`") is a different set — it is the rewiring obligation, not the saving — and
+the two must not be conflated. All figures below come from the one local tool
+`tools/deps/prune.py` (not tracked with this note), whose `--verify-known`
+reproduces the anchor figures and whose `--selftest` checks the reachability
+logic on a non-tree graph:
+
+```bash
+cd tools/deps && python3 prune.py --verify-known
+cd tools/deps && python3 prune.py --scenario relaxed --per-interface
+```
+
 *Relaxed — the default.* Route B is relaxed to include the 12-node general-weight
-primitive, and everything E-S-free is kept. What leaves is only the
-parabolic/bundled packaging. With C′ supplying `hasIntegralStructure_of_two_le`:
+primitive, and everything E-S-free is kept. What leaves is the parabolic/bundled
+packaging, `R` = the 33 `coeffH1par` / `eichlerShimuraMap` nodes. With C′
+supplying `hasIntegralStructure_of_two_le` (so its incumbent route-A proof, and
+the packaging branch of that proof, is discarded):
 
 | part of the 213 / 71,865 namespace | nodes | lines |
 |---|---:|---:|
-| **dropped** — the `coeffH1par` / `eichlerShimuraMap` closure | **38** | **12,412** |
-| ported — `HeckeEis.` (12-node core + E-S-free level raising / weight reduction / base change) | 94 | 33,094 |
-| ported — `ModPForms.` (mod-p form machinery) | 63 | 14,094 |
+| **dropped** — prunable once the packaging is replaced | **56** | **16,298** |
+| ported — `HeckeEis.` (12-node core + E-S-free level raising / weight reduction / base change) | 74 | 28,218 |
+| ported — `ModPForms.` (mod-p form machinery) | 65 | 15,084 |
 | ported — `PeriodPair.` (period pairs) | 18 | 12,265 |
 | total | 213 | 71,865 |
 
-So the relaxed saving is **12,412 lines of 71,865 (17%)** — the port still carries
-59,453. Most of those 59,453 are *not* E-S at all: the `HeckeEis` remainder is the
-12-node core plus the E-S-free assembly, and `ModPForms` / `PeriodPair` are mod-p
-forms and period pairs that interfaces 4 and 9 consume for non-analytic reasons.
-The relaxed saving is the removal of the *fearsome packaging*, not of the bulk.
+The full port saving is **63 nodes / 18,391 lines**: the 56 / 16,298 above plus
+7 nodes / 2,093 lines in other namespaces (`ModularForm.` 3/1,436, `Complex.`
+1/229, `ZMod.` 1/200, `CongruenceSubgroup.` 1/118, `UpperHalfPlane.` 1/110) that
+only the packaging used. That is **23% of the 71,865-line E-S-ish footprint**
+(26% counting those non-E-S nodes), leaving 55,567 E-S-ish lines. The price is
+re-proving the retained nodes that cite the packaging: two obligations / 943
+lines (`HeckeEis.exists_modularForm_heckeTLin_eq_smul_of_isEigensystemH1` and
+interface 1), with C′ itself exempt because it is the replacement. If C′ is not
+credited the saving falls to 27 / 7,850; if only the ten interfaces may be
+re-routed it is 12 / 4,149.
 
-As-is, without C′, the closure is 44 / 14,084; C′ drops the six Katz nodes that
-reach the packaging only through route A's proof. The 38 are concentrated on
-interfaces 1 and 4 — 22 / 6,706 and 29 / 9,973 lines, overlapping — and
-interfaces 3, 5 and 6 contribute none.
+Most of the 55,567 still ported is *not* E-S at all: the `HeckeEis` remainder is
+the 12-node core plus the E-S-free assembly, and `ModPForms` / `PeriodPair` are
+mod-p forms and period pairs that interfaces 4 and 9 consume for non-analytic
+reasons. The relaxed saving is the removal of the *fearsome packaging*, not of the
+bulk.
+
+The prunable set is concentrated on interfaces 1 and 4 — their cones contain
+37 / 9,375 and 51 / 14,242 of the pruned lines, overlapping — while interface 3
+has no dependence on `R` at all and interfaces 5 and 6 reach it only through C′
+(whose incumbent proof is discarded) and interface 4's single re-proved tail
+node. (The earlier figures 38 / 12,412 and
+44 / 14,084 came from the consumer-side proxy `{x : cl(x) ∩ R ≠ ∅}`; they are
+rewiring bookkeeping, not the saving, and are superseded by the 63 / 18,391
+above.)
 
 *Strict — route interface 3 through route B.* Route B replaces the general-weight
-primitive too, so the 12-node core / 2,301 lines goes with the packaging:
-roughly **50 nodes / 14,713 lines**. It does **not** by itself remove the E-S-free
-assembly, `ModPForms` or `PeriodPair`; the 213 / 71,865 is the namespace
-*footprint* — everything the interfaces consume from those three namespaces — not
-a saving the E-S bypass delivers on its own. How much of the E-S-free assembly a
-Route-B re-architecture would also drop (for instance the degree-$`n \to 0`$ step
-of §5.1) is not measured, and reaching weight 2 for interface 3 is where the gap
-of §4.5 sits.
+primitive too, so `R` also contains the 12-node core and the target lemma:
+`--scenario strict` gives `R` = 46 / 13,613 and a prunable set of **78 nodes /
+21,430 lines** (69 / 19,122 of them E-S-ish, leaving 52,743). It still does
+**not** by itself remove the E-S-free assembly, `ModPForms` or `PeriodPair`; the
+213 / 71,865 is the namespace *footprint* — everything the interfaces consume
+from those three namespaces — not a saving the E-S bypass delivers on its own.
+How much of the E-S-free assembly a Route-B re-architecture would also drop (for
+instance the degree-$`n \to 0`$ step of §5.1) is not measured, and reaching weight
+2 for interface 3 is where the gap of §4.5 sits.
 
-**Why the dropped set is 38 when the core is 12?** The two numbers are different sets,
-not a closure. The 12 are the analytic *sources*; the 38 are the closure of the
-packaging (33 `coeffH1par` / `eichlerShimuraMap` nodes plus dependents, six of
-which fall away under C′). They are independent in the direction that matters:
-**none of the 12 uses the packaging** (their cones meet it in zero nodes), which
-is exactly why the core can be kept while the packaging is dropped. The analytic
-closure is a third set — 43 nodes / 12,316 lines, the 12 plus 31 downstream —
-similar in size by coincidence. So the E-S-ish package has two dependency sinks —
-the analytic primitive and the parabolic/bundled packaging — each carrying
-roughly forty nodes.
+**Why the relaxed saving is 56 E-S-ish nodes when the core is 12?** The 12 are
+the analytic *sources*; the 56 are the packaging's own closure below the removed
+set — the 33 `coeffH1par` / `eichlerShimuraMap` nodes plus 23 further E-S-ish
+nodes that only the packaging reaches — counted by reachability, so a node shared
+with a retained consumer is not included. The two sets are independent in the
+direction that matters: **none of the 12 is prunable** (the tool checks this),
+which is exactly why the core can be kept while the packaging is dropped. The
+consumer-side set is a third set — 43 nodes / 12,316 lines for the analytic
+closure, the 12 plus 31 downstream — similar in size by coincidence, and not the
+saving. So the E-S-ish package has two dependency sinks — the analytic primitive
+and the parabolic/bundled packaging — of which only the second is removed by the
+relaxed route.
 
 **The replacement is already inside the endgame.** Every ingredient of the
 replacement is in the FLT proof cone today, so the marginal *new* mathematics is
@@ -775,12 +816,13 @@ of it is the sliver above — which is why C′ alone removes only 4 nodes /
 
 **Conditions.**
 
-1. *The relaxed payout is gated by re-routing, not by new mathematics.* The 44
-   fearsome nodes are the parabolic / bundled packaging that interfaces 1, 4, 5
-   and 6 consume today (plus the Katz cluster, which is E-S-free modulo C′); the
-   work is to consume the elementary core instead. No weight descent is involved,
-   and interface 3 already works this way. The relaxed variant does **not** use
-   route B.
+1. *The relaxed payout is gated by re-routing, not by new mathematics.* The
+   removed packaging (`R` = 33 `coeffH1par` / `eichlerShimuraMap` nodes) is what
+   interfaces 1, 4, 5 and 6 consume today (plus the Katz cluster, which is
+   E-S-free modulo C′); the work is to consume the elementary core instead,
+   re-proving the two retained nodes that cite the packaging. No weight descent
+   is involved, and interface 3 already works this way. The relaxed variant does
+   **not** use route B.
 2. *The gap is interface 3's, not a property of the other interfaces.* Route B is
    weight 2, and interface 3's analytic step sits at a general weight $`k \ge 3`$,
    so routing *it* through route B is what needs the form-side descent of §4.5.
@@ -851,7 +893,10 @@ print('analytic:', len(ANALYTIC), 'lines', sum(lines(i) for i in ANALYTIC))
 PY
 ```
 
-### 7.2 The payout
+### 7.2 The namespace footprint (not the payout)
+
+The E-S-ish footprint (which nodes the endgame consumes from the three
+namespaces) — the payout itself is §7.5:
 
 ```bash
 cd tools/deps && python3 - <<'PY'
@@ -973,57 +1018,27 @@ for ns in ('HeckeEis.', 'ModPForms.', 'PeriodPair.'):
 PY
 ```
 
-### 7.5 The two payouts (strict and relaxed)
+### 7.5 The payouts (strict and relaxed)
+
+The payout is the *prunable* set of §6, computed by the reusable local script
+`tools/deps/prune.py` (not tracked with this note); the earlier inline scripts
+that measured the consumer-side proxy are superseded:
 
 ```bash
-cd tools/deps && python3 - <<'PY'
-import sys, os; sys.path.insert(0, '.')
-from fltdata import FltData
-d = FltData(); I = d.index
-root = os.path.expanduser('~/proj/fermats-last-theorem')
-def lines(i):
-    stem = d.stem_of.get(i, '')
-    for sub in ('P2M/Sol', 'Theorems'):
-        for pre in ('S_', 'Thm_'):
-            p = os.path.join(root, sub, f'{pre}{stem}.lean')
-            if os.path.exists(p):
-                return sum(1 for _ in open(p, encoding='utf-8', errors='replace'))
-    return 0
-def cl(i, skip=frozenset()):
-    seen, st = set(), [i]
-    while st:
-        j = st.pop()
-        if j in seen: continue
-        seen.add(j)
-        if j in skip: continue
-        st.extend(d.cites(j))
-    return seen
-end = cl(I['FLT.fermatLastTheorem'])
-H = I['CuspForm.hasIntegralStructure_of_two_le']      # C-prime supplies this
-ES = [q for q in I if q.startswith(('HeckeEis.', 'ModPForms.', 'PeriodPair.')) and I[q] in end]
-PATS = ('eichlerShimuraMap', 'coeffH1par')
-F = {I[q] for q in ES if any(p in q for p in PATS)}
-D  = {I[q] for q in ES if cl(I[q])            & F}
-Dc = {I[q] for q in ES if cl(I[q], skip={H})  & F}
-L = lambda S: sum(lines(i) for i in S)
-print(f'E-S-ish package   : {len(ES):4d} / {L(I[q] for q in ES):7d}   (namespace footprint)')
-print(f'  packaging as-is : {len(D):4d} / {L(D):7d}')
-print(f'  packaging w/ C-prime: {len(Dc):4d} / {L(Dc):7d}   (relaxed payout)')
-print(f'  kept w/ C-prime : {len(ES)-len(Dc):4d} / {L(I[q] for q in ES if I[q] not in Dc):7d}')
-for ns in ('HeckeEis.', 'ModPForms.', 'PeriodPair.'):
-    tot = [I[q] for q in ES if q.startswith(ns)]
-    dr  = [i for i in tot if i in Dc]
-    print(f'  {ns:12s} total {len(tot):3d}/{L(tot):6d}   dropped {len(dr):3d}/{L(dr):5d}   ported {len(tot)-len(dr):3d}/{L([i for i in tot if i not in Dc]):6d}')
-ifaces=[('1','WeierstrassCurve.exists_ideal_heckeAlgebra_mul_two_of_ideal_heckeAlgebra_two_or_succ'),
-        ('3','GaloisRep.exists_galoisRep_trace_eq_eigenchar_and_det_eq_pow_of_three_le'),
-        ('4','WeierstrassCurve.exists_ideal_heckeAlgebra_three_weight_le_four_pow_mul_apOfModel_of_exists_prime_dvd_mod_three_eq_two'),
-        ('5','CuspForm.heckeAlgebra.exists_isMaximal_two_ringHom_of_succ_of_map_T_eq_zero_of_five_le_or_exists_prime_dvd'),
-        ('6','CuspForm.heckeAlgebra.thetaCycle_exists_ringHom_mul_two_apply_eq_of_ringHom_succ_of_eq_three_imp_exists_prime_dvd_mod_three_eq_two')]
-for k,q in ifaces:
-    h = cl(I[q], skip={H}) & Dc
-    print(f'  iface {k}: {len(h):3d} / {L(h):6d}')
-PY
+cd tools/deps
+python3 prune.py --selftest                       # non-tree reachability checks
+python3 prune.py --verify-known                   # anchor figures of this note
+python3 prune.py --scenario relaxed --per-interface
+python3 prune.py --scenario strict
+python3 prune.py --scenario relaxed --no-cut CuspForm.hasIntegralStructure_of_two_le
+python3 prune.py --scenario relaxed --cutters interfaces
 ```
+
+`--verify-known` reproduces 29,488 / 11,926,355 (proof cone), 213 / 71,865
+(E-S-ish footprint), 33 / 10,789 (packaging `R`), 63 / 18,391 (relaxed prunable),
+46 / 13,613 (strict `R`) and 78 / 21,430 (strict prunable). The last two commands
+give the sensitivity readings of §6: 27 / 7,850 without C′, and 12 / 4,149 if only
+the ten interfaces may be re-routed.
 
 ## Appendix — the 15 tail-only `HeckeEis` nodes (8,188 lines)
 

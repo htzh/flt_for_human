@@ -846,6 +846,10 @@ Interface 3's share of the E-S-ish package is 46 nodes / 23,363 lines — 36 /
 13,293 in the `HeckeEis` namespace alone, the rest `PeriodPair`. So de-E-S-ifying
 the other nine interfaces while retaining E-S for interface 3 removes **161
 nodes / 47,195 lines**; de-E-S-ifying all ten targets the whole 213 / 71,865.
+These are namespace *footprints* (the union of the interfaces' E-S-ish cones);
+the reachability-accurate payout is smaller, and the relaxed route's is computed
+by the local tool `tools/deps/prune.py` as 63 nodes / 18,391 lines
+([eichler-shimura-bypass-scout.md](eichler-shimura-bypass-scout.md) §6).
 Either way this is the only lever: with every interface retained, C′ removes just
 the 4 nodes of §8, because every `HeckeEis` node route A uses is itself consumed
 by an interface.

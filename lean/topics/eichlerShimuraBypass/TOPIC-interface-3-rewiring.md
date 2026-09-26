@@ -126,6 +126,9 @@ union is 207 of the 213 nodes / 70,558 of 71,865 lines):
 E-S-ish package leaves the endgame — a target of **213 nodes / 71,865 lines**.
 The fallback is the retain-interface-3-only variant: drop E-S for the other nine,
 keeping interface 3's 46 / 23,363, which saves **161 nodes / 47,195 lines**.
+(Both of these are namespace *footprints* — the union of the interfaces' E-S-ish
+cones — not the reachability-accurate payout; for the payout use the local tool
+`tools/deps/prune.py`, scout §6/§7.5, where the relaxed saving is 63 / 18,391.)
 Either way the prize is far smaller than route A's 657-node cone, because ~528 of
 those nodes are geometry that the endgame needs anyway. The full ten-interface
 figure is also the correct answer to "is it more than just the interface?": yes —
@@ -137,22 +140,29 @@ the endgame, the two conditions on "all interfaces" (higher weight / Katz forms,
 and the twelve further direct citers beyond the ten), and a reproduction script.
 
 **Payout revised for the relaxed reading (scout §6, §7.5).** The 213 / 71,865 is
-the *strict* payout, which removes even the elementary general-weight primitive
-and therefore needs the gap. The default *relaxed* reading is route B relaxed to
-**include** the 12-node general-weight primitive — the two are complementary, not
-substitutes — and removes only the parabolic/bundled packaging: the `coeffH1par`
-/ `eichlerShimuraMap` dependent closure. With C′ supplying
-`hasIntegralStructure_of_two_le` that closure is **38 nodes / 12,412 lines**
-(44 / 14,084 as-is), leaving 175 nodes / 59,453 lines. The 38 are concentrated on
-interfaces 1 and 4 (22 / 6,706 and 29 / 9,973, overlapping); interfaces 3, 5 and 6
-contribute none. So the relaxed target is bounded by 12,412 lines, not 71,865, and
-it requires re-routing rather than the gap. **The 71,865 is the three namespaces'
-footprint** — everything the interfaces consume from `HeckeEis` / `ModPForms` /
-`PeriodPair` — not a saving the E-S bypass delivers on its own: most of the 59,453
-still ported is E-S-free machinery (the `HeckeEis` level-raising / weight-reduction
-assembly, the `ModPForms` mod-p forms, `PeriodPair`), consumed by the interfaces
-for non-analytic reasons. The *strict* variant (route B for interface 3) adds the
-12-node core to the dropped set: roughly 50 / 14,713.
+the three namespaces' *footprint*, not a saving. The default *relaxed* reading is
+route B relaxed to **include** the 12-node general-weight primitive — the two are
+complementary, not substitutes — and removes only the parabolic/bundled
+packaging: the 33 `coeffH1par` / `eichlerShimuraMap` nodes. The saving is the
+**prunable** set, *not* the nodes that depend on the packaging: the graph is not
+a tree, a dependency shared with a retained consumer stays, and the consumer-side
+set is the rewiring bookkeeping rather than the payout. Measured by the reusable
+local tool `tools/deps/prune.py` (scout §7.5), with C′ supplying
+`hasIntegralStructure_of_two_le` the relaxed saving is **63 nodes / 18,391 lines**
+(56 / 16,298 of them E-S-ish — 23% of the 71,865 — plus 7 / 2,093 in other
+namespaces), leaving 157 E-S-ish nodes / 55,567 lines; without crediting C′ it is
+27 / 7,850. It is concentrated on interfaces 1 and 4 (their cones contain
+37 / 9,375 and 51 / 14,242 of the pruned lines, overlapping); interface 3 has no
+dependence on the packaging, and interfaces 5 and 6 reach it only through C′
+(whose incumbent proof is discarded) and interface 4's single re-proved tail
+node. The price is re-proving the two retained nodes that cite the packaging
+(943 lines). So the relaxed target is bounded by
+18,391 lines, not 71,865, and it requires re-routing rather than the gap. Most of
+the 55,567 still ported E-S-ish lines are E-S-free machinery (the `HeckeEis`
+level-raising / weight-reduction assembly, the `ModPForms` mod-p forms,
+`PeriodPair`), consumed by the interfaces for non-analytic reasons. The *strict*
+variant (route B for interface 3) adds the 12-node core and the target lemma to
+the removed set: **78 nodes / 21,430 lines**.
 
 **The weight-2 E-S is already in the pin.** `Definitions/Def_ModularCurve_PeriodMap.lean`
 defines `ModularCurve.Period.IsEquivariantPrimitive` / `period` / `periodHom` /
@@ -406,40 +416,20 @@ Recompute with `tools/deps` (the metric is the sum of `S_`-file lines over the
 closure):
 
 - interface-3 cone with and without the 21-node analytic cone;
-- the retain-interface-3-only saving (161 E-S-ish nodes / 47,195 lines) and the
-  all-ten target (213 E-S-ish nodes / 71,865 lines);
+- the namespace *footprints*: the retain-interface-3-only union (161 E-S-ish
+  nodes / 47,195 lines) and the all-ten target (213 E-S-ish nodes / 71,865 lines);
+- the *payout*: the reachability-accurate prunable set, not the footprint — the
+  relaxed route is 63 nodes / 18,391 lines (scout §6);
 - the replacement's own marginal cone (is it already inside the endgame's
   required cone, i.e. zero marginal lines as with C′?).
 
-Reproduction skeleton:
+Reproduction (`--verify-known` pins the anchor figures, `--selftest` checks the
+graph logic on a non-tree example):
 
 ```bash
-cd tools/deps && python3 - <<'PY'
-import sys, os; sys.path.insert(0, '.')
-from fltdata import FltData
-d = FltData(); I = d.index
-def cl(i):
-    seen, st = set(), [i]
-    while st:
-        j = st.pop()
-        if j in seen: continue
-        seen.add(j); st.extend(d.cites(j))
-    return seen
-def he(C): return {i for i in C if d.qual(i).startswith('HeckeEis.')}
-def lines(S):
-    root = os.path.expanduser('~/proj/fermats-last-theorem')
-    def lc(i):
-        stem = d.stem_of.get(i, '')
-        for sub in ('P2M/Sol', 'Theorems'):
-            for pre in ('S_', 'Thm_'):
-                p = os.path.join(root, sub, f'{pre}{stem}.lean')
-                if os.path.exists(p):
-                    return sum(1 for _ in open(p, encoding='utf-8', errors='replace'))
-        return 0
-    return sum(lc(i) for i in S)
-lem = cl(I['HeckeEis.isEigensystemH1_binaryFormRepSL_of_heckeTLin_eq_smul'])
-print('lemma cone:', len(he(lem)), 'HeckeEis nodes /', lines(he(lem)), 'lines')
-PY
+cd tools/deps && python3 prune.py --selftest
+cd tools/deps && python3 prune.py --verify-known
+cd tools/deps && python3 prune.py --scenario relaxed --per-interface
 ```
 
 ### Phase 4 — Novelty and literature (1 round)
