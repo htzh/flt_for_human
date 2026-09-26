@@ -24,10 +24,13 @@ and [../math/016-mod-p-weight-filtration.md](../math/016-mod-p-weight-filtration
 4. The Katz/mod-p weight reduction is E-S-free **modulo C′** except for one
    intrinsic core, and a weight-$`(p+1)`$ → 2 descent already exists (§4).
 
-**Open.** A form-side $`[2, p+1] \to 2`$ descent, or a weight reduction landing at
-$`p+1`$ (§4.5). This is the one brick between the degree-0 composition and
-interface 3 at weight $`k \ge 3`$, and it gates the higher-weight interfaces and
-the full ten-interface payout (§6).
+**Open — and conditional.** The gap (a form-side $`[2, p+1] \to 2`$ descent) is
+required only for the *strict* variant that routes interface 3 through route B.
+Under the *relaxed* variant — **both** route B and the 12-node general-weight
+primitive kept, degree-1 group cohomology accepted — no interface needs a weight
+descent, and interface 3 has no open mathematics and no packaging on its path
+(§4.5, §2.6). The remaining work in either case is re-routing the parabolic
+packaging on interfaces 1 and 4, and the two-tier payout is in §6.
 
 **Thesis.** Strip the interface bookkeeping away and the question is: do Route C′
 (integrality of the Hecke algebra, all weights) and the $`k = 2`$ period map
@@ -586,8 +589,29 @@ slice — and building it needs only E-S-free material. The worst case (gap
 unfillable) therefore costs the 12-node / 2,301-line analytic core, not the whole
 213 / 71,865 package.
 
+**Scope: the gap is conditional.** It is needed only for the *strict* variant of
+the bypass, which insists on landing at weight 2 so that route B's
+trivial-coefficient `Hom` carrier can be used. It is **not** needed for the
+*relaxed* variant, which keeps the elementary general-weight primitive (the 12
+nodes of §2.3) and accepts the tame degree-1 group cohomology of
+`coeffH1 (Sym^{k-2})`. Interface 3 is already at the relaxed level: its cone
+contains the 12 analytic nodes and **zero** nodes from the fearsome machinery —
+`eichlerShimuraMap`, `coeffH1par`, `SSDatum`, `SSHeckeV2` — so it needs no weight
+descent at all. The fearsome machinery is a separate target (33 named nodes /
+10,789 lines, 44 E-S-ish dependents), and it lives on interfaces 1, 4, 5 and 6
+(20, 27, 25 and 25 such nodes respectively), not on interface 3.
+
 **Ways forward.**
 
+0. **Relax the target** (no new mathematics): keep **both** route B and the
+   12-node general-weight primitive, and drop only the fearsome packaging. The two
+   are complementary, not substitutes — route B supplies the weight-2 carrier
+   together with the ℤ-lattice / triple-algebra / finiteness, the 12 nodes supply
+   the general-weight eigensystem — so *relaxed* means route B is relaxed to
+   include the 12 nodes. Interface 3 already works this way (it uses the 12 nodes);
+   interfaces 1, 4, 5 and 6 re-route off the parabolic/bundled packaging onto
+   whichever of the two their weight needs. None of them performs an
+   interior-weight descent, so the gap does not arise.
 1. sharpen the reduction so it lands at $`p+1`$ (then interface 6 + route B +
    CohCarrier close interface 3);
 2. build the form-side $`\theta`$-descent $`[2, p+1] \to 2`$;
@@ -595,8 +619,8 @@ unfillable) therefore costs the 12-node / 2,301-line analytic core, not the whol
    (architecture A; the `intLattice ≅ regularDifferentials` and `KatzLevelPForm`
    clusters are the candidates to host it).
 
-That one statement is what stands between the degree-0 composition and interface 3
-at weight $`k \ge 3`$.
+Under option 0 the gap is not on the path at all; under 1–3 it is the statement
+that stands between the degree-0 composition and a *weight-2* interface 3.
 
 ## 5. Compatibility and circularity
 
@@ -681,12 +705,43 @@ analytic-Eichler–Shimura layer. Measured over the closure of `FLT.fermatLastTh
 | ... reachable under the ten maximal interfaces (union of their E-S-ish cones) | 207 | 70,558 | |
 | ... residual `ModPForms` nodes with their own entries | 6 | 1,307 | |
 
-**The payout: the E-S layer goes to zero.** Those 213 nodes / 71,865 lines are
-the whole formal price of the analytic period map in the endgame; a de-E-S-ified
-architecture carries none of them. In port terms this is the
-de-`HeckeEis`-ification of the endgame: the E-S spine that §8 of
-[flt-non-frey-segments.md](flt-non-frey-segments.md) shows is shared between the
-modularity and patching segments disappears from the dependency graph.
+**The payout depends on the variant (§4.5).**
+
+*Relaxed — the default.* Keep the elementary analytic core — the 12 nodes /
+2,301 lines of §2.3, the general-weight primitive and its calculus — **and route
+B** (its weight-2 carrier, ℤ-lattice, triple algebra and finiteness, already
+self-contained at closure 1), together with the E-S-free assembly and the Katz /
+mod-p weight machinery. What leaves is the machinery that exists only to package
+the general-weight core in the parabolic/bundled form — route A's
+integral-structure period package, the `coeffH1par` family and the
+`eichlerShimuraMap` family. With C′ supplying `hasIntegralStructure_of_two_le`:
+
+| quantity | nodes | lines |
+|---|---:|---:|
+| packaging (closure of the `coeffH1par` / `eichlerShimuraMap` nodes, with C′) | **38** | **12,412** |
+| kept: elementary core, Katz / mod-p machinery, E-S-free assembly (route B lies outside this package) | 175 | 59,453 |
+
+As-is, without C′, the closure is 44 / 14,084; C′ drops the six Katz nodes that
+reach the packaging only through route A's proof. The 38 are concentrated on
+interfaces 1 and 4 — 22 / 6,706 and 29 / 9,973 lines, overlapping — and
+interfaces 3, 5 and 6 contribute none.
+
+*Strict — land at weight 2.* If route B's trivial-coefficient carrier is wanted
+for every interface, the elementary core goes too and the **whole 213 nodes /
+71,865 lines** leave. The extra nodes over the relaxed variant are the elementary
+core plus the non-packaging E-S infrastructure (the `exists_isEigensystemH1_*`
+assembly, the Katz/mod-p machinery, `PeriodPair`); the price is the gap of §4.5.
+
+**Why the payout is 38 when the core is 12?** The two numbers are different sets,
+not a closure. The 12 are the analytic *sources*; the 38 are the closure of the
+packaging (33 `coeffH1par` / `eichlerShimuraMap` nodes plus dependents, six of
+which fall away under C′). They are independent in the direction that matters:
+**none of the 12 uses the packaging** (their cones meet it in zero nodes), which
+is exactly why the core can be kept while the packaging is dropped. The analytic
+closure is a third set — 43 nodes / 12,316 lines, the 12 plus 31 downstream —
+similar in size by coincidence. So the E-S-ish package has two dependency sinks —
+the analytic primitive and the parabolic/bundled packaging — each carrying
+roughly forty nodes.
 
 **The replacement is already inside the endgame.** Every ingredient of the
 replacement is in the FLT proof cone today, so the marginal *new* mathematics is
@@ -706,32 +761,30 @@ comparable new cone.
 **Why this is not route A's 657-node cone.** Route A's cone is 657 nodes /
 263,720 lines, but ~528 of those are modular-curve / elliptic geometry the
 endgame needs regardless (Riemann–Roch, `JZero`, patching). The analytic-E-S part
-of it is the 213 / 71,865 sliver — which is why C′ alone removes only 4 nodes /
-800 lines ([route-c-prime-scout.md](route-c-prime-scout.md) §4 addendum). The
-payout is the sliver, and it is the only lever of this size in the interface
-family.
+of it is the sliver above — which is why C′ alone removes only 4 nodes /
+800 lines ([route-c-prime-scout.md](route-c-prime-scout.md) §4 addendum).
 
-**Three targets, one package.** If route B reaches only interface 3, that removes
-46 nodes / 23,363 lines. De-E-S-ifying the other nine while retaining interface 3
-removes 161 nodes / 47,195 lines. All ten removes the full 213 / 71,865. The first
-two are disjoint and partition the ten-interface union (46 + 161 = 207); the
-residual six complete the package.
+**Conditions.**
 
-**Two conditions, and one refinement.**
-
-1. *Higher weight is the real condition.* Route B as written is weight 2.
-   Interfaces 4, 5 and 6 involve weight $`> 2`$ and the `KatzModularForm.*`
-   cluster, so "workable for all interfaces" means the form-side weight reduction
-   is E-S-free at general weight — the missing brick of §4.5.
-2. *The surface is not literally ten nodes.* The ten maximal interfaces cover 207
+1. *The relaxed payout is gated by re-routing, not by new mathematics.* The 44
+   fearsome nodes are the parabolic / bundled packaging that interfaces 1, 4, 5
+   and 6 consume today (plus the Katz cluster, which is E-S-free modulo C′); the
+   work is to consume the elementary core instead. No weight descent is involved,
+   and interface 3 already works this way. The relaxed variant does **not** use
+   route B.
+2. *The gap is interface 3's, not a property of the other interfaces.* Route B is
+   weight 2, and interface 3's analytic step sits at a general weight $`k \ge 3`$,
+   so routing *it* through route B is what needs the form-side descent of §4.5.
+   The other interfaces do not: interface 1 takes its ideal at
+   $`k \in \{2, p+1\}`$ and interfaces 5/6 are the class-2 $`p+1 \to 2`$ θ-cycle;
+   interface 4 reduces only to weight $`\le 4`$ by its own Katz machinery. So
+   "Route B for interface 3" is the only place the gap appears.
+3. *The surface is not literally ten nodes.* The ten maximal interfaces cover 207
    of the 213 E-S-ish nodes, but 12 further non-E-S-ish endgame nodes outside
-   their cones (mostly `ModularCurve.SSHeckeV2.*`) directly cite E-S-ish nodes,
-   and the 6 residual `ModPForms` nodes have their own entries. A complete
-   de-E-S-ification must rewire those too. The prize (213 / 71,865) is unchanged;
-   the wiring inventory is the ten interfaces plus a further twelve direct citers
-   and the entry points of the residual six.
-3. *The residual geometry is paid regardless.* The `JZero`/Tate/Riemann–Roch
-   geometry the interfaces consume stays; only the E-S layer leaves.
+   their cones (mostly `ModularCurve.SSHeckeV2.*`) directly cite E-S-ish nodes, and
+   the 6 residual `ModPForms` nodes have their own entries.
+4. *The residual geometry is paid regardless.* The `JZero`/Tate/Riemann–Roch
+   geometry the interfaces consume stays; only the E-S machinery leaves.
 
 ## 7. Reproduction
 
@@ -908,6 +961,54 @@ for ns in ('HeckeEis.', 'ModPForms.', 'PeriodPair.'):
     nodes = [q for q in I if q.startswith(ns)]
     free = [q for q in nodes if not (cl(I[q]) & AN)]
     print(f'{ns:12s} {len(nodes):4d} nodes: {len(free):4d} E-S-free, {len(nodes)-len(free):3d} analytic-dependent')
+PY
+```
+
+### 7.5 The two payouts (strict and relaxed)
+
+```bash
+cd tools/deps && python3 - <<'PY'
+import sys, os; sys.path.insert(0, '.')
+from fltdata import FltData
+d = FltData(); I = d.index
+root = os.path.expanduser('~/proj/fermats-last-theorem')
+def lines(i):
+    stem = d.stem_of.get(i, '')
+    for sub in ('P2M/Sol', 'Theorems'):
+        for pre in ('S_', 'Thm_'):
+            p = os.path.join(root, sub, f'{pre}{stem}.lean')
+            if os.path.exists(p):
+                return sum(1 for _ in open(p, encoding='utf-8', errors='replace'))
+    return 0
+def cl(i, skip=frozenset()):
+    seen, st = set(), [i]
+    while st:
+        j = st.pop()
+        if j in seen: continue
+        seen.add(j)
+        if j in skip: continue
+        st.extend(d.cites(j))
+    return seen
+end = cl(I['FLT.fermatLastTheorem'])
+H = I['CuspForm.hasIntegralStructure_of_two_le']      # C-prime supplies this
+ES = [q for q in I if q.startswith(('HeckeEis.', 'ModPForms.', 'PeriodPair.')) and I[q] in end]
+PATS = ('eichlerShimuraMap', 'coeffH1par')
+F = {I[q] for q in ES if any(p in q for p in PATS)}
+D  = {I[q] for q in ES if cl(I[q])            & F}
+Dc = {I[q] for q in ES if cl(I[q], skip={H})  & F}
+L = lambda S: sum(lines(i) for i in S)
+print(f'E-S-ish package   : {len(ES):4d} / {L(I[q] for q in ES):7d}   (strict payout)')
+print(f'  packaging as-is : {len(D):4d} / {L(D):7d}')
+print(f'  packaging w/ C-prime: {len(Dc):4d} / {L(Dc):7d}   (relaxed payout)')
+print(f'  kept w/ C-prime : {len(ES)-len(Dc):4d} / {L(I[q] for q in ES if I[q] not in Dc):7d}')
+ifaces=[('1','WeierstrassCurve.exists_ideal_heckeAlgebra_mul_two_of_ideal_heckeAlgebra_two_or_succ'),
+        ('3','GaloisRep.exists_galoisRep_trace_eq_eigenchar_and_det_eq_pow_of_three_le'),
+        ('4','WeierstrassCurve.exists_ideal_heckeAlgebra_three_weight_le_four_pow_mul_apOfModel_of_exists_prime_dvd_mod_three_eq_two'),
+        ('5','CuspForm.heckeAlgebra.exists_isMaximal_two_ringHom_of_succ_of_map_T_eq_zero_of_five_le_or_exists_prime_dvd'),
+        ('6','CuspForm.heckeAlgebra.thetaCycle_exists_ringHom_mul_two_apply_eq_of_ringHom_succ_of_eq_three_imp_exists_prime_dvd_mod_three_eq_two')]
+for k,q in ifaces:
+    h = cl(I[q], skip={H}) & Dc
+    print(f'  iface {k}: {len(h):3d} / {L(h):6d}')
 PY
 ```
 

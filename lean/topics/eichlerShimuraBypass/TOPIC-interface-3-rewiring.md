@@ -136,6 +136,18 @@ proof cone, the three nested targets, the replacement ingredients already inside
 the endgame, the two conditions on "all interfaces" (higher weight / Katz forms,
 and the twelve further direct citers beyond the ten), and a reproduction script.
 
+**Payout revised for the relaxed reading (scout §6, §7.5).** The 213 / 71,865 is
+the *strict* payout, which removes even the elementary general-weight primitive
+and therefore needs the gap. The default *relaxed* reading is route B relaxed to
+**include** the 12-node general-weight primitive — the two are complementary, not
+substitutes — and removes only the parabolic/bundled packaging: the `coeffH1par`
+/ `eichlerShimuraMap` dependent closure. With C′ supplying
+`hasIntegralStructure_of_two_le` that closure is **38 nodes / 12,412 lines**
+(44 / 14,084 as-is), leaving 175 nodes / 59,453 lines. The 38 are concentrated on
+interfaces 1 and 4 (22 / 6,706 and 29 / 9,973, overlapping); interfaces 3, 5 and 6
+contribute none. So the relaxed target is bounded by 12,412 lines, not 71,865, and
+it requires re-routing rather than the gap.
+
 **The weight-2 E-S is already in the pin.** `Definitions/Def_ModularCurve_PeriodMap.lean`
 defines `ModularCurve.Period.IsEquivariantPrimitive` / `period` / `periodHom` /
 `parabolicHoms` (and interface 3's tail already imports it), and route B's blob

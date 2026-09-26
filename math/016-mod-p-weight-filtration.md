@@ -40,6 +40,16 @@ The first half of the answer is classical and already available: the weight can
 always be brought into the bounded window $`2 \le k' \le p+1`$ (§4). The second
 half — from an interior weight in that window to weight 2 — is the gap (§5–§6).
 
+**Scope.** The gap belongs to the *strict* reading of the bypass, in which the
+weight is taken all the way to 2 so that the trivial-coefficient period carrier
+can be used. It is not needed under the *relaxed* reading, which keeps the
+elementary general-weight primitive (the analytic core audited in
+[015-weight-two-hecke-periods.md](015-weight-two-hecke-periods.md) §8) and accepts
+degree-1 group cohomology as the carrier; in that reading the weight filtration
+question does not arise. Whether the gap is worth its cost is therefore a question
+about how much of the Eichler–Shimura package one is willing to keep, not about
+whether the mathematics exists.
+
 ## 2. The Hecke action sees the weight only modulo $`p-1`$
 
 Fix a prime $`p`$, a field $`F`$ of characteristic $`p`$, and a level $`N`$ with
@@ -202,6 +212,20 @@ the gap, and it is why the statement has a real proof obligation rather than bei
 a change of notation.
 
 ## 7. Routes past the gap
+
+**0. Avoid it: keep both route B and the elementary general-weight primitive.**
+The cheapest route is not to cross the gap. The primitive and its calculus at
+general weight — the analytic core of
+[015-weight-two-hecke-periods.md](015-weight-two-hecke-periods.md) §8 — consume a
+weight-$`k'`$ eigenform directly, with degree-one group cohomology (and, at trivial
+coefficients, `Hom`) as the carrier, so no weight descent is required for the
+general-weight interfaces. Route B is *not* discarded in this reading: the two are
+complementary, not substitutes, so the relaxed strategy is route B relaxed to
+include the 12-node primitive — route B for the weight-two carrier, its
+$`\mathbb{Z}`$-lattice, triple algebra and finiteness, the primitive for general
+weight. The cost is the analytic core itself (twelve modules, 2,301 lines), which
+is elementary and already written, and whose only inputs are three lemmas of
+one-variable complex analysis.
 
 **A. Prove the general level–weight exchange (form side).** Generalize the
 class-$`2`$ statement to every interior even weight: an eigenform of weight $`k'`$
