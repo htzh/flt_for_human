@@ -32,7 +32,13 @@ them). The analysis is one-variable complex analysis on $`\mathbb{H}`$ and
 polynomial/matrix algebra; there is no scheme, sheaf or higher cohomology on the
 path. Feasible with the usual shape-risk budget; the main cost drivers are the
 633-line Hecke-correspondence node and the 305-line `pderiv`/`descFactorial`
-computation, neither of which is a mathlib-gap problem.
+computation, neither of which is a mathlib-gap problem. The definition layer is
+9 modules / 214 declarations, of which 7 modules / 1,174 lines are actually
+needed by the 12. Its only cohomology is a **hand-rolled degree-1 group
+cohomology** (`coeffCocycles`/`coeffCoboundaries`/`coeffH1`) that is formally
+disjoint from Mathlib's `groupCohomology` — which the pin's Galois side already
+imports in 2,033 files — but is mathematically the same object; §5.4–§5.6 trace
+the correspondence and the porting choice it forces.
 
 ## 1. The 12 nodes, identified
 
@@ -179,44 +185,183 @@ in the `ModularForms/` q-expansion layer, but contains none of these three
 statements (`grep` for `StarConvex`, `iterate_pderiv`, and the
 `of_hasDerivAt_of_periodic` name is empty in `FLTForHuman/`).
 
-## 5. The definition layer: 9 modules / 1,449 lines
+## 5. The definition layer: 9 modules / 1,449 lines, 214 declarations
 
 The `sd`/`pd` def-module sets of the 12, resolved transitively through
-`Definitions/Def_*.lean` imports:
+`Definitions/Def_*.lean` imports. Declaration counts are from the pin's `ddecl`
+index (defs, theorems, abbrevs and instances).
 
-| `Def_` lines | module | role | new to the port? |
-|---:|---|---|---|
-| 304 | `Gamma0HeckeOperatorHom` | `alphaMat`, `heckeUpper`, `heckeConj`, `transferAux`, `resHom`/`coresHom`, `heckeOperatorHom` | new (no `heckeOperatorHom` in `FLTForHuman/`) |
-| 204 | `ModularForm_HeckeOperator` | Hecke operators on forms | partly shared with the ported `HeckeOperatorForms.lean` (`heckeTLin`/`heckeULin` exist) |
-| 182 | `ProjectiveLineMatrixAction` | `ProjectiveLine`, `UnimodularRow`, matrix action | new |
-| 153 | `Gamma0CoeffCohomology` | `coeffCocycles`, `coeffCoboundaries`, `coeffH1par` (+ parabolic layer) | new |
-| 149 | `HeckeEis_EichlerIntegral` | `linePow`, `jFactor`, `IsEquivariantPrimitiveWith`, `IsEichlerIntegral`, `eichlerShimuraMap` | new |
-| 140 | `HeckeEis_BinaryFormRep` | `BinaryForm`, `binarySubst`, `binaryFormRepSL`, `binaryFormAlphaAdj`, `evalRow`/`binaryFormEval` | new |
-| 112 | `Gamma0CoeffCohomologyEigen` | `coeffH1`, `coeffH1Mk`, `IsCoeffHeckeOnH1`, `IsEigensystemH1` | new |
-| 112 | `ModularForm_HeckeOperatorForms` | `heckeTLin`/`heckeULin` on `ModularForm` | partly shared with the ported `HeckeOperatorForms.lean` |
-| 93 | `ModularCurve_ProjectiveLine` | projective-line machinery | new |
-| **1,449** | | | |
+### 5.1 The nine modules
 
-**Nominal vs actual at this layer.** Ten of the twelve `S_` files carry the
-*same* three `import Definitions.Def_…` lines
-(`HeckeEis_BinaryFormRep`, `Gamma0CoeffCohomology`,
-`HeckeEis_EichlerIntegral`) regardless of use; only `coeffH1Mk…` (7 def
-imports) and `modularForm_eq_zero…` (4) add more. The shard `sd`/`pd` sets
-confirm that this nominal list is also the used list — so, unlike the wider
-graph, there is no def-module ballast here. The port would still reorganise: the
-playbook's "a module is a mathematical role" rule splits FLT's
-`Def_HeckeEis_BinaryFormRep` (representation) from `Def_HeckeEis_EichlerIntegral`
-(analysis) and lets the port adopt mathlib's `MvPolynomial`/`UpperHalfPlane`
-types directly, as the existing `FLTForHuman/ModularForms/*` already does for the
-Hecke operators.
+| `Def_` lines | decls | module | role | in the 12's actual need? |
+|---:|---:|---|---|---|
+| 304 | 44 | `Gamma0HeckeOperatorHom` | Hecke correspondence: `alphaMat`, `heckeUpper(SL)`, `heckeConj(SL)`, `gammaZeroRed`, `transferAux`, `resHom`, `coresHom`, `pullbackHom`, `heckeOperatorHom` | yes |
+| 204 | 50 | `ModularForm_HeckeOperator` | `heckeMatrix`, `heckeDiagMatrix`, `heckeT`/`heckeU` on functions | yes — already ported (`FLTForHuman/ModularForms/Defs/HeckeOperator.lean`) |
+| 182 | 26 | `ProjectiveLineMatrixAction` | `ProjectiveLine` matrix action, `projLineRepSL`, `projLineAlphaAdj`, `ProjLineCusps` | **no** — imported only for the `Eval` section |
+| 153 | 21 | `Gamma0CoeffCohomology` | hand-rolled degree-1 group cohomology, the parabolic layer, `coeffHeckeFun` | yes |
+| 149 | 19 | `HeckeEis_EichlerIntegral` | `linePow`, `jFactor`, `IsEquivariantPrimitiveWith`, `IsEichlerIntegral`, `eichlerShimuraMap` | yes (minus the last) |
+| 140 | 16 | `HeckeEis_BinaryFormRep` | `BinaryForm`, `binarySubst`, `binaryFormRepSL`, `binaryFormAlphaAdj`, + `Eval` section | yes (minus `Eval`) |
+| 112 | 14 | `Gamma0CoeffCohomologyEigen` | `coeffH1`, `coeffH1Mk`, `coeffH1parToH1`, `IsCoeffHeckeOnH1`, `IsEigensystemH1`, `binaryFormRep` | yes |
+| 112 | 12 | `ModularForm_HeckeOperatorForms` | `heckeTLin`/`heckeULin` on `ModularForm`/`CuspForm` | yes — already ported, the port file says "verbatim" |
+| 93 | 12 | `ModularCurve_ProjectiveLine` | `IsUnimodularRow`, `UnimodularRow`, `ProjectiveLine`, `borel` | **no** — imported only for the `Eval` section |
+| **1,449** | **214** | | | **7 modules / 1,174 lines actually needed by the 12** |
 
-Two scoping notes for the relaxed route, both measured from the pin:
+### 5.2 The declaration-level trace
+
+```
+Mathlib primitives
+├─ MvPolynomial + homogeneousSubmodule ─► Def_HeckeEis_BinaryFormRep
+│     BinaryForm, binarySubst,
+│     binaryFormRepSL : Representation K SL(2,ℤ) (BinaryForm K n)   [the representation]
+│     binaryFormAlphaAdj                                            [the Hecke α_ℓ operator]
+│     └─ Eval section: evalRow, binaryFormEval ─ needs ModularCurve_ProjectiveLine
+│                                              ─ NOT used by the 12
+├─ ModularForm / SlashAction ─► Def_ModularForm_HeckeOperator (heckeMatrix, heckeT, heckeU)
+│     └─► Def_ModularForm_HeckeOperatorForms (heckeTLin, heckeULin)   [already ported]
+├─ Submodule / LinearMap / Quotient ─► Def_Gamma0CoeffCohomology
+│     coeffCocycles, coeffCoboundaryMap, coeffCoboundaries,
+│     IsParabolicCocycle, coeffParabolicCocycles, coeffH1par, coeffHeckeFun
+└─ Subgroup / Matrix / SL(2,ℤ) ─► Def_Gamma0HeckeOperatorHom
+      heckeUpper, heckeConj, transferAux, coresHom, resHom, heckeOperatorHom
+                                          └─► coeffHeckeFun (coset sum)
+
+Def_HeckeEis_EichlerIntegral
+    linePow, jFactor, IsEquivariantPrimitiveWith, IsEichlerIntegral
+    IsEquivariantPrimitiveWith.cocycle_mem_coeffCocycles ── lands in Def_Gamma0CoeffCohomology
+    [eichlerShimuraMap: dropped packaging]
+
+Def_Gamma0CoeffCohomologyEigen
+    coeffH1 := coeffCocycles ⧸ coeffCoboundaries, coeffH1Mk, coeffH1parToH1,
+    IsCoeffHeckeOnH1, IsEigensystemH1                     [the contract]
+    binaryFormRep
+```
+
+The 12 touch only the top and bottom blocks: `binaryFormRepSL` /
+`binaryFormAlphaAdj` (from `HeckeEis_BinaryFormRep`), `coeffCocycles` /
+`coeffCoboundaries` / `coeffH1` / `coeffH1Mk` (from the two cohomology modules),
+`IsEquivariantPrimitiveWith` / `IsEichlerIntegral` (from
+`HeckeEis_EichlerIntegral`), and `ModularForm.heckeTLin` /
+`Gamma0HeckeOperatorHom`'s coset data (through the 633-line node).
+
+### 5.3 Nominal vs actual at this layer
+
+Ten of the twelve `S_` files carry the *same* three
+`import Definitions.Def_…` lines (`HeckeEis_BinaryFormRep`,
+`Gamma0CoeffCohomology`, `HeckeEis_EichlerIntegral`) regardless of use; only
+`coeffH1Mk…` (7 def imports) and `modularForm_eq_zero…` (4) add more. The shard
+`sd`/`pd` sets confirm that this nominal list is also the *directly used* list.
+
+At the **transitive** level, however, the closure is not tight: the two
+projective-line modules enter only because `Def_HeckeEis_BinaryFormRep` imports
+them for its `Eval` section (`evalRow`, `binaryFormEval`). Measured directly,
+**none of the 12 uses `ProjectiveLine`, `UnimodularRow`, `projLine*`,
+`binaryFormEval`, `evalRow`, or `Additive`** (0 of 12 files each). So the 12's
+actual definition need is **7 modules / 1,174 lines**, and the extra
+`ProjectiveLineMatrixAction` + `ModularCurve_ProjectiveLine` (275 lines) is
+shared ballast: `binaryFormEval` is retained endgame API (cited by
+`CuspForm.heckeLocal.*` and interface 5) and `projLineRepSL` belongs to the
+dropped packaging. A port that splits FLT's `Def_HeckeEis_BinaryFormRep` into a
+"binary forms / representation" module and a separate "projective-line
+evaluation" module gets the tighter figure.
+
+The port would also reorganise by role (playbook §7.1): FLT's
+`Def_HeckeEis_BinaryFormRep` (representation) and `Def_HeckeEis_EichlerIntegral`
+(analysis) are separate concerns, and the port should adopt mathlib's
+`MvPolynomial`/`UpperHalfPlane`/`ModularForm` types directly, as the existing
+`FLTForHuman/ModularForms/*` already does for the Hecke operators (316 of the
+1,449 lines are already ported).
+
+### 5.4 The two cohomologies in the pin
+
+The pin contains **two unrelated cohomology developments**:
+
+1. **The hand-rolled one on this path.** `HeckeEis.coeffCocycles` /
+   `coeffCoboundaries` / `coeffH1` (and the parabolic `coeffH1par`) are defined in
+   `Def_Gamma0CoeffCohomology` / `Def_Gamma0CoeffCohomologyEigen` from
+   `Submodule`, `LinearMap` and `Submodule.Quotient` alone: 1-cocycles
+   $`z(gh) = z(g) + \rho(g)z(h)`$ as a submodule of $`G \to V`$, 1-coboundaries
+   as the range of $`v \mapsto (\rho(g)v - v)_g`$, and their quotient. It shares
+   Mathlib's **representation** layer (`Representation`, from
+   `Mathlib.RepresentationTheory.Basic`, and `Module.End`) but imports nothing
+   from the **cohomology** layer (`Mathlib.RepresentationTheory.Homological`).
+2. **Mathlib's group cohomology, used heavily elsewhere.** The Galois/Selmer
+   side has **49** `Definitions/Def_GroupCohomology_*.lean` modules (`Kummer`,
+   `Selmer`, `TateShiftMaps`, `ContinuousH1`/`H2`, `PoitouTate`, …) and
+   **2,033** `P2M`/`Theorems` files reference mathlib's `groupCohomology`,
+   `cocycles₁`, `H1π` or `H1Iso`. The port's endgame will import
+   `Mathlib.RepresentationTheory.Homological.GroupCohomology.*` regardless.
+
+The two never meet: the 9 def modules and the twelve `S_` files contain **zero**
+occurrences of `groupCohomology`, `cocycles₁`, `coboundaries₁`, `H1π`,
+`Rep.of`, or `inhomogeneousCochains`. So there is no *formal* interaction today —
+but there is an exact *mathematical* correspondence, which is the porting
+decision.
+
+### 5.5 The hand-rolled cohomology against Mathlib's
+
+Mathlib `v4.34` has degree-1 group cohomology for $`A : \mathrm{Rep}\ k\ G`$ in
+`Mathlib.RepresentationTheory.Homological.GroupCohomology.LowDegree`. The
+correspondence (with `A := Rep.of ρ`):
+
+| pin (`HeckeEis.`, on `ρ : Representation K G V`) | Mathlib (on `A : Rep k G`) | relationship |
+|---|---|---|
+| `coeffCocycles ρ` | `groupCohomology.cocycles₁ A` | same submodule of `G → A`; the identities differ only by `add_comm` |
+| `mem_coeffCocycles_iff` | `mem_cocycles₁_iff` | same statement |
+| `coeffCoboundaryMap ρ` ($`v \mapsto (\rho g v - v)_g`$) | `d₀₁ A` | same linear map |
+| `coeffCoboundaries ρ` (`LinearMap.range`) | `coboundaries₁ A` (`LinearMap.range (d₀₁ A).hom`) | identical definition |
+| `coeffCoboundaries_le_coeffCocycles` | `coboundaries₁_le_cocycles₁` | same |
+| `coeffH1 ρ` (cocycles modulo coboundaries) | `H1 A`; `H1Iso : H1 A ≅ cocycles₁ A ⧸ coboundaries₁ A` | isomorphic, **not** definitionally equal |
+| `coeffH1Mk ρ` | `H1π A` | the quotient map |
+| `coeffH1Mk_eq_zero_iff` | `H1π_eq_zero_iff` | same |
+| trivial coefficients: `coeffCoboundaries 1 = ⊥`, `coeffH1 1 ≅ Additive Γ₀ →+ K` | `coboundaries₁_eq_bot_of_isTrivial`, `cocycles₁IsoOfIsTrivial`, `H1IsoOfIsTrivial : H1 A ≅ (Additive G →+ A)` | the scout §1.2 carrier bridge is **already in mathlib** |
+| `IsParabolicCocycle`, `coeffParabolicCocycles`, `coeffH1par`, `coeffH1parMk`, `coeffH1parToH1` | none | parabolic sub-quotient, pin-specific |
+| `coeffHeckeFun`, `IsCoeffHeckeOnH1`, `heckeOperatorHom`, `transferAux`, `coresHom`, `resHom`, `pullbackHom` | none | Hecke action, pin-specific |
+| `IsEigensystemH1` | none | the contract |
+
+The bridge is thin: `coeffCocycles ρ = cocycles₁ (Rep.of ρ)` should go through
+by `Submodule.ext` and `add_comm` on the carrier, and `coeffH1 ρ ≃ₗ[K] H1
+(Rep.of ρ)` through `H1Iso`. The trivial-coefficient specialization is where
+mathlib pays for itself: `H1IsoOfIsTrivial` lands in exactly the tame
+`Additive G →+ A` type that route B and the CohCarrier bridge use,
+and `coboundaries₁_eq_bot_of_isTrivial` is the "quotient disappears" fact.
+
+### 5.6 Port implication
+
+- **Option (a) — port the definitions verbatim.** Carry the 7 modules / 1,174
+  lines (214 declarations, minus the projective-line and packaging sections) as
+  written. Self-contained, no mathlib cohomology dependency, and every one of the
+  12's and the target contract's statements is unchanged. This is the low-risk
+  choice and is what the faithfulness discipline (playbook §7.4) favours.
+- **Option (b) — re-found on Mathlib's group cohomology.** Set
+  $`A := \mathrm{Rep.of}\ (\rho_{\mathrm{bin}} \circ \Gamma_0)`$ (the
+  `Γ₀.subtype` composite) and use `cocycles₁ A` / `coboundaries₁ A` / `H1 A` / `H1π A` in place of
+  `coeffCocycles` / `coeffCoboundaries` / `coeffH1` / `coeffH1Mk`. Gains: the
+  ~13 cohomology declarations (the `Cocycles` section and the `H1` section,
+  ~83 lines) and the trivial-coefficient bridge come free from mathlib, and no
+  new library dependency is added because the Galois side already imports
+  `Mathlib.RepresentationTheory.Homological.GroupCohomology`. Costs: a `Rep.of`
+  bridge; a Hecke-action transport across `H1Iso`; and statement churn in the
+  eight E-S-free algebra nodes (2,281 lines of the 21-node cone) whose statements
+  are written over `coeffH1`/`coeffCocycles`. The Hecke action and the parabolic
+  quotient are pin-specific under either option.
+
+A middle path is available and is probably right: port option (a) as the core,
+and add a **separate compatibility module** proving `coeffCocycles ρ =
+cocycles₁ (Rep.of ρ)`, `coeffCoboundaries ρ = coboundaries₁ (Rep.of ρ)` and
+`coeffH1 ρ ≃ₗ H1 (Rep.of ρ)`. That gives the relaxed core its self-contained
+proofs, lets the trivial-coefficient interfaces use mathlib's `H1IsoOfIsTrivial`
+directly, and keeps the door open to replacing the carrier later without
+touching the algebraic nodes' statements.
+
+Two further scoping notes, both measured from the pin:
 
 - `Def_HeckeEis_EichlerIntegral` also defines `eichlerShimuraMap` (lines
   112–143, ~32 lines) and `Def_Gamma0CoeffCohomology` the whole `Parabolic`
   section (`IsParabolicCocycle`, `coeffParabolicCocycles`, `coeffH1par`,
-  `coeffH1parMk`, lines 67–122, ~56 lines). None of the 12 cites these; they are
-  the dropped packaging's vocabulary. They are omitted from the core port.
+  `coeffH1parMk`, `coeffH1parToH1`, lines 67–122, ~56 lines). None of the 12
+  cites these; they are the dropped packaging's vocabulary. They are omitted from
+  the core port (but the `Parabolic` section has no mathlib counterpart, so it is
+  new work if the packaging is ever restored).
 - `Def_HeckeEis_BinaryFormRep`'s `Eval` section (`evalRow`, `binaryFormEval`,
   lines 93–138, ~46 lines) is *not* used by the 12, but *is* used by retained
   endgame nodes (e.g. `CuspForm.heckeLocal.*`, interface 5) via
@@ -303,14 +448,15 @@ but the number of *places that must agree with its interface* collapses to two.
 | theorem layer, the 12 (`Thm_` statements) | 12 | 218 | public wrappers; the port states directly, so these mostly fold into the proofs |
 | external theorem nodes (`S_` proofs) | 3 | 365 | 150 shared with route-A geometry; 215 private |
 | external theorem nodes (`Thm_` statements) | 3 | 32 | |
-| definition layer (transitive `Def_` closure) | 9 | 1,449 | packaging-only sections ~88 lines can be omitted; ~316 lines are already partly in the ported Hecke layer |
+| definition layer (transitive `Def_` closure) | 9 | 1,449 | 7 modules / 1,174 lines are the 12's actual need; the other 2 modules / 275 (projective line) are shared with retained `binaryFormEval`; 316 lines already ported |
 | **nominal total** | | **4,365** | **~4,174 after the 191-line dedup** |
 | `P2M/Util.lean` (all twelve import it) | 1 | 127 | shared macros (`p2m_exact_reverting` etc.); a mathlib-style port states the theorem directly and drops it |
 
 The **marginal** core (content that exists only for this core) is the 12
 theorems + the two private external lemmas = 2,301 + 218 + 40 + 175 + 32 = 2,766
-nominal lines; the star-convex node (150), the defs (1,449) and `Util` (127) are
-shared with the rest of the port or with route-A geometry.
+nominal lines; the star-convex node (150), the defs (1,449 nominal, 1,174
+actually needed by the 12) and `Util` (127) are shared with the rest of the port
+or with route-A geometry.
 
 ### 8.2 Port order (bottom-up, dependencies satisfied)
 
@@ -440,6 +586,24 @@ for i, n in enumerate(names):
 for n in names:
     if avoid[n]: print(f"{len(avoid[n]):>4}  {n}")
 print('avoidable total:', sum(len(v) for v in avoid.values()))
+PY
+```
+
+```bash
+# 5. the definition trace: the nine modules, and the mathlib-cohomology seam
+cd ~/proj/fermats-last-theorem && python3 - <<'PY'
+from pathlib import Path
+mods = ['Gamma0HeckeOperatorHom','ModularForm_HeckeOperator','ProjectiveLineMatrixAction',
+        'Gamma0CoeffCohomology','HeckeEis_EichlerIntegral','HeckeEis_BinaryFormRep',
+        'Gamma0CoeffCohomologyEigen','ModularForm_HeckeOperatorForms','ModularCurve_ProjectiveLine']
+print('total', sum(sum(1 for _ in open(Path('Definitions') / f'Def_{m}.lean')) for m in mods), 'lines')
+for pat in ['groupCohomology', 'cocycles\u2081', 'coboundaries\u2081', 'H1\u03c0', 'Rep.of',
+            'inhomogeneousCochains']:
+    on = sum(pat in (Path('Definitions') / f'Def_{m}.lean').read_text(errors="replace")
+             for m in mods)
+    print(f'{pat:>22}  on the nine def modules: {on}/9')
+print('Def_GroupCohomology_* modules:',
+      len(list(Path('Definitions').glob('Def_GroupCohomology_*.lean'))))
 PY
 ```
 
