@@ -705,34 +705,43 @@ analytic-Eichler–Shimura layer. Measured over the closure of `FLT.fermatLastTh
 | ... reachable under the ten maximal interfaces (union of their E-S-ish cones) | 207 | 70,558 | |
 | ... residual `ModPForms` nodes with their own entries | 6 | 1,307 | |
 
-**The payout depends on the variant (§4.5).**
+**The payout depends on the variant (§4.5).** In the tables "dropped" is the
+payout (not ported) and "ported" is what the port still carries.
 
-*Relaxed — the default.* Keep the elementary analytic core — the 12 nodes /
-2,301 lines of §2.3, the general-weight primitive and its calculus — **and route
-B** (its weight-2 carrier, ℤ-lattice, triple algebra and finiteness, already
-self-contained at closure 1), together with the E-S-free assembly and the Katz /
-mod-p weight machinery. What leaves is the machinery that exists only to package
-the general-weight core in the parabolic/bundled form — route A's
-integral-structure period package, the `coeffH1par` family and the
-`eichlerShimuraMap` family. With C′ supplying `hasIntegralStructure_of_two_le`:
+*Relaxed — the default.* Route B is relaxed to include the 12-node general-weight
+primitive, and everything E-S-free is kept. What leaves is only the
+parabolic/bundled packaging. With C′ supplying `hasIntegralStructure_of_two_le`:
 
-| quantity | nodes | lines |
+| part of the 213 / 71,865 namespace | nodes | lines |
 |---|---:|---:|
-| packaging (closure of the `coeffH1par` / `eichlerShimuraMap` nodes, with C′) | **38** | **12,412** |
-| kept: elementary core, Katz / mod-p machinery, E-S-free assembly (route B lies outside this package) | 175 | 59,453 |
+| **dropped** — the `coeffH1par` / `eichlerShimuraMap` closure | **38** | **12,412** |
+| ported — `HeckeEis.` (12-node core + E-S-free level raising / weight reduction / base change) | 94 | 33,094 |
+| ported — `ModPForms.` (mod-p form machinery) | 63 | 14,094 |
+| ported — `PeriodPair.` (period pairs) | 18 | 12,265 |
+| total | 213 | 71,865 |
+
+So the relaxed saving is **12,412 lines of 71,865 (17%)** — the port still carries
+59,453. Most of those 59,453 are *not* E-S at all: the `HeckeEis` remainder is the
+12-node core plus the E-S-free assembly, and `ModPForms` / `PeriodPair` are mod-p
+forms and period pairs that interfaces 4 and 9 consume for non-analytic reasons.
+The relaxed saving is the removal of the *fearsome packaging*, not of the bulk.
 
 As-is, without C′, the closure is 44 / 14,084; C′ drops the six Katz nodes that
 reach the packaging only through route A's proof. The 38 are concentrated on
 interfaces 1 and 4 — 22 / 6,706 and 29 / 9,973 lines, overlapping — and
 interfaces 3, 5 and 6 contribute none.
 
-*Strict — land at weight 2.* If route B's trivial-coefficient carrier is wanted
-for every interface, the elementary core goes too and the **whole 213 nodes /
-71,865 lines** leave. The extra nodes over the relaxed variant are the elementary
-core plus the non-packaging E-S infrastructure (the `exists_isEigensystemH1_*`
-assembly, the Katz/mod-p machinery, `PeriodPair`); the price is the gap of §4.5.
+*Strict — route interface 3 through route B.* Route B replaces the general-weight
+primitive too, so the 12-node core / 2,301 lines goes with the packaging:
+roughly **50 nodes / 14,713 lines**. It does **not** by itself remove the E-S-free
+assembly, `ModPForms` or `PeriodPair`; the 213 / 71,865 is the namespace
+*footprint* — everything the interfaces consume from those three namespaces — not
+a saving the E-S bypass delivers on its own. How much of the E-S-free assembly a
+Route-B re-architecture would also drop (for instance the degree-$`n \to 0`$ step
+of §5.1) is not measured, and reaching weight 2 for interface 3 is where the gap
+of §4.5 sits.
 
-**Why the payout is 38 when the core is 12?** The two numbers are different sets,
+**Why the dropped set is 38 when the core is 12?** The two numbers are different sets,
 not a closure. The 12 are the analytic *sources*; the 38 are the closure of the
 packaging (33 `coeffH1par` / `eichlerShimuraMap` nodes plus dependents, six of
 which fall away under C′). They are independent in the direction that matters:
@@ -997,10 +1006,14 @@ F = {I[q] for q in ES if any(p in q for p in PATS)}
 D  = {I[q] for q in ES if cl(I[q])            & F}
 Dc = {I[q] for q in ES if cl(I[q], skip={H})  & F}
 L = lambda S: sum(lines(i) for i in S)
-print(f'E-S-ish package   : {len(ES):4d} / {L(I[q] for q in ES):7d}   (strict payout)')
+print(f'E-S-ish package   : {len(ES):4d} / {L(I[q] for q in ES):7d}   (namespace footprint)')
 print(f'  packaging as-is : {len(D):4d} / {L(D):7d}')
 print(f'  packaging w/ C-prime: {len(Dc):4d} / {L(Dc):7d}   (relaxed payout)')
 print(f'  kept w/ C-prime : {len(ES)-len(Dc):4d} / {L(I[q] for q in ES if I[q] not in Dc):7d}')
+for ns in ('HeckeEis.', 'ModPForms.', 'PeriodPair.'):
+    tot = [I[q] for q in ES if q.startswith(ns)]
+    dr  = [i for i in tot if i in Dc]
+    print(f'  {ns:12s} total {len(tot):3d}/{L(tot):6d}   dropped {len(dr):3d}/{L(dr):5d}   ported {len(tot)-len(dr):3d}/{L([i for i in tot if i not in Dc]):6d}')
 ifaces=[('1','WeierstrassCurve.exists_ideal_heckeAlgebra_mul_two_of_ideal_heckeAlgebra_two_or_succ'),
         ('3','GaloisRep.exists_galoisRep_trace_eq_eigenchar_and_det_eq_pow_of_three_le'),
         ('4','WeierstrassCurve.exists_ideal_heckeAlgebra_three_weight_le_four_pow_mul_apOfModel_of_exists_prime_dvd_mod_three_eq_two'),

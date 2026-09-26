@@ -146,7 +146,13 @@ substitutes — and removes only the parabolic/bundled packaging: the `coeffH1pa
 (44 / 14,084 as-is), leaving 175 nodes / 59,453 lines. The 38 are concentrated on
 interfaces 1 and 4 (22 / 6,706 and 29 / 9,973, overlapping); interfaces 3, 5 and 6
 contribute none. So the relaxed target is bounded by 12,412 lines, not 71,865, and
-it requires re-routing rather than the gap.
+it requires re-routing rather than the gap. **The 71,865 is the three namespaces'
+footprint** — everything the interfaces consume from `HeckeEis` / `ModPForms` /
+`PeriodPair` — not a saving the E-S bypass delivers on its own: most of the 59,453
+still ported is E-S-free machinery (the `HeckeEis` level-raising / weight-reduction
+assembly, the `ModPForms` mod-p forms, `PeriodPair`), consumed by the interfaces
+for non-analytic reasons. The *strict* variant (route B for interface 3) adds the
+12-node core to the dropped set: roughly 50 / 14,713.
 
 **The weight-2 E-S is already in the pin.** `Definitions/Def_ModularCurve_PeriodMap.lean`
 defines `ModularCurve.Period.IsEquivariantPrimitive` / `period` / `periodHom` /
