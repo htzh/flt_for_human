@@ -535,6 +535,9 @@ Phase 5 if the gate is passed.
 
 ## 8. Pointers
 
+- The relaxed option's kept 12-node analytic core — its actual (not nominal)
+  dependency graph, intra-core redundancy and port accounting:
+  [TOPIC-relaxed-analytic-core.md](TOPIC-relaxed-analytic-core.md).
 - Phase 0 contract and E-S partition:
   [../../../studies/eichler-shimura-bypass-scout.md](../../../studies/eichler-shimura-bypass-scout.md)
   §1–§2 and reproduction §7.
