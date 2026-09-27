@@ -4,13 +4,15 @@
 
   `tsum_prod_eq_tsum_antidiagonal` rewrites a sum over the product `ℕ+ × ℕ+` as a
   sum over `n.divisorsAntidiagonal`, and `tsum_tsum_eq_tsum_antidiagonal` is its
-  iterated form for bounded factors and `‖r‖ < 1`. They are the double-sum
-  rearrangement at the heart of the Lambert-series identity, in the spirit of
-  mathlib's `Mathlib/NumberTheory/TsumDivisorsAntidiagonal.lean`.
+  iterated form for bounded factors and `‖r‖ < 1`. They generalise mathlib's
+  `tsum_prod_pow_eq_tsum_sigma` (the `σ` special case) and are the double-sum
+  rearrangement at the heart of the Lambert-series identity.
 
-  These are not Eisenstein-specific. The pin writes them `private` in the `CardC`
-  namespace of `P2M/Sol/S_EisensteinSeries_qExpansion_eisensteinG_coeff.lean`
-  (pinned `aa2d8b3`); the port promotes them here.
+  This is generic analytic number theory, not modular forms, so it gets its own
+  module rather than being exported from `ModularForms/EisensteinSeries.lean`
+  (where it is a `private` consumer). The pin writes the lemmas `private` in the
+  `CardC` namespace of `P2M/Sol/S_EisensteinSeries_qExpansion_eisensteinG_coeff.lean`
+  (pinned `aa2d8b3`); the statements are the pin's copies.
 -/
 import Mathlib.Analysis.Complex.Basic
 import Mathlib.Analysis.Normed.Group.InfiniteSum

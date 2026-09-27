@@ -42,9 +42,7 @@ import Mathlib.NumberTheory.ModularForms.EisensteinSeries.IsBoundedAtImInfty
 import Mathlib.NumberTheory.ModularForms.CongruenceSubgroups
 import Mathlib.NumberTheory.ArithmeticFunction.Misc
 import Mathlib.Analysis.SpecialFunctions.Complex.CircleAddChar
-import FLTForHuman.ModularForms.Defs.ResidueClass
-import FLTForHuman.ModularForms.Defs.SlashActions
-import FLTForHuman.ModularForms.Defs.TsumDivisorsAntidiagonal
+import FLTForHuman.NumberTheory.TsumDivisorsAntidiagonal
 
 set_option autoImplicit false
 set_option linter.style.haveILetI false
@@ -52,7 +50,6 @@ set_option linter.style.haveILetI false
 open scoped MatrixGroups CongruenceSubgroup ModularForm Topology Manifold Matrix Nat
 open UpperHalfPlane hiding I
 open Filter Complex Real
-open ResidueClass SlashAction
 
 noncomputable section
 
@@ -223,6 +220,11 @@ theorem isBoundedAtImInfty_eisensteinG [NeZero N] (a : Fin 2 → ZMod N) (hk : 3
       summand_bound_of_mem_verticalStrip (lt_trans two_pos hk').le x two_pos
       (verticalStrip_anti_right N hz hn)
 
+private lemma slash_T_zpow_apply (h : ℍ → ℂ) (b : ℤ) (τ : ℍ) :
+    (h ∣[k] (ModularGroup.T ^ b)) τ = h (((b : ℝ)) +ᵥ τ) := by
+  rw [ModularForm.SL_slash_apply, ModularGroup.denom_apply, UpperHalfPlane.modular_T_zpow_smul]
+  simp [ModularGroup.coe_T_zpow]
+
 lemma periodic_eisensteinG (k : ℤ) (a : Fin 2 → ZMod N) :
     Function.Periodic (EisensteinSeries.eisensteinG N k a ∘ ofComplex) (N : ℝ) := by
   have hT : EisensteinSeries.eisensteinG N k a ∣[k] (ModularGroup.T ^ (N : ℤ)) =
@@ -262,10 +264,13 @@ section expansion
 
 variable [NeZero N] {k : ℕ}
 
-/-! ### The double-sum form and the divisor-sum coefficients -/
+/-! ### Residue classes in `ℤ` and the divisor-sum coefficients -/
+
+/-- The integers in the residue class `b` mod `N`. -/
+private abbrev cls (N : ℕ) (b : ZMod N) : Type := {d : ℤ // (d : ZMod N) = b}
 
 /-- `congrSet N a` as the product of its two one-dimensional residue classes. -/
-def congrSetEquivSigma (a : Fin 2 → ZMod N) : congrSet N a ≃ (Σ _ : cls N (a 0), cls N (a 1)) where
+private def congrSetEquivSigma (a : Fin 2 → ZMod N) : congrSet N a ≃ (Σ _ : cls N (a 0), cls N (a 1)) where
   toFun v := ⟨⟨v.1 0, congr_fun v.2 0⟩, ⟨v.1 1, congr_fun v.2 1⟩⟩
   invFun p := ⟨![p.1.1, p.2.1], by
     show ((↑) : ℤ → ZMod N) ∘ ![p.1.1, p.2.1] = a
@@ -280,13 +285,13 @@ def congrSetEquivSigma (a : Fin 2 → ZMod N) : congrSet N a ≃ (Σ _ : cls N (
     rfl
 
 omit [NeZero N] in
-lemma eisSummand_natCast (v : Fin 2 → ℤ) (z : ℍ) :
+private lemma eisSummand_natCast (v : Fin 2 → ℤ) (z : ℍ) :
     eisSummand (k : ℤ) v z = ((((v 0 : ℂ)) * z + v 1) ^ k)⁻¹ := by
   rw [eisSummand, zpow_neg, zpow_natCast]
 
 omit [NeZero N] in
 
-lemma eisensteinG_eq_tsum_tsum (hk : 3 ≤ k) (a : Fin 2 → ZMod N) (τ : ℍ) :
+private lemma eisensteinG_eq_tsum_tsum (hk : 3 ≤ k) (a : Fin 2 → ZMod N) (τ : ℍ) :
     EisensteinSeries.eisensteinG N k a τ =
       ∑' c : cls N (a 0), ∑' d : cls N (a 1), ((((c.1 : ℂ)) * τ + d.1) ^ k)⁻¹ := by
   have hk' : 3 ≤ ((k : ℕ) : ℤ) := by exact_mod_cast hk
@@ -300,6 +305,24 @@ lemma eisensteinG_eq_tsum_tsum (hk : 3 ≤ k) (a : Fin 2 → ZMod N) (τ : ℍ) 
   refine tsum_congr fun c => tsum_congr fun d => ?_
   rw [eisSummand_natCast]
   rfl
+
+/-- The bijection `ℤ ≃ cls N b` sending `j` to `b.val + N * j`. -/
+private def clsEquiv (b : ZMod N) : ℤ ≃ cls N b where
+  toFun j := ⟨(b.val : ℤ) + N * j, by simp⟩
+  invFun d := (d.1 - b.val) / N
+  left_inv j := by
+    have hN : (N : ℤ) ≠ 0 := by exact_mod_cast NeZero.ne N
+    simp only [add_sub_cancel_left]
+    exact Int.mul_ediv_cancel_left _ hN
+  right_inv d := by
+    apply Subtype.ext
+    have hdvd : (N : ℤ) ∣ d.1 - b.val := by
+      rw [← ZMod.intCast_zmod_eq_zero_iff_dvd]
+      push_cast
+      rw [d.2, ZMod.natCast_zmod_val, sub_self]
+    simp only
+    rw [Int.mul_ediv_cancel' hdvd]
+    ring
 
 private def wpt (c : ℕ) (hc : 0 < c) (bv : ℕ) (τ : ℍ) : ℍ :=
   ⟨(((c : ℂ)) * τ + bv) / N, by
@@ -364,6 +387,13 @@ private lemma tsum_cls_eq (hk : 2 ≤ k) (b : ZMod N) (c : ℕ) (hc : 0 < c) (τ
   simp_rw [this]
   exact tsum_int_eq hk b b.val (ZMod.natCast_zmod_val b) c hc τ
 
+/-- Negation as an equivalence `cls N b ≃ cls N (-b)`. -/
+private def clsNegEquiv (b : ZMod N) : cls N b ≃ cls N (-b) where
+  toFun d := ⟨-d.1, by simp [d.2]⟩
+  invFun d := ⟨-d.1, by simp [d.2]⟩
+  left_inv d := by apply Subtype.ext; simp
+  right_inv d := by apply Subtype.ext; simp
+
 omit [NeZero N] in
 
 private lemma tsum_cls_neg_eq (b : ZMod N) (c : ℕ) (τ : ℍ) :
@@ -374,6 +404,36 @@ private lemma tsum_cls_neg_eq (b : ZMod N) (c : ℕ) (τ : ℍ) :
   simp only [clsNegEquiv, Equiv.coe_fn_symm_mk, Int.cast_neg, Int.cast_natCast]
   rw [show (-(c : ℂ)) * τ + -((d.1 : ℤ) : ℂ) = (-1) * ((c : ℂ) * τ + d.1) by ring, mul_pow, mul_inv,
     ← inv_pow, inv_neg, inv_one]
+
+omit [NeZero N] in
+
+private lemma tsum_cls_split (b : ZMod N) (F : ℤ → ℂ) (hF : Summable F) :
+    ∑' c : cls N b, F c.1 =
+      (if (0 : ZMod N) = b then F 0 else 0) +
+        ∑' c : ℕ+, (if ((c : ℕ) : ZMod N) = b then F c else 0) +
+        ∑' c : ℕ+, (if ((-((c : ℕ) : ℤ) : ℤ) : ZMod N) = b then F (-((c : ℕ) : ℤ)) else 0) := by
+  set G : ℤ → ℂ := fun c => if ((c : ZMod N)) = b then F c else 0 with hG
+  have hG' : Summable G := by
+    refine Summable.of_norm_bounded hF.norm fun c => ?_
+    simp only [hG]; split_ifs <;> simp
+  have h1 : ∑' c : cls N b, F c.1 = ∑' c : ℤ, G c := by
+    rw [show (∑' c : cls N b, F c.1) = ∑' c : ({c : ℤ | (c : ZMod N) = b} : Set ℤ), F c from rfl,
+      tsum_subtype]
+    refine tsum_congr fun c => ?_
+    simp only [Set.indicator_apply, Set.mem_ofPred_eq, hG]
+  have hs1 : Summable fun n : ℕ => G n := hG'.comp_injective Nat.cast_injective
+  have hs2 : Summable fun n : ℕ => G (-(n + 1)) :=
+    hG'.comp_injective (i := fun n : ℕ => (-(n + 1) : ℤ)) (fun m n h => by simpa using h)
+  rw [h1, tsum_of_nat_of_neg_add_one hs1 hs2, hs1.tsum_eq_zero_add]
+  congr 1
+  · congr 1
+    · simp [hG]
+    · rw [tsum_pnat_eq_tsum_succ (f := fun c : ℕ => if ((c : ℕ) : ZMod N) = b then F c else 0)]
+      simp [hG]
+  · rw [tsum_pnat_eq_tsum_succ (f := fun c : ℕ =>
+      if ((-((c : ℕ) : ℤ) : ℤ) : ZMod N) = b then F (-((c : ℕ) : ℤ)) else 0)]
+    refine tsum_congr fun c => ?_
+    simp [hG]
 
 omit [NeZero N] in
 
@@ -413,7 +473,7 @@ private def coefFun (N k : ℕ) [NeZero N] (a : Fin 2 → ZMod N) (n : ℕ) : �
   if h : n = 0 then (if a 0 = 0 then ∑' d : cls N (a 1), (((d.1 : ℂ)) ^ k)⁻¹ else 0)
   else kappa N k * (Splus N k a ⟨n, Nat.pos_of_ne_zero h⟩ + (-1) ^ k * Sminus N k a ⟨n, Nat.pos_of_ne_zero h⟩)
 
-lemma norm_stdAddChar (x : ZMod N) : ‖ZMod.stdAddChar x‖ = 1 := by
+private lemma norm_stdAddChar (x : ZMod N) : ‖ZMod.stdAddChar x‖ = 1 := by
   rw [ZMod.stdAddChar_apply]; exact Circle.norm_coe _
 
 private lemma norm_divisorSum_le (hk : 1 ≤ k) (b b' : ZMod N) (n : ℕ+) :

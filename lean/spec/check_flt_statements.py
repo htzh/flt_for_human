@@ -1132,16 +1132,13 @@ PORT_FILES = [
     # general Eisenstein series. The SET-5 headlines are public; the weight-one
     # toolbox's own `WLightR7b`/`WLightR8a`/`WLightR11g`/`WLight` helpers are
     # `private`, while the general `eisensteinG` helpers are public (promoted when
-    # that module moved to `ModularForms/EisensteinSeries.lean`).
+    # that module moved to `ModularForms/EisensteinSeries.lean`). The two generic
+    # antidiagonal `tsum` rearrangements of the pin's `CardC` block broke out into
+    # their own generic module (they are not modular-forms material); their public
+    # statements are the pin's `CardC` copies in the `S_` file listed above.
     "FLTForHuman/ModularForms/WeightOne/Basic.lean",
     "FLTForHuman/ModularForms/EisensteinSeries.lean",
-    # The three shared vocabulary modules carved out of the Eisenstein `CardC`
-    # block: the residue-class vocabulary, the generic `T`-slash evaluation and
-    # the two antidiagonal `tsum` rearrangements. Their public statements are the
-    # pin's (non-`private`) `CardC` copies in the `S_` files listed above.
-    "FLTForHuman/ModularForms/Defs/ResidueClass.lean",
-    "FLTForHuman/ModularForms/Defs/SlashActions.lean",
-    "FLTForHuman/ModularForms/Defs/TsumDivisorsAntidiagonal.lean",
+    "FLTForHuman/NumberTheory/TsumDivisorsAntidiagonal.lean",
     # SET-6, order 1: the four closure-1 Hauptmodul leaves. Only the four
     # headlines are public; the pin's self-contained `S_` helpers are `private`.
     "FLTForHuman/ModularForms/WeightOne/LevelOneHauptmodul.lean",

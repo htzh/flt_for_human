@@ -574,3 +574,66 @@ distinction as filenames**, and they rot faster. `TorsionCard.lean`'s header sti
 said "the counting argument, part 1" and listed two FLT source sections long after
 the whole argument had landed in it. Re-read a module's header when its content
 stops matching its name — and again after a rename.
+
+## 9. Promotion and sharing across theories
+
+§7.1 and §8 say how to *place* a module; this says what a theory's module is
+allowed to make **public**. It came out of the 2026-09 `EisensteinSeries`
+refactor, where a general-weight series ported under `WeightOne/` had its `CardC`
+helper block promoted wholesale, briefly parked in three `Defs/` files, and then
+sorted out again.
+
+The aim is that **real mathematics is written once**. Expense in this work is the
+route's distance from mathlib (§7.3), so a real result left `private` and then
+re-derived in the next theory is pure loss. What is *not* worth exporting is glue
+and trivia.
+
+- **The measure is mathematical content, not size.** Whether an object deserves a
+  public home — in `Defs/` or anywhere else — is decided by how much mathematics it
+  carries *relative to the overall project*, not by its line count or by how many
+  consumers it has today. Promote trivia and the public surface drowns in it. The
+  test is: what would another theory otherwise have to re-derive?
+- **`Defs/` is for structures that need further development.** A `Defs/` module
+  earns its place by defining a structure (or bundled object) that carries
+  mathematics later modules develop — `IntegralStructure`, `Eigenform`,
+  `HeckeOperator`. A file of lemmas does not belong there, however general; and a
+  `cls`-style residue-class abbreviation does not either — because its content is
+  trivial, not because it is short.
+- **Share real math; do not re-derive it.** A rearrangement, identity, finiteness
+  or summability result that another theory could need deserves a public home even
+  if only one consumer needs it today — not a local `private` copy.
+- **A theory exports only from its own domain.** The public surface of
+  `ModularForms/EisensteinSeries.lean` is `eisensteinG` and what is stated about
+  it. A fact about `ZMod` residue classes, or about `tsum` over
+  `divisorsAntidiagonal`, is not Eisenstein mathematics and must not be found by
+  importing the Eisenstein module.
+- **A helper that only adapts another theory stays `private` in the consumer.**
+  Unfolding mathlib's `eisSummand`, evaluating `ZMod.stdAddChar`, or specialising
+  the slash action to `T ^ b` is glue, not mathematics; exporting it makes callers
+  depend on a theory they are not using. Keep it `private`.
+- **If such a helper is commonly needed, promote it in the theory it adapts.**
+  The escape hatch for the previous rule: once a local adaptation is wanted by
+  more than one consumer it stops being glue, and it gets a public home — upstream
+  to mathlib, or in the theory it is *about*, which is the "original theory" here.
+  A generic lemma with content that belongs to no existing theory gets a small
+  module of its own.
+
+The worked example, all in one refactor: what carries real Eisenstein mathematics
+— `congrSet` with its `SL(2, ℤ)`-action, `eisensteinGSIF`, `eisensteinGMF`, the
+`tendstoLocallyUniformly`/`mdifferentiable`/`isBoundedAtImInfty` chain — stayed
+public in the series module, alongside the two headline theorems. Everything whose
+content is trivial *relative to the project* went `private`: the residue-class
+vocabulary `cls`/`clsEquiv`/`clsNegEquiv`/`tsum_cls_split` together with the
+reindexing helpers `congrSetEquivSigma`/`eisensteinG_eq_tsum_tsum`, and the mathlib
+adaptations `slash_T_zpow_apply`/`eisSummand_natCast`/`norm_stdAddChar`. The one
+piece with real generic math — `tsum_prod_eq_tsum_antidiagonal` and its iterated
+form — broke out into `NumberTheory/TsumDivisorsAntidiagonal.lean`. The three
+`Defs/` files that briefly held the private groups were deleted: they defined no
+structure carrying mathematics.
+
+Two mechanical consequences when a public helper moves or is demoted, both worth
+checking: the statement checker reads only the **public** surface of each
+`PORT_FILES` module, so demoting a declaration drops it from the compared count
+(and from the pin diff) — a drop of exactly the number demoted is the expected
+signal, not a silent loss; and a declaration moved to another module must be added
+to `PORT_FILES` at its new path, or it stops being verified without any error.
