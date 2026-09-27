@@ -811,6 +811,17 @@ SOURCES = [
     "Theorems/Thm_EisensteinSeries_exists_modularForm_coe_eq_eisensteinG.lean",
     "Theorems/Thm_EisensteinSeries_qExpansion_eisensteinG_coeff.lean",
     "Definitions/Def_EisensteinSeries_EisensteinG.lean",
+    # The general API was promoted to public in `ModularForms/EisensteinSeries.lean`
+    # (`congrSet`, `eisensteinGSIF`, `eisensteinGMF`, the slash/analytic lemmas,
+    # the `cls` vocabulary, ...). The pin keeps the same declarations non-`private`
+    # inside its `P2MW.S_...CardG1`/`CardC` implementation namespaces, so the
+    # last-name lookup reads them from the two `S_` files below. They are appended
+    # after the definition file so an earlier registration always wins a last-name
+    # collision; the only promoted name with a mathlib twin in the project's own
+    # `EisensteinSeries` namespace (`norm_le_tsum_norm`) is kept `private` in the
+    # port precisely to avoid the clash, so it never reaches this check.
+    "P2M/Sol/S_EisensteinSeries_exists_modularForm_coe_eq_eisensteinG.lean",
+    "P2M/Sol/S_EisensteinSeries_qExpansion_eisensteinG_coeff.lean",
     # --- SET-6 order 1: the four closure-1 Hauptmodul leaves ------------------
     # All four are public `Theorems/` wrappers (direct name match); the pin's
     # self-contained `S_` helpers are all `private` here, so the checker never
@@ -1118,11 +1129,19 @@ PORT_FILES = [
     "FLTForHuman/ModularForms/QExpansionOrder.lean",
     "FLTForHuman/ModularForms/SturmBound.lean",
     # SET-5, the route-C' foundations: the weight-one toolbox layer and the
-    # general Eisenstein series. Only the headlines are public; every ported
-    # `S_` helper is `private` (the pin keeps them in `WLightR7b`/`WLightR8a`/
-    # `WLightR11g`/`WLight`/`CardG1`/`CardC`, made `private` here).
+    # general Eisenstein series. The SET-5 headlines are public; the weight-one
+    # toolbox's own `WLightR7b`/`WLightR8a`/`WLightR11g`/`WLight` helpers are
+    # `private`, while the general `eisensteinG` helpers are public (promoted when
+    # that module moved to `ModularForms/EisensteinSeries.lean`).
     "FLTForHuman/ModularForms/WeightOne/Basic.lean",
-    "FLTForHuman/ModularForms/WeightOne/EisensteinSeries.lean",
+    "FLTForHuman/ModularForms/EisensteinSeries.lean",
+    # The three shared vocabulary modules carved out of the Eisenstein `CardC`
+    # block: the residue-class vocabulary, the generic `T`-slash evaluation and
+    # the two antidiagonal `tsum` rearrangements. Their public statements are the
+    # pin's (non-`private`) `CardC` copies in the `S_` files listed above.
+    "FLTForHuman/ModularForms/Defs/ResidueClass.lean",
+    "FLTForHuman/ModularForms/Defs/SlashActions.lean",
+    "FLTForHuman/ModularForms/Defs/TsumDivisorsAntidiagonal.lean",
     # SET-6, order 1: the four closure-1 Hauptmodul leaves. Only the four
     # headlines are public; the pin's self-contained `S_` helpers are `private`.
     "FLTForHuman/ModularForms/WeightOne/LevelOneHauptmodul.lean",

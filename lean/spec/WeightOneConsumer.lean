@@ -3,7 +3,7 @@
 
   This is a `spec/` probe, not a library module. It `#check`s the headlines of
   SET-5 orders 1–2 (seven in `WeightOne/Basic.lean`, two in
-  `WeightOne/EisensteinSeries.lean`), SET-6 orders 1–2 (four in
+  `ModularForms/EisensteinSeries.lean`), SET-6 orders 1–2 (four in
   `WeightOne/LevelOneHauptmodul.lean`, one in `WeightOne/EisensteinChiNegThree.lean`)
   and SET-7's three packages (two in the extended `LevelOneHauptmodul.lean`, one
   in `WeightOne/WeierstrassPTorsion.lean`), then SET-8's four monic-relation
@@ -14,7 +14,7 @@
   in each `example`'s docstring.
 -/
 import FLTForHuman.ModularForms.WeightOne.Basic
-import FLTForHuman.ModularForms.WeightOne.EisensteinSeries
+import FLTForHuman.ModularForms.EisensteinSeries
 import FLTForHuman.ModularForms.WeightOne.LevelOneHauptmodul
 import FLTForHuman.ModularForms.WeightOne.EisensteinChiNegThree
 import FLTForHuman.ModularForms.WeightOne.WeierstrassPTorsion
@@ -40,7 +40,7 @@ open Complex
 #check ModularForm.finiteDimensional_of_isArithmetic
 #check CuspForm.finiteDimensional_of_isArithmetic
 
--- Order 2, `ModularForms/WeightOne/EisensteinSeries.lean`.
+-- Order 2, `ModularForms/EisensteinSeries.lean` (general weight).
 #check EisensteinSeries.exists_modularForm_coe_eq_eisensteinG
 #check EisensteinSeries.qExpansion_eisensteinG_coeff
 

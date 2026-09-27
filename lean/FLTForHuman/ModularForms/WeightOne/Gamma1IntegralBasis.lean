@@ -77,7 +77,7 @@ import FLTForHuman.ModularForms.WeightOne.LevelOneHauptmodul
 import FLTForHuman.ModularForms.WeightOne.FrickeFunction
 import FLTForHuman.ModularForms.WeightOne.LevelFraction
 import FLTForHuman.ModularForms.WeightOne.LevelN
-import FLTForHuman.ModularForms.WeightOne.EisensteinSeries
+import FLTForHuman.ModularForms.EisensteinSeries
 import FLTForHuman.ModularForms.HeckeQCoeff
 import FLTForHuman.ModularForms.WeightOne.Gamma0Rationality
 import FLTForHuman.ModularForms.WeightOne.Gamma0Integral

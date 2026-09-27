@@ -1,14 +1,39 @@
 /-
-  The general Eisenstein series `EisensteinSeries.eisensteinG` and the two
-  headlines of SET-5 order 2: its modularity (`exists_modularForm_coe_eq_eisensteinG`)
-  and the divisor-sum formula for its `q`-expansion (`qExpansion_eisensteinG_coeff`).
+  The general Eisenstein series `EisensteinSeries.eisensteinG`, its canonical
+  `SlashInvariantForm`/`ModularForm` bundles, and the two headlines it was ported
+  for: modularity (`exists_modularForm_coe_eq_eisensteinG`) and the divisor-sum
+  formula for its `q`-expansion (`qExpansion_eisensteinG_coeff`).
+
+  This module is not weight-one-specific: `eisensteinG` is general in the weight
+  `k : ℤ`, the level `N` and the residue class `a`, so it lives at the
+  `ModularForms/` root rather than under `WeightOne/` (SET-5 ported it as the
+  Eisenstein input of the route-C' weight-one effort, which is why the pin's
+  filenames are `S_EisensteinSeries_*`).
 
   The definition is transcribed from
   `Definitions/Def_EisensteinSeries_EisensteinG.lean`; the statements are the
   pinned wrappers `Theorems/Thm_EisensteinSeries_*.lean` verbatim, and the proofs
   are ported from the matching `P2M/Sol/S_EisensteinSeries_*.lean`, adapted to
-  mathlib `v4.34.0`.
+  mathlib `v4.34.0`. The general API (`congrSet`, `eisensteinGSIF`,
+  `eisensteinGMF`, the slash/analytic lemmas, the `cls` residue-class vocabulary,
+  ...) is public: it is the reusable interface of the series. The pin keeps the
+  same block inside its `P2MW.S_...CardG1`/`CardC` implementation namespaces, so
+  `spec/check_flt_statements.py` still diffs every public statement against the
+  pin's copies.
+
+  Why mathlib's Eisenstein API is not reused: mathlib's `eisensteinSeries` sums
+  `eisSummand` over the *primitive* pairs in a congruence class (`gammaSet N 1 a`,
+  `gcd = 1`), while `eisensteinG` sums over the *whole* class (`congrSet N a`).
+  The two differ already at level `1`, where the full sum is `riemannZeta k` times
+  the primitive one (`EisensteinSeries.tsum_eisSummand_eq_riemannZeta_mul_eisensteinSeries`).
+  So the modularity block is a re-derivation -- structurally the same as mathlib's
+  `eisensteinSeriesSIF`/`eisensteinSeriesMF` chain, but against the unrestricted
+  congruence class, and it cannot be replaced by it. Mathlib's only Eisenstein
+  `q`-expansion is the level-one, even-weight `E_qExpansion_coeff`, so the
+  coefficient formula here is new; the analytic input it does use is mathlib's
+  `EisensteinSeries.qExpansion_identity_pnat`.
 -/
+
 import Mathlib.NumberTheory.ModularForms.EisensteinSeries.QExpansion
 import Mathlib.NumberTheory.ModularForms.EisensteinSeries.Summable
 import Mathlib.NumberTheory.ModularForms.EisensteinSeries.UniformConvergence
@@ -17,9 +42,19 @@ import Mathlib.NumberTheory.ModularForms.EisensteinSeries.IsBoundedAtImInfty
 import Mathlib.NumberTheory.ModularForms.CongruenceSubgroups
 import Mathlib.NumberTheory.ArithmeticFunction.Misc
 import Mathlib.Analysis.SpecialFunctions.Complex.CircleAddChar
+import FLTForHuman.ModularForms.Defs.ResidueClass
+import FLTForHuman.ModularForms.Defs.SlashActions
+import FLTForHuman.ModularForms.Defs.TsumDivisorsAntidiagonal
 
 set_option autoImplicit false
 set_option linter.style.haveILetI false
+
+open scoped MatrixGroups CongruenceSubgroup ModularForm Topology Manifold Matrix Nat
+open UpperHalfPlane hiding I
+open Filter Complex Real
+open ResidueClass SlashAction
+
+noncomputable section
 
 namespace EisensteinSeries
 
@@ -28,31 +63,18 @@ residue class `a`. Transcribed from the pin's definition file. -/
 noncomputable def eisensteinG (N : ℕ) (k : ℤ) (a : Fin 2 → ZMod N) (z : UpperHalfPlane) : ℂ :=
   ∑' v : {v : Fin 2 → ℤ // ((↑) : ℤ → ZMod N) ∘ v = a}, eisSummand k v.1 z
 
-end EisensteinSeries
-
-
-set_option autoImplicit false
-set_option linter.style.haveILetI false
-
-
-
-
-set_option autoImplicit false
-
-open scoped MatrixGroups CongruenceSubgroup ModularForm Topology Manifold Matrix
-open UpperHalfPlane hiding I
-open EisensteinSeries Filter Complex
-
-namespace CardG1
-
 variable {N : ℕ} {k : ℤ}
 
-private def congrSet (N : ℕ) (a : Fin 2 → ZMod N) : Set (Fin 2 → ℤ) := {v | ((↑) : ℤ → ZMod N) ∘ v = a}
+/-! ### The index set and the `SL(2, ℤ)`-action -/
 
-private lemma eisensteinG_eq (N : ℕ) (k : ℤ) (a : Fin 2 → ZMod N) :
+/-- The integer vectors whose image in `(ZMod N)²` is `a`: the index set of
+`eisensteinG`. -/
+def congrSet (N : ℕ) (a : Fin 2 → ZMod N) : Set (Fin 2 → ℤ) := {v | ((↑) : ℤ → ZMod N) ∘ v = a}
+
+lemma eisensteinG_eq (N : ℕ) (k : ℤ) (a : Fin 2 → ZMod N) :
     EisensteinSeries.eisensteinG N k a = fun z => ∑' v : congrSet N a, eisSummand k v z := rfl
 
-private lemma vecMul_mem_congrSet {a : Fin 2 → ZMod N} {v : Fin 2 → ℤ} (hv : v ∈ congrSet N a)
+lemma vecMul_mem_congrSet {a : Fin 2 → ZMod N} {v : Fin 2 → ℤ} (hv : v ∈ congrSet N a)
     (γ : SL(2, ℤ)) : v ᵥ* (γ : Matrix (Fin 2) (Fin 2) ℤ) ∈ congrSet N (a ᵥ* γ) := by
   simp only [congrSet, Set.mem_ofPred_eq] at hv ⊢
   have := RingHom.map_vecMul (m := Fin 2) (n := Fin 2) (Int.castRingHom (ZMod N)) γ v
@@ -60,7 +82,8 @@ private lemma vecMul_mem_congrSet {a : Fin 2 → ZMod N} {v : Fin 2 → ℤ} (hv
   simp_rw [Function.comp_def, this, ← hv]
   rfl
 
-private def congrSetEquiv (a : Fin 2 → ZMod N) (γ : SL(2, ℤ)) : congrSet N a ≃ congrSet N (a ᵥ* γ) where
+/-- The `SL(2, ℤ)`-action on the congruence class, by right multiplication. -/
+def congrSetEquiv (a : Fin 2 → ZMod N) (γ : SL(2, ℤ)) : congrSet N a ≃ congrSet N (a ᵥ* γ) where
   toFun v := ⟨v.1 ᵥ* (γ : Matrix (Fin 2) (Fin 2) ℤ), vecMul_mem_congrSet v.2 γ⟩
   invFun v := ⟨v.1 ᵥ* ((γ⁻¹ : SL(2, ℤ)) : Matrix (Fin 2) (Fin 2) ℤ), by
       have := vecMul_mem_congrSet v.2 γ⁻¹
@@ -72,7 +95,7 @@ private def congrSetEquiv (a : Fin 2 → ZMod N) (γ : SL(2, ℤ)) : congrSet N 
   right_inv v := by simp_rw [Matrix.vecMul_vecMul, ← Matrix.SpecialLinearGroup.coe_mul,
     inv_mul_cancel, Matrix.SpecialLinearGroup.coe_one, Matrix.vecMul_one]
 
-private theorem eisensteinG_slash_apply (N : ℕ) (k : ℤ) (a : Fin 2 → ZMod N) (γ : SL(2, ℤ)) :
+theorem eisensteinG_slash_apply (N : ℕ) (k : ℤ) (a : Fin 2 → ZMod N) (γ : SL(2, ℤ)) :
     EisensteinSeries.eisensteinG N k a ∣[k] γ = EisensteinSeries.eisensteinG N k (a ᵥ* γ) := by
   ext1 z
   simp_rw [ModularForm.SL_slash_apply, zpow_neg,
@@ -81,20 +104,23 @@ private theorem eisensteinG_slash_apply (N : ℕ) (k : ℤ) (a : Fin 2 → ZMod 
   congr 1
   exact (congrSetEquiv a γ).tsum_eq (fun v => eisSummand k v z)
 
-private noncomputable def eisensteinGSIF (N : ℕ) (k : ℤ) (a : Fin 2 → ZMod N) : SlashInvariantForm Γ(N) k where
+/-! ### Slash-invariant form, modular form, and the analytic API -/
+
+/-- `eisensteinG` as a slash-invariant form on `Γ(N)`. -/
+noncomputable def eisensteinGSIF (N : ℕ) (k : ℤ) (a : Fin 2 → ZMod N) : SlashInvariantForm Γ(N) k where
   toFun := EisensteinSeries.eisensteinG N k a
   slash_action_eq' A hA := by
     obtain ⟨A, (hA : A ∈ Γ(N)), rfl⟩ := hA
     simp [Matrix.SpecialLinearGroup.mapGL, ← ModularForm.SL_slash, eisensteinG_slash_apply,
       CongruenceSubgroup.Gamma_mem'.mp hA]
 
-private lemma eisensteinGSIF_apply (N : ℕ) (k : ℤ) (a : Fin 2 → ZMod N) (z : ℍ) :
+lemma eisensteinGSIF_apply (N : ℕ) (k : ℤ) (a : Fin 2 → ZMod N) (z : ℍ) :
     eisensteinGSIF N k a z = EisensteinSeries.eisensteinG N k a z := rfl
 
-private lemma coe_eisensteinGSIF (N : ℕ) (k : ℤ) (a : Fin 2 → ZMod N) :
+lemma coe_eisensteinGSIF (N : ℕ) (k : ℤ) (a : Fin 2 → ZMod N) :
     ⇑(eisensteinGSIF N k a) = EisensteinSeries.eisensteinG N k a := rfl
 
-private theorem eisensteinG_tendstoLocallyUniformly (hk : 3 ≤ k) (a : Fin 2 → ZMod N) :
+theorem eisensteinG_tendstoLocallyUniformly (hk : 3 ≤ k) (a : Fin 2 → ZMod N) :
     TendstoLocallyUniformly (fun (s : Finset (congrSet N a)) => (∑ x ∈ s, eisSummand k x ·))
       (EisensteinSeries.eisensteinG N k a ·) Filter.atTop := by
   have hk' : (2 : ℝ) < k := by norm_cast
@@ -108,7 +134,7 @@ private theorem eisensteinG_tendstoLocallyUniformly (hk : 3 ≤ k) (a : Fin 2 �
   simpa only [eisSummand, one_div, ← zpow_neg, norm_zpow, ← Real.rpow_intCast,
     Int.cast_neg] using summand_bound_of_mem_verticalStrip (by positivity) p hB hz
 
-private lemma eisensteinG_tendstoLocallyUniformlyOn (hk : 3 ≤ k) (a : Fin 2 → ZMod N) :
+lemma eisensteinG_tendstoLocallyUniformlyOn (hk : 3 ≤ k) (a : Fin 2 → ZMod N) :
     TendstoLocallyUniformlyOn (fun (s : Finset (congrSet N a)) =>
       ↑ₕ(fun (z : ℍ) => ∑ x ∈ s, eisSummand k x z)) (↑ₕ(eisensteinGSIF N k a))
           Filter.atTop {z : ℂ | 0 < z.im} := by
@@ -119,7 +145,7 @@ private lemma eisensteinG_tendstoLocallyUniformlyOn (hk : 3 ≤ k) (a : Fin 2 �
   · simp only [Topology.IsOpenEmbedding.toOpenPartialHomeomorph_target, Set.top_eq_univ,
       Set.mapsTo_range_iff, Set.mem_univ, forall_const]
 
-private theorem eisensteinGSIF_mdifferentiable (hk : 3 ≤ k) (a : Fin 2 → ZMod N) :
+theorem eisensteinGSIF_mdifferentiable (hk : 3 ≤ k) (a : Fin 2 → ZMod N) :
     MDiff (eisensteinGSIF N k a) := by
   intro τ
   suffices DifferentiableAt ℂ (↑ₕeisensteinGSIF N k a) τ.1 by
@@ -131,14 +157,14 @@ private theorem eisensteinGSIF_mdifferentiable (hk : 3 ≤ k) (a : Fin 2 → ZMo
     (Eventually.of_forall fun s => DifferentiableOn.fun_sum
     fun _ _ => eisSummand_extension_differentiableOn _ _) isOpen_upperHalfPlaneSet
 
-private lemma norm_le_tsum_norm (N : ℕ) (a : Fin 2 → ZMod N) (k : ℤ) (hk : 3 ≤ k) (z : ℍ) :
+private lemma norm_le_tsum_norm_eisensteinG (N : ℕ) (a : Fin 2 → ZMod N) (k : ℤ) (hk : 3 ≤ k) (z : ℍ) :
     ‖EisensteinSeries.eisensteinG N k a z‖ ≤ ∑' (x : Fin 2 → ℤ), ‖eisSummand k x z‖ := by
   rw [eisensteinG_eq]
   apply le_trans (norm_tsum_le_tsum_norm ((summable_norm_eisSummand hk z).subtype _))
     (Summable.tsum_subtype_le (fun (x : Fin 2 → ℤ) => ‖(eisSummand k x z)‖) _ (fun _ => norm_nonneg _)
       (summable_norm_eisSummand hk z))
 
-private theorem isBoundedAtImInfty_eisensteinGSIF_slash [NeZero N] (a : Fin 2 → ZMod N)
+theorem isBoundedAtImInfty_eisensteinGSIF_slash [NeZero N] (a : Fin 2 → ZMod N)
     (hk : 3 ≤ k) (A : SL(2, ℤ)) : IsBoundedAtImInfty (eisensteinGSIF N k a ∣[k] A) := by
   simp_rw [UpperHalfPlane.isBoundedAtImInfty_iff, coe_eisensteinGSIF] at *
   refine ⟨∑'(x : Fin 2 → ℤ), r ⟨⟨N, 2⟩, Nat.ofNat_pos⟩ ^ (-k) * ‖x‖ ^ (-k), 2, ?_⟩
@@ -146,7 +172,7 @@ private theorem isBoundedAtImInfty_eisensteinGSIF_slash [NeZero N] (a : Fin 2 �
   obtain ⟨n, hn⟩ := (ModularGroup_T_zpow_mem_verticalStrip z (NeZero.pos N))
   rw [eisensteinG_slash_apply, ← eisensteinGSIF_apply,
     ← SlashInvariantForm.T_zpow_width_invariant N k n (eisensteinGSIF N k (a ᵥ* A)) z]
-  apply le_trans (norm_le_tsum_norm N (a ᵥ* A) k hk _)
+  apply le_trans (norm_le_tsum_norm_eisensteinG N (a ᵥ* A) k hk _)
   have hk' : (2 : ℝ) < k := by norm_cast
   apply (summable_norm_eisSummand hk _).tsum_le_tsum _
   · exact_mod_cast (summable_one_div_norm_rpow hk').mul_left <| r ⟨⟨N, 2⟩, Nat.ofNat_pos⟩ ^ (-k)
@@ -156,7 +182,9 @@ private theorem isBoundedAtImInfty_eisensteinGSIF_slash [NeZero N] (a : Fin 2 �
       summand_bound_of_mem_verticalStrip (lt_trans two_pos hk').le x two_pos
       (verticalStrip_anti_right N hz hn)
 
-private noncomputable def eisensteinGMF [NeZero N] (hk : 3 ≤ k) (a : Fin 2 → ZMod N) : ModularForm Γ(N) k where
+/-- `eisensteinG` as a modular form on `Γ(N)`: the canonical witness of
+`exists_modularForm_coe_eq_eisensteinG`. -/
+noncomputable def eisensteinGMF [NeZero N] (hk : 3 ≤ k) (a : Fin 2 → ZMod N) : ModularForm Γ(N) k where
   toFun := eisensteinGSIF N k a
   slash_action_eq' := (eisensteinGSIF N k a).slash_action_eq'
   holo' := eisensteinGSIF_mdifferentiable hk a
@@ -165,126 +193,19 @@ private noncomputable def eisensteinGMF [NeZero N] (hk : 3 ≤ k) (a : Fin 2 →
     rw [OnePoint.isBoundedAt_iff_forall_SL2Z hc]
     exact fun γ hγ => isBoundedAtImInfty_eisensteinGSIF_slash a hk γ
 
-private lemma coe_eisensteinGMF [NeZero N] (hk : 3 ≤ k) (a : Fin 2 → ZMod N) :
+/-- The `ModularForm` bundle of `eisensteinG`, and its coercion back to the series. -/
+lemma coe_eisensteinGMF [NeZero N] (hk : 3 ≤ k) (a : Fin 2 → ZMod N) :
     ⇑(eisensteinGMF hk a) = EisensteinSeries.eisensteinG N k a := rfl
 
-end CardG1
-
-theorem EisensteinSeries.exists_modularForm_coe_eq_eisensteinG (N : ℕ) [NeZero N] (k : ℤ) (hk : 3 ≤ k) (a : Fin 2 → ZMod N) :
+theorem exists_modularForm_coe_eq_eisensteinG (N : ℕ) [NeZero N] (k : ℤ) (hk : 3 ≤ k) (a : Fin 2 → ZMod N) :
     (∃ F : ModularForm Γ(N) k, ⇑F = EisensteinSeries.eisensteinG N k a) ∧
       ∀ γ : SL(2, ℤ), EisensteinSeries.eisensteinG N k a ∣[k] γ =
         EisensteinSeries.eisensteinG N k (a ᵥ* γ) :=
-  ⟨⟨CardG1.eisensteinGMF hk a, rfl⟩, CardG1.eisensteinG_slash_apply N k a⟩
+  ⟨⟨eisensteinGMF hk a, rfl⟩, eisensteinG_slash_apply N k a⟩
 
+/-! ### Boundedness at `∞`, periodicity, and the `q`-expansion -/
 
-
-set_option autoImplicit false
-set_option linter.style.haveILetI false
-
-
-
-
-set_option autoImplicit false
-
-open scoped MatrixGroups CongruenceSubgroup ModularForm Topology Manifold Matrix Nat
-open UpperHalfPlane hiding I
-open EisensteinSeries Filter Complex Real
-
-noncomputable section
-
-namespace CardC
-
-variable {N : ℕ} {k : ℤ}
-
-private def congrSet (N : ℕ) (a : Fin 2 → ZMod N) : Set (Fin 2 → ℤ) := {v | ((↑) : ℤ → ZMod N) ∘ v = a}
-
-private lemma eisensteinG_eq (N : ℕ) (k : ℤ) (a : Fin 2 → ZMod N) :
-    EisensteinSeries.eisensteinG N k a = fun z => ∑' v : congrSet N a, eisSummand k v z := rfl
-
-private lemma vecMul_mem_congrSet {a : Fin 2 → ZMod N} {v : Fin 2 → ℤ} (hv : v ∈ congrSet N a)
-    (γ : SL(2, ℤ)) : v ᵥ* (γ : Matrix (Fin 2) (Fin 2) ℤ) ∈ congrSet N (a ᵥ* γ) := by
-  simp only [congrSet, Set.mem_ofPred_eq] at hv ⊢
-  have := RingHom.map_vecMul (m := Fin 2) (n := Fin 2) (Int.castRingHom (ZMod N)) γ v
-  simp only [eq_intCast, Int.coe_castRingHom] at this
-  simp_rw [Function.comp_def, this, ← hv]
-  rfl
-
-private def congrSetEquiv (a : Fin 2 → ZMod N) (γ : SL(2, ℤ)) : congrSet N a ≃ congrSet N (a ᵥ* γ) where
-  toFun v := ⟨v.1 ᵥ* (γ : Matrix (Fin 2) (Fin 2) ℤ), vecMul_mem_congrSet v.2 γ⟩
-  invFun v := ⟨v.1 ᵥ* ((γ⁻¹ : SL(2, ℤ)) : Matrix (Fin 2) (Fin 2) ℤ), by
-      have := vecMul_mem_congrSet v.2 γ⁻¹
-      rw [Matrix.vecMul_vecMul, ← Matrix.SpecialLinearGroup.coe_mul] at this
-      simpa only [map_inv, mul_inv_cancel, Matrix.SpecialLinearGroup.coe_one, Matrix.vecMul_one]
-        using this⟩
-  left_inv v := by simp_rw [Matrix.vecMul_vecMul, ← Matrix.SpecialLinearGroup.coe_mul,
-    mul_inv_cancel, Matrix.SpecialLinearGroup.coe_one, Matrix.vecMul_one]
-  right_inv v := by simp_rw [Matrix.vecMul_vecMul, ← Matrix.SpecialLinearGroup.coe_mul,
-    inv_mul_cancel, Matrix.SpecialLinearGroup.coe_one, Matrix.vecMul_one]
-
-private theorem eisensteinG_slash_apply (N : ℕ) (k : ℤ) (a : Fin 2 → ZMod N) (γ : SL(2, ℤ)) :
-    EisensteinSeries.eisensteinG N k a ∣[k] γ = EisensteinSeries.eisensteinG N k (a ᵥ* γ) := by
-  ext1 z
-  simp_rw [ModularForm.SL_slash_apply, zpow_neg,
-    mul_inv_eq_iff_eq_mul₀ (zpow_ne_zero _ <| denom_ne_zero _ z), eisensteinG_eq,
-    eisSummand_SL2_apply, tsum_mul_left, mul_comm (_ ^ k)]
-  congr 1
-  exact (congrSetEquiv a γ).tsum_eq (fun v => eisSummand k v z)
-
-private def eisensteinGSIF (N : ℕ) (k : ℤ) (a : Fin 2 → ZMod N) : SlashInvariantForm Γ(N) k where
-  toFun := EisensteinSeries.eisensteinG N k a
-  slash_action_eq' A hA := by
-    obtain ⟨A, (hA : A ∈ Γ(N)), rfl⟩ := hA
-    simp [Matrix.SpecialLinearGroup.mapGL, ← ModularForm.SL_slash, eisensteinG_slash_apply,
-      CongruenceSubgroup.Gamma_mem'.mp hA]
-
-private lemma coe_eisensteinGSIF (N : ℕ) (k : ℤ) (a : Fin 2 → ZMod N) :
-    ⇑(eisensteinGSIF N k a) = EisensteinSeries.eisensteinG N k a := rfl
-
-private theorem eisensteinG_tendstoLocallyUniformly (hk : 3 ≤ k) (a : Fin 2 → ZMod N) :
-    TendstoLocallyUniformly (fun (s : Finset (congrSet N a)) => (∑ x ∈ s, eisSummand k x ·))
-      (EisensteinSeries.eisensteinG N k a ·) Filter.atTop := by
-  have hk' : (2 : ℝ) < k := by norm_cast
-  have p_sum : Summable fun x : congrSet N a => ‖x.val‖ ^ (-k) :=
-    mod_cast (summable_one_div_norm_rpow hk').subtype (congrSet N a)
-  simp only [tendstoLocallyUniformly_iff_forall_isCompact, eisensteinG_eq]
-  intro K hK
-  obtain ⟨A, B, hB, HABK⟩ := subset_verticalStrip_of_isCompact hK
-  refine (tendstoUniformlyOn_tsum (hu := p_sum.mul_left <| r ⟨⟨A, B⟩, hB⟩ ^ (-k : ℝ))
-    (fun p z hz => ?_)).mono HABK
-  simpa only [eisSummand, one_div, ← zpow_neg, norm_zpow, ← Real.rpow_intCast,
-    Int.cast_neg] using summand_bound_of_mem_verticalStrip (by positivity) p hB hz
-
-private lemma eisensteinG_tendstoLocallyUniformlyOn (hk : 3 ≤ k) (a : Fin 2 → ZMod N) :
-    TendstoLocallyUniformlyOn (fun (s : Finset (congrSet N a)) =>
-      ↑ₕ(fun (z : ℍ) => ∑ x ∈ s, eisSummand k x z)) (↑ₕ(eisensteinGSIF N k a))
-          Filter.atTop {z : ℂ | 0 < z.im} := by
-  rw [← upperHalfPlaneSet, ← UpperHalfPlane.range_coe, ← Set.image_univ]
-  apply TendstoLocallyUniformlyOn.comp (s := ⊤) _ _ _ (OpenPartialHomeomorph.continuousOn_symm _)
-  · simp only [Set.top_eq_univ, tendstoLocallyUniformlyOn_univ]
-    apply eisensteinG_tendstoLocallyUniformly hk
-  · simp only [Topology.IsOpenEmbedding.toOpenPartialHomeomorph_target, Set.top_eq_univ,
-      Set.mapsTo_range_iff, Set.mem_univ, forall_const]
-
-private theorem eisensteinGSIF_mdifferentiable (hk : 3 ≤ k) (a : Fin 2 → ZMod N) :
-    MDiff (eisensteinGSIF N k a) := by
-  intro τ
-  suffices DifferentiableAt ℂ (↑ₕeisensteinGSIF N k a) τ.1 by
-    convert!
-      MDifferentiableAt.comp τ (DifferentiableAt.mdifferentiableAt this) τ.mdifferentiable_coe
-    exact funext fun z => (comp_ofComplex (eisensteinGSIF N k a) z).symm
-  refine DifferentiableOn.differentiableAt ?_ (isOpen_upperHalfPlaneSet.mem_nhds τ.2)
-  exact (eisensteinG_tendstoLocallyUniformlyOn hk a).differentiableOn
-    (Eventually.of_forall fun s => DifferentiableOn.fun_sum
-    fun _ _ => eisSummand_extension_differentiableOn _ _) isOpen_upperHalfPlaneSet
-
-private lemma norm_le_tsum_norm (N : ℕ) (a : Fin 2 → ZMod N) (k : ℤ) (hk : 3 ≤ k) (z : ℍ) :
-    ‖EisensteinSeries.eisensteinG N k a z‖ ≤ ∑' (x : Fin 2 → ℤ), ‖eisSummand k x z‖ := by
-  rw [eisensteinG_eq]
-  apply le_trans (norm_tsum_le_tsum_norm ((summable_norm_eisSummand hk z).subtype _))
-    (Summable.tsum_subtype_le (fun (x : Fin 2 → ℤ) => ‖(eisSummand k x z)‖) _ (fun _ => norm_nonneg _)
-      (summable_norm_eisSummand hk z))
-
-private theorem isBoundedAtImInfty_eisensteinG [NeZero N] (a : Fin 2 → ZMod N) (hk : 3 ≤ k) :
+theorem isBoundedAtImInfty_eisensteinG [NeZero N] (a : Fin 2 → ZMod N) (hk : 3 ≤ k) :
     IsBoundedAtImInfty (EisensteinSeries.eisensteinG N k a) := by
   simp_rw [UpperHalfPlane.isBoundedAtImInfty_iff]
   refine ⟨∑'(x : Fin 2 → ℤ), r ⟨⟨N, 2⟩, Nat.ofNat_pos⟩ ^ (-k) * ‖x‖ ^ (-k), 2, ?_⟩
@@ -292,7 +213,7 @@ private theorem isBoundedAtImInfty_eisensteinG [NeZero N] (a : Fin 2 → ZMod N)
   obtain ⟨n, hn⟩ := (ModularGroup_T_zpow_mem_verticalStrip z (NeZero.pos N))
   rw [← coe_eisensteinGSIF, ← SlashInvariantForm.T_zpow_width_invariant N k n (eisensteinGSIF N k a) z,
     coe_eisensteinGSIF]
-  apply le_trans (norm_le_tsum_norm N a k hk _)
+  apply le_trans (norm_le_tsum_norm_eisensteinG N a k hk _)
   have hk' : (2 : ℝ) < k := by norm_cast
   apply (summable_norm_eisSummand hk _).tsum_le_tsum _
   · exact_mod_cast (summable_one_div_norm_rpow hk').mul_left <| r ⟨⟨N, 2⟩, Nat.ofNat_pos⟩ ^ (-k)
@@ -302,12 +223,7 @@ private theorem isBoundedAtImInfty_eisensteinG [NeZero N] (a : Fin 2 → ZMod N)
       summand_bound_of_mem_verticalStrip (lt_trans two_pos hk').le x two_pos
       (verticalStrip_anti_right N hz hn)
 
-private lemma slash_T_zpow_apply (h : ℍ → ℂ) (b : ℤ) (τ : ℍ) :
-    (h ∣[k] (ModularGroup.T ^ b)) τ = h (((b : ℝ)) +ᵥ τ) := by
-  rw [ModularForm.SL_slash_apply, ModularGroup.denom_apply, UpperHalfPlane.modular_T_zpow_smul]
-  simp [ModularGroup.coe_T_zpow]
-
-private lemma periodic_eisensteinG (k : ℤ) (a : Fin 2 → ZMod N) :
+lemma periodic_eisensteinG (k : ℤ) (a : Fin 2 → ZMod N) :
     Function.Periodic (EisensteinSeries.eisensteinG N k a ∘ ofComplex) (N : ℝ) := by
   have hT : EisensteinSeries.eisensteinG N k a ∣[k] (ModularGroup.T ^ (N : ℤ)) =
       EisensteinSeries.eisensteinG N k a := by
@@ -346,9 +262,10 @@ section expansion
 
 variable [NeZero N] {k : ℕ}
 
-private abbrev cls (N : ℕ) (b : ZMod N) : Type := {d : ℤ // (d : ZMod N) = b}
+/-! ### The double-sum form and the divisor-sum coefficients -/
 
-private def congrSetEquivSigma (a : Fin 2 → ZMod N) : congrSet N a ≃ (Σ _ : cls N (a 0), cls N (a 1)) where
+/-- `congrSet N a` as the product of its two one-dimensional residue classes. -/
+def congrSetEquivSigma (a : Fin 2 → ZMod N) : congrSet N a ≃ (Σ _ : cls N (a 0), cls N (a 1)) where
   toFun v := ⟨⟨v.1 0, congr_fun v.2 0⟩, ⟨v.1 1, congr_fun v.2 1⟩⟩
   invFun p := ⟨![p.1.1, p.2.1], by
     show ((↑) : ℤ → ZMod N) ∘ ![p.1.1, p.2.1] = a
@@ -363,13 +280,13 @@ private def congrSetEquivSigma (a : Fin 2 → ZMod N) : congrSet N a ≃ (Σ _ :
     rfl
 
 omit [NeZero N] in
-private lemma eisSummand_natCast (v : Fin 2 → ℤ) (z : ℍ) :
+lemma eisSummand_natCast (v : Fin 2 → ℤ) (z : ℍ) :
     eisSummand (k : ℤ) v z = ((((v 0 : ℂ)) * z + v 1) ^ k)⁻¹ := by
   rw [eisSummand, zpow_neg, zpow_natCast]
 
 omit [NeZero N] in
 
-private lemma eisensteinG_eq_tsum_tsum (hk : 3 ≤ k) (a : Fin 2 → ZMod N) (τ : ℍ) :
+lemma eisensteinG_eq_tsum_tsum (hk : 3 ≤ k) (a : Fin 2 → ZMod N) (τ : ℍ) :
     EisensteinSeries.eisensteinG N k a τ =
       ∑' c : cls N (a 0), ∑' d : cls N (a 1), ((((c.1 : ℂ)) * τ + d.1) ^ k)⁻¹ := by
   have hk' : 3 ≤ ((k : ℕ) : ℤ) := by exact_mod_cast hk
@@ -383,23 +300,6 @@ private lemma eisensteinG_eq_tsum_tsum (hk : 3 ≤ k) (a : Fin 2 → ZMod N) (τ
   refine tsum_congr fun c => tsum_congr fun d => ?_
   rw [eisSummand_natCast]
   rfl
-
-private def clsEquiv (b : ZMod N) : ℤ ≃ cls N b where
-  toFun j := ⟨(b.val : ℤ) + N * j, by simp⟩
-  invFun d := (d.1 - b.val) / N
-  left_inv j := by
-    have hN : (N : ℤ) ≠ 0 := by exact_mod_cast NeZero.ne N
-    simp only [add_sub_cancel_left]
-    exact Int.mul_ediv_cancel_left _ hN
-  right_inv d := by
-    apply Subtype.ext
-    have hdvd : (N : ℤ) ∣ d.1 - b.val := by
-      rw [← ZMod.intCast_zmod_eq_zero_iff_dvd]
-      push_cast
-      rw [d.2, ZMod.natCast_zmod_val, sub_self]
-    simp only
-    rw [Int.mul_ediv_cancel' hdvd]
-    ring
 
 private def wpt (c : ℕ) (hc : 0 < c) (bv : ℕ) (τ : ℍ) : ℍ :=
   ⟨(((c : ℂ)) * τ + bv) / N, by
@@ -464,12 +364,6 @@ private lemma tsum_cls_eq (hk : 2 ≤ k) (b : ZMod N) (c : ℕ) (hc : 0 < c) (τ
   simp_rw [this]
   exact tsum_int_eq hk b b.val (ZMod.natCast_zmod_val b) c hc τ
 
-private def clsNegEquiv (b : ZMod N) : cls N b ≃ cls N (-b) where
-  toFun d := ⟨-d.1, by simp [d.2]⟩
-  invFun d := ⟨-d.1, by simp [d.2]⟩
-  left_inv d := by apply Subtype.ext; simp
-  right_inv d := by apply Subtype.ext; simp
-
 omit [NeZero N] in
 
 private lemma tsum_cls_neg_eq (b : ZMod N) (c : ℕ) (τ : ℍ) :
@@ -480,75 +374,6 @@ private lemma tsum_cls_neg_eq (b : ZMod N) (c : ℕ) (τ : ℍ) :
   simp only [clsNegEquiv, Equiv.coe_fn_symm_mk, Int.cast_neg, Int.cast_natCast]
   rw [show (-(c : ℂ)) * τ + -((d.1 : ℤ) : ℂ) = (-1) * ((c : ℂ) * τ + d.1) by ring, mul_pow, mul_inv,
     ← inv_pow, inv_neg, inv_one]
-
-omit [NeZero N] in
-
-private lemma tsum_cls_split (b : ZMod N) (F : ℤ → ℂ) (hF : Summable F) :
-    ∑' c : cls N b, F c.1 =
-      (if (0 : ZMod N) = b then F 0 else 0) +
-        ∑' c : ℕ+, (if ((c : ℕ) : ZMod N) = b then F c else 0) +
-        ∑' c : ℕ+, (if ((-((c : ℕ) : ℤ) : ℤ) : ZMod N) = b then F (-((c : ℕ) : ℤ)) else 0) := by
-  set G : ℤ → ℂ := fun c => if ((c : ZMod N)) = b then F c else 0 with hG
-  have hG' : Summable G := by
-    refine Summable.of_norm_bounded hF.norm fun c => ?_
-    simp only [hG]; split_ifs <;> simp
-  have h1 : ∑' c : cls N b, F c.1 = ∑' c : ℤ, G c := by
-    rw [show (∑' c : cls N b, F c.1) = ∑' c : ({c : ℤ | (c : ZMod N) = b} : Set ℤ), F c from rfl,
-      tsum_subtype]
-    refine tsum_congr fun c => ?_
-    simp only [Set.indicator_apply, Set.mem_ofPred_eq, hG]
-  have hs1 : Summable fun n : ℕ => G n := hG'.comp_injective Nat.cast_injective
-  have hs2 : Summable fun n : ℕ => G (-(n + 1)) :=
-    hG'.comp_injective (i := fun n : ℕ => (-(n + 1) : ℤ)) (fun m n h => by simpa using h)
-  rw [h1, tsum_of_nat_of_neg_add_one hs1 hs2, hs1.tsum_eq_zero_add]
-  congr 1
-  · congr 1
-    · simp [hG]
-    · rw [tsum_pnat_eq_tsum_succ (f := fun c : ℕ => if ((c : ℕ) : ZMod N) = b then F c else 0)]
-      simp [hG]
-  · rw [tsum_pnat_eq_tsum_succ (f := fun c : ℕ =>
-      if ((-((c : ℕ) : ℤ) : ℤ) : ZMod N) = b then F (-((c : ℕ) : ℤ)) else 0)]
-    refine tsum_congr fun c => ?_
-    simp [hG]
-
-private lemma tsum_prod_eq_tsum_antidiagonal {F G : ℕ → ℂ} {r : ℂ} (e : ℕ) (h : ℕ+ × ℕ+ → ℂ)
-    (hs : Summable h)
-    (hh : ∀ p, h p = F p.1 * ((((p.2 : ℕ) : ℂ)) ^ e * (G p.2 * r ^ ((p.2 : ℕ) * p.1)))) :
-    ∑' p : ℕ+ × ℕ+, h p =
-      ∑' n : ℕ+, (∑ x ∈ (n : ℕ).divisorsAntidiagonal, F x.1 * G x.2 * ((x.2 : ℕ) : ℂ) ^ e) *
-        r ^ (n : ℕ) := by
-  rw [← sigmaAntidiagonalEquivProd.tsum_eq]
-  have hs' : Summable (fun x : Σ n : ℕ+, ((n : ℕ)).divisorsAntidiagonal =>
-      h (sigmaAntidiagonalEquivProd x)) := (Equiv.summable_iff _).mpr hs
-  rw [hs'.tsum_sigma]
-  refine tsum_congr fun n => ?_
-  rw [tsum_fintype, Finset.sum_mul, Finset.univ_eq_attach,
-    ← Finset.sum_attach ((n : ℕ)).divisorsAntidiagonal]
-  refine Finset.sum_congr rfl fun x _ => ?_
-  have hx : x.1.1 * x.1.2 = n := (Nat.mem_divisorsAntidiagonal.mp x.2).1
-  have e1 : ((sigmaAntidiagonalEquivProd ⟨n, x⟩).1 : ℕ) = x.1.1 := rfl
-  have e2 : ((sigmaAntidiagonalEquivProd ⟨n, x⟩).2 : ℕ) = x.1.2 := rfl
-  rw [hh, e1, e2, mul_comm x.1.2 x.1.1, hx]
-  ring
-
-private lemma tsum_tsum_eq_tsum_antidiagonal {F G : ℕ → ℂ} (hF : ∀ c, ‖F c‖ ≤ 1) (hG : ∀ m, ‖G m‖ ≤ 1)
-    {r : ℂ} (hr : ‖r‖ < 1) (e : ℕ) :
-    ∑' c : ℕ+, F c * ∑' m : ℕ+, (((m : ℕ) : ℂ)) ^ e * (G m * r ^ ((m : ℕ) * c)) =
-      ∑' n : ℕ+, (∑ x ∈ (n : ℕ).divisorsAntidiagonal, F x.1 * G x.2 * ((x.2 : ℕ) : ℂ) ^ e) *
-        r ^ (n : ℕ) := by
-  let h : ℕ+ × ℕ+ → ℂ := fun p => F p.1 * ((((p.2 : ℕ) : ℂ)) ^ e * (G p.2 * r ^ ((p.2 : ℕ) * p.1)))
-  have hr' : ‖(‖r‖ : ℝ)‖ < 1 := by simpa using hr
-  have hs : Summable h := by
-    refine Summable.of_norm_bounded (summable_prod_mul_pow e hr') fun p => ?_
-    simp only [h, norm_mul, norm_pow, Complex.norm_natCast]
-    calc ‖F ↑p.1‖ * ((p.2 : ℝ) ^ e * (‖G ↑p.2‖ * ‖r‖ ^ ((p.2 : ℕ) * (p.1 : ℕ))))
-        ≤ 1 * ((p.2 : ℝ) ^ e * (1 * ‖r‖ ^ ((p.2 : ℕ) * (p.1 : ℕ)))) := by
-          gcongr
-          · exact hF _
-          · exact hG _
-      _ = (p.2 : ℝ) ^ e * ‖r‖ ^ ((p.1 : ℕ) * (p.2 : ℕ)) := by rw [mul_comm (p.2 : ℕ)]; ring
-  rw [← tsum_prod_eq_tsum_antidiagonal e h hs (fun p => rfl), hs.tsum_prod]
-  exact tsum_congr fun c => (tsum_mul_left).symm
 
 omit [NeZero N] in
 
@@ -588,15 +413,8 @@ private def coefFun (N k : ℕ) [NeZero N] (a : Fin 2 → ZMod N) (n : ℕ) : �
   if h : n = 0 then (if a 0 = 0 then ∑' d : cls N (a 1), (((d.1 : ℂ)) ^ k)⁻¹ else 0)
   else kappa N k * (Splus N k a ⟨n, Nat.pos_of_ne_zero h⟩ + (-1) ^ k * Sminus N k a ⟨n, Nat.pos_of_ne_zero h⟩)
 
-private lemma norm_stdAddChar (x : ZMod N) : ‖ZMod.stdAddChar x‖ = 1 := by
+lemma norm_stdAddChar (x : ZMod N) : ‖ZMod.stdAddChar x‖ = 1 := by
   rw [ZMod.stdAddChar_apply]; exact Circle.norm_coe _
-
-private lemma norm_qParam_lt_one (τ : ℍ) : ‖Function.Periodic.qParam N τ‖ < 1 := by
-  rw [Function.Periodic.norm_qParam, Real.exp_lt_one_iff]
-  have hN : (0 : ℝ) < N := by exact_mod_cast NeZero.pos N
-  have hτ : 0 < τ.im := τ.im_pos
-  rw [UpperHalfPlane.coe_im]
-  exact div_neg_of_neg_of_pos (by nlinarith [Real.pi_pos]) hN
 
 private lemma norm_divisorSum_le (hk : 1 ≤ k) (b b' : ZMod N) (n : ℕ+) :
     ‖∑ x ∈ (n : ℕ).divisorsAntidiagonal,
@@ -640,7 +458,7 @@ private theorem eisensteinG_eq_expansion (hk : 3 ≤ k) (a : Fin 2 → ZMod N) (
         ∑' n : ℕ+, kappa N k * (Splus N k a n + (-1) ^ k * Sminus N k a n) *
           Function.Periodic.qParam N τ ^ (n : ℕ) := by
   set q := Function.Periodic.qParam N τ with hq
-  have hqn : ‖q‖ < 1 := norm_qParam_lt_one τ
+  have hqn : ‖q‖ < 1 := UpperHalfPlane.norm_qParam_lt_one N τ
 
   rw [eisensteinG_eq_tsum_tsum hk a τ,
     tsum_cls_split (a 0) (fun c : ℤ => ∑' d : cls N (a 1), ((((c : ℂ)) * τ + d.1) ^ k)⁻¹)
@@ -715,7 +533,7 @@ private theorem hasSum_coefFun (hk : 3 ≤ k) (a : Fin 2 → ZMod N) (τ : ℍ) 
     HasSum (fun n : ℕ => coefFun N k a n * Function.Periodic.qParam N τ ^ n)
       (EisensteinSeries.eisensteinG N k a τ) := by
   set q := Function.Periodic.qParam N τ with hq
-  have hqn : ‖q‖ < 1 := norm_qParam_lt_one τ
+  have hqn : ‖q‖ < 1 := UpperHalfPlane.norm_qParam_lt_one N τ
   have hs1 := summable_divisorSum_mul_pow (show 1 ≤ k by omega) (a 0) (a 1) hqn
   have hs2 := summable_divisorSum_mul_pow (show 1 ≤ k by omega) (-a 0) (-a 1) hqn
   have hpn : ∀ n : ℕ+, coefFun N k a n * q ^ (n : ℕ) =
@@ -777,12 +595,7 @@ private theorem qExpansion_coeff_formula (hk : 3 ≤ k) (a : Fin 2 → ZMod N) (
 
 end expansion
 
-end CardC
-
-end
-
-open CardC in
-theorem EisensteinSeries.qExpansion_eisensteinG_coeff (N : ℕ) [NeZero N] (k : ℕ) (hk : 3 ≤ k)
+theorem qExpansion_eisensteinG_coeff (N : ℕ) [NeZero N] (k : ℕ) (hk : 3 ≤ k)
     (a : Fin 2 → ZMod N) (n : ℕ) :
     (UpperHalfPlane.qExpansion N (EisensteinSeries.eisensteinG N k a)).coeff n =
       if n = 0 then
@@ -794,5 +607,8 @@ theorem EisensteinSeries.qExpansion_eisensteinG_coeff (N : ℕ) [NeZero N] (k : 
               (-1) ^ k *
                 (if ((n / m : ℕ) : ZMod N) = -a 0 then ZMod.stdAddChar (-(a 1 * (m : ZMod N))) else 0)) *
             (m : ℂ) ^ (k - 1) :=
-  CardC.qExpansion_coeff_formula hk a n
+  qExpansion_coeff_formula hk a n
 
+end EisensteinSeries
+
+end
