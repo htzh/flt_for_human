@@ -613,10 +613,7 @@ and trivia.
   depend on a theory they are not using. Keep it `private`.
 - **If such a helper is commonly needed, promote it in the theory it adapts.**
   The escape hatch for the previous rule: once a local adaptation is wanted by
-  more than one consumer it stops being glue, and it gets a public home — upstream
-  to mathlib, or in the theory it is *about*, which is the "original theory" here.
-  A generic lemma with content that belongs to no existing theory gets a small
-  module of its own.
+  more than one consumer it can be promoted in the theory it is *about*.
 
 The worked example, all in one refactor: what carries real Eisenstein mathematics
 — `congrSet` with its `SL(2, ℤ)`-action, `eisensteinGSIF`, `eisensteinGMF`, the
