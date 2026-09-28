@@ -1029,6 +1029,30 @@ SOURCES = [
     "Theorems/Thm_HeckeEis_isParabolicCocycle_cocycle_of_isEichlerIntegral.lean",
     "Theorems/Thm_HeckeEis_exists_isEichlerIntegral_isParabolicCocycle.lean",
     "P2M/Sol/S_HeckeEis_IsEichlerIntegral_exists_sub_eq_const.lean",
+    # --- Topic 11, the T-side definition layer --------------------------------
+    # The T-side substrate. `Definitions/Def_FLTPrelim_Modularity.lean` is already
+    # listed above (SET-3 T5 / SET-4 T8), so the `WeierstrassCurve` block of
+    # `WeierstrassCurve/Defs/Modularity.lean` is checked without a new entry; the
+    # eigenform half it imports is already verified there too. The three algebra
+    # theorems are verified against their `Theorems/` wrappers (the pin's `S_`
+    # copies are private/namespace-local, and the port keeps every helper
+    # `private`, so the wrappers are the comparable copies). Appended last so no
+    # earlier last-name match can flip: `LiesOverPrime`, `inertiaSubgroupIn`,
+    # `IsFrobeniusAt`, `residual` … occur in other pin modules outside this set.
+    "Definitions/Def_FLTPrelim_GaloisRep.lean",
+    "Definitions/Def_FLTPrelim_Ramification.lean",
+    "Definitions/Def_EllipticCurve_FrobeniusTrace.lean",
+    "Definitions/Def_GaloisRep_Residual.lean",
+    "Definitions/Def_GaloisRep_ResidualEquiv.lean",
+    "Definitions/Def_GaloisRep_Adic.lean",
+    "Definitions/Def_GaloisRep_DeformationRingData.lean",
+    "Definitions/Def_FLTPrelim_FreyPackage.lean",
+    "Definitions/Def_CuspForm_HeckeGaloisRepDatum.lean",
+    "Definitions/Def_CuspForm_HeckeLocal.lean",
+    "Definitions/Def_Algebra_PatchingDatum.lean",
+    "Theorems/Thm_Algebra_finite_maximalSpectrum_and_bijective_localization_of_module_finite.lean",
+    "Theorems/Thm_IsAdicComplete_of_module_finite.lean",
+    "Theorems/Thm_IsLocalRing_isAdicComplete_of_module_finite.lean",
 ]
 
 PORT_FILES = [
@@ -1302,6 +1326,24 @@ PORT_FILES = [
     "FLTForHuman/ModularForms/EichlerShimura/CoeffCohomology.lean",
     "FLTForHuman/ModularForms/EichlerShimura/EichlerIntegral.lean",
     "FLTForHuman/ModularForms/EichlerShimura/PeriodMap.lean",
+    # Topic 11, the T-side definition layer (SET A/B/C). Every definition module
+    # is transcribed verbatim (structures in the pin's field order); the three
+    # algebra theorems are the pin's `Theorems/` wrappers verbatim with their
+    # proofs ported from the `P2M/Sol/S_*` files and every helper `private`.
+    "FLTForHuman/Patching/Defs/PatchingDatum.lean",
+    "FLTForHuman/WeierstrassCurve/Defs/Modularity.lean",
+    "FLTForHuman/WeierstrassCurve/Defs/FreyPackage.lean",
+    "FLTForHuman/GaloisRep/Defs/GaloisAction.lean",
+    "FLTForHuman/GaloisRep/Defs/Ramification.lean",
+    "FLTForHuman/GaloisRep/Defs/FrobeniusTrace.lean",
+    "FLTForHuman/GaloisRep/Defs/Residual.lean",
+    "FLTForHuman/GaloisRep/Defs/ResidualEquiv.lean",
+    "FLTForHuman/GaloisRep/Defs/Adic.lean",
+    "FLTForHuman/GaloisRep/Defs/DeformationRingData.lean",
+    "FLTForHuman/Algebra/FiniteAlgebraComplete.lean",
+    # Topic 11, SET D: the T package and the local Hecke algebra.
+    "FLTForHuman/HeckeGalois/Defs/HeckeGaloisRepDatum.lean",
+    "FLTForHuman/HeckeGalois/Defs/HeckeLocal.lean",
 ]
 
 
@@ -1398,6 +1440,20 @@ OWN_PROOFS = {
     "periodMap",
     "periodMap_eq_coeffH1parMk",
     "periodMap_injective",
+    # --- Topic 11, the T-side definition layer --------------------------------
+    # The `GaloisRepAdic.Equiv` groupoid laws collide, by last name *and* by the
+    # checker's two-component dotted key, with the `ResidualGaloisRep.Equiv`
+    # copies in `Definitions/Def_GaloisRep_ResidualEquiv.lean` (`refl`/`symm`/
+    # `trans`/`baseChangeAlong`). Both port copies are transcribed verbatim; no
+    # `SOURCES` ordering can verify both, because the first-name lookup and the
+    # dotted fallback share one value per key — the `correspondence` situation
+    # again. The **residual** copies are verified (`source['refl']` is theirs);
+    # the adic copies are exempted here by their full dotted names, so the
+    # exemption is precise and no other `refl`/`symm`/`trans` is affected.
+    "GaloisRepAdic.Equiv.refl",
+    "GaloisRepAdic.Equiv.symm",
+    "GaloisRepAdic.Equiv.trans",
+    "GaloisRepAdic.Equiv.baseChangeAlong",
 }
 
 # Declaration keywords. `instance` matters for PhiGen; `structure` for Polynomial.

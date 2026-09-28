@@ -366,6 +366,17 @@ remains is the eigenbasis-span family (`span_heckeTLin_eigen_eq_top`,
 Petersson inner product, the newform separation, and `Def_CuspForm_HeckeEvalForms`
 — plus the redundancy-reduction write-up §3.2 names as residual.
 
+**The T side of `R = T` has since been started.** Topic 11
+([hecke/TOPIC-t11-t-side-definitions.md](hecke/TOPIC-t11-t-side-definitions.md),
+record [../logs/t-side-port.md](../logs/t-side-port.md)) ports the T-side
+**definition layer** — the Galois substrate, the Hecke–Galois datum, the local
+Hecke algebra $`T_\theta`$ and the patching vocabulary, 13 modules / 142 public
+declarations — on top of the Hecke vocabulary this effort built; it is complete
+(checker 1623 identical / 0 mismatched / 0 missing, `lake build` green). The
+theorem layer over those definitions — the `GaloisRep.DeformationRingData.*`
+lemmas, the 18 `HeckeGaloisRepDatum.*` lemmas, the patching exit and the
+$`R \cong T`$ assembly — is the remaining T-side work.
+
 ## 6. Pointers
 
 - [hecke-operator-survey.md](../../studies/hecke-operator-survey.md) — the pin

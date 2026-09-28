@@ -487,6 +487,15 @@ Three readings for T10 scope:
 This note does **not** propose taking that port. It records what the target is, so
 the T10 scope decision can be made against numbers rather than the alias table.
 
+**Landed (2026-09-28).** The definition layer was ported as topic 11 — 13 modules,
+142 public declarations, checker `1623 identical / 0 mismatched / 0 missing`,
+`lake build` green, `#print axioms` clean — with work order
+[../lean/topics/hecke/TOPIC-t11-t-side-definitions.md](../lean/topics/hecke/TOPIC-t11-t-side-definitions.md)
+and record [../lean/logs/t-side-port.md](../lean/logs/t-side-port.md). The theorem
+layer above it (the 24 `GaloisRep.DeformationRingData.*` lemmas, the 18
+`HeckeGaloisRepDatum.*` lemmas, the patching exit and the assembly) is still
+unported.
+
 ## 7. Reproduction
 
 Closures, families and the R-vs-T overlap:
