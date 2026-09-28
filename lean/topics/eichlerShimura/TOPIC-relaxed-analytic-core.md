@@ -6,7 +6,10 @@
 > This file remains the port scoping for the 12-node analytic core, which is part
 > of the driver's period map (scout §2.3, §6). The "relaxed" label refers to the
 > retired bypass variant; section references below are to the earlier revision of
-> the scout.
+> the scout. The **live port plan** for the next target — the general-weight
+> period map and its injectivity, which contains the whole analytic core and
+> strictly contains Route B — is
+> [TOPIC-period-map-injectivity.md](TOPIC-period-map-injectivity.md).
 
 **Status: scouting report (2026-09-26), pinned to `aa2d8b3`. Purely
 reconnaissance — no Lean build and no Lean work order.** The *relaxed* option of

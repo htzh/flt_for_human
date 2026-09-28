@@ -230,6 +230,53 @@ Three theorem dependencies are outside the 12 and absent from mathlib `v4.34.0`:
 They are the analysis/analysis-adjacent gap and the first things a port must
 write (§6).
 
+### 3.4 The minimum cone containing Route B
+
+Route B's mathematical content is the weight-2 period map and its injectivity.
+Its general-weight version is the map `eichlerShimuraMap` together with
+`eichlerShimuraMap_injective`, and the smallest cone containing it is the closure
+of the latter:
+
+| piece | nodes | `S_` lines |
+|---|---:|---:|
+| `HeckeEis` theorem nodes | 22 | 2,149 |
+| definition modules (`Def_HeckeEis_BinaryFormRep`, `Def_Gamma0CoeffCohomology`, `Def_HeckeEis_EichlerIntegral`) | 3 | 442 |
+| external theorem nodes | 5 | 610 |
+| `Thm_` statement wrappers | — | ~200 |
+| **total** | **27 + 3 defs** | **~3,400** |
+
+The five external nodes are the whole mathlib gap:
+`Complex.exists_hasDerivAt_of_starConvex` (150),
+`UpperHalfPlane.isBoundedAtImInfty_of_hasDerivAt_of_periodic` (175),
+`ModularGroup.exists_eq_conj_T_zpow_of_trace_sq_eq_four` (135),
+`UpperHalfPlane.apply_add_eq_apply_of_hasDerivAt_of_isZeroAtImInfty` (110) and
+`MvPolynomial.IsHomogeneous.iterate_pderiv_eq_zero_of_lt` (40). None is landed.
+
+Two facts make the cone small:
+
+* it uses only **three** definition modules — `Def_HeckeEis_BinaryFormRep`,
+  `Def_Gamma0CoeffCohomology` and `Def_HeckeEis_EichlerIntegral`. It needs
+  **neither** the Hecke correspondence (`Def_Gamma0HeckeOperatorHom`) **nor** the
+  eigen/quotient module (`Def_Gamma0CoeffCohomologyEigen`), because injectivity
+  contains no Hecke operator;
+* the port's landed Hecke-form layer (`HeckeOperatorForms.lean`) is not used.
+
+So the cone that logically contains Route B, generalised to all weights, is
+**~3,400 lines, none of it landed — smaller than Route B's own 4,308-line blob**,
+and strictly stronger (it is the general statement, of which Route B is the
+$`n = 0`$ specialisation). The E-S-specific `HeckeEis` part is 22 nodes / 2,149
+lines; the rest is definition and analysis infrastructure the full driver needs
+anyway.
+
+The difficulty is concentrated in the five externals — the star-convex
+antiderivative, the Liouville-type boundedness at the cusp, the trace
+classification and the iterated-`pderiv` algebra — plus the two large analytic
+nodes `IsEichlerIntegral.hasDerivAt_eval_iterate_pderiv` (305) and
+`IsEichlerIntegral.slash` (191). Everything else is transport and bookkeeping.
+The tier order of §6 reaches this cone at the end of tier 2, before any Hecke
+equivariance, integral structure or dimension theory. The port plan is
+[../lean/topics/eichlerShimura/TOPIC-period-map-injectivity.md](../lean/topics/eichlerShimura/TOPIC-period-map-injectivity.md).
+
 ## 4. What has already landed
 
 The port (`lean/FLTForHuman`, 137 files / ~68,900 lines) already carries a large
@@ -282,20 +329,28 @@ existing pieces.
 The order below is dependency-driven; each tier is checkable on its own. The
 first three tiers are the driver; tier 4 is the optional door-2 layer.
 
-1. **Definitions.** `BinaryForm` + `binaryFormRepSL` + `binaryFormAlphaAdj`;
-   `coeffCocycles`/`coeffCoboundaries`/`coeffH1`/`coeffParabolicCocycles`/
-   `coeffH1par`/`coeffHeckeFun`; `heckeUpper`/`heckeConj`/`transferAux`; the
-   Eichler-integral predicate. Small (~1,700 lines), self-contained, and the
-   first thing that can be checked against the pin.
-2. **The analysis.** The three mathlib-absent lemmas (the star-convex
-   antiderivative, the boundedness-at-cusp implication, the iterated `pderiv`
-   identity), then the ten analytic-core nodes: existence of the Eichler
-   integral, its transport and difference-by-a-constant, the ladder and
-   boundedness lemmas, the Hecke-correspondence transport.
-3. **The period map and the isomorphism.** `eichlerShimuraMap` (`ES`) with its
-   linearity, injectivity, and Hecke equivariance; the conjugate-linear
-   involution; the integral basis; the dimension bound; and the complementarity
-   that assembles the named driver `eichlerShimura_isomorphism`.
+1. **Definitions.** The three modules the map+injectivity cone needs —
+   `Def_HeckeEis_BinaryFormRep` (`BinaryForm`, `binaryFormRepSL`,
+   `binaryFormAlphaAdj`), `Def_Gamma0CoeffCohomology`
+   (`coeffCocycles`/`coeffCoboundaries`/`coeffParabolicCocycles`/`coeffH1par`)
+   and `Def_HeckeEis_EichlerIntegral` (the Eichler-integral predicate) — are
+   ~440 lines together. The full driver then adds `coeffH1`/`coeffHeckeFun` and
+   the Hecke correspondence `heckeUpper`/`heckeConj`/`transferAux`
+   (`Def_Gamma0CoeffCohomologyEigen`, `Def_Gamma0HeckeOperatorHom`, ~420 lines),
+   which the map+injectivity cone does not use.
+2. **The analysis.** The five mathlib-absent nodes of §3.4 (the star-convex
+   antiderivative, the boundedness-at-cusp implication, the trace classification,
+   the `apply_add_eq_apply` lemma, the iterated `pderiv` identity), then the
+   analytic-core nodes: existence of the Eichler integral, its transport and
+   difference-by-a-constant, the ladder and boundedness lemmas, the
+   parabolic-cocycle wrapping. **At the end of this tier the general-weight map
+   and its injectivity are done** — this is the minimum cone of §3.4, ~3,400
+   lines, and it already contains Route B. The plan is
+   [../lean/topics/eichlerShimura/TOPIC-period-map-injectivity.md](../lean/topics/eichlerShimura/TOPIC-period-map-injectivity.md).
+3. **The rest of the isomorphism.** Hecke equivariance of `ES` (good and bad
+   primes); the conjugate-linear involution; the integral basis; the dimension
+   bound; and the complementarity that assembles the named driver
+   `eichlerShimura_isomorphism`.
 4. **Door 2 (optional, decides itself by interface 4).** The mod-$`p`$
    eigenclass, the Eisenstein boundary and the projLine/retraction carrier maps.
    Port these only if interface 4 keeps its packaging branch; otherwise the
