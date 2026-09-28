@@ -208,8 +208,8 @@ notation, spending their space on the subject at hand.
   its index; torsion labels and coset representatives (`ProjectiveLine`,
   `borel`, `primCosetReps`); the moduli data in Lean (`Gamma0Pair`,
   `LevelPData`, `CycSub`, `EMD`) and what is *not* formalised; the bridge from
-  the torsion labels to the classical $`\tau`$/lattice model, where the marking
-  change acts on the canonical basis $`(1/N, \tau/N)`$ by the signed conjugate
+  the $`\tau`$-action to the torsion labels, where the marking change acts on
+  the standard basis $`(1/N, \tau/N)`$ by the signed conjugate
   $`M_\gamma = D\gamma D^{-1}`$ and the three stabilisers are shown to agree —
   checked in
   [`../lean/Reserve/ModularCurve/Analytic/LevelTauBridge.lean`](../lean/Reserve/ModularCurve/Analytic/LevelTauBridge.lean);
