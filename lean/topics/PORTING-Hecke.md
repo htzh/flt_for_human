@@ -179,8 +179,9 @@ endgame version of the decision — the general forms are unavoidable for
 and the Sturm-bound sub-cone is a small mandatory prerequisite — is measured in
 [../../studies/hecke-finiteness-coverage.md](../../studies/hecke-finiteness-coverage.md).
 
-**Outcome (2026-09-24): `HasIntegralStructure` is ported without the
-Eichler–Shimura tower.** The cheap route was scouted
+**Outcome (2026-09-24): `HasIntegralStructure` is ported without route A's
+integral-structure cone (mostly geometry; not an "Eichler–Shimura tower").** The
+cheap route was scouted
 ([route-c-prime-scout.md](../../studies/route-c-prime-scout.md)) and executed as
 SET 5–11 plus a capstone: eleven modules under
 `ModularForms/WeightOne/` (~33.6k lines, the 53-node cone) and
@@ -272,7 +273,8 @@ Langlands Hecke operators are separate faces with their own consumers.
   byte-identically. Public dotted matches now count as "promoted" (34 → 53);
   `OWN_PROOFS` is unchanged.
 - **A work order mis-scouted its blocker.** T10's premise (the χ₋₃ Eisenstein
-  route) was false; the real dependency is the Eichler–Shimura tower. Lesson
+  route) was false; the real dependency is route A's integral-structure cone
+  (mostly geometry, not an Eichler–Shimura tower). Lesson
   recorded at the corrected §7: **measure the dependency cone before scoping a
   topic** — the graph reader makes it cheap.
 - **Deliberate route divergences, statements unchanged:** the Fricke trace

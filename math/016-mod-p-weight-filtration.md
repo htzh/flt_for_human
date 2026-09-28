@@ -1,4 +1,4 @@
-# The mod-$`p`$ weight filtration, and the gap in the Eichler–Shimura bypass
+# The mod-$`p`$ weight filtration, and the gap in the Eichler–Shimura cohomology-packaging bypass
 
 **Status.** This note explains one open problem — the "gap" — that decides whether
 the analytic Eichler–Shimura period map can be dropped from the FLT endgame. It
@@ -8,7 +8,18 @@ Lean counterpart is collected in §8. Background:
 weight-two period map), [013-integral-structure-gamma1-basis.md](013-integral-structure-gamma1-basis.md)
 (route C′, integrality), and
 [../studies/eichler-shimura-bypass-scout.md](../studies/eichler-shimura-bypass-scout.md)
-(the measurements this note is distilled from).
+(the measurements this note is distilled from). The mathematics of the packaging
+the gap would avoid, and the route-B comparison, is
+[017-eichler-shimura-packaging.md](017-eichler-shimura-packaging.md).
+
+**Terminology.** As fixed in
+[the scout §0](../studies/eichler-shimura-bypass-scout.md): the Eichler–Shimura
+*isomorphism* (the period map) is kept in every variant; what a bypass removes is
+its **cohomological packaging** (`coeffH1par` / `eichlerShimuraMap`). Route A is
+the integral-structure route (`hasIntegralStructure_of_two_le`), not an
+Eichler–Shimura cone, and the 213-node
+`HeckeEis`/`ModPForms`/`PeriodPair` figure is the **three-namespace footprint**,
+not "the E-S package".
 
 ## 1. Motivation
 
@@ -16,9 +27,11 @@ To attach a two-dimensional mod-$`p`$ Galois representation to a Hecke eigenform
 the pin's proof turns the eigenform into a class in the group cohomology
 $`H^1(\Gamma_0(N), \mathrm{Sym}^{k-2})`$ by an Eichler integral, and it is the
 Hecke-eigenvector property of that class that the rest of the argument consumes.
-That period map is the whole of the "analytic Eichler–Shimura" package — 213
-modules and 71,865 lines in the endgame — and it is the only genuinely analytic
-input on the critical path.
+That period map is the analytic Eichler–Shimura content proper — its formalized
+core is the scout's 12-node analytic set (§2.3), 2,301 lines — and it is the only
+genuinely analytic input on the critical path. The surrounding
+`HeckeEis`/`ModPForms`/`PeriodPair` footprint, 213 nodes and 71,865 lines in the
+endgame, is a different object: most of it is not the period map (scout §0).
 
 At weight 2 the same construction degenerates to something much smaller. The
 period of a weight-two cusp form is an additive character
@@ -212,6 +225,10 @@ the gap, and it is why the statement has a real proof obligation rather than bei
 a change of notation.
 
 ## 7. Routes past the gap
+
+(The letters **0/A/B/C/D** below label options *for this gap only*; they are not
+the project's route A / route B / route C′, which appear elsewhere in this note
+and in the scout.)
 
 **0. Avoid it: keep both route B and the elementary general-weight primitive.**
 The cheapest route is not to cross the gap. The primitive and its calculus at

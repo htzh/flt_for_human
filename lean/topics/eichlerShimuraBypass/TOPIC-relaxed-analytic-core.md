@@ -9,13 +9,20 @@ parabolic/bundled packaging (`coeffH1par` / `eichlerShimuraMap`). The 12 nodes
 therefore stay in the port and their cost is a real line item. This file scopes
 that line item: which nodes they are, what they *actually* depend on, where the
 nominal count over- or under-states, and what a port would have to write.
+Terminology follows [scout §0](../../../studies/eichler-shimura-bypass-scout.md):
+the 12 nodes *are* the Eichler–Shimura isomorphism (period map) in formalized
+form, i.e. the content **kept**; the "packaging" dropped is the cohomological
+layer `coeffH1par` / `eichlerShimuraMap`, not Eichler–Shimura.
 
 Companion: the interface-3 rewiring plan
 [TOPIC-interface-3-rewiring.md](TOPIC-interface-3-rewiring.md), the measured
 scout [../../../studies/eichler-shimura-bypass-scout.md](../../../studies/eichler-shimura-bypass-scout.md)
-(§2.3 for the node table, §4.5 for the variant), and the mathematics of the
+(§2.3 for the node table, §4.5 for the variant), the mathematics of the
 weight-2 period argument
-[../../../math/015-weight-two-hecke-periods.md](../../../math/015-weight-two-hecke-periods.md).
+[../../../math/015-weight-two-hecke-periods.md](../../../math/015-weight-two-hecke-periods.md),
+and the mathematics of the *dropped* packaging (the 33-node set `R`) with a
+route-B comparison
+[../../../math/017-eichler-shimura-packaging.md](../../../math/017-eichler-shimura-packaging.md).
 FLT is read at the pin `aa2d8b3`; the port's mathlib is `v4.34.0`. Line counts
 are raw `S_`/`Thm_`/`Def_` file lines of the pin.
 
@@ -89,7 +96,7 @@ count of uses of `B` in `A`'s proof. Measured on the 12:
   for example, that #3 `slash` uses `binarySubst`, `binaryFormRepSL`,
   `binaryFormRepSL_apply_coe`, `linePow`, `jFactor`, `jFactor_eq_denom`,
   `jFactor_ne_zero`, `binaryFormRepSL_linePow`, `IsEichlerIntegral` from the two
-  E-S definition modules.
+  Eichler-integral definition modules.
 - **redundancy is real and is invisible in the node graph.** Four of the twelve
   `S_` files re-embed a byte-identical helper block that already exists in
   another of the 12 (§6); 191 lines are such a second copy, including a 132-line

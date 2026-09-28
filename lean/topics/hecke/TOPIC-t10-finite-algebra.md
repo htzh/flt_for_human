@@ -256,7 +256,9 @@ routes** and the original re-scope picked the wrong one.
   582 nodes / **241,702**) all drag in the Eichler–Shimura/cohomology comparison
   (`AlgebraicCurve.residueTheoremK_ratFunc_of_isAlgClosed` 13,170,
   `WeierstrassCurve.velu_*` 11,992, the `HeckeEis` (12,683) and `PeriodPair`
-  (9,836) packages, `Def_CuspForm_ModPForms`, the Sturm bound). This is **not a
+  (9,836) packages, `Def_CuspForm_ModPForms`, the Sturm bound). (Route A as a
+  whole is not an Eichler–Shimura cone — most of the 657 nodes are endgame
+  geometry; see [scout §0](../../../studies/eichler-shimura-bypass-scout.md).) This is **not a
   topic — it is most of the remaining FLT arithmetic tower** (the full cone is 657
   nodes / 263,720 S-lines across 102 definition modules). Do not attempt it.
 - **Route B — the k=2 finiteness only.** `S_CuspForm_moduleFinite_heckeAlgebra_two.lean`

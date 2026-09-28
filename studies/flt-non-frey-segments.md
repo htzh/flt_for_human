@@ -641,13 +641,26 @@ deformation theory) is arithmetic again.
 
 ## 8. The Eichler–Shimura spine: an architectural correction
 
+> **Terminology (2026-09-27).** See
+> [eichler-shimura-bypass-scout.md](eichler-shimura-bypass-scout.md) §0. In this
+> section "E-S" means the Eichler-integral/period-map content and its
+> cohomological packaging. **Route A** is the *integral-structure* route
+> (`hasIntegralStructure_of_two_le`, 657 nodes), most of whose cone is
+> modular-curve/elliptic geometry the endgame needs regardless — it is not an
+> "Eichler–Shimura tower". The `HeckeEis`/`ModPForms`/`PeriodPair` count (213 /
+> 71,865) is the **three-namespace footprint**, not "the E-S package".
+
 An earlier route analysis in this project treated the analytic Eichler–Shimura
-package (`HeckeEis`, §3.3: 130 nodes / 44,516 lines) as the price of one target —
-the general-weight finiteness of the Hecke algebra via
-`CuspForm.hasIntegralStructure_of_two_le` ("route A") — and proposed to bypass it
-with the $`\Gamma_1`$-slash-basis + trace route ("route C′"). A graph check against
-the pin shows that is only half right, and the correction changes where `HeckeEis`
-sits in the architecture.
+package as the price of one target — the general-weight finiteness of the Hecke
+algebra via `CuspForm.hasIntegralStructure_of_two_le` ("route A") — and proposed to
+bypass it with the $`\Gamma_1`$-slash-basis + trace route ("route C′"). Two
+corrections follow. Route A is not an E-S cone: C′ replaces its *proof* for only
+**4 nodes / 800 lines** (§8 addendum below), because ~528 of its 657 nodes are
+geometry. And `HeckeEis` (130 nodes / 44,516 lines) is not coextensive with the
+E-S isomorphism either: it is one namespace of the three-namespace footprint,
+holding both the kept Eichler-integral core and the dropped cohomology packaging.
+A graph check against the pin shows the original picture is only half right, and
+the correction changes where `HeckeEis` sits in the architecture.
 
 **The package is dual-use.** `HeckeEis` serves two endgame purposes that are
 independent in the citation graph:
@@ -752,7 +765,7 @@ uses `exists_isEichlerIntegral`;
 cone plus the trace lemma suffices and the E-S interfaces are not needed. For an
 endgame-complete port, the E-S cost is set by the interface family — 119 of the 130
 `HeckeEis` nodes / 41,815 lines on the four `HeckeEis`-side exits, and 207 of the
-213 E-S-ish nodes / 70,558 lines across all ten (§8.1) — not by the integral-structure
+213 three-namespace nodes / 70,558 lines across all ten (§8.1) — not by the integral-structure
 route; C′ changes only 4 nodes. Reproduce:
 
 ```bash
@@ -826,14 +839,14 @@ the four `HeckeEis`-side interfaces below collectively consume **119 of the 130
 | `WeierstrassCurve.exists_ideal_heckeAlgebra_three_weight_le_four_pow_mul_apOfModel_of_exists_prime_dvd_mod_three_eq_two` | `ModPForms.exists_three_weight_le_four_mem_modPMod_isModPEigen_pow_mul_…`, `ModPForms.modPCusp_le_modPMod` |
 
 **The interface cost, and the interface-3-only variant.** Measured over the
-E-S-ish namespaces `HeckeEis` (130 nodes / 44,516 lines), `ModPForms` (65 /
+three namespaces `HeckeEis` (130 nodes / 44,516 lines), `ModPForms` (65 /
 15,084) and `PeriodPair` (18 / 12,265) — **213 nodes / 71,865 lines** in the
 endgame. The surface is **ten maximal interfaces**, not four: the four of the
 table above are the `HeckeEis`-side exits, and `ModPForms`/`PeriodPair` reach six
 more (per-interface closures overlap; the union of all ten is 207 of the 213
 nodes / 70,558 of 71,865 lines):
 
-| additional interface | E-S-ish nodes | lines |
+| additional interface | three-namespace nodes | lines |
 |---|---:|---:|
 | `CuspForm.heckeAlgebra.exists_isMaximal_two_ringHom_of_succ_…` | 107 | 31,660 |
 | `CuspForm.heckeAlgebra.thetaCycle_exists_ringHom_mul_two_apply_eq_…` | 93 | 28,401 |
@@ -842,11 +855,12 @@ nodes / 70,558 of 71,865 lines):
 | `WeierstrassCurve.exists_ne_zero_mem_rationalHomSet_of_comp_self_add_smul_eq_smul` | 6 | 4,265 |
 | `ModularCurve.exists_eq_smul_of_diffQExpBar_eq_…_of_kaehlerH0_…` | 1 | 26 |
 
-Interface 3's share of the E-S-ish package is 46 nodes / 23,363 lines — 36 /
-13,293 in the `HeckeEis` namespace alone, the rest `PeriodPair`. So de-E-S-ifying
-the other nine interfaces while retaining E-S for interface 3 removes **161
-nodes / 47,195 lines**; de-E-S-ifying all ten targets the whole 213 / 71,865.
-These are namespace *footprints* (the union of the interfaces' E-S-ish cones);
+Interface 3's share of the three-namespace footprint is 46 nodes / 23,363 lines — 36 /
+13,293 in the `HeckeEis` namespace alone, the rest `PeriodPair`. So re-routing the
+other nine interfaces off the cohomological packaging while retaining the period
+map for interface 3 removes **161 nodes / 47,195 lines**; re-routing all ten
+targets the whole 213 / 71,865 *footprint* (not a saving: most of it stays; scout
+§0/§6). These are namespace *footprints* (the union of the interfaces' three-namespace cones);
 the reachability-accurate payout is smaller, and the relaxed route's is computed
 by the local tool `tools/deps/prune.py` as 63 nodes / 18,391 lines
 ([eichler-shimura-bypass-scout.md](eichler-shimura-bypass-scout.md) §6).
@@ -854,7 +868,7 @@ Either way this is the only lever: with every interface retained, C′ removes j
 the 4 nodes of §8, because every `HeckeEis` node route A uses is itself consumed
 by an interface.
 
-So a "de-E-S-ified" architecture would re-prove the interface family — four on the
+So a de-packaged architecture would re-prove the interface family — four on the
 `HeckeEis` side, ten in all — on the Jacobian/$`\Omega^1`$ side (or directly on
 the $`q`$-expansion
 lattice, using C′'s integral structure), and keep the rest. The caveats behind

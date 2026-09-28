@@ -947,6 +947,15 @@ SOURCES = [
     # in `OWN_PROOFS`. Every helper above the three headlines is `private`.
     "Theorems/Thm_CuspForm_hasIntegralStructure_of_two_le.lean",
     "Theorems/Thm_CuspForm_hasIntegralStructure_two.lean",
+    # --- The congruence-subgroup / level vocabulary (PORTING-Level.md, SET-1) ---
+    # These four pin `Definitions/` files have no `Theorems/` wrappers for the L1
+    # declarations, so they are the comparable copies (the FFG definition-layer
+    # arrangement). They are appended after every existing source so no earlier
+    # last-name match can flip.
+    "Definitions/Def_CohCarrier_Level.lean",
+    "Definitions/Def_CohCarrier_Inst.lean",
+    "Definitions/Def_ModularCurve_XH.lean",
+    "Definitions/Def_CuspForm_HeckeOperatorFormsGammaH.lean",
 ]
 
 PORT_FILES = [
@@ -1191,6 +1200,9 @@ PORT_FILES = [
     # restriction, the translate bundle, the `qCoeff` linear map and the trace
     # additivity are all `private`.
     "FLTForHuman/ModularForms/WeightOne/IntegralStructure.lean",
+    # SET-1 (PORTING-Level.md): the Γ_H vocabulary. Definition-module port with no
+    # `Theorems/` wrappers; verified by name against the four pin sources above.
+    "FLTForHuman/ModularForms/Defs/GammaH.lean",
 ]
 
 

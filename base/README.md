@@ -197,3 +197,15 @@ notation, spending their space on the subject at hand.
   `CharZero`/separability hypotheses; the transcendental and adjoin forms and the
   alternative Galois-averaging route; and one summary section (§5) on the code,
   with the key-point table.
+- [018 — Congruence subgroups, level structures, and invariance](018-congruence-subgroups-and-invariance.md):
+  the four moduli problems — an elliptic curve, a cyclic subgroup, a point of
+  exact order, a full basis — and the four groups $`\Gamma(1)`$, $`\Gamma_0(N)`$,
+  $`\Gamma_1(N)`$, $`\Gamma(N)`$; the stabiliser computation that makes
+  "invariance" a congruence; the slash action and the three matrices hiding
+  behind one letter; when matrix multiplication is over $`\mathbb{Z}`$ and when
+  only its reduction modulo $`N`$ is used (`redMatrix`, `d_mul`, `gammaLift`,
+  the diamond lift, and the `heckeRep_mul` bridge); the $`\Gamma_H`$ family and
+  its index; torsion labels and coset representatives (`ProjectiveLine`,
+  `borel`, `primCosetReps`); the moduli data in Lean (`Gamma0Pair`,
+  `LevelPData`, `CycSub`, `EMD`) and what is *not* formalised; with the key-point
+  table.

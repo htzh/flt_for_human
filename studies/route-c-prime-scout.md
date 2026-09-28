@@ -2,8 +2,12 @@
 
 **Status: HOLDS** (mathematically; the trace lemma is not yet formalized). The
 shortcut is real, and its measured cone is a subset of an endgame branch FLT needs
-anyway. Route A's Eichler–Shimura tower is avoidable for
-`hasIntegralStructure_of_two_le`.
+anyway. Route A's *proof of integral structure* is avoidable for
+`hasIntegralStructure_of_two_le`. Note on the name: route A is the
+integral-structure route, whose 657-node cone is mostly endgame geometry the port
+needs regardless, **not** an "Eichler–Shimura tower"; the Eichler–Shimura
+isomorphism itself is a separate object that stays. See
+[eichler-shimura-bypass-scout.md](eichler-shimura-bypass-scout.md) §0.
 
 Measured 2026-09-24 against the pin `aa2d8b3` with `tools/deps` (graph closure)
 and the `S_`-file line metric (the same metric that reproduces route A's

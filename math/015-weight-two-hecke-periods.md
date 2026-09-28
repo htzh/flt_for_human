@@ -1,7 +1,9 @@
 # Finiteness of the weight-two Hecke algebra from periods
 
 FLT proves the Hecke-algebra finiteness statements twice. The general form
-`CuspForm.moduleFinite_heckeAlgebra` is the tail of the Eichler–Shimura tower;
+`CuspForm.moduleFinite_heckeAlgebra` is the tail of route A (the integral-structure
+cone, most of it endgame geometry — not an "Eichler–Shimura tower"; see
+[eichler-shimura-bypass-scout.md](../studies/eichler-shimura-bypass-scout.md) §0);
 the weight-two form `CuspForm.moduleFinite_heckeAlgebra_two` is proved on its
 own in a 4,308-line file,
 [`S_CuspForm_moduleFinite_heckeAlgebra_two.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CuspForm_moduleFinite_heckeAlgebra_two.lean),
@@ -11,7 +13,8 @@ mathematics of that file.
 
 It is **not** the Γ₁-basis/trace route of
 [013-integral-structure-gamma1-basis.md](013-integral-structure-gamma1-basis.md)
-(route C′), and it is not the general Eichler–Shimura package of route A. It is
+(route C′), and it is not the general-weight period/cohomology package that FLT
+uses inside route A. It is
 a self-contained weight-two argument whose integral lattice lives on the
 **period side** — periods understood as additive characters, i.e. the
 trivial-coefficient cocycles of the classical Eichler–Shimura period lattice,
@@ -28,7 +31,9 @@ Companions: the coverage study
 [../studies/hecke-finiteness-coverage.md](../studies/hecke-finiteness-coverage.md)
 §2, §5, §7 (the route comparison and why route B is throwaway), and
 [013-integral-structure-gamma1-basis.md](013-integral-structure-gamma1-basis.md)
-(the C′ route, deliberately not this one).
+(the C′ route, deliberately not this one), and
+[017-eichler-shimura-packaging.md](017-eichler-shimura-packaging.md) (the
+general-weight packaging this note's construction is the $`k = 2`$ slice of).
 
 ## 1. The target
 

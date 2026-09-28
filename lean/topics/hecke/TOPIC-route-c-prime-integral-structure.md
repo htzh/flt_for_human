@@ -10,7 +10,10 @@ route-A dependency. Successor of [TOPIC-t10-finite-algebra.md](TOPIC-t10-finite-
 This topic ports the **weight-one/Deligne–Serre cone** (which the endgame needs
 for `frey_isModular` anyway) and adds one new **trace lemma** that turns its
 integral Γ₁-basis into `CuspForm.HasIntegralStructure` — replacing route A's
-657-node Eichler–Shimura tower for that target.
+657-node integral-structure cone for that target. (Route A is mostly endgame
+geometry, not Eichler–Shimura; see
+[../../../studies/eichler-shimura-bypass-scout.md](../../../studies/eichler-shimura-bypass-scout.md)
+§0.)
 
 > **Build discipline — read this first.** Every build is bounded and a blow-up is
 > quarantined, not waited on. Measured in this checkout with mathlib prebuilt

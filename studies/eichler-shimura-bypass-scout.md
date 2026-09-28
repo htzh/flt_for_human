@@ -1,4 +1,14 @@
-# The Eichler–Shimura bypass — scout
+# The Eichler–Shimura cohomology-packaging bypass — scout
+
+> **Terminology, corrected (2026-09-27).** "Eichler–Shimura bypass" is a
+> misnomer for what this note studies. The Eichler–Shimura *isomorphism* — the
+> period map from cusp forms to cohomology — is **kept** in every variant; what
+> is dropped is its **cohomological packaging** (`coeffH1par`,
+> `eichlerShimuraMap`, the parabolic/bundled `H¹` layer). Route A is not
+> "Eichler–Shimura" either: it is the integral-structure route
+> (`hasIntegralStructure_of_two_le`), and most of its cone is endgame geometry.
+> Conflating the three inflated the apparent payoff. The terms are fixed in §0;
+> the file name is kept because many notes cross-reference it by path.
 
 **Status (2026-09-25).** A living results document: measurements and findings
 accumulate here as the study progresses. The operational plan and its phase gates
@@ -10,14 +20,19 @@ source greps of the pin's `S_`/`Thm_` files. The port's mathlib is `v4.34.0`.
 Companion provenance: [flt-non-frey-segments.md](flt-non-frey-segments.md)
 §8–§8.1, [route-c-prime-scout.md](route-c-prime-scout.md) §4 addendum,
 [../math/015-weight-two-hecke-periods.md](../math/015-weight-two-hecke-periods.md),
-and [../math/016-mod-p-weight-filtration.md](../math/016-mod-p-weight-filtration.md)
-(the mathematics of the gap in §4.5).
+[../math/016-mod-p-weight-filtration.md](../math/016-mod-p-weight-filtration.md)
+(the mathematics of the gap in §4.5), and
+[../math/017-eichler-shimura-packaging.md](../math/017-eichler-shimura-packaging.md)
+(the mathematics of the packaging `R`, and whether it is worth keeping over
+route B).
 
 **Established.**
 
 1. The contract and the carrier constraint (§1).
-2. Interface 3's analytic-Eichler–Shimura footprint is 12 nodes / 2,301 lines,
-   all reachable only through the target lemma (§2).
+2. Interface 3's Eichler-integral (period-map) footprint is 12 nodes / 2,301 lines,
+   all reachable only through the target lemma (§2). This is the E-S isomorphism
+   in formalized form — the content the bypass **keeps**, not the packaging it
+   removes (§0).
 3. The degree-0 contract is reachable E-S-free by composing route B's weight-2
    period (`ModularCurve.Period.exists_parabolicRealization`) with the CohCarrier
    bridge (`CohCarrier.isEigensystemH1_one_of_heckeT_eq_smul`) (§3).
@@ -34,8 +49,8 @@ packaging on interfaces 1 and 4, and the two-tier payout is in §6.
 
 **Thesis.** Strip the interface bookkeeping away and the question is: do Route C′
 (integrality of the Hecke algebra, all weights) and the $`k = 2`$ period map
-(Route B) supply all the analytic-Eichler–Shimura content the Wiles–Taylor
-endgame consumes? The endgame takes analytic E-S through exactly **two doors**:
+(Route B) supply all the analytic *period-map* content the Wiles–Taylor
+endgame consumes? The endgame takes that content through exactly **two doors**:
 Hecke-algebra finiteness/integrality, and the mod-$`p`$ Hecke eigenvector /
 Galois attachment. C′ covers the first; Route B plus the geometric E-S congruence
 and $`S_2 \cong \Omega^1`$ (both already in the pin) covers the second. "All
@@ -58,6 +73,49 @@ Separately, interfaces 1, 2, 3 and 8 consume the **$`k = 2`$** finiteness
 `CuspForm.moduleFinite_heckeAlgebra_two` (Route B). So the endgame needs both:
 all-weight integrality (door 1, supplied by C′) and the $`k = 2`$ period (door
 2, supplied by Route B). The $`k = 2`$ finiteness does not replace C′.
+
+## 0. Terminology: three different things run together under "E-S"
+
+The words "Eichler–Shimura", "E-S" and "route A" have been used for three
+different objects. Separating them changes the payoff accounting, not the
+measurements.
+
+| object | what it is | size / status |
+|---|---|---|
+| **route A** | the *integral-structure* route: the proof of `CuspForm.hasIntegralStructure_of_two_le` (and `moduleFinite_heckeAlgebra` above it) | cone 657 nodes / 263,720 lines, of which ~528 nodes are modular-curve / elliptic geometry the endgame needs regardless |
+| **the E-S isomorphism** (period map / Eichler integral) | the map from cusp forms to group cohomology; the mathematical content the interfaces need | *kept*: relaxed keeps the 12-node general-weight primitive (§2.3); strict replaces it by route B's weight-2 case, i.e. E-S at trivial coefficients |
+| **the E-S cohomology packaging** | the parabolic sub-quotient `coeffH1par`, the explicit map `eichlerShimuraMap`, and the integral-basis/parabolic glue that bundles a genuine $`H^1(\Gamma_0, \mathrm{Sym}^n)`$ | the 33-node set `R` of §6 (46 in the strict variant, which also drops the general-weight carrier in favour of route B's weight-2 `Hom`); this is what "the bypass" removes |
+
+Three consequences, all correcting earlier phrasing:
+
+1. **Route A is not an E-S cone.** Calling it "the E-S tower" makes the prize of
+   bypassing E-S look like 657 nodes / 263,720 lines. It is not: C′ replaces
+   route A's *proof* for **4 nodes / 800 lines**, and the relaxed bypass removes
+   the packaging plus its exclusive dependents for **63 nodes / 18,391 lines**
+   (§6). Route A's E-S-cohomological part is a sliver of its cone.
+2. **The E-S isomorphism is still needed.** The relaxed variant keeps the 12-node
+   Eichler-integral/period-map core; the strict variant replaces the
+   general-weight case by route B's weight-2 E-S. Neither variant removes the
+   period map. "E-S-free" below therefore means *does not depend on the 12-node
+   analytic period-map core* — the precise set is stated where it matters — not
+   "no Eichler–Shimura".
+3. **The 213-node footprint is not "E-S".** `HeckeEis` (130 / 44,516) +
+   `ModPForms` (65 / 15,084) + `PeriodPair` (18 / 12,265) is the
+   **three-namespace footprint** the ten interfaces consume to produce a
+   mod-$`p`$ Hecke eigenvector/eigensystem. Most of it is E-S-free algebra, mod-$`p`$
+   form machinery and period pairs; the relaxed payout is 23% of it, not all of
+   it. Earlier tables labelled this footprint "E-S-ish"; §6 uses the more accurate
+   "three-namespace" throughout.
+
+**On the name `HeckeEis`.** It is a Lean namespace in the pin; its "Eis" is the
+pin's own shorthand for *Eichler–Shimura* (the definition module is titled
+"Eichler integrals and the Eichler–Shimura map to parabolic cohomology"). It is
+**not** a good descriptor for the mathematics here: in modular forms "Eis" reads
+as *Eisenstein* — a different subject, with its own development in the pin
+(`EisensteinWeightOne`, `EisensteinGeneral`, the Eisenstein ideal) — and the
+namespace mixes the kept Eichler-integral core with the dropped cohomology
+packaging. This note therefore uses `HeckeEis` only as a literal Lean identifier,
+never as the name of a mathematical package.
 
 ## 1. The contract and the carrier constraint
 
@@ -576,7 +634,7 @@ interface 6) and the char-3 weight-4 case
 interior descent: no node anywhere in the pin takes $`3 \le k' \le p-1`$ to
 weight 2.
 
-**Does the slice supply it? No.** Measured over the E-S-ish namespaces, the slice
+**Does the slice supply it? No.** Measured over the three namespaces, the slice
 is 213 nodes, but only **43** are analytic-dependent — the 12 core analytic nodes
 of §2.3 plus 31 downstream of them — while **170** are E-S-free (`ModPForms`
 56/65, `HeckeEis` 96/130, `PeriodPair` 18/18). The $`\theta`$/Hasse toolkit just
@@ -598,7 +656,7 @@ nodes of §2.3) and accepts the tame degree-1 group cohomology of
 contains the 12 analytic nodes and **zero** nodes from the fearsome machinery —
 `eichlerShimuraMap`, `coeffH1par`, `SSDatum`, `SSHeckeV2` — so it needs no weight
 descent at all. The fearsome machinery is a separate target (33 named nodes /
-10,789 lines, 44 E-S-ish dependents), and it lives on interfaces 1, 4, 5 and 6
+10,789 lines, 44 three-namespace dependents), and it lives on interfaces 1, 4, 5 and 6
 (20, 27, 25 and 25 such nodes respectively), not on interface 3.
 
 **Ways forward.**
@@ -694,15 +752,17 @@ the other eleven nodes.
 ## 6. The payout
 
 Interface 3 is the cheapest probe, not the prize. If route B's tame period type
-(candidate 0) can be wired into *every* interface, the endgame loses its entire
-analytic-Eichler–Shimura layer. Measured over the closure of `FLT.fermatLastTheorem`
-(the FLT proof cone):
+(candidate 0) can be wired into *every* interface, the endgame loses the
+**cohomological packaging** of the Eichler–Shimura map — the `coeffH1par` /
+`eichlerShimuraMap` layer — but not the Eichler–Shimura isomorphism itself (the
+period map is kept; §0) and not the bulk of the three-namespace footprint below.
+Measured over the closure of `FLT.fermatLastTheorem` (the FLT proof cone):
 
 | quantity | nodes | raw `S_` lines | share of endgame |
 |---|---:|---:|---:|
 | FLT proof cone | 29,488 | 11,926,355 | 100% |
-| E-S-ish package in it: `HeckeEis` 130 / 44,516 + `ModPForms` 65 / 15,084 + `PeriodPair` 18 / 12,265 | 213 | 71,865 | 0.72% / 0.60% |
-| ... reachable under the ten maximal interfaces (union of their E-S-ish cones) | 207 | 70,558 | |
+| three-namespace package in it: `HeckeEis` 130 / 44,516 + `ModPForms` 65 / 15,084 + `PeriodPair` 18 / 12,265 | 213 | 71,865 | 0.72% / 0.60% |
+| ... reachable under the ten maximal interfaces (union of their three-namespace cones) | 207 | 70,558 | |
 | ... residual `ModPForms` nodes with their own entries | 6 | 1,307 | |
 
 **The payout depends on the variant (§4.5).** In the tables "dropped" is the
@@ -746,8 +806,8 @@ the packaging branch of that proof, is discarded):
 The full port saving is **63 nodes / 18,391 lines**: the 56 / 16,298 above plus
 7 nodes / 2,093 lines in other namespaces (`ModularForm.` 3/1,436, `Complex.`
 1/229, `ZMod.` 1/200, `CongruenceSubgroup.` 1/118, `UpperHalfPlane.` 1/110) that
-only the packaging used. That is **23% of the 71,865-line E-S-ish footprint**
-(26% counting those non-E-S nodes), leaving 55,567 E-S-ish lines. The price is
+only the packaging used. That is **23% of the 71,865-line three-namespace footprint**
+(26% counting those non-E-S nodes), leaving 55,567 three-namespace lines. The price is
 re-proving the retained nodes that cite the packaging: two obligations / 943
 lines (`HeckeEis.exists_modularForm_heckeTLin_eq_smul_of_isEigensystemH1` and
 interface 1), with C′ itself exempt because it is the replacement. If C′ is not
@@ -772,7 +832,7 @@ above.)
 *Strict — route interface 3 through route B.* Route B replaces the general-weight
 primitive too, so `R` also contains the 12-node core and the target lemma:
 `--scenario strict` gives `R` = 46 / 13,613 and a prunable set of **78 nodes /
-21,430 lines** (69 / 19,122 of them E-S-ish, leaving 52,743). It still does
+21,430 lines** (69 / 19,122 of them three-namespace, leaving 52,743). It still does
 **not** by itself remove the E-S-free assembly, `ModPForms` or `PeriodPair`; the
 213 / 71,865 is the namespace *footprint* — everything the interfaces consume
 from those three namespaces — not a saving the E-S bypass delivers on its own.
@@ -780,16 +840,16 @@ How much of the E-S-free assembly a Route-B re-architecture would also drop (for
 instance the degree-$`n \to 0`$ step of §5.1) is not measured, and reaching weight
 2 for interface 3 is where the gap of §4.5 sits.
 
-**Why the relaxed saving is 56 E-S-ish nodes when the core is 12?** The 12 are
+**Why the relaxed saving is 56 three-namespace nodes when the core is 12?** The 12 are
 the analytic *sources*; the 56 are the packaging's own closure below the removed
-set — the 33 `coeffH1par` / `eichlerShimuraMap` nodes plus 23 further E-S-ish
+set — the 33 `coeffH1par` / `eichlerShimuraMap` nodes plus 23 further three-namespace
 nodes that only the packaging reaches — counted by reachability, so a node shared
 with a retained consumer is not included. The two sets are independent in the
 direction that matters: **none of the 12 is prunable** (the tool checks this),
 which is exactly why the core can be kept while the packaging is dropped. The
 consumer-side set is a third set — 43 nodes / 12,316 lines for the analytic
 closure, the 12 plus 31 downstream — similar in size by coincidence, and not the
-saving. So the E-S-ish package has two dependency sinks — the analytic primitive
+saving. So the three-namespace package has two dependency sinks — the analytic primitive
 and the parabolic/bundled packaging — of which only the second is removed by the
 relaxed route.
 
@@ -808,11 +868,13 @@ the wiring, not the theory:
 All five are already in the endgame closure, so the prize is not offset by a
 comparable new cone.
 
-**Why this is not route A's 657-node cone.** Route A's cone is 657 nodes /
-263,720 lines, but ~528 of those are modular-curve / elliptic geometry the
-endgame needs regardless (Riemann–Roch, `JZero`, patching). The analytic-E-S part
-of it is the sliver above — which is why C′ alone removes only 4 nodes /
-800 lines ([route-c-prime-scout.md](route-c-prime-scout.md) §4 addendum).
+**Why this is not route A's 657-node cone.** Route A is the integral-structure
+route (the proof of `hasIntegralStructure_of_two_le`), not an Eichler–Shimura
+tower; its cone is 657 nodes / 263,720 lines because ~528 of those are
+modular-curve / elliptic geometry the endgame needs regardless (Riemann–Roch,
+`JZero`, patching). Its E-S-*cohomological* part is the sliver above — which is
+why C′ alone removes only 4 nodes / 800 lines
+([route-c-prime-scout.md](route-c-prime-scout.md) §4 addendum); see §0.
 
 **Conditions.**
 
@@ -831,8 +893,8 @@ of it is the sliver above — which is why C′ alone removes only 4 nodes /
    interface 4 reduces only to weight $`\le 4`$ by its own Katz machinery. So
    "Route B for interface 3" is the only place the gap appears.
 3. *The surface is not literally ten nodes.* The ten maximal interfaces cover 207
-   of the 213 E-S-ish nodes, but 12 further non-E-S-ish endgame nodes outside
-   their cones (mostly `ModularCurve.SSHeckeV2.*`) directly cite E-S-ish nodes, and
+   of the 213 three-namespace nodes, but 12 further non-three-namespace endgame nodes outside
+   their cones (mostly `ModularCurve.SSHeckeV2.*`) directly cite three-namespace nodes, and
    the 6 residual `ModPForms` nodes have their own entries.
 4. *The residual geometry is paid regardless.* The `JZero`/Tate/Riemann–Roch
    geometry the interfaces consume stays; only the E-S machinery leaves.
@@ -895,7 +957,7 @@ PY
 
 ### 7.2 The namespace footprint (not the payout)
 
-The E-S-ish footprint (which nodes the endgame consumes from the three
+The three-namespace footprint (which nodes the endgame consumes from the three
 namespaces) — the payout itself is §7.5:
 
 ```bash
@@ -937,7 +999,7 @@ U = set()
 for q in ifaces:
     U |= {i for i in cl(I[q]) if d.qual(i).startswith(ES)}
 print('endgame', len(end), 'nodes /', sum(lines(i) for i in end), 'lines')
-print('E-S-ish', len(Eend), '/', sum(lines(i) for i in Eend))
+print('three-namespace', len(Eend), '/', sum(lines(i) for i in Eend))
 print('ten-interface union', len(U), '/', sum(lines(i) for i in U))
 print('residual', len(Eend - U), '/', sum(lines(i) for i in (Eend - U)))
 PY
@@ -1035,7 +1097,7 @@ python3 prune.py --scenario relaxed --cutters interfaces
 ```
 
 `--verify-known` reproduces 29,488 / 11,926,355 (proof cone), 213 / 71,865
-(E-S-ish footprint), 33 / 10,789 (packaging `R`), 63 / 18,391 (relaxed prunable),
+(three-namespace footprint), 33 / 10,789 (packaging `R`), 63 / 18,391 (relaxed prunable),
 46 / 13,613 (strict `R`) and 78 / 21,430 (strict prunable). The last two commands
 give the sensitivity readings of §6: 27 / 7,850 without C′, and 12 / 4,149 if only
 the ten interfaces may be re-routed.

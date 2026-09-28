@@ -22,6 +22,15 @@ are those of [../AGENTS.md](../AGENTS.md).
 "Closure" always means the number of **theorem nodes** in the FLT citation graph
 reached by the declaration, not lines. §8 reproduces every number.
 
+**Terminology (2026-09-27).** Route A is the *integral-structure* route
+(`hasIntegralStructure_of_two_le`, 657 nodes), not an Eichler–Shimura cone: most
+of its cone is modular-curve/elliptic geometry the endgame needs anyway. The
+Eichler–Shimura *isomorphism* (period map) is a separate object and is kept; see
+[eichler-shimura-bypass-scout.md](eichler-shimura-bypass-scout.md) §0. Where this
+earlier note says the "Eichler–Shimura tower", read "route A's integral-structure
+cone (mostly geometry)"; the `HeckeEis`/`ModPForms`/`PeriodPair` count is the
+three-namespace footprint, not "the E-S package".
+
 ## 0. What "finiteness" means here
 
 Three families were scoped as SET 4's T10 and stopped:
@@ -36,7 +45,7 @@ Three families were scoped as SET 4's T10 and stopped:
 3. **The eigenbasis span family.** The simultaneous Hecke eigenvectors span
    `S_k(Γ₀ N)`, the abstract Hecke evaluation is onto, and there is a cyclic
    vector. These use the T8 eigenform interface (already ported) rather than the
-   Eichler–Shimura tower.
+   route-A integral-structure cone (mostly endgame geometry).
 
 The four headline statements, verbatim from their `Theorems/` wrappers:
 
@@ -51,8 +60,9 @@ theorem CuspForm.hasIntegralStructure_two (N : ℕ) [NeZero N] :
     CuspForm.HasIntegralStructure N 2
 ```
 
-The decision is **not** "which route is cheaper per node". It is "will the
-Eichler–Shimura tower be ported anyway?". The rest of this note measures that.
+The decision is **not** "which route is cheaper per node". It is "will route A's
+integral-structure cone (mostly endgame geometry) be ported anyway?". The rest of
+this note measures that.
 
 ## 1. The measured targets
 
@@ -206,7 +216,8 @@ routes, not an alternative to either.
 A third route was only a **port proposal**, not an FLT proof:
 `exists_basis_gamma1_qCoeff_mem_range_intCast` plus the small
 `sturm_bound_of_isArithmetic` would give an explicit integral spanning family,
-reaching `hasIntegralStructure_of_two_le` without the Eichler–Shimura tower. The
+reaching `hasIntegralStructure_of_two_le` without route A's integral-structure
+cone (mostly geometry). The
 T10 brief guessed that cone at ~287 nodes against 657. **Scouted 2026-09-24:
 C′ holds, at 53 nodes / 33,719 raw `S_` lines standalone, and at zero additional
 nodes once the endgame's weight-one branch is ported; Sturm is not needed. The

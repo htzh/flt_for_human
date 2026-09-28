@@ -1,12 +1,26 @@
-# Topic: de-E-S-ifying interface 3 — verification plan
+# Topic: re-routing interface 3 off the E-S cohomology packaging — verification plan
 
 **Status: reconnaissance plan (2026-09-26). Phases 0–2 complete (2026-09-25);
 Phases 3–6 not started.** This is a scouting / feasibility plan, not a port order.
 It exists to decide — with pinned measurements — whether the single
-analytic-Eichler–Shimura premise of FLT's interface 3 can be replaced by E-S-free
-machinery, how much that saves, and whether the replacement is type-compatible
-with the existing proof. If the verdict is positive, this file becomes the parent
-of a Lean work order (see §7).
+analytic-Eichler–Shimura premise of FLT's interface 3 can be replaced by
+packaging-free machinery, how much that saves, and whether the replacement is
+type-compatible with the existing proof. If the verdict is positive, this file
+becomes the parent of a Lean work order (see §7).
+
+**Terminology (2026-09-27; see
+[scout §0](../../../studies/eichler-shimura-bypass-scout.md)).** "E-S" is not a
+name for the thing being removed. *Route A* is the integral-structure route
+(`hasIntegralStructure_of_two_le`), not an Eichler–Shimura cone. The *E-S
+isomorphism* (the period map) is **kept** — relaxed keeps the 12-node
+general-weight primitive, strict replaces it by route B's weight-2 case. What
+this topic removes is the **cohomological packaging** around the period map
+(`coeffH1par` / `eichlerShimuraMap`). "E-S-free" means a cone disjoint from the
+12-node analytic period-map core. The 213-node `HeckeEis`/`ModPForms`/`PeriodPair`
+count is the **three-namespace footprint**, not "the E-S package". The pin's
+`HeckeEis` is a Lean namespace only ("Eis" is the pin's shorthand for
+Eichler–Shimura, ambiguous with Eisenstein) and is never used here as a
+mathematical descriptor.
 
 **Phase 0 result:** the plan is coherent and its Phase 0 gate **passes**. All
 figures in §1/§2 reproduced against the pin (§3 closure 25 nodes / 21 `HeckeEis`,
@@ -30,7 +44,7 @@ C′-dissolved; the weight-$`(p+1)`$ → 2 descent already exists (interface 6's
 $`[2, p+1] \to 2`$ descent, or a reduction landing at $`p+1`$. The
 architecture-B stop condition is triggered but localized to that one brick.
 
-**Thesis (scout note, header).** The endgame takes analytic-Eichler–Shimura
+**Thesis (scout note, header).** The endgame takes analytic period-map
 content through exactly two doors — Hecke-algebra finiteness/integrality, and the
 mod-$`p`$ Hecke eigenvector / Galois attachment. Route C′ covers the first; the
 $`k = 2`$ period map (Route B) plus the geometric E-S congruence and
@@ -71,7 +85,7 @@ The finding that motivates it (measured, `aa2d8b3`):
   `WeierstrassCurve.exists_ideal_heckeAlgebra_two_or_succ_…_of_katz_…` →
   `WeierstrassCurve.isResiduallyModularOfLevel_div_of_isNewform_…` → modularity
   lifting.
-- Interface 3's analytic-E-S footprint is 46 E-S-ish nodes / 23,363 raw `S_`
+- Interface 3's footprint in the three namespaces is 46 nodes / 23,363 raw `S_`
   lines (36 `HeckeEis` / 13,293 if `PeriodPair` is excluded), but it is
   concentrated in **one lemma**, see §2. Everything downstream — the weight
   reduction $`n \to 0`$ and the construction of the Galois representation from a
@@ -96,20 +110,20 @@ mostly *geometry*, not E-S:
 The ~528 modular-curve/elliptic nodes are needed by the endgame regardless (the
 `JZero`/Tate Galois route, Riemann–Roch, differentials, patching), which is why
 replacing route A's *proof* by C′ removes only **4 nodes / 800 lines**. The
-E-S-ish package in the endgame is the union of three namespaces:
+three-namespace footprint in the endgame is the union of three namespaces:
 
 | namespace | endgame nodes | lines |
 |---|---:|---:|
 | `HeckeEis` | 130 | 44,516 |
 | `ModPForms` | 65 | 15,084 |
 | `PeriodPair` | 18 | 12,265 |
-| **E-S-ish total** | **213** | **71,865** |
+| **three-namespace total** | **213** | **71,865** |
 
 **The surface is ten interfaces, not four.** Maximally-consumed exits of the
-E-S-ish package into the rest of the endgame (per-interface counts overlap; the
+three-namespace package into the rest of the endgame (per-interface counts overlap; the
 union is 207 of the 213 nodes / 70,558 of 71,865 lines):
 
-| # | interface | E-S-ish nodes | lines |
+| # | interface | three-namespace nodes | lines |
 |---|---|---:|---:|
 | 1 | `WeierstrassCurve.exists_ideal_heckeAlgebra_mul_two_of_ideal_heckeAlgebra_two_or_succ` | 65 | 21,872 |
 | 2 | `WeierstrassCurve.exists_H1_parabolic_not_dvd_diamondRaw_heckeT_congr_…` | 39 | 21,157 |
@@ -122,18 +136,21 @@ union is 207 of the 213 nodes / 70,558 of 71,865 lines):
 | 9 | `ModularCurve.exists_eq_smul_of_diffQExpBar_eq_…_of_kaehlerH0_…` | 1 | 26 |
 | 10 | `WeierstrassCurve.exists_ne_zero_mem_rationalHomSet_of_comp_self_add_smul_eq_smul` | 6 | 4,265 |
 
-**Consequence to be tested.** If all ten interfaces are re-proved E-S-free, the
-E-S-ish package leaves the endgame — a target of **213 nodes / 71,865 lines**.
-The fallback is the retain-interface-3-only variant: drop E-S for the other nine,
-keeping interface 3's 46 / 23,363, which saves **161 nodes / 47,195 lines**.
-(Both of these are namespace *footprints* — the union of the interfaces' E-S-ish
-cones — not the reachability-accurate payout; for the payout use the local tool
+**Consequence to be tested.** If all ten interfaces are re-routed off the
+cohomological packaging, what leaves is the packaging and its exclusive
+dependents (scout §6: **63 nodes / 18,391 lines** relaxed). The
+**213 nodes / 71,865 lines** of the three namespaces is the *surface those
+interfaces consume* — a footprint, not the saving; most of it is E-S-free
+machinery that stays. The fallback is the retain-interface-3-only variant:
+re-route the other nine, keeping interface 3's 46 / 23,363.
+(Both footprint figures — the union of the interfaces' three-namespace
+cones — are not the reachability-accurate payout; for the payout use the local tool
 `tools/deps/prune.py`, scout §6/§7.5, where the relaxed saving is 63 / 18,391.)
 Either way the prize is far smaller than route A's 657-node cone, because ~528 of
 those nodes are geometry that the endgame needs anyway. The full ten-interface
 figure is also the correct answer to "is it more than just the interface?": yes —
 four times the four-interface estimate, but still not the 657-node cone. The scout
-note [§6](../../studies/eichler-shimura-bypass-scout.md) records the full payout:
+note [§6](../../../studies/eichler-shimura-bypass-scout.md) records the full payout:
 the 213 / 71,865 package measured against the 29,488-node / 11,926,355-line FLT
 proof cone, the three nested targets, the replacement ingredients already inside
 the endgame, the two conditions on "all interfaces" (higher weight / Katz forms,
@@ -149,8 +166,8 @@ a tree, a dependency shared with a retained consumer stays, and the consumer-sid
 set is the rewiring bookkeeping rather than the payout. Measured by the reusable
 local tool `tools/deps/prune.py` (scout §7.5), with C′ supplying
 `hasIntegralStructure_of_two_le` the relaxed saving is **63 nodes / 18,391 lines**
-(56 / 16,298 of them E-S-ish — 23% of the 71,865 — plus 7 / 2,093 in other
-namespaces), leaving 157 E-S-ish nodes / 55,567 lines; without crediting C′ it is
+(56 / 16,298 of them three-namespace — 23% of the 71,865 — plus 7 / 2,093 in other
+namespaces), leaving 157 three-namespace nodes / 55,567 lines; without crediting C′ it is
 27 / 7,850. It is concentrated on interfaces 1 and 4 (their cones contain
 37 / 9,375 and 51 / 14,242 of the pruned lines, overlapping); interface 3 has no
 dependence on the packaging, and interfaces 5 and 6 reach it only through C′
@@ -158,7 +175,7 @@ dependence on the packaging, and interfaces 5 and 6 reach it only through C′
 node. The price is re-proving the two retained nodes that cite the packaging
 (943 lines). So the relaxed target is bounded by
 18,391 lines, not 71,865, and it requires re-routing rather than the gap. Most of
-the 55,567 still ported E-S-ish lines are E-S-free machinery (the `HeckeEis`
+the 55,567 still ported three-namespace lines are E-S-free machinery (the `HeckeEis`
 level-raising / weight-reduction assembly, the `ModPForms` mod-p forms,
 `PeriodPair`), consumed by the interfaces for non-analytic reasons. The *strict*
 variant (route B for interface 3) adds the 12-node core and the target lemma to
@@ -236,8 +253,8 @@ architectures:
 replacement must not carry a cohomology argument beyond the *tame implicit type*
 of route B's blob — `addChars`, i.e. `Hom` at trivial coefficients, with every
 1-coboundary zero and no quotient
-([../../studies/eichler-shimura-bypass-scout.md](../../studies/eichler-shimura-bypass-scout.md)
-§0, [../../../math/015-weight-two-hecke-periods.md](../../../math/015-weight-two-hecke-periods.md)
+([../../../studies/eichler-shimura-bypass-scout.md](../../../studies/eichler-shimura-bypass-scout.md)
+§1.2, [../../../math/015-weight-two-hecke-periods.md](../../../math/015-weight-two-hecke-periods.md)
 §3). Concretely, a candidate whose cone builds a genuine
 $`H^1(\Gamma_0, \mathrm{Sym}^n)`$ — Kuga–Sato, de Rham comparison, or an
 identification of `CohCarrier.H1` with `coeffH1 (binaryFormRepSL κ n)` at
@@ -285,10 +302,11 @@ cocycle lattice — the integrality step step 1 performs. Route B's
 period class is integral; that gap is the same subtlety as §2.
 
 **Reframing.** If Candidate 0 works, the topic is really
-**de-`HeckeEis`-ification**: the analytic E-S is not removed, it is replaced by
-route B's weight-2 instance, which is already written and dependency-free. That is
-a much better outcome than a new general-weight construction, and it is the first
-thing Phase 1 should test.
+**de-packaging**: the E-S isomorphism is not removed, it is re-expressed by
+route B's weight-2 instance, which is already written and dependency-free, and
+what disappears is the `coeffH1par` / `eichlerShimuraMap` packaging around it. That
+is a much better outcome than a new general-weight construction, and it is the
+first thing Phase 1 should test.
 
 Architecture B is only viable if the form-side weight reduction is itself
 E-S-free. The pin's step 2
@@ -303,7 +321,7 @@ same reduction exists on the form side in the `KatzModularForm.*` cluster
 Each phase states tasks, artifact, and a gate. Phases 0–4 are scouting (no Lean
 build); Phase 5 is the optional spike.
 
-### Phase 0 — Freeze the contract and the E-S partition (½–1 round)
+### Phase 0 — Freeze the contract and the period-map partition (½–1 round)
 
 1. Read the pin's
    `P2M/Sol/S_HeckeEis_isEigensystemH1_binaryFormRepSL_of_heckeTLin_eq_smul.lean`
@@ -416,8 +434,8 @@ Recompute with `tools/deps` (the metric is the sum of `S_`-file lines over the
 closure):
 
 - interface-3 cone with and without the 21-node analytic cone;
-- the namespace *footprints*: the retain-interface-3-only union (161 E-S-ish
-  nodes / 47,195 lines) and the all-ten target (213 E-S-ish nodes / 71,865 lines);
+- the namespace *footprints*: the retain-interface-3-only union (161 three-namespace
+  nodes / 47,195 lines) and the all-ten target (213 three-namespace nodes / 71,865 lines);
 - the *payout*: the reachability-accurate prunable set, not the footprint — the
   relaxed route is 63 nodes / 18,391 lines (scout §6);
 - the replacement's own marginal cone (is it already inside the endgame's
@@ -497,7 +515,7 @@ Phase 5 if the gate is passed.
   weights differing by $`p-1`$ are Hecke-equivalent, but interior weights differ
   by the nontrivial character $`\ell^{k'-2}`$ and need the
   Serre-derivative/Hasse filtration. No node in the pin performs it, and no piece
-  of the E-S slice supplies it: the slice's 213 nodes are only **43**
+  of the three-namespace slice supplies it: the slice's 213 nodes are only **43**
   analytic-dependent (the 12-node core plus 31 downstream), and the
   $`\theta`$/Hasse toolkit is in the 170 E-S-free nodes. The intrinsic core
   `ModPForms.exists_isEigensystemH1_…_of_isModPEigen` bypasses the gap by
@@ -538,7 +556,7 @@ Phase 5 if the gate is passed.
 - The relaxed option's kept 12-node analytic core — its actual (not nominal)
   dependency graph, intra-core redundancy and port accounting:
   [TOPIC-relaxed-analytic-core.md](TOPIC-relaxed-analytic-core.md).
-- Phase 0 contract and E-S partition:
+- Phase 0 contract and period-map partition:
   [../../../studies/eichler-shimura-bypass-scout.md](../../../studies/eichler-shimura-bypass-scout.md)
   §1–§2 and reproduction §7.
 - Interface map and corrections:
