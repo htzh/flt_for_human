@@ -29,7 +29,13 @@ Eichler–Shimura *isomorphism* (period map) is a separate object and is kept; s
 [eichler-shimura-bypass-scout.md](eichler-shimura-bypass-scout.md) §0. Where this
 earlier note says the "Eichler–Shimura tower", read "route A's integral-structure
 cone (mostly geometry)"; the `HeckeEis`/`ModPForms`/`PeriodPair` count is the
-three-namespace footprint, not "the E-S package".
+three-namespace footprint, not "the E-S package". **Route B's finiteness is
+superseded by C′**: C′'s integrality proves `HasIntegralStructure` in every
+weight and implies the all-weight `moduleFinite_heckeAlgebra`, so the standalone
+$`k = 2`$ finiteness is a corollary and route B is not needed for finiteness; its
+role is the weight-2 Eichler–Shimura map
+([../math/017-eichler-shimura-isomorphism.md](../math/017-eichler-shimura-isomorphism.md)
+§9).
 
 ## 0. What "finiteness" means here
 

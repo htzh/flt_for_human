@@ -11,6 +11,18 @@ which imports only `Mathlib`, three `Definitions/` modules and `P2M.Util`, and
 cites no theorem node of the FLT graph (closure 1). This note explains the
 mathematics of that file.
 
+> **Role correction (2026-09-27).** The statement this file proves is a
+> *finiteness* statement, but that is not its role in the project. C′'s Γ₁-basis
+> integral structure proves `CuspForm.HasIntegralStructure N k` for every
+> $`k \ge 2`$ ([013](013-integral-structure-gamma1-basis.md)), and the all-weight
+> `CuspForm.moduleFinite_heckeAlgebra` follows from it; the $`k = 2`$ statement
+> here is its specialisation. So route B is **not needed for Hecke finiteness**.
+> Its purpose is the **Eichler–Shimura (period) map at weight 2** — the
+> mathematics of §3–§4 below — which is the $`n = 0`$ slice of
+> [017-eichler-shimura-isomorphism.md](017-eichler-shimura-isomorphism.md) §9.
+> The triple-algebra/finiteness argument of §5–§6 is a self-contained way to
+> reach the finiteness, not the reason to carry the blob.
+
 It is **not** the Γ₁-basis/trace route of
 [013-integral-structure-gamma1-basis.md](013-integral-structure-gamma1-basis.md)
 (route C′), and it is not the general-weight period/cohomology package that FLT
@@ -32,8 +44,9 @@ Companions: the coverage study
 §2, §5, §7 (the route comparison and why route B is throwaway), and
 [013-integral-structure-gamma1-basis.md](013-integral-structure-gamma1-basis.md)
 (the C′ route, deliberately not this one), and
-[017-eichler-shimura-packaging.md](017-eichler-shimura-packaging.md) (the
-general-weight packaging this note's construction is the $`k = 2`$ slice of).
+[017-eichler-shimura-isomorphism.md](017-eichler-shimura-isomorphism.md) (the
+classical general-weight statement this note's construction is the $`k = 2`$
+slice of).
 
 ## 1. The target
 

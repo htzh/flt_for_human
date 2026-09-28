@@ -261,7 +261,11 @@ routes** and the original re-scope picked the wrong one.
   geometry; see [scout §0](../../../studies/eichler-shimura-bypass-scout.md).) This is **not a
   topic — it is most of the remaining FLT arithmetic tower** (the full cone is 657
   nodes / 263,720 S-lines across 102 definition modules). Do not attempt it.
-- **Route B — the k=2 finiteness only.** `S_CuspForm_moduleFinite_heckeAlgebra_two.lean`
+- **Route B — the k=2 finiteness only.** (Correction 2026-09-27: route C′'s
+  integrality already implies this finiteness, so route B is not needed for
+  Hecke finiteness; its role is the weight-2 Eichler–Shimura map. See
+  [../../../math/017-eichler-shimura-isomorphism.md](../../../math/017-eichler-shimura-isomorphism.md)
+  §9.) `S_CuspForm_moduleFinite_heckeAlgebra_two.lean`
   is **standalone**: it imports only `Mathlib`,
   `Def_CuspForm_HeckeAlgebra`, `Def_FLTPrelim_Modularity`,
   `Def_PowerSeries_FormalHeckeOperators` (all three already ported by T5/T7/T8)

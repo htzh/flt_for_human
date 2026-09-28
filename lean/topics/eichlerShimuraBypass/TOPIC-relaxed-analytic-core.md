@@ -20,9 +20,12 @@ scout [../../../studies/eichler-shimura-bypass-scout.md](../../../studies/eichle
 (§2.3 for the node table, §4.5 for the variant), the mathematics of the
 weight-2 period argument
 [../../../math/015-weight-two-hecke-periods.md](../../../math/015-weight-two-hecke-periods.md),
-and the mathematics of the *dropped* packaging (the 33-node set `R`) with a
-route-B comparison
-[../../../math/017-eichler-shimura-packaging.md](../../../math/017-eichler-shimura-packaging.md).
+the classical general-weight statement (the E-S isomorphism)
+[../../../math/017-eichler-shimura-isomorphism.md](../../../math/017-eichler-shimura-isomorphism.md),
+and the Lean inventory of the *dropped* packaging (the 33-node set `R`) with the
+consumer map and porting verdict
+[../../../studies/eichler-shimura-bypass-scout.md](../../../studies/eichler-shimura-bypass-scout.md)
+§8.
 FLT is read at the pin `aa2d8b3`; the port's mathlib is `v4.34.0`. Line counts
 are raw `S_`/`Thm_`/`Def_` file lines of the pin.
 

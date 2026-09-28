@@ -8,9 +8,10 @@ Lean counterpart is collected in §8. Background:
 weight-two period map), [013-integral-structure-gamma1-basis.md](013-integral-structure-gamma1-basis.md)
 (route C′, integrality), and
 [../studies/eichler-shimura-bypass-scout.md](../studies/eichler-shimura-bypass-scout.md)
-(the measurements this note is distilled from). The mathematics of the packaging
-the gap would avoid, and the route-B comparison, is
-[017-eichler-shimura-packaging.md](017-eichler-shimura-packaging.md).
+(the measurements this note is distilled from). The classical Eichler–Shimura
+statement the gap would avoid is
+[017-eichler-shimura-isomorphism.md](017-eichler-shimura-isomorphism.md); the
+Lean inventory of the packaging and the porting comparison are in the scout §8.
 
 **Terminology.** As fixed in
 [the scout §0](../studies/eichler-shimura-bypass-scout.md): the Eichler–Shimura
@@ -238,8 +239,9 @@ weight-$`k'`$ eigenform directly, with degree-one group cohomology (and, at triv
 coefficients, `Hom`) as the carrier, so no weight descent is required for the
 general-weight interfaces. Route B is *not* discarded in this reading: the two are
 complementary, not substitutes, so the relaxed strategy is route B relaxed to
-include the 12-node primitive — route B for the weight-two carrier, its
-$`\mathbb{Z}`$-lattice, triple algebra and finiteness, the primitive for general
+include the 12-node primitive — route B for the weight-two **Eichler–Shimura
+(period) map** (its finiteness statement is superseded by C′'s integrality; see
+[015](015-weight-two-hecke-periods.md) header), the primitive for general
 weight. The cost is the analytic core itself (twelve modules, 2,301 lines), which
 is elementary and already written, and whose only inputs are three lemmas of
 one-variable complex analysis.

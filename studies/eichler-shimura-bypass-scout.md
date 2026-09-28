@@ -22,9 +22,9 @@ Companion provenance: [flt-non-frey-segments.md](flt-non-frey-segments.md)
 [../math/015-weight-two-hecke-periods.md](../math/015-weight-two-hecke-periods.md),
 [../math/016-mod-p-weight-filtration.md](../math/016-mod-p-weight-filtration.md)
 (the mathematics of the gap in §4.5), and
-[../math/017-eichler-shimura-packaging.md](../math/017-eichler-shimura-packaging.md)
-(the mathematics of the packaging `R`, and whether it is worth keeping over
-route B).
+[../math/017-eichler-shimura-isomorphism.md](../math/017-eichler-shimura-isomorphism.md)
+(the classical Eichler–Shimura statement, and what the packaging removes from it);
+the Lean inventory of the packaging and the porting verdict are in §8 below.
 
 **Established.**
 
@@ -59,8 +59,8 @@ $`\mathbb{H}`$ / q-expansion layer that C′ itself rests on stays, and so does
 the residual `JZero`/Riemann–Roch geometry (§6). The open condition is the
 form-side weight reduction for the higher-weight interfaces.
 
-**All-weight integrality is still needed.** The two doors are not
-interchangeable. Interfaces 4, 5 and 6 consume
+**All-weight integrality is still needed, and it comes from C′.** The two doors
+are not interchangeable. Interfaces 4, 5 and 6 consume
 `CuspForm.hasIntegralStructure_of_two_le` (all weights $`\ge 2`$) directly, and
 13 endgame nodes cite it — Katz weight-raising
 (`WeierstrassCurve.exists_ideal_heckeAlgebra_two_or_succ_…_of_katz_…`,
@@ -69,10 +69,15 @@ interchangeable. Interfaces 4, 5 and 6 consume
 `CuspForm.moduleFinite_heckeAlgebra` (all weights) is consumed by six more
 endgame nodes, including interface 3's own consumer
 `GaloisRep.exists_finiteField_galoisRep_trace_eq_heckeT_mod_of_isMaximal`.
-Separately, interfaces 1, 2, 3 and 8 consume the **$`k = 2`$** finiteness
-`CuspForm.moduleFinite_heckeAlgebra_two` (Route B). So the endgame needs both:
-all-weight integrality (door 1, supplied by C′) and the $`k = 2`$ period (door
-2, supplied by Route B). The $`k = 2`$ finiteness does not replace C′.
+Interfaces 1, 2, 3 and 8 also consume the **$`k = 2`$** statement
+`CuspForm.moduleFinite_heckeAlgebra_two`, but it is the $`k = 2`$ case of the
+general one and follows from C′; it is not a reason to carry route B. C′'s
+integrality is strictly stronger, and **route B's only purpose is the
+Eichler–Shimura map at weight 2** (the $`n = 0`$ slice of
+[../math/017-eichler-shimura-isomorphism.md](../math/017-eichler-shimura-isomorphism.md)
+§9), which door 2 needs. So the endgame needs both doors: all-weight integrality
+(door 1, C′) and the weight-2 period map (door 2, route B) — not route B for
+finiteness.
 
 ## 0. Terminology: three different things run together under "E-S"
 
@@ -859,7 +864,7 @@ the wiring, not the theory:
 
 | ingredient | node | role |
 |---|---|---|
-| route B blob | `CuspForm.moduleFinite_heckeAlgebra_two` | weight-2 period carrier (4,308-line `S_` file, closure 1) |
+| route B blob | `CuspForm.moduleFinite_heckeAlgebra_two` | weight-2 **E-S (period) map** (4,308-line `S_` file, closure 1); its finiteness statement is superseded by C′, so the map is the reason to carry it |
 | C′ lattice | `CuspForm.exists_basis_gamma1_qCoeff_slash_mem_range_intCast` | integral structure |
 | geometric E-S congruence | `ModularCurve.frobeniusQuadratic_JZero`, `W54.jZeroPPowTorsion_frobeniusQuadratic` | $`\mathrm{Frob}^2 - T_\ell\,\mathrm{Frob} + \ell = 0`$, zero analytic-E-S nodes |
 | $`S_2 \cong \Omega^1`$ | `ModularCurve.exists_linearEquiv_tensor_intLattice_regularDifferentials_qExpansionDiffAlong_eq` | weight-2 identification, no period map |
@@ -1102,6 +1107,146 @@ python3 prune.py --scenario relaxed --cutters interfaces
 give the sensitivity readings of §6: 27 / 7,850 without C′, and 12 / 4,149 if only
 the ten interfaces may be re-routed.
 
+## 8. The packaging `R`: Lean inventory and consumer map
+
+The mathematics of the Eichler–Shimura package is in
+[../math/017-eichler-shimura-isomorphism.md](../math/017-eichler-shimura-isomorphism.md);
+this section is only the Lean accounting. `R` is the relaxed removed set of §6:
+**33 nodes / 10,789 `S_` lines** in the `HeckeEis` namespace, matched by the
+patterns `eichlerShimuraMap` and `coeffH1par`. Everything is over
+$`\Gamma_0(N)`$, $`V_n =`$ `BinaryForm ℂ n`, representation `binaryFormRepSL`,
+Hecke `binaryFormAlphaAdj`, weight $`k = n+2`$.
+
+### 8.1 The 33 nodes by role
+
+| group | nodes | lines | content |
+|---|---:|---:|---|
+| 1. the period map | 4 | 394 | `eichlerShimuraMap` additive, ℂ-homogeneous, injective |
+| 2. the two halves | 5 | 2,000 | conjugate-linear involution, complementarity, packaged isomorphism |
+| 3. Hecke equivariance | 4 | 1,742 | existence of the cohomological $`T_\ell`$, $`U_\ell`$, and the square |
+| 4. coefficient change / functoriality | 3 | 1,142 | base change, equivariant retractions, Shapiro/projLine |
+| 5. integral structure | 9 | 3,521 | torsion-freeness, integral basis, base change, denominators |
+| 6. dimension theory | 4 | 1,180 | Euler-characteristic / genus bounds |
+| 7. mod-$`p`$ eigenclass and boundary | 4 | 810 | integral eigenclass mod $`p`$; the Eisenstein boundary |
+
+The full list with line counts and the pin's English titles is Appendix B. Three
+nodes are **interface-facing** — the only members of `R` whose consumers outside
+`R` are an endgame interface (all three feed interface 1) rather than another
+member of `R`, route A / `finite_int_heckeAlgebra`, an analytic node, or the
+retained re-proved node
+`HeckeEis.exists_modularForm_heckeTLin_eq_smul_of_isEigensystemH1`:
+
+* `exists_coeffH1par_projLineRepSL_equiv_parabolicHoms` (710) →
+  `WeierstrassCurve.exists_ideal_heckeAlgebra_mul_two_…` (interface 1);
+* `exists_coeffH1par_map_of_equivariant_retraction` (174) → interface 1;
+* `exists_coeffH1par_binaryFormRepSL_eigenclass_of_ideal_heckeAlgebra_of_ne_two`
+  (61) → interface 1.
+
+### 8.2 The consumer map: only two interfaces touch `R`
+
+Of the ten maximal interfaces of §6, only two have any of `R` in their closure.
+The other eight are either **C′-dissolved** (interfaces 5 and 6 fall from 25
+`R`-nodes to **0** once `hasIntegralStructure_of_two_le` is supplied by C′) or
+never touch `R` (2, 3, 7, 8, 9, 10; interface 3's analytic content is the 12-node
+core of §2.3).
+
+| interface | `R`-closure | endgame role | needs the full isomorphism? |
+|---|---:|---|---|
+| 1. `WeierstrassCurve.exists_ideal_heckeAlgebra_mul_two_…` | 20 / 6,369 | level raising: a nonzero mod-$`p`$ eigenclass | **no** |
+| 4. `WeierstrassCurve.exists_ideal_heckeAlgebra_three_weight_le_four_…` | 25 / 8,648 | char-3, weight $`\le 4`$: classify `H¹` eigensystems | **yes**, on its current branch |
+
+**Interface 1 wants existence, not surjectivity.** Its `R`-closure is the period
+map (group 1), the $`T_\ell`$-equivariance (part of group 3), the integral
+structure (part of group 5), the mod-$`p`$ eigenclass (group 7), and the
+Shapiro/projLine and equivariant-retraction carrier maps (group 4). It contains
+neither the conjugate half nor the dimension theory, and it does not need
+$`U_\ell`$. Injection plus an integral lattice is enough to produce the
+eigenclass.
+
+**Interface 4 wants the full isomorphism.** Its path reaches
+`exists_eichlerShimura_coeffH1par_binaryFormRepSL_forall_prime` through the
+retained node `HeckeEis.exists_modularForm_heckeTLin_eq_smul_of_isEigensystemH1`
+("eigensystems in `H¹(Γ₀(N), Symⁿ)` arise from weight `n+2` forms") and the
+boundary node `exists_modularForm_heckeTLin_eq_smul_of_notMem_range_coeffH1parToH1`.
+That is the surjectivity/Eisenstein half: every `H¹` eigensystem, parabolic or
+boundary, comes from a form, which needs $`H^1_{par}`$ to be exactly the cuspidal
+part — complementarity (group 2) and, through it, the dimension theory (group 6).
+But the same input lemma (`ModPForms.exists_three_weight_le_four_…`) also cites
+the **intrinsic** mod-$`p`$ core
+`ModPForms.exists_isEigensystemH1_binaryFormRepSL_of_isModPEigen`, which sits on
+the kept 12-node analytic core and not on `R`. So the port has a routing choice
+at that node, and the full isomorphism is on only one of the two branches.
+
+The decisive question is not "is the full isomorphism nice?" but **"does
+interface 4 keep its packaging branch?"**
+
+* If **yes**, the endgame-driven set is the union of interfaces 1 and 4: 32 nodes /
+  10,735 lines, essentially all of `R`.
+* If **no** (interface 4 re-proved through the intrinsic core, which is what the
+  relaxed route intends), the full isomorphism has **no endgame consumer at all**,
+  and the endgame-driven subset collapses to interface 1's 20 nodes / 6,369 lines.
+
+### 8.3 Door 1 is already paid: route B is not a finiteness route
+
+The endgame's two doors are Hecke-algebra finiteness/integrality and the
+mod-$`p`$ eigenvector / Galois attachment. **The first is already supplied, and
+not by route B.** C′'s $`\Gamma_1`$-basis integral structure proves
+`CuspForm.HasIntegralStructure N k` for every $`k \ge 2`$
+([route-c-prime-scout.md](route-c-prime-scout.md)), and the all-weight
+`CuspForm.moduleFinite_heckeAlgebra` follows from it; the $`k = 2`$ statement is
+its specialisation. So:
+
+* the interfaces that consume `CuspForm.moduleFinite_heckeAlgebra_two` (1, 2, 3,
+  8) get it from the general statement, not from the route B blob;
+* the packaging's integral lattice (`exists_basis_coeffH1par_int_complex`,
+  `exists_eq_prime_smul_…`) is not needed for integrality — it is needed as the
+  lattice on which the *mod-$`p`$ eigenclass* is taken (interface 1), because C′'s
+  integrality is about cusp forms, not about parabolic cohomology;
+* **route B's only purpose is the Eichler–Shimura map at weight 2** — the
+  $`n = 0`$ slice of
+  [../math/017-eichler-shimura-isomorphism.md](../math/017-eichler-shimura-isomorphism.md)
+  §9. Its `S_CuspForm_moduleFinite_heckeAlgebra_two.lean` blob proves a finiteness
+  statement that C′ already implies; the reason to carry it is the period map
+  inside it, not the finiteness.
+
+### 8.4 Verdict
+
+* To **understand** the Eichler–Shimura content, the packaging is the right
+  object and route B is its $`n = 0`$ shadow
+  ([../math/017-eichler-shimura-isomorphism.md](../math/017-eichler-shimura-isomorphism.md)).
+* To **port the endgame**, door 1 is already paid by C′, so the packaging adds
+  nothing there, and route B is not a finiteness contributor. What is actually
+  driven is door 2: interface 1's eigenclass subset (20 / 6,369) unconditionally,
+  and the full isomorphism (groups 2 + 6, plus $`U_\ell`$ and the boundary node,
+  ≈4,300 lines) only if interface 4 stays on its packaging branch.
+* The case for the full isomorphism is **substitution, not coverage**: one
+  construction that could replace C′'s integral structure (door 1), route B's
+  weight-2 E-S map (door 2), and the intrinsic mod-$`p`$ core (interface 4). The
+  honest trade is
+
+  > the full isomorphism (~4,300 lines on top of interface 1's 6,369) — versus —
+  > [intrinsic mod-$`p`$ core (932) + route B, kept for its E-S map (4,308) + C′]
+
+  on the side of the relaxed route. It should be decided by whether interface 4's
+  packaging branch is kept, not by the appeal of the isomorphism as a statement.
+
+### 8.5 Reproduction
+
+```bash
+cd tools/deps && python3 - <<'PY'
+import sys; sys.path.insert(0, '.')
+from fltdata import FltData
+from prune import FltPayoff, build_removed, DEFAULT_ROOT, INTERFACES
+d = FltData(); pay = FltPayoff(data=d)
+port = pay.closure(pay.pid(DEFAULT_ROOT))
+rem, _, _ = build_removed(pay, "packaging", port)
+print("R:", len(rem), pay.total_lines(rem))
+for n, q in INTERFACES:
+    C = pay.closure(d.index[q])
+    print(n, len(C & set(rem)))
+PY
+```
+
 ## Appendix — the 15 tail-only `HeckeEis` nodes (8,188 lines)
 
 In interface 3's cone, outside the target lemma's cone, hence E-S-free by §2.3.
@@ -1125,3 +1270,78 @@ These are the weight-reduction / level-raising / transfer nodes of the tail.
 | `heckeOperatorHom_smul` | 17 |
 | `postcomp_heckeOperatorHom` | 13 |
 | **total** | **8,188** |
+
+## Appendix B — the 33 packaging nodes of `R`
+
+Line counts are the pin's `S_`-file lines; titles are the pin's generated English
+titles. The statement files are
+`Theorems/Thm_<stem>.lean` with `<stem>` the qualified name with dots replaced by
+underscores (pin `aa2d8b3`).
+
+### 1. The period map (4 / 394)
+
+| node (`HeckeEis.`) | lines | content |
+|---|---:|---|
+| `eichlerShimuraMap_eq_coeffH1parMk` | 48 | computed by any admissible Eichler integral |
+| `eichlerShimuraMap_add` | 81 | additivity |
+| `eichlerShimuraMap_smul` | 79 | ℂ-homogeneity |
+| `eichlerShimuraMap_injective` | 186 | injectivity via the negative-weight form |
+
+### 2. The two halves (5 / 2,000)
+
+| node | lines | content |
+|---|---:|---|
+| `exists_coeffH1par_semilinearMap_starRingEnd` | 332 | conjugate-linear involution on $`H^1_{par}`$ |
+| `isCompl_range_eichlerShimuraMap_range_conj` | 185 | the two images are complementary |
+| `range_eichlerShimuraMap_inf_range_conj_eq_bot` | 1,325 | they meet only in 0 (the hard half) |
+| `exists_eichlerShimura_coeffH1par_binaryFormRepSL` | 48 | the packaged isomorphism |
+| `exists_eichlerShimura_coeffH1par_binaryFormRepSL_forall_prime` | 110 | the same with all Hecke operators |
+
+### 3. Hecke equivariance (4 / 1,742)
+
+| node | lines | content |
+|---|---:|---|
+| `exists_coeffH1par_linearMap_coeffHeckeFun` | 80 | the cohomological $`T_\ell`$ exists |
+| `coeffH1par_map_heckeT_comm` | 113 | coefficient change commutes with $`T_\ell`$ |
+| `eichlerShimuraMap_heckeTLin` | 907 | $`ES`$ intertwines $`T_\ell`$ (good $`\ell`$) |
+| `eichlerShimuraMap_heckeULin` | 642 | $`ES`$ intertwines $`U_\ell`$ (bad $`\ell`$) |
+
+### 4. Coefficient change and functoriality (3 / 1,142)
+
+| node | lines | content |
+|---|---:|---|
+| `exists_coeffH1par_map_ringHom` | 258 | coefficient extension on $`H^1_{par}`$ |
+| `exists_coeffH1par_map_of_equivariant_retraction` | 174 | equivariant retractions (interface 1) |
+| `exists_coeffH1par_projLineRepSL_equiv_parabolicHoms` | 710 | Shapiro/projLine bridge |
+
+### 5. Integral structure (9 / 3,521)
+
+| node | lines | content |
+|---|---:|---|
+| `coeffH1par_binaryFormRepSL_int_eq_zero_of_smul_eq_zero` | 138 | torsion-freeness |
+| `coeffH1par_binaryFormRepSL_eq_zero_of_odd` | 71 | odd $`n`$ vanishes |
+| `coeffH1par_map_int_rat_injective` | 426 | $`\mathbb{Z}\to\mathbb{Q}`$ injective |
+| `linearIndependent_coeffH1par_map_rat_complex` | 470 | independence persists over ℂ |
+| `mem_span_range_coeffH1par_map_rat_complex` | 471 | rational classes span over ℂ |
+| `exists_basis_coeffH1par_int_complex` | 316 | integral basis maps to a ℂ-basis |
+| `span_range_coeffH1par_map_int_complex_eq_top` | 54 | integral classes span |
+| `exists_ne_zero_smul_eq_coeffH1par_map_int_rat` | 789 | nonzero integral multiples |
+| `exists_eq_prime_smul_of_coeffH1par_map_eq_zero` | 786 | mod-$`p`$ kernel is $`p`$-divisible |
+
+### 6. Dimension theory (4 / 1,180)
+
+| node | lines | content |
+|---|---:|---|
+| `finrank_coeffH1par_top_add_le` | 393 | Euler-characteristic bound for $`\mathrm{SL}_2(\mathbb{Z})`$ |
+| `finrank_coeffH1par_gamma0_le_finrank_coeffH1par_top_induced` | 500 | Shapiro monotonicity |
+| `finrank_coeffH1par_le_two_mul_dimFormula` | 120 | $`\dim H^1_{par} \le 2\dim S_{n+2}`$ |
+| `finrank_coeffH1par_zero_le_two_mul_genusFormula` | 167 | weight-2 bound $`2g`$ |
+
+### 7. Mod-$`p`$ eigenclass and boundary (4 / 810)
+
+| node | lines | content |
+|---|---:|---|
+| `exists_coeffH1par_int_modp_eigenclass_of_eigenform` | 205 | integral eigenclass mod $`p`$ |
+| `exists_coeffH1par_int_modp_eigenclass_of_ideal_heckeAlgebra` | 71 | from a maximal Hecke ideal |
+| `exists_coeffH1par_binaryFormRepSL_eigenclass_of_ideal_heckeAlgebra_of_ne_two` | 61 | char-$`p`$ eigensystem (interface 1) |
+| `exists_modularForm_heckeTLin_eq_smul_of_notMem_range_coeffH1parToH1` | 473 | the Eisenstein boundary is form-theoretic |

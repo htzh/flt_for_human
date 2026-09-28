@@ -287,4 +287,7 @@ is in [015-weight-two-hecke-periods.md](015-weight-two-hecke-periods.md).
 - **The other cheap $`k=2`$ route.** [015-weight-two-hecke-periods.md](015-weight-two-hecke-periods.md)
   — FLT's standalone period-cocycle proof of `moduleFinite_heckeAlgebra_two`
   (route B): finiteness from the integral group-cocycle lattice, no
-  `HasIntegralStructure`, no general $`k`$.
+  `HasIntegralStructure`, no general $`k`$. Note (2026-09-27): the integrality
+  above already implies that finiteness, so route B is **not needed for Hecke
+  finiteness**; its role is the weight-2 Eichler–Shimura map
+  ([017-eichler-shimura-isomorphism.md](017-eichler-shimura-isomorphism.md) §9).
