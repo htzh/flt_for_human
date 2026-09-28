@@ -13,7 +13,11 @@ verified in §7 — and is superseded; the finiteness uses neither
 212-line `_two` bodies were neither transcribed nor needed. The descoped
 eigenbasis-span family is measured in §8: **56 theorem nodes / 25,362 `S_` lines**
 plus ≈1,150 definition-module lines, of which one target is gated by the full
-Eichler–Shimura isomorphism rather than by T10.
+Eichler–Shimura isomorphism rather than by T10. **§9 decomposes that block into
+three distinct blockers** — the dimensional one (Petersson/spectral),
+`exists_cyclic_span_heckeAlgebra` (newform separation) and the E-S one — and
+records that the dimensional block has four of its five inputs already in
+place.
 
 **Audience.** The work is done; §5 records the definition of done and §7 the
 verified dependency analysis. Read [SET-4.md](SET-4.md) §0–§3 for the blocker
@@ -420,5 +424,96 @@ for t in targets:
     un |= nd
     print(f"{t:<45} cone {len(cone):>4}/{pay.total_lines(cone):>6}  needed {len(nd):>3}/{pay.total_lines(nd):>6}")
 print(f"UNION needed {len(un)} / {pay.total_lines(un)}")
+PY
+```
+
+## 9. The block decomposed: dimensional vs cyclic vs E-S (2026-09-28)
+
+The §5 "still open" list is three different blockers, not one. Measured with
+`tools/deps/frontier.py` (frontier = the checker's verified `Thm_` wrappers
+unioned with the port tree's declared names):
+
+| target | cone (nodes/lines) | needed (unported) | what blocks it |
+|---|---:|---:|---|
+| `CuspForm.span_heckeTLin_eigen_eq_top` | 22 / 4,542 | 7 / 2,661 | the Petersson inner product (spectral decomposition) |
+| `CuspForm.exists_cyclic_span_heckeAlgebra` | 101 / 32,046 | 54 / 25,295 | newform / Atkin–Lehner separation |
+| `CuspForm.exists_top_eq_heckeAlgebra_adjoin_smul` | 102 / 32,068 | 55 / 25,317 | corollary of the cyclic target |
+| `CuspForm.heckeEvalForms_range_eq_top` | 1 / 45 | 1 / 45 | `Def_CuspForm_HeckeEvalForms` → the E-S isomorphism |
+| union of the four | | 56 / 25,362 | |
+
+### 9.1 The dimensional block is a spectral decomposition
+
+`span_heckeTLin_eigen_eq_top` (69 pin lines) is not a dimension count. It:
+
+1. builds an `InnerProductSpace` on `S₂(Γ₀ M)` from `CuspForm.petersson`;
+2. takes `CuspForm.finiteDimensional_Gamma0 M 2`;
+3. notes each `T_ℓ = heckeTLin 2 ℓ` is self-adjoint (`petersson_heckeTLin`) and
+   that they commute (`heckeTLin_comm`);
+4. applies the joint spectral theorem
+   `LinearMap.IsSymmetric.iSup_iInf_eq_top_of_commute` — the simultaneous
+   eigenspaces span `⊤`.
+
+Input by input against the port:
+
+| input | where it lives | status |
+|---|---|---|
+| joint spectral theorem | mathlib `Analysis/InnerProductSpace/JointEigenspace.lean` | available |
+| `CuspForm.finiteDimensional_Gamma0` | `ModularForms/SturmBound.lean` (Sturm route, not the pin's sibling) | landed |
+| `heckeTLin_comm` | `ModularForms/HeckeCommute.lean` | landed |
+| `heckeTLin` + T8 eigenform interface | `HeckeOperatorForms.lean`, `HeckeEigenform.lean` | landed |
+| `CuspForm.petersson` + five core axioms + `petersson_heckeTLin` | pin `Def_CuspForm_Petersson` + six wrappers | **missing** |
+| `UpperHalfPlane.petersson`, hyperbolic measure, Bochner integral | mathlib | available |
+
+So four of the five inputs are in place, and the only gap is the Petersson block:
+`Def_CuspForm_Petersson` (30 lines; the integral of mathlib's
+`UpperHalfPlane.petersson` over `ModularGroup.fd`), its five core axioms
+(`petersson_{add_left,smul_left,conj_symm,self_re_nonneg,self_eq_zero_iff}`, pin
+spans 290/288/288/285/285) and self-adjointness `petersson_heckeTLin` (1,156).
+Measured: `needed 7 / 2,661`, none of it ported — the whole block, i.e. the
+missing mathematics is the fundamental-domain integral and the change of
+variables giving `⟨T_ℓ f, g⟩ = ⟨f, T_ℓ g⟩`.
+
+### 9.2 The other two blocks are not dimensional
+
+`exists_cyclic_span_heckeAlgebra` (275) is a separated-newform-family plus
+"separating family ⇒ cyclic vector" argument (`exists_separator`,
+`exists_cyclic_of_oldspan_of_separated`), importing `Def_CuspForm_Newforms` and
+`Def_FreyPackage_ModMCarrier_Rescale`; `exists_top_eq_heckeAlgebra_adjoin_smul`
+is its corollary. `heckeEvalForms_range_eq_top` (45) is gated by
+`Def_CuspForm_HeckeEvalForms` → `Def_HeckeGalois_EichlerShimura`, i.e. the E-S
+programme, and stays struck from this topic (§5, §8).
+
+### 9.3 Why the algebraic dimension route stops here
+
+The landed `finrank_span_heckeAlgebra_eq_finrank` gets the **dimension equality**
+from the `a₁` pairing with no Petersson (an algebraic, non-positive-definite
+form). The eigenbasis span cannot be obtained that way: the spectral theorem
+needs a positive-definite form, so 9.1 genuinely needs the Petersson pairing.
+The port therefore has the algebraic dimension half and is missing exactly the
+analytic pairing for the diagonalization half.
+
+### 9.4 Port order for the dimensional block (9.1)
+
+1. `Def_CuspForm_Petersson` (30);
+2. the five core axioms (~1,436 pin lines);
+3. `petersson_heckeTLin` (1,156) — the fundamental-domain change of variables;
+4. `span_heckeTLin_eigen_eq_top` (69) — the spectral assembly, engine from mathlib.
+
+Then 9.2 is a separate effort (newform separation), and 9.3 belongs to the E-S
+programme, not to T10.
+
+Reproduce:
+
+```bash
+cd tools/deps && python3 - <<'PY'
+import sys; sys.path.insert(0, '.')
+from frontier import Frontier, needed
+fr = Frontier(); pay = fr.pay; ported = fr.frontier('union')
+for t in ['CuspForm.span_heckeTLin_eigen_eq_top',
+          'CuspForm.exists_cyclic_span_heckeAlgebra',
+          'CuspForm.heckeEvalForms_range_eq_top']:
+    i = pay.pid(t); C = pay.closure(i)
+    nd = needed(pay.cites, i, ported=ported, terminal=True)
+    print(f"{t:<45} cone {len(C):>4}/{pay.total_lines(C):>6}  needed {len(nd):>3}/{pay.total_lines(nd):>6}")
 PY
 ```
