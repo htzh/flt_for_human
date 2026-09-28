@@ -33,11 +33,39 @@ theorem periodMap_injective (n N) : Function.Injective (periodMap n N)
 
 **Verdict.** Feasible and self-contained. The cone is **27 nodes / 2,759 `S_`
 lines** plus **3 definition modules / 442 lines** and **~200 statement lines** —
-about **3,400 lines**, of which roughly none is in the port today. It is
-*smaller* than Route B's 4,308-line blob and strictly stronger. The only genuine
-mathematical gap is the analysis: the star-convex antiderivative, the
-boundedness-at-the-cusp implication, the trace classification and the iterated
-$`\partial_1`$ identity.
+about **3,400 lines**, of which **none** is in the port today (measured; see the
+re-measurement note below). It is *smaller* than Route B's 4,308-line blob and
+strictly stronger. The only genuine mathematical gap is the analysis: the
+star-convex antiderivative, the boundedness-at-the-cusp implication, the trace
+classification and the iterated $`\partial_1`$ identity.
+
+**Re-measurement (2026-09-28).** Every figure above reproduces at the pin
+(`tools/deps` re-run; the §9 script prints `closure 27 2759`, `HeckeEis 22 2149`,
+`external 5 610`, and the three definition modules at 140 / 153 / 149). The new
+frontier measurement makes the "none is in the port" claim exact and places the
+topic against the other work:
+
+- **0 of the 27 nodes are in the port.** `frontier.py` reports `needed 27 / 2,759`
+  with no path to the frontier (hops `–`): the whole cone is from scratch. The five
+  externals are all unported, all three definition modules are unregistered in
+  `spec/check_flt_statements.py`, and there is no
+  `FLTForHuman/ModularForms/EichlerShimura/` directory. So the ~3,400-line estimate
+  is the entire price, not a remainder.
+- **It is on the driver's critical path.** 13 of the 27 nodes / 1,704 lines lie
+  inside interface 3's needed set — including 9 of the 12-node analytic core
+  (`ANALYTIC_12`, 1,204 lines). Interface 3's remaining HeckeEis debt is
+  36 nodes / 13,293 lines, so this topic supplies 9 of those 36.
+- **It does not collide with the other open work.** The intersection with the T10
+  eigenbasis-span union is **0 nodes**: the period map is disjoint from the
+  Petersson / newform / eta layer that `TOPIC-t10-finite-algebra.md` §8 prices at
+  56 / 25,362. Route B being retired to `lean/Reserve/`, this topic strictly
+  contains its $`n = 0`$ case, so the reserve candidate is obviated.
+
+```bash
+cd tools/deps
+python3 frontier.py --target HeckeEis.eichlerShimuraMap_injective --no-rank
+python3 frontier.py --selfcheck
+```
 
 ## 1. The cone, measured
 
@@ -133,7 +161,7 @@ case split, and leaves the pin's `eichlerShimuraMap_def` /
 `eichlerShimuraMap_of_not_exists` wrappers behind. Record the divergence in the
 module header (playbook §7.4).
 
-### Tier 2 — the leaves (about 1,100 lines)
+### Tier 2 — the leaves (744 lines)
 
 `IsEichlerIntegral.add` (42), `.smul` (38), `.slash` (191),
 `.exists_sub_eq_const` (172), `binaryFormRepSL_neg_one_apply` (34),
@@ -147,12 +175,13 @@ helper block in the pin (`EichlerIntegralAux`); factor it once, do not copy
 (playbook §7 checklist item 7). `slash` and `binarySubst_adjugate_comp_smul` are
 **not** both needed here — the latter is Hecke-transport, outside this cone.
 
-### Tier 3 — the analytic chain and the target (about 1,050 lines)
+### Tier 3 — the analytic chain and the target (1,405 lines)
 
 In dependency order:
 
 1. `IsEichlerIntegral.hasDerivAt_eval_iterate_pderiv` (305) — the iterated
-   $`\partial_1`$ identity; the largest node.
+   $`\partial_1`$ identity; the largest node, and structurally a leaf (§1), placed
+   here as the analytic chain's entry point.
 2. `IsEichlerIntegral.eq_zero_of_eval_eq_const` (92).
 3. `IsEichlerIntegral.isBoundedAtImInfty_eval` (178).
 4. `exists_isEichlerIntegral` (102) — the star-convex antiderivative wrapper.
@@ -177,11 +206,11 @@ In dependency order:
 | `exists_sub_eq_const` | 172 | `is_const_of_fderiv_eq_zero`; 132 shared lines | low-medium once factored |
 | `mem_range_binaryFormRepSL_T_zpow_sub_one` | 113 | unipotent fixed-vector algebra | medium |
 | `periodMap_injective` | 186 | negative-weight form trick | medium; mostly assembly |
-| the rest | ~700 | transport/bookkeeping | low |
+| the rest | ~1,470 | transport/bookkeeping | low |
 
 The port's expense is its distance from mathlib (playbook §7.3). Here that
 distance is the five externals (610 lines) and the API archaeology beneath them;
-the 1,100-line theorem body is mostly algebra and bookkeeping against mathlib's
+the 2,149-line `HeckeEis` body is mostly algebra and bookkeeping against mathlib's
 existing `MvPolynomial`, `UpperHalfPlane`, `ModularForm` and `intervalIntegral`
 APIs.
 

@@ -1,41 +1,47 @@
 # Topic 10: the finite/free Hecke algebra and the integral structure
 
-**Status: BLOCKED (2026-09-23), re-scoped to SET 5.** Third topic of
-[SET-4](SET-4.md). The two self-contained definition modules landed; the theorem
-module was **not** created, because the general theorems the two one-liners
-specialise are themselves out of SET-4 scope: `hasIntegralStructure_of_two_le`
-imports `Def_CuspForm_ModPForms`, `Def_HeckeEis_BinaryFormRep`,
-`Def_Gamma0CoeffCohomology`, `Def_Gamma0HeckeOperatorHom` and ten
-`Thm_HeckeEis_*`/`Thm_CuspForm_*` Eichler–Shimura/period-package wrappers, none of
-which the port has. This topic's §1 route note (the `χ₋₃` Eisenstein series) was
-**wrong** — verified in §7 — and is superseded. T10 is now an infrastructure topic
-for SET 5; the pin's 4,308- and 212-line `_two` bodies were neither transcribed
-nor needed.
+**Status: COMPLETE (2026-09-28) for its stated finiteness scope.** Third topic of
+[SET-4](SET-4.md). The two self-contained definition modules landed in SET 4; the
+theorem module was blocked there and is now delivered as
+`FLTForHuman/ModularForms/HeckeFiniteAlgebra.lean`. The unblocking was route C′
+(`WeightOne/IntegralStructure.lean` supplies `HasIntegralStructure` for `2 ≤ k`)
+plus the port's own Sturm bound (`SturmBound.lean` supplies
+`ModularForm.sturm_bound_Gamma0`), exactly the two dependencies SET 4 recorded as
+missing. The topic's §1 route note (the `χ₋₃` Eisenstein series) was **wrong** —
+verified in §7 — and is superseded; the finiteness uses neither
+`Def_CuspForm_IntegralLattice` nor the mod-`p` machinery. The pin's 4,308- and
+212-line `_two` bodies were neither transcribed nor needed. The descoped
+eigenbasis-span family is measured in §8: **56 theorem nodes / 25,362 `S_` lines**
+plus ≈1,150 definition-module lines, of which one target is gated by the full
+Eichler–Shimura isomorphism rather than by T10.
 
-**Audience.** A fresh session taking up the **re-scoped** T10 (SET 5). Read
-[SET-4.md](SET-4.md) §0–§3 and §7 below first — the blocker, not the original
-sketch, is the specification.
+**Audience.** The work is done; §5 records the definition of done and §7 the
+verified dependency analysis. Read [SET-4.md](SET-4.md) §0–§3 for the blocker
+history and `logs/hecke-port.md` §T10 for the measured completion record.
 
-**Goal.** Three modules:
+**Goal — met.** Three modules:
 
 - `FLTForHuman/ModularForms/Defs/EisensteinChiNegThree.lean` — the pin's 27-line
   `χ₋₃` Eisenstein vocabulary (`chiNegThree`, `sigmaChi`, `e1Chi3`, `e1Chi3In`,
-  `E1Chi3IsModular`).
+  `E1Chi3IsModular`). ✅ SET 4; feeds route C′, not the finiteness.
 - `FLTForHuman/ModularForms/Defs/IntegralLattice.lean` — the pin's 32-line
   weight-2 auxiliary lattice (`qIntegralSet`, `qIntegralLattice`,
-  `HasIntegralBasis`, `bridgeProduct`, `IsLatticeRealized`).
+  `HasIntegralBasis`, `bridgeProduct`, `IsLatticeRealized`). ✅ SET 4; still unused
+  by the finiteness.
 - `FLTForHuman/ModularForms/HeckeFiniteAlgebra.lean` — the targets:
-  - `CuspForm.hasIntegralStructure_of_two_le` (515 pin lines) and its
-    `hasIntegralStructure_two` special case;
+  - `CuspForm.hasIntegralStructure_of_two_le` (route C′, not the pin's 515-line
+    file) and its `hasIntegralStructure_two` special case; ✅
   - `CuspForm.HasIntegralStructure.moduleFinite_heckeAlgebra`,
-    `CuspForm.HasIntegralStructure.moduleFree_heckeAlgebra`;
-  - `CuspForm.moduleFinite_heckeAlgebra` and `CuspForm.moduleFinite_heckeAlgebra_two`;
+    `CuspForm.HasIntegralStructure.moduleFree_heckeAlgebra`; ✅
+  - `CuspForm.moduleFinite_heckeAlgebra` and `CuspForm.moduleFinite_heckeAlgebra_two`; ✅
   - `CuspForm.fg_toSubmodule_heckeAlgebra`,
-    `CuspForm.span_heckeTLin_eigen_eq_top`,
-    `CuspForm.finrank_span_heckeAlgebra_eq_finrank`,
+    `CuspForm.finrank_span_heckeAlgebra_eq_finrank`; ✅
+  - `CuspForm.span_heckeTLin_eigen_eq_top`,
     `CuspForm.heckeEvalForms_range_eq_top`,
     `CuspForm.exists_cyclic_span_heckeAlgebra`,
-    `CuspForm.exists_top_eq_heckeAlgebra_adjoin_smul`.
+    `CuspForm.exists_top_eq_heckeAlgebra_adjoin_smul`. ⛔ **still blocked** on the
+    Petersson inner product / the newform separation / `Def_CuspForm_HeckeEvalForms`
+    (see §7 and `logs/hecke-port.md` §T10).
 
 ## 1. Why this topic, and what is settled — the headline dedup
 
@@ -171,48 +177,73 @@ public wrapper.
 
 ## 5. Definition of done
 
-**Blocked at the scouting gate (2026-09-23); re-scoped to SET 5 (§7).** Reviewed
-and verified by the reviewer: the two definition modules are green and correct,
-the theorem module is absent with no `sorry` anywhere, the checker is **802
-identical, 0 mismatched, 0 missing**, and the blocker (`Def_CuspForm_ModPForms` +
-the HeckeEis/Eichler–Shimura/period package, plus the missing Sturm bound and
-Petersson infrastructure) is confirmed against the pin's imports. Stopping was
-the right call: the one-liners could not even be *stated*.
+**Complete (2026-09-28).** Verified by re-running the commands: the checker is
+**1,418 identical (75 promoted), 0 mismatched, 0 missing, 17 own-proof** (1,435
+port declarations); the full `lake build` is green, **4,341 jobs, 0 warnings**,
+with no `sorry`/`admit` in any touched module; `#print axioms` on all ten
+headlines is `propext, Classical.choice, Quot.sound`. The unblocking was route C′
+(§7) plus the port's `SturmBound.lean`.
 
 - [x] `Defs/EisensteinChiNegThree.lean` and `Defs/IntegralLattice.lean` created,
-      verbatim.
-- [ ] `HeckeFiniteAlgebra.lean` created; the targets verbatim. — **blocked**; do
-      not attempt in SET 4. The re-scope is §7.
-- [ ] `moduleFinite_heckeAlgebra_two` and `hasIntegralStructure_two` are the
-      general theorems' special cases, … — **not measured**: the general theorems
-      were not ported. The 4,308- and 212-line pin bodies were not transcribed
-      (the correct outcome).
+      verbatim (SET 4).
+- [x] `HeckeFiniteAlgebra.lean` created; the targets verbatim. — the seven
+      finiteness/span targets plus the weight-`k ≤ 1` subsingleton block; the
+      `finrank` proof uses the `a₁` pairing, not Petersson.
+- [x] `moduleFinite_heckeAlgebra_two` and `hasIntegralStructure_two` are the
+      general theorems' special cases. — **measured**: `moduleFinite_heckeAlgebra_two
+      = moduleFinite_heckeAlgebra N 2 S` (4,308 → 1 line) and
+      `hasIntegralStructure_two = hasIntegralStructure_of_two_le N 2 le_rfl`
+      (212 → 1 line). The 4,308- and 212-line pin bodies were not transcribed.
 - [x] `timeout 180 lake build` green, 0 warnings, no `sorry`.
-- [ ] checker: the wrappers appended to `SOURCES`, the three modules to
-      `PORT_FILES`, **0 mismatched, 0 missing**. — only the two definition modules
-      are registered; the theorem wrappers are correctly absent.
+- [x] checker: the wrappers appended to `SOURCES`, the modules to `PORT_FILES`,
+      **0 mismatched, 0 missing**. — ten T10 wrappers + `HeckeFiniteAlgebra.lean`.
 - [x] `logs/hecke-port.md` §T10: the blocker, the 515-line proof's block
-      structure, and the missing-dependency list.
-- [x] `README.md` rows, including the explicit "(not created) blocked" row.
+      structure, the missing-dependency list, and the completion record.
+- [x] `README.md` rows, including the created `HeckeFiniteAlgebra.lean` row.
+- [x] The three definition-module additions (`HeckeLattice`'s `intLattice_fg`/
+      `_free_and_finite`, `HeckeQCoeff`'s `ModularFormClass.eq_of_forall_qCoeff_eq`)
+      registered in `SOURCES`/`PORT_FILES`.
+
+**Still open (out of T10's finiteness scope).** The eigenbasis-span targets
+`span_heckeTLin_eigen_eq_top`, `heckeEvalForms_range_eq_top`,
+`exists_cyclic_span_heckeAlgebra` and `exists_top_eq_heckeAlgebra_adjoin_smul`,
+each on the prerequisite named in §7 and `logs/hecke-port.md` §T10. Their measured
+price is in §8: **56 theorem nodes / 25,362 `S_` lines plus ≈1,150
+definition-module lines**, and `heckeEvalForms_range_eq_top` is gated by the full
+Eichler–Shimura isomorphism (the active driver), so it is not T10-specific work.
 
 ## 6. Reporting back
 
-1. **The dedup, measured**: pin lines vs port lines for the `_two` and
-   `hasIntegralStructure_two` one-liners.
-2. **The 515-line proof**: its block structure and where it actually bit.
-3. Any `latticeRestrict`/`heckeLocal` construction that had to be restated
-   locally, and whether it should be promoted instead.
-4. The SET-5 hand-off: what is left (Tiers 2–4) and any `private` helper the
-   eigenform/finiteness layer left behind.
+1. **The dedup, measured.** `moduleFinite_heckeAlgebra_two =
+   moduleFinite_heckeAlgebra N 2 S`: the pin's 4,308-line standalone proof is one
+   port line. `hasIntegralStructure_two = hasIntegralStructure_of_two_le N 2
+   le_rfl`: 212 lines to one. `fg_toSubmodule_heckeAlgebra` is
+   `Module.Finite.iff_fg.mp` of the first. Total **4,530 pin lines → 3 port
+   lines**, with the finiteness itself written once from the lattice.
+2. **The 515-line proof was replaced, not transcribed.** Route C′ proved
+   `hasIntegralStructure_of_two_le` by the `Γ₁`-slash-basis trace (33.6k-line
+   cone plus a 374-line capstone), avoiding route A's 263,720-line integral-
+   structure cone and the pin's 515-line `_two`-era file entirely; the
+   `χ₋₃`/`IntegralLattice` vocabulary the work order proposed is unused by it.
+3. **No `latticeRestrict`/`heckeLocal` construction needed restating.** The
+   lattice restriction is written inline in `moduleFinite_heckeAlgebra` (the
+   `ψ` embedding, ~15 lines); it is private and has no public wrapper, so it is
+   not promoted. `ModularFormClass.eq_of_forall_qCoeff_eq`, the one genuine pin
+   theorem the topic consumes, *was* promoted publicly (its own wrapper exists).
+4. **SET-5/Stage-D hand-off.** What is left of the Hecke port is §3.1 (Γ_H / Γ₁ /
+   Atkin–Lehner) plus the eigenbasis-span family named in §5. The finiteness layer
+   left no `private` helper behind: every helper in `HeckeFiniteAlgebra.lean` is
+   private to it, and `HeckeLattice.lean`'s coefficient block is still private.
 
 ## 7. The verified blocker and the re-scope (SET 5)
 
-**Landed (committed to the tree, not to `SOURCES` for the missing module).**
-`Defs/EisensteinChiNegThree.lean` (46 lines, 5 public decls) and
-`Defs/IntegralLattice.lean` (50 lines, 5 public decls); `HeckeFiniteAlgebra.lean`
-does not exist. Checker 792 → 802 on the two definition modules' names; the T10
-theorem wrappers were **not** added to `SOURCES` because there is no port
-declaration to verify.
+**Landed (SET 4).** `Defs/EisensteinChiNegThree.lean` (46 lines, 5 public decls)
+and `Defs/IntegralLattice.lean` (50 lines, 5 public decls); checker 792 → 802.
+`HeckeFiniteAlgebra.lean` was absent in SET 4 and its theorem wrappers were not
+appended to `SOURCES`. **Completed 2026-09-28**: `HeckeFiniteAlgebra.lean` exists
+with the seven finiteness/span targets, the ten wrappers are in `SOURCES`, and the
+checker is 1,418 / 0 / 0. The rest of this section is the SET-4 blocker analysis
+that motivated route C′.
 
 **The blocker, verified by the reviewer against the pin.**
 `P2M/Sol/S_CuspForm_hasIntegralStructure_of_two_le.lean` imports:
@@ -305,3 +336,89 @@ serve the mod-3 congruence / `HasIntegralBasis` route; the χ₋₃ weight-one
 Eisenstein machinery (`EisensteinWeightOne.e1Chi3IsModular`) is the analytic
 content of the C′ ingredient, so keep them — route B needs neither, but C′ does.
 FLT's own `hasIntegralStructure_of_two_le` uses them at neither site.
+
+## 8. Effort to finish the span family (measured 2026-09-28)
+
+The finiteness half is complete; the four §5 eigenbasis-span targets are not.
+Measured with `tools/deps/frontier.py` against the current port frontier (the
+`Thm_` wrappers in `spec/check_flt_statements.py` plus the port tree's declared
+names): a target's **needed** set is what its proof reaches that the port does not
+yet provide.
+
+| target | cone (nodes/lines) | needed | what the needed set is |
+|---|---:|---:|---|
+| `span_heckeTLin_eigen_eq_top` | 22 / 4,542 | 7 / 2,661 | the six `petersson_*` wrappers + itself |
+| `heckeEvalForms_range_eq_top` | 1 / 45 | 1 / 45 | definition-gated, see below |
+| `exists_cyclic_span_heckeAlgebra` | 101 / 32,046 | 54 / 25,295 | the eta-product / Atkin–Lehner / newform block |
+| `exists_top_eq_heckeAlgebra_adjoin_smul` | 102 / 32,068 | 55 / 25,317 | the cyclic cone + itself |
+| **union of the four** | | **56 / 25,362** | |
+
+The union decomposes into two blocks plus the gate:
+
+- **Petersson block — 7 nodes / 2,661 lines.** The six wrappers
+  `CuspForm.petersson_{add_left, smul_left, conj_symm, self_re_nonneg,
+  self_eq_zero_iff, heckeTLin}` (the last alone 1,156 lines) plus the 69-line
+  target. This is the whole of `span_heckeTLin_eigen_eq_top`; it is also shared by
+  the cyclic cone.
+- **Cyclic block — 47 further nodes / 22,634 lines.** Led by
+  `ModularForm.alSlash_add_heckeU_alSlash_alSlash` (2,388),
+  `ModularForm.alSlash_heckeT_comm` (2,387) and
+  `CuspForm.norm_lt_of_heckeTLin_eq_smul` (1,303), then the newform/rescale family
+  (`IsNewform.rescaleLin_sub_rescaleLin_notMem_span_sup_span` 1,125,
+  `mem_span_rescaleLin_prime_of_forall_coprime_qCoeff_eq_zero` 936,
+  `exists_finite_separated_newform_family` 108, the Atkin–Lehner trace lemmas)
+  and the eta-product / `Γ₀(11)` family (nine `etaProductEleven_*` /
+  `exists_gamma0_*` / `eta_neg_one_div_sq` nodes at 875–928 lines each). By
+  namespace the union is `CuspForm.` 43 / 13,418, `ModularForm.` 11 / 11,748, plus
+  two small nodes.
+- **`heckeEvalForms_range_eq_top` — 1 node / 45 lines.** A 45-line statement whose
+  only import is `Definitions/Def_CuspForm_HeckeEvalForms` (49 lines), itself
+  importing `Definitions/Def_HeckeGalois_EichlerShimura` (228 lines): the **full
+  Eichler–Shimura isomorphism**, which is the active programme
+  ([../../../studies/eichler-shimura-scout.md](../../../studies/eichler-shimura-scout.md)).
+  This target is therefore not T10-specific; it lands with the E-S isomorphism.
+
+**The theorem graph is not the whole price.** Ten definition modules used by these
+cones are not registered in the checker (≈1,150 pin lines):
+
+| module | pin lines | serves |
+|---|---:|---|
+| `Def_CuspForm_Petersson` | 30 | the Petersson block (with mathlib's `UpperHalfPlane` measure/integral) |
+| `Def_CuspForm_Newforms` | 72 | the cyclic block |
+| `Def_CuspForm_AtkinLehnerOperator` | 64 | the cyclic block |
+| `Def_ModularForm_AtkinLehnerDatum` | 157 | the cyclic block |
+| `Def_CuspForm_HeckeULower` | 46 | the cyclic block |
+| `Def_CuspForm_LevelLoweringTrace` | 45 | the cyclic block |
+| `Def_FreyPackage_ModMCarrier_Rescale` | 176 | the cyclic block |
+| `Def_FreyPackage_ModMCarrier_OldSublattice` | 116 | the cyclic block |
+| `Def_AutomorphicForm_FundamentalDomainVolume` | 178 | the cyclic block |
+| `Def_AutomorphicForm_ModularFundamentalDomain` | 217 | the cyclic block |
+
+**Reading of the measurement.** The finiteness half took the topic's three-round
+budget; the span family it descoped is a second, comparable unit:
+**56 theorem nodes / 25,362 `S_` lines plus ≈1,150 definition-module lines**, with
+two caveats. First, the cyclic block's Atkin–Lehner / newform / eta layer belongs
+to the Level / Γ_H port named in §6 (PORTING-Level), so part of those 47 nodes is
+shared with that effort rather than marginal to T10. Second,
+`heckeEvalForms_range_eq_top` should be struck from this topic and tracked under
+the E-S programme: its 45 lines are free once the isomorphism lands.
+
+Reproduce (the union needs all four targets, so a loop rather than four sums):
+
+```bash
+cd tools/deps && python3 - <<'PY'
+import sys; sys.path.insert(0, '.')
+from frontier import Frontier, needed
+fr = Frontier(); pay = fr.pay
+ported = fr.frontier('union')
+targets = ['CuspForm.span_heckeTLin_eigen_eq_top', 'CuspForm.heckeEvalForms_range_eq_top',
+           'CuspForm.exists_cyclic_span_heckeAlgebra', 'CuspForm.exists_top_eq_heckeAlgebra_adjoin_smul']
+un = set()
+for t in targets:
+    i = pay.pid(t)
+    cone, nd = pay.closure(i), needed(pay.cites, i, ported=ported, terminal=True)
+    un |= nd
+    print(f"{t:<45} cone {len(cone):>4}/{pay.total_lines(cone):>6}  needed {len(nd):>3}/{pay.total_lines(nd):>6}")
+print(f"UNION needed {len(un)} / {pay.total_lines(un)}")
+PY
+```

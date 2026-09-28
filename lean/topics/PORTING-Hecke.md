@@ -1,27 +1,30 @@
 # The Hecke-operator port — status and remaining work
 
-> **IN PROGRESS (paused 2026-09-23).** SETs 1–4 landed: the survey's Stages A, B
-> and C are complete, Stage D is half done, and the finiteness half is ruled out
-> of scope. Nothing is broken or half-written. To resume, read §5 first, then the
-> work orders in [hecke/](hecke/) and the record in
+> **T10 COMPLETE (2026-09-28).** SETs 1–4 landed the survey's Stages A–D except
+> the group/level variants; the finiteness half of T10 that SET 4 had to stop is
+> now closed: route C′ delivered `HasIntegralStructure` and the port carried the
+> Sturm bound, so the finite/free Hecke-algebra family (including the pin's
+> 4,308-line `_two` one-liner) landed in `HeckeFiniteAlgebra.lean`. What remains
+> of the Hecke port is §3.1 (the Γ_H / Γ₁ / Atkin–Lehner variants) plus three
+> still-blocked eigenbasis-span targets inside T10 (§3.2). To resume, read §5,
+> the work orders in [hecke/](hecke/) and the record in
 > [../logs/hecke-port.md](../logs/hecke-port.md).
 
-**Status (2026-09-23).** The effort ports the *automorphic* Hecke-operator face of
+**Status (2026-09-28).** The effort ports the *automorphic* Hecke-operator face of
 `Definitions/Def_ModularForm_HeckeOperator.lean` and its consumers — `heckeU` /
 `heckeT`, the invariance and analytic layers, the `q`-coefficient action, the
 bundled `heckeTLin` / `heckeULin`, the Hecke algebra, the eigenform dictionary
 and the integral-lattice vocabulary.
 
-- **18 modules, 3,920 lines**, ~155 new public declarations.
-- **Statement checker: 802 identical (53 promoted), 0 mismatched, 0 missing, 14
-  own-proof** — up from 618 at the effort's start, with 0 mismatched at every
-  checkpoint.
-- **`lake build` green: 4,054 jobs, 0 warnings, no `sorry`/`admit`.** No
+- **19 modules, 4,436 lines**, ~175 new public declarations.
+- **Statement checker: 1418 identical (75 promoted), 0 mismatched, 0 missing, 17
+  own-proof** — up from 1408 before the T10 completion.
+- **`lake build` green: 4,341 jobs, 0 warnings, no `sorry`/`admit`.** No
   `maxHeartbeats` was added or raised anywhere.
 - **`#print axioms` clean** on every headline: `propext, Classical.choice,
   Quot.sound`.
-- **Commits:** SETs 1–3 in `c7d668b "Hecke operators"`; **SET 4 is uncommitted**
-  in the working tree.
+- **Commits:** SETs 1–3 in `c7d668b "Hecke operators"`; the SET-4 modules and the
+  T10 completion are in the working tree (the user commits).
 - The FFG modules were never touched; a separate effort owns them.
 
 Companion records:
@@ -60,7 +63,8 @@ this port does not reduce it.
 | SET 1 | T0/T1 — the operator block and the Γ₀ slash-invariance | `Defs/HeckeOperator`, `Defs/HeckeRepresentatives`, `HeckeInvariance` | 710 | 618 → 682 |
 | SET 2 | T2 Fricke dedup, T3 analytic regularity, T4 cusp-class | `HeckeFricke`, `HeckeAnalytic`, `HeckeCusps` | 823 | 682 → 696 |
 | SET 3 | T5 `q`-coefficient, T6 bundling, T7 commutation + algebra | `Defs/FormalHeckeOperators`, `HeckeQCoeff`, `HeckeOperatorForms`, `ModularCurve/Defs/LaurentSeriesHecke`, `HeckeCommute`, `HeckeAlgebra` | 1,401 | 696 → 772 |
-| SET 4 | T8 eigenform interface, T9 integral lattice, T10 **blocked** | `Defs/Eigenform`, `HeckeEigenform`, `Defs/IntegralStructure`, `HeckeLattice`, `Defs/EisensteinChiNegThree`, `Defs/IntegralLattice` | 986 | 772 → 802 |
+| SET 4 | T8 eigenform interface, T9 integral lattice, T10 **definitions only** | `Defs/Eigenform`, `HeckeEigenform`, `Defs/IntegralStructure`, `HeckeLattice`, `Defs/EisensteinChiNegThree`, `Defs/IntegralLattice` | 986 | 772 → 802 |
+| T10 completion (2026-09-28) | the finite/free algebra, unblocked by route C′ | `HeckeFiniteAlgebra` (new), +T10 facts in `HeckeLattice`, +`eq_of_forall_qCoeff_eq` in `HeckeQCoeff` | ~420 | 1,408 → 1,418 |
 | SET 5–11 + capstone | route C′ — the integral structure from an integral `Γ₁`-basis (successor effort, §3.2) | `ModularForms/WeightOne/*` (11 modules) | ~33,600 | 1260 → 1312 |
 
 The SET 5–11 row is a **successor effort**, not a Hecke set: it discharges T10's
@@ -80,7 +84,7 @@ Module inventory (pin lines in brackets where the module mirrors one):
 | `ModularForms/HeckeAnalytic.lean` | 227 | `mdifferentiable`/`periodic`/`isBoundedAtImInfty` (six pin files to one) |
 | `ModularForms/HeckeCusps.lean` | 216 | `ModularFormClass.isBoundedAt_*`, `CuspFormClass.isZeroAt_*` (four to one) |
 | `ModularForms/Defs/FormalHeckeOperators.lean` | 76 | `PowerSeries.heckeU/V/T` |
-| `ModularForms/HeckeQCoeff.lean` | 618 | the `qCoeff`/`qExpansion` layer and the coefficient algebra (four 353-line files to one) |
+| `ModularForms/HeckeQCoeff.lean` | 630 | the `qCoeff`/`qExpansion` layer and the coefficient algebra (four 353-line files to one); the bundled `eq_of_forall_qCoeff_eq` is T10's |
 | `ModularForms/HeckeOperatorForms.lean` | 184 | `heckeTLin`/`heckeULin` on `ModularForm`/`CuspForm` |
 | `ModularCurve/Defs/LaurentSeriesHecke.lean` | 135 | `LaurentSeries.heckeU/V/T` |
 | `ModularForms/HeckeCommute.lean` | 271 | the 12 commutations (function, bundled, formal) |
@@ -88,8 +92,9 @@ Module inventory (pin lines in brackets where the module mirrors one):
 | `ModularForms/Defs/Eigenform.lean` | 45 | `CuspForm.IsNormalizedEigenform` |
 | `ModularForms/HeckeEigenform.lean` | 675 | the eigenform dictionary (§8) and the multiplicity statement |
 | `ModularForms/Defs/IntegralStructure.lean` | 36 | `intLattice`, `HasIntegralStructure` |
-| `ModularForms/HeckeLattice.lean` | 134 | the lattice action (`mem_intLattice_*`) |
-| `ModularForms/Defs/EisensteinChiNegThree.lean` | 46 | parked (see §3.2) |
+| `ModularForms/HeckeLattice.lean` | 225 | the lattice action (`mem_intLattice_*`) and its finiteness (`intLattice_fg`, `intLattice_free_and_finite`) |
+| `ModularForms/HeckeFiniteAlgebra.lean` | 413 | the finite/free Hecke algebra and the `finrank` span (T10) |
+| `ModularForms/Defs/EisensteinChiNegThree.lean` | 46 | the `χ₋₃` vocabulary (route C′ / mod-3, see §3.2) |
 | `ModularForms/Defs/IntegralLattice.lean` | 50 | parked (see §3.2) |
 
 ## 2. The survey's stages, mapped
@@ -103,7 +108,7 @@ Module inventory (pin lines in brackets where the module mirrors one):
 | D | Γ_H / Γ₁ / level lowering | **remaining** (§3.1) |
 | — | the coefficient action (§6) | **done** (not a lettered stage) |
 | — | the eigenform dictionary (§8) | **done** (not a lettered stage) |
-| — | the Hecke algebra's finite/free half (§9) | **integral-structure half delivered** (route C′, §3.2); `Module.Finite`/`Free` remaining |
+| — | the Hecke algebra's finite/free half (§9) | **delivered** (route C′ + `HeckeFiniteAlgebra.lean`, §3.2); the eigenbasis-span family remains |
 | §12 | the boundary faces | **out of scope** |
 
 ## 3. What remains
@@ -151,7 +156,7 @@ Confirmed absent from `FLTForHuman/` (`grep -c` = 0): `heckeULowerLin`,
 `heckeTLinH`, `heckeULinH`, `diamondLinH`, `heckeTLinOne`, `diamondLinOne`,
 `slashOfMemGamma0`.
 
-### 3.2 The finiteness — the integral structure delivered via C′; the `Module.Finite` half remains
+### 3.2 The finiteness — delivered via C′ (2026-09-28); the eigenbasis-span family remains
 
 `Module.Finite`/`Free ℤ (heckeAlgebra N k S)`, `HasIntegralStructure` and the
 eigenbasis-span family were scoped as SET 4's T10 and deliberately stopped. The
@@ -216,17 +221,50 @@ Eisenstein modularity (`EisensteinWeightOne.e1Chi3IsModular`) is the analytic he
 of the C′ ingredient, so keep it. `Defs/IntegralLattice.lean` (the weight-2
 `HasIntegralBasis` vocabulary) is still unused by this route.
 
-**Residual work (deferred to a fresh session).** The `Module.Finite`/`Free` half
-is untouched: `CuspForm.HasIntegralStructure.moduleFinite_heckeAlgebra` /
-`moduleFree_heckeAlgebra` (closures 18–19) now have their hypothesis, `intLattice_fg`
-and `moduleFinite_heckeAlgebra` follow on the finiteness side, and the
-eigenbasis-span family still needs the Petersson inner product and
-`finiteDimensional_Gamma0`. Separately, the C′ payoff should be written up as a
-**redundancy-reduction record**: a short note quantifying what route C′ avoided
-(route A's 657 nodes / 263,720 lines vs the 53-node cone / ~33.6k lines plus the
-374-line capstone) and naming the reusable pattern — *prove integrality on the
-smaller (index-finite) subgroup and transfer by the trace* — as the first entry in
-a standing "redundancy reduction" line of work.
+**Outcome (2026-09-28): T10's finite/free half landed.** Route C′ gave the
+`HasIntegralStructure` hypothesis, and the port's own `SturmBound.lean` gave
+`intLattice_fg` — the two things SET 4 recorded as missing. The new
+`ModularForms/HeckeFiniteAlgebra.lean` (413 lines) ports the seven remaining
+theorem targets verbatim:
+
+- `HasIntegralStructure.eq_zero_of_forall_mem_intLattice` — the full-rank lattice
+  detects a zero `ℂ`-endomorphism (`LinearMap.ext_on`);
+- `HasIntegralStructure.moduleFinite_heckeAlgebra` / `moduleFree_heckeAlgebra` —
+  embed the Hecke algebra `ℤ`-linearly into `Module.End ℤ (intLattice)` (the
+  action restricts, by T9's `mem_intLattice_of_mem_heckeAlgebra`) and use that
+  `Module.End` of a finite free `ℤ`-module is finite; freeness follows from the
+  algebra's `IsAddTorsionFree`;
+- `intLattice_fg`, `intLattice_free_and_finite` (placed in `HeckeLattice.lean` to
+  reuse its private `qCoeff`-linearity block, one Sturm truncation in the port);
+- `moduleFinite_heckeAlgebra` — splits on `2 ≤ k` versus `k ≤ 1`, the latter
+  being the pin's subsingleton block;
+- `moduleFinite_heckeAlgebra_two` = `moduleFinite_heckeAlgebra N 2 S`,
+  `fg_toSubmodule_heckeAlgebra` = `Module.Finite.iff_fg.mp …_two`;
+- `finrank_span_heckeAlgebra_eq_finrank` — the pin's **`a₁`-pairing** proof (not
+  the Petersson one), with `ModularFormClass.eq_of_forall_qCoeff_eq` promoted to
+  public in `HeckeQCoeff.lean`.
+
+**The dedup, measured.** The pin's 4,308-line
+`S_CuspForm_moduleFinite_heckeAlgebra_two.lean` is now the **one line**
+`moduleFinite_heckeAlgebra_two`; combined with `hasIntegralStructure_two` (212 → 1)
+that is **4,530 pin lines for 2 port lines**, the effort's largest redundancy.
+
+**Residual: the eigenbasis-span family.** Three targets are still blocked, each
+on infrastructure the port does not carry (measured against the pin):
+`span_heckeTLin_eigen_eq_top` needs the Petersson **inner product** (mathlib
+`v4.34.0` has only the integrand `UpperHalfPlane.petersson`, not the
+fundamental-domain integral) and the Hermiticity `petersson_heckeTLin`;
+`exists_cyclic_span_heckeAlgebra` (and its corollary
+`exists_top_eq_heckeAlgebra_adjoin_smul`) needs the newform/Atkin–Lehner
+separation `CuspForm.exists_finite_separated_newform_family` and
+`heckeTLin_rescaleLin`; `heckeEvalForms_range_eq_top` needs
+`Def_CuspForm_HeckeEvalForms` (hence `Def_HeckeGalois_EichlerShimura`, out of
+scope). None blocks the finiteness. Separately, the C′ payoff should still be
+written up as a **redundancy-reduction record**: a short note quantifying what
+route C′ avoided (route A's 657 nodes / 263,720 lines vs the 53-node cone / ~33.6k
+lines plus the 374-line capstone) and naming the reusable pattern — *prove
+integrality on the smaller (index-finite) subgroup and transfer by the trace* —
+as the first entry in a standing "redundancy reduction" line of work.
 
 ### 3.3 The boundary (survey §12) — not this effort
 
@@ -319,12 +357,14 @@ commits); do not touch the FFG modules.
 
 **If you take Stage D**, start with Atkin–Lehner (self-contained, 57 consumers),
 and write its work order with the §3.1 numbers. **If you take the finiteness**,
-`HasIntegralStructure` is already ported via route C′ (§3.2) — the scouting this
-paragraph used to ask for was done and succeeded, and the route's numbers and the
-trace-lemma lesson are §3.2 and §4. What remains is the `Module.Finite`/`Free`
-half (`HasIntegralStructure.moduleFinite/Free_heckeAlgebra`), `intLattice_fg`,
-`moduleFinite_heckeAlgebra`, and the eigenbasis-span family — plus the
-redundancy-reduction write-up §3.2 names as residual.
+the finite/free half is now done (§3.2): `HasIntegralStructure.moduleFinite/Free_heckeAlgebra`,
+`intLattice_fg`, `moduleFinite_heckeAlgebra`, the two `_two` one-liners and
+`finrank_span_heckeAlgebra_eq_finrank` all live in `HeckeFiniteAlgebra.lean`. What
+remains is the eigenbasis-span family (`span_heckeTLin_eigen_eq_top`,
+`exists_cyclic_span_heckeAlgebra`, `exists_top_eq_heckeAlgebra_adjoin_smul`,
+`heckeEvalForms_range_eq_top`), each on a named prerequisite in §3.2 — the
+Petersson inner product, the newform separation, and `Def_CuspForm_HeckeEvalForms`
+— plus the redundancy-reduction write-up §3.2 names as residual.
 
 ## 6. Pointers
 

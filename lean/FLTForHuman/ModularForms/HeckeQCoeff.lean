@@ -388,6 +388,18 @@ theorem UpperHalfPlane.eq_of_forall_qCoeff_eq {f g : UpperHalfPlane → ℂ} (hf
   simp only [h] at hf
   exact hf.unique hg
 
+/-- The bundled form of `UpperHalfPlane.eq_of_forall_qCoeff_eq`. Stated verbatim
+from `Theorems/Thm_ModularFormClass_eq_of_forall_qCoeff_eq.lean`. -/
+theorem ModularFormClass.eq_of_forall_qCoeff_eq {F : Type*} [FunLike F UpperHalfPlane ℂ]
+    {Γ : Subgroup (Matrix.GeneralLinearGroup (Fin 2) ℝ)} {k : ℤ} [ModularFormClass F Γ k]
+    {f g : F} (hΓ : (1 : ℝ) ∈ Γ.strictPeriods)
+    (h : ∀ n : ℕ, ModularFormClass.qCoeff f n = ModularFormClass.qCoeff g n) : f = g := by
+  have hcusp : Fact (IsCusp OnePoint.infty Γ) := ⟨Γ.isCusp_of_mem_strictPeriods one_pos hΓ⟩
+  exact DFunLike.coe_injective
+    (UpperHalfPlane.eq_of_forall_qCoeff_eq
+      (SlashInvariantFormClass.periodic_comp_ofComplex f hΓ) (holo f) (bdd_at_infty f)
+      (SlashInvariantFormClass.periodic_comp_ofComplex g hΓ) (holo g) (bdd_at_infty g) h)
+
 /-- The bundled form of `UpperHalfPlane.qCoeff_heckeU`. Stated verbatim from
 `Theorems/Thm_ModularFormClass_qCoeff_heckeU.lean`. -/
 theorem ModularFormClass.qCoeff_heckeU {F : Type*} [FunLike F UpperHalfPlane ℂ] {Γ : Subgroup (Matrix.GeneralLinearGroup (Fin 2) ℝ)} {k : ℤ} [ModularFormClass F Γ k] (f : F) (hΓ : (1 : ℝ) ∈ Γ.strictPeriods) {p : ℕ} (hp : p ≠ 0) (n : ℕ) : ModularFormClass.qCoeff (ModularForm.heckeU k p f) n = ModularForm.coeffHeckeU p (ModularFormClass.qCoeff f) n :=

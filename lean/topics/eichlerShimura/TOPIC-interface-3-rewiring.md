@@ -8,8 +8,81 @@
 > terminology note still applies. Section references below are to the earlier
 > revision of the scout.
 
-**Status: reconnaissance plan (2026-09-26). Phases 0–2 complete (2026-09-25);
-Phases 3–6 not started.** This is a scouting / feasibility plan, not a port order.
+**Re-measurement (2026-09-28): the savings hold; the distance was missing.**
+Every graph figure in §1–§5 was re-derived at the pin `aa2d8b3`
+(`tools/deps/prune.py --verify-known` plus a direct `fltdata` re-run) and
+reproduces exactly: route A `657 / 263,720` with its namespace table; the
+three-namespace footprint `213 / 71,865` (`HeckeEis` 130 / 44,516, `ModPForms`
+65 / 15,084, `PeriodPair` 18 / 12,265); the ten-interface table and its
+`207 / 70,558` union; relaxed `63 / 18,391` (obligations 2 / 943) and strict
+`78 / 21,430`; the lemma's 25-node cone (21 `HeckeEis`); `exists_parabolicRealization`
+31 / 7,166; the two step cones 18 / 9,854 and 1,350 / 566,832; and the slice's 43
+analytic-dependent nodes (12 core + 31 downstream) against 170 E-S-free. One
+figure is under-specified and is made explicit here: the Phase 3
+"retain-interface-3-only union" is the other nine interfaces' three-namespace cone
+**minus interface 3's own 46 nodes**, i.e. `(union over i != 3 of cone(i))
+\ cone(3)` = 161 / 47,195 (the raw nine-interface union is 197 / 63,802).
+
+The topic prices the *saving* but never the *remaining work*. That is now
+measurable with `tools/deps/frontier.py`: the frontier is the union of
+`spec/check_flt_statements.py`'s verified `Thm_` wrappers and the port tree's
+declared names, and a target's **needed** set is what its proof reaches that the
+port does not already provide, with prune's removal set `R` avoided.
+
+| target | needed (nodes/lines) | three-namespace part | hops to frontier |
+|---|---:|---:|---:|
+| route A `hasIntegralStructure_of_two_le` | **0 / 0** | 0 / 0 | 0 (C′ is in the frontier) |
+| the lemma `isEigensystemH1_binaryFormRepSL_…` | 25 / 5,722 | 21 / 5,105 | – (no path to the frontier) |
+| interface 3 | 1,085 / 518,598 | 46 / 23,363 | 4 |
+| the ten interfaces (union) | 10,766 / 4,057,164 | 206 / 70,504 | – |
+
+Avoidance moves the interface-3 row not at all under relaxed (1,085 / 518,598 —
+"interface 3 has no dependence on the packaging" holds) and to 1,067 / 514,526
+under strict (the three-namespace part 46 → 31 nodes, 23,363 → 19,758 lines).
+Relaxed does move the other consumers: interface 1 442 → 380, interface 4
+591 → 171, and the ten-interface union's three-namespace part 206 / 70,504 →
+151 / 54,260 (strict: 138 / 51,436). The union is dominated by interface 2's
+10,336 / 3,841,143 cone.
+
+**How to read this.** The `63 / 18,391` (relaxed) and `78 / 21,430` (strict)
+figures are **savings over the whole root cone**, not the effort to close
+interface 3. That effort is the 1,085-node / 518,598-line cone, and the
+E-S-specific part of it is the 46 nodes / 23,363 lines of interface 3's own
+three-namespace footprint (still entirely unported); the remaining ≈1,039 nodes /
+≈495k lines are the shared `ModularCurve` / `AlgebraicCurve` / `WeierstrassCurve`
+geometry the endgame needs regardless — the same reason §1 gives for route A's
+`657` nodes not being "the E-S package". Strict avoidance removes 18 nodes /
+4,072 lines from interface 3's own distance, which is the honest size of the
+interface-3 re-routing prize: a real saving, but measured against a
+half-million-line cone.
+
+**The replacement ingredients are not a free lunch either.** Of the eight route B
+nodes only `CuspForm.moduleFinite_heckeAlgebra_two` is in the frontier; C′'s two
+nodes are both ported. Neither side of the relaxed/strict choice is already built:
+relaxed keeps the 12-node analytic core, whose union needs 15 / 2,666; strict
+replaces it with route B, and Candidate 0's two-node degree-0 bridge
+(`exists_parabolicRealization` plus `CohCarrier.isEigensystemH1_one_of_heckeT_eq_smul`)
+needs 18 / 4,203 on its own (the full eight-node route-B ingredient list, as
+`prune.py` defines it, needs 369 / 198,890, dominated by
+`periodHomPair_range_eq_parabolicHoms`, 358 / 195,708). So Phase 1's "the 0∘1
+composition is reachable today" is a statement about the **pin's** cone, not about
+the port: reactivating route B is at least an 18-node debt. Route B was retired, so
+this is a record of what it would cost, not a plan.
+
+Reproduce:
+
+```bash
+cd tools/deps
+python3 prune.py --verify-known
+python3 frontier.py --target GaloisRep.exists_galoisRep_trace_eq_eigenchar_and_det_eq_pow_of_three_le
+python3 frontier.py --target GaloisRep.exists_galoisRep_trace_eq_eigenchar_and_det_eq_pow_of_three_le --scenario strict
+python3 frontier.py --target ModularCurve.Period.exists_parabolicRealization
+python3 frontier.py --target CohCarrier.isEigensystemH1_one_of_heckeT_eq_smul
+python3 frontier.py --selfcheck
+```
+
+**Status: reconnaissance plan (2026-09-26). Phases 0–3 complete (Phase 3 measured
+2026-09-28); Phases 4–6 not started.** This is a scouting / feasibility plan, not a port order.
 It exists to decide — with pinned measurements — whether the single
 analytic-Eichler–Shimura premise of FLT's interface 3 can be replaced by
 packaging-free machinery, how much that saves, and whether the replacement is
@@ -266,7 +339,7 @@ of route B's blob — `addChars`, i.e. `Hom` at trivial coefficients, with every
 §3). Concretely, a candidate whose cone builds a genuine
 $`H^1(\Gamma_0, \mathrm{Sym}^n)`$ — Kuga–Sato, de Rham comparison, or an
 identification of `CohCarrier.H1` with `coeffH1 (binaryFormRepSL κ n)` at
-$`n > 0`$ — is outside the constraint and needs a separate justification before
+$`n \gt 0`$ — is outside the constraint and needs a separate justification before
 it counts. Architecture B / Candidate 0 is compatible by construction: at
 $`n = 0`$ the coefficients are trivial, so `coeffCoboundaries 1 = ⊥` and
 `coeffH1 1` *is* route B's type; the bridge is thin and adds no cohomology. This
@@ -443,20 +516,35 @@ closure):
 
 - interface-3 cone with and without the 21-node analytic cone;
 - the namespace *footprints*: the retain-interface-3-only union (161 three-namespace
-  nodes / 47,195 lines) and the all-ten target (213 three-namespace nodes / 71,865 lines);
+  nodes / 47,195 lines, i.e. the nine other interfaces' three-namespace cone minus
+  interface 3's 46) and the all-ten target (213 three-namespace nodes / 71,865 lines);
 - the *payout*: the reachability-accurate prunable set, not the footprint — the
   relaxed route is 63 nodes / 18,391 lines (scout §6);
 - the replacement's own marginal cone (is it already inside the endgame's
-  required cone, i.e. zero marginal lines as with C′?).
+  required cone, i.e. zero marginal lines as with C′?);
+- the *distance*: how many nodes the port still needs for each target, via
+  `tools/deps/frontier.py` (see the re-measurement note at the top).
 
 Reproduction (`--verify-known` pins the anchor figures, `--selftest` checks the
-graph logic on a non-tree example):
+graph logic on a non-tree example; `frontier.py --selfcheck` checks the frontier
+extraction and `frontier.py --selftest` its graph logic):
 
 ```bash
 cd tools/deps && python3 prune.py --selftest
 cd tools/deps && python3 prune.py --verify-known
 cd tools/deps && python3 prune.py --scenario relaxed --per-interface
+cd tools/deps && python3 frontier.py --selfcheck
+cd tools/deps && python3 frontier.py --target GaloisRep.exists_galoisRep_trace_eq_eigenchar_and_det_eq_pow_of_three_le
 ```
+
+**Done 2026-09-28 — savings reproduced, distance added; see the re-measurement
+note at the top.** All Phase 3 figures reproduce at the pin. The frontier
+distance (new): route A's statement (C′) is ported (0 needed); the lemma is
+25 / 5,722 all unported; interface 3 needs 1,085 / 518,598 (its 46-node
+three-namespace footprint included), falling to 1,067 / 514,526 under strict
+avoidance; the ten-interface union needs 10,766 / 4,057,164. The replacement's own
+marginal cone is not zero either: route B's eight ingredients are 7-of-8 unported,
+and the degree-0 bridge (Candidate 0) needs 18 nodes / 4,203.
 
 ### Phase 4 — Novelty and literature (1 round)
 
@@ -512,7 +600,7 @@ Phase 5 if the gate is passed.
   needs unported general-weight theory;
 - a candidate that must formalize a genuine $`H^1(\Gamma_0, \mathrm{Sym}^n)`$
   (Kuga–Sato, de Rham comparison, or a `CohCarrier.H1` identification at
-  $`n > 0`$) — i.e. cohomology beyond route B's `addChars`/`Hom` type (§3);
+  $`n \gt 0`$) — i.e. cohomology beyond route B's `addChars`/`Hom` type (§3);
 - no form-side, E-S-free weight reduction existing (architecture B fails) —
   **TRIGGERED, LOCALIZED (scout §4.5):** the general mod-p reduction
   (`ModPForms.exists_weight_le_succ_…`) is E-S-free modulo C′ (its 10 analytic
@@ -553,7 +641,8 @@ Phase 5 if the gate is passed.
       justified refactor (0∘1 gives the exact degree-0 contract; refactor in
       scout §5.1);
 - [x] circularity check done against the 36-node cone (scout §5.3);
-- [ ] measured saving reproduced with the command above;
+- [x] measured saving reproduced with the command above (2026-09-28), and
+      extended with the frontier distance (re-measurement note at the top);
 - [ ] novelty/literature assessment written;
 - [x] `studies/eichler-shimura-scout.md` written and cross-linked (Phase 0);
 - [ ] verdict recorded; if positive, the port work order drafted as

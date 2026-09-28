@@ -12,12 +12,23 @@
   The weight-2 auxiliary lattice vocabulary of T10's `Defs/IntegralLattice.lean`
   is deliberately absent — it is a different object with different names.
 
+  T10's finiteness half also lands its lattice-side prerequisite here
+  (`intLattice_fg`, `intLattice_free_and_finite`), because the finite-generation
+  proof is the pin's `S_CuspForm_intLattice_fg.lean` and needs the same private
+  `qCoeff`-linearity block this module already carries (`qCoeff_add`,
+  `qCoeff_zsmul`); the Hecke-algebra finiteness itself is
+  `HeckeFiniteAlgebra.lean`. The engine is FLT's Sturm bound
+  `ModularForm.sturm_bound_Gamma0` — mathlib `v4.34.0` still has no such form,
+  but the port carries it in `SturmBound.lean`.
+
   FLT provenance, pinned `aa2d8b3`: `Definitions/Def_CuspForm_IntegralStructure.lean`
-  (`Defs/IntegralStructure.lean`) and the three `S_` files
-  `S_CuspForm_mem_intLattice_of_{coe_eq_heckeT,coe_eq_heckeU,mem_heckeAlgebra}`.
+  (`Defs/IntegralStructure.lean`), the three `S_` files
+  `S_CuspForm_mem_intLattice_of_{coe_eq_heckeT,coe_eq_heckeU,mem_heckeAlgebra}`
+  and `S_CuspForm_intLattice_{fg,free_and_finite}.lean`.
 -/
 import FLTForHuman.ModularForms.Defs.IntegralStructure
 import FLTForHuman.ModularForms.HeckeAlgebra
+import FLTForHuman.ModularForms.SturmBound
 
 set_option autoImplicit false
 
@@ -128,6 +139,86 @@ theorem mem_intLattice_of_mem_heckeAlgebra {N : ℕ} [NeZero N] {k : ℤ} (hk : 
   · intro x y _ _ hx hy f hf
     rw [Module.End.mul_apply]
     exact hx (hy hf)
+
+/-! ## Finite generation and freeness of the lattice
+
+FLT's `S_CuspForm_intLattice_fg.lean` shows that members of the lattice are
+determined by their first `sturmB N k + 1` `q`-coefficients; the truncation is a
+`ℤ`-linear injection into a free `ℤ`-module of finite rank, so the lattice is
+finitely generated. `intLattice_free_and_finite` then adds freeness over `ℤ` from
+torsion-freeness. -/
+
+/-- The Sturm bound `k · [Γ₀(N) : 1] / 12` — the number of `q`-coefficients that
+determine a weight-`k` form at level `Γ₀(N)`. -/
+private def sturmB (N : ℕ) (k : ℤ) : ℕ := (k * (CongruenceSubgroup.Gamma0 N).index).toNat / 12
+
+/-- The first `sturmB N k + 1` `q`-coefficients, as a `ℤ`-linear map. -/
+private def trunc (N : ℕ) (k : ℤ) :
+    CuspForm (CongruenceSubgroup.Gamma0 N) k →ₗ[ℤ] (Fin (sturmB N k + 1) → ℂ) where
+  toFun f i := qCoeff ⇑f i
+  map_add' f g := by
+    funext i
+    exact qCoeff_add f g i
+  map_smul' c f := by
+    funext i
+    simp only [Pi.smul_apply, RingHom.id_apply]
+    rw [qCoeff_zsmul, zsmul_eq_mul]
+
+private theorem trunc_injective (N : ℕ) [NeZero N] (k : ℤ) :
+    Function.Injective (trunc N k) := by
+  refine (injective_iff_map_eq_zero _).mpr fun f hf ↦ ?_
+  have hmf : (f : ModularForm (CongruenceSubgroup.Gamma0 N) k) = 0 := by
+    refine ModularForm.sturm_bound_Gamma0 N _ fun n hn ↦ ?_
+    have := congrFun hf ⟨n, Nat.lt_succ_of_le hn⟩
+    simpa [trunc, qCoeff] using this
+  have hcoe : (⇑f : ℍ → ℂ) = 0 := by
+    have := congrArg (fun F : ModularForm (CongruenceSubgroup.Gamma0 N) k ↦ (⇑F : ℍ → ℂ)) hmf
+    simpa using this
+  exact DFunLike.coe_injective (by rw [hcoe, FunLike.coe_zero])
+
+/-- The integral lattice is a finitely generated `ℤ`-module. Stated verbatim from
+`Theorems/Thm_CuspForm_intLattice_fg.lean`. -/
+theorem intLattice_fg (N : ℕ) [NeZero N] (k : ℤ) : (CuspForm.intLattice N k).FG := by
+  classical
+  set B := sturmB N k
+  set M : Submodule ℤ (Fin (B + 1) → ℂ) :=
+    Submodule.span ℤ (Set.range fun i : Fin (B + 1) ↦ (Pi.single i (1 : ℂ) : Fin (B + 1) → ℂ))
+    with hM
+  have hMfg : M.FG := Submodule.fg_span (Set.finite_range _)
+  have hle : (CuspForm.intLattice N k).map (trunc N k) ≤ M := by
+    rw [CuspForm.intLattice, Submodule.map_span, Submodule.span_le]
+    rintro _ ⟨f, hf, rfl⟩
+    choose m hm using hf
+    have hv : trunc N k f =
+        ∑ i : Fin (B + 1), (m i) • (Pi.single i (1 : ℂ) : Fin (B + 1) → ℂ) := by
+      funext j
+      rw [Finset.sum_apply, Finset.sum_eq_single j, Pi.smul_apply, Pi.single_eq_same, zsmul_eq_mul,
+        mul_one]
+      · exact hm j
+      · intro i _ hij
+        rw [Pi.smul_apply, Pi.single_eq_of_ne' hij, smul_zero]
+      · simp
+    rw [hv]
+    exact Submodule.sum_mem _ fun i _ ↦ Submodule.smul_mem _ _ (Submodule.subset_span ⟨i, rfl⟩)
+  exact Submodule.fg_of_fg_map_injective (trunc N k) (trunc_injective N k) (hMfg.of_le hle)
+
+/-- The integral lattice is free and finite over `ℤ`. Stated verbatim from
+`Theorems/Thm_CuspForm_intLattice_free_and_finite.lean`. -/
+theorem intLattice_free_and_finite (N : ℕ) [NeZero N] (k : ℤ) :
+    Module.Free ℤ (CuspForm.intLattice N k) ∧ Module.Finite ℤ (CuspForm.intLattice N k) := by
+  have : Module.Finite ℤ (CuspForm.intLattice N k) :=
+    Module.Finite.iff_fg.mpr (CuspForm.intLattice_fg N k)
+  have htorsV : IsAddTorsionFree (CuspForm (CongruenceSubgroup.Gamma0 N) k) := by
+    refine ⟨fun n hn a b hab ↦ ?_⟩
+    have h : (n : ℂ) • a = (n : ℂ) • b := by
+      simpa only [Nat.cast_smul_eq_nsmul] using hab
+    exact smul_right_injective _ (Nat.cast_ne_zero.mpr hn) h
+  have : IsAddTorsionFree (CuspForm.intLattice N k) := by
+    refine ⟨fun n hn a b hab ↦ ?_⟩
+    apply Subtype.ext
+    exact IsAddTorsionFree.nsmul_right_injective (M := CuspForm (CongruenceSubgroup.Gamma0 N) k) hn
+      (by simpa using congrArg Subtype.val hab)
+  exact ⟨inferInstance, inferInstance⟩
 
 end CuspForm
 

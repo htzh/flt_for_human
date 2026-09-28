@@ -16,7 +16,12 @@ T8 and T9 are independent, T10 needs T9.
 
 **Outcome (2026-09-23, reviewed).** T8 and T9 are done and verified (checker
 **802 identical, 0 mismatched, 0 missing**; full build 4054 jobs, 0 warnings, no
-`sorry`; `#print axioms` clean). **T10 is blocked and re-scoped to SET 5**: its
+`sorry`; `#print axioms` clean). **Update (2026-09-28): T10 is complete** — route C′
+supplied `HasIntegralStructure` and the port's own Sturm bound supplied
+`intLattice_fg`, so `HeckeFiniteAlgebra.lean` now carries the finite/free family
+(checker 1,418 / 0 / 0); see [TOPIC-t10-finite-algebra.md](TOPIC-t10-finite-algebra.md)
+and `logs/hecke-port.md` §T10. The paragraph below records the SET-4 blocker as
+measured. **T10 was blocked and re-scoped to SET 5**: its
 premise — that the integral-structure existence is portable via the `χ₋₃`
 Eisenstein series — is false. The pin's `hasIntegralStructure_of_two_le` imports
 `Def_CuspForm_ModPForms`, `Def_HeckeEis_BinaryFormRep`, `Def_Gamma0CoeffCohomology`,

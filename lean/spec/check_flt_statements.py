@@ -547,16 +547,37 @@ SOURCES = [
     # --- SET-4 T10: the two self-contained definition modules ----------------
     # The `χ₋₃` Eisenstein vocabulary and the weight-2 auxiliary lattice have no
     # `Theorems/` wrapper in the pin and verify by name against their definition
-    # files. T10's *theorem* targets (`hasIntegralStructure_of_two_le`,
-    # `moduleFinite_heckeAlgebra`, the `_two` one-liners and the eigenbasis-span
-    # family) are NOT ported in SET 4: they need infrastructure the port does not
-    # carry (HeckeEis coefficient cohomology / Eichler-Shimura / `Def_CuspForm_ModPForms`
-    # for the 515-line existence proof; the Petersson inner product for the span
-    # family; the Sturm bound for `intLattice_fg`). Their wrappers are therefore
-    # not appended, and `HeckeFiniteAlgebra.lean` is not created; see
-    # `logs/hecke-port.md` §T10.
+    # files. In SET 4 T10's *theorem* targets were blocked; route C′ has since
+    # supplied `HasIntegralStructure` for `2 ≤ k` (`WeightOne/IntegralStructure.lean`)
+    # and the port carries the Sturm bound, so the finiteness targets are ported
+    # too — see the "T10 completion" block below.
     "Definitions/Def_ModularForm_EisensteinChiNegThree.lean",
     "Definitions/Def_CuspForm_IntegralLattice.lean",
+    # --- T10 completion: the finite/free Hecke algebra ------------------------
+    # `WeightOne/IntegralStructure.lean` supplies `CuspForm.HasIntegralStructure`
+    # and `SturmBound.lean` supplies `ModularForm.sturm_bound_Gamma0`, so T10's
+    # theorem targets are now statable and provable. `HeckeFiniteAlgebra.lean`
+    # carries the Hecke-algebra finiteness half; `HeckeLattice.lean` gained
+    # `intLattice_fg`/`intLattice_free_and_finite` (reusing its private
+    # coefficient-linearity block, so the Sturm-bound truncation is written once),
+    # and `HeckeQCoeff.lean` gained `ModularFormClass.eq_of_forall_qCoeff_eq` (the
+    # bundled q-coefficient uniqueness the `finrank` span proof consumes). Every
+    # statement is the pin's `Theorems/` wrapper verbatim. The eigenbasis-span
+    # family (`span_heckeTLin_eigen_eq_top`, `exists_cyclic_span_heckeAlgebra`,
+    # `heckeEvalForms_range_eq_top`, `exists_top_eq_heckeAlgebra_adjoin_smul`)
+    # remains blocked on the Petersson inner product, the newform/Atkin–Lehner
+    # separation and `Def_CuspForm_HeckeEvalForms` respectively; see
+    # `logs/hecke-port.md` §T10.
+    "Theorems/Thm_ModularFormClass_eq_of_forall_qCoeff_eq.lean",
+    "Theorems/Thm_CuspForm_HasIntegralStructure_eq_zero_of_forall_mem_intLattice.lean",
+    "Theorems/Thm_CuspForm_intLattice_fg.lean",
+    "Theorems/Thm_CuspForm_intLattice_free_and_finite.lean",
+    "Theorems/Thm_CuspForm_HasIntegralStructure_moduleFinite_heckeAlgebra.lean",
+    "Theorems/Thm_CuspForm_HasIntegralStructure_moduleFree_heckeAlgebra.lean",
+    "Theorems/Thm_CuspForm_moduleFinite_heckeAlgebra.lean",
+    "Theorems/Thm_CuspForm_moduleFinite_heckeAlgebra_two.lean",
+    "Theorems/Thm_CuspForm_fg_toSubmodule_heckeAlgebra.lean",
+    "Theorems/Thm_CuspForm_finrank_span_heckeAlgebra_eq_finrank.lean",
     # --- SET-M1 m1: the Hecke correspondence vocabulary -----------------------
     # The five definition modules have no `Theorems/` wrapper, so they verify by
     # name against their `Definitions/` files (binders verbatim). Two of the
@@ -1015,10 +1036,13 @@ PORT_FILES = [
     # SET-4 T9: the integral-lattice definitions and the lattice action.
     "FLTForHuman/ModularForms/Defs/IntegralStructure.lean",
     "FLTForHuman/ModularForms/HeckeLattice.lean",
-    # SET-4 T10 (definitions only; the theorem targets are blocked, see the
-    # `SOURCES` note and `logs/hecke-port.md` §T10).
+    # SET-4 T10 definitions survived; T10's theorem half is complete with route
+    # C′/the Sturm bound — the finiteness family lives in `HeckeFiniteAlgebra.lean`
+    # and the lattice facts in `HeckeLattice.lean`. The eigenbasis-span family is
+    # still absent (see the `SOURCES` note and `logs/hecke-port.md` §T10).
     "FLTForHuman/ModularForms/Defs/EisensteinChiNegThree.lean",
     "FLTForHuman/ModularForms/Defs/IntegralLattice.lean",
+    "FLTForHuman/ModularForms/HeckeFiniteAlgebra.lean",
     "FLTForHuman/ModularForms/HeckeQExpansion.lean",
     "FLTForHuman/ModularForms/PhiGenDescends.lean",
     "FLTForHuman/ModularCurve/PhiGenIntegrality.lean",

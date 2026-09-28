@@ -1040,3 +1040,114 @@ self-contained definition modules landed. This is the effort's first **work-orde
 scouting error**, caught at the right gate; the corrected dependency list and the
 SET-5 topic order are in `TOPIC-t10-finite-algebra.md` §7, and SET 4 is now
 **2 of 3 topics delivered**.
+
+## T10 completion (2026-09-28) — the finite/free algebra landed
+
+**Unblocked.** SET 4 stopped T10 because `hasIntegralStructure_of_two_le` needed
+the 657-node route-A integral-structure cone and `intLattice_fg` needed the Sturm
+bound. Route C′ (`WeightOne/IntegralStructure.lean`, SET 5–11) delivered
+`CuspForm.HasIntegralStructure` for `2 ≤ k` from the `Γ₁`-basis trace, and the port
+already carried `ModularForm.sturm_bound_Gamma0` in `SturmBound.lean`, so every
+remaining T10 target became statable. The `Def_CuspForm_IntegralLattice` / `χ₋₃`
+route the original work order proposed is still not the route — the finiteness uses
+neither, exactly as the SET-4 scouting found.
+
+### What landed
+
+| module | lines | additions |
+|---|---|---|
+| `ModularForms/HeckeFiniteAlgebra.lean` (new) | 413 | the seven theorem targets, the weight-`k ≤ 1` subsingleton block, and the `finrank` span package (all helpers `private`) |
+| `ModularForms/HeckeLattice.lean` | 134 → 225 | `CuspForm.intLattice_fg`, `CuspForm.intLattice_free_and_finite` |
+| `ModularForms/HeckeQCoeff.lean` | 618 → 630 | `ModularFormClass.eq_of_forall_qCoeff_eq` (bundled uniqueness) |
+
+Ten new public declarations, every statement the pin's `Theorems/` wrapper verbatim:
+
+* `CuspForm.HasIntegralStructure.eq_zero_of_forall_mem_intLattice` (`LinearMap.ext_on`),
+* `CuspForm.intLattice_fg`, `CuspForm.intLattice_free_and_finite`,
+* `CuspForm.HasIntegralStructure.moduleFinite_heckeAlgebra`,
+  `…moduleFree_heckeAlgebra`,
+* `CuspForm.moduleFinite_heckeAlgebra`, `CuspForm.moduleFinite_heckeAlgebra_two`,
+  `CuspForm.fg_toSubmodule_heckeAlgebra`,
+* `CuspForm.finrank_span_heckeAlgebra_eq_finrank`,
+* `ModularFormClass.eq_of_forall_qCoeff_eq`.
+
+### The proofs (and where they differ from the pin)
+
+* **`intLattice_fg`** is the pin's Sturm-bound truncation `trunc : CuspForm Γ₀ k →ₗ[ℤ]
+  (Fin (sturmB+1) → ℂ)` (`qCoeff ⇑f i`) into a free `ℤ`-module, plus
+  `Submodule.fg_of_fg_map_injective`. It is placed in `HeckeLattice.lean`, not in the
+  new module, so it reuses that module's private `qCoeff_add`/`qCoeff_zsmul` block
+  rather than re-deriving it — one Sturm truncation in the port, not two.
+  `intLattice_free_and_finite` adds `IsAddTorsionFree` for the ℂ-space and for the
+  lattice, so `Module.free_of_finite_type_torsion_free'` applies. (The pin's route
+  goes through the deprecated `NoZeroSMulDivisors`; v4.34 wants `IsAddTorsionFree`.)
+* **`HasIntegralStructure.moduleFinite_heckeAlgebra`** is the pin's: a `ℤ`-linear
+  `ψ : heckeAlgebra →ₗ[ℤ] Module.End ℤ intLattice`, the action *restricted* to the
+  lattice by T9's `mem_intLattice_of_mem_heckeAlgebra`, injective because
+  `eq_zero_of_forall_mem_intLattice` kills any `ℂ`-endomorphism vanishing on the
+  full-rank lattice; `Module.End ℤ` of a finite free module is finite. `moduleFree`
+  is then `Module.Finite` plus the algebra's existing `IsAddTorsionFree`.
+* **`moduleFinite_heckeAlgebra`** splits on `2 ≤ k` (route C′'s integral structure)
+  versus `k ≤ 1`. The `k ≤ 1` branch is the pin's subsingleton block: negative
+  weight (`ModularForm.isZero_of_neg_weight`), weight `0` (a constant cusp form is
+  zero at `∞`), weight `1` (`-1 ∈ Γ₀(N)` and `ModularForm.eq_zero_of_neg_one_mem`).
+  The only v4.34 drift is `CuspFormClass.zero_at_infty`'s `[Fact (IsCusp ∞ Γ)]`,
+  supplied locally from `1 ∈ Γ₀(N).strictPeriods`.
+* **`finrank_span_heckeAlgebra_eq_finrank`** is the pin's **`a₁`-pairing** proof,
+  not the Petersson one: `fullC = Algebra.adjoin ℂ heckeGenerators` pairs with
+  `S₂(Γ₀(N))` by `a₁Pairing T f = a₁(T f)`. Both slots are injective —
+  `a1PairingDual` because `formKer` is stable under `fullC` and the `T_p`/`U_p`
+  recurrence `qCoeff_eq_zero_of_mem_formKer` forces every coefficient to vanish,
+  `a1Pairing` because `fullC` is commutative — and `Subspace.dual_finrank_eq`
+  closes. It needs T5's now-public `ModularFormClass.eq_of_forall_qCoeff_eq`
+  (the pin's `S_` block has a private copy). The pin's `a1PairingDual_surjective`
+  and `exists_realizing_form_of_dual` were **not** ported: the `finrank` target does
+  not consume them (they exist for `exists_cyclic_span_heckeAlgebra`, still blocked).
+
+### The dedup, now measured
+
+* `CuspForm.moduleFinite_heckeAlgebra_two` = `CuspForm.moduleFinite_heckeAlgebra N 2 S`:
+  the pin's **4,308-line** `S_CuspForm_moduleFinite_heckeAlgebra_two.lean` becomes
+  **1 line** — the effort's largest single dedup, and it holds as a Lean term (no
+  defeq or binder mismatch).
+* `CuspForm.hasIntegralStructure_two` = `hasIntegralStructure_of_two_le N 2 le_rfl`
+  (212 lines → 1, already landed with route C′).
+* `fg_toSubmodule_heckeAlgebra` = `Module.Finite.iff_fg.mp moduleFinite_heckeAlgebra_two`
+  (10 pin lines → 1).
+
+Combined T10 accounting: **4,530 pin lines replaced by 3 port lines**, with the
+finiteness proofs written once from the lattice.
+
+### What remains blocked (measured against the pin)
+
+| target | pin | missing prerequisite |
+|---|---|---|
+| `span_heckeTLin_eigen_eq_top` (69) | `Def_CuspForm_Petersson.lean` + `petersson_{add_left,smul_left,conj_symm,self_re_nonneg,self_eq_zero_iff,heckeTLin}` and `LinearMap.IsSymmetric.iSup_iInf_eq_top_of_commute` | the Petersson **inner product** (mathlib v4.34 has only the integrand `UpperHalfPlane.petersson`, no fundamental-domain integral) and the Hermiticity `petersson_heckeTLin` |
+| `exists_cyclic_span_heckeAlgebra` (275) | `CuspForm.exists_finite_separated_newform_family`, `CuspForm.heckeTLin_rescaleLin`, `isNormalizedEigenform_iff_heckeTLin` | the newform / Atkin–Lehner separation (`Def_CuspForm_Newforms`, `ModMCarrier.rescaleLin`) |
+| `exists_top_eq_heckeAlgebra_adjoin_smul` (22) | `exists_cyclic_span_heckeAlgebra` | inherited |
+| `heckeEvalForms_range_eq_top` (45) | `Def_CuspForm_HeckeEvalForms` | `heckeFormsGen` and `Def_HeckeGalois_EichlerShimura` (out of scope) |
+
+None of these blocks the finiteness: `moduleFinite_heckeAlgebra` needs only the
+lattice embedding, and `finrank_span_heckeAlgebra_eq_finrank` needs only
+finiteness of the cusp-form space (already in `SturmBound.lean`).
+
+### Verification
+
+* checker **before**: 1408 identical (73 promoted), 0 mismatched, 0 missing, 17
+  own-proof. **After**: **1418 identical (75 promoted), 0 mismatched, 0 missing,
+  17 own-proof** (1435 port declarations checked). `SOURCES` gained the ten T10
+  wrappers, `PORT_FILES` gained `HeckeFiniteAlgebra.lean`.
+* full `lake build` green, **4341 jobs, 0 warnings**, no `sorry`/`admit` in any of
+  the three touched modules.
+* `#print axioms` on all ten headlines: `propext, Classical.choice, Quot.sound`.
+* No `maxHeartbeats` added or raised; the `finrank` proof (the longest) elaborates
+  under the lakefile's global cap.
+
+### A v4.34 linter note
+
+mathlib v4.34 added `linter.style.haveILetI`, which flags **tactic-mode** `haveI`/
+`letI` when the main goal is a proposition. The new code writes `have` instead
+(Lean 4 registers local instances from `have`, so nothing is lost). Term-mode
+`haveI` — the form the SET-2/3 modules use in helper defs — is not linted. A
+`lake build` that merely replays a cached module does not re-emit this warning, so
+the port's "0 warnings" measure is trustworthy only for freshly compiled modules.
