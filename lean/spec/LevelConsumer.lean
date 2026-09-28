@@ -19,11 +19,12 @@
   unused-import mistake, so every item below is a proof term.
 -/
 import FLTForHuman.ModularForms.Defs.GammaH
+import FLTForHuman.ModularForms.Level.Diamond
 import Mathlib.NumberTheory.ModularForms.CongruenceSubgroups
 
 open CohCarrier CongruenceSubgroup
 
-open scoped MatrixGroups
+open scoped MatrixGroups ModularForm
 
 /-! ## Zone `[level]` — the Γ_H vocabulary (L1) -/
 
@@ -73,3 +74,34 @@ example (σ : CongruenceSubgroup.Gamma0 2) (γ : ↥(CohCarrier.GammaH 2 ⊤)) :
 example (σ : CongruenceSubgroup.Gamma0 2) :
     CohCarrier.H1 2 ⊤ ℤ →+ CohCarrier.H1 2 ⊤ ℤ :=
   CohCarrier.diamondRaw 2 ⊤ ℤ σ
+
+/-! ## Zone `[diamond]` — the Γ₁ / diamond vocabulary (L2)
+
+The L2 module `FLTForHuman/ModularForms/Level/Diamond.lean`: the diamond lift
+`IsDiamondLift`, its existence for coprime `d`, and the diamond operator
+`diamondLinOne` well defined on `Γ₁`-forms. -/
+
+namespace LevelDiamond
+
+local notation "Γ₁ℝ" M =>
+  ((CongruenceSubgroup.Gamma1 M : Subgroup SL(2, ℤ)) : Subgroup (GL (Fin 2) ℝ))
+
+-- A lift of `⟨1⟩` exists at `M = 2` (coprimality is discharged concretely).
+example : ∃ γ : SL(2, ℤ), ModularForm.Level.IsDiamondLift 2 1 γ :=
+  ModularForm.Level.exists_isDiamondLift_of_coprime (by decide)
+
+-- The trivial diamond is the identity linear map.
+example : ModularForm.Level.diamondLinOne 2 0 1 =
+    (LinearMap.id : CuspForm (Γ₁ℝ 2) 0 →ₗ[ℂ] CuspForm (Γ₁ℝ 2) 0) :=
+  ModularForm.Level.diamondLinOne_one
+
+-- Two *distinct* lifts of `⟨1⟩` at `M = 2` (`1` and `-1`) slash a `Γ₁`-form the
+-- same way: the well-definedness content of `slash_eq_slash_of_isDiamondLift`.
+example (f : CuspForm (Γ₁ℝ 2) 0) :
+    ⇑f ∣[(0 : ℤ)] (Matrix.SpecialLinearGroup.mapGL ℝ (-1 : SL(2, ℤ))) =
+      ⇑f ∣[(0 : ℤ)] (Matrix.SpecialLinearGroup.mapGL ℝ (1 : SL(2, ℤ))) :=
+  ModularForm.Level.slash_eq_slash_of_isDiamondLift (M := 2) (k := 0) (d := 1)
+    ⟨CongruenceSubgroup.Gamma0_mem.mpr (by simp), by decide⟩
+    ⟨Subgroup.one_mem _, by simp⟩ f
+
+end LevelDiamond

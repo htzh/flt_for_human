@@ -79,6 +79,7 @@ namespace CosetPoly
 
 open ModularForm
 open ModularForm.HeckeRepresentatives
+open ModularForm.HeckeRepresentatives.Gamma1Hecke
 
 section projectiveLine
 
@@ -88,7 +89,8 @@ private theorem apply_heckeRep_smul_smul (F : ℍ → ℂ)
     (hF : ∀ (γ : SL(2, ℤ)) (τ : ℍ), F (γ • τ) = F τ) (g : SL(2, ℤ))
     (x : OnePoint (ZMod p)) (τ : ℍ) :
     F (heckeRep p x • g • τ) = F (heckeRep p (redMatrix (p := p) g • x) • τ) := by
-  obtain ⟨g', -, hmul⟩ := heckeRep_mul (N := 1) (Fact.out : p.Prime).not_dvd_one g (one_dvd _) x
+  obtain ⟨g', -, -, hmul⟩ := heckeRep_mul (N := 1) (Fact.out : p.Prime).not_dvd_one g
+    (CongruenceSubgroup.Gamma0_mem.mpr (Subsingleton.elim _ _)) x
   have h1 : heckeRep p x • g • τ = (heckeRep p x * mapGL ℝ g) • τ := by
     rw [mul_smul]; rfl
   have h2 : (mapGL ℝ g' * heckeRep p (redMatrix (p := p) g • x)) • τ

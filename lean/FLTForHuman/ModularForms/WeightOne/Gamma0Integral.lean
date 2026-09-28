@@ -29,6 +29,7 @@
 -/
 
 import FLTForHuman.ModularForms.WeightOne.Basic
+import FLTForHuman.ModularForms.Level.Diamond
 import FLTForHuman.ModularForms.WeightOne.MonicRel
 import FLTForHuman.ModularForms.WeightOne.LevelOneHauptmodul
 import FLTForHuman.ModularForms.WeightOne.FrickeFunction
@@ -1517,20 +1518,7 @@ private theorem one_mem_strictPeriods (M : ℕ) : (1 : ℝ) ∈ (Γ₁(M)).stric
   exact AddSubgroup.mem_zmultiples 1
 
 private theorem conj_mem_Gamma1 {γ A : SL(2, ℤ)} (hγ : γ ∈ Gamma0 M) (hA : A ∈ Gamma1 M) :
-    γ * A * γ⁻¹ ∈ Gamma1 M := by
-  have hA0 : A ∈ Gamma0 M := Gamma1_in_Gamma0 M hA
-  set A₀ : Gamma0 M := ⟨A, hA0⟩
-  set γ₀ : Gamma0 M := ⟨γ, hγ⟩
-  have hA1 : A₀ ∈ Gamma1' M := by
-    rw [Gamma1_to_Gamma0_mem]
-    exact (Gamma1_mem M A).mp hA
-  haveI : (Gamma1' M).Normal := by
-    change ((Gamma0Map M).ker).Normal
-    infer_instance
-  have hconj : γ₀ * A₀ * γ₀⁻¹ ∈ Gamma1' M := Subgroup.Normal.conj_mem inferInstance A₀ hA1 γ₀
-  rw [Gamma1_to_Gamma0_mem] at hconj
-  rw [Gamma1_mem]
-  exact hconj
+    γ * A * γ⁻¹ ∈ Gamma1 M := ModularForm.Level.conj_mem_Gamma1 hγ hA
 
 private theorem isBoundedAtImInfty_slash [NeZero M] (f : ModularForm Γ₁(M) k) (γ : SL(2, ℤ)) :
     IsBoundedAtImInfty ((⇑f : ℍ → ℂ) ∣[k] γ) := by

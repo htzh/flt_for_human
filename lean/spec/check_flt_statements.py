@@ -956,6 +956,11 @@ SOURCES = [
     "Definitions/Def_CohCarrier_Inst.lean",
     "Definitions/Def_ModularCurve_XH.lean",
     "Definitions/Def_CuspForm_HeckeOperatorFormsGammaH.lean",
+    # SET-2 (PORTING-Level.md, l2): the Γ₁ / diamond vocabulary. The pin's public
+    # home for the group layer (`CuspForm.Gamma1Hecke`) and the diamond layer
+    # (`CuspForm`); it is also the Tier-2 authority for the strengthened
+    # `heckeRep_mul` (see `HeckeRepresentatives.lean` and `logs/level-port.md` §2).
+    "Definitions/Def_CuspForm_Gamma1HeckeOperators.lean",
 ]
 
 PORT_FILES = [
@@ -1203,6 +1208,10 @@ PORT_FILES = [
     # SET-1 (PORTING-Level.md): the Γ_H vocabulary. Definition-module port with no
     # `Theorems/` wrappers; verified by name against the four pin sources above.
     "FLTForHuman/ModularForms/Defs/GammaH.lean",
+    # SET-2 (PORTING-Level.md, l2): the Γ₁ / diamond vocabulary. Definition-module
+    # port with no `Theorems/` wrappers; verified by name against
+    # `Definitions/Def_CuspForm_Gamma1HeckeOperators.lean` above.
+    "FLTForHuman/ModularForms/Level/Diamond.lean",
 ]
 
 

@@ -1,6 +1,7 @@
 # Blueprint: the congruence-subgroup / level vocabulary for `FLTForHuman`
 
-**Status (2026-09-27): SET-1 (l1) complete; SET-2/SET-3 dispatched.** This is the
+**Status (2026-09-27): SET-1 (l1) and SET-2 (l2) complete; SET-3 (l3) has a
+work order and is not started.** This is the
 fifth Lean port, and
 the first that is *vocabulary repair* rather than a new proof cone: it ports the
 `Γ_H` / `Γ₁` / diamond / coset layer the Hecke effort already scoped as its
@@ -12,8 +13,13 @@ checker reads **1,355 identical, 0 mismatched, 0 missing**, `lake build` is
 green with 0 warnings and no `sorry`, `spec/LevelConsumer.lean` is at
 **0 errors**, and `#print axioms` on the headlines is
 `[propext, Classical.choice, Quot.sound]`. The measured record is
-[../logs/level-port.md](../logs/level-port.md) §1. SET-2 (l2) and SET-3 (l3) have
-work orders and are not started.
+[../logs/level-port.md](../logs/level-port.md) §1. SET-2 landed
+`FLTForHuman/ModularForms/Level/Diamond.lean` (31 declarations) and the Tier-2
+strengthening of `HeckeRepresentatives.heckeRep_mul`: the checker reads
+**1,386 identical, 0 mismatched, 0 missing**, `lake build` is green with 0
+warnings, and the new `[diamond]` consumer zone is at 0 errors; the record is
+§2. SET-3 (l3) has a work order and is not started (its cost is re-priced to
+≈747 content lines in §5 and the topic).
 
 ## 0. Scope
 
@@ -109,7 +115,8 @@ The rules of [porting-playbook.md](porting-playbook.md) §7.1 and §8 govern.
 plus the **Tier-2 strengthening** of the ported `HeckeRepresentatives.heckeRep_mul`
 (the pin's `g' 1 1` and `wt` conjuncts; the port deliberately dropped them).
 
-**L3 — cosets and index** (≈140 pin lines + the S-file counting):
+**L3 — cosets and index** (≈747 content lines, re-priced 2026-09-27 by the
+SET-2 reconnaissance; see `level/TOPIC-l3-coset-index.md`):
 
 `IsUnimodularRow`, `UnimodularRow`, `ProjectiveLine`, `ProjectiveLine.map`,
 `borel`, `mem_borel_iff`, `sl2_surj`, `exists_sl2_int_lift`,
@@ -176,7 +183,7 @@ subject is the Hecke representatives); L2 only strengthens one lemma in it.
 |---|---|---|---|---|
 | **l1** | the `Γ_H` vocabulary | ≈210 | 220–280 | mathlib only |
 | **l2** | the Γ₁ / diamond vocabulary | ≈250 | 260–330 | l1, `HeckeRepresentatives` |
-| **l3** | cosets and the index `ψ(N)` | ≈140 | 180–240 | l1 |
+| **l3** | cosets and the index `ψ(N)` | ≈747 | 740–750 | l1 |
 
 Planned sets:
 

@@ -39,6 +39,7 @@
 -/
 
 import FLTForHuman.ModularForms.WeightOne.Basic
+import FLTForHuman.ModularForms.Level.Diamond
 import FLTForHuman.ModularForms.WeightOne.MonicRel
 import FLTForHuman.ModularForms.WeightOne.LevelOneHauptmodul
 import FLTForHuman.ModularForms.WeightOne.FrickeFunction
@@ -1662,20 +1663,7 @@ private theorem T_mem_Gamma1 : ModularGroup.T ∈ Gamma1 N := by
   simp
 
 private theorem conj_mem_Gamma1 {γ g : SL(2, ℤ)} (hγ : γ ∈ Gamma0 N) (hg : g ∈ Gamma1 N) :
-    γ * g * γ⁻¹ ∈ Gamma1 N := by
-  have hA0 : g ∈ Gamma0 N := Gamma1_in_Gamma0 N hg
-  set A₀ : Gamma0 N := ⟨g, hA0⟩
-  set γ₀ : Gamma0 N := ⟨γ, hγ⟩
-  have hA1 : A₀ ∈ Gamma1' N := by
-    rw [Gamma1_to_Gamma0_mem]
-    exact (Gamma1_mem N g).mp hg
-  haveI : (Gamma1' N).Normal := by
-    change ((Gamma0Map N).ker).Normal
-    infer_instance
-  have hconj : γ₀ * A₀ * γ₀⁻¹ ∈ Gamma1' N := Subgroup.Normal.conj_mem inferInstance A₀ hA1 γ₀
-  rw [Gamma1_to_Gamma0_mem] at hconj
-  rw [Gamma1_mem]
-  exact hconj
+    γ * g * γ⁻¹ ∈ Gamma1 N := ModularForm.Level.conj_mem_Gamma1 hγ hg
 
 private theorem conj_mem_Gamma (α : SL(2, ℤ)) {g : SL(2, ℤ)} (hg : g ∈ CongruenceSubgroup.Gamma N) :
     α * g * α⁻¹ ∈ CongruenceSubgroup.Gamma N :=

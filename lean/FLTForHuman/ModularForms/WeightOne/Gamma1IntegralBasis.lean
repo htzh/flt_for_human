@@ -32,6 +32,7 @@
 -/
 
 import FLTForHuman.ModularForms.WeightOne.Gamma1Basis
+import FLTForHuman.ModularForms.Level.Diamond
 import Mathlib.Algebra.Algebra.Hom.Rat
 import Mathlib.Analysis.Analytic.IsolatedZeros
 import Mathlib.Analysis.Analytic.Order
@@ -937,41 +938,18 @@ local notation "Γ₁ℝ" M => ((Gamma1 M : Subgroup SL(2, ℤ)) : Subgroup (GL 
 variable {N : ℕ} {k : ℤ}
 
 private theorem conj_mem_Gamma1 {γ x : SL(2, ℤ)} (hγ : γ ∈ Gamma0 N) (hx : x ∈ Gamma1 N) :
-    γ * x * γ⁻¹ ∈ Gamma1 N := by
-  have hx0 : x ∈ Gamma0 N := Gamma1_in_Gamma0 N hx
-  have hx' : (⟨x, hx0⟩ : Gamma0 N) ∈ Gamma1' N := by
-    rw [Gamma1_to_Gamma0_mem]
-    exact (Gamma1_mem N x).1 hx
-  haveI : (Gamma1' N).Normal := MonoidHom.normal_ker _
-  have hc : (⟨γ, hγ⟩ : Gamma0 N) * ⟨x, hx0⟩ * (⟨γ, hγ⟩ : Gamma0 N)⁻¹ ∈ Gamma1' N :=
-    Subgroup.Normal.conj_mem inferInstance _ hx' _
-  rw [Gamma1_to_Gamma0_mem] at hc
-  exact (Gamma1_mem N _).2 hc
+    γ * x * γ⁻¹ ∈ Gamma1 N :=
+  ModularForm.Level.conj_mem_Gamma1 hγ hx
 
 private theorem mem_coe_Gamma1_iff (x : GL (Fin 2) ℝ) :
     x ∈ (Γ₁ℝ N) ↔ ∃ γ : SL(2, ℤ), γ ∈ Gamma1 N ∧ (Matrix.SpecialLinearGroup.mapGL ℝ γ) = x :=
-  Subgroup.mem_map
+  ModularForm.Level.mem_coe_Gamma1_iff x
 
 open ConjAct Pointwise in
 
 private theorem toConjAct_inv_smul_coe_Gamma1 {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 N) :
-    toConjAct (Matrix.SpecialLinearGroup.mapGL ℝ γ)⁻¹ • (Γ₁ℝ N) = (Γ₁ℝ N) := by
-  ext x
-  rw [Subgroup.mem_pointwise_smul_iff_inv_smul_mem, ← map_inv, inv_inv, ConjAct.toConjAct_smul]
-  constructor
-  · intro h
-    obtain ⟨y, hy, hyx⟩ := (mem_coe_Gamma1_iff _).1 h
-    have hx : x = Matrix.SpecialLinearGroup.mapGL ℝ γ⁻¹ * Matrix.SpecialLinearGroup.mapGL ℝ y
-        * Matrix.SpecialLinearGroup.mapGL ℝ γ := by
-      rw [hyx, map_inv]; group
-    have hmem := conj_mem_Gamma1 (Subgroup.inv_mem _ hγ) hy
-    rw [inv_inv] at hmem
-    rw [hx, ← map_mul, ← map_mul]
-    exact Subgroup.mem_map_of_mem _ hmem
-  · intro h
-    obtain ⟨y, hy, rfl⟩ := (mem_coe_Gamma1_iff _).1 h
-    rw [← map_inv, ← map_mul, ← map_mul]
-    exact Subgroup.mem_map_of_mem _ (conj_mem_Gamma1 hγ hy)
+    toConjAct (Matrix.SpecialLinearGroup.mapGL ℝ γ)⁻¹ • (Γ₁ℝ N) = (Γ₁ℝ N) :=
+  ModularForm.Level.toConjAct_inv_smul_coe_Gamma1 hγ
 
 private def slashMF {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 N) (F : ModularForm (Γ₁ℝ N) k) : ModularForm (Γ₁ℝ N) k :=
   (ModularForm.translate F (Matrix.SpecialLinearGroup.mapGL ℝ γ)).copy

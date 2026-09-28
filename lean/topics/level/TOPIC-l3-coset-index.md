@@ -5,6 +5,19 @@ Target module: `FLTForHuman/ModularForms/Level/Coset.lean`, namespace
 `ModularCurve.Coset` (or `ModularForm.Coset`), pinned `aa2d8b3`, mathlib
 `v4.34.0`. Prerequisite: SET-1's `Defs/GammaH.lean`.
 
+> **Re-priced 2026-09-27 (SET-2 reconnaissance).** The five pin files below are
+> **747 content lines** (739 excluding the 8 `p2m_*` port macros), not the
+> 180–240 this order (and `PORTING-Level.md` §5) carried — an estimate low by
+> ~3.1–4.2×. Per file: `S_ModularCurve_Gamma0_index` 193,
+> `S_ModularCurve_card_projectiveLine_zmod` 219,
+> `S_ModularCurve_card_primCosetReps_eq_dedekindPsi` 246,
+> `Def_ModularCurve_ProjectiveLine` 59, `Def_ModularCurve_PrimCosetReps` 30
+> (content = raw − blank − import/`open`/`variable`/`section` scaffolding;
+> all five files have **zero** comment lines). The three `S_` files alone are
+> 658. Section (b) below lists 6 of the 12 private `Gamma0_index` declarations;
+> the omitted `natCast_dvd_int`, `primeSel`, `dvd_primeSel`, `not_dvd_primeSel`,
+> `exists_coprime_lift` are load-bearing for `sl2_surj` and cannot be skipped.
+
 > **Build discipline — read this first.** Every build is bounded and a blow-up is
 > quarantined, not waited on. `lake env lean <module>` **~4 s**, `lake build
 > <module>` **~2–5 s**, a heartbeat timeout **~15–20 s then an error**, a healthy

@@ -17,9 +17,15 @@
     `g' 1 0 = …` conjuncts; the Γ₀ invariance proofs need
     `g' 1 0 = p * g 1 0` (resp. `= g 1 0`, `= e`) to show `g' ∈ Γ₀(N)`. The
     statements here restore them, so the private copies are deleted rather than
-    promoted. (The pin's *public* home additionally tracks `g' 1 1` and, in
-    `heckeRep_mul`, a `wt`-equation; those are Tier-2 Gamma1/Nebentypus
-    refinements and are deliberately not pulled in here.)
+    promoted. These four keep the Γ₀ `S_` copy's two-conjunct statements.
+  - `heckeRep_mul`: **SET-2 (PORTING-Level) restores the pin's public Tier-2
+    statement** (`Def_CuspForm_Gamma1HeckeOperators.lean:281–285`): the
+    hypothesis is `g ∈ Γ₀(N)` and the result additionally tracks the witness's
+    `g' 1 1` entry and the `wt`-equation. It is declared under the pin's
+    `Gamma1Hecke` namespace segment so the statement checker's dotted-name
+    fallback verifies it against that public block rather than the Γ₀ `S_` copy
+    (which shares the last name); four `private` `_11` refinements of the
+    `_mul_of_eq` lemmas supply the proof.
   - the `ZMod p` reindexing (`sum_range_eq_sum_zmod`, `heckeU_eq_sum_zmod`) and
     the affine permutation `affinePerm` with the workhorse `heckeU_slash_mapGL`;
   - the `OnePoint (ZMod p)` side (`heckeRep`, `redMatrix`, `heckeRep_mul`) and
@@ -39,12 +45,16 @@ import Mathlib.NumberTheory.ModularForms.CongruenceSubgroups
 import Mathlib.Algebra.Field.ZMod
 import Mathlib.Topology.Compactification.OnePoint.ProjectiveLine
 import FLTForHuman.ModularForms.Defs.HeckeOperator
+import FLTForHuman.ModularForms.Level.Diamond
 
 set_option autoImplicit false
 
 noncomputable section
 
 open Matrix.SpecialLinearGroup UpperHalfPlane
+
+open ModularForm.Level
+
 open scoped MatrixGroups ModularForm OnePoint
 
 namespace ModularForm.HeckeRepresentatives
@@ -119,6 +129,79 @@ theorem heckeDiagMatrix_mul_of_eq' (g : SL(2, ℤ)) (e : ℤ) (he : g 1 0 = p * 
       heckeDiagMatrix p * mapGL ℝ g = mapGL ℝ g' * heckeDiagMatrix p := by
   have hdet := det_eq g
   refine ⟨⟨!![g 0 0, p * g 0 1; e, g 1 1], ?_⟩, rfl, ?_⟩
+  · rw [Matrix.det_fin_two_of]
+    linear_combination hdet + (g 0 1) * he
+  · ext i j
+    fin_cases i <;> fin_cases j <;>
+      simp [hp, Matrix.mul_apply, Fin.sum_univ_two]
+    all_goals first
+      | (have := congrArg (Int.cast : ℤ → ℝ) he; push_cast at this ⊢; linear_combination this)
+      | (have := congrArg (Int.cast : ℤ → ℝ) he; push_cast at this ⊢; linear_combination -this)
+      | ring1
+
+-- Tier-2 refinement of `heckeMatrix_mul_of_eq` exposing the `1 1` entry of
+-- the witness; it is used only by the strengthened `heckeRep_mul`, while the
+-- public Γ₀ copy keeps the two-conjunct statement.
+set_option backward.isDefEq.respectTransparency.types false in
+private theorem heckeMatrix_mul_of_eq_11 (g : SL(2, ℤ)) (j j' : ℕ) (e : ℤ)
+    (he : g 0 1 + j * g 1 1 = j' * (g 0 0 + j * g 1 0) + p * e) :
+    ∃ g' : SL(2, ℤ), g' 1 0 = p * g 1 0 ∧ g' 1 1 = g 1 1 - g 1 0 * j' ∧
+      heckeMatrix p j * mapGL ℝ g = mapGL ℝ g' * heckeMatrix p j' := by
+  have hdet := det_eq g
+  refine ⟨⟨!![g 0 0 + j * g 1 0, e; p * g 1 0, g 1 1 - g 1 0 * j'], ?_⟩, rfl, rfl, ?_⟩
+  · rw [Matrix.det_fin_two_of]
+    linear_combination hdet + (g 1 0) * he
+  · ext i j
+    fin_cases i <;> fin_cases j <;>
+      simp [hp, Matrix.mul_apply, Fin.sum_univ_two]
+    all_goals first
+      | (have := congrArg (Int.cast : ℤ → ℝ) he; push_cast at this ⊢; linear_combination this)
+      | (have := congrArg (Int.cast : ℤ → ℝ) he; push_cast at this ⊢; linear_combination -this)
+      | ring1
+
+-- Tier-2 refinement of `heckeMatrix_mul_of_eq'` exposing the `1 1` entry.
+set_option backward.isDefEq.respectTransparency.types false in
+private theorem heckeMatrix_mul_of_eq'_11 (g : SL(2, ℤ)) (j : ℕ) (e : ℤ)
+    (he : g 0 0 + j * g 1 0 = p * e) :
+    ∃ g' : SL(2, ℤ), g' 1 0 = g 1 0 ∧ g' 1 1 = p * g 1 1 ∧
+      heckeMatrix p j * mapGL ℝ g = mapGL ℝ g' * heckeDiagMatrix p := by
+  have hdet := det_eq g
+  refine ⟨⟨!![e, g 0 1 + j * g 1 1; g 1 0, p * g 1 1], ?_⟩, rfl, rfl, ?_⟩
+  · rw [Matrix.det_fin_two_of]
+    linear_combination hdet - (g 1 1) * he
+  · ext i j
+    fin_cases i <;> fin_cases j <;>
+      simp [hp, Matrix.mul_apply, Fin.sum_univ_two]
+    all_goals first
+      | (have := congrArg (Int.cast : ℤ → ℝ) he; push_cast at this ⊢; linear_combination this)
+      | (have := congrArg (Int.cast : ℤ → ℝ) he; push_cast at this ⊢; linear_combination -this)
+      | ring1
+
+-- Tier-2 refinement of `heckeDiagMatrix_mul_of_eq` exposing the `1 1` entry.
+set_option backward.isDefEq.respectTransparency.types false in
+private theorem heckeDiagMatrix_mul_of_eq_11 (g : SL(2, ℤ)) (j' : ℕ) (e : ℤ)
+    (he : g 1 1 = g 1 0 * j' + p * e) :
+    ∃ g' : SL(2, ℤ), g' 1 0 = g 1 0 ∧ g' 1 1 = e ∧
+      heckeDiagMatrix p * mapGL ℝ g = mapGL ℝ g' * heckeMatrix p j' := by
+  have hdet := det_eq g
+  refine ⟨⟨!![p * g 0 0, g 0 1 - g 0 0 * j'; g 1 0, e], ?_⟩, rfl, rfl, ?_⟩
+  · rw [Matrix.det_fin_two_of]
+    linear_combination hdet - (g 0 0) * he
+  · ext i j
+    fin_cases i <;> fin_cases j <;>
+      simp [hp, Matrix.mul_apply, Fin.sum_univ_two]
+    all_goals first
+      | (have := congrArg (Int.cast : ℤ → ℝ) he; push_cast at this ⊢; linear_combination this)
+      | (have := congrArg (Int.cast : ℤ → ℝ) he; push_cast at this ⊢; linear_combination -this)
+      | ring1
+
+-- Tier-2 refinement of `heckeDiagMatrix_mul_of_eq'` exposing the `1 1` entry.
+set_option backward.isDefEq.respectTransparency.types false in
+private theorem heckeDiagMatrix_mul_of_eq'_11 (g : SL(2, ℤ)) (e : ℤ) (he : g 1 0 = p * e) :
+    ∃ g' : SL(2, ℤ), g' 1 0 = e ∧ g' 1 1 = g 1 1 ∧
+      heckeDiagMatrix p * mapGL ℝ g = mapGL ℝ g' * heckeDiagMatrix p := by
+  have hdet := det_eq g
+  refine ⟨⟨!![g 0 0, p * g 0 1; e, g 1 1], ?_⟩, rfl, rfl, ?_⟩
   · rw [Matrix.det_fin_two_of]
     linear_combination hdet + (g 0 1) * he
   · ext i j
@@ -268,11 +351,24 @@ def redMatrix (g : SL(2, ℤ)) : GL (Fin 2) (ZMod p) :=
 
 scoped instance : NeZero p := ⟨(Fact.out : p.Prime).ne_zero⟩
 
-theorem heckeRep_mul {N : ℕ} (hpN : ¬ p ∣ N) (g : SL(2, ℤ)) (hg : (N : ℤ) ∣ g 1 0)
+namespace Gamma1Hecke
+
+-- The pin's public `heckeRep_mul`: the Γ₀ `S_` copy in this module states only
+-- the multiplication conjunct (with an `(N : ℤ) ∣ g 1 0` hypothesis), while the
+-- pin's public `CuspForm.Gamma1Hecke` block additionally records the `1 1` entry
+-- of the witness and the `wt`-equation that the diamond operator needs. The
+-- declaration keeps the pin's `Gamma1Hecke` namespace segment so the statement
+-- checker's dotted-name fallback verifies it against that public block, while the
+-- Γ₀ copy keeps its own `HeckeSlashInvariance` namespace.
+set_option backward.isDefEq.respectTransparency.types false in
+theorem heckeRep_mul {N : ℕ} (hpN : ¬ p ∣ N) (g : SL(2, ℤ)) (hg : g ∈ CongruenceSubgroup.Gamma0 N)
     (x : OnePoint (ZMod p)) :
     ∃ g' : SL(2, ℤ), (N : ℤ) ∣ g' 1 0 ∧
+      ((g' 1 1 : ℤ) : ZMod N) * wt N p x = ((g 1 1 : ℤ) : ZMod N) * wt N p (redMatrix p g • x) ∧
       heckeRep p x * mapGL ℝ g = mapGL ℝ g' * heckeRep p (redMatrix p g • x) := by
   have hp : p ≠ 0 := (Fact.out : p.Prime).ne_zero
+  have hgC' : ((g 1 0 : ℤ) : ZMod N) = 0 := by simpa using CongruenceSubgroup.Gamma0_mem.mp hg
+  have hgN : (N : ℤ) ∣ g 1 0 := (ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mp hgC'
   induction x using OnePoint.rec with
   | infty =>
     rw [OnePoint.smul_infty_eq_ite]
@@ -280,12 +376,13 @@ theorem heckeRep_mul {N : ℕ} (hpN : ¬ p ∣ N) (g : SL(2, ℤ)) (hg : (N : �
     ·
       rw [ite_eq_left (by simpa using hc), heckeRep_infty]
       obtain ⟨e, he⟩ := (ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mp hc
-      obtain ⟨g', hg', hmul⟩ := heckeDiagMatrix_mul_of_eq' hp g e he
-      refine ⟨g', ?_, hmul⟩
-      rw [hg']
-      have hcop : IsCoprime (N : ℤ) (p : ℤ) :=
-        Nat.isCoprime_iff_coprime.mpr ((Nat.Prime.coprime_iff_not_dvd Fact.out).mpr hpN).symm
-      exact hcop.dvd_of_dvd_mul_left (he ▸ hg)
+      obtain ⟨g', hg', hd', hmul⟩ := heckeDiagMatrix_mul_of_eq'_11 hp g e he
+      refine ⟨g', ?_, ?_, hmul⟩
+      · rw [hg']
+        have hcop : IsCoprime (N : ℤ) (p : ℤ) :=
+          Nat.isCoprime_iff_coprime.mpr ((Nat.Prime.coprime_iff_not_dvd Fact.out).mpr hpN).symm
+        exact hcop.dvd_of_dvd_mul_left (he ▸ hgN)
+      · rw [hd', wt_infty]
     ·
       rw [ite_eq_right (by simpa using hc), heckeRep_infty, heckeRep_coe]
       set y : ZMod p := redMatrix p g 0 0 / redMatrix p g 1 0
@@ -295,8 +392,17 @@ theorem heckeRep_mul {N : ℕ} (hpN : ¬ p ∣ N) (g : SL(2, ℤ)) (hg : (N : �
         push_cast
         rw [ZMod.natCast_zmod_val, hy, redMatrix_apply_zero_zero, redMatrix_apply_one_zero,
           mul_div_cancel₀ _ hc, sub_self]
-      obtain ⟨g', hg', hmul⟩ := heckeDiagMatrix_mul_of_eq hp g y.val e (by linear_combination he)
-      exact ⟨g', hg' ▸ hg, hmul⟩
+      obtain ⟨g', hg', hd', hmul⟩ := heckeDiagMatrix_mul_of_eq_11 hp g y.val e (by linear_combination he)
+      refine ⟨g', hg' ▸ hgN, ?_, hmul⟩
+      rw [hd', wt_infty, wt_coe]
+      have : ((g 1 1 : ℤ) : ZMod N) = ((g 1 0 : ℤ) : ZMod N) * (y.val : ℤ) + (p : ℤ) * e := by
+        have := congrArg (Int.cast : ℤ → ZMod N)
+          (show g 1 1 = g 1 0 * y.val + p * e by linear_combination he)
+        push_cast at this ⊢
+        exact this
+      rw [hgC', zero_mul, zero_add] at this
+      push_cast at this
+      rw [mul_one, mul_comm, this]
   | coe j =>
     rw [OnePoint.smul_some_eq_ite]
     by_cases h : redMatrix p g 1 0 * j + redMatrix p g 1 1 = 0
@@ -308,8 +414,11 @@ theorem heckeRep_mul {N : ℕ} (hpN : ¬ p ∣ N) (g : SL(2, ℤ)) (hg : (N : �
         push_cast
         rw [ZMod.natCast_zmod_val]
         linear_combination h
-      obtain ⟨g', hg', hmul⟩ := heckeMatrix_mul_of_eq' hp g j.val e he
-      exact ⟨g', hg' ▸ hg, hmul⟩
+      obtain ⟨g', hg', hd', hmul⟩ := heckeMatrix_mul_of_eq'_11 hp g j.val e he
+      refine ⟨g', hg' ▸ hgN, ?_, hmul⟩
+      rw [hd', wt_infty, wt_coe, mul_one]
+      push_cast
+      rw [mul_comm]
     ·
       rw [ite_eq_right h, heckeRep_coe, heckeRep_coe]
       set y : ZMod p := (redMatrix p g 0 0 * j + redMatrix p g 0 1) /
@@ -323,8 +432,16 @@ theorem heckeRep_mul {N : ℕ} (hpN : ¬ p ∣ N) (g : SL(2, ℤ)) (hg : (N : �
               rw [redMatrix_apply_one_zero, redMatrix_apply_one_one]; ring,
           hy, div_mul_cancel₀ _ h, redMatrix_apply_zero_zero, redMatrix_apply_zero_one]
         ring
-      obtain ⟨g', hg', hmul⟩ := heckeMatrix_mul_of_eq hp g j.val y.val e (by linear_combination he)
-      exact ⟨g', hg' ▸ dvd_mul_of_dvd_right hg _, hmul⟩
+      obtain ⟨g', hg', hd', hmul⟩ :=
+        heckeMatrix_mul_of_eq_11 hp g j.val y.val e (by linear_combination he)
+      refine ⟨g', hg' ▸ dvd_mul_of_dvd_right hgN _, ?_, hmul⟩
+      rw [hd', wt_coe, wt_coe, mul_one, mul_one]
+      push_cast
+      rw [hgC', zero_mul, sub_zero]
+
+end Gamma1Hecke
+
+open Gamma1Hecke
 
 variable {N : ℕ} (k : ℤ)
 
@@ -332,13 +449,11 @@ theorem heckeT_slash_mapGL (hpN : ¬ p ∣ N) (f : ℍ → ℂ)
     (hf : ∀ γ ∈ (CongruenceSubgroup.Gamma0 N : Subgroup (GL (Fin 2) ℝ)), f ∣[k] γ = f)
     (g : SL(2, ℤ)) (hg : g ∈ CongruenceSubgroup.Gamma0 N) :
     heckeT k p f ∣[k] (mapGL ℝ g) = heckeT k p f := by
-  have hcN : (N : ℤ) ∣ g 1 0 :=
-    (ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mp (CongruenceSubgroup.Gamma0_mem.mp hg)
   rw [heckeT_eq_sum_onePoint k f, SlashAction.sum_slash]
   calc ∑ x : OnePoint (ZMod p), (f ∣[k] heckeRep p x) ∣[k] mapGL ℝ g
       = ∑ x : OnePoint (ZMod p), f ∣[k] heckeRep p (redMatrix p g • x) := by
         refine Finset.sum_congr rfl fun x _ ↦ ?_
-        obtain ⟨g', hg', hmul⟩ := heckeRep_mul hpN g hcN x
+        obtain ⟨g', hg', -, hmul⟩ := heckeRep_mul hpN g hg x
         have hg'N : g' ∈ CongruenceSubgroup.Gamma0 N :=
           CongruenceSubgroup.Gamma0_mem.mpr ((ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mpr hg')
         rw [← SlashAction.slash_mul, hmul, SlashAction.slash_mul,

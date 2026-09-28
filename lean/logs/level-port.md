@@ -83,8 +83,139 @@ blueprint's estimate is ≈230 lines removed.
 
 ## §2 SET-2 — the `Γ₁` / diamond vocabulary (l2)
 
-Not started. Work order: [../topics/level/TOPIC-l2-gamma1-diamond.md](../topics/level/TOPIC-l2-gamma1-diamond.md).
+**Deliverable.** `FLTForHuman/ModularForms/Level/Diamond.lean`, 31 public
+declarations (303 lines), namespace `ModularForm.Level`; plus the Tier-2
+strengthening of `HeckeRepresentatives.heckeRep_mul` and the two consumer
+updates (`HeckeRepresentatives.heckeT_slash_mapGL`, `PhiGenDescends`).
+
+| check | result |
+|---|---|
+| `timeout 90 lake env lean …/Level/Diamond.lean` | green, **0 warnings, no `sorry`** (~4.5 s) |
+| `timeout 90 lake build FLTForHuman.ModularForms.Defs.HeckeRepresentatives` | green (~6.5 s; builds `Level.Diamond` in ~4.6 s) |
+| `timeout 90 lake build FLTForHuman.ModularForms.HeckeInvariance` | green (~3.1 s after deps) |
+| `timeout 90 lake build FLTForHuman.ModularForms.PhiGenDescends` | green (~9–12 s) |
+| `timeout 180 lake build` | green, 4,335 jobs, **0 warnings**, 2m44s (re-run after the header edits: 2m55s) — the widely-imported `HeckeRepresentatives` forces the downstream replay |
+| `spec/check_flt_statements.py` | **1,386 identical (71 promoted), 0 mismatched, 0 missing, 15 own-proof** (1,401 checked) |
+| `spec/LevelConsumer.lean` | **0 errors** (the new `[diamond]` zone) |
+| `#print axioms` on `exists_isDiamondLift_of_coprime`, `IsDiamondLift.coprime`, `conj_mem_Gamma1`, `toConjAct_inv_smul_coe_Gamma1`, `slash_eq_slash_of_isDiamondLift`, `diamondLinOne`, `diamondLinOne_one`, `heckeRep_mul` | `[propext, Classical.choice, Quot.sound]` |
+
+### 2.1 What was transcribed
+
+31 declarations from `Definitions/Def_CuspForm_Gamma1HeckeOperators.lean`,
+statements verbatim:
+
+| group | declarations | pin |
+|---|---|---|
+| the character/point layer | `wt`, `wt_infty`, `wt_coe`, `isUnit_wt`, `lift`, `lift_infty`, `lift_coe`, `lift_mem`, `lift_apply_one_one`, `d_mul`, `det_mod`, `mem_Gamma1_of_d_eq_one`, `isUnit_d` | 193–246, 371 |
+| the diamond lift | `IsDiamondLift`, `exists_isDiamondLift_of_coprime`, `IsDiamondLift.coprime`, `conj_mem_Gamma1`, `mem_coe_Gamma1_iff`, `toConjAct_inv_smul_coe_Gamma1` | 469–527 |
+| the diamond operator | `slashOfMemGamma0`, `coe_slashOfMemGamma0`, `slashLinOfMemGamma0`, `coe_slashLinOfMemGamma0_apply`, `slash_eq_slash_of_isDiamondLift`, `diamondLinOne`, `coe_diamondLinOne_apply`, `coe_diamondLinOne_apply'`, `diamondLinOne_apply_apply`, `diamondLinOne_of_not`, `diamondLinOne_of_not_coprime`, `diamondLinOne_one` | 535–628 |
+
+**Tier 2.** `HeckeRepresentatives.heckeRep_mul` is now the pin's public
+`CuspForm.Gamma1Hecke` statement (`:281–285`): the hypothesis is
+`hg : g ∈ Γ₀(N)` (was `(N : ℤ) ∣ g 1 0`) and the result carries the `g' 1 1`
+entry and the `wt`-equation. The four `_mul_of_eq` lemmas deliberately keep the
+Γ₀ `S_` copy's two-conjunct statements; four `private` `_11` refinements
+(verbatim copies of the pin's public four) supply the strengthened proof, so no
+other public statement moved.
+
+### 2.2 Friction
+
+- **The checker's `heckeRep_mul` shadow.** `Def_CuspForm_Gamma1HeckeOperators`
+  provides *two* divergent `heckeRep_mul`s: the Γ₀ `S_` copy
+  (`S_ModularForm_heckeU_slash_eq_self_of_mem_Gamma0`, two conjuncts, pinned
+  namespace `HeckeSlashInvariance`) and the pin's public block (three conjuncts,
+  namespace `CuspForm.Gamma1Hecke`). `SOURCES` already listed the former, and the
+  checker's bare-name lookup is first-come-first-served, so the strengthened
+  declaration is written under the pin's `Gamma1Hecke` namespace segment: the
+  checker's **dotted-name fallback** (the mechanism SET-3 T6 already uses for
+  `ModularForm.heckeTLin` vs `CuspForm.heckeTLin`) then verifies it against the
+  public block. The four `_mul_of_eq` are untouched, so the module's own
+  two-conjunct surface stays the Γ₀ copy's. `SOURCES` gained
+  `Definitions/Def_CuspForm_Gamma1HeckeOperators.lean` (appended, so it cannot
+  flip an earlier last-name match) and `PORT_FILES` gained `Level/Diamond.lean`.
+- **v4.34 proof drifts (proof-only).** `rw [Gamma0_mem]` / `simp [Gamma0_mem]`
+  on a matrix literal fails under `implicit` transparency (`SL(2,ℤ)` vs
+  `{A // A.det = 1}`); the fix is `Gamma0_mem.mpr`, plus
+  `set_option backward.isDefEq.respectTransparency.types false` on the
+  Γ₁-entry computation (the same device `WeightOne/Gamma0Integral.lean:1595`
+  needed). The `SL2_inv_expl` reduction additionally needs `Matrix.of_apply` and
+  `Fin.isValue` in the `simp only` set, and `simp [Gamma0_mem]` "made no
+  progress" on the Bezout witness. `dif_pos`/`dif_neg` →
+  `dite_eq_left`/`dite_eq_right`; `CuspForm.coe_add` → `FunLike.coe_add`.
+- **`set_option … in` + doc comment.** `set_option X in` may not follow a `/-- -/`
+  doc comment (the parser then expects a declaration keyword), so the private
+  `_11` helpers carry `--` line comments.
+- **Build cost.** No blow-up: every module ≤ 12 s wall. The 2m44s full build is
+  the downstream replay of the widely-imported `HeckeRepresentatives`, not a
+  heartbeat blow-up (high parallelism, no single step over ~71 s).
+
+### 2.3 The dedup this opens
+
+`ModularForm.Level.conj_mem_Gamma1` is exactly the statement the `WeightOne/`
+private copies re-prove; the replacement map is §2.4. The public `wt` is what
+the Tier-2 `heckeRep_mul` consumes. `Level/Diamond.lean` imports mathlib only;
+`Defs/HeckeRepresentatives.lean` imports it (for `wt`), so the Tier-2
+strengthening lives beside the Γ₀ copy it refines.
+
+### 2.4 The `WeightOne/` replacement map (for the parent's dedup reorg)
+
+SET-2 was authorised **not** to edit `WeightOne/`. Checked against the new
+public statements (counts from `grep -rnw` over `FLTForHuman/`; all 18
+declaration lines are `private`):
+
+| private copy | file:line | verdict against the new public statement |
+|---|---|---|
+| `conj_mem_Gamma1` (×4) | `Gamma1IntegralBasis.lean:939`, `Gamma0Rationality.lean:1664`, `IntegralStructure.lean:87`, `Gamma0Integral.lean:1519` | **exact match** with `ModularForm.Level.conj_mem_Gamma1 {γ x} (hγ : γ ∈ Gamma0 M) (hx : x ∈ Gamma1 M)` modulo binder names (`x`/`A`/`g`, `M`/`N`). Replace: `private theorem conj_mem_Gamma1 := ModularForm.Level.conj_mem_Gamma1` (after importing `Level.Diamond`). `Gamma0Rationality.lean:1664`/`Gamma0Integral.lean:1519` use explicit `N`/`M` from a `variable`, which the implicit-`M` public lemma still accepts application-side |
+| `Gamma_le_Gamma1` (×4) | `Gamma1IntegralBasis.lean:148`, `Gamma1Basis.lean:3345`, `Gamma0Rationality.lean:1684`, `Gamma0Integral.lean:2127` | **no public counterpart in SET-2.** The TOPIC's "one-liner from `mem`" was not ported. Recoverable from L1 only under `[NeZero N]` (`(CohCarrier.Gamma_le_GammaH N ⊥).trans (le_of_eq (CohCarrier.GammaH_bot N))`); the copies carry no `NeZero`, so promote a standalone 3-line public lemma instead |
+| `neg_one_mem_Gamma1` (×2) | `Gamma1IntegralBasis.lean:604`, `Gamma1Basis.lean:4171` | **no public counterpart**, and the copy's extra hypothesis `(hN : N ∣ 2)` means it needs its own name anyway. The TOPIC's table anticipated a public `neg_one_mem_Gamma1`; SET-2's declaration list does not include it |
+| `conj_mem_Gamma` (×3) | `Gamma1Basis.lean:3341`, `Gamma0Rationality.lean:1680`, `Gamma0Rationality.lean:2743` | **no public counterpart.** The statement is `α * g * α⁻¹ ∈ CongruenceSubgroup.Gamma N` (the principal congruence subgroup `Γ(N)`, a different group from `Γ₁`); `conj_mem_Gamma1` does not cover it |
+| `T_mem_Gamma1` (×3) / `T_pow_mem_Gamma1` (×2) | `Gamma1Basis.lean:1228`, `Gamma0Rationality.lean:1657`, `Gamma0Rationality.lean:1661`, `Gamma0Integral.lean:1512`, `Gamma0Integral.lean:2120` | **no public counterpart.** `ModularGroup.T`/`T^t` membership is independent of the diamond layer |
+
+**Net:** only `conj_mem_Gamma1` (4 copies) is a drop-in replacement this set;
+`Gamma_le_Gamma1` (4) is recoverable from L1 under `[NeZero]`; the remaining 10
+declarations (`neg_one_mem_Gamma1` ×2, `conj_mem_Gamma` ×3,
+`T_mem_Gamma1`/`T_pow_mem_Gamma1` ×5) still need promotion.
+
+### 2.5 The `WeightOne/` dedup — done (parent, 2026-09-27)
+
+The parent replaced the four `conj_mem_Gamma1` copies and the two Γ₁ companions
+by the shared proofs, keeping each local `private` name as a one-line alias so no
+use site moved:
+
+| file | declarations whose proof is now the shared lemma |
+|---|---|
+| `Gamma1IntegralBasis.lean` | `conj_mem_Gamma1`, `mem_coe_Gamma1_iff`, `toConjAct_inv_smul_coe_Gamma1` |
+| `Gamma0Rationality.lean` | `conj_mem_Gamma1` |
+| `Gamma0Integral.lean` | `conj_mem_Gamma1` |
+| `IntegralStructure.lean` | `conj_mem_Gamma1` |
+
+Each file gained `import FLTForHuman.ModularForms.Level.Diamond` and lost its
+private proof body; the statement and name are unchanged, so nothing downstream
+moved. `git diff --numstat` over the four files: **+12 / −67 lines** (net ≈ −55),
+zero warnings, all four modules green; `spec/check_flt_statements.py` unchanged at
+**1,386 identical, 0 mismatched, 0 missing**, `spec/LevelConsumer.lean` 0 errors,
+full `lake build` green (replay 1.9 s).
+
+The remaining copies in the §2.4 table are deliberately **not** promoted. Per
+playbook §9 the test is mathematical content, not line count: `Gamma_le_Gamma1`
+(4), `conj_mem_Gamma` (3), `T_mem_Gamma1`/`T_pow_mem_Gamma1` (5) and
+`neg_one_mem_Gamma1` (2) are one-line glue (an entrywise inclusion, a
+`Subgroup.Normal.conj_mem` application, `simp`), so promoting them would add
+public API plus `OWN_PROOFS` entries for no mathematical gain. §9's escape hatch
+still applies if a later theory wants them: promote in the theory they are
+*about*.
 
 ## §3 SET-3 — cosets and the index (l3)
 
 Not started. Work order: [../topics/level/TOPIC-l3-coset-index.md](../topics/level/TOPIC-l3-coset-index.md).
+
+**Re-priced 2026-09-27 (read-only reconnaissance).** The five pin files are
+**747 content lines** (739 excluding the 8 `p2m_export`/`p2m_open` macros), not
+the 180–240 the work order estimated — low by ~3.1–4.2×. The three `S_` files
+alone are 658 content lines (193 + 219 + 246); the two `Definitions/` files add
+89 (59 + 30). There are zero comment lines in all five files, so
+`content = raw − blank − scaffolding` exactly. The work order's item (b) lists
+only 6 of the 12 private `Gamma0_index` declarations; the omitted helpers
+(`natCast_dvd_int`, `primeSel`, `dvd_primeSel`, `not_dvd_primeSel`,
+`exists_coprime_lift`) are load-bearing and cannot be skipped. The work order's
+estimate is updated in place.

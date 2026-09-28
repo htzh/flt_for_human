@@ -48,6 +48,7 @@
 -/
 
 import FLTForHuman.ModularForms.WeightOne.Gamma1IntegralBasis
+import FLTForHuman.ModularForms.Level.Diamond
 import FLTForHuman.ModularForms.Defs.IntegralStructure
 import Mathlib.NumberTheory.ModularForms.NormTrace
 import Mathlib.NumberTheory.ModularForms.Cusps
@@ -86,17 +87,7 @@ private lemma le_Gamma1_Gamma0 (N : ℕ) : Gamma1GL N ≤ Gamma0GL N :=
 
 private lemma conj_mem_Gamma1 {N : ℕ} {γ x : SL(2, ℤ)} (hγ : γ ∈ CongruenceSubgroup.Gamma0 N)
     (hx : x ∈ CongruenceSubgroup.Gamma1 N) :
-    γ * x * γ⁻¹ ∈ CongruenceSubgroup.Gamma1 N := by
-  have hx0 : x ∈ CongruenceSubgroup.Gamma0 N := CongruenceSubgroup.Gamma1_in_Gamma0 N hx
-  have hx' : (⟨x, hx0⟩ : CongruenceSubgroup.Gamma0 N) ∈ CongruenceSubgroup.Gamma1' N := by
-    rw [CongruenceSubgroup.Gamma1_to_Gamma0_mem]
-    exact (CongruenceSubgroup.Gamma1_mem N x).1 hx
-  have hN : (CongruenceSubgroup.Gamma1' N).Normal := MonoidHom.normal_ker _
-  have hc : (⟨γ, hγ⟩ : CongruenceSubgroup.Gamma0 N) * ⟨x, hx0⟩ *
-      (⟨γ, hγ⟩ : CongruenceSubgroup.Gamma0 N)⁻¹ ∈ CongruenceSubgroup.Gamma1' N :=
-    Subgroup.Normal.conj_mem hN _ hx' _
-  rw [CongruenceSubgroup.Gamma1_to_Gamma0_mem] at hc
-  exact (CongruenceSubgroup.Gamma1_mem N _).2 hc
+    γ * x * γ⁻¹ ∈ CongruenceSubgroup.Gamma1 N := ModularForm.Level.conj_mem_Gamma1 hγ hx
 
 private lemma conj_mem_Gamma1_GL {N : ℕ} {γ x : GL (Fin 2) ℝ} (hγ : γ ∈ Gamma0GL N)
     (hx : x ∈ Gamma1GL N) : γ * x * γ⁻¹ ∈ Gamma1GL N := by
