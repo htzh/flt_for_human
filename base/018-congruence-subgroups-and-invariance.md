@@ -232,14 +232,19 @@ of §5.1.
 **Changing the marking.** Let $`\gamma = [[a,b],[c,d]] \in \mathrm{SL}_2(\mathbb{Z})`$
 and let $`\gamma\tau`$ be its Möbius image. Because $`ad - bc = 1`$, the pair
 
-$$(c\tau + d,\\,a\tau + b) = (1,\tau)\begin{pmatrix} c & a \\\\ d & b\end{pmatrix}$$
+$$(c\tau + d,\\,a\tau + b) = (1,\tau)\begin{pmatrix} d & b \\\\ c & a\end{pmatrix}$$
 
-is again a $`\mathbb{Z}`$-basis of $`\Lambda_\tau`$: the change-of-basis matrix
-has determinant $`cb - ad = -1`$. Normalising the first basis vector to $`1`$,
-the same lattice with its new marking has modulus $`\frac{a\tau+b}{c\tau+d} = \gamma\tau`$.
-So $`\tau \mapsto \gamma\tau`$ is the action of $`\gamma`$ on markings. Lean:
-`lat_sl2_span` (the two pairs span the same lattice) and `lat_smul_moebius`
-(the homothety $`(c\tau+d)\,\Lambda_{\gamma\tau} = \Lambda_\tau`$) in
+is again a $`\mathbb{Z}`$-basis of $`\Lambda_\tau`$, and the change-of-basis
+matrix has determinant $`da - bc = 1`$ — it is the inverse of the relabelling
+matrix $`M_\gamma`$ introduced below. Normalising the first basis vector to
+$`1`$, the same lattice with its new marking has modulus
+$`\frac{a\tau+b}{c\tau+d} = \gamma\tau`$. So $`\tau \mapsto \gamma\tau`$ is the
+action of $`\gamma`$ on markings. (In the other order the same pair reads
+$`(a\tau+b, c\tau+d) = (\tau,1)\gamma^{\mathsf T}`$; the two orderings differ by
+a basis swap of determinant $`-1`$, which is where a stray sign is easy to pick
+up.) Lean: `lat_sl2_span` (the two pairs span the same lattice) and
+`lat_smul_moebius` (the homothety
+$`(c\tau+d)\,\Lambda_{\gamma\tau} = \Lambda_\tau`$) in
 [`LevelTauBridge.lean`](../lean/Reserve/ModularCurve/Analytic/LevelTauBridge.lean#L53).
 
 **The induced action on the torsion labels.** The marking change is the

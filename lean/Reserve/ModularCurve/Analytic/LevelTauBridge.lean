@@ -51,7 +51,7 @@ theorem mem_lat {τ z : ℂ} :
 
 /-- **The marking change preserves the lattice.**  For `γ = !![a,b;c,d] ∈ SL(2, ℤ)`
 the pair `(cτ + d, aτ + b)` is another `ℤ`-basis of `ℤ + ℤτ`; the change of
-basis matrix is `!![c,a;d,b]`, of determinant `-1`. -/
+basis matrix is `!![d,b;c,a]`, of determinant `1`. -/
 theorem lat_sl2_span (γ : SL(2, ℤ)) (τ : ℂ) :
     Submodule.span ℤ
         ({((γ.val 1 0 : ℤ) : ℂ) * τ + ((γ.val 1 1 : ℤ) : ℂ),
