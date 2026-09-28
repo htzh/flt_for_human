@@ -253,7 +253,11 @@ PY
 ```
 
 and the delimiter checker (`python3 tools/check_math_delimiters.py <file>`,
-which skips fenced code blocks and so can be run on this note).
+which skips fenced code blocks and so can be run on this note). Besides the
+`$` forms it enforces rule 1.2.4 above: a `$$…$$` block glued to the prose
+around it is reported, because GitHub then serves it as `js-inline-math` (the
+`POST /markdown` API reproduces this classification faithfully, even where it
+is unfaithful about escaping).
 
 The escaping side of the rules above is checked by
 `python3 tools/check_math_escaping.py` (over `math/`, `base/`, `studies/` and

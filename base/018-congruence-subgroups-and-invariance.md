@@ -202,9 +202,11 @@ Sections 1.1–1.3 compute everything inside the torsion group
 $`E[N] \cong (\mathbb{Z}/N)^2`$, where what acts is the reduction of an integer
 matrix modulo $`N`$. But $`\mathrm{SL}_2(\mathbb{Z})`$ is classically introduced
 as the group of Möbius transformations of the upper half plane,
+
 $$\tau \longmapsto \gamma\tau = \frac{a\tau + b}{c\tau + d},
    \qquad \gamma = \begin{pmatrix} a & b \\\\ c & d \end{pmatrix}
    \in \mathrm{SL}_2(\mathbb{Z}),$$
+
 and the congruence subgroups are classically *defined* by the same entrywise
 conditions on $`\gamma`$. The two descriptions present the same moduli problem,
 and the dictionary between them is worth writing out, because the matrix acting
@@ -213,11 +215,15 @@ it. The algebraic core of the dictionary is checked, with mathlib only, in
 [`LevelTauBridge.lean`](../lean/Reserve/ModularCurve/Analytic/LevelTauBridge.lean).
 
 **The analytic model.** For $`\tau \in \mathbb{H}`$ put
+
 $$\Lambda_\tau = \mathbb{Z} + \mathbb{Z}\tau \subseteq \mathbb{C},
    \qquad E_\tau = \mathbb{C}/\Lambda_\tau;$$
+
 $`\Lambda_\tau`$ is the period lattice and $`(1,\tau)`$ is a chosen basis, i.e. a
 marking. The canonical full $`N`$-level structure is the pair
-$$\Bigl(\frac{1}{N},\ \frac{\tau}{N}\Bigr) \in E_\tau[N] \times E_\tau[N];$$
+
+$$\Bigl(\frac{1}{N},\\,\frac{\tau}{N}\Bigr) \in E_\tau[N] \times E_\tau[N];$$
+
 the two classes are a $`(\mathbb{Z}/N)`$-basis of the $`N`$-torsion
 $`\frac{1}{N}\Lambda_\tau/\Lambda_\tau`$, and every torsion point is uniquely
 $`\frac{m + n\tau}{N}`$ with $`(m,n) \in (\mathbb{Z}/N)^2`$ — the torsion labels
@@ -225,7 +231,9 @@ of §5.1.
 
 **Changing the marking.** Let $`\gamma = [[a,b],[c,d]] \in \mathrm{SL}_2(\mathbb{Z})`$
 and let $`\gamma\tau`$ be its Möbius image. Because $`ad - bc = 1`$, the pair
-$$(c\tau + d,\ a\tau + b) = (1,\tau)\begin{pmatrix} c & a \\\\ d & b\end{pmatrix}$$
+
+$$(c\tau + d,\\,a\tau + b) = (1,\tau)\begin{pmatrix} c & a \\\\ d & b\end{pmatrix}$$
+
 is again a $`\mathbb{Z}`$-basis of $`\Lambda_\tau`$: the change-of-basis matrix
 has determinant $`cb - ad = -1`$. Normalising the first basis vector to $`1`$,
 the same lattice with its new marking has modulus $`\frac{a\tau+b}{c\tau+d} = \gamma\tau`$.
@@ -236,20 +244,28 @@ So $`\tau \mapsto \gamma\tau`$ is the action of $`\gamma`$ on markings. Lean:
 
 **The induced action on the torsion labels.** The marking change is the
 homothety
+
 $$\phi_\gamma : E_\tau \to E_{\gamma\tau}, \qquad z \longmapsto \frac{z}{c\tau+d},$$
+
 well defined precisely because $`(c\tau + d)\Lambda_{\gamma\tau} = \Lambda_\tau`$.
 It carries the canonical generators of $`E_\tau[N]`$ to
+
 $$\phi_\gamma\Bigl(\frac{1}{N}\Bigr) = \frac{a - c\\,\gamma\tau}{N},
    \qquad \phi_\gamma\Bigl(\frac{\tau}{N}\Bigr) = \frac{d\\,\gamma\tau - b}{N},$$
+
 using the two identities $`\frac{1}{c\tau+d} = a - c\,\gamma\tau`$ and
 $`\frac{\tau}{c\tau+d} = d\,\gamma\tau - b`$. Read in the canonical basis
 $`(\frac{1}{N}, \frac{\gamma\tau}{N})`$ of $`E_{\gamma\tau}[N]`$, this says
+
 $$\phi_\gamma\Bigl(\frac{1}{N}\Bigr) = a\cdot\frac{1}{N} - c\cdot\frac{\gamma\tau}{N},
    \qquad \phi_\gamma\Bigl(\frac{\tau}{N}\Bigr) = -b\cdot\frac{1}{N} + d\cdot\frac{\gamma\tau}{N}.$$
+
 So the matrix relating the image marking to the canonical marking of
 $`E_{\gamma\tau}`$ is
+
 $$M_\gamma = \begin{pmatrix} a & -b \\\\ -c & d\end{pmatrix}
    = D\\,\gamma\\,D^{-1}, \qquad D = \begin{pmatrix} 1 & 0 \\\\ 0 & -1\end{pmatrix}.$$
+
 In particular $`\det M_\gamma = 1`$, so $`M_\gamma \in \mathrm{SL}_2(\mathbb{Z})`$
 before reduction, and $`M_\gamma \bmod N \in \mathrm{SL}_2(\mathbb{Z}/N)`$. Lean:
 `image_P_eq`, `image_Q_eq`, `torsionMatrix`, `torsionMatrix_eq_conj`,
@@ -258,8 +274,10 @@ before reduction, and $`M_\gamma \bmod N \in \mathrm{SL}_2(\mathbb{Z}/N)`$. Lean
 **The stabilisers agree.** Since $`D`$ only flips the signs of the off-diagonal
 entries, the entrywise congruence conditions defining the three subgroups are
 unchanged:
+
 $$c \equiv 0 \iff -c \equiv 0, \qquad
-   a \equiv d \equiv 1,\ c \equiv 0 \iff a \equiv d \equiv 1,\ -c \equiv 0,$$
+   a \equiv d \equiv 1,\\,c \equiv 0 \iff a \equiv d \equiv 1,\\,-c \equiv 0,$$
+
 and likewise for all four entries, modulo $`N`$. Hence
 $`\gamma \in \Gamma_0(N) \iff M_\gamma \in \Gamma_0(N)`$, and the same for
 $`\Gamma_1(N)`$ and $`\Gamma(N)`$. Lean: `gamma0_iff_torsionMatrix`,
@@ -333,7 +351,7 @@ local notation "SLMOD(" N ")" =>
 | `Gamma1' N` | $`\ker(\Gamma_0(N) \to \mathbb{Z}/N)`$ | [105](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/CongruenceSubgroups.lean#L105) |
 | `Gamma1 N` | the image of `Gamma1'` in $`\mathrm{SL}_2(\mathbb{Z})`$ | [131](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/CongruenceSubgroups.lean#L131) |
 | `Gamma1_mem` | $`a \equiv 1`$, $`d \equiv 1`$, $`c \equiv 0`$ | [135](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/CongruenceSubgroups.lean#L135) |
-| `IsCongruenceSubgroup Γ` | $`\exists N \ne 0,\ \Gamma(N) \le \Gamma`$ | [163](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/CongruenceSubgroups.lean#L163) |
+| `IsCongruenceSubgroup Γ` | $`\exists N \ne 0,\,\Gamma(N) \le \Gamma`$ | [163](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/CongruenceSubgroups.lean#L163) |
 
 Two remarks that save time later. `Gamma0` is **not** a kernel: only `Gamma` is
 defined as `SLMOD(N).ker`, while `Gamma0` is defined by the entrywise condition
