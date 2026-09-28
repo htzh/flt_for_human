@@ -996,6 +996,39 @@ SOURCES = [
     "P2M/Sol/S_ModularCurve_Gamma0_index.lean",
     "P2M/Sol/S_ModularCurve_card_projectiveLine_zmod.lean",
     "P2M/Sol/S_ModularCurve_card_primCosetReps_eq_dedekindPsi.lean",
+    # --- The Eichler–Shimura period map (TOPIC-period-map-injectivity) ---------
+    # The five externals, the nine leaves and the eight analytic-chain nodes are
+    # stated verbatim by their `Theorems/` wrappers; the three definition modules
+    # are the comparable copies for `BinaryForm` / `CoeffCohomology` /
+    # `EichlerIntegral`. The one pin-private declaration the port promotes,
+    # `apply_eq_apply_of_hasDerivAt_zero`, is read from its `S_` carrier below.
+    # Appended last so no earlier last-name match can flip.
+    "Definitions/Def_HeckeEis_BinaryFormRep.lean",
+    "Definitions/Def_Gamma0CoeffCohomology.lean",
+    "Definitions/Def_HeckeEis_EichlerIntegral.lean",
+    "Theorems/Thm_MvPolynomial_IsHomogeneous_iterate_pderiv_eq_zero_of_lt.lean",
+    "Theorems/Thm_Complex_exists_hasDerivAt_of_starConvex.lean",
+    "Theorems/Thm_UpperHalfPlane_isBoundedAtImInfty_of_hasDerivAt_of_periodic.lean",
+    "Theorems/Thm_UpperHalfPlane_apply_add_eq_apply_of_hasDerivAt_of_isZeroAtImInfty.lean",
+    "Theorems/Thm_ModularGroup_exists_eq_conj_T_zpow_of_trace_sq_eq_four.lean",
+    "Theorems/Thm_HeckeEis_IsEichlerIntegral_add.lean",
+    "Theorems/Thm_HeckeEis_IsEichlerIntegral_smul.lean",
+    "Theorems/Thm_HeckeEis_IsEichlerIntegral_slash.lean",
+    "Theorems/Thm_HeckeEis_IsEichlerIntegral_exists_sub_eq_const.lean",
+    "Theorems/Thm_HeckeEis_binaryFormRepSL_neg_one_apply.lean",
+    "Theorems/Thm_HeckeEis_coeff_single_one_eq_eval_of_mem_binaryForm.lean",
+    "Theorems/Thm_HeckeEis_mem_range_binaryFormRepSL_T_zpow_sub_one.lean",
+    "Theorems/Thm_HeckeEis_IsEquivariantPrimitiveWith_cocycle_sub_cocycle_mem_coeffCoboundaries.lean",
+    "Theorems/Thm_HeckeEis_jFactor_pow_mul_eval_binaryFormRepSL.lean",
+    "Theorems/Thm_HeckeEis_IsEichlerIntegral_hasDerivAt_eval_iterate_pderiv.lean",
+    "Theorems/Thm_HeckeEis_IsEichlerIntegral_eq_zero_of_eval_eq_const.lean",
+    "Theorems/Thm_HeckeEis_IsEichlerIntegral_isBoundedAtImInfty_eval.lean",
+    "Theorems/Thm_HeckeEis_exists_isEichlerIntegral.lean",
+    "Theorems/Thm_HeckeEis_isEquivariantPrimitiveWith_of_isEichlerIntegral.lean",
+    "Theorems/Thm_HeckeEis_IsEichlerIntegral_vadd_sub_T_zpow_apply_mem_range.lean",
+    "Theorems/Thm_HeckeEis_isParabolicCocycle_cocycle_of_isEichlerIntegral.lean",
+    "Theorems/Thm_HeckeEis_exists_isEichlerIntegral_isParabolicCocycle.lean",
+    "P2M/Sol/S_HeckeEis_IsEichlerIntegral_exists_sub_eq_const.lean",
 ]
 
 PORT_FILES = [
@@ -1258,6 +1291,17 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/Gamma0Index.lean",
     # Post-SET-3 dedup: the counting core shared by SlotProduct and Gamma0Index.
     "FLTForHuman/NumberTheory/DedekindPsiCount.lean",
+    # The general-weight Eichler–Shimura period map and its injectivity
+    # (TOPIC-period-map-injectivity): the four generic facts in their subject
+    # homes, the definitions, the leaves and the map.
+    "FLTForHuman/Algebra/MvPolynomialHomogeneous.lean",
+    "FLTForHuman/ModularForms/Analytic/StarConvexPrimitive.lean",
+    "FLTForHuman/ModularForms/Analytic/CuspBoundedness.lean",
+    "FLTForHuman/ModularForms/ModularGroup.lean",
+    "FLTForHuman/ModularForms/EichlerShimura/BinaryForm.lean",
+    "FLTForHuman/ModularForms/EichlerShimura/CoeffCohomology.lean",
+    "FLTForHuman/ModularForms/EichlerShimura/EichlerIntegral.lean",
+    "FLTForHuman/ModularForms/EichlerShimura/PeriodMap.lean",
 ]
 
 
@@ -1339,6 +1383,21 @@ OWN_PROOFS = {
     # replaces with mathlib's `CuspForm.trace` plus SET-11's integral-slash
     # Γ₁-basis. See `WeightOne/IntegralStructure.lean` and math/013 §5.
     "hasIntegralStructure_of_basis_gamma1",
+    # --- The Eichler–Shimura period map (TOPIC-period-map-injectivity) ---------
+    # `MvPolynomial.coeff` is not a name in mathlib v4.34 (only the
+    # `AddMonoidAlgebra.coeff` projection), so these two pin statements cannot be
+    # spelled as their wrappers spell them; the port writes
+    # `(·).coeff (Finsupp.single 1 n)` and the statements are otherwise identical.
+    "coeff_single_one_eq_eval_of_mem_binaryForm",
+    "mem_range_binaryFormRepSL_T_zpow_sub_one",
+    # The recorded divergence: the port replaces the pin's `dif`ed
+    # `eichlerShimuraMap : (ℍ → ℂ) → coeffH1par …` by the structural linear map
+    # `periodMap` on cusp forms (`TOPIC-period-map-injectivity.md` §3, Tier 1).
+    # There is no pin declaration of these names/shapes to diff; the pin's
+    # `eichlerShimuraMap_injective` is reproduced by `periodMap_injective`.
+    "periodMap",
+    "periodMap_eq_coeffH1parMk",
+    "periodMap_injective",
 }
 
 # Declaration keywords. `instance` matters for PhiGen; `structure` for Polynomial.

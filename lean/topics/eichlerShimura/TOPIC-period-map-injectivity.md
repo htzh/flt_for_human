@@ -1,6 +1,6 @@
 # Topic: the general-weight Eichler–Shimura period map and its injectivity
 
-**Status: scoped, not started (2026-09-27).** A port plan for the **minimum cone
+**Status: COMPLETE (2026-09-28).** A port plan for the **minimum cone
 that logically contains Route B generalised to all weights**: the period map
 $`S_k(\Gamma_0(N)) \to H^1_{par}(\Gamma_0(N), \mathrm{Sym}^{k-2})`$ and its
 injectivity, for every $`k = n+2 \ge 2`$. This is the first milestone of
@@ -8,6 +8,31 @@ injectivity, for every $`k = n+2 \ge 2`$. This is the first milestone of
 §3.4 and §6 (tiers 1–2); it is **not** the full isomorphism (no Hecke
 equivariance, no conjugate half, no integral basis, no dimension theory, no
 eigenclass).
+
+**Completion record (2026-09-28).** All four tiers landed, build-green and
+`sorry`-free under the playbook's build discipline, in their subject homes: the
+five generic facts are `FLTForHuman/Algebra/MvPolynomialHomogeneous.lean` (44),
+`ModularForms/Analytic/StarConvexPrimitive.lean` (175),
+`ModularForms/Analytic/CuspBoundedness.lean` (254) and
+`ModularForms/ModularGroup.lean` (143) — the single Tier-0 `Externals.lean` was
+dissolved into these for findability — and the theory is
+`ModularForms/EichlerShimura/{BinaryForm,CoeffCohomology,EichlerIntegral,PeriodMap}.lean`
+(324, 188, 441, 1,162): **2,731 module lines** against the ~3,400 estimate,
+plus the 104-line `spec/EichlerShimuraConsumer.lean` wire test. The checker reports
+**1,485 identical, 0 mismatched, 0 missing, 22 own-proof exempted**; the whole
+tree is green (no warnings) and `#print axioms HeckeEis.periodMap_injective` is
+`[propext, Classical.choice, Quot.sound]`. The five externals are all re-proved
+(mathlib has only `IsHomogeneous.pderiv`, not the iterate; no parabolic normal
+form). **Dedup:** the pin's 123-line `EichlerIntegralAux` block, byte-identical
+across `slash` and `exists_sub_eq_const`, is written once; the projectiveline
+`evalRow`/`binaryFormEval` and the Hecke `coeffHeckeFun` block are not ported;
+`UpperHalfPlane.apply_eq_apply_of_hasDerivAt_zero` is promoted once (Tier 0) and
+reused. **Divergence (recorded):** the pin's `dif`ed `eichlerShimuraMap` on
+$`\mathbb{H} \to \mathbb{C}`$ is replaced by the structural linear map
+`periodMap` on cusp forms, with `periodMap_eq_coeffH1parMk` and
+`periodMap_injective`. **Exemptions:** the three `periodMap*` names (the
+divergence) and the two leaves the v4.34 `MvPolynomial.coeff` rename forces the
+port to spell `(·).coeff`. See `logs/eichler-shimura-port.md`.
 
 Measured against the FLT pin `aa2d8b3`; the port's mathlib is `v4.34.0`. The
 mathematics is [../../../math/017-eichler-shimura-isomorphism.md](../../../math/017-eichler-shimura-isomorphism.md)
@@ -118,14 +143,18 @@ later:
 | `EichlerShimura/CoeffCohomology.lean` | `coeffCocycles`, `coeffCoboundaryMap`, `coeffCoboundaries`, `IsParabolicCocycle`, `coeffParabolicCocycles`, `coeffH1par`, `coeffH1parMk`, `coeffH1parMk_eq_zero_iff`, and the inclusion lemmas |
 | `EichlerShimura/EichlerIntegral.lean` | `linePow`, `jFactor` (+ `_eq_denom`, `_ne_zero`), `binaryFormRepSL_linePow`, `IsEquivariantPrimitiveWith` (+ `cocycle`, `sub_eq_cocycle`, `apply_smul`, `cocycle_mem_coeffCocycles`), `IsEichlerIntegral`, `jFactor_pow_mul_eval_binaryFormRepSL` |
 | `EichlerShimura/PeriodMap.lean` | `periodMap` (the linear map), `periodMap_eq_coeffH1parMk`, `periodMap_injective` |
-| `EichlerShimura/Externals.lean` (or split into the areas below) | the five mathlib-absent nodes of §3 |
+| `Algebra/MvPolynomialHomogeneous.lean` | `MvPolynomial.IsHomogeneous.iterate_pderiv_eq_zero_of_lt` (the `pderiv` identity of §3) |
+| `ModularForms/Analytic/StarConvexPrimitive.lean` | `Complex.exists_hasDerivAt_of_starConvex` (the antiderivative of §3) |
+| `ModularForms/Analytic/CuspBoundedness.lean` | `UpperHalfPlane.isBoundedAtImInfty_of_hasDerivAt_of_periodic`, `UpperHalfPlane.apply_add_eq_apply_of_hasDerivAt_of_isZeroAtImInfty`, and the promoted `UpperHalfPlane.apply_eq_apply_of_hasDerivAt_zero` |
+| `ModularForms/ModularGroup.lean` | `ModularGroup.exists_eq_conj_T_zpow_of_trace_sq_eq_four` (the parabolic classification of §3) |
 
-The five externals do not belong to the E-S theory; place them where the port
-already keeps their neighbours: the antiderivative near `ModularCurve/Analytic/`,
-the two `UpperHalfPlane` facts near the q-expansion layer, the trace
-classification near the congruence-subgroup/`SL₂(ℤ)` material, the `pderiv`
-identity in a small `MvPolynomial` module. A single `Externals.lean` is
-acceptable for the first pass; promote on the second consumer (playbook §9).
+The five externals do not belong to the E-S theory. They were first transcribed
+in one `EichlerShimura/Externals.lean` and then **promoted to their subject homes
+on the first pass** (playbook §9), so a future reader finds them where their
+neighbours live: the `pderiv` identity with generic algebra, the antiderivative
+and the two `UpperHalfPlane` facts in the half-plane analytic layer, and the
+trace classification with the modular-group material. `EichlerIntegral.lean`
+imports `Analytic/CuspBoundedness`, and `PeriodMap.lean` imports all four.
 
 ## 3. Tier order
 
