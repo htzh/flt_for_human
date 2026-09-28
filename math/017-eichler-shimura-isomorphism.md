@@ -2,11 +2,12 @@
 
 **Status.** Mathematical exposition, pinned to the FLT pin `aa2d8b3`. This note
 is only about the mathematics of the Eichler–Shimura package — the classical
-isomorphism and the constructions it rests on. The Lean inventory of the pin's
-`HeckeEis` packaging (the 33-node set the relaxed route would remove), its
-consumer map and the porting verdict are measurements and live in
-[../studies/eichler-shimura-scout.md](../studies/eichler-shimura-scout.md)
-§8. Companions: [015-weight-two-hecke-periods.md](015-weight-two-hecke-periods.md)
+isomorphism and the constructions it rests on. The Lean inventory of the package,
+the consumer map and the port plan are measurements and live in
+[../studies/eichler-shimura-scout.md](../studies/eichler-shimura-scout.md) §2–§3
+and
+[../lean/topics/eichlerShimura/TOPIC-period-map-injectivity.md](../lean/topics/eichlerShimura/TOPIC-period-map-injectivity.md).
+Companions: [015-weight-two-hecke-periods.md](015-weight-two-hecke-periods.md)
 (the weight-2 period map, route B) and
 [016-mod-p-weight-filtration.md](016-mod-p-weight-filtration.md) (the mod-$`p`$
 weight filtration).
@@ -23,11 +24,36 @@ The classical **Eichler–Shimura isomorphism** is
 $$H^1_{par}(\Gamma_0(N), \mathrm{Sym}^{k-2}) \\;\\cong\\; S_k(\Gamma_0(N)) \oplus \overline{S_k(\Gamma_0(N))}$$
 
 as Hecke modules, the two summands being the holomorphic and anti-holomorphic
-periods of the cusp forms. §1–§5 build the two maps and show that they are
-injective with complementary images; §6 supplies the integral lattice; §7 gives
-the dimension count that upgrades "complementary" to "everything"; §8 is the
-arithmetic consequence (the mod-$`p`$ eigenclass and the Eisenstein boundary).
-§9 records the degenerate weight-2 case.
+periods of the cusp forms.
+
+**It is a decomposition, not a surjectivity.** The period map $`ES`$ of §1 is
+injective, but its image is only the *holomorphic* half: the target has twice the
+dimension of the source,
+
+$$\dim_{\mathbb{C}} H^1_{par}(\Gamma_0(N), \mathrm{Sym}^{k-2}) \\;=\\; 2\dim_{\mathbb{C}} S_k(\Gamma_0(N)),$$
+
+so $`ES`$ is never onto $`H^1_{par}`$ — it is an isomorphism onto one Hodge piece
+$`F^1`$. What is bijective is the **doubled** map
+
+$$E : S_k \oplus \overline{S_k} \longrightarrow H^1_{par},
+\qquad E(f,g) = ES(f) + \overline{ES}(g),$$
+
+and the theorem is the bijectivity of $`E`$, which splits into
+
+* $`E`$ **injective** = $`ES`$ and $`\overline{ES}`$ injective **and** their
+  images disjoint (§3) — the disjointness is a genuinely new statement, not a
+  consequence of injectivity;
+* $`E`$ **surjective** = the two images span (§7) — proved by a dimension count,
+  not by exhibiting preimages.
+
+So only one direction of one half is a "surjectivity", and it is not a formal
+add-on to injectivity.
+
+§1–§5 build the two maps and their Hecke equivariance; §3 proves the
+injectivities and the disjointness; §6 supplies the integral lattice; §7 gives the
+dimension count that turns "disjoint" into "complementary"; §8 is the arithmetic
+consequence (the mod-$`p`$ eigenclass and the Eisenstein boundary). §9 records the
+degenerate weight-2 case.
 
 ## 1. The period map
 
@@ -95,20 +121,25 @@ the period map gives the **anti-holomorphic period map**
 
 $$\overline{ES} = \Phi \circ ES.$$
 
-The theorem is that
+The theorem (`exists_eichlerShimura_coeffH1par_binaryFormRepSL_forall_prime`) is
+that $`ES`$ and $`\overline{ES}`$ are both injective, their images are
+**complementary** (`IsCompl`), and both intertwine the Hecke operators. Together
+this says the doubled map $`E`$ of §0 is an isomorphism: the holomorphic periods
+form one half of $`H^1_{par}`$ and the anti-holomorphic periods the other.
 
-$$ES : S_{n+2}(\Gamma) \hookrightarrow H^1_{par}(\Gamma, \mathrm{Sym}^n)
-\quad\text{and}\quad
-\overline{ES} : S_{n+2}(\Gamma) \hookrightarrow H^1_{par}(\Gamma, \mathrm{Sym}^n)$$
+`IsCompl` has two halves, and they are proved by different arguments.
 
-are both injective, their images are complementary (`IsCompl`), and both
-intertwine the Hecke operators. Hence the isomorphism of §0.
-
-The hard half, `range_eichlerShimuraMap_inf_range_conj_eq_bot`, is the
-disjointness: $`ES(f) = \Phi(ES(g))`$ forces $`f = 0`$ (and symmetrically).
-Unwinding, it is the same negative-weight trick on the difference of two
-primitives, and it is where the *definiteness* of the Petersson product is
-hiding.
+* **Disjointness** — `range_eichlerShimuraMap_inf_range_conj_eq_bot`: $`ES(f) = \Phi(ES(g))`$
+  forces $`f = 0`$ (and symmetrically). This is the hard half, and the pin's
+  largest node (1,325 lines). Unwinding, it is the negative-weight trick applied
+  to the difference of two primitives, and it is where the *definiteness* of the
+  Petersson product is hiding — the Hodge–Riemann relation in this language. It
+  does **not** follow from the injectivity of $`ES`$: two injective maps can have
+  overlapping images.
+* **Spanning** — `isCompl_range_eichlerShimuraMap_range_conj`: the two images sum
+  to $`H^1_{par}`$. This is not proved by exhibiting preimages; it follows from
+  the two injections, the disjointness, and the dimension bound
+  $`\dim H^1_{par} \le 2\dim S_k`$ of §7 (which is why that § is not optional).
 
 ## 4. Hecke equivariance
 
@@ -209,10 +240,15 @@ $$\dim S_k(\Gamma_0(N)) = (k-1)(g-1) + \left\lfloor\frac{k}{4}\right\rfloor \nu_
   order $`2, 3`$ and $`c`$ the number of cusps.
 
 This is geometry rather than Eichler–Shimura, and it is exactly the
-genus/elliptic-point/cusp data the modular-curve side needs anyway. In the
-isomorphism it is used only to turn "two injective images meeting in 0" into
-"they sum to everything": the disjointness of §3 gives one inclusion, and the
-dimension count gives equality.
+genus/elliptic-point/cusp data the modular-curve side needs anyway. Its role in
+the isomorphism is narrow and precise: the two injections give
+$`\dim(\mathrm{range}\,ES + \mathrm{range}\,\overline{ES}) = 2\dim S_k`$, the
+disjointness of §3 makes the sum direct, and the bound
+$`\dim H^1_{par} \le 2\dim S_k`$ turns the inclusion into an equality. So the
+dimension count is what upgrades "two injective images meeting in 0" to
+"complementary"; and conversely the isomorphism is what makes the bound an
+identity, which is why §0 states the dimension equality as a consequence rather
+than an input.
 
 ## 8. The mod-$`p`$ eigenclass and the Eisenstein boundary
 

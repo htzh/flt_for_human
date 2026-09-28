@@ -277,6 +277,33 @@ The tier order of §6 reaches this cone at the end of tier 2, before any Hecke
 equivariance, integral structure or dimension theory. The port plan is
 [../lean/topics/eichlerShimura/TOPIC-period-map-injectivity.md](../lean/topics/eichlerShimura/TOPIC-period-map-injectivity.md).
 
+**Why the full isomorphism is not "this cone plus surjectivity".** The full
+statement is not "`ES` is bijective". `ES : S_k \to H^1_{par}` lands in a space
+of dimension $`2\dim S_k`$, so `ES` is never surjective — it is injective onto
+the *holomorphic* half. The bijective map is the doubled one
+
+$$E : S_k \oplus \overline{S_k} \longrightarrow H^1_{par},
+\qquad E(f, g) = ES(f) + \overline{ES}(g),$$
+
+and both of its properties cost more than the minimum cone:
+
+* $`E`$ **injective** needs, besides the two injectivities, the **disjointness**
+  $`\mathrm{range}\,ES \cap \mathrm{range}\,\overline{ES} = 0`$ — the pin's
+  1,325-line `range_eichlerShimuraMap_inf_range_conj_eq_bot`, where the
+  positivity of the Petersson product hides (the Hodge–Riemann analogue);
+* $`E`$ **surjective** (the **spanning**) is not proved by exhibiting preimages
+  but by the dimension count `isCompl_range_eichlerShimuraMap_range_conj` draws
+  from `finrank_coeffH1par_le_two_mul_dimFormula`, which is why the add-on
+  reaches the modular-curve genus/cusp geometry.
+
+On top of that the pin bundles the Hecke equivariance and the integral structure
+into the same statement. Measured, the add-on over the minimum cone is **27
+`HeckeEis` nodes / 9,854 lines** (conjugate half 332, disjointness 1,325,
+dimension/spanning ~2,300, Hecke equivariance 1,549 + the correspondence, the
+integral basis and base change, the assembly), plus the shared geometry the
+dimension count reaches. "Surjectivity" is neither the size nor the shape of the
+gap.
+
 ## 4. What has already landed
 
 The port (`lean/FLTForHuman`, 137 files / ~68,900 lines) already carries a large
