@@ -36,7 +36,9 @@ anchors.
 
 The plan:
 
-1. the four moduli problems and the four groups, with the stabiliser computation;
+1. the four moduli problems and the four groups, with the stabiliser computation,
+   and the bridge from the torsion labels to the classical $`\tau`$/lattice model
+   (§1.5);
 2. the groups as Lean objects, including the $`\Gamma_H`$ family;
 3. invariance: the slash action, and the three matrices hiding behind one letter;
 4. $`\mathbb{Z}`$-matrix multiplication versus $`\mathbb{Z}/N`$-matrix multiplication;
@@ -193,6 +195,117 @@ occurrence of the word *lattice* as a Lean identifier in this circle of ideas is
 ([Def_CuspForm_TwoCuspLattice.lean, lines 86–87](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_CuspForm_TwoCuspLattice.lean#L86-L87)),
 where it is the module-theoretic lattice of an integral structure, unrelated to
 $`\mathbb{C}/\Lambda`$.
+
+### 1.5 The bridge to the upper half plane
+
+Sections 1.1–1.3 compute everything inside the torsion group
+$`E[N] \cong (\mathbb{Z}/N)^2`$, where what acts is the reduction of an integer
+matrix modulo $`N`$. But $`\mathrm{SL}_2(\mathbb{Z})`$ is classically introduced
+as the group of Möbius transformations of the upper half plane,
+$$\tau \longmapsto \gamma\tau = \frac{a\tau + b}{c\tau + d},
+   \qquad \gamma = \begin{pmatrix} a & b \\\\ c & d \end{pmatrix}
+   \in \mathrm{SL}_2(\mathbb{Z}),$$
+and the congruence subgroups are classically *defined* by the same entrywise
+conditions on $`\gamma`$. The two descriptions present the same moduli problem,
+and the dictionary between them is worth writing out, because the matrix acting
+on the torsion labels is **not** $`\gamma`$ but an explicit signed conjugate of
+it. The algebraic core of the dictionary is checked, with mathlib only, in
+[`LevelTauBridge.lean`](../lean/Reserve/ModularCurve/Analytic/LevelTauBridge.lean).
+
+**The analytic model.** For $`\tau \in \mathbb{H}`$ put
+$$\Lambda_\tau = \mathbb{Z} + \mathbb{Z}\tau \subseteq \mathbb{C},
+   \qquad E_\tau = \mathbb{C}/\Lambda_\tau;$$
+$`\Lambda_\tau`$ is the period lattice and $`(1,\tau)`$ is a chosen basis, i.e. a
+marking. The canonical full $`N`$-level structure is the pair
+$$\Bigl(\frac{1}{N},\ \frac{\tau}{N}\Bigr) \in E_\tau[N] \times E_\tau[N];$$
+the two classes are a $`(\mathbb{Z}/N)`$-basis of the $`N`$-torsion
+$`\frac{1}{N}\Lambda_\tau/\Lambda_\tau`$, and every torsion point is uniquely
+$`\frac{m + n\tau}{N}`$ with $`(m,n) \in (\mathbb{Z}/N)^2`$ — the torsion labels
+of §5.1.
+
+**Changing the marking.** Let $`\gamma = [[a,b],[c,d]] \in \mathrm{SL}_2(\mathbb{Z})`$
+and let $`\gamma\tau`$ be its Möbius image. Because $`ad - bc = 1`$, the pair
+$$(c\tau + d,\ a\tau + b) = (1,\tau)\begin{pmatrix} c & a \\\\ d & b\end{pmatrix}$$
+is again a $`\mathbb{Z}`$-basis of $`\Lambda_\tau`$: the change-of-basis matrix
+has determinant $`cb - ad = -1`$. Normalising the first basis vector to $`1`$,
+the same lattice with its new marking has modulus $`\frac{a\tau+b}{c\tau+d} = \gamma\tau`$.
+So $`\tau \mapsto \gamma\tau`$ is the action of $`\gamma`$ on markings. Lean:
+`lat_sl2_span` (the two pairs span the same lattice) and `lat_smul_moebius`
+(the homothety $`(c\tau+d)\,\Lambda_{\gamma\tau} = \Lambda_\tau`$) in
+[`LevelTauBridge.lean`](../lean/Reserve/ModularCurve/Analytic/LevelTauBridge.lean#L53).
+
+**The induced action on the torsion labels.** The marking change is the
+homothety
+$$\phi_\gamma : E_\tau \to E_{\gamma\tau}, \qquad z \longmapsto \frac{z}{c\tau+d},$$
+well defined precisely because $`(c\tau + d)\Lambda_{\gamma\tau} = \Lambda_\tau`$.
+It carries the canonical generators of $`E_\tau[N]`$ to
+$$\phi_\gamma\Bigl(\frac{1}{N}\Bigr) = \frac{a - c\\,\gamma\tau}{N},
+   \qquad \phi_\gamma\Bigl(\frac{\tau}{N}\Bigr) = \frac{d\\,\gamma\tau - b}{N},$$
+using the two identities $`\frac{1}{c\tau+d} = a - c\,\gamma\tau`$ and
+$`\frac{\tau}{c\tau+d} = d\,\gamma\tau - b`$. Read in the canonical basis
+$`(\frac{1}{N}, \frac{\gamma\tau}{N})`$ of $`E_{\gamma\tau}[N]`$, this says
+$$\phi_\gamma\Bigl(\frac{1}{N}\Bigr) = a\cdot\frac{1}{N} - c\cdot\frac{\gamma\tau}{N},
+   \qquad \phi_\gamma\Bigl(\frac{\tau}{N}\Bigr) = -b\cdot\frac{1}{N} + d\cdot\frac{\gamma\tau}{N}.$$
+So the matrix relating the image marking to the canonical marking of
+$`E_{\gamma\tau}`$ is
+$$M_\gamma = \begin{pmatrix} a & -b \\\\ -c & d\end{pmatrix}
+   = D\\,\gamma\\,D^{-1}, \qquad D = \begin{pmatrix} 1 & 0 \\\\ 0 & -1\end{pmatrix}.$$
+In particular $`\det M_\gamma = 1`$, so $`M_\gamma \in \mathrm{SL}_2(\mathbb{Z})`$
+before reduction, and $`M_\gamma \bmod N \in \mathrm{SL}_2(\mathbb{Z}/N)`$. Lean:
+`image_P_eq`, `image_Q_eq`, `torsionMatrix`, `torsionMatrix_eq_conj`,
+`torsionMatrix_det`.
+
+**The stabilisers agree.** Since $`D`$ only flips the signs of the off-diagonal
+entries, the entrywise congruence conditions defining the three subgroups are
+unchanged:
+$$c \equiv 0 \iff -c \equiv 0, \qquad
+   a \equiv d \equiv 1,\ c \equiv 0 \iff a \equiv d \equiv 1,\ -c \equiv 0,$$
+and likewise for all four entries, modulo $`N`$. Hence
+$`\gamma \in \Gamma_0(N) \iff M_\gamma \in \Gamma_0(N)`$, and the same for
+$`\Gamma_1(N)`$ and $`\Gamma(N)`$. Lean: `gamma0_iff_torsionMatrix`,
+`gamma1_iff_torsionMatrix`, `Gamma_iff_torsionMatrix`. This is the missing link:
+the subgroup computed analytically here from the $`\tau`$-action is *the same
+subgroup* as the one computed in §1.3 from the abstract torsion-label action.
+"Invariance under $`\Gamma`$" and "the level datum is remembered" are therefore
+one condition, read in two coordinates.
+
+Two remarks. First, the appearance of $`M_\gamma`$ rather than $`\gamma`$ is
+exactly the transpose/sign convention of §1.2: with the FLT row convention
+$`(P,Q) \mapsto (P,Q)\gamma`$, the analytic marking change is `relabel` by
+$`M_\gamma`$, not by $`\gamma`$, so a statement about the level datum may be read
+as a statement about $`\gamma`$ only after this identification. Second,
+$`M_\gamma = D\gamma D^{-1}`$ is conjugation by an element of determinant
+$`-1`$, an outer twist of $`\mathrm{SL}_2(\mathbb{Z})`$; it is invisible to the
+stabilisers because the conditions are invariant under changing the sign of
+either basis vector of $`(\mathbb{Z}/N)^2`$.
+
+**Why the FLT code does not close this.** The reason is a matter of scope, not
+an oversight. FLT's `LevelPData.relabel` (§1.2) is the Katz–Mazur algebraic
+action on the labels: it is defined on Weierstrass coordinates and division
+polynomials, and it never mentions $`\mathbb{H}`$ or $`\mathbb{C}/\Lambda`$. The
+algebraic side is in fact complete — `relabel` is a right
+$`\mathrm{GL}_2(\mathbb{Z}/N)`$-action
+([Thm_..._relabel_relabel_and_relabel_one_and_relabel_eq_of_map_eq.lean, line 16](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_IsLevelPStructure_relabel_relabel_and_relabel_one_and_relabel_eq_of_map_eq.lean#L16)),
+the level structures on a fixed curve are a single $`\mathrm{GL}_2(\mathbb{Z}/\ell)`$-orbit
+([Thm_..._exists_eq_nsmul_add_nsmul_of_isLevelPStructure.lean, line 15](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_IsLevelPStructure_exists_eq_nsmul_add_nsmul_of_isLevelPStructure.lean#L15)),
+the action is natural in the curve and base ring
+([Thm_..._exists_natural_relabel_levelPData.lean, line 15](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_LevelRelabelling_exists_natural_relabel_levelPData.lean#L15)),
+the $`\Gamma(N_0)`$-transitivity with fixed Weil pairing is proved
+([Thm_..._exists_mem_Gamma_relabel_eq_of_weilPairing0_eq.lean, line 18](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_LevelRelabelling_exists_mem_Gamma_relabel_eq_of_weilPairing0_eq.lean#L18)),
+and the reduction is surjective
+([Thm_ModularCurve_surjective_specialLinearGroup_map_zmod.lean, line 6](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_surjective_specialLinearGroup_map_zmod.lean#L6)).
+None of these touches the upper half plane. On the analytic side the only
+$`\mathbb{H}`$-facing declarations are the slash action and the Hecke operators
+(§3); and mathlib, while it has both the Möbius action
+(`UpperHalfPlane.coe_specialLinearGroup_apply`) and the congruence subgroups,
+has no theorem identifying $`\Gamma\backslash\mathbb{H}`$ with a moduli functor
+— that is uniformization plus Riemann existence, cf. [013](013-riemann-existence-and-the-q-expansion-principle.md).
+So there is nowhere in either codebase where the two actions *could* meet, and
+the bridge is a mathematical dictionary rather than a missing proof step. The
+module [`LevelTauBridge.lean`](../lean/Reserve/ModularCurve/Analytic/LevelTauBridge.lean)
+checks the part of the dictionary that is pure algebra over $`\mathbb{C}`$; the
+identification of the resulting quotient with a moduli space stays outside both
+developments.
 
 ## 2. The groups as Lean objects
 
@@ -767,6 +880,20 @@ It is as important to know the gaps. As of `aa2d8b3`:
 * **There is no moduli *scheme* $`X(N)`$ identified with the $`(P,Q)`$-functor.**
   The moduli interpretation is carried by the Katz level-$`p`$ forms and the
   rigid Weierstrass data, not by a scheme-level theorem.
+* **There is no analytic dictionary between `LevelPData.relabel` and the
+  $`\tau`$/lattice model.** Nothing in FLT relates the Katz–Mazur relabelling
+  action to the Möbius action of $`\mathrm{SL}_2(\mathbb{Z})`$ on $`\mathbb{H}`$
+  or to the period lattice $`\mathbb{Z}+\mathbb{Z}\tau`$; the two live in
+  disjoint parts of the development, and the only $`\mathbb{H}`$-facing
+  declarations are the slash action and the Hecke operators. §1.5 states the
+  dictionary, and
+  [`LevelTauBridge.lean`](../lean/Reserve/ModularCurve/Analytic/LevelTauBridge.lean)
+  checks its algebraic core (the two markings span the same lattice, the
+  homothety, the explicit torsion images, and the agreement of the three
+  stabilisers). The remaining step — the identification of
+  $`\Gamma\backslash\mathbb{H}`$ with the level-data functor, i.e.
+  uniformization plus Riemann existence — is present in neither FLT nor
+  mathlib.
 * **`IsGamma1Point` does not enforce exact order.** It only asks that
   $`(W.\mathrm{pre}\Psi\,\ell)(P) = 0`$, i.e. that $`P`$ is $`\ell`$-torsion;
   exact order is asserted by `addOrderOf_gen = N` in `Gamma0Pair` and by the
@@ -817,6 +944,12 @@ reads it as the $`\mathcal{C}`$ of $`X_0(N)`$.
 | index $`\psi(N)`$ | `Gamma0_index`, `card_projectiveLine_zmod` | [Thm 10](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_Gamma0_index.lean#L10), [Thm 9](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_card_projectiveLine_zmod.lean#L9) |
 | $`q`$-expansion coset reps | `primCosetReps`, `cosetSubst` | [PrimCosetReps 8](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_PrimCosetReps.lean#L8-L11), [PhiGen 111](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_PhiGen.lean#L111-L114) |
 | $`E[N]`$ as $`\mathbb{Z}/N`$-module | `instModuleZModTorsionBy`, `torsionBy.zmodModule` | [FLTPrelim_GaloisRep 60](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_FLTPrelim_GaloisRep.lean#L60-L64), [mathlib 1009](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/Algebra/Module/Torsion/Basic.lean#L1009-L1012) |
+| marking change preserves the lattice | `lat_sl2_span` | [Bridge 53](../lean/Reserve/ModularCurve/Analytic/LevelTauBridge.lean#L53) |
+| homothety $`(c\tau+d)\Lambda_{\gamma\tau} = \Lambda_\tau`$ | `lat_smul_moebius` | [Bridge 147](../lean/Reserve/ModularCurve/Analytic/LevelTauBridge.lean#L147) |
+| Möbius formula with integer entries | `coe_smul_eq` | [Bridge 132](../lean/Reserve/ModularCurve/Analytic/LevelTauBridge.lean#L132) |
+| torsion images $`a - c\,\gamma\tau`$, $`d\,\gamma\tau - b`$ | `image_P_eq`, `image_Q_eq` | [Bridge 208 and 215](../lean/Reserve/ModularCurve/Analytic/LevelTauBridge.lean#L208-L215) |
+| analytic relabelling matrix $`D\gamma D`$ | `torsionMatrix`, `torsionMatrix_eq_conj`, `torsionMatrix_det` | [Bridge 93–104](../lean/Reserve/ModularCurve/Analytic/LevelTauBridge.lean#L93-L104) |
+| analytic stabilisers are the congruence subgroups | `gamma0_iff_torsionMatrix`, `gamma1_iff_torsionMatrix`, `Gamma_iff_torsionMatrix` | [Bridge 226–239](../lean/Reserve/ModularCurve/Analytic/LevelTauBridge.lean#L226-L239) |
 
 ## 8. Lean detours (not mathematics)
 
@@ -851,6 +984,15 @@ reads it as the $`\mathcal{C}`$ of $`X_0(N)`$.
   condition in `IsLevelPStructure` is encoded by the non-vanishing (unit-ness)
   of an explicit product of division-polynomial values; the matrix language of
   §5.1 is the human translation, not the Lean one.
+* **The analytic bridge is our own module, not a port.** FLT has no counterpart
+  to compare `LevelTauBridge.lean` against, so §1.5's dictionary is stated and
+  proved from scratch. It lives in `lean/Reserve/` because nothing in
+  `FLTForHuman` consumes it: it verifies the note's reasoning rather than
+  advancing the critical-path port. It is phrased with the `ℤ`-cast denominator
+  `denomC γ τ = cτ + d` rather than mathlib's `algebraMap`-based
+  `UpperHalfPlane.denom (mapGL ℝ γ)`, so that the torsion arithmetic and
+  `torsionMatrix` use one coercion system; reconciling the two is the single
+  private lemma `algebraMap_intCast_complex`.
 
 ## 9. Links
 
@@ -872,6 +1014,10 @@ FLT sources at the pinned sha `aa2d8b3`:
 * [Thm_ModularCurve_Gamma0_index.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_Gamma0_index.lean), [Thm_ModularCurve_card_projectiveLine_zmod.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_card_projectiveLine_zmod.lean) — the index count
 * [Thm_CohCarrier_index_gammaH_eq_index_gamma0_mul_index.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_CohCarrier_index_gammaH_eq_index_gamma0_mul_index.lean) — the index of $`\Gamma_H`$
 * [Thm_ModularCurve_indepElt_eq_zero_iff_mem_zmultiples.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_indepElt_eq_zero_iff_mem_zmultiples.lean) and [Thm_WeierstrassCurve_Affine_Point_nsmul_some_eq_zero_iff_eval_prePsi.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_WeierstrassCurve_Affine_Point_nsmul_some_eq_zero_iff_eval_prePsi.lean) — the exact meaning of `indepElt` and `preΨ`
+
+Own Lean sources (this repository):
+
+* [`Reserve/ModularCurve/Analytic/LevelTauBridge.lean`](../lean/Reserve/ModularCurve/Analytic/LevelTauBridge.lean) — the analytic dictionary of §1.5: `lat`, `lat_sl2_span`, `lat_smul_moebius`, `coe_smul_eq`, `inv_denom_eq`, `tau_div_denom_eq`, `image_P_eq`, `image_Q_eq`, `torsionMatrix`, `torsionMatrix_eq_conj`, `torsionMatrix_det`, `gamma0_iff_torsionMatrix`, `gamma1_iff_torsionMatrix`, `Gamma_iff_torsionMatrix`
 
 Mathlib at tag `v4.33.0`:
 
