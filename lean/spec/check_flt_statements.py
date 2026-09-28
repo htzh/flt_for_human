@@ -961,6 +961,20 @@ SOURCES = [
     # (`CuspForm`); it is also the Tier-2 authority for the strengthened
     # `heckeRep_mul` (see `HeckeRepresentatives.lean` and `logs/level-port.md` §2).
     "Definitions/Def_CuspForm_Gamma1HeckeOperators.lean",
+    # --- SET-3 (PORTING-Level.md, l3): cosets and the index ψ(N) ---
+    # The three `Theorems/` wrappers are the comparable copies for the public
+    # headlines. The two `Definitions/` files are the verbatim definition-layer
+    # sources. The three `S_` files supply the pin's `private` block for the
+    # checker's dotted fallback (the promoted `exists_sl2_int_lift`/`sl2_surj`).
+    # Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_ModularCurve_Gamma0_index.lean",
+    "Theorems/Thm_ModularCurve_card_projectiveLine_zmod.lean",
+    "Theorems/Thm_ModularCurve_card_primCosetReps_eq_dedekindPsi.lean",
+    "Definitions/Def_ModularCurve_ProjectiveLine.lean",
+    "Definitions/Def_ModularCurve_PrimCosetReps.lean",
+    "P2M/Sol/S_ModularCurve_Gamma0_index.lean",
+    "P2M/Sol/S_ModularCurve_card_projectiveLine_zmod.lean",
+    "P2M/Sol/S_ModularCurve_card_primCosetReps_eq_dedekindPsi.lean",
 ]
 
 PORT_FILES = [
@@ -1212,6 +1226,14 @@ PORT_FILES = [
     # port with no `Theorems/` wrappers; verified by name against
     # `Definitions/Def_CuspForm_Gamma1HeckeOperators.lean` above.
     "FLTForHuman/ModularForms/Level/Diamond.lean",
+    # SET-3 (PORTING-Level.md, l3): the projective line / coset index theory.
+    # Definitions module (`Defs/ProjectiveLine.lean`, `Defs/PrimCosetReps.lean`)
+    # plus the theory `Gamma0Index.lean` carrying the three public headlines.
+    "FLTForHuman/ModularCurve/Defs/ProjectiveLine.lean",
+    "FLTForHuman/ModularCurve/Defs/PrimCosetReps.lean",
+    "FLTForHuman/ModularCurve/Gamma0Index.lean",
+    # Post-SET-3 dedup: the counting core shared by SlotProduct and Gamma0Index.
+    "FLTForHuman/NumberTheory/DedekindPsiCount.lean",
 ]
 
 
@@ -1227,6 +1249,12 @@ PORT_FILES = [
 # declaration still fails the check. Entries may be either a last name (the usual
 # form) or a dotted name, which exempts only that qualified declaration.
 OWN_PROOFS = {
+    # `NumberTheory/DedekindPsiCount.lean`: the generic block count is FLT-private in
+    # the pin and promoted here; `dedekindPsiFibre` is the port's rename of the pin's
+    # `h`/`slotH` (the name `slotH` is taken publicly by `ModularCurve.QExpN.slotH`),
+    # so `card_fibre`'s statement is the pin's modulo that rename.
+    "dedekindPsiFibre",
+    "card_fibre",
     "coeff_jq_zero",
     "coeff_jq_one",
     # `Spine.lean`'s public surface. `Tight`/`Gen`/`Hall` are FLT's private

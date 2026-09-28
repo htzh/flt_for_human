@@ -20,6 +20,9 @@
 -/
 import FLTForHuman.ModularForms.Defs.GammaH
 import FLTForHuman.ModularForms.Level.Diamond
+import FLTForHuman.ModularCurve.Defs.ProjectiveLine
+import FLTForHuman.ModularCurve.Defs.PrimCosetReps
+import FLTForHuman.ModularCurve.Gamma0Index
 import Mathlib.NumberTheory.ModularForms.CongruenceSubgroups
 
 open CohCarrier CongruenceSubgroup
@@ -105,3 +108,54 @@ example (f : CuspForm (Γ₁ℝ 2) 0) :
     ⟨Subgroup.one_mem _, by simp⟩ f
 
 end LevelDiamond
+
+/-! ## Zone `[coset]` — the projective line and the index `ψ(N)` (L3)
+
+The SET-3 modules `FLTForHuman/ModularCurve/Defs/ProjectiveLine.lean`,
+`Defs/PrimCosetReps.lean` and `Gamma0Index.lean`: the coset bijection
+`Γ₀(N)\SL₂(ℤ) ≃ ℙ¹(ℤ/N)`, the count `[SL₂(ℤ) : Γ₀(N)] = ψ(N)`, and the
+independent count `#primCosetReps N = ψ(N)`. Every item is a proof term. -/
+
+namespace LevelCoset
+
+open ModularCurve
+
+-- The three `ℤ/2`-points of the projective line: the headline at `N = 2`.
+example : Nat.card (ModularCurve.ProjectiveLine (ZMod 2)) = 3 := by
+  rw [ModularCurve.card_projectiveLine_zmod 2 (by decide),
+    ModularCurve.dedekindPsi_prime Nat.prime_two]
+
+-- The primitive coset representatives at `N = 2` (the `q`-expansion index set),
+-- through the *independent* `divisorsAntidiagonal` count.
+example : (ModularCurve.primCosetReps 2).card = 3 := by
+  rw [ModularCurve.card_primCosetReps_eq_dedekindPsi 2 (by decide),
+    ModularCurve.dedekindPsi_prime Nat.prime_two]
+
+-- ...and the `Finset` really evaluates at `N = 2` (prints `3`).
+#eval (ModularCurve.primCosetReps 2).card
+
+-- `[SL₂(ℤ) : Γ₀(2)] = ψ(2) = 3`, through the coset bijection (its proof uses
+-- mathlib's index and the promoted `sl2_surj` lifting).
+example : (CongruenceSubgroup.Gamma0 2).index = 3 := by
+  rw [ModularCurve.Gamma0_index 2, ModularCurve.dedekindPsi_prime Nat.prime_two]
+
+-- Cross-module: `Γ₀_index` and `card_projectiveLine_zmod` are two routes to the
+-- same number, so the index *is* the projective-line cardinality.
+example : (CongruenceSubgroup.Gamma0 2).index =
+    Nat.card (ModularCurve.ProjectiveLine (ZMod 2)) := by
+  rw [ModularCurve.Gamma0_index 2,
+    ← ModularCurve.card_projectiveLine_zmod 2 (by decide)]
+
+-- The `borel` vocabulary the bijection is stated over.
+example (A : Matrix.SpecialLinearGroup (Fin 2) (ZMod 2)) :
+    A ∈ ModularCurve.borel (ZMod 2) ↔ A.1 1 0 = 0 :=
+  ModularCurve.mem_borel_iff
+
+-- A row is a `ℤ/2`-point, and `ProjectiveLine.map` transports it along `ℤ → ℤ/2`.
+example : ModularCurve.ProjectiveLine.map (Int.castRingHom (ZMod 2))
+    (⟦⟨((1 : ℤ), 0), ModularCurve.isUnimodularRow_one_left 0⟩⟧) =
+    (⟦⟨((1 : ZMod 2), 0), ModularCurve.isUnimodularRow_one_left 0⟩⟧ : ModularCurve.ProjectiveLine (ZMod 2)) :=
+  ModularCurve.ProjectiveLine.map_mk _ _
+
+end LevelCoset
+

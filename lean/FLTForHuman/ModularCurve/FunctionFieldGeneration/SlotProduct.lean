@@ -58,6 +58,7 @@ import FLTForHuman.ModularCurve.PhiSlotRoots
 import FLTForHuman.ModularCurve.PhiGenSplits
 import FLTForHuman.ModularCurve.ModularPolynomialProperties
 import FLTForHuman.ModularCurve.ModularPolynomialUniqueness
+import FLTForHuman.NumberTheory.DedekindPsiCount
 
 set_option autoImplicit false
 -- The pin installs the `Algebra ℚ⟮jq⟯ (LaurentSeries K)` instance (via `letI`) and
@@ -97,51 +98,15 @@ private theorem slotCond_iff (x d b : ℕ) :
     Nat.gcd (Nat.gcd x b) d = 1 ↔ Nat.Coprime (Nat.gcd x d) b := by
   rw [slotCond_eq]
 
-/-- The closed form's value function: `(d / gcd a d) * φ (gcd a d)`. -/
-private def slotH (x : ℕ × ℕ) : ℕ :=
-  (x.2 / Nat.gcd x.1 x.2) * Nat.totient (Nat.gcd x.1 x.2)
-
-/-- A full block of `g * m` consecutive residues contains `m * φ(g)` coprime to
-`g`: `Coprime g` is `g`-periodic and each period has `φ(g)` of them. -/
-private theorem card_filter_coprime_range_mul (g m : ℕ) :
-    ((Finset.range (g * m)).filter (fun b => Nat.Coprime g b)).card = m * Nat.totient g := by
-  induction m with
-  | zero => simp
-  | succ m ih =>
-    rw [← Nat.count_eq_card_filter_range] at ih ⊢
-    rw [Nat.mul_succ, Nat.count_add, ih, Nat.succ_mul]
-    congr 1
-    rw [Nat.count_eq_card_filter_range, Nat.totient_eq_card_coprime]
-    refine congrArg Finset.card (Finset.filter_congr (fun k _ => ?_))
-    have hper := (Nat.periodic_coprime g).nat_mul m
-    rw [Nat.cast_id] at hper
-    rw [show g * m + k = k + m * g by ring]
-    exact Iff.of_eq (hper k)
-
-/-- The fibre count: `b < d` with `Coprime (gcd a d) b` is `h (a, d)`. -/
-private theorem card_fibre (a d : ℕ) :
-    ((Finset.range d).filter (fun b => Nat.Coprime (Nat.gcd a d) b)).card = slotH (a, d) := by
-  set g := Nat.gcd a d with hg
-  have hgd : g ∣ d := Nat.gcd_dvd_right a d
-  obtain ⟨m, hm⟩ := hgd
-  rcases Nat.eq_zero_or_pos g with hg0 | hgpos
-  ·
-    have hd0 : d = 0 := by rw [hm, hg0, zero_mul]
-    simp [slotH, hd0]
-  · conv_lhs => rw [hm]
-    rw [card_filter_coprime_range_mul, slotH]
-    simp only
-    rw [← hg, hm, Nat.mul_div_cancel_left m hgpos]
-
 /-- **The closed form**: `slotAt n d = (d / gcd (n/d) d) * φ (gcd (n/d) d)`. -/
-private theorem slotAt_eq (n d : ℕ) : slotAt n d = slotH (n / d, d) := by
+private theorem slotAt_eq (n d : ℕ) : slotAt n d = dedekindPsiFibre (n / d, d) := by
   unfold slotAt
   rw [Finset.filter_congr (fun b _ => slotCond_iff (n / d) d b)]
   exact card_fibre (n / d) d
 
-/-- Multiplicativity of `slotH` under coprime `(a d)`-products. -/
-private theorem slotH_mul (a₁ d₁ a₂ d₂ : ℕ) (hcop : Nat.Coprime (a₁ * d₁) (a₂ * d₂)) :
-    slotH (a₁ * a₂, d₁ * d₂) = slotH (a₁, d₁) * slotH (a₂, d₂) := by
+/-- Multiplicativity of `dedekindPsiFibre` under coprime `(a d)`-products. -/
+private theorem dedekindPsiFibre_mul (a₁ d₁ a₂ d₂ : ℕ) (hcop : Nat.Coprime (a₁ * d₁) (a₂ * d₂)) :
+    dedekindPsiFibre (a₁ * a₂, d₁ * d₂) = dedekindPsiFibre (a₁, d₁) * dedekindPsiFibre (a₂, d₂) := by
   have ha₁a₂ : Nat.Coprime a₁ a₂ :=
     (Nat.Coprime.coprime_dvd_left (Dvd.intro _ rfl) hcop).coprime_dvd_right (Dvd.intro _ rfl)
   have ha₁d₂ : Nat.Coprime a₁ d₂ :=
@@ -162,7 +127,7 @@ private theorem slotH_mul (a₁ d₁ a₂ d₂ : ℕ) (hcop : Nat.Coprime (a₁ 
   have hg₂ : Nat.gcd a₂ d₂ ∣ d₂ := Nat.gcd_dvd_right _ _
   have hcopg : Nat.Coprime (Nat.gcd a₁ d₁) (Nat.gcd a₂ d₂) :=
     (hd₁d₂.coprime_dvd_left hg₁).coprime_dvd_right hg₂
-  simp only [slotH]
+  simp only [dedekindPsiFibre]
   rw [hg, Nat.totient_mul hcopg, ← Nat.div_mul_div_comm hg₁ hg₂]
   ring
 
@@ -224,7 +189,7 @@ private theorem slots_mul (M M' : ℕ) (hco : Nat.Coprime M M') :
   refine Finset.sum_congr rfl fun d₁ hd₁ => Finset.sum_congr rfl fun d₂ hd₂ => ?_
   rw [slotAt_eq, slotAt_eq, slotAt_eq, ← Nat.div_mul_div_comm (Nat.mem_divisors.mp hd₁).1
     (Nat.mem_divisors.mp hd₂).1]
-  exact slotH_mul (M / d₁) d₁ (M' / d₂) d₂
+  exact dedekindPsiFibre_mul (M / d₁) d₁ (M' / d₂) d₂
     (by rw [Nat.div_mul_cancel (Nat.mem_divisors.mp hd₁).1,
             Nat.div_mul_cancel (Nat.mem_divisors.mp hd₂).1]; exact hco)
 

@@ -44,7 +44,7 @@ The recommended order there is **Atkin–Lehner → Γ_H → Γ₁ → `HeckeULo
 | the Γ_H *proof* tiers (`heckeU_slash_eq_self_of_mem_GammaH`, …) | follow-up sets; this port supplies the vocabulary they were blocked on |
 | Atkin–Lehner (`Def_ModularForm_AtkinLehnerDatum`, `alSlash`, `alSlash_*`) | out of scope; a separate theory with its own def tree |
 | the cohomological Hecke operator (`coresAdd`, `conjUpperMat`, `conjL`, `heckeT` in `Def_CohCarrier_Level:15–84, 168–259`) | deferred to L3; it is transfer/level-raising, not group vocabulary |
-| the modular-curve side (`ModularCurve.XH`, `XHDiamondModL`, `LevelLE`/`iotaDeg`/`jDeg`) | out of scope; the `ModularCurve` theory consumes `GammaH` but is its own cone |
+| the modular-curve side (`ModularCurve.XH`, `XHDiamondModL`, `LevelLE`/`iotaDeg`/`jDeg`) | out of scope; the `ModularCurve` theory consumes `GammaH` but is its own cone — **except** l3's `ℙ¹`/index code, whose home is `ModularCurve/` (§4) |
 
 **What it buys.** A single public home for the congruence-subgroup vocabulary
 every later level argument needs, and the removal of the port's duplicated
@@ -161,6 +161,9 @@ the not-yet-counted files.
 
 ## 4. Module layout
 
+The plan is managed here, but the code is split by subject — and **l3 is
+`ModularCurve` mathematics, not `ModularForms`**:
+
 ```text
 lean/FLTForHuman/ModularForms/
   Defs/
@@ -169,13 +172,29 @@ lean/FLTForHuman/ModularForms/
     HeckeRepresentatives.lean  -- existing; L2 strengthens heckeRep_mul in place
   Level/
     Diamond.lean       -- L2: IsDiamondLift, diamondLinOne, the Γ₁ conjugation home
-    Coset.lean         -- L3: ProjectiveLine, borel, sl2_surj, Gamma0_index
+lean/FLTForHuman/ModularCurve/
+  Defs/
+    ProjectiveLine.lean -- L3: IsUnimodularRow, UnimodularRow, ProjectiveLine, borel
+    PrimCosetReps.lean  -- L3: primCosetReps (beside Defs/PhiGen.lean's cosetSubst)
+  Gamma0Index.lean      -- L3: sl2_surj, Gamma0_eq_comap_borel, card_quotient_borel,
+                        --     Gamma0_index, card_projectiveLine_zmod,
+                        --     card_primCosetReps_eq_dedekindPsi
 ```
 
-The reorg decision (§8 of the playbook): `Γ_H` is shared vocabulary, so it goes
-in `Defs/`; the diamond and index developments are the theories, so they get
-`Level/`. The existing `HeckeRepresentatives.lean` stays where it is (its
-subject is the Hecke representatives); L2 only strengthens one lemma in it.
+`Γ_H` is shared vocabulary, so it lives in `ModularForms/Defs/`; the diamond
+theory is automorphic, so `ModularForms/Level/`. **l3 is neither.** All five pin
+files are `Def_ModularCurve_*`/`S_ModularCurve_*`/`Thm_ModularCurve_*`; the three
+headlines are `ModularCurve.Gamma0_index`, `ModularCurve.card_projectiveLine_zmod`
+and `ModularCurve.card_primCosetReps_eq_dedekindPsi`; `dedekindPsi` already lives
+in `ModularCurve/Defs/Jq.lean`; and the checker's `norm` strips the
+`ModularCurve.` qualifier because the `ModularCurve` port keeps that namespace. So
+l3 targets namespace `ModularCurve` and the `ModularCurve/` directory (playbook
+§8: one directory per theory; `Defs/` holds the shared `ℙ¹`/coset vocabulary, and
+`Gamma0Index.lean` is the theory). `ModularCurve` already imports `ModularForms`
+(`Analytic/Gamma0Cosets.lean` imports `Defs/HeckeOperator.lean`), so the
+dependency direction is safe and nothing in `ModularForms` needs l3. The existing
+`ModularCurve/Analytic/Gamma0Cosets.lean` is a different subject (the `S · T^b`
+permutation of the modular equation) and stays where it is.
 
 ## 5. Topics and sets
 
@@ -190,7 +209,8 @@ Planned sets:
 - **SET-1 = l1** — the vocabulary the Hecke Stage D is gated on.
 - **SET-2 = l2** — the diamond vocabulary and the `HeckeRepresentatives`
   strengthening; the `WeightOne` dedup reorg lands here.
-- **SET-3 = l3** — the projective line, the Borel quotient and the index.
+- **SET-3 = l3** — the projective line, the Borel quotient and the index; code
+  under `FLTForHuman/ModularCurve/` (namespace `ModularCurve`), managed here.
 
 ## 6. Risks, in the order they will bite
 

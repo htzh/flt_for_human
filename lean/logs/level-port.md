@@ -207,7 +207,22 @@ still applies if a later theory wants them: promote in the theory they are
 
 ## §3 SET-3 — cosets and the index (l3)
 
-Not started. Work order: [../topics/level/TOPIC-l3-coset-index.md](../topics/level/TOPIC-l3-coset-index.md).
+**Status: complete (2026-09-27).** Three modules landed under namespace
+`ModularCurve`. Work order:
+[../topics/level/TOPIC-l3-coset-index.md](../topics/level/TOPIC-l3-coset-index.md).
+
+**Target retargeted to `ModularCurve` (2026-09-27).** The code goes to namespace
+`ModularCurve` and the `FLTForHuman/ModularCurve/` directory —
+`Defs/ProjectiveLine.lean` (the `ℙ¹`/`borel` vocabulary),
+`Defs/PrimCosetReps.lean` (`primCosetReps`, beside `Defs/PhiGen.lean`'s
+`cosetSubst`) and `Gamma0Index.lean` (the coset bijection, `Gamma0_index`,
+`card_projectiveLine_zmod`, `card_primCosetReps_eq_dedekindPsi`). All five pin
+files are `Def_ModularCurve_*`/`S_ModularCurve_*`/`Thm_ModularCurve_*`, the three
+headlines are `ModularCurve.*`, `dedekindPsi` already lives in
+`ModularCurve/Defs/Jq.lean`, and the checker's `norm` strips the `ModularCurve.`
+qualifier; the effort is still managed here (see `PORTING-Level.md` §4). The
+`Γ_H`/diamond code (l1/l2) stays in `ModularForms/` — it is automorphic — while
+the coset/index theory is curve/group mathematics.
 
 **Re-priced 2026-09-27 (read-only reconnaissance).** The five pin files are
 **747 content lines** (739 excluding the 8 `p2m_export`/`p2m_open` macros), not
@@ -219,3 +234,167 @@ only 6 of the 12 private `Gamma0_index` declarations; the omitted helpers
 (`natCast_dvd_int`, `primeSel`, `dvd_primeSel`, `not_dvd_primeSel`,
 `exists_coprime_lift`) are load-bearing and cannot be skipped. The work order's
 estimate is updated in place.
+
+### 3.1 Deliverables and the measured record
+
+| module | lines | public surface |
+|---|---|---|
+| `FLTForHuman/ModularCurve/Defs/ProjectiveLine.lean` | 121 | 12 (`IsUnimodularRow`, `isUnimodularRow_one_left`/`_one_right`, `IsUnimodularRow.map`, `UnimodularRow`, `unimodularRowSetoid`, `ProjectiveLine`, `instFiniteProjectiveLine`, `ProjectiveLine.map`, `ProjectiveLine.map_mk`, `borel`, `mem_borel_iff`) |
+| `FLTForHuman/ModularCurve/Defs/PrimCosetReps.lean` | 75 | 5 (`primCosetReps`, `mem_primCosetReps`, `cosetConj`, `cosetConj_eq`, `cosetTwoVarPoly`) |
+| `FLTForHuman/ModularCurve/Gamma0Index.lean` | 802 | 5 (`exists_sl2_int_lift`, `sl2_surj`, `Gamma0_index`, `card_projectiveLine_zmod`, `card_primCosetReps_eq_dedekindPsi`) |
+
+| check | result |
+|---|---|
+| `timeout 120 lake env lean …/Defs/ProjectiveLine.lean` | green, **0 warnings, no `sorry`** (~3 s after deps) |
+| `timeout 120 lake env lean …/Defs/PrimCosetReps.lean` | green, 0 warnings (~7 s wall / 1.9 s CPU) |
+| `timeout 120 lake env lean …/Gamma0Index.lean` | green, 0 warnings (~5 s) |
+| `timeout 120 lake build FLTForHuman.ModularCurve.Gamma0Index` | green, 4.4 s (3,147 jobs) |
+| `timeout 180 lake build` | green, 4,338 jobs, **0 warnings**, ~7 s (the new modules are leaves — nothing downstream imports them yet, so no replay) |
+| `spec/check_flt_statements.py` | **1,408 identical (74 promoted), 0 mismatched, 0 missing, 15 own-proof** (1,423 checked) |
+| `spec/LevelConsumer.lean` | **0 errors** (the new `[coset]` zone; `#eval (primCosetReps 2).card` prints `3`) |
+| `#print axioms` on `Gamma0_index`, `card_projectiveLine_zmod`, `card_primCosetReps_eq_dedekindPsi`, `sl2_surj`, `exists_sl2_int_lift` | `[propext, Classical.choice, Quot.sound]` |
+
+The checker grew from **1,386 → 1,408 identical** (the 22 public declarations of
+the three modules), with **3 promoted**: `sl2_surj` and `exists_sl2_int_lift`
+(the two promoted pin-`private` lifting statements) and `ProjectiveLine.map`
+(whose bare last name `map` is shadowed in the pin by `IsUnimodularRow.map`, so
+the dotted fallback reads the pin's own definition). No new `OWN_PROOFS`
+entries: every public declaration is a transcription or a promotion.
+
+### 3.2 What was ported where
+
+- **`ProjectiveLine.lean`** is the verbatim definitions port of
+  `Definitions/Def_ModularCurve_ProjectiveLine.lean:14–89` (all 12 public
+  declarations). The pin's two `simp only [Set.mem_setOf_eq]` became
+  `Set.mem_ofPred_eq` (v4.34), and the deprecated `Mathlib.Data.Finite.Prod`
+  import became `Mathlib.Basic.Finite.Prod`.
+- **`PrimCosetReps.lean`** ports all five declarations of
+  `Definitions/Def_ModularCurve_PrimCosetReps.lean:8–45`; `cosetSubst`
+  (`Defs/PhiGen.lean`) is imported. The required pre-port `grep -c` over
+  `FLTForHuman/` (before SET-3) found **`primCosetReps`: 0 files, 0 lines;
+  `cosetConj`: 0, 0; `cosetTwoVarPoly`: 0, 0**; `cosetSubst` was already in one
+  module. So the whole file was missing and was ported whole — nothing was left
+  out here. v4.34: `dif_neg` → `dite_eq_right`.
+- **`Gamma0Index.lean`** merges the three `S_` files. Public: the three wrapper
+  statements verbatim and the two lifting statements (base/018 §4.3). Private:
+  the arithmetic block `natCast_dvd_int`/`primeSel`/`dvd_primeSel`/
+  `not_dvd_primeSel`/`exists_coprime_lift`; the Borel-quotient block
+  `isUnimodularRow_firstCol`/`firstColumnClass`/`firstColumnClass_eq_iff`/
+  `card_quotient_borel`; `Gamma0_eq_comap_borel`; the prime-power count
+  `isUnit_zmod_prime_pow_iff`/`IsUnimodularRow.isUnit_or_isUnit`/
+  `isUnitSubtypeEquivUnits`/`card_not_isUnit_zmod_prime_pow`/
+  `card_projectiveLine_prime_pow`; the CRT count `crtFst`/`crtSnd`/`crtFst_apply`/
+  `crtSnd_apply`/`card_projectiveLine_mul`; and the 23-declaration
+  `PrimCosetCount` block (`h`, `card_filter_coprime_range_mul`, `card_fibre`,
+  `gcd_rotate`, `card_primCosetReps_eq_sum`,
+  `sum_divisorsAntidiagonal_mul_of_coprime`, `h_mul`, `G`/`G_apply`/
+  `isMultiplicative_G`, `h_prime_pow`/`h_one_left`/`h_one_right`/
+  `sum_h_prime_pow_partial`/`G_prime_pow`, `sqf`/`sqf_apply`/
+  `isMultiplicative_sqf`, `Psi`/`isMultiplicative_Psi`/`Psi_apply`/
+  `Psi_prime_pow`, `G_eq_Psi`). As the TOPIC requires, the two counts are
+  **independent** in the port too: `card_projectiveLine_zmod` goes through
+  `ℙ¹` and `dedekindPsi_*`, `card_primCosetReps_eq_dedekindPsi` through
+  `divisorsAntidiagonal` and the multiplicative function `G = Psi`.
+
+### 3.3 Left out, with count and reason
+
+| pin item | `grep -c` in pin | reason |
+|---|---|---|
+| topic (e) `index_GammaHUpper_of_prime`, `index_GammaHUpper_of_dvd` | 48, 15 | the optional Hecke-coset tail; needs `GammaHUpper`/`Gamma0Upper` (1680/2801 occl.) and the explicit `uElt`/`gElt` representatives, which are the Hecke coset count, not the group vocabulary — the topic defers them |
+| the `PrimCosetCount` block's 23 declarations | — | ported, but kept `private` (the pin publishes them); making `h`/`G`/`Psi`/`sqf` public would only invite last-name collisions in the checker, and the TOPIC scopes the public surface to the three headlines |
+| the pin's local `set_option maxHeartbeats 3200000` in `S_…card_primCosetReps…` | 1 | not transcribed: the project's global cap is 4,000,000 and the proof builds in ~5 s |
+| the pin's `p2m_export`/`p2m_open`/`attribute [-instance]`/`[-simp]` walls | 8 + walls | never carried by the port |
+
+### 3.4 Friction
+
+- **`if_pos`/`if_neg`/`dif_neg`/`Set.mem_setOf_eq` are gone in v4.34.** The
+  whole `dvd_primeSel`/`not_dvd_primeSel`/`exists_coprime_lift`/`Psi_prime_pow`
+  block rewrote `if_pos`→`ite_eq_left`, `if_neg`→`ite_eq_right`, and the
+  `cosetConj_eq` proof used `dite_eq_right`; `borel` used `Set.mem_ofPred_eq`.
+- **`Subgroup.index_comap_of_surjective`.** Despite the docstring signature,
+  the call form is the pin's: the subgroup is explicit, so
+  `Subgroup.index_comap_of_surjective _ (sl2_surj N)`, not the `H`-implicit
+  `(sl2_surj N)`. One build round.
+- **`isMultiplicative_id`.** It lives in `ArithmeticFunction` (declared in a
+  `section Id`, not a namespace), so the port spells it
+  `ArithmeticFunction.isMultiplicative_id`; the pin's `p2m_open "ArithmeticFunction"`
+  had made it bare.
+- **`Mathlib.Tactic.Omega` is not a v4.34 module** (the file lives elsewhere and
+  has no olean); `omega` arrives with `import Mathlib.Tactic`. One build round.
+- **`linter.style.haveILetI`.** The pin's ~8 `haveI : NeZero …`/`Fact …` walls
+  trip the style linter (the instance's type is a `Prop`); disabled file-locally,
+  exactly as `ModularForms/Level/Diamond.lean` does.
+- **No blow-up, no heartbeat bump.** The largest single build was
+  `Gamma0Index.lean` at ~5 s; the pin's 3.2M-heartbeat local cap was not needed.
+
+## §4 Post-SET-3 dedup (2026-09-27)
+
+SET-3 exposed one substantial redundancy: the port already had a **public**
+surjectivity theorem, and SET-3's `Gamma0Index.lean` promoted the pin's
+`S_ModularCurve_Gamma0_index` copy of the *same* statement plus its 135-line
+private lifting block.
+
+| duplicate | where | decision |
+|---|---|---|
+| `sl2_surj` (public, promoted by SET-3) | `Gamma0Index.lean:169` | made **`private`** — the pin keeps it private; the public statement is the wrapper below |
+| `natCast_dvd_int`, `primeSel`, `dvd_primeSel`, `not_dvd_primeSel`, `exists_coprime_lift`, `exists_sl2_int_lift` (all private, ~135 lines) | `WeightOne/LevelOneHauptmodul.lean:81–213` | **deleted**; `LevelOneHauptmodul` imports `Gamma0Index` and proves its public theorem from the shared `ModularCurve.exists_sl2_int_lift` |
+
+Which side stays: the **pin-public** `ModularCurve.surjective_specialLinearGroup_map_zmod`
+(`Theorems/Thm_ModularCurve_surjective_specialLinearGroup_map_zmod.lean`, already
+in the checker's `SOURCES` and consumed by `Gamma1Basis.lean:1276`) is the single
+public surjectivity theorem; the *lifting mathematics* `exists_sl2_int_lift` keeps
+one public home in `Gamma0Index.lean`, and `sl2_surj` is the pin-private name it
+had in the pin. `LevelOneHauptmodul.lean`: **+1 / −135** lines.
+
+Verification after the trim: checker **1,407 identical (73 promoted), 0
+mismatched, 0 missing** (was 1,408 — the now-private `sl2_surj` drops out);
+`lake build` 4,339 jobs green, 0 warnings; `spec/LevelConsumer.lean` 0 errors.
+
+**Remaining smaller duplicates** (each has a "which side stays" call and a
+rebuild cost; the first was subsequently trimmed — see §5):
+
+- `card_filter_coprime_range_mul`, `slotH` (pin's `h`), `card_fibre`:
+  byte-identical private copies in `FunctionFieldGeneration/SlotProduct.lean`
+  (T19's re-derived closed form) and `Gamma0Index.PrimCosetCount` (SET-3's
+  transcription). Decision: neither theory owns a generic `Nat.totient`/fibre
+  count — promote once to `ModularCurve/Defs/`, both import; costs a module plus
+  `OWN_PROOFS` exemptions for the port-authored `slotH` name, ≈40 lines saved.
+- `det_eq` (`Analytic/Gamma0Cosets.lean:171`) duplicates the public
+  `HeckeRepresentatives.det_eq`; `conjSL`/`mapGL_conjSL`/`heckeDiagMatrix_mul_mapGL`
+  duplicate `HeckeRepresentatives.heckeDiagMatrix_mul_of_eq'(_11)`. Decision:
+  `HeckeRepresentatives` (the public `Defs/` Hecke vocabulary) keeps them and
+  `Gamma0Cosets` imports; trimming the second needs the private `_11` refinement
+  promoted for the denominator conjunct.
+
+## §5 The counting core, shared (2026-09-27)
+
+The second overlap after SET-3: `card_filter_coprime_range_mul`, the fibre value
+and `card_fibre` were byte-identical private copies in
+`FunctionFieldGeneration/SlotProduct.lean` (T19's re-derived closed form) and
+`Gamma0Index.PrimCosetCount` (SET-3's transcription of the pin's private block).
+Both now import them from
+
+- `FLTForHuman/NumberTheory/DedekindPsiCount.lean` — `card_filter_coprime_range_mul`
+  (public; mathlib has only its three ingredients, not the block statement),
+  `dedekindPsiFibre` and `card_fibre`.
+
+Which side stays: **neither theory**. A generic `Nat.totient`/fibre count is not
+`ModularCurve` or `ModularForms` mathematics, so it gets its own `NumberTheory/`
+module — exactly the rule `TsumDivisorsAntidiagonal.lean` records for the `tsum`
+rearrangement. The pin's value-function names `h` (in
+`S_ModularCurve_card_primCosetReps_eq_dedekindPsi`) and `slotH` (T19's re-derived
+form) are renamed `dedekindPsiFibre`, because `slotH` is already taken publicly by
+`ModularCurve.QExpN.slotH` (the Hecke slot function, a different object).
+`Gamma0Index` keeps a two-line local alias `h := dedekindPsiFibre` so its
+twenty-odd `h`-lemmas are untouched; `SlotProduct`'s `slotH` uses are renamed.
+The two pin-private names go on `OWN_PROOFS` (the block count is a promotion; the
+renamed value/fibre are the pin's modulo the rename).
+
+Verification: checker **1,408 identical (73 promoted), 0 mismatched, 0 missing,
+17 own-proof**; `lake build` 4,340 jobs green, 0 warnings; `spec/LevelConsumer.lean`
+0 errors. `SlotProduct.lean` **+7 / −42**; the new module is 71 lines (25 of
+docstring). The line saving is small — the point is the single public API.
+
+**Still open** (from §4): the `det_eq` and `conjSL`/`heckeDiagMatrix_mul_mapGL`
+duplicates in `Analytic/Gamma0Cosets.lean`; decision recorded there —
+`HeckeRepresentatives` keeps them.

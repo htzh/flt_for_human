@@ -1,9 +1,26 @@
 # TOPIC l3 — cosets, the projective line, and the index `ψ(N)`
 
 Work order for SET-3 of [PORTING-Level.md](../PORTING-Level.md).
-Target module: `FLTForHuman/ModularForms/Level/Coset.lean`, namespace
-`ModularCurve.Coset` (or `ModularForm.Coset`), pinned `aa2d8b3`, mathlib
-`v4.34.0`. Prerequisite: SET-1's `Defs/GammaH.lean`.
+
+**Target: namespace `ModularCurve`, directory `FLTForHuman/ModularCurve/`** —
+`Defs/ProjectiveLine.lean` ((a)), `Defs/PrimCosetReps.lean` ((d)), and the
+theory module `Gamma0Index.lean` ((b) + (c)). Pinned `aa2d8b3`, mathlib
+`v4.34.0`. Prerequisite: SET-1's `Defs/GammaH.lean` and `dedekindPsi` from
+`ModularCurve/Defs/Jq.lean`.
+
+**Why `ModularCurve`, not `ModularForms/Level/`.** All five pin files are
+`Def_ModularCurve_*`/`S_ModularCurve_*`/`Thm_ModularCurve_*`; the three
+headlines are `ModularCurve.Gamma0_index`, `ModularCurve.card_projectiveLine_zmod`
+and `ModularCurve.card_primCosetReps_eq_dedekindPsi`; `dedekindPsi` already lives
+in `ModularCurve/Defs/Jq.lean`; and the checker's `norm` strips the
+`ModularCurve.` qualifier precisely because the `ModularCurve` port keeps that
+namespace. The `Γ_H`/diamond vocabulary (l1/l2) is automorphic and stays in
+`ModularForms/`; the coset/index theory is curve/group mathematics and belongs in
+`ModularCurve/`. The dependency direction is safe: `ModularCurve` imports
+`ModularForms` (e.g. `Analytic/Gamma0Cosets.lean` imports
+`Defs/HeckeOperator.lean`), and nothing in `ModularForms` needs l3. The existing
+`ModularCurve/Analytic/Gamma0Cosets.lean` is a *different* subject (the
+`S · T^b` permutation of the modular equation), so it stays put.
 
 > **Re-priced 2026-09-27 (SET-2 reconnaissance).** The five pin files below are
 > **747 content lines** (739 excluding the 8 `p2m_*` port macros), not the
@@ -114,14 +131,18 @@ than open it.
 
 - `Def_ModularCurve_ProjectiveLine.lean`, `Def_ModularCurve_PrimCosetReps.lean`,
   `S_ModularCurve_Gamma0_index.lean`,
-  `S_ModularCurve_card_projectiveLine_zmod.lean`, and the three `Theorems/`
-  wrappers appended to `SOURCES`; the new module to `PORT_FILES`.
-- Consumer `[coset]` zone: `#eval (primCosetReps 2).card` = 3,
-  `Nat.card (ProjectiveLine (ZMod 2)) = 3`, and `Gamma0_index 2` composed with
-  the ported `Gamma0_two_index_eq_three` if that lands here.
+  `S_ModularCurve_card_projectiveLine_zmod.lean`,
+  `S_ModularCurve_card_primCosetReps_eq_dedekindPsi.lean`, and the three
+  `Theorems/` wrappers appended to `SOURCES`; the three new
+  `FLTForHuman/ModularCurve/` modules to `PORT_FILES`.
+- Consumer `[coset]` zone (extend `spec/LevelConsumer.lean` or add a
+  `spec/ModularCurveCosetConsumer.lean`): `#eval (primCosetReps 2).card` = 3,
+  `Nat.card (ModularCurve.ProjectiveLine (ZMod 2)) = 3`, and
+  `ModularCurve.Gamma0_index 2` composed with `Gamma0_two_index_eq_three` if that
+  lands here.
 - `#print axioms` clean; full `lake build` green.
 
 ## Definition of done
 
-Module green; checker 0/0; consumer 0 errors; `logs/level-port.md` §3;
-`README.md` rows.
+Modules green under namespace `ModularCurve`; checker 0/0; consumer 0 errors;
+`logs/level-port.md` §3; `README.md` rows under the `ModularCurve/` block.
