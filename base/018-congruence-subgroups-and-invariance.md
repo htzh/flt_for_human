@@ -991,6 +991,17 @@ reads it as the $`\mathcal{C}`$ of $`X_0(N)`$.
   `UpperHalfPlane.denom (mapGL ℝ γ)`, so that the torsion arithmetic and
   `torsionMatrix` use one coercion system; reconciling the two is the single
   private lemma `algebraMap_intCast_complex`.
+* **`lat` is a `ℤ`-submodule, not a complex lattice.** In `LevelTauBridge.lean`
+  the object is `lat τ = Submodule.span ℤ ({1, τ} : Set ℂ)`, a `Submodule ℤ ℂ`;
+  so the marking change is the `ℤ`-module statement
+  `Submodule.map (mulBy (cτ + d)) (lat (γ • τ)) = lat τ` (`lat_smul_moebius`).
+  The factor `cτ + d` — rather than an isomorphism of complex lattices — is
+  exactly what makes the two identities `1/(cτ+d) = a - c·γτ` and
+  `τ/(cτ+d) = d·γτ - b` (`inv_denom_eq`, `tau_div_denom_eq`) available; those
+  identities are the actual content of the label change that §1.5 computes.
+  This is the step that prose cannot state unambiguously without naming the map:
+  "equal up to the marking change" is only a `ℤ`-module equality once `cτ + d`
+  is written down.
 
 ## 9. Links
 
