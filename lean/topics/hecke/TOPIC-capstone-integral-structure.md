@@ -17,7 +17,7 @@ the mathematics is [../../../math/013-integral-structure-gamma1-basis.md](../../
 
 **It is the only module that creates the theorem** `CuspForm.HasIntegralStructure`,
 replacing route A's 657-node integral-structure cone (mostly endgame geometry, not
-an Eichler–Shimura tower; [scout §0](../../../studies/eichler-shimura-bypass-scout.md)).
+an Eichler–Shimura tower; [scout §0](../../../studies/eichler-shimura-scout.md)).
 Everything it needs is already
 ported: the slash basis `CuspForm.exists_basis_gamma1_qCoeff_slash_mem_range_intCast`
 (SET-11 `Gamma1IntegralBasis.lean`), the definitions `CuspForm.intLattice` /

@@ -26,7 +26,7 @@ reached by the declaration, not lines. §8 reproduces every number.
 (`hasIntegralStructure_of_two_le`, 657 nodes), not an Eichler–Shimura cone: most
 of its cone is modular-curve/elliptic geometry the endgame needs anyway. The
 Eichler–Shimura *isomorphism* (period map) is a separate object and is kept; see
-[eichler-shimura-bypass-scout.md](eichler-shimura-bypass-scout.md) §0. Where this
+[eichler-shimura-scout.md](eichler-shimura-scout.md) §0. Where this
 earlier note says the "Eichler–Shimura tower", read "route A's integral-structure
 cone (mostly geometry)"; the `HeckeEis`/`ModPForms`/`PeriodPair` count is the
 three-namespace footprint, not "the E-S package". **Route B's finiteness is

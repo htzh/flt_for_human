@@ -7,7 +7,7 @@ anyway. Route A's *proof of integral structure* is avoidable for
 integral-structure route, whose 657-node cone is mostly endgame geometry the port
 needs regardless, **not** an "Eichler–Shimura tower"; the Eichler–Shimura
 isomorphism itself is a separate object that stays. See
-[eichler-shimura-bypass-scout.md](eichler-shimura-bypass-scout.md) §0.
+[eichler-shimura-scout.md](eichler-shimura-scout.md) §0.
 
 Measured 2026-09-24 against the pin `aa2d8b3` with `tools/deps` (graph closure)
 and the `S_`-file line metric (the same metric that reproduces route A's

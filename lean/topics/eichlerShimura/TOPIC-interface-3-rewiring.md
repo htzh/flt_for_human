@@ -1,5 +1,13 @@
 # Topic: re-routing interface 3 off the E-S cohomology packaging — verification plan
 
+> **Superseded (2026-09-27).** Route B is retired to `lean/Reserve/`, and the
+> driver is now the **full Eichler–Shimura isomorphism** itself:
+> [../../../studies/eichler-shimura-scout.md](../../../studies/eichler-shimura-scout.md).
+> The "de-E-S-ifying / relaxed vs strict" refactor is no longer the strategy; the
+> measurements below remain as the interface-3 reconnaissance record, and the
+> terminology note still applies. Section references below are to the earlier
+> revision of the scout.
+
 **Status: reconnaissance plan (2026-09-26). Phases 0–2 complete (2026-09-25);
 Phases 3–6 not started.** This is a scouting / feasibility plan, not a port order.
 It exists to decide — with pinned measurements — whether the single
@@ -9,7 +17,7 @@ type-compatible with the existing proof. If the verdict is positive, this file
 becomes the parent of a Lean work order (see §7).
 
 **Terminology (2026-09-27; see
-[scout §0](../../../studies/eichler-shimura-bypass-scout.md)).** "E-S" is not a
+[scout §0](../../../studies/eichler-shimura-scout.md)).** "E-S" is not a
 name for the thing being removed. *Route A* is the integral-structure route
 (`hasIntegralStructure_of_two_le`), not an Eichler–Shimura cone. The *E-S
 isomorphism* (the period map) is **kept** — relaxed keeps the 12-node
@@ -27,7 +35,7 @@ figures in §1/§2 reproduced against the pin (§3 closure 25 nodes / 21 `HeckeE
 interface 3 `HeckeEis` footprint 36 nodes / 13,293 `S_` lines); the analytic cone
 is 12 nodes / 2,301 lines, all only reachable through the target lemma, and no
 tail node depends on it. The contract and the partition tables are in
-[../../../studies/eichler-shimura-bypass-scout.md](../../../studies/eichler-shimura-bypass-scout.md).
+[../../../studies/eichler-shimura-scout.md](../../../studies/eichler-shimura-scout.md).
 
 **Phase 1–2 result (scout §3, §5):** the degree-0 contract is E-S-free reachable
 today — route B's `ModularCurve.Period.exists_parabolicRealization` composed with
@@ -150,7 +158,7 @@ Either way the prize is far smaller than route A's 657-node cone, because ~528 o
 those nodes are geometry that the endgame needs anyway. The full ten-interface
 figure is also the correct answer to "is it more than just the interface?": yes —
 four times the four-interface estimate, but still not the 657-node cone. The scout
-note [§6](../../../studies/eichler-shimura-bypass-scout.md) records the full payout:
+note [§6](../../../studies/eichler-shimura-scout.md) records the full payout:
 the 213 / 71,865 package measured against the 29,488-node / 11,926,355-line FLT
 proof cone, the three nested targets, the replacement ingredients already inside
 the endgame, the two conditions on "all interfaces" (higher weight / Katz forms,
@@ -253,7 +261,7 @@ architectures:
 replacement must not carry a cohomology argument beyond the *tame implicit type*
 of route B's blob — `addChars`, i.e. `Hom` at trivial coefficients, with every
 1-coboundary zero and no quotient
-([../../../studies/eichler-shimura-bypass-scout.md](../../../studies/eichler-shimura-bypass-scout.md)
+([../../../studies/eichler-shimura-scout.md](../../../studies/eichler-shimura-scout.md)
 §1.2, [../../../math/015-weight-two-hecke-periods.md](../../../math/015-weight-two-hecke-periods.md)
 §3). Concretely, a candidate whose cone builds a genuine
 $`H^1(\Gamma_0, \mathrm{Sym}^n)`$ — Kuga–Sato, de Rham comparison, or an
@@ -333,7 +341,7 @@ build); Phase 5 is the optional spike.
 3. Produce the 36-node partition of §2 and the 21-node fact table.
 
 Artifact: §"Contract" table in the scout note
-([../../../studies/eichler-shimura-bypass-scout.md](../../../studies/eichler-shimura-bypass-scout.md)
+([../../../studies/eichler-shimura-scout.md](../../../studies/eichler-shimura-scout.md)
 §1–§2).
 Gate: if more than this one lemma is analytic, re-scope the topic before Phase 1.
 
@@ -485,7 +493,7 @@ header): bound every build (`timeout 60 lake env lean <file>`,
 
 - Decision matrix: **feasible / conditionally feasible (state X) / blocked (state
   the concrete blocker)**.
-- Write `studies/eichler-shimura-bypass-scout.md` (pinned, measured) and cross-link
+- Write `studies/eichler-shimura-scout.md` (pinned, measured) and cross-link
   it from [../../../studies/flt-non-frey-segments.md](../../../studies/flt-non-frey-segments.md)
   §8.1.
 - If positive, draft the Lean work order as
@@ -547,7 +555,7 @@ Phase 5 if the gate is passed.
 - [x] circularity check done against the 36-node cone (scout §5.3);
 - [ ] measured saving reproduced with the command above;
 - [ ] novelty/literature assessment written;
-- [x] `studies/eichler-shimura-bypass-scout.md` written and cross-linked (Phase 0);
+- [x] `studies/eichler-shimura-scout.md` written and cross-linked (Phase 0);
 - [ ] verdict recorded; if positive, the port work order drafted as
       `TOPIC-interface-3-rewiring-port.md`.
 
@@ -557,7 +565,7 @@ Phase 5 if the gate is passed.
   dependency graph, intra-core redundancy and port accounting:
   [TOPIC-relaxed-analytic-core.md](TOPIC-relaxed-analytic-core.md).
 - Phase 0 contract and period-map partition:
-  [../../../studies/eichler-shimura-bypass-scout.md](../../../studies/eichler-shimura-bypass-scout.md)
+  [../../../studies/eichler-shimura-scout.md](../../../studies/eichler-shimura-scout.md)
   §1–§2 and reproduction §7.
 - Interface map and corrections:
   [../../../studies/flt-non-frey-segments.md](../../../studies/flt-non-frey-segments.md)

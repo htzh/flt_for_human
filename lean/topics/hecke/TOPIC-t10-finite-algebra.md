@@ -258,7 +258,7 @@ routes** and the original re-scope picked the wrong one.
   `WeierstrassCurve.velu_*` 11,992, the `HeckeEis` (12,683) and `PeriodPair`
   (9,836) packages, `Def_CuspForm_ModPForms`, the Sturm bound). (Route A as a
   whole is not an Eichler–Shimura cone — most of the 657 nodes are endgame
-  geometry; see [scout §0](../../../studies/eichler-shimura-bypass-scout.md).) This is **not a
+  geometry; see [scout §0](../../../studies/eichler-shimura-scout.md).) This is **not a
   topic — it is most of the remaining FLT arithmetic tower** (the full cone is 657
   nodes / 263,720 S-lines across 102 definition modules). Do not attempt it.
 - **Route B — the k=2 finiteness only.** (Correction 2026-09-27: route C′'s

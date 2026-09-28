@@ -7,14 +7,15 @@ Lean counterpart is collected in §8. Background:
 [015-weight-two-hecke-periods.md](015-weight-two-hecke-periods.md) (route B, the
 weight-two period map), [013-integral-structure-gamma1-basis.md](013-integral-structure-gamma1-basis.md)
 (route C′, integrality), and
-[../studies/eichler-shimura-bypass-scout.md](../studies/eichler-shimura-bypass-scout.md)
+[../studies/eichler-shimura-scout.md](../studies/eichler-shimura-scout.md)
 (the measurements this note is distilled from). The classical Eichler–Shimura
 statement the gap would avoid is
 [017-eichler-shimura-isomorphism.md](017-eichler-shimura-isomorphism.md); the
-Lean inventory of the packaging and the porting comparison are in the scout §8.
+Lean inventory of the packaging and the effort assessment are in the scout §2
+and §5.
 
 **Terminology.** As fixed in
-[the scout §0](../studies/eichler-shimura-bypass-scout.md): the Eichler–Shimura
+[the scout §0](../studies/eichler-shimura-scout.md): the Eichler–Shimura
 *isomorphism* (the period map) is kept in every variant; what a bypass removes is
 its **cohomological packaging** (`coeffH1par` / `eichlerShimuraMap`). Route A is
 the integral-structure route (`hasIntegralStructure_of_two_le`), not an

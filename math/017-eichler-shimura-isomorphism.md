@@ -5,7 +5,7 @@ is only about the mathematics of the Eichler–Shimura package — the classical
 isomorphism and the constructions it rests on. The Lean inventory of the pin's
 `HeckeEis` packaging (the 33-node set the relaxed route would remove), its
 consumer map and the porting verdict are measurements and live in
-[../studies/eichler-shimura-bypass-scout.md](../studies/eichler-shimura-bypass-scout.md)
+[../studies/eichler-shimura-scout.md](../studies/eichler-shimura-scout.md)
 §8. Companions: [015-weight-two-hecke-periods.md](015-weight-two-hecke-periods.md)
 (the weight-2 period map, route B) and
 [016-mod-p-weight-filtration.md](016-mod-p-weight-filtration.md) (the mod-$`p`$

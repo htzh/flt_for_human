@@ -1,31 +1,39 @@
 # Topic: porting the relaxed option's 12-node analytic core
 
+> **Refocused (2026-09-27).** Route B is retired to `lean/Reserve/`, and the
+> driver is now the **full Eichler–Shimura isomorphism**:
+> [../../../studies/eichler-shimura-scout.md](../../../studies/eichler-shimura-scout.md).
+> This file remains the port scoping for the 12-node analytic core, which is part
+> of the driver's period map (scout §2.3, §6). The "relaxed" label refers to the
+> retired bypass variant; section references below are to the earlier revision of
+> the scout.
+
 **Status: scouting report (2026-09-26), pinned to `aa2d8b3`. Purely
 reconnaissance — no Lean build and no Lean work order.** The *relaxed* option of
-[../../../studies/eichler-shimura-bypass-scout.md](../../../studies/eichler-shimura-bypass-scout.md)
+[../../../studies/eichler-shimura-scout.md](../../../studies/eichler-shimura-scout.md)
 §4.5/§6 keeps **both** route B (the weight-2 period map) **and** the 12-node
 general-weight primitive, plus C′ (integrality), and drops only the
 parabolic/bundled packaging (`coeffH1par` / `eichlerShimuraMap`). The 12 nodes
 therefore stay in the port and their cost is a real line item. This file scopes
 that line item: which nodes they are, what they *actually* depend on, where the
 nominal count over- or under-states, and what a port would have to write.
-Terminology follows [scout §0](../../../studies/eichler-shimura-bypass-scout.md):
+Terminology follows [scout §0](../../../studies/eichler-shimura-scout.md):
 the 12 nodes *are* the Eichler–Shimura isomorphism (period map) in formalized
 form, i.e. the content **kept**; the "packaging" dropped is the cohomological
 layer `coeffH1par` / `eichlerShimuraMap`, not Eichler–Shimura.
 
 Companion: the interface-3 rewiring plan
 [TOPIC-interface-3-rewiring.md](TOPIC-interface-3-rewiring.md), the measured
-scout [../../../studies/eichler-shimura-bypass-scout.md](../../../studies/eichler-shimura-bypass-scout.md)
-(§2.3 for the node table, §4.5 for the variant), the mathematics of the
+scout [../../../studies/eichler-shimura-scout.md](../../../studies/eichler-shimura-scout.md)
+(§2.3 for the node table; §1.3 for route B's retirement), the mathematics of the
 weight-2 period argument
 [../../../math/015-weight-two-hecke-periods.md](../../../math/015-weight-two-hecke-periods.md),
 the classical general-weight statement (the E-S isomorphism)
 [../../../math/017-eichler-shimura-isomorphism.md](../../../math/017-eichler-shimura-isomorphism.md),
-and the Lean inventory of the *dropped* packaging (the 33-node set `R`) with the
-consumer map and porting verdict
-[../../../studies/eichler-shimura-bypass-scout.md](../../../studies/eichler-shimura-bypass-scout.md)
-§8.
+and the Lean inventory of the packaging (the 33-node set `R`) with the consumer
+map and effort assessment
+[../../../studies/eichler-shimura-scout.md](../../../studies/eichler-shimura-scout.md)
+§2 and §5.
 FLT is read at the pin `aa2d8b3`; the port's mathlib is `v4.34.0`. Line counts
 are raw `S_`/`Thm_`/`Def_` file lines of the pin.
 

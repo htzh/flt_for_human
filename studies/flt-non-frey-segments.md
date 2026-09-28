@@ -642,7 +642,7 @@ deformation theory) is arithmetic again.
 ## 8. The Eichler–Shimura spine: an architectural correction
 
 > **Terminology (2026-09-27).** See
-> [eichler-shimura-bypass-scout.md](eichler-shimura-bypass-scout.md) §0. In this
+> [eichler-shimura-scout.md](eichler-shimura-scout.md) §0. In this
 > section "E-S" means the Eichler-integral/period-map content and its
 > cohomological packaging. **Route A** is the *integral-structure* route
 > (`hasIntegralStructure_of_two_le`, 657 nodes), most of whose cone is
@@ -860,10 +860,10 @@ Interface 3's share of the three-namespace footprint is 46 nodes / 23,363 lines 
 other nine interfaces off the cohomological packaging while retaining the period
 map for interface 3 removes **161 nodes / 47,195 lines**; re-routing all ten
 targets the whole 213 / 71,865 *footprint* (not a saving: most of it stays; scout
-§0/§6). These are namespace *footprints* (the union of the interfaces' three-namespace cones);
-the reachability-accurate payout is smaller, and the relaxed route's is computed
-by the local tool `tools/deps/prune.py` as 63 nodes / 18,391 lines
-([eichler-shimura-bypass-scout.md](eichler-shimura-bypass-scout.md) §6).
+§0, §2.2). These are namespace *footprints* (the union of the interfaces' three-namespace cones);
+the reachability-accurate payout is smaller, and the (now retired) relaxed route's
+is computed by the local tool `tools/deps/prune.py` as 63 nodes / 18,391 lines
+(the `relaxed` scenario).
 Either way this is the only lever: with every interface retained, C′ removes just
 the 4 nodes of §8, because every `HeckeEis` node route A uses is itself consumed
 by an interface.

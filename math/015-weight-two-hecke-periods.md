@@ -3,7 +3,7 @@
 FLT proves the Hecke-algebra finiteness statements twice. The general form
 `CuspForm.moduleFinite_heckeAlgebra` is the tail of route A (the integral-structure
 cone, most of it endgame geometry — not an "Eichler–Shimura tower"; see
-[eichler-shimura-bypass-scout.md](../studies/eichler-shimura-bypass-scout.md) §0);
+[eichler-shimura-scout.md](../studies/eichler-shimura-scout.md) §0);
 the weight-two form `CuspForm.moduleFinite_heckeAlgebra_two` is proved on its
 own in a 4,308-line file,
 [`S_CuspForm_moduleFinite_heckeAlgebra_two.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CuspForm_moduleFinite_heckeAlgebra_two.lean),
@@ -557,9 +557,9 @@ Pointers:
   [../studies/route-c-prime-scout.md](../studies/route-c-prime-scout.md).
 - Why weight two is enough, and where it stops being enough: the mod-$`p`$ weight
   filtration and the interior-weight gap are the subject of
-  [016-mod-p-weight-filtration.md](016-mod-p-weight-filtration.md); the measured
-  bypass study is
-  [../studies/eichler-shimura-bypass-scout.md](../studies/eichler-shimura-bypass-scout.md).
+  [016-mod-p-weight-filtration.md](016-mod-p-weight-filtration.md); the port
+  scout is
+  [../studies/eichler-shimura-scout.md](../studies/eichler-shimura-scout.md).
 - Standard background: G. Shimura, *Introduction to the Arithmetic Theory of
   Automorphic Functions*, Ch. III–IV (periods of cusp forms and Eichler–Shimura);
   S. Lang, *Introduction to Modular Forms*, Ch. V; Deligne–Serre, *Formes
