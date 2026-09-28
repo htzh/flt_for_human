@@ -548,6 +548,10 @@ grep -n "AlgEquiv.ofBijective φ" \
 - [../base/011-deformations-hecke-algebras-and-r-equals-t.md](../base/011-deformations-hecke-algebras-and-r-equals-t.md)
   — the mathematics of $`R`$, $`T`$, the map and the criterion (§§1–5) and the
   declaration table of the pin's deformation vocabulary (§6).
+- [../math/018-t-side-definitions.md](../math/018-t-side-definitions.md) — the
+  T-side definitions themselves, in mathematical terms: the Galois substrate,
+  the universal ring, the Hecke/lattice algebra, $`T_\theta`$, the Hecke–Galois
+  datum, and the patching vocabulary, with the module inventory of §7.
 - [hecke-finiteness-coverage.md](hecke-finiteness-coverage.md) §6 — what the
   T side adds, and the 168-node measurement this note re-measures as 266 under a
   wider definition.
