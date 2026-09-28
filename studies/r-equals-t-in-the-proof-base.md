@@ -561,6 +561,9 @@ grep -n "AlgEquiv.ofBijective φ" \
   T-side definitions themselves, in mathematical terms: the Galois substrate,
   the universal ring, the Hecke/lattice algebra, $`T_\theta`$, the Hecke–Galois
   datum, and the patching vocabulary, with the module inventory of §7.
+- [t-side-driver.md](t-side-driver.md) — which T-side target to port next: the
+  $`R \cong T`$ assembly as a conditional capstone, with the C′-adjusted
+  frontier estimate.
 - [hecke-finiteness-coverage.md](hecke-finiteness-coverage.md) §6 — what the
   T side adds, and the 168-node measurement this note re-measures as 266 under a
   wider definition.
