@@ -36,8 +36,8 @@ port to spell `(·).coeff`. See `logs/eichler-shimura-port.md`.
 
 Measured against the FLT pin `aa2d8b3`; the port's mathlib is `v4.34.0`. The
 mathematics is [../../../math/017-eichler-shimura-isomorphism.md](../../../math/017-eichler-shimura-isomorphism.md)
-§1; the analytic-core scoping that this plan narrows is
-[TOPIC-relaxed-analytic-core.md](TOPIC-relaxed-analytic-core.md); route B (the
+§1; the analytic-core scoping that this plan narrows is the scout's
+[§2.3 and Appendix B](../../../studies/eichler-shimura-scout.md); route B (the
 $`n = 0`$ case this target subsumes) is retired to `lean/Reserve/`.
 
 ## 0. Target and verdict
