@@ -311,7 +311,10 @@ endgame path, consumed by
 `LanglandsTunnell.exists_liftValued_of_agreesLiftTraceSeed_isCusp_pair`; the
 family also holds the converse rep-to-form theorem
 (`…_exists_weightOne_cuspForm_tameConductor_of_qCoeff_eq_trace`) and the
-weight-one $`\to`$ weight-two reduction named above.
+weight-one $`\to`$ weight-two reduction named above. The mathematics — the
+theorem, its two directions, and the place it occupies among the modularity
+theorems — is expanded in
+[../math/019-deligne-serre-weight-one.md](../math/019-deligne-serre-weight-one.md).
 
 **Distance to this landmark.** Measured with
 [../tools/deps/frontier.py](../tools/deps/frontier.py) at the pin: the
