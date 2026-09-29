@@ -143,7 +143,7 @@ that each home's lifted block be the *canonical* copy, not a paraphrase.
 5. No commits; the working tree is the hand-off. The pin is read-only.
 6. Do not touch `WeightOne/IntegralStructure.lean` (the capstone), the FFG modules, or the
    T-side modules.
-7. Build discipline — copied from playbook §3.11 and binding:
+7. Build discipline — copied from playbook §3.5 (build ladder; was §3.11) and binding:
 
 > **Build discipline — read this first.** Every build is bounded and a blow-up is
 > quarantined, not waited on. Measured with mathlib prebuilt: a green
@@ -166,6 +166,17 @@ that each home's lifted block be the *canonical* copy, not a paraphrase.
 > - **Tell a blow-up from contention by CPU time.** High user CPU + timeout is a
 >   real blow-up (bisect); ~0 CPU wall-time is lock contention (re-run when idle;
 >   never build concurrently with another agent).
+
+The actionable form of this is the **build ladder**
+([porting-playbook.md](../../porting-playbook.md) §3.5, and
+[notes/lean-build-cost.md](../../../notes/lean-build-cost.md)): `lake env lean` in the edit loop
+(no `.olean`, no cascade), `lake build <module>` when a file is done, and exactly **one**
+cascade per wave. A wave edits each module once — price it first with
+`tools/deps/build_ladder.py --edit <file>` and run it under `flock`. W4's width family was
+split into two waves over the same Γ/level modules and paid ~6:45 twice; later waves merge
+sub-tasks that share a module. Note that the project's global `maxHeartbeats` is 4,000,000
+(20× the default), so the "fails in under 20 s" promise above does not hold here — the
+wall-clock bound is the protection.
 
 ## 5. Definition of done (whole effort)
 

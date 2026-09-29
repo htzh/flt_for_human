@@ -293,6 +293,38 @@ step (`ModPForms.exists_isEigensystemH1_binaryFormRepSL_of_isModPEigen`) consume
 the analytic `HeckeEis` Eichler-integral machinery, which is why that package is
 a shared spine rather than a single target's tower (§8).
 
+**The weight-one Deligne–Serre landmark.** The *other* half of the segment's
+Deligne–Serre content — a weight-one eigenform *produces* its Galois
+representation — is proved here too, and it is the arithmetic landmark of §3.4.
+For a normalized weight-one cusp form $`f`$ on $`\Gamma_1(N)`$ with nebentypus
+$`\varepsilon`$ satisfying the Hecke eigen-relation,
+`DeligneSerre.exists_residual_galoisRep_charpoly_frobenius_eq_of_weightOne_hecke_eigen`
+produces a finite-level semisimple
+$`\rho : G_{\mathbb{Q}} \to \mathrm{GL}_2(k)`$ with
+$`\mathrm{charpoly}(\rho(\mathrm{Frob}_p)) = X^2 - \varphi(a_p) X + \varphi(\varepsilon(p))`$
+at every good prime $`p \nmid N`$; its characteristic-zero companion
+`DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen` is moreover
+irreducible, with trace $`a_p`$ and determinant $`\varepsilon(p)`$. The oddness
+$`\varepsilon(-1) = -1`$ is *derived* from the eigen-relation and $`f \ne 0`$
+(from $`a_1 = 1`$; the proof's `apply_neg_one_eq`), not assumed. Both lie on the
+endgame path, consumed by
+`LanglandsTunnell.exists_liftValued_of_agreesLiftTraceSeed_isCusp_pair`; the
+family also holds the converse rep-to-form theorem
+(`…_exists_weightOne_cuspForm_tameConductor_of_qCoeff_eq_trace`) and the
+weight-one $`\to`$ weight-two reduction named above.
+
+**Distance to this landmark.** Measured with
+[../tools/deps/frontier.py](../tools/deps/frontier.py) at the pin: the
+irreducible characteristic-zero statement's cone is 2,308 nodes, of which the
+port already owns 309 — almost all on the modular-curve / function-field side —
+leaving **1,988 new nodes / 995,359 raw `S_` lines**; the residual charpoly
+version leaves **1,210 / 622,105**, and the rep-to-form converse 421 / 196,678.
+The targets are only 2–3 citation hops from the frontier and 288 (resp. 281) of
+the needed nodes are a single node away, but the bulk is an unported automorphic
+block (`AutomorphicForm` 473, `NumberField` 132, `LanglandsTunnell` 38) that
+cannot reach the port at all. So the landmark comes *after* the arithmetic side
+packages, not before.
+
 ### 3.5 Galois deformations and Taylor–Wiles patching — 2,234 nodes / 617,081 lines
 
 Principal namespaces: `groupCohomology` (361 / 85,776),
