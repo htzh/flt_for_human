@@ -1245,6 +1245,17 @@ SOURCES = [
     "P2M/Sol/S_WLight_levelOne_hauptmodul_package.lean",
     "P2M/Sol/S_WLight_qExpansion_sigmaTransport_package.lean",
     "P2M/Sol/S_WLight_weierstrassP_qExpansion_package.lean",
+    # --- Phase D (Deligne–Serre weight-one definition layer, D0) ---
+    # `Def_ModularForm_HeckeOperator`, `Def_FLTPrelim_Ramification` and
+    # `Def_FLTPrelim_Modularity` are already listed above; D0 adds the seven
+    # definition modules below. Appended last so no earlier last-name match flips.
+    "Definitions/Def_Deformations_MatrixRepresentation.lean",
+    "Definitions/Def_EisensteinSeries_WeierstrassZeta.lean",
+    "Definitions/Def_FieldTheory_RatAlgClosureGalois.lean",
+    "Definitions/Def_Gamma0Away.lean",
+    "Definitions/Def_IharaIota.lean",
+    "Definitions/Def_RepTheory_BrauerNesbitt_TraceCharZero.lean",
+    "Definitions/Def_TaylorWiles_Primes.lean",
 ]
 
 PORT_FILES = [
@@ -1604,6 +1615,14 @@ PORT_FILES = [
     # above gains the verbatim `…_of_patchingDatum` additively, so both the
     # conditional and the unconditional assembly are checked through that one entry.
     "FLTForHuman/Patching/Exit.lean",
+    # --- Phase D (Deligne–Serre weight-one definition layer, D0) ---
+    "FLTForHuman/GaloisRep/Defs/MatrixRepresentation.lean",
+    "FLTForHuman/ModularForms/Eisenstein/WeierstrassZeta.lean",
+    "FLTForHuman/FieldTheory/RatAlgClosureGalois.lean",
+    "FLTForHuman/ModularCurve/Defs/Gamma0Away.lean",
+    "FLTForHuman/ModularCurve/Defs/IharaIota.lean",
+    "FLTForHuman/Algebra/BrauerNesbitt.lean",
+    "FLTForHuman/NumberTheory/FrobeniusDensity/TaylorWilesPrimes.lean",
 ]
 
 
