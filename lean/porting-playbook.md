@@ -28,7 +28,12 @@ example "playbook §3.11" for build discipline, "§7.4" for faithfulness). The
 [appendix](#appendix-section-map-from-earlier-revisions) maps every old reference
 to its home here.
 
-## 0. Start-here checklist
+How to staff an effort with subagents is §0.2; how much of this file to apply, and
+when to deviate, is §0.3.
+
+## 0. Before you start
+
+### 0.1 The checklist
 
 Before coding:
 
@@ -59,6 +64,76 @@ At the end:
 10. Checker `0 mismatched / 0 missing`, consumer exit 0, `#print axioms` clean,
     no `sorry`, and (where a coverage report exists) coverage `0 / 0 / 0` (§4).
 
+### 0.2 Working with subagents
+
+Context is the binding constraint on a large port, and the manager's context is
+best spent on the plan, the review and the capstone. Decompose and dispatch:
+
+- **Above roughly 1,000 written lines, use subagents.** One agent carrying the
+  whole cone spends its budget on accumulated detail; a set dispatched to a fresh
+  agent starts from a clean, complete brief. Below that size the overhead and the
+  review are not worth it — do the topic directly.
+- **Give each subagent a synthesized instruction, not a pointer to this file.** A
+  subagent shares none of the manager's context, so "read the playbook and the
+  logs" produces confusion and burns its budget on reconnaissance. Hand it a
+  self-contained work order (§3.3): subject; pin files and line ranges; exact
+  statements to land; module and namespace; route with its recorded negatives;
+  build bounds; verification commands; and what is explicitly out of scope.
+- **Scope tightly, and bound the subagent's own scoping.** A subagent may do
+  limited local reconnaissance — a mathlib search for one specific lemma, a
+  `Scratch.lean` probe, a `#check` — but it must not re-plan the effort, re-pick
+  the route, or roam the pin. Broad scoping is the manager's job *before*
+  dispatch (§2); if the task cannot be stated without it, the plan is not ready.
+- **One set per subagent; review before the next.** When the effort needs several
+  sets (roughly 2,000+ lines), launch a single subagent for the first set, review
+  its tree — build, checker, consumer, and the code itself — and only then write
+  and launch the next set's order against the modules that actually exist (§3.4).
+  Do not fan several sets out at once: they will duplicate preludes, collide in
+  namespaces, and invalidate each other's builds.
+- **Reserve integration for the manager.** The capstone and the final wire test
+  are the review instrument; a subagent prepares a set, but assembly and
+  judgement stay with the manager.
+- **Ask for artifacts, not narration.** The return is the module(s), the measured
+  table, and the friction-log entries; the manager folds the generalizable part
+  into this file and the record.
+
+### 0.3 Discretion: this is a synthesis, not a contract
+
+This file is distilled from several ports of very different sizes. Read it as
+recorded judgement, not as a checklist to apply mechanically:
+
+- **The stable core is small**: the pin is the authority and faithfulness is
+  mechanical (§4); expense is distance from mathlib (§1); a module is a role and
+  a directory is a theory (§3.1–§3.2); real mathematics is written once (§5); and
+  the build ladder bounds the one unbounded cost (§3.5). Everything else is a
+  heuristic with evidence attached.
+- **Match the process to the size.** A 200-line leaf topic needs a work order and
+  a bounded build, not a blueprint, a correction ledger, a risk register and a
+  scout; a 2,000-line cone needs all of them. Every instrument is cheap at the
+  right size and wasteful at the wrong one.
+- **Prefer the cheapest instrument that answers the question**: the checker and
+  the consumer before a full build; a `Scratch.lean` probe before a topic; a
+  `grep -c` before a rewrite.
+- **The numbers and names here are evidence, not law.** The line counts, module
+  names and specific renames are what those efforts measured; when the situation
+  differs, measure again rather than quoting them.
+- **When a rule and the mathematics conflict, the mathematics wins** — record the
+  deviation and why, so the next reader can judge it.
+- **Nothing here is exhaustive.** A situation this file does not cover is a gap to
+  record, and to add here when it generalizes.
+
+### 0.4 Build discipline, and the note behind it
+
+Follow the build discipline as a matter of course — it is the per-work-order
+block in §3.5 (`lake env lean` in the edit loop, one cascade per wave, bounded
+and serialized builds). When a build misbehaves — a file that used to be fast is
+slow, a cascade runs to minutes, a timeout, suspected contention, or the bounds
+seem not to hold — the measurements behind the rules are in
+[../notes/lean-build-cost.md](../notes/lean-build-cost.md): the cascade model, the
+per-file and per-wave timings, the `LevelFraction` profile, the global
+4,000,000-heartbeat cap, and recipes to reproduce every number. Read the note
+when the rule does not settle the question; do not re-derive the numbers.
+
 ## 1. The cost model
 
 **Expense is the route's distance from mathlib, not the size of the source.**
@@ -67,7 +142,7 @@ Every effort measured this, in both directions:
 | effort | source size | written | why |
 |---|---|---|---|
 | Elliptic torsion | cone 3,671 lines | 3,362 lines | the engine (`ω` division polynomial, complement multiplication) had left mathlib; the 1,164-line counting module was the *cheapest per line* |
-| `functionFieldGeneration` theorem | 11,312-line structural pin sum | ≈3,8k lines (T14–T20) | reduced to three generic lemmas plus concretisation |
+| `functionFieldGeneration` theorem | 11,312-line structural pin sum | ≈3.8k lines (T14–T20) | reduced to three generic lemmas plus concretisation |
 | `AlgebraicCurve` exchange | 5,423 raw `S_` lines | 5,559 module lines | line budget was accurate; risk register over-warned |
 | `ModularCurve` Hecke | 10,569 raw lines | 7.6k content lines in band | four prelude cuts made it tractable |
 
@@ -373,7 +448,9 @@ then properties, then consequence — rather than by the pin's section buckets.
 
 Large efforts were run as **sets** (SET-1, SET-M1, …): each set is one coherent
 mathematical story dispatched to one agent, with the manager reviewing between
-sets and writing the capstone. This worked, for reasons worth keeping:
+sets and writing the capstone. This is the mechanics; the staffing rule —
+roughly 1,000 lines before subagents, one subagent per set, review before the
+next — is §0.2. It worked, for reasons worth keeping:
 
 - **Schedule on the real dependency fork, not the pin's section order.** After
   the shared prerequisite, independent routes run in parallel; prerequisites are
@@ -809,7 +886,7 @@ reference; the playbook's own links now point at the new numbers directly.
 | §3.11 | bound every build; heartbeat blow-up | §3.5, §6, [../notes/lean-build-cost.md](../notes/lean-build-cost.md) |
 | §3.12 | the build ladder | §3.5 |
 | §4 | `v4.34.0` drift checklist | §7 |
-| §5 | checklist for the next port | §0 |
+| §5 | checklist for the next port | §0.1 |
 | §6 | open questions | §9 |
 | §7.1 | module is a role; math clarity | §3.1 |
 | §7.2 | overlap with the first port | §10 (evidence) |
