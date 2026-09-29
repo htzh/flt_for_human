@@ -80,6 +80,7 @@ import FLTForHuman.ModularForms.WeightOne.Defs.PTorsion
 import FLTForHuman.ModularForms.WeightOne.Defs.Gamma
 import FLTForHuman.ModularForms.WeightOne.Fricke
 import FLTForHuman.ModularForms.DiscPow
+open X1DiamondRational
 open UpperHalfPlaneAux
 open WLight
 
@@ -108,13 +109,8 @@ namespace GammaNBounded
 
 variable (N : ℕ)
 
-private def zetaN : ℂ := Complex.exp (2 * (Real.pi : ℂ) * Complex.I / (N : ℂ))
-
-private def kN : IntermediateField ℚ ℂ := IntermediateField.adjoin ℚ {zetaN N}
-
 private def AZ : Subalgebra ℤ ℂ := Algebra.adjoin ℤ {zetaN N}
 
-private abbrev Idx : Type := Option {v : Fin 2 → ZMod N // v ≠ 0}
 
 private def gen : Idx N → ℍ → ℂ := fun o => o.elim jf fun v => fricke N v.1
 
@@ -125,8 +121,6 @@ section Cyclo
 
 variable [NeZero N]
 
-private theorem isPrimitiveRoot_zetaN : IsPrimitiveRoot (zetaN N) N :=
-  Complex.isPrimitiveRoot_exp N (NeZero.ne N)
 
 private scoped instance instIsCyclotomic : IsCyclotomicExtension {N} ℚ (kN N) := by
   have hζ := isPrimitiveRoot_zetaN N
@@ -142,14 +136,7 @@ private scoped instance instFiniteDimensional : FiniteDimensional ℚ (kN N) :=
 
 private scoped instance instFintypeAut : Fintype ((kN N) ≃ₐ[ℚ] (kN N)) := AlgEquiv.fintype ℚ (kN N)
 
-private def zetaK : kN N := ⟨zetaN N, IntermediateField.subset_adjoin ℚ _ (Set.mem_singleton _)⟩
-
-@[scoped simp] private theorem coe_zetaK : ((zetaK N : kN N) : ℂ) = zetaN N := rfl
-
-private theorem isPrimitiveRoot_zetaK : IsPrimitiveRoot (zetaK N) N := by
-  have h := isPrimitiveRoot_zetaN N
-  rw [← coe_zetaK] at h
-  exact IsPrimitiveRoot.coe_submonoidClass_iff.mp h
+private theorem coe_zetaK : ((zetaK N : kN N) : ℂ) = zetaN N := rfl
 
 private theorem exists_pow_of_aut (σ : (kN N) ≃ₐ[ℚ] (kN N)) : ∃ s : ℕ, σ (zetaK N) = zetaK N ^ s := by
   have hμ := isPrimitiveRoot_zetaK N
@@ -267,7 +254,6 @@ variable [NeZero N]
 
 local notation "Δ" => ModularForm.discriminant
 
-private theorem natCast_pos : (0 : ℝ) < (N : ℝ) := Nat.cast_pos.mpr (NeZero.pos N)
 
 private def nice : Subalgebra ℂ (ℍ → ℂ) where
   carrier := {g | MDifferentiable 𝓘(ℂ) 𝓘(ℂ) g ∧ Periodic (g ∘ ofComplex) N ∧ IsBoundedAtImInfty g}
@@ -313,8 +299,6 @@ private theorem qE_apply (g : nice N) : qE N g = qExpansion N (g : ℍ → ℂ) 
 private theorem qE_eq_zero_iff (g : nice N) : qE N g = 0 ↔ (g : ℍ → ℂ) = 0 :=
   qExpansion_eq_zero_iff (natCast_pos N) g.2.2.1 g.2.1 g.2.2.2
 
-private theorem mdifferentiable_disc : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (Δ : ℍ → ℂ) := by
-  rw [← CuspForm.coe_discriminant]; exact CuspForm.discriminant.holo'
 
 private theorem levelOne_mem {k : ℤ} (f : ModularForm 𝒮ℒ k) : (⇑f : ℍ → ℂ) ∈ nice N :=
   ⟨f.holo', periodic_ofComplex_natCast (SlashInvariantFormClass.periodic_comp_ofComplex f
@@ -328,10 +312,7 @@ private def dN : nice N := ⟨Δ, disc_mem⟩
 
 @[scoped simp] private theorem coe_dN : ((dN : nice N) : ℍ → ℂ) = Δ := rfl
 
-private def E4cube : ModularForm 𝒮ℒ 12 := (E₄.pow 3).mcast (by norm_num)
 
-private theorem coe_E4cube : (⇑E4cube : ℍ → ℂ) = (E₄ : ℍ → ℂ) ^ 3 := by
-  rw [E4cube, coe_mcast, coe_pow]
 
 private theorem jf_mul_disc : jf * Δ = ⇑E4cube := by
   funext τ
@@ -345,9 +326,6 @@ private theorem fricke_disc_mem {v : Fin 2 → ZMod N} (hv : v ≠ 0) : fricke N
   obtain ⟨-, -, h3, h4, h5, -⟩ := WLight.frickeFunction_modularity_package N tauPair tauPair_spec
   exact ⟨(h3 v hv).mul mdifferentiable_disc, (h5 v hv).1, h4 v hv⟩
 
-private theorem mdifferentiable_fricke {v : Fin 2 → ZMod N} (hv : v ≠ 0) : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (fricke N v) := by
-  obtain ⟨-, -, h3, -⟩ := WLight.frickeFunction_modularity_package N tauPair tauPair_spec
-  exact h3 v hv
 
 private theorem gen_disc_mem (o : Idx N) : gen N o * Δ ∈ nice N := by
   cases o with
@@ -360,7 +338,7 @@ private theorem mdifferentiable_gen (o : Idx N) : MDifferentiable 𝓘(ℂ) 𝓘
       intro τ
       have h1 : MDifferentiableAt 𝓘(ℂ) 𝓘(ℂ) (fun τ => E₄ τ ^ 3) τ := (E₄.holo' τ).pow 3
       exact h1.div (mdifferentiable_disc τ) (discriminant_ne_zero τ)
-  | some v => exact mdifferentiable_fricke v.2
+  | some v => exact mdifferentiable_fricke N v.2
 
 end Nice
 
@@ -478,14 +456,6 @@ local notation "Δ" => ModularForm.discriminant
 
 variable {N}
 
-variable (N) in
-private theorem qParam_one_eq_pow (τ : ℍ) : Periodic.qParam 1 τ = Periodic.qParam N τ ^ N := by
-  simp only [Periodic.qParam]
-  rw [← Complex.exp_nat_mul]
-  congr 1
-  have : (N : ℂ) ≠ 0 := Nat.cast_ne_zero.mpr (NeZero.ne N)
-  push_cast
-  field_simp
 
 variable (N) in
 
@@ -685,11 +655,6 @@ local notation "Δ" => ModularForm.discriminant
 
 variable (K : IntermediateField ℚ ℂ)
 
-private structure RatAt (M : ℕ) (g : ℍ → ℂ) : Prop where
-  mdiff : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) g
-  periodic : Periodic ((g * Δ ^ M) ∘ ofComplex) N
-  bdd : IsBoundedAtImInfty (g * Δ ^ M)
-  mem : ∀ n, (qExpansion N (g * Δ ^ M)).coeff n ∈ K
 
 variable {N K}
 
@@ -1572,12 +1537,6 @@ private theorem apply_smul (f : ModularForm Γ₁(M) k) {g : SL(2, ℤ)} (hg : g
   rw [ModularGroup.sl_moeb]
   exact this
 
-private theorem disc_smul (α : SL(2, ℤ)) (τ : ℍ) :
-    Δ (α • τ) = denom (α : GL (Fin 2) ℝ) τ ^ (12 : ℤ) * Δ τ := by
-  have := SlashInvariantForm.slash_action_eqn'' CuspForm.discriminant (Γ := 𝒮ℒ)
-    (γ := (α : GL (Fin 2) ℝ)) ⟨α, rfl⟩ τ
-  rw [CuspForm.coe_discriminant, ← ModularGroup.sl_moeb] at this
-  exact this
 
 private theorem levelOne_smul {k' : ℤ} (E : ModularForm 𝒮ℒ k') (α : SL(2, ℤ)) (τ : ℍ) :
     E (α • τ) = denom (α : GL (Fin 2) ℝ) τ ^ k' * E τ := by
@@ -2084,15 +2043,7 @@ section Width
 
 variable (N : ℕ) [NeZero N]
 
-private theorem natCast_pos : (0 : ℝ) < (N : ℝ) := Nat.cast_pos.mpr (NeZero.pos N)
 
-private theorem qParam_one_eq_pow (τ : ℍ) : Periodic.qParam 1 τ = Periodic.qParam N τ ^ N := by
-  simp only [Periodic.qParam]
-  rw [← Complex.exp_nat_mul]
-  congr 1
-  have : (N : ℂ) ≠ 0 := Nat.cast_ne_zero.mpr (NeZero.ne N)
-  push_cast
-  field_simp
 
 private theorem coeff_widthN_mul {g : ℍ → ℂ} (hg : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) g)
     (hper : Periodic (g ∘ ofComplex) 1) (hbd : IsBoundedAtImInfty g) (n : ℕ) :
@@ -2106,12 +2057,6 @@ section Core
 
 variable {M : ℕ} [NeZero M] {k : ℤ}
 
-private theorem disc_smul (α : SL(2, ℤ)) (τ : ℍ) :
-    Δ (α • τ) = denom (α : GL (Fin 2) ℝ) τ ^ (12 : ℤ) * Δ τ := by
-  have := SlashInvariantForm.slash_action_eqn'' CuspForm.discriminant (Γ := 𝒮ℒ)
-    (γ := (α : GL (Fin 2) ℝ)) ⟨α, rfl⟩ τ
-  rw [CuspForm.coe_discriminant, ← ModularGroup.sl_moeb] at this
-  exact this
 
 private theorem levelOne_smul {k' : ℤ} (E : ModularForm 𝒮ℒ k') (α : SL(2, ℤ)) (τ : ℍ) :
     E (α • τ) = denom (α : GL (Fin 2) ℝ) τ ^ k' * E τ := by

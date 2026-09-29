@@ -90,6 +90,12 @@ SOURCES = [
     # never sees it (the two wrappers are the comparable copies).
     "Theorems/Thm_ModularCurve_hasSum_jq_qParam.lean",
     "Theorems/Thm_ModularCurve_E4_cube_div_discriminant_smul.lean",
+    # The η/`gfun` Taylor-series engine (`truncPoly`/`etaPow`/`gfun`/
+    # `coeff_trunc_eq_coeff_etaPow`/`tendstoLocallyUniformlyOn_trunc`), promoted
+    # public in `JqAnalyticModel.lean` so `LevelOneHauptmodul.lean` can drop its
+    # private copies. The pin file carries them `private`; listing it lets the
+    # promoted-from-pin-private lookup verify them instead of reporting missing.
+    "P2M/Sol/S_ModularCurve_qExpansion_discriminant_eq_X_mul_tprod.lean",
     # The two outbound >=5-indegree exports promoted on 2026-09-22 (PORTING-FFG
     # §2.1): both were `private` even though their statements are the wrappers
     # verbatim. They live in T6's module, so they are listed with it.
@@ -1494,7 +1500,18 @@ PORT_FILES = [
     "FLTForHuman/ModularForms/WeightOne/Defs/PTorsion.lean",
     "FLTForHuman/ModularForms/WeightOne/Defs/Gamma.lean",
     "FLTForHuman/ModularForms/WeightOne/Defs/GammaRational.lean",
+    # The `RatAt`/width vocabulary, split out of `Defs/GammaRational` so `LevelN`
+    # can share it (the γ-rationality home imports LevelN). Its declarations come
+    # from the same Γ-package pin sources already in SOURCES.
+    "FLTForHuman/ModularForms/WeightOne/Defs/RatAt.lean",
     "FLTForHuman/ModularForms/WeightOne/Fricke.lean",
+    # The two homes created by the rectification's later waves. Their declarations
+    # were lifted verbatim from pin-private regions of
+    # `S_WLight_levelN_structure_package` / `S_WLight_isZeroAtImInfty_mul_disc_iff_qExpansion_coeff_le`
+    # (both already in SOURCES), so the promoted-from-pin-private fallback verifies
+    # them; `CuspBound`'s namespace differs (`WLightCusp`) and matches by last name.
+    "FLTForHuman/ModularForms/WeightOne/LevelField.lean",
+    "FLTForHuman/ModularForms/WeightOne/CuspBound.lean",
     # SET-1 (PORTING-Level.md): the Γ_H vocabulary. Definition-module port with no
     # `Theorems/` wrappers; verified by name against the four pin sources above.
     "FLTForHuman/ModularForms/Defs/GammaH.lean",

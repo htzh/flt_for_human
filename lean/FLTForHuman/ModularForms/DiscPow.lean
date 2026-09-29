@@ -214,7 +214,8 @@ lemma periodic_discPow_comp_ofComplex (k : ℕ) (N : ℕ) :
       exact hx
   simpa using hk.nat_mul N
 
-lemma mdiff_discPow (k : ℕ) : MDiff (⇑CuspForm.discriminant ^ k : ℍ → ℂ) := by
+lemma mdiff_discPow (k : ℕ) :
+    MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (⇑CuspForm.discriminant ^ k : ℍ → ℂ) := by
   rw [← discPowForm_coe]
   exact (discPowForm k).holo'
 

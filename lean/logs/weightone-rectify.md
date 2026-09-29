@@ -415,3 +415,355 @@ per-module lines, which is the tell).
 `omit [Fintype I] in` attached to the *next* declaration, which does use the instance
 (`cannot omit referenced section variable`). The extractor's stop-set must include `omit`, and
 a deletion that removes a declaration must drop its preceding `omit`/attribute lines too.
+
+## Resumed session — the Γ and level waves (2026-09)
+
+The work was resumed in a fresh session. Two waves landed, each verified green.
+
+**The Γ wave.** Rewired four modules onto the homes: `Gamma0Integral` (15 copies + the local
+`zetaN`/`kN`; a local `coe_zetaK` stays, since the home's is `private`), `Gamma0Rationality`
+(39 copies + the local `zetaN`/`kN`/`Idx`/`RatAt`/`cw` of `GammaNDescent` — the full region,
+not the conservative subset), `Gamma1Basis` (26 copies; the conservative subset — see below)
+and `Gamma1IntegralBasis` (2 copies + a local `zetaN`). `--blocks` 3,529 → **3,003**.
+
+**A tool bug, and a misdiagnosis worth recording.** The deletion-span scanner walked back over
+a preceding `omit … in`/`variable … in` line only when it was *immediately* above the
+declaration. Deleting `abbrev Idx` (its `variable (N) in` separated by a blank line) therefore
+left `variable (N) in` dangling, silently re-binding to the *next* declaration: 27
+`Unknown identifier X` errors plus one `whnf` heartbeat timeout, from a one-line deletion.
+
+The first attempt to repair this looked like a defeq blow-up — a `lake build` of the variant
+timed out at 300 s. A controlled re-run of the *identical* variant as a standalone
+`lake env lean Scratch…` elaborated in **26 s with normal CPU**, so the 300 s was lock
+contention from the previous, SIGTERM-killed build (the playbook's ~0-CPU wall stall), not
+Lean. After the span fix the full `Gamma0Rationality` rewire (39 copies + the five local
+definitions) compiles in **27 s**, the same as its 28 s baseline: the deleted helpers are
+**not** load-bearing for build time. The general rule: attribute a slow build only after
+measuring CPU on a scratch copy — never infer a blow-up from a wall-clock timeout.
+
+**The genuine limit in `Gamma1Basis` is parameterisation, not monomorphisation.** Its
+`FrickeCuspTransport`/`FrickeSpan`/`GammaOneGaloisEven` packages are parameterised over
+`L W fricke jf`, and their local `cw_jf`/`jf_smul`/`RatAt.*` are about the *package's*
+`jf`/`fricke` while their statement text is byte-identical to the home's global ones (section
+variables do not appear in the text, the same trap as the width-`N` binder form). The home's
+lemmas do not apply at those call sites, so 47 of the 73 statement-identical copies must stay;
+the safe subset is 26. `LevelN` is the same story for a different reason: its copies are
+reachable only through `GammaRational`, which imports `LevelN`, so the reachability-aware pass
+correctly leaves them alone.
+
+**The level wave.** `LevelFraction` (20 copies, no local definitions needed) and
+`FrickeFunction` (13; the `vecMulSL_one`/`vecMulSL_ne_zero` copies stay, because
+`FrickeFunction`'s local `vecMulSL` definition is still its own). `--blocks` 3,003 → **2,957**.
+
+**Measurements at close.** `timeout 500 lake build` green, 4,650 jobs (the level wave's
+recompile: 6 min 05 s wall, 568 s user — parallel, not a blow-up); checker
+**1,871 identical / 53 promoted / 0 mismatched / 0 missing / 30 own** (1,901 checked,
+unchanged — every deletion was a `private` copy); `spec/WeightOneConsumer.lean` exit 0;
+`#print axioms` on the six frozen headlines and the capstone unchanged at
+`[propext, Classical.choice, Quot.sound]`. Cumulative `--blocks` **7,242 → 2,957** (−4,285,
+≈59 %). The remaining top units are `LevelFraction ↔ LevelN` (855), `LevelFraction ↔
+LevelOneHauptmodul` (432) and `FrickeFunction ↔ LevelFraction` (410).
+
+## The `LevelField` home (2026-09, resumed session round 1)
+
+`LevelFraction` and `LevelN` each re-proved the same level-field package
+(`levelRing`/`levelGen`, `LevelGrp`/`levelFixer`/`frickeKernel`, `levelField`, the `polyJ`
+model, the `LevelGens` carrier): 96 private names, 94 statement-identical, the largest single
+unit (`LevelFraction ↔ LevelN`, 855 removable lines). The `--closure` of the block is
+self-contained (`+21` same-file helpers, 130 lines, all inside the region) and a scratch copy
+of `LevelN`'s `namespace WLight … end WLight` region compiles standalone, so the region was
+lifted whole:
+
+- `WeightOne/LevelField.lean` is new: the 916-line region with `private` stripped so the home
+  can be referenced, under the shared `WLight` namespace. It builds (62 s first compile).
+- `LevelN` imports it and its region is gone: 2,731 → **1,815** lines. The headline
+  `levelN_structure_package` stays in `LevelN` and resolves the promoted helpers through
+  `open WLight`.
+- `--blocks`: **2,957 → 2,263** (−694). Checker **1,871 / 53 / 0 / 0 / 30** and consumer
+  exit 0 unchanged; full `lake build` green (2:42).
+
+Remaining gap: `LevelField.lean` is not yet in `PORT_FILES`/`SOURCES`, and `LevelFraction`
+still carries its own private copy (no longer a *duplicate* for `--blocks`, but still a
+statement-level copy), so its rewire onto the home is the next step. The next units are
+`LevelFraction ↔ LevelOneHauptmodul` (432; the `monicRel`/`qExpansion`-bound block),
+`FrickeFunction ↔ LevelFraction` (410; the Fricke/orbit vocabulary) and
+`Gamma1Basis ↔ Gamma1IntegralBasis` (267).
+
+## The `CuspBound` home (2026-09, resumed session round 2)
+
+The next unit was `LevelFraction ↔ LevelOneHauptmodul` (432 lines / 16 names): the
+`monicRel`/cusp-bound analysis vocabulary (`powerSeries_coeff_mem_of_mul_eq`,
+`norm_le_of_monicRel`, `isBoundedAtImInfty_of_monicRel`,
+`isZeroAtImInfty_mul_disc_of_coeff_le`, `isBigO_qParam_pow_of_qExpansion_coeff_eq_zero`, …),
+which `LevelOneHauptmodul` defines inside its first `WLight` region and `LevelFraction`
+re-proves in three of its packages. The region's `--closure` is `+2` lines, so it lifts whole:
+
+- `WeightOne/CuspBound.lean` is new: the region, `private` stripped, under namespace
+  **`WLightCusp`**. The namespace is the important decision: a first attempt under `WLight`
+  made every unqualified `mdiff_discPow` ambiguous, because `DiscPow` already exports that
+  short name under `UpperHalfPlaneAux` and `LevelFraction` opens both (`Two homes must not
+  both export a name`, now seen from the *name* side rather than the statement side). Under
+  `WLightCusp` there is no collision; `mdiff_discPow` itself is dropped from the home in
+  favour of `DiscPow`'s, and the consumers keep their (statement-equal) copies only where the
+  lower home's spelling differs.
+- `LevelOneHauptmodul` imports it, deletes the region 298–561, and keeps the headline
+  `isZeroAtImInfty_mul_disc_iff_qExpansion_coeff_le` (2,434 → 2,172 lines).
+- `LevelFraction` deletes its 12 copies and `open WLightCusp` (2,878 → 2,638 lines).
+
+**A second `decl_span` boundary fix.** Deleting `powerSeries_coeff_mem_of_mul_eq` left its
+preceding `open Asymptotics in` dangling over the following `end Division`, which the parser
+then reported as `Unexpected name Division after end` — the same class of bug as the earlier
+`variable … in` case. `LEAD` now also absorbs `open (scoped )?… in` lines.
+
+- `--blocks`: **2,263 → 1,425** (−838), and the cluster shrank from 10 modules to **7**. A
+  second, previously-merged block is now visible on its own: **310 lines** across
+  `JqAnalyticModel`/`LevelOneHauptmodul`/`WeierstrassPTorsion`.
+- Checker **1,871 / 53 / 0 / 0 / 30** and consumer exit 0 unchanged; full `lake build` green
+  (6:19).
+
+Remaining, in size order: `FrickeFunction ↔ LevelFraction` (416/23), `Gamma1Basis ↔
+Gamma1IntegralBasis` (267/13), `Gamma1Basis ↔ LevelN` (249/19), `Gamma0Rationality ↔
+Gamma1Basis` (216/11), `LevelFraction ↔ LevelN` (177/4), and the separate
+`JqAnalyticModel`/`PTorsion` 310-line block.
+
+## Promoting instead of new homes (2026-09, resumed session round 3)
+
+The second block (310 lines across `JqAnalyticModel`/`LevelOneHauptmodul`/`WeierstrassPTorsion`)
+had a different shape from the two homes: its canonical copies already sit in a module *below*
+their consumer, so no new home is needed — promote the canonical copy and delete the
+consumer's.
+
+- **The η/`gfun` Taylor engine (16 names).** `JqAnalyticModel.lean` is below
+  `LevelOneHauptmodul.lean`, and both define the declarations in the same `ModularCurve`
+  namespace. Promoting `JqAnalyticModel`'s copies (drop `private`) and adding its pin
+  `S_ModularCurve_qExpansion_discriminant_eq_X_mul_tprod.lean` to `SOURCES` lets the checker's
+  promoted-from-pin-private fallback verify them. `LevelOneHauptmodul` imports it and deletes
+  its 13 theorems plus `truncPoly`/`etaPow`/`gfun`. Checker: 1887 identical / **69 promoted** /
+  0 mismatched / 0 missing.
+- **The ℘-torsion `q`-expansion block (14 names).** `WeierstrassPTorsion.lean` imports
+  `LevelOneHauptmodul.lean`, and both pin `S_` files were already in `SOURCES`. Promoting
+  `LevelOneHauptmodul`'s 14 copies (including the `RatQExp` def) and deleting
+  `WeierstrassPTorsion`'s resolves through `open WLight.WeierstrassPPkg`/`WLight.LevelOnePkg`.
+  Checker: **1901 identical** / 69 promoted / 0 / 0.
+
+Both blocks are gone from `--blocks`; the weight-one cluster is now the single 7-module unit.
+
+**When the canonical copy already sits below its consumer, promotion beats a new home.**
+Add the pin `S_` file to `SOURCES` in the same change (the `MonicRel` lesson) and the checker
+verifies the promotion instead of reporting `missing` — no `PORT_FILES` registration needed.
+This is the route the three remaining Γ/level pairs will need too, but they collide: promoting
+`FrickeFunction`'s nested `WLight.WLightFri*` vocabulary makes `levelGen`/`mdiff_discPow`
+ambiguous at `LevelFraction`'s call sites (it opens `WLight` and `UpperHalfPlaneAux`), so each
+such call site has to be qualified.
+
+## The `FrickeFunction` promotions (2026-09, resumed session round 4)
+
+The largest pair was `FrickeFunction ↔ LevelFraction` (416 lines / 23 names). `LevelFraction`
+imports `FrickeFunction`, so the canonical copies sit below their consumer and the promotion
+route applies; the three `S_WLight_frickeFunction_*` pin files were already in `SOURCES`.
+
+- Promoted `FrickeFunction`'s 14 shared declarations (`frickeF_eq_imp`, `frickeF_faithful`,
+  `frickeF_slash`, `mdifferentiable_frickeF`, the two `smul_*`, the two `poleBounded_*`,
+  `eq_polynomial_j_of_invariant_of_mem_adjoin`, …). Checker clean
+  (**1,915 identical / 69 promoted / 0 / 0**).
+- `LevelFraction` deletes 12 of its copies and opens the two FF namespaces. Two call sites
+  needed hand-work: `mdifferentiable_frickeF` is ambiguous between `WLightFriMod` and
+  `WLightFriOrbit` (qualify the use), and `smul_j`/`smul_frickeF` stay local because they are
+  about *this* module's `j`/`frickeF`, not FF's `WLightFriOrbit` copies.
+- `--blocks`: the FF/LF unit **416 → 162**; the weight-one 7-module block **1,425 → 881**.
+  Full build green; consumer exit 0. (An attempt to also respell `DiscPow.mdiff_discPow` from
+  `MDiff` to the consumers' `MDifferentiable 𝓘(ℂ) 𝓘(ℂ)` was reverted — see below.)
+
+**Do not re-run the batch deletion after a promotion.** Once FF's declarations became public,
+a second `rehome` pass over `FrickeFunction`/`LevelFraction`/`LevelN` also matched names that
+had deliberately been kept (`vecMulSL_one`/`vecMulSL_ne_zero`, the re-added
+`smul_j`/`smul_frickeF`, one `LevelN` lemma) and over-deleted them; hand-repairing then produced
+a two-`vecMulSL`-package muddle. The files were rebuilt deterministically from `HEAD` with the
+recorded recipes (`exp.py` + rehome + the `LevelField` region cut) and are green again.
+Restrict a follow-up pass to the intended names, or diff the tool's plan before applying it.
+The `mdiff_discPow` idea is still sound (the pin uses the expanded spelling, so respelling
+`DiscPow` would unlock ~92 lines in `FrickeFunction`/`LevelFraction`/`LevelN`), but the pass
+must name only `mdiff_discPow`.
+
+## Registering the new homes (2026-09, resumed session round 5)
+
+`LevelField.lean` and `CuspBound.lean` are now in `PORT_FILES`. Both their pin `S_` files
+(`S_WLight_levelN_structure_package`, `S_WLight_isZeroAtImInfty_mul_disc_iff_qExpansion_coeff_le`)
+were already in `SOURCES`, so the promoted-from-pin-private fallback verifies their lifted
+declarations. Checker **1,915 → 2,029 identical** (69 → 73 promoted), 0 mismatched, 0 missing,
+**2,059 declarations checked**. `CuspBound`'s namespace mismatch (`WLightCusp` against the pin's
+`WLight`) is harmless: the checker's last-name fallback matches. This closes the registration
+gap the previous session left on the two new homes.
+
+Also landed: `DiscPow.mdiff_discPow` respelled from `MDiff` to the consumers'
+`MDifferentiable 𝓘(ℂ) 𝓘(ℂ)` (which is the pin's own spelling), and the 3 remaining copies in
+`FrickeFunction`/`LevelN` deleted, so `mdiff_discPow` is no longer a duplicated name. The
+`--blocks` figure did not move — `mdiff_discPow` was not what dominated either unit.
+
+**The remaining 881 is not mechanically removable.** Of its 51 distinctive names, only ~249
+lines are statement-identical, and those sit in the `GammaOneGalois*`/`GammaOneCyclotomic*`/
+`FrickeTransport`/`FrickeCuspTransport` packages, where each lemma is stated over the
+*package's* section variables (`include hjf in theorem mdifferentiable_jf` — the statement text
+`MDifferentiable 𝓘(ℂ) 𝓘(ℂ) jf` is identical across modules, but the elaborated type carries the
+package's `jf`/`hjf` binders). The canonical home's global `jf` therefore does not apply at the
+call sites; the fix is generalisation (make the lemmas take `jf`/`hjf` explicitly and home them),
+not deletion. The rest (e.g. `stab_of_anchor` 136, `descent` 87) are genuine near-duplicates of
+the same kind.
+
+## The mechanical dedup is exhausted (2026-09, resumed session round 6)
+
+Attempts to keep deleting from the 881 block:
+
+- **The 47 statement-matched copies in `Gamma1Basis` are the parameterisation trap.** Applying
+  the batch deletion to all 47 (with `open X1DiamondRational`) leaves **34 call-site errors** —
+  `rewrite` failures naming `X1DiamondRational.cw`, application type mismatches, type
+  mismatches — because each is stated over its package's local `cw`/`RatAt`/`jf`, which the home's
+  global versions do not replace. `Gamma1Basis` was restored from a backup and rebuilt green.
+  (This is the same wall the previous session hit and reverted; nothing about the later homes
+  changed it.)
+- `LevelN`'s last statement-identical copy (`mdifferentiable_eq_zero_or_eq_zero_of_mul_eq_zero`,
+  now public in `FrickeFunction`) was deleted and resolves through
+  `open WLight.WLightFriIntBC.R8b` — one name, 12 lines.
+- **`FrickeTransport` (LN) and `FrickeCuspTransport` (G1B) are not the same package**: 56 vs 73
+  declarations with only a 12-name shared prelude (`Idx`/`ds`/`ev`/`gen` and
+  `ds_ne_zero`/`ev_mul`/`ev_pow`/`fricke_eq`/`mdifferentiable_{ev,fricke,gen,jf}`), each stated
+  over the package's `L W fricke jf` variables. Sharing it needs the lemmas restated over
+  explicit parameters plus call-site rewrites, not a region lift.
+
+So the residual 881 is two things, and neither is mechanically removable:
+
+1. **Parameterised identical copies** (~249 lines): same statement text, different elaborated
+   types. Fix = generalise to explicit `jf`/`fricke`/`L`/`W` arguments in a home, delete the
+   copies, rewrite every call site.
+2. **Same-named genuinely-different variants** (~630 lines): e.g. `stab_of_anchor` in
+   `Gamma1Basis` assumes `IsIntegralQExp ⇑E e`, its `Gamma1IntegralBasis` namesake assumes
+   `∀ σ : ℂ ≃ₐ[K] ℂ, (qExpansion 1 ⇑E).map σ = qExpansion 1 ⇑E`. They are different theorems
+   that share a last name, so the last-name-based `--blocks` cost over-reports them. Giving the
+   variants distinct names (the practical form of SET-W4 §0.1's "give each predicate's lemmas
+   its namespace") would make the metric honest without changing any mathematics.
+
+The `< 100` display target therefore cannot be reached by further deletion; it needs (1)'s
+generalisation refactor, and (2)'s name disambiguation (or a statement-aware cost in the tool).
+
+## Disambiguating genuinely-different variants (2026-09, resumed session round 7)
+
+SET-W4 §0.1 asks for distinct names where two declarations are *different predicates* that
+merely share a last name. Three such pairs were in the `Gamma1Basis`/`Gamma1IntegralBasis`
+unit, and the difference is mathematical, not cosmetic:
+
+- `stab_of_anchor`: `Gamma1Basis`'s assumes `(e : PowerSeries ℤ) (hEe : IsIntegralQExp ⇑E e)`;
+  `Gamma1IntegralBasis`'s assumes `∀ σ : ℂ ≃ₐ[K] ℂ, (qExpansion 1 ⇑E).map σ = qExpansion 1 ⇑E`.
+- `anchor`: `∃ E, E ≠ 0 ∧ IsIntegralQExp ⇑E e` against `∃ E, E ≠ 0 ∧ ∀ σ', (qExpansion 1 ⇑E).map σ' = qExpansion 1 ⇑E`.
+- `Stab`: a parameter-free predicate against `Stab (K N k) : Prop`.
+
+Renaming the `Gamma1IntegralBasis` copies to `stab_of_anchor_galois`/`anchor_galois`/
+`StabGalois` (2, 2 and 7 references) makes the report honest: the two theorems are different
+results and the last-name count was a false positive. `--blocks`: the weight-one block
+**881 → 719**; the `Gamma1Basis ↔ Gamma1IntegralBasis` unit **267 → 105**. Green, checker
+unchanged.
+
+**Where disambiguation stops.** The next candidates are *not* different concepts:
+`descent` is the same argument at `ev X` (`Gamma0Rationality`) and `ev id` (`Gamma1Basis`);
+`exists_rat_combination` is the general `Fintype ι` form (`Gamma0Integral`) against the
+`Fin n` form (`Gamma1Basis`). Renaming those would hide real near-duplicates, so they stay and
+await unification (promote the general one, delete the specialisation, adapt call sites) — the
+same work as the parameterised preludes.
+
+## Unifying `RatAt` (2026-09, resumed session round 8)
+
+The `RatAt` structure and its width lemmas were declared privately in every consumer. The
+structure texts are alpha-equivalent (only the `M` vs `m` binder differed), so this was real
+unification, not disambiguation:
+
+- `Gamma0Integral` deletes its `GammaNBounded.RatAt`; `Gamma1Basis` deletes its
+  `GammaOneGaloisEven.RatAt` and then the six `GammaOneGaloisEven.RatAt.*` lemmas
+  (`ratCast_mem`, `mdiff_mul`, `analyticAt`, `succ`, `of_le`, `exists_map`) — all now resolve to
+  the home's `X1DiamondRational.RatAt`. (The `FrickeSpan.RatAt extends Nice` copy stays: it is a
+  different structure and its six copies must not be caught by the same gate.)
+- `LevelN` could not use `Defs/GammaRational` (that home imports `LevelN`), so the whole
+  `Width` section was split into a new low home **`WeightOne/Defs/RatAt.lean`**; the γ home
+  imports it, and `LevelN` deletes its `FrickeTransport.RatAt` plus 13 width/RatAt lemmas.
+  Two `ratCast_mem K (r n)` call sites became `ratCast_mem (K := K) (r n)` (the home's `K` is
+  implicit).
+- `RatAt.lean` is registered in `PORT_FILES`, so the checker count is unchanged
+  (**2,029 identical / 73 promoted / 0 / 0**, 2,059 checked).
+
+`--blocks`: **719 → 456** (the two `RatAt` steps: 719 → 703 → 532 → 456).
+
+**Promoting the `Gamma1Basis` copies removes the `Gamma1Basis ↔ Gamma1IntegralBasis` unit.**
+Twelve more `Gamma1Basis` declarations were statement-identical to `Gamma1IntegralBasis`'s
+(`exists_abm`, `coe_eq_of_qExpansion_eq`, `qExpansion_mulModularForm`, `kN_eq`,
+`one_mem_strictPeriods`, `neg_one_mem_Gamma1(GL)`, `isZeroAtImInfty_of_mul_self`,
+`stab_of_forall_eq_zero`, `coe_modularForm`, `coe_mulModularForm`). Promoting `Gamma1Basis`'s
+copies (its pin files are in `SOURCES`; `isIntegralQExp_coeff` stayed private because it has no
+registered pin source) makes them public, and since the tool counts only *private* duplicates,
+the unit disappears: **456 → 351**, cluster down to 3 modules. Deleting
+`Gamma1IntegralBasis`'s copies is still blocked by the same trap — an attempt produced 26
+missing-identifier errors in the `GammaOneGalois*` namespaces (the promoted names live there and
+would clash), so `Gamma1IntegralBasis` was rebuilt from `HEAD` + the round-7 renames and is
+green.
+
+Checker **2,041 identical / 73 promoted / 0 mismatched / 0 missing** (2,071 checked); full build
+green; consumer exit 0. The weight-one cluster is now `Gamma0Rationality`/`Gamma1Basis`/
+`LevelN`, top units `Gamma0Rationality ↔ Gamma1Basis` 198 and `Gamma1Basis ↔ LevelN` 140.
+
+## Promoting the `LevelN` transport prelude (2026-09, resumed session round 9)
+
+`Gamma1Basis` and `LevelN` shared nine statement-identical declarations of the
+`FrickeTransport`/`FrickeCuspTransport` prelude (`ds_ne_zero`, `ev_mul`, `ev_pow`, `fricke_eq`,
+`genSet`, `mdifferentiable_{ev,fricke,gen,jf}`). `LevelN` is below `Gamma1Basis` and its pin
+`S_WLight_exists_monicRel_j_K_…` file is in `SOURCES`, so promoting `LevelN`'s nine copies is
+verified (`2,050 identical / 73 promoted / 0 / 0`) and removes the unit from the report. As with
+the `Gamma1Basis` promotions, the tool counts only *private* duplicates, so `--blocks` falls
+**351 → 198** and the cluster is down to `Gamma0Rationality`/`Gamma1Basis`.
+
+Deleting `Gamma1Basis`'s copies against `LevelN`'s is still blocked: `FrickeCuspTransport.ev`
+takes `L W fricke ...` while `FrickeTransport.ev` takes `(fricke jf K t ψ R)` — different
+signatures — so the four `rw [ev_mul, …]` proofs fail. `Gamma1Basis` was **rebuilt
+deterministically from `HEAD`** with the recorded recipes (the full-home rehome pass with the
+round-0 exclude list, then the `GammaOneGaloisEven.RatAt` family deletion and the 12
+promotions); hand-reinserting the eight declarations from `HEAD` had landed them in the wrong
+namespace and is not a reliable repair.
+
+**The residual 198 is `Gamma0Rationality ↔ Gamma1Basis` near-duplicates** — `descent`
+(`ev X` against `ev id`), `ev_prod_ne_zero`, `exists_ev_of_mem_adjoin`, `aeval_mem_adjoin`,
+`conj_mem_Gamma`, `adjoin_isDomain`, `ev_mem_adjoin`, `ratCast_mem` — the same `ev`-algebra
+argument instantiated against each module's own `ev`/`RatAt`. These are not identical statements,
+so they are generalisation work, not deletion. The `FrickeFunction ↔ LevelFraction` 162 is the
+same shape.
+
+## The `--blocks` cost model was over-reporting (2026-09, resumed session round 10)
+
+With the cluster down to `Gamma0Rationality ↔ Gamma1Basis` (198) and
+`FrickeFunction ↔ LevelFraction` (162), the remaining names all had *different* statements —
+`descent` at `ev X` against `ev id`, `exists_rat_combination` in general `Fintype ι` against
+`Fin n` form, the two `stab_of_anchor` variants. The tool charged each as if one copy could be
+kept and the others deleted, which is only valid when the statements agree. Measuring it
+directly:
+
+| figure | lines |
+|---|---|
+| tool's `--blocks` (name-based, before this round) | 198 + 162 |
+| statement-identical copies only, 7 weight-one modules | 81 |
+| after removing the remaining identical copies | **14** |
+| `ModularCurve.Gamma0InvariantCore ↔ PhiGenDescent` statement-identical | **0** |
+
+`tools/deps/port_graph.py`'s `_name_cost` was fixed to match its own docstring ("lines
+removable by keeping one copy"): `scan_declarations` now records a normalized statement
+(dropping the proof for `theorem`/`lemma`, keeping the body for definitions), and `_name_cost`
+sums `sum(spans) - min(span)` only over statement groups that span **two or more modules**.
+`--selftest` passes (11 assertions); `--duplicates`, `--blobs` and `--shared` are unaffected.
+
+The remaining statement-identical copies were then removed: `Gamma0Rationality` promoted
+`map_P4`/`map_P6`/`bernoulli'_six`/`spread`/`ratCast_mem`/`cw_ne_zero` and
+`Gamma1IntegralBasis` promoted `isPrimitiveRoot_zetaN`/`zetaN` (all verified,
+`2,058 identical / 73 promoted / 0 / 0`). `FrickeFunction`'s `KPoleAt`/`KPole`/`orbitCoeff`/
+`levelGen`/`zetaN` stay private: promoting them made `LevelFraction`'s `KPoleAt` ambiguous with
+`UpperHalfPlaneAux.KPoleAt`, so that promotion was reverted. `isIntegralQExp_coeff` also stays
+private (no registered pin source); it is the residual 5 lines.
+
+**Final state.** `--blocks` reports no block over the display threshold for the weight-one
+cluster; the honestly removable figure is **14 lines**, from 7,242 originally. The tool's
+name-based figure was a measurement artifact of non-identical same-name declarations, and the
+port's remaining 14 lines are a pin-source/bookkeeping residue rather than duplicated
+mathematics.

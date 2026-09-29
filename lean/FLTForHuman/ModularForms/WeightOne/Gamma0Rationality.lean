@@ -494,7 +494,6 @@ section QExp
 
 variable (a₁ a₂ : ℕ) [Fact (a₁ < N)]
 
-private theorem natCast_pos : (0 : ℝ) < (N : ℝ) := Nat.cast_pos.mpr (NeZero.pos N)
 
 private theorem summable_bound {r : ℝ} (hr0 : 0 ≤ r) (hr1 : r < 1) :
     Summable (fun n : ℕ => (‖c0 N a₁ a₂‖ + 8 * ((n : ℝ) + 1) ^ 3) * r ^ n) := by
@@ -579,15 +578,8 @@ section Main
 
 local notation "Δ" => ModularForm.discriminant
 
-private theorem qParam_one_eq_pow (τ : ℍ) : Periodic.qParam 1 τ = Periodic.qParam N τ ^ N := by
-  simp only [Periodic.qParam]
-  rw [← Complex.exp_nat_mul]
-  congr 1
-  have : (N : ℂ) ≠ 0 := Nat.cast_ne_zero.mpr (NeZero.ne N)
-  push_cast
-  field_simp
 
-private def spread (P : PowerSeries ℤ) : PowerSeries ℤ :=
+def spread (P : PowerSeries ℤ) : PowerSeries ℤ :=
   PowerSeries.mk fun n => if (N : ℕ) ∣ n then PowerSeries.coeff (n / N) P else 0
 
 private theorem qExpansion_widthN_of_int {k : ℤ} (f : ModularForm 𝒮ℒ k) (P : PowerSeries ℤ)
@@ -609,7 +601,7 @@ private def P4 : PowerSeries ℤ :=
 private def P6 : PowerSeries ℤ :=
   PowerSeries.mk fun m => if m = 0 then 1 else -504 * (ArithmeticFunction.sigma 5 m : ℤ)
 
-private theorem map_P4 : P4.map (Int.castRingHom ℂ) = qExpansion 1 (E₄ : ℍ → ℂ) := by
+theorem map_P4 : P4.map (Int.castRingHom ℂ) = qExpansion 1 (E₄ : ℍ → ℂ) := by
   ext n
   rw [PowerSeries.coeff_map, ModularForm.E₄, EisensteinSeries.E_qExpansion_coeff (by norm_num) (by decide) n,
     P4, PowerSeries.coeff_mk, eq_intCast]
@@ -620,7 +612,7 @@ private theorem map_P4 : P4.map (Int.castRingHom ℂ) = qExpansion 1 (E₄ : ℍ
     push_cast
     ring
 
-private theorem bernoulli'_six : bernoulli' 6 = 1 / 42 := by
+theorem bernoulli'_six : bernoulli' 6 = 1 / 42 := by
   rw [bernoulli'_def]
   norm_num [Finset.sum_range_succ, bernoulli'_zero, bernoulli'_one, bernoulli'_two, bernoulli'_three,
     bernoulli'_four, Nat.choose]
@@ -628,7 +620,7 @@ private theorem bernoulli'_six : bernoulli' 6 = 1 / 42 := by
   rw [h5]
   norm_num
 
-private theorem map_P6 : P6.map (Int.castRingHom ℂ) = qExpansion 1 (E₆ : ℍ → ℂ) := by
+theorem map_P6 : P6.map (Int.castRingHom ℂ) = qExpansion 1 (E₆ : ℍ → ℂ) := by
   ext n
   rw [PowerSeries.coeff_map, ModularForm.E₆, EisensteinSeries.E_qExpansion_coeff (by norm_num) (by decide) n,
     P6, PowerSeries.coeff_mk, eq_intCast]
@@ -768,22 +760,11 @@ namespace FrickeToInfinity
 
 local notation "Δ" => ModularForm.discriminant
 
-private theorem mdifferentiable_disc : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (Δ : ℍ → ℂ) := CuspForm.discriminant.holo'
 
-private theorem isBoundedAtImInfty_disc : IsBoundedAtImInfty (Δ : ℍ → ℂ) :=
-  ModularFormClass.bdd_at_infty CuspForm.discriminant
 
 variable (N : ℕ) [NeZero N]
 
-private theorem natCast_pos : (0 : ℝ) < (N : ℝ) := Nat.cast_pos.mpr (NeZero.pos N)
 
-private theorem qParam_one_eq_pow (τ : ℍ) : Periodic.qParam 1 τ = Periodic.qParam N τ ^ N := by
-  simp only [Periodic.qParam]
-  rw [← Complex.exp_nat_mul]
-  congr 1
-  have : (N : ℂ) ≠ 0 := Nat.cast_ne_zero.mpr (NeZero.ne N)
-  push_cast
-  field_simp
 
 private theorem qExpansion_coeff_one_eq_widthN {g : ℍ → ℂ} (hg : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) g)
     (hper : Periodic (g ∘ ofComplex) 1) (hbd : IsBoundedAtImInfty g) (n : ℕ) :
@@ -791,54 +772,13 @@ private theorem qExpansion_coeff_one_eq_widthN {g : ℍ → ℂ} (hg : MDifferen
   rw [qExpansion_coeff_widthN N hg hper hbd, ite_eq_left (dvd_mul_right N n),
     Nat.mul_div_cancel_left _ (NeZero.pos N)]
 
-private theorem ratCast_mem (K : IntermediateField ℚ ℂ) (r : ℚ) : ((r : ℂ)) ∈ K := by
+theorem ratCast_mem (K : IntermediateField ℚ ℂ) (r : ℚ) : ((r : ℂ)) ∈ K := by
   have : (r : ℂ) = algebraMap ℚ ℂ r := rfl
   rw [this]; exact K.algebraMap_mem r
 
-private theorem qExpansion_E₄_rat (n : ℕ) : ∃ r : ℚ, (qExpansion 1 (E₄ : ℍ → ℂ)).coeff n = (r : ℂ) := by
-  rw [ModularForm.E₄, EisensteinSeries.E_qExpansion_coeff (by norm_num) (by decide) n]
-  split_ifs
-  · exact ⟨1, by simp⟩
-  · exact ⟨-(2 * 4 / bernoulli 4) * (ArithmeticFunction.sigma 3 n : ℚ), by push_cast; ring⟩
 
-private theorem qExpansion_E₆_rat (n : ℕ) : ∃ r : ℚ, (qExpansion 1 (E₆ : ℍ → ℂ)).coeff n = (r : ℂ) := by
-  rw [ModularForm.E₆, EisensteinSeries.E_qExpansion_coeff (by norm_num) (by decide) n]
-  split_ifs
-  · exact ⟨1, by simp⟩
-  · exact ⟨-(2 * 6 / bernoulli 6) * (ArithmeticFunction.sigma 5 n : ℚ), by push_cast; ring⟩
 
-private theorem qExpansion_disc_rat_one (n : ℕ) : ∃ r : ℚ, (qExpansion 1 (Δ : ℍ → ℂ)).coeff n = (r : ℂ) := by
-  let A : ModularForm 𝒮ℒ 12 := (E₄.pow 3).mcast (by norm_num)
-  let B : ModularForm 𝒮ℒ 12 := (E₆.pow 2).mcast (by norm_num)
-  have hfun : (Δ : ℍ → ℂ) = ⇑((1728 : ℂ)⁻¹ • (A - B)) := by
-    funext z
-    rw [discriminant_eq_E₄_cube_sub_E₆_sq, smul_apply, sub_apply]
-    simp only [A, B, coe_mcast, coe_pow, Pi.pow_apply, smul_eq_mul]
-    ring
-  obtain ⟨p4, hp4⟩ : ∃ p : PowerSeries ℚ, p.map (algebraMap ℚ ℂ) = qExpansion 1 (E₄ : ℍ → ℂ) := by
-    choose r hr using qExpansion_E₄_rat
-    exact ⟨PowerSeries.mk r, by ext n; simp [hr n]⟩
-  obtain ⟨p6, hp6⟩ : ∃ p : PowerSeries ℚ, p.map (algebraMap ℚ ℂ) = qExpansion 1 (E₆ : ℍ → ℂ) := by
-    choose r hr using qExpansion_E₆_rat
-    exact ⟨PowerSeries.mk r, by ext n; simp [hr n]⟩
-  have hq : qExpansion 1 (Δ : ℍ → ℂ) = ((1728 : ℚ)⁻¹ • (p4 ^ 3 - p6 ^ 2)).map (algebraMap ℚ ℂ) := by
-    rw [hfun, FunLike.coe_smul, ModularForm.qExpansion_smul one_pos one_mem_strictPeriods_SL,
-      FunLike.coe_sub, ModularForm.qExpansion_sub one_pos one_mem_strictPeriods_SL]
-    simp only [A, B, ModularForm.qExpansion_mcast,
-      ModularForm.qExpansion_pow one_pos one_mem_strictPeriods_SL]
-    rw [PowerSeries.smul_eq_C_mul, PowerSeries.smul_eq_C_mul, map_mul, PowerSeries.map_C, map_sub,
-      map_pow, map_pow, hp4, hp6]
-    congr 1
-    simp
-  refine ⟨PowerSeries.coeff n ((1728 : ℚ)⁻¹ • (p4 ^ 3 - p6 ^ 2)), ?_⟩
-  rw [hq, PowerSeries.coeff_map]
-  rfl
 
-private theorem qExpansion_disc_rat (n : ℕ) : ∃ r : ℚ, (qExpansion N (Δ : ℍ → ℂ)).coeff n = (r : ℂ) := by
-  rw [qExpansion_coeff_widthN N mdifferentiable_disc periodic_disc_one isBoundedAtImInfty_disc n]
-  split_ifs with h
-  · exact qExpansion_disc_rat_one _
-  · exact ⟨0, by simp⟩
 
 section PowerSeriesK
 
@@ -1194,7 +1134,7 @@ private theorem aeval_relPoly (φ : kN N →+* ℂ) (G : ℍ → ℂ) (t : (Fin 
 private theorem evφ_algebraMap (t : (Fin 2 → ZMod N) → (Fin 2 → ZMod N)) (R : MvPolynomial (Idx N) (kN N)) :
     evφ N (algebraMap (kN N) ℂ) t R = ev N t R := rfl
 
-private theorem cw_ne_zero {b : ℍ → ℂ} (hb : b ≠ 0) (γ : SL(2, ℤ)) : cw b γ ≠ 0 := by
+theorem cw_ne_zero {b : ℍ → ℂ} (hb : b ≠ 0) (γ : SL(2, ℤ)) : cw b γ ≠ 0 := by
   intro h
   apply hb
   have : cw (cw b γ) γ⁻¹ = b := by rw [← cw_mul, mul_inv_cancel, cw_one]
@@ -1380,18 +1320,13 @@ private structure FD (N : ℕ) [NeZero N] where
 
 variable (N : ℕ) [NeZero N]
 
-private def zetaN : ℂ := Complex.exp (2 * (Real.pi : ℂ) * Complex.I / (N : ℂ))
 
-private def kN : IntermediateField ℚ ℂ := IntermediateField.adjoin ℚ {zetaN N}
 
 variable {N}
 variable (X : FD N)
 
 private def genSet : Set (ℍ → ℂ) := insert X.jf {g : ℍ → ℂ | ∃ v : Fin 2 → ZMod N, v ≠ 0 ∧ g = X.fricke v}
 
-variable (N) in
-
-private abbrev Idx : Type := Option {v : Fin 2 → ZMod N // v ≠ 0}
 
 private def gen : Idx N → ℍ → ℂ := fun o => o.elim X.jf fun v => X.fricke v.1
 
@@ -1401,175 +1336,33 @@ section Width
 
 local notation "Δ" => ModularForm.discriminant
 
-private theorem mdifferentiable_disc : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (Δ : ℍ → ℂ) := by
-  rw [← CuspForm.coe_discriminant]; exact CuspForm.discriminant.holo'
 
-private theorem isBoundedAtImInfty_disc : IsBoundedAtImInfty (Δ : ℍ → ℂ) := by
-  have := ModularFormClass.bdd_at_infty CuspForm.discriminant
-  rwa [CuspForm.coe_discriminant] at this
 
-private theorem disc_ne_zero_fun : (Δ : ℍ → ℂ) ≠ 0 := fun h => by
-  have := congrFun h UpperHalfPlane.I
-  exact discriminant_ne_zero _ this
 
-private theorem disc_pow_ne_zero (m : ℕ) (τ : ℍ) : (Δ ^ m : ℍ → ℂ) τ ≠ 0 := by
-  rw [Pi.pow_apply]; exact pow_ne_zero _ (discriminant_ne_zero τ)
 
-private theorem periodic_pow {g : ℍ → ℂ} {c : ℂ} (h : Periodic (g ∘ ofComplex) c) (m : ℕ) :
-    Periodic ((g ^ m) ∘ ofComplex) c := by
-  induction m with
-  | zero => intro z; simp
-  | succ m ih => rw [pow_succ]; exact periodic_mul ih h
 
-private theorem periodic_smul {g : ℍ → ℂ} {c : ℂ} (h : Periodic (g ∘ ofComplex) c) (a : ℂ) :
-    Periodic ((a • g) ∘ ofComplex) c := by
-  intro z; have h1 := h z; simp only [comp_apply, Pi.smul_apply] at h1 ⊢; rw [h1]
 
-private theorem periodic_add {g g' : ℍ → ℂ} {c : ℂ} (h : Periodic (g ∘ ofComplex) c)
-    (h' : Periodic (g' ∘ ofComplex) c) : Periodic ((g + g') ∘ ofComplex) c := by
-  intro z
-  have h1 := h z
-  have h2 := h' z
-  simp only [comp_apply, Pi.add_apply] at h1 h2 ⊢
-  rw [h1, h2]
 
 variable (N : ℕ) [NeZero N]
 
-private theorem natCast_pos : (0 : ℝ) < (N : ℝ) := Nat.cast_pos.mpr (NeZero.pos N)
 
-private theorem qParam_one_eq_pow (τ : ℍ) : Periodic.qParam 1 τ = Periodic.qParam N τ ^ N := by
-  simp only [Periodic.qParam]
-  rw [← Complex.exp_nat_mul]
-  congr 1
-  have : (N : ℂ) ≠ 0 := Nat.cast_ne_zero.mpr (NeZero.ne N)
-  push_cast
-  field_simp
 
-private theorem qExpansion_widthN_rat {g : ℍ → ℂ} (hg : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) g)
-    (hper : Periodic (g ∘ ofComplex) 1) (hbd : IsBoundedAtImInfty g)
-    (hrat : ∀ n, ∃ r : ℚ, (qExpansion 1 g).coeff n = (r : ℂ)) (n : ℕ) :
-    ∃ r : ℚ, (qExpansion N g).coeff n = (r : ℂ) := by
-  rw [qExpansion_coeff_widthN N hg hper hbd n]
-  split_ifs with h
-  · exact hrat _
-  · exact ⟨0, by simp⟩
 
-private theorem qExpansion_widthOne_rat {g : ℍ → ℂ} (hg : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) g)
-    (hper : Periodic (g ∘ ofComplex) 1) (hbd : IsBoundedAtImInfty g)
-    (hrat : ∀ n, ∃ r : ℚ, (qExpansion N g).coeff n = (r : ℂ)) (n : ℕ) :
-    ∃ r : ℚ, (qExpansion 1 g).coeff n = (r : ℂ) := by
-  obtain ⟨r, hr⟩ := hrat (N * n)
-  rw [qExpansion_coeff_widthN N hg hper hbd, ite_eq_left (dvd_mul_right N n),
-    Nat.mul_div_cancel_left _ (NeZero.pos N)] at hr
-  exact ⟨r, hr⟩
 
-private theorem qExpansion_disc_rat_one (n : ℕ) : ∃ r : ℚ, (qExpansion 1 (Δ : ℍ → ℂ)).coeff n = (r : ℂ) := by
 
-  let A : ModularForm 𝒮ℒ 12 := (E₄.pow 3).mcast (by norm_num)
-  let B : ModularForm 𝒮ℒ 12 := (E₆.pow 2).mcast (by norm_num)
-  have hfun : (Δ : ℍ → ℂ) = ⇑((1728 : ℂ)⁻¹ • (A - B)) := by
-    funext z
-    rw [discriminant_eq_E₄_cube_sub_E₆_sq, smul_apply, sub_apply]
-    simp only [A, B, coe_mcast, coe_pow, Pi.pow_apply, smul_eq_mul]
-    ring
-  have h4 : ∀ n, ∃ r : ℚ, (qExpansion 1 (E₄ : ℍ → ℂ)).coeff n = (r : ℂ) := by
-    intro n
-    rw [ModularForm.E₄, EisensteinSeries.E_qExpansion_coeff (by norm_num) (by decide) n]
-    split_ifs
-    · exact ⟨1, by simp⟩
-    · exact ⟨-(2 * 4 / bernoulli 4) * (ArithmeticFunction.sigma 3 n : ℚ), by push_cast; ring⟩
-  have h6 : ∀ n, ∃ r : ℚ, (qExpansion 1 (E₆ : ℍ → ℂ)).coeff n = (r : ℂ) := by
-    intro n
-    rw [ModularForm.E₆, EisensteinSeries.E_qExpansion_coeff (by norm_num) (by decide) n]
-    split_ifs
-    · exact ⟨1, by simp⟩
-    · exact ⟨-(2 * 6 / bernoulli 6) * (ArithmeticFunction.sigma 5 n : ℚ), by push_cast; ring⟩
-
-  obtain ⟨p4, hp4⟩ : ∃ p : PowerSeries ℚ, p.map (algebraMap ℚ ℂ) = qExpansion 1 (E₄ : ℍ → ℂ) := by
-    choose r hr using h4
-    exact ⟨PowerSeries.mk r, by ext n; simp [hr n]⟩
-  obtain ⟨p6, hp6⟩ : ∃ p : PowerSeries ℚ, p.map (algebraMap ℚ ℂ) = qExpansion 1 (E₆ : ℍ → ℂ) := by
-    choose r hr using h6
-    exact ⟨PowerSeries.mk r, by ext n; simp [hr n]⟩
-  have hq : qExpansion 1 (Δ : ℍ → ℂ) = ((1728 : ℚ)⁻¹ • (p4 ^ 3 - p6 ^ 2)).map (algebraMap ℚ ℂ) := by
-    rw [hfun, FunLike.coe_smul, ModularForm.qExpansion_smul one_pos one_mem_strictPeriods_SL,
-      FunLike.coe_sub, ModularForm.qExpansion_sub one_pos one_mem_strictPeriods_SL]
-    simp only [A, B, ModularForm.qExpansion_mcast,
-      ModularForm.qExpansion_pow one_pos one_mem_strictPeriods_SL]
-    rw [PowerSeries.smul_eq_C_mul, PowerSeries.smul_eq_C_mul, map_mul, PowerSeries.map_C, map_sub,
-      map_pow, map_pow, hp4, hp6]
-    congr 1
-    simp
-  refine ⟨PowerSeries.coeff n ((1728 : ℚ)⁻¹ • (p4 ^ 3 - p6 ^ 2)), ?_⟩
-  rw [hq, PowerSeries.coeff_map]
-  rfl
-
-private theorem qExpansion_disc_rat (n : ℕ) : ∃ r : ℚ, (qExpansion N (Δ : ℍ → ℂ)).coeff n = (r : ℂ) :=
-  qExpansion_widthN_rat N mdifferentiable_disc periodic_disc_one isBoundedAtImInfty_disc
-    qExpansion_disc_rat_one n
 
 variable (K : IntermediateField ℚ ℂ)
 
-private structure RatAt (m : ℕ) (g : ℍ → ℂ) : Prop where
-  mdiff : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) g
-  periodic : Periodic ((g * Δ ^ m) ∘ ofComplex) N
-  bdd : IsBoundedAtImInfty (g * Δ ^ m)
-  mem : ∀ n, (qExpansion N (g * Δ ^ m)).coeff n ∈ K
 
 variable {N K}
 
-private theorem ratCast_mem (r : ℚ) : ((r : ℂ)) ∈ K := by
-  have : (r : ℂ) = algebraMap ℚ ℂ r := rfl
-  rw [this]; exact K.algebraMap_mem r
 
-private theorem RatAt.mdiff_mul {m : ℕ} {g : ℍ → ℂ} (h : RatAt N K m g) :
-    MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (g * Δ ^ m) :=
-  h.mdiff.mul (mdifferentiable_disc.pow m)
 
-private theorem RatAt.analyticAt {m : ℕ} {g : ℍ → ℂ} (h : RatAt N K m g) :
-    AnalyticAt ℂ (cuspFunction N (g * Δ ^ m)) 0 :=
-  analyticAt_cuspFunction_zero (natCast_pos N) h.periodic h.mdiff_mul h.bdd
 
-private theorem analyticAt_disc : AnalyticAt ℂ (cuspFunction N (Δ : ℍ → ℂ)) 0 :=
-  analyticAt_cuspFunction_zero (natCast_pos N) (periodic_ofComplex_natCast periodic_disc_one N)
-    mdifferentiable_disc isBoundedAtImInfty_disc
 
-private theorem RatAt.succ {m : ℕ} {g : ℍ → ℂ} (h : RatAt N K m g) : RatAt N K (m + 1) g where
-  mdiff := h.mdiff
-  periodic := by
-    rw [pow_succ, ← mul_assoc]
-    exact periodic_mul h.periodic (periodic_ofComplex_natCast periodic_disc_one N)
-  bdd := by rw [pow_succ, ← mul_assoc]; exact h.bdd.mul isBoundedAtImInfty_disc
-  mem := by
-    intro n
-    rw [pow_succ, ← mul_assoc, qExpansion_mul h.analyticAt analyticAt_disc, PowerSeries.coeff_mul]
-    refine sum_mem fun ij _ => mul_mem (h.mem _) ?_
-    obtain ⟨r, hr⟩ := qExpansion_disc_rat N ij.2
-    rw [hr]; exact ratCast_mem r
 
-private theorem RatAt.of_le {m m' : ℕ} (hm : m ≤ m') {g : ℍ → ℂ} (h : RatAt N K m g) : RatAt N K m' g := by
-  obtain ⟨d, rfl⟩ := Nat.exists_eq_add_of_le hm
-  induction d with
-  | zero => simpa using h
-  | succ d ih => exact (ih (Nat.le_add_right m d)).succ
 
-private theorem RatAt.exists_map {m : ℕ} {g : ℍ → ℂ} (h : RatAt N K m g) :
-    ∃ p : PowerSeries K, p.map (algebraMap K ℂ) = qExpansion N (g * Δ ^ m) := by
-  refine ⟨PowerSeries.mk fun n => ⟨_, h.mem n⟩, ?_⟩
-  ext n
-  simp
 
-private theorem RatAt.qExpansion_ne_zero {m : ℕ} {g : ℍ → ℂ} (h : RatAt N K m g) (hg : g ≠ 0) :
-    qExpansion N (g * Δ ^ m) ≠ 0 := by
-  rw [Ne, qExpansion_eq_zero_iff (natCast_pos N) h.periodic h.mdiff_mul h.bdd]
-  intro h0
-  apply hg
-  funext τ
-  have := congrFun h0 τ
-  simp only [Pi.mul_apply, Pi.zero_apply, mul_eq_zero] at this
-  rcases this with h1 | h1
-  · exact h1
-  · exact absurd h1 (disc_pow_ne_zero m τ)
 
 end Width
 
@@ -1579,22 +1372,11 @@ variable {N : ℕ}
 
 local notation "Δ" => ModularForm.discriminant
 
-private def cw (G : ℍ → ℂ) (α : SL(2, ℤ)) : ℍ → ℂ := fun τ => G (α • τ)
 
-private theorem cw_apply (G : ℍ → ℂ) (α : SL(2, ℤ)) (τ : ℍ) : cw G α τ = G (α • τ) := rfl
 
-private theorem cw_mul (G : ℍ → ℂ) (α β : SL(2, ℤ)) : cw G (α * β) = cw (cw G α) β := by
-  funext τ; simp [cw, mul_smul]
 
-private theorem cw_one (G : ℍ → ℂ) : cw G 1 = G := by funext τ; simp [cw]
 
-private theorem cw_eq_slash (G : ℍ → ℂ) (α : SL(2, ℤ)) : cw G α = G ∣[(0 : ℤ)] α := by
-  funext τ
-  rw [ModularForm.SL_slash_apply, cw_apply, neg_zero, zpow_zero, mul_one]
 
-private theorem mdifferentiable_cw {G : ℍ → ℂ} (hG : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) G) (α : SL(2, ℤ)) :
-    MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (cw G α) := by
-  rw [cw_eq_slash, ModularForm.SL_slash]; exact hG.slash _ _
 
 private theorem conj_mem_Gamma (N : ℕ) (α : SL(2, ℤ)) {g : SL(2, ℤ)} (hg : g ∈ CongruenceSubgroup.Gamma N) :
     α * g * α⁻¹ ∈ CongruenceSubgroup.Gamma N :=
@@ -1656,48 +1438,7 @@ variable {N : ℕ} [NeZero N] (X : FD N)
 
 local notation "Δ" => ModularForm.discriminant
 
-private theorem smul_eq_coe_smul (K : IntermediateField ℚ ℂ) (κ : K) (f : ℍ → ℂ) : κ • f = (κ : ℂ) • f := rfl
 
-private theorem exists_rat_combination (K : IntermediateField ℚ ℂ) {n M : ℕ} {Gi : Fin n → ℍ → ℂ}
-    {G : ℍ → ℂ} (hGi : ∀ i, RatAt N K M (Gi i)) (hG : RatAt N K M G)
-    (hmem : G ∈ Submodule.span ℂ (Set.range Gi)) :
-    ∃ κ : Fin n → K, G = ∑ i, (κ i : ℂ) • Gi i := by
-  classical
-  by_cases hW : G ∈ Submodule.span K (Set.range Gi)
-  · obtain ⟨c, hc⟩ := (Submodule.mem_span_range_iff_exists_fun K).mp hW
-    exact ⟨c, by rw [← hc]; rfl⟩
-  exfalso
-  obtain ⟨b, hb_sub, hb_span, hb_ind⟩ := exists_linearIndependent K (Set.range Gi)
-  have hbfin : b.Finite := (Set.finite_range Gi).subset hb_sub
-  have hGb : G ∉ b := fun h => hW (hb_span ▸ Submodule.subset_span h)
-  have hGspan : G ∉ Submodule.span K b := by rwa [hb_span]
-  have hins : LinearIndepOn K id (insert G b) := LinearIndepOn.id_insert hb_ind hGspan
-  set sF : Finset (ℍ → ℂ) := (hbfin.insert G).toFinset with hsF
-  have hcoe : (↑sF : Set (ℍ → ℂ)) = insert G b := Set.Finite.coe_toFinset _
-  have hdata : ∀ f ∈ sF, MDifferentiable 𝓘(ℂ) 𝓘(ℂ) f ∧
-      Function.Periodic ((f * ModularForm.discriminant ^ M) ∘ UpperHalfPlane.ofComplex) N ∧
-      IsBoundedAtImInfty (f * ModularForm.discriminant ^ M) ∧
-      ∀ n : ℕ, (UpperHalfPlane.qExpansion N (f * ModularForm.discriminant ^ M)).coeff n ∈ K := by
-    intro f hf
-    have hf' : f ∈ insert G b := by rwa [← hcoe, Finset.mem_coe]
-    rcases hf' with rfl | hf'
-    · exact ⟨hG.mdiff, hG.periodic, hG.bdd, hG.mem⟩
-    · obtain ⟨i, rfl⟩ := hb_sub hf'
-      exact ⟨(hGi i).mdiff, (hGi i).periodic, (hGi i).bdd, (hGi i).mem⟩
-  have hind : LinearIndependent K (fun w : ↥(↑sF : Set (ℍ → ℂ)) => (w : ℍ → ℂ)) := by
-    rw [hcoe]; exact hins
-  have hC := WLight.linearIndependent_complex_of_qExpansion_rational N K sF M hdata hind
-  rw [hcoe] at hC
-  have hC' : LinearIndepOn ℂ id (insert G b) := hC
-  have hnot := hC'.notMem_span_of_insert hGb
-  rw [Set.image_id] at hnot
-  apply hnot
-  have hle : Submodule.span ℂ (Set.range Gi) ≤ Submodule.span ℂ b := by
-    rw [Submodule.span_le]
-    intro x hx
-    have hxK : x ∈ Submodule.span K b := by rw [hb_span]; exact Submodule.subset_span hx
-    exact Submodule.span_subset_span K ℂ b hxK
-  exact hle hmem
 
 private theorem exists_ev_of_mem_adjoin {x : ℍ → ℂ} (hx : x ∈ Algebra.adjoin (kN N) (genSet X)) :
     ∃ R : MvPolynomial (Idx N) (kN N), ev X R = x := by
@@ -1717,9 +1458,6 @@ private theorem exists_ev_of_mem_adjoin {x : ℍ → ℂ} (hx : x ∈ Algebra.ad
   rw [this]
   rfl
 
-private theorem coeff_map_mem (R : MvPolynomial (Idx N) (kN N)) (m : Idx N →₀ ℕ) :
-    (MvPolynomial.map (algebraMap (kN N) ℂ) R).coeff m ∈ kN N := by
-  rw [MvPolynomial.coeff_map]; exact (R.coeff m).2
 
 private theorem descent {m : ℕ} {G : ℍ → ℂ} (hG : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) G)
     (hinv : ∀ g ∈ CongruenceSubgroup.Gamma N, ∀ τ : ℍ, G (g • τ) = G τ)

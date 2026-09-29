@@ -344,7 +344,7 @@ private theorem qExpansion_mulModularForm {a b : ℤ} (f : CuspForm (Γ₁ℝ N)
 
 end QExp
 
-private def Stab (K : IntermediateField ℚ ℂ) (N : ℕ) (k : ℤ) : Prop :=
+private def StabGalois (K : IntermediateField ℚ ℂ) (N : ℕ) (k : ℤ) : Prop :=
   ∀ (σ : ℂ ≃ₐ[K] ℂ) (f : CuspForm (Γ₁ℝ N) k),
     ∃ f' : CuspForm (Γ₁ℝ N) k, qExpansion 1 (⇑f') = (qExpansion 1 (⇑f)).map (σ : ℂ →+* ℂ)
 
@@ -353,7 +353,7 @@ section Stability
 variable (K : IntermediateField ℚ ℂ) {N : ℕ} {k : ℤ}
 
 private theorem stab_of_basis {n : ℕ} (b : Module.Basis (Fin n) ℂ (CuspForm (Γ₁ℝ N) k))
-    (hb : ∀ (i : Fin n) (m : ℕ), ModularFormClass.qCoeff (b i) m ∈ K) : Stab K N k := by
+    (hb : ∀ (i : Fin n) (m : ℕ), ModularFormClass.qCoeff (b i) m ∈ K) : StabGalois K N k := by
   intro σ f
   set r : Fin n → ℂ := fun i => b.repr f i with hr
   have hf : f = ∑ i, r i • b i := by simp [hr]
@@ -371,7 +371,7 @@ private theorem stab_of_basis {n : ℕ} (b : Module.Basis (Fin n) ℂ (CuspForm 
   congr 1
   exact (algEquiv_apply_of_mem K σ (hb i m)).symm
 
-private theorem stab_of_forall_eq_zero (h : ∀ f : CuspForm (Γ₁ℝ N) k, f = 0) : Stab K N k := by
+private theorem stab_of_forall_eq_zero (h : ∀ f : CuspForm (Γ₁ℝ N) k, f = 0) : StabGalois K N k := by
   intro σ f
   refine ⟨0, ?_⟩
   rw [h f, FunLike.coe_zero, qExpansion_zero, map_zero]
@@ -390,9 +390,9 @@ private theorem isZeroAtImInfty_of_mul_self {g : ℍ → ℂ} (h : IsZeroAtImInf
 
 variable [NeZero N]
 
-private theorem stab_of_anchor {w : ℤ} (E : ModularForm (Γ₁ℝ N) w) (hE : E ≠ 0)
+private theorem stab_of_anchor_galois {w : ℤ} (E : ModularForm (Γ₁ℝ N) w) (hE : E ≠ 0)
     (hEK : ∀ σ : ℂ ≃ₐ[K] ℂ, (qExpansion 1 (⇑E)).map (σ : ℂ →+* ℂ) = qExpansion 1 (⇑E))
-    (h1 : Stab K N (k + w)) (h2 : Stab K N (k + k)) : Stab K N k := by
+    (h1 : StabGalois K N (k + w)) (h2 : StabGalois K N (k + k)) : StabGalois K N k := by
   classical
   intro σ f
   set φh : PowerSeries ℂ := (qExpansion 1 (⇑f)).map (σ : ℂ →+* ℂ) with hφh
@@ -505,7 +505,7 @@ private theorem stab_of_anchor {w : ℤ} (E : ModularForm (Γ₁ℝ N) w) (hE : 
     exact congrArg (qExpansion 1) hφE
   exact mul_right_cancel₀ hQE hprod
 
-private theorem exists_basis_of_stab (h : Stab K N k) :
+private theorem exists_basis_of_stab (h : StabGalois K N k) :
     ∃ (n : ℕ) (b : Module.Basis (Fin n) ℂ (CuspForm (Γ₁ℝ N) k)),
       ∀ (i : Fin n) (m : ℕ), ModularFormClass.qCoeff (b i) m ∈ K := by
   haveI : FiniteDimensional ℂ (CuspForm (Γ₁ℝ N) k) := CuspForm.finiteDimensional_of_isArithmetic _ k
@@ -535,7 +535,7 @@ variable (N : ℕ)
 private def kN : IntermediateField ℚ ℂ :=
   IntermediateField.adjoin ℚ {Complex.exp (2 * (Real.pi : ℂ) * Complex.I / (N : ℂ))}
 
-private theorem anchor [NeZero N] (h10 : (1 : ZMod N) ≠ 0) (h11 : (1 : ZMod N) ≠ -1) :
+private theorem anchor_galois [NeZero N] (h10 : (1 : ZMod N) ≠ 0) (h11 : (1 : ZMod N) ≠ -1) :
     ∃ E : ModularForm (Γ₁ℝ N) ((3 : ℕ) : ℤ), E ≠ 0 ∧
       ∀ σ' : ℂ →+* ℂ, (qExpansion 1 (⇑E)).map σ' = qExpansion 1 (⇑E) := by
   classical
@@ -594,15 +594,15 @@ private theorem main [NeZero N] (k : ℤ) :
         nth_rewrite 2 [h]
         exact add_neg_cancel 1
       exact hN ((ZMod.natCast_eq_zero_iff 2 N).mp h2)
-    obtain ⟨E, hE0, hEfix⟩ := anchor N h10 h11
-    have heven : ∀ k' : ℤ, Even k' → Stab (kN N) N k' := fun k' hk' => by
+    obtain ⟨E, hE0, hEfix⟩ := anchor_galois N h10 h11
+    have heven : ∀ k' : ℤ, Even k' → StabGalois (kN N) N k' := fun k' hk' => by
       obtain ⟨n, b, hb⟩ := CuspForm.exists_basis_gamma1_qCoeff_mem_adjoin_exp_of_even N k' hk'
       exact stab_of_basis (kN N) b hb
     have hk3 : Even (k + ((3 : ℕ) : ℤ)) := by
       push_cast
       exact hk.add_odd ⟨1, by norm_num⟩
-    have hs : Stab (kN N) N k :=
-      stab_of_anchor (kN N) E hE0 (fun σ => hEfix _) (heven _ hk3) (heven _ ⟨k, rfl⟩)
+    have hs : StabGalois (kN N) N k :=
+      stab_of_anchor_galois (kN N) E hE0 (fun σ => hEfix _) (heven _ hk3) (heven _ ⟨k, rfl⟩)
     exact exists_basis_of_stab (kN N) hs
 
 end Assembly
@@ -633,7 +633,7 @@ namespace GammaOneRationalStructure
 
 variable (N : ℕ)
 
-private def zetaN : ℂ := Complex.exp (2 * (Real.pi : ℂ) * Complex.I / (N : ℂ))
+def zetaN : ℂ := Complex.exp (2 * (Real.pi : ℂ) * Complex.I / (N : ℂ))
 
 private def kN : IntermediateField ℚ ℂ := IntermediateField.adjoin ℚ {zetaN N}
 
@@ -644,7 +644,7 @@ section Cyclo
 
 variable [NeZero N]
 
-private theorem isPrimitiveRoot_zetaN : IsPrimitiveRoot (zetaN N) N :=
+theorem isPrimitiveRoot_zetaN : IsPrimitiveRoot (zetaN N) N :=
   Complex.isPrimitiveRoot_exp N (NeZero.ne N)
 
 scoped instance instIsCyclotomic : IsCyclotomicExtension {N} ℚ (kN N) := by

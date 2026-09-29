@@ -99,20 +99,20 @@ that argument is retained. -/
 open Polynomial in
 /-- The `N`-th truncated product as a polynomial; only its `q`-evaluation and its
 coefficient map to `PowerSeries` are used. -/
-private def truncPoly (N : ℕ) : ℂ[X] := ∏ n ∈ Finset.range N, (1 - Polynomial.X ^ (n + 1)) ^ 24
+def truncPoly (N : ℕ) : ℂ[X] := ∏ n ∈ Finset.range N, (1 - Polynomial.X ^ (n + 1)) ^ 24
 
 /-- The eta product `∏' (1-qⁿ)²⁴` as a power series; identified with
 `dedekindEtaUnit.map` below. -/
-private def etaPow : PowerSeries ℂ := ∏' n : ℕ, (1 - PowerSeries.X ^ (n + 1)) ^ 24
+def etaPow : PowerSeries ℂ := ∏' n : ℕ, (1 - PowerSeries.X ^ (n + 1)) ^ 24
 
 /-- The eta product `∏' (1-qⁿ)²⁴` as a function on the disc. -/
-private def gfun (q : ℂ) : ℂ := ∏' n : ℕ, (1 - q ^ (n + 1)) ^ 24
+def gfun (q : ℂ) : ℂ := ∏' n : ℕ, (1 - q ^ (n + 1)) ^ 24
 
-private lemma multipliable_factor_pow :
+lemma multipliable_factor_pow :
     Multipliable fun n : ℕ => ((1 : PowerSeries ℂ) - PowerSeries.X ^ (n + 1)) ^ 24 :=
   (PowerSeries.WithPiTopology.multipliable_one_sub_X_pow ℂ).pow 24
 
-private lemma coeff_mul_factor_eq {m n : ℕ} (hmn : m < n + 1) (Q : PowerSeries ℂ) :
+lemma coeff_mul_factor_eq {m n : ℕ} (hmn : m < n + 1) (Q : PowerSeries ℂ) :
     PowerSeries.coeff m (Q * ((1 : PowerSeries ℂ) - PowerSeries.X ^ (n + 1)) ^ 24) =
       PowerSeries.coeff m Q := by
   obtain ⟨R, hR⟩ : PowerSeries.X ^ (n + 1) ∣
@@ -128,7 +128,7 @@ private lemma coeff_mul_factor_eq {m n : ℕ} (hmn : m < n + 1) (Q : PowerSeries
 
 /-- On the first `N` coefficients, the truncated eta product already equals the
 full topological product. -/
-private lemma coeff_trunc_eq_coeff_etaPow (m : ℕ) {N : ℕ} (hN : m < N) :
+lemma coeff_trunc_eq_coeff_etaPow (m : ℕ) {N : ℕ} (hN : m < N) :
     PowerSeries.coeff m (∏ n ∈ Finset.range N, ((1 : PowerSeries ℂ) - PowerSeries.X ^ (n + 1)) ^ 24) =
       PowerSeries.coeff m etaPow := by
   have hlim : Tendsto (fun N => PowerSeries.coeff m
@@ -203,18 +203,18 @@ private lemma etaPow_eq_map_dedekindEtaUnit :
     map_prod (PowerSeries.map (Int.castRingHom ℂ))]
   simp
 
-private lemma differentiableOn_gfun : DifferentiableOn ℂ gfun (Metric.ball (0 : ℂ) 1) :=
+lemma differentiableOn_gfun : DifferentiableOn ℂ gfun (Metric.ball (0 : ℂ) 1) :=
   ModularForm.differentiableOn_tprod_one_sub_pow_pow 24
 
 open Polynomial in
-private lemma truncPoly_toPowerSeries (N : ℕ) :
+lemma truncPoly_toPowerSeries (N : ℕ) :
     ((truncPoly N : ℂ[X]) : PowerSeries ℂ) =
       ∏ n ∈ Finset.range N, ((1 : PowerSeries ℂ) - PowerSeries.X ^ (n + 1)) ^ 24 := by
   rw [truncPoly, ← Polynomial.coeToPowerSeries.ringHom_apply, map_prod]
   simp [Polynomial.coeToPowerSeries.ringHom_apply, Polynomial.coe_pow, Polynomial.coe_X]
 
 open Polynomial in
-private lemma iterate_deriv_polynomial_eval (p : ℂ[X]) (m : ℕ) :
+lemma iterate_deriv_polynomial_eval (p : ℂ[X]) (m : ℕ) :
     deriv^[m] (fun q : ℂ => p.eval q) = fun q => (derivative^[m] p).eval q := by
   induction m generalizing p with
   | zero => rfl
@@ -225,11 +225,11 @@ private lemma iterate_deriv_polynomial_eval (p : ℂ[X]) (m : ℕ) :
     exact Polynomial.deriv _
 
 open Polynomial in
-private lemma truncPoly_eval (N : ℕ) (q : ℂ) :
+lemma truncPoly_eval (N : ℕ) (q : ℂ) :
     (truncPoly N).eval q = ∏ n ∈ Finset.range N, (1 - q ^ (n + 1)) ^ 24 := by
   simp [truncPoly, Polynomial.eval_prod]
 
-private lemma tendstoLocallyUniformlyOn_trunc :
+lemma tendstoLocallyUniformlyOn_trunc :
     TendstoLocallyUniformlyOn (fun N q => ∏ n ∈ Finset.range N, (1 - q ^ (n + 1)) ^ 24) gfun atTop
       (Metric.ball (0 : ℂ) 1) := by
   have h1 : TendstoLocallyUniformlyOn (fun N q => ∏ n ∈ Finset.range N, (1 - q ^ (n + 1)))
@@ -258,7 +258,7 @@ private lemma tendstoLocallyUniformlyOn_trunc :
   · exact ((ModularForm.multipliable_one_sub_pow (by simpa using hq)).tprod_pow 24).symm
 
 open Polynomial in
-private lemma tendstoLocallyUniformlyOn_iterate_deriv_trunc (m : ℕ) :
+lemma tendstoLocallyUniformlyOn_iterate_deriv_trunc (m : ℕ) :
     TendstoLocallyUniformlyOn (fun N q => (derivative^[m] (truncPoly N)).eval q) (deriv^[m] gfun)
       atTop (Metric.ball (0 : ℂ) 1) := by
   induction m with
@@ -272,7 +272,7 @@ private lemma tendstoLocallyUniformlyOn_iterate_deriv_trunc (m : ℕ) :
     simp only [Function.comp_apply, Polynomial.deriv]
 
 open Polynomial in
-private lemma iteratedDeriv_gfun_zero (m : ℕ) :
+lemma iteratedDeriv_gfun_zero (m : ℕ) :
     iteratedDeriv m gfun 0 = m.factorial * PowerSeries.coeff m etaPow := by
   have h0 : (0 : ℂ) ∈ Metric.ball (0 : ℂ) 1 := Metric.mem_ball_self one_pos
   have hlim : Tendsto (fun N => (derivative^[m] (truncPoly N)).eval 0) atTop
@@ -288,7 +288,7 @@ private lemma iteratedDeriv_gfun_zero (m : ℕ) :
   rw [iteratedDeriv_eq_iterate]
   exact tendsto_nhds_unique hlim (tendsto_const_nhds.congr' hev.symm)
 
-private lemma hasSum_coeff_etaPow {q : ℂ} (hq : ‖q‖ < 1) :
+lemma hasSum_coeff_etaPow {q : ℂ} (hq : ‖q‖ < 1) :
     HasSum (fun m : ℕ => PowerSeries.coeff m etaPow * q ^ m) (gfun q) := by
   have hq' : q ∈ Metric.ball (0 : ℂ) 1 := by simpa using hq
   have h := Complex.hasSum_taylorSeries_on_ball differentiableOn_gfun hq'
@@ -297,7 +297,7 @@ private lemma hasSum_coeff_etaPow {q : ℂ} (hq : ‖q‖ < 1) :
   field_simp
   rw [mul_div_assoc, div_self (Nat.cast_ne_zero.mpr (Nat.factorial_ne_zero m)), mul_one]
 
-private lemma hasSum_coeff_X_mul_etaPow {q : ℂ} (hq : ‖q‖ < 1) :
+lemma hasSum_coeff_X_mul_etaPow {q : ℂ} (hq : ‖q‖ < 1) :
     HasSum (fun m : ℕ => PowerSeries.coeff m (PowerSeries.X * etaPow) * q ^ m) (q * gfun q) := by
   have h := (hasSum_coeff_etaPow hq).mul_left q
   rw [← hasSum_nat_add_iff' 1]
@@ -309,7 +309,7 @@ private lemma hasSum_coeff_X_mul_etaPow {q : ℂ} (hq : ‖q‖ < 1) :
 
 /-- The discriminant is `q · gfun(q)`; the value form is mathlib's
 `ModularForm.discriminant_eq_q_prod`. -/
-private lemma discriminant_eq_qParam_mul_gfun (τ : ℍ) :
+lemma discriminant_eq_qParam_mul_gfun (τ : ℍ) :
     ModularForm.discriminant τ = 𝕢 1 (τ : ℂ) * gfun (𝕢 1 (τ : ℂ)) := by
   rw [ModularForm.discriminant_eq_q_prod, gfun]
 

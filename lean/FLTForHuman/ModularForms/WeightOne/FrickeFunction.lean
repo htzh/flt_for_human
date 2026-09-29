@@ -60,6 +60,8 @@ import FLTForHuman.ModularForms.WeightOne.Defs.PeriodPair
 import FLTForHuman.ModularForms.WeightOne.Defs.PTorsion
 import FLTForHuman.ModularForms.WeightOne.Fricke
 import FLTForHuman.ModularForms.DiscPow
+
+set_option linter.unusedSectionVars false
 open WLight
 open UpperHalfPlaneAux
 
@@ -463,7 +465,7 @@ private theorem wpNormZ_slash {N : ℕ} [NeZero N] (a : Fin 2 → ZMod N) (γ : 
   rw [wpNormZ_eq, wpNormZ_eq, weierstrassP_frickeTorsionPt_slash]
   ring
 
-private theorem frickeF_slash {N : ℕ} [NeZero N] (a : Fin 2 → ZMod N) (γ : SL(2, ℤ)) (τ : ℍ) :
+theorem frickeF_slash {N : ℕ} [NeZero N] (a : Fin 2 → ZMod N) (γ : SL(2, ℤ)) (τ : ℍ) :
     frickeF N a (γ • τ) = frickeF N (vecMulSL N a γ) τ := by
   have hγ : (mapGL ℝ γ : GL (Fin 2) ℝ) ∈ 𝒮ℒ := ⟨γ, rfl⟩
   have h4 := SlashInvariantForm.slash_action_eqn'' ModularForm.E₄ hγ τ
@@ -477,7 +479,7 @@ private theorem frickeF_slash {N : ℕ} [NeZero N] (a : Fin 2 → ZMod N) (γ : 
   rw [h4, h6, hΔ, wpNormZ_slash, zpow_ofNat, zpow_ofNat, zpow_ofNat]
   field_simp
 
-private theorem frickeF_invariant_Gamma {N : ℕ} [NeZero N] (a : Fin 2 → ZMod N) {γ : SL(2, ℤ)}
+theorem frickeF_invariant_Gamma {N : ℕ} [NeZero N] (a : Fin 2 → ZMod N) {γ : SL(2, ℤ)}
     (hγ : γ ∈ CongruenceSubgroup.Gamma N) (τ : ℍ) : frickeF N a (γ • τ) = frickeF N a τ := by
   rw [frickeF_slash, vecMulSL_of_mem_Gamma a hγ]
 
@@ -518,7 +520,7 @@ private theorem frickeF_mul_discriminant {N : ℕ} (a : Fin 2 → ZMod N) (τ : 
   simp only [frickeF, frickeH, wpNormZ, Pi.mul_apply]
   field_simp
 
-private theorem mdifferentiable_frickeF {N : ℕ} [NeZero N] (i : FrickeIdx N) :
+theorem mdifferentiable_frickeF {N : ℕ} [NeZero N] (i : FrickeIdx N) :
     MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (frickeF N i.1) := by
   obtain ⟨h1, h2, h0⟩ := frickeIdx_hyps i
   have hW : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (wpNormZ N i.1) := mdifferentiable_wpNorm h1 h2 h0
@@ -718,7 +720,7 @@ private lemma qExpansion_frickeH_conj {N : ℕ} [NeZero N] {s : ℕ} (hs : s.Cop
     exact_mod_cast hz
   rw [hHa', PowerSeries.coeff_map, ← hz2]
 
-private theorem frickeF_eq_imp {N : ℕ} [NeZero N] (a b : FrickeIdx N)
+theorem frickeF_eq_imp {N : ℕ} [NeZero N] (a b : FrickeIdx N)
     (h : frickeF N a.1 = frickeF N b.1) : b.1 = a.1 ∨ b.1 = -a.1 := by
   obtain ⟨ha₁, ha₂, ha0⟩ := frickeIdx_hyps a
   obtain ⟨hb₁, hb₂, hb0⟩ := frickeIdx_hyps b
@@ -753,7 +755,7 @@ private theorem frickeF_eq_imp {N : ℕ} [NeZero N] (a b : FrickeIdx N)
     funext j
     fin_cases j <;> simp [f0, f1]
 
-private theorem frickeF_faithful {N : ℕ} [NeZero N] (γ : SL(2, ℤ))
+theorem frickeF_faithful {N : ℕ} [NeZero N] (γ : SL(2, ℤ))
     (h : ∀ i : FrickeIdx N, ∀ τ : ℍ, frickeF N i.1 (γ • τ) = frickeF N i.1 τ) :
     γ ∈ CongruenceSubgroup.Gamma N ∨ -γ ∈ CongruenceSubgroup.Gamma N := by
   refine mem_Gamma_or_neg_mem_of_vecMulSL γ fun a ha ↦ ?_
@@ -974,14 +976,10 @@ private def periodPairOfTau (τ : ℍ) : PeriodPair where
     subst hs
     simpa using hst
 
-@[scoped simp] private lemma periodPairOfTau_ω₁ (τ : ℍ) : (periodPairOfTau τ).ω₁ = (τ : ℂ) := rfl
-@[scoped simp] private lemma periodPairOfTau_ω₂ (τ : ℍ) : (periodPairOfTau τ).ω₂ = 1 := rfl
-
 private def zetaN (N : ℕ) : ℂ := cexp (2 * π * I / N)
 
 private def qN (N : ℕ) (τ : ℂ) : ℂ := cexp (2 * π * I * τ / N)
 
-private lemma zetaN_ne_zero (N : ℕ) : zetaN N ≠ 0 := Complex.exp_ne_zero _
 
 private def wpTail (N a₁ a₂ : ℕ) (p : ℕ+ × ℕ+) (τ : ℂ) : ℂ :=
   ((p.2 : ℕ) : ℂ) *
@@ -999,25 +997,15 @@ private def wpTorsionSeries (N a₁ a₂ : ℕ) (τ : ℂ) : ℂ :=
 
 private def kN (N : ℕ) : IntermediateField ℚ ℂ := IntermediateField.adjoin ℚ {zetaN N}
 
-private lemma zetaN_mem_kN (N : ℕ) : zetaN N ∈ kN N :=
-  IntermediateField.mem_adjoin_simple_self ℚ _
 
-private lemma zetaN_pow_mem_kN (N k : ℕ) : zetaN N ^ k ∈ kN N := pow_mem (zetaN_mem_kN N) k
 
-private lemma zetaN_inv_pow_mem_kN (N k : ℕ) : (zetaN N)⁻¹ ^ k ∈ kN N :=
-  pow_mem (inv_mem (zetaN_mem_kN N)) k
 
-private lemma natCast_mem_kN (N m : ℕ) : (m : ℂ) ∈ kN N := natCast_mem _ m
 
-private lemma one_div_twelve_mem_kN (N : ℕ) : (1 / 12 : ℂ) ∈ kN N :=
-  div_mem (one_mem _) (by exact_mod_cast natCast_mem_kN N 12)
 
 private def wpNormSeries (N a₁ a₂ : ℕ) (τ : ℂ) : ℂ :=
   zetaN N ^ a₂ * qN N τ ^ a₁ / (1 - zetaN N ^ a₂ * qN N τ ^ a₁) ^ 2 + 1 / 12 +
     ∑' p : ℕ+ × ℕ+, wpTail N a₁ a₂ p τ
 
-private lemma wpTorsionSeries_eq (N a₁ a₂ : ℕ) (τ : ℂ) :
-    wpTorsionSeries N a₁ a₂ τ = (2 * π * I) ^ 2 * wpNormSeries N a₁ a₂ τ := rfl
 
 private def wpNorm (N a₁ a₂ : ℕ) (τ : ℍ) : ℂ := ((2 * π * I) ^ 2)⁻¹ * wpTorsion N a₁ a₂ τ
 
@@ -1050,7 +1038,7 @@ private scoped instance slFnAction : MulSemiringAction SL(2, ℤ) (ℍ → ℂ) 
   smul_one γ := rfl
   smul_mul γ f g := rfl
 
-private lemma sl_smul_apply (γ : SL(2, ℤ)) (f : ℍ → ℂ) (τ : ℍ) : (γ • f) τ = f (γ⁻¹ • τ) := rfl
+lemma sl_smul_apply (γ : SL(2, ℤ)) (f : ℍ → ℂ) (τ : ℍ) : (γ • f) τ = f (γ⁻¹ • τ) := rfl
 
 private lemma sl_smul_def (γ : SL(2, ℤ)) (f : ℍ → ℂ) : γ • f = fun τ ↦ f (γ⁻¹ • τ) := rfl
 
@@ -1059,7 +1047,7 @@ private scoped instance slFn_smulCommClass : SMulCommClass SL(2, ℤ) ℂ (ℍ �
 
 private lemma sl_smul_const (γ : SL(2, ℤ)) (c : ℂ) : γ • (fun _ : ℍ ↦ c) = fun _ ↦ c := rfl
 
-private lemma sl_smul_eq_self_iff (f : ℍ → ℂ) :
+lemma sl_smul_eq_self_iff (f : ℍ → ℂ) :
     (∀ γ : SL(2, ℤ), γ • f = f) ↔ ∀ (γ : SL(2, ℤ)) (τ : ℍ), f (γ • τ) = f τ := by
   constructor
   · intro h γ τ
@@ -1102,7 +1090,7 @@ private theorem kPole_invariant_eq_polynomial_j_mem {K : IntermediateField ℚ �
     levelOne_hauptmodul_package.2.1 K N (NeZero.ne N) m a hmd hinv hper hbd hcoef
   exact ⟨P, hcoefP, by simpa only [j] using heq⟩
 
-private theorem mdifferentiable_frickeF {N : ℕ} [NeZero N] (i : FrickeIdx N) :
+theorem mdifferentiable_frickeF {N : ℕ} [NeZero N] (i : FrickeIdx N) :
     MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (frickeF N i.1) := by
   rw [frickeF_eq]
   exact (frickeFunction_modularity_package N periodPairOfTau hppT).2.2.1 i.1 i.2
@@ -1150,7 +1138,7 @@ private theorem frickeF_hperm {N : ℕ} [NeZero N] (γ : SL(2, ℤ)) :
     rw [frickeF_eq, frickeF_eq]
     exact h1
 
-private lemma smul_frickeF {N : ℕ} [NeZero N] (γ : SL(2, ℤ)) (a : Fin 2 → ZMod N) :
+lemma smul_frickeF {N : ℕ} [NeZero N] (γ : SL(2, ℤ)) (a : Fin 2 → ZMod N) :
     γ • frickeF N a = frickeF N (vecMulSL N a γ⁻¹) := by
   funext τ
   rw [sl_smul_apply]
@@ -1158,7 +1146,7 @@ private lemma smul_frickeF {N : ℕ} [NeZero N] (γ : SL(2, ℤ)) (a : Fin 2 →
   rw [frickeF_eq, frickeF_eq]
   exact h1
 
-private lemma smul_j (γ : SL(2, ℤ)) : γ • j = j := by
+lemma smul_j (γ : SL(2, ℤ)) : γ • j = j := by
   refine (sl_smul_eq_self_iff j).mpr (fun δ τ => ?_) γ
   have hδ : (δ : GL (Fin 2) ℝ) ∈ 𝒮ℒ := ⟨δ, rfl⟩
   have hE := SlashInvariantForm.slash_action_eqn'' ModularForm.E₄ hδ τ
@@ -1519,7 +1507,7 @@ open UpperHalfPlane ModularForm SlashInvariantForm ModularFormClass CuspForm Mod
 open scoped UpperHalfPlane ModularForm SlashInvariantForm ModularFormClass CuspForm ModularForm.CuspForm Polynomial Real.Polynomial Filter
 open scoped MatrixGroups Manifold
 
-private lemma poleBounded_j : PoleBounded j := by
+lemma poleBounded_j : PoleBounded j := by
   constructor
   · exact (ModularForm.E₄.holo'.pow 3).div CuspForm.discriminant.holo'
       ModularForm.discriminant_ne_zero
@@ -1539,7 +1527,7 @@ private lemma poleBounded_j : PoleBounded j := by
     rw [hpow]
     exact h4.mul (h4.mul h4)
 
-private lemma poleBounded_frickeF {N : ℕ} [NeZero N] (i : FrickeIdx N) :
+lemma poleBounded_frickeF {N : ℕ} [NeZero N] (i : FrickeIdx N) :
     PoleBounded (frickeF N i.1) := by
   refine ⟨mdifferentiable_frickeF i, 1, ?_⟩
   have hshape : (frickeF N i.1 * ⇑CuspForm.discriminant ^ 1 : ℍ → ℂ) =
@@ -1549,7 +1537,7 @@ private lemma poleBounded_frickeF {N : ℕ} [NeZero N] (i : FrickeIdx N) :
   rw [hshape]
   exact isBoundedAtImInfty_frickeF_mul_discriminant i
 
-private theorem eq_polynomial_j_of_invariant_of_mem_adjoin {S : Set (ℍ → ℂ)}
+theorem eq_polynomial_j_of_invariant_of_mem_adjoin {S : Set (ℍ → ℂ)}
     (hS : ∀ f ∈ S, PoleBounded f) {a : ℍ → ℂ} (ha : a ∈ Algebra.adjoin ℂ S)
     (hinv : ∀ γ : SL(2, ℤ), a ∣[(0 : ℤ)] γ = a) :
     ∃ P : Polynomial ℂ, a = fun τ => Polynomial.eval (j τ) P := by
@@ -1789,7 +1777,7 @@ namespace R8b
 
 section Furniture
 
-private theorem mdifferentiable_eq_zero_or_eq_zero_of_mul_eq_zero {f g : ℍ → ℂ}
+theorem mdifferentiable_eq_zero_or_eq_zero_of_mul_eq_zero {f g : ℍ → ℂ}
     (hf : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) f) (hg : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) g)
     (hfg : f * g = 0) : f = 0 ∨ g = 0 := by
   rw [UpperHalfPlane.mdifferentiable_iff] at hf hg
@@ -2009,21 +1997,8 @@ open Filter Function
 
 variable {N : ℕ}
 
-private lemma isBoundedAtImInfty_discriminant : IsBoundedAtImInfty (⇑CuspForm.discriminant : ℍ → ℂ) :=
-  (CuspFormClass.zero_at_infty CuspForm.discriminant).boundedAtFilter
 
-private lemma isBoundedAtImInfty_discPow (n : ℕ) :
-    IsBoundedAtImInfty (⇑CuspForm.discriminant ^ n : ℍ → ℂ) := by
-  induction n with
-  | zero => exact pow_zero (⇑CuspForm.discriminant : ℍ → ℂ) ▸ Filter.const_boundedAtFilter _ (1 : ℂ)
-  | succ k ih =>
-    rw [pow_succ]
-    exact ih.mul isBoundedAtImInfty_discriminant
 
-private lemma mdiff_discPow (k : ℕ) :
-    MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (⇑CuspForm.discriminant ^ k : ℍ → ℂ) := by
-  rw [← discPowForm_coe]
-  exact (discPowForm k).holo'
 
 end QKit
 
@@ -2033,24 +2008,7 @@ open UpperHalfPlane ModularForm SlashInvariantForm ModularFormClass CuspForm Mod
 open scoped UpperHalfPlane ModularForm SlashInvariantForm ModularFormClass CuspForm ModularForm.CuspForm EisensteinSeries
 open scoped MatrixGroups ArithmeticFunction.sigma
 
-private lemma ratCoeff_mul {p q : PowerSeries ℂ}
-    (hp : ∀ n : ℕ, ∃ a : ℚ, p.coeff n = (a : ℂ)) (hq : ∀ n : ℕ, ∃ a : ℚ, q.coeff n = (a : ℂ)) :
-    ∀ n : ℕ, ∃ a : ℚ, (p * q).coeff n = (a : ℂ) := by
-  choose F hF using hp
-  choose G hG using hq
-  intro n
-  refine ⟨∑ ij ∈ Finset.HasAntidiagonal.antidiagonal n, F ij.1 * G ij.2, ?_⟩
-  rw [PowerSeries.coeff_mul]
-  push_cast
-  exact Finset.sum_congr rfl fun ij _ => by rw [hF, hG]
 
-private lemma ratCoeff_sub {p q : PowerSeries ℂ}
-    (hp : ∀ n : ℕ, ∃ a : ℚ, p.coeff n = (a : ℂ)) (hq : ∀ n : ℕ, ∃ a : ℚ, q.coeff n = (a : ℂ)) :
-    ∀ n : ℕ, ∃ a : ℚ, (p - q).coeff n = (a : ℂ) := by
-  intro n
-  obtain ⟨a, ha⟩ := hp n
-  obtain ⟨b, hb⟩ := hq n
-  exact ⟨a - b, by rw [map_sub, ha, hb]; push_cast; ring⟩
 
 end RatCoeff
 
