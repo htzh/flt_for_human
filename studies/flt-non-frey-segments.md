@@ -316,17 +316,14 @@ theorem, its two directions, and the place it occupies among the modularity
 theorems — is expanded in
 [../math/019-deligne-serre-weight-one.md](../math/019-deligne-serre-weight-one.md).
 
-**Distance to this landmark.** Measured with
-[../tools/deps/frontier.py](../tools/deps/frontier.py) at the pin: the
-irreducible characteristic-zero statement's cone is 2,308 nodes, of which the
-port already owns 309 — almost all on the modular-curve / function-field side —
-leaving **1,988 new nodes / 995,359 raw `S_` lines**; the residual charpoly
-version leaves **1,210 / 622,105**, and the rep-to-form converse 421 / 196,678.
-The targets are only 2–3 citation hops from the frontier and 288 (resp. 281) of
-the needed nodes are a single node away, but the bulk is an unported automorphic
-block (`AutomorphicForm` 473, `NumberField` 132, `LanglandsTunnell` 38) that
-cannot reach the port at all. So the landmark comes *after* the arithmetic side
-packages, not before.
+**Distance to this landmark.** It is *on* the endgame path — in the closure of
+`FLT.fermatLastTheorem` — but unported: the port already owns the
+modular-curve/function-field side of its cone, while the bulk, the automorphic
+block, cannot reach the port at all, so the landmark comes *after* the arithmetic
+side packages, not before. The moving numbers, the cone composition and the
+subject-by-subject port plan live in
+[deligne-serre-weight-one-scout.md](deligne-serre-weight-one-scout.md), kept
+current as modules land.
 
 ### 3.5 Galois deformations and Taylor–Wiles patching — 2,234 nodes / 617,081 lines
 
