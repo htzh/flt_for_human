@@ -2,9 +2,16 @@
 
 **Status: SCOPED, port not started (2026-09-29).** Measured against the pin
 `aa2d8b3` with `tools/deps`; the port's mathlib is `v4.34.0`. This note is the
-overall status and subject plan. The first work order — the 54-node unconditional
-"lifting and assembly" slice — is
-[deligneSerre/TOPIC-weight-one-lifting-and-assembly.md](deligneSerre/TOPIC-weight-one-lifting-and-assembly.md).
+overall status, subject plan and porting order. The work orders, in reading order:
+
+1. [deligneSerre/TOPIC-port-order.md](deligneSerre/TOPIC-port-order.md) — the
+   cascade-aware order and the friction/refactor protocol (read first).
+2. [deligneSerre/TOPIC-definitions-and-homes.md](deligneSerre/TOPIC-definitions-and-homes.md)
+   — phases D and H: the definition layer and the factor-out blocks.
+3. [deligneSerre/TOPIC-theorem-order.md](deligneSerre/TOPIC-theorem-order.md)
+   — phase T: the 54 theorem modules, importees first.
+4. [deligneSerre/TOPIC-weight-one-lifting-and-assembly.md](deligneSerre/TOPIC-weight-one-lifting-and-assembly.md)
+   — the per-set mathematics of those 54 nodes.
 
 Companions:
 
@@ -88,7 +95,59 @@ Dependency order: S1 and S2 feed S3; S4 and S5 are independent of S1–S3; S6 an
 S7 feed the assembly; S1, S4, S6 and S7 are the prerequisites of S8. The topic
 note gives the per-set module plan.
 
-## 3. What the pins already give us (`port_advise`)
+## 3. Porting order: definitions → homes → theorems
+
+The order is chosen to keep `lake build` cascades small and the work resumable:
+**a module is ported once, in its subject home, and later work imports it rather
+than re-proving it.** The detailed orders are
+[deligneSerre/TOPIC-port-order.md](deligneSerre/TOPIC-port-order.md),
+[deligneSerre/TOPIC-definitions-and-homes.md](deligneSerre/TOPIC-definitions-and-homes.md)
+and [deligneSerre/TOPIC-theorem-order.md](deligneSerre/TOPIC-theorem-order.md);
+this section is the summary.
+
+Four phases, strictly in order.
+
+1. **Definitions first.** The 20 pin `Def_*` modules the cone touches (2,752
+   lines, ~1,600–2,000 new) are the importees of everything above. Port them in
+   their own import order, four levels deep (§1 of the definitions work order).
+   Nothing can even be *stated* until they exist, and a definition file is cheap to
+   re-check.
+2. **Factor-out blocks into subject homes — new files first.** The preludes the 54
+   targets repeat (78 shared blocks / 585 removable lines in the advice reading)
+   get one home each, in **new** files: the cotangent calculus of the weight-one
+   Eisenstein construction, the `FrobeniusDensity` Möbius/zeta prelude, the
+   Galois/representation prelude, the Hecke prelude. New files touch no existing
+   module, so this phase never cascades.
+3. **Existing modules that trigger a cascade.** Only once the new homes exist:
+   promote the 7 port-private copies the advice flags and reconcile the 22 name
+   clashes, in the existing files (`ModularForms/Defs/HeckeRepresentatives.lean`,
+   `Level/Diamond.lean`, `WeightOne/…`, `HeckeAnalytic.lean`,
+   `ModularCurve/Analytic/Gamma0Cosets.lean`). This is the only phase that
+   re-elaborates existing modules; do it in one pass, run a full `lake build`, and
+   close those files afterwards.
+4. **Theorem modules, importees first.** The 54 theorem nodes in their ten
+   topological levels, level 0 first. The generic home nodes (algebra,
+   representation theory, Frobenius density) sit in the early levels; the
+   `DeligneSerre.*` nodes come later. Each level only imports levels below it.
+
+**Freezing and the friction log.** A file that has been ported and reviewed is
+**closed**: later work must not edit it. If a worker needs something from a closed
+file to be public, or finds a block that belongs in a shared home, they resolve it
+**locally** in the file they are working on — a `private` copy or a local
+restatement — and record it in `lean/logs/deligne-serre-friction.md` as an
+out-of-home sharable lemma. A dedicated **refactor round** after the phase, or at
+the end of the effort, promotes the recorded lemmas into their homes and updates
+the importers. This keeps the import graph acyclic by construction and every build
+a forward build, and it means a deviation never re-opens finished work.
+
+**Why this is an experiment.** Transcribing pin file after pin file is less
+planning but re-proves every private prelude per consumer (the WeightOne
+rectification cost 7,242 removable lines) and re-elaborates large cascades. The
+order above front-loads definitions and shared blocks, so the theorem phase is
+mostly new forward imports. Whether it pays is measured by the friction log's
+`local copies × round-trips` against the refactor round's cost.
+
+## 4. What the pins already give us (`port_advise`)
 
 `port_advise.py` was run on the 54 nodes; the JSON is
 [`tools/deps/build/groupA_advise.json`](../../tools/deps/build/groupA_advise.json)
@@ -129,7 +188,7 @@ DegOneAsymptotic,BadPrimes}`, `GaloisRep_FrobeniusPowerDense`, `TaylorWiles_Prim
 `FieldTheory_RatAlgClosureGalois`, the Ihara trio (`IharaIota`, `IharaAmalgam`,
 `IharaAmalgamMap`, `Gamma0Away`), `Deformations_MatrixRepresentation`.
 
-## 4. Module layout
+## 5. Module layout
 
 One directory per theory (playbook §3.2). The DS statements are their own theory,
 but most of the shared mathematics belongs in existing homes:
@@ -149,7 +208,7 @@ but most of the shared mathematics belongs in existing homes:
 Public names keep the pin's `DeligneSerre.*` namespace so the statement checker's
 name map stays mechanical.
 
-## 5. Build discipline and faithfulness
+## 6. Build discipline and faithfulness
 
 The rules of [porting-playbook.md](../porting-playbook.md) apply in full. The two
 that matter most here:
@@ -166,7 +225,7 @@ that matter most here:
   `[propext, Classical.choice, Quot.sound]` on every headline; a build past ~60 s
   is a blow-up to bisect, not wait on.
 
-## 6. The deferred half
+## 7. The deferred half
 
 Everything outside the 54 nodes is deliberately behind an interface:
 

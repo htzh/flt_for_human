@@ -171,23 +171,169 @@ python3 build_ladder.py --waves wave1.txt wave2.txt
 
 ## 7. Reproducing the measurements
 
+**`lake env lean` does not inherit the package's `leanOptions`; `lake build` does.**
+The lakefile sets `maxHeartbeats := 4_000_000` and `autoImplicit := false`, so a
+raw `lake env lean <file>` runs at the default 200,000 cap. On a module that needs
+the raised cap this is not a slow check — it is a *wrong* one: `WeightOne.Basic`
+fails at 30.7 s with a heartbeat timeout and a cascading `unknown constant`,
+while with the options it compiles in 56.1 s. Pass the options explicitly (the
+build-cost tool's `--tier check` and `--profile` now do):
+
 ```bash
 cd lean
-# per-file elaboration, timed and bounded
-for f in FLTForHuman/ModularForms/WeightOne/{LevelFraction,Gamma1Basis,LevelN}; do
-  /usr/bin/time -f "%e s  %U user  $f" timeout 150 lake env lean "$f.lean"
+OPT="-DmaxHeartbeats=4000000 -DautoImplicit=false"
+# per-file elaboration, with the project's options, timed and bounded
+for f in FLTForHuman/ModularForms/WeightOne/{Basic,LevelFraction,Gamma1Basis,LevelN}; do
+  /usr/bin/time -f "%e s  %U user  $f" timeout 150 lake env lean $OPT "$f.lean"
 done
 # is the .olean touched?  (it is not)
 ls -l --time-style=+%T .lake/build/lib/lean/FLTForHuman/ModularForms/WeightOne/Defs/PeriodPair.olean
-lake env lean FLTForHuman/ModularForms/WeightOne/Defs/PeriodPair.lean
+lake env lean $OPT FLTForHuman/ModularForms/WeightOne/Defs/PeriodPair.lean
 ls -l --time-style=+%T .lake/build/lib/lean/FLTForHuman/ModularForms/WeightOne/Defs/PeriodPair.olean
-# where the time goes in a slow module
-lake env lean -Dprofiler=true FLTForHuman/ModularForms/WeightOne/LevelFraction.lean 2>&1 | tail -40
 # cached vs edited cost
 timeout 180 lake build            # no-op: ~3 s
 ```
 
-## 8. Pointers
+## 8. Optimizing a heavy unit
+
+Method: per-declaration elaboration times, then the dependency graph.
+
+```bash
+cd tools/deps
+python3 build_ladder.py --profile FLTForHuman.ModularForms.WeightOne.LevelFraction --top 20
+python3 build_ladder.py --audit --scope WeightOne --refresh     # rank anomalies and cascades
+```
+
+`--profile` runs `-Dtrace.profiler` and ranks the `[Elab.command]` lines.
+`LevelFraction`'s ~80 s is not spread over its 250 declarations; it is
+concentrated in about thirty **typeclass instances**, and the top of the list is
+the same in `LevelField` (which duplicates the block):
+
+| declaration | LevelFraction | LevelField |
+|---|---|---|
+| `scoped instance : IsDedekindDomain ↥(levelIntClosure N)` | 10.0 s | 10.0 s |
+| `scoped instance : FiniteDimensional ↥(ratJ N) (levelField N)` | 5.5 s | 5.4 s |
+| `scoped instance : IsDedekindDomain ↥(polyJ N)` | 3.7 s | 3.9 s |
+| `noncomputable scoped instance algebraRatJ` | 2.9 s | 3.4 s |
+| `scoped instance grp_smulDistribClass` | 2.7 s | 3.1 s |
+| `scoped instance : CharZero ↥(ratJ N)` | 2.7 s | 2.9 s |
+| `abbrev levelIntClosure` | 2.1 s | 2.1 s |
+
+The cost is **instance synthesis and defeq over concrete `Subalgebra` /
+`IntermediateField` subtype carriers**, not the proofs. Three concrete cuts, all
+measured in a scratch copy of `LevelFraction` (control 69.9 s):
+
+| change | wall | delta |
+|---|---|---|
+| delete the two `IsDedekindDomain` instances + `levelIntClosure` | 59.6 s | **−15%** |
+| delete the eight-instance `C1_carrier` block (`IsDomain`, `IsPrincipalIdealRing`, both `IsDedekindDomain`, both `CharZero`, `FiniteDimensional`, `IsSeparable`, `levelIntClosure`) | 51.3 s | **−27%** |
+| `set_option backward.isDefEq.respectTransparency.types false` at the top | 69.2 s | none |
+
+The eight-instance `C1_carrier` block was a **true positive and is applied**:
+its `scoped instance`s sit in `LevelFraction`'s nested
+`WLightS9.S_….WLight` namespace, which no code reaches, and the module builds
+green without them. Measured after the change: `lake env lean` **78.5 s → 59.7 s**
+(−18.8 s, −24%), and the module's `[Elab.command]` total **98.8 s → 81.6 s**
+(261 commands). The checker is unchanged at 2058 identical / 0 mismatched /
+0 missing — it never matched these declarations anyway, because its `DECL_RE`
+does not accept `scoped`, so removing them is not a demotion.
+
+**The "never-opened namespace" heuristic is a candidate list, not a dead list.**
+A `scoped instance` is active *inside its own file/namespace block*, so a
+namespace that nothing opens elsewhere does not mean the instance is unused. A
+sweep of all 44 candidates across eight modules confirmed this the hard way:
+`Basic` (5), `ModularPolynomialIrreducible` (1), `Defs/GammaRational` (3),
+`Gamma0Rationality` (1), `Gamma1IntegralBasis` (3), and 26 more in `LevelFraction`
+all had to be reverted — the instances were used by proofs in the same file. Only
+the `C1_carrier` block was genuinely inert.
+
+So a maintenance pass treats the scan as a **starting list** and applies
+delete → `lake build` → keep-or-revert per batch. Two mechanical cautions from
+the sweep: a declaration whose attribute sits on a separate line (`@[simp]` then
+`lemma …`) is invisible to naive line-span deletion, which then eats the
+following declaration; and `Basic` is a hub, so a bad deletion there fails dozens
+of downstream modules at once. Revert, do not patch.
+
+The broader audit (`--audit`, WeightOne, median 15.2 ms/line) gives the general
+picture:
+
+| module | lines | wall | anomaly | cascade CPU | dependents |
+|---|---|---|---|---|---|
+| `LevelField` | 978 | 67.5 s | **4.5×** | 85 s | 1 |
+| `Defs/PTorsion` | 134 | 6.0 s | 3.0× | 343 s | 12 |
+| `Defs/Gamma` | 95 | 4.0 s | 2.8× | 191 s | 7 |
+| `Defs/PeriodPair` | 99 | 3.9 s | 2.6× | 344 s | 13 |
+| `LevelFraction` | 2,574 | 78.5 s | 2.0× | 266 s | 7 |
+| `Basic` | 1,579 | 56.1 s | 2.3× | 353 s | 8 |
+| `Fricke` | 338 | 6.4 s | 1.3× | **347 s** | 12 |
+| `FrickeFunction` | 2,927 | 37.6 s | 0.8× | 304 s | 8 |
+| `LevelOneHauptmodul` | 2,024 | 10.4 s | 0.7× | 335 s | 10 |
+| `MonicRel` | 647 | 8.9 s | 0.9× | 234 s | 8 |
+
+Two different anomalies: a unit can be **heavy** (high ms/line; `LevelField`,
+`LevelFraction`, the small `Defs/` homes) or **a hub** (small itself, enormous
+edit cost; `Defs/PeriodPair` is 99 lines and editing it re-elaborates 344 s of
+CPU). `Basic` is both.
+
+## 9. The flat-versus-tower pattern
+
+FLT keeps its `S_` files flat: each re-proves its own private prelude, so editing
+one recompiles one file — deliberate build isolation for a parallel agent swarm.
+The deduplicated port writes shared mathematics once, which is better for
+comprehension but turns every shared module into a cascade hub: editing the
+99-line `Defs/PeriodPair` re-elaborates 20,637 dependent lines.
+
+Neither extreme is right. The reconciling rules, in order of leverage:
+
+1. **Measure the cascade, not the module.** Rank by `cascade CPU` from `--audit`;
+   a hub's own size and speed are irrelevant to what editing it costs.
+2. **Keep heavy blocks in leaves.** A module that is both heavy and has
+   dependents (`LevelOneHauptmodul`, `FrickeFunction`, `LevelFraction`) should be
+   split into a thin interface mid-tower and the heavy proof bodies in leaves.
+3. **Keep hubs small, stable, and cheap to elaborate.** Sharing trivial
+   vocabulary is fine and good; sharing expensive instances is not. If a home
+   carries instances that take seconds each, fix or delete them first.
+4. **Provide an instance where it is used.** A `haveI`/`letI` at the few sites
+   that need it avoids both the declaration's elaboration and the global
+   search overhead of a public instance.
+5. **Delete truly-inert declarations — with the build as the judge.** A `scoped
+   instance` whose namespace nothing opens is a *candidate* (the scan lists
+   them), but it is still active inside its own file, so most candidates turn out
+   to be used. Only the `LevelFraction` `C1_carrier` block was genuinely inert
+   (≈18.6 s); apply delete → build → keep-or-revert, never a heuristic alone.
+6. **Give `lake env lean` the project's options** (§7), or the tight-loop check
+   lies about the heavy modules.
+7. **Flatten deliberately where coupling is expensive.** If a trivial piece of
+   vocabulary couples a frequently-edited hub to a heavy module, duplicating the
+   vocabulary in the heavy module can cost less than the cascade it avoids — a
+   measured, per-case exception to "write it once".
+
+## 10. Running a build-cost pass
+
+Build cost accumulates with the tower, so a pass that only reacts to a visible
+problem leaves most of it in place. The procedure:
+
+1. `build_ladder.py --audit --scope <area> --refresh` ranks per-line anomalies
+   (heavy units) and edit cascades (hubs); `--profile` the worst few to see
+   whether the time is instances or proofs.
+2. Cut the low-risk items first: `scoped instance` candidates (the static list in
+   `--audit`), unreferenced declarations, instances replaceable by a `haveI` at
+   their use sites, and duplicated per-package preludes.
+3. Reshape only against a measurement: heavy blocks to leaves, hubs kept small and
+   cheap, a thin interface mid-tower (§9).
+4. **`lake build` is the proof.** A batch that breaks the tree is reverted, not
+   patched around. For instance candidates the loop is delete → build →
+   keep-or-revert: the scan is a starting list and most candidates are used in
+   their own file (§8).
+5. Record what was cut and its before/after cost. A checker-count drop only
+   happens if a matched declaration is removed; `scoped instance`s are not
+   matched by the checker at all.
+
+Two experiences worth repeating: `LevelFraction`'s `C1_carrier` block was the one
+true positive in a 44-candidate sweep (≈19 s), and a bad deletion in a hub
+(`Basic`) fails dozens of downstream modules at once — revert rather than debug.
+
+## 11. Pointers
 
 - [../lean/porting-playbook.md](../lean/porting-playbook.md) — the reusable
   policy, including the proof-engineering failure modes this note measures.

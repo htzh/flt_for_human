@@ -8,11 +8,17 @@ vanishing lemmas, the relèvement and the lifting, the coefficient ring and Galo
 conjugation, the semisimple descent, the representation conjugacy, the Frobenius
 density input, and the complex-trace assembly.
 
+**Porting order.** This note groups the 54 nodes by *mathematics* (S1–S8). The
+order to port them in — definitions, then home blocks, then theorems, importees
+first — is [TOPIC-port-order.md](TOPIC-port-order.md), with
+[TOPIC-definitions-and-homes.md](TOPIC-definitions-and-homes.md) (phases D/H) and
+[TOPIC-theorem-order.md](TOPIC-theorem-order.md) (phase T).
+
 **Read, in order.** [porting-playbook.md](../../porting-playbook.md) (all of it;
 §2.4 for the dedup discipline, §3.1–§3.3 for module-as-role and one-topic-at-a-time,
 §4 for faithfulness); [../../../math/019-deligne-serre-weight-one.md](../../../math/019-deligne-serre-weight-one.md)
 §3–§4 (the mathematics this set implements); [../PORTING-DeligneSerre.md](../PORTING-DeligneSerre.md)
-§1–§4 (the overall plan and the port-advice reading); and
+§1–§5 (the overall plan and the port-advice reading); and
 [../../../studies/deligne-serre-weight-one-scout.md](../../../studies/deligne-serre-weight-one-scout.md)
 §2–§3.1 (why this slice is unconditional).
 

@@ -1650,46 +1650,17 @@ open scoped UpperHalfPlane MatrixGroups IntermediateField IntermediateField.alge
 open _root_.Polynomial _root_.Real.Polynomial
 open scoped _root_.Polynomial _root_.Real.Polynomial
 
-private abbrev polyJ (N : ℕ) [NeZero N] : Subalgebra ℂ (levelField N) := Algebra.adjoin ℂ {jK N}
-
 private abbrev _root_.WLight.ratJ (N : ℕ) [NeZero N] : IntermediateField ℂ (levelField N) := ℂ⟮jK N⟯
 
 open _root_.WLight
 
-private noncomputable def polyJEquiv (N : ℕ) [NeZero N] : ℂ[X] ≃ₐ[ℂ] ↥(polyJ N) :=
-  Polynomial.algEquivOfTranscendental ℂ (jK N) (transcendental_jK N)
-
-scoped instance (N : ℕ) [NeZero N] : IsDomain ↥(polyJ N) := inferInstance
-
-scoped instance (N : ℕ) [NeZero N] : IsPrincipalIdealRing ↥(polyJ N) :=
-  IsPrincipalIdealRing.of_surjective (polyJEquiv N).toRingEquiv.toRingHom
-    (polyJEquiv N).surjective
-
-scoped instance (N : ℕ) [NeZero N] : IsDedekindDomain ↥(polyJ N) :=
-  IsPrincipalIdealRing.isDedekindDomain ↥(polyJ N)
-
-scoped instance (N : ℕ) [NeZero N] : CharZero (levelField N) :=
-  charZero_of_injective_algebraMap (FaithfulSMul.algebraMap_injective ℂ (levelField N))
-
-scoped instance (N : ℕ) [NeZero N] : CharZero ↥(ratJ N) :=
-  charZero_of_injective_algebraMap (FaithfulSMul.algebraMap_injective ℂ ↥(ratJ N))
-
-private lemma index_pmGamma_pos (N : ℕ) [NeZero N] : 0 < (pmGamma N).index := Nat.pos_of_ne_zero
-  Subgroup.FiniteIndex.index_ne_zero
-
-scoped instance (N : ℕ) [NeZero N] : FiniteDimensional ↥(ratJ N) (levelField N) :=
-  haveI : Module.Free ↥(ratJ N) (levelField N) := Module.Free.of_divisionRing _ _
-  Module.finite_of_finrank_pos (by rw [finrank_adjoin_j_levelField]; exact index_pmGamma_pos N)
-
-scoped instance (N : ℕ) [NeZero N] : Algebra.IsSeparable ↥(ratJ N) (levelField N) :=
-  haveI : Algebra.IsIntegral ↥(ratJ N) (levelField N) := Algebra.IsIntegral.of_finite _ _
-  Algebra.IsSeparable.of_integral ↥(ratJ N) (levelField N)
-
-private abbrev levelIntClosure (N : ℕ) [NeZero N] : Subalgebra ↥(polyJ N) (levelField N) :=
-  integralClosure ↥(polyJ N) (levelField N)
-
-scoped instance (N : ℕ) [NeZero N] : IsDedekindDomain ↥(levelIntClosure N) :=
-  integralClosure.isDedekindDomain ↥(polyJ N) ↥(ratJ N) (levelField N)
+-- The pin package's `C1_carrier` instances (`IsDomain`/`IsPrincipalIdealRing`/
+-- `IsDedekindDomain` on `polyJ`, `CharZero`/`FiniteDimensional`/`IsSeparable` on
+-- `ratJ`/`levelField`, and the `levelIntClosure` Dedekind instance) are declared
+-- inside this package's nested `WLight` namespace, which nothing opens; as
+-- `scoped instance`s they were never active, and elaborating them cost ~19 s of
+-- this module's build.  The level-field vocabulary and its live instances are in
+-- `WeightOne.LevelField` (top-level `WLight`, opened by `LevelN`).
 
 private def levelRingEval (N : ℕ) (τ : ℍ) : ↥(levelRing N) →ₐ[ℂ] ℂ :=
   (Pi.evalAlgHom ℂ (fun _ : ℍ ↦ ℂ) τ).comp (levelRing N).val

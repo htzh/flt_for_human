@@ -35,6 +35,12 @@ when to deviate, is §0.3.
 
 ### 0.1 The checklist
 
+**Plan for more than one round.** A port of any size is a sequence of sets, not a
+single pass: build cost and duplication accumulate as the tower grows, and later
+rounds will revisit earlier modules. The porting agent's build rules are
+deliberately simple (§3.5); deeper build investigation is a separate subagent job
+(§0.2).
+
 Before coding:
 
 1. **Measure the cone** — files, raw and content lines, declarations, importers.
@@ -96,6 +102,12 @@ best spent on the plan, the review and the capstone. Decompose and dispatch:
 - **Ask for artifacts, not narration.** The return is the module(s), the measured
   table, and the friction-log entries; the manager folds the generalizable part
   into this file and the record.
+- **Build investigation is a subagent with its own brief.** When the porting agent
+  hits a build problem the simple rules (§3.5) do not settle, dispatch a fresh
+  subagent whose whole instruction is the build-cost note
+  ([../notes/lean-build-cost.md](../notes/lean-build-cost.md)) plus the tool
+  interface — not this playbook. Keep it a separate dispatch; do not fold it into
+  the porting agent's task.
 
 ### 0.3 Discretion: this is a synthesis, not a contract
 
@@ -125,14 +137,15 @@ recorded judgement, not as a checklist to apply mechanically:
 ### 0.4 Build discipline, and the note behind it
 
 Follow the build discipline as a matter of course — it is the per-work-order
-block in §3.5 (`lake env lean` in the edit loop, one cascade per wave, bounded
-and serialized builds). When a build misbehaves — a file that used to be fast is
-slow, a cascade runs to minutes, a timeout, suspected contention, or the bounds
-seem not to hold — the measurements behind the rules are in
-[../notes/lean-build-cost.md](../notes/lean-build-cost.md): the cascade model, the
-per-file and per-wave timings, the `LevelFraction` profile, the global
-4,000,000-heartbeat cap, and recipes to reproduce every number. Read the note
-when the rule does not settle the question; do not re-derive the numbers.
+block in §3.5. Two facts are easy to get wrong: `lake env lean` needs the
+package's options (`-DmaxHeartbeats=4000000 -DautoImplicit=false`) to match
+`lake build`, and this project's global cap is 4,000,000, so a blow-up does not
+surface in ~20 s — the wall bound is the protection.
+
+When a build misbehaves anyway, do not investigate it inline. Dispatch a subagent
+whose brief is [../notes/lean-build-cost.md](../notes/lean-build-cost.md); the note
+carries the measurements, the recipes and the tools
+(`tools/deps/build_ladder.py --audit` / `--profile`).
 
 ## 1. The cost model
 
@@ -491,9 +504,17 @@ wave cascade, 3.4 s for a fully cached whole-tree build. The full measurement,
 the profiling, and the `maxHeartbeats := 4_000_000` global cap are in
 [../notes/lean-build-cost.md](../notes/lean-build-cost.md).
 
+**`lake env lean` must be given the package's options.** It runs Lean directly
+and does **not** inherit the lakefile's `leanOptions`; `lake build` does. Without
+`-DmaxHeartbeats=4000000 -DautoImplicit=false` the edit-loop check runs at the
+default 200,000 cap and can report a timeout and a cascade of `unknown constant`
+errors on a module `lake build` compiles happily (`WeightOne.Basic`: fails at
+30.7 s raw, compiles in 56.1 s with the options). Use the options, or
+`tools/deps/build_ladder.py --tier check`, which supplies them.
+
 | tier | when | command | cost |
 |---|---|---|---|
-| 0 edit loop | every edit | `timeout 60 lake env lean <file>` | no cascade; 4–78 s |
+| 0 edit loop | every edit | `timeout 60 lake env lean <opts> <file>` | no cascade; 4–78 s |
 | 1 module done | file compiles | `timeout 90 lake build <module>` + checker | 6–10 s |
 | 2 wave done | all wave edits in | one `lake build` (or its affected targets) | 2–7 min |
 | 3 milestone | definition of done | full build + consumers + axioms | the tier-2 cost |
@@ -513,13 +534,21 @@ Four rules:
    wall with 0.5 s user), and a heartbeat blow-up shows high user CPU. Never run
    builds concurrently.
 
-> **Build discipline (copy this into each work order).** `lake env lean <file>` is
-> the edit loop; `lake build <module>` when a file is done; **one** `lake build`
-> per wave; the full build at the milestone. Bound every build (`timeout 60` /
-> `90` / `300` / `180`), serialize every `lake build` with `flock`, and time it:
-> high user CPU with a timeout is a real blow-up to bisect, ~0 CPU is contention.
-> Never raise `maxHeartbeats`; this project's global cap is already 4,000,000, so
-> a blow-up does **not** surface in ~20 s — the wall bound is the protection.
+If a build still misbehaves — a module that used to be fast is slow, a bound is
+exceeded, a result looks wrong — do not investigate it inline: hand it to a
+subagent whose brief is the build-cost note (§0.2, §0.4). Organisationally, keep
+heavy modules at the leaves and shared hubs small and cheap, so later cost work
+has less to do; the note holds the measurements and the recipes.
+
+> **Build discipline (copy this into each work order).** `lake env lean <opts> <file>`
+> is the edit loop, with `<opts>` = `-DmaxHeartbeats=4000000 -DautoImplicit=false`
+> (without them the check runs at the default cap and lies about heavy modules);
+> `lake build <module>` when a file is done; **one** `lake build` per wave; the
+> full build at the milestone. Bound every build (`timeout 60` / `90` / `300` /
+> `180`), serialize every `lake build` with `flock`, and time it: high user CPU
+> with a timeout is a real blow-up to bisect, ~0 CPU is contention. Never raise
+> `maxHeartbeats`; this project's global cap is already 4,000,000, so a blow-up
+> does **not** surface in ~20 s — the wall bound is the protection.
 
 Two traps the ladder exposes:
 
@@ -807,7 +836,7 @@ Lean. They live in the unpublished `tools/deps/` tree.
 | `frontier.py` | how far a target still is from the ported frontier, in new nodes |
 | `port_graph.py` | our port's module/declaration graph: blobs, duplicated private proofs grouped into blocks, promotion candidates, closures |
 | `port_advise.py` | before a port: what the port already has (substitute), what the target set re-proves (port once), what differs only by binders (generalise), and what each public declaration drags |
-| `build_ladder.py` | the dependent cascade of an edit, the cheapest sufficient build under `flock`/`timeout`, and a wave plan that re-edits a module |
+| `build_ladder.py` | the dependent cascade of an edit, the cheapest sufficient build under `flock`/`timeout`, a wave plan that re-edits a module, and (`--audit` / `--profile`) which modules are expensive to edit and which declarations cost the time |
 
 The workflow loop: a coverage report from the pin graph chooses the target;
 `port_advise.py` prices reuse and duplication before coding; `port_graph.py`

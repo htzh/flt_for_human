@@ -3,7 +3,7 @@
 **Status.** Mathematical exposition, pinned to the FLT pin `aa2d8b3`. This note
 explains the *mathematics* of the weight-one Deligne–Serre correspondence and
 places it among the other modularity theorems the FLT development uses. The Lean
-statements, the endgame route and the porting distance are collected in §9.
+statements are collected in §9.
 
 Companions: [011-tate-module.md](011-tate-module.md) (the $`\ell`$-adic
 representations attached to elliptic curves and to eigenforms of weight
@@ -13,9 +13,7 @@ $`\ge 2`$), [017-eichler-shimura-isomorphism.md](017-eichler-shimura-isomorphism
 (a *different* result FLT takes from the same 1974 paper — Deligne–Serre's
 Proposition 2.7, on the integral $`\Gamma_1`$-basis),
 [014-chi-minus-3-eisenstein.md](014-chi-minus-3-eisenstein.md) (the weight-one
-Eisenstein series $`E_1(1,\chi_{-3})`$ that drives the mod-$`3`$ congruence lift),
-and [../studies/flt-non-frey-segments.md](../studies/flt-non-frey-segments.md) §3.4
-(the segment and the frontier measurement).
+Eisenstein series $`E_1(1,\chi_{-3})`$ that drives the mod-$`3`$ congruence lift).
 
 ## 1. The theorem
 
@@ -320,7 +318,7 @@ Langlands–Tunnell/Deligne–Serre input is needed only at $`3`$.
 
 ## 6. How FLT uses it: the mod-3 octahedral case
 
-The endgame chain that carries the weight-one input is, in premise direction
+The FLT chain that carries the weight-one input is, in premise direction
 (from the theorem down to its inputs):
 
 ```text
@@ -378,10 +376,9 @@ be conflated.
 2. **Proposition 2.7** of the same paper, on the integral structure of the
    $`\Gamma_1(N)`$-basis of modular forms. This is the result
    [013-integral-structure-gamma1-basis.md](013-integral-structure-gamma1-basis.md)
-   uses (via the trace route C′) to prove the integral structure of
-   $`S_k(\Gamma_0(N))`$ for every $`k`$. The provenance is recorded in FLT's own
-   documentation; the port's `DeligneSerre271` namespace is this Proposition 2.7,
-   not the weight-one correspondence.
+   uses to prove the integral structure of $`S_k(\Gamma_0(N))`$ for every $`k`$.
+   FLT's `DeligneSerre271` namespace formalizes this Proposition 2.7, not the
+   weight-one correspondence.
 
 The two results sit in the same paper because both come out of the same analytic
 study of weight-one forms: the correspondence is the Galois-theoretic output, and
@@ -409,9 +406,9 @@ oddness.
 
 ## 9. Lean summary
 
-The mathematics above is the classical theorem. FLT proves it in a strength tuned
-to the endgame, in the `DeligneSerre.*` and `LanglandsTunnell.*` namespaces. This
-section is the technical summary.
+The mathematics above is the classical theorem. FLT proves it in the strength its
+modularity argument needs, in the `DeligneSerre.*` and `LanglandsTunnell.*`
+namespaces. This section is the technical summary.
 
 **The headline statement, in characteristic form.** The workhorse is
 
@@ -474,7 +471,7 @@ $`\varepsilon(p)`$ — §1's complex statement.
   and `DeligneSerre.exists_weightOne_cuspForm_tameConductor_of_qCoeff_eq_trace`
   — the local factors and the converse/level statement of §3.
 
-**The endgame coupling.** The Langlands–Tunnell side is packaged by
+**The coupling with Langlands–Tunnell.** The Langlands–Tunnell side is packaged by
 `CuspForm.IsWeightOneChiNegThreeRealized`
 (`Def_LanglandsTunnell_WeightOneRealizationCarriers.lean#L15`) and the lifting by
 `CuspForm.WeightTwoModThreeCongruenceLift` (same file, line 38). The bridge
@@ -488,26 +485,6 @@ weight-one $`\to`$ weight-two mod-$`3`$ step is
 ("weight-one eigensystem realised mod 3 in weight two"). These are the three
 constituents of `FLT.No2BridgeWiring.weightOneNewformExists_not_cube_dvd`
 ([line 61](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_FLT_No2BridgeWiring_weightOneNewformExists_not_cube_dvd.lean#L61)).
-
-**Distance from the port.** The weight-one Deligne–Serre family is *on* the
-endgame path — it lies in the closure of `FLT.fermatLastTheorem` — but it is
-unported. Measured with [../tools/deps/frontier.py](../tools/deps/frontier.py) at
-`aa2d8b3`, against the port's 492-node frontier:
-
-| target | cone | new nodes / raw `S_` lines | hops |
-|---|---:|---:|---:|
-| `exists_galoisRep_of_weightOne_qCoeff_hecke_eigen` | 2,308 | 1,988 / 995,359 | 2 |
-| `exists_residual_galoisRep_charpoly_frobenius_eq_of_weightOne_hecke_eigen` | 1,528 | 1,210 / 622,105 | 3 |
-| `exists_weightOne_cuspForm_tameConductor_of_qCoeff_eq_trace` | 439 | 421 / 196,678 | 2 |
-
-The port already owns about 309 of the first cone's nodes, almost all on the
-modular-curve/function-field side (`ModularCurve` 151, `AlgebraicCurve` 77); the
-remaining mass is the unported automorphic block (`AutomorphicForm` 473,
-`NumberField` 132, `LanglandsTunnell` 38) plus the weight-one arithmetic itself
-(`CuspForm`, `DeligneSerre`, `EisensteinSeries`). The family is a landmark to port
-after the arithmetic side packages, not before. The segment assignment and the
-full measurement are in
-[../studies/flt-non-frey-segments.md](../studies/flt-non-frey-segments.md) §3.4.
 
 ## References
 
