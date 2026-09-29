@@ -75,6 +75,13 @@ import Mathlib.RingTheory.PowerSeries.Order
 import Mathlib.RingTheory.RootsOfUnity.Complex
 import Mathlib.RingTheory.RootsOfUnity.Minpoly
 import Mathlib.RingTheory.Unramified.Field
+import FLTForHuman.ModularForms.WeightOne.Defs.PeriodPair
+import FLTForHuman.ModularForms.WeightOne.Defs.PTorsion
+import FLTForHuman.ModularForms.WeightOne.Defs.Gamma
+import FLTForHuman.ModularForms.WeightOne.Fricke
+import FLTForHuman.ModularForms.DiscPow
+open UpperHalfPlaneAux
+open WLight
 
 set_option linter.style.haveILetI false
 set_option linter.unusedSectionVars false
@@ -99,44 +106,7 @@ open scoped Real Manifold MatrixGroups ModularForm Topology
 
 namespace GammaNBounded
 
-private def tauPair (τ : ℍ) : PeriodPair where
-  ω₁ := (τ : ℂ)
-  ω₂ := 1
-  indep := by
-    rw [LinearIndependent.pair_iff]
-    intro s t h
-    have h1 := congrArg Complex.im h
-    have h2 := congrArg Complex.re h
-    simp at h1 h2
-    have hs : s = 0 := by
-      rcases h1 with h1 | h1
-      · exact h1
-      · exact absurd h1 τ.im_pos.ne'
-    subst hs
-    simp at h2
-    exact ⟨rfl, h2⟩
-
-private theorem tauPair_spec (τ : ℍ) : (tauPair τ).ω₁ = (τ : ℂ) ∧ (tauPair τ).ω₂ = 1 := ⟨rfl, rfl⟩
-
 variable (N : ℕ)
-
-private def WW (v : Fin 2 → ZMod N) (τ : ℍ) : ℂ :=
-  ((2 * (Real.pi : ℂ) * Complex.I) ^ 2)⁻¹ *
-    PeriodPair.weierstrassP (tauPair τ) ((((v 0).val : ℂ) * (τ : ℂ) + ((v 1).val : ℂ)) / (N : ℂ))
-
-private def fricke (v : Fin 2 → ZMod N) (τ : ℍ) : ℂ :=
-  -(ModularForm.E₄ τ * ModularForm.E₆ τ / ModularForm.discriminant τ) / 2592 * WW N v τ
-
-private def jf (τ : ℍ) : ℂ := ModularForm.E₄ τ ^ 3 / ModularForm.discriminant τ
-
-private theorem WW_spec (v : Fin 2 → ZMod N) (τ : ℍ) : WW N v τ = ((2 * (Real.pi : ℂ) * Complex.I) ^ 2)⁻¹ *
-    PeriodPair.weierstrassP (tauPair τ) ((((v 0).val : ℂ) * (τ : ℂ) + ((v 1).val : ℂ)) / (N : ℂ)) :=
-  rfl
-
-private theorem fricke_spec (v : Fin 2 → ZMod N) (τ : ℍ) : fricke N v τ =
-    -(ModularForm.E₄ τ * ModularForm.E₆ τ / ModularForm.discriminant τ) / 2592 * WW N v τ := rfl
-
-private theorem jf_spec (τ : ℍ) : jf τ = ModularForm.E₄ τ ^ 3 / ModularForm.discriminant τ := rfl
 
 private def zetaN : ℂ := Complex.exp (2 * (Real.pi : ℂ) * Complex.I / (N : ℂ))
 
@@ -346,10 +316,6 @@ private theorem qE_eq_zero_iff (g : nice N) : qE N g = 0 ↔ (g : ℍ → ℂ) =
 private theorem mdifferentiable_disc : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (Δ : ℍ → ℂ) := by
   rw [← CuspForm.coe_discriminant]; exact CuspForm.discriminant.holo'
 
-private theorem periodic_ofComplex_natCast {g : ℍ → ℂ} (h : Periodic (g ∘ ofComplex) 1) (n : ℕ) :
-    Periodic (g ∘ ofComplex) n := by
-  simpa using h.nat_mul n
-
 private theorem levelOne_mem {k : ℤ} (f : ModularForm 𝒮ℒ k) : (⇑f : ℍ → ℂ) ∈ nice N :=
   ⟨f.holo', periodic_ofComplex_natCast (SlashInvariantFormClass.periodic_comp_ofComplex f
     one_mem_strictPeriods_SL) N, ModularFormClass.bdd_at_infty f⟩
@@ -512,17 +478,6 @@ local notation "Δ" => ModularForm.discriminant
 
 variable {N}
 
-private theorem qExpansion_coeff_unique' {h : ℝ} (hh : 0 < h) {g : ℍ → ℂ} {c : ℕ → ℂ}
-    (hg : AnalyticAt ℂ (cuspFunction h g) 0)
-    (hc : ∀ τ : ℍ, HasSum (fun m => c m • Periodic.qParam h τ ^ m) (g τ)) (m : ℕ) :
-    c m = (qExpansion h g).coeff m := by
-  have h1 := (hasFPowerSeriesOnBall_cuspFunction hh hg hc).hasFPowerSeriesAt
-  have h2 : HasFPowerSeriesAt (cuspFunction h g)
-      (FormalMultilinearSeries.ofScalars ℂ fun m => (qExpansion h g).coeff m) 0 := by
-    simpa [qExpansion_coeff, div_eq_mul_inv, mul_comm] using hg.hasFPowerSeriesAt
-  simpa [FormalMultilinearSeries.coeff_ofScalars] using
-    congr_arg (FormalMultilinearSeries.coeff · m) (h1.eq_formalMultilinearSeries h2)
-
 variable (N) in
 private theorem qParam_one_eq_pow (τ : ℍ) : Periodic.qParam 1 τ = Periodic.qParam N τ ^ N := by
   simp only [Periodic.qParam]
@@ -533,31 +488,6 @@ private theorem qParam_one_eq_pow (τ : ℍ) : Periodic.qParam 1 τ = Periodic.q
   field_simp
 
 variable (N) in
-
-private theorem qExpansion_coeff_widthN {g : ℍ → ℂ} (hg : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) g)
-    (hper : Periodic (g ∘ ofComplex) 1) (hbd : IsBoundedAtImInfty g) (n : ℕ) :
-    (qExpansion N g).coeff n = if (N : ℕ) ∣ n then (qExpansion 1 g).coeff (n / N) else 0 := by
-  classical
-  have hperN : Periodic (g ∘ ofComplex) N := periodic_ofComplex_natCast hper N
-  set c : ℕ → ℂ := fun n => if (N : ℕ) ∣ n then (qExpansion 1 g).coeff (n / N) else 0 with hc
-  have hNpos : 0 < N := NeZero.pos N
-  have hsum : ∀ τ : ℍ, HasSum (fun m => c m • Periodic.qParam N τ ^ m) (g τ) := by
-    intro τ
-    have h1 := hasSum_qExpansion one_pos hper hg hbd τ
-    have hinj : Function.Injective fun m : ℕ => N * m := mul_right_injective₀ hNpos.ne'
-    have hsupp : ∀ x ∉ Set.range (fun m : ℕ => N * m),
-        (fun m => c m • Periodic.qParam N τ ^ m) x = 0 := by
-      intro x hx
-      have : ¬ (N : ℕ) ∣ x := by
-        rintro ⟨y, rfl⟩; exact hx ⟨y, rfl⟩
-      simp [hc, this]
-    refine (hinj.hasSum_iff hsupp).1 ?_
-    convert h1 using 1
-    funext m
-    simp only [comp_apply, hc, dvd_mul_right, ↓reduceIte, Nat.mul_div_cancel_left _ hNpos]
-    rw [qParam_one_eq_pow N τ, ← pow_mul]
-  rw [← qExpansion_coeff_unique' (natCast_pos N) (analyticAt_cuspFunction_zero (natCast_pos N)
-    hperN hg hbd) hsum n]
 
 private def spread (P : PowerSeries ℤ) : PowerSeries ℤ :=
   PowerSeries.mk fun n => if (N : ℕ) ∣ n then PowerSeries.coeff (n / N) P else 0
@@ -2152,17 +2082,6 @@ end Level
 
 section Width
 
-private theorem qExpansion_coeff_unique' {h : ℝ} (hh : 0 < h) {g : ℍ → ℂ} {c : ℕ → ℂ}
-    (hg : AnalyticAt ℂ (cuspFunction h g) 0)
-    (hc : ∀ τ : ℍ, HasSum (fun m => c m • Periodic.qParam h τ ^ m) (g τ)) (m : ℕ) :
-    c m = (qExpansion h g).coeff m := by
-  have h1 := (hasFPowerSeriesOnBall_cuspFunction hh hg hc).hasFPowerSeriesAt
-  have h2 : HasFPowerSeriesAt (cuspFunction h g)
-      (FormalMultilinearSeries.ofScalars ℂ fun m => (qExpansion h g).coeff m) 0 := by
-    simpa [qExpansion_coeff, div_eq_mul_inv, mul_comm] using hg.hasFPowerSeriesAt
-  simpa [FormalMultilinearSeries.coeff_ofScalars] using
-    congr_arg (FormalMultilinearSeries.coeff · m) (h1.eq_formalMultilinearSeries h2)
-
 variable (N : ℕ) [NeZero N]
 
 private theorem natCast_pos : (0 : ℝ) < (N : ℝ) := Nat.cast_pos.mpr (NeZero.pos N)
@@ -2174,35 +2093,6 @@ private theorem qParam_one_eq_pow (τ : ℍ) : Periodic.qParam 1 τ = Periodic.q
   have : (N : ℂ) ≠ 0 := Nat.cast_ne_zero.mpr (NeZero.ne N)
   push_cast
   field_simp
-
-private theorem periodic_ofComplex_natCast {g : ℍ → ℂ} (h : Periodic (g ∘ ofComplex) 1) (n : ℕ) :
-    Periodic (g ∘ ofComplex) n := by
-  simpa using h.nat_mul n
-
-private theorem qExpansion_coeff_widthN {g : ℍ → ℂ} (hg : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) g)
-    (hper : Periodic (g ∘ ofComplex) 1) (hbd : IsBoundedAtImInfty g) (n : ℕ) :
-    (qExpansion N g).coeff n = if (N : ℕ) ∣ n then (qExpansion 1 g).coeff (n / N) else 0 := by
-  classical
-  have hperN : Periodic (g ∘ ofComplex) N := periodic_ofComplex_natCast hper N
-  set c : ℕ → ℂ := fun n => if (N : ℕ) ∣ n then (qExpansion 1 g).coeff (n / N) else 0 with hc
-  have hNpos : 0 < N := NeZero.pos N
-  have hsum : ∀ τ : ℍ, HasSum (fun m => c m • Periodic.qParam N τ ^ m) (g τ) := by
-    intro τ
-    have h1 := hasSum_qExpansion one_pos hper hg hbd τ
-    have hinj : Function.Injective fun m : ℕ => N * m := mul_right_injective₀ hNpos.ne'
-    have hsupp : ∀ x ∉ Set.range (fun m : ℕ => N * m),
-        (fun m => c m • Periodic.qParam N τ ^ m) x = 0 := by
-      intro x hx
-      have : ¬ (N : ℕ) ∣ x := by
-        rintro ⟨y, rfl⟩; exact hx ⟨y, rfl⟩
-      simp [hc, this]
-    refine (hinj.hasSum_iff hsupp).1 ?_
-    convert h1 using 1
-    funext m
-    simp only [comp_apply, hc, dvd_mul_right, ↓reduceIte, Nat.mul_div_cancel_left _ hNpos]
-    rw [qParam_one_eq_pow N τ, ← pow_mul]
-  rw [← qExpansion_coeff_unique' (natCast_pos N) (analyticAt_cuspFunction_zero (natCast_pos N)
-    hperN hg hbd) hsum n]
 
 private theorem coeff_widthN_mul {g : ℍ → ℂ} (hg : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) g)
     (hper : Periodic (g ∘ ofComplex) 1) (hbd : IsBoundedAtImInfty g) (n : ℕ) :

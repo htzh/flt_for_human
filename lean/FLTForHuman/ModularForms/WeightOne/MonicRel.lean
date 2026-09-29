@@ -54,7 +54,7 @@ namespace WLight
 
 The meromorphic order at a point of a monic-relation quotient is nonnegative. -/
 
-private theorem le_meromorphicOrderAt_sum {𝕜 : Type*} [NontriviallyNormedField 𝕜]
+theorem le_meromorphicOrderAt_sum {𝕜 : Type*} [NontriviallyNormedField 𝕜]
     {ι : Type*} (s : Finset ι) {f : ι → 𝕜 → 𝕜} {x : 𝕜}
     (hf : ∀ i ∈ s, MeromorphicAt (f i) x) (m : WithTop ℤ)
     (hm : ∀ i ∈ s, m ≤ meromorphicOrderAt (f i) x) :
@@ -72,7 +72,7 @@ private theorem le_meromorphicOrderAt_sum {𝕜 : Type*} [NontriviallyNormedFiel
             apply meromorphicOrderAt_add (hf a (Finset.mem_insert_self a s))
             exact MeromorphicAt.sum (fun i hi ↦ hf i (Finset.mem_insert_of_mem hi))
 
-private theorem meromorphicOrderAt_le_of_monicRel {𝕜 : Type*} [NontriviallyNormedField 𝕜]
+theorem meromorphicOrderAt_le_of_monicRel {𝕜 : Type*} [NontriviallyNormedField 𝕜]
     {F G : 𝕜 → 𝕜} {c : ℕ → 𝕜 → 𝕜} {n : ℕ} {τ : 𝕜}
     (hF : AnalyticAt 𝕜 F τ) (hG : AnalyticAt 𝕜 G τ)
     (hGord : meromorphicOrderAt G τ ≠ ⊤) (hc : ∀ k < n, AnalyticAt 𝕜 (c k) τ)
@@ -133,7 +133,7 @@ private theorem meromorphicOrderAt_le_of_monicRel {𝕜 : Type*} [NontriviallyNo
   rw [heq, hFn_ord] at htop
   exact WithTop.coe_ne_top htop
 
-private theorem meromorphicOrderAt_div_nonneg_of_monicRel {𝕜 : Type*} [NontriviallyNormedField 𝕜]
+theorem meromorphicOrderAt_div_nonneg_of_monicRel {𝕜 : Type*} [NontriviallyNormedField 𝕜]
     {F G : 𝕜 → 𝕜} {c : ℕ → 𝕜 → 𝕜} {n : ℕ} {τ : 𝕜}
     (hF : AnalyticAt 𝕜 F τ) (hG : AnalyticAt 𝕜 G τ)
     (hGord : meromorphicOrderAt G τ ≠ ⊤) (hc : ∀ k < n, AnalyticAt 𝕜 (c k) τ)
@@ -146,11 +146,11 @@ private theorem meromorphicOrderAt_div_nonneg_of_monicRel {𝕜 : Type*} [Nontri
 
 /-! ### The half-plane bridge -/
 
-private lemma analyticOnNhd_comp_ofComplex {f : ℍ → ℂ} (hf : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) f) :
+lemma analyticOnNhd_comp_ofComplex {f : ℍ → ℂ} (hf : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) f) :
     AnalyticOnNhd ℂ (f ∘ ofComplex) upperHalfPlaneSet :=
   (UpperHalfPlane.mdifferentiable_iff.mp hf).analyticOnNhd isOpen_upperHalfPlaneSet
 
-private lemma mdifferentiable_of_analyticOnNhd {f : ℍ → ℂ}
+lemma mdifferentiable_of_analyticOnNhd {f : ℍ → ℂ}
     (hf : AnalyticOnNhd ℂ (f ∘ ofComplex) upperHalfPlaneSet) :
     MDifferentiable 𝓘(ℂ) 𝓘(ℂ) f :=
   UpperHalfPlane.mdifferentiable_iff.mpr hf.differentiableOn
@@ -620,5 +620,27 @@ theorem span_inter_rational_of_twist_stable (K : IntermediateField ℚ ℂ)
     rw [h1, ← hattach s (fun u => σ (c u))]
     exact htw
   exact descent_generic M V hVle T (fun σ ι _ c f hf => hT σ ι c f hf) hTV G1 hv
+
+theorem differentiableAt_comp_ofComplex {u : ℍ → ℂ} (hu : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) u) (τ : ℍ) :
+    DifferentiableAt ℂ (u ∘ ofComplex) (τ : ℂ) :=
+  UpperHalfPlane.mdifferentiableAt_iff.1 (hu τ)
+
+theorem eq_zero_of_mul_eq_zero {u v : ℍ → ℂ} (hu : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) u)
+    (hv : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) v) (huv : ∀ τ : ℍ, u τ * v τ = 0) {τ₀ : ℍ} (hv0 : v τ₀ ≠ 0) :
+    u = 0 := by
+
+  have hvc : ContinuousAt (v ∘ ofComplex) (τ₀ : ℂ) := (differentiableAt_comp_ofComplex hv τ₀).continuousAt
+  have hv0' : (v ∘ ofComplex) (τ₀ : ℂ) ≠ 0 := by simpa [Function.comp, ofComplex_apply] using hv0
+  have hne : ∀ᶠ z in 𝓝 (τ₀ : ℂ), (v ∘ ofComplex) z ≠ 0 := hvc.eventually_ne hv0'
+  have hu0 : (u ∘ ofComplex) =ᶠ[𝓝 (τ₀ : ℂ)] 0 := by
+    filter_upwards [hne] with z hz
+    have := huv (ofComplex z)
+    simp only [Function.comp_apply, Pi.zero_apply] at hz ⊢
+    exact (mul_eq_zero.1 this).resolve_right hz
+  have hEq := (analyticOnNhd_comp_ofComplex hu).eqOn_zero_of_preconnected_of_eventuallyEq_zero
+    (convex_halfSpace_im_gt 0).isPreconnected τ₀.im_pos hu0
+  funext τ
+  have := hEq τ.im_pos
+  simpa [Function.comp, ofComplex_apply] using this
 
 end WLight

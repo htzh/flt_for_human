@@ -22,6 +22,12 @@ import Mathlib.NumberTheory.ModularForms.LevelOne.GradedRing
 import Mathlib.RingTheory.RootsOfUnity.Complex
 import Mathlib.RingTheory.PowerSeries.Order
 import Mathlib.FieldTheory.PrimitiveElement
+import FLTForHuman.ModularForms.WeightOne.Defs.PeriodPair
+import FLTForHuman.ModularForms.WeightOne.Defs.PTorsion
+import FLTForHuman.ModularForms.WeightOne.Fricke
+import FLTForHuman.ModularForms.DiscPow
+open WLight
+open UpperHalfPlaneAux
 
 set_option autoImplicit false
 set_option linter.style.haveILetI false
@@ -36,26 +42,6 @@ section Floor
 open scoped UpperHalfPlane Manifold
 open PeriodPair
 
-private def periodPairOfTau (τ : ℍ) : PeriodPair where
-  ω₁ := (τ : ℂ)
-  ω₂ := 1
-  indep := LinearIndependent.pair_iff.mpr fun s t hst ↦ by
-    have him : s * (τ : ℂ).im = 0 := by
-      have := congrArg Complex.im hst
-      simpa [Complex.add_im, Complex.smul_im, smul_eq_mul] using this
-    have hs : s = 0 :=
-      (mul_eq_zero.mp him).resolve_right (UpperHalfPlane.coe_im τ ▸ τ.im_ne_zero)
-    subst hs
-    simpa using hst
-
-@[scoped simp] private lemma periodPairOfTau_ω₁ (τ : ℍ) : (periodPairOfTau τ).ω₁ = (τ : ℂ) := rfl
-@[scoped simp] private lemma periodPairOfTau_ω₂ (τ : ℍ) : (periodPairOfTau τ).ω₂ = 1 := rfl
-
-private def zetaN (N : ℕ) : ℂ := cexp (2 * π * I / N)
-
-private def qN (N : ℕ) (τ : ℂ) : ℂ := cexp (2 * π * I * τ / N)
-
-private lemma zetaN_ne_zero (N : ℕ) : zetaN N ≠ 0 := Complex.exp_ne_zero _
 private lemma qN_ne_zero (N : ℕ) (τ : ℂ) : qN N τ ≠ 0 := Complex.exp_ne_zero _
 
 private lemma qN_pow_self {N : ℕ} (hN : N ≠ 0) (τ : ℂ) : qN N τ ^ N = cexp (2 * π * I * τ) := by
@@ -101,12 +87,6 @@ private lemma norm_qN_le_of_le_im (N : ℕ) {B : ℝ} {τ : ℂ} (hτ : B ≤ τ
   · have : (0 : ℝ) < N := by exact_mod_cast hN
     gcongr
 
-private def wpTail (N a₁ a₂ : ℕ) (p : ℕ+ × ℕ+) (τ : ℂ) : ℂ :=
-  ((p.2 : ℕ) : ℂ) *
-    (zetaN N ^ (a₂ * (p.2 : ℕ)) * qN N τ ^ (((p.1 : ℕ) * N + a₁) * (p.2 : ℕ)) +
-      (zetaN N)⁻¹ ^ (a₂ * (p.2 : ℕ)) * qN N τ ^ (((p.1 : ℕ) * N - a₁) * (p.2 : ℕ)) -
-        2 * qN N τ ^ ((p.1 : ℕ) * N * (p.2 : ℕ)))
-
 private lemma norm_wpTail_le {N a₁ : ℕ} (ha₁ : a₁ < N) (a₂ : ℕ) (p : ℕ+ × ℕ+) {τ : ℂ} (hτ : 0 ≤ τ.im) :
     ‖wpTail N a₁ a₂ p τ‖ ≤ 4 * ((p.2 : ℕ) * ‖qN N τ‖ ^ ((p.1 : ℕ) * (p.2 : ℕ))) := by
   obtain ⟨c, m⟩ := p
@@ -149,14 +129,6 @@ private lemma summable_wpTail_majorant {r : ℝ} (hr0 : 0 ≤ r) (hr : r < 1) :
   have h := summable_prod_mul_pow 1 (r := r) (by rwa [Real.norm_eq_abs, abs_of_nonneg hr0])
   refine (h.mul_left 4).congr fun p ↦ ?_
   simp
-
-private def wpTorsion (N a₁ a₂ : ℕ) (τ : ℍ) : ℂ :=
-  PeriodPair.weierstrassP (periodPairOfTau τ) (((a₁ : ℂ) * τ + a₂) / N)
-
-private def wpTorsionSeries (N a₁ a₂ : ℕ) (τ : ℂ) : ℂ :=
-  (2 * π * I) ^ 2 *
-    (zetaN N ^ a₂ * qN N τ ^ a₁ / (1 - zetaN N ^ a₂ * qN N τ ^ a₁) ^ 2 + 1 / 12 +
-      ∑' p : ℕ+ × ℕ+, wpTail N a₁ a₂ p τ)
 
 end Floor
 
@@ -201,75 +173,9 @@ private def RatQExp {k : ℤ} (f : ModularForm 𝒮ℒ k) : Prop :=
 
 section RatCoeffClosure
 
-private lemma ratCoeff_mul {p q : PowerSeries ℂ}
-    (hp : ∀ n : ℕ, ∃ a : ℚ, p.coeff n = (a : ℂ)) (hq : ∀ n : ℕ, ∃ a : ℚ, q.coeff n = (a : ℂ)) :
-    ∀ n : ℕ, ∃ a : ℚ, (p * q).coeff n = (a : ℂ) := by
-  choose F hF using hp
-  choose G hG using hq
-  intro n
-  refine ⟨∑ ij ∈ Finset.HasAntidiagonal.antidiagonal n, F ij.1 * G ij.2, ?_⟩
-  rw [PowerSeries.coeff_mul]
-  push_cast
-  exact Finset.sum_congr rfl fun ij _ => by rw [hF, hG]
-
-private lemma ratCoeff_sub {p q : PowerSeries ℂ}
-    (hp : ∀ n : ℕ, ∃ a : ℚ, p.coeff n = (a : ℂ)) (hq : ∀ n : ℕ, ∃ a : ℚ, q.coeff n = (a : ℂ)) :
-    ∀ n : ℕ, ∃ a : ℚ, (p - q).coeff n = (a : ℂ) := by
-  intro n
-  obtain ⟨a, ha⟩ := hp n
-  obtain ⟨b, hb⟩ := hq n
-  exact ⟨a - b, by rw [map_sub, ha, hb]; push_cast; ring⟩
-
 end RatCoeffClosure
 
 section RatGenerators
-
-private lemma ratCoeff_E {k : ℕ} (hk : 3 ≤ k) (hk2 : Even k) :
-    ∀ n : ℕ, ∃ q : ℚ, (qExpansion 1 (E hk)).coeff n = (q : ℂ) := by
-  intro n
-  rw [E_qExpansion_coeff hk hk2]
-  by_cases hn : n = 0
-  · exact ⟨1, by simp [hn]⟩
-  · refine ⟨-(2 * k / bernoulli k) * (σ (k - 1) n : ℚ), ?_⟩
-    rw [ite_eq_right hn]
-    push_cast
-    ring
-
-private def eCubeSubESq : ModularForm 𝒮ℒ 12 :=
-  ModularForm.mcast (by decide) (E₄.pow 3) - ModularForm.mcast (by decide) (E₆.pow 2)
-
-private lemma eCubeSubESq_qExpansion :
-    qExpansion 1 eCubeSubESq = qExpansion 1 E₄ * qExpansion 1 E₄ * qExpansion 1 E₄ -
-      qExpansion 1 E₆ * qExpansion 1 E₆ := by
-  simp only [eCubeSubESq, FunLike.coe_sub, ModularForm.coe_mcast,
-    ModularForm.qExpansion_sub one_pos one_mem_strictPeriods_SL,
-    ModularForm.qExpansion_pow one_pos one_mem_strictPeriods_SL]
-  ring
-
-private lemma discriminant_eq_smul_eCubeSubESq :
-    ModularForm.discriminant = (1 / 1728 : ℂ) • eCubeSubESq := by
-  ext z
-  have h := discriminant_eq_E₄_cube_sub_E₆_sq z
-  simp only [Pi.smul_apply, eCubeSubESq, FunLike.coe_sub, Pi.sub_apply,
-    ModularForm.coe_mcast, ModularForm.coe_pow, Pi.pow_apply, smul_eq_mul]
-  rw [h]
-  ring
-
-private lemma ratCoeff_discriminant :
-    ∀ n : ℕ, ∃ q : ℚ, (qExpansion 1 ModularForm.discriminant).coeff n = (q : ℂ) := by
-  have h4 : ∀ n : ℕ, ∃ q : ℚ, (qExpansion 1 E₄).coeff n = (q : ℂ) :=
-    ratCoeff_E (by norm_num) (by decide)
-  have h6 : ∀ n : ℕ, ∃ q : ℚ, (qExpansion 1 E₆).coeff n = (q : ℂ) :=
-    ratCoeff_E (by norm_num) (by decide)
-  have hmain := ratCoeff_sub (ratCoeff_mul (ratCoeff_mul h4 h4) h4) (ratCoeff_mul h6 h6)
-  intro n
-  obtain ⟨a, ha⟩ := hmain n
-  refine ⟨(1 / 1728 : ℚ) * a, ?_⟩
-  rw [discriminant_eq_smul_eCubeSubESq,
-    ModularForm.qExpansion_smul one_pos one_mem_strictPeriods_SL,
-    PowerSeries.coeff_smul, eCubeSubESq_qExpansion, smul_eq_mul, ha]
-  push_cast
-  ring
 
 private lemma ratQExp_one : RatQExp (1 : ModularForm 𝒮ℒ 0) := by
   intro n
@@ -285,30 +191,6 @@ section B4_qexp
 
 open scoped UpperHalfPlane Manifold
 open UpperHalfPlane hiding I
-
-private def kN (N : ℕ) : IntermediateField ℚ ℂ := IntermediateField.adjoin ℚ {zetaN N}
-
-private lemma zetaN_mem_kN (N : ℕ) : zetaN N ∈ kN N :=
-  IntermediateField.mem_adjoin_simple_self ℚ _
-
-private lemma zetaN_pow_mem_kN (N k : ℕ) : zetaN N ^ k ∈ kN N := pow_mem (zetaN_mem_kN N) k
-
-private lemma zetaN_inv_pow_mem_kN (N k : ℕ) : (zetaN N)⁻¹ ^ k ∈ kN N :=
-  pow_mem (inv_mem (zetaN_mem_kN N)) k
-
-private lemma natCast_mem_kN (N m : ℕ) : (m : ℂ) ∈ kN N := natCast_mem _ m
-
-private lemma one_div_twelve_mem_kN (N : ℕ) : (1 / 12 : ℂ) ∈ kN N :=
-  div_mem (one_mem _) (by exact_mod_cast natCast_mem_kN N 12)
-
-private def wpNormSeries (N a₁ a₂ : ℕ) (τ : ℂ) : ℂ :=
-  zetaN N ^ a₂ * qN N τ ^ a₁ / (1 - zetaN N ^ a₂ * qN N τ ^ a₁) ^ 2 + 1 / 12 +
-    ∑' p : ℕ+ × ℕ+, wpTail N a₁ a₂ p τ
-
-private lemma wpTorsionSeries_eq (N a₁ a₂ : ℕ) (τ : ℂ) :
-    wpTorsionSeries N a₁ a₂ τ = (2 * π * I) ^ 2 * wpNormSeries N a₁ a₂ τ := rfl
-
-private def wpNorm (N a₁ a₂ : ℕ) (τ : ℍ) : ℂ := ((2 * π * I) ^ 2)⁻¹ * wpTorsion N a₁ a₂ τ
 
 private lemma wpNorm_eq {N a₁ a₂ : ℕ} (ha₁ : a₁ < N) (ha₂ : a₂ < N) (h0 : a₁ ≠ 0 ∨ a₂ ≠ 0) (τ : ℍ) :
     wpNorm N a₁ a₂ τ = wpNormSeries N a₁ a₂ τ := by
@@ -396,44 +278,6 @@ private theorem isBoundedAtImInfty_wpNorm {N a₁ a₂ : ℕ} (ha₁ : a₁ < N)
   obtain ⟨M, hM⟩ := norm_wpNormSeries_le ha₁ a₂
   rw [isBoundedAtImInfty_iff]
   exact ⟨M, 1, fun τ hτ ↦ by rw [wpNorm_eq ha₁ ha₂ h0]; exact hM τ hτ⟩
-
-private abbrev WpIdx : Type := Unit ⊕ ℕ+ ⊕ ((ℕ+ × ℕ+) × Fin 3)
-
-private def wpMonCoeff (N a₁ a₂ : ℕ) : WpIdx → ℂ
-  | Sum.inl _ => 1 / 12 + if a₁ = 0 then zetaN N ^ a₂ / (1 - zetaN N ^ a₂) ^ 2 else 0
-  | Sum.inr (Sum.inl m) => if a₁ = 0 then 0 else ((m : ℕ) : ℂ) * zetaN N ^ (a₂ * (m : ℕ))
-  | Sum.inr (Sum.inr (p, i)) =>
-      ![((p.2 : ℕ) : ℂ) * zetaN N ^ (a₂ * (p.2 : ℕ)),
-        ((p.2 : ℕ) : ℂ) * (zetaN N)⁻¹ ^ (a₂ * (p.2 : ℕ)),
-        -2 * ((p.2 : ℕ) : ℂ)] i
-
-private def wpMonExp (N a₁ : ℕ) : WpIdx → ℕ
-  | Sum.inl _ => 0
-  | Sum.inr (Sum.inl m) => if a₁ = 0 then (m : ℕ) else a₁ * (m : ℕ)
-  | Sum.inr (Sum.inr (p, i)) =>
-      ![((p.1 : ℕ) * N + a₁) * (p.2 : ℕ), ((p.1 : ℕ) * N - a₁) * (p.2 : ℕ),
-        (p.1 : ℕ) * N * (p.2 : ℕ)] i
-
-private def wpQCoeff (N a₁ a₂ : ℕ) (n : ℕ) : ℂ :=
-  ∑' i : (wpMonExp N a₁ ⁻¹' {n}), wpMonCoeff N a₁ a₂ i
-
-private lemma wpMonCoeff_mem_kN (N a₁ a₂ : ℕ) (i : WpIdx) : wpMonCoeff N a₁ a₂ i ∈ kN N := by
-  rcases i with u | m | ⟨p, i⟩
-  · simp only [wpMonCoeff]
-    split_ifs
-    · exact add_mem (one_div_twelve_mem_kN N) (div_mem (zetaN_pow_mem_kN N _)
-        (pow_mem (sub_mem (one_mem _) (zetaN_pow_mem_kN N _)) 2))
-    · exact add_mem (one_div_twelve_mem_kN N) (zero_mem _)
-  · simp only [wpMonCoeff]
-    split_ifs
-    · exact zero_mem _
-    · exact mul_mem (natCast_mem_kN N _) (zetaN_pow_mem_kN N _)
-  · simp only [wpMonCoeff]
-    fin_cases i
-    · exact mul_mem (natCast_mem_kN N _) (zetaN_pow_mem_kN N _)
-    · exact mul_mem (natCast_mem_kN N _) (zetaN_inv_pow_mem_kN N _)
-    · simp only [Fin.reduceFinMk, Matrix.cons_val]
-      exact mul_mem (neg_mem (by exact_mod_cast natCast_mem_kN N 2)) (natCast_mem_kN N _)
 
 private lemma le_mul_sub_of_lt {N a₁ : ℕ} (ha₁ : a₁ < N) (c : ℕ+) : (c : ℕ) ≤ (c : ℕ) * N - a₁ := by
   have h1 : (c : ℕ) * (a₁ + 1) ≤ (c : ℕ) * N := Nat.mul_le_mul_left _ ha₁
@@ -619,41 +463,6 @@ private theorem hasSum_qExpansion_wpNorm {N a₁ a₂ : ℕ} (ha₁ : a₁ < N) 
       Function.Periodic.qParam N τ ^ m) (wpNorm N a₁ a₂ τ) :=
   hasSum_qExpansion (by exact_mod_cast (show 0 < N by omega)) (periodic_wpNorm ha₁ ha₂ h0)
     (mdifferentiable_wpNorm ha₁ ha₂ h0) (isBoundedAtImInfty_wpNorm ha₁ ha₂ h0) τ
-
-private lemma qParam_one_eq_pow {N : ℕ} (hN : N ≠ 0) (τ : ℂ) :
-    Function.Periodic.qParam 1 τ = Function.Periodic.qParam N τ ^ N := by
-  have : (N : ℂ) ≠ 0 := by exact_mod_cast hN
-  simp only [Function.Periodic.qParam, Complex.ofReal_one, div_one, Complex.ofReal_natCast]
-  rw [← Complex.exp_nat_mul]
-  congr 1
-  field_simp
-
-private theorem _root_.WLightR2.qExpansion_coeff_width (f : ℍ → ℂ) {N : ℕ} (hN : N ≠ 0)
-    (hper : Function.Periodic (f ∘ ofComplex) 1) (hhol : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) f)
-    (hbd : IsBoundedAtImInfty f) (n : ℕ) :
-    (qExpansion N f).coeff n =
-      if N ∣ n then (qExpansion 1 f).coeff (n / N) else 0 := by
-  have hN' : (0 : ℝ) < N := by exact_mod_cast Nat.pos_of_ne_zero hN
-  have hperN : Function.Periodic (f ∘ ofComplex) N := by
-    simpa using hper.nat_mul N
-  let f' : C(ℍ, ℂ) := ⟨f, hhol.continuous⟩
-  have hfan : AnalyticAt ℂ (cuspFunction N f') 0 :=
-    analyticAt_cuspFunction_zero hN' hperN hhol hbd
-  set c : ℕ → ℂ := fun n ↦ if N ∣ n then (qExpansion 1 f).coeff (n / N) else 0 with hc
-  have hf : ∀ τ : ℍ, HasSum (fun m ↦ c m • Function.Periodic.qParam N τ ^ m) (f' τ) := by
-    intro τ
-    have h1 := hasSum_qExpansion one_pos hper hhol hbd τ
-    have hinj : Function.Injective fun m : ℕ ↦ N * m := fun a b h ↦ by
-      simpa [Nat.mul_right_inj hN] using h
-    refine (hinj.hasSum_iff (f := fun m ↦ c m • Function.Periodic.qParam N τ ^ m) ?_).mp ?_
-    · intro x hx
-      have : ¬ N ∣ x := fun ⟨k, hk⟩ ↦ hx ⟨k, hk.symm⟩
-      simp [hc, this]
-    · refine h1.congr_fun fun m ↦ ?_
-      simp only [Function.comp_apply, hc, Nat.dvd_mul_right, ite_true,
-        Nat.mul_div_cancel_left _ (Nat.pos_of_ne_zero hN), qParam_one_eq_pow hN, ← pow_mul]
-  exact (qExpansion_coeff_unique f' hN' hfan hf n).symm
-
 
 private def wpFib (N a₁ a₂ n : ℕ) (i : WpIdx) : ℂ :=
   if wpMonExp N a₁ i = n then wpMonCoeff N a₁ a₂ i else 0
@@ -1151,8 +960,6 @@ private lemma qExpansion_E4E6_coeff_mem_kN {N : ℕ} (hN : N ≠ 0) (n : ℕ) :
       _
   · exact zero_mem _
 
-private def frickeH (N a₁ a₂ : ℕ) : ℍ → ℂ := (⇑E₄ * ⇑E₆ : ℍ → ℂ) * wpNorm N a₁ a₂
-
 private theorem periodic_frickeH {N a₁ a₂ : ℕ} (ha₁ : a₁ < N) (ha₂ : a₂ < N) (h0 : a₁ ≠ 0 ∨ a₂ ≠ 0) :
     Function.Periodic (frickeH N a₁ a₂ ∘ ofComplex) N := by
   have h4 := (periodic_comp_ofComplex E₄ one_mem_strictPeriods_SL).nat_mul N
@@ -1211,14 +1018,6 @@ open UpperHalfPlane hiding I
 open SlashInvariantFormClass ModularFormClass
 
 namespace ModularFormClass
-private theorem _root_.WLightR2.ModularFormClass.qExpansion_coeff_width {F : Type*} [FunLike F ℍ ℂ]
-    {Γ : Subgroup (GL (Fin 2) ℝ)} {k : ℤ} [ModularFormClass F Γ k] (f : F)
-    (h1 : (1 : ℝ) ∈ Γ.strictPeriods) {N : ℕ} (hN : N ≠ 0) (n : ℕ) :
-    (qExpansion N f).coeff n = if N ∣ n then (qExpansion 1 f).coeff (n / N) else 0 := by
-  haveI : Fact (IsCusp OnePoint.infty Γ) := ⟨Γ.isCusp_of_mem_strictPeriods one_pos h1⟩
-  exact WLightR2.qExpansion_coeff_width f hN (by simpa using periodic_comp_ofComplex f h1)
-    (ModularFormClass.holo f) (ModularFormClass.bdd_at_infty f) n
-
 end ModularFormClass
 end C6_width
 

@@ -84,6 +84,13 @@ import FLTForHuman.ModularForms.WeightOne.Gamma0Rationality
 import FLTForHuman.ModularForms.WeightOne.Gamma0Integral
 import FLTForHuman.ModularForms.JqAnalyticModel
 import FLTForHuman.ModularCurve.Defs.Jq
+import FLTForHuman.ModularForms.WeightOne.Defs.PeriodPair
+import FLTForHuman.ModularForms.WeightOne.Defs.PTorsion
+import FLTForHuman.ModularForms.WeightOne.Defs.Gamma
+import FLTForHuman.ModularForms.WeightOne.Fricke
+import FLTForHuman.ModularForms.DiscPow
+open UpperHalfPlaneAux
+open WLight
 
 set_option linter.style.haveILetI false
 set_option linter.unusedSectionVars false
@@ -103,43 +110,7 @@ open scoped Real MatrixGroups ModularForm
 
 namespace GammaOneCyclotomicEven
 
-private def tauPair (τ : ℍ) : PeriodPair where
-  ω₁ := (τ : ℂ)
-  ω₂ := 1
-  indep := by
-    rw [LinearIndependent.pair_iff]
-    intro s t h
-    have h1 := congrArg Complex.im h
-    have h2 := congrArg Complex.re h
-    simp at h1 h2
-    have hs : s = 0 := by
-      rcases h1 with h1 | h1
-      · exact h1
-      · exact absurd h1 τ.im_pos.ne'
-    subst hs
-    simp at h2
-    exact ⟨rfl, h2⟩
-
-private theorem tauPair_spec (τ : ℍ) : (tauPair τ).ω₁ = (τ : ℂ) ∧ (tauPair τ).ω₂ = 1 := ⟨rfl, rfl⟩
-
 variable (N : ℕ)
-
-private def WW (v : Fin 2 → ZMod N) (τ : ℍ) : ℂ :=
-  ((2 * (Real.pi : ℂ) * Complex.I) ^ 2)⁻¹ *
-    PeriodPair.weierstrassP (tauPair τ) ((((v 0).val : ℂ) * (τ : ℂ) + ((v 1).val : ℂ)) / (N : ℂ))
-
-private def fricke (v : Fin 2 → ZMod N) (τ : ℍ) : ℂ :=
-  -(ModularForm.E₄ τ * ModularForm.E₆ τ / ModularForm.discriminant τ) / 2592 * WW N v τ
-
-private def jf (τ : ℍ) : ℂ := ModularForm.E₄ τ ^ 3 / ModularForm.discriminant τ
-
-private theorem WW_spec (v : Fin 2 → ZMod N) (τ : ℍ) : WW N v τ = ((2 * (Real.pi : ℂ) * Complex.I) ^ 2)⁻¹ *
-    PeriodPair.weierstrassP (tauPair τ) ((((v 0).val : ℂ) * (τ : ℂ) + ((v 1).val : ℂ)) / (N : ℂ)) := rfl
-
-private theorem fricke_spec (v : Fin 2 → ZMod N) (τ : ℍ) : fricke N v τ =
-    -(ModularForm.E₄ τ * ModularForm.E₆ τ / ModularForm.discriminant τ) / 2592 * WW N v τ := rfl
-
-private theorem jf_spec (τ : ℍ) : jf τ = ModularForm.E₄ τ ^ 3 / ModularForm.discriminant τ := rfl
 
 private def kN : IntermediateField ℚ ℂ :=
   IntermediateField.adjoin ℚ {Complex.exp (2 * (Real.pi : ℂ) * Complex.I / (N : ℂ))}
@@ -404,26 +375,6 @@ private theorem stab_of_forall_eq_zero (h : ∀ f : CuspForm (Γ₁ℝ N) k, f =
   intro σ f
   refine ⟨0, ?_⟩
   rw [h f, FunLike.coe_zero, qExpansion_zero, map_zero]
-
-private theorem eq_zero_of_mul_eq_zero {u v : ℍ → ℂ} (hu : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) u)
-    (hv : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) v) (huv : ∀ τ : ℍ, u τ * v τ = 0) {τ₀ : ℍ} (hv0 : v τ₀ ≠ 0) :
-    u = 0 := by
-  have hvc : ContinuousAt (v ∘ ofComplex) (τ₀ : ℂ) :=
-    (UpperHalfPlane.mdifferentiableAt_iff.1 (hv τ₀)).continuousAt
-  have hv0' : (v ∘ ofComplex) (τ₀ : ℂ) ≠ 0 := by simpa [Function.comp, ofComplex_apply] using hv0
-  have hne : ∀ᶠ z in 𝓝 (τ₀ : ℂ), (v ∘ ofComplex) z ≠ 0 := hvc.eventually_ne hv0'
-  have hu0 : (u ∘ ofComplex) =ᶠ[𝓝 (τ₀ : ℂ)] 0 := by
-    filter_upwards [hne] with z hz
-    have := huv (ofComplex z)
-    simp only [Function.comp_apply, Pi.zero_apply] at hz ⊢
-    exact (mul_eq_zero.1 this).resolve_right hz
-  have hana : AnalyticOnNhd ℂ (u ∘ ofComplex) {z : ℂ | 0 < z.im} :=
-    (UpperHalfPlane.mdifferentiable_iff.1 hu).analyticOnNhd isOpen_upperHalfPlaneSet
-  have hEq := hana.eqOn_zero_of_preconnected_of_eventuallyEq_zero
-    (convex_halfSpace_im_gt 0).isPreconnected τ₀.im_pos hu0
-  funext τ
-  have := hEq τ.im_pos
-  simpa [Function.comp, ofComplex_apply] using this
 
 private theorem isZeroAtImInfty_of_mul_self {g : ℍ → ℂ} (h : IsZeroAtImInfty (g * g)) :
     IsZeroAtImInfty g := by

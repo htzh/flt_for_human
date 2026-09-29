@@ -872,12 +872,18 @@ SOURCES = [
     # --- SET-8 order 1: the four monic-relation leaves ------------------------
     # All four are public `Theorems/` wrappers (direct name match). The pin
     # repeats its valuation-engine and flat-descent blocks across the four `S_`
-    # files; the port writes each block once and keeps every helper `private`, so
-    # the checker sees only the four headlines in `MonicRel.lean`.
+    # files; the port writes each block once, and its five shared helpers are
+    # **public promotions of pin-private names**, so the `S_` files are listed
+    # too: the checker's promoted-from-pin-private lookup then verifies them
+    # against the originals instead of reporting them missing.
     "Theorems/Thm_WLight_exists_analyticOnNhd_div_of_monicRel.lean",
     "Theorems/Thm_WLight_exists_mdifferentiable_div_of_monicRel.lean",
     "Theorems/Thm_WLight_exists_twist_of_flat.lean",
     "Theorems/Thm_WLight_span_inter_rational_of_twist_stable.lean",
+    "P2M/Sol/S_WLight_exists_analyticOnNhd_div_of_monicRel.lean",
+    "P2M/Sol/S_WLight_exists_mdifferentiable_div_of_monicRel.lean",
+    "P2M/Sol/S_WLight_exists_twist_of_flat.lean",
+    "P2M/Sol/S_WLight_span_inter_rational_of_twist_stable.lean",
     # --- SET-8 order 2: the three fricke-function packages --------------------
     # All three are public `Theorems/` wrappers (direct name match). The pin's
     # helpers are `private` in `FrickeFunction.lean`, one namespace per package
@@ -951,6 +957,16 @@ SOURCES = [
     "Theorems/Thm_CuspForm_span_frickeRational_E4_pow_E6_pow_eq_top.lean",
     "Theorems/Thm_CuspForm_exists_gamma1_qCoeff_eq_algEquiv_apply_of_even.lean",
     "Theorems/Thm_CuspForm_exists_gamma1_qCoeff_eq_algEquiv_apply.lean",
+    # The two shared analytic helpers were promoted to public in `MonicRel.lean`
+    # (`differentiableAt_comp_ofComplex`, `eq_zero_of_mul_eq_zero`); the pin's
+    # `S_` files carry them `private`, so they are listed for the
+    # promoted-from-pin-private lookup.
+    "P2M/Sol/S_CuspForm_exists_mul_E4_pow_mul_E6_pow_eq_iff.lean",
+    "P2M/Sol/S_ModularCurve_exists_gamma1_eisenstein_isIntegralQExp_and_slash_eq.lean",
+    "P2M/Sol/S_CuspForm_exists_gamma1_frickeRational_sigmaTransport.lean",
+    "P2M/Sol/S_CuspForm_span_frickeRational_E4_pow_E6_pow_eq_top.lean",
+    "P2M/Sol/S_CuspForm_exists_gamma1_qCoeff_eq_algEquiv_apply_of_even.lean",
+    "P2M/Sol/S_CuspForm_exists_gamma1_qCoeff_eq_algEquiv_apply.lean",
     # --- SET-11 order 2: the integral-slash Γ₁-basis -------------------------
     # The four are public `Theorems/` wrappers (direct name match); the pin's
     # four `S_` developments are transcribed `private`, so the checker sees only
@@ -1053,6 +1069,176 @@ SOURCES = [
     "Theorems/Thm_Algebra_finite_maximalSpectrum_and_bijective_localization_of_module_finite.lean",
     "Theorems/Thm_IsAdicComplete_of_module_finite.lean",
     "Theorems/Thm_IsLocalRing_isAdicComplete_of_module_finite.lean",
+    # --- T12, SET 1: the surjection half of `R = T` ---------------------------
+    # The seven nodes are public `Theorems/` wrappers, so they verify by direct
+    # name match. The pin's `PlaceTransitivity` block is `private` in the port
+    # (playbook §7.1), so no `S_` carrier is needed for it. The one shared
+    # promotion, `ValuationSubring.mem_of_isIntegral` (the pin's `int_mem` and
+    # `PlaceTransitivity.coe_mem` written once), has no standalone wrapper and is
+    # exempted in `OWN_PROOFS`. Appended last so no earlier last-name match can
+    # flip — `charpoly_baseChangeAlong` also names a `ResidualGaloisRep` node in
+    # the pin, and `exists_isFrobeniusAt_of_liesOverPrime` / `_rat` have many
+    # `S_` copies outside this cone.
+    "Theorems/Thm_ValuationSubring_exists_integral_mul_eq_of_liesOverPrime.lean",
+    "Theorems/Thm_ValuationSubring_exists_isFrobeniusAt_of_liesOverPrime.lean",
+    "Theorems/Thm_ValuationSubring_exists_isFrobeniusAt_rat.lean",
+    "Theorems/Thm_GaloisRepAdic_charpoly_baseChangeAlong.lean",
+    "Theorems/Thm_GaloisRepAdic_charpoly_eq_of_isEquiv.lean",
+    "Theorems/Thm_CuspForm_HeckeGaloisRepDatum_surjective_of_isEquiv_baseChangeAlong.lean",
+    "Theorems/Thm_GaloisRep_DeformationRingData_exists_surjective_algHom_of_heckeGaloisRepDatum.lean",
+    # --- T12, SET 2: the eigenform-extraction chain ---------------------------
+    # The nine nodes are public `Theorems/` wrappers, so they verify by direct
+    # name match. `Thm_CuspForm_mem_intLattice_iff.lean` is the carrier of the
+    # one public promotion this set makes: `HeckeLattice`'s formerly-private
+    # `mem_intLattice_iff` (needed by `linearIndependent_of_mem_intLattice`).
+    # The pin's `FrobChareqEngine`/`FrobChareqC2`/`DegeneracyPort` blocks are
+    # `private` in the port, so no `S_` carrier is needed for them, and the
+    # pin's third `sturmB`/`trunc`/`trunc_injective` is not ported at all (the
+    # public `CuspForm.qCoeffTrunc` is reused). Appended last so no earlier
+    # last-name match can flip — `exists_degeneracy_Gamma0` also names the
+    # *ModularForm* degeneracy node in the pin (not ported here).
+    "Theorems/Thm_RingHom_exists_comp_algebraMap_eq_of_isIntegral_of_isAlgClosed.lean",
+    "Theorems/Thm_Ideal_exists_ringHom_integralClosure_ker_eq.lean",
+    "Theorems/Thm_Module_End_exists_ne_zero_forall_apply_eq_smul_of_ringHom.lean",
+    "Theorems/Thm_CuspForm_exists_degeneracy_Gamma0.lean",
+    "Theorems/Thm_CuspForm_exists_isNormalizedEigenform_level_mul.lean",
+    "Theorems/Thm_CuspForm_exists_isNormalizedEigenform_of_dvd.lean",
+    "Theorems/Thm_CuspForm_mem_intLattice_iff.lean",
+    "Theorems/Thm_CuspForm_linearIndependent_of_mem_intLattice.lean",
+    "Theorems/Thm_CuspForm_HasIntegralStructure_exists_ne_zero_forall_apply_eq_smul.lean",
+    "Theorems/Thm_CuspForm_HasIntegralStructure_exists_isNormalizedEigenform_qCoeff_eq.lean",
+    # --- T12, SET 3: the conditional capstone ---------------------------------
+    # The verbatim node `WeierstrassCurve.isModularModelOfLevel_of_patchingDatum`
+    # is **not** ported in SET 3: the port's `…_of_patchingLevel` replaces the
+    # patching datum by the three facts `free_and_ker_eq_span` extracts, and is
+    # exempted in `OWN_PROOFS`. The wrapper is registered now so that SET 4, which
+    # adds the verbatim declaration once the patching cluster lands, needs no
+    # further checker edit. Its only last name is unique in the pin, so appending
+    # it cannot flip any existing match.
+    "Theorems/Thm_WeierstrassCurve_isModularModelOfLevel_of_patchingDatum.lean",
+    # --- T12, SET 4: patching descent and freeness -----------------------------
+    # The four §0 nodes are public `Theorems/` wrappers, so they verify by direct
+    # name match; every helper (the `OnePrime`/`PDescent` blocks) is `private` in
+    # the port and so invisible to the checker. The three `MvPowerSeries.*`
+    # wrappers are appended because `free_and_ker_eq_span` imports and uses those
+    # facts: work order §0 claims the node is independent of SET 5, but the pin's
+    # node needs four `MvPowerSeries.*` lemmas. Three are ported in
+    # `FLTForHuman/Algebra/MvPowerSeriesRegular.lean` (the pin's duplicated
+    # `vanishIdeal` engine is written once there); the fourth,
+    # `MvPowerSeries.isNoetherianRing_of_finite`, is now a mathlib instance, so it
+    # is *not* ported. All four last names below are unique in the pin, so
+    # appending them cannot flip an earlier match.
+    "Theorems/Thm_RingHom_bijective_of_surjective_of_smul_eq.lean",
+    "Theorems/Thm_Module_Free_of_surjective_of_smul_eq.lean",
+    "Theorems/Thm_Module_free_of_isWeaklyRegular_of_isRegular_ofList_eq_maximalIdeal.lean",
+    "Theorems/Thm_Algebra_PatchingLevel_free_and_ker_eq_span.lean",
+    "Theorems/Thm_MvPowerSeries_isRegular_C_cons_X.lean",
+    "Theorems/Thm_MvPowerSeries_ofList_C_cons_X_eq_maximalIdeal.lean",
+    "Theorems/Thm_MvPowerSeries_mem_pow_span_X_of_coeff_eq_zero.lean",
+    # --- T12, SET 5: the power-series patching algebra -------------------------
+    # The three §0 nodes are public `Theorems/` wrappers, so they verify by direct
+    # name match. SET 5 extends `MvPowerSeriesRegular.lean` with
+    # `residue_comp_C_surjective` and `isAdicComplete_maximalIdeal` (all helpers —
+    # `dropVar`, `maximalIdeal_eq_comap`, `mem_span_X_of_constantCoeff_eq_zero`,
+    # `maximalIdeal_eq_map_C_sup_span_X`, the `LocalCoeff` block — are `private`),
+    # and adds the generic `FLTForHuman/Algebra/AdicCompleteMap.lean`. The pin's
+    # `Theorems/Thm_MvPowerSeries_isNoetherianRing_of_finite.lean` is deliberately
+    # *not* appended: that fact is mathlib's instance and is not ported. All three
+    # last names below are unique in the pin, so appending them cannot flip an
+    # earlier match.
+    "Theorems/Thm_MvPowerSeries_residue_comp_C_surjective.lean",
+    "Theorems/Thm_MvPowerSeries_isAdicComplete_maximalIdeal.lean",
+    "Theorems/Thm_IsAdicComplete_map_of_surjective.lean",
+    # --- T12, SET 6: the patching construction --------------------------------
+    # The one §0 node is a public `Theorems/` wrapper, so it verifies by direct
+    # name match. Everything below it in the port module is `private` scaffolding
+    # (the pin's ~3,300 lines of carriers and the `FrobDictPC.Limit` construction),
+    # so no `S_` carrier is needed and no `OWN_PROOFS` entry arises. Appended last
+    # so no earlier last-name match can flip.
+    "Theorems/Thm_Algebra_PatchingDatum_nonempty_patchingLevel_bot.lean",
+    # --- T12, SET 7: the patching exit and the verbatim assembly ---------------
+    # The exit's wrapper is a public `Theorems/` node, so it verifies by direct
+    # name match; the verbatim `…_of_patchingDatum` wrapper was already registered
+    # in SET 3, so the assembly needs no new `SOURCES` entry. Appended last so no
+    # earlier last-name match can flip.
+    "Theorems/Thm_Algebra_PatchingDatum_bijective_and_free_of_surjective.lean",
+    # --- Sources for the shared homes created by the WeightOne rectification ---
+    # These carry the pin-private originals of the declarations lifted into
+    # `ModularForms/DiscPow.lean`, `QExpansionCoeff.lean`, `WeightOne/Defs/*`
+    # and `WeightOne/Fricke.lean`; without them the promoted-from-pin-private
+    # lookup reports the homes' public declarations missing.
+    "P2M/Sol/S_CuspForm_TWLevel_exists_heckeEquivariant_dual_ML_range_eq_idempotent_baseChange_tateModule_jH.lean",
+    "P2M/Sol/S_CuspForm_exists_basis_gamma1_qCoeff_mem_adjoin_exp_of_even.lean",
+    "P2M/Sol/S_CuspForm_exists_basis_gamma1_qCoeff_mem_range_ratCast.lean",
+    "P2M/Sol/S_CuspForm_exists_gamma1_frickeRational_sigmaTransport.lean",
+    "P2M/Sol/S_CuspForm_exists_gamma1_qCoeff_eq_algEquiv_apply_of_even.lean",
+    "P2M/Sol/S_CuspForm_exists_isPrimitiveForm_basis_gammaH_and_heckeTLinH_and_diamondLinH_and_heckeULinH_apply.lean",
+    "P2M/Sol/S_CuspForm_exists_kaehlerDifferential_diffQExp_eq_ofPowerSeries_and_forall_valuationSubring_of_isIntegralQExp.lean",
+    "P2M/Sol/S_CuspForm_exists_mul_E4_pow_mul_E6_pow_eq_iff.lean",
+    "P2M/Sol/S_CuspForm_heckeTLinH_heckeULinH_diamondLinH_comm.lean",
+    "P2M/Sol/S_CuspForm_nonempty_basis_fin_one_gammaH_and_finrank_eigenspace_eq_one.lean",
+    "P2M/Sol/S_CuspForm_span_frickeRational_E4_pow_E6_pow_eq_top.lean",
+    "P2M/Sol/S_ModularCurve_FullLevel_exists_ratCast_slash_conjElemN_eq_sum_exp_pow_smul_of_mem_Gamma0.lean",
+    "P2M/Sol/S_ModularCurve_FullLevel_exists_ratCast_slash_conjElemN_eq_sum_exp_pow_smul_of_mem_Gamma0_of_eq_levelH_inf_ker.lean",
+    "P2M/Sol/S_ModularCurve_FullLevel_exists_ratCast_slash_conjElem_eq_sum_exp_pow_smul_of_mem_Gamma0.lean",
+    "P2M/Sol/S_ModularCurve_JOne_degeneracyPullbackInputs.lean",
+    "P2M/Sol/S_ModularCurve_SiegelUnit_exists_modularForm_gamma1_isIntegralQExp_coeff_eq_one_and_forall_slash_isIntegral.lean",
+    "P2M/Sol/S_ModularCurve_SiegelUnit_isIntegral_qExpansion_slash_S_coeff_of_coe_eq_prod_siegelFun_pow_mul_discriminant_pow.lean",
+    "P2M/Sol/S_ModularCurve_XOneP_comp_alpha_eq_beta_and_comp_beta_eq_alpha_comp_diamondAutBar_of_atkinLehnerSlash_p.lean",
+    "P2M/Sol/S_ModularCurve_apply_eq_qExpand_jqModC_of_coe_eq_qExpand_jqModC_of_cuspExpansion_S.lean",
+    "P2M/Sol/S_ModularCurve_exists_algHom_igusaFunctionFieldX1C_apply_eq_jqNModC_and_apply_eq_jqModC.lean",
+    "P2M/Sol/S_ModularCurve_exists_algHom_qExpFunctionFieldC_gammaH_coe_eq_div_of_map_eq_smul_qExpansion_slash.lean",
+    "P2M/Sol/S_ModularCurve_exists_algHom_qExpFunctionFieldC_gammaH_cuspZero_apply_eq_and_apply_div_pow_eq.lean",
+    "P2M/Sol/S_ModularCurve_exists_algHom_qExpFunctionFieldC_gammaH_eq_slot_and_diamondPullbackModL_eq_qTwist.lean",
+    "P2M/Sol/S_ModularCurve_exists_algHom_slot_mul_qExpansion_slash_eq.lean",
+    "P2M/Sol/S_ModularCurve_exists_coeffMap_diffQExpBar_eq_qExpansion.lean",
+    "P2M/Sol/S_ModularCurve_exists_coeffMap_qExpansionDiffAlong_laurentBaseChange_qExpFunctionFieldC_eq_qExpansion.lean",
+    "P2M/Sol/S_ModularCurve_exists_gamma1_peaked_auxiliary_form.lean",
+    "P2M/Sol/S_ModularCurve_exists_isIntegralQExp_smul_atkinLehnerSlash_of_even.lean",
+    "P2M/Sol/S_ModularCurve_exists_isIntegralQExp_smul_of_ratCast_qExpansion.lean",
+    "P2M/Sol/S_ModularCurve_exists_isIntegral_level_pow_mul_qExpansion_slash_coeff.lean",
+    "P2M/Sol/S_ModularCurve_exists_isIntegral_level_pow_mul_qExpansion_slash_fricke_coeff.lean",
+    "P2M/Sol/S_ModularCurve_exists_mvPolynomial_mul_aeval_fricke_eq_of_qExpansion_coeff_mem.lean",
+    "P2M/Sol/S_ModularCurve_exists_ne_zero_forall_intCast_mul_qExpansion_coeff_of_gamma_invariant.lean",
+    "P2M/Sol/S_ModularCurve_exists_ne_zero_forall_mul_qExpansion_coeff_fricke_mem_adjoin.lean",
+    "P2M/Sol/S_ModularCurve_exists_qExpansion_S_smul_eq_and_conj_eq_of_ratCast_qExpansion.lean",
+    "P2M/Sol/S_ModularCurve_exists_qExpansion_comp_smul_coeff_eq_and_comp_mul_smul_coeff_eq_apply_of_gamma1_mul.lean",
+    "P2M/Sol/S_ModularCurve_exists_qExpansion_comp_smul_coeff_eq_and_eq_apply_of_gamma_invariant.lean",
+    "P2M/Sol/S_ModularCurve_exists_qExpansion_slash_coeff_eq_and_eq_apply_of_gamma_of_even.lean",
+    "P2M/Sol/S_ModularCurve_exists_qExpansion_slash_fricke_eq_and_conj_eq_slash_gamma0.lean",
+    "P2M/Sol/S_ModularCurve_exists_ratCast_qExpansion_comp_smul_of_mem_Gamma0.lean",
+    "P2M/Sol/S_ModularCurve_exists_ratCast_qExpansion_comp_smul_of_mem_Gamma0_of_dvd.lean",
+    "P2M/Sol/S_ModularCurve_exists_ratCast_qExpansion_slash_of_mem_Gamma0.lean",
+    "P2M/Sol/S_ModularCurve_finrank_adjoin_jqNModC_mul_igusaFunctionFieldX1C_eq_of_dvd.lean",
+    "P2M/Sol/S_ModularCurve_isIntegralElem_div_delta_pow_and_div_eisenstein4_pow_of_forall_qExpansion_slash_isIntegral.lean",
+    "P2M/Sol/S_ModularCurve_isIntegralElem_div_delta_pow_and_div_eisenstein4_pow_of_isIntegralQExp_gamma1.lean",
+    "P2M/Sol/S_ModularCurve_mem_laurentBaseChange_of_coeffMap_eq_qExpansion_div.lean",
+    "P2M/Sol/S_ModularCurve_qExpansion_coeff_comp_smul_mem_adjoin_exp_of_gamma1_mul.lean",
+    "P2M/Sol/S_ModularForm_exists_basis_gamma1_qCoeff_mem_adjoin_exp_of_even.lean",
+    "P2M/Sol/S_ModularForm_exists_basis_gamma1_qCoeff_mem_range_ratCast.lean",
+    "P2M/Sol/S_ModularForm_exists_gamma0_forall_tendsto_slash_atImInfty_of_three_le.lean",
+    "P2M/Sol/S_ModularForm_exists_gamma1_frickeRational_sigmaTransport.lean",
+    "P2M/Sol/S_ModularForm_exists_gamma1_qCoeff_eq_algEquiv_apply_of_even.lean",
+    "P2M/Sol/S_ModularForm_exists_gamma_weight_two_forall_tendsto_slash_atImInfty.lean",
+    "P2M/Sol/S_ModularForm_exists_mul_E4_pow_mul_E6_pow_eq_iff.lean",
+    "P2M/Sol/S_ModularForm_gamma1_qExpansion_coeff_mem_of_frickeRational.lean",
+    "P2M/Sol/S_ModularForm_span_frickeRational_E4_pow_E6_pow_eq_top.lean",
+    "P2M/Sol/S_ModularForm_weierstrassP_torsion_qExpansion_package.lean",
+    "P2M/Sol/S_ModularFunction_exists_mdifferentiable_sigmaTransport_of_frickeQuotient.lean",
+    "P2M/Sol/S_UpperHalfPlane_linearIndependent_complex_of_qExpansion_coeff_mem.lean",
+    "P2M/Sol/S_WLight_exists_levelFraction_of_stable_family.lean",
+    "P2M/Sol/S_WLight_exists_monicRel_j_K_of_mdifferentiable_frickeQuotient.lean",
+    "P2M/Sol/S_WLight_exists_monicRel_j_of_mdifferentiable_levelFraction.lean",
+    "P2M/Sol/S_WLight_exists_qExpansion_coeff_mem_of_mdifferentiable_levelFraction.lean",
+    "P2M/Sol/S_WLight_frickeFunction_intBaseChange.lean",
+    "P2M/Sol/S_WLight_frickeFunction_modularity_package.lean",
+    "P2M/Sol/S_WLight_frickeFunction_orbit_package.lean",
+    "P2M/Sol/S_WLight_isBoundedAtImInfty_iff_qExpansion_coeff_lt.lean",
+    "P2M/Sol/S_WLight_isZeroAtImInfty_mul_disc_iff_qExpansion_coeff_le.lean",
+    "P2M/Sol/S_WLight_levelN_structure_package.lean",
+    "P2M/Sol/S_WLight_levelOne_hauptmodul_package.lean",
+    "P2M/Sol/S_WLight_qExpansion_sigmaTransport_package.lean",
+    "P2M/Sol/S_WLight_weierstrassP_qExpansion_package.lean",
 ]
 
 PORT_FILES = [
@@ -1300,6 +1486,15 @@ PORT_FILES = [
     # restriction, the translate bundle, the `qCoeff` linear map and the trace
     # additivity are all `private`.
     "FLTForHuman/ModularForms/WeightOne/IntegralStructure.lean",
+    # The shared homes (WeightOne rectification): their public declarations are the
+    # lifted pin-private proofs; each is verified against the `S_` sources above.
+    "FLTForHuman/ModularForms/QExpansionCoeff.lean",
+    "FLTForHuman/ModularForms/DiscPow.lean",
+    "FLTForHuman/ModularForms/WeightOne/Defs/PeriodPair.lean",
+    "FLTForHuman/ModularForms/WeightOne/Defs/PTorsion.lean",
+    "FLTForHuman/ModularForms/WeightOne/Defs/Gamma.lean",
+    "FLTForHuman/ModularForms/WeightOne/Defs/GammaRational.lean",
+    "FLTForHuman/ModularForms/WeightOne/Fricke.lean",
     # SET-1 (PORTING-Level.md): the Γ_H vocabulary. Definition-module port with no
     # `Theorems/` wrappers; verified by name against the four pin sources above.
     "FLTForHuman/ModularForms/Defs/GammaH.lean",
@@ -1344,6 +1539,54 @@ PORT_FILES = [
     # Topic 11, SET D: the T package and the local Hecke algebra.
     "FLTForHuman/HeckeGalois/Defs/HeckeGaloisRepDatum.lean",
     "FLTForHuman/HeckeGalois/Defs/HeckeLocal.lean",
+    # T12, SET 1: the surjection half of `R = T`. The shared membership lemma and
+    # the `exists_integral_mul_eq` node live in their number-theory subject home;
+    # the Frobenius-existence node and its `rat` corollary in a second
+    # number-theory module; the two charpoly bridges in the Galois-rep home; only
+    # the two R=T interface statements in `HeckeGalois/`.
+    "FLTForHuman/NumberTheory/ValuationAtPlace.lean",
+    "FLTForHuman/NumberTheory/FrobeniusAtPlace.lean",
+    "FLTForHuman/GaloisRep/AdicCharpoly.lean",
+    "FLTForHuman/HeckeGalois/Surjective.lean",
+    # T12, SET 2: the eigenform-extraction chain, at its natural subject homes.
+    # Two generic algebra modules under `Algebra/`, the degeneracy map under
+    # `ModularForms/Level/` (beside `Diamond.lean`), the two level-raising
+    # headlines, and the extraction itself. `HeckeLattice.lean` is already
+    # listed above; its one additive §2 change (publishing `mem_intLattice_iff`)
+    # is verified through `Thm_CuspForm_mem_intLattice_iff.lean`.
+    "FLTForHuman/Algebra/IntegralExtensionCharacters.lean",
+    "FLTForHuman/Algebra/FaithfulLatticeEigenvector.lean",
+    "FLTForHuman/ModularForms/Level/Degeneracy.lean",
+    "FLTForHuman/ModularForms/EigenformLevel.lean",
+    "FLTForHuman/ModularForms/EigenformExtraction.lean",
+    # T12, SET 3: the conditional capstone. The `R ≅ T` assembly at its natural
+    # subject home (beside `WeierstrassCurve/Defs/Modularity.lean`); its single
+    # public declaration is own-proof, and the verbatim pinned statement is left
+    # to SET 4.
+    "FLTForHuman/WeierstrassCurve/ModularityLifting.lean",
+    # T12, SET 4: the descent-and-freeness engine of the patching exit. Two
+    # generic algebra facts (`FaithfulFreeness`), freeness from a full-length
+    # weakly regular sequence (`RegularSequenceFreeness`), the `MvPowerSeries`
+    # facts `free_and_ker_eq_span` needs (`MvPowerSeriesRegular`; see the
+    # `SOURCES` note), and the patching-level descent itself (`LevelDescent`).
+    "FLTForHuman/Algebra/FaithfulFreeness.lean",
+    "FLTForHuman/Algebra/RegularSequenceFreeness.lean",
+    "FLTForHuman/Algebra/MvPowerSeriesRegular.lean",
+    "FLTForHuman/Patching/LevelDescent.lean",
+    # T12, SET 5: the power-series patching algebra. `MvPowerSeriesRegular.lean` is
+    # already listed above (SET 5 extends it additively); the generic
+    # `IsAdicComplete.map_of_surjective` lives in its own module.
+    "FLTForHuman/Algebra/AdicCompleteMap.lean",
+    # T12, SET 6: the Taylor–Wiles patching construction. `nonempty_patchingLevel_bot`
+    # is the only public declaration; the pin's `PCPortSpine*`, patching carriers and
+    # `FrobDictPC.Limit` scaffolding are all `private`.
+    "FLTForHuman/Patching/PatchingConstruction.lean",
+    # T12, SET 7: the abstract patching exit. The one public declaration is the
+    # pin's `Theorems/` statement; SET 6's construction and SET 4's descent engine
+    # are on its import path. `FLTForHuman/WeierstrassCurve/ModularityLifting.lean`
+    # above gains the verbatim `…_of_patchingDatum` additively, so both the
+    # conditional and the unconditional assembly are checked through that one entry.
+    "FLTForHuman/Patching/Exit.lean",
 ]
 
 
@@ -1359,6 +1602,12 @@ PORT_FILES = [
 # declaration still fails the check. Entries may be either a last name (the usual
 # form) or a dotted name, which exempts only that qualified declaration.
 OWN_PROOFS = {
+    # The WeightOne shared homes: these two are the port's own spellings, not
+    # transcriptions -- `qExpansion_coeff_width_fn` is the function form of the
+    # width formula (the pin has it only inlined), and `map_eq` is a local
+    # helper of the Γ-rationality region.
+    "qExpansion_coeff_width_fn",
+    "map_eq",
     # `NumberTheory/DedekindPsiCount.lean`: the generic block count is FLT-private in
     # the pin and promoted here; `dedekindPsiFibre` is the port's rename of the pin's
     # `h`/`slotH` (the name `slotH` is taken publicly by `ModularCurve.QExpN.slotH`),
@@ -1454,6 +1703,31 @@ OWN_PROOFS = {
     "GaloisRepAdic.Equiv.symm",
     "GaloisRepAdic.Equiv.trans",
     "GaloisRepAdic.Equiv.baseChangeAlong",
+    # --- T12, SET 1: the surjection half of `R = T` ---------------------------
+    # `ValuationSubring.mem_of_isIntegral` is the port's promotion of the pin's
+    # two copies of the same argument — the local `int_mem` of
+    # `S_ValuationSubring_exists_integral_mul_eq_of_liesOverPrime.lean` (lines
+    # 97–111) and `PlaceTransitivity.coe_mem` of
+    # `S_ValuationSubring_exists_isFrobeniusAt_of_liesOverPrime.lean` (lines
+    # 17–28), the latter being the same result specialised to `b : ℤ̄`. The port
+    # writes it once, publicly, and both modules use it; the pin has no standalone
+    # wrapper to diff it against. A *dotted* name is used so the exemption cannot
+    # leak to any other `mem_of_isIntegral`.
+    "ValuationSubring.mem_of_isIntegral",
+    # --- T12, SET 3: the conditional capstone ---------------------------------
+    # `WeierstrassCurve.isModularModelOfLevel_of_patchingLevel` is the pin's
+    # `…_of_patchingDatum` with the patching facts taken as hypotheses: the
+    # `P : Algebra.PatchingDatum 𝒪 p r D.R M` binder and the two lines that
+    # consume it (`P.nonempty_patchingLevel_bot hp𝒪`, `L.free_and_ker_eq_span`)
+    # are replaced by an `L : Algebra.PatchingLevel 𝒪 r D.R M ⊥` and the three
+    # outputs of `Algebra.PatchingLevel.free_and_ker_eq_span` (`hfree`, `hann`,
+    # `hker`). The 3,789-line patching construction is therefore not on this
+    # module's import path; SET 4 discharges the three hypotheses and adds the
+    # verbatim `…_of_patchingDatum` (whose wrapper is already in `SOURCES`). The
+    # statement differs from the pin's, so it is exempted here rather than
+    # diffed; a *dotted* name keeps the exemption from leaking to any other
+    # `isModularModelOfLevel_*`.
+    "WeierstrassCurve.isModularModelOfLevel_of_patchingLevel",
 }
 
 # Declaration keywords. `instance` matters for PhiGen; `structure` for Polynomial.
@@ -1642,12 +1916,15 @@ def main() -> int:
     args = ap.parse_args()
     flt = Path(args.flt)
 
-    source: dict[str, tuple[str, str, str]] = {}
+    source: dict[str, list[tuple[str, str, str]]] = {}
     # The pin's `private` declarations, keyed by their dotted name. Consulted
     # only when the public last-name lookup fails, so it can never change a
     # match that the public surface already supplies; it verifies the promoted
     # prelude against FLT's own (private) statements instead of exempting them.
-    dotted_source: dict[str, tuple[str, str, str]] = {}
+    # Both maps hold *all* candidates for a name: several pin files can declare
+    # the same last name with different statements, and a port declaration is
+    # identical when it matches any of them (not merely the first file read).
+    dotted_source: dict[str, list[tuple[str, str, str]]] = {}
     for rel in SOURCES:
         p = flt / rel
         if not p.exists():
@@ -1655,16 +1932,23 @@ def main() -> int:
             continue
         text = p.read_text(encoding="utf-8")
         for name, (kind, stmt) in declarations(text).items():
-            source.setdefault(name, (kind, stmt, rel))
+            source.setdefault(name, []).append((kind, stmt, rel))
         for raw, kind, stmt in raw_declarations(text, include_private=True):
-            dotted_source.setdefault(promoted_key(raw), (kind, stmt, rel))
+            dotted_source.setdefault(promoted_key(raw), []).append((kind, stmt, rel))
             # Keep the pre-namespace-tracking behaviour as well: the bare last
             # name is registered too, so a port declaration that spells the pin's
             # promoted prelude as `ModularCurve.tight_one` (whose dotted key the
             # pin's nested `W1` namespace would not supply) still matches by last
             # name. The qualified key is what disambiguates a genuine same-file
             # collision (`CuspForm.heckeTLin` vs `ModularForm.heckeTLin`).
-            dotted_source.setdefault(promoted_key(raw.rsplit(".", 1)[-1]), (kind, stmt, rel))
+            dotted_source.setdefault(promoted_key(raw.rsplit(".", 1)[-1]), []).append(
+                (kind, stmt, rel))
+
+    def find(cands, kind, stmt):
+        for c in cands or ():
+            if c[0] == kind and c[1] == stmt:
+                return c
+        return None
 
     ok = promoted = missing = mismatch = own = 0
     for rel in PORT_FILES:
@@ -1674,35 +1958,26 @@ def main() -> int:
             if raw in OWN_PROOFS or name in OWN_PROOFS:
                 own += 1
                 continue
-            if name in source and source[name][0] == kind and source[name][1] == stmt:
+            if find(source.get(name), kind, stmt):
                 ok += 1
                 continue
             # Promoted from a pin-private declaration: the last-name lookup
             # either missed it (attributed `@[scoped simp]` in the public pin
             # copy) or found an unrelated same-named declaration; the dotted
             # name disambiguates.
-            srel = None
-            sstmt = None
-            skind = None
-            for key in (promoted_key(raw), name):
-                if key in dotted_source and dotted_source[key][0] == kind \
-                        and dotted_source[key][1] == stmt:
-                    skind, sstmt, srel = dotted_source[key]
-                    break
-            if srel is not None:
+            hit = find(dotted_source.get(promoted_key(raw)), kind, stmt) \
+                or find(dotted_source.get(name), kind, stmt)
+            if hit:
                 ok += 1
                 promoted += 1
                 continue
-            if name in source:
-                skind, sstmt, srel = source[name]
-            elif promoted_key(raw) in dotted_source:
-                skind, sstmt, srel = dotted_source[promoted_key(raw)]
-            elif name in dotted_source:
-                skind, sstmt, srel = dotted_source[name]
-            else:
+            cands = (source.get(name) or dotted_source.get(promoted_key(raw))
+                     or dotted_source.get(name))
+            if not cands:
                 print(f"MISSING IN FLT  {rel}: {raw}")
                 missing += 1
                 continue
+            skind, sstmt, srel = cands[0]
             if skind != kind or sstmt != stmt:
                 mismatch += 1
                 print(f"MISMATCH  {rel}: {name}  (source {srel}, {skind})")

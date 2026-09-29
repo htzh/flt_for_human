@@ -84,6 +84,13 @@ import FLTForHuman.ModularForms.WeightOne.Gamma0Rationality
 import FLTForHuman.ModularForms.WeightOne.Gamma0Integral
 import FLTForHuman.ModularForms.JqAnalyticModel
 import FLTForHuman.ModularCurve.Defs.Jq
+import FLTForHuman.ModularForms.WeightOne.Defs.PeriodPair
+import FLTForHuman.ModularForms.WeightOne.Defs.PTorsion
+import FLTForHuman.ModularForms.WeightOne.Defs.Gamma
+import FLTForHuman.ModularForms.WeightOne.Fricke
+import FLTForHuman.ModularForms.DiscPow
+open UpperHalfPlaneAux
+open WLight
 
 set_option linter.style.haveILetI false
 set_option linter.unusedSectionVars false
@@ -105,31 +112,9 @@ namespace WeightLoweringCriterion
 
 local notation "Δ" => ModularForm.discriminant
 
-private theorem differentiableAt_comp_ofComplex {u : ℍ → ℂ} (hu : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) u) (τ : ℍ) :
-    DifferentiableAt ℂ (u ∘ ofComplex) (τ : ℂ) :=
-  UpperHalfPlane.mdifferentiableAt_iff.1 (hu τ)
-
 private theorem analyticOnNhd_comp_ofComplex {u : ℍ → ℂ} (hu : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) u) :
     AnalyticOnNhd ℂ (u ∘ ofComplex) {z : ℂ | 0 < z.im} :=
   (UpperHalfPlane.mdifferentiable_iff.1 hu).analyticOnNhd isOpen_upperHalfPlaneSet
-
-private theorem eq_zero_of_mul_eq_zero {u v : ℍ → ℂ} (hu : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) u)
-    (hv : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) v) (huv : ∀ τ : ℍ, u τ * v τ = 0) {τ₀ : ℍ} (hv0 : v τ₀ ≠ 0) :
-    u = 0 := by
-
-  have hvc : ContinuousAt (v ∘ ofComplex) (τ₀ : ℂ) := (differentiableAt_comp_ofComplex hv τ₀).continuousAt
-  have hv0' : (v ∘ ofComplex) (τ₀ : ℂ) ≠ 0 := by simpa [Function.comp, ofComplex_apply] using hv0
-  have hne : ∀ᶠ z in 𝓝 (τ₀ : ℂ), (v ∘ ofComplex) z ≠ 0 := hvc.eventually_ne hv0'
-  have hu0 : (u ∘ ofComplex) =ᶠ[𝓝 (τ₀ : ℂ)] 0 := by
-    filter_upwards [hne] with z hz
-    have := huv (ofComplex z)
-    simp only [Function.comp_apply, Pi.zero_apply] at hz ⊢
-    exact (mul_eq_zero.1 this).resolve_right hz
-  have hEq := (analyticOnNhd_comp_ofComplex hu).eqOn_zero_of_preconnected_of_eventuallyEq_zero
-    (convex_halfSpace_im_gt 0).isPreconnected τ₀.im_pos hu0
-  funext τ
-  have := hEq τ.im_pos
-  simpa [Function.comp, ofComplex_apply] using this
 
 private theorem mdifferentiableAt_of_eventuallyEq {f g : ℍ → ℂ} {τ : ℍ}
     (hfg : (f ∘ ofComplex) =ᶠ[𝓝 (τ : ℂ)] (g ∘ ofComplex))
@@ -874,26 +859,6 @@ local notation "Δ" => ModularForm.discriminant
 
 section Analytic
 
-private theorem differentiableAt_comp_ofComplex {u : ℍ → ℂ} (hu : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) u) (τ : ℍ) :
-    DifferentiableAt ℂ (u ∘ ofComplex) (τ : ℂ) :=
-  UpperHalfPlane.mdifferentiableAt_iff.1 (hu τ)
-
-private theorem eq_zero_of_mul_eq_zero {u v : ℍ → ℂ} (hu : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) u)
-    (hv : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) v) (huv : ∀ τ : ℍ, u τ * v τ = 0) {τ₀ : ℍ} (hv0 : v τ₀ ≠ 0) :
-    u = 0 := by
-  have hvc : ContinuousAt (v ∘ ofComplex) (τ₀ : ℂ) := (differentiableAt_comp_ofComplex hv τ₀).continuousAt
-  have hv0' : (v ∘ ofComplex) (τ₀ : ℂ) ≠ 0 := by simpa [Function.comp, ofComplex_apply] using hv0
-  have hu0 : (u ∘ ofComplex) =ᶠ[𝓝 (τ₀ : ℂ)] 0 := by
-    filter_upwards [hvc.eventually_ne hv0'] with z hz
-    have := huv (ofComplex z)
-    simp only [Function.comp_apply, Pi.zero_apply] at hz ⊢
-    exact (mul_eq_zero.1 this).resolve_right hz
-  have hEq := ((UpperHalfPlane.mdifferentiable_iff.1 hu).analyticOnNhd
-    isOpen_upperHalfPlaneSet).eqOn_zero_of_preconnected_of_eventuallyEq_zero
-    (convex_halfSpace_im_gt 0).isPreconnected τ₀.im_pos hu0
-  funext τ
-  simpa [Function.comp, ofComplex_apply] using hEq τ.im_pos
-
 private theorem exists_ne_zero {v : ℍ → ℂ} (hv : v ≠ 0) : ∃ τ, v τ ≠ 0 := by
   by_contra h
   push Not at h
@@ -911,17 +876,9 @@ private theorem mdifferentiable_disc : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (Δ :
 
 private theorem disc_ne_zero (τ : ℍ) : Δ τ ≠ 0 := discriminant_ne_zero τ
 
-private theorem periodic_disc_one : Periodic ((Δ : ℍ → ℂ) ∘ ofComplex) 1 := by
-  have := SlashInvariantFormClass.periodic_comp_ofComplex CuspForm.discriminant one_mem_strictPeriods_SL
-  rwa [CuspForm.coe_discriminant] at this
-
 private theorem isBoundedAtImInfty_disc : IsBoundedAtImInfty (Δ : ℍ → ℂ) := by
   have := ModularFormClass.bdd_at_infty CuspForm.discriminant
   rwa [CuspForm.coe_discriminant] at this
-
-private theorem periodic_ofComplex_natCast {g : ℍ → ℂ} (h : Periodic (g ∘ ofComplex) 1) (n : ℕ) :
-    Periodic (g ∘ ofComplex) n := by
-  simpa using h.nat_mul n
 
 private theorem periodic_disc (N : ℕ) : Periodic ((Δ : ℍ → ℂ) ∘ ofComplex) N := periodic_ofComplex_natCast periodic_disc_one N
 
@@ -1644,44 +1601,12 @@ local notation "Δ" => ModularForm.discriminant
 
 section Analytic
 
-private theorem differentiableAt_comp_ofComplex {u : ℍ → ℂ} (hu : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) u) (τ : ℍ) :
-    DifferentiableAt ℂ (u ∘ ofComplex) (τ : ℂ) :=
-  UpperHalfPlane.mdifferentiableAt_iff.1 (hu τ)
-
-private theorem eq_zero_of_mul_eq_zero {u v : ℍ → ℂ} (hu : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) u)
-    (hv : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) v) (huv : ∀ τ : ℍ, u τ * v τ = 0) {τ₀ : ℍ} (hv0 : v τ₀ ≠ 0) :
-    u = 0 := by
-  have hvc : ContinuousAt (v ∘ ofComplex) (τ₀ : ℂ) := (differentiableAt_comp_ofComplex hv τ₀).continuousAt
-  have hv0' : (v ∘ ofComplex) (τ₀ : ℂ) ≠ 0 := by simpa [Function.comp, ofComplex_apply] using hv0
-  have hu0 : (u ∘ ofComplex) =ᶠ[𝓝 (τ₀ : ℂ)] 0 := by
-    filter_upwards [hvc.eventually_ne hv0'] with z hz
-    have := huv (ofComplex z)
-    simp only [Function.comp_apply, Pi.zero_apply] at hz ⊢
-    exact (mul_eq_zero.1 this).resolve_right hz
-  have hEq := ((UpperHalfPlane.mdifferentiable_iff.1 hu).analyticOnNhd
-    isOpen_upperHalfPlaneSet).eqOn_zero_of_preconnected_of_eventuallyEq_zero
-    (convex_halfSpace_im_gt 0).isPreconnected τ₀.im_pos hu0
-  funext τ
-  simpa [Function.comp, ofComplex_apply] using hEq τ.im_pos
-
 private theorem mdifferentiable_disc : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (Δ : ℍ → ℂ) := CuspForm.discriminant.holo'
 
 private theorem disc_ne_zero (τ : ℍ) : Δ τ ≠ 0 := discriminant_ne_zero τ
 
-private theorem periodic_disc_one : Periodic ((Δ : ℍ → ℂ) ∘ ofComplex) 1 :=
-  SlashInvariantFormClass.periodic_comp_ofComplex CuspForm.discriminant one_mem_strictPeriods_SL
-
 private theorem isBoundedAtImInfty_disc : IsBoundedAtImInfty (Δ : ℍ → ℂ) :=
   ModularFormClass.bdd_at_infty CuspForm.discriminant
-
-private theorem periodic_ofComplex_natCast {g : ℍ → ℂ} (h : Periodic (g ∘ ofComplex) 1) (n : ℕ) :
-    Periodic (g ∘ ofComplex) n := by
-  simpa using h.nat_mul n
-
-private theorem periodic_mul {g g' : ℍ → ℂ} {c : ℂ} (h : Periodic (g ∘ ofComplex) c)
-    (h' : Periodic (g' ∘ ofComplex) c) : Periodic ((g * g') ∘ ofComplex) c := by
-  intro z; have h1 := h z; have h2 := h' z
-  simp only [comp_apply, Pi.mul_apply] at h1 h2 ⊢; rw [h1, h2]
 
 private theorem periodic_add {g g' : ℍ → ℂ} {c : ℂ} (h : Periodic (g ∘ ofComplex) c)
     (h' : Periodic (g' ∘ ofComplex) c) : Periodic ((g + g') ∘ ofComplex) c := by
@@ -2138,42 +2063,6 @@ private theorem qParam_one_eq_pow (τ : ℍ) : Periodic.qParam 1 τ = Periodic.q
   have : (N : ℂ) ≠ 0 := Nat.cast_ne_zero.mpr (NeZero.ne N)
   push_cast
   field_simp
-
-private theorem qExpansion_coeff_unique' {h : ℝ} (hh : 0 < h) {g : ℍ → ℂ} {c : ℕ → ℂ}
-    (hg : AnalyticAt ℂ (cuspFunction h g) 0)
-    (hc : ∀ τ : ℍ, HasSum (fun m => c m • Periodic.qParam h τ ^ m) (g τ)) (m : ℕ) :
-    c m = (qExpansion h g).coeff m := by
-  have h1 := (hasFPowerSeriesOnBall_cuspFunction hh hg hc).hasFPowerSeriesAt
-  have h2 : HasFPowerSeriesAt (cuspFunction h g)
-      (FormalMultilinearSeries.ofScalars ℂ fun m => (qExpansion h g).coeff m) 0 := by
-    simpa [qExpansion_coeff, div_eq_mul_inv, mul_comm] using hg.hasFPowerSeriesAt
-  simpa [FormalMultilinearSeries.coeff_ofScalars] using
-    congr_arg (FormalMultilinearSeries.coeff · m) (h1.eq_formalMultilinearSeries h2)
-
-private theorem qExpansion_coeff_widthN {g : ℍ → ℂ} (hg : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) g)
-    (hper : Periodic (g ∘ ofComplex) 1) (hbd : IsBoundedAtImInfty g) (n : ℕ) :
-    (qExpansion N g).coeff n = if (N : ℕ) ∣ n then (qExpansion 1 g).coeff (n / N) else 0 := by
-  classical
-  have hperN : Periodic (g ∘ ofComplex) N := periodic_ofComplex_natCast hper N
-  set c : ℕ → ℂ := fun n => if (N : ℕ) ∣ n then (qExpansion 1 g).coeff (n / N) else 0 with hc
-  have hNpos : 0 < N := NeZero.pos N
-  have hsum : ∀ τ : ℍ, HasSum (fun m => c m • Periodic.qParam N τ ^ m) (g τ) := by
-    intro τ
-    have h1 := hasSum_qExpansion one_pos hper hg hbd τ
-    have hinj : Function.Injective fun m : ℕ => N * m := mul_right_injective₀ hNpos.ne'
-    have hsupp : ∀ x ∉ Set.range (fun m : ℕ => N * m),
-        (fun m => c m • Periodic.qParam N τ ^ m) x = 0 := by
-      intro x hx
-      have : ¬ (N : ℕ) ∣ x := by
-        rintro ⟨y, rfl⟩; exact hx ⟨y, rfl⟩
-      simp [hc, this]
-    refine (hinj.hasSum_iff hsupp).1 ?_
-    convert h1 using 1; try with_reducible_and_instances rfl
-    funext m
-    simp only [comp_apply, hc, dvd_mul_right, ↓reduceIte, Nat.mul_div_cancel_left _ hNpos]
-    rw [qParam_one_eq_pow N τ, ← pow_mul]
-  rw [← qExpansion_coeff_unique' (natCast_pos N) (analyticAt_cuspFunction_zero (natCast_pos N)
-    hperN hg hbd) hsum n]
 
 private theorem qExpansion_E₄_rat (n : ℕ) : ∃ r : ℚ, (qExpansion 1 (E₄ : ℍ → ℂ)).coeff n = (r : ℂ) := by
   rw [ModularForm.E₄, EisensteinSeries.E_qExpansion_coeff (by norm_num) (by decide) n]
@@ -3006,43 +2895,7 @@ open scoped Real Manifold MatrixGroups ModularForm Topology
 
 namespace GammaOneGaloisEven
 
-private def tauPair (τ : ℍ) : PeriodPair where
-  ω₁ := (τ : ℂ)
-  ω₂ := 1
-  indep := by
-    rw [LinearIndependent.pair_iff]
-    intro s t h
-    have h1 := congrArg Complex.im h
-    have h2 := congrArg Complex.re h
-    simp at h1 h2
-    have hs : s = 0 := by
-      rcases h1 with h1 | h1
-      · exact h1
-      · exact absurd h1 τ.im_pos.ne'
-    subst hs
-    simp at h2
-    exact ⟨rfl, h2⟩
-
-private theorem tauPair_spec (τ : ℍ) : (tauPair τ).ω₁ = (τ : ℂ) ∧ (tauPair τ).ω₂ = 1 := ⟨rfl, rfl⟩
-
 variable (N : ℕ)
-
-private def WW (v : Fin 2 → ZMod N) (τ : ℍ) : ℂ :=
-  ((2 * (Real.pi : ℂ) * Complex.I) ^ 2)⁻¹ *
-    PeriodPair.weierstrassP (tauPair τ) ((((v 0).val : ℂ) * (τ : ℂ) + ((v 1).val : ℂ)) / (N : ℂ))
-
-private def fricke (v : Fin 2 → ZMod N) (τ : ℍ) : ℂ :=
-  -(ModularForm.E₄ τ * ModularForm.E₆ τ / ModularForm.discriminant τ) / 2592 * WW N v τ
-
-private def jf (τ : ℍ) : ℂ := ModularForm.E₄ τ ^ 3 / ModularForm.discriminant τ
-
-private theorem WW_spec (v : Fin 2 → ZMod N) (τ : ℍ) : WW N v τ = ((2 * (Real.pi : ℂ) * Complex.I) ^ 2)⁻¹ *
-    PeriodPair.weierstrassP (tauPair τ) ((((v 0).val : ℂ) * (τ : ℂ) + ((v 1).val : ℂ)) / (N : ℂ)) := rfl
-
-private theorem fricke_spec (v : Fin 2 → ZMod N) (τ : ℍ) : fricke N v τ =
-    -(ModularForm.E₄ τ * ModularForm.E₆ τ / ModularForm.discriminant τ) / 2592 * WW N v τ := rfl
-
-private theorem jf_spec (τ : ℍ) : jf τ = ModularForm.E₄ τ ^ 3 / ModularForm.discriminant τ := rfl
 
 private def zetaN : ℂ := Complex.exp (2 * (Real.pi : ℂ) * Complex.I / (N : ℂ))
 
@@ -3117,32 +2970,8 @@ section Width
 
 local notation "Δ" => ModularForm.discriminant
 
-private theorem differentiableAt_comp_ofComplex {u : ℍ → ℂ} (hu : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) u) (τ : ℍ) :
-    DifferentiableAt ℂ (u ∘ ofComplex) (τ : ℂ) :=
-  UpperHalfPlane.mdifferentiableAt_iff.1 (hu τ)
-
-private theorem eq_zero_of_mul_eq_zero {u v : ℍ → ℂ} (hu : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) u)
-    (hv : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) v) (huv : ∀ τ : ℍ, u τ * v τ = 0) {τ₀ : ℍ} (hv0 : v τ₀ ≠ 0) :
-    u = 0 := by
-  have hvc : ContinuousAt (v ∘ ofComplex) (τ₀ : ℂ) := (differentiableAt_comp_ofComplex hv τ₀).continuousAt
-  have hv0' : (v ∘ ofComplex) (τ₀ : ℂ) ≠ 0 := by simpa [Function.comp, ofComplex_apply] using hv0
-  have hu0 : (u ∘ ofComplex) =ᶠ[𝓝 (τ₀ : ℂ)] 0 := by
-    filter_upwards [hvc.eventually_ne hv0'] with z hz
-    have := huv (ofComplex z)
-    simp only [Function.comp_apply, Pi.zero_apply] at hz ⊢
-    exact (mul_eq_zero.1 this).resolve_right hz
-  have hEq := ((UpperHalfPlane.mdifferentiable_iff.1 hu).analyticOnNhd
-    isOpen_upperHalfPlaneSet).eqOn_zero_of_preconnected_of_eventuallyEq_zero
-    (convex_halfSpace_im_gt 0).isPreconnected τ₀.im_pos hu0
-  funext τ
-  simpa [Function.comp, ofComplex_apply] using hEq τ.im_pos
-
 private theorem mdifferentiable_disc : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (Δ : ℍ → ℂ) := by
   rw [← CuspForm.coe_discriminant]; exact CuspForm.discriminant.holo'
-
-private theorem periodic_disc_one : Periodic ((Δ : ℍ → ℂ) ∘ ofComplex) 1 := by
-  have := SlashInvariantFormClass.periodic_comp_ofComplex CuspForm.discriminant one_mem_strictPeriods_SL
-  rwa [CuspForm.coe_discriminant] at this
 
 private theorem isBoundedAtImInfty_disc : IsBoundedAtImInfty (Δ : ℍ → ℂ) := by
   have := ModularFormClass.bdd_at_infty CuspForm.discriminant
@@ -3151,34 +2980,11 @@ private theorem isBoundedAtImInfty_disc : IsBoundedAtImInfty (Δ : ℍ → ℂ) 
 private theorem disc_pow_ne_zero (m : ℕ) (τ : ℍ) : (Δ ^ m : ℍ → ℂ) τ ≠ 0 := by
   rw [Pi.pow_apply]; exact pow_ne_zero _ (discriminant_ne_zero τ)
 
-private theorem periodic_ofComplex_natCast {g : ℍ → ℂ} (h : Periodic (g ∘ ofComplex) 1) (n : ℕ) :
-    Periodic (g ∘ ofComplex) n := by
-  simpa using h.nat_mul n
-
-private theorem periodic_mul {g g' : ℍ → ℂ} {c : ℂ} (h : Periodic (g ∘ ofComplex) c)
-    (h' : Periodic (g' ∘ ofComplex) c) : Periodic ((g * g') ∘ ofComplex) c := by
-  intro z
-  have h1 := h z
-  have h2 := h' z
-  simp only [comp_apply, Pi.mul_apply] at h1 h2 ⊢
-  rw [h1, h2]
-
 private theorem periodic_pow {g : ℍ → ℂ} {c : ℂ} (h : Periodic (g ∘ ofComplex) c) (m : ℕ) :
     Periodic ((g ^ m) ∘ ofComplex) c := by
   induction m with
   | zero => intro z; simp
   | succ m ih => rw [pow_succ]; exact periodic_mul ih h
-
-private theorem qExpansion_coeff_unique' {h : ℝ} (hh : 0 < h) {g : ℍ → ℂ} {c : ℕ → ℂ}
-    (hg : AnalyticAt ℂ (cuspFunction h g) 0)
-    (hc : ∀ τ : ℍ, HasSum (fun m => c m • Periodic.qParam h τ ^ m) (g τ)) (m : ℕ) :
-    c m = (qExpansion h g).coeff m := by
-  have h1 := (hasFPowerSeriesOnBall_cuspFunction hh hg hc).hasFPowerSeriesAt
-  have h2 : HasFPowerSeriesAt (cuspFunction h g)
-      (FormalMultilinearSeries.ofScalars ℂ fun m => (qExpansion h g).coeff m) 0 := by
-    simpa [qExpansion_coeff, div_eq_mul_inv, mul_comm] using hg.hasFPowerSeriesAt
-  simpa [FormalMultilinearSeries.coeff_ofScalars] using
-    congr_arg (FormalMultilinearSeries.coeff · m) (h1.eq_formalMultilinearSeries h2)
 
 variable (N : ℕ) [NeZero N]
 
@@ -3191,31 +2997,6 @@ private theorem qParam_one_eq_pow (τ : ℍ) : Periodic.qParam 1 τ = Periodic.q
   have : (N : ℂ) ≠ 0 := Nat.cast_ne_zero.mpr (NeZero.ne N)
   push_cast
   field_simp
-
-private theorem qExpansion_coeff_widthN {g : ℍ → ℂ} (hg : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) g)
-    (hper : Periodic (g ∘ ofComplex) 1) (hbd : IsBoundedAtImInfty g) (n : ℕ) :
-    (qExpansion N g).coeff n = if (N : ℕ) ∣ n then (qExpansion 1 g).coeff (n / N) else 0 := by
-  classical
-  have hperN : Periodic (g ∘ ofComplex) N := periodic_ofComplex_natCast hper N
-  set c : ℕ → ℂ := fun n => if (N : ℕ) ∣ n then (qExpansion 1 g).coeff (n / N) else 0 with hc
-  have hNpos : 0 < N := NeZero.pos N
-  have hsum : ∀ τ : ℍ, HasSum (fun m => c m • Periodic.qParam N τ ^ m) (g τ) := by
-    intro τ
-    have h1 := hasSum_qExpansion one_pos hper hg hbd τ
-    have hinj : Function.Injective fun m : ℕ => N * m := mul_right_injective₀ hNpos.ne'
-    have hsupp : ∀ x ∉ Set.range (fun m : ℕ => N * m),
-        (fun m => c m • Periodic.qParam N τ ^ m) x = 0 := by
-      intro x hx
-      have : ¬ (N : ℕ) ∣ x := by
-        rintro ⟨y, rfl⟩; exact hx ⟨y, rfl⟩
-      simp [hc, this]
-    refine (hinj.hasSum_iff hsupp).1 ?_
-    convert h1 using 1
-    funext m
-    simp only [comp_apply, hc, dvd_mul_right, ↓reduceIte, Nat.mul_div_cancel_left _ hNpos]
-    rw [qParam_one_eq_pow N τ, ← pow_mul]
-  rw [← qExpansion_coeff_unique' (natCast_pos N) (analyticAt_cuspFunction_zero (natCast_pos N)
-    hperN hg hbd) hsum n]
 
 private theorem qExpansion_E₄_rat (n : ℕ) : ∃ r : ℚ, (qExpansion 1 (E₄ : ℍ → ℂ)).coeff n = (r : ℂ) := by
   rw [ModularForm.E₄, EisensteinSeries.E_qExpansion_coeff (by norm_num) (by decide) n]
@@ -3978,26 +3759,6 @@ private theorem stab_of_even [NeZero N]
   rfl
 
 end Transport
-
-private theorem eq_zero_of_mul_eq_zero {u v : ℍ → ℂ} (hu : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) u)
-    (hv : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) v) (huv : ∀ τ : ℍ, u τ * v τ = 0) {τ₀ : ℍ} (hv0 : v τ₀ ≠ 0) :
-    u = 0 := by
-  have hvc : ContinuousAt (v ∘ ofComplex) (τ₀ : ℂ) :=
-    (UpperHalfPlane.mdifferentiableAt_iff.1 (hv τ₀)).continuousAt
-  have hv0' : (v ∘ ofComplex) (τ₀ : ℂ) ≠ 0 := by simpa [Function.comp, ofComplex_apply] using hv0
-  have hne : ∀ᶠ z in 𝓝 (τ₀ : ℂ), (v ∘ ofComplex) z ≠ 0 := hvc.eventually_ne hv0'
-  have hu0 : (u ∘ ofComplex) =ᶠ[𝓝 (τ₀ : ℂ)] 0 := by
-    filter_upwards [hne] with z hz
-    have := huv (ofComplex z)
-    simp only [Function.comp_apply, Pi.zero_apply] at hz ⊢
-    exact (mul_eq_zero.1 this).resolve_right hz
-  have hana : AnalyticOnNhd ℂ (u ∘ ofComplex) {z : ℂ | 0 < z.im} :=
-    (UpperHalfPlane.mdifferentiable_iff.1 hu).analyticOnNhd isOpen_upperHalfPlaneSet
-  have hEq := hana.eqOn_zero_of_preconnected_of_eventuallyEq_zero
-    (convex_halfSpace_im_gt 0).isPreconnected τ₀.im_pos hu0
-  funext τ
-  have := hEq τ.im_pos
-  simpa [Function.comp, ofComplex_apply] using this
 
 private theorem isZeroAtImInfty_of_mul_self {g : ℍ → ℂ} (h : IsZeroAtImInfty (g * g)) :
     IsZeroAtImInfty g := by

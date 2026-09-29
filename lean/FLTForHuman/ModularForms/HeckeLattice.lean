@@ -88,9 +88,10 @@ private theorem intLattice_eq (N : ℕ) (k : ℤ) :
   Submodule.span_eq (intSubmodule N k)
 
 /-- The span characterisation of `intLattice`: membership is exactly coefficient
-integrality. -/
-private theorem mem_intLattice_iff (f : CuspForm (CongruenceSubgroup.Gamma0 N) k) :
-    f ∈ CuspForm.intLattice N k ↔ ∀ n : ℕ, ∃ m : ℤ, qCoeff f n = (m : ℂ) := by
+integrality. Stated verbatim from
+`Theorems/Thm_CuspForm_mem_intLattice_iff.lean`. -/
+theorem mem_intLattice_iff {N : ℕ} {k : ℤ} (f : CuspForm (CongruenceSubgroup.Gamma0 N) k) :
+    f ∈ CuspForm.intLattice N k ↔ ∀ n : ℕ, ∃ m : ℤ, ModularFormClass.qCoeff f n = (m : ℂ) := by
   rw [intLattice_eq]
   rfl
 

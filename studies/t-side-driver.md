@@ -9,6 +9,14 @@ T-side target should the next port push on?* The recommended driver is the
 `WeierstrassCurve.isModularModelOfLevel_of_patchingDatum`, ported as a
 **conditional capstone** (§4).
 
+> **Closing entry (2026-09-28): the driver is complete.** All seven sets of
+> [../lean/topics/hecke/TOPIC-t12-set7-exit-and-unconditional.md](../lean/topics/hecke/TOPIC-t12-set7-exit-and-unconditional.md)
+> landed: the conditional capstone (SET 3), the patching construction (SET 6), the
+> abstract patching exit and the verbatim unconditional
+> `WeierstrassCurve.isModularModelOfLevel_of_patchingDatum` (SET 7), all axiom-clean
+> with only `propext, Classical.choice, Quot.sound`. The record is
+> [../lean/logs/t-side-port.md](../lean/logs/t-side-port.md) §§6–38. See §8.
+
 Companions: [r-equals-t-in-the-proof-base.md](r-equals-t-in-the-proof-base.md)
 (the graph route, consumers, and the T-side port-scope reading §6),
 [../math/018-t-side-definitions.md](../math/018-t-side-definitions.md) (the
@@ -283,3 +291,29 @@ python3 frontier.py --target WeierstrassCurve.isModularModelOfLevel_of_patchingD
   layer this driver builds on.
 - [../lean/porting-playbook.md](../lean/porting-playbook.md) §3.11 (build
   discipline), §5 (checklist), §7.3 (the conditional capstone).
+
+## 8. Closing entry — the driver is complete
+
+The recommendation of §§0–2 is executed. The driver's two endpoints are public,
+verbatim to their `Theorems/` wrappers, and axiom-clean in the port:
+
+- **the unconditional `R ≅ T` assembly**,
+  `WeierstrassCurve.isModularModelOfLevel_of_patchingDatum` (the pin's 145-line
+  node), in `FLTForHuman/WeierstrassCurve/ModularityLifting.lean` — SET 3's
+  conditional form plus SET 7's discharge of the frozen `{r} (L) (hfree) (hann)
+  (hker)`, which is why the 3,761-line patching construction is now on the module's
+  import path;
+- **the abstract patching exit**,
+  `Algebra.PatchingDatum.bijective_and_free_of_surjective` (the pin's 31-line
+  node), in `FLTForHuman/Patching/Exit.lean`.
+
+The frontier of §1 is closed: the patching cluster (SET 4's descent engine, SET 5's
+power-series algebra, SET 6's construction) sits under the assembly, and the C′
+residual of §§0/3 is supplied by T10's `moduleFinite_heckeAlgebra` and SET 2's
+extraction chain. `spec/check_flt_statements.py` reports **1653 identical (91
+promoted from pin-private), 0 mismatched, 0 missing, 28 own-proof exemptions**;
+`#print axioms` is `[propext, Classical.choice, Quot.sound]` on both endpoints; the
+wire test is
+[../lean/spec/TsideSet7Consumer.lean](../lean/spec/TsideSet7Consumer.lean) (the
+end-to-end composition from one patching datum, 0 errors). Set-by-set record:
+[../lean/logs/t-side-port.md](../lean/logs/t-side-port.md) §§6–38.

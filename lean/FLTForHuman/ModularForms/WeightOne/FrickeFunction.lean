@@ -56,6 +56,12 @@ import Mathlib.RingTheory.Polynomial.RationalRoot
 import Mathlib.RingTheory.PowerSeries.Order
 import Mathlib.RingTheory.RootsOfUnity.Complex
 import Mathlib.RingTheory.Unramified.Field
+import FLTForHuman.ModularForms.WeightOne.Defs.PeriodPair
+import FLTForHuman.ModularForms.WeightOne.Defs.PTorsion
+import FLTForHuman.ModularForms.WeightOne.Fricke
+import FLTForHuman.ModularForms.DiscPow
+open WLight
+open UpperHalfPlaneAux
 
 set_option autoImplicit false
 
@@ -72,52 +78,6 @@ section B1_homogeneity
 
 open PeriodPair
 
-private def smulPeriodPair (a : ℂ) (ha : a ≠ 0) (L : PeriodPair) : PeriodPair where
-  ω₁ := a * L.ω₁
-  ω₂ := a * L.ω₂
-  indep := LinearIndependent.pair_iff.mpr fun s t hst => by
-    refine LinearIndependent.pair_iff.mp L.indep s t ?_
-    have h0 : a * (s • L.ω₁ + t • L.ω₂) = 0 := by
-      rw [mul_add, mul_smul_comm, mul_smul_comm]; exact hst
-    exact (mul_eq_zero.mp h0).resolve_left ha
-
-@[scoped simp] private lemma smulPeriodPair_ω₁ (a : ℂ) (ha : a ≠ 0) (L : PeriodPair) :
-    (smulPeriodPair a ha L).ω₁ = a * L.ω₁ := rfl
-
-@[scoped simp] private lemma smulPeriodPair_ω₂ (a : ℂ) (ha : a ≠ 0) (L : PeriodPair) :
-    (smulPeriodPair a ha L).ω₂ = a * L.ω₂ := rfl
-
-private lemma mem_smulPeriodPair_lattice {a : ℂ} (ha : a ≠ 0) (L : PeriodPair) {x : ℂ} :
-    x ∈ (smulPeriodPair a ha L).lattice ↔ ∃ y ∈ L.lattice, x = a * y := by
-  simp only [mem_lattice, smulPeriodPair_ω₁, smulPeriodPair_ω₂]
-  constructor
-  · rintro ⟨m, n, h⟩
-    exact ⟨(m : ℂ) * L.ω₁ + (n : ℂ) * L.ω₂, ⟨m, n, rfl⟩, by rw [← h]; ring⟩
-  · rintro ⟨y, ⟨m, n, h⟩, rfl⟩
-    exact ⟨m, n, by rw [← h]; ring⟩
-
-private def smulLatticeEquiv (a : ℂ) (ha : a ≠ 0) (L : PeriodPair) :
-    L.lattice ≃ (smulPeriodPair a ha L).lattice where
-  toFun l := ⟨a * l, (mem_smulPeriodPair_lattice ha L).mpr ⟨l, l.2, rfl⟩⟩
-  invFun l := ⟨a⁻¹ * l, by
-    obtain ⟨y, hy, hxy⟩ := (mem_smulPeriodPair_lattice ha L).mp l.2
-    rw [hxy, inv_mul_cancel_left₀ ha]; exact hy⟩
-  left_inv l := Subtype.ext (inv_mul_cancel_left₀ ha _)
-  right_inv l := Subtype.ext (mul_inv_cancel_left₀ ha _)
-
-@[scoped simp] private lemma smulLatticeEquiv_coe (a : ℂ) (ha : a ≠ 0) (L : PeriodPair) (l : L.lattice) :
-    ((smulLatticeEquiv a ha L) l : ℂ) = a * l := rfl
-
-private theorem weierstrassP_smulPeriodPair (a : ℂ) (ha : a ≠ 0) (L : PeriodPair) (z : ℂ) :
-    weierstrassP (smulPeriodPair a ha L) (a * z) = a⁻¹ ^ 2 * weierstrassP L z := by
-  have key : ∀ u : ℂ, 1 / (a * u) ^ 2 = a⁻¹ ^ 2 * (1 / u ^ 2) := fun u => by
-    simp [one_div, mul_pow, inv_pow, mul_comm]
-  simp only [weierstrassP]
-  rw [← (smulLatticeEquiv a ha L).tsum_eq, ← tsum_mul_left]
-  congr with l
-  simp only [smulLatticeEquiv_coe]
-  rw [show a * z - a * (l : ℂ) = a * (z - l) by ring, key, key, mul_sub]
-
 end B1_homogeneity
 
 section R4aFloor
@@ -126,127 +86,9 @@ open UpperHalfPlane hiding I
 open ModularForm ModularFormClass CuspForm ModularForm.CuspForm Polynomial Real.Polynomial Filter
 open scoped ModularForm ModularFormClass CuspForm ModularForm.CuspForm Polynomial Real.Polynomial Filter
 
-private def periodPairOfTau (τ : ℍ) : PeriodPair where
-  ω₁ := (τ : ℂ)
-  ω₂ := 1
-  indep := LinearIndependent.pair_iff.mpr fun s t hst ↦ by
-    have him : s * (τ : ℂ).im = 0 := by
-      have := congrArg Complex.im hst
-      simpa [Complex.add_im, Complex.smul_im, smul_eq_mul] using this
-    have hs : s = 0 :=
-      (mul_eq_zero.mp him).resolve_right (UpperHalfPlane.coe_im τ ▸ τ.im_ne_zero)
-    subst hs
-    simpa using hst
-
-@[scoped simp] private lemma periodPairOfTau_ω₁ (τ : ℍ) : (periodPairOfTau τ).ω₁ = (τ : ℂ) := rfl
-@[scoped simp] private lemma periodPairOfTau_ω₂ (τ : ℍ) : (periodPairOfTau τ).ω₂ = 1 := rfl
-
-private def zetaN (N : ℕ) : ℂ := cexp (2 * π * I / N)
-
-private def qN (N : ℕ) (τ : ℂ) : ℂ := cexp (2 * π * I * τ / N)
-
-private lemma zetaN_ne_zero (N : ℕ) : zetaN N ≠ 0 := Complex.exp_ne_zero _
-
-private def wpTail (N a₁ a₂ : ℕ) (p : ℕ+ × ℕ+) (τ : ℂ) : ℂ :=
-  ((p.2 : ℕ) : ℂ) *
-    (zetaN N ^ (a₂ * (p.2 : ℕ)) * qN N τ ^ (((p.1 : ℕ) * N + a₁) * (p.2 : ℕ)) +
-      (zetaN N)⁻¹ ^ (a₂ * (p.2 : ℕ)) * qN N τ ^ (((p.1 : ℕ) * N - a₁) * (p.2 : ℕ)) -
-        2 * qN N τ ^ ((p.1 : ℕ) * N * (p.2 : ℕ)))
-
-private def wpTorsion (N a₁ a₂ : ℕ) (τ : ℍ) : ℂ :=
-  PeriodPair.weierstrassP (periodPairOfTau τ) (((a₁ : ℂ) * τ + a₂) / N)
-
-private def wpTorsionSeries (N a₁ a₂ : ℕ) (τ : ℂ) : ℂ :=
-  (2 * π * I) ^ 2 *
-    (zetaN N ^ a₂ * qN N τ ^ a₁ / (1 - zetaN N ^ a₂ * qN N τ ^ a₁) ^ 2 + 1 / 12 +
-      ∑' p : ℕ+ × ℕ+, wpTail N a₁ a₂ p τ)
-
 section RatCoeffClosure
 
-private lemma ratCoeff_mul {p q : PowerSeries ℂ}
-    (hp : ∀ n : ℕ, ∃ a : ℚ, p.coeff n = (a : ℂ)) (hq : ∀ n : ℕ, ∃ a : ℚ, q.coeff n = (a : ℂ)) :
-    ∀ n : ℕ, ∃ a : ℚ, (p * q).coeff n = (a : ℂ) := by
-  choose F hF using hp
-  choose G hG using hq
-  intro n
-  refine ⟨∑ ij ∈ Finset.HasAntidiagonal.antidiagonal n, F ij.1 * G ij.2, ?_⟩
-  rw [PowerSeries.coeff_mul]
-  push_cast
-  exact Finset.sum_congr rfl fun ij _ => by rw [hF, hG]
-
-private lemma ratCoeff_sub {p q : PowerSeries ℂ}
-    (hp : ∀ n : ℕ, ∃ a : ℚ, p.coeff n = (a : ℂ)) (hq : ∀ n : ℕ, ∃ a : ℚ, q.coeff n = (a : ℂ)) :
-    ∀ n : ℕ, ∃ a : ℚ, (p - q).coeff n = (a : ℂ) := by
-  intro n
-  obtain ⟨a, ha⟩ := hp n
-  obtain ⟨b, hb⟩ := hq n
-  exact ⟨a - b, by rw [map_sub, ha, hb]; push_cast; ring⟩
-
 end RatCoeffClosure
-
-private def kN (N : ℕ) : IntermediateField ℚ ℂ := IntermediateField.adjoin ℚ {zetaN N}
-
-private lemma zetaN_mem_kN (N : ℕ) : zetaN N ∈ kN N :=
-  IntermediateField.mem_adjoin_simple_self ℚ _
-
-private lemma zetaN_pow_mem_kN (N k : ℕ) : zetaN N ^ k ∈ kN N := pow_mem (zetaN_mem_kN N) k
-
-private lemma zetaN_inv_pow_mem_kN (N k : ℕ) : (zetaN N)⁻¹ ^ k ∈ kN N :=
-  pow_mem (inv_mem (zetaN_mem_kN N)) k
-
-private lemma natCast_mem_kN (N m : ℕ) : (m : ℂ) ∈ kN N := natCast_mem _ m
-
-private lemma one_div_twelve_mem_kN (N : ℕ) : (1 / 12 : ℂ) ∈ kN N :=
-  div_mem (one_mem _) (by exact_mod_cast natCast_mem_kN N 12)
-
-private def wpNormSeries (N a₁ a₂ : ℕ) (τ : ℂ) : ℂ :=
-  zetaN N ^ a₂ * qN N τ ^ a₁ / (1 - zetaN N ^ a₂ * qN N τ ^ a₁) ^ 2 + 1 / 12 +
-    ∑' p : ℕ+ × ℕ+, wpTail N a₁ a₂ p τ
-
-private lemma wpTorsionSeries_eq (N a₁ a₂ : ℕ) (τ : ℂ) :
-    wpTorsionSeries N a₁ a₂ τ = (2 * π * I) ^ 2 * wpNormSeries N a₁ a₂ τ := rfl
-
-private def wpNorm (N a₁ a₂ : ℕ) (τ : ℍ) : ℂ := ((2 * π * I) ^ 2)⁻¹ * wpTorsion N a₁ a₂ τ
-
-private abbrev WpIdx : Type := Unit ⊕ ℕ+ ⊕ ((ℕ+ × ℕ+) × Fin 3)
-
-private def wpMonCoeff (N a₁ a₂ : ℕ) : WpIdx → ℂ
-  | Sum.inl _ => 1 / 12 + if a₁ = 0 then zetaN N ^ a₂ / (1 - zetaN N ^ a₂) ^ 2 else 0
-  | Sum.inr (Sum.inl m) => if a₁ = 0 then 0 else ((m : ℕ) : ℂ) * zetaN N ^ (a₂ * (m : ℕ))
-  | Sum.inr (Sum.inr (p, i)) =>
-      ![((p.2 : ℕ) : ℂ) * zetaN N ^ (a₂ * (p.2 : ℕ)),
-        ((p.2 : ℕ) : ℂ) * (zetaN N)⁻¹ ^ (a₂ * (p.2 : ℕ)),
-        -2 * ((p.2 : ℕ) : ℂ)] i
-
-private def wpMonExp (N a₁ : ℕ) : WpIdx → ℕ
-  | Sum.inl _ => 0
-  | Sum.inr (Sum.inl m) => if a₁ = 0 then (m : ℕ) else a₁ * (m : ℕ)
-  | Sum.inr (Sum.inr (p, i)) =>
-      ![((p.1 : ℕ) * N + a₁) * (p.2 : ℕ), ((p.1 : ℕ) * N - a₁) * (p.2 : ℕ),
-        (p.1 : ℕ) * N * (p.2 : ℕ)] i
-
-private def wpQCoeff (N a₁ a₂ : ℕ) (n : ℕ) : ℂ :=
-  ∑' i : (wpMonExp N a₁ ⁻¹' {n}), wpMonCoeff N a₁ a₂ i
-
-private lemma wpMonCoeff_mem_kN (N a₁ a₂ : ℕ) (i : WpIdx) : wpMonCoeff N a₁ a₂ i ∈ kN N := by
-  rcases i with u | m | ⟨p, i⟩
-  · simp only [wpMonCoeff]
-    split_ifs
-    · exact add_mem (one_div_twelve_mem_kN N) (div_mem (zetaN_pow_mem_kN N _)
-        (pow_mem (sub_mem (one_mem _) (zetaN_pow_mem_kN N _)) 2))
-    · exact add_mem (one_div_twelve_mem_kN N) (zero_mem _)
-  · simp only [wpMonCoeff]
-    split_ifs
-    · exact zero_mem _
-    · exact mul_mem (natCast_mem_kN N _) (zetaN_pow_mem_kN N _)
-  · simp only [wpMonCoeff]
-    fin_cases i
-    · exact mul_mem (natCast_mem_kN N _) (zetaN_pow_mem_kN N _)
-    · exact mul_mem (natCast_mem_kN N _) (zetaN_inv_pow_mem_kN N _)
-    · simp only [Fin.reduceFinMk, Matrix.cons_val]
-      exact mul_mem (neg_mem (by exact_mod_cast natCast_mem_kN N 2)) (natCast_mem_kN N _)
-
-private def frickeH (N a₁ a₂ : ℕ) : ℍ → ℂ := (⇑E₄ * ⇑E₆ : ℍ → ℂ) * wpNorm N a₁ a₂
 
 private theorem r2_package {N : ℕ} (hN : N ≠ 0) :
     (∀ a₁ a₂ : ℕ, a₁ < N → a₂ < N → (a₁ ≠ 0 ∨ a₂ ≠ 0) →
@@ -301,13 +143,6 @@ private theorem isBoundedAtImInfty_frickeH {N a₁ a₂ : ℕ} (ha₁ : a₁ < N
     (h0 : a₁ ≠ 0 ∨ a₂ ≠ 0) : IsBoundedAtImInfty (frickeH N a₁ a₂) :=
   ((ModularFormClass.bdd_at_infty ModularForm.E₄).mul (ModularFormClass.bdd_at_infty ModularForm.E₆)).mul
     (isBoundedAtImInfty_wpNorm ha₁ ha₂ h0)
-
-private theorem qExpansion_coeff_width (f : ℍ → ℂ) {N : ℕ} (hN : N ≠ 0)
-    (hper : Function.Periodic (f ∘ ofComplex) 1) (hhol : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) f)
-    (hbd : IsBoundedAtImInfty f) (n : ℕ) :
-    (qExpansion N f).coeff n =
-      if N ∣ n then (qExpansion 1 f).coeff (n / N) else 0 :=
-  (r2_package hN).2.2.2.1 f hper hhol hbd n
 
 private theorem periodic_frickeH {N a₁ a₂ : ℕ} (ha₁ : a₁ < N) (ha₂ : a₂ < N) (h0 : a₁ ≠ 0 ∨ a₂ ≠ 0) :
     Function.Periodic (frickeH N a₁ a₂ ∘ ofComplex) N := by
@@ -443,29 +278,7 @@ private theorem span_SL2_basis_change {a b c d : ℤ} (hdet : a * d - b * c = 1)
     · simp only [zsmul_eq_mul, Int.cast_neg]; linear_combination ω₁ * hdetC
     · simp only [zsmul_eq_mul, Int.cast_neg]; linear_combination ω₂ * hdetC
 
-private def denomZ (γ : SL(2, ℤ)) (τ : ℂ) : ℂ := (γ 1 0 : ℤ) * τ + (γ 1 1 : ℤ)
-
 private def numZ (γ : SL(2, ℤ)) (τ : ℂ) : ℂ := (γ 0 0 : ℤ) * τ + (γ 0 1 : ℤ)
-
-private lemma denomZ_ne_zero (γ : SL(2, ℤ)) (τ : ℍ) : denomZ γ (τ : ℂ) ≠ 0 := by
-  intro h
-  have him : ((γ 1 0 : ℤ) : ℝ) * (τ : ℂ).im = 0 := by
-    have := congrArg Complex.im h
-    simp only [denomZ, Complex.add_im, Complex.mul_im, Complex.intCast_im, zero_mul,
-      Complex.intCast_re, add_zero, Complex.zero_im] at this
-    linarith
-  have hc0 : (γ 1 0 : ℤ) = 0 := by
-    rcases mul_eq_zero.mp him with h | h
-    · exact_mod_cast h
-    · exact absurd h (UpperHalfPlane.coe_im τ ▸ τ.im_ne_zero)
-  have hd0 : (γ 1 1 : ℤ) = 0 := by
-    have := h
-    rw [denomZ, hc0] at this
-    simpa using this
-  have hdet : γ 0 0 * γ 1 1 - γ 0 1 * γ 1 0 = 1 := by
-    have := γ.2; rwa [Matrix.det_fin_two] at this
-  rw [hc0, hd0] at hdet
-  simp at hdet
 
 private lemma coe_SL2Z_smul (γ : SL(2, ℤ)) (τ : ℍ) :
     ((γ • τ : ℍ) : ℂ) = numZ γ (τ : ℂ) / denomZ γ (τ : ℂ) := by
@@ -551,13 +364,6 @@ private def frickeFn (N : ℕ) (a : Fin 2 → ZMod N) (τ : ℍ) : ℂ :=
   frickePrefactor (periodPairOfTau τ) *
     weierstrassP (periodPairOfTau τ) (frickeTorsionPt N a τ)
 
-private def vecMulSL (N : ℕ) (a : Fin 2 → ZMod N) (γ : SL(2, ℤ)) : Fin 2 → ZMod N :=
-  Matrix.vecMul a ((γ : Matrix (Fin 2) (Fin 2) ℤ).map ((↑) : ℤ → ZMod N))
-
-private lemma vecMulSL_apply (N : ℕ) (a : Fin 2 → ZMod N) (γ : SL(2, ℤ)) (j : Fin 2) :
-    vecMulSL N a γ j = a 0 * (γ 0 j : ℤ) + a 1 * (γ 1 j : ℤ) := by
-  simp [vecMulSL, Matrix.vecMul, dotProduct, Fin.sum_univ_two, Matrix.map_apply]
-
 private theorem frickeFn_slash {N : ℕ} [NeZero N] (a : Fin 2 → ZMod N) (γ : SL(2, ℤ)) (τ : ℍ) :
     frickeFn N a (γ • τ) = frickeFn N (vecMulSL N a γ) τ := by
   have hd : denomZ γ (τ : ℂ) ≠ 0 := denomZ_ne_zero γ τ
@@ -617,12 +423,6 @@ private theorem weierstrassP_frickeTorsionPt_slash {N : ℕ} [NeZero N] (a : Fin
   · rw [vecMulSL_apply]; push_cast; simp only [ZMod.natCast_val, ZMod.cast_id]
   · rw [vecMulSL_apply]; push_cast; simp only [ZMod.natCast_val, ZMod.cast_id]
 
-private lemma vecMulSL_of_mem_Gamma {N : ℕ} (a : Fin 2 → ZMod N) {γ : SL(2, ℤ)}
-    (hγ : γ ∈ CongruenceSubgroup.Gamma N) : vecMulSL N a γ = a := by
-  obtain ⟨h₀₀, h₀₁, h₁₀, h₁₁⟩ := CongruenceSubgroup.Gamma_mem.mp hγ
-  funext j
-  fin_cases j <;> simp [vecMulSL_apply, h₀₀, h₀₁, h₁₀, h₁₁]
-
 private theorem frickeFn_invariant_Gamma {N : ℕ} [NeZero N] (a : Fin 2 → ZMod N)
     {γ : SL(2, ℤ)} (hγ : γ ∈ CongruenceSubgroup.Gamma N) (τ : ℍ) :
     frickeFn N a (γ • τ) = frickeFn N a τ := by
@@ -653,12 +453,6 @@ open scoped UpperHalfPlane Manifold MatrixGroups
 open UpperHalfPlane hiding I
 open Matrix.SpecialLinearGroup
 
-private lemma denom_mapGL_eq_denomZ (γ : SL(2, ℤ)) (τ : ℍ) :
-    denom (mapGL ℝ γ) τ = denomZ γ τ := by
-  simp [denom, denomZ]
-
-private def wpNormZ (N : ℕ) (a : Fin 2 → ZMod N) (τ : ℍ) : ℂ := wpNorm N (a 0).val (a 1).val τ
-
 private lemma wpNormZ_eq (N : ℕ) (a : Fin 2 → ZMod N) (τ : ℍ) :
     wpNormZ N a τ = ((2 * π * I) ^ 2)⁻¹ *
       PeriodPair.weierstrassP (periodPairOfTau τ) (frickeTorsionPt N a τ) := by
@@ -668,9 +462,6 @@ private theorem wpNormZ_slash {N : ℕ} [NeZero N] (a : Fin 2 → ZMod N) (γ : 
     wpNormZ N a (γ • τ) = denomZ γ τ ^ 2 * wpNormZ N (vecMulSL N a γ) τ := by
   rw [wpNormZ_eq, wpNormZ_eq, weierstrassP_frickeTorsionPt_slash]
   ring
-
-private def frickeF (N : ℕ) (a : Fin 2 → ZMod N) (τ : ℍ) : ℂ :=
-  -(ModularForm.E₄ τ * ModularForm.E₆ τ / ModularForm.discriminant τ) / 2592 * wpNormZ N a τ
 
 private theorem frickeF_slash {N : ℕ} [NeZero N] (a : Fin 2 → ZMod N) (γ : SL(2, ℤ)) (τ : ℍ) :
     frickeF N a (γ • τ) = frickeF N (vecMulSL N a γ) τ := by
@@ -690,18 +481,6 @@ private theorem frickeF_invariant_Gamma {N : ℕ} [NeZero N] (a : Fin 2 → ZMod
     (hγ : γ ∈ CongruenceSubgroup.Gamma N) (τ : ℍ) : frickeF N a (γ • τ) = frickeF N a τ := by
   rw [frickeF_slash, vecMulSL_of_mem_Gamma a hγ]
 
-private lemma vecMulSL_mul (N : ℕ) (a : Fin 2 → ZMod N) (γ δ : SL(2, ℤ)) :
-    vecMulSL N a (γ * δ) = vecMulSL N (vecMulSL N a γ) δ := by
-  have hmap : ((γ * δ : SL(2, ℤ)) : Matrix (Fin 2) (Fin 2) ℤ).map ((↑) : ℤ → ZMod N) =
-      (γ : Matrix (Fin 2) (Fin 2) ℤ).map ((↑) : ℤ → ZMod N) *
-        (δ : Matrix (Fin 2) (Fin 2) ℤ).map ((↑) : ℤ → ZMod N) := by
-    rw [Matrix.SpecialLinearGroup.coe_mul]
-    exact Matrix.map_mul (f := Int.castRingHom (ZMod N))
-  simp only [vecMulSL, hmap, Matrix.vecMul_vecMul]
-
-private lemma vecMulSL_one (N : ℕ) (a : Fin 2 → ZMod N) : vecMulSL N a 1 = a := by
-  simp [vecMulSL]
-
 private def vecMulSLEquiv (N : ℕ) (γ : SL(2, ℤ)) : Equiv.Perm (Fin 2 → ZMod N) where
   toFun a := vecMulSL N a γ
   invFun a := vecMulSL N a γ⁻¹
@@ -711,20 +490,6 @@ private def vecMulSLEquiv (N : ℕ) (γ : SL(2, ℤ)) : Equiv.Perm (Fin 2 → ZM
   right_inv a := by
     show vecMulSL N (vecMulSL N a γ⁻¹) γ = a
     rw [← vecMulSL_mul, inv_mul_cancel, vecMulSL_one]
-
-private lemma vecMulSL_zero (N : ℕ) (γ : SL(2, ℤ)) : vecMulSL N 0 γ = 0 := by
-  funext j; simp [vecMulSL_apply]
-
-private lemma vecMulSL_ne_zero {N : ℕ} {a : Fin 2 → ZMod N} (ha : a ≠ 0) (γ : SL(2, ℤ)) :
-    vecMulSL N a γ ≠ 0 := by
-  intro h
-  apply ha
-  have := congrArg (fun b ↦ vecMulSL N b γ⁻¹) h
-  simpa [← vecMulSL_mul, vecMulSL_one, vecMulSL_zero] using this
-
-private abbrev FrickeIdx (N : ℕ) : Type := {a : Fin 2 → ZMod N // a ≠ 0}
-
-private scoped instance (N : ℕ) [NeZero N] : Fintype (FrickeIdx N) := by unfold FrickeIdx; infer_instance
 
 private def frickeIdxPerm (N : ℕ) (γ : SL(2, ℤ)) : Equiv.Perm (FrickeIdx N) :=
   (vecMulSLEquiv N γ).subtypeEquiv fun a ↦
@@ -987,33 +752,6 @@ private theorem frickeF_eq_imp {N : ℕ} [NeZero N] (a b : FrickeIdx N)
     have f1 : b.1 1 = -a.1 1 := ZMod.val_injective N (by rw [e1, ZMod.neg_val'])
     funext j
     fin_cases j <;> simp [f0, f1]
-
-private theorem mem_Gamma_or_neg_mem_of_vecMulSL {N : ℕ} [NeZero N] (γ : SL(2, ℤ))
-    (h : ∀ a : Fin 2 → ZMod N, a ≠ 0 → vecMulSL N a γ = a ∨ vecMulSL N a γ = -a) :
-    γ ∈ CongruenceSubgroup.Gamma N ∨ -γ ∈ CongruenceSubgroup.Gamma N := by
-  rcases Nat.lt_or_ge 1 N with hN | hN
-  · have : Fact (1 < N) := ⟨hN⟩
-    have h10 : (1 : ZMod N) ≠ 0 := one_ne_zero
-    have r1 := h ![1, 0] (fun e ↦ h10 (by simpa using congrFun e 0))
-    have r2 := h ![0, 1] (fun e ↦ h10 (by simpa using congrFun e 1))
-    have r3 := h ![1, 1] (fun e ↦ h10 (by simpa using congrFun e 0))
-    simp only [funext_iff, Fin.forall_fin_two, vecMulSL_apply, Matrix.cons_val_zero,
-      Matrix.cons_val_one, Matrix.cons_val_fin_one, one_mul, zero_mul, add_zero, zero_add,
-      Pi.neg_apply, neg_zero] at r1 r2 r3
-    have e01 : ((γ 0 1 : ℤ) : ZMod N) = 0 := by rcases r1 with ⟨_, e⟩ | ⟨_, e⟩ <;> exact e
-    have e10 : ((γ 1 0 : ℤ) : ZMod N) = 0 := by rcases r2 with ⟨e, _⟩ | ⟨e, _⟩ <;> exact e
-    have e0011 : ((γ 0 0 : ℤ) : ZMod N) = ((γ 1 1 : ℤ) : ZMod N) := by
-      rcases r3 with ⟨c1, c2⟩ | ⟨c1, c2⟩ <;>
-        (rw [e10, add_zero] at c1; rw [e01, zero_add] at c2; rw [c1, c2])
-    rw [CongruenceSubgroup.Gamma_mem, CongruenceSubgroup.Gamma_mem]
-    simp only [Matrix.SpecialLinearGroup.coe_neg, Matrix.neg_apply, Int.cast_neg, neg_eq_zero]
-    rcases r1 with ⟨a1, _⟩ | ⟨a1, _⟩
-    · left; exact ⟨a1, e01, e10, by rw [← e0011]; exact a1⟩
-    · right; exact ⟨by rw [a1, neg_neg], e01, e10, by rw [← e0011, a1, neg_neg]⟩
-  · have : N = 1 := by have := NeZero.ne N; omega
-    subst this
-    left
-    simp [CongruenceSubgroup.Gamma_one_top]
 
 private theorem frickeF_faithful {N : ℕ} [NeZero N] (γ : SL(2, ℤ))
     (h : ∀ i : FrickeIdx N, ∀ τ : ℍ, frickeF N i.1 (γ • τ) = frickeF N i.1 τ) :
@@ -1297,14 +1035,6 @@ private def frickeF (N : ℕ) (a : Fin 2 → ZMod N) (τ : ℍ) : ℂ :=
   -(ModularForm.E₄ τ * ModularForm.E₆ τ / ModularForm.discriminant τ) / 2592 * wpNormZ N a τ
 
 private abbrev FrickeIdx (N : ℕ) : Type := {a : Fin 2 → ZMod N // a ≠ 0}
-
-private def KPoleAt (K : IntermediateField ℚ ℂ) (N m : ℕ) (f : ℍ → ℂ) : Prop :=
-  Function.Periodic ((f * ⇑CuspForm.discriminant ^ m) ∘ ofComplex) N ∧
-    IsBoundedAtImInfty (f * ⇑CuspForm.discriminant ^ m) ∧
-    ∀ n : ℕ, (qExpansion N (f * ⇑CuspForm.discriminant ^ m)).coeff n ∈ K
-
-private def KPole (K : IntermediateField ℚ ℂ) (N : ℕ) (f : ℍ → ℂ) : Prop :=
-  MDiff f ∧ ∃ m : ℕ, KPoleAt K N m f
 
 open UpperHalfPlane hiding I
 
@@ -1658,38 +1388,8 @@ section B6_fixedFrac
 
 variable {A : Type*} [CommRing A] {G : Type*} [Group G] [Fintype G] [MulSemiringAction G A]
 
-private lemma smul_prod_smul_eq (v : A) (g₀ : G) : g₀ • (∏ g : G, g • v) = ∏ g : G, g • v := by
-  rw [show g₀ • (∏ g : G, g • v) = MulSemiringAction.toRingHom G A g₀ (∏ g : G, g • v) from rfl,
-    map_prod]
-  simp only [MulSemiringAction.toRingHom_apply, smul_smul]
-  exact Fintype.prod_equiv (Equiv.mulLeft g₀) _ _ fun g ↦ rfl
-
 variable [IsDomain A] {K : Type*} [Field K] [Algebra A K] [IsFractionRing A K]
   [MulSemiringAction G K]
-
-private theorem exists_fixed_div_of_fixed
-    (hcompat : ∀ (g : G) (a : A), g • algebraMap A K a = algebraMap A K (g • a))
-    (x : K) (hx : ∀ g : G, g • x = x) :
-    ∃ a b : A, (∀ g : G, g • a = a) ∧ (∀ g : G, g • b = b) ∧ algebraMap A K b ≠ 0 ∧
-      x * algebraMap A K b = algebraMap A K a := by
-  classical
-  obtain ⟨u, v, hv, rfl⟩ := IsFractionRing.div_surjective (A := A) x
-  have hv0 : v ≠ 0 := nonZeroDivisors.ne_zero hv
-  have hinj : Function.Injective (algebraMap A K) := IsFractionRing.injective A K
-  set b : A := ∏ g : G, g • v with hb
-  set a : A := u * ∏ g ∈ (Finset.univ : Finset G).erase 1, g • v with ha
-  have hbfix : ∀ g : G, g • b = b := fun g ↦ smul_prod_smul_eq v g
-  have hb0 : algebraMap A K b ≠ 0 := by
-    rw [map_ne_zero_iff _ hinj, hb]
-    exact Finset.prod_ne_zero_iff.mpr fun g _ ↦ (smul_ne_zero_iff_ne g).mpr hv0
-  have hxb : algebraMap A K u / algebraMap A K v * algebraMap A K b = algebraMap A K a := by
-    have hv0' : algebraMap A K v ≠ 0 := (map_ne_zero_iff _ hinj).mpr hv0
-    rw [hb, ← Finset.mul_prod_erase _ _ (Finset.mem_univ (1 : G)), one_smul, ha, map_mul,
-      map_mul]
-    field_simp
-  refine ⟨a, b, fun g ↦ ?_, hbfix, hb0, hxb⟩
-  apply hinj
-  rw [← hcompat, ← hxb, smul_mul', hx, hcompat, hbfix]
 
 end B6_fixedFrac
 
@@ -1703,15 +1403,6 @@ variable {I : Type*} [Fintype I] (h : I → ℍ → ℂ) (m : ℕ)
 
 private def orbitCoeff (k : ℕ) : ℍ → ℂ := fun τ => (∏ i, (X - C (h i τ))).coeff k
 
-private lemma coeff_X_sub_C_mul (a : ℂ) (p : Polynomial ℂ) (k : ℕ) :
-    ((X - C a) * p).coeff k = (if k = 0 then 0 else p.coeff (k - 1)) - a * p.coeff k := by
-  rw [sub_mul, Polynomial.coeff_sub, Polynomial.coeff_C_mul]
-  congr 1
-  cases k with
-  | zero => simp [Polynomial.mul_coeff_zero]
-  | succ k' => simp [Polynomial.coeff_X_mul]
-
-omit [Fintype I] in
 private lemma mdiff_orbitCoeff_prod (hhol : ∀ i, MDiff (h i)) (s : Finset I) (k : ℕ) :
     MDiff ((fun τ : ℍ => (∏ i ∈ s, (X - C (h i τ))).coeff k) : ℍ → ℂ) := by
   induction s using Finset.cons_induction generalizing k with
@@ -1731,73 +1422,6 @@ private lemma mdiff_orbitCoeff_prod (hhol : ∀ i, MDiff (h i)) (s : Finset I) (
     | succ k' =>
       simp only [ite_eq_right (Nat.succ_ne_zero k'), Nat.add_sub_cancel]
       exact (ih k').sub ((hhol a).mul (ih (k' + 1)))
-
-omit [Fintype I] in
-private lemma bounded_orbitCoeff_prod
-    (hbd : ∀ i, IsBoundedAtImInfty (h i * ⇑CuspForm.discriminant ^ m)) (s : Finset I) (k : ℕ) :
-    IsBoundedAtImInfty (fun τ =>
-      (∏ i ∈ s, (X - C (h i τ))).coeff k * CuspForm.discriminant τ ^ ((s.card - k) * m)) := by
-  induction s using Finset.cons_induction generalizing k with
-  | empty =>
-    simp only [Finset.prod_empty, Polynomial.coeff_one, Finset.card_empty, Nat.zero_sub,
-      Nat.zero_mul, pow_zero, mul_one]
-    exact Filter.const_boundedAtFilter _ _
-  | cons a s ha ih =>
-    have hdeg : ∀ τ : ℍ, (∏ i ∈ s, (X - C (h i τ))).natDegree = s.card := by
-      intro τ
-      rw [natDegree_prod_of_monic _ _ (fun i _ => monic_X_sub_C (h i τ))]
-      simp
-    cases k with
-    | zero =>
-      have hshape : (fun τ : ℍ =>
-          (∏ i ∈ Finset.cons a s ha, (X - C (h i τ))).coeff 0 *
-            CuspForm.discriminant τ ^ (((Finset.cons a s ha).card - 0) * m)) = fun τ : ℍ =>
-          -((h a τ * CuspForm.discriminant τ ^ m) *
-            ((∏ i ∈ s, (X - C (h i τ))).coeff 0 *
-              CuspForm.discriminant τ ^ ((s.card - 0) * m))) := by
-        funext τ
-        rw [Finset.prod_cons, coeff_X_sub_C_mul, ite_eq_left rfl, Finset.card_cons, Nat.sub_zero,
-          Nat.sub_zero, zero_sub, show (s.card + 1) * m = m + s.card * m by ring, pow_add]
-        ring
-      rw [hshape]
-      exact ((hbd a).mul (ih 0)).neg
-    | succ k' =>
-      rcases Nat.lt_or_ge s.card (k' + 1) with hk | hk
-      · have hzero : ∀ τ : ℍ, (∏ i ∈ s, (X - C (h i τ))).coeff (k' + 1) = 0 := fun τ =>
-          coeff_eq_zero_of_natDegree_lt (by rw [hdeg τ]; exact hk)
-        have hshape : (fun τ : ℍ =>
-            (∏ i ∈ Finset.cons a s ha, (X - C (h i τ))).coeff (k' + 1) *
-              CuspForm.discriminant τ ^ (((Finset.cons a s ha).card - (k' + 1)) * m)) =
-            fun τ : ℍ =>
-            (∏ i ∈ s, (X - C (h i τ))).coeff k' *
-              CuspForm.discriminant τ ^ ((s.card - k') * m) := by
-          funext τ
-          rw [Finset.prod_cons, coeff_X_sub_C_mul, ite_eq_right (Nat.succ_ne_zero k'),
-            Nat.add_sub_cancel, hzero τ, mul_zero, sub_zero, Finset.card_cons,
-            Nat.succ_sub_succ]
-        rw [hshape]
-        exact ih k'
-      · have he2 : (s.card - k') * m = m + (s.card - (k' + 1)) * m := by
-          have h1 : s.card - k' = 1 + (s.card - (k' + 1)) := by omega
-          rw [h1]
-          ring
-        have hshape : (fun τ : ℍ =>
-            (∏ i ∈ Finset.cons a s ha, (X - C (h i τ))).coeff (k' + 1) *
-              CuspForm.discriminant τ ^ (((Finset.cons a s ha).card - (k' + 1)) * m)) =
-            fun τ : ℍ =>
-            ((∏ i ∈ s, (X - C (h i τ))).coeff k' *
-              CuspForm.discriminant τ ^ ((s.card - k') * m)) -
-            ((h a τ * CuspForm.discriminant τ ^ m) *
-              ((∏ i ∈ s, (X - C (h i τ))).coeff (k' + 1) *
-                CuspForm.discriminant τ ^ ((s.card - (k' + 1)) * m))) := by
-          funext τ
-          rw [Finset.prod_cons, coeff_X_sub_C_mul, ite_eq_right (Nat.succ_ne_zero k'),
-            Nat.add_sub_cancel, Finset.card_cons, Nat.succ_sub_succ, sub_mul]
-          congr 1
-          rw [he2, pow_add]
-          ring
-        rw [hshape]
-        exact (ih k').sub ((hbd a).mul (ih (k' + 1)))
 
 private theorem orbitCoeff_slash_invariant
     (hperm : ∀ γ : SL(2, ℤ), ∃ σ : Equiv.Perm I, ∀ i τ, h i (γ • τ) = h (σ i) τ)
@@ -1894,74 +1518,6 @@ section B6Ring
 open UpperHalfPlane ModularForm SlashInvariantForm ModularFormClass CuspForm ModularForm.CuspForm Polynomial Real.Polynomial Filter
 open scoped UpperHalfPlane ModularForm SlashInvariantForm ModularFormClass CuspForm ModularForm.CuspForm Polynomial Real.Polynomial Filter
 open scoped MatrixGroups Manifold
-
-private def PoleBounded (f : ℍ → ℂ) : Prop :=
-  MDiff f ∧ ∃ m : ℕ, IsBoundedAtImInfty (f * ⇑CuspForm.discriminant ^ m)
-
-private lemma isBoundedAtImInfty_discriminant : IsBoundedAtImInfty (⇑CuspForm.discriminant : ℍ → ℂ) :=
-  (CuspFormClass.zero_at_infty CuspForm.discriminant).boundedAtFilter
-
-private lemma isBoundedAtImInfty_discPow (n : ℕ) :
-    IsBoundedAtImInfty (⇑CuspForm.discriminant ^ n : ℍ → ℂ) := by
-  induction n with
-  | zero => exact pow_zero (⇑CuspForm.discriminant : ℍ → ℂ) ▸ const_boundedAtFilter _ (1 : ℂ)
-  | succ k ih =>
-    rw [pow_succ]
-    exact ih.mul isBoundedAtImInfty_discriminant
-
-private lemma IsBoundedAtImInfty.mul_discPow_mono {f : ℍ → ℂ} {m m' : ℕ} (hm : m ≤ m')
-    (h : IsBoundedAtImInfty (f * ⇑CuspForm.discriminant ^ m)) :
-    IsBoundedAtImInfty (f * ⇑CuspForm.discriminant ^ m') := by
-  have hshape : (f * ⇑CuspForm.discriminant ^ m' : ℍ → ℂ) =
-      (f * ⇑CuspForm.discriminant ^ m) * ⇑CuspForm.discriminant ^ (m' - m) := by
-    funext τ
-    simp only [Pi.mul_apply, Pi.pow_apply]
-    rw [mul_assoc, ← pow_add, Nat.add_sub_cancel' hm]
-  rw [hshape]
-  exact h.mul (isBoundedAtImInfty_discPow (m' - m))
-
-private lemma poleBounded_algebraMap (r : ℂ) : PoleBounded (algebraMap ℂ (ℍ → ℂ) r) := by
-  refine ⟨mdifferentiable_const, 0, ?_⟩
-  have hshape : ((algebraMap ℂ (ℍ → ℂ) r) * ⇑CuspForm.discriminant ^ 0 : ℍ → ℂ) =
-      fun _ => r := by
-    funext τ
-    simp
-  rw [hshape]
-  exact const_boundedAtFilter _ r
-
-private lemma PoleBounded.add {f g : ℍ → ℂ} (hf : PoleBounded f) (hg : PoleBounded g) :
-    PoleBounded (f + g) := by
-  obtain ⟨hf1, m1, hf2⟩ := hf
-  obtain ⟨hg1, m2, hg2⟩ := hg
-  refine ⟨hf1.add hg1, max m1 m2, ?_⟩
-  have hshape : ((f + g) * ⇑CuspForm.discriminant ^ max m1 m2 : ℍ → ℂ) =
-      f * ⇑CuspForm.discriminant ^ max m1 m2 + g * ⇑CuspForm.discriminant ^ max m1 m2 := by
-    funext τ
-    simp [add_mul]
-  rw [hshape]
-  exact (IsBoundedAtImInfty.mul_discPow_mono (le_max_left _ _) hf2).add
-    (IsBoundedAtImInfty.mul_discPow_mono (le_max_right _ _) hg2)
-
-private lemma PoleBounded.mul {f g : ℍ → ℂ} (hf : PoleBounded f) (hg : PoleBounded g) :
-    PoleBounded (f * g) := by
-  obtain ⟨hf1, m1, hf2⟩ := hf
-  obtain ⟨hg1, m2, hg2⟩ := hg
-  refine ⟨hf1.mul hg1, m1 + m2, ?_⟩
-  have hshape : ((f * g) * ⇑CuspForm.discriminant ^ (m1 + m2) : ℍ → ℂ) =
-      (f * ⇑CuspForm.discriminant ^ m1) * (g * ⇑CuspForm.discriminant ^ m2) := by
-    funext τ
-    simp only [Pi.mul_apply, Pi.pow_apply, pow_add]
-    ring
-  rw [hshape]
-  exact hf2.mul hg2
-
-private theorem poleBounded_of_mem_adjoin {S : Set (ℍ → ℂ)} (hS : ∀ f ∈ S, PoleBounded f)
-    {a : ℍ → ℂ} (ha : a ∈ Algebra.adjoin ℂ S) : PoleBounded a := by
-  induction ha using Algebra.adjoin_induction with
-  | mem f hf => exact hS f hf
-  | algebraMap r => exact poleBounded_algebraMap r
-  | add x y hx hy ihx ihy => exact ihx.add ihy
-  | mul x y hx hy ihx ihy => exact ihx.mul ihy
 
 private lemma poleBounded_j : PoleBounded j := by
   constructor
@@ -2464,109 +2020,10 @@ private lemma isBoundedAtImInfty_discPow (n : ℕ) :
     rw [pow_succ]
     exact ih.mul isBoundedAtImInfty_discriminant
 
-private lemma IsBoundedAtImInfty.mul_discPow_mono {f : ℍ → ℂ} {m m' : ℕ} (hm : m ≤ m')
-    (h : IsBoundedAtImInfty (f * ⇑CuspForm.discriminant ^ m)) :
-    IsBoundedAtImInfty (f * ⇑CuspForm.discriminant ^ m') := by
-  have hshape : (f * ⇑CuspForm.discriminant ^ m' : ℍ → ℂ) =
-      (f * ⇑CuspForm.discriminant ^ m) * ⇑CuspForm.discriminant ^ (m' - m) := by
-    funext τ
-    simp only [Pi.mul_apply, Pi.pow_apply]
-    rw [mul_assoc, ← pow_add, Nat.add_sub_cancel' hm]
-  rw [hshape]
-  exact h.mul (isBoundedAtImInfty_discPow (m' - m))
-
-private def discPowForm (m : ℕ) : ModularForm 𝒮ℒ (12 * m) :=
-  ModularForm.mcast (by ring) ((CuspForm.toModularFormₗ CuspForm.discriminant).pow m)
-
-private lemma discPowForm_coe (m : ℕ) : ⇑(discPowForm m) = ⇑CuspForm.discriminant ^ m := by
-  funext z
-  simp [discPowForm, ModularForm.coe_mcast, ModularForm.coe_pow,
-    CuspForm.toModularFormₗ_apply]
-
-private lemma periodic_one_fn (c : ℝ) : Function.Periodic ((1 : ℍ → ℂ) ∘ ofComplex) c := fun _ => rfl
-
-private lemma periodic_discPow_comp_ofComplex (k : ℕ) (N : ℕ) :
-    Function.Periodic ((⇑CuspForm.discriminant ^ k : ℍ → ℂ) ∘ ofComplex) N := by
-  have h1 : Function.Periodic (⇑CuspForm.discriminant ∘ ofComplex) 1 :=
-    SlashInvariantFormClass.periodic_comp_ofComplex CuspForm.discriminant
-      one_mem_strictPeriods_SL
-  have hk : Function.Periodic ((⇑CuspForm.discriminant ^ k : ℍ → ℂ) ∘ ofComplex) 1 := by
-    induction k with
-    | zero => exact periodic_one_fn 1
-    | succ k ih =>
-      intro x
-      have hx := (ih.mul h1) x
-      simp only [Function.comp_apply, Pi.mul_apply, Pi.pow_apply] at hx ⊢
-      rw [pow_succ, pow_succ]
-      exact hx
-  simpa using hk.nat_mul N
-
 private lemma mdiff_discPow (k : ℕ) :
     MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (⇑CuspForm.discriminant ^ k : ℍ → ℂ) := by
   rw [← discPowForm_coe]
   exact (discPowForm k).holo'
-
-private lemma mdiff_mul_discPow {f : ℍ → ℂ} (hf : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) f) (m : ℕ) :
-    MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (f * ⇑CuspForm.discriminant ^ m : ℍ → ℂ) :=
-  hf.mul (mdiff_discPow m)
-
-private lemma analyticAt_cuspFunction_zero_of [NeZero N] {g : ℍ → ℂ}
-    (hhol : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) g)
-    (hper : Function.Periodic (g ∘ ofComplex) N) (hbd : IsBoundedAtImInfty g) :
-    AnalyticAt ℂ (cuspFunction N g) 0 :=
-  analyticAt_cuspFunction_zero
-    (by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne N)) hper hhol hbd
-
-private lemma qExpansion_one_discPowForm (k : ℕ) :
-    qExpansion 1 (discPowForm k) = (qExpansion 1 ModularForm.discriminant) ^ k := by
-  rw [discPowForm, ModularForm.qExpansion_mcast,
-    ModularForm.qExpansion_pow one_pos one_mem_strictPeriods_SL]
-  have hco : (⇑(CuspForm.toModularFormₗ CuspForm.discriminant) : ℍ → ℂ) =
-      ModularForm.discriminant := by
-    funext z
-    rw [CuspForm.toModularFormₗ_apply]
-    exact congrFun CuspForm.coe_discriminant z
-  rw [hco]
-
-private lemma qExpansion_one_discPow (k : ℕ) :
-    qExpansion 1 (⇑CuspForm.discriminant ^ k : ℍ → ℂ) =
-      (qExpansion 1 ModularForm.discriminant) ^ k := by
-  rw [← discPowForm_coe]
-  exact qExpansion_one_discPowForm k
-
-private lemma qParam_one_eq_pow {N : ℕ} (hN : N ≠ 0) (τ : ℂ) :
-    Function.Periodic.qParam 1 τ = Function.Periodic.qParam N τ ^ N := by
-  have : (N : ℂ) ≠ 0 := by exact_mod_cast hN
-  simp only [Function.Periodic.qParam, Complex.ofReal_one, div_one, Complex.ofReal_natCast]
-  rw [← Complex.exp_nat_mul]
-  congr 1
-  field_simp
-
-private theorem qExpansion_coeff_width (f : ℍ → ℂ) {N : ℕ} (hN : N ≠ 0)
-    (hper : Function.Periodic (f ∘ ofComplex) 1) (hhol : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) f)
-    (hbd : IsBoundedAtImInfty f) (n : ℕ) :
-    (qExpansion N f).coeff n =
-      if N ∣ n then (qExpansion 1 f).coeff (n / N) else 0 := by
-  have hN' : (0 : ℝ) < N := by exact_mod_cast Nat.pos_of_ne_zero hN
-  have hperN : Function.Periodic (f ∘ ofComplex) N := by
-    simpa using hper.nat_mul N
-  let f' : C(ℍ, ℂ) := ⟨f, hhol.continuous⟩
-  have hfan : AnalyticAt ℂ (cuspFunction N f') 0 :=
-    analyticAt_cuspFunction_zero hN' hperN hhol hbd
-  set c : ℕ → ℂ := fun n ↦ if N ∣ n then (qExpansion 1 f).coeff (n / N) else 0 with hc
-  have hf : ∀ τ : ℍ, HasSum (fun m ↦ c m • Function.Periodic.qParam N τ ^ m) (f' τ) := by
-    intro τ
-    have h1 := hasSum_qExpansion one_pos hper hhol hbd τ
-    have hinj : Function.Injective fun m : ℕ ↦ N * m := fun a b h ↦ by
-      simpa [Nat.mul_right_inj hN] using h
-    refine (hinj.hasSum_iff (f := fun m ↦ c m • Function.Periodic.qParam N τ ^ m) ?_).mp ?_
-    · intro x hx
-      have : ¬ N ∣ x := fun ⟨k, hk⟩ ↦ hx ⟨k, hk.symm⟩
-      simp [hc, this]
-    · refine h1.congr_fun fun m ↦ ?_
-      simp only [Function.comp_apply, hc, Nat.dvd_mul_right, ite_true,
-        Nat.mul_div_cancel_left _ (Nat.pos_of_ne_zero hN), qParam_one_eq_pow hN, ← pow_mul]
-  exact (qExpansion_coeff_unique f' hN' hfan hf n).symm
 
 end QKit
 
@@ -2595,67 +2052,6 @@ private lemma ratCoeff_sub {p q : PowerSeries ℂ}
   obtain ⟨b, hb⟩ := hq n
   exact ⟨a - b, by rw [map_sub, ha, hb]; push_cast; ring⟩
 
-private lemma ratCoeff_E {k : ℕ} (hk : 3 ≤ k) (hk2 : Even k) :
-    ∀ n : ℕ, ∃ q : ℚ, (qExpansion 1 (E hk)).coeff n = (q : ℂ) := by
-  intro n
-  rw [EisensteinSeries.E_qExpansion_coeff hk hk2]
-  by_cases hn : n = 0
-  · exact ⟨1, by simp [hn]⟩
-  · refine ⟨-(2 * k / _root_.bernoulli k) * (σ (k - 1) n : ℚ), ?_⟩
-    rw [ite_eq_right hn]
-    push_cast
-    ring
-
-private lemma ratCoeff_pow {p : PowerSeries ℂ}
-    (hp : ∀ n : ℕ, ∃ a : ℚ, p.coeff n = (a : ℂ)) (k : ℕ) :
-    ∀ n : ℕ, ∃ a : ℚ, (p ^ k).coeff n = (a : ℂ) := by
-  induction k with
-  | zero =>
-    intro n
-    rw [pow_zero]
-    by_cases hn : n = 0
-    · exact ⟨1, by simp [hn, PowerSeries.coeff_one]⟩
-    · exact ⟨0, by simp [PowerSeries.coeff_one, hn]⟩
-  | succ k ih =>
-    rw [pow_succ]
-    exact ratCoeff_mul ih hp
-
-private def eCubeSubESq : ModularForm 𝒮ℒ 12 :=
-  ModularForm.mcast (by decide) (E₄.pow 3) - ModularForm.mcast (by decide) (E₆.pow 2)
-
-private lemma eCubeSubESq_qExpansion :
-    qExpansion 1 eCubeSubESq = qExpansion 1 E₄ * qExpansion 1 E₄ * qExpansion 1 E₄ -
-      qExpansion 1 E₆ * qExpansion 1 E₆ := by
-  simp only [eCubeSubESq, FunLike.coe_sub, ModularForm.coe_mcast,
-    ModularForm.qExpansion_sub one_pos one_mem_strictPeriods_SL,
-    ModularForm.qExpansion_pow one_pos one_mem_strictPeriods_SL]
-  ring
-
-private lemma discriminant_eq_smul_eCubeSubESq :
-    ModularForm.discriminant = (1 / 1728 : ℂ) • eCubeSubESq := by
-  ext z
-  have h := discriminant_eq_E₄_cube_sub_E₆_sq z
-  simp only [Pi.smul_apply, eCubeSubESq, FunLike.coe_sub, Pi.sub_apply,
-    ModularForm.coe_mcast, ModularForm.coe_pow, Pi.pow_apply, smul_eq_mul]
-  rw [h]
-  ring
-
-private lemma ratCoeff_discriminant :
-    ∀ n : ℕ, ∃ q : ℚ, (qExpansion 1 ModularForm.discriminant).coeff n = (q : ℂ) := by
-  have h4 : ∀ n : ℕ, ∃ q : ℚ, (qExpansion 1 E₄).coeff n = (q : ℂ) :=
-    ratCoeff_E (by norm_num) (by decide)
-  have h6 : ∀ n : ℕ, ∃ q : ℚ, (qExpansion 1 E₆).coeff n = (q : ℂ) :=
-    ratCoeff_E (by norm_num) (by decide)
-  have hmain := ratCoeff_sub (ratCoeff_mul (ratCoeff_mul h4 h4) h4) (ratCoeff_mul h6 h6)
-  intro n
-  obtain ⟨a, ha⟩ := hmain n
-  refine ⟨(1 / 1728 : ℚ) * a, ?_⟩
-  rw [discriminant_eq_smul_eCubeSubESq,
-    ModularForm.qExpansion_smul one_pos one_mem_strictPeriods_SL,
-    PowerSeries.coeff_smul, eCubeSubESq_qExpansion, smul_eq_mul, ha]
-  push_cast
-  ring
-
 end RatCoeff
 
 section KPoleAlgebra
@@ -2664,26 +2060,10 @@ open ModularForm
 
 variable {N : ℕ}
 
-private lemma mem_of_rat (K : IntermediateField ℚ ℂ) {x : ℂ} (h : ∃ q : ℚ, x = (q : ℂ)) : x ∈ K := by
-  obtain ⟨q, rfl⟩ := h
-  exact SubfieldClass.ratCast_mem K q
-
 private def KPoleAt (K : IntermediateField ℚ ℂ) (N m : ℕ) (f : ℍ → ℂ) : Prop :=
   Function.Periodic ((f * ⇑CuspForm.discriminant ^ m) ∘ ofComplex) N ∧
     IsBoundedAtImInfty (f * ⇑CuspForm.discriminant ^ m) ∧
     ∀ n : ℕ, (qExpansion N (f * ⇑CuspForm.discriminant ^ m)).coeff n ∈ K
-
-private lemma qExpansion_discPow_coeff_mem (K : IntermediateField ℚ ℂ) [NeZero N] (k n : ℕ) :
-    (qExpansion N (⇑CuspForm.discriminant ^ k : ℍ → ℂ)).coeff n ∈ K := by
-  have hper : Function.Periodic
-      ((⇑CuspForm.discriminant ^ k : ℍ → ℂ) ∘ ofComplex) (1 : ℂ) := by
-    have h := periodic_discPow_comp_ofComplex k 1
-    simpa only [Nat.cast_one] using h
-  rw [qExpansion_coeff_width _ (NeZero.ne N) hper (mdiff_discPow k)
-    (isBoundedAtImInfty_discPow k), qExpansion_one_discPow]
-  split
-  · exact mem_of_rat K (ratCoeff_pow ratCoeff_discriminant k _)
-  · exact zero_mem _
 
 private lemma KPoleAt.pad {K : IntermediateField ℚ ℂ} [NeZero N] {f : ℍ → ℂ} {m m' : ℕ}
     (hhol : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) f) (hm : m ≤ m') (h : KPoleAt K N m f) :
@@ -2717,127 +2097,13 @@ open Filter Function
 
 variable {N : ℕ}
 
-private lemma kPole_algebraMap {K : IntermediateField ℚ ℂ} [NeZero N] (c : ↥K) :
-    KPole K N (algebraMap ↥K (ℍ → ℂ) c) := by
-  have hshape : ((algebraMap ↥K (ℍ → ℂ) c) * ⇑CuspForm.discriminant ^ 0 : ℍ → ℂ) =
-      (c : ℂ) • (1 : ℍ → ℂ) := by
-    funext τ
-    simp only [Pi.mul_apply, pow_zero, mul_one, Pi.smul_apply, Pi.one_apply,
-      smul_eq_mul]
-    rfl
-  have hone_bd : IsBoundedAtImInfty (1 : ℍ → ℂ) := by
-    have h1 : (1 : ℍ → ℂ) = fun _ : ℍ => (1 : ℂ) := rfl
-    rw [h1]
-    exact Filter.const_boundedAtFilter _ _
-  refine ⟨mdifferentiable_const, 0, ?_, ?_, ?_⟩
-  · rw [hshape]
-    intro x
-    rfl
-  · rw [hshape]
-    have hc : ((c : ℂ) • (1 : ℍ → ℂ)) = fun _ : ℍ => (c : ℂ) := by
-      funext τ
-      simp
-    rw [hc]
-    exact Filter.const_boundedAtFilter _ _
-  · intro n
-    have han : AnalyticAt ℂ (cuspFunction N (1 : ℍ → ℂ)) 0 :=
-      analyticAt_cuspFunction_zero_of (g := (1 : ℍ → ℂ)) mdifferentiable_const
-        (periodic_one_fn N) hone_bd
-    rw [hshape, qExpansion_smul han,
-      qExpansion_one, PowerSeries.coeff_smul, smul_eq_mul, PowerSeries.coeff_one]
-    split
-    · rw [mul_one]
-      exact c.2
-    · rw [mul_zero]
-      exact zero_mem _
-
-private lemma KPole.add {K : IntermediateField ℚ ℂ} [NeZero N] {f g : ℍ → ℂ}
-    (hf : KPole K N f) (hg : KPole K N g) : KPole K N (f + g) := by
-  obtain ⟨hf1, m1, hfd⟩ := hf
-  obtain ⟨hg1, m2, hgd⟩ := hg
-  obtain ⟨hfper, hfbd, hfmem⟩ := hfd.pad hf1 (le_max_left m1 m2)
-  obtain ⟨hgper, hgbd, hgmem⟩ := hgd.pad hg1 (le_max_right m1 m2)
-  have hshape : ((f + g) * ⇑CuspForm.discriminant ^ max m1 m2 : ℍ → ℂ) =
-      f * ⇑CuspForm.discriminant ^ max m1 m2 + g * ⇑CuspForm.discriminant ^ max m1 m2 := by
-    funext τ
-    simp [add_mul]
-  refine ⟨hf1.add hg1, max m1 m2, ?_, ?_, ?_⟩
-  · rw [hshape]
-    exact hfper.add hgper
-  · rw [hshape]
-    exact hfbd.add hgbd
-  · intro n
-    rw [hshape, qExpansion_add
-      (analyticAt_cuspFunction_zero_of (mdiff_mul_discPow hf1 _) hfper hfbd)
-      (analyticAt_cuspFunction_zero_of (mdiff_mul_discPow hg1 _) hgper hgbd),
-      map_add]
-    exact add_mem (hfmem n) (hgmem n)
-
-private lemma KPole.mul {K : IntermediateField ℚ ℂ} [NeZero N] {f g : ℍ → ℂ}
-    (hf : KPole K N f) (hg : KPole K N g) : KPole K N (f * g) := by
-  obtain ⟨hf1, m1, hfper, hfbd, hfmem⟩ := hf
-  obtain ⟨hg1, m2, hgper, hgbd, hgmem⟩ := hg
-  have hshape : ((f * g) * ⇑CuspForm.discriminant ^ (m1 + m2) : ℍ → ℂ) =
-      (f * ⇑CuspForm.discriminant ^ m1) * (g * ⇑CuspForm.discriminant ^ m2) := by
-    funext τ
-    simp only [Pi.mul_apply, Pi.pow_apply, pow_add]
-    ring
-  refine ⟨hf1.mul hg1, m1 + m2, ?_, ?_, ?_⟩
-  · rw [hshape]
-    exact hfper.mul hgper
-  · rw [hshape]
-    exact hfbd.mul hgbd
-  · intro n
-    rw [hshape, qExpansion_mul
-      (analyticAt_cuspFunction_zero_of (mdiff_mul_discPow hf1 _) hfper hfbd)
-      (analyticAt_cuspFunction_zero_of (mdiff_mul_discPow hg1 _) hgper hgbd),
-      PowerSeries.coeff_mul]
-    exact sum_mem fun ij _ => mul_mem (hfmem ij.1) (hgmem ij.2)
-
-private lemma kPole_jf (K : IntermediateField ℚ ℂ) [NeZero N] {jf : ℍ → ℂ}
-    (hjf : ∀ τ : ℍ, jf τ = ModularForm.E₄ τ ^ 3 / ModularForm.discriminant τ) :
-    KPole K N jf := by
-  have hshape : (jf * ⇑CuspForm.discriminant ^ 1 : ℍ → ℂ) = ⇑(ModularForm.E₄.pow 3) := by
-    funext τ
-    rw [congrFun (ModularForm.coe_pow ModularForm.E₄ 3) τ, Pi.pow_apply]
-    simp only [Pi.mul_apply, pow_one, hjf τ]
-    rw [congrFun CuspForm.coe_discriminant τ]
-    exact div_mul_cancel₀ _ (ModularForm.discriminant_ne_zero τ)
-  have hhol3 : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (⇑(ModularForm.E₄.pow 3) : ℍ → ℂ) :=
-    (ModularForm.E₄.pow 3).holo'
-  have hbd3 : IsBoundedAtImInfty (⇑(ModularForm.E₄.pow 3) : ℍ → ℂ) :=
-    ModularFormClass.bdd_at_infty (ModularForm.E₄.pow 3)
-  have hper3 : Function.Periodic ((⇑(ModularForm.E₄.pow 3) : ℍ → ℂ) ∘ ofComplex) 1 :=
-    SlashInvariantFormClass.periodic_comp_ofComplex (ModularForm.E₄.pow 3)
-      one_mem_strictPeriods_SL
-  have hjmd : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) jf := by
-    have : jf = fun τ => ModularForm.E₄ τ ^ 3 / ModularForm.discriminant τ := funext hjf
-    rw [this]
-    exact (ModularForm.E₄.holo'.pow 3).div CuspForm.discriminant.holo'
-      ModularForm.discriminant_ne_zero
-  refine ⟨hjmd, 1, ?_, ?_, ?_⟩
-  · rw [hshape]
-    simpa using hper3.nat_mul N
-  · rw [hshape]
-    exact hbd3
-  · intro n
-    rw [hshape, qExpansion_coeff_width (⇑(ModularForm.E₄.pow 3) : ℍ → ℂ) (NeZero.ne N)
-      hper3 hhol3 hbd3]
-    split
-    · have he : qExpansion 1 (⇑(ModularForm.E₄.pow 3) : ℍ → ℂ) =
-          (qExpansion 1 ModularForm.E₄) ^ 3 :=
-        ModularForm.qExpansion_pow one_pos one_mem_strictPeriods_SL ModularForm.E₄ 3
-      rw [he]
-      exact mem_of_rat K (ratCoeff_pow (ratCoeff_E (by norm_num) (by decide)) 3 _)
-    · exact zero_mem _
-
 private lemma kPole_of_mem_adjoin {K : IntermediateField ℚ ℂ} [NeZero N] {T : Set (ℍ → ℂ)}
     (hT : ∀ g ∈ T, KPole K N g) {x : ℍ → ℂ} (hx : x ∈ Algebra.adjoin ↥K T) : KPole K N x := by
   induction hx using Algebra.adjoin_induction with
   | mem g hg' => exact hT g hg'
   | algebraMap r => exact kPole_algebraMap r
-  | add x y _ _ hx hy => exact hx.add hy
-  | mul x y _ _ hx hy => exact hx.mul hy
+  | add x y _ _ hx hy => exact KPole.add hx hy
+  | mul x y _ _ hx hy => exact KPole.mul hx hy
 
 end KPoleAlgebra2
 
