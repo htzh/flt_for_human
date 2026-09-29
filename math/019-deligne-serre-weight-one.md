@@ -3,7 +3,7 @@
 **Status.** Mathematical exposition, pinned to the FLT pin `aa2d8b3`. This note
 explains the *mathematics* of the weight-one Deligne–Serre correspondence and
 places it among the other modularity theorems the FLT development uses. The Lean
-statements, the endgame route and the porting distance are collected in §8.
+statements, the endgame route and the porting distance are collected in §9.
 
 Companions: [011-tate-module.md](011-tate-module.md) (the $`\ell`$-adic
 representations attached to elliptic curves and to eigenforms of weight
@@ -52,7 +52,7 @@ feature that separates weight one from every other weight — see §2.
 
 **Oddness is not a hypothesis, it is a consequence.** The determinant of
 $`\rho_f`$ is $`\varepsilon`$, and weight-one forms force $`\varepsilon(-1) = -1`$
-(§7). So the representation is odd, exactly as in Serre's conjecture.
+(§8). So the representation is odd, exactly as in Serre's conjecture.
 
 **Irreducibility is equivalent to cuspidality.** An Eisenstein series of weight
 one has a reducible attached representation, a sum of two Dirichlet characters;
@@ -121,27 +121,77 @@ directly into Deligne's cohomological construction, which starts at weight two.
 The bridge is the **Deligne–Serre lifting** (the *relèvement*). The key observation
 is that multiplying a weight-one form by a weight-one **Eisenstein** series raises
 the weight to two: if $`E`$ is modular of weight one and $`f`$ is modular of
-weight one, then $`f E`$ is modular of weight two. Choosing $`E`$ with constant
-term $`1`$ and with all higher coefficients divisible by $`\ell`$, the product is
-congruent to $`f`$ modulo $`\ell`$:
+weight one, then $`f E`$ is a weight-two cusp form, and the multiplier $`E`$ can be
+chosen so that the reduction of $`f E`$ has the same Hecke eigenvalues as the
+reduction of $`f`$.
 
-$$f\\,E \\;\equiv\\; f \pmod{\ell}, \qquad \deg(fE) = 2.$$
+**The multiplier.** The series that raises the weight is a weight-one Eisenstein
+series $`E_1(1,\chi)`$ attached to a primitive odd Dirichlet character $`\chi`$
+modulo $`L`$. It is built analytically — through the cotangent expansion of the
+Weierstrass $`\zeta`$-function and the quasi-periods of the associated lattice
+functions — and its $`q`$-expansion is
 
-For $`\ell = 3`$ the series $`E_1(1,\chi_{-3}) = 1 + 6\sum_{n\ge1}\sigma_\chi(n)q^n`$
-of [014](014-chi-minus-3-eisenstein.md) is exactly such an $`E`$: its non-constant
-coefficients are divisible by $`6`$, hence by $`3`$. In general a weight-one
-Eisenstein series attached to a primitive odd character plays the same role, and
-FLT proves its existence and its divisor-sum $`q`$-expansion as
-`ModularForm.exists_weightOne_eisenstein_qCoeff_eq_of_isPrimitive_of_odd`.
+$$`E_1(1,\chi) \\;=\\; -\frac{1}{2L}\sum_{a \bmod L} a\,\chi(a) \\;+\; \sum_{n \ge 1}\Bigl(\sum_{d \mid n}\chi(d)\Bigr) q^n .`$$
 
-Once a weight-two mod-$`\ell`$ form congruent to $`f`$ is available, Deligne's
-construction applies to a genuine weight-two eigenform, and the compatible system
-over $`\ell`$ is pieced together. Rankin's bound (§2) then shows the system is
-Artin. The abstract step "a residual eigenform is the reduction of a genuine
-eigenform of the same weight" is the lifting lemma proper; FLT keeps it separate
-(`DeligneSerre.exists_hecke_eigen_reduction_eq_of_qCoeff_hecke_congr`) and
-specialises it to weight one $`\to`$ weight two
-(`DeligneSerre.exists_weightTwo_hecke_eigen_reduction_eq_of_weightOne_hecke_eigen`).
+Its constant term is the generalized Bernoulli number $`-B_{1,\chi}/2`$ and its
+higher coefficients are the divisor sums $`\sigma_\chi(n)`$. For $`\ell = 3`$ and
+$`\chi = \chi_{-3}`$ this is the series of
+[014](014-chi-minus-3-eisenstein.md), whose non-constant coefficients are
+divisible by $`6`$, hence by $`3`$. FLT proves both halves: the divisor-sum
+$`q`$-expansion
+(`ModularForm.exists_weightOne_eisenstein_qCoeff_eq_of_isPrimitive_of_odd`) and
+the analytic verification that the function is a weight-one form of the right
+slash covariance and bounded at the cusp
+(`EisensteinSeries.eisensteinG1_apply_smul_and_eisensteinG1_add`,
+`EisensteinSeries.isBoundedAtImInfty_eisensteinG1_and_hasSum_eisensteinG1`).
+
+In the lifting one takes $`\chi`$ of conductor supported on the residual prime
+$`\ell`$ — the Teichmüller character for odd $`\ell`$, the nontrivial character
+modulo $`4`$ for $`\ell = 2`$ — normalizes $`E_1(1,\chi)`$ by its constant term,
+and uses the congruence $`\chi(p)\,p \equiv 1`$ at good $`p`$. The product
+$`f\,E_1(1,\chi)`$ is then a weight-two cusp form whose residual Hecke eigenvalues
+agree with those of $`f`$.
+
+**The relèvement, in general form.** The abstract step is weight-independent, and
+FLT states it that way. If a cusp form $`h`$ of weight $`w`$ is an eigenform
+*modulo* a prime of the coefficient ring $`R`$ — the Hecke relation holds after
+applying $`\varphi : R \to \kappa`$ — and its reduction is nonzero, then a genuine
+weight-$`w`$ eigenform $`g`$ exists whose eigenvalues reduce to the same data. The
+proof is a lifting in the finite $`\mathbb{Z}`$-algebra generated by the Hecke
+operators on the finite-dimensional space $`S_w`$: the $`q`$-expansion is
+injective, so a residual eigenvector can be lifted and certified. This is
+`DeligneSerre.exists_hecke_eigen_reduction_eq_of_qCoeff_hecke_congr`; its
+weight-one $`\to`$ weight-two instance, obtained by multiplying by the multiplier
+above, is
+`DeligneSerre.exists_weightTwo_hecke_eigen_reduction_eq_of_weightOne_hecke_eigen`.
+Once a genuine weight-two eigenform is available, Deligne's construction applies
+and the compatible system over $`\ell`$ is pieced together; Rankin's bound (§2)
+then shows the system is Artin.
+
+**The coefficient ring, and Galois conjugation.** The Hecke eigenvalues of a
+weight-one eigenform are algebraic integers, and the subalgebra $`R`$ they and the
+nebentypus values generate inside $`\mathbb{C}`$,
+$`R = \mathbb{Z}[\,a_p,\ \varepsilon(x)\ :\ p \nmid N,\ x \in \mathbb{Z}/N\,]`$,
+is finite as a $`\mathbb{Z}`$-module. The finiteness is a
+trace argument: the Hecke operators preserve an integral lattice in the
+finite-dimensional $`S_1`$, and the eigenvalues of a family of operators preserving
+a spanning lattice generate a finite $`\mathbb{Z}`$-algebra
+(`Submodule.moduleFinite_adjoin_eigenvalues_of_map_le_of_span_eq_top`). Once $`R`$
+is finite, each ring homomorphism $`\tau : R \to \mathbb{C}`$ produces a
+*conjugate* eigenform: a normalized weight-one cusp form $`g`$ with
+$`a_p(g) = \tau(a_p(f))`$ and $`\varepsilon_g = \tau \circ \varepsilon`$. The
+eigenvector for the prescribed character is extracted from a minimal prime of the
+finite algebra
+(`DeligneSerre.exists_eigenvector_of_mem_minimalPrimes_of_faithfulSMul`), and the
+rationality of its coordinates in a basis of rational operators is what makes the
+conjugate form classical
+(`Module.Basis.repr_mem_range_ratCast_of_forall_dual`,
+`Module.Basis.exists_forall_apply_eq_ringHom_smul_of_repr_mem_range_ratCast`); the
+statement is
+`DeligneSerre.exists_subalgebra_qCoeff_mem_forall_ringHom_exists_qCoeff_eq_of_weightOne_hecke_eigen`.
+This is the algebraic form of "the absolute Galois group permutes the normalized
+weight-one newforms", and it is what lets the reductions at different primes be
+compared.
 
 **Converse: representation $`\to`$ form.** This is the harder half of [DS74], and
 it is where the bijection is proved. Given an odd irreducible two-dimensional
@@ -169,7 +219,61 @@ level exponents at the bad primes agree with the Artin conductor. This
 is what lets the converse produce a form at exactly the right level, not merely
 some level.
 
-## 4. Where it sits among the modularity theorems
+## 4. Assembling the representation from residual data
+
+The forward direction reaches $`\rho_f`$ by gluing its reductions modulo many
+primes. Three algebraic facts do the work, and a fourth analytic fact lets them be
+compared.
+
+**Semisimple descent of a reducible residual representation.** Suppose a residual
+representation has trace $`\chi_1 + \chi_2`$ and determinant $`\chi_1\chi_2`$ for
+two characters $`\chi_1, \chi_2`$ of $`G`$ that a priori take values in a large
+field $`\Omega`$, while both the sum and the product are known to lie in a
+subfield $`\kappa \subseteq \Omega`$. Then $`\chi_1`$ and $`\chi_2`$ themselves
+descend to $`\kappa`$: if $`\chi_1`$ is not $`\kappa`$-valued then
+$`\chi_2 = \chi_1^{q}`$ for $`q = |\kappa|`$, so the pair is the Frobenius orbit
+of one $`\kappa`$-valued character, and the diagonal representation descends to a
+semisimple two-dimensional $`\kappa`$-representation with the prescribed trace and
+determinant
+(`DeligneSerre.exists_isSemisimpleRepresentation_charpoly_map_eq_of_add_mem_range_of_mul_mem_range`).
+The hypothesis on the sum and product is exactly what the residual data supplies,
+and the conclusion is the semisimplicity asserted in the theorem.
+
+**A representation of a finite group is determined by its character.** For
+finite-image representations, equal characteristic polynomials at every group
+element force conjugacy: a finite-order matrix has a trace that is a sum of roots
+of unity, and the character determines the representation (Brauer–Nesbitt). FLT
+uses the abstract finite-group form
+(`Representation.exists_conj_eq_of_charpoly_eq_of_finite_range`) and the Galois
+form, where the polynomials are known only at almost all Frobenius elements and
+the density theorem below upgrades "almost all primes" to "all group elements"
+(`GaloisRep.exists_conj_eq_of_charpoly_frobenius_eq_of_galoisFactorsThroughFiniteLevel`).
+It also uses the converse direction: a mod-$`\ell`$ representation of a finite
+group of order prime to $`\ell`$ lifts to characteristic zero with matching
+characteristic polynomials
+(`Representation.exists_monoidHom_complex_charpoly_map_eq_of_not_dvd_natCard`).
+
+**Gluing a complex representation from a residual family.** Given, for every
+prime $`\ell`$, a mod-$`\ell`$ representation with
+$`\mathrm{charpoly}(\mathrm{Frob}_p) = X^2 - t_p X + d_p`$, where $`t_p, d_p`$ lie
+in a fixed finite $`\mathbb{Z}`$-algebra $`R`$, one wants a complex representation
+with trace $`t_p`$ and determinant $`d_p`$. Two arithmetic observations settle it:
+a nonzero element of a finite $`\mathbb{Z}`$-algebra is detected by infinitely many
+primes, so candidates that agree modulo infinitely many primes agree in
+$`\mathbb{C}`$; and the trace of a finite-order $`2 \times 2`$ matrix is a sum of
+two roots of unity, which confines the possible traces to a finite set. The result
+is `DeligneSerre.exists_galoisRep_complex_trace_frobenius_eq_of_forall_residual`.
+
+**The Frobenius-density input.** The upgrade from "almost all primes" to "all
+group elements" is the qualitative Frobenius density theorem (Chebotarev): for a
+finite Galois extension $`L/\mathbb{Q}`$, the primes whose Frobenius class lies in
+a given conjugacy-stable set have a density, and it is positive exactly when the
+set is nonempty. FLT proves the qualitative form it needs — not the exact density
+— from the asymptotic of the degree-one prime sum, which is the analytic input
+(`FrobeniusDensity.statement`, `FrobeniusDensity.degOneAsymptotic`,
+`FrobeniusDensity.statement_of_degOneAsymptotic`).
+
+## 5. Where it sits among the modularity theorems
 
 The modularity theorems FLT uses are not separate proofs of one statement;
 they are the different ranges of the dictionary between Galois representations
@@ -214,7 +318,7 @@ formalized for $`p = 3`$ and $`p = 5`$, and the switch of curves with isomorphic
 $`5`$-torsion reduces the $`5`$-adic case to the $`3`$-adic one. So the
 Langlands–Tunnell/Deligne–Serre input is needed only at $`3`$.
 
-## 5. How FLT uses it: the mod-3 octahedral case
+## 6. How FLT uses it: the mod-3 octahedral case
 
 The endgame chain that carries the weight-one input is, in premise direction
 (from the theorem down to its inputs):
@@ -264,7 +368,7 @@ coincidence (the hexagonal-lattice representation numbers equal a divisor sum)
 supplies the explicit series $`E_1(1,\chi_{-3}) \equiv 1 \pmod 3`$ that makes the
 congruence work.
 
-## 6. The same paper's other result
+## 7. The same paper's other result
 
 "Deligne–Serre" names two different things in this project, and they should not
 be conflated.
@@ -284,7 +388,7 @@ study of weight-one forms: the correspondence is the Galois-theoretic output, an
 the integrality of the Hecke action is a by-product of the bounded-denominator
 analysis that the correspondence needs.
 
-## 7. Oddness: why a weight-one eigenform has odd nebentypus
+## 8. Oddness: why a weight-one eigenform has odd nebentypus
 
 The parity condition $`\varepsilon(-1) = -1`$ is often listed as a hypothesis, but
 for weight one it is forced. For $`\gamma = -I \in \Gamma_0(N)`$ and $`k = 1`$
@@ -303,7 +407,7 @@ it to the irreducibility criterion, rather than carrying oddness as a hypothesis
 So the FLT statement covers "weight-one *odd* cusp forms" without assuming
 oddness.
 
-## 8. Lean summary
+## 9. Lean summary
 
 The mathematics above is the classical theorem. FLT proves it in a strength tuned
 to the endgame, in the `DeligneSerre.*` and `LanglandsTunnell.*` namespaces. This
@@ -355,7 +459,7 @@ $`\varepsilon(p)`$ — §1's complex statement.
 * `DeligneSerre.isIrreducible_matrixRepresentation_of_tsum_norm_trace_sq_le_log_of_odd`
   — irreducibility from that bound together with oddness;
 * the oddness lemma `apply_neg_one_eq` in the $`S\_`$ file, which derives
-  $`\varepsilon(-1) = -1`$ (§7);
+  $`\varepsilon(-1) = -1`$ (§8);
 * `DeligneSerre.exists_galoisRep_complex_trace_frobenius_eq_of_forall_residual`
   — promotion of a compatible family of residual characteristic polynomials to a
   complex representation with the prescribed traces and determinants;
@@ -409,7 +513,7 @@ full measurement are in
 
 * [P. Deligne and J.-P. Serre, *Formes modulaires de poids 1*, Ann. Sci. Éc.
   Norm. Supér. (4) **7** (1974), 507–530](https://www.numdam.org/item/ASENS_1974_4_7_4_507_0/) —
-  the theorem of §1 and Proposition 2.7 of §6.
+  the theorem of §1 and Proposition 2.7 of §7.
 * [P. Deligne, *Formes modulaires et représentations $`\ell`$-adiques*, Sém.
   Bourbaki 1968/69, Exp. 355 (1971), 139–172](https://www.numdam.org/item/SB_1968-1969__11__139_0/) —
   the weight $`\ge 2`$ construction of §2.
@@ -418,4 +522,4 @@ full measurement are in
   a modern exposition of the proof strategy of §3.
 * [C. Khare and J.-P. Wintenberger, *Serre's modularity conjecture (I)*, Invent.
   Math. **178** (2009), 485–504](https://link.springer.com/article/10.1007/s00222-009-0205-7) —
-  Serre's conjecture of §1/§4.
+  Serre's conjecture of §1/§5.

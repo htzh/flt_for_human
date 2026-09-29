@@ -189,6 +189,64 @@ discovering it through this cone (§4).
 drags ~775–783 nodes of the automorphic block; they are the subject of §4, not of
 this list.
 
+### 3.1 Deferring the shared ray-class input
+
+The batch's 32,804 lines are not all its own. It splits at
+`M4aTorus.completedRayL_fe`, the 12,126-line proof of the analytic continuation and
+functional equation of the completed narrow-ray-class $`L`$-function.
+
+| piece | nodes | raw `S_` lines | depends on `M4aTorus.completedRayL_fe`? |
+|---|---:|---:|---|
+| lifting group + `exists_isSemisimpleRepresentation` + `exists_subalgebra_qCoeff_mem` + `exists_galoisRep_complex_trace` | 54 | 13,226 | no — **unconditional** |
+| `isIrreducible_…_of_odd` + `exists_natCard_range_le` | 22 | 20,391 | yes |
+| the same two, with `M4aTorus.completedRayL_fe` deferred | 21 | 8,265 | one interface |
+
+So deferring one statement takes the batch from **70 nodes / 32,804 lines** to
+**69 nodes / 20,678 lines**: 12,126 lines (37%) removed for one interface.
+
+**The interface is narrower than the file.** `M4aTorus.completedRayL_fe` is a single
+theorem (the 12,126-line file is its proof, 595 helper lemmas), and the batch reaches
+it by exactly one route,
+`NumberField.exists_differentiable_eq_rayClassLSeries_of_ne_one` (102 lines), whose
+proof destructures it as
+
+```text
+obtain ⟨F, G, -, -, hFeq, -, -, hent⟩ := M4aTorus.completedRayL_fe K 𝔣 χ S hpar
+```
+
+keeping only the agreement on $`\mathrm{Re}\,s \gt 1`$ (`hFeq`) and the
+$`\chi \ne 1 \Rightarrow`$ differentiability conjunct (`hent`), and **discarding the
+functional equation** (the `-` slots). The functional-equation extraction
+`NumberField.exists_completedRayL_functionalEquation_of_primitive` (1,055 lines) is
+not in the forward batch cone at all; it is consumed by
+`ArtinL.Abelian.exists_completedLSeries_functionalEquation_u0` and appears only in
+the **converse** cone. So the batch needs only
+
+> for a nontrivial narrow ray-class character $`\chi`$, the completed ray-class
+> $`L`$-function has an entire continuation agreeing with its Dirichlet series on
+> $`\mathrm{Re}\,s \gt 1`$,
+
+the classical Hecke analytic continuation of the ray-class $`L`$-function, without
+the functional equation or root number. That is strictly weaker than
+`completedRayL_fe` and is the natural seam.
+
+The residual 8,265 lines are themselves mostly a Chebotarev/density block
+(`NumberField.sub_mul_log_le_tsum_ncard_isArithFrobAt`,
+`GaloisRep.sub_mul_log_le_tsum_rpow_neg_of_frobenius_mem_of_surjective`, the four
+`FrobeniusDensity.*` lemmas). Treating that block as a second interface — the
+density input as a classical theorem to be proved once — leaves only
+**5 nodes / 2,428 lines** for the two DS lemmas and the image-bound linear algebra
+(`Matrix.GeneralLinearGroup.exists_natCard_le_…`,
+`ModularCurve.SerreImage.contains_SL2`). The whole batch with both interfaces is
+**59 nodes / 15,654 lines**, against 70 / 32,804 undeferred.
+
+**Verdict.** Do the 54-node unconditional group now; land the two density-dependent
+lemmas behind the ray-class-continuation interface (21 / 8,265) or, if the density
+block is also to be proved once as its own subject, behind both interfaces
+(5 / 2,428). The full ray-class file is not wasted either way — the converse cone
+needs its functional equation for the Artin $`L`$-function step, so it is ported
+once there and this batch reuses only the continuation.
+
 ## 4. Scout Q2 — the foundational modules and how they cluster
 
 The measure of "foundational, judged by all FLT projects" used here: for each node
