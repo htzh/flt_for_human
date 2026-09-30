@@ -308,6 +308,94 @@ independent of 4 for the converse but shares the number-field layer. 6 and 7 can
 interleaved at any point and are the best "coverage per node" because the frontier
 is already adjacent.
 
+### 4.1 Finer divisions of the two large substrate clusters
+
+Rows 6 and 7 are named at namespace scale, and both contain more than one subject.
+The partition below is name/module based (a node's namespace, its pin `S_`/`Def_`
+family, and its identifier tokens), so the sub-counts are approximate; the row
+totals are the exact namespace counts. It is a survey, not a work order.
+
+**Row 7 — elliptic / Weierstrass / Tate.** The clean core is
+`WeierstrassCurve.*` 105 nodes / 120,975 lines plus `TateCurve.*` 23 / 2,749 (the
+doc's 129 is one node more than this namespace count). The nodes are not one
+theory; they split into:
+
+| unit | nodes | `S_` lines | home |
+|---|---:|---:|---|
+| **cyclic-kernel / place classification** | 24 | 83,224 | `WeierstrassCurve/IsogenyClassification.lean` |
+| **explicit Vélu quotients and formulas** | 18 | 4,768 | `WeierstrassCurve/Velu.lean` |
+| **Weierstrass function field, coordinate ring, places** | 19 | 15,027 | `WeierstrassCurve/FunctionField.lean` |
+| **models, group law, variable change, $`j`$** | 18 | 4,946 | `WeierstrassCurve/Model.lean` |
+| **torsion / division polynomials / Drinfeld** | 10 | 3,250 | `WeierstrassCurve/Torsion.lean` |
+| **modular polynomial / `cyclicQuotientJ`** | 4 | 1,897 | `WeierstrassCurve/ModularPolynomial.lean` |
+| **odd-order summing sets / char 2 and 3** | 4 | 2,077 | with Vélu/classification |
+| **reduction / semistability / modularity data** | 3 | 1,356 | `WeierstrassCurve/Reduction.lean` |
+| **formal group / EDS / special invariants** | 1 | 215 | `WeierstrassCurve/FormalGroup.lean` |
+| **Tate curve: analytic parametrization** | 23 | 2,749 | `TateCurve/Parametrization.lean` |
+| other (genus-one/closure) | 4 | 4,215 | — |
+| **total** | **128** | **123,724** | |
+
+The first thing the split shows is that **row 7 is two efforts under one name**.
+The classical substrate — models and group law, the function field and its places,
+torsion, the explicit Vélu construction, reduction — is roughly 70 nodes / 30k
+lines. The cyclic-kernel/place classification is **24 nodes / 83k lines**, i.e. 67%
+of the row's lines in 19% of its nodes, and it is dominated by six 4,000–12,000-line
+statements (`exists_dualEndData_dual_mem_and_norm_eq_finrankAlong`,
+`exists_veluFunctionFieldHom_restrictAlong_placeOfPoint_eq(_of_isAlgClosed)`,
+`isAddCyclic_ker_pointMapOfPushforward_of_baseChange_algHom`,
+`velu_map_equation_of_oddOrderSummingSet(_of_isAlgClosed)`,
+`exists_algHom_baseChange_of_isAddCyclic_ker_pointMapOfPushforward`). This is
+Mazur-type cyclic-isogeny classification, via the `Affine.FunctionField`/place gate
+and the `IsogenyEndDatum`/`IsogenyHomDatum` endomorphism data — the engine of the
+modularity-lifting step, and a different subject from "elliptic curves". Port order:
+models/group law → function field and places (which need `AlgebraicCurve` places) →
+explicit Vélu → the classification block.
+
+The **Tate curve** is separate again (23 nodes / 2.7k lines: `pointX/Y_*` and the
+`xfun`/`yfun` series, the `defect`/nodal-equation bookkeeping, the group law and
+torsion parametrization, and the annulus/`zpow` geometry); it depends on
+`AlgebraicCurve`'s annulus and residue material, not on the Weierstrass
+classification.
+
+**Function-field / curve layer.** The clean core is `AlgebraicCurve.*`: 387 nodes /
+208,750 lines (the row's 425 includes about 38 function-field-flavoured nodes
+outside the namespace — `ModularCurve`'s `qExpFunctionField`/`genusFF`/
+`regularDifferentials` block and `PeriodPair`'s lattice lemmas). Its inner split:
+
+| unit | nodes | `S_` lines | home |
+|---|---:|---:|---|
+| **places / valuations / local fields / completions** | 109 | 30,951 | `AlgebraicCurve/Places/` |
+| **complex-analytic Jacobian / path integrals / Tate trace** | 68 | 90,867 | `AlgebraicCurve/Analytic/` |
+| **divisors / class group / $`\mathrm{Pic}^0`$ / Jacobian** | 55 | 19,844 | `AlgebraicCurve/Divisors/` |
+| **differentials / residues / Serre duality** | 47 | 18,245 | `AlgebraicCurve/Differentials/` |
+| **Riemann–Roch / repartitions / genus / index** | 39 | 19,338 | `AlgebraicCurve/RiemannRoch/` |
+| **curves, models, correspondences, function fields** | 45 | 16,055 | `AlgebraicCurve/Models/` |
+| other (genericity/closure) | 24 | 13,450 | — |
+| **total** | **387** | **208,750** | |
+
+Two things stand out. First, the layer is **not one subject**: the algebraic core
+(places + divisors + differentials + Riemann–Roch + models = 295 nodes / 104k lines)
+and a **complex-analytic block** (Abel–Jacobi, path period lattices, cell
+dissections, contour integrals, Tate's trace/agreement = 68 nodes / 91k lines) carry
+comparable line weight. The analytic block is analysis on Riemann surfaces
+(`residueTheoremK`, `tateAgreement`, `tateTraceCompat`, `tateChainRule`,
+`abelJacobiDiv_*`, `span_real_pathPeriodLattice_eq_top`, the `CellDissection`/
+`RadialRegion` grids), not function-field algebra, and is a separate porting effort
+that happens to be grouped here. Second, the **`RationalFunctionField` place
+package** inside the places unit (`RatFuncPlaces`, `RatFuncPlaceInfty`,
+`RatFuncPlaceClassification`, ~16 nodes / 16k lines) is a self-contained classical
+unit — places of $`\mathbb{P}^1`$ — that much else rests on, so it is the natural
+first landing of the layer.
+
+**Overlap with row 6.** 67 `ModularCurve` nodes import `Def_AlgebraicCurve_*`
+(the `qExpFunctionField`, `genusFF`, `regularDifferentials`, `place` and Tate-module
+blocks), so the `AlgebraicCurve` core is a prerequisite of the modular-curve cluster
+as well, and row 6 cannot be interleaved freely before it. The definition-layer
+fan-in says the same: `AlgebraicCurve_DivisorClassGroup` is imported by 231 cone
+theorems and `AlgebraicCurve_IsCurveOver` by 226, the two most shared definitions of
+the whole cone. Port the divisor/class-group and places/`IsCurveOver` vocabulary
+once, at the bottom.
+
 ## 5. Redundancy discipline
 
 The port's cautionary tale is the **WeightOne rectification**
@@ -343,8 +431,8 @@ mode is available. The rules for this port:
 | 3 | number fields / adelic infrastructure | 133 | not started | `NumberTheory/Adelic/` |
 | 4 | automorphic / adelic $`\mathrm{GL}_2`$ | 534 | not started | `AutomorphicForm/` |
 | 5 | Langlands–Tunnell / octahedral / Artin | 38 (+LT cone) | not started | `LanglandsTunnell/` |
-| 6 | modular curves / Hecke geometry remaining | 443 | partly ported | `ModularCurve/` |
-| 7 | elliptic / Weierstrass / Tate | 129 | partly ported | `WeierstrassCurve/`, `Elliptic/` |
+| 6 | modular curves / Hecke geometry remaining | 443 | partly ported | `ModularCurve/` (finer units: §4.1) |
+| 7 | elliptic / Weierstrass / Tate | 129 | partly ported | `WeierstrassCurve/`, `Elliptic/`, `TateCurve/` (finer units: §4.1) |
 
 Update this table and the §2 numbers when a subject lands; the §1 internal-target
 table is the finer-grained progress record.
