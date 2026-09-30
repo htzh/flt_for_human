@@ -198,6 +198,64 @@ So the siloing is expensive (≈45% duplication) regardless of which form is cho
 a shared prelude pays for itself. The open empirical question is the two routes'
 marginal costs, which the same command answers on the route sub-sets.
 
+### 5.1 Prune: is either route avoidable?
+
+`prune.py` answers the complementary question: if a route were replaced, what could be
+dropped, and what would have to be rewired. Its criterion is
+`prunable(R) = closure(root) \ closure(root with R deleted)` — a node is droppable only
+if every path from the root passes through `R` — and it reports the *rewiring frontier*,
+the kept nodes whose proofs directly cite a pruned node. Measured at frontier 541 on
+`FLT.fermatLastTheorem`:
+
+| removed route | `R` | prunable | rewiring frontier |
+|---|---:|---:|---:|
+| Stichtenoth / adelic (9 nodes: `stichtenothGenusExists`, `finiteDimensional_lSpace_zero_of_constantsAreBase`, `exists_genus_riemannIndex_of_stichtenothGenusExists`, `RiemannGenusReachedAt.eq_of_ge`, `omegaSpace_finite_of_genusReached`, `indexOfSpecialty_eq_of_genusReached`, `indexOfSpecialty_eq_zero_of_genusReached`, `exists_riemannGenusReachedAt_nsmul_single_…`, `weilDualityAdelic_of_…`) | 11,437 lines | **9 / 11,437** | **70** |
+| analytic residue / Tate (all `residueTheorem*`, `tateAgreement`, `residueTrace*`, `CellDissection*`) | 64,873 lines | **35 / 95,884** | **14** |
+
+Reading the frontiers:
+
+* Of the 70 retained nodes citing the Stichtenoth set, **48 have an analytic RR
+  statement in their closure** (bridgeable to the analytic route); **22 do not**.
+  Categorized, the 22 are **14 that need the `genusReached` / index API**
+  (`indexOfSpecialty_eq_of_genusReached`, `omegaSpace_finite_of_genusReached`,
+  `RiemannGenusReachedAt.eq_of_ge` — e.g.
+  `genusFF_eq_of_constantFieldExtension_of_finite_of_isAlgClosed` 1,204,
+  `exists_divisor_degree_eq_one_of_finite` 911,
+  `RegularProlongation.residue_integralClosure_surjective_of_genusFF_eq` 545,
+  `exists_weilCanonical_riemannRoch` 288), **5 that need the $`\mathbb{P}^1`$
+  finiteness** `finiteDimensional_lSpace_zero_of_constantsAreBase`
+  (`Divisor.exists_torsion_descent_of_constantFieldExtension` 878,
+  `Divisor.finrank_riemannRochSpace_le_…` 510), and **3 thin wrappers**
+  (`exists_genus_riemannIndex_of_isCurveOver` 60,
+  `weilDifferentialRankOne_of_isCurveOver` 56,
+  `stichtenothGenusExists_of_isCurveOver` 51).
+* The 14 retained nodes citing the analytic block are the differentials / residue
+  layer (`exists_ordDifferential_ge_neg_one_and_evalAt_eq_of_degree_eq_zero`,
+  `sum_fibre_evalAt_eq_zero_of_smul_D_mem_regularDifferentials`,
+  `functionFieldRiemannRoch_of_isAlgClosed`), which the Stichtenoth route does not
+  supply.
+
+**The two routes are complementary, not redundant.** The analytic route gives the RR
+formula *and* the differentials / residues; Stichtenoth gives *genus existence* and the
+`RiemannGenusReachedAt` / index API. Neither subsumes the other, and the pin has no
+analytic producer of genus existence.
+
+**The interfaces are thin.** `exists_genus_riemannIndex_of_isCurveOver` (60 lines)
+turns `IsCurveOver` + `ConstantsAreBase` into
+$`\exists\gamma,\ \forall D,`$ `Finite … ∧ indexOfSpecialty D = ell D − (deg D + 1 − γ)`;
+`stichtenothGenusExists_of_isCurveOver` (51) and `weilDifferentialRankOne_of_isCurveOver`
+(56) are wrappers. So the APIs can be swapped at ~170 lines; the content behind them
+(`stichtenothGenusExists` 2,545 + `exists_genus_riemannIndex_of_stichtenothGenusExists`
+1,632) is the genus existence itself.
+
+**Consequence.** Avoid Stichtenoth only if genus existence will be built another way:
+the "API needed elsewhere" is not just the RR formula but the genus / index API (14
+consumers) plus the $`\mathbb{P}^1`$ finiteness (5). The analytic API, by contrast, is
+needed by the differentials layer, so it is worth porting regardless. The cheap hybrid
+is: port the analytic route (RR + differentials) and the thin interfaces, reduce
+Stichtenoth to a genus-existence provider, and decide whether to port that provider
+(≈4,200 lines) or re-derive it.
+
 ## 6. Reproduce
 
 ```bash
@@ -231,3 +289,27 @@ python3 port_advise.py --nodes "$(cat build/rr_family_nodes.txt)" --json build/r
 The classification table of §3 is the same loop with `group` kept as the key; the
 transport chain and consumer counts of §2 use `frontier.Frontier`'s `cited_by`/`cites`
 restricted to the forward cone.
+
+The §5.1 prune experiment:
+
+```bash
+cd tools/deps
+python3 - <<'PY'
+import frontier, prune
+fr = frontier.Frontier(); pay = fr.pay
+root = pay.pid('FLT.fermatLastTheorem')
+stich, _ = pay.ids([
+ 'AlgebraicCurve.RationalFunctionField.stichtenothGenusExists',
+ 'AlgebraicCurve.RationalFunctionField.finiteDimensional_lSpace_zero_of_constantsAreBase',
+ 'AlgebraicCurve.exists_genus_riemannIndex_of_stichtenothGenusExists',
+ 'AlgebraicCurve.exists_riemannGenusReachedAt_nsmul_single_of_stichtenothGenusExists',
+ 'AlgebraicCurve.RiemannGenusReachedAt.eq_of_ge',
+ 'AlgebraicCurve.omegaSpace_finite_of_genusReached',
+ 'AlgebraicCurve.indexOfSpecialty_eq_of_genusReached',
+ 'AlgebraicCurve.indexOfSpecialty_eq_zero_of_genusReached',
+ 'AlgebraicCurve.weilDualityAdelic_of_functionFieldRiemannRoch_of_stichtenothGenusExists'])
+print('prunable', len(prune.prunable(pay.cites, root, stich)),
+      'frontier', len(prune.frontier(pay.cites, root, stich)))
+PY
+```
+
