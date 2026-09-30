@@ -195,12 +195,14 @@ Phase 3.1 is **ACCEPTED**. Measured, all independently re-run by the manager:
 | consumer | `spec/RiemannRochConsumer.lean` zone F: `inferInstance` produces the instance over `[IsCurveOver K F] [PerfectField K]`, and the H3 differentials headline then consumes it **without** an explicit `HasCanonicalLocalResidueKStar` hypothesis — exit 0 |
 | hygiene | no `sorry`/`admit`/`axiom`, no `import Mathlib`; the pin's V1 shim and `InlineSpecific` not ported; `p2m_*` scaffolding dropped |
 
-Carried debt (for the final promotion/refactor round, not phase 3.2): the pin's
-one-line `def uniformizerSubring` is transcribed in the V2 module rather than
-re-exported from `Canonical/HasCanonicalDivisor.lean`'s `uniformizerSubring'`
-(import-graph reason), and the `HasSeparableResidue.of_perfectField*` instances
-duplicate the port's `hasSeparableResidue_of_perfectField` theorem (frozen-module
-reason). Neither moves a statement.
+**Carried debt — CLOSED (2026-09-30).** Both recorded duplications were collapsed
+without moving a statement: `Place.uniformizerSubring'` moved down into
+`Defs/CanonicalDivisor.lean` (so V2's pin-named `uniformizerSubring` is
+`v.uniformizerSubring'`), and `hasSeparableResidue_of_perfectField` moved from
+`Canonical/WeilDifferential.lean` to `Defs/LocalResidue.lean` (so V2's
+`HasSeparableResidue.of_perfectField` instance is defined from it). Checker stayed
+**3212 / 0 / 0 / 30**, whole-tree `lake build` green (4853 jobs); see
+`../../logs/riemann-roch-friction.md` § Phase 3.2.
 
 ## 2. Phases 3.2–3.7 (planned)
 

@@ -4,7 +4,7 @@
 3.2–3.7 PLANNED — the residue-theorem block (two endings) then the RR ending
 (2026-09-30).** The seven work-item rows of §3 are executed as phases 3.1–3.7, one
 dispatch and review gate each; the operative plan is
-[riemannRoch/PLAN-P3.md](riemannRoch/PLAN-P3.md) and phase 3.1 was specified by
+[riemannRoch/PLAN-P3-1.md](riemannRoch/PLAN-P3-1.md) and phase 3.1 was specified by
 [riemannRoch/WORKORDER-P3-1-residue-instance.md](riemannRoch/WORKORDER-P3-1-residue-instance.md).
 **Phase 3.1 landed the `HasCanonicalLocalResidueKStar` producer** —
 `Defs/PlaceCompletion.lean` (551 ln) and `Defs/CanonicalLocalResidueInstanceV2.lean`
@@ -182,7 +182,7 @@ writes each piece **once** and then the endings:
 | work item | pin raw | written |
 |---|---:|---:|
 | **3.1** `HasCanonicalLocalResidueKStar` — `Defs/PlaceCompletion.lean` (529) + `Defs/CanonicalLocalResidueInstanceV2.lean` (2,173) | 2,702 | **2,247 — DONE** (551 + 1,696) |
-| ℙ¹ core + base case — three `trace_localResidue_*` + `residueTheorem_ratFunc_of_perfectField` + helpers | 29,118 | ≈17,300 |
+| ℙ¹ core + base case — three `trace_localResidue_*` + `residueTheorem_ratFunc_of_perfectField` + helpers | 29,118 | ≈17,300 — **re-scoped, see below** |
 | Tate agreement — `tateAgreement_v2` + `tateTraceCompat_of_isSeparable` + `tateChainRule` + `tateCommFinite` | 13,323 | ≈8,000 |
 | trace-completion commutation — `residueTraceCompletionCommute_v2` | 1,109 | ≈525 |
 | perfect-field ending — `residueTheorem_of_…residueTraceCompletionCommute` + `residueTheorem_of_perfectField` + helpers | 9,075 | ≈7,050 |
@@ -195,8 +195,27 @@ The per-item rows overlap in their shared helpers (they sum to ≈38,000); the u
 PF-plus-new-bridge plan is ≈31,900 written (PF ≈28,900 + instance ≈2,600 + bridge
 ≈400). Full working: strategy §5.4; the forward-cone payout: D-S scout §4.2. The
 first phase, 3.1 (`HasCanonicalLocalResidueKStar`), is specified by
-[riemannRoch/PLAN-P3.md](riemannRoch/PLAN-P3.md) and
+[riemannRoch/PLAN-P3-1.md](riemannRoch/PLAN-P3-1.md) and
 [riemannRoch/WORKORDER-P3-1-residue-instance.md](riemannRoch/WORKORDER-P3-1-residue-instance.md).
+
+**Row 2 re-scope (measured 2026-09-30).** Row 2's ≈17,300 is confirmed —
+`port_advise` on `build/pf_core.txt`: 16 `S_` files / 1,175 decls, raw **29,118**,
+199 substitutions / 3,378 ln (≈731 ln of that false positives), **9,526 removable**
+(197 shared names; once-each union ≈5,105), so ≈16.2k written. The row is **not**
+four independent files: the master ℙ¹ file shares **572 of 580 declarations (99%)**
+with the K base file of row 6, and the other three share 97% / 69% / 49%; the
+master's only "unique" names are the `p1PlaceInfty` twins of row 6's `placeInfty`.
+So the ℙ¹ engine is one development written twice, the two endings are small
+marginals, and the row must be split into the engine blocks 3.2a–d plus the two
+endings. The full measurement, the four proposed boundaries and the reproduce
+commands are in [riemannRoch/PLAN-P3-2.md](riemannRoch/PLAN-P3-2.md). **3.2a (the
+ℙ¹ place/ord dictionary) is landed and accepted:** `Defs/PlaceEvaluation.lean`,
+`Defs/PlaceEvaluationAlgebra.lean`, `Defs/P1Dictionary.lean` (1,633 ln; checker
+3316 / 0 / 0; no cascade), with the mathlib audit
+[riemannRoch/AUDIT-mathlib-p3-2a.md](riemannRoch/AUDIT-mathlib-p3-2a.md) and the
+closeout in PLAN-P3-2 §3.1. The audit found two scope gaps the 91-declaration
+measurement missed (the dropped `placeOfPoint` block and `PlaceEvaluationAlgebra`),
+so every later 3.2 block is audited before acceptance.
 
 Homes and discipline:
 

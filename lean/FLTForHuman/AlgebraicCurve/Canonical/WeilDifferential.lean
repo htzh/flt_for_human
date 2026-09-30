@@ -88,12 +88,6 @@ theorem differentialCoeff_smul_algebraMap_s2 (c : K) (ω : Ω[F⁄K]) :
 
 end Place
 
-theorem hasSeparableResidue_of_perfectField [PerfectField K] [∀ v : Place K F, v.FiniteResidue] :
-    HasSeparableResidue K F where
-  trace_ne_zero v :=
-    haveI : Module.Finite K v.ResidueField := Place.FiniteResidue.finite
-    Algebra.trace_ne_zero K v.ResidueField
-
 theorem nonempty_place_of_constantsAreBase [Nontrivial Ω[F⁄K]] (hC : ConstantsAreBase K F) :
     Nonempty (Place K F) := by
   by_contra h

@@ -1,9 +1,9 @@
 # Work order — P3.1: the `HasCanonicalLocalResidueKStar` instance
 
 **Status: COMPLETE (2026-09-30).** Sets 3.1a, 3.1b-i and 3.1b-ii all landed,
-reviewed and green; the acceptance evidence is [PLAN-P3.md](PLAN-P3.md) §1.6.
+reviewed and green; the acceptance evidence is [PLAN-P3-1.md](PLAN-P3-1.md) §1.6.
 Phase 3.1 = row 1 of [../PORTING-RR.md](../PORTING-RR.md) §3, the first phase of
-the residue-theorem block. Operative plan: [PLAN-P3.md](PLAN-P3.md); method:
+the residue-theorem block. Operative plan: [PLAN-P3-1.md](PLAN-P3-1.md); method:
 [../porting-playbook.md](../porting-playbook.md) §2–§5. Precedent sets and review
 gates as in [PLAN-P1.md](PLAN-P1.md) §2 and
 [WORKORDER-P2-canonical.md](WORKORDER-P2-canonical.md).
@@ -46,8 +46,10 @@ import 3.1a and the two sets are independent:
   `Canonical/HasCanonicalDivisor.lean`'s `uniformizerSubring'`, because that
   module transitively imports `Canonical/WeilDifferential.lean` and must not be
   imported into a `Defs/` module; the body is the identical `Classical.choose` and
-  the four dependent statements land verbatim (refactor debt: switch the body to
-  `v.uniformizerSubring'` once the import is acceptable). Part 1 also dropped
+  the four dependent statements land verbatim. **Resolved in the 2026-09-30 debt
+  round**: `uniformizerSubring'` was moved down into `Defs/CanonicalDivisor.lean`
+  and V2's body is now `v.uniformizerSubring'` (see the friction log § Phase 3.2).
+  Part 1 also dropped
   `algebraMap_residueField_residue` (pin 161) to the port's
   `restrictResidueMap_residue` + `algebraMap_residueField_eq`; part 2 does not
   reference it.
@@ -155,8 +157,10 @@ in `attribute [-instance]` lists — so 3.1b transcribes both instances at the p
 names and the pin proofs (5 lines). Do **not** import
 `Canonical/WeilDifferential.lean` into the `Defs/` module to share the theorem
 (that would invert the import graph, playbook §2.4); do **not** edit the frozen
-`WeilDifferential.lean`. Record the duplicate proof as refactor debt for the final
-promotion round. The `attribute [-instance]` scaffolding is dropped, as usual; be
+`WeilDifferential.lean`. **Resolved in the 2026-09-30 debt round**:
+`hasSeparableResidue_of_perfectField` was moved to `Defs/LocalResidue.lean` and the
+instance is now `:= hasSeparableResidue_of_perfectField` (friction log § Phase 3.2).
+The `attribute [-instance]` scaffolding is dropped, as usual; be
 alert for instance-search changes in modules that take `[HasSeparableResidue K F]`
 explicitly (`Defs/WeilOfKaehler.lean`) — report, do not paper over.
 

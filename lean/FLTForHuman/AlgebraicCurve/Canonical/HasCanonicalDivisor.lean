@@ -61,9 +61,6 @@ section Transport
 
 variable {K F : Type*} [Field K] [Field F] [Algebra K F] (v : Place K F)
 
-noncomputable def _root_.AlgebraicCurve.Place.uniformizerSubring' : v.toValuationSubring :=
-  (IsDiscreteValuationRing.exists_irreducible v.toValuationSubring).choose
-
 private scoped instance instSMulCommClass_subring : SMulCommClass K v.toValuationSubring F :=
   IsScalarTower.to_smulCommClass
 

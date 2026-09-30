@@ -1589,6 +1589,41 @@ SOURCES = [
     # flip; the pin is the full V2 file (2,173 ln) while the port module carries
     # only lines 1–789 so far (set 3.1b-ii appends the rest).
     "Definitions/Def_AlgebraicCurve_CanonicalLocalResidueInstanceV2.lean",
+    # --- P3.2a (the ℙ¹ place/ord dictionary). The generic place-evaluation
+    # definition file, then the eleven `Theorems/` wrappers (the interface copies
+    # whose binders the eleven public nodes spell), then the eleven `S_` files
+    # (the 1263-line big file supplies the 66 non-headline public declarations at
+    # the pin names). Appended last so no earlier last-name match can flip.
+    "Definitions/Def_AlgebraicCurve_PlaceEvaluation.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_evalAt_algebraMap.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_evalAt_congr.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_evalAt_inv.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_evalAt_mul.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_evalAt_ne_zero.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_evalAt_zpow.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_isRational_iff_deg_eq_one.lean",
+    "Theorems/Thm_AlgebraicCurve_RationalFunctionField_deg_placeInfty.lean",
+    "Theorems/Thm_AlgebraicCurve_RationalFunctionField_ord_placeInfty.lean",
+    "Theorems/Thm_AlgebraicCurve_RationalFunctionField_ord_placeInfty_algebraMap.lean",
+    "Theorems/Thm_AlgebraicCurve_RationalFunctionField_ord_placeOfPoint_algebraMap.lean",
+    "P2M/Sol/S_AlgebraicCurve_Place_evalAt_algebraMap.lean",
+    "P2M/Sol/S_AlgebraicCurve_Place_evalAt_congr.lean",
+    "P2M/Sol/S_AlgebraicCurve_Place_evalAt_inv.lean",
+    "P2M/Sol/S_AlgebraicCurve_Place_evalAt_mul.lean",
+    "P2M/Sol/S_AlgebraicCurve_Place_evalAt_ne_zero.lean",
+    "P2M/Sol/S_AlgebraicCurve_Place_evalAt_zpow.lean",
+    "P2M/Sol/S_AlgebraicCurve_Place_isRational_iff_deg_eq_one.lean",
+    "P2M/Sol/S_AlgebraicCurve_RationalFunctionField_deg_placeInfty.lean",
+    "P2M/Sol/S_AlgebraicCurve_RationalFunctionField_ord_placeInfty.lean",
+    "P2M/Sol/S_AlgebraicCurve_RationalFunctionField_ord_placeInfty_algebraMap.lean",
+    "P2M/Sol/S_AlgebraicCurve_RationalFunctionField_ord_placeOfPoint_algebraMap.lean",
+    # --- P3.2a, the out-of-measurement `Divisor.evalFun_*` algebra. The pin's
+    # `Definitions/Def_AlgebraicCurve_PlaceEvaluationAlgebra.lean` is the
+    # `Place`/`Divisor` law layer; `evalFun_single_sub_single` is published only
+    # through its wrapper. Appended last so no earlier last-name match can flip.
+    "Definitions/Def_AlgebraicCurve_PlaceEvaluationAlgebra.lean",
+    "Theorems/Thm_AlgebraicCurve_Divisor_evalFun_single_sub_single.lean",
+    "P2M/Sol/S_AlgebraicCurve_Divisor_evalFun_single_sub_single.lean",
 ]
 
 PORT_FILES = [
@@ -2108,6 +2143,12 @@ PORT_FILES = [
     # 1–789). Set 3.1b-ii appends the Hensel engine and the final instance to the
     # same module. Appended last so no earlier last-name match can flip.
     "FLTForHuman/AlgebraicCurve/Defs/CanonicalLocalResidueInstanceV2.lean",
+    # --- P3.2a (the ℙ¹ place/ord dictionary): the generic place-evaluation
+    # interface, the `Divisor.evalFun_*` algebra it consumes, and the ℙ¹
+    # dictionary itself. Appended last so no earlier last-name match can flip.
+    "FLTForHuman/AlgebraicCurve/Defs/PlaceEvaluation.lean",
+    "FLTForHuman/AlgebraicCurve/Defs/PlaceEvaluationAlgebra.lean",
+    "FLTForHuman/AlgebraicCurve/Defs/P1Dictionary.lean",
 ]
 
 

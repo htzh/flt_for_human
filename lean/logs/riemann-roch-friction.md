@@ -4,7 +4,7 @@ Running ledger for the Riemann–Roch port (`lean/topics/riemannRoch/`), phase 1
 onward. Append as friction is hit; the generalizable part is folded into
 `porting-playbook.md` at the end. Method and set map: phase 1
 [PLAN-P1.md](../topics/riemannRoch/PLAN-P1.md), phase 3
-[PLAN-P3.md](../topics/riemannRoch/PLAN-P3.md).
+[PLAN-P3-1.md](../topics/riemannRoch/PLAN-P3-1.md).
 
 ## Set D — definition layer (`WORKORDER-D-defs.md`)
 
@@ -963,7 +963,7 @@ tracked notes, the phase-1/2 work orders, `AUDIT-mathlib.md` and the
 `WeilDifferential.lean` module header was updated. `PORTING-RR.md` §3's
 seven-row work-item table is now the phase map — each row is a self-contained
 phase executed with its own dispatch and review gate — and the new operative plan
-`PLAN-P3.md` records the decomposition, with row 1 detailed as phase 3.1.
+`PLAN-P3-1.md` records the decomposition, with row 1 detailed as phase 3.1.
 
 **Phase 3.1 is the `HasCanonicalLocalResidueKStar` producer.** The class and its
 API already landed in `Defs/LocalResidue.lean` (phase 1, H3); phase 3.1 supplies
@@ -1260,3 +1260,209 @@ Set 3.1b-ii's own report is above; the manager re-ran every gate independently:
 deleted after the phase-3.1 whole-tree build passed. The audit note's and this
 log's "scratch evidence" pointers are historical (the convention they instructed),
 not live file references.
+
+## Phase 3.2 — scoping, and the P3.1 debt round (2026-09-30)
+
+**Row 2 re-scope.** `port_advise` on `build/pf_core.txt` confirms row 2 is ≈16–17k
+written (raw 29,118; 3,378 substitution lines, ~731 of them false positives; 9,526
+removable), and shows it is not four files: the master ℙ¹ file shares **572/580
+declarations (99%)** with the K base file of row 6, and its only "unique" names are
+the `p1PlaceInfty` twins of row 6's `placeInfty`. So the engine is one development
+for both endings and row 2 must be split into the engine blocks 3.2a–d plus the two
+endings. The measurement, the proposed boundaries and reproduce commands are in
+`../topics/riemannRoch/PLAN-P3-2.md`.
+
+**P3.1 debt round — DONE (existing-file reconciliation, the phase's one cascade).**
+Both recorded duplications were collapsed without moving a statement:
+
+1. `Place.uniformizerSubring'` moved from `Canonical/HasCanonicalDivisor.lean:64`
+   down into `Defs/CanonicalDivisor.lean` (beside `Place.uniformizer`, the same
+   `Classical.choose`), and the V2 module's pin-named `uniformizerSubring` is now
+   `v.uniformizerSubring'` instead of a second copy of the choose. The move is
+   import-graph-correct (a `Defs/` home, not the `Canonical/` module's), which is
+   exactly what the 3.1b-i worker had flagged as unreachable.
+2. `hasSeparableResidue_of_perfectField` moved from `Canonical/WeilDifferential.lean`
+   to `Defs/LocalResidue.lean`, next to the `HasSeparableResidue` class, and the V2
+   `HasSeparableResidue.of_perfectField` instance is now
+   `:= hasSeparableResidue_of_perfectField`. Friction: the file's top-level
+   `variable [HasCanonicalLocalResidueKStar K F]` (line 119) leaked into the moved
+   theorem and had to be excluded with `omit [HasCanonicalLocalResidueKStar K F] in`
+   placed **before** the docstring (after it, Lean parses `omit` as an unexpected
+   token).
+
+Re-verified after both: checker **3212 identical / 0 mismatched / 0 missing / 30
+own-proof** (unchanged — no statement moved); whole-tree `lake build` green (4853
+jobs, 47 s cascade, the one intentional whole-tree build of this round). No
+declaration was renamed or restated.
+
+**Build economy for 3.2 (from `PORTING-DeligneSerre.md` §3, applied).** Every 3.2
+set lands in a **new** file, so it cannot cascade; the edit loop is
+`lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false <file>` (writes no
+`.olean`), file-done is `flock /tmp/flt_for_human.lock timeout 240 lake build
+<module>` (deps only, never dependents), and there is **no bare whole-tree
+`lake build` during 3.2** — one at the phase milestone. The debt round above was
+the deliberate exception (existing-file reconciliation), and its cascade was
+verified once.
+
+### Set 3.2a — the ℙ¹ place/ord dictionary (`WORKORDER-P3-2a-p1-dictionary.md`)
+
+Scoped and dispatched 2026-09-30. Two new files, no cascade: `Defs/PlaceEvaluation.lean`
+(the pin's unported `Def_AlgebraicCurve_PlaceEvaluation.lean`, 86 ln: `IsRational`,
+`residueInv`, `evalAt`, `evalFun`, `WeilReciprocity`) and `Defs/P1Dictionary.lean`
+(the 11 standalone dictionary node files, the biggest being
+`ord_placeOfPoint_algebraMap`, 1,263 ln / 67 public). Measured price (`port_advise`
+on `build/p32a_nodes.txt`): 22 target files / 91 declarations, raw ≈1,459, 1
+substitution (14 ln), no shared prelude → **≈1,445 written**, one worker.
+
+**Mathlib audit for 3.2a (dispatched in parallel, `AUDIT-mathlib-p3-2a.md`).** 3.2a
+was first dispatched without a §2.2 audit, unlike 3.1; the manager caught this and
+dispatched the audit plus sent the leads to the running worker. The first pass found
+two likely large reuse wins, both to be probed rather than assumed:
+`Mathlib.FieldTheory.RatFunc.Valuation` (`RatFunc.inftyValuation`/`inftyValuationDef`
+with `.X`/`.X_zpow`/`.polynomial`/`.C`) as the ℙ¹ valuation at infinity behind
+`ord_placeInfty`/`deg_placeInfty` (and the engine's `p1PlaceInfty`), and
+`Mathlib.FieldTheory.RatFunc.Degree` (`RatFunc.intDegree`, `_X`/`_mul`/`_inv`/`_div`)
+behind the ℙ¹ divisor-degree block (`principalDivisor`, `degree_principalDivisor`,
+`sum_ord_mul_deg_eq_zero`). `Algebra.trace_ne_zero`
+(`RingTheory/Trace/Basic.lean:517`) is already the call inside
+`hasSeparableResidue_of_perfectField`. The audit note is folded into work order §3
+when it lands. **Rule recorded: every 3.2 block gets its `AUDIT-mathlib-p3-2x.md`
+before it is accepted.**
+
+**Audit early findings — two scope gaps the measurement missed (2026-09-30).** The
+91-declaration `port_advise` reading was a lower bound, as playbook §2.1 warns:
+
+- **Gap A — the dropped `placeOfPoint` block.** The big node needs pin
+  `Def_AlgebraicCurve_RatFuncPlaces.lean:236–274` (`placeOfPoint`,
+  `placeOfPoint_def`, `placeOfPoint_eq_ofHeightOneSpectrum`, `placeOfPoint_injective`,
+  `deg_placeOfPoint`; 5 decls ≈39 ln), which the port **deliberately dropped** from
+  `Defs/RatFuncPlaces.lean`. They go into the new `Defs/P1Dictionary.lean`, not the
+  existing module (cascade).
+- **Gap B — `PlaceEvaluationAlgebra`.** Six unported nodes of
+  `Def_AlgebraicCurve_PlaceEvaluationAlgebra.lean` (160 ln) —
+  `Divisor.evalFun_{add,mul,ne_zero,zsmul,zpow_left,single_sub_single}` — are used by
+  the big file's `reciprocity_*` proofs and exist nowhere under `FLTForHuman/`. New
+  module `Defs/PlaceEvaluationAlgebra.lean`.
+
+Both are budgeted into 3.2a (still one set, still three **new** files, so still no
+cascade) and the running worker was messaged with the exact declarations. The audit
+also corrected the work order: the pin's public `le_exp_neg_one_of_lt_one` is
+`AlgebraicCurve.le_exp_neg_one_of_lt_one` (outside `namespace Place`), so the port's
+private `Place.le_exp_neg_one_of_lt_one` cannot be promoted to match it — transcribe
+the 14-line proof. Confirmed reuse: `placeInfty.toValuationSubring =
+(RatFunc.inftyValuation K).valuationSubring` is `rfl`, the three tiny ℙ¹ nodes are
+one-liners on public port lemmas, and `degree_eq_zero_of_forall_eq_ord` discharges
+the `principalDivisor` degree block. Drift: `Polynomial.degree_sub_lt` →
+`Polynomial.degree_sub_lt_left`; `dif_pos` → `dite_eq_left`.
+
+#### Set 3.2a — worker result (2026-09-30)
+
+**Landed, green, no cascade.** Three **new** modules (the work order said two; the
+audit's Gap B adds the third):
+
+| module | written | build (`lake build <module>`) |
+|---|---:|---|
+| `Defs/PlaceEvaluation.lean` | 104 | 2.0 s / 2518 jobs (2.8 s wall) |
+| `Defs/PlaceEvaluationAlgebra.lean` | 185 | 2.6 s / 2519 jobs (3.6 s wall) |
+| `Defs/P1Dictionary.lean` | 1,344 | 5.3 s / 2665 jobs (7.3 s wall) |
+| **total** | **1,633** | |
+
+Edit loop was `lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false`; no
+whole-tree `lake build`; no `.olean` written outside these three modules.
+
+**Checker.** Baseline 3212 / 0 / 0 / 30 (3242 checked) → **3316 identical /
+0 mismatched / 0 missing / 30 own-proof (3346 checked)**: +104 checked and +104
+identical, i.e. every new public declaration verifies (no exemption, no miss).
+
+**`#print axioms` on the 11 public nodes.** All eleven are
+`[propext, Classical.choice, Quot.sound]`.
+
+**Gap A (included).** The five `placeOfPoint` words
+(`placeOfPoint`, `_def`, `_eq_ofHeightOneSpectrum`, `_injective`, `deg_placeOfPoint`)
+are public in `P1Dictionary.lean`, transcribed from
+`Definitions/Def_AlgebraicCurve_RatFuncPlaces.lean:236–274`; that source was already
+in `SOURCES`, so they verify with no wiring change. No existing module was touched.
+
+**Gap B (included, as a third module).** `Defs/PlaceEvaluationAlgebra.lean` ports
+the whole `Definitions/Def_AlgebraicCurve_PlaceEvaluationAlgebra.lean` law layer at
+its pin names (`mem_toValuationSubring_of_ord_nonneg_alt`, `isUnit_mk_of_ord_eq_zero`,
+`residue_ne_zero_of_ord_eq_zero`, `evalAt_ne_zero_of_ord_eq_zero`,
+`evalAt_mul_of_mem`, `evalAt_algebraMap_eq`, `evalFun_ne_zero_of_forall_ne_zero`,
+`evalFun_add_of_forall_ne_zero`, `evalFun_mul_of_forall_mem`, `support_smul_subset`,
+`evalFun_natCast_smul_divisor`, `evalFun_zsmul_divisor`,
+`evalFun_zpow_left_of_ord_eq_zero`; `evalAt_inv`/`evalAt_zpow` stay `private`),
+**minus** its `deg_eq_one_of_isRational`, which `P1Dictionary.lean` already carries
+from the ℙ¹ `S_` file (same full name — porting both would collide), **plus**
+`evalFun_single_sub_single`, whose only pin statement is its wrapper
+(`Theorems/Thm_AlgebraicCurve_Divisor_evalFun_single_sub_single.lean`). The module
+is self-contained (imports only `Defs/PlaceEvaluation`), so `P1Dictionary.lean`
+imports it and calls the `Definitions/`-file names in the `reciprocity_*` proofs
+instead of the pin's wrapper names — no import cycle, statements unchanged.
+
+**`le_exp_neg_one_of_lt_one` disposition.** Transcribed **publicly** at the pin name
+`AlgebraicCurve.le_exp_neg_one_of_lt_one` (the audit's name correction), not
+promoted from the port's `private` `AlgebraicCurve.Place.le_exp_neg_one_of_lt_one` in
+`Defs/Place.lean`; that file is untouched. The dispatch brief's "keep it private"
+was superseded by the audit note — the pin declaration is one of the 66 public rows.
+
+**Private helpers kept.** `Place.isUnit_algebraMap` (P1Dictionary),
+`RationalFunctionField.ofOption` / `ofOption_bijective` (P1Dictionary), and
+`Place.evalAt_inv` / `evalAt_zpow` (PlaceEvaluationAlgebra). The five
+`Divisor.evalFun_*` helpers are **not** private: per Gap B they are public in
+`PlaceEvaluationAlgebra.lean`. `RatFuncDegree`'s `private`
+`exists_sub_algebraMap_intDegree_neg` / `single_add_single_apply_eq_ord` /
+`degree_single_add_single` are shadowed across modules by the new public
+`P1Dictionary` transcriptions (allowed; the private aliases are module-local).
+`exists_sub_algebraMap_intDegree_neg` is transcribed publicly although
+`deg_placeInfty` now one-lines through
+`deg_eq_one_of_forall_ne_ofHeightOneSpectrum`, because it is one of the 66 rows.
+
+**Out-of-set declarations resolved locally: none.** The six `Divisor.evalFun_*`
+were the only out-of-measurement reach; the manager moved them into the new public
+module, so no `private` promotion debt was created. The reused public declarations
+were imported, not re-proved: `RationalFunctionField.{eq_ofHeightOneSpectrum_or_eq_placeInfty,
+placeInfty_ne_ofHeightOneSpectrum}` (RatFuncDegree), `Place.{ord_nonneg_of_mem,
+mem_of_ord_nonneg, mem_iff_ord_nonneg}` (PushPull), `Place.placeInfty` /
+`finitePlace` / `heightOneSpectrumOfIrreducible` / `deg_finitePlace` /
+`degree_eq_zero_of_forall_eq_ord` (RatFuncPlaces / RatFuncDegree).
+
+**Friction / drift.**
+- `dif_pos` → `dite_eq_left` (PlaceEvaluation's `evalAt_of_mem`), as the audit
+  predicted.
+- `Polynomial.degree_sub_lt` → `Polynomial.degree_sub_lt_left` (kept in the
+  transcribed `exists_sub_algebraMap_intDegree_neg`).
+- The pin's `section DegInfty` opens `variable (K) [DecidableEq (RatFunc K)]`; under
+  v4.34 the redundant `(K)` is a hard error (`redundant binder annotation update`)
+  that then suppresses the `DecidableEq` instance and makes `K` unknown downstream.
+  Dropping `(K)` fixes it; the statement text is unchanged (`variable` binders are
+  not on the declaration line).
+- The three manager one-liners were applied (`deg_placeInfty`,
+  `ord_placeInfty`, `ord_placeInfty_algebraMap`); the pin's long `deg_placeInfty`
+  proof body is not transcribed.
+- `Finset.prod_zpow` takes explicit arguments in v4.34; the pin's
+  `Def_..._PlaceEvaluationAlgebra` spelling happens to already pass them, so no
+  change was needed there.
+
+**Manager review — 3.2a ACCEPTED (2026-09-30).** Independently re-run: checker
+**3316 identical / 0 mismatched / 0 missing / 30 own-proof** (3346 checked, from
+3212); forced per-module builds green (`PlaceEvaluation` 2.0 s / 2518 jobs,
+`PlaceEvaluationAlgebra` 2.6 s / 2519, `P1Dictionary` 5.3 s / 2665) with **no
+whole-tree build** and only the three new `.olean`s (the Deligne–Serre §3 build
+economy held); `#print axioms` on the eleven nodes plus
+`RationalFunctionField.{placeOfPoint_injective, deg_placeOfPoint,
+ord_placeOfPoint_X_sub_C, principalDivisor_isPrincipal}` all
+`[propext, Classical.choice, Quot.sound]`; hygiene clean.
+
+The final `AUDIT-mathlib-p3-2a.md` (532 ln; 5 SUBSTITUTE / 81 PROOF-INGREDIENT / 8
+BESPOKE over 94 in-set rows + 11 out-of-set rows) corrected one of the manager's
+leads: the `principalDivisor` degree block reduces to the port's
+`degree_eq_zero_of_forall_eq_ord`, **not** to `RatFunc.intDegree`. The
+measurement-gap lesson is the round's main finding: the 91-declaration
+`port_advise` reading missed both `placeOfPoint` and the whole
+`PlaceEvaluationAlgebra` layer, and only the §2.2 audit found them — so **3.2b–d
+are each audited before acceptance**. Carried debt: `P1Dictionary`'s public
+transcriptions of `RatFuncDegree`'s private `exists_sub_algebraMap_intDegree_neg` /
+`single_add_single_apply_eq_ord` / `degree_single_add_single` (cascade avoidance;
+promote the `RatFuncDegree` copies in a later round). Scratch files removed:
+`ScratchP32a.lean`, `ScratchAuditP32a.lean`, `ScratchMgrP32a.lean`.
+

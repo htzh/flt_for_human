@@ -39,6 +39,13 @@ variable (v : Place K F)
 def uniformizer : F :=
   ((IsDiscreteValuationRing.exists_irreducible v.toValuationSubring).choose : F)
 
+/-- The same uniformizer as an element of the valuation subring; the single home
+for the `Classical.choose`, shared by the canonical-divisor layer and the
+phase-3.1 residue-instance layer (moved here from
+`Canonical/HasCanonicalDivisor.lean` by the 2026-09-30 refactor). -/
+noncomputable def uniformizerSubring' : v.toValuationSubring :=
+  (IsDiscreteValuationRing.exists_irreducible v.toValuationSubring).choose
+
 theorem ord_uniformizer : v.ord v.uniformizer = 1 := by
   have hirr := (IsDiscreteValuationRing.exists_irreducible v.toValuationSubring).choose_spec
   simpa [uniformizer] using v.ord_coe_irreducible hirr

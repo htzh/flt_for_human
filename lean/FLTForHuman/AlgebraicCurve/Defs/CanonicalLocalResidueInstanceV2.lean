@@ -72,10 +72,8 @@ namespace AlgebraicCurve
 variable {K F : Type*} [Field K] [Field F] [Algebra K F]
 
 instance HasSeparableResidue.of_perfectField [PerfectField K]
-    [∀ v : Place K F, v.FiniteResidue] : HasSeparableResidue K F where
-  trace_ne_zero v :=
-    haveI : Module.Finite K v.ResidueField := Place.FiniteResidue.finite
-    Algebra.trace_ne_zero K v.ResidueField
+    [∀ v : Place K F, v.FiniteResidue] : HasSeparableResidue K F :=
+  hasSeparableResidue_of_perfectField
 
 instance HasSeparableResidue.of_perfectField_of_isCurveOver [PerfectField K]
     [IsCurveOver K F] : HasSeparableResidue K F :=
@@ -98,7 +96,7 @@ variable (v : Place K F)
 `Place.uniformizerSubring'` (the same `Classical.choose`), kept at the pin name
 because the pin statements below spell it. -/
 def uniformizerSubring : v.toValuationSubring :=
-  (IsDiscreteValuationRing.exists_irreducible v.toValuationSubring).choose
+  v.uniformizerSubring'
 
 @[simp]
 theorem coe_uniformizerSubring : (v.uniformizerSubring : F) = v.uniformizer := rfl

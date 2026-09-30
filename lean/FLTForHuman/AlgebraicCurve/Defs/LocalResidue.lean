@@ -189,6 +189,19 @@ variable (K F) in
 class HasSeparableResidue : Prop where
   trace_ne_zero : ∀ v : Place K F, (Algebra.trace K v.ResidueField : _ →ₗ[K] K) ≠ 0
 
+omit [HasCanonicalLocalResidueKStar K F] in
+/-- A perfect base field makes the residue-field trace nondegenerate. This is the
+pin's `hasSeparableResidue_of_perfectField` helper (its pin home is
+`S_AlgebraicCurve_exists_linearEquiv_regularDifferentials_omegaSpace_zero.lean:76`);
+it lives here so the `HasSeparableResidue` class and its perfect-field content
+share a home, and the phase-3.1 `HasSeparableResidue.of_perfectField` instances
+can be defined from it (2026-09-30 refactor). -/
+theorem hasSeparableResidue_of_perfectField [PerfectField K] [∀ v : Place K F, v.FiniteResidue] :
+    HasSeparableResidue K F where
+  trace_ne_zero v :=
+    haveI : Module.Finite K v.ResidueField := Place.FiniteResidue.finite
+    Algebra.trace_ne_zero K v.ResidueField
+
 section CanonicalKResidueTerm
 
 variable {K F : Type*} [Field K] [Field F] [Algebra K F] [HasCanonicalLocalResidueKStar K F]
