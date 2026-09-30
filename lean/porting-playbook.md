@@ -567,6 +567,42 @@ artifact for the next effort — more than the module list, which is derivable f
 the code. Put it in the log as it happens; fold the generalizable part into §6–§7
 at the end, and keep the rest in the record.
 
+### 3.7 Porting order inside one effort, and the build economy
+
+An effort's *internal* order is a planning object, not an accident of the pin's file
+list. The order that carried the Deligne–Serre 54-node slice
+([topics/PORTING-DeligneSerre.md](topics/PORTING-DeligneSerre.md); record
+[logs/deligne-serre-port.md](logs/deligne-serre-port.md)):
+
+1. **Definitions first**, in their own import order. Nothing can be stated before
+   them, and they are leaves — cheap to build and to re-check.
+2. **Shared blocks into *new* files second.** A new file touches nothing, so this
+   phase cannot cascade. Scope it from `port_advise`, and scan by hand for repeated
+   *definitions*: the tool's dedup counts proofs and misses a repeated `def`.
+3. **Reconciliations in *existing* files third**, in one pass, then freeze them.
+   This is the only phase that re-elaborates existing modules.
+4. **Theorem sets, importees first**, cut by mathematical subject rather than by pin
+   file, each set importing only levels below it.
+
+Then execute it as sets (§3.4): one work order and one subagent per set, the manager
+reviewing the tree before the next order is written. Two rules make the hand-off
+real — a frozen file is never reopened (resolve locally, append to the friction log,
+and let a final **refactor round** promote), and a worker who reaches an unported
+prerequisite **stops at the boundary and reports** rather than editing a closed file
+or weakening a statement.
+
+**Why the order is a build-cost decision.** With a forward-import DAG a worker's
+module is usually already built, so each set closes on per-module builds of seconds
+and the only whole-tree build is the milestone. Deligne–Serre wrote ≈15,200 lines;
+phase D touched only its own eleven modules' `.olean`s, every set closed on 2–20 s
+builds, and the single whole-tree build was the milestone gate (4,805 jobs, green,
+seconds, because little was stale). The expensive alternative is transcribing pin
+files in filesystem order: each new file then sits under a large cone that has to be
+re-elaborated, and the full build is paid again at every step. The four ladder rules
+(§3.5) are what keep it cheap — `lake env lean` per file, `lake build <module>` per
+module, **no bare whole-tree build during a phase**, one at the milestone — all
+serialized with `flock` and bounded with `timeout`.
+
 ## 4. Faithfulness, made mechanical
 
 With a pinned source, correctness is checkable rather than trusted. Four

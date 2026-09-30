@@ -27,8 +27,8 @@ human owns git.
 | **S8** | the complex-trace assembly | 1 target / 1 module | 493 | 2551 → 2552 |
 | | **total** | **54 targets** | **≈15,200** | **2058 → 2552 (+494)** |
 
-Plus the wire test `spec/DeligneSerreConsumer.lean` (281 lines, 13 zones) and 48
-new `.lean` files. Baseline **2058 identical / 0 mismatched / 0 missing / 30
+Plus the wire test `spec/DeligneSerreConsumer.lean` (281 lines, 13 zones) and 55
+new library modules. Baseline **2058 identical / 0 mismatched / 0 missing / 30
 own-proof exempted** before the effort; final **2552 / 0 / 0 / 30**, 92 promoted
 from pin-`private` declarations, 2582 port declarations checked.
 
