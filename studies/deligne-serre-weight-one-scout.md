@@ -362,18 +362,18 @@ predicates:
 
 | unit | nodes | `S_` lines | ported |
 |---|---:|---:|---:|
-| complex-analytic Jacobian / path integrals / Tate trace | 68 | 90,867 | 0 |
+| complex-analytic Jacobian / path integrals / Tate trace | 67 | 84,610 | 0 |
 | places / valuations / local fields / completions | 161 | 35,677 | 51 |
 | divisors / class group / $`\mathrm{Pic}^0`$ / Jacobian | 69 | 22,494 | 14 |
-| Riemann–Roch / repartitions / genus / index | 39 | 19,338 | 0 |
-| differentials / residues / Serre duality | 47 | 18,245 | 0 |
+| Riemann–Roch / repartitions / genus / index | 41 | 25,650 | 0 |
+| differentials / residues / Serre duality | 46 | 18,190 | 0 |
 | curves, models, correspondences, function fields | 52 | 16,681 | 7 |
 | other (genericity/closure) | 29 | 16,382 | 5 |
 | **total** | **465** | **219,684** | **77** |
 
 The three subjects that the sharing shows to be one dependency mass — places (161)
-+ divisors (69) + Riemann–Roch (39) = **269 pin nodes / 77,509 lines** (65 ported,
-204 needed at frontier 541). Their finer sub-units, again pin-only:
++ divisors (69) + Riemann–Roch (41) = **271 pin nodes / 83,821 lines** (65 ported,
+206 needed at frontier 541). Their finer sub-units, again pin-only:
 
 | places sub-unit | nodes | `S_` lines | ported |
 |---|---:|---:|---:|
@@ -397,13 +397,13 @@ The three subjects that the sharing shows to be one dependency mass — places (
 the differentials unit. Its 5 nodes / 3,254 lines belong with divisors A.)
 
 > **Provisional frontier measurement (frontier 541).** Running `port_advise` on the
-> 204 needed nodes of the 269-node pool reads 408 `S_`+`Thm_` files / 3,666
-> declarations: **205 substitutions** (65 unique names, 3,759 lines already in the
-> port), **436 names proved in ≥2 target files** (29,034 removable lines; 26,329
-> excluding the substituted names), **6,170 lines of unique shared prelude**
-> (2,422 Riemann–Roch/adelic + 2,245 generic algebra + 1,390 place/valuation + 113
-> divisor), and **≈40,000 projected new lines** (70,151 − 3,759 − 26,329), ≈43%
-> less than the needed subset's raw 70,151. These are the numbers that move with
+> 206 needed nodes of the 271-node pool reads 412 `S_`+`Thm_` files / 3,946
+> declarations: **230 substitutions** (75 unique names, 4,396 lines already in the
+> port), **459 names proved in ≥2 target files** (31,876 removable lines; 28,737
+> excluding the substituted names), **6,394 lines of unique shared prelude**
+> (2,447 Riemann–Roch/adelic + 2,266 generic algebra + 1,542 place/valuation + 139
+> divisor), and **≈43,000 projected new lines** (76,463 − 4,396 − 28,737), ≈43%
+> less than the needed subset's raw 76,463. These are the numbers that move with
 > the frontier; the tables above do not.
 
 The boundaries are **layers, not subjects**:
@@ -413,10 +413,8 @@ The boundaries are **layers, not subjects**:
   `RiemannGenusReachedAt`, `TranscendenceTower`, `stichtenothGenusExists`,
   `adeleBddQuot*`, `residuePairing`, `reciprocity_linear`, under the generic algebra
   they run on (`finrank_quotient_chain*`, `nestedComapMapMkQEquiv`,
-  `doubleResiduePairing_injective`, `linearIndependent_pow_of_transcendental`). The
-  largest single occurrence pattern (13 names) is shared by 13 files and alone is
-  4,176 removable lines; the 16 nodes in files whose heaviest shared prelude is
-  RR/adelic carry 24,311 raw lines. This is **one module**, not a subject.
+  `doubleResiduePairing_injective`, `linearIndependent_pow_of_transcendental`). This
+  is **one module**, not a subject.
 * **The already-ported place/valuation vocabulary** — `ord_nonneg_of_mem` (35
   files), `mem_iff_ord_nonneg` (26), `mk_mem_maximalIdeal_iff`, `residueOfCenter`,
   `inertiaDeg`, `toValuationSubring…`. The port's `AlgebraicCurve/` tree is 17 files
@@ -428,20 +426,55 @@ The boundaries are **layers, not subjects**:
   layer, not for the exchange cone"), and `Defs/SemilinearAut.lean` excludes the
   `Divisor`/`Pic0` action-and-torsion section of `BaseChangeGalois`. This layer is
   an **import boundary**, not work.
-* **Per-file unique content** — the remainder, ≈34,000 lines per the provisional
-  measurement: 204 mostly-independent statements whose places/divisors/Riemann–Roch
+* **Per-file unique content** — ≈37,000 lines per the provisional
+  measurement: 206 mostly-independent statements whose places/divisors/Riemann–Roch
   file names are cosmetic. The pin totals overstate even these: the
   `RationalFunctionField` files come in near-duplicate pairs (`ord_X_sub_C` ↔
   `ord_placeOfPoint_algebraMap` share 57 of 70 declarations;
   `ord_X_nonneg_of_ne_placeInfty` ↔ `ord_placeInfty_X` share 153 of 157), and the
   `ord_X_sub_C` pair alone is 1,017 removable lines. Duplication-light, genuinely
   separate families: `Pic0` (14 nodes / 3,103 lines / 762 shared), `SemilinearAut`
-  (9 / 295 / 0), `functionFieldRiemannRoch` (3 / 155 / 0), `normFormulaAlong`
-  (2 / 45 / 0).
+  (9 / 295 / 0), `normFormulaAlong` (2 / 45 / 0).
 
-The **complex-analytic block** (68 nodes / 90,867 lines: Abel–Jacobi, path period
-lattices, cell dissections, contour integrals, Tate's trace/agreement) is a separate
-effort.
+**What the RR layer ultimately feeds (a dependency fact, not a size fact).** The RR
+statements are the geometric dimension engine, and they feed dimension arguments
+all the way up. The direct consumers of `finiteDimensional_lSpace` (110 forward-cone
+dependents) are dimension counts —
+`Divisor.exists_finset_finrank_riemannRochSpace_mapDomain_placeReduction_le`,
+`finite_and_finrank_regularDifferentials_eq_genus` ($`\dim\Omega = g`$), the genus
+comparisons `genusFF_le_of_constantFieldExtension_of_isAlgClosed` and
+`sum_genusFF_le_of_sum_finrank_eq_of_krullDimLE_one`; `indexOfSpecialty_eq_finrank_H1`
+(91 dependents) is $`\dim H^1`$; and
+`ell_canonicalDivisor_eq_genus_of_riemannRoch` /
+`degree_canonicalDivisor_eq_of_riemannRoch` give $`\deg K = 2g - 2`$. They reach the
+forward target by one narrow chain:
+`ModularCurve.exists_linearEquiv_tensor_regularDifferentials_x1FunctionFieldBar_cuspForm`
+(6 cone dependents) →
+`exists_injective_ringHom_adjoin_heckeDiamondGenBar_cuspForm` (5) →
+`CuspForm.IsEigenformWith.exists_ringHom_rationalHeckeAlgebraOne_mul_eq` (4) →
+`…exists_galoisRepAdic_charpoly_frobenius_eq_and_isUnramifiedAt` (3) → the
+Deligne–Serre residual representation. So the *bottleneck* is not the RR prelude
+itself but the differentials ↔ cusp-forms transport above it.
+
+**The arithmetic dimension route is independent.** `CuspForm.finiteDimensional_Gamma1`,
+`CuspForm.exists_basis_gamma1_qCoeff_slash_mem_range_intCast`,
+`ModularForm.exists_gamma0_qExpansion_eq_of_levelOne`, and the coefficient-ring gate
+`DeligneSerre.exists_finset_qCoeff_mem_of_upperDensity_le_of_weightOne_hecke_eigen`
+have **zero RR ancestors**: the Sturm/q-expansion and integral-structure dimension
+results live on the arithmetic (Hecke/q-expansion) side and bypass the
+function-field layer entirely.
+
+**The complex-analytic block is upstream, not a side effort.** The two
+most-depended-on nodes of the group are not RR but complex-analytic:
+`tateAgreement` (4,816 lines, 104 cone dependents) and
+`residueTheoremK_of_isAlgClosed` (8,121 lines, 102), and the RR theorem's
+`functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed` (6,257, 97) is proved
+from them. The RR bucket (41 nodes) is in 22 of the 49 landmark cones, including
+`fermat_last_theorem`, all three level-lowering landmarks,
+`FreyPackage.{Mazur_Frey, frey_isModular}`, and
+`LanglandsTunnell.exists_isWeightOneChiNegThreeRealized_eq_trace_lift`. The
+complex-analytic block (67 nodes / 84,610 lines) is therefore a separate *subject*
+but sits on the critical path to the geometric dimension theory.
 
 **Overlap with row 6.** 67 `ModularCurve` nodes import `Def_AlgebraicCurve_*` (the
 `qExpFunctionField`, `genusFF`, `regularDifferentials`, `place` and Tate-module
@@ -457,7 +490,7 @@ prelude, (ii) **import** the ported place/valuation vocabulary, and (iii) the
 per-file statements grouped by *application* — `RationalFunctionField` ord
 computations, divisor class group / principal divisors, `Pic0`/Jacobian,
 `RegularProlongation` residue calculus — keeping the duplication-light
-`Pic0`/`SemilinearAut`/`functionFieldRiemannRoch`/`normFormulaAlong` tail separate.
+`Pic0`/`SemilinearAut`/`normFormulaAlong` tail separate.
 
 ## 5. Redundancy discipline
 
@@ -588,6 +621,7 @@ cone = fr.closure(root)                 # pin-only, frontier-independent
 front = fr.frontier('union')            # provisional, moves with the port
 def ac_bucket(q):                       # AlgebraicCurve.* predicates of §4.1
     s = q[len('AlgebraicCurve.'):]
+    if 'functionFieldRiemannRoch' in s: return 'Riemann-Roch'   # the RR theorem, even when proved from the residue theorem
     if re.search(r'abelJacobi|pathIntegral|pathPeriodLattice|CellDissection|cell|Cell|RadialRegion|grid|residueTheorem|residueTheoremK|Tate|tate|residueTrace|residue_norm|complex|Complex|chartedSpace|isCoveringMapOn|Analytic|analytic|period|Period|Chordal|ComplexLineIntegral|StandardAnnulus|ResidueDiscs|eventually_abel', s): return 'complex-analytic'
     if re.search(r'[Dd]ifferential|Diffs|diffs|dCoord|omegaSpace|Serre|WeilDatum|weil|Kaehler|canonicalDivisor|CanonicalDivisor|ordDiff|localUnitDerivative', s): return 'differentials/duality'
     if re.search(r'[Dd]ivisor|Pic0|pic0|Jacobian|classGroup|ClassGroup|Cartier|UniversalDivisor|GluedPic0|NodalPic0|divisorClass|abel|hasPrincipalDivisors|degree_eq|degree_canonical', s): return 'divisors/Pic0'
