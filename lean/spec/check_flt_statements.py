@@ -1630,6 +1630,13 @@ SOURCES = [
     # chunks 3.2c–e append). Appended last so no earlier last-name match can flip.
     "Theorems/Thm_AlgebraicCurve_RationalFunctionField_trace_localResidue_placeInfty_X_pow_eq_zero.lean",
     "P2M/Sol/S_AlgebraicCurve_RationalFunctionField_trace_localResidue_placeInfty_X_pow_eq_zero.lean",
+    # --- P3.2d′ (the generic local residue calculus). The `Theorems/` wrapper is
+    # the interface copy for the headline; the generic `S_` file supplies the
+    # `p0n22_cpf_*` family and the two `res_differentialCoeff_D_of_*` rows.
+    # Appended last so no earlier last-name match can flip — the master ℙ¹ `S_`
+    # file above carries `RatFunc K`-specialized copies of several of these names.
+    "Theorems/Thm_AlgebraicCurve_Place_CanonicalLocalResidueDataK_res_differentialCoeff_D_mul_pow_inv_eq_zero_of_surjective_algebraMap.lean",
+    "P2M/Sol/S_AlgebraicCurve_Place_CanonicalLocalResidueDataK_res_differentialCoeff_D_mul_pow_inv_eq_zero_of_surjective_algebraMap.lean",
 ]
 
 PORT_FILES = [
@@ -2159,6 +2166,12 @@ PORT_FILES = [
     # append to the same module. Appended last so no earlier last-name match can
     # flip.
     "FLTForHuman/AlgebraicCurve/Defs/P1ResidueCore.lean",
+    # --- P3.2d′ (the generic local residue calculus): the `p0n22_cpf_*` family
+    # plus the headline, homed before engine chunk 3 so the ℙ¹ core imports it
+    # instead of re-transcribing. Appended last so no earlier last-name match can
+    # flip. `Defs/PushPull.lean`'s `ord_nonneg_of_mem`/`mem_of_ord_nonneg`/
+    # `mem_iff_ord_nonneg` are imported, not re-proved.
+    "FLTForHuman/AlgebraicCurve/Defs/LocalResidueCalculus.lean",
 ]
 
 

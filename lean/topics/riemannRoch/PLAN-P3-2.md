@@ -107,8 +107,9 @@ grouped by the pin's own name prefixes):
 |---|---|---:|---|
 | **3.2a — ℙ¹ dictionary / ord layer** | the **standalone node files**: `ord_placeOfPoint_algebraMap` (1,263), `ord_placeInfty{,_algebraMap}`, `deg_placeInfty`, `isRational_iff_deg_eq_one`, the `evalAt_*` family, the `PlaceEvaluation` interface, and (audit gaps) the dropped `placeOfPoint` block + `PlaceEvaluationAlgebra` | ≈1,445 + ≈200 gaps | **dispatched 3.2a**, three new modules; the master file's `p1PlaceInfty`/`P1Tower` extraction is deferred to 3.2b–d |
 | **3.2b — ord / valuation algebra prelude** | `ord_*`, `exists_*`, `valSubring*`, `gate_*`, `inst*`, `mem_*`, `kaehlerResid*`, `canonicalLocal*` | 848 (chunk 1) | **chunk 1 ACCEPTED** (decls #0–#144, pin 295–3387, → `Defs/P1ResidueCore.lean`); ~100/145 rows import-discharged. **3.2c dispatched** (rows #145–#289) |
-| **3.2c — local residue-at-∞ calculus** | `P1PlaceInftySimplePoleResidueEulerValue*`, `OrdDifferentialWellDefined`, `ordDifferent*`, `p1DifferentialCoeff*`, `simplePole*`, `higherPole*` | ≈1,700 | the simple-pole residue values and the differential-coefficient interface |
-| **3.2d — principal parts + differential coefficients** | `p0n22_cpf_res_*`, `mp72a10*`, `ag9b*`, `ratFuncDXCoe`, `not_dvd_derivative*`, `res_differentialCoeff*` | ≈2,700 | the two residue atoms' shared computation (`p0n22` 882, `ag9b` 820, `mp72` 666) |
+| **3.2c — local residue-at-∞ calculus** | `ord_placeInfty*`, `principalDivisor*`, `degree_*`, `D_ratFuncX*`, `ordDifferential_*`, `p1PrincipalPartAtom`, `ag9b*`, `mp72*` | 1,581 (chunk 2) | **chunk 2 ACCEPTED** (decls #145–#289, pin 3388–6744); 70/145 rows import-discharged |
+| **3.2d′ — generic local residue calculus** | the whole `CanonicalLocalResidueDataK.res_differentialCoeff_*` + `p0n22_cpf_res_*` file (1,244 ln) | 1,229 | **ACCEPTED** — NEW `Defs/LocalResidueCalculus.lean`, its own natural subject home; runs **before** 3.2d so the ℙ¹ core imports these names |
+| **3.2d — principal parts + differential coefficients** | `p0n22_cpf_res_*`, `mp72a10*`, `ag9b*`, `ratFuncDXCoe`, `not_dvd_derivative*`, `res_differentialCoeff*` | ≈2,700 | the two residue atoms' shared computation; master chunk 3 = decls #290–#434 |
 | **3.2e — the PF atoms + base case** | the three `trace_localResidue_*` uniquenesses + `residueTheorem_ratFunc_of_perfectField` | ≈1,000 | the PF side's marginal over 3.2a–d |
 | **row 6 — the K ending** | `residueTheoremK_ratFunc_of_isAlgClosed` marginal + `residueTheoremK_of_isAlgClosed` | ≈2,000 | PORTING-RR §3 already prices it as a marginal; it consumes 3.2a–d |
 
@@ -208,16 +209,80 @@ print(len(A), len(B), 'shared', len(A&B))
 PY
 ```
 
-## 5. Decision needed
+## 5. Decisions recorded
 
-The cut above is a proposal. The open choices for the human:
+1. **Rows 2 and 6 are largely duplicates, and row 6 stays residual — no merge now
+   (human, 2026-09-30).** Row 6's work item is already priced as the *residual*
+   over the shared engine (PORTING-RR §3), which is why it only talks about
+   marginal work. The engine `Defs/P1ResidueCore.lean` is written **once** and
+   serves row 6 as well, but pulling row 6 forward is out of scope for 3.2.
+2. **The four engine blocks are executed as ordered chunks of the master file**
+   (3.2b = #0–#144, 3.2c = #145–#289, 3.2d = #290–#434, 3.2e = #435–#579 + the
+   atom/base tails), into one module. The prefix grouping guided the block labels;
+   the chunk boundaries are the pin's declaration order, because reordering an
+   intricate dependency chain costs more than it buys. The step-0 `port_advise` on
+   the union (`build/p32_engine_advise.log`) confirmed the scale (279 substitutions,
+   8,251 removable).
+3. **The small generic-residue files — measured dispositions (2026-09-30).** These
+   are generic over `Place`, not ℙ¹-specific, so they should not live in the ℙ¹
+   dictionary module:
 
-1. **Confirm the engine-vs-endings merge** (rows 2 and 6 planned together on one
-   `Defs/P1ResidueCore.lean`) rather than the table's separate rows.
-2. **Confirm or re-cut the four engine blocks** (3.2a–d) — the prefix grouping is
-   the pin's own naming, not a proof-dependency measurement; the step-0
-   `port_advise` on the union will sharpen it.
-3. Whether the small generic-residue files (`Place.evalAt_*`,
-   `isRational_iff_deg_eq_one`, `sum_ramificationIndex_mul_inertiaDeg`,
-   `CanonicalLocalResidueDataK_res_…`) belong in 3.2a/3.2b or in an existing
-   `Defs/` home.
+| pin file(s) | pin ln | what it is | port status | disposition |
+|---|---:|---|---|---|
+| `Place_evalAt_{algebraMap,congr,inv,mul,ne_zero,zpow}` (6 nodes) + `Place_isRational_iff_deg_eq_one` | ≈156 | the generic `evalAt`/`IsRational` evaluation lemmas | **ported by 3.2a**, but into `Defs/P1Dictionary.lean` | **layer mismatch** — move to `Defs/PlaceEvaluation.lean` beside the `evalAt` definition; refactor round, statements unchanged, checker unaffected |
+| the six larger `evalAt_*` (`…_algebraMap_eq_evalAt_restrict`, `…_eq_zero_iff_one_le_ord`, `…_map_eq_of_comap_eq`, `…_norm_eq_prod_fiber` 672, `…_smul_smul_eq_baseAut_evalAt`, `…_trace_eq_sum_fiber` 938) | ≈1,803 | the `evalAt` trace/norm/fiber API | **not ported** | not in row 2's core (forward-cone nodes); decide when the forward cone reaches them, home beside `PlaceEvaluation` |
+| `Place_sum_ramificationIndex_mul_inertiaDeg` | 976 (53 decls) | the fibre ramification–inertia identity | **already in the port**: `SumRamificationInertia.sum_ramificationIndex_mul_inertiaDeg` (`Defs/PushPull.lean:678`) plus `…_fiberOver`/`…_le_finrank` (`WeilExchange/FiberOverCount.lean`) | **substitute** — import; no new home; row 2's `RamificationInertiaIdentity` (#236) is its thin wrapper |
+| `Place_CanonicalLocalResidueDataK_res_differentialCoeff_D_mul_pow_inv_eq_zero_of_surjective_algebraMap` | 1,244 (38 decls, the `p0n22_cpf_res_*` block) | the generic local-residue statement: `res` of `differentialCoeff · D · (uniformizer^n)⁻¹` under `Surjective algebraMap` | **not ported** (grep 0) | the one row-2 target not covered by the master chunks: its own small set into a new `Defs/LocalResidueCalculus.lean` (or folded into `Defs/LocalResidue.lean`), generic and independent of the ℙ¹ engine |
+
+So the only outstanding small generic file is the last row: **it needs its own
+mini-set** (call it 3.2d′, dispatched after the engine chunks, or with 3.2d), because
+the `p0n22_cpf_res_*` names it defines sit under the ℙ¹ computation.
+
+4. **Subject homes, not lumping (human, 2026-09-30: "large enough to deserve
+   natural subject homes").** Adopted:
+   - the 1,244-line generic local-residue calculus → **`Defs/LocalResidueCalculus.lean`**
+     (set 3.2d′, dispatched **before** chunk 3, since the ℙ¹ core re-uses its names);
+   - the ~1,803-line `evalAt` trace/norm/fiber API → a `PlaceEvaluation`-adjacent
+     home (`Defs/PlaceEvaluationFiber.lean`) when the forward cone reaches it, not
+     folded into the ℙ¹ dictionary;
+   - the seven `evalAt`/`IsRational` leaves now in `Defs/P1Dictionary.lean` → move to
+     `Defs/PlaceEvaluation.lean` in the next refactor round;
+   - the ℙ¹ core stays one role (`Defs/P1ResidueCore.lean`) but is split into
+     **subject sections** inside it; if it passes ~4k lines the sections become
+     modules (`P1PlaceOrd`, `P1DifferentialCoeff`, `P1PrincipalParts`, `P1Atoms`).
+
+### 3.3 Closeout — 3.2c chunk 2 ACCEPTED (2026-09-30)
+
+`P1ResidueCore.lean` 848 → **2,429 ln** (rows #145–#289, pin 3388–6744). Manager
+re-verified: checker **3356 → 3422 identical / 0 mismatched / 0 missing / 30
+own-proof** (3452 checked); forced build green (1.9 s warm / 11.6 s cold, 2842 jobs,
+only this module's `.olean` moved); `#print axioms` on the sampled surface clean;
+hygiene clean. 70 of 145 rows import-discharged. Carried **promotion debt**: rows
+#240/#241/#243/#244 need the `F ≃ₐ[K] F` divisor-action layer that
+`Defs/SemilinearAut.lean` deferred, transcribed `private` from
+`Def_AlgebraicCurve_DivisorClassGroup.lean` (`Place.ord_smul`, `Place.deg_smul`,
+`MulAction`/`DistribMulAction` instances, `smul_*`, `degree_smul`); a later round
+promotes it. `AUDIT-mathlib-p3-2c.md` (668 ln; 72/67/6) folded into its work order.
+
+### 3.4 Closeout — 3.2d′ ACCEPTED (2026-09-30)
+
+**`Defs/LocalResidueCalculus.lean`** (new, **1,229 ln**; 26 public + 9 private) =
+the whole generic `CanonicalLocalResidueDataK.res_differentialCoeff_*` /
+`p0n22_cpf_res_*` file. Manager re-verified: checker **3422 → 3448 identical / 0
+mismatched / 0 missing / 30 own-proof** (3478 checked); forced build green (2.0 s
+warm / 9.0 s cold, 2689 jobs, no cascade); axioms clean; hygiene clean.
+
+The audit (`AUDIT-mathlib-p3-2dprime.md`, 448 ln; **9 SUBSTITUTE / 29
+PROOF-INGREDIENT / 0 BESPOKE** — the first phase-3 block with no new vocabulary)
+corrected this set's lead: the char-0 `ag9b13t_*`/`ag9b14c_*` engine is **not** in
+the port, so rows 10/15 and the headline's `ringChar = 0` branch are new
+transcriptions. Mathlib supplies every derivation/Frobenius leaf.
+
+**Carried debt (for the 3.2 closeout refactor round, cascade-free — nothing imports
+either module yet):** five helpers are duplicated `private` in both
+`LocalResidueCalculus.lean` and `P1ResidueCore.lean` — `Place.ord_add_eq_min` and
+the four `ModularCurve.MilneAvAg9bRd15UnitNormalFormLaurentSeed.ag9b15u_*` — because
+the generic module must precede the core's later chunks and cannot import them. The
+fix: make the five public in `LocalResidueCalculus`, import it from `P1ResidueCore`,
+drop the core's copies. **3.2d (chunk 3, rows #290–#434) is dispatched** with
+`AUDIT-mathlib-p3-2d.md`.

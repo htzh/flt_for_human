@@ -1591,3 +1591,167 @@ isPrincipalIdealRing_comap}`, `finite_setOf_valuation_ne_one`,
 `RatFuncDegree.finite_setOf_valuation_ne_one` and the `Transcendence` privates so
 3.2c–e import instead of re-carrying them.
 
+
+### Set 3.2c — worker result (2026-09-30)
+
+Append-only additions to `FLTForHuman/AlgebraicCurve/Defs/P1ResidueCore.lean`:
+declarations **#145–#289** (pin 3388–6744) of the master ℙ¹ `S_` file. Module
+**848 → 2429 lines** (1581 appended, of which 3 are linter options; 1578 written
+Lean). Checker **3356 / 0 / 0 / 30** (3386 checked) → **3422 / 0 / 0 / 30**
+(3452 checked): +66 public statements, the other 9 of the 75 transcribed
+declarations are pin- or locally-`private` (the checker also skips `scoped
+instance`, so `instHasPrincipalDivisors` is landed but not statement-diffed).
+Forced `lake build FLTForHuman.AlgebraicCurve.Defs.P1ResidueCore` green:
+**11.62 s** cold (olean removed, 2842 jobs), and a `.olean`-mtime sweep shows
+only `P1ResidueCore.olean` moved (no cascade, no whole-tree build).
+`#print axioms` on all **67** new public declarations →
+`[propext, Classical.choice, Quot.sound]`. Consumer wire test
+(`spec/RiemannRochConsumer.lean`) still exits 0. Hygiene clean.
+
+**Substitutions imported (70 rows omitted, import do not re-prove):**
+rows #145–#155 (`Defs/P1Dictionary.lean` + `PrincipalDivisors/RatFuncDegree.lean`:
+`ord_ofHeightOneSpectrum_of_span`, `ord_placeInfty*`,
+`single_add_single_apply_eq_ord`, `degree_single_add_single`, `principalDivisor*`,
+`degree_eq_zero_of_forall_eq_ord*`); #165–#176 (`Defs/PlaceDictionary.lean`);
+#177–#186 and #189 (`Canonical/HasCanonicalDivisor.lean`, the public
+`_root_.AlgebraicCurve.Place.*` block, so the pin-`private` copies are not
+restated); #192–#202 and #208–#211 (`Defs/CanonicalLocalResidueInstanceV2.lean`,
+including the unprimed `higherPoleCorrection*`, `aCoeff`, `Mp72a103T2.*`);
+#237 `Divisor.degree_eq_sum_support` (`Genus/Index.lean`); #251–#253
+(`HasCanonicalDivisor`); #254–#270 (`V2` `KwNo6Pin` `aCoeff_*`/`clearPow_mem`/
+`resStar*`/`canonicalLocalResidueDataKStar`). The `port_advise` false positives
+(`def … : Prop` matched against `EisensteinWeightOne.E1Chi3IsModular`) for
+`OrdDifferentialWellDefined`, `ValSubringKaehlerFinite`,
+`ValSubringEssFiniteType`, `KaehlerRankOne`, `RamificationInertiaIdentity`,
+`CanonicalLocalResidueKDifferentialCoordIndep` were checked by hand; the first has
+a real same-name home in chunk 1, the others are genuinely new and transcribed.
+
+**Pin-private helpers kept `private`:** #187
+`isSeparable_residueField_of_charZero_of_finiteResidue`, #188
+`subsingleton_polynomialKaehler_of_charZero_of_finite`, #204–#207 the
+`ag9b15u_*` block, #220 `uniformizer_ne_zero'`, #239
+`_root_.AlgebraicCurve.Place.ord_prod` (used via `w.ord_prod` in #240).
+
+**Out-of-set declarations resolved locally (promotion debt).** Rows #240/#241/
+#243/#244 state the `F ≃ₐ[K] F` Galois action on `Divisor`, whose layer the port
+deliberately deferred (`Defs/SemilinearAut.lean:7`, "the Divisor/`Pic0`
+action-and-torsion section is deferred"). Transcribed locally `private`, statements
+verbatim from `Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean`:
+`Place.ord_smul` (:314), `Place.deg_smul` (:348), the `F ≃ₐ[K] F`
+`MulAction (Place K F)` underlying :285/:305, the `Divisor` `DistribMulAction`
+(:359), `Divisor.smul_def` (:361), `smul_single` (:364), `smul_apply_smul` (:369),
+`smul_apply` (:374), `degree_smul` (:380). All are proved from the ported
+`SemilinearAut.ord_smul`/`deg_smul`; `simpa` will not unfold the `SMul` instance,
+so `change (SemilinearAut.ofAlgAut σ • v) …` is used first. A second local copy
+`Place.ord_add_eq_left'` (statement from pin 829) was needed because the chunk-1
+twin is `private` in this same module. Promotion candidates: port that
+`DivisorClassGroup` block into `Defs/SemilinearAut.lean`, and make
+`P1ResidueCore`'s `Place.{ord_add_eq_left, ord_add_eq_min}` public so 3.2d–e
+import them.
+
+**Inventory / advise gaps.** The brief's row list was stale: rows #156–#164 had
+already been merged into `P1ResidueCore.lean` and row #237 into `Genus/Index.lean`
+(the inventory marks neither), which cost time on `already declared` errors. The
+`AUDIT-mathlib-p3-2c.md` did not land during the round; the substitutions above
+were checked against the imported modules directly.
+
+**Drift.** `Finsupp.mapDomain_apply (h_inj) …` → `Finsupp.mapDomain_apply_of_injective
+(h_inj) …`; `if_pos`/`if_neg` → `ite_eq_left`/`ite_eq_right`;
+`Set.mem_setOf_eq` → `Set.mem_ofPred_eq` (proof bodies only; statements unchanged).
+
+**Manager review — 3.2c chunk 2 ACCEPTED (2026-09-30).** Independently re-run:
+checker **3422 identical / 0 mismatched / 0 missing / 30 own-proof** (3452 checked);
+forced build green (1.9 s warm / 11.6 s cold, 2842 jobs, no cascade); `#print axioms`
+on `two_le_ord_placeInfty_p1PrincipalPartAtom`, `ratFuncDXCoeff`,
+`IsCurveOver.kaehler_free_rank_one` clean; hygiene clean. The 668-line
+`AUDIT-mathlib-p3-2c.md` (72/67/6) was already folded into the work order §3 —
+the worker's "audit never landed" was a timing artefact. Carried **promotion debt**:
+the `F ≃ₐ[K] F` divisor-action layer (`Place.ord_smul`/`deg_smul`, the
+`MulAction`/`DistribMulAction` instances, `smul_*`, `degree_smul`) is transcribed
+`private` from `Def_AlgebraicCurve_DivisorClassGroup.lean` for rows
+#240/#241/#243/#244; `Defs/SemilinearAut.lean` deferred it, so a later round either
+promotes it there or the engine keeps the private copies.
+
+**Subject homes (human decision, 2026-09-30).** The generic files get their own
+homes rather than being lumped: set **3.2d′** is dispatched to create
+`Defs/LocalResidueCalculus.lean` from the 1,244-line generic
+`CanonicalLocalResidueDataK.res_differentialCoeff_*`/`p0n22_cpf_res_*` file, **before**
+engine chunk 3 (the ℙ¹ core re-uses those names); the ~1,803-line `evalAt`
+trace/norm/fiber API gets a `PlaceEvaluation`-adjacent home when the forward cone
+reaches it; and the seven `evalAt`/`IsRational` leaves currently in `P1Dictionary`
+move to `PlaceEvaluation.lean` in the next refactor round. `P1ResidueCore` stays one
+role, split into subject sections, and becomes modules if it passes ~4k lines.
+
+### Set 3.2d′ — worker result (2026-09-30)
+
+New module `FLTForHuman/AlgebraicCurve/Defs/LocalResidueCalculus.lean`, **1,229
+lines** (54 of module header/imports/options + 1,175 transcribed), from the pin
+`P2M/Sol/S_AlgebraicCurve_Place_CanonicalLocalResidueDataK_res_differentialCoeff_D_mul_pow_inv_eq_zero_of_surjective_algebraMap.lean`
+(1,244 ln, 38 declarations) + its `Theorems/Thm_*` wrapper. 26 public
+declarations (2 pin rows replaced by imports) + 9 `private` helpers. Checker
+**3422 / 0 / 0 / 30** (3452 checked) → **3448 / 0 / 0 / 30** (3478 checked):
++26 public statements, 0 mismatched / 0 missing. Forced
+`lake build FLTForHuman.AlgebraicCurve.Defs.LocalResidueCalculus` green:
+**8.7 s** wall (6.7 s build, 2689 jobs); an `.olean`-mtime sweep shows only
+`LocalResidueCalculus.olean` moved (new file, no dependents, no cascade, no
+whole-tree build). `#print axioms` on all 26 public declarations →
+`[propext, Classical.choice, Quot.sound]`. Consumer wire test
+(`spec/RiemannRochConsumer.lean`) exits 0. Hygiene clean (no
+`sorry`/`admit`/`axiom`, no `import Mathlib`).
+
+**Substitutions imported (3, omitted not re-proved):**
+`Place.ord_nonneg_of_mem`, `Place.mem_of_ord_nonneg`,
+`Place.mem_iff_ord_nonneg` (`Defs/PushPull.lean`, public). The other rows
+`port_advise` §1 flagged as "substitute" are only port-`private` in
+`Defs/P1ResidueCore.lean` (`ord_add_eq_min` + the four `ag9b15u_*`) and cannot be
+imported: this module is a *predecessor* of the ℙ¹ core's later chunks (they will
+import it), so the copies are transcribed `private` here and the duplication is
+promotion debt. The char-0 `ag9b13t_*` engine the brief pointed at
+`Defs/CanonicalLocalResidueInstanceV2.lean` (phase 3.1b-ii) is **not** in the
+port — verified by grep over `FLTForHuman/` — so its 44-line row is transcribed
+(new, not a substitution).
+
+**Pin-private helpers kept `private` (9):** `ord_add_eq_min` (pin 61),
+`differentialCoeff_add''` (107), `differentialCoeff_D_uniformizer_pow_inv`
+(113), `ag9b13t_res_differentialCoeff_D_mul_pow_inv_of_surj_of_natCast_ne_zero`
+(196), `ag9b15u_eq_zero_or_one_le_ord_of_residue_eq_zero` (240),
+`ag9b15u_exists_unit_normal_form_of_surj` (261),
+`ag9b15u_exists_K_truncation_of_mem_poleSubmodule` (310),
+`ag9b15u_differentialCoeff_D_unit_mul_uniformizer` (351),
+`ag9b14c_res_uniformizer_zpow_eq_zero_of_ne_neg_one` (376).
+
+**Promotion debt (private duplicates), pin file:line.** Five of the nine already
+exist privately in `Defs/P1ResidueCore.lean` with the same statement:
+`ord_add_eq_min` (`P1ResidueCore.lean:131`; pin 61) and the four `ag9b15u_*`
+(`P1ResidueCore.lean:1102/1122/1170/1210`; pin 240/261/310/351). The remaining
+four have no port home yet: `differentialCoeff_add''` (pin 107),
+`differentialCoeff_D_uniformizer_pow_inv` (pin 113),
+`ag9b13t_…_natCast_ne_zero` (pin 196) and
+`ag9b14c_res_uniformizer_zpow_eq_zero_of_ne_neg_one` (pin 376) — all
+local-residue-calculus-private, to promote to a shared home together with the
+`P1ResidueCore` copies in the next refactor round.
+
+**Drift.** `if_pos`/`if_neg` → `ite_eq_left`/`ite_eq_right` (7 sites, proof
+bodies only; statements unchanged). `include hp hKp in` still works in v4.34.
+No `Set.mem_setOf_eq`/`dif_pos`/`degree_sub_lt` on this path.
+
+**Forward references.** None: the file is self-contained; no ℙ¹ specialization
+appears.
+
+**Manager review — 3.2d′ ACCEPTED (2026-09-30).** Independently re-run: checker
+**3448 identical / 0 mismatched / 0 missing / 30 own-proof** (3478 checked); forced
+build green (2.0 s warm / 9.0 s cold, 2689 jobs, no cascade); hygiene clean. This is
+the first phase-3 block whose natural subject home was created by decision rather
+than by pin file: the generic local-residue calculus is `Defs/LocalResidueCalculus.lean`,
+keeping it out of the ℙ¹ core. The audit's correction (the char-0 `ag9b13t_*` engine
+is not in the port) was accepted by the worker during the run.
+
+**Duplication recorded (for the 3.2 closeout refactor round).** `LocalResidueCalculus`
+and `P1ResidueCore` each carry `private` copies of `Place.ord_add_eq_min` and the
+four `ModularCurve.MilneAvAg9bRd15UnitNormalFormLaurentSeed.ag9b15u_*` (the generic
+module must precede the core's later chunks, so it cannot import them). Nothing
+imports either module yet, so the fix is cascade-free: make the five public in
+`LocalResidueCalculus.lean`, import it from `P1ResidueCore.lean`, drop the core's
+copies. **3.2d (chunk 3, rows #290–#434, pin 6745–9499) is dispatched**, and it
+imports `LocalResidueCalculus` for the generic `p0n22_cpf_res_*` /
+`res_differentialCoeff_D_*` names (the master re-uses them 63×).

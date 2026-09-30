@@ -78,6 +78,30 @@ Re-check every row against `build/p32_engine_advise.log` §1 and against the
 for the coefficient atoms; `Ideal.inertiaDeg`/`Ideal.ramificationIdx` (unprimed,
 v4.34 — the primed names are deprecated). Do not bank an unelaborated claim.
 
+**Audit result (`AUDIT-mathlib-p3-2c.md`, landed — 72 SUBSTITUTE / 67
+PROOF-INGREDIENT / 6 BESPOKE over 145 rows).** Substitutes: rows #145–#155 →
+`P1Dictionary`/`RatFuncDegree` (11); #164–#176 → `Defs/PlaceDictionary.lean` (13,
+but #164 `eq_ord_of_addHom_of_nonneg_iff` is **`private` at `:44`** — promote or
+consume in-file); #177–#186, #189, #251–#253 → `HasCanonicalDivisor.lean` (14);
+#192–#202, #208–#211, #254–#270 → `CanonicalLocalResidueInstanceV2.lean` (32; note
+the port's `higherPoleCorrection` has **no prime**); #220 → `Defs/CanonicalDivisor`;
+#237 → `Genus/Index`. **#156 `instHasPrincipalDivisors` is NOT in the port** (chunk
+1 only assumes `[HasPrincipalDivisors K (RatFunc K)]`) — land it first.
+BESPOKE (6): `dX` #212, `KaehlerRankOne` #233, `RamificationInertiaIdentity` #236,
+`principalDivisorOf` #242, `CanonicalLocalResidueKDifferentialCoordIndep` #246,
+`ratFuncDXCoeff` #272. **Reuse win:** mathlib
+`Mathlib/RingTheory/Polynomial/Wronskian.lean` (`Polynomial.wronskian`,
+`natDegree_wronskian_lt_add:111`, `IsCoprime.wronskian_eq_zero_iff`) — the pin's
+`n'd − nd'` is `-wronskian n d`, so #271 collapses. **Route:** #236–#244 need not
+re-derive the fibre count — `PushPull`'s `FundamentalIdentity` (:632) /
+`SumRamificationInertia` (:677) / `WeilExchange/FiberOverCount.lean:33` already
+carry it; `Place.IsRational` is defeq #245; `IsCurveOver.kaehler_free_rank_one` is
+#233's conjunction. **Correction:** `P1DifferentialCoeffUnitFinite` is row **#290**
+(pin 6745) — out of scope; the in-scope name is `P1DifferentialCoeffRegularFinite`.
+Drift: `inertiaDeg'_algebraMap` deprecated → `Ideal.inertiaDeg_eq_of_isMaximal`;
+`Ideal.ramificationIdx_spec` deprecated → the primed one; `PerfectField.ofCharZero`
+is an instance; `Polynomial.multiplicity` does not exist.
+
 ## 4. Build discipline, checker wiring, report shape
 
 Exactly [WORKORDER-P3-2b-p1core-1.md](WORKORDER-P3-2b-p1core-1.md) §4–§7. The

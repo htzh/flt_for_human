@@ -846,3 +846,1584 @@ end OrdIntegrand
 end AlgebraicCurve
 
 end
+
+set_option linter.style.haveILetI false
+set_option linter.unusedSectionVars false
+set_option linter.overlappingInstances false
+
+noncomputable section
+
+open Polynomial IsDedekindDomain WithZero IsLocalRing UniqueFactorizationMonoid
+open scoped Polynomial
+
+namespace AlgebraicCurve
+
+namespace RationalFunctionField
+
+variable {K : Type*} [Field K]
+
+/-- Pin row #156. -/
+scoped instance instHasPrincipalDivisors : HasPrincipalDivisors K (RatFunc K) where
+  exists_divisor _ hf := ⟨principalDivisor hf, fun _ => rfl, degree_principalDivisor hf⟩
+
+end RationalFunctionField
+
+section RationalFunctionFieldDifferential
+
+open RationalFunctionField
+
+variable (K : Type*) [Field K] [DecidableEq (RatFunc K)]
+
+omit [DecidableEq (RatFunc K)] in
+/-- Pin row #157. -/
+theorem D_ratFuncX_eq_neg_X_sq_smul_D_inv :
+    KaehlerDifferential.D K (RatFunc K) RatFunc.X
+      = (-(RatFunc.X : RatFunc K) ^ 2) •
+          KaehlerDifferential.D K (RatFunc K) (RatFunc.X : RatFunc K)⁻¹ :=
+  (KaehlerDifferential.D K (RatFunc K)).leibniz_of_mul_eq_one
+    (mul_inv_cancel₀ RatFunc.X_ne_zero)
+
+/-- Pin row #158. -/
+theorem ord_placeInfty_X_inv : (p1PlaceInfty K).ord (RatFunc.X : RatFunc K)⁻¹ = 1 := by
+  rw [(p1PlaceInfty K).ord_inv, ord_placeInfty_X, neg_neg]
+
+/-- Pin row #159. -/
+theorem ord_placeInfty_X_pow (n : ℕ) :
+    (p1PlaceInfty K).ord ((RatFunc.X : RatFunc K) ^ n) = -(n : ℤ) := by
+  rw [show ((RatFunc.X : RatFunc K) ^ n) = (RatFunc.X : RatFunc K) ^ (n : ℤ) from
+    (zpow_natCast _ n).symm, (p1PlaceInfty K).ord_zpow, ord_placeInfty_X]
+  ring
+
+end RationalFunctionFieldDifferential
+
+section RationalFunctionFieldNonVanishing
+
+open RationalFunctionField
+
+variable (K : Type*) [Field K] [DecidableEq (RatFunc K)]
+variable [∀ v : Place K (RatFunc K), v.DCoordGenerates] [Nontrivial Ω[(RatFunc K)⁄K]]
+
+/-- Pin row #160. -/
+theorem D_ratFuncX_inv_ne_zero (hwd : OrdDifferentialWellDefined K (RatFunc K)) :
+    KaehlerDifferential.D K (RatFunc K) (RatFunc.X : RatFunc K)⁻¹ ≠ 0 := by
+  obtain ⟨u, -, hueq⟩ :=
+    hwd (p1PlaceInfty K) (RatFunc.X : RatFunc K)⁻¹ (p1PlaceInfty K).uniformizer
+      (ord_placeInfty_X_inv K) (p1PlaceInfty K).ord_uniformizer
+  intro h0
+  refine (p1PlaceInfty K).dCoord_ne_zero ?_
+  show KaehlerDifferential.D K (RatFunc K) (p1PlaceInfty K).uniformizer = 0
+  rw [hueq, h0, smul_zero]
+
+/-- Pin row #161. -/
+theorem differentialCoeff_placeInfty_D_X_eq :
+    (p1PlaceInfty K).differentialCoeff (KaehlerDifferential.D K (RatFunc K) RatFunc.X)
+      = (-(RatFunc.X : RatFunc K) ^ 2) *
+          (p1PlaceInfty K).differentialCoeff
+            (KaehlerDifferential.D K (RatFunc K) (RatFunc.X : RatFunc K)⁻¹) := by
+  rw [D_ratFuncX_eq_neg_X_sq_smul_D_inv, (p1PlaceInfty K).differentialCoeff_smul]
+
+/-- Pin row #162. -/
+theorem ord_differentialCoeff_placeInfty_D_X_inv_eq_zero
+    (hwd : OrdDifferentialWellDefined K (RatFunc K)) :
+    (p1PlaceInfty K).ord
+        ((p1PlaceInfty K).differentialCoeff
+          (KaehlerDifferential.D K (RatFunc K) (RatFunc.X : RatFunc K)⁻¹)) = 0 := by
+  obtain ⟨u, hu0, hueq⟩ :=
+    hwd (p1PlaceInfty K) (p1PlaceInfty K).uniformizer (RatFunc.X : RatFunc K)⁻¹
+      (p1PlaceInfty K).ord_uniformizer (ord_placeInfty_X_inv K)
+  rw [(p1PlaceInfty K).differentialCoeff_unique
+    (show KaehlerDifferential.D K (RatFunc K) (RatFunc.X : RatFunc K)⁻¹
+        = u • (p1PlaceInfty K).dCoord from hueq), hu0]
+
+/-- Pin row #163. -/
+theorem ordDifferential_placeInfty_D_ratFuncX
+    (hwd : OrdDifferentialWellDefined K (RatFunc K)) :
+    (p1PlaceInfty K).ordDifferential
+        (KaehlerDifferential.D K (RatFunc K) (RatFunc.X : RatFunc K)) = -2 := by
+  rw [Place.ordDifferential, differentialCoeff_placeInfty_D_X_eq K, neg_mul,
+    (p1PlaceInfty K).ord_neg,
+    (p1PlaceInfty K).ord_mul (pow_ne_zero 2 RatFunc.X_ne_zero)
+      ((p1PlaceInfty K).differentialCoeff_ne_zero (D_ratFuncX_inv_ne_zero K hwd)),
+    ord_placeInfty_X_pow K 2, ord_differentialCoeff_placeInfty_D_X_inv_eq_zero K hwd]
+  norm_num
+
+end RationalFunctionFieldNonVanishing
+
+namespace Place
+
+section Uniqueness
+
+variable {K F : Type*} [Field K] [Field F] [Algebra K F] (w : Place K F)
+
+/-- Pin row #164. -/
+theorem eq_ord_of_addHom_of_nonneg_iff (φ : F → ℤ)
+    (hmul : ∀ x y, x ≠ 0 → y ≠ 0 → φ (x * y) = φ x + φ y)
+    (hone : ∃ t, t ≠ 0 ∧ φ t = 1)
+    (hiff : ∀ x, x ≠ 0 → (0 ≤ φ x ↔ x ∈ w.toValuationSubring))
+    {x : F} (hx : x ≠ 0) : φ x = w.ord x := by
+  obtain ⟨t, ht0, ht1⟩ := hone
+
+  have hφ1 : φ 1 = 0 := by
+    have := hmul 1 1 one_ne_zero one_ne_zero
+    rw [mul_one] at this
+    omega
+
+  have hinv : ∀ y, y ≠ 0 → φ y⁻¹ = -φ y := by
+    intro y hy
+    have h1 : φ (y * y⁻¹) = φ y + φ y⁻¹ := hmul y y⁻¹ hy (inv_ne_zero hy)
+    rw [mul_inv_cancel₀ hy, hφ1] at h1
+    omega
+
+  have hpow : ∀ (y : F), y ≠ 0 → ∀ m : ℕ, φ (y ^ m) = m * φ y := by
+    intro y hy m
+    induction m with
+    | zero => simpa using hφ1
+    | succ m ih =>
+      rw [pow_succ, hmul _ _ (pow_ne_zero _ hy) hy, ih]
+      push_cast
+      ring
+  have hzpow : ∀ (y : F) (n : ℤ), y ≠ 0 → φ (y ^ n) = n * φ y := by
+    intro y n hy
+    rcases n with m | m
+    · simpa using hpow y hy m
+    · rw [zpow_negSucc, hinv _ (pow_ne_zero _ hy), hpow y hy, Int.negSucc_eq]
+      push_cast
+      ring
+
+  have hsign : ∀ y, y ≠ 0 → (0 ≤ φ y ↔ 0 ≤ w.ord y) := by
+    intro y hy
+    rw [hiff y hy, w.mem_iff_ord_nonneg hy]
+  have hzero : ∀ y, y ≠ 0 → (φ y = 0 ↔ w.ord y = 0) := by
+    intro y hy
+    have h1 := hsign y hy
+    have h2 := hsign y⁻¹ (inv_ne_zero hy)
+    rw [hinv y hy, w.ord_inv] at h2
+    omega
+
+  have htord : 0 < w.ord t := by
+    have h1 := (hsign t ht0).mp (by omega)
+    have h2 := (hzero t ht0).not.mp (by omega)
+    omega
+
+  have hcancel : ∀ y, y ≠ 0 → w.ord y = φ y * w.ord t := by
+    intro y hy
+    have hyt : y * t ^ (-(φ y)) ≠ 0 := mul_ne_zero hy (zpow_ne_zero _ ht0)
+    have h1 : φ (y * t ^ (-(φ y))) = 0 := by
+      rw [hmul _ _ hy (zpow_ne_zero _ ht0), hzpow t _ ht0, ht1]
+      ring
+    have h2 : w.ord (y * t ^ (-(φ y))) = 0 := (hzero _ hyt).mp h1
+    rw [w.ord_mul hy (zpow_ne_zero _ ht0), w.ord_zpow] at h2
+    linarith
+
+  obtain ⟨π, hπ⟩ := IsDiscreteValuationRing.exists_irreducible w.toValuationSubring
+  have hπ0 : (π : F) ≠ 0 := by
+    simpa [ne_eq, ZeroMemClass.coe_eq_zero] using hπ.ne_zero
+  have hπcancel := hcancel (π : F) hπ0
+  rw [w.ord_coe_irreducible hπ] at hπcancel
+
+  have htord1 : w.ord t = 1 := by
+    have hdvd : w.ord t ∣ 1 := ⟨φ (π : F), by linarith⟩
+    have := Int.le_of_dvd one_pos hdvd
+    omega
+  have := hcancel x hx
+  rw [htord1, mul_one] at this
+  exact this.symm
+
+end Uniqueness
+
+end Place
+
+end AlgebraicCurve
+
+end
+
+noncomputable section
+
+open Polynomial IsDedekindDomain WithZero IsLocalRing UniqueFactorizationMonoid
+open scoped Polynomial
+
+namespace AlgebraicCurve
+
+namespace Place
+
+section ResidueEngine
+
+variable {K F : Type*} [Field K] [Field F] [Algebra K F] (v : Place K F)
+
+private theorem isSeparable_residueField_of_charZero_of_finiteResidue
+    [CharZero K] [v.FiniteResidue] :
+    Algebra.IsSeparable K (IsLocalRing.ResidueField v.toValuationSubring) := by
+  haveI : Module.Finite K (IsLocalRing.ResidueField v.toValuationSubring) := Place.FiniteResidue.finite
+  haveI : Algebra.IsAlgebraic K (IsLocalRing.ResidueField v.toValuationSubring) :=
+    Algebra.IsAlgebraic.of_finite K _
+  exact Algebra.IsAlgebraic.isSeparable_of_perfectField
+
+private theorem subsingleton_polynomialKaehler_of_charZero_of_finite
+    [CharZero K] [v.FiniteResidue]
+    [Module.Finite v.toValuationSubring Ω[v.toValuationSubring⁄K]] :
+    letI := v.polynomialAlgebra
+    Subsingleton Ω[v.toValuationSubring⁄K[X]] := by
+  haveI := v.isSeparable_residueField_of_charZero_of_finiteResidue
+  exact v.subsingleton_polynomialKaehler_of_isSeparable_of_finite
+
+end ResidueEngine
+
+end Place
+
+variable {K F : Type*} [Field K] [Field F] [Algebra K F]
+
+theorem valSubringPolynomialFormallyUnramified_of_kaehlerFinite_of_charZero
+    [CharZero K] [∀ v : Place K F, v.FiniteResidue]
+    (hfin : ValSubringKaehlerFinite K F) :
+    ValSubringPolynomialFormallyUnramified K F := by
+  intro v
+  haveI := hfin v
+  exact v.subsingleton_polynomialKaehler_of_charZero_of_finite
+
+theorem valSubringKaehlerSpanTop_of_kaehlerFinite_of_charZero
+    [CharZero K] [∀ v : Place K F, v.FiniteResidue]
+    (hfin : ValSubringKaehlerFinite K F) :
+    ValSubringKaehlerSpanTop K F :=
+  valSubringKaehlerSpanTop_of_polynomialFormallyUnramified
+    (valSubringPolynomialFormallyUnramified_of_kaehlerFinite_of_charZero hfin)
+
+theorem gate_canonicalLocalResidueDataK_uniformizer_inv (v : Place K F)
+    (R : v.CanonicalLocalResidueDataK) : R.res v.uniformizer⁻¹ = 1 :=
+  gate_localResidueData_uniformizer_inv v R.toLocalResidueData
+
+end AlgebraicCurve
+
+namespace ModularCurve
+
+open AlgebraicCurve
+
+namespace MilneAvAg9bRd15UnitNormalFormLaurentSeed
+
+private theorem ag9b15u_eq_zero_or_one_le_ord_of_residue_eq_zero
+    {K F : Type*} [Field K] [Field F] [Algebra K F] (v : Place K F)
+    {g : F} (hg : g ∈ v.toValuationSubring)
+    (h0 : IsLocalRing.residue _ (⟨g, hg⟩ : v.toValuationSubring) = 0) :
+    g = 0 ∨ 1 ≤ v.ord g := by
+  rcases eq_or_ne g 0 with rfl | hg0
+  · exact Or.inl rfl
+  right
+  have hnn : 0 ≤ v.ord g := v.ord_nonneg_of_mem hg
+  rcases eq_or_ne (v.ord g) 0 with hz | hnz
+  · exfalso
+    have hmemi : g⁻¹ ∈ v.toValuationSubring := by
+      refine v.mem_of_ord_nonneg (inv_ne_zero hg0) ?_
+      rw [v.ord_inv, hz, _root_.neg_zero]
+    rw [IsLocalRing.residue_eq_zero_iff, IsLocalRing.mem_maximalIdeal,
+      mem_nonunits_iff] at h0
+    exact h0 ⟨⟨⟨g, hg⟩, ⟨g⁻¹, hmemi⟩, Subtype.ext (mul_inv_cancel₀ hg0),
+      Subtype.ext (inv_mul_cancel₀ hg0)⟩, rfl⟩
+  · omega
+
+private theorem ag9b15u_exists_unit_normal_form_of_surj
+    {K F : Type*} [Field K] [Field F] [Algebra K F] (v : Place K F)
+    (hsurj : Function.Surjective (algebraMap K v.ResidueField))
+    {w : F} (hw0 : w ≠ 0) (hw : v.ord w = 0) :
+    ∃ (c : K) (s : F), c ≠ 0 ∧ (s = 0 ∨ 1 ≤ v.ord s) ∧
+      w = algebraMap K F c * (1 + s) := by
+  have hwmem : w ∈ v.toValuationSubring := v.mem_of_ord_nonneg hw0 hw.ge
+  have hwinv : w⁻¹ ∈ v.toValuationSubring := by
+    refine v.mem_of_ord_nonneg (inv_ne_zero hw0) ?_
+    rw [v.ord_inv, hw, _root_.neg_zero]
+  have hres0 : IsLocalRing.residue _ (⟨w, hwmem⟩ : v.toValuationSubring) ≠ 0 := by
+    intro h0
+    rw [IsLocalRing.residue_eq_zero_iff, IsLocalRing.mem_maximalIdeal,
+      mem_nonunits_iff] at h0
+    exact h0 ⟨⟨⟨w, hwmem⟩, ⟨w⁻¹, hwinv⟩, Subtype.ext (mul_inv_cancel₀ hw0),
+      Subtype.ext (inv_mul_cancel₀ hw0)⟩, rfl⟩
+  obtain ⟨c, hc⟩ := hsurj (IsLocalRing.residue _ (⟨w, hwmem⟩ : v.toValuationSubring))
+  have hc0 : c ≠ 0 := by
+    rintro rfl
+    rw [_root_.map_zero] at hc
+    exact hres0 hc.symm
+  have ha0 : algebraMap K F c ≠ 0 :=
+    fun h => hc0 ((algebraMap K F).injective (h.trans (_root_.map_zero _).symm))
+  refine ⟨c, w * (algebraMap K F c)⁻¹ - 1, hc0, ?_, ?_⟩
+  · have hainv : (algebraMap K F c)⁻¹ ∈ v.toValuationSubring := by
+      rw [← map_inv₀]
+      exact v.algebraMap_mem' c⁻¹
+    have hsmem : w * (algebraMap K F c)⁻¹ - 1 ∈ v.toValuationSubring :=
+      sub_mem (mul_mem hwmem hainv) (one_mem _)
+    refine ag9b15u_eq_zero_or_one_le_ord_of_residue_eq_zero v hsmem ?_
+    have hfact : (⟨w * (algebraMap K F c)⁻¹ - 1, hsmem⟩ : v.toValuationSubring)
+        = ⟨w, hwmem⟩ * ⟨(algebraMap K F c)⁻¹, hainv⟩ - 1 :=
+      Subtype.ext (by push_cast; ring)
+    have hainv_res : IsLocalRing.residue _
+        ((⟨(algebraMap K F c)⁻¹, hainv⟩ : v.toValuationSubring))
+        = (IsLocalRing.residue _ (⟨w, hwmem⟩ : v.toValuationSubring))⁻¹ := by
+      have h1 : (⟨(algebraMap K F c)⁻¹, hainv⟩ : v.toValuationSubring)
+          = algebraMap K v.toValuationSubring c⁻¹ :=
+        Subtype.ext (by rw [v.coe_algebraMap, map_inv₀])
+      rw [h1, ← IsLocalRing.ResidueField.algebraMap_eq,
+        ← IsScalarTower.algebraMap_apply K v.toValuationSubring v.ResidueField,
+        map_inv₀, hc, IsLocalRing.ResidueField.algebraMap_eq]
+    rw [hfact, map_sub, map_mul, map_one, hainv_res, mul_inv_cancel₀ hres0, sub_self]
+  · have hrw : (1 : F) + (w * (algebraMap K F c)⁻¹ - 1) = w * (algebraMap K F c)⁻¹ := by
+      ring
+    rw [hrw, mul_comm w (algebraMap K F c)⁻¹, ← mul_assoc,
+      mul_inv_cancel₀ ha0, one_mul]
+
+private theorem ag9b15u_exists_K_truncation_of_mem_poleSubmodule
+    {K F : Type*} [Field K] [Field F] [Algebra K F] (v : Place K F)
+    (hsurj : Function.Surjective (algebraMap K v.ResidueField))
+    (n : ℕ) {f : F} (hf : f ∈ v.poleSubmodule n) :
+    ∃ c : ℕ → K,
+      f - ∑ j ∈ Finset.range n, algebraMap K F (c j) * (v.uniformizer ^ (j + 1))⁻¹
+        ∈ v.toValuationSubring := by
+  induction n generalizing f with
+  | zero =>
+    refine ⟨0, ?_⟩
+    rw [Finset.range_zero, Finset.sum_empty, sub_zero]
+    rwa [← SetLike.mem_coe, v.coe_poleSubmodule_zero] at hf
+  | succ n ih =>
+    obtain ⟨ctop, hctop⟩ := hsurj (v.laurentTailCoeff (n + 1) ⟨f, hf⟩)
+    have hclift : IsLocalRing.residue _ (algebraMap K v.toValuationSubring ctop)
+        = v.laurentTailCoeff (n + 1) ⟨f, hf⟩ := by
+      rw [← hctop, IsScalarTower.algebraMap_apply K v.toValuationSubring v.ResidueField,
+        IsLocalRing.ResidueField.algebraMap_eq]
+    have hrem : f - algebraMap K F ctop * (v.uniformizer ^ (n + 1))⁻¹
+        ∈ v.poleSubmodule n := by
+      have h := v.laurentTail_remainder_mem_poleSubmodule hf hclift
+      rwa [v.coe_algebraMap] at h
+    obtain ⟨c', hc'⟩ := ih hrem
+    refine ⟨fun j => if j = n then ctop else c' j, ?_⟩
+    have hstep : ∑ j ∈ Finset.range (n + 1),
+        algebraMap K F (if j = n then ctop else c' j) * (v.uniformizer ^ (j + 1))⁻¹
+        = (∑ j ∈ Finset.range n, algebraMap K F (c' j) * (v.uniformizer ^ (j + 1))⁻¹)
+          + algebraMap K F ctop * (v.uniformizer ^ (n + 1))⁻¹ := by
+      rw [Finset.sum_range_succ, ite_eq_left rfl]
+      congr 1
+      refine Finset.sum_congr rfl fun j hj => ?_
+      rw [ite_eq_right (Finset.mem_range.mp hj).ne]
+    rw [hstep, show f - ((∑ j ∈ Finset.range n,
+          algebraMap K F (c' j) * (v.uniformizer ^ (j + 1))⁻¹)
+          + algebraMap K F ctop * (v.uniformizer ^ (n + 1))⁻¹)
+        = f - algebraMap K F ctop * (v.uniformizer ^ (n + 1))⁻¹
+          - ∑ j ∈ Finset.range n,
+              algebraMap K F (c' j) * (v.uniformizer ^ (j + 1))⁻¹ from by ring]
+    exact hc'
+
+private theorem ag9b15u_differentialCoeff_D_unit_mul_uniformizer
+    {K F : Type*} [Field K] [Field F] [Algebra K F]
+    (v : Place K F) [v.DCoordGenerates] [Nontrivial Ω[F⁄K]] (w : F) :
+    v.differentialCoeff (KaehlerDifferential.D K F (w * v.uniformizer))
+      = w + v.uniformizer * v.differentialCoeff (KaehlerDifferential.D K F w) := by
+  refine v.differentialCoeff_unique ?_
+  calc KaehlerDifferential.D K F (w * v.uniformizer)
+      = w • KaehlerDifferential.D K F v.uniformizer
+        + v.uniformizer • KaehlerDifferential.D K F w := by
+        rw [Derivation.leibniz]
+    _ = w • v.dCoord + v.uniformizer •
+          (v.differentialCoeff (KaehlerDifferential.D K F w) • v.dCoord) := by
+        rw [show KaehlerDifferential.D K F v.uniformizer = v.dCoord from rfl,
+          v.differentialCoeff_smul_dCoord]
+    _ = (w + v.uniformizer * v.differentialCoeff (KaehlerDifferential.D K F w))
+          • v.dCoord := by
+        rw [smul_smul, add_smul]
+
+end MilneAvAg9bRd15UnitNormalFormLaurentSeed
+
+end ModularCurve
+
+end
+
+noncomputable section
+
+open Polynomial IsDedekindDomain WithZero IsLocalRing KaehlerDifferential
+open scoped Polynomial
+open scoped AlgebraicCurve.RationalFunctionField
+
+namespace AlgebraicCurve
+
+open RationalFunctionField
+
+variable (K : Type*) [Field K]
+
+/-- Pin row #212. -/
+abbrev dX : Ω[(RatFunc K)⁄K] := KaehlerDifferential.D K (RatFunc K) RatFunc.X
+
+/-- Pin row #213. -/
+theorem aeval_ratFuncX_eq_algebraMap (q : K[X]) :
+    aeval (RatFunc.X : RatFunc K) q = algebraMap K[X] (RatFunc K) q := by
+  rw [← RatFunc.algebraMap_X,
+    show algebraMap K[X] (RatFunc K) X = IsScalarTower.toAlgHom K K[X] (RatFunc K) X from rfl,
+    aeval_algHom_apply, aeval_X_left_apply]
+  rfl
+
+/-- Pin row #214. -/
+theorem D_algebraMap_polynomial (q : K[X]) :
+    KaehlerDifferential.D K (RatFunc K) (algebraMap K[X] (RatFunc K) q)
+      = algebraMap K[X] (RatFunc K) q.derivative • dX K := by
+  rw [← aeval_ratFuncX_eq_algebraMap K q, (D K (RatFunc K)).map_aeval q RatFunc.X,
+    aeval_ratFuncX_eq_algebraMap K q.derivative]
+
+/-- Pin row #215. -/
+theorem denom_sq_smul_D_eq (f : RatFunc K) :
+    (algebraMap K[X] (RatFunc K) f.denom) ^ 2 • KaehlerDifferential.D K (RatFunc K) f
+      = algebraMap K[X] (RatFunc K)
+          (f.num.derivative * f.denom - f.num * f.denom.derivative) • dX K := by
+  have hd : algebraMap K[X] (RatFunc K) f.denom ≠ 0 :=
+    (map_ne_zero_iff _ (IsFractionRing.injective K[X] (RatFunc K))).mpr f.denom_ne_zero
+  have hDf : KaehlerDifferential.D K (RatFunc K) f
+      = ((algebraMap K[X] (RatFunc K) f.denom)⁻¹ ^ 2) •
+        (algebraMap K[X] (RatFunc K) f.denom • D K (RatFunc K) (algebraMap K[X] (RatFunc K) f.num)
+          - algebraMap K[X] (RatFunc K) f.num
+              • D K (RatFunc K) (algebraMap K[X] (RatFunc K) f.denom)) := by
+    conv_lhs => rw [← f.num_div_denom, (D K (RatFunc K)).leibniz_div]
+  rw [hDf, smul_smul, ← mul_pow, mul_inv_cancel₀ hd, one_pow, one_smul,
+    D_algebraMap_polynomial K f.num, D_algebraMap_polynomial K f.denom,
+    smul_smul, smul_smul, ← sub_smul]
+  push_cast
+  ring_nf
+
+/-- Pin row #216. -/
+theorem span_dX_eq_top :
+    Submodule.span (RatFunc K) {dX K} = ⊤ := by
+  rw [eq_top_iff, ← KaehlerDifferential.span_range_derivation, Submodule.span_le]
+  rintro _ ⟨f, rfl⟩
+  have hd : algebraMap K[X] (RatFunc K) f.denom ≠ 0 :=
+    (map_ne_zero_iff _ (IsFractionRing.injective K[X] (RatFunc K))).mpr f.denom_ne_zero
+
+  have hsq : ((algebraMap K[X] (RatFunc K) f.denom) ^ 2)⁻¹
+        * (algebraMap K[X] (RatFunc K) f.denom) ^ 2 = 1 :=
+    inv_mul_cancel₀ (pow_ne_zero 2 hd)
+  refine Submodule.mem_span_singleton.mpr ⟨((algebraMap K[X] (RatFunc K) f.denom) ^ 2)⁻¹
+    * algebraMap K[X] (RatFunc K)
+        (f.num.derivative * f.denom - f.num * f.denom.derivative), ?_⟩
+  rw [mul_smul, ← denom_sq_smul_D_eq K f, smul_smul, hsq, one_smul]
+
+/-- Pin row #217. -/
+theorem dX_ne_zero [Nontrivial Ω[(RatFunc K)⁄K]] : dX K ≠ 0 := by
+  intro h0
+  obtain ⟨ω, hω⟩ := exists_ne (0 : Ω[(RatFunc K)⁄K])
+  have hω_mem : ω ∈ Submodule.span (RatFunc K) {dX K} :=
+    span_dX_eq_top K ▸ Submodule.mem_top
+  rw [h0, Submodule.span_zero_singleton] at hω_mem
+  exact hω hω_mem
+
+/-- Pin row #218. -/
+theorem not_dvd_derivative_of_sq_not_dvd {p : K[X]} (hp : Irreducible p) (hsep : p.Separable)
+    {q : K[X]} (hpq : p ∣ q) (hpq2 : ¬ p ^ 2 ∣ q) : ¬ p ∣ q.derivative := by
+  obtain ⟨m, rfl⟩ := hpq
+  have hpm : ¬ p ∣ m := fun ⟨r, hr⟩ => hpq2 ⟨r, by rw [hr]; ring⟩
+  intro hpdvd
+  rw [derivative_mul] at hpdvd
+  have hpdvd' : p ∣ p.derivative * m := by
+    have := dvd_sub hpdvd (dvd_mul_right p m.derivative)
+    rwa [add_sub_cancel_right] at this
+  rcases hp.prime.dvd_mul.mp hpdvd' with hpp' | hpm'
+  ·
+    exact hp.not_isUnit (hsep.isUnit_of_dvd' dvd_rfl hpp')
+  · exact hpm hpm'
+
+variable {K}
+
+/-- Pin row #219. -/
+theorem not_dvd_derivative_of_ord_eq_one {w : HeightOneSpectrum K[X]} {p : K[X]}
+    (hp : Irreducible p) (hwp : w.asIdeal = Ideal.span {p}) (hsep : p.Separable)
+    {q : K[X]} (hq : q ≠ 0)
+    (hord : (Place.ofHeightOneSpectrum (K := K) (F := RatFunc K) w).ord
+      (algebraMap K[X] (RatFunc K) q) = 1) :
+    ¬ p ∣ q.derivative := by
+  have hwmem : ∀ {r : K[X]}, r ≠ 0 →
+      ((Place.ofHeightOneSpectrum (K := K) (F := RatFunc K) w).ord
+        (algebraMap K[X] (RatFunc K) r) ≠ 0 ↔ p ∣ r) := fun {r} hr => by
+    rw [Place.ord_ofHeightOneSpectrum_ne_zero_iff (K := K) (F := RatFunc K) w hr,
+      hwp, Ideal.mem_span_singleton]
+  have hordp : (Place.ofHeightOneSpectrum (K := K) (F := RatFunc K) w).ord
+      (algebraMap K[X] (RatFunc K) p) = 1 :=
+    ord_ofHeightOneSpectrum_of_span w hp.ne_zero hwp
+  refine not_dvd_derivative_of_sq_not_dvd K hp hsep
+    ((hwmem hq).mp (hord ▸ one_ne_zero)) ?_
+
+  rintro ⟨r, rfl⟩
+  have hr : r ≠ 0 := fun h => hq (by simp [h])
+  have : (Place.ofHeightOneSpectrum (K := K) (F := RatFunc K) w).ord
+      (algebraMap K[X] (RatFunc K) (p ^ 2 * r)) ≥ 2 := by
+    have hp0 : algebraMap K[X] (RatFunc K) p ≠ 0 :=
+      (map_ne_zero_iff _ (IsFractionRing.injective K[X] (RatFunc K))).mpr hp.ne_zero
+    have hr0 : algebraMap K[X] (RatFunc K) r ≠ 0 :=
+      (map_ne_zero_iff _ (IsFractionRing.injective K[X] (RatFunc K))).mpr hr
+    rw [map_mul, map_pow,
+      (Place.ofHeightOneSpectrum (K := K) (F := RatFunc K) w).ord_mul (pow_ne_zero 2 hp0) hr0,
+      ← zpow_natCast, (Place.ofHeightOneSpectrum (K := K) (F := RatFunc K) w).ord_zpow,
+      hordp, mul_one]
+    have : 0 ≤ (Place.ofHeightOneSpectrum (K := K) (F := RatFunc K) w).ord
+        (algebraMap K[X] (RatFunc K) r) :=
+      (Place.ofHeightOneSpectrum (K := K) (F := RatFunc K) w).ord_nonneg_of_mem
+        (algebraMap_mem_ofHeightOneSpectrum K w r)
+    omega
+  omega
+
+section NumDenom
+
+variable {w : HeightOneSpectrum K[X]}
+
+local notation "v" => Place.ofHeightOneSpectrum (K := K) (F := RatFunc K) w
+
+/-- Pin row #220. -/
+private theorem uniformizer_ne_zero' : (v).uniformizer ≠ 0 :=
+  (v).uniformizer_ne_zero
+
+/-- Pin row #221. -/
+theorem ord_algebraMap_denom_uniformizer_eq_zero {p : K[X]}
+    (hp : Irreducible p) (hwp : w.asIdeal = Ideal.span {p}) :
+    (v).ord (algebraMap K[X] (RatFunc K) (v).uniformizer.denom) = 0 := by
+  set π := (v).uniformizer with hπ
+  have hπne : π ≠ 0 := uniformizer_ne_zero'
+  by_contra hne
+
+  have hpd : p ∣ π.denom := by
+    rw [← Ideal.mem_span_singleton, ← hwp]
+    exact (Place.ord_ofHeightOneSpectrum_ne_zero_iff (K := K) (F := RatFunc K) w
+      π.denom_ne_zero).mp hne
+  have hpn : ¬ p ∣ π.num := fun hpn =>
+    hp.not_isUnit (π.isCoprime_num_denom.isUnit_of_dvd' hpn hpd)
+  have hordn : (v).ord (algebraMap K[X] (RatFunc K) π.num) = 0 := by
+    by_contra h
+    exact hpn (by
+      rw [← Ideal.mem_span_singleton, ← hwp]
+      exact (Place.ord_ofHeightOneSpectrum_ne_zero_iff (K := K) (F := RatFunc K) w
+        (RatFunc.num_ne_zero hπne)).mp h)
+  have hordd : 0 < (v).ord (algebraMap K[X] (RatFunc K) π.denom) :=
+    lt_of_le_of_ne ((v).ord_nonneg_of_mem (algebraMap_mem_ofHeightOneSpectrum K w _)) (Ne.symm hne)
+
+  have hnum0 : algebraMap K[X] (RatFunc K) π.num ≠ 0 :=
+    (map_ne_zero_iff _ (IsFractionRing.injective K[X] (RatFunc K))).mpr (RatFunc.num_ne_zero hπne)
+  have hden0 : algebraMap K[X] (RatFunc K) π.denom ≠ 0 :=
+    (map_ne_zero_iff _ (IsFractionRing.injective K[X] (RatFunc K))).mpr π.denom_ne_zero
+  have hordπ : (v).ord π = 1 := (v).ord_uniformizer
+  rw [← π.num_div_denom, div_eq_mul_inv, (v).ord_mul hnum0 (inv_ne_zero hden0),
+    (v).ord_inv, hordn] at hordπ
+  omega
+
+/-- Pin row #222. -/
+theorem ord_algebraMap_num_uniformizer_eq_one {p : K[X]}
+    (hp : Irreducible p) (hwp : w.asIdeal = Ideal.span {p}) :
+    (v).ord (algebraMap K[X] (RatFunc K) (v).uniformizer.num) = 1 := by
+  set π := (v).uniformizer with hπ
+  have hπne : π ≠ 0 := uniformizer_ne_zero'
+  have hnum0 : algebraMap K[X] (RatFunc K) π.num ≠ 0 :=
+    (map_ne_zero_iff _ (IsFractionRing.injective K[X] (RatFunc K))).mpr (RatFunc.num_ne_zero hπne)
+  have hden0 : algebraMap K[X] (RatFunc K) π.denom ≠ 0 :=
+    (map_ne_zero_iff _ (IsFractionRing.injective K[X] (RatFunc K))).mpr π.denom_ne_zero
+  have hordπ : (v).ord π = 1 := (v).ord_uniformizer
+  rw [← π.num_div_denom, div_eq_mul_inv, (v).ord_mul hnum0 (inv_ne_zero hden0),
+    (v).ord_inv, ord_algebraMap_denom_uniformizer_eq_zero hp hwp] at hordπ
+  omega
+
+/-- Pin row #223. -/
+theorem not_dvd_num'denom_sub_numdenom' {p : K[X]}
+    (hp : Irreducible p) (hwp : w.asIdeal = Ideal.span {p}) (hsep : p.Separable) :
+    ¬ p ∣ ((v).uniformizer.num.derivative * (v).uniformizer.denom
+            - (v).uniformizer.num * (v).uniformizer.denom.derivative) := by
+  set π := (v).uniformizer with hπ
+  have hπne : π ≠ 0 := uniformizer_ne_zero'
+  have hpn' : ¬ p ∣ π.num.derivative :=
+    not_dvd_derivative_of_ord_eq_one hp hwp hsep (RatFunc.num_ne_zero hπne)
+      (ord_algebraMap_num_uniformizer_eq_one hp hwp)
+  have hpd : ¬ p ∣ π.denom := fun hpd => by
+    have := ord_algebraMap_denom_uniformizer_eq_zero (w := w) hp hwp
+    rw [← Ideal.mem_span_singleton, ← hwp] at hpd
+    exact (Place.ord_ofHeightOneSpectrum_ne_zero_iff (K := K) (F := RatFunc K) w
+      π.denom_ne_zero).mpr hpd this
+  have hpn : p ∣ π.num := by
+    rw [← Ideal.mem_span_singleton, ← hwp]
+    refine (Place.ord_ofHeightOneSpectrum_ne_zero_iff (K := K) (F := RatFunc K) w
+      (RatFunc.num_ne_zero hπne)).mp ?_
+    rw [ord_algebraMap_num_uniformizer_eq_one hp hwp]; exact one_ne_zero
+  intro hdvd
+
+  have hpnd' : p ∣ π.num * π.denom.derivative := hpn.mul_right _
+  have hpn'd : p ∣ π.num.derivative * π.denom := by
+    have := dvd_add hdvd hpnd'
+    rwa [sub_add_cancel] at this
+  rcases hp.prime.dvd_mul.mp hpn'd with h | h
+  · exact hpn' h
+  · exact hpd h
+
+end NumDenom
+
+section PerPlace
+
+variable [∀ v : Place K (RatFunc K), v.DCoordGenerates] [Nontrivial Ω[(RatFunc K)⁄K]]
+variable {w : HeightOneSpectrum K[X]}
+
+local notation "v" => Place.ofHeightOneSpectrum (K := K) (F := RatFunc K) w
+
+/-- Pin row #224. -/
+theorem ord_differentialCoeff_dX_ofHeightOneSpectrum {p : K[X]}
+    (hp : Irreducible p) (hwp : w.asIdeal = Ideal.span {p}) (hsep : p.Separable) :
+    (v).ord ((v).differentialCoeff (dX K)) = 0 := by
+  set π := (v).uniformizer with hπ
+  have hπne : π ≠ 0 := uniformizer_ne_zero'
+  set ξ : K[X] := π.num.derivative * π.denom - π.num * π.denom.derivative with hξ
+  have hd0 : algebraMap K[X] (RatFunc K) π.denom ≠ 0 :=
+    (map_ne_zero_iff _ (IsFractionRing.injective K[X] (RatFunc K))).mpr π.denom_ne_zero
+
+  have hcoord : (v).dCoord
+      = (algebraMap K[X] (RatFunc K) ξ / (algebraMap K[X] (RatFunc K) π.denom) ^ 2) • dX K := by
+    rw [div_eq_mul_inv, mul_comm, mul_smul, ← denom_sq_smul_D_eq K π, smul_smul,
+      inv_mul_cancel₀ (pow_ne_zero 2 hd0), one_smul]
+    rfl
+
+  have hξ0 : ξ ≠ 0 := by
+    intro h; rw [hξ] at h
+    exact not_dvd_num'denom_sub_numdenom' hp hwp hsep (h ▸ dvd_zero p)
+  have hcoeff0 : algebraMap K[X] (RatFunc K) ξ / (algebraMap K[X] (RatFunc K) π.denom) ^ 2 ≠ 0 :=
+    div_ne_zero ((map_ne_zero_iff _ (IsFractionRing.injective K[X] (RatFunc K))).mpr hξ0)
+      (pow_ne_zero 2 hd0)
+
+  have hcoeff : (v).differentialCoeff (dX K)
+      = (algebraMap K[X] (RatFunc K) ξ / (algebraMap K[X] (RatFunc K) π.denom) ^ 2)⁻¹ := by
+    refine (v).differentialCoeff_unique ?_
+    rw [hcoord, smul_smul, inv_mul_cancel₀ hcoeff0, one_smul]
+
+  have hordξ : (v).ord (algebraMap K[X] (RatFunc K) ξ) = 0 := by
+    by_contra h
+    refine not_dvd_num'denom_sub_numdenom' hp hwp hsep ?_
+    rw [← Ideal.mem_span_singleton, ← hwp]
+    exact (Place.ord_ofHeightOneSpectrum_ne_zero_iff (K := K) (F := RatFunc K) w hξ0).mp h
+  rw [hcoeff, (v).ord_inv, div_eq_mul_inv,
+    (v).ord_mul ((map_ne_zero_iff _ (IsFractionRing.injective K[X] (RatFunc K))).mpr hξ0)
+      (inv_ne_zero (pow_ne_zero 2 hd0)),
+    hordξ, (v).ord_inv, ← zpow_natCast, (v).ord_zpow,
+    ord_algebraMap_denom_uniformizer_eq_zero hp hwp]
+  ring
+
+/-- Pin row #225. -/
+theorem differentialCoeff_dX_mem_ofHeightOneSpectrum {p : K[X]}
+    (hp : Irreducible p) (hwp : w.asIdeal = Ideal.span {p}) (hsep : p.Separable) :
+    (v).differentialCoeff (dX K) ∈ (v).toValuationSubring :=
+  (v).mem_of_ord_nonneg ((v).differentialCoeff_ne_zero (dX_ne_zero K))
+    (ord_differentialCoeff_dX_ofHeightOneSpectrum hp hwp hsep).ge
+
+end PerPlace
+
+section Discharge
+
+variable (K)
+variable [CharZero K] [DecidableEq (RatFunc K)]
+variable [HasCanonicalLocalResidueKStar K (RatFunc K)] [HasCanonicalDivisor (K := K) (F := RatFunc K)]
+variable [∀ v : Place K (RatFunc K), v.DCoordGenerates] [Nontrivial Ω[(RatFunc K)⁄K]]
+variable [HasPrincipalDivisors K (RatFunc K)]
+
+omit [HasCanonicalLocalResidueKStar K (RatFunc K)] [HasCanonicalDivisor (K := K) (F := RatFunc K)]
+  [HasPrincipalDivisors K (RatFunc K)] in
+
+/-- Pin row #226. -/
+theorem p1DifferentialCoeffRegularFinite_dX :
+    P1DifferentialCoeffRegularFinite K (dX_ne_zero K) := by
+  intro v hvinf
+  rcases eq_ofHeightOneSpectrum_or_eq_placeInfty v with ⟨w, rfl⟩ | rfl
+  · obtain ⟨p, hp, hwp⟩ := exists_irreducible_span K w
+    exact differentialCoeff_dX_mem_ofHeightOneSpectrum hp hwp hp.separable
+  · exact absurd rfl hvinf
+
+end Discharge
+
+variable {K : Type*} [Field K] [DecidableEq (RatFunc K)]
+
+variable (K)
+
+omit [DecidableEq (RatFunc K)] in
+
+/-- Pin row #227. -/
+theorem ord_ofHeightOneSpectrum_irreducible_eq_zero_of_ne
+    (w : HeightOneSpectrum K[X]) {p : K[X]} (hp : Irreducible p)
+    (hne : w ≠ heightOneSpectrumOfIrreducible K hp) :
+    (Place.ofHeightOneSpectrum (K := K) (F := RatFunc K) w).ord
+      (algebraMap K[X] (RatFunc K) p) = 0 := by
+  by_contra hord
+  refine hne (HeightOneSpectrum.ext ?_)
+  have hmem : p ∈ w.asIdeal :=
+    (Place.ord_ofHeightOneSpectrum_ne_zero_iff (K := K) (F := RatFunc K) w hp.ne_zero).mp hord
+
+  exact ((PrincipalIdealRing.isMaximal_of_irreducible hp).eq_of_le
+    (w.isPrime.isMaximal w.ne_bot).ne_top
+    ((Ideal.span_singleton_le_iff_mem w.asIdeal).mpr hmem)).symm
+
+/-- Pin row #228. -/
+theorem ord_algebraMap_irreducible_eq_zero_of_ne
+    {p : K[X]} (hp : Irreducible p) {v : Place K (RatFunc K)}
+    (hvp : v ≠ finitePlace K hp) (hvinf : v ≠ p1PlaceInfty K) :
+    v.ord (algebraMap K[X] (RatFunc K) p) = 0 := by
+  rcases eq_ofHeightOneSpectrum_or_eq_placeInfty v with ⟨w, rfl⟩ | rfl
+  · refine ord_ofHeightOneSpectrum_irreducible_eq_zero_of_ne K w hp ?_
+    rintro rfl; exact hvp rfl
+  · exact absurd rfl hvinf
+
+/-- Pin row #229. -/
+theorem inv_algebraMap_pow_mem_of_ne_finitePlace
+    {p : K[X]} (hp : Irreducible p) {v : Place K (RatFunc K)}
+    (hvp : v ≠ finitePlace K hp) (hvinf : v ≠ p1PlaceInfty K) (m : ℕ) :
+    ((algebraMap K[X] (RatFunc K) p) ^ m)⁻¹ ∈ v.toValuationSubring := by
+  have hp0 : algebraMap K[X] (RatFunc K) p ≠ 0 :=
+    (map_ne_zero_iff _ (IsFractionRing.injective K[X] (RatFunc K))).mpr hp.ne_zero
+  refine v.mem_of_ord_nonneg (inv_ne_zero (pow_ne_zero m hp0)) ?_
+  rw [v.ord_inv, ← zpow_natCast, v.ord_zpow,
+    ord_algebraMap_irreducible_eq_zero_of_ne K hp hvp hvinf, mul_zero, _root_.neg_zero]
+
+/-- Pin row #230. -/
+theorem p1PrincipalPartAtom_mem_of_ne_finitePlace
+    {p : K[X]} (hp : Irreducible p) (c : K[X]) (m : ℕ) {v : Place K (RatFunc K)}
+    (hvp : v ≠ finitePlace K hp) (hvinf : v ≠ p1PlaceInfty K) :
+    p1PrincipalPartAtom K p c m ∈ v.toValuationSubring := by
+  unfold p1PrincipalPartAtom
+  rw [div_eq_mul_inv]
+  exact mul_mem (algebraMap_polynomial_mem_of_ne_placeInfty' K hvinf c)
+    (inv_algebraMap_pow_mem_of_ne_finitePlace K hp hvp hvinf m)
+
+/-- Pin row #231. -/
+theorem ord_placeInfty_p1PrincipalPartAtom
+    {p : K[X]} (hp : p ≠ 0) {c : K[X]} (hc : c ≠ 0) (m : ℕ) :
+    (p1PlaceInfty K).ord (p1PrincipalPartAtom K p c m)
+      = (m : ℤ) * p.natDegree - c.natDegree := by
+  have hinj := IsFractionRing.injective K[X] (RatFunc K)
+  have hp' : algebraMap K[X] (RatFunc K) p ≠ 0 := (map_ne_zero_iff _ hinj).mpr hp
+  have hc' : algebraMap K[X] (RatFunc K) c ≠ 0 := (map_ne_zero_iff _ hinj).mpr hc
+  unfold p1PrincipalPartAtom
+  rw [div_eq_mul_inv, (p1PlaceInfty K).ord_mul hc' (inv_ne_zero (pow_ne_zero m hp')),
+    (p1PlaceInfty K).ord_inv, ← zpow_natCast, (p1PlaceInfty K).ord_zpow,
+    ord_placeInfty_algebraMap' K hc, ord_placeInfty_algebraMap' K hp]
+  ring
+
+/-- Pin row #232. -/
+theorem one_le_ord_placeInfty_p1PrincipalPartAtom
+    {p : K[X]} (hp : Irreducible p) {c : K[X]} (hc : c ≠ 0) {m : ℕ}
+    (hdeg : c.degree < p.degree) (hm : 1 ≤ m) :
+    1 ≤ (p1PlaceInfty K).ord (p1PrincipalPartAtom K p c m) := by
+  rw [ord_placeInfty_p1PrincipalPartAtom K hp.ne_zero hc]
+
+  have hndeg : c.natDegree < p.natDegree :=
+    Polynomial.natDegree_lt_natDegree hc hdeg
+  have hpdeg : 1 ≤ (p.natDegree : ℤ) := by exact_mod_cast hp.natDegree_pos
+  have hm' : 1 ≤ (m : ℤ) := by exact_mod_cast hm
+  nlinarith
+
+end AlgebraicCurve
+
+end
+
+noncomputable section
+
+open Polynomial IsDedekindDomain WithZero IsLocalRing KaehlerDifferential
+open scoped Polynomial
+open scoped AlgebraicCurve.RationalFunctionField
+
+namespace AlgebraicCurve
+
+open RationalFunctionField
+
+variable (K F : Type*) [Field K] [Field F] [Algebra K F]
+
+/-- Pin row #233. -/
+def KaehlerRankOne : Prop :=
+  Module.Free F Ω[F⁄K] ∧ Module.finrank F Ω[F⁄K] = 1
+
+variable {K F}
+
+namespace IsCurveOver
+
+/-- Pin row #234. -/
+theorem of_finiteResidue_of_kaehlerRankOne
+    [HasPrincipalDivisors K F] [∀ v : Place K F, v.FiniteResidue]
+    (hΩ : KaehlerRankOne K F) : IsCurveOver K F where
+  finiteResidue v := Place.FiniteResidue.finite (v := v)
+  kaehler_free_rank_one := hΩ
+
+end IsCurveOver
+
+namespace RationalFunctionField
+
+variable (K : Type*) [Field K]
+
+/-- Pin row #235. -/
+theorem isCurveOver_of_kaehlerRankOne (hΩ : KaehlerRankOne K (RatFunc K)) :
+    IsCurveOver K (RatFunc K) :=
+  IsCurveOver.of_finiteResidue_of_kaehlerRankOne hΩ
+
+end RationalFunctionField
+
+section Identity
+
+variable (K F F' : Type*) [Field K] [Field F] [Field F']
+  [Algebra K F] [Algebra K F'] [Algebra F F'] [IsScalarTower K F F']
+  [Algebra.IsIntegral F F']
+
+/-- Pin row #236. -/
+def RamificationInertiaIdentity : Prop :=
+  ∀ (v : Place K F) (s : Finset (Place K F')), (∀ w : Place K F', w ∈ s ↔ w.restrict F = v) →
+    ∑ w ∈ s, (w.ramificationIndex F : ℤ) * (w.deg : ℤ)
+      = (Module.finrank F F' : ℤ) * (v.deg : ℤ)
+
+variable {K F F'}
+
+end Identity
+
+namespace Place
+
+/-- Pin `Place.ord_smul` (`Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean:314`):
+ported against the ported `SemilinearAut` action. -/
+private theorem ord_smul {K F : Type*} [Field K] [Field F] [Algebra K F]
+    (σ : F ≃ₐ[K] F) (v : Place K F) (f : F) : (σ • v).ord (σ f) = v.ord f := by
+  change (SemilinearAut.ofAlgAut σ • v).ord (σ f) = v.ord f
+  exact SemilinearAut.ord_smul (SemilinearAut.ofAlgAut σ) v f
+
+/-- Pin `Place.deg_smul` (`Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean:348`). -/
+private theorem deg_smul {K F : Type*} [Field K] [Field F] [Algebra K F]
+    (σ : F ≃ₐ[K] F) (v : Place K F) : (σ • v).deg = v.deg := by
+  change (SemilinearAut.ofAlgAut σ • v).deg = v.deg
+  exact SemilinearAut.deg_smul (SemilinearAut.ofAlgAut σ) v
+
+end Place
+
+namespace Divisor
+
+section SmulAux
+
+variable {K F : Type*} [Field K] [Field F] [Algebra K F]
+
+/-- The `F ≃ₐ[K] F`-action on places as a `MulAction`, needed by the pin's
+`Divisor` action (`Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean:359`). -/
+private instance instMulActionAlgEquivPlace : MulAction (F ≃ₐ[K] F) (Place K F) where
+  smul σ v := SemilinearAut.ofAlgAut σ • v
+  one_smul v := by
+    show SemilinearAut.ofAlgAut (1 : F ≃ₐ[K] F) • v = v
+    rw [map_one, one_smul]
+  mul_smul σ τ v := by
+    show SemilinearAut.ofAlgAut (σ * τ) • v
+      = SemilinearAut.ofAlgAut σ • (SemilinearAut.ofAlgAut τ • v)
+    rw [map_mul, mul_smul]
+
+/-- Pin `Divisor` instance (`Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean:359`). -/
+private instance instDistribMulActionAlgEquivDivisor :
+    DistribMulAction (F ≃ₐ[K] F) (Divisor K F) :=
+  Finsupp.comapDistribMulAction
+
+/-- Pin `Divisor.smul_def` (`Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean:361`). -/
+private theorem smul_def (σ : F ≃ₐ[K] F) (D : Divisor K F) :
+    σ • D = Finsupp.mapDomain (σ • ·) D := rfl
+
+/-- Pin `Divisor.smul_single` (`Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean:364`). -/
+@[simp]
+private theorem smul_single (σ : F ≃ₐ[K] F) (v : Place K F) (n : ℤ) :
+    σ • Finsupp.single v n = Finsupp.single (σ • v) n := by
+  rw [smul_def, Finsupp.mapDomain_single]
+
+/-- Pin `Divisor.smul_apply_smul` (`Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean:369`). -/
+private theorem smul_apply_smul (σ : F ≃ₐ[K] F) (D : Divisor K F) (v : Place K F) :
+    (σ • D) (σ • v) = D v := by
+  rw [smul_def]
+  exact Finsupp.mapDomain_apply_of_injective (MulAction.injective σ) D v
+
+/-- Pin `Divisor.smul_apply` (`Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean:374`). -/
+private theorem smul_apply (σ : F ≃ₐ[K] F) (D : Divisor K F) (w : Place K F) :
+    (σ • D) w = D (σ⁻¹ • w) := by
+  have : (σ • D) (σ • (σ⁻¹ • w)) = D (σ⁻¹ • w) := smul_apply_smul σ D (σ⁻¹ • w)
+  rwa [smul_inv_smul] at this
+
+/-- Pin `Divisor.degree_smul` (`Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean:380`). -/
+@[simp]
+private theorem degree_smul (σ : F ≃ₐ[K] F) (D : Divisor K F) : degree (σ • D) = degree D := by
+  induction D using Finsupp.induction with
+  | zero => simp
+  | single_add v n D _ _ ih =>
+      rw [smul_add, map_add, map_add, ih, smul_single, degree_single, degree_single,
+        Place.deg_smul]
+
+end SmulAux
+
+section Pullback
+
+variable {K F F' : Type*} [Field K] [Field F] [Field F']
+  [Algebra K F] [Algebra K F'] [Algebra F F'] [IsScalarTower K F F']
+  [Algebra.IsIntegral F F']
+
+-- Pin row #237 `Divisor.degree_eq_sum_support` is already provided by the
+-- imported `FLTForHuman.AlgebraicCurve.Genus.Index` (`AlgebraicCurve.Divisor.
+-- degree_eq_sum_support`, statement identical), so it is not restated here.
+
+/-- Pin row #238. -/
+theorem degree_eq_finrank_mul_of_forall_eq_ord_algebraMap
+    (H : RamificationInertiaIdentity K F F') {g : F}
+    {D' : Divisor K F'} (hD' : ∀ w : Place K F', D' w = w.ord (algebraMap F F' g))
+    {D : Divisor K F} (hD : ∀ v : Place K F, D v = v.ord g) :
+    degree D' = (Module.finrank F F' : ℤ) * degree D := by
+  classical
+
+  have hmaps : ∀ w ∈ D'.support, w.restrict F ∈ D.support := by
+    intro w hw
+    rw [Finsupp.mem_support_iff] at hw ⊢
+    intro h0
+    apply hw
+    rw [hD' w, w.ord_restrict g, hD] at *
+    rw [h0, mul_zero]
+
+  have happ : ∀ w : Place K F', D' w = (w.ramificationIndex F : ℤ) * D (w.restrict F) := by
+    intro w
+    rw [hD' w, w.ord_restrict g, hD]
+
+  rw [degree_eq_sum_support, degree_eq_sum_support,
+    ← Finset.sum_fiberwise_of_maps_to hmaps fun w => D' w * (w.deg : ℤ), Finset.mul_sum]
+  refine Finset.sum_congr rfl fun v hv => ?_
+
+  have hfiber : ∀ w : Place K F',
+      w ∈ D'.support.filter (fun w => w.restrict F = v) ↔ w.restrict F = v := by
+    intro w
+    simp only [Finset.mem_filter, Finsupp.mem_support_iff, and_iff_right_iff_imp]
+    intro hw
+    rw [happ w, hw]
+    have he : 0 < w.ramificationIndex F := w.ramificationIndex_pos
+    have hv0 : D v ≠ 0 := Finsupp.mem_support_iff.mp hv
+    exact mul_ne_zero (by exact_mod_cast he.ne') hv0
+
+  calc
+    ∑ w ∈ D'.support with w.restrict F = v, D' w * (w.deg : ℤ)
+        = D v * ∑ w ∈ D'.support.filter (fun w => w.restrict F = v),
+            (w.ramificationIndex F : ℤ) * (w.deg : ℤ) := by
+          rw [Finset.mul_sum]
+          refine Finset.sum_congr rfl fun w hw => ?_
+          rw [happ w, ((hfiber w).mp hw)]
+          ring
+    _ = D v * ((Module.finrank F F' : ℤ) * (v.deg : ℤ)) := by
+          rw [H v _ hfiber]
+    _ = (Module.finrank F F' : ℤ) * (D v * (v.deg : ℤ)) := by ring
+
+end Pullback
+
+section Galois
+
+variable {K F F' : Type*} [Field K] [Field F] [Field F']
+  [Algebra K F] [Algebra K F'] [Algebra F F'] [IsScalarTower K F F']
+
+/-- Pin row #239 (`private`). -/
+private theorem _root_.AlgebraicCurve.Place.ord_prod {ι : Type*} (v : Place K F') (s : Finset ι)
+    (g : ι → F') (hg : ∀ i ∈ s, g i ≠ 0) :
+    v.ord (∏ i ∈ s, g i) = ∑ i ∈ s, v.ord (g i) := by
+  classical
+  induction s using Finset.cons_induction with
+  | empty => simp
+  | cons i s hi ih =>
+    rw [Finset.prod_cons, Finset.sum_cons,
+      v.ord_mul (hg i (Finset.mem_cons_self i s))
+        (Finset.prod_ne_zero_iff.mpr fun j hj => hg j (Finset.mem_cons_of_mem hj)),
+      ih fun j hj => hg j (Finset.mem_cons_of_mem hj)]
+
+variable [FiniteDimensional F F']
+
+/-- Pin row #240. -/
+theorem sum_smul_apply_eq_ord_prod {f : F'} (hf : f ≠ 0)
+    {D : Divisor K F'} (hD : ∀ w : Place K F', D w = w.ord f) (w : Place K F') :
+    (∑ σ : F' ≃ₐ[F] F', (AlgEquiv.restrictScalars K σ) • D) w
+      = w.ord (∏ σ : F' ≃ₐ[F] F', σ f) := by
+  classical
+  rw [w.ord_prod _ _ fun σ _ => by simpa using hf, Finset.sum_apply']
+  refine Finset.sum_congr rfl fun σ _ => ?_
+
+  rw [smul_apply, hD]
+  have h := Place.ord_smul (AlgEquiv.restrictScalars K σ)
+    ((AlgEquiv.restrictScalars K σ)⁻¹ • w) f
+  rw [smul_inv_smul] at h
+  exact h.symm
+
+/-- Pin row #241. -/
+theorem degree_eq_zero_of_isGalois [IsGalois F F'] [HasPrincipalDivisors K F]
+    (H : RamificationInertiaIdentity K F F')
+    {f : F'} {D : Divisor K F'} (hD : ∀ w : Place K F', D w = w.ord f) :
+    degree D = 0 := by
+  classical
+
+  rcases eq_or_ne f 0 with rfl | hf
+  · have : D = 0 := Finsupp.ext fun w => by simpa using hD w
+    rw [this, _root_.map_zero]
+
+  set E : Divisor K F' := ∑ σ : F' ≃ₐ[F] F', (AlgEquiv.restrictScalars K σ) • D with hE
+
+  have hEord : ∀ w : Place K F', E w = w.ord (algebraMap F F' (Algebra.norm F f)) := by
+    intro w
+    rw [hE, sum_smul_apply_eq_ord_prod hf hD w, Algebra.norm_eq_prod_automorphisms F f]
+
+  have hnorm : Algebra.norm F f ≠ 0 := (Algebra.norm_ne_zero_iff (R := F)).mpr hf
+  obtain ⟨D₀, hD₀, hD₀deg⟩ := HasPrincipalDivisors.exists_divisor (K := K)
+    (Algebra.norm F f) hnorm
+
+  have hEdeg : degree E = 0 := by
+    rw [degree_eq_finrank_mul_of_forall_eq_ord_algebraMap H hEord hD₀, hD₀deg, mul_zero]
+
+  have hEdeg' : degree E = (Module.finrank F F' : ℤ) * degree D := by
+    rw [hE, map_sum]
+    simp only [degree_smul]
+    rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
+    congr 1
+    exact_mod_cast (Nat.card_eq_fintype_card (α := F' ≃ₐ[F] F')).symm.trans
+      (IsGalois.card_aut_eq_finrank F F')
+
+  have hpos : (0 : ℤ) < (Module.finrank F F' : ℤ) := by
+    exact_mod_cast Module.finrank_pos (R := F) (M := F')
+  rw [hEdeg] at hEdeg'
+  exact (mul_eq_zero.mp hEdeg'.symm).resolve_left hpos.ne'
+
+end Galois
+
+end Divisor
+
+namespace RationalFunctionField
+
+section Descent
+
+variable {K : Type*} [Field K] {F' : Type*} [Field F'] [Algebra K F']
+  [Algebra (RatFunc K) F'] [IsScalarTower K (RatFunc K) F']
+  [FiniteDimensional (RatFunc K) F'] [Algebra.IsSeparable (RatFunc K) F']
+
+/-- Pin row #242. -/
+def principalDivisorOf {f : F'} (hf : f ≠ 0) : Divisor K F' :=
+  ⟨(finite_setOf_ord_ne_zero_of_finiteDimensional hf).toFinset, fun w => w.ord f, fun w => by
+    simp [Set.Finite.mem_toFinset]⟩
+
+/-- Pin row #243. -/
+theorem degree_eq_zero_of_forall_eq_ord_of_isGalois [IsGalois (RatFunc K) F']
+    (H : RamificationInertiaIdentity K (RatFunc K) F')
+    {f : F'} {D : Divisor K F'} (hD : ∀ w : Place K F', D w = w.ord f) :
+    Divisor.degree D = 0 :=
+  Divisor.degree_eq_zero_of_isGalois H hD
+
+/-- Pin row #244. -/
+theorem hasPrincipalDivisors_of_isGalois [IsGalois (RatFunc K) F']
+    (H : RamificationInertiaIdentity K (RatFunc K) F') :
+    HasPrincipalDivisors K F' where
+  exists_divisor _ hf :=
+    ⟨principalDivisorOf hf, fun _ => rfl,
+      degree_eq_zero_of_forall_eq_ord_of_isGalois H fun _ => rfl⟩
+
+end Descent
+
+end RationalFunctionField
+
+section SurjectivePlaceInfty
+
+variable (K) [DecidableEq (RatFunc K)]
+
+/-- Pin row #245. -/
+theorem surjective_algebraMap_residueField_placeInfty :
+    Function.Surjective (algebraMap K (p1PlaceInfty K).ResidueField) := by
+  intro z
+  obtain ⟨c, hc⟩ :=
+    (finrank_eq_one_iff_of_nonzero' (1 : (p1PlaceInfty K).ResidueField) one_ne_zero).mp
+      (show Module.finrank K (p1PlaceInfty K).ResidueField = 1 from deg_placeInfty K) z
+  exact ⟨c, by rw [Algebra.algebraMap_eq_smul_one]; exact hc⟩
+
+end SurjectivePlaceInfty
+
+section NamedRow
+
+variable (K F)
+variable [∀ v : Place K F, v.DCoordGenerates] [Nontrivial Ω[F⁄K]]
+
+/-- Pin row #246. -/
+def CanonicalLocalResidueKDifferentialCoordIndep : Prop :=
+  ∀ (v : Place K F) (π' : F), v.ord π' = 1 →
+    ∀ (R : v.CanonicalLocalResidueDataK) (n : ℕ), 1 ≤ n →
+      R.res (v.differentialCoeff (KaehlerDifferential.D K F π') * ((π') ^ (n + 1))⁻¹) = 0
+
+end NamedRow
+
+section XInvCoordinate
+
+variable (K) [DecidableEq (RatFunc K)]
+variable [∀ v : Place K (RatFunc K), v.DCoordGenerates] [Nontrivial Ω[(RatFunc K)⁄K]]
+
+omit [DecidableEq (RatFunc K)]
+  [∀ v : Place K (RatFunc K), v.DCoordGenerates] [Nontrivial Ω[(RatFunc K)⁄K]] in
+
+/-- Pin row #247. -/
+theorem ratFuncX_inv_pow_inv (m : ℕ) :
+    (((RatFunc.X : RatFunc K)⁻¹) ^ m)⁻¹ = (RatFunc.X : RatFunc K) ^ m := by
+  rw [inv_pow, inv_inv]
+
+/-- Pin row #248. -/
+theorem X_pow_mul_differentialCoeff_D_X_eq_neg (n : ℕ) :
+    (RatFunc.X : RatFunc K) ^ n
+        * (p1PlaceInfty K).differentialCoeff (KaehlerDifferential.D K (RatFunc K) RatFunc.X)
+      = -((p1PlaceInfty K).differentialCoeff
+            (KaehlerDifferential.D K (RatFunc K) (RatFunc.X : RatFunc K)⁻¹)
+          * (((RatFunc.X : RatFunc K)⁻¹) ^ (n + 2))⁻¹) := by
+  rw [ratFuncX_inv_pow_inv, differentialCoeff_placeInfty_D_X_eq K]
+  ring
+
+end XInvCoordinate
+
+section Bridge
+
+variable (K) [DecidableEq (RatFunc K)]
+variable [∀ v : Place K (RatFunc K), v.DCoordGenerates] [Nontrivial Ω[(RatFunc K)⁄K]]
+
+/-- Pin row #249. -/
+theorem canonicalLocalResidueDataK_res_X_pow_mul_D_X_of_coordIndep
+    (hcoord : CanonicalLocalResidueKDifferentialCoordIndep K (RatFunc K))
+    (R : (p1PlaceInfty K).CanonicalLocalResidueDataK) (n : ℕ) :
+    R.res ((RatFunc.X : RatFunc K) ^ n
+        * (p1PlaceInfty K).differentialCoeff
+            (KaehlerDifferential.D K (RatFunc K) RatFunc.X)) = 0 := by
+  rw [X_pow_mul_differentialCoeff_D_X_eq_neg K n, _root_.map_neg, neg_eq_zero]
+  exact hcoord (p1PlaceInfty K) (RatFunc.X : RatFunc K)⁻¹ (ord_placeInfty_X_inv K) R (n + 1)
+    (by omega)
+
+/-- Pin row #250. -/
+theorem canonicalLocalResidueDataK_kaehlerResidueTerm_X_pow_of_coordIndep
+    (_hwd : OrdDifferentialWellDefined K (RatFunc K))
+    (hcoord : CanonicalLocalResidueKDifferentialCoordIndep K (RatFunc K))
+    (R : (p1PlaceInfty K).CanonicalLocalResidueDataK) (n : ℕ) :
+    Algebra.trace K (p1PlaceInfty K).ResidueField
+        (R.res (diagonalHom K (RatFunc K) ((RatFunc.X : RatFunc K) ^ n) (p1PlaceInfty K)
+          * (p1PlaceInfty K).differentialCoeff
+              (KaehlerDifferential.D K (RatFunc K) RatFunc.X))) = 0 := by
+  rw [diagonalHom_apply,
+    canonicalLocalResidueDataK_res_X_pow_mul_D_X_of_coordIndep K hcoord R n, _root_.map_zero]
+
+end Bridge
+
+end AlgebraicCurve
+
+end
+
+set_option linter.style.haveILetI false
+set_option linter.unusedSectionVars false
+set_option linter.overlappingInstances false
+noncomputable section
+
+open Polynomial IsDedekindDomain WithZero IsLocalRing UniqueFactorizationMonoid
+open scoped Polynomial
+
+namespace AlgebraicCurve
+
+open RationalFunctionField
+
+namespace Place
+
+/-- Local copy of the pin `private Place.ord_add_eq_left` (pin line 829); the
+chunk-1 copy is `private` in this same module and not reachable by name. -/
+private theorem ord_add_eq_left' {K F : Type*} [Field K] [Field F] [Algebra K F]
+    (v : Place K F) {f g : F} (hf : f ≠ 0) (hg : g ≠ 0) (h : v.ord f < v.ord g) :
+    v.ord (f + g) = v.ord f := by
+  have hfv := v.adicValuation_ne_zero hf
+  have hgv := v.adicValuation_ne_zero hg
+  have hlt : v.adicValuation g < v.adicValuation f := by
+    rw [← exp_log hfv, ← exp_log hgv]
+    have hlog : log (v.adicValuation g) < log (v.adicValuation f) := by
+      simp only [ord] at h
+      omega
+    exact lt_of_le_of_ne (exp_le_exp.mpr hlog.le)
+      fun hcon => hlog.ne (exp_injective hcon)
+  have h1 : v.adicValuation (f + g) = max (v.adicValuation f) (v.adicValuation g) :=
+    Valuation.map_add_of_distinct_val _ (ne_of_lt hlt).symm
+  rw [max_eq_left hlt.le] at h1
+  simp only [ord, h1]
+
+end Place
+
+section WronskianBound
+
+variable {K : Type*} [Field K]
+
+theorem natDegree_numDenomWronskian_lt {n d : K[X]} (hn : n ≠ 0) (hd : d ≠ 0)
+    (hW : n.derivative * d - n * d.derivative ≠ 0) :
+    (n.derivative * d - n * d.derivative).natDegree < n.natDegree + d.natDegree := by
+  have hdeg : (n.derivative * d - n * d.derivative).degree < (n * d).degree := by
+    rw [Polynomial.degree_mul]
+    refine lt_of_le_of_lt (Polynomial.degree_sub_le _ _) (max_lt ?_ ?_)
+    · refine lt_of_le_of_lt (Polynomial.degree_mul_le _ _) ?_
+      rw [WithBot.add_lt_add_iff_right (Polynomial.degree_ne_bot.mpr hd)]
+      exact Polynomial.degree_derivative_lt hn
+    · refine lt_of_le_of_lt (Polynomial.degree_mul_le _ _) ?_
+      rw [WithBot.add_lt_add_iff_left (Polynomial.degree_ne_bot.mpr hn)]
+      exact Polynomial.degree_derivative_lt hd
+  have h2 := Polynomial.natDegree_lt_natDegree hW hdeg
+  rwa [Polynomial.natDegree_mul hn hd] at h2
+
+end WronskianBound
+
+section DXCoeff
+
+variable (K : Type*) [Field K]
+
+def ratFuncDXCoeff (f : RatFunc K) : RatFunc K :=
+  algebraMap K[X] (RatFunc K) (f.num.derivative * f.denom - f.num * f.denom.derivative)
+    / (algebraMap K[X] (RatFunc K) f.denom) ^ 2
+
+theorem ratFuncDXCoeff_def (f : RatFunc K) :
+    ratFuncDXCoeff K f
+      = algebraMap K[X] (RatFunc K) (f.num.derivative * f.denom - f.num * f.denom.derivative)
+        / (algebraMap K[X] (RatFunc K) f.denom) ^ 2 := rfl
+
+theorem D_eq_ratFuncDXCoeff_smul_dX (f : RatFunc K) :
+    KaehlerDifferential.D K (RatFunc K) f = ratFuncDXCoeff K f • dX K := by
+  have hd : algebraMap K[X] (RatFunc K) f.denom ≠ 0 :=
+    RatFunc.algebraMap_ne_zero f.denom_ne_zero
+  rw [ratFuncDXCoeff_def, div_eq_mul_inv, mul_comm, mul_smul, ← denom_sq_smul_D_eq K f,
+    smul_smul, inv_mul_cancel₀ (pow_ne_zero 2 hd), one_smul]
+
+theorem wronskian_ne_zero_of_ratFuncDXCoeff_ne_zero {f : RatFunc K}
+    (h : ratFuncDXCoeff K f ≠ 0) :
+    f.num.derivative * f.denom - f.num * f.denom.derivative ≠ 0 := by
+  intro h0
+  exact h (by rw [ratFuncDXCoeff_def, h0, _root_.map_zero, zero_div])
+
+end DXCoeff
+
+section FinitePlaces
+
+variable {K : Type*} [Field K]
+variable {w : HeightOneSpectrum K[X]}
+
+local notation "v" => Place.ofHeightOneSpectrum (K := K) (F := RatFunc K) w
+
+theorem ord_algebraMap_denom_eq_zero_of_ord_eq_one {p : K[X]}
+    (hp : Irreducible p) (hwp : w.asIdeal = Ideal.span {p}) {f : RatFunc K}
+    (hf : f ≠ 0) (hord : (v).ord f = 1) :
+    (v).ord (algebraMap K[X] (RatFunc K) f.denom) = 0 := by
+  by_contra hne
+
+  have hpd : p ∣ f.denom := by
+    rw [← Ideal.mem_span_singleton, ← hwp]
+    exact (Place.ord_ofHeightOneSpectrum_ne_zero_iff (K := K) (F := RatFunc K) w
+      f.denom_ne_zero).mp hne
+  have hpn : ¬ p ∣ f.num := fun hpn =>
+    hp.not_isUnit (f.isCoprime_num_denom.isUnit_of_dvd' hpn hpd)
+  have hordn : (v).ord (algebraMap K[X] (RatFunc K) f.num) = 0 := by
+    by_contra h
+    exact hpn (by
+      rw [← Ideal.mem_span_singleton, ← hwp]
+      exact (Place.ord_ofHeightOneSpectrum_ne_zero_iff (K := K) (F := RatFunc K) w
+        (RatFunc.num_ne_zero hf)).mp h)
+  have hordd : 0 < (v).ord (algebraMap K[X] (RatFunc K) f.denom) :=
+    lt_of_le_of_ne ((v).ord_nonneg_of_mem (algebraMap_mem_ofHeightOneSpectrum K w _))
+      (Ne.symm hne)
+
+  have hnum0 : algebraMap K[X] (RatFunc K) f.num ≠ 0 :=
+    RatFunc.algebraMap_ne_zero (RatFunc.num_ne_zero hf)
+  have hden0 : algebraMap K[X] (RatFunc K) f.denom ≠ 0 :=
+    RatFunc.algebraMap_ne_zero f.denom_ne_zero
+  rw [← f.num_div_denom, div_eq_mul_inv, (v).ord_mul hnum0 (inv_ne_zero hden0),
+    (v).ord_inv, hordn] at hord
+  omega
+
+theorem ord_algebraMap_num_eq_one_of_ord_eq_one {p : K[X]}
+    (hp : Irreducible p) (hwp : w.asIdeal = Ideal.span {p}) {f : RatFunc K}
+    (hf : f ≠ 0) (hord : (v).ord f = 1) :
+    (v).ord (algebraMap K[X] (RatFunc K) f.num) = 1 := by
+  have hnum0 : algebraMap K[X] (RatFunc K) f.num ≠ 0 :=
+    RatFunc.algebraMap_ne_zero (RatFunc.num_ne_zero hf)
+  have hden0 : algebraMap K[X] (RatFunc K) f.denom ≠ 0 :=
+    RatFunc.algebraMap_ne_zero f.denom_ne_zero
+  have h := hord
+  rw [← f.num_div_denom, div_eq_mul_inv, (v).ord_mul hnum0 (inv_ne_zero hden0),
+    (v).ord_inv, ord_algebraMap_denom_eq_zero_of_ord_eq_one hp hwp hf hord] at h
+  omega
+
+theorem not_dvd_wronskian_of_ord_eq_one {p : K[X]}
+    (hp : Irreducible p) (hwp : w.asIdeal = Ideal.span {p}) (hsep : p.Separable)
+    {f : RatFunc K} (hf : f ≠ 0) (hord : (v).ord f = 1) :
+    ¬ p ∣ (f.num.derivative * f.denom - f.num * f.denom.derivative) := by
+  have hpn' : ¬ p ∣ f.num.derivative :=
+    not_dvd_derivative_of_ord_eq_one hp hwp hsep (RatFunc.num_ne_zero hf)
+      (ord_algebraMap_num_eq_one_of_ord_eq_one hp hwp hf hord)
+  have hpd : ¬ p ∣ f.denom := fun hpd => by
+    have h0 := ord_algebraMap_denom_eq_zero_of_ord_eq_one hp hwp hf hord
+    rw [← Ideal.mem_span_singleton, ← hwp] at hpd
+    exact (Place.ord_ofHeightOneSpectrum_ne_zero_iff (K := K) (F := RatFunc K) w
+      f.denom_ne_zero).mpr hpd h0
+  have hpn : p ∣ f.num := by
+    rw [← Ideal.mem_span_singleton, ← hwp]
+    refine (Place.ord_ofHeightOneSpectrum_ne_zero_iff (K := K) (F := RatFunc K) w
+      (RatFunc.num_ne_zero hf)).mp ?_
+    rw [ord_algebraMap_num_eq_one_of_ord_eq_one hp hwp hf hord]
+    exact one_ne_zero
+  intro hdvd
+
+  have hpnd' : p ∣ f.num * f.denom.derivative := hpn.mul_right _
+  have hpn'd : p ∣ f.num.derivative * f.denom := by
+    have h1 := dvd_add hdvd hpnd'
+    rwa [sub_add_cancel] at h1
+  rcases hp.prime.dvd_mul.mp hpn'd with h | h
+  · exact hpn' h
+  · exact hpd h
+
+theorem ratFuncDXCoeff_ne_zero_and_ord_eq_zero_of_ord_eq_one {p : K[X]}
+    (hp : Irreducible p) (hwp : w.asIdeal = Ideal.span {p}) (hsep : p.Separable)
+    {f : RatFunc K} (hf : f ≠ 0) (hord : (v).ord f = 1) :
+    ratFuncDXCoeff K f ≠ 0 ∧ (v).ord (ratFuncDXCoeff K f) = 0 := by
+  have hW : ¬ p ∣ (f.num.derivative * f.denom - f.num * f.denom.derivative) :=
+    not_dvd_wronskian_of_ord_eq_one hp hwp hsep hf hord
+  have hξ0 : f.num.derivative * f.denom - f.num * f.denom.derivative ≠ 0 := fun h =>
+    hW (h ▸ dvd_zero p)
+  have hd0 : algebraMap K[X] (RatFunc K) f.denom ≠ 0 :=
+    RatFunc.algebraMap_ne_zero f.denom_ne_zero
+  have hξ0' : algebraMap K[X] (RatFunc K)
+      (f.num.derivative * f.denom - f.num * f.denom.derivative) ≠ 0 :=
+    RatFunc.algebraMap_ne_zero hξ0
+
+  have hordξ : (v).ord (algebraMap K[X] (RatFunc K)
+      (f.num.derivative * f.denom - f.num * f.denom.derivative)) = 0 := by
+    by_contra h
+    refine hW ?_
+    rw [← Ideal.mem_span_singleton, ← hwp]
+    exact (Place.ord_ofHeightOneSpectrum_ne_zero_iff (K := K) (F := RatFunc K) w hξ0).mp h
+  refine ⟨div_ne_zero hξ0' (pow_ne_zero 2 hd0), ?_⟩
+  rw [ratFuncDXCoeff_def, div_eq_mul_inv,
+    (v).ord_mul hξ0' (inv_ne_zero (pow_ne_zero 2 hd0)), (v).ord_inv, hordξ,
+    ← zpow_natCast, (v).ord_zpow,
+    ord_algebraMap_denom_eq_zero_of_ord_eq_one hp hwp hf hord]
+  ring
+
+end FinitePlaces
+
+section PlaceInftySide
+
+variable {K : Type*} [Field K] [DecidableEq (RatFunc K)]
+
+theorem ord_placeInfty_ratFuncDXCoeff_ge {g : RatFunc K} (hg : g ≠ 0)
+    (hW : g.num.derivative * g.denom - g.num * g.denom.derivative ≠ 0) :
+    (p1PlaceInfty K).ord g + 1 ≤ (p1PlaceInfty K).ord (ratFuncDXCoeff K g) := by
+  have hn0 : g.num ≠ 0 := RatFunc.num_ne_zero hg
+  have hd0 : g.denom ≠ 0 := g.denom_ne_zero
+  have hW' : algebraMap K[X] (RatFunc K)
+      (g.num.derivative * g.denom - g.num * g.denom.derivative) ≠ 0 :=
+    RatFunc.algebraMap_ne_zero hW
+  have hd' : algebraMap K[X] (RatFunc K) g.denom ≠ 0 := RatFunc.algebraMap_ne_zero hd0
+
+  have hdeg : (g.num.derivative * g.denom - g.num * g.denom.derivative).natDegree
+      < g.num.natDegree + g.denom.natDegree :=
+    natDegree_numDenomWronskian_lt hn0 hd0 hW
+
+  have hcoeff : (p1PlaceInfty K).ord (ratFuncDXCoeff K g)
+      = 2 * (g.denom.natDegree : ℤ)
+        - (g.num.derivative * g.denom - g.num * g.denom.derivative).natDegree := by
+    rw [ratFuncDXCoeff_def, ord_placeInfty (div_ne_zero hW' (pow_ne_zero 2 hd')),
+      RatFunc.intDegree_div hW' (pow_ne_zero 2 hd'), RatFunc.intDegree_polynomial,
+      ← map_pow, RatFunc.intDegree_polynomial, Polynomial.natDegree_pow]
+    push_cast
+    ring
+
+  have hgord : (p1PlaceInfty K).ord g = (g.denom.natDegree : ℤ) - g.num.natDegree := by
+    rw [ord_placeInfty hg, RatFunc.intDegree]
+    ring
+  rw [hcoeff, hgord]
+  omega
+
+theorem exists_dXCoeff_ord_ge_two_of_ord_placeInfty_eq_zero {g : RatFunc K}
+    (hg : g ≠ 0) (hord : (p1PlaceInfty K).ord g = 0) :
+    ∃ e : RatFunc K, (e = 0 ∨ 2 ≤ (p1PlaceInfty K).ord e) ∧
+      KaehlerDifferential.D K (RatFunc K) g = e • dX K := by
+
+  have hmem : RatFunc.inftyValuation K g ≤ 1 := by
+    have h1 : g ∈ (p1PlaceInfty K).toValuationSubring :=
+      (p1PlaceInfty K).mem_of_ord_nonneg hg hord.symm.le
+    rwa [p1PlaceInfty_toValuationSubring, Valuation.mem_valuationSubring_iff] at h1
+
+  obtain ⟨c, hc⟩ := exists_sub_algebraMap_intDegree_neg K hmem
+
+  have hDg : KaehlerDifferential.D K (RatFunc K) g
+      = KaehlerDifferential.D K (RatFunc K) (g - algebraMap K (RatFunc K) c) := by
+    rw [map_sub, Derivation.map_algebraMap (KaehlerDifferential.D K (RatFunc K)) c, sub_zero]
+  rcases hc with hc0 | hcneg
+  ·
+    exact ⟨0, Or.inl rfl, by rw [hDg, hc0, _root_.map_zero, zero_smul]⟩
+  ·
+    have hg₁0 : g - algebraMap K (RatFunc K) c ≠ 0 := by
+      intro h0
+      rw [h0] at hcneg
+      simp at hcneg
+    refine ⟨ratFuncDXCoeff K (g - algebraMap K (RatFunc K) c), ?_,
+      by rw [hDg, D_eq_ratFuncDXCoeff_smul_dX]⟩
+    rcases eq_or_ne (ratFuncDXCoeff K (g - algebraMap K (RatFunc K) c)) 0 with h0 | h0
+    · exact Or.inl h0
+    · refine Or.inr ?_
+      have hW := wronskian_ne_zero_of_ratFuncDXCoeff_ne_zero K h0
+      have hge := ord_placeInfty_ratFuncDXCoeff_ge hg₁0 hW
+      have hord₁ : 1 ≤ (p1PlaceInfty K).ord (g - algebraMap K (RatFunc K) c) := by
+        rw [ord_placeInfty hg₁0]
+        omega
+      omega
+
+theorem exists_unit_dXCoeff_of_ord_placeInfty_eq_neg_one {h : RatFunc K}
+    (hh : h ≠ 0) (hord : (p1PlaceInfty K).ord h = -1) :
+    ∃ b : RatFunc K, b ≠ 0 ∧ (p1PlaceInfty K).ord b = 0 ∧
+      KaehlerDifferential.D K (RatFunc K) h = b • dX K := by
+  have hX : (RatFunc.X : RatFunc K) ≠ 0 := RatFunc.X_ne_zero
+  have hXinv : (RatFunc.X : RatFunc K)⁻¹ ≠ 0 := inv_ne_zero hX
+
+  have hg0 : h * (RatFunc.X : RatFunc K)⁻¹ ≠ 0 := mul_ne_zero hh hXinv
+  have hordg : (p1PlaceInfty K).ord (h * (RatFunc.X : RatFunc K)⁻¹) = 0 := by
+    rw [(p1PlaceInfty K).ord_mul hh hXinv, (p1PlaceInfty K).ord_inv, ord_placeInfty_X, hord]
+    ring
+  obtain ⟨e, he, hDe⟩ := exists_dXCoeff_ord_ge_two_of_ord_placeInfty_eq_zero hg0 hordg
+
+  have hh_eq : h = h * (RatFunc.X : RatFunc K)⁻¹ * RatFunc.X := by
+    rw [mul_assoc, inv_mul_cancel₀ hX, mul_one]
+  have hDh : KaehlerDifferential.D K (RatFunc K) h
+      = (h * (RatFunc.X : RatFunc K)⁻¹ + RatFunc.X * e) • dX K := by
+    conv_lhs => rw [hh_eq]
+    rw [Derivation.leibniz, hDe, smul_smul,
+      show KaehlerDifferential.D K (RatFunc K) (RatFunc.X : RatFunc K) = dX K from rfl,
+      ← add_smul]
+  rcases he with rfl | he2
+  ·
+    refine ⟨h * (RatFunc.X : RatFunc K)⁻¹ + RatFunc.X * 0, ?_, ?_, hDh⟩
+    · rw [mul_zero, add_zero]
+      exact hg0
+    · rw [mul_zero, add_zero]
+      exact hordg
+  ·
+    have he0 : e ≠ 0 := by
+      intro h0
+      rw [h0, (p1PlaceInfty K).ord_zero] at he2
+      omega
+    have hXe0 : (RatFunc.X : RatFunc K) * e ≠ 0 := mul_ne_zero hX he0
+    have hlt : (p1PlaceInfty K).ord (h * (RatFunc.X : RatFunc K)⁻¹)
+        < (p1PlaceInfty K).ord ((RatFunc.X : RatFunc K) * e) := by
+      rw [hordg, (p1PlaceInfty K).ord_mul hX he0, ord_placeInfty_X]
+      omega
+    refine ⟨h * (RatFunc.X : RatFunc K)⁻¹ + RatFunc.X * e, ?_, ?_, hDh⟩
+    ·
+      intro hsum
+      have hXe_eq : (RatFunc.X : RatFunc K) * e = -(h * (RatFunc.X : RatFunc K)⁻¹) := by
+        linear_combination hsum
+      rw [hXe_eq, (p1PlaceInfty K).ord_neg] at hlt
+      exact lt_irrefl _ hlt
+    · rw [(p1PlaceInfty K).ord_add_eq_left' hg0 hXe0 hlt]
+      exact hordg
+
+theorem exists_dXCoeff_ord_two_of_ord_placeInfty_eq_one {f : RatFunc K}
+    (hf : f ≠ 0) (hord : (p1PlaceInfty K).ord f = 1) :
+    ∃ e : RatFunc K, e ≠ 0 ∧ (p1PlaceInfty K).ord e = 2 ∧
+      KaehlerDifferential.D K (RatFunc K) f = e • dX K := by
+
+  have hf' : f⁻¹ ≠ 0 := inv_ne_zero hf
+  have hord' : (p1PlaceInfty K).ord f⁻¹ = -1 := by
+    rw [(p1PlaceInfty K).ord_inv, hord]
+  obtain ⟨b, hb0, hbord, hDb⟩ := exists_unit_dXCoeff_of_ord_placeInfty_eq_neg_one hf' hord'
+  refine ⟨-(f ^ 2 * b), neg_ne_zero.mpr (mul_ne_zero (pow_ne_zero 2 hf) hb0), ?_, ?_⟩
+  · rw [(p1PlaceInfty K).ord_neg, (p1PlaceInfty K).ord_mul (pow_ne_zero 2 hf) hb0, hbord,
+      add_zero, ← zpow_natCast, (p1PlaceInfty K).ord_zpow, hord]
+    norm_num
+  ·
+    conv_lhs => rw [← inv_inv f]
+    rw [(KaehlerDifferential.D K (RatFunc K)).leibniz_inv f⁻¹, hDb, inv_inv, smul_smul,
+      neg_mul]
+
+end PlaceInftySide
+
+section Glue
+
+variable {K : Type*} [Field K]
+
+theorem exists_ord_zero_smul_of_smul_dX_eq {v : Place K (RatFunc K)} {π π' c c' : RatFunc K}
+    (hc : c ≠ 0) (hc' : c' ≠ 0) (hord : v.ord c' = v.ord c)
+    (hD : KaehlerDifferential.D K (RatFunc K) π = c • dX K)
+    (hD' : KaehlerDifferential.D K (RatFunc K) π' = c' • dX K) :
+    ∃ u : RatFunc K, v.ord u = 0 ∧
+      KaehlerDifferential.D K (RatFunc K) π' = u • KaehlerDifferential.D K (RatFunc K) π := by
+  refine ⟨c' / c, ?_, ?_⟩
+  · rw [div_eq_mul_inv, v.ord_mul hc' (inv_ne_zero hc), v.ord_inv, hord]
+    ring
+  · rw [hD, hD', smul_smul, div_mul_cancel₀ _ hc]
+
+end Glue
+
+theorem ordDifferentialWellDefined_ratFunc (K : Type*) [Field K] [CharZero K] :
+    OrdDifferentialWellDefined K (RatFunc K) := by
+  classical
+  intro v π π' hπ hπ'
+
+  have hπ0 : π ≠ 0 := by
+    intro h
+    rw [h, v.ord_zero] at hπ
+    exact zero_ne_one hπ
+  have hπ'0 : π' ≠ 0 := by
+    intro h
+    rw [h, v.ord_zero] at hπ'
+    exact zero_ne_one hπ'
+
+  rcases eq_ofHeightOneSpectrum_or_eq_placeInfty v with ⟨w, rfl⟩ | rfl
+  ·
+    obtain ⟨p, hp, hwp⟩ := exists_irreducible_span K w
+    obtain ⟨h1ne, h1ord⟩ :=
+      ratFuncDXCoeff_ne_zero_and_ord_eq_zero_of_ord_eq_one hp hwp hp.separable hπ0 hπ
+    obtain ⟨h2ne, h2ord⟩ :=
+      ratFuncDXCoeff_ne_zero_and_ord_eq_zero_of_ord_eq_one hp hwp hp.separable hπ'0 hπ'
+    exact exists_ord_zero_smul_of_smul_dX_eq h1ne h2ne (h2ord.trans h1ord.symm)
+      (D_eq_ratFuncDXCoeff_smul_dX K π) (D_eq_ratFuncDXCoeff_smul_dX K π')
+  ·
+    obtain ⟨e, he0, heord, hDe⟩ := exists_dXCoeff_ord_two_of_ord_placeInfty_eq_one hπ0 hπ
+    obtain ⟨e', he'0, he'ord, hDe'⟩ := exists_dXCoeff_ord_two_of_ord_placeInfty_eq_one hπ'0 hπ'
+    exact exists_ord_zero_smul_of_smul_dX_eq he0 he'0 (he'ord.trans heord.symm) hDe hDe'
+
+section ConsumerGates
+
+variable (K : Type*) [Field K] [CharZero K] [DecidableEq (RatFunc K)]
+variable [HasCanonicalDivisor (K := K) (F := RatFunc K)]
+variable [∀ v : Place K (RatFunc K), v.DCoordGenerates] [Nontrivial Ω[(RatFunc K)⁄K]]
+
+end ConsumerGates
+
+section NonVacuity
+
+variable (K : Type*) [Field K]
+
+end NonVacuity
+
+section PrincipalPartAtoms
+
+variable {K : Type*} [Field K] [DecidableEq (RatFunc K)]
+
+variable (K)
+
+theorem two_le_ord_placeInfty_p1PrincipalPartAtom
+    {p : K[X]} (hp : Irreducible p) {c : K[X]} (hc : c ≠ 0) {m : ℕ}
+    (hdeg : c.degree < p.degree) (hm : 2 ≤ m) :
+    2 ≤ (p1PlaceInfty K).ord (p1PrincipalPartAtom K p c m) := by
+  rw [ord_placeInfty_p1PrincipalPartAtom K hp.ne_zero hc]
+  have hndeg : c.natDegree < p.natDegree :=
+    Polynomial.natDegree_lt_natDegree hc hdeg
+  have hpdeg : 1 ≤ (p.natDegree : ℤ) := by exact_mod_cast hp.natDegree_pos
+  have hm' : 2 ≤ (m : ℤ) := by exact_mod_cast hm
+  nlinarith
+
+omit [DecidableEq (RatFunc K)] in
+
+theorem not_dvd_of_degree_lt {p c : K[X]} (hc : c ≠ 0)
+    (hdeg : c.degree < p.degree) : ¬ p ∣ c :=
+  fun hdvd => not_lt.mpr (Polynomial.degree_le_of_dvd hdvd hc) hdeg
+
+omit [DecidableEq (RatFunc K)] in
+
+theorem ord_finitePlace_of_degree_lt {p : K[X]} (hp : Irreducible p) {c : K[X]} (hc : c ≠ 0)
+    (hdeg : c.degree < p.degree) :
+    (finitePlace K hp).ord (algebraMap K[X] (RatFunc K) c) = 0 :=
+  not_ne_iff.mp fun h =>
+    not_dvd_of_degree_lt K hc hdeg ((ord_finitePlace_ne_zero_iff K hp hc).mp h)
+
+omit [DecidableEq (RatFunc K)] in
+
+theorem ord_finitePlace_p1PrincipalPartAtom {p : K[X]} (hp : Irreducible p)
+    {c : K[X]} (hc : c ≠ 0) (hdeg : c.degree < p.degree) (m : ℕ) :
+    (finitePlace K hp).ord (p1PrincipalPartAtom K p c m) = -(m : ℤ) := by
+  have hinj := IsFractionRing.injective K[X] (RatFunc K)
+  have hp' : algebraMap K[X] (RatFunc K) p ≠ 0 := (map_ne_zero_iff _ hinj).mpr hp.ne_zero
+  have hc' : algebraMap K[X] (RatFunc K) c ≠ 0 := (map_ne_zero_iff _ hinj).mpr hc
+  unfold p1PrincipalPartAtom
+  rw [div_eq_mul_inv, (finitePlace K hp).ord_mul hc' (inv_ne_zero (pow_ne_zero m hp')),
+    (finitePlace K hp).ord_inv, ← zpow_natCast, (finitePlace K hp).ord_zpow,
+    ord_finitePlace_of_degree_lt K hp hc hdeg, ord_finitePlace_self K hp]
+  ring
+
+end PrincipalPartAtoms
+
+end AlgebraicCurve
+
+end
