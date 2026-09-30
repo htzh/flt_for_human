@@ -338,13 +338,16 @@ analytic predicates directly. Its only RR leaves are
    `exists_linearEquiv_regularDifferentials_omegaSpace_zero` already is; the analytic
    proof stays out of the RR route.
 4. The **analytic / residue-theorem block is deferred (TBD)**. Both routes are large and
-   siloed — `port_advise` prices the Tate/K-family route at 10 target files / 1,269
-   declarations (303 substitutions ≈6,434 lines) and the plain perfect-field route at 12
-   files / 1,008 declarations (155 substitutions ≈3,160 lines) — and the choice waits on
-   the differential-residue scope (`exists_ordDifferential_ge_neg_one_and_evalAt_eq_of_degree_eq_zero`,
-   `sum_fibre_evalAt_eq_zero_of_smul_D_mem_regularDifferentials`), which may force the
-   K-family. `HasCanonicalLocalResidueKStar` (the Cohen–Laurent prelude) is a shared
-   prerequisite of the bridge, the differentials headline, and both routes.
+   siloed — at frontier 608 `port_advise` reads the Tate/K-family route as 16 files /
+   1,302 declarations (211 substitutions, 4,471 lines) and the plain perfect-field route
+   as 64 files / 1,957 declarations (282 substitutions, 5,822 lines) — and the choice
+   waited on the differential-residue scope
+   (`exists_ordDifferential_ge_neg_one_and_evalAt_eq_of_degree_eq_zero`,
+   `sum_fibre_evalAt_eq_zero_of_smul_D_mem_regularDifferentials`), which could have
+   forced the K-family. §5.4 settles it: the five nodes that cite the K-family, including
+   both differential-residue statements, reroute to plain `ResidueTheorem`.
+   `HasCanonicalLocalResidueKStar` (the Cohen–Laurent prelude) is a shared prerequisite
+   of the bridge, the differentials headline, and both routes.
 
 **Measured (2026-09-30, frontier 608).** The D-S scout's §4.2 has the full working.
 Pruning the analytic block `residueTheorem|tateAgreement|residueTrace|CellDissection`
@@ -579,6 +582,185 @@ is green. What remains of the order above is the bridge (§4.1), then the analyt
 block for `ResidueTheorem` and the differential residues, then the transport and
 the per-file applications.
 
+### 5.4 The PF/K residue decision, and the five interface lemmas (2026-09-30)
+
+The two analytic routes have very different fan-outs, and the difference decides the
+port. Measured on the pin graph (frontier 608; transitive `cited_by` closure against
+the pin's 49 landmark cones):
+
+**The K chain is linear, and its fan-out is the RR formula, not the residue theorem.**
+`tateAgreement` → `residueTraceCompletionCommute` → `residueTheoremK_of_isAlgClosed`
+has one direct consumer at each step, and `residueTheoremK_of_isAlgClosed` has five.
+Its transitive reach is 3,907, but
+`T(functionFieldRiemannRoch_of_isAlgClosed)` is 3,899, so the K-specific reach is
+**8 nodes / 0 landmarks**. `tateAgreement` is not a residue statement at all — it is
+`ModularCurve.KwF4gRRTate.KwF4gRRTateAgreement` — so the "nexus" label is inherited
+from the RR wrapper that the pin routes through the K-family. The bridge severs that:
+with the three `functionFieldRiemannRoch_of_isAlgClosed*` wrappers supplied, pruning
+the K-family (6 nodes / 27,277 lines) leaves a **5-node rewiring frontier** — 1,597
+lines of pin proofs — whose own descendants are 813 nodes / 22 landmarks (the three
+differential-residue statements among them account for 791).
+
+**The plain `ResidueTheorem` interface is unavoidable; the PF route supplies it
+K-free.** `T(plain ResidueTheorem reached from the PF endpoints)` is **88 nodes /
+9 landmarks**: the `CuspForm.heckeLocal.*` patching / ordinary-condition tower,
+`CohCarrier`, `FreyPackage`, `WeierstrassCurve`, `ModPForms`, and a few
+`ModularCurve`/`AlgebraicGeometry` residue-package lemmas. The nine landmarks are
+`FreyPackage.{fermatLastTheoremFor_of_five_le, frey_isModular, level_lowering_to_two,
+modularRepOfConductorLevel, no_frey_package}`,
+`WeierstrassCurve.modularityLiftingAtConductor_threeFive_*` (two),
+`WeierstrassCurve.modularity_of_semistableModel` and `fermat_last_theorem`. That
+interface is what the bridge, the differentials headline and the FLT endgame consume;
+the PF route produces it over `PerfectField` without assuming the K-family.
+
+**Why that footprint is deep rather than broad.** Each PF endpoint has exactly one
+direct consumer, and they coalesce into two chains. The plain chain is
+`residueTheorem_of_perfectField` → `residueTheorem_functionField_of_smoothOfRelativeDimension_one`
+(76) → `AlgebraicGeometry.Scheme.TwoAffineOpenCover.residuesVanishOnCoboundaries_…`
+(222) → `…FiniteMapData…serrePairingInt_bijective_…` (135) → the `ModularCurve`
+`jZero`/Hecke-torsion tower → `CohCarrier` corner modules → `CuspForm.heckeLocal.*`
+→ `WeierstrassCurve.modularityLiftingAtConductor_…` → `FreyPackage.*` →
+`FLT.fermatLastTheorem`, 26–28 hops deep. The `_v2` chain runs through
+`residueTraceCompletionCommute_v2` → `fibreResidueIdentityAlong_…` (7,954) →
+`ModularCurve.SSHeckeV2`/`ModPForms` → the same patching tower, 20–21 hops. So the
+reach is a **path, not a hub**: the plain residue theorem is a bottleneck input to
+the residue/Serre-pairing calculus that the modularity-lifting stack computes with,
+which is why it reaches FLT.
+
+And the nine landmarks are not marginal: 74 of the 88 nodes — all nine landmarks
+among them — are also reached through `functionFieldRiemannRoch_of_isAlgClosed`. The
+PF route's marginal footprint beyond the RR formula is **18 nodes / 49,063 raw lines
+/ 0 landmarks** (`trace_localResidue_*`, `fibreResidueIdentityAlong_…`, the two `_v2`
+nodes, and a handful of `TwoAffineOpenCover`/`functionField_residuePackage` lemmas).
+Both the residue theorem and the RR formula feed the *same* cohomological stack; the
+residue theorem is not FLT-relevant on its own account, the stack is. (PF and K are
+also not the same statement: PF produces plain `ResidueTheorem` over `PerfectField`,
+K produces the `Rfam`-parametrized `ResidueTheoremK`; they meet only at the plain
+interface, which is what the 88 nodes consume.)
+
+**The asymmetry.** `T(PF) ∩ T(RR)` is 74 of 88, and `T(PF)` meets the K-specific 8
+in **0** nodes — it reaches none of the five frontier nodes either, because they
+take their residue theorem from the K-family. Three of the five are stated against
+`ResidueTheoremK`; the other two
+(`Differential.sum_ord_smul_pullbackAlong_eq_zero`,
+`ModularCurve.weilKaehlerAgree_modularFunctionFieldC`) use only the plain statement
+but reach it through the K-route producer. So K is not interchangeable with PF for
+the frontier unless those five are rewritten.
+
+**The five, scouted.** Exactly five nodes cite the K-family directly (the rewiring
+frontier above):
+
+| statement | lines | what it cites | reroute to plain `ResidueTheorem`? |
+|---|---:|---|---|
+| `Differential.sum_ord_smul_pullbackAlong_eq_zero` | 629 | its local `residueTheorem_of_curve`, fed by `residueTheorem_of_isAlgClosed` | **yes, no K content** — only the plain statement is used |
+| `exists_ordDifferential_ge_neg_one_and_evalAt_eq_of_degree_eq_zero` | 451 | `residueTheoremK_of_isAlgClosed`, applied at `HasCanonicalLocalResidueKStar.dataKStar` | **yes** — local rewrite |
+| `sum_fibre_evalAt_eq_zero_of_smul_D_mem_regularDifferentials` | 323 | same | **yes** — local rewrite |
+| `sum_eq_zero_of_forall_hasSimpleResidue_of_mem_polarDifferentials` | 142 | its local `ResThm.residueTheoremK` = `residueTheoremK_of_isAlgClosed` | **yes** — local rewrite |
+| `ModularCurve.weilKaehlerAgree_modularFunctionFieldC` | 52 | `residueTheorem_of_isAlgClosed` | **yes, no K content** |
+
+The three "local rewrite" rows share one shape:
+
+```text
+have hRT : ResidueTheoremK K F := residueTheoremK_of_isAlgClosed
+have h := hRT HasCanonicalLocalResidueKStar.dataKStar hω a
+rw [weilOfKaehlerK_apply] at h
+```
+
+A plain `ResidueTheorem K F` gives the same conclusion, because `kaehlerResidueTerm`
+*is* `kaehlerResidueTermKFam (fun v => HasCanonicalLocalResidueKStar.dataKStar v)`:
+the former uses `v.localResidue`, which unfolds to `(dataKStar v).res`, and the
+latter takes that family as its parameter. So the rewrite replaces `ResidueTheoremK`
+by `ResidueTheorem` and the `weilOfKaehlerK_apply` step by `weilOfKaehler_apply`,
+with that identification a `rfl`/`simp`-level step. The two "no K content" rows
+already use only the plain statement; the port need only source
+`residueTheorem_of_isAlgClosed` from the PF producer.
+
+**Why the PF route looks heavy: the ℙ¹ core is duplicated, not extra mathematics.**
+The 52,625 raw lines are not 52k of distinct content. The PF base file
+`trace_localResidue_placeInfty_X_pow_eq_zero` (13,173 lines / 563 declarations) and
+the K base file `residueTheoremK_ratFunc_of_isAlgClosed` (13,170 / 562) **share 523
+declarations** — 93% of each — and the other two `trace_localResidue_*` files share
+152 and 54 of those again. That shared core is the constructive ℙ¹ computation
+(`P1Tower`, `p1PlaceInfty`, `p0n22_cpf_res_*`, `mp72a10*`, `ag9b13t_*`) proving the
+two atoms of the residue theorem on ℙ¹: `tr(res_∞(X^n dX)) = 0` and the two-place
+cancellation `tr(res_p(c/p dX)) + tr(res_∞(c/p dX)) = 0`. So the intrinsic cost is
+**one** ~13k-line computation, and the routes differ only in their endings
+(`ResidueTheorem` vs `ResidueTheoremK`). The transfer/agreement layer is the other
+~14k (`residueTheorem_of_…residueTraceCompletionCommute` 7,889 / 220,
+`tateAgreement_v2` 4,816 / 173, `residueTraceCompletionCommute_v2` 1,109 / 15),
+again explicit adic-completion / cotrace / place-fibre computation. `port_advise`
+already dedups this — within PF 52,625 → ≈28,900, and across the two routes the
+union 79,862 → ≈31,000 — so the practical consequence is to **home the ℙ¹ core
+once**; after that the PF route's marginal content, and the K route's beyond it, are
+small.
+
+**The de-duplicated plan, priced.** The single-copy plain plan decomposes as follows
+(same metric as the rest of the notes: `raw − substitutions − removable excluding
+substituted`, so the component rows overlap where they share helpers):
+
+| piece | raw | projected written |
+|---|---:|---:|
+| ℙ¹ core + ℙ¹ base case (three `trace_localResidue_*` + `residueTheorem_ratFunc_of_perfectField` + helpers) | 29,118 | ≈17,300 |
+| Tate agreement (`tateAgreement_v2` + `tateTraceCompat_of_isSeparable` + `tateChainRule` + `tateCommFinite`) | 13,323 | ≈8,000 |
+| trace-completion commutation (`residueTraceCompletionCommute_v2`) | 1,109 | ≈525 |
+| transfer (`residueTheorem_of_…residueTraceCompletionCommute` + `residueTheorem_of_perfectField` + helpers) | 9,075 | ≈7,050 |
+| **PF route, single copy (union of the four)** | **52,625** | **≈28,900** |
+| `HasCanonicalLocalResidueKStar` (`Defs/PlaceCompletion` + `Defs/CanonicalLocalResidueInstanceV2`) | 2,702 | ≈2,600 |
+| **total single-copy plain plan** | **55,327** | **≈31,500** |
+
+The four component rows sum to ≈32,900, about 4,000 above the union because the
+shared Tate/helper prelude is counted once there. And the route choice is nearly
+free: the PF+K union projects to ≈31,000, only ≈2,000 above PF alone, so the shared
+core dominates and the two endings are small.
+
+**The K-specific eight, and what they actually need.** `T(K) \ T(RR)` is 8 nodes /
+2,585 lines, none a landmark:
+
+| node | lines | what it consumes |
+|---|---:|---|
+| `functionFieldRiemannRoch_of_isAlgClosed` | 39 | the bridge target itself (conditional on `ResidueTheorem`) |
+| `residueTheorem_of_isAlgClosed` | 40 | the K→plain producer wrapper |
+| `ModularCurve.weilKaehlerAgree_modularFunctionFieldC` | 52 | plain `ResidueTheorem` (via `weilKaehlerAgree_of_residueTheorem`) |
+| `sum_eq_zero_of_forall_hasSimpleResidue_of_mem_polarDifferentials` | 142 | `ResidueTheoremK`, reroutable to plain |
+| `abelJacobiDiv_mem_pathPeriodLattice_of_isPrincipal` | 245 | the complex-analytic Abel–Jacobi block |
+| `sum_fibre_evalAt_eq_zero_of_smul_D_mem_regularDifferentials` | 323 | `ResidueTheoremK`, reroutable to plain |
+| `Differential.sum_ord_smul_pullbackAlong_eq_zero` | 629 | plain `ResidueTheorem` |
+| `eventually_abelJacobiDiv_fibre_sub_mem_pathPeriodLattice` | 1,115 | the complex-analytic block + `sum_fibre_evalAt_…` |
+
+Two are the interface itself (the RR formula and the plain producer wrapper), two
+are the complex-analytic Abel–Jacobi subject (deferrable with that block), two need
+only the plain statement, and two use `ResidueTheoremK` in the `dataKStar` form §5.4
+reroutes. So the eight need **a** residue theorem — plain suffices — not the
+K-specific content, and they carry no landmark. The residue theorem still has to be
+produced because the landmark paths consume it through the shared cohomological
+stack (the 26-hop `residueTheorem_of_perfectField` → `fermat_last_theorem` path),
+not through these eight.
+
+**The Tate agreement is needed once, not twice.** `tateAgreement` and
+`tateAgreement_v2` are byte-identical except for one import
+(`CanonicalLocalResidueInstance` vs `CanonicalLocalResidueInstanceV2`) and the
+namespace; likewise `residueTraceCompletionCommute`/`_v2` (15/15 declarations
+shared) and the two ℙ¹ base files (523 of 563 shared). Since
+`Def_AlgebraicCurve_CanonicalLocalResidueInstance.lean` is itself a 694-line file
+with three private lemmas that imports V2, the two families carry the same instance.
+So "we need `tateAgreement`" is right in content but not in name: the analytic
+content is needed once — the ℙ¹ core, the Tate agreement, the trace-completion
+commutation and a plain ending — and the `_v2` family is pin duplication the port
+should collapse.
+
+**Consequence for the decision.** The PF route is the one to port: ≈28,900 projected
+written (against the K route's ≈23,000) but it produces plain `ResidueTheorem` over
+`PerfectField` without assuming the K-family, and it shares (rather than replaces)
+the `HasCanonicalLocalResidueKStar` prelude. The K route is bespoke: its entire
+3,905-node "nexus" is the RR formula's fan-out, which the bridge removes, and what
+remains is **three local rewrites** over the 1,597-line frontier. So the decision is
+not "K or PF for 3,805 nodes" but "can three short proofs be restated over plain
+`ResidueTheorem`" — and on inspection they can, at the cost of the definitional
+`kaehlerResidueTerm` identification plus the PF route's extra ≈5,900 written lines.
+If that identification or one of the three proofs resists, the fallback is the
+K-family at ≈23,000 projected lines; the PF+K union projects to ≈31,000, so porting
+the second route later costs only ≈2,000 marginal.
+
 ## 6. Reproduce
 
 ```bash
@@ -685,4 +867,104 @@ The §5.3 function-field engine measurement:
 cd tools/deps
 ENGINE='AlgebraicCurve.RationalFunctionField.stichtenothGenusExists,AlgebraicCurve.RationalFunctionField.finiteDimensional_lSpace_zero_of_constantsAreBase,AlgebraicCurve.exists_genus_riemannIndex_of_stichtenothGenusExists,AlgebraicCurve.exists_riemannGenusReachedAt_nsmul_single_of_stichtenothGenusExists,AlgebraicCurve.RiemannGenusReachedAt.eq_of_ge,AlgebraicCurve.omegaSpace_finite_of_genusReached,AlgebraicCurve.indexOfSpecialty_eq_of_genusReached,AlgebraicCurve.indexOfSpecialty_eq_zero_of_genusReached,AlgebraicCurve.weilDualityAdelic_of_functionFieldRiemannRoch_of_stichtenothGenusExists,AlgebraicCurve.indexOfSpecialty_eq_finrank_H1,AlgebraicCurve.exists_genus_riemannIndex_of_isCurveOver,AlgebraicCurve.weilDifferentialRankOne_of_isCurveOver,AlgebraicCurve.exists_weilCanonical_riemannRoch,AlgebraicCurve.exists_linearEquiv_regularDifferentials_omegaSpace_zero'
 python3 port_advise.py --nodes "$ENGINE" --json build/stich_advise.json
+```
+
+The §5.4 residue-route fan-out and the five interface lemmas:
+
+```bash
+cd tools/deps
+python3 - <<'PY'
+import frontier
+from collections import deque
+fr = frontier.Frontier(); d = fr.d; pay = fr.pay
+lm = d.meta['lm']
+def T(i):
+    seen, q = set(), deque(d.cited_by[i])
+    while q:
+        u = q.popleft()
+        if u in seen: continue
+        seen.add(u); q.extend(d.cited_by[u])
+    return seen
+RR = T(pay.pid('AlgebraicCurve.functionFieldRiemannRoch_of_isAlgClosed'))
+K = T(pay.pid('AlgebraicCurve.residueTheoremK_of_isAlgClosed'))
+print('T(RR)', len(RR), 'T(K)', len(K), 'K-specific', len(K - RR),
+      'K-specific landmarks', sum(1 for u in K - RR if lm[u]))
+P = set()
+for q in ['AlgebraicCurve.residueTheorem_of_perfectField',
+          'AlgebraicCurve.residueTheorem_ratFunc_of_perfectField',
+          'AlgebraicCurve.residueTheorem_of_residueTheorem_ratFunc_of_residueTraceCompletionCommute',
+          'AlgebraicCurve.tateAgreement_v2', 'AlgebraicCurve.residueTraceCompletionCommute_v2']:
+    P |= T(pay.pid(q))
+print('T(PF)', len(P), 'landmarks', sum(1 for u in P if lm[u]),
+      'intersect K-specific', len(P & (K - RR)))
+RK, _ = pay.ids(['AlgebraicCurve.tateAgreement', 'AlgebraicCurve.residueTraceCompletionCommute',
+                 'AlgebraicCurve.residueTheoremK_ratFunc_of_isAlgClosed',
+                 'AlgebraicCurve.residueTheoremK_of_isAlgClosed',
+                 'AlgebraicCurve.residueTheorem_of_residueTheoremK',
+                 'AlgebraicCurve.residueTheorem_of_isAlgClosed'])
+root = pay.pid('FLT.fermatLastTheorem'); port = pay.closure(root)
+RK = [i for i in RK if i in port]
+rep, _ = pay.ids(['AlgebraicCurve.functionFieldRiemannRoch_of_isAlgClosed',
+                  'AlgebraicCurve.functionFieldRiemannRoch_of_isAlgClosed_of_isCurveOver',
+                  'AlgebraicCurve.functionFieldRiemannRoch_of_isAlgClosed_of_transcendental'])
+for i in sorted(pay.frontier(root, RK, replaced=set(rep)), key=lambda i: -pay.lines(i)):
+    print('rewire', pay.lines(i), pay.qual(i))
+PY
+```
+
+The two route prices of §5.4 (K and PF) are the `port_advise` runs of §3's route
+sub-sets, i.e. the K and PF node lists of the §4.1 scoping.
+
+The §5.4 duplication claim — that the PF and K base files share their ℙ¹ core —
+is a declaration-name intersection over the pin tree:
+
+```bash
+cd tools/deps
+python3 - <<'PY'
+import os, re
+pin = os.environ.get('FLT_ROOT', os.path.expanduser('~/proj/fermats-last-theorem'))
+decl = re.compile(r'^\s*(?:private\s+|noncomputable\s+|protected\s+)*(theorem|lemma|def|abbrev|instance|structure|class)\s+([A-Za-z_][\w\'.]*)')
+def names(stem):
+    p = f'{pin}/P2M/Sol/{stem}.lean'
+    return {decl.match(l).group(2) for l in open(p, errors='replace') if decl.match(l)}
+pairs = [
+    ('trace_localResidue_placeInfty_X_pow_eq_zero',
+     'S_AlgebraicCurve_RationalFunctionField_trace_localResidue_placeInfty_X_pow_eq_zero',
+     'S_AlgebraicCurve_residueTheoremK_ratFunc_of_isAlgClosed'),
+    ('tateAgreement', 'S_AlgebraicCurve_tateAgreement', 'S_AlgebraicCurve_tateAgreement_v2'),
+    ('residueTraceCompletionCommute',
+     'S_AlgebraicCurve_residueTraceCompletionCommute',
+     'S_AlgebraicCurve_residueTraceCompletionCommute_v2'),
+]
+for label, a, b in pairs:
+    A, B = names(a), names(b)
+    print(f'{label}: {len(A)} vs {len(B)} declarations, shared {len(A & B)}')
+PY
+diff "$FLT_ROOT/P2M/Sol/S_AlgebraicCurve_tateAgreement.lean" \
+     "$FLT_ROOT/P2M/Sol/S_AlgebraicCurve_tateAgreement_v2.lean" | head
+```
+
+The §5.4 component prices split the PF slice into its four logical pieces (from the
+`rt_pf_nodes.txt` list generated above):
+
+```bash
+cd tools/deps
+python3 - <<'PY'
+import re
+nodes = [n for n in open('build/rt_pf_nodes.txt').read().split(',') if n]
+groups = {
+ 'core':      r'trace_localResidue|residueTheorem_ratFunc_of_perfectField|CanonicalLocalResidueDataK|evalAt_|ord_placeInfty|ord_placeOfPoint|deg_placeInfty|isRational_iff_deg_eq_one|sum_ramificationIndex',
+ 'agreement': r'tateAgreement_v2|tateTraceCompat|tateChainRule|tateCommFinite',
+ 'commute':   r'residueTraceCompletionCommute_v2',
+ 'transfer':  r'residueTheorem_of_residueTheorem_ratFunc_of_residueTraceCompletionCommute|residueTheorem_of_perfectField|completionTraceSum|instIsCurveOverRatFunc|evalFun_',
+}
+for k, pat in groups.items():
+    open(f'build/pf_{k}.txt', 'w').write(','.join(n for n in nodes if re.search(pat, n)))
+PY
+for k in core agreement commute transfer; do
+  python3 port_advise.py --nodes "$(cat build/pf_$k.txt)" --json "build/pf_${k}_advise.json"
+done
+# the HasCanonicalLocalResidueKStar precondition
+python3 port_advise.py --target Definitions/Def_AlgebraicCurve_PlaceCompletion.lean --json build/rt_completion_advise.json
+python3 port_advise.py --target Definitions/Def_AlgebraicCurve_CanonicalLocalResidueInstanceV2.lean --json build/rt_instance_advise.json
 ```

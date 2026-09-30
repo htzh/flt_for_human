@@ -1,7 +1,7 @@
 # Porting: the Riemann–Roch foundation of the curve layer
 
-**Status: phase 1 COMPLETE; phase 2 COMPLETE; phase 3 PLANNED — the bridge
-(2026-09-30); the analytic residue block deferred, TBD.** Phase 2 — the canonical
+**Status: phase 1 COMPLETE; phase 2 COMPLETE; phase 3 PLANNED — the residue-theorem
+block (two endings) then the RR ending (2026-09-30).** Phase 2 — the canonical
 divisor, `hasCanonicalDivisor_of_isCurveOver` (1,723 ln) plus its two
 Kähler-differential prerequisites — is landed: `Defs/KaehlerTranscendental.lean` (94)
 and `Canonical/HasCanonicalDivisor.lean` (1,559), from
@@ -14,9 +14,10 @@ Method record: [../logs/riemann-roch-friction.md](../logs/riemann-roch-friction.
 Pin `aa2d8b3`; the port's mathlib is `v4.34.0`. This is the port blueprint for the
 foundational Riemann–Roch effort, split out of the Deligne–Serre scout because it is
 not incidental to that cone. **Phase 1 is fixed — the 14-node genus / index engine;
-phase 3 is now the bridge to the canonical-genus / duality API; the analytic residue
-block is deferred (TBD)**, and the effort may go beyond Riemann–Roch (Serre duality,
-the Weil pairing, `genusFF`).
+phase 3 is now the residue-theorem block (both pin endings on one shared core),
+followed by the RR assembly that transcribes the pin's `MirrorAssembly` against the
+K ending; the choice against the PF-plus-new-bridge alternative is recorded in §3**,
+and the effort may go beyond Riemann–Roch (Serre duality, the Weil pairing, `genusFF`).
 
 **What shipped (homes).** `Defs/{Repartitions,AdelicIndex,IsCurveOver,CanonicalDivisor,
 RiemannRochRows,PoleDivisorPackage,CanonicalDivisorUniformizer,LocalResidue,WeilOfKaehler,
@@ -34,8 +35,8 @@ cohomological genus, on top of `exists_genus_riemannIndex_of_isCurveOver`,
 `indexOfSpecialty_eq_of_genusReached` / `…_zero_of_genusReached`,
 `omegaSpace_finite_of_genusReached`, and `weilDifferentialRankOne_of_isCurveOver`.
 What is missing is not RR but its **canonical-genus / duality form** and the
-`ResidueTheorem` input; phase 3 is the bridge, §3. The phase-1 differentials
-headline remains **conditional**
+`ResidueTheorem` input; phase 3 supplies the residue theorem and then the RR assembly,
+§3. The phase-1 differentials headline remains **conditional** until then
 (`ResidueTheorem`, `HasCanonicalDivisor`, … kept as hypotheses). Written total
 ≈5,350 lines (phase 1) + 1,653 (phase 2) against the projections. The
 mathlib route audits are
@@ -73,11 +74,11 @@ canonical divisor. It is measured at **14 nodes / 12,262 raw `S_` lines**, proje
 **≈3,700 lines** after dedup (studies §5.3), and it is the interface 104 forward-cone
 nodes actually consume.
 
-Out of scope for phase 1 (and now the phase-2 result, or deferred):
+Out of scope for phase 1 (and now the phase-2 result, or phase 3 / phase 4):
 
 - the analytic `ResidueTheorem` / differential-residue block — `residueTheoremK` (8,121),
   `residueTheoremK_ratFunc` (13,170), `tateAgreement` (4,816), `CellDissection`, and the
-  two `evalAt` statements — needed by the differentials layer, **deferred, TBD** (§3);
+  two `evalAt` statements — needed by the differentials layer, **phase 3** (§3);
 - `hasCanonicalDivisor_of_isCurveOver` (1,723) — **landed in phase 2**;
 - the differentials ↔ cusp-forms transport and the per-file applications (phase 4);
 - anything beyond Riemann–Roch — Serre duality, the Weil pairing, `genusFF` computations.
@@ -85,12 +86,12 @@ Out of scope for phase 1 (and now the phase-2 result, or deferred):
 Phase 1 deliberately does **not** include the analytic RR-specific node
 `functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed` (6,257): the engine's own
 assemblies already produce the RR formula and Weil duality, and phase 3 re-provides its
-**statement** with the bridge proof (§3).
+**statement** by transcribing the pin's `MirrorAssembly` against the K ending (§3).
 
 ## 1. Phase 1 targets
 
-All 14 are unported at the frontier-541 measurement. The `home` column is the proposed
-file in the port's existing `AlgebraicCurve/` tree.
+All 14 were unported at the frontier-541 measurement; phase 1 has since landed them
+(header). The `home` column is the file in the port's existing `AlgebraicCurve/` tree.
 
 | node | `S_` lines | what it states | home |
 |---|---:|---|---|
@@ -127,10 +128,9 @@ unconditional against the ported vocabulary.
 - The definitions the nodes are phrased with are the pin's
   `Def_AlgebraicCurve_{DivisorClassGroup,AdelicIndex,CanonicalDivisor,Repartitions,IsCurveOver}`
   vocabulary; the definitions work order of the AC effort covers the ported part.
-- The **interface nodes** of §1 need `hasCanonicalDivisor_of_isCurveOver` (TBD) and
-  `ResidueTheorem` (TBD), and the two engines that consume the genus API — the rank-two
-  Tate-module finiteness and the Hecke-algebra dimension results — are consumers, not
-  prerequisites.
+- The **interface nodes** of §1 need `hasCanonicalDivisor_of_isCurveOver` (**landed in
+  phase 2**) and `ResidueTheorem` (**phase 3**), and the two engines that consume the  genus API — the rank-two Tate-module finiteness and the Hecke-algebra dimension
+  results — are consumers, not prerequisites.
 
 ## 3. The rest of the route
 
@@ -138,86 +138,136 @@ unconditional against the ported vocabulary.
 (1,723), `Defs/KaehlerTranscendental.lean` (94) and `Canonical/HasCanonicalDivisor.lean`
 (1,559).
 
-**Phase 3 — the bridge to the canonical-genus / duality API (PLANNED, 2026-09-30).**
-The algebraic RR is already in phase 1: `exists_weilCanonical_riemannRoch` proves
+**Phase 3 — the residue-theorem block and the RR ending (PLANNED, 2026-09-30).** The
+algebraic RR is already in phase 1: `exists_weilCanonical_riemannRoch` proves
 $`\exists W, \forall D, \ell D - \ell(W-D) = \deg D + 1 - g_{\mathrm{FF}}`$, with the
-genus-index engine and rank-one behind it (see the header). What the forward cone
-consumes and the port does not yet have is the **canonical-genus form** and the
-predicate producers:
+genus-index engine and rank-one behind it. What the forward cone consumes and the port
+does not yet have is the **canonical-genus form**, and the one input that produces it
+is a residue theorem: the canonical-divisor identification (equivalently
+$`\deg K = 2\gamma - 2`$, $`\ell K = \gamma`$) *is* the residue-theorem content. The
+D-S scout's §4.2 priced the payout — pruning the analytic block saves 23 nodes /
+56,233 lines on the forward cone — and
+[riemann-roch-strategy.md](../../studies/riemann-roch-strategy.md) §5.4 scouted the two
+pin routes and fixed the shape.
 
-- `genus_eq_genusFF` (30) and `ell_canonicalDivisor_eq_genus_of_riemannRoch` (13) —
-  the only RR nodes the D-S cone cites directly (5 and 8 consumers respectively);
-- producers for the already-ported predicates `FunctionFieldRiemannRoch`,
-  `WeilDualityAdelic`, `WeilDuality`, `WeilOmegaEllAgrees`, `RiemannIndexFormula`
-  (`Defs/RiemannRochRows.lean` has the definitions and the thin assemblies only);
-- `finite_and_finrank_regularDifferentials_eq_genus` (220) and its 8 consumers,
-  which in the pin reach `functionFieldRiemannRoch_of_isAlgClosed` (6,257).
+*Decision (2026-09-30): port **both endings** on one shared core, and transcribe the
+pin's RR assembly against the K ending; do not write a new bridge.* Two endings is
+≈2,100 written lines more than the "perfect-field ending plus a new bridge"
+alternative, but it adds **no new proof obligation** — every statement and proof is a
+pin transcription, and the K ending is exactly what the pin's `MirrorAssembly` already
+consumes. The PF-only alternative would restate the five K-citing lemmas over plain
+`ResidueTheorem`; §5.4 shows all five are reroutable, but the restatement and the
+`kaehlerResidueTerm` identification are the risk, and the routes share so much that
+the second ending's marginal cost is small.
 
-The bridge is small but it needs the residue theorem: the canonical-divisor
-identification (equivalently $`\deg K = 2\gamma - 2`$, $`\ell K = \gamma`$) is exactly
-the residue-theorem content. The already-ported
-`weilOfKaehler_ne_zero_and_maximal` and
-`weilOfKaehler_mem_omegaSpace_of_residueTheorem` supply the pin's `hsup`, and the
-already-ported rank-one / index-formula / residue-pairing lemmas plus the pin's
-`MirrorAssembly`
-(`S_AlgebraicCurve_functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed.lean`
-lines 5971–6257, ≈300 lines) give `RiemannIndexFormula` → `WeilOmegaEllAgrees` →
-`WeilDualityAdelic` → `WeilDuality` → `FunctionFieldRiemannRoch`. The port keeps the
-pin's **statement** `functionFieldRiemannRoch_of_isAlgClosed` and gives it this proof,
-so the five `genus_eq_genusFF` consumers and the differentials-genus leaf compile
-unchanged and the 6,257-line inlined-engine proof is never transcribed.
+*Measured shape (frontier 608; `port_advise`; written = raw − substitutions −
+removable-excluding-substituted).* The two routes share one ℙ¹ core, and the pin
+duplicated it (`tateAgreement` and `tateAgreement_v2` are byte-identical except the
+instance import; the two ℙ¹ base files share 523 of 563 declarations), so the port
+writes each piece **once** and then the endings:
 
-Shape and discipline:
+| work item | pin raw | written |
+|---|---:|---:|
+| `HasCanonicalLocalResidueKStar` — `Defs/PlaceCompletion.lean` (529) + `Defs/CanonicalLocalResidueInstanceV2.lean` (2,173) | 2,702 | ≈2,600 |
+| ℙ¹ core + base case — three `trace_localResidue_*` + `residueTheorem_ratFunc_of_perfectField` + helpers | 29,118 | ≈17,300 |
+| Tate agreement — `tateAgreement_v2` + `tateTraceCompat_of_isSeparable` + `tateChainRule` + `tateCommFinite` | 13,323 | ≈8,000 |
+| trace-completion commutation — `residueTraceCompletionCommute_v2` | 1,109 | ≈525 |
+| perfect-field ending — `residueTheorem_of_…residueTraceCompletionCommute` + `residueTheorem_of_perfectField` + helpers | 9,075 | ≈7,050 |
+| K ending — `residueTheoremK_ratFunc_of_isAlgClosed` (13,170) + `residueTheoremK_of_isAlgClosed` (8,121) + wrappers, marginal over the shared core | 21,300 | ≈2,000 |
+| RR assembly — the pin's `MirrorAssembly` (`S_…residueTheoremK….lean` 5971–6257) against the K ending | ≈300 | ≈400 |
+| **residue union + instance + RR assembly (two endings)** | | **≈34,000** |
 
-- one home, `RiemannRoch/Bridge.lean` (or an extension of `RiemannRoch/Assembly.lean`);
-- `ResidueTheorem` stays a **hypothesis**, exactly as in phase 1's
-  `exists_linearEquiv_regularDifferentials_omegaSpace_zero`; the bridge lands
-  conditionally and is fed when a residue theorem is available;
-- `functionFieldRiemannRoch_of_isAlgClosed` is spelled from the pin wrapper, and
-  `genus_eq_genusFF` / `ell_canonicalDivisor_eq_genus_of_riemannRoch` verbatim from
-  theirs, so the checker's `Thm_AlgebraicCurve_*` map stays mechanical;
+The per-item rows overlap in their shared helpers (they sum to ≈38,000); the union is
+≈34,000 — residue union ≈31,000 + instance ≈2,600 + RR assembly ≈400. The rejected
+PF-plus-new-bridge plan is ≈31,900 written (PF ≈28,900 + instance ≈2,600 + bridge
+≈400). Full working: strategy §5.4; the forward-cone payout: D-S scout §4.2.
+
+Homes and discipline:
+
+- one home **per piece, not per consumer**: `Defs/PlaceCompletion.lean`,
+  `Defs/CanonicalLocalResidueInstanceV2.lean`, `Defs/P1ResidueCore.lean` (the shared ℙ¹
+  core), `Defs/TateAgreement.lean`, `Defs/ResidueTraceCompletionCommute.lean`,
+  `ResidueTheorem/PerfectField.lean`, `ResidueTheorem/KFamily.lean`;
+- the RR assembly keeps the pin's statement `functionFieldRiemannRoch_of_isAlgClosed`
+  (and `genus_eq_genusFF` / `ell_canonicalDivisor_eq_genus_of_riemannRoch` verbatim), so
+  the checker's `Thm_AlgebraicCurve_*` map stays mechanical; the pin's
+  `MirrorAssembly` supplies the proof against the K ending, and the 6,257-line
+  inlined-engine proof is never transcribed;
+- `ResidueTheorem` / `ResidueTheoremK` stay the pin's definitions, exactly as phase 1
+  already has them; `ResidueTheorem` remains a hypothesis only where phase 1's
+  `exists_linearEquiv_regularDifferentials_omegaSpace_zero` already takes it;
 - add the small unconditional `constantsAreBase_of_isAlgClosed` (the pin's
   `p0n20_rr_constantsAreBase_of_isAlgClosed`, ≈40 lines) if the D-S application does
-  not already supply `ConstantsAreBase`.
+  not already supply `ConstantsAreBase`;
+- the `_v2` names are dropped: the port keeps **one name per piece** — see the name
+  policy below.
 
-**Measured payout (2026-09-30).** On the D-S forward cone the analytic block
-`residueTheorem|tateAgreement|residueTrace|CellDissection` is 18 nodes / 46,321
-lines; deleting it is `prunable = 24 nodes / 56,383 lines`, and the forward target
-falls from 1,897 to 1,874 needed nodes — a **23-node / 56,233-line saving** for a
-bridge of ≈300–500 written lines. Deferring the two differential-residue
-applications too is 25 / 57,007; the whole analytic complex block (a separate
-subject) is 217 / 148,594. The bridge's prerequisites are already ported
-(`exists_weilCanonical_riemannRoch`, `weilOfKaehler_ne_zero_and_maximal`,
-`weilOfKaehler_mem_omegaSpace_of_residueTheorem`,
-`exists_linearEquiv_regularDifferentials_omegaSpace_zero`, plus the rank-one /
-index-formula / residue-pairing lemmas), so the only new cost is the bridge file
-itself. The weaker RR siblings inside this cone are 3 nodes / 59 lines
-(`degree_canonicalDivisor_eq_of_riemannRoch`,
-`ell_canonicalDivisor_eq_genus_of_riemannRoch`, `genus_eq_genusFF`), all supplied
-by the bridge; the alternative RR *forms* are outside the cone. Working and
-reproduction: [../../studies/riemann-roch-strategy.md](../../studies/riemann-roch-strategy.md)
-§4.1, §5.1 and
-[../../studies/deligne-serre-weight-one-scout.md](../../studies/deligne-serre-weight-one-scout.md)
-§4.2.
+**API surface and name policy.** The block's public API — what downstream (outside the
+D-S cone) actually calls — is small. Already in the port: the Props `ResidueTheorem`
+and `ResidueTheoremK` and the class `HasCanonicalLocalResidueKStar`, plus
+`weilOfKaehler_mem_omegaSpace_of_residueTheorem`. Phase 3 adds:
 
-**Deferred — the analytic / residue-theorem block (TBD, 2026-09-30).** Phase 3 does
-**not** include a proof of `ResidueTheorem` itself. Both routes are large and siloed:
-the Tate/K-family one (`residueTheoremK_ratFunc_of_isAlgClosed` 13,170,
-`residueTheoremK_of_isAlgClosed` 8,121, `tateAgreement` 4,816,
-`residueTraceCompletionCommute` 1,109) and the plain perfect-field one
-(`residueTheorem_of_perfectField` 45, `residueTheorem_ratFunc_of_perfectField` 4,340,
-the three `trace_localResidue_*` files totalling 21,099, `residueTraceCompletionCommute_v2`
-1,109). `port_advise` prices the K-family route at 10 target files / 1,269 declarations
-(303 substitutions ≈6,434 lines) and the plain perfect-field route at 12 files / 1,008
-declarations (155 substitutions ≈3,160 lines); a **union** run is needed before the
-choice is made. The D-S cone's other residue consumers (the differential-residue
-statements `exists_ordDifferential_ge_neg_one_and_evalAt_eq_of_degree_eq_zero`,
-`sum_fibre_evalAt_eq_zero_of_smul_D_mem_regularDifferentials`) may force the K-family,
-so this decision waits until those are scoped. `HasCanonicalLocalResidueKStar`'s
-construction (the Cohen–Laurent / `Lg37CompletionSection` prelude) is a shared
-prerequisite of the bridge, the differentials headline, and both residue routes, and is
-currently absent from the port — scope it as its own work item when the block is
-picked up.
+- `residueTheorem_of_perfectField` → `residueTheorem_functionField_of_smoothOfRelativeDimension_one`
+  → the `AlgebraicGeometry.Scheme.TwoAffineOpenCover` residue/Serre-pairing lemmas
+  (222 + 166) and `ModularCurve.functionField_residuePackage_degeneracyRoof_of_finiteAlong`
+  (168);
+- `residueTheorem_of_isAlgClosed` → `ModularCurve.weilKaehlerAgree_modularFunctionFieldC`
+  (52), with `weilKaehlerAgree_of_residueTheorem`;
+- `residueTheoremK_of_isAlgClosed` → `sum_eq_zero_of_forall_hasSimpleResidue_of_mem_polarDifferentials`
+  (142) and the differential-residue statements.
+
+The shared internals — `tateAgreement`/`_v2`, `residueTraceCompletionCommute`/`_v2`,
+`residueTheoremK_ratFunc_of_isAlgClosed` / `residueTheorem_ratFunc_of_perfectField`,
+the three `trace_localResidue_*` — have no out-of-cone *direct* consumers, but each
+family reaches out-of-cone consumers through its own ending (the modularity stack on
+the perfect-field side, `sum_eq_zero_…` on the K side), so neither chain is redundant.
+
+**Name policy: one name, drop the `_v2` duplicates.** The `_v2` files are the same
+proof as their un-suffixed twins — `tateAgreement` ≡ `tateAgreement_v2` and
+`residueTraceCompletionCommute` ≡ `residueTraceCompletionCommute_v2` (byte-identical
+but for the instance import), and the two ℙ¹ base files share 523 of 563 declarations —
+so the port keeps **one home and one name per piece**, the un-suffixed pin name, and
+drops the `_v2` spellings. Two mechanical consequences: the transcribed perfect-field
+files take a one-line import/reference edit to the shared name (their statements are
+unchanged), and the un-suffixed files are proved against
+`Defs/CanonicalLocalResidueInstanceV2`, since the pin's V1 module
+(`Def_AlgebraicCurve_CanonicalLocalResidueInstance`) is a 694-line shim with three
+private lemmas that imports V2 anyway — so the instance is the same.
+
+*Frontier consequence (accepted, and cheap to repair).* Because `frontier.py` matches
+by last name, the two dropped `_v2` pin nodes will still read as *needed* after the
+port lands: `prunable` on `FLT.fermatLastTheorem` for the pair is exactly **2 nodes /
+5,925 lines** (`tateAgreement_v2` 4,816 + `residueTraceCompletionCommute_v2` 1,109),
+with a 3-node rewiring frontier — `fibreResidueIdentityAlong_of_separableAlong_of_dCoordGenerates`
+(7,954), `trace_localResidue_finitePlace_div_pow_eq_zero` (2,150) and
+`residueTheorem_of_perfectField` (45) — which are the three files that take the
+one-line reference edit. The honest reading is to put the pair in the tooling's avoid
+set when measuring this cone:
+
+```bash
+python3 frontier.py --target '<target>' \
+  --remove 'tateAgreement_v2' --remove 'residueTraceCompletionCommute_v2'
+```
+
+The out-of-cone consumers are unaffected — they call the two producers
+(`residueTheorem_of_perfectField`, `residueTheorem_of_isAlgClosed`), not the duplicated
+internals. This is the deliberate reversal of the earlier "claim both names" policy:
+one name per proof, an exactly-known 5,925-line frontier over-count, and no double
+naming downstream.
+
+**Forward-cone payout and route evidence.** Deleting the analytic block
+`residueTheorem|tateAgreement|residueTrace|CellDissection` from the D-S forward cone
+is `prunable = 24 nodes / 56,383 lines` and takes the forward target from 1,897 to
+1,874 needed nodes — saving **23 nodes / 56,233 lines**; deferring the two
+differential-residue applications too is 25 / 57,007, and the whole analytic complex
+block is 217 / 148,594. On the whole `FLT.fermatLastTheorem` root the same block is
+27 / 64,873 with prunable 35 / 95,884 (strategy §5.1). The two pin routes, their
+duplication, the five K-citing lemmas and the PF/K fan-out are measured in
+[riemann-roch-strategy.md](../../studies/riemann-roch-strategy.md) §4.1 and §5.4, with
+the reproduction commands in its §6; the forward-cone restriction is in the D-S scout
+§4.2. `HasCanonicalLocalResidueKStar`'s construction (the Cohen–Laurent /
+`Lg37CompletionSection` prelude) is the **first work item** of the phase, not a
+prerequisite of something deferred.
 
 **Phase 4 — the applications.** The differentials ↔ cusp-forms transport
 (`ModularCurve.exists_linearEquiv_tensor_regularDifferentials_x1FunctionFieldBar_cuspForm`
@@ -228,14 +278,24 @@ and the Hecke chain), then the per-file statements grouped by application
 **Beyond RR.** Serre duality, the Weil pairing, `genusFF` — decide scope when the
 engine's consumers are known.
 
-**Decisions recorded.** The algebraic-vs-analytic choice is settled for the port: keep
-the algebraic engine, bridge to the canonical-genus / duality API, defer the analytic
-block. The remaining open decision —
-[../../studies/riemann-roch-strategy.md](../../studies/riemann-roch-strategy.md) §4 —
-is whether to derive the siloed `ell` / Riemann-inequality / index / canonical-degree
-siblings from the engine's RR assembly or keep the pin's proofs; the bridge makes the
-derivation candidates cheaper, since they can cite `FunctionFieldRiemannRoch` and
-`WeilDuality` directly.
+**Decisions recorded.**
+
+1. The algebraic-vs-analytic choice is settled: keep the algebraic engine; **port the
+   residue-theorem block once** (both endings, one ℙ¹ core, one Tate agreement, one
+   trace-completion commutation) and transcribe the pin's RR assembly against the K
+   ending. The PF-plus-new-bridge alternative is rejected — see §3.
+2. The canonical divisor stays phase 2's construction, not an RR consequence; the RR
+   assembly only identifies it with the Weil/Kähler canonical divisor.
+3. The weaker RR siblings need no separate "derive vs keep" work item. The port already
+   owns the `ell` / index prelude, and the only purely derivable unported siblings
+   inside the D-S cone are 59 lines
+   (`degree_canonicalDivisor_eq_of_riemannRoch`,
+   `ell_canonicalDivisor_eq_genus_of_riemannRoch`, `genus_eq_genusFF`), all supplied by
+   the RR assembly; the larger flagged candidates are independent
+   (`two_mul_genus_sub_two_eq_of_degree_canonical` is a ramification computation) or
+   outside the cone. The derivation-vs-pin question of
+   [riemann-roch-strategy.md](../../studies/riemann-roch-strategy.md) §4 is therefore
+   closed by the assembly.
 
 ## 4. Porting discipline
 
