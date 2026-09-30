@@ -1624,6 +1624,12 @@ SOURCES = [
     "Definitions/Def_AlgebraicCurve_PlaceEvaluationAlgebra.lean",
     "Theorems/Thm_AlgebraicCurve_Divisor_evalFun_single_sub_single.lean",
     "P2M/Sol/S_AlgebraicCurve_Divisor_evalFun_single_sub_single.lean",
+    # --- P3.2b (the ℙ¹ residue core, chunk 1: declarations #0–#144 of the master
+    # ℙ¹ `S_` file). The `Theorems/` wrapper is the interface copy; the master
+    # `S_` file supplies the chunk's statements (and the pin names the later
+    # chunks 3.2c–e append). Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_AlgebraicCurve_RationalFunctionField_trace_localResidue_placeInfty_X_pow_eq_zero.lean",
+    "P2M/Sol/S_AlgebraicCurve_RationalFunctionField_trace_localResidue_placeInfty_X_pow_eq_zero.lean",
 ]
 
 PORT_FILES = [
@@ -2149,6 +2155,10 @@ PORT_FILES = [
     "FLTForHuman/AlgebraicCurve/Defs/PlaceEvaluation.lean",
     "FLTForHuman/AlgebraicCurve/Defs/PlaceEvaluationAlgebra.lean",
     "FLTForHuman/AlgebraicCurve/Defs/P1Dictionary.lean",
+    # --- P3.2b (the ℙ¹ residue core, chunk 1: pin lines 295–3387). Sets 3.2c–e
+    # append to the same module. Appended last so no earlier last-name match can
+    # flip.
+    "FLTForHuman/AlgebraicCurve/Defs/P1ResidueCore.lean",
 ]
 
 

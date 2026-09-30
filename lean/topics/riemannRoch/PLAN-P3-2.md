@@ -106,7 +106,7 @@ grouped by the pin's own name prefixes):
 | phase | content (pin prefixes) | once-each | note |
 |---|---|---:|---|
 | **3.2a — ℙ¹ dictionary / ord layer** | the **standalone node files**: `ord_placeOfPoint_algebraMap` (1,263), `ord_placeInfty{,_algebraMap}`, `deg_placeInfty`, `isRational_iff_deg_eq_one`, the `evalAt_*` family, the `PlaceEvaluation` interface, and (audit gaps) the dropped `placeOfPoint` block + `PlaceEvaluationAlgebra` | ≈1,445 + ≈200 gaps | **dispatched 3.2a**, three new modules; the master file's `p1PlaceInfty`/`P1Tower` extraction is deferred to 3.2b–d |
-| **3.2b — ord / valuation algebra prelude** | `ord_*`, `exists_*`, `valSubring*`, `gate_*`, `inst*`, `mem_*`, `kaehlerResid*`, `canonicalLocal*` | ≈2,600 | **much already substitution** — phase 1/2 landed `valSubringKaehler*`, `isLocalization_centerIdeal*`, `gate_adjoin_subset_valuationSubring_of_mem`, `mem_valuationSubring_of_isIntegral*`; price the glue, not the leaves |
+| **3.2b — ord / valuation algebra prelude** | `ord_*`, `exists_*`, `valSubring*`, `gate_*`, `inst*`, `mem_*`, `kaehlerResid*`, `canonicalLocal*` | 848 (chunk 1) | **chunk 1 ACCEPTED** (decls #0–#144, pin 295–3387, → `Defs/P1ResidueCore.lean`); ~100/145 rows import-discharged. **3.2c dispatched** (rows #145–#289) |
 | **3.2c — local residue-at-∞ calculus** | `P1PlaceInftySimplePoleResidueEulerValue*`, `OrdDifferentialWellDefined`, `ordDifferent*`, `p1DifferentialCoeff*`, `simplePole*`, `higherPole*` | ≈1,700 | the simple-pole residue values and the differential-coefficient interface |
 | **3.2d — principal parts + differential coefficients** | `p0n22_cpf_res_*`, `mp72a10*`, `ag9b*`, `ratFuncDXCoe`, `not_dvd_derivative*`, `res_differentialCoeff*` | ≈2,700 | the two residue atoms' shared computation (`p0n22` 882, `ag9b` 820, `mp72` 666) |
 | **3.2e — the PF atoms + base case** | the three `trace_localResidue_*` uniquenesses + `residueTheorem_ratFunc_of_perfectField` | ≈1,000 | the PF side's marginal over 3.2a–d |
@@ -147,6 +147,29 @@ transcribes public copies of `PrincipalDivisors/RatFuncDegree.lean`'s
 the pin's specializations). A later promotion round can make the `RatFuncDegree`
 copies public and drop the transcriptions. The audit note is
 `AUDIT-mathlib-p3-2a.md`.
+
+### 3.2 Closeout — 3.2b chunk 1 ACCEPTED (2026-09-30)
+
+`Defs/P1ResidueCore.lean` (new, **848 ln**) = master declarations #0–#144 (pin
+295–3387). Manager re-verified: checker **3316 → 3356 identical / 0 mismatched / 0
+missing / 30 own-proof** (3386 checked); forced `lake build` green (2.1 s warm /
+7.4 s cold, 2842 jobs, **no cascade**); `#print axioms` on the sampled public
+surface all `[propext, Classical.choice, Quot.sound]`; hygiene clean.
+
+The engine split works because the general machinery is **already ported**:
+~100 of the 145 rows are import-discharged to phase 3.1b-ii
+(`CanonicalLocalResidueInstanceV2.lean`), phase 1/2 (`PushPull`,
+`HasCanonicalDivisor`), phase 3.2a (`P1Dictionary`) and `Genus/Index`. The audit
+(`AUDIT-mathlib-p3-2b.md`, 631 ln; **108 SUBSTITUTE / 30 PROOF-INGREDIENT / 7
+BESPOKE**) machine-checked the mathlib route (`Module.Basis.traceDual_powerBasis_eq`,
+`minpolyDiv_*`, `AdjoinRoot.*`, `Valuation.map_add_of_distinct_val`,
+`IsDiscreteValuationRing.*`, `AdicCompletion.*`) and corrected the plan's chunk
+boundary (`ord_ofHeightOneSpectrum_of_span` is row #145, so it opens 3.2c).
+
+One structural call to keep: the pin's `p1PlaceInfty` is the port's `placeInfty`
+(the same `Place.mk`), so chunk 1 lands `@[reducible] def p1PlaceInfty := placeInfty K`
+and the five same-name ℙ¹ lemmas stay imported; downstream keeps the `p1PlaceInfty`
+spelling. **3.2c** (rows #145–#289, pin 3388–6744) is dispatched.
 
 ## 4. Reproduce
 

@@ -1466,3 +1466,128 @@ transcriptions of `RatFuncDegree`'s private `exists_sub_algebraMap_intDegree_neg
 promote the `RatFuncDegree` copies in a later round). Scratch files removed:
 `ScratchP32a.lean`, `ScratchAuditP32a.lean`, `ScratchMgrP32a.lean`.
 
+## Workflow doc, and set 3.2b (2026-09-30)
+
+**`WORKFLOW.md` written** (topic dir) — the operating procedure distilled from
+phases 1–3.2a: the measure → audit → dedup → work order → dispatch → review →
+closeout loop, the concrete commands, the Deligne–Serre build economy, the checker
+wiring conventions, the work-order skeleton, the review checklist, the refactor
+round, and the seven failure modes that actually bit (measurement-gap lower bound,
+mathlib-name absence, global-instance diamonds, checker blind spots, v4.34 drift,
+`p2m` instance disables, `variable` binder quirks).
+
+**3.2b scoped and dispatched.** Row 2's remaining engine is ported as **ordered
+chunks of the master file** into one new module `Defs/P1ResidueCore.lean` (the
+plan's role labels guide the understanding, but the module is one role — the ℙ¹
+residue core — and the chunk boundaries are the pin's own declaration order, to
+avoid reordering an intricate dependency chain). Chunk 1 = declarations #0–#144
+(pin 295–3387; inventory `tools/deps/build/p32_master_inventory.txt`). Measured for
+the four engine files together (`build/p32_engine_advise.log`): 279 substitutions /
+5,477 lines, 166 shared names / 8,251 removable, so the union is far below the
+25,439 raw. The decisive dedup: phase **3.1b-ii already ported the general
+machinery** (`ModularCurve.Lg37.Lg37CompletionSection`, the `Mp72a102T1/T3`,
+`Mp72a103T2` engine, `Place.canonicalLocalResidueDataKOfExtend`, the `KwNo6Pin.aCoeff*`
+block), so 3.2b–e only write the **ℙ¹-specific** computation; the rest is import.
+Dispatched with a parallel `AUDIT-mathlib-p3-2b.md`; work order
+`WORKORDER-P3-2b-p1core-1.md`.
+
+### Set 3.2b — worker result (2026-09-30)
+
+New module `FLTForHuman/AlgebraicCurve/Defs/P1ResidueCore.lean`, **848 written
+lines**, declarations #0–#144 (pin 295–3387) of the master ℙ¹ `S_` file. Checker
+**3316 / 0 / 0 / 30** (3346 checked) → **3356 / 0 / 0 / 30** (3386 checked); the
+new public surface is 40 declarations; `#print axioms` on all 40 is
+`[propext, Classical.choice, Quot.sound]`. Forced per-module build green (2.2 s
+warm / 7.4 s cold, 2842 jobs) with only `P1ResidueCore.olean` written (no
+whole-tree build, no cascade); the consumer wire test still passes.
+
+**Substitutions imported (do not re-prove).** Of the 145 in-set declarations, 83
+have an advise substitution; after the false-positive check the load-bearing
+imports are: `ModularCurve.Lg37.{lg37_completion, lg37_residueHat,
+lg37_residueHat_algebraMap, Lg37CompletionSection}`, the whole
+`Mp72a102T1`/`Mp72a102T2`/`Mp72a102T3` engine and the
+`uniformizerSubring`/`simplePoleSubmodule`/`poleSubmodule`/`laurentTailCoeff`
+layer (`Defs/CanonicalLocalResidueInstanceV2.lean`), the promoted ord interface
+and `isUnit_mk_comap_iff`/`exists_ord_algebraMap_pos`/`ramificationIndex_*`
+(`Defs/PushPull.lean`), the ℙ¹ dictionary
+(`Defs/{RatFuncPlaces,P1Dictionary}.lean`), `Place.mk_mem_maximalIdeal_iff`
+(`Genus/Index.lean`), and the `ValSubringKaehler*`/
+`valSubringKaehlerSpanTop_of_polynomialFormallyUnramified` block
+(`Canonical/HasCanonicalDivisor.lean`). The three advise "false positives" were
+checked with the checker: `OrdDifferentialWellDefined` is genuinely unported and
+transcribed; `ValSubringKaehlerSpanTop` and `ValSubringPolynomialFormallyUnramified`
+have real same-name homes in `Canonical/HasCanonicalDivisor.lean` and are imported.
+
+**The `p1PlaceInfty` decision (the round's one structural call).** The pin's
+`p1PlaceInfty` and the port's `RationalFunctionField.placeInfty` are the same
+`Place.mk` (only the `Nontrivial` value-group instance is supplied differently,
+so the proofs are proof-irrelevant), and five in-set names
+(`deg_placeInfty`, `inftyValuation_isEquiv_adicValuation`, rows 29–32,
+`ord_placeInfty_X`) are already public in the port **at the same name** but stated
+for `placeInfty`. Re-transcribing them would be a redeclaration. We therefore
+land `@[reducible] def p1PlaceInfty : Place K (RatFunc K) := placeInfty K`: the
+pin statement text (`: Place K (RatFunc K)`) is unchanged, the pin name stays
+available for chunks 3.2c–e, and reducibility lets the imported `placeInfty`
+lemmas elaborate against `p1PlaceInfty` goals without any statement rewrite.
+
+**Public-in-pin, private-in-port declarations transcribed** (the port copies are
+inaccessible): `Place.isUnit_mk_comap_iff` (pin 703; port private in
+`Defs/PushPull.lean`), `Place.isPrincipalIdealRing_comap` (pin 750; port private),
+`RationalFunctionField.finite_setOf_valuation_ne_one` (pin 1000; port private in
+`PrincipalDivisors/RatFuncDegree.lean`),
+`AlgebraicCurve.finite_setOf_ord_ne_zero_of_finiteDimensional` (pin 2457; port
+private in `PrincipalDivisors/Transcendence.lean`). Transcribing the last one
+required local `private` copies of `Place.aeval_mem` (pin 2353) and
+`Place.exists_coeff_ord_ne_zero` (pin 2361) — **in-set rows, not out-of-set
+promotion debt**; the only drift was `Set.mem_setOf_eq` →
+`Set.mem_ofPred_eq` in v4.34 (proof-body only, statement unchanged).
+
+**Private helpers kept** (pin names, all invisible to the checker):
+`Place.ord_add_eq_min` (478), `Place.algebraMap_ne_zero` (668),
+`Place.ord_add_eq_left` (829), `Place.aeval_mem` (2353),
+`Place.exists_coeff_ord_ne_zero` (2361), `Place.chartHom` (2418),
+`Place.inv_algebraMap_mem` (2424). The private `Place.uniformizerSubring'`
+(1223), `instSMulCommClass_subring` (1227),
+`kaehlerMap_subring_D_uniformizer` (1230), the `uniformizerSubring''`/cotangent
+block (2509–2569) and the `ag9b14c_*` row (1856) are unused in this chunk and
+imported/omitted respectively (`uniformizerSubring'` is public in
+`Defs/CanonicalDivisor.lean`; `kaehlerMap_subring_D_uniformizer` and the
+cotangent block are public in `Canonical/HasCanonicalDivisor.lean`).
+
+**Mathlib note.** `Polynomial.mul_prod_pow_inverse_eq_quo_add_sum_rem_mul_pow_inverse`
+is not reachable from the four imported port modules; the module adds
+`import Mathlib.Algebra.Polynomial.PartialFractions` (the pin reached it through
+`import Mathlib`).
+
+**Out-of-set declarations resolved locally: none.** Everything transcribed is an
+in-set row; no frozen module was edited.
+
+**Promotion debt.** None added — but the manager may wish a later refactor to
+promote `RatFuncDegree.finite_setOf_valuation_ne_one` and
+`Transcendence.{aeval_mem, exists_coeff_ord_ne_zero,
+finite_setOf_ord_ne_zero_of_finiteDimensional}` so 3.2c–e can import instead of
+carrying the private copies.
+
+**One checker subtlety.** Appending the master `S_` file to `SOURCES` reclassifies
+some *existing* port declarations from the "promoted from pin-private" bucket to
+the public bucket (promoted 145 → 132, identical 3316 → 3356): `find` accepts any
+source with a matching statement, so adding candidates can only convert a miss
+into a hit. `0 mismatched / 0 missing` and the 30 own-proof exemptions are
+unchanged.
+
+**Manager review — 3.2b chunk 1 ACCEPTED (2026-09-30).** Independently re-run:
+checker **3356 identical / 0 mismatched / 0 missing / 30 own-proof** (3386 checked);
+forced `lake build FLTForHuman.AlgebraicCurve.Defs.P1ResidueCore` green (2.1 s warm /
+7.4 s cold, 2842 jobs, only this module's `.olean` moved); `#print axioms` on the
+sampled public surface (`OrdDifferentialWellDefined`, `principalAdele`,
+`p1PlaceInfty_ne_ofHeightOneSpectrum`, `Place.{isUnit_mk_comap_iff,
+isPrincipalIdealRing_comap}`, `finite_setOf_valuation_ne_one`,
+`finite_setOf_ord_ne_zero_of_finiteDimensional`) all
+`[propext, Classical.choice, Quot.sound]`; hygiene clean. The `AUDIT-mathlib-p3-2b.md`
+(631 ln; 108/30/7) was folded into the work order §3; its correction that
+`ord_ofHeightOneSpectrum_of_span` is row #145 (so it opens 3.2c) is applied.
+**3.2c** (rows #145–#289, pin 3388–6744) is dispatched with a parallel
+`AUDIT-mathlib-p3-2c.md`. Refactor debt offered: promote
+`RatFuncDegree.finite_setOf_valuation_ne_one` and the `Transcendence` privates so
+3.2c–e import instead of re-carrying them.
+
