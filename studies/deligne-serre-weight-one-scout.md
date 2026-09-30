@@ -19,7 +19,9 @@ Companions: [../math/019-deligne-serre-weight-one.md](../math/019-deligne-serre-
 theorems), [flt-non-frey-segments.md](flt-non-frey-segments.md) §3.4 (the segment),
 [route-c-prime-scout.md](route-c-prime-scout.md) (the C′ Γ₁-basis, which is in this
 cone), [eichler-shimura-scout.md](eichler-shimura-scout.md) (the analytic
-Eichler–Shimura package this cone's mod-$`p`$ layer shares), and
+Eichler–Shimura package this cone's mod-$`p`$ layer shares),
+[../math/020-frobenius-density-and-artin.md](../math/020-frobenius-density-and-artin.md)
+(the mathematics of the §6.1 Galois / Frobenius / Artin cluster), and
 [t-side-driver.md](t-side-driver.md) (the $`R = T`$ side that consumes the
 weight-two output).
 
@@ -337,7 +339,7 @@ mode is available. The rules for this port:
 | # | subject | needed nodes | status | home |
 |---|---|---:|---|---|
 | 1 | weight-one forms + lifting | 134 | not started | `ModularForms/WeightOne/` (partly exists) |
-| 2 | Galois reps / Frobenius / Artin (in-cone) | 23 | not started | `GaloisRep/` |
+| 2 | Galois reps / Frobenius / Artin (in-cone) | 23 | scoped, see §6.1 | `GaloisRep/`, `NumberTheory/FrobeniusDensity/` |
 | 3 | number fields / adelic infrastructure | 133 | not started | `NumberTheory/Adelic/` |
 | 4 | automorphic / adelic $`\mathrm{GL}_2`$ | 534 | not started | `AutomorphicForm/` |
 | 5 | Langlands–Tunnell / octahedral / Artin | 38 (+LT cone) | not started | `LanglandsTunnell/` |
@@ -346,6 +348,73 @@ mode is available. The rules for this port:
 
 Update this table and the §2 numbers when a subject lands; the §1 internal-target
 table is the finer-grained progress record.
+
+### 6.1 The Galois / Frobenius / Artin cluster (row 2)
+
+The forward cone's 23 nodes of this subject are exactly
+
+* `FrobeniusDensity.*` — 18 nodes, 2,505 raw `S_` lines;
+* `GaloisRep.*` — 3 nodes, 1,611 lines
+  (`exists_conj_eq_of_charpoly_frobenius_eq_of_galoisFactorsThroughFiniteLevel` 171,
+  `exists_isSemisimpleRepresentation_charpoly_map_eq_of_trace_det_frobenius_mem_range` 495,
+  `sub_mul_log_le_tsum_rpow_neg_of_frobenius_mem_of_surjective` 945);
+* two bridges — `NumberField.exists_isFrobenius_lift_arithFrobAt` (240) and
+  `Subgroup.exists_prime_isFrobeniusAt_conj_pow_mem_of_isOpen` (28).
+
+That is **23 nodes / 4,384 raw `S_` lines**: the node count of §2/§4 row 2, with
+a line total 236 below the 4,620 recorded there. The difference is that the row's
+grouping included some of the `ValuationSubring` place/Frobenius vocabulary
+(`isFrobeniusAt_of_forall_smul_sub_pow_mem` 149,
+`IsFrobeniusAt.apply_eq_pow_of_pow_eq_one` 83, and the `liesOverPrime` existence
+family), which this strict reading counts under the number-field subject of row 3.
+The mathematics of the strict 23 is
+[../math/020-frobenius-density-and-artin.md](../math/020-frobenius-density-and-artin.md).
+
+**It is not a porting unit; it is cut across the work order.** Mapping the 23 to
+the 54-node slice of §3:
+
+| cluster part | set | note |
+|---|---|---|
+| `GaloisRep.exists_conj_eq_of_charpoly_frobenius_eq_…` | S6 | with the two generic `Representation.*` conjugacy/lifting nodes |
+| `GaloisRep.exists_isSemisimpleRepresentation_…` | S5 | distinct from the batch's `DeligneSerre.exists_isSemisimpleRepresentation_…add_mem_range_of_mul_mem_range` (675 lines), which is its larger sibling, not the same node |
+| `FrobeniusDensity.*` (17 of the 18) + the two bridges | S7 | the S7 work order is 27 nodes; the other 8 (`ArithmeticFunction.sum_moebius_filter_dvd`, `CommRing.infinite_…`, `IsOpen.…`, `NumberField.exists_valuationSubring_eq_localization`, the four `ValuationSubring` lemmas) belong to other §4 subjects |
+| `FrobeniusDensity.tailSum_le` | S7 | exposed in the cone but absent from S7's 27-node list; it is a helper of `degOneSum_add_log_isBigO` |
+| `GaloisRep.sub_mul_log_le_tsum_rpow_neg_…` | deferred density block | one of the two lemmas the §3.1 second interface removes |
+
+So S7's 27 nodes are this cluster's largest piece plus 8 place/number-field
+vocabulary nodes, and the cluster's third `GaloisRep` node lives in the deferred
+density interface rather than in the batch.
+
+**The analytic block is the un-priced risk.** `primeSum_toReal_add_log_isBigO`
+(474), `degOneSum_add_log_isBigO` (292) and `tailSum_le` (158) are `tsum`/`IsBigO`
+analysis of the ideal sum. They are self-contained against Mathlib and therefore
+each show cost 1 in `frontier.py` — the §2 measurement caveat in its purest form:
+the largest files in the cluster contribute the fewest nodes. The group theory
+above them (`weight_eq`, the degree-one fixed-point counts,
+`statement_of_degOneAsymptotic`) is cheap.
+
+**Dedup is concrete and named.** The Möbius/fixed-coset prelude
+(`mem_zpowers_pow_div_iff` 30, `sum_moebius_mem_zpowers` 39,
+`exists_pow_coprime_eq_of_orderOf_eq` 19, `orderOf_pow_orderOf_div` 8,
+`ncard_conj_mem_eq_card_mul_ncard` 16, `ncard_eq_sum_indicator` 14) is repeated
+verbatim and `private` in both `sum_moebius_mul_pos` and `weight_eq`;
+`card_le_of_forall_pow_eq` occurs in both `stabilizer_eq_zpowers_arithFrobAt` and
+`ncard_degreeOne_primesOver_under`. One `NumberTheory/FrobeniusDensity/Basic.lean`
+(the H1 home of the definitions work order) covers them, together with
+`tsum_normFiber` (22 × 2) and `isBigO_sum_of_tendsto_div` (20 × 2).
+
+**Two nodes are one algebraic subject.** `GaloisRep.exists_isSemisimpleRepresentation_…`
+is a 495-line `S_` file whose proof is delegated to the private `DSRt.main`; its
+true content is the two-character descent that the `DeligneSerre.*` sibling (S5,
+675 lines) states in the `add_mem_range`/`mul_mem_range` form. Port them as one
+`GaloisRep/` (or `Algebra/`) subject, not as two independent nodes.
+
+**Definitions.** The cluster's new definition modules are those of the D layer:
+`Def_TaylorWiles_Primes`, `Def_FrobeniusDensity_{DegOneAsymptotic,PrimeSums,BadPrimes}`
+and `Def_GaloisRep_FrobeniusPowerDense`. `GaloisFactorsThroughFiniteLevel`
+(`Def_GaloisRep_Residual`) and the place vocabulary of
+`Def_FLTPrelim_Ramification` / `Def_EllipticCurve_FrobeniusTrace` are already
+ported.
 
 ## 7. Reproduce
 
