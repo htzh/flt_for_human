@@ -5,7 +5,9 @@
 against `anthropics/fermats-last-theorem@aa2d8b3`; the port/frontier numbers are a
 measurement of the date and move (frontier 541 at this measurement). Reproduce in §6.
 
-Companions: [flt-function-field-theory-and-mathlib.md](flt-function-field-theory-and-mathlib.md)
+Companions: [../lean/topics/PORTING-RR.md](../lean/topics/PORTING-RR.md) (the port
+blueprint that consumes this study; phase 1 is the 14-node genus / index engine),
+[flt-function-field-theory-and-mathlib.md](flt-function-field-theory-and-mathlib.md)
 (the whole curve-layer survey: what FLT builds itself and where mathlib is used),
 [flt-ffg-field-theory.md](flt-ffg-field-theory.md) (the field-extension segment),
 [deligne-serre-weight-one-scout.md](deligne-serre-weight-one-scout.md) §4.1 (where the
@@ -41,6 +43,28 @@ All definitions are the pin's:
 * `genus K F := (Divisor.degree (canonicalDivisorOf ω) + 2).toNat / 2`, given
   `HasCanonicalDivisor`; and `hasCanonicalDivisor_of_isCurveOver` supplies that for a
   curve.
+
+**Three genus notions — only one is "Stichtenoth".** FLT carries three, and they are
+easy to conflate:
+
+* `genus K F`, the canonical-divisor (Serre-duality) genus, is the one appearing in the
+  RR predicates. Its input `HasCanonicalDivisor` is constructed **directly** by
+  `hasCanonicalDivisor_of_isCurveOver` (1,723 lines, from Kähler differentials,
+  separating transcendence and DVR theory) and depends on **neither** Stichtenoth **nor**
+  the RR formula.
+* `genusFF K F := Module.finrank K (H1 (0 : Divisor K F))` is the cohomological genus
+  (`Def_AlgebraicCurve_Repartitions.lean`). `genus_eq_genusFF` (30 lines) proves
+  `genus = genusFF`, conditional on `FunctionFieldRiemannRoch` and `WeilDualityAdelic`.
+* the **Stichtenoth** $`\gamma`$ of `RiemannGenusReachedAt γ D₀` /
+  `StichtenothGenusExists` is a genus defined by the maximality of
+  $`\deg D - \ell D`$ — Stichtenoth's Riemann–Roch-space construction. It is a *proof
+  route* to genus existence and the index formula
+  (`exists_genus_riemannIndex_of_isCurveOver` depends on it), not the definition FLT
+  uses.
+
+So avoiding Stichtenoth removes the adelic proof of *genus existence and the index
+formula*, not the genus definition; the canonical-divisor genus and `genusFF` stand
+independently.
 
 The predicates of `Definitions/Def_AlgebraicCurve_RiemannRochRows.lean`:
 
@@ -171,9 +195,10 @@ must exist anyway. B is not viable on its own.
    `finiteDimensional_lSpace_zero_of_constantsAreBase`, 2,545),
    `hasCanonicalDivisor_of_isCurveOver` (1,723), the definitions, and the
    $`H^1`$ identification `indexOfSpecialty_eq_finrank_H1` (126).
-2. Port **one** full-RR route — and decide which by its *marginal* cost, not its
-   group total (the analytic route is largely paid for by the differentials layer;
-   the Stichtenoth route is more algebraic).
+2. Port **one** full-RR route (§5.3 measures it: the function-field / Stichtenoth
+   engine is ~3,700 projected lines, pure algebra, and the API the consumers use; the
+   analytic route is larger but still needed for `ResidueTheorem` and the
+   differential residues).
 3. Derive the inequality / index / canonical-degree siblings from the chosen route
    where the derivation is shorter than the siloed proof. The cheap siloed lemmas
    (`ell_le_degree_add_ellZero`, 354; `ell_le_ell_sub_single_add_deg`, 353) may be
@@ -256,6 +281,86 @@ is: port the analytic route (RR + differentials) and the thin interfaces, reduce
 Stichtenoth to a genus-existence provider, and decide whether to port that provider
 (≈4,200 lines) or re-derive it.
 
+### 5.2 Who consumes the Stichtenoth genus, and why not the canonical one
+
+The Stichtenoth API has 104 dependents in the D-S cone (`AlgebraicCurve` 51,
+`ModularCurve` 46, `DeligneSerre` 3, `CohCarrier` 2, `CuspForm` 2) and lies in 22/49
+landmarks. The consumers closest to the forward target are:
+
+* the **rank-two / Tate-module finiteness** results —
+  `ModularCurve.moduleFinite_padicInt_tateModule_jOne` and `…_jH`,
+  `ModularCurve.nonempty_basis_fin_two_rationalTateModule_jH`,
+  `ModularCurve.moduleFinite_and_free_padicInt_tateModule_jH`;
+* the **Hecke-algebra dimension** results —
+  `CuspForm.IsEigenformWith.exists_ringHom_rationalHeckeAlgebraOne_mul_eq`,
+  `ModularCurve.linearIndependent_rationalHeckeRepOne_of_linearIndependent`,
+  `ModularCurve.rationalRankTwoNebentypus_family`;
+* the **modular-function-field genus comparisons** —
+  `ModularCurve.genusFF_xHFunctionFieldC_eq_genusFF_xHFunctionFieldBar_of_not_dvd`,
+  `ModularCurve.finrank_parabolicHoms_le_two_mul_finrank_cuspForm_of_isCongruenceSubgroup`;
+* **`Pic0` torsion / finiteness** — `Pic0.finite_torsion_of_isAlgClosed_of_charZero`,
+  `Pic0.natCard_torsion_prime_eq_pow_genus`;
+* through `weilDifferentialRankOne_of_isCurveOver` (which cites
+  `stichtenothGenusExists`), the **Serre-duality layer** —
+  `exists_linearEquiv_regularDifferentials_omegaSpace_zero`,
+  `exists_weilCanonical_riemannRoch`, and the modular-function-field genus wrappers.
+
+What these consume is **not a genus number** but the API's outputs: finiteness of
+`LSpace D`, of the adelic quotient `adeleSpace ⧸ adeleBddPrincipal D`, and of
+`omegaSpace D`, together with the **index formula**
+$`\mathrm{index}(D) = \ell D - (\deg D + 1 - \gamma)`$. The canonical-divisor genus
+supplies only $`g = (\deg K + 2)/2`$ and $`K`$; it gives none of those finiteness
+statements, and the identity $`\gamma = g`$ is itself a consequence of RR
+(`degree_canonicalDivisor_eq_of_riemannRoch`,
+`ell_canonicalDivisor_eq_genus_of_riemannRoch`, `genus_eq_genusFF`). Substituting the
+canonical genus for $`\gamma`$ would assume the index formula it is meant to provide —
+circular. Stichtenoth is the pin's **engine of finiteness and the index formula**;
+`finiteDimensional_lSpace` (self-contained, 1,092 lines) covers only the general-curve
+finiteness of `LSpace`, not the adelic quotient or $`\Omega`$.
+
+### 5.3 Which route first: the function-field (Stichtenoth) engine
+
+The measurement supports porting the function-field route first. The genus / index
+engine — the nine Stichtenoth nodes of §5.1 plus `indexOfSpecialty_eq_finrank_H1`,
+`exists_genus_riemannIndex_of_isCurveOver`, `weilDifferentialRankOne_of_isCurveOver`,
+`exists_weilCanonical_riemannRoch` and
+`exists_linearEquiv_regularDifferentials_omegaSpace_zero` — is 14 nodes / 12,262 raw
+`S_` lines, but `port_advise` projects only **≈3,700 lines**: 1 substitution (6 lines),
+155 names shared across ≥2 target files (8,523 removable lines), a 2,458-line unique
+prelude. The reduction is the pin's own sibling duplication — the two 2,545-line files
+and the 1,346/1,094/1,094/1,093-line files share one prelude — which the port avoids by
+writing the shared home once.
+
+Why first:
+
+* It is **pure algebra** (valuations, RR spaces, the adelic index), with no contour
+  integrals, and it is the **interface the consumers use**: the 104 dependents of §5.2
+  (rank-two Tate-module finiteness, Hecke-algebra dimensions, `genusFF` comparisons,
+  `Pic0` torsion, Serre duality) consume the `RiemannGenusReachedAt` / index API, not
+  the analytic one.
+* It is a **prerequisite the analytic route cannot supply** — genus existence, adelic
+  quotient finiteness and the index formula.
+* It is **cheap** at this measurement: ≈3,700 projected lines against the RR family's
+  34,500 and the analytic block's 64,873 raw lines.
+
+**Caveat: the analytic block is not thereby deleted.** The D-S cone still needs
+`ResidueTheorem` and the differential residues. The non-analytic `ResidueTheorem`
+routes (`residueTheorem_of_perfectField` 45,
+`residueTheorem_ratFunc_of_perfectField` 4,340,
+`residueTheorem_functionField_of_smoothOfRelativeDimension_one` 76) are **outside the
+D-S cone**, and the three analytic-only consumers
+(`exists_ordDifferential_ge_neg_one_and_evalAt_eq_of_degree_eq_zero`,
+`sum_fibre_evalAt_eq_zero_of_smul_D_mem_regularDifferentials`,
+`functionFieldRiemannRoch_of_isAlgClosed`) all have `residueTheoremK` / `tateAgreement`
+ancestors. What the function-field engine *does* make avoidable is the analytic block's
+**RR-specific** node `functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed`
+(6,257), once the formula comes from the Stichtenoth assembly
+(`weilDualityAdelic_of_functionFieldRiemannRoch_of_stichtenothGenusExists`).
+
+**Recommended order:** prerequisites → function-field genus / index engine (≈3,700) →
+the analytic block for `ResidueTheorem` and differential residues only → the
+differentials ↔ cusp-forms transport → per-file applications.
+
 ## 6. Reproduce
 
 ```bash
@@ -313,3 +418,10 @@ print('prunable', len(prune.prunable(pay.cites, root, stich)),
 PY
 ```
 
+The §5.3 function-field engine measurement:
+
+```bash
+cd tools/deps
+ENGINE='AlgebraicCurve.RationalFunctionField.stichtenothGenusExists,AlgebraicCurve.RationalFunctionField.finiteDimensional_lSpace_zero_of_constantsAreBase,AlgebraicCurve.exists_genus_riemannIndex_of_stichtenothGenusExists,AlgebraicCurve.exists_riemannGenusReachedAt_nsmul_single_of_stichtenothGenusExists,AlgebraicCurve.RiemannGenusReachedAt.eq_of_ge,AlgebraicCurve.omegaSpace_finite_of_genusReached,AlgebraicCurve.indexOfSpecialty_eq_of_genusReached,AlgebraicCurve.indexOfSpecialty_eq_zero_of_genusReached,AlgebraicCurve.weilDualityAdelic_of_functionFieldRiemannRoch_of_stichtenothGenusExists,AlgebraicCurve.indexOfSpecialty_eq_finrank_H1,AlgebraicCurve.exists_genus_riemannIndex_of_isCurveOver,AlgebraicCurve.weilDifferentialRankOne_of_isCurveOver,AlgebraicCurve.exists_weilCanonical_riemannRoch,AlgebraicCurve.exists_linearEquiv_regularDifferentials_omegaSpace_zero'
+python3 port_advise.py --nodes "$ENGINE" --json build/stich_advise.json
+```
