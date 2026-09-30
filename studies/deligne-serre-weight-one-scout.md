@@ -1,12 +1,23 @@
 # Deligne–Serre weight one — port scout and subject plan
 
-**Status: SCOPED, port not started (2026-09-29).** A living port scout for the
+**Status: FIRST BATCH LANDED, remeasured (2026-09-30).** A living port scout for the
 weight-one Deligne–Serre cone. §1 fixes the target set and its internal structure,
 §2 is the effort against the current frontier, §3 the minimum-effort
 mathematically significant tasks, §4 the foundational modules and their clusters,
 §5 the redundancy discipline, §6 the living subject map, §7 how to reproduce.
 Everything is measured against the pin `aa2d8b3` with `tools/deps` (docs-site graph
 closure and the `S_`-line metric); the port's mathlib is `v4.34.0`.
+
+**Remeasurement (2026-09-30).** The §3 recommended first batch has largely landed
+(`lean/FLTForHuman/DeligneSerre/` 4 modules + `GaloisRep/` 6 modules + the
+`FrobeniusDensity/` subject), so the frontier has moved from 541 to **608 nodes /
+183,832 raw `S_` lines**; the forward target is now **1,897 needed nodes /
+949,701 lines** (from 1,988 / 995,359), and four of the twelve §1 internal targets
+are closed. The algebraic Riemann–Roch (phase 1 + phase 2 of
+[PORTING-RR](../lean/topics/PORTING-RR.md)) is also in the port, which lets the
+analytic residue block be pruned for this cone: §4.2 measures the payout and the
+bridge, and the weaker RR siblings. The pre-landing numbers are kept where they
+are the definition of the target; every *needed* count below is the new measurement.
 
 This note is the **living home** for the effort measurement and the subject plan.
 The measurement paragraph that used to sit in
@@ -51,9 +62,12 @@ faces are in [../math/019-deligne-serre-weight-one.md](../math/019-deligne-serre
 
 Two conventions matter for the numbers below. The **frontier** $`F`$ is the union
 of the checker's `Theorems/Thm_*` sources and the declaration names found in
-`lean/FLTForHuman/` (492 nodes / 120,774 raw `S_` lines as of this measurement).
-"New nodes" is `frontier.py`'s `needed(t) = closure(t) \ F` with a frontier node
-terminal; "lines" is the sum of the `S_` files of the needed nodes.
+`lean/FLTForHuman/` (**608 nodes / 183,832 raw `S_` lines** at the 2026-09-30
+remeasurement; it was 541 nodes at the previous one, and 492 / 120,774 when this
+note was first written). "New nodes" is `frontier.py`'s `needed(t) = closure(t) \ F`
+with a frontier node terminal; "lines" is the sum of the `S_` files of the needed
+nodes. The frontier is an upper bound read off the port's declaration names, so a
+node counts as landed as soon as the port declares its statement.
 
 ## 1. Target set and internal structure
 
@@ -61,20 +75,25 @@ The public surface is small — 24 declarations in the `DeligneSerre` namespace,
 the Langlands–Tunnell and `No2BridgeWiring` consumers. Its internal shape is what
 matters for ordering.
 
-| internal target | new nodes | `S_` lines | role |
+| internal target | new nodes (was) | `S_` file | status |
 |---|---:|---:|---|
-| `DeligneSerre.exists_hecke_eigen_reduction_eq_of_qCoeff_hecke_congr` | 5 | 676 | the *relèvement*: a residual eigenform is the reduction of a genuine eigenform |
-| `DeligneSerre.exists_subalgebra_qCoeff_mem_forall_ringHom_exists_qCoeff_eq_of_weightOne_hecke_eigen` | 13 | 491 | coefficient-ring finiteness ($`58/71`$ of its cone already ported) |
-| `DeligneSerre.exists_weightTwo_hecke_eigen_reduction_eq_of_weightOne_hecke_eigen` | 17 | 1,242 | weight-one mod $`\ell`$ $`\to`$ weight two |
-| `DeligneSerre.isIrreducible_matrixRepresentation_of_tsum_norm_trace_sq_le_log_of_odd` | 18 | 478 | irreducibility from the second-moment bound + oddness |
-| `DeligneSerre.exists_natCard_range_le_of_charpoly_frobenius_mem_of_upperDensity_le` | 21 | 283 | bound on the order of the Frobenius image |
-| `DeligneSerre.exists_galoisRep_complex_trace_frobenius_eq_of_forall_residual` | 31 | 463 | assemble the complex representation from residual characteristic polynomials |
-| `DeligneSerre.exists_tsum_norm_qCoeff_sq_mul_rpow_le_log_of_weightOne_hecke_eigen` | 775 | 271 | **gate 1**: the Rankin-type second-moment bound |
-| `DeligneSerre.exists_finset_qCoeff_mem_of_upperDensity_le_of_weightOne_hecke_eigen` | 783 | 248 | **gate 2**: coefficient-ring finiteness via upper density |
-| `DeligneSerre.eulerFactor_eq_and_tameLevel_of_weightOne_newform_qCoeff_eq_trace` | 386 (cone) | 709 | local factors and Artin-conductor level (converse side) |
-| `DeligneSerre.exists_weightOne_cuspForm_tameConductor_of_qCoeff_eq_trace` | 439 (cone) | 145 | the converse: rep $`\to`$ weight-one form |
-| `DeligneSerre.exists_residual_galoisRep_charpoly_frobenius_eq_of_weightOne_hecke_eigen` | 1,210 | 271 | the workhorse: residual charpolys from a weight-one form |
-| `DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen` | 1,988 | 291 | the forward capstone (characteristic zero, irreducible) |
+| `DeligneSerre.exists_hecke_eigen_reduction_eq_of_qCoeff_hecke_congr` | **0** (5) | 676 | **landed** (`DeligneSerre/Relevement.lean`) |
+| `DeligneSerre.exists_subalgebra_qCoeff_mem_forall_ringHom_exists_qCoeff_eq_of_weightOne_hecke_eigen` | **0** (13) | 491 | **landed** (`DeligneSerre/CoefficientRing.lean`) |
+| `DeligneSerre.exists_weightTwo_hecke_eigen_reduction_eq_of_weightOne_hecke_eigen` | **0** (17) | 1,242 | **landed** (`DeligneSerre/Lifting.lean`) |
+| `DeligneSerre.isIrreducible_matrixRepresentation_of_tsum_norm_trace_sq_le_log_of_odd` | **11** (18) | 478 | 11 nodes / 17,470 lines, all through the ray-class input |
+| `DeligneSerre.exists_natCard_range_le_of_charpoly_frobenius_mem_of_upperDensity_le` | **14** (21) | 283 | 14 nodes / 18,942 lines, same shared input |
+| `DeligneSerre.exists_galoisRep_complex_trace_frobenius_eq_of_forall_residual` | **0** (31) | 463 | **landed** (`DeligneSerre/Assembly.lean`) |
+| `DeligneSerre.exists_tsum_norm_qCoeff_sq_mul_rpow_le_log_of_weightOne_hecke_eigen` | **765** (775) | 271 | **gate 1**: the Rankin-type second-moment bound |
+| `DeligneSerre.exists_finset_qCoeff_mem_of_upperDensity_le_of_weightOne_hecke_eigen` | **766** (783) | 248 | **gate 2**: coefficient-ring finiteness via upper density |
+| `DeligneSerre.eulerFactor_eq_and_tameLevel_of_weightOne_newform_qCoeff_eq_trace` | **380** (386 cone) | 709 | local factors and Artin-conductor level (converse side) |
+| `DeligneSerre.exists_weightOne_cuspForm_tameConductor_of_qCoeff_eq_trace` | **413** (439) | 145 | the converse: rep $`\to`$ weight-one form |
+| `DeligneSerre.exists_residual_galoisRep_charpoly_frobenius_eq_of_weightOne_hecke_eigen` | **1,132** (1,210) | 271 | the workhorse: residual charpolys from a weight-one form |
+| `DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen` | **1,897** (1,988) | 291 | the forward capstone (characteristic zero, irreducible) |
+
+The internal shape is otherwise unchanged, and the two density-dependent lemmas
+(`isIrreducible`, `exists_natCard_range_le`) are now the only unported members of the
+§3 batch: their **union** is 15 nodes / 19,420 lines, and removing the shared
+`M4aTorus.completedRayL_fe` (12,126) leaves 14 nodes / 7,294.
 
 The dependency shape:
 
@@ -102,38 +121,41 @@ in the forward direction is assembly of cost 5–31.
 
 | target | cone | already in the port (in cone) | **new nodes / raw `S_` lines** | hops |
 |---|---:|---:|---:|---:|
-| `DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen` | 2,308 | 309 | **1,988 / 995,359** | 2 |
-| `DeligneSerre.exists_residual_galoisRep_charpoly_frobenius_eq_of_weightOne_hecke_eigen` | 1,528 | 307 | **1,210 / 622,105** | 3 |
-| `DeligneSerre.exists_weightOne_cuspForm_tameConductor_of_qCoeff_eq_trace` | 439 | 18 | **421 / 196,678** | 2 |
-| `FLT.No2BridgeWiring.weightOneNewformExists_not_cube_dvd` (consumer) | 7,222 | 331 | 6,713 / 4,325,955 | — |
-| `LanglandsTunnell.exists_isWeightOneChiNegThreeRealized_eq_trace_lift` (the mod-3 input) | 6,805 | 311 | 6,483 / 4,219,291 | — |
+| `DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen` | 2,308 | 400 | **1,897 / 949,701** | 1 |
+| `DeligneSerre.exists_residual_galoisRep_charpoly_frobenius_eq_of_weightOne_hecke_eigen` | 1,528 | 385 | **1,132 / 579,528** | 1 |
+| `DeligneSerre.exists_weightOne_cuspForm_tameConductor_of_qCoeff_eq_trace` | 439 | 26 | **413 / 194,995** | 1 |
+| `FLT.No2BridgeWiring.weightOneNewformExists_not_cube_dvd` (consumer) | 7,222 | 422 | 6,622 / 4,280,297 | — |
+| `LanglandsTunnell.exists_isWeightOneChiNegThreeRealized_eq_trace_lift` (the mod-3 input) | 6,805 | 402 | 6,392 / 4,173,633 | — |
 
-The port already owns about 309 of the forward cone's nodes, and they are almost
-all on the modular-curve/function-field side (`ModularCurve` 151, `AlgebraicCurve`
-77, `ModularForm` 21, `WLight` 17, `CuspForm` 10). The rest is unported.
+The port already owns 400 of the forward cone's nodes, up from 309: the whole §3
+first batch, and almost all of the modular-curve/function-field side
+(`ModularCurve` 151, `AlgebraicCurve` 77, `ModularForm` 21, `WLight` 17,
+`CuspForm` 10 at the previous measurement). The rest is unported.
 
-**Composition of the forward cone's 1,988 needed nodes**, by the natural subjects of
-§4 — the table also gives each subject's average and maximum coverage over the pin's
-49 landmark cones, the "judged by all projects" measure of §4:
+**Composition of the forward cone's 1,897 needed nodes** (2026-09-30), by the
+natural subjects of §4. The clustering here is namespace-based (the previous
+predicate-based grouping folded most of the generic-named tail into the named
+clusters, so the two differ mainly in the tail); the landmark columns are the
+doc-era pin-only measure of §4 and do not move with the port.
 
 | subject cluster | needed nodes | raw `S_` lines | avg landmark share | max |
 |---|---:|---:|---:|---:|
-| automorphic / adelic $`\mathrm{GL}_2`$ | 534 | 242,409 | 10.7 | 22 |
-| modular curves / Hecke geometry | 443 | 219,577 | 15.9 | 22 |
-| function-field / curve layer | 425 | 217,578 | 21.2 | 24 |
-| weight-one forms / Eisenstein | 134 | 52,352 | 12.4 | 22 |
-| number fields / adelic infrastructure | 133 | 69,962 | 11.2 | 20 |
-| elliptic / Weierstrass / Tate | 129 | 123,876 | 21.4 | 31 |
+| automorphic / adelic $`\mathrm{GL}_2`$ | 533 | 249,591 | 10.7 | 22 |
+| modular curves / Hecke geometry | 427 | 208,372 | 15.9 | 22 |
+| function-field / curve layer | 354 | 176,626 | 21.2 | 24 |
+| number fields / adelic infrastructure | 164 | 89,780 | 11.2 | 20 |
+| elliptic / Weierstrass / Tate | 128 | 123,724 | 21.4 | 31 |
+| weight-one forms / Eisenstein | 117 | 48,463 | 12.4 | 22 |
 | Langlands–Tunnell (in-cone part) | 38 | 17,344 | 9.3 | 12 |
-| Galois reps / Frobenius / Artin (in-cone part) | 23 | 4,620 | 17.5 | 20 |
-| `DeligneSerre` (our own) | 13 | 5,988 | 9.2 | 11 |
-| everything else | 116 | 41,653 | — | — |
-| **total** | **1,988** | **995,359** | | |
+| Galois reps / Frobenius / Artin (in-cone part) | 8 | 3,791 | 17.5 | 20 |
+| `DeligneSerre` (our own) | 7 | 2,297 | 9.2 | 11 |
+| everything else | 121 | 29,713 | — | — |
+| **total** | **1,897** | **949,701** | | |
 
 The two gates have almost the same cone — `AutomorphicForm` 473 nodes,
 `NumberField` 123, `LanglandsTunnell` 38 — so they are one
 subject, not two: the analytic automorphic layer. The converse is a *different*
-421-node cone, resting on `NumberField` 81, `ArtinL` 36, `M4aHerbrand` 34,
+413-node cone, resting on `NumberField` 81, `ArtinL` 36, `M4aHerbrand` 34,
 `groupCohomology` 30, `IsDiscreteValuationRing` 31.
 
 > **Measurement caveat (important).** `frontier.py` counts *theorem-to-theorem*
@@ -151,42 +173,46 @@ These are the cheapest new nodes that are *mathematics*, not adapters: each is a
 statement with content, small in both new nodes and `S_` lines, and inside this
 cone. Costs are from the forward target.
 
-| task | new nodes | `S_` lines | what it is |
-|---|---:|---:|---|
-| `ModularForm.exists_weightOne_eisenstein_qCoeff_eq_of_isPrimitive_of_odd` | 5 | 703 | the weight-one Eisenstein series $`E_1(1,\chi)`$ for a primitive odd $`\chi`$, with the divisor-sum $`q`$-expansion — the engine of the lifting |
-| `DeligneSerre.exists_hecke_eigen_reduction_eq_of_qCoeff_hecke_congr` | 5 | 676 | the relèvement: a residual eigenform of any weight is the reduction of a genuine eigenform |
-| `DeligneSerre.exists_weightTwo_hecke_eigen_reduction_eq_of_weightOne_hecke_eigen` | 17 | 1,242 | weight-one mod $`\ell`$ $`\to`$ weight two — the FLT lifting |
-| `ModularForm.exists_rankinCohen_one_qExpansion_eq` | 2 | 301 | the first Rankin–Cohen bracket of modular forms |
-| `CuspForm.finiteDimensional_Gamma1` | 1 | 16 | finite-dimensionality of $`S_k(\Gamma_1(M))`$ |
-| `DeligneSerre.exists_isSemisimpleRepresentation_charpoly_map_eq_of_add_mem_range_of_mul_mem_range` | 1 | 675 | a semisimple 2-dimensional representation from two characters |
-| `DeligneSerre.exists_subalgebra_qCoeff_mem_forall_ringHom_exists_qCoeff_eq_of_weightOne_hecke_eigen` | 13 | 491 | the finite coefficient ring ($`58/71`$ of its cone already ported) |
-| `DeligneSerre.isIrreducible_matrixRepresentation_of_tsum_norm_trace_sq_le_log_of_odd` | 18 | 478 | irreducibility from the second-moment bound plus oddness |
-| `DeligneSerre.exists_natCard_range_le_of_charpoly_frobenius_mem_of_upperDensity_le` | 21 | 283 | image-order bound from a Frobenius-charpoly density condition |
-| `DeligneSerre.exists_galoisRep_complex_trace_frobenius_eq_of_forall_residual` | 31 | 463 | promote a compatible residual family to a complex representation |
-| `CuspForm.HasNebentypus.diamondLinOne_apply_eq_smul` | 1 | 29 | diamond operators act by $`\varepsilon(d)`$ on forms with nebentypus |
-| `ModularForm.exists_gamma0_qExpansion_eq_of_levelOne` | 1 | 36 | a level-one form is a form for $`\Gamma_0(N)`$ |
-| `FrobeniusDensity.ncard_conj_gen_ne_zero_iff` | 1 | 17 | the Chebotarev-style conjugating-count criterion |
-| `NumberField.AdeleRing.compactSpace_quotient_principalSubgroup` | 1 | 32 | compactness of the adele class group $`\mathbb{A}_F/F`$ |
-| `LanglandsTunnell.TateLocal.psiLocal_eq_one_of_mem_integers` | 1 | 45 | the standard local additive character is trivial on $`\mathcal{O}`$ |
+| task | new nodes (was) | `S_` file | status | what it is |
+|---|---:|---:|---|---|
+| `ModularForm.exists_weightOne_eisenstein_qCoeff_eq_of_isPrimitive_of_odd` | **0** (5) | 703 | **landed** | the weight-one Eisenstein series $`E_1(1,\chi)`$ for a primitive odd $`\chi`$, with the divisor-sum $`q`$-expansion — the engine of the lifting |
+| `DeligneSerre.exists_hecke_eigen_reduction_eq_of_qCoeff_hecke_congr` | **0** (5) | 676 | **landed** | the relèvement: a residual eigenform of any weight is the reduction of a genuine eigenform |
+| `DeligneSerre.exists_weightTwo_hecke_eigen_reduction_eq_of_weightOne_hecke_eigen` | **0** (17) | 1,242 | **landed** | weight-one mod $`\ell`$ $`\to`$ weight two — the FLT lifting |
+| `ModularForm.exists_rankinCohen_one_qExpansion_eq` | **2** (2) | 301 | | the first Rankin–Cohen bracket of modular forms |
+| `CuspForm.finiteDimensional_Gamma1` | **1** (1) | 16 | | finite-dimensionality of $`S_k(\Gamma_1(M))`$ |
+| `DeligneSerre.exists_isSemisimpleRepresentation_charpoly_map_eq_of_add_mem_range_of_mul_mem_range` | **0** (1) | 675 | **landed** (as `GaloisRep.…`) | a semisimple 2-dimensional representation from two characters |
+| `DeligneSerre.exists_subalgebra_qCoeff_mem_forall_ringHom_exists_qCoeff_eq_of_weightOne_hecke_eigen` | **0** (13) | 491 | **landed** | the finite coefficient ring |
+| `DeligneSerre.isIrreducible_matrixRepresentation_of_tsum_norm_trace_sq_le_log_of_odd` | **11** (18) | 478 | | irreducibility from the second-moment bound plus oddness |
+| `DeligneSerre.exists_natCard_range_le_of_charpoly_frobenius_mem_of_upperDensity_le` | **14** (21) | 283 | | image-order bound from a Frobenius-charpoly density condition |
+| `DeligneSerre.exists_galoisRep_complex_trace_frobenius_eq_of_forall_residual` | **0** (31) | 463 | **landed** | promote a compatible residual family to a complex representation |
+| `CuspForm.HasNebentypus.diamondLinOne_apply_eq_smul` | **0** (1) | 29 | **landed** | diamond operators act by $`\varepsilon(d)`$ on forms with nebentypus |
+| `ModularForm.exists_gamma0_qExpansion_eq_of_levelOne` | **1** (1) | 36 | | a level-one form is a form for $`\Gamma_0(N)`$ |
+| `FrobeniusDensity.ncard_conj_gen_ne_zero_iff` | **0** (1) | 17 | **landed** | the Chebotarev-style conjugating-count criterion |
+| `NumberField.AdeleRing.compactSpace_quotient_principalSubgroup` | **1** (1) | 32 | | compactness of the adele class group $`\mathbb{A}_F/F`$ |
+| `LanglandsTunnell.TateLocal.psiLocal_eq_one_of_mem_integers` | **1** (1) | 45 | | the standard local additive character is trivial on $`\mathcal{O}`$ |
 
-**Recommended first batch.** The lifting group
+**Recommended first batch (landed).** The lifting group
 (`exists_weightOne_eisenstein`, `exists_hecke_eigen_reduction`,
 `exists_weightTwo_hecke_eigen_reduction`) and the Galois-assembly group
 (`exists_isSemisimpleRepresentation`, `exists_subalgebra_qCoeff_mem`,
 `isIrreducible_…_of_odd`, `exists_natCard_range_le`,
-`exists_galoisRep_complex_trace`) have a **union of 70 new nodes**. They are the
-parts of the theorem FLT proves itself rather than imports from analysis, and
-landing them gives the whole DS statement skeleton with the two gates as explicit
-hypotheses, so the expensive automorphic work can then be attacked against a fixed
-interface.
+`exists_galoisRep_complex_trace`) were a **union of 70 new nodes**. Six of the eight
+recommended-batch targets are landed (the lifting group and the Galois-assembly
+group, except the two density lemmas) — eight of the fifteen §3 tasks in all. The two
+density-dependent lemmas
+(`isIrreducible_…_of_odd` 11 nodes / 17,470 lines and
+`exists_natCard_range_le` 14 / 18,942) are what remains of the batch, with **union
+15 nodes / 19,420 lines**. They are the parts of the theorem FLT proves itself
+rather than imports from analysis, and landing them gives the whole DS statement
+skeleton with the two gates as explicit hypotheses, so the expensive automorphic
+work can then be attacked against a fixed interface.
 
-But that union is **32,804 raw `S_` lines**, not the sum of the eight targets'
-short files: the assembly lemmas reach the Frobenius-density / Chebotarev step,
-and that pulls the shared ray-class $`L`$-function node
-`M4aTorus.completedRayL_fe` — **12,126 lines**, shared with the Kummer segment.
-So even the cheap batch is not free of the foundational arithmetic layer. That is
-the single clearest argument for porting that layer as its own subject rather than
-discovering it through this cone (§4).
+The residual union is not free of the foundational arithmetic layer: the assembly
+lemmas reach the Frobenius-density / Chebotarev step, and that pulls the shared
+ray-class $`L`$-function node `M4aTorus.completedRayL_fe` — **12,126 lines**,
+shared with the Kummer segment. Deferring that one interface leaves
+14 nodes / 7,294. That is the single clearest argument for porting that layer as
+its own subject rather than discovering it through this cone (§4).
 
 **Do not mistake the gates for small tasks.** `exists_tsum_norm` and
 `exists_finset_qCoeff_mem` are single short statements (271 and 248 lines) but each
@@ -195,18 +221,20 @@ this list.
 
 ### 3.1 Deferring the shared ray-class input
 
-The batch's 32,804 lines are not all its own. It splits at
-`M4aTorus.completedRayL_fe`, the 12,126-line proof of the analytic continuation and
-functional equation of the completed narrow-ray-class $`L`$-function.
+The unconditional 54-node group of the batch **is landed**, so what remains is the
+two density-dependent lemmas, and they split at `M4aTorus.completedRayL_fe`, the
+12,126-line proof of the analytic continuation and functional equation of the
+completed narrow-ray-class $`L`$-function.
 
 | piece | nodes | raw `S_` lines | depends on `M4aTorus.completedRayL_fe`? |
 |---|---:|---:|---|
-| lifting group + `exists_isSemisimpleRepresentation` + `exists_subalgebra_qCoeff_mem` + `exists_galoisRep_complex_trace` | 54 | 13,226 | no — **unconditional** |
-| `isIrreducible_…_of_odd` + `exists_natCard_range_le` | 22 | 20,391 | yes |
-| the same two, with `M4aTorus.completedRayL_fe` deferred | 21 | 8,265 | one interface |
+| lifting group + `exists_isSemisimpleRepresentation` + `exists_subalgebra_qCoeff_mem` + `exists_galoisRep_complex_trace` | 54 | 13,226 | no — **landed** |
+| `isIrreducible_…_of_odd` + `exists_natCard_range_le` | 15 | 19,420 | yes |
+| the same two, with `M4aTorus.completedRayL_fe` deferred | 14 | 7,294 | one interface |
 
-So deferring one statement takes the batch from **70 nodes / 32,804 lines** to
-**69 nodes / 20,678 lines**: 12,126 lines (37%) removed for one interface.
+So the remaining batch is **15 nodes / 19,420 lines**, and deferring the one
+statement takes it to **14 nodes / 7,294 lines**: 12,126 lines (62%) removed for
+one interface.
 
 **The interface is narrower than the file.** `M4aTorus.completedRayL_fe` is a single
 theorem (the 12,126-line file is its proof, 595 helper lemmas), and the batch reaches
@@ -234,22 +262,23 @@ the classical Hecke analytic continuation of the ray-class $`L`$-function, witho
 the functional equation or root number. That is strictly weaker than
 `completedRayL_fe` and is the natural seam.
 
-The residual 8,265 lines are themselves mostly a Chebotarev/density block
+The residual 7,294 lines are themselves mostly a Chebotarev/density block
 (`NumberField.sub_mul_log_le_tsum_ncard_isArithFrobAt`,
-`GaloisRep.sub_mul_log_le_tsum_rpow_neg_of_frobenius_mem_of_surjective`, the four
-`FrobeniusDensity.*` lemmas). Treating that block as a second interface — the
-density input as a classical theorem to be proved once — leaves only
-**5 nodes / 2,428 lines** for the two DS lemmas and the image-bound linear algebra
-(`Matrix.GeneralLinearGroup.exists_natCard_le_…`,
-`ModularCurve.SerreImage.contains_SL2`). The whole batch with both interfaces is
-**59 nodes / 15,654 lines**, against 70 / 32,804 undeferred.
+`GaloisRep.sub_mul_log_le_tsum_rpow_neg_of_frobenius_mem_of_surjective`, the
+`FrobeniusDensity.*` lemmas; 2,669 lines). Treating that block as a second
+interface — the density input as a classical theorem to be proved once — leaves
+**11 nodes / 4,625 lines**: the two DS lemmas themselves, the image-bound linear
+algebra (`Matrix.GeneralLinearGroup.exists_natCard_le_…`,
+`ModularCurve.SerreImage.contains_SL2`) and three ray-class-adjacent number-field
+lemmas.
 
-**Verdict.** Do the 54-node unconditional group now; land the two density-dependent
-lemmas behind the ray-class-continuation interface (21 / 8,265) or, if the density
-block is also to be proved once as its own subject, behind both interfaces
-(5 / 2,428). The full ray-class file is not wasted either way — the converse cone
-needs its functional equation for the Artin $`L`$-function step, so it is ported
-once there and this batch reuses only the continuation.
+**Verdict.** The 54-node unconditional group is landed. Land the two
+density-dependent lemmas behind the ray-class-continuation interface
+(14 / 7,294) or, if the density block is also to be proved once as its own
+subject, behind both interfaces (11 / 4,625). The full ray-class file is not
+wasted either way — the converse cone needs its functional equation for the
+Artin $`L`$-function step, so it is ported once there and this batch reuses only
+the continuation.
 
 ## 4. Scout Q2 — the foundational modules and how they cluster
 
@@ -260,15 +289,15 @@ with the landmark share that measures how foundational each one is:
 
 | cluster | needed nodes | `S_` lines | avg share | why it is foundational |
 |---|---:|---:|---:|---|
-| function-field / curve layer | 425 | 217,578 | 21.2 | places, divisors, differentials, Riemann–Roch — beneath nearly every landmark |
-| elliptic / Weierstrass / Tate | 129 | 123,876 | 21.4 | curve arithmetic, reduction, Tate curve — the Frey/Mazur/Ribet side |
-| Galois reps / Frobenius / Artin (in-cone) | 23 | 4,620 | 17.5 | the representation vocabulary $`R = T`$ and level lowering both speak |
-| modular curves / Hecke geometry | 443 | 219,577 | 15.9 | $`X_0/X_1`$, modular polynomials, period pairs, Hecke carriers |
-| weight-one forms / Eisenstein | 134 | 52,352 | 12.4 | the form side of this cone; partly ported already |
-| number fields / adelic infrastructure | 133 | 69,962 | 11.2 | adeles, Haar measure, adelic Fourier, class group — shared with Kummer/LT |
-| automorphic / adelic $`\mathrm{GL}_2`$ | 534 | 242,409 | 10.7 | Iwasawa, Whittaker, Rankin–Selberg — the forward gate |
+| function-field / curve layer | 354 | 176,626 | 21.2 | places, divisors, differentials, Riemann–Roch — beneath nearly every landmark |
+| elliptic / Weierstrass / Tate | 128 | 123,724 | 21.4 | curve arithmetic, reduction, Tate curve — the Frey/Mazur/Ribet side |
+| Galois reps / Frobenius / Artin (in-cone) | 8 | 3,791 | 17.5 | the representation vocabulary $`R = T`$ and level lowering both speak |
+| modular curves / Hecke geometry | 427 | 208,372 | 15.9 | $`X_0/X_1`$, modular polynomials, period pairs, Hecke carriers |
+| weight-one forms / Eisenstein | 117 | 48,463 | 12.4 | the form side of this cone; partly ported already |
+| number fields / adelic infrastructure | 164 | 89,780 | 11.2 | adeles, Haar measure, adelic Fourier, class group — shared with Kummer/LT |
+| automorphic / adelic $`\mathrm{GL}_2`$ | 533 | 249,591 | 10.7 | Iwasawa, Whittaker, Rankin–Selberg — the forward gate |
 | Langlands–Tunnell (in-cone) | 38 | 17,344 | 9.3 | the octahedral/Artin input to the mod-3 step |
-| `DeligneSerre` (our own) | 13 | 5,988 | 9.2 | the theorem itself |
+| `DeligneSerre` (our own) | 7 | 2,297 | 9.2 | the theorem itself |
 
 The **definition layer** is the other half of "foundational": the cone touches
 **281 definition modules**, and the most widely used are the shared vocabulary —
@@ -327,7 +356,7 @@ tables above are doc-era *needed* counts and are therefore frontier-dependent: t
 them as the measurement of that date, not as the definition of the target.
 
 **Row 7 — elliptic / Weierstrass / Tate.** 129 pin nodes / 125,059 `S_` lines
-(`WeierstrassCurve.*` 106, `TateCurve.*` 23); 1 ported at frontier 541.
+(`WeierstrassCurve.*` 106, `TateCurve.*` 23); 1 ported (unchanged at frontier 608).
 
 | unit | nodes | `S_` lines | ported |
 |---|---:|---:|---:|
@@ -365,47 +394,52 @@ predicates:
 | unit | nodes | `S_` lines | ported |
 |---|---:|---:|---:|
 | complex-analytic Jacobian / path integrals / Tate trace | 67 | 84,610 | 0 |
-| places / valuations / local fields / completions | 161 | 35,677 | 51 |
-| divisors / class group / $`\mathrm{Pic}^0`$ / Jacobian | 69 | 22,494 | 14 |
-| Riemann–Roch / repartitions / genus / index | 41 | 25,650 | 0 |
-| differentials / residues / Serre duality | 46 | 18,190 | 0 |
-| curves, models, correspondences, function fields | 52 | 16,681 | 7 |
+| places / valuations / local fields / completions | 161 | 35,677 | 57 |
+| divisors / class group / $`\mathrm{Pic}^0`$ / Jacobian | 69 | 22,494 | 18 |
+| Riemann–Roch / repartitions / genus / index | 41 | 25,650 | 19 |
+| differentials / residues / Serre duality | 46 | 18,190 | 2 |
+| curves, models, correspondences, function fields | 52 | 16,681 | 10 |
 | other (genericity/closure) | 29 | 16,382 | 5 |
-| **total** | **465** | **219,684** | **77** |
+| **total** | **465** | **219,684** | **111** |
 
 The three subjects that the sharing shows to be one dependency mass — places (161)
-+ divisors (69) + Riemann–Roch (41) = **271 pin nodes / 83,821 lines** (65 ported,
-206 needed at frontier 541). Their finer sub-units, again pin-only:
++ divisors (69) + Riemann–Roch (41) = **271 pin nodes / 83,821 lines** (94 ported,
+**177 needed** at the 2026-09-30 frontier; it was 65 / 206 at frontier 541). Their
+finer sub-units, again pin-only:
 
 | places sub-unit | nodes | `S_` lines | ported |
 |---|---:|---:|---:|
-| A. rational function field / $`\mathbb{P}^1`$ places | 21 | 8,816 | 7 |
-| B. ord / valuation ring / local residue | 76 | 14,692 | 25 |
+| A. rational function field / $`\mathbb{P}^1`$ places | 21 | 8,816 | 10 |
+| B. ord / valuation ring / local residue | 76 | 14,692 | 26 |
 | C. place extension / ramification calculus | 19 | 2,140 | 8 |
 | D. local expansion / completion / evaluation | 10 | 2,202 | 0 |
-| E. place existence / basic vocabulary | 29 | 7,678 | 9 |
+| E. place existence / basic vocabulary | 29 | 7,678 | 11 |
 | Z. `SemilinearAut` action on places | 6 | 149 | 2 |
-| **places total** | **161** | **35,677** | **51** |
+| **places total** | **161** | **35,677** | **57** |
 
 | divisors sub-unit | nodes | `S_` lines | ported |
 |---|---:|---:|---:|
-| A. class group / degree / principal | 30 | 10,924 | 4 |
+| A. class group / degree / principal | 30 | 10,924 | 6 |
 | C. pushforward / pullback / norm formula | 11 | 3,437 | 4 |
 | D. $`\mathrm{Pic}^0`$ / Jacobian | 22 | 3,347 | 6 |
-| E. pole / universal divisor | 6 | 4,786 | 0 |
-| **divisors total** | **69** | **22,494** | **14** |
+| E. pole / universal divisor | 6 | 4,786 | 2 |
+| **divisors total** | **69** | **22,494** | **18** |
 
 (Canonical divisor is not in this table: the predicate sends `canonicalDivisor` to
 the differentials unit. Its 5 nodes / 3,254 lines belong with divisors A.)
 
-> **Provisional frontier measurement (frontier 541).** Running `port_advise` on the
-> 206 needed nodes of the 271-node pool reads 412 `S_`+`Thm_` files / 3,946
-> declarations: **230 substitutions** (75 unique names, 4,396 lines already in the
-> port), **459 names proved in ≥2 target files** (31,876 removable lines; 28,737
-> excluding the substituted names), **6,394 lines of unique shared prelude**
-> (2,447 Riemann–Roch/adelic + 2,266 generic algebra + 1,542 place/valuation + 139
-> divisor), and **≈43,000 projected new lines** (76,463 − 4,396 − 28,737), ≈43%
-> less than the needed subset's raw 76,463. These are the numbers that move with
+> **Provisional frontier measurement (frontier 608).** Running `port_advise` on the
+> 177 needed nodes of the 271-node pool (raw 51,422 lines) reads 354 `S_`+`Thm_`
+> files / 2,551 declarations: **344 substitutions** (177 unique names, 6,646 lines
+> already in the port), **293 names proved in ≥2 target files** (8,727 removable
+> lines; 5,299 excluding the substituted names), a **4,299-line unique shared
+> prelude**, and **≈39,500 projected new lines** (51,422 − 6,646 − 5,299). The
+> duplication ratio has fallen sharply — the previous run at frontier 541 read 206
+> needed nodes / 76,463 raw lines with 230 substitutions (4,396 lines), 444 shared
+> names (31,876 removable; 28,737 excluding substituted) and ≈43,000 projected
+> lines. The port has already absorbed the duplication-heavy Riemann–Roch/adelic
+> engine, so the **remaining** pool is much less dedup-able per raw line (77% of raw
+> projects to new lines, against 57% before). These are the numbers that move with
 > the frontier; the tables above do not.
 
 The boundaries are **layers, not subjects**:
@@ -419,17 +453,20 @@ The boundaries are **layers, not subjects**:
   is **one module**, not a subject.
 * **The already-ported place/valuation vocabulary** — `ord_nonneg_of_mem` (35
   files), `mem_iff_ord_nonneg` (26), `mk_mem_maximalIdeal_iff`, `residueOfCenter`,
-  `inertiaDeg`, `toValuationSubring…`. The port's `AlgebraicCurve/` tree is 17 files
-  / 372 declarations and verifies 77 in-cone pin nodes:
-  `Defs/{Place,PlacesOverDVR,PlaceDictionary,RatFuncPlaces,Divisor,PushPull,Correspondence,SemilinearAut}.lean`
-  and `PrincipalDivisors/{RatFuncDegree,Transcendence}.lean`. Two blocks are
+  `inertiaDeg`, `toValuationSubring…`. The port's `AlgebraicCurve/` tree is now 34
+  files / 841 declarations / 12,360 lines and holds 111 of the cone's pin nodes (it
+  has grown the `Genus/`, `RiemannRoch/`, `Canonical/` and `Defs/` RR homes since the
+  first measurement, when it was 17 files / 372 declarations / 77 nodes):
+  `Defs/{Place,PlacesOverDVR,PlaceDictionary,RatFuncPlaces,Divisor,PushPull,Correspondence,SemilinearAut,KaehlerTranscendental,RiemannRochRows}.lean`,
+  `PrincipalDivisors/{RatFuncDegree,Transcendence}.lean`, `Genus/{Stichtenoth,Index}.lean`,
+  `RiemannRoch/Assembly.lean` and `Canonical/WeilDifferential.lean`. Two blocks are
   deliberately deferred: `Defs/Divisor.lean` excludes the
   `Pic`/torsion/`AbelJacobiCard` block ("API for the modular Hecke/Galois-representation
   layer, not for the exchange cone"), and `Defs/SemilinearAut.lean` excludes the
   `Divisor`/`Pic0` action-and-torsion section of `BaseChangeGalois`. This layer is
   an **import boundary**, not work.
-* **Per-file unique content** — ≈37,000 lines per the provisional
-  measurement: 206 mostly-independent statements whose places/divisors/Riemann–Roch
+* **Per-file unique content** — ≈35,000 lines per the provisional
+  measurement: 177 mostly-independent statements whose places/divisors/Riemann–Roch
   file names are cosmetic. The pin totals overstate even these: the
   `RationalFunctionField` files come in near-duplicate pairs (`ord_X_sub_C` ↔
   `ord_placeOfPoint_algebraMap` share 57 of 70 declarations;
@@ -451,15 +488,31 @@ facts matter to this scout:
   `…exists_galoisRepAdic_charpoly_frobenius_eq_and_isUnramifiedAt` (3) → the
   Deligne–Serre residual representation. The bottleneck is the transport above RR,
   not RR itself.
-* The RR family is **siloed**: 72 cone nodes / 62,710 lines (1 ported); the full-RR
-  statements are 4 nodes / 210 lines and almost every other node cites nothing within
-  the family. `port_advise` on its 71 needed nodes finds ≈45% duplication, so the
-  shared prelude needs one home.
+* The RR family is **siloed**: 72 cone nodes / 62,710 lines (**22 ported** at the
+  2026-09-30 frontier, up from 1); the full-RR statements are 4 nodes / 210 lines and
+  almost every other node cites nothing within the family. `port_advise` on its
+  50 still-needed nodes finds the family's duplication, so the shared prelude needs
+  one home — §4.2 measures what can be pruned instead of ported.
 * The **arithmetic** dimension route is independent: `CuspForm.finiteDimensional_Gamma1`,
   the $`\Gamma_1`$-integral basis and the coefficient-ring gate
   `DeligneSerre.exists_finset_qCoeff_mem_of_upperDensity_le_of_weightOne_hecke_eigen`
   have **zero RR ancestors**, so Sturm/q-expansion and integral-Hecke dimension theory
   bypass this layer.
+
+**Status (2026-09-30).** Phase 1 (the genus / index engine) and phase 2 (the canonical
+divisor) of [PORTING-RR](../lean/topics/PORTING-RR.md) are landed, so the **algebraic
+Riemann–Roch is in the port**: `exists_weilCanonical_riemannRoch` gives
+$`\exists W, \forall D, \ell D - \ell(W-D) = \deg D + 1 - g_{\mathrm{FF}}`$, with the
+index formula, $`\Omega`$-finiteness and rank-one behind it. The two RR leaves above are
+the only ones this cone consumes, and the plan is a small bridge from the algebraic
+engine to the canonical-genus / duality API (`FunctionFieldRiemannRoch`,
+`WeilDualityAdelic`, `genus_eq_genusFF`), conditional on `ResidueTheorem`; the analytic
+residue block is deferred (TBD) — see
+[riemann-roch-strategy.md](riemann-roch-strategy.md) §4.1. Consequence for this scout:
+the function-field layer below (the per-file `RationalFunctionField` / divisor /
+differential applications) can be ported now, with only the two RR leaves and the
+differentials ↔ cusp-forms transport held for the bridge. §4.2 turns this into the
+measured payout and prices the bridge.
 
 **Overlap with row 6.** 67 `ModularCurve` nodes import `Def_AlgebraicCurve_*` (the
 `qExpFunctionField`, `genusFF`, `regularDifferentials`, `place` and Tate-module
@@ -470,7 +523,7 @@ cluster too. The definition-layer fan-in says the same:
 cone. Port the vocabulary once, at the bottom.
 
 **Consequence for the plan.** For this cone, the curve vocabulary is **imported**
-once — the port already owns 77 in-cone nodes across
+once — the port already owns 111 in-cone nodes of the `AlgebraicCurve` tree across
 `Defs/{Place,PlacesOverDVR,PlaceDictionary,RatFuncPlaces,Divisor,PushPull,Correspondence,SemilinearAut}.lean`
 and `PrincipalDivisors/{RatFuncDegree,Transcendence}.lean` — then the per-file
 statements are grouped by *application*: `RationalFunctionField` ord computations,
@@ -480,6 +533,105 @@ residue calculus, with the duplication-light
 Riemann–Roch layer itself is ported, and which of its forms to derive rather than
 re-prove, is the subject of
 [riemann-roch-strategy.md](riemann-roch-strategy.md).
+
+### 4.2 The RR prune for this cone (2026-09-30)
+
+Two prunes are now available, and both were measured with `prune.py`'s
+reachability semantics — `prunable(R) = closure(root) \ closure(root with R deleted)`
+— and `frontier.py`'s `needed(t) =` reachable from $`t`$ avoiding $`R`$, minus the
+ported frontier $`F`$.
+
+**Prune the analytic residue / RR block (deferred).** The pin's analytic route to
+RR is `functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed` (6,257) fed by
+`residueTheoremK_of_isAlgClosed` (8,121), `residueTheoremK_ratFunc_of_isAlgClosed`
+(13,170), `tateAgreement` (4,816), `residueTraceCompletionCommute` (1,109) and the
+`CellDissection` machinery. `residueTheorem|tateAgreement|residueTrace|CellDissection`
+is **18 nodes / 46,321 lines** inside the D-S cone; deleting it is
+`prunable = 24 nodes / 56,383 lines`, and the forward target's needed count falls
+**1,897 → 1,874 nodes** — a saving of **23 nodes / 56,233 lines** (one prunable node
+is itself already in the frontier). The rewiring frontier is 6 nodes:
+
+| kept node | lines | disposition |
+|---|---:|---|
+| `exists_pairedCellFamily` | 4,730 | complex-analytic, deferred with the block |
+| `exists_loops_pathIntegral_reciprocity_raw` | 2,388 | complex-analytic, deferred |
+| `Differential.sum_ord_smul_pullbackAlong_eq_zero` | 629 | differentials layer, later |
+| `exists_ordDifferential_ge_neg_one_and_evalAt_eq_of_degree_eq_zero` | 451 | differential-residue application, deferred |
+| `sum_fibre_evalAt_eq_zero_of_smul_D_mem_regularDifferentials` | 323 | differential-residue application, deferred |
+| `functionFieldRiemannRoch_of_isAlgClosed` | 39 | **the bridge supplies its statement** |
+
+Deferring the two differential-residue applications as well takes the saving to
+25 nodes / 57,007. If the whole analytic complex block is deferred too (adding the
+complex-analytic Jacobian / path-integral / Abel–Jacobi subject), the payout on the
+forward cone is **217 nodes / 148,594 lines**; that block is a separate subject,
+not RR, and its own consumers
+(`exists_bijective_heckeEquivariant_addMonoidHom_pic0_complex_xH_quotient_periodLatticeOf`
+817, `moduleFinite_and_free_padicInt_tateModule_jH` 327,
+`moduleFinite_padicInt_tateModule_jOne` 283) would be deferred with it. On the whole
+`FLT.fermatLastTheorem` root the same analytic $`R`$ is 27 nodes / 64,873 lines with
+`prunable = 35 / 95,884` and a 14-node rewiring frontier, reproducing
+[riemann-roch-strategy.md](riemann-roch-strategy.md) §5.1. **Both** of the pin's
+analytic routes fall inside that $`R`$ — the Tate/K-family
+(`residueTheoremK_of_isAlgClosed` 8,121, `residueTheoremK_ratFunc_of_isAlgClosed`
+13,170) and the plain perfect-field family (`residueTheorem_ratFunc_of_perfectField`
+4,340, `residueTheorem_of_residueTheorem_ratFunc_of_residueTraceCompletionCommute`
+7,889, `tateAgreement_v2` 4,816, `residueTraceCompletionCommute_v2` 1,109) — and the
+same is true of the near-duplicate `_v2` variants. So the port need not choose
+between the two routes to get RR; that choice is only forced when `ResidueTheorem`
+itself is later proved.
+
+**The bridge.** The prune needs the pin's *statement*
+`functionFieldRiemannRoch_of_isAlgClosed` to keep its consumers compiling, and the
+bridge supplies it from the algebraic engine plus plain `ResidueTheorem`:
+`exists_weilCanonical_riemannRoch` and the already-ported
+`weilOfKaehler_ne_zero_and_maximal` / `weilOfKaehler_mem_omegaSpace_of_residueTheorem`
+/ `exists_linearEquiv_regularDifferentials_omegaSpace_zero` give the pin's `hsup`;
+then the pin's `MirrorAssembly` (≈300 lines) gives `RiemannIndexFormula` →
+`WeilOmegaEllAgrees` → `WeilDualityAdelic` → `WeilDuality` →
+`FunctionFieldRiemannRoch`. The two wrappers `…_of_isCurveOver` (39) and
+`…_of_transcendental` (77) port unchanged. So the gap costs **≈300–500 written
+lines against a 56,233-line saving**, and it is conditional on `ResidueTheorem` — a
+predicate already in the port, so it costs nothing now and is discharged only when
+the analytic block is picked up.
+
+**Prune the weaker RR versions (derive them).** With the bridge landed, the
+siblings that are pure consequences of the full formula do not need the pin's
+siloed proofs. Inside the D-S cone these are only
+`degree_canonicalDivisor_eq_of_riemannRoch` (16),
+`ell_canonicalDivisor_eq_genus_of_riemannRoch` (13) and `genus_eq_genusFF` (30) —
+3 nodes / 59 lines, all short derivations that cite `FunctionFieldRiemannRoch`
+(the first two already take it as a hypothesis in the pin). The *larger* candidates
+the strategy flagged are **not** prunable here:
+`two_mul_genus_sub_two_eq_of_degree_canonical` (1,229) takes the canonical-degree
+facts `hK`/`hK'` as hypotheses (it is a ramification computation),
+`instHasCanonicalDivisorRatFuncPerfectField` (1,461) is a construction, and the
+16-node genus / `genusFF` comparison group is independent (Hurwitz line bound,
+constant-field extension, splitting fields). The alternative *forms* of RR are
+outside this cone: `ell_eq_degree_add_one_sub_genusFF_of_isAlgClosed_of_isSeparable`
+(128), `cechRiemannRoch_of_genusReached` (49),
+`weilDualityAdelic_of_isAlgClosed` (54) and the pin's own Stichtenoth assemblies
+`riemannGenusReached_of_stichtenothGenusExists` (2,728) /
+`riemannIndexFormula_of_genusReached` (2,726), which the port's
+`exists_genus_riemannIndex_of_stichtenothGenusExists` replaces. The whole-port
+prune of that set is 10 nodes / 6,410 lines with `prunable = 11 / 6,461`, at a
+102-node rewiring frontier; so for **this** cone the weaker-RR prune is 59 lines
+plus the bridge's 155, and the 6,461-line whole-port prune is a decision for the
+broader plan rather than a D-S saving. Supplying the two predicate-form assemblies
+that the frontier cites (`riemannIndexFormula_of_genusReached`,
+`riemannGenusReached_of_stichtenothGenusExists`) is short from the ported
+`RiemannGenusReachedAt.eq_of_ge` + `indexOfSpecialty_eq_of_genusReached` API, so
+that 102-node frontier is rewire-to-the-engine, not re-prove. (The strategy's "derive the `ell` /
+Riemann-inequality group" candidate is largely moot in the other direction: the six
+`ell_le_*` / inequality nodes are already the engine's own ported prelude — the
+Riemann inequality itself is `ell_le_degree_add_ellZero` — and the six still-unported
+`ell` nodes are constant-field-extension computations, not the inequality.)
+
+**Net effect on the scout.** The forward cone's 1,897 needed nodes already exclude
+the landed §3 batch and the algebraic engine. Pruning the analytic RR removes
+another 23 nodes / 56,233 lines from the D-S work and adds a ~300–500-line bridge;
+the function-field per-file applications can then proceed with only the
+differentials ↔ cusp-forms transport (which needs the deferred residue theorem)
+held back.
 
 ## 5. Redundancy discipline
 
@@ -509,15 +661,18 @@ mode is available. The rules for this port:
 
 ## 6. Subject map and progress (living)
 
+The needed counts are the 2026-09-30 measurement, so they already net out the landed
+first batch.
+
 | # | subject | needed nodes | status | home |
 |---|---|---:|---|---|
-| 1 | weight-one forms + lifting | 134 | not started | `ModularForms/WeightOne/` (partly exists) |
-| 2 | Galois reps / Frobenius / Artin (in-cone) | 23 | scoped, see §6.1 | `GaloisRep/`, `NumberTheory/FrobeniusDensity/` |
-| 3 | number fields / adelic infrastructure | 133 | not started | `NumberTheory/Adelic/` |
-| 4 | automorphic / adelic $`\mathrm{GL}_2`$ | 534 | not started | `AutomorphicForm/` |
+| 1 | weight-one forms + lifting | 117 | **lifting group landed**; Eisenstein/`Rankin–Cohen` partial | `ModularForms/WeightOne/` |
+| 2 | Galois reps / Frobenius / Artin (in-cone) | 8 | **mostly landed**, see §6.1 | `GaloisRep/`, `NumberTheory/FrobeniusDensity/` |
+| 3 | number fields / adelic infrastructure | 164 | not started | `NumberTheory/Adelic/` |
+| 4 | automorphic / adelic $`\mathrm{GL}_2`$ | 533 | not started | `AutomorphicForm/` |
 | 5 | Langlands–Tunnell / octahedral / Artin | 38 (+LT cone) | not started | `LanglandsTunnell/` |
-| 6 | modular curves / Hecke geometry remaining | 443 | partly ported | `ModularCurve/` (finer units: §4.1) |
-| 7 | elliptic / Weierstrass / Tate | 129 | partly ported | `WeierstrassCurve/`, `Elliptic/`, `TateCurve/` (finer units: §4.1) |
+| 6 | modular curves / Hecke geometry remaining | 427 | partly ported | `ModularCurve/` (finer units: §4.1) |
+| 7 | elliptic / Weierstrass / Tate | 128 | partly ported | `WeierstrassCurve/`, `Elliptic/`, `TateCurve/` (finer units: §4.1) |
 
 Update this table and the §2 numbers when a subject lands; the §1 internal-target
 table is the finer-grained progress record.
@@ -543,8 +698,21 @@ family), which this strict reading counts under the number-field subject of row 
 The mathematics of the strict 23 is
 [../math/020-frobenius-density-and-artin.md](../math/020-frobenius-density-and-artin.md).
 
+**Status (2026-09-30).** 15 of the 23 are landed (`GaloisRep/{Prelude,RepConj,RepLift,SemisimpleDescent,ConjFromFrobenius}.lean`
+and the `FrobeniusDensity/` subject). The **8 still needed** are the generic
+`Representation.*` conjugacy/lifting group
+(`exists_conj_eq_map_of_charpoly_coeff_mem_range_of_finite_of_span_range_eq_top`
+1,692, `exists_basis_toMatrix_mem_subfield_of_trace_det_mem_of_hasEigenvalue` 291,
+`span_range_eq_top_of_isIrreducible` 151,
+`exists_isCompl_forall_mem_of_compactSpace_of_continuous` 112,
+`exists_extend_forall_apply_mul_of_injective` 69,
+`pairing_eq_zero_of_invariant_of_isSimpleOrder_of_exists_ne_zero` 36) plus the two
+density-lemma helpers `GaloisRep.sub_mul_log_le_tsum_rpow_neg_of_frobenius_mem_of_surjective`
+(945) and `GaloisRep.exists_isSemisimpleRepresentation_charpoly_map_eq_of_trace_det_frobenius_mem_range`
+(495), both of which the §3.1 interfaces remove.
+
 **It is not a porting unit; it is cut across the work order.** Mapping the 23 to
-the 54-node slice of §3:
+the §3 slice (whose 54-node unconditional group is now landed):
 
 | cluster part | set | note |
 |---|---|---|
@@ -682,3 +850,55 @@ The per-cluster and landmark-share tables were computed with `fltdata.FltData` a
 the three-command pattern of
 [flt-non-frey-segments.md](flt-non-frey-segments.md) §1 with the cluster sets of §4
 as the grouping.
+
+### Remeasurement and the §4.2 prune
+
+The §1/§2/§3 tables are `frontier.py` reads of the named targets against the live
+frontier; the §2 composition replaces the §7 classifier with the namespace map of
+the note, and the §4.1 sub-unit tables and the pool are the §7 script above with
+the current frontier.
+
+```bash
+cd tools/deps
+
+python3 frontier.py --selfcheck | tail -1          # live frontier size
+
+python3 - <<'PY'                                   # §1/§2/§3 needed counts
+import frontier
+fr = frontier.Frontier(); pay = fr.pay; front = fr.frontier('union')
+for q in ['DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen',
+          'DeligneSerre.exists_residual_galoisRep_charpoly_frobenius_eq_of_weightOne_hecke_eigen',
+          'DeligneSerre.exists_weightOne_cuspForm_tameConductor_of_qCoeff_eq_trace',
+          'FLT.No2BridgeWiring.weightOneNewformExists_not_cube_dvd',
+          'LanglandsTunnell.exists_isWeightOneChiNegThreeRealized_eq_trace_lift']:
+    i = pay.pid(q); cone = fr.closure(i)
+    need = frontier.needed(pay.cites, i, ported=front)
+    print(len(need), pay.total_lines(need), len(cone), len(cone & front), q)
+PY
+
+python3 port_advise.py --nodes "$(cat build/pool_pdr_nodes.txt)" --json build/pool_pdr_advise.json
+```
+
+The §4.2 payout is `prune.py`'s reachability together with `frontier.py`'s
+`needed` avoiding $`R`$:
+
+```bash
+cd tools/deps
+python3 - <<'PY'
+import frontier
+fr = frontier.Frontier(); pay = fr.pay; front = fr.frontier('union')
+root = pay.pid('DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen')
+R = pay.nodes_matching((r'residueTheorem', r'tateAgreement', r'residueTrace',
+                        r'CellDissection'), fr.closure(root)) - front
+print('R', len(R), pay.total_lines(R), 'prunable',
+      len(pay.prunable(root, R)), pay.total_lines(pay.prunable(root, R)),
+      'needed after',
+      len(frontier.needed(pay.cites, root, ported=front, avoided=R, cutters=None)))
+for i in sorted(pay.frontier(root, R), key=lambda i: -pay.lines(i)):
+    print('  rewire', pay.lines(i), pay.qual(i))
+PY
+```
+
+The same $`R`$ on `FLT.fermatLastTheorem` reproduces
+[riemann-roch-strategy.md](riemann-roch-strategy.md) §5.1 (27 / 64,873; prunable
+35 / 95,884; rewiring frontier 14).

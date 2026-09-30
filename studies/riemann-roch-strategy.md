@@ -3,7 +3,11 @@
 **Status.** Foundational question, split out of the Deligne–Serre weight-one scout
 (§4.1 there) because it is not incidental to that cone. The pin-only counts are
 against `anthropics/fermats-last-theorem@aa2d8b3`; the port/frontier numbers are a
-measurement of the date and move (frontier 541 at this measurement). Reproduce in §6.
+measurement of the date and move (**frontier 608 at the 2026-09-30 remeasurement**,
+up from 541). Reproduce in §6. The decision is recorded in §4.1: keep the algebraic
+engine, bridge to the canonical-genus / duality API, **prune the analytic residue
+block now** and **derive the weaker RR siblings**; §5.1 measures what each prune
+pays, and §6 of the scout carries the D-S-specific numbers.
 
 Companions: [../lean/topics/PORTING-RR.md](../lean/topics/PORTING-RR.md) (the port
 blueprint that consumes this study; phase 1 is the 14-node genus / index engine),
@@ -135,19 +139,22 @@ measurement):
 | group | nodes | `S_` lines | ported |
 |---|---:|---:|---:|
 | analytic residue / Tate machinery | 7 | 33,534 | 0 |
-| genus existence (Stichtenoth route) | 9 | 8,948 | 0 |
-| canonical divisor / genus | 6 | 4,483 | 0 |
+| genus existence (Stichtenoth route) | 9 | 8,948 | 9 |
+| canonical divisor / genus | 6 | 4,483 | 1 |
 | genus / `genusFF` comparisons | 16 | 4,330 | 0 |
-| finiteness of `LSpace` | 8 | 4,273 | 1 |
-| `ell` / Riemann inequality | 12 | 4,064 | 0 |
+| finiteness of `LSpace` | 8 | 4,273 | 3 |
+| `ell` / Riemann inequality | 12 | 4,064 | 6 |
 | differentials / $`\Omega`$ dimension | 7 | 2,572 | 0 |
-| index of speciality / $`H^1`$ | 3 | 296 | 0 |
-| full RR / index / duality statements | 4 | 210 | 0 |
-| **total** | **72** | **62,710** | **1** |
+| index of speciality / $`H^1`$ | 3 | 296 | 2 |
+| full RR / index / duality statements | 4 | 210 | 1 |
+| **total** | **72** | **62,710** | **22** |
 
 The structure is the **opposite of a hub**: the full-RR *statements* are four nodes
 totalling 210 lines, and almost every other node **cites nothing within the family**
-— each carries its own self-contained proof. The only assembly edges are the four
+— each carries its own self-contained proof. At the 2026-09-30 frontier 22 of the
+72 are ported — the whole Stichtenoth engine, the `ell` / index prelude and the
+canonical-divisor construction — leaving a **50-node** RR family still needed.
+The only assembly edges are the four
 full-RR lemmas plus `finite_and_finrank_regularDifferentials_eq_genus`,
 `genus_eq_genusFF`, `exists_genus_riemannIndex_of_isCurveOver`,
 `sum_ordDiff_D_le_two_mul_genusFF_of_isSeparable` and
@@ -290,21 +297,117 @@ must exist anyway. B is not viable on its own.
    candidates.
 4. Never try to derive finiteness or the canonical divisor from RR.
 
+### 4.1 Decision (2026-09-30): the algebraic engine plus a bridge; the analytic side deferred
+
+Phase 1 (the genus / index engine) and phase 2 (the canonical divisor) are landed, so
+**the algebraic Riemann–Roch is already in the port**: `exists_weilCanonical_riemannRoch`
+gives $`\exists W, \forall D, \ell D - \ell(W-D) = \deg D + 1 - g_{\mathrm{FF}}`$, on top
+of `exists_genus_riemannIndex_of_isCurveOver`, the index formula, $`\Omega`$-finiteness
+and `weilDifferentialRankOne_of_isCurveOver`. The D-S cone does **not** consume the
+analytic predicates directly. Its only RR leaves are
+
+- `genus_eq_genusFF` (5 consumers: `finsum_ramificationIndexAlong_sub_one_eq`,
+  `genusFF_sub_one_eq_of_isSplittingField_of_forall_dvd_ord`,
+  `sum_ordDiff_D_le_two_mul_genusFF_of_isSeparable`,
+  `ModularCurve.twelve_mul_add_mul_index_le_finrank_cuspForm_Gamma`,
+  `ModularCurve.two_mul_genusFF_add_card_fibres_le_finrank_add_two_of_gamma1_le`), which
+  takes `FunctionFieldRiemannRoch` and `WeilDualityAdelic` as hypotheses its consumers
+  supply; and
+- `finite_and_finrank_regularDifferentials_eq_genus` (8 consumers, including the
+  differentials ↔ cusp-forms transport), which in the pin derives
+  `FunctionFieldRiemannRoch` from `functionFieldRiemannRoch_of_isAlgClosed`.
+
+**Chosen: Option C, sharpened.**
+
+1. Keep the algebraic RR; do **not** port the 6,257-line
+   `functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed` — §3.1 shows it inlines
+   the Stichtenoth pole-divisor package the port already owns.
+2. Add a **bridge** (`RiemannRoch/Bridge.lean`, ≈300–500 lines) that re-proves the pin's
+   *statement* `functionFieldRiemannRoch_of_isAlgClosed` from the algebraic engine plus
+   plain `ResidueTheorem`. Concretely:
+   `weilOfKaehler_ne_zero_and_maximal` +
+   `weilOfKaehler_mem_omegaSpace_of_residueTheorem` give the pin's `hsup`; the
+   already-ported rank-one / index-formula / residue-pairing lemmas plus the pin's
+   `MirrorAssembly` (≈300 lines) give `RiemannIndexFormula` → `WeilOmegaEllAgrees` →
+   `WeilDualityAdelic` → `WeilDuality` → `FunctionFieldRiemannRoch`. Then
+   `genus_eq_genusFF` (30), `ell_canonicalDivisor_eq_genus_of_riemannRoch` (13),
+   `constantsAreBase_of_isAlgClosed` (≈40) and the rewired
+   `finite_and_finrank_regularDifferentials_eq_genus` (220) land at their pin
+   statements, so the consumers compile unchanged.
+3. The bridge is **conditional on `ResidueTheorem`**, exactly as phase 1's
+   `exists_linearEquiv_regularDifferentials_omegaSpace_zero` already is; the analytic
+   proof stays out of the RR route.
+4. The **analytic / residue-theorem block is deferred (TBD)**. Both routes are large and
+   siloed — `port_advise` prices the Tate/K-family route at 10 target files / 1,269
+   declarations (303 substitutions ≈6,434 lines) and the plain perfect-field route at 12
+   files / 1,008 declarations (155 substitutions ≈3,160 lines) — and the choice waits on
+   the differential-residue scope (`exists_ordDifferential_ge_neg_one_and_evalAt_eq_of_degree_eq_zero`,
+   `sum_fibre_evalAt_eq_zero_of_smul_D_mem_regularDifferentials`), which may force the
+   K-family. `HasCanonicalLocalResidueKStar` (the Cohen–Laurent prelude) is a shared
+   prerequisite of the bridge, the differentials headline, and both routes.
+
+**Measured (2026-09-30, frontier 608).** The D-S scout's §4.2 has the full working.
+Pruning the analytic block `residueTheorem|tateAgreement|residueTrace|CellDissection`
+costs the forward cone $`R =`$ 18 nodes / 46,321 lines and pays **prunable 24 nodes /
+56,383 lines**, taking the forward target from 1,897 to 1,874 needed nodes — a
+**23-node / 56,233-line saving** — while the bridge's ≈300–500 written lines are the
+whole cost of closing the gap and `ResidueTheorem` stays a hypothesis. Deferring the
+two differential-residue applications too makes it 25 / 57,007; deferring the whole
+analytic complex block (a separate subject, not RR) is 217 / 148,594. On the whole
+`FLT.fermatLastTheorem` root the same $`R`$ is 27 / 64,873 with prunable 35 / 95,884
+at a 14-node rewiring frontier (§5.1). The weaker-RR derivation set *inside the D-S
+cone* is only `degree_canonicalDivisor_eq_of_riemannRoch` (16),
+`ell_canonicalDivisor_eq_genus_of_riemannRoch` (13) and `genus_eq_genusFF` (30) —
+59 lines — because the port already owns the `ell` / index prelude; the larger
+`two_mul_genus_sub_two_eq_of_degree_canonical` takes the canonical-degree facts as
+hypotheses (a ramification computation, not a siloed RR proof), and the alternative
+*forms* (`ell_eq_degree_add_one_sub_genusFF…` 128, `cechRiemannRoch_of_genusReached`
+49, `weilDualityAdelic_of_isAlgClosed` 54, the pin's own Stichtenoth assemblies
+2,728 + 2,726) are outside the D-S cone; their whole-port prune is 10 nodes / 6,410
+lines with prunable 11 / 6,461 at a 102-node rewiring frontier. Both analytic
+routes — the Tate/K-family and the plain perfect-field family, together with the
+near-duplicate `_v2` variants — fall inside the same analytic $`R`$, so the port
+need not choose between them to get RR. The prune is therefore decided, not merely
+preferred.
+
+**Why this shape.** It is the only route that does not re-prove the genus / finiteness
+engine (§3.1); it leaves the canonical divisor to phase 2 rather than to RR (Option A's
+`hasCanonicalDivisor_of_isCurveOver` is a prerequisite constructed from `IsCurveOver`,
+not a consequence of RR); and it lands exactly the API the consumers call. The one thing
+it cannot avoid is a residue theorem: the identification $`\deg K = 2\gamma - 2`$ — that
+the Kähler canonical divisor is the Weil canonical divisor — *is* the residue-theorem
+content. That is why the bridge is stated over `ResidueTheorem` rather than over nothing,
+and why "algebraic RR" alone gives the formula against $`g_{\mathrm{FF}}`$ but not the
+canonical-genus form.
+
+**Consequence for the forward cone.** With the algebraic RR in place, the function-field
+layer of the Deligne–Serre scout (the per-file divisor / differential applications) can
+be ported now; only the two RR leaves and the differentials ↔ cusp-forms transport wait
+for the bridge and the residue theorem.
+
 ## 5. Measurement
 
-`port_advise` on the 71 needed nodes of the family (frontier 541): 142 `S_`+`Thm_`
-files / 2,780 declarations, **146 substitutions** (79 unique names, 3,838 lines
-already in the port), **441 names proved in ≥2 target files** (26,425 removable
-lines; 24,140 excluding the substituted names), an **8,225-line unique shared
-prelude**, and **≈34,500 projected new lines** (62,514 − 3,838 − 24,140), ≈45% less
-than the raw 62,514. The top removable names are the adelic/RR prelude
+`port_advise` on the **50 needed nodes** of the family (frontier 608, raw 44,572
+lines): 100 `S_`+`Thm_` files / 1,813 declarations, **328 substitutions** (255
+unique names, 7,079 lines already in the port — the port has absorbed the engine),
+**217 names proved in ≥2 target files** (10,839 removable lines; 8,153 excluding the
+substituted names), a **4,254-line unique shared prelude**, and **≈29,300 projected
+new lines** (44,572 − 7,079 − 8,153), 30% less than raw.
+
+At the previous measurement (frontier 541, 71 needed nodes / 62,514 raw lines) the
+same command read 142 files / 2,780 declarations, 146 substitutions (79 unique
+names, 3,838 lines), 441 shared names (26,425 removable; 24,140 excluding the
+substituted names), an 8,225-line prelude, and ≈34,500 projected lines (45% less).
+The top removable names then were the adelic/RR prelude
 (`adeleBddQuotSingleEquivResidueField` 1,240, `ell_le_ell_sub_single_add_deg` 1,040,
 `finrank_adeleBdd*` 720 + 680, `lSpaceShiftEquiv` 466,
-`indexOfSpecialty_eq_of_genusReached` 432, `ell_le_degree_add_ellZero` 410).
+`indexOfSpecialty_eq_of_genusReached` 432, `ell_le_degree_add_ellZero` 410) —
+exactly the engine the port now owns, which is why the remaining family's
+duplication is down to 30%.
 
-So the siloing is expensive (≈45% duplication) regardless of which form is chosen;
-a shared prelude pays for itself. The open empirical question is the two routes'
-marginal costs, which the same command answers on the route sub-sets.
+So the siloing was expensive (≈45% duplication) before the engine landed, and the
+shared prelude paid for itself. The remaining dedup-able mass is smaller, and §5.1
+shows the analytic route is now a **prune** rather than a port.
 
 ### 5.1 Prune: is either route avoidable?
 
@@ -312,13 +415,24 @@ marginal costs, which the same command answers on the route sub-sets.
 dropped, and what would have to be rewired. Its criterion is
 `prunable(R) = closure(root) \ closure(root with R deleted)` — a node is droppable only
 if every path from the root passes through `R` — and it reports the *rewiring frontier*,
-the kept nodes whose proofs directly cite a pruned node. Measured at frontier 541 on
-`FLT.fermatLastTheorem`:
+the kept nodes whose proofs directly cite a pruned node. The figures below are
+frontier-independent (the pin's root closure and the named $`R`$ sets) and reproduce
+at frontier 608; the D-S restriction is added after the table.
 
 | removed route | `R` | prunable | rewiring frontier |
 |---|---:|---:|---:|
 | Stichtenoth / adelic (9 nodes: `stichtenothGenusExists`, `finiteDimensional_lSpace_zero_of_constantsAreBase`, `exists_genus_riemannIndex_of_stichtenothGenusExists`, `RiemannGenusReachedAt.eq_of_ge`, `omegaSpace_finite_of_genusReached`, `indexOfSpecialty_eq_of_genusReached`, `indexOfSpecialty_eq_zero_of_genusReached`, `exists_riemannGenusReachedAt_nsmul_single_…`, `weilDualityAdelic_of_…`) | 11,437 lines | **9 / 11,437** | **70** |
 | analytic residue / Tate (all `residueTheorem*`, `tateAgreement`, `residueTrace*`, `CellDissection*`) | 64,873 lines | **35 / 95,884** | **14** |
+
+**The D-S restriction (2026-09-30).** Inside the Deligne–Serre forward cone the
+analytic $`R`$ is 18 nodes / 46,321 lines, prunable **24 nodes / 56,383 lines**, with
+a 6-node rewiring frontier, and the forward target's needed count falls
+1,897 → 1,874 — the **23-node / 56,233-line saving** that the bridge turns into a
+prune. Only one of the six rewiring nodes is the RR statement
+(`functionFieldRiemannRoch_of_isAlgClosed`), which the bridge supplies; the other
+five are complex-analytic or differential-residue consumers, so the analytic block
+itself stays deferred. The Stichtenoth $`R`$ cannot be pruned at all — 9 / 11,437
+with a 70-node rewiring frontier — because the port consumes its API everywhere.
 
 Reading the frontiers:
 
@@ -453,6 +567,18 @@ ancestors. What the function-field engine *does* make avoidable is the analytic 
 the analytic block for `ResidueTheorem` and differential residues only → the
 differentials ↔ cusp-forms transport → per-file applications.
 
+**Landed (2026-09-30).** Phase 1 of
+[PORTING-RR](../lean/topics/PORTING-RR.md) put the engine in the port, and phase 2
+added the canonical divisor. Written total ≈5,350 lines (phase 1) + 1,653 (phase 2)
+against the ≈3,700-line projection — the shared prelude was written once, as
+planned, but the projection under-counted the assemblies. The 14-node engine is
+`exists_genus_riemannIndex_of_stichtenothGenusExists`, the `RiemannGenusReachedAt`
+API, `indexOfSpecialty_eq_finrank_H1`, `exists_weilCanonical_riemannRoch` and the
+conditional `exists_linearEquiv_regularDifferentials_omegaSpace_zero`; `lake build`
+is green. What remains of the order above is the bridge (§4.1), then the analytic
+block for `ResidueTheorem` and the differential residues, then the transport and
+the per-file applications.
+
 ## 6. Reproduce
 
 ```bash
@@ -507,6 +633,49 @@ stich, _ = pay.ids([
  'AlgebraicCurve.weilDualityAdelic_of_functionFieldRiemannRoch_of_stichtenothGenusExists'])
 print('prunable', len(prune.prunable(pay.cites, root, stich)),
       'frontier', len(prune.frontier(pay.cites, root, stich)))
+PY
+```
+
+The D-S restriction of the analytic prune (§5.1):
+
+```bash
+cd tools/deps
+python3 - <<'PY'
+import frontier
+fr = frontier.Frontier(); pay = fr.pay; front = fr.frontier('union')
+root = pay.pid('DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen')
+R = pay.nodes_matching((r'residueTheorem', r'tateAgreement', r'residueTrace',
+                        r'CellDissection'), fr.closure(root)) - front
+print('R', len(R), pay.total_lines(R),
+      'prunable', len(pay.prunable(root, R)), pay.total_lines(pay.prunable(root, R)),
+      'needed after',
+      len(frontier.needed(pay.cites, root, ported=front, avoided=R, cutters=None)))
+PY
+```
+
+The weaker-RR whole-port prune:
+
+```bash
+cd tools/deps
+python3 - <<'PY'
+import frontier
+fr = frontier.Frontier(); pay = fr.pay
+root = pay.pid('FLT.fermatLastTheorem'); port = pay.closure(root)
+R, _ = pay.ids([
+ 'AlgebraicCurve.ell_eq_degree_add_one_sub_genusFF_of_isAlgClosed_of_isSeparable',
+ 'AlgebraicCurve.cechRiemannRoch_of_genusReached',
+ 'AlgebraicCurve.weilDualityAdelic_of_isAlgClosed',
+ 'AlgebraicCurve.riemannGenusReached_of_stichtenothGenusExists',
+ 'AlgebraicCurve.riemannIndexFormula_of_genusReached',
+ 'AlgebraicCurve.degree_canonicalDivisor_eq_of_riemannRoch',
+ 'AlgebraicCurve.ell_canonicalDivisor_eq_genus_of_riemannRoch',
+ 'AlgebraicCurve.genus_eq_genusFF',
+ 'ModularCurve.functionFieldRiemannRoch_modularFunctionFieldBar',
+ 'ModularCurve.ell_eq_degree_add_one_sub_genusFF_modularFunctionFieldFullC'])
+R = [i for i in R if i in port]
+print('R', len(R), pay.total_lines(R), 'prunable',
+      len(pay.prunable(root, R)), pay.total_lines(pay.prunable(root, R)),
+      'frontier', len(pay.frontier(root, R)))
 PY
 ```
 
