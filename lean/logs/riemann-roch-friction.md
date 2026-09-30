@@ -1755,3 +1755,187 @@ imports either module yet, so the fix is cascade-free: make the five public in
 copies. **3.2d (chunk 3, rows #290–#434, pin 6745–9499) is dispatched**, and it
 imports `LocalResidueCalculus` for the generic `p0n22_cpf_res_*` /
 `res_differentialCoeff_D_*` names (the master re-uses them 63×).
+
+**3.2d audit — the master file's #307–#404 are a duplicate of phase 2
+(2026-09-30).** `AUDIT-mathlib-p3-2d.md` (643 ln; 67 SUBSTITUTE / 65
+PROOF-INGREDIENT / 13 BESPOKE) found that **98 of the chunk's 145 rows merely
+re-prove the phase-2 pin file `S_AlgebraicCurve_hasCanonicalDivisor_of_isCurveOver.lean`**,
+whose port is `Canonical/HasCanonicalDivisor.lean`. 59 rows have exact public
+copies there; ten are `private` there (`ofPrime_congr_s12`,
+`inv_mem`/`div_mem_of_not_mem_centerIdeal`, `coe_toKSubalgebra`, the
+`Transcendental.*_s12`/`inv_s12` at :788–:813) and must be re-landed locally (the
+frozen-module rule) as promotion debt. The manager steered the running worker with
+this before it transcribed the block. Two other corrections: `Ideal.sum_ramification_inertia`
+does not exist in v4.34 (`…_eq_finrank`), and the brief's content list under-scoped
+chunk 3 by 98 rows. Lesson for the remaining chunks: **run the audit before
+choosing the chunk boundary where possible** — a pin S_ file can duplicate an
+already-ported pin file wholesale.
+
+### Set 3.2d — worker result (2026-09-30)
+
+Appended chunk 3 to `FLTForHuman/AlgebraicCurve/Defs/P1ResidueCore.lean` (rows
+#290–#434, pin 6745–9499 of the master ℙ¹ `S_` file). Module **2,429 → 3,974
+lines** (+4 specific imports, +1 blank, **+1,540 appended**). Append-only: chunks
+1–2 are byte-identical; the only header edit is the four added imports
+(`Mathlib.RingTheory.Kaehler.Polynomial`, `Mathlib.LinearAlgebra.Basis.Basic`,
+`Mathlib.RingTheory.RamificationInertia.Basic`, `Mathlib.Algebra.BigOperators.Field`).
+
+**98 declarations appended** — 82 public statement-checked (the checker parses 79
+theorems/defs plus the 3 `ValuationSubring.*` aliases; its `DECL_RE` skips the 3
+`scoped instance`s), 13 `private` helpers, 3 `scoped instance`s. Checker
+**3448 / 0 / 0 / 30** (3478 checked) → **3530 / 0 / 0 / 30** (3560 checked):
++82 identical, 0 mismatched / 0 missing. Forced
+`lake build FLTForHuman.AlgebraicCurve.Defs.P1ResidueCore` green: **16.7 s** wall
+(2843 jobs); only `P1ResidueCore.olean` moved (no cascade, no whole-tree build).
+`#print axioms` on all 85 reachable public declarations →
+`[propext, Classical.choice, Quot.sound]` (one distinct set). Consumer wire test
+(`spec/RiemannRochConsumer.lean`) exits 0. Hygiene clean.
+
+**The audit's big dedup applied.** 47 rows (#311–#317, #319–#320, #337–#352,
+#363–#370, #373, #394–#406) have exact public copies in
+`Canonical/HasCanonicalDivisor.lean` / `Defs/CanonicalLocalResidueInstanceV2.lean`
+and were omitted (imported), not re-transcribed. Nine name-translation rows landed
+as one-line aliases over the phase-2 `_s12` copies: `eq_top_of_idealOfLE_eq_bot`,
+`idealOfLE_ne_bot_of_ne_top`, `eq_of_isDiscreteValuationRing_of_le`, and the six
+`IntermediateField.*` (`adjoin_simple_inv`, `algebraMap_comp_equivOfEq`,
+`finiteDimensional_of_eq`, `isSeparable_of_eq`, `finiteDimensional_adjoin_inv`,
+`isSeparable_adjoin_inv`). New work transcribed from the pin: #290–#306 (ℙ¹ Kähler
+prelude, ramification wrappers, deg-one/principal-part), #321–#334, #354–#362
+(AdjoinRoot trace engine), #374–#387 (finite-place residue engine), #408–#420
+(placeInfty Euler value), #427–#434.
+
+**Out-of-measured-file / private-copy rows resolved locally `private` (10;
+promotion debt).** The phase-2 copies are `private`, so they cannot be imported and
+were re-landed at the pin names: `ValuationSubring.ofPrime_congr` (pin 7135),
+`Place.inv_mem_of_not_mem_centerIdeal` (7892), `Place.div_mem_of_not_mem_centerIdeal`
+(7906), `Place.toKSubalgebra` (8415), and the six `Transcendental.*` /
+`Algebra.FiniteType.adjoin_singleton` rows (8824/8831/8837/8843/8849/8854). Their
+public homes are `HasCanonicalDivisor.lean:372/498/512/755/788–813` (`_s12`
+suffixes); the closeout refactor should promote those and delete these copies.
+
+**BLOCKER on the work order's `import LocalResidueCalculus` instruction.** The
+order says to add `import FLTForHuman.AlgebraicCurve.Defs.LocalResidueCalculus` and
+draw the generic `p0n22_cpf_res_*` / `res_differentialCoeff_D_*` /
+`gate_canonicalLocalResidueDataK_uniformizer_inv` names from it. That import is
+**impossible without editing frozen code**: `LocalResidueCalculus.lean:384`
+re-declares `AlgebraicCurve.gate_canonicalLocalResidueDataK_uniformizer_inv`, which
+`P1ResidueCore.lean:1095` (chunk 2) already declares publicly, so importing it is a
+duplicate-declaration error. Neither module may be edited (3.2d′ is frozen; chunks
+1–2 are append-only), so the import was **omitted**. Rows #290–#434 contain **zero**
+references to the generic local-residue names (grep over pin 6745–9499: `p0n22_cpf_`
+0, `ag9b15u_` 0, `D_pow_succ_inv` 0, `res_differentialCoeff_D_of_` 0,
+`gate_canonicalLocalResidueDataK_uniformizer_inv` 0), so nothing is lost in this
+chunk; the 63 master-file references all live in later chunks. The 3.2 closeout
+refactor must first drop the chunk-2 `gate_...` copy (or rename the 3.2d′ one)
+before any `P1ResidueCore → LocalResidueCalculus` import can be added.
+
+**Drift applied.** `Ideal.sum_ramification_inertia` → `Ideal.sum_ramification_inertia_eq_finrank`
+(#297; the `Finset s` form reuses the `FiberOverCount.lean:44–100` bridge recipe,
+including the `ramificationIdx'_eq_ramificationIdx` / `inertiaDeg'_eq_inertiaDeg`
+conversions); `Polynomial.degree_sub_lt` → `Polynomial.degree_sub_lt_left` (#434);
+`Basis.*` → `Module.Basis.*` under `open Module` (the pin's `Basis` spelling is kept
+in the declarations); generic `Finset.sum_div` was missing from the import closure
+(added `Mathlib.Algebra.BigOperators.Field`); `K⟮t⟯` needs
+`open scoped IntermediateField` outside the `IntermediateField` namespace (#427–#434).
+`KaehlerDifferential.polynomialEquiv` / `tensorKaehlerEquivOfFormallyEtale` needed
+`Mathlib.RingTheory.Kaehler.Polynomial`.
+
+**Forward references.** None: the last row #434 ends at pin line 9499 exactly; no
+row past the boundary is reached.
+
+**Manager review — 3.2d chunk 3 ACCEPTED, plus the dedup refactor (2026-09-30).**
+Independently re-run: checker **3448 → 3530 identical / 0 mismatched / 0 missing /
+30 own-proof** before the refactor; build green (16.7 s, 2843 jobs, no cascade);
+axioms clean; hygiene clean. The audit (`AUDIT-mathlib-p3-2d.md`, 643 ln; 67/65/13)
+had found that **98 of the chunk's 145 rows re-prove the phase-2 file**, and the
+manager steered the worker before it transcribed them; 47 rows were omitted as exact
+public copies and 9 landed as one-line `_s12` aliases. Ten pin-private `_s12` rows
+were re-landed `private` (promotion debt).
+
+**Blocked import, fixed by a bounded refactor.** The chunk-3 order told the worker
+to `import Defs/LocalResidueCalculus`, but both modules declared
+`gate_canonicalLocalResidueDataK_uniformizer_inv` **publicly** → duplicate name on
+import. The manager's first attempt (a scripted bulk removal of all six duplicates)
+mangled section structure and was reverted from a backup; the correct minimal fix
+was to remove only the core's unused `gate_…` copy (it had no in-module consumer)
+and add the import, leaving the five `private` helpers duplicated (mangled names, no
+clash) as recorded debt. Post-refactor: checker **3529 / 0 / 0 / 30** (3559 checked),
+forced build green (18.1 s), `LocalResidueCalculus` unchanged. **Lesson:** a
+scripted "delete declaration to next declaration" pass crosses `section`/`end`
+boundaries — do declaration surgery by hand or with a namespace-aware parser, and
+always back up first. **3.2e (chunk 4, rows #435–#579, the residue computation and
+the atom-1 headline) is dispatched** with `AUDIT-mathlib-p3-2e.md`.
+
+### Set 3.2e — worker result (2026-09-30)
+
+**Landed.** Append-only chunk 4 of `Defs/P1ResidueCore.lean`: rows **#435–#579**
+(pin lines 9500–13173, the end of the master ℙ¹ `S_` file), **2,499 written lines**,
+module **3,971 → 6,470 ln**. No statement of chunks 1–3 was touched.
+
+**Inventory undercount (145 → 147).** The inventory `p32_master_inventory.txt` rows
+435–579 missed two `scoped instance (priority := low)` rows: pin 10166
+`AlgebraicCurve.RationalFunctionField.instDCoordGenerates` (body
+`ModularCurve.gate_dCoordGenerates_of_ratFunc_sat ⟨AlgEquiv.refl⟩ v`) and pin 10880
+`…instDCoordGeneratesPerfectField` (body = row #493
+`exists_ne_zero_smul_dX_of_uniformizer`). Both landed; the checker's `DECL_RE` skips
+`scoped instance`, so they are verified by the build only. New declarations after the
+28 substitutions: **119 public + 1 local `private` re-land** (#469, below).
+
+**Substitutions imported (28 rows; nothing re-transcribed).** #459
+`Place.dCoordGenerates_of_valSubringKaehlerSpanTop` (`HasCanonicalDivisor.lean:987`);
+#468 `D_pow_succ_inv`, #469 `Place.differentialCoeff_add''` (private), #470
+`Place.differentialCoeff_D_uniformizer_pow_inv` (private), #480/#481
+`CanonicalLocalResidueDataK.res_differentialCoeff_D_of_{mem_poleSubmodule,surj}`,
+#500 `ag9b13t_res_differentialCoeff_D_mul_pow_inv_of_surj_of_natCast_ne_zero`
+(private), and the whole `p0n22_cpf_*` cone #554–#574 — all in
+`Defs/LocalResidueCalculus.lean` (`:96/:109/:114/:127/:170/:191`, cone `:397–1182`).
+Load-bearing imported names used by the new proofs:
+`gate_canonicalLocalResidueDataK_uniformizer_inv` (LRC:384), `D_pow_succ_inv`,
+`res_differentialCoeff_D_of_surj`, and row #575's call to the generic
+`p0n22_cpf_res_differentialCoeff_D_mul_pow_inv_of_surj`. Omissions #459/468/469/470/
+480/481/500/554–574 are the exact 28 the audit lists.
+
+**#459 double-declaration caught before build.** The first generated append kept
+`Place.dCoordGenerates_of_valSubringKaehlerSpanTop` and re-declared the imported
+`HasCanonicalDivisor.lean:987` copy; the audit flagged it and #459 joined the omit
+list. #460 `…_of_valSubringKaehlerFinite_of_charZero` now calls the imported copy.
+
+**One pin-private helper re-landed `private`.** #469 `differentialCoeff_add''` has an
+in-append consumer (row #483's proof uses `v.differentialCoeff_add''`); LRC's copy is
+`private` and unimportable, so the pin's private declaration was re-landed verbatim
+in `P1ResidueCore` (the same recorded-debt pattern as `ord_add_eq_min` and the four
+`ag9b15u_*`). #470 and #500 have **no** in-append consumer and are imported outright.
+The five helpers private in both modules were left untouched; the new chunk uses
+`P1ResidueCore`'s module-local copies.
+
+**v4.34 / scaffolding drift fixed in the append.** The pin's `p2m_open`/`p2m_export`/
+`p2m_reactivate`/`p2m_open_scoped` scaffolding was dropped; the name-opening it did
+was replaced by `open scoped IntermediateField Polynomial AlgebraicCurve
+AlgebraicCurve.RationalFunctionField` plus `open KaehlerDifferential Module
+IntermediateField` at the head of the chunk (`p2m_open` also runs `activateScoped`,
+so the scoped `instDCoordGenerates*`/`instHasCanonicalDivisorRatFunc*` instances must
+be opened explicitly). `K⟮t⟯` needs `open scoped IntermediateField` outside the
+`IntermediateField` namespace; `AdjoinSimple.gen` needs `open IntermediateField`. The
+pin's `if_pos`/`if_neg`, `Set.mem_setOf_eq` and `Polynomial.degree_sub_lt` drift all
+sit in chunks 1–3, not here.
+
+**Chunk-1–3 defect worked around (no frozen edit).** The port's
+`p1DifferentialCoeffRegularFinite_of_unitFinite` dropped the pin's `omit … in`, so the
+port copy carries four extra instance binders. Row #495
+`p1DifferentialCoeffRegularFinite_dX_of_perfectField` therefore inlines the one-line
+proof body instead of calling it (statement verbatim). A closeout refactor can restore
+the `omit` in chunk 1–3 and revert #495 to the pin's call.
+
+**Verification.** Checker **3529 / 0 / 0 / 30** (3559 checked) → **3642 / 0 / 0 / 30**
+(3672 checked), +113 identical / +113 checked. Forced per-module
+`flock … lake build FLTForHuman.AlgebraicCurve.Defs.P1ResidueCore` green (26.9 s,
+2844 jobs); only `P1ResidueCore.olean` moved (nothing imports it yet). `#print axioms`
+on the headline and 20 further public rows (the `p0n22`/`p0n21`
+`residueTheoremK_ratFunc…` endings, `kaehlerResidueFunctionalK_dX_eq_zero`, the
+`ag9b{12c,13e}_*` Euler rows, the `res_differentialCoeff_D_*` rows, `IsPurelyTranscendentalSimple.congr`,
+the two scoped `instDCoordGenerates*` and the two `instHasCanonicalDivisorRatFunc*`)
+→ `[propext, Classical.choice, Quot.sound]` throughout. Hygiene clean; no
+`sorry`/`admit`/`axiom`/`import Mathlib`. The headline `solution` is published as
+`AlgebraicCurve.RationalFunctionField.trace_localResidue_placeInfty_X_pow_eq_zero`
+(the wrapper's name). **Out-of-set declarations: none. Forward references: none
+(this is the last chunk).** Scratch `lean/ScratchP32e.lean` removed.

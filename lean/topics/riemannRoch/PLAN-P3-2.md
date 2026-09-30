@@ -240,16 +240,26 @@ the `p0n22_cpf_res_*` names it defines sit under the ℙ¹ computation.
 
 4. **Subject homes, not lumping (human, 2026-09-30: "large enough to deserve
    natural subject homes").** Adopted:
-   - the 1,244-line generic local-residue calculus → **`Defs/LocalResidueCalculus.lean`**
-     (set 3.2d′, dispatched **before** chunk 3, since the ℙ¹ core re-uses its names);
+   - **`Defs/` is for definitions only; a theory file must not live there (human,
+     2026-09-30).** The 1,244-line generic local-residue calculus moves out of
+     `Defs/` to a **new subject theory directory `AlgebraicCurve/LocalResidue/`**
+     (file `Calculus.lean`); its companion definitions (`Defs/PlaceEvaluation.lean`)
+     stay in `Defs/`. **The move is executed at the 3.2e gate** (renaming now would
+     race the running chunk-4 worker, which appends to a module that imports it).
+     `AlgebraicCurve/` has no top-level `.lean` files today, so a dir is the
+     idiomatic choice; `LocalResidue/` is the human-suggested "Local … or something
+     else descriptive".
+   - the same rule applies to the ℙ¹ core: `Defs/P1ResidueCore.lean` is the ℙ¹
+     residue **theory**, so it should follow into `AlgebraicCurve/LocalResidue/`
+     (e.g. `P1Core.lean`) once the 3.2 closeout refactor round collapses the
+     `private`-helper duplication; `Defs/P1Dictionary.lean` (the ℙ¹ place/ord
+     dictionary) is definitional and stays in `Defs/`.
    - the ~1,803-line `evalAt` trace/norm/fiber API → a `PlaceEvaluation`-adjacent
-     home (`Defs/PlaceEvaluationFiber.lean`) when the forward cone reaches it, not
-     folded into the ℙ¹ dictionary;
+     home when the forward cone reaches it, not folded into the ℙ¹ dictionary;
    - the seven `evalAt`/`IsRational` leaves now in `Defs/P1Dictionary.lean` → move to
      `Defs/PlaceEvaluation.lean` in the next refactor round;
-   - the ℙ¹ core stays one role (`Defs/P1ResidueCore.lean`) but is split into
-     **subject sections** inside it; if it passes ~4k lines the sections become
-     modules (`P1PlaceOrd`, `P1DifferentialCoeff`, `P1PrincipalParts`, `P1Atoms`).
+   - if the core passes ~4k lines, its subject sections become modules inside
+     `LocalResidue/` (`P1PlaceOrd`, `P1DifferentialCoeff`, `P1PrincipalParts`, `P1Atoms`).
 
 ### 3.3 Closeout — 3.2c chunk 2 ACCEPTED (2026-09-30)
 
@@ -286,3 +296,40 @@ the generic module must precede the core's later chunks and cannot import them. 
 fix: make the five public in `LocalResidueCalculus`, import it from `P1ResidueCore`,
 drop the core's copies. **3.2d (chunk 3, rows #290–#434) is dispatched** with
 `AUDIT-mathlib-p3-2d.md`.
+
+### 3.5 Closeout — 3.2d chunk 3 ACCEPTED, and the dedup refactor (2026-09-30)
+
+`P1ResidueCore.lean` 2,429 → **3,971 ln** (rows #290–#434). Manager re-verified:
+checker **3448 → 3530** before the refactor, build green (16.7 s, no cascade),
+axioms clean. The audit found that **98 of the chunk's 145 rows re-prove the phase-2
+canonical-divisor file**; the manager steered the worker before it hit the block, so
+47 rows were omitted as exact public copies and 9 landed as `_s12` aliases. Ten
+pin-private `_s12` rows were re-landed `private` (promotion debt).
+
+**Dedup refactor (bounded, one pass).** The chunk-3 order's
+`import Defs/LocalResidueCalculus` was blocked because both modules declared
+`gate_canonicalLocalResidueDataK_uniformizer_inv` publicly. Fix: remove the core's
+unused copy and add the import, leaving the five `private` helpers duplicated
+(mangled names, no clash). A first scripted bulk removal mangled section structure
+and was reverted from backups — **do declaration surgery by hand**, not by line
+range. Post-refactor: checker **3529 / 0 / 0 / 30** (3559 checked), builds green.
+
+**3.2e (chunk 4, rows #435–#579, the ℙ¹ residue computation and the atom-1 headline)
+is dispatched** with `AUDIT-mathlib-p3-2e.md`. Its `residueTheoremK_ratFunc_of_isAlgClosed_*`
+rows are the shared K-base engine (row 6 stays residual).
+
+### 3.6 Closeout — 3.2e chunk 4 ACCEPTED; master ℙ¹ file COMPLETE (2026-09-30)
+
+`P1ResidueCore.lean` 3,971 → **6,470 ln** (rows #435–#579, pin 9500–13173). Manager
+re-verified: checker **3529 → 3642 identical / 0 mismatched / 0 missing / 30
+own-proof** (3672 checked); build green (26.9 s, 2844 jobs, no cascade); axioms clean
+on the headline + 20 representative rows; hygiene clean. The file region has **147**
+declarations, not the inventory's 145 (two `scoped instance`s missed and landed).
+The `AUDIT-mathlib-p3-2e.md` corrections were applied by the worker (#459 omitted;
+the two instances added).
+
+**The master ℙ¹ file is fully ported.** Row 2's remaining work is the three sibling
+atom/base files' unique tails (~1k) plus the closeout refactor. **This session stops
+here by human instruction**, with [HANDOFF-P3-2.md](HANDOFF-P3-2.md) carrying the
+state, the `Defs/` theory-move audit (human directive: `Defs/` is definitions only),
+the recorded debts, and the remaining rows 3.3–3.7.

@@ -81,6 +81,27 @@ API (`KaehlerDifferential.map`, `.D`, basis/rank-one lemmas), `PerfectField`/
 for the monic computations, `Valuation.map_add_of_distinct_val`. Do not bank an
 unelaborated claim.
 
+**Audit result (`AUDIT-mathlib-p3-2d.md`, landed — 67 SUBSTITUTE / 65
+PROOF-INGREDIENT / 13 BESPOKE over 145 rows).** The headline: **rows #307–#404
+(98 rows!) merely duplicate the phase-2 pin file
+`S_AlgebraicCurve_hasCanonicalDivisor_of_isCurveOver.lean`**, whose port is
+`Canonical/HasCanonicalDivisor.lean` — import, do not re-transcribe. 59 rows have
+exact public copies there (unsuffixed names); some phase-2 copies carry the pin's
+own `_s12` suffix (`eq_top_of_idealOfLE_eq_bot_s12`, the six
+`IntermediateField.*_s12`, …) and need aliases. **Ten substitutes are `private` in
+`HasCanonicalDivisor`** (`ofPrime_congr_s12`, `inv_mem`/`div_mem_of_not_mem_centerIdeal`,
+`coe_toKSubalgebra`, the `Transcendental.*_s12`/`inv_s12` at :788–:813) — re-land
+them `private` locally at the pin names and report as promotion debt; **do not edit
+`HasCanonicalDivisor`**. #319/#320 import from
+`Defs/CanonicalLocalResidueInstanceV2.lean:1656/1668`; #328 is already
+`RationalFunctionField.instHasPrincipalDivisors` (`P1ResidueCore.lean:866`); the ℙ¹
+Kähler block #292–#296 is mathlib-only. The genuinely new rows are #290–#306, #321,
+#354–#362 (AdjoinRoot trace engine), #374–#387 (finite-place residue engine),
+#408–#420 (placeInfty Euler value), #429–#434. Drift: `Ideal.sum_ramification_inertia`
+does not exist in v4.34 — it is `Ideal.sum_ramification_inertia_eq_finrank`; reuse
+`WeilExchange/FiberOverCount.lean:44–100`; generic `Finset.sum_div` is gone;
+`Polynomial.degree_sub_lt` → `degree_sub_lt_left`; `K⟮t⟯` needs `open IntermediateField`.
+
 ## 4. Build discipline, checker wiring, report shape
 
 As 3.2b §4–§7. The checker wiring is **already done** for this module (the master

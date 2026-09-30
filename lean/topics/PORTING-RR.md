@@ -215,7 +215,14 @@ commands are in [riemannRoch/PLAN-P3-2.md](riemannRoch/PLAN-P3-2.md). **3.2a (th
 [riemannRoch/AUDIT-mathlib-p3-2a.md](riemannRoch/AUDIT-mathlib-p3-2a.md) and the
 closeout in PLAN-P3-2 §3.1. The audit found two scope gaps the 91-declaration
 measurement missed (the dropped `placeOfPoint` block and `PlaceEvaluationAlgebra`),
-so every later 3.2 block is audited before acceptance.
+so every later 3.2 block is audited before acceptance. **As of 2026-09-30 the master
+ℙ¹ file is fully ported**: `Defs/P1ResidueCore.lean` (6,470 ln, declarations
+#0–#579, including the atom-1 headline and the shared K-base engine) plus
+`Defs/LocalResidueCalculus.lean` (3.2d′) and the 3.2a modules; checker **3642 / 0 / 0
+/ 30**. Row 2's remaining tails, the `Defs/` definitions-vs-theory move audit and
+the closeout refactor are in
+[riemannRoch/HANDOFF-P3-2.md](riemannRoch/HANDOFF-P3-2.md) (this session's handoff;
+`Defs/` is for definitions only — theory files move to subject dirs).
 
 Homes and discipline:
 
