@@ -60,11 +60,19 @@ def wt (N p : ℕ) (x : OnePoint (ZMod p)) : ZMod N := x.elim (p : ZMod N) (fun 
 
 @[simp] theorem wt_coe {N : ℕ} (j : ZMod p) : wt N p j = 1 := rfl
 
-theorem isUnit_wt {N : ℕ} (hp : p.Prime) (hpN : ¬ p ∣ N) (x : OnePoint (ZMod p)) :
+section IsUnitWt
+
+variable [Fact p.Prime]
+
+/-- H2 reconciliation: the pin's `isUnit_wt` statement without the redundant
+`hp : p.Prime` hypothesis (the pin derives it from the `Fact p.Prime` instance). -/
+theorem isUnit_wt {N : ℕ} (hpN : ¬ p ∣ N) (x : OnePoint (ZMod p)) :
     IsUnit (wt N p x) := by
   induction x using OnePoint.rec with
-  | infty => exact ZMod.isUnit_prime_of_not_dvd hp hpN
+  | infty => exact ZMod.isUnit_prime_of_not_dvd Fact.out hpN
   | coe j => exact isUnit_one
+
+end IsUnitWt
 
 variable {N : ℕ}
 
@@ -94,7 +102,7 @@ theorem d_mul {γ₁ γ₂ : SL(2, ℤ)} (h₁ : γ₁ ∈ CongruenceSubgroup.Ga
   have := map_mul (CongruenceSubgroup.Gamma0Map N) ⟨γ₁, h₁⟩ ⟨γ₂, h₂⟩
   exact this
 
-theorem det_mod (γ : SL(2, ℤ)) (hγ : γ ∈ CongruenceSubgroup.Gamma0 N) :
+theorem det_mod {N : ℕ} (γ : SL(2, ℤ)) (hγ : γ ∈ Gamma0 N) :
     ((γ 0 0 : ℤ) : ZMod N) * ((γ 1 1 : ℤ) : ZMod N) = 1 := by
   have hc : ((γ 1 0 : ℤ) : ZMod N) = 0 := by simpa using CongruenceSubgroup.Gamma0_mem.mp hγ
   have hdet : γ 0 0 * γ 1 1 - γ 0 1 * γ 1 0 = 1 := by
@@ -299,5 +307,18 @@ theorem diamondLinOne_one : diamondLinOne M k 1 = LinearMap.id := by
 end Diamond
 
 end ModularForm.Level
+
+/- The pin's `Definitions/Def_CuspForm_Gamma1HeckeOperators.lean` declares
+`slashOfMemGamma0` and `diamondLinOne` under `namespace CuspForm`; this port
+homes them in `ModularForm.Level`. The `Theorems/` wrappers of the Γ₁-Hecke
+targets spell them `CuspForm.slashOfMemGamma0` / `CuspForm.diamondLinOne` (the
+statement checker is textual and does not strip that qualification), so restore
+the pin's spelling as an export alias. `export` introduces no checker-visible
+declaration. -/
+namespace CuspForm
+
+export ModularForm.Level (slashOfMemGamma0 diamondLinOne)
+
+end CuspForm
 
 end

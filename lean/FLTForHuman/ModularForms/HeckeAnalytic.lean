@@ -176,6 +176,27 @@ theorem mdifferentiable_heckeU {f : UpperHalfPlane → ℂ}
   Finset.sum_induction _ (fun g : ℍ → ℂ => MDiff g) (fun _ _ ha hb => ha.add hb)
     mdifferentiable_const (fun _ _ => hf.slash k _)
 
+/- H2 reconciliation of the `mdifferentiable_heckeU` binder-explicitness clash:
+the pin `Def_`/`S_` copy with `k p` as section variables, so the S_ theorem sets
+can use `mdifferentiable_heckeU hF`. Kept in a distinct namespace beside the
+`Theorems/`-wrapper copy above; both verify. -/
+section MdiffHeckeU
+
+variable {k : ℤ} {p : ℕ}
+
+namespace HeckeGamma1
+
+/-- The pin's section-variable `mdifferentiable_heckeU`. -/
+theorem mdifferentiable_heckeU {F : ℍ → ℂ}
+    (hF : MDifferentiable (modelWithCornersSelf ℂ ℂ) (modelWithCornersSelf ℂ ℂ) F) :
+    MDifferentiable (modelWithCornersSelf ℂ ℂ) (modelWithCornersSelf ℂ ℂ) (heckeU k p F) :=
+  Finset.sum_induction _ (fun g : ℍ → ℂ => MDiff g) (fun _ _ ha hb => ha.add hb)
+    mdifferentiable_const (fun _ _ => hF.slash k _)
+
+end HeckeGamma1
+
+end MdiffHeckeU
+
 /-- `T_p` preserves holomorphy. Stated verbatim from
 `Theorems/Thm_ModularForm_mdifferentiable_heckeT.lean`. -/
 theorem mdifferentiable_heckeT {f : UpperHalfPlane → ℂ}

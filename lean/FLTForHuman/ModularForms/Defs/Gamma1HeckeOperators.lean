@@ -30,11 +30,11 @@ set_option autoImplicit false
 
 noncomputable section
 
-namespace CuspForm.Gamma1Hecke
-
 open Matrix.SpecialLinearGroup UpperHalfPlane ModularForm
-open ModularForm.HeckeRepresentatives
-open scoped MatrixGroups ModularForm OnePoint Manifold
+open ModularForm.HeckeRepresentatives ModularForm.Level
+open scoped MatrixGroups ModularForm OnePoint Manifold ModularForm.HeckeRepresentatives
+
+namespace CuspForm.Gamma1Hecke
 
 def heckeMatrixQ (p j : ℕ) (hp : p ≠ 0) : GL (Fin 2) ℚ :=
   Matrix.GeneralLinearGroup.mkOfDetNeZero !![(1 : ℚ), (j : ℚ); 0, (p : ℚ)]
@@ -133,7 +133,7 @@ theorem sum_slash_mapGL_of_mem_Gamma0 (hpN : ¬ p ∣ N) (f : ℍ → ℂ)
             d_mul (lift_mem σ hσ x) hg'N, lift_apply_one_one σ hσp, lift_apply_one_one σ hσp,
             mul_comm (wt N p x), hd', mul_assoc] at h1
           have hu : IsUnit (((g 1 1 : ℤ) : ZMod N) * wt N p (redMatrix p g • x)) :=
-            (isUnit_d hg).mul (isUnit_wt Fact.out hpN _)
+            (isUnit_d hg).mul (isUnit_wt hpN _)
           exact hu.mul_left_injective (h1.trans (one_mul _).symm)
         have hDmem : D ∈ CongruenceSubgroup.Gamma1 N := mem_Gamma1_of_d_eq_one hDmem0 hDd
         have hfactor : mapGL ℝ (lift σ x) * heckeRep p x * mapGL ℝ g

@@ -15,9 +15,10 @@
     `mapGL ℝ g` stays in the coset system. **The equation conjunct is kept.** The
     port's old private copy in `PhiGenDescends.lean` had dropped the
     `g' 1 0 = …` conjuncts; the Γ₀ invariance proofs need
-    `g' 1 0 = p * g 1 0` (resp. `= g 1 0`, `= e`) to show `g' ∈ Γ₀(N)`. The
-    statements here restore them, so the private copies are deleted rather than
-    promoted. These four keep the Γ₀ `S_` copy's two-conjunct statements.
+    `g' 1 0 = p * g 1 0` (resp. `= g 1 0`, `= e`) to show `g' ∈ Γ₀(N)`. H2 promoted
+    the pin's **three-conjunct** statements (the phase-D `_11` refinements) to the
+    public pin names; the weaker two-conjunct `S_`-file statements are kept
+    `private` as `…_two` for the one internal consumer `heckeMatrix_mul_of_dvd`.
   - `heckeRep_mul`: **SET-2 (PORTING-Level) restores the pin's public Tier-2
     statement** (`Def_CuspForm_Gamma1HeckeOperators.lean:281–285`): the
     hypothesis is `g ∈ Γ₀(N)` and the result additionally tracks the witness's
@@ -60,7 +61,7 @@ open scoped MatrixGroups ModularForm OnePoint
 namespace ModularForm.HeckeRepresentatives
 
 @[simp] theorem mapGL_apply (g : SL(2, ℤ)) (i j : Fin 2) :
-    (mapGL ℝ g : GL (Fin 2) ℝ) i j = ((g i j : ℤ) : ℝ) := by
+    (Matrix.SpecialLinearGroup.mapGL ℝ g : GL (Fin 2) ℝ) i j = ((g i j : ℤ) : ℝ) := by
   simp
 
 theorem det_eq (g : SL(2, ℤ)) : g 0 0 * g 1 1 - g 0 1 * g 1 0 = 1 := by
@@ -73,7 +74,7 @@ variable {p : ℕ} (hp : p ≠ 0)
 include hp
 
 set_option backward.isDefEq.respectTransparency.types false in
-theorem heckeMatrix_mul_of_eq (g : SL(2, ℤ)) (j j' : ℕ) (e : ℤ)
+private theorem heckeMatrix_mul_of_eq_two (g : SL(2, ℤ)) (j j' : ℕ) (e : ℤ)
     (he : g 0 1 + j * g 1 1 = j' * (g 0 0 + j * g 1 0) + p * e) :
     ∃ g' : SL(2, ℤ), g' 1 0 = p * g 1 0 ∧
       heckeMatrix p j * mapGL ℝ g = mapGL ℝ g' * heckeMatrix p j' := by
@@ -90,7 +91,7 @@ theorem heckeMatrix_mul_of_eq (g : SL(2, ℤ)) (j j' : ℕ) (e : ℤ)
       | ring1
 
 set_option backward.isDefEq.respectTransparency.types false in
-theorem heckeMatrix_mul_of_eq' (g : SL(2, ℤ)) (j : ℕ) (e : ℤ)
+private theorem heckeMatrix_mul_of_eq'_two (g : SL(2, ℤ)) (j : ℕ) (e : ℤ)
     (he : g 0 0 + j * g 1 0 = p * e) :
     ∃ g' : SL(2, ℤ), g' 1 0 = g 1 0 ∧
       heckeMatrix p j * mapGL ℝ g = mapGL ℝ g' * heckeDiagMatrix p := by
@@ -107,7 +108,7 @@ theorem heckeMatrix_mul_of_eq' (g : SL(2, ℤ)) (j : ℕ) (e : ℤ)
       | ring1
 
 set_option backward.isDefEq.respectTransparency.types false in
-theorem heckeDiagMatrix_mul_of_eq (g : SL(2, ℤ)) (j' : ℕ) (e : ℤ)
+private theorem heckeDiagMatrix_mul_of_eq_two (g : SL(2, ℤ)) (j' : ℕ) (e : ℤ)
     (he : g 1 1 = g 1 0 * j' + p * e) :
     ∃ g' : SL(2, ℤ), g' 1 0 = g 1 0 ∧
       heckeDiagMatrix p * mapGL ℝ g = mapGL ℝ g' * heckeMatrix p j' := by
@@ -124,7 +125,7 @@ theorem heckeDiagMatrix_mul_of_eq (g : SL(2, ℤ)) (j' : ℕ) (e : ℤ)
       | ring1
 
 set_option backward.isDefEq.respectTransparency.types false in
-theorem heckeDiagMatrix_mul_of_eq' (g : SL(2, ℤ)) (e : ℤ) (he : g 1 0 = p * e) :
+private theorem heckeDiagMatrix_mul_of_eq'_two (g : SL(2, ℤ)) (e : ℤ) (he : g 1 0 = p * e) :
     ∃ g' : SL(2, ℤ), g' 1 0 = e ∧
       heckeDiagMatrix p * mapGL ℝ g = mapGL ℝ g' * heckeDiagMatrix p := by
   have hdet := det_eq g
@@ -139,11 +140,10 @@ theorem heckeDiagMatrix_mul_of_eq' (g : SL(2, ℤ)) (e : ℤ) (he : g 1 0 = p * 
       | (have := congrArg (Int.cast : ℤ → ℝ) he; push_cast at this ⊢; linear_combination -this)
       | ring1
 
--- Tier-2 refinement of `heckeMatrix_mul_of_eq` exposing the `1 1` entry of
--- the witness; it is used only by the strengthened `heckeRep_mul`, while the
--- public Γ₀ copy keeps the two-conjunct statement.
+-- The pin's public three-conjunct statement (promoted from the phase-D `_11`
+-- refinement; the two-conjunct Γ₀ copy above is kept `private` as `…_two`).
 set_option backward.isDefEq.respectTransparency.types false in
-private theorem heckeMatrix_mul_of_eq_11 (g : SL(2, ℤ)) (j j' : ℕ) (e : ℤ)
+theorem heckeMatrix_mul_of_eq (g : SL(2, ℤ)) (j j' : ℕ) (e : ℤ)
     (he : g 0 1 + j * g 1 1 = j' * (g 0 0 + j * g 1 0) + p * e) :
     ∃ g' : SL(2, ℤ), g' 1 0 = p * g 1 0 ∧ g' 1 1 = g 1 1 - g 1 0 * j' ∧
       heckeMatrix p j * mapGL ℝ g = mapGL ℝ g' * heckeMatrix p j' := by
@@ -159,9 +159,9 @@ private theorem heckeMatrix_mul_of_eq_11 (g : SL(2, ℤ)) (j j' : ℕ) (e : ℤ)
       | (have := congrArg (Int.cast : ℤ → ℝ) he; push_cast at this ⊢; linear_combination -this)
       | ring1
 
--- Tier-2 refinement of `heckeMatrix_mul_of_eq'` exposing the `1 1` entry.
+-- The pin's public three-conjunct statement (promoted from `_11`).
 set_option backward.isDefEq.respectTransparency.types false in
-private theorem heckeMatrix_mul_of_eq'_11 (g : SL(2, ℤ)) (j : ℕ) (e : ℤ)
+theorem heckeMatrix_mul_of_eq' (g : SL(2, ℤ)) (j : ℕ) (e : ℤ)
     (he : g 0 0 + j * g 1 0 = p * e) :
     ∃ g' : SL(2, ℤ), g' 1 0 = g 1 0 ∧ g' 1 1 = p * g 1 1 ∧
       heckeMatrix p j * mapGL ℝ g = mapGL ℝ g' * heckeDiagMatrix p := by
@@ -177,9 +177,9 @@ private theorem heckeMatrix_mul_of_eq'_11 (g : SL(2, ℤ)) (j : ℕ) (e : ℤ)
       | (have := congrArg (Int.cast : ℤ → ℝ) he; push_cast at this ⊢; linear_combination -this)
       | ring1
 
--- Tier-2 refinement of `heckeDiagMatrix_mul_of_eq` exposing the `1 1` entry.
+-- The pin's public three-conjunct statement (promoted from `_11`).
 set_option backward.isDefEq.respectTransparency.types false in
-private theorem heckeDiagMatrix_mul_of_eq_11 (g : SL(2, ℤ)) (j' : ℕ) (e : ℤ)
+theorem heckeDiagMatrix_mul_of_eq (g : SL(2, ℤ)) (j' : ℕ) (e : ℤ)
     (he : g 1 1 = g 1 0 * j' + p * e) :
     ∃ g' : SL(2, ℤ), g' 1 0 = g 1 0 ∧ g' 1 1 = e ∧
       heckeDiagMatrix p * mapGL ℝ g = mapGL ℝ g' * heckeMatrix p j' := by
@@ -195,9 +195,9 @@ private theorem heckeDiagMatrix_mul_of_eq_11 (g : SL(2, ℤ)) (j' : ℕ) (e : �
       | (have := congrArg (Int.cast : ℤ → ℝ) he; push_cast at this ⊢; linear_combination -this)
       | ring1
 
--- Tier-2 refinement of `heckeDiagMatrix_mul_of_eq'` exposing the `1 1` entry.
+-- The pin's public three-conjunct statement (promoted from `_11`).
 set_option backward.isDefEq.respectTransparency.types false in
-private theorem heckeDiagMatrix_mul_of_eq'_11 (g : SL(2, ℤ)) (e : ℤ) (he : g 1 0 = p * e) :
+theorem heckeDiagMatrix_mul_of_eq' (g : SL(2, ℤ)) (e : ℤ) (he : g 1 0 = p * e) :
     ∃ g' : SL(2, ℤ), g' 1 0 = e ∧ g' 1 1 = g 1 1 ∧
       heckeDiagMatrix p * mapGL ℝ g = mapGL ℝ g' * heckeDiagMatrix p := by
   have hdet := det_eq g
@@ -218,8 +218,8 @@ section reindex
 
 variable {p : ℕ} [NeZero p]
 
-theorem sum_range_eq_sum_zmod {M : Type*} [AddCommMonoid M] (F : ℕ → M) :
-    ∑ j ∈ Finset.range p, F j = ∑ x : ZMod p, F x.val := by
+theorem sum_range_eq_sum_zmod {A : Type*} [AddCommMonoid A] (G : ℕ → A) :
+    ∑ j ∈ Finset.range p, G j = ∑ x : ZMod p, G x.val := by
   refine Finset.sum_nbij' (fun j : ℕ ↦ (j : ZMod p)) (fun x : ZMod p ↦ x.val) (fun _ _ ↦ Finset.mem_univ _)
     (fun x _ ↦ Finset.mem_range.mpr x.val_lt) (fun j hj ↦ ?_) (fun x _ ↦ ?_) (fun j hj ↦ ?_)
   · exact ZMod.val_cast_of_lt (Finset.mem_range.mp hj)
@@ -274,7 +274,7 @@ theorem heckeMatrix_mul_of_dvd (g : SL(2, ℤ)) (hc : (p : ℤ) ∣ g 1 0) (x : 
     linear_combination (-(((g 0 1 : ℤ) : ZMod p) + x * ((g 1 1 : ℤ) : ZMod p))) *
       unit_of_apply_one_zero_eq_zero g hc0
       - (((g 1 1 : ℤ) : ZMod p) * (((g 0 1 : ℤ) : ZMod p) + ((g 1 1 : ℤ) : ZMod p) * x) * x) * hc0
-  exact heckeMatrix_mul_of_eq (NeZero.ne p) g x.val x'.val e (by linear_combination he)
+  exact heckeMatrix_mul_of_eq_two (NeZero.ne p) g x.val x'.val e (by linear_combination he)
 
 variable {N : ℕ} (k : ℤ)
 
@@ -376,7 +376,7 @@ theorem heckeRep_mul {N : ℕ} (hpN : ¬ p ∣ N) (g : SL(2, ℤ)) (hg : g ∈ C
     ·
       rw [ite_eq_left (by simpa using hc), heckeRep_infty]
       obtain ⟨e, he⟩ := (ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mp hc
-      obtain ⟨g', hg', hd', hmul⟩ := heckeDiagMatrix_mul_of_eq'_11 hp g e he
+      obtain ⟨g', hg', hd', hmul⟩ := heckeDiagMatrix_mul_of_eq' hp g e he
       refine ⟨g', ?_, ?_, hmul⟩
       · rw [hg']
         have hcop : IsCoprime (N : ℤ) (p : ℤ) :=
@@ -392,7 +392,7 @@ theorem heckeRep_mul {N : ℕ} (hpN : ¬ p ∣ N) (g : SL(2, ℤ)) (hg : g ∈ C
         push_cast
         rw [ZMod.natCast_zmod_val, hy, redMatrix_apply_zero_zero, redMatrix_apply_one_zero,
           mul_div_cancel₀ _ hc, sub_self]
-      obtain ⟨g', hg', hd', hmul⟩ := heckeDiagMatrix_mul_of_eq_11 hp g y.val e (by linear_combination he)
+      obtain ⟨g', hg', hd', hmul⟩ := heckeDiagMatrix_mul_of_eq hp g y.val e (by linear_combination he)
       refine ⟨g', hg' ▸ hgN, ?_, hmul⟩
       rw [hd', wt_infty, wt_coe]
       have : ((g 1 1 : ℤ) : ZMod N) = ((g 1 0 : ℤ) : ZMod N) * (y.val : ℤ) + (p : ℤ) * e := by
@@ -414,7 +414,7 @@ theorem heckeRep_mul {N : ℕ} (hpN : ¬ p ∣ N) (g : SL(2, ℤ)) (hg : g ∈ C
         push_cast
         rw [ZMod.natCast_zmod_val]
         linear_combination h
-      obtain ⟨g', hg', hd', hmul⟩ := heckeMatrix_mul_of_eq'_11 hp g j.val e he
+      obtain ⟨g', hg', hd', hmul⟩ := heckeMatrix_mul_of_eq' hp g j.val e he
       refine ⟨g', hg' ▸ hgN, ?_, hmul⟩
       rw [hd', wt_infty, wt_coe, mul_one]
       push_cast
@@ -433,13 +433,102 @@ theorem heckeRep_mul {N : ℕ} (hpN : ¬ p ∣ N) (g : SL(2, ℤ)) (hg : g ∈ C
           hy, div_mul_cancel₀ _ h, redMatrix_apply_zero_zero, redMatrix_apply_zero_one]
         ring
       obtain ⟨g', hg', hd', hmul⟩ :=
-        heckeMatrix_mul_of_eq_11 hp g j.val y.val e (by linear_combination he)
+        heckeMatrix_mul_of_eq hp g j.val y.val e (by linear_combination he)
       refine ⟨g', hg' ▸ dvd_mul_of_dvd_right hgN _, ?_, hmul⟩
       rw [hd', wt_coe, wt_coe, mul_one, mul_one]
       push_cast
       rw [hgC', zero_mul, sub_zero]
 
 end Gamma1Hecke
+
+-- The pin's Γ₁ copy of `heckeRep_mul` (no extra `g 1 1` factor on the `wt`
+-- equation), landing H2's clash reconciliation. It lives in a distinct
+-- namespace from the Γ₀ copy above so both public statements verify; the Γ₀
+-- consumers `sum_slash_mapGL_of_mem_Gamma0` / `PhiGenDescends` keep using
+-- `Gamma1Hecke.heckeRep_mul`.
+namespace HeckeGamma1
+
+set_option backward.isDefEq.respectTransparency.types false in
+theorem heckeRep_mul {N : ℕ} (hpN : ¬ p ∣ N) (g : SL(2, ℤ)) (hg : g ∈ CongruenceSubgroup.Gamma1 N)
+    (x : OnePoint (ZMod p)) :
+    ∃ g' : SL(2, ℤ), (N : ℤ) ∣ g' 1 0 ∧
+      ((g' 1 1 : ℤ) : ZMod N) * wt N p x = wt N p (redMatrix p g • x) ∧
+      heckeRep p x * mapGL ℝ g = mapGL ℝ g' * heckeRep p (redMatrix p g • x) := by
+  have hp : p ≠ 0 := (Fact.out : p.Prime).ne_zero
+  obtain ⟨hgA, hgD, hgC⟩ := (CongruenceSubgroup.Gamma1_mem N g).mp hg
+  have hgN : (N : ℤ) ∣ g 1 0 := (ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mp (by simpa using hgC)
+  have hgD' : ((g 1 1 : ℤ) : ZMod N) = 1 := by simpa using hgD
+  have hgC' : ((g 1 0 : ℤ) : ZMod N) = 0 := by simpa using hgC
+  induction x using OnePoint.rec with
+  | infty =>
+    rw [OnePoint.smul_infty_eq_ite]
+    by_cases hc : ((g 1 0 : ℤ) : ZMod p) = 0
+    ·
+      rw [ite_eq_left (by simpa using hc), heckeRep_infty]
+      obtain ⟨e, he⟩ := (ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mp hc
+      obtain ⟨g', hg', hd', hmul⟩ := heckeDiagMatrix_mul_of_eq' hp g e he
+      refine ⟨g', ?_, ?_, hmul⟩
+      · rw [hg']
+        have hcop : IsCoprime (N : ℤ) (p : ℤ) :=
+          Nat.isCoprime_iff_coprime.mpr ((Nat.Prime.coprime_iff_not_dvd Fact.out).mpr hpN).symm
+        exact hcop.dvd_of_dvd_mul_left (he ▸ hgN)
+      · rw [hd', hgD', wt_infty, one_mul]
+    ·
+      rw [ite_eq_right (by simpa using hc), heckeRep_infty, heckeRep_coe]
+      set y : ZMod p := redMatrix p g 0 0 / redMatrix p g 1 0
+        with hy
+      obtain ⟨e, he⟩ : (p : ℤ) ∣ g 1 1 - g 1 0 * y.val := by
+        rw [← ZMod.intCast_zmod_eq_zero_iff_dvd]
+        push_cast
+        rw [ZMod.natCast_zmod_val, hy, redMatrix_apply_zero_zero, redMatrix_apply_one_zero,
+          mul_div_cancel₀ _ hc, sub_self]
+      obtain ⟨g', hg', hd', hmul⟩ := heckeDiagMatrix_mul_of_eq hp g y.val e (by linear_combination he)
+      refine ⟨g', hg' ▸ hgN, ?_, hmul⟩
+      rw [hd', wt_infty, wt_coe]
+      have : ((g 1 1 : ℤ) : ZMod N) = ((g 1 0 : ℤ) : ZMod N) * (y.val : ℤ) + (p : ℤ) * e := by
+        have := congrArg (Int.cast : ℤ → ZMod N) (show g 1 1 = g 1 0 * y.val + p * e by linear_combination he)
+        push_cast at this ⊢
+        exact this
+      rw [hgD', hgC', zero_mul, zero_add] at this
+      push_cast at this
+      rw [mul_comm]
+      exact this.symm
+  | coe j =>
+    rw [OnePoint.smul_some_eq_ite]
+    by_cases h : redMatrix p g 1 0 * j + redMatrix p g 1 1 = 0
+    ·
+      rw [ite_eq_left h, heckeRep_infty, heckeRep_coe]
+      rw [redMatrix_apply_one_zero, redMatrix_apply_one_one] at h
+      obtain ⟨e, he⟩ : (p : ℤ) ∣ g 0 0 + j.val * g 1 0 := by
+        rw [← ZMod.intCast_zmod_eq_zero_iff_dvd]
+        push_cast
+        rw [ZMod.natCast_zmod_val]
+        linear_combination h
+      obtain ⟨g', hg', hd', hmul⟩ := heckeMatrix_mul_of_eq' hp g j.val e he
+      refine ⟨g', hg' ▸ hgN, ?_, hmul⟩
+      rw [hd', wt_infty, wt_coe, mul_one]
+      push_cast
+      rw [hgD', mul_one]
+    ·
+      rw [ite_eq_right h, heckeRep_coe, heckeRep_coe]
+      set y : ZMod p := (redMatrix p g 0 0 * j + redMatrix p g 0 1) /
+        (redMatrix p g 1 0 * j + redMatrix p g 1 1) with hy
+      obtain ⟨e, he⟩ : (p : ℤ) ∣ g 0 1 + j.val * g 1 1 - y.val * (g 0 0 + j.val * g 1 0) := by
+        rw [← ZMod.intCast_zmod_eq_zero_iff_dvd]
+        push_cast
+        rw [ZMod.natCast_zmod_val, ZMod.natCast_zmod_val,
+          show ((g 0 0 : ℤ) : ZMod p) + j * ((g 1 0 : ℤ) : ZMod p)
+            = redMatrix p g 1 0 * j + redMatrix p g 1 1 by
+              rw [redMatrix_apply_one_zero, redMatrix_apply_one_one]; ring,
+          hy, div_mul_cancel₀ _ h, redMatrix_apply_zero_zero, redMatrix_apply_zero_one]
+        ring
+      obtain ⟨g', hg', hd', hmul⟩ := heckeMatrix_mul_of_eq hp g j.val y.val e (by linear_combination he)
+      refine ⟨g', hg' ▸ dvd_mul_of_dvd_right hgN _, ?_, hmul⟩
+      rw [hd', wt_coe, wt_coe, mul_one]
+      push_cast
+      rw [hgD', hgC', zero_mul, sub_zero]
+
+end HeckeGamma1
 
 open Gamma1Hecke
 

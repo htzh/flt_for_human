@@ -84,6 +84,18 @@ theorem periodic_smul {g : ℍ → ℂ} {c : ℂ} (h : Periodic (g ∘ ofComplex
     Periodic ((a • g) ∘ ofComplex) c := by
   intro z; have h1 := h z; simp only [comp_apply, Pi.smul_apply] at h1 ⊢; rw [h1]
 
+/- H2 reconciliation of the specialised-vs-general clash: the pin's unit-period
+copy of `periodic_smul`, derived from the general lemma above. It lives in a
+sub-namespace so both public statements verify. -/
+namespace PeriodOne
+
+/-- The pin's unit-period `periodic_smul`. -/
+theorem periodic_smul {G : ℍ → ℂ} (hG : Periodic (G ∘ ofComplex) 1) (c : ℂ) :
+    Periodic ((c • G) ∘ ofComplex) 1 :=
+  X1DiamondRational.periodic_smul hG c
+
+end PeriodOne
+
 theorem periodic_add {g g' : ℍ → ℂ} {c : ℂ} (h : Periodic (g ∘ ofComplex) c)
     (h' : Periodic (g' ∘ ofComplex) c) : Periodic ((g + g') ∘ ofComplex) c := by
   intro z

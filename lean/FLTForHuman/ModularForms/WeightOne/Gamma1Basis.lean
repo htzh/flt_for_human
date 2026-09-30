@@ -1176,7 +1176,7 @@ private theorem cw_ev {t : (Fin 2 → ZMod N) → (Fin 2 → ZMod N)} {α α' : 
     funext fun o => cw_gen L hL W hW fricke hfricke jf hjf h o
   rw [this]
 
-private theorem T_zpow_mem_Gamma1 (n : ℤ) : ModularGroup.T ^ n ∈ Gamma1 N := by
+theorem T_zpow_mem_Gamma1 (n : ℤ) : ModularGroup.T ^ n ∈ Gamma1 N := by
   rw [Gamma1_mem, ModularGroup.coe_T_zpow]
   simp
 

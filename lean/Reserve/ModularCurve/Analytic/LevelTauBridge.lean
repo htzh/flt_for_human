@@ -130,12 +130,30 @@ match mathlib's `algebraMap`-based Möbius formula. -/
 private theorem algebraMap_intCast_complex (n : ℤ) :
     ((algebraMap ℤ ℝ n : ℝ) : ℂ) = (n : ℂ) := by simp
 
-/-- Mathlib's Möbius formula, rewritten with the integer entries. -/
-theorem coe_smul_eq (γ : SL(2, ℤ)) (τ : ℍ) :
-    ((γ • τ : ℍ) : ℂ) =
-      (((γ.val 0 0 : ℤ) : ℂ) * (τ : ℂ) + ((γ.val 0 1 : ℤ) : ℂ)) / denomC γ (τ : ℂ) := by
+/-- Bridge from `denomC` to mathlib's `UpperHalfPlane.denom` on the `SL(2, ℤ)`
+coercion. -/
+private theorem denomC_eq_denom (γ : SL(2, ℤ)) (τ : ℂ) : denomC γ τ = denom γ τ := by
+  rw [denomC]
+  simp only [UpperHalfPlane.denom, Matrix.SpecialLinearGroup.coe_GL_coe_matrix,
+    Matrix.SpecialLinearGroup.map_apply_coe, Matrix.map_apply, RingHom.mapMatrix_apply,
+    Int.coe_castRingHom]
+  push_cast
+  ring
+
+/- Mathlib's Möbius formula, rewritten with the integer entries and stated at
+the pin's `coe_smul_eq` (H2 reconciliation: `denom`, `γ 0 0`). -/
+section CoeSmul
+
+variable (τ : ℍ)
+
+/-- The pin's `coe_smul_eq`. -/
+theorem coe_smul_eq (γ : SL(2, ℤ)) :
+    ((γ • τ : ℍ) : ℂ) = (((γ 0 0 : ℤ) : ℂ) * τ + ((γ 0 1 : ℤ) : ℂ)) / denom γ τ := by
+  rw [← denomC_eq_denom]
   rw [UpperHalfPlane.coe_specialLinearGroup_apply]
   simp only [denomC, algebraMap_intCast_complex]
+
+end CoeSmul
 
 /-- Multiplication by a complex scalar as a `ℤ`-linear endomorphism of `ℂ`. -/
 def mulBy (s : ℂ) : ℂ →ₗ[ℤ] ℂ where
@@ -154,7 +172,7 @@ theorem lat_smul_moebius (γ : SL(2, ℤ)) (τ : ℍ) :
   have hst : mulBy (denomC γ (τ : ℂ)) ((γ • τ : ℍ) : ℂ)
       = ((γ.val 0 0 : ℤ) : ℂ) * (τ : ℂ) + ((γ.val 0 1 : ℤ) : ℂ) := by
     show denomC γ (τ : ℂ) * ((γ • τ : ℍ) : ℂ) = _
-    rw [coe_smul_eq, mul_div_cancel₀ _ (denomC_ne_zero γ τ)]
+    rw [coe_smul_eq, ← denomC_eq_denom, mul_div_cancel₀ _ (denomC_ne_zero γ τ)]
   rw [lat, Submodule.map_span, Set.image_insert_eq, Set.image_singleton, hs, hst]
   exact lat_sl2_span γ (τ : ℂ)
 
@@ -186,7 +204,7 @@ private theorem tau_div_denom_alg {a b c d τ : ℂ} (h : a * d - b * c = 1)
 theorem inv_denom_eq (γ : SL(2, ℤ)) (τ : ℍ) :
     (1 : ℂ) / denomC γ (τ : ℂ)
       = ((γ.val 0 0 : ℤ) : ℂ) - ((γ.val 1 0 : ℤ) : ℂ) * ((γ • τ : ℍ) : ℂ) := by
-  rw [coe_smul_eq]
+  rw [coe_smul_eq, ← denomC_eq_denom]
   simpa only [denomC] using
     inv_denom_alg (a := ((γ.val 0 0 : ℤ) : ℂ)) (b := ((γ.val 0 1 : ℤ) : ℂ))
       (c := ((γ.val 1 0 : ℤ) : ℂ)) (d := ((γ.val 1 1 : ℤ) : ℂ)) (τ := (τ : ℂ))
@@ -196,7 +214,7 @@ theorem inv_denom_eq (γ : SL(2, ℤ)) (τ : ℍ) :
 theorem tau_div_denom_eq (γ : SL(2, ℤ)) (τ : ℍ) :
     (τ : ℂ) / denomC γ (τ : ℂ)
       = ((γ.val 1 1 : ℤ) : ℂ) * ((γ • τ : ℍ) : ℂ) - ((γ.val 0 1 : ℤ) : ℂ) := by
-  rw [coe_smul_eq]
+  rw [coe_smul_eq, ← denomC_eq_denom]
   simpa only [denomC] using
     tau_div_denom_alg (a := ((γ.val 0 0 : ℤ) : ℂ)) (b := ((γ.val 0 1 : ℤ) : ℂ))
       (c := ((γ.val 1 0 : ℤ) : ℂ)) (d := ((γ.val 1 1 : ℤ) : ℂ)) (τ := (τ : ℂ))

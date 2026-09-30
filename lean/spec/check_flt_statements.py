@@ -1256,6 +1256,219 @@ SOURCES = [
     "Definitions/Def_IharaIota.lean",
     "Definitions/Def_RepTheory_BrauerNesbitt_TraceCharZero.lean",
     "Definitions/Def_TaylorWiles_Primes.lean",
+    # --- Phase D, D1 ---
+    "Definitions/Def_CuspForm_Gamma1HeckeOperators.lean",
+    "Definitions/Def_CuspForm_PrimitiveFormGamma1.lean",
+    "Definitions/Def_FrobeniusDensity_DegOneAsymptotic.lean",
+    "Definitions/Def_IharaAmalgam.lean",
+    # --- Phase D, D2 ---
+    "Definitions/Def_FrobeniusDensity_BadPrimes.lean",
+    "Definitions/Def_GaloisRep_FrobeniusPowerDense.lean",
+    "Definitions/Def_IharaAmalgamMap.lean",
+    # --- Phase D, D3 ---
+    "Definitions/Def_FrobeniusDensity_PrimeSums.lean",
+    # --- Phase H1 (Deligne–Serre homes) ---
+    # GR home: the pin copies of `finite_range_of_factorsThroughFiniteLevel`.
+    "P2M/Sol/S_DeligneSerre_exists_galoisRep_complex_trace_frobenius_eq_of_forall_residual.lean",
+    "P2M/Sol/S_GaloisRep_exists_conj_eq_of_charpoly_frobenius_eq_of_galoisFactorsThroughFiniteLevel.lean",
+    # EIS home: the pin copies of the Eisenstein cotangent prelude.
+    "P2M/Sol/S_EisensteinSeries_hasSum_weierstrassZeta_sub_mul_G2.lean",
+    "P2M/Sol/S_EisensteinSeries_isBoundedAtImInfty_eisensteinG1_and_hasSum_eisensteinG1.lean",
+    "P2M/Sol/S_EisensteinSeries_weierstrassZeta_add_one_and_add_tau_and_smul.lean",
+    "P2M/Sol/S_EisensteinSeries_eisensteinG1_apply_smul_and_eisensteinG1_add.lean",
+    # FD home: the pin copies of the Frobenius-density prelude.
+    "P2M/Sol/S_FrobeniusDensity_sum_moebius_mul_pos.lean",
+    "P2M/Sol/S_FrobeniusDensity_weight_eq.lean",
+    "P2M/Sol/S_FrobeniusDensity_idealSum_ne_top.lean",
+    "P2M/Sol/S_FrobeniusDensity_tendsto_sub_one_mul_idealSum_test.lean",
+    "P2M/Sol/S_FrobeniusDensity_ncard_degreeOne_primesOver_under.lean",
+    "P2M/Sol/S_FrobeniusDensity_stabilizer_eq_zpowers_arithFrobAt.lean",
+    "P2M/Sol/S_FrobeniusDensity_degOneSum_add_log_isBigO.lean",
+    "P2M/Sol/S_FrobeniusDensity_primeSum_toReal_add_log_isBigO.lean",
+    "P2M/Sol/S_FrobeniusDensity_summable_degOne_term.lean",
+    # HK home: the pin copies of the Hecke/cusp prelude.
+    "P2M/Sol/S_CuspForm_qCoeff_heckeTLinOne.lean",
+    "P2M/Sol/S_CuspForm_slash_eq_dirichlet_smul_of_qCoeff_hecke_eigen.lean",
+    "P2M/Sol/S_DeligneSerre_exists_subalgebra_qCoeff_mem_forall_ringHom_exists_qCoeff_eq_of_weightOne_hecke_eigen.lean",
+    # --- Phase H2 (clash reconciliation) ---
+    # The pin's Γ₁ copy of the `HeckeGamma1` block: it carries the authoritative
+    # `heckeRep_mul` Γ₁ statement (no extra `g 1 1` factor), the `isUnit_wt`
+    # statement without `hp : p.Prime`, and the Γ₁-indexed copies of the
+    # Hecke-matrix lemmas. Appended last so no earlier last-name match flips.
+    "P2M/Sol/S_ModularForm_heckeU_add_slash_heckeDiagMatrix_slash_eq_of_mem_Gamma1.lean",
+    # --- S1 (Deligne–Serre weight-one Eisenstein set) ---
+    # The five pin solution files, in the pin's import order, each preceded by its
+    # `Theorems/` wrapper: the wrapper carries the public target's name (the
+    # `S_` file calls it `solution`), so it is the comparable copy for the
+    # target, while the `S_` file supplies the intermediate declarations.
+    # Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_EisensteinSeries_hasSum_weierstrassZeta_sub_mul_G2.lean",
+    "P2M/Sol/S_EisensteinSeries_hasSum_weierstrassZeta_sub_mul_G2.lean",
+    "Theorems/Thm_EisensteinSeries_weierstrassZeta_add_one_and_add_tau_and_smul.lean",
+    "P2M/Sol/S_EisensteinSeries_weierstrassZeta_add_one_and_add_tau_and_smul.lean",
+    "Theorems/Thm_EisensteinSeries_eisensteinG1_apply_smul_and_eisensteinG1_add.lean",
+    "P2M/Sol/S_EisensteinSeries_eisensteinG1_apply_smul_and_eisensteinG1_add.lean",
+    "Theorems/Thm_EisensteinSeries_isBoundedAtImInfty_eisensteinG1_and_hasSum_eisensteinG1.lean",
+    "P2M/Sol/S_EisensteinSeries_isBoundedAtImInfty_eisensteinG1_and_hasSum_eisensteinG1.lean",
+    "Theorems/Thm_ModularForm_exists_weightOne_eisenstein_qCoeff_eq_of_isPrimitive_of_odd.lean",
+    "P2M/Sol/S_ModularForm_exists_weightOne_eisenstein_qCoeff_eq_of_isPrimitive_of_odd.lean",
+    # --- S2 (Deligne–Serre Hecke / Γ₁ vanishing and nebentypus set) ---
+    # The nine pin solution files, each preceded by its `Theorems/` wrapper: the
+    # wrapper carries the public target's name (the `S_` file calls it
+    # `solution`), so it is the comparable copy for the target, while the `S_`
+    # file supplies the intermediate declarations. Three of the `S_` files are
+    # already registered by the H1/H2 blocks above; they are repeated inside the
+    # pairs to keep the set self-contained (extra candidates cannot flip an
+    # earlier match). Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_ModularForm_heckeU_add_slash_heckeDiagMatrix_slash_eq_of_mem_Gamma1.lean",
+    "P2M/Sol/S_ModularForm_heckeU_add_slash_heckeDiagMatrix_slash_eq_of_mem_Gamma1.lean",
+    "Theorems/Thm_CuspForm_qCoeff_heckeTLinOne.lean",
+    "P2M/Sol/S_CuspForm_qCoeff_heckeTLinOne.lean",
+    "Theorems/Thm_CuspForm_heckeTLinOne_slashOfMemGamma0.lean",
+    "P2M/Sol/S_CuspForm_heckeTLinOne_slashOfMemGamma0.lean",
+    "Theorems/Thm_CuspForm_HasNebentypus_diamondLinOne_apply_eq_smul.lean",
+    "P2M/Sol/S_CuspForm_HasNebentypus_diamondLinOne_apply_eq_smul.lean",
+    "Theorems/Thm_CuspForm_vadd_inv_pow_eq_of_slash_heckeDiagMatrix_invariant.lean",
+    "P2M/Sol/S_CuspForm_vadd_inv_pow_eq_of_slash_heckeDiagMatrix_invariant.lean",
+    "Theorems/Thm_CuspForm_eq_zero_of_forall_vadd_inv_pow_eq.lean",
+    "P2M/Sol/S_CuspForm_eq_zero_of_forall_vadd_inv_pow_eq.lean",
+    "Theorems/Thm_CuspForm_eq_zero_of_slash_heckeDiagMatrix_slash_eq_of_mem_Gamma1.lean",
+    "P2M/Sol/S_CuspForm_eq_zero_of_slash_heckeDiagMatrix_slash_eq_of_mem_Gamma1.lean",
+    "Theorems/Thm_CuspForm_slash_eq_dirichlet_smul_of_qCoeff_hecke_eigen.lean",
+    "P2M/Sol/S_CuspForm_slash_eq_dirichlet_smul_of_qCoeff_hecke_eigen.lean",
+    "Theorems/Thm_Ihara_amalgamToGamma0Away_surjective.lean",
+    "P2M/Sol/S_Ihara_amalgamToGamma0Away_surjective.lean",
+    # --- S3 (Deligne–Serre relèvement and weight-one → weight-two lifting, two
+    # nodes) ---
+    # Each pin `S_` file preceded by its `Theorems/` wrapper: the wrapper carries
+    # the public target's name (the `S_` file calls it `solution`), while the `S_`
+    # file supplies the intermediates (`locKer`, `adjoinRoot'` are the only two
+    # public ones ported besides the targets). Appended last so no earlier
+    # last-name match can flip.
+    "Theorems/Thm_DeligneSerre_exists_hecke_eigen_reduction_eq_of_qCoeff_hecke_congr.lean",
+    "P2M/Sol/S_DeligneSerre_exists_hecke_eigen_reduction_eq_of_qCoeff_hecke_congr.lean",
+    "Theorems/Thm_DeligneSerre_exists_weightTwo_hecke_eigen_reduction_eq_of_weightOne_hecke_eigen.lean",
+    "P2M/Sol/S_DeligneSerre_exists_weightTwo_hecke_eigen_reduction_eq_of_weightOne_hecke_eigen.lean",
+    # --- S4 (Deligne–Serre coefficient ring and Galois conjugation, six nodes) ---
+    # Each pin `S_` file preceded by its `Theorems/` wrapper. Five of the six are
+    # generic algebra; the wrappers carry the public target names (the `S_` files
+    # call them `solution`), and the `S_` files supply any public intermediates.
+    # Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_Module_Basis_repr_mem_range_ratCast_of_forall_dual.lean",
+    "P2M/Sol/S_Module_Basis_repr_mem_range_ratCast_of_forall_dual.lean",
+    "Theorems/Thm_Module_Basis_exists_forall_apply_eq_ringHom_smul_of_repr_mem_range_ratCast.lean",
+    "P2M/Sol/S_Module_Basis_exists_forall_apply_eq_ringHom_smul_of_repr_mem_range_ratCast.lean",
+    "Theorems/Thm_Submodule_moduleFinite_adjoin_eigenvalues_of_map_le_of_span_eq_top.lean",
+    "P2M/Sol/S_Submodule_moduleFinite_adjoin_eigenvalues_of_map_le_of_span_eq_top.lean",
+    "Theorems/Thm_integralClosure_exists_complex_ringEquiv_apply_eq.lean",
+    "P2M/Sol/S_integralClosure_exists_complex_ringEquiv_apply_eq.lean",
+    "Theorems/Thm_DeligneSerre_exists_eigenvector_of_mem_minimalPrimes_of_faithfulSMul.lean",
+    "P2M/Sol/S_DeligneSerre_exists_eigenvector_of_mem_minimalPrimes_of_faithfulSMul.lean",
+    "Theorems/Thm_DeligneSerre_exists_subalgebra_qCoeff_mem_forall_ringHom_exists_qCoeff_eq_of_weightOne_hecke_eigen.lean",
+    "P2M/Sol/S_DeligneSerre_exists_subalgebra_qCoeff_mem_forall_ringHom_exists_qCoeff_eq_of_weightOne_hecke_eigen.lean",
+    # --- S5 (Deligne–Serre semisimple descent of a reducible residual
+    # representation, one node) ---
+    # The wrapper carries the public target name (the `S_` file calls it `main`);
+    # the `S_` file also supplies the three engines the port homes publicly in
+    # `FLTForHuman/GaloisRep/SemisimpleDescent.lean` for the deferred
+    # density-dependent half: `charpoly_fin_two`,
+    # `finrank_eq_one_of_ne_bot_of_ne_top` and
+    # `isSemisimpleRepresentation_of_forall_exists_isCompl`. Appended last so no
+    # earlier last-name match can flip.
+    "Theorems/Thm_DeligneSerre_exists_isSemisimpleRepresentation_charpoly_map_eq_of_add_mem_range_of_mul_mem_range.lean",
+    "P2M/Sol/S_DeligneSerre_exists_isSemisimpleRepresentation_charpoly_map_eq_of_add_mem_range_of_mul_mem_range.lean",
+    # --- S7-I (Deligne–Serre Frobenius density, place / Frobenius vocabulary) ---
+    # Four targets extend the already-listed `NumberTheory/FrobeniusAtPlace.lean`
+    # (nodes 1–4). Each pin `S_` file is preceded by its `Theorems/` wrapper: the
+    # wrapper carries the public target name (the `S_` file calls it `solution`),
+    # while the `S_` file supplies the pin's private `IsLoc` prelude. Appended last
+    # so no earlier last-name match can flip.
+    "Theorems/Thm_ValuationSubring_isFrobeniusAt_of_forall_smul_sub_pow_mem.lean",
+    "P2M/Sol/S_ValuationSubring_isFrobeniusAt_of_forall_smul_sub_pow_mem.lean",
+    "Theorems/Thm_ValuationSubring_exists_liesOverPrime_algebraicClosure_rat.lean",
+    "P2M/Sol/S_ValuationSubring_exists_liesOverPrime_algebraicClosure_rat.lean",
+    "Theorems/Thm_ValuationSubring_exists_isFrobeniusAt_of_liesOverPrime_algebraicClosure_rat.lean",
+    "P2M/Sol/S_ValuationSubring_exists_isFrobeniusAt_of_liesOverPrime_algebraicClosure_rat.lean",
+    "Theorems/Thm_ValuationSubring_exists_liesOverPrime_isFrobeniusAt_ratAlgClosure.lean",
+    "P2M/Sol/S_ValuationSubring_exists_liesOverPrime_isFrobeniusAt_ratAlgClosure.lean",
+    "Theorems/Thm_NumberField_exists_valuationSubring_eq_localization.lean",
+    "P2M/Sol/S_NumberField_exists_valuationSubring_eq_localization.lean",
+    "Theorems/Thm_NumberField_exists_isFrobenius_lift_arithFrobAt.lean",
+    "P2M/Sol/S_NumberField_exists_isFrobenius_lift_arithFrobAt.lean",
+    "Theorems/Thm_IsOpen_exists_numberField_ker_restrictNormalHom_le.lean",
+    "P2M/Sol/S_IsOpen_exists_numberField_ker_restrictNormalHom_le.lean",
+    # --- S7-II (Deligne–Serre Frobenius density, zeta / coset / Möbius counting
+    # chain to `degOneAsymptotic`) ---
+    # Each pin `S_` file is preceded by its `Theorems/` wrapper: the wrapper
+    # carries the public target name (the `S_` file calls it `solution`), while
+    # the `S_` file supplies the pin's private prelude. Several of these `S_`
+    # files were already listed by phase H1 for the shared prelude; those are not
+    # repeated. Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_ArithmeticFunction_sum_moebius_filter_dvd.lean",
+    "P2M/Sol/S_ArithmeticFunction_sum_moebius_filter_dvd.lean",
+    "Theorems/Thm_FrobeniusDensity_sum_moebius_mul_pos.lean",
+    "Theorems/Thm_FrobeniusDensity_weight_eq.lean",
+    "Theorems/Thm_FrobeniusDensity_idealSum_ne_top.lean",
+    "Theorems/Thm_FrobeniusDensity_tendsto_sub_one_mul_idealSum_test.lean",
+    "Theorems/Thm_FrobeniusDensity_summable_degOne_term.lean",
+    "Theorems/Thm_FrobeniusDensity_stabilizer_eq_zpowers_arithFrobAt.lean",
+    "Theorems/Thm_FrobeniusDensity_ncard_degreeOne_primesOver_under.lean",
+    "Theorems/Thm_FrobeniusDensity_ncard_degreeOne_primesOver_eq_ncard_frobFixed.lean",
+    "P2M/Sol/S_FrobeniusDensity_ncard_degreeOne_primesOver_eq_ncard_frobFixed.lean",
+    "Theorems/Thm_FrobeniusDensity_primeSum_eq_degOneSum_add.lean",
+    "P2M/Sol/S_FrobeniusDensity_primeSum_eq_degOneSum_add.lean",
+    "Theorems/Thm_FrobeniusDensity_primeSum_toReal_add_log_isBigO.lean",
+    "Theorems/Thm_FrobeniusDensity_degOneSum_add_log_isBigO.lean",
+    "Theorems/Thm_FrobeniusDensity_degOneAsymptotic.lean",
+    "P2M/Sol/S_FrobeniusDensity_degOneAsymptotic.lean",
+    # --- S7-III (Deligne–Serre Frobenius density, the density statement and its
+    # applications) plus the S7-I tail node ---
+    # Each pin `S_` file is preceded by its `Theorems/` wrapper: the wrapper
+    # carries the public target name (the `S_` file calls it `solution`), while
+    # the `S_` file supplies the pin's helpers. `exists_frobenius_conj_pow_of_statement`
+    # contributes the public `C6P1CFD` block (`galoisLevel`, `le_galoisLevel`,
+    # `exists_pow_pow_eq`) and the tail S_ file contributes its seven public
+    # helpers (`exists_int_ne_zero_eq_mul` … `infinite_setOf_degOneCount_ne_zero`),
+    # all transcribed at the pinned names. Appended last so no earlier last-name
+    # match can flip.
+    "Theorems/Thm_FrobeniusDensity_statement_of_degOneAsymptotic.lean",
+    "P2M/Sol/S_FrobeniusDensity_statement_of_degOneAsymptotic.lean",
+    "Theorems/Thm_FrobeniusDensity_statement.lean",
+    "P2M/Sol/S_FrobeniusDensity_statement.lean",
+    "Theorems/Thm_FrobeniusDensity_exists_frobenius_conj_pow_of_statement.lean",
+    "P2M/Sol/S_FrobeniusDensity_exists_frobenius_conj_pow_of_statement.lean",
+    "Theorems/Thm_FrobeniusDensity_frobeniusPowerDense_of_le_ker.lean",
+    "P2M/Sol/S_FrobeniusDensity_frobeniusPowerDense_of_le_ker.lean",
+    "Theorems/Thm_FrobeniusDensity_ncard_conj_gen_ne_zero_iff.lean",
+    "P2M/Sol/S_FrobeniusDensity_ncard_conj_gen_ne_zero_iff.lean",
+    "Theorems/Thm_Subgroup_exists_prime_isFrobeniusAt_conj_pow_mem_of_isOpen.lean",
+    "P2M/Sol/S_Subgroup_exists_prime_isFrobeniusAt_conj_pow_mem_of_isOpen.lean",
+    "Theorems/Thm_CommRing_infinite_setOf_prime_nonempty_ringHom_zmod_of_moduleFinite_int.lean",
+    "P2M/Sol/S_CommRing_infinite_setOf_prime_nonempty_ringHom_zmod_of_moduleFinite_int.lean",
+    # --- S6a (Deligne–Serre representation lifting): the mod-`ℓ` → char-0 lift
+    # with matching characteristic polynomials, and its Witt-vector private
+    # closure. All of the pin's helpers are `private` in the port, so only the
+    # wrapper's single target declaration is comparable. Appended last so no
+    # earlier last-name match can flip.
+    "Theorems/Thm_Representation_exists_monoidHom_complex_charpoly_map_eq_of_not_dvd_natCard.lean",
+    "P2M/Sol/S_Representation_exists_monoidHom_complex_charpoly_map_eq_of_not_dvd_natCard.lean",
+    # --- S6b (character determines a finite-image representation up to
+    # conjugacy). The pin's helpers are `private` in the port, so the wrapper is
+    # the only comparable copy. Appended last so no earlier last-name match can
+    # flip.
+    "Theorems/Thm_Representation_exists_conj_eq_of_charpoly_eq_of_finite_range.lean",
+    "P2M/Sol/S_Representation_exists_conj_eq_of_charpoly_eq_of_finite_range.lean",
+    # --- S6c (equal Frobenius charpolys imply global conjugacy). Helpers are
+    # `private` in the port; the wrapper is the comparable copy. Appended last so
+    # no earlier last-name match can flip.
+    "Theorems/Thm_GaloisRep_exists_conj_eq_of_charpoly_frobenius_eq_of_galoisFactorsThroughFiniteLevel.lean",
+    "P2M/Sol/S_GaloisRep_exists_conj_eq_of_charpoly_frobenius_eq_of_galoisFactorsThroughFiniteLevel.lean",
+    # --- S8 (the complex-trace assembly, the capstone). The pin's helpers are
+    # `private` in the port, so the wrapper is the only comparable copy of the
+    # target; the pin `S_` file itself is already registered above (the H1 block
+    # lists it for the `finite_range_of_factorsThroughFiniteLevel` prelude), so it
+    # is not repeated. Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_DeligneSerre_exists_galoisRep_complex_trace_frobenius_eq_of_forall_residual.lean",
 ]
 
 PORT_FILES = [
@@ -1623,6 +1836,109 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/Defs/IharaIota.lean",
     "FLTForHuman/Algebra/BrauerNesbitt.lean",
     "FLTForHuman/NumberTheory/FrobeniusDensity/TaylorWilesPrimes.lean",
+    # --- Phase D, D1 ---
+    "FLTForHuman/ModularForms/Defs/Gamma1HeckeOperators.lean",
+    "FLTForHuman/ModularForms/Defs/PrimitiveFormGamma1.lean",
+    "FLTForHuman/NumberTheory/FrobeniusDensity/DegOneAsymptotic.lean",
+    "FLTForHuman/ModularCurve/Defs/IharaAmalgam.lean",
+    # --- Phase D, D2 ---
+    "FLTForHuman/NumberTheory/FrobeniusDensity/BadPrimes.lean",
+    "FLTForHuman/GaloisRep/Defs/FrobeniusPowerDense.lean",
+    "FLTForHuman/ModularCurve/Defs/IharaAmalgamMap.lean",
+    # --- Phase D, D3 ---
+    "FLTForHuman/NumberTheory/FrobeniusDensity/PrimeSums.lean",
+    # --- Phase H1 (Deligne–Serre homes) ---
+    "FLTForHuman/GaloisRep/Prelude.lean",
+    "FLTForHuman/ModularForms/Eisenstein/Cotangent.lean",
+    "FLTForHuman/NumberTheory/FrobeniusDensity/Basic.lean",
+    "FLTForHuman/ModularForms/HeckePrelude.lean",
+    # --- S1 (Deligne–Serre weight-one Eisenstein set) ---
+    # Five modules under `ModularForms/Eisenstein/`, one per pin `S_` file, in the
+    # pin's import order. Appended last.
+    "FLTForHuman/ModularForms/Eisenstein/WeierstrassZetaSum.lean",
+    "FLTForHuman/ModularForms/Eisenstein/WeierstrassZetaQuasiPeriod.lean",
+    "FLTForHuman/ModularForms/Eisenstein/EisensteinG1Transform.lean",
+    "FLTForHuman/ModularForms/Eisenstein/EisensteinG1QExpansion.lean",
+    "FLTForHuman/ModularForms/Eisenstein/WeightOneMultiplier.lean",
+    # --- S2 (Deligne–Serre Hecke / Γ₁ vanishing and nebentypus set) ---
+    # Five modules, in dependency order (the Ihara module is independent and the
+    # `HeckeEigenNebentypus` module imports `Gamma1Vanishing`). Appended last.
+    "FLTForHuman/ModularForms/HeckeTLinOneQCoeff.lean",
+    "FLTForHuman/ModularForms/HeckeNebentypus.lean",
+    "FLTForHuman/ModularForms/Gamma1Vanishing.lean",
+    "FLTForHuman/ModularForms/HeckeEigenNebentypus.lean",
+    "FLTForHuman/ModularCurve/IharaSurjective.lean",
+    # --- S3 (Deligne–Serre relèvement and weight-one → weight-two lifting) ---
+    # The weight-generic relèvement first, then the weight-one instance that
+    # imports it. Appended last.
+    "FLTForHuman/DeligneSerre/Relevement.lean",
+    "FLTForHuman/DeligneSerre/Lifting.lean",
+    # --- S4 (Deligne–Serre coefficient ring and Galois conjugation) ---
+    # The two new modules. `FLTForHuman/Algebra/IntegralExtensionCharacters.lean`
+    # and `FLTForHuman/Algebra/FaithfulLatticeEigenvector.lean`, extended by S4,
+    # are already listed above. Appended last.
+    "FLTForHuman/Algebra/LatticeEigenvalues.lean",
+    "FLTForHuman/DeligneSerre/CoefficientRing.lean",
+    # --- S5 (Deligne–Serre semisimple descent of a reducible residual
+    # representation) ---
+    # The single new module, under `GaloisRep` (its only import home). It carries
+    # the three shared engines as public declarations and the one target. Appended
+    # last.
+    "FLTForHuman/GaloisRep/SemisimpleDescent.lean",
+    # --- S7-I (Deligne–Serre Frobenius density, place / Frobenius vocabulary) ---
+    # Node 5: the localisation place of `ℚ̄` at a maximal ideal of `𝓞 ℚ̄`. Its pin
+    # `S_` file's public `C6P1T3a` block is transcribed `private`, so the wrapper
+    # is the comparable copy. Appended last.
+    "FLTForHuman/NumberTheory/FrobeniusDensity/ValuationSubringLocalization.lean",
+    # Node 6: the lift of an arithmetic Frobenius from `𝓞 E` to `𝓞 ℚ̄`. Its pin
+    # `S_` file's public `C6P1T2` block (three scoped instances,
+    # `restrictNormal_restrictScalars`) is transcribed `private`, so the wrapper
+    # is the comparable copy. Appended last.
+    "FLTForHuman/NumberTheory/FrobeniusDensity/FrobeniusLift.lean",
+    # Node 7: the Krull-topology statement that an open subgroup contains the
+    # restriction kernel of a finite Galois number field. Its pin `S_` file's
+    # public `P2mWs11LV` helpers are transcribed `private`, so the wrapper is the
+    # comparable copy. Appended last.
+    "FLTForHuman/NumberTheory/FrobeniusDensity/KerRestrictNormalHom.lean",
+    # --- S7-II (Deligne–Serre Frobenius density, zeta / coset / Möbius counting
+    # chain to `degOneAsymptotic`) ---
+    # One module per subject, in dependency order: the Möbius/`zpowers` group
+    # chain (`Basic.lean` provides only the shared prelude), the ideal-sum
+    # analytic block, the prime-sum split, the factored-sum/Euler-product Big-O
+    # module, the degree-one asymptotic chain, the `degOneAsymptotic` theorem
+    # (which imports the D1 definition module), and the coset count. Appended
+    # last so no earlier last-name match can flip.
+    "FLTForHuman/NumberTheory/FrobeniusDensity/MobiusZeta.lean",
+    "FLTForHuman/NumberTheory/FrobeniusDensity/IdealSum.lean",
+    "FLTForHuman/NumberTheory/FrobeniusDensity/PrimeSumSplit.lean",
+    "FLTForHuman/NumberTheory/FrobeniusDensity/PrimeSumAsymptotic.lean",
+    "FLTForHuman/NumberTheory/FrobeniusDensity/DegOneSumAsymptotic.lean",
+    "FLTForHuman/NumberTheory/FrobeniusDensity/DegOneAsymptoticProof.lean",
+    "FLTForHuman/NumberTheory/FrobeniusDensity/DegreeOneCount.lean",
+    # --- S7-III (the density statement and its applications) plus the S7-I tail
+    # node. One module per pin `S_` subject, in dependency order: the generic
+    # group criterion, the density-from-asymptotic proof, its unconditional form,
+    # the valuation realisation, the `FrobeniusPowerDense` application, the open
+    # subgroup corollary, and the `ZMod`-prime infinitude tail. Appended last so
+    # no earlier last-name match can flip.
+    "FLTForHuman/NumberTheory/FrobeniusDensity/NcardConjGen.lean",
+    "FLTForHuman/NumberTheory/FrobeniusDensity/StatementOfDegOneAsymptotic.lean",
+    "FLTForHuman/NumberTheory/FrobeniusDensity/Statement.lean",
+    "FLTForHuman/NumberTheory/FrobeniusDensity/ExistsFrobeniusConjPow.lean",
+    "FLTForHuman/NumberTheory/FrobeniusDensity/FrobeniusPowerDense.lean",
+    "FLTForHuman/NumberTheory/FrobeniusDensity/PrimeIsFrobeniusAtConjPow.lean",
+    "FLTForHuman/NumberTheory/FrobeniusDensity/DegreeOnePrimesInfinite.lean",
+    # --- S6 (representation conjugacy and lifting). `RepConj` first (S6b's
+    # character-determines-conjugacy), then the `RepLift` target (S6a), then the
+    # `ConjFromFrobenius` glue (S6c), in dependency order. Appended last so no
+    # earlier last-name match can flip.
+    "FLTForHuman/GaloisRep/RepConj.lean",
+    "FLTForHuman/GaloisRep/RepLift.lean",
+    "FLTForHuman/GaloisRep/ConjFromFrobenius.lean",
+    # --- S8 (the complex-trace assembly). The capstone, conditional on the
+    # residual family `hfam`; the only public declaration is the target, all
+    # helpers are `private`. Appended last so no earlier last-name match can flip.
+    "FLTForHuman/DeligneSerre/Assembly.lean",
 ]
 
 

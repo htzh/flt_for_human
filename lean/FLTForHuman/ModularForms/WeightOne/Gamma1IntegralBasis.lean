@@ -679,7 +679,9 @@ variable {N} {k : ℤ}
 private theorem one_mem_strictPeriods (N : ℕ) : (1 : ℝ) ∈ (Γ₁ℝ N).strictPeriods := by
   rw [CongruenceSubgroup.strictPeriods_Gamma1]; exact AddSubgroup.mem_zmultiples _
 
-private def qCoeffLin (N : ℕ) (k : ℤ) (m : ℕ) : CuspForm (Γ₁ℝ N) k →ₗ[ℂ] ℂ where
+/-- H2 promotion-by-reconciliation: the pin's public `qCoeffLin` (naming-only
+clash — the pin's `Γ₁ℝ` spelling matches this copy). -/
+def qCoeffLin (N : ℕ) (k : ℤ) (m : ℕ) : CuspForm (Γ₁ℝ N) k →ₗ[ℂ] ℂ where
   toFun f := ModularFormClass.qCoeff f m
   map_add' f g := by
     change (qExpansion 1 (⇑(f + g))).coeff m = (qExpansion 1 ⇑f).coeff m + (qExpansion 1 ⇑g).coeff m

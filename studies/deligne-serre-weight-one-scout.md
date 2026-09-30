@@ -306,95 +306,158 @@ and each is a coherent theory that can be ported as a unit:
 Dependency order is 3 before 4, and 3/4 before the forward gates close; 5 is
 independent of 4 for the converse but shares the number-field layer. 6 and 7 can be
 interleaved at any point and are the best "coverage per node" because the frontier
-is already adjacent.
+is already adjacent — subject to the finer structure of §4.1: the `AlgebraicCurve`
+places/divisor vocabulary is a prerequisite of row 6, so it is ported before the
+modular-curve cluster is interleaved, and row 7's cyclic-kernel classification is a
+separate, concentrated effort.
 
 ### 4.1 Finer divisions of the two large substrate clusters
 
-Rows 6 and 7 are named at namespace scale, and both contain more than one subject.
-The partition below is name/module based (a node's namespace, its pin `S_`/`Def_`
-family, and its identifier tokens), so the sub-counts are approximate; the row
-totals are the exact namespace counts. It is a survey, not a work order.
+**How the target nodes are found.** Every count in this section is of **FLT pin
+nodes** and is independent of the port. The target set is the *forward cone* of
+`DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen` in the pin's
+citation graph (`frontier.closure`) — a pin-only object — and the units inside it
+are selected from each node's namespace and identifier tokens by the predicates of
+the §7 script. The port's frontier enters only through the columns headed *ported*
+and through one block marked **provisional frontier measurement**; those carry the
+frontier size at measurement and move, while the target tables do not. The §2 and §4
+tables above are doc-era *needed* counts and are therefore frontier-dependent: treat
+them as the measurement of that date, not as the definition of the target.
 
-**Row 7 — elliptic / Weierstrass / Tate.** The clean core is
-`WeierstrassCurve.*` 105 nodes / 120,975 lines plus `TateCurve.*` 23 / 2,749 (the
-doc's 129 is one node more than this namespace count). The nodes are not one
-theory; they split into:
+**Row 7 — elliptic / Weierstrass / Tate.** 129 pin nodes / 125,059 `S_` lines
+(`WeierstrassCurve.*` 106, `TateCurve.*` 23); 1 ported at frontier 541.
 
-| unit | nodes | `S_` lines | home |
-|---|---:|---:|---|
-| **cyclic-kernel / place classification** | 24 | 83,224 | `WeierstrassCurve/IsogenyClassification.lean` |
-| **explicit Vélu quotients and formulas** | 18 | 4,768 | `WeierstrassCurve/Velu.lean` |
-| **Weierstrass function field, coordinate ring, places** | 19 | 15,027 | `WeierstrassCurve/FunctionField.lean` |
-| **models, group law, variable change, $`j`$** | 18 | 4,946 | `WeierstrassCurve/Model.lean` |
-| **torsion / division polynomials / Drinfeld** | 10 | 3,250 | `WeierstrassCurve/Torsion.lean` |
-| **modular polynomial / `cyclicQuotientJ`** | 4 | 1,897 | `WeierstrassCurve/ModularPolynomial.lean` |
-| **odd-order summing sets / char 2 and 3** | 4 | 2,077 | with Vélu/classification |
-| **reduction / semistability / modularity data** | 3 | 1,356 | `WeierstrassCurve/Reduction.lean` |
-| **formal group / EDS / special invariants** | 1 | 215 | `WeierstrassCurve/FormalGroup.lean` |
-| **Tate curve: analytic parametrization** | 23 | 2,749 | `TateCurve/Parametrization.lean` |
-| other (genus-one/closure) | 4 | 4,215 | — |
-| **total** | **128** | **123,724** | |
+| unit | nodes | `S_` lines | ported |
+|---|---:|---:|---:|
+| **Vélu isogeny / cyclic quotient / modular polynomial** | 50 | 91,966 | 0 |
+| **Weierstrass function field / coordinate ring / places** | 19 | 15,027 | 0 |
+| **models, group law, variable change, $`j`$** | 18 | 4,946 | 0 |
+| **torsion / division polynomials / Drinfeld** | 11 | 4,585 | 1 |
+| **other (genus-one/closure)** | 4 | 4,215 | 0 |
+| **Tate curve: analytic parametrization** | 23 | 2,749 | 0 |
+| **reduction / semistability / modularity data** | 3 | 1,356 | 0 |
+| **formal group / EDS / special invariants** | 1 | 215 | 0 |
+| **total** | **129** | **125,059** | **1** |
 
-The first thing the split shows is that **row 7 is two efforts under one name**.
-The classical substrate — models and group law, the function field and its places,
-torsion, the explicit Vélu construction, reduction — is roughly 70 nodes / 30k
-lines. The cyclic-kernel/place classification is **24 nodes / 83k lines**, i.e. 67%
-of the row's lines in 19% of its nodes, and it is dominated by six 4,000–12,000-line
-statements (`exists_dualEndData_dual_mem_and_norm_eq_finrankAlong`,
-`exists_veluFunctionFieldHom_restrictAlong_placeOfPoint_eq(_of_isAlgClosed)`,
-`isAddCyclic_ker_pointMapOfPushforward_of_baseChange_algHom`,
-`velu_map_equation_of_oddOrderSummingSet(_of_isAlgClosed)`,
-`exists_algHom_baseChange_of_isAddCyclic_ker_pointMapOfPushforward`). This is
-Mazur-type cyclic-isogeny classification, via the `Affine.FunctionField`/place gate
-and the `IsogenyEndDatum`/`IsogenyHomDatum` endomorphism data — the engine of the
-modularity-lifting step, and a different subject from "elliptic curves". Port order:
-models/group law → function field and places (which need `AlgebraicCurve` places) →
-explicit Vélu → the classification block.
+The actionable fact is the concentration inside the 50-node Vélu block: its 24
+cyclic-kernel/place-classification nodes (83,224 lines) are 67% of the row's lines
+in 19% of its nodes (six 4,000–12,000-line statements), and they are Mazur-type
+cyclic-isogeny classification through the `Affine.FunctionField`/place gate and the
+`IsogenyEndDatum`/`IsogenyHomDatum` endomorphism data, not "elliptic curves". The
+rest of the block is the explicit Vélu formulas, the modular polynomial /
+`cyclicQuotientJ` bijection, and the odd-order summing-set special cases (char 2 and
+3). Several of the biggest statements occur in near-duplicate pin file variants
+(`velu_map_equation_of_oddOrderSummingSet` and `…_of_isAlgClosed`;
+`exists_veluFunctionFieldHom_restrictAlong_placeOfPoint_eq` and `…_of_isAlgClosed`),
+so the raw line total overstates the block too; the pooled `port_advise` method
+below is how to quantify that. Port order: models/group law → function field and
+places (which need `AlgebraicCurve` places) → explicit Vélu → the classification
+block. The Tate curve depends on `AlgebraicCurve`'s annulus and residue material,
+not on the Weierstrass classification.
 
-The **Tate curve** is separate again (23 nodes / 2.7k lines: `pointX/Y_*` and the
-`xfun`/`yfun` series, the `defect`/nodal-equation bookkeeping, the group law and
-torsion parametrization, and the annulus/`zpow` geometry); it depends on
-`AlgebraicCurve`'s annulus and residue material, not on the Weierstrass
-classification.
+**Function-field / curve layer.** The `AlgebraicCurve.*` cone is 465 pin nodes /
+219,684 lines (the §4 row's 425 is a doc-era needed count and also includes about
+38 function-field-flavoured nodes outside the namespace). Split by the §7
+predicates:
 
-**Function-field / curve layer.** The clean core is `AlgebraicCurve.*`: 387 nodes /
-208,750 lines (the row's 425 includes about 38 function-field-flavoured nodes
-outside the namespace — `ModularCurve`'s `qExpFunctionField`/`genusFF`/
-`regularDifferentials` block and `PeriodPair`'s lattice lemmas). Its inner split:
+| unit | nodes | `S_` lines | ported |
+|---|---:|---:|---:|
+| complex-analytic Jacobian / path integrals / Tate trace | 68 | 90,867 | 0 |
+| places / valuations / local fields / completions | 161 | 35,677 | 51 |
+| divisors / class group / $`\mathrm{Pic}^0`$ / Jacobian | 69 | 22,494 | 14 |
+| Riemann–Roch / repartitions / genus / index | 39 | 19,338 | 0 |
+| differentials / residues / Serre duality | 47 | 18,245 | 0 |
+| curves, models, correspondences, function fields | 52 | 16,681 | 7 |
+| other (genericity/closure) | 29 | 16,382 | 5 |
+| **total** | **465** | **219,684** | **77** |
 
-| unit | nodes | `S_` lines | home |
-|---|---:|---:|---|
-| **places / valuations / local fields / completions** | 109 | 30,951 | `AlgebraicCurve/Places/` |
-| **complex-analytic Jacobian / path integrals / Tate trace** | 68 | 90,867 | `AlgebraicCurve/Analytic/` |
-| **divisors / class group / $`\mathrm{Pic}^0`$ / Jacobian** | 55 | 19,844 | `AlgebraicCurve/Divisors/` |
-| **differentials / residues / Serre duality** | 47 | 18,245 | `AlgebraicCurve/Differentials/` |
-| **Riemann–Roch / repartitions / genus / index** | 39 | 19,338 | `AlgebraicCurve/RiemannRoch/` |
-| **curves, models, correspondences, function fields** | 45 | 16,055 | `AlgebraicCurve/Models/` |
-| other (genericity/closure) | 24 | 13,450 | — |
-| **total** | **387** | **208,750** | |
+The three subjects that the sharing shows to be one dependency mass — places (161)
++ divisors (69) + Riemann–Roch (39) = **269 pin nodes / 77,509 lines** (65 ported,
+204 needed at frontier 541). Their finer sub-units, again pin-only:
 
-Two things stand out. First, the layer is **not one subject**: the algebraic core
-(places + divisors + differentials + Riemann–Roch + models = 295 nodes / 104k lines)
-and a **complex-analytic block** (Abel–Jacobi, path period lattices, cell
-dissections, contour integrals, Tate's trace/agreement = 68 nodes / 91k lines) carry
-comparable line weight. The analytic block is analysis on Riemann surfaces
-(`residueTheoremK`, `tateAgreement`, `tateTraceCompat`, `tateChainRule`,
-`abelJacobiDiv_*`, `span_real_pathPeriodLattice_eq_top`, the `CellDissection`/
-`RadialRegion` grids), not function-field algebra, and is a separate porting effort
-that happens to be grouped here. Second, the **`RationalFunctionField` place
-package** inside the places unit (`RatFuncPlaces`, `RatFuncPlaceInfty`,
-`RatFuncPlaceClassification`, ~16 nodes / 16k lines) is a self-contained classical
-unit — places of $`\mathbb{P}^1`$ — that much else rests on, so it is the natural
-first landing of the layer.
+| places sub-unit | nodes | `S_` lines | ported |
+|---|---:|---:|---:|
+| A. rational function field / $`\mathbb{P}^1`$ places | 21 | 8,816 | 7 |
+| B. ord / valuation ring / local residue | 76 | 14,692 | 25 |
+| C. place extension / ramification calculus | 19 | 2,140 | 8 |
+| D. local expansion / completion / evaluation | 10 | 2,202 | 0 |
+| E. place existence / basic vocabulary | 29 | 7,678 | 9 |
+| Z. `SemilinearAut` action on places | 6 | 149 | 2 |
+| **places total** | **161** | **35,677** | **51** |
 
-**Overlap with row 6.** 67 `ModularCurve` nodes import `Def_AlgebraicCurve_*`
-(the `qExpFunctionField`, `genusFF`, `regularDifferentials`, `place` and Tate-module
-blocks), so the `AlgebraicCurve` core is a prerequisite of the modular-curve cluster
-as well, and row 6 cannot be interleaved freely before it. The definition-layer
-fan-in says the same: `AlgebraicCurve_DivisorClassGroup` is imported by 231 cone
-theorems and `AlgebraicCurve_IsCurveOver` by 226, the two most shared definitions of
-the whole cone. Port the divisor/class-group and places/`IsCurveOver` vocabulary
-once, at the bottom.
+| divisors sub-unit | nodes | `S_` lines | ported |
+|---|---:|---:|---:|
+| A. class group / degree / principal | 30 | 10,924 | 4 |
+| C. pushforward / pullback / norm formula | 11 | 3,437 | 4 |
+| D. $`\mathrm{Pic}^0`$ / Jacobian | 22 | 3,347 | 6 |
+| E. pole / universal divisor | 6 | 4,786 | 0 |
+| **divisors total** | **69** | **22,494** | **14** |
+
+(Canonical divisor is not in this table: the predicate sends `canonicalDivisor` to
+the differentials unit. Its 5 nodes / 3,254 lines belong with divisors A.)
+
+> **Provisional frontier measurement (frontier 541).** Running `port_advise` on the
+> 204 needed nodes of the 269-node pool reads 408 `S_`+`Thm_` files / 3,666
+> declarations: **205 substitutions** (65 unique names, 3,759 lines already in the
+> port), **436 names proved in ≥2 target files** (29,034 removable lines; 26,329
+> excluding the substituted names), **6,170 lines of unique shared prelude**
+> (2,422 Riemann–Roch/adelic + 2,245 generic algebra + 1,390 place/valuation + 113
+> divisor), and **≈40,000 projected new lines** (70,151 − 3,759 − 26,329), ≈43%
+> less than the needed subset's raw 70,151. These are the numbers that move with
+> the frontier; the tables above do not.
+
+The boundaries are **layers, not subjects**:
+
+* **One shared Riemann–Roch / adelic prelude** (~4,700 unique lines), used by files
+  of all three subjects: `ell`, `lSpace`, `poleDivisor`, `indexOfSpecialty`,
+  `RiemannGenusReachedAt`, `TranscendenceTower`, `stichtenothGenusExists`,
+  `adeleBddQuot*`, `residuePairing`, `reciprocity_linear`, under the generic algebra
+  they run on (`finrank_quotient_chain*`, `nestedComapMapMkQEquiv`,
+  `doubleResiduePairing_injective`, `linearIndependent_pow_of_transcendental`). The
+  largest single occurrence pattern (13 names) is shared by 13 files and alone is
+  4,176 removable lines; the 16 nodes in files whose heaviest shared prelude is
+  RR/adelic carry 24,311 raw lines. This is **one module**, not a subject.
+* **The already-ported place/valuation vocabulary** — `ord_nonneg_of_mem` (35
+  files), `mem_iff_ord_nonneg` (26), `mk_mem_maximalIdeal_iff`, `residueOfCenter`,
+  `inertiaDeg`, `toValuationSubring…`. The port's `AlgebraicCurve/` tree is 17 files
+  / 372 declarations and verifies 77 in-cone pin nodes:
+  `Defs/{Place,PlacesOverDVR,PlaceDictionary,RatFuncPlaces,Divisor,PushPull,Correspondence,SemilinearAut}.lean`
+  and `PrincipalDivisors/{RatFuncDegree,Transcendence}.lean`. Two blocks are
+  deliberately deferred: `Defs/Divisor.lean` excludes the
+  `Pic`/torsion/`AbelJacobiCard` block ("API for the modular Hecke/Galois-representation
+  layer, not for the exchange cone"), and `Defs/SemilinearAut.lean` excludes the
+  `Divisor`/`Pic0` action-and-torsion section of `BaseChangeGalois`. This layer is
+  an **import boundary**, not work.
+* **Per-file unique content** — the remainder, ≈34,000 lines per the provisional
+  measurement: 204 mostly-independent statements whose places/divisors/Riemann–Roch
+  file names are cosmetic. The pin totals overstate even these: the
+  `RationalFunctionField` files come in near-duplicate pairs (`ord_X_sub_C` ↔
+  `ord_placeOfPoint_algebraMap` share 57 of 70 declarations;
+  `ord_X_nonneg_of_ne_placeInfty` ↔ `ord_placeInfty_X` share 153 of 157), and the
+  `ord_X_sub_C` pair alone is 1,017 removable lines. Duplication-light, genuinely
+  separate families: `Pic0` (14 nodes / 3,103 lines / 762 shared), `SemilinearAut`
+  (9 / 295 / 0), `functionFieldRiemannRoch` (3 / 155 / 0), `normFormulaAlong`
+  (2 / 45 / 0).
+
+The **complex-analytic block** (68 nodes / 90,867 lines: Abel–Jacobi, path period
+lattices, cell dissections, contour integrals, Tate's trace/agreement) is a separate
+effort.
+
+**Overlap with row 6.** 67 `ModularCurve` nodes import `Def_AlgebraicCurve_*` (the
+`qExpFunctionField`, `genusFF`, `regularDifferentials`, `place` and Tate-module
+blocks), so the `AlgebraicCurve` vocabulary is a prerequisite of the modular-curve
+cluster too. The definition-layer fan-in says the same:
+`AlgebraicCurve_DivisorClassGroup` (231 cone theorems) and
+`AlgebraicCurve_IsCurveOver` (226) are the two most shared definitions of the whole
+cone. Port the vocabulary once, at the bottom.
+
+**Consequence for the plan.** For the function-field layer, drop
+places/divisors/Riemann–Roch as porting units and port (i) the one RR/adelic
+prelude, (ii) **import** the ported place/valuation vocabulary, and (iii) the
+per-file statements grouped by *application* — `RationalFunctionField` ord
+computations, divisor class group / principal divisors, `Pic0`/Jacobian,
+`RegularProlongation` residue calculus — keeping the duplication-light
+`Pic0`/`SemilinearAut`/`functionFieldRiemannRoch`/`normFormulaAlong` tail separate.
 
 ## 5. Redundancy discipline
 
@@ -509,10 +572,86 @@ ported.
 ```bash
 cd tools/deps
 python3 frontier.py --target DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen --top 40
-python3 frontier.py --target DeligneSerre.exists_residual_galoisRep_charpoly_frobenius_eq_of_weightOne_hecke_eigen --json
-python3 frontier.py --target DeligneSerre.exists_weightOne_cuspForm_tameConductor_of_qCoeff_eq_trace
 python3 frontier.py --selfcheck
 python3 port_advise.py --target 'P2M/Sol/S_DeligneSerre_*'
+
+# --- §4.1 target-node finder --------------------------------------------------
+# The target sets are pin-only: the forward cone of the Deligne-Serre target in
+# the pin's citation graph.  The frontier `front` is consulted only to fill the
+# ported/needed columns; the file written for port_advise is the needed subset.
+python3 - <<'PY'
+import frontier, re
+from collections import defaultdict
+fr = frontier.Frontier()
+root = fr.pay.pid('DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen')
+cone = fr.closure(root)                 # pin-only, frontier-independent
+front = fr.frontier('union')            # provisional, moves with the port
+def ac_bucket(q):                       # AlgebraicCurve.* predicates of §4.1
+    s = q[len('AlgebraicCurve.'):]
+    if re.search(r'abelJacobi|pathIntegral|pathPeriodLattice|CellDissection|cell|Cell|RadialRegion|grid|residueTheorem|residueTheoremK|Tate|tate|residueTrace|residue_norm|complex|Complex|chartedSpace|isCoveringMapOn|Analytic|analytic|period|Period|Chordal|ComplexLineIntegral|StandardAnnulus|ResidueDiscs|eventually_abel', s): return 'complex-analytic'
+    if re.search(r'[Dd]ifferential|Diffs|diffs|dCoord|omegaSpace|Serre|WeilDatum|weil|Kaehler|canonicalDivisor|CanonicalDivisor|ordDiff|localUnitDerivative', s): return 'differentials/duality'
+    if re.search(r'[Dd]ivisor|Pic0|pic0|Jacobian|classGroup|ClassGroup|Cartier|UniversalDivisor|GluedPic0|NodalPic0|divisorClass|abel|hasPrincipalDivisors|degree_eq|degree_canonical', s): return 'divisors/Pic0'
+    if re.search(r'[Rr]iemannRoch|repartition|Repartition|indexOfSpecialty|genus|Genus|ell_|ell\b|lSpace|two_mul_genus|RiemannGenus|omegaSpace|stichtenoth', s): return 'Riemann-Roch'
+    if re.search(r'[Pp]lace|ord_|ord\b|valuation|Valuation|completion|Completion|[Ll]ocalResidue|TaylorCoeff|depth|Depth|PlaceEvaluation|normFormulaAlong|relNorm|semilinear|SemilinearAut', s): return 'places/local'
+    if re.search(r'[Cc]urve|Curve|functionField|FunctionField|ratFunc|RatFunc|[Cc]orrespondence|correspondence|constantField|ConstantField|Semistable|semistable|model|Model|[Cc]overing|covering|TranscendenceTower|transcendental|Transcendental|finiteDimensional|isAlgClosed|adjoin|KummerCover|FibreResidue|baseChange|BaseChange|traceAlong|pullbackAlong', s): return 'curves/models'
+    return 'other'
+def wt_bucket(q):                       # WeierstrassCurve.* / TateCurve.* predicates of §4.1
+    if q.startswith('TateCurve.'): return 'Tate curve: analytic parametrization'
+    s = q.split('.', 1)[1]
+    if re.search(r'[Vv]elu|cyclicQuotient|cyclicKernels|isAddCyclic|IsogenyEnd|IsogenyHom|pointMapOfPushforward|pointHom|dualEndData|stepCurve|OddOrderSummingSet|isOddVeluSet|ker_pointMap|veluFunctionFieldHom|veluPointHom|veluQuotient|velu_map_equation|veluGx|velu2|zmultiples_eq_of_veluQuotient|Delta_eq_veluGx', s): return 'Vélu isogeny / cyclic quotient / modular polynomial'
+    if re.search(r'torsion|Torsion|DivPoly|divPoly|evalEval_psi|KernelPolynomial|KernelIdeal|FullKernel|Drinfeld', s): return 'torsion / division polynomials / Drinfeld'
+    if re.search(r'ProjModel|AddFormula|Third|PointChart|SectionAtOrigin|MapPoint|PointAddEquiv|VariableChange|variableChange|Legendre|Deuring|j_eq|j_perturb|jInvariant|vcInvFun|zsmul_some|smul_some|some_add|some_zero|Point\.|exists_addMonoidHom_i_tau|exists_addMonoidHom_vcInvFun', s): return 'models / group law / variable change / j'
+    if re.search(r'FunctionField|functionField|placeOfPoint|PlaceGate|hasPrincipalDivisors|valuationSubring|CoordinateRing|XYIdeal|adjoin_yCoord|finiteDimensional_ratFunc|isDedekindDomain|GenusOnePlace', s): return 'Weierstrass function field / coordinate ring / places'
+    if re.search(r'reduceHom|ReduceHom|[Rr]eduction|goodModel|inertia|Semistab|semistab|Conductor|PeuRamifiee|Modularity|ThreeFive|Mlc1|FrobeniusCard|isGalois', s): return 'reduction / semistability / modularity data'
+    if re.search(r'FormalGroup|EDSEngine|Hasse|RatPoint|RationalEnd|delta|Delta|exists_isUnit_mul_pow_eight|exists_valuationSubring_with_transcendental', s): return 'formal group / EDS / special invariants'
+    return 'other / genus-one closure'
+def report(qs, bucket, label):
+    g = defaultdict(lambda: [0, 0, 0, 0])
+    for i in qs:
+        b = bucket(fr.pay.qual(i)); g[b][0] += 1; g[b][1] += fr.lines(i)
+        g[b][2 if i in front else 3] += 1
+    print(label, f'({sum(v[0] for v in g.values())} nodes /'
+                 f' {sum(v[1] for v in g.values())} lines)')
+    for b, (n, L, p, nd) in sorted(g.items(), key=lambda kv: -kv[1][1]):
+        print(f'  {b:52} total={n:4} lines={L:7} ported={p:3} needed={nd:3}')
+report([i for i in cone if fr.pay.qual(i).startswith('AlgebraicCurve.')], ac_bucket, 'AlgebraicCurve cone')
+report([i for i in cone if fr.pay.qual(i).startswith(('WeierstrassCurve.', 'TateCurve.'))], wt_bucket, 'Weierstrass+Tate cone')
+
+def plc_theme(q):
+    s = q[len('AlgebraicCurve.'):]
+    if re.search(r'RationalFunctionField|placeInfty|ratFunc|constantsAreBase|isRational', s): return 'A RatFunc/P1'
+    if re.search(r'PlaceEvaluation|PlaceTaylorCoeff|PlaceDepth|PlaceCompletion|PlaceDictionary|evalAt|localParam|analyticOrderAt|TaylorCoeff', s): return 'D local expansion'
+    if re.search(r'restrictAlong|inertiaDegAlong|ramificationIndexAlong|finrankAlong|separableAlong|finiteAlong|normFormulaAlong|relNorm|Restrict|restrict_eq|restrict_ofAlgAut|Along', s): return 'C extension/ramification'
+    if re.search(r'(?<![A-Za-z])ord(?![A-Za-z])|adicValuation|[Vv]aluationSubring|toValuation|maximalIdeal|LocalResidue|residue_norm', s): return 'B ord/valuation'
+    if re.search(r'(?<![A-Za-z])[Pp]lace', s): return 'E place basic'
+    return 'Z other places'
+def div_theme(q):
+    s = q[len('AlgebraicCurve.'):]
+    if re.search(r'Pic0|pic0|Jacobian|jacobian', s): return 'D Pic0/Jacobian'
+    if re.search(r'PushPull|pushforward|pullback|pushForward|pushforwardAlong|pullbackAlong|normFormula', s): return 'C push/pull/norm'
+    if re.search(r'UniversalDivisor|PoleDivisor|poleDivisor', s): return 'E pole/universal'
+    if re.search(r'ClassGroup|classGroup|divisorClass|hasPrincipalDivisors|principal|degree|support|Divisor|divisor', s): return 'A class group/degree'
+    return 'Z other'
+def report_fine(unit, theme, label):
+    g = defaultdict(lambda: [0, 0, 0, 0])
+    for i in cone:
+        q = fr.pay.qual(i)
+        if not q.startswith('AlgebraicCurve.') or ac_bucket(q) != unit: continue
+        b = theme(q); g[b][0] += 1; g[b][1] += fr.lines(i)
+        g[b][2 if i in front else 3] += 1
+    print(label, f'({sum(v[0] for v in g.values())} nodes /'
+                 f' {sum(v[1] for v in g.values())} lines)')
+    for b, (n, L, p, nd) in sorted(g.items()):
+        print(f'  {b:34} total={n:4} lines={L:6} ported={p:3} needed={nd:3}')
+report_fine('places/local', plc_theme, 'places sub-units of §4.1')
+report_fine('divisors/Pic0', div_theme, 'divisors sub-units of §4.1')
+pool = [fr.pay.qual(i) for i in cone
+        if i not in front and fr.pay.qual(i).startswith('AlgebraicCurve.')
+        and ac_bucket(fr.pay.qual(i)) in ('places/local', 'divisors/Pic0', 'Riemann-Roch')]
+open('build/pool_pdr_nodes.txt', 'w').write(','.join(pool))
+print('pool for port_advise (needed places+divisors+RR):', len(pool), 'nodes')
+PY
+python3 port_advise.py --nodes "$(cat build/pool_pdr_nodes.txt)" --json build/pool_pdr_advise.json
 ```
 
 The per-cluster and landmark-share tables were computed with `fltdata.FltData` and

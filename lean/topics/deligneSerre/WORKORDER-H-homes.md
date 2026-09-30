@@ -64,6 +64,14 @@ sub-block absent from any single copy (playbook §2.4). The pin copy is the
 statement authority: write the block at the pin's exact name and statement
 (namespace prefix allowed).
 
+**The tables are proofs, so scan for shared *definitions* too.** The 78-block list
+comes from the tool's proof dedup and omits repeated `def`/`abbrev`/`structure`
+declarations. Before writing each home, scan that home's pin copies for any
+repeated definition the table does not list and home it as well; one that occurs in
+only a single pin file stays in that file. Known Eisenstein cases: `om` (all four
+`S_EisensteinSeries_*` files) and `ser` (the `weierstrassZeta_add_one…` and
+`isBoundedAtImInfty…` files) belong in `ModularForms/Eisenstein/Cotangent.lean`.
+
 **Skip what the port already reaches.** Before writing a block, grep the post-D
 tree (`grep -rn '\b<name>\b' FLTForHuman --include=*.lean`). If a public
 declaration of that name is reachable through the home's imports, do **not**
@@ -87,17 +95,25 @@ new entries last. Then run the checker from `lean/`; it must stay **0 mismatched
 Do this only after all four homes build green. One pass, then one full build, then
 the touched files are **closed**.
 
-### 2a. Promotions — the seven port-`private` copies
+### 2a. Promotions — the seven port-`private` copies, plus the four `_11` refinements
 
 These pin statements already exist in the port but are `private`, so no other
 module can import them. Promote each **at its existing port location** (drop
 `private`, keep the pin name); the checker verifies a promotion through its dotted
 name fallback.
 
+The D friction log adds a promotion cluster the advice tool cannot see:
+`ModularForms/Defs/HeckeRepresentatives.lean` carries the pin's **three-conjunct**
+`heckeMatrix_mul_of_eq` / `…_of_eq'` / `heckeDiagMatrix_mul_of_eq` / `…_of_eq'` as
+the `private …_11` refinements, while the public names carry the weaker
+two-conjunct `S_`-file statements. Resolve each in one move: promote the `_11`
+refinement to the pin's public name, and rename (or `private`-ise) the two-conjunct
+copy, keeping a local alias for its consumers — see 2b.
+
 > The `TOPIC-definitions-and-homes.md` list is wrong: it names
 > `heckeU_eq_sum_zmod` and `redMatrix` (both already **public** in the port,
-> `port_public_count = 1`) and omits `T_zpow_mem_Gamma1` and `adjoinRoot'` (the two
-> genuinely private entries there). Use the table below.
+> `port_public_count = 1`) and omits `T_zpow_mem_Gamma1` and `adjoinRoot'`. Use the
+> table below plus the four `_11` refinements.
 
 ### 2b. Reconciliations — the 22 name clashes
 
@@ -128,6 +144,14 @@ statement is not yet in the proof tree. Resolution, by shape:
   object that happens to share the name. Give the pin declaration its home at the
   pin name; rename the unrelated port declaration (`private` if it has no other
   consumer), keeping a local alias for its consumers.
+- **D friction-log additions the advice table misses** (`lean/logs/deligne-serre-friction.md`
+  is the authoritative phase-D share): `isZeroAt_heckeU` (`HeckeCusps.lean` — the
+  port's public copy drops the pin's `hp : p ≠ 0` and is therefore more general)
+  and `sum_range_eq_sum_zmod` (`HeckeRepresentatives.lean` — binder-only,
+  `{M} (F : …)` against the pin's `{A} (G : …)`). The D worker deliberately did
+  not port or shadow the `Def_CuspForm_Gamma1HeckeOperators` copies of the seven
+  declarations `mdifferentiable_heckeU`, `isZeroAt_heckeU`, the four `…_mul_of_eq`,
+  `sum_range_eq_sum_zmod`; reconcile them here.
 - `coe_smul_eq` lives in `Reserve/` and is **not** diffed; fix it there or move the
   pin copy into its home — do not leave a `Reserve/` declaration shadowing a home.
 
@@ -154,14 +178,15 @@ plan change, stop at the home boundary and report.
 
 ## Appendix — the tool-generated scope tables
 
-Status is computed against the **live tree** (grep of `FLTForHuman/`) on
-2026-09-29, mid-D; the definitions worker is still writing, so re-run the grep
-after it closes. `live file` is the first hit. A name-based test is an upper bound
-— a renamed port still needs the block.
+Regenerated against the **post-D tree** (2026-09-29). `live file` is the first
+
+grep hit in `FLTForHuman/`; a name-based test is an upper bound, so a renamed
+
+port copy still needs the block (§2.1 of the playbook).
 
 #### EIS — `FLTForHuman/ModularForms/Eisenstein/Cotangent.lean`
 
-| block | copies | span | status (live) | live file | pin copies (file:line) |
+| block | copies | span | status (post-D) | live file | pin copies (file:line) |
 |---|---:|---:|---|---|---|
 | `norm_pi_cot_add_le` | 3 | 22 | **write once (H1)** | — | `S_EisensteinSeries_hasSum_weierstrassZeta_sub_mul_G2.lean:313`; `S_EisensteinSeries_isBoundedAtImInfty_eisensteinG1_and_hasSum_eisensteinG1.lean:40`; `S_EisensteinSeries_weierstrassZeta_add_one_and_add_tau_and_smul.lean:118` |
 | `pi_cot_add_eq` | 3 | 12 | **write once (H1)** | — | `S_EisensteinSeries_hasSum_weierstrassZeta_sub_mul_G2.lean:301`; `S_EisensteinSeries_isBoundedAtImInfty_eisensteinG1_and_hasSum_eisensteinG1.lean:28`; `S_EisensteinSeries_weierstrassZeta_add_one_and_add_tau_and_smul.lean:106` |
@@ -180,7 +205,7 @@ after it closes. `live file` is the first hit. A name-based test is an upper bou
 
 #### FD — `FLTForHuman/NumberTheory/FrobeniusDensity/Basic.lean`
 
-| block | copies | span | status (live) | live file | pin copies (file:line) |
+| block | copies | span | status (post-D) | live file | pin copies (file:line) |
 |---|---:|---:|---|---|---|
 | `sum_moebius_mem_zpowers` | 2 | 39 | **write once (H1)** | — | `S_FrobeniusDensity_sum_moebius_mul_pos.lean:52`; `S_FrobeniusDensity_weight_eq.lean:51` |
 | `mem_zpowers_pow_div_iff` | 2 | 30 | **write once (H1)** | — | `S_FrobeniusDensity_sum_moebius_mul_pos.lean:22`; `S_FrobeniusDensity_weight_eq.lean:21` |
@@ -207,13 +232,13 @@ after it closes. `live file` is the first hit. A name-based test is an upper bou
 
 #### GR — `FLTForHuman/GaloisRep/Prelude.lean`
 
-| block | copies | span | status (live) | live file | pin copies (file:line) |
+| block | copies | span | status (post-D) | live file | pin copies (file:line) |
 |---|---:|---:|---|---|---|
 | `finite_range_of_factorsThroughFiniteLevel` | 2 | 28 | **write once (H1)** | — | `S_DeligneSerre_exists_galoisRep_complex_trace_frobenius_eq_of_forall_residual.lean:21`; `S_GaloisRep_exists_conj_eq_of_charpoly_frobenius_eq_of_galoisFactorsThroughFiniteLevel.lean:18` |
 
 #### HK — `FLTForHuman/ModularForms/HeckePrelude.lean`
 
-| block | copies | span | status (live) | live file | pin copies (file:line) |
+| block | copies | span | status (post-D) | live file | pin copies (file:line) |
 |---|---:|---:|---|---|---|
 | `periodic_of_slash_T` | 3 | 22 | **write once (H1)** | — | `S_CuspForm_qCoeff_heckeTLinOne.lean:43`; `S_CuspForm_slash_eq_dirichlet_smul_of_qCoeff_hecke_eigen.lean:114`; `S_DeligneSerre_exists_subalgebra_qCoeff_mem_forall_ringHom_exists_qCoeff_eq_of_weightOne_hecke_eigen.lean:36` |
 | `heckeDiagMatrix_mul_T` | 2 | 12 | **write once (H1)** | — | `S_CuspForm_qCoeff_heckeTLinOne.lean:31`; `S_CuspForm_slash_eq_dirichlet_smul_of_qCoeff_hecke_eigen.lean:102` |
@@ -269,7 +294,9 @@ after it closes. `live file` is the first hit. A name-based test is an upper bou
 | `heckeMatrix_mul_of_eq'` | theorem | `FLTForHuman/ModularForms/Defs/HeckeRepresentatives.lean` | `P2M/Sol/S_ModularForm_heckeU_add_slash_heckeDiagMatrix_slash_eq_of_mem_Gamma1.lean:48` |
 | `locKer` | def | `FLTForHuman/ModularForms/WeightOne/Gamma0Rationality.lean` | `P2M/Sol/S_DeligneSerre_exists_weightTwo_hecke_eigen_reduction_eq_of_weightOne_hecke_eigen.lean:149` |
 
-#### H2 clashes — 22 (name, port file, pin vs port statement)
+Plus the four `private …_11` refinements in `FLTForHuman/ModularForms/Defs/HeckeRepresentatives.lean` (2a).
+
+#### H2 clashes — the 22 tool rows plus the 2 phase-D friction rows
 
 | name | kind | binder-only | port file | pin statement | port statement |
 |---|---|---|---|---|---|
@@ -295,3 +322,5 @@ after it closes. `live file` is the first hit. A name-based test is an upper bou
 | `periodic_smul` | theorem | no | `FLTForHuman/ModularForms/WeightOne/Defs/RatAt.lean` | `{G : ℍ → ℂ} (hG : Periodic (G ∘ ofComplex) 1) (c : ℂ) : Periodic ((c • G) ∘ ofComplex) 1` | `{g : ℍ → ℂ} {c : ℂ} (h : Periodic (g ∘ ofComplex) c) (a : ℂ) : Periodic ((a • g) ∘ ofComplex) c` |
 | `qCoeffLin` | def | no | `FLTForHuman/ModularForms/WeightOne/Gamma1IntegralBasis.lean` | `(N : ℕ) (k : ℤ) (n : ℕ) : CuspForm (Gamma1 N) k →ₗ[ℂ] ℂ` | `(N : ℕ) (k : ℤ) (m : ℕ) : CuspForm (Γ₁ℝ N) k →ₗ[ℂ] ℂ` |
 | `rep` | def | yes | `FLTForHuman/ModularCurve/Analytic/Gamma0Cosets.lean` | `(hpM : ¬ p ∣ M) (q : 𝒬) : SL(2, ℤ)` | `(ℓ : ℕ) (i : Fin (ℓ + 1)) : SL(2, ℤ)` |
+| `isZeroAt_heckeU` | theorem | no | `FLTForHuman/ModularForms/HeckeCusps.lean` | `… (hp : p ≠ 0) … : c.IsZeroAt …` (pin, phase-D friction log) | port copy omits `hp : p ≠ 0` (more general) |
+| `sum_range_eq_sum_zmod` | theorem | yes | `FLTForHuman/ModularForms/Defs/HeckeRepresentatives.lean` | `{A} (G : ℕ → A)` | `{M} (F : ℕ → M)` |

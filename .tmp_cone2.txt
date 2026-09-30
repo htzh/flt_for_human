@@ -1,0 +1,25 @@
+## PLACES (cone)
+  A RatFunc/P1                       total=  21 lines=  8816 ported=  7 needed= 14
+  B ord/valuation                    total=  76 lines= 14692 ported= 25 needed= 51
+  C extension/ramification           total=  19 lines=  2140 ported=  8 needed= 11
+  D local expansion                  total=  10 lines=  2202 ported=  0 needed= 10
+  E place basic                      total=  29 lines=  7678 ported=  9 needed= 20
+  Z other places                     total=   6 lines=   149 ported=  2 needed=  4
+  TOTAL                              total= 161 lines= 35677 ported= 51 needed=110
+## DIVISORS (cone)
+  A class group/degree               total=  30 lines= 10924 ported=  4 needed= 26
+  C push/pull/norm                   total=  11 lines=  3437 ported=  4 needed=  7
+  D Pic0/Jacobian                    total=  22 lines=  3347 ported=  6 needed= 16
+  E pole/universal                   total=   6 lines=  4786 ported=  0 needed=  6
+  TOTAL                              total=  69 lines= 22494 ported= 14 needed= 55
+## ROW 7 (cone)
+   PORTED NODE: 1335 WeierstrassCurve.card_torsion_of_isAlgClosed
+  Velu isogeny / cyclic quotient             total=  50 lines=  91966 ported=  0 needed= 50
+  function field / places / coordinate ring  total=  19 lines=  15027 ported=  0 needed= 19
+  models / group law / variable change / j   total=  18 lines=   4946 ported=  0 needed= 18
+  torsion / division polynomials             total=  11 lines=   4585 ported=  1 needed= 10
+  other / genus-one closure                  total=   4 lines=   4215 ported=  0 needed=  4
+  Tate curve                                 total=  23 lines=   2749 ported=  0 needed= 23
+  reduction / semistability / modularity data total=   3 lines=   1356 ported=  0 needed=  3
+  formal group / EDS / special invariants    total=   1 lines=    215 ported=  0 needed=  1
+  TOTAL                                      total= 129 lines= 125059 ported=  1 needed=128

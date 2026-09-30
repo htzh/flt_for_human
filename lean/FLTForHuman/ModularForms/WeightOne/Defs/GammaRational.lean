@@ -249,9 +249,15 @@ theorem ds_ne_zero {s : ℕ} (hs : s.Coprime N) {v : Fin 2 → ZMod N} (hv : v �
   have h1' : v 1 = 0 := by simpa using hu.mul_left_cancel (h1.trans (mul_zero _).symm)
   funext i; fin_cases i <;> simp [h0, h1']
 
-theorem T_pow_mem_Gamma1 (t : ℤ) : ModularGroup.T ^ t ∈ Gamma1 N := by
+private theorem T_zpow_mem_Gamma1_aux (t : ℤ) : ModularGroup.T ^ t ∈ Gamma1 N := by
   rw [Gamma1_mem, ModularGroup.coe_T_zpow]
   simp
+
+/-- The pin's ℕ-indexed `T_pow_mem_Gamma1`; the general ℤ form is H2's promotion
+target `T_zpow_mem_Gamma1` (promoted from its `private` copy in `Gamma1Basis`). -/
+theorem T_pow_mem_Gamma1 (N n : ℕ) : ModularGroup.T ^ n ∈ Gamma1 N := by
+  rw [show ModularGroup.T ^ n = ModularGroup.T ^ (n : ℤ) from (zpow_natCast _ n).symm]
+  exact T_zpow_mem_Gamma1_aux N (n : ℤ)
 
 theorem T_mem_Gamma1 : ModularGroup.T ∈ Gamma1 N := by
   simp
@@ -274,7 +280,7 @@ theorem exists_twist_conj {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 N) (s : ℕ) :
       ∀ v : Fin 2 → ZMod N, vm N γ' (ds N s v) = ds N s (vm N γ v) := by
   set t : ℤ := γ 1 1 * γ 0 1 * ((s : ℤ) - 1) with ht
   refine ⟨γ * ModularGroup.T ^ t, ⟨γ * ModularGroup.T ^ t * γ⁻¹, conj_mem_Gamma1 N hγ
-    (T_pow_mem_Gamma1 N t), by rw [inv_mul_cancel_right]⟩, ?_⟩
+    (T_zpow_mem_Gamma1_aux N t), by rw [inv_mul_cancel_right]⟩, ?_⟩
   intro v
   have hc : ((γ 1 0 : ℤ) : ZMod N) = 0 := Gamma0_mem.mp hγ
   have hdet : ((γ 0 0 : ℤ) : ZMod N) * ((γ 1 1 : ℤ) : ZMod N) = 1 := by

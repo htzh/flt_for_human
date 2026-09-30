@@ -1,0 +1,17 @@
+CONE total nodes 2308 lines 1089430
+frontier size at measurement: 541
+
+== AlgebraicCurve cone: 465 nodes / 219684 lines
+  complex-analytic       total=  68 lines=  90867  ported=  0 needed= 68
+  places/local           total= 161 lines=  35677  ported= 51 needed=110
+  divisors/Pic0          total=  69 lines=  22494  ported= 14 needed= 55
+  Riemann-Roch           total=  39 lines=  19338  ported=  0 needed= 39
+  differentials/duality  total=  47 lines=  18245  ported=  0 needed= 47
+  curves/models          total=  52 lines=  16681  ported=  7 needed= 45
+  other                  total=  29 lines=  16382  ported=  5 needed= 24
+
+== pool (places+divisors+RR) on cone: 269 nodes / 77509 lines | ported 65 needed 204
+
+== Weierstrass+Tate cone: 129 nodes / 125059 lines | ported 1 needed 128
+   WeierstrassCurve: 106 / 122310
+   TateCurve: 23 / 2749

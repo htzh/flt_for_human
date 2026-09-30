@@ -213,4 +213,22 @@ theorem isZeroAt_heckeT {F : Type*} [FunLike F UpperHalfPlane ℂ]
 
 end CuspFormClass
 
+open ModularForm
+
+/- H2 reconciliation of the phase-D friction row: the pin's `isZeroAt_heckeU`
+statement with `hp : p ≠ 0` (the port's `CuspFormClass.isZeroAt_heckeU` is the
+more general copy without it). Kept in the pin's `CuspForm.Gamma1Hecke` namespace
+so both statements are public; `heckeU`/`c.IsZeroAt` are written as in the pin
+(the checker is textual). -/
+namespace CuspForm.Gamma1Hecke
+
+/- The pin's `isZeroAt_heckeU` (with the `hp : p ≠ 0` hypothesis). -/
+set_option linter.unusedVariables false in
+theorem isZeroAt_heckeU {F : Type*} [FunLike F ℍ ℂ] {Γ : Subgroup (GL (Fin 2) ℝ)}
+    [Γ.IsArithmetic] {k : ℤ} [CuspFormClass F Γ k] (f : F) {p : ℕ} (hp : p ≠ 0)
+    {c : OnePoint ℝ} (hc : IsCusp c Γ) : c.IsZeroAt (heckeU k p ⇑f) k :=
+  CuspFormClass.isZeroAt_heckeU f p hc
+
+end CuspForm.Gamma1Hecke
+
 end

@@ -1405,7 +1405,7 @@ section Level
 
 variable {M : ℕ} {k : ℤ}
 
-private theorem T_mem_Gamma1 (M : ℕ) : ModularGroup.T ∈ Gamma1 M := by
+private theorem T_mem_Gamma1 (N : ℕ) : ModularGroup.T ∈ Gamma1 N := by
   simp
 
 private theorem one_mem_strictPeriods (M : ℕ) : (1 : ℝ) ∈ (Γ₁(M)).strictPeriods := by
@@ -1990,11 +1990,7 @@ section Level
 
 variable {M : ℕ} {k : ℤ}
 
-private theorem T_pow_mem_Gamma1 (M : ℕ) (t : ℤ) : ModularGroup.T ^ t ∈ Gamma1 M := by
-  rw [Gamma1_mem, ModularGroup.coe_T_zpow]
-  simp
-
-private theorem T_mem_Gamma1 (M : ℕ) : ModularGroup.T ∈ Gamma1 M := by
+private theorem T_mem_Gamma1 (N : ℕ) : ModularGroup.T ∈ Gamma1 N := by
   simp
 
 private theorem one_mem_strictPeriods (M : ℕ) : (1 : ℝ) ∈ (Γ₁(M)).strictPeriods := by
