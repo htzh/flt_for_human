@@ -214,3 +214,20 @@ notation, spending their space on the subject at hand.
   checked in
   [`../lean/Reserve/ModularCurve/Analytic/LevelTauBridge.lean`](../lean/Reserve/ModularCurve/Analytic/LevelTauBridge.lean);
   with the key-point table.
+- [019 — Stichtenoth's genus and the adelic index](019-stichtenoth-genus-and-the-adelic-index.md):
+  the adelic proof of Riemann's theorem behind the port's phase-1 genus/index
+  engine — the bounded adeles $`A_D`$ and the diagonal embedding of $`F`$, the
+  local computation $`A_D/A_{D-P} \cong k(P)`$ that turns the degree into a
+  dimension, the index of speciality $`i(D) = \dim A/(A_D+F)`$ and the
+  fundamental identity $`d(D) - d(D_0) = i(D_0) - i(D)`$ for the defect
+  $`d(D) = \deg D - \ell D`$; Riemann's theorem from boundedness of the defect
+  and the `RiemannGenusReachedAt` API; Stichtenoth's pole-divisor package (the
+  transcendence tower, the integral basis, and the lower bound
+  $`\ell(mB) \ge n(m-c+1)`$) that produces the bound; Weil differentials
+  $`\Omega(D) = (A_D+F)^{\perp}`$, the rank-one theorem, and the maximal
+  canonical divisor with $`i(D) = \ell(W-D)`$; the three assemblies
+  (`WeilDualityAdelic`, `exists_weilCanonical_riemannRoch` against $`g_{\mathrm{FF}}`$,
+  and the conditional regular-differentials $`\cong \Omega(0)`$); the two adele
+  models and the $`\mathrm{H}^1`$ bridge; and one summary section (§8) mapping
+  the fourteen declarations to the mathematics, with the Lean encoding and the
+  mathlib inventory.
