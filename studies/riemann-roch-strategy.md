@@ -156,10 +156,13 @@ full-RR lemmas plus `finite_and_finrank_regularDifferentials_eq_genus`,
 There are **two routes to the full formula**:
 
 * **analytic.** `functionFieldRiemannRoch_of_isAlgClosed` (39 lines) cites
-  `residueTheoremK_of_isAlgClosed` (8,121) and the self-contained
+  `residueTheoremK_of_isAlgClosed` (8,121) and
   `functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed` (6,257). The residue
   theorem is fed by `residueTheoremK_ratFunc_of_isAlgClosed` (13,170) and
-  `tateAgreement` (4,816) through `residueTraceCompletionCommute` (1,109).
+  `tateAgreement` (4,816) through `residueTraceCompletionCommute` (1,109). The
+  6,257-line node is self-contained in its **imports** but not in its mathematics:
+  it inlines the Stichtenoth pole-divisor package (§3.1). The residue-theorem half
+  of this route is opened up in [math/021](../math/021-tate-residue.md).
 * **adelic / Stichtenoth.** `stichtenothGenusExists` (2,545) →
   `exists_genus_riemannIndex_of_stichtenothGenusExists` (1,632) →
   `weilDualityAdelic_of_functionFieldRiemannRoch_of_stichtenothGenusExists` (55):
@@ -171,6 +174,85 @@ differentials layer anyway (`exists_ordDifferential_ge_neg_one_and_evalAt_eq_of_
 `sum_fibre_evalAt_eq_zero_of_smul_D_mem_regularDifferentials`), so its *marginal* cost
 for RR is smaller than its group total.
 
+### 3.1 What each route assumes, and what it produces
+
+"Self-contained" describes the imports of the 6,257-line analytic node, not its
+mathematics. `S_AlgebraicCurve_functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed.lean`
+imports only the `Definitions/` modules, but it also **re-states the Stichtenoth
+pole-divisor package inside itself**: `PoleDivisorPackage.ofTranscendenceTower`
+([line 5409](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed.lean#L5409)),
+`stichtenothGenusExists_of_ratFunc_tower`
+([line 5739](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed.lean#L5739))
+and `RationalFunctionField.stichtenothGenusExists`
+([line 5895](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed.lean#L5895))
+are proved there. Its assembly is therefore
+
+```text
+ResidueTheoremK  --> exists_weilMax_of_residueTheoremK        (line 6059)
+                       for ω ≠ 0, weilOfKaehlerK ω has maximal divisor div ω
+inline Stichtenoth -> RiemannGenusReachedAt γ D0              (line 6155)
+        +-- stichtenothGenus_eq_genus_of_weilMax : γ = g      (line 6128)
+        +-- riemannIndexFormula_of_weilMax                     (line 6167)
+        +-- weilOmegaEllAgrees -> WeilDualityAdelic -> WeilDuality
+                                    -> FunctionFieldRiemannRoch
+```
+
+The residue theorem's marginal contribution to RR is exactly the **maximal-divisor
+property** `p0n25_wkc_exists_weilMax_of_residueTheoremK`
+([line 6059](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed.lean#L6059)):
+for every nonzero $`\omega`$, the adelic functional `weilOfKaehlerK ω` is nonzero and
+`canonicalDivisorOf ω` is its largest bounding divisor
+(`p0n25_wkc_weilOfKaehlerK_omegaSpace_le_canonical`,
+[line 6040](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed.lean#L6040);
+nonvanishing by the simple-pole/trace probe). With that, the inline engine's
+$`\gamma`$ is identified with the canonical genus $`g = (\deg K + 2)/2`$
+(`p0n25_wkc_stichtenothGenus_eq_genus_of_weilMax`,
+[line 6128](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed.lean#L6128)),
+and the last steps are the thin assemblies `weilDuality_of_riemannIndex_of_adelic`
+([Def_AlgebraicCurve_RiemannRochRows.lean, line 56](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_RiemannRochRows.lean#L56))
+and `functionFieldRiemannRoch_of_riemann_and_duality`
+([line 51](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_RiemannRochRows.lean#L51)).
+
+So the genus existence and the index formula in the analytic route are the **same
+pole-divisor argument** as the Stichtenoth route, written a second time; the residue
+theorem supplies the canonical-divisor identification and the duality, not the
+finiteness. This is why the blueprint excludes the analytic RR node: the Stichtenoth
+assembly already produces the formula, and the residue theorem's *marginal* RR value
+is the identification of the canonical divisor with `div ω`.
+
+**Canonical divisor: a hypothesis in the statement, on both sides.** Every full-RR
+predicate in `Def_AlgebraicCurve_RiemannRochRows.lean` is quantified over
+`[IsCurveOver] [HasCanonicalDivisor] [∀ v, v.DCoordGenerates]` and a chosen nonzero
+$`\omega`$, and the formula is stated with `canonicalDivisorOf ω`
+([lines 44–49](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_RiemannRochRows.lean#L44-L49)).
+The residue-theorem wrapper carries `[HasCanonicalDivisor]` in its binders too,
+although the statement of `ResidueTheoremK` itself does not mention a canonical
+divisor. Existence is not assumed away: `hasCanonicalDivisor_of_isCurveOver`
+([1,723 lines](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_hasCanonicalDivisor_of_isCurveOver.lean))
+constructs it from `PerfectField K` + `Algebra.EssFiniteType K F` + `IsCurveOver K F`
+using separating transcendence and Kähler differentials, and its imports contain no RR
+and no Stichtenoth, so the dependency is not circular. The Stichtenoth engine, by
+contrast, does not consume the hypothesis: `exists_weilCanonical_riemannRoch` constructs
+its own $`W`$ and proves RR against $`g_{\mathrm{FF}}`$, and $`\gamma = g`$ is
+downstream (`genus_eq_genusFF`,
+[Thm_AlgebraicCurve_genus_eq_genusFF.lean, line 7](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_AlgebraicCurve_genus_eq_genusFF.lean#L7),
+conditional on RR + adelic duality). The only phase-1 node that takes
+`HasCanonicalDivisor` is `exists_linearEquiv_regularDifferentials_omegaSpace_zero`.
+
+**Riemann existence is nowhere in the RR route.** The residue theorem is over an
+arbitrary `[IsAlgClosed K]` and is proved from the adic completion/trace chain, not
+from a complex manifold; the pin's one Riemann-surface construction
+(`Place_exists_chartedSpace_meromorphicOrderAt_evalAt_eq_ord_complex`,
+[ℂ-specific](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_Place_exists_chartedSpace_meromorphicOrderAt_evalAt_eq_ord_complex.lean))
+is outside the RR closure, and the RR files import only `Definitions/`. Riemann
+existence would be one way to *produce* the places and residue data from the function
+field; in this layer those are hypotheses (`HasLocalResidue`,
+`HasCanonicalLocalResidueKStar`, `DCoordGenerates`, `HasSeparableResidue`). The
+mathematics of the completion/trace chain — Tate's commutator definition of the
+residue, the agreement theorem, and how the local identity becomes the global
+residue theorem — is opened up in
+[math/021](../math/021-tate-residue.md).
+
 ## 4. Options
 
 **Option A — full RR as the hub.** Port one proof of `FunctionFieldRiemannRoch` and
@@ -179,8 +261,9 @@ derivation candidates are the `ell` / Riemann-inequality group (12 nodes / 4,064
 lines), the index equalities (3 / 296), `two_mul_genus_sub_two_eq_of_degree_canonical`
 (1,229), `degree_canonicalDivisor_eq_of_riemannRoch` (16) and
 `ell_canonicalDivisor_eq_genus_of_riemannRoch` (13) — about 5,600 lines. It does
-**not** remove finiteness, `hasCanonicalDivisor_of_isCurveOver` (a hypothesis, not a
-consequence), the $`H^1`$ identification, or the $`\Omega`$-dimension result.
+**not** remove finiteness, `hasCanonicalDivisor_of_isCurveOver` (a prerequisite
+constructed from `IsCurveOver`, not a consequence of RR), the $`H^1`$
+identification, or the $`\Omega`$-dimension result.
 
 **Option B — siloed proofs only, as the pin does.** Avoids committing to a full-RR
 proof, but the cone genuinely uses the formula
@@ -262,8 +345,14 @@ Reading the frontiers:
 
 **The two routes are complementary, not redundant.** The analytic route gives the RR
 formula *and* the differentials / residues; Stichtenoth gives *genus existence* and the
-`RiemannGenusReachedAt` / index API. Neither subsumes the other, and the pin has no
-analytic producer of genus existence.
+`RiemannGenusReachedAt` / index API. Neither subsumes the other. But they are not
+independent in the genus/finiteness input: the analytic RR node re-proves the same
+pole-divisor package inline (§3.1), so its marginal value for RR is the residue
+theorem and the canonical-divisor identification, not a second proof of genus
+existence. In particular the prune's "no analytic producer of genus existence" holds
+only for a producer *distinct from the pole-divisor argument*; the analytic node
+carries a copy of that argument, and porting it would port the duplication, not remove
+it.
 
 **The interfaces are thin.** `exists_genus_riemannIndex_of_isCurveOver` (60 lines)
 turns `IsCurveOver` + `ConstantsAreBase` into
@@ -338,8 +427,11 @@ Why first:
   (rank-two Tate-module finiteness, Hecke-algebra dimensions, `genusFF` comparisons,
   `Pic0` torsion, Serre duality) consume the `RiemannGenusReachedAt` / index API, not
   the analytic one.
-* It is a **prerequisite the analytic route cannot supply** — genus existence, adelic
-  quotient finiteness and the index formula.
+* It is the **single home for genus existence, adelic quotient finiteness and the
+  index formula**. The analytic route's own copies of these (inside the 6,257-line
+  `functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed`) are the same
+  pole-divisor argument written a second time (§3.1), so porting the analytic node
+  would duplicate the engine rather than replace it.
 * It is **cheap** at this measurement: ≈3,700 projected lines against the RR family's
   34,500 and the analytic block's 64,873 raw lines.
 

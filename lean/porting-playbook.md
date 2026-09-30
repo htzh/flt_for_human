@@ -206,6 +206,14 @@ Then make the table *act*:
   majority; count the rest per topic", not "port the file".
 - Report the **outbound interface tier** (§2.3) and the **duplication already
   visible** in the pin (§2.4).
+- **Close a measurement over proof-reached targets, not just the target files.**
+  A cone built from the targets' own `S_` files is a lower bound on the checked
+  surface: target proofs reach helper *targets* whose wrappers and `S_` files are
+  outside the measured set.  The Riemann–Roch round found four such nodes
+  (`IsCurveOver.exists_separating_transcendental`, a 15th helper target
+  `exists_indexOfSpecialty_nsmul_single_eq_zero_of_genusReached`, and the two
+  Weil-differential helpers), each re-provisioned `private` and later promoted.
+  Measure the transitive closure over the targets' proof-reached public wrappers.
 - **Ship a copy-pasteable regeneration recipe** with every measurement section.
   Do not hand-maintain a number that a script can reproduce.
 

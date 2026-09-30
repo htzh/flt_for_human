@@ -18,12 +18,14 @@ of AC0's `Place.adicValuation_valuationSubring`, `mem_iff_adicValuation_le_one`,
 `isEquiv_adicValuation_ofHeightOneSpectrum` and
 `RationalFunctionField.{nontrivial_valueGroup_inftyValuation, placeInfty}`);
 ≈214 content lines never written, because AC0 already wrote the public originals.
-The port writes only the genuinely T8-local private helpers: the dichotomy
-`eq_ofHeightOneSpectrum_or_eq_placeInfty`, `placeInfty_ne_ofHeightOneSpectrum`,
+The port writes only the genuinely T8-local private helpers:
 `finite_setOf_valuation_ne_one`, the `WFg` helper
 `exists_sub_algebraMap_intDegree_neg`, and the three `WFj` helpers
 (`ne_finitePlace_of_forall_ne`, `single_add_single_apply_eq_ord`,
-`degree_single_add_single`).
+`degree_single_add_single`). The dichotomy `eq_ofHeightOneSpectrum_or_eq_placeInfty`
+and `placeInfty_ne_ofHeightOneSpectrum`, `private` until R2, are now public and
+pin-named; `placeInfty_ne_ofHeightOneSpectrum` binds `K` explicitly, matching the
+pin's public original (`Def_AlgebraicCurve_RatFuncPlaceClassification`).
 
 FLT provenance, pinned `aa2d8b3`:
 https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_RationalFunctionField_finite_setOf_ord_ne_zero.lean
@@ -56,7 +58,7 @@ namespace RationalFunctionField
 place at infinity. This is Ostrowski (`RatFunc.valuation_isEquiv_infty_or_adic`)
 read through the public AC0 bridge lemmas; the pin repeats it privately in each of
 the first three `S_` files, the port writes it once. -/
-private theorem eq_ofHeightOneSpectrum_or_eq_placeInfty {K : Type*} [Field K]
+theorem eq_ofHeightOneSpectrum_or_eq_placeInfty {K : Type*} [Field K]
     [DecidableEq (RatFunc K)] (v : Place K (RatFunc K)) :
     (∃ w : IsDedekindDomain.HeightOneSpectrum (Polynomial K),
         v = Place.ofHeightOneSpectrum w) ∨
@@ -73,7 +75,7 @@ private theorem eq_ofHeightOneSpectrum_or_eq_placeInfty {K : Type*} [Field K]
       ((Valuation.isEquiv_iff_valuationSubring _ _).mp hw))⟩
 
 /-- The place at infinity is not a finite place. -/
-private theorem placeInfty_ne_ofHeightOneSpectrum {K : Type*} [Field K]
+theorem placeInfty_ne_ofHeightOneSpectrum (K : Type*) [Field K]
     [DecidableEq (RatFunc K)] (w : IsDedekindDomain.HeightOneSpectrum (Polynomial K)) :
     placeInfty K ≠ Place.ofHeightOneSpectrum w := by
   intro h
@@ -99,7 +101,7 @@ theorem exists_forall_ne_ofHeightOneSpectrum {K : Type*} [Field K] :
       ∀ w : IsDedekindDomain.HeightOneSpectrum (Polynomial K),
         v ≠ Place.ofHeightOneSpectrum w := by
   classical
-  exact ⟨placeInfty K, fun w => placeInfty_ne_ofHeightOneSpectrum w⟩
+  exact ⟨placeInfty K, fun w => placeInfty_ne_ofHeightOneSpectrum K w⟩
 
 theorem toValuationSubring_eq_of_forall_ne_ofHeightOneSpectrum {K : Type*} [Field K]
     [DecidableEq (RatFunc K)] (v : Place K (RatFunc K))

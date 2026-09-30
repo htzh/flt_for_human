@@ -3,9 +3,12 @@ Divisors, principal divisors and `Pic0`, after FLT's
 `Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean` lines 179–247
 (<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean>).
 
-The `Pic`/`torsion`/`AbelJacobiCard` block is deliberately not ported: it is API
-for the modular Hecke/Galois-representation layer, not for the exchange cone
-(`TOPIC-ac0-vocabulary.md` §2.2).
+The `torsion`/`AbelJacobiCard` block is deliberately not ported: it is API for the
+modular Hecke/Galois-representation layer, not for the exchange cone
+(`TOPIC-ac0-vocabulary.md` §2.2).  `Pic` (the pin's line 221) is a general curve
+object and lives here beside `Pic0`; the refactor round moved it from
+`Defs/CanonicalDivisor.lean`, where Set D had transcribed it to state
+`canonicalClass`.
 -/
 import FLTForHuman.AlgebraicCurve.Defs.Place
 
@@ -81,5 +84,7 @@ theorem mk_add (D E : Divisor.degZero (K := K) (F := F)) : mk (D + E) = mk D + m
 theorem mk_zero : mk (0 : Divisor.degZero (K := K) (F := F)) = 0 := rfl
 
 end Pic0
+
+abbrev Pic : Type _ := Divisor K F ⧸ Divisor.principal (K := K) (F := F)
 
 end AlgebraicCurve

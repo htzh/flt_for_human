@@ -393,6 +393,17 @@ SOURCES = [
     "Theorems/Thm_AlgebraicCurve_RationalFunctionField_ord_ofHeightOneSpectrum_of_span.lean",
     "Theorems/Thm_AlgebraicCurve_RationalFunctionField_ord_ofHeightOneSpectrum_eq_neg_log.lean",
     "Theorems/Thm_AlgebraicCurve_RationalFunctionField_toValuationSubring_eq_of_forall_ne_ofHeightOneSpectrum.lean",
+    # R2: the last two `P¹` nodes promoted from port-private. The two `Theorems/`
+    # wrappers are the statement authority and come **first**: the `eq_` wrapper
+    # spells K implicitly (`{K : Type*}`), matching the port, while the
+    # `placeInfty_` wrapper spells it explicitly (`(K : Type*)`), which is the
+    # pin's public form (`Def_AlgebraicCurve_RatFuncPlaceClassification`) and the
+    # port's now too. The `finite_setOf_ord_ne_zero` `S_` file (the provenance the
+    # port header names) is appended last for the dotted-name fallback, where the
+    # pin repeats both privately.
+    "Theorems/Thm_AlgebraicCurve_RationalFunctionField_eq_ofHeightOneSpectrum_or_eq_placeInfty.lean",
+    "Theorems/Thm_AlgebraicCurve_RationalFunctionField_placeInfty_ne_ofHeightOneSpectrum.lean",
+    "P2M/Sol/S_AlgebraicCurve_RationalFunctionField_finite_setOf_ord_ne_zero.lean",
     # T9 (`HasPrincipalDivisors` via transcendence). The three nodes have
     # wrappers. The pin's `of_finiteDimensional_ratFunc` `S_` file makes the shared
     # finite-dimensional statement public (as `solution`); the `of_transcendental`
@@ -1469,6 +1480,105 @@ SOURCES = [
     # lists it for the `finite_range_of_factorsThroughFiniteLevel` prelude), so it
     # is not repeated. Appended last so no earlier last-name match can flip.
     "Theorems/Thm_DeligneSerre_exists_galoisRep_complex_trace_frobenius_eq_of_forall_residual.lean",
+    # --- D (the Riemann–Roch definition layer). Seven pin `Definitions/` files
+    # with no `Theorems/` wrappers: the `Definitions/` files are the authority.
+    # `Def_ModularCurve_CanonicalDivisor` first, since the pin's
+    # `Def_AlgebraicCurve_CanonicalDivisor` imports it (the port merges the two
+    # into one module). Appended last so no earlier last-name match can flip.
+    "Definitions/Def_ModularCurve_CanonicalDivisor.lean",
+    "Definitions/Def_AlgebraicCurve_CanonicalDivisor.lean",
+    "Definitions/Def_AlgebraicCurve_Repartitions.lean",
+    "Definitions/Def_AlgebraicCurve_AdelicIndex.lean",
+    "Definitions/Def_AlgebraicCurve_IsCurveOver.lean",
+    "Definitions/Def_AlgebraicCurve_RiemannRochRows.lean",
+    "Definitions/Def_AlgebraicCurve_PoleDivisorPackage.lean",
+    # --- H1a (the adelic-index / `ell` prelude and the index targets). The five
+    # `Theorems/` wrappers come first: they are the interface copies whose binders
+    # the port's public targets spell. The `S_` file then supplies the shared
+    # prelude's declarations, in its own declaration order. Appended last so no
+    # earlier last-name match can flip.
+    "Theorems/Thm_AlgebraicCurve_indexOfSpecialty_eq_of_genusReached.lean",
+    "Theorems/Thm_AlgebraicCurve_indexOfSpecialty_eq_zero_of_genusReached.lean",
+    "Theorems/Thm_AlgebraicCurve_RiemannGenusReachedAt_eq_of_ge.lean",
+    "Theorems/Thm_AlgebraicCurve_omegaSpace_finite_of_genusReached.lean",
+    "Theorems/Thm_AlgebraicCurve_exists_genus_riemannIndex_of_stichtenothGenusExists.lean",
+    "P2M/Sol/S_AlgebraicCurve_exists_genus_riemannIndex_of_stichtenothGenusExists.lean",
+    # --- R (refactor): the 15th H1a-adjacent helper target the H2 assembly reached,
+    # promoted into `Genus/Index.lean`. The wrapper comes first (the interface copy
+    # whose binders the port's public target spells); the `S_` file carries the
+    # `solution` body.
+    "Theorems/Thm_AlgebraicCurve_exists_indexOfSpecialty_nsmul_single_eq_zero_of_genusReached.lean",
+    "P2M/Sol/S_AlgebraicCurve_exists_indexOfSpecialty_nsmul_single_eq_zero_of_genusReached.lean",
+    # --- H1b (the Stichtenoth genus-existence tower). The two `Theorems/` wrappers
+    # come first: they are the interface copies whose binders the port's two public
+    # targets spell. The `S_` file then supplies the shared tower. Appended last so
+    # no earlier last-name match can flip.
+    "Theorems/Thm_AlgebraicCurve_RationalFunctionField_stichtenothGenusExists.lean",
+    "Theorems/Thm_AlgebraicCurve_RationalFunctionField_finiteDimensional_lSpace_zero_of_constantsAreBase.lean",
+    "P2M/Sol/S_AlgebraicCurve_RationalFunctionField_stichtenothGenusExists.lean",
+    # --- R (refactor): `IsCurveOver.exists_separating_transcendental`, promoted into
+    # `AlgebraicCurve/IsCurveOver/SeparatingTranscendental.lean`. The wrapper comes
+    # first (the interface copy whose binders the port's public target spells); the
+    # `S_` file supplies the pin-public support lemmas (`kaehlerAdjoinBasis`,
+    # `finrank_kaehler_eq_card_of_separating`, the `trdeg` chain) in declaration order.
+    "Theorems/Thm_AlgebraicCurve_IsCurveOver_exists_separating_transcendental.lean",
+    "P2M/Sol/S_AlgebraicCurve_IsCurveOver_exists_separating_transcendental.lean",
+    # --- H2 (assembly, the Weil canonical divisor, and the `H¹` identification).
+    # Each `Theorems/` wrapper comes first: it is the interface copy whose binders
+    # the port's public target spells (the `S_` file calls it `solution`).  The `S_`
+    # file then supplies the shared prelude.  The curve-level helper
+    # `stichtenothGenusExists_of_isCurveOver` (H2 re-provisioned it `private`;
+    # the refactor round promoted it from the now-public
+    # `IsCurveOver.exists_separating_transcendental`) is wired here with its own
+    # wrapper + `S_` file, wrapper first.  Appended last so no earlier last-name
+    # match can flip.
+    "Theorems/Thm_AlgebraicCurve_stichtenothGenusExists_of_isCurveOver.lean",
+    "P2M/Sol/S_AlgebraicCurve_stichtenothGenusExists_of_isCurveOver.lean",
+    "Theorems/Thm_AlgebraicCurve_indexOfSpecialty_eq_finrank_H1.lean",
+    "P2M/Sol/S_AlgebraicCurve_indexOfSpecialty_eq_finrank_H1.lean",
+    "Theorems/Thm_AlgebraicCurve_exists_genus_riemannIndex_of_isCurveOver.lean",
+    "P2M/Sol/S_AlgebraicCurve_exists_genus_riemannIndex_of_isCurveOver.lean",
+    "Theorems/Thm_AlgebraicCurve_weilDifferentialRankOne_of_isCurveOver.lean",
+    "P2M/Sol/S_AlgebraicCurve_weilDifferentialRankOne_of_isCurveOver.lean",
+    "Theorems/Thm_AlgebraicCurve_weilDualityAdelic_of_functionFieldRiemannRoch_of_stichtenothGenusExists.lean",
+    "P2M/Sol/S_AlgebraicCurve_weilDualityAdelic_of_functionFieldRiemannRoch_of_stichtenothGenusExists.lean",
+    "Theorems/Thm_AlgebraicCurve_exists_weilCanonical_riemannRoch.lean",
+    "P2M/Sol/S_AlgebraicCurve_exists_weilCanonical_riemannRoch.lean",
+    "Theorems/Thm_AlgebraicCurve_exists_riemannGenusReachedAt_nsmul_single_of_stichtenothGenusExists.lean",
+    "P2M/Sol/S_AlgebraicCurve_exists_riemannGenusReachedAt_nsmul_single_of_stichtenothGenusExists.lean",
+    # --- H3 (the differentials bridge and the Weil-differential interface). The
+    # target's `Theorems/` wrapper comes first: it is the interface copy whose
+    # binders the port's public headline spells. The four pin `Definitions/` files
+    # then supply the definition layer (their own inventories are the authority,
+    # there are no `Thm_` wrappers for them) and the `S_` file the shared prelude
+    # plus the `'` copy of the headline.  The two proof-reached helper targets H3
+    # re-provisioned `private` are wired with their own wrappers + `S_` files
+    # (wrapper first); the refactor round promoted them into
+    # `Defs/WeilOfKaehler.lean`.  Appended last so no earlier last-name match can
+    # flip.
+    "Theorems/Thm_AlgebraicCurve_weilOfKaehler_mem_omegaSpace_of_residueTheorem.lean",
+    "P2M/Sol/S_AlgebraicCurve_weilOfKaehler_mem_omegaSpace_of_residueTheorem.lean",
+    "Theorems/Thm_AlgebraicCurve_weilOfKaehler_ne_zero_and_maximal.lean",
+    "P2M/Sol/S_AlgebraicCurve_weilOfKaehler_ne_zero_and_maximal.lean",
+    "Theorems/Thm_AlgebraicCurve_exists_linearEquiv_regularDifferentials_omegaSpace_zero.lean",
+    "Definitions/Def_ModularCurve_CanonicalDivisorUniformizer.lean",
+    "Definitions/Def_AlgebraicCurve_LocalResidue.lean",
+    "Definitions/Def_AlgebraicCurve_WeilOfKaehler.lean",
+    "Definitions/Def_AlgebraicCurve_RegularDifferentials.lean",
+    "P2M/Sol/S_AlgebraicCurve_exists_linearEquiv_regularDifferentials_omegaSpace_zero.lean",
+    # --- P2 (the canonical divisor and its two Kähler prerequisites). The three
+    # `Theorems/` wrappers come first (the interface copies whose binders the
+    # port's three public headlines spell), then the three `S_` files: the two
+    # Kähler files supply the shared private `exists_basis` prelude and the
+    # `S_AlgebraicCurve_hasCanonicalDivisor_of_isCurveOver.lean` the 140-row
+    # public model-predicate chain + private engine. Appended last so no earlier
+    # last-name match can flip.
+    "Theorems/Thm_AlgebraicCurve_hasCanonicalDivisor_of_isCurveOver.lean",
+    "Theorems/Thm_KaehlerDifferential_span_D_eq_top_of_transcendental.lean",
+    "Theorems/Thm_KaehlerDifferential_D_ne_zero_of_transcendental.lean",
+    "P2M/Sol/S_KaehlerDifferential_span_D_eq_top_of_transcendental.lean",
+    "P2M/Sol/S_KaehlerDifferential_D_ne_zero_of_transcendental.lean",
+    "P2M/Sol/S_AlgebraicCurve_hasCanonicalDivisor_of_isCurveOver.lean",
 ]
 
 PORT_FILES = [
@@ -1939,6 +2049,47 @@ PORT_FILES = [
     # residual family `hfam`; the only public declaration is the target, all
     # helpers are `private`. Appended last so no earlier last-name match can flip.
     "FLTForHuman/DeligneSerre/Assembly.lean",
+    # --- D (the Riemann–Roch definition layer), in the pin's own import order.
+    # `Pic` (the pin's `Def_AlgebraicCurve_DivisorClassGroup:221`, already in
+    # SOURCES) lives in `Defs/Divisor.lean` beside `Pic0`; the refactor round moved
+    # it there from `CanonicalDivisor`, where the earlier AC effort had left it.
+    # Appended last so no earlier last-name match can flip.
+    "FLTForHuman/AlgebraicCurve/Defs/CanonicalDivisor.lean",
+    "FLTForHuman/AlgebraicCurve/Defs/Repartitions.lean",
+    "FLTForHuman/AlgebraicCurve/Defs/AdelicIndex.lean",
+    "FLTForHuman/AlgebraicCurve/Defs/IsCurveOver.lean",
+    "FLTForHuman/AlgebraicCurve/Defs/RiemannRochRows.lean",
+    "FLTForHuman/AlgebraicCurve/Defs/PoleDivisorPackage.lean",
+    # --- H1a (the adelic-index / `ell` prelude and the index targets), the
+    # module that consumes the D layer. Appended last so no earlier last-name
+    # match can flip.
+    "FLTForHuman/AlgebraicCurve/Genus/Index.lean",
+    # --- H1b (the Stichtenoth genus-existence tower), the module that consumes H1a.
+    # Appended last so no earlier last-name match can flip.
+    "FLTForHuman/AlgebraicCurve/Genus/Stichtenoth.lean",
+    # --- R (refactor): the promoted curve-level prerequisite
+    # `IsCurveOver.exists_separating_transcendental`, the module H2's Assembly
+    # imports. Appended before Assembly so no earlier last-name match can flip.
+    "FLTForHuman/AlgebraicCurve/IsCurveOver/SeparatingTranscendental.lean",
+    # --- H2 (assembly, the Weil canonical divisor, and the `H¹` identification),
+    # the module that consumes H1a/H1b. Appended last so no earlier last-name
+    # match can flip.
+    "FLTForHuman/AlgebraicCurve/RiemannRoch/Assembly.lean",
+    # --- H3 (the differentials bridge and the Weil-differential interface): the
+    # four definition modules in the pin's import order, then the headline module
+    # that consumes them and H2. Appended last so no earlier last-name match can
+    # flip.
+    "FLTForHuman/AlgebraicCurve/Defs/CanonicalDivisorUniformizer.lean",
+    "FLTForHuman/AlgebraicCurve/Defs/LocalResidue.lean",
+    "FLTForHuman/AlgebraicCurve/Defs/WeilOfKaehler.lean",
+    "FLTForHuman/AlgebraicCurve/Defs/RegularDifferentials.lean",
+    "FLTForHuman/AlgebraicCurve/Canonical/WeilDifferential.lean",
+    # --- P2 (the canonical divisor and its two Kähler prerequisites), the modules
+    # that consume the D/H3 layer. KaehlerTranscendental first (the two headlines
+    # the HasCanonicalDivisor chain applies), then the construction. Appended last
+    # so no earlier last-name match can flip.
+    "FLTForHuman/AlgebraicCurve/Defs/KaehlerTranscendental.lean",
+    "FLTForHuman/AlgebraicCurve/Canonical/HasCanonicalDivisor.lean",
 ]
 
 

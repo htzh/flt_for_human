@@ -1,10 +1,47 @@
 # Porting: the Riemann–Roch foundation of the curve layer
 
-**Status: SCOPED, phase 1 not started (2026-09-29).** Pin `aa2d8b3`; the port's mathlib
-is `v4.34.0`. This is the port blueprint for the foundational Riemann–Roch effort, split
-out of the Deligne–Serre scout because it is not incidental to that cone. **Phase 1 is
-fixed — the 14-node genus / index engine; the rest of the route is TBD**, and the effort
-may go beyond Riemann–Roch (Serre duality, the Weil pairing, `genusFF`).
+**Status: phase 1 COMPLETE; phase 2 COMPLETE (2026-09-30).** Phase 2 — the canonical
+divisor, `hasCanonicalDivisor_of_isCurveOver` (1,723 ln) plus its two
+Kähler-differential prerequisites — is landed: `Defs/KaehlerTranscendental.lean` (94)
+and `Canonical/HasCanonicalDivisor.lean` (1,559), from
+[riemannRoch/WORKORDER-P2-canonical.md](riemannRoch/WORKORDER-P2-canonical.md) with
+the mathlib audit [riemannRoch/AUDIT-mathlib-p2.md](riemannRoch/AUDIT-mathlib-p2.md).
+Checker **3060 identical / 0 mismatched / 0 missing / 30 own-proof** (3090 checked);
+full `lake build` green (4837 jobs); `spec/RiemannRochConsumer.lean` 0 errors; the
+headline and both Kähler theorems are `[propext, Classical.choice, Quot.sound]`.
+Method record: [../logs/riemann-roch-friction.md](../logs/riemann-roch-friction.md).
+Pin `aa2d8b3`; the port's mathlib is `v4.34.0`. This is the port blueprint for the
+foundational Riemann–Roch effort, split out of the Deligne–Serre scout because it is
+not incidental to that cone. **Phase 1 is fixed — the 14-node genus / index engine; the
+rest of the route is TBD**, and the effort may go beyond Riemann–Roch (Serre duality,
+the Weil pairing, `genusFF`).
+
+**What shipped (homes).** `Defs/{Repartitions,AdelicIndex,IsCurveOver,CanonicalDivisor,
+RiemannRochRows,PoleDivisorPackage,CanonicalDivisorUniformizer,LocalResidue,WeilOfKaehler,
+RegularDifferentials}.lean` (the definition layer, ~1,700 written lines);
+`IsCurveOver/SeparatingTranscendental.lean`; `Genus/Index.lean` (1,517);
+`Genus/Stichtenoth.lean` (976); `RiemannRoch/Assembly.lean` (736);
+`Canonical/WeilDifferential.lean` (474). **Phase 2 adds**
+`Defs/KaehlerTranscendental.lean` (94) and `Canonical/HasCanonicalDivisor.lean`
+(1,559), so every curve now has a canonical divisor unconditionally
+(`PerfectField` + `Algebra.EssFiniteType` + `IsCurveOver`), which is what phase 1's
+conditional `HasCanonicalDivisor` interfaces consume. The phase-1 differentials
+headline remains **conditional**
+(`ResidueTheorem`, `HasCanonicalDivisor`, … kept as hypotheses, fed in phase 3).
+Written total ≈5,350 lines (phase 1) + 1,653 (phase 2) against the projections. The
+mathlib route audits are
+[riemannRoch/AUDIT-mathlib.md](riemannRoch/AUDIT-mathlib.md) (5 substitutes, 78
+proof-ingredients, 53 bespoke negatives) and
+[riemannRoch/AUDIT-mathlib-p2.md](riemannRoch/AUDIT-mathlib-p2.md) (6 / 111 / 23).
+
+**Scope correction (measured, `riemannRoch/PLAN.md` §1).** The 12,262 raw lines of §0
+are the 14 auto-generated `S_` files, which *import the pin's `Definitions/` modules*.
+Those definition modules are prerequisites the port does not yet have (no `LSpace`,
+`ell`, `repartitions`, `adeleBdd`, `indexOfSpecialty`, `omegaSpace`, `genusFF`,
+`HasCanonicalDivisor` under `FLTForHuman/`). `port_advise --with-defs` prices the full
+phase-1 scope at **42 files / 1,001 declarations / 15,375 raw lines** (12,262 `S_` +
+3,113 definitions), **8,584 removable**, **≈5,700 projected** — not 3,700. Budget
+5,000–6,000 written lines across the sets in `riemannRoch/PLAN.md` §2.
 
 Companions:
 
