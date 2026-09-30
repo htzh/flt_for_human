@@ -21,7 +21,9 @@ theorems), [flt-non-frey-segments.md](flt-non-frey-segments.md) §3.4 (the segme
 cone), [eichler-shimura-scout.md](eichler-shimura-scout.md) (the analytic
 Eichler–Shimura package this cone's mod-$`p`$ layer shares),
 [../math/020-frobenius-density-and-artin.md](../math/020-frobenius-density-and-artin.md)
-(the mathematics of the §6.1 Galois / Frobenius / Artin cluster), and
+(the mathematics of the §6.1 Galois / Frobenius / Artin cluster),
+[riemann-roch-strategy.md](riemann-roch-strategy.md) (the Riemann–Roch foundational
+question split out of §4.1), and
 [t-side-driver.md](t-side-driver.md) (the $`R = T`$ side that consumes the
 weight-two output).
 
@@ -436,45 +438,28 @@ The boundaries are **layers, not subjects**:
   separate families: `Pic0` (14 nodes / 3,103 lines / 762 shared), `SemilinearAut`
   (9 / 295 / 0), `normFormulaAlong` (2 / 45 / 0).
 
-**What the RR layer ultimately feeds (a dependency fact, not a size fact).** The RR
-statements are the geometric dimension engine, and they feed dimension arguments
-all the way up. The direct consumers of `finiteDimensional_lSpace` (110 forward-cone
-dependents) are dimension counts —
-`Divisor.exists_finset_finrank_riemannRochSpace_mapDomain_placeReduction_le`,
-`finite_and_finrank_regularDifferentials_eq_genus` ($`\dim\Omega = g`$), the genus
-comparisons `genusFF_le_of_constantFieldExtension_of_isAlgClosed` and
-`sum_genusFF_le_of_sum_finrank_eq_of_krullDimLE_one`; `indexOfSpecialty_eq_finrank_H1`
-(91 dependents) is $`\dim H^1`$; and
-`ell_canonicalDivisor_eq_genus_of_riemannRoch` /
-`degree_canonicalDivisor_eq_of_riemannRoch` give $`\deg K = 2g - 2`$. They reach the
-forward target by one narrow chain:
-`ModularCurve.exists_linearEquiv_tensor_regularDifferentials_x1FunctionFieldBar_cuspForm`
-(6 cone dependents) →
-`exists_injective_ringHom_adjoin_heckeDiamondGenBar_cuspForm` (5) →
-`CuspForm.IsEigenformWith.exists_ringHom_rationalHeckeAlgebraOne_mul_eq` (4) →
-`…exists_galoisRepAdic_charpoly_frobenius_eq_and_isUnramifiedAt` (3) → the
-Deligne–Serre residual representation. So the *bottleneck* is not the RR prelude
-itself but the differentials ↔ cusp-forms transport above it.
+**The RR question is its own subject.** The Riemann–Roch foundational material — what
+form of RR the cone needs, whether the sibling statements should be derived from it,
+the two proof routes, and the siloing — is studied in
+[riemann-roch-strategy.md](riemann-roch-strategy.md); the numbers live there. Three
+facts matter to this scout:
 
-**The arithmetic dimension route is independent.** `CuspForm.finiteDimensional_Gamma1`,
-`CuspForm.exists_basis_gamma1_qCoeff_slash_mem_range_intCast`,
-`ModularForm.exists_gamma0_qExpansion_eq_of_levelOne`, and the coefficient-ring gate
-`DeligneSerre.exists_finset_qCoeff_mem_of_upperDensity_le_of_weightOne_hecke_eigen`
-have **zero RR ancestors**: the Sturm/q-expansion and integral-structure dimension
-results live on the arithmetic (Hecke/q-expansion) side and bypass the
-function-field layer entirely.
-
-**The complex-analytic block is upstream, not a side effort.** The two
-most-depended-on nodes of the group are not RR but complex-analytic:
-`tateAgreement` (4,816 lines, 104 cone dependents) and
-`residueTheoremK_of_isAlgClosed` (8,121 lines, 102), and the RR theorem's
-`functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed` (6,257, 97) is proved
-from them. The RR bucket (41 nodes) is in 22 of the 49 landmark cones, including
-`fermat_last_theorem`, all three level-lowering landmarks,
-`FreyPackage.{Mazur_Frey, frey_isModular}`, and
-`LanglandsTunnell.exists_isWeightOneChiNegThreeRealized_eq_trace_lift`. The
-complex-analytic block (67 nodes / 84,610 lines) is therefore a separate *subject*
-but sits on the critical path to the geometric dimension theory.
+* The cone reaches the RR family through the differentials ↔ cusp-forms transport:
+  `ModularCurve.exists_linearEquiv_tensor_regularDifferentials_x1FunctionFieldBar_cuspForm`
+  (6 cone dependents) → `exists_injective_ringHom_adjoin_heckeDiamondGenBar_cuspForm`
+  (5) → `CuspForm.IsEigenformWith.exists_ringHom_rationalHeckeAlgebraOne_mul_eq` (4) →
+  `…exists_galoisRepAdic_charpoly_frobenius_eq_and_isUnramifiedAt` (3) → the
+  Deligne–Serre residual representation. The bottleneck is the transport above RR,
+  not RR itself.
+* The RR family is **siloed**: 72 cone nodes / 62,710 lines (1 ported); the full-RR
+  statements are 4 nodes / 210 lines and almost every other node cites nothing within
+  the family. `port_advise` on its 71 needed nodes finds ≈45% duplication, so the
+  shared prelude needs one home.
+* The **arithmetic** dimension route is independent: `CuspForm.finiteDimensional_Gamma1`,
+  the $`\Gamma_1`$-integral basis and the coefficient-ring gate
+  `DeligneSerre.exists_finset_qCoeff_mem_of_upperDensity_le_of_weightOne_hecke_eigen`
+  have **zero RR ancestors**, so Sturm/q-expansion and integral-Hecke dimension theory
+  bypass this layer.
 
 **Overlap with row 6.** 67 `ModularCurve` nodes import `Def_AlgebraicCurve_*` (the
 `qExpFunctionField`, `genusFF`, `regularDifferentials`, `place` and Tate-module
@@ -484,13 +469,17 @@ cluster too. The definition-layer fan-in says the same:
 `AlgebraicCurve_IsCurveOver` (226) are the two most shared definitions of the whole
 cone. Port the vocabulary once, at the bottom.
 
-**Consequence for the plan.** For the function-field layer, drop
-places/divisors/Riemann–Roch as porting units and port (i) the one RR/adelic
-prelude, (ii) **import** the ported place/valuation vocabulary, and (iii) the
-per-file statements grouped by *application* — `RationalFunctionField` ord
-computations, divisor class group / principal divisors, `Pic0`/Jacobian,
-`RegularProlongation` residue calculus — keeping the duplication-light
-`Pic0`/`SemilinearAut`/`normFormulaAlong` tail separate.
+**Consequence for the plan.** For this cone, the curve vocabulary is **imported**
+once — the port already owns 77 in-cone nodes across
+`Defs/{Place,PlacesOverDVR,PlaceDictionary,RatFuncPlaces,Divisor,PushPull,Correspondence,SemilinearAut}.lean`
+and `PrincipalDivisors/{RatFuncDegree,Transcendence}.lean` — then the per-file
+statements are grouped by *application*: `RationalFunctionField` ord computations,
+divisor class group / principal divisors, `Pic0`/Jacobian, `RegularProlongation`
+residue calculus, with the duplication-light
+`Pic0`/`SemilinearAut`/`normFormulaAlong` tail kept separate. The order in which the
+Riemann–Roch layer itself is ported, and which of its forms to derive rather than
+re-prove, is the subject of
+[riemann-roch-strategy.md](riemann-roch-strategy.md).
 
 ## 5. Redundancy discipline
 
