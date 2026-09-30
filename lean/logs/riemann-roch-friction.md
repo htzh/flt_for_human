@@ -1,8 +1,10 @@
-# Riemann–Roch phase-1 friction log
+# Riemann–Roch friction log
 
-Running ledger for the phase-1 port (`lean/topics/riemannRoch/`). Append as
-friction is hit; the generalizable part is folded into `porting-playbook.md` at
-the end. Method and set map: [PLAN.md](../topics/riemannRoch/PLAN.md).
+Running ledger for the Riemann–Roch port (`lean/topics/riemannRoch/`), phase 1
+onward. Append as friction is hit; the generalizable part is folded into
+`porting-playbook.md` at the end. Method and set map: phase 1
+[PLAN-P1.md](../topics/riemannRoch/PLAN-P1.md), phase 3
+[PLAN-P3.md](../topics/riemannRoch/PLAN-P3.md).
 
 ## Set D — definition layer (`WORKORDER-D-defs.md`)
 
@@ -391,7 +393,7 @@ set**; schedule it separately and expect it may surface pre-existing mismatches.
   `weilDifferentialRankOne_of_isCurveOver`, and `main` →
   `exists_weilCanonical_riemannRoch`).  Rather than stop three targets, the missing
   mathematics was **re-provided locally as `private`** (the H1b precedent for
-  `instSumRamificationInertiaOfFiniteDimensional`, and PLAN.md §2's "resolve locally
+  `instSumRamificationInertiaOfFiniteDimensional`, and PLAN-P1.md §2's "resolve locally
   `private`, append to the friction log" rule): `Assembly.lean:73–170` now carries a
   private transcription of the pin's `kaehlerAdjoinBasis`,
   `kaehlerOfSeparatingTranscendentalBasis`,
@@ -508,7 +510,7 @@ set**; schedule it separately and expect it may surface pre-existing mismatches.
   maximality step that puts `f • ω₀` in `regularDifferentials`), so it is
   unprovable without them. This is exactly the "14-`S_`-file cone misses
   proof-reached helper targets" gap the H2 entry records, now on the differentials
-  side (the port has **no** `weilOfKaehler` before H3). Per PLAN.md §2's "resolve
+  side (the port has **no** `weilOfKaehler` before H3). Per PLAN-P1.md §2's "resolve
   locally `private`, append to the friction log, and let the final refactor round
   promote" rule — the H2 precedent — both were transcribed into
   `Canonical/WeilDifferential.lean` as `private` declarations with their
@@ -588,7 +590,7 @@ targets outside the measured set. Instances so far:
 `weilOfKaehler_ne_zero_and_maximal` (H3), plus the curve-level prerequisite
 `IsCurveOver.exists_separating_transcendental` (H2). A future measurement should
 close over the targets' **proof-reached public wrappers**, not just their own `S_`
-files. Recorded in `PLAN.md` and the refactor order.
+files. Recorded in `PLAN-P1.md` and the refactor order.
 
 
 ## Refactor round (`WORKORDER-R-refactor.md`)
@@ -738,7 +740,7 @@ a pin-public source (wrapper or `S_` file).
 - **Not in this round** (unchanged): the checker's missing `class` branch
   (`DECL_RE`, `spec/check_flt_statements.py`) remains a separate tooling task.
 
-### Method finding (confirmed; for PLAN.md §1 and the playbook)
+### Method finding (confirmed; for PLAN-P1.md §1 and the playbook)
 
 The 14-`S_`-file cone is exact for the 14 headlines but a lower bound on the
 checked surface.  This round closed the four proof-reached gaps it had recorded
@@ -769,7 +771,7 @@ the targets' proof-reached public wrappers, not just their own `S_` files.
   `…RiemannRoch.Assembly`, `…Canonical.WeilDifferential`,
   `…IsCurveOver.SeparatingTranscendental`, `…Defs.{Divisor,CanonicalDivisor,
   CanonicalDivisorUniformizer,WeilOfKaehler}`) or build the whole library
-  (`FLTForHuman`, which exists). `PLAN.md` §6/§7 was corrected.
+  (`FLTForHuman`, which exists). `PLAN-P1.md` §6/§7 was corrected.
 - **One reasoned residual, deliberately not a target-of-this-round:** the two
   `RatFunc` helpers `Place.eq_ofHeightOneSpectrum_or_eq_placeInfty` and
   `Place.placeInfty_ne_ofHeightOneSpectrum` are pin-public (both have `Theorems/`
@@ -813,7 +815,7 @@ the targets' proof-reached public wrappers, not just their own `S_` files.
 - Hygiene: no `sorry`/`admit`/`axiom`/bare `import Mathlib`/heartbeat override in
   either touched file; private-declaration counts fell with none added
   (`RatFuncDegree` 7 → 5, `Stichtenoth` 16 → 14); no git command run. The residual
-  recorded above is **closed** (`PLAN.md` §7 updated).
+  recorded above is **closed** (`PLAN-P1.md` §7 updated).
 
 ## Set P2 — the canonical divisor (`WORKORDER-P2-canonical.md`)
 
@@ -953,3 +955,308 @@ backups were deleted after the phase-2 full build passed. The two route audits'
 work orders' and this log's mentions of `Scratch*.lean` are historical (the
 convention they instructed), not live file references.
 
+## Phase 3 — plan, and set 3.1 (`WORKORDER-P3-1-residue-instance.md`)
+
+**Phase-scoping rename (2026-09-30).** The phase-1 plan `PLAN.md` was renamed
+`PLAN-P1.md` (it is the phase-1 operative plan only), and every reference in the
+tracked notes, the phase-1/2 work orders, `AUDIT-mathlib.md` and the
+`WeilDifferential.lean` module header was updated. `PORTING-RR.md` §3's
+seven-row work-item table is now the phase map — each row is a self-contained
+phase executed with its own dispatch and review gate — and the new operative plan
+`PLAN-P3.md` records the decomposition, with row 1 detailed as phase 3.1.
+
+**Phase 3.1 is the `HasCanonicalLocalResidueKStar` producer.** The class and its
+API already landed in `Defs/LocalResidue.lean` (phase 1, H3); phase 3.1 supplies
+the unconditional instance, from the two pin `Definitions/` files
+`Def_AlgebraicCurve_PlaceCompletion.lean` (529 ln, 33 decls) and
+`Def_AlgebraicCurve_CanonicalLocalResidueInstanceV2.lean` (2,173 ln, 131 decls).
+Measured price (frontier 608, `port_advise`): raw 2,702 → **≈2,600 written**, no
+shared prelude, ≈100 lines of substitutions. Split into set 3.1a (the completion
+layer) and set 3.1b (the instance), on the dispatch-time assumption that 3.1b
+imports 3.1a — **the audit later showed 3.1b does not need it** (see the manager
+review below).
+
+**Open risk at dispatch.** `PlaceCompletion` imports the unported 564-line
+`Def_DedekindDomain_AdicValuation_InlineSpecific.lean`. Reconnaissance found no
+InlineSpecific lemma referenced by name in `PlaceCompletion`, and the port's
+newer mathlib has `Valuation.IsRankOneDiscrete.rankOne` as a plain function, so
+the import may be droppable; the worker confirms this as the set's scout gate and
+ports only the exact declaration(s) needed, if any. A parallel audit
+(`AUDIT-mathlib-p3-1.md`) is classifying both files against mathlib `v4.34.0` and
+pinning the InlineSpecific disposition.
+
+Dispatched 2026-09-30: set 3.1a (worker `ScratchP3.lean`) and the phase-3.1
+mathlib audit (worker `ScratchAuditP31.lean`) in parallel, per the phase-2
+precedent. Checker baseline before the set: **3060 identical / 0 mismatched / 0
+missing / 30 own-proof** (3090 checked).
+
+## Set P3.1 — the adic-completion layer (`WORKORDER-P3-1-residue-instance.md`, set 3.1a)
+
+**Scout gate — the `InlineSpecific` disposition (2026-09-30).** `PlaceCompletion`
+elaborates against mathlib `v4.34.0` plus the port's
+`Defs/{Place,Divisor,PushPull}` with **one** declaration unioned from the
+unported `Def_DedekindDomain_AdicValuation_InlineSpecific.lean`: the anonymous
+instance
+
+    instance : Valuation.IsRankOneDiscrete (Valued.v : Valuation (v.adicCompletion K) ℤᵐ⁰)
+
+at InlineSpecific 215–219 (namespace `IsDedekindDomain.HeightOneSpectrum`). No
+InlineSpecific lemma is referenced by name anywhere in the pin body, but the
+pin's `kw_ffgc_rankOne_adicCompletion` (pin 264–266) calls
+`Valuation.IsRankOneDiscrete.rankOne`, whose `[IsRankOneDiscrete]` instance
+argument has no mathlib adic-completion instance in `v4.34.0` (the
+reconnaissance's "`rankOne` is now a plain function" is true, but the instance is
+still needed). The union is transcribed verbatim in the marked section of the
+module; its proof uses only mathlib (`Valuation.IsRankOneDiscrete.mk'`,
+`.generator`, `.generator_zpowers_eq_valueGroup`, `.generator_lt_one` and
+`adicCompletion_valueGroup_eq`). **Pre/post estimate: 529 pin lines → ≈530
+written pre-scout → 572 written post-scout (435 non-blank/non-comment)**, the
+delta concentrated in the module header, the specific-import block and the
+unioned instance section, partly offset by the two dropped private helpers below.
+
+**Two private pin helpers are import-discharged, not re-proved.** The pin's
+`mem_of_ord_nonneg_placeCompletionAux` / `ord_nonneg_of_mem_placeCompletionAux`
+(pin 432/441) are the port's public `Place.mem_of_ord_nonneg` /
+`Place.ord_nonneg_of_mem` (`Defs/PushPull.lean`), as `port_advise` predicted; the
+module imports them and drops the copies. Both were pin-`private` and so never
+checker-visible.
+
+**The checker is blind to the `scoped`/anonymous part of this surface.** `+31`
+identical for `34` named public declarations: the three `scoped instance`s
+(`kw_ffgc_algebraAdicCompletionComap`, `…ComapIntegers`,
+`…IntegersToCompletion`, pin 226/234/238) begin a line with `scoped`, which
+`DECL_RE` parses on neither side, and the two anonymous instances (pin 9 and the
+unioned one) have no name. They are still built and axiom-checked.
+
+**`import Mathlib` → specific imports; one path drift.** The module imports
+`Mathlib.RingTheory.DedekindDomain.AdicValuation`,
+`Mathlib.RingTheory.Valuation.Discrete.RankOne`,
+`Mathlib.Topology.Algebra.Valued.{ValuationTopology,WithVal,NormedValued}`,
+`Mathlib.Topology.Algebra.UniformRing` (`Completion.mapRingHom`),
+`Mathlib.Analysis.SpecialFunctions.Pow.Real`,
+`Mathlib.Topology.Algebra.Module.FiniteDimension` and
+`Mathlib.LinearAlgebra.FiniteDimensional.Basic`. Drift:
+`Mathlib.LinearAlgebra.FiniteDimensional` is a directory, not a module; `.Basic`
+is where `Fintype.linearCombination` lives.
+
+**`Set.mem_setOf_eq` → `Set.mem_ofPred_eq`** in the
+`kw_ffgc_uniformContinuous_withValMapAlgebraMap` proof (pin 94): the recorded
+`v4.34.0` rename, applied in the proof only.
+
+**Warnings kept, not silenced.** `kw_ffgc_finiteDimensional_adicCompletion`'s two
+`letI`s (pin 372–374) draw `linter.style.haveILetI`; the pin's
+`first | exact h | (rw [algebraMap_adicCompletion]; exact h)` fallback in
+`kwHgfV352_valued_algebraMap_adicCompletion` (pin 426–428) is dead in `v4.34.0`
+(`exact h` lands) and draws `linter.unusedTactic` / `unreachableTactic`. Both are
+transcribed verbatim; the module builds green with four warnings.
+
+**Measured (2026-09-30, set 3.1a).** `python3 spec/check_flt_statements.py`:
+**3060 → 3091 identical / 0 mismatched / 0 missing / 30 own-proof** (3090 → 3121
+checked; `+31` = the checker-visible public surface). File-done build
+`flock /tmp/flt_for_human.lock timeout 240 lake build
+FLTForHuman.AlgebraicCurve.Defs.PlaceCompletion`: **9.5 s wall, 2817 jobs,
+green**. `#print axioms` on the full public surface — all 34 declarations (the 29
+named non-`scoped` ones, the two `abbrev`s and the three `scoped instance`s):
+`[propext, Classical.choice, Quot.sound]`, no exceptions. No `sorry` / `admit` /
+`axiom`; no `import Mathlib`.
+
+**Manager review — the audit landed and changed two things (2026-09-30).** The
+parallel audit `AUDIT-mathlib-p3-1.md` (617 ln; counts
+`PlaceCompletion` 6/21/7 = 34, V2 10/95/26 = 131, total 16/116/33 = 165)
+contradicted the worker on the one adaptation the worker thought was forced, and
+the manager verified and applied the correction:
+
+- **R1 — the InlineSpecific instance is mathlib's.** The worker unioned it because
+  its specific-import block did not include
+  `Mathlib.NumberTheory.NumberField.Completion.FinitePlace`, where mathlib
+  `v4.34.0` keeps the anonymous `IsRankOneDiscrete` instance for `Valued.v` on an
+  adic completion (generic over a Dedekind domain, no finiteness hypothesis;
+  audit probe A1). The 24-line verbatim union was replaced by that one import.
+  Lesson for the friction log: a name absent from the *imported* modules is not
+  the same as absent from mathlib — the §2.2 audit must search the tree, not the
+  module's closure.
+- **R3 — the pin's global `Algebra O L` instance is dropped.** The pin opens with
+  `instance … : Algebra O L` for every `O : ValuationSubring K` (pin line 9); the
+  worker transcribed it. mathlib `v4.34.0` now supplies that algebra structure
+  (manager probe: `inferInstance` closes), so keeping the pin's copy is a
+  global-instance diamond. The module elaborates without it.
+- Re-verified after both edits: `PlaceCompletion.lean` **551 ln**; checker
+  **3091 / 0 / 0 / 30 own-proof** (unchanged — both dropped declarations are
+  anonymous/scoped and invisible); forced `lake build` **6.8 s, green**; sampled
+  `#print axioms` (including `kw_ffgc_rankOne_adicCompletion`, which now uses the
+  mathlib instance, and `instAlgebraKAdicCompletionIntegers`)
+  `[propext, Classical.choice, Quot.sound]`. The module's own build closure grew
+  2817 → 3407 jobs from the `FinitePlace` import; wall time is unchanged and the
+  number-theory closure is largely already in the port tree.
+
+**R2 — set 3.1b does not need `PlaceCompletion`.** The pin's V2 import is
+vestigial: `lg37_completion v := AdicCompletion (maximalIdeal
+v.toValuationSubring) v.toValuationSubring`, and grep count is 0 in V2 for every
+`kw_ffgc_*` / `kwHgfV352_*` / `adicCompletion` / `algebraMapKIntegers` /
+`KwF4gRRTate` name (audit §4/§5, probe D1). 3.1b therefore drops the import and is
+**independent** of 3.1a — the work order §0 wording "3.1b imports 3.1a" is
+superseded by §4.
+
+**Checker note corrected.** The checker's `DECL_RE` *does* parse a named
+`instance` (only `scoped`-prefixed and anonymous ones are invisible), so
+`instHasCanonicalLocalResidueKStar` will be statement-diffed; it still needs a real
+consumer `example` because a statement check does not exercise the term.
+
+### Set 3.1b-i — the V2 `Place` pole/Laurent layer (pin 1–789)
+
+`Defs/CanonicalLocalResidueInstanceV2.lean`, 552 ln, 58 public declarations
+(the pin's block-1 68 rows minus the 10 import-discharged ones).  Checker
+3091 → 3149 identical / 0 mismatched / 0 missing / 30 own-proof; forced
+`lake build` 6.8 s, green; all 58 public declarations `#print axioms`
+`[propext, Classical.choice, Quot.sound]`.
+
+- **`uniformizerSubring`: the audit's import-discharge target is outside the
+  mandated import set.**  The audit and the work order replace the pin's
+  `def uniformizerSubring` (pin 199) by the port's `Place.uniformizerSubring'`
+  (`Canonical/HasCanonicalDivisor.lean:64`), but the task's import list is only
+  mathlib plus `Defs/{LocalResidue,IsCurveOver,PushPull,Place}`, and
+  `HasCanonicalDivisor.lean` transitively imports
+  `Canonical/WeilDifferential.lean` — which the same task forbids importing into a
+  `Defs/` module.  Resolution: the pin's one-line `def` body
+  (`(IsDiscreteValuationRing.exists_irreducible v.toValuationSubring).choose`, no
+  proof) is transcribed verbatim, which is `rfl`-equal to `uniformizerSubring'`.
+  The two dependent statements `coe_uniformizerSubring` (pin 202) and
+  `irreducible_uniformizerSubring` (pin 205) then land at the pin text with
+  `rfl`/`choose_spec` proofs as the work order intends.  Refactor round: once the
+  V2 module may import the canonical-divisor module, replace the body by
+  `v.uniformizerSubring'` (a one-line change, no statement moves).
+- **`Set.mem_setOf_eq` is deprecated in `v4.34.0`** (use `Set.mem_ofPred_eq`);
+  the two `Submodule` `add_mem'`/`zero_mem'` proofs (pin 244–246, 342–344) use the
+  new name.  Body-only; no statement changes.
+- **`gate_uniformizer_inv_mem_simplePoleSubmodule` (pin 312) is at the pin's
+  `AlgebraicCurve` level with an explicit `(v : Place K F)` binder.**  A first
+  transcription inside `namespace Place` made `v` an implicit auto-bound variable;
+  the checker flagged the statement mismatch (`flt: (v : Place K F) : …`), and the
+  theorem was moved out of the namespace.  Lesson: at this pin every declaration
+  outside the pin's `section Restrict`/`section DegPos` that writes `(v : Place
+  K F)` explicitly must be transcribed at `AlgebraicCurve` level with the binder
+  written out.
+- **Import-discharged blocks dropped whole.**  The pin's `namespace Place /
+  section Restrict` (pin 121–178, six declarations) is the port's
+  `restrictInclusion`/`restrictResidueMap` block (`Defs/PushPull.lean`); the three
+  pin-private ord helpers (pin 208/223/231) are the public
+  `Place.ord_nonneg_of_mem`/`mem_of_ord_nonneg`/`mem_iff_ord_nonneg`; and
+  `gate_hasLocalResidue_uniformizer_inv` (pin 308) is
+  `Place.gate_localResidue_uniformizer_inv` (`Defs/LocalResidue.lean`).  No
+  transcribed statement references any of them except through those port names.
+- **Empty pin scaffolding omitted.**  `section PerfectDischarge` (pin 29–34) and
+  the three empty sections under `ModularCurve.Ldgr37Ch` (pin 50–93) declare
+  nothing; they contribute no namespace a declaration needs and are omitted.  The
+  `p2m_*`/`attribute [-instance]`/`attribute [-simp]` scaffolding is dropped as
+  usual.
+
+
+
+
+
+### Set 3.1b-ii — the `Lg37`/Hensel/`KwNo6Pin` engine and the instance (pin 797–2173)
+
+`Defs/CanonicalLocalResidueInstanceV2.lean` appended, **552 → 1696 ln** (part 2
+= 1138 ln from the second `noncomputable section`, of which 6 are the added
+imports); +63 checker-visible declarations, all 63 pin rows of blocks 2–5.
+Checker **3149 → 3212 identical / 0 mismatched / 0 missing / 30 own-proof**
+(3179 → 3242 checked); forced `lake build` **13.0 s wall / 2688 jobs, green**
+(edit-loop compile 12 s at the 4 M heartbeat cap); the phase headline
+`instHasCanonicalLocalResidueKStar` and the whole public surface `#print axioms`
+`[propext, Classical.choice, Quot.sound]`.  Consumer `ScratchP3bii.lean`:
+`example {K F} [Field K] [Field F] [Algebra K F] [IsCurveOver K F] [PerfectField
+K] : HasCanonicalLocalResidueKStar K F := inferInstance` elaborates, and the
+instance's `dataKStar`/`localResidue_eq_resStar` are exercised by real terms.
+
+- **`isLocalRing_of_isAdicComplete_maximal` is not in the audit's named import
+  set.**  It lives in `Mathlib.RingTheory.AdicCompletion.LocalRing` (line 49), a
+  module the audit §6/§8 does not list; `AdicCompletion.{Algebra,Completeness}`
+  do not re-export it.  Added that specific import (still no `import Mathlib`, no
+  `PlaceCompletion`).  This is the one import the audit under-specified.
+- **`AlgEquiv.coe_to_algHom` is misnamed in the audit §6.**  In `v4.34.0` the
+  lemma is `AlgEquiv.coe_toAlgHom` (capital `H`; `Mathlib/Algebra/Algebra/Equiv.lean:197`),
+  and `coe_algHom` is the deprecated alias (line 202).  Pin 1681's `simpa only
+  [AlgHom.comp_apply, AlgEquiv.coe_algHom]` becomes `…, AlgEquiv.coe_toAlgHom`.
+- **`IntermediateField.topEquiv_apply` (pin 1365) is an unused simp argument in
+  `v4.34.0`.**  The `@[simps!]`-generated lemma no longer matches the goal shape
+  after `AlgEquiv.trans_apply`; the `simp only` closes without it, so it was
+  dropped from the list.  Body-only, no statement change.
+- **`AdjoinRoot.liftAlgHom`'s `h`-binder transparency.**  The pin's
+  `(by rw [aeval_def] at hroot; exact hroot)` proof term has type
+  `eval₂ (algebraMap K _) αhat p = 0`, while `liftAlgHom`'s binder expects
+  `eval₂ ↑(Algebra.ofId K _) αhat p = 0`; the two are `rfl`-equal
+  (`Algebra.toRingHom_ofId`) but `rw`'s matcher works at `implicit` transparency
+  and so cannot unify them, making the whole `liftAlgHom …` application invisible
+  to `AdjoinRoot.liftAlgHom_root`.  Resolution: `sectionOfPrimitiveRoot` is built
+  as `let hlift0 : (minpoly K ᾱ).eval₂ (↑(Algebra.ofId K (lg37_completion v)))
+  αhat = 0 := by rw [Polynomial.aeval_def] at hroot; exact hroot; { … }` and the
+  `liftAlgHom`/`hkey` terms use the let-bound `hlift0`.  The declaration's
+  *statement* (its type) is unchanged — only the structure literal became a `let`
+  plus literal.
+- **Empty pin scaffolding omitted (no declarations, so no namespace is needed).**
+  `ModularCurve.Ldgr35Cl` (pin 797–807), `ModularCurve.Ldgr35Cs` (814–824), the
+  un-namespaced empty `section`s (828–834 and 918–922), `ModularCurve.Ldgr36Si`
+  (842–859, only a `section Generic` of variables), `ModularCurve.Ldgr36Rc`
+  (866–914, five sections of variables, one carrying `[HasCanonicalLocalResidueKStar
+  K F']`), and the `open ModularCurve.Ldgr36Si/Ldgr36Rc/Ldgr35Cs` in `Lg37`;
+  `ModularCurve.Lg37.MovedCarrier` (pin 964–970, only a `variable
+  [HasCanonicalLocalResidueKStar K F']`); the `open ModularCurve.Ldgr37Ch` and
+  `attribute [local instance 2000] RatFunc.instAlgebraOfPolynomial` calls; the
+  three `RatProduction` sections (pin 1284–1291, 1333–1337, 1521–1528, only
+  `variable [HasCanonicalLocalResidueKStar ℚ (RatFunc ℚ)]` and the
+  `AlgebraicClosure ℚ` copy); and `ModularCurve.KwNo6Pin.WitnessW` (pin
+  2117–2122).  Same convention as part 1's omitted `ModularCurve.Ldgr37Ch`
+  sections.
+- **No private helpers and no out-of-set declarations.**  Part 2 resolved every
+  proof inside the pin's V2 file plus mathlib; it added no `private` lemma, and
+  the one API gap (`isLocalRing_of_isAdicComplete_maximal`) was closed by import,
+  not by a local copy.  3.1b-ii therefore adds **no promotion debt**.
+- **Warnings kept.**  Seven `linter.style.haveILetI` warnings from the pin's
+  `haveI := map_isMaximal v` / `haveI := isAdicComplete_map v` /
+  `haveI : FiniteDimensional …` / `haveI : Algebra.IsSeparable …` uses; the
+  linter's `have` suggestion would drop the instance, so the `haveI`s are kept
+  verbatim.
+
+### Manager closeout — phase 3.1 ACCEPTED (2026-09-30)
+
+Set 3.1b-ii's own report is above; the manager re-ran every gate independently:
+
+- **Checker** (from `lean/`): **3212 identical / 0 mismatched / 0 missing / 30
+  own-proof** (3242 checked) — from 3060 at the phase-3 baseline (`+152`: `+31`
+  set 3.1a, `+58` 3.1b-i, `+63` 3.1b-ii).
+- **Builds**: forced `lake build
+  FLTForHuman.AlgebraicCurve.Defs.CanonicalLocalResidueInstanceV2` → 12.4 s /
+  2688 jobs, exit 0; **whole-tree `lake build` → 4853 jobs, exit 0** (the new
+  global instances do not disturb any existing module); the only warning is the
+  pre-existing `Set.mem_setOf_eq` deprecation in `HasCanonicalDivisor.lean`.
+- **Axioms**: `instHasCanonicalLocalResidueKStar`,
+  `completionSection_nonempty_generic`, `localResidue_eq_resStar{,ₗ}`, plus a
+  sample of the engine (`canonicalLocalResidueDataKStar`, `aCoeff`,
+  `mp72a102_t1_exists_completion_root_of_residue_root`,
+  `mp72a102_t3_sigma_taylor_expansion`) — all
+  `[propext, Classical.choice, Quot.sound]`.
+- **Consumer** (the manager's review instrument): `spec/RiemannRochConsumer.lean`
+  gained **ZONE F**: `inferInstance : HasCanonicalLocalResidueKStar K F` over
+  `[IsCurveOver K F] [PerfectField K]`, and the H3 differentials headline
+  consumed **without** an explicit `HasCanonicalLocalResidueKStar` hypothesis
+  (compare ZONE E). `lake env lean … spec/RiemannRochConsumer.lean` exit 0.
+- **Deliberate drops, all recorded**: the pin's V1 shim
+  (`Def_AlgebraicCurve_CanonicalLocalResidueInstance.lean`), the 564-line
+  `InlineSpecific` prelude (its one needed declaration is mathlib's), the pin's
+  global anonymous `Algebra O L` instance (mathlib supplies it), the empty
+  scaffolding sections, and the `p2m_*`/`attribute` scaffolding. No statement was
+  changed; no `sorry`/`admit`/`axiom`; no `import Mathlib`.
+- **Carried refactor debt (not blocking 3.2)**: V2's transcribed one-line
+  `def uniformizerSubring` vs `Canonical/HasCanonicalDivisor.lean`'s
+  `uniformizerSubring'` (import-graph reason), and the
+  `HasSeparableResidue.of_perfectField*` instances vs the port's
+  `hasSeparableResidue_of_perfectField` theorem (frozen-module reason). The final
+  promotion round can collapse each pair without moving a statement.
+
+### Closeout — scratch files removed
+
+`ScratchP3.lean`, `ScratchP3b.lean`, `ScratchP3bii.lean`,
+`ScratchP3biiAxioms.lean`, `ScratchMgrP3.lean` and `ScratchAuditP31.lean` were
+deleted after the phase-3.1 whole-tree build passed. The audit note's and this
+log's "scratch evidence" pointers are historical (the convention they instructed),
+not live file references.

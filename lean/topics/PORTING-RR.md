@@ -1,7 +1,18 @@
 # Porting: the Riemann–Roch foundation of the curve layer
 
-**Status: phase 1 COMPLETE; phase 2 COMPLETE; phase 3 PLANNED — the residue-theorem
-block (two endings) then the RR ending (2026-09-30).** Phase 2 — the canonical
+**Status: phase 1 COMPLETE; phase 2 COMPLETE; phase 3.1 COMPLETE; phases
+3.2–3.7 PLANNED — the residue-theorem block (two endings) then the RR ending
+(2026-09-30).** The seven work-item rows of §3 are executed as phases 3.1–3.7, one
+dispatch and review gate each; the operative plan is
+[riemannRoch/PLAN-P3.md](riemannRoch/PLAN-P3.md) and phase 3.1 was specified by
+[riemannRoch/WORKORDER-P3-1-residue-instance.md](riemannRoch/WORKORDER-P3-1-residue-instance.md).
+**Phase 3.1 landed the `HasCanonicalLocalResidueKStar` producer** —
+`Defs/PlaceCompletion.lean` (551 ln) and `Defs/CanonicalLocalResidueInstanceV2.lean`
+(1,696 ln), 2,247 written against the 2,600 projection — so the K-side hypotheses
+can now be discharged unconditionally; the audit is
+[riemannRoch/AUDIT-mathlib-p3-1.md](riemannRoch/AUDIT-mathlib-p3-1.md) and the
+closeout is PLAN-P3 §1.6.
+Phase 2 — the canonical
 divisor, `hasCanonicalDivisor_of_isCurveOver` (1,723 ln) plus its two
 Kähler-differential prerequisites — is landed: `Defs/KaehlerTranscendental.lean` (94)
 and `Canonical/HasCanonicalDivisor.lean` (1,559), from
@@ -44,14 +55,14 @@ mathlib route audits are
 proof-ingredients, 53 bespoke negatives) and
 [riemannRoch/AUDIT-mathlib-p2.md](riemannRoch/AUDIT-mathlib-p2.md) (6 / 111 / 23).
 
-**Scope correction (measured, `riemannRoch/PLAN.md` §1).** The 12,262 raw lines of §0
+**Scope correction (measured, `riemannRoch/PLAN-P1.md` §1).** The 12,262 raw lines of §0
 are the 14 auto-generated `S_` files, which *import the pin's `Definitions/` modules*.
 Those definition modules are prerequisites the port does not yet have (no `LSpace`,
 `ell`, `repartitions`, `adeleBdd`, `indexOfSpecialty`, `omegaSpace`, `genusFF`,
 `HasCanonicalDivisor` under `FLTForHuman/`). `port_advise --with-defs` prices the full
 phase-1 scope at **42 files / 1,001 declarations / 15,375 raw lines** (12,262 `S_` +
 3,113 definitions), **8,584 removable**, **≈5,700 projected** — not 3,700. Budget
-5,000–6,000 written lines across the sets in `riemannRoch/PLAN.md` §2.
+5,000–6,000 written lines across the sets in `riemannRoch/PLAN-P1.md` §2.
 
 Companions:
 
@@ -138,7 +149,9 @@ unconditional against the ported vocabulary.
 (1,723), `Defs/KaehlerTranscendental.lean` (94) and `Canonical/HasCanonicalDivisor.lean`
 (1,559).
 
-**Phase 3 — the residue-theorem block and the RR ending (PLANNED, 2026-09-30).** The
+**Phase 3 — the residue-theorem block and the RR ending (2026-09-30; the seven
+work-item rows below are executed as phases 3.1–3.7, one dispatch and review gate
+each — phase 3.1 in progress).** The
 algebraic RR is already in phase 1: `exists_weilCanonical_riemannRoch` proves
 $`\exists W, \forall D, \ell D - \ell(W-D) = \deg D + 1 - g_{\mathrm{FF}}`$, with the
 genus-index engine and rank-one behind it. What the forward cone consumes and the port
@@ -168,7 +181,7 @@ writes each piece **once** and then the endings:
 
 | work item | pin raw | written |
 |---|---:|---:|
-| `HasCanonicalLocalResidueKStar` — `Defs/PlaceCompletion.lean` (529) + `Defs/CanonicalLocalResidueInstanceV2.lean` (2,173) | 2,702 | ≈2,600 |
+| **3.1** `HasCanonicalLocalResidueKStar` — `Defs/PlaceCompletion.lean` (529) + `Defs/CanonicalLocalResidueInstanceV2.lean` (2,173) | 2,702 | **2,247 — DONE** (551 + 1,696) |
 | ℙ¹ core + base case — three `trace_localResidue_*` + `residueTheorem_ratFunc_of_perfectField` + helpers | 29,118 | ≈17,300 |
 | Tate agreement — `tateAgreement_v2` + `tateTraceCompat_of_isSeparable` + `tateChainRule` + `tateCommFinite` | 13,323 | ≈8,000 |
 | trace-completion commutation — `residueTraceCompletionCommute_v2` | 1,109 | ≈525 |
@@ -180,7 +193,10 @@ writes each piece **once** and then the endings:
 The per-item rows overlap in their shared helpers (they sum to ≈38,000); the union is
 ≈34,000 — residue union ≈31,000 + instance ≈2,600 + RR assembly ≈400. The rejected
 PF-plus-new-bridge plan is ≈31,900 written (PF ≈28,900 + instance ≈2,600 + bridge
-≈400). Full working: strategy §5.4; the forward-cone payout: D-S scout §4.2.
+≈400). Full working: strategy §5.4; the forward-cone payout: D-S scout §4.2. The
+first phase, 3.1 (`HasCanonicalLocalResidueKStar`), is specified by
+[riemannRoch/PLAN-P3.md](riemannRoch/PLAN-P3.md) and
+[riemannRoch/WORKORDER-P3-1-residue-instance.md](riemannRoch/WORKORDER-P3-1-residue-instance.md).
 
 Homes and discipline:
 

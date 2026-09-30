@@ -26,6 +26,8 @@
     [tower]       ZONE C — H1b. The Stichtenoth tower, at its one concrete instance.
     [assembly]    ZONE D — H2. `WeilDualityAdelic` and RR with `genusFF`.
     [conditional] ZONE E — H3. The differentials interface at its pinned hypotheses.
+    [residue-instance] ZONE F — P3.1. The `HasCanonicalLocalResidueKStar` producer,
+                  which discharges ZONE E's instance hypothesis.
 
   Cross-set compositions that would fail if a module were removed:
     C: `RationalFunctionField.stichtenothGenusExists` (H1b)
@@ -44,6 +46,7 @@ import FLTForHuman.AlgebraicCurve.Genus.Index
 import FLTForHuman.AlgebraicCurve.Genus.Stichtenoth
 import FLTForHuman.AlgebraicCurve.RiemannRoch.Assembly
 import FLTForHuman.AlgebraicCurve.Canonical.WeilDifferential
+import FLTForHuman.AlgebraicCurve.Defs.CanonicalLocalResidueInstanceV2
 
 open AlgebraicCurve
 open KaehlerDifferential
@@ -166,6 +169,29 @@ example {K F : Type*} [Field K] [Field F] [Algebra K F] [HasPrincipalDivisors K 
 example {K F : Type*} [Field K] [Field F] [Algebra K F] [PerfectField K] [Algebra.EssFiniteType K F]
     [IsCurveOver K F] [HasCanonicalDivisor (K := K) (F := F)] [∀ v : Place K F, v.DCoordGenerates]
     [HasCanonicalLocalResidueKStar K F] (hC : ConstantsAreBase K F) (hRT : ResidueTheorem K F) :
+    ∃ e : ↥(regularDifferentials K F) ≃ₗ[K] ↥(omegaSpace (K := K) (F := F) (0 : Divisor K F)),
+      ∀ (ω : ↥(regularDifferentials K F)) (hω : (ω : Ω[F⁄K]) ≠ 0),
+        ((e ω : ↥(omegaSpace (K := K) (F := F) (0 : Divisor K F))) : Module.Dual K ↥(adeleSpace K F))
+          = weilOfKaehler K F hω :=
+  exists_linearEquiv_regularDifferentials_omegaSpace_zero hC hRT
+
+/-! ## Zone F — `[residue-instance]` P3.1: the unconditional producer
+
+`Defs/CanonicalLocalResidueInstanceV2.lean` constructs the pin's
+`instHasCanonicalLocalResidueKStar` under `[IsCurveOver K F] [PerfectField K]`, so
+ZONE E's `HasCanonicalLocalResidueKStar` hypothesis is supplied by instance search
+rather than by hand. Deleting that module must make this zone fail. -/
+
+-- The producer: instance search, not a hypothesis, over a curve.
+example {K F : Type*} [Field K] [Field F] [Algebra K F] [IsCurveOver K F] [PerfectField K] :
+    HasCanonicalLocalResidueKStar K F := inferInstance
+
+-- CROSS-SET COMPOSITION: the produced instance feeds the H3 differentials headline,
+-- which therefore no longer needs `HasCanonicalLocalResidueKStar` as an explicit
+-- hypothesis (compare ZONE E).
+example {K F : Type*} [Field K] [Field F] [Algebra K F] [PerfectField K] [Algebra.EssFiniteType K F]
+    [IsCurveOver K F] [HasCanonicalDivisor (K := K) (F := F)] [∀ v : Place K F, v.DCoordGenerates]
+    (hC : ConstantsAreBase K F) (hRT : ResidueTheorem K F) :
     ∃ e : ↥(regularDifferentials K F) ≃ₗ[K] ↥(omegaSpace (K := K) (F := F) (0 : Divisor K F)),
       ∀ (ω : ↥(regularDifferentials K F)) (hω : (ω : Ω[F⁄K]) ≠ 0),
         ((e ω : ↥(omegaSpace (K := K) (F := F) (0 : Divisor K F))) : Module.Dual K ↥(adeleSpace K F))

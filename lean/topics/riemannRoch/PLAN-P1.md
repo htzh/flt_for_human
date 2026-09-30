@@ -1,5 +1,9 @@
 # Phase 1 — the Riemann–Roch genus / index engine: port plan and set map
 
+*This file is the operative plan for **phase 1 only**. Phase 2's order is
+`WORKORDER-P2-canonical.md`; phase 3's decomposition and set map are
+[PLAN-P3.md](PLAN-P3.md).*
+
 **Status: phase 1 COMPLETE (2026-09-29).** All 14 targets landed and checker-verified;
 sets D, H1a, H1b, H2, H3, the refactor round and the R2 residual all ACCEPTED;
 checker **2944 identical / 0 mismatched / 0 missing / 30 own-proof** (2974 checked);

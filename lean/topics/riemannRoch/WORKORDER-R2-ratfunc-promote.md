@@ -65,7 +65,7 @@ They also have **private rebuilds** in `Genus/Stichtenoth.lean`:
   Mathlib`/heartbeat override.
 - The 14-headline `#print axioms` unchanged (`[propext, Classical.choice, Quot.sound]`).
 - Friction entry under `## Refactor round` in `lean/logs/riemann-roch-friction.md`,
-  and update the "Known residual" note in `topics/riemannRoch/PLAN.md` §7 to say it
+  and update the "Known residual" note in `topics/riemannRoch/PLAN-P1.md` §7 to say it
   is closed.
 
 Build discipline as always: edit loop `timeout 120 lake env lean

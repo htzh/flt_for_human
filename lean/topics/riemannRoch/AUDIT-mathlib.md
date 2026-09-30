@@ -204,7 +204,7 @@ proof-level plus five aliases.
 
 | decl | class | mathlib name | evidence/note |
 |---|---|---|---|
-| `RiemannInequality` | BESPOKE | — | `Prop`; `port_advise`'s "already present" match is the known false positive (`PLAN.md` §1) |
+| `RiemannInequality` | BESPOKE | — | `Prop`; `port_advise`'s "already present" match is the known false positive (`PLAN-P1.md` §1) |
 | `RiemannIndexFormula` | BESPOKE | — | same |
 | `WeilDualityAdelic` | BESPOKE | — | same |
 | `WeilDuality` | BESPOKE | — | same |

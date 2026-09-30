@@ -1,7 +1,7 @@
 # Work order — D: the Riemann–Roch definition layer (prerequisite set)
 
 **Status: ready to dispatch.** Method: `lean/porting-playbook.md` §2.2 (route),
-§2.4 (dedup), §3.1–§3.5, §4 (faithfulness). Plan: `PLAN.md` §1–§4. Precedent:
+§2.4 (dedup), §3.1–§3.5, §4 (faithfulness). Plan: `PLAN-P1.md` §1–§4. Precedent:
 `deligneSerre/WORKORDER-H-homes.md`. This is **phase D**, the leaves: no theorem
 target of its own, but nothing in S1–S4 can be *stated* before it lands.
 
@@ -99,7 +99,7 @@ Public declarations to land, per module (147 inventory rows; the full
   `weilDuality_of_riemannIndex_and_adelic`. **Warning:** `port_advise` reports
   these six `def … : Prop` as "already in the port" by a **false-positive**
   statement match against `EisensteinWeightOne.E1Chi3IsModular`
-  (`PLAN.md` §1). They are **not** ported; land them here.
+  (`PLAN-P1.md` §1). They are **not** ported; land them here.
 - **PoleDivisorPackage** — `PoleDivisorPackage` (structure),
   `HasPoleDivisorPackage`, `TranscendenceTower`, `TranscendenceTower.xF`,
   `TranscendenceTower.poleDivisor`, `TranscendenceTower.RegularOutside`,

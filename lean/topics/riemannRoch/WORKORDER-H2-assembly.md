@@ -2,7 +2,7 @@
 
 **Status: DISPATCHED (2026-09-29).** H1a and H1b are reviewed green (checker
 2823/0/0). Boilerplate and build/verification clauses are `WORKORDER-H1a-index.md`
-§4–§5; only the differences are stated here. Plan: `PLAN.md` §2.
+§4–§5; only the differences are stated here. Plan: `PLAN-P1.md` §2.
 
 ## 0. Scope
 

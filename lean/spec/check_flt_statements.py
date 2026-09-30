@@ -1579,6 +1579,16 @@ SOURCES = [
     "P2M/Sol/S_KaehlerDifferential_span_D_eq_top_of_transcendental.lean",
     "P2M/Sol/S_KaehlerDifferential_D_ne_zero_of_transcendental.lean",
     "P2M/Sol/S_AlgebraicCurve_hasCanonicalDivisor_of_isCurveOver.lean",
+    # --- P3.1a (the adic-completion layer): the pin `Definitions/` file itself is
+    # the statement authority (no `Theorems/` wrapper). Appended last so no earlier
+    # last-name match can flip.
+    "Definitions/Def_AlgebraicCurve_PlaceCompletion.lean",
+    # --- P3.1b-i (the `Place` pole/Laurent layer of the canonical-local-residue
+    # construction): the pin `Definitions/` file itself is the statement authority
+    # (no `Theorems/` wrapper). Appended last so no earlier last-name match can
+    # flip; the pin is the full V2 file (2,173 ln) while the port module carries
+    # only lines 1–789 so far (set 3.1b-ii appends the rest).
+    "Definitions/Def_AlgebraicCurve_CanonicalLocalResidueInstanceV2.lean",
 ]
 
 PORT_FILES = [
@@ -2090,6 +2100,14 @@ PORT_FILES = [
     # so no earlier last-name match can flip.
     "FLTForHuman/AlgebraicCurve/Defs/KaehlerTranscendental.lean",
     "FLTForHuman/AlgebraicCurve/Canonical/HasCanonicalDivisor.lean",
+    # --- P3.1a (the adic-completion layer the `HasCanonicalLocalResidueKStar`
+    # producer of P3.1b runs over). Appended last so no earlier last-name match can
+    # flip.
+    "FLTForHuman/AlgebraicCurve/Defs/PlaceCompletion.lean",
+    # --- P3.1b-i: the `Place` pole/Laurent layer of the V2 producer (pin lines
+    # 1–789). Set 3.1b-ii appends the Hensel engine and the final instance to the
+    # same module. Appended last so no earlier last-name match can flip.
+    "FLTForHuman/AlgebraicCurve/Defs/CanonicalLocalResidueInstanceV2.lean",
 ]
 
 

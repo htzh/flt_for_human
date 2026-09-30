@@ -26,7 +26,7 @@ bodies live in
 (199 ln).  Neither name was in `rr_homes.txt` §H3 (the 25-row union), in Set D,
 H1a, H1b or H2: the 14-`S_`-file measurement misses prerequisites that only the
 targets' proofs reach (the same gap class the H2 friction entry records).  H3
-therefore re-provisioned them `private` here, per PLAN.md §2.  **The refactor round
+therefore re-provisioned them `private` here, per PLAN-P1.md §2.  **The refactor round
 has promoted them**: both now live publicly in `Defs/WeilOfKaehler.lean` (with the
 pin-public support lemmas and the pin-`private` helpers), and this module imports
 them.  No statement changed.

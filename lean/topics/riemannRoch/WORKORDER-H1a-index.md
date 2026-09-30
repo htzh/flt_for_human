@@ -5,7 +5,7 @@ modules build, axioms clean). The mathlib audit is still running; it is **adviso
 not a gate** — read `AUDIT-mathlib.md` if it exists when you start, otherwise do your
 own bounded searches. Use `ScratchH1a.lean`, **not** `Scratch.lean` (another agent
 holds that file). Method: `lean/porting-playbook.md` §2.4, §3.1–§3.7, §4.
-Plan: `PLAN.md` §2. Prerequisite set: D.
+Plan: `PLAN-P1.md` §2. Prerequisite set: D.
 
 ## 0. Scope
 

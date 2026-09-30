@@ -1,7 +1,7 @@
 # Work order — H3: the differentials bridge and the Weil-differential interface
 
 **Status: DISPATCHED (2026-09-29).** H2 reviewed green (checker 2848/0/0).
-Boilerplate/build clauses: `WORKORDER-H1a-index.md` §4–§5. Plan: `PLAN.md` §2.
+Boilerplate/build clauses: `WORKORDER-H1a-index.md` §4–§5. Plan: `PLAN-P1.md` §2.
 
 ## 0. Scope
 
@@ -67,4 +67,4 @@ checker output.
 ## Appendix
 
 `tools/deps/build/rr_homes.txt` §H3 (25 rows); the four definition modules'
-inventories regenerate with `port_advise`'s inventory as in `PLAN.md` §6.
+inventories regenerate with `port_advise`'s inventory as in `PLAN-P1.md` §6.

@@ -14,7 +14,7 @@ checked surface and no new `private` debt.
 
 The 14-`S_`-file measurement missed declarations the target proofs reach (this is
 now a recorded **method finding**, see §4). Each was resolved locally as `private`
-per `PLAN.md` §2, which was correct; this round promotes them.
+per `PLAN-P1.md` §2, which was correct; this round promotes them.
 
 ### R1 — `IsCurveOver.exists_separating_transcendental` (biggest debt)
 
@@ -132,7 +132,7 @@ Per debt R1–R5: the decision (promote / dedup-delete / keep), the new home, th
 checker move, and the friction entry. Plus the final checker line, the wave build
 wall time, and `#print axioms` on the 14 headlines.
 
-## 4. Method finding to record (for `PLAN.md` §1 and the playbook)
+## 4. Method finding to record (for `PLAN-P1.md` §1 and the playbook)
 
 The 14-`S_`-file `rr_homes.txt` measurement is accurate for the 14 **headlines** but
 a lower bound on the **checked surface**: target proofs reach helper targets outside

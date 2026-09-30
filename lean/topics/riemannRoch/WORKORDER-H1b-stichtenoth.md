@@ -4,7 +4,7 @@
 `Genus/Index.lean` 1,517 lines, axioms clean). It already landed
 `exists_genus_riemannIndex_of_stichtenothGenusExists` (and its wrapper-named body)
 — **do not re-state it**; import it. Method and boilerplate are
-`WORKORDER-H1a-index.md`; this order states only what differs. Plan: `PLAN.md` §2.
+`WORKORDER-H1a-index.md`; this order states only what differs. Plan: `PLAN-P1.md` §2.
 
 ## 0. Scope
 

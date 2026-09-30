@@ -4,7 +4,7 @@
 construction that gives every curve a canonical divisor, unblocking the
 differentials layer and the `HasCanonicalDivisor` interfaces. Method:
 [../porting-playbook.md](../porting-playbook.md) §2–§5; precedent sets and review
-gates as in [PLAN.md](PLAN.md) and the phase-1 work orders in this directory.
+gates as in [PLAN-P1.md](PLAN-P1.md) and the phase-1 work orders in this directory.
 
 Baseline after phase 1: checker **2944 identical / 0 mismatched / 0 missing / 30
 own-proof** (2974 checked); full `lake build` green (4830 jobs); consumer
