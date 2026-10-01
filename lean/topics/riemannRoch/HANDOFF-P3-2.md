@@ -1,153 +1,125 @@
-# Handoff — phase 3.2 after chunk 4 (2026-09-30)
+# Handoff — phase 3.2 after the R1 definitions round (2026-09-30)
 
-**For the next session.** This session finished porting the **master ℙ¹ file** of
-row 2. It stops here by human instruction, with the remaining row-2 tails, the
-`Defs/` home audit and the closeout refactor left to the new session. Read
+**For the next session.** Row 2 (3.2) is **mathematically complete**. The
+authoritative, tree-verified **residual-items checklist is
+[PLAN-P3-2.md](PLAN-P3-2.md) §6**, not this file. Read
 [WORKFLOW.md](WORKFLOW.md) first — this note assumes its loop, commands and review
 checklist.
 
+> **Update banner (2026-09-30, documentation pass).** An earlier revision of this
+> handoff said the master ℙ¹ file was `Defs/P1ResidueCore.lean`, that the three
+> sibling atom tails, the `Defs/` moves and the closeout refactor were still pending,
+> and that the checker was **3642 / 0 / 0 / 30**. All of that is **stale**: the R1
+> definitions round ([PLAN-RECTIFY-DEFS.md](PLAN-RECTIFY-DEFS.md) §5.1) moved/split
+> the monolith into the `P1/` chain, and set 3.2g landed `P1/DivPowEnding.lean` +
+> `P1/PerfectBase.lean`. This file now records only the corrected state; the debt
+> lives in PLAN-P3-2.md §6. No code changed in the documentation pass.
+
 ## 1. State
 
-- **Checker:** `python3 spec/check_flt_statements.py` → **3642 identical / 0
-  mismatched / 0 missing / 30 own-proof** (3672 checked).
-- **Builds:** all modules green; no whole-tree build has been run since phase 3.1's
-  debt round (every 3.2 set landed in new files or appended to the then-unimported
-  `P1ResidueCore`).
+- **Checker:** `python3 spec/check_flt_statements.py` → **4049 identical / 0
+  mismatched / 0 missing / 30 own-proof** (4079 checked). Re-verified live in the
+  documentation pass.
+- **Builds:** whole-tree `lake build` green at the 3.2g closeout (4,900 jobs); no
+  whole-tree build was re-run for the documentation pass (no code changed).
 - Pin `anthropics/fermats-last-theorem@aa2d8b3`; port mathlib `v4.34.0`.
 
-**Landed in this session** (phase 3.1 was already complete):
+**Landed for row 2** (phase 3.1 was already complete):
 
-| module | ln | set | content |
-|---|---:|---|---|
-| `Defs/PlaceEvaluation.lean` | 104 | 3.2a | the pin's `PlaceEvaluation` interface (defs) |
-| `Defs/PlaceEvaluationAlgebra.lean` | 185 | 3.2a (gap B) | the `Divisor.evalFun_*` law layer |
-| `Defs/P1Dictionary.lean` | 1,344 | 3.2a | the ℙ¹ place/ord dictionary + `placeOfPoint` block |
-| `Defs/LocalResidueCalculus.lean` | 1,229 | 3.2d′ | the generic local-residue calculus (`p0n22_cpf_res_*`) |
-| `Defs/P1ResidueCore.lean` | **6,470** | 3.2b–e | the master ℙ¹ file (declarations #0–#579), including the atom-1 headline `RationalFunctionField.trace_localResidue_placeInfty_X_pow_eq_zero` and the shared K-base engine `residueTheoremK_ratFunc_of_isAlgClosed_*` |
+| module | set | content |
+|---|---|---|
+| `Defs/PlaceEvaluation.lean` | 3.2a | the pin's `PlaceEvaluation` interface (defs) |
+| `Defs/PlaceEvaluationAlgebra.lean` | 3.2a (gap B) | the `Divisor.evalFun_*` law layer |
+| `P1/Dictionary.lean` | 3.2a (`Defs/` before R1) | the ℙ¹ place/ord dictionary + `placeOfPoint` block |
+| `LocalResidue/Calculus.lean` | 3.2d′ (`Defs/` before R1) | the generic local-residue calculus (`p0n22_cpf_res_*`) |
+| `LocalResidue/Instance.lean` | 3.1b-ii (`Defs/` before R1) | the `HasCanonicalLocalResidueKStar` producer |
+| the 15-module `P1/` chain | 3.2b–e, split by R1 | the master ℙ¹ file (`EnginePrelude` … `Core`), incl. atom 1 and the shared K-base engine |
+| `P1/TwoPlace.lean` | 3.2f | atom-2 two-place cancellation tail + headline |
+| `P1/DivPow.lean` | 3.2f | atom-3 `P1Tower` tail |
+| `P1/DivPowEnding.lean` | 3.2g | atom-3 headline `…finitePlace_div_pow_eq_zero` |
+| `P1/PerfectBase.lean` | 3.2g | PF base `residueTheorem_ratFunc_of_perfectField` |
+| `Tate/*`, `Defs/TateResidueCurrency.lean` | 3.3/3.4 | the Tate agreement + trace-completion commutation (rows 3.3/3.4) |
 
-Audits: `AUDIT-mathlib-p3-2a/b/c/d/dprime/e.md`. Plans and work orders:
-`PLAN-P3-2.md`, `WORKORDER-P3-2a…`, `WORKORDER-P3-2b/c/d/dprime/e…`. Friction:
-`../../logs/riemann-roch-friction.md` § Set 3.2a–3.2e.
+Audits: `AUDIT-mathlib-p3-2a/b/c/d/dprime/e/f/g.md`, `AUDIT-mathlib-p3-3{a,b,c,d}.md`,
+`AUDIT-mathlib-p3-4.md`. Plans/work orders: `PLAN-P3-2.md`, `PLAN-P3-3.md`,
+`PLAN-RECTIFY-DEFS.md`, `WORKORDER-P3-2a…`. Friction:
+`../../logs/riemann-roch-friction.md` § Set 3.2a–3.2g.
 
-## 2. What remains in row 2 (small)
+## 2. What remains in row 2
 
-The master file is done; its **three sibling atom files** still have unique tails
-(the master shared 97% / 69% / 49% with them, so these are ≈1k written total):
+Row 2 is **mathematically complete**. The remaining **row-2 debt** is the
+promotion/duplication list in [PLAN-P3-2.md](PLAN-P3-2.md) §6.1 (**R1–R10**); items
+already resolved are marked stale in §6.2.
 
-1. `P2M/Sol/S_AlgebraicCurve_RationalFunctionField_trace_localResidue_finitePlace_add_trace_localResidue_placeInfty_eq_zero.lean`
-   (atom 2, two-place cancellation) — ~6 unique declarations;
-2. `..._trace_localResidue_finitePlace_div_pow_eq_zero.lean` (atom 3) — ~61 unique;
-3. `..._residueTheorem_ratFunc_of_perfectField.lean` (the PF base case) — ~38 unique.
+**Not debt / out of scope** (PLAN-P3-2 §6.3): the six larger `evalAt_*` forward-cone
+nodes; `Place_sum_ramificationIndex_mul_inertiaDeg` (already a substitute);
+rows **3.5/3.6/3.7**; **row 6** (residual by human decision); the **R2 `Defs/`**
+audit (deferred by PLAN-RECTIFY-DEFS §7.4).
 
-Plus the small `Place.evalAt_*` extension nodes (§4 below) are **out of row 2**
-(forward-cone), and `Place_sum_ramificationIndex_mul_inertiaDeg` is already a
-substitute (`SumRamificationInertia.sum_ramificationIndex_mul_inertiaDeg`,
-`Defs/PushPull.lean:678` + `WeilExchange/FiberOverCount.lean`).
+*The earlier "three sibling atom tails" list is landed and no longer applies:* atom 2
+is `P1/TwoPlace.lean`, atom 3 is `P1/DivPow.lean` + `P1/DivPowEnding.lean`, and the PF
+base case is `P1/PerfectBase.lean`.
 
-**Also outstanding from the plan:** rows 3.3 (Tate agreement ≈8k), 3.4
-(trace-completion commutation ≈525), 3.5 (PF ending ≈7k), 3.6 (K ending ≈2k), 3.7
-(RR assembly ≈400) — see `../PORTING-RR.md` §3. Row 6 stays residual (human
-decision: the rows-2/6 duplication is known; do not merge now).
+## 3. The `Defs/` home rule — executed by R1
 
-## 3. The `Defs/` home rule and the files to audit/move (human directive)
+**Rule (human, 2026-09-30): `Defs/` is for *definitions*; a proof-weighted theory
+module must not live there**, because a consumer that only needs the definitions must
+not import a large proof theory.
 
-**Rule (human, 2026-09-30): `Defs/` is for *definitions*. A theory file — a module
-whose weight is proofs — must not live there, because a consumer that only needs
-the definitions should not import a large proof theory.** This surfaced because the
-ported pin files were large opaque theories with their own private defs and lemmas.
+R1 executed the moves (PLAN-RECTIFY-DEFS.md §5.1): `P1Dictionary` →
+`P1/Dictionary.lean`, `LocalResidueCalculus` → `LocalResidue/Calculus.lean`,
+`CanonicalLocalResidueInstanceV2` → `LocalResidue/Instance.lean`, and
+`Defs/P1ResidueCore.lean` → the 15-module `P1/` chain. `PlaceEvaluationAlgebra` stays
+in `Defs/` by the adapter exception. Three cross-slice `private` helpers were promoted
+in the same round.
 
-Measured disposition (lines / `def`-like / `theorem`-like declarations, regex count;
-`THEORY` = theorems outnumber definitions):
+The generic/mixed `Defs/` audit (the `Place/` + `Adeles/` homes) is **R2, deferred**
+to its own bounded round (PLAN-RECTIFY-DEFS.md §7.4) — it is not a row-2 debt.
 
-| `Defs/` file | ln | defs | thms | verdict |
-|---|---:|---:|---:|---|
-| `P1ResidueCore.lean` | 6,470 | 46 | 306 | **MOVE** → `AlgebraicCurve/LocalResidue/P1Core.lean` |
-| `CanonicalLocalResidueInstanceV2.lean` | 1,694 | 33 | 88 | **MOVE** (the `HasCanonicalLocalResidueKStar` construction) → `LocalResidue/Instance.lean` |
-| `P1Dictionary.lean` | 1,344 | 4 | 75 | **MOVE** (dictionary *statements* are theory) → `LocalResidue/P1Dictionary.lean` or a `P1/` dir |
-| `LocalResidueCalculus.lean` | 1,229 | 0 | 35 | **MOVE** → `LocalResidue/Calculus.lean` (already decided; the move was deferred to avoid racing the chunk-4 worker) |
-| `PlaceEvaluationAlgebra.lean` | 185 | 0 | 16 | **MOVE** (pure law layer) → `LocalResidue/EvaluationAlgebra.lean` |
-| `PushPull.lean` | 756 | 20 | 49 | audit: mixed; the `Place.restrict`/fibre *definitions* stay, the order theory may split |
-| `PlacesOverDVR.lean` | 448 | 14 | 31 | audit |
-| `Place.lean` | 392 | 13 | 36 | audit: the `Place` structure + API; likely split defs/theory |
-| `AdelicIndex.lean` | 442 | 24 | 44 | audit |
-| `Correspondence.lean` | 405 | 16 | 26 | audit |
-| `PlaceDictionary.lean` | 398 | 5 | 12 | audit (mostly proofs) |
-| `LocalResidue.lean` | 331 | 15 | 22 | audit: `LocalResidueData` defs stay; the API theory may split |
-| `WeilOfKaehler.lean` | 359 | 5 | 19 | audit |
-| `SemilinearAut.lean` | 221 | 11 | 20 | audit |
-| `RatFuncPlaces.lean` | 272 | 7 | 15 | audit |
-| `Repartitions.lean` | 157 | 6 | 13 | audit |
-| `IsCurveOver.lean` | 86 | 4 | 6 | audit |
-| `CanonicalDivisor.lean` | 152 | 10 | 12 | audit |
-| `PlaceCompletion.lean` | 551 | 18 | 16 | **keep** (defs ≥ thms) but review |
-| `Divisor.lean` | 90 | 9 | 6 | keep |
-| `PoleDivisorPackage.lean` | 108 | 10 | 0 | keep |
-| `RiemannRochRows.lean` | 73 | 6 | 2 | keep |
-| `PlaceEvaluation.lean` | 104 | 5 | 9 | keep (the companion defs file) |
-| the tiny leaves (`IntegralAdjoin`, `KaehlerTranscendental`, `RegularDifferentials`, `CanonicalDivisorUniformizer`, …) | ≤96 | ~0 | 1–3 | keep |
+## 4. Refactor-round debt
 
-**Executing a move is a cascade** (module names change): rename the file, fix every
-`import`, append the new module to `PORT_FILES`/`SOURCES` in
-`spec/check_flt_statements.py`, and end with **one whole-tree `lake build`** — the
-WORKFLOW §3 refactor-round pattern. A good first slice is the four clear MOVEs
-(`P1ResidueCore`, `CanonicalLocalResidueInstanceV2`, `P1Dictionary`,
-`LocalResidueCalculus`, `PlaceEvaluationAlgebra`) into a new
-`AlgebraicCurve/LocalResidue/` directory, since nothing imports them yet except
-`P1ResidueCore → LocalResidueCalculus`.
+**Superseded by [PLAN-P3-2.md](PLAN-P3-2.md) §6.1/§6.2** (tree-verified). The old §4
+list, with current status:
 
-## 4. Refactor-round debt (recorded, do all in one bounded pass)
+1. five duplicated `private` helpers (`ord_add_eq_min` + the four `ag9b15u_*`) —
+   **real**, still duplicated; R1 spread the copies, see PLAN-P3-2 **R1/R2**;
+2. ten pin-private `_s12` rows — **real but relocated** (they survive without the
+   `_s12` suffix in `P1/TraceEngine.lean`/`P1/FinitePlaceResidue.lean`), PLAN-P3-2
+   **R4**;
+3. the `F ≃ₐ[K] F` divisor-action layer — **real**, but the base `Place` action is
+   already public in `Defs/SemilinearAut.lean`; only the `Divisor`-level copies remain
+   in `P1/DXCoeff.lean`, PLAN-P3-2 **R3**;
+4. `Place.differentialCoeff_add''` — **resolved by R1** (public at
+   `LocalResidue/Calculus.lean:109`);
+5. `P1Dictionary` transcriptions of `RatFuncDegree` private helpers — **real**,
+   PLAN-P3-2 **R9**;
+6. the seven `evalAt`/`IsRational` leaves in the wrong home — **real**, PLAN-P3-2
+   **R10**;
+7. scratch files — **gone** (no `Scratch*.lean`).
 
-1. **Five duplicated private helpers**: `Place.ord_add_eq_min` and the four
-   `ModularCurve.MilneAvAg9bRd15UnitNormalFormLaurentSeed.ag9b15u_*` are `private`
-   in **both** `LocalResidueCalculus.lean` and `P1ResidueCore.lean`. Fix: make them
-   public in `LocalResidueCalculus` (the generic home), drop the core's copies.
-   (A first attempt failed because making them public clashed with the core's
-   `private` copies — the *core's* copies must be removed at the same time; and a
-   scripted line-range removal crossed `section`/`end` and was reverted. **Do
-   declaration surgery by hand with backups.**)
-2. **Ten pin-private `_s12` rows** re-landed `private` in `P1ResidueCore` chunk 3
-   (`ValuationSubring.ofPrime_congr`, `Place.inv_mem`/`div_mem_of_not_mem_centerIdeal`,
-   `Place.toKSubalgebra`, `Transcendental.{isPrincipalIdealRing,isDedekindDomain,isIntegrallyClosed,isNoetherianRing}_adjoin`,
-   `Algebra.FiniteType.adjoin_singleton`, `Transcendental.inv`) duplicate `private`
-   copies in `Canonical/HasCanonicalDivisor.lean`. Promote there (public) and import.
-3. **The `F ≃ₐ[K] F` divisor-action layer** transcribed `private` in chunk 2 for rows
-   #240/#241/#243/#244 (`Place.ord_smul`, `Place.deg_smul`, the
-   `MulAction`/`DistribMulAction` instances, `smul_*`, `degree_smul`) — the layer
-   `Defs/SemilinearAut.lean` deliberately deferred. Promote or home it.
-4. **`Place.differentialCoeff_add''`** re-landed `private` in chunk 4 (row #483
-   consumes it; `LocalResidueCalculus`'s copy is private).
-5. **`P1Dictionary` transcribes** public copies of `RatFuncDegree`'s private
-   `exists_sub_algebraMap_intDegree_neg` / `single_add_single_apply_eq_ord` /
-   `degree_single_add_single`; promote the `RatFuncDegree` copies and drop these.
-6. **The seven `evalAt`/`IsRational` leaves** in `P1Dictionary` belong beside the
-   `evalAt` definition (`PlaceEvaluation`).
-7. **Scratch files left:** `lean/ScratchAuditP32b.lean`, `…P32bPort.lean`,
-   `…P32c.lean`, `…P32d.lean`, `…P32dprime.lean`, `…P32e.lean` (audit probes, safe
-   to delete). Worker tooling under `tools/deps/build/` (`gen_p32e.py`,
-   `p32e_append.lean`) is gitignored.
+Plus the P3.2f/g debts not in the old list: `kwHgfV352_localResidueCompletion` (**R5**),
+`P1Tower.gen` (**R6**), `surjective_algebraMap_residueField_of_deg_eq_one'` (**R7**),
+the `InlineSpecific` completion chain (**R8**).
 
 ## 5. Reproduce / verify
 
 ```bash
 cd lean
-python3 spec/check_flt_statements.py                       # 3642 / 0 / 0 / 30
-flock /tmp/flt_for_human.lock timeout 300 lake build FLTForHuman.AlgebraicCurve.Defs.P1ResidueCore
+python3 spec/check_flt_statements.py                       # 4049 / 0 / 0 / 30
+flock /tmp/flt_for_human.lock timeout 300 lake build FLTForHuman.AlgebraicCurve.P1.Core
 lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false spec/RiemannRochConsumer.lean
 python3 ../tools/check_math_delimiters.py ../lean/topics/riemannRoch/*.md
 ```
 
-The row-2 measurement and the boundary rationale are in `PLAN-P3-2.md` §1–§3;
-`AUDIT-mathlib-p3-2e.md` (634 ln; 28/111/6) has the chunk-4 per-row table. The
-`gen_p32e.py` approach (generate an append from the inventory) is worth reusing for
-the sibling atom files: it lets a worker omit the substituted rows mechanically, but
-**check the omit list against the audit** — it silently kept one substituted row
-(#459) and that would have broken the build.
+Build economy: a per-module `lake build`, never a whole-tree build during a phase;
+one whole-tree build at a refactor/definitions milestone (WORKFLOW §3). The debt
+round's plan is PLAN-P3-2.md §6.4.
 
 ## 6. Open questions for the human
 
-- Confirm the `AlgebraicCurve/LocalResidue/` directory name and the five MOVEs in §3
-  (and whether `P1Dictionary` belongs there or in its own `P1/` dir).
-- Whether the sibling atom tails (§2) should be a final 3.2f set or folded into the
-  new session's first dispatch.
-- Rows 3.3–3.7 sequencing: the shared ℙ¹ engine is now landed, so 3.3 (Tate) is the
-  next large block.
+- Whether/when to take up the **P3.2 refactor round** (PLAN-P3-2.md §6.4) — the human
+  elected a **documentation-only closeout** on 2026-09-30.
+- **Rows 3.5–3.7** (PF ending, K ending, RR assembly) have **no plan file yet**;
+  `PLAN-P3-3.md` covers only rows 3.3/3.4. The next phase needs a `PLAN-P3-4` (or an
+  extension of `PLAN-P3-3`).
+- The **R2 `Defs/` audit** stays deferred by decision.

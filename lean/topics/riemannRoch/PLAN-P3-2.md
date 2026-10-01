@@ -1,12 +1,13 @@
 # Phase 3.2 scoping — the ℙ¹ residue core (row 2)
 
-**Status: EXECUTING (2026-09-30).** The measurement is done, the boundaries below
-are adopted, and **3.2a is scoped and dispatched**
-([WORKORDER-P3-2a-p1-dictionary.md](WORKORDER-P3-2a-p1-dictionary.md)). The P3.1
-carried debt was closed first (see `../../logs/riemann-roch-friction.md`). Build
-economy for 3.2 follows [../PORTING-DeligneSerre.md](../PORTING-DeligneSerre.md) §3:
-every set lands in a new file, per-module builds, no whole-tree build until the
-phase milestone.
+**Status: COMPLETE — row 2 (3.2) mathematically complete; residual debt open
+(2026-09-30).** All sets 3.2a–3.2g have landed, as has the R1 definitions round
+([PLAN-RECTIFY-DEFS.md](PLAN-RECTIFY-DEFS.md) §5.1); the last two headlines closed
+in §3.7. What remains is recorded **debt, not missing mathematics** — the
+authoritative, tree-verified closeout checklist is **§6**. The P3.1 carried debt was
+closed first (see `../../logs/riemann-roch-friction.md`). Build economy continues to
+follow [../PORTING-DeligneSerre.md](../PORTING-DeligneSerre.md) §3: every set lands
+in a new file, per-module builds, no whole-tree build until a phase milestone.
 
 Method: [../porting-playbook.md](../porting-playbook.md) §2.1–§2.4 (measure the
 cone, dedup before coding, drop by count). Inputs are the planning-session
@@ -369,3 +370,76 @@ the two headlines, which then landed as `P1/DivPowEnding.lean` (atom 3, 254 ln) 
 (4,900 jobs); both headlines `#print axioms` clean; hygiene clean. **Row 2 (3.2) is
 therefore mathematically complete.** Rows 3.5 (PF ending), 3.6 (K ending) and 3.7 (RR
 assembly) remain.
+
+## 6. Residual items — closeout checklist (2026-09-30)
+
+Row 2 is **mathematically complete**; this section is the authoritative list of what
+remains. It was produced by a **live triage of the tree**, not by copying the earlier
+handoff: [HANDOFF-P3-2.md](HANDOFF-P3-2.md) was written before the R1 definitions
+round ([PLAN-RECTIFY-DEFS.md](PLAN-RECTIFY-DEFS.md) §5.1) and several of its items are
+now stale (§6.2). No code changed in this documentation pass.
+
+Baseline, independently re-verified live this pass:
+`python3 spec/check_flt_statements.py` → **4049 identical / 0 mismatched / 0 missing /
+30 own-proof** (4079 checked).
+
+### 6.1 Open debt (verified present)
+
+| # | item | where (live) | kind | fix |
+|---|---|---|---|---|
+| **R1** | `Place.ord_add_eq_min` — three `private` copies | `LocalResidue/Calculus.lean:66`, `P1/EnginePrelude.lean:113`, `P1/DivPow.lean:453` | duplication | promote in `LocalResidue/Calculus` (the generic home), import from the three `P1/` slices, delete the copies |
+| **R2** | the four `ModularCurve.…ag9b15u_*` lemmas — two `private` copies | `LocalResidue/Calculus.lean:233,253,301,341`; `P1/Differential.lean:252,272,320,360` | duplication | same as R1 (promote in `LocalResidue/Calculus`) |
+| **R3** | the `F ≃ₐ[K] F` divisor-action layer — `Place.ord_smul`/`deg_smul`, `MulAction`/`DistribMulAction` on `Divisor`, `smul_def`/`smul_single`/`smul_apply_smul`/`smul_apply`, `degree_smul` — all `private` | `P1/DXCoeff.lean:68–133` | duplication (partly stale) | the **base** `Place` action is already public in `Defs/SemilinearAut.lean` (`Place.ord_smul:175`, `Place.deg_smul:214`, the `MulAction`); home the `Divisor`-level action in `SemilinearAut.lean` and delete the `P1/DXCoeff` copies |
+| **R4** | ten pin-private helpers duplicated between `P1/` and `Canonical/HasCanonicalDivisor.lean` | `P1/TraceEngine.lean:123,137,345,941,947,952,957,962,966` + `P1/FinitePlaceResidue.lean:18` vs the `private` `Canonical/HasCanonicalDivisor.lean:372` (`ofPrime_congr_s12`, `ord_nonneg_of_mem_s12`, `mem_of_ord_nonneg_s12`, …) | duplication | promote in `HasCanonicalDivisor`, import, delete the `P1/` copies |
+| **R5** | `kwHgfV352_localResidueCompletion` public/private split | public `Defs/TateResidueCurrency.lean:159`; `private` `P1/DivPow.lean:683`, with its public `_spec`/`_algebraMap` (`:687`/`:704`) stated about that private copy; `_spec₀`/`_algebraMap₀` re-landings at `P1/DivPowEnding.lean:50,71`, `Tate/Agreement.lean:907,928`, `Tate/TraceCompletionCommute.lean:61` | duplication | drop the `DivPow` private def; restate `_spec`/`_algebraMap` about the `Defs` def; delete the `_₀` re-landings (this is also P3.3 pause-note item 2) |
+| **R6** | `P1Tower.gen` re-landed `private` | `P1/DivPow.lean:104`; re-landed `P1/DivPowEnding.lean:107` | duplication | pin-private, so optional; unify to one home in the refactor |
+| **R7** | `surjective_algebraMap_residueField_of_deg_eq_one'` re-landed `private` | `P1/DivPowEnding.lean:84` | section-variable widening | the port's public `P1/KaehlerIntegral.lean:474` copy sits in a `[CharZero K]` section the pin's atom-3 copy is free of; free the public copy (or home a `CharZero`-free one), then delete the re-landing |
+| **R8** | the `InlineSpecific` completion chain (`completionIdeal`, `mem_completionIdeal_pow`, the uniformizer chain) re-landed `private` | `Tate/CommFinite.lean:84,176`; `Tate/Agreement.lean:93,175`; `Tate/CompletionTraceSum.lean:77,82,165` | promotion + missing home | promote once into the named future `Place/Completion.lean`; import (also P3.3 pause-note item 3) |
+| **R9** | `P1/Dictionary.lean` transcribes `RatFuncDegree`'s private helpers | `P1/Dictionary.lean:241` (`exists_sub_algebraMap_intDegree_neg`), `:357` (`single_add_single_apply_eq_ord`), `:391` (`degree_single_add_single`); the sources are still `private` in `PrincipalDivisors/RatFuncDegree.lean:205,303,347` | duplication | promote the `RatFuncDegree` copies (they are the more general ones), import, drop the transcriptions |
+| **R10** | the seven generic `evalAt`/`IsRational` leaves sit in the ℙ¹ dictionary | `P1/Dictionary.lean:57,66,95,103,121,129,150` | home move | move to `Defs/PlaceEvaluation.lean` beside the `evalAt` definition (which today holds only `evalAt_of_mem`/`algebraMap_evalAt`/`evalAt_one`); statements unchanged, so the checker is unaffected |
+
+### 6.2 Stale items (already resolved — do not re-do)
+
+- HANDOFF §4.4 `Place.differentialCoeff_add''` — **resolved** by R1: now public at
+  `LocalResidue/Calculus.lean:109`, with no private copy left in `P1/`.
+- HANDOFF §4.7 scratch files — **gone** (no `Scratch*.lean` in `lean/`).
+- HANDOFF §3 the five `Defs/` MOVEs — **done** by R1: `P1Dictionary` →
+  `P1/Dictionary.lean`, `LocalResidueCalculus` → `LocalResidue/Calculus.lean`,
+  `CanonicalLocalResidueInstanceV2` → `LocalResidue/Instance.lean`, and
+  `P1ResidueCore.lean` → the 15-module `P1/` chain; `PlaceEvaluationAlgebra` stays in
+  `Defs/` by the adapter exception.
+- HANDOFF §2 the three sibling atom tails — **landed**: `P1/TwoPlace.lean`,
+  `P1/DivPow.lean`, `P1/DivPowEnding.lean`, `P1/PerfectBase.lean`.
+- HANDOFF §6 open questions — **answered** (R1 fixed the directory names; 3.2g landed
+  the tails and the two gated headlines).
+- HANDOFF §4.2 "ten `_s12` rows" — **not stale, but relocated**: the declarations
+  survive without the `_s12` suffix in `P1/TraceEngine.lean`/`P1/FinitePlaceResidue.lean`
+  and are listed as **R4** above.
+- PLAN-P3-2 §3.4's "five helpers duplicated" note — still real, but the R1 split means
+  the copies now live in `LocalResidue/Calculus` + `P1/Differential` (+
+  `P1/EnginePrelude`/`P1/DivPow` for `ord_add_eq_min`); see R1/R2.
+
+### 6.3 Out of scope / not debt
+
+- the six larger `evalAt_*` trace/norm/fiber nodes (§3.3 table) — forward-cone,
+  decided when the cone reaches them;
+- `Place_sum_ramificationIndex_mul_inertiaDeg` — already a substitute (import; no new
+  home);
+- rows **3.5** (PF ending), **3.6** (K ending) and **3.7** (RR assembly) — the next
+  phases, tracked in [PORTING-RR.md](../PORTING-RR.md) §3 and
+  [PLAN-P3-3.md](PLAN-P3-3.md) (which covers rows 3.3/3.4); **rows 3.5–3.7 have no
+  plan file yet**;
+- **row 6** (K ending) — residual by human decision (§5.1): the marginal over the
+  shared ℙ¹ engine;
+- the **R2 `Defs/` audit** (the generic/mixed `Defs/` files, `Place/` + `Adeles/`
+  homes) — deferred by [PLAN-RECTIFY-DEFS.md](PLAN-RECTIFY-DEFS.md) §7.4 to its own
+  bounded round.
+
+### 6.4 When the debt is taken up
+
+One bounded **refactor round** (WORKFLOW §8.1): declaration surgery by hand with
+backups, statements verbatim, `PORT_FILES` updated, per-module edit loop, then **one**
+whole-tree `lake build` and the §7 gate (checker `0 mismatched / 0 missing`, `.olean`
+mtimes, `#print axioms`, hygiene, consumer wire test). R3 and R4 are the only items
+that touch widely-imported `Defs/` files; R10 is a pure statement-preserving move.
+This documentation pass changed no code.
