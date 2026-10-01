@@ -1773,6 +1773,15 @@ SOURCES = [
     "Theorems/Thm_ModularCurve_relfinrank_laurentBaseChange_modularFunctionFieldFull.lean",
     "Theorems/Thm_ModularCurve_deg_eq_one_modularFunctionFieldBar.lean",
     "P2M/Sol/S_ModularCurve_deg_eq_one_modularFunctionFieldBar.lean",
+    # --- The bar principal divisors and the `jqModC` integral ratio ---
+    # `hasPrincipalDivisors_modularFunctionFieldBar_unconditional` is the
+    # unconditional wrapper over the ported `hasPrincipalDivisors_..._bar` +
+    # `modularPolynomialFamily`. `jqModC_mem_intFormRatiosC` is a wrapper; the
+    # `intSeriesC`/`intFormRatiosC` vocabulary it exposes is diffed against
+    # `Definitions/Def_ModularCurve_X1.lean` (already listed above). Appended last
+    # so no earlier last-name match can flip.
+    "Theorems/Thm_ModularCurve_hasPrincipalDivisors_modularFunctionFieldBar_unconditional.lean",
+    "Theorems/Thm_ModularCurve_jqModC_mem_intFormRatiosC.lean",
 ]
 
 PORT_FILES = [
@@ -2421,6 +2430,11 @@ PORT_FILES = [
     # Appended last so no earlier last-name match can flip.
     "FLTForHuman/AlgebraicCurve/Place/DegreeOne.lean",
     "FLTForHuman/ModularCurve/Degree/PlaceDegree.lean",
+    # --- X1's `FunctionField` vocabulary and the `jqModC` ratio ---
+    # `intSeriesC`/`intFormRatiosC`/`mem_intFormRatiosC` are the pin's
+    # `Def_ModularCurve_X1.lean` `FunctionField` block; `jqModC_mem_intFormRatiosC`
+    # is its `Them_` wrapper. Appended last so no earlier last-name match can flip.
+    "FLTForHuman/ModularCurve/JqIntegralRatios.lean",
 ]
 
 

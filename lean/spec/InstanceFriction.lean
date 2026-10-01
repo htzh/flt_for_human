@@ -25,6 +25,7 @@
      genuinely slow) so the harness itself never becomes the hog.
 -/
 import FLTForHuman.ModularCurve.Degree.PlaceDegree
+import FLTForHuman.ModularCurve.JqIntegralRatios
 
 set_option autoImplicit false
 
@@ -70,6 +71,26 @@ example (M : ℕ) [NeZero M]
       (IntermediateField.adjoin (AlgebraicClosure ℚ) ({jBar M} : Set (modularFunctionFieldBar M)))
       (modularFunctionFieldBar M) :=
   Algebra.IsAlgebraic.of_finite _ _
+
+/-! ## IF-002 — applying `mem_intFormRatiosC` over a `Subgroup` coercion
+
+Cost: the named-constructor application below does not finish within a bounded
+budget; the pin's anonymous constructor (what the module uses) is instant. The
+guard here is the *fixed* public form — the naive application is a timing failure,
+not a compile failure, so it cannot be a live command in this file. -/
+
+-- Naive form, for the record — applying the named constructor at the same
+-- witnesses did not terminate within a 300 s wall bound:
+--
+-- example (K : Type*) [Field K] (Γ : Subgroup (Matrix.SpecialLinearGroup (Fin 2) ℤ)) :
+--     jqModC K ∈ intFormRatiosC K Γ :=
+--   mem_intFormRatiosC (e4cube Γ) (delta Γ) (isIntegralQExp_e4cube Γ) (isIntegralQExp_delta Γ)
+--     (intSeriesC_delta_ne_zero K)
+
+/-- IF-002 guard: the fixed headline form, which imports and elaborates cheaply. -/
+example (K : Type*) [Field K] (Γ : Subgroup (Matrix.SpecialLinearGroup (Fin 2) ℤ)) :
+    jqModC K ∈ intFormRatiosC K Γ :=
+  jqModC_mem_intFormRatiosC K Γ
 
 end InstanceFriction
 

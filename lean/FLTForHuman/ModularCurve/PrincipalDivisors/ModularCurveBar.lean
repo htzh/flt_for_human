@@ -76,6 +76,13 @@ theorem hasPrincipalDivisors_modularFunctionFieldBar (hΦ : ModularPolynomialFam
     HasPrincipalDivisors (AlgebraicClosure ℚ) (modularFunctionFieldBar N) :=
   hasPrincipalDivisors_laurentBaseChange_modularFunctionFieldFull (AlgebraicClosure ℚ) hΦ N
 
+/-- The unconditional form: the datum family `modularPolynomialFamily` discharges
+`hΦ`, so no hypothesis remains. Verbatim from
+`Theorems/Thm_ModularCurve_hasPrincipalDivisors_modularFunctionFieldBar_unconditional.lean`. -/
+theorem hasPrincipalDivisors_modularFunctionFieldBar_unconditional (M : ℕ) [NeZero M] :
+    HasPrincipalDivisors (AlgebraicClosure ℚ) (modularFunctionFieldBar M) :=
+  hasPrincipalDivisors_modularFunctionFieldBar modularPolynomialFamily M
+
 end ModularCurve
 
 end

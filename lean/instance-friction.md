@@ -48,6 +48,7 @@ One table row per entry; the long form is a section below the table.
 | id | kind | where | goal / declaration | symptom | budget | cause | fix | status |
 |---|---|---|---|---|---|---|---|---|
 | IF-001 | search | `ModularCurve/Degree/PlaceDegree.lean` | `Algebra.IsAlgebraic (adjoin K {t}) F` from a local `FiniteDimensional` | timeout in the `deg_eq_one_modularFunctionFieldBar` proof | times out at 20000; instant via `of_finite` | the `Algebra.IsAlgebraic` search itself, over an `adjoin` of a large `coeffEmb` subtype term | name the element (`private abbrev jBar`) **and** pass `Algebra.IsAlgebraic.of_finite _ _` | fixed |
+| IF-002 | application | `ModularCurve/JqIntegralRatios.lean` | applying `mem_intFormRatiosC` to build `jqModC K ∈ intFormRatiosC K Γ` | elaboration exceeds a 300 s wall bound | does not finish; anonymous constructor is instant | unification of the `Subgroup`/`mapGL` coercion and implicit weight `k` in the constructor's type | use the anonymous constructor (pin's form); keep the named one public | workaround |
 
 **budget** is the cost proxy: the `synthInstance.maxHeartbeats` value at which the
 naive form fails (or the measured seconds, for an instance declaration). Re-measure
@@ -111,6 +112,36 @@ haveI : Algebra.IsAlgebraic (adjoin (AlgebraicClosure ℚ) ({jBar M} : Set …))
 [`spec/InstanceFriction.lean`](spec/InstanceFriction.lean) and elaborates at the
 default `synthInstance` budget; the naive `inferInstance` form is kept as a
 comment there with its exact failure.
+
+### IF-002 — applying a set-membership constructor over a `Subgroup` coercion
+
+**Where.** `FLTForHuman/ModularCurve/JqIntegralRatios.lean`, the
+`jqModC_mem_intFormRatiosC` proof (the T22 port of the pin's
+`S_ModularCurve_jqModC_mem_intFormRatiosC.lean`).
+
+**Goal.** Build `jqModC K ∈ intFormRatiosC K Γ` by applying the named constructor
+`mem_intFormRatiosC` to the five witnesses (`e4cube Γ`, `delta Γ`, …).
+
+**Symptom.** Elaboration does not terminate within a 300 s wall bound; the module
+build times out. The *statement* is instant, and so is the pin's anonymous
+constructor — only the named-constructor application is the hog.
+
+**Cause.** The constructor's expected type mentions
+`ModularForm (Γ : Subgroup (GL (Fin 2) ℝ)) k`; applying it forces unification of
+the `Subgroup`/`mapGL` coercion and of the implicit weight `k` against the
+witnesses, and that defeq search blows up. The anonymous constructor elaborates the
+same term with the expected type already fixed by `intFormRatiosC K Γ`.
+
+**Fix.** Use the anonymous constructor (the pin's own form) in the headline; keep
+`mem_intFormRatiosC` public as the vocabulary it is (the checker diffes it against
+`Def_ModularCurve_X1.lean`). If a future consumer needs the named form, supply the
+implicits explicitly (`mem_intFormRatiosC (K := K) (Γ := Γ) (k := 12) …`).
+
+**Guard.** The headline's own module build is the guard — it is the timing signal,
+not a compile signal: the naive form does not fail, it fails to finish. A
+`build_ladder.py --friction` run (see below) over
+`FLTForHuman.ModularCurve.JqIntegralRatios` is the mechanical check; the harness
+records the fixed form.
 
 ## Backlog (known heavy spots, not yet written up)
 

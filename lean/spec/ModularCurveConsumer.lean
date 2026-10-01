@@ -102,6 +102,9 @@ import FLTForHuman.ModularCurve.FunctionFieldGeneration.Capstone
 import FLTForHuman.ModularCurve.Degree.PlaceDegree
 -- The divisor API the T21 wire test composes the degree-one theorem with.
 import FLTForHuman.AlgebraicCurve.Defs.Divisor
+-- T22: the bar principal divisors and the `jqModC` integral-ratio vocabulary.
+import FLTForHuman.ModularCurve.PrincipalDivisors.ModularCurveBar
+import FLTForHuman.ModularCurve.JqIntegralRatios
 -- The cyclotomic instances for the end-to-end wire tests of Zones I, J and K.
 import Mathlib.NumberTheory.Cyclotomic.Basic
 
@@ -922,6 +925,33 @@ example (M : ℕ) [NeZero M]
   rw [AlgebraicCurve.Divisor.degree_single,
     ModularCurve.deg_eq_one_modularFunctionFieldBar M w]
   simp
+
+/-! ## Zone T — [T22] the bar principal divisors and the `jqModC` integral ratio
+
+`ModularCurve.hasPrincipalDivisors_modularFunctionFieldBar_unconditional` is the
+unconditional `HasPrincipalDivisors` for the bar field (the ported conditional
+form applied to `modularPolynomialFamily`), and
+`ModularCurve.jqModC_mem_intFormRatiosC` is the pin's `jqModC ∈ intFormRatiosC K Γ`.
+The wire tests **apply** each: the first produces the degree-zero divisor of a
+nonzero function through `HasPrincipalDivisors.exists_divisor`; the second feeds
+`IntermediateField.subset_adjoin`, which is how the pin reaches
+`jqModC ∈ qExpFunctionFieldC K Γ` from the ratio vocabulary. -/
+
+#check @ModularCurve.hasPrincipalDivisors_modularFunctionFieldBar_unconditional
+#check @ModularCurve.jqModC_mem_intFormRatiosC
+
+example (M : ℕ) [NeZero M] :
+    AlgebraicCurve.HasPrincipalDivisors (AlgebraicClosure ℚ) (modularFunctionFieldBar M) :=
+  ModularCurve.hasPrincipalDivisors_modularFunctionFieldBar_unconditional M
+
+example (M : ℕ) [NeZero M] (f : modularFunctionFieldBar M) (hf : f ≠ 0) :
+    ∃ D : AlgebraicCurve.Divisor (AlgebraicClosure ℚ) (modularFunctionFieldBar M),
+      (∀ v, D v = v.ord f) ∧ AlgebraicCurve.Divisor.degree D = 0 :=
+  (ModularCurve.hasPrincipalDivisors_modularFunctionFieldBar_unconditional M).exists_divisor f hf
+
+example (K : Type*) [Field K] (Γ : Subgroup (Matrix.SpecialLinearGroup (Fin 2) ℤ)) :
+    jqModC K ∈ IntermediateField.adjoin K (intFormRatiosC K Γ) :=
+  IntermediateField.subset_adjoin K _ (ModularCurve.jqModC_mem_intFormRatiosC K Γ)
 
 /-! ## The measure
 
