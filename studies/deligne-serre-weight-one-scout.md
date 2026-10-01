@@ -144,7 +144,7 @@ subject table for the note (namespace-based grouping):
 | modular curves / Hecke geometry | 427 | 208,372 | partly ported; finest units §4.1 | `ModularCurve/` |
 | function-field / curve layer | 324 | 128,923 | partly ported; RR block landed | `AlgebraicCurve/` ([PORTING-RR](../lean/topics/PORTING-RR.md)) |
 | number fields / adelic infrastructure | 164 | 89,780 | not started; shared with Kummer/LT | `NumberTheory/Adelic/` |
-| elliptic / Weierstrass / Tate | 128 | 123,724 | partly ported; finest units §4.1 | `WeierstrassCurve/`, `Elliptic/`, `TateCurve/` |
+| elliptic / Weierstrass / Tate | 128 | 123,724 | partly ported; own scout | `WeierstrassCurve/`, `Elliptic/`, `TateCurve/` |
 | weight-one forms / Eisenstein | 117 | 48,463 | lifting group landed; Eisenstein partial | `ModularForms/WeightOne/` |
 | Langlands–Tunnell (in-cone) | 38 | 17,344 | not started; the mod-3 input | `LanglandsTunnell/` |
 | Galois reps / Frobenius / Artin (in-cone) | 8 | 3,791 | subject landed except eight nodes, §4.3 | `GaloisRep/`, `NumberTheory/FrobeniusDensity/` |
@@ -262,38 +262,16 @@ current frontier. The target set is the forward cone of
 graph, and the units inside it are selected from each node's namespace and
 identifier tokens by the §7 script.
 
-### 4.1 The two large substrate clusters
+### 4.1 The function-field / curve layer
 
-**Elliptic / Weierstrass / Tate.** 129 pin nodes / 125,059 `S_` lines
-(`WeierstrassCurve.*` 106, `TateCurve.*` 23); 1 ported.
-
-| unit | nodes | `S_` lines | ported |
-|---|---:|---:|---:|
-| Vélu isogeny / cyclic quotient / modular polynomial | 50 | 91,966 | 0 |
-| Weierstrass function field / coordinate ring / places | 19 | 15,027 | 0 |
-| models, group law, variable change, $`j`$ | 18 | 4,946 | 0 |
-| torsion / division polynomials / Drinfeld | 11 | 4,585 | 1 |
-| other (genus-one/closure) | 4 | 4,215 | 0 |
-| Tate curve: analytic parametrization | 23 | 2,749 | 0 |
-| reduction / semistability / modularity data | 3 | 1,356 | 0 |
-| formal group / EDS / special invariants | 1 | 215 | 0 |
-| **total** | **129** | **125,059** | **1** |
-
-The actionable fact is the concentration inside the 50-node Vélu block: its 24
-cyclic-kernel/place-classification nodes (83,224 lines) are 67% of the row's lines
-in 19% of its nodes (six 4,000–12,000-line statements), and they are Mazur-type
-cyclic-isogeny classification through the `Affine.FunctionField`/place gate and the
-`IsogenyEndDatum`/`IsogenyHomDatum` endomorphism data, not "elliptic curves". The
-rest of the block is the explicit Vélu formulas, the modular polynomial /
-`cyclicQuotientJ` bijection, and the odd-order summing-set special cases (char 2 and
-3). Several of the biggest statements occur in near-duplicate pin file variants
-(`velu_map_equation_of_oddOrderSummingSet` and `…_of_isAlgClosed`;
-`exists_veluFunctionFieldHom_restrictAlong_placeOfPoint_eq` and `…_of_isAlgClosed`),
-so the raw line total overstates the block too; the pooled `port_advise` method of
-§7 is how to quantify that. Port order: models/group law → function field and places
-(which need `AlgebraicCurve` places) → explicit Vélu → the classification block. The
-Tate curve depends on `AlgebraicCurve`'s annulus and residue material, not on the
-Weierstrass classification.
+**Elliptic / Weierstrass / Tate** has its own scout now —
+[elliptic-weierstrass-tate-scout.md](elliptic-weierstrass-tate-scout.md) (129 pin
+nodes / 125,059 `S_` lines in this cone, 1 ported). Its headline finding is the
+mathlib split: mathlib supplies the base theory (Weierstrass models, `VariableChange`,
+`j`, normal forms, points, division polynomials, reduction) and the cluster is FLT's
+Frey-side extension of it, so the port imports mathlib and transcribes only the
+extension. The unit table, the Vélu concentration, the consumers and the port order
+live there.
 
 **Function-field / curve layer.** The `AlgebraicCurve.*` cone is 465 pin nodes /
 219,684 lines; 141 ported. Split by the §7 predicates:
@@ -442,9 +420,11 @@ infrastructure** before the **automorphic gate** (the gates are one subject, not
 **Langlands–Tunnell / octahedral / Artin** is independent of the automorphic gate for
 the converse but shares the number-field layer and the Kummer files' Artin
 $`L`$-function vocabulary; **modular curves** and **elliptic / Weierstrass / Tate**
-interleave at any point and are the best coverage per node, subject to §4.1 (the
-`AlgebraicCurve` places/divisor vocabulary is a prerequisite of the curve layer, and
-the Vélu cyclic-kernel classification is a separate, concentrated effort). The
+interleave at any point and are the best coverage per node. The elliptic side has its
+own scout ([elliptic-weierstrass-tate-scout.md](elliptic-weierstrass-tate-scout.md)),
+whose port order starts from the mathlib-supplied base (models / variable change /
+group law) and ends at the Vélu cyclic-kernel classification; the
+`AlgebraicCurve` places/divisor vocabulary is a prerequisite of the curve layer. The
 converse cone is different: 413 needed, resting on `NumberField` 82, `ArtinL` 36,
 `M4aHerbrand` 34, `groupCohomology` 30, `IsDiscreteValuationRing` 31.
 
@@ -484,7 +464,7 @@ scout when that subject is attacked.
 | modular curves / Hecke geometry | to be written; code in `ModularCurve/` |
 | automorphic / adelic $`\mathrm{GL}_2`$ | to be written; code in `AutomorphicForm/` |
 | number fields / adelic infrastructure | to be written; code in `NumberTheory/Adelic/` |
-| elliptic / Weierstrass / Tate | to be written; code in `WeierstrassCurve/`, `Elliptic/`, `TateCurve/` |
+| elliptic / Weierstrass / Tate | [elliptic-weierstrass-tate-scout.md](elliptic-weierstrass-tate-scout.md); code in `WeierstrassCurve/`, `Elliptic/`, `TateCurve/` |
 | Langlands–Tunnell / octahedral / Artin | to be written; code in `LanglandsTunnell/` |
 | weight-one forms / lifting | this note (§3) + `ModularForms/WeightOne/` |
 | Galois reps / Frobenius / Artin | this note (§4.3) + `GaloisRep/`, `NumberTheory/FrobeniusDensity/` |
@@ -521,16 +501,6 @@ def ac_bucket(q):                       # AlgebraicCurve.* predicates of §4.1
     if re.search(r'[Pp]lace|ord_|ord\b|valuation|Valuation|completion|Completion|[Ll]ocalResidue|TaylorCoeff|depth|Depth|PlaceEvaluation|normFormulaAlong|relNorm|semilinear|SemilinearAut', s): return 'places/local'
     if re.search(r'[Cc]urve|Curve|functionField|FunctionField|ratFunc|RatFunc|[Cc]orrespondence|correspondence|constantField|ConstantField|Semistable|semistable|model|Model|[Cc]overing|covering|TranscendenceTower|transcendental|Transcendental|finiteDimensional|isAlgClosed|adjoin|KummerCover|FibreResidue|baseChange|BaseChange|traceAlong|pullbackAlong', s): return 'curves/models'
     return 'other'
-def wt_bucket(q):                       # WeierstrassCurve.* / TateCurve.* predicates of §4.1
-    if q.startswith('TateCurve.'): return 'Tate curve: analytic parametrization'
-    s = q.split('.', 1)[1]
-    if re.search(r'[Vv]elu|cyclicQuotient|cyclicKernels|isAddCyclic|IsogenyEnd|IsogenyHom|pointMapOfPushforward|pointHom|dualEndData|stepCurve|OddOrderSummingSet|isOddVeluSet|ker_pointMap|veluFunctionFieldHom|veluPointHom|veluQuotient|velu_map_equation|veluGx|velu2|zmultiples_eq_of_veluQuotient|Delta_eq_veluGx', s): return 'Vélu isogeny / cyclic quotient / modular polynomial'
-    if re.search(r'torsion|Torsion|DivPoly|divPoly|evalEval_psi|KernelPolynomial|KernelIdeal|FullKernel|Drinfeld', s): return 'torsion / division polynomials / Drinfeld'
-    if re.search(r'ProjModel|AddFormula|Third|PointChart|SectionAtOrigin|MapPoint|PointAddEquiv|VariableChange|variableChange|Legendre|Deuring|j_eq|j_perturb|jInvariant|vcInvFun|zsmul_some|smul_some|some_add|some_zero|Point\.|exists_addMonoidHom_i_tau|exists_addMonoidHom_vcInvFun', s): return 'models / group law / variable change / j'
-    if re.search(r'FunctionField|functionField|placeOfPoint|PlaceGate|hasPrincipalDivisors|valuationSubring|CoordinateRing|XYIdeal|adjoin_yCoord|finiteDimensional_ratFunc|isDedekindDomain|GenusOnePlace', s): return 'Weierstrass function field / coordinate ring / places'
-    if re.search(r'reduceHom|ReduceHom|[Rr]eduction|goodModel|inertia|Semistab|semistab|Conductor|PeuRamifiee|Modularity|ThreeFive|Mlc1|FrobeniusCard|isGalois', s): return 'reduction / semistability / modularity data'
-    if re.search(r'FormalGroup|EDSEngine|Hasse|RatPoint|RationalEnd|delta|Delta|exists_isUnit_mul_pow_eight|exists_valuationSubring_with_transcendental', s): return 'formal group / EDS / special invariants'
-    return 'other / genus-one closure'
 def report(qs, bucket, label):
     g = defaultdict(lambda: [0, 0, 0, 0])
     for i in qs:
@@ -541,7 +511,6 @@ def report(qs, bucket, label):
     for b, (n, L, p, nd) in sorted(g.items(), key=lambda kv: -kv[1][1]):
         print(f'  {b:52} total={n:4} lines={L:7} ported={p:3} needed={nd:3}')
 report([i for i in cone if fr.pay.qual(i).startswith('AlgebraicCurve.')], ac_bucket, 'AlgebraicCurve cone')
-report([i for i in cone if fr.pay.qual(i).startswith(('WeierstrassCurve.', 'TateCurve.'))], wt_bucket, 'Weierstrass+Tate cone')
 
 def plc_theme(q):
     s = q[len('AlgebraicCurve.'):]
