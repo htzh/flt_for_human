@@ -6,10 +6,14 @@ is [../porting-playbook.md](../porting-playbook.md); this file is the recipe, th
 concrete commands, the review checklist and the failure modes that actually bit.
 It sits in the topic dir with the plans and work orders.
 
-**Current state (2026-09-30).** Phases 1, 2, 3.1 complete; 3.2a complete; row 2
-blocks 3.2b–e and rows 3.3–3.7 remaining. Checker **3316 identical / 0 mismatched /
-0 missing / 30 own-proof** (3346 checked). Pin `anthropics/fermats-last-theorem@aa2d8b3`
-(local clone `~/proj/fermats-last-theorem`); port mathlib `v4.34.0` (prebuilt under
+**Current state (2026-09-30).** Phases 1, 2, 3.1 complete; row 2's master ℙ¹ file
+(3.2b–e) is ported and accepted; the row-2 sibling tails and rows 3.3–3.7 remain.
+The **definitions round R1** has landed: the theory blobs left `Defs/` for
+`AlgebraicCurve/{P1,LocalResidue}/` and `Defs/P1ResidueCore.lean` became a 15-module
+`P1/` chain (see [PLAN-RECTIFY-DEFS.md](PLAN-RECTIFY-DEFS.md) §5.1). Checker
+**3645 identical / 0 mismatched / 0 missing / 30 own-proof** (3675 checked); one
+whole-tree build green. Pin `anthropics/fermats-last-theorem@aa2d8b3` (local clone
+`~/proj/fermats-last-theorem`); port mathlib `v4.34.0` (prebuilt under
 `lean/.lake/packages/mathlib`).
 
 ## 0. Where things live
@@ -18,12 +22,13 @@ blocks 3.2b–e and rows 3.3–3.7 remaining. Checker **3316 identical / 0 misma
 |---|---|
 | blueprint (all phases) | [../PORTING-RR.md](../PORTING-RR.md) §3 |
 | phase plans (operative) | `PLAN-P1.md`, `PLAN-P3-1.md`, `PLAN-P3-2.md` … one per row |
+| defs rectification plan | [PLAN-RECTIFY-DEFS.md](PLAN-RECTIFY-DEFS.md) — the definitions-round rule, the `Defs/` home table, the ℙ¹ core breakout |
 | work orders | `WORKORDER-<set>.md`, one per dispatched set |
 | mathlib audits | `AUDIT-mathlib*.md`, one per set |
 | statement checker | `lean/spec/check_flt_statements.py` |
 | consumer wire test | `lean/spec/RiemannRochConsumer.lean` |
 | friction log | `lean/logs/riemann-roch-friction.md` |
-| port modules | `lean/FLTForHuman/AlgebraicCurve/{Defs,PrincipalDivisors,Genus,RiemannRoch,Canonical,IsCurveOver,WeilExchange}/` |
+| port modules | `lean/FLTForHuman/AlgebraicCurve/{Defs,PrincipalDivisors,Genus,RiemannRoch,Canonical,IsCurveOver,WeilExchange,P1,LocalResidue}/` |
 | measurement inputs | `tools/deps/build/*` (gitignored) |
 
 ## 1. The model
@@ -56,6 +61,12 @@ measure  → audit → dedup → work order → dispatch → review → closeout
    and the next order written against the modules that actually exist.
 7. **Closeout** — update the plan (a closeout subsection), `PORTING-RR.md`, the
    friction log; delete scratch files; record refactor debt.
+
+**The definitions round** is the one loop that is *not* per set: it is cross-cutting,
+it is a refactor-shaped pass (it edits existing modules and ends in one whole-tree
+build), and it must be paid **before** new consumers land. `Defs/` holds the public
+API definitions; a module whose weight is proofs must not live there. See §8.2 and
+[PLAN-RECTIFY-DEFS.md](PLAN-RECTIFY-DEFS.md).
 
 ## 2. Commands
 
@@ -205,7 +216,9 @@ Before accepting a set, the manager independently:
       interface).
 - [ ] friction log entry; plan closeout; `PORTING-RR.md` status; scratch removed.
 
-## 8. Refactor rounds
+## 8. Rounds
+
+### 8.1 Refactor rounds
 
 A set that needed a declaration from a frozen module resolves it `private` locally
 and records it in the friction log. A **refactor round** (an H2-style pass) later
@@ -213,6 +226,37 @@ promotes the union and deletes the copies; it is the *only* thing allowed to edi
 existing modules, it is bounded, and it ends with one whole-tree build. Phase 3.1's
 debt round is the model: two duplications collapsed with no statement moved, checker
 unchanged.
+
+### 8.2 Definitions rounds
+
+`Defs/` holds the **public API definitions**. A module whose weight is proofs must
+not live there, because a consumer that needs only the definitions must not import a
+large proof theory. Two exceptions keep a lemma in a `Defs/` file: (a) it is commonly
+used by consumers to *adapt* the definitions (a short law such as `evalAt_mul`, named
+from ≥2 modules), or (b) it is a definitional identity (`rfl`).
+
+A definitions round **pays this price before new consumers land** — the theory blobs
+are 0–2 dependents while they are still leaves, and become a whole-tree cascade once
+rows 3.3–3.7 import them. It is a refactor-shaped pass:
+
+1. classify every declaration `KEEP-DEF` / `MOVE-DEF` / `ADAPTER` / `THEORY` /
+   `INSTANCE-PRODUCER` / `SCAFFOLD` (the verdicts are defined in PLAN-RECTIFY-DEFS §2);
+2. extract the API defs into the `Defs/` home and move the theory to its subject dir;
+3. rewire consumers, statements **verbatim**;
+4. update `PORT_FILES`; end with **one whole-tree build** and the §7 gate.
+
+An `instance` producer cannot be split from its module (its proof is on the import
+path), so only its data defs move. A `private` helper separated from its consumers by
+a module cut must be **promoted**, not duplicated (a `private` is module-local). A
+split of a proof-heavy monolith into a module family must cut at nesting-depth
+boundaries so every slice is balanced; the declaration order is already a topological
+order, so a consecutive partition with a linear import chain cannot break a backward
+reference.
+
+`AlgebraicCurve/` homes after the R1 round: `Defs/` (API), `P1/`, `LocalResidue/`,
+plus the existing `Canonical/`, `Genus/`, `PrincipalDivisors/`, `RiemannRoch/`,
+`WeilExchange/`, `IsCurveOver/`. R1's execution and the deferred R2 / `Defs/P1.lean`
+items are in [PLAN-RECTIFY-DEFS.md](PLAN-RECTIFY-DEFS.md) §5.1.
 
 ## 9. Current row-2 map (3.2)
 
@@ -223,10 +267,10 @@ engine is written once and the two endings are small marginals. Blocks:
 | set | content | status |
 |---|---|---|
 | 3.2a | ℙ¹ place/ord dictionary + `PlaceEvaluation` + `PlaceEvaluationAlgebra` | **DONE** (1,633 ln, 3 new modules) |
-| 3.2b | ord/valuation algebra prelude (much already substitution) | next |
-| 3.2c | local residue-at-∞ calculus | planned |
-| 3.2d | principal parts + differential coefficients (`p0n22`/`mp72`/`ag9b`) | planned |
-| 3.2e | the three `trace_localResidue_*` atoms + `residueTheorem_ratFunc_of_perfectField` | planned |
+| 3.2b–e | the master ℙ¹ file: ord/valuation prelude → residue-at-∞ calculus → principal parts/differential coefficients → the three `trace_localResidue_*` atoms + `residueTheorem_ratFunc_of_perfectField` | **DONE** (the `P1/` chain) |
+| definitions R1 | theory blobs → `P1/` + `LocalResidue/`; monolith split | **DONE** ([PLAN-RECTIFY-DEFS.md](PLAN-RECTIFY-DEFS.md) §5.1) |
+| row 2 tails | the three sibling atom files' unique tails (≈1k written) | next |
+| definitions R2 | the generic/mixed `Defs/` audit; `Defs/P1.lean` API extraction | deferred |
 | row 6 | the K ending (marginal over the shared engine) | planned |
 
 See [PLAN-P3-2.md](PLAN-P3-2.md) §3 for the measured boundaries and

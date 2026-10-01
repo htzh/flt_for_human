@@ -46,7 +46,7 @@ import FLTForHuman.AlgebraicCurve.Genus.Index
 import FLTForHuman.AlgebraicCurve.Genus.Stichtenoth
 import FLTForHuman.AlgebraicCurve.RiemannRoch.Assembly
 import FLTForHuman.AlgebraicCurve.Canonical.WeilDifferential
-import FLTForHuman.AlgebraicCurve.Defs.CanonicalLocalResidueInstanceV2
+import FLTForHuman.AlgebraicCurve.LocalResidue.Instance
 
 open AlgebraicCurve
 open KaehlerDifferential
@@ -177,7 +177,7 @@ example {K F : Type*} [Field K] [Field F] [Algebra K F] [PerfectField K] [Algebr
 
 /-! ## Zone F — `[residue-instance]` P3.1: the unconditional producer
 
-`Defs/CanonicalLocalResidueInstanceV2.lean` constructs the pin's
+`LocalResidue/Instance.lean` constructs the pin's
 `instHasCanonicalLocalResidueKStar` under `[IsCurveOver K F] [PerfectField K]`, so
 ZONE E's `HasCanonicalLocalResidueKStar` hypothesis is supplied by instance search
 rather than by hand. Deleting that module must make this zone fail. -/

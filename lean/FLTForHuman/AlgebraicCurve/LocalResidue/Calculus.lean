@@ -21,18 +21,18 @@ declarations are imported rather than re-proved: the promoted ord interface
 (`Defs/{Place,CanonicalDivisor}.lean`), the `LocalResidueData`/
 `CanonicalLocalResidueDataK` vocabulary (`Defs/LocalResidue.lean`) and the
 `poleSubmodule`/`laurentTailCoeff`/`uniformizer` layer
-(`Defs/CanonicalLocalResidueInstanceV2.lean`). The pin's `p2m_*`/`attribute`
+(`LocalResidue/Instance.lean`). The pin's `p2m_*`/`attribute`
 scaffolding is dropped and `import Mathlib` is replaced by specific imports.
-Pin-private helpers stay `private`: `ord_add_eq_min`, `differentialCoeff_add''`,
+Pin-private helpers stay `private` (`ord_add_eq_min`,
 `differentialCoeff_D_uniformizer_pow_inv`, the `ag9b13t_*`/`ag9b14c_*`/`ag9b15u_*`
-engine. Four of the `ag9b15u_*` helpers and `ord_add_eq_min` already exist
-privately in `Defs/P1ResidueCore.lean`; that module's later chunks will import
-this one, so no cross-import is possible and the copies stay private here.
+engine). `Place.differentialCoeff_add''` is public here — it is the generic home the
+`P1/` chain imports; the `P1` re-landing was deleted in the R1 definitions round
+(PLAN-RECTIFY-DEFS §5.1).
 -/
 import FLTForHuman.AlgebraicCurve.Defs.PushPull
 import FLTForHuman.AlgebraicCurve.Defs.CanonicalDivisor
 import FLTForHuman.AlgebraicCurve.Defs.LocalResidue
-import FLTForHuman.AlgebraicCurve.Defs.CanonicalLocalResidueInstanceV2
+import FLTForHuman.AlgebraicCurve.LocalResidue.Instance
 import Mathlib.RingTheory.Kaehler.Basic
 import Mathlib.RingTheory.Derivation.Basic
 import Mathlib.Algebra.CharP.Defs
@@ -106,7 +106,7 @@ namespace Place
 
 variable (v : Place K F)
 
-private theorem _root_.AlgebraicCurve.Place.differentialCoeff_add'' [v.DCoordGenerates] [Nontrivial Ω[F⁄K]] (ω₁ ω₂ : Ω[F⁄K]) :
+theorem _root_.AlgebraicCurve.Place.differentialCoeff_add'' [v.DCoordGenerates] [Nontrivial Ω[F⁄K]] (ω₁ ω₂ : Ω[F⁄K]) :
     v.differentialCoeff (ω₁ + ω₂) = v.differentialCoeff ω₁ + v.differentialCoeff ω₂ :=
   v.differentialCoeff_unique (by
     rw [add_smul, v.differentialCoeff_smul_dCoord, v.differentialCoeff_smul_dCoord])

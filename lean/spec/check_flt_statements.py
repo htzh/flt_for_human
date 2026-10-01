@@ -2155,23 +2155,38 @@ PORT_FILES = [
     # --- P3.1b-i: the `Place` pole/Laurent layer of the V2 producer (pin lines
     # 1–789). Set 3.1b-ii appends the Hensel engine and the final instance to the
     # same module. Appended last so no earlier last-name match can flip.
-    "FLTForHuman/AlgebraicCurve/Defs/CanonicalLocalResidueInstanceV2.lean",
+    "FLTForHuman/AlgebraicCurve/LocalResidue/Instance.lean",
     # --- P3.2a (the ℙ¹ place/ord dictionary): the generic place-evaluation
     # interface, the `Divisor.evalFun_*` algebra it consumes, and the ℙ¹
     # dictionary itself. Appended last so no earlier last-name match can flip.
     "FLTForHuman/AlgebraicCurve/Defs/PlaceEvaluation.lean",
     "FLTForHuman/AlgebraicCurve/Defs/PlaceEvaluationAlgebra.lean",
-    "FLTForHuman/AlgebraicCurve/Defs/P1Dictionary.lean",
-    # --- P3.2b (the ℙ¹ residue core, chunk 1: pin lines 295–3387). Sets 3.2c–e
-    # append to the same module. Appended last so no earlier last-name match can
-    # flip.
-    "FLTForHuman/AlgebraicCurve/Defs/P1ResidueCore.lean",
+    "FLTForHuman/AlgebraicCurve/P1/Dictionary.lean",
+    # --- P3.2b–e (the ℙ¹ residue core), split by the R1 definitions round into the
+    # `P1/` module family (see `topics/riemannRoch/PLAN-RECTIFY-DEFS.md`). The
+    # declarations and their order are unchanged; building `P1/Core` builds the
+    # whole chain. Appended last so no earlier last-name match can flip.
+    "FLTForHuman/AlgebraicCurve/P1/EnginePrelude.lean",
+    "FLTForHuman/AlgebraicCurve/P1/Differential.lean",
+    "FLTForHuman/AlgebraicCurve/P1/UnitNormalForm.lean",
+    "FLTForHuman/AlgebraicCurve/P1/DXCoeff.lean",
+    "FLTForHuman/AlgebraicCurve/P1/DivisorAction.lean",
+    "FLTForHuman/AlgebraicCurve/P1/UnitFinite.lean",
+    "FLTForHuman/AlgebraicCurve/P1/FinitePlaceResidue.lean",
+    "FLTForHuman/AlgebraicCurve/P1/TraceEngine.lean",
+    "FLTForHuman/AlgebraicCurve/P1/Separating.lean",
+    "FLTForHuman/AlgebraicCurve/P1/Adjoin.lean",
+    "FLTForHuman/AlgebraicCurve/P1/PerfectPrelude.lean",
+    "FLTForHuman/AlgebraicCurve/P1/KaehlerIntegral.lean",
+    "FLTForHuman/AlgebraicCurve/P1/PerfectField.lean",
+    "FLTForHuman/AlgebraicCurve/P1/PerfectResidue.lean",
+    "FLTForHuman/AlgebraicCurve/P1/Core.lean",
     # --- P3.2d′ (the generic local residue calculus): the `p0n22_cpf_*` family
     # plus the headline, homed before engine chunk 3 so the ℙ¹ core imports it
     # instead of re-transcribing. Appended last so no earlier last-name match can
     # flip. `Defs/PushPull.lean`'s `ord_nonneg_of_mem`/`mem_of_ord_nonneg`/
     # `mem_iff_ord_nonneg` are imported, not re-proved.
-    "FLTForHuman/AlgebraicCurve/Defs/LocalResidueCalculus.lean",
+    "FLTForHuman/AlgebraicCurve/LocalResidue/Calculus.lean",
 ]
 
 
