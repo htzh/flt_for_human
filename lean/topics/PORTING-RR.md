@@ -1,8 +1,11 @@
 # Porting: the Riemann–Roch foundation of the curve layer
 
-**Status: phase 1 COMPLETE; phase 2 COMPLETE; phase 3.1 COMPLETE; phases
-3.2–3.7 PLANNED — the residue-theorem block (two endings) then the RR ending
-(2026-09-30).** The seven work-item rows of §3 are executed as phases 3.1–3.7, one
+**Status: phase 1 COMPLETE; phase 2 COMPLETE; phase 3.1 COMPLETE; phase 3.2
+(row 2, the ℙ¹ residue core) COMPLETE; rows 3.3/3.4 (the Tate agreement and the
+trace-completion commutation) COMPLETE; row 3.6 (the K ending) COMPLETE; row 3.7
+(the RR assembly against the K ending) COMPLETE, together with the K-route general
+`ResidueTheorem` over algebraically closed fields; only row 3.5 (the perfect-field
+ending) remains of phase 3 (2026-09-30).** The seven work-item rows of §3 are executed as phases 3.1–3.7, one
 dispatch and review gate each; the operative plan is
 [riemannRoch/PLAN-P3-1.md](riemannRoch/PLAN-P3-1.md) and phase 3.1 was specified by
 [riemannRoch/WORKORDER-P3-1-residue-instance.md](riemannRoch/WORKORDER-P3-1-residue-instance.md).
@@ -186,8 +189,8 @@ writes each piece **once** and then the endings:
 | Tate agreement — `tateAgreement_v2` + `tateTraceCompat_of_isSeparable` + `tateChainRule` + `tateCommFinite` | 13,323 | ≈8,000 |
 | trace-completion commutation — `residueTraceCompletionCommute_v2` | 1,109 | ≈525 |
 | perfect-field ending — `residueTheorem_of_…residueTraceCompletionCommute` + `residueTheorem_of_perfectField` + helpers | 9,075 | ≈7,050 |
-| K ending — `residueTheoremK_ratFunc_of_isAlgClosed` (13,170) + `residueTheoremK_of_isAlgClosed` (8,121) + wrappers, marginal over the shared core | 21,300 | ≈2,000 |
-| RR assembly — the pin's `MirrorAssembly` (`S_…residueTheoremK….lean` 5971–6257) against the K ending | ≈300 | ≈400 |
+| K ending — `residueTheoremK_ratFunc_of_isAlgClosed` (13,170) + `residueTheoremK_of_isAlgClosed` (8,121) + wrappers, marginal over the shared core | 21,300 | **1,689 — DONE** ([riemannRoch/WORKORDER-P3-6-kend.md](riemannRoch/WORKORDER-P3-6-kend.md) §8) |
+| RR assembly — the pin's `MirrorAssembly` (`S_…residueTheoremK….lean` 5971–6257) against the K ending | ≈300 | **694 — DONE** ([riemannRoch/WORKORDER-P3-7-rr-kend.md](riemannRoch/WORKORDER-P3-7-rr-kend.md) §7; plus the K-route general `ResidueTheorem`, `ResidueTheorem/GeneralFromK.lean`) |
 | **residue union + instance + RR assembly (two endings)** | | **≈34,000** |
 
 The per-item rows overlap in their shared helpers (they sum to ≈38,000); the union is

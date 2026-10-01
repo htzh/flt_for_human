@@ -2314,3 +2314,126 @@ surface (`private`/anonymous).
 PlaceEvaluationAlgebra, SemilinearAut, Place/Completion), then the `P1/` chain, then
 `Tate/` — with one `lake build` per layer; a single whole-tree build closed the round.
 No `sorry`/`admit`/`axiom`/bare `import Mathlib`.
+
+## Set P3.6 — row 6, the K ending (2026-09-30)
+
+**Scout and measurement.** Ported the two public headlines
+`residueTheoremK_ratFunc_of_isAlgClosed` and `residueTheoremK_of_isAlgClosed`. The
+plan's ≈2,000 marginal is confirmed: the `_ratFunc` file's residual is **adapters**
+(only one genuinely-new name, 5 ln) and its `solution` is a one-liner over the already
+landed `p0n22_cpf_residueTheoremK_ratFunc_of_isAlgClosed_main` (`P1/Core.lean:753`); the
+general-curve file's residual is **67 new names / 2,858 ln** plus 46 adapters/1,137 ln,
+and its `solution` is the thin assembly
+`kw_es_residueTheoremK_of_RTCC_isAlgClosed' (kwTateRR3_RTCC_of_isSeparable (E := RatFunc K))`
+— the port's `residueTraceCompletionCommute` is exactly the second piece. So the work is
+the Kähler-cotrace/fiber-localized residue layer, not a re-proof.
+
+**The `def … : Prop` attractor, again (measurement trap).** `port_advise` reports **ten**
+`def … : Prop` in the row-6 file as byte-identical substitutions to
+`EisensteinWeightOne.E1Chi3IsModular` (the checker sees only a `def`'s signature). Only
+three are real: `OrdDifferentialWellDefined` (`P1/EnginePrelude.lean:102`),
+`KaehlerRankOne`, `RamificationInertiaIdentity` (`P1/DXCoeff.lean`). The other seven are
+new, including `FiberKaehlerCotraceResidueIdentity`, `CotraceResidueIdentityOnFiberLocalized`,
+`CotraceFiberLocalizedPolarApprox`, and — the one that matters — `IsSeparatingTranscendental`,
+which is a **different def** from the port's `HasSeparatingTranscendental`
+(`Canonical/HasCanonicalDivisor.lean:918`, the ∃-transcendental form): the pin row-6 def
+is `KaehlerDifferential.D K F (algebraMap (RatFunc K) F RatFunc.X) ≠ 0`. It was landed
+at the pin body, not aliased. **Fold into the playbook:** every `def … : Prop` row in a
+`port_advise` substitution list must be `#check`ed by hand; the attractor is systematic,
+not incidental.
+
+**Landing.** Three new modules, 1,689 ln, no existing module edited:
+`ResidueTheorem/KRatFunc.lean` (32), `ResidueTheorem/KCotrace.lean` (760, the engine),
+`ResidueTheorem/KFamily.lean` (897, the assembly + general-curve headline). Checker
+**4071 → 4144 identical / 0 mismatched / 0 missing / 30 own-proof** (4101 → 4174
+checked). Forced per-module builds green; only the three new `.olean`s moved (zero
+cascade by construction). `#print axioms` on the two headlines plus three engine rows →
+`[propext, Classical.choice, Quot.sound]`; hygiene clean; consumer exit 0.
+
+**Deviation, accepted.** The worker did **not** re-land the pin's three
+`KwF4R1V384a{CompletionSemilocalBij,DistinctKernels,FinrankCompletionEF}` (`def … :
+Prop`). They are pin-public, but their enclosing `KwF4R1V384a` block is import-discharged
+through the port's public `completionTraceSum_of_isSeparable`, so copies would be dead
+code. Recorded as a **disposition (subsumed)**, not promotion debt. (The pin does use
+them inside its own 384a block; the worker's "no body mentions them" phrasing was
+imprecise, but the import-discharge conclusion holds.)
+
+**Boundary note.** The port's `def ResidueTheoremK` (`Defs/LocalResidue.lean:320`)
+carries an extra auto-bound `[∀ v, v.DCoordGenerates]` in its elaborated signature that
+the pin's lacks, so any theorem whose statement mentions `ResidueTheoremK K E` lists
+that instance among its section variables; the source text is unchanged and the checker
+is unaffected.
+
+**Work-order shape.** The set was scouted by the manager (measurement, trap correction,
+`build/row6_new.tsv` inventory, `WORKORDER-P3-6-kend.md`) and executed by **one** worker
+in one dispatch, with the worker steered to report significant deviations mid-flight;
+the two interim reports (ten-trap correction; `IsSeparatingTranscendental` distinct)
+both landed before the closeout and are folded into the work order §3.
+
+## Set P3.7 — row 3.7, the RR assembly against the K ending (2026-09-30)
+
+**Scout and measurement.** The plan priced row 3.7 at ≈400 written (only the final
+`MirrorAssembly`, pin 5971–6257). `port_advise` on the 6,257-line `S_` file shows the
+assembly **reaches the pin's K-route chain**, so the true residual was 278 declarations,
+212 substitutions (≈4,548 ln), residual **66 / 1,511 ln raw — 38 new / 955 ln, 28
+adapters / 556 ln**. Still one-worker small, but a 4× lower-bound miss: the plan's
+"≈300 raw" counted the assembly block alone, not what it calls. The work order records
+the corrected price and a per-declaration inventory (`tools/deps/build/row37_new.tsv`).
+
+**Landing.** `ResidueTheorem/RRAssembly.lean` (694 ln, 36 public + 2 private): the
+public headline `functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed` (wrapper
+verbatim, `hRTK` kept), `ModularCurve.p0n20_rr_constantsAreBase_of_isAlgClosed`, the
+17-decl `p0n25_wkc_*` `MirrorAssembly`, and the K-route chain (`riemannIndexFormula_of_genusReached`,
+`genus_eq_degree_div`, `constantsAreBase_*`, `residuePairingSurjective_*`,
+`weilOfKaehlerK_mem_omegaSpace_of_residueTheoremK`) as adapters over the port's
+phase-1 `Genus/Index`/`Genus/Stichtenoth`/`RiemannRoch/Assembly` engine. Checker
+**4144 → 4182 identical / 0 mismatched / 0 missing / 30 own-proof** (4212 checked) —
+the +38 is the 36 here plus the concurrent P3.7b bridge (+2). Forced per-module build
+green (only `RRAssembly.olean` moved); axioms clean; hygiene clean; consumer exits 0.
+
+**P3.7b — the general `ResidueTheorem` was one small bridge away.** The pin's
+`residueTheorem_of_isAlgClosed` (40 ln) is literally
+`residueTheorem_of_residueTheoremK residueTheoremK_of_isAlgClosed`, and the bridge
+`residueTheorem_of_residueTheoremK` (21 ln) is `weilOfKaehler = weilOfKaehlerK`
+(`kaehlerResidueTermKFam_dataKStar` is `rfl`). So the general `ResidueTheorem K F` over
+an **algebraically closed** field is ~60 ln from row 3.6 — landed as
+`ResidueTheorem/GeneralFromK.lean` (build green, axioms clean, `Zone G` added to the
+consumer). The **perfect-field** producer `residueTheorem_of_perfectField` is the
+separate row 3.5 (45 ln calling the 7,889-line
+`residueTheorem_of_residueTheorem_ratFunc_of_residueTraceCompletionCommute`), still the
+large remaining ending.
+
+**Accepted dispositions (not open debt).** Two of the 38 measured-NEW were not landed
+because no reached proof uses them: `instSumRamificationInertia` (pin 2615 — the class
+is never invoked; re-landing a global scoped instance would be dead code and an
+instance hazard, and the port has `Place.sum_ramificationIndex_mul_inertiaDeg` plus two
+private copies) and `not_isField_integralClosureAt'` (pin 5779, pin-private — already
+inlined in the port's `Place.exists_restrict_eq`, reached via the imported public
+`nonempty_place_of_ratFunc_tower`).
+
+**Promotion debt.** `Place.exists_trace_residue_ne_zero` (pin 4863) is `private` in the
+frozen `Defs/WeilOfKaehler.lean:274`; re-provisioned `private` at the pin name in
+`RRAssembly`. A refactor round can promote the `WeilOfKaehler` copy and drop the
+re-provision. (The other named helper, the pin-private `isRational_of_deg_eq_one`, is
+public in `P1/Dictionary.lean` off this import path; `constantsAreBase_of_deg_eq_one` is
+proved from `Place.isRational_iff_deg_eq_one` instead.)
+
+**Elaborated-signature note.** `Nontrivial Ω[F⁄K]` is a section variable on the
+`CanonicalNonvanishingMaximality`/`CanonicalSupply` sections (the imported
+`simplePoleProbe_mem_adeleBdd` carries it; the pin's inlined copy does not). It is
+signature-only, the checker text is unaffected, and every in-module caller supplies it.
+
+**Concurrency lesson.** Row 3.7 and the P3.7b bridge ran as two workers in one tree.
+Both append to the shared `spec/check_flt_statements.py` and both import the same new
+`ResidueTheorem/` dir; the append-only convention kept both blocks intact and the
+combined checker was 0/0, but the manager reconciled the two `SOURCES`/`PORT_FILES`
+blocks and re-verified after both settled. For parallel sets: append-only wiring, then
+a single reconciliation pass — never a whole-file rewrite.
+
+**Consumer zone.** Rows 3.6/3.7 and the P3.7b bridges were on the interface with no
+consumer zone; `spec/RiemannRochConsumer.lean` Zone G now exercises
+`residueTheorem_of_residueTheoremK`, `residueTheorem_of_isAlgClosed`, and
+`functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed`.
+
+**Remaining.** Row 3.5 (the perfect-field ending, ≈7,050 written) and the deferred R2
+`Defs/` audit.

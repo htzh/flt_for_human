@@ -443,10 +443,13 @@ statements verbatim, `PORT_FILES` updated, one whole-tree build). Dispositions:
   decided when the cone reaches them;
 - `Place_sum_ramificationIndex_mul_inertiaDeg` — already a substitute (import; no new
   home);
-- rows **3.5** (PF ending), **3.6** (K ending) and **3.7** (RR assembly) — the next
-  phases, tracked in [PORTING-RR.md](../PORTING-RR.md) §3 and
-  [PLAN-P3-3.md](PLAN-P3-3.md) (which covers rows 3.3/3.4); **rows 3.5–3.7 have no
-  plan file yet**;
+- row **3.5** (PF ending) — the last phase-3 ending, tracked in
+  [PORTING-RR.md](../PORTING-RR.md) §3; **rows 3.6 (K ending) and 3.7 (RR assembly) are
+  DONE** (`ResidueTheorem/{KRatFunc,KCotrace,KFamily}.lean` 1,689 ln,
+  [WORKORDER-P3-6-kend.md](WORKORDER-P3-6-kend.md) §8; `ResidueTheorem/RRAssembly.lean`
+  694 ln, [WORKORDER-P3-7-rr-kend.md](WORKORDER-P3-7-rr-kend.md) §7), as is the
+  algebraically-closed general Residue theorem (`ResidueTheorem/GeneralFromK.lean`,
+  ~60 ln, consuming row 3.6). Row 3.5 still has no plan file;
 - **row 6** (K ending) — residual by human decision (§5.1): the marginal over the
   shared ℙ¹ engine;
 - the **R2 `Defs/` audit** (the generic/mixed `Defs/` files, `Place/` + `Adeles/`

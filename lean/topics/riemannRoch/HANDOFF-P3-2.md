@@ -17,14 +17,22 @@ checklist.
 
 ## 1. State
 
-- **Checker:** `python3 spec/check_flt_statements.py` → **4071 identical / 0
-  mismatched / 0 missing / 30 own-proof** (4101 checked) — 4049 before the refactor
-  round. Re-verified live.
-- **Builds:** whole-tree `lake build` green (4,901 jobs) — the refactor round's one
-  tree build. `spec/RiemannRochConsumer.lean` exits 0.
+- **Checker:** `python3 spec/check_flt_statements.py` → **4182 identical / 0
+  mismatched / 0 missing / 30 own-proof** (4212 checked) — 4144 before row 3.7, 4071
+  before row 3.6, 4049 before the refactor round. Re-verified live.
+- **Builds:** whole-tree `lake build` green (4,901 jobs) at the refactor round; rows
+  3.6/3.7 and the K-side bridges landed six new modules with per-module builds and no
+  cascade. `spec/RiemannRochConsumer.lean` exits 0 (Zone G added).
 - Pin `anthropics/fermats-last-theorem@aa2d8b3`; port mathlib `v4.34.0`.
 - **The P3.2 refactor round (R1–R10) is done** ([PLAN-P3-2.md](PLAN-P3-2.md) §6). No
   row-2 debt is open except **R7**, kept as accepted duplication by human decision.
+- **Rows 3.6 (K ending) and 3.7 (RR assembly) are done**, and the general
+  `ResidueTheorem` over an algebraically closed field is produced:
+  `ResidueTheorem/{KRatFunc,KCotrace,KFamily}.lean` (1,689 ln),
+  `ResidueTheorem/RRAssembly.lean` (694 ln), `ResidueTheorem/GeneralFromK.lean`
+  (~60 ln) — [WORKORDER-P3-6-kend.md](WORKORDER-P3-6-kend.md) §8,
+  [WORKORDER-P3-7-rr-kend.md](WORKORDER-P3-7-rr-kend.md) §7.
+  **Row 3.5 (the perfect-field ending, ≈7,050 written) is the last phase-3 port.**
 
 **Landed for row 2** (phase 3.1 was already complete):
 
@@ -55,8 +63,9 @@ Row 2 is **mathematically complete**, and its **debt is closed**: the R1–R10 r
 
 **Not debt / out of scope** (PLAN-P3-2 §6.3): the six larger `evalAt_*` forward-cone
 nodes; `Place_sum_ramificationIndex_mul_inertiaDeg` (already a substitute);
-rows **3.5/3.6/3.7**; **row 6** (residual by human decision); the **R2 `Defs/`**
-audit (deferred by PLAN-RECTIFY-DEFS §7.4).
+row **3.5** (the last phase-3 ending — the PF general-curve transport; the
+algebraically-closed general `ResidueTheorem` is already produced via the K route); the
+**R2 `Defs/`** audit (deferred by PLAN-RECTIFY-DEFS §7.4).
 
 *The earlier "three sibling atom tails" list is landed and no longer applies:* atom 2
 is `P1/TwoPlace.lean`, atom 3 is `P1/DivPow.lean` + `P1/DivPowEnding.lean`, and the PF
@@ -124,7 +133,10 @@ debt round's gate is PLAN-P3-2.md §6.4.
 
 - The **P3.2 refactor round is done**; remaining row-2 duplication is only R7
   (accepted, human 2026-09-30).
-- **Rows 3.5–3.7** (PF ending, K ending, RR assembly) have **no plan file yet**;
-  `PLAN-P3-3.md` covers only rows 3.3/3.4. The next phase needs a `PLAN-P3-4` (or an
-  extension of `PLAN-P3-3`).
+- **Rows 3.6 (K ending) and 3.7 (RR assembly) are DONE**, plus the K-route general
+  `ResidueTheorem` ([WORKORDER-P3-6-kend.md](WORKORDER-P3-6-kend.md) §8,
+  [WORKORDER-P3-7-rr-kend.md](WORKORDER-P3-7-rr-kend.md) §7). **Row 3.5 (the
+  perfect-field ending, ≈7,050 written) has no plan file yet** and is the last phase-3
+  port; `PLAN-P3-3.md` covers rows 3.3/3.4. The next session needs a `PLAN-P3-4`/`-5`
+  (or an extension of `PLAN-P3-3`).
 - The **R2 `Defs/` audit** stays deferred by decision.

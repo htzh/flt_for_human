@@ -28,6 +28,8 @@
     [conditional] ZONE E — H3. The differentials interface at its pinned hypotheses.
     [residue-instance] ZONE F — P3.1. The `HasCanonicalLocalResidueKStar` producer,
                   which discharges ZONE E's instance hypothesis.
+    [residue-theorem] ZONE G — P3.6/P3.7. The K ending (`ResidueTheoremK`), its
+                  transport to the general `ResidueTheorem`, and the RR assembly.
 
   Cross-set compositions that would fail if a module were removed:
     C: `RationalFunctionField.stichtenothGenusExists` (H1b)
@@ -47,6 +49,8 @@ import FLTForHuman.AlgebraicCurve.Genus.Stichtenoth
 import FLTForHuman.AlgebraicCurve.RiemannRoch.Assembly
 import FLTForHuman.AlgebraicCurve.Canonical.WeilDifferential
 import FLTForHuman.AlgebraicCurve.LocalResidue.Instance
+import FLTForHuman.AlgebraicCurve.ResidueTheorem.GeneralFromK
+import FLTForHuman.AlgebraicCurve.ResidueTheorem.RRAssembly
 
 open AlgebraicCurve
 open KaehlerDifferential
@@ -197,5 +201,63 @@ example {K F : Type*} [Field K] [Field F] [Algebra K F] [PerfectField K] [Algebr
         ((e ω : ↥(omegaSpace (K := K) (F := F) (0 : Divisor K F))) : Module.Dual K ↥(adeleSpace K F))
           = weilOfKaehler K F hω :=
   exists_linearEquiv_regularDifferentials_omegaSpace_zero hC hRT
+
+/-! ## Zone G — `[residue-theorem]` P3.6/P3.7: the K ending, the general Residue
+theorem, and the RR assembly
+
+`ResidueTheorem/KFamily.lean` produces `ResidueTheoremK`; `ResidueTheorem/GeneralFromK.lean`
+transports it to the general `ResidueTheorem` over an algebraically closed field;
+`ResidueTheorem/RRAssembly.lean` consumes `ResidueTheoremK` and returns
+`FunctionFieldRiemannRoch`. Deleting any of the three must make this zone fail. -/
+
+-- The K-side bridge `ResidueTheoremK → ResidueTheorem` (P3.7b), at its short binder
+-- block.
+example {K F : Type*} [Field K] [Field F] [Algebra K F]
+    [AlgebraicCurve.HasCanonicalLocalResidueKStar K F]
+    [AlgebraicCurve.HasCanonicalDivisor (K := K) (F := F)]
+    [∀ v : AlgebraicCurve.Place K F, v.DCoordGenerates] [Nontrivial Ω[F⁄K]]
+    (h : AlgebraicCurve.ResidueTheoremK K F) :
+    AlgebraicCurve.ResidueTheorem K F :=
+  AlgebraicCurve.residueTheorem_of_residueTheoremK h
+
+-- CROSS-SET COMPOSITION: the row-3.6 K ending feeds the bridge, giving the general
+-- Residue theorem over an algebraically closed field (P3.7b, consuming `KFamily`).
+example {K F : Type*} [Field K] [IsAlgClosed K] [DecidableEq (RatFunc K)]
+    [Field F] [Algebra K F]
+    [AlgebraicCurve.HasCanonicalDivisor (K := K) (F := F)]
+    [∀ w : AlgebraicCurve.Place K F, w.DCoordGenerates]
+    [Algebra (RatFunc K) F] [IsScalarTower K (RatFunc K) F]
+    [Algebra.IsIntegral (RatFunc K) F] [Module.Finite (RatFunc K) F]
+    [AlgebraicCurve.HasLocalResidue K F]
+    [∀ w : AlgebraicCurve.Place K F, w.FiniteResidue]
+    [Nontrivial Ω[F⁄K]]
+    [AlgebraicCurve.IsCurveOver K F] [AlgebraicCurve.IsCurveOver K (RatFunc K)]
+    [∀ u : AlgebraicCurve.Place K (RatFunc K), u.FiniteResidue]
+    [AlgebraicCurve.HasCanonicalLocalResidueKStar K F]
+    [AlgebraicCurve.HasPrincipalDivisors K F] [Algebra.IsSeparable (RatFunc K) F]
+    [Nontrivial Ω[(RatFunc K)⁄K]] [∀ v : AlgebraicCurve.Place K (RatFunc K), v.DCoordGenerates] :
+    AlgebraicCurve.ResidueTheorem K F :=
+  AlgebraicCurve.residueTheorem_of_isAlgClosed
+
+-- The RR assembly (row 3.7): `ResidueTheoremK → FunctionFieldRiemannRoch`, at the
+-- pin wrapper's binders with `hRTK` kept as a hypothesis.
+example {K F : Type*} [Field K] [IsAlgClosed K] [DecidableEq (RatFunc K)]
+    [Field F] [Algebra K F]
+    [AlgebraicCurve.HasCanonicalDivisor (K := K) (F := F)]
+    [∀ w : AlgebraicCurve.Place K F, w.DCoordGenerates]
+    [Algebra (RatFunc K) F] [IsScalarTower K (RatFunc K) F]
+    [Algebra.IsIntegral (RatFunc K) F] [Module.Finite (RatFunc K) F]
+    [AlgebraicCurve.HasLocalResidue K F]
+    [∀ w : AlgebraicCurve.Place K F, w.FiniteResidue]
+    [Nontrivial Ω[F⁄K]]
+    [AlgebraicCurve.IsCurveOver K F] [AlgebraicCurve.IsCurveOver K (RatFunc K)]
+    [∀ u : AlgebraicCurve.Place K (RatFunc K), u.FiniteResidue]
+    [AlgebraicCurve.HasCanonicalLocalResidueKStar K F]
+    [AlgebraicCurve.HasPrincipalDivisors K F] [Algebra.IsSeparable (RatFunc K) F]
+    [Nontrivial Ω[(RatFunc K)⁄K]] [∀ v : AlgebraicCurve.Place K (RatFunc K), v.DCoordGenerates]
+    [FiniteDimensional (RatFunc K) F] [AlgebraicCurve.HasSeparableResidue K F]
+    (hRTK : AlgebraicCurve.ResidueTheoremK K F) :
+    AlgebraicCurve.FunctionFieldRiemannRoch K F :=
+  AlgebraicCurve.functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed hRTK
 
 end

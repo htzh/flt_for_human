@@ -16,10 +16,16 @@ theory blobs left `Defs/` for `AlgebraicCurve/{P1,LocalResidue}/` and
 [PLAN-RECTIFY-DEFS.md](PLAN-RECTIFY-DEFS.md) §5.1). The **P3.2 refactor round
 (R1–R10)** is also done ([PLAN-P3-2.md](PLAN-P3-2.md) §6): the recorded
 duplication/promotion debt is closed (R7 kept as accepted duplication, R9 corrected as
-a non-item). Checker **4071 identical / 0
-mismatched / 0 missing / 30 own-proof** (4101 checked); whole-tree build green. Rows
-3.5 (PF ending), 3.6 (K ending) and 3.7 (RR assembly) remain; row 6 stays out of
-scope. Pin `anthropics/fermats-last-theorem@aa2d8b3` (local clone
+a non-item). **Rows 3.6 (K ending) and 3.7 (RR assembly) are done** —
+`ResidueTheorem/{KRatFunc,KCotrace,KFamily}.lean` (1,689 ln,
+[WORKORDER-P3-6-kend.md](WORKORDER-P3-6-kend.md) §8) and
+`ResidueTheorem/{RRAssembly,GeneralFromK}.lean` (694 + ~60 ln,
+[WORKORDER-P3-7-rr-kend.md](WORKORDER-P3-7-rr-kend.md) §7), the latter producing the
+general `ResidueTheorem` over an algebraically closed field. Checker
+**4182 identical / 0
+mismatched / 0 missing / 30 own-proof** (4212 checked); whole-tree build green. Only
+**row 3.5 (the perfect-field ending)** remains of phase 3, plus the deferred R2 `Defs/`
+audit. Pin `anthropics/fermats-last-theorem@aa2d8b3` (local clone
 `~/proj/fermats-last-theorem`); port mathlib `v4.34.0` (prebuilt under
 `lean/.lake/packages/mathlib`).
 
@@ -283,7 +289,9 @@ engine is written once and the two endings are small marginals. Blocks:
 | 3.2f | row-2 sibling tails: atom 2 + the atom-3 `P1Tower` block | **PARTIAL** — `P1/TwoPlace.lean` (122 ln, complete) + `P1/DivPow.lean` (713 ln); checker **3701 / 0 / 0 / 30** ([WORKORDER-P3-2f-tails.md](WORKORDER-P3-2f-tails.md)) |
 | 3.2g | the two row-2 headlines: atom-3 `…finitePlace_div_pow_eq_zero` + PF base `residueTheorem_ratFunc_of_perfectField` | **DONE** — `P1/DivPowEnding.lean` (254 ln) + `P1/PerfectBase.lean` (528 ln); **row 2 (3.2) mathematically complete** |
 | definitions R2 | the generic/mixed `Defs/` audit; `Defs/P1.lean` API extraction | deferred |
-| row 6 | the K ending (marginal over the shared engine) | planned |
+| row 3.6 (K ending) | the K ending, marginal over the shared engine | **DONE** — `ResidueTheorem/{KRatFunc,KCotrace,KFamily}.lean` (1,689 ln) |
+| row 3.7 (RR assembly) | `ResidueTheoremK → FunctionFieldRiemannRoch`, plus the K-route general `ResidueTheorem` | **DONE** — `ResidueTheorem/{RRAssembly,GeneralFromK}.lean` (694 + ~60 ln); checker 4182 / 0 / 0 / 30 |
+| row 3.5 (PF ending) | the perfect-field general-curve transport (`residueTheorem_of_perfectField`) | remaining (≈7,050 written); no plan file |
 
 See [PLAN-P3-2.md](PLAN-P3-2.md) §3 for the measured boundaries and
 [WORKORDER-P3-2a-p1-dictionary.md](WORKORDER-P3-2a-p1-dictionary.md) for a worked

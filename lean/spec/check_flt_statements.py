@@ -1718,6 +1718,42 @@ SOURCES = [
     "Theorems/Thm_AlgebraicCurve_completionTraceSum_of_isSeparable.lean",
     "P2M/Sol/S_AlgebraicCurve_residueTraceCompletionCommute.lean",
     "P2M/Sol/S_AlgebraicCurve_completionTraceSum_of_isSeparable.lean",
+    # --- P3.6 (row 6, the K ending) ---
+    # The two `Theorems/` wrappers are the statement authority for the two public
+    # headlines (the pin `S_` files call both `solution`), so they come first; the
+    # `S_` files then supply the row-6 engine (`KCotrace.lean`) and its assembly
+    # (`KFamily.lean`), and the `RatFunc` file's `p0n22_cpf_*` row. The four
+    # `def … : Prop` rows (`FiberKaehlerCotraceResidueIdentity`,
+    # `CotraceResidueIdentityOnFiberLocalized`, `CotraceFiberLocalizedPolarApprox`,
+    # `IsSeparatingTranscendental`) plus `KwF4R1V384a{CompletionSemilocalBij,
+    # DistinctKernels,FinrankCompletionEF}` are `port_advise` false positives
+    # (`EisensteinWeightOne.E1Chi3IsModular` is the `def`-body attractor) and are
+    # genuinely new; the three `KwF4R1V384a*` rows stay `private` in
+    # `Tate/CompletionTraceSum.lean`. Appended last so no earlier last-name match
+    # can flip.
+    "Theorems/Thm_AlgebraicCurve_residueTheoremK_ratFunc_of_isAlgClosed.lean",
+    "P2M/Sol/S_AlgebraicCurve_residueTheoremK_ratFunc_of_isAlgClosed.lean",
+    "Theorems/Thm_AlgebraicCurve_residueTheoremK_of_isAlgClosed.lean",
+    "P2M/Sol/S_AlgebraicCurve_residueTheoremK_of_isAlgClosed.lean",
+    # --- P3.7 (row 3.7, the RR assembly against the K ending) ---
+    # The public headline, verbatim from its `Thm_` wrapper, then the pin's `S_`
+    # file. Its 277 declarations include the inlined phase-1 engine (already
+    # sourced by the rows-2–3.6 entries above) plus the residual K-route chain
+    # (`p0n20_rr_constantsAreBase_of_isAlgClosed`, the `p0n25_wkc_*`
+    # `MirrorAssembly` and the adapters over `Genus/Index`/`Genus/Stichtenoth`).
+    # Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_AlgebraicCurve_functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed.lean",
+    "P2M/Sol/S_AlgebraicCurve_functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed.lean",
+    # --- P3.7b (the K-route general `ResidueTheorem`) ---
+    # Two tiny producers: the 21-line bridge `residueTheorem_of_residueTheoremK`
+    # (`weilOfKaehler = weilOfKaehlerK`) and `residueTheorem_of_isAlgClosed`
+    # (`residueTheorem_of_residueTheoremK residueTheoremK_of_isAlgClosed`, row 3.6).
+    # The perfect-field producer `residueTheorem_of_perfectField` is row 3.5 and is
+    # not here. Wrappers first, then the `S_` files. Appended last.
+    "Theorems/Thm_AlgebraicCurve_residueTheorem_of_residueTheoremK.lean",
+    "P2M/Sol/S_AlgebraicCurve_residueTheorem_of_residueTheoremK.lean",
+    "Theorems/Thm_AlgebraicCurve_residueTheorem_of_isAlgClosed.lean",
+    "P2M/Sol/S_AlgebraicCurve_residueTheorem_of_isAlgClosed.lean",
 ]
 
 PORT_FILES = [
@@ -2337,6 +2373,26 @@ PORT_FILES = [
     # v4.34 adapter (`isUnit_adicCompletionIntegers_of_valued_eq_one`) stays
     # `private`. Appended last so no earlier last-name match can flip.
     "FLTForHuman/AlgebraicCurve/Place/Completion.lean",
+    # --- P3.6 (row 6, the K ending) ---
+    # The `RatFunc` headline (`KRatFunc.lean`), the Kähler-cotrace/fiber-localized
+    # engine (`KCotrace.lean`) and the residue-theorem assembly + public headline
+    # (`KFamily.lean`). Statements are the pin's; the wrapper headlines are verbatim
+    # from their `Thm_` files. Appended last so no earlier last-name match can flip.
+    "FLTForHuman/AlgebraicCurve/ResidueTheorem/KRatFunc.lean",
+    "FLTForHuman/AlgebraicCurve/ResidueTheorem/KCotrace.lean",
+    "FLTForHuman/AlgebraicCurve/ResidueTheorem/KFamily.lean",
+    # --- P3.7 (row 3.7, the RR assembly against the K ending) ---
+    # The K-route chain over the phase-1 engine (`Genus/Index.lean`,
+    # `Genus/Stichtenoth.lean`, `RiemannRoch/Assembly.lean`) plus the
+    # `ModularCurve.p0n20_*`/`p0n25_wkc_*` assembly and the public headline.
+    # Statements are the pin's, transcribed against the port's phase-1 names.
+    # Appended last so no earlier last-name match can flip.
+    "FLTForHuman/AlgebraicCurve/ResidueTheorem/RRAssembly.lean",
+    # --- P3.7b (the K-route general `ResidueTheorem`) ---
+    # `ResidueTheorem/GeneralFromK.lean`: the bridge `residueTheorem_of_residueTheoremK`
+    # and the algebraically-closed general headline `residueTheorem_of_isAlgClosed`.
+    # Appended last so no earlier last-name match can flip.
+    "FLTForHuman/AlgebraicCurve/ResidueTheorem/GeneralFromK.lean",
 ]
 
 
