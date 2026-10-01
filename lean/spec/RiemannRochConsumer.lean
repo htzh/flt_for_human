@@ -51,6 +51,9 @@ import FLTForHuman.AlgebraicCurve.Canonical.WeilDifferential
 import FLTForHuman.AlgebraicCurve.LocalResidue.Instance
 import FLTForHuman.AlgebraicCurve.ResidueTheorem.GeneralFromK
 import FLTForHuman.AlgebraicCurve.ResidueTheorem.RRAssembly
+-- T23: the `dCoordGenerates_of_isCurveOver` headline (Zone H discharges the
+-- `DCoordGenerates` hypothesis the zones above carry).
+import FLTForHuman.AlgebraicCurve.Canonical.HasCanonicalDivisor
 
 open AlgebraicCurve
 open KaehlerDifferential
@@ -259,5 +262,33 @@ example {K F : Type*} [Field K] [IsAlgClosed K] [DecidableEq (RatFunc K)]
     (hRTK : AlgebraicCurve.ResidueTheoremK K F) :
     AlgebraicCurve.FunctionFieldRiemannRoch K F :=
   AlgebraicCurve.functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed hRTK
+
+/-! ## Zone H — `[dCoord-generates]` discharging the `DCoordGenerates` hypothesis
+
+Zone G's wire tests carry `[∀ v, v.DCoordGenerates]` as a hypothesis.
+`AlgebraicCurve.dCoordGenerates_of_isCurveOver` supplies it outright from
+`[PerfectField K] [Algebra.EssFiniteType K F] [IsCurveOver K F]`: the separating
+transcendental of `IsCurveOver.exists_separating_transcendental` closes the
+`ValSubring*` model-predicate chain. The wire tests below **use** the resulting
+instance through the canonical-divisor API rather than assuming it. -/
+
+#check @AlgebraicCurve.dCoordGenerates_of_isCurveOver
+
+example {K F : Type*} [Field K] [Field F] [Algebra K F]
+    [PerfectField K] [Algebra.EssFiniteType K F] [AlgebraicCurve.IsCurveOver K F]
+    (v : AlgebraicCurve.Place K F) :
+    Submodule.span F ({v.dCoord} : Set Ω[F⁄K]) = ⊤ := by
+  have h : v.DCoordGenerates := AlgebraicCurve.dCoordGenerates_of_isCurveOver v
+  exact h.span_eq_top
+
+-- `haveI` is load-bearing: `Place.exists_eq_smul_dCoord` carries
+-- `[v.DCoordGenerates]` as an instance argument.
+set_option linter.style.haveILetI false in
+example {K F : Type*} [Field K] [Field F] [Algebra K F]
+    [PerfectField K] [Algebra.EssFiniteType K F] [AlgebraicCurve.IsCurveOver K F]
+    (v : AlgebraicCurve.Place K F) (ω : Ω[F⁄K]) :
+    ∃ c : F, ω = c • v.dCoord := by
+  haveI : v.DCoordGenerates := AlgebraicCurve.dCoordGenerates_of_isCurveOver v
+  exact v.exists_eq_smul_dCoord ω
 
 end

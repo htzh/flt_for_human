@@ -1113,6 +1113,19 @@ theorem hasSeparatingTranscendental_of_isCurveOver_of_perfectField
     IntermediateField.finiteDimensional_adjoin_inv_s12 t,
     IntermediateField.isSeparable_adjoin_inv_s12 t⟩
 
+/-- **Every place has a generating `dCoord`.** The pin's
+`S_AlgebraicCurve_dCoordGenerates_of_isCurveOver.solution`: the separating
+transcendental supplied by `IsCurveOver.exists_separating_transcendental` closes
+the model-predicate chain above. Verbatim from
+`Theorems/Thm_AlgebraicCurve_dCoordGenerates_of_isCurveOver.lean`. The port
+already carried the whole chain as the `hasCanonicalDivisor` effort's machinery,
+so only this headline is new. -/
+theorem dCoordGenerates_of_isCurveOver {K F : Type*} [Field K] [Field F] [Algebra K F]
+    [PerfectField K] [Algebra.EssFiniteType K F] [IsCurveOver K F] :
+    ∀ v : Place K F, v.DCoordGenerates :=
+  fun v => Place.dCoordGenerates_of_hasSeparatingTranscendental_of_perfectField
+    (hasSeparatingTranscendental_of_isCurveOver_of_perfectField (K := K) (F := F)) v
+
 end S12ChainWires
 
 end AlgebraicCurve

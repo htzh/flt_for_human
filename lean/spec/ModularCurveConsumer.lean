@@ -105,6 +105,10 @@ import FLTForHuman.AlgebraicCurve.Defs.Divisor
 -- T22: the bar principal divisors and the `jqModC` integral-ratio vocabulary.
 import FLTForHuman.ModularCurve.PrincipalDivisors.ModularCurveBar
 import FLTForHuman.ModularCurve.JqIntegralRatios
+-- T24: the bar-embedded `j(q)`'s transcendence (Zone U).
+import FLTForHuman.ModularCurve.Degree.TranscendentalCoeffEmb
+-- T25: `IntegralWeightOneForm` and its existence (Zone V).
+import FLTForHuman.ModularForms.WeightOne.IntegralWeightOneForm
 -- The cyclotomic instances for the end-to-end wire tests of Zones I, J and K.
 import Mathlib.NumberTheory.Cyclotomic.Basic
 
@@ -952,6 +956,48 @@ example (M : ℕ) [NeZero M] (f : modularFunctionFieldBar M) (hf : f ≠ 0) :
 example (K : Type*) [Field K] (Γ : Subgroup (Matrix.SpecialLinearGroup (Fin 2) ℤ)) :
     jqModC K ∈ IntermediateField.adjoin K (intFormRatiosC K Γ) :=
   IntermediateField.subset_adjoin K _ (ModularCurve.jqModC_mem_intFormRatiosC K Γ)
+
+/-! ## Zone U — [T24] two more corollaries the `--ready` list surfaced
+
+`ModularCurve.transcendental_coeffEmb_jq` is the bar-field analogue of the ported
+`transcendental_jqModC` (the pin's 265-line `DivUSol` development collapses to the
+`Subalgebra` subtype transport plus `coeffEmb_jq`), and
+`ModularCurve.jqModC_eq_qExpansion_E4_cube_div_discriminant` is the ported
+`jqModC_eq_div` with the two `q`-expansion identities substituted. The wire tests
+**use** each: the first in its `Transcendental` ⇄ polynomial form, the second as a
+rewrite of `jqModC ℂ` in a goal. -/
+
+#check @ModularCurve.transcendental_coeffEmb_jq
+#check @ModularCurve.jqModC_eq_qExpansion_E4_cube_div_discriminant
+
+example (L : Type*) [Field L] [Algebra ℚ L] (N : ℕ) [NeZero N]
+    (p : Polynomial L) (hp : p ≠ 0) :
+    Polynomial.aeval (⟨coeffEmb L jq, coeffEmb_mem_laurentBaseChange L (jq_mem_full N)⟩ :
+      laurentBaseChange L (modularFunctionFieldFull N)) p ≠ 0 :=
+  fun h0 => hp ((transcendental_iff.mp (ModularCurve.transcendental_coeffEmb_jq L N)) p h0)
+
+example (ω : LaurentSeries ℂ)
+    (h : ω = ((UpperHalfPlane.qExpansion 1 (ModularForm.E₄ : UpperHalfPlane → ℂ) : PowerSeries ℂ) :
+        LaurentSeries ℂ) ^ 3 /
+      ((UpperHalfPlane.qExpansion 1 (ModularForm.discriminant : UpperHalfPlane → ℂ) : PowerSeries ℂ) :
+        LaurentSeries ℂ)) :
+    ω = jqModC ℂ := by
+  rw [h, ModularCurve.jqModC_eq_qExpansion_E4_cube_div_discriminant]
+
+/-! ## Zone V — [T25] the integral weight-one form's existence
+
+`ModularCurve.nonempty_integralWeightOneForm` is the pin's existence theorem: an
+integral weight-one form on `Gamma1 M` (for `M ≥ 3`) with an integral, non-zero
+`q`-expansion. The wire test eliminates the `Nonempty` and **uses** the structure's
+fields (`isIntegralQExp`, `intSeriesC_ne_zero`). -/
+
+#check @ModularCurve.nonempty_integralWeightOneForm
+
+example (κ : Type) [Field κ] (M : ℕ) (hM : 3 ≤ M) :
+    ∃ w : IntegralWeightOneForm κ M,
+      IsIntegralQExp w.form w.series ∧ intSeriesC κ w.series ≠ 0 := by
+  obtain ⟨w⟩ := ModularCurve.nonempty_integralWeightOneForm κ M hM
+  exact ⟨w, w.isIntegralQExp, w.intSeriesC_ne_zero⟩
 
 /-! ## The measure
 

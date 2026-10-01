@@ -1579,6 +1579,11 @@ SOURCES = [
     "P2M/Sol/S_KaehlerDifferential_span_D_eq_top_of_transcendental.lean",
     "P2M/Sol/S_KaehlerDifferential_D_ne_zero_of_transcendental.lean",
     "P2M/Sol/S_AlgebraicCurve_hasCanonicalDivisor_of_isCurveOver.lean",
+    # The `dCoordGenerates` sibling: its chain was already verified through the
+    # `hasCanonicalDivisor` `S_` file above, and only the headline is new, so its
+    # wrapper is the comparable copy. Appended here beside its sibling (the name is
+    # unique, so no earlier last-name match can flip).
+    "Theorems/Thm_AlgebraicCurve_dCoordGenerates_of_isCurveOver.lean",
     # --- P3.1a (the adic-completion layer): the pin `Definitions/` file itself is
     # the statement authority (no `Theorems/` wrapper). Appended last so no earlier
     # last-name match can flip.
@@ -1782,6 +1787,22 @@ SOURCES = [
     # so no earlier last-name match can flip.
     "Theorems/Thm_ModularCurve_hasPrincipalDivisors_modularFunctionFieldBar_unconditional.lean",
     "Theorems/Thm_ModularCurve_jqModC_mem_intFormRatiosC.lean",
+    # --- Two more short corollaries reusing ported machinery ---
+    # `transcendental_coeffEmb_jq` is the bar-field analogue of the ported
+    # `transcendental_jqModC` (via `coeffEmb_jq` and the `Subalgebra` subtype
+    # transport); `jqModC_eq_qExpansion_E4_cube_div_discriminant` is the ported
+    # `jqModC_eq_div` with the two ported `q`-expansion identities substituted.
+    # Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_ModularCurve_transcendental_coeffEmb_jq.lean",
+    "Theorems/Thm_ModularCurve_jqModC_eq_qExpansion_E4_cube_div_discriminant.lean",
+    # --- The integral weight-one form's existence ---
+    # `IntegralWeightOneForm` is the pin's `Def_ModularCurve_IgusaFunctionFieldX1.lean`
+    # structure (only the structure is ported; the Igusa function-field defs after it
+    # are deferred). The headline is a wrapper; the construction's helpers are
+    # pin-internal and transcribed `private`. Appended last so no earlier last-name
+    # match can flip.
+    "Definitions/Def_ModularCurve_IgusaFunctionFieldX1.lean",
+    "Theorems/Thm_ModularCurve_nonempty_integralWeightOneForm.lean",
 ]
 
 PORT_FILES = [
@@ -2435,6 +2456,12 @@ PORT_FILES = [
     # `Def_ModularCurve_X1.lean` `FunctionField` block; `jqModC_mem_intFormRatiosC`
     # is its `Them_` wrapper. Appended last so no earlier last-name match can flip.
     "FLTForHuman/ModularCurve/JqIntegralRatios.lean",
+    # The bar-embedded `j(q)`'s transcendence (a leaf module: `PhiDegree` +
+    # `LaurentGlue` + `QAdicPlace`). Appended last so no earlier match can flip.
+    "FLTForHuman/ModularCurve/Degree/TranscendentalCoeffEmb.lean",
+    # `IntegralWeightOneForm` (the pin's X1/Igusa vocabulary) and its existence.
+    # Appended last so no earlier last-name match can flip.
+    "FLTForHuman/ModularForms/WeightOne/IntegralWeightOneForm.lean",
 ]
 
 

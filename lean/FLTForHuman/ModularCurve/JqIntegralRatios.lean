@@ -148,6 +148,28 @@ theorem jqModC_mem_intFormRatiosC (K : Type*) [Field K]
   ⟨12, e4cube Γ, delta Γ, eisenstein4 ^ 3, PowerSeries.X * dedekindEtaUnit,
     isIntegralQExp_e4cube Γ, isIntegralQExp_delta Γ, intSeriesC_delta_ne_zero K, jqModC_eq_div K⟩
 
+/-- **`jqModC` against the analytic `q`-expansions**: `jqModC ℂ = (q(E₄))³ / q(Δ)`.
+Verbatim from `Theorems/Thm_ModularCurve_jqModC_eq_qExpansion_E4_cube_div_discriminant.lean`.
+
+This is `jqModC_eq_div` at `K = ℂ` with the two `q`-expansions substituted for
+their integral series via the ported `qExpansion_E4_eq_map_eisenstein4` /
+`qExpansion_discriminant_eq_map_X_mul_dedekindEtaUnit`; the pin's `S_` file proves
+the same identity analytically. -/
+theorem jqModC_eq_qExpansion_E4_cube_div_discriminant :
+    jqModC ℂ = (((qExpansion 1 (ModularForm.E₄ : ℍ → ℂ) : PowerSeries ℂ) : LaurentSeries ℂ) ^ 3 /
+      ((qExpansion 1 (ModularForm.discriminant : ℍ → ℂ) : PowerSeries ℂ) : LaurentSeries ℂ)) := by
+  have hE : ((qExpansion 1 (ModularForm.E₄ : ℍ → ℂ) : PowerSeries ℂ) : LaurentSeries ℂ)
+      = intSeriesC ℂ eisenstein4 := by
+    rw [qExpansion_E4_eq_map_eisenstein4]
+    rfl
+  have hD : ((qExpansion 1 (ModularForm.discriminant : ℍ → ℂ) : PowerSeries ℂ) : LaurentSeries ℂ)
+      = intSeriesC ℂ (PowerSeries.X * dedekindEtaUnit) := by
+    rw [qExpansion_discriminant_eq_map_X_mul_dedekindEtaUnit]
+    rfl
+  have hpow : intSeriesC ℂ (eisenstein4 ^ 3) = (intSeriesC ℂ eisenstein4) ^ 3 := by
+    simp only [intSeriesC, map_pow]
+  rw [jqModC_eq_div, hpow, hE, hD]
+
 end ModularCurve
 
 end
