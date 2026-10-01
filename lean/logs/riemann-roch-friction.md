@@ -1939,3 +1939,53 @@ the two scoped `instDCoordGenerates*` and the two `instHasCanonicalDivisorRatFun
 `AlgebraicCurve.RationalFunctionField.trace_localResidue_placeInfty_X_pow_eq_zero`
 (the wrapper's name). **Out-of-set declarations: none. Forward references: none
 (this is the last chunk).** Scratch `lean/ScratchP32e.lean` removed.
+
+## Set P3.2f — the row-2 sibling atom tails (2026-09-30)
+
+**Landing.** `P1/TwoPlace.lean` (122 ln, atom 2) and `P1/DivPow.lean` (713 ln, the
+atom-3 `P1Tower` tail). Checker 3645 / 0 / 0 / 30 (3675 checked) → **3701 / 0 / 0 /
+30 (3731 checked)**, +56 identical / +56 checked (TwoPlace 6, DivPow 50). Both modules
+forced-built green (`TwoPlace` 3.5 s / 2859 jobs; `DivPow` 3578 jobs); only the two
+new `.olean`s moved. `#print axioms` on all 51 public nodes → `[propext,
+Classical.choice, Quot.sound]`. Hygiene clean; consumer exit 0.
+
+**The work order's atom-3 price was a measurement gap — the real prerequisite is the
+Tate agreement.** The 3.2f order priced atom 3 at "43 substituted; 3 new private
+helpers" (`gen`, `isIntegral_gen`, `ord_neg'`), because `port_advise` reads only the
+target file's same-file closure. The atom-3 headline proof (pin
+`S_…_div_pow_eq_zero.lean:2016–2140`) calls the imported
+`AlgebraicCurve.completionTraceSum_of_isSeparable` (:2078) and
+`AlgebraicCurve.residueTraceCompletionCommute_v2` (:2077). Neither is in the port, and
+the second needs `tateCommFinite` / `tateAgreement_v2` / `tateChainRule` /
+`tateTraceCompat_of_isSeparable` (pin 1,257 + 4,816 + 2,832 + 4,418 ln ≈ the
+8,000-written "Tate agreement" row of `PORTING-RR.md` §3). The port also lacks the
+`Def_AlgebraicCurve_TateResidueCurrency` definitions those use (`kaehlerPullback`,
+`kwHgfV352_localResidueCompletion`, `kwHgfV352_completionTraceAt`,
+`KwHgfV352CompletionTraceSum`, `KwF4R1V391aResidueTraceCompletionCommute`). This is
+the WORKFLOW §6.1 failure mode, and §2.2's parallel audit is the instrument that would
+have caught it before dispatch.
+
+**Gated rows (not ported).** `RationalFunctionField.trace_localResidue_finitePlace_div_pow_eq_zero`
+— gated on the trace-completion commutation (row 3.4) and the Tate agreement (row 3.3);
+`AlgebraicCurve.residueTheorem_ratFunc_of_perfectField` — its `solution` builds
+`P1FinitePlaceTermZeroMGeTwo` from atom 3's headline, so it is gated on the same two
+rows. Both `SOURCES` entries are already wired so the follow-up only appends
+`PORT_FILES`.
+
+**One pin-private helper re-landed `private`.** `kwHgfV352_localResidueCompletion`
+(pin `Definitions/Def_AlgebraicCurve_TateResidueCurrency.lean:185`) is public in the
+pin but the port has no copy; it is re-landed `private` in `DivPow` so the two public
+rows `kwHgfV352_localResidueCompletion_{spec,algebraMap}` still verify against the
+atom-3 `S_` source. Promotion debt for a later refactor round.
+
+**v4.34 drift.** `isIntegral_algebraMap_iff` now takes no injectivity argument (it uses
+`FaithfulSMul`); the pin's `(algebraMap (RatFunc K) L).injective` argument was dropped
+in `separable_minP`. The atom-3 `S_` file's `RationalFunctionField.hasPrincipalDivisors`
+is not a port name (the port has `IsCurveOver.hasPrincipalDivisors` and
+`RationalFunctionField.hasPrincipalDivisors_of_isGalois`); the tower block that needed
+it is the headline's, which is gated, so no copy was written.
+
+**Friction.** `P1/DivPow.lean` needs `Defs/PlaceCompletion` explicitly: the R1 comment
+in `LocalResidue/Instance.lean` claimed the pin's `PlaceCompletion` import was dropped,
+but `Place.adicCompletion` and `kwHgfV352_exists_sub_mem_adicCompletionIntegers` are
+only reachable through that import.

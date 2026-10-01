@@ -333,3 +333,30 @@ atom/base files' unique tails (~1k) plus the closeout refactor. **This session s
 here by human instruction**, with [HANDOFF-P3-2.md](HANDOFF-P3-2.md) carrying the
 state, the `Defs/` theory-move audit (human directive: `Defs/` is definitions only),
 the recorded debts, and the remaining rows 3.3–3.7.
+
+### 3.7 Closeout — 3.2f ACCEPTED (partial); the two row-2 headlines gated (2026-09-30)
+
+The R1 definitions round had already moved the master ℙ¹ file into the `P1/` chain
+([PLAN-RECTIFY-DEFS.md](PLAN-RECTIFY-DEFS.md) §5.1). Set 3.2f ported the three
+sibling files' unique tails ([WORKORDER-P3-2f-tails.md](WORKORDER-P3-2f-tails.md)):
+
+| module | ln | content | status |
+|---|---:|---|---|
+| `P1/TwoPlace.lean` | 122 | atom-2 two-place-cancellation tail + headline | complete |
+| `P1/DivPow.lean` | 713 | atom-3 `P1Tower` (`substPoly`…`trace_mul_inv_derivative`, `D_ratFuncX_ne_zero`, `kwHgfV352_localResidueCompletion_*`) | partial |
+
+Manager-verified: checker **3645 → 3701 identical / 0 mismatched / 0 missing / 30
+own-proof** (3675 → 3731 checked); both modules build green, `.olean` mtimes confirm
+only they moved; `#print axioms` clean on all 56 public nodes; hygiene clean.
+
+**Two headlines are gated, not ported** (no `sorry` left behind): atom 3's
+`RationalFunctionField.trace_localResidue_finitePlace_div_pow_eq_zero` and the PF base
+`residueTheorem_ratFunc_of_perfectField`. Their proofs call
+`AlgebraicCurve.residueTraceCompletionCommute_v2` and
+`completionTraceSum_of_isSeparable`, which need the **Tate agreement** (row 3.3) and
+the **trace-completion commutation** (row 3.4). The work order's "3 new helpers" price
+was a measurement gap (`port_advise` sees only same-file closure);
+[AUDIT-mathlib-p3-2f.md](AUDIT-mathlib-p3-2f.md) corrects it to 229 substitute / 87
+import-adapt / 98 new over the 414 rows. Promotion debt recorded in
+[../../logs/riemann-roch-friction.md](../../logs/riemann-roch-friction.md) § Set
+P3.2f.

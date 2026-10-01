@@ -255,8 +255,9 @@ reference.
 
 `AlgebraicCurve/` homes after the R1 round: `Defs/` (API), `P1/`, `LocalResidue/`,
 plus the existing `Canonical/`, `Genus/`, `PrincipalDivisors/`, `RiemannRoch/`,
-`WeilExchange/`, `IsCurveOver/`. R1's execution and the deferred R2 / `Defs/P1.lean`
-items are in [PLAN-RECTIFY-DEFS.md](PLAN-RECTIFY-DEFS.md) §5.1.
+`WeilExchange/`, `IsCurveOver/`. R2's generic theory home is **`Place/`** (with
+`Adeles/` for the adelic files). R1's execution, the resolved decisions and the
+deferred items are in [PLAN-RECTIFY-DEFS.md](PLAN-RECTIFY-DEFS.md) §5.1 and §7.
 
 ## 9. Current row-2 map (3.2)
 
@@ -269,7 +270,8 @@ engine is written once and the two endings are small marginals. Blocks:
 | 3.2a | ℙ¹ place/ord dictionary + `PlaceEvaluation` + `PlaceEvaluationAlgebra` | **DONE** (1,633 ln, 3 new modules) |
 | 3.2b–e | the master ℙ¹ file: ord/valuation prelude → residue-at-∞ calculus → principal parts/differential coefficients → the three `trace_localResidue_*` atoms + `residueTheorem_ratFunc_of_perfectField` | **DONE** (the `P1/` chain) |
 | definitions R1 | theory blobs → `P1/` + `LocalResidue/`; monolith split | **DONE** ([PLAN-RECTIFY-DEFS.md](PLAN-RECTIFY-DEFS.md) §5.1) |
-| row 2 tails | the three sibling atom files' unique tails (≈1k written) | next |
+| 3.2f | row-2 sibling tails: atom 2 + the atom-3 `P1Tower` block | **PARTIAL** — `P1/TwoPlace.lean` (122 ln, complete) + `P1/DivPow.lean` (713 ln); checker **3701 / 0 / 0 / 30** ([WORKORDER-P3-2f-tails.md](WORKORDER-P3-2f-tails.md)) |
+| row-2 headlines | atom-3 `…finitePlace_div_pow_eq_zero` and PF base `residueTheorem_ratFunc_of_perfectField` | **gated** on the Tate agreement (3.3) + trace-completion commutation (3.4); their proofs call `residueTraceCompletionCommute_v2` / `completionTraceSum_of_isSeparable` |
 | definitions R2 | the generic/mixed `Defs/` audit; `Defs/P1.lean` API extraction | deferred |
 | row 6 | the K ending (marginal over the shared engine) | planned |
 

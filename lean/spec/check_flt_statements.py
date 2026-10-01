@@ -1637,6 +1637,18 @@ SOURCES = [
     # file above carries `RatFunc K`-specialized copies of several of these names.
     "Theorems/Thm_AlgebraicCurve_Place_CanonicalLocalResidueDataK_res_differentialCoeff_D_mul_pow_inv_eq_zero_of_surjective_algebraMap.lean",
     "P2M/Sol/S_AlgebraicCurve_Place_CanonicalLocalResidueDataK_res_differentialCoeff_D_mul_pow_inv_eq_zero_of_surjective_algebraMap.lean",
+    # --- P3.2f (the row-2 sibling atom tails). The three `Theorems/` wrappers are
+    # the interface copies whose binders the port's public names spell; the three
+    # `P2M/Sol/S_` files supply the unique tails. Appended last so no earlier
+    # last-name match can flip. Only `P1/TwoPlace.lean` is registered in
+    # `PORT_FILES` below: the atom-3 and PF-base tails are blocked on the unported
+    # Tate agreement (see the 3.2f report), so their modules do not exist yet.
+    "Theorems/Thm_AlgebraicCurve_RationalFunctionField_trace_localResidue_finitePlace_add_trace_localResidue_placeInfty_eq_zero.lean",
+    "Theorems/Thm_AlgebraicCurve_RationalFunctionField_trace_localResidue_finitePlace_div_pow_eq_zero.lean",
+    "Theorems/Thm_AlgebraicCurve_residueTheorem_ratFunc_of_perfectField.lean",
+    "P2M/Sol/S_AlgebraicCurve_RationalFunctionField_trace_localResidue_finitePlace_add_trace_localResidue_placeInfty_eq_zero.lean",
+    "P2M/Sol/S_AlgebraicCurve_RationalFunctionField_trace_localResidue_finitePlace_div_pow_eq_zero.lean",
+    "P2M/Sol/S_AlgebraicCurve_residueTheorem_ratFunc_of_perfectField.lean",
 ]
 
 PORT_FILES = [
@@ -2187,6 +2199,14 @@ PORT_FILES = [
     # flip. `Defs/PushPull.lean`'s `ord_nonneg_of_mem`/`mem_of_ord_nonneg`/
     # `mem_iff_ord_nonneg` are imported, not re-proved.
     "FLTForHuman/AlgebraicCurve/LocalResidue/Calculus.lean",
+    # --- P3.2f: the atom-2 two-place cancellation tail (see the `SOURCES` note
+    # above). Appended last so no earlier last-name match can flip.
+    "FLTForHuman/AlgebraicCurve/P1/TwoPlace.lean",
+    # --- P3.2f: the atom-3 `P1Tower` tail. The headline
+    # `trace_localResidue_finitePlace_div_pow_eq_zero` is NOT ported (it is gated
+    # on the unported Tate agreement; see the 3.2f report), so it is absent here
+    # and the checker does not require it.
+    "FLTForHuman/AlgebraicCurve/P1/DivPow.lean",
 ]
 
 

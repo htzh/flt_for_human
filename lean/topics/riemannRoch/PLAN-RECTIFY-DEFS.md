@@ -1,6 +1,6 @@
 # Plan — `Defs/` rectification and the ℙ¹ core breakout
 
-**Status: R1 executed (§5.1); R2 deferred; `Defs/P1.lean` pending open question 2.**
+**Status: R1 executed (§5.1); R2 deferred; `Defs/P1.lean` decided but deferred (§7).**
 Written 2026-09-30 when the P3.2 port paused. This is a **rectification plan**, not a
 port: it decides *homes*, not mathematics. It gates the resumption of the row-2 tails
 (§2 of [HANDOFF-P3-2.md](HANDOFF-P3-2.md)) and rows 3.3–3.7, because a consumer that
@@ -273,11 +273,11 @@ re-landing deleted (the HANDOFF §4.4 fix). All three now match the pin's
 pin-private, +3 over the pre-round 3,642 / 132); `RiemannRochConsumer.lean` 0 errors;
 hygiene clean. `PlaceEvaluationAlgebra` stays in `Defs/` under exception 1.
 
-**Not done — the R1 remainder, the `Defs/P1.lean` API extraction.** It is gated on
-open question 2 below (are the bespoke `def … : Prop` rows API or proof bookkeeping?),
-and the ℙ¹-place defs (`finitePlace`, `placeInfty`, `placeOfPoint`, …) are entangled
-with `Defs/RatFuncPlaces.lean`, an R2 item; so the extraction should follow that
-decision and, for the place vocabulary, R2.
+**Not done — the R1 remainder, the `Defs/P1.lean` API extraction — is deferred by
+decision (§7.2), not blocked.** The rows are API; extracting them into `Defs/P1.lean`
+is hygiene while no future consumer is known, and the ℙ¹-place defs (`finitePlace`,
+`placeInfty`, `placeOfPoint`, …) are entangled with `Defs/RatFuncPlaces.lean`, an R2
+item. The `P1/` modules are still a leaf, so it stays cheap whenever it is taken up.
 
 ## 6. WORKFLOW.md amendment
 
@@ -290,14 +290,21 @@ decision and, for the place vocabulary, R2.
   verdicts, "pay it first";
 - §9 → mark 3.2b–e done and insert the definitions round as the gate for 3.3–3.7.
 
-## 7. Open questions for the human
+## 7. Decisions (resolved by the human, 2026-09-30)
 
-1. Directory names: `P1/` is agreed; `Place/` vs `Places/`; `LocalResidue/` vs folding
-   the generic calculus into `Place/`; `Adeles/`.
-2. The bespoke `def … : Prop` atom/predicate rows — API (stay in `Defs/P1.lean`) or
-   proof bookkeeping (travel with `P1/`)? This plan recommends API, since the sibling
-   atoms and row 6 state against them.
-3. `PlaceEvaluationAlgebra`: keep as adapter (recommended) or move to `Place/`.
-4. Whether R2 is part of this round or its own deferred refactor round.
-5. Whether `IntegralAdjoin` and `KaehlerTranscendental` are `Defs/` leaves or move to a
-   generic prelude home.
+1. Directory names: `P1/` (done) and **`Place/`** (R2's generic theory home);
+   `LocalResidue/` stands for the R1 calculus/instance; `Adeles/` for the R2 adelic
+   files.
+2. The bespoke `def … : Prop` atom/predicate rows are **API** — when extracted they
+   go to `Defs/P1.lean`, not with the `P1/` theory. **The extraction itself is
+   deferred** (see below): the defs now live in the `P1/` theory home, and since it
+   is not clear future API consumers will exist, moving them into `Defs/` is hygiene
+   rather than a known need. It stays cheapest now (R1 left `P1/` a leaf) if a
+   consumer appears.
+3. `PlaceEvaluationAlgebra` stays in `Defs/` under exception 1 (the adapter rule).
+4. **R2 stays deferred** (its own bounded refactor round when taken up).
+5. `IntegralAdjoin` and `KaehlerTranscendental` stay `Defs/` leaves for now; revisit
+   only if they acquire consumers or R2 touches them.
+
+Remaining cleanup (the §4 refactor-debt list, the empty audit scaffolding, the
+`Defs/P1.lean` extraction) is deferred until a consumer or an issue makes it pay.
