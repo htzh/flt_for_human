@@ -108,36 +108,6 @@ variable {K F}
 
 namespace Place
 
-variable (v : Place K F)
-
-private theorem ord_add_eq_min {f g : F} (hf : f ≠ 0) (hg : g ≠ 0) (h : v.ord f ≠ v.ord g) :
-    v.ord (f + g) = min (v.ord f) (v.ord g) := by
-  have hval : v.adicValuation f ≠ v.adicValuation g := by
-    intro hcon
-    exact h (by simp only [ord, hcon])
-  have h1 : v.adicValuation (f + g) = max (v.adicValuation f) (v.adicValuation g) :=
-    Valuation.map_add_of_distinct_val _ hval
-  have hfg : f + g ≠ 0 := by
-    intro hcon
-    rw [hcon, _root_.map_zero] at h1
-    rcases max_cases (v.adicValuation f) (v.adicValuation g) with ⟨hmax, -⟩ | ⟨hmax, -⟩ <;>
-      rw [hmax] at h1
-    · exact v.adicValuation_ne_zero hf h1.symm
-    · exact v.adicValuation_ne_zero hg h1.symm
-  rcases max_cases (v.adicValuation f) (v.adicValuation g) with ⟨hmax, hle⟩ | ⟨hmax, hlt⟩ <;>
-    rw [hmax] at h1
-  ·
-    have hlog := (WithZero.log_le_log (v.adicValuation_ne_zero hg)
-      (v.adicValuation_ne_zero hf)).mpr hle
-    have h2 : v.ord (f + g) = v.ord f := by simp only [ord, h1]
-    simp only [ord] at hlog h2 ⊢
-    omega
-  · have hlog := (WithZero.log_le_log (v.adicValuation_ne_zero hf)
-      (v.adicValuation_ne_zero hg)).mpr hlt.le
-    have h2 : v.ord (f + g) = v.ord g := by simp only [ord, h1]
-    simp only [ord] at hlog h2 ⊢
-    omega
-
 section RestrictPrelude
 
 variable {K F F' : Type*} [Field K] [Field F] [Field F']

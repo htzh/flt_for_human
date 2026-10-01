@@ -14,6 +14,7 @@ Hecke/Galois-representation layer, not for the exchange cone
 vocabulary needs it (mc-retrospective §8 item 3).
 -/
 import FLTForHuman.AlgebraicCurve.Defs.Place
+import FLTForHuman.AlgebraicCurve.Defs.Divisor
 import Mathlib.Algebra.Ring.Action.End
 import Mathlib.LinearAlgebra.Dimension.Finrank
 
@@ -168,9 +169,17 @@ directly on the pointwise smul of the valuation subring
 (`Def_AlgebraicCurve_DivisorClassGroup.lean:285`); this is the same action routed
 through the ported `ofAlgAut`, and it is the only place-smul the Fricke
 vocabulary needs. It lived in `ModularCurve/Defs/AtkinLehner.lean` until
-mc-retrospective §8 item 3 moved it to its AC home. -/
-instance : SMul (F ≃ₐ[K] F) (Place K F) where
+mc-retrospective §8 item 3 moved it to its AC home. Promoted from a `private`
+`SMul`/`MulAction` pair in `P1/DXCoeff.lean` to this single public home in the P3.2
+refactor round (R3), together with the `Divisor` action below. -/
+instance : MulAction (F ≃ₐ[K] F) (Place K F) where
   smul σ v := ofAlgAut σ • v
+  one_smul v := by
+    show ofAlgAut (1 : F ≃ₐ[K] F) • v = v
+    rw [map_one, one_smul]
+  mul_smul σ τ v := by
+    show ofAlgAut (σ * τ) • v = ofAlgAut σ • (ofAlgAut τ • v)
+    rw [map_mul, mul_smul]
 
 theorem ord_smul (f : F) : (g • v).ord (g • f) = v.ord f := by
   rcases eq_or_ne f 0 with rfl | hf
@@ -217,5 +226,68 @@ theorem deg_smul : (g • v).deg = v.deg := by
   simpa using (smulResidueRingEquiv_algebraMap g v a).symm
 
 end SemilinearAut
+
+section AlgEquivDivisorAction
+
+variable {K F : Type*} [Field K] [Field F] [Algebra K F]
+
+namespace Place
+
+variable (σ : F ≃ₐ[K] F) (v : Place K F)
+
+/-- Pin `Place.ord_smul` (`Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean:314`),
+at the `F ≃ₐ[K] F` level through `ofAlgAut`. Promoted from `P1/DXCoeff.lean` in the
+P3.2 refactor round (R3). -/
+theorem ord_smul (f : F) : (σ • v).ord (σ f) = v.ord f := by
+  change (SemilinearAut.ofAlgAut σ • v).ord (SemilinearAut.ofAlgAut σ • f) = v.ord f
+  exact SemilinearAut.ord_smul (SemilinearAut.ofAlgAut σ) v f
+
+/-- Pin `Place.deg_smul` (`Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean:348`). -/
+theorem deg_smul : (σ • v).deg = v.deg := by
+  change (SemilinearAut.ofAlgAut σ • v).deg = v.deg
+  exact SemilinearAut.deg_smul (SemilinearAut.ofAlgAut σ) v
+
+end Place
+
+namespace Divisor
+
+/-- Pin `Divisor` instance (`Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean:359`). -/
+instance : DistribMulAction (F ≃ₐ[K] F) (Divisor K F) :=
+  Finsupp.comapDistribMulAction
+
+/-- Pin `Divisor.smul_def` (`Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean:361`). -/
+theorem smul_def (σ : F ≃ₐ[K] F) (D : Divisor K F) :
+    σ • D = Finsupp.mapDomain (σ • ·) D := rfl
+
+/-- Pin `Divisor.smul_single` (`Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean:364`). -/
+@[simp]
+theorem smul_single (σ : F ≃ₐ[K] F) (v : Place K F) (n : ℤ) :
+    σ • Finsupp.single v n = Finsupp.single (σ • v) n := by
+  rw [smul_def, Finsupp.mapDomain_single]
+
+/-- Pin `Divisor.smul_apply_smul` (`Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean:369`). -/
+theorem smul_apply_smul (σ : F ≃ₐ[K] F) (D : Divisor K F) (v : Place K F) :
+    (σ • D) (σ • v) = D v := by
+  rw [smul_def]
+  exact Finsupp.mapDomain_apply_of_injective (MulAction.injective σ) D v
+
+/-- Pin `Divisor.smul_apply` (`Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean:374`). -/
+theorem smul_apply (σ : F ≃ₐ[K] F) (D : Divisor K F) (w : Place K F) :
+    (σ • D) w = D (σ⁻¹ • w) := by
+  have : (σ • D) (σ • (σ⁻¹ • w)) = D (σ⁻¹ • w) := smul_apply_smul σ D (σ⁻¹ • w)
+  rwa [smul_inv_smul] at this
+
+/-- Pin `Divisor.degree_smul` (`Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean:380`). -/
+@[simp]
+theorem degree_smul (σ : F ≃ₐ[K] F) (D : Divisor K F) : degree (σ • D) = degree D := by
+  induction D using Finsupp.induction with
+  | zero => simp
+  | single_add v n D _ _ ih =>
+      rw [smul_add, map_add, map_add, ih, smul_single, degree_single, degree_single,
+        Place.deg_smul]
+
+end Divisor
+
+end AlgEquivDivisorAction
 
 end AlgebraicCurve

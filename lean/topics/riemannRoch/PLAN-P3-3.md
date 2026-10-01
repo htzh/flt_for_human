@@ -94,15 +94,18 @@ modules: `Tate/ChainRule.lean` (3.3b, 1,097 ln), `Tate/Agreement.lean` (3.3c, 3,
 **4065 identical / 0 mismatched / 0 missing / 30 own-proof** (4095 checked); each
 worker's own build green. Audits `AUDIT-mathlib-p3-3{b,c,d}.md` written by the workers.
 
-**Resume debt to clear (before 3.4):**
+**Resume debt to clear (before 3.4):** *(items 1–3 all closed.)*
 1. **Parallel duplication** (see above) — hoist the shared projector/prelude once and
-   delete the per-set copies.
+   delete the per-set copies. **DONE** (`Tate/Prelude.lean`).
 2. **`kwHgfV352_localResidueCompletion` twice**: public in `Defs/TateResidueCurrency.lean`
    and `private` in `P1/DivPow.lean`; DivPow's public `_spec`/`_algebraMap` are stated
    about the private copy, so 3.3c re-proved `_spec₀`/`_algebraMap₀` privately. Drop
    the DivPow private def and restate those two facts about the Defs def.
+   **DONE** — P3.2 refactor round R5 (`PLAN-P3-2.md` §6.1).
 3. **InlineSpecific chain** re-landed `private` in `Tate/CommFinite.lean` (3.3a) and
    `Tate/Agreement.lean` (3.3c); named future home `Place/Completion.lean`.
+   **DONE** — P3.2 refactor round R8: public `AlgebraicCurve/Place/Completion.lean`,
+   the three Tate private blocks deleted.
 
 ### Collision measurement (manager, 2026-09-30)
 

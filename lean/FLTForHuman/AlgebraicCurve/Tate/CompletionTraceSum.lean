@@ -42,6 +42,7 @@ from the pin's wrapper.
 -/
 import FLTForHuman.AlgebraicCurve.Defs.TateResidueCurrency
 import FLTForHuman.AlgebraicCurve.Tate.CommFinite
+import FLTForHuman.AlgebraicCurve.Place.Completion
 import FLTForHuman.AlgebraicCurve.Tate.TraceCompat
 import FLTForHuman.AlgebraicCurve.Defs.PushPull
 import FLTForHuman.AlgebraicCurve.WeilExchange.FiberOverCount
@@ -72,129 +73,6 @@ noncomputable section
 here are transcribed `private` at the pin's names (already carried `private` in
 `Tate/CommFinite.lean`, where a `private` is module-local). -/
 
-namespace IsDedekindDomain.HeightOneSpectrum
-
-private noncomputable abbrev completionIdeal {A : Type*} [CommRing A] [IsDedekindDomain A]
-    (v : HeightOneSpectrum A) (K : Type*) [Field K] [Algebra A K] [IsFractionRing A K] :
-    Ideal (v.adicCompletionIntegers K) :=
-  IsLocalRing.maximalIdeal (adicCompletionIntegers K v)
-
-private lemma mem_completionIdeal_iff {A : Type*} (K : Type*) [CommRing A] [Field K]
-    [Algebra A K] [IsFractionRing A K] [IsDedekindDomain A] (v : HeightOneSpectrum A)
-    (x : v.adicCompletionIntegers K) :
-    x ∈ v.completionIdeal K ↔ Valued.v x.val < 1 :=
-  Valuation.mem_maximalIdeal_iff _ _
-
-namespace adicCompletion
-
-open scoped algebraMap in
-private theorem exists_uniformizer {A : Type*} (K : Type*) [CommRing A] [Field K]
-    [Algebra A K] [IsFractionRing A K] [IsDedekindDomain A] (v : HeightOneSpectrum A) :
-    ∃ π : v.adicCompletionIntegers K, Valued.v π.1 = Multiplicative.ofAdd (- 1 : ℤ) := by
-  obtain ⟨π, hπ⟩ := v.intValuation_exists_uniformizer
-  use π
-  rw [← WithZero.exp, ← hπ, ← ValuationSubring.algebraMap_apply, ← IsScalarTower.algebraMap_apply,
-    v.valuedAdicCompletion_eq_valuation, v.valuation_of_algebraMap]
-
-private theorem uniformizer_ne_zero {A : Type*} {K : Type*} [CommRing A] [Field K]
-    [Algebra A K] [IsFractionRing A K] [IsDedekindDomain A] {v : HeightOneSpectrum A}
-    {π : v.adicCompletionIntegers K} (hπ : Valued.v π.1 = Multiplicative.ofAdd (-1 : ℤ)) :
-    π ≠ 0 := by
-  contrapose! hπ
-  simp [hπ]
-
-set_option backward.isDefEq.respectTransparency false in
-open scoped Multiplicative in
-private theorem uniformizer_not_isUnit {A : Type*} {K : Type*} [CommRing A] [Field K]
-    [Algebra A K] [IsFractionRing A K] [IsDedekindDomain A] {v : HeightOneSpectrum A}
-    {π : v.adicCompletionIntegers K}
-    (hπ : Valued.v π.1 = Multiplicative.ofAdd (-1 : ℤ)) :
-    ¬IsUnit (π : v.adicCompletionIntegers K) := by
-  rw [ValuationSubring.isUnit_iff_valued_eq_one, ← WithZero.coe_one, ← ofAdd_zero, hπ]
-  apply ne_of_lt
-  rw [WithZero.coe_lt_coe, Multiplicative.ofAdd_lt]
-  omega
-
-private theorem isUnit_adicCompletionIntegers_of_valued_eq_one {A : Type*} {K : Type*}
-    [CommRing A] [Field K] [Algebra A K] [IsFractionRing A K] [IsDedekindDomain A]
-    {v : HeightOneSpectrum A} {x : v.adicCompletionIntegers K}
-    (hx : Valued.v x.val = 1) : IsUnit x :=
-  ValuationSubring.isUnit_of_valued_eq_one (show Valued.v.valuationSubring from x) hx
-
-private theorem eq_pow_uniformizer_mul_unit {A : Type*} (K : Type*) [CommRing A] [Field K]
-    [Algebra A K] [IsFractionRing A K] [IsDedekindDomain A] (v : HeightOneSpectrum A)
-    {x : v.adicCompletionIntegers K} (hx : x ≠ 0)
-    {π : v.adicCompletionIntegers K} (hπ : Valued.v π.1 = Multiplicative.ofAdd (-1 : ℤ)) :
-    ∃ (n : ℕ) (u : (v.adicCompletionIntegers K)ˣ), x = π ^ n * u := by
-  have hx' : Valued.v x.1 ≠ 0 := by simp [hx]
-  let m := - Multiplicative.toAdd (WithZero.unzero hx')
-  have hm₀ : 0 ≤ m := by
-    simp_rw [m, Right.nonneg_neg_iff, ← toAdd_one, Multiplicative.toAdd_le]
-    rw [← WithZero.coe_le_coe]; exact (WithZero.coe_unzero _).symm ▸ x.2
-  have hpow : Valued.v (π ^ (-m) * x.val) = 1 := by
-    rw [Valued.v.map_mul, map_zpow₀, hπ, ofAdd_neg, WithZero.coe_inv,
-      inv_zpow', neg_neg, ← WithZero.coe_zpow, ← Int.ofAdd_mul, one_mul, ofAdd_neg,
-      ofAdd_toAdd, WithZero.coe_inv, WithZero.coe_unzero, inv_mul_cancel₀ hx']
-  let a : v.adicCompletionIntegers K :=
-    ⟨π ^ (-m) * x.val, by
-      show Valued.v (π ^ (-m) * x.val) ≤ 1
-      exact hpow.le⟩
-  have hunit : IsUnit a := isUnit_adicCompletionIntegers_of_valued_eq_one (v := v) hpow
-  refine ⟨m.toNat, hunit.unit, Subtype.ext ?_⟩
-  simp only [zpow_neg, IsUnit.unit_spec, MulMemClass.coe_mul, SubmonoidClass.coe_pow, a,
-    ← zpow_natCast, m.toNat_of_nonneg hm₀, ← mul_assoc]
-  rw [mul_inv_cancel₀ (zpow_ne_zero _ <| (by simp [uniformizer_ne_zero hπ])), one_mul]
-
-open scoped algebraMap in
-private theorem maximalIdeal_eq_span_uniformizer {A : Type*} (K : Type*) [CommRing A] [Field K]
-    [Algebra A K] [IsFractionRing A K] [IsDedekindDomain A] (v : HeightOneSpectrum A)
-    {π : v.adicCompletionIntegers K}
-    (hπ : Valued.v π.1 = Multiplicative.ofAdd (-1 : ℤ)) :
-    IsLocalRing.maximalIdeal (v.adicCompletionIntegers K) =
-      Ideal.span {(π : v.adicCompletionIntegers K)} := by
-  refine (IsLocalRing.maximalIdeal.isMaximal _).eq_of_le
-    (Ideal.span_singleton_ne_top (uniformizer_not_isUnit hπ)) (fun x hx => ?_)
-  by_cases hx₀ : x = 0
-  · simp only [hx₀, Ideal.zero_mem]
-  · obtain ⟨n, ⟨u, hu⟩⟩ := eq_pow_uniformizer_mul_unit K v hx₀ hπ
-    have hn : ¬(IsUnit x) := fun h =>
-      (IsLocalRing.maximalIdeal.isMaximal _).ne_top (Ideal.eq_top_of_isUnit_mem _ hx h)
-    replace hn : n ≠ 0 := fun h => by {rw [hu, h, pow_zero, one_mul] at hn; exact hn u.isUnit}
-    simpa [Ideal.mem_span_singleton, hu, IsUnit.dvd_mul_right, Units.isUnit] using dvd_pow_self π hn
-
-private lemma mem_completionIdeal_pow {A : Type*} {K : Type*} [CommRing A] [Field K]
-    [Algebra A K] [IsFractionRing A K] [IsDedekindDomain A] {v : HeightOneSpectrum A}
-    {n : ℕ} (x : v.adicCompletionIntegers K) :
-    x ∈ (v.completionIdeal K) ^ n ↔ Valued.v x.val ≤ ↑(Multiplicative.ofAdd (-(n : ℤ))) := by
-  obtain ⟨π, hπ⟩ := exists_uniformizer K v
-  unfold completionIdeal
-  rw [maximalIdeal_eq_span_uniformizer K v hπ, Ideal.span_singleton_pow, Ideal.mem_span_singleton']
-  have hvalπ_pow : (Valued.v π.val) ^ n = (Multiplicative.ofAdd (-n : ℤ)) := by
-    rw [hπ]
-    norm_num
-    norm_cast
-    rw [← ofAdd_nsmul, Nat.smul_one_eq_cast]
-  constructor
-  · rintro ⟨a, rfl⟩
-    simp only [MulMemClass.coe_mul, SubmonoidClass.coe_pow, map_mul, map_pow, ofAdd_neg,
-      WithZero.coe_inv]
-    apply mul_le_of_le_one_of_le a.prop <| le_of_eq hvalπ_pow
-  · intro hx
-    set a := x.val / (π ^ n) with ha'
-    have ha : Valued.v a ≤ 1 := by
-      rwa [ha', Valuation.map_div, Valuation.map_pow, hvalπ_pow,
-        div_le_one₀ (WithZero.zero_lt_coe _)]
-    use ⟨a, ha⟩
-    apply Subtype.val_injective
-    simp only [MulMemClass.coe_mul, SubmonoidClass.coe_pow, ha']
-    rw [div_mul_eq_mul_div₀, mul_div_cancel_right₀]
-    apply pow_ne_zero n
-    norm_cast
-    exact uniformizer_ne_zero hπ
-
-end adicCompletion
-
-end IsDedekindDomain.HeightOneSpectrum
 
 /-! ### The tensor-product trace decomposition (the pin's `gapsw7_x3x_*`) -/
 

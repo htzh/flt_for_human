@@ -69,35 +69,11 @@ theorem evalAt_mul_of_mem (hv : v.IsRational) {f g : F} (hf : f ∈ v.toValuatio
     v.algebraMap_evalAt hv hg, ← map_mul]
   rfl
 
-private theorem evalAt_inv (hv : v.IsRational) {f : F} (hf : f ≠ 0) (h : v.ord f = 0) :
-    v.evalAt f⁻¹ = (v.evalAt f)⁻¹ := by
-  have hfi : f⁻¹ ≠ 0 := inv_ne_zero hf
-  have hi : v.ord f⁻¹ = 0 := by rw [v.ord_inv, h, neg_zero]
-  have hmul := v.evalAt_mul_of_mem hv (v.mem_toValuationSubring_of_ord_nonneg_alt hf h.ge)
-    (v.mem_toValuationSubring_of_ord_nonneg_alt hfi hi.ge)
-  rw [mul_inv_cancel₀ hf, v.evalAt_one] at hmul
-  exact eq_inv_of_mul_eq_one_right hmul.symm
-
-private theorem evalAt_zpow (hv : v.IsRational) {f : F} (hf : f ≠ 0) (h : v.ord f = 0) (n : ℤ) :
-    v.evalAt (f ^ n) = v.evalAt f ^ n := by
-  have hpow : ∀ m : ℕ, v.evalAt (f ^ m) = v.evalAt f ^ m := by
-    intro m
-    induction m with
-    | zero => simp [v.evalAt_one]
-    | succ m ih =>
-      have hm : v.ord (f ^ (m : ℤ)) = 0 := by rw [v.ord_zpow, h, mul_zero]
-      rw [pow_succ, v.evalAt_mul_of_mem hv ?_
-        (v.mem_toValuationSubring_of_ord_nonneg_alt hf h.ge), ih, pow_succ]
-      have : (f ^ m : F) = f ^ (m : ℤ) := by rw [zpow_natCast]
-      rw [this]
-      exact v.mem_toValuationSubring_of_ord_nonneg_alt (zpow_ne_zero _ hf) hm.ge
-  rcases n with m | m
-  · rw [Int.ofNat_eq_natCast, zpow_natCast, zpow_natCast]
-    exact hpow m
-  · rw [zpow_negSucc, zpow_negSucc, ← hpow (m + 1)]
-    refine v.evalAt_inv hv (pow_ne_zero _ hf) ?_
-    have : (f ^ (m + 1) : F) = f ^ ((m + 1 : ℕ) : ℤ) := by rw [zpow_natCast]
-    rw [this, v.ord_zpow, h, mul_zero]
+-- The pin's `Def_AlgebraicCurve_PlaceEvaluationAlgebra` also carries `private`
+-- copies of `evalAt_inv` / `evalAt_zpow`; those are the pin's `Place_evalAt_*`
+-- node laws, now public beside the `evalAt` definition in
+-- `Defs/PlaceEvaluation.lean` (R10 of the P3.2 refactor round), so the private
+-- duplicates here are deleted. Uses below resolve to the public copies.
 
 theorem evalAt_algebraMap_eq (a : K) : v.evalAt (algebraMap K F a) = a := by
   rw [v.evalAt_of_mem (v.algebraMap_mem' a)]

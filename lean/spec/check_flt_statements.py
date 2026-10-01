@@ -2330,6 +2330,13 @@ PORT_FILES = [
     # is imported from `P1/TwoPlace.lean` and the p1-place twins are stated at the
     # pin's `placeInfty` and adapted from the port's `p1PlaceInfty`. Appended last.
     "FLTForHuman/AlgebraicCurve/P1/PerfectBase.lean",
+    # --- P3.2 refactor round (R8): the InlineSpecific uniformizer chain hoisted out
+    # of the three Tate modules into one public home. Its declarations are matched
+    # against `Definitions/Def_DedekindDomain_AdicValuation_InlineSpecific.lean`
+    # (registered above) and the `tate*`/`completionTraceSum` `S_` sources; the one
+    # v4.34 adapter (`isUnit_adicCompletionIntegers_of_valued_eq_one`) stays
+    # `private`. Appended last so no earlier last-name match can flip.
+    "FLTForHuman/AlgebraicCurve/Place/Completion.lean",
 ]
 
 

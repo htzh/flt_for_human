@@ -14,12 +14,10 @@ short of this headline; the proof additionally consumes the surviving
 (`Tate/CompletionTraceSum.lean`) landed by set 3.4. The pin's `_v2` twin of the
 first is dropped (PORTING-RR §3 name policy).
 
-The pin's `kwHgfV352_localResidueCompletion_algebraMap` is stated in
-`P1/DivPow.lean` about that module's `private` copy of the completion residue;
-the rewrite below needs the fact for the **public** def of
-`Defs/TateResidueCurrency.lean`, so this module re-lands the `private` bridge
-`…_spec₀` / `…_algebraMap₀` exactly as `Tate/Agreement.lean:907/928` do. That is
-the recorded promotion debt of P3.3a / the P3.3 pause note item 2.
+`kwHgfV352_localResidueCompletion_algebraMap` is the public fact stated in
+`P1/DivPow.lean` about the public `kwHgfV352_localResidueCompletion` of
+`Defs/TateResidueCurrency.lean`; the P3.2f/3.3 `private` `…_spec₀`/`…_algebraMap₀`
+re-landings were deleted in the P3.2 refactor round (R5).
 -/
 import FLTForHuman.AlgebraicCurve.P1.DivPow
 import FLTForHuman.AlgebraicCurve.Tate.TraceCompletionCommute
@@ -39,41 +37,6 @@ open RationalFunctionField
 set_option autoImplicit false
 set_option synthInstance.maxSize 4096
 
-section LocalResidueCompletion
-
-variable {K E : Type*} [Field K] [Field E] [Algebra K E]
-variable [HasCanonicalLocalResidueKStar K E]
-
-/-- The spec of the port's **public** `kwHgfV352_localResidueCompletion`
-(`Defs/TateResidueCurrency.lean`); the pin's public `_spec` is stated in
-`P1/DivPow.lean` about that module's `private` copy. -/
-private theorem kwHgfV352_localResidueCompletion_spec₀ (v : Place K E) (xh : v.adicCompletion)
-    {x : E} (hx : algebraMap E v.adicCompletion x - xh ∈ v.adicCompletionIntegers) :
-    kwHgfV352_localResidueCompletion v xh = v.localResidue x := by
-  unfold kwHgfV352_localResidueCompletion
-  set x₀ := (kwHgfV352_exists_sub_mem_adicCompletionIntegers v xh).choose
-  have hx₀ := (kwHgfV352_exists_sub_mem_adicCompletionIntegers v xh).choose_spec
-  have heq : algebraMap E v.adicCompletion (x₀ - x)
-      = (algebraMap E v.adicCompletion x₀ - xh) - (algebraMap E v.adicCompletion x - xh) := by
-    rw [map_sub]; ring
-  have hdiff : algebraMap E v.adicCompletion (x₀ - x) ∈ v.adicCompletionIntegers :=
-    heq ▸ sub_mem hx₀ hx
-  have hov : x₀ - x ∈ v.toValuationSubring :=
-    (kwHgfV352_algebraMap_mem_adicCompletionIntegers_iff v _).mp hdiff
-  have hzero : v.localResidue (x₀ - x) = 0 :=
-    v.localResidue_eq_zero_of_ord_nonneg (Or.inr (v.ord_nonneg_of_mem hov))
-  rw [map_sub, sub_eq_zero] at hzero
-  exact hzero
-
-/-- The `algebraMap` specialisation of the public spec (the pin's
-`kwHgfV352_localResidueCompletion_algebraMap` is about the `P1/DivPow.lean`
-private copy). -/
-private theorem kwHgfV352_localResidueCompletion_algebraMap₀ (v : Place K E) (x : E) :
-    kwHgfV352_localResidueCompletion v (algebraMap E v.adicCompletion x)
-      = v.localResidue x :=
-  kwHgfV352_localResidueCompletion_spec₀ v _ (by rw [sub_self]; exact zero_mem _)
-
-end LocalResidueCompletion
 
 section SurjectiveResidueField
 
@@ -101,11 +64,8 @@ variable (p : K[X]) (hp : 0 < p.natDegree)
 
 namespace P1Tower
 
-/-- Re-landed `private` verbatim from `P1/DivPow.lean:104` (pin `S_` file line
-1446, `private def gen`), whose copy is module-local there. Recorded as
-promotion debt: `gen` is a pin-`private` helper of the `P1Tower` block. -/
-private def _root_.AlgebraicCurve.P1Tower.gen : Kx K p hp :=
-  toKx K p hp (RatFunc.X : RatFunc K)
+-- `gen` is imported from `P1/DivPow.lean`, where it is public since R6 of the
+-- P3.2 refactor round; the headline keeps the pin's explicit `hp` via `include hp`.
 
 include hp in
 
@@ -184,7 +144,7 @@ theorem trace_localResidue_finitePlace_div_pow_eq_zero
     rw [Finset.sum_eq_single_of_mem (⟨w, hw⟩ : { x // x ∈ v0.fiber (Kx K p hp) }) (Finset.mem_attach _ _)
       (fun w' _ hne => (hne (Subtype.ext (hone w'))).elim)]
   rw [hsum] at hCTS
-  rw [← hCTS, kwHgfV352_localResidueCompletion_algebraMap₀] at hRTCC
+  rw [← hCTS, kwHgfV352_localResidueCompletion_algebraMap] at hRTCC
 
   have hLHS : kaehlerResidueTerm ω (diagonalHom K (Kx K p hp) g) w
       = Algebra.trace K (finitePlace K hirr).ResidueField

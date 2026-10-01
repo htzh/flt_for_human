@@ -18,6 +18,7 @@ port and in turn require the whole unported Tate agreement
 -/
 import FLTForHuman.AlgebraicCurve.P1.Core
 import FLTForHuman.AlgebraicCurve.Defs.PlaceCompletion
+import FLTForHuman.AlgebraicCurve.Defs.TateResidueCurrency
 
 noncomputable section
 open Polynomial IsDedekindDomain WithZero IsLocalRing UniqueFactorizationMonoid
@@ -101,7 +102,10 @@ theorem aeval_ratFuncX (q : K[X]) :
     Polynomial.aeval_algHom_apply, Polynomial.aeval_X_left]
   rfl
 
-private def _root_.AlgebraicCurve.P1Tower.gen : Kx K p hp :=
+/-- The pin's `gen` helper; public here since the P3.2 refactor round (R6) so the
+headline in `P1/DivPowEnding.lean` imports it instead of re-landing a `private`
+copy. -/
+def _root_.AlgebraicCurve.P1Tower.gen : Kx K p hp :=
   toKx K p hp (RatFunc.X : RatFunc K)
 
 def minP : (RatFunc K)[X] := p.map (algebraMap K (RatFunc K)) - C (RatFunc.X : RatFunc K)
@@ -450,35 +454,6 @@ variable {K F : Type*} [Field K] [Field F] [Algebra K F] (v : Place K F)
 private theorem _root_.AlgebraicCurve.Place.ord_neg' (f : F) : v.ord (-f) = v.ord f := by
   simp only [Place.ord, Valuation.map_neg]
 
-private theorem _root_.AlgebraicCurve.Place.ord_add_eq_min {f g : F} (hf : f ≠ 0) (hg : g ≠ 0)
-    (h : v.ord f ≠ v.ord g) :
-    v.ord (f + g) = min (v.ord f) (v.ord g) := by
-  have hval : v.adicValuation f ≠ v.adicValuation g := by
-    intro hcon
-    exact h (by simp only [ord, hcon])
-  have h1 : v.adicValuation (f + g) = max (v.adicValuation f) (v.adicValuation g) :=
-    Valuation.map_add_of_distinct_val _ hval
-  have hfg : f + g ≠ 0 := by
-    intro hcon
-    rw [hcon, _root_.map_zero] at h1
-    rcases max_cases (v.adicValuation f) (v.adicValuation g) with ⟨hmax, -⟩ | ⟨hmax, -⟩ <;>
-      rw [hmax] at h1
-    · exact v.adicValuation_ne_zero hf h1.symm
-    · exact v.adicValuation_ne_zero hg h1.symm
-  rcases max_cases (v.adicValuation f) (v.adicValuation g) with ⟨hmax, hle⟩ | ⟨hmax, hlt⟩ <;>
-    rw [hmax] at h1
-  ·
-    have hlog := (WithZero.log_le_log (v.adicValuation_ne_zero hg)
-      (v.adicValuation_ne_zero hf)).mpr hle
-    have h2 : v.ord (f + g) = v.ord f := by simp only [ord, h1]
-    simp only [ord] at hlog h2 ⊢
-    omega
-  · have hlog := (WithZero.log_le_log (v.adicValuation_ne_zero hf)
-      (v.adicValuation_ne_zero hg)).mpr hlt.le
-    have h2 : v.ord (f + g) = v.ord g := by simp only [ord, h1]
-    simp only [ord] at hlog h2 ⊢
-    omega
-
 end Place
 
 end OrdPrivateHelpers
@@ -676,13 +651,10 @@ section LocalResidueCompletionC4
 
 variable {K E : Type*} [Field K] [Field E] [Algebra K E] [HasCanonicalLocalResidueKStar K E]
 
--- Re-landed verbatim from the pin's
--- `Definitions/Def_AlgebraicCurve_TateResidueCurrency.lean:185`
--- (`kwHgfV352_localResidueCompletion`); recorded as promotion debt in the P3.2f
--- report because the pin declaration is public and this copy is `private`.
-private def kwHgfV352_localResidueCompletion (v : Place K E) (xh : v.adicCompletion) :
-    v.ResidueField :=
-  v.localResidue (kwHgfV352_exists_sub_mem_adicCompletionIntegers v xh).choose
+-- The public `kwHgfV352_localResidueCompletion` is imported from
+-- `Defs/TateResidueCurrency.lean`; the P3.2f `private` re-landing was deleted in
+-- the P3.2 refactor round (R5), so the `_spec`/`_algebraMap` below are stated
+-- about the public definition.
 
 theorem kwHgfV352_localResidueCompletion_spec (v : Place K E) (xh : v.adicCompletion)
     {x : E} (hx : algebraMap E v.adicCompletion x - xh ∈ v.adicCompletionIntegers) :

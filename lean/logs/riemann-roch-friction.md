@@ -2261,3 +2261,56 @@ is the authority: write the binders as the source copy spells them.
 under `flock` (3607 jobs, green). `.olean` mtimes: `DivPowEnding` 19:37, `PerfectBase` 19:52;
 `DivPow` (17:49) and `TwoPlace` (17:45) untouched. No whole-tree build. No
 `sorry`/`admit`/`axiom`/bare `import Mathlib`; no heartbeat raise.
+
+## Refactor round — the P3.2 promotion debt (R1–R10, 2026-09-30)
+
+**Scope.** The residual checklist of `PLAN-P3-2.md` §6, executed as one bounded
+refactor round on existing modules, ending in one whole-tree build. Checker
+**4049 → 4071 identical / 0 mismatched / 0 missing / 30 own-proof** (4079 → 4101
+checked). Whole tree green (4,901 jobs); `#print axioms` on 31 new/moved public nodes
+`[propext, Classical.choice, Quot.sound]`; consumer exit 0; hygiene clean.
+
+**Executed.** R1/R2 (promote `ord_add_eq_min` + the four `ag9b15u_*` in
+`LocalResidue/Calculus`, delete the `P1/EnginePrelude`/`P1/Differential`/`P1/DivPow`
+copies); R3 (home the `F ≃ₐ[K] F` `MulAction` + `Place.ord_smul`/`deg_smul` + the
+`Divisor` action in `Defs/SemilinearAut.lean`, delete the `P1/DXCoeff` copies); R4
+(delete the dead `P1/TraceEngine`/`P1/FinitePlaceResidue` copies of ten helpers; keep
+`HasCanonicalDivisor` the private home); R5 (state `P1/DivPow`'s public
+`kwHgfV352_localResidueCompletion_{spec,algebraMap}` about the public
+`Defs/TateResidueCurrency` def, delete the private def and the three `_spec₀`/
+`_algebraMap₀` re-landings); R6 (public `P1Tower.gen` in `P1/DivPow`, delete the
+`P1/DivPowEnding` re-landing); R8 (new public `Place/Completion.lean`, delete the three
+Tate private blocks); R10 (move the seven `evalAt`/`IsRational` leaves to
+`Defs/PlaceEvaluation.lean`, delete `PlaceEvaluationAlgebra`'s duplicate private
+`evalAt_inv`/`evalAt_zpow`). R7 kept (both copies, human). R9 no change.
+
+**R9 was a false positive (corrected).** The checklist called `P1/Dictionary.lean`'s
+three specialisations "transcriptions of `RatFuncDegree`'s private helpers". They are
+not: the `RatFuncDegree` helpers are *general* (`{vinf}`/`hvinf`), the `P1/Dictionary`
+statements are the pin's *specialised* dictionary nodes at `placeInfty`, and the pin
+ships both. Promoting the general copies would MISMATCH the checker, so nothing was
+done. Measurement lesson (again): "same name" ≠ "same statement"; diff before dedup.
+
+**R4 was deletion, not promotion.** The ten pin-private helpers' `P1` copies turned out
+to be dead (used only inside their own block), so promoting them would only have
+exposed `_s12`-suffixed names to the checker. Deleting the dead copies closed the
+duplication with no statement churn.
+
+**R10 needed a hidden extra step.** `Defs/PlaceEvaluationAlgebra.lean` carries private
+`evalAt_inv`/`evalAt_zpow` (the pin's `PlaceEvaluationAlgebra` copies) that collide with
+the moved `Place_evalAt_*` node laws; they were deleted so the public home is unique.
+`Defs/PlaceEvaluation.lean` gained `import Defs/PushPull` (for `mem_of_ord_nonneg`) and
+`open IsDedekindDomain WithZero` (for `exp_log`/`exp_lt_exp`).
+
+**R8: checker-driven spelling.** The hoisted `InlineSpecific` declarations had to be
+written with the pin's section-`variable` structure (not explicit binders): the checker
+diffs the declaration text after the name, so a promoted prelude must spell binders
+exactly as the pin does. Two `Tate/Agreement.lean` calls pass `L`/`u.heightOneSpectrum`
+explicitly to `mem_completionIdeal_pow` because the pin's section variables are
+explicit. The private instance and the v4.34 `Valued` adapter stay out of the checked
+surface (`private`/anonymous).
+
+**Sequencing (build economy).** Edits were grouped by layer — `Defs/` (PlaceEvaluation,
+PlaceEvaluationAlgebra, SemilinearAut, Place/Completion), then the `P1/` chain, then
+`Tate/` — with one `lake build` per layer; a single whole-tree build closed the round.
+No `sorry`/`admit`/`axiom`/bare `import Mathlib`.

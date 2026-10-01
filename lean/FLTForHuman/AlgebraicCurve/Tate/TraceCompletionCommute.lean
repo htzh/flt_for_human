@@ -25,10 +25,10 @@ The pin's `p2m_*` scaffolding, its outer `P2MW.S_...` namespace and its
 `variable` structure is preserved so the public statements are diffed verbatim from
 the pin's wrapper.
 
-The pin's `_algebraMap` in `P1/DivPow.lean` is stated about that module's `private`
-`kwHgfV352_localResidueCompletion`, so the wire proof re-lands the `algebraMap`
-specialisation of the *public* `Defs/TateResidueCurrency.lean` def privately (as 3.3c's
-`Tate/Agreement.lean` does).
+The pin's `_spec`/`_algebraMap` for `kwHgfV352_localResidueCompletion` are the
+public facts in `P1/DivPow.lean`, now stated about the public
+`Defs/TateResidueCurrency.lean` definition; the private `_algebraMap₀` re-landing
+was deleted in the P3.2 refactor round (R5).
 -/
 import FLTForHuman.AlgebraicCurve.Defs.TateResidueCurrency
 import FLTForHuman.AlgebraicCurve.Tate.CommFinite
@@ -50,38 +50,6 @@ open ModularCurve.KwF4R1V391a
 
 noncomputable section
 
-section LocalResidueCompletionPublic
-
-variable {K E : Type*} [Field K] [Field E] [Algebra K E]
-variable [HasCanonicalLocalResidueKStar K E]
-
-/-- The `algebraMap` specialisation of the public
-`kwHgfV352_localResidueCompletion` (`Defs/TateResidueCurrency.lean`); the pin's
-`_algebraMap` (`P1/DivPow.lean`) is about that module's `private` copy. -/
-private theorem kwHgfV352_localResidueCompletion_algebraMap₀ (v : Place K E) (x : E) :
-    kwHgfV352_localResidueCompletion v (algebraMap E v.adicCompletion x)
-      = v.localResidue x := by
-  unfold kwHgfV352_localResidueCompletion
-  set x₀ := (kwHgfV352_exists_sub_mem_adicCompletionIntegers v
-    (algebraMap E v.adicCompletion x)).choose
-  have hx₀ := (kwHgfV352_exists_sub_mem_adicCompletionIntegers v
-    (algebraMap E v.adicCompletion x)).choose_spec
-  have heq : algebraMap E v.adicCompletion (x₀ - x)
-      = (algebraMap E v.adicCompletion x₀ - algebraMap E v.adicCompletion x)
-        - (algebraMap E v.adicCompletion x - algebraMap E v.adicCompletion x) := by
-    rw [map_sub]; ring
-  have hzero0 : algebraMap E v.adicCompletion x - algebraMap E v.adicCompletion x
-      ∈ v.adicCompletionIntegers := by rw [sub_self]; exact zero_mem _
-  have hdiff : algebraMap E v.adicCompletion (x₀ - x) ∈ v.adicCompletionIntegers :=
-    heq ▸ sub_mem hx₀ hzero0
-  have hov : x₀ - x ∈ v.toValuationSubring :=
-    (kwHgfV352_algebraMap_mem_adicCompletionIntegers_iff v _).mp hdiff
-  have hzero : v.localResidue (x₀ - x) = 0 :=
-    v.localResidue_eq_zero_of_ord_nonneg (Or.inr (v.ord_nonneg_of_mem hov))
-  rw [map_sub, sub_eq_zero] at hzero
-  exact hzero
-
-end LocalResidueCompletionPublic
 
 namespace ModularCurve.KwF4gRRTate
 
@@ -107,7 +75,7 @@ theorem kwF4gRRTate_RTCC_of_tate
   unfold kaehlerResidueTerm
   rw [diagonalHom_apply]
 
-  rw [← kwHgfV352_localResidueCompletion_algebraMap₀ w
+  rw [← kwHgfV352_localResidueCompletion_algebraMap w
     (g * w.differentialCoeff (kaehlerPullback K F E v.dCoord))]
 
   haveI := hfinF w (algebraMap F w.adicCompletion

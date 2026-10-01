@@ -113,38 +113,6 @@ theorem p1FinitePlaceCanonicalResidueAtomMGeTwoTraceHigherDeg_of_algClosed :
 
 end AlgClosedTrace
 
-namespace Place
-
-section CenterNonzero
-
-variable {K F : Type*} [Field K] [Field F] [Algebra K F] (v : Place K F)
-  (A : Subalgebra K F) (hA : (A : Set F) ⊆ (v.toValuationSubring : Set F))
-
-private theorem inv_mem_of_not_mem_centerIdeal {a : A} (ha : a ∉ v.centerIdeal A hA) :
-    ((a : F))⁻¹ ∈ v.toValuationSubring := by
-  obtain ⟨u, hu⟩ := v.isUnit_modelInclusion_of_not_mem_centerIdeal A hA ha
-  have huF : ((u : v.toValuationSubring) : F) = (a : F) :=
-    congrArg (Subtype.val : v.toValuationSubring → F) hu
-  have huinvF : ((u⁻¹ : v.toValuationSubringˣ).1 : F) * (a : F) = 1 := by
-    have h1 : ((u⁻¹ : v.toValuationSubringˣ).1 : F) * ((u : v.toValuationSubring) : F)
-        = ((1 : v.toValuationSubring) : F) :=
-      congrArg (Subtype.val : v.toValuationSubring → F) u.inv_mul
-    rw [huF] at h1; exact h1
-  have : ((u⁻¹ : v.toValuationSubringˣ).1 : F) = (a : F)⁻¹ :=
-    eq_inv_of_mul_eq_one_left huinvF
-  exact this ▸ ((u⁻¹ : v.toValuationSubringˣ).1 : v.toValuationSubring).2
-
-private theorem div_mem_of_not_mem_centerIdeal (r : A) {a : A}
-    (ha : a ∉ v.centerIdeal A hA) :
-    (r : F) / (a : F) ∈ v.toValuationSubring := by
-  rw [div_eq_mul_inv]
-  exact v.toValuationSubring.toSubring.mul_mem (hA r.2)
-    (inv_mem_of_not_mem_centerIdeal v A hA ha)
-
-end CenterNonzero
-
-end Place
-
 section DedekindFractionModel
 
 variable {K F : Type*} [Field K] [Field F] [Algebra K F]
@@ -338,15 +306,6 @@ end SeparatingTranscendentalKaehler
 
 namespace Place
 
-section ToKSubalgebra
-
-variable {K F : Type*} [Field K] [Field F] [Algebra K F] (v : Place K F)
-
-@[reducible] private noncomputable def toKSubalgebra : Subalgebra K F where
-  __ := v.toValuationSubring.toSubring
-  algebraMap_mem' c := v.algebraMap_mem' c
-
-end ToKSubalgebra
 
 section SimplePoleAuxMul
 
@@ -934,40 +893,6 @@ theorem p1PrincipalPartMOneSimplePoleCancel_of_inftyMonomial
 
 end ComposedEngineInftyMonomial
 
-section AdjoinRingProperties
-
-variable {K F : Type*} [Field K] [Field F] [Algebra K F]
-
-private theorem _root_.Transcendental.isPrincipalIdealRing_adjoin {t : F} (ht : Transcendental K t) :
-    IsPrincipalIdealRing ↥(Algebra.adjoin K ({t} : Set F)) :=
-  IsPrincipalIdealRing.of_surjective
-    (Polynomial.algEquivOfTranscendental K t ht).toRingHom
-    (Polynomial.algEquivOfTranscendental K t ht).surjective
-
-private theorem _root_.Transcendental.isDedekindDomain_adjoin {t : F} (ht : Transcendental K t) :
-    IsDedekindDomain ↥(Algebra.adjoin K ({t} : Set F)) :=
-  haveI := ht.isPrincipalIdealRing_adjoin
-  inferInstance
-
-private theorem _root_.Transcendental.isIntegrallyClosed_adjoin {t : F} (ht : Transcendental K t) :
-    IsIntegrallyClosed ↥(Algebra.adjoin K ({t} : Set F)) :=
-  haveI := ht.isDedekindDomain_adjoin
-  inferInstance
-
-private theorem _root_.Transcendental.isNoetherianRing_adjoin {t : F} (ht : Transcendental K t) :
-    IsNoetherianRing ↥(Algebra.adjoin K ({t} : Set F)) :=
-  haveI := ht.isPrincipalIdealRing_adjoin
-  inferInstance
-
-private theorem _root_.Algebra.FiniteType.adjoin_singleton (t : F) :
-    Algebra.FiniteType K ↥(Algebra.adjoin K ({t} : Set F)) :=
-  Algebra.FiniteType.adjoin_of_finite (Set.finite_singleton t)
-
-private theorem _root_.Transcendental.inv {t : F} (ht : Transcendental K t) :
-    Transcendental K t⁻¹ := by
-  rw [Transcendental, IsAlgebraic.inv_iff]; exact ht
-
-end AdjoinRingProperties
 
 end AlgebraicCurve
 

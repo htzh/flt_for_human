@@ -13,8 +13,11 @@ the master ℙ¹ file is the `P1/` chain, the sibling tails are `P1/TwoPlace.lea
 commutation) were ported under `Tate/`. The **definitions round R1** also landed: the
 theory blobs left `Defs/` for `AlgebraicCurve/{P1,LocalResidue}/` and
 `Defs/P1ResidueCore.lean` became a 15-module `P1/` chain (see
-[PLAN-RECTIFY-DEFS.md](PLAN-RECTIFY-DEFS.md) §5.1). Checker **4049 identical / 0
-mismatched / 0 missing / 30 own-proof** (4079 checked); whole-tree build green. Rows
+[PLAN-RECTIFY-DEFS.md](PLAN-RECTIFY-DEFS.md) §5.1). The **P3.2 refactor round
+(R1–R10)** is also done ([PLAN-P3-2.md](PLAN-P3-2.md) §6): the recorded
+duplication/promotion debt is closed (R7 kept as accepted duplication, R9 corrected as
+a non-item). Checker **4071 identical / 0
+mismatched / 0 missing / 30 own-proof** (4101 checked); whole-tree build green. Rows
 3.5 (PF ending), 3.6 (K ending) and 3.7 (RR assembly) remain; row 6 stays out of
 scope. Pin `anthropics/fermats-last-theorem@aa2d8b3` (local clone
 `~/proj/fermats-last-theorem`); port mathlib `v4.34.0` (prebuilt under

@@ -61,78 +61,7 @@ variable {K F F'}
 
 end Identity
 
-namespace Place
-
-/-- Pin `Place.ord_smul` (`Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean:314`):
-ported against the ported `SemilinearAut` action. -/
-private theorem ord_smul {K F : Type*} [Field K] [Field F] [Algebra K F]
-    (σ : F ≃ₐ[K] F) (v : Place K F) (f : F) : (σ • v).ord (σ f) = v.ord f := by
-  change (SemilinearAut.ofAlgAut σ • v).ord (σ f) = v.ord f
-  exact SemilinearAut.ord_smul (SemilinearAut.ofAlgAut σ) v f
-
-/-- Pin `Place.deg_smul` (`Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean:348`). -/
-private theorem deg_smul {K F : Type*} [Field K] [Field F] [Algebra K F]
-    (σ : F ≃ₐ[K] F) (v : Place K F) : (σ • v).deg = v.deg := by
-  change (SemilinearAut.ofAlgAut σ • v).deg = v.deg
-  exact SemilinearAut.deg_smul (SemilinearAut.ofAlgAut σ) v
-
-end Place
-
 namespace Divisor
-
-section SmulAux
-
-variable {K F : Type*} [Field K] [Field F] [Algebra K F]
-
-/-- The `F ≃ₐ[K] F`-action on places as a `MulAction`, needed by the pin's
-`Divisor` action (`Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean:359`). -/
-private instance instMulActionAlgEquivPlace : MulAction (F ≃ₐ[K] F) (Place K F) where
-  smul σ v := SemilinearAut.ofAlgAut σ • v
-  one_smul v := by
-    show SemilinearAut.ofAlgAut (1 : F ≃ₐ[K] F) • v = v
-    rw [map_one, one_smul]
-  mul_smul σ τ v := by
-    show SemilinearAut.ofAlgAut (σ * τ) • v
-      = SemilinearAut.ofAlgAut σ • (SemilinearAut.ofAlgAut τ • v)
-    rw [map_mul, mul_smul]
-
-/-- Pin `Divisor` instance (`Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean:359`). -/
-private instance instDistribMulActionAlgEquivDivisor :
-    DistribMulAction (F ≃ₐ[K] F) (Divisor K F) :=
-  Finsupp.comapDistribMulAction
-
-/-- Pin `Divisor.smul_def` (`Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean:361`). -/
-private theorem smul_def (σ : F ≃ₐ[K] F) (D : Divisor K F) :
-    σ • D = Finsupp.mapDomain (σ • ·) D := rfl
-
-/-- Pin `Divisor.smul_single` (`Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean:364`). -/
-@[simp]
-private theorem smul_single (σ : F ≃ₐ[K] F) (v : Place K F) (n : ℤ) :
-    σ • Finsupp.single v n = Finsupp.single (σ • v) n := by
-  rw [smul_def, Finsupp.mapDomain_single]
-
-/-- Pin `Divisor.smul_apply_smul` (`Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean:369`). -/
-private theorem smul_apply_smul (σ : F ≃ₐ[K] F) (D : Divisor K F) (v : Place K F) :
-    (σ • D) (σ • v) = D v := by
-  rw [smul_def]
-  exact Finsupp.mapDomain_apply_of_injective (MulAction.injective σ) D v
-
-/-- Pin `Divisor.smul_apply` (`Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean:374`). -/
-private theorem smul_apply (σ : F ≃ₐ[K] F) (D : Divisor K F) (w : Place K F) :
-    (σ • D) w = D (σ⁻¹ • w) := by
-  have : (σ • D) (σ • (σ⁻¹ • w)) = D (σ⁻¹ • w) := smul_apply_smul σ D (σ⁻¹ • w)
-  rwa [smul_inv_smul] at this
-
-/-- Pin `Divisor.degree_smul` (`Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean:380`). -/
-@[simp]
-private theorem degree_smul (σ : F ≃ₐ[K] F) (D : Divisor K F) : degree (σ • D) = degree D := by
-  induction D using Finsupp.induction with
-  | zero => simp
-  | single_add v n D _ _ ih =>
-      rw [smul_add, map_add, map_add, ih, smul_single, degree_single, degree_single,
-        Place.deg_smul]
-
-end SmulAux
 
 section Pullback
 

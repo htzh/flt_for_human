@@ -15,9 +15,6 @@ namespace ValuationSubring
 
 variable {F : Type*} [Field F]
 
-private theorem ofPrime_congr {R : ValuationSubring F} {P Q : Ideal R}
-    [P.IsPrime] [Q.IsPrime] (h : P = Q) : R.ofPrime P = R.ofPrime Q := by
-  subst h; congr
 
 theorem eq_top_of_idealOfLE_eq_bot {R S : ValuationSubring F} (h : R ≤ S)
     (hbot : idealOfLE R S h = ⊥) : S = ⊤ :=

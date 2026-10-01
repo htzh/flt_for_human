@@ -373,32 +373,45 @@ assembly) remain.
 
 ## 6. Residual items — closeout checklist (2026-09-30)
 
-Row 2 is **mathematically complete**; this section is the authoritative list of what
-remains. It was produced by a **live triage of the tree**, not by copying the earlier
-handoff: [HANDOFF-P3-2.md](HANDOFF-P3-2.md) was written before the R1 definitions
-round ([PLAN-RECTIFY-DEFS.md](PLAN-RECTIFY-DEFS.md) §5.1) and several of its items are
-now stale (§6.2). No code changed in this documentation pass.
+Row 2 is **mathematically complete**; this section tracks its residual debt. The
+checklist was first produced by a live triage of the tree, then **executed as a
+bounded refactor round** (R1–R10, 2026-09-30): every open item is resolved except
+**R7**, which the human directed to keep as accepted duplication (§6.3). The round
+edited existing modules, so it ended with one whole-tree build.
 
-Baseline, independently re-verified live this pass:
-`python3 spec/check_flt_statements.py` → **4049 identical / 0 mismatched / 0 missing /
-30 own-proof** (4079 checked).
+Final verification: `python3 spec/check_flt_statements.py` → **4071 identical / 0
+mismatched / 0 missing / 30 own-proof** (4101 checked), up from the 4049 baseline.
 
-### 6.1 Open debt (verified present)
+### 6.1 R1–R10 — executed (2026-09-30)
 
-| # | item | where (live) | kind | fix |
-|---|---|---|---|---|
-| **R1** | `Place.ord_add_eq_min` — three `private` copies | `LocalResidue/Calculus.lean:66`, `P1/EnginePrelude.lean:113`, `P1/DivPow.lean:453` | duplication | promote in `LocalResidue/Calculus` (the generic home), import from the three `P1/` slices, delete the copies |
-| **R2** | the four `ModularCurve.…ag9b15u_*` lemmas — two `private` copies | `LocalResidue/Calculus.lean:233,253,301,341`; `P1/Differential.lean:252,272,320,360` | duplication | same as R1 (promote in `LocalResidue/Calculus`) |
-| **R3** | the `F ≃ₐ[K] F` divisor-action layer — `Place.ord_smul`/`deg_smul`, `MulAction`/`DistribMulAction` on `Divisor`, `smul_def`/`smul_single`/`smul_apply_smul`/`smul_apply`, `degree_smul` — all `private` | `P1/DXCoeff.lean:68–133` | duplication (partly stale) | the **base** `Place` action is already public in `Defs/SemilinearAut.lean` (`Place.ord_smul:175`, `Place.deg_smul:214`, the `MulAction`); home the `Divisor`-level action in `SemilinearAut.lean` and delete the `P1/DXCoeff` copies |
-| **R4** | ten pin-private helpers duplicated between `P1/` and `Canonical/HasCanonicalDivisor.lean` | `P1/TraceEngine.lean:123,137,345,941,947,952,957,962,966` + `P1/FinitePlaceResidue.lean:18` vs the `private` `Canonical/HasCanonicalDivisor.lean:372` (`ofPrime_congr_s12`, `ord_nonneg_of_mem_s12`, `mem_of_ord_nonneg_s12`, …) | duplication | promote in `HasCanonicalDivisor`, import, delete the `P1/` copies |
-| **R5** | `kwHgfV352_localResidueCompletion` public/private split | public `Defs/TateResidueCurrency.lean:159`; `private` `P1/DivPow.lean:683`, with its public `_spec`/`_algebraMap` (`:687`/`:704`) stated about that private copy; `_spec₀`/`_algebraMap₀` re-landings at `P1/DivPowEnding.lean:50,71`, `Tate/Agreement.lean:907,928`, `Tate/TraceCompletionCommute.lean:61` | duplication | drop the `DivPow` private def; restate `_spec`/`_algebraMap` about the `Defs` def; delete the `_₀` re-landings (this is also P3.3 pause-note item 2) |
-| **R6** | `P1Tower.gen` re-landed `private` | `P1/DivPow.lean:104`; re-landed `P1/DivPowEnding.lean:107` | duplication | pin-private, so optional; unify to one home in the refactor |
-| **R7** | `surjective_algebraMap_residueField_of_deg_eq_one'` re-landed `private` | `P1/DivPowEnding.lean:84` | section-variable widening | the port's public `P1/KaehlerIntegral.lean:474` copy sits in a `[CharZero K]` section the pin's atom-3 copy is free of; free the public copy (or home a `CharZero`-free one), then delete the re-landing |
-| **R8** | the `InlineSpecific` completion chain (`completionIdeal`, `mem_completionIdeal_pow`, the uniformizer chain) re-landed `private` | `Tate/CommFinite.lean:84,176`; `Tate/Agreement.lean:93,175`; `Tate/CompletionTraceSum.lean:77,82,165` | promotion + missing home | promote once into the named future `Place/Completion.lean`; import (also P3.3 pause-note item 3) |
-| **R9** | `P1/Dictionary.lean` transcribes `RatFuncDegree`'s private helpers | `P1/Dictionary.lean:241` (`exists_sub_algebraMap_intDegree_neg`), `:357` (`single_add_single_apply_eq_ord`), `:391` (`degree_single_add_single`); the sources are still `private` in `PrincipalDivisors/RatFuncDegree.lean:205,303,347` | duplication | promote the `RatFuncDegree` copies (they are the more general ones), import, drop the transcriptions |
-| **R10** | the seven generic `evalAt`/`IsRational` leaves sit in the ℙ¹ dictionary | `P1/Dictionary.lean:57,66,95,103,121,129,150` | home move | move to `Defs/PlaceEvaluation.lean` beside the `evalAt` definition (which today holds only `evalAt_of_mem`/`algebraMap_evalAt`/`evalAt_one`); statements unchanged, so the checker is unaffected |
+Every open item was closed by a bounded refactor round (declaration surgery by hand,
+statements verbatim, `PORT_FILES` updated, one whole-tree build). Dispositions:
 
-### 6.2 Stale items (already resolved — do not re-do)
+| # | item | disposition |
+|---|---|---|
+| **R1** | `Place.ord_add_eq_min` ×3 private | promoted public in `LocalResidue/Calculus.lean`; the copies in `P1/EnginePrelude.lean` and `P1/DivPow.lean` deleted (both already import `Calculus`) |
+| **R2** | the four `…ag9b15u_*` ×2 private | promoted public in `LocalResidue/Calculus.lean`; the `P1/Differential.lean` copies deleted |
+| **R3** | `F ≃ₐ[K] F` divisor action private in `P1/DXCoeff.lean` | homed in `Defs/SemilinearAut.lean`: the `SMul` instance became a `MulAction`, and `Place.ord_smul`/`deg_smul`, `Divisor.smul_def`/`smul_single`/`smul_apply_smul`/`smul_apply`/`degree_smul` were added at the pin names; the `DXCoeff` copies deleted (the `SemilinearAut`-level `ord_smul`/`deg_smul` were already public) |
+| **R4** | ten pin-private helpers duplicated `P1/` ↔ `HasCanonicalDivisor` | **deletion-only**: the `P1/TraceEngine.lean`/`P1/FinitePlaceResidue.lean` copies were verified dead (used only inside their own block), so the duplication is removed without promotion; `Canonical/HasCanonicalDivisor.lean`'s private copies stay the single home. No promotion was needed, so the risky `_s12`→pin-name rename was avoided |
+| **R5** | `kwHgfV352_localResidueCompletion` public/private split | `P1/DivPow.lean` now imports `Defs/TateResidueCurrency.lean`; its public `_spec`/`_algebraMap` are stated about the **public** def and the private def is deleted; the `_spec₀`/`_algebraMap₀` re-landings in `P1/DivPowEnding.lean`, `Tate/Agreement.lean` and `Tate/TraceCompletionCommute.lean` are deleted and rewired (all three import `P1/DivPow`) |
+| **R6** | `P1Tower.gen` re-landed private | promoted public in `P1/DivPow.lean` (same source text); the `P1/DivPowEnding.lean` re-landing deleted |
+| **R8** | the `InlineSpecific` chain re-landed private ×3 | new public home `FLTForHuman/AlgebraicCurve/Place/Completion.lean` (the union at the pin's names and section-`variable` structure); the private blocks in `Tate/CommFinite.lean`, `Tate/Agreement.lean`, `Tate/CompletionTraceSum.lean` deleted. The v4.34 adapter `isUnit_adicCompletionIntegers_of_valued_eq_one` stays `private`; two `Agreement` calls pass `L`/`u.heightOneSpectrum` explicitly to `mem_completionIdeal_pow` |
+| **R10** | seven `evalAt`/`IsRational` leaves in the wrong home | moved from `P1/Dictionary.lean` to `Defs/PlaceEvaluation.lean` (which now imports `Defs/PushPull.lean` for `mem_of_ord_nonneg`); the now-duplicate `private` `evalAt_inv`/`evalAt_zpow` in `Defs/PlaceEvaluationAlgebra.lean` deleted |
+
+### 6.2 Corrections to the checklist (the triage itself was partly wrong)
+
+- **R9 is not duplication — no change made.** `PrincipalDivisors/RatFuncDegree.lean`'s
+  private `single_add_single_apply_eq_ord` / `degree_single_add_single` are the pin's
+  **general** helpers (over `{vinf}` with `hvinf`), while `P1/Dictionary.lean`'s public
+  copies are the pin's **specialised** dictionary statements at `placeInfty`; the pin
+  ships both, so deleting the public copies would make the checker MISMATCH.
+  `exists_sub_algebraMap_intDegree_neg` differs only in binder spelling. Recorded as a
+  miscategorised item, not debt.
+- **R4 did not need the promotion the checklist recommended** (the `P1` copies were
+  dead), and **R10 needed an extra step** (`PlaceEvaluationAlgebra`'s private
+  `evalAt_inv`/`evalAt_zpow` are duplicates of the moved leaves and had to go too).
+- The earlier "stale items" list (HANDOFF §4.4 `differentialCoeff_add''`, the scratch
+  files, the five `Defs/` MOVEs) was verified resolved before the round.
 
 - HANDOFF §4.4 `Place.differentialCoeff_add''` — **resolved** by R1: now public at
   `LocalResidue/Calculus.lean:109`, with no private copy left in `P1/`.
@@ -419,8 +432,13 @@ Baseline, independently re-verified live this pass:
   the copies now live in `LocalResidue/Calculus` + `P1/Differential` (+
   `P1/EnginePrelude`/`P1/DivPow` for `ord_add_eq_min`); see R1/R2.
 
-### 6.3 Out of scope / not debt
+### 6.3 Out of scope / accepted
 
+- **R7 — accepted duplication (human, 2026-09-30).** The port's public
+  `surjective_algebraMap_residueField_of_deg_eq_one` (`P1/KaehlerIntegral.lean`, in the
+  `[CharZero K]` `AlgClosedDischarge` section) and the `CharZero`-free `private`
+  `…_of_deg_eq_one'` (`P1/DivPowEnding.lean`) both stay; the human directed keeping both
+  copies rather than freeing the public one from its section variable.
 - the six larger `evalAt_*` trace/norm/fiber nodes (§3.3 table) — forward-cone,
   decided when the cone reaches them;
 - `Place_sum_ramificationIndex_mul_inertiaDeg` — already a substitute (import; no new
@@ -435,11 +453,18 @@ Baseline, independently re-verified live this pass:
   homes) — deferred by [PLAN-RECTIFY-DEFS.md](PLAN-RECTIFY-DEFS.md) §7.4 to its own
   bounded round.
 
-### 6.4 When the debt is taken up
+### 6.4 Verification of the round (2026-09-30)
 
-One bounded **refactor round** (WORKFLOW §8.1): declaration surgery by hand with
-backups, statements verbatim, `PORT_FILES` updated, per-module edit loop, then **one**
-whole-tree `lake build` and the §7 gate (checker `0 mismatched / 0 missing`, `.olean`
-mtimes, `#print axioms`, hygiene, consumer wire test). R3 and R4 are the only items
-that touch widely-imported `Defs/` files; R10 is a pure statement-preserving move.
-This documentation pass changed no code.
+- checker **4049 → 4071 identical / 0 mismatched / 0 missing / 30 own-proof**
+  (4079 → 4101 checked); the **+22** are the newly public R1–R3/R8 declarations (R4/R9
+  added none, R5/R6/R7 moved or kept existing names).
+- **one whole-tree `lake build` green (4,901 jobs).**
+- `#print axioms` on 31 representative new/moved public nodes →
+  `[propext, Classical.choice, Quot.sound]` (or a subset).
+- hygiene clean on the 17 changed/new modules: no `sorry`/`admit`/`axiom`/bare
+  `import Mathlib`/`maxHeartbeats` raise; the two `synthInstance.maxHeartbeats 800000`
+  in `Tate/CompletionTraceSum.lean` are pre-existing.
+- `spec/RiemannRochConsumer.lean` exits 0.
+
+The round is the WORKFLOW §8.1 pattern: hand surgery, statements verbatim,
+`PORT_FILES` updated, then one whole-tree build and the §7 gate.

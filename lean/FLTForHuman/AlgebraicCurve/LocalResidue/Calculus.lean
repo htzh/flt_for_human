@@ -23,9 +23,12 @@ declarations are imported rather than re-proved: the promoted ord interface
 `poleSubmodule`/`laurentTailCoeff`/`uniformizer` layer
 (`LocalResidue/Instance.lean`). The pin's `p2m_*`/`attribute`
 scaffolding is dropped and `import Mathlib` is replaced by specific imports.
-Pin-private helpers stay `private` (`ord_add_eq_min`,
-`differentialCoeff_D_uniformizer_pow_inv`, the `ag9b13t_*`/`ag9b14c_*`/`ag9b15u_*`
-engine). `Place.differentialCoeff_add''` is public here — it is the generic home the
+The pin-private helpers `Place.ord_add_eq_min` and the four
+`…ag9b15u_*` engine lemmas are **public here** — this is the generic home the `P1/`
+chain imports, and the `P1` re-landings were deleted in the P3.2 refactor round
+(R1/R2). The other pin-private helpers stay `private`
+(`differentialCoeff_D_uniformizer_pow_inv`, the `ag9b13t_*`/`ag9b14c_*` engine).
+`Place.differentialCoeff_add''` is public here — it is the generic home the
 `P1/` chain imports; the `P1` re-landing was deleted in the R1 definitions round
 (PLAN-RECTIFY-DEFS §5.1).
 -/
@@ -63,7 +66,7 @@ variable (v : Place K F)
 /- Imported, not re-proved (substitutions): `Place.ord_nonneg_of_mem`,
 `Place.mem_of_ord_nonneg`, `Place.mem_iff_ord_nonneg` (`Defs/PushPull.lean`). -/
 
-private theorem _root_.AlgebraicCurve.Place.ord_add_eq_min {f g : F} (hf : f ≠ 0) (hg : g ≠ 0) (h : v.ord f ≠ v.ord g) :
+theorem _root_.AlgebraicCurve.Place.ord_add_eq_min {f g : F} (hf : f ≠ 0) (hg : g ≠ 0) (h : v.ord f ≠ v.ord g) :
     v.ord (f + g) = min (v.ord f) (v.ord g) := by
   have hval : v.adicValuation f ≠ v.adicValuation g := by
     intro hcon
@@ -230,7 +233,7 @@ namespace MilneAvAg9bRd15UnitNormalFormLaurentSeed
 
 open scoped Polynomial
 
-private theorem _root_.ModularCurve.MilneAvAg9bRd15UnitNormalFormLaurentSeed.ag9b15u_eq_zero_or_one_le_ord_of_residue_eq_zero
+theorem _root_.ModularCurve.MilneAvAg9bRd15UnitNormalFormLaurentSeed.ag9b15u_eq_zero_or_one_le_ord_of_residue_eq_zero
     {K F : Type*} [Field K] [Field F] [Algebra K F] (v : Place K F)
     {g : F} (hg : g ∈ v.toValuationSubring)
     (h0 : IsLocalRing.residue _ (⟨g, hg⟩ : v.toValuationSubring) = 0) :
@@ -250,7 +253,7 @@ private theorem _root_.ModularCurve.MilneAvAg9bRd15UnitNormalFormLaurentSeed.ag9
       Subtype.ext (inv_mul_cancel₀ hg0)⟩, rfl⟩
   · omega
 
-private theorem _root_.ModularCurve.MilneAvAg9bRd15UnitNormalFormLaurentSeed.ag9b15u_exists_unit_normal_form_of_surj
+theorem _root_.ModularCurve.MilneAvAg9bRd15UnitNormalFormLaurentSeed.ag9b15u_exists_unit_normal_form_of_surj
     {K F : Type*} [Field K] [Field F] [Algebra K F] (v : Place K F)
     (hsurj : Function.Surjective (algebraMap K v.ResidueField))
     {w : F} (hw0 : w ≠ 0) (hw : v.ord w = 0) :
@@ -298,7 +301,7 @@ private theorem _root_.ModularCurve.MilneAvAg9bRd15UnitNormalFormLaurentSeed.ag9
     rw [hrw, mul_comm w (algebraMap K F c)⁻¹, ← mul_assoc,
       mul_inv_cancel₀ ha0, one_mul]
 
-private theorem _root_.ModularCurve.MilneAvAg9bRd15UnitNormalFormLaurentSeed.ag9b15u_exists_K_truncation_of_mem_poleSubmodule
+theorem _root_.ModularCurve.MilneAvAg9bRd15UnitNormalFormLaurentSeed.ag9b15u_exists_K_truncation_of_mem_poleSubmodule
     {K F : Type*} [Field K] [Field F] [Algebra K F] (v : Place K F)
     (hsurj : Function.Surjective (algebraMap K v.ResidueField))
     (n : ℕ) {f : F} (hf : f ∈ v.poleSubmodule n) :
@@ -338,7 +341,7 @@ private theorem _root_.ModularCurve.MilneAvAg9bRd15UnitNormalFormLaurentSeed.ag9
               algebraMap K F (c' j) * (v.uniformizer ^ (j + 1))⁻¹ from by ring]
     exact hc'
 
-private theorem _root_.ModularCurve.MilneAvAg9bRd15UnitNormalFormLaurentSeed.ag9b15u_differentialCoeff_D_unit_mul_uniformizer
+theorem _root_.ModularCurve.MilneAvAg9bRd15UnitNormalFormLaurentSeed.ag9b15u_differentialCoeff_D_unit_mul_uniformizer
     {K F : Type*} [Field K] [Field F] [Algebra K F]
     (v : Place K F) [v.DCoordGenerates] [Nontrivial Ω[F⁄K]] (w : F) :
     v.differentialCoeff (KaehlerDifferential.D K F (w * v.uniformizer))
