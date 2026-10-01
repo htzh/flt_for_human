@@ -1754,6 +1754,25 @@ SOURCES = [
     "P2M/Sol/S_AlgebraicCurve_residueTheorem_of_residueTheoremK.lean",
     "Theorems/Thm_AlgebraicCurve_residueTheorem_of_isAlgClosed.lean",
     "P2M/Sol/S_AlgebraicCurve_residueTheorem_of_isAlgClosed.lean",
+    # --- The Capstone interface tail, continued: the pin's existence corollary ---
+    # `nonempty_modularPolynomialData` is `Theorems/Thm_ModularCurve_nonempty_modularPolynomialData.lean`,
+    # landed in `Capstone.lean` from the port's stronger `exists_phiIrreducible`
+    # (FLT proves it by the same `minpoly` block). Appended last so no earlier
+    # last-name match can flip; the wrapper is the comparable copy.
+    "Theorems/Thm_ModularCurve_nonempty_modularPolynomialData.lean",
+    # --- The degree-one place layer ---
+    # `isAlgebraic_adjoin_of_transcendental` (generic) and
+    # `relfinrank_laurentBaseChange_modularFunctionFieldFull` (the all-divisors
+    # specialization of the ported general `relfinrank_laurentBaseChange`) are
+    # public wrappers. The headline `deg_eq_one_modularFunctionFieldBar` is a
+    # wrapper too; its `B2Deg` helpers live in the pin's `S_` file, which also
+    # supplies the promoted `deg_eq_one_of_isAlgebraic_adjoin` (the only helper
+    # the port makes public). Wrappers before the `S_` file; appended last so no
+    # earlier last-name match can flip.
+    "Theorems/Thm_AlgebraicCurve_isAlgebraic_adjoin_of_transcendental.lean",
+    "Theorems/Thm_ModularCurve_relfinrank_laurentBaseChange_modularFunctionFieldFull.lean",
+    "Theorems/Thm_ModularCurve_deg_eq_one_modularFunctionFieldBar.lean",
+    "P2M/Sol/S_ModularCurve_deg_eq_one_modularFunctionFieldBar.lean",
 ]
 
 PORT_FILES = [
@@ -2393,6 +2412,15 @@ PORT_FILES = [
     # and the algebraically-closed general headline `residueTheorem_of_isAlgClosed`.
     # Appended last so no earlier last-name match can flip.
     "FLTForHuman/AlgebraicCurve/ResidueTheorem/GeneralFromK.lean",
+    # --- The degree-one place layer (`deg_eq_one_modularFunctionFieldBar`) ---
+    # `AlgebraicCurve/Place/DegreeOne.lean` carries the generic
+    # `isAlgebraic_adjoin_of_transcendental` node and the pin's `B2Deg`
+    # `deg_eq_one_of_isAlgebraic_adjoin` (the pin declares the latter publicly in
+    # its `S_` file, so it is matched there); `ModularCurve/Degree/PlaceDegree.lean`
+    # carries the bar-field headline and the pin-private `finiteDimensional_adjoin_jBar`.
+    # Appended last so no earlier last-name match can flip.
+    "FLTForHuman/AlgebraicCurve/Place/DegreeOne.lean",
+    "FLTForHuman/ModularCurve/Degree/PlaceDegree.lean",
 ]
 
 

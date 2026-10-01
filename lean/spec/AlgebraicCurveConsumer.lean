@@ -51,6 +51,9 @@ import FLTForHuman.AlgebraicCurve.PrincipalDivisors.RatFuncDegree
 import FLTForHuman.AlgebraicCurve.PrincipalDivisors.Transcendence
 import FLTForHuman.AlgebraicCurve.WeilExchange.DivisorExchange
 import FLTForHuman.FieldTheory.FiniteGroupAction
+-- T21: the generic degree-one place machinery
+-- (`isAlgebraic_adjoin_of_transcendental`, `Place.deg_eq_one_of_isAlgebraic_adjoin`).
+import FLTForHuman.AlgebraicCurve.Place.DegreeOne
 
 open AlgebraicCurve
 
@@ -454,3 +457,27 @@ example {K F F₁ F₂ Z : Type*} [Field K] [Field F] [Field F₁] [Field F₂] 
     (fun E => Divisor.pullbackAlong_pushforwardAlong_eq_pushforwardAlong_pullbackAlong
       ψ' φ u' u hψ' hφ hu' hu hsq hfin hsep hgen hLD E)
     D
+
+/-! ## Zone K — `[degree-one]` T21's generic degree-one place machinery
+
+`AlgebraicCurve/Place/DegreeOne.lean` proves the pin's
+`isAlgebraic_adjoin_of_transcendental` (two transcendental elements generate the
+same algebraic closure) and the pin's `B2Deg.deg_eq_one_of_isAlgebraic_adjoin`.
+No concrete instantiation lives in this generic layer — the `ModularCurve` bar
+instance is Zone S of `ModularCurveConsumer.lean` — so the wire test keeps the
+two generic hypotheses explicit and **applies** the conclusion through
+`Divisor.degree_single`: the single divisor of a degree-one place has degree `n`. -/
+
+#check @AlgebraicCurve.isAlgebraic_adjoin_of_transcendental
+#check @AlgebraicCurve.Place.deg_eq_one_of_isAlgebraic_adjoin
+example {K F : Type*} [Field K] [Field F] [Algebra K F] (x : F)
+    [Algebra.IsAlgebraic (IntermediateField.adjoin K ({x} : Set F)) F] {t : F}
+    (ht : Transcendental K t) :
+    Algebra.IsAlgebraic (IntermediateField.adjoin K ({t} : Set F)) F :=
+  AlgebraicCurve.isAlgebraic_adjoin_of_transcendental x ht
+example {K F : Type*} [Field K] [Field F] [Algebra K F] [IsAlgClosed K] (t : F)
+    [Algebra.IsAlgebraic (IntermediateField.adjoin K ({t} : Set F)) F]
+    (v : Place K F) (n : ℤ) :
+    Divisor.degree (Finsupp.single v n) = n := by
+  rw [Divisor.degree_single, Place.deg_eq_one_of_isAlgebraic_adjoin t v]
+  simp

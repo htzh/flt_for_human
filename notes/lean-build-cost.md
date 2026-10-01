@@ -207,7 +207,10 @@ python3 build_ladder.py --audit --scope WeightOne --refresh     # rank anomalies
 `--profile` runs `-Dtrace.profiler` and ranks the `[Elab.command]` lines.
 `LevelFraction`'s ~80 s is not spread over its 250 declarations; it is
 concentrated in about thirty **typeclass instances**, and the top of the list is
-the same in `LevelField` (which duplicates the block):
+the same in `LevelField` (which duplicates the block). The accumulating register of
+individual instance-search/timeout cases — each with a re-runnable guard — is
+[../lean/instance-friction.md](../lean/instance-friction.md); this note is the
+method, that register is the log:
 
 | declaration | LevelFraction | LevelField |
 |---|---|---|

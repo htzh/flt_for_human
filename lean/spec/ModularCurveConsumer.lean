@@ -98,6 +98,10 @@ import FLTForHuman.ModularCurve.FunctionFieldGeneration.Generation
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.SlotProduct
 -- T20: the unconditional capstone — the total `Inputs`, the theorem, the corollaries.
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Capstone
+-- T21: the degree-one place theorem for the bar field (`deg_eq_one_modularFunctionFieldBar`).
+import FLTForHuman.ModularCurve.Degree.PlaceDegree
+-- The divisor API the T21 wire test composes the degree-one theorem with.
+import FLTForHuman.AlgebraicCurve.Defs.Divisor
 -- The cyclotomic instances for the end-to-end wire tests of Zones I, J and K.
 import Mathlib.NumberTheory.Cyclotomic.Basic
 
@@ -885,6 +889,39 @@ kept as the historical wire tests. -/
 
 example (N : ℕ) [NeZero N] : ∃ data : ModularPolynomialData N, PhiIrreducible data :=
   ModularCurve.exists_phiIrreducible N
+
+-- The pin's existence corollary, taken from the port's stronger irreducible
+-- statement instead of FLT's `minpoly` block (see `Capstone.lean`). The second
+-- example composes it with the datum's fields from `Defs/Polynomial.lean`.
+#check @ModularCurve.nonempty_modularPolynomialData
+example (N : ℕ) [NeZero N] : Nonempty (ModularPolynomialData N) :=
+  ModularCurve.nonempty_modularPolynomialData N
+example (N : ℕ) [NeZero N] :
+    ∃ Φ : Polynomial (Polynomial ℤ), Φ.Monic ∧ Φ.natDegree = dedekindPsi N ∧
+      Φ.eval₂ evalAtJ (jqN N) = 0 := by
+  obtain ⟨data⟩ := ModularCurve.nonempty_modularPolynomialData N
+  exact ⟨data.Φ, data.monic, data.natDegree_eq, data.eval_eq_zero⟩
+
+/-! ## Zone S — [T21] the degree-one place theorem for the bar field
+
+`ModularCurve.deg_eq_one_modularFunctionFieldBar` is the pin's headline: every
+place of `modularFunctionFieldBar M` over `AlgebraicClosure ℚ` has degree one,
+through the generic `AlgebraicCurve.Place.deg_eq_one_of_isAlgebraic_adjoin` (home:
+`AlgebraicCurve/Place/DegreeOne.lean`) and the relative-degree identity
+`relfinrank_laurentBaseChange_modularFunctionFieldFull`. The second wire test
+**applies** the headline: a degree-one place has `n` as the degree of its single
+divisor, which is a genuine cross-module composition (`Divisor.degree_single`). -/
+
+#check @ModularCurve.deg_eq_one_modularFunctionFieldBar
+example (M : ℕ) [NeZero M]
+    (w : AlgebraicCurve.Place (AlgebraicClosure ℚ) (modularFunctionFieldBar M)) : w.deg = 1 :=
+  ModularCurve.deg_eq_one_modularFunctionFieldBar M w
+example (M : ℕ) [NeZero M]
+    (w : AlgebraicCurve.Place (AlgebraicClosure ℚ) (modularFunctionFieldBar M)) (n : ℤ) :
+    AlgebraicCurve.Divisor.degree (Finsupp.single w n) = n := by
+  rw [AlgebraicCurve.Divisor.degree_single,
+    ModularCurve.deg_eq_one_modularFunctionFieldBar M w]
+  simp
 
 /-! ## The measure
 

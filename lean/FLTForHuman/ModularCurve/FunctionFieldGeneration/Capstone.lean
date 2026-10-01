@@ -278,6 +278,17 @@ theorem exists_phiIrreducible (N : ℕ) [NeZero N] :
     ∃ data : ModularPolynomialData N, PhiIrreducible data :=
   exists_phiIrreducible_of_finrank_eq N (finrank_adjoin_jqN_eq_dedekindPsi N)
 
+/-- **The modular polynomial datum exists at every level.** This is the pin's
+`ModularCurve.nonempty_modularPolynomialData` (`Theorems/Thm_ModularCurve_nonempty_modularPolynomialData.lean`),
+which FLT proves by the same `minpoly (Polynomial ℤ) (jqN N)` construction that
+`exists_phiIrreducible_of_finrank_eq` already carries; the port takes the datum
+from the stronger irreducible statement rather than re-deriving the fraction-ring
+block. The pin node's out-of-cone consumers use only existence, so this is the
+form the port needs. -/
+theorem nonempty_modularPolynomialData (N : ℕ) [NeZero N] :
+    Nonempty (ModularPolynomialData N) :=
+  (exists_phiIrreducible N).elim fun data _ => ⟨data⟩
+
 end ModularCurve
 
 end

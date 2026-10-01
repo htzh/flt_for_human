@@ -799,7 +799,13 @@ private def ifRE (S T : IntermediateField K L) (h : S = T) : ↥S ≃+* ↥T whe
 
 **Instance-search timeouts** are fixed by explicit local instances
 (`Algebra.IsIntegral.of_finite`, `Module.Free.of_divisionRing`), not by a larger
-budget.
+budget. Naming the element can be necessary as well as the explicit instance: an
+`Algebra.IsAlgebraic (adjoin K {t}) F` goal whose `t` is a large subtype term times
+out in the *search for `Algebra.IsAlgebraic` itself* until the element is bound once
+(`private abbrev`) **and** the instance supplied (`Algebra.IsAlgebraic.of_finite _ _`).
+Every such case is recorded, with a re-runnable guard, in
+[instance-friction.md](instance-friction.md) (`spec/InstanceFriction.lean`); add an
+entry when instance search is the cost, and re-measure it after a mathlib bump.
 
 **Two declaration-shape facts the checker cannot see.** Unused section variables
 are auto-omitted, so a declaration under `variable (N : ℕ) [NeZero N]` whose body

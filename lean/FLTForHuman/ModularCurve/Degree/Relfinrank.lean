@@ -356,6 +356,21 @@ theorem relfinrank_laurentBaseChange (L : Type*) [Field L] [Algebra ℚ L]
         (IntermediateField.adjoin ℚ ({t} : Set (LaurentSeries ℚ))) F₀ :=
   TransportDev.relfinrank_eq L ht htr
 
+/-- The all-divisors specialization of `relfinrank_laurentBaseChange` at `t = jq`:
+the pin's `relfinrank_laurentBaseChange_modularFunctionFieldFull`. The pin's own
+`S_` file is a copy of the general `relfinrank_eq` development ending in
+`relfinrank_eq L (jq_mem_full N) transcendental_jq`; the port already carries the
+general theorem, so only this specialization is new. Verbatim from
+`Theorems/Thm_ModularCurve_relfinrank_laurentBaseChange_modularFunctionFieldFull.lean`. -/
+theorem relfinrank_laurentBaseChange_modularFunctionFieldFull (L : Type*) [Field L] [Algebra ℚ L]
+    (N : ℕ) [NeZero N] :
+    IntermediateField.relfinrank (IntermediateField.adjoin L ({coeffEmb L jq} : Set (LaurentSeries L)))
+        (laurentBaseChange L (modularFunctionFieldFull N))
+      = IntermediateField.relfinrank
+        (IntermediateField.adjoin ℚ ({jq} : Set (LaurentSeries ℚ))) (modularFunctionFieldFull N) :=
+  relfinrank_laurentBaseChange L (modularFunctionFieldFull N) jq
+    (by have h := jqd_mem_full N (one_dvd N); rwa [qExpand_one_apply] at h) transcendental_jq
+
 /-! ## `relfinrank_qExpand_full` — the relative degree of `q ↦ q ^ ℓ`
 
 The pin's file carries the ~370-raw-line `TS`/`conj`/`phiAtSeed`/
