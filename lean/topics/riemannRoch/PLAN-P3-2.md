@@ -360,3 +360,12 @@ was a measurement gap (`port_advise` sees only same-file closure);
 import-adapt / 98 new over the 414 rows. Promotion debt recorded in
 [../../logs/riemann-roch-friction.md](../../logs/riemann-roch-friction.md) § Set
 P3.2f.
+
+**Update — set 3.2g; row 2 complete (2026-09-30).** The gating rows — 3.3 (Tate
+agreement) and 3.4 (trace-completion commutation), ported under `Tate/` — unblocked
+the two headlines, which then landed as `P1/DivPowEnding.lean` (atom 3, 254 ln) and
+`P1/PerfectBase.lean` (PF base, 528 ln). Manager-verified: checker **4049 identical /
+0 mismatched / 0 missing / 30 own-proof** (4079 checked); whole-tree build green
+(4,900 jobs); both headlines `#print axioms` clean; hygiene clean. **Row 2 (3.2) is
+therefore mathematically complete.** Rows 3.5 (PF ending), 3.6 (K ending) and 3.7 (RR
+assembly) remain.

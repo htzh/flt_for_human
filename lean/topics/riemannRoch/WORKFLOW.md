@@ -6,13 +6,17 @@ is [../porting-playbook.md](../porting-playbook.md); this file is the recipe, th
 concrete commands, the review checklist and the failure modes that actually bit.
 It sits in the topic dir with the plans and work orders.
 
-**Current state (2026-09-30).** Phases 1, 2, 3.1 complete; row 2's master ℙ¹ file
-(3.2b–e) is ported and accepted; the row-2 sibling tails and rows 3.3–3.7 remain.
-The **definitions round R1** has landed: the theory blobs left `Defs/` for
-`AlgebraicCurve/{P1,LocalResidue}/` and `Defs/P1ResidueCore.lean` became a 15-module
-`P1/` chain (see [PLAN-RECTIFY-DEFS.md](PLAN-RECTIFY-DEFS.md) §5.1). Checker
-**3645 identical / 0 mismatched / 0 missing / 30 own-proof** (3675 checked); one
-whole-tree build green. Pin `anthropics/fermats-last-theorem@aa2d8b3` (local clone
+**Current state (2026-09-30).** Phases 1, 2, 3.1 complete; **row 2 (3.2) complete** —
+the master ℙ¹ file is the `P1/` chain, the sibling tails are `P1/TwoPlace.lean` +
+`P1/DivPow.lean`, and the last two headlines landed as `P1/DivPowEnding.lean` +
+`P1/PerfectBase.lean` once rows 3.3 (Tate agreement) and 3.4 (trace-completion
+commutation) were ported under `Tate/`. The **definitions round R1** also landed: the
+theory blobs left `Defs/` for `AlgebraicCurve/{P1,LocalResidue}/` and
+`Defs/P1ResidueCore.lean` became a 15-module `P1/` chain (see
+[PLAN-RECTIFY-DEFS.md](PLAN-RECTIFY-DEFS.md) §5.1). Checker **4049 identical / 0
+mismatched / 0 missing / 30 own-proof** (4079 checked); whole-tree build green. Rows
+3.5 (PF ending), 3.6 (K ending) and 3.7 (RR assembly) remain; row 6 stays out of
+scope. Pin `anthropics/fermats-last-theorem@aa2d8b3` (local clone
 `~/proj/fermats-last-theorem`); port mathlib `v4.34.0` (prebuilt under
 `lean/.lake/packages/mathlib`).
 
@@ -24,7 +28,7 @@ whole-tree build green. Pin `anthropics/fermats-last-theorem@aa2d8b3` (local clo
 | phase plans (operative) | `PLAN-P1.md`, `PLAN-P3-1.md`, `PLAN-P3-2.md` … one per row |
 | defs rectification plan | [PLAN-RECTIFY-DEFS.md](PLAN-RECTIFY-DEFS.md) — the definitions-round rule, the `Defs/` home table, the ℙ¹ core breakout |
 | work orders | `WORKORDER-<set>.md`, one per dispatched set |
-| mathlib audits | `AUDIT-mathlib*.md`, one per set |
+| mathlib audits | `AUDIT-mathlib*.md`, one per set, **written by the port worker** as its first step |
 | statement checker | `lean/spec/check_flt_statements.py` |
 | consumer wire test | `lean/spec/RiemannRochConsumer.lean` |
 | friction log | `lean/logs/riemann-roch-friction.md` |
@@ -42,14 +46,17 @@ staffing rule the playbook states as "roughly 1,000 lines per subagent").
 **One set = one loop:**
 
 ```
-measure  → audit → dedup → work order → dispatch → review → closeout
+measure  → dedup → work order → dispatch (worker scouts mathlib, then ports) → review → closeout
 ```
 
 1. **Measure** — `port_advise` on the set's node list; record raw / substitutions /
    removable / projected written. Treat the number as a **lower bound** (see §6).
-2. **Audit** — a *separate* subagent produces `AUDIT-mathlib-<set>.md` (playbook
-   §2.2) **in parallel with the port worker**, and the manager folds it into the
-   work order. Never dispatch a set without an audit running.
+2. **Scout (the worker's first step)** — the port worker does the mathlib-first
+   scouting itself as the front of its task (playbook §2.2: search mathlib first,
+   `#check` every substitute, record the negatives) and writes `AUDIT-mathlib-<set>.md`
+   beside its port. **No separate audit subagent**: a parallel audit repeats the
+   measurement and races the port text for no gain (human, 2026-09-30). The manager
+   folds the worker's own audit into the review gate.
 3. **Dedup** — home any shared prelude once, in a new file; never `private` per
    consumer. Use the audit's "port once" section plus the near-duplicates list.
 4. **Work order** — write `WORKORDER-<set>.md` (template in §5) and hand the
@@ -271,7 +278,7 @@ engine is written once and the two endings are small marginals. Blocks:
 | 3.2b–e | the master ℙ¹ file: ord/valuation prelude → residue-at-∞ calculus → principal parts/differential coefficients → the three `trace_localResidue_*` atoms + `residueTheorem_ratFunc_of_perfectField` | **DONE** (the `P1/` chain) |
 | definitions R1 | theory blobs → `P1/` + `LocalResidue/`; monolith split | **DONE** ([PLAN-RECTIFY-DEFS.md](PLAN-RECTIFY-DEFS.md) §5.1) |
 | 3.2f | row-2 sibling tails: atom 2 + the atom-3 `P1Tower` block | **PARTIAL** — `P1/TwoPlace.lean` (122 ln, complete) + `P1/DivPow.lean` (713 ln); checker **3701 / 0 / 0 / 30** ([WORKORDER-P3-2f-tails.md](WORKORDER-P3-2f-tails.md)) |
-| row-2 headlines | atom-3 `…finitePlace_div_pow_eq_zero` and PF base `residueTheorem_ratFunc_of_perfectField` | **gated** on the Tate agreement (3.3) + trace-completion commutation (3.4); their proofs call `residueTraceCompletionCommute_v2` / `completionTraceSum_of_isSeparable` |
+| 3.2g | the two row-2 headlines: atom-3 `…finitePlace_div_pow_eq_zero` + PF base `residueTheorem_ratFunc_of_perfectField` | **DONE** — `P1/DivPowEnding.lean` (254 ln) + `P1/PerfectBase.lean` (528 ln); **row 2 (3.2) mathematically complete** |
 | definitions R2 | the generic/mixed `Defs/` audit; `Defs/P1.lean` API extraction | deferred |
 | row 6 | the K ending (marginal over the shared engine) | planned |
 

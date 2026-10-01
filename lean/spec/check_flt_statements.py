@@ -1640,15 +1640,84 @@ SOURCES = [
     # --- P3.2f (the row-2 sibling atom tails). The three `Theorems/` wrappers are
     # the interface copies whose binders the port's public names spell; the three
     # `P2M/Sol/S_` files supply the unique tails. Appended last so no earlier
-    # last-name match can flip. Only `P1/TwoPlace.lean` is registered in
-    # `PORT_FILES` below: the atom-3 and PF-base tails are blocked on the unported
-    # Tate agreement (see the 3.2f report), so their modules do not exist yet.
+    # last-name match can flip. The atom-3 headline and the PF base case were
+    # gated on the Tate agreement when 3.2f landed; set 3.2g now supplies them in
+    # `P1/DivPowEnding.lean` and `P1/PerfectBase.lean` (registered in
+    # `PORT_FILES` below), so these sources are live.
     "Theorems/Thm_AlgebraicCurve_RationalFunctionField_trace_localResidue_finitePlace_add_trace_localResidue_placeInfty_eq_zero.lean",
     "Theorems/Thm_AlgebraicCurve_RationalFunctionField_trace_localResidue_finitePlace_div_pow_eq_zero.lean",
     "Theorems/Thm_AlgebraicCurve_residueTheorem_ratFunc_of_perfectField.lean",
     "P2M/Sol/S_AlgebraicCurve_RationalFunctionField_trace_localResidue_finitePlace_add_trace_localResidue_placeInfty_eq_zero.lean",
     "P2M/Sol/S_AlgebraicCurve_RationalFunctionField_trace_localResidue_finitePlace_div_pow_eq_zero.lean",
     "P2M/Sol/S_AlgebraicCurve_residueTheorem_ratFunc_of_perfectField.lean",
+    # --- P3.3a (the Tate agreement, finiteness half) ---
+    # The row-3.3 shared definitions' source and the `tateCommFinite` cone. The
+    # `Thm_` wrapper is the statement authority for the one target (the pin's `S_`
+    # file calls it `solution`), so it comes first; the `S_` file then supplies the
+    # 51 intermediate declarations (`maximalIdeal_le`, the `ValuationSubring.*`
+    # valuation facts, the `tateProj`/`poleWindow*`/`kwF4R1V410a_*` blocks and the
+    # `DVRQuotPow`/`DVRCotangent` discharge chain). The `Def_` file is appended last
+    # because its names (`tateComm`, `tateProj`, the `KwF4gRRTate*` atoms) do not
+    # collide with the `S_` surface. Two `S_` declarations — `ord_nonneg_of_mem` and
+    # `mem_of_ord_nonneg` — are not re-proved: the port's `Defs/PushPull.lean`
+    # public lemmas already match their wrappers. Appended last so no earlier
+    # last-name match can flip.
+    "Theorems/Thm_AlgebraicCurve_tateCommFinite.lean",
+    "P2M/Sol/S_AlgebraicCurve_tateCommFinite.lean",
+    "Definitions/Def_AlgebraicCurve_TateResidueCurrency.lean",
+    # The `S_` file's `kwF4R1V410a_*` block reaches `completionIdeal` and
+    # `mem_completionIdeal_pow` from the unported InlineSpecific module. The port
+    # carries that closure `private` (promotion debt), so the checker does not diff
+    # those copies; the source is registered so a later promotion verifies against
+    # the pin's originals instead of reporting them missing.
+    "Definitions/Def_DedekindDomain_AdicValuation_InlineSpecific.lean",
+    # --- P3.3b (the Tate chain rule) ---
+    # The wrapper is the statement authority for the one target (the pin's `S_` file
+    # calls it `solution`); the `S_` file then supplies the chain-rule tail
+    # (`kaehlerPullback_D`, `tateProj_idem`, the `finrankTrace` algebra, the abstract
+    # Leibniz defect, `DualDom`/`tateResSndDer` and the derivation-factor assembly).
+    # The pin's first 1,637 lines are the set-3.3a prelude, already verified against
+    # the sources above, and 40 of the `S_` rows are the port's public
+    # `Tate/CommFinite.lean` / `P1/EnginePrelude.lean` declarations; the checker
+    # matches them there. Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_AlgebraicCurve_tateChainRule.lean",
+    "P2M/Sol/S_AlgebraicCurve_tateChainRule.lean",
+    # --- P3.3d (the Tate trace compatibility) ---
+    # The wrapper is the statement authority for the one target (the pin's `S_` file
+    # calls it `solution`); the `S_` file then supplies the trace-compatibility tail
+    # (`finrankTrace` cyclicity/additivity, `SameRangeIdemProjectors` and the
+    # projector-independence computation, the block decomposition along an integral
+    # basis and the separable global headline). The pin's first ~2,250 lines are the
+    # set-3.3a prelude, already verified against the sources above, and 53 of the
+    # `S_` rows are the port's public `Tate/CommFinite.lean` /
+    # `Defs/PushPull.lean` / `P1/EnginePrelude.lean` declarations; the checker
+    # matches them there. Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_AlgebraicCurve_tateTraceCompat_of_isSeparable.lean",
+    "P2M/Sol/S_AlgebraicCurve_tateTraceCompat_of_isSeparable.lean",
+    # --- P3.3c (the Tate agreement) ---
+    # The wrapper is the statement authority for the headline `tateAgreement` (the
+    # pin's `S_` file calls it `solution`); the `S_` file then supplies the agreement
+    # tail. 37 of its rows are byte-identical to the already-verified
+    # `Tate/CommFinite.lean` (the shared `tateCommFinite` chain) or `P1/DivPow.lean`
+    # (`kwHgfV352_localResidueCompletion_{spec,algebraMap}`), and the three pin-private
+    # `Place` ord helpers are `Defs/PushPull.lean`'s public lemmas; the checker matches
+    # those imports there. 8 `def … : Prop` rows plus `cohenB` are `port_advise`
+    # false positives (`EisensteinWeightOne.E1Chi3IsModular` / `adicIntegersKSubmod`
+    # are the `def`-body attractors) and are genuinely new. Appended last so no
+    # earlier last-name match can flip.
+    "Theorems/Thm_AlgebraicCurve_tateAgreement.lean",
+    "P2M/Sol/S_AlgebraicCurve_tateAgreement.lean",
+    # --- P3.4 (trace-completion commutation then the completion trace sum) ---
+    # The two `Theorems/` wrappers are the statement authority for the two targets
+    # (both pin `S_` files call them `solution`), so they come first; the `S_` files
+    # then supply the wire lemma `kwF4gRRTate_RTCC_of_tate` (3.4a) and the
+    # completionTraceSum engine rows (3.4b). The pin's `_v2` twin is dropped per the
+    # PORTING-RR §3 name policy (one name per piece). Appended last so no earlier
+    # last-name match can flip.
+    "Theorems/Thm_AlgebraicCurve_residueTraceCompletionCommute.lean",
+    "Theorems/Thm_AlgebraicCurve_completionTraceSum_of_isSeparable.lean",
+    "P2M/Sol/S_AlgebraicCurve_residueTraceCompletionCommute.lean",
+    "P2M/Sol/S_AlgebraicCurve_completionTraceSum_of_isSeparable.lean",
 ]
 
 PORT_FILES = [
@@ -2203,10 +2272,64 @@ PORT_FILES = [
     # above). Appended last so no earlier last-name match can flip.
     "FLTForHuman/AlgebraicCurve/P1/TwoPlace.lean",
     # --- P3.2f: the atom-3 `P1Tower` tail. The headline
-    # `trace_localResidue_finitePlace_div_pow_eq_zero` is NOT ported (it is gated
-    # on the unported Tate agreement; see the 3.2f report), so it is absent here
-    # and the checker does not require it.
+    # `trace_localResidue_finitePlace_div_pow_eq_zero` was gated on the Tate
+    # agreement when 3.2f landed; set 3.2g supplies it in
+    # `P1/DivPowEnding.lean` (registered below).
     "FLTForHuman/AlgebraicCurve/P1/DivPow.lean",
+    # --- P3.3a: the Tate agreement finiteness half. `Defs/TateResidueCurrency.lean`
+    # is the row-3.3 shared API definitions home (PLAN-RECTIFY-DEFS §2/§8.2); the
+    # proof theory is `Tate/CommFinite.lean`. Appended last.
+    "FLTForHuman/AlgebraicCurve/Defs/TateResidueCurrency.lean",
+    "FLTForHuman/AlgebraicCurve/Tate/CommFinite.lean",
+    # --- P3.3b: the Tate chain rule. Imports `Defs/TateResidueCurrency.lean` (the
+    # shared row-3.3 API) and `Tate/CommFinite.lean` (the prelude substitutes). The
+    # ten `scoped instance`s of the tail are checker-invisible and are landed for
+    # elaboration only. Appended last.
+    "FLTForHuman/AlgebraicCurve/Tate/ChainRule.lean",
+    # --- P3.3d: the Tate trace compatibility. Imports `Tate/CommFinite.lean` (the
+    # 3.3a prelude substitutes) and `LocalResidue/Instance.lean` (the canonical
+    # local residue instance and `Place.uniformizer_mem`). Appended last.
+    "FLTForHuman/AlgebraicCurve/Tate/TraceCompat.lean",
+    # --- P3.3c: the Tate agreement. Imports `Tate/CommFinite.lean` (the shared
+    # finiteness chain), `Defs/TateResidueCurrency.lean` (the vocabulary),
+    # `LocalResidue/Instance.lean` (the `Lg37` completion layer and `aCoeff`) and
+    # `P1/DivPow.lean` (`kwHgfV352_localResidueCompletion_{spec,algebraMap}`). The five
+    # `scoped instance`s are checker-invisible and are landed for elaboration only.
+    # Appended last.
+    "FLTForHuman/AlgebraicCurve/Tate/Agreement.lean",
+    # --- Refactor round (row 3.3 shared prelude): the 25 declarations that
+    # `Tate/ChainRule.lean` (3.3b) and `Tate/TraceCompat.lean` (3.3d) had each
+    # re-proved statement-identically are hoisted here, and the duplicate copies
+    # are deleted from the two consumers. No new `SOURCES` entry: these rows are
+    # already sourced by the `tateChainRule`/`tateTraceCompat` `S_` files above.
+    # Appended last so no earlier last-name match can flip.
+    "FLTForHuman/AlgebraicCurve/Tate/Prelude.lean",
+    # --- Refactor round (row 3.4): the P3.3 detector's "Agreement declares no
+    # public overlap" was wrong — `Tate/Agreement.lean` still declared 22 public
+    # copies colliding with `Prelude.lean` (4) and `TraceCompat.lean` (18), which
+    # blocks any module importing Agreement together with ChainRule/TraceCompat
+    # (exactly what 3.4 needs). The refactor imports both and deletes the 40
+    # duplicate copies; the names are still supplied by `Prelude`/`TraceCompat`, so
+    # the checker's identical count is unchanged. Appended last.
+    "FLTForHuman/AlgebraicCurve/Tate/TraceCompletionCommute.lean",
+    "FLTForHuman/AlgebraicCurve/Tate/CompletionTraceSum.lean",
+    # --- P3.2f: the atom-3 `P1Tower` tail, completed by the gated headline. The
+    # `P1Tower` block is in `P1/DivPow.lean` above; this module adds the pin's
+    # `P1Tower.trace_localResidue_finitePlace_div_pow_eq_zero` (S_ line 2016) and
+    # the public wrapper at the `Thm_` binders (S_ lines 2140–2150). Its proof
+    # consumes the surviving `AlgebraicCurve.residueTraceCompletionCommute` (the
+    # `_v2` twin is dropped) and `completionTraceSum_of_isSeparable`; the private
+    # `kwHgfV352_localResidueCompletion_{spec,algebraMap}₀` bridges restate the
+    # DivPow copies about the public `Defs/TateResidueCurrency.lean` def. Appended
+    # last so no earlier last-name match can flip.
+    "FLTForHuman/AlgebraicCurve/P1/DivPowEnding.lean",
+    # --- P3.2f/P3.2g: the perfect-field base case `residueTheorem_ratFunc_of_perfectField`.
+    # The pin's 38-declaration tail (the `K →ₗ[K] K` residue functional, the
+    # kernel/subrow assembly, the `MOne`/`MGeTwo` reduction and the perfect-field
+    # specialisations) over the imported `P1/` engine. `P1PrincipalPartTwoPlaceCancelMOne`
+    # is imported from `P1/TwoPlace.lean` and the p1-place twins are stated at the
+    # pin's `placeInfty` and adapted from the port's `p1PlaceInfty`. Appended last.
+    "FLTForHuman/AlgebraicCurve/P1/PerfectBase.lean",
 ]
 
 

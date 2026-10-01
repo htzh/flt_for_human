@@ -1989,3 +1989,275 @@ it is the headline's, which is gated, so no copy was written.
 in `LocalResidue/Instance.lean` claimed the pin's `PlaceCompletion` import was dropped,
 but `Place.adicCompletion` and `kwHgfV352_exists_sub_mem_adicCompletionIntegers` are
 only reachable through that import.
+
+## Set P3.3a — the Tate agreement, finiteness half (2026-09-30)
+
+**Landing.** Two new modules: `Defs/TateResidueCurrency.lean` (417 ln, the 27-declaration
+shared API home of row 3.3, from
+`Definitions/Def_AlgebraicCurve_TateResidueCurrency.lean`) and `Tate/CommFinite.lean`
+(883 ln, the 51 public declarations of the `tateCommFinite` cone from
+`P2M/Sol/S_AlgebraicCurve_tateCommFinite.lean` — the pin's 53-declaration public surface
+minus `ord_nonneg_of_mem`/`mem_of_ord_nonneg`, which the port imports from
+`Defs/PushPull.lean`, and minus `solution`, which is published under the wrapper's name
+`AlgebraicCurve.tateCommFinite`). Checker **3701 / 0 / 0 / 30 (3731 checked) → 3779 / 0 /
+0 / 30 (3809 checked)**, +78 identical / +78 checked (27 + 51). Both modules forced-built
+green (`Defs` 3,413 jobs / 39 s, `CommFinite` 3,415 jobs); `.olean` mtimes:
+`TateResidueCurrency.olean` 17:58:31, `CommFinite.olean` 18:08:12 — no other library
+olean moved in these builds (the `P1/TwoPlace`/`P1/DivPow` oleans at 17:45/17:49 predate
+this set and are not ours). `#print axioms` on all 78 public nodes → `[propext,
+Classical.choice, Quot.sound]` (three `tateComm*` are subsets). Hygiene clean; consumer
+`spec/RiemannRochConsumer.lean` exit 0. Scratch removed. Not committed.
+
+**The pin's `InlineSpecific` file was the one out-of-measured-set reach.** The
+`kwF4R1V410a_*` block needs `completionIdeal` and `adicCompletion.mem_completionIdeal_pow`
+from `Definitions/Def_DedekindDomain_AdicValuation_InlineSpecific.lean` (pin 299–551),
+which set 3.1a deliberately did not port. Following the stop-early rule the closure is
+resolved **`private` at the pin's names**: `completionIdeal` (299), `exists_uniformizer`
+(430), `uniformizer_ne_zero` (438), `uniformizer_not_isUnit` (447),
+`eq_pow_uniformizer_mul_unit` (455), `maximalIdeal_eq_span_uniformizer` (474), the
+`IsDiscreteValuationRing (v.adicCompletionIntegers K)` instance (513) and
+`mem_completionIdeal_pow` (525). **Promotion debt**: these belong in a future
+`Place/Completion.lean` (or the InlineSpecific home) when a consumer needs them publicly.
+The pin's `DVR`/`Ring.DimensionLEOne` instances in the same file are not needed and were
+not transcribed.
+
+**A second, reverse-direction duplication.** `kwHgfV352_localResidueCompletion` is public
+in the pin Def file and now lives publicly in `Defs/TateResidueCurrency.lean`; the
+port-side copy in `P1/DivPow.lean:683` is `private` (the 3.2f debt note). The private
+`DivPow` copy is now redundant and should be deleted in the refactor round that promotes
+the InlineSpecific closure — recorded, not edited (this set touches no existing module).
+
+**v4.34 drift hit four times, all proof-level (statements verbatim).**
+1. `HeightOneSpectrum.adicCompletionIntegers` is a `def` (not an `abbrev`), so
+   `ValuationSubring.isUnit_of_valued_eq_one` applied at `v.adicCompletionIntegers K`
+   fails to unify `hv.v.valuationSubring` with it at implicit transparency. Resolved with
+   the private adapter `isUnit_adicCompletionIntegers_of_valued_eq_one` that ascribes the
+   valuation-subring type via `show … from x`.
+2. `lmulK` is `abbrev (Algebra.lmul K _) fh`; after `ext x` the goal is stated on
+   `adicCompletion.toCompletion` projections (`(…) .toCompletion = …`), so the pin's
+   `show fh * (gh * x) = gh * (fh * x); ring` does not fire. Replaced with
+   `simp only [LinearMap.comp_apply, lmulK, Algebra.coe_lmul_eq_mul, LinearMap.mul_apply']`,
+   `simp only [IsDedekindDomain.HeightOneSpectrum.adicCompletion.toCompletion_mul]` then
+   `ring`.
+3. `Ideal.quotientMap`'s `hIJ : I ≤ J.comap f` and `Ideal.quotientMap_injective'`'s `h`
+   do not accept the pin's inline pointwise lambdas under implicit transparency; bind them
+   as typed `let hIJ`/`let hJI` and pass `(H := hIJ)`. `rw [Ideal.quotientMap_mk]` also
+   missed the syntactically-same term, so use `simp only [Ideal.quotientMap_mk]`.
+4. `Set.mem_setOf_eq` → `Set.mem_ofPred_eq`; `WithZero.zero_le _` → `zero_le` (no
+   argument); `Int.ofAdd_mul` needed an explicit `import
+   Mathlib.Algebra.Group.Int.TypeTags`.
+
+**Qualification friction.** `open AlgebraicCurve.Place` makes the bare namespace
+`adicCompletion` resolve to `AlgebraicCurve.Place.adicCompletion`, shadowing mathlib's
+`IsDedekindDomain.HeightOneSpectrum.adicCompletion`; the private `mem_completionIdeal_pow`
+and the public `isOpen_setOf_valued_le` must be written with their full
+`IsDedekindDomain.HeightOneSpectrum.adicCompletion.` prefix in the `kwF4R1V410a` block.
+The pin's unused `FunctionField` open is dropped (the port has no such namespace).
+
+**Heartbeats.** The pin raises `synthInstance.maxHeartbeats` to 6,400,000 and
+`maxHeartbeats` to 12,800,000 (and one 25,600,000 for
+`finiteDimensional_restrictScalarsQuot_pow`). Not transcribed: the whole module
+elaborates under the project cap 4,000,000, so this set is not a cap casualty.
+
+**Checker wiring.** `SOURCES` += `Thm_AlgebraicCurve_tateCommFinite` (statement authority
+for the one target), then `S_AlgebraicCurve_tateCommFinite`, then
+`Def_AlgebraicCurve_TateResidueCurrency`; `PORT_FILES` += the two new modules. Appended
+last, no reorder. All 78 public statements diff identical to the pin.
+
+**Audit fold-in (parallel `AUDIT-mathlib-p3-3a.md`).** The audit's one substantive
+finding is applied: the pin's `ValuationSubring.{valued_eq_one_of_isUnit,
+isUnit_of_valued_eq_one, isUnit_iff_valued_eq_one}` triple is no longer re-proved — the
+three names are now one-line aliases of
+`Valuation.Integers.{one_of_isUnit, isUnit_of_one', isUnit_iff_valuation_eq_one}` at
+`Valuation.valuationSubring.integers hv.v` (statements unchanged, so the checker stayed
+3779 / 0 / 0 / 30). The audit's item 3 is applied too: the unported
+`Definitions/Def_DedekindDomain_AdicValuation_InlineSpecific.lean` is appended to
+`SOURCES` (last, so no earlier match can flip) — the private closure stays `private`, so
+it does not change the checked count, but a later promotion will verify against the pin's
+originals. `kwHgfV352_localResidueCompletion` is public in the Defs home and remains
+`private` in `P1/DivPow.lean`; deleting that copy needs an existing-module edit and is
+recorded as debt, not done here.
+
+## P3.3d — Tate trace compatibility (`Tate/TraceCompat.lean`)
+
+**Measurement.** `port_advise --target P2M/Sol/S_AlgebraicCurve_tateTraceCompat_of_isSeparable.lean`
+reads 2 targets / 146 declarations; 53 "substitutes". Six of those are false positives:
+the checker sees only a `def`'s signature, so every `def … : Prop` with the pin's binder
+block matches `EisensteinWeightOne.E1Chi3IsModular` (and two more matched a different-named
+`def`). `KwF4gRRTateProjectorIndep`, `KwF4gRRTatePoleWindowImageFinite`,
+`KwF4gRRTateCommFiniteGen`, `tateCommDual`, `KwF4gRRTateTraceCompatBlockSum` and
+`KwF4gRRTateIntegralBasisCompat` are therefore new, not importable — the same trap the
+3.3a audit recorded for four `Prop`s. Real split: 40 importable public, 2 generalise, 94 new.
+
+**Statement text and section variables.** The pin's new rows live under `section`/`variable`
+blocks, so the checker's post-name statement text is the *short* form; the port keeps the
+pin's variable structure rather than spelling binders explicitly. Dropping a substituted
+declaration can strand its `variable … in` line (two consecutive ones are a hard "redundant
+binder annotation update" error); the extraction drops any `variable … in` whose target is gone.
+
+**Parallel-set duplication.** 3.3b (`ChainRule.lean`) and 3.3c (`Agreement.lean`) landed
+while this set ran. Each pin `tate*` `S_` file re-proves a common trace/projector prelude, so
+the three modules share 37 (Agreement) / 21 (ChainRule) last names, including
+`finrankTrace_comp_comm`, `SameRangeIdemProjectors`, `KwF4gRRTateProjectorIndep`,
+`tateProj_idem`, `alphaMap`/`mulOnRange`/`deltaQuotFactor` and the `tateComm*_add_fst`
+family. They build independently, but **a consumer importing two of the three collides**.
+Dedup debt for a refactor round (hoist into a shared `Tate/ProjectorPrelude.lean`); not done
+here because it edits sibling modules. The checker count is inflated by the copies.
+
+**v4.34 drift (worked examples).**
+- `Algebra.TensorProduct.lift`'s `hfg` is now `∀ x y, Commute (f x) (g y)`, not an
+  equality: `(fun _ _ => mul_comm _ _)` → `(fun _ _ => Commute.all _ _)` at pin 3952.
+- `TensorProduct.induction_on` is deprecated and `inductionOn` has no `zero` alternative;
+  the pin's three-case `induction` is kept under `set_option linter.deprecated false in`.
+- `rw [NNReal.coe_pow]` cannot match the `letI`-shaped occurrence produced by
+  `kw_ffgc_norm_adicCompletion_eq` (`letI` in the theorem *statement*); `push_cast` after
+  the norm rewrites is the fix.
+- `𝓞` needs `open scoped NumberField`; `⊗[E]`/`→ₐ[R]` need `open scoped TensorProduct`.
+- The two duplicate `scoped instance`s (pin 1431/2206) are imported from `Tate/CommFinite.lean`;
+  re-landing them is a hard "already declared".
+
+**Checker wiring.** `SOURCES` += `Thm_AlgebraicCurve_tateTraceCompat_of_isSeparable` (statement
+authority for the one target), then `S_AlgebraicCurve_tateTraceCompat_of_isSeparable`;
+`PORT_FILES` += `Tate/TraceCompat.lean`. Appended last. Checker **3932 identical / 0 mismatched
+/ 0 missing / 30 own-proof** (3962) — the +153 over the 3779 dispatch baseline is 3.3b's
+`ChainRule.lean` plus this set's 94 net-new checked declarations. Build green
+(3496 jobs), `.olean` 18:23; `#print axioms` on the public nodes
+`[propext, Classical.choice, Quot.sound]`.
+
+## P3.3c — the Tate agreement (`Tate/Agreement.lean`)
+
+**Measurement / dedup.** `port_advise` reads 2 files / 174 declarations / "46 identical";
+8 of the reported substitutes are the `def`-body blind spot (`def … : Prop` →
+`EisensteinWeightOne.E1Chi3IsModular`, `def cohenB` → `adicIntegersKSubmod`). Corrected:
+**37** pin declarations already identical in the port (35 the shared `tateCommFinite`
+chain in `Tate/CommFinite.lean`, 2 `kwHgfV352_localResidueCompletion_{spec,algebraMap}` in
+`P1/DivPow.lean`), 3 pin-`private` `Place` helpers public in `Defs/PushPull.lean`, 2
+checker-invisible `scoped instance`s imported from `CommFinite`; **133 new checker-visible
+declarations**. The `_v2` twin is dropped (PORTING-RR §3).
+
+**The public/private `kwHgfV352_localResidueCompletion` split.** The port has two constants
+of that name: public in `Defs/TateResidueCurrency.lean:159` and `private` in
+`P1/DivPow.lean:683`. `P1/DivPow.lean`'s public `_spec`/`_algebraMap` are about the private
+copy, so they cannot rewrite the public def; the two new additivity/EPS lemmas use private
+`_spec₀`/`_algebraMap₀` re-proofs. Refactor debt: drop the `DivPow` private def and restate
+the two facts about the `Defs` def.
+
+**Unported `InlineSpecific` slice, again.** `instIsAdicCompleteCompletionIdealAdicCompletionIntegers`
+and the `kwF4R1V410a` bridge reach `completionIdeal`/`mem_completionIdeal_pow`/
+`exists_ofAdd_natCast_lt` and the uniformizer chain from
+`Def_DedekindDomain_AdicValuation_InlineSpecific.lean` (pin 104/299/430/438/447/455/474/525).
+Re-landed `private` here (module-local, as 3.3a did) — promotion debt to a shared
+`Place/Completion.lean`.
+
+**v4.34 drift (worked examples).**
+- `exists_ofAdd_natCast_lt`'s pin proof ends `norm_cast; exact inv_mabs_le y`; in `v4.34.0`
+  `norm_cast` leaves `ofAdd (-↑y.natAbs) ≤ y` and `inv_mabs_le` does not match. Re-proved by
+  `lift x to Multiplicative ℤ` + `ofAdd_toAdd`/`ofAdd_lt` + `Int.le_natAbs` + `omega`.
+- `IsAdicComplete.liftRingHom`/`mk_liftRingHom` live in
+  `Mathlib.RingTheory.AdicCompletion.RingHom`, not in the port's import closure; a specific
+  import was added.
+- `scoped instance` under `open scoped MazurTorsion`: the top-of-file `open scoped` fails
+  because the namespace is declared later in the file; place it immediately before its
+  consumer. Same for `open ModularCurve.{KwF4R1V394a,KwTateRR3,KwNo6HrouteR,KwOdaDHDR}` —
+  the file-local namespaces exist only after their (empty) scaffolding blocks, so the opens
+  must follow them.
+- `Set.mem_setOf_eq` → `Set.mem_ofPred_eq`, `WithZero.zero_le _` → `zero_le` (4 sites).
+- `linter.style.haveILetI` fires on the pin's many `haveI` proofs; disabled file-locally.
+
+**Checker wiring.** `SOURCES` += `Thm_AlgebraicCurve_tateAgreement` (statement authority for
+the headline; the pin's `S_` file calls it `solution`), then `S_AlgebraicCurve_tateAgreement`;
+`PORT_FILES` += `Tate/Agreement.lean`. Appended last. Checker **4065 identical / 0 mismatched
+/ 0 missing / 30 own-proof** (4095); the +133 over the 3.3d close (3932) is this set. Build
+green (3583 jobs, 91 s), `.olean` 18:49; `#print axioms` on the public nodes
+`[propext, Classical.choice, Quot.sound]`.
+
+## Refactor round — the row-3.3 Tate shared prelude (`Tate/Prelude.lean`)
+
+**Detector.** A statement-normalized diff of the two consumers' `ModularCurve.KwF4gRRTate.*`
+declarations (`tools/tmp/dedup_detect_tate.py`, reusing the checker's namespace tracking and
+`norm`) finds **exactly 25 shared declarations**: `finrankTrace_{add,neg,zero,sub,congr,
+sub_eq,comp_comm,eq_trace_on_superspace}`, `instFinDimRange{Add,Neg,Zero,Sub}`,
+`tateComm{,Restrict,Trace,Res}_add_fst`, `alphaMap`, `finiteDimensional_range_alphaMap`,
+`range_{sub_le,comp_map_left}`, `tateProj_idem`, and the pole-window pair
+(`KwF4gRRTatePoleWindowImageFinite`/`kwF4gRRTate_poleWindowFinite`/
+`kwF4gRRTate_poleWindowImageFinite`, `lmul_adicIntegers_subset_poleWindow`). All 25 are
+**byte-identical in statement text**; none differ in binders and none differ genuinely (some
+proof bodies differ, which is irrelevant for the hoist). `Tate/Agreement.lean` shares no
+public name (its copies are `private`), so it was not touched. Because the two copies were
+declared in the same namespace, any module importing both was a hard duplicate-declaration
+error — the reason set 3.4 could not start.
+
+**Hoist.** `Tate/Prelude.lean` takes the `ChainRule.lean` copy verbatim (lines 64–451) and
+both consumers import it; the 25 duplicates are deleted from `ChainRule.lean` (contiguous
+lines 66–451) and `TraceCompat.lean` (nine small wrapper blocks). Both consumers keep their
+public headlines and unique rows. `Prelude` imports **both** `Defs/TateResidueCurrency.lean`
+and `Tate/CommFinite.lean`: the pole-window discharge (`kwF4gRRTate_poleWindowFinite`,
+`lmul_adicIntegers_subset_poleWindow`, `kwF4gRRTate_poleWindowImageFinite`) reaches
+`kwF4gRRTate_poleWindowFinite_of_DVRQuotPowKFinite`, `poleWindowKSubmod` and
+`kwF4gRRTate_clearPole` from set 3.3a, so a `TateResidueCurrency`-only prelude was not
+available. Nothing imports `Prelude` except the two consumers, so no cascade.
+
+**Checker.** `PORT_FILES` += `Tate/Prelude.lean` (appended last); no new `SOURCES` entry —
+the rows are already sourced by the `tateChainRule`/`tateTraceCompat` `S_` files. Checker
+**4044 identical / 0 mismatched / 0 missing / 30 own-proof** (4074), a **−21** step from
+4065. The delta is not a statement/binder change: 21 of the 25 hoisted declarations are
+checker-visible (the four `scoped instance`s are invisible to `DECL_RE`), and the checker had
+been counting those 21 identical rows once per consumer; hoisting them to one file removes
+exactly 21 duplicate positive counts. (A dedup round cannot leave the count unchanged while
+`PORT_FILES` lists the declaration once.)
+
+**Build economy.** Edit-loop green for `Prelude`/`ChainRule`/`TraceCompat`; per-module builds
+green; one whole-tree `lake build` green (4896 jobs). Only **three** `.olean`s moved:
+`Prelude` (new, 19:08), `ChainRule` (19:09), `TraceCompat` (19:09) — `Tate/CommFinite` and
+`Tate/Agreement` are untouched (they do not depend on the two consumers). The consumer wire
+test `spec/RiemannRochConsumer.lean` exits 0. No `sorry`/`admit`/`axiom`/bare `import Mathlib`.
+
+**Debt left.** The pin's `S_` `tateTraceCompat` file also re-proves the 37-row projector
+cluster (`SameRangeIdemProjectors`, `KwF4gRRTateProjectorIndep`, `deltaQuotFactor`,
+`mulOnRange`, …) that `Tate/Agreement.lean` carries `private`; a later round can hoist that
+cluster into `Prelude.lean` too, but it is not a public-name collision today.
+
+## P3.2g — the two gated row-2 ℙ¹ headlines (atom-3 `div_pow`, PF base)
+
+**What landed.** `P1/DivPowEnding.lean` (254 ln) and `P1/PerfectBase.lean` (528 ln), each
+importing the `P1/` engine; the atom-3 headline consumes the surviving
+`AlgebraicCurve.residueTraceCompletionCommute` (the `_v2` twin is dropped) and
+`completionTraceSum_of_isSeparable`, and the PF base case consumes the atom-2/atom-3
+headlines. Checker **4010 → 4049 identical** (4040 → 4079 checked), **0 mismatched / 0
+missing / 30 own-proof**; the +39 is exactly the two modules' public surface. Per-module
+builds green (3607 jobs), only the two new `.olean`s moved; `#print axioms` on all 12 public
+nodes → `[propext, Classical.choice, Quot.sound]`; consumer exits 0.
+
+**Friction 1 — a module-local `private` blocks the next file's proof text.** `P1/DivPow.lean`
+declares `private def gen` (pin 1446) and the public `P1Tower` lemmas that mention it carry
+the mangled private constant in their *types*; a consumer cannot name it. The atom-3 proof
+uses `gen` as a term, so the headline re-lands `gen` `private` verbatim — the stop-early
+protocol's re-land rule, promotion debt for a future refactor. The same pattern hit
+`kwHgfV352_localResidueCompletion_{spec,algebraMap}`: `P1/DivPow.lean`'s public copies are
+about *its* private def while the wire proof's goal uses the `Defs/TateResidueCurrency.lean`
+public def, so the headline re-lands the pair `private` (`…_spec₀`/`…_algebraMap₀`), exactly
+as `Tate/Agreement.lean:907/928` does. Generalisable: a port-`private` def whose public
+lemmas are statement-visible forces every later consumer that needs the *term* to re-land it;
+a definitions round should promote the union once.
+
+**Friction 2 — a section variable can silently widen a public lemma.** The port's
+`surjective_algebraMap_residueField_of_deg_eq_one` (`P1/KaehlerIntegral.lean:474`) sits in
+`section AlgClosedDischarge` with `variable (K) [Field K] [CharZero K] […K (RatFunc K)]`, so
+its effective signature carries `[CharZero K]` although the pin's atom-3 copy (S_ line 1325)
+is `CharZero`-free. The atom-3 context is `[PerfectField K]` (char `p` allowed), so the
+public lemma is unusable and the pin's copy is re-landed `private`
+(`…_of_deg_eq_one'`). Lesson: check a section-variable lemma's *effective* signature, not its
+source text, before promising it as a substitute (`#check @…`).
+
+**Friction 3 — the checker diffs text, so section-variable binders are invisible.** The two
+headlines must spell the `Thm_` wrapper's binders *in the declaration text*; my first
+`residueTheorem_ratFunc_of_perfectField` used the section's implicit `K` and was flagged
+MISMATCH against the wrapper. The eight `kaehlerResidueKernel (K := K) (F := F)` named-arg
+calls were likewise flagged against the pin's `kaehlerResidueKernel K F`; fixed by making
+`K`/`F` explicit on the two `def`s (`variable (K F) in`, the pin's own device). The checker
+is the authority: write the binders as the source copy spells them.
+
+**Build economy.** Edit-loop `lake env lean` on the two files; `lake build` of both modules
+under `flock` (3607 jobs, green). `.olean` mtimes: `DivPowEnding` 19:37, `PerfectBase` 19:52;
+`DivPow` (17:49) and `TwoPlace` (17:45) untouched. No whole-tree build. No
+`sorry`/`admit`/`axiom`/bare `import Mathlib`; no heartbeat raise.
