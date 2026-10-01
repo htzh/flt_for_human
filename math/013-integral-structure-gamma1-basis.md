@@ -138,6 +138,12 @@ For a **rational** $`\Gamma_1`$-form $`f`$ — the case used below — the theor
 $`D`$ with $`D f`$ integral. Applied to a translate $`f \mid_k \gamma`$, whose
 $`q`$-expansion is again rational, it gives a clearing integer for that translate.
 
+Everything in this section and the next is **conditional and up to scaling**: it
+neither produces a form nor controls the reduction of one modulo a prime. The
+assertion the weight-one branch additionally needs — an integral form that is
+non-zero in every residue field — is §9, and it is a different theorem, not a
+corollary of the bounded-denominator one.
+
 ## 4. Uniform clearing over the finite quotient
 
 Fix a rational $`\Gamma_1(N)`$-form $`f`$ and let $`\gamma \in \Gamma_0(N)`$. The
@@ -291,3 +297,58 @@ is in [015-weight-two-hecke-periods.md](015-weight-two-hecke-periods.md).
   above already implies that finiteness, so route B is **not needed for Hecke
   finiteness**; its role is the weight-2 Eichler–Shimura map
   ([017-eichler-shimura-isomorphism.md](017-eichler-shimura-isomorphism.md) §9).
+
+## 9. What a denominator bound does not give: the integral weight-one form
+
+Sections 3–4 clear denominators, and every statement there is conditional and up to
+scaling: given a form with rational $`q`$-expansion they produce
+$`0 \ne D \in \mathbb{Z}`$ with $`D f`$ integral
+(`ModularCurve.exists_isIntegralQExp_smul_of_ratCast_qExpansion`,
+`ModularCurve.exists_ne_zero_forall_intCast_mul_qExpansion_coeff_of_gamma_invariant`).
+The weight-one branch needs a different assertion in two ways.
+
+**Existence.** Nothing above produces a non-zero form, and the one *existence*
+theorem in the family is weight $`3 \le k`$
+(`ModularCurve.exists_gamma1_eisenstein_isIntegralQExp_and_slash_eq`). Weight one is
+exactly the excluded case: holomorphic weight-one Eisenstein series need an odd
+character's multiplier, and the pin supplies them separately through the primitive
+odd series `ModularForm.exists_weightOne_eisenstein_qCoeff_eq_of_isPrimitive_of_odd`.
+
+**Non-vanishing modulo every prime.** The pin bundles what the Igusa function field
+needs as `IntegralWeightOneForm`
+([Def_ModularCurve_IgusaFunctionFieldX1.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_IgusaFunctionFieldX1.lean)):
+
+```lean
+structure IntegralWeightOneForm (κ : Type*) [Field κ] (M : ℕ) where
+  form : ModularForm (Gamma1 M : Subgroup (GL (Fin 2) ℝ)) 1
+  series : PowerSeries ℤ
+  isIntegralQExp : IsIntegralQExp form series
+  intSeriesC_ne_zero : intSeriesC κ series ≠ 0
+```
+
+The last field asks the integral series to stay non-zero in *every* base field
+$`\kappa`$, in particular in every residue field $`\mathbb{F}_p`$. A clearing
+integer is the opposite: for $`p \mid D`$ the reduction of $`D f`$ is zero, so a
+denominator bound is compatible with a form that vanishes modulo every bad prime.
+The weight-one theorem produces an integral *generator* of a $`\kappa`$-line, not an
+integral multiple of one.
+
+The two feed different constructions, which is why both are needed. Sections 3–4
+give the Hecke algebra its integral structure; the weight-one form instead supplies
+the Hasse root `hasseRootFn = (intSeriesC κ series)⁻¹`, which generates the Igusa
+function field `igusaFunctionFieldX1C` over the $`X_1`$ function field (the pin's
+`IgusaCover`). A series reducing to zero in $`\kappa`$ would send that root to zero
+and degenerate the extension.
+
+The pin's existence proof
+([S_ModularCurve_nonempty_integralWeightOneForm.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_nonempty_integralWeightOneForm.lean))
+sums the primitive odd weight-one Eisenstein series over the odd Dirichlet
+characters of a level $`L`$. `DirichletCharacter.sum_characters_eq` collapses the
+character sum to the series with coefficients `divisorSignCount`, and
+`Nat.exists_eq_two_pow_mul_odd` supplies either $`L = 4`$ or an odd prime
+$`L \mid M`$, so the theorem covers every $`M \ge 3`$. The non-vanishing modulo
+every prime is the case split at the end of that proof: the constant term
+$`L - 2`$ may vanish in $`\kappa`$, and then the $`q`$-coefficient $`2L`$ is used
+instead. Our port keeps the structure public and the construction `private`
+(`FLTForHuman/ModularForms/WeightOne/IntegralWeightOneForm.lean`, port of the two
+pinned files above).
