@@ -2,19 +2,26 @@
 
 **Status.** Foundational question, split out of the Deligne–Serre weight-one scout
 (§4.1 there) because it is not incidental to that cone. The pin-only counts are
-against `anthropics/fermats-last-theorem@aa2d8b3`; the port/frontier numbers are a
-measurement of the date and move (**frontier 608 at the 2026-09-30 remeasurement**,
-up from 541). Reproduce in §6. The decision is recorded in §4.1: keep the algebraic
-engine, bridge to the canonical-genus / duality API, **prune the analytic residue
-block now** and **derive the weaker RR siblings**; §5.1 measures what each prune
-pays, and §6 of the scout carries the D-S-specific numbers.
+against `anthropics/fermats-last-theorem@aa2d8b3`; the port/frontier numbers are the
+current measurement (**frontier 650**, 2026-09-30). Reproduce in §6. **Most of the
+route is landed.** The algebraic engine (phase 1), the canonical divisor (phase 2),
+and the K-route residue-theorem / Riemann–Roch block all exist in the port, so
+`FunctionFieldRiemannRoch` and the canonical-genus / duality API are available to the
+Deligne–Serre cone. The one piece still open is the **general `ResidueTheorem` over a
+perfect field** — the pin's `residueTheorem_of_perfectField` — which is the residue /
+Serre-pairing input of the **cohomological stack** that the modularity-lifting
+endgame runs on (`CuspForm.heckeLocal.*` → `WeierstrassCurve.modularityLiftingAtConductor_*`
+→ `FreyPackage.*` → `FLT.fermatLastTheorem`). That stack is **outside the
+Deligne–Serre cone**, so RR is complete for this cone; §4.1 records the decision,
+§5 the measurement and §5.4 the residue-route fan-out.
 
 Companions: [../lean/topics/PORTING-RR.md](../lean/topics/PORTING-RR.md) (the port
-blueprint that consumes this study; phase 1 is the 14-node genus / index engine),
+blueprint that consumes this study; phases 1–3 are landed, leaving only row 3.5, the
+general perfect-field `ResidueTheorem` producer),
 [flt-function-field-theory-and-mathlib.md](flt-function-field-theory-and-mathlib.md)
 (the whole curve-layer survey: what FLT builds itself and where mathlib is used),
 [flt-ffg-field-theory.md](flt-ffg-field-theory.md) (the field-extension segment),
-[deligne-serre-weight-one-scout.md](deligne-serre-weight-one-scout.md) §4.1 (where the
+[deligne-serre-weight-one-scout.md](deligne-serre-weight-one-scout.md) §4.2 (where the
 question surfaced), [eichler-shimura-scout.md](eichler-shimura-scout.md) (the
 cusp-forms / cohomology transport that consumes the dimension results).
 
@@ -107,7 +114,7 @@ $`H^1`$ identification orthogonal.
 ## 2. What the Deligne–Serre cone uses, and how it gets there
 
 The forward cone reaches this family through the differentials ↔ cusp-forms transport
-(`studies/deligne-serre-weight-one-scout.md` §4.1):
+(`studies/deligne-serre-weight-one-scout.md` §4.2):
 
 ```text
 ModularCurve.exists_linearEquiv_tensor_regularDifferentials_x1FunctionFieldBar_cuspForm  (6 dependents)
@@ -138,32 +145,34 @@ measurement):
 
 | group | nodes | `S_` lines | ported |
 |---|---:|---:|---:|
-| analytic residue / Tate machinery | 7 | 33,534 | 0 |
+| analytic residue / Tate machinery | 7 | 33,534 | 7 |
 | genus existence (Stichtenoth route) | 9 | 8,948 | 9 |
-| canonical divisor / genus | 6 | 4,483 | 1 |
+| canonical divisor / genus | 6 | 4,483 | 2 |
 | genus / `genusFF` comparisons | 16 | 4,330 | 0 |
 | finiteness of `LSpace` | 8 | 4,273 | 3 |
 | `ell` / Riemann inequality | 12 | 4,064 | 6 |
 | differentials / $`\Omega`$ dimension | 7 | 2,572 | 0 |
 | index of speciality / $`H^1`$ | 3 | 296 | 2 |
 | full RR / index / duality statements | 4 | 210 | 1 |
-| **total** | **72** | **62,710** | **22** |
+| **total** | **72** | **62,710** | **30** |
 
 The structure is the **opposite of a hub**: the full-RR *statements* are four nodes
 totalling 210 lines, and almost every other node **cites nothing within the family**
-— each carries its own self-contained proof. At the 2026-09-30 frontier 22 of the
-72 are ported — the whole Stichtenoth engine, the `ell` / index prelude and the
-canonical-divisor construction — leaving a **50-node** RR family still needed.
+— each carries its own self-contained proof. Of the 72, **30 are ported** — the whole
+Stichtenoth engine, the whole analytic residue / Tate block, the `ell` / index prelude
+and the canonical-divisor construction — leaving a **42-node** RR family still needed
+(9,577 raw lines).
 The only assembly edges are the four
 full-RR lemmas plus `finite_and_finrank_regularDifferentials_eq_genus`,
 `genus_eq_genusFF`, `exists_genus_riemannIndex_of_isCurveOver`,
 `sum_ordDiff_D_le_two_mul_genusFF_of_isSeparable` and
 `genusFF_le_of_constantFieldExtension_of_isAlgClosed`.
 
-There are **two routes to the full formula**:
+There are **two routes to the full formula**; the analytic one is the route the port
+took, and its K-route half is in the port (§4.1).
 
-* **analytic.** `functionFieldRiemannRoch_of_isAlgClosed` (39 lines) cites
-  `residueTheoremK_of_isAlgClosed` (8,121) and
+* **analytic (the ported route).** `functionFieldRiemannRoch_of_isAlgClosed` (39 lines)
+  cites `residueTheoremK_of_isAlgClosed` (8,121) and
   `functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed` (6,257). The residue
   theorem is fed by `residueTheoremK_ratFunc_of_isAlgClosed` (13,170) and
   `tateAgreement` (4,816) through `residueTraceCompletionCommute` (1,109). The
@@ -297,120 +306,93 @@ must exist anyway. B is not viable on its own.
    candidates.
 4. Never try to derive finiteness or the canonical divisor from RR.
 
-### 4.1 Decision (2026-09-30): the algebraic engine plus a bridge; the analytic side deferred
+### 4.1 Decision and current status (2026-09-30): the algebraic engine, the K route, and the one open producer
 
 Phase 1 (the genus / index engine) and phase 2 (the canonical divisor) are landed, so
-**the algebraic Riemann–Roch is already in the port**: `exists_weilCanonical_riemannRoch`
+**the algebraic Riemann–Roch is in the port**: `exists_weilCanonical_riemannRoch`
 gives $`\exists W, \forall D, \ell D - \ell(W-D) = \deg D + 1 - g_{\mathrm{FF}}`$, on top
 of `exists_genus_riemannIndex_of_isCurveOver`, the index formula, $`\Omega`$-finiteness
-and `weilDifferentialRankOne_of_isCurveOver`. The D-S cone does **not** consume the
-analytic predicates directly. Its only RR leaves are
+and `weilDifferentialRankOne_of_isCurveOver`.
 
-- `genus_eq_genusFF` (5 consumers: `finsum_ramificationIndexAlong_sub_one_eq`,
-  `genusFF_sub_one_eq_of_isSplittingField_of_forall_dvd_ord`,
-  `sum_ordDiff_D_le_two_mul_genusFF_of_isSeparable`,
-  `ModularCurve.twelve_mul_add_mul_index_le_finrank_cuspForm_Gamma`,
-  `ModularCurve.two_mul_genusFF_add_card_fibres_le_finrank_add_two_of_gamma1_le`), which
-  takes `FunctionFieldRiemannRoch` and `WeilDualityAdelic` as hypotheses its consumers
-  supply; and
-- `finite_and_finrank_regularDifferentials_eq_genus` (8 consumers, including the
-  differentials ↔ cusp-forms transport), which in the pin derives
-  `FunctionFieldRiemannRoch` from `functionFieldRiemannRoch_of_isAlgClosed`.
+**The K-route residue block and the RR assembly are landed too.** Rows 3.1–3.4, 3.6
+and 3.7 of [PORTING-RR](../lean/topics/PORTING-RR.md) add the
+`HasCanonicalLocalResidueKStar` instance, the $`\mathbb{P}^1`$ residue core, the Tate
+agreement, the trace-completion commutation, the K ending
+(`residueTheoremK_ratFunc_of_isAlgClosed`, `residueTheoremK_of_isAlgClosed`), the RR
+assembly against that ending
+(`functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed`), and the two K→plain
+producers `residueTheorem_of_residueTheoremK` / `residueTheorem_of_isAlgClosed`. The
+canonical-genus / duality form is therefore available over an algebraically closed
+field, the D-S cone's RR-family analytic group (7 nodes / 33,534 lines) is **fully
+ported**, and the cone's unported
+`residueTheorem|tateAgreement|residueTrace` nodes are **0**.
 
-**Chosen: Option C, sharpened.**
+The bridge that the earlier version of this section planned became the K-route
+assembly rather than a separate `RiemannRoch/Bridge.lean`: the pin's `MirrorAssembly`
+block was transcribed against the K ending
+(`ResidueTheorem/RRAssembly.lean`, 694 ln). That is the smaller marginal because the
+$`\mathbb{P}^1`$ core, the Tate agreement and the trace-completion commutation are
+shared with the plain route (§5.4), so the two endings are the only difference.
 
-1. Keep the algebraic RR; do **not** port the 6,257-line
-   `functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed` — §3.1 shows it inlines
-   the Stichtenoth pole-divisor package the port already owns.
-2. Add a **bridge** (`RiemannRoch/Bridge.lean`, ≈300–500 lines) that re-proves the pin's
-   *statement* `functionFieldRiemannRoch_of_isAlgClosed` from the algebraic engine plus
-   plain `ResidueTheorem`. Concretely:
-   `weilOfKaehler_ne_zero_and_maximal` +
-   `weilOfKaehler_mem_omegaSpace_of_residueTheorem` give the pin's `hsup`; the
-   already-ported rank-one / index-formula / residue-pairing lemmas plus the pin's
-   `MirrorAssembly` (≈300 lines) give `RiemannIndexFormula` → `WeilOmegaEllAgrees` →
-   `WeilDualityAdelic` → `WeilDuality` → `FunctionFieldRiemannRoch`. Then
-   `genus_eq_genusFF` (30), `ell_canonicalDivisor_eq_genus_of_riemannRoch` (13),
-   `constantsAreBase_of_isAlgClosed` (≈40) and the rewired
-   `finite_and_finrank_regularDifferentials_eq_genus` (220) land at their pin
-   statements, so the consumers compile unchanged.
-3. The bridge is **conditional on `ResidueTheorem`**, exactly as phase 1's
-   `exists_linearEquiv_regularDifferentials_omegaSpace_zero` already is; the analytic
-   proof stays out of the RR route.
-4. The **analytic / residue-theorem block is deferred (TBD)**. Both routes are large and
-   siloed — at frontier 608 `port_advise` reads the Tate/K-family route as 16 files /
-   1,302 declarations (211 substitutions, 4,471 lines) and the plain perfect-field route
-   as 64 files / 1,957 declarations (282 substitutions, 5,822 lines) — and the choice
-   waited on the differential-residue scope
-   (`exists_ordDifferential_ge_neg_one_and_evalAt_eq_of_degree_eq_zero`,
-   `sum_fibre_evalAt_eq_zero_of_smul_D_mem_regularDifferentials`), which could have
-   forced the K-family. §5.4 settles it: the five nodes that cite the K-family, including
-   both differential-residue statements, reroute to plain `ResidueTheorem`.
-   `HasCanonicalLocalResidueKStar` (the Cohen–Laurent prelude) is a shared prerequisite
-   of the bridge, the differentials headline, and both routes.
+**The one piece still open is the general perfect-field producer
+`residueTheorem_of_perfectField`** (row 3.5 of
+[PORTING-RR](../lean/topics/PORTING-RR.md)). It is not needed for the RR formula — the
+K route supplies that over algebraically closed fields — but it is the plain
+$`ResidueTheorem K F`$ over a general `PerfectField`, and that is the residue /
+Serre-pairing input of the **cohomological stack** the modularity-lifting endgame runs
+on. §5.4 measures the stack: the residue calculus
+(`functionField_residuePackage_degeneracyRoof_of_finiteAlong`, the
+`TwoAffineOpenCover` residue lemmas, the `jZero` / Hecke-torsion tower, `CohCarrier`)
+feeds `CuspForm.heckeLocal.*` → `WeierstrassCurve.modularityLiftingAtConductor_*` →
+`FreyPackage.*` → `FLT.fermatLastTheorem`, nine landmarks, 26–28 hops deep. That stack
+is **outside the Deligne–Serre cone**, so RR is complete for this cone while the
+producer stays open for the endgame. Both pin routes still exist; the port took K first
+(§5.4). What remains to write is the PF transfer/ending only — the $`\mathbb{P}^1`$
+base case (`residueTheorem_ratFunc_of_perfectField`), the Tate agreement and the
+trace-completion commutation are already ported — so the earlier split's
+≈9,075 raw / ≈7,050 projected lines, not a second full route.
 
-**Measured (2026-09-30, frontier 608).** The D-S scout's §4.2 has the full working.
-Pruning the analytic block `residueTheorem|tateAgreement|residueTrace|CellDissection`
-costs the forward cone $`R =`$ 18 nodes / 46,321 lines and pays **prunable 24 nodes /
-56,383 lines**, taking the forward target from 1,897 to 1,874 needed nodes — a
-**23-node / 56,233-line saving** — while the bridge's ≈300–500 written lines are the
-whole cost of closing the gap and `ResidueTheorem` stays a hypothesis. Deferring the
-two differential-residue applications too makes it 25 / 57,007; deferring the whole
-analytic complex block (a separate subject, not RR) is 217 / 148,594. On the whole
-`FLT.fermatLastTheorem` root the same $`R`$ is 27 / 64,873 with prunable 35 / 95,884
-at a 14-node rewiring frontier (§5.1). The weaker-RR derivation set *inside the D-S
-cone* is only `degree_canonicalDivisor_eq_of_riemannRoch` (16),
-`ell_canonicalDivisor_eq_genus_of_riemannRoch` (13) and `genus_eq_genusFF` (30) —
-59 lines — because the port already owns the `ell` / index prelude; the larger
-`two_mul_genus_sub_two_eq_of_degree_canonical` takes the canonical-degree facts as
-hypotheses (a ramification computation, not a siloed RR proof), and the alternative
-*forms* (`ell_eq_degree_add_one_sub_genusFF…` 128, `cechRiemannRoch_of_genusReached`
-49, `weilDualityAdelic_of_isAlgClosed` 54, the pin's own Stichtenoth assemblies
-2,728 + 2,726) are outside the D-S cone; their whole-port prune is 10 nodes / 6,410
-lines with prunable 11 / 6,461 at a 102-node rewiring frontier. Both analytic
-routes — the Tate/K-family and the plain perfect-field family, together with the
-near-duplicate `_v2` variants — fall inside the same analytic $`R`$, so the port
-need not choose between them to get RR. The prune is therefore decided, not merely
-preferred.
+Why a residue theorem at all: the identification $`\deg K = 2\gamma - 2`$ — that the
+Kähler canonical divisor is the Weil canonical divisor — *is* the residue-theorem
+content, and it is what turns the algebraic RR against $`g_{\mathrm{FF}}`$ into the
+canonical-genus form the consumers call. `ResidueTheorem` itself stays the pin's
+definition; only its plain producer is open.
 
-**Why this shape.** It is the only route that does not re-prove the genus / finiteness
-engine (§3.1); it leaves the canonical divisor to phase 2 rather than to RR (Option A's
-`hasCanonicalDivisor_of_isCurveOver` is a prerequisite constructed from `IsCurveOver`,
-not a consequence of RR); and it lands exactly the API the consumers call. The one thing
-it cannot avoid is a residue theorem: the identification $`\deg K = 2\gamma - 2`$ — that
-the Kähler canonical divisor is the Weil canonical divisor — *is* the residue-theorem
-content. That is why the bridge is stated over `ResidueTheorem` rather than over nothing,
-and why "algebraic RR" alone gives the formula against $`g_{\mathrm{FF}}`$ but not the
-canonical-genus form.
+**The canonical divisor stays phase 2's construction**, not an RR consequence; the
+assembly only identifies it with the Weil / Kähler canonical divisor. **The weaker-RR
+siblings are settled**: the port owns the `ell` / index prelude, and the only purely
+derivable unported siblings inside the D-S cone are the three short lines
+`degree_canonicalDivisor_eq_of_riemannRoch` (16),
+`ell_canonicalDivisor_eq_genus_of_riemannRoch` (13) and `genus_eq_genusFF` (30), all
+supplied by the assembly. The larger candidates the options flagged are not prunable
+here — `two_mul_genus_sub_two_eq_of_degree_canonical` (1,229) takes the
+canonical-degree facts as hypotheses (a ramification computation),
+`instHasCanonicalDivisorRatFuncPerfectField` (1,461) is a construction, and the
+alternative *forms* (`ell_eq_degree_add_one_sub_genusFF…` 128,
+`cechRiemannRoch_of_genusReached` 49, `weilDualityAdelic_of_isAlgClosed` 54, the pin's
+Stichtenoth assemblies 2,728 + 2,726) are outside the cone.
 
-**Consequence for the forward cone.** With the algebraic RR in place, the function-field
-layer of the Deligne–Serre scout (the per-file divisor / differential applications) can
-be ported now; only the two RR leaves and the differentials ↔ cusp-forms transport wait
-for the bridge and the residue theorem.
+**Consequence for the forward cone.** The function-field layer of the Deligne–Serre
+scout (the per-file divisor / differential applications) can be ported now; the
+differentials ↔ cusp-forms transport waits only on the general residue theorem, which
+is off this cone's critical path.
 
 ## 5. Measurement
 
-`port_advise` on the **50 needed nodes** of the family (frontier 608, raw 44,572
-lines): 100 `S_`+`Thm_` files / 1,813 declarations, **328 substitutions** (255
-unique names, 7,079 lines already in the port — the port has absorbed the engine),
-**217 names proved in ≥2 target files** (10,839 removable lines; 8,153 excluding the
-substituted names), a **4,254-line unique shared prelude**, and **≈29,300 projected
-new lines** (44,572 − 7,079 − 8,153), 30% less than raw.
+`port_advise` on the **42 needed nodes** of the family (current frontier, raw 9,577
+lines): 84 `S_`+`Thm_` files / 482 declarations, **58 substitutions** (53 unique
+names, 1,409 lines already in the port), **10 names proved in two or more target
+files** (299 removable lines; 198 excluding the substituted names), a **111-line
+unique shared prelude**, and **≈7,970 projected new lines** — 83% of raw, because the
+port has already absorbed the engine and the analytic block.
 
-At the previous measurement (frontier 541, 71 needed nodes / 62,514 raw lines) the
-same command read 142 files / 2,780 declarations, 146 substitutions (79 unique
-names, 3,838 lines), 441 shared names (26,425 removable; 24,140 excluding the
-substituted names), an 8,225-line prelude, and ≈34,500 projected lines (45% less).
-The top removable names then were the adelic/RR prelude
-(`adeleBddQuotSingleEquivResidueField` 1,240, `ell_le_ell_sub_single_add_deg` 1,040,
-`finrank_adeleBdd*` 720 + 680, `lSpaceShiftEquiv` 466,
-`indexOfSpecialty_eq_of_genusReached` 432, `ell_le_degree_add_ellZero` 410) —
-exactly the engine the port now owns, which is why the remaining family's
-duplication is down to 30%.
-
-So the siloing was expensive (≈45% duplication) before the engine landed, and the
-shared prelude paid for itself. The remaining dedup-able mass is smaller, and §5.1
-shows the analytic route is now a **prune** rather than a port.
+That is the payoff of the shared prelude. Before the engine landed (frontier 541, a
+71-node / 62,514-line pool) the same family projected only ≈34,500 lines, 55% of raw,
+with the adelic/RR prelude duplicated through it
+(`adeleBddQuotSingleEquivResidueField`, `ell_le_ell_sub_single_add_deg`,
+`finrank_adeleBdd*`, `lSpaceShiftEquiv`, `indexOfSpecialty_eq_of_genusReached`,
+`ell_le_degree_add_ellZero`). The remaining 42 nodes are almost all per-file content;
+§5.1 shows the analytic route, once the prune's target, is now simply ported.
 
 ### 5.1 Prune: is either route avoidable?
 
@@ -419,23 +401,24 @@ dropped, and what would have to be rewired. Its criterion is
 `prunable(R) = closure(root) \ closure(root with R deleted)` — a node is droppable only
 if every path from the root passes through `R` — and it reports the *rewiring frontier*,
 the kept nodes whose proofs directly cite a pruned node. The figures below are
-frontier-independent (the pin's root closure and the named $`R`$ sets) and reproduce
-at frontier 608; the D-S restriction is added after the table.
+frontier-independent (the pin's root closure and the named $`R`$ sets); the D-S
+restriction is added after the table.
 
 | removed route | `R` | prunable | rewiring frontier |
 |---|---:|---:|---:|
 | Stichtenoth / adelic (9 nodes: `stichtenothGenusExists`, `finiteDimensional_lSpace_zero_of_constantsAreBase`, `exists_genus_riemannIndex_of_stichtenothGenusExists`, `RiemannGenusReachedAt.eq_of_ge`, `omegaSpace_finite_of_genusReached`, `indexOfSpecialty_eq_of_genusReached`, `indexOfSpecialty_eq_zero_of_genusReached`, `exists_riemannGenusReachedAt_nsmul_single_…`, `weilDualityAdelic_of_…`) | 11,437 lines | **9 / 11,437** | **70** |
 | analytic residue / Tate (all `residueTheorem*`, `tateAgreement`, `residueTrace*`, `CellDissection*`) | 64,873 lines | **35 / 95,884** | **14** |
 
-**The D-S restriction (2026-09-30).** Inside the Deligne–Serre forward cone the
-analytic $`R`$ is 18 nodes / 46,321 lines, prunable **24 nodes / 56,383 lines**, with
-a 6-node rewiring frontier, and the forward target's needed count falls
-1,897 → 1,874 — the **23-node / 56,233-line saving** that the bridge turns into a
-prune. Only one of the six rewiring nodes is the RR statement
-(`functionFieldRiemannRoch_of_isAlgClosed`), which the bridge supplies; the other
-five are complex-analytic or differential-residue consumers, so the analytic block
-itself stays deferred. The Stichtenoth $`R`$ cannot be pruned at all — 9 / 11,437
-with a 70-node rewiring frontier — because the port consumes its API everywhere.
+**The D-S restriction.** Inside the Deligne–Serre forward cone the analytic $`R`$ is
+now **0 unported nodes** — the K-route block is ported — so the prune of the earlier
+plan is realized rather than pending: the forward target fell from 1,897 / 949,701 to
+1,867 / 901,998 as the block landed. What remains deferred is the separate
+complex-analytic Jacobian / path-integral / Abel–Jacobi subject, not RR; avoiding its
+still-needed nodes is prunable 205 nodes / 107,257 lines, a saving of 201 nodes /
+103,660 lines (204 / 103,815 with the two differential-residue applications and the
+three RR wrappers; the D-S scout §4.2 has the working). The Stichtenoth $`R`$ still
+cannot be pruned at all — 9 / 11,437 with a 70-node rewiring frontier — because the
+port consumes its API everywhere.
 
 Reading the frontiers:
 
@@ -552,40 +535,34 @@ Why first:
 * It is **cheap** at this measurement: ≈3,700 projected lines against the RR family's
   34,500 and the analytic block's 64,873 raw lines.
 
-**Caveat: the analytic block is not thereby deleted.** The D-S cone still needs
-`ResidueTheorem` and the differential residues. The non-analytic `ResidueTheorem`
-routes (`residueTheorem_of_perfectField` 45,
-`residueTheorem_ratFunc_of_perfectField` 4,340,
-`residueTheorem_functionField_of_smoothOfRelativeDimension_one` 76) are **outside the
-D-S cone**, and the three analytic-only consumers
-(`exists_ordDifferential_ge_neg_one_and_evalAt_eq_of_degree_eq_zero`,
-`sum_fibre_evalAt_eq_zero_of_smul_D_mem_regularDifferentials`,
-`functionFieldRiemannRoch_of_isAlgClosed`) all have `residueTheoremK` / `tateAgreement`
-ancestors. What the function-field engine *does* make avoidable is the analytic block's
-**RR-specific** node `functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed`
-(6,257), once the formula comes from the Stichtenoth assembly
-(`weilDualityAdelic_of_functionFieldRiemannRoch_of_stichtenothGenusExists`).
+**The general producer is the piece outside the cone.** The D-S cone's
+`ResidueTheorem` need is met by the K route, and its differential-residue consumers
+share the same core. The plain perfect-field producer `residueTheorem_of_perfectField`
+(45), the $`\mathbb{P}^1`$ base case `residueTheorem_ratFunc_of_perfectField`
+(4,340, ported) and `residueTheorem_functionField_of_smoothOfRelativeDimension_one`
+(76) are **outside the D-S cone**, and the producer is the input the cohomological
+stack consumes (§4.1, §5.4).
 
 **Recommended order:** prerequisites → function-field genus / index engine (≈3,700) →
-the analytic block for `ResidueTheorem` and differential residues only → the
-differentials ↔ cusp-forms transport → per-file applications.
+the K-route analytic block for `ResidueTheorem` and differential residues → the
+differentials ↔ cusp-forms transport → per-file applications → the general
+perfect-field residue producer for the cohomological stack.
 
 **Landed (2026-09-30).** Phase 1 of
-[PORTING-RR](../lean/topics/PORTING-RR.md) put the engine in the port, and phase 2
-added the canonical divisor. Written total ≈5,350 lines (phase 1) + 1,653 (phase 2)
-against the ≈3,700-line projection — the shared prelude was written once, as
-planned, but the projection under-counted the assemblies. The 14-node engine is
+[PORTING-RR](../lean/topics/PORTING-RR.md) put the engine in the port, phase 2 added
+the canonical divisor, and phase 3 added the K-route residue block and the RR assembly
+(rows 3.1–3.4, 3.6, 3.7). The 14-node engine is
 `exists_genus_riemannIndex_of_stichtenothGenusExists`, the `RiemannGenusReachedAt`
-API, `indexOfSpecialty_eq_finrank_H1`, `exists_weilCanonical_riemannRoch` and the
-conditional `exists_linearEquiv_regularDifferentials_omegaSpace_zero`; `lake build`
-is green. What remains of the order above is the bridge (§4.1), then the analytic
-block for `ResidueTheorem` and the differential residues, then the transport and
-the per-file applications.
+API, `indexOfSpecialty_eq_finrank_H1`, `exists_weilCanonical_riemannRoch` and
+`exists_linearEquiv_regularDifferentials_omegaSpace_zero`; `lake build` is green. What
+remains of the order above is the general perfect-field residue producer
+`residueTheorem_of_perfectField` (row 3.5) for the cohomological stack, then the
+differentials ↔ cusp-forms transport and the per-file applications.
 
 ### 5.4 The PF/K residue decision, and the five interface lemmas (2026-09-30)
 
-The two analytic routes have very different fan-outs, and the difference decides the
-port. Measured on the pin graph (frontier 608; transitive `cited_by` closure against
+The two analytic routes have very different fan-outs, and the difference shaped the
+port's choice. Measured on the pin graph (transitive `cited_by` closure against
 the pin's 49 landmark cones):
 
 **The K chain is linear, and its fan-out is the RR formula, not the residue theorem.**
@@ -595,8 +572,9 @@ Its transitive reach is 3,907, but
 `T(functionFieldRiemannRoch_of_isAlgClosed)` is 3,899, so the K-specific reach is
 **8 nodes / 0 landmarks**. `tateAgreement` is not a residue statement at all — it is
 `ModularCurve.KwF4gRRTate.KwF4gRRTateAgreement` — so the "nexus" label is inherited
-from the RR wrapper that the pin routes through the K-family. The bridge severs that:
-with the three `functionFieldRiemannRoch_of_isAlgClosed*` wrappers supplied, pruning
+from the RR wrapper that the pin routes through the K-family. The assembly severs that
+(§4.1): with the three `functionFieldRiemannRoch_of_isAlgClosed*` wrappers supplied,
+pruning
 the K-family (6 nodes / 27,277 lines) leaves a **5-node rewiring frontier** — 1,597
 lines of pin proofs — whose own descendants are 813 nodes / 22 landmarks (the three
 differential-residue statements among them account for 791).
@@ -610,7 +588,8 @@ K-free.** `T(plain ResidueTheorem reached from the PF endpoints)` is **88 nodes 
 modularRepOfConductorLevel, no_frey_package}`,
 `WeierstrassCurve.modularityLiftingAtConductor_threeFive_*` (two),
 `WeierstrassCurve.modularity_of_semistableModel` and `fermat_last_theorem`. That
-interface is what the bridge, the differentials headline and the FLT endgame consume;
+interface is what the assembled RR wrapper, the differentials headline and the FLT
+endgame consume;
 the PF route produces it over `PerfectField` without assuming the K-family.
 
 **Why that footprint is deep rather than broad.** Each PF endpoint has exactly one
@@ -718,7 +697,7 @@ core dominates and the two endings are small.
 
 | node | lines | what it consumes |
 |---|---:|---|
-| `functionFieldRiemannRoch_of_isAlgClosed` | 39 | the bridge target itself (conditional on `ResidueTheorem`) |
+| `functionFieldRiemannRoch_of_isAlgClosed` | 39 | the assembled wrapper target itself (conditional on `ResidueTheorem`) |
 | `residueTheorem_of_isAlgClosed` | 40 | the K→plain producer wrapper |
 | `ModularCurve.weilKaehlerAgree_modularFunctionFieldC` | 52 | plain `ResidueTheorem` (via `weilKaehlerAgree_of_residueTheorem`) |
 | `sum_eq_zero_of_forall_hasSimpleResidue_of_mem_polarDifferentials` | 142 | `ResidueTheoremK`, reroutable to plain |
@@ -748,18 +727,28 @@ content is needed once — the ℙ¹ core, the Tate agreement, the trace-complet
 commutation and a plain ending — and the `_v2` family is pin duplication the port
 should collapse.
 
-**Consequence for the decision.** The PF route is the one to port: ≈28,900 projected
-written (against the K route's ≈23,000) but it produces plain `ResidueTheorem` over
-`PerfectField` without assuming the K-family, and it shares (rather than replaces)
-the `HasCanonicalLocalResidueKStar` prelude. The K route is bespoke: its entire
-3,905-node "nexus" is the RR formula's fan-out, which the bridge removes, and what
-remains is **three local rewrites** over the 1,597-line frontier. So the decision is
-not "K or PF for 3,805 nodes" but "can three short proofs be restated over plain
-`ResidueTheorem`" — and on inspection they can, at the cost of the definitional
-`kaehlerResidueTerm` identification plus the PF route's extra ≈5,900 written lines.
-If that identification or one of the three proofs resists, the fallback is the
-K-family at ≈23,000 projected lines; the PF+K union projects to ≈31,000, so porting
-the second route later costs only ≈2,000 marginal.
+**What the port did.** It took the K route first: rows 3.6/3.7 landed
+`residueTheoremK_of_isAlgClosed`, `residueTheoremK_ratFunc_of_isAlgClosed` and the RR
+assembly against the K ending, plus the K→plain producers
+`residueTheorem_of_residueTheoremK` / `residueTheorem_of_isAlgClosed`. The reason is
+the shared core measured above: the K ending's marginal over the $`\mathbb{P}^1`$ /
+Tate / trace-completion core is small, and the assembly gives the RR formula and the
+canonical-genus form to the D-S cone, whose RR-family analytic group is now fully
+ported.
+
+**What that leaves.** The plain producer `residueTheorem_of_perfectField` — the PF
+route's ending — is still open, and it is the piece the cohomological stack (residue /
+Serre-pairing calculus → modularity lifting → `FreyPackage` → FLT) actually consumes.
+The K route reaches `ResidueTheorem` only over `[IsAlgClosed K]`, while the stack is
+general (`PerfectField`), so the plain ending is needed for the endgame even though it
+is outside the D-S cone. Three things make it cheap when it is picked up: the
+$`\mathbb{P}^1`$ / Tate / commutation core is already homed once in the port; the
+$`\mathbb{P}^1`$ base case `residueTheorem_ratFunc_of_perfectField` is ported; and the
+five K-citing frontier nodes reroute to plain `ResidueTheorem` by the local
+`kaehlerResidueTerm` identification above
+(`ResidueTheorem/GeneralFromK.lean` already supplies the two K→plain wrappers). So the
+remaining work is the pin's PF transfer/ending (≈9,075 raw / ≈7,050 projected in the
+split above), not a second full route.
 
 ## 6. Reproduce
 
@@ -789,6 +778,8 @@ print(','.join(fr.pay.qual(i) for i in cone
                if i not in front and group(fr.pay.qual(i))))
 PY
 python3 port_advise.py --nodes "$(cat build/rr_family_nodes.txt)" --json build/rr_family_advise.json
+python3 build/pa_summary.py build/rr_family_advise.json \
+  "$(python3 -c "import frontier;fr=frontier.Frontier();print(sum(fr.lines(fr.pay.pid(q)) for q in open('build/rr_family_nodes.txt').read().split(',')))")"
 ```
 
 The classification table of §3 is the same loop with `group` kept as the key; the
@@ -818,20 +809,28 @@ print('prunable', len(prune.prunable(pay.cites, root, stich)),
 PY
 ```
 
-The D-S restriction of the analytic prune (§5.1):
+The D-S restriction of the analytic prune (§5.1). The residue/Tate set is now fully
+ported in-cone, so the measurement that moves is the deferred complex-analytic block:
 
 ```bash
 cd tools/deps
 python3 - <<'PY'
-import frontier
+import re, frontier
 fr = frontier.Frontier(); pay = fr.pay; front = fr.frontier('union')
 root = pay.pid('DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen')
-R = pay.nodes_matching((r'residueTheorem', r'tateAgreement', r'residueTrace',
-                        r'CellDissection'), fr.closure(root)) - front
-print('R', len(R), pay.total_lines(R),
-      'prunable', len(pay.prunable(root, R)), pay.total_lines(pay.prunable(root, R)),
-      'needed after',
-      len(frontier.needed(pay.cites, root, ported=front, avoided=R, cutters=None)))
+cone = fr.closure(root)
+def has(*pats):
+    return {i for i in cone if any(re.search(p, pay.qual(i)) for p in pats)}
+base = frontier.needed(pay.cites, root, ported=front)
+print('unported residue nodes in cone:',
+      len(has(r'residueTheorem', r'tateAgreement', r'residueTrace') - front))
+COMPLEX = has(r'CellDissection', r'pathIntegral', r'abelJacobi',
+              r'pathPeriodLattice', r'Pic0\..*complex') - front
+keep = frontier.needed(pay.cites, root, ported=front, avoided=COMPLEX, cutters=None)
+print('complex block prunable', len(pay.prunable(root, COMPLEX)),
+      pay.total_lines(pay.prunable(root, COMPLEX)),
+      'needed after', len(keep), pay.total_lines(keep),
+      'saving', len(base) - len(keep), pay.total_lines(base) - pay.total_lines(keep))
 PY
 ```
 
