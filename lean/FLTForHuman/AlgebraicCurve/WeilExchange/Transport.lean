@@ -10,6 +10,8 @@ restating it (`TOPIC-t4-transport.md` §1). `algebraAlong` stays an `abbrev`:
 `restrictAlong_restrictAlong` is `rfl`-level, and it is the topic's canary.
 -/
 import FLTForHuman.AlgebraicCurve.WeilExchange.GaloisRamification
+import FLTForHuman.AlgebraicCurve.WeilExchange.FiberOverCount
+import FLTForHuman.AlgebraicCurve.PrincipalDivisors.Transcendence
 import Mathlib.LinearAlgebra.Dimension.Finrank
 import Mathlib.GroupTheory.OrderOfElement
 
@@ -271,6 +273,54 @@ theorem separableAlong_of_charZero {K F F₁ : Type*} [Field K] [Field F] [Field
   letI := algebraAlong φ
   haveI := isIntegral_along φ hφ
   exact Algebra.IsSeparable.of_integral F F₁
+
+/-! ## The two generic `Along` facts
+
+The pin proves both in `P2M/Sol/S_AlgebraicCurve_{fundamentalIdentityAlong,
+normFormulaAlong}.lean` from
+`Theorems/Thm_AlgebraicCurve_Place_sum_ramificationIndex_mul_inertiaDeg.lean` and
+`Theorems/Thm_AlgebraicCurve_Divisor_pushforwardNormFormula.lean`.
+
+The pin's `fiber`-indexed sum lives in the port at
+`AlgebraicCurve.Place.sum_ramificationIndex_mul_inertiaDeg`
+(`ResidueTheorem/KFamily.lean:49`), but `KFamily` transitively imports this module
+(via `ResidueTheorem/KRatFunc` → `P1/Core` → … → `WeilExchange/Bifibre`), so
+importing it here is an import cycle. The port's `FiberOverCount.lean` carries the
+same statement over `fiberOver` with no `[HasPrincipalDivisors]` hypothesis; the
+private bridge below restates it at `fiber` (the `SumRamificationInertia` field's
+shape). Recorded in `logs/x1-hecke-set-a.md` (friction). -/
+
+private theorem sum_ramificationIndex_mul_inertiaDeg_fiber {K F F' : Type*} [Field K] [Field F]
+    [Field F'] [Algebra K F] [Algebra K F'] [Algebra F F'] [IsScalarTower K F F']
+    [FiniteDimensional F F'] [Algebra.IsSeparable F F'] [HasPrincipalDivisors K F']
+    (v : Place K F) :
+    ∑ w ∈ v.fiber F', (w.ramificationIndex F : ℤ) * (w.inertiaDeg F : ℤ) =
+      (Module.finrank F F' : ℤ) := by
+  rw [show v.fiber F' = v.fiberOver F' by
+    ext w; rw [Place.mem_fiber, Place.mem_fiberOver]]
+  exact Place.sum_ramificationIndex_mul_inertiaDeg_fiberOver v
+
+theorem fundamentalIdentityAlong {K F F' : Type*} [Field K] [Field F] [Field F']
+    [Algebra K F] [Algebra K F'] (φ : F →ₐ[K] F') (hφ : φ.toRingHom.IsIntegral)
+    [HasPrincipalDivisors K F'] (hfin : FiniteAlong K φ) (hsep : SeparableAlong K φ) :
+    FundamentalIdentityAlong K φ hφ := by
+  letI := algebraAlong φ
+  haveI := isScalarTower_along φ
+  haveI := isIntegral_along φ hφ
+  haveI : Module.Finite F F' := hfin
+  haveI : Algebra.IsSeparable F F' := hsep
+  haveI : SumRamificationInertia K F F' := ⟨fun v => sum_ramificationIndex_mul_inertiaDeg_fiber v⟩
+  exact (inferInstance : FundamentalIdentity K F F')
+
+theorem normFormulaAlong {K F F' : Type*} [Field K] [Field F] [Field F']
+    [Algebra K F] [Algebra K F'] [CharZero F] (φ : F →ₐ[K] F')
+    [HasPrincipalDivisors K F'] (hfin : FiniteAlong K φ) (hsep : SeparableAlong K φ) :
+    NormFormulaAlong K φ hfin := by
+  letI := algebraAlong φ
+  haveI := isScalarTower_along φ
+  haveI : Module.Finite F F' := hfin
+  haveI : Algebra.IsSeparable F F' := hsep
+  exact Divisor.pushforwardNormFormula
 
 namespace Place
 

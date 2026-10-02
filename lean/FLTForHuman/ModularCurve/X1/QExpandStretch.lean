@@ -1,0 +1,218 @@
+/-
+The `q ↦ q ^ ℓ` stretch of ratios of integral `q`-expansions: the pin's
+`P2M/Sol/S_ModularCurve_qExpand_image_intFormRatiosC_subset.lean` (198 raw /
+145 content), transcribed with every helper `private` and only the headline
+public.
+
+The construction is the pin's `X1QExpandStretch` block: the diagonal Hecke matrix
+`!![ℓ, 0; 0, 1]` conjugated into `Γ'` by the `hΓ'` relation, the resulting
+`stretchSlash`/`stretch` operator on `ModularForm`s, and `expandPS`, which
+stretches an integral `q`-expansion. The headline is that `qExpand K ℓ` maps the
+ratio set of `Γ` into that of `Γ'`.
+
+Dedup applied at dispatch (set order §Dedup):
+* `heckeDiagMatrix`/`val_heckeDiagMatrix`/`slash_heckeDiagMatrix_apply` come from
+  `ModularForms/Defs/HeckeOperator.lean`; the coefficient dilation
+  `UpperHalfPlane.qCoeff_comp_heckeDiagMatrix_smul` from
+  `ModularForms/HeckeQCoeff.lean`;
+* `IsIntegralQExp`-block (`isIntegralQExp_iff`, `IsIntegralQExp.coeff`) from
+  `X1/Integral.lean`, never inlined;
+* `qExpand`, `intSeriesC`, `intFormRatiosC` and the `qExpand` coefficient lemmas
+  from `ModularCurve/Defs/Laurent.lean` / `ModularCurve/JqIntegralRatios.lean`.
+
+FLT provenance, pinned `aa2d8b3`:
+https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_qExpand_image_intFormRatiosC_subset.lean
+https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_qExpand_image_intFormRatiosC_subset.lean
+-/
+import FLTForHuman.ModularCurve.X1.Defs
+import FLTForHuman.ModularCurve.X1.Integral
+import FLTForHuman.ModularForms.HeckeQCoeff
+
+set_option autoImplicit false
+
+noncomputable section
+
+open UpperHalfPlane ModularForm CongruenceSubgroup OnePoint Function HahnSeries
+open scoped MatrixGroups ModularForm Manifold
+
+namespace ModularCurve
+
+section X1QExpandStretch
+
+variable {ℓ : ℕ}
+
+private theorem mapGL_coe_eq (s : SL(2, ℤ)) :
+    ((Matrix.SpecialLinearGroup.mapGL ℝ s : GL (Fin 2) ℝ) : Matrix (Fin 2) (Fin 2) ℝ)
+      = (s : Matrix (Fin 2) (Fin 2) ℤ).map (algebraMap ℤ ℝ) := rfl
+
+private theorem heckeDiagMatrix_mul_eq (hℓ : ℓ ≠ 0) {γ γ₁ : SL(2, ℤ)}
+    (h00 : γ₁ 0 0 = γ 0 0) (h01 : γ₁ 0 1 = (ℓ : ℤ) * γ 0 1)
+    (h10 : (ℓ : ℤ) * γ₁ 1 0 = γ 1 0) (h11 : γ₁ 1 1 = γ 1 1) :
+    heckeDiagMatrix ℓ * Matrix.SpecialLinearGroup.mapGL ℝ γ
+      = Matrix.SpecialLinearGroup.mapGL ℝ γ₁ * heckeDiagMatrix ℓ := by
+  apply Units.ext
+  rw [Units.val_mul, Units.val_mul, mapGL_coe_eq, mapGL_coe_eq, val_heckeDiagMatrix hℓ]
+  have e10 : ((γ 1 0 : ℤ) : ℝ) = (ℓ : ℝ) * ((γ₁ 1 0 : ℤ) : ℝ) := by
+    rw [← h10]; push_cast; ring
+  ext i j
+  fin_cases i <;> fin_cases j <;>
+    simp [Matrix.mul_apply, Fin.sum_univ_two, h00, h01, h11, e10, mul_comm]
+
+private theorem isCusp_heckeDiagMatrix_smul (hℓ : ℓ ≠ 0) {c : OnePoint ℝ} (hc : IsCusp c 𝒮ℒ) :
+    IsCusp (heckeDiagMatrix ℓ • c) 𝒮ℒ := by
+  rw [isCusp_SL2Z_iff] at hc ⊢
+  obtain ⟨c₀, rfl⟩ := hc
+  let gQ : GL (Fin 2) ℚ := Matrix.GeneralLinearGroup.mkOfDetNeZero !![(ℓ : ℚ), 0; 0, 1]
+    (by rw [Matrix.det_fin_two_of]; simp; exact_mod_cast hℓ)
+  have hg : gQ.map (Rat.castHom ℝ) = heckeDiagMatrix ℓ := by
+    apply Units.ext
+    rw [val_heckeDiagMatrix hℓ]
+    show (gQ : Matrix (Fin 2) (Fin 2) ℚ).map (Rat.castHom ℝ) = _
+    ext i j; fin_cases i <;> fin_cases j <;> simp [gQ]
+  refine ⟨gQ • c₀, ?_⟩
+  rw [← hg, ← Rat.coe_castHom, OnePoint.map_smul]
+
+variable {Γ Γ' : Subgroup SL(2, ℤ)} [Γ.FiniteIndex] {k : ℤ}
+
+private def stretchSlash (hΓ' : ∀ γ ∈ Γ', ∃ γ₁ ∈ Γ,
+    γ₁ 0 0 = γ 0 0 ∧ γ₁ 0 1 = (ℓ : ℤ) * γ 0 1 ∧ (ℓ : ℤ) * γ₁ 1 0 = γ 1 0 ∧ γ₁ 1 1 = γ 1 1)
+    (hℓ : ℓ ≠ 0) (f : ModularForm (Γ : Subgroup (GL (Fin 2) ℝ)) k) :
+    ModularForm (Γ' : Subgroup (GL (Fin 2) ℝ)) k where
+  toFun := (⇑f : ℍ → ℂ) ∣[k] heckeDiagMatrix ℓ
+  slash_action_eq' := by
+    intro A hA
+    obtain ⟨γ, hγ, rfl⟩ := hA
+    obtain ⟨γ₁, hγ₁, h00, h01, h10, h11⟩ := hΓ' γ hγ
+    rw [← SlashAction.slash_mul, heckeDiagMatrix_mul_eq hℓ h00 h01 h10 h11,
+      SlashAction.slash_mul]
+    congr 1
+    exact SlashInvariantFormClass.slash_action_eq f _ (Subgroup.mem_map_of_mem _ hγ₁)
+  holo' := f.holo'.slash k _
+  bdd_at_cusps' := by
+    intro c hc
+    have hcSL : IsCusp c 𝒮ℒ := by
+      refine hc.mono ?_
+      rintro _ ⟨γ, -, rfl⟩
+      exact ⟨γ, rfl⟩
+    have hc' : IsCusp (heckeDiagMatrix ℓ • c) (Γ : Subgroup (GL (Fin 2) ℝ)) := by
+      rw [Subgroup.IsArithmetic.isCusp_iff_isCusp_SL2Z]
+      exact isCusp_heckeDiagMatrix_smul hℓ hcSL
+    exact IsBoundedAt.smul_iff.mp (f.bdd_at_cusps' hc')
+
+private theorem stretchSlash_apply (hΓ' : ∀ γ ∈ Γ', ∃ γ₁ ∈ Γ,
+    γ₁ 0 0 = γ 0 0 ∧ γ₁ 0 1 = (ℓ : ℤ) * γ 0 1 ∧ (ℓ : ℤ) * γ₁ 1 0 = γ 1 0 ∧ γ₁ 1 1 = γ 1 1)
+    (hℓ : ℓ ≠ 0) (f : ModularForm (Γ : Subgroup (GL (Fin 2) ℝ)) k) (τ : ℍ) :
+    stretchSlash hΓ' hℓ f τ = (ℓ : ℂ) ^ (k - 1) * f (heckeDiagMatrix ℓ • τ) :=
+  slash_heckeDiagMatrix_apply k hℓ _ τ
+
+private def stretch (hΓ' : ∀ γ ∈ Γ', ∃ γ₁ ∈ Γ,
+    γ₁ 0 0 = γ 0 0 ∧ γ₁ 0 1 = (ℓ : ℤ) * γ 0 1 ∧ (ℓ : ℤ) * γ₁ 1 0 = γ 1 0 ∧ γ₁ 1 1 = γ 1 1)
+    (hℓ : ℓ ≠ 0) (f : ModularForm (Γ : Subgroup (GL (Fin 2) ℝ)) k) :
+    ModularForm (Γ' : Subgroup (GL (Fin 2) ℝ)) k :=
+  ((ℓ : ℂ) ^ (k - 1))⁻¹ • stretchSlash hΓ' hℓ f
+
+private theorem stretch_apply (hΓ' : ∀ γ ∈ Γ', ∃ γ₁ ∈ Γ,
+    γ₁ 0 0 = γ 0 0 ∧ γ₁ 0 1 = (ℓ : ℤ) * γ 0 1 ∧ (ℓ : ℤ) * γ₁ 1 0 = γ 1 0 ∧ γ₁ 1 1 = γ 1 1)
+    (hℓ : ℓ ≠ 0) (f : ModularForm (Γ : Subgroup (GL (Fin 2) ℝ)) k) (τ : ℍ) :
+    stretch hΓ' hℓ f τ = f (heckeDiagMatrix ℓ • τ) := by
+  have hpk : ((ℓ : ℂ) ^ (k - 1)) ≠ 0 := zpow_ne_zero _ (Nat.cast_ne_zero.mpr hℓ)
+  rw [stretch, smul_apply, stretchSlash_apply, smul_eq_mul, ← mul_assoc,
+    inv_mul_cancel₀ hpk, one_mul]
+
+private theorem coe_stretch (hΓ' : ∀ γ ∈ Γ', ∃ γ₁ ∈ Γ,
+    γ₁ 0 0 = γ 0 0 ∧ γ₁ 0 1 = (ℓ : ℤ) * γ 0 1 ∧ (ℓ : ℤ) * γ₁ 1 0 = γ 1 0 ∧ γ₁ 1 1 = γ 1 1)
+    (hℓ : ℓ ≠ 0) (f : ModularForm (Γ : Subgroup (GL (Fin 2) ℝ)) k) :
+    (⇑(stretch hΓ' hℓ f) : ℍ → ℂ) = fun τ => f (heckeDiagMatrix ℓ • τ) :=
+  funext (stretch_apply hΓ' hℓ f)
+
+omit [Γ.FiniteIndex] in
+private theorem periodic_comp_ofComplex (hT : ModularGroup.T ∈ Γ)
+    (f : ModularForm (Γ : Subgroup (GL (Fin 2) ℝ)) k) :
+    Periodic ((⇑f : ℍ → ℂ) ∘ ofComplex) 1 := by
+  have h1 : (1 : ℝ) ∈ (Γ : Subgroup (GL (Fin 2) ℝ)).strictPeriods := by
+    rw [Subgroup.strictPeriods_eq_zmultiples_one_of_T_mem hT]
+    exact AddSubgroup.mem_zmultiples 1
+  exact SlashInvariantFormClass.periodic_comp_ofComplex f h1
+
+private theorem qCoeff_stretch (hΓ' : ∀ γ ∈ Γ', ∃ γ₁ ∈ Γ,
+    γ₁ 0 0 = γ 0 0 ∧ γ₁ 0 1 = (ℓ : ℤ) * γ 0 1 ∧ (ℓ : ℤ) * γ₁ 1 0 = γ 1 0 ∧ γ₁ 1 1 = γ 1 1)
+    (hT : ModularGroup.T ∈ Γ) (hℓ : ℓ ≠ 0)
+    (f : ModularForm (Γ : Subgroup (GL (Fin 2) ℝ)) k) (n : ℕ) :
+    ModularFormClass.qCoeff (⇑(stretch hΓ' hℓ f)) n
+      = if ℓ ∣ n then ModularFormClass.qCoeff (⇑f) (n / ℓ) else 0 := by
+  rw [coe_stretch]
+  exact UpperHalfPlane.qCoeff_comp_heckeDiagMatrix_smul (periodic_comp_ofComplex hT f) f.holo'
+    (ModularFormClass.bdd_at_infty f) hℓ n
+
+private def expandPS (ℓ : ℕ) (p : PowerSeries ℤ) : PowerSeries ℤ :=
+  PowerSeries.mk fun n => if ℓ ∣ n then PowerSeries.coeff (n / ℓ) p else 0
+
+private theorem coeff_expandPS (ℓ : ℕ) (p : PowerSeries ℤ) (n : ℕ) :
+    PowerSeries.coeff n (expandPS ℓ p) = if ℓ ∣ n then PowerSeries.coeff (n / ℓ) p else 0 :=
+  PowerSeries.coeff_mk _ _
+
+private theorem isIntegralQExp_stretch (hΓ' : ∀ γ ∈ Γ', ∃ γ₁ ∈ Γ,
+    γ₁ 0 0 = γ 0 0 ∧ γ₁ 0 1 = (ℓ : ℤ) * γ 0 1 ∧ (ℓ : ℤ) * γ₁ 1 0 = γ 1 0 ∧ γ₁ 1 1 = γ 1 1)
+    (hT : ModularGroup.T ∈ Γ) (hℓ : ℓ ≠ 0)
+    (f : ModularForm (Γ : Subgroup (GL (Fin 2) ℝ)) k) {p : PowerSeries ℤ}
+    (hp : IsIntegralQExp f p) :
+    IsIntegralQExp (stretch hΓ' hℓ f) (expandPS ℓ p) := by
+  rw [isIntegralQExp_iff]
+  intro n
+  have h := qCoeff_stretch hΓ' hT hℓ f n
+  simp only [ModularFormClass.qCoeff] at h
+  rw [h, coeff_expandPS]
+  split_ifs with hdvd
+  · exact hp.coeff (n / ℓ)
+  · simp
+
+private theorem intSeriesC_expandPS (K : Type*) [Field K] (ℓ : ℕ) [NeZero ℓ] (p : PowerSeries ℤ) :
+    intSeriesC K (expandPS ℓ p) = qExpand K ℓ (intSeriesC K p) := by
+  have hℓ : ℓ ≠ 0 := NeZero.ne ℓ
+  ext m
+  simp only [intSeriesC]
+  by_cases hdvd : (ℓ : ℤ) ∣ m
+  · obtain ⟨m', rfl⟩ := hdvd
+    rw [qExpand_coeff_mul, PowerSeries.coeff_coe, PowerSeries.coeff_coe]
+    by_cases hm' : m' < 0
+    · have : (ℓ : ℤ) * m' < 0 :=
+        mul_neg_of_pos_of_neg (by exact_mod_cast Nat.pos_of_ne_zero hℓ) hm'
+      rw [ite_eq_left this, ite_eq_left hm']
+    · have hm'0 : 0 ≤ m' := le_of_not_gt hm'
+      have hprod : ¬ (ℓ : ℤ) * m' < 0 := not_lt.mpr (mul_nonneg (by positivity) hm'0)
+      rw [ite_eq_right hprod, ite_eq_right hm', PowerSeries.coeff_map, PowerSeries.coeff_map, coeff_expandPS]
+      have habs : ((ℓ : ℤ) * m').natAbs = ℓ * m'.natAbs := by
+        rw [Int.natAbs_mul, Int.natAbs_natCast]
+      rw [habs, ite_eq_left (dvd_mul_right ℓ _), Nat.mul_div_cancel_left _ (Nat.pos_of_ne_zero hℓ)]
+  · rw [qExpand_coeff_of_not_dvd ℓ _ hdvd, PowerSeries.coeff_coe]
+    split_ifs with hm
+    · rfl
+    · rw [PowerSeries.coeff_map, coeff_expandPS]
+      have : ¬ ℓ ∣ m.natAbs := by
+        intro h
+        apply hdvd
+        have hm0 : 0 ≤ m := le_of_not_gt hm
+        rw [← Int.natAbs_of_nonneg hm0]
+        exact_mod_cast h
+      rw [ite_eq_right this, map_zero]
+
+end X1QExpandStretch
+
+open scoped MatrixGroups in
+theorem qExpand_image_intFormRatiosC_subset (K : Type*) [Field K]
+    {Γ Γ' : Subgroup SL(2, ℤ)} [Γ.FiniteIndex] (hT : ModularGroup.T ∈ Γ) (ℓ : ℕ) [NeZero ℓ]
+    (hΓ' : ∀ γ ∈ Γ', ∃ γ₁ ∈ Γ,
+      γ₁ 0 0 = γ 0 0 ∧ γ₁ 0 1 = (ℓ : ℤ) * γ 0 1 ∧ (ℓ : ℤ) * γ₁ 1 0 = γ 1 0 ∧ γ₁ 1 1 = γ 1 1) :
+    qExpand K ℓ '' intFormRatiosC K Γ ⊆ intFormRatiosC K Γ' := by
+  have hℓ : ℓ ≠ 0 := NeZero.ne ℓ
+  rintro _ ⟨x, ⟨k, f, g, pf, pg, hf, hg, hg0, rfl⟩, rfl⟩
+  refine ⟨k, stretch hΓ' hℓ f, stretch hΓ' hℓ g, expandPS ℓ pf, expandPS ℓ pg,
+    isIntegralQExp_stretch hΓ' hT hℓ f hf,
+    isIntegralQExp_stretch hΓ' hT hℓ g hg, ?_, ?_⟩
+  · rw [intSeriesC_expandPS]
+    exact fun h => hg0 (qExpand_injective ℓ (by rw [h, map_zero]))
+  · rw [intSeriesC_expandPS, intSeriesC_expandPS, map_div₀]
+
+end ModularCurve
+
+end

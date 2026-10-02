@@ -63,6 +63,12 @@ import FLTForHuman.ModularCurve.HeckeInputs.Integrality
 import FLTForHuman.ModularCurve.PrincipalDivisors.ModularCurveBar
 import FLTForHuman.ModularCurve.HeckeExchange.Reduction
 import FLTForHuman.ModularCurve.HeckeCommuteBar
+import FLTForHuman.ModularCurve.X1.HeckeModule
+import FLTForHuman.ModularCurve.X1.FunctionFieldBaseChange
+import FLTForHuman.ModularCurve.X1.QExpandStretch
+import FLTForHuman.ModularCurve.X1.DiamondAut
+import FLTForHuman.ModularCurve.X1.BaseChangeCover
+import FLTForHuman.ModularCurve.X1.Inputs
 
 open ModularCurve
 open ModularCurve.QexpN
@@ -462,5 +468,261 @@ example (hP : ∀ (M : ℕ) [NeZero M],
 #check @ModularCurve.heckeOperatorsCommuteBar
 example (N : ℕ) [NeZero N] : ModularCurve.HeckeOperatorsCommuteBar N :=
   ModularCurve.heckeOperatorsCommuteBar N
+
+/-! ## Zone X1-DEF — `[x1]` the X₁ function field, Jacobian and Hecke definitions
+(`SET-X1-A`) -/
+
+-- The X₁ layer field at `M = 2`: its `ℚ`-form, the `Γ₁(2) ⊓ Γ₀(1)` collapse, the
+-- `⊓ Γ₀(t)` monotonicity and the divisor-index monotonicity.
+example : x1FunctionFieldC ℚ 2 = x1FunctionField 2 := x1FunctionFieldC_rat 2
+example : x1x0FunctionFieldC ℚ 2 1 = x1FunctionFieldC ℚ 2 := x1x0FunctionFieldC_one ℚ 2
+example : x1FunctionFieldC ℚ 2 ≤ x1x0FunctionFieldC ℚ 2 4 :=
+  x1FunctionFieldC_le_x1x0 ℚ 2 4
+example : x1FunctionFieldC ℚ 2 ≤ x1FunctionFieldC ℚ 4 :=
+  x1FunctionFieldC_le_of_dvd ℚ (M := 2) (by norm_num)
+
+-- The bar field at `M = 2` is inhabited by a concrete element of the subfield.
+example : x1FunctionFieldBar 2 := 1
+example : Inhabited (x1FunctionFieldBar 2) := ⟨1⟩
+
+-- The Jacobian `J₁(2)` and its layer form carry an `AddCommGroup` structure.
+example : AddCommGroup (JOne 2) := inferInstance
+example : AddCommGroup (JOneC 2 ℂ) := inferInstance
+
+-- The definitional bridges of the α and β degeneracy maps at `M = 2`, `ℓ = 3`.
+-- The β bridge is stated at its pinned hypothesis `HeckeBetaOneDefined 2 3`.
+example (x : laurentBaseChange (AlgebraicClosure ℚ) (x1FunctionField 2)) :
+    (heckeAlphaOneBar (AlgebraicClosure ℚ) 2 3 x : LaurentSeries (AlgebraicClosure ℚ)) = x :=
+  coe_heckeAlphaOneBar 2 3 x
+example (h : HeckeBetaOneDefined 2 3)
+    (x : laurentBaseChange (AlgebraicClosure ℚ) (x1FunctionField 2)) :
+    (heckeBetaOneBar (AlgebraicClosure ℚ) 2 3 x : LaurentSeries (AlgebraicClosure ℚ))
+      = qExpand (AlgebraicClosure ℚ) 3 x :=
+  coe_heckeBetaOneBar 2 3 h x
+
+-- The three new `AlgebraicCurve` facts at the concrete bar field
+-- `modularFunctionFieldBar 1`, whose `HasPrincipalDivisors` is m11's unconditional
+-- instance; `φ = AlgHom.id` (degree-one self-extension), its integrality from
+-- `Algebra.IsIntegral.of_finite`.
+-- `set_option … in` cannot follow a doc comment; this is a `--` line, and the
+-- instance is genuinely used by `Algebra.IsIntegral.isIntegral`, so suppress
+-- rather than weaken (porting-playbook §6).
+set_option linter.style.haveILetI false in
+private theorem barOne_id_isIntegral :
+    (AlgHom.id (AlgebraicClosure ℚ) (modularFunctionFieldBar 1)).toRingHom.IsIntegral := by
+  haveI : Algebra.IsIntegral (modularFunctionFieldBar 1) (modularFunctionFieldBar 1) :=
+    Algebra.IsIntegral.of_finite _ _
+  intro x
+  exact Algebra.IsIntegral.isIntegral x
+
+-- m11's instance for the bar field, local to this zone so the `FundamentalIdentityAlong`
+-- and `NormFormulaAlong` types elaborate (`HasPrincipalDivisors` is a class argument
+-- of neither `PushforwardNormFormula` nor of the `Along` predicates' *source*, but it
+-- is needed to state them and to feed the norm formula).
+private instance barOne_hasPrincipalDivisors :
+    HasPrincipalDivisors (AlgebraicClosure ℚ) (modularFunctionFieldBar 1) :=
+  hasPrincipalDivisors_modularFunctionFieldBar modularPolynomialFamily 1
+
+example : Divisor.PushforwardNormFormula (AlgebraicClosure ℚ) (modularFunctionFieldBar 1)
+    (modularFunctionFieldBar 1) :=
+  Divisor.pushforwardNormFormula
+
+example : FundamentalIdentityAlong (AlgebraicClosure ℚ)
+    (AlgHom.id (AlgebraicClosure ℚ) (modularFunctionFieldBar 1)) barOne_id_isIntegral :=
+  fundamentalIdentityAlong (AlgHom.id (AlgebraicClosure ℚ) (modularFunctionFieldBar 1))
+    barOne_id_isIntegral
+    (finiteAlong_of_surjective _ (fun x => ⟨x, rfl⟩))
+    (separableAlong_of_charZero _ barOne_id_isIntegral)
+
+example : NormFormulaAlong (AlgebraicClosure ℚ)
+    (AlgHom.id (AlgebraicClosure ℚ) (modularFunctionFieldBar 1))
+    (finiteAlong_of_surjective (AlgHom.id (AlgebraicClosure ℚ) (modularFunctionFieldBar 1))
+      (fun x => ⟨x, rfl⟩)) :=
+  normFormulaAlong (AlgHom.id (AlgebraicClosure ℚ) (modularFunctionFieldBar 1))
+    (finiteAlong_of_surjective _ (fun x => ⟨x, rfl⟩))
+    (separableAlong_of_charZero _ barOne_id_isIntegral)
+
+/-! ## Zone X1-FF — `[x1-ff]` the X₁ function-field transcendence (`SET-X1-B`) -/
+
+-- At `Γ = Γ₁(2)`: the finite-index instance is the ported `CongruenceSubgroup`
+-- one, and `T ∈ Γ₁(2)` is the pinned membership test at `T = !![1,1;0,1]`.
+private theorem gammaOneTwo_T_mem : ModularGroup.T ∈ CongruenceSubgroup.Gamma1 2 := by
+  rw [CongruenceSubgroup.Gamma1_mem]
+  refine ⟨?_, ?_, ?_⟩ <;> decide
+
+-- Node 1, instantiated at `Γ₁(2)` (no `#check`: the witness is what the
+-- statement asserts).
+example :
+    ∃ x : ModularCurve.qExpFunctionFieldC ℚ (CongruenceSubgroup.Gamma1 2),
+      Transcendental ℚ x ∧
+      FiniteDimensional
+        (IntermediateField.adjoin ℚ
+          ({x} : Set (ModularCurve.qExpFunctionFieldC ℚ (CongruenceSubgroup.Gamma1 2))))
+        (ModularCurve.qExpFunctionFieldC ℚ (CongruenceSubgroup.Gamma1 2)) :=
+  ModularCurve.JOneES.exists_transcendental_finiteDimensional_qExpFunctionFieldC
+    (CongruenceSubgroup.Gamma1 2) gammaOneTwo_T_mem
+
+-- Node 2, base-changed to the concrete `L = ℚ̄` at the same `Γ₁(2)`.
+example :
+    ∃ y : ModularCurve.laurentBaseChange (AlgebraicClosure ℚ)
+        (ModularCurve.qExpFunctionFieldC ℚ (CongruenceSubgroup.Gamma1 2)),
+      Transcendental (AlgebraicClosure ℚ) y ∧
+      FiniteDimensional
+        (IntermediateField.adjoin (AlgebraicClosure ℚ)
+          ({y} : Set (ModularCurve.laurentBaseChange (AlgebraicClosure ℚ)
+            (ModularCurve.qExpFunctionFieldC ℚ (CongruenceSubgroup.Gamma1 2)))))
+        (ModularCurve.laurentBaseChange (AlgebraicClosure ℚ)
+          (ModularCurve.qExpFunctionFieldC ℚ (CongruenceSubgroup.Gamma1 2))) :=
+  ModularCurve.JOneES.exists_transcendental_finiteDimensional_laurentBaseChange
+    (AlgebraicClosure ℚ) (CongruenceSubgroup.Gamma1 2) gammaOneTwo_T_mem
+
+-- The executed composition: destruct node 1 to obtain the concrete `x` with
+-- `Transcendental ℚ x` and `FiniteDimensional ℚ⟮x⟯ _`, invoke node 2 at
+-- `L = ℚ̄` on the same `Γ₁(2)`, and consume every resulting fact.
+example :
+    ∃ x : ModularCurve.qExpFunctionFieldC ℚ (CongruenceSubgroup.Gamma1 2),
+      Transcendental ℚ x ∧
+      FiniteDimensional
+        (IntermediateField.adjoin ℚ
+          ({x} : Set (ModularCurve.qExpFunctionFieldC ℚ (CongruenceSubgroup.Gamma1 2))))
+        (ModularCurve.qExpFunctionFieldC ℚ (CongruenceSubgroup.Gamma1 2)) ∧
+      ∃ y : ModularCurve.laurentBaseChange (AlgebraicClosure ℚ)
+          (ModularCurve.qExpFunctionFieldC ℚ (CongruenceSubgroup.Gamma1 2)),
+        Transcendental (AlgebraicClosure ℚ) y ∧
+        FiniteDimensional
+          (IntermediateField.adjoin (AlgebraicClosure ℚ)
+            ({y} : Set (ModularCurve.laurentBaseChange (AlgebraicClosure ℚ)
+              (ModularCurve.qExpFunctionFieldC ℚ (CongruenceSubgroup.Gamma1 2)))))
+          (ModularCurve.laurentBaseChange (AlgebraicClosure ℚ)
+            (ModularCurve.qExpFunctionFieldC ℚ (CongruenceSubgroup.Gamma1 2))) := by
+  obtain ⟨x, hx, hfin⟩ :=
+    ModularCurve.JOneES.exists_transcendental_finiteDimensional_qExpFunctionFieldC
+      (CongruenceSubgroup.Gamma1 2) gammaOneTwo_T_mem
+  obtain ⟨y, hy, hfinY⟩ :=
+    ModularCurve.JOneES.exists_transcendental_finiteDimensional_laurentBaseChange
+      (AlgebraicClosure ℚ) (CongruenceSubgroup.Gamma1 2) gammaOneTwo_T_mem
+  exact ⟨x, hx, hfin, y, hy, hfinY⟩
+
+/-! ## Zone X1-C — `[x1-c]` the Hecke/diamond statement nodes (`SET-X1-C`) -/
+
+-- Node 1's `hΓ'` at `(Γ, Γ', ℓ) = (⊤, Γ₁(2), 2)`, discharged from the concrete
+-- matrix entries of `γ ∈ Γ₁(2)`: the stretched matrix is
+-- `γ₁ = !![γ₀₀, 2γ₀₁; γ₁₀/2, γ₁₁]` with `2 ∣ γ₁₀`.
+private theorem x1c_stretch_hyp :
+    ∀ γ ∈ (CongruenceSubgroup.Gamma1 2 : Subgroup SL(2, ℤ)), ∃ γ₁ ∈ (⊤ : Subgroup SL(2, ℤ)),
+      γ₁ 0 0 = γ 0 0 ∧ γ₁ 0 1 = (2 : ℤ) * γ 0 1 ∧
+        (2 : ℤ) * γ₁ 1 0 = γ 1 0 ∧ γ₁ 1 1 = γ 1 1 := by
+  intro γ hγ
+  have h10 : ((γ 1 0 : ℤ) : ZMod 2) = 0 := ((CongruenceSubgroup.Gamma1_mem 2 γ).mp hγ).2.2
+  obtain ⟨c, hc⟩ := (ZMod.intCast_zmod_eq_zero_iff_dvd (γ 1 0) 2).mp h10
+  have hdet : Matrix.det !![(γ 0 0 : ℤ), 2 * γ 0 1; c, γ 1 1] = 1 := by
+    rw [Matrix.det_fin_two_of]
+    have h := γ.det_coe
+    rw [Matrix.det_fin_two] at h
+    rw [hc] at h
+    linear_combination h
+  refine ⟨⟨!![(γ 0 0 : ℤ), 2 * γ 0 1; c, γ 1 1], hdet⟩, Subgroup.mem_top _, rfl, rfl, ?_, rfl⟩
+  show (2 : ℤ) * c = γ 1 0
+  exact hc.symm
+
+-- Node 1 at `(K, Γ, Γ', ℓ) = (ℚ, ⊤, Γ₁(2), 2)`, consumed at the concrete ratio `1`.
+example : ModularCurve.qExpand ℚ 2 '' ModularCurve.intFormRatiosC ℚ (⊤ : Subgroup SL(2, ℤ)) ⊆
+    ModularCurve.intFormRatiosC ℚ (CongruenceSubgroup.Gamma1 2) :=
+  ModularCurve.qExpand_image_intFormRatiosC_subset ℚ
+    (Γ := (⊤ : Subgroup SL(2, ℤ))) (Γ' := CongruenceSubgroup.Gamma1 2)
+    (Subgroup.mem_top _) 2 x1c_stretch_hyp
+
+example : ModularCurve.qExpand ℚ 2 (1 : LaurentSeries ℚ) ∈
+    ModularCurve.intFormRatiosC ℚ (CongruenceSubgroup.Gamma1 2) :=
+  (ModularCurve.qExpand_image_intFormRatiosC_subset ℚ
+    (Γ := (⊤ : Subgroup SL(2, ℤ))) (Γ' := CongruenceSubgroup.Gamma1 2)
+    (Subgroup.mem_top _) 2 x1c_stretch_hyp)
+    ⟨1, ModularCurve.one_mem_intFormRatiosC ℚ (⊤ : Subgroup SL(2, ℤ)), rfl⟩
+
+-- Node 2 at `M = 2`, on the constant form `1` (a real integral `q`-expansion).
+example : ∃ (D : ℤ)
+    (f₁ : ModularForm (CongruenceSubgroup.Gamma1 2 : Subgroup (GL (Fin 2) ℝ)) 0)
+    (p₁ : PowerSeries ℤ), D ≠ 0 ∧ ModularCurve.IsIntegralQExp f₁ p₁ ∧
+      (⇑f₁ : UpperHalfPlane → ℂ) =
+        (D : ℂ) • ((⇑(1 : ModularForm (CongruenceSubgroup.Gamma1 2 : Subgroup (GL (Fin 2) ℝ)) 0) :
+          UpperHalfPlane → ℂ) ∣[(0 : ℤ)] (1 : SL(2, ℤ))) :=
+  ModularCurve.exists_isIntegralQExp_smul_slash_of_mem_Gamma0 2
+    (1 : ModularForm (CongruenceSubgroup.Gamma1 2 : Subgroup (GL (Fin 2) ℝ)) 0)
+    (by rw [ModularForm.one_coe_eq_one]; exact ModularCurve.isIntegralQExp_one)
+    (1 : SL(2, ℤ)) (CongruenceSubgroup.Gamma0_mem.mpr (by simp))
+
+-- Node 3 at `(M, d) = (2, 1)`, the automorphism applied to `1`.
+example : ∃ σ : ModularCurve.x1FunctionField 2 ≃ₐ[ℚ] ModularCurve.x1FunctionField 2,
+    ModularCurve.IsDiamondAut 2 1 σ ∧ σ 1 = 1 := by
+  obtain ⟨σ, hσ⟩ := ModularCurve.exists_isDiamondAut 2 (by decide : Nat.Coprime 1 2)
+  exact ⟨σ, hσ, map_one σ⟩
+
+-- Node 4 at `L = ℚ̄`, `F₀ = x1FunctionField 2`, `σ₀ = (diamondAut 2 1).toRingEquiv`,
+-- applied to the coefficient image of `1`.
+example : ∃ τ : ↥(ModularCurve.laurentBaseChange (AlgebraicClosure ℚ)
+      (ModularCurve.x1FunctionField 2)) ≃ₐ[AlgebraicClosure ℚ]
+      ↥(ModularCurve.laurentBaseChange (AlgebraicClosure ℚ) (ModularCurve.x1FunctionField 2)),
+    ((τ ⟨ModularCurve.coeffEmb (AlgebraicClosure ℚ)
+            ((1 : ↥(ModularCurve.x1FunctionField 2)) : LaurentSeries ℚ),
+          ModularCurve.coeffEmb_mem_laurentBaseChange (AlgebraicClosure ℚ)
+            (1 : ↥(ModularCurve.x1FunctionField 2)).2⟩ :
+        ↥(ModularCurve.laurentBaseChange (AlgebraicClosure ℚ)
+          (ModularCurve.x1FunctionField 2))) : LaurentSeries (AlgebraicClosure ℚ))
+      = ModularCurve.coeffEmb (AlgebraicClosure ℚ)
+          (((ModularCurve.diamondAut 2 1).toRingEquiv 1 : ↥(ModularCurve.x1FunctionField 2)) :
+            LaurentSeries ℚ) := by
+  obtain ⟨τ, hτ⟩ := ModularCurve.exists_algEquiv_laurentBaseChange_cover (AlgebraicClosure ℚ)
+    (ModularCurve.x1FunctionField 2) (ModularCurve.diamondAut 2 1).toRingEquiv
+  exact ⟨τ, hτ 1⟩
+
+-- The executed composition: the diamond automorphism at `(M, d) = (2, 1)` feeds
+-- its underlying ring equivalence into the cover, and the resulting `ℚ̄`-automorphism
+-- is applied to `1`.
+example : ∃ (σ : ModularCurve.x1FunctionField 2 ≃ₐ[ℚ] ModularCurve.x1FunctionField 2)
+    (τ : ↥(ModularCurve.laurentBaseChange (AlgebraicClosure ℚ)
+        (ModularCurve.x1FunctionField 2)) ≃ₐ[AlgebraicClosure ℚ]
+        ↥(ModularCurve.laurentBaseChange (AlgebraicClosure ℚ) (ModularCurve.x1FunctionField 2))),
+    ModularCurve.IsDiamondAut 2 1 σ ∧
+      ((τ ⟨ModularCurve.coeffEmb (AlgebraicClosure ℚ)
+              ((1 : ↥(ModularCurve.x1FunctionField 2)) : LaurentSeries ℚ),
+            ModularCurve.coeffEmb_mem_laurentBaseChange (AlgebraicClosure ℚ)
+              (1 : ↥(ModularCurve.x1FunctionField 2)).2⟩ :
+          ↥(ModularCurve.laurentBaseChange (AlgebraicClosure ℚ)
+            (ModularCurve.x1FunctionField 2))) : LaurentSeries (AlgebraicClosure ℚ))
+        = ModularCurve.coeffEmb (AlgebraicClosure ℚ)
+            (((σ.toRingEquiv 1) : ↥(ModularCurve.x1FunctionField 2)) : LaurentSeries ℚ) := by
+  obtain ⟨σ, hσ⟩ := ModularCurve.exists_isDiamondAut 2 (by decide : Nat.Coprime 1 2)
+  obtain ⟨τ, hτ⟩ := ModularCurve.exists_algEquiv_laurentBaseChange_cover (AlgebraicClosure ℚ)
+    (ModularCurve.x1FunctionField 2) σ.toRingEquiv
+  exact ⟨σ, τ, hσ, hτ 1⟩
+
+/-! ## Zone X1-CAP — `[x1-cap]` the capstone `ModularCurve.heckeDiamondInputsAll`
+
+The effort's final wire test: the bundle is produced, then both of its halves are
+destructured and consumed — the Hecke half's β-definedness and the diamond half's
+automorphism — so deleting any module of SET-X1-A/B/C makes this zone fail. -/
+
+-- The capstone at `M = 2` (so the `ℚ̄`-level fields are concrete).
+example : ModularCurve.HeckeDiamondInputsAll 2 := ModularCurve.heckeDiamondInputsAll 2
+
+-- The Hecke half at the concrete prime `ℓ = 3`: a real `HeckeInputsOneAlong` value.
+example : HeckeInputsOneAlong (AlgebraicClosure ℚ) 2 3 :=
+  (ModularCurve.heckeDiamondInputsAll 2).1 ⟨3, Nat.prime_three⟩
+
+-- Its first projection, the pinned `HeckeBetaOneDefined`, consumed.
+example : HeckeBetaOneDefined 2 3 :=
+  ((ModularCurve.heckeDiamondInputsAll 2).1 ⟨3, Nat.prime_three⟩).1
+
+-- The diamond half at `d = 1`: a real diamond automorphism of `x1FunctionField 2`.
+example : ∃ σ : ModularCurve.x1FunctionField 2 ≃ₐ[ℚ] ModularCurve.x1FunctionField 2,
+    ModularCurve.IsDiamondAut 2 1 σ :=
+  ((ModularCurve.heckeDiamondInputsAll 2).2 1 (by decide : Nat.Coprime 1 2)).1
+
+-- The diamond half's base-change witness, consumed as a real `AlgEquiv` and an
+-- `IsBaseChangeAutOf` at `diamondAut 2 1`.
+example : ∃ σ' : ModularCurve.x1FunctionFieldBar 2 ≃ₐ[AlgebraicClosure ℚ]
+      ModularCurve.x1FunctionFieldBar 2,
+    ModularCurve.IsBaseChangeAutOf (AlgebraicClosure ℚ) (ModularCurve.diamondAut 2 1) σ' :=
+  ((ModularCurve.heckeDiamondInputsAll 2).2 1 (by decide : Nat.Coprime 1 2)).2
 
 end

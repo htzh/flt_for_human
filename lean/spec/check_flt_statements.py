@@ -1861,6 +1861,50 @@ SOURCES = [
     "Theorems/Thm_WeierstrassCurve_Affine_adjoin_yCoord_eq_top.lean",
     "Theorems/Thm_WeierstrassCurve_Affine_finiteDimensional_ratFunc_functionField.lean",
     "Theorems/Thm_WeierstrassCurve_Affine_hasPrincipalDivisors_functionField.lean",
+    # --- The ModularCurve.Period API and the equivariant-primitive headline ---
+    # The `ModularCurve.Period` vocabulary, the `Γ₀` period integral/lattice, the
+    # general `periodOf`/`periodMapOf` layer, and the headline's wrapper. The
+    # pin's `Hecke`/`PeriodTransfer`/Petersson declarations are deliberately not
+    # ported, so their `Definitions/` files are only listed where used. Appended
+    # last.
+    "Definitions/Def_ModularCurve_PeriodMap.lean",
+    "Definitions/Def_ModularCurve_PeriodMapBundled.lean",
+    "Definitions/Def_ModularCurve_PeriodLattice.lean",
+    "Definitions/Def_ModularCurve_PeriodOf.lean",
+    "Theorems/Thm_ModularCurve_exists_hasEquivariantPrimitiveOf.lean",
+    # --- SET-X1-A: the X₁ Hecke/diamond vocabulary and the two AC `Along` facts ---
+    # The three pin `Definitions/` files have no `Theorems/` wrappers, so they are
+    # the comparable copies for the X₁ modules. `Def_ModularCurve_X1.lean` is
+    # already listed above (for `intSeriesC`/`intFormRatiosC`/`IsIntegralQExp`).
+    # The two `Along` targets and the promoted `Divisor.pushforwardNormFormula`
+    # take their statements from the three `Theorems/` wrappers (the `S_` files
+    # call the targets `solution`). Appended last so no earlier last-name match
+    # can flip.
+    "Definitions/Def_ModularCurve_X1HeckeOperator.lean",
+    "Definitions/Def_ModularCurve_X1Diamond.lean",
+    "Definitions/Def_ModularCurve_X1HeckeModule.lean",
+    "Theorems/Thm_AlgebraicCurve_Divisor_pushforwardNormFormula.lean",
+    "Theorems/Thm_AlgebraicCurve_fundamentalIdentityAlong.lean",
+    "Theorems/Thm_AlgebraicCurve_normFormulaAlong.lean",
+    # --- SET-X1-B: the two `JOneES` function-field nodes. The `S_` files call
+    # the targets `solution`, so the comparable copies are the two `Theorems/`
+    # wrappers (explicit binders, one per headline). Appended last so no earlier
+    # last-name match can flip.
+    "Theorems/Thm_ModularCurve_JOneES_exists_transcendental_finiteDimensional_qExpFunctionFieldC.lean",
+    "Theorems/Thm_ModularCurve_JOneES_exists_transcendental_finiteDimensional_laurentBaseChange.lean",
+    # --- SET-X1-C: the Hecke/diamond face. Four headlines across three modules
+    # (`DiamondAut.lean` carries the integral-slash assembly and the diamond
+    # automorphism). The `S_` files call the targets `solution`, so the
+    # comparable copies are the `Theorems/` wrappers. Appended last.
+    "Theorems/Thm_ModularCurve_qExpand_image_intFormRatiosC_subset.lean",
+    "Theorems/Thm_ModularCurve_exists_isIntegralQExp_smul_slash_of_mem_Gamma0.lean",
+    "Theorems/Thm_ModularCurve_exists_isDiamondAut.lean",
+    "Theorems/Thm_ModularCurve_exists_algEquiv_laurentBaseChange_cover.lean",
+    # --- SET-X1-C capstone: `ModularCurve.heckeDiamondInputsAll` (written by the
+    # manager as the effort's final wire test). Every `X1HDIGeneric`/`X1HDIInputs`
+    # helper is `private`, so the only diffed declaration is the headline.
+    # Appended last.
+    "Theorems/Thm_ModularCurve_heckeDiamondInputsAll.lean",
 ]
 
 PORT_FILES = [
@@ -2552,6 +2596,40 @@ PORT_FILES = [
     "FLTForHuman/WeierstrassCurve/FunctionFieldQuadratic.lean",
     "FLTForHuman/WeierstrassCurve/FunctionFieldFinite.lean",
     "FLTForHuman/WeierstrassCurve/PrincipalDivisors.lean",
+    # --- The ModularCurve.Period API and the equivariant-primitive headline ---
+    # Vocabulary, the `Γ₀` period integral/lattice (`PeriodIntegral.lean`, only
+    # the pin's `Period` section), the general `periodOf`/`periodMapOf` layer,
+    # and the headline construction (pin helpers `private`). Appended last.
+    "FLTForHuman/ModularForms/EichlerShimura/PeriodPrimitive.lean",
+    "FLTForHuman/ModularForms/EichlerShimura/PeriodIntegral.lean",
+    "FLTForHuman/ModularForms/EichlerShimura/PeriodOf.lean",
+    "FLTForHuman/ModularForms/EichlerShimura/ExistsEquivariantPrimitive.lean",
+    # --- SET-X1-A: the X₁ function-field/Jacobian vocabulary, the Hecke operator,
+    # the diamond vocabulary and the `HeckeDiamondInputsAll` predicate. The pin's
+    # `JOne.torsionGaloisRep{,_apply}`/`coe_torsionGaloisRep_apply` and
+    # `diamondOneBar{,_apply}` are deliberately absent (`SET-X1-A` boundary: the
+    # `Pic0` action/torsion prerequisite is unported); the checker iterates
+    # `PORT_FILES`, so they cannot report `missing`. Appended last.
+    "FLTForHuman/ModularCurve/X1/Defs.lean",
+    "FLTForHuman/ModularCurve/X1/HeckeOperator.lean",
+    "FLTForHuman/ModularCurve/X1/Diamond.lean",
+    "FLTForHuman/ModularCurve/X1/HeckeModule.lean",
+    # --- SET-X1-B: the pin's `Integral` block and the two `JOneES` function-field
+    # nodes. Every helper in the two `JOneES` modules is `private`, so the only
+    # diffed declarations are the five `Integral` lemmas and the two headlines.
+    # Appended last.
+    "FLTForHuman/ModularCurve/X1/Integral.lean",
+    "FLTForHuman/ModularCurve/X1/FunctionField.lean",
+    "FLTForHuman/ModularCurve/X1/FunctionFieldBaseChange.lean",
+    # --- SET-X1-C: the Hecke/diamond face. Every helper is `private`; the four
+    # headlines are the only diffed declarations. Appended last.
+    "FLTForHuman/ModularCurve/X1/QExpandStretch.lean",
+    "FLTForHuman/ModularCurve/X1/DiamondAut.lean",
+    "FLTForHuman/ModularCurve/X1/BaseChangeCover.lean",
+    # --- SET-X1-C capstone (manager): the `X1HDIGeneric`/`X1HDIInputs` prelude is
+    # entirely `private`; `ModularCurve.heckeDiamondInputsAll` is the sole public
+    # declaration. Appended last.
+    "FLTForHuman/ModularCurve/X1/Inputs.lean",
 ]
 
 
@@ -2651,7 +2729,11 @@ OWN_PROOFS = {
     # `periodMap` on cusp forms (`TOPIC-period-map-injectivity.md` §3, Tier 1).
     # There is no pin declaration of these names/shapes to diff; the pin's
     # `eichlerShimuraMap_injective` is reproduced by `periodMap_injective`.
-    "periodMap",
+    # The exemption is the **dotted** name `HeckeEis.periodMap`: the unrelated
+    # `ModularCurve.periodMap` (`PeriodMapBundled`, ported faithfully in
+    # `EichlerShimura/PeriodPrimitive.lean`) shares the last name and must still
+    # be diffed against its pin declaration.
+    "HeckeEis.periodMap",
     "periodMap_eq_coeffH1parMk",
     "periodMap_injective",
     # --- Topic 11, the T-side definition layer --------------------------------

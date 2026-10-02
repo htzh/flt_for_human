@@ -5,11 +5,10 @@
 
   The two definitions are the pin's `Def_ModularCurve_X1.lean` `FunctionField`
   block (lines 66–99), transcribed verbatim; `intSeriesC_one`/`_zero`/`_mul` are
-  the block's three arithmetic lemmas. `restrictForm` is the pin's proof-only
-  helper, kept `private` here per the port's cross-module-`private` policy (it is
-  already duplicated `private` in `WeightOne/Gamma0Integral.lean`).
-  `one_mem_intFormRatiosC` and `qExpFunctionFieldC` are the rest of that block and
-  are deferred until a consumer needs them.
+  the block's three arithmetic lemmas. `restrictForm`/`coe_restrictForm` are the
+  pin's `Restrict` block (lines 18–27), made **public** in place, with the pin's
+  `restrictForm_apply` (line 29) added; `intFormRatiosC_mono` (X₁'s `Defs.lean`)
+  consumes them and the port forbids a second private copy.
 
   The proof of the headline is the pin's
   `P2M/Sol/S_ModularCurve_jqModC_mem_intFormRatiosC.lean`, with the first helper
@@ -37,15 +36,23 @@ namespace ModularCurve
 
 /-! ## X1's `FunctionField` vocabulary -/
 
-private def restrictForm {Γ Γ' : Subgroup (GL (Fin 2) ℝ)} {k : ℤ} (h : Γ' ≤ Γ)
-    (f : ModularForm Γ k) : ModularForm Γ' k where
+section Restrict
+
+variable {Γ Γ' : Subgroup (GL (Fin 2) ℝ)} {k : ℤ}
+
+def restrictForm (h : Γ' ≤ Γ) (f : ModularForm Γ k) : ModularForm Γ' k where
   toFun := f
   slash_action_eq' A hA := f.slash_action_eq' A (h hA)
   holo' := f.holo'
   bdd_at_cusps' hc := f.bdd_at_cusps' (hc.mono h)
 
-@[simp] private theorem coe_restrictForm {Γ Γ' : Subgroup (GL (Fin 2) ℝ)} {k : ℤ}
-    (h : Γ' ≤ Γ) (f : ModularForm Γ k) : (⇑(restrictForm h f) : ℍ → ℂ) = f := rfl
+@[simp] theorem coe_restrictForm (h : Γ' ≤ Γ) (f : ModularForm Γ k) :
+    (⇑(restrictForm h f) : ℍ → ℂ) = f := rfl
+
+theorem restrictForm_apply (h : Γ' ≤ Γ) (f : ModularForm Γ k) (τ : ℍ) :
+    restrictForm h f τ = f τ := rfl
+
+end Restrict
 
 variable (K : Type*) [Field K]
 

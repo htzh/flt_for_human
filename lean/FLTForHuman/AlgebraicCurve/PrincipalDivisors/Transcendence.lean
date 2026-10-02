@@ -360,6 +360,20 @@ private theorem pushforwardNormFormula_of_finiteDimensional :
           refine Finset.sum_congr rfl fun w hw => ?_
           rw [if_pos ((Place.mem_fiberOver v).mp hw), hD w, mul_comm]
 
+/-- The norm formula for the pushforward of a divisor along a finite separable
+extension: `ord_v (N_{F'/F} f) = ∑_{w | v} [κ(w):κ(v)] · ord_w f`.
+
+Verbatim from `Theorems/Thm_AlgebraicCurve_Divisor_pushforwardNormFormula.lean`
+(the wrapper's explicit binders, including the unused `[HasPrincipalDivisors K F']`).
+The hypothesis-free form is the private `pushforwardNormFormula_of_finiteDimensional`
+above, which the internal `hasPrincipalDivisors_of_finiteDimensional_ratFunc`
+consumes (it cannot supply `[HasPrincipalDivisors K F']`). -/
+theorem pushforwardNormFormula {K F F' : Type*} [Field K] [Field F] [Field F']
+    [Algebra K F] [Algebra K F'] [Algebra F F'] [IsScalarTower K F F']
+    [FiniteDimensional F F'] [Algebra.IsSeparable F F'] [CharZero F]
+    [HasPrincipalDivisors K F'] : Divisor.PushforwardNormFormula K F F' :=
+  pushforwardNormFormula_of_finiteDimensional
+
 end Divisor
 
 /-! ## The finiteness of the `ord`-support over `K(t)` -/

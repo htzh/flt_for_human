@@ -70,6 +70,81 @@ dictionary and the class-group / Riemann–Roch block
   *declaration-name*-granular. **Treat those 27 as blocked on this entry** until
   the API lands, whatever the frontier says.
 
+### `ModularCurve.exists_hasEquivariantPrimitiveOf` — the parts of the period API left out
+
+Unlike the Weierstrass entry, this node's shadowing is **resolved**: the
+`ModularCurve.Period` API its 28 citers reach was ported with the headline, in
+`FLTForHuman/ModularForms/EichlerShimura/{PeriodPrimitive,PeriodIntegral,PeriodOf}.lean`
+(vocabulary and `Γ₀(N)` lattice; general `periodOf`/`periodLatticeOf`/
+`HasEquivariantPrimitiveOf`/`periodMapOf`). Three pieces of the pin's definition
+files were deliberately **not** ported, because no consumer of this node reaches
+them:
+
+- `Def_ModularCurve_PeriodTransfer.lean` (150 raw / 104 content): conjugation and
+  transfer of equivariant primitives (`conjRel`/`conjSubgroup`/`conjPrimitive`,
+  `traceRep`/`transferElt`/`traceSum`, `IsEquivariantPrimitive.traceSum`).
+- the `Hecke` section of `Def_ModularCurve_PeriodLattice.lean` (≈185 raw): the
+  Hecke-stability of the period lattice (`cuspHeckeGen`/`cuspHeckeAeval`/
+  `cuspHeckeRep`/`dualHeckeRep`/`PeriodLatticeHeckeStable`/`periodLatticeModule`).
+  This is the only piece that pulls in `Def_CuspForm_HeckeAlgebra` and
+  `Def_HeckeGalois_EichlerShimura`.
+- the `CuspForm` Petersson block of `Def_ModularCurve_PeriodOf.lean` (≈30 raw):
+  `peterssonIntegrandOf`/`peterssonOf`.
+
+**Trigger**: port them when a consumer needs them — the Hecke-stability consumers
+(`periodLatticeHeckeEnd*`, `PeriodLatticeHeckeStable`) and the period-transfer
+consumers (`IsEquivariantPrimitive.traceSum`) are the nodes to watch. Note that
+`Def_ModularCurve_PeriodLattice.lean` is listed in the checker's `SOURCES` for its
+`Period` section only; adding the `Hecke` section later must not disturb the
+names already verified from it.
+
+### `ModularCurve.JOne.torsionGaloisRep` / `diamondOneBar` — the `Pic0` action/torsion block
+
+Found while porting the X₁ Hecke/diamond inputs
+([topics/hecke/TOPIC-x1-hecke-diamond-inputs.md](topics/hecke/TOPIC-x1-hecke-diamond-inputs.md)
+SET-X1-A). SET-X1-A landed `ModularCurve/X1/Defs.lean`, `X1/HeckeOperator.lean`,
+`X1/Diamond.lean`, `X1/HeckeModule.lean` and the two `AlgebraicCurve` `Along`
+lemmas, but deliberately **omitted** five declarations because their prerequisite
+is unported:
+
+- `JOne.torsionGaloisRep`, `JOne.torsionGaloisRep_apply`,
+  `JOne.coe_torsionGaloisRep_apply` (pin `Definitions/Def_ModularCurve_X1.lean:189-207`);
+- `diamondOneBar`, `diamondOneBar_apply` (pin
+  `Definitions/Def_ModularCurve_X1Diamond.lean:98-103`).
+
+The missing prerequisite is the `Pic0` action/torsion block:
+
+- `Pic0.torsion` / `mem_torsion` / `instModuleZModTorsion` (pin
+  `Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean`);
+- the `SMul`/`DistribMulAction (SemilinearAut K F)` actions on `Divisor` and
+  `Pic0`, `degZeroSMulHom`, `smul_mem_torsion`, `instSMulTorsion`/
+  `instDistribMulActionTorsion`, `instSMulCommClassZModTorsion`, and
+  `SemilinearAut.torsionRep` (pin
+  `Definitions/Def_AlgebraicCurve_BaseChangeGalois.lean:206-356`, ≈150 content
+  lines). The decided home is `AlgebraicCurve/Defs/SemilinearAut.lean` (see its
+  header), beside the deferred `Pic0.torsion` block in
+  `AlgebraicCurve/Defs/Divisor.lean`.
+- `ModularCurve.PicAction` (pin
+  `Definitions/Def_ModularCurve_ArithmeticGalois.lean:85-105`), home
+  `ModularCurve/Defs/ArithmeticGalois.lean` (see its header).
+
+**Size**: ≈170 content lines plus the `Pic0.torsion` block; it touches three
+already-frozen files, so port it as a **definitions-first mini-set** with its own
+review gate, not folded into a theorem set.
+
+**Trigger / consumers**: the five omitted declarations, and the successor targets
+`ModularCurve.heckeDiamondCommuteBar`,
+`ModularCurve.rationalRankTwoNebentypus_family`,
+`ModularCurve.moduleFinite_padicInt_tateModule_jOne` and the
+`CuspForm.IsEigenformWith.exists_galoisRepAdic_*` family. It is **not** on the
+`heckeDiamondInputsAll` cone.
+
+**Frontier caveat**: because `ModularCurve/X1/Defs.lean` and `X1/Diamond.lean` are
+now in the checker's `PORT_FILES` and their pin files in `SOURCES`, a citer that
+reaches `JOne.torsionGaloisRep` reads as one node closer while the declaration is
+absent — the usual file-granular shadowing. Treat those citers as blocked on this
+entry.
+
 ## Open follow-ups
 
 - **`AlgebraicCurve.essFiniteType_of_transcendental_of_finiteDimensional`**

@@ -14,9 +14,11 @@
 
   The pin's helpers (`WeightOneEisensteinSum.*`, `exists_dvd_four_or_odd_prime`, …)
   are not graph nodes and have no consumer yet, so the port transcribes them
-  `private`; only the structure and the headline are public.  `restrictForm` and
-  `Gamma1_le_of_dvd` are the pin's proof-only X1 helpers, carried `private` here as
-  in `WeightOne/Gamma0Integral.lean`.  `ModularFormClass.qCoeff` is the port's own
+  `private`; only the structure and the headline are public.  `restrictForm`/
+  `coe_restrictForm` are imported from `ModularCurve/JqIntegralRatios.lean` (SET-X1-A
+  promoted them public at the pin's names, so this module's copies are deleted);
+  `Gamma1_le_of_dvd` is the pin's proof-only X1 helper, still carried `private` here
+  as in `WeightOne/Gamma0Integral.lean`.  `ModularFormClass.qCoeff` is the port's own
   definition (its home `ModularForms/HeckeQCoeff.lean`) and is definitionally the
   `qExpansion` coefficient, so the pin's `exact hE.2.1` becomes a `simpa only
   [ModularFormClass.qCoeff]`.
@@ -48,16 +50,10 @@ open scoped MatrixGroups
 
 namespace ModularCurve
 
-private def restrictForm {Γ Γ' : Subgroup (GL (Fin 2) ℝ)} {k : ℤ} (h : Γ' ≤ Γ)
-    (f : ModularForm Γ k) : ModularForm Γ' k where
-  toFun := f
-  slash_action_eq' A hA := f.slash_action_eq' A (h hA)
-  holo' := f.holo'
-  bdd_at_cusps' hc := f.bdd_at_cusps' (hc.mono h)
-
-@[simp] private theorem coe_restrictForm {Γ Γ' : Subgroup (GL (Fin 2) ℝ)} {k : ℤ}
-    (h : Γ' ≤ Γ) (f : ModularForm Γ k) : (⇑(restrictForm h f) : ℍ → ℂ) = f := rfl
-
+-- `restrictForm`/`coe_restrictForm` are imported from
+-- `ModularCurve/JqIntegralRatios.lean`, where the SET-X1-A promotion made them
+-- public at the pin's names; this module's former `private` copies are deleted so
+-- the pin has one home (the import already existed).
 private theorem Gamma1_le_of_dvd {M M' : ℕ} (h : M ∣ M') : Gamma1 M' ≤ Gamma1 M := by
   intro A hA
   rw [Gamma1_mem] at hA ⊢

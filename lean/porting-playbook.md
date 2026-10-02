@@ -957,6 +957,7 @@ Two library-style uses worth knowing:
 | `functionFieldGeneration` theorem | `functionFieldGeneration` | ≈3.8k lines, 304 statements | [logs/ffg-port.md](logs/ffg-port.md) |
 | `PhiGen` splitting | `PhiGen.splits_prime_at_slot` | route decided before coding | [logs/phiGen-port.md](logs/phiGen-port.md) |
 | `ModularCurve` Hecke | `ModularCurve.heckeOperatorsCommuteBar` | 26 modules, 1,240 statements, coverage 0/0/0 | [logs/mc-port.md](logs/mc-port.md), [topics/mc-retrospective.md](topics/mc-retrospective.md) |
+| X₁ Hecke/diamond inputs | `ModularCurve.heckeDiamondInputsAll` | 11 modules / ≈3,550 lines; checker 4,436 identical, 0/0; cone 0/0/0; cover node 281 → 135 content via the tensor-product route; the `Pic0` action/torsion block **deferred** | [logs/x1-hecke-port.md](logs/x1-hecke-port.md), [topics/hecke/TOPIC-x1-hecke-diamond-inputs.md](topics/hecke/TOPIC-x1-hecke-diamond-inputs.md) |
 | `AlgebraicCurve` exchange | the exchange reduction | 5,559 lines / 328 public decls, 618 statements | [logs/ac-port.md](logs/ac-port.md), [topics/ac-retrospective.md](topics/ac-retrospective.md) |
 | Level vocabulary | `Γ_H`/`Γ₁`/cosets | — | [logs/level-port.md](logs/level-port.md) |
 | T-side | `R = T` definitions | — | [logs/t-side-port.md](logs/t-side-port.md) |
@@ -964,6 +965,7 @@ Two library-style uses worth knowing:
 | Sturm bound | weight-2 cusp vanishing | — | [logs/sturm-bound-port.md](logs/sturm-bound-port.md) |
 | WeightOne rectification | refactor, no new math | 7,242 → 5,333 removable lines | [logs/weightone-rectify.md](logs/weightone-rectify.md), [topics/hecke/TOPIC-weightone-rectify.md](topics/hecke/TOPIC-weightone-rectify.md) |
 | three small frontier nodes (factorisable test functions; `K(x)` `EssFiniteType`; Weierstrass principal divisors) | `AutomorphicForm.continuous_and_hasCompactSupport_of_isFactorizableTestFn`, `AlgebraicCurve.essFiniteType_of_transcendental_of_finiteDimensional`, `WeierstrassCurve.Affine.hasPrincipalDivisors_functionField` | 8 modules / 50 public decls; the Weierstrass place/RR/class-group API (~941 content lines, 27 citers) **deferred** | [CARRY-FORWARD.md](CARRY-FORWARD.md) |
+| `ModularCurve.Period` API + equivariant primitive | `ModularCurve.exists_hasEquivariantPrimitiveOf` | 4 modules; the period vocabulary, the `Γ₀(N)` period lattice, the general `periodOf`/`periodMapOf` layer and the 182-content-line headline construction; Hecke-stability / `PeriodTransfer` / Petersson **deferred** | [CARRY-FORWARD.md](CARRY-FORWARD.md) |
 
 Planning records (retired blueprints) are `topics/PORTING-*.md`; the mathematics
 each port targets is in `../math/` and `../base/`.
