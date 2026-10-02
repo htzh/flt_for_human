@@ -25,7 +25,8 @@ Companions: [deligne-serre-weight-one-scout.md](deligne-serre-weight-one-scout.m
 (the worked example of the mathlib-first method), [../math/005-card-torsion-p-squared.md](../math/005-card-torsion-p-squared.md)
 and [../math/002-frey-curve-model-and-discriminant.md](../math/002-frey-curve-model-and-discriminant.md)
 (the mathematics), [t-side-driver.md](t-side-driver.md) (the modularity-lifting
-consumer).
+consumer), [basic-objects-ec-modular.md](basic-objects-ec-modular.md) (the object-form
+taxonomy shared with modular curves and modular forms).
 
 ## 0. Scope
 
