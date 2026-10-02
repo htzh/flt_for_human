@@ -11,12 +11,12 @@ Git tracked files will be published on the internet.
 Don't cross ref an untracked local file.
 If needed directly quote content or cross ref a public repo.
  
-tools/ subdirs will have their git repo for now until proper licenses and attributions are settled and they can be merged with the public top repo.
+tools/ for now are not git tracked and won't be published
 
 ### tmp space
 
 * `/tmp` is `tmpfs`: it does not persist across tool calls.
-* `tools/` and `tmp/` in the project dir are not git tracked.
+* `tmp/` in the project dir are not git tracked.
 
 ## FLT urls
 
