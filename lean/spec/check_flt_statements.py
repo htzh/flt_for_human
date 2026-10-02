@@ -1848,6 +1848,19 @@ SOURCES = [
     "Definitions/Def_NumberField_AdelicLevel.lean",
     "Definitions/Def_AutomorphicForm_FactorizableTestFn.lean",
     "Theorems/Thm_AutomorphicForm_continuous_and_hasCompactSupport_of_isFactorizableTestFn.lean",
+    # The `K(x)` finite-extension `EssFiniteType` headline. The pin's `S_` proof
+    # is pure mathlib (`Mathlib` + `P2M.Util` only), so the wrapper is the only
+    # comparable copy. Appended last.
+    "Theorems/Thm_AlgebraicCurve_essFiniteType_of_transcendental_of_finiteDimensional.lean",
+    # --- Principal divisors on a Weierstrass curve (the capstone route only) ---
+    # The function-field-quadratic vocabulary, the two prerequisite nodes
+    # (`adjoin_yCoord_eq_top`, `finiteDimensional_ratFunc_functionField`) and the
+    # headline. The pin `S_` file's place/RR/class-group API is deferred, so its
+    # `P2M/Sol/...` file is deliberately not listed. Appended last.
+    "Definitions/Def_WeierstrassCurve_FunctionFieldQuadratic.lean",
+    "Theorems/Thm_WeierstrassCurve_Affine_adjoin_yCoord_eq_top.lean",
+    "Theorems/Thm_WeierstrassCurve_Affine_finiteDimensional_ratFunc_functionField.lean",
+    "Theorems/Thm_WeierstrassCurve_Affine_hasPrincipalDivisors_functionField.lean",
 ]
 
 PORT_FILES = [
@@ -2530,6 +2543,15 @@ PORT_FILES = [
     "FLTForHuman/NumberTheory/AdelicLevel/Projections.lean",
     "FLTForHuman/AutomorphicForm/FactorizableTestFn.lean",
     "FLTForHuman/AutomorphicForm/TestFnTop.lean",
+    # The `K(x)` finite-extension `EssFiniteType` headline. Appended last.
+    "FLTForHuman/AlgebraicCurve/IsCurveOver/EssFiniteType.lean",
+    # --- Principal divisors on a Weierstrass curve (capstone route only) ---
+    # Vocabulary + the two function-field prerequisites + the headline. The
+    # deferred place/RR/class-group API is not declared here, so the checker does
+    # not see it; that is intended until a consumer needs it. Appended last.
+    "FLTForHuman/WeierstrassCurve/FunctionFieldQuadratic.lean",
+    "FLTForHuman/WeierstrassCurve/FunctionFieldFinite.lean",
+    "FLTForHuman/WeierstrassCurve/PrincipalDivisors.lean",
 ]
 
 

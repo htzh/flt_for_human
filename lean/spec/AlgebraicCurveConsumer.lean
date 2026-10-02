@@ -54,6 +54,8 @@ import FLTForHuman.FieldTheory.FiniteGroupAction
 -- T21: the generic degree-one place machinery
 -- (`isAlgebraic_adjoin_of_transcendental`, `Place.deg_eq_one_of_isAlgebraic_adjoin`).
 import FLTForHuman.AlgebraicCurve.Place.DegreeOne
+-- The `K(x)` finite-extension `EssFiniteType` headline.
+import FLTForHuman.AlgebraicCurve.IsCurveOver.EssFiniteType
 
 open AlgebraicCurve
 
@@ -481,3 +483,19 @@ example {K F : Type*} [Field K] [Field F] [Algebra K F] [IsAlgClosed K] (t : F)
     Divisor.degree (Finsupp.single v n) = n := by
   rw [Divisor.degree_single, Place.deg_eq_one_of_isAlgebraic_adjoin t v]
   simp
+
+/-! ## Zone L — `[essFiniteType]` the finite-extension `K(x)` headline
+
+`AlgebraicCurve/IsCurveOver/EssFiniteType.lean` is the pin's
+`essFiniteType_of_transcendental_of_finiteDimensional`: a finite extension of
+`K(x)` with `x` transcendental is essentially of finite type over `K`. The pin's
+proof is pure mathlib (the `K[X] → RatFunc K → K⟮x⟯` `EssFiniteType` transport
+chain), so the wire test keeps both hypotheses explicit and applies the
+headline. -/
+
+#check @AlgebraicCurve.essFiniteType_of_transcendental_of_finiteDimensional
+example {K F : Type*} [Field K] [Field F] [Algebra K F]
+    {x : F} (htr : Transcendental K x)
+    (hfd : FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F) :
+    Algebra.EssFiniteType K F :=
+  AlgebraicCurve.essFiniteType_of_transcendental_of_finiteDimensional htr hfd

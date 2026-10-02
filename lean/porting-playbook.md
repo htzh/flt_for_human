@@ -41,7 +41,10 @@ rounds will revisit earlier modules. The porting agent's build rules are
 deliberately simple (§3.5); deeper build investigation is a separate subagent job
 (§0.2).
 
-Before coding:
+Before coding — and first of all when a frontier figure looks surprising — check
+[CARRY-FORWARD.md](CARRY-FORWARD.md) for deferred API and open follow-ups touching
+the nodes in scope; a registered entry means the node's `lines`/`needed` does not
+yet account for something its consumers need.
 
 1. **Measure the cone** — files, raw and content lines, declarations, importers.
    From those numbers decide: port, re-derivation, or both (§2.1).
@@ -216,6 +219,29 @@ Then make the table *act*:
   Measure the transitive closure over the targets' proof-reached public wrappers.
 - **Ship a copy-pasteable regeneration recipe** with every measurement section.
   Do not hand-maintain a number that a script can reproduce.
+
+Three ways a frontier figure misleads, each with the case that taught it. The
+specific instances live in [CARRY-FORWARD.md](CARRY-FORWARD.md):
+
+- **A citation-leaf is not a leaf.** `needed == 1` on a node with no theorem-node
+  premises says nothing about its *definitional* prerequisites, which the doc-site
+  citation graph does not carry:
+  `AutomorphicForm.continuous_and_hasCompactSupport_of_isFactorizableTestFn` reads
+  as a 126-line leaf, but its proof needed three `Definitions/` modules (the
+  adele-ring `T2Space` instances, the `glArch`/`glFin` projections, the
+  factorisable-test-function defs). Measure the pin `S_` file's `Definitions/`
+  import closure before trusting a leaf.
+- **A pin `S_` file's `lines` is an upper bound.** A "solution" file may inline its
+  prerequisite nodes and carry an off-path development: the Weierstrass
+  `hasPrincipalDivisors_functionField` file is 2,248 lines, of which ~200 are on
+  the headline's path and ~1,400 content lines are a place/Riemann–Roch/class-group
+  silo the proof never reaches. Grep the capstone region for the file's other
+  declaration names; if none occur, the rest is off-path.
+- **File-granular edges shadow.** Porting a headline whose pin file also carries an
+  API prelude makes the file's citers read as one node closer while the API they
+  call is unported — the citation graph's edges are file-granular while the
+  "already ported" test is declaration-name-granular. Register the deferred surface
+  in [CARRY-FORWARD.md](CARRY-FORWARD.md) and treat those citers as blocked on it.
 
 
 ### 2.2 Audit the route, mathlib first
@@ -937,6 +963,7 @@ Two library-style uses worth knowing:
 | Eichler–Shimura | period-map injectivity | — | [logs/eichler-shimura-port.md](logs/eichler-shimura-port.md) |
 | Sturm bound | weight-2 cusp vanishing | — | [logs/sturm-bound-port.md](logs/sturm-bound-port.md) |
 | WeightOne rectification | refactor, no new math | 7,242 → 5,333 removable lines | [logs/weightone-rectify.md](logs/weightone-rectify.md), [topics/hecke/TOPIC-weightone-rectify.md](topics/hecke/TOPIC-weightone-rectify.md) |
+| three small frontier nodes (factorisable test functions; `K(x)` `EssFiniteType`; Weierstrass principal divisors) | `AutomorphicForm.continuous_and_hasCompactSupport_of_isFactorizableTestFn`, `AlgebraicCurve.essFiniteType_of_transcendental_of_finiteDimensional`, `WeierstrassCurve.Affine.hasPrincipalDivisors_functionField` | 8 modules / 50 public decls; the Weierstrass place/RR/class-group API (~941 content lines, 27 citers) **deferred** | [CARRY-FORWARD.md](CARRY-FORWARD.md) |
 
 Planning records (retired blueprints) are `topics/PORTING-*.md`; the mathematics
 each port targets is in `../math/` and `../base/`.
