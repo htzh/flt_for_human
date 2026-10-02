@@ -13,6 +13,11 @@ If needed directly quote content or cross ref a public repo.
  
 tools/ subdirs will have their git repo for now until proper licenses and attributions are settled and they can be merged with the public top repo.
 
+### tmp space
+
+* `/tmp` is `tmpfs`: it does not persist across tool calls.
+* `tools/` and `tmp/` in the project dir are not git tracked.
+
 ## FLT urls
 
 Anthropic's FLT is both available on github and cloned locally.
