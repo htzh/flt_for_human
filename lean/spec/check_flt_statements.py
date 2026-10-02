@@ -1840,6 +1840,14 @@ SOURCES = [
     "Definitions/Def_ModularCurve_QExpFrobeniusModL.lean",
     "Definitions/Def_ModularCurve_X0ModL.lean",
     "Definitions/Def_ModularCurve_FrobeniusModL.lean",
+    # --- Factorisable test functions on GL₂(𝔸_K) (AutomorphicForm) ---
+    # The adele-ring Hausdorff instances (AdelicHaar), the level projections
+    # (AdelicLevel), the factorisable-test-function definitions, and the
+    # headline's `Theorems/` wrapper. Appended last.
+    "Definitions/Def_NumberField_AdelicHaar.lean",
+    "Definitions/Def_NumberField_AdelicLevel.lean",
+    "Definitions/Def_AutomorphicForm_FactorizableTestFn.lean",
+    "Theorems/Thm_AutomorphicForm_continuous_and_hasCompactSupport_of_isFactorizableTestFn.lean",
 ]
 
 PORT_FILES = [
@@ -2514,6 +2522,14 @@ PORT_FILES = [
     "FLTForHuman/AlgebraicCurve/Place/FiniteResidue.lean",
     "FLTForHuman/ModularCurve/Frobenius/Defs.lean",
     "FLTForHuman/ModularCurve/Frobenius/QExpModL.lean",
+    # --- Factorisable test functions on GL₂(𝔸_K) (AutomorphicForm) ---
+    # The adele-ring topology instances, the level projections, the definitions,
+    # and the headline. The pin `S_` helpers are `private` here, so only the
+    # headline is diffed. Appended last.
+    "FLTForHuman/NumberTheory/AdelicHaar/Topology.lean",
+    "FLTForHuman/NumberTheory/AdelicLevel/Projections.lean",
+    "FLTForHuman/AutomorphicForm/FactorizableTestFn.lean",
+    "FLTForHuman/AutomorphicForm/TestFnTop.lean",
 ]
 
 
