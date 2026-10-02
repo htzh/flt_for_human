@@ -109,6 +109,8 @@ import FLTForHuman.ModularCurve.JqIntegralRatios
 import FLTForHuman.ModularCurve.Degree.TranscendentalCoeffEmb
 -- T25: `IntegralWeightOneForm` and its existence (Zone V).
 import FLTForHuman.ModularForms.WeightOne.IntegralWeightOneForm
+-- charLFrobenius: the `q`-expansion `Fr* Fr_* = ℓ` relation (Zone W).
+import FLTForHuman.ModularCurve.Frobenius.QExpModL
 -- The cyclotomic instances for the end-to-end wire tests of Zones I, J and K.
 import Mathlib.NumberTheory.Cyclotomic.Basic
 
@@ -998,6 +1000,47 @@ example (κ : Type) [Field κ] (M : ℕ) (hM : 3 ≤ M) :
       IsIntegralQExp w.form w.series ∧ intSeriesC κ w.series ≠ 0 := by
   obtain ⟨w⟩ := ModularCurve.nonempty_integralWeightOneForm κ M hM
   exact ⟨w, w.isIntegralQExp, w.intSeriesC_ne_zero⟩
+
+/-! ## Zone W — [charLFrobenius] the `q`-expansion `Fr* Fr_* = ℓ`
+
+`ModularCurve.qExpFrobeniusPullbackModL_qExpFrobeniusPushforwardModL_of_transcendental`
+is the foundational relation of the `q`-expansion route of geometric
+Eichler–Shimura: pull-back after push-forward along the `ℓ`-power Frobenius of
+`qExpFunctionFieldC K Γ` acts as multiplication by `ℓ` on `Pic⁰`.
+
+The zone is stated in **hypothesis form**.  Producing a concrete `K`, `Γ` and `y`
+would need a transcendental generator of `qExpFunctionFieldC K Γ` with a
+finite-dimensional extension; that is exactly the unported `functionFieldGeneration`
+Set A (the field-of-ratios content of
+`topics/functionFieldGeneration/TOPIC-qexp-function-field-c.md`), so the `hF`
+hypothesis is carried rather than discharged — the same deferral Zone M's
+`Inputs`-field `sorry`s record.  Nothing here is `sorry`.
+
+The wire tests **use** the target rather than `#check` it: the first composes it
+with `Eq.symm`, the second applies it at `y = 0` and rewrites with `nsmul_zero`.
+Changing the target's statement, or deleting its module, makes both fail. -/
+
+example (K : Type*) [Field K] [IsAlgClosed K] {ℓ : ℕ} [Fact ℓ.Prime] [CharP K ℓ]
+    (Γ : Subgroup (Matrix.SpecialLinearGroup (Fin 2) ℤ))
+    (hF : ∃ x : ModularCurve.qExpFunctionFieldC K Γ, Transcendental K x ∧
+      FiniteDimensional (IntermediateField.adjoin K ({x} : Set (ModularCurve.qExpFunctionFieldC K Γ)))
+        (ModularCurve.qExpFunctionFieldC K Γ)) :
+    ∀ y : AlgebraicCurve.Pic0 K (ModularCurve.qExpFunctionFieldC K Γ),
+      ℓ • y = ModularCurve.qExpFrobeniusPullbackModL K Γ ℓ
+        (ModularCurve.qExpFrobeniusPushforwardModL K Γ ℓ y) :=
+  fun y => (ModularCurve.qExpFrobeniusPullbackModL_qExpFrobeniusPushforwardModL_of_transcendental
+    K Γ hF y).symm
+
+example (K : Type*) [Field K] [IsAlgClosed K] {ℓ : ℕ} [Fact ℓ.Prime] [CharP K ℓ]
+    (Γ : Subgroup (Matrix.SpecialLinearGroup (Fin 2) ℤ))
+    (hF : ∃ x : ModularCurve.qExpFunctionFieldC K Γ, Transcendental K x ∧
+      FiniteDimensional (IntermediateField.adjoin K ({x} : Set (ModularCurve.qExpFunctionFieldC K Γ)))
+        (ModularCurve.qExpFunctionFieldC K Γ)) :
+    ModularCurve.qExpFrobeniusPullbackModL K Γ ℓ
+        (ModularCurve.qExpFrobeniusPushforwardModL K Γ ℓ
+          (0 : AlgebraicCurve.Pic0 K (ModularCurve.qExpFunctionFieldC K Γ))) = 0 := by
+  rw [ModularCurve.qExpFrobeniusPullbackModL_qExpFrobeniusPushforwardModL_of_transcendental
+    K Γ hF 0, nsmul_zero]
 
 /-! ## The measure
 

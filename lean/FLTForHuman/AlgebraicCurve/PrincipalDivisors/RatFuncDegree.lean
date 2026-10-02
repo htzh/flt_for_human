@@ -96,6 +96,19 @@ theorem subsingleton_setOf_forall_ne_ofHeightOneSpectrum {K : Type*} [Field K] :
   · exact absurd h' (hv' w)
   rw [h, h']
 
+/-- The place at infinity is the unique place that is not finite.  Verbatim from
+`Theorems/Thm_AlgebraicCurve_RationalFunctionField_eq_placeInfty_iff_forall_ne_ofHeightOneSpectrum.lean`;
+the pin's proof is the two ported ingredients above. -/
+theorem eq_placeInfty_iff_forall_ne_ofHeightOneSpectrum {K : Type*} [Field K]
+    [DecidableEq (RatFunc K)] (v : Place K (RatFunc K)) :
+    v = placeInfty K ↔ ∀ w : IsDedekindDomain.HeightOneSpectrum (Polynomial K),
+      v ≠ Place.ofHeightOneSpectrum w := by
+  constructor
+  · rintro rfl
+    exact placeInfty_ne_ofHeightOneSpectrum K
+  · intro h
+    exact subsingleton_setOf_forall_ne_ofHeightOneSpectrum h (placeInfty_ne_ofHeightOneSpectrum K)
+
 theorem exists_forall_ne_ofHeightOneSpectrum {K : Type*} [Field K] :
     ∃ v : Place K (RatFunc K),
       ∀ w : IsDedekindDomain.HeightOneSpectrum (Polynomial K),
@@ -431,6 +444,17 @@ theorem degree_eq_zero_of_forall_eq_ord {K : Type*} [Field K] {f : RatFunc K}
       f.denom Dden hDden
     rw [map_add, h2, add_zero] at h1
     exact h1
+
+/-- **`RatFunc K` has principal divisors.**  Verbatim from
+`Theorems/Thm_AlgebraicCurve_RationalFunctionField_hasPrincipalDivisors.lean`; the
+pin's proof is the two ported ingredients above (`finite_setOf_ord_ne_zero` and
+`degree_eq_zero_of_forall_eq_ord`). -/
+theorem hasPrincipalDivisors (K : Type*) [Field K] : HasPrincipalDivisors K (RatFunc K) :=
+  ⟨fun f hf =>
+    ⟨Finsupp.ofSupportFinite (fun v : Place K (RatFunc K) => v.ord f)
+        (AlgebraicCurve.RationalFunctionField.finite_setOf_ord_ne_zero hf),
+      fun _ => rfl,
+      AlgebraicCurve.RationalFunctionField.degree_eq_zero_of_forall_eq_ord _ fun _ => rfl⟩⟩
 
 end RationalFunctionField
 

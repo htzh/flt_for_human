@@ -36,6 +36,13 @@ theorem degree_single (v : Place K F) (n : ℤ) :
     degree (Finsupp.single v n) = n * v.deg := by
   simp [degree]
 
+/-- The degree of a divisor as the finite sum `∑ v ∈ D.support, D v * deg v`.
+Verbatim from `Theorems/Thm_AlgebraicCurve_Divisor_degree_eq_sum.lean`; the pin's
+proof is the unfolding of the `Finsupp.liftAddHom` that defines `degree`. -/
+theorem degree_eq_sum {K F : Type*} [Field K] [Field F] [Algebra K F] (D : Divisor K F) :
+    Divisor.degree D = ∑ v ∈ D.support, D v * (v.deg : ℤ) :=
+  Finsupp.liftAddHom_apply (fun v : Place K F => AddMonoidHom.mulRight (v.deg : ℤ)) D
+
 def degZero : AddSubgroup (Divisor K F) := degree.ker
 
 theorem mem_degZero {D : Divisor K F} : D ∈ degZero (K := K) (F := F) ↔ degree D = 0 :=

@@ -1810,6 +1810,36 @@ SOURCES = [
     # carrier lets the checker diff the promotion against the pin's own statement
     # instead of exempting it. Appended last so no earlier last-name match flips.
     "P2M/Sol/S_ModularCurve_exists_galoisRepAdic_charpoly_frobenius_of_heckeDiamondChar.lean",
+    # --- The characteristic-ℓ Frobenius q-expansion relation (charLFrobenius) ---
+    # The ten prerequisite wrappers plus the target; the definition modules the
+    # ported `qExpFrobenius*` API is transcribed from. `Def_ModularCurve_X1.lean`
+    # is already listed above (for `intSeriesC`/`intFormRatiosC`); the generic
+    # `Def_ModularCurve_X0ModL` / `_FrobeniusModL` files are listed *only* as
+    # sources for the three generic Frobenius-identity lemmas and the two
+    # `qExpandAlgHomC`/`coeffMap_ofPowerSeries` declarations the ported `qExp`
+    # copy consumes — the generic `modularFunctionFieldFullC` module itself is
+    # deliberately not ported (dedup decision). Appended last so no earlier
+    # last-name match can flip.
+    "Theorems/Thm_Algebra_IsSeparable_of_finrank_fieldRange_frobenius_eq.lean",
+    "Theorems/Thm_AlgebraicCurve_isCurveOver_of_transcendental.lean",
+    "Theorems/Thm_AlgebraicCurve_isCurveOver_of_transcendental_of_perfectField.lean",
+    "Theorems/Thm_AlgebraicCurve_exists_separating_transcendental_of_perfectField.lean",
+    "Theorems/Thm_AlgebraicCurve_Divisor_degree_eq_sum.lean",
+    "Theorems/Thm_AlgebraicCurve_finrank_frobeniusSubfield_eq_of_transcendental.lean",
+    "Theorems/Thm_AlgebraicCurve_hasPrincipalDivisors_of_finiteDimensional_of_isSeparable.lean",
+    "Theorems/Thm_AlgebraicCurve_hasPrincipalDivisors_of_transcendental_of_isSeparable.lean",
+    "Theorems/Thm_AlgebraicCurve_kaehlerRankOne_of_transcendental.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_finite_residueField_of_finiteDimensional.lean",
+    "Theorems/Thm_AlgebraicCurve_RationalFunctionField_hasPrincipalDivisors.lean",
+    # `eq_placeInfty_iff_forall_ne_ofHeightOneSpectrum` is the last literal
+    # frontier node the name-collision on `hasPrincipalDivisors` hides; it is the
+    # two-line corollary of the ported `placeInfty_ne_ofHeightOneSpectrum` and
+    # `subsingleton_setOf_forall_ne_ofHeightOneSpectrum`.
+    "Theorems/Thm_AlgebraicCurve_RationalFunctionField_eq_placeInfty_iff_forall_ne_ofHeightOneSpectrum.lean",
+    "Theorems/Thm_ModularCurve_qExpFrobeniusPullbackModL_qExpFrobeniusPushforwardModL_of_transcendental.lean",
+    "Definitions/Def_ModularCurve_QExpFrobeniusModL.lean",
+    "Definitions/Def_ModularCurve_X0ModL.lean",
+    "Definitions/Def_ModularCurve_FrobeniusModL.lean",
 ]
 
 PORT_FILES = [
@@ -2472,6 +2502,18 @@ PORT_FILES = [
     # The promoted rank-two charpoly conversion (a generic `LinearMap` lemma, so
     # it lives in `Algebra/`, not under a theory's `Defs/`). Appended last.
     "FLTForHuman/Algebra/CharpolyOfQuadratic.lean",
+    # --- The characteristic-ℓ Frobenius q-expansion relation (charLFrobenius) ---
+    # The generic perfect-field engine (`Algebra/` leaf, `IsCurveOver/` pair and
+    # the Frobenius-subfield degree), the principal-divisor pair, the residue
+    # field node, the `qExpFrobenius*` API and the target. Appended last.
+    "FLTForHuman/Algebra/IsSeparableFrobenius.lean",
+    "FLTForHuman/AlgebraicCurve/IsCurveOver/FrobeniusSubfield.lean",
+    "FLTForHuman/AlgebraicCurve/IsCurveOver/PerfectField.lean",
+    "FLTForHuman/AlgebraicCurve/IsCurveOver/Transcendental.lean",
+    "FLTForHuman/AlgebraicCurve/PrincipalDivisors/IsSeparable.lean",
+    "FLTForHuman/AlgebraicCurve/Place/FiniteResidue.lean",
+    "FLTForHuman/ModularCurve/Frobenius/Defs.lean",
+    "FLTForHuman/ModularCurve/Frobenius/QExpModL.lean",
 ]
 
 

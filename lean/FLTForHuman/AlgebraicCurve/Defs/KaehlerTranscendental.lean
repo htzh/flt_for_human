@@ -92,3 +92,71 @@ theorem D_ne_zero_of_transcendental (K : Type*) [Field K] {F : Type*} [Field F] 
   simpa [hb] using b.ne_zero ()
 
 end KaehlerDifferential
+
+namespace AlgebraicCurve
+
+/-! ## `kaehlerRankOne_of_transcendental`
+
+The Kähler module of a function field is free of rank one, after FLT's
+`P2M/Sol/S_AlgebraicCurve_kaehlerRankOne_of_transcendental.lean` (73 ln).  The
+pin's `S12Kaehler` helper block is transcribed `private`; only the wrapper
+statement `AlgebraicCurve.kaehlerRankOne_of_transcendental` is public. -/
+
+section KaehlerRankOne
+
+open Module Polynomial KaehlerDifferential
+
+private def kaehlerPolynomialBasis (K : Type*) [Field K] : Basis Unit K[X] Ω[K[X]⁄K] :=
+  (Basis.singleton Unit K[X]).map (KaehlerDifferential.polynomialEquiv K).symm
+
+private def kaehlerRatFuncBasis (K : Type*) [Field K] : Basis Unit (RatFunc K) Ω[(RatFunc K)⁄K] :=
+  haveI : Algebra.FormallyEtale K[X] (RatFunc K) :=
+    Algebra.FormallyEtale.of_isLocalization (nonZeroDivisors K[X])
+  ((kaehlerPolynomialBasis K).baseChange (RatFunc K)).map
+    (KaehlerDifferential.tensorKaehlerEquivOfFormallyEtale K K[X] (RatFunc K))
+
+private def kaehlerOfRatFuncTowerBasis (K : Type*) [Field K] {F : Type*} [Field F] [Algebra K F]
+    [Algebra (RatFunc K) F] [IsScalarTower K (RatFunc K) F] [Algebra.IsSeparable (RatFunc K) F] :
+    Basis Unit F Ω[F⁄K] :=
+  haveI : Algebra.FormallyEtale (RatFunc K) F := Algebra.FormallyEtale.of_isSeparable _ _
+  ((kaehlerRatFuncBasis K).baseChange F).map
+    (KaehlerDifferential.tensorKaehlerEquivOfFormallyEtale K (RatFunc K) F)
+
+private theorem kaehlerRankOne_of_ratFuncTower (K : Type*) [Field K] {F : Type*} [Field F]
+    [Algebra K F] [Algebra (RatFunc K) F] [IsScalarTower K (RatFunc K) F]
+    [Algebra.IsSeparable (RatFunc K) F] :
+    Module.Free F Ω[F⁄K] ∧ Module.finrank F Ω[F⁄K] = 1 :=
+  ⟨Module.Free.of_basis (kaehlerOfRatFuncTowerBasis K),
+    (Module.finrank_eq_card_basis (kaehlerOfRatFuncTowerBasis K)).trans (by simp)⟩
+
+/-- **The Kähler module of a function field is free of rank one.**
+Verbatim from `Theorems/Thm_AlgebraicCurve_kaehlerRankOne_of_transcendental.lean`. -/
+theorem kaehlerRankOne_of_transcendental {K F : Type*} [Field K] [Field F] [Algebra K F]
+    {x : F} (htr : Transcendental K x)
+    (hsep : Algebra.IsSeparable (IntermediateField.adjoin K ({x} : Set F)) F) :
+    Module.Free F Ω[F⁄K] ∧ Module.finrank F Ω[F⁄K] = 1 := by
+  haveI := hsep
+  let e : RatFunc K ≃ₐ[K] IntermediateField.adjoin K ({x} : Set F) :=
+    RatFunc.algEquivOfTranscendental x htr
+  letI : Algebra (RatFunc K) F :=
+    ((algebraMap (IntermediateField.adjoin K ({x} : Set F)) F).comp e.toAlgHom.toRingHom).toAlgebra
+  have hsq : RingHom.comp (algebraMap (RatFunc K) F)
+        (e.symm.toRingEquiv : (IntermediateField.adjoin K ({x} : Set F)) →+* RatFunc K)
+      = RingHom.comp (RingEquiv.refl F : F →+* F)
+          (algebraMap (IntermediateField.adjoin K ({x} : Set F)) F) := by
+    refine RingHom.ext fun a => ?_
+    show algebraMap (IntermediateField.adjoin K ({x} : Set F)) F (e (e.symm a)) =
+      algebraMap (IntermediateField.adjoin K ({x} : Set F)) F a
+    rw [e.apply_symm_apply]
+  haveI : IsScalarTower K (RatFunc K) F :=
+    IsScalarTower.of_algebraMap_eq fun a => by
+      show algebraMap K F a = algebraMap (IntermediateField.adjoin K ({x} : Set F)) F
+        (e (algebraMap K (RatFunc K) a))
+      rw [e.commutes, ← IsScalarTower.algebraMap_apply]
+  haveI : Algebra.IsSeparable (RatFunc K) F :=
+    Algebra.IsSeparable.of_equiv_equiv e.symm.toRingEquiv (RingEquiv.refl F) hsq
+  exact kaehlerRankOne_of_ratFuncTower K
+
+end KaehlerRankOne
+
+end AlgebraicCurve
