@@ -48,6 +48,9 @@ import FLTForHuman.NumberTheory.FrobeniusDensity.Statement
 import FLTForHuman.NumberTheory.FrobeniusDensity.DegreeOnePrimesInfinite
 -- S8 — the complex-trace assembly (the capstone).
 import FLTForHuman.DeligneSerre.Assembly
+-- S9 — the promoted rank-two charpoly conversion the weight-one → weight-two
+-- → Frobenius-charpoly route consumes (studies/frobenius-charpoly-scout.md §4).
+import FLTForHuman.Algebra.CharpolyOfQuadratic
 
 set_option autoImplicit false
 
@@ -277,5 +280,30 @@ example (N : ℕ) (R : Subalgebra ℤ ℂ) [Module.Finite ℤ R]
     DeligneSerre.exists_galoisRep_complex_trace_frobenius_eq_of_forall_residual
       N R m hm ζ hζ hζR t d ht hd hfam
   exact ⟨ρ, hρfl⟩
+
+/-! ## Zone S9 — the promoted rank-two charpoly conversion
+
+`LinearMap.charpoly_eq_of_quadratic_of_det` is the port's promotion of the pin's
+generated-namespace helper `E1G1ES.charpoly_eq_of_quadratic_of_det` — the
+"quadratic relation + determinant ⟹ characteristic polynomial" step that the
+weight-one → weight-two → Frobenius-charpoly route needs (the pin re-proves it in
+eight `S_` files; studies/frobenius-charpoly-scout.md §4). The pin's own
+statement is the source of truth here, so the checker diffs it rather than
+exempting it.
+
+Non-vacuous instantiation: the identity of `ℚ²`, written as
+`algebraMap ℚ (Module.End ℚ (Fin 2 → ℚ)) 1`, satisfies
+`f * f - 2 • f + 1 = 0` with `det f = 1`, so its characteristic polynomial is
+`X² - 2X + 1`. -/
+
+example :
+    LinearMap.charpoly (algebraMap ℚ (Module.End ℚ (Fin 2 → ℚ)) 1)
+      = X ^ 2 - C 2 * X + C 1 :=
+  LinearMap.charpoly_eq_of_quadratic_of_det (by simp)
+    (algebraMap ℚ (Module.End ℚ (Fin 2 → ℚ)) 1)
+    (by rw [map_one]; exact isUnit_one)
+    2 1
+    (by norm_num [Algebra.smul_def, map_ofNat])
+    (by rw [map_one]; simp)
 
 end DeligneSerreConsumer

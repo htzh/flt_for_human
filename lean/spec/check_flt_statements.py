@@ -1803,6 +1803,13 @@ SOURCES = [
     # match can flip.
     "Definitions/Def_ModularCurve_IgusaFunctionFieldX1.lean",
     "Theorems/Thm_ModularCurve_nonempty_integralWeightOneForm.lean",
+    # The J-side Frobenius-charpoly payload. The port promotes its rank-two
+    # conversion helper `charpoly_eq_of_quadratic_of_det` (public in the pin's
+    # generated `E1G1ES` namespace, conceptually private, re-proved in eight `S_`
+    # files) as `LinearMap.charpoly_eq_of_quadratic_of_det`. Registering this
+    # carrier lets the checker diff the promotion against the pin's own statement
+    # instead of exempting it. Appended last so no earlier last-name match flips.
+    "P2M/Sol/S_ModularCurve_exists_galoisRepAdic_charpoly_frobenius_of_heckeDiamondChar.lean",
 ]
 
 PORT_FILES = [
@@ -2462,6 +2469,9 @@ PORT_FILES = [
     # `IntegralWeightOneForm` (the pin's X1/Igusa vocabulary) and its existence.
     # Appended last so no earlier last-name match can flip.
     "FLTForHuman/ModularForms/WeightOne/IntegralWeightOneForm.lean",
+    # The promoted rank-two charpoly conversion (a generic `LinearMap` lemma, so
+    # it lives in `Algebra/`, not under a theory's `Defs/`). Appended last.
+    "FLTForHuman/Algebra/CharpolyOfQuadratic.lean",
 ]
 
 

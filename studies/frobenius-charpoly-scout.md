@@ -291,7 +291,11 @@ citation is not reachable here, and the branch that *is* used is the one neither
 node with the most versions above it (§0), yet the whole $`J_0`$ route is dead
 weight for the Deligne–Serre cone. The route that matters there is the
 $`q`$-expansion one, and it is a *different proof of the same relation*, so any
-porting effort split between the two is duplicated arithmetic.
+porting effort split between the two is duplicated arithmetic. The porting topic
+for the q-expansion root is
+[`lean/topics/charLFrobenius/TOPIC-qexp-frobenius-modl.md`](../lean/topics/charLFrobenius/TOPIC-qexp-frobenius-modl.md)
+(11 needed nodes / 1,669 raw `S_` lines, plus the unported `qExpFrobenius*`
+definition layer).
 
 ## 7. The family, measured
 
@@ -354,6 +358,15 @@ conversion lemma the pin lacks: a
 quadratic relation and the determinant directly (the private
 `charpoly_eq_of_quadratic_of_det` of §4). That single promotion replaces eight
 private copies.
+
+**Landed (2026-10-02).** The promotion is written, as recommended:
+`LinearMap.charpoly_eq_of_quadratic_of_det` in
+[`../lean/FLTForHuman/Algebra/CharpolyOfQuadratic.lean`](../lean/FLTForHuman/Algebra/CharpolyOfQuadratic.lean),
+statement-identical to the pin's eight copies, with the companion
+`eq_zero_of_smul_id_eq_zero` private. It verifies through the statement checker
+against the pin's own declaration (the `S_` carrier is registered in `SOURCES`),
+so no exemption was needed; axioms are `[propext, Classical.choice, Quot.sound]`,
+and `spec/DeligneSerreConsumer.lean` zone S9 is the executed wire test.
 
 ## Method
 
