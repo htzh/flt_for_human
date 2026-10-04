@@ -26,7 +26,9 @@ Companions: [deligne-serre-weight-one-scout.md](deligne-serre-weight-one-scout.m
 and [../math/002-frey-curve-model-and-discriminant.md](../math/002-frey-curve-model-and-discriminant.md)
 (the mathematics), [t-side-driver.md](t-side-driver.md) (the modularity-lifting
 consumer), [basic-objects-ec-modular.md](basic-objects-ec-modular.md) (the object-form
-taxonomy shared with modular curves and modular forms).
+taxonomy shared with modular curves and modular forms),
+[velu-cluster-structure.md](velu-cluster-structure.md) (the Vélu block's two proof
+spines and the redundancy-first planning method).
 
 ## 0. Scope
 
@@ -181,7 +183,11 @@ variable-change, point and division-polynomial definitions are mathlib's.
 4. **Explicit Vélu formulas** — the computable part of the 49-node block
    (`velu_map_equation_*`, `veluQuotient_*`, the `OddOrderSummingSet` special cases).
 5. **The cyclic-kernel / place classification block** — the concentrated, expensive
-   part; pool it with `port_advise` before transcribing.
+   part; pool it with `port_advise` before transcribing. The measured factoring,
+   the general/plain sibling rule and the phased order are in
+   [../lean/topics/velu/TOPIC-port-plan.md](../lean/topics/velu/TOPIC-port-plan.md)
+   (91,442 raw → **39,986 net new** lines; `tools/deps/port_plan.py` turns the
+   ~105 kB `port_advise` report into a plan).
 
 ## 5. Redundancy discipline
 
