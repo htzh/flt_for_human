@@ -6,7 +6,11 @@ a stated follow-up. This does that: for each declaration in the port, it
 finds the declaration of the same name in the pinned FLT clone and compares the
 statement (signature up to the first top-level `:=` / `where`; for a `structure`,
 the header plus the ordered field names). Proof bodies are deliberately ignored —
-the port adapts proofs, never statements.
+the port adapts proofs, never statements. The one exception is a **propositional**
+definition: `def foo : Prop := P` has a *statement* for a body, and the main pass
+would compare only its type, which is `Prop`. `--prop-bodies` additionally diffs
+that body (and only for `Prop`-valued defs; a computational `def` may legitimately
+be reimplemented as long as it is definitionally equal).
 
 Matching is by the last name component, so the port's namespacing need not match
 the pin's. That is ambiguous for the few declarations the port *promotes* out of
@@ -2934,6 +2938,151 @@ def declarations(text: str) -> dict[str, tuple[str, str]]:
     return out
 
 
+# A `def`'s body starts at the declaration's top-level `:=`/`where` and runs to
+# the next line at column 0 that opens a new command (Lean indents tactic blocks
+# and term continuations, so a column-0 command keyword ends the body).
+DEF_BODY_CMD_RE = re.compile(
+    r"^(?:end|namespace|section|variable|variable'|theorem|lemma|def|abbrev|private|"
+    r"protected|noncomputable|set_option|attribute|open|instance|scoped|local|@\[|"
+    r"p2m_|example|#|include|omit|universe|class|structure|inductive|opaque|axiom|"
+    r"notation|macro|syntax|elab|deriving|export|initialize|run_cmd)\b"
+)
+
+
+def declaration_body(chunk: str) -> str:
+    """The normalized body of a declaration chunk, after its top-level `:=`/`where`.
+
+    Returns "" for a declaration with only a type (`axiom`-like) or for a
+    `structure` (whose fields `raw_declarations` already carries).
+    """
+    cut = top_level_cut(chunk)
+    if cut >= len(chunk):
+        return ""
+    keep = []
+    for i, line in enumerate(chunk[cut:].split("\n")):
+        if i and line[:1] not in ("", " ", "\t") and DEF_BODY_CMD_RE.match(line):
+            break
+        keep.append(line)
+    return norm("\n".join(keep))
+
+
+def declaration_bodies(
+    text: str, include_private: bool = False
+) -> list[tuple[str, str, str, str]]:
+    """(raw name, kind, normalized statement, normalized body) per declaration.
+
+    The statement is computed exactly as `raw_declarations` computes it, so a row
+    here still agrees with the main pass; only the additional body is new.  Used
+    by the opt-in `--prop-bodies` pass.
+    """
+    text = strip_comments(text)
+    matches = list(DECL_RE.finditer(text))
+    events = namespace_events(text)
+    out: list[tuple[str, str, str, str]] = []
+    stack: list[str | None] = []
+    ei = 0
+    for idx, m in enumerate(matches):
+        while ei < len(events) and events[ei][0] < m.start():
+            _, ekind, ename = events[ei]
+            if ekind == "ns":
+                stack.append(ename)
+            elif ekind == "sec":
+                stack.append(None)
+            elif stack:
+                stack.pop()
+            ei += 1
+        if "private" in m.group("mods") and not include_private:
+            continue
+        end = matches[idx + 1].start() if idx + 1 < len(matches) else len(text)
+        chunk = text[m.end() : end]
+        kind = m.group("kind")
+        if kind == "structure":
+            stmt = norm(chunk[: top_level_cut(chunk)]) + " FIELDS " + " ".join(
+                FIELD_RE.findall(chunk)
+            )
+            body = ""
+        else:
+            stmt = norm(chunk[: top_level_cut(chunk)])
+            body = declaration_body(chunk)
+        prefix = enclosing_namespace(stack)
+        name = m.group("name")
+        raw = f"{prefix}.{name}" if prefix else name
+        out.append((raw, kind, stmt, body))
+    return out
+
+
+def prop_body_key(body: str) -> str:
+    """Body normalisation for the `--prop-bodies` comparison.
+
+    Drops named-argument labels (`f (K := K) x` vs `f K x`) and the parentheses
+    around a lone identifier (`f (K)` vs `f K`), which are elaboration spelling,
+    not a different proposition.  Dot notation and implicit-argument placement
+    still differ textually; those are reported for review.
+    """
+    key = re.sub(r"\((?:\w+'?)\s*:=\s*", "(", norm(body))
+    return re.sub(r"\((\w+'?)\)", r"\1", key)
+
+
+def check_prop_bodies(flt: Path) -> int:
+    """Audit the body of every public port `def … : Prop` against the pin.
+
+    The main pass compares a `def`'s *type*, which for `def foo : Prop := P` is
+    just `Prop`; two same-named `Prop`-valued defs match whatever their bodies
+    say.  For a proposition that body is the statement (downstream declarations
+    unfold it), so this pass compares it, with the same normalisation the main
+    pass uses for statements.  Only `Prop`-valued defs are compared: a
+    computational `def` may legitimately be reimplemented as long as it is
+    definitionally equal, but a propositional body is a statement.
+
+    Candidates are keyed both by dotted name (for promoted pin-private
+    declarations) and by last name, mirroring the main pass's fallback.  The pass
+    is **advisory**: a textual difference can be elaboration spelling (dot
+    notation, implicit-argument placement), so it reports rather than fails.
+    Returns the number of bodies that differ from every candidate at the
+    normalised-text level.
+    """
+    body_source: dict[str, list[tuple[str, str, str, str]]] = {}
+    for rel in SOURCES:
+        p = flt / rel
+        if not p.exists():
+            continue
+        for raw, kind, stmt, body in declaration_bodies(
+            p.read_text(encoding="utf-8"), include_private=True
+        ):
+            if kind not in ("def", "abbrev") or not body:
+                continue
+            for key in (promoted_key(raw), promoted_key(raw.rsplit(".", 1)[-1])):
+                body_source.setdefault(key, []).append((kind, stmt, body, rel))
+
+    ok = diff = 0
+    for rel in PORT_FILES:
+        p = LEAN / rel
+        for raw, kind, stmt, body in declaration_bodies(p.read_text(encoding="utf-8")):
+            if kind not in ("def", "abbrev") or not body:
+                continue
+            if ": Prop" not in stmt:
+                continue
+            name = raw.rsplit(".", 1)[-1]
+            cands = body_source.get(promoted_key(raw)) or body_source.get(name) or []
+            typed = [c for c in cands if c[0] == kind and c[1] == stmt]
+            if not typed:
+                continue
+            if any(prop_body_key(c[2]) == prop_body_key(body) for c in typed):
+                ok += 1
+            else:
+                diff += 1
+                print(f"PROP BODY (review)  {rel}: {name}")
+                print(f"    port: {body[:240]}")
+                print(f"    flt : {typed[0][2][:240]}  (source {typed[0][3]})")
+    print(
+        f"\n{ok} Prop-valued def bodies identical, {diff} differ textually "
+        f"({ok + diff} propositional definitions with a statement-matched "
+        f"counterpart); each difference is advisory — confirm it is elaboration "
+        f"spelling (dot notation, implicit arguments), not a different proposition"
+    )
+    return diff
+
+
 def promoted_key(raw: str) -> str:
     """The dotted name of a promoted declaration, for matching a public port
     declaration against the pin's `private` original.
@@ -2959,6 +3108,12 @@ def main() -> int:
         "--flt",
         default=str(Path.home() / "proj" / "fermats-last-theorem"),
         help="path to the pinned fermats-last-theorem clone",
+    )
+    ap.add_argument(
+        "--prop-bodies",
+        action="store_true",
+        help="also compare the body of every public `def … : Prop` (its real "
+        "statement); the main pass compares only the type, i.e. `Prop`",
     )
     args = ap.parse_args()
     flt = Path(args.flt)
@@ -3037,6 +3192,11 @@ def main() -> int:
         f"{own} own-proof declarations exempted "
         f"({ok + mismatch + missing + own} port declarations checked)"
     )
+    if args.prop_bodies:
+        print()
+        check_prop_bodies(flt)
+    # `--prop-bodies` is advisory: a textual body difference can be elaboration
+    # spelling, so it never changes the exit status.
     return 0 if mismatch == 0 and missing == 0 else 1
 
 

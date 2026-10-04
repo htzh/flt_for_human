@@ -282,7 +282,11 @@ unit of account.
 * **A mathlib Vélu or place-dictionary development.** H2/H3 and the substrate
   blocks shrink. Check mathlib first (playbook §2.2) before each home.
 * **A checker that compares `def` bodies.** The 70 suspect substitutions collapse
-  and the already-in-port figure moves; the plan's shape is unaffected.
+  and the already-in-port figure moves; the plan's shape is unaffected. The
+  checker now has an advisory `--prop-bodies` pass for the `def … : Prop` case;
+  it currently reports 183 identical / 1 textual difference (dot notation, an
+  elaboration-spelling item) on the whole port, so it neither helps nor hurts this
+  slice today.
 * **A re-pin.** Both the line counts and the sibling overlap ratios are recomputed
   from the pin at `aa2d8b3`; re-measure before trusting them.
 * **A dropped consumer.** Would let a public statement be pruned; §3 says none of
