@@ -1,13 +1,16 @@
 # Vélu port plan — factoring the 91 k-line cluster
 
-**Status: the explicit-Vélu column and the H5r dictionary extraction are landed;
-the `IsogenyEndDatum` and base-change columns and the cheap-node phases
+**Status: the explicit-Vélu column, the H5r dictionary extraction and H5 are
+landed; the base-change column and the cheap-node phases
 remain.** H0, the H1w place dictionary, the H2 engine (SET-1/2/3) and both
 explicit-Vélu headline pairs (H3/H4) are in the port, together with the H5a/H5b
 prerequisites the wire test pulled forward. The plan's **Phase C capstone** — its
 four headline theorems — therefore landed early, during what the plan had
 scheduled as Phase A; Phase C's two `IsogenyEndDatum` theorems did not, and are
-the deliverable of the unstarted home **H5**. The H5r refactor round has since
+the deliverable of home **H5**, whose three sets have now landed (the shared
+engine + `Isogeny/DualAPI.lean`, the `restrictAlong`-add column, and the dual
+column), with two vocabulary nodes deferred to Phase D; see
+[TOPIC-H5-engine.md](TOPIC-H5-engine.md). The H5r refactor round has since
 moved the place dictionary out of the Vélu modules into
 `WeierstrassCurve/Place/Dictionary.lean`, so H5 can import it without importing
 Vélu. Re-measured against the port, the remaining slice is **42 nodes / 26,674
@@ -252,7 +255,7 @@ tree. The status column is the plan's status; the dated record is
 | H5a | `WeierstrassCurve/GenusOnePlaceGate.lean` + `Isogeny/ConditionalCurrency.lean` (new) | landed | the wire test's finding: `GenusOnePlaceGate`/`IsCentred`/`AbelTheorem`/`placeOfPoint` and `pointMapOfPushforward`/`IsogenyEndDatum`/`IsogenyHomDatum` |
 | H5b | `WeierstrassCurve/Isogeny/NatCard.lean` (new) | landed | `natCard_…_of_separableAlong` + its three helpers, the H4 headline's route closure |
 | H5r | `Velu/{Discharge,Engine,RestrictAlong,Formula,OddOrder}.lean` → `Place/Dictionary.lean` (move) | landed | the dictionary extraction: the A1 `placeOfEquation` ord/centre group, `algebraMap_coordinateRing_ne_zero`/`IsFinitePlace.mem_centre_iff_ord_ne_zero`, `algebraMap_polynomial_eq_mk_C`, `eq_placeOfEquation_of_le_centre` and `ord_polyToFunctionField_*` moved to the dictionary (H5 must not import Vélu), and `exists_some_of_ne_zero` folded to one public copy in `Velu/Formula.lean` |
-| **H5** | `WeierstrassCurve/IsogenyEndDatum/Engine.lean` (new) | **remaining** | the 82-decl `IsogenyEndDatum` engine + the 35-decl seam, **and the two `IsogenyEndDatum` big theorems of the plan's Phase C** (`exists_dualEndData_dual_mem_and_norm_eq_finrankAlong` ≈ 4.0 k unique, `exists_restrictAlong_placeOfPoint_eq_add` ≈ 2.3 k unique), plus the small layer 0–1 `pointEnd`/`pointHom`/`aeval_j_diag` nodes and the plain `natCard_…` sibling of H5b. Builds on H1w + H5a |
+| **H5** | `WeierstrassCurve/IsogenyEndDatum/{Engine,RestrictAlongAdd,DualEndData,Vocabulary}.lean` + `Isogeny/DualAPI.lean` (new) | **landed** (two vocabulary nodes deferred) | the 82-decl `IsogenyEndDatum` engine + the 35-decl seam, **and the two `IsogenyEndDatum` big theorems of the plan's Phase C** (`exists_dualEndData_dual_mem_and_norm_eq_finrankAlong` and `exists_restrictAlong_placeOfPoint_eq_add`), plus the small layer 0–1 `pointEnd`/`pointHom`/`aeval_j_diag` nodes and the plain `natCard_…` sibling of H5b. Builds on H1w + H5a. **Three sequential sets, all landed** (SET-1 substrate + `DualAPI`; SET-2 the `restrictAlong` column incl. the unbudgeted 3,061-line `addX_addY_specialize_at_place` node; SET-3 the dual column + the vocabulary tail), with `pointHom_apply_eq_sub`/`pointEnd_apply_eq_sub`/`exists_pointEnd_eq_add`/plain `natCard` landed and **`exists_pointHom_comp_eq_of_ker_le_of_isCentred` + `aeval_j_diag_eq_zero_of_finrankAlong_eq` deferred to Phase D** on large unported prerequisites. Detail in [TOPIC-H5-engine.md](TOPIC-H5-engine.md) |
 | **H6** | `WeierstrassCurve/Isogeny/BaseChange.lean` (new, or extend `ModularityLifting.lean`) | **remaining** | the tensor/base-change blocks (≈ 1.5 k once-lines), reusing the already-ported WeightOne lattice material (`latticeEquivOfEq`). Independent of H5 |
 
 ### What remains, in order
@@ -291,7 +294,41 @@ landed, so the dictionary is importable without Vélu.
    `exists_forall_pointEnd_eq_zsmul_of_transcendental_j`, `exists_enum_twoTorsion…`,
    `veluQuotient2_j`, `bijOn_cyclicQuotientJ…`,
    `zmultiples_eq_…_of_transcendental`, `exists_equiv_addSubgroup…`). The
-   `IsogenyEndDatum`-dependent nodes here wait on H5.
+   `IsogenyEndDatum`-dependent nodes here wait on the H5 home (now landed).
+   Two H5 vocabulary nodes join this phase, each bringing its own prerequisite
+   set: `exists_pointHom_comp_eq_of_ker_le_of_isCentred` (needs
+   `exists_algEquiv_restrictAlong_placeOfPoint_eq_add`, 4,271 pin lines, and
+   `algHom_ext_of_forall_restrictAlong_placeOfPoint_eq`, 988) and
+   `aeval_j_diag_eq_zero_of_finrankAlong_eq` (needs the `PeriodPair`
+   uniformization ladder plus `exists_intermediateField_countable…`,
+   `Affine.exists_algHom_functionField_baseChange…`,
+   `eval_jLattice_eq_zero_of_isAddCyclic`, `IsAddCyclic.of_squarefree_natCard` and
+   `exists_genusOnePlaceGate_isCentred_and_abelTheorem`). They are the only
+   unfinished business of H5.
+5. **Torsion-API promotion (H5 follow-up).** Two of the three re-proofs are worth
+   promoting; `finite_torsionBy_of_natCast_ne_zero` (the `private`
+   `finite_torsionBy_aux`) is pure glue — it only specialises the already-ported
+   `card_torsion_of_isAlgClosed` — and stays private.
+   * `WeierstrassCurve.Affine.Point.exists_zsmul_eq_of_isAlgClosed` — a fidelity
+     gap: the pin states it char-free (via its `nsmul_surjective_charfree`), the
+     port's public `surjective_zsmul_of_ne_zero` adds `[CharZero K]`. 376-line pin
+     node; the `Elliptic/` EDS material it needs is ported.
+   * `WeierstrassCurve.nonempty_torsionBy_addEquiv_zmod_prod_of_isAlgClosed` — the
+     structural statement "`E[n]` over the algebraic closure is `(ZMod n)²`" for
+     `n` invertible in `K`. The pin headline is a **23-line wrapper** over the
+     generic group lemma
+     `AddCommGroup.nonempty_zmod_prod_addEquiv_torsionBy_of_card_torsionBy_eq_sq`
+     (a **378-line pin node, absent from the port**), which **7 other pin `S_`
+     nodes import — including both of H6's base-change nodes**
+     (`exists_algHom_baseChange_of_isAddCyclic_ker_pointMapOfPushforward`,
+     `isAddCyclic_ker_pointMapOfPushforward_of_baseChange_algHom`). Promote the
+     generic lemma into `FLTForHuman/Algebra/` and the headline into `Elliptic/`,
+     **before H6**.
+   Add the `Theorems/` wrappers of the two promoted headlines (and of the generic
+   lemma) to `SOURCES` — none is diffed today, so the divergences are invisible.
+   Work order (mathlib audit: the generic lemma and the divisibility instance are
+   both absent from mathlib `v4.34.0`) and dispatch status:
+   [TOPIC-torsion-promotion.md](TOPIC-torsion-promotion.md).
 
 **Cheap-node first.** Phases B and D are the bulk of the remaining node count but
 little of the remaining mass. Land them between the home phases where the layer

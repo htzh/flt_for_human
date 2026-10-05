@@ -516,3 +516,192 @@ Engine-side dictionary the `IsogenyEndDatum` route may pull
 (`polyToFunctionField_X_ne_algebraMap`, the `OrdPins` chain, …) is H5's own
 scoping, not this refactor.
 
+## H5 scoping — the column is three sets, and a second extraction is needed (2026-10-04)
+
+Not a port; a measurement round whose output is
+[../topics/velu/TOPIC-H5-engine.md](../topics/velu/TOPIC-H5-engine.md) and the
+SET-1 work order. Four findings.
+
+**The two `S_` files split 196 / 183 / 105.** Intersecting the declaration names
+of `S_…exists_dualEndData_dual_mem_and_norm_eq_finrankAlong.lean` (379 decls /
+9,906 lines) and `S_…exists_restrictAlong_placeOfPoint_eq_add.lean` (301 / 7,255)
+gives 196 names in both (the shared engine plus already-ported dictionary/H0
+names), 183 dual-only (`kw_dcao_*`, `cmm*`, `idDatum`/`compDatum`, `endst20`
+tail) and 105 res-only (the `es1a9_*`/`es1a10_*` non-collinear engine). That is
+the set cut: SET-1 shared engine, SET-2 dual-only + headline 1, SET-3 res-only +
+headline 2.
+
+**`Def_DualIsogenyAPI.lean` was unbudgeted.** Both `S_` files and both `Thm_`
+wrappers import it — 316 lines / ~50 declarations (`AddMonoidHom.IsDualPair`,
+`AddMonoid.End.DualEndData`, `ofCharPoly`/`intLinComb`/`symm`), mathlib-only, and
+none of it is ported. It is SET-1's first new module.
+
+**A second extraction is needed (H5r-2).** H5 must not import Vélu, and exactly
+eight pin names it uses are declared only in Vélu modules:
+`ord_X_eq_neg_two_of_not_isFinitePlace` (`Velu/Engine.lean` → `Place/Dictionary.lean`)
+and `Place.mem_restrictAlong_iff` / `Place.ramificationIndexAlong_pos` /
+`Place.ord_restrictAlong_ne_zero_iff` / `isIntegral_algHomId` /
+`finiteAlong_algHomId` / `restrictAlong_algHomId` (`Velu/RestrictAlong.lean` → a
+new `AlgebraicCurve/Defs/RestrictAlongAPI.lean`), plus
+`normFormulaAlong_of_elliptic`, which is a **same-name/different-statement** pair:
+the pin's H5 section is `[CharZero F]` with no `hsep`, the port's H4 copy in
+`Velu/RestrictAlong.lean` is the char-free `hsep` version. The H5 copy follows the
+pin's H5 binders; the two stay in disjoint import branches (flagged as a risk).
+
+**The extraction goes into a new leaf, not `Correspondence.lean`.** The three
+`Place.*` lemmas already sit in a delimited `Prerequisites: the restrictAlong
+place calculus` block at the top of `Velu/RestrictAlong.lean`; adding them to
+`Correspondence.lean` would cascade every WeilExchange/ModularCurve importer, so
+the home is a new `RestrictAlongAPI.lean` and the three existing modules are
+edited once, in SET-1. All of SET-2/SET-3 is new files, so the column's only
+cascade is SET-1's single wave.
+
+**Dispatch.** SET-1 (the substrate: extraction + `DualAPI.lean` + the shared
+`IsogenyEndDatum/Engine.lean`) is dispatched to one subagent; SET-2's order is
+written only after the manager reviews SET-1, and no two sets run at once.
+
+## H5 SET-1 — the substrate landed, and a fourth node was hiding (2026-10-04)
+
+**Result.** Checker `5133 → 5310 identical (305 → 311 promoted), 0 mismatched, 0
+missing, 35 → 36 own` (+177 identical, +6 promoted, +1 exemption). The whole tree
+`lake build` was re-verified green after the set's one wave of existing-module
+edits (58 s cascade); no `sorry`; `#print axioms` on the ported surface is
+`[propext, Classical.choice, Quot.sound]`.
+
+Modules: new `AlgebraicCurve/Defs/RestrictAlongAPI.lean` (the six
+`Place.*`/`algHomId` declarations moved out of `Velu/RestrictAlong.lean`), new
+`WeierstrassCurve/Isogeny/DualAPI.lean` (the whole `Def_DualIsogenyAPI.lean`,
+48/48), new `WeierstrassCurve/IsogenyEndDatum/Engine.lean` (**130 of the 136**
+validated declarations + the H5 `normFormulaAlong_of_elliptic`),
+`ord_X_eq_neg_two_of_not_isFinitePlace` moved from `Velu/Engine.lean` to
+`Place/Dictionary.lean`, and the checker wiring (`SOURCES` += the two H5 `S_`
+files; `PORT_FILES` += Engine; one `OWN_PROOFS` entry for
+`instInfinitePlace`).
+
+**The three left behind are a finding, not a gap.** `kw_hk5f_addSumCoordSeamDataNCAt_proved`,
+`kw_hk5f_addGeomMorphSupply_proved` and `kw_hk5f_addDatumSupply_proved` need
+`WeierstrassCurve.Affine.FunctionField.addX_addY_specialize_at_place`, whose
+canonical home is a **separate node the scout never counted**:
+`P2M/Sol/S_WeierstrassCurve_Affine_FunctionField_addX_addY_specialize_at_place.lean`,
+**3,061 lines / 115 declarations**. It is not in the port and not in the 42-node
+slice — the same class of miss as `Def_DualIsogenyAPI` (H2 §2). Its 115
+declarations are exactly the `restrictAlong`-column engine (`es1a9_*`,
+`es1a10_*`, `es1a11_*`), and **all 115 also occur in
+`S_…exists_restrictAlong_placeOfPoint_eq_add.lean`** (which inlines the node), so
+porting the node once covers the res engine. The subagent stopped and reported
+rather than pulling it in.
+
+**`InfinitePlace` needed a carrier.** The pin declares `place`,
+`not_isFinitePlace`, `eq_of_not_isFinitePlace` as `InfinitePlace` **namespace**
+lemmas; the port's `Place/Dictionary.lean` has a `class InfinitePlace` whose
+fields carry those names, so they cannot be re-declared. Engine defines the
+recovering instance from the gate so the pin's `S_` text still elaborates; it is
+the set's one new `OWN_PROOFS` entry.
+
+**Revision.** The specialist node folds into SET-2, which is now the whole
+`restrictAlong` column (specialize node + res-only engine + the three producers
+re-appended to Engine + the additivity headline); SET-3 is the dual column, which
+consumes `kw_hk5f_addDatumSupply_proved` and therefore waits on SET-2. Three sets
+still. Order in [../topics/velu/TOPIC-H5-engine.md](../topics/velu/TOPIC-H5-engine.md)
+§5.
+
+**SET-2 corrections (2026-10-04).** Two, both found by the worker and accepted:
+the three `kw_hk5f_*_proved` producers cannot live in Engine because their proofs
+go through the specialize node's `es1a9`/`es1a10` engine and `RestrictAlongAdd`
+imports Engine — they stay in `RestrictAlongAdd.lean`, and SET-3 will import that
+module alongside Engine. And the set was re-dispatched to a **fresh** subagent:
+the SET-1 worker's turns were being cut short (it was resumed many times), so the
+first worker's context was the constraint, not the task. SET-2 runs without
+artificial batching bounds.
+
+## H5 SET-2 — the `restrictAlong` column landed (2026-10-04)
+
+**Result.** `WeierstrassCurve/IsogenyEndDatum/RestrictAlongAdd.lean` (2,504 lines,
+**102 public declarations** + one `private theorem solution`). Checker
+`5310 → 5412 identical (311 promoted), 0 mismatched, 0 missing, 36 own` (+102);
+whole-tree `lake build` green (3 s cached); no `sorry`; `#print axioms` on the
+headline, the node, both producers and three sample proofs is
+`[propext, Classical.choice, Quot.sound]`.
+
+It carries the canonical `addX_addY_specialize_at_place` node (97 new of its 115;
+18 were already in Engine), the res-only extras (`kw_hk5f_addGeomMorphSupply_proved`,
+`kw_hk5f_addDatumSupply_proved`, `placeOfPointEquiv_symm_eq`), and the headline
+`exists_restrictAlong_placeOfPoint_eq_add`.
+
+**Friction worth keeping.**
+* The specialize `S_` file's public `solution` cannot keep that name: the dual
+  `S_` file also declares a public `solution` earlier in `SOURCES`, so a public
+  `solution` would diff against the wrong statement. It stays `private theorem
+  solution` and the wrapper name
+  `WeierstrassCurve.Affine.FunctionField.addX_addY_specialize_at_place` is
+  exposed instead; both wrappers were appended to `SOURCES` (the headline's last
+  name occurs in no `S_` file).
+* `attribute [local instance] ModularCurve.Es1a1.instDecEqFunctionFieldEs1a6Add`
+  must be active at file scope: Engine's instance is cross-module reachable by
+  name, and without it `es1a6_addSumX` unfolds with one instance while a written
+  `slope` term synthesizes another, so `rfl`/`ring` see distinct atoms.
+* Pin `W.isUnit_Δ.ne_zero` → port `isElliptic_Δ_ne_zero (W := W)`.
+* The ncVertical and es1a9 blocks transcribed pin-proof-verbatim (minus their
+  local-instance commands) and compiled first try.
+
+**SET-3 dispatched** to a fresh subagent: the dual-end-data column
+(`DualEndData.lean`) plus the H5 vocabulary tail (`Vocabulary.lean`:
+`pointEnd_apply_eq_sub`, `pointHom_apply_eq_sub`, `exists_pointEnd_eq_add`,
+`exists_pointHom_comp_eq_of_ker_le_of_isCentred`,
+`aeval_j_diag_eq_zero_of_finrankAlong_eq`, the plain `natCard` sibling). It imports
+`RestrictAlongAdd.lean` for the shared producers. Order in
+[../topics/velu/TOPIC-H5-engine.md](../topics/velu/TOPIC-H5-engine.md) §6.
+
+## H5 SET-3 — the dual column landed; H5 closed (2026-10-04)
+
+**Result.** New `DualEndData.lean` (3,959 lines after the density pass; 138 of the
+183 dual-only declarations) and `Vocabulary.lean` (177 lines; four of six
+vocabulary declarations). Checker `5412 → 5555 identical (313 promoted), 0
+mismatched, 0 missing, 36 own` (+143); whole tree green; no `sorry`; axioms
+`[propext, Classical.choice, Quot.sound]`. **Both H5 big theorems are now in the
+port**: `exists_dualEndData_dual_mem_and_norm_eq_finrankAlong` here and
+`exists_restrictAlong_placeOfPoint_eq_add` in SET-2.
+
+**Density pass.** 5,590 → 3,959 lines (blank 30% → 3.5%; 45 empty `namespace`/`end`
+stubs merged), no declaration, namespace or binder changed; checker and build
+unchanged at 0/0.
+
+**Two vocabulary nodes stopped and deferred** (Phase D, with prerequisites):
+`IsogenyHomDatum.exists_pointHom_comp_eq_of_ker_le_of_isCentred` (needs
+`exists_algEquiv_restrictAlong_placeOfPoint_eq_add`, 4,271 lines, and
+`algHom_ext_of_forall_restrictAlong_placeOfPoint_eq`, 988) and
+`IsogenyEndDatum.aeval_j_diag_eq_zero_of_finrankAlong_eq` (needs the `PeriodPair`
+uniformization ladder plus the `exists_intermediateField` / base-change /
+`eval_jLattice` / `IsAddCyclic` chain). They are H5's only unfinished business.
+
+**Friction.** Three by-name "in port" labels were false — `degree` (collides with
+`AlgebraicCurve.Divisor.degree`), `finiteAlong_comp` (dual specialization vs the
+general form) and `ord_ofHeightOneSpectrum_eq_neg_log` (general
+`AlgebraicCurve.Place` form vs the port's `RationalFunctionField` form) — and had
+to be ported. Three unported pin `Theorems/` imports were re-proved locally
+rather than pulled in: `finite_torsionBy_of_natCast_ne_zero` and
+`Point.exists_zsmul_eq_of_isAlgClosed` from
+`FLTForHuman.Elliptic.{card_torsion_of_isAlgClosed,smul_surjective}`, and
+`cmm5_dp_natCard_ker_natCast` directly, avoiding
+`nonempty_torsionBy_addEquiv_zmod_prod_of_isAlgClosed` and the pin-private
+`nonempty_pointTorsionBy_zmod` (whose generic `AddCommGroup` lemma is 378 lines).
+The pin's `S13_instIsDedekindDomainCoordinateRing` referenced a nonexistent
+`CoordinateRing.isDedekindDomain` and became
+`CoordinateRing.isDedekindDomain_of_Δ_ne_zero`.
+
+**Recommendation recorded.** Two of the three re-proofs are worth promoting (the
+`finite_torsionBy_aux` one is glue — it only specialises the ported
+`card_torsion_of_isAlgClosed` — and stays private): `Point.exists_zsmul_eq_of_isAlgClosed`
+(a fidelity gap — the pin is char-free, the port's local `surjective_zsmul_of_ne_zero`
+adds `[CharZero K]`) and `nonempty_torsionBy_addEquiv_zmod_prod_of_isAlgClosed`
+(the structural "`E[n]` is `(ZMod n)²`"; its pin proof is a 23-line wrapper over
+the generic `AddCommGroup.nonempty_zmod_prod_addEquiv_torsionBy_of_card_torsionBy_eq_sq`,
+a 378-line node absent from the port that **7 other pin `S_` nodes import,
+including both of H6's base-change nodes**). Add both `Theorems/` wrappers to
+`SOURCES` (undiffed today). Actionable entry:
+[TOPIC-port-plan.md](../topics/velu/TOPIC-port-plan.md) §5 item 5.
+
+
+
+
+

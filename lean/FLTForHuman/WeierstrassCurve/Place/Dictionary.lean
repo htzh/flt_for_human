@@ -942,6 +942,49 @@ theorem two_mul_ord_eq_of_not_isFinitePlace (hv : ¬ IsFinitePlace v)
       rw [v.ord_add_eq_min (polyToFunctionField_ne_zero hp) hqy0 hne, hordp, hordqy]
       exact two_mul_min_arith hA hYord
 
+omit [IsAlgClosed F] [W.IsElliptic] [InfinitePlace W] [IsDedekindDomain W.CoordinateRing] in
+theorem ord_X_eq_neg_two_of_not_isFinitePlace (hv : ¬ IsFinitePlace v) :
+    v.ord (polyToFunctionField W X) = -2 := by
+  have hA : v.ord (polyToFunctionField W X) < 0 := ord_X_neg_of_not_isFinitePlace v hv
+  have hYord := two_mul_ord_Y_eq_three_mul_ord_X v hv
+  obtain ⟨π, hπ⟩ := IsDiscreteValuationRing.exists_irreducible v.toValuationSubring
+  have hπord : v.ord (π : W.FunctionField) = 1 := v.ord_coe_irreducible hπ
+  have hπ0 : (π : W.FunctionField) ≠ 0 := by
+    simpa [ne_eq, ZeroMemClass.coe_eq_zero] using hπ.ne_zero
+  obtain ⟨a, b, hb, hab⟩ := IsFractionRing.div_surjective (A := W.CoordinateRing)
+    (π : W.FunctionField)
+  have hb0 : b ≠ 0 := nonZeroDivisors.ne_zero hb
+  have ha0 : a ≠ 0 := by
+    intro h
+    rw [h, _root_.map_zero, zero_div] at hab
+    exact hπ0 hab.symm
+  have ha' : algebraMap W.CoordinateRing W.FunctionField a ≠ 0 :=
+    (map_ne_zero_iff _ (IsFractionRing.injective W.CoordinateRing W.FunctionField)).mpr ha0
+  have hb' : algebraMap W.CoordinateRing W.FunctionField b ≠ 0 :=
+    (map_ne_zero_iff _ (IsFractionRing.injective W.CoordinateRing W.FunctionField)).mpr hb0
+  have h1 := two_mul_ord_eq_of_not_isFinitePlace v hv ha0
+  have h2 := two_mul_ord_eq_of_not_isFinitePlace v hv hb0
+  have h3 : v.ord (π : W.FunctionField)
+      = v.ord (algebraMap W.CoordinateRing W.FunctionField a)
+        - v.ord (algebraMap W.CoordinateRing W.FunctionField b) := by
+    rw [← hab, div_eq_mul_inv, v.ord_mul ha' (inv_ne_zero hb'), v.ord_inv]
+    ring
+  rw [hπord] at h3
+  have h4 : (2 : ℤ) = v.ord (polyToFunctionField W X) * (((Algebra.norm F[X] a).natDegree : ℤ)
+      - ((Algebra.norm F[X] b).natDegree : ℤ)) := by
+    linear_combination 2 * h3 + h1 - h2
+  have h5 : v.ord (polyToFunctionField W X) ∣ 2 := ⟨_, h4⟩
+  have h6 : (2 : ℤ) ∣ v.ord (polyToFunctionField W X) := by
+    have h7 : (2 : ℤ) ∣ 3 * v.ord (polyToFunctionField W X) := ⟨_, hYord.symm⟩
+    omega
+  have h8 : (v.ord (polyToFunctionField W X)).natAbs ∣ (2 : ℤ).natAbs :=
+    Int.natAbs_dvd_natAbs.mpr h5
+  have h9 : (2 : ℤ).natAbs ∣ (v.ord (polyToFunctionField W X)).natAbs :=
+    Int.natAbs_dvd_natAbs.mpr h6
+  have h10 : (v.ord (polyToFunctionField W X)).natAbs = 2 :=
+    Nat.dvd_antisymm (by simpa using h8) (by simpa using h9)
+  omega
+
 omit [W.IsElliptic] [InfinitePlace W] in
 theorem exists_equation [IsAlgClosed F] (W : Affine F) (x₀ : F) :
     ∃ y₀ : F, W.Equation x₀ y₀ := by

@@ -1985,6 +1985,49 @@ SOURCES = [
     # helper the Vélu restrictAlong route transcribed. The public wrapper is
     # promoted beside it in `Velu/RestrictAlong.lean`; appended last.
     "Theorems/Thm_AlgebraicCurve_relNorm_eq_pow_of_isMaximal_of_isSeparable.lean",
+    # --- H5 SET-1: the `DualEndData` algebra the isogeny-endomorphism column is
+    # stated in. A mathlib-only leaf, transcribed verbatim from its definition
+    # file. Appended last so no earlier last-name match can flip.
+    "Definitions/Def_DualIsogenyAPI.lean",
+    # --- H5 SET-1: the two big `S_` files are the statement authority for the
+    # shared `IsogenyEndDatum` engine
+    # (`FLTForHuman/WeierstrassCurve/IsogenyEndDatum/Engine.lean`). The primary
+    # file comes first (declaration order), the second copy second. Appended
+    # last so no earlier last-name match can flip.
+    "P2M/Sol/S_WeierstrassCurve_Affine_IsogenyEndDatum_exists_dualEndData_dual_mem_and_norm_eq_finrankAlong.lean",
+    "P2M/Sol/S_WeierstrassCurve_Affine_IsogenyEndDatum_exists_restrictAlong_placeOfPoint_eq_add.lean",
+    # --- H5 SET-2: the `restrictAlong`-add column
+    # (`FLTForHuman/WeierstrassCurve/IsogenyEndDatum/RestrictAlongAdd.lean`). The
+    # canonical specialize node's own `S_` file is listed for the 97 declarations
+    # it shares with the res `S_` file (the res file already wins those lookups);
+    # the two `Theorems/` wrappers are the statement authority for the node's
+    # public name and for the additivity headline (neither last name occurs in
+    # the `S_` files). Appended last so no earlier last-name match can flip.
+    "P2M/Sol/S_WeierstrassCurve_Affine_FunctionField_addX_addY_specialize_at_place.lean",
+    "Theorems/Thm_WeierstrassCurve_Affine_FunctionField_addX_addY_specialize_at_place.lean",
+    "Theorems/Thm_WeierstrassCurve_Affine_IsogenyEndDatum_exists_restrictAlong_placeOfPoint_eq_add.lean",
+    # --- H5 SET-3: the dual-end-data column
+    # (`FLTForHuman/WeierstrassCurve/IsogenyEndDatum/DualEndData.lean`). The dual
+    # `S_` file is already registered above (SET-1) as the shared-engine
+    # authority; the public headline's statement is the `Theorems/` wrapper,
+    # which carries a last name absent from the `S_` files. Appended last so no
+    # earlier last-name match can flip.
+    "Theorems/Thm_WeierstrassCurve_Affine_IsogenyEndDatum_exists_dualEndData_dual_mem_and_norm_eq_finrankAlong.lean",
+    # --- H5 SET-3: the H5 vocabulary tail
+    # (`FLTForHuman/WeierstrassCurve/IsogenyEndDatum/Vocabulary.lean`). The four
+    # `S_` files carry the proofs; their `Theorems/` wrappers are the statement
+    # authority. The plain `natCard_ker_pointMapOfPushforward` sibling is
+    # registered beside its landed `_of_separableAlong` copy (the latter is
+    # listed earlier, so it keeps winning the shared last names). Appended last
+    # so no earlier last-name match can flip.
+    "P2M/Sol/S_WeierstrassCurve_Affine_IsogenyEndDatum_pointEnd_apply_eq_sub.lean",
+    "P2M/Sol/S_WeierstrassCurve_Affine_IsogenyHomDatum_pointHom_apply_eq_sub.lean",
+    "P2M/Sol/S_WeierstrassCurve_Affine_IsogenyEndDatum_exists_pointEnd_eq_add.lean",
+    "P2M/Sol/S_WeierstrassCurve_Affine_natCard_ker_pointMapOfPushforward_eq_finrankAlong.lean",
+    "Theorems/Thm_WeierstrassCurve_Affine_IsogenyEndDatum_pointEnd_apply_eq_sub.lean",
+    "Theorems/Thm_WeierstrassCurve_Affine_IsogenyHomDatum_pointHom_apply_eq_sub.lean",
+    "Theorems/Thm_WeierstrassCurve_Affine_IsogenyEndDatum_exists_pointEnd_eq_add.lean",
+    "Theorems/Thm_WeierstrassCurve_Affine_natCard_ker_pointMapOfPushforward_eq_finrankAlong.lean",
 ]
 
 PORT_FILES = [
@@ -2758,6 +2801,24 @@ PORT_FILES = [
     # `S_` chain for `natCard_ker_pointMapOfPushforward`). Appended last so no
     # earlier last-name match can flip.
     "FLTForHuman/WeierstrassCurve/Isogeny/NatCard.lean",
+    # --- H5 SET-1: the `AddMonoidHom.IsDualPair`/`AddMonoid.End.DualEndData`
+    # algebra (mathlib-only) and the extracted `restrictAlong` place calculus.
+    # Appended last so no earlier last-name match can flip.
+    "FLTForHuman/WeierstrassCurve/Isogeny/DualAPI.lean",
+    "FLTForHuman/AlgebraicCurve/Defs/RestrictAlongAPI.lean",
+    # --- H5 SET-1: the shared `IsogenyEndDatum` engine (the declarations whose
+    # names occur in both H5 `S_` files, plus the H5 `normFormulaAlong_of_elliptic`).
+    # Appended last so no earlier last-name match can flip.
+    "FLTForHuman/WeierstrassCurve/IsogenyEndDatum/Engine.lean",
+    # --- H5 SET-2: the `restrictAlong`-add column (the `addX_addY_specialize_at_place`
+    # node, the res-only engine, the three `kw_hk5f_*_proved` producers and the
+    # additivity headline). Appended last so no earlier last-name match can flip.
+    "FLTForHuman/WeierstrassCurve/IsogenyEndDatum/RestrictAlongAdd.lean",
+    # --- H5 SET-3: the dual-end-data column and the H5 vocabulary tail (the two
+    # headline modules of the home). Appended last so no earlier last-name match
+    # can flip.
+    "FLTForHuman/WeierstrassCurve/IsogenyEndDatum/DualEndData.lean",
+    "FLTForHuman/WeierstrassCurve/IsogenyEndDatum/Vocabulary.lean",
 ]
 
 
@@ -2929,6 +2990,14 @@ OWN_PROOFS = {
     "PatchingConstruction.Algebra.TopologicallyFG",
     "PatchingConstruction.IsPatchingSystem",
     "PatchingConstruction.PatchingAlgebra.smulData",
+    # H5 SET-1: `InfinitePlace` is a *class* in `Place/Dictionary.lean` (the H5r
+    # dictionary extraction), so the pin's `InfinitePlace.place`,
+    # `not_isFinitePlace` and `deg_eq_one`/`eq_of_not_isFinitePlace` survive as
+    # its fields.  The engine recovers the instance from the pin's gate
+    # vocabulary with the pin's own proofs; the class has no pin counterpart
+    # under this name, so the instance is the port's own declaration.  Dotted,
+    # so the exemption cannot leak to any other `instInfinitePlace`.
+    "WeierstrassCurve.Affine.instInfinitePlace",
 }
 
 # Declaration keywords. `instance` matters for PhiGen; `structure` for Polynomial.

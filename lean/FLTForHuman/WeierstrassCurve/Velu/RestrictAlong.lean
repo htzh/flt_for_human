@@ -76,6 +76,7 @@ import FLTForHuman.WeierstrassCurve.GenusOnePlaceGate
 import FLTForHuman.WeierstrassCurve.Isogeny.ConditionalCurrency
 import FLTForHuman.WeierstrassCurve.Isogeny.NatCard
 import FLTForHuman.AlgebraicCurve.Defs.Correspondence
+import FLTForHuman.AlgebraicCurve.Defs.RestrictAlongAPI
 import Mathlib.FieldTheory.SeparableClosure
 import Mathlib.RingTheory.Ideal.Norm.RelNorm
 
@@ -92,45 +93,12 @@ open WeierstrassCurve.Affine
 open WeierstrassCurve.Affine.CoordinateRing
 open AlgebraicCurve
 
-/-! ### Prerequisites: the `restrictAlong` place calculus
+/-! ### The `restrictAlong` place calculus
 
-The pin's `restrictAlong` place dictionary (`Place.mem_restrictAlong_iff`,
-`Place.ramificationIndexAlong_pos`, `Place.ord_restrictAlong_ne_zero_iff`) is
-consumed by the seam but is not yet available in
-`AlgebraicCurve/Defs/Correspondence.lean`. It is transcribed verbatim from the
-pin's `S_` file (lines 3269–3301) in this delimited section, like the
-`section Prerequisites` blocks of `Velu/Discharge.lean` and `Velu/OddOrder.lean`. -/
-
-namespace AlgebraicCurve.Place
-
-variable {K F F' : Type*} [Field K] [Field F] [Field F'] [Algebra K F] [Algebra K F']
-
-theorem mem_restrictAlong_iff (φ : F →ₐ[K] F') (hφ : φ.toRingHom.IsIntegral)
-    (w : Place K F') (f : F) :
-    f ∈ (w.restrictAlong φ hφ).toValuationSubring ↔ φ f ∈ w.toValuationSubring :=
-  Iff.rfl
-
-theorem ramificationIndexAlong_pos (φ : F →ₐ[K] F') (hφ : φ.toRingHom.IsIntegral)
-    (w : Place K F') : 0 < Place.ramificationIndexAlong φ w := by
-  letI := algebraAlong φ
-  haveI := isScalarTower_along φ
-  haveI := isIntegral_along φ hφ
-  exact w.ramificationIndex_pos
-
-theorem ord_restrictAlong_ne_zero_iff (φ : F →ₐ[K] F') (hφ : φ.toRingHom.IsIntegral)
-    (w : Place K F') (f : F) :
-    (w.restrictAlong φ hφ).ord f ≠ 0 ↔ w.ord (φ f) ≠ 0 := by
-  rw [w.ord_restrictAlong φ hφ f]
-  have hpos := Place.ramificationIndexAlong_pos φ hφ w
-  constructor
-  · intro h hcon
-    rcases mul_eq_zero.mp hcon with h1 | h1
-    · omega
-    · exact h h1
-  · intro h hcon
-    exact h (by rw [hcon, mul_zero])
-
-end AlgebraicCurve.Place
+`Place.mem_restrictAlong_iff`, `Place.ramificationIndexAlong_pos` and
+`Place.ord_restrictAlong_ne_zero_iff` were extracted to the leaf module
+`AlgebraicCurve/Defs/RestrictAlongAPI.lean` (H5 SET-1), imported above, so that
+the H5 `IsogenyEndDatum` column can use them without importing Vélu. -/
 
 namespace WeierstrassCurve
 
@@ -1891,23 +1859,9 @@ theorem pointMapOfPushforward_eq_of_seam_cf (g : W.Point → V.Point) (hg0 : g 0
 
 end CharFreePMOP
 
-namespace IsogenyEndDatum
-
-variable {F : Type*} [Field F] (W : Affine F)
-
-theorem isIntegral_algHomId :
-    (AlgHom.id F W.FunctionField).toRingHom.IsIntegral :=
-  RingHom.isIntegral_of_surjective _ Function.surjective_id
-
-theorem finiteAlong_algHomId : AlgebraicCurve.FiniteAlong F (AlgHom.id F W.FunctionField) := by
-  unfold AlgebraicCurve.FiniteAlong AlgebraicCurve.algebraAlong
-  exact Module.Finite.self _
-
-theorem restrictAlong_algHomId (w : AlgebraicCurve.Place F W.FunctionField) :
-    w.restrictAlong (AlgHom.id F W.FunctionField) (isIntegral_algHomId W) = w :=
-  AlgebraicCurve.Place.ext (SetLike.ext fun _ => Iff.rfl)
-
-end IsogenyEndDatum
+-- `IsogenyEndDatum.isIntegral_algHomId`, `finiteAlong_algHomId` and
+-- `restrictAlong_algHomId` were extracted to the leaf module
+-- `AlgebraicCurve/Defs/RestrictAlongAPI.lean` (H5 SET-1), imported above.
 
 end Affine
 
