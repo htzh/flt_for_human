@@ -1980,6 +1980,11 @@ SOURCES = [
     "P2M/Sol/S_WeierstrassCurve_Affine_natCard_ker_pointMapOfPushforward_eq_finrankAlong_of_separableAlong.lean",
     "P2M/Sol/S_AlgebraicCurve_Place_eq_ofHeightOneSpectrum_of_XClass_mem_nonunits_of_YClass_mem_nonunits.lean",
     "P2M/Sol/S_WeierstrassCurve_Affine_FunctionField_exists_eq_valuationSubring_of_X_mem.lean",
+    # CARRY-FORWARD entry #1 intersection: the `Theorems/` wrapper for the
+    # `relNorm_eq_pow_of_isMaximal_of_isSeparable` node, whose `S_`-private
+    # helper the Vélu restrictAlong route transcribed. The public wrapper is
+    # promoted beside it in `Velu/RestrictAlong.lean`; appended last.
+    "Theorems/Thm_AlgebraicCurve_relNorm_eq_pow_of_isMaximal_of_isSeparable.lean",
 ]
 
 PORT_FILES = [

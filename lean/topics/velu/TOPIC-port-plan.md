@@ -1,8 +1,17 @@
 # Vélu port plan — factoring the 91 k-line cluster
 
-**Status: Phase A engine and the H3/H4 capstone landed (2026-10-04); H5/H6 and the
-extras-relocation refactor remain. Record in
-[../../logs/velu-port.md](../../logs/velu-port.md).** The operative plan for the Vélu block
+**Status: the explicit-Vélu column is landed; the `IsogenyEndDatum` and
+base-change columns and the cheap-node phases remain.** H0, the H1w place
+dictionary, the H2 engine (SET-1/2/3) and both explicit-Vélu headline pairs
+(H3/H4) are in the port, together with the H5a/H5b prerequisites the wire test
+pulled forward. The plan's **Phase C capstone** — its four headline theorems —
+therefore landed early, during what the plan had scheduled as Phase A; Phase C's
+two `IsogenyEndDatum` theorems did not, and are the deliverable of the unstarted
+home **H5**. Re-measured against the port, the remaining slice is **42 nodes /
+26,674 net new lines** (pre-port: 47 / 39,986). Dated record:
+[../../logs/velu-port.md](../../logs/velu-port.md).
+
+The operative plan for the Vélu block
 of the elliptic-curve subject (scout §4 items 4–5). Pin
 `anthropics/fermats-last-theorem@aa2d8b3`; port mathlib `v4.34.0`. The subject
 scout is [../../../studies/elliptic-weierstrass-tate-scout.md](../../../studies/elliptic-weierstrass-tate-scout.md)
@@ -15,9 +24,11 @@ a reusable method are in
 [../../../studies/velu-cluster-structure.md](../../../studies/velu-cluster-structure.md).
 
 Everything below is measured with `tools/deps` on the scout §6 `--nodes` slice
-(47 nodes / 91,442 raw `S_` lines — the scout's unit classifier spells the same
-block as 49 nodes / 91,772 lines; two nodes differ between the two spellings).
-The numbers are the tools' numbers, not estimates; §6 reproduces them. The text
+(47 nodes / 91,442 raw `S_` lines pre-port — the scout's unit classifier spells
+the same block as 49 nodes / 91,772 lines; two nodes differ between the two
+spellings). The numbers are the tools' numbers, not estimates; §6 reproduces
+them. §1–§3 are the pre-port planning measurement that derived the factoring;
+§1.4 re-runs the same instrument against the port to price what is left. The text
 report of the naive instrument is ~105 kB over 4,607 declarations — too large to
 read as a plan — so §4 describes the compact companion that regroups it.
 
@@ -32,7 +43,8 @@ each `X` / `X_of_Y` pair and derive the plain one; (3) then the four big theorem
 are thin layers over the homes. The naive arithmetic
 `91k − 50k removable − 10k already ported ≈ 31k` is **wrong by ~9 k**: it
 subtracts per-occurrence substitutions that sit inside the removable duplicates
-(§1.3).
+(§1.3). The port has since realized the deduction: §1.4 re-measures what remains
+at **26,674** net new lines.
 
 ## 1. Budget: what is actually new
 
@@ -94,6 +106,29 @@ most of them. At *group* granularity the in-port saving collapses from 9,676
 per-occurrence lines to **2,984**: "keep one copy" already zeroes the other
 copies, and the only extra saving is that the kept copy is free.
 
+### 1.4 Re-measured against the port
+
+The landed explicit-Vélu column removes its four `S_` files and the H1w /
+place-gate nodes from the slice. Re-running §6 against the present port — the
+node filter is "nodes the port does not yet provide", so it shrinks as homes
+land — gives the remaining work:
+
+| quantity | pre-port | remaining |
+|---|---:|---:|
+| nodes | 47 | 42 |
+| raw `S_` lines | 91,442 | 47,509 |
+| distinct declaration groups | 1,930 | 1,282 |
+| once-cost after dedup | 42,970 | 30,647 |
+| — already in the port | 2,984 | 3,973 |
+| **net new mathematics** | **39,986** | **26,674** |
+
+So the engine and its four headlines consumed ≈ 13.3 k of the original 40 k. All
+seven nodes of §1.1 are still ahead, so that table still says where the mass is:
+the two `IsogenyEndDatum` headlines H5 owns are ≈ 6.3 k unique, the two large
+self-contained consumers (`veluQuotient_oddOrderSummingSet_discriminant_prod_veluU_pow`,
+`exists_intermediateField_countable_map_eq_of_…`) ≈ 5.6 k, and the rest is §5's
+cheap-node phases.
+
 ## 2. The factoring units (homes)
 
 Regrouping the shared declarations by **identical target-file set** gives the
@@ -135,8 +170,10 @@ ported: it is the deferred [CARRY-FORWARD.md](../../CARRY-FORWARD.md) entry #1,
 whose registered trigger is this very cluster. H2 cannot import it; it must be
 written first, as home **H1w**. Measured: `IsFinitePlace` occurs 713 / 405 / 525
 times in the `IsogenyEndDatum` and base-change files and zero `velu*` names do,
-so H1w is the slice's true prerequisite and H5/H6 run parallel with H2 after it.
-See [TOPIC-H2-engine.md](TOPIC-H2-engine.md).
+so H1w is the slice's true prerequisite and H5/H6 run parallel with each other
+after it. H1w and the explicit-Vélu rows of the table above are now landed; the
+`IsogenyEndDatum` and base-change rows are H5/H6. See
+[TOPIC-H2-engine.md](TOPIC-H2-engine.md).
 
 ## 3. The sibling rule: port the general, derive the special
 
@@ -195,92 +232,82 @@ consumes the advice JSON and emits budget / blocks / siblings / layers in ~275
 lines. It is a planning aid, not a second instrument: `port_advise` remains the
 per-declaration authority.
 
-## 5. Proposed homes and order
+## 5. Homes, status, and what remains
 
 Homes follow the scout §4/§5 discipline (one home per piece) and the existing
-tree:
+tree. The status column is the plan's status; the dated record is
+[../../logs/velu-port.md](../../logs/velu-port.md).
 
-| id | home | contents |
-|---|---|---|
-| H0 | `FLTForHuman/WeierstrassCurve/FunctionFieldQuadratic.lean` (extend) | the 4-decl bridge; highest fan-in (10 files). **Done 2026-10-04**: 36 written lines, not 972 — the tool's span counts the pin's empty section skeleton ([record](../../logs/velu-port.md)) |
-| H1 | `FLTForHuman/AlgebraicCurve/{P1,Defs}/…` (import) | the **general** place/`ord`/`evalAt` layer; the budget's 2,984 in-port lines. It is *not* the Weierstrass dictionary — see H1w |
-| H1w | `FLTForHuman/WeierstrassCurve/Place/Dictionary.lean` (new) + `AlgebraicCurve/Defs/PlaceCalculus.lean` (new) | **revised in 2026-10-04**: the deferred Weierstrass `CoordinateRing` place dictionary ([CARRY-FORWARD.md](../../CARRY-FORWARD.md) entry #1, ≈941 content lines, 27 blocked citers) plus the general `evalAt`/`ord` additions the Vélu files need. H2/H3/H4/H5/H6 all consume it; it is the first half of **SET-1** |
-| H2 | `WeierstrassCurve/Velu/{Formula,Engine,Discharge,OddOrder}.lean` (new) | **revised**: one 7.2 k-line home becomes **three sequential sets** — SET-1 (H1w + formulas A–D → `Velu/Formula.lean`), SET-2 (E+F → `Velu/Engine.lean`), SET-3 (G+H → `Velu/Discharge.lean` + `Velu/OddOrder.lean`). Full work orders and the cascade-minimizing build discipline: [TOPIC-H2-engine.md](TOPIC-H2-engine.md) |
-| H3 | `FLTForHuman/WeierstrassCurve/Velu/MapEquation.lean` (new) | the map-column engine (766 new lines of that column's 2,670) + both headline proofs. **Done 2026-10-04** (443 lines; checker `4913 → 4933`) |
-| H4 | `FLTForHuman/WeierstrassCurve/Velu/RestrictAlong.lean` (new) | the 68-decl `restrictAlong`-only engine (1,322 new) + both headline proofs. **Engine done 2026-10-04** (1,168 lines, 65/68; checker `4933 → 4999`); the two headlines are **blocked on H5a** (see below) |
-| **H5a** | `WeierstrassCurve/GenusOnePlaceGate.lean` + `WeierstrassCurve/Isogeny/ConditionalCurrency.lean` (new) | **added 2026-10-04 — the wire test's finding.** The H4 wrapper's *binders* require `[GenusOnePlaceGate W]`, `[GenusOnePlaceGate.IsCentred W]`, `[AbelTheorem W]` (and for the quotient curve), and its conclusion names `pointMapOfPushforward`/`placeOfPoint`. None exist in the port: this is the other half of CARRY-FORWARD entry #1's deferred RR/class-group block plus H5's vocabulary. **Must land before H4's headlines** |
-| H5 | `FLTForHuman/WeierstrassCurve/IsogenyEndDatum/Engine.lean` (new) | the 82-decl `IsogenyEndDatum` engine + the 35-decl seam; builds on H5a |
-| H5b | *(the natCard node)* | `natCard_ker_pointMapOfPushforward_eq_finrankAlong_of_separableAlong` (601 pin lines) + its three helper wrappers — H4's headline *proof* needs it (`finrankAlong F ι = 2n+1` is proved only through it) |
-| H6 | `FLTForHuman/WeierstrassCurve/Isogeny/BaseChange.lean` (new, or extend `ModularityLifting.lean`) | the tensor/base-change blocks |
+| id | home | status | contents |
+|---|---|---|---|
+| H0 | `FLTForHuman/WeierstrassCurve/FunctionFieldQuadratic.lean` (extend) | landed | the 4-decl generic-point bridge, the slice's highest fan-in (10 files). 36 written lines, not 972 — the tool's span counted the pin's empty section skeleton |
+| H1 | `FLTForHuman/AlgebraicCurve/{P1,Defs}/…` (import) | landed | the **general** place/`ord`/`evalAt` layer, imported not re-derived. It is *not* the Weierstrass dictionary — that is H1w |
+| H1w | `WeierstrassCurve/Place/Dictionary.lean` + `AlgebraicCurve/Defs/PlaceCalculus.lean` (new) | landed | the deferred Weierstrass `CoordinateRing` place dictionary ([CARRY-FORWARD.md](../../CARRY-FORWARD.md) entry #1) plus the general `evalAt`/`ord` additions; the prerequisite of every later home |
+| H2 | `WeierstrassCurve/Velu/{Defs,Formula,Engine,Discharge,OddOrder}.lean` (new) | landed | the explicit-Vélu engine, ported as three sequential sets (SET-1 A–D + vocabulary, SET-2 E+F, SET-3 G+H). Work orders: [TOPIC-H2-engine.md](TOPIC-H2-engine.md) |
+| H3 | `WeierstrassCurve/Velu/MapEquation.lean` (new) | landed | the map-column engine + both `velu_map_equation_of_oddOrderSummingSet{,_of_isAlgClosed}` headlines |
+| H4 | `WeierstrassCurve/Velu/RestrictAlong.lean` (new) | landed | the `restrictAlong`-only engine + both `exists_veluFunctionFieldHom_restrictAlong_placeOfPoint_eq{,_of_isAlgClosed}` headlines |
+| H5a | `WeierstrassCurve/GenusOnePlaceGate.lean` + `Isogeny/ConditionalCurrency.lean` (new) | landed | the wire test's finding: `GenusOnePlaceGate`/`IsCentred`/`AbelTheorem`/`placeOfPoint` and `pointMapOfPushforward`/`IsogenyEndDatum`/`IsogenyHomDatum` |
+| H5b | `WeierstrassCurve/Isogeny/NatCard.lean` (new) | landed | `natCard_…_of_separableAlong` + its three helpers, the H4 headline's route closure |
+| **H5r** | `Velu/{Discharge,OddOrder,Formula}.lean` → `Place/Dictionary.lean` (move) | **remaining, first** | the extras relocation: the delimited `section Prerequisites` A1 dictionary group (`mk_mem_XYIdeal_iff`, `ord_placeOfEquation_*`, `centre_placeOfEquation`, `isRational_placeOfEquation`) moves to `Place/Dictionary.lean`, because the `IsogenyEndDatum` home must not import Vélu, and `exists_some_of_ne_zero` folds to one public copy in `Velu/Formula.lean` |
+| **H5** | `WeierstrassCurve/IsogenyEndDatum/Engine.lean` (new) | **remaining** | the 82-decl `IsogenyEndDatum` engine + the 35-decl seam, **and the two `IsogenyEndDatum` big theorems of the plan's Phase C** (`exists_dualEndData_dual_mem_and_norm_eq_finrankAlong` ≈ 4.0 k unique, `exists_restrictAlong_placeOfPoint_eq_add` ≈ 2.3 k unique), plus the small layer 0–1 `pointEnd`/`pointHom`/`aeval_j_diag` nodes and the plain `natCard_…` sibling of H5b. Builds on H1w + H5a |
+| **H6** | `WeierstrassCurve/Isogeny/BaseChange.lean` (new, or extend `ModularityLifting.lean`) | **remaining** | the tensor/base-change blocks (≈ 1.5 k once-lines), reusing the already-ported WeightOne lattice material (`latticeEquivOfEq`). Independent of H5 |
 
-Order (the tool's `layers` section gives the dependency levels; homes land before
-consumers):
+### What remains, in order
 
-**Phase A — homes, no new public theorem.**
-1. Re-run the budget with the vetted substitutions; import H1 wholesale.
-2. Port **H0** (bridge) — 4 decls, unblocks everything. **Landed 2026-10-04**
-   (checker `4436 → 4440`, consumer zone 3, axioms clean);
-   see [../../logs/velu-port.md](../../logs/velu-port.md).
-3. Port **H1w** (the Weierstrass place dictionary) — the real prerequisite for
-   every other home. Measured: the port has no `placeOfEquation`/`IsFinitePlace`
-   for `W.CoordinateRing`, no `exists_eq_XYIdeal`, no Weierstrass `XYIdeal`
-   dictionary; the four Vélu files need 332 lines of it, and the
-   `IsogenyEndDatum`/base-change files reference `IsFinitePlace` 713 / 405 / 525
-   times. It is the first module of **SET-1**.
-4. Port **H2** (the explicit-Vélu engine, ~7.2 k new) as **three sequential
-   sets** — SET-1 (H1w + formulas A–D), SET-2 (engine E+F), SET-3 (discharge
-   G+H). One subagent per set, reviewed before the next; no two sets in flight.
-   Work orders and the cascade-minimizing build discipline:
-   [TOPIC-H2-engine.md](TOPIC-H2-engine.md).
-5. Write the **capstone** (the four headline theorems). **Revised 2026-10-04 by
-   the wire test:** the map pair (`H3`) landed; the restrictAlong pair is
-   **blocked on H5a**, because the wrapper's binders require the
-   `GenusOnePlaceGate`/`IsCentred`/`AbelTheorem` classes and its conclusion names
-   `pointMapOfPushforward`/`placeOfPoint`. The original Phase C order (capstone
-   before H5) was wrong: the two spines meet earlier than the plan assumed.
-   Sequence is now **H5a → H5b (natCard) → H4 headlines**, then H6.
-6. Port **H5a** (the place gate + isogeny dictionary, ~436 pin lines / 57 decls)
-   — the first citer of the CARRY-FORWARD entry; then **H5b** (natCard), then
-   re-dispatch the H4 headlines only (the engine is already green, so the three
-   blocked engine declarations and the two headlines append without touching it).
-7. Port **H6** (base-change/tensor engine), reusing the already-ported WeightOne
-   lattice material (`latticeEquivOfEq` is already in
-   `ModularForms/WeightOne/FrickeFunction.lean`).
+The tool's `layers` section (§6) is the authoritative remaining inventory — the
+plan's own name lists have under-counted before, so take the 42-node list from
+the tool and read it through the groups below. Homes land before consumers; the
+landed run already validated the `H5a → H5b → H4 headlines` order.
 
-**Phase B — the cheap, self-contained formula nodes** (layer 0, ≤ 200 lines each;
-they exercise the engine immediately): `veluQuotient2_{Delta_eq,cFour,j}`,
-`Delta_eq_veluGx_sq_mul_velu2QuadDisc`, the `velu2_*_cleared_identity` trio,
-`veluGx_ne_zero_of_two_torsion`, `velu2QuadDisc_ne_zero_of_two_torsion`,
-`veluQuotient2_Delta_ne_zero`, `isElliptic_veluQuotient2_of_isElliptic`,
-`isOddVeluSet_oddOrderSummingSet`, `exists_map_eq_veluQuotient_and_map_residue…`,
-`cyclicQuotientJ_{variableChange_eq,baseChange_map_eq_of_isAlgClosed}`,
-`exists_addMonoidHom_coe_eq_veluPointMap2` (1,438 raw, 1,292 unique).
+1. **H5r — the extras relocation.** A pure move, no new mathematics; it blocks
+   H5, so it is first.
+2. **H5 — the `IsogenyEndDatum` column.** Engine and seam, then its two big
+   theorems (the plan's Phase C remainder) and the small vocabulary nodes
+   (`pointEnd_apply_eq_sub`, `pointHom_apply_eq_sub`, `exists_pointEnd_eq_add`,
+   `exists_pointHom_comp_eq_of_ker_le_of_isCentred`, `aeval_j_diag_eq_zero…`, and
+   the plain `natCard_ker_pointMapOfPushforward_eq_finrankAlong`).
+3. **H6 — the base-change column.** Tensor engine and its three consumer nodes
+   (`exists_algHom_baseChange…`,
+   `isAddCyclic_ker_pointMapOfPushforward_of_baseChange_algHom`,
+   `…_of_algEquiv_conj`). Parallel to H5 in principle, sequential by decision.
+4. **Phase B — the cheap, self-contained formula nodes** (layer 0, mostly ≤ 200
+   lines each; they exercise the landed engine): `veluQuotient2_{Delta_eq,cFour,j}`,
+   `Delta_eq_veluGx_sq_mul_velu2QuadDisc`, the `velu2_*_cleared_identity` trio,
+   `veluGx_ne_zero_of_two_torsion`, `velu2QuadDisc_ne_zero_of_two_torsion`,
+   `veluQuotient2_Delta_ne_zero`, `isElliptic_veluQuotient2_of_isElliptic`,
+   `isOddVeluSet_oddOrderSummingSet`,
+   `veluQuotient_oddOrderSummingSet_discriminant_ne_zero_of_addOrderOf_eq`,
+   `exists_map_eq_veluQuotient_and_map_residue…`,
+   `cyclicQuotientJ_{variableChange_eq,baseChange_map_eq_of_isAlgClosed}`,
+   `exists_addMonoidHom_coe_eq_veluPointMap2` (1,292 unique).
+5. **Phase D — the remaining consumers**, in `layers` order: layer 2
+   (`exists_pointEnd_eq_of_mem_isogenyEndSubring`, `exists_intermediateField…`,
+   `exists_enum_cyclicKernels…`, `exists_veluFunctionFieldHom_pointMap…`,
+   `exists_veluPointHom_oddOrderSummingSet_of_isAlgClosed`), then layers 3–6
+   (`exists_sq_lt_four_mul…`, `eval_modularPolynomial…`,
+   `isElliptic_veluQuotient2…`, `zmultiples_eq_…_forall_isogenyEndDatum_exists_int`,
+   `exists_forall_pointEnd_eq_zsmul_of_transcendental_j`, `exists_enum_twoTorsion…`,
+   `veluQuotient2_j`, `bijOn_cyclicQuotientJ…`,
+   `zmultiples_eq_…_of_transcendental`, `exists_equiv_addSubgroup…`). The
+   `IsogenyEndDatum`-dependent nodes here wait on H5.
 
-**Phase C — the four big theorems.**
-1. `velu_map_equation_of_oddOrderSummingSet_of_isAlgClosed` (general) + plain
-   corollary.
-2. `exists_veluFunctionFieldHom_restrictAlong_placeOfPoint_eq_of_isAlgClosed`
-   (general) + plain corollary.
-3. `IsogenyEndDatum.exists_dualEndData_dual_mem_and_norm_eq_finrankAlong`
-   (~4.0 k unique).
-4. `IsogenyEndDatum.exists_restrictAlong_placeOfPoint_eq_add` (~2.3 k unique).
-
-**Phase D — the remaining consumers**, in `layers` order: layer 2
-(`exists_pointEnd_eq_of_mem_isogenyEndSubring`, `exists_intermediateField…`,
-`exists_enum_cyclicKernels…`, `exists_veluFunctionFieldHom_pointMap…`,
-`exists_veluPointHom_oddOrderSummingSet_of_isAlgClosed`,
-`veluQuotient2_Delta_ne_zero`), then layers 3–6 (`exists_sq_lt_four_mul…`,
-`eval_modularPolynomial…`, `isElliptic_veluQuotient2…`,
-`zmultiples_eq_…_forall_isogenyEndDatum_exists_int`,
-`exists_forall_pointEnd_eq_zsmul_of_transcendental_j`, `exists_enum_twoTorsion…`,
-`veluQuotient2_j`, `bijOn_cyclicQuotientJ…`,
-`zmultiples_eq_…_of_transcendental`, `exists_equiv_addSubgroup…`).
-
-**Cheap-node first.** Phases B and D are ~19 k of unique lines across ~40 nodes,
-most of them small. Land them between the home phases where the layer graph
-allows; the only large self-contained item is
+**Cheap-node first.** Phases B and D are the bulk of the remaining node count but
+little of the remaining mass. Land them between the home phases where the layer
+graph allows; the only large self-contained items are
 `veluQuotient_oddOrderSummingSet_discriminant_prod_veluU_pow` (3,546 unique) and
-`exists_intermediateField_countable_map_eq_of_…` (2,035 unique).
+`exists_intermediateField_countable_map_eq_of_…` (2,035 unique), both unchanged
+from §1.1.
+
+### Revisions the port forced
+
+- **The capstone was scheduled twice.** Phase A item 5 ("write the capstone") and
+  Phase C items 1–2 are the same four theorems; they landed with the H2/H4 work
+  once the wire test pulled H5a/H5b forward. The remaining work is now stated
+  once, as H5 and H6.
+- **A set's list is the route closure of its deliverable, not the cluster
+  intersection of its files.** H3/H4 needed off-list names and H4b a char-free
+  norm and separability chain; the rule and its evidence are in
+  [TOPIC-H2-engine.md](TOPIC-H2-engine.md) §5. Apply it when scoping H5/H6.
 
 ## 6. Reproduce
 
@@ -288,7 +315,8 @@ allows; the only large self-contained item is
 cd tools/deps
 python3 frontier.py --selfcheck | tail -1          # graph sanity
 
-# the slice (unchanged from the scout §6)
+# the slice: nodes the port does not yet provide. This shrinks as homes land
+# (47 nodes pre-port, 42 after the explicit-Vélu column)
 python3 - <<'PY' > build/velu_nodes.txt
 import frontier, re
 fr = frontier.Frontier(); pay = fr.pay; front = fr.frontier('union')
@@ -306,7 +334,9 @@ python3 port_plan.py --selftest
 ```
 
 `port_plan.py` is a private companion in `tools/deps` (untracked, like the rest of
-the toolchain); its artifacts are `tools/deps/build/velu_plan.{txt,json}`. Every
-figure in §1–§3 is a line of `build/velu_plan.txt`. The per-node raw lines and the
-`X` / `X_of_Y` overlap ratios are recomputed from the pin at `aa2d8b3`, so re-pin
-before re-measuring.
+the toolchain); its artifacts are `tools/deps/build/velu_plan.{txt,json}`. These
+hold the **current (post-port) run** of the block above, which is where §1.4 and
+§5's remaining list come from; §1's budget is the pre-port measurement of the same
+report, recorded in this file. The per-node raw lines and the `X` / `X_of_Y`
+overlap ratios are recomputed from the pin at `aa2d8b3`, so re-pin before
+re-measuring.

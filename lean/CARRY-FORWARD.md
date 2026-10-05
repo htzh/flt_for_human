@@ -41,6 +41,36 @@ dictionary and the class-group / Riemann–Roch block
 (`geomPlaceOfPoint`, `geomDivisorSum`, `unitIdealOfPoint`, `RRSpace`,
 `isPrincipal_of_geomDivisorSum_eq_zero'`, …).
 
+**Status 2026-10-04 (taken by the Vélu Phase A engine).** This entry's trigger —
+"the first citer: `WeierstrassCurve.Affine.IsogenyEndDatum.*`,
+`WeierstrassCurve.exists_veluFunctionFieldHom_*`" — fired. What landed:
+
+- the `placeOfEquation` / `IsFinitePlace` / `heightOneSpectrumOfEquation` / `ord`
+  dictionary and the 50-declaration citers' closure, in
+  `FLTForHuman/WeierstrassCurve/Place/Dictionary.lean` (+ the general
+  `evalAt`/`ord` additions in `AlgebraicCurve/Defs/PlaceCalculus.lean`);
+- the place gate, `AbelTheorem` and the class-group/`Pic0` equivalence from
+  `Def_WeierstrassCurve_GenusOnePic0` / `Def_WeierstrassCurve_GenusOnePlaceGateCentred`
+  (`placeOfPoint`, `deg_placeOfPoint`, `pointDivisor`, `pointClass`,
+  `pic0ToPoint`, `genusOnePic0Equiv`, `divisorSum*`, `IsCentred`) in
+  `FLTForHuman/WeierstrassCurve/GenusOnePlaceGate.lean`, plus
+  `pointMapOfPushforward` / `IsogenyEndDatum` / `IsogenyHomDatum` in
+  `WeierstrassCurve/Isogeny/ConditionalCurrency.lean`;
+- the kernel-cardinality engine
+  (`natCard_ker_pointMapOfPushforward_eq_finrankAlong_of_separableAlong` and its
+  three helper wrappers) in `WeierstrassCurve/Isogeny/NatCard.lean`;
+- a **char-free** norm formula and separability chain, transcribed `private` into
+  `WeierstrassCurve/Velu/RestrictAlong.lean` (see the follow-up on
+  `hasPrincipalDivisors_functionField_of_two_ne_zero_or` below).
+
+**Still deferred from this entry:** the Riemann–Roch-space and integral-ideal
+block of the same `S_` file — `rrParam`/`RRSpace`/`basisAux`/`finrank_eq`/
+`unitIdealOfPoint`/`unitIdealOfDivisor`/`geomDivisorSum`/
+`isPrincipal_of_geomDivisorSum_eq_zero'`/`instAbelTheorem` — which the Vélu route
+never needed. Port it when a `genusOnePlaceGate`/RR consumer is taken. The
+`geomDivisorSum`/`divisorSum` distinction matters: the gate module has the latter
+(from `Def_WeierstrassCurve_GenusOnePic0`), not the former.
+
 - **Size**: 110 public declarations in the file; 55 are reached by the headline's
   graph citers. The transitive closure the citers need is ≈1,365 raw /
   ≈941 content lines; the whole file is ≈1,494 content.
@@ -51,24 +81,29 @@ dictionary and the class-group / Riemann–Roch block
   `WeierstrassCurve.exists_veluFunctionFieldHom_*`,
   `WeierstrassCurve.Affine.exists_genusOnePlaceGate_*`, `PeriodPair.*`,
   `ModularCurve.ModularPolynomialData.*`, and the `zmultiples_eq_*` family.
+  **Fired 2026-10-04** for the Vélu citers — see the status block above.
 - **Dedup before writing it**: the pin repeats the `placeOfEquation` prelude in
   ~18 `S_` files (one imports this node's wrapper and re-exports the names, the
   rest re-declare it). Port it once as a shared home and measure the
   `(copies − 1) × block` saving first; at ≈940 content lines this crosses the
-  playbook's ~1,000-line threshold for staffing as a set (§0.2).
+  playbook's ~1,000-line threshold for staffing as a set (§0.2). Done: one home,
+  `WeierstrassCurve/Place/Dictionary.lean`.
 - **Mathlib siblings already exist** for part of it: `smul_basis_eq_zero`,
   `exists_smul_basis_eq`, `smul_basis_mul_Y`, `degree_norm_smul_basis` are in
   `Mathlib/AlgebraicGeometry/EllipticCurve/Affine/Point.lean`, so the pin's
   `Def_EllipticCurve_ValuationInfty` basis family is not needed. The silo's
   private `ord_*` lemmas (`min_ord_le_ord_add`, `ord_add_eq_min`, `ord_pow`,
   `ord_ringHom_eq_natDegree_mul`, `le_ord_ringHom_of_natDegree_le`) have **no**
-  counterpart in the port and would be new work.
+  counterpart in the port and would be new work. Done: they live in
+  `AlgebraicCurve/Defs/PlaceCalculus.lean`.
 - **Frontier caveat — file-granular shadowing.** Because the port declares the
   headline, all 27 citers lose exactly 1 from `needed`, even though the API they
   call is absent: the citation graph's edges are *file*-granular (the citers
   import the node's `Thm_` wrapper) while the "ported" test is
-  *declaration-name*-granular. **Treat those 27 as blocked on this entry** until
-  the API lands, whatever the frontier says.
+  *declaration-name*-granular. **This caveat was validated by the Vélu plan**:
+  its §2 read "import H1 wholesale" from the frontier, while the port in fact
+  had only 65 in-port lines of the shared block. The dictionary half is now
+  ported; the citers reaching the RR block above remain shadowed by this entry.
 
 ### `ModularCurve.exists_hasEquivariantPrimitiveOf` — the parts of the period API left out
 
@@ -175,6 +210,23 @@ entry.
   this port took (`adjoin_yCoord_eq_top`, `finiteDimensional_ratFunc_functionField`),
   but cites `AlgebraicCurve.hasPrincipalDivisors_of_finiteDimensional_ratFunc_of_isSeparable`
   instead of the char-zero transfer. Check that route when the node is taken.
+  **Update 2026-10-04:** the Vélu `restrictAlong` headline needed the same
+  char-free ingredient and transcribed it `private` into
+  `WeierstrassCurve/Velu/RestrictAlong.lean`: the pin's
+  `relNorm_eq_pow_of_isMaximal_of_isSeparable`, the fibre-centre norm argument
+  re-run without `[CharZero F]` (a char-free
+  `Divisor.pushforwardNormFormula_of_finiteDimensional`), and a separability
+  chain (`kw_isSeparable_*`, `kw_oddOrderSummingSetFunctionFieldHom_odd_separableAlong`).
+  The separability chain is public. The **node**
+  `AlgebraicCurve.relNorm_eq_pow_of_isMaximal_of_isSeparable` is now also public
+  — promoted beside its `private` helper at the wrapper's exact binders and
+  checker-verified against
+  `Theorems/Thm_AlgebraicCurve_relNorm_eq_pow_of_isMaximal_of_isSeparable.lean`
+  — because the pin exposes that interface publicly and the port had hidden it.
+  What remains private is the char-free fibre-centre norm formula (it duplicates
+  the port's own `private` `Divisor.pushforwardNormFormula_of_finiteDimensional`
+  in `PrincipalDivisors/Transcendence.lean`); promote **one** copy to an
+  `AlgebraicCurve` home when this node is taken, rather than re-deriving a third.
 
 ## Scoping cautions
 

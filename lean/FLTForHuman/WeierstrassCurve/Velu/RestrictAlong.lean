@@ -1603,6 +1603,19 @@ end Transport
 
 end F10d
 
+/-- The pin's public node
+`AlgebraicCurve.relNorm_eq_pow_of_isMaximal_of_isSeparable` (its `Theorems/`
+wrapper; the `S_` file proves it by the `private` helper of the same name
+transcribed in `AlgebraicCurve.F10d` above). Statement verbatim from the wrapper;
+the helper stays `private`, matching the pin. -/
+theorem relNorm_eq_pow_of_isMaximal_of_isSeparable {R S : Type*} [CommRing R] [IsDomain R] [CommRing S] [IsDomain S]
+    [IsDedekindDomain R] [IsDedekindDomain S] [Algebra R S] [Module.Finite R S] [Module.IsTorsionFree R S]
+    (K L : Type*) [Field K] [Field L] [Algebra R K] [IsFractionRing R K] [Algebra S L] [IsFractionRing S L]
+    [Algebra K L] [Algebra R L] [IsScalarTower R K L] [IsScalarTower R S L] [Algebra.IsSeparable K L]
+    (P : Ideal S) (p : Ideal R) [P.LiesOver p] [P.IsMaximal] [p.IsMaximal] :
+    Ideal.relNorm R P = p ^ p.inertiaDeg' P :=
+  F10d.relNorm_eq_pow_of_isMaximal_of_isSeparable K L P p
+
 end AlgebraicCurve
 
 
