@@ -1,16 +1,21 @@
 /-
   Cross-module wire test for the Weierstrass principal-divisor capstone and the
-  Vélu port (H0 bridge + SET-1 dictionary and vocabulary).
+  Vélu port (H0 bridge + SET-1 dictionary and vocabulary + SET-2 discriminant and
+  SET-3 quotient-`j`).
 
-  A `spec/` probe, not a library module. Four executed zones: the function-field
+  A `spec/` probe, not a library module. Executed zones: the function-field
   prerequisites (`adjoin_yCoord_eq_top`, `finiteDimensional_ratFunc_functionField`),
   the headline `hasPrincipalDivisors_functionField`, applied both at a variable
   curve over `ℚ` (discharging `[CharZero ℚ]`) and at a concrete curve, the H0
   bridge (`yGen`, `polyToFunctionField_eq_aeval`,
   `equation_map_polyToFunctionField_yGen`, `transcendental_polyToFunctionField_X`),
-  composed with the generation theorem, and the SET-1 place dictionary plus Vélu
+  composed with the generation theorem, the SET-1 place dictionary plus Vélu
   vocabulary (`veluGx`/`veluGy`/`veluQuotient`/`oddOrderSummingSet`, `IsFinitePlace`,
-  `isDedekindDomain_of_Δ_ne_zero`, `placeOfEquation`) at concrete curves.
+  `isDedekindDomain_of_Δ_ne_zero`, `placeOfEquation`) at concrete curves, the SET-1
+  order-two quotient and its point map, the SET-2 odd-order discriminant identity
+  with its `ψ`-counting and cyclic-kernel enumeration, and the SET-3 quotient `j`
+  (`vcInvFun_add` as a `→+`, `cyclicQuotientJ` on a `zmultiples` subgroup, and its
+  base-change/Galois invariance).
 -/
 import FLTForHuman.WeierstrassCurve.PrincipalDivisors
 import FLTForHuman.WeierstrassCurve.Velu.Formula
@@ -22,7 +27,15 @@ import FLTForHuman.WeierstrassCurve.Velu.RestrictAlong
 import FLTForHuman.WeierstrassCurve.GenusOnePlaceGate
 import FLTForHuman.WeierstrassCurve.Isogeny.ConditionalCurrency
 import FLTForHuman.WeierstrassCurve.Isogeny.NatCard
+import FLTForHuman.WeierstrassCurve.Velu.OrderTwo
+import FLTForHuman.WeierstrassCurve.Velu.OrderTwoMap
+import FLTForHuman.WeierstrassCurve.Velu.Equivariance
+import FLTForHuman.WeierstrassCurve.Velu.Discriminant
+import FLTForHuman.WeierstrassCurve.Velu.CyclicCount
+import FLTForHuman.WeierstrassCurve.Velu.VariableChangePoint
+import FLTForHuman.WeierstrassCurve.Velu.CyclicQuotientJ
 import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
+import Mathlib.Analysis.Complex.Polynomial.Basic
 
 set_option autoImplicit false
 
@@ -390,8 +403,276 @@ example {F : Type*} [Field F] [DecidableEq F] [CharZero F] [IsAlgClosed F]
       (W := W) (Q := Q) (n := n) hord hΔ'
   exact ⟨ι, hι, hfin, hfr⟩
 
+-- Zone (V1 SET-1): the order-two quotient column (`Velu/OrderTwo.lean` and
+-- `Velu/OrderTwoMap.lean`). The 2-torsion curve `y² = x³ - x` over `ℚ` with the
+-- kernel point `(0, 0)` (`veluGy 0 0 = 0`), so `veluQuotient2 0 0` is the
+-- order-two quotient of the kernel `{0, (0, 0)}`.
+abbrev W2 : WeierstrassCurve ℚ := WeierstrassCurve.mk 0 0 0 (-1) 0
+
+private lemma W2_equation : W2.toAffine.Equation 0 0 := by
+  rw [WeierstrassCurve.Affine.equation_iff]
+  norm_num [W2]
+
+private lemma W2_veluGy : W2.veluGy 0 0 = 0 := by
+  norm_num [W2, WeierstrassCurve.veluGy]
+
+private lemma W2_two_ne_zero : (2 : ℚ) ≠ 0 := by norm_num
+
+-- `veluGx 0 0 = -1` (`Velu/Defs.lean`) so `velu2QuadDisc 0 = b₂² - 32·b₄ = 64`,
+-- and the `OrderTwo.lean` node pins the quotient discriminant to `-1 · 64²`.
+private lemma W2_veluQuotient2_Δ_ne_zero : (W2.veluQuotient2 0 0).Δ ≠ 0 := by
+  rw [WeierstrassCurve.veluQuotient2_Delta_eq W2_equation W2_veluGy]
+  norm_num [W2, WeierstrassCurve.veluGx, WeierstrassCurve.velu2QuadDisc,
+    WeierstrassCurve.b₂, WeierstrassCurve.b₄]
+
+private lemma W2_isElliptic : W2.IsElliptic :=
+  ⟨isUnit_iff_ne_zero.mpr (by
+    rw [WeierstrassCurve.Delta_eq_veluGx_sq_mul_velu2QuadDisc W2_equation W2_veluGy]
+    norm_num [W2, WeierstrassCurve.veluGx, WeierstrassCurve.velu2QuadDisc,
+      WeierstrassCurve.b₂, WeierstrassCurve.b₄])⟩
+
+example : (W2.veluQuotient2 0 0).a₄ = 4 := by
+  rw [WeierstrassCurve.veluQuotient2_a₄]
+  norm_num [W2, WeierstrassCurve.veluGx]
+
+example : (W2.veluQuotient2 0 0).b₂ = W2.b₂ := W2.veluQuotient2_b₂ 0 0
+
+example : W2.veluGx 0 0 * W2.velu2QuadDisc 0 ^ 2 = -4096 := by
+  norm_num [W2, WeierstrassCurve.veluGx, WeierstrassCurve.velu2QuadDisc,
+    WeierstrassCurve.b₂, WeierstrassCurve.b₄]
+
+-- Cross-module composition with `Velu/Defs.lean`: the empty Vélu set fixes the
+-- curve (`veluQuotient_empty`), so the order-two quotient of the fixed curve is
+-- the order-two quotient of `W2`.
+example : (W2.veluQuotient ∅).veluQuotient2 0 0 = W2.veluQuotient2 0 0 :=
+  congrArg (fun W : WeierstrassCurve ℚ => W.veluQuotient2 0 0)
+    (WeierstrassCurve.veluQuotient_empty W2)
+
+-- The `OrderTwo.lean` discriminant factorization at the kernel point ...
+example : W2.Δ = W2.veluGx 0 0 ^ 2 * W2.velu2QuadDisc 0 :=
+  WeierstrassCurve.Delta_eq_veluGx_sq_mul_velu2QuadDisc W2_equation W2_veluGy
+
+example : (W2.veluQuotient2 0 0).Δ = -4096 := by
+  rw [WeierstrassCurve.veluQuotient2_Delta_eq W2_equation W2_veluGy]
+  norm_num [W2, WeierstrassCurve.veluGx, WeierstrassCurve.velu2QuadDisc,
+    WeierstrassCurve.b₂, WeierstrassCurve.b₄]
+
+example : (W2.veluQuotient2 0 0).IsElliptic := by
+  haveI : W2.IsElliptic := W2_isElliptic
+  exact WeierstrassCurve.isElliptic_veluQuotient2_of_isElliptic W2_equation W2_veluGy
+
+-- The `OrderTwoMap.lean` headline at the concrete curve, used as a genuine `→+`:
+-- additivity is exercised with `map_add`, and the coercion is `veluPointMap2`.
+example : ∃ φ : W2.toAffine.Point →+ (W2.veluQuotient2 0 0).toAffine.Point,
+    (∀ P Q, φ (P + Q) = φ P + φ Q) ∧
+      ⇑φ = WeierstrassCurve.veluPointMap2 W2_two_ne_zero W2_equation W2_veluGy
+        W2_veluQuotient2_Δ_ne_zero := by
+  haveI : W2.IsElliptic := W2_isElliptic
+  obtain ⟨φ, hφ⟩ := WeierstrassCurve.exists_addMonoidHom_coe_eq_veluPointMap2 W2
+    W2_two_ne_zero W2_equation W2_veluGy W2_veluQuotient2_Δ_ne_zero
+  exact ⟨φ, fun P Q => map_add φ P Q, hφ⟩
+
+example : WeierstrassCurve.veluPointMap2 (W := W2) (x₀ := 0) (y₀ := 0)
+    W2_two_ne_zero W2_equation W2_veluGy W2_veluQuotient2_Δ_ne_zero
+    (0 : W2.toAffine.Point) = 0 :=
+  WeierstrassCurve.veluPointMap2_zero (W := W2) (x₀ := 0) (y₀ := 0) _ _ _ _
+
+#print axioms WeierstrassCurve.exists_addMonoidHom_coe_eq_veluPointMap2
+#print axioms WeierstrassCurve.veluQuotient2_Delta_eq
+
+-- Zone (V1 SET-2): the odd-order discriminant column (`Velu/Equivariance.lean`,
+-- `Velu/Discriminant.lean`, `Velu/CyclicCount.lean`).
+
+-- (a) `Velu/Equivariance.lean`, the variable-change/base-change definition layer
+-- (the pin's `Def_..._VeluVariableChange` whole plus the `map_velu*` block of
+-- `Def_..._VeluEquivariance`). The curve is `y² = x³ + 1`; the variable-change
+-- identity is evaluated at `(x, y) = (1, 1)`, where `Velu/Defs.lean`'s
+-- `veluU 1 1 = (veluGy 1 1)² = (-2)² = 4`.
+abbrev W3 : WeierstrassCurve ℚ := WeierstrassCurve.mk 0 0 0 0 1
+
+example (C : WeierstrassCurve.VariableChange ℚ) :
+    (C • W3).veluU (vcXInv C 1) (vcYInv C 1 1)
+      = ((C.u⁻¹ : ℚˣ) : ℚ) ^ 6 * 4 := by
+  rw [WeierstrassCurve.variableChange_veluU C W3 1 1]
+  norm_num [W3, WeierstrassCurve.veluU, WeierstrassCurve.veluGy]
+
+-- and the base-change commutation of the same layer: with the identity ring hom
+-- the Vélu quotient does not move.
+example (S : Finset (ℚ × ℚ)) :
+    (W3.map (RingHom.id ℚ)).veluQuotient
+        (S.map ⟨Prod.map (RingHom.id ℚ) (RingHom.id ℚ),
+          Function.injective_id.prodMap Function.injective_id⟩)
+      = W3.veluQuotient S := by
+  rw [WeierstrassCurve.map_veluQuotient (W := W3) (f := RingHom.id ℚ) S
+    Function.injective_id]
+  simp
+
+-- (b) `Velu/Discriminant.lean`: the identity
+-- `Δ(W.veluQuotient S) · (∏_{P∈S} u_P)^4 = Δ(W)^(2n+1)` at an order-three point.
+-- `W3.Δ = -432` and `n = 1`.
+private lemma W3_Δ : W3.Δ = -432 := by
+  norm_num [W3, WeierstrassCurve.Δ, WeierstrassCurve.b₂, WeierstrassCurve.b₄,
+    WeierstrassCurve.b₆, WeierstrassCurve.b₈]
+
+private lemma W3_isElliptic : W3.IsElliptic :=
+  ⟨isUnit_iff_ne_zero.mpr (by rw [W3_Δ]; norm_num)⟩
+
+-- the empty summing set: `veluQuotient ∅ = W`, so `Δ` is unchanged — the numeric
+-- anchor for the set's `Velu/Defs.lean` vocabulary.
+example : (W3.veluQuotient ∅).Δ = -432 := by
+  rw [WeierstrassCurve.veluQuotient_empty, W3_Δ]
+
+-- composition of this set's `isOddVeluSet_oddOrderSummingSet` with the
+-- `Velu/Defs.lean` `veluU_eq_Ψ₂Sq_eval`: on an odd Vélu set the `veluU` product
+-- is the product of the `Ψ₂Sq` evaluations at the x-coordinates.
+example {F : Type*} [Field F] [DecidableEq F] {W : WeierstrassCurve F}
+    {Q : W.toAffine.Point} {p : ℕ} (hp : p.Prime) (hp2 : p ≠ 2)
+    (hord : addOrderOf Q = p) {n : ℕ} (hn : n ≤ (p - 1) / 2) :
+    ∏ P ∈ W.oddOrderSummingSet Q n, W.veluU P.1 P.2
+      = ∏ P ∈ W.oddOrderSummingSet Q n, W.Ψ₂Sq.eval P.1 :=
+  Finset.prod_congr rfl fun P hP =>
+    W.veluU_eq_Ψ₂Sq_eval
+      ((W.isOddVeluSet_oddOrderSummingSet hp hp2 hord hn).equation P hP)
+
+-- the identity, and the nonvanishing corollary it powers.
+example (Q : W3.toAffine.Point) (hQ : addOrderOf Q = 3) :
+    (W3.veluQuotient (W3.oddOrderSummingSet Q 1)).Δ *
+        (∏ P ∈ W3.oddOrderSummingSet Q 1, W3.veluU P.1 P.2) ^ 4 = W3.Δ ^ 3 := by
+  haveI : W3.IsElliptic := W3_isElliptic
+  exact WeierstrassCurve.veluQuotient_oddOrderSummingSet_discriminant_prod_veluU_pow W3 Q hQ
+
+example (Q : W3.toAffine.Point) (hQ : addOrderOf Q = 3) :
+    (W3.veluQuotient (W3.oddOrderSummingSet Q 1)).Δ ≠ 0 := by
+  haveI : W3.IsElliptic := W3_isElliptic
+  exact WeierstrassCurve.veluQuotient_oddOrderSummingSet_discriminant_ne_zero_of_addOrderOf_eq
+    W3 1 Q (by rw [hQ])
+
+-- (c) `Velu/CyclicCount.lean`: the ψ-counting pair and the cyclic-kernel
+-- enumeration. Concrete ψ values first, then the two headlines, then the
+-- enumeration composed with (b)'s nonvanishing node.
+#eval ModularCurve.dedekindPsi 6
+#eval ModularCurve.dedekindPsi 12
+
+example (n : ℕ) [NeZero n] :
+    Nat.card {H : AddSubgroup (ZMod n × ZMod n) // IsAddCyclic H ∧ Nat.card H = n}
+      = ModularCurve.dedekindPsi n :=
+  ZMod.natCard_isAddCyclic_addSubgroup_prod_eq_dedekindPsi n
+
+example (n : ℕ) [NeZero n] {A : Type*} [AddCommGroup A]
+    (e : ZMod n × ZMod n ≃+ Submodule.torsionBy ℤ A n) :
+    Nat.card {H : AddSubgroup A // IsAddCyclic H ∧ Nat.card H = n}
+      = ModularCurve.dedekindPsi n :=
+  AddCommGroup.natCard_isAddCyclic_addSubgroup_eq_dedekindPsi_of_addEquiv_torsionBy n e
+
+example {K : Type*} [Field K] [IsAlgClosed K] [DecidableEq K] [CharZero K]
+    (W : WeierstrassCurve K) [W.IsElliptic] :
+    ∃ (ι : Type) (_ : Fintype ι), Fintype.card ι = 4 ∧
+      ∃ Q : ι → W.toAffine.Point, (∀ i, addOrderOf (Q i) = 3) ∧
+        (Function.Injective fun i => AddSubgroup.zmultiples (Q i)) ∧
+        ∀ i, (W.veluQuotient (W.oddOrderSummingSet (Q i) (3 / 2))).Δ ≠ 0 := by
+  obtain ⟨ι, hfin, hcard, Q, hQ, hinj, -⟩ :=
+    WeierstrassCurve.exists_enum_cyclicKernels_veluQuotient_discriminant_ne_zero
+      (K := K) (ℓ := 3) (by norm_num) (by norm_num) W
+  refine ⟨ι, hfin, hcard, Q, hQ, hinj, fun i => ?_⟩
+  exact WeierstrassCurve.veluQuotient_oddOrderSummingSet_discriminant_ne_zero_of_addOrderOf_eq
+    W (3 / 2) (Q i) (by rw [hQ i])
+
+#print axioms WeierstrassCurve.veluQuotient_oddOrderSummingSet_discriminant_prod_veluU_pow
+#print axioms WeierstrassCurve.exists_enum_cyclicKernels_veluQuotient_discriminant_ne_zero
+
 #print axioms WeierstrassCurve.exists_veluFunctionFieldHom_restrictAlong_placeOfPoint_eq_of_isAlgClosed
 #print axioms WeierstrassCurve.exists_veluFunctionFieldHom_restrictAlong_placeOfPoint_eq
+
+-- Zone (V1 SET-3): the quotient-`j` column (`Velu/VariableChangePoint.lean`,
+-- `Velu/CyclicQuotientJ.lean`).
+
+-- (a) `Velu/VariableChangePoint.lean`: the one off-subject prerequisite,
+-- `Affine.Point.vcInvFun_add`, bundled into a genuine `→+` and composed with the
+-- SET-2 `Velu/Equivariance.lean` core — `vcFun` is a left/right inverse, so the
+-- bundle is an additive equivalence up to `vcFun`.
+private noncomputable def vcAddHom (C : WeierstrassCurve.VariableChange ℚ)
+    (W : WeierstrassCurve ℚ) : W.toAffine.Point →+ (C • W).toAffine.Point where
+  toFun := WeierstrassCurve.Affine.Point.vcInvFun C W
+  map_zero' := rfl
+  map_add' := WeierstrassCurve.Affine.Point.vcInvFun_add C W
+
+example (C : WeierstrassCurve.VariableChange ℚ) (W : WeierstrassCurve ℚ)
+    (P Q : W.toAffine.Point) :
+    vcAddHom C W (P + Q) = vcAddHom C W P + vcAddHom C W Q :=
+  map_add (vcAddHom C W) P Q
+
+example (C : WeierstrassCurve.VariableChange ℚ) (W : WeierstrassCurve ℚ)
+    (P : W.toAffine.Point) :
+    WeierstrassCurve.Affine.Point.vcFun C W (vcAddHom C W P) = P :=
+  WeierstrassCurve.Affine.Point.vcFun_rightInverse P
+
+-- A numeric anchor for the transport itself: the inverse coordinates of the
+-- variable change `u = 1, r = 5, s = 0, t = 7` at `(9, 11)` are `(4, 4)`.
+private abbrev Cc : WeierstrassCurve.VariableChange ℚ := ⟨1, 5, 0, 7⟩
+
+example : WeierstrassCurve.Affine.vcXInv Cc 9 = 4 := by
+  norm_num [Cc, WeierstrassCurve.Affine.vcXInv]
+
+example : WeierstrassCurve.Affine.vcYInv Cc 9 11 = 4 := by
+  norm_num [Cc, WeierstrassCurve.Affine.vcYInv]
+
+-- (b) `Velu/CyclicQuotientJ.lean`: the quotient `j`. The curve is the SET-1
+-- `y² = x³ - x` (`W2` above); the subgroup is `zmultiples` of its 2-torsion point
+-- `(0, 0)`.
+private lemma W2_nonsingular_zero : W2.toAffine.Nonsingular 0 0 :=
+  (WeierstrassCurve.Affine.nonsingular_iff' (W := W2.toAffine) 0 0).mpr
+    ⟨W2_equation, Or.inl (by norm_num [W2])⟩
+
+private def W2P : W2.toAffine.Point :=
+  WeierstrassCurve.Affine.Point.some 0 0 W2_nonsingular_zero
+
+-- `c₄ = b₂² - 24·b₄ = 48` and `Δ = -8·b₄³ = 64`, so `j = 48³/64 = 1728` — the
+-- classical value for `y² = x³ - x`.
+example : W2.cyclicQuotientJ (AddSubgroup.zmultiples W2P) 1 = 1728 := by
+  rw [WeierstrassCurve.cyclicQuotientJ_one]
+  norm_num [W2, WeierstrassCurve.c₄, WeierstrassCurve.Δ, WeierstrassCurve.b₂,
+    WeierstrassCurve.b₄, WeierstrassCurve.b₆, WeierstrassCurve.b₈]
+
+-- The iteration step at `N = 2`: the recursion peels off `minFac = 2` and hands
+-- the quotient to the order-two branch, whose `stepCurve` is `Velu/Defs.lean`'s
+-- `xVelu`/two-torsion vocabulary.
+example : W2.cyclicQuotientJ (AddSubgroup.zmultiples W2P) 2
+    = (W2.stepCurve (AddSubgroup.zmultiples W2P) 2).cyclicQuotientJ
+        (W2.stepSubgroup (AddSubgroup.zmultiples W2P) 2) 1 :=
+  WeierstrassCurve.cyclicQuotientJ_eq_of_two_le W2 _ (by norm_num)
+
+example : W2.stepCurve (AddSubgroup.zmultiples W2P) 2
+    = W2.twoVeluCurve (W2.kernelXSet (AddSubgroup.zmultiples W2P) 2) :=
+  WeierstrassCurve.stepCurve_two W2 _
+
+example (ℓ : ℕ) (hℓ : ℓ ≠ 2) :
+    W2.stepCurve (AddSubgroup.zmultiples W2P) ℓ
+      = W2.xVeluCurve (W2.kernelXSet (AddSubgroup.zmultiples W2P) ℓ) :=
+  WeierstrassCurve.stepCurve_of_ne_two W2 _ hℓ
+
+-- The base-change lemma, applied at complex conjugation on `y² = x³ - x` over
+-- `ℝ`: the quotient `j` is `Gal(ℂ/ℝ)`-invariant. This is the pinned statement's
+-- own binder shape (`R = ℝ`, `A = B = ℂ`, `f = conjAe`); the curve must be the
+-- `R`-curve `W2R` because `Point.map` is indexed on the base ring, so there is no
+-- instantiation from `W2 : WeierstrassCurve ℚ` with `f : ℂ →ₐ[ℝ] ℂ`.
+abbrev W2R : WeierstrassCurve ℝ := WeierstrassCurve.mk 0 0 0 (-1) 0
+
+private abbrev conj : ℂ →ₐ[ℝ] ℂ := Complex.conjAe
+
+example {H : AddSubgroup (W2R.baseChange ℂ).toAffine.Point} (N : ℕ) :
+    (W2R.baseChange ℂ).cyclicQuotientJ
+        (H.map (WeierstrassCurve.Affine.Point.map conj)) N
+      = conj ((W2R.baseChange ℂ).cyclicQuotientJ H N) :=
+  WeierstrassCurve.cyclicQuotientJ_baseChange_map_eq_of_isAlgClosed W2R conj H N
+
+-- The numeric anchor survives the base change along `ℝ → ℝ`.
+example : (W2R.baseChange ℝ).cyclicQuotientJ ⊥ 1 = 1728 := by
+  rw [WeierstrassCurve.cyclicQuotientJ_one]
+  norm_num [W2R, WeierstrassCurve.c₄, WeierstrassCurve.Δ, WeierstrassCurve.b₂,
+    WeierstrassCurve.b₄, WeierstrassCurve.b₆, WeierstrassCurve.b₈]
+
+#print axioms WeierstrassCurve.cyclicQuotientJ_variableChange_eq
+#print axioms WeierstrassCurve.cyclicQuotientJ_baseChange_map_eq_of_isAlgClosed
 
 end WeierstrassCurveConsumer
 

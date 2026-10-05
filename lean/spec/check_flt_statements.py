@@ -2043,6 +2043,64 @@ SOURCES = [
     "Theorems/Thm_WeierstrassCurve_nonempty_torsionBy_addEquiv_zmod_prod_of_isAlgClosed.lean",
     "P2M/Sol/S_AddCommGroup_nonempty_zmod_prod_addEquiv_torsionBy_of_card_torsionBy_eq_sq.lean",
     "P2M/Sol/S_WeierstrassCurve_Affine_Point_exists_zsmul_eq_of_isAlgClosed.lean",
+    # --- V1 SET-1 (the Vélu port), the order-two quotient column. The thirteen
+    # `Theorems/` wrappers are the statement authority for the twelve `OrderTwo`
+    # nodes and the `OrderTwoMap` headline; the three `Definitions/` files are
+    # the authority for the vocabulary they declare (`veluQuotient2`/its
+    # projections, `velu2QuadDisc`/`velu2XNum`/`velu2YNum`/`velu2X`/`velu2Y`/
+    # `veluPointMap2` and the `velu2_map_*` lemmas, plus `Δ_mul_j`). The pin's
+    # `S_` files are *not* listed: every proof-local helper is `private` in the
+    # port, so the checker sees only the wrappers' public surface. Appended last
+    # so no earlier last-name match can flip.
+    "Theorems/Thm_WeierstrassCurve_veluQuotient2_cFour.lean",
+    "Theorems/Thm_WeierstrassCurve_Delta_eq_veluGx_sq_mul_velu2QuadDisc.lean",
+    "Theorems/Thm_WeierstrassCurve_veluQuotient2_Delta_eq.lean",
+    "Theorems/Thm_WeierstrassCurve_velu2_tangent_addX_cleared_identity.lean",
+    "Theorems/Thm_WeierstrassCurve_velu2_secant_negAddY_cleared_identity.lean",
+    "Theorems/Thm_WeierstrassCurve_velu2_tangent_negAddY_cleared_identity.lean",
+    "Theorems/Thm_WeierstrassCurve_veluGx_ne_zero_of_two_torsion.lean",
+    "Theorems/Thm_WeierstrassCurve_velu2QuadDisc_ne_zero_of_two_torsion.lean",
+    "Theorems/Thm_WeierstrassCurve_veluQuotient2_Delta_ne_zero.lean",
+    "Theorems/Thm_WeierstrassCurve_isElliptic_veluQuotient2_of_isElliptic.lean",
+    "Theorems/Thm_WeierstrassCurve_veluQuotient2_j.lean",
+    "Theorems/Thm_WeierstrassCurve_exists_enum_twoTorsion_veluQuotient2_discriminant_ne_zero.lean",
+    "Theorems/Thm_WeierstrassCurve_exists_addMonoidHom_coe_eq_veluPointMap2.lean",
+    "Definitions/Def_WeierstrassCurve_VeluOrderTwo.lean",
+    "Definitions/Def_WeierstrassCurve_VeluPointMap2.lean",
+    "Definitions/Def_WeierstrassCurve_VeluQuotientJInvariant.lean",
+    # --- V1 SET-2: the four odd-order wrappers, the two counting wrappers, and
+    # the `Definitions/` files the new modules port (a vocabulary block has no
+    # wrapper). `Def_..._VeluEquivariance` is listed whole; the port carries its
+    # `map_velu*`/`map_veluQuotient` block only. `Def_..._VeluVariableChange` is
+    # listed whole, as ported. `Def_..._VariableChangePointEquiv` supplies the
+    # `vcX`/`vcY`/`vcXInv`/`vcYInv`/`vcFun`/`vcInvFun`/`variableChangeEquiv` core
+    # that `Def_..._VeluVariableChange` imports; appended last.
+    "Theorems/Thm_WeierstrassCurve_isOddVeluSet_oddOrderSummingSet.lean",
+    "Theorems/Thm_WeierstrassCurve_veluQuotient_oddOrderSummingSet_discriminant_prod_veluU_pow.lean",
+    "Theorems/Thm_WeierstrassCurve_veluQuotient_oddOrderSummingSet_discriminant_ne_zero_of_addOrderOf_eq.lean",
+    "Theorems/Thm_WeierstrassCurve_exists_enum_cyclicKernels_veluQuotient_discriminant_ne_zero.lean",
+    "Theorems/Thm_ZMod_natCard_isAddCyclic_addSubgroup_prod_eq_dedekindPsi.lean",
+    "Theorems/Thm_AddCommGroup_natCard_isAddCyclic_addSubgroup_eq_dedekindPsi_of_addEquiv_torsionBy.lean",
+    "Definitions/Def_WeierstrassCurve_VeluVariableChange.lean",
+    "Definitions/Def_WeierstrassCurve_VeluEquivariance.lean",
+    "Definitions/Def_WeierstrassCurve_VariableChangePointEquiv.lean",
+    # --- V1 SET-3: the quotient-`j` column. The three `Theorems/` wrappers are the
+    # statement authority for `Affine.Point.vcInvFun_add` (the set's off-subject
+    # prerequisite, carried by the `ucl` rule) and the two `cyclicQuotientJ_*`
+    # well-definedness nodes; the pin's `Def_..._CyclicQuotientJ.lean` (207 lines,
+    # **52** public declarations — the work order's "46" is the count before the
+    # checker's `attrs` group made the six `@[simp] theorem a₁…a₆` projections
+    # visible) is the comparable copy for the vocabulary block, which has no
+    # wrapper. The pin's two `S_` files (`P2MKcCQJvc`, `P2MKcCQJbc`) are *not*
+    # listed: every proof-local helper is `private` in the port, so the checker
+    # never sees them. `VariableChangePoint.lean` carries `Affine.Point.vcInvFun_add`
+    # only and imports the `VariableChangePointEquiv` core from
+    # `Velu/Equivariance.lean` (registered above) rather than redeclaring it.
+    # Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_WeierstrassCurve_Affine_Point_vcInvFun_add.lean",
+    "Theorems/Thm_WeierstrassCurve_cyclicQuotientJ_variableChange_eq.lean",
+    "Theorems/Thm_WeierstrassCurve_cyclicQuotientJ_baseChange_map_eq_of_isAlgClosed.lean",
+    "Definitions/Def_WeierstrassCurve_CyclicQuotientJ.lean",
 ]
 
 PORT_FILES = [
@@ -2838,6 +2896,45 @@ PORT_FILES = [
     # classification and the elliptic char-free torsion theory. Appended last.
     "FLTForHuman/Algebra/ZModTorsion.lean",
     "FLTForHuman/Elliptic/TorsionZMod.lean",
+    # --- V1 SET-1 (the Vélu port): the order-two quotient column. The two new
+    # modules are leaves (they import only `Velu/Defs.lean`), so no set cascades.
+    # `OrderTwo.lean` carries the pin's `Def_..._VeluOrderTwo` /
+    # `Def_..._VeluPointMap2` vocabulary and the twelve headline nodes;
+    # `OrderTwoMap.lean` carries `exists_addMonoidHom_coe_eq_veluPointMap2` and
+    # its proof-local (private) helpers. The vocabulary statements diff against
+    # the two `Definitions/` files and `Δ_mul_j` against
+    # `Def_..._VeluQuotientJInvariant`, all appended to `SOURCES` just above.
+    # Appended last so no earlier last-name match can flip.
+    "FLTForHuman/WeierstrassCurve/Velu/OrderTwo.lean",
+    "FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean",
+    # --- V1 SET-2 (the Vélu port): the discriminant identity of the odd-order
+    # quotient. `Equivariance.lean` is the variable-change/base-change definition
+    # layer — the pin's `Def_..._VeluVariableChange` whole, the
+    # `Def_..._VeluEquivariance` `map_velu*`/`map_veluQuotient` block, and the
+    # `Def_..._VariableChangePointEquiv` core (a strict prerequisite of the first,
+    # and absent from the port when this set was dispatched; SET-3's
+    # `VariableChangePoint.lean` order is amended to import it rather than
+    # redeclare it). `Discriminant.lean` is the identity, its nonvanishing
+    # corollary, and `isOddVeluSet_oddOrderSummingSet` (the port's own proof
+    # through the promoted `Velu/OddOrder.lean` lemma). `CyclicCount.lean` is the
+    # ψ-counting pair and the cyclic-kernel enumeration. Every proof-local helper
+    # is `private`. Appended last so no earlier last-name match can flip.
+    "FLTForHuman/WeierstrassCurve/Velu/Equivariance.lean",
+    "FLTForHuman/WeierstrassCurve/Velu/Discriminant.lean",
+    "FLTForHuman/WeierstrassCurve/Velu/CyclicCount.lean",
+    # --- V1 SET-3 (the Vélu port): the quotient-`j` column. `VariableChangePoint.lean`
+    # carries the one off-subject prerequisite `WeierstrassCurve.Affine.Point.vcInvFun_add`
+    # (its statement is the `Theorems/` wrapper, appended to `SOURCES` above; its
+    # proof-local helpers are `private`). `CyclicQuotientJ.lean` carries the pin's
+    # `Def_..._CyclicQuotientJ` vocabulary and the two headline nodes
+    # `cyclicQuotientJ_variableChange_eq` / `cyclicQuotientJ_baseChange_map_eq_of_isAlgClosed`
+    # (their statements are the two `Theorems/` wrappers, also above) with every
+    # `P2MKcCQJvc`/`P2MKcCQJbc` helper `private`. Both are leaves importing
+    # SET-2's `Velu/Equivariance.lean` and the already-public `Velu/Formula.lean`
+    # `map_velu*` block, so no set cascades. Appended last so no earlier last-name
+    # match can flip.
+    "FLTForHuman/WeierstrassCurve/Velu/VariableChangePoint.lean",
+    "FLTForHuman/WeierstrassCurve/Velu/CyclicQuotientJ.lean",
 ]
 
 

@@ -732,7 +732,665 @@ re-nesting everything after it (`unknown identifier` for `KwDualTraceWitness` /
 `kw_dcao_*`); removed. `if_neg` is deprecated in v4.34.0 (used `ite_eq_right`,
 body-only). No missing `Elliptic/` piece.
 
+## V1 SET-1 — the order-two column (2026-10-05)
+
+**Scope.** Two new leaf modules, both namespace `WeierstrassCurve`, both
+importing only `Velu/Defs.lean` (plus the mathlib
+`EllipticCurve.Affine.{Formula,Point}` modules and
+`FieldTheory.IsAlgClosed.Basic`; never `import Mathlib`):
+
+* `FLTForHuman/WeierstrassCurve/Velu/OrderTwo.lean` (**524 lines**, 38 public
+  declarations) — the `Def_WeierstrassCurve_VeluOrderTwo` /
+  `Def_WeierstrassCurve_VeluPointMap2` vocabulary (`veluQuotient2` with its
+  `a₁…a₆`/`b₂` projections, `velu2QuadDisc` with `_def`,
+  `_eq_disc_cofactor`, `map_velu2QuadDisc`; `velu2XNum`/`velu2YNum`,
+  `velu2XNum_eq_mul`, `velu2_equation_cleared_four`, `velu2X`/`velu2Y`,
+  `velu2X_eq_div`, `velu2Y_eq_div`, `velu2_map_equation`,
+  `velu2_map_nonsingular`, `veluPointMap2` and its three projection lemmas),
+  `Δ_mul_j` from `Def_…_VeluQuotientJInvariant.lean:17–18` (the one declaration
+  of that file the order-two `S_` files reference), and the twelve headline
+  nodes of §4.2. Two proof-local helpers are `private`
+  (`velu2TangentAddX_assemble`, `twoTorsionPair`).
+* `FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean` (**1,428 lines**, 1
+  public declaration) — the wire test
+  `exists_addMonoidHom_coe_eq_veluPointMap2` plus its 60 proof-local helpers,
+  all `private`.
+
+No existing library module was edited; `spec/check_flt_statements.py` and
+`spec/WeierstrassCurveConsumer.lean` were appended to only.
+
+**Result.** Checker **`5572 → 5611` statements identical (313 promoted from
+pin-private declarations), 0 mismatched, 0 missing, 36 own-proof declarations
+exempted** (`5608 → 5647` port declarations checked; the +39 is exactly the
+38 + 1 public declarations above). `flock .lake/flt_build.lock lake build
+FLTForHuman.WeierstrassCurve.Velu.OrderTwoMap` → `Build completed successfully
+(2718 jobs)`; `spec/WeierstrassCurveConsumer.lean` exit `0`; `#print axioms` on
+`exists_addMonoidHom_coe_eq_veluPointMap2` and on `veluQuotient2_Delta_eq` is
+`[propext, Classical.choice, Quot.sound]`; no `sorry`; no statement adapted.
+
+### The scout gate (the set's stop-early risk)
+
+Per §4.5 the *smallest* identity, `velu2_tangent_negAddY_cleared_identity`, was
+prototyped in `ScratchSet1.lean` before the module was written, at the frozen
+`-DmaxHeartbeats=4000000 -DautoImplicit=false`. **First run: `maximum recursion
+depth has been reached` at 53 s**, inside `field_simp [hsd]` — the default
+`maxRecDepth 1000`. The pin's own `S_` file carries
+`set_option maxRecDepth 8000 in` next to `set_option maxHeartbeats 16000000 in`;
+`maxRecDepth` is not the frozen knob, so it is kept. **Second run: exit 0 in
+3 m 32 s wall / 3 m 18 s user.** The pin's 16,000,000-heartbeat bump is
+therefore slack for this identity and every `maxHeartbeats` line of the set is
+dropped: **all thirteen nodes close at the port's 4,000,000 cap.** The probe was
+confirmed by the module builds below (a third run using `-o /tmp/…` was blocked
+by the file sandbox — EXIT 124 at the 400 s bound with ~0.5 s user CPU, a denied
+write, not a prover timeout).
+
+### Measured table
+
+`lake env lean` runs a whole file, so per-declaration wall time is only
+available where a declaration was isolated in a `Scratch*.lean`; the `lake
+build` numbers are the authoritative module measurements.
+
+| declaration (all landed) | statement source | isolated `lake env lean` |
+|---|---|---:|
+| vocabulary, 26 decls (`veluQuotient2` … `veluPointMap2_some_of_ne`) | `Def_…_VeluOrderTwo`, `Def_…_VeluPointMap2` | — (in module) |
+| `Δ_mul_j` | `Def_…_VeluQuotientJInvariant:17–18` | — |
+| `veluQuotient2_cFour` | wrapper | — |
+| `Delta_eq_veluGx_sq_mul_velu2QuadDisc` | wrapper | — |
+| `veluQuotient2_Delta_eq` | wrapper | — |
+| `velu2_tangent_addX_cleared_identity` | wrapper | sub-second (`elaboration took 650ms`) |
+| `velu2_secant_negAddY_cleared_identity` | wrapper | **43 s** (`ScratchSecant.lean`, warm import) |
+| `velu2_tangent_negAddY_cleared_identity` | wrapper | **3 m 32 s** (the scout) |
+| `veluGx_ne_zero_of_two_torsion` | wrapper | — |
+| `velu2QuadDisc_ne_zero_of_two_torsion` | wrapper | — |
+| `veluQuotient2_Delta_ne_zero` | wrapper | — |
+| `isElliptic_veluQuotient2_of_isElliptic` | wrapper | — |
+| `veluQuotient2_j` | wrapper | — |
+| `exists_enum_twoTorsion_veluQuotient2_discriminant_ne_zero` | wrapper | — |
+| `exists_addMonoidHom_coe_eq_veluPointMap2` | wrapper | — (in module) |
+
+| module | lines | public (+ `private`) | `lake env lean` | `lake build` |
+|---|---:|---:|---:|---:|
+| `Velu/OrderTwo.lean` | 524 | 38 (+2) | 5 m 21 s (pre-shape-fix; the final file also passed a profiler pass at 3 m 26 s) | **248 s** |
+| `Velu/OrderTwoMap.lean` | 1,428 | 1 (+60) | **7 m 49 s** | **552 s** |
+| whole wave | 1,952 | 39 (+62) | — | **12 m 47 s** |
+
+Phase profile (`set_option profiler true` on a copy; totals 190 s / 449 s):
+
+| phase | `OrderTwo` | `OrderTwoMap` |
+|---|---:|---:|
+| `share common exprs` | 44.9 s | 69.5 s |
+| `linting` | 40.7 s | 106 s |
+| `ring` | 40.9 s | 37.2 s |
+| `type checking` | 36.1 s | 80.5 s |
+| `process pre-definitions` | 32 s | 57.2 s |
+| `elaboration` | 22.6 s | 56.6 s |
+| `typeclass inference` | 13.6 s | 2.9 s |
+
+The pin's per-piece `maxHeartbeats` bumps are 8 M (`SecantXContent` neighbour,
+`TangentYContent`), 16 M (`TangentXAlign` 32 M, the two `*Align` pieces 160 M);
+every piece closes at 4 M, so the bumps are ≥2× slack. Most of the wall time is
+`linting` / `type checking` / `share common exprs`, not the two big
+`linear_combination`s.
+
+### Checker wiring
+
+`PORT_FILES` gained the two modules and `SOURCES` the thirteen `Theorems/`
+wrappers **plus the three `Definitions/` files** (`Def_…_VeluOrderTwo`,
+`Def_…_VeluPointMap2`, `Def_…_VeluQuotientJInvariant`) — the vocabulary has no
+wrapper, so without them its 26 declarations and `Δ_mul_j` read `MISSING IN
+FLT`. The pin's `S_` files are *not* listed: every proof-local helper is
+`private`, so the checker sees only the wrappers' public surface. All entries
+appended last.
+
+### Consumer
+
+`spec/WeierstrassCurveConsumer.lean` (474 lines) gained the zone "V1 SET-1 —
+the order-two quotient column": the 2-torsion curve
+`y² = x³ - x` over `Q` as `WeierstrassCurveConsumer.W2`, with private witnesses
+`W2_equation`, `W2_veluGy`, `W2_two_ne_zero`, `W2_veluQuotient2_Δ_ne_zero`,
+`W2_isElliptic`. Executed: `(W2.veluQuotient2 0 0).a₄ = 4`,
+`(W2.veluQuotient2 0 0).b₂ = W2.b₂`,
+`W2.veluGx 0 0 * W2.velu2QuadDisc 0 ^ 2 = -4096`,
+`(W2.veluQuotient2 0 0).Δ = -4096`, a cross-module composition with
+`Velu/Defs.lean` (`veluQuotient_empty` under `congrArg`), the three
+discriminant/ellipticity nodes, and `∃ φ : W2.toAffine.Point →+ …` produced by
+`exists_addMonoidHom_coe_eq_veluPointMap2`, additivity-checked with `map_add`
+and with its coercion pinned to `veluPointMap2`, plus
+`veluPointMap2 … 0 = 0`. **Error count 0** (exit 0). Two `#print axioms` probes
+added; the file's older zones are unchanged.
+
+### Friction
+
+* **`maxRecDepth`, not `maxHeartbeats`.** The stop-early gate fired on the
+  *right* knob being wrong: the pin's `velu2_tangent_negAddY_cleared_identity`
+  needs `set_option maxRecDepth 8000 in`; the default 1000 aborts `field_simp`
+  in 53 s. This is not the frozen knob, so it is kept (as the work order's
+  "adapted proofs" allow). Every `maxHeartbeats` bump is dropped.
+* **The checker diffs the declaration's own binder/statement text**, not the
+  elaborated signature: 8 of the 13 wrappers hoist their binders into
+  file-level `variable` commands while the `S_` files write them inline. First
+  wiring: `8 mismatched`. Fixed by building those eight nodes from the
+  wrapper's `variable` prelude + bare statement and splicing the `S_` proof
+  body in (`veluQuotient2_cFour` keeps no binders at all; the `{x₀ y₀}`-only
+  and `(hQ)(hgy)`-only shapes are reproduced verbatim). This is §4.2's "the
+  wrapper wins" made mechanical. The other five wrappers (the
+  `velu2_*_cleared_identity` trio, the enumeration, the map headline) write
+  their binders inline and matched first try.
+* **`private` name resolution is by exact name path.** A `private`
+  declaration is resolvable only at precisely the namespace path where it was
+  declared, so the pin's per-piece `namespace WeierstrassCurve` blocks had to
+  be kept (helper paths `WeierstrassCurve.…`), which in turn forces the port's
+  header *not* to pre-open `WeierstrassCurve` (otherwise the path doubles to
+  `WeierstrassCurve.WeierstrassCurve.…` and the headline reports
+  `unknown identifier` for every helper). The headline is wrapped in its own
+  `namespace WeierstrassCurve`. A wrong first attempt — deleting the body's
+  namespace pairs instead — surfaced the mirror error: Lean's `end A.B` closes
+  *two* scopes, so `end WeierstrassCurve.Affine` became `Invalid name after
+  end` once the intervening namespace was removed.
+* **P2M tooling dropped, not translated.** `p2m_open`, `p2m_open_scoped … in`,
+  `p2m_export`, the one-line
+  `namespace Point p2m_export "…" "…" end Point` wrappers and the gate-disabling
+  `attribute [-instance] WeierstrassCurve.VeluQuotientJGates.instIsElliptic27a4`
+  / `attribute [-simp] WeierstrassCurve.veluX_empty` (the `VeluQuotientJGates`
+  curve and the pin's `IsElliptic` gates are not ported) all disappear; a
+  single file-scope `open Polynomial WeierstrassCurve WeierstrassCurve.Affine`
+  replaces them. The `kw_*_axiomAnchor : True` declarations and the
+  `_root_`-prefixed private `abbrev`s (`KwVeluOrderTwoSecantCompatDiffAvoidAt`,
+  `KwVeluOrderTwoTangentCompatAt`, `KwVeluOrderTwoAddCompatAt`,
+  `KwVeluOrderTwoTangentYAlignAt`) are kept, the latter as ordinary `private
+  abbrev`s. `set_option Elab.async false` is kept as the pin had it.
+* **`Δ_mul_j` route recorded.** mathlib has `j : R := W.Δ'⁻¹ * W.c₄ ^ 3` and
+  `@[simp] coe_Δ' : W.Δ' = W.Δ` (`Weierstrass.lean:389`, `:383`); the pin's
+  ring-level `V.Δ * V.j = V.c₄ ^ 3` follows by `rw [j, ← coe_Δ', ← mul_assoc,
+  ← Units.val_mul, mul_inv_cancel, Units.val_one, one_mul]`, transcribed
+  verbatim. mathlib's `j_eq` (`W.j = W.Δ⁻¹ * W.c₄ ^ 3`, fields only, `:402`) is
+  a different statement and was not used.
+* **Negative re-checked.** mathlib `v4.34.0` still has no `veluQuotient2`,
+  `velu2QuadDisc`, `velu2X`/`velu2Y`, `veluPointMap2` or any Vélu declaration.
+* **Checked negative on `Point`.** The pin's map `S_` file uses `-P`, `P + Q`
+  and `nsmul` on `W.toAffine.Point` without any `[W.IsElliptic]`; that is
+  correct in `v4.34.0` — only `Point.mk`/`pointEquivSubtype` sit in
+  `Point.lean`'s `section IsElliptic` (`:543–:602`), while `Neg`/`Add`/
+  `AddCommGroup` (`:627`, `:665`, `:807`) are outside it. No instance binder
+  had to be added.
+* **Deprecations kept verbatim.** `dif_pos`/`dif_neg` warn in `v4.34.0`
+  (suggesting `dite_eq_left`/`dite_eq_right`) in
+  `veluPointMap2_some_of_eq`/`_some_of_ne`, and `linter.style.haveILetI` fires
+  on the pin's `haveI` in `veluQuotient2_j`; both are body-only noise and were
+  left as transcribed.
+* **Nothing left out.** All 13 nodes, the full vocabulary, `Δ_mul_j` and the
+  wire test landed; no declaration was weakened or deferred, and no
+  prerequisite sat outside the port.
+
+The two modules were assembled from the pin by `lean/tmp/build_set1.py` and
+`lean/tmp/build_set1_map.py` (untracked), which copy the giant
+`linear_combination` coefficient blocks byte-for-byte rather than retyping
+them; the modules are the deliverable, the scripts only a record of the
+transcription.
 
 
 
 
+
+
+## V1 SET-2 — the discriminant identity (2026-10-05)
+
+**Scope.** Three new modules, namespaces `WeierstrassCurve` / `ZMod` /
+`AddCommGroup` as the pin has them:
+
+* `FLTForHuman/WeierstrassCurve/Velu/Equivariance.lean` (**300 lines**, 27
+  public declarations) — the variable-change definition layer:
+  `Definitions/Def_WeierstrassCurve_VariableChangePointEquiv.lean:6–154` (the
+  `vcX`/`vcY`/`vcXInv`/`vcYInv`/+`_vcXInv`/`_vcYInv` block, `equation_`/
+  `nonsingular_variableChange_iff`, `Point.vcFun`/`vcInvFun`/+zero/left/right
+  inverse, `variableChangeEquiv`, `equivOfVariableChangeEq` — a **strict
+  prerequisite** of the next file, and absent from the port; see the friction
+  entry below) and `Definitions/Def_WeierstrassCurve_VeluVariableChange.lean`
+  whole (112 lines: `vcInvEmbedding`, `vcInvEmbedding_apply`,
+  `variableChange_velu{Gy,Gx,T,U,W,TSum,WSum}`).
+* `FLTForHuman/WeierstrassCurve/Velu/Discriminant.lean` (**3,589 lines**, 3
+  public declarations) — `isOddVeluSet_oddOrderSummingSet`, the identity
+  `veluQuotient_oddOrderSummingSet_discriminant_prod_veluU_pow` (the pin's 3,566-line
+  `S_` body with its 203 proof-local helpers, all `private` here), and
+  `veluQuotient_oddOrderSummingSet_discriminant_ne_zero_of_addOrderOf_eq`.
+* `FLTForHuman/WeierstrassCurve/Velu/CyclicCount.lean` (**476 lines**, 3 public
+  declarations) — `ZMod.natCard_isAddCyclic_addSubgroup_prod_eq_dedekindPsi`,
+  `AddCommGroup.natCard_isAddCyclic_addSubgroup_eq_dedekindPsi_of_addEquiv_torsionBy`,
+  `WeierstrassCurve.exists_enum_cyclicKernels_veluQuotient_discriminant_ne_zero`;
+  every helper of the two counting `S_` files is `private`.
+
+No existing library module was edited; `spec/check_flt_statements.py` and
+`spec/WeierstrassCurveConsumer.lean` were appended to only.
+
+**Result.** Checker **`5611 → 5644` statements identical (313 → 312 promoted
+from pin-private declarations), 0 mismatched, 0 missing, 36 own-proof
+declarations exempted** (`5647 → 5680` port declarations checked; the +33 is
+exactly the 27 + 3 + 3 public declarations above). `lake build` of the wave →
+`Build completed successfully (8967 jobs)`; `spec/WeierstrassCurveConsumer.lean`
+exit `0` (error count 0); `#print axioms` on the identity and on the enumeration
+is `[propext, Classical.choice, Quot.sound]`; no `sorry`; no statement adapted.
+
+### The scout gate
+
+§5.5/rule 7 asked for the identity's hardest private block, prototyped first.
+The answer turned out to be "none of them": the whole 3,589-line
+`Discriminant.lean` elaborates under the mandated options in **24.0 s wall /
+77.8 s user** (first run, before the two import fixes, 18.7 s), so an isolated
+prototype of a 1,000-plus-line dependency closure was unnecessary. To *name* the
+heaviest block anyway, a `set_option profiler true` copy (`ScratchProfSet2.lean`)
+was elaborated in 26.6 s wall / 77.3 s user: the heaviest single step is a `rw`
+of **2.24 s** inside `N5IDAux1.norm_identity'` (the `degree_sub_lt` step of
+`Polynomial.eq_of_degree_sub_lt_of_eval_finset_eq`, generated line 1400); the
+next heaviest events are a 0.60 s `field_simp` and a 0.38 s `linting`; the
+344-line `core_assembly` is a chain of ≤0.36 s steps. **The pin's `maxRecDepth` is
+not needed anywhere in this set**: unlike SET-1's `velu2_*_cleared_identity`
+trio, the identity's `S_` file carries no `maxRecDepth` line, and the frozen
+4,000,000 `maxHeartbeats` cap was never approached. The pin's only bump,
+`set_option maxHeartbeats 4000000 in` on `expansion_core`, restates the pin's own
+**global** cap (`fermats-last-theorem/lakefile.lean:7` is also 4,000,000), so
+dropping it is a no-op; no bump was kept.
+
+### Measured table
+
+`lake env lean` runs a whole file, so its number is the per-module elaboration
+wall time; the `lake build` numbers are single-module builds from a clean
+artifact state, and the wave is the three modules built together from clean
+artifacts (all serialized with `flock .lake/flt_build.lock`).
+
+| module | lines | public (+ `private`) | `lake env lean` | `lake build` |
+|---|---:|---:|---:|---:|
+| `Velu/Equivariance.lean` | 300 | 27 (+6) | 7.5 s | **7.7 s** |
+| `Velu/Discriminant.lean` | 3,589 | 3 (+~210) | 24.0 s (77.8 s user) | **25.4 s** |
+| `Velu/CyclicCount.lean` | 476 | 3 (+~20) | 51.8 s | **80.0 s** |
+| whole wave | 4,365 | 33 | — | **95 s** (1 m 35 s) |
+
+The three modules are far cheaper than SET-1's (which needed 5–8 min `lake env
+lean` and 248/552 s builds): this column is many small `ring`/`field_simp`/
+`linear_combination` steps rather than a handful of giant coefficient-block
+identities. `CyclicCount` spends most of its wall time loading the
+`ModularCurve/Gamma0Index.lean` import chain (system time dominates user time).
+
+### Checker wiring
+
+`PORT_FILES` gained the three modules **last**. `SOURCES` gained, **last**: the
+four odd-order wrappers
+(`Thm_WeierstrassCurve_isOddVeluSet_oddOrderSummingSet`,
+`…_veluQuotient_oddOrderSummingSet_discriminant_prod_veluU_pow`,
+`…_discriminant_ne_zero_of_addOrderOf_eq`,
+`…_exists_enum_cyclicKernels_veluQuotient_discriminant_ne_zero`), the two
+counting wrappers (`Thm_ZMod_natCard_…`, `Thm_AddCommGroup_natCard_…`), and the
+`Definitions/` files this set ports: `Def_…_VeluVariableChange.lean` (whole),
+`Def_…_VeluEquivariance.lean` (whole file listed; see the friction entry — the
+port carries the `map_velu*` block from `Velu/Formula.lean`, not from this set),
+and `Def_…_VariableChangePointEquiv.lean` (the prerequisite core). Without the
+`Definitions/` entries the 27 vocabulary declarations read `MISSING IN FLT` —
+SET-1's friction, repeated as §5.3 warned.
+
+### Consumer
+
+`spec/WeierstrassCurveConsumer.lean` (474 → **580 lines**) gained the zone
+"**Zone (V1 SET-2): the odd-order discriminant column**" with one sub-zone per
+module, all executed, no `#check`, no `sorry`:
+
+* (a) `Velu/Equivariance.lean` — the curve `W3 : y² = x³ + 1` as
+  `WeierstrassCurveConsumer.W3`; `variableChange_veluU` at `(x, y) = (1, 1)`
+  composed with `Velu/Defs.lean`'s `veluU 1 1 = (veluGy 1 1)² = 4` (concrete
+  RHS `((C.u⁻¹ : ℚˣ) : ℚ)^6 * 4`), and `map_veluQuotient` under
+  `RingHom.id ℚ` reducing to `W3.veluQuotient S`.
+* (b) `Velu/Discriminant.lean` — `W3.Δ = -432`, `W3.IsElliptic`,
+  `(W3.veluQuotient ∅).Δ = -432` (`veluQuotient_empty`), the product rewrite
+  `∏_{P∈S} veluU = ∏_{P∈S} Ψ₂Sq.eval` through
+  `isOddVeluSet_oddOrderSummingSet` + `Velu/Defs.lean`'s `veluU_eq_Ψ₂Sq_eval`, the
+  identity and `…_discriminant_ne_zero_of_addOrderOf_eq` at an order-three point
+  (`n = 1`, so `Δ^3`).
+* (c) `Velu/CyclicCount.lean` — concrete ψ via `#eval ModularCurve.dedekindPsi 6`
+  → `12` and `… 12` → `24`; both counting headlines executed; the enumeration at
+  `ℓ = 3` over an algebraically closed field of characteristic zero composed with
+  (b)'s nonvanishing node (`Fintype.card ι = 4`).
+
+Two `#print axioms` probes added for the identity and the enumeration. **Error
+count 0** (exit 0). The file's older zones are unchanged.
+
+### Friction
+
+* **A prerequisite was missing, and the work order's import line could not
+  hold.** §5.3 says `Equivariance.lean` "imports `Velu/Defs.lean` only", but the
+  pin's `Def_…_VeluVariableChange.lean` imports
+  `Def_…_VariableChangePointEquiv.lean`, and the port did not have
+  `vcX`/`vcY`/`vcXInv`/`vcYInv`/`vcFun`/`vcInvFun`/`variableChangeEquiv` at all
+  (§6.2 assigns them to SET-3). They are used by `vcInvEmbedding`'s definition and
+  injectivity proof and by the identity's private `SummingSetTransport`/
+  `variableChangeAddEquiv` block, so the set cannot be built without them. Rather
+  than restate or weaken, they were ported **publicly and verbatim** here
+  (lines 6–154 of that pin file), and the pin file was added to `SOURCES`.
+  **Action for the manager: SET-3's `VariableChangePoint.lean` order must be
+  amended** — it should import `Equivariance.lean` and carry only
+  `WeierstrassCurve.Affine.Point.vcInvFun_add` (plus any consumer-specific tail,
+  e.g. `equivOfVariableChangeEq` if still wanted), not redeclare the core; a
+  redeclaration would be a cross-module duplicate.
+* **The `map_velu*` block was already in the port.** §5.2/rule 3 order the port of
+  `Def_…_VeluEquivariance.lean:1–60` into `Equivariance.lean`, but
+  `Velu/Formula.lean` already declares `map_velu{Gx,Gy,T,U,W}`,
+  `map_veluTSum`/`WSum`/`Quotient` with identical statements (transcribed by the
+  earlier H5 work). A first build did carry them and it cost 8 silent
+  cross-module duplicates: Lean accepted the whole library and the consumer, but
+  only one copy survives when both modules are imported, and the checker counted
+  the names twice. The block was removed from `Equivariance.lean`; the pin file
+  stays in `SOURCES`, which is the one visible benefit — `Velu/Formula.lean`'s
+  `map_veluQuotient` moved from *promoted (pin-private)* to *public-source
+  matched*, the `313 → 312` promoted delta.
+* **mathlib import drift.** The identity's private polynomial engine uses
+  `Polynomial.eq_of_degree_sub_lt_of_eval_finset_eq` / `…_index_eq`
+  (`Mathlib.LinearAlgebra.Lagrange`) and
+  `WeierstrassCurve.IsCharNeTwoNF`/`toCharNeTwoNF`/`toCharNeTwoNF_spec`
+  (`Mathlib.AlgebraicGeometry.EllipticCurve.NormalForms`); neither module was in
+  `Velu/OddOrder.lean`'s closure (`import Mathlib` in the pin had hidden it), so
+  both are imported explicitly. With them, plus `Point.neg_zero` for the one
+  `neg_zero` ambiguity that opening `WeierstrassCurve.Affine.Point` creates, the
+  identity compiled with no proof-body change.
+* **De-duplication as §5.2 prescribes.** The identity's `S_` file carries its own
+  private `exists_some_of_ne_zero` and `veluGy_ne_zero_of_two_nsmul_ne_zero`; both
+  were dropped in favour of the port's public copies in `Velu/Formula.lean` and
+  `Velu/OddOrder.lean`. `isOddVeluSet_oddOrderSummingSet` is the port's own proof
+  (not a transcription): `hp.eq_two_or_odd'`, `omega`, then the promoted
+  `kw_isOddVeluSet_oddOrderSummingSet_odd`.
+* **Namespace/name resolution.** The pin's outer `namespace P2MW.…` is dropped so
+  each `private` helper lands at its natural root path (the pin's helpers are
+  reached as `N5IDAux1.…`, `N5IDAux4.…`, `N5IDCharTwo…`, `N5IDC2Aux4.…`, and the
+  identity's own private `seam_*`/`variableChange_veluQuotient` at
+  `WeierstrassCurve.…`); the headlines are wrapped in `namespace WeierstrassCurve`
+  / `namespace ZMod` / `namespace AddCommGroup`. The pin leaves the
+  `AddCommGroup` counting `S_` file's namespace unclosed (its `P2MW` wrapper is
+  unclosed too), which initially nested the enumeration headline — caught by
+  `#check` and fixed by closing the namespace. `p2m_open`/`p2m_export`/
+  `p2m_reactivate`, the `attribute [-instance]`/`[-simp]` gates and the
+  `namespace X p2m_export … end X` wrappers are dropped as in SET-1.
+* **Checker namespace tracking is naive about dotted `end`.** `end Affine.Point`
+  pops one stack frame in `namespace_events`, not two, so the checker reads the
+  two `Discriminant.lean` headlines as
+  `WeierstrassCurve.WeierstrassCurve.…` although Lean's name is single-level
+  (`#check @WeierstrassCurve.veluQuotient_…` confirms). The last-name + statement
+  match is unaffected (`0 mismatched`), and `promoted_key` already reduces to the
+  last two components, so this was recorded rather than worked around; the file
+  was *not* reshaped to satisfy the tracker.
+* **Deprecations kept verbatim** (body-only noise): `push_neg` in
+  `nonsingular_variableChange_iff`; `Set.mem_setOf_eq`, `Set.Infinite.diff`,
+  `Polynomial.degree_sub_lt` and the `linter.style.haveILetI` hint on the pin's
+  `haveI`. No `sorry`, no weakened statement, no `OWN_PROOFS` entry needed, and
+  nothing was left out.
+
+The three modules were assembled from the pin by `lean/tmp/build_set2_equiv.py`,
+`…/build_set2_disc.py` and `…/build_set2_cyc.py` (untracked), which copy the pin
+byte-for-byte and apply only the mechanical transforms above; `ScratchSet2.lean`
+holds the scout and the consumer-zone prototype. The modules are the deliverable,
+the scripts only a record of the transcription.
+
+## V1 SET-3 — the quotient `j` column (2026-10-05)
+
+**Scope.** Two new modules, both under `Velu/` (the variable-change point
+vocabulary now lives in `Velu/Equivariance.lean`, so its additivity node follows it
+rather than opening a new area directory for one declaration); namespaces
+`WeierstrassCurve` / `WeierstrassCurve.Affine.Point` as the pin has them:
+
+* `FLTForHuman/WeierstrassCurve/Velu/VariableChangePoint.lean` (**213 lines**, 1
+  public declaration + 12 `private`) — `WeierstrassCurve.Affine.Point.vcInvFun_add`,
+  the one **off-subject prerequisite** of V1, carried by the `ucl` rule
+  (`S_WeierstrassCurve_Affine_Point_vcInvFun_add.lean`, 188 / solution 184). Its
+  module header says so and names its pin source. The
+  `VariableChangePointEquiv` core it is stated in (`vcX`/`vcY`/`vcXInv`/`vcYInv`,
+  `equation_variableChange_iff`, `nonsingular_variableChange_iff`, `vcFun`,
+  `vcInvFun`, `vcFun_leftInverse`, `vcFun_rightInverse`) is **imported** from
+  SET-2's `Velu/Equivariance.lean` and not redeclared — the §6.2 amendment.
+* `FLTForHuman/WeierstrassCurve/Velu/CyclicQuotientJ.lean` (**840 lines**, 54
+  public declarations + 58 `private`) — the pin's
+  `Definitions/Def_WeierstrassCurve_CyclicQuotientJ.lean` (207 lines) whole:
+  `xVeluT`/`xVeluU`/`xVeluW` and the three `xVelu*_eq_velu*` bridges,
+  `absSum`/`absSum_of_{finite,infinite}`, `xVeluCurve`/`xVeluX` + their six `a₁…a₆`
+  projections, `twoTorsionY`, `xVeluG`, `twoVeluCurve`/`twoVeluX` + the six
+  projections, `kernelXSet`/`coKernelXSet`, `stepCurve`/`stepX` + the four branch
+  lemmas, `subgroupOfX`/`stepSubgroup`, `CQJState`/`cqjStep`/`cqjIterate`/
+  `cyclicQuotientCurve`/`cyclicQuotientJ` and the eleven unfoldings (`…_def`,
+  `…_one`, `cqjStep_apply`, `length_primeFactorsList_eq_succ`, `…_eq_of_two_le`,
+  `cyclicQuotientJ_eq_j`); and the two headline nodes
+  `cyclicQuotientJ_variableChange_eq` /
+  `cyclicQuotientJ_baseChange_map_eq_of_isAlgClosed`, with every helper of
+  `P2MKcCQJvc` (31 declarations) and `P2MKcCQJbc` (27) `private`. This is the set's
+  wire test.
+
+No existing library module was edited; `spec/check_flt_statements.py` and
+`spec/WeierstrassCurveConsumer.lean` were appended to only.
+
+**Result.** Checker **`5644 → 5699` statements identical (312 → 312 promoted from
+pin-private declarations), 0 mismatched, 0 missing, 36 own-proof declarations
+exempted** (`5680 → 5735` port declarations checked; the +55 is exactly the
+1 + 52 + 2 public declarations above). `lake build` of the two-module wave →
+`Build completed successfully (2721 jobs)`; `spec/WeierstrassCurveConsumer.lean`
+exit `0` (error count 0); `#print axioms` on both headlines is
+`[propext, Classical.choice, Quot.sound]`; no `sorry`; no statement adapted.
+
+The column is **two orders of magnitude cheaper than SET-1/SET-2**. There was no
+scout gate to run: the largest single proof here is 41 lines (`subgroupOfX_vc`),
+the heaviest declaration is `cyclicQuotientJ_baseChange_map_eq_of_isAlgClosed`'s
+private `subgroupOfX_map` (whose `IsAlgClosed.splits` root-lifting block is the
+pin's), and the whole 840-line module elaborates in **5.8 s wall / 12.6 s user**.
+The pin carries **no** `maxHeartbeats` and **no** `maxRecDepth` line in these three
+`S_` files (the only `set_option` is `autoImplicit false` in the definition file),
+so nothing had to be kept and nothing dropped; the frozen 4,000,000 cap was never
+approached. `xVeluG_map` consumes the public `map_veluGx`, so `Velu/Formula.lean`
+is imported, not re-ported (SET-2's 8-duplicate lesson); SET-1's `Velu/OrderTwo.lean`
+is imported per §6.3.1 even though no node here names `veluQuotient2` (the `ℓ = 2`
+branch goes through the local `twoVeluCurve`).
+
+### Measured table
+
+`lake env lean` is the warm per-module elaboration wall time (it does not write an
+`.olean`); the `lake build` numbers are single-module builds from a deleted
+artifact; the wave builds the two modules together from deleted artifacts. All
+builds serialized with `flock .lake/flt_build.lock`.
+
+| module | lines | public (+ `private`) | `lake env lean` | `lake build` |
+|---|---:|---:|---:|---:|
+| `Velu/VariableChangePoint.lean` | 213 | 1 (+12) | 4.8 s | **6.3 s** (4.4 s module) |
+| `Velu/CyclicQuotientJ.lean` | 840 | 54 (+58) | 5.8 s (12.6 s user) | **6.3 s** (5.5 s module) |
+| whole wave | 1,053 | 55 | — | **11.0 s** (repeat 12.8 s) |
+
+### Checker wiring
+
+`PORT_FILES` gained the two modules **last**. `SOURCES` gained, **last**: the three
+wrappers (`Thm_WeierstrassCurve_Affine_Point_vcInvFun_add`,
+`Thm_WeierstrassCurve_cyclicQuotientJ_variableChange_eq`,
+`Thm_WeierstrassCurve_cyclicQuotientJ_baseChange_map_eq_of_isAlgClosed`) and the
+`Definitions/Def_WeierstrassCurve_CyclicQuotientJ.lean` source. Without that
+`Definitions/` entry the 52 vocabulary declarations read `MISSING IN FLT` — SET-1's
+friction, repeated for the third time as §6.3 prescribes. The pin's two `S_` files
+are *not* listed: their entire content is `private` in the port, so the checker
+never sees it, and no `OWN_PROOFS` entry was needed. The `SOURCES` order is
+immaterial for these four files (no last name is shared between a wrapper and the
+definition file), but the wrappers are listed first so the statement authority
+stays explicit.
+
+**Measured correction to §6.2.** The work order (and the plan's referenced-fraction
+table) calls `Def_..._CyclicQuotientJ.lean` a **46-declaration** file; it has **52
+public declarations** (20 `def`, 31 `theorem`, 1 `abbrev`). The six-theorem gap is
+exactly the six `@[simp] theorem xVeluCurve_a₁/a₂/a₃` and
+`@[simp] theorem twoVeluCurve_a₁/a₂/a₃` projections: the table's regex anchors on
+`^(?:noncomputable\s+)?(?:private\s+)?(?:protected\s+)?(?:def|theorem|…)`, which
+cannot see an attributed declaration on one line, while the checker's `DECL_RE`
+gained its `attrs` group in the SET-3 T5 round and can. All 52 are transcribed
+(+6 against the 46 estimate), and the `+55` checker delta reconciles as
+1 + 52 + 2.
+
+### Consumer
+
+`spec/WeierstrassCurveConsumer.lean` (580 → **679 lines**) gained the zone
+"**Zone (V1 SET-3): the quotient `j` column**" with one sub-zone per module, all
+executed, no `#check`, no `sorry`:
+
+* (a) `Velu/VariableChangePoint.lean` — `vcInvFun_add` bundled into a genuine
+  `→+` (`vcAddHom`) and exercised with `map_add`; then composed with SET-2's
+  `Velu/Equivariance.lean` core: `vcFun C W (vcAddHom C W P) = P` by
+  `vcFun_rightInverse`. Numeric anchor: the inverse coordinates of the variable
+  change `⟨1, 5, 0, 7⟩` at `(9, 11)` are `(4, 4)` (`vcXInv`/`vcYInv`, by `norm_num`).
+* (b) `Velu/CyclicQuotientJ.lean` — the SET-1 curve `W2 : y² = x³ - x` over `ℚ`
+  with the `zmultiples` subgroup of its 2-torsion point `(0, 0)`:
+  `W2.cyclicQuotientJ (AddSubgroup.zmultiples W2P) 1 = 1728` (`#eval`-free numeric
+  check: `c₄ = 48`, `Δ = 64`); the `N = 2` recursion through
+  `cyclicQuotientJ_eq_of_two_le`; the `ℓ = 2` branch `stepCurve_two` exposing
+  `Velu/Defs.lean`'s `twoVeluCurve`; the `ℓ ≠ 2` branch `stepCurve_of_ne_two`
+  exposing `xVeluCurve`; the base-change headline applied at complex conjugation
+  (`W2R : WeierstrassCurve ℝ`, `A = B = ℂ`, `f = Complex.conjAe`) giving Galois
+  invariance of the quotient `j`; and the base change along `ℝ → ℝ` preserving the
+  numeric anchor (`(W2R.baseChange ℝ).cyclicQuotientJ ⊥ 1 = 1728`).
+
+Two `#print axioms` probes added for the two headlines. **Error count 0**
+(exit 0). The file's older zones are unchanged.
+
+### Friction
+
+* **The 46-vs-52 declaration count** above: a measurement artefact of the
+  referenced-fraction regex, not a scope miss. Recorded because the *estimate* was
+  low by six declarations and the checker delta had to be reconciled against it.
+* **Proof-local duplication with SET-2, not a checker duplicate.** SET-2's
+  `Discriminant.lean` already carries a `private` copy of the whole
+  `vcInvFun_add` helper chain (`vcX_injective`, `vcY_injective`,
+  `vcAdd_partialX_aux`/`Y_aux`, `negY_variableChange`, `Yeq_variableChange_iff`,
+  `slope_variableChange`, `addX_variableChange`, `addY_variableChange`,
+  `some_eq_some'`, `vcFun_add`, `variableChangeAddEquiv`) because the odd-order
+  discriminant transport needed it. Those copies are `private`, hence distinct
+  Lean constants with per-file names: no cross-module duplicate, no `MISSING IN
+  FLT`, and the checker's promoted count is unchanged (`312 → 312`). The *proof
+  code* is nevertheless written twice in the tree. The work order forbids editing
+  the closed `Discriminant.lean` and forbids promoting the chain (a public
+  `vcFun_add` would want its own `SOURCES` entry and would then collide with the
+  SET-2 module's copy), so the duplication stands. The clean fix, if V2 wants one
+  home, is a future refactor moving the `variableChangeAddEquiv` chain public into
+  `VariableChangePoint.lean` and having `Discriminant.lean` import it.
+* **mathlib drift (proof body only).** The pin's `V.baseChange_nonsingular` is not a
+  `WeierstrassCurve` projection in `v4.34.0`; the affine form is
+  `WeierstrassCurve.Affine.map_nonsingular` (`…baseChange_nonsingular` needs an
+  `AlgHom`, not a `RingHom`). Used in `ptMap_some` and `subgroupOfX_map`.
+* **`WeierstrassCurve.Affine.Point.map` is indexed on the base ring — an
+  instantiation limit, not an instance diamond.** The base-change headline's
+  `f : A →ₐ[R] B` forces `E : WeierstrassCurve R`, so it cannot be applied at
+  `E : WeierstrassCurve ℚ` with the natural `f : ℂ →ₐ[ℝ] ℂ`. The consumer's Galois
+  zone therefore uses `W2R : WeierstrassCurve ℝ`. Trying the ℚ-curve form does not
+  fail cleanly: the elaborator loops in instance search and dies at the frozen
+  4,000,000 cap with `(deterministic) timeout at 'whnf'`. **The library node is
+  unaffected** — both modules close under the cap — but the failure mode is worth
+  recording so no later agent re-tries it or blames the frozen knob.
+* **A numeric anchor over `ℂ` blew the cap.** `(W2.baseChange ℂ).cyclicQuotientJ ⊥ 1
+  = 1728` by `norm_num` (with `map_c₄`/`map_Δ`) ran ~4 min and then hit the same
+  `whnf` timeout; dropped. The required concrete computation is over `ℚ` and closes
+  instantly; the base-change zone keeps the `ℝ → ℝ` numeric instead. `maxHeartbeats`
+  was not raised.
+* **§6.5's "composition with `Velu/MapEquation.lean`" is not natural for this
+  column.** `MapEquation.lean` is the explicit-map-equation engine (`veluDeficit`,
+  `veluXCorr`, the `VeluThmOneOddAt` carrier), disjoint from the quotient
+  iteration, and no declaration of this column mentions it. Rather than manufacture
+  a link, the consumer zone composes with what the column actually consumes:
+  `Velu/Defs.lean` (`xVeluCurve`/`twoVeluCurve`/`kernelXSet`, and the six `a₁…a₆`
+  projections), SET-2's `Velu/Equivariance.lean` (`vcFun_rightInverse`) and SET-1's
+  curve vocabulary. Nothing was left out of the work order's deliverable list; the
+  only deliberate substitutions are the `ℂ` anchors above.
+* **Deprecations kept pin-verbatim** (body-only noise; `lake build` marks the module
+  `⚠`): `if_pos`/`if_neg` → `ite_eq_left`/`ite_eq_right` (the four
+  `stepCurve_*`/`stepX_*` branch lemmas, and again in the base-change
+  `stepCurve_map`/`stepX_map`); `Set.mem_setOf_eq` → `Set.mem_ofPred_eq` (the
+  `kernelXSet_vc`/`coKernelXSet_vc`/`kernelXSet_map`/`coKernelXSet_map` set
+  extensions); and the `linter.style.haveILetI` hint on the pin's
+  `letI : Algebra A B := f.toAlgebra` in `ptMap`. No `sorry`, no weakened statement,
+  no `OWN_PROOFS` entry needed.
+* **Namespace tracking is clean here.** Because the `P2MKcCQJvc`/`P2MKcCQJbc`
+  helpers are all `private`, the checker's naive `end`-tracking never reads them,
+  and `CyclicQuotientJ.lean` uses no dotted `end A.B`, so its 54 public declarations
+  match 54/54 with no `WeierstrassCurve.WeierstrassCurve.…` artefact (the
+  `Discriminant.lean` situation is not repeated).
+
+The two modules were transcribed by hand from the pin (the one mechanical pass —
+prefixing the 58 proof-local helpers with `private` — was applied inline);
+`ScratchSet3.lean` holds the scouted definition layer and `ScratchConsumer3.lean`
+the consumer-zone prototype (both untracked, gitignored).
+
+## V1 close-out — the three ready columns landed (2026-10-05)
+
+**Manager's review of the wave.** V1 is complete: three sets, one subagent each, run
+in series with the manager reviewing the tree between sets. The wave is the first
+part of the Vélu port delivered as **new files only** — seven modules, no existing
+library module edited — so no set cascaded and the only whole-tree build was this
+milestone.
+
+| set | modules | written | est. | checker delta |
+|---|---|---:|---:|---|
+| V1-SET-1 | `Velu/OrderTwo.lean`, `Velu/OrderTwoMap.lean` | 1,952 | 1.73 k | +39 |
+| V1-SET-2 | `Velu/Equivariance.lean`, `Velu/Discriminant.lean`, `Velu/CyclicCount.lean` | 4,365 | 4.27 k | +33 |
+| V1-SET-3 | `Velu/VariableChangePoint.lean`, `Velu/CyclicQuotientJ.lean` | 1,053 | 1.05 k | +55 |
+| **V1** | **7 modules** | **7,370** | **7.0 k** | **5611 → 5699 identical** |
+
+Checker at the milestone: `5699 statements identical (312 promoted from pin-private
+declarations), 0 mismatched, 0 missing, 36 own-proof declarations exempted (5735
+port declarations checked)`. Whole-tree build green, **9,289 jobs, 14.1 s** (warm;
+only the wave's own `.olean`s were missing). Consumer `spec/WeierstrassCurveConsumer.lean`
+679 lines, exit 0, 0 errors. `#print axioms` on all five V1 headlines:
+
+```
+exists_addMonoidHom_coe_eq_veluPointMap2
+veluQuotient_oddOrderSummingSet_discriminant_prod_veluU_pow
+exists_enum_cyclicKernels_veluQuotient_discriminant_ne_zero
+cyclicQuotientJ_variableChange_eq
+cyclicQuotientJ_baseChange_map_eq_of_isAlgClosed
+  ⟹ [propext, Classical.choice, Quot.sound]
+```
+
+**Plan vs actual.** The line estimates held to +13% / +2% / 0% — inside the
+playbook's ±10% expectation once SET-1's heavy cleared identities are counted. The
+**definition-layer estimate was wrong twice**, in opposite directions, and both
+errors are the same class: a referenced-fraction table measures *what is
+referenced*, not *what the module imports* and not *what the port already has*.
+
+* `Def_…_VeluVariableChange` imports `Def_…_VariableChangePointEquiv`, which no V1
+  order had assigned — SET-2 found it only by reading the definition module's
+  imports, ported its core publicly in `Equivariance.lean`, and SET-3's order was
+  amended to import it. Third instance in this block of the rule that a work order's
+  source list is the route closure of its deliverable, not the tool's node list.
+* The `map_velu*` commutation block was already public in `Velu/Formula.lean` from
+  the H4 work, so SET-2's definition layer cost ≈0 rather than the ≈60 budgeted;
+  SET-2's first build produced eight silent cross-module duplicates before the agent
+  grepped the port by name and removed them.
+
+**The heaviness ranking is not the line count.** SET-1's 1,952 lines cost 5–8 min
+per `lake env lean` and 248–552 s per `lake build` (wave 12 m 47 s); SET-2's 4,365
+lines cost 8–52 s and a 95 s wave; SET-3's 1,053 lines cost ≈6 s each and an 11 s
+wave. The cost sits in the pin's enormous cleared `linear_combination` identities,
+and their binding knob is the pin's **`maxRecDepth 8000`, not `maxHeartbeats`** —
+SET-1's scout died at the default 1000 inside `field_simp`. Every pin
+`maxHeartbeats` bump in all three sets was dropped and every node closed at the
+frozen 4,000,000.
+
+**Friction carried into the record.** (1) The checker's `SOURCES` needs the
+`Definitions/` entries for vocabulary-only modules, or the vocabulary reads
+`MISSING IN FLT`; all three sets hit this. (2) The checker reads a declaration's own
+text, so a wrapper that hoists binders into file-level `variable`s must have that
+prelude spliced onto the `S_` proof — SET-1: 8 of 13 mismatched until it was.
+(3) The checker's `end`-tracker pops one frame on a dotted `end A.B`, so
+`Discriminant.lean`'s headlines read as `WeierstrassCurve.WeierstrassCurve.…` in the
+tracker while Lean's names are single-level; matching is unaffected and the file was
+not reshaped to please the tracker. (4) `Point.map` is indexed on the base ring, so
+the base-change headline cannot be applied at `W2 : WeierstrassCurve ℚ` with
+`f : ℂ →ₐ[ℝ] ℂ`; the wrong form does not fail cleanly — it loops in instance search
+and dies at the frozen cap (the same `whnf` timeout killed a `ℂ`-valued `norm_num`
+numeric anchor). Both were worked around in the consumer, not in the statement.
+
+**Refactor-round item (V2).** `Discriminant.lean` and `VariableChangePoint.lean`
+each carry a `private` copy of the `vcInvFun_add` helper chain: private ⇒ distinct
+constants, no checker impact and no `MISSING IN FLT`, promoted count unchanged
+(312 → 312), but the code is written twice. Both files are frozen for this wave;
+the clean fix is a refactor promoting `variableChangeAddEquiv` public into
+`VariableChangePoint.lean` and deleting the copy in `Discriminant.lean`.
+
+**What V2 inherits.** The full order-two vocabulary and point map; the discriminant
+identity and the ψ-counting/enumeration pair; `cyclicQuotientCurve`/`cyclicQuotientJ`
+with both well-definedness lemmas; `Velu/Equivariance.lean` as the home of the
+variable-change/core vocabulary and `Velu/Formula.lean` as the home of `map_velu*`;
+and a warm tree. V2's remaining targets are the two gateways
+(`exists_pointEnd_eq_of_mem_isogenyEndSubring` → `exists_sq_lt_four_mul…`) and the
+Ribet-side completion, to be scoped against these modules.
