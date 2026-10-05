@@ -701,6 +701,37 @@ including both of H6's base-change nodes**). Add both `Theorems/` wrappers to
 `SOURCES` (undiffed today). Actionable entry:
 [TOPIC-port-plan.md](../topics/velu/TOPIC-port-plan.md) §5 item 5.
 
+## Torsion-API promotion — the two H5 re-proofs landed (2026-10-05)
+
+**Result.** New `FLTForHuman/Algebra/ZModTorsion.lean` (392 lines; the generic
+"`A[n] ≅ (ZMod n)²`" classification, `Mathlib`-only) and
+`FLTForHuman/Elliptic/TorsionZMod.lean` (192 lines; the char-free
+`nsmul_surjective_charfree` / `exists_zsmul_eq` and the two wrapper headlines).
+Checker `5555 → 5572 identical (313 promoted), 0 mismatched, 0 missing, 36 own`
+(+17 = 18 new − 1 deleted); whole tree green (1 m 20 s); no `sorry`; axioms
+`[propext, Classical.choice, Quot.sound]`.
+
+**What landed is the fidelity fix, not just reuse.** The pin's
+`Point.exists_zsmul_eq_of_isAlgClosed` is char-free; the port's local
+`surjective_zsmul_of_ne_zero` added `[CharZero K]`. The promoted declaration has
+the pin's signature (no `CharZero`), and `DualEndData.lean` deleted the local copy
+and switched its one use in `kw_pointEnd_mul_cancel`. The generic classification
+now exists for H6: **7 other pin `S_` nodes import it, including both of H6's
+base-change nodes**. `finite_torsionBy_aux` stays private (glue).
+
+**Mathlib audit (recorded negative).** Neither ingredient is in mathlib `v4.34.0`:
+no `ZMod n × ZMod n ≃+ Submodule.torsionBy` classification in
+`Algebra/Module/Torsion/`, `GroupTheory/`, `Algebra/Module/ZMod/` or the
+elliptic-curve tree, and no `Divisible` instance or nsmul/zsmul surjectivity for
+elliptic points over an algebraically closed field. mathlib's `Submodule.torsionBy`
+/ `torsionBy_isInternal` API is the substrate the ported proof builds on.
+
+**Friction.** One self-inflicted structural slip: after deleting the local theorem
+a now-empty `namespace WeierstrassCurve` opener was left without its `end`,
+re-nesting everything after it (`unknown identifier` for `KwDualTraceWitness` /
+`kw_dcao_*`); removed. `if_neg` is deprecated in v4.34.0 (used `ite_eq_right`,
+body-only). No missing `Elliptic/` piece.
+
 
 
 

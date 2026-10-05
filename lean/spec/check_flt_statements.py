@@ -2028,6 +2028,21 @@ SOURCES = [
     "Theorems/Thm_WeierstrassCurve_Affine_IsogenyHomDatum_pointHom_apply_eq_sub.lean",
     "Theorems/Thm_WeierstrassCurve_Affine_IsogenyEndDatum_exists_pointEnd_eq_add.lean",
     "Theorems/Thm_WeierstrassCurve_Affine_natCard_ker_pointMapOfPushforward_eq_finrankAlong.lean",
+    # --- The torsion-API promotion (H5 follow-up). The generic `ZMod n × ZMod n`
+    # classification of `A[n]` (Mathlib-only, `FLTForHuman/Algebra/ZModTorsion.lean`)
+    # and the elliptic char-free `zsmul` surjectivity plus its torsion
+    # classification (`FLTForHuman/Elliptic/TorsionZMod.lean`). The three
+    # `Theorems/` wrappers are the statement authority; the two `S_` files are
+    # listed after them so the promoted public helpers (`nsmul_surjective_charfree`,
+    # `exists_zsmul_eq`, the `preΨ'` companions and the generic engine) diff against
+    # their pin originals. The pin's public `solution` is not exposed in the port
+    # (SET-2 pattern), so the wrapper names carry the headline statements. Appended
+    # last so no earlier last-name match can flip.
+    "Theorems/Thm_AddCommGroup_nonempty_zmod_prod_addEquiv_torsionBy_of_card_torsionBy_eq_sq.lean",
+    "Theorems/Thm_WeierstrassCurve_Affine_Point_exists_zsmul_eq_of_isAlgClosed.lean",
+    "Theorems/Thm_WeierstrassCurve_nonempty_torsionBy_addEquiv_zmod_prod_of_isAlgClosed.lean",
+    "P2M/Sol/S_AddCommGroup_nonempty_zmod_prod_addEquiv_torsionBy_of_card_torsionBy_eq_sq.lean",
+    "P2M/Sol/S_WeierstrassCurve_Affine_Point_exists_zsmul_eq_of_isAlgClosed.lean",
 ]
 
 PORT_FILES = [
@@ -2819,6 +2834,10 @@ PORT_FILES = [
     # can flip.
     "FLTForHuman/WeierstrassCurve/IsogenyEndDatum/DualEndData.lean",
     "FLTForHuman/WeierstrassCurve/IsogenyEndDatum/Vocabulary.lean",
+    # --- The torsion-API promotion (H5 follow-up): the `Mathlib`-only `A[n] ≅ (Z/n)²`
+    # classification and the elliptic char-free torsion theory. Appended last.
+    "FLTForHuman/Algebra/ZModTorsion.lean",
+    "FLTForHuman/Elliptic/TorsionZMod.lean",
 ]
 
 

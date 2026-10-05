@@ -1,8 +1,8 @@
 # Vélu port plan — factoring the 91 k-line cluster
 
-**Status: the explicit-Vélu column, the H5r dictionary extraction and H5 are
-landed; the base-change column and the cheap-node phases
-remain.** H0, the H1w place dictionary, the H2 engine (SET-1/2/3) and both
+**Status: the explicit-Vélu column, the H5r dictionary extraction, H5 and the
+torsion-API promotion are landed; the base-change column and the cheap-node
+phases remain.** H0, the H1w place dictionary, the H2 engine (SET-1/2/3) and both
 explicit-Vélu headline pairs (H3/H4) are in the port, together with the H5a/H5b
 prerequisites the wire test pulled forward. The plan's **Phase C capstone** — its
 four headline theorems — therefore landed early, during what the plan had
@@ -305,29 +305,26 @@ landed, so the dictionary is importable without Vélu.
    `eval_jLattice_eq_zero_of_isAddCyclic`, `IsAddCyclic.of_squarefree_natCard` and
    `exists_genusOnePlaceGate_isCentred_and_abelTheorem`). They are the only
    unfinished business of H5.
-5. **Torsion-API promotion (H5 follow-up).** Two of the three re-proofs are worth
-   promoting; `finite_torsionBy_of_natCast_ne_zero` (the `private`
-   `finite_torsionBy_aux`) is pure glue — it only specialises the already-ported
-   `card_torsion_of_isAlgClosed` — and stays private.
-   * `WeierstrassCurve.Affine.Point.exists_zsmul_eq_of_isAlgClosed` — a fidelity
-     gap: the pin states it char-free (via its `nsmul_surjective_charfree`), the
-     port's public `surjective_zsmul_of_ne_zero` adds `[CharZero K]`. 376-line pin
-     node; the `Elliptic/` EDS material it needs is ported.
-   * `WeierstrassCurve.nonempty_torsionBy_addEquiv_zmod_prod_of_isAlgClosed` — the
-     structural statement "`E[n]` over the algebraic closure is `(ZMod n)²`" for
-     `n` invertible in `K`. The pin headline is a **23-line wrapper** over the
-     generic group lemma
+5. **Torsion-API promotion (H5 follow-up) — landed 2026-10-05.** The glue case
+   (`finite_torsionBy_of_natCast_ne_zero` / the `private` `finite_torsionBy_aux`)
+   stays private; the other two are promoted:
+   * `WeierstrassCurve.Affine.Point.exists_zsmul_eq_of_isAlgClosed` — now **char-free
+     as the pin states it** (the old public `surjective_zsmul_of_ne_zero` added
+     `[CharZero K]` and has been deleted); the already-ported `Elliptic/` EDS
+     material served its proof, so nothing was weakened or pulled in.
+   * `WeierstrassCurve.nonempty_torsionBy_addEquiv_zmod_prod_of_isAlgClosed` plus
+     its generic prerequisite
      `AddCommGroup.nonempty_zmod_prod_addEquiv_torsionBy_of_card_torsionBy_eq_sq`
-     (a **378-line pin node, absent from the port**), which **7 other pin `S_`
-     nodes import — including both of H6's base-change nodes**
-     (`exists_algHom_baseChange_of_isAddCyclic_ker_pointMapOfPushforward`,
-     `isAddCyclic_ker_pointMapOfPushforward_of_baseChange_algHom`). Promote the
-     generic lemma into `FLTForHuman/Algebra/` and the headline into `Elliptic/`,
-     **before H6**.
-   Add the `Theorems/` wrappers of the two promoted headlines (and of the generic
-   lemma) to `SOURCES` — none is diffed today, so the divergences are invisible.
-   Work order (mathlib audit: the generic lemma and the divisibility instance are
-   both absent from mathlib `v4.34.0`) and dispatch status:
+     — the structural "`E[n]` is `(ZMod n)²`" statement, which **7 other pin `S_`
+     nodes import, including both of H6's base-change nodes**, so it is now
+     available before H6.
+   New modules `FLTForHuman/Algebra/ZModTorsion.lean` (392 lines, `Mathlib`-only)
+   and `FLTForHuman/Elliptic/TorsionZMod.lean` (192 lines); `DualEndData.lean`
+   imports the promoted statement and its local copy is gone. Checker
+   `5555 → 5572 identical, 0 mismatched, 0 missing, 36 own`; whole tree green; no
+   `sorry`; axioms clean at `[propext, Classical.choice, Quot.sound]`. The mathlib
+   audit (the generic lemma and the divisibility instance are both absent from
+   mathlib `v4.34.0`) and the detail are in
    [TOPIC-torsion-promotion.md](TOPIC-torsion-promotion.md).
 
 **Cheap-node first.** Phases B and D are the bulk of the remaining node count but

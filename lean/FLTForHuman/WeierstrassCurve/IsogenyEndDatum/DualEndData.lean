@@ -22,6 +22,7 @@ import FLTForHuman.WeierstrassCurve.Isogeny.ConditionalCurrency
 import FLTForHuman.AlgebraicCurve.Defs.Correspondence
 import FLTForHuman.AlgebraicCurve.Defs.RestrictAlongAPI
 import FLTForHuman.Elliptic.TorsionCard
+import FLTForHuman.Elliptic.TorsionZMod
 import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
 import Mathlib.Tactic
 set_option autoImplicit false
@@ -2352,37 +2353,6 @@ end ModularCurve.Mmr62
 end
 end
 end
-namespace WeierstrassCurve
-
-theorem surjective_zsmul_of_ne_zero {K : Type*} [Field K] [DecidableEq K] [IsAlgClosed K] [CharZero K]
-    (W : WeierstrassCurve K) [W.IsElliptic] {m : ℤ} (hm : m ≠ 0) :
-    Function.Surjective (fun P : W.toAffine.Point => m • P) := by
-  intro P
-  rcases lt_trichotomy m 0 with hlt | heq | hgt
-  · have hn0 : ((m.natAbs : ℕ) : K) ≠ 0 := by
-      exact_mod_cast (Int.natAbs_ne_zero.mpr hm)
-    have hsurj := FLTForHuman.Elliptic.smul_surjective (F := K) (K := K) W hn0
-    rw [show (W.baseChange K).toAffine = W.toAffine by
-      rw [WeierstrassCurve.baseChange, Algebra.algebraMap_self, WeierstrassCurve.map_id]] at hsurj
-    obtain ⟨Q, hQ⟩ := hsurj (-P)
-    refine ⟨Q, ?_⟩
-    show m • Q = P
-    have hQ' : m.natAbs • Q = -P := by simpa using hQ
-    have hm' : m = -(m.natAbs : ℤ) := by omega
-    rw [hm', neg_zsmul, natCast_zsmul, hQ', neg_neg]
-  · exact absurd heq hm
-  · have hpos : (m.toNat : ℤ) ≠ 0 := by omega
-    have hn0 : ((m.toNat : ℕ) : K) ≠ 0 := by exact_mod_cast hpos
-    have hsurj := FLTForHuman.Elliptic.smul_surjective (F := K) (K := K) W hn0
-    rw [show (W.baseChange K).toAffine = W.toAffine by
-      rw [WeierstrassCurve.baseChange, Algebra.algebraMap_self, WeierstrassCurve.map_id]] at hsurj
-    obtain ⟨Q, hQ⟩ := hsurj P
-    refine ⟨Q, ?_⟩
-    show m • Q = P
-    have hQ' : m.toNat • Q = P := by simpa using hQ
-    have hm' : m = (m.toNat : ℤ) := (Int.toNat_of_nonneg (le_of_lt hgt)).symm
-    rw [hm', natCast_zsmul, hQ']
-end WeierstrassCurve
 section
 section
 set_option linter.unusedSectionVars false
@@ -2409,8 +2379,8 @@ theorem kw_pointEnd_mul_cancel (D : IsogenyEndDatum W) (ψ : AddMonoid.End W.Poi
   have hdpos : (0 : ℤ) < (D.degree : ℤ) :=
     Int.natCast_pos.mpr (ModularCurve.cmm10_deg_degree_pos D)
   refine DFunLike.ext _ _ fun P => ?_
-  obtain ⟨Q, hQ⟩ := WeierstrassCurve.surjective_zsmul_of_ne_zero (W := W)
-    (m := (D.degree : ℤ)) hdpos.ne' P
+  obtain ⟨Q, hQ⟩ := WeierstrassCurve.Affine.Point.exists_zsmul_eq_of_isAlgClosed
+    W hdpos.ne' P
   have hker : D.pointEnd' (ψ Q) = 0 := DFunLike.congr_fun hzero Q
   have hkill : (D.degree : ℤ) • ψ Q = 0 := by
     have := ModularCurve.cmm14_dex_card_ker_zsmul_eq_zero
