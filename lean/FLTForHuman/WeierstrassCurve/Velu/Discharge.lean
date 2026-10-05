@@ -56,12 +56,14 @@ against the pin. They are gathered in this one delimited section so the
 manager's refactor round can relocate them mechanically:
 
 * `nsmul_ne_zero_of_addOrderOf_eq_of_not_dvd`, `sub_nsmul_eq_neg_of_nsmul_eq_zero`
-  — the pin's `OrderArithmetic` block;
-* `mk_mem_XYIdeal_iff`, `ord_placeOfEquation_ne_zero_iff`,
-  `ord_placeOfEquation_nonneg`, `ord_placeOfEquation_pos_iff`,
-  `centre_placeOfEquation`, `isRational_placeOfEquation` — the A1 Weierstrass
-  place dictionary (belongs in `WeierstrassCurve/Place/Dictionary.lean`).
--/
+  — the pin's `OrderArithmetic` block.
+
+The A1 Weierstrass place dictionary (`mk_mem_XYIdeal_iff`, `ord_placeOfEquation_*`,
+`centre_placeOfEquation`, `isRational_placeOfEquation`) and the
+`algebraMap_polynomial_eq_mk_C`/`ord_polyToFunctionField_*` bridge that the
+`IsogenyEndDatum` and base-change homes need were relocated to
+`WeierstrassCurve/Place/Dictionary.lean` by the H5r refactor round; they are
+imported, not redeclared. -/
 
 section Prerequisites
 
@@ -82,73 +84,6 @@ namespace Affine
 open CoordinateRing
 
 variable {F : Type u} [Field F] {W : Affine F}
-
-section PrerequisitesA1
-
-variable {F : Type u} [Field F] {W : Affine F}
-
-theorem mk_mem_XYIdeal_iff {x y : F} (h : W.Equation x y) (P : F[X][Y]) :
-    CoordinateRing.mk W P ∈ XYIdeal W x (C y) ↔ P.evalEval x y = 0 := by
-  have hmap : XYIdeal W x (C y)
-      = Ideal.map (CoordinateRing.mk W) (Ideal.span {C (X - C x), Y - C (C y)}) := by
-    rw [Ideal.map_span, Set.image_pair]
-    rfl
-  rw [hmap]
-  constructor
-  · intro hP
-    obtain ⟨Q, hQ, hQP⟩ := (Ideal.mem_map_iff_of_surjective _ AdjoinRoot.mk_surjective).mp hP
-
-    obtain ⟨c, hc⟩ := AdjoinRoot.mk_eq_mk.mp hQP
-    have hQ0 : Q.evalEval x y = 0 :=
-      Polynomial.mem_span_C_X_sub_C_X_sub_C_iff_eval_eval_eq_zero.mp hQ
-    have hW0 : W.polynomial.evalEval x y = 0 := h
-    have hPQ : P = Q - W.polynomial * c := by rw [← hc]; ring
-    rw [hPQ]
-    simp only [evalEval, eval_sub, eval_mul] at hQ0 hW0 ⊢
-    rw [hQ0, hW0, zero_mul, sub_zero]
-  · intro hP
-    exact Ideal.mem_map_of_mem _
-      (Polynomial.mem_span_C_X_sub_C_X_sub_C_iff_eval_eval_eq_zero.mpr hP)
-
-theorem ord_placeOfEquation_ne_zero_iff [IsDedekindDomain W.CoordinateRing] {x y : F}
-    (h : W.Equation x y) {r : W.CoordinateRing} (hr : r ≠ 0) :
-    (placeOfEquation h).ord (algebraMap W.CoordinateRing W.FunctionField r) ≠ 0
-      ↔ r ∈ XYIdeal W x (C y) := by
-  rw [placeOfEquation, AlgebraicCurve.Place.ord_ofHeightOneSpectrum_ne_zero_iff _ hr,
-    CoordinateRing.heightOneSpectrumOfEquation_asIdeal]
-
-theorem ord_placeOfEquation_nonneg [IsDedekindDomain W.CoordinateRing] {x y : F}
-    (h : W.Equation x y) (r : W.CoordinateRing) :
-    0 ≤ (placeOfEquation h).ord (algebraMap W.CoordinateRing W.FunctionField r) :=
-  (placeOfEquation h).ord_nonneg_of_mem (isFinitePlace_placeOfEquation h r)
-
-theorem ord_placeOfEquation_pos_iff [IsDedekindDomain W.CoordinateRing] {x y : F}
-    (h : W.Equation x y) {r : W.CoordinateRing} (hr : r ≠ 0) :
-    0 < (placeOfEquation h).ord (algebraMap W.CoordinateRing W.FunctionField r)
-      ↔ r ∈ XYIdeal W x (C y) := by
-  rw [← ord_placeOfEquation_ne_zero_iff h hr]
-  have := ord_placeOfEquation_nonneg h r
-  omega
-
-theorem centre_placeOfEquation [IsDedekindDomain W.CoordinateRing] {x y : F}
-    (h : W.Equation x y) :
-    (isFinitePlace_placeOfEquation h).centre = XYIdeal W x (C y) := by
-  ext r
-  rcases eq_or_ne r 0 with rfl | hr
-  · simp only [Submodule.zero_mem]
-  rw [(isFinitePlace_placeOfEquation h).mem_centre_iff_ord_ne_zero hr,
-    ord_placeOfEquation_ne_zero_iff h hr]
-
-end PrerequisitesA1
-
-section IsRationalPlaceOfEquation
-
-variable [IsDedekindDomain W.CoordinateRing] {r s : F} (hrs : W.Equation r s)
-
-theorem isRational_placeOfEquation : (placeOfEquation hrs).IsRational :=
-  (placeOfEquation hrs).isRational_of_deg_eq_one (deg_placeOfEquation hrs)
-
-end IsRationalPlaceOfEquation
 
 section MemEval
 

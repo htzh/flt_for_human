@@ -64,7 +64,7 @@ transcribed here because only this module may be edited; all are `private`):
 
 The `WeierstrassCurve/Place/Dictionary.lean` `ord`-at-a-point dictionary
 (`eq_placeOfEquation_of_le_centre`, `ord_polyToFunctionField_{pos,eq_zero}_iff`)
-is still transcribed in the `Affine` prerequisites block, and the pin's
+was relocated to the dictionary by the H5r refactor round; the pin's
 `InfinitePlace` namespace lemmas are recovered privately.
 
 Reference (public mirror, pinned):
@@ -1195,62 +1195,6 @@ theorem s2c_mem_zmultiples_of_fst_eq (hord : addOrderOf Q = 2 * n + 1)
     exact AddSubgroup.neg_mem _ hkmem
 
 end S2cKernel
-
-/-! ### Prerequisites: the `placeOfEquation` ord-at-a-point dictionary
-
-The pin's `ord_polyToFunctionField_{pos,eq_zero}_iff`, `IsFinitePlace.mem_centre_iff_ord_ne_zero`
-and `eq_placeOfEquation_of_le_centre` (pin lines 3367–3398 and 3450–3472) belong
-to the Weierstrass place dictionary but are not yet in
-`WeierstrassCurve/Place/Dictionary.lean`; they are transcribed verbatim here in a
-delimited section, like the `section Prerequisites` blocks of `Velu/Discharge.lean`
-and `Velu/OddOrder.lean`. -/
-
-namespace Affine
-
-variable {F : Type*} [Field F] {W : Affine F}
-
-theorem eq_placeOfEquation_of_le_centre [IsAlgClosed F] [IsDedekindDomain W.CoordinateRing]
-    {v : Place F W.FunctionField} (hv : IsFinitePlace v) {x y : F} (h : W.Equation x y)
-    (hle : XYIdeal W x (C y) ≤ hv.centre) : v = placeOfEquation h := by
-  obtain ⟨x', y', h', hveq⟩ := (isFinitePlace_iff_exists_placeOfEquation v).mp hv
-  subst hveq
-  have hc : hv.centre = XYIdeal W x' (C y') := by
-    rw [Subsingleton.elim hv (isFinitePlace_placeOfEquation h')]
-    exact centre_placeOfEquation h'
-  rw [hc] at hle
-  have heq : XYIdeal W x (C y) = XYIdeal W x' (C y') :=
-    (CoordinateRing.XYIdeal_isMaximal h).eq_of_le (CoordinateRing.XYIdeal_isMaximal h').ne_top
-      hle
-  obtain ⟨rfl, rfl⟩ := CoordinateRing.eq_of_XYIdeal_eq h' heq
-  rfl
-
-variable [IsDedekindDomain W.CoordinateRing]
-
-theorem ord_polyToFunctionField_pos_iff {x y : F} (h : W.Equation x y) {p : F[X]}
-    (hp : p ≠ 0) :
-    0 < (placeOfEquation h).ord (polyToFunctionField W p) ↔ p.eval x = 0 := by
-  rw [polyToFunctionField_apply, algebraMap_polynomial_eq_mk_C,
-    ord_placeOfEquation_pos_iff h (fun hcon => polyToFunctionField_ne_zero hp
-      (by rw [polyToFunctionField_apply, algebraMap_polynomial_eq_mk_C, hcon, _root_.map_zero])),
-    mk_mem_XYIdeal_iff h, Polynomial.evalEval_C]
-
-theorem ord_polyToFunctionField_eq_zero_iff {x y : F} (h : W.Equation x y) {p : F[X]}
-    (hp : p ≠ 0) :
-    (placeOfEquation h).ord (polyToFunctionField W p) = 0 ↔ p.eval x ≠ 0 := by
-  have h1 := ord_polyToFunctionField_pos_iff h hp (y := y)
-  have h2 : 0 ≤ (placeOfEquation h).ord (polyToFunctionField W p) := by
-    rw [polyToFunctionField_apply]
-    exact ord_placeOfEquation_nonneg h _
-  constructor
-  · intro h0 hcon
-    have h3 := h1.mpr hcon
-    omega
-  · intro hne
-    rcases lt_or_eq_of_le h2 with hlt | heq
-    · exact absurd (h1.mp hlt) hne
-    · exact heq.symm
-
-end Affine
 
 /-! ### The seam: `restrictAlong` at the odd-order summing set -/
 

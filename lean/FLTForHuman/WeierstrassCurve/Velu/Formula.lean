@@ -14,6 +14,10 @@ Statements are transcribed verbatim from the pinned FLT `aa2d8b3` map file
 `P2M/Sol/S_WeierstrassCurve_exists_veluFunctionFieldHom_restrictAlong_placeOfPoint_eq_of_isAlgClosed.lean`,
 adapted to mathlib `v4.34.0`.
 
+`exists_some_of_ne_zero` is public here: the pin's `IsOddVeluSet`-block copy was
+transcribed `private` by SET-1 and duplicated `public` in `Velu/OddOrder.lean`;
+the H5r refactor round folded the two copies back to this one.
+
 Deferred (not in this module, because their proofs consume the function-field /
 `kwVelu` engine that SET-1 does not bring): `veluDeficitBracket_genericPoint_mem_of_not_isFinitePlace`,
 `coordsOrZero_ratPointMap` and the four headline theorems.
@@ -359,7 +363,8 @@ theorem add_ne_zero_of_not_mem_zmultiples {P : W.toAffine.Point}
     (hK : K ∈ AddSubgroup.zmultiples Q) : P + K ≠ 0 := fun h =>
   hPmem (by rw [add_eq_zero_iff_eq_neg] at h; exact h ▸ AddSubgroup.neg_mem _ hK)
 
-private lemma exists_some_of_ne_zero {P : W.toAffine.Point} (hP : P ≠ 0) :
+omit [DecidableEq F] in
+lemma exists_some_of_ne_zero {P : W.toAffine.Point} (hP : P ≠ 0) :
     ∃ (x y : F) (h : W.toAffine.Nonsingular x y), P = Point.some x y h ∧
       P.coordsOrZero = (x, y) := by
   rcases P with _ | ⟨x, y, h⟩

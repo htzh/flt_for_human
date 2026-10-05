@@ -2729,7 +2729,9 @@ PORT_FILES = [
     # redeclared: `eq_algebraMap_of_forall_ord_nonneg` and `evalAt_inv`. The
     # `Prerequisites` section at the top of each module holds pin declarations
     # that G/H consume but that SET-1/SET-2 did not port; they are checked here
-    # like any other declaration (the manager relocates them afterwards).
+    # like any other declaration. The H5r refactor round moved the A1 place
+    # dictionary out of these two modules into `Place/Dictionary.lean` (checked
+    # there) and folded `exists_some_of_ne_zero` to `Velu/Formula.lean`.
     # Appended last so no earlier last-name match can flip.
     "FLTForHuman/WeierstrassCurve/Velu/Discharge.lean",
     "FLTForHuman/WeierstrassCurve/Velu/OddOrder.lean",

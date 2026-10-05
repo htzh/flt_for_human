@@ -1,14 +1,17 @@
 # Vélu port plan — factoring the 91 k-line cluster
 
-**Status: the explicit-Vélu column is landed; the `IsogenyEndDatum` and
-base-change columns and the cheap-node phases remain.** H0, the H1w place
-dictionary, the H2 engine (SET-1/2/3) and both explicit-Vélu headline pairs
-(H3/H4) are in the port, together with the H5a/H5b prerequisites the wire test
-pulled forward. The plan's **Phase C capstone** — its four headline theorems —
-therefore landed early, during what the plan had scheduled as Phase A; Phase C's
-two `IsogenyEndDatum` theorems did not, and are the deliverable of the unstarted
-home **H5**. Re-measured against the port, the remaining slice is **42 nodes /
-26,674 net new lines** (pre-port: 47 / 39,986). Dated record:
+**Status: the explicit-Vélu column and the H5r dictionary extraction are landed;
+the `IsogenyEndDatum` and base-change columns and the cheap-node phases
+remain.** H0, the H1w place dictionary, the H2 engine (SET-1/2/3) and both
+explicit-Vélu headline pairs (H3/H4) are in the port, together with the H5a/H5b
+prerequisites the wire test pulled forward. The plan's **Phase C capstone** — its
+four headline theorems — therefore landed early, during what the plan had
+scheduled as Phase A; Phase C's two `IsogenyEndDatum` theorems did not, and are
+the deliverable of the unstarted home **H5**. The H5r refactor round has since
+moved the place dictionary out of the Vélu modules into
+`WeierstrassCurve/Place/Dictionary.lean`, so H5 can import it without importing
+Vélu. Re-measured against the port, the remaining slice is **42 nodes / 26,674
+net new lines** (pre-port: 47 / 39,986). Dated record:
 [../../logs/velu-port.md](../../logs/velu-port.md).
 
 The operative plan for the Vélu block
@@ -248,7 +251,7 @@ tree. The status column is the plan's status; the dated record is
 | H4 | `WeierstrassCurve/Velu/RestrictAlong.lean` (new) | landed | the `restrictAlong`-only engine + both `exists_veluFunctionFieldHom_restrictAlong_placeOfPoint_eq{,_of_isAlgClosed}` headlines |
 | H5a | `WeierstrassCurve/GenusOnePlaceGate.lean` + `Isogeny/ConditionalCurrency.lean` (new) | landed | the wire test's finding: `GenusOnePlaceGate`/`IsCentred`/`AbelTheorem`/`placeOfPoint` and `pointMapOfPushforward`/`IsogenyEndDatum`/`IsogenyHomDatum` |
 | H5b | `WeierstrassCurve/Isogeny/NatCard.lean` (new) | landed | `natCard_…_of_separableAlong` + its three helpers, the H4 headline's route closure |
-| **H5r** | `Velu/{Discharge,OddOrder,Formula}.lean` → `Place/Dictionary.lean` (move) | **remaining, first** | the extras relocation: the delimited `section Prerequisites` A1 dictionary group (`mk_mem_XYIdeal_iff`, `ord_placeOfEquation_*`, `centre_placeOfEquation`, `isRational_placeOfEquation`) moves to `Place/Dictionary.lean`, because the `IsogenyEndDatum` home must not import Vélu, and `exists_some_of_ne_zero` folds to one public copy in `Velu/Formula.lean` |
+| H5r | `Velu/{Discharge,Engine,RestrictAlong,Formula,OddOrder}.lean` → `Place/Dictionary.lean` (move) | landed | the dictionary extraction: the A1 `placeOfEquation` ord/centre group, `algebraMap_coordinateRing_ne_zero`/`IsFinitePlace.mem_centre_iff_ord_ne_zero`, `algebraMap_polynomial_eq_mk_C`, `eq_placeOfEquation_of_le_centre` and `ord_polyToFunctionField_*` moved to the dictionary (H5 must not import Vélu), and `exists_some_of_ne_zero` folded to one public copy in `Velu/Formula.lean` |
 | **H5** | `WeierstrassCurve/IsogenyEndDatum/Engine.lean` (new) | **remaining** | the 82-decl `IsogenyEndDatum` engine + the 35-decl seam, **and the two `IsogenyEndDatum` big theorems of the plan's Phase C** (`exists_dualEndData_dual_mem_and_norm_eq_finrankAlong` ≈ 4.0 k unique, `exists_restrictAlong_placeOfPoint_eq_add` ≈ 2.3 k unique), plus the small layer 0–1 `pointEnd`/`pointHom`/`aeval_j_diag` nodes and the plain `natCard_…` sibling of H5b. Builds on H1w + H5a |
 | **H6** | `WeierstrassCurve/Isogeny/BaseChange.lean` (new, or extend `ModularityLifting.lean`) | **remaining** | the tensor/base-change blocks (≈ 1.5 k once-lines), reusing the already-ported WeightOne lattice material (`latticeEquivOfEq`). Independent of H5 |
 
@@ -257,20 +260,19 @@ tree. The status column is the plan's status; the dated record is
 The tool's `layers` section (§6) is the authoritative remaining inventory — the
 plan's own name lists have under-counted before, so take the 42-node list from
 the tool and read it through the groups below. Homes land before consumers; the
-landed run already validated the `H5a → H5b → H4 headlines` order.
+landed run already validated the `H5a → H5b → H4 headlines` order, and H5r has
+landed, so the dictionary is importable without Vélu.
 
-1. **H5r — the extras relocation.** A pure move, no new mathematics; it blocks
-   H5, so it is first.
-2. **H5 — the `IsogenyEndDatum` column.** Engine and seam, then its two big
+1. **H5 — the `IsogenyEndDatum` column.** Engine and seam, then its two big
    theorems (the plan's Phase C remainder) and the small vocabulary nodes
    (`pointEnd_apply_eq_sub`, `pointHom_apply_eq_sub`, `exists_pointEnd_eq_add`,
    `exists_pointHom_comp_eq_of_ker_le_of_isCentred`, `aeval_j_diag_eq_zero…`, and
    the plain `natCard_ker_pointMapOfPushforward_eq_finrankAlong`).
-3. **H6 — the base-change column.** Tensor engine and its three consumer nodes
+2. **H6 — the base-change column.** Tensor engine and its three consumer nodes
    (`exists_algHom_baseChange…`,
    `isAddCyclic_ker_pointMapOfPushforward_of_baseChange_algHom`,
    `…_of_algEquiv_conj`). Parallel to H5 in principle, sequential by decision.
-4. **Phase B — the cheap, self-contained formula nodes** (layer 0, mostly ≤ 200
+3. **Phase B — the cheap, self-contained formula nodes** (layer 0, mostly ≤ 200
    lines each; they exercise the landed engine): `veluQuotient2_{Delta_eq,cFour,j}`,
    `Delta_eq_veluGx_sq_mul_velu2QuadDisc`, the `velu2_*_cleared_identity` trio,
    `veluGx_ne_zero_of_two_torsion`, `velu2QuadDisc_ne_zero_of_two_torsion`,
@@ -280,7 +282,7 @@ landed run already validated the `H5a → H5b → H4 headlines` order.
    `exists_map_eq_veluQuotient_and_map_residue…`,
    `cyclicQuotientJ_{variableChange_eq,baseChange_map_eq_of_isAlgClosed}`,
    `exists_addMonoidHom_coe_eq_veluPointMap2` (1,292 unique).
-5. **Phase D — the remaining consumers**, in `layers` order: layer 2
+4. **Phase D — the remaining consumers**, in `layers` order: layer 2
    (`exists_pointEnd_eq_of_mem_isogenyEndSubring`, `exists_intermediateField…`,
    `exists_enum_cyclicKernels…`, `exists_veluFunctionFieldHom_pointMap…`,
    `exists_veluPointHom_oddOrderSummingSet_of_isAlgClosed`), then layers 3–6
@@ -308,6 +310,13 @@ from §1.1.
   intersection of its files.** H3/H4 needed off-list names and H4b a char-free
   norm and separability chain; the rule and its evidence are in
   [TOPIC-H2-engine.md](TOPIC-H2-engine.md) §5. Apply it when scoping H5/H6.
+- **A relocation needs its dependency closure, not its name list.** H5r's plan
+  row named the A1 group, but `centre_placeOfEquation` forced
+  `IsFinitePlace.mem_centre_iff_ord_ne_zero` and
+  `algebraMap_coordinateRing_ne_zero` out of `Velu/Engine.lean`, and the
+  `ord_polyToFunctionField_*` bridge pulled `algebraMap_polynomial_eq_mk_C` and
+  the `RestrictAlong` `Affine` prerequisites with it. The move is recorded in the
+  log.
 
 ## 6. Reproduce
 

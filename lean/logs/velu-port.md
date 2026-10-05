@@ -452,3 +452,67 @@ manager before the next dispatch. Checker trajectory `4436 → 5132` identical,
 4. The two seam statements keep the pin's text `= InfinitePlace.place` via an
    anonymous gate-derived instance, because the port's `InfinitePlace` is a
    `class` while the pin's is a namespace.
+
+## H5r — the dictionary extraction (2026-10-04)
+
+**Scope.** A pure move plus one dedup: no new mathematics, no statement changed.
+The `IsogenyEndDatum`/base-change homes need the Weierstrass place dictionary and
+must not import the Vélu modules, so the declarations SET-1/SET-2/SET-3 had
+parked in delimited `Prerequisites` sections were relocated to
+`WeierstrassCurve/Place/Dictionary.lean`:
+
+* from `Velu/Discharge.lean`: `mk_mem_XYIdeal_iff`,
+  `ord_placeOfEquation_ne_zero_iff`, `ord_placeOfEquation_nonneg`,
+  `ord_placeOfEquation_pos_iff`, `centre_placeOfEquation`,
+  `isRational_placeOfEquation`;
+* from `Velu/Engine.lean`: `algebraMap_coordinateRing_ne_zero`,
+  `IsFinitePlace.mem_centre_iff_ord_ne_zero` (the `centre_placeOfEquation`
+  dependency) and `algebraMap_polynomial_eq_mk_C`;
+* from `Velu/RestrictAlong.lean`: `eq_placeOfEquation_of_le_centre`,
+  `ord_polyToFunctionField_pos_iff`, `ord_polyToFunctionField_eq_zero_iff`;
+* `exists_some_of_ne_zero` folded from the public duplicate in
+  `Velu/OddOrder.lean` back to one public copy in `Velu/Formula.lean`.
+
+The plan's H5r row named only the A1 group; the move needed its dependency
+closure. `centre_placeOfEquation` forced `IsFinitePlace.mem_centre_iff_ord_ne_zero`
+(and its helper `algebraMap_coordinateRing_ne_zero`) out of `Velu/Engine.lean`,
+and the `ord_polyToFunctionField_*` bridge the base-change files use pulled
+`algebraMap_polynomial_eq_mk_C` and the RestrictAlong `Affine` prerequisites with
+it. All four groups are in the pin's `IsogenyEndDatum`/base-change files
+(`centre_placeOfEquation` 5, `mem_centre_iff_ord_ne_zero` 5,
+`algebraMap_polynomial_eq_mk_C` 6, `eq_placeOfEquation_of_le_centre` 5).
+
+**Result.** Checker `5133 → 5133 identical (305 promoted), 0 mismatched, 0
+missing, 35 own` — the net-zero signal of a move plus a one-for-one dedup
+(`exists_some_of_ne_zero` lost its duplicate public copy and gained the promoted
+one). Every affected module `lake build` green; whole tree `lake build` green
+(4,973 jobs); `spec/WeierstrassCurveConsumer.lean` exit `0`; `#print axioms` on
+the two restrictAlong headlines `[propext, Classical.choice, Quot.sound]`; no
+`sorry`.
+
+### Fidelity
+
+The section instances were the thing to get right, because the checker is
+text-only and cannot see them. Every moved declaration was `#check`ed against the
+pin's own section shape: `mk_mem_XYIdeal_iff`, `algebraMap_coordinateRing_ne_zero`,
+`IsFinitePlace.mem_centre_iff_ord_ne_zero` and `algebraMap_polynomial_eq_mk_C`
+carry none (declared under `omit [IsDedekindDomain W.CoordinateRing]`);
+`ord_placeOfEquation_*`, `centre_placeOfEquation` and
+`eq_placeOfEquation_of_le_centre` each carry exactly one
+`[IsDedekindDomain W.CoordinateRing]`; `isRational_placeOfEquation` keeps the
+pin's section-variable shape; `ord_polyToFunctionField_*` inherit the instance.
+The `omit … in` + explicit-binder form reproduces the Discharge `PrerequisitesA1`
+scope inside a `Dictionary.lean` section where `[IsDedekindDomain]` is already a
+section variable, and the probe showed no overlapping-instance diagnostics.
+
+### Not this topic
+
+`isRational_of_deg_eq_one` stays in `Velu/Discharge.lean`. It was used only by
+the moved `isRational_placeOfEquation`, so it is now unconsumed there; it remains
+a public pin name in the P¹ branch (`AlgebraicCurve/P1/Dictionary.lean`), which
+still verifies it. H5 can use `Place.isRational_iff_deg_eq_one` (reachable from
+the dictionary); promote the wrapper when a proof wants the name. The rest of the
+Engine-side dictionary the `IsogenyEndDatum` route may pull
+(`polyToFunctionField_X_ne_algebraMap`, the `OrdPins` chain, …) is H5's own
+scoping, not this refactor.
+

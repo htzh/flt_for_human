@@ -22,6 +22,16 @@ two A1 lemmas whose proofs consume it (`mem_iff_natDegree_norm_le`,
 `deg_eq_one_of_not_isFinitePlace`, `exists_smul_sub_natDegree_norm_lt`) are also
 not carried; the map/res files that consume this dictionary do not reference them.
 
+The `placeOfEquation` ord/centre dictionary and the polynomial-at-a-point bridge
+(`algebraMap_coordinateRing_ne_zero`, `IsFinitePlace.mem_centre_iff_ord_ne_zero`,
+`algebraMap_polynomial_eq_mk_C`, `mk_mem_XYIdeal_iff`, `ord_placeOfEquation_*`,
+`centre_placeOfEquation`, `isRational_placeOfEquation`,
+`eq_placeOfEquation_of_le_centre`, `ord_polyToFunctionField_*`) were transcribed by
+the Vélu sets in delimited `Prerequisites` sections of
+`Velu/Discharge.lean`/`Velu/Engine.lean`/`Velu/RestrictAlong.lean`; the H5r
+refactor round moved them here, because the `IsogenyEndDatum` and base-change
+homes consume them and must not import Vélu.
+
 Only proof bodies are adapted to mathlib `v4.34.0`; declaration names and
 statements are kept. Already ported and imported: `polyToFunctionField*`,
 `yCoord`, `weierstrassQuadratic*`, `adjoin_yCoord_eq_top`,
@@ -519,6 +529,145 @@ theorem isFinitePlace_iff_exists_placeOfEquation [IsAlgClosed F]
       exact hAv
   · rintro ⟨x, y, h, rfl⟩
     exact isFinitePlace_placeOfEquation h
+
+/-! ### The `placeOfEquation` order/centre dictionary
+
+The `placeOfEquation` ord/centre dictionary and the polynomial-at-a-point bridge
+below were transcribed by the Vélu sets in delimited `Prerequisites` sections of
+`Velu/Discharge.lean`, `Velu/Engine.lean` and `Velu/RestrictAlong.lean` because
+the dictionary had not been ported yet. They are dictionary-level — the
+`IsogenyEndDatum` and base-change homes consume them and must not import Vélu —
+so the H5r refactor round moved them here. The section instances mirror the pin's
+own sections: `mk_mem_XYIdeal_iff`, `algebraMap_coordinateRing_ne_zero`,
+`IsFinitePlace.mem_centre_iff_ord_ne_zero` and `algebraMap_polynomial_eq_mk_C`
+carry none, the `ord_placeOfEquation_*` family carries `IsDedekindDomain`, and
+`ord_polyToFunctionField_*` inherits it. -/
+
+omit [IsDedekindDomain W.CoordinateRing] in
+theorem algebraMap_coordinateRing_ne_zero {r : W.CoordinateRing} (hr : r ≠ 0) :
+    algebraMap W.CoordinateRing W.FunctionField r ≠ 0 :=
+  (map_ne_zero_iff _ (IsFractionRing.injective W.CoordinateRing W.FunctionField)).mpr hr
+
+omit [IsDedekindDomain W.CoordinateRing] in
+theorem IsFinitePlace.mem_centre_iff_ord_ne_zero {v : AlgebraicCurve.Place F W.FunctionField}
+    (hv : IsFinitePlace v) {r : W.CoordinateRing} (hr : r ≠ 0) :
+    r ∈ hv.centre ↔ v.ord (algebraMap W.CoordinateRing W.FunctionField r) ≠ 0 := by
+  have hr' : algebraMap W.CoordinateRing W.FunctionField r ≠ 0 :=
+    algebraMap_coordinateRing_ne_zero hr
+  rw [IsFinitePlace.centre, Ideal.mem_comap, IsLocalRing.mem_maximalIdeal, mem_nonunits_iff,
+    ne_eq, v.ord_eq_zero_iff_adicValuation_eq_one hr']
+  exact not_congr (v.adicValuation_coe_eq_one_iff (hv.ringHom r)).symm
+
+omit [IsDedekindDomain W.CoordinateRing] in
+theorem algebraMap_polynomial_eq_mk_C (p : F[X]) :
+    algebraMap F[X] W.CoordinateRing p = CoordinateRing.mk W (C p) :=
+  rfl
+
+omit [IsDedekindDomain W.CoordinateRing] in
+theorem mk_mem_XYIdeal_iff {x y : F} (h : W.Equation x y) (P : F[X][Y]) :
+    CoordinateRing.mk W P ∈ XYIdeal W x (C y) ↔ P.evalEval x y = 0 := by
+  have hmap : XYIdeal W x (C y)
+      = Ideal.map (CoordinateRing.mk W) (Ideal.span {C (X - C x), Y - C (C y)}) := by
+    rw [Ideal.map_span, Set.image_pair]
+    rfl
+  rw [hmap]
+  constructor
+  · intro hP
+    obtain ⟨Q, hQ, hQP⟩ := (Ideal.mem_map_iff_of_surjective _ AdjoinRoot.mk_surjective).mp hP
+
+    obtain ⟨c, hc⟩ := AdjoinRoot.mk_eq_mk.mp hQP
+    have hQ0 : Q.evalEval x y = 0 :=
+      Polynomial.mem_span_C_X_sub_C_X_sub_C_iff_eval_eval_eq_zero.mp hQ
+    have hW0 : W.polynomial.evalEval x y = 0 := h
+    have hPQ : P = Q - W.polynomial * c := by rw [← hc]; ring
+    rw [hPQ]
+    simp only [evalEval, eval_sub, eval_mul] at hQ0 hW0 ⊢
+    rw [hQ0, hW0, zero_mul, sub_zero]
+  · intro hP
+    exact Ideal.mem_map_of_mem _
+      (Polynomial.mem_span_C_X_sub_C_X_sub_C_iff_eval_eval_eq_zero.mpr hP)
+
+omit [IsDedekindDomain W.CoordinateRing] in
+theorem ord_placeOfEquation_ne_zero_iff [IsDedekindDomain W.CoordinateRing] {x y : F}
+    (h : W.Equation x y) {r : W.CoordinateRing} (hr : r ≠ 0) :
+    (placeOfEquation h).ord (algebraMap W.CoordinateRing W.FunctionField r) ≠ 0
+      ↔ r ∈ XYIdeal W x (C y) := by
+  rw [placeOfEquation, AlgebraicCurve.Place.ord_ofHeightOneSpectrum_ne_zero_iff _ hr,
+    CoordinateRing.heightOneSpectrumOfEquation_asIdeal]
+
+omit [IsDedekindDomain W.CoordinateRing] in
+theorem ord_placeOfEquation_nonneg [IsDedekindDomain W.CoordinateRing] {x y : F}
+    (h : W.Equation x y) (r : W.CoordinateRing) :
+    0 ≤ (placeOfEquation h).ord (algebraMap W.CoordinateRing W.FunctionField r) :=
+  (placeOfEquation h).ord_nonneg_of_mem (isFinitePlace_placeOfEquation h r)
+
+omit [IsDedekindDomain W.CoordinateRing] in
+theorem ord_placeOfEquation_pos_iff [IsDedekindDomain W.CoordinateRing] {x y : F}
+    (h : W.Equation x y) {r : W.CoordinateRing} (hr : r ≠ 0) :
+    0 < (placeOfEquation h).ord (algebraMap W.CoordinateRing W.FunctionField r)
+      ↔ r ∈ XYIdeal W x (C y) := by
+  rw [← ord_placeOfEquation_ne_zero_iff h hr]
+  have := ord_placeOfEquation_nonneg h r
+  omega
+
+omit [IsDedekindDomain W.CoordinateRing] in
+theorem centre_placeOfEquation [IsDedekindDomain W.CoordinateRing] {x y : F}
+    (h : W.Equation x y) :
+    (isFinitePlace_placeOfEquation h).centre = XYIdeal W x (C y) := by
+  ext r
+  rcases eq_or_ne r 0 with rfl | hr
+  · simp only [Submodule.zero_mem]
+  rw [(isFinitePlace_placeOfEquation h).mem_centre_iff_ord_ne_zero hr,
+    ord_placeOfEquation_ne_zero_iff h hr]
+
+section IsRationalPlaceOfEquation
+
+variable {r s : F} (hrs : W.Equation r s)
+
+theorem isRational_placeOfEquation : (placeOfEquation hrs).IsRational :=
+  (AlgebraicCurve.Place.isRational_iff_deg_eq_one _).2 (deg_placeOfEquation hrs)
+
+end IsRationalPlaceOfEquation
+
+omit [IsDedekindDomain W.CoordinateRing] in
+theorem eq_placeOfEquation_of_le_centre [IsAlgClosed F] [IsDedekindDomain W.CoordinateRing]
+    {v : AlgebraicCurve.Place F W.FunctionField} (hv : IsFinitePlace v) {x y : F}
+    (h : W.Equation x y) (hle : XYIdeal W x (C y) ≤ hv.centre) : v = placeOfEquation h := by
+  obtain ⟨x', y', h', hveq⟩ := (isFinitePlace_iff_exists_placeOfEquation v).mp hv
+  subst hveq
+  have hc : hv.centre = XYIdeal W x' (C y') := by
+    rw [Subsingleton.elim hv (isFinitePlace_placeOfEquation h')]
+    exact centre_placeOfEquation h'
+  rw [hc] at hle
+  have heq : XYIdeal W x (C y) = XYIdeal W x' (C y') :=
+    (CoordinateRing.XYIdeal_isMaximal h).eq_of_le (CoordinateRing.XYIdeal_isMaximal h').ne_top
+      hle
+  obtain ⟨rfl, rfl⟩ := CoordinateRing.eq_of_XYIdeal_eq h' heq
+  rfl
+
+theorem ord_polyToFunctionField_pos_iff {x y : F} (h : W.Equation x y) {p : F[X]}
+    (hp : p ≠ 0) :
+    0 < (placeOfEquation h).ord (polyToFunctionField W p) ↔ p.eval x = 0 := by
+  rw [polyToFunctionField_apply, algebraMap_polynomial_eq_mk_C,
+    ord_placeOfEquation_pos_iff h (fun hcon => polyToFunctionField_ne_zero hp
+      (by rw [polyToFunctionField_apply, algebraMap_polynomial_eq_mk_C, hcon, _root_.map_zero])),
+    mk_mem_XYIdeal_iff h, Polynomial.evalEval_C]
+
+theorem ord_polyToFunctionField_eq_zero_iff {x y : F} (h : W.Equation x y) {p : F[X]}
+    (hp : p ≠ 0) :
+    (placeOfEquation h).ord (polyToFunctionField W p) = 0 ↔ p.eval x ≠ 0 := by
+  have h1 := ord_polyToFunctionField_pos_iff h hp (y := y)
+  have h2 : 0 ≤ (placeOfEquation h).ord (polyToFunctionField W p) := by
+    rw [polyToFunctionField_apply]
+    exact ord_placeOfEquation_nonneg h _
+  constructor
+  · intro h0 hcon
+    have h3 := h1.mpr hcon
+    omega
+  · intro hne
+    rcases lt_or_eq_of_le h2 with hlt | heq
+    · exact absurd (h1.mp hlt) hne
+    · exact heq.symm
 
 variable (W) in
 

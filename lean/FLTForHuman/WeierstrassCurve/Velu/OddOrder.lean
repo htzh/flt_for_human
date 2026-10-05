@@ -37,23 +37,14 @@ Shared-prelude declarations that H consumes but that are not yet available in
 `IsOddVeluSet` block). They are transcribed verbatim from the pinned FLT file;
 `spec/check_flt_statements.py` validates their statements against the pin. They
 are gathered in this one delimited section so the manager's refactor round can
-relocate them mechanically. `exists_some_of_ne_zero` is public in the pin, but
-SET-1 made the `Velu/Formula.lean` copy `private`, so this public copy is the
-one H consumes.
--/
+relocate them mechanically. `exists_some_of_ne_zero` is public in the pin; SET-1
+transcribed a `private` copy in `Velu/Formula.lean` and SET-3 added this public
+duplicate, which the H5r refactor round folded back to the single public copy in
+`Velu/Formula.lean`, imported here. -/
 
 section Prerequisites
 
 variable {F : Type*} [Field F] [DecidableEq F] {W : WeierstrassCurve F}
-
-omit [DecidableEq F] in
-
-lemma exists_some_of_ne_zero {P : W.toAffine.Point} (hP : P ≠ 0) :
-    ∃ (x y : F) (h : W.toAffine.Nonsingular x y), P = Point.some x y h ∧
-      P.coordsOrZero = (x, y) := by
-  rcases P with _ | ⟨x, y, h⟩
-  · exact absurd rfl hP
-  · exact ⟨x, y, h, rfl, rfl⟩
 
 variable {Q : W.toAffine.Point} {p : ℕ}
 

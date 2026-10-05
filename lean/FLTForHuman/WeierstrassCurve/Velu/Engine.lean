@@ -651,10 +651,6 @@ universe u
 
 variable {F : Type u} [Field F] {W : Affine F}
 
-theorem algebraMap_polynomial_eq_mk_C (p : F[X]) :
-    algebraMap F[X] W.CoordinateRing p = CoordinateRing.mk W (C p) :=
-  rfl
-
 theorem polyToFunctionField_X_ne_algebraMap (c : F) :
     polyToFunctionField W X ≠ algebraMap F W.FunctionField c := by
   intro hcon
@@ -2284,25 +2280,6 @@ theorem not_isFinitePlace_smul_of_symm_X_notMem
   rwa [← polyToFunctionField_apply] at this
 
 end TransportEngine
-
-section CentreAPI
-
-variable {W : Affine F}
-
-theorem algebraMap_coordinateRing_ne_zero {r : W.CoordinateRing} (hr : r ≠ 0) :
-    algebraMap W.CoordinateRing W.FunctionField r ≠ 0 :=
-  (map_ne_zero_iff _ (IsFractionRing.injective W.CoordinateRing W.FunctionField)).mpr hr
-
-theorem IsFinitePlace.mem_centre_iff_ord_ne_zero {v : AlgebraicCurve.Place F W.FunctionField}
-    (hv : IsFinitePlace v) {r : W.CoordinateRing} (hr : r ≠ 0) :
-    r ∈ hv.centre ↔ v.ord (algebraMap W.CoordinateRing W.FunctionField r) ≠ 0 := by
-  have hr' : algebraMap W.CoordinateRing W.FunctionField r ≠ 0 :=
-    algebraMap_coordinateRing_ne_zero hr
-  rw [IsFinitePlace.centre, Ideal.mem_comap, IsLocalRing.mem_maximalIdeal, mem_nonunits_iff,
-    ne_eq, v.ord_eq_zero_iff_adicValuation_eq_one hr']
-  exact not_congr (v.adicValuation_coe_eq_one_iff (hv.ringHom r)).symm
-
-end CentreAPI
 
 section Pole
 
