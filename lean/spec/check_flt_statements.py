@@ -1909,6 +1909,77 @@ SOURCES = [
     # helper is `private`, so the only diffed declaration is the headline.
     # Appended last.
     "Theorems/Thm_ModularCurve_heckeDiamondInputsAll.lean",
+    # --- The Vélu port, H0: the Weierstrass generic-point bridge ---------------
+    # `transcendental_polyToFunctionField_X`, `yGen`,
+    # `equation_map_polyToFunctionField_yGen` and `polyToFunctionField_eq_aeval`
+    # have no `Theorems/` wrapper: the pin inlines them into every `S_` file that
+    # needs them (ten in the Vélu slice). This `S_` file is the smallest of the
+    # ten and declares all four publicly, so it is the comparable copy; the
+    # port's home is `FLTForHuman/WeierstrassCurve/FunctionFieldQuadratic.lean`.
+    # Appended last so no earlier last-name match can flip.
+    "P2M/Sol/S_WeierstrassCurve_Affine_exists_algHom_functionField_baseChange_finrankAlong_eq.lean",
+    # --- SET-1 (the Vélu port): the Weierstrass place dictionary and the Vélu
+    # vocabulary/formulas. The four `Definitions/` modules carry the transcribed
+    # `velu*` declarations; the map `S_` file is the canonical statement copy for
+    # the B/C/D clusters and the res `S_` file repeats them with the adapted proof
+    # bodies. The hasPrincipalDivisors `S_` file (A1) is appended last, as the
+    # work order requires, so no earlier last-name match can flip.
+    "Definitions/Def_WeierstrassCurve_Velu.lean",
+    "Definitions/Def_WeierstrassCurve_VeluQuotientMap.lean",
+    "Definitions/Def_WeierstrassCurve_VeluPointMap.lean",
+    "Definitions/Def_WeierstrassCurve_OddOrderSummingSet.lean",
+    "P2M/Sol/S_WeierstrassCurve_velu_map_equation_of_oddOrderSummingSet_of_isAlgClosed.lean",
+    "P2M/Sol/S_WeierstrassCurve_exists_veluFunctionFieldHom_restrictAlong_placeOfPoint_eq_of_isAlgClosed.lean",
+    "P2M/Sol/S_WeierstrassCurve_Affine_hasPrincipalDivisors_functionField.lean",
+    # --- Capstone H3 (`Velu/MapEquation.lean`). The two headline statements are
+    # the `Theorems/` wrappers' (the map `S_` file declares them only as
+    # `solution`), so they are appended last: the statement authority for
+    # `velu_map_equation_of_oddOrderSummingSet{,_of_isAlgClosed}` is the wrapper,
+    # not the `S_` file.
+    "Theorems/Thm_WeierstrassCurve_velu_map_equation_of_oddOrderSummingSet_of_isAlgClosed.lean",
+    "Theorems/Thm_WeierstrassCurve_velu_map_equation_of_oddOrderSummingSet.lean",
+    # --- Capstone H4 (`Velu/RestrictAlong.lean`). The two headline statements are
+    # the `Theorems/` wrappers' (the res `S_` file declares them only as
+    # `solution`), so they are appended last; the module currently carries the
+    # engine only (the headlines are blocked on unported upstream -- see the
+    # module header), so these two entries are inert until the headlines land.
+    "Theorems/Thm_WeierstrassCurve_exists_veluFunctionFieldHom_restrictAlong_placeOfPoint_eq_of_isAlgClosed.lean",
+    "Theorems/Thm_WeierstrassCurve_exists_veluFunctionFieldHom_restrictAlong_placeOfPoint_eq.lean",
+    # --- H5a: the Weierstrass genus-one place gate (`GenusOnePlaceGate`,
+    # `placeOfPoint`, the divisor/`Pic0` dictionary and `AbelTheorem`) and the
+    # conditional-currency isogeny dictionary. The three `Definitions/` modules
+    # carry the transcribed vocabulary; the three `Theorems/` wrappers are the
+    # statement authority for `placeOfPoint_some_eq_ofHeightOneSpectrum`,
+    # `algebraMap_mk_C_X_notMem_toValuationSubring_placeOfPoint_zero` and
+    # `GenusOnePlaceGate.ext_of_isCentred`. Appended last so no earlier last-name
+    # match can flip.
+    "Definitions/Def_WeierstrassCurve_GenusOnePic0.lean",
+    "Definitions/Def_WeierstrassCurve_GenusOnePlaceGateCentred.lean",
+    "Definitions/Def_Isogeny_ConditionalCurrency.lean",
+    "Theorems/Thm_WeierstrassCurve_Affine_placeOfPoint_some_eq_ofHeightOneSpectrum.lean",
+    "Theorems/Thm_WeierstrassCurve_Affine_algebraMap_mk_C_X_notMem_toValuationSubring_placeOfPoint_zero.lean",
+    "Theorems/Thm_WeierstrassCurve_Affine_GenusOnePlaceGate_ext_of_isCentred.lean",
+    # The Patching vocabulary. The checker now matches `class` declarations
+    # (2026-10-04), so the four port classes in
+    # `FLTForHuman/Patching/PatchingConstruction.lean` (`IsAdicTopology`,
+    # `Algebra.TopologicallyFG`, `IsPatchingSystem`, `PatchingAlgebra.smulData`)
+    # need their pin source to be diffable. Appended last.
+    "Definitions/Def_Patching_SystemTypes.lean",
+    # --- H5b: the kernel-cardinality engine (`WeierstrassCurve/Isogeny/NatCard.lean`).
+    # The headline and the three helper wrappers are stated by their `Theorems/`
+    # wrappers (appended last); the three `S_` files are the statement authority
+    # for the proof-local helpers that the module transcribes verbatim in its
+    # `section Prerequisites` blocks (`IntegralAt`, the polar-locus finiteness
+    # lemmas, `ord_deriv_pos_of_ramificationIndex_ne_one`, `S13Bridge.*`,
+    # `mk_Y_ne_zero`/`mk_Y_mul_mk_Y_add`/`algebraMap_mk_C_C` and the whole
+    # `ModularCurve.kw_fdn2_qephod_hend*` chain).
+    "Theorems/Thm_WeierstrassCurve_Affine_natCard_ker_pointMapOfPushforward_eq_finrankAlong_of_separableAlong.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_restrictAlong_surjective.lean",
+    "Theorems/Thm_AlgebraicCurve_Place_eq_ofHeightOneSpectrum_of_XClass_mem_nonunits_of_YClass_mem_nonunits.lean",
+    "Theorems/Thm_WeierstrassCurve_Affine_FunctionField_exists_eq_valuationSubring_of_X_mem.lean",
+    "P2M/Sol/S_WeierstrassCurve_Affine_natCard_ker_pointMapOfPushforward_eq_finrankAlong_of_separableAlong.lean",
+    "P2M/Sol/S_AlgebraicCurve_Place_eq_ofHeightOneSpectrum_of_XClass_mem_nonunits_of_YClass_mem_nonunits.lean",
+    "P2M/Sol/S_WeierstrassCurve_Affine_FunctionField_exists_eq_valuationSubring_of_X_mem.lean",
 ]
 
 PORT_FILES = [
@@ -2634,6 +2705,52 @@ PORT_FILES = [
     # entirely `private`; `ModularCurve.heckeDiamondInputsAll` is the sole public
     # declaration. Appended last.
     "FLTForHuman/ModularCurve/X1/Inputs.lean",
+    # --- SET-1 (the Vélu port). The general `Place` calculus, the Weierstrass
+    # place dictionary, the Vélu vocabulary and the explicit-Vélu formulas.
+    # Appended last so no earlier last-name match can flip.
+    "FLTForHuman/AlgebraicCurve/Defs/PlaceCalculus.lean",
+    "FLTForHuman/WeierstrassCurve/Place/Dictionary.lean",
+    "FLTForHuman/WeierstrassCurve/Velu/Defs.lean",
+    "FLTForHuman/WeierstrassCurve/Velu/Formula.lean",
+    # --- SET-2 (the Vélu port): the cleared-polynomial degree engine (E) and the
+    # generic point / translation / function-field layer (F). Its statements are
+    # in the map `S_` file already in `SOURCES`; the res `S_` file supplies the
+    # adapted proof bodies. Appended last so no earlier last-name match can flip.
+    "FLTForHuman/WeierstrassCurve/Velu/Engine.lean",
+    # --- SET-3 (the Vélu port): the deficit-fun `ord`/`evalAt` discharge (G) and
+    # the odd-order summing-set combinatorics (H). Statements come from the map
+    # `S_` file already in `SOURCES` (with the res `S_` file as the second copy).
+    # Two declarations are already ported elsewhere and are imported, not
+    # redeclared: `eq_algebraMap_of_forall_ord_nonneg` and `evalAt_inv`. The
+    # `Prerequisites` section at the top of each module holds pin declarations
+    # that G/H consume but that SET-1/SET-2 did not port; they are checked here
+    # like any other declaration (the manager relocates them afterwards).
+    # Appended last so no earlier last-name match can flip.
+    "FLTForHuman/WeierstrassCurve/Velu/Discharge.lean",
+    "FLTForHuman/WeierstrassCurve/Velu/OddOrder.lean",
+    # --- Capstone H3: the explicit-Vélu map equation. The general and plain
+    # headlines (statements from the `Theorems/` wrappers, appended to `SOURCES`
+    # above), the `VeluThmOneOddAt` carrier, its `kw_no6_hroute_*` discharge and
+    # the `wqDiscPoly`/Galois/HasPrincipalDivisors dictionary block that supplies
+    # it. Appended last so no earlier last-name match can flip.
+    "FLTForHuman/WeierstrassCurve/Velu/MapEquation.lean",
+    # --- Capstone H4: the explicit-Vélu `restrictAlong` engine. The two headline
+    # theorems are blocked on unported upstream (see the module header); the 65
+    # engine declarations whose types do not mention `placeOfPoint` /
+    # `pointMapOfPushforward` / `GenusOnePlaceGate` / `AbelTheorem` /
+    # `IsogenyEndDatum` are diffed here. Appended last so no earlier last-name
+    # match can flip.
+    "FLTForHuman/WeierstrassCurve/Velu/RestrictAlong.lean",
+    # --- H5a: the Weierstrass genus-one place gate and the conditional-currency
+    # isogeny dictionary (the two modules that unblock the H4 wire test). Appended
+    # last so no earlier last-name match can flip.
+    "FLTForHuman/WeierstrassCurve/GenusOnePlaceGate.lean",
+    "FLTForHuman/WeierstrassCurve/Isogeny/ConditionalCurrency.lean",
+    # --- H5b: the kernel-cardinality engine. The separable-along headline, its
+    # three helper wrappers, and the verbatim `section Prerequisites` (the pin
+    # `S_` chain for `natCard_ker_pointMapOfPushforward`). Appended last so no
+    # earlier last-name match can flip.
+    "FLTForHuman/WeierstrassCurve/Isogeny/NatCard.lean",
 ]
 
 
@@ -2779,6 +2896,32 @@ OWN_PROOFS = {
     # diffed; a *dotted* name keeps the exemption from leaking to any other
     # `isModularModelOfLevel_*`.
     "WeierstrassCurve.isModularModelOfLevel_of_patchingLevel",
+    # `WeierstrassCurve.Affine.Point.xOrZero` (Vélu SET-1, `Velu/Formula.lean`):
+    # the pin declares it `private` with pattern-matching equations and *no*
+    # top-level `:=`/`where`, so the checker's `top_level_cut` does not cut and
+    # the pinned statement swallows the following `p2m_export` line — its dotted
+    # copy cannot be matched textually by any port declaration. The port promotes
+    # it (the odd-order layer's `kw_veluX_xOrZero_add_gen_odd` names
+    # `(P + Q).xOrZero`, so it must be public), transcribing the pin's statement
+    # `: W.Point → R` and body verbatim; only the checker's extraction is at
+    # fault, so it is exempted by last name (unique in the port).
+    "xOrZero",
+    # --- Patching-port `class` binder spelling (found 2026-10-04) ---------------
+    # The checker now matches `class` declarations (it previously did not, so
+    # these were never diffed). The four classes in
+    # `FLTForHuman/Patching/PatchingConstruction.lean` predate this check and
+    # spell their binders via section variables where the pin
+    # (`Definitions/Def_Patching_SystemTypes.lean`) is explicit, or differ
+    # textually: `IsAdicTopology` writes `(R)` for the pin's `(R : Type*)`;
+    # `Algebra.TopologicallyFG` and `IsPatchingSystem` rely on surrounding
+    # `variable`s; `PatchingAlgebra.smulData` has no textual counterpart under
+    # that name. These are **pre-existing, non-Vélu** deviations of the Patching
+    # effort, registered as a residual in CARRY-FORWARD.md; they are exempted by
+    # dotted name so this list cannot leak to any other `TopologicallyFG` etc.
+    "PatchingConstruction.IsLocalRing.IsAdicTopology",
+    "PatchingConstruction.Algebra.TopologicallyFG",
+    "PatchingConstruction.IsPatchingSystem",
+    "PatchingConstruction.PatchingAlgebra.smulData",
 }
 
 # Declaration keywords. `instance` matters for PhiGen; `structure` for Polynomial.
@@ -2799,7 +2942,7 @@ OWN_PROOFS = {
 # no other match (T14 re-ran the checker: 0 mismatched, 0 missing).
 DECL_RE = re.compile(
     r"^(?P<attrs>(?:@\[[^\]\n]*\]\s*)*)(?P<mods>(?:(?:private|noncomputable)\s+)*)"
-    r"(?P<kind>def|theorem|lemma|abbrev|structure|instance)\s+"
+    r"(?P<kind>def|theorem|lemma|abbrev|structure|class|instance)\s+"
     r"(?P<name>[\w.'ₐ]+)",
     re.MULTILINE,
 )
@@ -2916,7 +3059,7 @@ def raw_declarations(text: str, include_private: bool = False) -> list[tuple[str
         end = matches[idx + 1].start() if idx + 1 < len(matches) else len(text)
         chunk = text[m.end() : end]
         kind = m.group("kind")
-        if kind == "structure":
+        if kind in ("structure", "class"):
             stmt = norm(chunk[: top_level_cut(chunk)]) + " FIELDS " + " ".join(
                 FIELD_RE.findall(chunk)
             )
@@ -2996,7 +3139,7 @@ def declaration_bodies(
         end = matches[idx + 1].start() if idx + 1 < len(matches) else len(text)
         chunk = text[m.end() : end]
         kind = m.group("kind")
-        if kind == "structure":
+        if kind in ("structure", "class"):
             stmt = norm(chunk[: top_level_cut(chunk)]) + " FIELDS " + " ".join(
                 FIELD_RE.findall(chunk)
             )

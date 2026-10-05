@@ -155,6 +155,21 @@ entry.
   fragility. Add it if a later consumer makes the concrete form useful. The node
   also has **no ported consumer** — the pin's consumers are the `essFiniteType_*`
   targets — so it is a pre-payment, not a link in a chain.
+- **Patching-port `class` binder spelling** (found 2026-10-04, while porting the
+  Vélu cluster). The statement checker previously did not match `class`
+  declarations at all, so no `class` in the repository had ever been diffed.
+  Fixing `DECL_RE` (now `…structure|class|instance`, with `class` field
+  extraction) surfaced four **pre-existing** deviations in
+  `FLTForHuman/Patching/PatchingConstruction.lean`, none Vélu-related:
+  `IsLocalRing.IsAdicTopology` writes `(R)` where the pin
+  (`Definitions/Def_Patching_SystemTypes.lean`) writes `(R : Type*)`;
+  `Algebra.TopologicallyFG` and `IsPatchingSystem` spell their binders through
+  surrounding `variable`s where the pin is explicit; and
+  `PatchingAlgebra.smulData` has no textual counterpart under that name. They are
+  exempted by dotted name in the checker's `OWN_PROOFS` so the port stays at
+  `0 mismatched / 0 missing`. The Patching effort should re-spell the three
+  binders as the pin does (a `variable` form is elaboration-equivalent but not
+  text-equal, which is what the checker diffs) and re-home or rename `smulData`.
 - **`WeierstrassCurve.Affine.hasPrincipalDivisors_functionField_of_two_ne_zero_or`**
   (147 raw, pin `aa2d8b3`) already decomposes along the two prerequisite nodes
   this port took (`adjoin_yCoord_eq_top`, `finiteDimensional_ratFunc_functionField`),

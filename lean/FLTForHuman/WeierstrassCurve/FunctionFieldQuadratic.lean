@@ -15,6 +15,13 @@
   mathlib's `Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Point`, so the pin's
   `Def_EllipticCurve_ValuationInfty` basis re-development is not needed here.
 
+  This module is also the shared home of the pin's *generic-point bridge*
+  (`yGen`, `polyToFunctionField_eq_aeval`,
+  `equation_map_polyToFunctionField_yGen`, `transcendental_polyToFunctionField_X`).
+  The pin inlines that four-declaration block into every `S_` file that needs it
+  (ten files in the Vélu cluster); writing it once here is the H0 home of the
+  Vélu port plan.
+
   The `placeOfEquation`/`IsFinitePlace`/`ord` dictionary and the class-group block
   that the pin's `S_WeierstrassCurve_Affine_hasPrincipalDivisors_functionField.lean`
   also carries are **not** ported: they are a shallow, wide API surface whose
@@ -170,6 +177,60 @@ theorem aeval_yCoord_weierstrassQuadratic :
 theorem isIntegral_yCoord : _root_.IsIntegral (RatFunc F) (yCoord W) :=
   ⟨weierstrassQuadratic W, weierstrassQuadratic_monic, by
     rw [← Polynomial.aeval_def]; exact aeval_yCoord_weierstrassQuadratic⟩
+
+/-! ### The generic point of the function field
+
+The bridge between the `F[X]`-algebra structure of `W.FunctionField` and its
+`RatFunc F`-algebra structure. The pin's `S_` proof modules each inline a copy of
+this four-declaration block (ten files in the Vélu slice); it is written once
+here. `transcendental_polyToFunctionField_X` is the statement every
+`RatFunc F`-algebra computation in the cluster starts from, and
+`equation_map_polyToFunctionField_yGen` says the generic point `(X, yGen)` lies on
+the base-changed curve `W.map (algebraMap F W.FunctionField)`. -/
+
+section GenericPoint
+
+theorem polyToFunctionField_eq_aeval (p : F[X]) :
+    polyToFunctionField W p = Polynomial.aeval (polyToFunctionField W X) p := by
+  have h1 : (polyToFunctionField W : F[X] →+* W.FunctionField)
+      = algebraMap F[X] W.FunctionField :=
+    (IsScalarTower.algebraMap_eq F[X] W.CoordinateRing W.FunctionField).symm
+  have h2 : (IsScalarTower.toAlgHom F F[X] W.FunctionField : F[X] →ₐ[F] W.FunctionField)
+      = Polynomial.aeval (polyToFunctionField W X) := by
+    refine Polynomial.algHom_ext ?_
+    rw [Polynomial.aeval_X, IsScalarTower.coe_toAlgHom', ← h1]
+  calc polyToFunctionField W p = algebraMap F[X] W.FunctionField p := by rw [h1]
+    _ = (IsScalarTower.toAlgHom F F[X] W.FunctionField : F[X] →ₐ[F] W.FunctionField) p := rfl
+    _ = Polynomial.aeval (polyToFunctionField W X) p := by rw [h2]
+
+/-- The pin's `S_`-local name for `yCoord`: the `Y`-coordinate of the generic
+point of `W.FunctionField`, as an element of the function field. Kept under the
+pin's name (definitionally `yCoord`) so the consumers transcribe unchanged. -/
+def yGen (W : Affine F) : W.FunctionField := yCoord W
+
+theorem equation_map_polyToFunctionField_yGen :
+    (W.map (algebraMap F W.FunctionField)).toAffine.Equation
+      (polyToFunctionField W X) (yGen W) := by
+  rw [equation_iff]
+  have hrel := smul_basis_mul_Y (W' := W) 0 1
+  rw [zero_smul, zero_add, one_smul, one_mul, one_mul, zero_sub] at hrel
+  have h2 := congrArg (algebraMap W.CoordinateRing W.FunctionField) hrel
+  rw [map_mul, algebraMap_smul_basis, _root_.map_neg, neg_mul, ← sub_eq_add_neg] at h2
+  simp only [map_a₁, map_a₂, map_a₃, map_a₄, map_a₆]
+  simp only [map_add, map_mul, map_pow, polyToFunctionField_C] at h2
+  rw [show yGen W = algebraMap W.CoordinateRing W.FunctionField (CoordinateRing.mk W Y)
+    from rfl]
+  simp only [polyToFunctionField_apply] at h2 ⊢
+  linear_combination h2
+
+theorem transcendental_polyToFunctionField_X :
+    Transcendental F (polyToFunctionField W X) := by
+  rw [transcendental_iff]
+  intro p hp
+  rw [← polyToFunctionField_eq_aeval] at hp
+  exact polyToFunctionField_injective (by simpa using hp)
+
+end GenericPoint
 
 end WeierstrassCurve.Affine
 
