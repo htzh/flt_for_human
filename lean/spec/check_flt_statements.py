@@ -2101,6 +2101,11 @@ SOURCES = [
     "Theorems/Thm_WeierstrassCurve_cyclicQuotientJ_variableChange_eq.lean",
     "Theorems/Thm_WeierstrassCurve_cyclicQuotientJ_baseChange_map_eq_of_isAlgClosed.lean",
     "Definitions/Def_WeierstrassCurve_CyclicQuotientJ.lean",
+    # --- The genus-one place-gate capstone.  The headline is stated by its
+    # `Theorems/` wrapper (appended last so no earlier last-name match can flip);
+    # its proof-local declarations are the A1 file's, already in `SOURCES`, so only
+    # the wrapper is needed for the checker to see the headline's name/statement.
+    "Theorems/Thm_WeierstrassCurve_Affine_exists_genusOnePlaceGate_isCentred_and_abelTheorem.lean",
 ]
 
 PORT_FILES = [
@@ -2935,6 +2940,16 @@ PORT_FILES = [
     # match can flip.
     "FLTForHuman/WeierstrassCurve/Velu/VariableChangePoint.lean",
     "FLTForHuman/WeierstrassCurve/Velu/CyclicQuotientJ.lean",
+    # --- The genus-one place-gate silo: the RR space + infinite place
+    # (`RRSpace.lean`), the geometric point↔place bijection (`GeometricPlace.lean`),
+    # the generic Dedekind count bridge (`PrincipalDivisors/Count.lean`), the
+    # unit-ideal/class-group/Abel block (`Place/UnitIdeal.lean`) and the capstone
+    # (`GenusOnePlaceGateCentred.lean`).
+    "FLTForHuman/WeierstrassCurve/Place/RRSpace.lean",
+    "FLTForHuman/WeierstrassCurve/Place/GeometricPlace.lean",
+    "FLTForHuman/AlgebraicCurve/PrincipalDivisors/Count.lean",
+    "FLTForHuman/WeierstrassCurve/Place/UnitIdeal.lean",
+    "FLTForHuman/WeierstrassCurve/GenusOnePlaceGateCentred.lean",
 ]
 
 

@@ -34,14 +34,21 @@ import FLTForHuman.WeierstrassCurve.Velu.Discriminant
 import FLTForHuman.WeierstrassCurve.Velu.CyclicCount
 import FLTForHuman.WeierstrassCurve.Velu.VariableChangePoint
 import FLTForHuman.WeierstrassCurve.Velu.CyclicQuotientJ
+import FLTForHuman.WeierstrassCurve.GenusOnePlaceGateCentred
+import FLTForHuman.WeierstrassCurve.Place.RRSpace
+import FLTForHuman.WeierstrassCurve.Place.GeometricPlace
+import FLTForHuman.WeierstrassCurve.Place.UnitIdeal
 import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
 import Mathlib.Analysis.Complex.Polynomial.Basic
 
 set_option autoImplicit false
+-- The pin-style `haveI` instance walls in the zones below are intentional.
+set_option linter.style.haveILetI false
 
 noncomputable section
 
 open Polynomial WeierstrassCurve.Affine
+open scoped WeierstrassCurve.Affine
 
 namespace WeierstrassCurveConsumer
 
@@ -673,6 +680,80 @@ example : (W2R.baseChange ℝ).cyclicQuotientJ ⊥ 1 = 1728 := by
 
 #print axioms WeierstrassCurve.cyclicQuotientJ_variableChange_eq
 #print axioms WeierstrassCurve.cyclicQuotientJ_baseChange_map_eq_of_isAlgClosed
+
+-- Zone (genus-one place gate): the RR space, the geometric place bijection, the
+-- unit-ideal/Abel block and the capstone
+-- (`WeierstrassCurve/Place/RRSpace.lean`, `Place/GeometricPlace.lean`,
+-- `AlgebraicCurve/PrincipalDivisors/Count.lean`, `Place/UnitIdeal.lean`,
+-- `GenusOnePlaceGateCentred.lean`) at the concrete curve `y² = x³ + 1` over
+-- `AlgebraicClosure ℚ`.
+
+abbrev W1 : WeierstrassCurve (AlgebraicClosure ℚ) := WeierstrassCurve.mk 0 0 0 0 1
+
+-- `AlgebraicClosure ℚ` carries no computable `DecidableEq`; the gate API takes one.
+private instance : DecidableEq (AlgebraicClosure ℚ) := Classical.decEq _
+
+private lemma W1_isElliptic : W1.toAffine.IsElliptic :=
+  ⟨isUnit_iff_ne_zero.mpr (by
+    norm_num [WeierstrassCurve.Δ, WeierstrassCurve.b₂, WeierstrassCurve.b₄,
+      WeierstrassCurve.b₆, WeierstrassCurve.b₈])⟩
+
+private lemma W1_dedekind : IsDedekindDomain W1.toAffine.CoordinateRing :=
+  WeierstrassCurve.Affine.CoordinateRing.isDedekindDomain_of_Δ_ne_zero (by
+    norm_num [WeierstrassCurve.Δ, WeierstrassCurve.b₂, WeierstrassCurve.b₄,
+      WeierstrassCurve.b₆, WeierstrassCurve.b₈])
+
+private lemma W1_hpd :
+    AlgebraicCurve.HasPrincipalDivisors (AlgebraicClosure ℚ) W1.toAffine.FunctionField :=
+  WeierstrassCurve.Affine.hasPrincipalDivisors_functionField W1.toAffine
+
+-- The example *statements* below (not only their proofs) need these instances, so
+-- register them locally.
+attribute [local instance] W1_isElliptic W1_dedekind W1_hpd
+
+-- The RR space has the pin's dimension (`RRSpace.finrank_eq`), independent of the
+-- curve's elliptic/Dedekind hypotheses.
+example (n : ℕ) (hn : 1 ≤ n) :
+    Module.finrank (AlgebraicClosure ℚ)
+      (WeierstrassCurve.Affine.CoordinateRing.RRSpace W1.toAffine n) = n :=
+  WeierstrassCurve.Affine.CoordinateRing.RRSpace.finrank_eq (W := W1.toAffine) n hn
+
+-- The geometric point↔place bijection is a genuine equivalence: its inverse
+-- inverts `geomPlaceOfPoint`.  This exercises `GeometricPlace.lean` and the
+-- `InfinitePlace` instance from `RRSpace.lean`.
+example (P : W1.toAffine.Point) :
+    (WeierstrassCurve.Affine.geomPointEquivPlace (W := W1.toAffine)).symm
+      (WeierstrassCurve.Affine.geomPlaceOfPoint P) = P := by
+  haveI : W1.toAffine.IsElliptic := W1_isElliptic
+  haveI : IsDedekindDomain W1.toAffine.CoordinateRing := W1_dedekind
+  haveI : AlgebraicCurve.HasPrincipalDivisors (AlgebraicClosure ℚ) W1.toAffine.FunctionField :=
+    W1_hpd
+  exact WeierstrassCurve.Affine.geomPointEquivPlace_symm_geomPlaceOfPoint P
+
+-- Abel's theorem in genus one (`UnitIdeal.lean`): a degree-zero divisor with zero
+-- geometric sum is principal.
+example (D : AlgebraicCurve.Divisor (AlgebraicClosure ℚ) W1.toAffine.FunctionField)
+    (h0 : AlgebraicCurve.Divisor.degree D = 0)
+    (hD : WeierstrassCurve.Affine.geomDivisorSum (W := W1.toAffine) D = 0) :
+    AlgebraicCurve.Divisor.IsPrincipal D := by
+  haveI : W1.toAffine.IsElliptic := W1_isElliptic
+  haveI : IsDedekindDomain W1.toAffine.CoordinateRing := W1_dedekind
+  haveI : AlgebraicCurve.HasPrincipalDivisors (AlgebraicClosure ℚ) W1.toAffine.FunctionField :=
+    W1_hpd
+  exact WeierstrassCurve.Affine.isPrincipal_of_geomDivisorSum_eq_zero' h0 hD
+
+-- The capstone, fully discharged at the concrete curve: a centred genus-one
+-- place gate satisfying Abel's theorem.
+example : ∃ g : WeierstrassCurve.Affine.GenusOnePlaceGate W1.toAffine,
+    @WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred (AlgebraicClosure ℚ) _ W1.toAffine g ∧
+    @WeierstrassCurve.Affine.AbelTheorem (AlgebraicClosure ℚ) _ _ W1.toAffine g := by
+  haveI : W1.toAffine.IsElliptic := W1_isElliptic
+  haveI : IsDedekindDomain W1.toAffine.CoordinateRing := W1_dedekind
+  haveI : AlgebraicCurve.HasPrincipalDivisors (AlgebraicClosure ℚ) W1.toAffine.FunctionField :=
+    W1_hpd
+  exact WeierstrassCurve.Affine.exists_genusOnePlaceGate_isCentred_and_abelTheorem
+
+#print axioms WeierstrassCurve.Affine.exists_genusOnePlaceGate_isCentred_and_abelTheorem
 
 end WeierstrassCurveConsumer
 

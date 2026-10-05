@@ -17,97 +17,9 @@ meets them.
 
 ## Deferred API
 
-### `WeierstrassCurve.Affine.hasPrincipalDivisors_functionField` — the Weierstrass place / Riemann–Roch / class-group API
-
-The pin file
-`P2M/Sol/S_WeierstrassCurve_Affine_hasPrincipalDivisors_functionField.lean`
-(pinned `aa2d8b3`, 2,248 raw / ≈1,494 content lines) carries two separable
-things, and only the first is ported.
-
-**Ported** (the capstone route, in `FLTForHuman/WeierstrassCurve/`):
-
-- `FunctionFieldQuadratic.lean` — `polyToFunctionField`, `ratFuncToFunctionField`,
-  the `Algebra (RatFunc F) W.FunctionField` structure with its scalar towers,
-  `yCoord`, `weierstrassQuadratic`, `isIntegral_yCoord` (verbatim from
-  `Definitions/Def_WeierstrassCurve_FunctionFieldQuadratic.lean`).
-- `FunctionFieldFinite.lean` — the nodes `WeierstrassCurve.Affine.adjoin_yCoord_eq_top`
-  and `WeierstrassCurve.Affine.finiteDimensional_ratFunc_functionField`.
-- `PrincipalDivisors.lean` — the headline, one application of the ported
-  `AlgebraicCurve.hasPrincipalDivisors_of_finiteDimensional_ratFunc`.
-
-**Deferred**: everything else in the pin file — the
-`placeOfEquation` / `IsFinitePlace` / `heightOneSpectrumOfEquation` / `ord`
-dictionary and the class-group / Riemann–Roch block
-(`geomPlaceOfPoint`, `geomDivisorSum`, `unitIdealOfPoint`, `RRSpace`,
-`isPrincipal_of_geomDivisorSum_eq_zero'`, …).
-
-**Status 2026-10-04 (taken by the Vélu Phase A engine).** This entry's trigger —
-"the first citer: `WeierstrassCurve.Affine.IsogenyEndDatum.*`,
-`WeierstrassCurve.exists_veluFunctionFieldHom_*`" — fired. What landed:
-
-- the `placeOfEquation` / `IsFinitePlace` / `heightOneSpectrumOfEquation` / `ord`
-  dictionary and the 50-declaration citers' closure, in
-  `FLTForHuman/WeierstrassCurve/Place/Dictionary.lean` (+ the general
-  `evalAt`/`ord` additions in `AlgebraicCurve/Defs/PlaceCalculus.lean`);
-- the place gate, `AbelTheorem` and the class-group/`Pic0` equivalence from
-  `Def_WeierstrassCurve_GenusOnePic0` / `Def_WeierstrassCurve_GenusOnePlaceGateCentred`
-  (`placeOfPoint`, `deg_placeOfPoint`, `pointDivisor`, `pointClass`,
-  `pic0ToPoint`, `genusOnePic0Equiv`, `divisorSum*`, `IsCentred`) in
-  `FLTForHuman/WeierstrassCurve/GenusOnePlaceGate.lean`, plus
-  `pointMapOfPushforward` / `IsogenyEndDatum` / `IsogenyHomDatum` in
-  `WeierstrassCurve/Isogeny/ConditionalCurrency.lean`;
-- the kernel-cardinality engine
-  (`natCard_ker_pointMapOfPushforward_eq_finrankAlong_of_separableAlong` and its
-  three helper wrappers) in `WeierstrassCurve/Isogeny/NatCard.lean`;
-- a **char-free** norm formula and separability chain, transcribed `private` into
-  `WeierstrassCurve/Velu/RestrictAlong.lean` (see the follow-up on
-  `hasPrincipalDivisors_functionField_of_two_ne_zero_or` below).
-
-**Still deferred from this entry:** the Riemann–Roch-space and integral-ideal
-block of the same `S_` file — `rrParam`/`RRSpace`/`basisAux`/`finrank_eq`/
-`unitIdealOfPoint`/`unitIdealOfDivisor`/`geomDivisorSum`/
-`isPrincipal_of_geomDivisorSum_eq_zero'`/`instAbelTheorem` — which the Vélu route
-never needed. Port it when a `genusOnePlaceGate`/RR consumer is taken. The
-`geomDivisorSum`/`divisorSum` distinction matters: the gate module has the latter
-(from `Def_WeierstrassCurve_GenusOnePic0`), not the former.
-
-- **Size**: 110 public declarations in the file; 55 are reached by the headline's
-  graph citers. The transitive closure the citers need is ≈1,365 raw /
-  ≈941 content lines; the whole file is ≈1,494 content.
-- **Consumers / trigger**: the headline's 27 graph citers. 12 of them call the
-  `placeOfEquation`/`IsFinitePlace` block directly; the rest need only the
-  function-field quadratic already ported. Port the API when the first citer is
-  taken: `WeierstrassCurve.Affine.IsogenyEndDatum.*`,
-  `WeierstrassCurve.exists_veluFunctionFieldHom_*`,
-  `WeierstrassCurve.Affine.exists_genusOnePlaceGate_*`, `PeriodPair.*`,
-  `ModularCurve.ModularPolynomialData.*`, and the `zmultiples_eq_*` family.
-  **Fired 2026-10-04** for the Vélu citers — see the status block above.
-- **Dedup before writing it**: the pin repeats the `placeOfEquation` prelude in
-  ~18 `S_` files (one imports this node's wrapper and re-exports the names, the
-  rest re-declare it). Port it once as a shared home and measure the
-  `(copies − 1) × block` saving first; at ≈940 content lines this crosses the
-  playbook's ~1,000-line threshold for staffing as a set (§0.2). Done: one home,
-  `WeierstrassCurve/Place/Dictionary.lean`.
-- **Mathlib siblings already exist** for part of it: `smul_basis_eq_zero`,
-  `exists_smul_basis_eq`, `smul_basis_mul_Y`, `degree_norm_smul_basis` are in
-  `Mathlib/AlgebraicGeometry/EllipticCurve/Affine/Point.lean`, so the pin's
-  `Def_EllipticCurve_ValuationInfty` basis family is not needed. The silo's
-  private `ord_*` lemmas (`min_ord_le_ord_add`, `ord_add_eq_min`, `ord_pow`,
-  `ord_ringHom_eq_natDegree_mul`, `le_ord_ringHom_of_natDegree_le`) have **no**
-  counterpart in the port and would be new work. Done: they live in
-  `AlgebraicCurve/Defs/PlaceCalculus.lean`.
-- **Frontier caveat — file-granular shadowing.** Because the port declares the
-  headline, all 27 citers lose exactly 1 from `needed`, even though the API they
-  call is absent: the citation graph's edges are *file*-granular (the citers
-  import the node's `Thm_` wrapper) while the "ported" test is
-  *declaration-name*-granular. **This caveat was validated by the Vélu plan**:
-  its §2 read "import H1 wholesale" from the frontier, while the port in fact
-  had only 65 in-port lines of the shared block. The dictionary half is now
-  ported; the citers reaching the RR block above remain shadowed by this entry.
-
 ### `ModularCurve.exists_hasEquivariantPrimitiveOf` — the parts of the period API left out
 
-Unlike the Weierstrass entry, this node's shadowing is **resolved**: the
+This node's shadowing is **resolved**: the
 `ModularCurve.Period` API its 28 citers reach was ported with the headline, in
 `FLTForHuman/ModularForms/EichlerShimura/{PeriodPrimitive,PeriodIntegral,PeriodOf}.lean`
 (vocabulary and `Γ₀(N)` lattice; general `periodOf`/`periodLatticeOf`/
@@ -242,9 +154,11 @@ are repeated in the playbook §2.1; keep the specific instances here.
   Measure the pin `S_` file's `Definitions/` import closure before trusting a
   leaf.
 - **A pin `S_` file's `lines` is an upper bound.** A "solution" file may inline
-  its prerequisite nodes and carry an off-path development. The Weierstrass
-  headline is 2,248 lines but ~200 on-path (see above). Grep the capstone region
-  for the file's other declaration names: if none occur, the rest is off-path.
+  its prerequisite nodes and carry an off-path development: the Weierstrass
+  headline's pin file is 2,248 lines, of which ~200 are on the headline's path.
+  Grep the capstone region for the file's other declaration names: if none occur,
+  the rest is off-path.
 - **File-granular edges shadow.** Porting a headline whose pin file also carries
   an API prelude makes the file's citers read as unblocked while the API is
-  unported (see the Weierstrass entry's caveat).
+  unported; the Weierstrass headline's place/RR/class-group API was such a case
+  until it was ported.
