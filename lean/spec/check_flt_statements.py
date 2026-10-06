@@ -2156,6 +2156,13 @@ SOURCES = [
     # covered by the `DualEndData` entry in `PORT_FILES`.
     "Theorems/Thm_WeierstrassCurve_Affine_exists_algEquiv_restrictAlong_placeOfPoint_eq_add.lean",
     "Theorems/Thm_WeierstrassCurve_Affine_exists_algEquiv_forall_restrictAlong_placeOfPoint_eq_add.lean",
+    # --- SET-V4: the H5 vocabulary tail appended to `Vocabulary.lean` (the
+    # function-field rigidity node and the kernel-to-range node). The two wrappers
+    # are the only comparable copies: every helper in both `S_` files (the
+    # `no3ahbad_riqsucr_a1a_*` chain and the kernel-to-range helpers) is `private` in
+    # the port and the pin, and neither `S_` file is listed. Appended last.
+    "Theorems/Thm_WeierstrassCurve_Affine_algHom_ext_of_forall_restrictAlong_placeOfPoint_eq.lean",
+    "Theorems/Thm_WeierstrassCurve_Affine_IsogenyHomDatum_exists_pointHom_comp_eq_of_ker_le_of_isCentred.lean",
 ]
 
 PORT_FILES = [

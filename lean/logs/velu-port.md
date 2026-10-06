@@ -1654,3 +1654,77 @@ when the amendment landed, and deleting it was exact.
 and `ord_ofHeightOneSpectrum_*` now have two cones that need them and live in the
 `DualEndData` hub. Extracting them to `Place/` would let this module drop its 8.1 MB
 import. Registered in [../CARRY-FORWARD.md](../CARRY-FORWARD.md).
+
+## V4 — the isogeny kernel controls the range (2026-10-06)
+
+**Result.** The last two nodes of the H5 vocabulary tail landed in one file: checker
+`5807 → 5809 identical` (311 promoted unchanged), `0 mismatched / 0 missing`, 36
+own-proof exempted, 5,845 checked; wave build green (3 modules, 245 s, the 2-module
+cascade re-run at 11 s); consumer exit 0; both headlines
+`[propext, Classical.choice, Quot.sound]`; no `sorry`. The chain is
+`algHom_ext_of_forall_restrictAlong_placeOfPoint_eq` (function-field rigidity, layer
+0) → `IsogenyHomDatum.exists_pointHom_comp_eq_of_ker_le_of_isCentred` (kernel-to-range,
+layer 1); the headline's fixed-points argument runs on V3's translation automorphism.
+
+Modules: `IsogenyEndDatum/Vocabulary.lean` 177 → 643 (the append the plan chose, its
+own header having named these nodes as the missing tail, and its pre-existing private
+`normFormulaAlong_of_finiteAlong_aux` being the pin's `normFormulaAlong_of_finiteAlong`);
+`spec/IsogenyEndDatumConsumer.lean` 253 → 313 (zone 6); `check_flt_statements.py` +7.
+
+| round | `lake env lean` wall |
+|---|---|
+| scout, 197-line scratch (rigidity core) | 104.7 s (contended) |
+| full scratch, 499 lines | 54.4 s |
+| edit loop on `Vocabulary.lean` (643 lines) | 56 s → 75 s |
+| consumer | 58 s agent / **84.8 s manager** |
+| axioms probe | clean |
+| wave `flock lake build Vocabulary && CharPolySquare` | 245 s (3 modules) |
+
+**Friction, as it happened.**
+
+1. **The work order's reuse pointer was a statement mismatch, and the §2.3 rule
+   caught it.** `finite_setOf_ord_ne_zero_of_finiteDimensional` is public at
+   `P1/EnginePrelude.lean:652` and private at `Transcendence.lean:387`, but *both* are
+   the minpoly/`RatFunc` statement, not the pin `S_` file's `[HasPrincipalDivisors K F']`
+   form. The statement-identical public copy is
+   `finite_setOf_ord_ne_zero_of_hasPrincipalDivisors` (`Isogeny/NatCard.lean:73`). The
+   order has been amended. This is the V3 lesson paying for itself: a correct-looking
+   pointer derived from a *name* lookup is not a reuse decision.
+2. **Three more declarations the order listed as new work were already public at the
+   same FQN**: `AlgebraicCurve.Place.isUnit_mk_of_ord_eq_zero`,
+   `residue_ne_zero_of_ord_eq_zero`, `evalAt_ne_zero_of_ord_eq_zero`, all in
+   `Defs/PlaceEvaluationAlgebra.lean`. Plus the pin's `ord_sub_evalAt_pos`
+   (`PlaceCalculus.lean:209`), `ord_nonneg_of_mem`/`mem_of_ord_nonneg`
+   (`PushPull.lean:43/60`), `restrictAlong_congr` (`Correspondence.lean:318`),
+   `restrictAlong_algHomId` (`RestrictAlongAPI.lean:71`),
+   `restrictAlong_restrictAlong` (`Transport.lean:76`), `isRational_of_deg_eq_one`
+   (`P1/Dictionary.lean:59`), `point_infinite` (`Engine.lean:382`), and the module's
+   own `natCard_ker_pointMapOfPushforward_eq_finrankAlong`.
+3. **The private-vs-public probe trap.** Both the worker and the manager first
+   mutated the *private* `no3ahbad_*` copy of the conclusion `φ₁ = φ₂`; the checker
+   correctly reported `0 mismatched` because it never reads `private` declarations.
+   The public occurrence gave exactly `5808 / 1 / 0`. Anyone writing a mutation probe
+   must target the public declaration.
+4. **A pre-existing silent duplicate, not a collision.** `isRational_of_deg_eq_one`
+   is public at the same FQN in `AlgebraicCurve/P1/Dictionary.lean:59` and
+   `WeierstrassCurve/Velu/Discharge.lean:38`. Unlike the three `instInfinitePlace` /
+   `normFormulaAlong_of_elliptic` pairs, the two copies are byte-identical, so Lean
+   merges them silently and the co-import succeeds (verified: `exit 0`). Registered in
+   `CARRY-FORWARD.md` as a dedup, with the corrected statement of the hazard: a
+   same-FQN pair is unimportable **only if the declarations differ**.
+5. **The pin's section stubs cost an instance again.** The scoped
+   `instHasPrincipalDivisorsFunctionField_s13` went with the skeleton, and
+   `no3ahbad_…_finite_ord_ne_zero` supplies `[HasPrincipalDivisors F V.FunctionField]`
+   from `hasPrincipalDivisors_functionField V` instead. Same class of friction as V3
+   (see above).
+6. **One route adaptation.** `no3ahbad_…_ord_pos_of_restrictAlong_ord_pos` calls the
+   ported public `Place.ramificationIndexAlong_pos` rather than the pin's inline
+   `unfold …; letI …; exact_mod_cast`; the inline form is kept verbatim in the
+   headline step.
+7. **API drift.** `Set.mem_setOf_eq` is deprecated on v4.34.0 → `Set.mem_ofPred_eq`
+   (both files warning-free). `maxHeartbeats` never raised; every build under
+   `flock lean/.lake/flt_build.lock`.
+
+**Phase D status.** The H5 vocabulary tail is closed. The one remaining Phase D item
+is `IsogenyEndDatum.aeval_j_diag_eq_zero_of_finrankAlong_eq`, still gated on the
+`PeriodPair` uniformization ladder.

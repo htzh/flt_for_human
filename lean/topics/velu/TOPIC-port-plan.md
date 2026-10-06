@@ -304,7 +304,10 @@ landed, so the dictionary is importable without Vélu.
    `Affine.exists_algHom_functionField_baseChange…`,
    `eval_jLattice_eq_zero_of_isAddCyclic`, `IsAddCyclic.of_squarefree_natCard` and
    `exists_genusOnePlaceGate_isCentred_and_abelTheorem`). They are the only
-   unfinished business of H5.
+   unfinished business of H5. **Status 2026-10-06:**
+   `exists_pointHom_comp_eq_of_ker_le_of_isCentred` **landed** (V3,
+   `TranslationAlgEquiv.lean`; V4, `Vocabulary.lean`);
+   `aeval_j_diag_eq_zero_of_finrankAlong_eq` is the one remaining Phase D item.
 5. **Torsion-API promotion (H5 follow-up) — landed 2026-10-05.** The glue case
    (`finite_torsionBy_of_natCast_ne_zero` / the `private` `finite_torsionBy_aux`)
    stays private; the other two are promoted:

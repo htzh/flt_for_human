@@ -40,6 +40,11 @@
     `Place.ord_restrictAlong` calculus.  Its module imports `DualEndData` (hence the
     same `Engine` cone as zones 1–4), so the three gate instances are hypotheses
     exactly as in zone 3.
+  * zone 6 — the SET-V4 H5 vocabulary tail (`IsogenyEndDatum/Vocabulary.lean`): the
+    rigidity node applied at `W1` to the `R = 0` translation and the identity, and the
+    kernel-to-range headline in hypothesis form with its `χ` fed through the ported
+    `IsogenyHomDatum.pointHom_apply_eq_sub` / `restrictAlong` API.  Gate instances are
+    hypotheses, as everywhere in the `DualEndData` cone.
 -/
 import FLTForHuman.WeierstrassCurve.Place.CoordinateRingDedekind
 import FLTForHuman.Elliptic.TorsionCardLight
@@ -249,5 +254,60 @@ example [GenusOnePlaceGate W1.toAffine] [GenusOnePlaceGate.IsCentred W1.toAffine
   exact ⟨τ, hτ,
     (AlgebraicCurve.Place.ord_restrictAlong (φ := τ.toAlgHom) (hφ := hτ)
       (w := placeOfPoint Q) (f := f)).trans (by rw [h Q])⟩
+
+-- Zone 6 (SET-V4): the H5 vocabulary tail landed in
+-- `IsogenyEndDatum/Vocabulary.lean` — the function-field rigidity node and the
+-- kernel-to-range node. Both examples stay inside the `DualEndData` cone (the
+-- consumer already imports `Vocabulary` through `PointEndSubring`), so the three
+-- gate instances are hypotheses exactly as in zones 3 and 5. Deleting either new
+-- declaration (or the SET-3 `pointHom_apply_eq_sub` zone 6b composes with) makes the
+-- file fail.
+
+-- Zone 6a: rigidity at `W1`. The V3 translation headline at `R = 0` supplies an
+-- `AlgEquiv` `τ` acting on every `placeOfPoint Q` as `Q ↦ Q + 0`; its `toAlgHom` and
+-- the identity therefore agree on every `placeOfPoint`, and the rigidity node forces
+-- `τ.toAlgHom = AlgHom.id`.
+example [GenusOnePlaceGate W1.toAffine] [GenusOnePlaceGate.IsCentred W1.toAffine]
+    [AbelTheorem W1.toAffine] :
+    ∃ (τ : W1.toAffine.FunctionField ≃ₐ[AlgebraicClosure ℚ] W1.toAffine.FunctionField)
+      (_hτ : τ.toAlgHom.toRingHom.IsIntegral),
+      τ.toAlgHom = AlgHom.id (AlgebraicClosure ℚ) W1.toAffine.FunctionField := by
+  obtain ⟨τ, hτ, h⟩ :=
+    WeierstrassCurve.Affine.exists_algEquiv_restrictAlong_placeOfPoint_eq_add
+      (0 : W1.toAffine.Point)
+  refine ⟨τ, hτ, ?_⟩
+  refine WeierstrassCurve.Affine.algHom_ext_of_forall_restrictAlong_placeOfPoint_eq
+    (V := W1.toAffine)
+    (fun w => AlgebraicCurve.Place.isRational_of_deg_eq_one w
+      (GenusOnePlaceGate.deg_eq_one w))
+    τ.toAlgHom (AlgHom.id (AlgebraicClosure ℚ) W1.toAffine.FunctionField) hτ
+    (IsogenyEndDatum.isIntegral_algHomId W1.toAffine) (fun P => ?_)
+  rw [h P, add_zero, IsogenyEndDatum.restrictAlong_algHomId]
+
+-- Zone 6b: the kernel-to-range headline in hypothesis form. The produced `χ` is fed
+-- through the ported `IsogenyHomDatum.pointHom_apply_eq_sub`, so the second conjunct
+-- is a real composition of the new headline with the SET-3 `placeOfPoint` /
+-- `restrictAlong` API rather than a restatement.
+example {F : Type u} [Field F] [DecidableEq F] [IsAlgClosed F] [CharZero F]
+    {V₀ V₁ V₂ : WeierstrassCurve.Affine F}
+    [V₀.IsElliptic] [GenusOnePlaceGate V₀] [AbelTheorem V₀]
+    [V₁.IsElliptic] [GenusOnePlaceGate V₁] [AbelTheorem V₁]
+    [V₂.IsElliptic] [GenusOnePlaceGate V₂] [AbelTheorem V₂]
+    [GenusOnePlaceGate.IsCentred V₀]
+    (φ : IsogenyHomDatum V₀ V₁) (hNφ : NormFormulaAlong F φ.ι φ.hfin)
+    (ψ : IsogenyHomDatum V₀ V₂) (hNψ : NormFormulaAlong F ψ.ι ψ.hfin)
+    (hker : ∀ P : V₀.Point, φ.pointHom hNφ P = 0 → ψ.pointHom hNψ P = 0) :
+    ∃ (χ : IsogenyHomDatum V₁ V₂) (hNχ : NormFormulaAlong F χ.ι χ.hfin),
+      (∀ P : V₀.Point, χ.pointHom hNχ (φ.pointHom hNφ P) = ψ.pointHom hNψ P) ∧
+      ∀ P : V₀.Point, ψ.pointHom hNψ P
+        = (pointEquivPlace (W := V₂)).symm
+            ((placeOfPoint (φ.pointHom hNφ P)).restrictAlong χ.ι χ.hι)
+          - (pointEquivPlace (W := V₂)).symm
+            ((placeOfPoint (0 : V₁.Point)).restrictAlong χ.ι χ.hι) := by
+  obtain ⟨χ, hNχ, hχ⟩ :=
+    IsogenyHomDatum.exists_pointHom_comp_eq_of_ker_le_of_isCentred φ hNφ ψ hNψ hker
+  refine ⟨χ, hNχ, hχ, fun P => ?_⟩
+  rw [← hχ P]
+  exact IsogenyHomDatum.pointHom_apply_eq_sub χ hNχ (φ.pointHom hNφ P)
 
 end IsogenyEndDatumConsumer

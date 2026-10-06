@@ -400,8 +400,13 @@ prerequisites:
   `WeierstrassCurve.Affine.exists_algEquiv_restrictAlong_placeOfPoint_eq_add`
   (pin `S_` 4,271 lines) and `…algHom_ext_of_forall_restrictAlong_placeOfPoint_eq`
   (988 lines);
-* `IsogenyEndDatum.aeval_j_diag_eq_zero_of_finrankAlong_eq` needs the `PeriodPair`
-  uniformization ladder plus `exists_intermediateField_countable…`,
+  **both landed 2026-10-06** — the first as V3
+  ([TOPIC-V3-translation-place-action.md](TOPIC-V3-translation-place-action.md),
+  `TranslationAlgEquiv.lean`), the second together with this node as V4
+  ([TOPIC-V4-isogeny-kernel-rigidity.md](TOPIC-V4-isogeny-kernel-rigidity.md),
+  `Vocabulary.lean`). Only `aeval_j_diag_eq_zero_of_finrankAlong_eq` remains here —
+  it still needs the `PeriodPair` uniformization ladder plus
+  `exists_intermediateField_countable…`,
   `Affine.exists_algHom_functionField_baseChange…`,
   `eval_jLattice_eq_zero_of_isAddCyclic`, `IsAddCyclic.of_squarefree_natCard`,
   `exists_genusOnePlaceGate_isCentred_and_abelTheorem`.

@@ -160,7 +160,12 @@ entry.
 - **Co-import collisions in the `IsogenyEndDatum` / Vélu cones (found 2026-10-06,
   while porting V2).** Name collisions make several pairs of library modules
   **unimportable together**; all are latent (nothing in the library imports a pair,
-  so the tree is green) and they cost the V2 consumers real tests. The `Engine` cone
+  so the tree is green) and they cost the V2 consumers real tests. **The criterion is
+  the declaration, not the name**: two modules are unimportable together only when
+  the same fully-qualified name arrives with *different* declarations — Lean's
+  environment merge tolerates byte-identical duplicates silently (verified on
+  `isRational_of_deg_eq_one`, below; the error message when they differ is
+  `environment already contains …`). The `Engine` cone
   cannot meet `Velu/RestrictAlong.lean`, `Place/RRSpace.lean`, or
   `GenusOnePlaceGateCentred.lean` (which reaches `RRSpace`):
   - `WeierstrassCurve.Affine.normFormulaAlong_of_elliptic` is declared in **both**
@@ -215,9 +220,24 @@ entry.
   heavy import. Price the move with `build_ladder.py --edit DualEndData.lean`
   (5 modules / ≈119 s) plus the new home's dependents.
 
+- **`AlgebraicCurve.Place.isRational_of_deg_eq_one` is public at one FQN in two
+  modules (found 2026-10-06, while porting V4).** `AlgebraicCurve/P1/Dictionary.lean:59`
+  and `WeierstrassCurve/Velu/Discharge.lean:38` declare the same theorem, and their
+  bodies are byte-identical
+  (`(AlgebraicCurve.Place.isRational_iff_deg_eq_one v).2 h`). So the two modules **are
+  co-importable** (verified: `lake env lean` on a file importing both, exit 0) — Lean
+  merges identical declarations silently — but the tree then carries two copies of one
+  statement, and the second is invisible to any tool. A dedup, not a collision: keep
+  the `P1/` copy (it is the lower module) and delete the `Velu/Discharge.lean` one, or
+  re-export it as an alias. Same family as the `finite_setOf_ord_ne_zero_of_finiteDimensional`
+  pair (`P1/EnginePrelude.lean:652` public vs `PrincipalDivisors/Transcendence.lean:387`
+  private — there the private copy is harmless because `private` mangles the name, but
+  it is still two proofs). Price both with `build_ladder.py --edit`; `Velu/Discharge.lean`
+  is the larger cascade.
+
 ## Scoping cautions
 
-Three ways a frontier figure misleads, each with the case that taught it. These
+Four ways a frontier figure misleads, each with the case that taught it. These
 are repeated in the playbook §2.1; keep the specific instances here.
 
 - **A citation-leaf is not a leaf.** `needed == 1` on a node with no theorem-node
@@ -237,3 +257,25 @@ are repeated in the playbook §2.1; keep the specific instances here.
   an API prelude makes the file's citers read as unblocked while the API is
   unported; the Weierstrass headline's place/RR/class-group API was such a case
   until it was ported.
+- **A "last tail node" can be the entry to an unported slice (found 2026-10-06,
+  after V4).** `IsogenyEndDatum.aeval_j_diag_eq_zero_of_finrankAlong_eq` reads as the
+  one remaining Phase D item of the H5 column, and `port_advise` prices it at 51
+  declarations with a single substitution (≈29 lines) — because the tool prices the
+  target's *own* `S_` file. Its `S_` file imports `Def_PeriodPair_Uniformization` and
+  five `Theorems/Thm_PeriodPair_*` nodes whose `S_` files total 5,127 lines, inside a
+  `PeriodPair` group the E-S scout measured at **9 nodes / 9,836 pin lines**. The
+  ladder is **not ported** (`jLattice`, `isUniformization_toPoint`, `rationalHomSet`,
+  `sublatticeQuotient`, `Def_PeriodPair_Uniformization` are absent from
+  `FLTForHuman`) and it is **not in the Deligne–Serre cone** — the 54-target D-S slice
+  has no `PeriodPair` node; the scout lists it as *shared uniformisation* between the
+  E-S driver and the Weierstrass column
+  ([../../studies/eichler-shimura-scout.md](../../studies/eichler-shimura-scout.md)
+  §3.1). Note also that the port's `ModularForms/WeightOne/Defs/PeriodPair.lean` is a
+  **different** object: the weight-one prelude `periodPairOfTau`/`smulPeriodPair` over
+  mathlib's `PeriodPair` struct, not the pin's uniformization API. Price a node by its
+  **unported closure**, never by `port_advise`'s own-file figure or by its column. The
+  follow-up measurement is in
+  [../topics/velu/TOPIC-V5-periodpair-uniformization.md](../topics/velu/TOPIC-V5-periodpair-uniformization.md):
+  the closure is genuine (15,179 lines, and the two classical theorems are on the path,
+  not prelude), it is ~4% of the remaining frontier, and the recommended first move is a
+  math scout rather than a work order.
