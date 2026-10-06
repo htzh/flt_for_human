@@ -297,13 +297,15 @@ not a substitute for the other: the FLT proof needs both facts about the $`j`$-l
 The pin's route ([PROOF-PATH.md](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/PROOF-PATH.md))
 has four steps: reduce to $`p \ge 5`$; build the Frey package; **irreducibility**
 (Mazur's Eisenstein-ideal argument); **modularity** (Wiles: Langlands–Tunnell, then
-two `R = T` modularity-lifting theorems). The two theories sit on opposite sides of
-that split.
+two `R = T` modularity-lifting theorems). The two theories are used on opposite sides
+of that split — P in step 3's irreducibility mechanism, J in step 4's modularity — but
+the pin's citation cones do not keep them apart.
 
-**P is on step 3 only.** The uniformization slice enters the proof through
-`aeval_j_diag_eq_zero_of_finrankAlong_eq`, whose only two consumers in the entire pin
-are `IsogenyEndDatum.exists_forall_pointEnd_eq_zsmul_of_not_isIntegral_j` and
-`…_of_transcendental_j`; from there the path runs
+**P's shortest route to the root is step 3, but it is not step-3-only.** The
+uniformization slice enters the proof through `aeval_j_diag_eq_zero_of_finrankAlong_eq`,
+whose only two consumers in the entire pin are
+`IsogenyEndDatum.exists_forall_pointEnd_eq_zsmul_of_not_isIntegral_j` and
+`…_of_transcendental_j`. The first gives the shortest route: from it the path runs
 `separable_map_eval2_of_not_isIntegral` $`\to`$
 `modularPolynomial_rootMultiplicity_jQuotVelu_eq_one` $`\to`$
 `moduliPointExists_jQuotVelu_of_mult_two` $`\to`$
@@ -314,37 +316,55 @@ line in $`E[p]`$; not the modularity step), on $`X_0(N)`$, its Jacobian and Nér
 the cuspidal subgroup, the Eisenstein quotient. The same Eisenstein-ideal machinery
 underlies Mazur's torsion and rational-points theorems; those are not used here.
 
-**J is on the same step, and on the modular-curve layer generally.**
+**The other consumer carries P into the step-4 cone.** `…_of_transcendental_j` is the
+branch the modular side consumes, and it puts `aeval_j_diag` in the transitive cone of
+step 4's source `S_WeierstrassCurve_modularity_of_semistableModel.lean` and of the
+`DeligneSerre` capstone `exists_galoisRep_of_weightOne_qCoeff_hecke_eigen`. The route is
+the **weight-one input**, not the relèvement: `isResiduallyModular_…` $`\to`$
+`weightOneNewformExists_levelAtThree_not_cube_dvd` $`\to`$ `hasIntegralStructure_two`
+$`\to`$ `linearIndependent_complex_of_linearIndependent_int` $`\to`$
+`periodHomPair_range_eq_parabolicHoms` $`\to`$ `eichlerShimura_dim_parabolic` $`\to`$
+`genusFormula_le_finrank_gamma0_weight_two` $`\to`$
+`genus_modularFunctionFieldBar_eq_genusFormula` $`\to`$ `ord_jBar_dvd_three` $`\to`$
+`mem_of_isRoot_map_j_of_transcendental` $`\to`$ `…_of_transcendental_j`. Every step is a
+proof-level citation in the pin. So step 3 is P's shortest route to the root, not its
+only one.
+
+**J is on the same step, and its generation theorem also reaches the step-4 cone.**
 `functionFieldGeneration` and its corollaries are the roof generation and degree match
 of the $`X_0(N)`$ tower that [009](009-hecke-jacobian-commute.md) uses, i.e. the
 geometry Mazur's argument runs on, and they are consumed by the mod-$`p`$
-modular-curve layer (`ModularCurve/CharPModel/*`).
+modular-curve layer (`ModularCurve/CharPModel/*`). They enter the step-4 cone too,
+through the same weight-one branch: `genusFormula_le_finrank_gamma0_weight_two`
+$`\to`$ `isCurveOver_modularFunctionFieldBar` $`\to`$ `functionFieldGeneration`. What
+meets step 4 there is the generation theorem itself, not only the $`q`$-expansion
+vocabulary.
 
-**Neither is on the `R = T` path, and neither is on the Deligne–Serre path.** Step 4's
-source `S_WeierstrassCurve_modularity_of_semistableModel.lean` cites only the
-residual-modularity theorem that carries the Deligne–Serre lifting, the two
-`modularityLiftingAtConductor_threeFive_…` theorems, `modThreeOrFiveIrreducible`, the
-`threeFiveSwitchCurve`, and the conductor-level reductions — no `PeriodPair`, no
-`functionFieldGeneration`. The statement that names $`R = T`$,
-`GaloisRep.DeformationRingData.exists_surjective_algHom_of_heckeGaloisRepDatum`, is a
-short statement over the deformation-theory definitions.
-
-**Deligne–Serre is on J's side of the split.** D-S is the *weight-one* input to step 4:
+**The relèvement and the `R = T` statement stay clean.** The Deligne–Serre lifting lemma
+and the statement that names $`R = T`$ —
+`FLT.AbstractIntegralStructure.exists_weight_two_eigenform_congruent_of_isLatticeRealized`
+and `GaloisRep.DeformationRingData.exists_surjective_algHom_of_heckeGaloisRepDatum` —
+have cones containing neither `PeriodPair` nor `functionFieldGeneration`, and step 4's
+source names neither among its direct cites. D-S is the *weight-one* input to step 4:
 Langlands–Tunnell produces a weight-one form for the odd octahedral $`\bar\rho_3`$;
 multiplying by the weight-one Eisenstein series $`E_1(1,\chi_{-3})`$ and applying the
-Deligne–Serre lifting lemma produces a congruent weight-two eigenform, which is what
-makes $`\bar\rho_3`$ residually modular and lets the `R = T` machinery start. Every
-instrument in that step — Eisenstein series, Hecke operators on $`\Gamma_1(N)`$,
-`q`-expansions, the Sturm bound, the $`\Gamma_1`$ integral basis — is J's universe. None
-of it is $`\wp`$-theory.
+lifting lemma produces a congruent weight-two eigenform, which is what makes
+$`\bar\rho_3`$ residually modular and lets the `R = T` machinery start. Every instrument
+in that step — Eisenstein series, Hecke operators on $`\Gamma_1(N)`$, `q`-expansions, the
+Sturm bound, the $`\Gamma_1`$ integral basis — is J's universe. None of it is
+$`\wp`$-theory.
 
-**Why this is forced.** `R = T` is a statement about deformation rings and Hecke
-algebras over $`\mathcal{O}`$: its inputs are congruences, integrality and patching —
-exactly the arithmetic of `q`-expansions. Uniformization is transcendental. The two
-touch only at the *existence* of the modular curve and the shape of its `q`-expansions,
-which is J's turf. So the intersection is one-sided in each case: P meets neither D-S
-nor `R = T`; J meets both, but as *vocabulary and q-expansion input*, never as the
-generation theorem, which stays on the step-3 side.
+**Why the entry is a route, not a necessity.** `R = T` is a statement about deformation
+rings and Hecke algebras over $`\mathcal{O}`$: its inputs are congruences, integrality
+and patching — exactly the arithmetic of `q`-expansions. Uniformization is
+transcendental, and the relèvement's own cone confirms it is not needed there. Where the
+pin does reach P from step 4 is in the proof of the $`\Gamma_1`$ integral-structure
+input, which it routes through the genus formula and `ord_jBar_dvd_three`; that node
+needs the $`j`$-line criterion `mem_of_isRoot_map_j_of_transcendental`, and that in turn
+runs through the isogeny/Vélu machinery. So the two theories meet the step-4 cone
+asymmetrically: P only through that $`j`$-line criterion, J both as `q`-expansion input
+and as the generation theorem. Nothing in the mathematics of D-S or $`R = T`$ calls for
+$`\wp`$-theory.
 
 ### 7.1 "Uniformization" is not one theory
 

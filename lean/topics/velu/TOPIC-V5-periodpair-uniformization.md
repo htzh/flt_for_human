@@ -1,8 +1,8 @@
 # V5 (scoping) — the `PeriodPair` uniformization slice
 
-**Status: scoping only, 2026-10-06. No work order, no set, no agent.** This document
+**Status: scouting complete, 2026-10-06. No work order, no set, no agent.** This document
 answers one question — *how big is the slice that gates the last Phase D node, and is
-the work actually that large?* — and proposes the math-first check that should precede
+the work actually that large?* — and records the math-first scout (§6) that must precede
 any port. It is not a work order; nothing here has been dispatched. Triggered by
 [TOPIC-V4-isogeny-kernel-rigidity.md](TOPIC-V4-isogeny-kernel-rigidity.md) §9 ("the one
 remaining Phase D item"), whose prerequisite is **not** in the Deligne–Serre cone and
@@ -13,7 +13,9 @@ not in this column. Pin `anthropics/fermats-last-theorem@aa2d8b3`; port mathlib
 **Answer in one line.** It is genuinely as large as it looks — the gating node's
 unported closure is **17 nodes / 15,179 pin lines**, and the two hard classical
 theorems (complex uniformization, surjectivity of `j`) plus a 2,673-line analytic seam
-are *on* the path, not inlined prelude. So the math comes first.
+are *on* the path, not inlined prelude. The scout (§6) then shows the uniformization core
+is the one piece mathlib lacks outright, is Mathlib-only, and can open the slice as set
+U (§7(d)).
 
 ## 1. The trigger, and what it actually needs
 
@@ -53,12 +55,22 @@ Unlike V2 and V3, there is no large inlined prelude to discount.
 
 **Where it sits.** Exactly two pin theorems consume it —
 `IsogenyEndDatum.exists_forall_pointEnd_eq_zsmul_of_not_isIntegral_j` and
-`…_of_transcendental_j` — and the shortest citation path runs
-`aeval_j_diag … → separable_map_eval2_of_not_isIntegral_of_isAlgClosed →
+`…_of_transcendental_j` — and the two consumers route differently. The first gives the
+shortest citation path to the root: `aeval_j_diag … →
+separable_map_eval2_of_not_isIntegral_of_isAlgClosed →
 modularPolynomial_rootMultiplicity_jQuotVelu_eq_one → moduliPointExists_jQuotVelu_of_mult_two →
 mazurStepThree_not_inZeroComponentAt → FreyPackage.frey_no_cofixed_large → Mazur_Frey →
-fermatLastTheoremFor_of_five_le`. So it is on the critical path. It is also *not
-urgent*: every one of those consumers is unported, so it blocks no half-finished work.
+fermatLastTheoremFor_of_five_le`. The second carries the node into the Deligne–Serre
+cone (`frontier.closure` of `DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen`)
+and into the cone of step 4's source `S_WeierstrassCurve_modularity_of_semistableModel.lean`,
+through the weight-one input (`weightOneNewformExists_levelAtThree_not_cube_dvd` →
+`hasIntegralStructure_two` → … → `ord_jBar_dvd_three` →
+`mem_of_isRoot_map_j_of_transcendental`). That is the cone of the unported D-S capstone,
+not of the shipped `DeligneSerre.*` slice; the gate is shared between the Mazur chain
+and that capstone, and the "Mazur gate" heading of
+[TOPIC-port-plan-v2.md](TOPIC-port-plan-v2.md) §2.2 records its shortest path, not an
+exclusive owner. It is also *not urgent*: every one of those consumers is unported, so
+it blocks no half-finished work.
 
 ## 2. The slice at full width
 
@@ -164,53 +176,78 @@ is available"
 §5). Any plan must run `port_advise` with a **statement** check (not just a name
 lookup) over the WeightOne/E-S modules before pricing a single declaration.
 
-## 6. The math-first gate
+## 6. The math-first scout
 
-Before a work order, a **scout** — read-only, gitignored scratch, no porting, no
-subagent sets — should answer seven questions:
+The scout has run on the pin's `S_` files. Its findings:
 
-1. **Is `IsUniformization` (1,493) used essentially?** It enters through
-   `exists_scale_lattice_subset_and_sublatticeIndex_eq_and_isAddCyclic_sublatticeQuotient`
-   (2,021). Read that proof: is the group isomorphism `ℂ/Λ ≅ E(ℂ)` load-bearing, or is
-   only the *transport* of `pointMapOfPushforward` compatibility along `toPoint` used
-   (which the already-ported `Place.restrictAlong` machinery might supply)? If the
-   former, this is a genuine complex-analysis development and the estimate stands.
-2. **Is `jLattice_surjective` (1,054) essentially needed, and by which route?** It is
-   used by the 17-line entry lemma. The pin proves it through `E₄³ − E₆²` and
-   q-expansions — i.e. through modular forms, which the port already has. Is there a
-   modular-forms proof that reuses the ported `ModularForm`/`EisensteinSeries` layer and
-   skips the analytic route? This is the most promising shortcut in the slice.
-3. **Is the analytic `D5` block (2,673) needed in full?** Enumerate which of the
-   `KwD5BetweenCurves*` lemmas the 2,021-line node actually calls. If only the
-   *existence* of a differentiable lift is used, a cheaper route may exist through the
-   ported analytic layer.
-4. **Is block (D) (4,760 lines) already needed elsewhere?** If
-   `exists_intermediateField_countable_map_eq_and_finrankAlong_eq` and the base-change
-   node are shared with other frontier work, they should be ported once, by whichever
-   effort needs them first, and this slice's price drops by ~4.7k.
-5. **What are the exact public names the checker will need?** The `S_` files are silos;
-   most of the 801 declarations are pin-local. The scout should produce the public
-   surface (wrappers) and the statement-anchored reuse map, as V3/V4 did.
-6. **Can the whole slice be avoided by the pin's own moduli vocabulary?** This is the
-   question that could kill the topic. The pin carries an ≈1,000-line *moduli-place*
-   layer that is not ported — `Def_ModularCurve_ModuliPoint.lean` (162;
-   `Gamma0Pair`/`ModuliPoint`), `Def_ModularCurve_ModuliPointMap.lean` (159),
+**The core is concrete ℂ-analysis, not uniformization theory.**
+`isUniformization_toPoint`, `discriminant_ne_zero` and `jLattice_surjective` import
+`Mathlib`, the 144-line `Def_PeriodPair_Uniformization` and each other — nothing else.
+The group isomorphism `ℂ/Λ ≅ E(ℂ)` is proved by ℘-analysis on mathlib's `PeriodPair`:
+surjectivity and the kernel from the order of ℘ (`kw_toPoint_surjective`,
+`kw_toPoint_eq_zero_iff`), the addition theorem from a Liouville lemma for elliptic
+functions (`kw_elliptic_Liouville_zero`) plus removable singularities and a
+generic-perturbation argument (`kw_toPoint_add`), with the chord-tangent law supplied by
+`Affine.addX`/`addY`/`slope`. mathlib v4.34 has **no** Riemann-surface theory, no
+Riemann existence or mapping, and no uniformization theorem, and the pin builds none.
+The only topology anywhere in the slice is in the seam node, which proves
+`IsCoveringMap (ℂ → ℂ/Λ)` and applies the covering-space lifting theorem
+(`existsUnique_continuousMap_lifts`) — mathlib's covering-map API, not Riemann surfaces.
+
+**The reusable half is already in the port.** mathlib supplies the ℘ primitive — 96
+declarations: the `weierstrassPExcept`/series API, order, meromorphy, the ODE
+`derivWeierstrassP_sq` — exactly the infrastructure the pin's 1,493 lines elaborate. The
+port supplies `WeightOne/Defs/PeriodPair.lean` (the pin's `ofTau`/`scale`/homogeneity
+prelude, verbatim) and the modular-forms layer `JqAnalyticModel.lean`/`Hauptmodul.lean`
+(`E₄`, `Δ`, `jq`, `E4_cube_div_discriminant_smul`, the q-expansion principle).
+
+**The 17-node closure factors into four sets.**
+
+- **U — uniformization (144 + 1,493 pin lines).** The dictionary plus
+  `isUniformization_toPoint`. Needs Mathlib only; reuses mathlib's ℘ API.
+- **J — the `j`-line (542 + 210 + 1,054).** `discriminant_ne_zero`, `jLattice_ofTau`,
+  `jLattice_surjective`. Needs Mathlib only; reuses the ported `E₄`/`Δ`/`j` layer.
+- **S — seam and index (≈6,900).** `exists_differentiable_toPoint_comp_…` (2,673), the
+  two `exists_scale_lattice_…` (2,021 / 978),
+  `exists_mem_primCosetReps_and_jLattice_eq_of_isAddCyclic` (848), the small
+  `eval_E4_cube_div_discriminant_*` (367 / 85),
+  `SpecialLinearGroup.exists_eq_mul_diagonal_mul_of_gcd_eq_one` (88),
+  `eval_jLattice_eq_zero_of_isAddCyclic` (25), `IsAddCyclic.of_squarefree_natCard` (14).
+  Needs the ported place dictionary.
+- **D — descent (2,684 + 1,336 + 744).** The three `WeierstrassCurve.*` base-change
+  nodes; generic field theory, not `PeriodPair`.
+
+**U is conditional, so it does not need J.** `isUniformization_toPoint` takes
+`h : L.DiscriminantNeZero` as an argument, and the pin's three components are all
+parametric in `h`; only its internal packaging calls the theorem `discriminant_ne_zero`.
+A port can prove the conjunction from `h` directly, so the uniformization is
+self-contained analysis and the `E₄³ − E₆²` computation stays inside J.
+
+**What the U work order still has to settle.**
+
+1. **Shortening against v4.34.** The pin builds its own `kw_addCoreE`/`kw_addBridge*`
+   scaffolding around ℘; check whether mathlib's
+   `weierstrassPExcept`/`weierstrassPSeries` API replaces part of it — the one place
+   the transcribed count can fall.
+2. **Public surface.** The `S_` files are silos; produce the wrapper names the checker
+   needs for U, as V3/V4 did.
+3. **The `D5` seam.** Before S is scoped, enumerate which `KwD5BetweenCurves*` lemmas
+   the 2,021-line node calls; the ported place dictionary may already carry part of the
+   transport.
+4. **The moduli-place alternative** (still the only thing that can kill §7(a)). The pin
+   carries an ≈1,000-line *moduli-place* layer — `Def_ModularCurve_ModuliPoint.lean`
+   (162; `Gamma0Pair`/`ModuliPoint`), `Def_ModularCurve_ModuliPointMap.lean` (159),
    `Def_ModularCurve_ModuliPlace.lean` (681; `IsModuliPlaceOf`, `moduliPlaceOfPoint`,
-   `moduliPlace`). It says what it means for a place of the modular function field to
-   *be* the moduli point of a curve with level structure, over a general field and with
-   no `℘`. If `aeval_j_diag_eq_zero_of_finrankAlong_eq` can be re-derived by
+   `moduliPlace`) — describing what it means for a place of the modular function field
+   to *be* the moduli point of a curve with level structure, over a general field and
+   with no `℘`. If `aeval_j_diag_eq_zero_of_finrankAlong_eq` can be re-derived by
    specialization through `moduliPlace` instead of by descending to ℂ, the 15,179-line
-   closure drops to ≈1 k of definitions plus one comparison theorem. Scout: port that
-   layer into a scratch, state the comparison theorem `aeval_j_diag` would need, and
-   report whether the pin proves it anywhere or whether it would have to be built. Note
-   the mismatch to price first — `ModuliPoint N K` is a point of order *exactly* `N`
-   (a Γ₀(N) level structure), whereas `aeval_j_diag` starts from an `IsogenyEndDatum` of
-   degree `N` whose `N` comes from a negative-discriminant binary quadratic form. See
+   closure drops to ≈1 k of definitions plus one comparison theorem. Price the mismatch
+   first: `ModuliPoint N K` is a point of order *exactly* `N` (a Γ₀(N) level structure),
+   whereas `aeval_j_diag` starts from an `IsogenyEndDatum` of degree `N` whose `N` comes
+   from a negative-discriminant binary quadratic form. See
    [../../../math/024-uniformization-versus-modular-functions.md](../../../math/024-uniformization-versus-modular-functions.md)
    §8.4.
-7. **What are the exact public names the checker will need?** The `S_` files are silos;
-   most of the 801 declarations are pin-local. The scout should produce the public
-   surface (wrappers) and the statement-anchored reuse map, as V3/V4 did.
 
 The scout's output is a corrected estimate and a go/no-go, not a work order. Playbook
 §2.6: a scout that shows the pin's proof transcribes unchanged converts "new
@@ -218,23 +255,27 @@ mathematics" into "transcription"; one that shows a route is missing kills it ou
 
 ## 7. Options, and the recommendation
 
-- **(a) Full slice as its own effort.** 18 nodes, ~8.5k net-new lines, four blocks of
+- **(a) Full slice as its own effort.** 18 nodes, ~8.5k net-new lines, four sets of
   which one (D) is not `PeriodPair`. Precedent size: the Deligne–Serre effort was
   15,200 written lines over 54 targets and nine sets — so this is one medium effort,
   not a tail.
-- **(b) A minimized path.** Take only the closure of the gating node (15,179 lines),
-  and only after the scout has confirmed which of blocks (A)–(C) are load-bearing. Likely
-  saving: a few thousand lines and one or two classical theorems not on the true path.
+- **(b) A minimized path.** Take only the closure of the gating node (15,179 lines) —
+  sets U, J and S — once the remaining scout items in §6 land. Likely saving: the
+  4,764 lines of D, plus whatever the moduli-place route (if it exists) removes from S.
 - **(c) Park it.** It is ~4% of the remaining frontier and blocks nothing that is
-  half-built. Parking costs nothing and the slice's own consumers are far off.
+  half-built.
+- **(d) Open with set U, then J.** Two new-file sets with no unported prerequisite: U
+  is the uniformization theorem and J the `j`-line, both Mathlib-only, and J reuses the
+  ported modular-forms layer. S stays parked behind the place dictionary; D goes to
+  whichever effort needs its base-change first.
 
-**Recommendation: (c) now, (b) after the scout.** The node is on the critical path but
-at the far end of it, and the honest reading of the measurement is that this is a
-genuine ~15k-line development resting on two classical theorems plus an analytic seam
-— not the "last Phase D item" the filing suggests. The scout in §6 is cheap (a
-`tmp/` scratch and a few `#check`s on an 81 s cone) and is the right first move;
-whatever it finds should be folded back here, and only then should this become a
-work order and a set schedule.
+**Recommendation: (d).** The scout in §6 separates the genuinely new mathematics from
+the transcription. U is the only piece mathlib lacks outright; it is conditional on `h`
+and so pulls in neither the modular-forms nor the place layer, and it is the map every
+other set consumes; J is cheap next to it. Enter the slice through U, not through the
+15,179-line boundary figure: scope U as its own new-file set with the §6 items 1–2 as
+its stop conditions, and leave the `D5` and moduli-place questions (§6 items 3–4) to the
+S scoping they belong to.
 
 **Ownership.** If it is done, it should be planned *with* the Eichler–Shimura and
 WeightOne efforts — the scout puts `PeriodPair` at 9 nodes / 9,836 shared-uniformisation

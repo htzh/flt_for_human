@@ -3,7 +3,7 @@
 Port of the pin node
 `WeierstrassCurve.Affine.exists_genusOnePlaceGate_isCentred_and_abelTheorem`
 (FLT `anthropics/fermats-last-theorem` @ `aa2d8b3`, mathlib `v4.34.0`).
-Blueprint: [../topics/genusOnePlaceGate/TOPIC-genusOnePlaceGate.md](../topics/genusOnePlaceGate/TOPIC-genusOnePlaceGate.md).
+Blueprint: [../topics/riemannRoch/TOPIC-genusOnePlaceGate.md](../topics/riemannRoch/TOPIC-genusOnePlaceGate.md).
 
 ## Measured
 
