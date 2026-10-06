@@ -135,7 +135,7 @@ by its `ucl`, never its raw size.
 | wave | contents | ≈ written | status |
 |---|---|---|---|
 | **V1** | the three ready columns: order-two, discriminant, quotient-`j` | **7,370 measured** | **landed 2026-10-05** |
-| **V2** | the two gateways (`exists_pointEnd_eq_of_mem_isogenyEndSubring` 701 → `exists_sq_lt_four_mul…` 454) and the Ribet-side completion (`exists_veluFunctionFieldHom_pointMapOfPushforward_ker_eq_zmultiples` 25, `exists_veluPointHom_oddOrderSummingSet_of_isAlgClosed` 97 + its separable-principal-divisors and genus-one-gate closure) | ≈2–3 k | outline only |
+| **V2** | the two gateways (`exists_pointEnd_eq_of_mem_isogenyEndSubring` 701 → `exists_sq_lt_four_mul…` 454) and the Ribet-side completion (`exists_veluFunctionFieldHom_pointMapOfPushforward_ker_eq_zmultiples` 25, `exists_veluPointHom_oddOrderSummingSet_of_isAlgClosed` 97 + its separable-principal-divisors and genus-one-gate closure) | **1,671 measured** in library modules + 344 consumer | **landed 2026-10-06** — work orders and close-out in [TOPIC-V2-gateways-and-ribet.md](TOPIC-V2-gateways-and-ribet.md); checker `5750 → 5805`, promoted `312 → 311`, 0/0; whole-tree build `9,303 jobs / 12.3 s` (+9 leaves, no cascade); the definition layer was already ported (§1.2), and three closure members priced at 1,246 / 911 / 58 lines were already in the port under other names |
 | **V3 / parked** | H6 base-change (3,713, demoted: no out-of-slice consumer until the `PeriodPair` gate opens); the two deferred H5 vocabulary nodes with their boundary closures; the far-end modular-polynomial bijection (`bijOn_cyclicQuotientJ…`, `exists_equiv_addSubgroup…`) | — | parked |
 | **boundary** | §2.1, §2.2 | — | out of scope |
 

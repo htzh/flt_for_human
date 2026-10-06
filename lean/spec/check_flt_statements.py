@@ -2106,6 +2106,45 @@ SOURCES = [
     # its proof-local declarations are the A1 file's, already in `SOURCES`, so only
     # the wrapper is needed for the checker to see the headline's name/statement.
     "Theorems/Thm_WeierstrassCurve_Affine_exists_genusOnePlaceGate_isCentred_and_abelTheorem.lean",
+    # --- V2 SET-1 (the two Mazur gateways). The `Theorems/` wrappers are the
+    # statement authority for the two headlines and for the shared coordinate-ring
+    # pair and the two light torsion aliases (the two coordinate-ring `S_` files are
+    # *not* listed: the port transcribes only their statements, and the wrappers
+    # carry them). The gateway-1 `S_` file is the statement authority for the helper
+    # declarations the wrappers do not carry (the inertia-degree composite, the two
+    # `Along` maps, the `Pic0` composite, the `IsogenyEndDatum` closure block and the
+    # submonoid bridge); it is listed whole, and the port's module carries each of its
+    # relevant declarations at the pin name. The gateway-2 `S_` file is the authority
+    # for the whole `Ws13S7` prelude and the `s7_…` headline. Appended last so no
+    # earlier last-name match can flip.
+    "Theorems/Thm_WeierstrassCurve_Affine_CoordinateRing_isDedekindDomain.lean",
+    "Theorems/Thm_WeierstrassCurve_Affine_CoordinateRing_exists_eq_XYIdeal.lean",
+    "Theorems/Thm_WeierstrassCurve_card_torsion_of_isAlgClosed_light.lean",
+    "Theorems/Thm_WeierstrassCurve_card_torsionBy_eq_sq_of_isAlgClosed.lean",
+    "Theorems/Thm_WeierstrassCurve_Affine_IsogenyEndDatum_exists_pointEnd_eq_of_mem_isogenyEndSubring.lean",
+    "P2M/Sol/S_WeierstrassCurve_Affine_IsogenyEndDatum_exists_pointEnd_eq_of_mem_isogenyEndSubring.lean",
+    "Theorems/Thm_WeierstrassCurve_Affine_IsogenyEndDatum_exists_sq_lt_four_mul_and_forall_exists_finrankAlong_eq.lean",
+    "P2M/Sol/S_WeierstrassCurve_Affine_IsogenyEndDatum_exists_sq_lt_four_mul_and_forall_exists_finrankAlong_eq.lean",
+    # --- V2 SET-2 (the Ribet-side completion). The `Theorems/` wrappers are the
+    # statement authority for the two headlines and for the five prerequisites the
+    # port lacked at the pin names: the separate-principal-divisors interface
+    # (`Divisor.pushforwardNormFormula_of_isSeparable`, `normFormulaAlong_of_separableAlong`,
+    # the `ratFunc` principal-divisors alias), the generic separable-coprime lemma,
+    # the characteristic-free function-field pair and the point-map surjectivity
+    # wrapper. The two headline `S_` files carry the helper declarations the wrappers
+    # do not (the `P2MA6` char-free seam block for target 4). Appended last so no
+    # earlier last-name match can flip.
+    "Theorems/Thm_Algebra_IsSeparable_of_coprime_finrank_expChar.lean",
+    "Theorems/Thm_AlgebraicCurve_Divisor_pushforwardNormFormula_of_isSeparable.lean",
+    "Theorems/Thm_AlgebraicCurve_normFormulaAlong_of_separableAlong.lean",
+    "Theorems/Thm_AlgebraicCurve_hasPrincipalDivisors_of_finiteDimensional_ratFunc_of_isSeparable.lean",
+    "Theorems/Thm_WeierstrassCurve_Affine_hasPrincipalDivisors_functionField_of_two_ne_zero_or.lean",
+    "Theorems/Thm_WeierstrassCurve_hasPrincipalDivisors_functionField_of_isElliptic.lean",
+    "Theorems/Thm_WeierstrassCurve_Affine_pointMapOfPushforward_surjective.lean",
+    "Theorems/Thm_WeierstrassCurve_exists_veluFunctionFieldHom_pointMapOfPushforward_ker_eq_zmultiples.lean",
+    "Theorems/Thm_WeierstrassCurve_exists_veluPointHom_oddOrderSummingSet_of_isAlgClosed.lean",
+    "P2M/Sol/S_WeierstrassCurve_exists_veluFunctionFieldHom_pointMapOfPushforward_ker_eq_zmultiples.lean",
+    "P2M/Sol/S_WeierstrassCurve_exists_veluPointHom_oddOrderSummingSet_of_isAlgClosed.lean",
 ]
 
 PORT_FILES = [
@@ -2950,6 +2989,35 @@ PORT_FILES = [
     "FLTForHuman/AlgebraicCurve/PrincipalDivisors/Count.lean",
     "FLTForHuman/WeierstrassCurve/Place/UnitIdeal.lean",
     "FLTForHuman/WeierstrassCurve/GenusOnePlaceGateCentred.lean",
+    # --- V2 SET-1 (the two Mazur gateways). Four leaves: the shared coordinate-ring
+    # pair (`Place/CoordinateRingDedekind.lean`), the two light torsion aliases
+    # (`Elliptic/TorsionCardLight.lean`), gateway 1 plus its pin helper surface
+    # (`IsogenyEndDatum/PointEndSubring.lean`) and gateway 2, the `Ws13S7` prelude and
+    # the number-theoretic headline (`IsogenyEndDatum/CharPolySquare.lean`). Each
+    # imports only downward, so no set cascades. `Elliptic/TorsionCard.lean` itself is
+    # *not* in `PORT_FILES` (it is the `card_torsion_of_isAlgClosed` home); only its
+    # two SET-1 aliases are diffed against the two `Theorems/` wrappers appended above.
+    # Appended last so no earlier last-name match can flip.
+    "FLTForHuman/WeierstrassCurve/Place/CoordinateRingDedekind.lean",
+    "FLTForHuman/Elliptic/TorsionCardLight.lean",
+    "FLTForHuman/WeierstrassCurve/IsogenyEndDatum/PointEndSubring.lean",
+    "FLTForHuman/WeierstrassCurve/IsogenyEndDatum/CharPolySquare.lean",
+    # --- V2 SET-2 (the Ribet-side completion). Five leaves: the generic
+    # separable-coprime lemma (`FieldTheory/SeparableOfCoprime.lean`), the `ratFunc`
+    # principal-divisors alias (`AlgebraicCurve/PrincipalDivisors/SeparableRatFunc.lean`),
+    # the characteristic-free function-field pair
+    # (`WeierstrassCurve/PrincipalDivisorsSeparable.lean`), the point-map
+    # surjectivity wrapper (`WeierstrassCurve/Isogeny/PointMapSurjective.lean`) and the
+    # two odd-order headlines (`WeierstrassCurve/Velu/PointMapOddOrder.lean`). Each
+    # imports only downward, so no set cascades. `Velu/RestrictAlong.lean` is already
+    # in `PORT_FILES`, so its two promoted declarations are picked up without a wiring
+    # change; the two new `Theorems/` wrapper entries above are what lets the checker
+    # diff them. Appended last so no earlier last-name match can flip.
+    "FLTForHuman/FieldTheory/SeparableOfCoprime.lean",
+    "FLTForHuman/AlgebraicCurve/PrincipalDivisors/SeparableRatFunc.lean",
+    "FLTForHuman/WeierstrassCurve/PrincipalDivisorsSeparable.lean",
+    "FLTForHuman/WeierstrassCurve/Isogeny/PointMapSurjective.lean",
+    "FLTForHuman/WeierstrassCurve/Velu/PointMapOddOrder.lean",
 ]
 
 

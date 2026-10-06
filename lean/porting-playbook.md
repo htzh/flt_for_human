@@ -5,7 +5,8 @@ A synthesis of the ports completed so far: the Elliptic torsion port
 theorem cone, the `PhiGen` splitting cone, the `ModularCurve` Hecke layer, the
 `AlgebraicCurve` divisor exchange, the level/congruence-subgroup vocabulary, the
 T-side of `R = T`, the Eichler–Shimura period map, the Sturm-bound cusp
-vanishing, and the WeightOne rectification. The per-effort *records* are in
+vanishing, the WeightOne rectification, and the Vélu port (V1 + V2). The per-effort
+*records* are in
 [logs/](logs/); the closing *reviews* are `topics/*-retrospective.md`; §10 indexes
 both with their measured numbers. This file is the method the efforts share, so
 it is organised by principle rather than by which port taught it. Read a record
@@ -194,7 +195,14 @@ lines** — where content subtracts `import`/`attribute`/`namespace`/`section`/
 ported, so a single raw figure overstates a cone. Give node-based and
 content-based headlines separately: nodes overstate a cone whose weight sits in a
 few large files. State the metric's bias — a name-based "already ported" test is
-an upper bound and misses renamed ports.
+an upper bound and misses renamed ports, and the **`ucl` closure is an upper bound in
+the other direction too**: it cannot see that a closure member's *mathematics* is
+already in the port under another name, nor the pin's definitional imports. The Vélu
+V2 wave priced four closure members at 1,246 / 911 / 58 / 269 lines and wrote ≈15
+lines for the last of them and nothing for the first three (same statement minus a
+`[CharZero F]`, same statement with different binder explicitness, same body with an
+explicit `hsep`); a `ucl`-only budget would have said ≈4 k where the truth was 1.6 k.
+**Sweep the port by name and by `#check` before pricing any closure member.**
 
 Then make the table *act*:
 
@@ -735,6 +743,19 @@ is pure loss; glue and trivia are not worth exporting.
   reachable under the spelling consumers already use, or the wave breaks even
   when statements match. A home may keep an internal namespace and export an
   alias in the consumers' namespace, but the two must agree.
+- **Check for co-import collisions before the consumer is designed.** Two library
+  modules can each be green while being **unimportable together**: a public name
+  declared in both (`WeierstrassCurve.Affine.normFormulaAlong_of_elliptic` in the
+  Vélu `Velu/RestrictAlong.lean` and the H5 `IsogenyEndDatum/Engine.lean`), or a plain
+  and a `scoped` instance of the same class (`instInfinitePlace` in `Engine.lean:90`
+  and `Place/RRSpace.lean:444`). No graph tool sees it; it surfaces as `environment
+  already contains …` only when a consumer needs both cones. The Vélu V2 wave paid for
+  it twice: SET-1's consumer had to become a separate `spec/` file, and its gateway zone
+  had to state the gate instances as hypotheses instead of discharging them. Grep the
+  planned consumer's import set for duplicate declaration names across modules before
+  writing the zones, and register a collision in
+  [CARRY-FORWARD.md](CARRY-FORWARD.md) rather than renaming a frozen public name
+  mid-wave.
 - **Choose the directory and namespace from the pin's own namespace and sibling
   vocabulary**, not from the managing effort: one topic was retargeted to
   `ModularCurve/` because every pin file was `*_ModularCurve_*`, its headlines
@@ -967,6 +988,7 @@ Two library-style uses worth knowing:
 | three small frontier nodes (factorisable test functions; `K(x)` `EssFiniteType`; Weierstrass principal divisors) | `AutomorphicForm.continuous_and_hasCompactSupport_of_isFactorizableTestFn`, `AlgebraicCurve.essFiniteType_of_transcendental_of_finiteDimensional`, `WeierstrassCurve.Affine.hasPrincipalDivisors_functionField` | 8 modules / 50 public decls; the Weierstrass place/RR/class-group API (~941 content lines, 27 citers) was **deferred** here and is now ported (see the genus-one place gate row) | [CARRY-FORWARD.md](CARRY-FORWARD.md) |
 | `ModularCurve.Period` API + equivariant primitive | `ModularCurve.exists_hasEquivariantPrimitiveOf` | 4 modules; the period vocabulary, the `Γ₀(N)` period lattice, the general `periodOf`/`periodMapOf` layer and the 182-content-line headline construction; Hecke-stability / `PeriodTransfer` / Petersson **deferred** | [CARRY-FORWARD.md](CARRY-FORWARD.md) |
 | genus-one place gate | `WeierstrassCurve.Affine.exists_genusOnePlaceGate_isCentred_and_abelTheorem` | 5 modules / 1,004 written lines; pin `S_` 2,288 raw / 1,032 net new; checker +51 identical, 0/0; consumer 0; the deferred Weierstrass RR/class-group/Abel block taken | [logs/genus-one-place-gate-port.md](logs/genus-one-place-gate-port.md), [topics/genusOnePlaceGate/TOPIC-genusOnePlaceGate.md](topics/genusOnePlaceGate/TOPIC-genusOnePlaceGate.md) |
+| Vélu V2 (gateways + Ribet side) | `WeierstrassCurve.exists_veluPointHom_oddOrderSummingSet_of_isAlgClosed` and the two Mazur gateways | 9 new modules / 1,671 written + 344 consumer; checker `5750 → 5805 identical`, promoted `312 → 311`, 0/0; whole-tree `9,303 jobs / 12.3 s` (+9 leaves, no cascade); one additive edit `+39/−0` in a 0-dependency leaf; three closure members already present under other names | [logs/velu-port.md](logs/velu-port.md), [topics/velu/TOPIC-V2-gateways-and-ribet.md](topics/velu/TOPIC-V2-gateways-and-ribet.md) |
 
 Planning records (retired blueprints) are `topics/PORTING-*.md`; the mathematics
 each port targets is in `../math/` and `../base/`.

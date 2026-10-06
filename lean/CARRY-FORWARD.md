@@ -135,10 +135,42 @@ entry.
   checker-verified against
   `Theorems/Thm_AlgebraicCurve_relNorm_eq_pow_of_isMaximal_of_isSeparable.lean`
   — because the pin exposes that interface publicly and the port had hidden it.
-  What remains private is the char-free fibre-centre norm formula (it duplicates
-  the port's own `private` `Divisor.pushforwardNormFormula_of_finiteDimensional`
-  in `PrincipalDivisors/Transcendence.lean`); promote **one** copy to an
-  `AlgebraicCurve` home when this node is taken, rather than re-deriving a third.
+  What remains private is the char-free fibre-centre norm formula — it existed as
+  **two** `private` copies (this file's and
+  `PrincipalDivisors/Transcendence.lean`'s). **Resolved 2026-10-06 (V2 SET-2):** the
+  pin-`private`-to-public promotion was done additively in
+  `WeierstrassCurve/Velu/RestrictAlong.lean` (+39/−0): the pin names
+  `AlgebraicCurve.Divisor.pushforwardNormFormula_of_isSeparable` and
+  `AlgebraicCurve.normFormulaAlong_of_separableAlong` are now public wrappers over
+  that file's two privates, which stay as the proof bodies. No third copy was
+  written and no other module was edited. `Transcendence.lean`'s copy is still
+  private; promoting it too would cost a 52-module cascade (measured), so leave it —
+  the public home now exists in the RestrictAlong module.
+
+- **Co-import collisions in the `IsogenyEndDatum` / Vélu cones (found 2026-10-06,
+  while porting V2).** Two name collisions make pairs of library modules
+  **unimportable together**; both are latent (nothing in the library imports the
+  pairs, so the tree is green) and both cost the V2 consumers a real test:
+  - `WeierstrassCurve.Affine.normFormulaAlong_of_elliptic` is declared in **both**
+    `FLTForHuman/WeierstrassCurve/IsogenyEndDatum/Engine.lean` (the H5 copy,
+    `[IsAlgClosed F] [CharZero F]`) and
+    `FLTForHuman/WeierstrassCurve/Velu/RestrictAlong.lean` (the H4 char-free copy
+    with an explicit `hsep`). `lake env lean` on a file importing both fails with
+    *environment already contains …*. This is why SET-1's consumer is a separate
+    `spec/IsogenyEndDatumConsumer.lean` (Engine cone) and SET-2's zones stay in
+    `spec/WeierstrassCurveConsumer.lean` (RestrictAlong cone).
+  - `WeierstrassCurve.Affine.instInfinitePlace` is a plain instance at
+    `IsogenyEndDatum/Engine.lean:90` and a `scoped instance` at
+    `WeierstrassCurve/Place/RRSpace.lean:444`, so
+    `WeierstrassCurve/GenusOnePlaceGateCentred.lean` (which imports `RRSpace`) cannot
+    be imported alongside `Engine.lean`. SET-1's consumer therefore states the three
+    gate instances as hypotheses rather than discharging them from
+    `exists_genusOnePlaceGate_isCentred_and_abelTheorem`.
+  A refactor round should keep **one** public `normFormulaAlong_of_elliptic` (the H5
+  copy is used by six declarations across `Engine`/`DualEndData`; the H4 copy has one
+  internal caller) and make the second `instInfinitePlace` agree (one plain, one
+  `scoped`/`local`) so the two cones can meet. Both are frozen-module edits: price
+  them with `tools/deps/build_ladder.py --edit`, not inline.
 
 ## Scoping cautions
 

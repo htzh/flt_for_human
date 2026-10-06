@@ -38,6 +38,11 @@ import FLTForHuman.WeierstrassCurve.GenusOnePlaceGateCentred
 import FLTForHuman.WeierstrassCurve.Place.RRSpace
 import FLTForHuman.WeierstrassCurve.Place.GeometricPlace
 import FLTForHuman.WeierstrassCurve.Place.UnitIdeal
+import FLTForHuman.WeierstrassCurve.PrincipalDivisorsSeparable
+import FLTForHuman.WeierstrassCurve.Isogeny.PointMapSurjective
+import FLTForHuman.WeierstrassCurve.Velu.PointMapOddOrder
+import FLTForHuman.AlgebraicCurve.PrincipalDivisors.SeparableRatFunc
+import FLTForHuman.FieldTheory.SeparableOfCoprime
 import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
 import Mathlib.Analysis.Complex.Polynomial.Basic
 
@@ -754,6 +759,167 @@ example : ∃ g : WeierstrassCurve.Affine.GenusOnePlaceGate W1.toAffine,
   exact WeierstrassCurve.Affine.exists_genusOnePlaceGate_isCentred_and_abelTheorem
 
 #print axioms WeierstrassCurve.Affine.exists_genusOnePlaceGate_isCentred_and_abelTheorem
+
+-- Zone (V2 SET-2): the Ribet-side completion — the characteristic-free
+-- function-field principal-divisors pair (`PrincipalDivisorsSeparable.lean`), the
+-- generic separable-coprime lemma (`FieldTheory/SeparableOfCoprime.lean`), the two
+-- separate-principal-divisors promotions in `Velu/RestrictAlong.lean`, the point-map
+-- surjectivity wrapper (`Isogeny/PointMapSurjective.lean`) and the two odd-order
+-- headlines (`Velu/PointMapOddOrder.lean`).
+
+-- (a) The char-free `HasPrincipalDivisors` pair at a concrete curve in both
+-- characteristics. `W1` over `AlgebraicClosure ℚ` witnesses the `2 ≠ 0` branch;
+-- `W4 : y² + xy = x³ + 1` over `ZMod 2` has `a₁ = 1 ≠ 0` while `2 = 0`, so the
+-- `a₁ ≠ 0` branch is the only witness there.
+abbrev W4 : WeierstrassCurve (ZMod 2) := WeierstrassCurve.mk 1 0 0 0 1
+
+example : AlgebraicCurve.HasPrincipalDivisors (AlgebraicClosure ℚ) W1.toAffine.FunctionField :=
+  WeierstrassCurve.Affine.hasPrincipalDivisors_functionField_of_two_ne_zero_or W1.toAffine
+    (Or.inl (by norm_num))
+
+example : AlgebraicCurve.HasPrincipalDivisors (ZMod 2) W4.toAffine.FunctionField :=
+  WeierstrassCurve.Affine.hasPrincipalDivisors_functionField_of_two_ne_zero_or W4.toAffine
+    (Or.inr (Or.inl (by norm_num [W4])))
+
+-- `Δ(W4) ≠ 0` over `ZMod 2` (the residue is `1`), so the elliptic headline fires
+-- there too.
+private lemma W4_isElliptic : W4.IsElliptic := by
+  refine ⟨isUnit_iff_ne_zero.mpr ?_⟩
+  norm_num [W4, WeierstrassCurve.Δ, WeierstrassCurve.b₂, WeierstrassCurve.b₄,
+    WeierstrassCurve.b₆, WeierstrassCurve.b₈]
+  decide
+
+example : AlgebraicCurve.HasPrincipalDivisors (AlgebraicClosure ℚ) W1.toAffine.FunctionField :=
+  WeierstrassCurve.hasPrincipalDivisors_functionField_of_isElliptic W1
+
+example : AlgebraicCurve.HasPrincipalDivisors (ZMod 2) W4.toAffine.FunctionField := by
+  haveI : W4.IsElliptic := W4_isElliptic
+  exact WeierstrassCurve.hasPrincipalDivisors_functionField_of_isElliptic W4
+
+-- (b) The generic separable-coprime lemma at a concrete coprime pair: the rank-1
+-- extension `ZMod 2 / ZMod 2`, where the exponential characteristic is `2` and the
+-- degree is `1`.
+example : Algebra.IsSeparable (ZMod 2) (ZMod 2) :=
+  Algebra.IsSeparable.of_coprime_finrank_expChar (ZMod 2) (ZMod 2) 2 (by
+    rw [Module.finrank_self]; norm_num)
+
+-- (c) The separate-principal-divisors interface — `SeparableRatFunc.lean`'s alias
+-- and the two promoted declarations in `Velu/RestrictAlong.lean` — in hypothesis
+-- form where the gate instances cannot be discharged at a variable curve.
+example {K : Type*} [Field K] (F' : Type*) [Field F'] [Algebra K F']
+    [Algebra (RatFunc K) F'] [IsScalarTower K (RatFunc K) F']
+    [FiniteDimensional (RatFunc K) F'] [Algebra.IsSeparable (RatFunc K) F'] :
+    AlgebraicCurve.HasPrincipalDivisors K F' :=
+  AlgebraicCurve.hasPrincipalDivisors_of_finiteDimensional_ratFunc_of_isSeparable K F'
+
+example {K F F' : Type*} [Field K] [Field F] [Field F'] [Algebra K F] [Algebra K F']
+    (φ : F →ₐ[K] F') [AlgebraicCurve.HasPrincipalDivisors K F']
+    (hfin : AlgebraicCurve.FiniteAlong K φ) (hsep : AlgebraicCurve.SeparableAlong K φ) :
+    AlgebraicCurve.NormFormulaAlong K φ hfin :=
+  AlgebraicCurve.normFormulaAlong_of_separableAlong φ hfin hsep
+
+example {K F F' : Type*} [Field K] [Field F] [Field F'] [Algebra K F] [Algebra K F']
+    [Algebra F F'] [IsScalarTower K F F'] [FiniteDimensional F F'] [Algebra.IsSeparable F F']
+    [AlgebraicCurve.HasPrincipalDivisors K F'] :
+    AlgebraicCurve.Divisor.PushforwardNormFormula K F F' :=
+  AlgebraicCurve.Divisor.pushforwardNormFormula_of_isSeparable
+
+-- (d) The reconciliation drives the ported `restrictAlong` datum: the `s2c_key`
+-- homomorphism's `SeparableAlong` (from `Velu/RestrictAlong.lean`) gives its norm
+-- formula by the promoted `normFormulaAlong_of_separableAlong`, and the resulting
+-- `hN` fires the point-map surjectivity wrapper at the odd-order quotient.
+example {F : Type*} [Field F] [DecidableEq F] [IsAlgClosed F] [CharZero F]
+    {W : WeierstrassCurve F} [W.IsElliptic] {Q : W.toAffine.Point} {p : ℕ}
+    (hp3 : 3 ≤ p) (hpodd : Odd p) (hord : addOrderOf Q = p)
+    (_hΔV : (W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))).Δ ≠ 0)
+    [(W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))).toAffine.IsElliptic]
+    [WeierstrassCurve.Affine.GenusOnePlaceGate W.toAffine]
+    [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred W.toAffine]
+    [WeierstrassCurve.Affine.AbelTheorem W.toAffine]
+    [WeierstrassCurve.Affine.GenusOnePlaceGate
+      (W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))).toAffine]
+    [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred
+      (W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))).toAffine]
+    [WeierstrassCurve.Affine.AbelTheorem
+      (W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))).toAffine]
+    [AlgebraicCurve.HasPrincipalDivisors F W.toAffine.FunctionField] :
+    Function.Surjective (WeierstrassCurve.Affine.pointMapOfPushforward
+      (WeierstrassCurve.kw_oddOrderSummingSetFunctionFieldHom_odd (W := W) hp3 hpodd hord)
+      (WeierstrassCurve.kw_oddOrderSummingSetFunctionFieldHom_odd_isIntegral
+        (W := W) hp3 hpodd hord)
+      (WeierstrassCurve.kw_oddOrderSummingSetFunctionFieldHom_odd_finiteAlong
+        (W := W) hp3 hpodd hord)
+      (AlgebraicCurve.normFormulaAlong_of_separableAlong _
+        (WeierstrassCurve.kw_oddOrderSummingSetFunctionFieldHom_odd_finiteAlong
+          (W := W) hp3 hpodd hord)
+        (WeierstrassCurve.kw_oddOrderSummingSetFunctionFieldHom_odd_separableAlong
+          (W := W) hp3 hpodd hord))) := by
+  let ι := WeierstrassCurve.kw_oddOrderSummingSetFunctionFieldHom_odd (W := W) hp3 hpodd hord
+  let hι := WeierstrassCurve.kw_oddOrderSummingSetFunctionFieldHom_odd_isIntegral
+    (W := W) hp3 hpodd hord
+  let hfin := WeierstrassCurve.kw_oddOrderSummingSetFunctionFieldHom_odd_finiteAlong
+    (W := W) hp3 hpodd hord
+  have hsep := WeierstrassCurve.kw_oddOrderSummingSetFunctionFieldHom_odd_separableAlong
+    (W := W) hp3 hpodd hord
+  have hN : AlgebraicCurve.NormFormulaAlong F ι hfin :=
+    AlgebraicCurve.normFormulaAlong_of_separableAlong ι hfin hsep
+  exact WeierstrassCurve.Affine.pointMapOfPushforward_surjective W.toAffine
+    (W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))).toAffine ι hι hfin hN
+
+-- (e) The two odd-order headlines. Target 4 (`veluPointHom`) is applied at the
+-- concrete curve `W1` with only `p`/`Q` hypotheses: its proof constructs the
+-- genus-one gates, the Dedekind instances and the principal-divisors instances
+-- itself. Target 3 (`…ker_eq_zmultiples`) and the point-map surjectivity wrapper are
+-- stated in hypothesis form, since their gate instances are not dischargeable at a
+-- variable curve.
+example (p : ℕ) (hp : p.Prime) (hp2 : p ≠ 2) (hpF : (p : AlgebraicClosure ℚ) ≠ 0)
+    (Q : W1.toAffine.Point) (hQord : addOrderOf Q = p) :
+    let S := W1.oddOrderSummingSet Q (p / 2)
+    ∃ φ : W1.toAffine.Point →+ (W1.veluQuotient S).toAffine.Point,
+      φ.ker = AddSubgroup.zmultiples Q ∧
+      (∀ (x y : AlgebraicClosure ℚ) (h : W1.toAffine.Nonsingular x y),
+        (.some x y h : W1.toAffine.Point) ∉ AddSubgroup.zmultiples Q →
+          ∃ h', φ (.some x y h) = .some (W1.veluX S x) (W1.veluY S x y) h') :=
+  WeierstrassCurve.exists_veluPointHom_oddOrderSummingSet_of_isAlgClosed W1 hp hp2 hpF Q hQord
+
+example {F : Type*} [Field F] [DecidableEq F] [CharZero F] [IsAlgClosed F]
+    {W : WeierstrassCurve F} [W.toAffine.IsElliptic] {Q : W.toAffine.Point} {n : ℕ}
+    (hord : addOrderOf Q = 2 * n + 1)
+    (hΔ' : (W.veluQuotient (W.oddOrderSummingSet Q n)).Δ ≠ 0)
+    [(W.veluQuotient (W.oddOrderSummingSet Q n)).toAffine.IsElliptic]
+    [WeierstrassCurve.Affine.GenusOnePlaceGate W.toAffine]
+    [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred W.toAffine]
+    [WeierstrassCurve.Affine.AbelTheorem W.toAffine]
+    [WeierstrassCurve.Affine.GenusOnePlaceGate
+      (W.veluQuotient (W.oddOrderSummingSet Q n)).toAffine]
+    [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred
+      (W.veluQuotient (W.oddOrderSummingSet Q n)).toAffine]
+    [WeierstrassCurve.Affine.AbelTheorem
+      (W.veluQuotient (W.oddOrderSummingSet Q n)).toAffine] :
+    ∃ (ι : (W.veluQuotient (W.oddOrderSummingSet Q n)).toAffine.FunctionField
+            →ₐ[F] W.toAffine.FunctionField)
+      (hι : ι.toRingHom.IsIntegral) (hfin : AlgebraicCurve.FiniteAlong F ι),
+      AlgebraicCurve.finrankAlong F ι = 2 * n + 1
+        ∧ ∀ hN : AlgebraicCurve.NormFormulaAlong F ι hfin,
+            (WeierstrassCurve.Affine.pointMapOfPushforward ι hι hfin hN).ker
+              = AddSubgroup.zmultiples Q :=
+  WeierstrassCurve.exists_veluFunctionFieldHom_pointMapOfPushforward_ker_eq_zmultiples
+    hord hΔ'
+
+example {F : Type*} [Field F] [DecidableEq F] [IsAlgClosed F] [CharZero F]
+    (E E' : WeierstrassCurve.Affine F) [E.IsElliptic] [GenusOnePlaceGate E] [AbelTheorem E]
+    [E'.IsElliptic] [GenusOnePlaceGate E'] [AbelTheorem E']
+    (ι : E'.FunctionField →ₐ[F] E.FunctionField) (hι : ι.toRingHom.IsIntegral)
+    (hfin : AlgebraicCurve.FiniteAlong F ι) (hN : AlgebraicCurve.NormFormulaAlong F ι hfin)
+    (P : E'.Point) :
+    ∃ Q : E.Point, WeierstrassCurve.Affine.pointMapOfPushforward ι hι hfin hN Q = P :=
+  WeierstrassCurve.Affine.pointMapOfPushforward_surjective E E' ι hι hfin hN P
+
+-- (f) The four headline/wrapper declarations are axiom-clean.
+#print axioms WeierstrassCurve.exists_veluFunctionFieldHom_pointMapOfPushforward_ker_eq_zmultiples
+#print axioms WeierstrassCurve.exists_veluPointHom_oddOrderSummingSet_of_isAlgClosed
+#print axioms WeierstrassCurve.Affine.hasPrincipalDivisors_functionField_of_two_ne_zero_or
+#print axioms AlgebraicCurve.normFormulaAlong_of_separableAlong
 
 end WeierstrassCurveConsumer
 

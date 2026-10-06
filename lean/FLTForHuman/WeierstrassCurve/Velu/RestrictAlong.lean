@@ -1784,6 +1784,45 @@ private theorem kw_normFormulaAlong_of_separableAlong_cf {K F F' : Type*} [Field
 
 end AlgebraicCurve
 
+/-! ### The two public separable wrappers (the V2 SET-2 reconciliation)
+
+The pin nodes `AlgebraicCurve.Divisor.pushforwardNormFormula_of_isSeparable` and
+`AlgebraicCurve.normFormulaAlong_of_separableAlong` are the public names the pin's
+`Theorems/` wrappers carry.  Both are added here as wrappers over the two private
+characteristic-free proofs above, which stay in place as the proof bodies (their
+only callers are inside this file), so this block is purely additive: no rename and
+no caller edit.
+
+* `pushforwardNormFormula_of_isSeparable`: the private
+  `Divisor.pushforwardNormFormula_of_finiteDimensional` is hypothesis-free, hence
+  already stronger than the pin's statement; the pin's `[HasPrincipalDivisors K F']`
+  is carried in the statement and unused in the proof.
+* `normFormulaAlong_of_separableAlong`: the private
+  `kw_normFormulaAlong_of_separableAlong_cf`, with the
+  `[HasPrincipalDivisors K F']` instance supplied.
+
+Statements are the pin wrappers' verbatim text. -/
+
+namespace AlgebraicCurve
+
+namespace Divisor
+
+theorem pushforwardNormFormula_of_isSeparable {K F F' : Type*} [Field K] [Field F] [Field F']
+    [Algebra K F] [Algebra K F'] [Algebra F F'] [IsScalarTower K F F']
+    [FiniteDimensional F F'] [Algebra.IsSeparable F F'] [HasPrincipalDivisors K F'] :
+    Divisor.PushforwardNormFormula K F F' :=
+  pushforwardNormFormula_of_finiteDimensional (K := K) (F := F) (F' := F')
+
+end Divisor
+
+theorem normFormulaAlong_of_separableAlong {K F F' : Type*} [Field K] [Field F] [Field F']
+    [Algebra K F] [Algebra K F'] (φ : F →ₐ[K] F') [HasPrincipalDivisors K F']
+    (hfin : FiniteAlong K φ) (hsep : SeparableAlong K φ) :
+    NormFormulaAlong K φ hfin :=
+  kw_normFormulaAlong_of_separableAlong_cf φ ‹HasPrincipalDivisors K F'› hfin hsep
+
+end AlgebraicCurve
+
 /-! ### The restrictAlong column: the `_cf` helpers, the `IsogenyEndDatum`
 identity, the `s2c` seam and the two headlines
 

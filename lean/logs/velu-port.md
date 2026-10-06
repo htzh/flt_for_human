@@ -1394,3 +1394,187 @@ variable-change/core vocabulary and `Velu/Formula.lean` as the home of `map_velu
 and a warm tree. V2's remaining targets are the two gateways
 (`exists_pointEnd_eq_of_mem_isogenyEndSubring` → `exists_sq_lt_four_mul…`) and the
 Ribet-side completion, to be scoped against these modules.
+
+## V2 SET-1 — the two Mazur gateways (2026-10-06)
+
+**Scope and re-measurement.** V2 was scoped against the tree V1 left (the plan's
+§1.1 table predated V1). A fresh frontier run gives 17 remaining nodes; the four V2
+targets are unchanged. The name sweep is what changed the budget: the gateway-1
+`S_` file has 143 declarations of which **117 are already public** (the H5
+`IsogenyEndDatum/Engine.lean` port of two other pin `S_` files), leaving 26; and three
+closure members priced at 1,246 / 911 / 58 lines were already in the port under other
+names (`Divisor.pushforwardNormFormula` minus `[CharZero F]`;
+`hasPrincipalDivisors_of_finiteDimensional_of_isSeparable` with different binder
+spelling; `pointMapOfPushforward_surjective_of_separableAlong'`). The whole
+definition layer was already ported, so V2 had no `Definitions/` work.
+
+**The set, as measured.** Four new modules, 1,134 lines:
+
+| module | lines | `lake env lean` | `lake build` | decls (pub/priv) |
+|---|---:|---:|---:|---|
+| `WeierstrassCurve/Place/CoordinateRingDedekind.lean` | 83 | 1 m 22 s | 3.4 s | 2 / 1 |
+| `Elliptic/TorsionCardLight.lean` | 55 | 10.6 s | 2.3 s | 2 / 0 |
+| `WeierstrassCurve/IsogenyEndDatum/PointEndSubring.lean` | 416 | 55.7 s | 59 s | 23 / 1 |
+| `WeierstrassCurve/IsogenyEndDatum/CharPolySquare.lean` | 580 | 1 m 05 s | 74 s | 19 / 0 |
+
+Plus a **new** `spec/IsogenyEndDatumConsumer.lean` (178 lines, exit 0 / 1 m 10 s).
+The edit loop's fixed cost dominated: a tiny file importing the SET-1 cone takes
+**1 m 37 s** before any work (`DualEndData.olean` is 8.1 MB), so the agent batched
+declarations and never `lake build`-ed in the loop. No declaration came near the
+frozen 4,000,000 cap; the pin's 25,600,000 bump was dropped.
+
+**Milestone.** Checker `5750 → 5796 identical` (+46: 46 new public declarations — the
+`promoted → ok` flip of `IsogenyEndDatum.pointEnd_eq_geomMorph_sub_geomMorph_zero`
+contributes 0, since `promoted` is a subset of `identical`), promoted `312 → 311`,
+`0 mismatched / 0 missing`. Whole-tree build green, **9,298 jobs, 12.7 s** (+4 jobs =
+the four leaves, **no cascade**). `#print axioms` clean on all seven headlines.
+
+**Drops, all by count.** The pin's three `scoped instance instFactNatPrime{2,3,7}_s13e2`
+are invisible to the checker's `DECL_RE` (140 declarations extracted vs 144 counted by
+hand) and unnecessary; the pin's primed `Divisor.pushforwardAlong_pushforwardAlong'`
+is pin-`private` and a one-line instance of the port's public general lemma; the pin's
+`IsogenyEndDatum.comp` is pin-`private` (the port lands it private, the pin's
+`p2m_export` had made it look public). `KwIsogenyEndAddDatumSupply` was already public
+in `Engine.lean:228`.
+
+**Two findings.**
+
+1. **A third module-import collision, of the same family as the plan's §2.1 one.**
+   `Velu/RestrictAlong.lean` and `IsogenyEndDatum/Engine.lean` both declare
+   `WeierstrassCurve.Affine.normFormulaAlong_of_elliptic`, so SET-1's consumer cannot
+   import `spec/WeierstrassCurveConsumer.lean`'s cone and lives in its own spec file.
+   Then, inside SET-1, `GenusOnePlaceGateCentred.lean`'s `Place/RRSpace.lean`
+   (`scoped instance instInfinitePlace`) proved unimportable beside `Engine.lean`
+   (plain `instInfinitePlace`), so the consumer's gateway zone states the three gate
+   instances as hypotheses rather than discharging them from
+   `exists_genusOnePlaceGate_isCentred_and_abelTheorem`. Both are registered in
+   `CARRY-FORWARD.md`; the fix is a refactor round.
+2. **A name-extraction regex is an aid, not an authority.** `isIntegral_comp_ι` was
+   nearly mis-swept because a Greek-letter suffix truncates; and the checker's own
+   `raw_declarations` disagrees with a hand count on `scoped instance`. Use the
+   checker's extractor for any sweep a work order depends on.
+
+**Consumer.** `spec/IsogenyEndDatumConsumer.lean`, four zones: the coordinate-ring
+pair (with `exists_eq_XYIdeal` composed into `XYIdeal_isMaximal`), the torsion aliases
+at `n = 3` feeding the `ZMod n × ZMod n` classification, gateway 1 with `hNs`
+**discharged** from `IsogenyEndDatum.normFormulaAlong_auto` and `ψ = 1` realised in
+`isogenyEndSubring` through `one_mem_range_pointEnd`, and gateway 2 in hypothesis form
+plus two concrete `Ws13S7` prelude uses.
+
+## V2 SET-2 — the Ribet-side completion (2026-10-06)
+
+**The set, as measured.** Five new modules, 537 lines, plus one **additive**
+reconciliation:
+
+| file | lines | `lake env lean` | `lake build` | decls (pub/priv) |
+|---|---:|---:|---:|---|
+| `FieldTheory/SeparableOfCoprime.lean` | 54 | 6.9 s | 4.7 s | 1 / 0 |
+| `AlgebraicCurve/PrincipalDivisors/SeparableRatFunc.lean` | 46 | 5.1 s | 5.0 s | 1 / 0 |
+| `WeierstrassCurve/PrincipalDivisorsSeparable.lean` | 181 | 4.3 s | 5.9 s | 2 / 7 |
+| `WeierstrassCurve/Isogeny/PointMapSurjective.lean` | 56 | 5.7 s | 6.4 s | 1 / 0 |
+| `WeierstrassCurve/Velu/PointMapOddOrder.lean` | 200 | 5.0 s | 4.3 s | 2 / 0 |
+| `WeierstrassCurve/Velu/RestrictAlong.lean` (edit) | 2,108 → 2,147 | 54.4 s | 60 s | +2 public wrappers, **+39 / −0** |
+
+The reconciliation was made **purely additive** by reading the file first: each of
+the two privates (`Divisor.pushforwardNormFormula_of_finiteDimensional` at 1,749 and
+`kw_normFormulaAlong_of_separableAlong_cf` at 1,776) has exactly one caller, both
+inside the file, so the pin names could be added as public wrappers with no rename
+and no caller edit. The private char-free proofs stay the bodies. The alternative
+home (`PrincipalDivisors/Transcendence.lean`) was priced first: **52 modules / ≈405 s**
+against **0 library modules / ≈25 s** here.
+
+`spec/WeierstrassCurveConsumer.lean` grew 760 → 926 lines, six new zones; the checker
+gained the five modules in `PORT_FILES` (last) and **nine** `Theorems/` wrappers plus
+the two headline `S_` files in `SOURCES` (last) — nine, not the order's eight, because
+the §5.2 prerequisite table lists seven prerequisites and two headlines.
+
+**Milestone.** Checker `5796 → 5805 identical` (+9: +2 reconciliation, +1
+`of_coprime_finrank_expChar`, +1 ratFunc alias, +2 function-field pair, +1 point-map
+surjective, +2 headlines), promoted unchanged `311 → 311`, `0 mismatched / 0 missing`.
+Whole-tree build green, **9,303 jobs, 12.3 s** (+5 jobs = the five leaves, no
+cascade). `spec/WeierstrassCurveConsumer.lean` exit 0 (63 s). `#print axioms` clean on
+all four headlines.
+
+**The predicted checker trap bit once, and was fixed.** The first run after wiring
+gave 1 mismatched: `hasPrincipalDivisors_functionField_of_two_ne_zero_or` had
+inherited the file-level `variable {F} [Field F] {W : Affine F}`, so its declaration
+text omitted `{F} [Field F]` and spelled `Affine F`, while the wrapper inlines them and
+spells `WeierstrassCurve.Affine F`. Inlining the wrapper's binders verbatim fixed it —
+the same rule V1 SET-1 measured on 8 of 13 wrappers.
+
+**The pin's primed helpers are declarations nowhere.** `pushforwardAlongDegZero_pointDivisor'`,
+`pushforwardAlongHom_pointClass'` and `pointMapOfPushforward_eq_of_seam'` occur only in
+`p2m_export` strings; their content is public in `Velu/RestrictAlong.lean` as the `_cf`
+names (lines 1,870 / 1,878 / 1,892), which the set uses directly. Nothing was
+redeclared.
+
+**Friction.** `Nat.Prime.eq_two_or_odd'` now returns `Odd p` (the pin's
+`⟨k, hk⟩` destructuring needed an `obtain`); `Algebra.IsSeparable.of_integral` needed
+an explicit `Algebra.IsIntegral` (synthesized from `Module.Finite` in the pin, so the
+port supplies it for provenance and it compiles without); the ported generic transfer
+takes `{K}` implicit and `(E)` explicit, so the pin's `F W.FunctionField` became
+`(K := F) W.FunctionField`; and the target-4 body carries the pin's five
+`dif_pos`/`dif_neg` deprecation warnings verbatim, as the existing `RestrictAlong`
+body already does.
+
+**Consumer.** Six new zones in `spec/WeierstrassCurveConsumer.lean`: the char-free HPD
+pair in two characteristics, `of_coprime_finrank_expChar` at a concrete coprime pair,
+the two separable norm-formula wrappers composed with the restrictAlong headline,
+`pointMapOfPushforward_surjective`, and the two odd-order headlines in hypothesis form.
+
+## V2 close-out — the gateways and the Ribet side landed (2026-10-06)
+
+**Manager's review of the wave.** V2 is complete: two sets, one subagent each, run in
+series with the manager reviewing the tree between them. Nine new modules and one
+additive reconciliation; **no library module with dependents was edited**, so no set
+cascaded and the only whole-tree builds were the two milestone gates.
+
+| set | modules | written | est. | checker delta |
+|---|---|---:|---:|---:|
+| V2-SET-1 | 4 new + 1 new consumer | 1,134 (+178) | 1.2 k | +46 |
+| V2-SET-2 | 5 new + 1 additive edit | 537 (+39 edit, +166 consumer) | 0.4 k | +9 |
+| **V2** | **9 new modules** | **1,671** (+344 consumer) | **1.6 k** | **5750 → 5805 identical** |
+
+Checker at the milestone: `5805 statements identical (311 promoted from pin-private
+declarations), 0 mismatched, 0 missing, 36 own-proof declarations exempted (5841 port
+declarations checked)`. Whole-tree build green, **9,303 jobs, 12.3 s** (the pre-V2
+baseline was 9,294 / 13.6 s — exactly +9 jobs, the nine leaves). Both consumers exit 0
+(71 s and 63 s). `#print axioms` on all eleven V2 headlines returns
+`[propext, Classical.choice, Quot.sound]`; no `sorry`. The checker's one-token mutation
+probe was run by the manager on `CoordinateRingDedekind.exists_eq_XYIdeal`
+(`P ≠ ⊥` → `P ≠ ⊤`): exactly `5804 identical / 1 mismatched / 0 missing`, reverted to
+`5805 / 0 / 0`.
+
+**What the wave bought.** The two Mazur gateways
+(`exists_pointEnd_eq_of_mem_isogenyEndSubring`, and its number-theoretic consumer
+`exists_sq_lt_four_mul_and_forall_exists_finrankAlong_eq`) and the Ribet-side
+completion of the odd-order Vélu quotient
+(`exists_veluFunctionFieldHom_pointMapOfPushforward_ker_eq_zmultiples`,
+`exists_veluPointHom_oddOrderSummingSet_of_isAlgClosed`), plus the separable
+principal-divisors interface at the pin names and the characteristic-free
+function-field principal divisors they need.
+
+**What the wave taught** (the generalizable part is folded into
+[../porting-playbook.md](../porting-playbook.md), the specifics are in
+[../CARRY-FORWARD.md](../CARRY-FORWARD.md) and
+[../topics/velu/TOPIC-V2-gateways-and-ribet.md](../topics/velu/TOPIC-V2-gateways-and-ribet.md §9)):
+
+- **`ucl` overstates, and the names it cannot see are the port's own.** Three closure
+  members priced at 1,246 / 911 / 58 lines were already in the port under other names,
+  and the shared "269-line" pair cost ≈15 lines. A `ucl`-only budget would have said
+  ≈4 k where the truth was 1.6 k.
+- **Co-import collisions are a class, invisible to every tool.** Two pairs of library
+  modules cannot be imported into one environment; they forced a separate consumer
+  file for SET-1 and cost its gateway zone a discharged instance.
+- **The reconciliation belongs in the file with no dependents**, and the build-ladder
+  tool answers that before a line is written (25 s vs 405 s).
+- **A definitions file's imports are its source list**, and a name-extraction regex is
+  an aid: `scoped instance` and a Greek-letter suffix both defeat it.
+
+**Remaining slice after V2** (unchanged, tracked and out of scope): the `PeriodPair`
+uniformization ladder gating `aeval_j_diag_eq_zero_of_finrankAlong_eq`; the
+`fullKernelHom` and `reduceHom`/reduction columns; the H6 base-change trio (all of its
+consumers are in the slice and reach FLT only through the parked node); and the
+far-end modular-polynomial bijection. The three collisions and the second private
+char-free norm formula in `PrincipalDivisors/Transcendence.lean` are the refactor
+round's work.
