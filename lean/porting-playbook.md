@@ -354,6 +354,17 @@ module.** Duplication detection is measurement, not inspection:
   which isolates the duplicate groups exactly. (`tools/deps/port_graph.py
   --blocks` is the port-side view; `tools/deps/port_advise.py` is the pre-port
   view.)
+- **The pre-port view is name-anchored, so "already in the port" is a lower bound.**
+  `port_advise`'s substitution test looks the port up by the *last name component*
+  (`by_name`), so a port declaration that does the same work under a different name
+  is invisible to it. A pin `S_` file routinely re-proves a prelude under its own
+  local names; when its names do not occur in the port, check the *statement* before
+  pricing the block. Two such pairs surfaced in the V3 wave alone
+  (`mk_mem_XYIdeal_iff_evalEval_eq_zero` ≡ the ported `mk_mem_XYIdeal_iff`;
+  `kw_addSeam_restrictAlong_eq_placeOfEquation_charFree` ≡ the ported
+  `es1a6_addSeam_restrictAlong_eq_placeOfEquation`), and a third — the second-order
+  `XYIdeal` block — forced a mid-set route amendment once its *closure* was
+  measured rather than its name list.
 - **Graph-node multiplicity undercounts copies.** A block with one graph node can
   ship five times because hidden exports carry their own copies; grep a
   distinctive marker lemma at file level. Quantify a dedup by *duplicate lines

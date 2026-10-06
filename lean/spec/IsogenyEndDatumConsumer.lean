@@ -33,12 +33,19 @@
     together (the same collision family as §2.1 — recorded in the module report);
   * zone 4 — gateway 2 (`IsogenyEndDatum/CharPolySquare.lean`) in hypothesis form
     (the non-integrality hypothesis has no concrete witness in the port), plus
-    non-vacuity instances of the `Ws13S7` pure-algebra prelude at concrete integers.
+    non-vacuity instances of the `Ws13S7` pure-algebra prelude at concrete integers;
+  * zone 5 — the V3 translation headline (`IsogenyEndDatum/TranslationAlgEquiv.lean`)
+    at `W1`, at the concrete nonzero point `R₁ = (0, 1)` and at `0`, and the resulting
+    `restrictAlong` identity fed through the ported `placeOfPoint` and
+    `Place.ord_restrictAlong` calculus.  Its module imports `DualEndData` (hence the
+    same `Engine` cone as zones 1–4), so the three gate instances are hypotheses
+    exactly as in zone 3.
 -/
 import FLTForHuman.WeierstrassCurve.Place.CoordinateRingDedekind
 import FLTForHuman.Elliptic.TorsionCardLight
 import FLTForHuman.WeierstrassCurve.IsogenyEndDatum.PointEndSubring
 import FLTForHuman.WeierstrassCurve.IsogenyEndDatum.CharPolySquare
+import FLTForHuman.WeierstrassCurve.IsogenyEndDatum.TranslationAlgEquiv
 import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
 import Mathlib.Analysis.Complex.Polynomial.Basic
 
@@ -174,5 +181,73 @@ example : (3 : AddMonoid.End ℤ) ∈ (⊥ : Subring (AddMonoid.End ℤ)) ↔
 example : ¬ ∃ a b : ℤ, b ≠ 0 ∧ a ^ 2 + 0 * a * b + 1 * b ^ 2 = 0 := by
   rintro ⟨a, b, hb, h⟩
   exact hb (Ws13S7.binaryQuadForm_pos_of_neg_disc (t := 0) (n := 1) (by norm_num) h).2
+
+-- Zone 5 (V3): the translation automorphism of `W.FunctionField` by a point and its
+-- action `placeOfPoint Q ↦ placeOfPoint (Q + R)` on the places
+-- (`WeierstrassCurve/IsogenyEndDatum/TranslationAlgEquiv.lean`). That module imports
+-- `DualEndData` (hence the `Engine` cone of zones 1–4), so the three gate instances
+-- are hypotheses exactly as in zone 3, and no zone may import the `RRSpace` cone.
+-- `Point.translateFF` and `Point.translateFF_zero` are `private` inside the module
+-- (pin-local, §3.2), so the zero case is exercised through the headline at `R = 0`
+-- rather than by name.
+
+/-- The point `(0, 1)` of `y² = x³ + 1` over `AlgebraicClosure ℚ`; it satisfies the
+equation (`1 = 0 + 1`) and has `2·1 ≠ 0`, hence is nonsingular, hence nonzero. -/
+abbrev R₁ : W1.toAffine.Point :=
+  WeierstrassCurve.Affine.Point.some 0 1 (by
+    rw [WeierstrassCurve.Affine.nonsingular_iff']
+    exact ⟨by rw [WeierstrassCurve.Affine.equation_iff']; norm_num [W1],
+      Or.inr (by norm_num [W1])⟩)
+
+example : R₁ ≠ 0 := WeierstrassCurve.Affine.Point.some_ne_zero _
+
+-- The characteristic-free headline at `W1`, at the concrete nonzero point `R₁`.
+example [GenusOnePlaceGate W1.toAffine] [GenusOnePlaceGate.IsCentred W1.toAffine]
+    [AbelTheorem W1.toAffine] (Q : W1.toAffine.Point) :
+    ∃ (τ : W1.toAffine.FunctionField ≃ₐ[AlgebraicClosure ℚ] W1.toAffine.FunctionField)
+      (hτ : τ.toAlgHom.toRingHom.IsIntegral),
+      (placeOfPoint Q).restrictAlong τ.toAlgHom hτ = placeOfPoint (Q + R₁) := by
+  obtain ⟨τ, hτ, h⟩ :=
+    WeierstrassCurve.Affine.exists_algEquiv_forall_restrictAlong_placeOfPoint_eq_add R₁
+  exact ⟨τ, hτ, h Q⟩
+
+-- The `R = 0` case: the restricted place is the place itself, which is
+-- `restrictAlong_algHomId` at the identity algebra equivalence (this is the content of
+-- the module's `private Point.translateFF_zero`).
+example [GenusOnePlaceGate W1.toAffine] [GenusOnePlaceGate.IsCentred W1.toAffine]
+    [AbelTheorem W1.toAffine] (Q : W1.toAffine.Point) :
+    ∃ (τ : W1.toAffine.FunctionField ≃ₐ[AlgebraicClosure ℚ] W1.toAffine.FunctionField)
+      (hτ : τ.toAlgHom.toRingHom.IsIntegral),
+      (placeOfPoint Q).restrictAlong τ.toAlgHom hτ = placeOfPoint Q := by
+  obtain ⟨τ, hτ, h⟩ :=
+    WeierstrassCurve.Affine.exists_algEquiv_forall_restrictAlong_placeOfPoint_eq_add
+      (0 : W1.toAffine.Point)
+  exact ⟨τ, hτ, by simpa using h Q⟩
+
+-- The `[CharZero F]` sibling, derived from the general headline (both pin names must
+-- exist; `AlgebraicClosure ℚ` is characteristic zero).
+example [GenusOnePlaceGate W1.toAffine] [GenusOnePlaceGate.IsCentred W1.toAffine]
+    [AbelTheorem W1.toAffine] :
+    ∃ (τ : W1.toAffine.FunctionField ≃ₐ[AlgebraicClosure ℚ] W1.toAffine.FunctionField)
+      (hτ : τ.toAlgHom.toRingHom.IsIntegral),
+      ∀ Q : W1.toAffine.Point,
+        (placeOfPoint Q).restrictAlong τ.toAlgHom hτ = placeOfPoint (Q + R₁) :=
+  WeierstrassCurve.Affine.exists_algEquiv_restrictAlong_placeOfPoint_eq_add R₁
+
+-- The identity fed into the ported place calculus: `Place.ord_restrictAlong` transports
+-- the `ord`-at-`placeOfPoint Q` of `τ f` to the `ord`-at-`placeOfPoint (Q + R₁)` of `f`,
+-- up to the ramification index of `τ`. Deleting the new module breaks this rewrite.
+example [GenusOnePlaceGate W1.toAffine] [GenusOnePlaceGate.IsCentred W1.toAffine]
+    [AbelTheorem W1.toAffine] (Q : W1.toAffine.Point) (f : W1.toAffine.FunctionField) :
+    ∃ (τ : W1.toAffine.FunctionField ≃ₐ[AlgebraicClosure ℚ] W1.toAffine.FunctionField)
+      (_hτ : τ.toAlgHom.toRingHom.IsIntegral),
+      (placeOfPoint Q).ord (τ.toAlgHom f)
+        = AlgebraicCurve.Place.ramificationIndexAlong τ.toAlgHom (placeOfPoint Q)
+            * (placeOfPoint (Q + R₁)).ord f := by
+  obtain ⟨τ, hτ, h⟩ :=
+    WeierstrassCurve.Affine.exists_algEquiv_forall_restrictAlong_placeOfPoint_eq_add R₁
+  exact ⟨τ, hτ,
+    (AlgebraicCurve.Place.ord_restrictAlong (φ := τ.toAlgHom) (hφ := hτ)
+      (w := placeOfPoint Q) (f := f)).trans (by rw [h Q])⟩
 
 end IsogenyEndDatumConsumer

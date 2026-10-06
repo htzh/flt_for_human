@@ -1578,3 +1578,79 @@ consumers are in the slice and reach FLT only through the parked node); and the
 far-end modular-polynomial bijection. The three collisions and the second private
 char-free norm formula in `PrincipalDivisors/Transcendence.lean` are the refactor
 round's work.
+
+## V3 — the translation automorphism of the function field (2026-10-06)
+
+**Result.** One new module and one appended consumer zone; checker
+`5805 → 5807 identical` (311 promoted unchanged), `0 mismatched / 0 missing`, 36
+own-proof exempted, 5,843 checked; whole-module `lake build` green (9,024 jobs,
+160.6 s under `flock`); consumer exit 0; both headlines
+`[propext, Classical.choice, Quot.sound]`; no `sorry`. The two sibling headlines of
+`TOPIC-V3-translation-place-action.md` §0 are one theorem: the wrappers differ by
+one instance and both pin `solution` bodies are the same characteristic-free proof.
+
+Modules: new `WeierstrassCurve/IsogenyEndDatum/TranslationAlgEquiv.lean` (1,123
+lines, one import `…IsogenyEndDatum.DualEndData`, 54 `private` + the two public
+headlines), `spec/IsogenyEndDatumConsumer.lean` 178 → 253 (zone 5 = 68 lines).
+
+| round | cone | `lake env lean` wall / user / sys |
+|---|---|---|
+| recon `#check` sweep | `Engine` | 23.7 / 2.6 / 6.7 |
+| taylor + ord batch (errors) | `Engine` | 5.2 |
+| + `kwTISD*`, ord chain (2 errors) | `Engine` | 36.7 |
+| full module after the amendment (24 errors) | `DualEndData` | 115.3 |
+| full module, clean | `DualEndData` | **149.0 / 80.2 / 38.0** |
+| `lake build`, `flock`ed | `DualEndData` | **160.6 / 90.9 / 48.6** |
+| axioms probe | `DualEndData` | 59.4 / 4.6 / 17.5 |
+| consumer (manager re-run) | `DualEndData` | **70.4 / 6.2 / 19.8**, exit 0 |
+
+**The route amendment is the wave's finding.** The order first said `import …Engine`
+and transcribe the pin's block privately. The dependency closure of the pin's new
+chain (L3320–4272) reaches exactly two declarations the port holds only in
+`DualEndData` — `ord_ofHeightOneSpectrum_eq_neg_log` and
+`ord_placeOfEquation_XClass_self` — and the second drags in `XClass_notMem_XYIdeal_sq`
+and its five-lemma support chain. There is no shortcut: the new chain's own
+generalization `kw_taseq_ord_ge_of_mem_XYIdeal_pow_charFree` gives only the lower
+bound from `XYIdealⁿ` membership. On the `Engine` cone that chain is ~130 lines of
+private duplication; on the `DualEndData` cone it is one import, at 1 m 21 s per
+check against 23.5 s. The worker had written the duplication by line 319 of 319
+when the amendment landed, and deleting it was exact.
+
+**Friction, as it happened.**
+
+1. **`port_advise`'s substitution test is name-anchored** (`by_name` on the last
+   name component), so "already in the port" is a **lower bound**. Two declarations
+   the order expected to transcribe are ported under other names:
+   `mk_mem_XYIdeal_iff_evalEval_eq_zero` ≡ `Place/Dictionary.lean:567`
+   `mk_mem_XYIdeal_iff`, and `kw_addSeam_restrictAlong_eq_placeOfEquation_charFree`
+   ≡ `IsogenyEndDatum/Engine.lean:979` `es1a6_addSeam_restrictAlong_eq_placeOfEquation`
+   (same statement, same proof). A name sweep is an aid; check the statement.
+2. **Span estimates overstate a pin `S_` file.** `Point.translateFF_zero` is a
+   one-line `rfl` carrying a 101-line span of `p2m_reactivate` lines and empty
+   `section … end` stubs (`Pullback`, `MillerGen`, `DivisorWeil`, `TorsionWrapper`).
+   Price from declarations, not from spans.
+3. **Dropping the pin's empty section skeleton is not free.** The two
+   `kw_ord_*_sub_add*_pos` lemmas take `p q : F` from a section head; without the
+   skeleton they need an explicit `variable {p q : F}`. Cost: 24 errors and one
+   115 s round.
+4. **Two pin-local tactics/APIs do not transpose.** `C_simp` is pin-local and was
+   inlined as `simp only [map_ofNat, C_0, C_1, C_neg, C_add, C_sub, C_mul, C_pow]`;
+   `Submodule.pow_mem_pow`'s first explicit argument is the submodule on v4.34.0,
+   so `mk_taylorRemainder₂_mem_XYIdeal_sq` uses
+   `simpa only [sq] using Ideal.mul_mem_mul hX hX`.
+5. **`Place.ramificationIndexAlong` takes an `AlgHom`, not the `AlgEquiv`** — the
+   consumer's `.trans` had to pass `τ.toAlgHom`.
+6. **A private declaration cannot be exercised by name from `spec/`.** §3.3 of the
+   order asked the consumer to "check `Point.translateFF_zero`"; it is `private` per
+   §3.2, so the zero case is discharged through the headline at `R = 0` (which is
+   `restrictAlong_algHomId`). Deviation from the wording, not the intent.
+7. **The pin's `maxHeartbeats 3200000` / `25600000` and
+   `synthInstance.maxHeartbeats 1600000` bumps and the unused
+   `variable [HasPrincipalDivisors F W.FunctionField]` were all dropped**; the
+   global 4,000,000 cap was not touched and nothing blew it.
+
+**Refactor item carried forward.** The second-order `XYIdeal` block
+(`derivative_polynomial` … `XClass_notMem_XYIdeal_sq`, `ord_placeOfEquation_XClass_self`)
+and `ord_ofHeightOneSpectrum_*` now have two cones that need them and live in the
+`DualEndData` hub. Extracting them to `Place/` would let this module drop its 8.1 MB
+import. Registered in [../CARRY-FORWARD.md](../CARRY-FORWARD.md).

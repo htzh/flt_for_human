@@ -2145,6 +2145,17 @@ SOURCES = [
     "Theorems/Thm_WeierstrassCurve_exists_veluPointHom_oddOrderSummingSet_of_isAlgClosed.lean",
     "P2M/Sol/S_WeierstrassCurve_exists_veluFunctionFieldHom_pointMapOfPushforward_ker_eq_zmultiples.lean",
     "P2M/Sol/S_WeierstrassCurve_exists_veluPointHom_oddOrderSummingSet_of_isAlgClosed.lean",
+    # --- V3 (the translation automorphism of the function field by a point, and its
+    # action on the places). The two `Theorems/` wrappers are the statement authority
+    # and are appended last so no earlier last-name match can flip. The two `S_` files
+    # are deliberately *not* listed: every helper this module carries beyond the
+    # headlines is `private`, so the checker never reads them, and both files carry
+    # the same 188 declaration names. The `DualEndData`-resident prerequisites the
+    # module imports (`ord_placeOfEquation_XClass_self`,
+    # `AlgebraicCurve.Place.ord_ofHeightOneSpectrum_eq_neg_log`, …) are already
+    # covered by the `DualEndData` entry in `PORT_FILES`.
+    "Theorems/Thm_WeierstrassCurve_Affine_exists_algEquiv_restrictAlong_placeOfPoint_eq_add.lean",
+    "Theorems/Thm_WeierstrassCurve_Affine_exists_algEquiv_forall_restrictAlong_placeOfPoint_eq_add.lean",
 ]
 
 PORT_FILES = [
@@ -3018,6 +3029,13 @@ PORT_FILES = [
     "FLTForHuman/WeierstrassCurve/PrincipalDivisorsSeparable.lean",
     "FLTForHuman/WeierstrassCurve/Isogeny/PointMapSurjective.lean",
     "FLTForHuman/WeierstrassCurve/Velu/PointMapOddOrder.lean",
+    # --- V3: the translation automorphism of `W.FunctionField` by a point and its
+    # action on the places. The two headlines are the only public declarations, so
+    # only they are diffed; every helper (the taylor block, the single
+    # `ord_ofHeightOneSpectrum_algebraMap_eq_zero` leaf and the whole `kw_*` chain)
+    # is `private`. It imports `IsogenyEndDatum/DualEndData.lean`, whose cone supplies
+    # `Engine`, `Velu/Engine` and `Place/Dictionary`. Appended last.
+    "FLTForHuman/WeierstrassCurve/IsogenyEndDatum/TranslationAlgEquiv.lean",
 ]
 
 

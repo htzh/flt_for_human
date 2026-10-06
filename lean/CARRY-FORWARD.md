@@ -118,10 +118,12 @@ entry.
   binders as the pin does (a `variable` form is elaboration-equivalent but not
   text-equal, which is what the checker diffs) and re-home or rename `smulData`.
 - **`WeierstrassCurve.Affine.hasPrincipalDivisors_functionField_of_two_ne_zero_or`**
-  (147 raw, pin `aa2d8b3`) already decomposes along the two prerequisite nodes
-  this port took (`adjoin_yCoord_eq_top`, `finiteDimensional_ratFunc_functionField`),
-  but cites `AlgebraicCurve.hasPrincipalDivisors_of_finiteDimensional_ratFunc_of_isSeparable`
-  instead of the char-zero transfer. Check that route when the node is taken.
+  (147 raw, pin `aa2d8b3`, with its `…_of_isElliptic` corollary). **Landed in V2
+  SET-2** at `WeierstrassCurve/PrincipalDivisorsSeparable.lean:158`/`:172`, on the
+  pin's own route: it cites the ported
+  `AlgebraicCurve.hasPrincipalDivisors_of_finiteDimensional_of_isSeparable`, and the
+  char-zero transfer the earlier caution worried about was not needed. The open item
+  in this bullet is the char-free norm formula beneath it.
   **Update 2026-10-04:** the Vélu `restrictAlong` headline needed the same
   char-free ingredient and transcribed it `private` into
   `WeierstrassCurve/Velu/RestrictAlong.lean`: the pin's
@@ -137,40 +139,81 @@ entry.
   — because the pin exposes that interface publicly and the port had hidden it.
   What remains private is the char-free fibre-centre norm formula — it existed as
   **two** `private` copies (this file's and
-  `PrincipalDivisors/Transcendence.lean`'s). **Resolved 2026-10-06 (V2 SET-2):** the
-  pin-`private`-to-public promotion was done additively in
-  `WeierstrassCurve/Velu/RestrictAlong.lean` (+39/−0): the pin names
+  `PrincipalDivisors/Transcendence.lean`'s), written twice byte-identically: the
+  29-line `ord_norm_eq_sum_fiberOver` and the 17-line
+  `pushforwardNormFormula_of_finiteDimensional` are the same text at
+  `Transcendence.lean:309`/`:345` and `Velu/RestrictAlong.lean:1713`/`:1749`.
+  **Resolved 2026-10-06 (V2 SET-2):** the pin-`private`-to-public promotion was done
+  additively in `WeierstrassCurve/Velu/RestrictAlong.lean` (+39/−0): the pin names
   `AlgebraicCurve.Divisor.pushforwardNormFormula_of_isSeparable` and
   `AlgebraicCurve.normFormulaAlong_of_separableAlong` are now public wrappers over
   that file's two privates, which stay as the proof bodies. No third copy was
-  written and no other module was edited. `Transcendence.lean`'s copy is still
-  private; promoting it too would cost a 52-module cascade (measured), so leave it —
-  the public home now exists in the RestrictAlong module.
+  written and no other module was edited. (The char-zero pin name
+  `AlgebraicCurve.Divisor.pushforwardNormFormula` is separately public over the
+  `Transcendence.lean` private, at `:371`.) The duplicate cannot be retired by
+  pointing `Transcendence.lean` at the new public home: `Velu/RestrictAlong.lean`
+  already reaches `Transcendence.lean`, so that call would be a cycle. Retiring it
+  means extracting the char-free fibre-centre norm formula into a module **below**
+  `Transcendence.lean` and rebuilding that cone once (a 52-module cascade,
+  measured); until then both private bodies stay.
 
 - **Co-import collisions in the `IsogenyEndDatum` / Vélu cones (found 2026-10-06,
-  while porting V2).** Two name collisions make pairs of library modules
-  **unimportable together**; both are latent (nothing in the library imports the
-  pairs, so the tree is green) and both cost the V2 consumers a real test:
+  while porting V2).** Name collisions make several pairs of library modules
+  **unimportable together**; all are latent (nothing in the library imports a pair,
+  so the tree is green) and they cost the V2 consumers real tests. The `Engine` cone
+  cannot meet `Velu/RestrictAlong.lean`, `Place/RRSpace.lean`, or
+  `GenusOnePlaceGateCentred.lean` (which reaches `RRSpace`):
   - `WeierstrassCurve.Affine.normFormulaAlong_of_elliptic` is declared in **both**
-    `FLTForHuman/WeierstrassCurve/IsogenyEndDatum/Engine.lean` (the H5 copy,
-    `[IsAlgClosed F] [CharZero F]`) and
-    `FLTForHuman/WeierstrassCurve/Velu/RestrictAlong.lean` (the H4 char-free copy
-    with an explicit `hsep`). `lake env lean` on a file importing both fails with
-    *environment already contains …*. This is why SET-1's consumer is a separate
+    `FLTForHuman/WeierstrassCurve/IsogenyEndDatum/Engine.lean` (`[IsAlgClosed F]
+    [CharZero F]`, no `hsep`) and
+    `FLTForHuman/WeierstrassCurve/Velu/RestrictAlong.lean` (char-free, explicit
+    `hsep`). The two statements are a special case and a general case of one result:
+    the char-free copy yields the H5 copy once `SeparableAlong F ι` is supplied —
+    exactly what the H5 proof derives from `[IsAlgClosed F] [CharZero F]`. Both copies
+    match their respective pin `S_` files, so both declarations are needed, but no
+    environment can hold them together. This is why SET-1's consumer is a separate
     `spec/IsogenyEndDatumConsumer.lean` (Engine cone) and SET-2's zones stay in
     `spec/WeierstrassCurveConsumer.lean` (RestrictAlong cone).
   - `WeierstrassCurve.Affine.instInfinitePlace` is a plain instance at
     `IsogenyEndDatum/Engine.lean:90` and a `scoped instance` at
-    `WeierstrassCurve/Place/RRSpace.lean:444`, so
-    `WeierstrassCurve/GenusOnePlaceGateCentred.lean` (which imports `RRSpace`) cannot
-    be imported alongside `Engine.lean`. SET-1's consumer therefore states the three
-    gate instances as hypotheses rather than discharging them from
-    `exists_genusOnePlaceGate_isCentred_and_abelTheorem`.
+    `WeierstrassCurve/Place/RRSpace.lean:444`. They are not interchangeable: the
+    Engine one builds `place` from `placeOfPoint 0` under the genus-one gate, the
+    RRSpace one from `exists_not_isFinitePlace` under Dedekind +
+    `HasPrincipalDivisors`, and the two are only *provably* equal (through
+    `InfinitePlace.eq_of_not_isFinitePlace`), not definitionally. SET-1's consumer
+    therefore states the three gate instances as hypotheses rather than discharging
+    them from `exists_genusOnePlaceGate_isCentred_and_abelTheorem`.
+    **`scoped`/`local` do not avoid the clash** — both still export
+    `WeierstrassCurve.Affine.instInfinitePlace` (verified); only renaming one
+    declaration, or keeping a single one, lets the cones meet. `private` *does* avoid
+    it (Lean mangles the name), which is why the duplicated private proofs above
+    coexist.
+
   A refactor round should keep **one** public `normFormulaAlong_of_elliptic` (the H5
-  copy is used by six declarations across `Engine`/`DualEndData`; the H4 copy has one
-  internal caller) and make the second `instInfinitePlace` agree (one plain, one
-  `scoped`/`local`) so the two cones can meet. Both are frozen-module edits: price
-  them with `tools/deps/build_ladder.py --edit`, not inline.
+  copy is used by six declarations across `Engine`/`DualEndData`; the H4 copy by one
+  internal caller, and the H4 statement is the general one) and rename the other, and
+  rename one `instInfinitePlace`. Both are frozen-module edits: price them with
+  `tools/deps/build_ladder.py --edit`, not inline, and move the affected consumer
+  zones with the renamed pin name (the checker matches by last name).
+
+- **The second-order `XYIdeal` block belongs lower in the DAG (found 2026-10-06, while
+  porting V3).** `IsogenyEndDatum/DualEndData.lean` carries the generic
+  second-order-at-a-point development — `derivative_polynomial`,
+  `evalEval_eq_zero_of_mem_span`, `evalEval_derivative_eq_zero_of_mem_span_sq`,
+  `exists_eq_add_mul_polynomial_of_mem_XYIdeal_sq`, `X_sub_C_dvd_eval_of_mem_span`,
+  `X_sub_C_sq_dvd_eval_of_mem_span_sq`, `XClass_notMem_XYIdeal_sq`,
+  `ord_placeOfEquation_XClass_self`, and the `ord_ofHeightOneSpectrum_*` family
+  (`:1134`, `:1360`, `:1387`–`:1478`). None of it is `IsogenyEndDatum`-specific, and
+  the V3 node `WeierstrassCurve.Affine.exists_algEquiv_restrictAlong_placeOfPoint_eq_add`
+  needs two members of it (`ord_ofHeightOneSpectrum_eq_neg_log` and
+  `ord_placeOfEquation_XClass_self`, the latter dragging in the five-lemma support
+  chain). The choice was to import the hub — `TranslationAlgEquiv.lean`'s only import,
+  at **1 m 21 s** fixed per `lake env lean` check against 23.5 s for the `Engine`-only
+  cone — or to duplicate ~130 lines privately; the import was taken. **Trigger for the
+  refactor**: when a third cone needs the block, extract it to a module under `Place/`
+  (below `DualEndData`, which then imports it) and drop `TranslationAlgEquiv.lean`'s
+  heavy import. Price the move with `build_ladder.py --edit DualEndData.lean`
+  (5 modules / ≈119 s) plus the new home's dependents.
 
 ## Scoping cautions
 
