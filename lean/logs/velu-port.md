@@ -1858,3 +1858,103 @@ before the cached re-run.
    `latticeDisc_eq_weierstrassCurve_Δ`. `weierstrassP_of_lattice_eq`, which has no
    `scale`-spelled counterpart, is promoted to the home (public) rather than left
    private in `FrickeFunction.lean`.
+
+## P-SET-2 — the `PeriodPair` `j`-line (close-out, 2026-10-06)
+
+**Scope.** The subject's second row: `PeriodPair.jLattice_ofTau`
+(`(ofTau τ).jLattice = E₄ τ ^ 3 / Δ τ`) and `PeriodPair.jLattice_surjective`
+(`PeriodPair.JSurjective`: every complex number is the `j`-invariant of a lattice).
+Pin `anthropics/fermats-last-theorem@aa2d8b3`; mathlib `v4.34.0`. Two new modules and
+one promotion:
+
+```
+ModularForms/JInvariant.lean            NEW — the neutral home of `ModularForm.j` /
+                                        `ModularForm.j_surjective` (40 lines)
+  └─ Elliptic/PeriodPair/JLine.lean     NEW — the two headlines + the `kw_`-stripped
+                                        `jLattice_ofTau_eq` (90 lines); imports
+                                        `JInvariant` upward (leaf: diamond, not cycle)
+ModularForms/WeightOne/LevelField.lean  EDITED — `WLight.j` / `WLight.j_surjective`
+                                        become one-line shims over `ModularForm.*`
+```
+
+**The scout's finding, and why this is 130 lines and not 1,264.** The pin's
+`S_PeriodPair_jLattice_surjective.lean` (1,054 lines) proves `j`-surjectivity itself,
+by the `E₄³ − c·Δ` pencil argument: `kwQepw115c_jH_surjective` and the
+`kwQepw123c_*` / `kwQepw124b_*` / `kwQepw129c_*` / `kwQepw116c_*` / `kwQepw117c_*` /
+`kwQepw119c_*` / `kwQepw121c_*` scaffolding (≈45 declarations). **All of it is already
+in the port**: the third conjunct of the landed `WLight.levelOne_hauptmodul_package` is
+exactly `Function.Surjective (fun τ : ℍ => E₄ τ ^ 3 / Δ τ)`, and `LevelField.lean` named
+it `WLight.j_surjective`. The pin's `S_PeriodPair_jLattice_ofTau.lean` (210 lines) is
+`kw_jLattice_ofTau_eq` plus the already-ported `kw_g₂_ofTau` / `kw_g₃_ofTau` /
+`kw_discriminant_ofTau_eq`. `port_advise`/`port_plan` priced the pair at 796 net-new
+lines; the actual port is 130 written lines, the pin's proof body replaced by three
+short derivations. The pin's `kw_E4cube*` q-expansion block is mathlib's
+`ModularForm.discriminant_eq_E₄_cube_sub_E₆_sq`.
+
+**Promotion out of `WLight`.** `j` / `j_surjective` are generic level-one facts, not
+weight-one-package API, so they moved to the neutral `ModularForm` namespace in the new
+`ModularForms/JInvariant.lean`; `LevelField.lean` keeps the pin names as shims
+(`def j : ℍ → ℂ := ModularForm.j`, `theorem j_surjective := ModularForm.j_surjective`),
+so `LevelN.lean` and the ~20 in-file uses are untouched. This inverts the P-1b
+directory direction on purpose: `JLine.lean` (a leaf in `Elliptic/PeriodPair/`) imports
+the neutral modular-forms module, which imports `WeightOne`; nothing imports `JLine`,
+so the graph is a diamond, not a cycle, and the pin's `PeriodPair.*` statements stay in
+their directory.
+
+**Measured table.**
+
+| | pin raw | port |
+|---|---:|---:|
+| `S_PeriodPair_jLattice_ofTau.lean` | 210 | `JLine.lean` (90) — both headlines + `jLattice_ofTau_eq` |
+| `S_PeriodPair_jLattice_surjective.lean` | 1,054 | reused wholesale from `levelOne_hauptmodul_package`; not re-proved |
+| neutral `j` / `j_surjective` | — | `JInvariant.lean` (40) |
+| `WLight.j` / `WLight.j_surjective` | 2 decls | shims in `LevelField.lean` |
+
+Public declarations landed (all `private` otherwise, `ofTau_discriminant_eq`):
+`ModularForm.j`, `ModularForm.j_surjective`, `PeriodPair.jLattice_ofTau_eq`,
+`PeriodPair.jLattice_ofTau`, `PeriodPair.jLattice_surjective`.
+
+**Checker wiring.** Four `SOURCES` entries for the j-line (wrappers before `S_` files:
+`Thm_PeriodPair_jLattice_ofTau`, `S_PeriodPair_jLattice_ofTau`,
+`Thm_PeriodPair_jLattice_surjective`, `S_PeriodPair_jLattice_surjective`) and two
+`PORT_FILES` (`ModularForms/JInvariant.lean`, `Elliptic/PeriodPair/JLine.lean`),
+appended last. Baseline P-1b: `5864 identical (313 promoted, 4 renamed), 0 mismatched,
+0 missing, 36 own, 5900 checked` → **`5869 identical (313 promoted, 5 renamed), 0
+mismatched, 0 missing, 36 own, 5905 checked`**. The **+5** is exactly the five new
+public declarations; the new `RENAMED` row is
+`PeriodPair.jLattice_ofTau_eq → P2MW.S_PeriodPair_jLattice_ofTau.PeriodPair.kw_jLattice_ofTau_eq`,
+the first promotion at the no-`kw` stripped name (the checker already followed the new
+convention).
+
+**Consumer and axioms.** `spec/PeriodPairConsumer.lean` gains zone 4:
+`jLattice_ofTau` at `(I, 1)` feeding `ModularForm.j`, the `jLattice_ofTau_eq` spelling,
+`jLattice_surjective 0`, and `ModularForm.j_surjective 1728`; exit 0 (4.0 s).
+`#print axioms` on `PeriodPair.jLattice_ofTau` and `PeriodPair.jLattice_surjective`:
+`[propext, Classical.choice, Quot.sound]`; no `sorry`.
+
+**Builds.** Wave whole-tree `flock .lake/flt_build.lock lake build` **9310 jobs, green,
+4 m 37.7 s wall** (13 m 58 s user, 1 m 17 s sys); cached milestone **9310 jobs, 9.3 s**.
+The +2 jobs over P-1b's 9308 are the two new modules; the cascade is `LevelField.lean` →
+`LevelN` and its dependents (the two shims' statements are unchanged, so the checker
+verdict on them did not move).
+
+**Friction / deviations.**
+
+1. **The checker's statement diff is textual, not elaborated.** Three declarations had
+   to be re-spelled to the *source the checker should match*: the headlines must use the
+   wrapper's `PeriodPair.ofTau` / `PeriodPair.JSurjective` qualification (the `norm`
+   pass strips only `ModularCurve.` / `AlgebraicCurve.`), while the stripped promotion
+   `jLattice_ofTau_eq` must mirror the `S_` file's unqualified `ofTau` / `E₄` / `E₆`.
+   The first draft mixed them and produced 3 mismatches / 1 missing.
+2. **A `def` alias must keep the pin's binder shape.** The generic `j` first went in as
+   `def j (τ : ℍ) : ℂ`, which the checker read as `(τ : ℍ) : ℂ` against the pin's
+   `def j : ℍ → ℂ`; the port now writes the pin's `def j : ℍ → ℂ := fun τ => …`.
+3. **`def` vs `abbrev` matters at a promotion.** The shim could not be an `abbrev`
+   (`WLight.j`'s pin kind is `def`), so `LevelField.lean` keeps a real `def`; the one
+   `simp only [j]` site became `simp only [j, ModularForm.j]` to see through it.
+4. **The `PeriodPair` ladder is on the D-S capstone cone.** `frontier.py --target
+   DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen` lists 14 unported
+   `PeriodPair.*` nodes / 9,071 lines, `jLattice_surjective` among them (reached through
+   `eval_modularPolynomial_map_j_eq_zero_of_isAddCyclic_ker_pointMapOfPushforward` →
+   `exists_variableChange_smul_weierstrassCurve_eq`), correcting the CARRY-FORWARD
+   reading that the 54-target D-S slice had no `PeriodPair` node.

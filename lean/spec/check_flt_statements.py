@@ -2175,6 +2175,18 @@ SOURCES = [
     "P2M/Sol/S_PeriodPair_discriminant_ne_zero.lean",
     "Theorems/Thm_PeriodPair_isUniformization_toPoint.lean",
     "P2M/Sol/S_PeriodPair_isUniformization_toPoint.lean",
+    # --- P-SET-2 (the `PeriodPair` `j`-line). The two `Theorems/` wrappers are the
+    # statement authority (playbook §4.1); the two `S_` files carry the pin-private
+    # helpers and the `kwQepw*` pencil scaffolding the wrappers do not. The pin's
+    # `kw_jLattice_ofTau_eq` is promoted at the `kw_`-stripped name
+    # `PeriodPair.jLattice_ofTau_eq` (verified through the §2.1 `stripped_source`
+    # fallback); the pin's `kwQepw115c_jH_surjective` (the hard core of the second
+    # node) is not re-proved — it is the landed `ModularForm.j_surjective`. Appended
+    # last so no earlier last-name match can flip.
+    "Theorems/Thm_PeriodPair_jLattice_ofTau.lean",
+    "P2M/Sol/S_PeriodPair_jLattice_ofTau.lean",
+    "Theorems/Thm_PeriodPair_jLattice_surjective.lean",
+    "P2M/Sol/S_PeriodPair_jLattice_surjective.lean",
 ]
 
 PORT_FILES = [
@@ -3077,6 +3089,21 @@ PORT_FILES = [
     "FLTForHuman/Elliptic/PeriodPair/Lattice.lean",
     "FLTForHuman/Elliptic/PeriodPair/Discriminant.lean",
     "FLTForHuman/Elliptic/PeriodPair/Uniformization.lean",
+    # --- P-SET-2: the `PeriodPair` `j`-line. Two modules. `ModularForms/JInvariant.lean`
+    # is the neutral home of the generic level-one `j`-invariant and its surjectivity
+    # (`ModularForm.j` / `ModularForm.j_surjective`), promoted out of the weight-one
+    # package namespace `WLight`: both are level-one modular-form mathematics, not
+    # `WLight` API, and `LevelField.lean` now keeps the pin's `WLight.j` /
+    # `WLight.j_surjective` as one-line shims over them (same names, same statements,
+    # so the weight-one consumers are untouched). `Elliptic/PeriodPair/JLine.lean`
+    # carries the two pin headlines `PeriodPair.jLattice_ofTau` /
+    # `PeriodPair.jLattice_surjective` plus the `kw_`-stripped
+    # `PeriodPair.jLattice_ofTau_eq`; every other helper is `private`. It imports
+    # `ModularForms/JInvariant.lean` upward (a leaf: diamond, not cycle) and only
+    # downward otherwise, so no set cascades. Appended last so no earlier last-name
+    # match can flip.
+    "FLTForHuman/ModularForms/JInvariant.lean",
+    "FLTForHuman/Elliptic/PeriodPair/JLine.lean",
 ]
 
 

@@ -1,11 +1,13 @@
 /-
-  Cross-module wire test for P-SET-1 (the `PeriodPair` uniformization core).
+  Cross-module wire test for P-SET-1 and P-SET-2 (the `PeriodPair` uniformization
+  core and the `j`-line).
 
-  A `spec/` probe, not a library module.  It imports all three new modules
-  (`Basic.lean`, `Discriminant.lean`, `Uniformization.lean`) and each zone is a real,
-  executed composition; deleting any one module makes this file fail (the concrete
-  pair `L` needs `Basic`, `L_discriminantNeZero` needs `Discriminant`, and zone 3
-  needs `Uniformization`).
+  A `spec/` probe, not a library module.  It imports the new modules
+  (`Basic.lean`, `Discriminant.lean`, `Uniformization.lean`, `JLine.lean`,
+  `ModularForms/JInvariant.lean`) and each zone is a real, executed composition;
+  deleting any one module makes this file fail (the concrete pair `L` needs `Basic`,
+  `L_discriminantNeZero` needs `Discriminant`, zone 3 needs `Uniformization`, and
+  zone 4 needs `JLine` and `JInvariant`).
 
   Zones (no `#check`, no `sorry`):
 
@@ -18,11 +20,18 @@
   * zone 3 — `PeriodPair.isUniformization_toPoint` with `h` discharged from
     `discriminant_ne_zero`: the additivity conjunct gives a concrete `toPoint`
     identity, the surjectivity conjunct gives a preimage of `0`, and the kernel
-    conjunct is exercised non-vacuously at `z = 0`.
+    conjunct is exercised non-vacuously at `z = 0`;
+  * zone 4 (P-SET-2, the `j`-line) — `PeriodPair.jLattice_ofTau` at `(I, 1)` feeding
+    the neutral `ModularForm.j`, the pin's `jLattice_ofTau_eq` spelling,
+    `PeriodPair.jLattice_surjective` at a concrete value, and
+    `ModularForm.j_surjective` directly.  Deleting `JLine.lean` breaks the first
+    three, deleting `ModularForms/JInvariant.lean` breaks the fourth and the first.
 -/
 import FLTForHuman.Elliptic.PeriodPair.Basic
 import FLTForHuman.Elliptic.PeriodPair.Discriminant
 import FLTForHuman.Elliptic.PeriodPair.Uniformization
+import FLTForHuman.Elliptic.PeriodPair.JLine
+import FLTForHuman.ModularForms.JInvariant
 
 set_option autoImplicit false
 set_option linter.style.haveILetI false
@@ -85,6 +94,26 @@ example : ∃ z : ℂ, L.toPoint L_discriminantNeZero z = 0 :=
 example : (0 : ℂ) ∈ L.lattice :=
   (PeriodPair.isUniformization_toPoint L L_discriminantNeZero).2.2 0
     (PeriodPair.toPoint_zero L L_discriminantNeZero)
+
+-- Zone 4: the `j`-line (`JLine.lean` and the neutral `ModularForm.j_surjective`).
+
+example : L.jLattice = ModularForm.j UpperHalfPlane.I :=
+  PeriodPair.jLattice_ofTau UpperHalfPlane.I
+
+example : L.jLattice = 1728 * ModularForm.E₄ UpperHalfPlane.I ^ 3
+      / (ModularForm.E₄ UpperHalfPlane.I ^ 3 - ModularForm.E₆ UpperHalfPlane.I ^ 2) :=
+  PeriodPair.jLattice_ofTau_eq UpperHalfPlane.I
+
+/-- `jLattice_surjective` non-vacuously: `0` is a `j`-invariant. -/
+example : ∃ L' : PeriodPair, L'.DiscriminantNeZero ∧ L'.jLattice = 0 :=
+  PeriodPair.jLattice_surjective 0
+
+/-- The generic `j`-surjectivity, from `ModularForms/JInvariant.lean`. -/
+example : ∃ τ : ℍ, ModularForm.j τ = (1728 : ℂ) :=
+  ModularForm.j_surjective 1728
+
+#print axioms PeriodPair.jLattice_ofTau
+#print axioms PeriodPair.jLattice_surjective
 
 #print axioms PeriodPair.discriminant_ne_zero
 #print axioms PeriodPair.isUniformization_toPoint

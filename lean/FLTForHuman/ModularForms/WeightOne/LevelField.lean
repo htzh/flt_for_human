@@ -11,6 +11,7 @@
 import FLTForHuman.ModularForms.WeightOne.Basic
 import FLTForHuman.ModularForms.WeightOne.MonicRel
 import FLTForHuman.ModularForms.WeightOne.LevelOneHauptmodul
+import FLTForHuman.ModularForms.JInvariant
 import FLTForHuman.ModularForms.WeightOne.FrickeFunction
 import FLTForHuman.ModularForms.WeightOne.LevelFraction
 import Mathlib.Algebra.Algebra.Hom.Rat
@@ -71,10 +72,15 @@ open _root_.PeriodPair _root_.ModularForm _root_.CuspForm _root_.ModularForm.Cus
 open scoped _root_.PeriodPair _root_.ModularForm _root_.CuspForm _root_.ModularForm.CuspForm
 open UpperHalfPlane hiding I
 
-def j : ℍ → ℂ := fun z => E₄ z ^ 3 / ModularForm.discriminant z
+/-- The pin's `WLight.j`, a shim over the generic `ModularForm.j`
+(`FLTForHuman/ModularForms/JInvariant.lean`).  The mathematics is level-one and
+lives there; this name is kept for the pin and the weight-one consumers. -/
+def j : ℍ → ℂ := ModularForm.j
 
+/-- The pin's `WLight.j_surjective`, a shim over the generic
+`ModularForm.j_surjective`. -/
 theorem j_surjective : Function.Surjective j :=
-  levelOne_hauptmodul_package.2.2.1
+  ModularForm.j_surjective
 
 section B6_fixedFrac
 
@@ -288,7 +294,7 @@ lemma j_smul_eq (γ : SL(2, ℤ)) (τ : ℍ) : j (γ • τ) = j τ := by
     denom_mapGL_eq_denomZ] at h4 hΔ
   have hd : denomZ γ τ ≠ 0 := denomZ_ne_zero γ τ
   have hΔ0 : ModularForm.discriminant τ ≠ 0 := ModularForm.discriminant_ne_zero τ
-  simp only [j]
+  simp only [j, ModularForm.j]
   rw [h4, hΔ, zpow_ofNat, zpow_ofNat]
   field_simp
 

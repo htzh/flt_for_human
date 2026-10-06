@@ -257,28 +257,31 @@ are repeated in the playbook §2.1; keep the specific instances here.
   an API prelude makes the file's citers read as unblocked while the API is
   unported; the Weierstrass headline's place/RR/class-group API was such a case
   until it was ported.
-- **A "last tail node" can be the entry to an unported slice (found 2026-10-06,
-  after V4).** `IsogenyEndDatum.aeval_j_diag_eq_zero_of_finrankAlong_eq` reads as the
+- **A "last tail node" can be the entry to an unported slice (found 2026-10-06, after
+  V4; the U and J rows landed 2026-10-06).**
+  `IsogenyEndDatum.aeval_j_diag_eq_zero_of_finrankAlong_eq` reads as the
   one remaining Phase D item of the H5 column, and `port_advise` prices it at 51
   declarations with a single substitution (≈29 lines) — because the tool prices the
   target's *own* `S_` file. Its `S_` file imports `Def_PeriodPair_Uniformization` and
   five `Theorems/Thm_PeriodPair_*` nodes whose `S_` files total 5,127 lines, inside a
-  `PeriodPair` group the E-S scout measured at **9 nodes / 9,836 pin lines**. The
-  ladder is **not ported** (`jLattice`, `isUniformization_toPoint`, `rationalHomSet`,
-  `sublatticeQuotient`, `Def_PeriodPair_Uniformization` are absent from
-  `FLTForHuman`) and it is **not in the Deligne–Serre cone** — the 54-target D-S slice
-  has no `PeriodPair` node; the scout lists it as *shared uniformisation* between the
-  E-S driver and the Weierstrass column
-  ([../../studies/eichler-shimura-scout.md](../../studies/eichler-shimura-scout.md)
-  §3.1). Note also that the port's `ModularForms/WeightOne/Defs/PeriodPair.lean` is a
-  **different** object: the weight-one prelude `periodPairOfTau`/`smulPeriodPair` over
-  mathlib's `PeriodPair` struct, not the pin's uniformization API. Price a node by its
-  **unported closure**, never by `port_advise`'s own-file figure or by its column. The
-  follow-up measurement is in
+  `PeriodPair` group the E-S scout measured at **9 nodes / 9,836 pin lines**. Price a
+  node by its **unported closure**, never by `port_advise`'s own-file figure or by its
+  column. **Status.** The ladder's **U row** (the dictionary, `discriminant_ne_zero`,
+  `isUniformization_toPoint`) landed as P-SET-1 and its **J row** (`jLattice_ofTau`,
+  `jLattice_surjective`, plus the lattice prelude) as P-SET-2 —
+  `Elliptic/PeriodPair/{Basic,Lattice,Discriminant,Uniformization,JLine}.lean` and the
+  neutral `ModularForms/JInvariant.lean`; the remaining ladder is the S (seam/index) and
+  D (base-change/descent) rows. The j-line is on the `DeligneSerre` capstone cone
+  (`frontier.py --target DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen`
+  lists 14 unported `PeriodPair.*` nodes / 9,071 lines, `jLattice_surjective` among
+  them), contrary to the earlier reading that the 54-target D-S slice had no
+  `PeriodPair` node. The closure measurement is in
   [../topics/velu/TOPIC-V5-periodpair-uniformization.md](../topics/velu/TOPIC-V5-periodpair-uniformization.md):
-  the closure is genuine (15,179 lines, and the two classical theorems are on the path,
-  not prelude), it is ~4% of the remaining frontier, and the recommended first move is a
-  math scout rather than a work order.
+  15,179 lines, the two classical theorems on the path rather than prelude, ~4% of the
+  then-remaining frontier. Note that the port's
+  `ModularForms/WeightOne/Defs/PeriodPair.lean` is a **different** object: the weight-one
+  prelude `periodPairOfTau`/`smulPeriodPair` over mathlib's `PeriodPair` struct, not the
+  pin's uniformization API.
 - **The docs-site closure is inflated at the *proof* level too (found 2026-10-06).** The
   closure over the pin's citation graph puts `PeriodPair.isUniformization_toPoint`,
   `aeval_j_diag_eq_zero_of_finrankAlong_eq`, `functionFieldGeneration` and
