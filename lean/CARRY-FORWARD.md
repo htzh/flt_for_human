@@ -295,3 +295,24 @@ are repeated in the playbook §2.1; keep the specific instances here.
   proof's architecture (it would put the complex uniformization on the `R = T` path).
   **Before believing a closure edge, grep the callee's `solution` body**; the closure is
   an upper bound on what a file *contains*, not on what it *uses*.
+- **A co-import collision can be a *producer-vs-classes* choice, not a rename (found
+  2026-10-06, P-2 D-1).** `WeierstrassCurve.Affine.instInfinitePlace` is declared twice:
+  `Place/RRSpace.lean` (`scoped instance`, the pin's own, hypotheses `[IsAlgClosed F]
+  [IsDedekindDomain W.CoordinateRing] [HasPrincipalDivisors …]`) and
+  `IsogenyEndDatum/Engine.lean` (a plain `instance`, the port's invention, hypotheses
+  `[W.IsElliptic] [GenusOnePlaceGate W] [IsCentred W]`). No environment can import both
+  (`environment already contains '…instInfinitePlace._proof_4'`), which had blocked the
+  whole P-2 base-change column: D-1 needs the gate classes and D-4/D-5 need `Engine`'s
+  seam. The resolution was **not** to rename either instance (`Engine`'s is a port
+  declaration already in `OWN_PROOFS`; `RRSpace`'s is the pin's) but to stop importing
+  the *producer* module: the classes `GenusOnePlaceGate`/`IsCentred`/`AbelTheorem` live
+  in the lighter `WeierstrassCurve/GenusOnePlaceGate.lean`, while
+  `GenusOnePlaceGateCentred.lean` is the producer
+  `exists_genusOnePlaceGate_isCentred_and_abelTheorem` and is the only importer of
+  `RRSpace` in that chain. D-1 now imports `GenusOnePlaceGate.lean` and the pairing with
+  `Engine.lean` compiles. **The producer module still cannot be co-imported with
+  `Engine`** (`spec/IsogenyEndDatumConsumer.lean` zones 3/5 keep the gate instances as
+  hypotheses for that reason); a consumer that *produces* the gate instances and one that
+  uses `Engine` must remain separate `spec/` files until one instance is reconciled.
+  Rule for the column: [../topics/velu/WORKORDER-P2-basechange.md](../topics/velu/WORKORDER-P2-basechange.md)
+  §3.1.

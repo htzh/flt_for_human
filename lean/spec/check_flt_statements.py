@@ -2187,6 +2187,25 @@ SOURCES = [
     "P2M/Sol/S_PeriodPair_jLattice_ofTau.lean",
     "Theorems/Thm_PeriodPair_jLattice_surjective.lean",
     "P2M/Sol/S_PeriodPair_jLattice_surjective.lean",
+    # --- D-1 (the shared base-change prelude,
+    # `FLTForHuman/WeierstrassCurve/Isogeny/BaseChange.lean`). The two `S_` files
+    # carry the `NoAC` spelling (§2.1: `TreeIsogenyEndDatum`, the function-field
+    # map-along and the tensor-product base change) and the `General` spelling
+    # (§2.3: `IsogenyEndDatum`, `[IsAlgClosed F] [IsAlgClosed F']`); the `pointPullback`
+    # column and `kw_functionField_algHom_ext`/`kw_coordinateRingBasis` occur in both.
+    # The two `Theorems/` wrappers are the statement authority for §2.1/§2.3 and come
+    # before their `S_` files. The third `S_` file
+    # (`S_WeierstrassCurve_Affine_isAddCyclic_...of_baseChange_algHom.lean`) is
+    # deliberately not listed: every D-1 declaration occurs in one of these two, and
+    # the declarations it alone carries (`restrictAlong_eq_infinitePlace`,
+    # `pointEnd'_eq_of_seam`, the `kw_surge_hgf4_*`/`KwD5BetweenCurves*` seam) belong to
+    # D-4/D-5. Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_WeierstrassCurve_exists_intermediateField_countable_map_eq_and_finrankAlong_eq.lean",
+    "P2M/Sol/S_WeierstrassCurve_exists_intermediateField_countable_map_eq_and_finrankAlong_eq.lean",
+    "Theorems/Thm_WeierstrassCurve_Affine_exists_algHom_functionField_baseChange_finrankAlong_eq.lean",
+    # (`P2M/Sol/S_WeierstrassCurve_Affine_exists_algHom_functionField_baseChange_finrankAlong_eq.lean`
+    # is already listed above as the H0 home of the Weierstrass generic-point bridge;
+    # appending it again would only duplicate the candidate list.)
 ]
 
 PORT_FILES = [
@@ -3104,6 +3123,9 @@ PORT_FILES = [
     # match can flip.
     "FLTForHuman/ModularForms/JInvariant.lean",
     "FLTForHuman/Elliptic/PeriodPair/JLine.lean",
+    # --- D-1: the shared base-change prelude. Appended last so no earlier last-name
+    # match can flip.
+    "FLTForHuman/WeierstrassCurve/Isogeny/BaseChange.lean",
 ]
 
 
