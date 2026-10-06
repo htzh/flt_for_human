@@ -160,14 +160,14 @@ The Deligne–Serre scout's warning applies verbatim: the port's cautionary tale
 transcribing this cone package-by-package, and this slice "overlaps that material
 (`CuspForm`, `ModularForm`, `EisensteinSeries`, `PeriodPair`), so the same failure mode
 is available"
-([../../studies/deligne-serre-weight-one-scout.md](../../studies/deligne-serre-weight-one-scout.md)
+([../../../studies/deligne-serre-weight-one-scout.md](../../../studies/deligne-serre-weight-one-scout.md)
 §5). Any plan must run `port_advise` with a **statement** check (not just a name
 lookup) over the WeightOne/E-S modules before pricing a single declaration.
 
 ## 6. The math-first gate
 
 Before a work order, a **scout** — read-only, gitignored scratch, no porting, no
-subagent sets — should answer five questions:
+subagent sets — should answer seven questions:
 
 1. **Is `IsUniformization` (1,493) used essentially?** It enters through
    `exists_scale_lattice_subset_and_sublatticeIndex_eq_and_isAddCyclic_sublatticeQuotient`
@@ -189,6 +189,26 @@ subagent sets — should answer five questions:
    node are shared with other frontier work, they should be ported once, by whichever
    effort needs them first, and this slice's price drops by ~4.7k.
 5. **What are the exact public names the checker will need?** The `S_` files are silos;
+   most of the 801 declarations are pin-local. The scout should produce the public
+   surface (wrappers) and the statement-anchored reuse map, as V3/V4 did.
+6. **Can the whole slice be avoided by the pin's own moduli vocabulary?** This is the
+   question that could kill the topic. The pin carries an ≈1,000-line *moduli-place*
+   layer that is not ported — `Def_ModularCurve_ModuliPoint.lean` (162;
+   `Gamma0Pair`/`ModuliPoint`), `Def_ModularCurve_ModuliPointMap.lean` (159),
+   `Def_ModularCurve_ModuliPlace.lean` (681; `IsModuliPlaceOf`, `moduliPlaceOfPoint`,
+   `moduliPlace`). It says what it means for a place of the modular function field to
+   *be* the moduli point of a curve with level structure, over a general field and with
+   no `℘`. If `aeval_j_diag_eq_zero_of_finrankAlong_eq` can be re-derived by
+   specialization through `moduliPlace` instead of by descending to ℂ, the 15,179-line
+   closure drops to ≈1 k of definitions plus one comparison theorem. Scout: port that
+   layer into a scratch, state the comparison theorem `aeval_j_diag` would need, and
+   report whether the pin proves it anywhere or whether it would have to be built. Note
+   the mismatch to price first — `ModuliPoint N K` is a point of order *exactly* `N`
+   (a Γ₀(N) level structure), whereas `aeval_j_diag` starts from an `IsogenyEndDatum` of
+   degree `N` whose `N` comes from a negative-discriminant binary quadratic form. See
+   [../../../math/024-uniformization-versus-modular-functions.md](../../../math/024-uniformization-versus-modular-functions.md)
+   §8.4.
+7. **What are the exact public names the checker will need?** The `S_` files are silos;
    most of the 801 declarations are pin-local. The scout should produce the public
    surface (wrappers) and the statement-anchored reuse map, as V3/V4 did.
 
