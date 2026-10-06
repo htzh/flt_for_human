@@ -1,21 +1,26 @@
 # V5 (scoping) — the `PeriodPair` uniformization slice
 
-**Status: scouting complete, 2026-10-06. No work order, no set, no agent.** This document
-answers one question — *how big is the slice that gates the last Phase D node, and is
-the work actually that large?* — and records the math-first scout (§6) that must precede
-any port. It is not a work order; nothing here has been dispatched. Triggered by
+**Status: scouting complete, 2026-10-06; port decision taken — the whole subject, opened
+by P-SET-1. No work order written yet.** This document answers one question — *how big
+is the slice that gates the last Phase D node, and is the work actually that large?* —
+and records the math-first scout (§6) and the prune pass (§2.1) that must precede any
+port. It is not a work order; nothing here has been dispatched. Triggered by
 [TOPIC-V4-isogeny-kernel-rigidity.md](TOPIC-V4-isogeny-kernel-rigidity.md) §9 ("the one
 remaining Phase D item"), whose prerequisite is **not** in the Deligne–Serre cone and
 not in this column. Pin `anthropics/fermats-last-theorem@aa2d8b3`; port mathlib
 `v4.34.0`. Measurements from `tools/deps/port_advise.py`, `port_plan.py`,
-`frontier.py` (§8).
+`frontier.py`, `prune.py` (§8).
 
-**Answer in one line.** It is genuinely as large as it looks — the gating node's
-unported closure is **17 nodes / 15,179 pin lines**, and the two hard classical
-theorems (complex uniformization, surjectivity of `j`) plus a 2,673-line analytic seam
-are *on* the path, not inlined prelude. The scout (§6) then shows the uniformization core
-is the one piece mathlib lacks outright, is Mathlib-only, and can open the slice as set
-U (§7(d)).
+**Answer in one line.** It is genuinely as large as it looks — the subject is **18 nodes
+/ 12,265 pin lines**, all unported, and the two hard classical theorems (complex
+uniformization, surjectivity of `j`) plus a 2,673-line analytic seam are *on* the path,
+not inlined prelude. The scout (§6) shows the uniformization core is the one piece
+mathlib lacks outright and is Mathlib-only, so it opens the port as set P-SET-1. The
+prune pass (§2.1) shows something stronger: the subject is **not** a subtree of
+`aeval_j_diag_eq_zero_of_finrankAlong_eq`. Every target in the root cone demands all 18
+nodes; both the Mazur chain and the step-4/D-S cones reach `isUniformization_toPoint`
+without that node; and supplying the node saves 4 nodes / 4,681 lines. This is a shared
+subject to port, not a tail of one lemma.
 
 ## 1. The trigger, and what it actually needs
 
@@ -51,7 +56,9 @@ call-closure of the six called nodes 16 nodes / 15,068 lines
 The `ucl` and the call-closure agree to within 111 lines, and the tool's small
 "off-path" bucket is itself unreliable here (`nonempty_functionField_algEquiv_of_variableChange`,
 744 lines, is in fact called at `S_` line 627). **Treat 15,179 as the working figure.**
-Unlike V2 and V3, there is no large inlined prelude to discount.
+Unlike V2 and V3, there is no large inlined prelude to discount. Note what that number
+is: the gate's *closure*, not its *marginal* demand — most of the subject behind it is
+needed by other consumers anyway (§2.1).
 
 **Where it sits.** Exactly two pin theorems consume it —
 `IsogenyEndDatum.exists_forall_pointEnd_eq_zsmul_of_not_isIntegral_j` and
@@ -65,14 +72,67 @@ cone (`frontier.closure` of `DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_h
 and into the cone of step 4's source `S_WeierstrassCurve_modularity_of_semistableModel.lean`,
 through the weight-one input (`weightOneNewformExists_levelAtThree_not_cube_dvd` →
 `hasIntegralStructure_two` → … → `ord_jBar_dvd_three` →
-`mem_of_isRoot_map_j_of_transcendental`). That is the cone of the unported D-S capstone,
-not of the shipped `DeligneSerre.*` slice; the gate is shared between the Mazur chain
-and that capstone, and the "Mazur gate" heading of
-[TOPIC-port-plan-v2.md](TOPIC-port-plan-v2.md) §2.2 records its shortest path, not an
-exclusive owner. It is also *not urgent*: every one of those consumers is unported, so
-it blocks no half-finished work.
+`mem_of_isRoot_map_j_of_transcendental`). The "Mazur gate" heading of
+[TOPIC-port-plan-v2.md](TOPIC-port-plan-v2.md) §2.2 names that shortest path; it does not
+name an exclusive owner.
 
-## 2. The slice at full width
+**The gate is not the door to the uniformization.** Reading the source DAG by the
+shortest route shadows the real structure, and the prune pass of §2.1 corrects it: the
+gate's whole *marginal* demand is **4 nodes / 4,681 lines** — itself, the
+countable-descent node, the base-change node and `IsAddCyclic.of_squarefree_natCard` —
+while the 18 `PeriodPair` nodes / 12,265 lines are demanded by every target anyway, and
+each side reaches `PeriodPair.isUniformization_toPoint` without the gate (Mazur step 3
+in 7 hops; the D-S capstone in 14). The uniformization is a **shared subject**, not a
+subtree of the gate. It is also *not urgent*: every consumer is unported, so nothing
+half-built is blocked.
+
+## 2. The gap structure and the budget
+
+### 2.1 The gap structure (prune pass)
+
+`prune.py` reads a node as *prunable* once the removed set `R` is replaced iff every
+root path to it passes through `R` — the criterion that sees the connections a shortest
+route hides:
+
+| removed | prunable [the saving] | rewire obligations |
+|---|---:|---:|
+| `aeval_j_diag_eq_zero_of_finrankAlong_eq` | 4 nodes / 4,681 lines | 2 nodes / 119 |
+| the subject, `PeriodPair.*` | 18 nodes / 12,265 lines | 24 nodes / 24,656 |
+
+Both sides already reach the uniformization without the gate. Mazur step 3, 7 hops:
+`mazurStepThree_not_inZeroComponentAt` → `moduliPointExists_jQuotVelu_of_mult_two` →
+`modularPolynomial_eval_jInt_jQuotVelu_eq_zero` →
+`isRoot_map_j_veluQuotient_j_of_addOrderOf_eq` →
+`eval_modularPolynomial_map_j_eq_zero_of_isAddCyclic_ker_pointMapOfPushforward` →
+`isAddCyclic_ker_pointMapOfPushforward_of_algEquiv_conj` → `isUniformization_toPoint`.
+The D-S capstone, 14 hops: `…weightTwo_hecke_eigen` →
+`CuspForm.IsEigenformWith.exists_ringHom_rationalHeckeAlgebraOne_mul_eq` → … →
+`CohCarrier.exists_mem_GammaH_smul_eq_of_forall_sum_weierstrassP_pow_eq` →
+`PeriodPair.sub_mem_lattice_or_add_mem_lattice_of_weierstrassP_eq` →
+`isUniformization_toPoint`. `isUniformization_toPoint` has 11 consumers, 7 outside the
+gate's subtree; `discriminant_ne_zero` has 15, 8 outside.
+
+The subject's own order — 18 nodes, all `PeriodPair.*`:
+
+* **`discriminant_ne_zero` (542)** — the hub, 9 in-subject consumers;
+* **`isUniformization_toPoint` (1,493)** — the second hub, 6;
+* the `j`-line: `jLattice_ofTau` (210), `jLattice_surjective` (1,054),
+  `exists_variableChange_smul_weierstrassCurve_eq` (17);
+* the isogeny/index arithmetic: `exists_differentiable_toPoint_comp_eq_pointMapOfPushforward_toPoint`
+  (2,673), `exists_scale_lattice_…_natCard_ker` (978), `…_isAddCyclic_sublatticeQuotient`
+  (2,021), `exists_mem_primCosetReps_and_jLattice_eq_of_isAddCyclic` (848);
+* the `rationalHomSet` column: `exists_mem_rationalHomSet_forall_apply_toPoint_eq_toPoint_mul`
+  (682), `exists_forall_apply_toPoint_eq_toPoint_mul_of_mem_rationalHomSet` (477);
+* the torsion column: `weierstrassP_torsion_modularForm_slash_tendsto_atImInfty` (558),
+  `exists_gamma1_two_eq_weierstrassP_and_slash_and_qExpansion_coeff` (319);
+* the leaves: `lattice_eq_of_g2_eq_of_g3_eq` (234), `g2_ofTau_and_g3_ofTau` (47),
+  `scale_lattice_eq_of_pow_four_eq_one_or_g2_eq_zero` (47), `weierstrassP_scale` (22).
+
+The field-descent nodes the gate does own (`exists_intermediateField_countable…`,
+`exists_algHom_functionField_baseChange…`) are not `PeriodPair` at all; they are the
+subject's generic neighbours.
+
+### 2.2 The budget
 
 The `PeriodPair` family is 18 wrappers / 18 `S_` files, 12,265 pin lines, 801
 declarations. `port_plan` on the whole glob:
@@ -90,9 +150,9 @@ raw S_ lines (18 wrappers)                    12,265
 **name-anchored** (V3 §2.3, V4 §4.2), so it is a lower bound, and the real reuse is
 probably much larger (§5).
 
-**Context.** The port's unported frontier is **760 nodes / 372,383 pin lines**. This
-slice is therefore ~4% of what remains, and ~2% of it (15,179 lines on-path) is what
-the single node needs.
+**Context.** The subject is 18 nodes / 12,265 pin lines, all unported — small against the
+port's remaining demand (28,716 nodes / 11.55 M raw lines), but *shared*: 24 retained
+nodes cite into it and both cones need all 18.
 
 ## 3. The mathematics, in four blocks
 
@@ -201,7 +261,8 @@ port supplies `WeightOne/Defs/PeriodPair.lean` (the pin's `ofTau`/`scale`/homoge
 prelude, verbatim) and the modular-forms layer `JqAnalyticModel.lean`/`Hauptmodul.lean`
 (`E₄`, `Δ`, `jq`, `E4_cube_div_discriminant_smul`, the q-expansion principle).
 
-**The 17-node closure factors into four sets.**
+**The gate's 17-node closure, grouped by role** (the subject's own branch order is
+§2.1):
 
 - **U — uniformization (144 + 1,493 pin lines).** The dictionary plus
   `isUniformization_toPoint`. Needs Mathlib only; reuses mathlib's ℘ API.
@@ -217,11 +278,12 @@ prelude, verbatim) and the modular-forms layer `JqAnalyticModel.lean`/`Hauptmodu
 - **D — descent (2,684 + 1,336 + 744).** The three `WeierstrassCurve.*` base-change
   nodes; generic field theory, not `PeriodPair`.
 
-**U is conditional, so it does not need J.** `isUniformization_toPoint` takes
-`h : L.DiscriminantNeZero` as an argument, and the pin's three components are all
-parametric in `h`; only its internal packaging calls the theorem `discriminant_ne_zero`.
-A port can prove the conjunction from `h` directly, so the uniformization is
-self-contained analysis and the `E₄³ − E₆²` computation stays inside J.
+**The uniformization core is conditional, so it does not need the `j`-line row.**
+`isUniformization_toPoint` takes `h : L.DiscriminantNeZero` as an argument, and the pin's
+three components are all parametric in `h`; only its internal packaging calls the theorem
+`discriminant_ne_zero`. A port can prove the conjunction from `h` directly, so the
+uniformization is self-contained analysis and the `E₄³ − E₆²` computation stays in its own
+node — still inside P-SET-1, because the consumers need the unconditional discriminant.
 
 **What the U work order still has to settle.**
 
@@ -234,18 +296,21 @@ self-contained analysis and the `E₄³ − E₆²` computation stays inside J.
 3. **The `D5` seam.** Before S is scoped, enumerate which `KwD5BetweenCurves*` lemmas
    the 2,021-line node calls; the ported place dictionary may already carry part of the
    transport.
-4. **The moduli-place alternative** (still the only thing that can kill §7(a)). The pin
-   carries an ≈1,000-line *moduli-place* layer — `Def_ModularCurve_ModuliPoint.lean`
-   (162; `Gamma0Pair`/`ModuliPoint`), `Def_ModularCurve_ModuliPointMap.lean` (159),
+4. **The moduli-place alternative cannot kill the subject** (§2.1). The pin carries a
+   *moduli-place* layer — `Def_ModularCurve_ModuliPoint.lean` (162;
+   `Gamma0Pair`/`ModuliPoint`), `Def_ModularCurve_ModuliPointMap.lean` (159),
    `Def_ModularCurve_ModuliPlace.lean` (681; `IsModuliPlaceOf`, `moduliPlaceOfPoint`,
    `moduliPlace`) — describing what it means for a place of the modular function field
    to *be* the moduli point of a curve with level structure, over a general field and
-   with no `℘`. If `aeval_j_diag_eq_zero_of_finrankAlong_eq` can be re-derived by
-   specialization through `moduliPlace` instead of by descending to ℂ, the 15,179-line
-   closure drops to ≈1 k of definitions plus one comparison theorem. Price the mismatch
-   first: `ModuliPoint N K` is a point of order *exactly* `N` (a Γ₀(N) level structure),
-   whereas `aeval_j_diag` starts from an `IsogenyEndDatum` of degree `N` whose `N` comes
-   from a negative-discriminant binary quadratic form. See
+   with no `℘`; 41 `moduliPlace`/`ModuliPoint` nodes / 17,260 unported lines are already
+   demanded by the FLT root. If `aeval_j_diag_eq_zero_of_finrankAlong_eq` can be
+   re-derived by specialization through `moduliPlace` instead of by descending to ℂ, the
+   saving is the gate's own marginal — **4 nodes / 4,681 lines** — not the subject: the
+   other 13 gate-closure nodes and the 9 further `PeriodPair` nodes stay demanded through
+   24 other consumers. It remains the pin's proof-shape question, and the mismatch should
+   be priced first: `ModuliPoint N K` is a point of order *exactly* `N` (a Γ₀(N) level
+   structure), whereas `aeval_j_diag` starts from an `IsogenyEndDatum` of degree `N` whose
+   `N` comes from a negative-discriminant binary quadratic form. See
    [../../../math/024-uniformization-versus-modular-functions.md](../../../math/024-uniformization-versus-modular-functions.md)
    §8.4.
 
@@ -255,27 +320,36 @@ mathematics" into "transcription"; one that shows a route is missing kills it ou
 
 ## 7. Options, and the recommendation
 
-- **(a) Full slice as its own effort.** 18 nodes, ~8.5k net-new lines, four sets of
-  which one (D) is not `PeriodPair`. Precedent size: the Deligne–Serre effort was
+- **(a) The whole subject, as its own effort.** 18 nodes / 12,265 raw lines, ≈8.5k net
+  new after dedup (§2.2), six branches. Precedent size: the Deligne–Serre effort was
   15,200 written lines over 54 targets and nine sets — so this is one medium effort,
   not a tail.
-- **(b) A minimized path.** Take only the closure of the gating node (15,179 lines) —
-  sets U, J and S — once the remaining scout items in §6 land. Likely saving: the
-  4,764 lines of D, plus whatever the moduli-place route (if it exists) removes from S.
-- **(c) Park it.** It is ~4% of the remaining frontier and blocks nothing that is
-  half-built.
-- **(d) Open with set U, then J.** Two new-file sets with no unported prerequisite: U
-  is the uniformization theorem and J the `j`-line, both Mathlib-only, and J reuses the
-  ported modular-forms layer. S stays parked behind the place dictionary; D goes to
-  whichever effort needs its base-change first.
+- **(b) A minimized path.** Only what the two cones need — but §2.1 shows they need all
+  18, so this collapses into (a). Neither the moduli-place route nor a C′-style supply
+  of the gate removes the subject.
+- **(c) Park it.** It is ~0.1% of the port's remaining lines and blocks nothing
+  half-built — but it is a *shared* prerequisite with 24 rewire obligations, so parking
+  is now a scheduling choice, not a scoping one.
+- **(d) Open with the two hubs.** P-SET-1 = the dictionary + `discriminant_ne_zero` +
+  `isUniformization_toPoint`; then the `j`-line; then the isogeny/index branch once the
+  place dictionary is in place; the `rationalHomSet` and torsion columns last.
 
-**Recommendation: (d).** The scout in §6 separates the genuinely new mathematics from
-the transcription. U is the only piece mathlib lacks outright; it is conditional on `h`
-and so pulls in neither the modular-forms nor the place layer, and it is the map every
-other set consumes; J is cheap next to it. Enter the slice through U, not through the
-15,179-line boundary figure: scope U as its own new-file set with the §6 items 1–2 as
-its stop conditions, and leave the `D5` and moduli-place questions (§6 items 3–4) to the
-S scoping they belong to.
+**Recommendation: (a), opened by (d).** Port the subject; set the first work order as
+P-SET-1, the uniformization core:
+
+| node | pin lines | why it is first |
+|---|---:|---|
+| `Def_PeriodPair_Uniformization` | 144 | the dictionary; mathlib has no `toPoint`, `IsUniformization`, `jLattice`, `JSurjective`, `sublatticeIndex` |
+| `PeriodPair.discriminant_ne_zero` | 542 | the subject's hub — 9 in-subject consumers; reuses the ported `E₄`/`Δ` layer |
+| `PeriodPair.isUniformization_toPoint` | 1,493 | `ℂ/Λ ≅ E(ℂ)`; the one piece mathlib lacks outright |
+
+They are the only `PeriodPair` nodes with no unported prerequisite and the two that
+unblock everything else, and P-SET-1 is new-file-only (playbook §3.5), so it cascades
+nowhere. The `isUniformization_toPoint` statement takes `h : L.DiscriminantNeZero`, so it
+can be proved parametrically and does not *depend* on the middle row; that row is in the
+set because the consumers need the unconditional discriminant anyway, and it is cheap.
+Carry §6 items 1–2 as the set's stop conditions, and leave the `D5` and moduli-place
+questions (§6 items 3–4) to the branch scoping they belong to.
 
 **Ownership.** If it is done, it should be planned *with* the Eichler–Shimura and
 WeightOne efforts — the scout puts `PeriodPair` at 9 nodes / 9,836 shared-uniformisation
@@ -293,6 +367,10 @@ python3 port_plan.py  --json build/v5_pp_advise.json --json-out build/v5_pp_plan
 python3 port_advise.py --nodes \
   WeierstrassCurve.Affine.IsogenyEndDatum.aeval_j_diag_eq_zero_of_finrankAlong_eq \
   --json build/v5_advise.json
+
+# §2.1, the gap structure: the gate's marginal against the subject's
+python3 prune.py --scenario none --remove aeval_j_diag     # 4 nodes / 4,681 lines
+python3 prune.py --scenario none --remove 'PeriodPair.'     # 18 nodes / 12,265; 24 obligations
 
 # the ucl of the gating node, and the per-called-node attribution
 python3 - <<'PY'

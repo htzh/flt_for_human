@@ -193,59 +193,10 @@ section B3_fricke
 open PeriodPair
 open scoped UpperHalfPlane MatrixGroups
 
-private def latticeEquivOfEq {L L' : PeriodPair} (h : L.lattice = L'.lattice) :
-    L.lattice ≃ L'.lattice where
-  toFun l := ⟨l.1, h.le l.2⟩
-  invFun l := ⟨l.1, h.ge l.2⟩
-  left_inv _ := rfl
-  right_inv _ := rfl
-
-@[scoped simp] private lemma latticeEquivOfEq_coe {L L' : PeriodPair} (h : L.lattice = L'.lattice)
-    (l : L.lattice) : ((latticeEquivOfEq h l : L'.lattice) : ℂ) = (l : ℂ) := rfl
-
-private theorem weierstrassP_of_lattice_eq {L L' : PeriodPair} (h : L.lattice = L'.lattice) (z : ℂ) :
-    weierstrassP L z = weierstrassP L' z := by
-  simp only [weierstrassP]
-  rw [← (latticeEquivOfEq h).tsum_eq]
-  rfl
-
-private theorem G_of_lattice_eq {L L' : PeriodPair} (h : L.lattice = L'.lattice) (n : ℕ) :
-    L.G n = L'.G n := by
-  simp only [G]
-  rw [← (latticeEquivOfEq h).tsum_eq]
-  rfl
-
-private theorem G_smulPeriodPair (a : ℂ) (ha : a ≠ 0) (L : PeriodPair) (n : ℕ) :
-    (smulPeriodPair a ha L).G n = a⁻¹ ^ n * L.G n := by
-  simp only [G]
-  rw [← (smulLatticeEquiv a ha L).tsum_eq, ← tsum_mul_left]
-  congr with l
-  simp only [smulLatticeEquiv_coe, mul_pow]
-  rw [mul_inv, inv_pow]
-
-private theorem g₂_smulPeriodPair (a : ℂ) (ha : a ≠ 0) (L : PeriodPair) :
-    (smulPeriodPair a ha L).g₂ = a⁻¹ ^ 4 * L.g₂ := by
-  simp only [g₂, G_smulPeriodPair]; ring
-
-private theorem g₃_smulPeriodPair (a : ℂ) (ha : a ≠ 0) (L : PeriodPair) :
-    (smulPeriodPair a ha L).g₃ = a⁻¹ ^ 6 * L.g₃ := by
-  simp only [g₃, G_smulPeriodPair]; ring
-
-private def latticeDisc (L : PeriodPair) : ℂ := L.g₂ ^ 3 - 27 * L.g₃ ^ 2
-
-private theorem latticeDisc_smulPeriodPair (a : ℂ) (ha : a ≠ 0) (L : PeriodPair) :
-    latticeDisc (smulPeriodPair a ha L) = a⁻¹ ^ 12 * latticeDisc L := by
-  simp only [latticeDisc, g₂_smulPeriodPair, g₃_smulPeriodPair]; ring
-
-private theorem g₂_of_lattice_eq {L L' : PeriodPair} (h : L.lattice = L'.lattice) : L.g₂ = L'.g₂ := by
-  simp [g₂, G_of_lattice_eq h]
-
-private theorem g₃_of_lattice_eq {L L' : PeriodPair} (h : L.lattice = L'.lattice) : L.g₃ = L'.g₃ := by
-  simp [g₃, G_of_lattice_eq h]
-
-private theorem latticeDisc_of_lattice_eq {L L' : PeriodPair} (h : L.lattice = L'.lattice) :
-    latticeDisc L = latticeDisc L' := by
-  simp [latticeDisc, g₂_of_lattice_eq h, g₃_of_lattice_eq h]
+-- The lattice/scale prelude (`latticeEquivOfEq`, `weierstrassP_of_lattice_eq`,
+-- `G_of_lattice_eq`, `G_smulPeriodPair`, `latticeDisc`, the lattice-equality
+-- lemmas) lives once in `Elliptic/PeriodPair/Lattice.lean`; `open PeriodPair`
+-- makes the names below resolve to that home.
 
 private def frickePrefactor (L : PeriodPair) : ℂ := L.g₂ * L.g₃ / latticeDisc L
 
@@ -964,17 +915,9 @@ open ModularForm ModularFormClass CuspForm ModularForm.CuspForm Polynomial Real.
 open scoped ModularForm ModularFormClass CuspForm ModularForm.CuspForm Polynomial Real.Polynomial Filter
 variable {N : ℕ}
 
-private def periodPairOfTau (τ : ℍ) : PeriodPair where
-  ω₁ := (τ : ℂ)
-  ω₂ := 1
-  indep := LinearIndependent.pair_iff.mpr fun s t hst ↦ by
-    have him : s * (τ : ℂ).im = 0 := by
-      have := congrArg Complex.im hst
-      simpa [Complex.add_im, Complex.smul_im, smul_eq_mul] using this
-    have hs : s = 0 :=
-      (mul_eq_zero.mp him).resolve_right (UpperHalfPlane.coe_im τ ▸ τ.im_ne_zero)
-    subst hs
-    simpa using hst
+-- `periodPairOfTau` is the root-level name re-exported by
+-- `Defs/PeriodPair.lean` from `Elliptic/PeriodPair/Lattice.lean`; the former
+-- private copy here is deleted.
 
 private def zetaN (N : ℕ) : ℂ := cexp (2 * π * I / N)
 

@@ -2163,6 +2163,18 @@ SOURCES = [
     # the port and the pin, and neither `S_` file is listed. Appended last.
     "Theorems/Thm_WeierstrassCurve_Affine_algHom_ext_of_forall_restrictAlong_placeOfPoint_eq.lean",
     "Theorems/Thm_WeierstrassCurve_Affine_IsogenyHomDatum_exists_pointHom_comp_eq_of_ker_le_of_isCentred.lean",
+    # --- P-SET-1 (the `PeriodPair` uniformization core). The `Definitions/` entry gives
+    # the dictionary its by-name coverage; the two `Theorems/` wrappers are the statement
+    # authority (playbook §4.1); the two `S_` files carry the pin-private helper
+    # declarations the wrappers do not. `Discriminant.lean` promotes some of those
+    # helpers at the `kw_`-stripped name, verified through the §2.1 `stripped_source`
+    # fallback (the `S_` file is the source of the pin's `kw_*` statements). Appended
+    # last so no earlier last-name match can flip.
+    "Definitions/Def_PeriodPair_Uniformization.lean",
+    "Theorems/Thm_PeriodPair_discriminant_ne_zero.lean",
+    "P2M/Sol/S_PeriodPair_discriminant_ne_zero.lean",
+    "Theorems/Thm_PeriodPair_isUniformization_toPoint.lean",
+    "P2M/Sol/S_PeriodPair_isUniformization_toPoint.lean",
 ]
 
 PORT_FILES = [
@@ -3043,6 +3055,28 @@ PORT_FILES = [
     # is `private`. It imports `IsogenyEndDatum/DualEndData.lean`, whose cone supplies
     # `Engine`, `Velu/Engine` and `Place/Dictionary`. Appended last.
     "FLTForHuman/WeierstrassCurve/IsogenyEndDatum/TranslationAlgEquiv.lean",
+    # --- P-SET-1: the `PeriodPair` uniformization core (new-file-only). `Basic.lean` is
+    # the dictionary at the pin's `PeriodPair.*` names; `Discriminant.lean` carries the
+    # discriminant headline plus the public `kw_`-stripped promotions the `j`-line set
+    # shares (`riemannZeta_six`, `G_ofTau_eq`, `g₂_ofTau`, `g₃_ofTau`) and the public
+    # scale/lattice-equality API (`G_scale`, `g₂_scale`, `g₃_scale`, `scale_lattice`,
+    # `scaleLatticeEquiv`, `G_eq_of_lattice_eq`, `g₂_eq_of_lattice_eq`,
+    # `g₃_eq_of_lattice_eq`); its remaining helpers are `private`. `Uniformization.lean`
+    # carries the uniformization headline and every helper is `private`, so it
+    # contributes exactly one compared declaration. `Uniformization.lean` imports `Basic`
+    # and `Discriminant` (the latter by the module DAG; the proof of
+    # `isUniformization_toPoint` uses its own `h` and does not cite `discriminant_ne_zero`).
+    #
+    # P-1b moved the shared scale/lattice prelude out of `Discriminant.lean` into
+    # `Lattice.lean` and promoted the `WeightOne`/`FrickeFunction` private copies to it;
+    # `Discriminant.lean` now imports `Lattice`. The pin sources are the ones already
+    # listed above (the `S_PeriodPair_discriminant_ne_zero` and
+    # `S_WLight_frickeFunction_modularity_package` files carry every moved name), so
+    # `SOURCES` is unchanged.
+    "FLTForHuman/Elliptic/PeriodPair/Basic.lean",
+    "FLTForHuman/Elliptic/PeriodPair/Lattice.lean",
+    "FLTForHuman/Elliptic/PeriodPair/Discriminant.lean",
+    "FLTForHuman/Elliptic/PeriodPair/Uniformization.lean",
 ]
 
 
@@ -3545,6 +3579,30 @@ def promoted_key(raw: str) -> str:
     return ".".join(parts[-2:]) if len(parts) >= 2 else parts[-1]
 
 
+# The pin's `kw_*` helpers are collision tokens, not mathematics: the port promotes
+# the general ones at the prefix-stripped name (`kw_g₂_ofTau` → `g₂_ofTau`).  The
+# strip is applied to the **pin** side only, so a pin public name is never shadowed;
+# it is a pure fallback consulted after the public and dotted lookups, and it still
+# requires the `kind` and the normalised statement to match.  The token list starts
+# minimal; see work-order §2.1 and
+# `studies/pin-name-prefixes-and-the-checker.md` §5–§6.
+PIN_PREFIXES = ("kw",)
+
+
+def strip_pin_prefix(name: str) -> str | None:
+    """The prefix-stripped last name of a pin declaration, or `None`.
+
+    Only prefixes in `PIN_PREFIXES` followed by `_` are stripped, and the result must
+    be non-empty: `kw_G_ofTau_eq` → `G_ofTau_eq`, `kw_` → `None`, `scale_lattice` →
+    `None`.
+    """
+    for prefix in PIN_PREFIXES:
+        head = prefix + "_"
+        if name.startswith(head) and len(name) > len(head):
+            return name[len(head):]
+    return None
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument(
@@ -3570,6 +3628,15 @@ def main() -> int:
     # the same last name with different statements, and a port declaration is
     # identical when it matches any of them (not merely the first file read).
     dotted_source: dict[str, list[tuple[str, str, str]]] = {}
+    # The pin's prefix-stripped last names (`kw_g₂_ofTau` → `g₂_ofTau`), the §2.1
+    # promotion path.  Consulted only after the public and dotted lookups fail; `kind`
+    # and the normalised statement must still match, and the strip is applied to the
+    # pin side only.  The pin's `p2m_export` visibility is invisible to this text
+    # checker, so a `kw_*` declaration whose name is suppressed by `p2m_export` (but
+    # not written `private`) is indexed here too; indexing a textually public `kw_*`
+    # name is harmless, because `source`/`dotted_source` still run first.  Entries are
+    # `(kind, stmt, rel, pin_raw)`.
+    stripped_source: dict[str, list[tuple[str, str, str, str]]] = {}
     for rel in SOURCES:
         p = flt / rel
         if not p.exists():
@@ -3588,6 +3655,9 @@ def main() -> int:
             # collision (`CuspForm.heckeTLin` vs `ModularForm.heckeTLin`).
             dotted_source.setdefault(promoted_key(raw.rsplit(".", 1)[-1]), []).append(
                 (kind, stmt, rel))
+            stripped = strip_pin_prefix(raw.rsplit(".", 1)[-1])
+            if stripped is not None:
+                stripped_source.setdefault(stripped, []).append((kind, stmt, rel, raw))
 
     def find(cands, kind, stmt):
         for c in cands or ():
@@ -3595,7 +3665,7 @@ def main() -> int:
                 return c
         return None
 
-    ok = promoted = missing = mismatch = own = 0
+    ok = promoted = renamed = missing = mismatch = own = 0
     for rel in PORT_FILES:
         p = LEAN / rel
         for raw, kind, stmt in raw_declarations(p.read_text(encoding="utf-8")):
@@ -3616,6 +3686,14 @@ def main() -> int:
                 ok += 1
                 promoted += 1
                 continue
+            # Promoted at the prefix-stripped pin name: a pure fallback after the
+            # public and dotted lookups, still requiring kind and statement to match.
+            hit = find(stripped_source.get(name), kind, stmt)
+            if hit:
+                ok += 1
+                renamed += 1
+                print(f"RENAMED  {rel}: {raw}  ->  {hit[3]} ({hit[2]})")
+                continue
             cands = (source.get(name) or dotted_source.get(promoted_key(raw))
                      or dotted_source.get(name))
             if not cands:
@@ -3631,7 +3709,7 @@ def main() -> int:
 
     print(
         f"\n{ok} statements identical ({promoted} promoted from pin-private "
-        f"declarations), {mismatch} mismatched, {missing} missing, "
+        f"declarations, {renamed} renamed), {mismatch} mismatched, {missing} missing, "
         f"{own} own-proof declarations exempted "
         f"({ok + mismatch + missing + own} port declarations checked)"
     )

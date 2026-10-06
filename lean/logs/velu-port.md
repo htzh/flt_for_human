@@ -1728,3 +1728,133 @@ own header having named these nodes as the missing tail, and its pre-existing pr
 **Phase D status.** The H5 vocabulary tail is closed. The one remaining Phase D item
 is `IsogenyEndDatum.aeval_j_diag_eq_zero_of_finrankAlong_eq`, still gated on the
 `PeriodPair` uniformization ladder.
+
+---
+
+## P-1b — the `PeriodPair` lattice/scale prelude dedup (close-out, 2026-10-06)
+
+Work order: [topics/velu/WORKORDER-P1b-lattice-prelude-dedup.md](../topics/velu/WORKORDER-P1b-lattice-prelude-dedup.md).
+A consolidation, not new mathematics: `0 mismatched / 0 missing` before and after.
+
+**What landed.** The lattice/scale/discriminant prelude had three implementations:
+public in `Elliptic/PeriodPair/Discriminant.lean`, public at the root namespace in
+`ModularForms/WeightOne/Defs/PeriodPair.lean`, and a 53-line `private` block plus a
+private `periodPairOfTau` in `ModularForms/WeightOne/FrickeFunction.lean`. It now has
+one home, `FLTForHuman/Elliptic/PeriodPair/Lattice.lean` (260 lines, namespace
+`PeriodPair`, imports only `Basic.lean`, 30 public + 9 `private` declarations).
+`Discriminant.lean` (326 → 248 lines) imports `Lattice` and keeps the
+discriminant-specific tail; `Defs/PeriodPair.lean` (98 → 23 lines) re-exports the
+root-level names; `FrickeFunction.lean` (2926 → 2869 lines) drops the private block
+(196–248) and the private `periodPairOfTau` (967).
+
+**One proof per fact.** The scale law is proved once for `L.scale α`; the pin's
+`smul` spelling is *defined* as `smulPeriodPair a ha L := L.scale (Units.mk0 a ha)`,
+so `G_smulPeriodPair` follows from `G_scale` by
+`simpa only [smulPeriodPair, Units.val_mk0, inv_pow]`, `latticeDisc_smulPeriodPair`
+from `discriminant_scale`, and `g₂_smulPeriodPair`/`g₃_smulPeriodPair` from
+`G_smulPeriodPair`. `smulLatticeEquiv` derives from `scaleLatticeEquiv`
+(`(L.scaleLatticeEquiv (Units.mk0 a ha)).toEquiv`), `mem_smulPeriodPair_lattice` is
+the pin's `mem_lattice` proof, and `G_of_lattice_eq`/`g₂_of_lattice_eq`/
+`g₃_of_lattice_eq` are one-line restatements of `G_eq_of_lattice_eq`/
+`g₂_eq_of_lattice_eq`/`g₃_eq_of_lattice_eq`. Only `weierstrassP_smulPeriodPair`
+and `weierstrassP_of_lattice_eq` keep a genuine proof.
+
+**Declarations deleted, with survivors** (`grep -c` over the port before the cut;
+"pin copies" counts the pin's public + private duplicates).
+
+| deleted copy | was | survivor | pin copies |
+|---|---|---|---|
+| `latticeEquivOfEq` | `private` Fricke 196; `private` Discriminant 230 | `PeriodPair.latticeEquivOfEq` (`private`, home) | 2 |
+| `latticeEquivOfEq_coe` | `private` Fricke 203 | `PeriodPair.latticeEquivOfEq_coe` (`private`, home) | 2 |
+| `weierstrassP_of_lattice_eq` | `private` Fricke 206 | `PeriodPair.weierstrassP_of_lattice_eq` (public, home) | 1 |
+| `G_of_lattice_eq` | `private` Fricke 212 | `PeriodPair.G_of_lattice_eq` (public, home) | 1 |
+| `G_smulPeriodPair` | `private` Fricke 218 | `PeriodPair.G_smulPeriodPair` (public, home) | 1 |
+| `g₂_smulPeriodPair` | `private` Fricke 226 | `PeriodPair.g₂_smulPeriodPair` (public, home) | 1 |
+| `g₃_smulPeriodPair` | `private` Fricke 230 | `PeriodPair.g₃_smulPeriodPair` (public, home) | 1 |
+| `latticeDisc` | `private` Fricke 234 | `PeriodPair.latticeDisc` (public, home) | 1 |
+| `latticeDisc_smulPeriodPair` | `private` Fricke 236 | `PeriodPair.latticeDisc_smulPeriodPair` (public, home) | 1 |
+| `g₂_of_lattice_eq` | `private` Fricke 240 | `PeriodPair.g₂_of_lattice_eq` (public, home) | 1 |
+| `g₃_of_lattice_eq` | `private` Fricke 243 | `PeriodPair.g₃_of_lattice_eq` (public, home) | 1 |
+| `latticeDisc_of_lattice_eq` | `private` Fricke 246 | `PeriodPair.latticeDisc_of_lattice_eq` (public, home) | 1 |
+| `periodPairOfTau` | `private` Fricke 967 | `PeriodPair.periodPairOfTau` = `ofTau`; root re-export | 5 |
+| `periodPairOfTau_ω₁`/`_ω₂` | `private`? no — root `Defs` | `PeriodPair.periodPairOfTau_ω₁`/`_ω₂` | 5 |
+| `scale_lattice`, `scaleLatticeEquiv`, `scaleLatticeEquiv_apply`, `G_scale`, `g₂_scale`, `g₃_scale`, `discriminant_scale`, `mulLeftR`/`mulLeftZ` block | `Discriminant` | `PeriodPair.*` (home) | 1 |
+| `G_eq_of_lattice_eq`, `g₂_eq_of_lattice_eq`, `g₃_eq_of_lattice_eq` | `Discriminant` | `PeriodPair.*` (home) | 1 |
+| `periodPairOfTau`, `smulPeriodPair`, `smulPeriodPair_ω₁`/`_ω₂`, `mem_smulPeriodPair_lattice`, `smulLatticeEquiv`, `smulLatticeEquiv_coe`, `weierstrassP_smulPeriodPair`, `periodPair_eq_of_ω` | root `Defs` | root re-export of `PeriodPair.*` (home) | 5 |
+
+`latticeEquivOfEq` and `latticeEquivOfEq_coe` stay `private` in the home (internal
+helpers); everything else the pin declares public is public there.
+`periodPair_eq_of_ω`'s pin copies are the private ones in
+`S_ModularForm_weierstrassP_torsion_qExpansion_package.lean:172` and
+`S_WLight_levelN_structure_package.lean:1106`; the home's public copy matches
+through the checker's dotted fallback (`promoted`).
+
+**Checker delta reconciled.** Baseline P-SET-1: `5853 identical (313 promoted, 4
+renamed), 0 mismatched, 0 missing, 36 own, 5889 checked`. After:
+`5864 identical (313 promoted, 4 renamed), 0 mismatched, 0 missing, 36 own, 5900
+checked`. Delta **+11 identical / +11 checked**, no mismatch, no missing, no drop
+in promoted. The 11 are exactly the newly-public promotions out of the
+`FrickeFunction` private block — `weierstrassP_of_lattice_eq`, `G_of_lattice_eq`,
+`G_smulPeriodPair`, `g₂_smulPeriodPair`, `g₃_smulPeriodPair`, `latticeDisc`,
+`latticeDisc_smulPeriodPair`, `g₂_of_lattice_eq`, `g₃_of_lattice_eq`,
+`latticeDisc_of_lattice_eq` — plus `discriminant_scale` (private in the port,
+public in the pin). The move of 8 names from `Discriminant.lean` to `Lattice.lean`
+and of 11 root names from `Defs/PeriodPair.lean` (now `export`) to `Lattice.lean`
+nets to zero, because the same statements are still counted once each. There is
+no public deletion, so no expected `−1`. The 4 `RENAMED` rows are unchanged.
+
+**Consumers and axioms.** `spec/PeriodPairConsumer.lean` exit 0 (4.1 s);
+`spec/WeightOneConsumer.lean` exit 0 (6.1 s). `#print axioms` on
+`PeriodPair.discriminant_ne_zero` and `PeriodPair.isUniformization_toPoint`:
+`[propext, Classical.choice, Quot.sound]` — unchanged.
+
+**Build jobs and cascade.** Wave whole-tree `flock .lake/flt_build.lock lake build`:
+**9308 jobs, green, 5 m 00.5 s wall** (14 m 11 s user, 1 m 17 s sys). Cached
+milestone re-run: **9308 jobs, green, 7.4 s**. Cascade (import closure measured on
+the port): `Defs/PeriodPair.lean` — 13 direct importers, **34 transitive
+dependents / 28,531 lines**; `FrickeFunction.lean` — 8 direct importers,
+**27 transitive dependents / 21,730 lines**; union **34 modules / 28,531 lines`.
+The wave build re-elaborated that union (plus the two edited files themselves)
+before the cached re-run.
+
+**Friction / deliberate deviations.**
+
+1. **`Defs/PeriodPair.lean` is an `export` shim, not literal `def` aliases.** The
+   work order's first shape — keep root-level `def`/`lemma` aliases beside a home
+   that also declares the same last names in `namespace PeriodPair` — makes every
+   unqualified use ambiguous in any file that `open PeriodPair`s (Lean reports
+   `Ambiguous term`, verified against both root and `PeriodPair.smulPeriodPair`).
+   `export PeriodPair (…)` creates root names that *are* the home's constants, so
+   there is no second declaration, no ambiguity, and the importers are untouched.
+   The checker now finds the declarations in `Lattice.lean` (in `PORT_FILES`)
+   rather than in `Defs/PeriodPair.lean`; the count is unchanged.
+2. **`discriminant_scale` is public in the home** (it was `private` in
+   `Discriminant.lean`, public in the pin). `discriminantNeZero_scale_iff` stays in
+   `Discriminant.lean` (§4.2) and consumes it across the new module boundary, so it
+   cannot be `private`. This is the forced part of the +11.
+3. **`latticeEquivOfEq`/`latticeEquivOfEq_coe` stay private** even though the pin's
+   `WLight` copy is public: they are internal helpers, so the home's public surface
+   is the union of the *ported* public names, not the pin's. Recorded so the
+   `promoted` count is not read as a loss.
+4. **The pin's `smulPeriodPair` binder shape is definitional, not a bridge.**
+   `smulPeriodPair a ha L := L.scale (Units.mk0 a ha)`; `units`' anonymous
+   `⟨a, ha⟩` constructor does not elaborate for `ℂˣ` (needs `Units.mk0`), contrary
+   to the work order's illustrative alias. No `periodPair_eq_of_ω` bridge is needed;
+   the lemma is carried as the pin's public name.
+5. **Stale `.olean` trap confirmed.** After the promotion, `lake env lean` on
+   `FrickeFunction.lean` reported `Unknown constant periodPairOfTau` and three
+   `rfl` failures against the *stale* `Defs/PTorsion`/`Fricke` oleans; rebuilding
+   those dependencies made every error vanish and the file check clean in 30 s. The
+   defeq itself was verified independently (`with_unfolding_all rfl` between the
+   old explicit-field `periodPairOfTau` and `ofTau`).
+6. **`FrickeFunction.lean` needed no use-site rewrite.** The promoted names resolve
+   through the section's existing `open PeriodPair`, and the root `smulPeriodPair`
+   is the home's constant (via `export`), so the `frickePrefactor_smulPeriodPair`
+   `simp only` set is unchanged. The block and the private `periodPairOfTau` are the
+   only deletions.
+7. **`latticeDisc` keeps the pin's inline `g₂ ^ 3 - 27 * g₃ ^ 2` body** (the
+   checker diff is textual); its equality with the dictionary's
+   `weierstrassCurve_Δ` is stated once, privately, as
+   `latticeDisc_eq_weierstrassCurve_Δ`. `weierstrassP_of_lattice_eq`, which has no
+   `scale`-spelled counterpart, is promoted to the home (public) rather than left
+   private in `FrickeFunction.lean`.
