@@ -279,3 +279,16 @@ are repeated in the playbook §2.1; keep the specific instances here.
   the closure is genuine (15,179 lines, and the two classical theorems are on the path,
   not prelude), it is ~4% of the remaining frontier, and the recommended first move is a
   math scout rather than a work order.
+- **The docs-site closure is inflated at the *proof* level too (found 2026-10-06).** The
+  closure over the pin's citation graph puts `PeriodPair.isUniformization_toPoint`,
+  `aeval_j_diag_eq_zero_of_finrankAlong_eq`, `functionFieldGeneration` and
+  `CerednikDrinfeld.Mumford.PeriodUniformization` inside the closure of step 4's
+  `WeierstrassCurve.modularity_of_semistableModel` and of the Langlands–Tunnell node —
+  while correctly excluding `mazurStepThree_not_inZeroComponentAt` from the same
+  closures. Grepping the `S_` files settles it: those names occur **zero** times in the
+  `solution` bodies and at most once in the whole file, on an
+  `attribute [-simp] PeriodPair.…` line, which is the pin's `p2m_*` scaffolding
+  re-exporting its entire inlined prelude. The consequence is a wrong reading of the
+  proof's architecture (it would put the complex uniformization on the `R = T` path).
+  **Before believing a closure edge, grep the callee's `solution` body**; the closure is
+  an upper bound on what a file *contains*, not on what it *uses*.
