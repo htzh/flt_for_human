@@ -237,7 +237,7 @@ entry.
 
 ## Scoping cautions
 
-Four ways a frontier figure misleads, each with the case that taught it. These
+Ways a frontier figure misleads, each with the case that taught it. These
 are repeated in the playbook §2.1; keep the specific instances here.
 
 - **A citation-leaf is not a leaf.** `needed == 1` on a node with no theorem-node
@@ -337,3 +337,47 @@ are repeated in the playbook §2.1; keep the specific instances here.
   `p2m_*` scaffolding between declarations, not its body — `KwD5BetweenCurvesHoloLift` read as
   748/151/83/25 lines across five files and is byte-identical in all five (`sha256`,
   2026-10-06). Diff normalized bodies, never spans.
+- **A row can surface again as a fresh silo the day after it lands (found 2026-10-06,
+  after P-2).** `frontier.py --target DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen
+  --rank-by silo --ready` ranks
+  `WeierstrassCurve.Affine.exists_intermediateField_countable_map_eq_of_isAddCyclic_ker_pointMapOfPushforward`
+  **first, at 3,729 silo lines**, and it is now `hops 1` with an unported closure of **0**
+  — because P-2 landed every one of its eighteen cited premises. That is the tell: a node
+  whose closure is the column just shipped is the column again, restated. It is the D row
+  in two-curve form, not new mathematics:
+
+  - `port_advise` finds **107 of its 183 declarations** with an identical statement
+    already in the port (≈2,077 raw lines; 76 trusted + 31 suspect). **26 of the 27**
+    `private` hits are D-2's descent core in
+    `WeierstrassCurve/Isogeny/IntermediateField.lean` (`iA_*`, `iCa_*`, `iPFA_*`, `iPFE_*`,
+    `iCa_K₀`, `iP_xP`). Nine of the 31 suspect hits are the tool's type-only
+    `def … : Prop` match against `PeriodPair.DiscriminantNeZero`: the `KwD5*` class wrappers
+    are new, the match is not.
+  - `port_plan` prices the file at **1,975 net-new** lines, not 3,729.
+  - At source level **62%** of the file's substantive lines are verbatim in the five pin
+    files P-2 landed — 41% in the D-2 `S_` file alone, 47% in each D-5 silo. (Measure:
+    lines ≥12 chars with the `kw_` prefix stripped; an upper bound, since generic tactic
+    lines count — but it agrees with the declaration-level 58%.) The descent block
+    (`:1799–2386`) is a byte-identical copy of D-2's, and the base-change engine
+    (`kw_surgehgf4_hfgkd_bc*`, `:2519–2839`) is a **renamed** copy of D-5's landed
+    `kw_surge_hgf4_bc*` — which is why the statement test sees only four of it: the rest
+    differ in binder spelling (`hfin'`/`ι'` against `hfin₀`/`ι₀`), the same blind spot as
+    the promotion diff.
+  - The tail is `s13_stub_ktd`, a twelve-line call into the just-landed
+    `isAddCyclic_ker_pointMapOfPushforward_of_baseChange_algHom`, then a twenty-line
+    `solution`.
+
+  What is genuinely new is one **generalization**: D-2 landed the countable descent for an
+  endomorphism of a single curve (`KwIsogenyEndDatumSubfieldDescent`, `iCa_*`, `iPFA_*`),
+  and the pin's two-curve case — `ι : E'.FunctionField →ₐ[K] E.FunctionField` between
+  *different* curves, `KwD5BetweenCurvesSubfieldDescent` — occurs only in this file (every
+  `∃ K₀ …` in the port is one-curve). The new layer is the `hSD_*` / `cfe_*` /
+  `ChiCompChiEqPhi` block, ≈800 lines by hand. **Do not port the file**: generalize D-2's
+  landed chain to two curves in place (playbook §2.4, "port the general, derive the
+  special" — the descent helpers are already written, `private` in `IntermediateField.lean`,
+  so the work is promotion plus a second curve, not transcription), and
+  the headline becomes a short composition with D-5's. Its only consumer is the 415-line
+  capstone `eval_modularPolynomial_map_j_eq_zero_of_isAddCyclic_ker_pointMapOfPushforward`.
+  Reproduce:
+  `python3 tools/deps/port_advise.py --nodes WeierstrassCurve.Affine.exists_intermediateField_countable_map_eq_of_isAddCyclic_ker_pointMapOfPushforward`,
+  then `port_plan.py` on its `--json`; the frontier command is the one above.
