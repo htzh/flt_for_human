@@ -36,7 +36,6 @@ at `aa2d8b3`.
 Pin↔port name map. The module's public surface is the pin's public *interface* of this
 node:
 
-* `Countable.of_module_finite`;
 * the self-contained descent predicates `KwIsogenyEndDatum{FGFieldDescent,
   SubfieldDescent'',IotaDescendToFG,SubfieldDescent,BaseChangeToAlgebraicClosure{,,''},
   FGFieldDescentIotaAtom',IotaDescendToFG''}`;
@@ -45,24 +44,34 @@ node:
 Everything else is a helper **local to this module** (no other set imports this module),
 so per `studies/pin-name-prefixes-and-the-checker.md` §4 it stays `private`, written at
 its pin name with the pin's collision token `kw_` stripped (`kw_iA_phi ↦ iA_phi`,
-`kw_iotaSubd_countable_of_fg ↦ iotaSubd_countable_of_fg`, …). The checker does not read
-the port's private layer, so each renamed helper is deliberately outside the statement
-diff; its statement is transcribed verbatim from the pin nonetheless. The `KwIota*`
-`Prop`s (`IotaPinnedFinrank`, `IotaPinnedFinrankEq`, `IotaPinnedFiniteSeam`,
-`IotaCanonicalFinrank`) mention those helpers in their bodies, so they stay `private`
-too; the public predicates above mention no helper.
+`kw_iotaSubd_countable_of_fg ↦ iotaSubd_countable_of_fg`, …): the 66 pin helpers of the
+descent chain, the four `KwIota*` `Prop`s (`KwIotaPinnedFinrank`,
+`KwIotaPinnedFinrankEq`, `KwIotaPinnedFiniteSeam`, `KwIotaCanonicalFinrank`, which
+mention those helpers in their bodies), and the two instances below — 72 private
+declarations in all. The checker does not read the port's private layer, so each
+renamed helper is deliberately outside the statement diff; its statement is transcribed
+verbatim from the pin nonetheless, and the public predicates above mention no helper.
+
+One prerequisite the pin carries in its prelude and set D-1 did not take: the anonymous
+`scoped instance` `FiniteDimensional (RatFunc F) W.FunctionField` (pin lines 62–64),
+which the pin's exchange argument `iPFA_*` uses twice. It is re-declared here, `private`,
+as `ratFuncFunctionField_finiteDimensional` on top of the ported
+`WeierstrassCurve.Affine.finiteDimensional_ratFunc_functionField`
+(`WeierstrassCurve/FunctionFieldFinite.lean`).
 
 Already public in the port and **imported, not re-proved** (set D-1 and its own
-dependencies): `TreeIsogenyEndDatum` and its `degree`, `kw_functionField_algHom_ext`,
-`kw_coordinateRingBasis`, the whole `pointPullback*` column, the D-1 function-field
+dependencies): `TreeIsogenyEndDatum` and its `degree`, `functionField_algHom_ext`,
+`coordinateRingBasis`, the whole `pointPullback*` column, the D-1 function-field
 tensor base change in both the `General` and the `NoAC` spelling
-(`kw_functionFieldTensorIsDomain_dischargeGeneralNoAC`,
-`kw_tensorFracIotaFinrankSeam_dischargeGeneralNoAC`,
-`kw_functionFieldTensorFracEquivGeneralNoAC`,
-`kw_tensorFracIotaRingHomGeneralNoAC_algebraMap`,
-`kw_isogenyEndDatumBaseChangeIotaGeneralNoAC`, …), `yGen`,
+(`functionFieldTensorIsDomain_dischargeGeneralNoAC`,
+`tensorFracIotaFinrankSeam_dischargeGeneralNoAC`,
+`functionFieldTensorFracEquivGeneralNoAC`,
+`tensorFracIotaRingHomGeneralNoAC_algebraMap`,
+`isogenyEndDatumBaseChangeIotaGeneralNoAC`, …), `yGen`,
 `polyToFunctionField_eq_aeval`, `equation_map_polyToFunctionField_yGen`,
-`transcendental_polyToFunctionField_X`, `algebraMap_eq_mk_C_C`.
+`transcendental_polyToFunctionField_X`, `algebraMap_eq_mk_C_C`. **D-1 exposes these at
+their prefix-stripped names** (`BaseChange.lean`, 2026-10-06), and this module is written
+against that surface.
 
 Not ported here (deliberately, the boundary of the set): the `mrtw60a*` variable-change
 block (D-3), the `kw_surgehgf4_pck*` block (D-4), the `kw_surge_hgf4_*` /
@@ -78,36 +87,48 @@ import Mathlib.FieldTheory.RatFunc.IntermediateField
 import Mathlib.RingTheory.AlgebraicIndependent.TranscendenceBasis
 import Mathlib.RingTheory.AlgebraicIndependent.Transcendental
 import Mathlib.SetTheory.Cardinal.Basic
-import Mathlib.Data.Set.Countable
+import Mathlib.SetTheory.Cardinal.Order
+import Mathlib.Data.Rat.Encodable
+import FLTForHuman.WeierstrassCurve.FunctionFieldFinite
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false
 set_option linter.unusedVariables false
+set_option linter.style.haveILetI false
 
 noncomputable section
 
 open Polynomial
-open scoped Polynomial.Bivariate WeierstrassCurve TensorProduct
+open scoped Polynomial.Bivariate WeierstrassCurve TensorProduct IntermediateField
 open AlgebraicCurve
 
 universe u uK
 
-namespace Countable
+/- The pin's proofs mix `E₀⁄K` (mathlib's `WeierstrassCurve.baseChange`) with the
+`E₀.map (algebraMap K₀ K)` spelling of the same curve, and `E₀⁄K₀` with `E₀`. FLT's own
+`baseChange` is reducible, so the two spellings unify at every transparency there;
+mathlib's `def baseChange` is semireducible, so a `rw`/`calc` step whose pattern has to
+unify them can fail. The transcription keeps every statement and every proof step,
+except in `iPFE_finrankEq`, where the three affected steps are restated as explicit
+`show … from …` / `Eq.trans` chains (elaborated at the default transparency, where the
+two spellings are definitionally equal in the port as well). -/
 
-/-! ### Countability of a finite module over a countable ring
+/-! ### A dropped declaration
 
-The pin's `Countable.of_module_finite`, the generic fact behind the pin's `Countable`
-instance for number fields. It is the only reason the pin's `Countable` block exists. -/
+The pin's `Countable.of_module_finite` (pin line 525) is a verbatim copy of mathlib's
+`Countable.of_moduleFinite` (`Mathlib/LinearAlgebra/Countable.lean`); per the dedup rule
+it is **imported from mathlib, not re-proved** — nothing is declared for it here. The
+pin's *uses* of that block are covered: its `scoped instance (K) [Field K]
+[NumberField K] : Countable K` (pin line 532) has no consumer in the descent, and the
+`Countable ℚ` its own proof of `iotaSubd_countable_of_fg` needs is mathlib's (via
+`Encodable ℚ`, imported here as `Mathlib.Data.Rat.Encodable`). -/
 
 
-lemma Countable.of_module_finite (R M : Type*) [Semiring R] [Countable R]
-    [AddCommMonoid M] [Module R M] [Module.Finite R M] : Countable M := by
-  obtain ⟨n, s, h⟩ := Module.Finite.exists_fin (R := R) (M := M)
-  rw [← Set.countable_univ_iff]
-  have : Countable (Submodule.span R (Set.range s)) := inferInstance
-  rwa [h] at this
 
-end Countable
+namespace ModularCurve
+
+open WeierstrassCurve WeierstrassCurve.Affine WeierstrassCurve.Affine.CoordinateRing
+
 
 section DescentPredicates
 
@@ -141,7 +162,7 @@ def KwIsogenyEndDatumIotaDescendToFG (K : Type uK) [Field K] [Algebra ℚ K]
 section SubfieldDescent
 
 
-theorem subfieldDescent_of_iotaDescend (K : Type uK) [Field K] [Algebra ℚ K]
+private theorem subfieldDescent_of_iotaDescend (K : Type uK) [Field K] [Algebra ℚ K]
     [DecidableEq K] [IsAlgClosed K] [CharZero K] (E : WeierstrassCurve K) [E.IsElliptic]
     (N : ℕ)
     (hIota : ∀ D : TreeIsogenyEndDatum E.toAffine, KwIsogenyEndDatumIotaDescendToFG K E D) :
@@ -156,7 +177,7 @@ def KwIsogenyEndDatumBaseChangeToAlgebraicClosure'' (K₀ : Type uK) [Field K₀
   (∃ D' : TreeIsogenyEndDatum E₀.toAffine, D'.degree = N) →
     ∃ D₀ : TreeIsogenyEndDatum (E₀⁄(AlgebraicClosure K₀)), D₀.degree = N
 
-theorem baseChangeToAC_uncond (K₀ : Type uK) [Field K₀] [DecidableEq K₀] [CharZero K₀]
+private theorem baseChangeToAC_uncond (K₀ : Type uK) [Field K₀] [DecidableEq K₀] [CharZero K₀]
     (E₀ : WeierstrassCurve K₀) [E₀.IsElliptic] (N : ℕ) :
     KwIsogenyEndDatumBaseChangeToAlgebraicClosure'' K₀ E₀ N := by
   haveI : DecidableEq (AlgebraicClosure K₀) := Classical.decEq _
@@ -168,7 +189,7 @@ theorem baseChangeToAC_uncond (K₀ : Type uK) [Field K₀] [DecidableEq K₀] [
     rw [Algebra.algebraMap_self, WeierstrassCurve.map_id]
   have hD'' : ∃ D : TreeIsogenyEndDatum (E₀⁄K₀), D.degree = N := by
     rw [hmap_id]; exact ⟨D', hD'⟩
-  exact kw_isogenyEndDatumBaseChangeAlong_dischargeGeneralNoAC E₀ K₀ (AlgebraicClosure K₀)
+  exact isogenyEndDatumBaseChangeAlong_dischargeGeneralNoAC E₀ K₀ (AlgebraicClosure K₀)
     (Algebra.ofId K₀ (AlgebraicClosure K₀)) N hD''
 
 end SubfieldDescent
@@ -198,7 +219,7 @@ def KwIsogenyEndDatumFGFieldDescentIotaAtom' (K : Type uK) [Field K] [Algebra �
       (E₀ : WeierstrassCurve K₀) (_ : E₀.IsElliptic) (_ : E₀.map (algebraMap K₀ K) = E)
       (D₀ : TreeIsogenyEndDatum (E₀⁄(AlgebraicClosure K₀))), D₀.degree = N
 
-theorem iotaAtom_of_subfieldDescent_of_baseChangeToAC (K : Type uK) [Field K] [Algebra ℚ K]
+private theorem iotaAtom_of_subfieldDescent_of_baseChangeToAC (K : Type uK) [Field K] [Algebra ℚ K]
     [DecidableEq K] [IsAlgClosed K] [CharZero K] (E : WeierstrassCurve K) [E.IsElliptic]
     (N : ℕ) (hSD : KwIsogenyEndDatumSubfieldDescent K E N)
     (hBC : ∀ (K₀ : Type uK) [Field K₀] [CharZero K₀] (E₀ : WeierstrassCurve K₀) [E₀.IsElliptic],
@@ -212,7 +233,7 @@ theorem iotaAtom_of_subfieldDescent_of_baseChangeToAC (K : Type uK) [Field K] [A
   obtain ⟨D₀, hD₀deg⟩ := hBC (↥K₀) E₀ ⟨D', hD'deg⟩
   exact ⟨K₀, hfg, E₀, hE₀ell, hE₀map, D₀, hD₀deg⟩
 
-theorem iotaSubd_countable_of_fg {K : Type uK} [Field K] [Algebra ℚ K]
+private theorem iotaSubd_countable_of_fg {K : Type uK} [Field K] [Algebra ℚ K]
     {K₀ : IntermediateField ℚ K} (hfg : K₀.FG) : Countable (↥K₀) := by
   obtain ⟨s, hs⟩ := hfg
   rw [← hs]
@@ -223,7 +244,7 @@ theorem iotaSubd_countable_of_fg {K : Type uK} [Field K] [Algebra ℚ K]
         (Cardinal.lift_le_aleph0.mpr (Set.Countable.le_aleph0 s.countable_toSet))) le_rfl)
   exact Cardinal.mk_le_aleph0_iff.mp (Cardinal.lift_le_aleph0.mp h2)
 
-theorem fgFieldDescent_of_subfieldDescent_of_baseChangeToAC (K : Type uK) [Field K]
+private theorem fgFieldDescent_of_subfieldDescent_of_baseChangeToAC (K : Type uK) [Field K]
     [Algebra ℚ K] [DecidableEq K] [IsAlgClosed K] [CharZero K] (E : WeierstrassCurve K)
     [E.IsElliptic] (N : ℕ) (hSD : KwIsogenyEndDatumSubfieldDescent K E N)
     (hBC : ∀ (K₀ : Type uK) [Field K₀] [CharZero K₀] (E₀ : WeierstrassCurve K₀) [E₀.IsElliptic],
@@ -248,27 +269,27 @@ variable (E₀ : WeierstrassCurve K₀) [E₀.IsElliptic]
 local notation3 "E" => E₀.map (algebraMap K₀ K)
 
 
-def iA_polyDescend (p : Polynomial K) (hmem : ∀ j, p.coeff j ∈ K₀) : Polynomial K₀ :=
+private def iA_polyDescend (p : Polynomial K) (hmem : ∀ j, p.coeff j ∈ K₀) : Polynomial K₀ :=
   ∑ j ∈ p.support, Polynomial.C (⟨p.coeff j, hmem j⟩ : K₀) * Polynomial.X ^ j
 
-theorem iA_polyDescend_map (p : Polynomial K) (hmem : ∀ j, p.coeff j ∈ K₀) :
+private theorem iA_polyDescend_map (p : Polynomial K) (hmem : ∀ j, p.coeff j ∈ K₀) :
     (iA_polyDescend p hmem).map (algebraMap K₀ K) = p := by
   unfold iA_polyDescend; rw [Polynomial.map_sum]
   conv_rhs => rw [p.as_sum_support_C_mul_X_pow]
   exact Finset.sum_congr rfl fun j _ => by
     rw [Polynomial.map_mul, Polynomial.map_C, Polynomial.map_pow, Polynomial.map_X]; rfl
 
-def iA_crCoeffsIn (c : (E).toAffine.CoordinateRing) : Prop :=
+private def iA_crCoeffsIn (c : (E).toAffine.CoordinateRing) : Prop :=
   ∀ (i : Fin 2) (j : ℕ),
     ((CoordinateRing.basis (E).toAffine).repr c i).coeff j ∈ K₀
 
-def iA_crDescend (c : (E).toAffine.CoordinateRing) (hmem : iA_crCoeffsIn E₀ c) :
+private def iA_crDescend (c : (E).toAffine.CoordinateRing) (hmem : iA_crCoeffsIn E₀ c) :
     E₀.toAffine.CoordinateRing :=
   ∑ i : Fin 2, (iA_polyDescend
       ((CoordinateRing.basis (E).toAffine).repr c i) (hmem i))
     • (CoordinateRing.basis E₀.toAffine) i
 
-theorem iA_crDescend_map (c : (E).toAffine.CoordinateRing)
+private theorem iA_crDescend_map (c : (E).toAffine.CoordinateRing)
     (hmem : iA_crCoeffsIn E₀ c) :
     CoordinateRing.map E₀.toAffine (algebraMap K₀ K) (iA_crDescend E₀ c hmem) = c := by
   unfold iA_crDescend; rw [map_sum]
@@ -281,7 +302,7 @@ theorem iA_crDescend_map (c : (E).toAffine.CoordinateRing)
     · exact h ▸ by rw [CoordinateRing.basis_one, CoordinateRing.basis_one,
         CoordinateRing.map_mk, Polynomial.map_X]
 
-theorem iA_phiEquation :
+private theorem iA_phiEquation :
     (E₀.map (algebraMap K₀ (E).toAffine.FunctionField)).toAffine.Equation
       (polyToFunctionField (E).toAffine X) (yGen (E).toAffine) := by
   have h : E₀.map (algebraMap K₀ (E).toAffine.FunctionField)
@@ -292,17 +313,17 @@ theorem iA_phiEquation :
       ← WeierstrassCurve.map_map]
   exact h ▸ equation_map_polyToFunctionField_yGen (W := (E).toAffine)
 
-theorem iA_phiTranscendental :
+private theorem iA_phiTranscendental :
     Function.Injective
       (Polynomial.aeval (R := K₀) (polyToFunctionField (E).toAffine X)) :=
   (injective_iff_map_eq_zero _).mpr fun p hp => transcendental_iff.mp
     ((transcendental_polyToFunctionField_X (W := (E).toAffine)).restrictScalars
       (R := K₀) (algebraMap K₀ K).injective) p hp
 
-def iA_phi : E₀.toAffine.FunctionField →ₐ[K₀] (E).toAffine.FunctionField :=
+private def iA_phi : E₀.toAffine.FunctionField →ₐ[K₀] (E).toAffine.FunctionField :=
   pointPullbackHomTo (iA_phiEquation E₀) (iA_phiTranscendental E₀)
 
-theorem iA_polyToFF_eq_aeval (W : WeierstrassCurve.Affine K) :
+private theorem iA_polyToFF_eq_aeval (W : WeierstrassCurve.Affine K) :
     polyToFunctionField W = (Polynomial.aeval (R := K) (polyToFunctionField W X)).toRingHom := by
   refine Polynomial.ringHom_ext (fun c => ?_) ?_
   · rw [AlgHom.toRingHom_eq_coe, RingHom.coe_coe, Polynomial.aeval_C,
@@ -313,7 +334,7 @@ theorem iA_polyToFF_eq_aeval (W : WeierstrassCurve.Affine K) :
       ← IsScalarTower.algebraMap_apply K W.CoordinateRing W.FunctionField]
   · rw [AlgHom.toRingHom_eq_coe, RingHom.coe_coe, Polynomial.aeval_X]
 
-theorem iA_phiCRCompat (c₀ : E₀.toAffine.CoordinateRing) :
+private theorem iA_phiCRCompat (c₀ : E₀.toAffine.CoordinateRing) :
     iA_phi E₀ (algebraMap E₀.toAffine.CoordinateRing E₀.toAffine.FunctionField c₀)
       = algebraMap (E).toAffine.CoordinateRing (E).toAffine.FunctionField
           (CoordinateRing.map E₀.toAffine (algebraMap K₀ K) c₀) := by
@@ -344,7 +365,7 @@ theorem iA_phiCRCompat (c₀ : E₀.toAffine.CoordinateRing) :
       Polynomial.coe_mapRingHom, Polynomial.map_X]
     rw [pointPullbackCoordHomTo_mk, Polynomial.eval₂_X]; rfl
 
-theorem iA_ffDescend_exists (x : (E).toAffine.FunctionField)
+private theorem iA_ffDescend_exists (x : (E).toAffine.FunctionField)
     (hnum : iA_crCoeffsIn E₀
       (IsLocalization.sec (nonZeroDivisors (E).toAffine.CoordinateRing) x).1)
     (hden : iA_crCoeffsIn E₀
@@ -375,7 +396,7 @@ variable (E₀ : WeierstrassCurve K₀) [E₀.IsElliptic]
 local notation3 "E" => E₀.map (algebraMap K₀ K)
 
 
-def iA_CoeffsHyp (D : TreeIsogenyEndDatum (E).toAffine) : Prop :=
+private def iA_CoeffsHyp (D : TreeIsogenyEndDatum (E).toAffine) : Prop :=
   (iA_crCoeffsIn E₀ (IsLocalization.sec (nonZeroDivisors (E).toAffine.CoordinateRing)
       (D.ι (polyToFunctionField (E).toAffine X))).1
     ∧ iA_crCoeffsIn E₀ ((IsLocalization.sec (nonZeroDivisors
@@ -410,23 +431,23 @@ variable (hcoeffs : iA_CoeffsHyp E₀ D)
 local notation3 "E" => E₀.map (algebraMap K₀ K)
 
 
-def iP_xP : E₀.toAffine.FunctionField :=
+private def iP_xP : E₀.toAffine.FunctionField :=
   Classical.choose (iA_ffDescend_exists E₀ (D.ι (polyToFunctionField (E).toAffine X))
     hcoeffs.1.1 hcoeffs.1.2)
 
-def iP_yP : E₀.toAffine.FunctionField :=
+private def iP_yP : E₀.toAffine.FunctionField :=
   Classical.choose (iA_ffDescend_exists E₀ (D.ι (yGen (E).toAffine))
     hcoeffs.2.1 hcoeffs.2.2)
 
-theorem iP_xP_spec :
+private theorem iP_xP_spec :
     iA_phi E₀ (iP_xP E₀ D hcoeffs) = D.ι (polyToFunctionField (E).toAffine X) :=
   Classical.choose_spec (iA_ffDescend_exists E₀ _ hcoeffs.1.1 hcoeffs.1.2)
 
-theorem iP_yP_spec :
+private theorem iP_yP_spec :
     iA_phi E₀ (iP_yP E₀ D hcoeffs) = D.ι (yGen (E).toAffine) :=
   Classical.choose_spec (iA_ffDescend_exists E₀ _ hcoeffs.2.1 hcoeffs.2.2)
 
-theorem iP_equation :
+private theorem iP_equation :
     (E₀.map (algebraMap K₀ E₀.toAffine.FunctionField)).toAffine.Equation
       (iP_xP E₀ D hcoeffs) (iP_yP E₀ D hcoeffs) := by
   set xP := iP_xP E₀ D hcoeffs with hxP
@@ -458,7 +479,7 @@ theorem iP_equation :
   rw [hΦc, hΦc, hΦc, hΦc, hΦc, hΦx, hΦy]
   exact hDι
 
-theorem iP_transcendental :
+private theorem iP_transcendental :
     Function.Injective (Polynomial.aeval (R := K₀) (iP_xP E₀ D hcoeffs)) := by
   refine (injective_iff_map_eq_zero _).mpr fun p hp => ?_
 
@@ -481,18 +502,18 @@ theorem iP_transcendental :
     _ = iA_phi E₀ 0 := by rw [hp]
     _ = 0 := _root_.map_zero _
 
-def iP_ι₀ : E₀.toAffine.FunctionField →ₐ[K₀] E₀.toAffine.FunctionField :=
+private def iP_ι₀ : E₀.toAffine.FunctionField →ₐ[K₀] E₀.toAffine.FunctionField :=
   pointPullbackHomTo (iP_equation E₀ D hcoeffs) (iP_transcendental E₀ D hcoeffs)
 
-theorem iP_ι₀_X :
+private theorem iP_ι₀_X :
     iP_ι₀ E₀ D hcoeffs (polyToFunctionField E₀.toAffine X) = iP_xP E₀ D hcoeffs :=
   pointPullbackHomTo_polyToFunctionField_X _ _
 
-theorem iP_ι₀_yGen :
+private theorem iP_ι₀_yGen :
     iP_ι₀ E₀ D hcoeffs (yGen E₀.toAffine) = iP_yP E₀ D hcoeffs :=
   pointPullbackHomTo_yGen _ _
 
-def KwIotaPinnedFinrank : Prop :=
+private def KwIotaPinnedFinrank : Prop :=
   (iP_ι₀ E₀ D hcoeffs).toRingHom.IsIntegral
     ∧ FiniteAlong K₀ (iP_ι₀ E₀ D hcoeffs)
     ∧ finrankAlong K₀ (iP_ι₀ E₀ D hcoeffs) = D.degree
@@ -505,29 +526,29 @@ section CoeffSet
 variable {K : Type uK} [Field K] [DecidableEq K]
 
 
-def iCa_crRepr (E : WeierstrassCurve K) (c : E.toAffine.CoordinateRing)
+private def iCa_crRepr (E : WeierstrassCurve K) (c : E.toAffine.CoordinateRing)
     (i : Fin 2) : Polynomial K :=
   (CoordinateRing.basis E.toAffine).repr c i
 
-def iCa_crCoeffSet (E : WeierstrassCurve K) (c : E.toAffine.CoordinateRing) :
+private def iCa_crCoeffSet (E : WeierstrassCurve K) (c : E.toAffine.CoordinateRing) :
     Finset K :=
   ((iCa_crRepr E c 0).support.image (iCa_crRepr E c 0).coeff) ∪
   ((iCa_crRepr E c 1).support.image (iCa_crRepr E c 1).coeff)
 
-def iCa_ffNum (E : WeierstrassCurve K) (x : E.toAffine.FunctionField) :
+private def iCa_ffNum (E : WeierstrassCurve K) (x : E.toAffine.FunctionField) :
     E.toAffine.CoordinateRing :=
   (IsLocalization.sec (nonZeroDivisors E.toAffine.CoordinateRing) x).1
 
-def iCa_ffDen (E : WeierstrassCurve K) (x : E.toAffine.FunctionField) :
+private def iCa_ffDen (E : WeierstrassCurve K) (x : E.toAffine.FunctionField) :
     E.toAffine.CoordinateRing :=
   ((IsLocalization.sec (nonZeroDivisors E.toAffine.CoordinateRing) x).2 :
     E.toAffine.CoordinateRing)
 
-def iCa_ffCoeffSet (E : WeierstrassCurve K) (x : E.toAffine.FunctionField) :
+private def iCa_ffCoeffSet (E : WeierstrassCurve K) (x : E.toAffine.FunctionField) :
     Finset K :=
   iCa_crCoeffSet E (iCa_ffNum E x) ∪ iCa_crCoeffSet E (iCa_ffDen E x)
 
-theorem iCa_crRepr_coeff_mem (E : WeierstrassCurve K)
+private theorem iCa_crRepr_coeff_mem (E : WeierstrassCurve K)
     (c : E.toAffine.CoordinateRing) (i : Fin 2) (j : ℕ) :
     (iCa_crRepr E c i).coeff j ∈ (↑(iCa_crCoeffSet E c) : Set K) ∪ {0} := by
   by_cases hj : j ∈ (iCa_crRepr E c i).support
@@ -548,22 +569,22 @@ variable {K : Type uK} [Field K] [Algebra ℚ K] [DecidableEq K] [IsAlgClosed K]
 variable (E : WeierstrassCurve K) [E.IsElliptic] (D : TreeIsogenyEndDatum E.toAffine)
 
 
-def iCa_genSet : Set K :=
+private def iCa_genSet : Set K :=
   {E.a₁, E.a₂, E.a₃, E.a₄, E.a₆} ∪
     ↑(iCa_ffCoeffSet E (D.ι (polyToFunctionField E.toAffine X))) ∪
     ↑(iCa_ffCoeffSet E (D.ι (yGen E.toAffine)))
 
-theorem iCa_genSet_finite : (iCa_genSet E D).Finite := by
+private theorem iCa_genSet_finite : (iCa_genSet E D).Finite := by
   unfold iCa_genSet
   exact ((((Set.finite_singleton _).insert _ |>.insert _ |>.insert _ |>.insert _).union
     (Finset.finite_toSet _)).union (Finset.finite_toSet _))
 
-def iCa_K₀ : IntermediateField ℚ K := IntermediateField.adjoin ℚ (iCa_genSet E D)
+private def iCa_K₀ : IntermediateField ℚ K := IntermediateField.adjoin ℚ (iCa_genSet E D)
 
-theorem iCa_K₀_fg : (iCa_K₀ E D).FG :=
+private theorem iCa_K₀_fg : (iCa_K₀ E D).FG :=
   ⟨(iCa_genSet_finite E D).toFinset, by rw [Set.Finite.coe_toFinset]; rfl⟩
 
-theorem iCa_K₀_mem_aᵢ :
+private theorem iCa_K₀_mem_aᵢ :
     E.a₁ ∈ iCa_K₀ E D ∧ E.a₂ ∈ iCa_K₀ E D ∧ E.a₃ ∈ iCa_K₀ E D ∧
     E.a₄ ∈ iCa_K₀ E D ∧ E.a₆ ∈ iCa_K₀ E D := by
   have h : ({E.a₁, E.a₂, E.a₃, E.a₄, E.a₆} : Set K) ⊆ iCa_K₀ E D := fun x hx =>
@@ -571,14 +592,14 @@ theorem iCa_K₀_mem_aᵢ :
   exact ⟨h (Or.inl rfl), h (Or.inr (Or.inl rfl)), h (Or.inr (Or.inr (Or.inl rfl))),
     h (Or.inr (Or.inr (Or.inr (Or.inl rfl)))), h (Or.inr (Or.inr (Or.inr (Or.inr rfl))))⟩
 
-def iCa_E₀ : WeierstrassCurve (iCa_K₀ E D) where
+private def iCa_E₀ : WeierstrassCurve (iCa_K₀ E D) where
   a₁ := ⟨E.a₁, (iCa_K₀_mem_aᵢ E D).1⟩
   a₂ := ⟨E.a₂, (iCa_K₀_mem_aᵢ E D).2.1⟩
   a₃ := ⟨E.a₃, (iCa_K₀_mem_aᵢ E D).2.2.1⟩
   a₄ := ⟨E.a₄, (iCa_K₀_mem_aᵢ E D).2.2.2.1⟩
   a₆ := ⟨E.a₆, (iCa_K₀_mem_aᵢ E D).2.2.2.2⟩
 
-theorem iCa_E₀_map :
+private theorem iCa_E₀_map :
     (iCa_E₀ E D).map (algebraMap (iCa_K₀ E D) K) = E := by ext <;> rfl
 
 private scoped instance iCa_E₀_isElliptic : (iCa_E₀ E D).IsElliptic := by
@@ -587,7 +608,7 @@ private scoped instance iCa_E₀_isElliptic : (iCa_E₀ E D).IsElliptic := by
     rw [← WeierstrassCurve.map_Δ, iCa_E₀_map]
   rw [h0, _root_.map_zero] at this; exact E.isUnit_Δ.ne_zero this.symm
 
-theorem iCa_crCoeffsIn_of_ffCoeffSet_subset (E' : WeierstrassCurve K)
+private theorem iCa_crCoeffsIn_of_ffCoeffSet_subset (E' : WeierstrassCurve K)
     (x : E'.toAffine.FunctionField) {K₀' : IntermediateField ℚ K}
     (hsub : (↑(iCa_ffCoeffSet E' x) : Set K) ⊆ K₀') (i : Fin 2) (j : ℕ) :
     ((CoordinateRing.basis E'.toAffine).repr (iCa_ffNum E' x) i).coeff j ∈ K₀' ∧
@@ -603,20 +624,20 @@ theorem iCa_crCoeffsIn_of_ffCoeffSet_subset (E' : WeierstrassCurve K)
     · exact hsub (by simp only [iCa_ffCoeffSet, Finset.coe_union]; exact Or.inr hD)
     · simp only [Set.mem_singleton_iff] at hD; exact hD ▸ zero_mem K₀'
 
-def iCa_D' :
+private def iCa_D' :
     TreeIsogenyEndDatum ((iCa_E₀ E D).map (algebraMap (iCa_K₀ E D) K)).toAffine :=
   Eq.mpr (congrArg (fun W => TreeIsogenyEndDatum W.toAffine) (iCa_E₀_map E D)) D
 
-def KwIotaCanonicalFinrank : Prop :=
+private def KwIotaCanonicalFinrank : Prop :=
   ∀ hcoeffs : iA_CoeffsHyp (iCa_E₀ E D) (iCa_D' E D),
     KwIotaPinnedFinrank (iCa_E₀ E D) (iCa_D' E D) hcoeffs
 
-theorem iCa_ffCoeffSet_subset_X :
+private theorem iCa_ffCoeffSet_subset_X :
     (↑(iCa_ffCoeffSet E (D.ι (polyToFunctionField E.toAffine X))) : Set K)
       ⊆ iCa_K₀ E D :=
   fun _ hc => IntermediateField.subset_adjoin ℚ _ (Or.inl (Or.inr hc))
 
-theorem iCa_ffCoeffSet_subset_Y :
+private theorem iCa_ffCoeffSet_subset_Y :
     (↑(iCa_ffCoeffSet E (D.ι (yGen E.toAffine))) : Set K) ⊆ iCa_K₀ E D :=
   fun _ hc => IntermediateField.subset_adjoin ℚ _ (Or.inr hc)
 
@@ -633,20 +654,20 @@ variable (hcoeffs : iA_CoeffsHyp E₀ D)
 local notation3 "E" => E₀.map (algebraMap K₀ K)
 
 
-theorem iPF_phi_X :
+private theorem iPF_phi_X :
     iA_phi E₀ (polyToFunctionField E₀.toAffine X)
       = polyToFunctionField (E).toAffine X :=
   pointPullbackHomTo_polyToFunctionField_X _ _
 
-theorem iPF_phi_yGen :
+private theorem iPF_phi_yGen :
     iA_phi E₀ (yGen E₀.toAffine) = yGen (E).toAffine :=
   pointPullbackHomTo_yGen _ _
 
-def KwIotaPinnedFiniteSeam : Prop :=
+private def KwIotaPinnedFiniteSeam : Prop :=
   FiniteAlong K₀ (iP_ι₀ E₀ D hcoeffs)
     ∧ finrankAlong K₀ (iP_ι₀ E₀ D hcoeffs) = D.degree
 
-theorem iotaPinnedFinrank_of_finiteSeam
+private theorem iotaPinnedFinrank_of_finiteSeam
     (hSeam : KwIotaPinnedFiniteSeam E₀ D hcoeffs) :
     KwIotaPinnedFinrank E₀ D hcoeffs := by
   obtain ⟨hfin, hdeg⟩ := hSeam
@@ -661,12 +682,12 @@ section Cast
 variable {K : Type uK} [Field K] [Algebra ℚ K] [DecidableEq K] [IsAlgClosed K] [CharZero K]
 
 
-theorem iCaW_degree_mpr {W W' : WeierstrassCurve K}
+private theorem iCaW_degree_mpr {W W' : WeierstrassCurve K}
     (heq : W = W') (D : TreeIsogenyEndDatum W'.toAffine) :
     (Eq.mpr (congrArg (fun V => TreeIsogenyEndDatum V.toAffine) heq) D).degree = D.degree := by
   subst heq; rfl
 
-theorem iCaW_coeffsHyp_of_subset_cast {K₀ : IntermediateField ℚ K}
+private theorem iCaW_coeffsHyp_of_subset_cast {K₀ : IntermediateField ℚ K}
     (E₀ : WeierstrassCurve K₀) [E₀.IsElliptic]
     {W' : WeierstrassCurve K} (heq : E₀.map (algebraMap K₀ K) = W')
     (D : TreeIsogenyEndDatum W'.toAffine)
@@ -683,7 +704,7 @@ theorem iCaW_coeffsHyp_of_subset_cast {K₀ : IntermediateField ℚ K}
   · exact (iCa_crCoeffsIn_of_ffCoeffSet_subset _ _ hY i j).1
   · exact (iCa_crCoeffsIn_of_ffCoeffSet_subset _ _ hY i j).2
 
-theorem iCaW_descend_of_pinned_cast {K₀ : IntermediateField ℚ K}
+private theorem iCaW_descend_of_pinned_cast {K₀ : IntermediateField ℚ K}
     (E₀ : WeierstrassCurve K₀) [E₀.IsElliptic]
     {W' : WeierstrassCurve K} [W'.IsElliptic]
     (heq : E₀.map (algebraMap K₀ K) = W')
@@ -706,12 +727,12 @@ variable {K : Type uK} [Field K] [Algebra ℚ K] [DecidableEq K] [IsAlgClosed K]
 variable (E : WeierstrassCurve K) [E.IsElliptic] (D : TreeIsogenyEndDatum E.toAffine)
 
 
-theorem iCaW_hcoeffs_canonical :
+private theorem iCaW_hcoeffs_canonical :
     iA_CoeffsHyp (iCa_E₀ E D) (iCa_D' E D) :=
   iCaW_coeffsHyp_of_subset_cast (iCa_E₀ E D) (iCa_E₀_map E D) D
     (iCa_ffCoeffSet_subset_X E D) (iCa_ffCoeffSet_subset_Y E D)
 
-theorem iotaDescendToFG_of_canonicalFinrank
+private theorem iotaDescendToFG_of_canonicalFinrank
     (hCan : KwIotaCanonicalFinrank E D) :
     KwIsogenyEndDatumIotaDescendToFG'' K E D :=
   iCaW_descend_of_pinned_cast (iCa_E₀ E D) (iCa_E₀_map E D) D
@@ -725,8 +746,16 @@ section Exchange
 
 variable {K : Type*} [Field K] (W : WeierstrassCurve.Affine K)
 
+/-- `RatFunc K → W.FunctionField` is finite. The pin carries this as an anonymous
+`scoped instance` in its prelude (pin lines 62–64); set D-1 did not take it, and the
+exchange argument below needs it. Named for content, `private` (the checker ignores
+anonymous instances on both sides). -/
+private instance ratFuncFunctionField_finiteDimensional :
+    FiniteDimensional (RatFunc K) W.FunctionField :=
+  WeierstrassCurve.Affine.finiteDimensional_ratFunc_functionField W
 
-theorem iPFA_isTranscendenceBasis_coord :
+
+private theorem iPFA_isTranscendenceBasis_coord :
     IsTranscendenceBasis K
       (fun _ : Fin 1 => algebraMap (RatFunc K) W.FunctionField RatFunc.X) := by
   haveI : Algebra.IsAlgebraic (RatFunc K) (RatFunc K) :=
@@ -752,7 +781,7 @@ theorem iPFA_isTranscendenceBasis_coord :
     funext i; simp only [Function.comp_apply]; rw [RatFunc.algebraMap_X]
   rwa [hfun] at h2
 
-theorem iPFA_isAlgebraic_adjoin_transcendental {g : W.FunctionField}
+private theorem iPFA_isAlgebraic_adjoin_transcendental {g : W.FunctionField}
     (hg : Transcendental K g) :
     Algebra.IsAlgebraic (↥K⟮g⟯) W.FunctionField := by
   classical
@@ -773,7 +802,7 @@ theorem iPFA_isAlgebraic_adjoin_transcendental {g : W.FunctionField}
     (IntermediateField.AdjoinSimple.gen K g)
   rwa [IntermediateField.AdjoinSimple.algebraMap_gen] at h1
 
-theorem iPFA_finiteDimensional_adjoin_transcendental {g : W.FunctionField}
+private theorem iPFA_finiteDimensional_adjoin_transcendental {g : W.FunctionField}
     (hg : Transcendental K g) :
     FiniteDimensional (↥K⟮g⟯) W.FunctionField := by
   classical
@@ -833,7 +862,7 @@ variable (hcoeffs : iA_CoeffsHyp E₀ D)
 local notation3 "E" => E₀.map (algebraMap K₀ K)
 
 
-theorem iPFA_finiteAlong :
+private theorem iPFA_finiteAlong :
     FiniteAlong K₀ (iP_ι₀ E₀ D hcoeffs) := by
   set ι₀ := iP_ι₀ E₀ D hcoeffs
   set xP := iP_xP E₀ D hcoeffs
@@ -872,17 +901,22 @@ theorem iPFA_finiteAlong :
   rw [hfactor]
   exact RingHom.Finite.comp hfdR (RingHom.Finite.of_surjective _ hsurj)
 
-def KwIotaPinnedFinrankEq : Prop :=
+private def KwIotaPinnedFinrankEq : Prop :=
   finrankAlong K₀ (iP_ι₀ E₀ D hcoeffs) = D.degree
 
-theorem iotaPinnedFiniteSeam_of_finrankEq
+private theorem iotaPinnedFiniteSeam_of_finrankEq
     (hdeg : KwIotaPinnedFinrankEq E₀ D hcoeffs) :
     KwIotaPinnedFiniteSeam E₀ D hcoeffs :=
   ⟨iPFA_finiteAlong E₀ D hcoeffs, hdeg⟩
 
 end Discharge
 
+
 section FinrankEq
+
+attribute [local instance] Algebra.TensorProduct.rightAlgebra
+
+
 
 variable {K : Type uK} [Field K] [Algebra ℚ K] [DecidableEq K] [IsAlgClosed K] [CharZero K]
 variable {K₀ : IntermediateField ℚ K}
@@ -893,7 +927,7 @@ variable (hcoeffs : iA_CoeffsHyp E₀ D)
 local notation3 "E" => E₀.map (algebraMap K₀ K)
 
 
-theorem iPFE_functionField_ringHom_ext {F : Type*} [Field F] {W : Affine F}
+private theorem iPFE_functionField_ringHom_ext {F : Type*} [Field F] {W : Affine F}
     {L : Type*} [Field L] {f g : W.FunctionField →+* L}
     (hF : ∀ r : F, f (algebraMap F W.FunctionField r) = g (algebraMap F W.FunctionField r))
     (hX : f (polyToFunctionField W X) = g (polyToFunctionField W X))
@@ -901,10 +935,10 @@ theorem iPFE_functionField_ringHom_ext {F : Type*} [Field F] {W : Affine F}
   letI : Algebra F L := (f.comp (algebraMap F W.FunctionField)).toAlgebra
   let f' : W.FunctionField →ₐ[F] L := { f with commutes' := fun _ => rfl }
   let g' : W.FunctionField →ₐ[F] L := { g with commutes' := fun r => (hF r).symm }
-  have heq : f' = g' := kw_functionField_algHom_ext hX hy
+  have heq : f' = g' := functionField_algHom_ext hX hy
   exact congrArg AlgHom.toRingHom heq
 
-theorem iPFE_finrankEq : KwIotaPinnedFinrankEq E₀ D hcoeffs := by
+private theorem iPFE_finrankEq : KwIotaPinnedFinrankEq E₀ D hcoeffs := by
   set ι₀ := iP_ι₀ E₀ D hcoeffs
   have hfin := iPFA_finiteAlong E₀ D hcoeffs
   have hint : ι₀.toRingHom.IsIntegral :=
@@ -914,12 +948,20 @@ theorem iPFE_finrankEq : KwIotaPinnedFinrankEq E₀ D hcoeffs := by
   have hD₀_deg : D₀.degree = finrankAlong K₀ ι₀ := rfl
 
   haveI hdom : IsDomain ((E₀⁄(K₀ : Type uK)).FunctionField ⊗[K₀] K) :=
-    kw_functionFieldTensorIsDomain_dischargeGeneralNoAC E₀ (K₀ : Type uK) K
+    functionFieldTensorIsDomain_dischargeGeneralNoAC E₀ (K₀ : Type uK) K
   let T := (E₀⁄(K₀ : Type uK)).FunctionField ⊗[K₀] K
   let FrT := FractionRing T
-  let ψ := kw_functionFieldTensorFracEquivGeneralNoAC E₀ (K₀ : Type uK) K
-  let ιFr := kw_tensorFracIotaRingHomGeneralNoAC E₀ (K₀ : Type uK) K D₀
+  let ψ := functionFieldTensorFracEquivGeneralNoAC E₀ (K₀ : Type uK) K
+  let ιFr := tensorFracIotaRingHomGeneralNoAC E₀ (K₀ : Type uK) K D₀
   let Φ := iA_phi E₀
+
+  -- the two `tmul` forms the base-change lemmas give are restated with `ι₀` in place
+  -- of `D₀.ι`: the pin's `baseChange` is reducible, mathlib's is not, so the raw
+  -- `rw [tensorIotaRingHomGeneralNoAC_tmul …]` cannot unify the two spellings.
+  have htmul : ∀ (a : E₀.toAffine.FunctionField) (c : K),
+      tensorIotaRingHomGeneralNoAC E₀ (K₀ : Type uK) K D₀ (a ⊗ₜ[K₀] c)
+        = (ι₀ a) ⊗ₜ[K₀] c :=
+    fun a c => tensorIotaRingHomGeneralNoAC_tmul E₀ (K₀ : Type uK) K D₀ a c
 
   have hκ : ∀ a : E₀.toAffine.FunctionField,
       ψ (Φ a) = algebraMap T FrT (a ⊗ₜ[K₀] (1 : K)) := by
@@ -945,40 +987,36 @@ theorem iPFE_finrankEq : KwIotaPinnedFinrankEq E₀ D hcoeffs := by
           (congrArg (algebraMap T FrT) hT.symm))
       · show ψ (Φ (polyToFunctionField E₀.toAffine X)) = _
         rw [iPF_phi_X E₀]
-        exact kw_functionFieldTensorFracHomGeneralNoAC_X E₀ (K₀ : Type uK) K
+        exact functionFieldTensorFracHomGeneralNoAC_X E₀ (K₀ : Type uK) K
       · show ψ (Φ (yGen E₀.toAffine)) = _
         rw [iPF_phi_yGen E₀]
-        exact kw_functionFieldTensorFracHomGeneralNoAC_yGen E₀ (K₀ : Type uK) K
+        exact functionFieldTensorFracHomGeneralNoAC_yGen E₀ (K₀ : Type uK) K
     exact fun a => DFunLike.congr_fun heq a
 
-  let D₀' := kw_isogenyEndDatumBaseChangeIotaGeneralNoAC E₀ (K₀ : Type uK) K D₀
+  let D₀' := isogenyEndDatumBaseChangeIotaGeneralNoAC E₀ (K₀ : Type uK) K D₀
   have hψ_Φ_ι₀ : ∀ a, ψ (Φ (ι₀ a)) = ιFr (ψ (Φ a)) := by
     intro a
     rw [hκ (ι₀ a), hκ a,
-      kw_tensorFracIotaRingHomGeneralNoAC_algebraMap E₀ (K₀ : Type uK) K D₀,
-      kw_tensorIotaRingHomGeneralNoAC_tmul E₀ (K₀ : Type uK) K D₀]
-    rfl
+      tensorFracIotaRingHomGeneralNoAC_algebraMap E₀ (K₀ : Type uK) K D₀]
+    exact congrArg (algebraMap T FrT) (htmul a 1).symm
   have hD₀'_gen : ∀ a, D₀' (Φ a) = Φ (ι₀ a) := by
     intro a
     show ψ.symm (ιFr (ψ (Φ a))) = Φ (ι₀ a)
     rw [← hψ_Φ_ι₀]
     exact ψ.symm_apply_apply _
   have hD₀'_eq : D₀' = D.ι := by
-    refine kw_functionField_algHom_ext ?_ ?_
-    ·
-
-      calc D₀' (polyToFunctionField (E₀⁄K) X)
-          = D₀' (Φ (polyToFunctionField E₀.toAffine X)) :=
-            congrArg D₀' (iPF_phi_X E₀).symm
-        _ = Φ (ι₀ (polyToFunctionField E₀.toAffine X)) := hD₀'_gen _
-        _ = Φ (iP_xP E₀ D hcoeffs) := congrArg Φ (iP_ι₀_X E₀ D hcoeffs)
-        _ = D.ι (polyToFunctionField (E).toAffine X) := iP_xP_spec E₀ D hcoeffs
-    ·
-      calc D₀' (yGen (E₀⁄K))
-          = D₀' (Φ (yGen E₀.toAffine)) := congrArg D₀' (iPF_phi_yGen E₀).symm
-        _ = Φ (ι₀ (yGen E₀.toAffine)) := hD₀'_gen _
-        _ = Φ (iP_yP E₀ D hcoeffs) := congrArg Φ (iP_ι₀_yGen E₀ D hcoeffs)
-        _ = D.ι (yGen (E).toAffine) := iP_yP_spec E₀ D hcoeffs
+    refine functionField_algHom_ext ?_ ?_
+    -- the pin's `calc` is written as an explicit `Eq.trans` chain: a `calc` step would
+    -- have to unify `(E).toAffine.FunctionField` with `(E₀⁄K).FunctionField`, which is a
+    -- semireducible `baseChange` unfolding, at too low a transparency.
+    · show D₀' (polyToFunctionField (E).toAffine X) = D.ι (polyToFunctionField (E).toAffine X)
+      exact ((congrArg D₀' (iPF_phi_X E₀).symm).trans
+        (hD₀'_gen (polyToFunctionField E₀.toAffine X))).trans
+        ((congrArg Φ (iP_ι₀_X E₀ D hcoeffs)).trans (iP_xP_spec E₀ D hcoeffs))
+    · show D₀' (yGen (E).toAffine) = D.ι (yGen (E).toAffine)
+      exact ((congrArg D₀' (iPF_phi_yGen E₀).symm).trans
+        (hD₀'_gen (yGen E₀.toAffine))).trans
+        ((congrArg Φ (iP_ι₀_yGen E₀ D hcoeffs)).trans (iP_yP_spec E₀ D hcoeffs))
 
   have hcomm : ∀ x, ιFr (ψ x) = ψ (D.ι x) := fun x => by
     have h1 : D.ι x = D₀' x := (DFunLike.congr_fun hD₀'_eq x).symm
@@ -988,7 +1026,7 @@ theorem iPFE_finrankEq : KwIotaPinnedFinrankEq E₀ D hcoeffs := by
 
   have hfin_eq : finrankAlong K D.ι = D₀.degree := by
     obtain ⟨_, hdeg_Fr⟩ :=
-      kw_tensorFracIotaFinrankSeam_dischargeGeneralNoAC E₀ (K₀ : Type uK) K D₀
+      tensorFracIotaFinrankSeam_dischargeGeneralNoAC E₀ (K₀ : Type uK) K D₀
     refine (?_ : finrankAlong K D.ι = _).trans hdeg_Fr
     exact @Algebra.finrank_eq_of_equiv_equiv
       (E₀⁄K).FunctionField (E₀⁄K).FunctionField _ _ (algebraAlong D.ι)
@@ -996,6 +1034,11 @@ theorem iPFE_finrankEq : KwIotaPinnedFinrankEq E₀ D hcoeffs := by
       (RingHom.ext hcomm)
   show finrankAlong K₀ ι₀ = D.degree
   rw [show D.degree = finrankAlong K D.ι from rfl, hfin_eq, hD₀_deg]
+
+private theorem iPFE_pinnedFinrank_uncond : KwIotaPinnedFinrank E₀ D hcoeffs :=
+  iotaPinnedFinrank_of_finiteSeam E₀ D hcoeffs
+    (iotaPinnedFiniteSeam_of_finrankEq E₀ D hcoeffs
+      (iPFE_finrankEq E₀ D hcoeffs))
 
 end FinrankEq
 
@@ -1006,15 +1049,10 @@ variable {K : Type uK} [Field K] [Algebra ℚ K] [DecidableEq K] [IsAlgClosed K]
 variable (E : WeierstrassCurve K) [E.IsElliptic] (D : TreeIsogenyEndDatum E.toAffine)
 
 
-theorem iPFE_pinnedFinrank_uncond : KwIotaPinnedFinrank E₀ D hcoeffs :=
-  iotaPinnedFinrank_of_finiteSeam E₀ D hcoeffs
-    (iotaPinnedFiniteSeam_of_finrankEq E₀ D hcoeffs
-      (iPFE_finrankEq E₀ D hcoeffs))
-
-theorem iPFE_canonicalFinrank_uncond : KwIotaCanonicalFinrank E D :=
+private theorem iPFE_canonicalFinrank_uncond : KwIotaCanonicalFinrank E D :=
   fun hcoeffs => iPFE_pinnedFinrank_uncond (iCa_E₀ E D) (iCa_D' E D) hcoeffs
 
-theorem iPFE_iotaDescendToFG_uncond :
+private theorem iPFE_iotaDescendToFG_uncond :
     KwIsogenyEndDatumIotaDescendToFG'' K E D :=
   iotaDescendToFG_of_canonicalFinrank E D (iPFE_canonicalFinrank_uncond E D)
 
@@ -1026,29 +1064,29 @@ section E2EChain
 variable {K : Type uK} [Field K] [Algebra ℚ K] [DecidableEq K] [IsAlgClosed K] [CharZero K]
 
 
-theorem iE2E_iotaDescendToFG_of_iotaDescendToFG''
+private theorem iE2E_iotaDescendToFG_of_iotaDescendToFG''
     (E : WeierstrassCurve K) [E.IsElliptic] (D : TreeIsogenyEndDatum E.toAffine)
     (h : KwIsogenyEndDatumIotaDescendToFG'' K E D) :
     KwIsogenyEndDatumIotaDescendToFG K E D := h
 
-theorem iE2E_iotaDescendToFG_uncond (E : WeierstrassCurve K) [E.IsElliptic]
+private theorem iE2E_iotaDescendToFG_uncond (E : WeierstrassCurve K) [E.IsElliptic]
     (D : TreeIsogenyEndDatum E.toAffine) :
     KwIsogenyEndDatumIotaDescendToFG K E D :=
   iE2E_iotaDescendToFG_of_iotaDescendToFG'' E D
     (iPFE_iotaDescendToFG_uncond E D)
 
-theorem iE2E_subfieldDescent_of_subfieldDescent''
+private theorem iE2E_subfieldDescent_of_subfieldDescent''
     (E : WeierstrassCurve K) [E.IsElliptic] (N : ℕ)
     (h : KwIsogenyEndDatumSubfieldDescent'' K E N) :
     KwIsogenyEndDatumSubfieldDescent K E N := h
 
-theorem iE2E_subfieldDescent_uncond (E : WeierstrassCurve K) [E.IsElliptic] (N : ℕ) :
+private theorem iE2E_subfieldDescent_uncond (E : WeierstrassCurve K) [E.IsElliptic] (N : ℕ) :
     KwIsogenyEndDatumSubfieldDescent K E N :=
   iE2E_subfieldDescent_of_subfieldDescent'' E N
     (subfieldDescent_of_iotaDescend K E N
       (fun D => iE2E_iotaDescendToFG_uncond E D))
 
-theorem iE2E_fgFieldDescent_uncond (E : WeierstrassCurve K) [E.IsElliptic] (N : ℕ) :
+private theorem iE2E_fgFieldDescent_uncond (E : WeierstrassCurve K) [E.IsElliptic] (N : ℕ) :
     KwIsogenyEndDatumFGFieldDescent K E N :=
   fgFieldDescent_of_subfieldDescent_of_baseChangeToAC K E N
     (iE2E_subfieldDescent_uncond E N)
@@ -1079,7 +1117,7 @@ theorem exists_intermediateField_countable_map_eq_and_finrankAlong_eq
               = AlgebraicCurve.finrankAlong K ι := by
   classical
   obtain ⟨K₀, hK₀, E₀, hE₀, hmap, D₀, hdeg⟩ :=
-    ModularCurve.fgFieldDescent_uncond (K := K) E (AlgebraicCurve.finrankAlong K ι)
+    ModularCurve.iE2E_fgFieldDescent_uncond (K := K) E (AlgebraicCurve.finrankAlong K ι)
       ⟨⟨ι, hι, hfin⟩, rfl⟩
   exact ⟨K₀, hK₀, E₀, hE₀, hmap, D₀.ι, D₀.hι, D₀.hfin, hdeg⟩
 

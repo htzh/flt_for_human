@@ -1,10 +1,32 @@
 # P-2e work order — the kernel base change, one home (D-5)
 
-**Status: open, 2026-10-06.** Set D-5 of [WORKORDER-P2-basechange.md](WORKORDER-P2-basechange.md).
-New-file-only, **two pin `S_` files become one module**. Pin
+**Status: landed 2026-10-06.** Set D-5 of [WORKORDER-P2-basechange.md](WORKORDER-P2-basechange.md).
+New-file-only except for one **small promotion set** (§2.0). Pin
 `anthropics/fermats-last-theorem@aa2d8b3`; port mathlib `v4.34.0`. Depends on D-1
-(`BaseChange.lean`) and D-4 (`KernelCyclicTransfer.lean`, the seam home). Method:
-[../../porting-playbook.md](../../porting-playbook.md) §2.4, §3.1–§3.2, §3.5, §3.7, §4.
+(`BaseChange.lean`, at its stripped names), D-2, D-3 and D-4 (`KernelCyclicTransfer.lean`).
+Method: [../../porting-playbook.md](../../porting-playbook.md) §2.4, §3.1–§3.2, §3.5, §3.7, §4.
+
+> **Amended 2026-10-06, after D-4 landed.** Two facts found by D-4 change this set:
+>
+> 1. **A missing promotion.** The seam `def KwD5BetweenCurvesHoloLift` is byte-identical in
+>    all five pin copies (verified by `sha256`; the 748/151/83/25 spans are `p2m_*` span
+>    artefacts), and its body mentions `PeriodPair.kw_toPointHom` — which the port has in
+>    **no** form (`grep -c` = 0 for `kw_toPointHom`, `kw_toPointHom_apply`,
+>    `kw_ker_toPointHom`, `kw_toPointAddEquiv`, `kw_toPointAddEquiv_mk`; the 9-line
+>    `apply_eq_apply_of_continuous_of_mapsTo_lattice` is its other unported leaf). This is
+>    **not** in the parent plan's 15 promotions. Port it first (§2.0) or the seam cannot be
+>    declared. Registered in [../../CARRY-FORWARD.md](../../CARRY-FORWARD.md).
+> 2. **A name owned elsewhere.** `ModularCurve.kw_fdn2_qephod_hend7_pmopKerCard_proved` is
+>    declared in two pin files with **different statements**; the name in the port belongs
+>    to `Isogeny/NatCard.lean:785` (the `KwD5PointMapOfPushforwardKerCard` form), which is in
+>    this set's cone. **Do not declare that name**; use the imported
+>    `WeierstrassCurve.Affine.natCard_ker_pointMapOfPushforward_eq_finrankAlong`
+>    (`IsogenyEndDatum/Vocabulary.lean`), which is the conj/S-row/silo form's content.
+>
+> Whole-row figures are unchanged: the two pin files are 5,357 / 5,338 lines and share
+> **163 of their 176 declarations (4,926 removable lines)**; the pair's own new content is
+> ~2,293 lines once, plus the seam. `port_advise` on the pair: `once 5659 / inport 2552 /
+> decls 163`.
 
 ## 1. Scope
 
@@ -28,6 +50,43 @@ public declarations serve both wrappers. `port_advise` on the pair reports
 **Not this set:** the shared `pointPullback`/tensor prelude and the `IsogenyEndDatum`
 base-change block (D-1); the `kw_surgehgf4_pck*` conjugation block and the
 `KwD5BetweenCurves` seam (D-4); the S row and `eval_modularPolynomial_…`.
+
+## 1.5 The prerequisite promotion set (do this first)
+
+The seam `KwD5BetweenCurvesHoloLift`'s body mentions `PeriodPair.kw_toPointHom`, which the
+pin declares **`private`** and re-exports with `p2m_export`:
+
+```
+S_PeriodPair_exists_differentiable_toPoint_comp_eq_pointMapOfPushforward_toPoint.lean:909
+  private def _root_.PeriodPair.kw_toPointHom : ℂ →+ (L.weierstrassCurve.toAffine).Point
+:914  p2m_export "PeriodPair" "kw_toPointHom"
+:915  private theorem _root_.PeriodPair.kw_toPointHom_apply (z : ℂ) :
+        L.kw_toPointHom z = L.toPoint L.kw_discriminantNeZero z := rfl
+```
+
+It is a **promotion**, so it is written once, publicly, at the prefix-stripped pin name and
+the checker verifies it through `stripped_source` (a `RENAMED` row). Port, in this order,
+into `FLTForHuman/Elliptic/PeriodPair/Uniformization.lean` (public) — the seam here and the
+S row's `exists_differentiable_toPoint_comp_…` both consume them:
+
+| pin name | port name | pin site |
+|---|---|---|
+| `kw_toPointHom` (def, 6) | `PeriodPair.toPointHom` | `S_PeriodPair_exists_differentiable_toPoint_comp_…`:909 |
+| `kw_toPointHom_apply` (5) | `PeriodPair.toPointHom_apply` | :915 (`rfl`) |
+| `kw_ker_toPointHom` (10) | `PeriodPair.ker_toPointHom` | :919 |
+| `kw_toPointAddEquiv` (5) | `PeriodPair.toPointAddEquiv` | :929 |
+| `kw_toPointAddEquiv_mk` (4) | `PeriodPair.toPointAddEquiv_mk` | :935 |
+| `apply_eq_apply_of_continuous_of_mapsTo_lattice` (9) | *keep the pin name* | :676 (in D-1's `BaseChange`? check; it is a `PeriodPair` helper) |
+
+`kw_toPointAddEquiv` is the `ℂ ⧸ L.lattice.toAddSubgroup ≃+ E` packaging of P-SET-1's
+`isUniformization_toPoint`; it can be built from the ported three conjuncts rather than
+re-proved. `apply_eq_apply_of_continuous_of_mapsTo_lattice` has no `kw_` prefix — it is a
+pin-`private` helper too, so promote it at its pin name (no strip) if a `RENAMED` row is not
+wanted, or strip nothing because there is nothing to strip.
+
+**SOURCES.** Add `P2M/Sol/S_PeriodPair_exists_differentiable_toPoint_comp_eq_pointMapOfPushforward_toPoint.lean`
+(last) so the checker can see these pin-private statements; append last so no earlier
+last-name match can flip.
 
 ## 2. Source (pin) and the dedup
 
@@ -90,9 +149,12 @@ ported `Place/Dictionary.lean`, `IsogenyEndDatum/Engine.lean`, `Isogeny/NatCard.
   Keep the pin's universe spelling per declaration — this is a real binder difference, not
   noise (the checker sees it).
 - **A `def … : Prop` is never dropped on the tool's word** (see P-2 §6).
-- **The seam is D-4's.** `KwD5BetweenCurvesHoloLift` (748), `…FFSeamBaseChange`,
-  `…KerTransportAlongEmbed`, `pointEnd'_eq_of_seam` must already be in
-  `KernelCyclicTransfer.lean`; import them. If they are missing, stop and report.
+- **The seam is this set's.** `KwD5BetweenCurvesHoloLift` (11 lines; byte-identical in all
+  five pin copies — the 748/151/83/25 spans are `p2m_*` artefacts), `…FFSeamBaseChange`,
+  `…KerTransportAlongEmbed` are declared **here**, once, after the `§1.5` promotion set;
+  `pointEnd'_eq_of_seam` is imported from `Engine.lean`. `KernelCyclicTransfer.lean` (D-4)
+  deliberately does not declare `KwD5BetweenCurvesHoloLift`, so this module is its home and
+  the S row will import it from here.
 - **`IsogenyEndDatum/Engine.lean` is importable here** (`restrictAlong_eq_infinitePlace`,
   `pointEnd'_eq_of_seam`, `normFormulaAlong_of_elliptic`). Do **not** import
   `WeierstrassCurve/GenusOnePlaceGateCentred.lean` or `WeierstrassCurve/Place/RRSpace.lean`:
@@ -132,3 +194,41 @@ report which one.
   module must make it fail.
 - `#print axioms` on both headlines: `[propext, Classical.choice, Quot.sound]`; no `sorry`.
 - Whole-tree `flock`ed `lake build`; jobs + seconds. `grep -c` of every drop, in the log.
+
+## 8. Close-out (landed 2026-10-06)
+
+`FLTForHuman/WeierstrassCurve/Isogeny/KernelBaseChange.lean` (new, 1,377 lines: 1,340 Lean +
+37-line header; **34 public / 0 private** — 32 checker-visible, the two
+`scoped instance`s invisible to the parser) plus `spec/KernelBaseChangeConsumer.lean` (new,
+159 lines, 5 zones, exit 0 in 1 m 14 s) and +50 lines in
+`Elliptic/PeriodPair/Uniformization.lean` for the §1.5 promotion set.
+
+- **Dedup, stated both ways**: the two pin files are **10,695 raw lines** and the module is
+  **1,377**. `port_advise` scores 238 declarations (≈7,252 lines) as substitutions and 163
+  names shared by both silos (≈4,926 removable lines); the module is the "once" side. The
+  work order's "~2,300 once" counted ~950 lines of pin prelude copies that D-5's own content
+  does not use and the port already owns — importing them is the dedup, not a gap.
+- **Step 1**: six promotions into `Uniformization.lean`, all `RENAMED` —
+  `PeriodPair.{toPointHom, toPointHom_apply, ker_toPointHom, toPointAddEquiv,
+  toPointAddEquiv_mk}` plus `discriminantNeZero`, one more than §1.5's table because
+  `toPointHom_apply`'s statement mentions it. `apply_eq_apply_of_continuous_of_mapsTo_lattice`
+  was not promoted (no D-5 consumer). The S-row seam `S_` file was appended to `SOURCES`.
+- **Checker**: `5999 (313 promoted, 61 renamed), 0/0, 36 own, 6035 checked` → `6005 (313, 67),
+  0 missing, 6041` after Step 1 → **`6037 identical (313 promoted, 67 renamed), 0
+  mismatched, 0 missing, 36 own, 6073 checked`**. +6 (promotions, all `renamed`) +32 (the
+  module, all `identical`); nothing else moved.
+- **One checker change**: the `kw_` erasure now fires after a `.` too
+  (`(?<![\w'ₐ-ₜ])kw_`), without which a method-style reference to a promoted helper
+  (`L.kw_toPointHom` vs `L.toPointHom`) is unmatchable — 5 `missing` otherwise. Monotone;
+  no pre-existing row moved. Recorded in the playbook §4.
+- **Hard rule honoured**: `ModularCurve.kw_fdn2_qephod_hend7_pmopKerCard_proved` is not
+  declared in either form; both call sites use the imported
+  `natCard_ker_pointMapOfPushforward_eq_finrankAlong`.
+- **`KwD5BetweenCurvesHoloLift`**: all five pin copies byte-identical (`sha256`); the
+  declared body differs from the pin text in exactly the two `kw_toPointHom` →
+  `toPointHom` tokens.
+- **Builds**: first stub check 1 m 47 s; module `lake env lean` 5 m 08 s clean; `flock`ed
+  module `lake build` 5 m 25 s (7 m 08 user / 39 s sys, 9037 jobs); whole tree **9316 jobs,
+  green, 11.4 s** cached. `#print axioms` on both headlines:
+  `[propext, Classical.choice, Quot.sound]`. No `sorry`, no heartbeat bump, no universe
+  specialisation.

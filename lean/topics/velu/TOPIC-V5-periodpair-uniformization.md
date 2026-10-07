@@ -1,9 +1,9 @@
 # V5 (scoping) — the `PeriodPair` uniformization slice
 
-**Status: scouting complete, 2026-10-06; port decision taken. P-SET-1 (the dictionary,
-`discriminant_ne_zero`, `isUniformization_toPoint`) and P-SET-2 (the `j`-line) have
-landed; the remaining rows are S (seam/index), D (base-change/descent), and the
-`rationalHomSet`/torsion columns.** This document answers one question — *how big
+**Status: port decision taken; the U, J and D rows landed 2026-10-06. P-SET-1 (the dictionary,
+`discriminant_ne_zero`, `isUniformization_toPoint`), P-SET-2 (the `j`-line) and P-2 (the whole
+base-change/descent column, D-1…D-5) are in the port; the remaining rows are S (seam/index)
+and the `rationalHomSet`/torsion columns.** This document answers one question — *how big
 is the slice that gates the last Phase D node, and is the work actually that large?* —
 and records the math-first scout (§6) and the prune pass (§2.1) that must precede any
 port. It is not a work order; nothing here has been dispatched. Triggered by

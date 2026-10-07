@@ -258,7 +258,7 @@ are repeated in the playbook §2.1; keep the specific instances here.
   unported; the Weierstrass headline's place/RR/class-group API was such a case
   until it was ported.
 - **A "last tail node" can be the entry to an unported slice (found 2026-10-06, after
-  V4; the U and J rows landed 2026-10-06).**
+  V4; the U, J and D rows all landed 2026-10-06).**
   `IsogenyEndDatum.aeval_j_diag_eq_zero_of_finrankAlong_eq` reads as the
   one remaining Phase D item of the H5 column, and `port_advise` prices it at 51
   declarations with a single substitution (≈29 lines) — because the tool prices the
@@ -267,12 +267,17 @@ are repeated in the playbook §2.1; keep the specific instances here.
   `PeriodPair` group the E-S scout measured at **9 nodes / 9,836 pin lines**. Price a
   node by its **unported closure**, never by `port_advise`'s own-file figure or by its
   column. **Status.** The ladder's **U row** (the dictionary, `discriminant_ne_zero`,
-  `isUniformization_toPoint`) landed as P-SET-1 and its **J row** (`jLattice_ofTau`,
+  `isUniformization_toPoint`) landed as P-SET-1, its **J row** (`jLattice_ofTau`,
   `jLattice_surjective`, plus the lattice prelude) as P-SET-2 —
   `Elliptic/PeriodPair/{Basic,Lattice,Discriminant,Uniformization,JLine}.lean` and the
-  neutral `ModularForms/JInvariant.lean`; the remaining ladder is the S (seam/index) and
-  D (base-change/descent) rows. The j-line is on the `DeligneSerre` capstone cone
-  (`frontier.py --target DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen`
+  neutral `ModularForms/JInvariant.lean` — and its **D row** (the whole base-change/descent
+  column) as set **P-2**, D-1…D-5,
+  `WeierstrassCurve/Isogeny/{BaseChange,IntermediateField,BaseChangeAlgHom,VariableChangeAlgEquiv,KernelCyclicTransfer,KernelBaseChange}.lean`.
+  The remaining ladder is the **S row** (seam/index) and the `rationalHomSet`/torsion
+  columns; the gate's unported closure is now 13 nodes / 11,880 lines, of which the
+  S family is 6,537 and the D-descent family 4,764 (both still unported at the time of the
+  measurement — the D family has since landed). The j-line is on the `DeligneSerre` capstone
+  cone (`frontier.py --target DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen`
   lists 14 unported `PeriodPair.*` nodes / 9,071 lines, `jLattice_surjective` among
   them), contrary to the earlier reading that the 54-target D-S slice had no
   `PeriodPair` node. The closure measurement is in
@@ -316,3 +321,19 @@ are repeated in the playbook §2.1; keep the specific instances here.
   uses `Engine` must remain separate `spec/` files until one instance is reconciled.
   Rule for the column: [../topics/velu/WORKORDER-P2-basechange.md](../topics/velu/WORKORDER-P2-basechange.md)
   §3.1.
+- **Two pin files can declare one name with two different statements (caution, P-2 D-4/D-5,
+  resolved for this column).** `ModularCurve.kw_fdn2_qephod_hend7_pmopKerCard_proved` is a
+  `Prop` (`KwD5PointMapOfPushforwardKerCard`) in
+  `S_WeierstrassCurve_Affine_natCard_ker_pointMapOfPushforward_eq_finrankAlong.lean:526` but
+  a `Nat.card … = finrankAlong K ι` theorem in the two D-5 silos, the two S-row files and the
+  `conj` file. A declaration name is *one* environment-level key, so the second copy is
+  undeclarable in any module whose cone contains `NatCard.lean` — which is the whole D
+  column. Nothing is lost: the second copy's content is exactly the already-ported
+  `WeierstrassCurve.Affine.natCard_ker_pointMapOfPushforward_eq_finrankAlong`
+  (`IsogenyEndDatum/Vocabulary.lean:161`). Both D-4 and D-5 use the imported lemma and neither
+  declares the name; the same rule holds for the S row. The failure mode is an
+  elaboration-time `has already been declared`, which the statement checker cannot see.
+  Related trap, same column: a same-name declaration's **span** in `port_advise` measures the
+  `p2m_*` scaffolding between declarations, not its body — `KwD5BetweenCurvesHoloLift` read as
+  748/151/83/25 lines across five files and is byte-identical in all five (`sha256`,
+  2026-10-06). Diff normalized bodies, never spans.

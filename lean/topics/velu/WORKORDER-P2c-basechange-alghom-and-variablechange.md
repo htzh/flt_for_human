@@ -1,9 +1,27 @@
 # P-2c work order — base change to ℂ and the variable-change equiv (D-3)
 
-**Status: open, 2026-10-06.** Set D-3 of [WORKORDER-P2-basechange.md](WORKORDER-P2-basechange.md).
+**Status: landed 2026-10-06.** Set D-3 of [WORKORDER-P2-basechange.md](WORKORDER-P2-basechange.md).
 New-file-only. Pin `anthropics/fermats-last-theorem@aa2d8b3`; port mathlib `v4.34.0`.
-Depends on D-1 (`BaseChange.lean`). Method:
+Depends on D-1 (`BaseChange.lean`) and, for the vocabulary, D-2. Method:
 [../../porting-playbook.md](../../porting-playbook.md) §2.4, §3.1–§3.2, §3.5, §4.
+
+> **Re-measured 2026-10-06, after D-1 and D-2 landed.** `port_plan` on these two pin files
+> now reports: raw 2,080 lines / 95 declarations, once-cost after dedup 1,686, **already in
+> the port 1,131, net-new 555**, 78 distinct declaration groups; 62 substitutions are
+> importable. D-1 landed the whole shared tensor/base-change prelude (at its **stripped**
+> names — `tensorFracIotaFinrankSeam_dischargeGeneral`, `functionField_algHom_ext`,
+> `coordinateRingBasis`, `pointPullback*`, `isogenyEndDatumBaseChangeAlong_*`,
+> `transcendental_tensorFracXGeneral{,NoAC}`, …), D-2 landed the descent. So this set is
+> **≈555 new lines**, not the 1,650 first scoped: the two headlines plus the `mrtw60a*`
+> block and a handful of `bcff`-specific lemmas.
+>
+> **Landed 2026-10-06: 382 raw / 309 code lines** — `BaseChangeAlgHom.lean` (67 lines, 1
+> public declaration: the headline, a two-line proof over D-1's
+> `isogenyEndDatumBaseChangeAlong_dischargeGeneral`) and `VariableChangeAlgEquiv.lean` (315
+> lines: the pin-public 27-declaration `mrtw60a*` block at its pin names plus the headline).
+> Checker +29 → `5980 identical (313 promoted, 61 renamed), 0/0`; 1,599 pin lines over 60
+> declarations dropped as already present; whole tree 9314 jobs green. The residual 268
+> `port_plan` still reports with D-3 present *is* D-3 itself.
 
 ## 1. Scope
 
@@ -55,6 +73,14 @@ prefix**). Never `import Mathlib`.
 
 ## 4. Route, with recorded negatives
 
+- **Import rule (P-2 §3.1).** Do not import `GenusOnePlaceGateCentred.lean` or
+  `Place/RRSpace.lean`; `RRSpace`'s `instInfinitePlace` collides at the name level with
+  `IsogenyEndDatum/Engine.lean`'s. The gate classes come from `GenusOnePlaceGate.lean`, the
+  seam from `Engine.lean` (importable because D-1 imports the former).
+- **Naming (P-2 §3.2).** D-1's shared prelude is at its **stripped** names; import those.
+  A helper local to your module is `private` with a content name (no `kw_`). A public
+  helper you introduce is a promotion: name it at the prefix-stripped pin name. Never
+  leave a declaration public and stripped.
 - **Both nodes are generic over the base field.** `bcff` is `WeierstrassCurve.Affine.*`; the
   variable-change one is `WeierstrassCurve.*`. Keep the pin's namespaces.
 - **`mrtw60a_*` is the `VariableChangePointEquiv` dictionary inlined.** The ported

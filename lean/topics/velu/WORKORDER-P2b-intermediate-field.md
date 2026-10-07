@@ -1,6 +1,6 @@
 # P-2b work order — the countable descent (D-2)
 
-**Status: open, 2026-10-06.** Set D-2 of [WORKORDER-P2-basechange.md](WORKORDER-P2-basechange.md).
+**Status: landed 2026-10-06.** Set D-2 of [WORKORDER-P2-basechange.md](WORKORDER-P2-basechange.md).
 New-file-only. Pin `anthropics/fermats-last-theorem@aa2d8b3`; port mathlib `v4.34.0`.
 Depends on set D-1 (`FLTForHuman/WeierstrassCurve/Isogeny/BaseChange.lean`), which must be
 reviewed and landed first. Method: [../../porting-playbook.md](../../porting-playbook.md)
@@ -17,8 +17,12 @@ WeierstrassCurve.exists_intermediateField_countable_map_eq_and_finrankAlong_eq
 (2,684 pin lines) together with the descent block it rests on: the `TreeIsogenyEndDatum`
 descent vocabulary (`kw_iPFA*`, `kw_iPFE*`, `kw_iP*`, `kw_iA*`, `kw_iCa*`, `kw_iPF*`,
 `kw_iota*`, `KwIsogenyEndDatum{FGFieldDescent,IotaDescendToFG,SubfieldDescent,…}`), the
-`kw_baseChangeToAC*` block, and the `kw_iE2E*` wrappers — 93 node-unique declarations,
-1,878 pin lines (plus the headline's own proof). Everything else it needs is D-1.
+`kw_baseChangeToAC*` block, and the `kw_iE2E*` wrappers — the work order priced this at 93
+node-unique declarations / 1,878 pin lines, but that counted the whole pin region including
+the D-1 overlap and the `p2m_*` scaffolding; **the measured slice is 795 transcribed pin
+lines**, and the set landed at **1,124 lines, 9 public / 72 private**, with 1,061 lines
+imported (39 declarations / 895 lines from D-1, 6 / 166 from earlier homes). Everything else
+it needs is D-1.
 
 **Not this set:** anything in D-1 (the shared prelude: `pointPullback*`,
 `kw_functionField_algHom_ext`, `kw_coordinateRingBasis`, `TreeIsogenyEndDatum` / `degree`

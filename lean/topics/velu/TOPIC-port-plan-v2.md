@@ -102,9 +102,14 @@ by, in order, `WeierstrassCurve.exists_intermediateField_countable_map_eq_and_fi
 (2,288), `PeriodPair.exists_scale_lattice_subset_and_sublatticeIndex_eq_and_isAddCyclic_sublatticeQuotient`
 (2,021) and `PeriodPair.isUniformization_toPoint` (1,493). That is a
 uniformization/lattice subject with its own vocabulary, and it is what separates the
-landed H5 work from the Mazur chain. **Decision: not this port.** The port records
-it as the trigger for a future `PeriodPair` subject; if it is wanted, it is scoped
-as its own topic with its own budget, not as a "289-line Phase D node".
+landed H5 work from the Mazur chain. **Decision then: not this port** — it was recorded as
+the trigger for a future `PeriodPair` subject. **That subject has since been opened and its
+U, J and D rows landed as P-SET-1, P-SET-2 and P-2**
+([TOPIC-V5-periodpair-uniformization.md](TOPIC-V5-periodpair-uniformization.md),
+[WORKORDER-P2-basechange.md](WORKORDER-P2-basechange.md)); of the two nodes named above that
+remain, `exists_intermediateField_countable_map_eq_and_finrankAlong_eq` is the S row's
+neighbour and `exists_differentiable_toPoint_comp_eq_pointMapOfPushforward_toPoint` **is**
+the S row, still to port.
 
 ### 2.3 Three gap classes the slice filter misses (standing rule)
 
@@ -136,7 +141,8 @@ by its `ucl`, never its raw size.
 |---|---|---|---|
 | **V1** | the three ready columns: order-two, discriminant, quotient-`j` | **7,370 measured** | **landed 2026-10-05** |
 | **V2** | the two gateways (`exists_pointEnd_eq_of_mem_isogenyEndSubring` 701 → `exists_sq_lt_four_mul…` 454) and the Ribet-side completion (`exists_veluFunctionFieldHom_pointMapOfPushforward_ker_eq_zmultiples` 25, `exists_veluPointHom_oddOrderSummingSet_of_isAlgClosed` 97 + its separable-principal-divisors and genus-one-gate closure) | **1,671 measured** in library modules + 344 consumer | **landed 2026-10-06** — work orders and close-out in [TOPIC-V2-gateways-and-ribet.md](TOPIC-V2-gateways-and-ribet.md); checker `5750 → 5805`, promoted `312 → 311`, 0/0; whole-tree build `9,303 jobs / 12.3 s` (+9 leaves, no cascade); the definition layer was already ported (§1.2), and three closure members priced at 1,246 / 911 / 58 lines were already in the port under other names |
-| **V3 / parked** | H6 base-change (3,713, demoted: no out-of-slice consumer until the `PeriodPair` gate opens); the two deferred H5 vocabulary nodes with their boundary closures; the far-end modular-polynomial bijection (`bijOn_cyclicQuotientJ…`, `exists_equiv_addSubgroup…`) | — | parked |
+| **V3 / parked** | the two deferred H5 vocabulary nodes with their boundary closures; the far-end modular-polynomial bijection (`bijOn_cyclicQuotientJ…`, `exists_equiv_addSubgroup…`) | — | parked |
+| **P-2** | **H6 base-change (was parked here at 3,713; landed 2026-10-06)**: `Isogeny/BaseChange.lean` (D-1) + `Isogeny/{IntermediateField,BaseChangeAlgHom,VariableChangeAlgEquiv,KernelCyclicTransfer,KernelBaseChange}.lean` (D-2…D-5), 4,523 written lines, the two 5.3 k silos as one home | — | **landed** — [WORKORDER-P2-basechange.md](WORKORDER-P2-basechange.md), [../../logs/velu-port.md](../../logs/velu-port.md) §P-2 |
 | **boundary** | §2.1, §2.2 | — | out of scope |
 
 Why V2 is not "next" in the same breath as V1: the Mazur gateways are cheap and
@@ -145,9 +151,14 @@ Ribet-side completion needs the separable principal-divisors layer. Both are
 scoped *after* V1 so their orders can be written against the modules that then
 exist (playbook §0.2).
 
-Why H6 is demoted: the base-change trio's consumers are **all in the slice** and
-reach FLT only through `aeval_j_diag…` (parked). Porting it now buys nothing on the
-root path. It stays in V3, behind the gate decision.
+Why H6 was demoted then, and why it was done: at the time the base-change trio's consumers
+were all in the slice and reached FLT only through `aeval_j_diag…` (parked), so porting it
+bought nothing on the root path. It was unparked once P-SET-1/P-SET-2 landed the
+`PeriodPair` uniformization and `j`-line and the gate's unported closure fell to 13 nodes /
+11,880 lines — and it was done as set **P-2**, whose own dedup argument (the two 5.3 k silos
+share 163 of 176 declarations) made it cheaper than the pricing here suggested. The
+"3,713" above was the trio's own lines; the row was 5,470 new declaration lines across six
+nodes, closed at 4,523 written.
 
 ## 4. V1 in outline
 

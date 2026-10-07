@@ -1239,6 +1239,56 @@ theorem isUniformization_toPoint (L : PeriodPair) (h : L.DiscriminantNeZero) :
     L.IsUniformization h :=
   ⟨L.toPoint_add h, L.toPoint_surjective h, fun z => (L.toPoint_eq_zero_iff h z).mp⟩
 
+/-! ## The `kw_toPointHom` promotion set
+
+The pin's `S_WeierstrassCurve_Affine_*_baseChange_algHom` / `_exists_algHom_baseChange_*`
+files carry a second copy of the uniformization prelude in which `toPointHom` is the
+additive packaging of `toPoint` and `toPointAddEquiv` the `ℂ ⧸ Λ ≃+ E(ℂ)` isomorphism.
+The `KwD5BetweenCurvesHoloLift` seam (which set D-5 declares) and the S row both
+consume them, so they are written **once** here, publicly, at the prefix-stripped pin
+name (work order P-2e §1.5; P-2 §3.2 — a promotion, verified through the checker's
+`stripped_source` fallback). -/
+
+section ToPointHom
+
+variable (L : PeriodPair)
+
+/-- Pin `kw_discriminantNeZero`: the pinned copy of the port's `discriminant_ne_zero`
+(the `solution` of P-SET-1 spells the same fact with an explicit `L` binder). -/
+theorem discriminantNeZero : L.DiscriminantNeZero :=
+  L.discriminant_ne_zero
+
+/-- Pin `kw_toPointHom`: the ℘-uniformization map `ℂ →+ E(ℂ)` as an additive
+homomorphism. -/
+def toPointHom : ℂ →+ (L.weierstrassCurve.toAffine).Point where
+  toFun := L.toPoint L.discriminantNeZero
+  map_zero' := L.toPoint_zero L.discriminantNeZero
+  map_add' := L.toPoint_add L.discriminantNeZero
+
+/-- Pin `kw_toPointHom_apply`. -/
+theorem toPointHom_apply (z : ℂ) :
+    L.toPointHom z = L.toPoint L.discriminantNeZero z := rfl
+
+/-- Pin `kw_ker_toPointHom`: the kernel of the uniformization map is the lattice. -/
+theorem ker_toPointHom : L.toPointHom.ker = L.lattice.toAddSubgroup := by
+  ext z
+  constructor
+  · exact fun hz => (L.isUniformization_toPoint L.discriminantNeZero).2.2 z hz
+  · intro hz
+    exact L.toPoint_of_mem L.discriminantNeZero hz
+
+/-- Pin `kw_toPointAddEquiv`: `ℂ ⧸ Λ ≃+ E(ℂ)` through the ℘-map. -/
+noncomputable def toPointAddEquiv :
+    (ℂ ⧸ L.lattice.toAddSubgroup) ≃+ (L.weierstrassCurve.toAffine).Point :=
+  QuotientAddGroup.liftEquiv L.lattice.toAddSubgroup (φ := L.toPointHom)
+    (L.isUniformization_toPoint L.discriminantNeZero).2.1 L.ker_toPointHom.symm
+
+/-- Pin `kw_toPointAddEquiv_mk`. -/
+theorem toPointAddEquiv_mk (z : ℂ) :
+    L.toPointAddEquiv (QuotientAddGroup.mk z) = L.toPoint L.discriminantNeZero z := rfl
+
+end ToPointHom
+
 end PeriodPair
 
 end

@@ -1,9 +1,42 @@
 # P-2d work order — the conjugation seam (D-4)
 
-**Status: open, 2026-10-06.** Set D-4 of [WORKORDER-P2-basechange.md](WORKORDER-P2-basechange.md).
-New-file-only. Pin `anthropics/fermats-last-theorem@aa2d8b3`; port mathlib `v4.34.0`.
-Depends on D-1 (`BaseChange.lean`). Must land **before** D-5. Method:
+**Status: landed, 2026-10-06.** Set D-4 of [WORKORDER-P2-basechange.md](WORKORDER-P2-basechange.md).
+New-file-only. Pin `anthropics/fermats-last-theorem@aa2d8b3`; port mathlib `v4.34.0`. Depends
+on D-1 (`BaseChange.lean`), D-2 and D-3, all landed. Method:
 [../../porting-playbook.md](../../porting-playbook.md) §2.4, §3.1–§3.2, §3.5, §4.
+
+> **Close-out (D-4).** `FLTForHuman/WeierstrassCurve/Isogeny/KernelCyclicTransfer.lean`, new,
+> **472 lines written (`wc -l`; 407 non-blank, 328 code), 19 public declarations, no `private` helpers**. The
+> headline at the wrapper statement, `ModularCurve.KwD5BetweenCurvesPMOPConjKerEquiv`, the
+> `kw_fdn2_qephod_hend21_*` block, the `kw_surgehgf4_pck_*` engine and `pck_s17` — all pin
+> **transcriptions** (the `kw_` prefix is a solution-file token, not a promotion), so the
+> checker counts 19 `identical` and the `renamed` count is unchanged. Measured pre-D-4:
+> 50 of the file's 116 declarations (632 pin lines) already had an identical-statement port
+> copy and are imported; D-4's own slice is 19 declarations / 382 pin lines. Two pin
+> declarations are **deliberately not declared**: `KwD5BetweenCurvesHoloLift` (all five
+> pin copies are byte-identical, `sha256 e7b7d5fe…`; its body needs the unported
+> `PeriodPair.kw_toPointHom`, and declaring it here would collide with D-5's copy) and the
+> `Nat.card` form of `kw_fdn2_qephod_hend7_pmopKerCard_proved` (the name is owned by the
+> `Prop`-valued `Isogeny/NatCard.lean:785`; the statement is the imported
+> `natCard_ker_pointMapOfPushforward_eq_finrankAlong`). Both are registered in
+> [../../CARRY-FORWARD.md](../../CARRY-FORWARD.md). Checker `5980 (313 promoted, 61 renamed)
+> → 5999 (313, 61)`, `0 mismatched / 0 missing`, `6016 → 6035` checked; one-token mutation
+> probe `5998 / 1 / 0`. Consumer `spec/KernelCyclicTransferConsumer.lean` exit 0, four zones;
+> deletion probe fails it. Whole tree **9315 jobs, green, cached 11.0 s**. `#print axioms` on
+> the headline `[propext, Classical.choice, Quot.sound]`. Full record:
+> [../../logs/velu-port.md](../../logs/velu-port.md) §P-2.
+
+> **Re-measured 2026-10-06, after D-1/D-2/D-3 landed.** `port_plan` on the `conj` node now
+> reports: raw 1,821 lines / 117 declarations, once-cost 1,765, **already in the port 804,
+> net-new 961**, 115 distinct declaration groups, 62 trusted substitutions. D-1 landed the
+> point-pullback/tensor prelude (at its **stripped** names) and `Engine.lean` supplies
+> `pointEnd'_eq_of_seam` (264) and the `restrictAlong`/`pushforwardAlong` seam lemmas. So
+> this set is **≈960 new lines**: the `conj` headline, its `KwD5BetweenCurvesPMOPConjKerEquiv`
+> seam, and the `kw_surgehgf4_pck_*` block. `KwD5BetweenCurvesHoloLift` is **11 lines and
+> byte-identical in all five pin files** (the 748/151/83/25 numbers were `p2m_*` span
+> artefacts), and it is undeclarable here: its body needs `PeriodPair.kw_toPointHom`, absent
+> from the port, and the name belongs to D-5's module. D-4 therefore does not declare it;
+> D-5 ports it, with the `kw_toPointHom` promotion set first (D-5 §1.5).
 
 ## 1. Scope
 
@@ -29,13 +62,14 @@ blocks; the S row.
   is the statement authority.
 - the `KwD5BetweenCurves*` declarations as they first appear, in
   `P2M/Sol/S_WeierstrassCurve_Affine_isAddCyclic_ker_pointMapOfPushforward_of_baseChange_algHom.lean`
-  (`KwD5BetweenCurvesHoloLift` 748, `pointEnd'_eq_of_seam` 264, `KwD5BetweenCurvesFFSeamBaseChange` 59,
-  `KwD5BetweenCurvesKerTransportAlongEmbed` 58, `KwD5BetweenCurvesPMOPConjKerEquiv`, …), and in
+  (`KwD5BetweenCurvesHoloLift` — 11 lines, not the 748 a `port_advise` span reports;
+  `pointEnd'_eq_of_seam`, `KwD5BetweenCurvesFFSeamBaseChange`,
+  `KwD5BetweenCurvesKerTransportAlongEmbed`, `KwD5BetweenCurvesPMOPConjKerEquiv`, …), and in
   `…isAddCyclic_…_of_algEquiv_conj.lean` (`KwD5BetweenCurvesPMOPConjKerEquiv` and the
-  `kw_fdn2_qephod_hend21_conjSeam` block). Where the same name occurs with different
-  bodies in two files (`KwD5BetweenCurvesHoloLift` is 748 lines in the silos and 151/83 in
-  the S row), **diff them**: if one is a specialisation, port the general and derive; if
-  they are different Props, port both and say so.
+  `kw_fdn2_qephod_hend21_conjSeam` block). **A same-name declaration in two pin files is not
+  evidence of a different statement**: `KwD5BetweenCurvesHoloLift`'s five copies are
+  byte-identical (`sha256`), and `port_advise`'s span measures the `p2m_*` scaffolding between
+  declarations. Diff normalised bodies before treating a pair as a generalisation.
 
 The `conj` file's declarations (21 node-unique, 565 lines): `pushforwardAlong_pushforwardAlong{,',}`
 (66+72), `finiteAlong_comp` (58), `inertiaDegAlong_comp` (34), `restrictAlong_restrictAlong` (8),
@@ -61,6 +95,13 @@ D-1 plus the ported `Place/Dictionary.lean`, `IsogenyEndDatum/Engine.lean`,
   `WeierstrassCurve/GenusOnePlaceGateCentred.lean` or `WeierstrassCurve/Place/RRSpace.lean`
   — `RRSpace`'s `scoped instance instInfinitePlace` collides at the name level with
   `Engine`'s. See P-2 §3.1.
+- **Naming (P-2 §3.2).** D-1's shared prelude is at its **stripped** names; import those
+  (`functionField_algHom_ext`, `coordinateRingBasis`, `pointPullback*`, the tensor block,
+  …). A helper local to your module is `private` with a content name (no `kw_`). A public
+  helper you introduce is a promotion: name it at the prefix-stripped pin name. The
+  `kw_surgehgf4_pck_*` names are **pin-public** as written, so they are transcriptions —
+  keep them verbatim unless you decide a specific one is a promotion, in which case strip
+  it and say so. Never leave a declaration public and stripped.
 - **The seam is `Prop`-valued.** `KwD5BetweenCurvesHoloLift` and friends are
   `def … : Prop`; the checker compares only `Prop`, so port the bodies faithfully and never
   drop one on a substitution hit.

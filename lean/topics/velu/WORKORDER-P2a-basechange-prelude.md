@@ -1,6 +1,6 @@
 # P-2a work order — the base-change prelude (D-1)
 
-**Status: open, 2026-10-06.** Set D-1 of [WORKORDER-P2-basechange.md](WORKORDER-P2-basechange.md).
+**Status: landed 2026-10-06.** Set D-1 of [WORKORDER-P2-basechange.md](WORKORDER-P2-basechange.md).
 New-file-only. Pin `anthropics/fermats-last-theorem@aa2d8b3`; port mathlib `v4.34.0`.
 Method: [../../porting-playbook.md](../../porting-playbook.md) §2.4, §3.1–§3.2, §3.5,
 §3.7, §4.
@@ -89,11 +89,16 @@ matches by last name, but `norm` strips only `ModularCurve.`/`AlgebraicCurve.`, 
 
 ## 3. Deliverable
 
-**`FLTForHuman/WeierstrassCurve/Isogeny/BaseChange.lean`** (new). Pin names, pin
-namespaces; public where the pin is public. Helpers local to the module stay
-`private` with content names (**no `kw_` prefix** — the port no longer uses it when
-promoting new private helpers, and the checker follows that). Its public surface is the
-union of the pin-public declarations of §2; do not invent names.
+**`FLTForHuman/WeierstrassCurve/Isogeny/BaseChange.lean`** (new), **landed 1,168 lines**.
+The module is a new shared home for pin helpers, so every public declaration in it is a
+**promotion** and carries the prefix-stripped pin name (`kw_coordinateRingBasis` →
+`coordinateRingBasis`, `kw_functionField_algHom_ext` → `functionField_algHom_ext`), verified
+by the checker's `stripped_source` fallback (P-2 §3.2; the original order said "pin names,
+public where the pin is public", which was corrected before the strip — the 56 stripped
+names are the result). Helpers local to the module stay `private` with content names, no
+`kw_`. Pin namespaces throughout; the two sections are at the pin's `universe u v w` with
+`{R₀ : Type u}`, `(F : Type v)`, `(F' : Type w)`, and `section PointPullbackTo` at
+`{L : Type*}` (see the close-out below).
 
 Imports: `FLTForHuman.WeierstrassCurve.FunctionFieldQuadratic`,
 `FLTForHuman.WeierstrassCurve.Isogeny.ConditionalCurrency`,

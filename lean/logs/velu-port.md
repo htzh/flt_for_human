@@ -1958,3 +1958,281 @@ verdict on them did not move).
    `eval_modularPolynomial_map_j_eq_zero_of_isAddCyclic_ker_pointMapOfPushforward` →
    `exists_variableChange_smul_weierstrassCurve_eq`), correcting the CARRY-FORWARD
    reading that the 54-target D-S slice had no `PeriodPair` node.
+
+## P-2 — the base-change / descent column (D-1…D-5 landed, 2026-10-06)
+
+The D row of the `PeriodPair` ladder, in
+[../topics/velu/WORKORDER-P2-basechange.md](../topics/velu/WORKORDER-P2-basechange.md).
+Six nodes, all premised from the start and mutually independent of the S row. Whole-row
+dedup: 17,280 raw lines / 696 declarations across the six `S_` files → 350 distinct
+declarations, 95 already public in the port (3,220 lines), 15 promotable (121), **240 new
+(5,470)**. The two `…isAddCyclic_ker_pointMapOfPushforward_of_baseChange_algHom` /
+`…exists_algHom_baseChange_…` files are 5,357 / 5,338 lines and share **163 of their 176
+declarations (4,926 removable lines)** — the reason the column was scheduled around them.
+
+| set | module | lines | public/private | checker |
+|---|---|---:|---|---|
+| D-1 | `WeierstrassCurve/Isogeny/BaseChange.lean` | 1,151 | 73 / 5 | +73 → 5942 |
+| D-2 | `WeierstrassCurve/Isogeny/IntermediateField.lean` | 1,124 | 9 / 72 | +9 → 5951 |
+| D-3a | `WeierstrassCurve/Isogeny/BaseChangeAlgHom.lean` | 67 | 1 / 0 | +1 |
+| D-3b | `WeierstrassCurve/Isogeny/VariableChangeAlgEquiv.lean` | 315 | 24–28 / 0 | +28 → 5980 |
+| D-4 | `WeierstrassCurve/Isogeny/KernelCyclicTransfer.lean` | 472 | 19 / 0 | +19 → 5999 |
+| D-5 | `WeierstrassCurve/Isogeny/KernelBaseChange.lean` | 1,377 | 34 / 0 | +32 → 6037 |
+
+**D-1 (the shared prelude).** New file, no headline: the `pointPullback` column, the
+`TreeIsogenyEndDatum` datum and its `degree`, the function-field tensor base change in both
+`General` and `NoAC` spellings, and the `IsogenyEndDatum` base-change block, written once so
+D-2…D-5 import instead of each re-proving 2,393 shared lines. D-1's own slice: 2,740 raw pin
+lines across three files → 1,569 once ⇒ **1,171 duplicate lines eliminated**. Already
+public and imported, not re-proved: `yGen`, `polyToFunctionField_eq_aeval`,
+`equation_map_polyToFunctionField_yGen`, `transcendental_polyToFunctionField_X`,
+`algebraMap_polynomial_eq_mk_C`, `CoordinateRing.algebraMap_eq_mk_C_C`,
+`ofHeightOneSpectrum_injective` (the last dropped despite a binder-spelling difference,
+because the port's copy is the pin's `Definitions/` copy, already in `SOURCES`).
+
+**D-2 (the countable descent).** `exists_intermediateField_countable_map_eq_and_finrankAlong_eq`
+plus its descent block; 72 of its 81 declarations are `private` at content names, so the
+port surface is the headline and the eight pin-public `KwIsogenyEndDatum*` predicates.
+The work order's "93 node-unique / 1,878 pin lines" counted the whole pin region; the
+measured slice is 795 transcribed pin lines with **1,061 imported** (39 declarations / 895
+lines from D-1, 6 / 166 from earlier homes) — the duplicate lines eliminated. Dropped with a
+`grep -c`: `Countable.of_module_finite` → mathlib `Countable.of_moduleFinite` (2/2), and the
+pin's anonymous `Countable K` instance (mathlib has none; `Countable ℚ` comes from
+`Rat.Encodable`).
+
+**D-3 (base change to ℂ and the variable-change equiv).** Two modules. `port_plan` priced
+the pair at 555 net-new before the set; D-1 having landed the `bcff` prelude, the written
+total is **382 raw / 309 code lines**. 1,599 pin lines over 60 declarations were dropped as
+already present (985 → `BaseChange.lean`, 475 → `FunctionFieldQuadratic.lean`, 139 →
+`Place/Dictionary.lean`), every survivor confirmed by `grep -c` ≥ 1. D-3b's 27 public
+`mrtw60a*` declarations keep their pin names: the prefix is a solution-file token, not a
+`kw_` promotion token.
+
+**D-4 (the conjugation headline and its seam).** `Isogeny/KernelCyclicTransfer.lean`, new:
+472 lines written (`wc -l`; 407 non-blank, 328 code), **19 public declarations and no `private`
+helpers**. The headline `isAddCyclic_ker_pointMapOfPushforward_of_algEquiv_conj` (the
+conjugation invariance of the isogeny kernel, at the wrapper statement), the
+`ModularCurve.KwD5BetweenCurvesPMOPConjKerEquiv` `Prop`, the `kw_fdn2_qephod_hend21_*`
+conjugation block, the `kw_surgehgf4_pck_*` engine (12 theorems + the `axiomAnchor`) and the
+pin's `pck_s17` alias. Every name is a pin-**public** transcription (the `kw_` prefix is a
+solution-file token here, not a promotion), so the checker counts them all `identical`, not
+`renamed`: `5980 (313 promoted, 61 renamed) → 5999`, `0/0` both sides, `6016 → 6035` checked
+— exactly +19, reconciling to the module's whole surface.
+
+`port_advise` scores 64 of the node's 117 declarations as substitutions (≈828 lines); the
+measured pre-D-4 split is **50 of the 116 declarations (632 pin lines) with an
+identical-statement port copy** — imported, not re-proved — and 46 whose pin copies are
+binder-spelling variants of ported declarations (`finiteAlong_comp` lives as
+`AlgebraicCurve.finiteAlong_comp` in `WeilExchange/Transport.lean:254` and is called with
+its two explicit map arguments; `pushforwardAlong_pushforwardAlong`,
+`restrictAlong_restrictAlong`, `inertiaDegAlong_comp`, `mem_restrictAlong_iff`, the
+`Place` calculus, the `PeriodPair`/`Uniformization` prelude and the `InfinitePlace` block
+are D-1/P-SET material). D-4's own slice is **19 declarations / 382 pin lines**; the
+duplicate lines eliminated are the other 632 (plus the 20 declarations the pin file shares
+with D-5's silos that the advise's `port once` section lists, which stay with D-5).
+
+Drops, each with a survivor and a `grep -c`:
+
+| dropped pin declaration | survivor | why |
+|---|---|---|
+| `kw_fdn2_qephod_hend7_pmopKerCard_proved` (the `Nat.card … = finrankAlong K ι` form, `conj:600`) | `Isogeny/NatCard.lean:785` owns the *name* (a different statement, `: KwD5PointMapOfPushforwardKerCard.{u}`); the port's `IsogenyEndDatum/Vocabulary.lean:161` `natCard_ker_pointMapOfPushforward_eq_finrankAlong` is the identical statement | the name is one environment-level key and `NatCard.lean` is in every D module's cone, so the second copy is undeclarable (`grep -c` in the port: 1, the `NatCard` one) |
+| `KwD5BetweenCurvesHoloLift` (`conj:969`) | D-5's home; the port has no `PeriodPair.kw_toPointHom` (`grep -c` = 0) | see `CARRY-FORWARD.md` |
+| the 32 other `PeriodPair`/`InfinitePlace`/`Place`/`Divisor` prelude copies | D-1 and P-SET-1/P-SET-2 homes | identical statements or binder-spelling variants; `grep -c` ≥ 1 for every survivor |
+
+**D-5 (the two `IsAddCyclic` kernel silos, one home).** `Isogeny/KernelBaseChange.lean`,
+new, 1,377 lines (1,340 Lean + 37 header), **34 public / 0 private** (32 checker-visible; the
+parser does not read `scoped instance`). Both headlines at the wrappers' binders, keeping the
+asymmetry: `isAddCyclic_…` quantifies `(R₀ : Type u)` and concludes a conjunction,
+`exists_algHom_baseChange_…` quantifies `(R₀ : Type)` and concludes
+`∃ ι₁ …, ∀ hN₁, …`. This is the set the column was scheduled around: the two pin files are
+**10,695 raw lines / 176+176 declarations and share 163 of their 176 declarations (≈4,926
+removable lines)**; `port_advise` scores 238 declarations (≈7,252 lines) as substitutions and
+names the 163 shared by both. The module is the "once" side of that. The work order's "~2,300
+once lines" was an over-estimate: the module is 1,377, and ~950 of the difference is pin
+*prelude* copies that D-5's own content does not use and that the port already owns
+(`mem_scale_lattice_iff`, `jLattice_scale`, `jLattice_eq_of_lattice_eq`, `gate_scale_mul`, the
+`kw_isUniformization`/`kw_toPoint_*` chain, `deg_eq_one`, `evalAt_div`, …) — importing them is
+the dedup, not a gap.
+
+**Step 1 (§1.5, the prerequisite set).** Six declarations promoted publicly at stripped names
+into `Elliptic/PeriodPair/Uniformization.lean` (+50 lines), all verified `RENAMED`:
+`PeriodPair.{toPointHom, toPointHom_apply, ker_toPointHom, toPointAddEquiv,
+toPointAddEquiv_mk}` plus **`discriminantNeZero`** — one more than the plan's five-name table,
+because `toPointHom_apply`'s statement mentions `L.kw_discriminantNeZero`. The pin declares
+the family `private … p2m_export`, so all six are promotions. `toPointAddEquiv` is P-SET-1's
+`isUniformization_toPoint` repackaged. `apply_eq_apply_of_continuous_of_mapsTo_lattice` was
+**not** promoted: D-5 does not use it (its consumer is the S row's
+`exists_smul_mem_and_apply_eq_of_forall_sub_mem`). Hard rule honoured:
+`ModularCurve.kw_fdn2_qephod_hend7_pmopKerCard_proved` is **not** declared in either form; both
+pin call sites use the imported `natCard_ker_pointMapOfPushforward_eq_finrankAlong`.
+
+Drops, top of the table (full list in `tmp/d5/drops.txt`; `grep -c` over the two pin files):
+
+| dropped pin declaration | survivor |
+|---|---|
+| `kw_functionFieldMapAlongGeneral` ×100, `…HomGeneral` ×44, `pointPullbackHomTo` ×38, `…TensorFracEquivGeneral` ×18, `…TensorIsDomain_dischargeGeneral` ×16, `…algHom_ext` ×14, `…NoAC` ×26 | `Isogeny/BaseChange.lean` (D-1) |
+| `placeOfPoint_some` ×72, `placeOfPoint_zero` ×66, `normFormulaAlong_of_elliptic` ×42, `restrictAlong_eq_infinitePlace` ×4, `pointEnd_eq_pointEnd'` ×2 | `IsogenyEndDatum/Engine.lean` |
+| `kw_fdn2_qephod_hend7_pmopKerCard_proved` ×10 | `IsogenyEndDatum/Vocabulary.lean:161` (imported lemma; the *name* stays with `NatCard.lean`) |
+| `geomMorphBC` ×8, `placeOfPoint_geomMorphBC` ×10, `pmop_eq_geomMorphBC_sub` ×6, `placeOfPoint_injective` ×2 | `Isogeny/NatCard.lean` |
+| the place dictionary (`isFinitePlace_placeOfEquation` ×22, `heightOneSpectrumOfEquation` ×18, `ord_placeOfEquation_pos_iff` ×12, `centre_placeOfEquation` ×10, `algebraMap_polynomial_eq_mk_C` ×8, `isFinitePlace_of_mem` ×6, `exists_sub_algebraMap_mem` ×4) | `Place/Dictionary.lean` |
+| `transcendental_polyToFunctionField_X` ×16, `equation_map_polyToFunctionField_yGen` ×16, `yGen` ×2 | `FunctionFieldQuadratic.lean` |
+| `XClass` ×55, `YClass` ×58 | mathlib `CoordinateRing.XClass`/`YClass` |
+| the `PeriodPair` prelude (`scaleLatticeEquiv` ×12, `kw_isUniformization` ×8, `kw_countable_lattice` ×6, `sub_fract_mem_lattice` ×6, `apply_eq_apply_of_differentiable_of_forall_periodic` ×6, `toPoint_add`/`_surjective`/`_eq_zero_iff`/`_add_mem`/`_neg`, `latticeEquivOfEq` ×4, `discriminantNeZero_scale_iff` ×2, `exists_smul_mem_and_apply_eq_of_forall_sub_mem` ×2) | `Elliptic/PeriodPair/{Uniformization,Lattice,Discriminant}.lean` |
+
+### The `instInfinitePlace` co-import collision, and its resolution
+
+`WeierstrassCurve.Affine.instInfinitePlace` was declared twice: `Place/RRSpace.lean` (the
+pin's own `scoped instance`, `[IsAlgClosed F] [IsDedekindDomain W.CoordinateRing]
+[HasPrincipalDivisors …]`) and `IsogenyEndDatum/Engine.lean` (a plain `instance`, the port's
+invention, `[W.IsElliptic] [GenusOnePlaceGate W] [IsCentred W]`). No environment can import
+both (`environment already contains '…instInfinitePlace._proof_4'`), which blocked the whole
+column: D-1 and D-2 need the gate *classes*, D-4/D-5 need `Engine`'s seam lemmas. Resolution
+was not a rename but an import choice: `GenusOnePlaceGateCentred.lean` is the *producer*
+(`exists_genusOnePlaceGate_isCentred_and_abelTheorem`) and the only importer of `RRSpace` in
+that chain, while the classes live in the lighter `GenusOnePlaceGate.lean`, which every pin
+hypothesis supplies as an argument. D-1 now imports `GenusOnePlaceGate.lean`; the Engine
+pairing compiles, and D-4/D-5 are unblocked. The producer module still cannot be co-imported
+with `Engine`, which is why `spec/IsogenyEndDatumConsumer.lean` keeps those gate instances as
+hypotheses.
+
+### The `kw_` strip, and the checker's in-statement erasure
+
+The promotion policy is to name a promoted helper at the prefix-stripped pin name, verified
+through the checker's `stripped_source` fallback and counted in `renamed`; the criterion is
+*promotion*, not the pin's `private` marker (all five original `renamed` sources are
+pin-public). D-1's 56 pin-public `kw_` helpers and its 4 `scoped instance`s were stripped in
+place. That needed one checker change: `norm` now erases `kw_` **inside statements** on both
+sides, as it already erased `ModularCurve.`/`AlgebraicCurve.` qualification. Twenty of the 56
+have statements that mention a promoted map —
+`functionFieldMapAlongGeneralNoAC_polyToFunctionField_X` states
+`functionFieldMapAlongGeneralNoAC W F F' (polyToFunctionField (W⁄F) X) = polyToFunctionField (W⁄F') X`
+— so renaming the map moved the statement text and the diff failed (measured: 20 `missing`).
+With the erasure the strip moved exactly the 56 and nothing else: `5942 identical (313
+promoted, 5 → 61 renamed), 0/0`. A one-token probe still fires (5942 → 5941), surfacing as
+`missing` rather than `mismatched` for a promoted declaration — read both.
+
+**D-5's completion of the erasure.** The lookbehind still excluded a preceding `.` at first,
+which made a *method-style* reference to a promoted helper unmatchable: the pin's
+`private theorem PeriodPair.kw_toPointHom_apply` states
+`L.kw_toPointHom z = L.toPoint L.kw_discriminantNeZero z`, while the port's promotion states
+`L.toPointHom z = …`, and the diff reported 5 `missing`. Dropping `.` from the lookbehind
+(`spec/check_flt_statements.py`, `(?<![\w'ₐ-ₜ])kw_`) fixed it: `6000 (313, 62) / 5 missing`
+became `6005 (313, 67) / 0 missing`, and no pre-existing row moved. The change is monotone —
+both sides are normalised identically, and `find` only ever returns a candidate whose kind
+and statement already match — so it can turn a mismatch into a match but never the reverse.
+Without it, "stripped names + 0 missing" is impossible for any promotion whose statement is
+method-style.
+
+### D-1's universe defect (found by D-3)
+
+D-1 had monomorphised the prelude's universes (`universe u`; `F : Type u`, `F' : Type u`),
+where the pin's `bcff` file is `universe u v w` with `R₀ : Type u`, `F : Type v`,
+`F' : Type w` (`:76`, `:696–699`) and the wrapper spells `(F : Type v)`/`(F' : Type w)`; a
+second section, `section PointPullbackTo`, pinned `{L : Type u}` where the pin writes
+`{L : Type*}` (`:404`). At `v ≠ w` the pinned `L` made the unifier chase a `whnf` loop and
+two `def`s — exactly the ones the pin guards with `set_option maxHeartbeats 51200000 in` —
+died at the port's 4 M cap (a 497 s failed build). Fixed by carrying the pin's spelling
+(`universe u v w`, `F : Type v`, `F' : Type w`, `{L : Type*}`) and naming the implicits at
+the application sites in the two bodies, which removes the search so no budget bump is
+needed. Section-variable universes never enter the checker's statement diff, so the
+mechanical check is blind to this class of defect; only the consumer's elaboration catches
+it. Lesson recorded in P-2 §6: **a `whnf` heartbeat timeout in a shared block usually means
+a universe was pinned too tight, not that the proof is heavy.**
+
+### Twice the same pin name, twice a *different* statement (found by D-4)
+
+The seam vocabulary of the pin is not stable across the five `S_` files that carry it, and
+two of the collisions are genuine statement differences, not copies:
+
+1. **`KwD5BetweenCurvesHoloLift`.** The work order's "different bodies (748 lines in the
+   silos, 151/83 in the S row, 25 in `conj`)" is a *span* artefact. The `def … : Prop`
+   bodies in all five files are **byte-identical** — `sha256` of the extracted
+   `def KwD5BetweenCurvesHoloLift …` text is `e7b7d5fe7857b0a5…` in
+   `S_PeriodPair_exists_differentiable_toPoint_…`, `S_PeriodPair_exists_scale_lattice_…`,
+   `S_…exists_algHom_baseChange_…`, `S_…of_algEquiv_conj` and `S_…of_baseChange_algHom`. The
+   differing line counts are the surrounding `p2m_reactivate` scaffolding. So there is no
+   "general vs specialisation" question to settle; D-4 nevertheless does **not** declare it,
+   because its body needs `PeriodPair.kw_toPointHom`, which the port does not have in any
+   form (`grep -c` = 0), and because declaring it here would collide with D-5's own copy in
+   the same `ModularCurve` namespace. Registered in `CARRY-FORWARD.md`.
+2. **`ModularCurve.kw_fdn2_qephod_hend7_pmopKerCard_proved`.** Two pin files declare *this*
+   name with different statements: the `natCard_…_eq_finrankAlong` file has
+   `theorem … : KwD5PointMapOfPushforwardKerCard.{u}`, while the two D-5 silos, the two S-row
+   files and the `conj` file each have
+   `theorem … (K : Type*) … : Nat.card (pointMapOfPushforward ι …).ker = finrankAlong K ι`.
+   The port kept the `Prop`-valued copy (`Isogeny/NatCard.lean:785`, which landed with the
+   `natCard` node), and since a declaration name is one environment-level key, the second
+   copy is **undeclarable** in any module whose cone contains `NatCard.lean` — i.e. the whole
+   D column. Nothing is lost: the second copy's *content* is the already-ported
+   `WeierstrassCurve.Affine.natCard_ker_pointMapOfPushforward_eq_finrankAlong`
+   (`IsogenyEndDatum/Vocabulary.lean:161`), which is exactly its proof term. D-4 drops it and
+   uses the imported lemma; the silos should do the same.
+
+Lesson for the column: **a pin name shared across `S_` files is not evidence of a shared
+statement.** Diff the *normalized declaration bodies*, not the spans, before choosing a
+home; and before *declaring* a copy, check that the name is not already taken by a
+differently-stated declaration in the cone — the checker cannot see that failure mode,
+because the error is an elaboration-time `has already been declared`.
+
+### Builds
+
+`BaseChange+IntermediateField+VariableChangeAlgEquiv+BaseChangeAlgHom`: **2730 jobs, 1 m
+21.5 s** (1 m 54.4 user / 8.5 sys) after the fix — the same chain took 497 s and failed
+before it. Whole tree: **9314 jobs, green**, cached **6.4 s**. Consumers:
+`spec/BaseChangeConsumer.lean` exit 0 (4.4 s, now zones 1–6 incl. D-3),
+`spec/IntermediateFieldConsumer.lean` exit 0 (1.6 s); deletion probes executed for both new
+D-3 modules. `#print axioms` on all four column headlines: `[propext, Classical.choice,
+Quot.sound]`.
+
+**D-4.** `KernelCyclicTransfer.lean` `lake env lean` clean (`1 m 44 s` wall, 14.2 s user /
+25.0 s sys — the time is the 83-module `Engine` cone's olean I/O, not the file), then
+`flock`ed `lake build FLTForHuman.WeierstrassCurve.Isogeny.KernelCyclicTransfer`: green
+(94 s module, 9030 jobs of replay in a partly-stale tree). Whole tree after D-4:
+**9315 jobs, green**, cached **11.0 s** (9.2 user / 12.1 sys) — +1 job over the D-3 figure,
+i.e. one leaf and no cascade. `spec/KernelCyclicTransferConsumer.lean` exit 0 (1 m 40 s
+wall, 7.3 user / 27.1 sys — again cone I/O), four zones; the deletion probe (module `.lean`
+**and** its `.olean` moved aside) fails the consumer with exactly
+`object file '…KernelCyclicTransfer.olean' … does not exist`, then both are restored
+byte-exact. Checker: `5980 (313 promoted, 61 renamed) → 5999 (313, 61)`, `0 mismatched /
+0 missing`, `6016 → 6035` checked; a one-token statement mutation reproduces
+`5998 / 1 mismatched / 0 missing`. `#print axioms` on the headline:
+`[propext, Classical.choice, Quot.sound]`.
+
+### Friction
+
+1. **`ps` lies across tool calls.** A background build showed a live `lake build` 5 s in and
+   no process 4 min later while still producing output; two builds serialised invisibly on
+   `flock`, one 10-minute foreground call making no progress because an earlier "dead" job
+   held the lock. The log file is the ground truth; long builds belong in a background job
+   with output redirected to a file, polled by `tail`. Two sets building in one tree contend
+   rather than parallelise, and a `lake build` cut mid-flight left `BaseChange.olean` absent,
+   so one builder holds the lock for a whole chain.
+2. **`port_advise`'s substitution test is name/type-anchored.** It scored four rows in D-3
+   that are not substitutions: `mrtw60a_pXFwd`/`mrtw60a_pYLinFwd` matched on the bare type
+   `F[X]` and the two `def … : Prop` predicates matched on `Prop`. Never drop a `def … :
+   Prop` or a bare-type `def` on the tool's word; `grep -c` the body first. D-4 adds the
+   mirror image: `KwD5BetweenCurvesHoloLift` *is* scored as a substitution (against
+   `PeriodPair.DiscriminantNeZero`, on `Prop`) while being **absent** from the port, and the
+   genuinely identical cross-file copies are scored inconsistently (64 rows where 50 have an
+   identical statement). The tool's *counts* price the work; its *rows* still need a diff.
+3. **Two D-1 generalisations were needed, not one** — the `F`/`F'` sections and then the
+   `L : Type*` section; the second only surfaced once the first was applied, as a heartbeat
+   timeout rather than a type error.
+4. **A `def` used as a section variable hides its binders from the checker, so a
+   transcription must decide where they are written** (D-4). The pin's
+   `kw_fdn2_qephod_hend7_pmopKerCard_proved` writes `K`, `E`, `E'` as explicit theorem
+   binders; the `kw_fdn2_qephod_hend21_*` block and the `kw_surgehgf4_pck_*` block write them
+   as `variable`s. The checker reads only the source text after the declaration name, so
+   moving a binder into a `variable` silently drops it from the compared statement. Check the
+   pin's own copy for each declaration; do not restructure into a shared `variable` block for
+   tidiness.
+5. **Transcribing the pin's proofs verbatim cost nothing, including the `rfl`s.** The two
+   `set_option maxHeartbeats 102400000`/`25600000` bumps in the pin are *not* transcribed; the
+   port's 4 M cap suffices at every declaration (module `lake env lean` 14 s user), because
+   the pin's bumps guard the `kw_surgehgf4_pck_proved` underscore-lambda and
+   `proved_core`'s `hker_iff`, both of which the port writes identically. Contrast D-1's
+   `whnf` blow-up, which was a *universe* pin, not a heavy proof. The pin's `have _ :=
+   kw_surgehgf4_pck_axiomAnchor` lines are kept, which is why `#print axioms` reports
+   exactly the standard three.
+
+

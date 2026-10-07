@@ -688,6 +688,27 @@ instruments, all cheap:
      the elaborated types agree; only the checker notices. Take the binders from
      the wrapper and use the `S_` file only for the proof body. This rule recurred
      for four consecutive topics before it was applied from the start.
+   - **The `kw_` prefix is erased on both sides, in the name *and inside the
+     statement*.** `norm` drops it, for the same reason it drops the
+     `ModularCurve.`/`AlgebraicCurve.` qualification: a promoted helper is renamed
+     at the prefix-stripped pin name, so the prefix is noise for a statement diff.
+     The in-statement erasure is load-bearing, not cosmetic — a declaration whose
+     statement *mentions* a promoted map (`kw_functionFieldMapAlongGeneralNoAC_polyToFunctionField_X`
+     states `kw_functionFieldMapAlongGeneralNoAC W F F' (polyToFunctionField (W⁄F) X)
+     = polyToFunctionField (W⁄F') X`) could not be promoted at all without it: the
+     renamed map changes the statement text and the diff fails (measured 2026-10-06
+     in P-2's D-1: 20 `missing`). With the erasure, `kw_foo` and `foo` are comparable
+     everywhere and the rename moved only the 56 declarations it touched. One
+     consequence for reading the report: a one-token drift in a **promoted**
+     declaration surfaces as `missing`, not `mismatched` (the name resolves to no
+     public pin copy and its statement no longer matches the stripped one), so when a
+     column carries promotions, read `missing` as well as `mismatched`. The erasure must
+     also fire after a `.`: a *method-style* reference (`L.kw_toPointHom`) has to match
+     `L.toPointHom`, and excluding the dot from the lookbehind cost 5 `missing` in P-2's
+     D-5 (fixed; `6000 (313, 62) / 5 missing` → `6005 (313, 67) / 0 missing`, nothing else
+     moved). The erasure is monotone — both sides are normalised identically and `find`
+     returns only already-matching candidates — so it can only turn a mismatch into a
+     match.
    - **The checker reads modifiers from the declaration's own line and ignores
      `scoped`**; run its `raw_declarations` directly on a module not yet in
      `PORT_FILES` when you want a faithfulness probe without wiring it in.
@@ -774,6 +795,15 @@ is pure loss; glue and trivia are not worth exporting.
 - **Promote to the module where the needed type is available**, even if the work
   order says otherwise, and **rename at promotion when the pin name is already
   taken publicly**, keeping a local alias for existing consumers.
+- **Name a promoted helper at the prefix-stripped pin name** (`kw_g₂_ofTau` →
+  `g₂_ofTau`); the checker verifies the promotion through its `stripped_source`
+  fallback, printing `RENAMED`, and the criterion is *promotion*, not the pin's
+  `private` marker — the five `renamed` rows of P-SET-1/P-SET-2 are all pin-*public*
+  `kw_` declarations the port re-homed. A pin declaration merely transcribed at its pin
+  name keeps the pin's name, `kw_` included; a module-local helper is `private` with a
+  content name. Never leave a declaration both public and stripped. Stripping a
+  pin-public helper that has consumers outside the effort is deferred, not skipped:
+  record it in [CARRY-FORWARD.md](CARRY-FORWARD.md)'s open follow-ups.
 - **Export a topic's outbound interface so the next topic imports instead of
   copying** — one topic exported its `RealL`/closure and two Cauchy lemmas
   precisely because the pin duplicates them in the next topic's file.

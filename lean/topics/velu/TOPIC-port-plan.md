@@ -256,7 +256,7 @@ tree. The status column is the plan's status; the dated record is
 | H5b | `WeierstrassCurve/Isogeny/NatCard.lean` (new) | landed | `natCard_…_of_separableAlong` + its three helpers, the H4 headline's route closure |
 | H5r | `Velu/{Discharge,Engine,RestrictAlong,Formula,OddOrder}.lean` → `Place/Dictionary.lean` (move) | landed | the dictionary extraction: the A1 `placeOfEquation` ord/centre group, `algebraMap_coordinateRing_ne_zero`/`IsFinitePlace.mem_centre_iff_ord_ne_zero`, `algebraMap_polynomial_eq_mk_C`, `eq_placeOfEquation_of_le_centre` and `ord_polyToFunctionField_*` moved to the dictionary (H5 must not import Vélu), and `exists_some_of_ne_zero` folded to one public copy in `Velu/Formula.lean` |
 | **H5** | `WeierstrassCurve/IsogenyEndDatum/{Engine,RestrictAlongAdd,DualEndData,Vocabulary}.lean` + `Isogeny/DualAPI.lean` (new) | **landed** (two vocabulary nodes deferred) | the 82-decl `IsogenyEndDatum` engine + the 35-decl seam, **and the two `IsogenyEndDatum` big theorems of the plan's Phase C** (`exists_dualEndData_dual_mem_and_norm_eq_finrankAlong` and `exists_restrictAlong_placeOfPoint_eq_add`), plus the small layer 0–1 `pointEnd`/`pointHom`/`aeval_j_diag` nodes and the plain `natCard_…` sibling of H5b. Builds on H1w + H5a. **Three sequential sets, all landed** (SET-1 substrate + `DualAPI`; SET-2 the `restrictAlong` column incl. the unbudgeted 3,061-line `addX_addY_specialize_at_place` node; SET-3 the dual column + the vocabulary tail), with `pointHom_apply_eq_sub`/`pointEnd_apply_eq_sub`/`exists_pointEnd_eq_add`/plain `natCard` landed and **`exists_pointHom_comp_eq_of_ker_le_of_isCentred` + `aeval_j_diag_eq_zero_of_finrankAlong_eq` deferred to Phase D** on large unported prerequisites. Detail in [TOPIC-H5-engine.md](TOPIC-H5-engine.md) |
-| **H6** | `WeierstrassCurve/Isogeny/BaseChange.lean` (new, or extend `ModularityLifting.lean`) | **remaining** | the tensor/base-change blocks (≈ 1.5 k once-lines), reusing the already-ported WeightOne lattice material (`latticeEquivOfEq`). Independent of H5 |
+| **H6** | `WeierstrassCurve/Isogeny/BaseChange.lean` + `Isogeny/{IntermediateField,BaseChangeAlgHom,VariableChangeAlgEquiv,KernelCyclicTransfer,KernelBaseChange}.lean` (new) | **landed 2026-10-06** (set **P-2**, D-1…D-5: 4,523 written lines) | the tensor/base-change and descent blocks and the two `IsAddCyclic` kernel silos, as one home each — [WORKORDER-P2-basechange.md](WORKORDER-P2-basechange.md), record [../../logs/velu-port.md](../../logs/velu-port.md) §P-2. The priced "≈1.5 k once-lines" was low by the descent nodes and the seam; the real row was 5,470 new declaration lines, closed at 4,523 written because D-1/D-5 deduplicate the pin's repeated preludes |
 
 ### What remains, in order
 
@@ -271,10 +271,14 @@ landed, so the dictionary is importable without Vélu.
    (`pointEnd_apply_eq_sub`, `pointHom_apply_eq_sub`, `exists_pointEnd_eq_add`,
    `exists_pointHom_comp_eq_of_ker_le_of_isCentred`, `aeval_j_diag_eq_zero…`, and
    the plain `natCard_ker_pointMapOfPushforward_eq_finrankAlong`).
-2. **H6 — the base-change column.** Tensor engine and its three consumer nodes
-   (`exists_algHom_baseChange…`,
+2. **H6 — the base-change column.** **Landed 2026-10-06 as set P-2.** The tensor engine and
+   its three consumer nodes (`exists_algHom_baseChange…`,
    `isAddCyclic_ker_pointMapOfPushforward_of_baseChange_algHom`,
-   `…_of_algEquiv_conj`). Parallel to H5 in principle, sequential by decision.
+   `…_of_algEquiv_conj`) are in the port, together with the countable-descent and
+   variable-change nodes; the two 5.3 k silos share 163 of their 176 declarations and are
+   **one** module (`Isogeny/KernelBaseChange.lean`). See
+   [WORKORDER-P2-basechange.md](WORKORDER-P2-basechange.md) and
+   [../../logs/velu-port.md](../../logs/velu-port.md) §P-2.
 3. **Phase B — the cheap, self-contained formula nodes** (layer 0, mostly ≤ 200
    lines each; they exercise the landed engine): `veluQuotient2_{Delta_eq,cFour,j}`,
    `Delta_eq_veluGx_sq_mul_velu2QuadDisc`, the `velu2_*_cleared_identity` trio,

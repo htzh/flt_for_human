@@ -2206,6 +2206,52 @@ SOURCES = [
     # (`P2M/Sol/S_WeierstrassCurve_Affine_exists_algHom_functionField_baseChange_finrankAlong_eq.lean`
     # is already listed above as the H0 home of the Weierstrass generic-point bridge;
     # appending it again would only duplicate the candidate list.)
+    #
+    # --- D-3: the base change to an `AlgebraHom` (`BaseChangeAlgHom.lean`, whose only new
+    # declaration is the headline, already matched against the wrapper above) and the
+    # variable change (`VariableChangeAlgEquiv.lean`). The variable-change file's public
+    # surface is the pin's `mrtw60a*` block — kept at its pin names (a solution-file prefix,
+    # not a `kw_` promotion token) — plus the headline, which resolves against the wrapper.
+    # The wrapper comes before its `S_` file; both are appended last so no earlier last-name
+    # match can flip. Neither was listed before D-3 (checked).
+    "Theorems/Thm_WeierstrassCurve_nonempty_functionField_algEquiv_of_variableChange.lean",
+    "P2M/Sol/S_WeierstrassCurve_nonempty_functionField_algEquiv_of_variableChange.lean",
+    # --- D-4: the conjugation headline (`Isogeny/KernelCyclicTransfer.lean`), its
+    # `KwD5BetweenCurvesPMOPConjKerEquiv` seam and the `kw_surgehgf4_pck_*` block. The
+    # wrapper is the statement authority for the headline; the `S_` file is the only
+    # source for the seam vocabulary (the `kw_fdn2_qephod_hend2[17]*` block and the
+    # `kw_surgehgf4_pck_*`/`KwD5BetweenCurvesPMOPConjKerEquiv`/`pck_s17` block are public
+    # in that file and occur nowhere else in the pin). Both are appended last so no
+    # earlier last-name match can flip; neither was listed before D-4 (checked).
+    # `KwD5BetweenCurvesHoloLift` and `kw_fdn2_qephod_hend7_pmopKerCard_proved` are *not*
+    # declared by D-4 — see the module header and the friction log.
+    "Theorems/Thm_WeierstrassCurve_Affine_isAddCyclic_ker_pointMapOfPushforward_of_algEquiv_conj.lean",
+    "P2M/Sol/S_WeierstrassCurve_Affine_isAddCyclic_ker_pointMapOfPushforward_of_algEquiv_conj.lean",
+    # --- D-5 §1.5 (the `PeriodPair` uniformization promotion set). The seam
+    # `ModularCurve.KwD5BetweenCurvesHoloLift` needs `PeriodPair.kw_toPointHom`, which
+    # the pin declares `private` and re-exports with `p2m_export`; set D-5 promotes it
+    # (and its four companions) publicly in `Elliptic/PeriodPair/Uniformization.lean`
+    # at the prefix-stripped name, verified through the §2.1 `stripped_source`
+    # fallback. This `S_` file is the only source for those pin-private statements.
+    # Appended last so no earlier last-name match can flip.
+    "P2M/Sol/S_PeriodPair_exists_differentiable_toPoint_comp_eq_pointMapOfPushforward_toPoint.lean",
+    # --- D-5 (the two `IsAddCyclic`-kernel base-change silos,
+    # `FLTForHuman/WeierstrassCurve/Isogeny/KernelBaseChange.lean`). The two wrappers are
+    # the statement authority (the first quantifies `(R₀ : Type u)` and concludes a
+    # conjunction, the second `(R₀ : Type)` and concludes the existential over `ι₁` with
+    # `∀ hN₁`); the two `S_` files then supply the shared silo surface the wrappers do not
+    # — the seams (`KwD5BetweenCurvesHoloLift`, `…FFSeamBaseChange`,
+    # `…KerTransportAlongEmbed`), the `kw_surge_hgf4_bc*`/`kw_surgehgf4_hfgkd_ktd_*` block
+    # and the `PeriodPair`/`Place` prelude copies (which the port imports from D-1, D-2,
+    # `Place/Dictionary.lean`, `IsogenyEndDatum/Engine.lean`, `Isogeny/NatCard.lean` and
+    # `Elliptic/PeriodPair/`). The silo's `solution` rows are *not* ported as such: the two
+    # headlines at the wrapper statements replace them. Neither file was listed before
+    # D-5 (checked); `S_…of_baseChange_algHom.lean` was explicitly left out by D-1 for
+    # exactly this set. Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_WeierstrassCurve_Affine_isAddCyclic_ker_pointMapOfPushforward_of_baseChange_algHom.lean",
+    "P2M/Sol/S_WeierstrassCurve_Affine_isAddCyclic_ker_pointMapOfPushforward_of_baseChange_algHom.lean",
+    "Theorems/Thm_WeierstrassCurve_Affine_exists_algHom_baseChange_of_isAddCyclic_ker_pointMapOfPushforward.lean",
+    "P2M/Sol/S_WeierstrassCurve_Affine_exists_algHom_baseChange_of_isAddCyclic_ker_pointMapOfPushforward.lean",
 ]
 
 PORT_FILES = [
@@ -3126,6 +3172,46 @@ PORT_FILES = [
     # --- D-1: the shared base-change prelude. Appended last so no earlier last-name
     # match can flip.
     "FLTForHuman/WeierstrassCurve/Isogeny/BaseChange.lean",
+    # --- D-2: the countable function-field descent (set D-2 of
+    # `topics/velu/WORKORDER-P2-basechange.md`; order
+    # `topics/velu/WORKORDER-P2b-intermediate-field.md`). Its public surface is the
+    # pin's self-contained descent predicates at their pin names plus the headline
+    # (which resolves against the `Theorems/` wrapper in `SOURCES`); the 72 descent
+    # helpers are `private` with their `kw_` prefix stripped, so the checker does not
+    # read them. Appended last so no earlier last-name match can flip.
+    "FLTForHuman/WeierstrassCurve/Isogeny/IntermediateField.lean",
+    # --- D-3: the two mid-size base-change nodes of
+    # `topics/velu/WORKORDER-P2c-basechange-alghom-and-variablechange.md`.
+    # `BaseChangeAlgHom.lean` is the `bcff` headline; everything else the pin's `S_` file
+    # carries was already landed by D-1, at D-1's prefix-stripped names, so the module has
+    # exactly one public declaration. `VariableChangeAlgEquiv.lean` is the `varCh` node:
+    # the `mrtw60a*` block at its pin names (it is pin-public and its prefix is a
+    # solution-file token, not a `kw_` promotion) plus the headline. Both import D-1
+    # downward and are leaves. Appended last so no earlier last-name match can flip.
+    "FLTForHuman/WeierstrassCurve/Isogeny/BaseChangeAlgHom.lean",
+    "FLTForHuman/WeierstrassCurve/Isogeny/VariableChangeAlgEquiv.lean",
+    # --- D-4: the conjugation headline plus the seam (`KernelCyclicTransfer.lean`).
+    # The module's whole surface is public at the pin names: the headline (matched against
+    # its wrapper), the `kw_fdn2_qephod_hend21_*` conjugation block, the
+    # `KwD5BetweenCurvesPMOPConjKerEquiv` `Prop`, the `kw_surgehgf4_pck_*` engine and
+    # `pck_s17`; there are no `private` helpers. It imports D-1 downward and the
+    # `IsogenyEndDatum/Engine.lean` cone (which the pin's own `S_` file needs), and it is a
+    # leaf. Appended last so no earlier last-name match can flip.
+    "FLTForHuman/WeierstrassCurve/Isogeny/KernelCyclicTransfer.lean",
+    # --- D-5: the two `IsAddCyclic`-kernel base-change silos in **one** home
+    # (`KernelBaseChange.lean`, `topics/velu/WORKORDER-P2e-kernel-base-change.md`). The
+    # two pin `S_` files are 5,357 / 5,338 lines and share 163 of their 176 declarations
+    # (4,926 removable lines); the module declares the shared new surface once (the three
+    # `KwD5BetweenCurves*` seams, the `kw_surge_hgf4_bc*`/`χE`/`pmop_naturality`/`hBC_proved`
+    # tensor transport and the `kw_surgehgf4_hfgkd_ktd_*` kernel-transport block) and the
+    # two headlines at the `Theorems/` wrappers' statements. Everything else the pin
+    # re-proves is imported from D-1/D-4 and the `Place`/`IsogenyEndDatum`/`PeriodPair`
+    # homes; `ModularCurve.kw_fdn2_qephod_hend7_pmopKerCard_proved` is deliberately **not**
+    # re-declared (the name owns a differently stated `Prop` in `Isogeny/NatCard.lean`), and
+    # the pin's `solution` rows are superseded by the two headlines. It imports D-4 and the
+    # `IsogenyEndDatum/Engine.lean` cone and is a leaf. Appended last so no earlier
+    # last-name match can flip.
+    "FLTForHuman/WeierstrassCurve/Isogeny/KernelBaseChange.lean",
 ]
 
 
@@ -3411,6 +3497,28 @@ def norm(text: str) -> str:
     # before comparing.
     text = re.sub(r"\bModularCurve\.", "", strip_comments(text))
     text = re.sub(r"\bAlgebraicCurve\.", "", text)
+    # The port's promotion convention names a promoted helper at the
+    # prefix-stripped pin name (`kw_g₂_ofTau` -> `g₂_ofTau`); the `kw_` prefix is
+    # therefore noise for a statement diff, exactly as a namespace prefix is.
+    # It must be erased *inside* statements too, not only on the declaration
+    # name: a declaration whose statement mentions a promoted helper (say
+    # `kw_functionFieldMapAlongGeneralNoAC_polyToFunctionField_X`, which states
+    # `kw_functionFieldMapAlongGeneralNoAC W F F' (polyToFunctionField (W⁄F) X)
+    # = polyToFunctionField (W⁄F') X`) could otherwise not be promoted at all —
+    # the renamed helper would change the statement text and the diff would
+    # fail. Erasing it on both sides keeps `kw_foo` and `foo` comparable.
+    #
+    # 2026-10-06 (D-5 §1.5): the lookbehind used to exclude a preceding `.` as
+    # well. That made a *method-style* reference to a promoted helper unmatchable:
+    # the pin's `private theorem PeriodPair.kw_toPointHom_apply` states
+    # `L.kw_toPointHom z = L.toPoint L.kw_discriminantNeZero z`, and the port's
+    # promotion `PeriodPair.toPointHom_apply` states
+    # `L.toPointHom z = L.toPoint L.discriminantNeZero z`; with `.` excluded the
+    # pin side kept `L.kw_toPointHom` and the diff reported `missing`. A preceding
+    # `.` is the same kind of noise as a bare prefix here, so it is erased too.
+    # The change is monotone: both sides are normalised identically, so it can
+    # only turn a mismatch/missing into a match, never the other way.
+    text = re.sub(r"(?<![\w'ₐ-ₜ])kw_", "", text)
     return re.sub(r"\s+", " ", text).strip()
 
 

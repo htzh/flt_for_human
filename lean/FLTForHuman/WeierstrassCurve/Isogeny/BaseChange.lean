@@ -17,13 +17,24 @@ prelude. Statements are transcribed verbatim from the pinned FLT `aa2d8b3`:
 * `P2M/Sol/S_WeierstrassCurve_exists_intermediateField_countable_map_eq_and_finrankAlong_eq.lean`
   (the `NoAC` spelling, with `TreeIsogenyEndDatum` in place of `IsogenyEndDatum`);
 * `P2M/Sol/S_WeierstrassCurve_Affine_isAddCyclic_ker_pointMapOfPushforward_of_baseChange_algHom.lean`
-  (the `pointPullback*To` column and the `kw_functionField_algHom_ext` /
-  `kw_coordinateRingBasis` vocabulary).
+  (the `pointPullback*To` column and the `functionField_algHom_ext` /
+  `coordinateRingBasis` vocabulary).
 
 The `NoAC` declarations are strictly more general than their `General` twins
 (`…NoAC` drops `[IsAlgClosed F] [IsAlgClosed F']`); the `General` names are kept —
 the checker diffs the text, and D-3/D-5 consume them — but their proofs are
 one-line invocations of the `NoAC` general lemmas.
+
+Universe polymorphism. Both sections are at `universe u v w` with `{R₀ : Type u}`,
+`(F : Type v)`, `(F' : Type w)`. That is the pin's spelling in
+`S_WeierstrassCurve_Affine_exists_algHom_functionField_baseChange_finrankAlong_eq.lean`
+(`universe u v w` at :76, `F : Type v`/`F' : Type w`/`R₀ : Type u` at :696–699) and in the
+`Theorems/` wrapper for the `bcff` headline, which spells `(F : Type v)`/`(F' : Type w)`.
+The pin's `NoAC` block is monomorphic at `Type u`/`Type u`; the port's section is at
+`v`/`w` because every `General` declaration invokes its `NoAC` twin and `v ≠ w` must be
+allowed, so the `NoAC` spelling is a strict strengthening. Section-variable universes do
+not enter the checker's statement diff (it reads the text after the declaration name), so
+no checked statement moves.
 
 Already public in the port and **imported, not re-proved**: `yGen`,
 `polyToFunctionField_eq_aeval`, `equation_map_polyToFunctionField_yGen`,
@@ -76,7 +87,7 @@ noncomputable section
 open Polynomial
 open scoped Polynomial.Bivariate WeierstrassCurve TensorProduct
 
-universe u
+universe u v w
 
 namespace WeierstrassCurve
 
@@ -120,7 +131,7 @@ without a map `W.FunctionField → L`. -/
 
 section PointPullbackTo
 
-variable {F : Type u} [Field F] {W : Affine F} {L : Type u} [Field L] [Algebra F L]
+variable {F : Type u} [Field F] {W : Affine F} {L : Type*} [Field L] [Algebra F L]
 
 theorem eval₂_polynomial_of_equation_map_target {xP yP : L}
     (h : (W.map (algebraMap F L)).toAffine.Equation xP yP) :
@@ -208,13 +219,13 @@ end PointPullbackTo
 An `F`-algebra map out of `W.FunctionField` is determined by the images of
 `polyToFunctionField W X` and `yGen W`. The port's `es1a8_functionField_algHom_ext_cmp`
 (`IsogenyEndDatum/Engine.lean`) is the `L = W.FunctionField` case with a different
-proof; the general-`L` statement is the pin's `kw_functionField_algHom_ext`. -/
+proof; the general-`L` statement is the pin's `functionField_algHom_ext`. -/
 
 section AlgHomExt
 
 variable {F : Type u} [Field F] {W : Affine F}
 
-theorem kw_functionField_algHom_ext {L : Type*} [Field L] [Algebra F L]
+theorem functionField_algHom_ext {L : Type*} [Field L] [Algebra F L]
     {f g : W.FunctionField →ₐ[F] L}
     (hX : f (polyToFunctionField W X) = g (polyToFunctionField W X))
     (hy : f (yGen W) = g (yGen W)) : f = g := by
@@ -260,10 +271,10 @@ open WeierstrassCurve WeierstrassCurve.Affine WeierstrassCurve.Affine.Coordinate
 
 /-! ### The coordinate-ring basis
 
-`kw_coordinateRingBasis V` is the `R`-basis `Xⁿ`, `XⁿY` of `V.CoordinateRing`, read
+`coordinateRingBasis V` is the `R`-basis `Xⁿ`, `XⁿY` of `V.CoordinateRing`, read
 off the `R[X]`-basis of `Polynomial` and the `Fin 2`-basis of the coordinate ring. -/
 
-def kw_coordinateRingBasis {R : Type*} [CommRing R] (V : Affine R) :
+def coordinateRingBasis {R : Type*} [CommRing R] (V : Affine R) :
     Module.Basis (ℕ × Fin 2) R V.CoordinateRing :=
   (Polynomial.basisMonomials R).smulTower (CoordinateRing.basis V)
 
@@ -279,16 +290,16 @@ section NoAC
 
 variable {R₀ : Type u} [Field R₀]
 variable (W : WeierstrassCurve R₀) [W.IsElliptic]
-variable (F : Type u) [Field F] [Algebra R₀ F] [DecidableEq F] [CharZero F]
-variable (F' : Type u) [Field F'] [Algebra R₀ F'] [DecidableEq F'] [CharZero F']
+variable (F : Type v) [Field F] [Algebra R₀ F] [DecidableEq F] [CharZero F]
+variable (F' : Type w) [Field F'] [Algebra R₀ F'] [DecidableEq F'] [CharZero F']
 variable [Algebra F F'] [IsScalarTower R₀ F F']
 
-theorem kw_transcendental_polyToFunctionField_X_over_baseGeneralNoAC :
+theorem transcendental_polyToFunctionField_X_over_baseGeneralNoAC :
     Transcendental F (polyToFunctionField (W⁄F') X) :=
   Transcendental.of_tower_top F (L := F')
     (transcendental_polyToFunctionField_X (W := (W⁄F')))
 
-theorem kw_equation_map_polyToFunctionField_yGen_over_baseGeneralNoAC :
+theorem equation_map_polyToFunctionField_yGen_over_baseGeneralNoAC :
     ((W⁄F).map (algebraMap F (W⁄F').FunctionField)).toAffine.Equation
       (polyToFunctionField (W⁄F') X) (yGen (W⁄F')) := by
   have hcurve : (W⁄F).map (algebraMap F (W⁄F').FunctionField)
@@ -300,19 +311,21 @@ theorem kw_equation_map_polyToFunctionField_yGen_over_baseGeneralNoAC :
       (IsScalarTower.algebraMap_eq R₀ F' (W⁄F').FunctionField)
   exact hcurve ▸ equation_map_polyToFunctionField_yGen (W := (W⁄F'))
 
-def kw_functionFieldMapAlongGeneralNoAC : (W⁄F).FunctionField →ₐ[F] (W⁄F').FunctionField :=
-  pointPullbackHomTo (kw_equation_map_polyToFunctionField_yGen_over_baseGeneralNoAC W F F')
+def functionFieldMapAlongGeneralNoAC : (W⁄F).FunctionField →ₐ[F] (W⁄F').FunctionField :=
+  pointPullbackHomTo (W := (W⁄F)) (L := (W⁄F').FunctionField)
+    (xP := polyToFunctionField (W⁄F') X) (yP := yGen (W⁄F'))
+    (equation_map_polyToFunctionField_yGen_over_baseGeneralNoAC W F F')
     ((injective_iff_map_eq_zero _).mpr fun p hp =>
-      transcendental_iff.mp (kw_transcendental_polyToFunctionField_X_over_baseGeneralNoAC W F F') p
+      transcendental_iff.mp (transcendental_polyToFunctionField_X_over_baseGeneralNoAC W F F') p
         hp)
 
-theorem kw_functionFieldMapAlongGeneralNoAC_polyToFunctionField_X :
-    kw_functionFieldMapAlongGeneralNoAC W F F' (polyToFunctionField (W⁄F) X)
+theorem functionFieldMapAlongGeneralNoAC_polyToFunctionField_X :
+    functionFieldMapAlongGeneralNoAC W F F' (polyToFunctionField (W⁄F) X)
       = polyToFunctionField (W⁄F') X :=
   pointPullbackHomTo_polyToFunctionField_X _ _
 
-theorem kw_functionFieldMapAlongGeneralNoAC_yGen :
-    kw_functionFieldMapAlongGeneralNoAC W F F' (yGen (W⁄F)) = yGen (W⁄F') :=
+theorem functionFieldMapAlongGeneralNoAC_yGen :
+    functionFieldMapAlongGeneralNoAC W F F' (yGen (W⁄F)) = yGen (W⁄F') :=
   pointPullbackHomTo_yGen _ _
 
 def KwFunctionFieldTensorIsDomainGeneralNoAC : Prop :=
@@ -320,7 +333,7 @@ def KwFunctionFieldTensorIsDomainGeneralNoAC : Prop :=
 
 attribute [local instance] Algebra.TensorProduct.rightAlgebra
 
-scoped instance kw_isScalarTower_base_right_tensorGeneralNoAC :
+scoped instance isScalarTower_base_right_tensorGeneralNoAC :
     IsScalarTower R₀ F' ((W⁄F).FunctionField ⊗[F] F') := by
   refine IsScalarTower.of_algebraMap_eq' (RingHom.ext fun r => ?_)
   rw [RingHom.comp_apply, Algebra.TensorProduct.right_algebraMap_apply,
@@ -335,7 +348,7 @@ section FracHom
 
 variable [IsDomain ((W⁄F).FunctionField ⊗[F] F')]
 
-scoped instance kw_isScalarTower_base_right_fracTensorGeneralNoAC :
+scoped instance isScalarTower_base_right_fracTensorGeneralNoAC :
     IsScalarTower R₀ F' (FractionRing ((W⁄F).FunctionField ⊗[F] F')) :=
   IsScalarTower.of_algebraMap_eq fun r =>
     (IsScalarTower.algebraMap_apply R₀ ((W⁄F).FunctionField ⊗[F] F')
@@ -346,7 +359,7 @@ scoped instance kw_isScalarTower_base_right_fracTensorGeneralNoAC :
       (IsScalarTower.algebraMap_apply F' ((W⁄F).FunctionField ⊗[F] F')
         (FractionRing ((W⁄F).FunctionField ⊗[F] F')) (algebraMap R₀ F' r)).symm
 
-theorem kw_equation_tensorFracXYGeneralNoAC :
+theorem equation_tensorFracXYGeneralNoAC :
     ((W⁄F').map (algebraMap F' (FractionRing ((W⁄F).FunctionField ⊗[F] F')))).toAffine.Equation
       (algebraMap ((W⁄F).FunctionField ⊗[F] F')
         (FractionRing ((W⁄F).FunctionField ⊗[F] F'))
@@ -367,7 +380,7 @@ theorem kw_equation_tensorFracXYGeneralNoAC :
           (Algebra.TensorProduct.includeLeft (R := F) (S := R₀)))
     (equation_map_polyToFunctionField_yGen (W := (W⁄F)))
 
-theorem kw_transcendental_tensorFracXGeneralNoAC :
+theorem transcendental_tensorFracXGeneralNoAC :
     Function.Injective (Polynomial.aeval (R := F')
       (algebraMap ((W⁄F).FunctionField ⊗[F] F')
         (FractionRing ((W⁄F).FunctionField ⊗[F] F'))
@@ -418,37 +431,41 @@ theorem kw_transcendental_tensorFracXGeneralNoAC :
   have := DFunLike.congr_fun heq
   exact (this p).symm.trans (hpq.trans (this q))
 
-def kw_functionFieldTensorFracHomGeneralNoAC :
+def functionFieldTensorFracHomGeneralNoAC :
     (W⁄F').FunctionField →ₐ[F'] FractionRing ((W⁄F).FunctionField ⊗[F] F') :=
-  pointPullbackHomTo (kw_equation_tensorFracXYGeneralNoAC W F F')
-    (kw_transcendental_tensorFracXGeneralNoAC W F F')
+  pointPullbackHomTo (W := (W⁄F')) (L := FractionRing ((W⁄F).FunctionField ⊗[F] F'))
+    (xP := algebraMap ((W⁄F).FunctionField ⊗[F] F') _
+      ((polyToFunctionField (W⁄F) X) ⊗ₜ[F] (1 : F')))
+    (yP := algebraMap ((W⁄F).FunctionField ⊗[F] F') _ ((yGen (W⁄F)) ⊗ₜ[F] (1 : F')))
+    (equation_tensorFracXYGeneralNoAC W F F')
+    (transcendental_tensorFracXGeneralNoAC W F F')
 
-theorem kw_functionFieldTensorFracHomGeneralNoAC_X :
-    kw_functionFieldTensorFracHomGeneralNoAC W F F' (polyToFunctionField (W⁄F') X)
+theorem functionFieldTensorFracHomGeneralNoAC_X :
+    functionFieldTensorFracHomGeneralNoAC W F F' (polyToFunctionField (W⁄F') X)
       = algebraMap ((W⁄F).FunctionField ⊗[F] F') _
           ((polyToFunctionField (W⁄F) X) ⊗ₜ[F] (1 : F')) :=
   pointPullbackHomTo_polyToFunctionField_X _ _
 
-theorem kw_functionFieldTensorFracHomGeneralNoAC_yGen :
-    kw_functionFieldTensorFracHomGeneralNoAC W F F' (yGen (W⁄F'))
+theorem functionFieldTensorFracHomGeneralNoAC_yGen :
+    functionFieldTensorFracHomGeneralNoAC W F F' (yGen (W⁄F'))
       = algebraMap ((W⁄F).FunctionField ⊗[F] F') _ ((yGen (W⁄F)) ⊗ₜ[F] (1 : F')) :=
   pointPullbackHomTo_yGen _ _
 
-theorem kw_functionFieldTensorFracHomGeneralNoAC_bijective :
-    Function.Bijective (kw_functionFieldTensorFracHomGeneralNoAC W F F') := by
-  refine ⟨(kw_functionFieldTensorFracHomGeneralNoAC W F F').injective, ?_⟩
-  set ψ := kw_functionFieldTensorFracHomGeneralNoAC W F F'
-  have hκ : (ψ.restrictScalars F).comp (kw_functionFieldMapAlongGeneralNoAC W F F')
+theorem functionFieldTensorFracHomGeneralNoAC_bijective :
+    Function.Bijective (functionFieldTensorFracHomGeneralNoAC W F F') := by
+  refine ⟨(functionFieldTensorFracHomGeneralNoAC W F F').injective, ?_⟩
+  set ψ := functionFieldTensorFracHomGeneralNoAC W F F'
+  have hκ : (ψ.restrictScalars F).comp (functionFieldMapAlongGeneralNoAC W F F')
       = (IsScalarTower.toAlgHom F ((W⁄F).FunctionField ⊗[F] F')
           (FractionRing ((W⁄F).FunctionField ⊗[F] F'))).comp
           (Algebra.TensorProduct.includeLeft (R := F)) := by
-    refine kw_functionField_algHom_ext ?_ ?_
-    · show ψ (kw_functionFieldMapAlongGeneralNoAC W F F' (polyToFunctionField (W⁄F) X)) = _
-      rw [kw_functionFieldMapAlongGeneralNoAC_polyToFunctionField_X,
-        kw_functionFieldTensorFracHomGeneralNoAC_X]
+    refine functionField_algHom_ext ?_ ?_
+    · show ψ (functionFieldMapAlongGeneralNoAC W F F' (polyToFunctionField (W⁄F) X)) = _
+      rw [functionFieldMapAlongGeneralNoAC_polyToFunctionField_X,
+        functionFieldTensorFracHomGeneralNoAC_X]
       rfl
-    · show ψ (kw_functionFieldMapAlongGeneralNoAC W F F' (yGen (W⁄F))) = _
-      rw [kw_functionFieldMapAlongGeneralNoAC_yGen, kw_functionFieldTensorFracHomGeneralNoAC_yGen]
+    · show ψ (functionFieldMapAlongGeneralNoAC W F F' (yGen (W⁄F))) = _
+      rw [functionFieldMapAlongGeneralNoAC_yGen, functionFieldTensorFracHomGeneralNoAC_yGen]
       rfl
   have hT_sub : ∀ t : (W⁄F).FunctionField ⊗[F] F',
       algebraMap ((W⁄F).FunctionField ⊗[F] F') (FractionRing _) t ∈ ψ.toRingHom.fieldRange := by
@@ -461,7 +478,7 @@ theorem kw_functionFieldTensorFracHomGeneralNoAC_bijective :
             by rw [Algebra.TensorProduct.tmul_mul_tmul, mul_one, one_mul],
         map_mul]
       refine mul_mem ?_ ⟨algebraMap F' _ c, ?_⟩
-      · exact ⟨kw_functionFieldMapAlongGeneralNoAC W F F' a, DFunLike.congr_fun hκ a⟩
+      · exact ⟨functionFieldMapAlongGeneralNoAC W F F' a, DFunLike.congr_fun hκ a⟩
       · simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe, ψ.commutes,
           IsScalarTower.algebraMap_apply F' ((W⁄F).FunctionField ⊗[F] F')
             (FractionRing ((W⁄F).FunctionField ⊗[F] F')),
@@ -471,9 +488,9 @@ theorem kw_functionFieldTensorFracHomGeneralNoAC_bijective :
     (A := (W⁄F).FunctionField ⊗[F] F') (K := FractionRing _) z
   exact div_mem (hT_sub t) (hT_sub s)
 
-def kw_functionFieldTensorFracEquivGeneralNoAC :
+def functionFieldTensorFracEquivGeneralNoAC :
     (W⁄F').FunctionField ≃ₐ[F'] FractionRing ((W⁄F).FunctionField ⊗[F] F') :=
-  AlgEquiv.ofBijective _ (kw_functionFieldTensorFracHomGeneralNoAC_bijective W F F')
+  AlgEquiv.ofBijective _ (functionFieldTensorFracHomGeneralNoAC_bijective W F F')
 
 end FracHom
 
@@ -488,48 +505,48 @@ section FracTensorNoAC
 
 variable [IsDomain ((W⁄F).FunctionField ⊗[F] F')]
 
-def kw_tensorIotaRingHomGeneralNoAC (D : TreeIsogenyEndDatum (W⁄F)) :
+def tensorIotaRingHomGeneralNoAC (D : TreeIsogenyEndDatum (W⁄F)) :
     (W⁄F).FunctionField ⊗[F] F' →+* (W⁄F).FunctionField ⊗[F] F' :=
   (Algebra.TensorProduct.map D.ι (AlgHom.id F F')).toRingHom
 
-theorem kw_tensorIotaRingHomGeneralNoAC_tmul (D : TreeIsogenyEndDatum (W⁄F))
+theorem tensorIotaRingHomGeneralNoAC_tmul (D : TreeIsogenyEndDatum (W⁄F))
     (a : (W⁄F).FunctionField)
-    (c : F') : kw_tensorIotaRingHomGeneralNoAC W F F' D (a ⊗ₜ[F] c) = (D.ι a) ⊗ₜ[F] c := by
-  simp [kw_tensorIotaRingHomGeneralNoAC, Algebra.TensorProduct.map_tmul]
+    (c : F') : tensorIotaRingHomGeneralNoAC W F F' D (a ⊗ₜ[F] c) = (D.ι a) ⊗ₜ[F] c := by
+  simp [tensorIotaRingHomGeneralNoAC, Algebra.TensorProduct.map_tmul]
 
-theorem kw_tensorIotaRingHomGeneralNoAC_injective (D : TreeIsogenyEndDatum (W⁄F)) :
-    Function.Injective (kw_tensorIotaRingHomGeneralNoAC W F F' D) :=
+theorem tensorIotaRingHomGeneralNoAC_injective (D : TreeIsogenyEndDatum (W⁄F)) :
+    Function.Injective (tensorIotaRingHomGeneralNoAC W F F' D) :=
   Module.Flat.rTensor_preserves_injective_linearMap (M := F') D.ι.toLinearMap D.ι.injective
 
-def kw_tensorFracIotaRingHomGeneralNoAC (D : TreeIsogenyEndDatum (W⁄F)) :
+def tensorFracIotaRingHomGeneralNoAC (D : TreeIsogenyEndDatum (W⁄F)) :
     FractionRing ((W⁄F).FunctionField ⊗[F] F')
       →+* FractionRing ((W⁄F).FunctionField ⊗[F] F') :=
   IsFractionRing.map (K := FractionRing ((W⁄F).FunctionField ⊗[F] F'))
     (L := FractionRing ((W⁄F).FunctionField ⊗[F] F'))
-    (kw_tensorIotaRingHomGeneralNoAC_injective W F F' D)
+    (tensorIotaRingHomGeneralNoAC_injective W F F' D)
 
-theorem kw_tensorFracIotaRingHomGeneralNoAC_algebraMap (D : TreeIsogenyEndDatum (W⁄F))
+theorem tensorFracIotaRingHomGeneralNoAC_algebraMap (D : TreeIsogenyEndDatum (W⁄F))
     (t : (W⁄F).FunctionField ⊗[F] F') :
-    kw_tensorFracIotaRingHomGeneralNoAC W F F' D
+    tensorFracIotaRingHomGeneralNoAC W F F' D
         (algebraMap ((W⁄F).FunctionField ⊗[F] F')
           (FractionRing ((W⁄F).FunctionField ⊗[F] F')) t)
       = algebraMap ((W⁄F).FunctionField ⊗[F] F') (FractionRing ((W⁄F).FunctionField ⊗[F] F'))
-          (kw_tensorIotaRingHomGeneralNoAC W F F' D t) := by
-  unfold kw_tensorFracIotaRingHomGeneralNoAC IsFractionRing.map
+          (tensorIotaRingHomGeneralNoAC W F F' D t) := by
+  unfold tensorFracIotaRingHomGeneralNoAC IsFractionRing.map
   exact IsLocalization.map_eq (T := nonZeroDivisors ((W⁄F).FunctionField ⊗[F] F')) _ t
 
 def KwTensorFracIotaFinrankSeamGeneralNoAC : Prop :=
   ∀ D : TreeIsogenyEndDatum (W⁄F),
-    (kw_tensorFracIotaRingHomGeneralNoAC W F F' D).Finite ∧
-    (letI := (kw_tensorFracIotaRingHomGeneralNoAC W F F' D).toAlgebra
+    (tensorFracIotaRingHomGeneralNoAC W F F' D).Finite ∧
+    (letI := (tensorFracIotaRingHomGeneralNoAC W F F' D).toAlgebra
      @Module.finrank (FractionRing ((W⁄F).FunctionField ⊗[F] F'))
        (FractionRing ((W⁄F).FunctionField ⊗[F] F')) _ _ Algebra.toModule) = D.degree
 
-def kw_isogenyEndDatumBaseChangeIotaGeneralNoAC (D : TreeIsogenyEndDatum (W⁄F)) :
+def isogenyEndDatumBaseChangeIotaGeneralNoAC (D : TreeIsogenyEndDatum (W⁄F)) :
     (W⁄F').FunctionField →ₐ[F'] (W⁄F').FunctionField :=
-  let ψ := kw_functionFieldTensorFracEquivGeneralNoAC W F F'
+  let ψ := functionFieldTensorFracEquivGeneralNoAC W F F'
   { ψ.symm.toRingEquiv.toRingHom.comp
-      ((kw_tensorFracIotaRingHomGeneralNoAC W F F' D).comp ψ.toRingEquiv.toRingHom) with
+      ((tensorFracIotaRingHomGeneralNoAC W F F' D).comp ψ.toRingEquiv.toRingHom) with
     commutes' := fun c => by
       have hc : ψ (algebraMap F' (W⁄F').FunctionField c)
           = algebraMap ((W⁄F).FunctionField ⊗[F] F')
@@ -538,9 +555,9 @@ def kw_isogenyEndDatumBaseChangeIotaGeneralNoAC (D : TreeIsogenyEndDatum (W⁄F)
         rw [AlgEquiv.commutes, IsScalarTower.algebraMap_apply F' ((W⁄F).FunctionField ⊗[F] F')
           (FractionRing ((W⁄F).FunctionField ⊗[F] F')),
           Algebra.TensorProduct.right_algebraMap_apply]
-      show ψ.symm (kw_tensorFracIotaRingHomGeneralNoAC W F F' D (ψ (algebraMap F' _ c)))
+      show ψ.symm (tensorFracIotaRingHomGeneralNoAC W F F' D (ψ (algebraMap F' _ c)))
           = algebraMap F' _ c
-      rw [hc, kw_tensorFracIotaRingHomGeneralNoAC_algebraMap, kw_tensorIotaRingHomGeneralNoAC_tmul,
+      rw [hc, tensorFracIotaRingHomGeneralNoAC_algebraMap, tensorIotaRingHomGeneralNoAC_tmul,
         map_one, ← hc]
       exact ψ.symm_apply_apply _ }
 
@@ -548,26 +565,26 @@ def KwIsogenyEndDatumBaseChangeAlongGeneralNoAC (_σ : F →ₐ[R₀] F') (N : �
   (∃ D : TreeIsogenyEndDatum (W⁄F), D.degree = N) →
     ∃ D' : TreeIsogenyEndDatum (W⁄F'), D'.degree = N
 
-theorem kw_isogenyEndDatumBaseChangeAlong_of_isDomain_tensorGeneralNoAC
+theorem isogenyEndDatumBaseChangeAlong_of_isDomain_tensorGeneralNoAC
     (hseam : KwTensorFracIotaFinrankSeamGeneralNoAC W F F')
     (σ : F →ₐ[R₀] F') (N : ℕ) : KwIsogenyEndDatumBaseChangeAlongGeneralNoAC W F F' σ N := by
   intro ⟨D, hD⟩
-  let ψ := kw_functionFieldTensorFracEquivGeneralNoAC W F F'
-  let ιFr := kw_tensorFracIotaRingHomGeneralNoAC W F F' D
+  let ψ := functionFieldTensorFracEquivGeneralNoAC W F F'
+  let ιFr := tensorFracIotaRingHomGeneralNoAC W F F' D
   obtain ⟨hfin_Fr, hdeg_Fr⟩ := hseam D
-  have hcomm : ∀ x, ιFr (ψ x) = ψ (kw_isogenyEndDatumBaseChangeIotaGeneralNoAC W F F' D x) :=
+  have hcomm : ∀ x, ιFr (ψ x) = ψ (isogenyEndDatumBaseChangeIotaGeneralNoAC W F F' D x) :=
     fun x => (ψ.apply_symm_apply _).symm
-  have hfin : (kw_isogenyEndDatumBaseChangeIotaGeneralNoAC W F F' D).toRingHom.Finite := by
-    have h₁ : (kw_isogenyEndDatumBaseChangeIotaGeneralNoAC W F F' D).toRingHom
+  have hfin : (isogenyEndDatumBaseChangeIotaGeneralNoAC W F F' D).toRingHom.Finite := by
+    have h₁ : (isogenyEndDatumBaseChangeIotaGeneralNoAC W F F' D).toRingHom
         = ψ.symm.toRingEquiv.toRingHom.comp (ιFr.comp ψ.toRingEquiv.toRingHom) := rfl
     rw [h₁]
     exact (RingHom.Finite.of_surjective _ ψ.symm.surjective).comp
       (hfin_Fr.comp (RingHom.Finite.of_surjective _ ψ.surjective))
-  refine ⟨⟨kw_isogenyEndDatumBaseChangeIotaGeneralNoAC W F F' D, hfin.to_isIntegral, hfin⟩, ?_⟩
+  refine ⟨⟨isogenyEndDatumBaseChangeIotaGeneralNoAC W F F' D, hfin.to_isIntegral, hfin⟩, ?_⟩
   refine hD ▸ ?_
   exact (@Algebra.finrank_eq_of_equiv_equiv
       (W⁄F').FunctionField (W⁄F').FunctionField _ _
-      (AlgebraicCurve.algebraAlong (kw_isogenyEndDatumBaseChangeIotaGeneralNoAC W F F' D))
+      (AlgebraicCurve.algebraAlong (isogenyEndDatumBaseChangeIotaGeneralNoAC W F F' D))
       (FractionRing ((W⁄F).FunctionField ⊗[F] F'))
       (FractionRing ((W⁄F).FunctionField ⊗[F] F')) _ _
       (ιFr.toAlgebra) ψ.toRingEquiv ψ.toRingEquiv
@@ -575,19 +592,19 @@ theorem kw_isogenyEndDatumBaseChangeAlong_of_isDomain_tensorGeneralNoAC
 
 end FracTensorNoAC
 
-theorem kw_isogenyEndDatumBaseChangeAlong_of_tensorIsDomainGeneralNoAC
+theorem isogenyEndDatumBaseChangeAlong_of_tensorIsDomainGeneralNoAC
     (htens : KwFunctionFieldTensorIsDomainGeneralNoAC W F F')
     (hseam : haveI : IsDomain ((W⁄F).FunctionField ⊗[F] F') := htens
              KwTensorFracIotaFinrankSeamGeneralNoAC W F F')
     (σ : F →ₐ[R₀] F') (N : ℕ) :
     KwIsogenyEndDatumBaseChangeAlongGeneralNoAC W F F' σ N :=
   haveI : IsDomain ((W⁄F).FunctionField ⊗[F] F') := htens
-  kw_isogenyEndDatumBaseChangeAlong_of_isDomain_tensorGeneralNoAC W F F' hseam σ N
+  isogenyEndDatumBaseChangeAlong_of_isDomain_tensorGeneralNoAC W F F' hseam σ N
 
 /-! ### `CoordinateRing ⊗ F'` is a domain
 
 The pin's route: the tensor product of the coordinate ring with `F'` is a domain
-(via the explicit basis `kw_coordinateRingBasis`), and the function-field tensor
+(via the explicit basis `coordinateRingBasis`), and the function-field tensor
 product is a localization of it. -/
 
 section FFDomainNoAC
@@ -597,12 +614,12 @@ attribute [local instance] Algebra.TensorProduct.rightAlgebra
 local notation3 "CR" => (W⁄F).toAffine.CoordinateRing
 local notation3 "FFₗ" => (W⁄F).FunctionField
 
-theorem kw_coordinateRingMap_basisGeneralNoAC (i : ℕ × Fin 2) :
+theorem coordinateRingMap_basisGeneralNoAC (i : ℕ × Fin 2) :
     CoordinateRing.map (W⁄F).toAffine (algebraMap F F')
-        (kw_coordinateRingBasis (W⁄F).toAffine i)
-      = kw_coordinateRingBasis ((W⁄F).toAffine.map (algebraMap F F')) i := by
+        (coordinateRingBasis (W⁄F).toAffine i)
+      = coordinateRingBasis ((W⁄F).toAffine.map (algebraMap F F')) i := by
   obtain ⟨n, j⟩ := i
-  simp only [kw_coordinateRingBasis, Module.Basis.smulTower_apply,
+  simp only [coordinateRingBasis, Module.Basis.smulTower_apply,
     Polynomial.coe_basisMonomials, CoordinateRing.map_smul]
   congr 1
   · simp [Polynomial.map_monomial]
@@ -611,7 +628,7 @@ theorem kw_coordinateRingMap_basisGeneralNoAC (i : ℕ × Fin 2) :
       simp [CoordinateRing.basis_apply, CoordinateRing.map,
         AdjoinRoot.lift_root, AdjoinRoot.powerBasis'_gen]
 
-def kw_coordinateRingMapAlongGeneralNoAC :
+def coordinateRingMapAlongGeneralNoAC :
     CR →ₐ[F] ((W⁄F).toAffine.map (algebraMap F F')).CoordinateRing where
   __ := CoordinateRing.map (W⁄F).toAffine (algebraMap F F')
   commutes' r := by
@@ -630,31 +647,31 @@ def kw_coordinateRingMapAlongGeneralNoAC :
         from rfl,
       Algebra.smul_def, mul_one]
 
-theorem kw_coordinateRingTensor_isDomainGeneralNoAC : IsDomain (CR ⊗[F] F') := by
+theorem coordinateRingTensor_isDomainGeneralNoAC : IsDomain (CR ⊗[F] F') := by
   suffices h : IsDomain (F' ⊗[F] CR) by
     haveI := h
     exact Function.Injective.isDomain (Algebra.TensorProduct.comm F CR F').toRingHom
       (Algebra.TensorProduct.comm F CR F').injective
   set W'' := (W⁄F).toAffine.map (algebraMap F F') with hW''
   let θ : F' ⊗[F] CR →ₐ[F'] W''.CoordinateRing :=
-    AlgHom.liftEquiv F F' CR W''.CoordinateRing (kw_coordinateRingMapAlongGeneralNoAC W F F')
+    AlgHom.liftEquiv F F' CR W''.CoordinateRing (coordinateRingMapAlongGeneralNoAC W F F')
   have hθ : Function.Injective θ := by
     let bT : Module.Basis (ℕ × Fin 2) F' (F' ⊗[F] CR) :=
-      Algebra.TensorProduct.basis F' (kw_coordinateRingBasis (W⁄F).toAffine)
-    let bD : Module.Basis (ℕ × Fin 2) F' W''.CoordinateRing := kw_coordinateRingBasis W''
+      Algebra.TensorProduct.basis F' (coordinateRingBasis (W⁄F).toAffine)
+    let bD : Module.Basis (ℕ × Fin 2) F' W''.CoordinateRing := coordinateRingBasis W''
     have key : ∀ i, θ.toLinearMap (bT i) = (bT.equiv bD (Equiv.refl _)) (bT i) := fun i => by
       rw [Module.Basis.equiv_apply, Equiv.refl_apply, AlgHom.toLinearMap_apply]
       simp only [bT, Algebra.TensorProduct.basis_apply, θ, AlgHom.liftEquiv_tmul, one_smul]
-      exact kw_coordinateRingMap_basisGeneralNoAC W F F' i
+      exact coordinateRingMap_basisGeneralNoAC W F F' i
     have heq : (θ : F' ⊗[F] CR → W''.CoordinateRing) = bT.equiv bD (Equiv.refl _) :=
       funext fun x => DFunLike.congr_fun (bT.ext key : θ.toLinearMap = _) x
     exact heq ▸ (bT.equiv bD (Equiv.refl _)).injective
   exact Function.Injective.isDomain θ.toRingHom hθ
 
-theorem kw_functionFieldTensorIsDomain_dischargeGeneralNoAC :
+theorem functionFieldTensorIsDomain_dischargeGeneralNoAC :
     KwFunctionFieldTensorIsDomainGeneralNoAC W F F' := by
   show IsDomain (FFₗ ⊗[F] F')
-  haveI hCR : IsDomain (CR ⊗[F] F') := kw_coordinateRingTensor_isDomainGeneralNoAC W F F'
+  haveI hCR : IsDomain (CR ⊗[F] F') := coordinateRingTensor_isDomainGeneralNoAC W F F'
   letI : Algebra (CR ⊗[F] F') (FFₗ ⊗[F] F') :=
     (Algebra.TensorProduct.map (IsScalarTower.toAlgHom F CR FFₗ)
       (AlgHom.id F F')).toRingHom.toAlgebra
@@ -885,24 +902,24 @@ section SeamNoAC
 
 variable [IsDomain ((W⁄F).FunctionField ⊗[F] F')]
 
-theorem kw_tensorIotaRingHom_finiteGeneralNoAC (D : TreeIsogenyEndDatum (W⁄F)) :
-    (kw_tensorIotaRingHomGeneralNoAC W F F' D).Finite :=
+theorem tensorIotaRingHom_finiteGeneralNoAC (D : TreeIsogenyEndDatum (W⁄F)) :
+    (tensorIotaRingHomGeneralNoAC W F F' D).Finite :=
   RingHom.Finite.tensorProductMap (f := D.ι) D.hfin (g := AlgHom.id F F') (RingHom.Finite.id F')
 
-theorem kw_tensorFracIotaFinrankSeam_dischargeGeneralNoAC :
+theorem tensorFracIotaFinrankSeam_dischargeGeneralNoAC :
     KwTensorFracIotaFinrankSeamGeneralNoAC W F F' := by
   intro D
   exact tensorFracIotaFinrankSeam_aux W F F' D.ι D.hι D.hfin
 
 end SeamNoAC
 
-theorem kw_isogenyEndDatumBaseChangeAlong_dischargeGeneralNoAC (σ : F →ₐ[R₀] F') (N : ℕ) :
+theorem isogenyEndDatumBaseChangeAlong_dischargeGeneralNoAC (σ : F →ₐ[R₀] F') (N : ℕ) :
     KwIsogenyEndDatumBaseChangeAlongGeneralNoAC W F F' σ N :=
   haveI : IsDomain ((W⁄F).FunctionField ⊗[F] F') :=
-    kw_functionFieldTensorIsDomain_dischargeGeneralNoAC W F F'
-  kw_isogenyEndDatumBaseChangeAlong_of_tensorIsDomainGeneralNoAC W F F'
-    (kw_functionFieldTensorIsDomain_dischargeGeneralNoAC W F F')
-    (kw_tensorFracIotaFinrankSeam_dischargeGeneralNoAC W F F') σ N
+    functionFieldTensorIsDomain_dischargeGeneralNoAC W F F'
+  isogenyEndDatumBaseChangeAlong_of_tensorIsDomainGeneralNoAC W F F'
+    (functionFieldTensorIsDomain_dischargeGeneralNoAC W F F')
+    (tensorFracIotaFinrankSeam_dischargeGeneralNoAC W F F') σ N
 
 end NoAC
 
@@ -919,49 +936,49 @@ section General
 
 variable {R₀ : Type u} [Field R₀]
 variable (W : WeierstrassCurve R₀) [W.IsElliptic]
-variable (F : Type u) [Field F] [Algebra R₀ F] [DecidableEq F] [IsAlgClosed F] [CharZero F]
-variable (F' : Type u) [Field F'] [Algebra R₀ F'] [DecidableEq F'] [IsAlgClosed F'] [CharZero F']
+variable (F : Type v) [Field F] [Algebra R₀ F] [DecidableEq F] [IsAlgClosed F] [CharZero F]
+variable (F' : Type w) [Field F'] [Algebra R₀ F'] [DecidableEq F'] [IsAlgClosed F'] [CharZero F']
 variable [Algebra F F'] [IsScalarTower R₀ F F']
 
-theorem kw_transcendental_polyToFunctionField_X_over_baseGeneral :
+theorem transcendental_polyToFunctionField_X_over_baseGeneral :
     Transcendental F (polyToFunctionField (W⁄F') X) :=
-  kw_transcendental_polyToFunctionField_X_over_baseGeneralNoAC W F F'
+  transcendental_polyToFunctionField_X_over_baseGeneralNoAC W F F'
 
-theorem kw_equation_map_polyToFunctionField_yGen_over_baseGeneral :
+theorem equation_map_polyToFunctionField_yGen_over_baseGeneral :
     ((W⁄F).map (algebraMap F (W⁄F').FunctionField)).toAffine.Equation
       (polyToFunctionField (W⁄F') X) (yGen (W⁄F')) :=
-  kw_equation_map_polyToFunctionField_yGen_over_baseGeneralNoAC W F F'
+  equation_map_polyToFunctionField_yGen_over_baseGeneralNoAC W F F'
 
-def kw_functionFieldMapAlongGeneral : (W⁄F).FunctionField →ₐ[F] (W⁄F').FunctionField :=
-  kw_functionFieldMapAlongGeneralNoAC W F F'
+def functionFieldMapAlongGeneral : (W⁄F).FunctionField →ₐ[F] (W⁄F').FunctionField :=
+  functionFieldMapAlongGeneralNoAC W F F'
 
-theorem kw_functionFieldMapAlongGeneral_polyToFunctionField_X :
-    kw_functionFieldMapAlongGeneral W F F' (polyToFunctionField (W⁄F) X)
+theorem functionFieldMapAlongGeneral_polyToFunctionField_X :
+    functionFieldMapAlongGeneral W F F' (polyToFunctionField (W⁄F) X)
       = polyToFunctionField (W⁄F') X :=
-  kw_functionFieldMapAlongGeneralNoAC_polyToFunctionField_X W F F'
+  functionFieldMapAlongGeneralNoAC_polyToFunctionField_X W F F'
 
-theorem kw_functionFieldMapAlongGeneral_yGen :
-    kw_functionFieldMapAlongGeneral W F F' (yGen (W⁄F)) = yGen (W⁄F') :=
-  kw_functionFieldMapAlongGeneralNoAC_yGen W F F'
+theorem functionFieldMapAlongGeneral_yGen :
+    functionFieldMapAlongGeneral W F F' (yGen (W⁄F)) = yGen (W⁄F') :=
+  functionFieldMapAlongGeneralNoAC_yGen W F F'
 
 def KwFunctionFieldTensorIsDomainGeneral : Prop :=
   IsDomain ((W⁄F).FunctionField ⊗[F] F')
 
 attribute [local instance] Algebra.TensorProduct.rightAlgebra
 
-scoped instance kw_isScalarTower_base_right_tensorGeneral :
+scoped instance isScalarTower_base_right_tensorGeneral :
     IsScalarTower R₀ F' ((W⁄F).FunctionField ⊗[F] F') :=
-  kw_isScalarTower_base_right_tensorGeneralNoAC (R₀ := R₀) W F F'
+  isScalarTower_base_right_tensorGeneralNoAC (R₀ := R₀) W F F'
 
 section FracHomGeneral
 
 variable [IsDomain ((W⁄F).FunctionField ⊗[F] F')]
 
-scoped instance kw_isScalarTower_base_right_fracTensorGeneral :
+scoped instance isScalarTower_base_right_fracTensorGeneral :
     IsScalarTower R₀ F' (FractionRing ((W⁄F).FunctionField ⊗[F] F')) :=
-  kw_isScalarTower_base_right_fracTensorGeneralNoAC (R₀ := R₀) W F F'
+  isScalarTower_base_right_fracTensorGeneralNoAC (R₀ := R₀) W F F'
 
-theorem kw_equation_tensorFracXYGeneral :
+theorem equation_tensorFracXYGeneral :
     ((W⁄F').map (algebraMap F' (FractionRing ((W⁄F).FunctionField ⊗[F] F')))).toAffine.Equation
       (algebraMap ((W⁄F).FunctionField ⊗[F] F')
         (FractionRing ((W⁄F).FunctionField ⊗[F] F'))
@@ -969,80 +986,80 @@ theorem kw_equation_tensorFracXYGeneral :
       (algebraMap ((W⁄F).FunctionField ⊗[F] F')
         (FractionRing ((W⁄F).FunctionField ⊗[F] F'))
         ((yGen (W⁄F)) ⊗ₜ[F] (1 : F'))) :=
-  kw_equation_tensorFracXYGeneralNoAC W F F'
+  equation_tensorFracXYGeneralNoAC W F F'
 
-theorem kw_transcendental_tensorFracXGeneral :
+theorem transcendental_tensorFracXGeneral :
     Function.Injective (Polynomial.aeval (R := F')
       (algebraMap ((W⁄F).FunctionField ⊗[F] F')
         (FractionRing ((W⁄F).FunctionField ⊗[F] F'))
         ((polyToFunctionField (W⁄F) X) ⊗ₜ[F] (1 : F')))) :=
-  kw_transcendental_tensorFracXGeneralNoAC W F F'
+  transcendental_tensorFracXGeneralNoAC W F F'
 
-def kw_functionFieldTensorFracHomGeneral :
+def functionFieldTensorFracHomGeneral :
     (W⁄F').FunctionField →ₐ[F'] FractionRing ((W⁄F).FunctionField ⊗[F] F') :=
-  kw_functionFieldTensorFracHomGeneralNoAC W F F'
+  functionFieldTensorFracHomGeneralNoAC W F F'
 
-theorem kw_functionFieldTensorFracHomGeneral_X :
-    kw_functionFieldTensorFracHomGeneral W F F' (polyToFunctionField (W⁄F') X)
+theorem functionFieldTensorFracHomGeneral_X :
+    functionFieldTensorFracHomGeneral W F F' (polyToFunctionField (W⁄F') X)
       = algebraMap ((W⁄F).FunctionField ⊗[F] F') _
           ((polyToFunctionField (W⁄F) X) ⊗ₜ[F] (1 : F')) :=
-  kw_functionFieldTensorFracHomGeneralNoAC_X W F F'
+  functionFieldTensorFracHomGeneralNoAC_X W F F'
 
-theorem kw_functionFieldTensorFracHomGeneral_yGen :
-    kw_functionFieldTensorFracHomGeneral W F F' (yGen (W⁄F'))
+theorem functionFieldTensorFracHomGeneral_yGen :
+    functionFieldTensorFracHomGeneral W F F' (yGen (W⁄F'))
       = algebraMap ((W⁄F).FunctionField ⊗[F] F') _ ((yGen (W⁄F)) ⊗ₜ[F] (1 : F')) :=
-  kw_functionFieldTensorFracHomGeneralNoAC_yGen W F F'
+  functionFieldTensorFracHomGeneralNoAC_yGen W F F'
 
-theorem kw_functionFieldTensorFracHomGeneral_bijective :
-    Function.Bijective (kw_functionFieldTensorFracHomGeneral W F F') :=
-  kw_functionFieldTensorFracHomGeneralNoAC_bijective W F F'
+theorem functionFieldTensorFracHomGeneral_bijective :
+    Function.Bijective (functionFieldTensorFracHomGeneral W F F') :=
+  functionFieldTensorFracHomGeneralNoAC_bijective W F F'
 
-def kw_functionFieldTensorFracEquivGeneral :
+def functionFieldTensorFracEquivGeneral :
     (W⁄F').FunctionField ≃ₐ[F'] FractionRing ((W⁄F).FunctionField ⊗[F] F') :=
-  kw_functionFieldTensorFracEquivGeneralNoAC W F F'
+  functionFieldTensorFracEquivGeneralNoAC W F F'
 
-def kw_tensorIotaRingHomGeneral (D : IsogenyEndDatum (W⁄F)) :
+def tensorIotaRingHomGeneral (D : IsogenyEndDatum (W⁄F)) :
     (W⁄F).FunctionField ⊗[F] F' →+* (W⁄F).FunctionField ⊗[F] F' :=
   (Algebra.TensorProduct.map D.ι (AlgHom.id F F')).toRingHom
 
-theorem kw_tensorIotaRingHomGeneral_tmul (D : IsogenyEndDatum (W⁄F)) (a : (W⁄F).FunctionField)
-    (c : F') : kw_tensorIotaRingHomGeneral W F F' D (a ⊗ₜ[F] c) = (D.ι a) ⊗ₜ[F] c := by
-  simp [kw_tensorIotaRingHomGeneral, Algebra.TensorProduct.map_tmul]
+theorem tensorIotaRingHomGeneral_tmul (D : IsogenyEndDatum (W⁄F)) (a : (W⁄F).FunctionField)
+    (c : F') : tensorIotaRingHomGeneral W F F' D (a ⊗ₜ[F] c) = (D.ι a) ⊗ₜ[F] c := by
+  simp [tensorIotaRingHomGeneral, Algebra.TensorProduct.map_tmul]
 
-theorem kw_tensorIotaRingHomGeneral_injective (D : IsogenyEndDatum (W⁄F)) :
-    Function.Injective (kw_tensorIotaRingHomGeneral W F F' D) :=
+theorem tensorIotaRingHomGeneral_injective (D : IsogenyEndDatum (W⁄F)) :
+    Function.Injective (tensorIotaRingHomGeneral W F F' D) :=
   Module.Flat.rTensor_preserves_injective_linearMap (M := F') D.ι.toLinearMap D.ι.injective
 
-def kw_tensorFracIotaRingHomGeneral (D : IsogenyEndDatum (W⁄F)) :
+def tensorFracIotaRingHomGeneral (D : IsogenyEndDatum (W⁄F)) :
     FractionRing ((W⁄F).FunctionField ⊗[F] F')
       →+* FractionRing ((W⁄F).FunctionField ⊗[F] F') :=
   IsFractionRing.map (K := FractionRing ((W⁄F).FunctionField ⊗[F] F'))
     (L := FractionRing ((W⁄F).FunctionField ⊗[F] F'))
-    (kw_tensorIotaRingHomGeneral_injective W F F' D)
+    (tensorIotaRingHomGeneral_injective W F F' D)
 
-theorem kw_tensorFracIotaRingHomGeneral_algebraMap (D : IsogenyEndDatum (W⁄F))
+theorem tensorFracIotaRingHomGeneral_algebraMap (D : IsogenyEndDatum (W⁄F))
     (t : (W⁄F).FunctionField ⊗[F] F') :
-    kw_tensorFracIotaRingHomGeneral W F F' D
+    tensorFracIotaRingHomGeneral W F F' D
         (algebraMap ((W⁄F).FunctionField ⊗[F] F')
           (FractionRing ((W⁄F).FunctionField ⊗[F] F')) t)
       = algebraMap ((W⁄F).FunctionField ⊗[F] F') (FractionRing ((W⁄F).FunctionField ⊗[F] F'))
-          (kw_tensorIotaRingHomGeneral W F F' D t) := by
-  unfold kw_tensorFracIotaRingHomGeneral IsFractionRing.map
+          (tensorIotaRingHomGeneral W F F' D t) := by
+  unfold tensorFracIotaRingHomGeneral IsFractionRing.map
   exact IsLocalization.map_eq (T := nonZeroDivisors ((W⁄F).FunctionField ⊗[F] F')) _ t
 
 def KwTensorFracIotaFinrankSeamGeneral : Prop :=
   ∀ D : IsogenyEndDatum (W⁄F),
-    (kw_tensorFracIotaRingHomGeneral W F F' D).Finite ∧
-    (letI := (kw_tensorFracIotaRingHomGeneral W F F' D).toAlgebra
+    (tensorFracIotaRingHomGeneral W F F' D).Finite ∧
+    (letI := (tensorFracIotaRingHomGeneral W F F' D).toAlgebra
      @Module.finrank (FractionRing ((W⁄F).FunctionField ⊗[F] F'))
        (FractionRing ((W⁄F).FunctionField ⊗[F] F')) _ _ Algebra.toModule)
       = AlgebraicCurve.finrankAlong F D.ι
 
-def kw_isogenyEndDatumBaseChangeIotaGeneral (D : IsogenyEndDatum (W⁄F)) :
+def isogenyEndDatumBaseChangeIotaGeneral (D : IsogenyEndDatum (W⁄F)) :
     (W⁄F').FunctionField →ₐ[F'] (W⁄F').FunctionField :=
-  let ψ := kw_functionFieldTensorFracEquivGeneral W F F'
+  let ψ := functionFieldTensorFracEquivGeneral W F F'
   { ψ.symm.toRingEquiv.toRingHom.comp
-      ((kw_tensorFracIotaRingHomGeneral W F F' D).comp ψ.toRingEquiv.toRingHom) with
+      ((tensorFracIotaRingHomGeneral W F F' D).comp ψ.toRingEquiv.toRingHom) with
     commutes' := fun c => by
       have hc : ψ (algebraMap F' (W⁄F').FunctionField c)
           = algebraMap ((W⁄F).FunctionField ⊗[F] F')
@@ -1051,9 +1068,9 @@ def kw_isogenyEndDatumBaseChangeIotaGeneral (D : IsogenyEndDatum (W⁄F)) :
         rw [AlgEquiv.commutes, IsScalarTower.algebraMap_apply F' ((W⁄F).FunctionField ⊗[F] F')
           (FractionRing ((W⁄F).FunctionField ⊗[F] F')),
           Algebra.TensorProduct.right_algebraMap_apply]
-      show ψ.symm (kw_tensorFracIotaRingHomGeneral W F F' D (ψ (algebraMap F' _ c)))
+      show ψ.symm (tensorFracIotaRingHomGeneral W F F' D (ψ (algebraMap F' _ c)))
           = algebraMap F' _ c
-      rw [hc, kw_tensorFracIotaRingHomGeneral_algebraMap, kw_tensorIotaRingHomGeneral_tmul,
+      rw [hc, tensorFracIotaRingHomGeneral_algebraMap, tensorIotaRingHomGeneral_tmul,
         map_one, ← hc]
       exact ψ.symm_apply_apply _ }
 
@@ -1061,26 +1078,26 @@ def KwIsogenyEndDatumBaseChangeAlongGeneral (_σ : F →ₐ[R₀] F') (N : ℕ) 
   (∃ D : IsogenyEndDatum (W⁄F), AlgebraicCurve.finrankAlong F D.ι = N) →
     ∃ D' : IsogenyEndDatum (W⁄F'), AlgebraicCurve.finrankAlong F' D'.ι = N
 
-theorem kw_isogenyEndDatumBaseChangeAlong_of_isDomain_tensorGeneral
+theorem isogenyEndDatumBaseChangeAlong_of_isDomain_tensorGeneral
     (hseam : KwTensorFracIotaFinrankSeamGeneral W F F')
     (σ : F →ₐ[R₀] F') (N : ℕ) : KwIsogenyEndDatumBaseChangeAlongGeneral W F F' σ N := by
   intro ⟨D, hD⟩
-  let ψ := kw_functionFieldTensorFracEquivGeneral W F F'
-  let ιFr := kw_tensorFracIotaRingHomGeneral W F F' D
+  let ψ := functionFieldTensorFracEquivGeneral W F F'
+  let ιFr := tensorFracIotaRingHomGeneral W F F' D
   obtain ⟨hfin_Fr, hdeg_Fr⟩ := hseam D
-  have hcomm : ∀ x, ιFr (ψ x) = ψ (kw_isogenyEndDatumBaseChangeIotaGeneral W F F' D x) :=
+  have hcomm : ∀ x, ιFr (ψ x) = ψ (isogenyEndDatumBaseChangeIotaGeneral W F F' D x) :=
     fun x => (ψ.apply_symm_apply _).symm
-  have hfin : (kw_isogenyEndDatumBaseChangeIotaGeneral W F F' D).toRingHom.Finite := by
-    have h₁ : (kw_isogenyEndDatumBaseChangeIotaGeneral W F F' D).toRingHom
+  have hfin : (isogenyEndDatumBaseChangeIotaGeneral W F F' D).toRingHom.Finite := by
+    have h₁ : (isogenyEndDatumBaseChangeIotaGeneral W F F' D).toRingHom
         = ψ.symm.toRingEquiv.toRingHom.comp (ιFr.comp ψ.toRingEquiv.toRingHom) := rfl
     rw [h₁]
     exact (RingHom.Finite.of_surjective _ ψ.symm.surjective).comp
       (hfin_Fr.comp (RingHom.Finite.of_surjective _ ψ.surjective))
-  refine ⟨⟨kw_isogenyEndDatumBaseChangeIotaGeneral W F F' D, hfin.to_isIntegral, hfin⟩, ?_⟩
+  refine ⟨⟨isogenyEndDatumBaseChangeIotaGeneral W F F' D, hfin.to_isIntegral, hfin⟩, ?_⟩
   refine hD ▸ ?_
   exact (@Algebra.finrank_eq_of_equiv_equiv
       (W⁄F').FunctionField (W⁄F').FunctionField _ _
-      (AlgebraicCurve.algebraAlong (kw_isogenyEndDatumBaseChangeIotaGeneral W F F' D))
+      (AlgebraicCurve.algebraAlong (isogenyEndDatumBaseChangeIotaGeneral W F F' D))
       (FractionRing ((W⁄F).FunctionField ⊗[F] F'))
       (FractionRing ((W⁄F).FunctionField ⊗[F] F')) _ _
       (ιFr.toAlgebra) ψ.toRingEquiv ψ.toRingEquiv
@@ -1088,14 +1105,14 @@ theorem kw_isogenyEndDatumBaseChangeAlong_of_isDomain_tensorGeneral
 
 end FracHomGeneral
 
-theorem kw_isogenyEndDatumBaseChangeAlong_of_tensorIsDomainGeneral
+theorem isogenyEndDatumBaseChangeAlong_of_tensorIsDomainGeneral
     (htens : KwFunctionFieldTensorIsDomainGeneral W F F')
     (hseam : haveI : IsDomain ((W⁄F).FunctionField ⊗[F] F') := htens
              KwTensorFracIotaFinrankSeamGeneral W F F')
     (σ : F →ₐ[R₀] F') (N : ℕ) :
     KwIsogenyEndDatumBaseChangeAlongGeneral W F F' σ N :=
   haveI : IsDomain ((W⁄F).FunctionField ⊗[F] F') := htens
-  kw_isogenyEndDatumBaseChangeAlong_of_isDomain_tensorGeneral W F F' hseam σ N
+  isogenyEndDatumBaseChangeAlong_of_isDomain_tensorGeneral W F F' hseam σ N
 
 section FFDomainGeneral
 
@@ -1104,22 +1121,22 @@ attribute [local instance] Algebra.TensorProduct.rightAlgebra
 local notation3 "CR" => (W⁄F).toAffine.CoordinateRing
 local notation3 "FFₗ" => (W⁄F).FunctionField
 
-theorem kw_coordinateRingMap_basisGeneral (i : ℕ × Fin 2) :
+theorem coordinateRingMap_basisGeneral (i : ℕ × Fin 2) :
     CoordinateRing.map (W⁄F).toAffine (algebraMap F F')
-        (kw_coordinateRingBasis (W⁄F).toAffine i)
-      = kw_coordinateRingBasis ((W⁄F).toAffine.map (algebraMap F F')) i :=
-  kw_coordinateRingMap_basisGeneralNoAC W F F' i
+        (coordinateRingBasis (W⁄F).toAffine i)
+      = coordinateRingBasis ((W⁄F).toAffine.map (algebraMap F F')) i :=
+  coordinateRingMap_basisGeneralNoAC W F F' i
 
-def kw_coordinateRingMapAlongGeneral :
+def coordinateRingMapAlongGeneral :
     CR →ₐ[F] ((W⁄F).toAffine.map (algebraMap F F')).CoordinateRing :=
-  kw_coordinateRingMapAlongGeneralNoAC W F F'
+  coordinateRingMapAlongGeneralNoAC W F F'
 
-theorem kw_coordinateRingTensor_isDomainGeneral : IsDomain (CR ⊗[F] F') :=
-  kw_coordinateRingTensor_isDomainGeneralNoAC W F F'
+theorem coordinateRingTensor_isDomainGeneral : IsDomain (CR ⊗[F] F') :=
+  coordinateRingTensor_isDomainGeneralNoAC W F F'
 
-theorem kw_functionFieldTensorIsDomain_dischargeGeneral :
+theorem functionFieldTensorIsDomain_dischargeGeneral :
     KwFunctionFieldTensorIsDomainGeneral W F F' :=
-  kw_functionFieldTensorIsDomain_dischargeGeneralNoAC W F F'
+  functionFieldTensorIsDomain_dischargeGeneralNoAC W F F'
 
 end FFDomainGeneral
 
@@ -1127,24 +1144,24 @@ section SeamGeneral
 
 variable [IsDomain ((W⁄F).FunctionField ⊗[F] F')]
 
-theorem kw_tensorIotaRingHom_finiteGeneral (D : IsogenyEndDatum (W⁄F)) :
-    (kw_tensorIotaRingHomGeneral W F F' D).Finite :=
+theorem tensorIotaRingHom_finiteGeneral (D : IsogenyEndDatum (W⁄F)) :
+    (tensorIotaRingHomGeneral W F F' D).Finite :=
   RingHom.Finite.tensorProductMap (f := D.ι) D.hfin (g := AlgHom.id F F') (RingHom.Finite.id F')
 
-theorem kw_tensorFracIotaFinrankSeam_dischargeGeneral :
+theorem tensorFracIotaFinrankSeam_dischargeGeneral :
     KwTensorFracIotaFinrankSeamGeneral W F F' := by
   intro D
   exact tensorFracIotaFinrankSeam_aux W F F' D.ι D.hι D.hfin
 
 end SeamGeneral
 
-theorem kw_isogenyEndDatumBaseChangeAlong_dischargeGeneral (σ : F →ₐ[R₀] F') (N : ℕ) :
+theorem isogenyEndDatumBaseChangeAlong_dischargeGeneral (σ : F →ₐ[R₀] F') (N : ℕ) :
     KwIsogenyEndDatumBaseChangeAlongGeneral W F F' σ N :=
   haveI : IsDomain ((W⁄F).FunctionField ⊗[F] F') :=
-    kw_functionFieldTensorIsDomain_dischargeGeneral W F F'
-  kw_isogenyEndDatumBaseChangeAlong_of_tensorIsDomainGeneral W F F'
-    (kw_functionFieldTensorIsDomain_dischargeGeneral W F F')
-    (kw_tensorFracIotaFinrankSeam_dischargeGeneral W F F') σ N
+    functionFieldTensorIsDomain_dischargeGeneral W F F'
+  isogenyEndDatumBaseChangeAlong_of_tensorIsDomainGeneral W F F'
+    (functionFieldTensorIsDomain_dischargeGeneral W F F')
+    (tensorFracIotaFinrankSeam_dischargeGeneral W F F') σ N
 
 end General
 
