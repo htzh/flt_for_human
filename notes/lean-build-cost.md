@@ -63,6 +63,29 @@ agent built the same tree. High user CPU + timeout is real compute (or a
 heartbeat blow-up); near-zero CPU is lock contention. Every bounded build should
 be timed with `time` (or `/usr/bin/time -v`) so the two are told apart.
 
+**A failing check can be slower than a succeeding one, and can exceed every bound
+above (measured 2026-10-06, set D-6).** `WeierstrassCurve/Isogeny/TwoCurveDescent.lean`
+(1,231 lines, importing `IntermediateField` + `KernelBaseChange`) was checked with
+`lake env lean` three times on three successive revisions, while its two-curve region
+mis-scoped three `haveI`s and left one universe level unbound:
+
+| revision | wall | user | sys | outcome |
+|---|---:|---:|---:|---|
+| `tmp/w2.log` | 254 s | 239 s | 26 s | 1 error (typeclass timeout at the *default* 20,000) |
+| `tmp/w3.log` | 438 s | 957 s | 32 s | 1 error (`whnf` at 4,000,000) |
+| `tmp/w4.log` | **1,119 s** | 2,361 s | 130 s | 17 error sites: 10 heartbeat timeouts, 2 type mismatches, 1 missing instance, 1 unbound universe |
+
+Two things to take from it. First, the wall time is **not** bounded by the per-file
+figures in the table above: 18.6 minutes for one file, with **`USER ≈ 2 × WALL`** —
+Lean elaborates in parallel, and a `whnf`/`isDefEq` blow-up burns *hearts*, i.e. CPU, so
+the cost grows with the very unification work that is failing. A module in this state
+breaks the ladder's tier-0 assumption (`timeout 60`): the check cannot be bounded by
+60 or 90 s and still complete, so any iteration on it costs ~19 minutes. Second, that is
+the argument for playbook §3.5 rule 1 with teeth — **do not iterate on such a module;
+isolate the declaration in `Scratch.lean` and iterate there**, and see §8 for the levers
+once the blame is placed. The per-file figures above remain right for modules whose
+proofs elaborate; treat them as a *lower* bound when instance search or `whnf` is in play.
+
 ## 3. Why the big modules are slow (the root cause)
 
 Profiling `LevelFraction` (`lake env lean -Dprofiler=true`) gives 332 timed

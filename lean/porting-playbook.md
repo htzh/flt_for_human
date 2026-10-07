@@ -714,6 +714,15 @@ instruments, all cheap:
      `PORT_FILES` when you want a faithfulness probe without wiring it in.
      Definition-only modules get coverage by name against the pin's
      `Definitions/` files.
+   - **It is text-only, so it works on a module whose proofs do not elaborate**
+     (found 2026-10-06, set D-6: the one instrument that still answers while a
+     module is red). It never invokes Lean — it parses the sources in
+     `PORT_FILES` and diffs statements — so a `mismatched`/`missing` verdict, and
+     the `identical` count, are available *before* and *independently of* the
+     proof compiling. When a module is stuck in a long or failing edit loop
+     ([../notes/lean-build-cost.md](../notes/lean-build-cost.md) §2), run the
+     checker first: a statement-shaped problem outranks the proof problem, and
+     the proof's own progress is not measured by it either way.
 2. **A consumer** (`spec/<X>Consumer.lean`) outside every library. Its error
    count is the deliverable metric, and each zone must contain a **real,
    executed cross-module composition** — no `#check`s, no `sorry`; deleting any
@@ -788,6 +797,26 @@ is pure loss; glue and trivia are not worth exporting.
   writing the zones, and register a collision in
   [CARRY-FORWARD.md](CARRY-FORWARD.md) rather than renaming a frozen public name
   mid-wave.
+- **When a collision is between a pin name and one of ours, the fix is `private`, not
+  a rename** (decided 2026-10-06). A `private` declaration's name is mangled
+  (`_private.<Module>.<n>.<name>`), so it cannot clash at the environment level with a
+  public name from another module — the same mechanism that already lets the tree
+  carry a `private` duplicate of a public theorem. So the resolution for
+  `instInfinitePlace` (`Engine.lean:90`, ours) against `RRSpace.lean:444`'s
+  pin-public `scoped instance` is to mark ours `private`: no rename, no shim, no
+  `spec/` split, and the instance stays findable by instance search downstream. Two
+  things to reconcile in the confirming build: the checker reads only non-private
+  declarations (add it to `OWN_PROOFS` *with its reason* if it was being compared), and
+  every consumer that relied on the instance by name must still elaborate. **Do not
+  make the edit while another set is mid-check** — a cascade through a shared module
+  invalidates the run being watched.
+- **`private` and local instances are a first-class build tool, and our verification
+  does not depend on the elaborator.** Prefer a local `haveI`/`letI` or a `private`
+  instance over making instance search find something globally: it is cheaper to
+  elaborate, it cannot collide, and the statement checker is text-only, so nothing
+  about faithfulness rests on a declaration being public. Reserve *public* for the
+  pin's own names and the port's exported API. (`notes/lean-build-cost.md` §2 shows what
+  instance search costs when it goes wrong.)
 - **Choose the directory and namespace from the pin's own namespace and sibling
   vocabulary**, not from the managing effort: one topic was retargeted to
   `ModularCurve/` because every pin file was `*_ModularCurve_*`, its headlines
@@ -1028,7 +1057,7 @@ Two library-style uses worth knowing:
 | WeightOne rectification | refactor, no new math | 7,242 → 5,333 removable lines | [logs/weightone-rectify.md](logs/weightone-rectify.md), [topics/hecke/TOPIC-weightone-rectify.md](topics/hecke/TOPIC-weightone-rectify.md) |
 | three small frontier nodes (factorisable test functions; `K(x)` `EssFiniteType`; Weierstrass principal divisors) | `AutomorphicForm.continuous_and_hasCompactSupport_of_isFactorizableTestFn`, `AlgebraicCurve.essFiniteType_of_transcendental_of_finiteDimensional`, `WeierstrassCurve.Affine.hasPrincipalDivisors_functionField` | 8 modules / 50 public decls; the Weierstrass place/RR/class-group API (~941 content lines, 27 citers) was **deferred** here and is now ported (see the genus-one place gate row) | [CARRY-FORWARD.md](CARRY-FORWARD.md) |
 | `ModularCurve.Period` API + equivariant primitive | `ModularCurve.exists_hasEquivariantPrimitiveOf` | 4 modules; the period vocabulary, the `Γ₀(N)` period lattice, the general `periodOf`/`periodMapOf` layer and the 182-content-line headline construction; Hecke-stability / `PeriodTransfer` / Petersson **deferred** | [CARRY-FORWARD.md](CARRY-FORWARD.md) |
-| genus-one place gate | `WeierstrassCurve.Affine.exists_genusOnePlaceGate_isCentred_and_abelTheorem` | 5 modules / 1,004 written lines; pin `S_` 2,288 raw / 1,032 net new; checker +51 identical, 0/0; consumer 0; the deferred Weierstrass RR/class-group/Abel block taken | [logs/genus-one-place-gate-port.md](logs/genus-one-place-gate-port.md), [topics/genusOnePlaceGate/TOPIC-genusOnePlaceGate.md](topics/genusOnePlaceGate/TOPIC-genusOnePlaceGate.md) |
+| genus-one place gate | `WeierstrassCurve.Affine.exists_genusOnePlaceGate_isCentred_and_abelTheorem` | 5 modules / 1,004 written lines; pin `S_` 2,288 raw / 1,032 net new; checker +51 identical, 0/0; consumer 0; the deferred Weierstrass RR/class-group/Abel block taken | [logs/genus-one-place-gate-port.md](logs/genus-one-place-gate-port.md), [topics/riemannRoch/TOPIC-genusOnePlaceGate.md](topics/riemannRoch/TOPIC-genusOnePlaceGate.md) |
 | Vélu V2 (gateways + Ribet side) | `WeierstrassCurve.exists_veluPointHom_oddOrderSummingSet_of_isAlgClosed` and the two Mazur gateways | 9 new modules / 1,671 written + 344 consumer; checker `5750 → 5805 identical`, promoted `312 → 311`, 0/0; whole-tree `9,303 jobs / 12.3 s` (+9 leaves, no cascade); one additive edit `+39/−0` in a 0-dependency leaf; three closure members already present under other names | [logs/velu-port.md](logs/velu-port.md), [topics/velu/TOPIC-V2-gateways-and-ribet.md](topics/velu/TOPIC-V2-gateways-and-ribet.md) |
 
 Planning records (retired blueprints) are `topics/PORTING-*.md`; the mathematics

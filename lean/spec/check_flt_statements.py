@@ -2252,6 +2252,17 @@ SOURCES = [
     "P2M/Sol/S_WeierstrassCurve_Affine_isAddCyclic_ker_pointMapOfPushforward_of_baseChange_algHom.lean",
     "Theorems/Thm_WeierstrassCurve_Affine_exists_algHom_baseChange_of_isAddCyclic_ker_pointMapOfPushforward.lean",
     "P2M/Sol/S_WeierstrassCurve_Affine_exists_algHom_baseChange_of_isAddCyclic_ker_pointMapOfPushforward.lean",
+    # --- D-6 (the two-curve countable descent,
+    # `FLTForHuman/WeierstrassCurve/Isogeny/TwoCurveDescent.lean`). The wrapper is the
+    # statement authority for the headline (binders spelled verbatim, including the
+    # `letI : Algebra ℚ K` and the `∀ [gate instances] (hN₀)` block of the conclusion);
+    # the `S_` file is the only source for the pin's `kw_iotaDescent*` family (promoted
+    # at the prefix-stripped names, verified through the §2.1 `stripped_source`
+    # fallback) and for the `kw_surgehgf4_hfgkd_bcIota₁NoAC` engine transcribed here.
+    # The wrapper comes before its `S_` file, and both are appended last so no earlier
+    # last-name match can flip. Neither was listed before D-6 (checked).
+    "Theorems/Thm_WeierstrassCurve_Affine_exists_intermediateField_countable_map_eq_of_isAddCyclic_ker_pointMapOfPushforward.lean",
+    "P2M/Sol/S_WeierstrassCurve_Affine_exists_intermediateField_countable_map_eq_of_isAddCyclic_ker_pointMapOfPushforward.lean",
 ]
 
 PORT_FILES = [
@@ -3176,9 +3187,14 @@ PORT_FILES = [
     # `topics/velu/WORKORDER-P2-basechange.md`; order
     # `topics/velu/WORKORDER-P2b-intermediate-field.md`). Its public surface is the
     # pin's self-contained descent predicates at their pin names plus the headline
-    # (which resolves against the `Theorems/` wrapper in `SOURCES`); the 72 descent
+    # (which resolves against the `Theorems/` wrapper in `SOURCES`); the descent
     # helpers are `private` with their `kw_` prefix stripped, so the checker does not
-    # read them. Appended last so no earlier last-name match can flip.
+    # read them — except the ones set D-6 promoted for the two-curve descent
+    # (`iA_crCoeffsIn`, `iA_phi`, `iA_ffDescend_exists`, `iCa_ffNum`, `iCa_ffDen`,
+    # `iCa_ffCoeffSet`, `iCa_crCoeffsIn_of_ffCoeffSet_subset`,
+    # `iPFA_finiteDimensional_adjoin_transcendental`, `iPFE_functionField_ringHom_ext`,
+    # `iotaSubd_countable_of_fg`), which the checker now reads and verifies through the
+    # `stripped_source` fallback. Appended last so no earlier last-name match can flip.
     "FLTForHuman/WeierstrassCurve/Isogeny/IntermediateField.lean",
     # --- D-3: the two mid-size base-change nodes of
     # `topics/velu/WORKORDER-P2c-basechange-alghom-and-variablechange.md`.
@@ -3212,6 +3228,14 @@ PORT_FILES = [
     # `IsogenyEndDatum/Engine.lean` cone and is a leaf. Appended last so no earlier
     # last-name match can flip.
     "FLTForHuman/WeierstrassCurve/Isogeny/KernelBaseChange.lean",
+    # --- D-6: the two-curve countable descent and its headline. Public surface: the
+    # pin's `iotaDescent{Curve_map_FF,Phi,Phi_equation,Phi_transcendental,Phi_X,Phi_yGen}`
+    # at the prefix-stripped names (verified through the §2.1 `stripped_source`
+    # fallback), the port-own `ModularCurve.exists_twoCurveDescent` (`OWN_PROOFS`), and
+    # the headline (matched against its wrapper in `SOURCES`). Everything else — the
+    # gate-free `NoAC` base-change engine and the descent helpers — is `private` with a
+    # content name. Appended last so no earlier last-name match can flip.
+    "FLTForHuman/WeierstrassCurve/Isogeny/TwoCurveDescent.lean",
 ]
 
 
@@ -3391,6 +3415,14 @@ OWN_PROOFS = {
     # under this name, so the instance is the port's own declaration.  Dotted,
     # so the exemption cannot leak to any other `instInfinitePlace`.
     "WeierstrassCurve.Affine.instInfinitePlace",
+    # D-6: the two-curve countable descent. The pin states this content only inside its
+    # `KwD5BetweenCurvesSubfieldDescent` staging `Prop`, whose body is `∀ K … E E' ι …`;
+    # the port lands it as a theorem at the port's own name
+    # `ModularCurve.exists_twoCurveDescent`, so no pin declaration of that name — or of
+    # that statement shape — exists for the checker to diff. The module's other public
+    # declarations are at the pin names (the `iotaDescent*` family, and the headline
+    # against its wrapper).
+    "ModularCurve.exists_twoCurveDescent",
 }
 
 # Declaration keywords. `instance` matters for PhiGen; `structure` for Polynomial.

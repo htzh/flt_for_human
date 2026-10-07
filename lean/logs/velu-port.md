@@ -2236,3 +2236,122 @@ byte-exact. Checker: `5980 (313 promoted, 61 renamed) → 5999 (313, 61)`, `0 mi
    exactly the standard three.
 
 
+
+
+## P-3 — the two-curve countable descent (set D-6, **not landed**, 2026-10-06)
+
+The D row's tail, in
+[../topics/velu/WORKORDER-P3-two-curve-descent.md](../topics/velu/WORKORDER-P3-two-curve-descent.md).
+One new leaf module `WeierstrassCurve/Isogeny/TwoCurveDescent.lean` (1,227 lines) plus a
+ten-declaration promotion set in `WeierstrassCurve/Isogeny/IntermediateField.lean`; the
+target is
+
+    WeierstrassCurve.Affine.exists_intermediateField_countable_map_eq_of_isAddCyclic_ker_pointMapOfPushforward
+
+which the frontier ranked first at **3,729 silo lines** with an unported closure of 0. The
+pin's `S_` file is the D row restated in two-curve form: `port_advise` finds 107 of its 183
+declarations already in the port, and its `kw_surgehgf4_hfgkd_bc*` engine is the pin's **`NoAC`**
+spelling of the `kw_surge_hgf4_bc*` block D-5 landed — the same proof one generality level down,
+*not* a duplicate, and **not** importable (see "The `General`/`NoAC` split in the base-change
+engine" below). **The file was not ported**; the set transcribed only
+what the node's demand needs. The route decisions are in the module header and §3 of the
+order: the pin's `KwD5*`/`KwD5BC*` staging, its `s13_exists_gate`/`s13GlobalGate` device and
+the capstone are **not** landed (the headline's own conclusion quantifies the gate
+instances the proof needs).
+
+### Status: statements checked, elaboration open
+
+**Faithfulness is settled.** `python3 spec/check_flt_statements.py`:
+**`6054 statements identical (313 promoted from pin-private declarations, 83 renamed), 0
+mismatched, 0 missing, 37 own-proof declarations exempted (6091 port declarations checked)`**,
+exit 0. Against the pre-D-6 baseline `6037 (313, 67), 0/0, 36 own, 6073` that reconciles
+exactly: +1 `renamed` for each of the six `iotaDescent*` promotions and the ten
+`IntermediateField` promotions (all sixteen appear as `RENAMED` rows through the
+`stripped_source` fallback), +1 `identical` for the headline (matched against its wrapper
+text, including the `letI : Algebra ℚ K` and the `∀ [DecidableEq] [gate instances] (hN₀)`
+block), +1 `own` for `ModularCurve.exists_twoCurveDescent`, 0 mismatch, 0 missing. The route
+decisions cost nothing at the checker.
+
+**Elaboration does not close at the frozen cap.** `lake env lean
+-DmaxHeartbeats=4000000 -DautoImplicit=false` on the module is red. The module *is* left in
+place, deliberately, rather than truncated, so the next round continues from the checked
+statements. Remaining error sites (line numbers in the shipped file):
+`:842`, `:850`, `:853`, `:912` (the `finrankAlong` path at `F = K₀`), `:937`/`:938` (the
+`letI : Algebra ℚ K` vs the ambient `Algebra ℚ K` at the `Exists.intro` of the descent
+instance), `:1007` (a missing `IsScalarTower (↥K₀) F₁ (W⁄K).FunctionField` in
+`twoCurve_chiCompChiEqPhi`), `:1034`, `:1142`–`:1145` (the `hχ` block of
+`gateDescent_of_descent`), with `:953`/`:1183` the `unknown constant` cascades.
+Whole-tree `flock`ed `lake build`: **9,317 jobs, one failing target
+(`FLTForHuman.WeierstrassCurve.Isogeny.TwoCurveDescent`), wall 660.7 s (11 m 01 s), user
+1467.6 s / sys 94.4 s** — every other module in the tree was cached and green, which is why
+the run stops at the leaf. `lake env lean` on the module: wall 1,119 s in the failing
+configuration (the file is 1,227 lines), against 225 s for the same file with only the
+engine and the descent construction.
+
+### The `General`/`NoAC` split in the base-change **engine** (found 2026-10-06)
+
+The one real discovery of this set. D-5's landed engine carries, by its own section
+variables at `WeierstrassCurve/Isogeny/KernelBaseChange.lean:133–141`, `[IsAlgClosed F]
+[IsAlgClosed F']` and the four `GenusOnePlaceGate`/`IsCentred`/`AbelTheorem` blocks, so
+`kw_surge_hgf4_bcIota₁` and its `_finiteAlong`/`_isIntegral`/`_finrankAlong`/`_compat`
+**cannot be instantiated at `F := K₀`**. The pin's engine is the gate-free,
+`IsAlgClosed`-free `NoAC` spelling and it is called at exactly that instantiation twice:
+`bcIota₁NoAC E₀ E₀' (↥K₀) K ι'` in the finrank step (`A:3598`) and `… (↥K₀)
+(AlgebraicClosure (↥K₀)) …` in the kernel step (`A:2952`). The `NoAC` engine therefore had
+to be transcribed here, `private`, at port-own content names, over D-1's `NoAC` primitives
+(`functionFieldTensorFracEquivGeneralNoAC`, `functionFieldMapAlongGeneralNoAC`,
+`functionFieldTensorIsDomain_dischargeGeneralNoAC`) — that is the playbook's §3.7 handling
+(a frozen file is not reopened mid-set; the promotion is a refactor round). Registered as an
+open follow-up in [../CARRY-FORWARD.md](../CARRY-FORWARD.md).
+
+### The `baseChange`-at-`R₀` defeq, and the three instance fixes
+
+The pin's two-curve development is written at `F = K₀ = R₀`, so it constantly needs
+`(E₀⁄K₀) ≡ E₀` and `(E₀'⁄K₀) ≡ E₀'`; FLT's `baseChange`/`map` are reducible there, the
+port's are not. Three instance facts had to be made available or the unifier spins instead
+of failing (the D-1 lesson): `[DecidableEq (AlgebraicClosure ↥K₀)]`, `[DecidableEq ↥K₀]`
+and `[CharZero ↥K₀]` (the pin supplies the first with a global scoped instance
+`s13DecEqAlgebraicClosure := Classical.decEq _`, `A:603`), and
+`Module.IsTorsionFree (↥K₀) K := (Module.isTorsionFree_iff_algebraMap_injective).mpr
+(algebraMap (↥K₀) K).injective` for `IsAlgClosed.lift`. With those in place the ~25
+`failed to synthesize DecidableEq (AlgebraicClosure ↥K₀)` errors and the
+`IsTorsionFree` timeout disappear; the residue is the `whnf`/`isDefEq` block above, which is
+the *cumulative* cost of that defeq in the two-curve context (the pin guards this region
+with `maxHeartbeats 6400000`/`19200000` and `synthInstance.maxHeartbeats 3200000`, none of
+which the port transcribes). Per the order's §7 this is a stop-and-report condition, not a
+bisect-inline one.
+
+### What did land (and compiles)
+
+* the pin's public `ModularCurve.iotaDescent{Curve_map_FF,Phi,Phi_equation,Phi_transcendental,
+  Phi_X,Phi_yGen}` at the prefix-stripped names (six `RENAMED` rows);
+* the gate-free `NoAC` base-change engine, `private`, at content names
+  (`descentBCTensorIota*`, `descentBCTensorFracIota*`, `descentBCIota*`), a verbatim
+  transcription of `A:2501–2839` with the `kw_` prefix stripped and D-1's `NoAC` spellings;
+* the two-curve descent's construction, `private`: `twoCurveGenSet`, `twoCurveK₀{,_fg,_mem_E,
+  _mem_E'}`, `twoCurve_ffCoeffSet_subset_{X,Y}`, `twoCurveE₀{,_map,_isElliptic}`, `twoCurveE₀'`
+  (same), `twoCurveCoeffsHyp`, `twoCurve_xP`/`_yP`/`_spec`, `twoCurve_equation`,
+  `twoCurve_transcendental`, `twoCurve_ι'{,_X,_yGen}`, `twoCurve_phiE'_{X,yGen}`,
+  `twoCurve_phiCompat{,_apply}`, `finiteAlong_pointPullbackHomTo` (D-2's exchange argument at
+  the abstract carriers, so that its instance search is cheap), `twoCurve_finiteAlong`,
+  `twoCurve_isIntegral`, and the two spellings' bridge `twoCurve_phi_eq_iotaDescentPhi`;
+* the ten promotions in `IntermediateField.lean`: `iA_crCoeffsIn`, `iA_phi`,
+  `iA_ffDescend_exists`, `iCa_ffNum`, `iCa_ffDen`, `iCa_ffCoeffSet`,
+  `iCa_crCoeffsIn_of_ffCoeffSet_subset`, `iPFA_finiteDimensional_adjoin_transcendental`,
+  `iPFE_functionField_ringHom_ext`, `iotaSubd_countable_of_fg` — two more than the amended
+  order's seven, because `iCa_crCoeffsIn_of_ffCoeffSet_subset`'s *statement* names
+  `iCa_ffNum`/`iCa_ffDen` (leaving them private would leak a private name into a public
+  statement) and the headline needs `Countable K₀` through `iotaSubd_countable_of_fg`.
+  `lake build FLTForHuman.WeierstrassCurve.Isogeny.IntermediateField` green (42 s module,
+  2720 jobs, wall 45.9 s; the smoke test on `iA_phi` alone took wall 52.7 s).
+* `spec/TwoCurveDescentConsumer.lean` (three zones) is **not executed**: it imports the red
+  module, so it cannot run until the module elaborates.
+
+### Dedup, both figures
+
+The pin `S_` file is **3,729 raw lines**; the written module is **1,227 lines** (of which
+~340 are the `NoAC` engine transcription the amended order prices separately). `port_advise`
+prices the whole node at 1,975 net-new and finds 107 of its 183 declarations already in the
+port; the measured saving is everything the five P-2 pin files already carry (the D-2 descent
+helpers, the D-5 seam, the place dictionary, the `pointPullback`/tensor prelude) plus the
+~290 lines of the pin's `KwD5*`/`s13GlobalGate` staging that this set does not write.

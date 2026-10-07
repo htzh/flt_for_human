@@ -87,7 +87,13 @@ section InfinitePlaceInstance
 variable [IsAlgClosed F] [W.IsElliptic] [GenusOnePlaceGate W]
   [GenusOnePlaceGate.IsCentred W]
 
-instance instInfinitePlace : InfinitePlace W where
+/-- `private` on purpose (2026-10-06): this instance is the *port's* invention and collides at
+the name level with the pin's `scoped instance instInfinitePlace` in `Place/RRSpace.lean`, which
+is what makes `Engine.lean` and `GenusOnePlaceGateCentred.lean` unimportable together. A
+`private` name is mangled, so it can no longer clash, while instance search still finds it for
+the modules that rely on it (`IsogenyEndDatum/DualEndData.lean`, `Isogeny/KernelBaseChange.lean`).
+Which side yields is the playbook §2.4 rule: the pin-public copy stays. -/
+private instance instInfinitePlace : InfinitePlace W where
   place := placeOfPoint (0 : W.Point)
   not_isFinitePlace := fun h =>
     algebraMap_mk_C_X_notMem_toValuationSubring_placeOfPoint_zero (W := W) (h _)

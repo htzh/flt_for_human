@@ -2,8 +2,13 @@
 
 **Status: port decision taken; the U, J and D rows landed 2026-10-06. P-SET-1 (the dictionary,
 `discriminant_ne_zero`, `isUniformization_toPoint`), P-SET-2 (the `j`-line) and P-2 (the whole
-base-change/descent column, D-1…D-5) are in the port; the remaining rows are S (seam/index)
-and the `rationalHomSet`/torsion columns.** This document answers one question — *how big
+base-change/descent column, D-1…D-5) are in the port; the D row's two-curve descendant is set
+P-3 (`WORKORDER-P3-two-curve-descent.md`, whose own status line is the authority on where it
+has got to), which is the D-S capstone's last prerequisite. The
+remaining rows are S (seam/index) and the `rationalHomSet`/torsion columns; row S is scoped
+and cut into sets S-1…S-4 plus the capstone in
+[TOPIC-V5-row-S-scoping.md](TOPIC-V5-row-S-scoping.md), which supersedes this file's §6
+reading of it.** This document answers one question — *how big
 is the slice that gates the last Phase D node, and is the work actually that large?* —
 and records the math-first scout (§6) and the prune pass (§2.1) that must precede any
 port. It is not a work order; nothing here has been dispatched. Triggered by

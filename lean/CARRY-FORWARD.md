@@ -235,6 +235,29 @@ entry.
   it is still two proofs). Price both with `build_ladder.py --edit`; `Velu/Discharge.lean`
   is the larger cascade.
 
+### The `General`/`NoAC` split in the base-change **engine** (`KernelBaseChange.lean`)
+
+D-1 met the pin's `General`/`NoAC` twin pair in the function-field **prelude** and resolved
+it the way playbook §5 asks: the `NoAC` name (no `[IsAlgClosed F]`, no gate instances) is the
+primitive, and each `General` name is a one-line invocation of it — so both names exist, at
+one proof each. D-5's **engine** (`kw_surge_hgf4_bc*` / `bcIota₁*`,
+`KernelBaseChange.lean:133–420`) did not get that treatment: it is landed `General`-only, its
+section carrying `[IsAlgClosed F] [IsAlgClosed F']` and four
+`GenusOnePlaceGate`/`IsCentred`/`AbelTheorem` blocks, so it cannot be instantiated at a
+subfield. Found by set D-6 (2026-10-06), whose two-curve descent needs exactly that
+instantiation, and which therefore transcribes the pin's `NoAC` engine privately — ≈320 lines
+the port could have imported.
+
+**Follow-up for a refactor round** (after D-6 lands; do not reopen the module mid-set):
+restate the engine's section gate-free (`kw_surge_hgf4_bcTensorIota`, `…bcTensorFracIota`,
+`…bcTensorFracIotaAlg`, `…bcIota₁`, `…bcTensorFracIotaSeam`, `…bcIota₁_{finiteAlong,isIntegral,
+finrankAlong,compat}`), keep the `General` names as one-line invocations of the gate-free
+ones, delete D-6's private copies, and re-point D-6 at the imports. The two D-5 headlines'
+statements do not move; their proofs should elaborate unchanged, since a weaker section is
+harmless to a caller that already has the hypotheses. Price the cascade with
+`build_ladder.py --edit` before starting — `KernelBaseChange.lean` is a **leaf**, so the
+cascade should be small.
+
 ## Scoping cautions
 
 Ways a frontier figure misleads, each with the case that taught it. These
@@ -281,7 +304,7 @@ are repeated in the playbook §2.1; keep the specific instances here.
   lists 14 unported `PeriodPair.*` nodes / 9,071 lines, `jLattice_surjective` among
   them), contrary to the earlier reading that the 54-target D-S slice had no
   `PeriodPair` node. The closure measurement is in
-  [../topics/velu/TOPIC-V5-periodpair-uniformization.md](../topics/velu/TOPIC-V5-periodpair-uniformization.md):
+  [topics/velu/TOPIC-V5-periodpair-uniformization.md](topics/velu/TOPIC-V5-periodpair-uniformization.md):
   15,179 lines, the two classical theorems on the path rather than prelude, ~4% of the
   then-remaining frontier. Note that the port's
   `ModularForms/WeightOne/Defs/PeriodPair.lean` is a **different** object: the weight-one
@@ -319,8 +342,102 @@ are repeated in the playbook §2.1; keep the specific instances here.
   `Engine`** (`spec/IsogenyEndDatumConsumer.lean` zones 3/5 keep the gate instances as
   hypotheses for that reason); a consumer that *produces* the gate instances and one that
   uses `Engine` must remain separate `spec/` files until one instance is reconciled.
-  Rule for the column: [../topics/velu/WORKORDER-P2-basechange.md](../topics/velu/WORKORDER-P2-basechange.md)
+  Rule for the column: [topics/velu/WORKORDER-P2-basechange.md](topics/velu/WORKORDER-P2-basechange.md)
   §3.1.
+
+  **Consequence found 2026-10-06: the S/D capstone is the blocked consumer.** It is no longer
+  only a `spec/` inconvenience. `WeierstrassCurve.Affine.eval_modularPolynomial_map_j_eq_zero_of_isAddCyclic_ker_pointMapOfPushforward`
+  (row S's terminal node, the manager's set **SC**) needs **both** sides in one module:
+  - the **producer** `exists_genusOnePlaceGate_isCentred_and_abelTheorem`
+    (`GenusOnePlaceGateCentred.lean:38` → `Place/RRSpace.lean:444`), because its proof
+    descends to a countable `K₀` and then must *supply* the `GenusOnePlaceGate`/`IsCentred`/
+    `AbelTheorem` instances that set D-6's headline quantifies over the base-changed curves
+    (`obtain ⟨g₁, c₁, a₁⟩ := … (W := (E₀.baseChange (AlgebraicClosure K₀)).toAffine)`, and
+    the same for `E₀'`);
+  - `Engine.lean`, transitively, because the same proof calls D-6's headline and
+    `TwoCurveDescent.lean:55–56` imports `Isogeny/KernelBaseChange.lean`, which imports
+    `IsogenyEndDatum/Engine.lean`.
+  No environment holds both. **SC cannot be written until this is resolved.**
+
+  **Resolved by policy 2026-10-06 — route (A), and it is a one-word edit.** The user's
+  direction: *"if private instances can improve builds we shouldn't be shy to use them — we
+  don't have to depend on Lean elab."* That is the playbook's own §2.4 rule ("which side stays
+  is the pin-public wrapper; **re-privatize** the pin-private name and keep local aliases so
+  untouched consumers keep working"), which this column deviated from when it chose to keep
+  ours public and instead split consumers across `spec/` files. Do it properly:
+
+  - **(A) Reconcile the instance — chosen.** Mark `WeierstrassCurve.Affine.instInfinitePlace`
+    (`IsogenyEndDatum/Engine.lean:90`) **`private`**. A `private` declaration's name is
+    mangled (`_private.<Module>.<n>.<name>`), so it no longer clashes at the environment level
+    with `RRSpace.lean:444`'s pin-public `scoped instance` — the same mechanism that already
+    lets the port carry two copies of a `private` duplicate elsewhere (see
+    "two copies of one statement" below). No renaming, no shim layer, and the instance stays
+    findable by instance search downstream, which is what D-4/D-5 rely on. Two consequences to
+    reconcile in one build: the checker stops seeing it (it reads only non-private
+    declarations), so the compared count drops by one — it is already on `OWN_PROOFS`, so this
+    is the expected `-1`, not a loss — and `Engine.lean`'s own consumers
+    (`restrictAlong_eq_infinitePlace`, and through it `pointEnd'_eq_of_seam` in D-4/D-5) must
+    still elaborate. **Price the cascade with `build_ladder.py --edit` first**: `Engine.lean`
+    is not a leaf, and it must not be edited while another set is mid-check, since every D-4/D-5
+    module imports it. **Fallback if the confirming build shows a consumer cannot find the
+    instance**: rename it instead (`instInfinitePlaceEngine`) and update its users — same
+    one-name fix, keeps it public and findable, at the cost of a slightly less tidy name.
+    Either way the collision is gone; the two differ only in whether the instance is public.
+
+    **Priced and pre-flighted 2026-10-06** (`build_ladder.py --edit`): the cascade is
+    **9 dependent modules / 12,280 lines ≈ 175 s** — `DualEndData` (3,930), `RestrictAlongAdd`
+    (2,505), `KernelBaseChange` (1,378), **`TwoCurveDescent` (1,228)**, `TranslationAlgEquiv`
+    (1,124), `Vocabulary` (644), `CharPolySquare` (581), `KernelCyclicTransfer` (473),
+    `PointEndSubring` (417); tier 2 is
+    `lake build TwoCurveDescent CharPolySquare`, tier 3 the full build. The edit itself is one
+    word at `Engine.lean:90`. **Why the confirming build is not a formality**: the instance is
+    relied on *outside* `Engine.lean` by instance search — `DualEndData.lean:3248–3254`
+    (`InfinitePlace.place`, `not_isFinitePlace`) and `KernelBaseChange.lean:902,917` use it
+    inside sections that carry only `[W.IsElliptic] [GenusOnePlaceGate W] [IsCentred W]`. So the
+    test is two-fold: (i) a `Scratch.lean` importing **both** `IsogenyEndDatum/Engine` and
+    `GenusOnePlaceGateCentred` must elaborate (the collision is gone), and (ii)
+    `lake build FLTForHuman.WeierstrassCurve.Isogeny.KernelBaseChange
+    ...IsogenyEndDatum.DualEndData` must stay green (private instances are still found by
+    search across imports). If (ii) fails, take the rename fallback above. Note also that the
+    port made `InfinitePlace` a **class** (`Place/Dictionary.lean:674`) on purpose — so the
+    pin's `InfinitePlace.place` statement text still elaborates — which is why an *instance*
+    exists here at all and why it cannot simply be deleted.
+
+    **DONE AND VERIFIED 2026-10-06.** `Engine.lean:90`'s instance is now `private` (with a
+    comment giving the reason), and the three tests that matter all pass:
+    (i) `lake build …IsogenyEndDatum.Engine` — green, 3,851 jobs, 38.8 s;
+    (ii) `lake env lean` on a probe importing **both** `IsogenyEndDatum/Engine` and
+    `GenusOnePlaceGateCentred` — **elaborates in 5.4 s**, where before it failed with
+    `environment already contains 'WeierstrassCurve.Affine.instInfinitePlace._proof_4'`. The
+    collision is gone, so SC and the `spec/` split can be written;
+    (iii) `lake build …IsogenyEndDatum.DualEndData …Isogeny.KernelBaseChange` — green,
+    `Build completed successfully (9037 jobs)`, confirming the private instance is still found
+    by instance search across imports. **The rename fallback was not needed.**
+
+    Also measured: because the cascade includes `TwoCurveDescent`, do this edit when no set is
+    mid-check — it forces a ~10-minute rebuild of the whole tree.
+  - **(B) Re-home the gate construction off `RRSpace`. Do not trust the tempting short
+    reading of this route — it was checked and it is not vestigial.** The producer is 79
+    lines (`GenusOnePlaceGateCentred.lean:38`) and its body names *none* of `rrParam` /
+    `RRSpace` / `basisAux` / `finBasis` / `exists_not_isFinitePlace` — so the `RRSpace` import
+    looks droppable. It is not: the producer builds its gate from `geomPointEquivPlace` and
+    `geomPlaceOfPoint_surjective`/`deg_geomPlaceOfPoint`, and **every one of those is stated
+    under `[InfinitePlace W]`** (`Place/GeometricPlace.lean:57,60,65,87`) — the instance that
+    `RRSpace.lean:444`'s scoped definition supplies, activated by
+    `open scoped WeierstrassCurve.Affine` at `GenusOnePlaceGateCentred.lean:32`. That is the
+    real dependency. Building the same instance without `RRSpace` means moving
+    `exists_not_isFinitePlace` (`RRSpace.lean:386`), `deg_eq_one_of_not_isFinitePlace` (:303),
+    `eq_of_not_isFinitePlace_of_not_isFinitePlace` (:212) **and
+    `mem_iff_natDegree_norm_le` (:189), which does use the RR space**
+    (`CoordinateRing.mem_RRSpace_iff_degree_norm_le`, `finrank_eq`) — so (B) may have to move
+    the RR-space norm/degree block too. A bounded probe settles it: cut the `RRSpace` import,
+    `lake build` the producer, and see which name is missing. A third route — re-proving the
+    producer against a gate-free `placeOfPoint` surjectivity — **is not available**:
+    `Engine.lean:115` and `:118` both prove surjectivity *from* `(pointEquivPlace W)`, exactly
+    as the pin's `S_` file does (`:306–310`), so it is downstream of the gate.
+  (B) is the port's own route and adds no collision; (A) is smaller if the cascade is small.
+  Either way, **D-6's own module is unaffected** — it takes its gate instances as the `∀`
+  binders of the headline and never produces one.
 - **Two pin files can declare one name with two different statements (caution, P-2 D-4/D-5,
   resolved for this column).** `ModularCurve.kw_fdn2_qephod_hend7_pmopKerCard_proved` is a
   `Prop` (`KwD5PointMapOfPushforwardKerCard`) in
@@ -358,11 +475,22 @@ are repeated in the playbook §2.1; keep the specific instances here.
     files P-2 landed — 41% in the D-2 `S_` file alone, 47% in each D-5 silo. (Measure:
     lines ≥12 chars with the `kw_` prefix stripped; an upper bound, since generic tactic
     lines count — but it agrees with the declaration-level 58%.) The descent block
-    (`:1799–2386`) is a byte-identical copy of D-2's, and the base-change engine
-    (`kw_surgehgf4_hfgkd_bc*`, `:2519–2839`) is a **renamed** copy of D-5's landed
-    `kw_surge_hgf4_bc*` — which is why the statement test sees only four of it: the rest
-    differ in binder spelling (`hfin'`/`ι'` against `hfin₀`/`ι₀`), the same blind spot as
-    the promotion diff.
+    (`:1799–2386`) is a byte-identical copy of D-2's — same construction, second curve.
+
+  **Correction (2026-10-06, found by set D-6's worker and verified).** The base-change
+  engine (`kw_surgehgf4_hfgkd_bc*`, `:2519–2839`) is *not* importable from D-5. It is the
+  **`NoAC` spelling** — no `[IsAlgClosed F]`, no gate instances — and the two-curve descent
+  needs it at `F = K₀`, a subfield that is neither algebraically closed nor gate-equipped.
+  D-5 landed only the `General` twin: `KernelBaseChange.lean:133–141` carries
+  `[IsAlgClosed F] [IsAlgClosed F']` and the four `GenusOnePlaceGate`/`IsCentered`/`AbelTheorem`
+  blocks as section variables, so `kw_surge_hgf4_bcIota₁` cannot be instantiated at `K₀`.
+  This is the same `General`/`NoAC` split D-1 met in the prelude — and D-1 *resolved* it
+  (the `NoAC` name is the primitive, the `General` name a one-line invocation) while D-5's
+  section did not, so the engine now costs D-6 ≈320 lines it could have imported. The
+  statement test could not see this: it matched four of the engine's declarations by type
+  and the rest not at all, because the binders differ (`hfin₀`/`ι₀` against `hfin'`/`ι'`).
+  D-6 transcribes the `NoAC` engine once, `private`, in its own module, and the
+  reconciliation is registered as an open follow-up below.
   - The tail is `s13_stub_ktd`, a twelve-line call into the just-landed
     `isAddCyclic_ker_pointMapOfPushforward_of_baseChange_algHom`, then a twenty-line
     `solution`.
@@ -372,7 +500,8 @@ are repeated in the playbook §2.1; keep the specific instances here.
   and the pin's two-curve case — `ι : E'.FunctionField →ₐ[K] E.FunctionField` between
   *different* curves, `KwD5BetweenCurvesSubfieldDescent` — occurs only in this file (every
   `∃ K₀ …` in the port is one-curve). The new layer is the `hSD_*` / `cfe_*` /
-  `ChiCompChiEqPhi` block, ≈800 lines by hand. **Do not port the file**: generalize D-2's
+  `ChiCompChiEqPhi` block **plus the `NoAC` engine** (the correction above), ≈1.1k lines by
+  hand. **Do not port the file**: generalize D-2's
   landed chain to two curves in place (playbook §2.4, "port the general, derive the
   special" — the descent helpers are already written, `private` in `IntermediateField.lean`,
   so the work is promotion plus a second curve, not transcription), and

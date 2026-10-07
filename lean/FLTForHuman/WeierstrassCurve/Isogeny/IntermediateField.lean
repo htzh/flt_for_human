@@ -233,7 +233,7 @@ private theorem iotaAtom_of_subfieldDescent_of_baseChangeToAC (K : Type uK) [Fie
   obtain ⟨D₀, hD₀deg⟩ := hBC (↥K₀) E₀ ⟨D', hD'deg⟩
   exact ⟨K₀, hfg, E₀, hE₀ell, hE₀map, D₀, hD₀deg⟩
 
-private theorem iotaSubd_countable_of_fg {K : Type uK} [Field K] [Algebra ℚ K]
+theorem iotaSubd_countable_of_fg {K : Type uK} [Field K] [Algebra ℚ K]
     {K₀ : IntermediateField ℚ K} (hfg : K₀.FG) : Countable (↥K₀) := by
   obtain ⟨s, hs⟩ := hfg
   rw [← hs]
@@ -279,7 +279,7 @@ private theorem iA_polyDescend_map (p : Polynomial K) (hmem : ∀ j, p.coeff j �
   exact Finset.sum_congr rfl fun j _ => by
     rw [Polynomial.map_mul, Polynomial.map_C, Polynomial.map_pow, Polynomial.map_X]; rfl
 
-private def iA_crCoeffsIn (c : (E).toAffine.CoordinateRing) : Prop :=
+def iA_crCoeffsIn (c : (E).toAffine.CoordinateRing) : Prop :=
   ∀ (i : Fin 2) (j : ℕ),
     ((CoordinateRing.basis (E).toAffine).repr c i).coeff j ∈ K₀
 
@@ -320,7 +320,9 @@ private theorem iA_phiTranscendental :
     ((transcendental_polyToFunctionField_X (W := (E).toAffine)).restrictScalars
       (R := K₀) (algebraMap K₀ K).injective) p hp
 
-private def iA_phi : E₀.toAffine.FunctionField →ₐ[K₀] (E).toAffine.FunctionField :=
+/-- The descended `K₀`-algebra map `E₀.FunctionField → E.FunctionField` (the pin's
+`kw_iA_phi`), promoted for set D-6: the two-curve descent names it. -/
+def iA_phi : E₀.toAffine.FunctionField →ₐ[K₀] (E).toAffine.FunctionField :=
   pointPullbackHomTo (iA_phiEquation E₀) (iA_phiTranscendental E₀)
 
 private theorem iA_polyToFF_eq_aeval (W : WeierstrassCurve.Affine K) :
@@ -365,7 +367,7 @@ private theorem iA_phiCRCompat (c₀ : E₀.toAffine.CoordinateRing) :
       Polynomial.coe_mapRingHom, Polynomial.map_X]
     rw [pointPullbackCoordHomTo_mk, Polynomial.eval₂_X]; rfl
 
-private theorem iA_ffDescend_exists (x : (E).toAffine.FunctionField)
+theorem iA_ffDescend_exists (x : (E).toAffine.FunctionField)
     (hnum : iA_crCoeffsIn E₀
       (IsLocalization.sec (nonZeroDivisors (E).toAffine.CoordinateRing) x).1)
     (hden : iA_crCoeffsIn E₀
@@ -535,16 +537,16 @@ private def iCa_crCoeffSet (E : WeierstrassCurve K) (c : E.toAffine.CoordinateRi
   ((iCa_crRepr E c 0).support.image (iCa_crRepr E c 0).coeff) ∪
   ((iCa_crRepr E c 1).support.image (iCa_crRepr E c 1).coeff)
 
-private def iCa_ffNum (E : WeierstrassCurve K) (x : E.toAffine.FunctionField) :
+def iCa_ffNum (E : WeierstrassCurve K) (x : E.toAffine.FunctionField) :
     E.toAffine.CoordinateRing :=
   (IsLocalization.sec (nonZeroDivisors E.toAffine.CoordinateRing) x).1
 
-private def iCa_ffDen (E : WeierstrassCurve K) (x : E.toAffine.FunctionField) :
+def iCa_ffDen (E : WeierstrassCurve K) (x : E.toAffine.FunctionField) :
     E.toAffine.CoordinateRing :=
   ((IsLocalization.sec (nonZeroDivisors E.toAffine.CoordinateRing) x).2 :
     E.toAffine.CoordinateRing)
 
-private def iCa_ffCoeffSet (E : WeierstrassCurve K) (x : E.toAffine.FunctionField) :
+def iCa_ffCoeffSet (E : WeierstrassCurve K) (x : E.toAffine.FunctionField) :
     Finset K :=
   iCa_crCoeffSet E (iCa_ffNum E x) ∪ iCa_crCoeffSet E (iCa_ffDen E x)
 
@@ -608,7 +610,7 @@ private scoped instance iCa_E₀_isElliptic : (iCa_E₀ E D).IsElliptic := by
     rw [← WeierstrassCurve.map_Δ, iCa_E₀_map]
   rw [h0, _root_.map_zero] at this; exact E.isUnit_Δ.ne_zero this.symm
 
-private theorem iCa_crCoeffsIn_of_ffCoeffSet_subset (E' : WeierstrassCurve K)
+theorem iCa_crCoeffsIn_of_ffCoeffSet_subset (E' : WeierstrassCurve K)
     (x : E'.toAffine.FunctionField) {K₀' : IntermediateField ℚ K}
     (hsub : (↑(iCa_ffCoeffSet E' x) : Set K) ⊆ K₀') (i : Fin 2) (j : ℕ) :
     ((CoordinateRing.basis E'.toAffine).repr (iCa_ffNum E' x) i).coeff j ∈ K₀' ∧
@@ -802,7 +804,7 @@ private theorem iPFA_isAlgebraic_adjoin_transcendental {g : W.FunctionField}
     (IntermediateField.AdjoinSimple.gen K g)
   rwa [IntermediateField.AdjoinSimple.algebraMap_gen] at h1
 
-private theorem iPFA_finiteDimensional_adjoin_transcendental {g : W.FunctionField}
+theorem iPFA_finiteDimensional_adjoin_transcendental {g : W.FunctionField}
     (hg : Transcendental K g) :
     FiniteDimensional (↥K⟮g⟯) W.FunctionField := by
   classical
@@ -927,7 +929,7 @@ variable (hcoeffs : iA_CoeffsHyp E₀ D)
 local notation3 "E" => E₀.map (algebraMap K₀ K)
 
 
-private theorem iPFE_functionField_ringHom_ext {F : Type*} [Field F] {W : Affine F}
+theorem iPFE_functionField_ringHom_ext {F : Type*} [Field F] {W : Affine F}
     {L : Type*} [Field L] {f g : W.FunctionField →+* L}
     (hF : ∀ r : F, f (algebraMap F W.FunctionField r) = g (algebraMap F W.FunctionField r))
     (hX : f (polyToFunctionField W X) = g (polyToFunctionField W X))
