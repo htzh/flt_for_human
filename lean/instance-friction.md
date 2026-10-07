@@ -26,7 +26,11 @@ Record an entry when *instance search or an instance declaration* is the cost:
   module's cost, or that `--audit` flags as a `scoped instance` candidate.
 
 An ordinary `failed to synthesize` message is a **missing** instance, not
-friction: that is a gap in the library, not a hog. Do not record it here.
+friction: that is a gap in the library, not a hog. Do not record it here — with
+one exception: when the instance *exists* but is keyed on a head the goal cannot
+be seen to match (IF-003: the goal is `foo (bar x)` with `bar` a semireducible
+`def`), the fix is an explicit brick (`inferInstanceAs`/`haveI`), and it belongs
+here.
 
 ## How to detect
 
@@ -49,6 +53,7 @@ One table row per entry; the long form is a section below the table.
 |---|---|---|---|---|---|---|---|---|
 | IF-001 | search | `ModularCurve/Degree/PlaceDegree.lean` | `Algebra.IsAlgebraic (adjoin K {t}) F` from a local `FiniteDimensional` | timeout in the `deg_eq_one_modularFunctionFieldBar` proof | times out at 20000; instant via `of_finite` | the `Algebra.IsAlgebraic` search itself, over an `adjoin` of a large `coeffEmb` subtype term | name the element (`private abbrev jBar`) **and** pass `Algebra.IsAlgebraic.of_finite _ _` | fixed |
 | IF-002 | application | `ModularCurve/JqIntegralRatios.lean` | applying `mem_intFormRatiosC` to build `jqModC K ∈ intFormRatiosC K Γ` | elaboration exceeds a 300 s wall bound | does not finish; anonymous constructor is instant | unification of the `Subgroup`/`mapGL` coercion and implicit weight `k` in the constructor's type | use the anonymous constructor (pin's form); keep the named one public | workaround |
+| IF-003 | search | `WeierstrassCurve/Isogeny/TwoCurveDescent.lean` | `(E₀⁄(↥K₀)).IsElliptic` (and `(E₀⁄K)`) at the base-change engine boundary | search **fails outright** (`failed to synthesize`), then the surrounding engine calls spin | fails at 20000 and at 3200000 alike; instant via `inferInstanceAs` | the instance is keyed on `W.map f`, but the goal writes `E⁄R` — `WeierstrassCurve.baseChange` is a semireducible `def`, invisible to search at reducible transparency | state the instance in the `⁄` spelling, proved by `inferInstanceAs ((E.map (algebraMap R R)).IsElliptic)` (the pin's `scoped instance`, `S_:3566–3568`) | fixed |
 
 **budget** is the cost proxy: the `synthInstance.maxHeartbeats` value at which the
 naive form fails (or the measured seconds, for an instance declaration). Re-measure
@@ -142,6 +147,53 @@ not a compile signal: the naive form does not fail, it fails to finish. A
 `build_ladder.py --friction` run (see below) over
 `FLTForHuman.ModularCurve.JqIntegralRatios` is the mechanical check; the harness
 records the fixed form.
+
+### IF-003 — an instance keyed on a semireducible `def` (`WeierstrassCurve.baseChange`)
+
+**Where.** `FLTForHuman/WeierstrassCurve/Isogeny/TwoCurveDescent.lean`, the two-curve base-change
+engine boundary (`section TwoCurveBcIota`, and `gateDescent_of_descent`).
+
+**Goal.** `(E₀⁄(↥K₀)).IsElliptic` — and its twins `(E₀'⁄(↥K₀))`, `(E₀⁄K)`, `(E₀'⁄K)` — for
+`E₀ : WeierstrassCurve K₀`, `K₀ : IntermediateField ℚ K`, from the ambient `[E₀.IsElliptic]`.
+
+**Symptom.** Not a timeout first: `inferInstance` **fails** —
+`failed to synthesize instance of type class (E⁄R).IsElliptic` — at the default 20000 *and* at
+`synthInstance.maxHeartbeats 3200000`, so the budget is not the lever. The downstream symptom is
+the block of `whnf`/`tactic execution` timeouts at the engine call sites
+(`TwoCurveDescent.lean:842`, `:850`, `:853`, `:1148`–`:1151`).
+
+**Cause.** mathlib supplies `instance : (W.map f).IsElliptic` (`Weierstrass.lean:456`). The port
+writes the curve as `E⁄R`, i.e. `WeierstrassCurve.baseChange E R`, which is a **semireducible
+`def`**; instance search runs at reducible transparency and cannot unfold it, so the instance's
+head `W.map f` never matches `baseChange E R`. The asymmetry is easy to miss because
+`WeierstrassCurve.Affine.baseChange` *is* an `abbrev` (reducible), so the same `W⁄R` notation is
+fine on an `Affine` — which is exactly why the same trap keeps reappearing in different spots.
+
+**Fix.** State the instance at the `⁄` spelling and prove it by naming the `map` spelling, which
+elaborates at *default* transparency:
+
+```lean
+private instance twoCurveBcE₀K₀_isElliptic : (E₀⁄(↥K₀)).IsElliptic :=
+  inferInstanceAs ((E₀.map (algebraMap (↥K₀) (↥K₀))).IsElliptic)
+```
+
+This is the pin's `scoped instance kw_surgehgf4_cfe_instE₀'K₀` / `…_instE₀'K`
+(`S_:3566–3568`), which the port had dropped; four such bridges fix the region.
+
+**Guard.** `IF-003` in [`spec/InstanceFriction.lean`](spec/InstanceFriction.lean): the bridge form
+compiles at the default budget; the naive `inferInstance` form is kept as a comment with its exact
+failure text.
+
+**Resolved (D-6 landed, 2026-10-06).** The same set then met the *generalisation*: the kernel-
+transport seam (`KwD5BetweenCurvesKerTransportAlongEmbed`) carries the gate instances as
+**arguments** (`[GenusOnePlaceGate (E₀⁄F₂).toAffine]`, …), and the caller's are keyed on
+`E₀.map (algebraMap K₀ K)` while the seam wants `(E₀⁄K)`. Two extra rules fell out, both recorded
+in the playbook §6 recipe: (i) the bridge must be `letI`, not `haveI` — `letI` inlines the value,
+so the seam's instance arguments become literally the caller's terms, where `haveI` leaves a
+distinct fvar and the check fails with "synthesized type class instance is not definitionally
+equal"; and (ii) to discharge a `∀ [DecidableEq …]` block against a local `Classical.decEq`
+instance, use the pin's `subst` (`Subsingleton.elim` + `subst`) — proof irrelevance is only
+*propositional*, and `clear` is impossible once an earlier `let` depends on the instance.
 
 ## Backlog (known heavy spots, not yet written up)
 

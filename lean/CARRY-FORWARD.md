@@ -248,7 +248,8 @@ subfield. Found by set D-6 (2026-10-06), whose two-curve descent needs exactly t
 instantiation, and which therefore transcribes the pin's `NoAC` engine privately — ≈320 lines
 the port could have imported.
 
-**Follow-up for a refactor round** (after D-6 lands; do not reopen the module mid-set):
+**Follow-up for a refactor round (now unblocked — D-6 landed 2026-10-06; do not reopen
+`TwoCurveDescent.lean` mid-set):**
 restate the engine's section gate-free (`kw_surge_hgf4_bcTensorIota`, `…bcTensorFracIota`,
 `…bcTensorFracIotaAlg`, `…bcIota₁`, `…bcTensorFracIotaSeam`, `…bcIota₁_{finiteAlong,isIntegral,
 finrankAlong,compat}`), keep the `General` names as one-line invocations of the gate-free
@@ -256,7 +257,11 @@ ones, delete D-6's private copies, and re-point D-6 at the imports. The two D-5 
 statements do not move; their proofs should elaborate unchanged, since a weaker section is
 harmless to a caller that already has the hypotheses. Price the cascade with
 `build_ladder.py --edit` before starting — `KernelBaseChange.lean` is a **leaf**, so the
-cascade should be small.
+cascade should be small. Note also that D-6 landed with the pin's own
+`set_option maxHeartbeats 48000000` / `synthInstance.maxHeartbeats 8000000` on its
+`gateDescent_of_descent` (transcribed from `S_:2882–2885`) and with ≈120 lines of `⁄`-spelling
+instance/`Eq.trans` scaffolding; if the engine promotion happens, re-measure that declaration —
+its budget and scaffolding may fall.
 
 ## Scoping cautions
 

@@ -924,6 +924,75 @@ Every such case is recorded, with a re-runnable guard, in
 [instance-friction.md](instance-friction.md) (`spec/InstanceFriction.lean`); add an
 entry when instance search is the cost, and re-measure it after a mathlib bump.
 
+**Two `Algebra`-like instances in one context is a type error, not a cost.** A
+`letI : Algebra ℚ K := DivisionRing.toRatAlgebra` in a declaration's *statement*
+does **not** agree with an ambient `variable [Algebra ℚ K]`. They are different
+`Algebra` structures, so `K₀ : IntermediateField ℚ K` denotes two different types
+(`@IntermediateField ℚ K … inst✝` vs `… this`) and the failure is a hard
+`Type mismatch` at the `∃`-intro — which downstream reads as `isDefEq`/`whnf`
+noise and gets misdiagnosed as a budget problem. Keep exactly **one**: if the
+statement carries the pin's `letI`, its section must not also carry
+`[Algebra ℚ K]`. Diagnose with a three-line `example` that `rfl`s the two types;
+do not restructure the proof. The pin gets away with mixing because the `letI`
+lives in a `Prop` (`∀ (K) [Field K] …, letI …`) with *no* ambient `[Algebra ℚ K]`,
+and reaches its proof helper only as the implicit instance argument at the call
+site. (Set D-6; `topics/velu/WORKORDER-P3-two-curve-descent.md` §9.)
+
+**An instance keyed on a semireducible `def` is invisible to search.** mathlib
+supplies `instance : (W.map f).IsElliptic`, but a goal written `E⁄R` cannot reach
+it: `WeierstrassCurve.baseChange` is a `def` (unlike `Affine.baseChange`, an
+`abbrev`), so search — which runs at reducible transparency — never unifies
+`baseChange E R` with `W.map f`, and no `maxHeartbeats` /
+`synthInstance.maxHeartbeats` value helps. State the instance in the goal's
+spelling and prove it at the unfolded spelling:
+
+```lean
+private instance … : (E₀⁄(↥K₀)).IsElliptic :=
+  inferInstanceAs ((E₀.map (algebraMap (↥K₀) (↥K₀))).IsElliptic)
+```
+
+This is the pin's `scoped instance … := inferInstanceAs (…)` bridge pattern
+(`S_:3566–3568`): a transcription must carry those bricks over, because dropping
+them turns a one-line bridge into ten engine-call timeouts. Register:
+[instance-friction.md](instance-friction.md) IF-003. The general rule: **when an
+instance's head is a term built by a `def`, search cannot cross that `def`;
+supply the brick explicitly.**
+
+**Recipe: provide the instance by hand, so search never runs.** This is the
+default response to an instance-shaped failure, and it is mechanical:
+
+1. get the exact goal — `set_option trace.Meta.synthInstance true`, or
+   `set_option diagnostics true` on the failing declaration;
+2. `haveI : <the goal, verbatim> := inferInstanceAs (<the same type at the
+   spelling search can handle>)`. A *local* instance is matched by syntactic key
+   before any search, so the cost of the goal drops to zero;
+3. if no instance exists at **any** spelling, the brick must be *proved*, not
+   looked up. The common case is a missing tower:
+   `haveI : IsScalarTower R A C := IsScalarTower.of_algebraMap_eq fun r => by rw
+   [IsScalarTower.algebraMap_apply R K C, IsScalarTower.algebraMap_apply A K C,
+   IsScalarTower.algebraMap_apply R A K]` — one `rw` per known tower. (A circular
+   `rw` of the goal's own tower is the trap that wastes the round; check that each
+   `algebraMap_apply` has its hypothesis before writing it.)
+4. state the `haveI` in the **goal's spelling**. A local instance on the unfolded
+   spelling does not match a goal written with the notation, and search falls
+   through to the same wall.
+5. when the instance itself carries **further instance arguments** (`GenusOnePlaceGate.IsCentred W`
+   carries a `GenusOnePlaceGate W`; `AbelTheorem W` carries both), use `letI` rather than `haveI`
+   for the bridge. `letI` *inlines* the value, so the use site's instance arguments become
+   literally the caller's terms; `haveI` leaves a distinct local fvar and the argument check
+   fails with "synthesized type class instance is not definitionally equal". The same applies to
+   discharging a `∀ [DecidableEq …]` block: the pin's `subst hdec` (with
+   `hdec : instDec = localInstance := Subsingleton.elim _ _`) is what aligns the two, because
+   proof irrelevance is only *propositional* — `clear` cannot do it when an earlier `let`
+   depends on the instance.
+
+Hand bricks are also the durable form: they make the module's instance
+requirements explicit and reviewable, where an implicit search is invisible until
+it times out. What they do **not** fix is keyed rewriting between two spellings
+(`rw`/`erw`) — that is term unification, not typeclass search; only making the
+spellings syntactically equal (or rewriting `⁄`-terms through a `rfl`
+identification) closes it.
+
 **Two declaration-shape facts the checker cannot see.** Unused section variables
 are auto-omitted, so a declaration under `variable (N : ℕ) [NeZero N]` whose body
 never mentions `N` comes out without `[NeZero N]` — transcribe verbatim and check

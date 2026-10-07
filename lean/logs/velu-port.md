@@ -2238,11 +2238,23 @@ byte-exact. Checker: `5980 (313 promoted, 61 renamed) → 5999 (313, 61)`, `0 mi
 
 
 
-## P-3 — the two-curve countable descent (set D-6, **not landed**, 2026-10-06)
+## P-3 — the two-curve countable descent (set D-6, **landed**, 2026-10-06)
+
+**Resolved.** The module now elaborates: `lake env lean -DmaxHeartbeats=4000000` green in
+**4 m 49 s**, `lake build` of the module 9,039 jobs, consumer exit 0, axioms
+`[propext, Classical.choice, Quot.sound]`, no `sorry`, and the checker unmoved at
+`6054 (313, 83), 0/0, 36 own, 6090`. The diagnosis below in "The `baseChange`-at-`R₀` defeq" is
+**superseded** — `WeierstrassCurve.baseChange` is a semireducible `def` in *both* pinned mathlibs,
+so no reducibility difference and no cap raise was involved. The four fixes that landed (one
+`Algebra ℚ K`; the pin's `⁄`-spelling bridges in the goal's exact spelling; intermediate goals
+restated in the plain spelling; the pin's own 48M/8M budget for `gateDescent_of_descent`, plus the
+pin's `subst` for the `DecidableEq` clash and `letI` for the gate-instance bridges) and the method
+(a low-`maxHeartbeats` diagnostic loop) are recorded in
+[../topics/velu/WORKORDER-P3-two-curve-descent.md](../topics/velu/WORKORDER-P3-two-curve-descent.md) §9.
 
 The D row's tail, in
 [../topics/velu/WORKORDER-P3-two-curve-descent.md](../topics/velu/WORKORDER-P3-two-curve-descent.md).
-One new leaf module `WeierstrassCurve/Isogeny/TwoCurveDescent.lean` (1,227 lines) plus a
+One new leaf module `WeierstrassCurve/Isogeny/TwoCurveDescent.lean` (1,299 lines) plus a
 ten-declaration promotion set in `WeierstrassCurve/Isogeny/IntermediateField.lean`; the
 target is
 
@@ -2304,7 +2316,13 @@ to be transcribed here, `private`, at port-own content names, over D-1's `NoAC` 
 (a frozen file is not reopened mid-set; the promotion is a refactor round). Registered as an
 open follow-up in [../CARRY-FORWARD.md](../CARRY-FORWARD.md).
 
-### The `baseChange`-at-`R₀` defeq, and the three instance fixes
+### The `baseChange`-at-`R₀` defeq, and the three instance fixes — **SUPERSEDED**
+
+> The heading and the paragraph below record the third-pass diagnosis. It is **wrong** and kept
+> only as a record of the misdiagnosis: `WeierstrassCurve.baseChange` is a semireducible `def` in
+> both pinned mathlibs (`Weierstrass.lean:236`), `Affine.baseChange` is an `abbrev` in both, and
+> the residue was four port-introduced spelling/instance defects, not a tower-defeq cost. See the
+> "Resolved" note above and the work order's §9.
 
 The pin's two-curve development is written at `F = K₀ = R₀`, so it constantly needs
 `(E₀⁄K₀) ≡ E₀` and `(E₀'⁄K₀) ≡ E₀'`; FLT's `baseChange`/`map` are reducible there, the

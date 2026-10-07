@@ -32,7 +32,7 @@ set_option linter.style.haveILetI false
 
 noncomputable section
 
-open WeierstrassCurve WeierstrassCurve.Affine
+open WeierstrassCurve WeierstrassCurve.Affine AlgebraicCurve Polynomial
 open scoped Polynomial.Bivariate WeierstrassCurve
 
 universe u
@@ -84,7 +84,7 @@ example
 
 /-- `iotaDescentCurve_map_FF` is the `map_map` identity at `E`, and the descended map
 computes on `X` and `yGen`. -/
-example {K : Type u} [Field K] [Algebra ℚ K] {K₀ : IntermediateField ℚ K}
+example {K : Type u} [Field K] [DecidableEq K] [Algebra ℚ K] {K₀ : IntermediateField ℚ K}
     (E : WeierstrassCurve K) [E.IsElliptic] (E₀ : WeierstrassCurve K₀) [E₀.IsElliptic]
     (h : E₀.map (algebraMap K₀ K) = E) :
     E₀.map (algebraMap K₀ E.toAffine.FunctionField)
@@ -101,7 +101,7 @@ example {K : Type u} [Field K] [Algebra ℚ K] {K₀ : IntermediateField ℚ K}
 /-- The transcendental and equation data of `iotaDescentPhi` are the two inputs of the
 descended map: the equation holds by `iotaDescentPhi_equation`, and transcendence is the
 `aeval` injectivity the descent consumes. -/
-example {K : Type u} [Field K] [Algebra ℚ K] {K₀ : IntermediateField ℚ K}
+example {K : Type u} [Field K] [DecidableEq K] [Algebra ℚ K] {K₀ : IntermediateField ℚ K}
     (E : WeierstrassCurve K) [E.IsElliptic] (E₀ : WeierstrassCurve K₀) [E₀.IsElliptic]
     (h : E₀.map (algebraMap K₀ K) = E) :
     (E₀.map (algebraMap K₀ E.toAffine.FunctionField)).toAffine.Equation

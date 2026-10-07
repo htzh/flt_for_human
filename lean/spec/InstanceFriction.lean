@@ -26,6 +26,7 @@
 -/
 import FLTForHuman.ModularCurve.Degree.PlaceDegree
 import FLTForHuman.ModularCurve.JqIntegralRatios
+import FLTForHuman.WeierstrassCurve.Isogeny.IntermediateField
 
 set_option autoImplicit false
 
@@ -91,6 +92,26 @@ not a compile failure, so it cannot be a live command in this file. -/
 example (K : Type*) [Field K] (Γ : Subgroup (Matrix.SpecialLinearGroup (Fin 2) ℤ)) :
     jqModC K ∈ intFormRatiosC K Γ :=
   jqModC_mem_intFormRatiosC K Γ
+
+/-! ## IF-003 — an instance keyed on a semireducible `def` (`WeierstrassCurve.baseChange`)
+
+Search cost: `WeierstrassCurve.baseChange` is a semireducible `def`, so instance
+search cannot unfold `E⁄R` to `E.map (algebraMap R R)` and so cannot reach
+mathlib's `(W.map f).IsElliptic` instance. The pin bridges the two spellings with
+`inferInstanceAs`, which elaborates at default transparency. The register entry has
+the full diagnosis. -/
+
+-- Naive form, for the record — `inferInstance` for the `⁄` spelling fails with:
+--   failed to synthesize instance of type class
+--     (WeierstrassCurve.baseChange E R).IsElliptic
+--
+-- example {R : Type} [Field R] (E : WeierstrassCurve R) [E.IsElliptic] :
+--     (WeierstrassCurve.baseChange E R).IsElliptic := inferInstance
+
+/-- IF-003 guard: the pin's `inferInstanceAs` bridge elaborates at the default budget. -/
+example {R : Type} [Field R] (E : WeierstrassCurve R) [E.IsElliptic] :
+    (WeierstrassCurve.baseChange E R).IsElliptic :=
+  inferInstanceAs ((E.map (algebraMap R R)).IsElliptic)
 
 end InstanceFriction
 

@@ -836,30 +836,56 @@ variable [CharZero (↥K₀)]
 variable [IsDomain ((E₀⁄(↥K₀)).toAffine.FunctionField ⊗[↥K₀] K)]
 variable [IsDomain ((E₀'⁄(↥K₀)).toAffine.FunctionField ⊗[↥K₀] K)]
 
+/- The pin's `scoped instance kw_surgehgf4_cfe_instE₀'K₀` / `…_instE₀'K` bridges
+(`S_:3566–3568`) and their `E₀` twins, which this port dropped. `WeierstrassCurve.baseChange`
+is a semireducible `def`, so instance search cannot unfold `E₀⁄(↥K₀)` to
+`E₀.map (algebraMap (↥K₀) (↥K₀))` and therefore cannot reach mathlib's `(W.map f).IsElliptic`
+instance: `inferInstance : (E⁄R).IsElliptic` fails outright. `inferInstanceAs` names the `map`
+spelling, where the search succeeds. Without these the engine calls at `F = ↥K₀` spin, which is
+what the `:842`/`:850`/`:853` `whnf`/`tactic execution` timeouts are. -/
+private instance twoCurveBcE₀K₀_isElliptic : (E₀⁄(↥K₀)).IsElliptic :=
+  inferInstanceAs ((E₀.map (algebraMap (↥K₀) (↥K₀))).IsElliptic)
+private instance twoCurveBcE₀'K₀_isElliptic : (E₀'⁄(↥K₀)).IsElliptic :=
+  inferInstanceAs ((E₀'.map (algebraMap (↥K₀) (↥K₀))).IsElliptic)
+private instance twoCurveBcE₀K_isElliptic : (E₀⁄K).IsElliptic :=
+  inferInstanceAs ((E₀.map (algebraMap (↥K₀) K)).IsElliptic)
+private instance twoCurveBcE₀'K_isElliptic : (E₀'⁄K).IsElliptic :=
+  inferInstanceAs ((E₀'.map (algebraMap (↥K₀) K)).IsElliptic)
+
 /-- The base change of the descended isogeny is the isogeny it descends: the pin's
 `kw_surgehgf4_cfe_bcIota₁NoAC_eq_ι`. -/
 private theorem twoCurve_bcIota_eq_ι :
     descentBCIota E₀ E₀' (↥K₀) K (twoCurve_ι' E₀ E₀' ι hcoeffs) = ι := by
   set ι' := twoCurve_ι' E₀ E₀' ι hcoeffs with hι'_def
+  -- Restatements at `F = ↥K₀` in the plain spelling: the `⁄`-collapse then happens once, at
+  -- *default* transparency, instead of at every `erw` (which matches at reducible transparency
+  -- and cannot unfold the semireducible `WeierstrassCurve.baseChange` `def`). This is D-2's own
+  -- idiom — `IntermediateField.lean:960–966` (`htmul`) and `:1009–1020` (the `calc` replaced by
+  -- an `Eq.trans` chain) — applied to the pin's `kw_surgehgf4_cfe_bcIota₁NoAC_eq_ι`.
+  have hcompat₀ : ∀ a : E₀'.toAffine.FunctionField,
+      descentBCIota E₀ E₀' (↥K₀) K ι' (functionFieldMapAlongGeneralNoAC E₀' (↥K₀) K a)
+        = functionFieldMapAlongGeneralNoAC E₀ (↥K₀) K (ι' a) :=
+    fun a => descentBCIota_compat E₀ E₀' (↥K₀) K ι' a
+  have hpolyX : functionFieldMapAlongGeneralNoAC E₀' (↥K₀) K
+        (polyToFunctionField ((E₀'.toAffine)⁄(↥K₀)) X)
+      = polyToFunctionField ((E₀'.toAffine)⁄K) X :=
+    functionFieldMapAlongGeneralNoAC_polyToFunctionField_X E₀' (↥K₀) K
+  have hpolyy : functionFieldMapAlongGeneralNoAC E₀' (↥K₀) K (yGen ((E₀'.toAffine)⁄(↥K₀)))
+      = yGen ((E₀'.toAffine)⁄K) :=
+    functionFieldMapAlongGeneralNoAC_yGen E₀' (↥K₀) K
   refine functionField_algHom_ext ?_ ?_
-  · have key : ι (functionFieldMapAlongGeneralNoAC E₀' (↥K₀) K
-          (polyToFunctionField (E₀'⁄(↥K₀)).toAffine X))
-        = descentBCIota E₀ E₀' (↥K₀) K ι'
-            (functionFieldMapAlongGeneralNoAC E₀' (↥K₀) K
-              (polyToFunctionField (E₀'⁄(↥K₀)).toAffine X)) := by
-      erw [descentBCIota_compat, twoCurve_chi_eq_phi_apply E₀, twoCurve_chi_eq_phi_apply E₀']
-      exact twoCurve_phiCompat_apply E₀ E₀' ι hcoeffs _
-    erw [functionFieldMapAlongGeneralNoAC_polyToFunctionField_X] at key
-    exact key.symm
-  · have key : ι (functionFieldMapAlongGeneralNoAC E₀' (↥K₀) K
-          (yGen (E₀'⁄(↥K₀)).toAffine))
-        = descentBCIota E₀ E₀' (↥K₀) K ι'
-            (functionFieldMapAlongGeneralNoAC E₀' (↥K₀) K
-              (yGen (E₀'⁄(↥K₀)).toAffine)) := by
-      erw [descentBCIota_compat, twoCurve_chi_eq_phi_apply E₀, twoCurve_chi_eq_phi_apply E₀']
-      exact twoCurve_phiCompat_apply E₀ E₀' ι hcoeffs _
-    erw [functionFieldMapAlongGeneralNoAC_yGen] at key
-    exact key.symm
+  · exact ((congrArg (descentBCIota E₀ E₀' (↥K₀) K ι') hpolyX.symm).trans
+        (hcompat₀ (polyToFunctionField ((E₀'.toAffine)⁄(↥K₀)) X))).trans
+      (((twoCurve_chi_eq_phi_apply E₀ (ι' (polyToFunctionField ((E₀'.toAffine)⁄(↥K₀)) X))).trans
+        ((twoCurve_phiCompat_apply E₀ E₀' ι hcoeffs (polyToFunctionField ((E₀'.toAffine)⁄(↥K₀)) X)).symm.trans
+          (congrArg ι (twoCurve_chi_eq_phi_apply E₀' (polyToFunctionField ((E₀'.toAffine)⁄(↥K₀)) X))).symm)).trans
+        (congrArg ι hpolyX))
+  · exact ((congrArg (descentBCIota E₀ E₀' (↥K₀) K ι') hpolyy.symm).trans
+        (hcompat₀ (yGen ((E₀'.toAffine)⁄(↥K₀))))).trans
+      (((twoCurve_chi_eq_phi_apply E₀ (ι' (yGen ((E₀'.toAffine)⁄(↥K₀))))).trans
+        ((twoCurve_phiCompat_apply E₀ E₀' ι hcoeffs (yGen ((E₀'.toAffine)⁄(↥K₀)))).symm.trans
+          (congrArg ι (twoCurve_chi_eq_phi_apply E₀' (yGen ((E₀'.toAffine)⁄(↥K₀))))).symm)).trans
+        (congrArg ι hpolyy))
 
 private theorem twoCurve_finrankEq :
     finrankAlong K₀ (twoCurve_ι' E₀ E₀' ι hcoeffs) = finrankAlong K ι := by
@@ -877,7 +903,18 @@ end TwoCurveBcIota
 
 section TwoCurveAssembly
 
-variable {K : Type uK} [Field K] [Algebra ℚ K] [DecidableEq K] [IsAlgClosed K] [CharZero K]
+/- **One `Algebra ℚ K`, not two.** This section's statements install the pin's
+`letI : Algebra ℚ K := DivisionRing.toRatAlgebra`, so it must **not** also carry
+`[Algebra ℚ K]` as a section variable: the two are not definitionally equal, and
+`K₀ : IntermediateField ℚ K` then denotes two different types (`@IntermediateField ℚ K _
+_ inst` vs `… this`), which is a hard `Type mismatch` at the `Exists.intro`, not a
+heartbeat cost. With `[Algebra ℚ K]` dropped, `IntermediateField ℚ K` elaborates at
+`DivisionRing.toRatAlgebra` — the same instance the `letI`s name — so the two agree by
+`rfl`. This mirrors the pin: its `KwD5BetweenCurvesSubfieldDescent` (`S_:2391`) carries the
+`letI` and has no ambient `[Algebra ℚ K]`; the `letI` reaches its proof helper
+(`kw_surgehgf4_hSD_instance_cast`, `S_:3313`, itself in an `[Algebra ℚ K]` section) only as
+the implicit instance argument at the call site. -/
+variable {K : Type uK} [Field K] [DecidableEq K] [IsAlgClosed K] [CharZero K]
 
 /-- The pin's `kw_surgehgf4_hSD_ιMpr`: an isogeny of the models casts to an isogeny of the
 base-changed models along the two model equalities. -/
@@ -1004,24 +1041,28 @@ private theorem twoCurve_chiCompChiEqPhi
     functionFieldMapAlongGeneralNoAC W F₁ K
       (functionFieldMapAlongGeneralNoAC W (↥K₀) F₁ a)
     = iotaDescentPhi (W.map (algebraMap (↥K₀) K)) W rfl a := by
+  haveI : IsScalarTower F₁ K ((W.toAffine)⁄K).FunctionField := inferInstance
+  haveI : IsScalarTower (↥K₀) F₁ ((W.toAffine)⁄K).FunctionField :=
+    IsScalarTower.of_algebraMap_eq fun r => by
+      rw [IsScalarTower.algebraMap_apply (↥K₀) K ((W.toAffine)⁄K).FunctionField,
+          IsScalarTower.algebraMap_apply F₁ K ((W.toAffine)⁄K).FunctionField,
+          IsScalarTower.algebraMap_apply (↥K₀) F₁ K]
   have hcomp : ((functionFieldMapAlongGeneralNoAC W F₁ K).restrictScalars (↥K₀)).comp
         (functionFieldMapAlongGeneralNoAC W (↥K₀) F₁)
       = iotaDescentPhi (W.map (algebraMap (↥K₀) K)) W rfl := by
     refine functionField_algHom_ext ?_ ?_
-    · show (functionFieldMapAlongGeneralNoAC W F₁ K)
-          ((functionFieldMapAlongGeneralNoAC W (↥K₀) F₁)
-            (polyToFunctionField W.toAffine X))
-        = iotaDescentPhi (W.map (algebraMap (↥K₀) K)) W rfl
-            (polyToFunctionField W.toAffine X)
-      rw [functionFieldMapAlongGeneralNoAC_polyToFunctionField_X W (↥K₀) F₁,
-        functionFieldMapAlongGeneralNoAC_polyToFunctionField_X W F₁ K,
-        iotaDescentPhi_X (W.map (algebraMap (↥K₀) K)) W rfl]
-    · show (functionFieldMapAlongGeneralNoAC W F₁ K)
-          ((functionFieldMapAlongGeneralNoAC W (↥K₀) F₁) (yGen W.toAffine))
-        = iotaDescentPhi (W.map (algebraMap (↥K₀) K)) W rfl (yGen W.toAffine)
-      rw [functionFieldMapAlongGeneralNoAC_yGen W (↥K₀) F₁,
-        functionFieldMapAlongGeneralNoAC_yGen W F₁ K,
-        iotaDescentPhi_yGen (W.map (algebraMap (↥K₀) K)) W rfl]
+    · have h0 : functionFieldMapAlongGeneralNoAC W (↥K₀) F₁ (polyToFunctionField W.toAffine X) = polyToFunctionField (W.toAffine⁄F₁) X :=
+          functionFieldMapAlongGeneralNoAC_polyToFunctionField_X W (↥K₀) F₁
+      have h1 : functionFieldMapAlongGeneralNoAC W F₁ K (polyToFunctionField (W.toAffine⁄F₁) X) = polyToFunctionField (W.toAffine⁄K) X :=
+          functionFieldMapAlongGeneralNoAC_polyToFunctionField_X W F₁ K
+      exact ((congrArg (functionFieldMapAlongGeneralNoAC W F₁ K) h0).trans h1).trans
+        (iotaDescentPhi_X (W.map (algebraMap (↥K₀) K)) W rfl).symm
+    · have h0 : functionFieldMapAlongGeneralNoAC W (↥K₀) F₁ (yGen W.toAffine) = yGen (W.toAffine⁄F₁) :=
+          functionFieldMapAlongGeneralNoAC_yGen W (↥K₀) F₁
+      have h1 : functionFieldMapAlongGeneralNoAC W F₁ K (yGen (W.toAffine⁄F₁)) = yGen (W.toAffine⁄K) :=
+          functionFieldMapAlongGeneralNoAC_yGen W F₁ K
+      exact ((congrArg (functionFieldMapAlongGeneralNoAC W F₁ K) h0).trans h1).trans
+        (iotaDescentPhi_yGen (W.map (algebraMap (↥K₀) K)) W rfl).symm
   exact DFunLike.congr_fun hcomp a
 
 end TwoCurveChiCompChiEqPhi
@@ -1031,13 +1072,16 @@ section GateDescent
 
 variable {K : Type uK} [Field K] [DecidableEq K] [IsAlgClosed K] [CharZero K]
 
+set_option maxHeartbeats 48000000
+set_option synthInstance.maxHeartbeats 8000000
+
 /-- The pin's `kw_surgehgf4_hfgkd_hKD_of_kerTransport`, with the pin's `s13GlobalGate` lines
 removed: the gate instances at the two models over the algebraic closure, and at `E`/`E'`
 themselves, are the caller's hypotheses (the headline's own `∀` block). -/
 private theorem gateDescent_of_descent
     (E E' : WeierstrassCurve K) [E.IsElliptic] [E'.IsElliptic]
-    [GenusOnePlaceGate E] [GenusOnePlaceGate.IsCentred E] [AbelTheorem E]
-    [GenusOnePlaceGate E'] [GenusOnePlaceGate.IsCentred E'] [AbelTheorem E']
+    [hGE : GenusOnePlaceGate E] [hGEC : GenusOnePlaceGate.IsCentred E] [hGA : AbelTheorem E]
+    [hGE' : GenusOnePlaceGate E'] [hGEC' : GenusOnePlaceGate.IsCentred E'] [hGA' : AbelTheorem E']
     (ι : E'.toAffine.FunctionField →ₐ[K] E.toAffine.FunctionField)
     (hι : ι.toRingHom.IsIntegral) (hfin : FiniteAlong K ι)
     (hN : NormFormulaAlong K ι hfin) (N : ℕ) [NeZero N]
@@ -1064,16 +1108,20 @@ private theorem gateDescent_of_descent
         IsAddCyclic (pointMapOfPushforward ι₀ hι₀ hfin₀ hN₀).ker ∧
           Nat.card (pointMapOfPushforward ι₀ hι₀ hfin₀ hN₀).ker = N := by
   subst hE₀map; subst hE₀'map
-  haveI : DecidableEq (AlgebraicClosure (↥K₀)) := Classical.decEq _
+  haveI hdecAC : DecidableEq (AlgebraicClosure (↥K₀)) := Classical.decEq _
   haveI : CharZero (AlgebraicClosure (↥K₀)) :=
     charZero_of_injective_algebraMap (algebraMap (↥K₀) (AlgebraicClosure (↥K₀))).injective
   haveI : DecidableEq (↥K₀) := Classical.decEq _
   haveI : CharZero (↥K₀) :=
     charZero_of_injective_algebraMap (algebraMap ℚ (↥K₀)).injective
-  haveI hE₀K₀ : (E₀⁄(↥K₀)).IsElliptic := inferInstance
-  haveI hE₀'K₀ : (E₀'⁄(↥K₀)).IsElliptic := inferInstance
-  haveI hE₀K : (E₀⁄K).IsElliptic := inferInstance
-  haveI hE₀'K : (E₀'⁄K).IsElliptic := inferInstance
+  haveI hE₀K₀ : (E₀⁄(↥K₀)).IsElliptic :=
+    inferInstanceAs ((E₀.map (algebraMap (↥K₀) (↥K₀))).IsElliptic)
+  haveI hE₀'K₀ : (E₀'⁄(↥K₀)).IsElliptic :=
+    inferInstanceAs ((E₀'.map (algebraMap (↥K₀) (↥K₀))).IsElliptic)
+  haveI hE₀K : (E₀⁄K).IsElliptic :=
+    inferInstanceAs ((E₀.map (algebraMap (↥K₀) K)).IsElliptic)
+  haveI hE₀'K : (E₀'⁄K).IsElliptic :=
+    inferInstanceAs ((E₀'.map (algebraMap (↥K₀) K)).IsElliptic)
   haveI hdom : IsDomain ((E₀⁄(↥K₀)).toAffine.FunctionField ⊗[↥K₀] (AlgebraicClosure (↥K₀))) :=
     functionFieldTensorIsDomain_dischargeGeneralNoAC E₀ (↥K₀) (AlgebraicClosure (↥K₀))
   haveI hdom' : IsDomain ((E₀'⁄(↥K₀)).toAffine.FunctionField ⊗[↥K₀] (AlgebraicClosure (↥K₀))) :=
@@ -1104,6 +1152,14 @@ private theorem gateDescent_of_descent
         (functionFieldMapAlongGeneralNoAC E₀' (↥K₀) (AlgebraicClosure (↥K₀)) a)
       = iotaDescentPhi (E₀'.map (algebraMap (↥K₀) K)) E₀' rfl a :=
     fun a => twoCurve_chiCompChiEqPhi E₀' (AlgebraicClosure (↥K₀)) a
+  have hpolyX_ac : functionFieldMapAlongGeneralNoAC E₀' (↥K₀) (AlgebraicClosure (↥K₀))
+        (polyToFunctionField (E₀'⁄(↥K₀)).toAffine X)
+      = polyToFunctionField (E₀'⁄(AlgebraicClosure (↥K₀))).toAffine X :=
+    functionFieldMapAlongGeneralNoAC_polyToFunctionField_X E₀' (↥K₀) (AlgebraicClosure (↥K₀))
+  have hpolyy_ac : functionFieldMapAlongGeneralNoAC E₀' (↥K₀) (AlgebraicClosure (↥K₀))
+        (yGen (E₀'⁄(↥K₀)).toAffine)
+      = yGen (E₀'⁄(AlgebraicClosure (↥K₀))).toAffine :=
+    functionFieldMapAlongGeneralNoAC_yGen E₀' (↥K₀) (AlgebraicClosure (↥K₀))
   have hχ : ∀ x : (E₀'⁄(AlgebraicClosure (↥K₀))).toAffine.FunctionField,
       ι (functionFieldMapAlongGeneralNoAC E₀' (AlgebraicClosure (↥K₀)) K x)
         = functionFieldMapAlongGeneralNoAC E₀ (AlgebraicClosure (↥K₀)) K (ι₀ x) := by
@@ -1139,8 +1195,11 @@ private theorem gateDescent_of_descent
             = functionFieldMapAlongGeneralNoAC E₀ (AlgebraicClosure (↥K₀)) K
               (ι₀ (functionFieldMapAlongGeneralNoAC E₀' (↥K₀) (AlgebraicClosure (↥K₀))
                 (polyToFunctionField (E₀'⁄(↥K₀)).toAffine X))) := by
-          erw [hD3, hχΦE, hχΦE']; exact hcompat _
-        erw [functionFieldMapAlongGeneralNoAC_polyToFunctionField_X] at key
+          exact ((congrArg ι (hχΦE' (polyToFunctionField (E₀'⁄(↥K₀)).toAffine X))).trans (hcompat (polyToFunctionField (E₀'⁄(↥K₀)).toAffine X))).trans
+            (((hχΦE (ι' (polyToFunctionField (E₀'⁄(↥K₀)).toAffine X))).symm).trans
+              (congrArg (functionFieldMapAlongGeneralNoAC E₀ (AlgebraicClosure (↥K₀)) K)
+                (hD3 (polyToFunctionField (E₀'⁄(↥K₀)).toAffine X))).symm)
+        rw [hpolyX_ac] at key
         exact key)
       (by
         have key : ι (functionFieldMapAlongGeneralNoAC E₀' (AlgebraicClosure (↥K₀)) K
@@ -1149,12 +1208,25 @@ private theorem gateDescent_of_descent
             = functionFieldMapAlongGeneralNoAC E₀ (AlgebraicClosure (↥K₀)) K
               (ι₀ (functionFieldMapAlongGeneralNoAC E₀' (↥K₀) (AlgebraicClosure (↥K₀))
                 (yGen (E₀'⁄(↥K₀)).toAffine))) := by
-          erw [hD3, hχΦE, hχΦE']; exact hcompat _
-        erw [functionFieldMapAlongGeneralNoAC_yGen] at key
+          exact ((congrArg ι (hχΦE' (yGen (E₀'⁄(↥K₀)).toAffine))).trans (hcompat (yGen (E₀'⁄(↥K₀)).toAffine))).trans
+            (((hχΦE (ι' (yGen (E₀'⁄(↥K₀)).toAffine))).symm).trans
+              (congrArg (functionFieldMapAlongGeneralNoAC E₀ (AlgebraicClosure (↥K₀)) K)
+                (hD3 (yGen (E₀'⁄(↥K₀)).toAffine))).symm)
+        rw [hpolyy_ac] at key
         exact key)
     exact fun x => DFunLike.congr_fun hext x
   refine ⟨ι₀, hι₀, hfin₀, ?_⟩
   intro instDec gE gEC ga gE' gEC' ga' hN₀
+  have hdec_eq : instDec = hdecAC := Subsingleton.elim instDec hdecAC
+  subst hdec_eq
+  -- the caller's gate instances (on `E = E₀.map …`) restated at the `⁄K` spelling the
+  -- kernel-transport seam consumes.
+  letI : GenusOnePlaceGate (E₀⁄K).toAffine := hGE
+  letI : GenusOnePlaceGate.IsCentred (E₀⁄K).toAffine := hGEC
+  letI : AbelTheorem (E₀⁄K).toAffine := hGA
+  letI : GenusOnePlaceGate (E₀'⁄K).toAffine := hGE'
+  letI : GenusOnePlaceGate.IsCentred (E₀'⁄K).toAffine := hGEC'
+  letI : AbelTheorem (E₀'⁄K).toAffine := hGA'
   have hcyc' : IsAddCyclic (pointMapOfPushforward ι hι hfin
       (normFormulaAlong_of_elliptic ι hfin)).ker :=
     (Subsingleton.elim hN (normFormulaAlong_of_elliptic ι hfin)) ▸ hcyc

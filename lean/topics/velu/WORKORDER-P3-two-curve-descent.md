@@ -1,23 +1,30 @@
 # P-3 work order — the two-curve countable descent (set D-6)
 
-**Status: dispatched 2026-10-06; verification is complete and the set did NOT land. Do not
-re-dispatch and do not re-derive it.** The statements are faithful and mechanically checked
-(`6054 identical (313 promoted, 83 renamed), 0 mismatched, 0 missing, 37 own, 6091 checked`,
-exit 0, reconciling exactly against the `6037 (313, 67), 0/0, 36 own, 6073` baseline); the
-proof does not elaborate, blocked on one structural fact recorded in §9 (the pin's
-tower-at-`R₀` defeq cost, which the pin pays for with 6.4M/19.2M heartbeats and the port's
-frozen 4,000,000 cap does not cover). `FLTForHuman/WeierstrassCurve/Isogeny/TwoCurveDescent.lean`
-(1,227 lines) is **deliberately left in the tree** so the verified statements stay checked —
-therefore `lake build` is **red on exactly that one target** and green everywhere else; that is
-an expected state, not a regression. `spec/TwoCurveDescentConsumer.lean` and the
-`spec/check_flt_statements.py` wiring
-exist; the headline is at `:1188` and the D-5 seam is reused at `:1169`. The promotion pass in
+**Status: LANDED 2026-10-06 (fourth pass).** The statements are faithful and mechanically
+checked — `6054 identical (313 promoted, 83 renamed), 0 mismatched, 0 missing, 36 own, 6090
+checked`, exit 0 (the `37 own, 6091` figure first written here is stale; the current checker gives
+`36/6090` on the pristine tree too) — and the module now **elaborates**:
+`lake env lean -DmaxHeartbeats=4000000` is green in **4 m 49 s**; `lake build
+FLTForHuman.WeierstrassCurve.Isogeny.TwoCurveDescent` completes (9,039 jobs);
+`spec/TwoCurveDescentConsumer.lean` exits 0; `#print axioms` on the headline and on
+`ModularCurve.exists_twoCurveDescent` both give `[propext, Classical.choice, Quot.sound]`; no
+`sorry`. **The earlier "tower-at-`R₀` defeq / frozen-4,000,000-cap" reading is withdrawn** — both
+*pinned* mathlib checkouts define `WeierstrassCurve.baseChange` identically as a semireducible
+`def` and `Affine.baseChange` as an `abbrev`, and the one-line escapes (`local reducible` under
+`allowUnsafeReducibility`, `respectTransparency false`) were probed and fail. §9 records the
+diagnosis, the four fixes that landed, the three *previously-masked* defects they exposed, and the
+method that made it affordable (a low-`maxHeartbeats` diagnostic loop; restating intermediate
+goals in the plain spelling instead of rewriting `⁄`). One declaration,
+`gateDescent_of_descent`, carries the pin's own budget — `set_option maxHeartbeats 48000000` /
+`synthInstance.maxHeartbeats 8000000`, transcribed from `kw_surgehgf4_hfgkd_hKD_of_kerTransport`
+(`S_:2882–2885`); that is a fidelity fix, not a cap exception, and it is where the 4 m 49 s goes.
+`FLTForHuman/WeierstrassCurve/Isogeny/TwoCurveDescent.lean` is 1,299 lines and `lake build` is
+green. `spec/TwoCurveDescentConsumer.lean` and the `spec/check_flt_statements.py` wiring
+exist; the headline is at `:1255` and the D-5 seam is reused at `:1236`. The promotion pass in
 `IntermediateField.lean` landed 10 helpers (`iA_crCoeffsIn`, `iA_phi`, `iA_ffDescend_exists`,
 `iCa_ffNum`, `iCa_ffDen`, `iCa_ffCoeffSet`, `iCa_crCoeffsIn_of_ffCoeffSet_subset`,
 `iPFA_finiteDimensional_adjoin_transcendental`, `iPFE_functionField_ringHom_ext`,
-`iotaSubd_countable_of_fg`). **§9's close-out is pending the worker's measured numbers** —
-the checker delta, `#print axioms`, the consumer's exit and wall time, and the build figures.
-Whoever picks this up should read the working tree, not restart the set. Pin
+`iotaSubd_countable_of_fg`). Pin
 `anthropics/fermats-last-theorem@aa2d8b3`;
 port mathlib `v4.34.0`. Depends on the P-2 column, all landed: D-1 (`Isogeny/BaseChange.lean`),
 D-2 (`Isogeny/IntermediateField.lean`), D-5 (`Isogeny/KernelBaseChange.lean`). Method:
@@ -379,44 +386,216 @@ landing record.** What is measured and green:
   [../../../notes/lean-build-cost.md](../../../notes/lean-build-cost.md) §2, with the lesson
   that a *failing* check can exceed the recorded per-file bounds.
 
-**What is missing, and why — final diagnosis (2026-10-06, worker's report + the tree).** The
-three missing/bound items are all fixed and the `universe u` line is in (`:70` now reads
-`universe u uK`); those fixes collapsed 25 of the original errors. **The residue is one
-structural fact, and it is the thing to debug next:**
+**What is missing, and why — corrected and probe-confirmed (2026-10-06, second pass).** The
+three missing/bound items are fixed and the `universe u` line is in (`:70` reads
+`universe u uK`); those fixes collapsed 25 of the original errors. **The earlier
+"tower-at-`R₀` defeq / frozen-4,000,000-cap" reading is WITHDRAWN — it rests on a false premise
+and points at the wrong lever.** Verified against both *pinned* mathlib checkouts: the pin
+(`aa2d8b3` → mathlib `db584cd6`) and the port (mathlib `v4.34.0` = `5ed2965256`) define
+`WeierstrassCurve.baseChange` **identically as a semireducible `def`** (`Weierstrass.lean:236`)
+and `WeierstrassCurve.Affine.baseChange` identically as a reducible `abbrev`
+(`Affine/Basic.lean:264`). There is no reducibility difference, so neither a cap exception nor
+"restructure the tower cost" can address the cause.
 
-> The pin's two-curve development is written at `F = K₀ = R₀`, so it constantly needs
-> `(E₀⁄K₀) ≡ E₀` and `(E₀'⁄K₀) ≡ E₀'`. FLT's `baseChange`/`map` are reducible there; the
-> port's are not. The cost is cumulative across the region, and the pin pays for it with
-> `maxHeartbeats 6400000` / `19200000` and `synthInstance.maxHeartbeats 3200000` at exactly
-> these sites — the port's frozen 4,000,000 does not cover it.
+**The cause is two defects this port introduced**, each reproducible in isolation at the pin's
+*own* budget (`lake env lean -DsynthInstance.maxHeartbeats=3200000 -DmaxHeartbeats=6400000`) —
+i.e. they are **not** budget starvation. The two minimal probes, quoted verbatim:
 
-The surviving sites in the shipped revision (line numbers from the whole-tree build):
-`:842`, `:850`, `:853`, `:912` (the `finrankAlong` path at `F = K₀`); `:937`/`:938` (the
-`letI : Algebra ℚ K := DivisionRing.toRatAlgebra` in the statement against the ambient
-`Algebra ℚ K` at `Exists.intro`); `:1007` (a missing `IsScalarTower (↥K₀) F₁ (W⁄K).FunctionField`
-in `twoCurve_chiCompChiEqPhi`); `:1034` (`whnf`, after the pin's 19,200,000-heartbeat
-`chiCompChiEqPhi` proof was already replaced by a three-line `functionField_algHom_ext` at the
-`W.FF` level — that replacement worked and removed the 19.2M argument); `:1142`–`:1145` (the
-`hχ` block of `gateDescent_of_descent`); `:953`/`:1183` are `unknown constant` cascades.
-`maxHeartbeats` was never raised and no statement was touched after the checker run. One
-restructuring that *did* work is worth copying: D-2's `iPFA_finiteAlong` copy blew the instance
-budget with the two-curve section variables, and generalising it to
-`finiteAlong_pointPullbackHomTo` at the abstract carriers `F/W/L` made it instant.
+```lean
+-- (1) duplicate instance: section `variable {K} [Field K] [Algebra ℚ K] [CharZero K]`
+example (K₀ : IntermediateField ℚ K) :
+    letI : Algebra ℚ K := DivisionRing.toRatAlgebra
+    ∃ (K₁ : IntermediateField ℚ K), K₁ = K₀ := by
+  letI : Algebra ℚ K := DivisionRing.toRatAlgebra
+  exact ⟨K₀, rfl⟩   -- ✘ Type mismatch: inst✝¹ (section) vs this (the letI)
+-- with only the default instance, `:= ⟨K₀, rfl⟩` is ✔
 
-**Debugging recipe for the next session.** (1) Re-run the checker first — statements are
-settled at `6054 (313, 83), 0/0, 37 own, 6091`, so any change that moves a statement is wrong.
-(2) Take one site, preferably `:912` or `:1034`, into `tmp/Scratch.lean` and probe *why* the
-unification is expensive rather than where: the two candidate root causes are (a)
-`WeierstrassCurve.baseChange`/`map` not being `@[reducible]`-enough at `R₀` (the worker measured
-`(W⁄R) = W := rfl` and `(W⁄R).toAffine.FunctionField = W.toAffine.FunctionField := rfl` as
-*rfl*, so the terms agree but the elaborator's `isDefEq` is not using that), and (b) the
-`Algebra ℚ K` instance stack (`:937`/`:938` look like an instance-identity problem, not a defeq
-one). (3) Only if a probe shows genuine compute — not a too-tight unification — consider a
-reasoned cap exception, which the standing rule forbids otherwise. **SC depends on this
-headline's proof**: the S row's S-1…S-4 do not, but the capstone does, so D-6 has to close
-before SC, not before the rest of row S.
+-- (2) spelling: `open scoped WeierstrassCurve TensorProduct`
+example {K₀ K : Type} [Field K₀] [Field K] [Algebra K₀ K] (E₀ : WeierstrassCurve K₀)
+    [IsDomain (E₀.toAffine.FunctionField ⊗[K₀] K)] :
+    IsDomain ((E₀⁄K₀).toAffine.FunctionField ⊗[K₀] K) := inferInstance  -- ✘ synthInstanceFailed
+```
 
-**The friction finding to write up** is "**a missing instance reads as a heavy proof**" (three
-missing instances and one unbound universe produced ten `whnf`/`isDefEq` timeouts and two type
-mismatches), and its successor here: "**a non-reducible `baseChange` reads as a heartbeat
-blow-up**".
+1. **A duplicate `Algebra ℚ K` instance.** `section TwoCurveAssembly`
+   (`TwoCurveDescent.lean:880`) carries `[Algebra ℚ K]`, and `twoCurveDescentInstance`'s
+   *statement* installs `letI : Algebra ℚ K := DivisionRing.toRatAlgebra` (`:926`, again `:935`);
+   `exists_twoCurveDescent` (`:957`) does the same. The pin's counterpart
+   (`kw_surgehgf4_hSD_instance_cast`, `S_:3313`) has **no `letI` in its statement** — the `letI`
+   belongs to the `KwD5BetweenCurvesSubfieldDescent` *Prop* (`S_:2391`), not to its proof helper.
+   The two instances give two *different* `IntermediateField ℚ K` types, refuted by `rfl`:
+
+   > `K₀ has type @IntermediateField ℚ K Rat.instField inst✝² inst✝¹`
+   > `but is expected to have type @IntermediateField ℚ K Rat.instField inst✝² this`
+
+   That is exactly the `:937`/`:938` pair (`Type mismatch` / "synthesized type class instance is
+   not definitionally equal to expression inferred by typing rules"), and every downstream
+   `K₀ : IntermediateField ℚ K`, `K₀.FG`, `(K₀ : Set K)` and `finrankAlong K₀` inherits it.
+
+2. **`(E₀⁄(↥K₀))` written where the pin writes `E₀`.** The pin's entire two-curve region
+   (`S_:3114–3385`) contains **zero** `⁄`. The port's private helpers write `(E₀⁄(↥K₀))` /
+   `(E₀'⁄(↥K₀))` / `(E₀⁄(AlgebraicClosure (↥K₀)))` at 18 sites
+   (`TwoCurveDescent.lean:836,837,846,849,855,858,919,920,978,980,1073,1074,1077,1079,1138,1141,1148,1151`),
+   while the call sites supply those instances in the plain `E₀`/`map` spelling. `E₀⁄R = E₀` is
+   `rfl` at default transparency but **fails at reducible transparency** — which is what `isDefEq`,
+   instance search and `erw` use — and it fails at the pin's budget too:
+
+   > `failed to synthesize instance of type class IsDomain ((E₀⁄K₀).toAffine.FunctionField ⊗[K₀] K)`
+
+   with a plain-spelling `IsDomain` binder *in scope*. That is the `:912`/`:919` `IsDomain`
+   binder, the `:1007` missing `IsScalarTower (↥K₀) F₁ (W⁄K).FunctionField`, and the
+   `whnf`/`isDefEq` residue at `:842`/`:850`/`:853`/`:1034`/`:1148`–`:1151`.
+
+**Confirmed at module scale, pre-fix.** The unchanged module, truncated at `end TwoCurveAssembly`
+and checked at the pin's own budget, still fails: **7 error sites, wall 10 m 42 s**
+(`user 21 m 40 s`). Translated back to the shipped file's line numbers they are the same sites
+§9 already names: `:842`/`:850`/`:853` (`twoCurve_bcIota_eq_ι`), `:912` (`whnf`, the `IsDomain`
+statement), `:937` `Application type mismatch` and `:938` "synthesized type class instance is not
+definitionally equal …" (the `Exists.intro` under the duplicate `Algebra ℚ K`), and the `:953`
+cascade. Raising the cap from 4,000,000 to 6,400,000 *did* remove the instance-family errors
+(14 sites → 7), so the budget omission is real but partial; **not one of the type-level sites
+moved**. The cap is not the fix.
+
+**Remedy, applied and measured (2026-10-06, third pass).**
+
+1. **Single `Algebra ℚ K` — DONE, and it worked.** `section TwoCurveAssembly` (the section whose
+   statements carry the `letI`s) dropped its `[Algebra ℚ K]` section variable, so
+   `IntermediateField ℚ K` elaborates at `DivisionRing.toRatAlgebra` throughout it. Measured:
+   the `:937` `Type mismatch`, the `:938` "instance is not definitionally equal", the `:912`
+   `whnf` on the `IsDomain` statement and the `:953` cascade are **gone** (14 error sites → 9).
+   The checker is unmoved by this and by item 2: it reports
+   `6054 statements identical (313 promoted, 83 renamed), 0 mismatched, 0 missing, 36 own, 6090
+   checked` on the edited tree *and* on the pristine `HEAD` tree — so the `37 own, 6091` figure
+   written earlier in this order is stale and must not be used as a baseline.
+2. **The pin's `⁄`-spelling instance bridges — DONE, and they were not enough.** Four
+   `private instance … := inferInstanceAs (…)` bridges were added in `section TwoCurveBcIota`,
+   and the `inferInstance`s in `gateDescent_of_descent` re-spelled the same way. The result:
+   `twoCurve_bcIota_eq_ι` still times out (`:858`/`:866`/`:869`); `twoCurve_chiCompChiEqPhi` still
+   fails to synthesize `IsScalarTower (↥K₀) F₁ (W⁄K).FunctionField` (`:1034`) and still `whnf`s at
+   `:1061`; the `hχ` block still times out (`:1173`/`:1175`/`:1176`), then the `:1214` cascade.
+
+   **So the set still has not landed, and the check is slower after the two edits:
+   `lake env lean` at the project's 4,000,000 cap is now 14 m 41 s (user 14 m 00 s) for the full
+   module, against 9 m 11 s for the same file at the same cap before either edit.** The
+   attribution is not certain — the surviving `erw` sites are a different (smaller) set, and a
+   failing `erw` burns hearts by brute force, so the cost tracks *which* steps fail, not simply
+   how many. What the number does settle is that no cap or bridge makes this leaf cheap.
+
+**What the residue actually is.** Every surviving site is one mechanism: a proof step or an
+instance has to unify a term written `E⁄(↥K₀)` with one written `E` / `E.map (algebraMap (↥K₀)
+(↥K₀))`, at **reducible** transparency. `erw` patterns and typeclass search both run there, and
+`WeierstrassCurve.baseChange` is a semireducible `def`, so neither can unfold it — at any budget.
+Two one-line escapes were probed and both fail: `attribute [local reducible]` requires
+`set_option allowUnsafeReducibility true` (a hack that perturbs `simp`/instance indexing), and
+`backward.isDefEq.respectTransparency false` does not reach instance search.
+
+**The fix that addresses it at the source** is not more bridges: it is to stop writing `⁄` in the
+port's **own** private transcriptions. `section DescentEngine` and the two-curve helpers are
+port-own `private` declarations — the pin's checked public statements (the six `iotaDescent*` and
+the headline) are elsewhere and none of them moves — and `E₀⁄F` is pure sugar for
+`E₀.map (algebraMap R₀ F)`. Writing the `map` spelling everywhere makes the two spellings
+*syntactically equal*, which removes the class: instance search finds `(W.map f).IsElliptic`,
+`rw`/`erw` key-match, and no unification has to unfold a `def`. Cost: a spelling refactor over the
+`⁄` sites (the engine region plus ~18 two-curve sites), plus explicit conversion wherever an
+imported D-1/D-5 helper forces the `⁄` head, which must be checked rather than assumed.
+
+**The cheaper and better-founded variant — restate the intermediate goals.** D-2 met exactly this
+wall and recorded the idiom. `IntermediateField.lean:960–966` restates a `⁄`-spelled generic
+lemma's conclusion in the plain spelling:
+
+```lean
+have htmul : ∀ (a : E₀.toAffine.FunctionField) (c : K),
+    tensorIotaRingHomGeneralNoAC E₀ (K₀ : Type uK) K D₀ (a ⊗ₜ[K₀] c) = (ι₀ a) ⊗ₜ[K₀] c :=
+  fun a c => tensorIotaRingHomGeneralNoAC_tmul E₀ (K₀ : Type uK) K D₀ a c
+```
+
+with the comment "the raw `rw […]` cannot unify the two spellings", and `:1009–1020` replaces the
+pin's `calc` with an explicit `Eq.trans` chain because "a `calc` step would have to unify
+`(E).toAffine.FunctionField` with `(E₀⁄K).FunctionField`, which is a semireducible `baseChange`
+unfolding, at too low a transparency". Two reasons it works, and both matter:
+
+* the restatement's own proof is a **single direct application**, elaborated at the *default*
+  transparency, where `E₀⁄(↥K₀) = E₀` is `rfl` (probe-verified);
+* its statement is in the plain spelling, so at the *use* site the `⁄`-term becomes a
+  **metavariable** in the `rw` pattern — the rewrite *assigns* it instead of having to unify it.
+
+So the residue is fixed by restating `descentBCIota_compat`,
+`functionFieldMapAlongGeneralNoAC_polyToFunctionField_X`/`_yGen` and the `ChiCompChiEqPhi`
+compositions at `F = ↥K₀` in the plain spelling, and using `rw`/`Eq.trans` instead of `erw`. This
+is confined to `private` proofs — checker-neutral — and does not touch the engine, which makes it
+strictly preferable to the spelling refactor as a first move. What it does not fix is the
+statement-elaboration cost (`:1061`) and the genuinely missing instance (`:1034`); those take the
+hand bricks above.
+
+**Measured: a low cap turns the diagnostic into a bounded loop.** `lake env lean
+-DmaxHeartbeats=200000` reports the full error map in **2 m 30 s**, and `1000000` in **5 m 22 s**,
+against **14 m 41 s** at the project's 4 000 000 — same target sites, plus the engine's own heavy
+declarations timing out (which are cap artefacts, identifiable because they sit at `:213–:452`).
+Iterate the fix in a `tmp/` copy under that cap, then confirm once at 4 000 000. The caveat is
+real: at low caps the engine declarations fail, so downstream contexts are degraded and some
+errors are spurious — read the target lines, not the count.
+
+**Restatement validated in situ (2026-10-06, fourth pass).** With the low-cap loop, the
+restatement technique cleared two of the three `erw` groups — `twoCurve_bcIota_eq_ι`
+(`:858`/`:866`/`:869`) and the `hχ` block of `gateDescent_of_descent`
+(`:1173`/`:1175`/`:1176`) — and the edits are **in the tree** now (`hcompat₀`/`hpolyX`/`hpolyy`
+and `hpolyX_ac`/`hpolyy_ac`). The residue is three, and two are instance-keying rather than
+unification:
+
+* the genuinely missing `IsScalarTower (↥K₀) F₁ (W⁄K).FunctionField` — the hand brick must be
+  stated in the goal's **exact** spelling (`(W.toAffine⁄K).FunctionField`, not
+  `(W.map (algebraMap (↥K₀) K)).toAffine.FunctionField`): instance search matches local instances
+  by syntactic key, so a brick in the wrong spelling is invisible;
+* a `DecidableEq (AlgebraicClosure K₀)` identity clash at the final
+  `kerTransport_s17` application in `gateDescent_of_descent` ("synthesized type class instance is
+  not definitionally equal … synthesized `inst✝` / inferred `this✝⁵`") — the proof's local
+  `haveI := Classical.decEq _` and the `∀ [DecidableEq …]` binder it later `intro`s are two
+  different terms. This was **masked** before the `hχ` restatement: the declaration failed
+  earlier, so this error was never reached. It is the same class as the withdrawn
+  `s13DecEqAlgebraicClosure` note in §3, one level down;
+* the statement-level `whnf` at `:1061`.
+
+**Resolution — landed (2026-10-06, fifth pass).** All three residue items are fixed, each by a
+device the pin already had:
+
+* `IsScalarTower (↥K₀) F₁ (W⁄K).FunctionField` — a `haveI` brick stated **in the goal's
+  spelling** (`((W.toAffine)⁄K).FunctionField`), proved by `inferInstance` for the `F₁ → K → B`
+  tower plus `IsScalarTower.of_algebraMap_eq` and three `rw [IsScalarTower.algebraMap_apply …]`.
+  The earlier attempt in the `map` spelling was invisible to search — the "state it in the goal's
+  spelling" rule, live. The brick then exposed two `show`/`rw` patterns in
+  `twoCurve_chiCompChiEqPhi` that had been masked; those are restated in the plain spelling
+  (`h0`/`h1` + an `Eq.trans` chain).
+* the `DecidableEq (AlgebraicClosure K₀)` clash — the pin's `subst` device: name the local
+  instance `hdecAC`, then after `intro instDec …` do
+  `have hdec_eq : instDec = hdecAC := Subsingleton.elim _ _; subst hdec_eq`. (`clear hdecAC`
+  cannot work — `ι₀` depends on it; and proof irrelevance is only *propositional*, not the
+  definitional equality the instance argument needs, so §3's "`subst` is unnecessary" note was
+  wrong at the elaborator level.)
+* the statement-level `whnf` — the pin's own `set_option maxHeartbeats 48000000` /
+  `synthInstance.maxHeartbeats 8000000` for `kw_surgehgf4_hfgkd_hKD_of_kerTransport`
+  (`S_:2882–2885`), transcribed. Not a port error, not a cap exception.
+
+The last item exposed the final defect, also masked: `pointMapOfPushforward` and
+`KwD5BetweenCurvesKerTransportAlongEmbed` carry the gate instances as *arguments*, and the
+caller's are on `E₀.map …` while the seam wants `(E₀⁄K)`. The bridges must be `letI` — which
+*inlines* the value, so the seam's instance arguments become literally the caller's terms —
+rather than `haveI`. Final state: module `lake env lean` green at 4,000,000 in **4 m 49 s**;
+`lake build` of the module 9,039 jobs; consumer exit 0; axioms
+`[propext, Classical.choice, Quot.sound]`; no `sorry`; checker `6054 (313, 83), 0/0, 36 own,
+6090` — unmoved, because every fix is in a `private` proof.
+
+**Build cost is a first-class constraint here, not an afterthought.** Even the engine + descent
+construction alone (before the failing tactics) was measured at 225 s, and the full red module is
+15 min. Per the port's own cost model the repeating cost is re-elaboration, so a 1,200-line leaf
+that cannot be checked in under a minute should either be **split by region** before the next
+attempt, or **parked out of the library** (move the leaf aside: `lake build` goes green, the
+statements are preserved in the file) until SC actually needs the headline.
+
+**The friction finding to write up** is now two, both recorded in
+[../../porting-playbook.md](../../porting-playbook.md) §6 and
+[../../instance-friction.md](../../instance-friction.md) IF-003: "**a misspelling across a
+semireducible `def` is a type-level wall, not a heartbeat problem**" (`⁄` vs `map`: `rfl` at
+default transparency does not imply `isDefEq` at reducible, so instance search and `erw` cannot
+cross it at any budget), and "**two `Algebra`-like instances in one context is a hard type
+error**" (a statement `letI` plus an ambient section variable make `IntermediateField ℚ K` two
+types). Its predecessor — "a missing instance reads as a heavy proof" (three missing instances
+and one unbound universe produced ten `whnf`/`isDefEq` timeouts and two type mismatches) — stands.
