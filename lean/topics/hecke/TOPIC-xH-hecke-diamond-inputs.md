@@ -1,21 +1,40 @@
 # Topic — the X_H(M) Hecke/diamond inputs and the Along diamond lifts
 
-**Status: SET-H-A LANDED (2026-10-08); SET-H-B/C dispatchable.** Planning record
-for the next `ModularCurve` slice exposed by the ready frontier of the
-Deligne–Serre target. It is the level-H sibling of the completed X₁ effort
-([TOPIC-x1-hecke-diamond-inputs.md](TOPIC-x1-hecke-diamond-inputs.md)); like that
-one it follows [porting-playbook.md](../../porting-playbook.md) (§2 planning,
-§3.4 sets, §3.5 build discipline, §4 faithfulness). The **definition layer** (§5
-SET-H-A) is ported: `ModularCurve/XH/{FunctionField,HeckeOperator,Operators}.lean`
-(35 declarations, 385 raw / 155 content) plus 15 promotions in the X₁ prelude;
-checker `6365 identical (312 promoted, 83 renamed), 0 mismatched, 0 missing,
-36 own`, consumer `spec/XHConsumer.lean` 0 errors / delete-fail 3, whole-tree build
-green (9,332 jobs). The measured record is
-[logs/xh-hecke-set-a.md](../../logs/xh-hecke-set-a.md), including one deviation from
-§2/§3 below: the `qC_*` group **cannot** be promoted (the pin states it over
-a general `Γ`, the port's copies are `Γ₁(M)`-specialised), so SET-H-B must
-generalise the engine rather than promote it. **No work order is written yet for
-the two headline sets (B, C), and none of their proofs is ported.**
+**Status: COMPLETE (2026-10-08).** The port of the four pinned statements
+(`heckeInputsHAlong`, `heckeDiamondInputsHAll`, and the two
+`…intertwinesAlong_diamondAut{H,}Bar` headlines) landed in three sets; the checker is
+`6520 identical (312 promoted, 83 renamed), 0 mismatched, 0 missing, 36 own
+(6556 checked)`, the consumer (`spec/XHConsumer.lean`, Zones XH-A/B/C/D/E) is
+0 errors / 0 warnings with delete-fail 6, `#print axioms` on the three headlines is
+`[propext, Classical.choice, Quot.sound]`, and the whole-tree build is green
+(9,337 jobs). Planning record for the `ModularCurve` slice exposed by the ready
+frontier of the Deligne–Serre target, measured against the FLT pin `aa2d8b3` and
+the port's mathlib `v4.34.0`; it is the level-H sibling of the completed X₁ effort
+([TOPIC-x1-hecke-diamond-inputs.md](TOPIC-x1-hecke-diamond-inputs.md)) and follows
+[porting-playbook.md](../../porting-playbook.md).
+
+* **SET-H-A** (the definition layer, §5) —
+  `ModularCurve/XH/{FunctionField,HeckeOperator,Operators}.lean` (35 declarations)
+  plus 15 promotions in the X₁ prelude. Record:
+  [logs/xh-hecke-set-a.md](../../logs/xh-hecke-set-a.md).
+* **SET-H-B** (the diamond-lift pair, §5) — the general-`Γ` engine written once
+  (`XH/DiamondLiftPrelude.lean`) with its two level consumers `XH/DiamondLift.lean`
+  (H) and `X1/DiamondLift.lean` (X₁), 121 declarations, both headlines landed. The
+  engine is **generalised**, not promoted: the port's X₁ copies cannot be promoted
+  (the pin states the block over a general `Γ` with `GL↑(Γ)` and section-variable
+  `hΓ'`/`hT`). Record: [logs/xh-hecke-set-b.md](../../logs/xh-hecke-set-b.md).
+* **SET-H-C** (the inputs and the capstone, §5) — `XH/HeckeInputs.lean` (the
+  seven inputs, 33 declarations) and `XH/Inputs.lean` (the manager-reserved
+  capstone, one public declaration). The pin's 586-line `A2HDIA` engine and its
+  `A2HDIH` Hecke re-derivation are **not** ported: the capstone cites
+  `XH/HeckeInputs.lean` and the SET-H-B engine, with the pin's weak
+  `A2HDIA.SlashRational` upgraded by `f₁ := D • slashForm γ hγ f`. Work order
+  [SET-H-C.md](SET-H-C.md), record
+  [logs/xh-hecke-set-c.md](../../logs/xh-hecke-set-c.md).
+
+Each of the pin's three duplicated blocks — the `X1DiamondPullback` prelude, the
+`A2HDIA` engine, and the `A2HDIH` Hecke re-derivation — now has exactly one port
+home.
 
 ## 0. Where this set comes from
 
@@ -336,7 +355,14 @@ names; keep pin-`private` helpers `private`.
 fights the port's `HeckeInputsAlong` spelling, stop and report rather than
 "generalise" one into the other (§2 negative).
 
-### SET-H-B — the diamond-lift pair, written once
+### SET-H-B — the diamond-lift pair, written once (DONE, 2026-10-08)
+
+**Landed.** The general-`Γ` engine and both headlines are ported and
+checker-verified; work order [SET-H-B.md](SET-H-B.md), record
+[logs/xh-hecke-set-b.md](../../logs/xh-hecke-set-b.md). Two work-order errata were
+measured out: both `S_` files declare `toC_qExpand` (it went to the prelude, not the
+Bar consumer), and the reusable set was 7 declarations, not 13 — the other six rest
+on `private` port constants and were transcribed `Γ`-general.
 
 **Scope.** The shared `qC`/`slashForm`/`exists_psi`/`cocycle` engine and the two
 headlines `exists_algEquiv_intertwinesAlong_diamondAutHBar` (H) and
@@ -358,7 +384,13 @@ differ in the statement shape (`d : ℕ` for X₁ vs `d : (ZMod M)ˣ` for H, dif
 function fields); do not force one statement through the other — generalise only
 the engine, keep the two pin statements verbatim (the checker diffs text).
 
-### SET-H-C — the Hecke inputs and the capstone
+### SET-H-C — the Hecke inputs and the capstone (DONE, 2026-10-08)
+
+**Landed.** `XH/HeckeInputs.lean` (dispatched) and the manager's capstone
+`XH/Inputs.lean`; see [SET-H-C.md](SET-H-C.md) and
+[logs/xh-hecke-set-c.md](../../logs/xh-hecke-set-c.md). The pin's `A2HDIA` engine and
+`A2HDIH` Hecke block were not transcribed: the capstone cites the SET-H-B engine,
+with the pin's weak `A2HDIA.SlashRational` upgraded by `f₁ := D • slashForm γ hγ f`.
 
 **Scope.** `heckeInputsHAlong` (the seven inputs) and the manager's capstone
 `heckeDiamondInputsHAll`. The capstone and its wire test are **reserved for the

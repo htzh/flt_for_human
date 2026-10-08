@@ -2407,6 +2407,26 @@ SOURCES = [
     "P2M/Sol/S_ModularCurve_exists_algEquiv_intertwinesAlong_diamondAutBar.lean",
     "P2M/Sol/S_ModularCurve_exists_algEquiv_intertwinesAlong_diamondAutHBar.lean",
     "P2M/Sol/S_ModularCurve_heckeDiamondInputsHAll.lean",
+    # SET-H-B: the two `Theorems/` wrappers are the comparable copies of the pair
+    # of headlines (the `S_` files carry the same statements as inner `solution`).
+    "Theorems/Thm_ModularCurve_exists_algEquiv_intertwinesAlong_diamondAutHBar.lean",
+    "Theorems/Thm_ModularCurve_exists_algEquiv_intertwinesAlong_diamondAutBar.lean",
+    # SET-H-C: the seven inputs `ModularCurve.heckeInputsHAlong`. The pin's `S_`
+    # file is a public `S_` file, so it is the comparable copy for the 32
+    # declarations inside `HeckeInputsHAll` (its own `solution` is at a different
+    # last name and is not transcribed); the wrapper is needed for the headline,
+    # whose explicit binders differ from the `S_` file's section-variable inner
+    # copy that shares its last name. `expandInt` needs no other source: the
+    # checker diffs its statement against this file (see `PORT_FILES` and the
+    # module's header). Appended last so no earlier last-name match can flip.
+    "P2M/Sol/S_ModularCurve_heckeInputsHAlong.lean",
+    "Theorems/Thm_ModularCurve_heckeInputsHAlong.lean",
+    # SET-H-C capstone: `ModularCurve.heckeDiamondInputsHAll`. The wrapper is the
+    # comparable copy — the pin's own `S_` file registers the statement only as the
+    # inner `solution`. Every helper of the port's capstone is `private`, so the
+    # wrapper plus `Definitions/Def_ModularCurve_XHOperators.lean` (already listed)
+    # is the whole surface. Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_ModularCurve_heckeDiamondInputsHAll.lean",
 ]
 
 PORT_FILES = [
@@ -3470,6 +3490,22 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/XH/FunctionField.lean",
     "FLTForHuman/ModularCurve/XH/HeckeOperator.lean",
     "FLTForHuman/ModularCurve/XH/Operators.lean",
+    # --- SET-H-B (`topics/hecke/SET-H-B.md`): the diamond-lift pair, written once.
+    # The general-`Γ` engine shared by the two headlines, then the two level
+    # specialisations with their headlines. Appended last so no earlier last-name
+    # match can flip.
+    "FLTForHuman/ModularCurve/XH/DiamondLiftPrelude.lean",
+    "FLTForHuman/ModularCurve/XH/DiamondLift.lean",
+    "FLTForHuman/ModularCurve/X1/DiamondLift.lean",
+    # --- SET-H-C (`topics/hecke/SET-H-C.md`): the seven inputs
+    # `ModularCurve.heckeInputsHAlong`, the public `S_` file transcribed at its own
+    # names plus the wrapper's headline. Appended last so no earlier last-name
+    # match can flip.
+    "FLTForHuman/ModularCurve/XH/HeckeInputs.lean",
+    # --- SET-H-C capstone (manager): the whole module is `private` except
+    # `ModularCurve.heckeDiamondInputsHAll` (matched against its wrapper in
+    # `SOURCES`), so this is the effort's final wire test. Appended last.
+    "FLTForHuman/ModularCurve/XH/Inputs.lean",
 ]
 
 

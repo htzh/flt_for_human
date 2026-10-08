@@ -30,6 +30,14 @@
                  `IsDiamondAutHBar`, the choice function `diamondAutHBar` with its
                  two lemmas, and the bundle `HeckeDiamondInputsHAll` destructured
                  into a real `HeckeInputsHAlong` and a real diamond automorphism.
+    [xh-diamondlift]
+                 ZONE XH-D — SET-H-B. The two diamond-lift headlines of the pair
+                 `exists_algEquiv_intertwinesAlong_diamondAut{H,}Bar`, instantiated
+                 and destructured, over the general-`Γ` engine
+                 (`XH/DiamondLiftPrelude.lean`) and its two level consumers.
+    [xh-inputs]  ZONE XH-E — SET-H-C. The capstone `heckeDiamondInputsHAll` at
+                 `M = 1`, `H = ⊥`, both halves destructured: the seven inputs at
+                 `ℓ = 2` and a real diamond automorphism at every `d`.
 
   Every example names its declaration, so deleting any of the three modules (or
   the one declaration it consumes) makes that line fail. The bundle halves are
@@ -39,6 +47,10 @@
 import FLTForHuman.ModularCurve.XH.FunctionField
 import FLTForHuman.ModularCurve.XH.HeckeOperator
 import FLTForHuman.ModularCurve.XH.Operators
+import FLTForHuman.ModularCurve.XH.DiamondLift
+import FLTForHuman.ModularCurve.X1.DiamondLift
+import FLTForHuman.ModularCurve.XH.HeckeInputs
+import FLTForHuman.ModularCurve.XH.Inputs
 
 set_option autoImplicit false
 
@@ -183,6 +195,84 @@ example (h : HeckeDiamondInputsHAll 2 ⊥) (d : (ZMod 2)ˣ) :
     ∃ σ : xHFunctionFieldBar 2 ⊥ ≃ₐ[AlgebraicClosure ℚ] xHFunctionFieldBar 2 ⊥,
       IsDiamondAutHBar 2 ⊥ d σ :=
   h.2 d
+
+/-! ## Zone XH-D — `[xh-diamondlift]` the two diamond-lift headlines -/
+
+-- The engine itself, named directly: the generic-`Γ` `RationalSlash` predicate
+-- instantiated at `Γ₁(M) ⊓ Γ₀(Mℓ)` by the `X₁` specialisation.
+example : DiamondLift.RationalSlash (Gamma1 2 ⊓ Gamma0 (2 * 2)) (Gamma0 (2 * 2)) :=
+  DiamondLift.X1.rationalSlash_level 2 2
+
+-- The `X_H(M)` headline at `(M, H, ℓ, d) = (2, ⊥, 2, 1)`: the `∃ τ` destructured
+-- into a real `laurentBaseChange … ≃ₐ[…] …`.
+private noncomputable def hBarTau :
+    laurentBaseChange (AlgebraicClosure ℚ) (xHTopFunctionFieldC ℚ 2 ⊥ (2 * 2))
+      ≃ₐ[AlgebraicClosure ℚ]
+      laurentBaseChange (AlgebraicClosure ℚ) (xHTopFunctionFieldC ℚ 2 ⊥ (2 * 2)) :=
+  (exists_algEquiv_intertwinesAlong_diamondAutHBar 2 ⊥ 2 1).choose
+
+-- ... together with both `IntertwinesAlong` conjuncts.
+example : SemilinearAut.IntertwinesAlong
+    (heckeAlphaHBar (AlgebraicClosure ℚ) 2 ⊥ 2).toRingHom
+    (SemilinearAut.ofAlgAut (diamondAutHBar 2 ⊥ 1))
+    (SemilinearAut.ofAlgAut hBarTau) :=
+  (exists_algEquiv_intertwinesAlong_diamondAutHBar 2 ⊥ 2 1).choose_spec.1
+
+example : SemilinearAut.IntertwinesAlong
+    (heckeBetaHBar (AlgebraicClosure ℚ) 2 ⊥ 2).toRingHom
+    (SemilinearAut.ofAlgAut (diamondAutHBar 2 ⊥ 1))
+    (SemilinearAut.ofAlgAut hBarTau) :=
+  (exists_algEquiv_intertwinesAlong_diamondAutHBar 2 ⊥ 2 1).choose_spec.2
+
+-- The `X₁(M)` headline at `(M, ℓ, d) = (2, 2, 1)`, destructured the same way.
+private noncomputable def oneBarTau :
+    laurentBaseChange (AlgebraicClosure ℚ) (x1x0FunctionFieldC ℚ 2 (2 * 2))
+      ≃ₐ[AlgebraicClosure ℚ]
+      laurentBaseChange (AlgebraicClosure ℚ) (x1x0FunctionFieldC ℚ 2 (2 * 2)) :=
+  (exists_algEquiv_intertwinesAlong_diamondAutBar 2 2 1).choose
+
+example : SemilinearAut.IntertwinesAlong
+    (heckeAlphaOneBar (AlgebraicClosure ℚ) 2 2).toRingHom
+    (SemilinearAut.ofAlgAut (diamondAutBar 2 1))
+    (SemilinearAut.ofAlgAut oneBarTau) :=
+  (exists_algEquiv_intertwinesAlong_diamondAutBar 2 2 1).choose_spec.1
+
+example : SemilinearAut.IntertwinesAlong
+    (heckeBetaOneBar (AlgebraicClosure ℚ) 2 2).toRingHom
+    (SemilinearAut.ofAlgAut (diamondAutBar 2 1))
+    (SemilinearAut.ofAlgAut oneBarTau) :=
+  (exists_algEquiv_intertwinesAlong_diamondAutBar 2 2 1).choose_spec.2
+
+/-! ## Zone XH-E — `[xh-inputs]` the capstone `ModularCurve.heckeDiamondInputsHAll`
+
+The effort's final wire test: the bundle is produced, then both of its halves are
+destructured and consumed — the Hecke half's seven inputs and the diamond half's
+automorphism — so deleting any module of SET-H-A/B/C makes this zone fail. -/
+
+-- The capstone at `M = 1`, `H = ⊥` (the trivial level).
+example : HeckeDiamondInputsHAll 1 ⊥ := heckeDiamondInputsHAll 1 ⊥
+
+-- Its Hecke half at the concrete prime `ℓ = 2`: a real `HeckeInputsHAlong`.
+example : HeckeInputsHAlong (AlgebraicClosure ℚ) 1 ⊥ 2 :=
+  (heckeDiamondInputsHAll 1 ⊥).heckeInputsHAlong 2 Nat.prime_two
+
+-- Its β accessor, consumed.
+example : HeckeBetaHDefined 1 ⊥ 2 :=
+  ((heckeDiamondInputsHAll 1 ⊥).heckeInputsHAlong 2 Nat.prime_two).betaHDefined
+
+-- The same headline reached directly, without going through the bundle.
+example : HeckeInputsHAlong (AlgebraicClosure ℚ) 1 ⊥ 2 :=
+  heckeInputsHAlong (AlgebraicClosure ℚ) 1 ⊥ 2
+
+-- The diamond half at a concrete `d`: a real diamond automorphism.
+example (d : (ZMod 1)ˣ) : IsDiamondAutHBar 1 ⊥ d (diamondAutHBar 1 ⊥ d) :=
+  (heckeDiamondInputsHAll 1 ⊥).isDiamondAutHBar d
+
+-- ... and its `∃`-half, a real `AlgEquiv` of the base-changed function field.
+example (d : (ZMod 1)ˣ) :
+    ∃ σ : xHFunctionFieldBar 1 ⊥ ≃ₐ[AlgebraicClosure ℚ] xHFunctionFieldBar 1 ⊥,
+      IsDiamondAutHBar 1 ⊥ d σ :=
+  (heckeDiamondInputsHAll 1 ⊥).2 d
 
 end ModularCurve
 
