@@ -2921,7 +2921,7 @@ private theorem rat_of_exists_map {q : PowerSeries ℂ} (h : ∃ p : PowerSeries
   obtain ⟨p, rfl⟩ := h
   exact ⟨PowerSeries.coeff n p, by rw [PowerSeries.coeff_map]; rfl⟩
 
-private theorem qExpansion_widthN_rat_of_levelOne {k : ℤ} (F : ModularForm 𝒮ℒ k)
+theorem qExpansion_widthN_rat_of_levelOne {k : ℤ} (F : ModularForm 𝒮ℒ k)
     (hrat : ∀ n, ∃ r : ℚ, (qExpansion 1 (⇑F : ℍ → ℂ)).coeff n = (r : ℂ)) (n : ℕ) :
     ∃ r : ℚ, (qExpansion N (⇑F : ℍ → ℂ)).coeff n = (r : ℂ) := by
   rw [qExpansion_coeff_widthN N (g := (⇑F : ℍ → ℂ)) F.holo' (SlashInvariantFormClass.periodic_comp_ofComplex F
@@ -2942,7 +2942,7 @@ private def discForm : ModularForm 𝒮ℒ 12 := (1728 : ℂ)⁻¹ • (E4cube -
   simp only [E4cube, E6sq, coe_mcast, coe_pow, Pi.pow_apply, smul_eq_mul]
   ring
 
-private theorem qExpansion_disc_rat_one (n : ℕ) :
+theorem qExpansion_disc_rat_one (n : ℕ) :
     ∃ r : ℚ, (qExpansion 1 (⇑discForm : ℍ → ℂ)).coeff n = (r : ℂ) := by
   obtain ⟨p4, hp4⟩ := exists_map_of_rat qExpansion_E₄_rat
   obtain ⟨p6, hp6⟩ := exists_map_of_rat qExpansion_E₆_rat

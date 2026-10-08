@@ -291,6 +291,22 @@ substitution rows (≈2,104 raw lines) are import, not work.
    target `S_` file, which declares the same helpers publicly — is a prerequisite
    of the promotion pass, not an afterthought. `promoted` will move; reconcile it.
    *Predicted low.*
+   **Landed 2026-10-08.** The pass ran before SET-R-C: 75 declarations promoted in
+   `ModularCurve/X1/FunctionField.lean` (the 51 rows plus the rest of the coherent
+   block, so no public statement mentions a private name); the two pin `S_` files
+   above appended to `SOURCES` (the minimal pair — the JOneES file alone leaves
+   `isIntegralQExp_A12` mismatched and `intSeriesC_E4_cube_ne_zero` missing); one
+   rename to the pin name (`intSeriesC_P4_cube_ne_zero` →
+   `intSeriesC_E4_cube_ne_zero`). Checker **6520 → 6595 identical, 0/0**; the +75
+   is the new public surface, and it lands in `identical`, not `promoted`, because
+   the target `S_` files carry the pin's public copies. Tier 0 (35 s), tier 1
+   (11 s) and the 4-module wave (29.5 s) all green; mutation test gave exactly
+   `6594 / 1 mismatched`. Two deliberate non-promotions: `coeff_one_eisenstein4`
+   (its pin copy `coeff_one_P4` needs the pin's `P4`) and the anonymous
+   `Fintype (Cos Γ)` instance (invisible to the checker; a consumer declares its
+   own `scoped instance`, as the pin's `...le_index.lean:235` does). Ledger:
+   [../../../studies/qexp-head-promotion-ledger.md](../../../studies/qexp-head-promotion-ledger.md).
+   Checker after the content pass below: **6520 → 6602 identical, 0/0**.
 2. **The WeightOne hubs.** Promoting the pair's rows prices at
    `Gamma1Basis.lean` **6 modules / 2,815 lines / ≈80 s**,
    `Gamma0Rationality.lean` **32 modules / 17,662 lines / ≈231 s**,
@@ -299,6 +315,18 @@ substitution rows (≈2,104 raw lines) are import, not work.
    re-derivation in the new module for the 5 + 14 rows (each 4–14 lines) over a hub
    promotion, and record the duplicate in the friction log. *Predicted medium — the
    cluster's only real build cost.*
+   **Decided by mathematical content, 2026-10-08.** Of the 79 port-`private` rows,
+   51 are the JOneES block (promoted) and 28 are hub rows, now decided rather than
+   deferred: **7 are promoted** because they carry real mathematics — `tσ_lift`,
+   `exists_discSeries`, `aeval_relPoly`, `map_phiOf_eq_of_rat`,
+   `qExpansion_disc_rat_one`, `qExpansion_widthN_rat_of_levelOne`,
+   `isIntegralQExp_E4` — and the other **21 stay `private`** as adapters/glue
+   (slash formulas specialised from `slash_action_eqn''`, `rfl` unfoldings,
+   coercions, generic analysis/group lemmas, one-line defs) to be re-derived in
+   the consumer. The prices above are what the 7 cost; the checker moved by
+   exactly +7 and the 9,206-job dependent wave is green. Row-by-row reasons:
+   [../../../studies/qexp-head-promotion-ledger.md](../../../studies/qexp-head-promotion-ledger.md)
+   §3.
 3. **The `generalise` rows (§4 item 4).** 31 binder-only + 50 statement-different
    names, dominated by the level-`N` threading. Resolve by reading both statements
    before writing; do not "fix" the port's WLight copies to the pin's newer spelling

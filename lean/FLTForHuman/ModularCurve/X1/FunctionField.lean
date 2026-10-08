@@ -68,14 +68,14 @@ section A1
 
 variable {K : Type*} [Field K]
 
-private theorem valuation_algebraMap_le_one (d : K) :
+theorem valuation_algebraMap_le_one (d : K) :
     Valued.v (algebraMap K (LaurentSeries K) d) ≤ (1 : WithZero (Multiplicative ℤ)) := by
   rw [show algebraMap K (LaurentSeries K) d = ((PowerSeries.C d : PowerSeries K) : LaurentSeries K) by
     rw [LaurentSeries.algebraMap_apply, HahnSeries.ofPowerSeries_C]]
   rw [LaurentSeries.valuation_def, ← LaurentSeries.coe_algebraMap]
   exact IsDedekindDomain.HeightOneSpectrum.valuation_le_one _ _
 
-private theorem valuation_le_one_of_isAlgebraic {y : LaurentSeries K} (hy : IsAlgebraic K y) :
+theorem valuation_le_one_of_isAlgebraic {y : LaurentSeries K} (hy : IsAlgebraic K y) :
     Valued.v y ≤ (1 : WithZero (Multiplicative ℤ)) := by
   have hint : IsIntegral K y := hy.isIntegral
   let v : Valuation (LaurentSeries K) (WithZero (Multiplicative ℤ)) := Valued.v
@@ -94,7 +94,7 @@ private theorem valuation_le_one_of_isAlgebraic {y : LaurentSeries K} (hy : IsAl
     exact hpy
   exact (Valuation.mem_integer_iff _ _).1 (hInt.mem_of_integral hint')
 
-private theorem eq_C_of_isAlgebraic {y : LaurentSeries K} (hy : IsAlgebraic K y) :
+theorem eq_C_of_isAlgebraic {y : LaurentSeries K} (hy : IsAlgebraic K y) :
     ∃ c : K, y = HahnSeries.C c := by
   refine ⟨y.coeff 0, ?_⟩
   set z : LaurentSeries K := y - HahnSeries.C (y.coeff 0) with hz
@@ -127,7 +127,7 @@ private theorem eq_C_of_isAlgebraic {y : LaurentSeries K} (hy : IsAlgebraic K y)
     rw [hprod] at this
     exact lt_irrefl _ this
 
-private theorem transcendental_of_coeff_ne_zero {y : LaurentSeries K} {n : ℤ} (hn : n ≠ 0)
+theorem transcendental_of_coeff_ne_zero {y : LaurentSeries K} {n : ℤ} (hn : n ≠ 0)
     (hy : y.coeff n ≠ 0) : Transcendental K y := by
   intro halg
   obtain ⟨c, hc⟩ := eq_C_of_isAlgebraic halg
@@ -140,7 +140,7 @@ section A2
 
 variable {K L : Type*} [Field K] [Field L] [Algebra K L]
 
-private theorem linearIndependent_map {ι : Type*} {v : ι → LaurentSeries K}
+theorem linearIndependent_map {ι : Type*} {v : ι → LaurentSeries K}
     (hv : LinearIndependent K v) :
     LinearIndependent L (fun i => HahnSeries.map (v i) (algebraMap K L)) := by
   classical
@@ -198,7 +198,7 @@ section A3
 
 variable {K F : Type*} [Field K] [Field F] [Algebra K F]
 
-private theorem finiteDimensional_of_forall_aeval_eq_zero [PerfectField K] (D : ℕ)
+theorem finiteDimensional_of_forall_aeval_eq_zero [PerfectField K] (D : ℕ)
     (h : ∀ y : F, ∃ p : K[X], p ≠ 0 ∧ p.natDegree ≤ D ∧ aeval y p = 0) :
     FiniteDimensional K F := by
   haveI : Algebra.IsAlgebraic K F := ⟨fun y => by
@@ -232,23 +232,23 @@ namespace JOneESLevelOne
 open ModularForm UpperHalfPlane EisensteinSeries
 open scoped MatrixGroups
 
-private noncomputable abbrev q4 : PowerSeries ℂ := qExpansion 1 (E₄ : ℍ → ℂ)
-private noncomputable abbrev q6 : PowerSeries ℂ := qExpansion 1 (E₆ : ℍ → ℂ)
+noncomputable abbrev q4 : PowerSeries ℂ := qExpansion 1 (E₄ : ℍ → ℂ)
+noncomputable abbrev q6 : PowerSeries ℂ := qExpansion 1 (E₆ : ℍ → ℂ)
 
-private noncomputable def monomialSpan (m : ℕ) : Submodule ℂ (PowerSeries ℂ) :=
+noncomputable def monomialSpan (m : ℕ) : Submodule ℂ (PowerSeries ℂ) :=
   Submodule.span ℂ (Set.range fun b : Fin (m + 1) => q4 ^ (3 * (m - b)) * q6 ^ (2 * (b : ℕ)))
 
-private theorem monomial_mem (m : ℕ) (b : ℕ) (hb : b ≤ m) :
+theorem monomial_mem (m : ℕ) (b : ℕ) (hb : b ≤ m) :
     q4 ^ (3 * (m - b)) * q6 ^ (2 * b) ∈ monomialSpan m :=
   Submodule.subset_span ⟨⟨b, Nat.lt_succ_of_le hb⟩, rfl⟩
 
-private theorem q4_coeff_zero : PowerSeries.coeff 0 q4 = 1 :=
+theorem q4_coeff_zero : PowerSeries.coeff 0 q4 = 1 :=
   E_qExpansion_coeff_zero (by norm_num) (by decide)
 
-private theorem q6_coeff_zero : PowerSeries.coeff 0 q6 = 1 :=
+theorem q6_coeff_zero : PowerSeries.coeff 0 q6 = 1 :=
   E_qExpansion_coeff_zero (by norm_num) (by decide)
 
-private theorem qExpansion_discriminant :
+theorem qExpansion_discriminant :
     qExpansion 1 (CuspForm.discriminant : ℍ → ℂ) = (1728 : ℂ)⁻¹ • (q4 ^ 3 - q6 ^ 2) := by
 
   let A : ModularForm 𝒮ℒ 12 := (E₄.pow 3).mcast (by norm_num)
@@ -264,7 +264,7 @@ private theorem qExpansion_discriminant :
   simp only [A, B, ModularForm.qExpansion_mcast,
     ModularForm.qExpansion_pow one_pos one_mem_strictPeriods_SL]
 
-private theorem qExpansion_mem_monomialSpan (m : ℕ) :
+theorem qExpansion_mem_monomialSpan (m : ℕ) :
     ∀ (k : ℤ) (hk : k = 12 * (m : ℤ)) (h : ModularForm 𝒮ℒ k),
       qExpansion 1 (h : ℍ → ℂ) ∈ monomialSpan m := by
   induction m with
@@ -352,13 +352,13 @@ open scoped MatrixGroups ModularForm
 
 variable {Γ : Subgroup SL(2, ℤ)} [Γ.FiniteIndex] {k : ℤ}
 
-private abbrev Cos (Γ : Subgroup SL(2, ℤ)) : Type :=
+abbrev Cos (Γ : Subgroup SL(2, ℤ)) : Type :=
   ↥𝒮ℒ ⧸ (Γ : Subgroup (GL (Fin 2) ℝ)).subgroupOf 𝒮ℒ
 
 private noncomputable instance : Fintype (Cos Γ) := Fintype.ofFinite _
 
 omit [Γ.FiniteIndex] in
-private theorem one_mem_strictPeriods (hT : ModularGroup.T ∈ Γ) :
+theorem one_mem_strictPeriods (hT : ModularGroup.T ∈ Γ) :
     (1 : ℝ) ∈ (Γ : Subgroup (GL (Fin 2) ℝ)).strictPeriods := by
   rw [Subgroup.mem_strictPeriods_iff]
   have h : Matrix.GeneralLinearGroup.upperRightHom (1 : ℝ) =
@@ -378,7 +378,7 @@ section Linear
 
 variable (f g : ModularForm (Γ : Subgroup (GL (Fin 2) ℝ)) k)
 
-private theorem quotientFunc_smul_sub (c : ℂ) (q : (Cos Γ)) :
+theorem quotientFunc_smul_sub (c : ℂ) (q : (Cos Γ)) :
     quotientFunc (c • g - f) q = c • quotientFunc g q - quotientFunc f q := by
   induction q using Quotient.inductionOn with
   | h r =>
@@ -389,7 +389,7 @@ private theorem quotientFunc_smul_sub (c : ℂ) (q : (Cos Γ)) :
       FunLike.coe_sub, FunLike.coe_smul, sub_eq_add_neg, SlashAction.add_slash,
       SlashAction.neg_slash, ModularForm.SL_smul_slash, sub_eq_add_neg]
 
-private theorem norm_smul_sub_apply (c : ℂ) (τ : ℍ) :
+theorem norm_smul_sub_apply (c : ℂ) (τ : ℍ) :
     (ModularForm.norm 𝒮ℒ (c • g - f)) τ =
       ∏ q : (Cos Γ), (c * quotientFunc g q τ - quotientFunc f q τ) := by
   have h := ModularForm.coe_norm 𝒮ℒ (c • g - f)
@@ -399,32 +399,32 @@ private theorem norm_smul_sub_apply (c : ℂ) (τ : ℍ) :
   rw [quotientFunc_smul_sub]
   simp
 
-private noncomputable def charPolyAt (τ : ℍ) : ℂ[X] :=
+noncomputable def charPolyAt (τ : ℍ) : ℂ[X] :=
   ∏ q : (Cos Γ), (C (quotientFunc g q τ) * X - C (quotientFunc f q τ))
 
-private theorem eval_charPolyAt (c : ℂ) (τ : ℍ) :
+theorem eval_charPolyAt (c : ℂ) (τ : ℍ) :
     (charPolyAt f g τ).eval c = (ModularForm.norm 𝒮ℒ (c • g - f)) τ := by
   rw [norm_smul_sub_apply, charPolyAt, eval_prod]
   refine Finset.prod_congr rfl fun q _ => ?_
   simp only [eval_sub, eval_mul, eval_C, eval_X]
   ring
 
-private theorem natDegree_linear_le (a b : ℂ) : (C a * X - C b).natDegree ≤ 1 := by
+theorem natDegree_linear_le (a b : ℂ) : (C a * X - C b).natDegree ≤ 1 := by
   refine (natDegree_sub_le _ _).trans ?_
   refine max_le ?_ (by simp)
   exact (natDegree_C_mul_le _ _).trans (by simp)
 
-private theorem card_cos : (Finset.univ : Finset (Cos Γ)).card = Nat.card (Cos Γ) := by
+theorem card_cos : (Finset.univ : Finset (Cos Γ)).card = Nat.card (Cos Γ) := by
   rw [Nat.card_eq_fintype_card, Finset.card_univ]
 
-private theorem natDegree_charPolyAt_le (τ : ℍ) : (charPolyAt f g τ).natDegree ≤ Nat.card (Cos Γ) := by
+theorem natDegree_charPolyAt_le (τ : ℍ) : (charPolyAt f g τ).natDegree ≤ Nat.card (Cos Γ) := by
   rw [charPolyAt]
   refine (natDegree_prod_le _ _).trans ?_
   refine (Finset.sum_le_sum fun q _ => natDegree_linear_le
     (quotientFunc g q τ) (quotientFunc f q τ)).trans ?_
   rw [Finset.sum_const, smul_eq_mul, mul_one, card_cos]
 
-private theorem coeff_charPolyAt_card (τ : ℍ) :
+theorem coeff_charPolyAt_card (τ : ℍ) :
     (charPolyAt f g τ).coeff (Nat.card (Cos Γ)) = (ModularForm.norm 𝒮ℒ g) τ := by
   have hc : (Finset.univ : Finset (Cos Γ)).card * 1 = Nat.card (Cos Γ) := by rw [mul_one, card_cos]
   rw [charPolyAt]
@@ -435,17 +435,17 @@ private theorem coeff_charPolyAt_card (τ : ℍ) :
   refine Fintype.prod_congr _ _ (fun q => ?_)
   simp
 
-private def node (n : ℕ) (j : Fin (n + 1)) : ℂ := (j : ℕ)
+def node (n : ℕ) (j : Fin (n + 1)) : ℂ := (j : ℕ)
 
-private theorem node_injOn (n : ℕ) : Set.InjOn (node n) (Finset.univ : Finset (Fin (n + 1))) := by
+theorem node_injOn (n : ℕ) : Set.InjOn (node n) (Finset.univ : Finset (Fin (n + 1))) := by
   intro i _ j _ h
   simp only [node, Nat.cast_inj] at h
   exact Fin.ext h
 
-private noncomputable def lag (n : ℕ) (j : Fin (n + 1)) : ℂ[X] :=
+noncomputable def lag (n : ℕ) (j : Fin (n + 1)) : ℂ[X] :=
   Lagrange.basis (Finset.univ : Finset (Fin (n + 1))) (node n) j
 
-private theorem charPolyAt_eq_sum (τ : ℍ) :
+theorem charPolyAt_eq_sum (τ : ℍ) :
     charPolyAt f g τ = ∑ j : Fin (Nat.card (Cos Γ) + 1),
       C ((ModularForm.norm 𝒮ℒ ((node _ j) • g - f)) τ) * lag (Nat.card (Cos Γ)) j := by
   classical
@@ -460,30 +460,30 @@ private theorem charPolyAt_eq_sum (τ : ℍ) :
   rw [eval_charPolyAt]
   rfl
 
-private noncomputable def coeffForm (i : ℕ) : ModularForm 𝒮ℒ (k * Nat.card (Cos Γ)) :=
+noncomputable def coeffForm (i : ℕ) : ModularForm 𝒮ℒ (k * Nat.card (Cos Γ)) :=
   ∑ j : Fin (Nat.card (Cos Γ) + 1),
     ((lag (Nat.card (Cos Γ)) j).coeff i) • ModularForm.norm 𝒮ℒ ((node _ j) • g - f)
 
-private theorem coe_finset_sum {ι : Type*} {k' : ℤ} (s : Finset ι) (F : ι → ModularForm 𝒮ℒ k') :
+theorem coe_finset_sum {ι : Type*} {k' : ℤ} (s : Finset ι) (F : ι → ModularForm 𝒮ℒ k') :
     ((∑ i ∈ s, F i : ModularForm 𝒮ℒ k') : ℍ → ℂ) = ∑ i ∈ s, (F i : ℍ → ℂ) :=
   map_sum (FunLike.coeAddMonoidHom (ModularForm 𝒮ℒ k') UpperHalfPlane ℂ) F s
 
-private theorem coeffForm_apply (i : ℕ) (τ : ℍ) : coeffForm f g i τ = (charPolyAt f g τ).coeff i := by
+theorem coeffForm_apply (i : ℕ) (τ : ℍ) : coeffForm f g i τ = (charPolyAt f g τ).coeff i := by
   rw [coeffForm, coe_finset_sum, Finset.sum_apply, charPolyAt_eq_sum, finsetSum_coeff]
   refine Finset.sum_congr rfl fun j _ => ?_
   rw [smul_apply, coeff_C_mul, smul_eq_mul, mul_comm]
 
-private theorem coe_coeffForm_card :
+theorem coe_coeffForm_card :
     (coeffForm f g (Nat.card (Cos Γ)) : ℍ → ℂ) = ModularForm.norm 𝒮ℒ g := by
   funext τ
   rw [coeffForm_apply, coeff_charPolyAt_card]
 
-private theorem eval_homogenize_linear (a b x y : ℂ) :
+theorem eval_homogenize_linear (a b x y : ℂ) :
     MvPolynomial.eval ![x, y] ((C a * X - C b).homogenize 1) = a * x - b * y := by
   rw [homogenize_sub, homogenize_C_mul, homogenize_X one_ne_zero, homogenize_C]
   simp
 
-private theorem eval_homogenize_eq_sum (p : ℂ[X]) (n : ℕ) (x y : ℂ) :
+theorem eval_homogenize_eq_sum (p : ℂ[X]) (n : ℕ) (x y : ℂ) :
     MvPolynomial.eval ![x, y] (p.homogenize n) =
       ∑ i ∈ Finset.range (n + 1), p.coeff i * x ^ i * y ^ (n - i) := by
   simp only [homogenize, Finset.Nat.sum_antidiagonal_eq_sum_range_succ_mk, MvPolynomial.eval_sum]
@@ -493,7 +493,7 @@ private theorem eval_homogenize_eq_sum (p : ℂ[X]) (n : ℕ) (x y : ℂ) :
   · simp [mul_assoc]
   all_goals simp [pow_add]
 
-private theorem sum_coeffForm_mul_pow_eq_zero (τ : ℍ) :
+theorem sum_coeffForm_mul_pow_eq_zero (τ : ℍ) :
     ∑ i ∈ Finset.range (Nat.card (Cos Γ) + 1),
       coeffForm f g i τ * f τ ^ i * g τ ^ (Nat.card (Cos Γ) - i) = 0 := by
   simp_rw [coeffForm_apply]
@@ -513,39 +513,39 @@ private theorem sum_coeffForm_mul_pow_eq_zero (τ : ℍ) :
   simp only [OneMemClass.coe_one, inv_one, SlashAction.slash_one]
   ring
 
-private def Nice (F : ℍ → ℂ) : Prop := AnalyticAt ℂ (cuspFunction 1 F) 0
+def Nice (F : ℍ → ℂ) : Prop := AnalyticAt ℂ (cuspFunction 1 F) 0
 
-private theorem Nice.mul {F G : ℍ → ℂ} (hF : Nice F) (hG : Nice G) : Nice (F * G) := by
+theorem Nice.mul {F G : ℍ → ℂ} (hF : Nice F) (hG : Nice G) : Nice (F * G) := by
   unfold Nice at *
   rw [cuspFunction_mul hF.continuousAt hG.continuousAt]
   exact hF.mul hG
 
-private theorem Nice.add {F G : ℍ → ℂ} (hF : Nice F) (hG : Nice G) : Nice (F + G) := by
+theorem Nice.add {F G : ℍ → ℂ} (hF : Nice F) (hG : Nice G) : Nice (F + G) := by
   unfold Nice at *
   rw [cuspFunction_add hF.continuousAt hG.continuousAt]
   exact hF.add hG
 
-private theorem nice_one : Nice (1 : ℍ → ℂ) := by
+theorem nice_one : Nice (1 : ℍ → ℂ) := by
   have : (1 : ℍ → ℂ) = ⇑(1 : ModularForm 𝒮ℒ 0) := rfl
   unfold Nice; rw [this]
   exact ModularFormClass.analyticAt_cuspFunction_zero _ one_pos one_mem_strictPeriods_SL
 
-private theorem nice_zero : Nice (0 : ℍ → ℂ) := by
+theorem nice_zero : Nice (0 : ℍ → ℂ) := by
   have : (0 : ℍ → ℂ) = ⇑(0 : ModularForm 𝒮ℒ 0) := rfl
   unfold Nice; rw [this]
   exact ModularFormClass.analyticAt_cuspFunction_zero _ one_pos one_mem_strictPeriods_SL
 
-private theorem Nice.pow {F : ℍ → ℂ} (hF : Nice F) : ∀ n : ℕ, Nice (F ^ n)
+theorem Nice.pow {F : ℍ → ℂ} (hF : Nice F) : ∀ n : ℕ, Nice (F ^ n)
   | 0 => by rw [pow_zero]; exact nice_one
   | n + 1 => by rw [pow_succ]; exact (Nice.pow hF n).mul hF
 
-private theorem qExpansion_pow' {F : ℍ → ℂ} (hF : Nice F) :
+theorem qExpansion_pow' {F : ℍ → ℂ} (hF : Nice F) :
     ∀ n : ℕ, qExpansion 1 (F ^ n) = qExpansion 1 F ^ n
   | 0 => by rw [pow_zero, pow_zero, qExpansion_one]
   | n + 1 => by
     rw [pow_succ, pow_succ, qExpansion_mul (Nice.pow hF n) hF, qExpansion_pow' hF n]
 
-private theorem Nice.sum {ι : Type*} (s : Finset ι) {F : ι → ℍ → ℂ}
+theorem Nice.sum {ι : Type*} (s : Finset ι) {F : ι → ℍ → ℂ}
     (hF : ∀ i ∈ s, Nice (F i)) : Nice (∑ i ∈ s, F i) := by
   classical
   induction s using Finset.induction_on with
@@ -554,7 +554,7 @@ private theorem Nice.sum {ι : Type*} (s : Finset ι) {F : ι → ℍ → ℂ}
     rw [Finset.sum_insert ha]
     exact (hF a (Finset.mem_insert_self a s)).add (ih fun i hi => hF i (Finset.mem_insert_of_mem hi))
 
-private theorem qExpansion_sum' {ι : Type*} (s : Finset ι) {F : ι → ℍ → ℂ}
+theorem qExpansion_sum' {ι : Type*} (s : Finset ι) {F : ι → ℍ → ℂ}
     (hF : ∀ i ∈ s, Nice (F i)) :
     qExpansion 1 (∑ i ∈ s, F i) = ∑ i ∈ s, qExpansion 1 (F i) := by
   classical
@@ -569,15 +569,15 @@ private theorem qExpansion_sum' {ι : Type*} (s : Finset ι) {F : ι → ℍ →
 variable (hT : ModularGroup.T ∈ Γ)
 include hT
 
-private theorem nice_of_modularForm {k' : ℤ} (h : ModularForm (Γ : Subgroup (GL (Fin 2) ℝ)) k') :
+theorem nice_of_modularForm {k' : ℤ} (h : ModularForm (Γ : Subgroup (GL (Fin 2) ℝ)) k') :
     Nice (h : ℍ → ℂ) :=
   ModularFormClass.analyticAt_cuspFunction_zero _ one_pos (one_mem_strictPeriods hT)
 
 omit hT in
-private theorem nice_of_levelOne {k' : ℤ} (h : ModularForm 𝒮ℒ k') : Nice (h : ℍ → ℂ) :=
+theorem nice_of_levelOne {k' : ℤ} (h : ModularForm 𝒮ℒ k') : Nice (h : ℍ → ℂ) :=
   ModularFormClass.analyticAt_cuspFunction_zero _ one_pos one_mem_strictPeriods_SL
 
-private theorem sum_qExpansion_coeffForm_mul_pow_eq_zero :
+theorem sum_qExpansion_coeffForm_mul_pow_eq_zero :
     ∑ i ∈ Finset.range (Nat.card (Cos Γ) + 1),
       qExpansion 1 (coeffForm f g i : ℍ → ℂ) * qExpansion 1 (f : ℍ → ℂ) ^ i *
         qExpansion 1 (g : ℍ → ℂ) ^ (Nat.card (Cos Γ) - i) = 0 := by
@@ -604,7 +604,7 @@ private theorem sum_qExpansion_coeffForm_mul_pow_eq_zero :
 
 omit hT in
 
-private theorem qExpansion_coeffForm_card_ne_zero (hg : g ≠ 0) :
+theorem qExpansion_coeffForm_card_ne_zero (hg : g ≠ 0) :
     qExpansion 1 (coeffForm f g (Nat.card (Cos Γ)) : ℍ → ℂ) ≠ 0 := by
   rw [coe_coeffForm_card]
   intro h
@@ -625,14 +625,14 @@ open scoped MatrixGroups ModularForm
 
 variable {Γ : Subgroup SL(2, ℤ)} [Γ.FiniteIndex]
 
-private noncomputable def P6 : PowerSeries ℤ :=
+noncomputable def P6 : PowerSeries ℤ :=
   PowerSeries.mk fun m => if m = 0 then 1 else -504 * (ArithmeticFunction.sigma 5 m : ℤ)
 
-private theorem isIntegralQExp_E4 : IsIntegralQExp (E₄ : ℍ → ℂ) eisenstein4 :=
+theorem isIntegralQExp_E4 : IsIntegralQExp (E₄ : ℍ → ℂ) eisenstein4 :=
   qExpansion_E4_eq_map_eisenstein4.symm
 
 omit [Γ.FiniteIndex] in
-private theorem isIntegralQExp_E6 : IsIntegralQExp (E₆ : ℍ → ℂ) P6 := by
+theorem isIntegralQExp_E6 : IsIntegralQExp (E₆ : ℍ → ℂ) P6 := by
   rw [isIntegralQExp_iff]
   intro n
   rw [EisensteinSeries.E_qExpansion_coeff (by norm_num) (by decide) n, P6, PowerSeries.coeff_mk]
@@ -643,25 +643,25 @@ private theorem isIntegralQExp_E6 : IsIntegralQExp (E₆ : ℍ → ℂ) P6 := by
     ring
 
 variable (Γ) in
-private noncomputable def A12 : ModularForm (Γ : Subgroup (GL (Fin 2) ℝ)) 12 :=
+noncomputable def A12 : ModularForm (Γ : Subgroup (GL (Fin 2) ℝ)) 12 :=
   restrictForm (Subgroup.map_le_range _ Γ) ((E₄.pow 3).mcast (by norm_num))
 
 variable (Γ) in
-private noncomputable def B12 : ModularForm (Γ : Subgroup (GL (Fin 2) ℝ)) 12 :=
+noncomputable def B12 : ModularForm (Γ : Subgroup (GL (Fin 2) ℝ)) 12 :=
   restrictForm (Subgroup.map_le_range _ Γ) ((E₆.pow 2).mcast (by norm_num))
 
 omit [Γ.FiniteIndex] in
-private theorem isIntegralQExp_A12 : IsIntegralQExp (A12 Γ : ℍ → ℂ) (eisenstein4 ^ 3) := by
+theorem isIntegralQExp_A12 : IsIntegralQExp (A12 Γ : ℍ → ℂ) (eisenstein4 ^ 3) := by
   rw [IsIntegralQExp, A12, coe_restrictForm, map_pow, isIntegralQExp_E4]
   rw [ModularForm.qExpansion_mcast, ModularForm.qExpansion_pow one_pos one_mem_strictPeriods_SL]
 
 omit [Γ.FiniteIndex] in
-private theorem isIntegralQExp_B12 : IsIntegralQExp (B12 Γ : ℍ → ℂ) (P6 ^ 2) := by
+theorem isIntegralQExp_B12 : IsIntegralQExp (B12 Γ : ℍ → ℂ) (P6 ^ 2) := by
   rw [IsIntegralQExp, B12, coe_restrictForm, map_pow, isIntegralQExp_E6]
   rw [ModularForm.qExpansion_mcast, ModularForm.qExpansion_pow one_pos one_mem_strictPeriods_SL]
 
 omit [Γ.FiniteIndex] in
-private theorem constantCoeff_P6 : PowerSeries.constantCoeff P6 = 1 := by
+theorem constantCoeff_P6 : PowerSeries.constantCoeff P6 = 1 := by
   rw [← PowerSeries.coeff_zero_eq_constantCoeff_apply, P6, PowerSeries.coeff_mk]; simp
 
 omit [Γ.FiniteIndex] in
@@ -669,11 +669,11 @@ private theorem coeff_one_eisenstein4 : PowerSeries.coeff 1 eisenstein4 = 240 :=
   rw [eisenstein4, PowerSeries.coeff_mk]; norm_num
 
 omit [Γ.FiniteIndex] in
-private theorem coeff_one_P6 : PowerSeries.coeff 1 P6 = -504 := by
+theorem coeff_one_P6 : PowerSeries.coeff 1 P6 = -504 := by
   rw [P6, PowerSeries.coeff_mk]; simp [ArithmeticFunction.sigma_one]
 
 omit [Γ.FiniteIndex] in
-private theorem intSeriesC_ne_zero_of_constantCoeff {K : Type*} [Field K] [CharZero K]
+theorem intSeriesC_ne_zero_of_constantCoeff {K : Type*} [Field K] [CharZero K]
     {p : PowerSeries ℤ} (hp : PowerSeries.constantCoeff p = 1) : intSeriesC K p ≠ 0 := by
   intro h
   have := congrArg (fun z : LaurentSeries K => z.coeff 0) h
@@ -682,25 +682,25 @@ private theorem intSeriesC_ne_zero_of_constantCoeff {K : Type*} [Field K] [CharZ
   simp only [lt_self_iff_false, ↓reduceIte, Int.natAbs_zero, PowerSeries.coeff_map,
     PowerSeries.coeff_zero_eq_constantCoeff_apply, hp, map_one, one_ne_zero] at this
 
-private noncomputable def xq : LaurentSeries ℚ :=
+noncomputable def xq : LaurentSeries ℚ :=
   intSeriesC ℚ (P6 ^ 2) / intSeriesC ℚ (eisenstein4 ^ 3)
 
 omit [Γ.FiniteIndex] in
-private theorem intSeriesC_P4_cube_ne_zero : intSeriesC ℚ (eisenstein4 ^ 3) ≠ 0 :=
+theorem intSeriesC_E4_cube_ne_zero : intSeriesC ℚ (eisenstein4 ^ 3) ≠ 0 :=
   intSeriesC_ne_zero_of_constantCoeff (by rw [map_pow, constantCoeff_eisenstein4, one_pow])
 
 omit [Γ.FiniteIndex] in
-private theorem xq_mem : xq ∈ qExpFunctionFieldC ℚ Γ :=
+theorem xq_mem : xq ∈ qExpFunctionFieldC ℚ Γ :=
   div_mem_qExpFunctionFieldC (B12 Γ) (A12 Γ) isIntegralQExp_B12 isIntegralQExp_A12
-    intSeriesC_P4_cube_ne_zero
+    intSeriesC_E4_cube_ne_zero
 
 omit [Γ.FiniteIndex] in
 
-private theorem xq_transcendental : Transcendental ℚ xq := by
+theorem xq_transcendental : Transcendental ℚ xq := by
   intro halg
   obtain ⟨c, hc⟩ := JOneESAlg.eq_C_of_isAlgebraic halg
   have h1 : intSeriesC ℚ (P6 ^ 2) = HahnSeries.C c * intSeriesC ℚ (eisenstein4 ^ 3) := by
-    rw [← hc, xq, div_mul_cancel₀ _ intSeriesC_P4_cube_ne_zero]
+    rw [← hc, xq, div_mul_cancel₀ _ intSeriesC_E4_cube_ne_zero]
 
   have h2 : (P6 ^ 2).map (Int.castRingHom ℚ) =
       PowerSeries.C c * (eisenstein4 ^ 3).map (Int.castRingHom ℚ) := by
@@ -732,12 +732,12 @@ variable (hT : ModularGroup.T ∈ Γ)
 include hT
 
 omit [Γ.FiniteIndex] in
-private theorem hper : (1 : ℝ) ∈ (Γ : Subgroup (GL (Fin 2) ℝ)).strictPeriods :=
+theorem hper : (1 : ℝ) ∈ (Γ : Subgroup (GL (Fin 2) ℝ)).strictPeriods :=
   JOneESNorm.one_mem_strictPeriods hT
 
 omit [Γ.FiniteIndex] in
 
-private theorem mul_mem_intFormRatiosC {a b : LaurentSeries ℚ} (ha : a ∈ intFormRatiosC ℚ Γ)
+theorem mul_mem_intFormRatiosC {a b : LaurentSeries ℚ} (ha : a ∈ intFormRatiosC ℚ Γ)
     (hb : b ∈ intFormRatiosC ℚ Γ) : a * b ∈ intFormRatiosC ℚ Γ := by
   obtain ⟨k₁, f₁, g₁, pf₁, pg₁, hf₁, hg₁, hg₁0, rfl⟩ := ha
   obtain ⟨k₂, f₂, g₂, pf₂, pg₂, hf₂, hg₂, hg₂0, rfl⟩ := hb
@@ -751,7 +751,7 @@ private theorem mul_mem_intFormRatiosC {a b : LaurentSeries ℚ} (ha : a ∈ int
 
 omit [Γ.FiniteIndex] in
 
-private theorem add_mem_intFormRatiosC {a b : LaurentSeries ℚ} (ha : a ∈ intFormRatiosC ℚ Γ)
+theorem add_mem_intFormRatiosC {a b : LaurentSeries ℚ} (ha : a ∈ intFormRatiosC ℚ Γ)
     (hb : b ∈ intFormRatiosC ℚ Γ) : a + b ∈ intFormRatiosC ℚ Γ := by
   obtain ⟨k₁, f₁, g₁, pf₁, pg₁, hf₁, hg₁, hg₁0, rfl⟩ := ha
   obtain ⟨k₂, f₂, g₂, pf₂, pg₂, hf₂, hg₂, hg₂0, rfl⟩ := hb
@@ -769,7 +769,7 @@ private theorem add_mem_intFormRatiosC {a b : LaurentSeries ℚ} (ha : a ∈ int
 
 omit [Γ.FiniteIndex] in
 
-private theorem neg_mem_intFormRatiosC {a : LaurentSeries ℚ} (ha : a ∈ intFormRatiosC ℚ Γ) :
+theorem neg_mem_intFormRatiosC {a : LaurentSeries ℚ} (ha : a ∈ intFormRatiosC ℚ Γ) :
     -a ∈ intFormRatiosC ℚ Γ := by
   obtain ⟨k, f, g, pf, pg, hf, hg, hg0, rfl⟩ := ha
   refine ⟨k, -f, g, -pf, pg, ?_, hg, hg0, ?_⟩
@@ -779,7 +779,7 @@ private theorem neg_mem_intFormRatiosC {a : LaurentSeries ℚ} (ha : a ∈ intFo
 
 omit [Γ.FiniteIndex] in
 
-private theorem inv_mem_intFormRatiosC {a : LaurentSeries ℚ} (ha : a ∈ intFormRatiosC ℚ Γ) :
+theorem inv_mem_intFormRatiosC {a : LaurentSeries ℚ} (ha : a ∈ intFormRatiosC ℚ Γ) :
     a⁻¹ ∈ intFormRatiosC ℚ Γ := by
   obtain ⟨k, f, g, pf, pg, hf, hg, hg0, rfl⟩ := ha
   by_cases hf0 : intSeriesC ℚ pf = 0
@@ -790,7 +790,7 @@ private theorem inv_mem_intFormRatiosC {a : LaurentSeries ℚ} (ha : a ∈ intFo
 
 omit [Γ.FiniteIndex] in
 
-private theorem algebraMap_mem_intFormRatiosC (c : ℚ) :
+theorem algebraMap_mem_intFormRatiosC (c : ℚ) :
     algebraMap ℚ (LaurentSeries ℚ) c ∈ intFormRatiosC ℚ Γ := by
   have hden : ((c.den : ℤ) : ℚ) ≠ 0 := by exact_mod_cast c.den_nz
   refine ⟨0, ModularForm.const (c.num : ℂ), ModularForm.const (c.den : ℂ),
@@ -824,7 +824,7 @@ private theorem algebraMap_mem_intFormRatiosC (c : ℚ) :
     push_cast
     exact Rat.mul_den_eq_num c
 
-private theorem mem_qExpFunctionFieldC_iff {y : LaurentSeries ℚ} :
+theorem mem_qExpFunctionFieldC_iff {y : LaurentSeries ℚ} :
     y ∈ qExpFunctionFieldC ℚ Γ ↔ y ∈ intFormRatiosC ℚ Γ := by
 
   let R : IntermediateField ℚ (LaurentSeries ℚ) :=
@@ -849,7 +849,7 @@ local notation "μ" => Nat.card (JOneESNorm.Cos Γ)
 
 omit [Γ.FiniteIndex] hT in
 
-private theorem coeffEmb_intSeriesC (p : PowerSeries ℤ) :
+theorem coeffEmb_intSeriesC (p : PowerSeries ℤ) :
     coeffEmb ℂ (intSeriesC ℚ p) = HahnSeries.ofPowerSeries ℤ ℂ (p.map (Int.castRingHom ℂ)) := by
   ext n
   rw [coeffEmb_coeff, intSeriesC, PowerSeries.coeff_coe, PowerSeries.coeff_coe]
@@ -858,13 +858,13 @@ private theorem coeffEmb_intSeriesC (p : PowerSeries ℤ) :
   · simp
 
 omit [Γ.FiniteIndex] hT in
-private theorem coeffEmb_eq_map (z : LaurentSeries ℚ) :
+theorem coeffEmb_eq_map (z : LaurentSeries ℚ) :
     coeffEmb ℂ z = HahnSeries.map z (algebraMap ℚ ℂ) := by
   ext n; rw [coeffEmb_coeff]; rfl
 
 omit [Γ.FiniteIndex] hT in
 
-private theorem sum_div_pow_eq {K : Type*} [Field K] {n : ℕ} (a : ℕ → K) (F G : K) (hG : G ≠ 0)
+theorem sum_div_pow_eq {K : Type*} [Field K] {n : ℕ} (a : ℕ → K) (F G : K) (hG : G ≠ 0)
     (h : ∑ i ∈ Finset.range (n + 1), a i * F ^ i * G ^ (n - i) = 0) :
     ∑ i ∈ Finset.range (n + 1), a i * (F / G) ^ i = 0 := by
   have hGn : G ^ n ≠ 0 := pow_ne_zero _ hG
@@ -881,7 +881,7 @@ private theorem sum_div_pow_eq {K : Type*} [Field K] {n : ℕ} (a : ℕ → K) (
 
 omit [Γ.FiniteIndex] hT in
 
-private theorem monomial_eq {K : Type*} [Field K] {m b : ℕ} (hb : b ≤ m) (Q4 Q6 : K)
+theorem monomial_eq {K : Type*} [Field K] {m b : ℕ} (hb : b ≤ m) (Q4 Q6 : K)
     (h4 : Q4 ≠ 0) :
     Q4 ^ (3 * (m - b)) * Q6 ^ (2 * b) = Q4 ^ (3 * m) * (Q6 ^ 2 / Q4 ^ 3) ^ b := by
   rw [show 3 * m = 3 * (m - b) + 3 * b by omega, _root_.pow_add, div_pow, ← pow_mul, ← pow_mul,
@@ -889,7 +889,7 @@ private theorem monomial_eq {K : Type*} [Field K] {m b : ℕ} (hb : b ≤ m) (Q4
   congr 1
   rw [mul_div_assoc', mul_comm (Q4 ^ (3 * b)), mul_div_assoc, div_self (pow_ne_zero _ h4), mul_one]
 
-private theorem exists_rat_relation {k : ℤ} (f g : ModularForm (Γ : Subgroup (GL (Fin 2) ℝ)) k)
+theorem exists_rat_relation {k : ℤ} (f g : ModularForm (Γ : Subgroup (GL (Fin 2) ℝ)) k)
     {pf pg : PowerSeries ℤ} (hf : IsIntegralQExp f pf) (hg : IsIntegralQExp g pg)
     (hg0 : intSeriesC ℚ pg ≠ 0) :
     ∃ (m : ℕ) (d : Fin (μ + 1) × Fin (m + 1) → ℚ),
@@ -1024,7 +1024,7 @@ private theorem exists_rat_relation {k : ℤ} (f g : ModularForm (Γ : Subgroup 
 
 end Relation
 
-private theorem exists_transcendental_finiteDimensional (hT : ModularGroup.T ∈ Γ) :
+theorem exists_transcendental_finiteDimensional (hT : ModularGroup.T ∈ Γ) :
     ∃ x : qExpFunctionFieldC ℚ Γ, Transcendental ℚ x ∧
       FiniteDimensional (IntermediateField.adjoin ℚ ({x} : Set (qExpFunctionFieldC ℚ Γ)))
         (qExpFunctionFieldC ℚ Γ) := by

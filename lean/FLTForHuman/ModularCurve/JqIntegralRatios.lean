@@ -107,7 +107,7 @@ theorem div_mem_qExpFunctionFieldC {k : ℤ} (f g : ModularForm (Γ : Subgroup (
 The pin's `JqMemRatios` block. Every helper is `private` in its `S_` file, so the
 port transcribes them `private`; only the headline is public. -/
 
-private theorem isIntegralQExp_E4 : IsIntegralQExp (E₄ : ℍ → ℂ) eisenstein4 := by
+theorem isIntegralQExp_E4 : IsIntegralQExp (E₄ : ℍ → ℂ) eisenstein4 := by
   rw [IsIntegralQExp]
   exact qExpansion_E4_eq_map_eisenstein4.symm
 

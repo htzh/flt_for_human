@@ -1076,7 +1076,7 @@ variable {N : ℕ} [NeZero N]
 
 local notation "Δ" => ModularForm.discriminant
 
-private theorem exists_discSeries (K : IntermediateField ℚ ℂ) :
+theorem exists_discSeries (K : IntermediateField ℚ ℂ) :
     ∃ δ : PowerSeries K, (∀ n, ∃ r : ℚ, ((PowerSeries.coeff n δ : K) : ℂ) = (r : ℂ)) ∧
       δ.map (algebraMap K ℂ) = qExpansion N (Δ : ℍ → ℂ) := by
   choose r hr using qExpansion_disc_rat N
@@ -1086,7 +1086,7 @@ private theorem exists_discSeries (K : IntermediateField ℚ ℂ) :
 
 variable (σ : (kN N) ≃ₐ[ℚ] (kN N))
 
-private theorem map_phiOf_eq_of_rat {δ : PowerSeries (kN N)}
+theorem map_phiOf_eq_of_rat {δ : PowerSeries (kN N)}
     (hδ : ∀ n, ∃ r : ℚ, ((PowerSeries.coeff n δ : kN N) : ℂ) = (r : ℂ)) :
     δ.map (phiOf N σ) = δ.map (algebraMap (kN N) ℂ) := by
   ext n
@@ -1095,7 +1095,7 @@ private theorem map_phiOf_eq_of_rat {δ : PowerSeries (kN N)}
   rw [phiOf_ratCast N σ r _ hr]
   exact hr.symm
 
-private theorem tσ_lift {g g' : ℍ → ℂ} (h : Tσ σ g g') :
+theorem tσ_lift {g g' : ℍ → ℂ} (h : Tσ σ g g') :
     ∃ m : ℕ, RatAt N (kN N) m g ∧ RatAt N (kN N) m g' ∧ ∀ M : ℕ, m ≤ M →
       ∃ p : PowerSeries (kN N), p.map (algebraMap (kN N) ℂ) = qExpansion N (g * Δ ^ M) ∧
         p.map (phiOf N σ) = qExpansion N (g' * Δ ^ M) := by
@@ -1122,7 +1122,7 @@ private theorem tσ_lift {g g' : ℍ → ℂ} (h : Tσ σ g g') :
 
 variable {σ}
 
-private theorem aeval_relPoly (φ : kN N →+* ℂ) (G : ℍ → ℂ) (t : (Fin 2 → ZMod N) → (Fin 2 → ZMod N))
+theorem aeval_relPoly (φ : kN N →+* ℂ) (G : ℍ → ℂ) (t : (Fin 2 → ZMod N) → (Fin 2 → ZMod N))
     (P Q : MvPolynomial (Idx N) (kN N)) :
     MvPolynomial.aeval (fun o : Option (Idx N) => o.elim G (gen N t))
       (MvPolynomial.map φ (MvPolynomial.X none * MvPolynomial.rename some Q -

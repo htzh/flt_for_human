@@ -2427,6 +2427,19 @@ SOURCES = [
     # wrapper plus `Definitions/Def_ModularCurve_XHOperators.lean` (already listed)
     # is the whole surface. Appended last so no earlier last-name match can flip.
     "Theorems/Thm_ModularCurve_heckeDiamondInputsHAll.lean",
+    # --- SET-R-C prerequisite: the `JOneES` promotion. The port's
+    # `ModularCurve/X1/FunctionField.lean` transcribed the pin's JOneES `S_` file
+    # as four `private` inner blocks with only the headline public; the qexp head's
+    # finrank target (and the relrank target) consume 51 of those helpers, so the
+    # blocks were promoted to public. The pin's two files that declare them are
+    # appended here (the JOneES `S_` file is the transcription source; the
+    # `...le_index.lean` file carries the `eisenstein4` spelling the port uses in
+    # `isIntegralQExp_A12`/`isIntegralQExp_E4` and the pin name
+    # `intSeriesC_E4_cube_ne_zero`). One helper (`coeff_one_eisenstein4`, whose pin
+    # counterpart `coeff_one_P4` needs the pin's `P4`) stays `private` and is not
+    # diffed. Appended last so no earlier last-name match can flip.
+    "P2M/Sol/S_ModularCurve_JOneES_exists_transcendental_finiteDimensional_qExpFunctionFieldC.lean",
+    "P2M/Sol/S_ModularCurve_finrank_adjoin_jqModC_laurentBaseChange_qExpFunctionFieldC_le_index.lean",
 ]
 
 PORT_FILES = [
