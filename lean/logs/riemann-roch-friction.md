@@ -2437,3 +2437,145 @@ consumer zone; `spec/RiemannRochConsumer.lean` Zone G now exercises
 
 **Remaining.** Row 3.5 (the perfect-field ending, ≈7,050 written) and the deferred R2
 `Defs/` audit.
+
+## Set ds-head — the differential / ramification tail (`WORKORDER-ds-head.md`, 2026-10-07)
+
+*(dispatched as one set, three modules; entries appended by the worker)*
+
+**Landing.** The four pin nodes
+(`map_ne_zero_of_tame`, `two_mul_genus_sub_two_eq_of_degree_canonical`,
+`exists_mem_D_eq_smul_D_of_isCurveOver`, `genus_ratFunc_eq_zero_of_perfectField`)
+landed in `AlgebraicCurve/Differential/Hurwitz.lean` (990 ln / 697 content / 74
+decls), `AlgebraicCurve/Differential/Generation.lean` (40 / 6 / 1) and
+`AlgebraicCurve/Genus/RatFunc.lean` (90 / 33 / 6) — **1,120 written lines**
+against the recon's ≈1,600–1,800 estimate. Checker **6235 → 6306 identical**
+(312 promoted / 83 renamed unmoved), 0 mismatched / 0 missing, 36 own-proof,
+**6271 → 6342 checked** (`+71` = the new public surface: 66 + 1 + 4). Wave
+`lake build` 2861 jobs / 9.96 s wall (18.3 u + 6.7 s); whole-tree 9329 jobs /
+7.25 s (cached); `#print axioms` on the four headlines and four `Prop` classes
+`[propext, Classical.choice, Quot.sound]`; `grep -c 'sorry\|admit\|axiom'` = 0;
+`spec/DsHeadConsumer.lean` exit 0.
+
+**The pair really is one pin file, and the port already had most of it.** The two
+`S_` files are `SequenceMatcher` 0.977 with the same 83 declarations at the same
+line numbers; the port wrote the engine once and both wrappers as its two
+headlines — the pair's ≈1,100-line duplicate collapsed to the 697 content lines of
+one module. Of the pin union's 349 declarations, **173 were statement-identical in
+the port (≈2,579 lines)**: the whole `P1` differential dictionary, the
+`ord_*`/`differentialCoeff_*` calculus, `Place.exists_unit_D_eq_smul_dCoord_s12`
+and the `s12` chain, and `HasCanonicalDivisor`/`canonicalDivisorOf`/`genus`. The
+genuinely new mathematics was ~74 declarations: the four `Prop` classes, the
+tame-different divisor, the Kähler-map/`restrictDCoord` layer, and the
+`localUnitDerivativeRegular ⇒ tameLocalDifferentExponent ⇒ Hurwitz` discharge.
+`Generation.lean` and `RatFunc.lean` are 6 and 33 content lines because their
+pin files' bodies were *entirely* `[in-port]` (the `s12` prelude; the `ℙ¹`
+profile) — the work order predicted 70–150 and ≈400.
+
+**`def … : Prop` substitution false positives recurred (playbook §2.4; cf. the Set
+D entry above).** `port_advise` matched `CanonicalDivisorVariationPrincipal`,
+`TameLocalDifferentExponent` and `LocalUnitDerivativeRegular` to
+`PeriodPair.DiscriminantNeZero` (a generic `Prop`-valued `def`, 125 copies), and
+`ValSubringKaehlerSpanTop`/`ValSubringKaehlerFinite` to unrelated `PeriodPair`
+`def`s. The main pass compares a `def`'s *type*, which for `def foo : Prop := P` is
+just `Prop`, so any same-last-name `Prop`-valued `def` is a name-anchored
+substitute. All six are new; reading the pin body (or `--prop-bodies`) settles it.
+The pre-port substitution count on this cone is an **upper** bound by exactly
+these rows.
+
+**A ported `def`'s binders must come from the *section*, not the declaration, when
+the pin used section variables** (checker-text trap, first hit here). The pin's
+`def CanonicalDifferentDegree` is written `variable (K F F') in def CanonicalDifferentDegree
+(d : ℚ) : Prop`, so its checker text is `(d : ℚ) : Prop` — the section variables
+produce explicit arguments that do *not* appear in the raw source. Spelling them
+inline (`def CanonicalDifferentDegree (K F F' : Type*) […] (d : ℚ) : Prop`) builds
+but reports **MISMATCH**: the text is `(K F F' : Type*) […] (d : ℚ) : Prop`. The
+same applies to `HurwitzCanonicalDecomposition`, `LocalHurwitzExponent`,
+`CanonicalDivisorVariationPrincipal`, `TameLocalDifferentExponent`,
+`LocalUnitDerivativeRegular`, `tameDifferentDivisor`. Fix: transcribe the pin's
+`variable … in` / section-variable form verbatim; the main pass and the port's own
+statement diff then agree. This is the `def`-flavoured twin of the known
+"unused section variables are auto-omitted" fact (playbook §6) and it bit before
+the module compiled, so the checker-first discipline (playbook §4) paid off.
+
+**The work order's declared import list was two modules short (playbook §2.2's
+recurrence).** `RatFunc.lean` needs `AlgebraicCurve/P1/PerfectField.lean` (the
+`ℙ¹` perfect-field profile and the scoped `HasCanonicalDivisor` instance) and the
+`ℙ¹` `genus_eq_degree_div` proof's `∃ω₀` step; the work order listed neither. The
+`genus_eq_degree_div` **public** home is `ResidueTheorem/RRAssembly.lean`, which
+nothing imports; importing the whole residue-theorem assembly from a `Genus/`
+leaf would invert the layering for a 4-line lemma, so the port re-derives it
+`private` as `genus_eq_degree_div_of_ratFunc`. (The public copy stays in
+`RRAssembly`; the checker sees only the private re-derivation, which it ignores.)
+
+**Consumer friction: `placeInfty` needs `[DecidableEq (RatFunc K)]`.** The
+definitions section of `Defs/RatFuncPlaces.lean` carries
+`variable (K) [Field K] [DecidableEq (RatFunc K)]`, so instantiating the
+Ω-generation headline at the concrete place `placeInfty K` requires that instance
+in the consumer even though the headline's own hypotheses do not mention it. The
+`spec/DsHeadConsumer.lean` `[generation]` zone states it; this is consumer-only
+and does not touch the module.
+
+**Naming: `KaehlerDifferential.leibniz` does not exist.** The pin's
+`(KaehlerDifferential.D K F).leibniz`/`.leibniz_pow` are `Derivation.leibniz` /
+`Derivation.leibniz_pow` used by dot notation; the plain `#check
+KaehlerDifferential.leibniz` fails. `kaehlerMap`/`map_D` do live in
+`Mathlib/RingTheory/Kaehler/Basic.lean`.
+
+**Consumer zones (`spec/DsHeadConsumer.lean`, 123 ln, exit 0).** `[hurwitz]` applies
+both headlines and *composes* them (the `map`-nonvanishing headline is exactly the
+`hω₀'` hypothesis of the Hurwitz formula; the `RatFunc` `dX` is the concrete
+`D K (RatFunc K) RatFunc.X`); `[generation]` instantiates Ω-generation at
+`placeInfty K`; `[ratfunc]` applies the `ℙ¹` genus headline and its degree half at
+`dX K`. Deleting any one of the three modules breaks a distinct zone.
+
+### ds-head riders — two deferred nodes folded in (2026-10-07)
+
+`AlgebraicCurve.genus_ratFunc_eq_zero` (16 ln pin) → `Genus/RatFunc.lean`: one
+declaration, `haveI : PerfectField K := inferInstance` (`PerfectField.ofCharZero`)
+then the landed perfect-field headline. `KaehlerDifferential.exists_unique_smul_D_of_transcendental`
+(23 ln pin) → `Defs/KaehlerTranscendental.lean`: one declaration, a 5-line proof over
+the ported `span_D_eq_top_of_transcendental` / `D_ne_zero_of_transcendental`. Both
+are wrapper/transcriptions; the mathematics was already in the port. Checker
+**6306 → 6308 identical** (312 promoted / 83 renamed unmoved), 0 mismatched /
+0 missing, 6342 → 6344 checked; axioms clean; no `sorry`; the consumer's new
+`[riders]` zone exits 0.
+
+**Editing a shared hub costs its whole cascade.** `Defs/KaehlerTranscendental.lean`
+is imported by `Canonical/HasCanonicalDivisor.lean`, so one added declaration there
+invalidates 54 modules / 38,733 lines — `build_ladder.py --edit` prices it at
+≈467 s, and the actual whole-tree `lake build` took ~14 min (the foreground tool cap
+is 10 min, so it had to be backgrounded). The ds-head modules were leaves: their
+whole-tree build was 5–7 s. When a rider's natural home is a hub, budget the
+cascade, not the declaration. (The `Genus/RatFunc.lean` rider is a leaf and cost
+nothing.)
+
+**The third deferred node is a small set, not a fold.** `genusFF_ratFunc_eq_zero_of_isAlgClosed`
+is 7 needed nodes / 790 raw lines in `frontier.py`, 571 of which is
+`isCurveOver_ratFunc` — already present as the scoped instance
+`instIsCurveOverRatFunc` (`P1/UnitFinite.lean:57`). The rest are thin:
+`constantsAreBase_of_isAlgClosed` ≡ the ported `p0n20_rr_constantsAreBase_of_isAlgClosed`
+(name reconciliation), `functionFieldRiemannRoch_of_isAlgClosed` is a 1-liner over
+the ported `functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed`,
+`ell_canonicalDivisor_eq_genus_of_riemannRoch` is 6 lines,
+`genus_eq_genusFF` ~30 over `indexOfSpecialty_eq_finrank_H1`. Effective new content
+≈220 lines across `RiemannRoch/Assembly.lean`, `ResidueTheorem/RRAssembly.lean` and
+`Genus/RatFunc.lean`. Held for the manager's decision (see `ds-head-recon.md` §10).
+
+**The `genusFF` closure landed — hub home avoided (2026-10-07).** All seven nodes
+of `ds-head-recon.md` §10 are in. The one design change from the proposed cut:
+`genus_eq_genusFF` and `ell_canonicalDivisor_eq_genus_of_riemannRoch` were placed
+in `ResidueTheorem/RRAssembly.lean` rather than `RiemannRoch/Assembly.lean`.
+`build_ladder.py --edit` priced the latter at **56 modules / 39,742 lines ≈ 484 s**
+(a hub; the rider's 14-minute whole-tree build showed what that costs), while
+`RRAssembly` has **0 dependents** and already hosts the sibling
+`genus_eq_degree_div` / `p0n25_wkc_stichtenothGenus_eq_genus_of_weilMax`
+identifications, so it is a natural — arguably better — home. A 1-line
+`import KFamily` was added there for `residueTheoremK_of_isAlgClosed`. General
+rule: **when the mathematics puts a node near a hub boundary, host it on the leaf
+side of the boundary and record the deviation**; the statement checker does not
+care which module a declaration lives in, only that `PORT_FILES` lists it.
+
+Checker `6308 → 6315 identical` (312 promoted / 83 renamed unmoved), 0 mismatched /
+0 missing, 6344 → 6351 checked; axioms clean; no `sorry`; the consumer's `[genusff]`
+zone includes `genusFF ℂ (RatFunc ℂ) = 0`; whole-tree build 9329 jobs exit 0 in
+~7 s (both edited modules are leaves).

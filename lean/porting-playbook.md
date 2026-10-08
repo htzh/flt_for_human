@@ -365,6 +365,18 @@ module.** Duplication detection is measurement, not inspection:
   `es1a6_addSeam_restrictAlong_eq_placeOfEquation`), and a third — the second-order
   `XYIdeal` block — forced a mid-set route amendment once its *closure* was
   measured rather than its name list.
+- **It is also an upper bound, and its worst false positives are `def … : Prop`.**
+  The main checker pass compares a `def`'s *type*, which for `def foo : Prop := P`
+  is just `Prop` — so **any** same-last-name `Prop`-valued `def` in the pool is a
+  name-anchored substitute, whatever its body. Set D hit this on six
+  `RiemannRochRows` predicates matched against `EisensteinWeightOne.E1Chi3IsModular`;
+  ds-head hit it on all of `CanonicalDivisorVariationPrincipal`,
+  `TameLocalDifferentExponent`, `LocalUnitDerivativeRegular` matched against
+  `PeriodPair.DiscriminantNeZero` (a generic `Prop` `def` with 125 copies) and on
+  `ValSubringKaehlerSpanTop`/`ValSubringKaehlerFinite`. Every one was new. Read the
+  pin body (or run `--prop-bodies`) on every `def`:Prop substitution row before
+  believing it; treat the substitution *count* as an upper bound by exactly those
+  rows.
 - **Graph-node multiplicity undercounts copies.** A block with one graph node can
   ship five times because hidden exports carry their own copies; grep a
   distinctive marker lemma at file level. Quantify a dedup by *duplicate lines
@@ -694,6 +706,18 @@ instruments, all cheap:
      the elaborated types agree; only the checker notices. Take the binders from
      the wrapper and use the `S_` file only for the proof body. This rule recurred
      for four consecutive topics before it was applied from the start.
+   - **A `def` whose pin binders came from a `variable` must keep them there.**
+     The textual rule has a `def`-flavoured twin (ds-head, 2026-10-07): the pin's
+     `variable (K F F') in def CanonicalDifferentDegree (d : ℚ) : Prop` has
+     checker text `(d : ℚ) : Prop`, because section variables — even when made
+     explicit by `variable (…) in` — never appear in the raw source. Spelling them
+     inline (`def CanonicalDifferentDegree (K F F' : Type*) […] (d : ℚ) : Prop`)
+     builds but reports **MISMATCH**. Transcribe the `variable … in` (or section)
+     form verbatim for every `def`/`abbrev` that takes type/field arguments, and
+     re-run the checker on the new module *before* trusting the build — this one
+     surfaced before the module compiled. Same class as "unused section variables
+     are auto-omitted" (§6) and as the wrapper-vs-`S_` rule above; the checker is
+     the only instrument that sees it.
    - **The `kw_` prefix is erased on both sides, in the name *and inside the
      statement*.** `norm` drops it, for the same reason it drops the
      `ModularCurve.`/`AlgebraicCurve.` qualification: a promoted helper is renamed
@@ -845,6 +869,17 @@ is pure loss; glue and trivia are not worth exporting.
 - **Promote to the module where the needed type is available**, even if the work
   order says otherwise, and **rename at promotion when the pin name is already
   taken publicly**, keeping a local alias for existing consumers.
+- **Host a node on the leaf side of a hub boundary when the mathematics admits
+  either home** (ds-head, 2026-10-07). The statement checker is module-agnostic —
+  it only needs the declaration's home listed in `PORT_FILES` — so the home is a
+  build-cost decision. The approved cut put `genus_eq_genusFF` in
+  `RiemannRoch/Assembly.lean`; `build_ladder.py --edit` priced that hub at 56
+  modules / 39,742 lines ≈ 484 s, while `ResidueTheorem/RRAssembly.lean` has zero
+  dependents and already hosted the sibling `genus_eq_degree_div` /
+  `…stichtenothGenus_eq_genus_of_weilMax` identifications. Moving the two nodes to
+  the leaf cost one `import` and made the whole-tree build 7 s instead of ~14 min.
+  Record the deviation (the recon/friction log did); do not silently reverse a
+  work order, and do not use this to split a genuine theory across modules.
 - **Name a promoted helper at the prefix-stripped pin name** (`kw_g₂_ofTau` →
   `g₂_ofTau`); the checker verifies the promotion through its `stripped_source`
   fallback, printing `RENAMED`, and the criterion is *promotion*, not the pin's

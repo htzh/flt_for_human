@@ -29,6 +29,7 @@ import FLTForHuman.AlgebraicCurve.Genus.Index
 import FLTForHuman.AlgebraicCurve.Genus.Stichtenoth
 import FLTForHuman.AlgebraicCurve.RiemannRoch.Assembly
 import FLTForHuman.AlgebraicCurve.LocalResidue.Instance
+import FLTForHuman.AlgebraicCurve.ResidueTheorem.KFamily
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false
@@ -690,5 +691,91 @@ theorem AlgebraicCurve.functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClose
   intro _ _ _
   exact ModularCurve.p0n25_wkc_functionFieldRiemannRoch_of_residueTheoremK K F
     (hRTK := hRTK) (hC := ModularCurve.p0n20_rr_constantsAreBase_of_isAlgClosed K F)
+
+/-! ## The `ℙ¹` `genusFF` closure (ds-head rider)
+
+The pin nodes the `genusFF_ratFunc_eq_zero_of_isAlgClosed` headline cites. They are
+landed in this leaf module rather than `RiemannRoch/Assembly.lean`, their other
+natural home: `Assembly` is a hub whose one-token edit cascades to 56 modules /
+≈484 s, while nothing imports `RRAssembly`. See `topics/riemannRoch/ds-head-recon.md`
+§10. -/
+
+open AlgebraicCurve
+
+theorem AlgebraicCurve.ell_canonicalDivisor_eq_genus_of_riemannRoch
+    {K F : Type*} [Field K] [Field F] [Algebra K F] [IsCurveOver K F]
+    [HasCanonicalDivisor (K := K) (F := F)] [∀ v : Place K F, v.DCoordGenerates]
+    (hRR : FunctionFieldRiemannRoch K F) (hC : ConstantsAreBase K F)
+    {ω : Ω[F⁄K]} (hω : ω ≠ 0) :
+    (ell (canonicalDivisorOf hω) : ℤ) = (genus K F : ℤ) := by
+  have h0 := hRR hω 0
+  rw [map_zero, ell_zero_eq_one_of_constantsAreBase hC, sub_zero] at h0
+  push_cast at h0
+  linarith
+
+theorem AlgebraicCurve.genus_eq_genusFF
+    {K F : Type*} [Field K] [Field F] [Algebra K F] [IsCurveOver K F]
+    [HasCanonicalDivisor (K := K) (F := F)] [∀ v : Place K F, v.DCoordGenerates]
+    (hRR : FunctionFieldRiemannRoch K F) (hWDA : WeilDualityAdelic K F)
+    (hC : ConstantsAreBase K F) :
+    genus K F = genusFF K F := by
+  haveI : HasPrincipalDivisors K F := IsCurveOver.hasPrincipalDivisors
+  obtain ⟨ω, hω⟩ := exists_ne (0 : Ω[F⁄K])
+  have h1 : (indexOfSpecialty (0 : Divisor K F) : ℤ) = (ell (canonicalDivisorOf hω - 0) : ℤ) :=
+    hWDA hω 0
+  rw [sub_zero] at h1
+  have h2 : (ell (canonicalDivisorOf hω) : ℤ) = (genus K F : ℤ) :=
+    ell_canonicalDivisor_eq_genus_of_riemannRoch hRR hC hω
+  have h3 : indexOfSpecialty (0 : Divisor K F) = Module.finrank K (H1 (0 : Divisor K F)) :=
+    indexOfSpecialty_eq_finrank_H1 0
+  have h4 : (indexOfSpecialty (0 : Divisor K F) : ℤ) = (genusFF K F : ℤ) := by
+    rw [genusFF, ← h3]
+  have : (genus K F : ℤ) = (genusFF K F : ℤ) := by
+    rw [← h4, h1, h2]
+  exact_mod_cast this
+
+theorem AlgebraicCurve.constantsAreBase_of_isAlgClosed (K F : Type*) [Field K] [Field F] [Algebra K F]
+    [DecidableEq (RatFunc K)] [Algebra (RatFunc K) F] [IsScalarTower K (RatFunc K) F]
+    [FiniteDimensional (RatFunc K) F] [Algebra.IsSeparable (RatFunc K) F]
+    [IsAlgClosed K] [IsCurveOver K F] :
+    ConstantsAreBase K F :=
+  ModularCurve.p0n20_rr_constantsAreBase_of_isAlgClosed K F
+
+theorem AlgebraicCurve.functionFieldRiemannRoch_of_isAlgClosed
+    {K F : Type*} [Field K] [IsAlgClosed K] [DecidableEq (RatFunc K)]
+    [Field F] [Algebra K F]
+    [HasCanonicalDivisor (K := K) (F := F)] [∀ w : Place K F, w.DCoordGenerates]
+    [Algebra (RatFunc K) F] [IsScalarTower K (RatFunc K) F]
+    [Algebra.IsIntegral (RatFunc K) F] [Module.Finite (RatFunc K) F]
+    [HasLocalResidue K F] [∀ w : Place K F, w.FiniteResidue]
+    [Nontrivial Ω[F⁄K]]
+    [IsCurveOver K F] [IsCurveOver K (RatFunc K)]
+    [∀ u : Place K (RatFunc K), u.FiniteResidue]
+    [HasCanonicalLocalResidueKStar K F]
+    [HasPrincipalDivisors K F] [Algebra.IsSeparable (RatFunc K) F]
+    [Nontrivial Ω[(RatFunc K)⁄K]] [∀ v : Place K (RatFunc K), v.DCoordGenerates]
+    [FiniteDimensional (RatFunc K) F] [HasSeparableResidue K F] :
+    FunctionFieldRiemannRoch K F :=
+  functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed
+    (hRTK := residueTheoremK_of_isAlgClosed)
+
+theorem AlgebraicCurve.functionFieldRiemannRoch_of_isAlgClosed_of_isCurveOver
+    {K F : Type*} [Field K] [IsAlgClosed K] [DecidableEq (RatFunc K)]
+    [Field F] [Algebra K F]
+    [HasCanonicalDivisor (K := K) (F := F)] [∀ w : Place K F, w.DCoordGenerates]
+    [Algebra (RatFunc K) F] [IsScalarTower K (RatFunc K) F]
+    [Algebra.IsIntegral (RatFunc K) F] [Module.Finite (RatFunc K) F]
+    [∀ w : Place K F, w.FiniteResidue]
+    [Nontrivial Ω[F⁄K]]
+    [IsCurveOver K F] [IsCurveOver K (RatFunc K)]
+    [∀ u : Place K (RatFunc K), u.FiniteResidue]
+    [HasPrincipalDivisors K F] [Algebra.IsSeparable (RatFunc K) F]
+    [Nontrivial Ω[(RatFunc K)⁄K]] [∀ v : Place K (RatFunc K), v.DCoordGenerates]
+    [FiniteDimensional (RatFunc K) F] :
+    FunctionFieldRiemannRoch K F := by
+  haveI : HasCanonicalLocalResidueKStar K F := instHasCanonicalLocalResidueKStar
+  haveI : HasSeparableResidue K F := HasSeparableResidue.of_perfectField_of_isCurveOver
+  intro _ _ _ ω hω D
+  exact functionFieldRiemannRoch_of_isAlgClosed (K := K) (F := F) hω D
 
 end

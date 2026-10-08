@@ -1,18 +1,31 @@
-# The ready shelf after row S: the new head and its siblings
+# TOPIC — the Deligne–Serre function-field head: the `AlgebraicCurve` differential / ramification tail
 
-**Recon, 2026-10-07.** After row S landed, the porting frontier
-(`frontier.py --target DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen --rank-by
-silo --ready`) holds **97 ready nodes** (all premises ported). This note recons the new head,
-`AlgebraicCurve.genus_ratFunc_eq_zero_of_perfectField`, and its nearest siblings, and maps the
-rest of the shelf. Pin `anthropics/fermats-last-theorem@aa2d8b3`; port mathlib `v4.34.0`; port
-checker at `6235 (312 promoted, 83 renamed), 0/0, 36 own (6271 checked)`.
+**Status: landed 2026-10-07** — one set, three modules, checker `6306 identical /
+0 mismatched / 0 missing`; see [§8](#8-outcome-landed-2026-10-07) for the measured
+outcome. Planning record for the port of the four pin nodes
 
-## 1. The shelf, by cluster
+```
+AlgebraicCurve.genus_ratFunc_eq_zero_of_perfectField            (1,461)
+AlgebraicCurve.exists_mem_D_eq_smul_D_of_isCurveOver           (1,422)
+AlgebraicCurve.map_ne_zero_of_tame                             (1,223)
+AlgebraicCurve.two_mul_genus_sub_two_eq_of_degree_canonical    (1,229)
+```
+
+Pin `anthropics/fermats-last-theorem` at `aa2d8b3`; port mathlib `v4.34.0`; port checker at
+`6235 (312 promoted, 83 renamed), 0 mismatched, 0 missing, 36 own-proof (6271 checked)`. This is
+the head of the ready shelf left by row S of the `PeriodPair` column, taken as **one set**; the
+work order is [WORKORDER-ds-head.md](WORKORDER-ds-head.md). Method:
+[../porting-playbook.md](../porting-playbook.md) §2.1–§2.6, §3.1–§3.5, §4–§5.
+
+## 1. Where it sits
+
+`frontier.py --target DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen --rank-by
+silo --ready` leaves **97 ready nodes**. By cluster:
 
 | namespace | nodes | silo lines | character |
 |---|---:|---:|---|
 | `ModularCurve` | 41 | 18,367 | level-`N`/`Γ₀` q-expansion, diamond-aut, Frobenius, `xH`-function-field relrank |
-| `AlgebraicCurve` | 27 | 7,550 | **the head cluster** — genus / differentials / ramification |
+| `AlgebraicCurve` | 27 | 7,550 | **this topic** — genus / differentials / ramification |
 | `CuspForm` | 10 | 2,843 | nebentypus, Fricke, `Γ₁` degeneracy |
 | `WeierstrassCurve` | 8 | 3,868 | char-2/3 Velu, inertia, torsion Galois |
 | `AutomorphicForm` | 2 | 681 | factorizable test functions |
@@ -22,103 +35,257 @@ checker at `6235 (312 promoted, 83 renamed), 0/0, 36 own (6271 checked)`.
 | `CuspFormClass` | 2 | 98 | `slash`/`heckeDiagMatrix` zeroes |
 | `KaehlerDifferential` | 1 | 23 | `exists_unique_smul_D_of_transcendental` |
 
-The `AlgebraicCurve` cluster is the new head; the larger `ModularCurve` cluster was already the
-subject of the Deligne–Serre column (`lean/topics/deligneSerre/`), and two of its heads
-(`exists_ratCast_qExpansion_comp_smul_of_mem_Gamma0_of_dvd`,
-`exists_qExpansion_S_smul_eq_and_conj_eq_of_ratCast_qExpansion`) are already named in
-`deligneSerre/WORKORDER-H-homes.md`; the others there have no blueprint yet.
+The four nodes above are the largest `AlgebraicCurve.*` entries and the only ones that form one
+mathematical story: the differential/ramification layer **above** the ported Riemann–Roch core
+(`AlgebraicCurve/{P1,Canonical,Genus,Defs}/`). The larger `ModularCurve` cluster belongs to the
+Deligne–Serre column (`lean/topics/deligneSerre/`), whose `WORKORDER-H-homes.md` already names
+two of its heads; those are a separate topic.
 
-## 2. The head
+## 2. Measured cone
 
-`AlgebraicCurve.genus_ratFunc_eq_zero_of_perfectField` (1,461 pin lines, 57 declarations):
+| metric | `genus…PerfectField` | `exists_mem_D…IsCurveOver` | `map_ne_zero_of_tame` | `two_mul_genus…canonical` |
+|---|---:|---:|---:|---:|
+| `S_` raw lines | 1,461 | 1,422 | 1,223 | 1,229 |
+| `S_` declarations | 57 | 122 | 83 | 83 |
+| `Thm_` wrapper | 1 decl | 1 decl | 1 decl | 1 decl |
+| substitutions already in port | 35 / ≈989 ln | **118 / ≈1,354 ln** | 10 / ≈118 ln | 10 / ≈118 ln |
+| port-`private` among those | 2 | 11 | 0 | 0 |
+| same-file drags | 3, **all `[in-port]`** | 61, **all `[in-port]`** | 14 (5 `[in-port]`, 14 shared, 9 new ≈130 ln) | same as `map_ne_zero` |
+| net written (estimate) | ≈400 | ≈70–150 | ≈1,100 for the pair, written **once** | — |
 
+**Union (349 declarations across the eight pin files): 173 substitutions ≈2,579 lines already
+statement-identical in the port, and 80 names proved in ≥2 target files ≈1,137 once-only
+lines.** With the near-duplicate pair written once (below), the projected written volume is
+**≈1,600–1,800 lines** in three modules — inside the one-subagent rule.
+
+Substitution homes are the already-landed Riemann–Roch layer:
+`AlgebraicCurve/P1/{UnitNormalForm,Dictionary,KaehlerIntegral,EnginePrelude,DivisorAction,
+PerfectField}.lean`, `AlgebraicCurve/Canonical/HasCanonicalDivisor.lean`,
+`AlgebraicCurve/Genus/Stichtenoth.lean`, `AlgebraicCurve/Defs/LocalResidue.lean`. Representative
+landed matches: `ord_differentialCoeff_dX_ofHeightOneSpectrum` (103 ln),
+`exists_sub_algebraMap_intDegree_neg` (83), `ord_placeInfty_X` (65),
+`exists_unit_D_eq_smul_dCoord_s12` (56), `exists_smul_dX_eq` (55),
+`dCoordGenerates_of_valSubringKaehlerSpanTop` (43), `not_dvd_derivative_of_ord_eq_one` (42),
+`differentialCoeff_ne_zero` (36).
+
+Regenerate:
+
+```bash
+cd tools/deps
+python3 port_advise.py --targets build/readyHead_targets.txt --json build/readyHead_advise.json
+python3 frontier.py --target AlgebraicCurve.genus_ratFunc_eq_zero_of_perfectField --no-rank
 ```
-(K : Type*) [Field K] [PerfectField K]
-  [AlgebraicCurve.IsCurveOver K (RatFunc K)]
-  [AlgebraicCurve.HasCanonicalDivisor (K := K) (F := RatFunc K)] :
-  AlgebraicCurve.genus K (RatFunc K) = 0
-```
 
-The projective line has genus zero, in the Kähler-canonical-divisor guise; it rests on the
-computation that a canonical divisor of `K(X)/K` has degree `-2`. It is cited by the two
-downstream variants `genus_ratFunc_eq_zero` (char 0) and
-`genusFF_ratFunc_eq_zero_of_isAlgClosed` — both **still unported**. Its seven cited premises are
-all `AlgebraicCurve.RationalFunctionField.*` / `Place.*` and are already ported (the
-`P1/Dictionary`, `P1/UnitNormalForm`, `P1/KaehlerIntegral`, `Genus/Stichtenoth` layers), and its
-three same-file helpers are all `[in-port]`. This is the cheapest of the four big nodes.
+## 3. The near-duplicate pair (the set's dedup)
 
-## 3. The nearest siblings, and the near-duplicate pair
+`map_ne_zero_of_tame` and `two_mul_genus_sub_two_eq_of_degree_canonical` **are the same pin
+file**: `SequenceMatcher` ratio **0.977**, 693 of 700 substantive lines identical, the same 80
+declarations at the same `S_` line numbers (`…:930`, `:755`, `:484`, `:1030`, `:1122`, `:213`,
+`:597`, `:441`, `:321`, `:120`, `:1168`, `:838`, …). They differ only in the headline statement
+(`map_ne_zero_of_tame` is the `KaehlerDifferential.map … ≠ 0` step; `two_mul_genus…` is the
+Hurwitz degree formula). Writing them as two modules would duplicate ≈1,100 lines. **One home,
+one engine, two headlines.**
 
-| node | pin lines | what it says |
-|---|---:|---|
-| `AlgebraicCurve.exists_mem_D_eq_smul_D_of_isCurveOver` | 1,422 | at a place `v` with `v.ord π = 1` and `x ∈ v.toValuationSubring`, `D x = c • D π` with `c` integral at `v` — Ω is generated by `dπ` |
-| `AlgebraicCurve.map_ne_zero_of_tame` | 1,223 | `KaehlerDifferential.map K K F F' ω₀ ≠ 0` for `ω₀ ≠ 0`, under a regularity hypothesis and tameness of `F'/F` |
-| `AlgebraicCurve.two_mul_genus_sub_two_eq_of_degree_canonical` | 1,229 | the Hurwitz/ramification formula `2g' − 2 = [F':F](2g − 2) + ∑_w (e_w − 1) deg w`, **given** the two canonical-degree facts as hypotheses |
+The shared engine is the pin's Prop-class vocabulary and its reductions:
+`CanonicalDifferentDegree`, `HurwitzCanonicalDecomposition`, `LocalHurwitzExponent`,
+`CanonicalDivisorVariationPrincipal` (all four **absent** from the port), and
+`hurwitzCanonicalDecomposition_of_tameLocalDifferent` (50),
+`localHurwitzExponent_tameDifferent_of_universal` (50),
+`ord_differentialCoeff_D_of_unit_mul_uniformizer_pow` (54),
+`tameLocalDifferentExponent_of_localUnitDerivativeRegular_charZero` (37),
+`degree_canonicalDivisor_relation_of_hurwitzCanonicalDecomposition` (28), plus the 9 genuinely
+new private helpers (≈130 lines) the drags list.
 
-**`map_ne_zero_of_tame` and `two_mul_genus_sub_two_eq_of_degree_canonical` are the same pin
-file** (97.7 % `SequenceMatcher`; 693 of 700 substantive lines identical; the same 80
-declarations at the same `S_` line numbers). They differ only in the headline statement. Writing
-them as two modules would double ~1,100 lines for nothing.
+## 4. Route audit (mathlib first)
 
-## 4. How much is already paid for
+**Reuse wins.** The ported vocabulary is the base and must be imported, not re-proved:
+`AlgebraicCurve.Place.DCoordGenerates`, `differentialCoeff`, `ordDifferential`,
+`ramificationIndex`, `Place.sum_ramificationIndex_mul_inertiaDeg` (fundamental identity),
+`canonicalDivisorOf`, `HasCanonicalDivisor`, and the `P1` differential/canonical dictionary.
+Mathlib supplies `KaehlerDifferential.D` / `KaehlerDifferential.map`
+(`RingTheory/Kaehler/Basic.lean`, `…/TensorProduct.lean`), `PerfectField`
+(`FieldTheory/Perfect.lean`), `Module.Free`/`finrank`, `IsScalarTower`, `Algebra.IsSeparable`.
 
-`port_advise --targets` on the four files (349 declarations):
+**Recorded negatives.** Mathlib has no Hurwitz/ramification formula for function fields, no
+abstract-place ramification index (the pin's `Place.ramificationIndex` is its own), no
+"`Ω` is generated by `dπ` at a place" statement, and no canonical-different/`LocalHurwitzExponent`
+vocabulary. The pin's four Prop classes and the `ℙ¹` genus computation are the new mathematics;
+everything beneath them is import.
 
-* **173 declarations have statement-identical copies already in the port ≈ 2,579 lines**
-  (160 importable public + 13 port-`private`). Homes: `AlgebraicCurve/P1/{UnitNormalForm,
-  Dictionary,KaehlerIntegral,EnginePrelude,DivisorAction,PerfectField}.lean`,
-  `AlgebraicCurve/Canonical/HasCanonicalDivisor.lean`,
-  `AlgebraicCurve/Genus/Stichtenoth.lean`, `AlgebraicCurve/Defs/LocalResidue.lean`. The R-R
-  effort pre-paid the `ℙ¹` differential/canonical layer this cluster builds on.
-* **80 names are proved in ≥2 target files ≈ 1,137 once-only lines**, dominated by the
-  `map_ne_zero ↔ two_mul_genus` shared engine (`hurwitzCanonicalDecomposition_of_tameLocalDifferent`
-  50, `localHurwitzExponent_tameDifferent_of_universal` 50,
-  `ord_differentialCoeff_D_of_unit_mul_uniformizer_pow` 54, `tameLocalDifferentExponent_…` 37,
-  `degree_canonicalDivisor_relation_of_hurwitzCanonicalDecomposition` 28, `…`).
-* **Drags.** `exists_mem_D_eq_smul_D_of_isCurveOver`: 61 same-file helpers ≈ 670 lines, **all 61
-  already `[in-port]`**. `genus_ratFunc_eq_zero_of_perfectField`: 3 helpers, all `[in-port]`.
-  `two_mul_genus`/`map_ne_zero`: 14 helpers (5 `[in-port]`, 14 shared, 9 new ≈ 130 lines).
-* The public surfaces are 54 (genus), 61 (`exists_mem_D`), 69 + 69 (`map_ne_zero`/`two_mul`).
+## 5. The set cut
 
-So the four nodes read as 5,335 raw pin lines, of which ≈ 2,579 are already in the port and
-≈ 1,137 are a pin-level duplicate; **the net new content is roughly 1,300–1,800 written lines**,
-concentrated in the Hurwitz/ramification engine and the two differential statements.
+**One set, `ds-head`, three modules** (see the work order for the exact declaration lists):
 
-## 5. Proposed set cut
+| module | contents |
+|---|---|
+| `AlgebraicCurve/Differential/Hurwitz.lean` | the shared Hurwitz/ramification engine **once**, plus `map_ne_zero_of_tame` and `two_mul_genus_sub_two_eq_of_degree_canonical` |
+| `AlgebraicCurve/Differential/Generation.lean` | `exists_mem_D_eq_smul_D_of_isCurveOver` (its 61 drags are already `[in-port]`) |
+| `AlgebraicCurve/Genus/RatFunc.lean` | `genus_ratFunc_eq_zero_of_perfectField` (its 3 drags are `[in-port]`) |
 
-**One set, one new module** is the natural cut, because the four nodes are one story (the
-differential/ramification layer above the ported `ℙ¹`/canonical layer):
+**Not this set:** the two downstream variants `AlgebraicCurve.genus_ratFunc_eq_zero` and
+`genusFF_ratFunc_eq_zero_of_isAlgClosed` (they cite the head and become ready only after it);
+`KaehlerDifferential.exists_unique_smul_D_of_transcendental` (23 ln, a `KaehlerDifferential`
+leaf — it can ride along or wait); the `ModularCurve`/`CuspForm`/`WeierstrassCurve` clusters.
 
-* `FLTForHuman/AlgebraicCurve/Differential/Hurwitz.lean` — the shared Hurwitz/ramification
-  engine written **once**, plus `map_ne_zero_of_tame` and
-  `two_mul_genus_sub_two_eq_of_degree_canonical` at their wrapper statements.
-* the two short headlines `exists_mem_D_eq_smul_D_of_isCurveOver` and
-  `genus_ratFunc_eq_zero_of_perfectField` are mostly imports from the ported
-  `P1`/`Canonical` modules; they can live in the same module (or a small sibling
-  `AlgebraicCurve/Differential/Generation.lean`).
+## 6. Risks and open questions
 
-The order must fix, before dispatch: the three `generalise` groups the tool flags — 11
-same-conclusion/different-binders (take the **wrapper's** binders) and 14 same-name/different-
-statement rows (generalise or rename), headed by
-`ordDifferential_dX_of_ne_placeInfty_of_perfectField` and
-`differentialCoeff_placeInfty_D_X_eq`. `KaehlerDifferential.exists_unique_smul_D_of_transcendental`
-(23 lines) is a leaf and can ride along or wait.
+1. **The `generalise` rows.** `port_advise` flags 11 same-conclusion/different-binder names
+   (take the **wrapper's** binders) and 14 same-name/different-statement names, headed by
+   `ordDifferential_dX_of_ne_placeInfty_of_perfectField` and
+   `differentialCoeff_placeInfty_D_X_eq`. The work order fixes these before dispatch; each must
+   be resolved by reading the two statements, not by trusting the ratio.
+2. **The pair's two headlines vs. the pin's `_port` copies.** Both pin files carry a
+   `…_port` lemma and the `solution`; the checker wants the wrapper statement, so the module
+   declares the headline at the wrapper spelling and keeps the `_port` copy only as the proof's
+   local step (or drops it if the wrapper is a one-line call).
+3. **The pin's `attribute [-instance]`/`[-simp]` blocks and heartbeat bumps are not
+   transcribed** (the port's frozen cap is `4,000,000`); the Hurwitz engine is the heaviest
+   candidate in the cluster, so price it with `build_ladder.py --edit` before a wave.
 
-**Do not re-derive** what the port has: the `P1` unit-normal-form/dictionary/Kaehler-integral
-block, `HasCanonicalDivisor.lean`'s `exists_unit_D_eq_smul_dCoord_s12` /
-`dCoordGenerates_of_valSubringKaehlerSpanTop` / `isLocalization_centerIdeal_of_isDedekindDomain`,
-`Genus/Stichtenoth`'s `ord_placeInfty_X`, and `Defs/LocalResidue`'s
-`differentialCoeff_ne_zero` are all landed and are the drags' homes.
-
-## 6. Reproduce
+## 7. Reproduce
 
 ```bash
 cd tools/deps
 python3 kb_build.py
 python3 frontier.py --target DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen \
-  --rank-by silo --ready --top 0            # the 97-node shelf (saved: build/ready_after_rowS.txt)
-python3 port_advise.py --targets build/readyHead_targets.txt   # the four head files
+  --rank-by silo --ready --top 0            # the 97-node shelf (build/ready_after_rowS.txt)
+python3 port_advise.py --targets build/readyHead_targets.txt --json build/readyHead_advise.json
 python3 explore.py AlgebraicCurve.genus_ratFunc_eq_zero_of_perfectField
 ```
 
 `build/readyHead_targets.txt` is the four-file list; `build/` is untracked.
+
+## 8. Outcome (landed 2026-10-07)
+
+One set, three modules, all green. Checker **6235 → 6306 identical** (312
+promoted / 83 renamed unmoved), 0 mismatched / 0 missing, 36 own-proof,
+**6271 → 6342 checked**; the `+71` is the new public surface and nothing else
+moved. Wave `lake build` 2861 jobs / 9.96 s; whole-tree 9329 jobs / 7.25 s;
+axioms `[propext, Classical.choice, Quot.sound]`; no `sorry`; consumer exit 0.
+
+| module | written | content | decls | public |
+|---|---:|---:|---:|---:|
+| `AlgebraicCurve/Differential/Hurwitz.lean` | 990 | 697 | 74 | 66 |
+| `AlgebraicCurve/Differential/Generation.lean` | 40 | 6 | 1 | 1 |
+| `AlgebraicCurve/Genus/RatFunc.lean` | 90 | 33 | 6 | 4 |
+| `spec/DsHeadConsumer.lean` | 123 | — | — | — |
+
+**§2 estimate reconciled.** Written 1,120 against the projected 1,600–1,800. The
+pair's `≈1,100` collapsed into 697 content lines (it is one file); the two thin
+modules came in at 6 and 33 content lines because their pin bodies were entirely
+`[in-port]`. The 173 statement-identical declarations (≈2,579 pin lines) were all
+imported, not re-proved; the 13 port-`private` rows were not needed.
+
+**§5 set cut stood as written** — the three modules and their contents are exactly
+the ones dispatched, and nothing was moved to `Defs/`. `Generation.lean` is a
+1-declaration wrapper (`exists_mem_D_eq_smul_D_of_isCurveOver` over the ported
+`s12` lemma); the work order's note that its 61 drags are all `[in-port]` was
+correct.
+
+**§6 risks, closed:**
+1. *The `generalise` rows.* Resolved by statement-reading, not ratio: the four
+   headlines take their `Theorems/` wrapper binders; the `P1` `placeInfty`/
+   `p1PlaceInfty` rows are not re-declared (the port's copies verify against the
+   other pin `S_` file); `canonicalDivisorOf_eq_of_forall` and
+   `degree_canonicalDivisorOf_ratFunc_of_perfectField_s17` land at their pin
+   statements.
+2. *The pair's `_port` copies.* Dropped; the two headlines are declared once each
+   at the wrapper spelling, with the engine's `map_ne_zero_of_tame_port` body
+   inlined. The `solution` wrappers are not needed (the checker only reads port
+   declarations, never pin-absent rows).
+3. *Heaviness.* The Hurwitz engine is the heaviest module in the cluster but
+   elaborates in ~20 s under the frozen `4,000,000` cap; no `attribute`/heartbeat
+   bump was transcribed.
+
+**Newly recorded (not in the §6 list).** The pin pair's two `S_` files are
+byte-for-byte one development, so the dedup is a *file-level* collapse, not a
+helper-level one. `RatFunc.lean` needed `P1/PerfectField.lean` (absent from the
+work order's import list) and a `private` re-derivation of the 4-line
+`genus_eq_degree_div` (its public home, `ResidueTheorem/RRAssembly.lean`, is a
+forward import a `Genus/` leaf should not take). Both are folded into
+[../logs/riemann-roch-friction.md](../logs/riemann-roch-friction.md).
+
+## 9. Riders (2026-10-07): two of the three deferred nodes folded in
+
+The two genuinely small deferred nodes are folded into their natural existing
+modules (no new files):
+
+| node | home | added |
+|---|---|---|
+| `AlgebraicCurve.genus_ratFunc_eq_zero` (16 ln pin) | `Genus/RatFunc.lean` | 1 declaration; `PerfectField.ofCharZero` + the landed perfect-field headline |
+| `KaehlerDifferential.exists_unique_smul_D_of_transcendental` (23 ln pin) | `Defs/KaehlerTranscendental.lean` | 1 declaration; 5-line proof over the ported `span_D_eq_top_of_transcendental` / `D_ne_zero_of_transcendental` |
+
+Checker `6306 → 6308 identical` (312 promoted / 83 renamed unmoved), 0 mismatched
+/ 0 missing, 6342 → 6344 checked; axioms `[propext, Classical.choice, Quot.sound]`;
+no `sorry`; `spec/DsHeadConsumer.lean` gains its `[riders]` zone (exit 0). Both new
+declarations are one-liner/wrapper transcriptions — the mathematics was already in
+the port.
+
+**Cost note.** `Defs/KaehlerTranscendental.lean` is a hub: `HasCanonicalDivisor`
+imports it, so this one declaration cascades to **54 modules / 38,733 lines
+≈ 467 s** (`tools/deps/build_ladder.py --edit`). By contrast the `Genus/RatFunc.lean`
+edit is a leaf. The whole-tree build after the riders is therefore minutes, not the
+seconds the ds-head leaves cost.
+
+## 10. The third deferred node is *not* a fold (measured 2026-10-07)
+
+`AlgebraicCurve.genusFF_ratFunc_eq_zero_of_isAlgClosed` (pin wrapper
+`Theorems/Thm_AlgebraicCurve_genusFF_ratFunc_eq_zero_of_isAlgClosed.lean:14`,
+71-line `S_` file) is **7 needed nodes / 790 raw lines** by
+`frontier.py --target AlgebraicCurve.genusFF_ratFunc_eq_zero_of_isAlgClosed --list`:
+
+```
+AlgebraicCurve.isCurveOver_ratFunc                                  (S_ 571 ln)
+AlgebraicCurve.constantsAreBase_of_isAlgClosed                      (S_  27 ln)
+AlgebraicCurve.functionFieldRiemannRoch_of_isAlgClosed              (S_  39 ln)
+AlgebraicCurve.functionFieldRiemannRoch_of_isAlgClosed_of_isCurveOver (S_ 39 ln)
+AlgebraicCurve.ell_canonicalDivisor_eq_genus_of_riemannRoch         (S_  13 ln)
+AlgebraicCurve.genus_eq_genusFF                                     (S_  30 ln)
+AlgebraicCurve.genusFF_ratFunc_eq_zero_of_isAlgClosed               (S_  71 ln)
+```
+
+The frontier is an upper bound: the port already has two of the seven under other
+names. `isCurveOver_ratFunc` is the scoped instance
+`instIsCurveOverRatFunc` (`P1/UnitFinite.lean:57`, no hypotheses beyond
+`[Field K]`), and `constantsAreBase_of_isAlgClosed` is
+`ModularCurve.p0n20_rr_constantsAreBase_of_isAlgClosed`
+(`ResidueTheorem/RRAssembly.lean:394`). The rest are thin:
+`functionFieldRiemannRoch_of_isAlgClosed` is `residueTheoremK_of_isAlgClosed` +
+the ported `functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed`;
+`ell_canonicalDivisor_eq_genus_of_riemannRoch` is 6 lines over
+`ell_zero_eq_one_of_constantsAreBase`; `genus_eq_genusFF` is ~30 lines over the
+ported `indexOfSpecialty_eq_finrank_H1`. So the **effective** new content is
+≈220 lines across `RiemannRoch/Assembly.lean`, `ResidueTheorem/RRAssembly.lean`
+and `Genus/RatFunc.lean`, with two name reconciliations. None of it is new
+mathematics, but it is a small set, not a fold — held pending the manager's call.
+
+## 11. The `genusFF` node landed (2026-10-07)
+
+All seven nodes of §10 landed. Five are thin transcriptions/wrappers over already
+ported material; the two "already present under another name" rows were landed as
+public wrappers at their pin names. **Module-choice deviation from §10's proposal:**
+`genus_eq_genusFF` and `ell_canonicalDivisor_eq_genus_of_riemannRoch` went into
+`ResidueTheorem/RRAssembly.lean`, not `RiemannRoch/Assembly.lean`. `Assembly` is a
+hub — `build_ladder.py --edit` prices a one-token edit at **56 modules / 39,742
+lines ≈ 484 s** — while nothing imports `RRAssembly` (0 dependents) and it already
+carries the sibling genus identifications (`genus_eq_degree_div`,
+`p0n25_wkc_stichtenothGenus_eq_genus_of_weilMax`), so it is at least as natural a
+home for them. The same reasoning kept `constantsAreBase_of_isAlgClosed`, the two
+`functionFieldRiemannRoch_of_isAlgClosed*` wrappers, and (for the target) an added
+`import KFamily` in `RRAssembly`.
+
+| node | landed in | form |
+|---|---|---|
+| `isCurveOver_ratFunc` | `Genus/RatFunc.lean` | 1 line over the scoped `instIsCurveOverRatFunc` (+ `P1/UnitFinite` import) |
+| `ell_canonicalDivisor_eq_genus_of_riemannRoch` | `RRAssembly.lean` | pin proof (6 lines) |
+| `genus_eq_genusFF` | `RRAssembly.lean` | pin proof (~20 lines) |
+| `constantsAreBase_of_isAlgClosed` | `RRAssembly.lean` | alias over `ModularCurve.p0n20_rr_…` |
+| `functionFieldRiemannRoch_of_isAlgClosed` | `RRAssembly.lean` | 1-liner over the ported `…_of_residueTheoremK_…` + `residueTheoremK_of_isAlgClosed` |
+| `functionFieldRiemannRoch_of_isAlgClosed_of_isCurveOver` | `RRAssembly.lean` | pin proof (instances + the previous wrapper) |
+| `genusFF_ratFunc_eq_zero_of_isAlgClosed` | `Genus/RatFunc.lean` | pin proof |
+
+Checker `6308 → 6315 identical` (312 promoted / 83 renamed unmoved), 0 mismatched /
+0 missing, 6344 → 6351 checked; axioms all `[propext, Classical.choice, Quot.sound]`;
+no `sorry`; `spec/DsHeadConsumer.lean` gains `[genusff]`, including the fully
+concrete `genusFF ℂ (RatFunc ℂ) = 0`; whole-tree `lake build` exit 0 (9329 jobs,
+~7 s — the two edited modules are leaves).

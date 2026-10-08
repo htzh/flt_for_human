@@ -2333,6 +2333,55 @@ SOURCES = [
     "P2M/Sol/S_Field_nonempty_ringHom_complex_of_countable.lean",
     "Theorems/Thm_WeierstrassCurve_Affine_eval_modularPolynomial_map_j_eq_zero_of_isAddCyclic_ker_pointMapOfPushforward.lean",
     "P2M/Sol/S_WeierstrassCurve_Affine_eval_modularPolynomial_map_j_eq_zero_of_isAddCyclic_ker_pointMapOfPushforward.lean",
+    # --- ds-head (`topics/riemannRoch/WORKORDER-ds-head.md`): the four pin
+    # ``AlgebraicCurve`` differential/ramification nodes. Each `Theorems/` wrapper is
+    # the statement authority for its headline and comes immediately above its `S_`
+    # file; the `S_` files carry the pin's public helper surface (the Hurwitz engine
+    # in the `map_ne_zero_of_tame` / `two_mul_genus_sub_two_eq_of_degree_canonical`
+    # pair — the same file twice — plus the `s12` prelude and the `ℙ¹` genus
+    # profile). Appended last so no earlier last-name match can flip; none of the
+    # eight was listed before ds-head (checked).
+    "Theorems/Thm_AlgebraicCurve_genus_ratFunc_eq_zero_of_perfectField.lean",
+    "P2M/Sol/S_AlgebraicCurve_genus_ratFunc_eq_zero_of_perfectField.lean",
+    "Theorems/Thm_AlgebraicCurve_exists_mem_D_eq_smul_D_of_isCurveOver.lean",
+    "P2M/Sol/S_AlgebraicCurve_exists_mem_D_eq_smul_D_of_isCurveOver.lean",
+    "Theorems/Thm_AlgebraicCurve_map_ne_zero_of_tame.lean",
+    "P2M/Sol/S_AlgebraicCurve_map_ne_zero_of_tame.lean",
+    "Theorems/Thm_AlgebraicCurve_two_mul_genus_sub_two_eq_of_degree_canonical.lean",
+    "P2M/Sol/S_AlgebraicCurve_two_mul_genus_sub_two_eq_of_degree_canonical.lean",
+    # --- ds-head riders: the two small deferred nodes folded into existing
+    # modules (`Genus/RatFunc.lean`, `Defs/KaehlerTranscendental.lean`). The
+    # `CharZero` genus variant cites `genus_ratFunc_eq_zero_of_perfectField`; the
+    # Kähler leaf cites `span_D_eq_top_of_transcendental` /
+    # `D_ne_zero_of_transcendental`. Each wrapper immediately above its `S_` file;
+    # appended last so no earlier last-name match can flip (checked).
+    "Theorems/Thm_AlgebraicCurve_genus_ratFunc_eq_zero.lean",
+    "P2M/Sol/S_AlgebraicCurve_genus_ratFunc_eq_zero.lean",
+    "Theorems/Thm_KaehlerDifferential_exists_unique_smul_D_of_transcendental.lean",
+    "P2M/Sol/S_KaehlerDifferential_exists_unique_smul_D_of_transcendental.lean",
+    # --- ds-head rider: the `genusFF` `ℙ¹` closure (`topics/riemannRoch/ds-head-recon.md`
+    # §10). Seven nodes; the two already-present-under-another-name rows
+    # (`isCurveOver_ratFunc` = the scoped `instIsCurveOverRatFunc`,
+    # `constantsAreBase_of_isAlgClosed` = `ModularCurve.p0n20_rr_…`) are landed as
+    # public wrappers at the pin names, and the remaining five are thin
+    # transcriptions over the ported `indexOfSpecialty_eq_finrank_H1` /
+    # `functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed`. Each wrapper
+    # immediately above its `S_` file; appended last so no earlier last-name match
+    # can flip (checked).
+    "Theorems/Thm_AlgebraicCurve_isCurveOver_ratFunc.lean",
+    "P2M/Sol/S_AlgebraicCurve_isCurveOver_ratFunc.lean",
+    "Theorems/Thm_AlgebraicCurve_ell_canonicalDivisor_eq_genus_of_riemannRoch.lean",
+    "P2M/Sol/S_AlgebraicCurve_ell_canonicalDivisor_eq_genus_of_riemannRoch.lean",
+    "Theorems/Thm_AlgebraicCurve_genus_eq_genusFF.lean",
+    "P2M/Sol/S_AlgebraicCurve_genus_eq_genusFF.lean",
+    "Theorems/Thm_AlgebraicCurve_constantsAreBase_of_isAlgClosed.lean",
+    "P2M/Sol/S_AlgebraicCurve_constantsAreBase_of_isAlgClosed.lean",
+    "Theorems/Thm_AlgebraicCurve_functionFieldRiemannRoch_of_isAlgClosed.lean",
+    "P2M/Sol/S_AlgebraicCurve_functionFieldRiemannRoch_of_isAlgClosed.lean",
+    "Theorems/Thm_AlgebraicCurve_functionFieldRiemannRoch_of_isAlgClosed_of_isCurveOver.lean",
+    "P2M/Sol/S_AlgebraicCurve_functionFieldRiemannRoch_of_isAlgClosed_of_isCurveOver.lean",
+    "Theorems/Thm_AlgebraicCurve_genusFF_ratFunc_eq_zero_of_isAlgClosed.lean",
+    "P2M/Sol/S_AlgebraicCurve_genusFF_ratFunc_eq_zero_of_isAlgClosed.lean",
 ]
 
 PORT_FILES = [
@@ -3376,6 +3425,14 @@ PORT_FILES = [
     "FLTForHuman/Elliptic/PeriodPair/VariableChange.lean",
     "FLTForHuman/FieldTheory/NonemptyRingHomComplex.lean",
     "FLTForHuman/ModularCurve/ModularPolynomialEvalJ.lean",
+    # --- ds-head (`topics/riemannRoch/WORKORDER-ds-head.md`): the three new leaf
+    # modules. `Differential/Hurwitz.lean` writes the pin's duplicated pair once
+    # (engine + both headlines); `Differential/Generation.lean` and `Genus/RatFunc.lean`
+    # are thin wrappers over the already-ported `s12`/`ℙ¹` surface. Appended last so
+    # no earlier last-name match can flip.
+    "FLTForHuman/AlgebraicCurve/Differential/Hurwitz.lean",
+    "FLTForHuman/AlgebraicCurve/Differential/Generation.lean",
+    "FLTForHuman/AlgebraicCurve/Genus/RatFunc.lean",
 ]
 
 
