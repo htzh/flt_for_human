@@ -1,12 +1,21 @@
 # Topic — the X_H(M) Hecke/diamond inputs and the Along diamond lifts
 
-**Status: PLANNED (2026-10-07), ready to dispatch.** Planning record for the next
-`ModularCurve` slice exposed by the ready frontier of the
+**Status: SET-H-A LANDED (2026-10-08); SET-H-B/C dispatchable.** Planning record
+for the next `ModularCurve` slice exposed by the ready frontier of the
 Deligne–Serre target. It is the level-H sibling of the completed X₁ effort
 ([TOPIC-x1-hecke-diamond-inputs.md](TOPIC-x1-hecke-diamond-inputs.md)); like that
 one it follows [porting-playbook.md](../../porting-playbook.md) (§2 planning,
-§3.4 sets, §3.5 build discipline, §4 faithfulness). **No work order is written
-yet and nothing has been ported** — this file is the reconnaissance and the cut.
+§3.4 sets, §3.5 build discipline, §4 faithfulness). The **definition layer** (§5
+SET-H-A) is ported: `ModularCurve/XH/{FunctionField,HeckeOperator,Operators}.lean`
+(35 declarations, 385 raw / 155 content) plus 15 promotions in the X₁ prelude;
+checker `6365 identical (312 promoted, 83 renamed), 0 mismatched, 0 missing,
+36 own`, consumer `spec/XHConsumer.lean` 0 errors / delete-fail 3, whole-tree build
+green (9,332 jobs). The measured record is
+[logs/xh-hecke-set-a.md](../../logs/xh-hecke-set-a.md), including one deviation from
+§2/§3 below: the `qC_*` group **cannot** be promoted (the pin states it over
+a general `Γ`, the port's copies are `Γ₁(M)`-specialised), so SET-H-B must
+generalise the engine rather than promote it. **No work order is written yet for
+the two headline sets (B, C), and none of their proofs is ported.**
 
 ## 0. Where this set comes from
 
@@ -296,7 +305,15 @@ helper out of a port-private copy is expected and verifies through the checker's
 dotted fallback; an out-of-cone byte-identical duplicate is resolved by exposing
 one copy, not rewriting; count before dropping (`grep -c`).
 
-### SET-H-A — the X_H vocabulary (dispatchable first)
+### SET-H-A — the X_H vocabulary (DONE, 2026-10-08)
+
+**Landed.** The three modules and 15 of the promotions are ported and
+checker-verified; see
+[logs/xh-hecke-set-a.md](../../logs/xh-hecke-set-a.md). Stop-early risks (a) and
+(b) did not bite; (c) was avoided by transcribing the pin's `∃`-body verbatim (the
+`--prop-bodies` pass diffs it identical). The `qC_*` group of §2 is **not**
+promotable — see the status note above and the log §3 — so SET-H-B's engine must be
+generalised over `Γ` rather than promoted.
 
 **Scope.** The three XH definition modules, scoped to the declarations the four
 `S_` files reference plus their bodies' transitive needs, and the 12 promotions.

@@ -45,7 +45,7 @@ private theorem mapGL_coe_eq (s : SL(2, ℤ)) :
     ((Matrix.SpecialLinearGroup.mapGL ℝ s : GL (Fin 2) ℝ) : Matrix (Fin 2) (Fin 2) ℝ)
       = (s : Matrix (Fin 2) (Fin 2) ℤ).map (algebraMap ℤ ℝ) := rfl
 
-private theorem heckeDiagMatrix_mul_eq (hℓ : ℓ ≠ 0) {γ γ₁ : SL(2, ℤ)}
+theorem heckeDiagMatrix_mul_eq (hℓ : ℓ ≠ 0) {γ γ₁ : SL(2, ℤ)}
     (h00 : γ₁ 0 0 = γ 0 0) (h01 : γ₁ 0 1 = (ℓ : ℤ) * γ 0 1)
     (h10 : (ℓ : ℤ) * γ₁ 1 0 = γ 1 0) (h11 : γ₁ 1 1 = γ 1 1) :
     heckeDiagMatrix ℓ * Matrix.SpecialLinearGroup.mapGL ℝ γ
@@ -58,7 +58,7 @@ private theorem heckeDiagMatrix_mul_eq (hℓ : ℓ ≠ 0) {γ γ₁ : SL(2, ℤ)
   fin_cases i <;> fin_cases j <;>
     simp [Matrix.mul_apply, Fin.sum_univ_two, h00, h01, h11, e10, mul_comm]
 
-private theorem isCusp_heckeDiagMatrix_smul (hℓ : ℓ ≠ 0) {c : OnePoint ℝ} (hc : IsCusp c 𝒮ℒ) :
+theorem isCusp_heckeDiagMatrix_smul (hℓ : ℓ ≠ 0) {c : OnePoint ℝ} (hc : IsCusp c 𝒮ℒ) :
     IsCusp (heckeDiagMatrix ℓ • c) 𝒮ℒ := by
   rw [isCusp_SL2Z_iff] at hc ⊢
   obtain ⟨c₀, rfl⟩ := hc
@@ -144,10 +144,10 @@ private theorem qCoeff_stretch (hΓ' : ∀ γ ∈ Γ', ∃ γ₁ ∈ Γ,
   exact UpperHalfPlane.qCoeff_comp_heckeDiagMatrix_smul (periodic_comp_ofComplex hT f) f.holo'
     (ModularFormClass.bdd_at_infty f) hℓ n
 
-private def expandPS (ℓ : ℕ) (p : PowerSeries ℤ) : PowerSeries ℤ :=
+def expandPS (ℓ : ℕ) (p : PowerSeries ℤ) : PowerSeries ℤ :=
   PowerSeries.mk fun n => if ℓ ∣ n then PowerSeries.coeff (n / ℓ) p else 0
 
-private theorem coeff_expandPS (ℓ : ℕ) (p : PowerSeries ℤ) (n : ℕ) :
+theorem coeff_expandPS (ℓ : ℕ) (p : PowerSeries ℤ) (n : ℕ) :
     PowerSeries.coeff n (expandPS ℓ p) = if ℓ ∣ n then PowerSeries.coeff (n / ℓ) p else 0 :=
   PowerSeries.coeff_mk _ _
 
@@ -166,7 +166,7 @@ private theorem isIntegralQExp_stretch (hΓ' : ∀ γ ∈ Γ', ∃ γ₁ ∈ Γ,
   · exact hp.coeff (n / ℓ)
   · simp
 
-private theorem intSeriesC_expandPS (K : Type*) [Field K] (ℓ : ℕ) [NeZero ℓ] (p : PowerSeries ℤ) :
+theorem intSeriesC_expandPS (K : Type*) [Field K] (ℓ : ℕ) [NeZero ℓ] (p : PowerSeries ℤ) :
     intSeriesC K (expandPS ℓ p) = qExpand K ℓ (intSeriesC K p) := by
   have hℓ : ℓ ≠ 0 := NeZero.ne ℓ
   ext m

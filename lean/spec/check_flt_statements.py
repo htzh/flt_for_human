@@ -1013,6 +1013,15 @@ SOURCES = [
     "Definitions/Def_CohCarrier_Level.lean",
     "Definitions/Def_CohCarrier_Inst.lean",
     "Definitions/Def_ModularCurve_XH.lean",
+    # SET-H-A (TOPIC-xH-hecke-diamond-inputs.md): the `X_H(M)` definition layer.
+    # The two sibling definition modules of `Def_ModularCurve_XH.lean` are the
+    # comparable copies for `FLTForHuman/ModularCurve/XH/{HeckeOperator,Operators}.lean`.
+    # Only the declarations those two modules actually carry are matched; the pin's
+    # off-cone `heckeDivHBar`/`heckeOperatorHAlong`/`genOpH`/`diamondHBar` blocks have
+    # no port declaration, so they cannot report `missing`. Inserted beside their
+    # sibling — no name here collides with any earlier source (checked).
+    "Definitions/Def_ModularCurve_XHHeckeOperator.lean",
+    "Definitions/Def_ModularCurve_XHOperators.lean",
     "Definitions/Def_CuspForm_HeckeOperatorFormsGammaH.lean",
     # SET-2 (PORTING-Level.md, l2): the Γ₁ / diamond vocabulary. The pin's public
     # home for the group layer (`CuspForm.Gamma1Hecke`) and the diamond layer
@@ -2382,6 +2391,22 @@ SOURCES = [
     "P2M/Sol/S_AlgebraicCurve_functionFieldRiemannRoch_of_isAlgClosed_of_isCurveOver.lean",
     "Theorems/Thm_AlgebraicCurve_genusFF_ratFunc_eq_zero_of_isAlgClosed.lean",
     "P2M/Sol/S_AlgebraicCurve_genusFF_ratFunc_eq_zero_of_isAlgClosed.lean",
+    # SET-H-A (`topics/hecke/TOPIC-xH-hecke-diamond-inputs.md`): the pin-public
+    # originals of the X₁ diamond prelude promoted at SET-H-A. The copies in the
+    # port's `X1/QExpandStretch.lean` (`isCusp_heckeDiagMatrix_smul`,
+    # `heckeDiagMatrix_mul_eq`, `expandPS`, `coeff_expandPS`, `intSeriesC_expandPS`),
+    # `X1/DiamondAut.lean` (`IsRatio`, `ratioField`, `toC_injective`,
+    # `toC_algebraMap`, `qC_zero`, `qC_one`, `slash_inv_slash`, `slash_slash_inv`)
+    # and `X1/FunctionField.lean` (`intSeriesC_add'`, `intSeriesC_neg'`) were
+    # `private` while the pin writes them public in these `S_` files; dropping
+    # `private` makes the checker diff them, and the pin's public statement is the
+    # comparable copy. `S_…heckeDiamondInputsHAll` also supplies the two primed
+    # `intSeriesC_*'` names. Appended last so no earlier last-name match can flip
+    # (checked: the pre-promotion pass is unchanged). SET-H-B/C append their own
+    # `S_` files and `Theorems/` wrappers beside this entry.
+    "P2M/Sol/S_ModularCurve_exists_algEquiv_intertwinesAlong_diamondAutBar.lean",
+    "P2M/Sol/S_ModularCurve_exists_algEquiv_intertwinesAlong_diamondAutHBar.lean",
+    "P2M/Sol/S_ModularCurve_heckeDiamondInputsHAll.lean",
 ]
 
 PORT_FILES = [
@@ -3433,6 +3458,18 @@ PORT_FILES = [
     "FLTForHuman/AlgebraicCurve/Differential/Hurwitz.lean",
     "FLTForHuman/AlgebraicCurve/Differential/Generation.lean",
     "FLTForHuman/AlgebraicCurve/Genus/RatFunc.lean",
+    # --- SET-H-A (`topics/hecke/TOPIC-xH-hecke-diamond-inputs.md`): the `X_H(M)`
+    # definition layer. The pin's `Groups` block is the ported `CohCarrier` Γ_H
+    # vocabulary; these three modules are the `FunctionField`/`Bar` block, the
+    # `α`/`β` Hecke degeneracy maps with `HeckeInputsHAlong`, and the diamond
+    # predicate `IsDiamondAutHBar` with `HeckeDiamondInputsHAll`. The pin's
+    # off-cone Jacobian blocks (`JH`, `heckeOperatorHAlong`, `genOpH`,
+    # `diamondHBar`) are deliberately absent; the checker iterates `PORT_FILES`,
+    # so they cannot report `missing`. Appended last so no earlier last-name match
+    # can flip.
+    "FLTForHuman/ModularCurve/XH/FunctionField.lean",
+    "FLTForHuman/ModularCurve/XH/HeckeOperator.lean",
+    "FLTForHuman/ModularCurve/XH/Operators.lean",
 ]
 
 

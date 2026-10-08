@@ -718,12 +718,12 @@ private theorem xq_transcendental : Transcendental ℚ xq := by
   norm_num at h3
 
 omit [Γ.FiniteIndex] in
-private theorem intSeriesC_add {K : Type*} [Field K] (p p' : PowerSeries ℤ) :
+theorem intSeriesC_add' {K : Type*} [Field K] (p p' : PowerSeries ℤ) :
     intSeriesC K (p + p') = intSeriesC K p + intSeriesC K p' := by
   simp [intSeriesC]
 
 omit [Γ.FiniteIndex] in
-private theorem intSeriesC_neg {K : Type*} [Field K] (p : PowerSeries ℤ) :
+theorem intSeriesC_neg' {K : Type*} [Field K] (p : PowerSeries ℤ) :
     intSeriesC K (-p) = -intSeriesC K p := by
   simp [intSeriesC]
 
@@ -764,7 +764,7 @@ private theorem add_mem_intFormRatiosC {a b : LaurentSeries ℚ} (ha : a ∈ int
   · rw [IsIntegralQExp, map_mul, hg₁, hg₂, ModularForm.coe_mul]
     exact (ModularForm.qExpansion_mul_coe one_pos (hper hT) g₁ g₂).symm
   · rw [intSeriesC_mul]; exact mul_ne_zero hg₁0 hg₂0
-  · rw [intSeriesC_add, intSeriesC_mul, intSeriesC_mul, intSeriesC_mul,
+  · rw [intSeriesC_add', intSeriesC_mul, intSeriesC_mul, intSeriesC_mul,
       div_add_div _ _ hg₁0 hg₂0]
 
 omit [Γ.FiniteIndex] in
@@ -775,7 +775,7 @@ private theorem neg_mem_intFormRatiosC {a : LaurentSeries ℚ} (ha : a ∈ intFo
   refine ⟨k, -f, g, -pf, pg, ?_, hg, hg0, ?_⟩
   · rw [IsIntegralQExp, map_neg, hf, FunLike.coe_neg]
     exact (ModularForm.qExpansion_neg one_pos (hper hT) f).symm
-  · rw [intSeriesC_neg, neg_div]
+  · rw [intSeriesC_neg', neg_div]
 
 omit [Γ.FiniteIndex] in
 

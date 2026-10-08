@@ -102,10 +102,10 @@ private theorem coe_diamondSlash_SL [NeZero M] (γ : SL(2, ℤ)) (hγ : γ ∈ G
     (⇑(diamondSlash γ hγ f) : ℍ → ℂ) = (⇑f : ℍ → ℂ) ∣[k] γ := by
   rw [coe_diamondSlash, ModularForm.SL_slash]
 
-private theorem slash_inv_slash (F : ℍ → ℂ) (γ : SL(2, ℤ)) : (F ∣[k] γ⁻¹) ∣[k] γ = F := by
+theorem slash_inv_slash (F : ℍ → ℂ) (γ : SL(2, ℤ)) : (F ∣[k] γ⁻¹) ∣[k] γ = F := by
   rw [← SlashAction.slash_mul, inv_mul_cancel, SlashAction.slash_one]
 
-private theorem slash_slash_inv (F : ℍ → ℂ) (γ : SL(2, ℤ)) : (F ∣[k] γ) ∣[k] γ⁻¹ = F := by
+theorem slash_slash_inv (F : ℍ → ℂ) (γ : SL(2, ℤ)) : (F ∣[k] γ) ∣[k] γ⁻¹ = F := by
   rw [← SlashAction.slash_mul, mul_inv_cancel, SlashAction.slash_one]
 
 private theorem diamondSlash_ne_zero [NeZero M] {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 M)
@@ -223,10 +223,10 @@ private theorem qC_smul {a : ℤ} (c : ℂ) (f : ModularForm Γ₁(M) a) :
     ModularForm.qExpansion_smul one_pos (one_mem_strictPeriods M) c f, qC,
     PowerSeries.smul_eq_C_mul, map_mul, HahnSeries.ofPowerSeries_C, HahnSeries.C_mul_eq_smul]
 
-private theorem qC_zero : qC (0 : ℍ → ℂ) = 0 := by
+theorem qC_zero : qC (0 : ℍ → ℂ) = 0 := by
   rw [qC, qExpansion_zero, map_zero]
 
-private theorem qC_one : qC (1 : ℍ → ℂ) = 1 := by
+theorem qC_one : qC (1 : ℍ → ℂ) = 1 := by
   rw [qC, qExpansion_one, map_one]
 
 private theorem qC_coe_zero {a : ℤ} : qC (⇑(0 : ModularForm Γ₁(M) a)) = 0 := by
@@ -268,7 +268,7 @@ section Ratio
 
 variable (M : ℕ) [NeZero M]
 
-private def IsRatio (x : LaurentSeries ℂ) : Prop :=
+def IsRatio (x : LaurentSeries ℂ) : Prop :=
   ∃ (k : ℤ) (f g : ModularForm Γ₁(M) k), qC ⇑g ≠ 0 ∧ x = qC ⇑f / qC ⇑g
 
 variable {M}
@@ -319,7 +319,7 @@ private theorem isRatio_C (c : ℂ) : IsRatio M (HahnSeries.C c) := by
   rw [qC_smul, qC_coe_one, div_one, ← HahnSeries.C_mul_eq_smul, mul_one]
 
 variable (M) in
-private def ratioField : Subfield (LaurentSeries ℂ) where
+def ratioField : Subfield (LaurentSeries ℂ) where
   carrier := {x | IsRatio M x}
   mul_mem' := IsRatio.mul
   one_mem' := isRatio_one
@@ -457,7 +457,7 @@ variable (M : ℕ) [NeZero M]
 private abbrev toC : LaurentSeries ℚ →+* LaurentSeries ℂ := coeffMap (algebraMap ℚ ℂ)
 
 omit [NeZero M] in
-private theorem toC_injective : Function.Injective toC := by
+theorem toC_injective : Function.Injective toC := by
   intro x y h
   ext n
   have := congrArg (fun z : LaurentSeries ℂ => z.coeff n) h
@@ -489,7 +489,7 @@ private theorem qC_ne_zero_of_intSeriesC_ne_zero {k : ℤ} {g : ModularForm Γ�
   exact fun h => hg0 (toC_injective (by rw [h, map_zero]))
 
 omit [NeZero M] in
-private theorem toC_algebraMap (c : ℚ) :
+theorem toC_algebraMap (c : ℚ) :
     toC (algebraMap ℚ (LaurentSeries ℚ) c) = HahnSeries.C (algebraMap ℚ ℂ c) := by
   rw [algebraMap_laurentSeries_eq_single, coeffMap_single]
   rfl
