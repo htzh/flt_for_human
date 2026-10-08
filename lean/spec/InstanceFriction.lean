@@ -2,6 +2,12 @@
   The live half of the typeclass-instance friction register
   (`FLTForHuman/../instance-friction.md`).
 
+  Two live files, one per half of an entry: the *fix* is an `example` here, and the
+  *capture* — what instance search actually picks for the entry's goal, including
+  the spellings that fail — is a `#probe` in `spec/InstanceProbe.lean`, compared
+  against the recorded terms by `spec/check_instance_probes.py`. This file is the
+  fix guard; that pair is the re-measure canary.
+
   Every entry in that register gets one block here, and the block must **compile
   at the default `synthInstance` budget** so the *fix* stays cheap: if the fix is
   reverted the example stops elaborating. The *naive* form that timed out is kept
@@ -22,7 +28,17 @@
   2. add an `IF-NNN` block here: the fixed form as a compiling `example`, the
      naive form as a comment with its exact failure text;
   3. bound the snippet (`set_option synthInstance.maxHeartbeats N in` if it is
-     genuinely slow) so the harness itself never becomes the hog.
+     genuinely slow) so the harness itself never becomes the hog;
+  4. capture before you fix (playbook §6, "capture what search picked"): `#synth
+     <goal>` prints the term search picks, `#synth <goal at the failing spelling>`
+     prints its failure text. Put the failure text in the comment beside the
+     fragment, and when the class carries *data* rather than being a `Prop`, add
+     the `rfl` value guard
+     `example : (<brick> : <class> <args>) = <captured term> := rfl` — a
+     type-only `example` would accept a wrong brick;
+  5. add the same goal to `spec/InstanceProbe.lean` as a `#probe` and its expected
+     line to `spec/check_instance_probes.py`, so the capture is re-measured
+     mechanically after the next mathlib bump.
 -/
 import FLTForHuman.ModularCurve.Degree.PlaceDegree
 import FLTForHuman.ModularCurve.JqIntegralRatios
@@ -107,6 +123,13 @@ the full diagnosis. -/
 --
 -- example {R : Type} [Field R] (E : WeierstrassCurve R) [E.IsElliptic] :
 --     (WeierstrassCurve.baseChange E R).IsElliptic := inferInstance
+
+-- Captured term (both probes run at the default budget):
+--   #synth (E.map (algebraMap R R)).IsElliptic
+--     -> instIsEllipticMap E (algebraMap R R)
+--   #synth (WeierstrassCurve.baseChange E R).IsElliptic
+--     -> failed to synthesize (E⁄R).IsElliptic
+-- `IsElliptic` is a `Prop`, so no `rfl` value guard is needed here.
 
 /-- IF-003 guard: the pin's `inferInstanceAs` bridge elaborates at the default budget. -/
 example {R : Type} [Field R] (E : WeierstrassCurve R) [E.IsElliptic] :

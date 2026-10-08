@@ -958,11 +958,20 @@ them turns a one-line bridge into ten engine-call timeouts. Register:
 instance's head is a term built by a `def`, search cannot cross that `def`;
 supply the brick explicitly.**
 
-**Recipe: provide the instance by hand, so search never runs.** This is the
-default response to an instance-shaped failure, and it is mechanical:
+**Recipe: capture what search picked, then provide the instance by hand, so search
+never runs.** This is the default response to an instance-shaped failure, and it is
+mechanical. An instance
+brick is a **cache of a synthesis result**, so it has a key (the goal's exact
+spelling — search matches a local instance by syntactic head before it tries
+anything), a value (the term search would have built), and an invalidation rule;
+all three have to be right, and only the first two are checked by elaboration:
 
-1. get the exact goal — `set_option trace.Meta.synthInstance true`, or
-   `set_option diagnostics true` on the failing declaration;
+1. get the exact goal **and the term search picks** — `#synth <goal>` prints the
+   instance term it would use (or its exact failure text), and
+   `set_option trace.Meta.synthInstance true`, or
+   `set_option diagnostics true` on the failing declaration, gives the path and
+   the cost. Record the printed term: it is the *value* the brick must reproduce,
+   not merely some term of the right type;
 2. `haveI : <the goal, verbatim> := inferInstanceAs (<the same type at the
    spelling search can handle>)`. A *local* instance is matched by syntactic key
    before any search, so the cost of the goal drops to zero;
@@ -986,9 +995,54 @@ default response to an instance-shaped failure, and it is mechanical:
    proof irrelevance is only *propositional* — `clear` cannot do it when an earlier `let`
    depends on the instance.
 
+Capture and transcribe as one loop, in a gitignored `tmp/` probe with the module's
+own imports so the spellings and instances match:
+
+```lean
+#synth <goal>                          -- the term search picks, or its failure text
+#synth <goal at a candidate spelling>  -- which spelling is reachable, and with what term
+set_option trace.Meta.synthInstance true in example : <goal> := inferInstance
+set_option diagnostics true in set_option diagnostics.threshold 1 in
+  example : <goal> := inferInstance
+```
+
+For a problem the register already knows, the capture is not re-derived by hand:
+`spec/InstanceProbe.lean` holds one labelled `#probe` per entry and
+`spec/check_instance_probes.py` diffs its output against the recorded terms,
+reporting `RECAPTURE` / `REGRESS` / `RETIRE?`. Re-run it after a mathlib bump and
+when a probed module changes; a stale brick is invisible, not wrong, so the checker
+is what notices.
+
+`#synth (E.map (algebraMap R R)).IsElliptic` prints
+`instIsEllipticMap E (algebraMap R R)`; the same goal written `E⁄R` prints
+`failed to synthesize (E⁄R).IsElliptic`. For a **data-valued** class (`Algebra`,
+`Module`, `SMul`, `Fintype`, …) the capture is load-bearing, because a type-only
+guard accepts a wrong brick: `#synth Algebra ℚ K` prints
+`DivisionRing.toRatAlgebra` with only globals in scope and `inst✝` once an ambient
+`[Algebra ℚ K]` is, and those are different *values* that coincide in type alone.
+A brick naming the other one is invisible until a context later needs the
+definitional equality — exactly D-6 §2.3's hard `Type mismatch`. Assert the value
+where the class carries data:
+
+```lean
+example : (<brick> : <class> <args>) = <the captured term> := rfl
+```
+
+**Place the brick at the narrowest scope that hits it.** Call-site `haveI` →
+section-scoped `private instance`/`letI` → module-level `private instance` →
+public `instance`/`scoped instance`, widening only once the same brick is needed
+at a second site. A local instance is tried as a candidate by every search in its
+scope, so a broad head taxes the whole region while a narrow one is free; `haveI`
+for a Prop-valued class, `letI` when the instance carries further instance
+arguments (step 5).
+
 Hand bricks are also the durable form: they make the module's instance
 requirements explicit and reviewable, where an implicit search is invisible until
-it times out. What they do **not** fix is keyed rewriting between two spellings
+it times out. Being a cache, a brick has an **invalidation rule**: re-run the
+capture after a mathlib bump and when the brick's home module or its goal's
+spelling changes. A brick in a stale spelling is *invisible*, not wrong — search
+falls through it silently — so the register's guard, not the build, is what
+notices. What bricks do **not** fix is keyed rewriting between two spellings
 (`rw`/`erw`) — that is term unification, not typeclass search; only making the
 spellings syntactically equal (or rewriting `⁄`-terms through a `rfl`
 identification) closes it.

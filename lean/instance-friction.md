@@ -9,10 +9,19 @@ silently accumulates into a build-time hog. Kept apart from:
 * [../notes/lean-build-cost.md](../notes/lean-build-cost.md) — which holds the
   *measurement method* (`--profile`, `--audit`, heartbeat semantics).
 
-The list is expected to grow, so every entry below must be **re-runnable**: the
-live form lives in [`spec/InstanceFriction.lean`](spec/InstanceFriction.lean)
-(next to the consumers, deliberately outside every library, so it can never slow
-or break the verified build).
+The list is expected to grow, so every entry below must be **re-runnable**, in two
+halves:
+
+* the *fix*, as a compiling `example` in
+  [`spec/InstanceFriction.lean`](spec/InstanceFriction.lean) — revert the fix and
+  the example stops elaborating;
+* the *capture*, as a labelled `#probe` in
+  [`spec/InstanceProbe.lean`](spec/InstanceProbe.lean) compared against the
+  recorded terms by [`spec/check_instance_probes.py`](spec/check_instance_probes.py)
+  — this is what notices a stale spelling or a changed term after a mathlib bump.
+
+Both live in `spec/`, deliberately outside every library, so neither can slow or
+break the verified build.
 
 ## What qualifies
 
@@ -60,6 +69,22 @@ naive form fails (or the measured seconds, for an instance declaration). Re-meas
 both when the naive form starts working anyway (then the entry can be retired) and
 when a mathlib bump makes it worse.
 
+Each entry also records the **captured term** — what `#synth` prints for the fix's
+goal at the spelling that resolves — and, beside it, the exact failure text at the
+spelling that does not. The loop that produces both is playbook §6's recipe,
+*capture what search picked, then provide the instance by hand*. The failure text
+alone is not
+enough: for a *data-valued* class (`Algebra`, `Module`, …) the brick has to
+reproduce the term, not merely the type, so where the class carries data the entry
+also carries a `rfl` **value guard** in the harness:
+
+```
+example : (<brick> : <class> <args>) = <the captured term> := rfl
+```
+
+a *type-only* `example` accepts a wrong brick, and the mismatch surfaces one
+context later as a hard `Type mismatch` (D-6 §2.3).
+
 ## Re-measure cadence
 
 The register is pinned to mathlib `v4.34.0`. After a mathlib bump, and after any
@@ -68,10 +93,18 @@ change to an entry's home module, re-run the harness:
 ```
 cd lean
 lake env lean spec/InstanceFriction.lean 2>&1 | grep -c error     # want 0
+python3 spec/check_instance_probes.py                             # want "all entries match"
+python3 spec/check_instance_probes.py --update                    # re-capture after an intended change
 ```
 
 Then update each row's **budget** and **status**. `build_ladder.py --profile` on
-the home module is the second reading for instance *declarations*.
+the home module is the second reading for instance *declarations*, and the probe
+checker is the reading for *search*: a brick whose goal spelling moved is invisible
+rather than wrong, so the capture — not the build — is what notices. The checker
+distinguishes the three drifts, each with its own action: `RECAPTURE` (term changed
+— update the register and any brick naming it), `REGRESS` (a working spelling
+stopped synthesizing), `RETIRE?` (a failing spelling started synthesizing — the
+entry is no longer needed).
 
 ## Entries
 
@@ -112,6 +145,10 @@ haveI := finiteDimensional_adjoin_jBar M
 haveI : Algebra.IsAlgebraic (adjoin (AlgebraicClosure ℚ) ({jBar M} : Set …)) … :=
   Algebra.IsAlgebraic.of_finite _ _
 ```
+
+**Captured term.** None — nothing is synthesized at either spelling, so there is no
+term for a brick to reproduce and no value guard to write; `#synth` times out at
+20000 and the fix is the explicit proof `Algebra.IsAlgebraic.of_finite _ _`.
 
 **Guard.** The positive form is a live `example` in
 [`spec/InstanceFriction.lean`](spec/InstanceFriction.lean) and elaborates at the
@@ -179,6 +216,13 @@ private instance twoCurveBcE₀K₀_isElliptic : (E₀⁄(↥K₀)).IsElliptic :
 
 This is the pin's `scoped instance kw_surgehgf4_cfe_instE₀'K₀` / `…_instE₀'K`
 (`S_:3566–3568`), which the port had dropped; four such bridges fix the region.
+
+**Captured term.** `#synth (E₀.map (algebraMap (↥K₀) (↥K₀))).IsElliptic` prints
+`instIsEllipticMap E₀ (algebraMap (↥K₀) (↥K₀))`; the goal at its own spelling,
+`#synth (E₀⁄(↥K₀)).IsElliptic`, prints `failed to synthesize (E₀⁄(↥K₀)).IsElliptic`
+— at 20000 and at 3200000 alike. `IsElliptic` is a `Prop`, so the bridge needs no
+`rfl` value guard: any two proofs of it are defeq, and `inferInstanceAs` already
+checks the one it is given.
 
 **Guard.** `IF-003` in [`spec/InstanceFriction.lean`](spec/InstanceFriction.lean): the bridge form
 compiles at the default budget; the naive `inferInstance` form is kept as a comment with its exact

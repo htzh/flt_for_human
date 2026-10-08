@@ -82,7 +82,7 @@ The documentation has four roles, and they are kept apart on purpose:
 | `topics/<effort>/TOPIC-*.md` | **work orders, then executed plans**: one per topic. New work orders open with the mandatory build-discipline block (playbook §3.11); finished ones keep the record of what was learned and what it cost |
 | `logs/` | the **linear record** of what happened, in order — `card-torsion-port.md` for the first port, `ffg-port.md` for this one |
 | `porting-playbook.md` | the **reusable method**, not tied to any one effort |
-| `spec/` | the **deliverable measures**: the consumer and the statement checker |
+| `spec/` | the **deliverable measures**: the consumer and the statement checker, plus the instance-friction guards and their re-measure canary (`InstanceFriction.lean`, `InstanceProbe.lean`, `check_instance_probes.py`) |
 | `Reserve/` | the **reserve library**: verified modules kept off the critical path (superseded routes, deferred API). It may import `FLTForHuman`; `FLTForHuman` must never import it. Built by default so it stays compiled; reserve modules that duplicate a main-tree statement are deliberately **not** in `PORT_FILES` |
 | `CARRY-FORWARD.md` | the **carry-forward register**: API deliberately left unported (the counterpart of `Reserve/`, which holds deferred API that *has* been ported), open follow-ups, and the scoping cautions that are not yet playbook method. Grep it for a node name before pricing that node |
 
