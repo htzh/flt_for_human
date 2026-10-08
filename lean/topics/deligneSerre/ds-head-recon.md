@@ -1,23 +1,70 @@
 # TOPIC — the Deligne–Serre function-field head: the `AlgebraicCurve` differential / ramification tail
 
-**Status: landed 2026-10-07** — one set, three modules, checker `6306 identical /
-0 mismatched / 0 missing`; see [§8](#8-outcome-landed-2026-10-07) for the measured
-outcome. Planning record for the port of the four pin nodes
+**Status: landed 2026-10-07; shelf re-measured 2026-10-08.** The topic itself is
+complete — one set, three modules, checker `6306 identical / 0 mismatched /
+0 missing` at the landing commit; [§8](#8-outcome-landed-2026-10-07)–[§11](#11-the-genusff-node-landed-2026-10-07)
+are that landed record and are kept verbatim (they cite the checker and the job
+counts of the landing day, not today's `6520 (312 promoted, 83 renamed), 0
+mismatched, 0 missing, 36 own (6556 checked)`). **§1 is re-measured against the
+current head**: the `AlgebraicCurve` differential/ramification tail planned here is
+ported, and the head of the ready shelf has moved to the `ModularCurve`
+q-expansion cluster, whose topic is
+[../functionFieldGeneration/TOPIC-qexp-rationality-degree-head.md](../functionFieldGeneration/TOPIC-qexp-rationality-degree-head.md).
 
-```
-AlgebraicCurve.genus_ratFunc_eq_zero_of_perfectField            (1,461)
-AlgebraicCurve.exists_mem_D_eq_smul_D_of_isCurveOver           (1,422)
-AlgebraicCurve.map_ne_zero_of_tame                             (1,223)
-AlgebraicCurve.two_mul_genus_sub_two_eq_of_degree_canonical    (1,229)
-```
+## 1. Where it sits (re-measured 2026-10-08)
 
-Pin `anthropics/fermats-last-theorem` at `aa2d8b3`; port mathlib `v4.34.0`; port checker at
-`6235 (312 promoted, 83 renamed), 0 mismatched, 0 missing, 36 own-proof (6271 checked)`. This is
-the head of the ready shelf left by row S of the `PeriodPair` column, taken as **one set**; the
-work order is [WORKORDER-ds-head.md](WORKORDER-ds-head.md). Method:
-[../porting-playbook.md](../porting-playbook.md) §2.1–§2.6, §3.1–§3.5, §4–§5.
+`frontier.py --target DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen
+--rank-by silo --ready --top 0` now leaves **89 ready nodes** (it left **97** when
+this topic was planned, 2026-10-07):
 
-## 1. Where it sits
+| namespace | nodes now | silo lines now | nodes then | silo lines then |
+|---|---:|---:|---:|---:|
+| `ModularCurve` | **38** | **14,819** | 41 | 18,367 |
+| `WeierstrassCurve` | 8 | 3,868 | 8 | 3,868 |
+| `CuspForm` | 10 | 2,843 | 10 | 2,843 |
+| `AlgebraicCurve` | 23 | 2,504 | **27** | **7,550** |
+| `AutomorphicForm` | 2 | 681 | 2 | 681 |
+| `PeriodPair` | 2 | 601 | 2 | 601 |
+| `CohCarrier` | 2 | 552 | 2 | 552 |
+| `ModularForm` | 2 | 102 | 2 | 102 |
+| `CuspFormClass` | 2 | 98 | 2 | 98 |
+| `KaehlerDifferential` | — | — | 1 | 23 |
+
+The `AlgebraicCurve` row is the measurement of what this topic did: **−4 nodes /
+−5,046 silo lines**, exactly the four headlines of §1-then plus the three riders of
+§9 and the seven `genusFF` nodes of §11 leaving the ready shelf (they are ported,
+so they no longer read as demand). Everything else is unchanged except
+`ModularCurve`, which grew from 41 / 18,367 to 38 / 14,819 — the four Hecke/diamond
+nodes of
+[TOPIC-xH-hecke-diamond-inputs.md](../hecke/TOPIC-xH-hecke-diamond-inputs.md), landed
+2026-10-08, fell out of the shelf while the remaining 38 stayed.
+
+**The head is now the `ModularCurve` q-expansion cluster.** The ready list is
+ranked by silo lines, and its five largest entries are all `ModularCurve.*`
+(5,900 of the silo's 14,819 lines, 40%):
+
+| node | silo lines |
+|---|---:|
+| `ModularCurve.exists_ratCast_qExpansion_comp_smul_of_mem_Gamma0_of_dvd` | 1,388 |
+| `ModularCurve.le_relrank_xHFunctionField_xHTopFunctionFieldC_of_not_dvd` | 1,221 |
+| `ModularCurve.exists_qExpansion_S_smul_eq_and_conj_eq_of_ratCast_qExpansion` | 1,196 |
+| `ModularCurve.finrank_adjoin_jqModC_laurentBaseChange_qExpFunctionFieldC_le_index` | 1,095 |
+| `ModularCurve.exists_transcendental_finiteDimensional_qExpFunctionFieldC_residueField` | 1,000 |
+
+They are a fan-out **downstream of three layers the port already carries** (the
+weight-one rectification `ModularForms/WeightOne/`, JOneES `ModularCurve/X1/FunctionField.lean`,
+and the `X_H` layer of SET-H-A): 249 of their 578 public declarations already have
+byte-identical statements in the port. Advise on the five as one group:
+`tools/deps/build/next5_advise.txt`, `next5_plan.txt`, `next5_nodes.txt`,
+`next5.json`; the planning record is
+[../functionFieldGeneration/TOPIC-qexp-rationality-degree-head.md](../functionFieldGeneration/TOPIC-qexp-rationality-degree-head.md).
+
+The larger `ModularCurve` silo remains the Deligne–Serre column's business in the
+sense of §1-then: the DS theorem sets (phase T of
+[WORKORDER-H-homes.md](WORKORDER-H-homes.md)) consume it. That is a separate topic;
+the five nodes above are the *ready* head and are cut on their own terms.
+
+## 1a. Where it sat (2026-10-07, verbatim)
 
 `frontier.py --target DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen --rank-by
 silo --ready` leaves **97 ready nodes**. By cluster:
@@ -203,7 +250,7 @@ helper-level one. `RatFunc.lean` needed `P1/PerfectField.lean` (absent from the
 work order's import list) and a `private` re-derivation of the 4-line
 `genus_eq_degree_div` (its public home, `ResidueTheorem/RRAssembly.lean`, is a
 forward import a `Genus/` leaf should not take). Both are folded into
-[../logs/riemann-roch-friction.md](../logs/riemann-roch-friction.md).
+[../logs/riemann-roch-friction.md](../../logs/riemann-roch-friction.md).
 
 ## 9. Riders (2026-10-07): two of the three deferred nodes folded in
 
