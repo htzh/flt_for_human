@@ -1,6 +1,13 @@
 # TOPIC — the `q`-expansion function field head: Γ₀-rationality, relative degree, and the residue-field model
 
-**Status: PLANNED (2026-10-08), ready to dispatch.** Planning record for the five
+**Status: LANDED (2026-10-08).** All five targets are ported across three sets
+(§10); the checker moved `6520 → 6904 identical (313 promoted, 83 renamed),
+0 mismatched, 0 missing, 36 own-proof (6940 checked)`; the ready shelf fell
+`89 → 86` (the five landed, two successors unblocked). This file remains the
+planning record — §1, §2 and the risk register below are the pre-dispatch
+measurements, kept verbatim; §7 items 1–2 and §10 are the landed deltas.
+
+Original planning record for the five
 largest `ModularCurve` entries of the ready shelf, taken as one cluster. Pin
 `aa2d8b3`, port mathlib `v4.34.0`, port checker at `6520 identical (312 promoted,
 83 renamed), 0 mismatched, 0 missing, 36 own-proof (6556 checked)`. Method:
@@ -387,3 +394,35 @@ substitution rows (≈2,104 raw lines) are import, not work.
   `ℓ = 1` re-derives the ported C′ Γ₀ node, 1,267 lines).
 * Not the `CuspForm`/`WeierstrassCurve`/`AlgebraicCurve`/`AutomorphicForm`/`PeriodPair`
   silos the same frontier command exposes.
+
+## 10. Landed record (2026-10-08)
+
+Three sets, one subagent each, reviewed between sets; **no hub module was edited**
+in any of them. The promotion prerequisite (§7 items 1–2) ran first.
+
+| set | module(s) | headline(s) | lines | checker at close |
+|---|---|---|---:|---:|
+| promotion | `ModularCurve/X1/FunctionField.lean` (+ hubs, consumer-side) | — (82 declarations promoted) | — | 6602 |
+| [SET-R-A](../functionFieldGeneration/SET-R-A.md) | `ModularForms/WeightOne/RationalityDvd.lean` | targets 1, 3 | 1,204 | 6652 |
+| [SET-R-B](../functionFieldGeneration/SET-R-B.md) | `ModularCurve/XH/Relrank.lean` | target 2 | 1,153 | 6798 |
+| [SET-R-C](../functionFieldGeneration/SET-R-C.md) | `ModularCurve/X1/FunctionFieldDegree.lean`, `X1/FunctionFieldResidue.lean` | targets 4, 5 | 690 + 1,027 | 6904 |
+
+All five headlines are verbatim from their `Theorems/` wrappers; `#print axioms`
+is `[propext, Classical.choice, Quot.sound]` on each; every set passed tier 0,
+tier 1 and a one-token mutation test (exactly one more `mismatched`, reverted).
+No whole-tree `lake build` was issued during the sets.
+
+**Coverage.** §8 item 5's command now leaves **86 ready nodes** (89 at planning):
+the five landed, and `ModularCurve.finrank_adjoin_qExpFunctionFieldC_le_of_valuationSubring`
+and `ModularCurve.exists_transcendental_finiteDimensional_qExpFunctionFieldC_of_isAlgClosed`
+became ready on the new headlines. The next cut is the remaining 86.
+
+**Friction handed forward.** (1) The pin's
+`attribute [-instance] DivisionRing.toRatAlgebra` (`...le_index.lean:18`) is
+load-bearing under `v4.34.0`; the port's `X1/FunctionField.lean` transcription
+dropped it, and SET-R-C re-supplied it in its own module — the promoted engine may
+want it in a follow-up. (2) SET-R-C order 2 transcribes the pin's
+`IsInt (f : LaurentSeries L)` rather than reusing `DeligneSerre.Relevement.IsInt`,
+which shares the name but not the statement. (3) The `zetaU` of SET-R-B is a fresh
+public module-local def at the pin's name, not the port's generalised
+`DeligneSerre.zetaUnit`.

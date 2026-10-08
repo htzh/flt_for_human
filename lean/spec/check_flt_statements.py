@@ -2440,6 +2440,32 @@ SOURCES = [
     # diffed. Appended last so no earlier last-name match can flip.
     "P2M/Sol/S_ModularCurve_JOneES_exists_transcendental_finiteDimensional_qExpFunctionFieldC.lean",
     "P2M/Sol/S_ModularCurve_finrank_adjoin_jqModC_laurentBaseChange_qExpFunctionFieldC_le_index.lean",
+    # --- SET-R-A (`topics/functionFieldGeneration/SET-R-A.md`): the two
+    # Gamma0-rationality headlines. The two `S_` files above are already listed
+    # (their helpers are pin copies); their headline copies are named `solution`,
+    # so the comparable copies of the headlines are the `Theorems/` wrappers.
+    # Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_ModularCurve_exists_ratCast_qExpansion_comp_smul_of_mem_Gamma0_of_dvd.lean",
+    "Theorems/Thm_ModularCurve_exists_qExpansion_S_smul_eq_and_conj_eq_of_ratCast_qExpansion.lean",
+    # --- SET-R-B (`topics/functionFieldGeneration/SET-R-B.md`): the `X_H`
+    # relative-degree bound. The `S_` file carries the pin's public prelude
+    # (matched by the new module's own declarations); the comparable copy of the
+    # headline is the `Theorems/` wrapper. Appended last so no earlier last-name
+    # match can flip.
+    "P2M/Sol/S_ModularCurve_le_relrank_xHFunctionField_xHTopFunctionFieldC_of_not_dvd.lean",
+    "Theorems/Thm_ModularCurve_le_relrank_xHFunctionField_xHTopFunctionFieldC_of_not_dvd.lean",
+    # --- SET-R-C order 1 (`topics/functionFieldGeneration/SET-R-C.md`): the
+    # `JOneES` finrank/index bound. The target-4 `S_` file is already listed above
+    # (from the promotion pass); the comparable copy of the headline is the
+    # `Theorems/` wrapper appended here. Appended last so no earlier last-name
+    # match can flip.
+    "Theorems/Thm_ModularCurve_finrank_adjoin_jqModC_laurentBaseChange_qExpFunctionFieldC_le_index.lean",
+    # --- SET-R-C order 2 (`topics/functionFieldGeneration/SET-R-C.md`): the
+    # residue-field model. Target 5's `S_` file and its `Theorems/` wrapper are
+    # both new here (nothing of it was ported before), so both are appended, the
+    # wrapper last. Appended last so no earlier last-name match can flip.
+    "P2M/Sol/S_ModularCurve_exists_transcendental_finiteDimensional_qExpFunctionFieldC_residueField.lean",
+    "Theorems/Thm_ModularCurve_exists_transcendental_finiteDimensional_qExpFunctionFieldC_residueField.lean",
 ]
 
 PORT_FILES = [
@@ -3519,6 +3545,26 @@ PORT_FILES = [
     # `ModularCurve.heckeDiamondInputsHAll` (matched against its wrapper in
     # `SOURCES`), so this is the effort's final wire test. Appended last.
     "FLTForHuman/ModularCurve/XH/Inputs.lean",
+    # --- SET-R-A (`topics/functionFieldGeneration/SET-R-A.md`): the
+    # Gamma0-rationality pair's shared engine written once, plus the two
+    # headlines, which are matched against their `Theorems/` wrappers appended to
+    # `SOURCES` last. Appended last so no earlier last-name match can flip.
+    "FLTForHuman/ModularForms/WeightOne/RationalityDvd.lean",
+    # --- SET-R-B (`topics/functionFieldGeneration/SET-R-B.md`): the `X_H`
+    # relative-degree headline and its engine, matched against the `S_` file and
+    # `Theorems/` wrapper appended to `SOURCES` last. Appended last so no earlier
+    # last-name match can flip.
+    "FLTForHuman/ModularCurve/XH/Relrank.lean",
+    # --- SET-R-C order 1 (`topics/functionFieldGeneration/SET-R-C.md`): the
+    # `JOneES` finrank/index bound over the promoted `X1/FunctionField.lean`
+    # engine, matched against the `S_` file and the `Theorems/` wrapper appended
+    # to `SOURCES` last. Appended last so no earlier last-name match can flip.
+    "FLTForHuman/ModularCurve/X1/FunctionFieldDegree.lean",
+    # --- SET-R-C order 2 (`topics/functionFieldGeneration/SET-R-C.md`): the
+    # residue-field model, matched against target 5's `S_` file and `Theorems/`
+    # wrapper appended to `SOURCES` last. Appended last so no earlier last-name
+    # match can flip.
+    "FLTForHuman/ModularCurve/X1/FunctionFieldResidue.lean",
 ]
 
 
