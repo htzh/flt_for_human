@@ -1,7 +1,8 @@
 # S-1 work order — the ℂ-analytic seam
 
-**Status: drafted 2026-10-06, for dispatch once the P-3 (`D-6`) set is reviewed and landed.**
-First set of row S (`topics/velu/TOPIC-V5-row-S-scoping.md`). Pin
+**Status: drafted 2026-10-06; P-3 (`D-6`) landed and reviewed 2026-10-06; re-verified against
+the tree and dispatched 2026-10-07.** First set of row S
+(`topics/velu/TOPIC-V5-row-S-scoping.md`). Pin
 `anthropics/fermats-last-theorem@aa2d8b3`; port mathlib `v4.34.0`. Depends only on already-landed
 sets: P-SET-1/P-SET-2 (`Elliptic/PeriodPair/{Basic,Lattice,Discriminant,Uniformization,JLine}.lean`),
 D-1 (`Isogeny/BaseChange.lean`), D-4/D-5 (`Isogeny/KernelCyclicTransfer.lean`,
@@ -33,7 +34,7 @@ reports.
 - `P2M/Sol/S_PeriodPair_exists_differentiable_toPoint_comp_eq_pointMapOfPushforward_toPoint.lean`
   (2,673 lines, 133 declarations).
 - Statement authority: `Theorems/Thm_PeriodPair_exists_differentiable_toPoint_comp_eq_pointMapOfPushforward_toPoint.lean`
-  (41 lines). Spell its binders **exactly**; note that `hL : L.DiscriminantNeZero` and
+  (24 lines). Spell its binders **exactly**; note that `hL : L.DiscriminantNeZero` and
   `hL' : L'.DiscriminantNeZero` are explicit **arguments**, not instances, and the conclusion
   is at `L'.toPoint hL'` / `L.toPoint hL`. The pin's `solution` (`:2658–2673`) is 16 lines.
 
@@ -53,6 +54,20 @@ Regions of the pin file, from the scoping note's §2.1:
 `PlaceCalculus.lean` 112, `Uniformization.lean` 105, `FunctionFieldQuadratic.lean` 86,
 `NatCard.lean` 69, `Lattice.lean` 65). Content: 1,490 lines. **Working estimate ≈1,300–1,400
 written lines.** Re-price after the pre-flight (§7).
+
+**Near-twin check (2026-10-07, before dispatch).** The ready-column headline surfaces because
+D-5 landed its seam class, but the twin is **statement-only**: `ModularCurve.KwD5BetweenCurvesHoloLift`
+(`KernelBaseChange.lean:89`) is a `def … : Prop` and is proved **nowhere** in the port; it is
+used as a hypothesis only in the `spec/KernelBaseChangeConsumer.lean` probe. The four
+`KwD5BetweenCurves{Locally,Cocountable,CocountableAffine,…Weak}HoloLift` classes, the whole
+`kw_surgehgf4_hH2*` chain and the covering-map layer are absent from `FLTForHuman` and
+`Reserve` (grep-verified), and mathlib has no covering-map differentiability lemma. The pin's
+own `solution` (`:2658–2673`) is a 16-line call into `kw_surgehgf4_hH2f_betweenCurvesHoloLift`
+(`:2640`), so the headline is the *wrapper* and the chain is the work. `port_advise`'s
+`KwD5BetweenCurvesHoloLift` substitute row points at `PeriodPair.DiscriminantNeZero` — that is
+the `def … : Prop` type-only blind spot, not an identity; the checker's `--prop-bodies` pass
+shows the port's class body is the pin's modulo the `kw_`-prefix promotion. This set is **not**
+a duplicate of the D row: import the class, prove it, derive the headline.
 
 ## 3. The mathematics, and the direction of the chain
 
@@ -209,10 +224,11 @@ import the two forbidden modules.
 
 - `lake env lean` clean; `lake build FLTForHuman.Elliptic.PeriodPair.HoloLift`; one `flock`ed
   wave build.
-- `python3 spec/check_flt_statements.py` → **0 mismatched / 0 missing**. Baseline at drafting:
-  `6037 statements identical (313 promoted from pin-private declarations, 67 renamed), 0
-  mismatched, 0 missing, 36 own-proof declarations exempted (6073 port declarations checked)`
-  — **re-run it at dispatch**: D-6 lands first and will move it. Reconcile every delta: the
+- `python3 spec/check_flt_statements.py` → **0 mismatched / 0 missing**. Baseline at dispatch
+  (2026-10-07, after D-6 landed):
+  `6054 statements identical (313 promoted from pin-private declarations, 83 renamed), 0
+  mismatched, 0 missing, 36 own-proof declarations exempted (6090 port declarations checked)`.
+  Reconcile every delta: the
   set adds the four classes, the five chain lemmas and the headline as `identical` (they are
   pin-public transcriptions), plus any promotion as `renamed`.
 - `PORT_FILES`: append `FLTForHuman/Elliptic/PeriodPair/HoloLift.lean` (last, so no earlier
@@ -261,3 +277,45 @@ absorbed, and whether the `mmr73`/`geomMorphBC` blocks were importable or had to
 Then update `TOPIC-V5-row-S-scoping.md` §5 (close the answered questions) and fold the
 generalizable part into [../../porting-playbook.md](../../porting-playbook.md) and
 [../../logs/velu-port.md](../../logs/velu-port.md).
+
+### Landed 2026-10-07 — the close-out
+
+**`FLTForHuman/Elliptic/PeriodPair/HoloLift.lean`, 931 lines** (20 public declarations + 9
+`private` helpers), plus `spec/PeriodPairHoloLiftConsumer.lean` (185 lines, four zones /
+twelve `example`s). The full reconciliation is in
+[../../logs/velu-port.md](../../logs/velu-port.md) "S-1 — the ℂ-analytic seam"; the numbers:
+
+- **Saving.** 2,673 raw pin lines; `port_advise` 78 substitutions ≈ 1,203 lines; **931 lines
+  written** (under the order's 1,300–1,400 estimate because the four reductions and the
+  constructive base are near-verbatim transcriptions, not re-derivations).
+- **Checker.** before `6054 (313 promoted, 83 renamed), 0 mismatched, 0 missing, 36 own
+  (6090 checked)` → after `6074 (313, 83), 0 mismatched, 0 missing, 36 own (6110 checked)`.
+  Delta reconciles exactly: **+20 `identical` = the 20 public declarations** (4 classes,
+  9 chain lemmas, 3 `geomMorphBC` atoms, 2 finite-kernel lemmas, the `kw_evalAt_placeOfEquation_mk`
+  bridge, the headline); `promoted`/`renamed`/`own` unmoved, no promotions were needed. The
+  `--prop-bodies` pass: 258 identical / 6 textual (advisory, all pre-existing; none of the
+  four S-1 classes). Wiring: `PORT_FILES` appended last; the `Theorems/` wrapper inserted
+  immediately above the `S_` entry in `SOURCES` — measured load-bearing: without it the
+  checker reports `6073 … 1 missing`, the one `missing` being the headline.
+- **Consumer.** exit 0, wall **67.2 s** (`timeout 90 lake env lean …`); deleting the module
+  source **and** its `.olean` makes it fail (exit 1, `object file … does not exist`). Zone 1
+  applies the headline at the concrete `PeriodPair.ofTau τ` lattice (gate instances as
+  hypotheses, as §8 provides); zone 2 composes it with `toPointHom_apply`/`toPointAddEquiv_mk`.
+- **Axioms.** `#print axioms` on the headline, on `kw_surgehgf4_hH2f_betweenCurvesHoloLift` and
+  on `…CocountableAffineHoloCoordsWeak`: `[propext, Classical.choice, Quot.sound]`; no `sorry`.
+- **Builds.** edit-loop `lake env lean` 44.2 s wall / 19.9 user / 12.5 sys (import-dominated);
+  module `lake build` 67 s (9,038 jobs, flocked, `timeout 300`); `build_ladder --edit` prices
+  the cascade at **0** dependent modules (a leaf); whole-tree flocked `lake build` green,
+  9,318 jobs, 11.25 s wall / 8.56 user / 12.14 sys.
+- **Friction.** `IsCoveringMap (ℂ → ℂ/Λ)` came out exactly as §5 measured — one line off mathlib's
+  `DiscreteTopology L.lattice` + `AddSubgroup.isAddQuotientCoveringMap_of_comm`, with mathlib's
+  `existsUnique_continuousMap_lifts` doing the lifting; the whole topological layer is mathlib's,
+  the analytic chain is the pin's. `mmr73_cs_evalAt_eq_of_ord_sub_pos` and the
+  `kw_fdn2_qephod_hend7_geomMorphBC*` block were **importable** (Engine / NatCard), so only the
+  three `kw_surgehgf4_hH2f_geomMorphBC*` atoms were written. Two pin-`private` prelude names
+  (`countable_lattice`, `toPoint_surjective`) did not survive the module split and were
+  re-derived. New traps, both folded into the playbook: `Y` is a `scoped notation` in
+  `Polynomial.Bivariate`'s scope and breaks `∃ X Y : …` / `⟨…, X, Y, …⟩` (playbook §6), and
+  `--` line comments mis-align the checker's namespace tracker (playbook §4). Drift:
+  `Filter.eventually_of_mem`, `continuous_id.add continuous_const`, `unfold yGen yCoord`
+  (playbook §7).

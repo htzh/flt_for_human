@@ -457,8 +457,20 @@ The `net` column is the file's content minus its statement-identical-to-port lin
    (`existsUnique_continuousMap_lifts`) and the ℘-differentiability are mathlib's; the
    covering-map layer and the seam chain are not, and mathlib has no covering-map
    differentiability lemma. S-1 stays ≈1,300–1,400 new raw lines and needs no scout.
-2. **Are the seven classes restatements of each other?** Four are `Cocountable*`/`Locally*`
-   variants; `grep -c` their bodies and record which are distinct mathematics.
+   **Measured on landing (2026-10-07): 931 lines written** — under the estimate because the
+   chain transcribes near-verbatim; see
+   [WORKORDER-S1-analytic-seam.md](WORKORDER-S1-analytic-seam.md) §9.
+2. **Are the seven classes restatements of each other?** **Answered — no, and S-1's four are
+   measured (2026-10-07).** The four `Cocountable*`/`Locally*` variants each delete exactly
+   one defect and none is a restatement of another: `Weak` (a pointwise `∃ h, pmop ⋯ =
+   Point.some (X z) (Y z) h`, no non-vanishing) → `Coords` (adds `Y z ≠ 0`) → `Cocountable`
+   (replaces the coordinates by one differentiable lift `G` through `toPointHom`) → `Locally`
+   (drops the countable exceptional set `S` and fixes a point `z₀`) → `HoloLift` (drops the
+   neighbourhood and glues to one global `F`). Pin-file `grep -c` gives 3 / 4 / 4 / 4
+   occurrences, each class has exactly one declaration home in the port, and the checker's
+   `--prop-bodies` pass puts all four in its 258-identical set. The seam class itself is
+   `HoloLift`, imported from D-5's `KernelBaseChange.lean` and *proved* by S-1. S-2's three
+   classes were still unlanded when S-1 closed; measure them with the same instrument.
 3. **The seam's home.** **Answered — §3.** Each family's classes are proved by the set that
    uses them, in that set's own new leaf module (S-1's four, S-2's three), declared public at
    the pin's `ModularCurve.KwD5BetweenCurves*` names. There is no separate seam module and no

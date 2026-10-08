@@ -723,6 +723,16 @@ instruments, all cheap:
      ([../notes/lean-build-cost.md](../notes/lean-build-cost.md) §2), run the
      checker first: a statement-shaped problem outranks the proof problem, and
      the proof's own progress is not measured by it either way.
+   - **`--` line comments mis-align the checker's namespace tracker** (found
+     2026-10-07, set S-1). `namespace_events` strips block comments through
+     `strip_comments` but line comments through a *second* pass, so a `--` comment
+     anywhere shifts every later event position and every later declaration is
+     attributed to the wrong enclosing namespace. The **primary** last-name lookup
+     is unaffected — all statements still matched `0/0` — but the *dotted* name
+     (used by `OWN_PROOFS`, the `dotted_source` fallback and the `--prop-bodies`
+     key) is wrong, so a declaration can look like it is in the next namespace.
+     Write header prose in `/- … -/` blocks, or verify the dotted names with
+     `raw_declarations` before relying on one.
 2. **A consumer** (`spec/<X>Consumer.lean`) outside every library. Its error
    count is the deliverable metric, and each zone must contain a **real,
    executed cross-module composition** — no `#check`s, no `sorry`; deleting any
@@ -1058,6 +1068,20 @@ the signature rather than "restoring" it. And `linter.style.haveILetI` fires on 
 probes there; the most useful probe when a rewrite or instance fails is
 `#check @name` on the lemma you think you are using.
 
+**A `scoped notation` can shadow a *binder name*, and the failure is a parse
+error far from the notation** (found 2026-10-07, set S-1). `open scoped
+Polynomial.Bivariate` brings `scoped notation "Y" => Polynomial.X (R :=
+Polynomial _)`, after which `Y` is a *token*, not an identifier: every `∃ X Y : ℂ →
+ℂ, …` binder and every `⟨…, X, Y, …⟩` pattern in the file becomes a syntax error
+(`unexpected token 'Y'; expected ',' or binderPred` / `expected rcasesPat`), while
+`X` — which Bivariate does *not* scope — still parses, so the error names only the
+second of a pair. The pin does open the scope, but only inside sections whose
+statements use no `Y` binder. Open such a scope per declaration (`open scoped … in
+…`), never file-wide, and spell the notation's expansion in proof terms
+(`(Polynomial.X : Polynomial K[X])`) where a binder named `Y` is needed. This is
+the same class of hazard as `open` name ambiguity (above): a scope can change how
+*identifiers* lex, so it is a whole-file decision.
+
 ## 7. Drift checklist (mathlib `v4.34.0`)
 
 API drift is the recurring real cost. The list below is the accumulated set; when
@@ -1084,6 +1108,10 @@ a new pin is taken, re-run it and append.
 | `Monoid`/`Group`/`Ring` projection chains `.1.1.1` | use `g.mul`, or `(g.mul, g.add)` |
 | `Equiv.module` / `Equiv.linearEquiv` | `AddEquiv.*`, with instance diamonds needing explicit instance arguments |
 | `TFAE.out` | 1-based: `.out 0 2` → `.out 1 3` |
+| `continuous_add_right a` | does not exist — `continuous_id.add continuous_const` |
+| `eventually_of_mem h …` | namespace-qualified: `Filter.eventually_of_mem h …` |
+| `unfold yGen` (a `def` wrapping another `def`) | `unfold yGen yCoord` — the pin's one-name unfold leaves the inner `def` folded |
+| `Polynomial.induction_on`'s `monomial` step | v4.34 states the step `motive (C a * X ^ n) → motive (C a * X ^ (n + 1))`; the pin's `monomial n a ih` proof transcribes unchanged |
 
 The recurring *shapes* of drift, beyond a rename:
 

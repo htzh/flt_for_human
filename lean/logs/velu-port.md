@@ -2373,3 +2373,133 @@ prices the whole node at 1,975 net-new and finds 107 of its 183 declarations alr
 port; the measured saving is everything the five P-2 pin files already carry (the D-2 descent
 helpers, the D-5 seam, the place dictionary, the `pointPullback`/tensor prelude) plus the
 ~290 lines of the pin's `KwD5*`/`s13GlobalGate` staging that this set does not write.
+
+## S-1 — the ℂ-analytic seam (landed, 2026-10-07)
+
+**Landed.** One new leaf module `Elliptic/PeriodPair/HoloLift.lean` (**931 lines**, 20 public
+declarations + 9 `private` helpers) and a `spec/` probe. The pin is
+`P2M/Sol/S_PeriodPair_exists_differentiable_toPoint_comp_eq_pointMapOfPushforward_toPoint.lean`
+(2,673 lines, 133 declarations); the statement authority is the 24-line `Theorems/` wrapper.
+The whole target is
+
+    PeriodPair.exists_differentiable_toPoint_comp_eq_pointMapOfPushforward_toPoint
+
+and the work is the chain that proves `ModularCurve.KwD5BetweenCurvesHoloLift` (which is
+**imported** from D-5's `Isogeny/KernelBaseChange.lean`, never redeclared — the near-twin
+warning in the order was right: the class is a `def … : Prop` proved nowhere else).
+
+### What was written, and what was imported
+
+Written: the four pin-public chain `Prop`s
+(`KwD5BetweenCurves{LocallyHoloLift,CocountableHoloLift,CocountableAffineHoloCoords,
+CocountableAffineHoloCoordsWeak}`), the nine `kw_surgehgf4_hH2*` reduction lemmas, the
+constructive `kw_surgehgf4_hH2f_betweenCurvesCocountableAffineHoloCoordsWeak` (≈195 lines,
+the analytic base), the three `geomMorphBC` atoms, the two `kw_fdn2_qephod_hend10_*`
+finite-kernel lemmas, `WeierstrassCurve.Affine.kw_evalAt_placeOfEquation_mk`, the headline,
+and the `private` covering-map layer.
+
+Imported, not re-proved (pin-file occurrence counts from a `grep -c` on the `S_` file, as
+§2.4 requires of every drop):
+
+| dropped | occurrence count | reason / port home |
+|---|---|---|
+| `kw_fdn2_qephod_hend7_geomMorphBC`, `…_placeOfPoint_geomMorphBC`, `…_pmop_eq_geomMorphBC_sub` | 11 / 6 / 3 | `Isogeny/NatCard.lean` — the ported generalisation (`hN` explicit; no `IsElliptic`/`IsCentred`) |
+| `kw_fdn2_qephod_hend7_pmopKerCard_proved` | 2 | `Isogeny/NatCard.lean` (`KwD5PointMapOfPushforwardKerCard`, with an extra `hsep`; see Friction 4) |
+| `mmr73_cs_evalAt_eq_of_ord_sub_pos`, `mmr73_cs_ord_neg` | 3 / 2 | `IsogenyEndDatum/Engine.lean` |
+| `kw_toPointHom` / `_apply` / `kw_ker_toPointHom` / `kw_toPointAddEquiv` / `_mk` / `kw_discriminantNeZero` | 35 / 7 / 6 / 8 / 1 / 10 | `Elliptic/PeriodPair/Uniformization.lean` (D-5 §1.5 promotions, prefix-stripped) |
+| the place dictionary and `placeOfEquation` algebra (`IsFinitePlace.*`, `placeOfPoint_*`, `InfinitePlace.*`, `or d_placeOfEquation_*`, `mk_mem_XYIdeal_iff`, `polyToFunctionField*`, `yGen`, `evalAt_div'`, `ord_div`, `min_ord_le_ord_add`, `mem_restrictAlong_iff`, `restrict_fiber_finite`, `ord_restrictAlong`, `ramificationIndexAlong_pos`, `isRational_placeOfEquation`, …) | — | `Place/Dictionary.lean`, `FunctionFieldQuadratic.lean`, `AlgebraicCurve/Defs/*`, `IsogenyEndDatum/Engine.lean` |
+| `analyticOnNhd_weierstrassP`, `analyticOnNhd_derivWeierstrassP`, `deriv_weierstrassP`, `isClosed_lattice`, `equation_weierstrassP` | — | mathlib `Analysis/SpecialFunctions/Elliptic/Weierstrass.lean` |
+
+Two pin-`private` prelude names did **not** survive the module split: `countable_lattice` and
+`toPoint_surjective` are `private` in `Uniformization.lean` (the pin has them in-file, so it
+reuses them freely). `countable_lattice` is re-derived in one line; `surjective_toPointHom` is
+re-proved from the public `toPointAddEquiv`. A pin-private prelude name is *not* importable
+across a module boundary even when the port keeps the same name privately.
+
+### Measured table
+
+| metric | value |
+|---|---|
+| pin file (raw / `port_advise` substitutions / **written**) | 2,673 / 78 subst. ≈ 1,203 / **931** lines |
+| declarations | 20 public (4 `Prop`s + 9 chain + 3 atoms + 2 finite-kernel + 1 evalAt bridge + 1 headline), 9 `private` |
+| edit-loop `lake env lean` (final) | wall 44.2 s / user 19.9 / sys 12.5 (import-dominated; first cold run 130 s) |
+| module `lake build` | 67 s (9,038 jobs); 103 s after the last comment edit; flocked, `timeout 300` |
+| cascade (`build_ladder --edit`) | **0** dependent modules / 0 lines — a leaf |
+| whole-tree `flock`ed `lake build` | green, 9,318 jobs, wall 11.25 s / user 8.56 / sys 12.14 |
+| checker before | `6054 (313 promoted, 83 renamed), 0 mismatched, 0 missing, 36 own, 6090 checked` |
+| checker after | `6074 (313, 83), 0 mismatched, 0 missing, 36 own, 6110 checked` |
+| checker `--prop-bodies` | 258 identical, 6 textual (advisory, all pre-existing; none of the four S-1 classes) |
+| consumer | `spec/PeriodPairHoloLiftConsumer.lean`, exit 0, wall **67.2 s** (`timeout 90`) |
+| axioms | `[propext, Classical.choice, Quot.sound]` (headline, chain lemma, `Weak`) |
+| `sorry` | 0 |
+
+The checker delta reconciles exactly: **+20 `identical` = the 20 public declarations**, with
+`promoted`/`renamed`/`own` unmoved and 0 mismatch/missing. The four classes compare as
+`identical` in the main pass (a `def … : Prop`'s type is `Prop`) and their **bodies** sit in
+the `--prop-bodies` identical set — the four are genuinely distinct propositions, not
+restatements: `Weak` (no `Y z ≠ 0`) → `Coords` (adds it) → `Cocountable` (replaces the
+point coordinates by a lift `G` through `toPointHom`) → `Locally` (drops the countable
+exceptional set `S`, fixing a point `z₀`) → `HoloLift` (drops the neighbourhood, glues to one
+global `F : ℂ → ℂ`). Each step deletes exactly one defect; `grep -c` in the pin file gives
+3 / 4 / 4 / 4 occurrences and each has exactly one declaration home in the port.
+
+### Checker wiring
+
+`PORT_FILES`: `FLTForHuman/Elliptic/PeriodPair/HoloLift.lean` appended last. `SOURCES`: the
+`Theorems/Thm_PeriodPair_exists_differentiable_toPoint_comp_eq_pointMapOfPushforward_toPoint.lean`
+wrapper inserted **immediately above** the `S_` entry (the one non-appended `SOURCES` entry of
+the port), because the wrapper is the headline's statement authority and the `S_` file
+declares no `PeriodPair.exists_…` at all. It carries one declaration whose name the `S_`
+entry already serves, so no other row's lookup can move; confirmed by a checker run before
+and after. Both intermediate states were measured: with `HoloLift.lean` in `PORT_FILES` but
+the wrapper **absent** the checker reports `6073 (313, 83), 0 mismatched, 1 missing, 36 own
+(6110)` — the one `missing` is the headline, which has no pin declaration to match against
+(the `S_` file declares only `…solution`) — and the wrapper turns it into the final
+`6074 (313, 83), 0/0, 36 own (6110)`.
+
+### Friction
+
+1. **`IsCoveringMap (ℂ → ℂ/Λ)` came out exactly as the pin has it.** `isDiscrete_lattice` is
+   `isDiscrete_iff_discreteTopology` applied to mathlib's own `DiscreteTopology L.lattice`
+   instance; `isCoveringMap_mk_lattice` is the one line
+   `(AddSubgroup.isAddQuotientCoveringMap_of_comm L.lattice.toAddSubgroup ‹discrete›).isCoveringMap`;
+   the global lift is mathlib's `IsCoveringMap.existsUnique_continuousMap_lifts` in its
+   `SimplyConnectedSpace` form. The order's §5 measurement held exactly; no scout was needed
+   and none of it cost a round.
+2. **How much mathlib absorbed.** The entire topological foundation — discreteness, the
+   covering map, unique lifting, `Set.Countable.isPathConnected_compl_of_one_lt_rank` +
+   `Complex.rank_real_complex`, ℘-analyticity/`IsZLattice` — is mathlib's, and
+   `kw_differentiable_of_locallyDifferentiable_lift_through_mk` is a 25-line transcription
+   (`Metric.mem_nhds_iff` + `convex_ball`'s `IsPreconnected.constant_of_mapsTo`). What is *not*
+   mathlib is the analytic chain itself: the local-inverse/local-coordinate argument in
+   `…hH2d…` and the rationality argument in `…hH2f…_Weak` transcribe essentially verbatim.
+3. **The `mmr73`/`geomMorphBC` blocks were importable.** `mmr73_cs_evalAt_eq_of_ord_sub_pos` and
+   the `ModularCurve.kw_fdn2_qephod_hend7_geomMorphBC*` block are in
+   `IsogenyEndDatum/Engine.lean` / `Isogeny/NatCard.lean` and were used as-is. Only the three
+   pin-public `kw_surgehgf4_hH2f_geomMorphBC*` atoms had to be written; they are Engine's
+   datum-general `mmr73_cs_geomMorph_{ne_zero,some_coords}` and the fibre-finiteness lemma
+   specialised back to a bare `ι, hι` (≈110 lines, no new mathematics).
+4. **The port's kernel-cardinality `Prop` is not the pin's.** `KwD5PointMapOfPushforwardKerCard`
+   (NatCard) carries an explicit `hsep : SeparableAlong K ι` and `hN`, where the pin's
+   `kw_fdn2_qephod_hend7_pmopKerCard_proved K E E' ι hι hfin` uses the canonical
+   `normFormulaAlong_of_elliptic`. The finite-kernel lemma therefore derives `SeparableAlong`
+   the way `normFormulaAlong_of_elliptic` does (`letI := algebraAlong` + `isScalarTower_along`
+   + `CharZero` of the base) rather than calling the pin's wrapper.
+5. **A pin-private prelude name is not importable across a module split.** See above.
+6. **`Y` is a token in `Polynomial.Bivariate`'s scope.** `open scoped Polynomial.Bivariate`
+   makes `Y` a `scoped notation`, so `∃ X Y : ℂ → ℂ, …` and `⟨…, X, Y, …⟩` are parse errors
+   (`X` still parses, which is what makes it confusing). Fixed by not opening the scope
+   file-wide and spelling `(Polynomial.X : Polynomial K[X])` where the bivariate variable is
+   needed. Folded into playbook §6.
+7. **`--` line comments shift the checker's namespace tracker.** `namespace_events` runs a
+   second comment-stripping pass that `strip_comments` does not, so a `--` comment made every
+   later declaration attribute to the next namespace (the chain lemma came out as
+   `PeriodPair.kw_surgehgf4_hH2f_betweenCurvesHoloLift`). All last-name lookups still matched
+   `0/0`, but a dotted lookup (`OWN_PROOFS`, `dotted_source`) would have missed. Fixed by
+   writing the header prose as a `/- … -/` block; folded into playbook §4.
+8. **Drift** (`v4.34.0`): `eventually_of_mem` is namespace-qualified
+   (`Filter.eventually_of_mem`); `continuous_add_right` is gone (`continuous_id.add
+   continuous_const`); the pin's `unfold yGen` needs `unfold yGen yCoord` in the port, because
+   `yGen` wraps the `def yCoord` where the pin had them inlined. `Polynomial.induction_on`'s
+   `monomial` step changed shape (`motive (C a * X^n) → motive (C a * X^(n+1))`) but the pin's
+   proof transcribes unchanged. All three added to playbook §7.

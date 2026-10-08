@@ -2227,6 +2227,14 @@ SOURCES = [
     # declared by D-4 — see the module header and the friction log.
     "Theorems/Thm_WeierstrassCurve_Affine_isAddCyclic_ker_pointMapOfPushforward_of_algEquiv_conj.lean",
     "P2M/Sol/S_WeierstrassCurve_Affine_isAddCyclic_ker_pointMapOfPushforward_of_algEquiv_conj.lean",
+    # --- S-1 §1.5 (the `ℂ`-analytic seam). The `Theorems/` wrapper is the statement
+    # authority for the headline; the `S_` entry below carries the *proof* and the
+    # prelude, and declares no `PeriodPair.exists_differentiable_…` at all. Inserted
+    # immediately **above** the `S_` file rather than appended last (the one entry of
+    # this set that is not), because the wrapper must win the first-match lookup for the
+    # headline; it carries exactly one declaration, whose name the `S_` entry already
+    # serves, so no other row's lookup can move.
+    "Theorems/Thm_PeriodPair_exists_differentiable_toPoint_comp_eq_pointMapOfPushforward_toPoint.lean",
     # --- D-5 §1.5 (the `PeriodPair` uniformization promotion set). The seam
     # `ModularCurve.KwD5BetweenCurvesHoloLift` needs `PeriodPair.kw_toPointHom`, which
     # the pin declares `private` and re-exports with `p2m_export`; set D-5 promotes it
@@ -3236,6 +3244,19 @@ PORT_FILES = [
     # gate-free `NoAC` base-change engine and the descent helpers — is `private` with a
     # content name. Appended last so no earlier last-name match can flip.
     "FLTForHuman/WeierstrassCurve/Isogeny/TwoCurveDescent.lean",
+    # --- S-1: the `ℂ`-analytic seam (`topics/velu/WORKORDER-S1-analytic-seam.md`). Public
+    # surface: the four pin-public chain `Prop`s, the nine `kw_surgehgf4_hH2*` chain lemmas
+    # at their pin names, the three `kw_surgehgf4_hH2f_geomMorphBC*` atoms, the two
+    # `kw_fdn2_qephod_hend10_*` finite-kernel lemmas, the pin-public
+    # `WeierstrassCurve.Affine.kw_evalAt_placeOfEquation_mk`, and the headline (matched
+    # against its `Theorems/` wrapper in `SOURCES`). `ModularCurve.KwD5BetweenCurvesHoloLift`
+    # is **imported**, never redeclared: the module proves it. Everything else — the
+    # covering-map layer, `countable_toPointHom_preimage`, the ℘-differentiability of
+    # `evalEval` and the `surjective_toPointHom` bridge — is `private` with a content name,
+    # as the pin has them. The `kw_fdn2_qephod_hend7_geomMorphBC*` block is the ported
+    # `Isogeny/NatCard.lean` generalisation, not re-declared. Appended last so no earlier
+    # last-name match can flip.
+    "FLTForHuman/Elliptic/PeriodPair/HoloLift.lean",
 ]
 
 
