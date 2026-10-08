@@ -348,5 +348,14 @@ substitution rows (≈2,104 raw lines) are import, not work.
   remaining 33 `ModularCurve` ready nodes (`exists_qExpansion_S_smul…`,
   `LevelN.*`, `ModularPolynomialData.*`, the Frobenius/`periodAlongOf` group); each
   is its own cut once this head is down.
+* Not a re-opening of **route A**, the pin's integral-structure route the C′
+  shortcut avoided. Measured: the Γ₀-rationality pair stands on the C′ cone's
+  ported base (16/16 and 20/20 premises), no target here touches route A's
+  criterion or its Eichler–Shimura layer, and pruning route A's proof is 4
+  nodes / 800 lines with zero rewire obligations. The head's own gap and the
+  interface it does *not* retire are accounted in
+  [../../../studies/qexp-head-and-integrality.md](../../../studies/qexp-head-and-integrality.md)
+  (§4–§6 there; §6 also records the one saving-direction overlap — target 1 at
+  `ℓ = 1` re-derives the ported C′ Γ₀ node, 1,267 lines).
 * Not the `CuspForm`/`WeierstrassCurve`/`AlgebraicCurve`/`AutomorphicForm`/`PeriodPair`
   silos the same frontier command exposes.
