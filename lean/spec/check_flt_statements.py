@@ -2271,6 +2271,68 @@ SOURCES = [
     # last-name match can flip. Neither was listed before D-6 (checked).
     "Theorems/Thm_WeierstrassCurve_Affine_exists_intermediateField_countable_map_eq_of_isAddCyclic_ker_pointMapOfPushforward.lean",
     "P2M/Sol/S_WeierstrassCurve_Affine_exists_intermediateField_countable_map_eq_of_isAddCyclic_ker_pointMapOfPushforward.lean",
+    # --- S-2 (the lattice/index arithmetic, `Elliptic/PeriodPair/LatticeIndex.lean`).
+    # Each `Theorems/` wrapper is the statement authority for its headline; its `S_` file
+    # carries the proof and the pin's shared `hID_*`/torsion prelude (the pin ships both
+    # twice; the port writes them once). The 978 node comes before the 2,021 node because
+    # the latter's `hID` is the former's headline. Appended last so no earlier last-name
+    # match can flip; none of the four was listed before S-2 (checked).
+    "Theorems/Thm_PeriodPair_exists_scale_lattice_subset_and_sublatticeIndex_eq_natCard_ker.lean",
+    "P2M/Sol/S_PeriodPair_exists_scale_lattice_subset_and_sublatticeIndex_eq_natCard_ker.lean",
+    "Theorems/Thm_PeriodPair_exists_scale_lattice_subset_and_sublatticeIndex_eq_and_isAddCyclic_sublatticeQuotient.lean",
+    "P2M/Sol/S_PeriodPair_exists_scale_lattice_subset_and_sublatticeIndex_eq_and_isAddCyclic_sublatticeQuotient.lean",
+    # --- S-3 (the primitive-coset / `jLattice` column,
+    # `FLTForHuman/Elliptic/PeriodPair/PrimCosetReps.lean` and
+    # `FLTForHuman/Algebra/IntPairSubgroup.lean`). The wrapper is the statement authority
+    # for the headline; its `S_` file carries the transport/`hu5c`/`qtzz` content and the
+    # pin-private `PeriodPair` prelude lemmas re-derived in the port (the generic `ℤ²`
+    # block is re-homed in `IntPairSubgroup`, matched by last name). The wrapper comes
+    # before its `S_` file. Appended last so no earlier last-name match can flip; neither
+    # was listed before S-3 (checked).
+    "Theorems/Thm_PeriodPair_exists_mem_primCosetReps_and_jLattice_eq_of_isAddCyclic.lean",
+    "P2M/Sol/S_PeriodPair_exists_mem_primCosetReps_and_jLattice_eq_of_isAddCyclic.lean",
+    # --- S-4 (the `E₄³ − E₆²` / `jLattice` modular-polynomial tail,
+    # `ModularCurve/ModularPolynomialE4Cube.lean` and
+    # `Algebra/SpecialLinearGroupSmith.lean`). Each of the four `Theorems/` wrappers is
+    # the statement authority for its headline; its `S_` file carries the pin's public
+    # helper surface (the `E₄³`/`Δ` forms, the `q`-expansion bookkeeping, `jt` and the
+    # `upperTriangularGL` pair, and the `SL₂(ℤ)` Smith leaf's `exists_coprime_mul_add`
+    # /`main`). Each wrapper comes immediately above its `S_` file. Appended last so no
+    # earlier last-name match can flip; none was listed before S-4 (checked).
+    #
+    # The audit's one prerequisite surprise: the work order recorded
+    # `ModularForm.exists_degeneracy_Gamma0` as landed, but only its `CuspForm` twin
+    # was; its wrapper is the statement authority for the twin ported into
+    # `ModularForms/Level/Degeneracy.lean` for S-4. No `S_` file is needed (its
+    # helpers stay `private` in the port, so the checker cannot see them).
+    "Theorems/Thm_ModularForm_exists_degeneracy_Gamma0.lean",
+    "Theorems/Thm_Matrix_SpecialLinearGroup_exists_eq_mul_diagonal_mul_of_gcd_eq_one.lean",
+    "P2M/Sol/S_Matrix_SpecialLinearGroup_exists_eq_mul_diagonal_mul_of_gcd_eq_one.lean",
+    "Theorems/Thm_ModularCurve_ModularPolynomialData_eval_E4_cube_div_discriminant_smul_eq_zero.lean",
+    "P2M/Sol/S_ModularCurve_ModularPolynomialData_eval_E4_cube_div_discriminant_smul_eq_zero.lean",
+    "Theorems/Thm_ModularCurve_ModularPolynomialData_eval_E4_cube_div_discriminant_coset_eq_zero.lean",
+    "P2M/Sol/S_ModularCurve_ModularPolynomialData_eval_E4_cube_div_discriminant_coset_eq_zero.lean",
+    "Theorems/Thm_ModularCurve_ModularPolynomialData_eval_jLattice_eq_zero_of_isAddCyclic.lean",
+    "P2M/Sol/S_ModularCurve_ModularPolynomialData_eval_jLattice_eq_zero_of_isAddCyclic.lean",
+    # --- SC, row S's terminal set (`topics/velu/WORKORDER-SC-capstone.md`). Three
+    # modules: the two already-landed leaves
+    # (`Elliptic/PeriodPair/VariableChange.lean`, `FieldTheory/NonemptyRingHomComplex.lean`)
+    # and the capstone `ModularCurve/ModularPolynomialEvalJ.lean`. Each `Theorems/`
+    # wrapper is the statement authority for its headline and comes immediately above
+    # its `S_` file; the capstone file additionally carries the pin's `conjSeam` /
+    # `separableAlong_of_charZero` / `normFormulaAlong_of_charZero` / `map_eval_map_Φ` /
+    # `isElliptic_map` / `j_eq_div` / `jLattice_eq_j` / `complexCase` / `solution0` /
+    # `solution` surface, all matched here. The pin's `PeriodPair` scale prelude
+    # (`:45–129`) is *not* re-declared (it is S-3's `Lattice.lean`/`PrimCosetReps.lean`);
+    # only `jLattice_scale` is re-derived `private`, so it is invisible to this checker.
+    # Appended last so no earlier last-name match can flip; none of the six was listed
+    # before SC (checked).
+    "Theorems/Thm_PeriodPair_exists_variableChange_smul_weierstrassCurve_eq.lean",
+    "P2M/Sol/S_PeriodPair_exists_variableChange_smul_weierstrassCurve_eq.lean",
+    "Theorems/Thm_Field_nonempty_ringHom_complex_of_countable.lean",
+    "P2M/Sol/S_Field_nonempty_ringHom_complex_of_countable.lean",
+    "Theorems/Thm_WeierstrassCurve_Affine_eval_modularPolynomial_map_j_eq_zero_of_isAddCyclic_ker_pointMapOfPushforward.lean",
+    "P2M/Sol/S_WeierstrassCurve_Affine_eval_modularPolynomial_map_j_eq_zero_of_isAddCyclic_ker_pointMapOfPushforward.lean",
 ]
 
 PORT_FILES = [
@@ -3257,6 +3319,63 @@ PORT_FILES = [
     # `Isogeny/NatCard.lean` generalisation, not re-declared. Appended last so no earlier
     # last-name match can flip.
     "FLTForHuman/Elliptic/PeriodPair/HoloLift.lean",
+    # --- S-2: the lattice/index arithmetic (`topics/velu/WORKORDER-S2-lattice-index.md`).
+    # Public surface: the two headlines (matched against their `Theorems/` wrappers in
+    # `SOURCES`), the three `ModularCurve` classes, the shared `hID_*` block written once,
+    # the shared torsion prelude written once, the `kqe_*` engine, and the pin-public
+    # `kwLatticeCoeAddEquiv`/`kw_card_torsionBy_zlatticeQuotient*`/`kwSublatticeIndex_scale`/
+    # `kw_scale_lattice_toAddSubgroup`/`kw_surgehgf4_hID_betweenCurvesIndexDual_proved`/
+    # `kw_surgehgf4_kqe_proved`/`kw_surgehgf4_hscd_pointHomSublatticeCyc_of_three`.
+    # Everything else (the `mem_scale_lattice_iff`/Liouville layer,
+    # `exists_smul_mem_and_apply_eq_of_forall_sub_mem`, `toPoint_add_mem`, `infinite_point`)
+    # is `private` with a content name. The pin's inlined uniformization prelude,
+    # `MilneI72IntersectionData` and the `*_axiomAnchor` stubs are not transcribed. Appended
+    # last so no earlier last-name match can flip.
+    "FLTForHuman/Elliptic/PeriodPair/LatticeIndex.lean",
+    # --- S-3: the primitive-coset / `jLattice` column
+    # (`topics/velu/WORKORDER-S3-primcoset-jlattice.md`). Two modules: the generic
+    # mathlib-only `ℤ²`-lattice invariants (`IntPairSubgroup`, re-homed from the pin's
+    # `QuaternionAlgebra` scaffolding) appended first, then the `PeriodPair` transport.
+    # Public surface: the headline (matched against its `Theorems/` wrapper in `SOURCES`),
+    # the `:449–600` transport block, the `hu5c` product-cyclicity/coprimality criterion,
+    # the `KwSublatticeQuotientZZTransport` class and the `qtzz_*` block, and the generic
+    # block in `(a)`. `ModularCurve.kw_scale_lattice_toAddSubgroup`/`kwSublatticeIndex_scale`
+    # are **imported** from S-2's `LatticeIndex.lean`, never redeclared. The pin-private
+    # prelude helpers (`mem_scale_lattice_iff`, `im_div_ne_zero`, `span_neg_fst`,
+    # `ofTau_latticeEquivProd_symm_apply`, `g₂_cubed_scale`, `jLattice_scale`) are re-derived
+    # `private`; the pin's `p2m_*` scaffolding and the `qtzz_axiomAnchor : True` stub are not
+    # transcribed. Appended last so no earlier last-name match can flip.
+    "FLTForHuman/Algebra/IntPairSubgroup.lean",
+    "FLTForHuman/Elliptic/PeriodPair/PrimCosetReps.lean",
+    # --- S-4: the `E₄³ − E₆²` / `jLattice` modular-polynomial tail
+    # (`topics/velu/WORKORDER-S4-e4cube-jlattice.md`). Two new leaves:
+    # `Algebra/SpecialLinearGroupSmith.lean` (the mathlib-only `SL₂(ℤ)` Smith
+    # diagonalisation at the pin's `Matrix.SpecialLinearGroup.PrimitiveSmith`
+    # namespace) and `ModularCurve/ModularPolynomialE4Cube.lean` (the three
+    # `ModularCurve.ModularPolynomialData` headlines, the `E₄³`/`Δ` forms and the
+    # `q`-expansion bookkeeping in `ModularCurve.DeepCosetAux`, plus `jt` and the
+    # `upperTriangularGL` pair in `ModularCurve.CosetRootAux`). The pin-public
+    # helpers are kept at their pin names, so the four `S_` files are in `SOURCES`;
+    # everything the pin declares `private` is not transcribed. `exists_degeneracy_Gamma0`
+    # is **imported** from `ModularForms/Level/Degeneracy.lean` (ported there for
+    # this set), as are `heckeDiagMatrix`/`coe_heckeDiagMatrix_smul`,
+    # `upperTriangularGL`/`val_upperTriangularGL`, `jqModC_eq_qExpansion_E4_cube_div_discriminant`,
+    # `mem_primCosetReps`, `PeriodPair.jLattice_ofTau` and S-3's headline. Appended
+    # last so no earlier last-name match can flip.
+    "FLTForHuman/Algebra/SpecialLinearGroupSmith.lean",
+    "FLTForHuman/ModularCurve/ModularPolynomialE4Cube.lean",
+    # --- SC: row S's terminal set (`topics/velu/WORKORDER-SC-capstone.md`). The two
+    # leaves first, then the capstone (appended last, as the work order requires).
+    # Public surface: the `variableChange` leaf's headline, the field-embedding leaf's
+    # `Field.nonempty_ringHom_complex_of_countable`, and the capstone's wrapper headline
+    # plus the pin's `conjSeam*` / char-`0` bridges / `map_eval_map_Φ` / `isElliptic_map`
+    # / `j_eq_div` / `jLattice_eq_j` / `complexCase` / `solution0` / `solution`. The
+    # pin's `PeriodPair` scale prelude is imported (S-3's modules), not re-declared;
+    # `jLattice_scale` is re-derived `private`, so this checker cannot see it. Appended
+    # last so no earlier last-name match can flip.
+    "FLTForHuman/Elliptic/PeriodPair/VariableChange.lean",
+    "FLTForHuman/FieldTheory/NonemptyRingHomComplex.lean",
+    "FLTForHuman/ModularCurve/ModularPolynomialEvalJ.lean",
 ]
 
 

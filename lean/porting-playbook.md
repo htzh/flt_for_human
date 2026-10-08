@@ -677,6 +677,12 @@ instruments, all cheap:
      declaration normally verifies through the checker's dotted-name fallback and
      needs no exemption; add an `OWN_PROOFS` entry only when the statement differs
      or the name is shadowed.
+   - **A `scoped instance` is invisible to the checker on both sides** (`DECL_RE`
+     admits only `private`/`noncomputable` before the kind), so it is neither
+     matched nor reported missing. SC's `instIsEllipticWeierstrassCurve` landed that
+     way; downstream consumers activate it with `open scoped <Namespace>`. Keep
+     `scoped` exactly where the pin has it — dropping it turns the declaration
+     visible and creates a spurious `MISSING IN FLT`.
    - **Order `SOURCES` so the interface copy wins**, and **append new entries
      last** so a bare last-name match cannot flip.
    - **A shadowed last name is disambiguated by its dotted name**, and the
@@ -789,7 +795,12 @@ is pure loss; glue and trivia are not worth exporting.
 - **Generalise near-duplicates, do not copy them.** Copies that differ only in
   binder spelling (a section variable vs an explicit binder) or in `[NeZero]`
   position become one lemma; the statement checker sees the text, the elaborator
-  sees the binders, so fix both (§4).
+  sees the binders, so fix both (§4). A `def … : Prop` class declared in two pin
+  files under the **same name** but with different (unused) instance binders is the
+  same case: declare the more general copy once — the one the pin's own proof
+  produces — and let the stronger-binder consumers resolve to it; the checker
+  matches any pin candidate, and the `--prop-bodies` pass confirms the body.
+  (S-2's `KwD5BetweenCurvesIndexDual`.)
 - **Namespace policy is decided before the wave.** A home's public names must be
   reachable under the spelling consumers already use, or the wave breaks even
   when statements match. A home may keep an internal namespace and export an
@@ -1064,6 +1075,33 @@ the signature rather than "restoring" it. And `linter.style.haveILetI` fires on 
 `haveI` in a `Prop` goal even when the instance is used; if it came from
 `intro`/`rintro` it is redundant, otherwise prefer `have`.
 
+**`private` is file-scoped but not dot-accessible across namespaces** (found 2026-10-07, set
+S-2). A `private` declaration is reachable later in the same file, but only by its qualified
+name: with `private theorem bar (s : Foo.S) …` in `namespace Foo`, `Foo.bar s` resolves from
+`namespace Baz` while `s.bar` fails with `Invalid field … the environment does not contain
+Foo.S.bar`. The pin gets away with bare names because its shared prelude sits in one file with
+the namespace open. So a re-derived pin-`private` helper used from another namespace in the
+same module must be written `PeriodPair.mem_scale_lattice_iff L α`, not `L.mem_scale_lattice_iff`
+— a six-line probe settles it.
+
+**A "ported prelude" row in a work order is a claim to `grep -c`, not a fact** (recurred
+2026-10-07, sets S-2 and S-3). Both orders listed the pin's inline prelude helpers as "ported;
+import", but eight of S-2's and four of S-3's were `private` in the port (hence unimportable), and
+three more of S-3's — `g₂_cubed_scale`, `jLattice_scale`, and the pin-*public*
+`jLattice_eq_of_lattice_eq` — were absent from the port entirely. `jLattice_eq_of_lattice_eq` was
+absent from `port_advise`'s substitution list too, so only a declaration-line `grep -c` over
+`FLTForHuman/` settles it. Re-derive the `private` ones in the consumer module (`private`, with a
+content name) and land the missing public ones at their pin names; do not spend a wave trying to
+import them.
+
+**A generic cross-theory block belongs in its own top-level area** (set S-3). The pin wrapped its 21
+`ℤ²`-lattice invariants in `namespace QuaternionAlgebra` for no mathematical reason — they mention
+no quaternion and are mathlib-only. Splitting the set into `Algebra/IntPairSubgroup.lean` +
+`Elliptic/PeriodPair/PrimCosetReps.lean` cost one header (~15 lines) and bought a 244-line
+mathlib-only leaf that compiles in ~3 s and cascades to exactly one module; the statement checker
+matches by last name, so the re-homing needed no `SOURCES` work. Do the generic module first — it
+has no theory dependency, so it can be `lake build`-ed once and then held fixed.
+
 **Iterate in a gitignored `Scratch.lean`.** Put experiments and `#check @name`
 probes there; the most useful probe when a rewrite or instance fails is
 `#check @name` on the lemma you think you are using.
@@ -1112,6 +1150,11 @@ a new pin is taken, re-run it and append.
 | `eventually_of_mem h …` | namespace-qualified: `Filter.eventually_of_mem h …` |
 | `unfold yGen` (a `def` wrapping another `def`) | `unfold yGen yCoord` — the pin's one-name unfold leaves the inner `def` folded |
 | `Polynomial.induction_on`'s `monomial` step | v4.34 states the step `motive (C a * X ^ n) → motive (C a * X ^ (n + 1))`; the pin's `monomial n a ih` proof transcribes unchanged |
+| `range f`, `mem_univ`, `isPreconnected_univ` | `Set.range f` / `Set.mem_univ` unless the module `open Set`s (the pin does); `isPreconnected_univ` is unqualified |
+| `Uncountable ℝ` (for `Complex.ofReal_injective.uncountable`) | an instance only once `Mathlib/Analysis/Real/Cardinality.lean` is imported, which is **not** transitive through `Analysis/Complex/Basic`; add the specific module |
+| `Equiv.infinite_iff` | for `e : α ≃ β` it reads `Infinite α ↔ Infinite β`; check the direction at the call site (`e.infinite_iff.mp` from `Infinite α`) |
+| `Prime.dvd_finset_prod_iff` | `Prime.dvd_finsetProd_iff` (the pin's `first \| … \| …` already falls through to it) |
+| `ModularForm.coe_smul`, `ModularForm.coe_zero` | `FunLike.coe_smul`, `FunLike.coe_zero` (the `ModularForm.*` names are deprecated aliases in `v4.34.0`) |
 
 The recurring *shapes* of drift, beyond a rename:
 
@@ -1137,6 +1180,29 @@ The recurring *shapes* of drift, beyond a rename:
 - **`omit [NeZero M] in` and file-scope linter suppression keep a pin proof
   verbatim without changing the checker's text**; `set_option … in` cannot follow
   a doc comment (use `--` line comments there).
+- **A pin's `set_option maxHeartbeats N in` is a claim to re-measure, not a fact.**
+  S-4's smul `solution` carries `6_400_000` in the pin and transcribes unchanged
+  under the project-wide `4_000_000`; time the port's own ceiling before budgeting
+  a bump (and never raise the cap to make a declaration fit).
+- **A pin's `synthInstance.maxHeartbeats` bump is the same kind of claim.** SC's
+  capstone carried `synthInstance.maxHeartbeats 1600000` / `maxHeartbeats 16000000`
+  on `complexCase`/`solution0`; both elaborate under the global `4_000_000` cap
+  (module `lake build` 86 s), so neither bump was transcribed. A library theorem can
+  also be cheap while its *concrete-instance* use is not: applying SC's headline at
+  `(PeriodPair.ofTau τ).weierstrassCurve`, or at `L.weierstrassCurve` for an abstract
+  `L`, exceeds 3 m 20 s, because elaborating `FunctionField (ofTau τ)` forces the
+  `PeriodPair.weierstrassCurve`/`AdjoinRoot` defeq stack and its instance search.
+  Keep a `spec/` consumer's capstone zone hypothesis-form (gate instances and the
+  along-map as binders) and put concreteness in the ground field, not in a
+  concrete `def`'s function field.
+- **`time` under-reports `lake env lean`.** `lake` forks `lean`, so the grandchild's
+  CPU is not charged to the measured command; a run that reports `user 0m0.5s` can be
+  elaborating hard. Treat wall time as the real figure (and do not conclude "hung").
+- **`end A.B` closes *both* nested scopes.** Under `namespace A` / `namespace B`,
+  `end A.B` also ends `A`, silently de-nesting every declaration after it; write
+  two bare `end`s. The symptom appears *downstream* of the mistake (unknown
+  identifiers from the de-nested namespace), so on a slow module it costs a full
+  re-elaboration round to find.
 
 Two cross-cutting facts worth remembering: `CuspForm` does not extend
 `ModularForm` (bridge with `CuspForm.toModularFormₗ`), and

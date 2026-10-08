@@ -419,6 +419,13 @@ are repeated in the playbook §2.1; keep the specific instances here.
     `Build completed successfully (9037 jobs)`, confirming the private instance is still found
     by instance search across imports. **The rename fallback was not needed.**
 
+    **SC landed on this route 2026-10-07.** `ModularCurve/ModularPolynomialEvalJ.lean` holds the
+    producer and `Engine` in one environment; the dispatch pre-flight (a stub importing both and
+    using `exists_genusOnePlaceGate_isCentred_and_abelTheorem` and `placeOfPoint_zero`)
+    elaborates exit 0, and the whole tree is green. The capstone's unported frontier closure is
+    now 0 nodes / 0 lines. See `topics/velu/WORKORDER-SC-capstone.md` §7 and
+    `logs/velu-port.md` §SC.
+
     Also measured: because the cascade includes `TwoCurveDescent`, do this edit when no set is
     mid-check — it forces a ~10-minute rebuild of the whole tree.
   - **(B) Re-home the gate construction off `RRSpace`. Do not trust the tempting short

@@ -248,7 +248,37 @@ are this block.
 
 **Order.** S-2's work order must be written after S-1 lands and is reviewed: the 2,021-line
 node's only unported premises are the 2,673 (S-1) and the 978 (S-2's own), so S-2 imports S-1's
-headline and the hand-off has to name real declarations.
+headline and the hand-off has to name real declarations. **S-1 landed 2026-10-07; the order is
+[WORKORDER-S2-lattice-index.md](WORKORDER-S2-lattice-index.md) (drafted 2026-10-07, for
+dispatch after S-1 is committed).** It fixes the hand-off at
+`ModularCurve.kw_surgehgf4_hH2f_betweenCurvesHoloLift` (`HoloLift.lean:894`), used in place of
+the pin's re-derivation of `hH2` from the S-1 headline.
+
+**Answered on landing (2026-10-07).** `FLTForHuman/Elliptic/PeriodPair/LatticeIndex.lean`
+(**1,249 lines**, 61 checker-visible public declarations + 4 `scoped instance` + 7 `private`)
+lands both nodes in one module; the record is in
+[../../logs/velu-port.md](../../logs/velu-port.md) "S-2 — the lattice/index arithmetic" and the
+close-out in [WORKORDER-S2-lattice-index.md](WORKORDER-S2-lattice-index.md) §9. Re-measured on
+the landed tree: `port_advise` gives **68 substitutions ≈868 lines** and **41 names ≈768
+once-only** — the order's figures hold, and ≈1,750 of the 2,999 raw pin lines were never
+transcribed. The audit question this section raised — *does mathlib collapse the torsion /
+`kw_card_torsionBy_zlatticeQuotient` block?* — answered **no**: `ModN.natCard_eq` is exactly the
+pin's last step, the `Λ'/nΛ' ≅ (ZMod n)²` packaging (`divNHom`/`latticeDivQuot`/
+`latticeQuotTorsionEquiv`) is not in `ZLattice`, and the `finrank_real` count is the pin's three
+lines with `ZLattice.rank`; the ≈120-line prelude is transcription, written once instead of
+twice. The `kqe_*` block (~400 written lines) is likewise the pin's, minus the 10-line
+`kw_surgehgf4_kqe_axiomAnchor` and the `set_option` bumps; mathlib has the primitives but no
+product-cyclicity/HNF criterion, as the section's recorded negative said. One classification
+correction: `:922–1101`'s `MilneI72IntersectionData` is a `structure` with **no uses**
+(`grep -n MilneI72` → the structure + its empty namespace only), skipped; and five pin-`private`
+helpers in `:51–800` that this section counted as "ported prelude" were not carried —
+`exists_smul_mem_and_apply_eq_of_forall_sub_mem` (69 lines, `port_advise`'s one new drag),
+`apply_eq_apply_of_continuous_of_mapsTo_lattice`, `infinite_point`, `toPoint_add_mem`, and
+`sub_fract_mem_lattice`/`apply_eq_apply_of_differentiable_of_forall_periodic` (private in
+`Uniformization.lean`) — all re-derived `private` in S-2. Finally, the 978 and 2,021 copies of
+`KwD5BetweenCurvesIndexDual` differ: the 2,021 one carries eight unused gate-instance binders,
+the 978 one is gate-free and is what `…betweenCurvesIndexDual_proved` proves, so the port
+declares the **978** flavour (the 2,021 headline's `hID` is built from the 978 headline).
 
 ## 2.3 S-3 and S-4, reconnaissance
 
@@ -285,9 +315,12 @@ pin's.** Every primitive the `:253–447` block is built from is a mathlib call:
 (`mem_latticeOf_iff`), `AddSubgroup.mem_prod` (`ker_fst_eq_range_inr`), and `AddSubgroup.index`
 itself. mathlib also has the determinant–index formula in general form —
 `AddSubgroup.index_eq_natAbs_det` and `AddSubgroup.relIndex_eq_natAbs_det` /
-`relIndex_eq_abs_det` (`LinearAlgebra/FreeModule/Finite/CardQuotient.lean:98,106,114`) — so the
-`index_eq_comap_inr_mul_map_fst`/`index_eq_dOf_mul_aOf` route may be re-expressed through it
-rather than re-proved for `ℤ × ℤ`. What is **not** in mathlib is the pin's set of *named*
+`relIndex_eq_abs_det` (`LinearAlgebra/FreeModule/Finite/CardQuotient.lean:98,106,114`) — but it does
+**not** replace the `index_eq_comap_inr_mul_map_fst`/`index_eq_dOf_mul_aOf` route: it needs a
+`Basis (Fin 2) ℤ ↥H`, i.e. an explicit HNF basis of `H`, which is exactly what
+`latticeOf_canonical_eq` constructs, so the index would be computed from the object the index is
+meant to organise. **Measured on landing (2026-10-07): the pin's projection route stands** (see
+§2.3 close-out). What is **not** in mathlib is the pin's set of *named*
 invariants (`natGen`, `latticeOf`, `aOf`, `dOf`, `bOf`, `latticeOf_canonical_eq`), which the
 `hu5c` criterion and the rest of the set consume by name; those are written as they stand.
 - `:672–807` — `KwSublatticeQuotientZZTransport` (a `Prop`, 33) and the `qtzz_*` block proving
@@ -322,6 +355,39 @@ The three remaining nodes are leaves that share no story with each other or with
 one declaration), `PeriodPair.exists_variableChange_smul_weierstrassCurve_eq` (17 / 9, one
 declaration) — plus the off-path `IsAddCyclic.of_squarefree_natCard` (14). They are §0.2's
 "below the subagent threshold" case and go in the manager's own set (§4).
+
+**S-3 close-out (landed 2026-10-07).** Two modules, 750 written lines:
+`FLTForHuman/Algebra/IntPairSubgroup.lean` (244, the generic ℤ² invariants, mathlib-only) +
+`FLTForHuman/Elliptic/PeriodPair/PrimCosetReps.lean` (506, the transport/`hu5c`/`qtzz`/headline).
+`port_advise` re-measured **22 substitutions ≈218** (not 18 ≈165): 12 genuinely importable, 8
+port-`private` (re-derived), 2 false (`KwSublatticeQuotientZZTransport`→`DiscriminantNeZero`, the
+`def … : Prop` blind spot, and the `qtzz_axiomAnchor` stub). The `:253–447` ℤ² block is 21 public
+declarations and the determinant-index formula did **not** shorten it. `jLattice_eq_of_lattice_eq`
+is pin-public and was **absent** from the port *and* from the substitution list, so only a
+`grep -c` caught it. Checker `6135 → 6181 identical`, 0/0, promoted/renamed/own unmoved; consumer
+exit 0; `[propext, Classical.choice, Quot.sound]`; whole-tree `9,323 jobs / 11.4 s`. Full record:
+[WORKORDER-S3-primcoset-jlattice.md](WORKORDER-S3-primcoset-jlattice.md) §9 and
+[../../logs/velu-port.md](../../logs/velu-port.md) "S-3".
+
+**S-4 close-out (landed 2026-10-07).** Two modules, 640 written lines:
+`FLTForHuman/Algebra/SpecialLinearGroupSmith.lean` (111, the mathlib-only `SL₂(ℤ)` Smith leaf) +
+`FLTForHuman/ModularCurve/ModularPolynomialE4Cube.lean` (529, the three headlines and their
+helper surface) — plus **+38 net lines** in `FLTForHuman/ModularForms/Level/Degeneracy.lean`, the
+set's one surprise: `ModularForm.exists_degeneracy_Gamma0` was **not** in the port (only its
+`CuspForm` twin was), so the twin was ported for the smul headline (~52 pin lines; the wrapper
+went into `SOURCES`). `port_advise` re-measured on the landed tree: 32 of the 37 A/B/C declarations
+and 4 of the 4 leaf declarations are statement-identical (≈511 lines) — the pre-port figure was
+2 ≈5, the renamed-declaration blind spot. **The `E₄³`/`Δ` forms did not collapse** onto
+`DiscPow.eCubeSubESq` (which is `E₄³ − E₆²`, the numerator of `1728Δ`) nor onto `JInvariant`; the
+four defs are new, though `ModularForm.j` is definitionally the pin's `jt`. The q-expansion
+bookkeeping was genuinely absent under every one of its names (`grep -c` 0 each), ~120 new lines
+of thin glue over `UpperHalfPlane.qExpansion_*`, mathlib's `ModularForm.prodEqualWeights` and the
+ported `ModularCurve.{qExpand,coeffMap,jqModC,evalAtJ}`. The pin's `set_option maxHeartbeats
+6400000 in` was **not** needed: the smul headline fits the frozen `4_000_000` cap. Checker
+`6181 → 6219 identical` (+38 = 34 + 3 + 1), 0/0, promoted/renamed/own unmoved; consumer exit 0,
+`57.94 s`; `[propext, Classical.choice, Quot.sound]`; whole-tree `9,325 jobs / 25.26 s`. Full
+record: [WORKORDER-S4-e4cube-jlattice.md](WORKORDER-S4-e4cube-jlattice.md) §9 and
+[../../logs/velu-port.md](../../logs/velu-port.md) "S-4".
 
 ## 3. The seam: three landed, seven new
 
@@ -384,7 +450,7 @@ By mathematical fork, not by size (§3.4). One subagent per set, reviewed before
 | **S-2** | the lattice/index arithmetic, with its three classes | the 2,021 + the 978 | 2,999 | ≈1,000–1,200 |
 | **S-3** | the primitive-coset / `jLattice` column | the 848 | 848 | ≈480 |
 | **S-4** | the `E₄³ − E₆²` / `jLattice` modular-polynomial tail | the 367, 85, 25 | 477 | ≈360 |
-| **SC** | the capstone **plus the three leaves** — the manager's wire test | the 415, 88, 45, 17 (+ the 14) | 579 | ≈250 |
+| **SC** | the capstone **plus its two leaves** — the manager's wire test | the 415, 45, 17 | 477 | ≈250 |
 
 **Module layout and namespaces (provisional; each set's order fixes its own).** §3.2 asks for the
 destination to come from the pin's own namespace and sibling vocabulary, so:
@@ -411,15 +477,26 @@ destination to come from the pin's own namespace and sibling vocabulary, so:
 
 Order: **S-1 → S-2 → S-3 → S-4 → SC**. S-2 depends on S-1 (the 2,021-line node's unported
 premises are exactly the 2,673 and the 978), so that order is forced; S-3 depends on neither,
-and S-4 on S-3 only through the coset form's citation of the 848. S-3 and S-4 may therefore be
-reordered after S-1 if a review changes the picture. SC consumes both D-6 and the whole row,
+and S-4 on S-3 through the coset form's citation of the 848. **Correction (2026-10-07, measured
+for the orders):** S-4 is *not* otherwise independent — its coset form imports
+`Thm_Matrix_SpecialLinearGroup_exists_eq_mul_diagonal_mul_of_gcd_eq_one`, one of the four
+"SC leaves" (88 lines, used by `upperTriangularGL_eq`/the coset `solution`), so S-4's order
+folds that leaf in (or the leaf is ported just before S-4). **Correction 2 (2026-10-07):** SC's
+own leaves are only two — `Field.nonempty_ringHom_complex_of_countable` (45) and
+`PeriodPair.exists_variableChange_smul_weierstrassCurve_eq` (17); `IsAddCyclic.of_squarefree_natCard`
+(14) is cited by `S_WeierstrassCurve_Affine_IsogenyEndDatum_aeval_j_diag_eq_zero_of_finrankAlong_eq.lean`
+(the H5 column, not SC and not row S — SC imports no file that cites it), so it is **out of
+row S's scope**. S-3 and S-4 may still be reordered after S-2 if a review changes the picture.
+SC consumes both D-6 and the whole row,
 so it is written last and by the manager (§0.2, §3.4: the capstone is the review).
 
-**The three leaves ride with SC, not with a subagent.** §0.2's threshold — "below roughly 1,000
-written lines the overhead and the review are not worth it" — leaves each of them (70, 32, 9,
-14 content lines) far below a set, and they share no story with each other; SC needs all of
-them anyway. This is the one place the cut deliberately mixes subjects, and it does so in the
-manager's own file where §3.4's "one story per subagent" does not apply.
+**SC's two leaves ride with it, not with a subagent.** §0.2's threshold — "below roughly 1,000
+written lines the overhead and the review are not worth it" — leaves each of them (32 and 9
+content lines) far below a set, and they share no story with each other; SC needs both of them
+anyway. (`Matrix.SpecialLinearGroup.exists_eq_mul_diagonal_mul_of_gcd_eq_one` went to S-4 by
+Correction 1; `IsAddCyclic.of_squarefree_natCard` is the H5 column's by Correction 2.) This is
+the one place the cut deliberately mixes subjects, and it does so in the manager's own file
+where §3.4's "one story per subagent" does not apply.
 
 **SC has a prerequisite that is not a port: the gate-instance collision.** Its proof descends
 to `K₀` (D-6) and then must *produce* the `GenusOnePlaceGate`/`IsCentred`/`AbelTheorem`
@@ -471,6 +548,16 @@ The `net` column is the file's content minus its statement-identical-to-port lin
    `--prop-bodies` pass puts all four in its 258-identical set. The seam class itself is
    `HoloLift`, imported from D-5's `KernelBaseChange.lean` and *proved* by S-1. S-2's three
    classes were still unlanded when S-1 closed; measure them with the same instrument.
+   **Answered for S-2 (2026-10-07).** The `--prop-bodies` pass puts all three in its identical
+   set (261 vs S-1's 258; the 6 textual rows are the same pre-existing advisory ones, none S-2).
+   They are not restatements: `KwD5BetweenCurvesIndexDual` is the gate-free lattice-index
+   statement (978 flavour), `KwD5BetweenCurvesKerQuotEquivBC` consumes `HoloLift`, `IndexDual`
+   and `IsAddCyclic ψ.ker` and produces the `N`-indexed/cyclic conclusion, and
+   `KwD5BetweenCurvesPointHomSublatticeCyclic` is the `ι''`-only public form; the 2,021 pin copy
+   of `IndexDual` is the same proposition with eight unused gate-instance binders, so the port
+   declares the 978 copy once, and `kw_surgehgf4_hscd_pointHomSublatticeCyc_of_three` is the
+   3-line assembly `hH2 → hID → hKQE`. All three are `sorry`-free with
+   `[propext, Classical.choice, Quot.sound]`.
 3. **The seam's home.** **Answered — §3.** Each family's classes are proved by the set that
    uses them, in that set's own new leaf module (S-1's four, S-2's three), declared public at
    the pin's `ModularCurve.KwD5BetweenCurves*` names. There is no separate seam module and no
@@ -488,8 +575,50 @@ The `net` column is the file's content minus its statement-identical-to-port lin
    2,021-line node uses `sublatticeIndex`/`sublatticeQuotient` and none of these names. So S-3
    is a self-contained ≈600-line set of elementary lattice combinatorics, and no cross-set
    dedup exists between S-2 and S-3.
+   **Measured on landing (2026-10-07): 750 written lines** in two modules (244 + 506), not the
+   ≈600 estimate. `port_advise` re-measured **22 substitutions ≈218** (not 18 ≈165), and the
+   "first ~250 lines are the ported prelude" claim is only two-thirds true: `G_scale`,
+   `scaleLatticeEquiv`, `scale_lattice`, the `*_eq_of_lattice_eq` block and
+   `linearIndependent_tau_one` are importable, but `scaleLatticeEquiv_apply`, `latticeEquivOfEq`,
+   `mulLeftR`, `mulLeftZ`, `mem_scale_lattice_iff`, `im_div_ne_zero`, `span_neg_fst` and
+   `ofTau_latticeEquivProd_symm_apply` are port-`private` (re-derived), and
+   `g₂_cubed_scale`/`jLattice_scale`/`jLattice_eq_of_lattice_eq` were not in the port at all. The
+   21-declaration ℤ² block is confirmed **new**; no cross-set dedup with S-2 (the two shared
+   lemmas `kw_scale_lattice_toAddSubgroup`/`kwSublatticeIndex_scale` are imported). Checker
+   `6135 → 6181`, 0/0; consumer exit 0; whole-tree `9,323 jobs / 11.4 s`.
 5. **Re-measure the dedup** on normalized bodies (§2), and give the row its three numbers
-   (nodes / raw / content) before the first set order.
+   (nodes / raw / content) before the first set order. **Re-measured for S-2 on the landed tree
+   (2026-10-07):** `port_advise --targets build/rowS2_targets.txt` still reports **68
+   substitutions ≈868 lines** and **41 names proved in ≥2 target files ≈768 removable**, the
+   same figures the order used; the two real once-only blocks are the ≈120-line torsion prelude
+   and the ≈250-line `hID_*` block, each `grep -c`-confirmed at 2 copies in the pin. S-1 and S-2
+   did not change each other's substitution counts.
+   **Answered for S-4 (2026-10-07).** `port_advise --targets build/rowS4_targets.txt` on the
+   landed tree reports **32 substitutions ≈428 lines** for the 37 A/B/C declarations (the order's
+   pre-port figure was 2 ≈5; the +30 are the port's own pinned-name copies, so the landed figure is
+   tautological) and **4 ≈83** for the 4 leaf declarations. `port once` finds no private prelude
+   shared *within* the target set (`mono` is the one target name with extra pool copies, 7, all
+   outside); the four `S_` files' public helpers have disjoint last names. The real dedup question
+   was `E₄³`/`Δ` versus the port's `eCubeSubESq`/`JInvariant`: measured **no collapse** —
+   `eCubeSubESq = E₄³ − E₆²` is a different form, and `ModularForm.j` is only the definitional
+   twin of `jt`. The one genuine cross-set reuse is the missing `ModularForm.exists_degeneracy_Gamma0`
+   (ported into `Level/Degeneracy.lean`, not into the new modules).
+6. **Does the capstone's producer/`Engine` co-import work after the `private` fix, and is the
+   capstone assembly?** **Answered — yes, and yes (2026-10-07, set SC landed).** A stub
+   importing `GenusOnePlaceGateCentred` + `Isogeny/{TwoCurveDescent,KernelBaseChange}` +
+   `IsogenyEndDatum/Engine` + the row modules and *using* both the producer and an `Engine`
+   declaration elaborates exit 0 (1 m 21–35 s): `Engine.instInfinitePlace`'s `private` name is
+   mangled and no longer clashes with `Place/RRSpace.lean`'s scoped instance. The capstone
+   `FLTForHuman/ModularCurve/ModularPolynomialEvalJ.lean` (415 lines, matching the pin's 415)
+   imports the `:45–129` `PeriodPair` scale prelude (S-3's modules) and re-derives only
+   `PeriodPair.jLattice_scale` `private`; `complexCase`/`solution0`/`solution` transcribe the
+   pin's proofs. Checker `6219 → 6235` (312/83, 0/0, 36 own); consumer
+   `spec/ModularPolynomialCapstoneConsumer.lean` exit 0, wall 70.5 s; whole-tree `lake build`
+   green (9,326 jobs). The capstone's unported frontier closure is now **0 nodes / 0 lines**,
+   down from **12 / 11,291** in §6. The one deviation: applying the headline at the concrete
+   `ofTau` curves costs minutes (the `AdjoinRoot`/`FunctionField` defeq stack), so the consumer
+   uses hypothesis-form zones over the concrete ground field `ℂ` plus the leaf zone and D-6's
+   headline; see [WORKORDER-SC-capstone.md](WORKORDER-SC-capstone.md) §7.
 
 ## 6. Reproduce
 

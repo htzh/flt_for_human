@@ -12,10 +12,12 @@
   transcribed from
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CuspForm_exists_degeneracy_Gamma0.lean
   with `DegeneracyPort` kept `private`. The pin's block is shared with the
-  *ModularForm* degeneracy node `ModularForm.exists_degeneracy_Gamma0`, which is
-  not in this topic's cone: its helpers `restrictMF`, `coe_restrictMF` and
-  `exists_modularForm` are therefore **dropped** rather than ported
-  (playbook §7.1, "no self-consumed lemmas"), a saving of 23 pin lines.
+  *ModularForm* degeneracy node `ModularForm.exists_degeneracy_Gamma0`, whose
+  helpers `restrictMF`, `coe_restrictMF` and `exists_modularForm` were dropped by
+  the original CuspForm-only pass (playbook §7.1, "no self-consumed lemmas").
+  Row S's `E₄³/Δ` modular-polynomial tail consumes the `ModularForm` twin, so it
+  is ported here at its pin name (the helpers stay `private`); the same
+  `Gamma0_le_conj_Gamma0` serves both.
 -/
 import FLTForHuman.ModularForms.Defs.HeckeOperator
 import Mathlib.NumberTheory.ModularForms.Basic
@@ -37,6 +39,17 @@ namespace ModularForm
 namespace DegeneracyPort
 
 variable {k : ℤ}
+
+/-- Restrict a modular form along an inclusion of level subgroups. -/
+private def restrictMF {Γ Γ' : Subgroup (GL (Fin 2) ℝ)} (h : Γ' ≤ Γ) (F : ModularForm Γ k) :
+    ModularForm Γ' k where
+  toFun := F
+  slash_action_eq' γ hγ := SlashInvariantForm.slash_action_eqn F γ (h hγ)
+  holo' := F.holo'
+  bdd_at_cusps' hc := F.bdd_at_cusps' (hc.mono h)
+
+@[scoped simp] private theorem coe_restrictMF {Γ Γ' : Subgroup (GL (Fin 2) ℝ)} (h : Γ' ≤ Γ)
+    (F : ModularForm Γ k) : ⇑(restrictMF h F) = ⇑F := rfl
 
 /-- Restrict a cusp form along an inclusion of level subgroups. -/
 private def restrictCF {Γ Γ' : Subgroup (GL (Fin 2) ℝ)} (h : Γ' ≤ Γ) (F : CuspForm Γ k) :
@@ -90,6 +103,22 @@ private theorem Gamma0_le_conj_Gamma0 {M N d : ℕ} (hd : d ≠ 0) (hdiv : d * M
     fin_cases i <;> fin_cases j <;>
       simp [Matrix.mul_apply, Fin.sum_univ_two, B, hc', mul_comm]
 
+/-- The modular-form degeneracy map. -/
+private theorem exists_modularForm {M N d : ℕ} [NeZero N] (hdiv : d * M ∣ N)
+    (f : ModularForm (CongruenceSubgroup.Gamma0 M) k) :
+    ∃ g : ModularForm (CongruenceSubgroup.Gamma0 N) k,
+      ⇑g = fun τ ↦ f (heckeDiagMatrix d • τ) := by
+  have hd : d ≠ 0 := by
+    rintro rfl
+    rw [zero_mul, zero_dvd_iff] at hdiv
+    exact NeZero.ne N hdiv
+  have hdk : ((d : ℂ) ^ (k - 1)) ≠ 0 := zpow_ne_zero _ (Nat.cast_ne_zero.mpr hd)
+  refine ⟨((d : ℂ) ^ (k - 1))⁻¹ •
+    restrictMF (Gamma0_le_conj_Gamma0 hd hdiv) (ModularForm.translate f (heckeDiagMatrix d)), ?_⟩
+  funext τ
+  rw [FunLike.coe_smul, Pi.smul_apply, coe_restrictMF, ModularForm.coe_translate,
+    slash_heckeDiagMatrix_apply k hd, smul_eq_mul, ← mul_assoc, inv_mul_cancel₀ hdk, one_mul]
+
 /-- The cusp-form degeneracy map. -/
 private theorem exists_cuspForm {M N d : ℕ} [NeZero N] (hdiv : d * M ∣ N)
     (f : CuspForm (CongruenceSubgroup.Gamma0 M) k) :
@@ -118,5 +147,14 @@ theorem CuspForm.exists_degeneracy_Gamma0 {k : ℤ} {M N d : ℕ} [NeZero N]
     ∃ g : CuspForm (CongruenceSubgroup.Gamma0 N) k,
       ⇑g = fun τ ↦ f (ModularForm.heckeDiagMatrix d • τ) :=
   ModularForm.DegeneracyPort.exists_cuspForm hd f
+
+/-- **The degeneracy map `f(τ) ↦ f(dτ)` on modular forms.** Stated verbatim from
+`Theorems/Thm_ModularForm_exists_degeneracy_Gamma0.lean`; the pin's twin of
+`CuspForm.exists_degeneracy_Gamma0`. -/
+theorem ModularForm.exists_degeneracy_Gamma0 {k : ℤ} {M N d : ℕ} [NeZero N]
+    (hd : d * M ∣ N) (f : ModularForm (CongruenceSubgroup.Gamma0 M) k) :
+    ∃ g : ModularForm (CongruenceSubgroup.Gamma0 N) k,
+      ⇑g = fun τ ↦ f (ModularForm.heckeDiagMatrix d • τ) :=
+  ModularForm.DegeneracyPort.exists_modularForm hd f
 
 end
