@@ -44,6 +44,11 @@ integrals and the Eichler–Shimura map to parabolic cohomology"). It is ambiguo
 with *Eisenstein* and mixes kept and removed material, so it is used here only as
 a literal Lean identifier.
 
+**Is a replaced route still needed?** That is a separate, testable question — the
+pin's cone can carry a route's nodes without the consumer using that route's proof.
+§8 gives the two commands that decide it, with the D-S column's route-A replacement
+as the worked case.
+
 ## 1. The driver
 
 ### 1.1 The statement
@@ -424,6 +429,74 @@ for n, q in INTERFACES:
     print('interface', n, 'R-closure', len(pay.closure(d.index[q]) & R))
 PY
 ```
+
+## 8. Method — is the route you replaced still needed?
+
+Both replacements in this note — C′ for route A, and route B plus the analytic core
+for the parabolic/bundled packaging — raise the same question. **The frontier's cone
+is the *pin's* cone**, so a node can sit on a target's shelf only because the pin's
+proof reached it through the very route that has been replaced. A bottom-up "ready
+shelf" therefore cannot witness independence by itself. Two tests on the docs-site
+graph settle it, and neither re-reads Lean.
+
+**Test 1 — root membership (does the target use the replaced route at all?).**
+Closure is transitive, so `R ⊆ closure(T)` exactly when some node of `closure(T)`
+cites `R`. The avoided route's *roots* are the whole question: if none of them lies
+in the target's cone, nothing on the target's path cites them, directly or
+indirectly, and the route's internal size is irrelevant.
+
+**Test 2 — prune (what does the substitution actually save?).** Supply the
+replacement statement and re-close: `prune.prunable` returns the nodes that become
+unreachable, and `prune.frontier` the retained proofs that must be rewired. This is
+the same instrument §3–§5 use for the packaging, applied to a replacement instead of
+a removal.
+
+```python
+# tools/deps — no Lean is re-read; the graph is the docs-site's
+from fltdata import FltData
+from prune import FltPayoff, prunable
+d = FltData()
+pay = FltPayoff(data=d)
+
+DS    = pay.pid('DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen')
+ds    = pay.closure(DS)
+route = pay.closure(pay.pid('CuspForm.hasIntegralStructure_of_two_le'))   # route A
+roots = [pay.pid(q) for q in ('CuspForm.hasIntegralStructure_of_two_le',
+                              'CuspForm.hasIntegralStructure_two',
+                              'CuspForm.moduleFinite_heckeAlgebra')]
+
+print('Test 1  roots in the target cone :', [r in ds for r in roots])
+print('Test 2  prunable(target, roots)  :', len(prunable(pay.cites, DS, roots)))
+print('Test 2  prunable(target, route)  :', len(prunable(pay.cites, DS, route)))
+```
+
+**Worked case (2026-10-09, the D-S column).** Route A is 657 nodes / 263,720 `S_`
+lines and 420 of them / 207,667 lines lie in the D-S cone — and D-S still does not
+depend on route A:
+
+* none of route A's three roots is in the D-S cone, and `prunable(D-S, roots) = 0`:
+  C′'s substitution removes nothing at all from D-S's demand;
+* `prunable(D-S, route A) = 420` — the whole overlap is load-bearing for D-S, and it
+  is shared geometry rather than integrality: `AlgebraicCurve` 154 / 67,427,
+  `ModularCurve` 153 / 38,499, `WeierstrassCurve` 64 / 83,256, `PeriodPair`
+  9 / 9,836. D-S reaches those nodes by its own paths, and route A reaching them too
+  is a fact about route A;
+* of the overlap, 340 nodes / 192,842 lines are already ported and 80 / 14,825 are
+  still on D-S's own shelf — the latter needed for D-S's reasons, not route A's;
+* the one C′-side statement the D-S cone *does* cite,
+  `CuspForm.exists_basis_gamma1_qCoeff_slash_mem_range_intCast`, carries its own
+  53-node / 33,719-line closure, cites no route-A root, is fully ported, and
+  substituting it prunes 1 node / 183 lines. A replacement is safe exactly when this
+  holds for each statement it supplies.
+
+**Why the negative is sound and the positive is only an upper bound.** The docs-site
+closure over-approximates: a proof file's `attribute [-simp]` scaffolding re-exports
+its whole inlined prelude (register, scoping cautions). An over-approximation never
+misses a real edge, so *absence* from a closure is a sound negative — "`T` does not
+use `R`" — while *presence* only bounds the need from above. Take the independence
+claim from Test 1 and the saving from Test 2. A node's presence on a shelf is not by
+itself a reason to port it, and its membership in an avoided route's closure is not a
+reason to avoid it either.
 
 ## Appendix A — the 33-node cohomological layer `R`
 

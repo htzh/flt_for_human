@@ -112,6 +112,15 @@ weight hierarchy: weight-one cusp forms are not just *modular*, they are
 *finite-image Galois objects*, and one can go back and forth between the two
 sides.
 
+Weight one is also the one weight of the hierarchy where the *algebraic* route to
+integrality is unavailable. For $`k \ge 2`$ the classical proof of integral structure identifies the
+cusp space with a cohomology space $`H^1_{par}(\Gamma, \mathrm{Sym}^{k-2})`$ carrying
+an integral structure from the period lattice, and transports integrality across the
+comparison; the coefficient system needs $`k - 2 \ge 0`$, so at $`k = 1`$ there is
+nothing to transport. The integrality weight one does use is the $`q`$-expansion
+lattice, and it feeds the coefficient ring of one eigenform rather than the Hecke
+algebra of a fixed level — §3.
+
 ## 3. The two directions, and the lifting that connects them
 
 **Forward: form $`\to`$ representation.** One cannot feed a weight-one form
@@ -190,6 +199,34 @@ statement is
 This is the algebraic form of "the absolute Galois group permutes the normalized
 weight-one newforms", and it is what lets the reductions at different primes be
 compared.
+
+**Which integrality this uses.** The lattice in that trace argument is the
+$`\mathbb{Z}`$-span of the cusp forms of level $`\Gamma_1(N)`$ whose
+$`q`$-expansion is integral, and its fullness is a weight-general statement about
+the $`\Gamma_1`$-space: $`S_k(\Gamma_1(N))`$ is defined over $`\mathbb{Q}`$, and
+across the finitely many $`\Gamma_0(N)`$-translates the denominators are bounded, so
+the space has a basis whose $`\Gamma_0`$-slashes all have integral coefficients
+(Deligne–Serre, Proposition 2.7). That is *not* the classical integral-structure
+theorem. The classical theorem — for $`k \ge 2`$, the integrally expanded forms span
+$`S_k(\Gamma_0(N))`$, so the Hecke algebra acting on it is a finite
+$`\mathbb{Z}`$-module — is a different and downstream statement, and it follows from
+the $`\Gamma_1`$ basis by one extra step: the trace over
+$`\Gamma_1 \trianglelefteq \Gamma_0`$ of a form all of whose $`\Gamma_0`$-translates
+are integrally expanded is integrally expanded, since it is their finite sum, while
+the trace composed with restriction is multiplication by the index, so the
+$`\Gamma_0`$-lattice is full-rank. The classical proof of that same theorem reaches
+it instead through the Eichler–Shimura comparison and the period lattice.
+
+The forward direction needs neither the comparison nor the $`\Gamma_0`$ statement.
+The $`\Gamma_1`$ lattice runs the eigenvalue-algebra trace above, and the rationality
+of the eigenvector's coordinates in a basis of rational operators supplies the Galois
+conjugates; nothing there asks for the Hecke algebra of a fixed level to be finite.
+The $`\Gamma_0`$ integral structure — a statement about the whole space rather than
+about one eigenvalue algebra — is what the general-weight mod-$`\ell`$ theory
+consumes; it too is reachable from the $`\Gamma_1`$ basis, in every weight and by the
+same trace step, but that is an extra step the weight-one argument has no use for.
+What is genuinely unavailable at $`k = 1`$ is the period-lattice route, and with it
+the cohomological form of the argument.
 
 **Converse: representation $`\to`$ form.** This is the harder half of [DS74], and
 it is where the bijection is proved. Given an odd irreducible two-dimensional
