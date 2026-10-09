@@ -201,3 +201,7 @@ substitutions, no hub); order 3 imports the promoted `X1DiamondRationalForms`
 engine (§3) and `RationalityDvd`'s public prelude. The module paths are the
 reviewer's proposal — the implementer may re-home a node if the mathematics
 admits a leaf-side home, per the playbook's host rule, but must record it.
+
+**Landed, and the chain continues.** SET-R-D is done (§8 of [SET-R-D.md](SET-R-D.md));
+it unblocked three further nodes, scoped in
+[TOPIC-qexp-successors-2.md](TOPIC-qexp-successors-2.md).

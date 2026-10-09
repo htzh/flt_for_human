@@ -155,4 +155,5 @@ The dependent wave is green at **9,234 jobs** (after the `Gamma0Integral.lean`
 successors took their place: `exists_algEquiv_atkinLehner_heckeAlphaHBar_heckeBetaHBar`
 and `exists_algEquiv_x1x0FunctionFieldC_atkinLehner` (both on order 3) and
 `finrank_adjoin_jqModC_qExpFunctionFieldC_le_index_of_isAlgClosed` (on order 1).
-The next cut re-scopes those.
+Those three are scoped in
+[TOPIC-qexp-successors-2.md](TOPIC-qexp-successors-2.md) and cut as SET-R-E.
