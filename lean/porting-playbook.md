@@ -1,28 +1,33 @@
 # Porting FLT to mathlib — a playbook
 
-A synthesis of the ports completed so far: the Elliptic torsion port
-(`#E[n](K) = n²`), the `functionFieldGeneration` definitions layer and its
-theorem cone, the `PhiGen` splitting cone, the `ModularCurve` Hecke layer, the
-`AlgebraicCurve` divisor exchange, the level/congruence-subgroup vocabulary, the
-T-side of `R = T`, the Eichler–Shimura period map, the Sturm-bound cusp
-vanishing, the WeightOne rectification, and the Vélu port (V1 + V2). The per-effort
-*records* are in
-[logs/](logs/); the closing *reviews* are `topics/*-retrospective.md`; §10 indexes
-both with their measured numbers. This file is the method the efforts share, so
-it is organised by principle rather than by which port taught it. Read a record
-for what an effort did; read this before starting the next one.
+The source of truth is the pinned FLT repository
+(`anthropics/fermats-last-theorem`, currently `aa2d8b3`). The ports completed so
+far are the Elliptic torsion port (`#E[n](K) = n²`), the
+`functionFieldGeneration` definitions layer and its theorem cone, the `PhiGen`
+splitting cone, the `ModularCurve` Hecke layer, the `AlgebraicCurve` divisor
+exchange, the level/congruence-subgroup vocabulary, the T-side of `R = T`, the
+Eichler–Shimura period map, the Sturm-bound cusp vanishing, the WeightOne
+rectification, and the Vélu port (V1 + V2). Each has a per-effort *record* in
+[logs/](logs/) and a closing *review* in `topics/*-retrospective.md`; §10 indexes
+both with their measured numbers.
 
-Two conventions run through everything:
+This file is the method those efforts share, so it is organised by principle
+rather than by which port taught it. Read a record for what an effort did; read
+this before starting the next one.
 
-- **The pin is the authority, and faithfulness is mechanical.** FLT
-  (`anthropics/fermats-last-theorem`, pinned; currently `aa2d8b3`) is the source
-  of truth. Every ported *statement* is diffed against it by
-  `spec/check_flt_statements.py`, not trusted. Where prose and Lean differ, the
-  Lean is right.
-- **The port is ours.** A module is a mathematical role, not a source file; shared
-  mathematics is written once and promoted; adapters stay `private`. FLT's
-  declaration *names* and *statements* stay, so comparison against the pin remains
-  mechanical.
+Three conventions run through everything:
+
+- **The pin is the authority, and faithfulness is mechanical.** Every ported
+  *statement* is diffed against the pin by `spec/check_flt_statements.py`, not
+  trusted. Where prose and Lean differ, the Lean is right.
+- **The port is ours.** A module is a mathematical role, not a source file;
+  shared mathematics is written once and promoted; adapters stay `private`.
+  FLT's declaration *names* and *statements* stay, so comparison against the pin
+  remains mechanical.
+- **A ported node is ported whole.** The pin file is the unit the frontier
+  measures, and once a file is in scope its content is transcribed in full, not
+  cherry-picked for the current target (§2.3). A partial port costs a revisit and
+  makes the tooling's estimate for the next effort wrong.
 
 Earlier records cite this file by section number under an older numbering (for
 example "playbook §3.11" for build discipline, "§7.4" for faithfulness). The
@@ -48,7 +53,8 @@ the nodes in scope; a registered entry means the node's `lines`/`needed` does no
 yet account for something its consumers need.
 
 1. **Measure the cone** — files, raw and content lines, declarations, importers.
-   From those numbers decide: port, re-derivation, or both (§2.1).
+   From those numbers decide which whole nodes are in scope and whether each is a
+   port, a re-derivation, or both (§2.1, §2.3).
 2. **Audit the route** — build the FLT → mathlib map, with a recorded negative
    for every search that found nothing (§2.2).
 3. **Find the duplication** — byte-identical private preludes get one home before
@@ -63,15 +69,17 @@ While coding:
 6. **A module is a role; a directory is a theory** (§3.1–§3.2).
 7. **One topic at a time, each with a work order**, bottom-up, with the build
    ladder in §3.5.
-8. **Faithfulness from the first declaration** — statements spelled as the
+8. **Port each in-scope node whole** — every declaration with a consumer, not
+   only the ones the current target reaches (§2.3).
+9. **Faithfulness from the first declaration** — statements spelled as the
    wrapper, added to `SOURCES`/`PORT_FILES`, consumer zones composing across
    modules (§4).
-9. **Keep the friction log while you hit friction** (§3.6), and **drop nothing by
-   inspection** — `grep -c` or `diff` (§2.4).
+10. **Keep the friction log while you hit friction** (§3.6), and **drop nothing by
+    inspection** — `grep -c` or `diff` (§2.4).
 
 At the end:
 
-10. Checker `0 mismatched / 0 missing`, consumer exit 0, `#print axioms` clean,
+11. Checker `0 mismatched / 0 missing`, consumer exit 0, `#print axioms` clean,
     no `sorry`, and (where a coverage report exists) coverage `0 / 0 / 0` (§4).
 
 ### 0.2 Working with subagents
@@ -106,23 +114,16 @@ best spent on the plan, the review and the capstone. Decompose and dispatch:
 - **Ask for artifacts, not narration.** The return is the module(s), the measured
   table, and the friction-log entries; the manager folds the generalizable part
   into this file and the record.
-- **Build investigation is a subagent with its own brief.** When the porting agent
-  hits a build problem the simple rules (§3.5) do not settle, dispatch a fresh
-  subagent whose whole instruction is the build-cost note
-  ([../notes/lean-build-cost.md](../notes/lean-build-cost.md)) plus the tool
-  interface — not this playbook. Keep it a separate dispatch; do not fold it into
-  the porting agent's task.
+- **Build investigation is a separate dispatch** whose whole brief is the
+  build-cost note ([../notes/lean-build-cost.md](../notes/lean-build-cost.md))
+  plus the tool interface — never folded into the porting agent's task (§0.4).
 
 ### 0.3 Discretion: this is a synthesis, not a contract
 
 This file is distilled from several ports of very different sizes. Read it as
-recorded judgement, not as a checklist to apply mechanically:
+recorded judgement, not as a checklist to apply mechanically. Everything beyond
+the three conventions above is a heuristic with evidence attached.
 
-- **The stable core is small**: the pin is the authority and faithfulness is
-  mechanical (§4); expense is distance from mathlib (§1); a module is a role and
-  a directory is a theory (§3.1–§3.2); real mathematics is written once (§5); and
-  the build ladder bounds the one unbounded cost (§3.5). Everything else is a
-  heuristic with evidence attached.
 - **Match the process to the size.** A 200-line leaf topic needs a work order and
   a bounded build, not a blueprint, a correction ledger, a risk register and a
   scout; a 2,000-line cone needs all of them. Every instrument is cheap at the
@@ -140,16 +141,11 @@ recorded judgement, not as a checklist to apply mechanically:
 
 ### 0.4 Build discipline, and the note behind it
 
-Follow the build discipline as a matter of course — it is the per-work-order
-block in §3.5. Two facts are easy to get wrong: `lake env lean` needs the
-package's options (`-DmaxHeartbeats=4000000 -DautoImplicit=false`) to match
-`lake build`, and this project's global cap is 4,000,000, so a blow-up does not
-surface in ~20 s — the wall bound is the protection.
-
-When a build misbehaves anyway, do not investigate it inline. Dispatch a subagent
-whose brief is [../notes/lean-build-cost.md](../notes/lean-build-cost.md); the note
-carries the measurements, the recipes and the tools
-(`tools/deps/build_ladder.py --audit` / `--profile`).
+Follow the per-work-order block in §3.5. When a build misbehaves beyond those
+rules, do not investigate it inline: dispatch a subagent whose brief is
+[../notes/lean-build-cost.md](../notes/lean-build-cost.md), which carries the
+measurements, the recipes and the tools (`tools/deps/build_ladder.py --audit` /
+`--profile`).
 
 ## 1. The cost model
 
@@ -159,27 +155,25 @@ Every effort measured this, in both directions:
 | effort | source size | written | why |
 |---|---|---|---|
 | Elliptic torsion | cone 3,671 lines | 3,362 lines | the engine (`ω` division polynomial, complement multiplication) had left mathlib; the 1,164-line counting module was the *cheapest per line* |
-| `functionFieldGeneration` theorem | 11,312-line structural pin sum | ≈3.8k lines (T14–T20) | reduced to three generic lemmas plus concretisation |
+| `functionFieldGeneration` theorem | 11,312-line structural pin sum | ≈3.8k lines | reduced to three generic lemmas plus concretisation |
 | `AlgebraicCurve` exchange | 5,423 raw `S_` lines | 5,559 module lines | line budget was accurate; risk register over-warned |
 | `ModularCurve` Hecke | 10,569 raw lines | 7.6k content lines in band | four prelude cuts made it tractable |
 
 Consequences for planning:
 
-- **Count two kinds of lines.** *Raw* is the pin's text; *content* subtracts the
-  `p2m_*`/`attribute` scaffolding, which is 28–35% of a pin cone and is never
-  written. Budget content.
-- **Budget in named shape risks, not rounds or lines alone.** A definitions
-  layer dictated by pinned statements took 1 round against 20 budgeted; a
-  2,002-line file was the right size but its *route* was the whole cost. When a
-  risk register is written, expect it to over-warn: across the FFG, AC and MC
-  efforts the named risks mostly failed to materialize, and the recurring real
-  cost was API drift (§7).
-- **A wrong statement is maximally expensive; a wrong proof is cheap.** This is
-  why faithfulness is mechanical and front-loaded (§4) and why the route is
-  audited before any module is written.
-- **A faithful port is not line-for-line smaller.** The saving is what never had
-  to be written (compat shims, dead wrappers, repeated preludes) plus writing 13
-  focused modules instead of inheriting a 1,869-line engine.
+- **Budget content, not raw lines.** Raw is the pin's text; *content* subtracts
+  the `p2m_*`/`attribute` scaffolding (28–35% of a pin cone, never written).
+- **Budget in named shape risks, not rounds or lines alone.** A definitions layer
+  dictated by pinned statements took 1 round against 20 budgeted; a 2,002-line
+  file was the right size but its *route* was the whole cost. Risk registers
+  over-warn, and the recurring real cost was API drift (§7).
+- **A wrong statement is maximally expensive; a wrong proof is cheap.** Hence
+  faithfulness is mechanical and front-loaded (§4), and the route is audited
+  before any module is written.
+- **A faithful port is not line-for-line smaller.** The saving is the compat
+  shims, dead wrappers and repeated preludes never written. Whole-node porting
+  (§2.3) spends lines a minimal port would skip and buys back a correct frontier
+  and no revisit; it is not a licence to transcribe scaffolding.
 
 ## 2. Planning a port
 
@@ -190,76 +184,60 @@ same way: a measured cone, taken as the transitive citation closure of the one
 target theorem from the pin's doc-site graph, pinned to a sha and a mathlib
 version. Use a coverage report (`studies/hecke-commute-bar-coverage.md` is the
 model) and report every group as **three numbers — nodes, raw `S_` lines, content
-lines** — where content subtracts `import`/`attribute`/`namespace`/`section`/
-`variable`/`p2m_*`/comments/blanks. Scaffolding is 28–35% of raw and is never
-ported, so a single raw figure overstates a cone. Give node-based and
-content-based headlines separately: nodes overstate a cone whose weight sits in a
-few large files. State the metric's bias — a name-based "already ported" test is
-an upper bound and misses renamed ports, and the **`ucl` closure is an upper bound in
-the other direction too**: it cannot see that a closure member's *mathematics* is
-already in the port under another name, nor the pin's definitional imports. **Walk the
-proof's definition uses, not only the import block.** A `Definitions/Def_*.lean` import
-can be an *empty stub* while the `S_` file's proof still consumes a public block of a
-different `Def_*` module the stub drags in transitively: W2's division-field target
-imports only the stub `Def_WeierstrassCurve_DivPolyMulFormulaCore.lean`, yet its proof
-needs the `MFred`/`mfred_all`/`ΨSq` block of the ≈1,750-line
-`Def_WeierstrassCurve_DivPolyMulFormula.lean` (unported; the set re-derived the two
-consumers from the ported `Elliptic.smul_formula_or_zero` instead). The docs-site graph
-carries the list per node — `fltdata.proof_defs` — so check it before calling a
-definition layer empty. The Vélu
-V2 wave priced four closure members at 1,246 / 911 / 58 / 269 lines and wrote ≈15
-lines for the last of them and nothing for the first three (same statement minus a
-`[CharZero F]`, same statement with different binder explicitness, same body with an
-explicit `hsep`); a `ucl`-only budget would have said ≈4 k where the truth was 1.6 k.
-**Sweep the port by name and by `#check` before pricing any closure member.**
+lines** — with node-based and content-based headlines separate, since nodes
+overstate a cone whose weight sits in a few large files. State the metric's bias:
+a name-based "already ported" test is an upper bound that misses renamed ports,
+and the **`ucl` closure is an upper bound in the other direction** — it cannot see
+that a closure member's *mathematics* is already in the port under another name,
+nor the pin's definitional imports.
+
+**Walk the proof's definition uses, not only the import block.** A
+`Definitions/Def_*.lean` import can be an *empty stub* while the `S_` proof still
+consumes a public block of a different `Def_*` module the stub drags in
+transitively — one division-field target imports only a stub yet needs the
+≈1,750-line `Def_WeierstrassCurve_DivPolyMulFormula.lean`. The docs-site graph
+carries the list per node (`fltdata.proof_defs`), so check it before calling a
+definition layer empty. **Sweep the port by name and by `#check` before pricing
+any closure member**: one wave priced four members at 1,246 / 911 / 58 / 269 lines
+and wrote ≈15 lines for the last and nothing for the first three; a `ucl`-only
+budget said ≈4 k where the truth was 1.6 k.
 
 Then make the table *act*:
 
-- **Partition by mathematical route group and assign each node to its first
+- **Partition by mathematical route group and assign each whole node to its first
   consumer**, so the group totals sum to the measured total; that table is the
   work-order cut.
-- **Price the on-path node set, not the import-level closure.** Check each node
-  for proof-path reachability from the target; prune off-path nodes or carry them
-  as a counted optional tail.
-- **Measure the definition modules separately** (lines, declarations, how many
-  are referenced by the cone). A low referenced fraction means "take the
-  majority; count the rest per topic", not "port the file".
+- **Reachability decides which whole nodes enter the effort**, not which
+  declarations inside an included node are ported (§2.3). Price the on-path node
+  set, carry off-path nodes as a counted optional tail, and price the definition
+  modules separately (lines, declarations, in-cone referenced fraction).
 - Report the **outbound interface tier** (§2.3) and the **duplication already
   visible** in the pin (§2.4).
 - **Close a measurement over proof-reached targets, not just the target files.**
-  A cone built from the targets' own `S_` files is a lower bound on the checked
-  surface: target proofs reach helper *targets* whose wrappers and `S_` files are
-  outside the measured set.  The Riemann–Roch round found four such nodes
-  (`IsCurveOver.exists_separating_transcendental`, a 15th helper target
-  `exists_indexOfSpecialty_nsmul_single_eq_zero_of_genusReached`, and the two
-  Weil-differential helpers), each re-provisioned `private` and later promoted.
-  Measure the transitive closure over the targets' proof-reached public wrappers.
-- **Ship a copy-pasteable regeneration recipe** with every measurement section.
-  Do not hand-maintain a number that a script can reproduce.
+  A cone built from the targets' own `S_` files is a lower bound: target proofs
+  reach helper *targets* outside the measured set (the Riemann–Roch round found
+  four, each later promoted). Measure the transitive closure over the targets'
+  proof-reached public wrappers.
+- **Ship a copy-pasteable regeneration recipe** with every measurement section; do
+  not hand-maintain a number a script can reproduce.
 
-Three ways a frontier figure misleads, each with the case that taught it. The
-specific instances live in [CARRY-FORWARD.md](CARRY-FORWARD.md):
+Three ways a frontier figure misleads:
 
-- **A citation-leaf is not a leaf.** `needed == 1` on a node with no theorem-node
-  premises says nothing about its *definitional* prerequisites, which the doc-site
-  citation graph does not carry:
-  `AutomorphicForm.continuous_and_hasCompactSupport_of_isFactorizableTestFn` reads
-  as a 126-line leaf, but its proof needed three `Definitions/` modules (the
-  adele-ring `T2Space` instances, the `glArch`/`glFin` projections, the
-  factorisable-test-function defs). Measure the pin `S_` file's `Definitions/`
-  import closure before trusting a leaf.
-- **A pin `S_` file's `lines` is an upper bound.** A "solution" file may inline its
-  prerequisite nodes and carry an off-path development: the Weierstrass
-  `hasPrincipalDivisors_functionField` file is 2,248 lines, of which ~200 are on
-  the headline's path and ~1,400 content lines are a place/Riemann–Roch/class-group
-  silo the proof never reaches. Grep the capstone region for the file's other
-  declaration names; if none occur, the rest is off-path.
-- **File-granular edges shadow.** Porting a headline whose pin file also carries an
-  API prelude makes the file's citers read as one node closer while the API they
-  call is unported — the citation graph's edges are file-granular while the
-  "already ported" test is declaration-name-granular. Register the deferred surface
-  in [CARRY-FORWARD.md](CARRY-FORWARD.md) and treat those citers as blocked on it.
-
+- **A citation-leaf is not a leaf.** `needed == 1` says nothing about
+  *definitional* prerequisites, which the citation graph does not carry: a
+  126-line leaf once needed three `Definitions/` modules. Measure the pin `S_`
+  file's `Definitions/` import closure before trusting a leaf.
+- **A pin `S_` file's `lines` is an upper bound on the headline's route.** A
+  solution file may inline its prerequisites and carry an off-path silo — one
+  2,248-line file had ~200 lines on the headline's path and ~1,400 in a
+  place/Riemann–Roch/class-group silo. Grep the capstone region for the file's
+  other declaration names; the silo is still ported whole (§2.3), but the
+  headline's route cost excludes it.
+- **File-granular edges shadow.** The citation graph's edges are file-granular
+  while "already ported" is name-granular, so a partially ported file makes its
+  citers read one node closer than they are. Porting the node whole (§2.3)
+  removes the shadow; otherwise register the deferred surface in
+  [CARRY-FORWARD.md](CARRY-FORWARD.md).
 
 ### 2.2 Audit the route, mathlib first
 
@@ -290,61 +268,77 @@ deletion.
 Route selection is a measurement, not a preference:
 
 - **Price the marginal closure under the substitution, not the headline cone.**
-  Drop the route's outgoing edges and recompute; an estimate that reads the graph
-  without the shortcut can be orders too large (one residual read 12 nodes /
-  5,595 lines where the closure-accurate answer was 5 / 235).
+  Drop the route's outgoing edges and recompute; a graph-only estimate can be
+  orders too large (one residual read 12 nodes / 5,595 lines where the truth was
+  5 / 235).
 - **Prefer a cone that is a subset of work the endgame needs anyway**
-  (`cone ⊆ closure(branch)`), and count only the route-specific addition.
-- **Retire a route that adds no coverage the chosen statement does not give**,
-  however pleasant it is; a strictly stronger and smaller route supersedes a large
-  blob.
-- **Disambiguate same-named objects before pricing** — "the Eichler–Shimura
-  layer" named three different cones of different sizes in one study.
-- **Verify a brief's named ingredient against the pin before trusting it.** One
-  plan cited a lemma that does not exist and another that the route did not need;
-  re-scout the exact name, hypotheses and crutch before pricing.
-- **The pin's `p2m_export`/`p2m_open` list is the FLT → mathlib gap list**: check
-  every name on it against the pinned mathlib, and a mathlib TODO comment is a
-  reliable gap inventory.
-- **Check a mathlib substitute's hypothesis strength against the source's.** A
-  candidate can need primitivity where the cone has only `ζ^ℓ = 1`, or state a
-  sum where the port needs a product.
-- **Price the glue, not the mathlib-replaceable leaves.** A 199-line lemma with
-  no replacement cost full price while a 76-line file collapsed to 8 lines.
-- **Order the remaining tiers by outbound statement-demand, not file size**, and
-  measure a pin file's *live* public surface before inheriting it: of one file's
-  23 public names, only `solution` had a consumer, so its ~300-line cluster was
-  never ported.
-- **Scope a topic from the pin's import graph, not from its file list.** A work
-  order that declared a set self-contained still needed four lemmas assigned to a
-  later set, and a single declared import was insufficient — both forced re-scopes.
+  (`cone ⊆ closure(branch)`), counting only the route-specific addition; retire a
+  route that adds no coverage the chosen statement does not give.
+- **Disambiguate same-named objects before pricing**, and verify a brief's named
+  ingredient (name, hypotheses, crutch) against the pin — "the Eichler–Shimura
+  layer" once named three cones, and one plan cited a lemma that does not exist.
+- **The pin's `p2m_export`/`p2m_open` list is the FLT → mathlib gap list**; check
+  every name against the pinned mathlib (a mathlib TODO comment is a reliable gap
+  inventory).
+- **Check a mathlib substitute's hypothesis strength against the source's** — a
+  candidate can need primitivity where the cone has only `ζ^ℓ = 1`, or state a sum
+  where the port needs a product.
+- **Price the glue, not the mathlib-replaceable leaves** (a 199-line lemma with no
+  replacement cost full price while a 76-line file collapsed to 8 lines).
+- **Order the remaining nodes by outbound statement-demand, not file size**, and
+  scope a topic from the pin's import graph over whole nodes: do not trim an
+  in-scope node to its in-cone declarations (§2.3), and do not assume a
+  declared-import set is self-contained.
 
+### 2.3 What to port: whole nodes, then the gain test
 
-### 2.3 The gain test: what to port
+**Port the whole node.** A *node* is a pin file, and the pin file is the unit the
+frontier measures. Once a node is in scope, transcribe **all** of its content —
+every declaration that has a consumer — not only the declarations the current
+target reaches. Two things make partial porting a false economy:
 
-Score a port on four gains — **organization, clutter never written, mathlib
-alignment, truth** — never on line volume, because a faithful port is not
-line-for-line smaller. Then choose order by what a node *buys*, using **outbound
-indegree** (citers outside the cone) as the proxy: that is the reusable surface
-the port purchases. The interface-tier topic added nine 5–50-line leaves that
-carried 520 of the cone's 946 ≥5-indegree weight, and every one transcribed first
-try; a later out-of-cone tier of 24 declarations covered 69% → 94% → 100% of the
-weight it targeted. Cautions: indegree is global (a node can be load-bearing
-elsewhere while irrelevant here — check it is in the cone), a library-shaped cone
-with a broad interface scores differently from a citation chain, and an interface
-can be split across pin namespaces, so the checker must be told which copy is the
-interface (§4). State what the port is *not* in an out-of-scope table, and re-run
-the gain test when the blocking gate is removed.
+- **It costs more than it saves.** A file taken in part is revisited in a later
+  wave, and the revisit re-elaborates the module and re-establishes its context.
+  One whole-node pass pays that once; the saving a partial port appears to buy is
+  the same declarations, deferred and made more expensive.
+- **It corrupts the estimate for the next effort.** `frontier.py` prices progress
+  in source-file nodes. A file with a ported headline and an unported API prelude
+  still reads as one unported node, so the remaining work is understated: the
+  frontier says one node where the truth is a cluster. The citation graph's edges
+  are file-granular for the same reason, so a partially ported file also makes its
+  *citers* read one node closer than they are (§2.1).
+
+The one thing a whole-node port leaves behind is content with **no consumer
+anywhere** — a declaration dead in the pin as well as in the port (a
+self-consumed lemma, a helper only `#check`ed in prose). "No consumer" is a claim
+about the graph, so verify it mechanically (`grep -c` over the pin and the port,
+or the pin's own citers) rather than by inspection. Everything else in the node is
+ported, whether or not the current target uses it; the residue is registered per
+node, not per declaration, so the next effort can see the frontier instead of
+rediscovering it.
+
+Then score the port on four gains — **organization, clutter never written,
+mathlib alignment, truth** — never on line volume. Order the nodes by what each
+*buys*, using **outbound indegree** (citers outside the cone) as the proxy for
+the reusable surface the port purchases; small leaves can carry disproportionate
+weight. Cautions: indegree is global (check the node is in the cone), a
+library-shaped cone with a broad interface scores differently from a citation
+chain, and an interface can be split across pin namespaces, so the checker must be
+told which copy is the interface (§4). State which whole nodes are out of scope
+in an out-of-scope table, and re-run the gain test when the blocking gate is
+removed.
 
 **Capstone shape follows from the premises, not from taste.**
 
 - If the theorem's significant premises are not yet ported, build a *conditional*
   capstone: a proved artifact with no `sorryAx`, its fields a structure of named
   hypotheses. It checks the architecture, and the remaining work becomes an
-  ordered list instead of a subtree (the FFG `Spine.lean`, debt 10 → 0). Keep the
-  structure frozen once it lands; do not discharge fields opportunistically.
+  ordered list instead of a subtree (the `functionFieldGeneration` `Spine.lean`,
+  debt 10 → 0). Keep the structure frozen once it lands; do not discharge fields
+  opportunistically.
 - If the premises are arguments or already-proved instances, do **not** add the
-  device — the AC layer is unconditional and a `Spine` there would be ceremony.
+  device — the `AlgebraicCurve` layer is unconditional and a `Spine` there would
+  be ceremony.
 
 ### 2.4 Deduplicate before coding, and drop by count
 
@@ -352,87 +346,57 @@ The pin repeats itself heavily: a private prelude copied into every `S_` file
 that consumes it (the slot vocabulary in 38 files, the fibre dictionary in four,
 the Fricke/inclusion prelude in three, the modular-unit `q`-expansion in four).
 **Find those copies in the plan and give them one home before writing the first
-module.** Duplication detection is measurement, not inspection:
+module.** Detection is measurement, not inspection:
 
-- `diff` two candidate `S_` files over their declaration spans and count the
-  differing lines; a block that differs only in `p2m_*` strings is one
-  development. Find copy counts mechanically (byte-identical blocks,
-  `difflib.SequenceMatcher`, per-declaration `grep`), and price the saving as
-  `(copies − 1) × block content`. A cleaner first cut is to diff *normalized
-  bodies* — strip imports, namespaces, `p2m_*` lines and the `solution` tail —
-  which isolates the duplicate groups exactly. (`tools/deps/port_graph.py
-  --blocks` is the port-side view; `tools/deps/port_advise.py` is the pre-port
-  view.)
-- **The pre-port view is name-anchored, so "already in the port" is a lower bound.**
-  `port_advise`'s substitution test looks the port up by the *last name component*
-  (`by_name`), so a port declaration that does the same work under a different name
-  is invisible to it. A pin `S_` file routinely re-proves a prelude under its own
-  local names; when its names do not occur in the port, check the *statement* before
-  pricing the block. Two such pairs surfaced in the V3 wave alone
-  (`mk_mem_XYIdeal_iff_evalEval_eq_zero` ≡ the ported `mk_mem_XYIdeal_iff`;
-  `kw_addSeam_restrictAlong_eq_placeOfEquation_charFree` ≡ the ported
-  `es1a6_addSeam_restrictAlong_eq_placeOfEquation`), and a third — the second-order
-  `XYIdeal` block — forced a mid-set route amendment once its *closure* was
-  measured rather than its name list.
+- **Diff normalized bodies** — strip imports, namespaces, `p2m_*` lines and the
+  `solution` tail — and price the saving as `(copies − 1) × block content`. Find
+  copy counts mechanically (byte-identical blocks, `difflib.SequenceMatcher`,
+  per-declaration `grep`); `port_graph.py --blocks` is the port-side view,
+  `port_advise.py` the pre-port view.
+- **The pre-port view is name-anchored, so "already in the port" is a lower
+  bound.** It looks up by *last name component*, so a port declaration doing the
+  same work under another name is invisible; when a pin file's local names do not
+  occur in the port, check the *statement* before pricing the block.
 - **It is also an upper bound, and its worst false positives are `def … : Prop`.**
-  The main checker pass compares a `def`'s *type*, which for `def foo : Prop := P`
-  is just `Prop` — so **any** same-last-name `Prop`-valued `def` in the pool is a
-  name-anchored substitute, whatever its body. Set D hit this on six
-  `RiemannRochRows` predicates matched against `EisensteinWeightOne.E1Chi3IsModular`;
-  ds-head hit it on all of `CanonicalDivisorVariationPrincipal`,
-  `TameLocalDifferentExponent`, `LocalUnitDerivativeRegular` matched against
-  `PeriodPair.DiscriminantNeZero` (a generic `Prop` `def` with 125 copies) and on
-  `ValSubringKaehlerSpanTop`/`ValSubringKaehlerFinite`. Every one was new. Read the
-  pin body (or run `--prop-bodies`) on every `def`:Prop substitution row before
-  believing it; treat the substitution *count* as an upper bound by exactly those
-  rows.
-- **Graph-node multiplicity undercounts copies.** A block with one graph node can
-  ship five times because hidden exports carry their own copies; grep a
-  distinctive marker lemma at file level. Quantify a dedup by *duplicate lines
-  shipped* (one 895-line block: ~4,475 → 1,023), not by "a copy exists".
+  The checker compares a `def`'s *type*, which for `def foo : Prop := P` is just
+  `Prop`, so any same-last-name `Prop`-valued `def` reads as a substitute whatever
+  its body. Read the pin body (or run `--prop-bodies`) on every such row.
+- **Graph-node multiplicity undercounts copies** — one graph node can ship five
+  times through hidden exports. Quantify a dedup by *duplicate lines shipped* (one
+  895-line block: ~4,475 → 1,023), not by "a copy exists".
 - **A large pin-`private` block re-exported by name mangling is a promotion**:
-  write it once, publicly, at the pinned names, and record the promotion. Promote
-  the *union* of the duplicate preludes, including sub-blocks absent from any
-  single copy.
-- **An out-of-cone byte-identical duplicate is resolved by exposing one copy**,
-  not by rewriting it.
-- If two pin declarations have the same proof, port **one** general lemma, not
-  two.
+  write it once, publicly, at the pinned names, promoting the *union* of the
+  duplicate preludes; an out-of-cone byte-identical duplicate is resolved by
+  exposing one copy, not rewriting it.
 - **"Which side stays" is the pin-public wrapper**; re-privatize the pin-private
-  name and keep local aliases so untouched consumers keep working. Replace
-  copies one file at a time, only where the statement matches — a copy carrying an
-  extra hypothesis (`N ∣ 2`) is not a drop-in.
-- **Do not merge a helper when sharing would invert the import graph.** One
-  generic module deliberately re-writes a helper per module rather than import a
-  whole downstream cone.
-- **Strengthen a statement from the pin, never from the port's own weakened
-  private copy** — one private copy had silently dropped a conjunct the
-  downstream step needed.
-- **Count occurrences (`grep -c`) before dropping anything.** A truncated
-  `grep | head` once declared a load-bearing helper dead. Every dropped
-  definition-module declaration needs a corpus count and a reason; "redundant" is
-  a claim about the graph, not about prose.
-- **Review the port's own private layer after a module closes**, not just the
-  pin's copies: a "large file, many private theorems" pass found five redundant
-  private declarations and three mathlib re-derivations in one module.
-- Keep a list of **deliberately not cut** items with their counts. A deferred
-  public API consumed elsewhere in FLT is deferred, not worthless.
+  name and keep local aliases. Replace copies one file at a time, only where the
+  statement matches — a copy carrying an extra hypothesis (`N ∣ 2`) is not a
+  drop-in.
+- **Count occurrences (`grep -c`) before dropping anything**, and review the
+  port's own private layer after a module closes, not just the pin's copies:
+  "redundant" is a claim about the graph. Keep a list of **deliberately not cut**
+  items with their counts.
+- **Do not merge a helper when sharing would invert the import graph**, and
+  strengthen a statement from the pin, never from the port's own weakened private
+  copy.
 
 ### 2.5 Risk register and budget
 
 Write the budget as a **correction ledger**: structural sum → minus dedup
 savings (explicit negative rows) → plus definition modules → range, then apply
-the effort's measured written-lines ÷ content-lines ratio (AC 1.25–1.45, MC
-1.0–1.3). The budget *unit* is the named shape risk, not lines. Name the risks in
-the order they will bite — a typeclass/coercion mismatch, a defeq between
-concrete carriers, an instance diamond, a renamed API — each with its mitigation,
-and mark each resolved or open with the measurement that resolved it. Record
-**predicted non-events** too, so they are not budgeted again. Measured outcomes:
+the effort's measured written-lines ÷ content-lines ratio (`AlgebraicCurve`
+1.25–1.45, `ModularCurve` 1.0–1.3). The budget *unit* is the named shape risk,
+not lines. Name the risks in the order they will bite — a typeclass/coercion
+mismatch, a defeq between concrete carriers, an instance diamond, a renamed API —
+each with its mitigation, and mark each resolved or open with the measurement
+that resolved it. Record **predicted non-events** too, so they are not budgeted
+again. Measured outcomes:
 
-- line budgets have been accurate to within ~10% (AC: budgeted 5.1k–5.9k,
-  measured 5,559);
-- risk registers have been pessimistic (T5's orbit count, T6's instance block,
-  T8's diamonds, T9's `PerfectField` all failed to materialize as budgeted);
+- line budgets have been accurate to within ~10% (`AlgebraicCurve`: budgeted
+  5.1k–5.9k, measured 5,559);
+- risk registers have been pessimistic (an orbit count, an instance block,
+  instance diamonds and a `PerfectField` requirement all failed to materialize as
+  budgeted);
 - the real recurring cost was **API drift**, which is cheap per item but
   numerous — keep the drift list (§7);
 - record a route win as a *measured delta* and re-price, rather than banking it.
@@ -445,15 +409,15 @@ irreducible, and that one `relNorm` route answered "no".
 ### 2.6 The scout gate
 
 When exactly one topic carries genuinely new mathematics, prototype it in a
-gitignored `Scratch.lean` before dispatching it. The AC effort's T5 scout cost
-3.2 s and converted its biggest unknown into a known quantity; the MC manager
-pre-checked the `Φ` one-liners and the `qParam_coeff_unique` API the same way.
-A scout is cheap insurance against a whole topic being routed wrongly. Its output
-is a **corrected estimate and work order**, not just go/no-go: record the
-pre-scout and post-scout numbers. A scout may also **kill a route outright** —
-record the missing ingredient and the unsupported figure. And a scout showing
-that the pin's proof transcribes unchanged converts "new mathematics" into
-"transcription" and de-risks the whole topic.
+gitignored `Scratch.lean` before dispatching it. A scout is cheap insurance
+against a whole topic being routed wrongly: one scout cost 3.2 s and converted
+its biggest unknown into a known quantity, and the manager pre-checked the `Φ`
+one-liners and the `qParam_coeff_unique` API the same way. Its output is a
+**corrected estimate and work order**, not just go/no-go: record the pre-scout and
+post-scout numbers. A scout may also **kill a route outright** — record the
+missing ingredient and the unsupported figure. And a scout showing that the pin's
+proof transcribes unchanged converts "new mathematics" into "transcription" and
+de-risks the whole topic.
 
 ## 3. Executing a port
 
@@ -469,13 +433,14 @@ binding:
 - **Docstrings carry the mathematics.** A name that does not state its content
   gets a one-line gloss; a construction gets a sentence saying what the object is.
 - **Monomorphic helpers are documentation** — but write them the moment a `rw`
-  reports no progress (§6), not before. The FFG rewrite-search gap was predicted
-  to dominate and never appeared, because FLT's own `[simp]` coefficient lemmas
-  were already the named bridges.
+  reports no progress (§6), not before. A predicted rewrite-search gap never
+  materialized, because FLT's own `[simp]` coefficient lemmas were already the
+  named bridges.
 - **Adopt mathlib's names where mathlib has them; keep FLT's where it does not**,
   and say which is which in the header.
 - **No self-consumed lemmas.** A lemma whose only consumer is itself is not
-  ported.
+  ported. This is the sole content a whole-node port leaves behind (§2.3): the
+  node boundary is not a licence to carry its dead scaffolding.
 
 ### 3.2 Directory layout: one directory per theory
 
@@ -493,12 +458,13 @@ When the split is warranted it is mechanical: rename, fix importers, update the
 record — the lakefile globs with `.submodules`, so no build-file change.
 
 The tree should make the mathematics visible: if a proof has two independent
-routes, the reader should see two directories meeting at a named module (AC:
-`WeilExchange/*` and `PrincipalDivisors/*` share only `Defs/`; MC: `Analytic/*`
-and `Degree/*` meet at the cusp dichotomy and the roof). **The mathematics should
-be a handful of abstract statements plus concretisation** — AC's 5.5k lines are
-three statements, FFG's 3.8k are three generic lemmas. If that is not visible in
-the tree, the split is wrong.
+routes, the reader should see two directories meeting at a named module
+(`AlgebraicCurve`: `WeilExchange/*` and `PrincipalDivisors/*` share only `Defs/`;
+`ModularCurve`: `Analytic/*` and `Degree/*` meet at the cusp dichotomy and the
+roof). **The mathematics should be a handful of abstract statements plus
+concretisation** — `AlgebraicCurve`'s 5.5k lines are three statements,
+`functionFieldGeneration`'s 3.8k are three generic lemmas. If that is not visible
+in the tree, the split is wrong.
 
 Two hygiene rules: keep imports specific (never `import Mathlib` in a library
 module — two such files once took the planned build from 2,086 to 8,936 jobs), and
@@ -515,7 +481,8 @@ transcription and gives the review something to check against.
 
 The work-order template the topics converged on:
 
-1. **Scope** — one paragraph, plus what is explicitly *not* this topic.
+1. **Scope** — one paragraph, plus what is explicitly *not* this topic. State the
+   in-scope nodes, and that each is taken whole (§2.3).
 2. **Source** — pinned FLT files and line ranges; the wrappers for statements.
 3. **Deliverable** — the module path and the declaration list, public vs
    `private`.
@@ -526,14 +493,14 @@ The work-order template the topics converged on:
 6. **Verification** — checker delta, consumer zones, `#print axioms`, `grep -c`
    of anything dropped.
 
-Update the order's numbers in place when reconnaissance re-prices it (one L3
+Update the order's numbers in place when reconnaissance re-prices it (one
 estimate was corrected 180–240 → ≈747 content lines inside the order). Re-cut a
 topic that straddles several waves **by mathematical object** — construction,
-then properties, then consequence — rather than by the pin's section buckets.
+then properties, then consequence — without splitting a node across waves.
 
 ### 3.4 Sets dispatched to agents, with review gates
 
-Large efforts were run as **sets** (SET-1, SET-M1, …): each set is one coherent
+Large efforts were run as **sets**: each set is one coherent
 mathematical story dispatched to one agent, with the manager reviewing between
 sets and writing the capstone. This is the mechanics; the staffing rule —
 roughly 1,000 lines before subagents, one subagent per set, review before the
@@ -544,27 +511,27 @@ next — is §0.2. It worked, for reasons worth keeping:
   real dependencies, so re-derive them instead of copying the pin's order. Keep
   topic numbering disjoint across parallel efforts.
 - **Split on the mathematical fork, not on size.** Each set should carry one
-  story and not need the other set's context. AC split at the shared
-  prerequisite T2; the two routes' independent halves became SET 2.
+  story and not need the other set's context. One effort split at its shared
+  prerequisite, and the two routes' independent halves became a second set. A
+  set's scope is a group of whole nodes; a node is not divided between sets
+  (§2.3).
 - **Write the next set's orders after the previous set is reviewed**, against the
   modules that actually exist. That is what makes a hand-off import real
   declarations instead of re-deriving them. Write the hand-off as part of
   finishing: the fixed names, instances and build budget the next set inherits.
 - **The capstone is the review.** Writing it is the final wire test: a wrong
   binder, a missing lemma or a mis-stated hypothesis upstream surfaces as a
-  compile failure in the reviewer's own file. Reserve it for the reviewer; in MC
-  and AC it compiled first try.
+  compile failure in the reviewer's own file. Reserve it for the reviewer; in the
+  larger efforts it compiled first try.
 - **Re-scope a blocked topic; do not stall the effort.** Keep the tree green by
   setting the blocked file aside, write a focused follow-up order, re-dispatch.
-  The MC `m5b` `CuspDichotomy` re-scope solved in two rounds what the original
-  topic could not.
-- **De-risk before dispatch.** The manager's own `Scratch` probes are cheap and
-  keep the agent's context on implementation.
+  A `CuspDichotomy` re-scope solved in two rounds what the original topic could
+  not.
 - **Keep a per-set measured table** (rounds / declarations / lines / build /
-  axioms / checker / consumer) and the friction log, and when a set may not edit
-  a consumer, record the replacement map and hand the dedup off.
-- **Close with a review** (math clarity, clutter, what did not go to plan), a
-  plan-vs-actual honesty section, and retire the blueprint to `topics/`.
+  axioms / checker / consumer) and the friction log; when a set may not edit a
+  consumer, record the replacement map and hand the dedup off. Close with a review
+  (math clarity, clutter, what did not go to plan), a plan-vs-actual honesty
+  section, and retire the blueprint to `topics/`.
 
 ### 3.5 The build ladder
 
@@ -582,8 +549,8 @@ the profiling, and the `maxHeartbeats := 4_000_000` global cap are in
 and does **not** inherit the lakefile's `leanOptions`; `lake build` does. Without
 `-DmaxHeartbeats=4000000 -DautoImplicit=false` the edit-loop check runs at the
 default 200,000 cap and can report a timeout and a cascade of `unknown constant`
-errors on a module `lake build` compiles happily (`WeightOne.Basic`: fails at
-30.7 s raw, compiles in 56.1 s with the options). Use the options, or
+errors on a module `lake build` compiles happily — `WeightOne.Basic` fails at
+30.7 s raw and compiles in 56.1 s with the options. Use the options, or
 `tools/deps/build_ladder.py --tier check`, which supplies them.
 
 | tier | when | command | cost |
@@ -598,8 +565,8 @@ Four rules:
 1. **Never `lake build` in the edit loop.** For a 2,500-line module the check is
    itself 78 s, so iterate on the declaration in `Scratch.lean` (§6).
 2. **A wave edits each module once.** The cascade is the union of the edited
-   modules' dependents; splitting a wave over one module pays it twice (W4's
-   width family paid ~6 m 45 s twice).
+   modules' dependents; splitting a wave over one module pays it twice (a width
+   family paid ~6 m 45 s twice).
 3. **Price the cascade before triggering it** — dependent modules and lines; the
    build-cost helper in the unpublished `tools/deps/` tree reports 14 modules /
    20,732 lines ≈ 249 s for `WeightOne.Basic`, against the recorded 4 m 47 s.
@@ -614,15 +581,12 @@ subagent whose brief is the build-cost note (§0.2, §0.4). Organisationally, ke
 heavy modules at the leaves and shared hubs small and cheap, so later cost work
 has less to do; the note holds the measurements and the recipes.
 
-> **Build discipline (copy this into each work order).** `lake env lean <opts> <file>`
-> is the edit loop, with `<opts>` = `-DmaxHeartbeats=4000000 -DautoImplicit=false`
-> (without them the check runs at the default cap and lies about heavy modules);
-> `lake build <module>` when a file is done; **one** `lake build` per wave; the
-> full build at the milestone. Bound every build (`timeout 60` / `90` / `300` /
-> `180`), serialize every `lake build` with `flock`, and time it: high user CPU
-> with a timeout is a real blow-up to bisect, ~0 CPU is contention. Never raise
-> `maxHeartbeats`; this project's global cap is already 4,000,000, so a blow-up
-> does **not** surface in ~20 s — the wall bound is the protection.
+> **Build discipline (copy into each work order).** Edit loop `timeout 60
+> lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false <file>`;
+> `lake build <module>` per finished file; one `lake build` per wave; full build
+> at the milestone. Serialize every `lake build` with `flock`, bound each with
+> `timeout`, and time it: high user CPU is a blow-up, ~0 CPU is contention. Never
+> raise `maxHeartbeats`.
 
 Two traps the ladder exposes:
 
@@ -643,39 +607,37 @@ at the end, and keep the rest in the record.
 
 ### 3.7 Porting order inside one effort, and the build economy
 
-An effort's *internal* order is a planning object, not an accident of the pin's file
-list. The order that carried the Deligne–Serre 54-node slice
+An effort's *internal* order is a planning object, not an accident of the pin's
+file list. The order that carried the Deligne–Serre 54-node slice
 ([topics/PORTING-DeligneSerre.md](topics/PORTING-DeligneSerre.md); record
 [logs/deligne-serre-port.md](logs/deligne-serre-port.md)):
 
 1. **Definitions first**, in their own import order. Nothing can be stated before
    them, and they are leaves — cheap to build and to re-check.
 2. **Shared blocks into *new* files second.** A new file touches nothing, so this
-   phase cannot cascade. Scope it from `port_advise`, and scan by hand for repeated
-   *definitions*: the tool's dedup counts proofs and misses a repeated `def`.
+   phase cannot cascade. Scope it from `port_advise`, and scan by hand for
+   repeated *definitions*: the tool's dedup counts proofs and misses a repeated
+   `def`.
 3. **Reconciliations in *existing* files third**, in one pass, then freeze them.
    This is the only phase that re-elaborates existing modules.
-4. **Theorem sets, importees first**, cut by mathematical subject rather than by pin
-   file, each set importing only levels below it.
+4. **Theorem sets, importees first**, over whole nodes — each set importing only
+   levels below it, and a node never split between sets (§2.3).
 
-Then execute it as sets (§3.4): one work order and one subagent per set, the manager
-reviewing the tree before the next order is written. Two rules make the hand-off
-real — a frozen file is never reopened (resolve locally, append to the friction log,
-and let a final **refactor round** promote), and a worker who reaches an unported
-prerequisite **stops at the boundary and reports** rather than editing a closed file
-or weakening a statement.
+Then execute it as sets (§3.4): one work order and one subagent per set, the
+manager reviewing the tree before the next order is written. Two rules make the
+hand-off real — a frozen file is never reopened (resolve locally, append to the
+friction log, and let a final **refactor round** promote), and a worker who
+reaches an unported prerequisite **stops at the boundary and reports** rather than
+editing a closed file or weakening a statement.
 
 **Why the order is a build-cost decision.** With a forward-import DAG a worker's
-module is usually already built, so each set closes on per-module builds of seconds
-and the only whole-tree build is the milestone. Deligne–Serre wrote ≈15,200 lines;
-phase D touched only its own eleven modules' `.olean`s, every set closed on 2–20 s
-builds, and the single whole-tree build was the milestone gate (4,805 jobs, green,
-seconds, because little was stale). The expensive alternative is transcribing pin
-files in filesystem order: each new file then sits under a large cone that has to be
-re-elaborated, and the full build is paid again at every step. The four ladder rules
-(§3.5) are what keep it cheap — `lake env lean` per file, `lake build <module>` per
-module, **no bare whole-tree build during a phase**, one at the milestone — all
-serialized with `flock` and bounded with `timeout`.
+module is usually already built, so each set closes on per-module builds of
+seconds and the only whole-tree build is the milestone: one ≈15,200-line effort
+touched only its own eleven modules' `.olean`s, every set closed on 2–20 s builds,
+and the milestone gate was 4,805 jobs in seconds. Transcribing pin files in
+filesystem order instead puts each new file under a large cone that must be
+re-elaborated, paying the full build at every step. The four ladder rules (§3.5)
+are what keep it cheap.
 
 ## 4. Faithfulness, made mechanical
 
@@ -700,15 +662,14 @@ instruments, all cheap:
      or the name is shadowed.
    - **A `scoped instance` is invisible to the checker on both sides** (`DECL_RE`
      admits only `private`/`noncomputable` before the kind), so it is neither
-     matched nor reported missing. SC's `instIsEllipticWeierstrassCurve` landed that
-     way; downstream consumers activate it with `open scoped <Namespace>`. Keep
+     matched nor reported missing. A `scoped instance` landed that way;
+     downstream consumers activate it with `open scoped <Namespace>`. Keep
      `scoped` exactly where the pin has it — dropping it turns the declaration
      visible and creates a spurious `MISSING IN FLT`.
-   - **Order `SOURCES` so the interface copy wins**, and **append new entries
-     last** so a bare last-name match cannot flip.
-   - **A shadowed last name is disambiguated by its dotted name**, and the
-     exemption, when needed, is by full dotted name (widening the lookup key can
-     break earlier promotions).
+   - **Order `SOURCES` so the interface copy wins and append new entries last**,
+     so a bare last-name match cannot flip; a shadowed last name is disambiguated
+     by its dotted name (the exemption, when needed, is by full dotted name —
+     widening the lookup key can break earlier promotions).
    - **The diff is textual, not elaborated.** A public declaration must spell its
      binders exactly as the copy the checker will match — in practice the
      `Theorems/` wrapper, not the `S_` file. The file builds either way because
@@ -716,69 +677,43 @@ instruments, all cheap:
      the wrapper and use the `S_` file only for the proof body. This rule recurred
      for four consecutive topics before it was applied from the start.
    - **A `def` whose pin binders came from a `variable` must keep them there.**
-     The textual rule has a `def`-flavoured twin (ds-head, 2026-10-07): the pin's
-     `variable (K F F') in def CanonicalDifferentDegree (d : ℚ) : Prop` has
-     checker text `(d : ℚ) : Prop`, because section variables — even when made
-     explicit by `variable (…) in` — never appear in the raw source. Spelling them
-     inline (`def CanonicalDifferentDegree (K F F' : Type*) […] (d : ℚ) : Prop`)
-     builds but reports **MISMATCH**. Transcribe the `variable … in` (or section)
-     form verbatim for every `def`/`abbrev` that takes type/field arguments, and
-     re-run the checker on the new module *before* trusting the build — this one
-     surfaced before the module compiled. Same class as "unused section variables
-     are auto-omitted" (§6) and as the wrapper-vs-`S_` rule above; the checker is
-     the only instrument that sees it.
+     Section variables — even when made explicit by `variable (…) in` — never
+     appear in the raw source, so spelling them inline builds but reports
+     **MISMATCH**. Transcribe the `variable … in` (or section) form verbatim for
+     every `def`/`abbrev` that takes type/field arguments, and re-run the checker
+     before trusting the build. Same class as "unused section variables are
+     auto-omitted" (§6); the checker is the only instrument that sees it.
    - **The `kw_` prefix is erased on both sides, in the name *and inside the
-     statement*.** `norm` drops it, for the same reason it drops the
-     `ModularCurve.`/`AlgebraicCurve.` qualification: a promoted helper is renamed
-     at the prefix-stripped pin name, so the prefix is noise for a statement diff.
-     The in-statement erasure is load-bearing, not cosmetic — a declaration whose
-     statement *mentions* a promoted map (`kw_functionFieldMapAlongGeneralNoAC_polyToFunctionField_X`
-     states `kw_functionFieldMapAlongGeneralNoAC W F F' (polyToFunctionField (W⁄F) X)
-     = polyToFunctionField (W⁄F') X`) could not be promoted at all without it: the
-     renamed map changes the statement text and the diff fails (measured 2026-10-06
-     in P-2's D-1: 20 `missing`). With the erasure, `kw_foo` and `foo` are comparable
-     everywhere and the rename moved only the 56 declarations it touched. One
-     consequence for reading the report: a one-token drift in a **promoted**
-     declaration surfaces as `missing`, not `mismatched` (the name resolves to no
-     public pin copy and its statement no longer matches the stripped one), so when a
-     column carries promotions, read `missing` as well as `mismatched`. The erasure must
-     also fire after a `.`: a *method-style* reference (`L.kw_toPointHom`) has to match
-     `L.toPointHom`, and excluding the dot from the lookbehind cost 5 `missing` in P-2's
-     D-5 (fixed; `6000 (313, 62) / 5 missing` → `6005 (313, 67) / 0 missing`, nothing else
-     moved). The erasure is monotone — both sides are normalised identically and `find`
-     returns only already-matching candidates — so it can only turn a mismatch into a
-     match.
+     statement*.** A promoted helper is renamed at the prefix-stripped pin name,
+     so the prefix is noise for a statement diff. The in-statement erasure is
+     load-bearing, not cosmetic: a declaration whose statement *mentions* a
+     promoted map could not be promoted at all without it, since the renamed map
+     would change the statement text. Consequence: a one-token drift in a
+     **promoted** declaration surfaces as `missing`, not `mismatched`, so when a
+     column carries promotions, read `missing` as well as `mismatched`. The
+     erasure must also fire after a `.` (a *method-style* reference
+     `L.kw_toPointHom` must match `L.toPointHom`), and it is monotone — it can
+     only turn a mismatch into a match.
    - **The checker reads modifiers from the declaration's own line and ignores
-     `scoped`**; run its `raw_declarations` directly on a module not yet in
-     `PORT_FILES` when you want a faithfulness probe without wiring it in.
-     Definition-only modules get coverage by name against the pin's
-     `Definitions/` files.
-   - **It is text-only, so it works on a module whose proofs do not elaborate**
-     (found 2026-10-06, set D-6: the one instrument that still answers while a
-     module is red). It never invokes Lean — it parses the sources in
-     `PORT_FILES` and diffs statements — so a `mismatched`/`missing` verdict, and
-     the `identical` count, are available *before* and *independently of* the
-     proof compiling. When a module is stuck in a long or failing edit loop
+     `scoped`**, and it is text-only — it never invokes Lean, so it works on a
+     module whose proofs do not elaborate. Run `raw_declarations` directly on a
+     module not yet in `PORT_FILES` for a faithfulness probe (definition-only
+     modules get coverage by name against the pin's `Definitions/` files), and
+     when a module is stuck in a failing edit loop
      ([../notes/lean-build-cost.md](../notes/lean-build-cost.md) §2), run the
-     checker first: a statement-shaped problem outranks the proof problem, and
-     the proof's own progress is not measured by it either way.
-   - **`--` line comments mis-align the checker's namespace tracker** (found
-     2026-10-07, set S-1). `namespace_events` strips block comments through
-     `strip_comments` but line comments through a *second* pass, so a `--` comment
-     anywhere shifts every later event position and every later declaration is
-     attributed to the wrong enclosing namespace. The **primary** last-name lookup
-     is unaffected — all statements still matched `0/0` — but the *dotted* name
-     (used by `OWN_PROOFS`, the `dotted_source` fallback and the `--prop-bodies`
-     key) is wrong, so a declaration can look like it is in the next namespace.
-     Write header prose in `/- … -/` blocks, or verify the dotted names with
-     `raw_declarations` before relying on one.
+     checker first: a statement-shaped problem outranks the proof problem.
+   - **`--` line comments mis-align the checker's namespace tracker**: block
+     comments are stripped in one pass and line comments in a second, so a `--`
+     comment shifts every later namespace event. The **primary** last-name lookup
+     is unaffected, but the *dotted* name (used by `OWN_PROOFS` and
+     `--prop-bodies`) is wrong. Write header prose in `/- … -/` blocks.
 2. **A consumer** (`spec/<X>Consumer.lean`) outside every library. Its error
-   count is the deliverable metric, and each zone must contain a **real,
-   executed cross-module composition** — no `#check`s, no `sorry`; deleting any
-   one module must make it fail. A module can build green and sit in no import
-   chain at all, and nothing fails until it is used. Extend the zones per set,
-   each zone recording a different kind of claim. Where a concrete instantiation
-   needs unported hypotheses, state the test in hypothesis form and keep the named
+   count is the deliverable metric, and each zone must contain a **real, executed
+   cross-module composition** — no `#check`s, no `sorry`; deleting any one module
+   must make it fail. A module can build green and sit in no import chain at all,
+   and nothing fails until it is used. Extend the zones per set, each zone
+   recording a different kind of claim. Where a concrete instantiation needs
+   unported hypotheses, state the test in hypothesis form and keep the named
    instance `private` inside the module; prefer zones whose hypotheses are all
    discharged from ported material, add a non-vacuity `example` when the port adds
    a corollary with no pin counterpart, and use `#eval` for numeric checks. A
@@ -793,31 +728,28 @@ instruments, all cheap:
 4. **A coverage report**, where one exists, closed to `0 / 0 / 0`.
 
 When the capstone is conditional, track its debt counter as each field lands
-(FFG: 7 → 0) and price the deferred cluster separately. When every premise is an
-argument or already proved, the consumer's abstract-square wire test is the
-capstone's analogue, and saying so is a finding (AC has no `Spine.lean`).
+(the `functionFieldGeneration` capstone: 7 → 0) and price the deferred cluster
+separately. When every premise is an argument or already proved, the consumer's
+abstract-square wire test is the capstone's analogue, and saying so is a finding
+(the `AlgebraicCurve` port has no `Spine.lean`).
 
-When a public helper moves or is demoted, two mechanical consequences:
-demotion drops it from the compared count by exactly the number demoted (the
-expected signal, not a silent loss), and a move must update `PORT_FILES` at the
-new path or the declaration silently stops being verified.
+When a public helper moves or is demoted, two mechanical consequences: demotion
+drops it from the compared count by exactly the number demoted (the expected
+signal, not a silent loss), and a move must update `PORT_FILES` at the new path or
+the declaration silently stops being verified.
 
 ## 5. Structure and sharing across theories
 
 The aim is that **real mathematics is written once**. Expense is distance from
-mathlib (§1), so a real result left `private` and re-derived in the next theory
-is pure loss; glue and trivia are not worth exporting.
+mathlib (§1), so a real result left `private` and re-derived in the next theory is
+pure loss; glue and trivia are not worth exporting.
 
 - **The measure is mathematical content relative to the project**, not size or
-  today's consumer count. The test: what would another theory otherwise have to
-  re-derive?
-- **`Defs/` is for structures that carry later mathematics** (`IntegralStructure`,
-  `Eigenform`, `HeckeOperator`). A file of general lemmas does not belong there,
-  however general; a trivial abbreviation does not either, because its content is
-  trivial.
-- **Share real math; do not re-derive it.** A rearrangement, identity,
-  finiteness or summability result another theory could need gets a public home
-  even with one consumer today.
+  today's consumer count; the test is what another theory would otherwise have to
+  re-derive. `Defs/` is for structures that carry later mathematics
+  (`IntegralStructure`, `Eigenform`, `HeckeOperator`), not a file of general
+  lemmas or a trivial abbreviation. Share real math even with one consumer today,
+  but keep glue and trivia unexported.
 - **A theory exports only from its own domain.** A fact about `ZMod` residue
   classes or a `tsum` over `divisorsAntidiagonal` must not be reachable by
   importing the Eisenstein module.
@@ -833,71 +765,50 @@ is pure loss; glue and trivia are not worth exporting.
   same case: declare the more general copy once — the one the pin's own proof
   produces — and let the stronger-binder consumers resolve to it; the checker
   matches any pin candidate, and the `--prop-bodies` pass confirms the body.
-  (S-2's `KwD5BetweenCurvesIndexDual`.)
-- **Namespace policy is decided before the wave.** A home's public names must be
-  reachable under the spelling consumers already use, or the wave breaks even
-  when statements match. A home may keep an internal namespace and export an
-  alias in the consumers' namespace, but the two must agree.
-- **Check for co-import collisions before the consumer is designed.** Two library
-  modules can each be green while being **unimportable together**: a public name
-  declared in both (`WeierstrassCurve.Affine.normFormulaAlong_of_elliptic` in the
-  Vélu `Velu/RestrictAlong.lean` and the H5 `IsogenyEndDatum/Engine.lean`), or a plain
-  and a `scoped` instance of the same class (`instInfinitePlace` in `Engine.lean:90`
-  and `Place/RRSpace.lean:444`). No graph tool sees it; it surfaces as `environment
-  already contains …` only when a consumer needs both cones. The Vélu V2 wave paid for
-  it twice: SET-1's consumer had to become a separate `spec/` file, and its gateway zone
-  had to state the gate instances as hypotheses instead of discharging them. Grep the
-  planned consumer's import set for duplicate declaration names across modules before
-  writing the zones, and register a collision in
+- **Namespace policy is decided before the wave, from the pin's own namespace and
+  sibling vocabulary** (one directory was `ModularCurve/` because every pin file
+  was `*_ModularCurve_*` and the shared `dedekindPsi` already lived there). A
+  home's public names must be reachable under the spelling consumers use, or the
+  wave breaks even when statements match; an internal namespace plus a
+  consumer-namespace alias is fine if the two agree.
+- **Check for co-import collisions before the consumer is designed.** Two modules
+  can each be green while being **unimportable together** — a public name declared
+  in both, or a plain and a `scoped` instance of the same class. No graph tool
+  sees it; it surfaces as `environment already contains …` only when a consumer
+  needs both cones. Grep the planned consumer's import set for duplicate
+  declaration names, and register a collision in
   [CARRY-FORWARD.md](CARRY-FORWARD.md) rather than renaming a frozen public name
   mid-wave.
-- **When a collision is between a pin name and one of ours, the fix is `private`, not
-  a rename** (decided 2026-10-06). A `private` declaration's name is mangled
-  (`_private.<Module>.<n>.<name>`), so it cannot clash at the environment level with a
-  public name from another module — the same mechanism that already lets the tree
-  carry a `private` duplicate of a public theorem. So the resolution for
-  `instInfinitePlace` (`Engine.lean:90`, ours) against `RRSpace.lean:444`'s
-  pin-public `scoped instance` is to mark ours `private`: no rename, no shim, no
-  `spec/` split, and the instance stays findable by instance search downstream. Two
-  things to reconcile in the confirming build: the checker reads only non-private
-  declarations (add it to `OWN_PROOFS` *with its reason* if it was being compared), and
-  every consumer that relied on the instance by name must still elaborate. **Do not
-  make the edit while another set is mid-check** — a cascade through a shared module
-  invalidates the run being watched.
-- **`private` and local instances are a first-class build tool, and our verification
-  does not depend on the elaborator.** Prefer a local `haveI`/`letI` or a `private`
-  instance over making instance search find something globally: it is cheaper to
-  elaborate, it cannot collide, and the statement checker is text-only, so nothing
-  about faithfulness rests on a declaration being public. Reserve *public* for the
-  pin's own names and the port's exported API. (`notes/lean-build-cost.md` §2 shows what
-  instance search costs when it goes wrong.)
-- **Choose the directory and namespace from the pin's own namespace and sibling
-  vocabulary**, not from the managing effort: one topic was retargeted to
-  `ModularCurve/` because every pin file was `*_ModularCurve_*`, its headlines
-  were `ModularCurve.*`, and the shared `dedekindPsi` already lived there.
-- **Promote to the module where the needed type is available**, even if the work
-  order says otherwise, and **rename at promotion when the pin name is already
-  taken publicly**, keeping a local alias for existing consumers.
-- **Host a node on the leaf side of a hub boundary when the mathematics admits
-  either home** (ds-head, 2026-10-07). The statement checker is module-agnostic —
-  it only needs the declaration's home listed in `PORT_FILES` — so the home is a
-  build-cost decision. The approved cut put `genus_eq_genusFF` in
-  `RiemannRoch/Assembly.lean`; `build_ladder.py --edit` priced that hub at 56
-  modules / 39,742 lines ≈ 484 s, while `ResidueTheorem/RRAssembly.lean` has zero
-  dependents and already hosted the sibling `genus_eq_degree_div` /
-  `…stichtenothGenus_eq_genus_of_weilMax` identifications. Moving the two nodes to
-  the leaf cost one `import` and made the whole-tree build 7 s instead of ~14 min.
-  Record the deviation (the recon/friction log did); do not silently reverse a
-  work order, and do not use this to split a genuine theory across modules.
+- **When a collision is between a pin name and one of ours, the fix is `private`,
+  not a rename.** A `private` name is mangled (`_private.<Module>.<n>.<name>`), so
+  it cannot clash at the environment level. Mark ours `private`: no rename, no
+  shim, no `spec/` split, and the instance stays findable by search. Reconcile in
+  the confirming build: the checker reads only non-private declarations (add it to
+  `OWN_PROOFS` with its reason if it was compared), and consumers that relied on
+  the instance by name must still elaborate. **Do not make the edit while another
+  set is mid-check.**
+- **`private` and local instances are a first-class build tool, and our
+  verification does not depend on the elaborator.** Prefer a local `haveI`/`letI`
+  or a `private` instance over making instance search find something globally: it
+  is cheaper to elaborate, it cannot collide, and the statement checker is
+  text-only, so nothing about faithfulness rests on a declaration being public.
+  Reserve *public* for the pin's own names and the port's exported API.
+  (`notes/lean-build-cost.md` §2 shows what instance search costs when it goes
+  wrong.)
+- **Home is a build-cost decision.** Promote to the module where the needed type
+  is available, rename at promotion when the pin name is taken (keeping a local
+  alias), and host a node on the leaf side of a hub boundary when the mathematics
+  admits either home: moving two nodes from a 56-module / 39,742-line hub to a
+  zero-dependency leaf changed the whole-tree build from ~14 min to 7 s. The
+  checker is module-agnostic (it needs only the home in `PORT_FILES`). Record the
+  deviation; do not use this to split a genuine theory across modules.
 - **Name a promoted helper at the prefix-stripped pin name** (`kw_g₂_ofTau` →
   `g₂_ofTau`); the checker verifies the promotion through its `stripped_source`
-  fallback, printing `RENAMED`, and the criterion is *promotion*, not the pin's
-  `private` marker — the five `renamed` rows of P-SET-1/P-SET-2 are all pin-*public*
-  `kw_` declarations the port re-homed. A pin declaration merely transcribed at its pin
-  name keeps the pin's name, `kw_` included; a module-local helper is `private` with a
+  fallback, printing `RENAMED`. A declaration merely transcribed at its pin name
+  keeps the pin's name, `kw_` included; a module-local helper is `private` with a
   content name. Never leave a declaration both public and stripped. Stripping a
-  pin-public helper that has consumers outside the effort is deferred, not skipped:
-  record it in [CARRY-FORWARD.md](CARRY-FORWARD.md)'s open follow-ups.
+  pin-public helper with consumers outside the effort is deferred, not skipped:
+  record it in [CARRY-FORWARD.md](CARRY-FORWARD.md).
 - **Export a topic's outbound interface so the next topic imports instead of
   copying** — one topic exported its `RealL`/closure and two Cauchy lemmas
   precisely because the pin duplicates them in the next topic's file.
@@ -948,13 +859,12 @@ instantiated at `ℍ → ℂ` unfolds `DFunLike.coe` without bound;
 *both* the 200,000 default and the project's 4,000,000 cap, so the cap is not the
 lever. Pass the bundled form (or restate over the concrete function).
 
-**A large slow module is usually cumulative, not one blow-up.** Before bisecting,
-bisect *by milestone*: one 3,761-line module was 53 s of `lake env lean`, of which
-4.5 s was the head and the rest spread across successive sections, with no single
-declaration over the default cap. Compare with a genuine blow-up, which has one
-declaration and one error. Attribute a slow module to defeq/instance synthesis
-(a tensor-product/`Localization` module ran 41 s against 2–5 s for its
-neighbours), and budget the next heavy module accordingly.
+**A large slow module is usually cumulative, not one blow-up.** Bisect *by
+milestone*, not by declaration: one 3,761-line module was 53 s of `lake env lean`,
+4.5 s at the head and the rest spread across sections, with no single declaration
+over the default cap. A genuine blow-up has one declaration and one error.
+Attribute a slow module to defeq/instance synthesis and budget the next heavy
+module accordingly.
 
 **`backward.isDefEq.respectTransparency.types false` is often the pin's own
 setting**, not a port hack — the pin sets it in eleven places, and without it the
@@ -980,28 +890,22 @@ private def ifRE (S T : IntermediateField K L) (h : S = T) : ↥S ≃+* ↥T whe
 `haveI` should be `have`.
 
 **Instance-search timeouts** are fixed by explicit local instances
-(`Algebra.IsIntegral.of_finite`, `Module.Free.of_divisionRing`), not by a larger
-budget. Naming the element can be necessary as well as the explicit instance: an
-`Algebra.IsAlgebraic (adjoin K {t}) F` goal whose `t` is a large subtype term times
-out in the *search for `Algebra.IsAlgebraic` itself* until the element is bound once
-(`private abbrev`) **and** the instance supplied (`Algebra.IsAlgebraic.of_finite _ _`).
-Every such case is recorded, with a re-runnable guard, in
-[instance-friction.md](instance-friction.md) (`spec/InstanceFriction.lean`); add an
-entry when instance search is the cost, and re-measure it after a mathlib bump.
+(`Algebra.IsIntegral.of_finite`, `Module.Free.of_divisionRing`), not a larger
+budget, and sometimes by naming the element too: an `Algebra.IsAlgebraic (adjoin K
+{t}) F` goal times out in the *search itself* until `t` is bound once (`private
+abbrev`) **and** the instance supplied. Every such case is recorded, with a
+re-runnable guard, in [instance-friction.md](instance-friction.md)
+(`spec/InstanceFriction.lean`); add an entry and re-measure after a mathlib bump.
 
 **Two `Algebra`-like instances in one context is a type error, not a cost.** A
 `letI : Algebra ℚ K := DivisionRing.toRatAlgebra` in a declaration's *statement*
-does **not** agree with an ambient `variable [Algebra ℚ K]`. They are different
+does **not** agree with an ambient `variable [Algebra ℚ K]`: they are different
 `Algebra` structures, so `K₀ : IntermediateField ℚ K` denotes two different types
-(`@IntermediateField ℚ K … inst✝` vs `… this`) and the failure is a hard
-`Type mismatch` at the `∃`-intro — which downstream reads as `isDefEq`/`whnf`
-noise and gets misdiagnosed as a budget problem. Keep exactly **one**: if the
-statement carries the pin's `letI`, its section must not also carry
-`[Algebra ℚ K]`. Diagnose with a three-line `example` that `rfl`s the two types;
-do not restructure the proof. The pin gets away with mixing because the `letI`
-lives in a `Prop` (`∀ (K) [Field K] …, letI …`) with *no* ambient `[Algebra ℚ K]`,
-and reaches its proof helper only as the implicit instance argument at the call
-site. (Set D-6; `topics/velu/WORKORDER-P3-two-curve-descent.md` §9.)
+and the failure is a hard `Type mismatch` at the `∃`-intro — which downstream
+misreads as `isDefEq`/`whnf` noise and misdiagnoses as a budget problem. Keep
+exactly **one**: if the statement carries the pin's `letI`, its section must not
+also carry `[Algebra ℚ K]`. Diagnose with a three-line `example` that `rfl`s the
+two types; do not restructure the proof.
 
 **An instance keyed on a semireducible `def` is invisible to search.** mathlib
 supplies `instance : (W.map f).IsElliptic`, but a goal written `E⁄R` cannot reach
@@ -1023,94 +927,60 @@ them turns a one-line bridge into ten engine-call timeouts. Register:
 instance's head is a term built by a `def`, search cannot cross that `def`;
 supply the brick explicitly.**
 
-**Recipe: capture what search picked, then provide the instance by hand, so search
-never runs.** This is the default response to an instance-shaped failure, and it is
-mechanical. An instance
-brick is a **cache of a synthesis result**, so it has a key (the goal's exact
-spelling — search matches a local instance by syntactic head before it tries
-anything), a value (the term search would have built), and an invalidation rule;
-all three have to be right, and only the first two are checked by elaboration:
+**Recipe: capture what search picked, then supply the instance by hand, so search
+never runs.** This is the default response to an instance-shaped failure. A brick
+is a **cache of a synthesis result**: a key (the goal's exact spelling — search
+matches a local instance by syntactic head first), a value (the term search would
+have built), and an invalidation rule.
 
-1. get the exact goal **and the term search picks** — `#synth <goal>` prints the
-   instance term it would use (or its exact failure text), and
-   `set_option trace.Meta.synthInstance true`, or
-   `set_option diagnostics true` on the failing declaration, gives the path and
-   the cost. Record the printed term: it is the *value* the brick must reproduce,
-   not merely some term of the right type;
-2. `haveI : <the goal, verbatim> := inferInstanceAs (<the same type at the
-   spelling search can handle>)`. A *local* instance is matched by syntactic key
-   before any search, so the cost of the goal drops to zero;
-3. if no instance exists at **any** spelling, the brick must be *proved*, not
-   looked up. The common case is a missing tower:
-   `haveI : IsScalarTower R A C := IsScalarTower.of_algebraMap_eq fun r => by rw
-   [IsScalarTower.algebraMap_apply R K C, IsScalarTower.algebraMap_apply A K C,
-   IsScalarTower.algebraMap_apply R A K]` — one `rw` per known tower. (A circular
-   `rw` of the goal's own tower is the trap that wastes the round; check that each
-   `algebraMap_apply` has its hypothesis before writing it.)
-4. state the `haveI` in the **goal's spelling**. A local instance on the unfolded
-   spelling does not match a goal written with the notation, and search falls
-   through to the same wall.
-5. when the instance itself carries **further instance arguments** (`GenusOnePlaceGate.IsCentred W`
-   carries a `GenusOnePlaceGate W`; `AbelTheorem W` carries both), use `letI` rather than `haveI`
-   for the bridge. `letI` *inlines* the value, so the use site's instance arguments become
-   literally the caller's terms; `haveI` leaves a distinct local fvar and the argument check
-   fails with "synthesized type class instance is not definitionally equal". The same applies to
-   discharging a `∀ [DecidableEq …]` block: the pin's `subst hdec` (with
-   `hdec : instDec = localInstance := Subsingleton.elim _ _`) is what aligns the two, because
-   proof irrelevance is only *propositional* — `clear` cannot do it when an earlier `let`
-   depends on the instance.
+1. **Capture the term** — `#synth <goal>` prints the instance it would use (or its
+   failure text); `set_option trace.Meta.synthInstance true` / `diagnostics true`
+   gives the path and the cost. Record the printed term: it is the *value* the
+   brick must reproduce.
+2. **Supply it in the goal's spelling** —
+   `haveI : <goal, verbatim> := inferInstanceAs (<same type, spellable form>)`.
+   A local instance is matched by syntactic key before any search, so the goal's
+   cost drops to zero; one stated on the *unfolded* spelling does not match a goal
+   written with notation.
+3. **If no instance exists at any spelling, prove it.** The common case is a
+   missing tower: `haveI : IsScalarTower R A C := IsScalarTower.of_algebraMap_eq
+   fun r => by rw [IsScalarTower.algebraMap_apply R K C,
+   IsScalarTower.algebraMap_apply A K C, IsScalarTower.algebraMap_apply R A K]` —
+   one `rw` per known tower. (A circular `rw` of the goal's own tower wastes the
+   round.)
+4. **Use `letI` when the instance carries further instance arguments** (e.g.
+   `AbelTheorem W` carries a `GenusOnePlaceGate W`): `letI` *inlines* the value so
+   the caller's terms become the use site's instance arguments, while `haveI`
+   leaves a distinct local fvar and the argument check fails with "synthesized
+   type class instance is not definitionally equal". The same applies to a
+   `∀ [DecidableEq …]` block, where the pin's `subst hdec` aligns the two.
 
-Capture and transcribe as one loop, in a gitignored `tmp/` probe with the module's
-own imports so the spellings and instances match:
+Capture the term with `#synth <goal>` (or `set_option trace.Meta.synthInstance
+true` / `diagnostics true` on the failing declaration) in a gitignored `tmp/` probe
+with the module's own imports, so the spellings match. For a problem the register
+already knows, `spec/InstanceProbe.lean` holds one labelled `#probe` per entry and
+`spec/check_instance_probes.py` diffs its output against the recorded terms
+(`RECAPTURE` / `REGRESS` / `RETIRE?`); re-run it after a mathlib bump — a stale
+brick is invisible, not wrong, so the guard, not the build, notices.
 
-```lean
-#synth <goal>                          -- the term search picks, or its failure text
-#synth <goal at a candidate spelling>  -- which spelling is reachable, and with what term
-set_option trace.Meta.synthInstance true in example : <goal> := inferInstance
-set_option diagnostics true in set_option diagnostics.threshold 1 in
-  example : <goal> := inferInstance
-```
-
-For a problem the register already knows, the capture is not re-derived by hand:
-`spec/InstanceProbe.lean` holds one labelled `#probe` per entry and
-`spec/check_instance_probes.py` diffs its output against the recorded terms,
-reporting `RECAPTURE` / `REGRESS` / `RETIRE?`. Re-run it after a mathlib bump and
-when a probed module changes; a stale brick is invisible, not wrong, so the checker
-is what notices.
-
-`#synth (E.map (algebraMap R R)).IsElliptic` prints
-`instIsEllipticMap E (algebraMap R R)`; the same goal written `E⁄R` prints
-`failed to synthesize (E⁄R).IsElliptic`. For a **data-valued** class (`Algebra`,
-`Module`, `SMul`, `Fintype`, …) the capture is load-bearing, because a type-only
-guard accepts a wrong brick: `#synth Algebra ℚ K` prints
-`DivisionRing.toRatAlgebra` with only globals in scope and `inst✝` once an ambient
-`[Algebra ℚ K]` is, and those are different *values* that coincide in type alone.
-A brick naming the other one is invisible until a context later needs the
-definitional equality — exactly D-6 §2.3's hard `Type mismatch`. Assert the value
-where the class carries data:
-
-```lean
-example : (<brick> : <class> <args>) = <the captured term> := rfl
-```
+For a **data-valued** class (`Algebra`, `Module`, `SMul`, `Fintype`, …) the
+capture is load-bearing: a type-only guard accepts a wrong brick, because e.g.
+`DivisionRing.toRatAlgebra` and an ambient `inst✝` are different *values* that
+coincide in type. Assert it:
+`example : (<brick> : <class> <args>) = <captured term> := rfl`.
 
 **Place the brick at the narrowest scope that hits it.** Call-site `haveI` →
 section-scoped `private instance`/`letI` → module-level `private instance` →
-public `instance`/`scoped instance`, widening only once the same brick is needed
-at a second site. A local instance is tried as a candidate by every search in its
-scope, so a broad head taxes the whole region while a narrow one is free; `haveI`
-for a Prop-valued class, `letI` when the instance carries further instance
-arguments (step 5).
+public `instance`/`scoped instance`, widening only at a second site. A local
+instance is tried by every search in its scope, so a broad head taxes the whole
+region. Use `haveI` for a Prop-valued class, `letI` when the instance carries
+further instance arguments (step 4).
 
 Hand bricks are also the durable form: they make the module's instance
-requirements explicit and reviewable, where an implicit search is invisible until
-it times out. Being a cache, a brick has an **invalidation rule**: re-run the
-capture after a mathlib bump and when the brick's home module or its goal's
-spelling changes. A brick in a stale spelling is *invisible*, not wrong — search
-falls through it silently — so the register's guard, not the build, is what
-notices. What bricks do **not** fix is keyed rewriting between two spellings
-(`rw`/`erw`) — that is term unification, not typeclass search; only making the
-spellings syntactically equal (or rewriting `⁄`-terms through a `rfl`
-identification) closes it.
+requirements explicit and reviewable. Being a cache, a brick is invalid after a
+mathlib bump or when its home module or the goal's spelling changes. What bricks
+do **not** fix is keyed rewriting between two spellings (`rw`/`erw`) — that is
+term unification, not typeclass search.
 
 **Two declaration-shape facts the checker cannot see.** Unused section variables
 are auto-omitted, so a declaration under `variable (N : ℕ) [NeZero N]` whose body
@@ -1119,50 +989,42 @@ the signature rather than "restoring" it. And `linter.style.haveILetI` fires on 
 `haveI` in a `Prop` goal even when the instance is used; if it came from
 `intro`/`rintro` it is redundant, otherwise prefer `have`.
 
-**`private` is file-scoped but not dot-accessible across namespaces** (found 2026-10-07, set
-S-2). A `private` declaration is reachable later in the same file, but only by its qualified
-name: with `private theorem bar (s : Foo.S) …` in `namespace Foo`, `Foo.bar s` resolves from
-`namespace Baz` while `s.bar` fails with `Invalid field … the environment does not contain
-Foo.S.bar`. The pin gets away with bare names because its shared prelude sits in one file with
-the namespace open. So a re-derived pin-`private` helper used from another namespace in the
-same module must be written `PeriodPair.mem_scale_lattice_iff L α`, not `L.mem_scale_lattice_iff`
-— a six-line probe settles it.
+**`private` is file-scoped but not dot-accessible across namespaces.** A `private`
+declaration is reachable later in the same file, but only by its qualified name:
+with `private theorem bar (s : Foo.S) …` in `namespace Foo`, `Foo.bar s` resolves
+from `namespace Baz` while `s.bar` fails with `Invalid field … the environment does
+not contain Foo.S.bar`. The pin gets away with bare names because its shared
+prelude sits in one file with the namespace open. So a re-derived pin-`private`
+helper used from another namespace in the same module must be written
+`PeriodPair.mem_scale_lattice_iff L α`, not `L.mem_scale_lattice_iff` — a six-line
+probe settles it.
 
-**A "ported prelude" row in a work order is a claim to `grep -c`, not a fact** (recurred
-2026-10-07, sets S-2 and S-3). Both orders listed the pin's inline prelude helpers as "ported;
-import", but eight of S-2's and four of S-3's were `private` in the port (hence unimportable), and
-three more of S-3's — `g₂_cubed_scale`, `jLattice_scale`, and the pin-*public*
-`jLattice_eq_of_lattice_eq` — were absent from the port entirely. `jLattice_eq_of_lattice_eq` was
-absent from `port_advise`'s substitution list too, so only a declaration-line `grep -c` over
-`FLTForHuman/` settles it. Re-derive the `private` ones in the consumer module (`private`, with a
-content name) and land the missing public ones at their pin names; do not spend a wave trying to
-import them.
+**A "ported prelude" row in a work order is a claim to `grep -c`, not a fact.** Pin
+prelude helpers listed as "ported; import" were often `private` in the port (hence
+unimportable) or absent entirely, and one absent public name was missing from
+`port_advise`'s substitution list too — only a declaration-line `grep -c` over
+`FLTForHuman/` settles it. Re-derive the `private` ones in the consumer
+(`private`, content name) and land missing public ones at their pin names.
 
-**A generic cross-theory block belongs in its own top-level area** (set S-3). The pin wrapped its 21
-`ℤ²`-lattice invariants in `namespace QuaternionAlgebra` for no mathematical reason — they mention
-no quaternion and are mathlib-only. Splitting the set into `Algebra/IntPairSubgroup.lean` +
-`Elliptic/PeriodPair/PrimCosetReps.lean` cost one header (~15 lines) and bought a 244-line
-mathlib-only leaf that compiles in ~3 s and cascades to exactly one module; the statement checker
-matches by last name, so the re-homing needed no `SOURCES` work. Do the generic module first — it
-has no theory dependency, so it can be `lake build`-ed once and then held fixed.
+**A generic cross-theory block belongs in its own top-level area.** The pin once
+wrapped 21 `ℤ²`-lattice invariants in `namespace QuaternionAlgebra` for no
+mathematical reason — they are mathlib-only. Re-homing them to
+`Algebra/IntPairSubgroup.lean` cost one header (~15 lines) and bought a 244-line
+leaf that compiles in ~3 s and cascades to one module; the checker matches by last
+name, so no `SOURCES` work was needed. Do the generic module first and hold it
+fixed.
 
 **Iterate in a gitignored `Scratch.lean`.** Put experiments and `#check @name`
 probes there; the most useful probe when a rewrite or instance fails is
 `#check @name` on the lemma you think you are using.
 
 **A `scoped notation` can shadow a *binder name*, and the failure is a parse
-error far from the notation** (found 2026-10-07, set S-1). `open scoped
-Polynomial.Bivariate` brings `scoped notation "Y" => Polynomial.X (R :=
-Polynomial _)`, after which `Y` is a *token*, not an identifier: every `∃ X Y : ℂ →
-ℂ, …` binder and every `⟨…, X, Y, …⟩` pattern in the file becomes a syntax error
-(`unexpected token 'Y'; expected ',' or binderPred` / `expected rcasesPat`), while
-`X` — which Bivariate does *not* scope — still parses, so the error names only the
-second of a pair. The pin does open the scope, but only inside sections whose
-statements use no `Y` binder. Open such a scope per declaration (`open scoped … in
-…`), never file-wide, and spell the notation's expansion in proof terms
-(`(Polynomial.X : Polynomial K[X])`) where a binder named `Y` is needed. This is
-the same class of hazard as `open` name ambiguity (above): a scope can change how
-*identifiers* lex, so it is a whole-file decision.
+error far from the notation.** `open scoped Polynomial.Bivariate` brings
+`scoped notation "Y" => …`, after which `Y` is a *token*: every `∃ X Y : ℂ → ℂ`
+binder and `⟨…, X, Y, …⟩` pattern becomes a syntax error naming only the second of
+a pair. Open such a scope per declaration (`open scoped … in …`), never file-wide,
+and spell the expansion in proof terms where a `Y` binder is needed. Same class as
+`open` name ambiguity: a scope changes how *identifiers* lex.
 
 ## 7. Drift checklist (mathlib `v4.34.0`)
 
@@ -1172,8 +1034,7 @@ a new pin is taken, re-run it and append.
 **The pin is not on this line.** `anthropics/fermats-last-theorem@aa2d8b3` is Lean
 `v4.33.1` / mathlib `db584cd6` (the `v4.33.0` bump); the port is Lean `v4.34.0` /
 mathlib `v4.34.0`. Expect drift in every set, and do not write "the pin is on the
-same mathlib line" into a work order (W2's did, and the implementer had to correct it
-mid-set).
+same mathlib line" into a work order.
 
 | old / expected | `v4.34.0` |
 |---|---|
@@ -1226,48 +1087,45 @@ The recurring *shapes* of drift, beyond a rename:
   equation, and a non-reducible `def` stops elaboration from unfolding (bind the
   value with `let`).
 - **`open` can create name ambiguity** — qualify instead (`UpperHalfPlane.I`).
-- **A `rfl` that used to close can instead burn the whole heartbeat budget.** W2's
-  `Y_mem_of_X_mem` carried a `rfl` for its `hq`; under `v4.34.0` it runs a
-  `whnf` to the 4,000,000-heartbeat cap before failing. The fix is not a bigger cap
-  but naming the missing bridge in the `simp only` list (`Polynomial.map_X`,
-  `IntermediateField.algebraMap_apply`). Treat a slow *definitional* step as an
-  unfolding problem, and look for the lemma that states the equation the `rfl` used
-  to see.
+- **A `rfl` that used to close can instead burn the whole heartbeat budget.** A
+  `rfl` for an `hq` equality ran a `whnf` to the 4,000,000-heartbeat cap before
+  failing. The fix is not a bigger cap but naming the missing bridge in the
+  `simp only` list (`Polynomial.map_X`, `IntermediateField.algebraMap_apply`).
+  Treat a slow *definitional* step as an unfolding problem, and look for the lemma
+  that states the equation the `rfl` used to see.
 - **Self-base-change is not definitional in `v4.34.0`.** The pin lets
   `(E F)⁄F` be `E F` and computes with it; in the port carry
   `have hb : (E F).baseChange F = E F` and transport witnesses with `hb ▸ ⟨e⟩`
-  (the adaptation at `WeierstrassCurve/Velu/CyclicCount.lean:429`). Two sets have now
-  paid for this independently — read that file first.
-- **Transcribe the pin's `linter.*` suppressions exactly; never its `maxHeartbeats`.**
-  The lint options are part of the pin's declaration environment and 86 landed modules
-  carry `set_option linter.unusedSectionVars false`; the review gate is a warning-free
-  tier-1 elaboration. W1's work order said the opposite and cost a cleanup round. Lint
-  classes the pin does *not* suppress are real: fix those as proof edits (`haveI` →
-  `have`, dropping unused `simp` arguments), do not add new suppressions.
+  (the adaptation at `WeierstrassCurve/Velu/CyclicCount.lean:429`). Two sets have
+  now paid for this independently — read that file first.
+- **Transcribe the pin's `linter.*` suppressions exactly; never its
+  `maxHeartbeats`.** The lint options are part of the pin's declaration
+  environment (86 landed modules carry
+  `set_option linter.unusedSectionVars false`), and the review gate is a
+  warning-free tier-1 elaboration. Lint classes the pin does *not* suppress are
+  real: fix those as proof edits (`haveI` → `have`, dropping unused `simp`
+  arguments), do not add suppressions.
 - **The `haveI` style-linter fix is not universal**: instance search may not find
   a plain `have` where `haveI` works, so suppress the linter locally rather than
   weaken the proof.
 - **`omit [NeZero M] in` and file-scope linter suppression keep a pin proof
   verbatim without changing the checker's text**; `set_option … in` cannot follow
   a doc comment (use `--` line comments there).
-- **A pin's `set_option maxHeartbeats N in` is a claim to re-measure, not a fact.**
-  S-4's smul `solution` carries `6_400_000` in the pin and transcribes unchanged
-  under the project-wide `4_000_000`; time the port's own ceiling before budgeting
-  a bump (and never raise the cap to make a declaration fit).
-- **A pin's `synthInstance.maxHeartbeats` bump is the same kind of claim.** SC's
-  capstone carried `synthInstance.maxHeartbeats 1600000` / `maxHeartbeats 16000000`
-  on `complexCase`/`solution0`; both elaborate under the global `4_000_000` cap
-  (module `lake build` 86 s), so neither bump was transcribed. A library theorem can
-  also be cheap while its *concrete-instance* use is not: applying SC's headline at
-  `(PeriodPair.ofTau τ).weierstrassCurve`, or at `L.weierstrassCurve` for an abstract
-  `L`, exceeds 3 m 20 s, because elaborating `FunctionField (ofTau τ)` forces the
-  `PeriodPair.weierstrassCurve`/`AdjoinRoot` defeq stack and its instance search.
-  Keep a `spec/` consumer's capstone zone hypothesis-form (gate instances and the
-  along-map as binders) and put concreteness in the ground field, not in a
-  concrete `def`'s function field.
-- **`time` under-reports `lake env lean`.** `lake` forks `lean`, so the grandchild's
-  CPU is not charged to the measured command; a run that reports `user 0m0.5s` can be
-  elaborating hard. Treat wall time as the real figure (and do not conclude "hung").
+- **A pin's `set_option maxHeartbeats N in` is a claim to re-measure, not a
+  fact.** The pin may carry `6_400_000` where the project-wide `4_000_000`
+  suffices; time the port's own ceiling before budgeting a bump (and never raise
+  the cap to make a declaration fit).
+- **A pin's `synthInstance.maxHeartbeats` bump is the same kind of claim.** A
+  capstone carrying `synthInstance.maxHeartbeats 1600000` / `maxHeartbeats
+  16000000` elaborated under the global `4_000_000` cap, so neither bump was
+  transcribed. A library theorem can also be cheap while its *concrete-instance*
+  use is not: applying a headline at a concrete `weierstrassCurve` can exceed
+  3 m 20 s through the `AdjoinRoot` defeq stack. Keep a `spec/` capstone zone
+  hypothesis-form and put concreteness in the ground field.
+- **`time` under-reports `lake env lean`.** `lake` forks `lean`, so the
+  grandchild's CPU is not charged to the measured command; a run that reports
+  `user 0m0.5s` can be elaborating hard. Treat wall time as the real figure (and
+  do not conclude "hung").
 - **`end A.B` closes *both* nested scopes.** Under `namespace A` / `namespace B`,
   `end A.B` also ends `A`, silently de-nesting every declaration after it; write
   two bare `end`s. The symptom appears *downstream* of the mistake (unknown
@@ -1287,7 +1145,7 @@ Lean. They live in the unpublished `tools/deps/` tree.
 |---|---|
 | `fltdata.py`, `explore.py` | what a pinned theorem is, its premises, consumers, path |
 | `prune.py` | which nodes a replacement lets the port drop (reachability, not closure) |
-| `frontier.py` | how far a target still is from the ported frontier, in new nodes |
+| `frontier.py` | how far a target still is from the ported frontier, in new **source-file** nodes — so a half-ported file still reads as unported (§2.3) |
 | `port_graph.py` | our port's module/declaration graph: blobs, duplicated private proofs grouped into blocks, promotion candidates, closures |
 | `port_advise.py` | before a port: what the port already has (substitute), what the target set re-proves (port once), what differs only by binders (generalise), and what each public declaration drags |
 | `build_ladder.py` | the dependent cascade of an edit, the cheapest sufficient build under `flock`/`timeout`, a wave plan that re-edits a module, and (`--audit` / `--profile`) which modules are expensive to edit and which declarations cost the time |
@@ -1295,7 +1153,9 @@ Lean. They live in the unpublished `tools/deps/` tree.
 The workflow loop: a coverage report from the pin graph chooses the target;
 `port_advise.py` prices reuse and duplication before coding; `port_graph.py`
 measures the redundancy the port created afterwards; the build ladder and the
-checker are the per-wave gate.
+checker are the per-wave gate. Because `frontier.py` prices in source-file nodes,
+a partial node distorts every later estimate — the operational reason for the
+whole-node rule (§2.3).
 
 Two library-style uses worth knowing:
 

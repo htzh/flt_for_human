@@ -211,9 +211,10 @@ theorem ValuationSubring.exists_integral_mul_eq_of_liesOverPrime
 /-! ## The residue field of a place over `q`
 
 The opening `ValuationSubring` block of the pin's
-`Definitions/Def_WeierstrassCurve_ReductionMap.lean` (pinned `aa2d8b3`). The pin
-continues into the Weierstrass reduction map, which is **not** ported; this half
-is, because the q-expansion column needs it — `ModularCurve/X1/FunctionFieldIsAlgClosed.lean`
+`Definitions/Def_WeierstrassCurve_ReductionMap.lean` (pinned `aa2d8b3`). The pin's
+Weierstrass reduction map is ported separately (`WeierstrassCurve/Reduction/Point.lean`,
+W4 stages 1–2); this half is homed here because the q-expansion column also needs it —
+`ModularCurve/X1/FunctionFieldIsAlgClosed.lean`
 and the `isAlgClosed` finrank target both set
 `CharP (IsLocalRing.ResidueField A) q` from `A.LiesOverPrime q`. It was carried as
 a `private` re-derivation there; it is homed here, publicly, at the pin's names so
@@ -244,6 +245,48 @@ theorem charP_residueField_of_liesOverPrime_def {A : ValuationSubring L} {q : �
     simp
   rw [this]
   exact Ideal.Quotient.eq_zero_iff_mem.mpr (natCast_mem_maximalIdeal_of_liesOverPrime h)
+
+theorem exists_liesOverPrime [CharZero L] {q : ℕ} (hq : q.Prime) :
+    ∃ A : ValuationSubring L, A.LiesOverPrime q := by
+
+  set R : Subring L := ⊥ with hR
+
+  have hqR : ¬IsUnit ((q : ℕ) : R) := by
+    rw [isUnit_iff_exists_inv]
+    rintro ⟨y, hy⟩
+
+    have hy' : (q : L) * (y : L) = 1 := by
+      have := congrArg (R.subtype) hy
+      simpa using this
+
+    obtain ⟨n, hn⟩ := Subring.mem_bot.mp y.2
+    rw [← hn] at hy'
+
+    have hqn : (q : ℤ) * n = 1 := by
+      have : (((q : ℤ) * n : ℤ) : L) = ((1 : ℤ) : L) := by push_cast; linear_combination hy'
+      exact_mod_cast this
+
+    have h1 : (q : ℤ) ≤ 1 := Int.le_of_dvd one_pos ⟨n, hqn.symm⟩
+    have h2 : 2 ≤ q := hq.two_le
+    omega
+
+  obtain ⟨B, -, hB⟩ :=
+    Ideal.image_subset_nonunits_valuationSubring (Ideal.span {((q : ℕ) : R)})
+      (fun h => hqR (Ideal.span_singleton_eq_top.mp h))
+  refine ⟨B, hB ⟨((q : ℕ) : R), Ideal.subset_span rfl, ?_⟩⟩
+  simp
+
+variable (K : Type*) [Field K] [Algebra K L]
+
+lemma mem_inertiaSubgroupIn {A : ValuationSubring L} {σ : L ≃ₐ[K] L} :
+    σ ∈ A.inertiaSubgroupIn K ↔
+      ∃ h : σ ∈ A.decompositionSubgroup K, (⟨σ, h⟩ : A.decompositionSubgroup K) ∈
+        A.inertiaSubgroup K := by
+  constructor
+  · rintro ⟨⟨τ, hτ⟩, hτI, rfl⟩
+    exact ⟨hτ, hτI⟩
+  · rintro ⟨h, hI⟩
+    exact ⟨⟨σ, h⟩, hI, rfl⟩
 
 end ValuationSubring
 

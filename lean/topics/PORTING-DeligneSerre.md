@@ -140,17 +140,15 @@ wave alone** — `exists_inertia_equivariant_reduction_of_variableChange_eq_map`
 handed off (resume at the order's §1a). Story C still waits on that wave. Scoping, the blocker,
 the refactor, the wave plan and the reproduce recipe:
 [deligneSerre/TOPIC-weierstrass-ready-shelf.md](deligneSerre/TOPIC-weierstrass-ready-shelf.md).
-Story C's definition wave is now scoped and **started, then paused for hand-off**: its used block
-is 88 of 145 declarations / 2,081 raw pin lines over four stages
-([WORKORDER-W4](deligneSerre/WORKORDER-W4-definition-wave.md), **resume at §1a**), of which
-**stage 1 landed 2026-10-08** — the pin `Def_WeierstrassCurve_ReductionMap.lean` used block,
-complete: nine public declarations in `WeierstrassCurve/Reduction/Point.lean` plus four
-`ValuationSubring` rows appended to `NumberTheory/ValuationAtPlace.lean`, one wave, checker
-7233 → **7246**, 9,353 jobs / 51.8 s. Stages 2–4 (the remaining **1,923 raw lines**: the
-`TorsionIntegral` estimate chain, `ReduceHom`, `ZeroComponentReduction`) are handed to a new
-session; the wave hangs off just **17 entry points**, tabulated in the order. Scoping, the
-blocker, the refactor, the wave plan and the reproduce recipe:
-[deligneSerre/TOPIC-weierstrass-ready-shelf.md](deligneSerre/TOPIC-weierstrass-ready-shelf.md).
+Story C's definition wave is scoped by the **whole-node rule** (playbook §2.3) and is
+**complete**: the four pin definition modules whole are 145 declarations / 3,078 raw pin lines
+over four stages ([WORKORDER-W4](deligneSerre/WORKORDER-W4-definition-wave.md); stages 2–4 and
+the stage-1 node remainder recorded in its §6). The used block its two headlines reach — 88 of 145
+declarations / 2,081 lines — was the floor and the writing order, not the scope: the remainder
+has consumers elsewhere in the pin, and `frontier.py` prices by source file. **All four stages
+landed 2026-10-08**, checker 7246 → **7368 identical**, 0 mismatched / 0 missing, every stage
+warning-free at tier 1, milestone whole-tree build green (9,357 jobs). Story C's two headlines
+are no longer gated on unported definitions.
 
 The two gates of §7 are still in the unported demand but are not ready; they are
 not on this list and must not be scheduled from it.
@@ -195,10 +193,11 @@ subject without an "and".
 **4. The manager does the shared ground — this is the point of the split.** Before
 any subagent runs:
 
-* **(a) the definition layer.** Home whatever definitions the cluster's pin
-  `Def_*` imports need and the port lacks, at the natural *theory* home rather
-  than a new `Def_`-named file; promote out of `private` whatever the cluster must
-  name. Checked against the pin, wiring appended to `SOURCES`/`PORT_FILES`.
+* **(a) the definition layer, whole node.** Home the pin `Def_*` module the cluster
+  imports **in full** — every declaration with a consumer, not only the block the cluster
+  reaches (playbook §2.3) — at the natural *theory* home rather than a new `Def_`-named file;
+  promote out of `private` whatever the cluster must name. Checked against the pin, wiring
+  appended to `SOURCES`/`PORT_FILES`.
 * **(b) promotions and every other hub edit.** Any edit to an existing module is
   the manager's, not a subagent's: it is the only thing that re-elaborates the
   cone, so it is done once, deliberately, with the price known.
@@ -245,13 +244,15 @@ next cluster.
 
 ## 4. The shared ground
 
-**(a) Definitions first, and check them by hand.** Nothing can be *stated* before
+**(a) Definitions first, whole node, and check them by hand.** Nothing can be *stated* before
 the pin `Def_*` modules the cluster imports exist in the port. They are leaves —
 cheap to build, no cascade — and they are invisible to `frontier.py`'s readiness
 test, so the list is built by reading each target `S_` file's `import` block and
-walking its `Definitions/Def_*.lean` declarations against the port. If only a
-block of a pin definition module is needed (the common case), home that block and
-record the rest as unported.
+walking its `Definitions/Def_*.lean` declarations against the port. **Home the whole module**
+(playbook §2.3): the closure the cluster's proof reaches is the floor and the order, not the
+scope — the rest has consumers elsewhere and `frontier.py` prices by file. A declaration with
+no consumer anywhere is the only exclusion, and it needs a `grep -c` (excluding the pin's
+global `attribute [-simp]` preludes and `p2m_export` rows) to justify.
 
 **(b) `private` is a build tool, not a statement about mathematics.** A helper
 stays `private` when it only adapts another theory, or is generic glue a consumer
@@ -351,7 +352,8 @@ last) is in every work order and in the friction log.
 * The `Gamma0Integral.lean` prelude still exists `private` in its two sibling
   namespaces (`…GammaNBounded`, `…X1BoundedDenominators`); `GammaNBounded`'s
   `IsRat` is a *different formulation*, not a copy, and was deliberately left.
-* `Definitions/Def_WeierstrassCurve_ReductionMap.lean`'s Weierstrass reduction half
-  (`reducePoint`, `equation_residue`, …) is unported; only its `ValuationSubring`
-  block was needed.
+* `Definitions/Def_WeierstrassCurve_ReductionMap.lean`'s used block landed in W4 stage 1
+  (`reducePoint`, `equation_residue`, …); its three remaining declarations
+  (`exists_liesOverPrime`, `mem_inertiaSubgroupIn`, `reducePoint_some_apply_of_mem_inertia`)
+  are in scope with the whole node (W4 §1, §5).
 * The deferred half as in §7, by design.

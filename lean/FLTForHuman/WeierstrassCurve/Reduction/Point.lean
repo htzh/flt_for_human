@@ -135,4 +135,35 @@ theorem reducePoint_neg (P : (W.map A.subtype).toAffine.Point) :
     · rw [reducePoint_some_of_notMem _ _ hx, reducePoint_some_of_notMem _ _ hx]
       rfl
 
+section Inertia
+
+open scoped Pointwise
+
+variable (K : Type*) [Field K] [Algebra K L]
+
+theorem reducePoint_some_apply_of_mem_inertia {σ : L ≃ₐ[K] L}
+    (hσ : σ ∈ A.decompositionSubgroup K)
+    (hσI : (⟨σ, hσ⟩ : A.decompositionSubgroup K) ∈ A.inertiaSubgroup K)
+    {x y : L} (h : (W.map A.subtype).toAffine.Nonsingular x y)
+    (h' : (W.map A.subtype).toAffine.Nonsingular (σ x) (σ y)) :
+    reducePoint hΔ (.some (σ x) (σ y) h') = reducePoint hΔ (.some x y h) := by
+  by_cases hx : x ∈ A
+  · have hy : y ∈ A := Affine.Y_mem_of_X_mem W h.1 hx
+    have hσx : σ x ∈ A := A.smul_mem_of_mem_decompositionSubgroup hσ hx
+    have hσy : σ y ∈ A := A.smul_mem_of_mem_decompositionSubgroup hσ hy
+    rw [reducePoint_some_of_mem _ _ hσx, reducePoint_some_of_mem _ _ hx]
+
+    refine some_congr ?_ ?_ _ _
+    · calc residue A (⟨σ x, hσx⟩ : A)
+          = residue A ((⟨σ, hσ⟩ : A.decompositionSubgroup K) • (⟨x, hx⟩ : A)) := rfl
+        _ = residue A (⟨x, hx⟩ : A) := A.residue_smul_eq_of_mem_inertiaSubgroup hσ hσI _
+    · calc residue A (⟨σ y, hσy⟩ : A)
+          = residue A ((⟨σ, hσ⟩ : A.decompositionSubgroup K) • (⟨y, hy⟩ : A)) := rfl
+        _ = residue A (⟨y, hy⟩ : A) := A.residue_smul_eq_of_mem_inertiaSubgroup hσ hσI _
+  · have hσx : σ x ∉ A := fun hmem => hx (by
+      simpa using A.smul_mem_of_mem_decompositionSubgroup (inv_mem hσ) hmem)
+    rw [reducePoint_some_of_notMem _ _ hσx, reducePoint_some_of_notMem _ _ hx]
+
+end Inertia
+
 end WeierstrassCurve

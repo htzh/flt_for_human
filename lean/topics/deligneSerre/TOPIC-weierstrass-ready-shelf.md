@@ -132,21 +132,19 @@ their use. The rule for the rest of this shelf — and the reason §4a of the co
 
 | pin module | lines | state |
 |---|---:|---|
-| `Definitions/Def_WeierstrassCurve_ReductionMap.lean` | 253 | only its opening `ValuationSubring` block (≈85 lines) is public, in `NumberTheory/ValuationAtPlace.lean`; the Weierstrass half (`reducePoint`, `equation_residue`, the inertia lemmas) is **unported** |
-| `Definitions/Def_WeierstrassCurve_TorsionIntegral.lean` | 1,233 | **unported** |
-| `Definitions/Def_WeierstrassCurve_ReduceHom.lean` | 489 | **unported** |
-| `Definitions/Def_WeierstrassCurve_ZeroComponentReduction.lean` | 1,103 | **unported** |
+| `Definitions/Def_WeierstrassCurve_ReductionMap.lean` | 253 | **ported whole** in W4 stage 1 + completion (`WeierstrassCurve/Reduction/Point.lean`, plus the `ValuationSubring` rows in `NumberTheory/ValuationAtPlace.lean`) |
+| `Definitions/Def_WeierstrassCurve_TorsionIntegral.lean` | 1,233 | **ported whole** in W4 stage 2 (`WeierstrassCurve/Reduction/TorsionIntegral.lean`) |
+| `Definitions/Def_WeierstrassCurve_ReduceHom.lean` | 489 | **ported whole** in W4 stage 3 (`WeierstrassCurve/Reduction/ReduceHom.lean`) |
+| `Definitions/Def_WeierstrassCurve_ZeroComponentReduction.lean` | 1,103 | **ported whole** in W4 stage 4 (`WeierstrassCurve/Reduction/ZeroComponent.lean`) |
 
-So story C is a **manager definition wave first** (home the used blocks, price each with
-`build_ladder.py --edit`), then a theorem set. It is not dispatchable now, and a subagent
-must not be handed it. **The wave is now scoped and started**: the *used* block across the
-four pin modules is 88 of 145 declarations / **2,081 raw lines** (measured by closing the two
-`S_` files' references over the pool's own bodies), staged in import order in
-[WORKORDER-W4-definition-wave.md](WORKORDER-W4-definition-wave.md); **stage 1 landed 2026-10-08**
-(checker 7233 → **7246**, the pin `Def_WeierstrassCurve_ReductionMap.lean` used block complete —
-nine public declarations in `WeierstrassCurve/Reduction/Point.lean` plus four `ValuationSubring`
-rows appended to `NumberTheory/ValuationAtPlace.lean` in the same wave), leaving stages 2–4
-(`TorsionIntegral` 1,148, `ReduceHom` 497, `ZeroComponentReduction` 278 raw lines).
+So story C was a **manager definition wave first** (home the whole nodes, price each with
+`build_ladder.py --edit`), then a theorem set. **The wave is complete** — scoped by the
+whole-node rule (playbook §2.3), the four pin modules whole are 145 declarations / **3,078 raw
+lines**; the *used* block the two headlines reach was 88 / **2,081 raw lines**, the floor and the
+writing order, not the scope. Staged in import order in
+[WORKORDER-W4-definition-wave.md](WORKORDER-W4-definition-wave.md); **all four stages landed
+2026-10-08**, checker 7233 → **7368 identical**, 0 mismatched / 0 missing, milestone whole-tree
+build green. Story C's theorem set is now ungated.
 
 ## 4. Dedup, promotions, substitutions
 
@@ -180,7 +178,7 @@ rows appended to `NumberTheory/ValuationAtPlace.lean` in the same wave), leaving
 | [WORKORDER-W2-division-fields.md](WORKORDER-W2-division-fields.md) | B | `WeierstrassCurve/Torsion/{NatCardStructure,DivisionField}.lean` | 910 written | **landed 2026-10-08**, checker 7231 → **7233** (+2), 0/0 |
 | [WORKORDER-W3-stepcurve.md](WORKORDER-W3-stepcurve.md) | D | `WeierstrassCurve/Velu/StepCurveSubgroup.lean` | 298 written | **landed 2026-10-08**, checker 7233 → **7234** identical (+1), 0/0 |
 | [WORKORDER-W3b-zmultiples.md](WORKORDER-W3b-zmultiples.md) | D | `WeierstrassCurve/Velu/CyclicQuotientJInjective.lean` | 468 written | **landed 2026-10-08**, checker 7246 → **7247** identical (+1), 0/0 |
-| W4 | C | the reduction definition wave, then the two headlines | 2,081 pin lines used, 4 stages | **stage 1 landed 2026-10-08** (checker 7233 → **7246**); stages 2–4 **paused, handed off** — [order](WORKORDER-W4-definition-wave.md) §1a |
+| W4 | C | the reduction definition wave, then the two headlines | 3,078 pin lines / 145 decls, 4 whole nodes | **complete 2026-10-08** (checker 7233 → **7368**, 0/0, warning-free, milestone build green) — [order](WORKORDER-W4-definition-wave.md) §6 |
 
 Sets run one at a time, one subagent each, reviewed before the next
 ([`porting-playbook.md`](../../porting-playbook.md) §0.2, §3.4). Module paths are the

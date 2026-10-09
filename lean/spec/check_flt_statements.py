@@ -2561,6 +2561,22 @@ SOURCES = [
     # match can flip.
     "Theorems/Thm_WeierstrassCurve_zmultiples_eq_of_veluQuotient_j_eq_of_forall_isogenyEndDatum_exists_int.lean",
     "P2M/Sol/S_WeierstrassCurve_zmultiples_eq_of_veluQuotient_j_eq_of_forall_isogenyEndDatum_exists_int.lean",
+    # --- WORKORDER-W4 stage 2 (`topics/deligneSerre/WORKORDER-W4-definition-wave.md`):
+    # the pin's `Def_WeierstrassCurve_TorsionIntegral.lean` is ported whole
+    # (`FLTForHuman/WeierstrassCurve/Reduction/TorsionIntegral.lean`), so the pin
+    # definition file is appended to verify it. Appended last so no earlier
+    # last-name match can flip.
+    "Definitions/Def_WeierstrassCurve_TorsionIntegral.lean",
+    # --- WORKORDER-W4 stage 3: the pin's `Def_WeierstrassCurve_ReduceHom.lean` is ported
+    # whole (`FLTForHuman/WeierstrassCurve/Reduction/ReduceHom.lean`), so the pin
+    # definition file is appended to verify it. Appended last so no earlier last-name
+    # match can flip.
+    "Definitions/Def_WeierstrassCurve_ReduceHom.lean",
+    # --- WORKORDER-W4 stage 4: the pin's `Def_WeierstrassCurve_ZeroComponentReduction.lean`
+    # is ported whole (`FLTForHuman/WeierstrassCurve/Reduction/ZeroComponent.lean`), so the
+    # pin definition file is appended to verify it. Appended last so no earlier last-name
+    # match can flip.
+    "Definitions/Def_WeierstrassCurve_ZeroComponentReduction.lean",
 ]
 
 PORT_FILES = [
@@ -3735,6 +3751,19 @@ PORT_FILES = [
     # matched against its `Theorems/` wrapper appended to `SOURCES` above. Appended
     # last so no earlier last-name match can flip.
     "FLTForHuman/WeierstrassCurve/Velu/CyclicQuotientJInjective.lean",
+    # --- WORKORDER-W4 stage 2 (`topics/deligneSerre/WORKORDER-W4-definition-wave.md`):
+    # the whole pin `Def_WeierstrassCurve_TorsionIntegral.lean`, matched against the pin
+    # definition file appended to `SOURCES` above. Appended last so no earlier last-name
+    # match can flip.
+    "FLTForHuman/WeierstrassCurve/Reduction/TorsionIntegral.lean",
+    # --- WORKORDER-W4 stage 3: the whole pin `Def_WeierstrassCurve_ReduceHom.lean`,
+    # matched against the pin definition file appended to `SOURCES` above. Appended last
+    # so no earlier last-name match can flip.
+    "FLTForHuman/WeierstrassCurve/Reduction/ReduceHom.lean",
+    # --- WORKORDER-W4 stage 4: the whole pin `Def_WeierstrassCurve_ZeroComponentReduction.lean`,
+    # matched against the pin definition file appended to `SOURCES` above. Appended last so no
+    # earlier last-name match can flip.
+    "FLTForHuman/WeierstrassCurve/Reduction/ZeroComponent.lean",
 ]
 
 
