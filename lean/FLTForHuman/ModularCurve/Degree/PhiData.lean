@@ -15,6 +15,7 @@
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_ModularPolynomialData_eval_jqNModC_mul_eq_zero.lean
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_isIntegral_jqNModC_all_of_modularPolynomialFamily.lean
 -/
+import FLTForHuman.ModularCurve.Defs.FibrePoly
 import FLTForHuman.ModularCurve.Defs.JqCoeff
 import FLTForHuman.ModularCurve.Defs.PhiGen
 import FLTForHuman.ModularCurve.ModularPolynomialProperties
@@ -207,9 +208,9 @@ section FibrePoly
 
 variable {K : Type*} [Field K]
 
-private def fibrePoly (Φ : Polynomial (Polynomial ℤ)) (a : K) : Polynomial K :=
-  Φ.map (Polynomial.eval₂RingHom (Int.castRingHom K) a)
-
+-- `fibrePoly` was `private` here; the pin exposes it publicly and this column's `N = 2`
+-- fibre row names it in its statement, so it now lives at its public pin name in
+-- `FLTForHuman/ModularCurve/Defs/FibrePoly.lean` and is imported (dedup, no second copy).
 private theorem monic_fibrePoly {Φ : Polynomial (Polynomial ℤ)} (hΦ : Φ.Monic) (a : K) :
     (fibrePoly Φ a).Monic :=
   hΦ.map _

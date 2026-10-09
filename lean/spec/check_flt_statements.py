@@ -2587,6 +2587,145 @@ SOURCES = [
     # declaration; appended last so no earlier last-name match can flip.
     "Theorems/Thm_WeierstrassCurve_exists_inertia_equivariant_reduction_of_variableChange_eq_map.lean",
     "P2M/Sol/S_WeierstrassCurve_exists_inertia_equivariant_reduction_of_variableChange_eq_map.lean",
+    # --- ModularCurve set C1 (manager append into an existing module): the q-expansion
+    # Frobenius inputs. The headline is added to `Frobenius/QExpModL.lean` (already in
+    # `PORT_FILES`), whose private machinery it concludes; appended last so no earlier
+    # last-name match can flip.
+    "Theorems/Thm_ModularCurve_qExpFrobeniusInputsModL_and_finrankAlong_of_transcendental.lean",
+    "P2M/Sol/S_ModularCurve_qExpFrobeniusInputsModL_and_finrankAlong_of_transcendental.lean",
+    # --- WORKORDER-D1 (`topics/modularCurve/WORKORDER-D1-petersson.md`) phase 1: the pin's
+    # four `Def_AutomorphicForm_*` modules ported whole. Appended last so no earlier
+    # last-name match can flip.
+    "Definitions/Def_AutomorphicForm_HyperbolicMeasure.lean",
+    "Definitions/Def_AutomorphicForm_FundamentalDomainVolume.lean",
+    "Definitions/Def_AutomorphicForm_SiegelSetCover.lean",
+    "Definitions/Def_AutomorphicForm_Gamma0FundamentalSet.lean",
+    # --- WORKORDER-D1 phase 2: the Petersson pairing pair, matched against their
+    # `Theorems/` wrappers and their `S_` engines. Appended last so no earlier last-name
+    # match can flip.
+    "Theorems/Thm_ModularCurve_exists_cuspForm_petersson_eq_gammaH.lean",
+    "P2M/Sol/S_ModularCurve_exists_cuspForm_petersson_eq_gammaH.lean",
+    "Theorems/Thm_ModularCurve_exists_cuspForm_petersson_eq_of_finiteIndex.lean",
+    "P2M/Sol/S_ModularCurve_exists_cuspForm_petersson_eq_of_finiteIndex.lean",
+    # --- WORKORDER-D2 (`topics/modularCurve/WORKORDER-D2-period-map.md`): the period map of a
+    # finite-index subgroup, four headlines matched against their `Theorems/` wrappers and
+    # `S_` engines. `Def_ModularCurve_QExpansionDiff.lean` and `Thm_ModularCurve_theta_coeff.lean`
+    # supply the theta definition layer the fourth needs. Appended last so no earlier last-name
+    # match can flip.
+    "Theorems/Thm_ModularCurve_addSubgroupClosure_range_periodAlongOf_eq_top.lean",
+    "P2M/Sol/S_ModularCurve_addSubgroupClosure_range_periodAlongOf_eq_top.lean",
+    "Theorems/Thm_ModularCurve_sum_periodAlongOf_mem_periodLatticeOf_of_boundary_eq_zero.lean",
+    "P2M/Sol/S_ModularCurve_sum_periodAlongOf_mem_periodLatticeOf_of_boundary_eq_zero.lean",
+    "Theorems/Thm_ModularCurve_periodMapOf_mem_parabolicHoms.lean",
+    "P2M/Sol/S_ModularCurve_periodMapOf_mem_parabolicHoms.lean",
+    "Theorems/Thm_ModularCurve_coe_qExpansion_normalizedDerivOfComplex.lean",
+    "P2M/Sol/S_ModularCurve_coe_qExpansion_normalizedDerivOfComplex.lean",
+    "Definitions/Def_ModularCurve_QExpansionDiff.lean",
+    "Theorems/Thm_ModularCurve_theta_coeff.lean",
+    # --- WORKORDER-C2 (`topics/modularCurve/WORKORDER-C2-x1-function-field.md`) phase 1: the
+    # pin definition layer of the `X₁`/`X_H` function-field rows. Three unported
+    # `Definitions/Def_ModularCurve_*` modules are ported whole, plus — a §7 stop condition the
+    # manager authorised — `Def_AlgebraicCurve_DifferentialPushPull.lean`, the
+    # `Differential.pullbackAlong`/`traceAlong`/`correspondence` layer that
+    # `Def_ModularCurve_HeckeDifferential.lean` itself imports. Appended last so no earlier
+    # last-name match can flip (`Differential.pullbackAlong`/`correspondence` share their bare
+    # last names with the ported `Divisor.*` ones and resolve through the dotted fallback).
+    "Definitions/Def_ModularCurve_HeckeDifferential.lean",
+    "Definitions/Def_ModularCurve_SL2Elementary.lean",
+    "Definitions/Def_ModularCurve_X0ModL.lean",
+    "Definitions/Def_AlgebraicCurve_DifferentialPushPull.lean",
+    # --- WORKORDER-C2 phase 2: the ten landed leaf headlines, each matched against its
+    # `Theorems/Thm_ModularCurve_<stem>.lean` wrapper and its `P2M/Sol/S_ModularCurve_<stem>.lean`
+    # engine (the `S_` row is listed for the record and for the promoted-private fallback; the
+    # `S_`-local helpers are transcribed `private` and so are skipped by the checker). The 11th
+    # row, `exists_sum_smul_eq_of_isIntegralQExp_gamma1`, is DEFERRED: its one substantive proof
+    # step is the unported pin node `ModularForm.exists_basis_gamma1_qCoeff_mem_range_ratCast`
+    # (only the `CuspForm` twin is ported), so no port declaration and no source row exist for
+    # it. Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_ModularCurve_qExpansion_div_mem_laurentBaseChange_xHFunctionField.lean",
+    "P2M/Sol/S_ModularCurve_qExpansion_div_mem_laurentBaseChange_xHFunctionField.lean",
+    "Theorems/Thm_ModularCurve_isIntegral_jqNModC_of_modularPolynomialData.lean",
+    "P2M/Sol/S_ModularCurve_isIntegral_jqNModC_of_modularPolynomialData.lean",
+    "Theorems/Thm_ModularCurve_exists_gamma0_qExpansion_div_eq_jqNModC.lean",
+    "P2M/Sol/S_ModularCurve_exists_gamma0_qExpansion_div_eq_jqNModC.lean",
+    "Theorems/Thm_ModularCurve_eisenstein4_cube_sub_mk_sq.lean",
+    "P2M/Sol/S_ModularCurve_eisenstein4_cube_sub_mk_sq.lean",
+    "Theorems/Thm_ModularCurve_diffQExp_x1FunctionFieldBar_injective.lean",
+    "P2M/Sol/S_ModularCurve_diffQExp_x1FunctionFieldBar_injective.lean",
+    "Theorems/Thm_ModularCurve_modularFunctionFieldC_eq_modularFunctionFieldFullC_of_charZero.lean",
+    "P2M/Sol/S_ModularCurve_modularFunctionFieldC_eq_modularFunctionFieldFullC_of_charZero.lean",
+    "Theorems/Thm_ModularCurve_modularFunctionFieldFullC_le_qExpFunctionFieldC_gamma0.lean",
+    "P2M/Sol/S_ModularCurve_modularFunctionFieldFullC_le_qExpFunctionFieldC_gamma0.lean",
+    "Theorems/Thm_ModularCurve_closure_elemSet_eq_top.lean",
+    "P2M/Sol/S_ModularCurve_closure_elemSet_eq_top.lean",
+    "Theorems/Thm_ModularCurve_isCurveOver_x1FunctionFieldBar.lean",
+    "P2M/Sol/S_ModularCurve_isCurveOver_x1FunctionFieldBar.lean",
+    "Theorems/Thm_ModularCurve_essFiniteType_x1FunctionFieldBar.lean",
+    "P2M/Sol/S_ModularCurve_essFiniteType_x1FunctionFieldBar.lean",
+    # --- WORKORDER-B1 (the modular polynomial `Φ_N`): the five subject-B rows. The wrapper is the
+    # comparable statement; the `S_` file is listed so the pin-private helpers and the three
+    # extra public rows of `S_..._eq_all`/`S_..._phiIrreducible_of_prime` (the
+    # `evalAtJGen_injective`/`aeval_jqN_toAdjoin`/`natDegree_toAdjoin`/`toAdjoin_eq_minpoly*`
+    # copies) resolve through the dotted/pin-private lookup instead of reporting missing. The
+    # port writes every helper `private`, so only the five headlines are compared. Appended last
+    # so no earlier last-name match can flip.
+    "Theorems/Thm_ModularCurve_ModularPolynomialData_isUnit_leadingCoeff_diag_of_not_isSquare.lean",
+    "P2M/Sol/S_ModularCurve_ModularPolynomialData_isUnit_leadingCoeff_diag_of_not_isSquare.lean",
+    "Theorems/Thm_ModularCurve_ModularPolynomialData_eq_all.lean",
+    "P2M/Sol/S_ModularCurve_ModularPolynomialData_eq_all.lean",
+    "Theorems/Thm_ModularCurve_phiIrreducible_of_prime.lean",
+    "P2M/Sol/S_ModularCurve_phiIrreducible_of_prime.lean",
+    "Theorems/Thm_ModularCurve_ModularPolynomialData_evalSymm_of_prime.lean",
+    "P2M/Sol/S_ModularCurve_ModularPolynomialData_evalSymm_of_prime.lean",
+    "Theorems/Thm_ModularCurve_StarBank_press.lean",
+    "P2M/Sol/S_ModularCurve_StarBank_press.lean",
+    # --- Manager wave of 2026-10-09: the definition layer of subject A and of subject B2.
+    # `Def_ModularCurve_LevelNFunctionField.lean` (53 lines, 11 declarations) is subject A's
+    # whole new layer, homed at `ModularCurve/LevelN/FunctionField.lean`.
+    # `Def_ModularCurve_ClassicalModularPolynomials.lean` (the `phiTwo`/`phiThree`/`intFibre`
+    # constants) and `Def_ModularCurve_FibrePoly.lean` (`fibrePoly` and its three theorems)
+    # are B2's, homed at `ModularCurve/Defs/{ClassicalModularPolynomials,FibrePoly}.lean`.
+    # From `Def_ModularCurve_KroneckerTransport.lean` only the `ReduceModBivar` block
+    # (`reduceModBivar`, `reduceModBivar_X`, `reduceModBivar_C_X`) has a consumer on this
+    # cone and is homed in `Defs/FibrePoly.lean`; the module's other 35 declarations are
+    # deliberately unported, and listing the file adds them only as unmatched candidates
+    # (the checker iterates `PORT_FILES`, never `SOURCES`). Appended last so no earlier
+    # last-name match can flip.
+    "Definitions/Def_ModularCurve_LevelNFunctionField.lean",
+    "Definitions/Def_ModularCurve_ClassicalModularPolynomials.lean",
+    "Definitions/Def_ModularCurve_FibrePoly.lean",
+    "Definitions/Def_ModularCurve_KroneckerTransport.lean",
+    # --- WORKORDER-B2: the `N = 2` fibre row of subject B — `fibrePoly phiTwo W.j` as a product
+    # over the three order-two Vélu quotients. The wrapper is the comparable statement; the `S_`
+    # file is listed so its `S_`-local (`p2m_export`-suppressed) public rows (`fibrePoly_phiTwo_eq`,
+    # `cubic_expand`, `coeff_{two,one,zero}_identity`, `main`) and the pin-private `sixteen_ne_zero`
+    # resolve through the pin-private/dotted lookup instead of reporting missing. The port writes
+    # every helper `private`, so only the headline is compared. Appended last so no earlier
+    # last-name match can flip.
+    "Theorems/Thm_ModularCurve_fibrePoly_phiTwo_j_eq_prod_veluQuotient2_j.lean",
+    "P2M/Sol/S_ModularCurve_fibrePoly_phiTwo_j_eq_prod_veluQuotient2_j.lean",
+    # --- WORKORDER-A (`topics/modularCurve/WORKORDER-A-levelN-field.md`): the
+    # level-`N` function field of `X(N)`. Subject A's eight headlines and the `S_`
+    # files that carry their shared prelude. `LevelN/Prelude.lean` writes the
+    # duplicated blocks once, publicly, at the pin's own names; the `Theorems/`
+    # wrappers are the interface copies for the eight headlines. Appended last so
+    # no earlier last-name match can flip.
+    "Theorems/Thm_ModularCurve_LevelN_isDomain_ring.lean",
+    "Theorems/Thm_ModularCurve_LevelN_slash_eq_self_of_mem_Gamma_of_mul_eq.lean",
+    "Theorems/Thm_ModularCurve_LevelN_exists_monoidHom_algEquiv_fixedField_eq_adjoin.lean",
+    "Theorems/Thm_ModularCurve_LevelN_exists_algHom_laurentSeries_qExpansion.lean",
+    "Theorems/Thm_ModularCurve_LevelN_exists_place_ord_neg_forall_smul_eq.lean",
+    "Theorems/Thm_ModularCurve_LevelN_exists_place_ord_sub_pos_forall_smul_eq.lean",
+    "Theorems/Thm_ModularCurve_LevelN_exists_place_analyticOrderAt_eq_mul_ord.lean",
+    "Theorems/Thm_ModularCurve_LevelN_valuation_apply_smul_le_one_of_tendsto_div_smul.lean",
+    "P2M/Sol/S_ModularCurve_LevelN_isDomain_ring.lean",
+    "P2M/Sol/S_ModularCurve_LevelN_slash_eq_self_of_mem_Gamma_of_mul_eq.lean",
+    "P2M/Sol/S_ModularCurve_LevelN_exists_monoidHom_algEquiv_fixedField_eq_adjoin.lean",
+    "P2M/Sol/S_ModularCurve_LevelN_exists_algHom_laurentSeries_qExpansion.lean",
+    "P2M/Sol/S_ModularCurve_LevelN_exists_place_ord_neg_forall_smul_eq.lean",
+    "P2M/Sol/S_ModularCurve_LevelN_exists_place_ord_sub_pos_forall_smul_eq.lean",
+    "P2M/Sol/S_ModularCurve_LevelN_exists_place_analyticOrderAt_eq_mul_ord.lean",
+    "P2M/Sol/S_ModularCurve_LevelN_valuation_apply_smul_le_one_of_tendsto_div_smul.lean",
 ]
 
 PORT_FILES = [
@@ -3783,6 +3922,80 @@ PORT_FILES = [
     # public declaration, matched against its `Theorems/` wrapper appended to `SOURCES` above.
     # Appended last so no earlier last-name match can flip.
     "FLTForHuman/WeierstrassCurve/Reduction/InertiaReduction.lean",
+    # --- WORKORDER-D1 (`topics/modularCurve/WORKORDER-D1-petersson.md`) phase 1: the four
+    # pin `Def_AutomorphicForm_*` modules ported whole, matched against the pin definition
+    # files appended to `SOURCES` above. Appended last so no earlier last-name match can flip.
+    "FLTForHuman/AutomorphicForm/HyperbolicMeasure.lean",
+    "FLTForHuman/AutomorphicForm/FundamentalDomainVolume.lean",
+    "FLTForHuman/AutomorphicForm/SiegelSetCover.lean",
+    "FLTForHuman/AutomorphicForm/Gamma0FundamentalSet.lean",
+    # --- WORKORDER-D1 phase 2: the Petersson pairing pair. The shared Riesz-representation
+    # prelude is written once, `private`; the two headlines are matched against their
+    # `Theorems/` wrappers appended to `SOURCES` above. Appended last so no earlier last-name
+    # match can flip.
+    "FLTForHuman/ModularCurve/Analytic/PeterssonPairing.lean",
+    # --- WORKORDER-D2 (`topics/modularCurve/WORKORDER-D2-period-map.md`): the period-map
+    # modules, matched against their `Theorems/` wrappers appended to `SOURCES` above.
+    "FLTForHuman/ModularCurve/Period/PeriodLatticeSpan.lean",
+    "FLTForHuman/ModularCurve/Period/PeriodLatticeBoundary.lean",
+    "FLTForHuman/ModularCurve/Period/ParabolicHoms.lean",
+    "FLTForHuman/ModularCurve/Period/QExpansionDerivative.lean",
+    # --- WORKORDER-D2, node completion (whole-node rule, playbook §2.3): the remainder of
+    # `Def_ModularCurve_QExpansionDiff.lean` — its `QExpansionDiff` and `TraceDiff` halves —
+    # in their own subject modules. The pin definition file is in `SOURCES` above.
+    "FLTForHuman/ModularCurve/Period/QExpansionDiff.lean",
+    "FLTForHuman/AlgebraicCurve/Differential/TraceDiff.lean",
+    # --- WORKORDER-C2 phase 1: the pin definition layer ported whole, matched against the pin
+    # definition files appended to `SOURCES` above. `PushPull.lean` is the manager-authorised
+    # fourth module; `SL2Elementary`/`HeckeDifferential` are the pin's own modules; and
+    # `X0/FunctionFieldFull.lean` is `Def_ModularCurve_X0ModL.lean` (its two Frobenius-layer
+    # declarations `coeffMap_ofPowerSeries`/`qExpandAlgHomC` are dedup'd to `Frobenius/Defs.lean`,
+    # which already records them as taken from this pin module). Appended last so no earlier
+    # last-name match can flip.
+    "FLTForHuman/AlgebraicCurve/Differential/PushPull.lean",
+    "FLTForHuman/ModularCurve/Defs/SL2Elementary.lean",
+    "FLTForHuman/ModularCurve/Defs/HeckeDifferential.lean",
+    "FLTForHuman/ModularCurve/X0/FunctionFieldFull.lean",
+    # --- WORKORDER-C2 phase 2: the ten landed leaf headlines. Only the headline(s) of each
+    # module are public; the `S_`-local helpers are transcribed `private` and so are skipped by
+    # the checker. `IntegralityJqNModC.lean` carries 3 of the 4 rows of its group (the 4th,
+    # `exists_sum_smul_eq_of_isIntegralQExp_gamma1`, is the deferred node documented in `SOURCES`
+    # above and in that module's docstring). Appended last so no earlier last-name match can flip.
+    "FLTForHuman/ModularCurve/X1/QExpansionDiv.lean",
+    "FLTForHuman/ModularCurve/X1/IntegralityJqNModC.lean",
+    "FLTForHuman/ModularCurve/X1/Structure.lean",
+    "FLTForHuman/ModularCurve/X1/FunctionFieldInclusion.lean",
+    # --- WORKORDER-B1: the modular polynomial `Φ_N` (subject B's five ready rows). One module
+    # per story: the leading coefficient, the uniqueness/irreducibility/symmetry trio, and the
+    # star action. Only the headline(s) of each are public; the pin's helpers are re-derived
+    # `private`, so the checker sees exactly five new declarations. Appended last.
+    "FLTForHuman/ModularCurve/ModularPolynomialLeadingCoeff.lean",
+    "FLTForHuman/ModularCurve/ModularPolynomialUniquenessIrreducible.lean",
+    "FLTForHuman/ModularCurve/ModularPolynomialStarBank.lean",
+    # --- Manager wave of 2026-10-09: the definition layer of subject A and subject B2.
+    # `LevelN/FunctionField.lean` is the pin's `Def_ModularCurve_LevelNFunctionField.lean`
+    # whole (`wp`, `fricke`, `jAnalytic`, `generators`, `ring`, `jGen` and the membership
+    # lemmas); `Defs/ClassicalModularPolynomials.lean` is `phiTwo`/`phiThree`/`intFibre`;
+    # `Defs/FibrePoly.lean` is `fibrePoly` — which was `private` in `Degree/PhiData.lean`
+    # and is now public at the pin's name there, with `PhiData` importing it (dedup) —
+    # together with its three theorems and the `ReduceModBivar` block. Appended last.
+    "FLTForHuman/ModularCurve/LevelN/FunctionField.lean",
+    "FLTForHuman/ModularCurve/Defs/ClassicalModularPolynomials.lean",
+    "FLTForHuman/ModularCurve/Defs/FibrePoly.lean",
+    # --- WORKORDER-B2: the `N = 2` fibre row of subject B. One public headline
+    # (`ModularCurve.fibrePoly_phiTwo_j_eq_prod_veluQuotient2_j`); the pin silo's other six
+    # declarations are `S_`-local and re-derived `private`, so the checker sees exactly one new
+    # declaration. Appended last.
+    "FLTForHuman/ModularCurve/ModularPolynomialFibreTwo.lean",
+    # --- WORKORDER-A (`topics/modularCurve/WORKORDER-A-levelN-field.md`): the
+    # level-`N` function field of `X(N)`. `Prelude.lean` is the one home of the
+    # shared blocks (written once, public, at the pin's names and statements);
+    # `FieldGalois.lean` and `Places.lean` are phase A1's and phase A2's four
+    # headlines each, with their `S_`-local helpers `private`. Appended last so no
+    # earlier last-name match can flip.
+    "FLTForHuman/ModularCurve/LevelN/Prelude.lean",
+    "FLTForHuman/ModularCurve/LevelN/FieldGalois.lean",
+    "FLTForHuman/ModularCurve/LevelN/Places.lean",
 ]
 
 
@@ -3857,13 +4070,15 @@ OWN_PROOFS = {
     # so there is no name/statement to diff; the pin's own `slots_eq_dedekindPsi`
     # is `private`.
     "card_slotFilter_eq_dedekindPsi",
-    # `correspondence` (SET 1, `Defs/Correspondence.lean`) is the one last-name
-    # collision the AC block cannot resolve: `Def_AlgebraicCurve_Correspondence.lean`
-    # declares `Divisor.correspondence` (line 137) and `Pic0.correspondence`
-    # (line 183) with the same last name, and `declarations()` keeps only the
-    # first, so no `SOURCES` ordering can verify the second. Both port copies are
-    # transcribed verbatim from that file; the exemption covers the pair.
-    "correspondence",
+    # `AlgebraicCurve.Pic0.correspondence` (SET 1, `Defs/Correspondence.lean`) is the
+    # one last-name collision the AC block cannot resolve:
+    # `Def_AlgebraicCurve_Correspondence.lean` declares `Divisor.correspondence`
+    # (line 137) and `Pic0.correspondence` (line 183) with the same last name, and
+    # `declarations()` keeps only the first, so no `SOURCES` ordering can verify the
+    # second. The exemption is *dotted* so it does not also swallow the other
+    # same-last-name declarations, which do verify: `Divisor.correspondence` and
+    # `AlgebraicCurve.Differential.correspondence` (`Differential/PushPull.lean`).
+    "AlgebraicCurve.Pic0.correspondence",
     # The capstone trace lemma. FLT has no wrapper for it: the pin's route to
     # this statement is the Eichler–Shimura tower (`S_CuspForm_hasIntegralStructure_of_two_le`
     # and the 657-node HeckeEis/Eichler–Shimura development), which the port

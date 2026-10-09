@@ -276,11 +276,71 @@ cascade should be small. Note also that D-6 landed with the pin's own
 `gateDescent_of_descent` (transcribed from `S_:2882–2885`) and with ≈120 lines of `⁄`-spelling
 instance/`Eq.trans` scaffolding; if the engine promotion happens, re-measure that declaration —
 its budget and scaffolding may fall.
+- **`ModularCurve.exists_sum_smul_eq_of_isIntegralQExp_gamma1`** (found 2026-10-09, C2). The one
+  C2 row left unported; see
+  [topics/modularCurve/WORKORDER-C2-x1-function-field.md](topics/modularCurve/WORKORDER-C2-x1-function-field.md)
+  §2 and §9, and the docstring of `FLTForHuman/ModularCurve/X1/IntegralityJqNModC.lean`. It is
+  **not a leaf**: its one substantive proof step is the premise
+  `ModularForm.exists_basis_gamma1_qCoeff_mem_range_ratCast`, which is unported — only the
+  `CuspForm` twin is (`ModularForms/WeightOne/Gamma1IntegralBasis.lean:871`) — and the twin
+  cannot substitute, because the headline's `f` is a `ModularForm (Gamma1 N) k` for arbitrary
+  `k : ℤ` and the cuspidal subspace does not span the Eisenstein part. Under the conservative
+  frontier reading the row's unported closure is **10 nodes / 5,172 raw `S_` lines** (8
+  `ModularForm` + 1 `WLight` + the row's 36), headed by
+  `ModularForm.span_frickeRational_E4_pow_E6_pow_eq_top` (1,524) and
+  `ModularForm.exists_gamma1_frickeRational_sigmaTransport` (772), then the
+  `…_mem_adjoin_exp`/`…_eq_algEquiv_apply`/`…_mem_range_ratCast` steps and
+  `ModularForm.exists_mul_E4_pow_mul_E6_pow_eq_iff` (424). **Trigger:** port it as its own work
+  order — a definition-layer-first `ModularForm`-side set, not a row on any `ModularCurve`
+  shelf. Until then the default frontier prices it at 1 node / 36 lines; reproduce the real
+  figure with
+  `python3 tools/deps/frontier.py --target ModularCurve.exists_sum_smul_eq_of_isIntegralQExp_gamma1 --frontier sources`.
+- **The deprecated-name sweep** (found 2026-10-09, landing B2). The milestone build prints
+  deprecation warnings from **frozen** port modules — `WeierstrassCurve/Velu/OrderTwo.lean:224`
+  (`dif_neg` → `dite_eq_right`) and `:452` (`linter.style.haveILetI` on the pinned `haveI` in
+  `veluQuotient2_j`'s statement), plus `if_neg`/`if_true`/`TensorProduct.induction_on`/
+  `TensorProduction.inductionOn` in `WeierstrassCurve/IsogenyEndDatum/DualEndData.lean` and
+  `Isogeny/TwoCurveDescent.lean`. They are not errors and the modules are frozen, so nothing was
+  touched; Lake replays their cached logs rather than recomputing. **Trigger:** a maintenance
+  round, when the pin's mathlib bumps — one file at a time, each priced with
+  `build_ladder.py --edit`, and never mid-set. The new modules of every set are already
+  0-warning, so this is a debt in the older ones only.
+- **`set_option linter.unusedSectionVars false in`, narrowed, is house style** (found 2026-10-09,
+  landing subject A). The subject-A modules carry 15 `set_option linter.* false in` suppressions
+  (13 `unusedSectionVars`, 1 `style.haveILetI`, 1 `unusedVariables`), each on one declaration.
+  They are forced, not cosmetic: Lean auto-includes `[NeZero N]` in a signature when the *value*
+  uses it but the *type* does not, the linter then reports it unused, and `omit [NeZero N] in` is
+  refused (`error: cannot omit referenced section variable`). The pin sets
+  `linter.unusedSectionVars false` / `linter.unusedVariables false` in **7 of the 8** of these
+  `S_` files (`S_ModularCurve_LevelN_isDomain_ring.lean` is the exception), and ~190 other port
+  modules set them too. **Consequence for work orders:** the blanket line "no `set_option linter.*`
+  suppression" should be read as "no *file-wide* suppression and no suppression of a real
+  warning"; a work order that meets this case should record each narrowed use in its report.
 
 ## Scoping cautions
 
 Ways a frontier figure misleads, each with the case that taught it. These
 are repeated in the playbook §2.1; keep the specific instances here.
+
+- **A last-name view prices a rename pair as ported (found 2026-10-09, C2).** The default
+  frontier is `union = sources ∪ names`, and the `names` tier marks *every* graph node whose
+  **last name** occurs anywhere in the port tree (`frontier.py:472`–`474`,
+  `port_decl_nodes`), private helpers included. Two genuinely different nodes can share a last
+  name across namespaces: the pin has both
+  `ModularForm.exists_basis_gamma1_qCoeff_mem_range_ratCast` and
+  `CuspForm.exists_basis_gamma1_qCoeff_mem_range_ratCast`, with different statements
+  (`ModularForm …` vs `CuspForm …`). The ported twin therefore marks the other node ported, and
+  the node *and its whole subtree* drop out of `needed` — so `--ready` offers the deferred row
+  above at `needed == 1`. Measured: **1 node / 36 lines** under the default `union`, **10 nodes
+  / 5,172 lines** under `--frontier sources` (no name scan). The tool states the hazard itself
+  (`frontier.py:95`–`100`): the name scan is an **upper bound**, and `--frontier sources` is the
+  conservative reading. **Rule:** for a namespace-renamed pair — this `ModularForm`/`CuspForm`
+  one and any future `General`/`NoAC`-style split — run *both* frontier readings, and hand-check
+  the pin `Theorems/` imports as well as its `Definitions/` ones. `port_advise` and `port_plan`
+  will not catch it: their unit is the named target file (`port_advise`'s substitutions are
+  statement-keyed, so they are not fooled, but its `drags` are the target file's *same-file*
+  closure and `port_plan` budgets only the named `S_` files), so an unported premise in another
+  module is invisible to both.
 
 - **A citation-leaf is not a leaf.** `needed == 1` on a node with no theorem-node
   premises says nothing about its *definitional* prerequisites, which the

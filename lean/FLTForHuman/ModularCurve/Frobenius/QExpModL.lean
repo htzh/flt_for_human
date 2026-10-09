@@ -554,6 +554,26 @@ private theorem main (K : Type*) [Field K] [IsAlgClosed K] {ℓ : ℕ} [Fact ℓ
   obtain ⟨s, _, _, hsep⟩ := AlgebraicCurve.exists_separating_transcendental_of_perfectField htr hfd
   exact pullback_pushforward_pic0 K Γ ℓ hsep y
 
+/-- Assembly of the two `QExpFrobeniusInputsModL` conclusions from the file's private
+machinery; `QExpFrobInputsSol.main` of the pin's
+`S_ModularCurve_qExpFrobeniusInputsModL_and_finrankAlong_of_transcendental.lean`. -/
+private theorem inputsMain (K : Type*) [Field K] [IsAlgClosed K] {ℓ : ℕ} [Fact ℓ.Prime] [CharP K ℓ]
+    (Γ : Subgroup (Matrix.SpecialLinearGroup (Fin 2) ℤ))
+    (hF : ∃ x : qExpFunctionFieldC K Γ, Transcendental K x ∧
+      FiniteDimensional (IntermediateField.adjoin K ({x} : Set (qExpFunctionFieldC K Γ))) (qExpFunctionFieldC K Γ)) :
+    QExpFrobeniusInputsModL K Γ ℓ ∧ finrankAlong K (qExpFrobeniusModL K Γ ℓ) = ℓ := by
+  haveI := IsAlgClosed.perfectField K
+  obtain ⟨x, htr, hfd⟩ := hF
+
+  haveI : IsCurveOver K (FF K Γ) := AlgebraicCurve.isCurveOver_of_transcendental_of_perfectField htr hfd
+  obtain ⟨s, _, _, hsep⟩ := AlgebraicCurve.exists_separating_transcendental_of_perfectField htr hfd
+  have hP : HasPrincipalDivisors K (FF K Γ) := inferInstance
+  have hfin := finiteAlong_frobenius K Γ ℓ hsep (not_mem_PP K Γ ℓ hsep)
+  have hFI := fundamentalIdentityAlong_frobenius K Γ ℓ hsep
+  have hN := normFormulaAlong_frobenius K Γ ℓ hsep
+  exact ⟨qExpFrobeniusInputsModL_intro hfin hFI hN,
+    finrankAlong_frobenius K Γ ℓ hsep (not_mem_PP K Γ ℓ hsep)⟩
+
 end QExpFrobRel
 
 /-- **`Fr* Fr_* = ℓ` on `Pic⁰` of the `q`-expansion function field.**  Verbatim
@@ -569,6 +589,18 @@ theorem qExpFrobeniusPullbackModL_qExpFrobeniusPushforwardModL_of_transcendental
     qExpFrobeniusPullbackModL K Γ ℓ (qExpFrobeniusPushforwardModL K Γ ℓ y) =
       ℓ • y :=
   QExpFrobRel.main K Γ hF y
+
+/-- **The `q`-expansion Frobenius inputs, and `finrankAlong = ℓ`.**  Verbatim from
+`Theorems/Thm_ModularCurve_qExpFrobeniusInputsModL_and_finrankAlong_of_transcendental.lean`. -/
+theorem qExpFrobeniusInputsModL_and_finrankAlong_of_transcendental
+    (K : Type*) [Field K] [IsAlgClosed K] {ℓ : ℕ} [Fact ℓ.Prime] [CharP K ℓ]
+    (Γ : Subgroup (Matrix.SpecialLinearGroup (Fin 2) ℤ))
+    (hF : ∃ x : qExpFunctionFieldC K Γ, Transcendental K x ∧
+      FiniteDimensional (IntermediateField.adjoin K ({x} : Set (qExpFunctionFieldC K Γ)))
+        (qExpFunctionFieldC K Γ)) :
+    QExpFrobeniusInputsModL K Γ ℓ ∧
+      AlgebraicCurve.finrankAlong K (qExpFrobeniusModL K Γ ℓ) = ℓ :=
+  QExpFrobRel.inputsMain K Γ hF
 
 end ModularCurve
 
