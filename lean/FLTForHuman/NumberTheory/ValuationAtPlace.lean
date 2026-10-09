@@ -246,3 +246,58 @@ theorem charP_residueField_of_liesOverPrime_def {A : ValuationSubring L} {q : �
   exact Ideal.Quotient.eq_zero_iff_mem.mpr (natCast_mem_maximalIdeal_of_liesOverPrime h)
 
 end ValuationSubring
+
+/-! ### The non-unit block and the decomposition/inertia action
+
+The *second* `ValuationSubring` block of the pin's
+`Definitions/Def_WeierstrassCurve_ReductionMap.lean` (lines 80–95 and 205–228): that a ring
+element times a non-unit of `A` is a non-unit, that `1` is not a non-unit, and that the
+decomposition subgroup of a place acts on `A` while its inertia subgroup acts trivially on
+the residue field. They are the tools the reduction map is built from, and their natural home
+is here beside the file's first `ValuationSubring` block rather than in the reduction module.
+
+Statements are the pin's verbatim text; the pin's `_root_.ValuationSubring.` prefixes are
+spelled by the enclosing namespace. -/
+
+namespace ValuationSubring
+
+variable {L : Type*} [Field L] {A : ValuationSubring L}
+
+theorem mul_mem_nonunits {a x : L} (ha : a ∈ A) (hx : x ∈ A.nonunits) :
+    a * x ∈ A.nonunits := by
+  rw [mem_nonunits_iff] at hx ⊢
+  calc A.valuation (a * x) = A.valuation a * A.valuation x := map_mul _ _ _
+    _ ≤ 1 * A.valuation x := mul_le_mul_left ((A.valuation_le_one_iff a).mpr ha) _
+    _ = A.valuation x := one_mul _
+    _ < 1 := hx
+
+theorem one_notMem_nonunits : (1 : L) ∉ A.nonunits := by
+  simp [mem_nonunits_iff]
+
+end ValuationSubring
+
+section Inertia
+
+open IsLocalRing
+open scoped Pointwise
+
+variable {K : Type*} [Field K] {L : Type*} [Field L] [Algebra K L] (A : ValuationSubring L)
+
+theorem ValuationSubring.smul_mem_of_mem_decompositionSubgroup {σ : L ≃ₐ[K] L}
+    (hσ : σ ∈ A.decompositionSubgroup K) {z : L} (hz : z ∈ A) : σ z ∈ A := by
+  have h1 : σ • z ∈ σ • A := ValuationSubring.smul_mem_pointwise_smul σ z A hz
+  rwa [MulAction.mem_stabilizer_iff.mp hσ, AlgEquiv.smul_def] at h1
+
+theorem ValuationSubring.residue_smul_eq_of_mem_inertiaSubgroup
+    {σ : L ≃ₐ[K] L} (hσ : σ ∈ A.decompositionSubgroup K)
+    (hσI : (⟨σ, hσ⟩ : A.decompositionSubgroup K) ∈ A.inertiaSubgroup K) (a : A) :
+    residue A ((⟨σ, hσ⟩ : A.decompositionSubgroup K) • a) = residue A a := by
+  have h1 : MulSemiringAction.toRingAut (A.decompositionSubgroup K) (ResidueField A)
+      ⟨σ, hσ⟩ = 1 := hσI
+  calc residue A ((⟨σ, hσ⟩ : A.decompositionSubgroup K) • a)
+      = (⟨σ, hσ⟩ : A.decompositionSubgroup K) • residue A a := rfl
+    _ = MulSemiringAction.toRingAut (A.decompositionSubgroup K) (ResidueField A)
+          ⟨σ, hσ⟩ (residue A a) := rfl
+    _ = residue A a := by rw [h1]; rfl
+
+end Inertia

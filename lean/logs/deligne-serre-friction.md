@@ -1250,3 +1250,281 @@ No `linter.style.haveILetI` / `unusedSectionVars` proof was changed.
 - Nothing else: the slice has no `sorry`/`admit`/`axiom`, and the two stopped
   S7/S8 items (the ray-class `hfam` and the group-B continuation) are out of
   scope by design.
+
+---
+
+## W1 — exceptional automorphisms of the supersingular curves (2 nodes), 2026-10-08
+
+The first set off the `WeierstrassCurve` ready shelf, and the first outside the
+q-expansion cluster: three new modules, no existing module edited, no promotion.
+Wiring: `SOURCES` gained the two `Theorems/` wrappers and the two `S_` files
+(appended last); `PORT_FILES` gained
+`FLTForHuman/WeierstrassCurve/Automorphism/{Basic,CharTwo,CharThree}.lean`. Checker
+**7218 → 7231 identical (313 promoted, 83 renamed), 0 mismatched, 0 missing, 36
+own (7267 checked)**, the +13 being exactly the 11 shared-prelude declarations
+plus the two headlines (order 1 +11, order 2 +1, order 3 +1). One-token mutation of
+one headline per order, each exactly one `mismatched`, all reverted; the manager
+re-ran the order-3 mutation independently (7230/1/0 → 7231/0/0). Milestone build
+green, 9,349 jobs. Manager's wire test is `Zone W1` in `spec/DeligneSerreConsumer.lean`.
+
+- **Transcribe the pin's `linter.*` options; never its `maxHeartbeats`.** The work
+  order initially said the opposite and the set came back with 60+ linter warnings
+  (the review gate is a warning-free tier-1 elaboration, and 86 landed port modules
+  carry `set_option linter.unusedSectionVars false`). The pin's
+  `unusedSectionVars`/`unusedVariables` (char 3, and Basic) and additionally
+  `unusedSimpArgs` (char 2) are part of the source's declaration environment and are
+  transcribed at the pin's own line list; `set_option maxHeartbeats 6400000` is not
+  (this project's global cap is 4,000,000). Corrected in the order at review, and in
+  both module headers.
+
+- **Self-base-change is not definitional in mathlib `v4.34.0` (`⁄` drift).** The
+  pin's char-2 torsion arguments let `(E₀ K)⁄K` be `E₀ K` definitionally. In v4.34
+  it is not, so the two torsion arguments carry
+  `have hb : (E₀ K).baseChange K = E₀ K` and transport the witness with `hb ▸ ⟨e⟩`.
+  The same adaptation is already in `WeierstrassCurve/Velu/CyclicCount.lean:429` —
+  read that file first next time; it is the recorded precedent.
+
+- **A pin `scoped instance` keyed on a `private` def cannot be reproduced.** The
+  pin's `scoped instance E₀_isElliptic` needs `p2m_open_scoped`. The port declares a
+  private unscoped instance keyed on the private `E₀` (invisible to importers and to
+  the checker, which does not read `scoped` at all) and drops the `@[scoped simp]`
+  attributes on the private `E₀_aᵢ` rfl lemmas. Nothing downstream can name any of it.
+
+- **`act` is `vcHom` specialised.** The pin's char-2 `act`/`heq_act`/`xy_act` and its
+  char-3 `vcHom`/`heq_vcHom`/`xy_vcHom` are one construction; the shared prelude
+  carries the general three once and char 2 gets a private `abbrev`. Conversely the
+  pin's `xy_neg`/`exists_eq_some_of_xy_eq` are needed by char 3 only, so they stay
+  `private` there rather than joining the prelude: the prelude is the *shared*
+  block, not every declaration either file happens to carry.
+
+- **Proof-only cleanups in the review round** (no statement moved, checker unmoved):
+  three genuinely-unused `simp` arguments removed in `CharThree.lean` (`zero_mul` at
+  one site, `hs` at two — the pin does not suppress `linter.unusedSimpArgs` there,
+  so they are real), and `haveI : NeZero N := ⟨hN0⟩` → `have` at two sites in
+  `CharTwo.lean` (Lean 4's `have` registers the local instance, as
+  `Mathlib/Tactic/Linter/HaveILetI.lean`'s own docstring states).
+
+- **No promotion candidate, and none needed.** Every premise of both headlines was
+  already public (`Velu/Equivariance.lean`, `Velu/VariableChangePoint.lean`,
+  `Elliptic/TorsionZMod.lean`); the only local re-derivations are the two private
+  helpers above, whose host is the pin's own char-3 prelude, not a port hub. The
+  `sigma_eq_of_eq` port-`private` match belongs to W3 (story D), not here.
+
+### Re-verification (2026-10-08)
+
+- `timeout 300 python3 spec/check_flt_statements.py` → **7231 identical (313
+  promoted, 83 renamed), 0 mismatched, 0 missing, 36 own (7267 checked)**.
+- `flock .lake/flt_build.lock timeout 900 lake build` → green, **9,349 jobs**,
+  wall 12.9 s / CPU 9.5 + 14.2 (the replayed warnings are the pre-existing
+  `TwoCurveDescent.lean` deprecations, not this set's).
+- `lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false` on all three new
+  modules → 0 warnings, 0 errors.
+- `spec/DeligneSerreConsumer.lean` → exit 0.
+- `#print axioms` on both headlines → `[propext, Classical.choice, Quot.sound]`.
+- No existing Lean module edited; nothing committed; scratch under `lean/tmp/`
+  removed.
+
+---
+
+## W2 — full level structure and the division field (2 nodes), 2026-10-08
+
+The second set off the `WeierstrassCurve` ready shelf: two new modules under
+`FLTForHuman/WeierstrassCurve/Torsion/` (`NatCardStructure.lean` 68 lines,
+`DivisionField.lean` 842), no existing module edited, no promotion. Wiring: `SOURCES`
+gained each target's `Theorems/` wrapper and `S_` file (appended last); `PORT_FILES`
+gained the two modules. Checker **7231 → 7232 → 7233 identical (313 promoted, 83
+renamed), 0 mismatched, 0 missing, 36 own (7269 checked)**, +1 per order = the single
+public headline each (the 31 private declarations are invisible to the checker).
+Mutation per order, each exactly one `mismatched`, reverted. Milestone build green,
+9,351 jobs. Manager's wire test is `Zone W2` in `spec/DeligneSerreConsumer.lean` —
+**the two headlines composed**: the division field's `n²`-cardinality conjunct is
+exactly the structure theorem's `hfull`.
+
+- **The import list is not enough; walk the proof's definition uses.** §4a of the
+  column plan says to hand-check each target `S_` file's `Definitions/Def_*.lean`
+  imports. W2 showed that is necessary and not sufficient: the division field's only
+  `Def_*` *import* is the empty stub `Def_WeierstrassCurve_DivPolyMulFormulaCore.lean`,
+  but its *proof* consumes the public `MFred`/`mfred_all`/`ΨSq` block of
+  `Def_WeierstrassCurve_DivPolyMulFormula.lean` (≈1,750 lines, unported), which the
+  stub drags in transitively. Walk `fltdata.proof_defs` (the docs-site's per-node
+  proof-definition list), not just the import block, before calling a definition
+  layer empty. The set did not need the block: both consumers were re-derived from
+  the ported `FLTForHuman.Elliptic.smul_formula_or_zero`, which is strictly stronger
+  for their use (`ΨSq ℓ.eval x ≠ 0` ⇒ `ℓ • P` is a nonzero affine point).
+
+- **The pin is Lean `v4.33.1` / mathlib `db584cd6`; the port is Lean `v4.34.0` /
+  mathlib `v4.34.0`.** The W2 work order claimed the two were on the same line; they
+  are not, and the review corrected the order. Concrete drift met by this set, all
+  handled as proof edits: `if_neg` → `ite_eq_right` and `Set.mem_setOf_eq` →
+  `Set.mem_ofPred_eq` (deprecated); `Nat.card_zmod` no longer needs `NeZero m`, so
+  the pin's `haveI : NeZero m` is dropped; the pin's `Finite.of_equiv`/`Set.toFinite`
+  route is replaced by `Nat.finite_of_card_ne_zero` with the `Finite` instance passed
+  explicitly; and a `rfl` in `Y_mem_of_X_mem`'s `hq` **no longer closes and costs a
+  4,000,000-heartbeat `whnf`** before failing — fixed by adding `Polynomial.map_X`
+  and `IntermediateField.algebraMap_apply` to the `simp only` list. That last one is
+  the sharpest instance yet of "a `rfl` that used to close": it burns the whole
+  heartbeat budget rather than erroring fast, exactly the shape the build-cost note
+  warns about.
+
+- **`haveI`/`letI` in a `Prop` goal trips `linter.style.haveILetI`.** The pin's five
+  local instances (`Fact ℓ.Prime`/`Fact q.Prime`, `Finite ↑Coords`, `Normal F Ω`,
+  `IsGalois F L`) are threaded explicitly instead (`addOrderOf_eq_prime (hp := …)`,
+  `@IntermediateField.finiteDimensional_adjoin`,
+  `@IntermediateField.normal_iff_forall_map_le`, `isGalois_iff.mpr`), so nothing
+  beyond the pin's own two `linter.*` suppressions is transcribed. (W1's review round
+  met the same linter from the other side — see above.)
+
+- **Local `private` re-derivations** (hosts are pin files, no port hub touched):
+  `LowTorsionFree` (`Def_WeierstrassCurve_DivPolyMulFormula.lean:766`);
+  `Ψ₂Sq_eval_ne_zero'` (`:27`) and `Ψ₂Sq_eval_eq_zero_iff_two_smul'` (`:33`), from the
+  ported `Elliptic.sub_negY_sq_eq_Ψ₂Sq_eval`; `ΨSq_of_odd` (`:223`) from mathlib's
+  `ΨSq_ofNat`/`preΨ_ofNat`/`ΨSq_neg`/`preΨ_neg`; and
+  `nsmul_ne_zero_of_lt_addOrderOf`, which has no public pin host (it is `private` in
+  two pin `S_` files and otherwise arrives through the pin's `p2m` prelude). The
+  pin's `scoped instance instIsEllipticBaseChange` (its `-instance` workaround) is
+  dropped; the port's `[E.IsElliptic]` suffices.
+
+- **Specific imports stand in for `import Mathlib`:** `Mathlib.FieldTheory.Normal.Closure`,
+  `Mathlib.FieldTheory.Galois.Basic`, `FLTForHuman.Elliptic.{TorsionCard,TorsionZMod}`
+  and `FLTForHuman.WeierstrassCurve.Velu.Formula` (the port's public `Point.xOrZero`).
+
+### Re-verification (2026-10-08)
+
+- `timeout 400 python3 spec/check_flt_statements.py` → **7233 identical (313 promoted,
+  83 renamed), 0 mismatched, 0 missing, 36 own (7269 checked)**.
+- `flock .lake/flt_build.lock timeout 900 lake build` → green, **9,351 jobs**, wall
+  13.6 s / CPU 10.4 + 14.4 (the replayed warnings are pre-existing
+  `TwoCurveDescent.lean`/`Velu/Formula.lean` deprecations, not this set's).
+- `lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false` on both new modules →
+  0 warnings, 0 errors.
+- `spec/DeligneSerreConsumer.lean` (Zones W1 and W2) → exit 0.
+- `#print axioms` on both headlines → `[propext, Classical.choice, Quot.sound]`.
+- No existing Lean module edited; nothing committed; scratch under `lean/tmp/`
+  removed.
+
+---
+
+## Refactor wave (2026-10-08) — breaking the `Engine`/`RestrictAlong` co-import clash
+
+Carried out by the manager, in **one hub edit and one wave**, to unblock the ready node
+`WeierstrassCurve.zmultiples_eq_of_veluQuotient_j_eq_of_forall_isogenyEndDatum_exists_int`
+(the parked half of story D; `topics/deligneSerre/TOPIC-weierstrass-ready-shelf.md` §5.1).
+
+**The edit.** `FLTForHuman/WeierstrassCurve/Velu/RestrictAlong.lean`: its character-free copy
+of `WeierstrassCurve.Affine.normFormulaAlong_of_elliptic` is renamed
+**`normFormulaAlong_of_elliptic_cf`** (the file's own `_cf` convention, statement unchanged,
+reason in a new docstring), plus its one internal call site and one docstring mention. Plus one
+`OWN_PROOFS` entry in `spec/check_flt_statements.py`, by dotted name.
+
+**Why that copy and not the other.** The clash is a pin duplicate: the pin declares the name
+twice at two different statements — the `[IsAlgClosed F] [CharZero F]`, `hsep`-free special
+case (port: `IsogenyEndDatum/Engine.lean`) and the `[IsAlgClosed F]`, explicit-`hsep`
+character-free case (port: `Velu/RestrictAlong.lean`). Two different declarations cannot share
+one FQN, and both cones are needed. **Measure which copy the references resolve to before
+choosing**: for each module naming the declaration, walk its import cone for `Engine` vs
+`RestrictAlong`. The result was lopsided — `TwoCurveDescent`, `KernelCyclicTransfer`,
+`KernelBaseChange`, `DualEndData`, `PeriodPair/{HoloLift,LatticeIndex}` and all five `spec/`
+zones have `Engine` in their cone (they cannot also have `RestrictAlong`, or they would not
+compile), so ~100 of 101 references resolve to the Engine copy and the character-free copy has
+exactly one user: its own file. Renaming *that* one is a three-line edit; renaming the other
+would have been a hundred-call-site edit. The general heuristic: **a co-import clash between
+two copies of one pin name is broken by renaming the copy with the fewest in-cone users, and
+the cone walk tells you which that is.**
+
+**Accounting.** Checker 7234 → **7233 identical (313 promoted, 83 renamed), 0 mismatched,
+0 missing, 37 own (7270 checked)**: the renamed declaration leaves the verified public surface
+for the exemption list (exactly −1 `identical`, +1 `own`, nothing else moves). The Engine copy
+still verifies against its own pin wrapper.
+
+**The wave.** `flock .lake/flt_build.lock timeout 900 lake build` → green, **9,352 jobs**,
+wall 65.6 s / CPU 92.0 + 13.8 — the `RestrictAlong` cascade (chiefly `Velu/PointMapOddOrder.lean`
+and its cone), paid once. Both probes then pass: `import Engine` + `import Velu.RestrictAlong`
+elaborates, and so does the full twelve-module union of the `zmultiples` premise homes
+(`PointMapOddOrder`, `IsogenyEndDatum/{CharPolySquare,DualEndData,Vocabulary,PointEndSubring}`,
+`Isogeny/{NatCard,VariableChangeAlgEquiv,KernelBaseChange}`, `GenusOnePlaceGateCentred`,
+`PrincipalDivisors`, `Velu/MapEquation`, `AlgebraicCurve/WeilExchange/Transport`).
+
+**Residual for a later round:** the character-free copy is now a port-own name with no pin
+counterpart (the `OWN_PROOFS` reason says so). If a future refactor gives one statement
+primacy and derives the other, the exemption disappears with the rename; until then the
+Engine copy's ~100 call sites are untouched.
+
+---
+
+## W3a — the odd Vélu step (stepCurve half of story D), 2026-10-08
+
+`FLTForHuman/WeierstrassCurve/Velu/StepCurveSubgroup.lean`, 298 lines, 1 public (the headline)
+/ 13 private; no existing module edited, no promotion. Checker 7233 → **7234 identical**,
++1, 0/0. Mutation `Q (ℓ / 2)` → `Q (ℓ / 3)` gave 7233/1/0, reverted. Axioms clean; warning-free;
+tier 1 5.2 s.
+
+- **Hub audit (manager).** `git diff --name-only` confirms no tracked Lean module was touched
+  by the set. Twelve of the thirteen private helpers have **no counterpart anywhere** in the
+  port (searched by declaration pattern over all of `FLTForHuman`), so there was nothing to
+  import and nothing to promote.
+- **`sigma_eq_of_eq` is now a third port-`private` copy** of a *pin-public* declaration (twins
+  at `Velu/CyclicQuotientJ.lean:502`/`:747`, the pin's own two-spelling shape `L`/`B`). It is
+  two lines of `Sigma` congruence glue, so playbook §4(b)/§5 keeps it private and re-derived;
+  the trigger to revisit is a fourth consumer or a consumer that needs it at a *statement* the
+  pin exposes.
+- **`omit [DecidableEq L] in` is load-bearing** — dropping the pin's one on
+  `fst_coordsOrZero_neg` produces exactly one `unusedSectionVars` warning.
+- Proof-only adaptations: the pin's `haveI : Fintype H` became an explicit `[Fintype H]` core
+  plus a `[Finite H]` wrapper (`linter.style.haveILetI`), and `Set.mem_setOf_eq` →
+  `Set.mem_ofPred_eq` (mathlib v4.34.0 deprecation).
+
+---
+
+## W3b — equal Vélu-quotient `j` (zmultiples half of story D), 2026-10-08
+
+The node the refactor wave unblocked: `FLTForHuman/WeierstrassCurve/Velu/CyclicQuotientJInjective.lean`,
+468 lines, 1 public (the headline) / 8 private; no existing module edited, no promotion. Checker
+7246 → **7247 identical**, +1, 0/0, 37 own. Mutation `2 * n + 1` → `2 * n + 2` in `hQ` gave
+7246/1/0, reverted by sha256. Axioms clean; warning-free; milestone build 9,354 jobs / 11.9 s.
+Tier 0 is expensive here (220 s wall / 181 s CPU) because the module imports both the `Engine`
+and the `RestrictAlong` cones — import cost, not a blow-up.
+
+- **Four premise-home rows of the work order's table were wrong, and the implementer imported
+  the real hosts.** Verified by declaration grep at review:
+  `natCard_ker_pointMapOfPushforward_eq_finrankAlong` is declared in
+  `IsogenyEndDatum/Vocabulary.lean:161` (not `Isogeny/NatCard.lean`, whose docstring only
+  re-exports the name); `pointMapOfPushforward_surjective` in
+  `Isogeny/PointMapSurjective.lean:39` as `WeierstrassCurve.Affine.pointMapOfPushforward_surjective`
+  (`NatCard` has only the `_of_separableAlong'` form); `exists_zsmul_eq_of_isAlgClosed` in
+  `Elliptic/TorsionZMod.lean:164` and `card_torsionBy_eq_sq_of_isAlgClosed` in
+  `Elliptic/TorsionCardLight.lean:49` — the `Isogeny`/`IsogenyEndDatum` hits are consumers. The
+  reviewer's import probe did not include those three modules, so a probe is necessary but not
+  sufficient; the module's own build over the actual hosts is the stronger evidence.
+  **Method note:** `grep -l <name>` finds *references*, not declarations. Anchor on
+  `^(modifiers) (theorem|lemma) <name>`, and remember a namespace-qualified declaration
+  (`theorem WeierstrassCurve.Affine.foo`) does not match a `theorem foo` pattern — which is how
+  the fourth error survived the first three greps.
+- All four substitution rows were imported: Engine's `normFormulaAlong_of_elliptic` (the
+  `[IsAlgClosed F] [CharZero F]` copy, **not** the `…_cf` general copy the refactor created),
+  `Ws13S7.charZero_addMonoidEnd_point` and `Ws13S7.intCast_addMonoidEnd_point_injective`
+  (CharPolySquare), `Affine.kw_point_infinite` (NatCard).
+- The eight `private` helpers are the pin's own `S_`-local machinery; none has a counterpart
+  anywhere in `FLTForHuman`/`spec`, so no promotion arises. The engine is
+  `kw_veluOddQuotientJInjOnCyclic_of_isogenyEndInt` (pin 314–509).
+- Proof-only adaptations: `AddMonoidHom.ker_restrict` → `ker_domRestrict` (v4.34 deprecation);
+  the pin's in-proof `haveI`/`letI` instance walls → `have`/`let` (Lean 4 registers the local
+  instance either way, so the pin's three `linter.*` suppressions stay the only options);
+  `intCast_mem` resolves to mathlib's `Subring.intCast_mem`.
+- The headline is byte-for-byte the wrapper's **including the two `haveI` binders inside the `hj`
+  hypothesis**; the reviewer checked this line by line, since statement-internal `haveI`s are the
+  kind of text that silently becomes a `MISMATCH`.
+
+**Story D is closed, and every remaining `WeierstrassCurve` shelf node is now gated on the W4
+definition wave**, whose stages 2–4 are paused and handed off
+(`topics/deligneSerre/WORKORDER-W4-definition-wave.md` §1a).
+
+### Re-verification (2026-10-08)
+
+- `timeout 400 python3 spec/check_flt_statements.py` → **7247 identical (313 promoted, 83
+  renamed), 0 mismatched, 0 missing, 37 own (7284 checked)**.
+- `flock .lake/flt_build.lock timeout 900 lake build` → green, **9,354 jobs**, wall 11.9 s / CPU
+  8.7 + 11.9 (replayed warnings are pre-existing, in other modules).
+- `lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false` on the new module → 0 warnings,
+  0 errors.
+- `#print axioms` on the headline → `[propext, Classical.choice, Quot.sound]`.
+- No existing Lean module edited; nothing committed; no scratch left in `lean/tmp/`.

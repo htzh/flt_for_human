@@ -28,6 +28,11 @@ Companions:
   [functionFieldGeneration/TOPIC-qexp-successors.md](functionFieldGeneration/TOPIC-qexp-successors.md),
   [functionFieldGeneration/TOPIC-qexp-successors-2.md](functionFieldGeneration/TOPIC-qexp-successors-2.md).
 - Adjacent columns: [PORTING-Hecke.md](PORTING-Hecke.md), [PORTING-Level.md](PORTING-Level.md).
+- The `WeierstrassCurve` ready shelf — eight nodes, four stories, and the good-reduction
+  definition gate:
+  [deligneSerre/TOPIC-weierstrass-ready-shelf.md](deligneSerre/TOPIC-weierstrass-ready-shelf.md);
+  its first set, dispatched 2026-10-08:
+  [deligneSerre/WORKORDER-W1-automorphisms.md](deligneSerre/WORKORDER-W1-automorphisms.md).
 
 ## 1. What has shipped
 
@@ -58,6 +63,29 @@ friction/promotion ledger is
 Every set is: one work order, one subagent, reviewed by the manager before the
 next; no existing module edited by a subagent; nothing committed by an agent.
 
+**The `WeierstrassCurve` shelf opens (2026-10-08).** The column's first two sets off the ready
+shelf described in §2, and the first ones outside the q-expansion cluster.
+[SET-W1](deligneSerre/WORKORDER-W1-automorphisms.md) is the exceptional automorphisms of the
+supersingular curves in characteristics 2 and 3, plus the point-transport prelude the two
+headlines share: three new modules, 1,520 written lines, checker **7218 → 7231** identical.
+[SET-W2](deligneSerre/WORKORDER-W2-division-fields.md) is full level structure and the
+division field: two new modules under `WeierstrassCurve/Torsion/`, 910 written lines, checker
+**7231 → 7233**, the two headlines composed in the consumer's `Zone W2`. Story D followed on
+2026-10-08: its `stepCurve` half ([W3](deligneSerre/WORKORDER-W3-stepcurve.md), 298 lines) and,
+after a manager refactor wave removed a co-import collision (§2), its `zmultiples` half
+([W3b](deligneSerre/WORKORDER-W3b-zmultiples.md), 468 lines) landed at checker **7234** and
+**7247**. All are warning-free, axioms clean (`[propext, Classical.choice, Quot.sound]`), no
+existing module edited — apart from the two refactor/definition hub appends the manager owns —
+and nothing committed.
+
+Both landings were depth, not breadth. After W1 the frontier went 812 → **814** nodes and the
+ready shelf 83 → **81**; after W2 it went to **F 816 / needed 1,711 / ready 79** — in each case
+nothing new entered, because the successors (`exists_j_eq_zero_torsion_basis_…`,
+`…_of_order_four`, `natCard_torsionOrbit_and_exists_surjective_doubleCoset_of_char_two`,
+`ord_census_qExpFunctionFieldC_gammaH_of_char_three`, and the 85k-line `ModularCurve` moduli
+nodes) each still need other unported `WeierstrassCurve` nodes. The four shelf nodes left are
+stories D (Vélu-quotient `j`) and C (good reduction, gated — §2).
+
 ## 2. The current frontier
 
 ```bash
@@ -82,8 +110,47 @@ The ready shelf by top-level namespace: `ModularCurve` 32, `AlgebraicCurve` 23,
 `valuation_apply_smul_le_one_of_tendsto_div_smul` 820,
 `exists_algHom_laurentSeries_qExpansion` 602,
 `exists_place_ord_sub_pos_forall_smul_eq` 521,
-`exists_monoidHom_algEquiv_fixedField_eq_adjoin` 472, …) — a level-`N` cluster, and
-the natural next cut.
+`exists_monoidAlgebra_algEquiv_fixedField_eq_adjoin` 472, …) — a level-`N` cluster.
+
+**The `WeierstrassCurve` cut (2026-10-08).** The eight ready `WeierstrassCurve.*` nodes were
+scoped as four mathematical stories — the exceptional automorphisms of the supersingular
+curves in characteristics 2 and 3 (1,412 lines), full level structure and division fields
+(910), the Serre–Tate good-reduction mechanism (786), and the Vélu-quotient `j`-map (760) —
+at **3,868 raw `S_` lines → 3,586 net new math lines**, all mutually independent. Six of the
+eight are statement-ready; the good-reduction pair is gated behind the unported
+`TorsionIntegral → ReduceHom → ZeroComponentReduction` definition chain, which is a manager
+wave, not a set. The first two sets (the characteristic-2 and characteristic-3 automorphisms
+with their shared point-transport prelude; then full level structure and the division field)
+**landed 2026-10-08** as
+[deligneSerre/WORKORDER-W1-automorphisms.md](deligneSerre/WORKORDER-W1-automorphisms.md) and
+[deligneSerre/WORKORDER-W2-division-fields.md](deligneSerre/WORKORDER-W2-division-fields.md) —
+checker 7218 → 7231 → 7233 identical, 0/0, warning-free — and the shelf then read **F 816 /
+needed 1,711 / ready 79** (§1). The remaining stories follow one set at a time, reviewed
+between. **Story D closed 2026-10-08**: its `stepCurve` half landed as
+[WORKORDER-W3](deligneSerre/WORKORDER-W3-stepcurve.md) (`Velu/StepCurveSubgroup.lean`, 298
+lines), and its `zmultiples` half — parked by the co-import collision of §5.1 — was unblocked by
+a manager refactor wave (one hub edit renaming the character-free `normFormulaAlong_of_elliptic`
+in `Velu/RestrictAlong.lean` to `…_cf`, measured blast radius: ~100 of 101 references resolve to
+the `Engine` copy, so the other had one user; one `OWN_PROOFS` entry; one wave build of 9,352
+jobs / 65.6 s) and landed as
+[WORKORDER-W3b](deligneSerre/WORKORDER-W3b-zmultiples.md) (`Velu/CyclicQuotientJInjective.lean`,
+468 lines). **Every remaining `WeierstrassCurve` shelf node is now gated on the W4 definition
+wave alone** — `exists_inertia_equivariant_reduction_of_variableChange_eq_map` (601) and
+`exists_reduceHom_eq_of_nsmul_eq_zero_of_natCast_ne_zero` (185) — whose stages 2–4 are paused and
+handed off (resume at the order's §1a). Story C still waits on that wave. Scoping, the blocker,
+the refactor, the wave plan and the reproduce recipe:
+[deligneSerre/TOPIC-weierstrass-ready-shelf.md](deligneSerre/TOPIC-weierstrass-ready-shelf.md).
+Story C's definition wave is now scoped and **started, then paused for hand-off**: its used block
+is 88 of 145 declarations / 2,081 raw pin lines over four stages
+([WORKORDER-W4](deligneSerre/WORKORDER-W4-definition-wave.md), **resume at §1a**), of which
+**stage 1 landed 2026-10-08** — the pin `Def_WeierstrassCurve_ReductionMap.lean` used block,
+complete: nine public declarations in `WeierstrassCurve/Reduction/Point.lean` plus four
+`ValuationSubring` rows appended to `NumberTheory/ValuationAtPlace.lean`, one wave, checker
+7233 → **7246**, 9,353 jobs / 51.8 s. Stages 2–4 (the remaining **1,923 raw lines**: the
+`TorsionIntegral` estimate chain, `ReduceHom`, `ZeroComponentReduction`) are handed to a new
+session; the wave hangs off just **17 entry points**, tabulated in the order. Scoping, the
+blocker, the refactor, the wave plan and the reproduce recipe:
+[deligneSerre/TOPIC-weierstrass-ready-shelf.md](deligneSerre/TOPIC-weierstrass-ready-shelf.md).
 
 The two gates of §7 are still in the unported demand but are not ready; they are
 not on this list and must not be scheduled from it.

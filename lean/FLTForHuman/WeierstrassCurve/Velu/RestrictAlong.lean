@@ -53,7 +53,8 @@ transcribed here because only this module may be edited; all are `private`):
 * the port's `PrincipalDivisors/Transcendence.lean` fibre-centre norm argument
   re-run without `[CharZero F]`, giving
   `Divisor.pushforwardNormFormula_of_finiteDimensional` char-free and then
-  `normFormulaAlong_of_elliptic` / `s2c_key`;
+  `normFormulaAlong_of_elliptic_cf` / `s2c_key` (renamed from the pin's
+  `normFormulaAlong_of_elliptic`: see the declaration's docstring);
 * the char-free separability chain
   `kw_isSeparable_of_aeval_derivative_ne_zero`,
   `kw_derivative_mul_sq_sub_mul_derivative_sq_ne_zero`,
@@ -1840,7 +1841,27 @@ section AutoNorm
 variable {F : Type u} [Field F] [DecidableEq F] [IsAlgClosed F]
 variable {V W : Affine F} [V.IsElliptic] [W.IsElliptic]
 
-theorem normFormulaAlong_of_elliptic (ι : V.FunctionField →ₐ[F] W.FunctionField)
+/-- The character-free copy of `normFormulaAlong_of_elliptic`: `[IsAlgClosed F]` with an
+explicit `hsep`, no `[CharZero F]`.
+
+**Renamed from the pin's `normFormulaAlong_of_elliptic`** (refactor wave, 2026-10-08).
+The pin declares this name twice, at two different statements: this one (its
+`S_AlgebraicCurve_normFormulaAlong`-family copy) and the `[IsAlgClosed F] [CharZero F]`,
+`hsep`-free special case, which the port transcribes in
+`IsogenyEndDatum/Engine.lean`. Two different declarations cannot share one fully
+qualified name, so no environment can hold `Engine.lean` and this module together — and
+they must meet: the ready node
+`WeierstrassCurve.zmultiples_eq_of_veluQuotient_j_eq_of_forall_isogenyEndDatum_exists_int`
+needs the `IsogenyEndDatum` cone *and*
+`WeierstrassCurve.exists_veluFunctionFieldHom_pointMapOfPushforward_ker_eq_zmultiples`,
+whose only home is `Velu/PointMapOddOrder.lean`, built on this file. The Engine copy keeps
+the pin name because it has a hundred references across the library and the `spec/`
+zones; **this** copy is renamed at this file's own `_cf` convention (beside
+`pointMapOfPushforward_eq_of_seam_cf` and the `_cf` block above), and the statement is
+unchanged from the pin. The checker cannot match a renamed public declaration by last
+name, so it is exempted by name in `spec/check_flt_statements.py`'s `OWN_PROOFS` with that
+reason. -/
+theorem normFormulaAlong_of_elliptic_cf (ι : V.FunctionField →ₐ[F] W.FunctionField)
     (hfin : FiniteAlong F ι) (hsep : SeparableAlong F ι) : NormFormulaAlong F ι hfin :=
   kw_normFormulaAlong_of_separableAlong_cf (K := F) ι
     (kw_veluHPDSupplier W W.isUnit_Δ.ne_zero) hfin hsep
@@ -1980,7 +2001,7 @@ theorem s2c_key (hp3 : 3 ≤ p) (hpodd : Odd p) (hord : addOrderOf Q = p)
   ·
     have hsep : SeparableAlong F ι :=
       kw_oddOrderSummingSetFunctionFieldHom_odd_separableAlong (W := W) hp3 hpodd hord
-    have hN₀ : NormFormulaAlong F ι hfin := normFormulaAlong_of_elliptic ι hfin hsep
+    have hN₀ : NormFormulaAlong F ι hfin := normFormulaAlong_of_elliptic_cf ι hfin hsep
     haveI : HasPrincipalDivisors F W.toAffine.FunctionField :=
       kw_veluHPDSupplier W W.toAffine.isUnit_Δ.ne_zero
     haveI : HasPrincipalDivisors F

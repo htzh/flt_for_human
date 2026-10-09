@@ -197,7 +197,16 @@ content-based headlines separately: nodes overstate a cone whose weight sits in 
 few large files. State the metric's bias — a name-based "already ported" test is
 an upper bound and misses renamed ports, and the **`ucl` closure is an upper bound in
 the other direction too**: it cannot see that a closure member's *mathematics* is
-already in the port under another name, nor the pin's definitional imports. The Vélu
+already in the port under another name, nor the pin's definitional imports. **Walk the
+proof's definition uses, not only the import block.** A `Definitions/Def_*.lean` import
+can be an *empty stub* while the `S_` file's proof still consumes a public block of a
+different `Def_*` module the stub drags in transitively: W2's division-field target
+imports only the stub `Def_WeierstrassCurve_DivPolyMulFormulaCore.lean`, yet its proof
+needs the `MFred`/`mfred_all`/`ΨSq` block of the ≈1,750-line
+`Def_WeierstrassCurve_DivPolyMulFormula.lean` (unported; the set re-derived the two
+consumers from the ported `Elliptic.smul_formula_or_zero` instead). The docs-site graph
+carries the list per node — `fltdata.proof_defs` — so check it before calling a
+definition layer empty. The Vélu
 V2 wave priced four closure members at 1,246 / 911 / 58 / 269 lines and wrote ≈15
 lines for the last of them and nothing for the first three (same statement minus a
 `[CharZero F]`, same statement with different binder explicitness, same body with an
@@ -1160,6 +1169,12 @@ the same class of hazard as `open` name ambiguity (above): a scope can change ho
 API drift is the recurring real cost. The list below is the accumulated set; when
 a new pin is taken, re-run it and append.
 
+**The pin is not on this line.** `anthropics/fermats-last-theorem@aa2d8b3` is Lean
+`v4.33.1` / mathlib `db584cd6` (the `v4.33.0` bump); the port is Lean `v4.34.0` /
+mathlib `v4.34.0`. Expect drift in every set, and do not write "the pin is on the
+same mathlib line" into a work order (W2's did, and the implementer had to correct it
+mid-set).
+
 | old / expected | `v4.34.0` |
 |---|---|
 | `if_pos h`, `if_neg h` | `ite_eq_left h`, `ite_eq_right h` |
@@ -1190,6 +1205,8 @@ a new pin is taken, re-run it and append.
 | `Equiv.infinite_iff` | for `e : α ≃ β` it reads `Infinite α ↔ Infinite β`; check the direction at the call site (`e.infinite_iff.mp` from `Infinite α`) |
 | `Prime.dvd_finset_prod_iff` | `Prime.dvd_finsetProd_iff` (the pin's `first \| … \| …` already falls through to it) |
 | `ModularForm.coe_smul`, `ModularForm.coe_zero` | `FunLike.coe_smul`, `FunLike.coe_zero` (the `ModularForm.*` names are deprecated aliases in `v4.34.0`) |
+| `Finite.of_equiv` / `Set.toFinite` | `Nat.finite_of_card_ne_zero`, with the `Finite` instance passed explicitly |
+| `Nat.card_zmod` | no longer needs `NeZero m` — the pin's `haveI : NeZero m` is dropped, not suppressed |
 
 The recurring *shapes* of drift, beyond a rename:
 
@@ -1209,6 +1226,24 @@ The recurring *shapes* of drift, beyond a rename:
   equation, and a non-reducible `def` stops elaboration from unfolding (bind the
   value with `let`).
 - **`open` can create name ambiguity** — qualify instead (`UpperHalfPlane.I`).
+- **A `rfl` that used to close can instead burn the whole heartbeat budget.** W2's
+  `Y_mem_of_X_mem` carried a `rfl` for its `hq`; under `v4.34.0` it runs a
+  `whnf` to the 4,000,000-heartbeat cap before failing. The fix is not a bigger cap
+  but naming the missing bridge in the `simp only` list (`Polynomial.map_X`,
+  `IntermediateField.algebraMap_apply`). Treat a slow *definitional* step as an
+  unfolding problem, and look for the lemma that states the equation the `rfl` used
+  to see.
+- **Self-base-change is not definitional in `v4.34.0`.** The pin lets
+  `(E F)⁄F` be `E F` and computes with it; in the port carry
+  `have hb : (E F).baseChange F = E F` and transport witnesses with `hb ▸ ⟨e⟩`
+  (the adaptation at `WeierstrassCurve/Velu/CyclicCount.lean:429`). Two sets have now
+  paid for this independently — read that file first.
+- **Transcribe the pin's `linter.*` suppressions exactly; never its `maxHeartbeats`.**
+  The lint options are part of the pin's declaration environment and 86 landed modules
+  carry `set_option linter.unusedSectionVars false`; the review gate is a warning-free
+  tier-1 elaboration. W1's work order said the opposite and cost a cleanup round. Lint
+  classes the pin does *not* suppress are real: fix those as proof edits (`haveI` →
+  `have`, dropping unused `simp` arguments), do not add new suppressions.
 - **The `haveI` style-linter fix is not universal**: instance search may not find
   a plain `have` where `haveI` works, so suppress the linter locally rather than
   weaken the proof.

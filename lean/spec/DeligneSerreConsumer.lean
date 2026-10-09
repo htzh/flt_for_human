@@ -51,6 +51,15 @@ import FLTForHuman.DeligneSerre.Assembly
 -- S9 — the promoted rank-two charpoly conversion the weight-one → weight-two
 -- → Frobenius-charpoly route consumes (studies/frobenius-charpoly-scout.md §4).
 import FLTForHuman.Algebra.CharpolyOfQuadratic
+-- W1 — the `WeierstrassCurve` ready shelf: the exceptional automorphisms of the
+-- supersingular curves (topics/deligneSerre/WORKORDER-W1-automorphisms.md).
+import FLTForHuman.WeierstrassCurve.Automorphism.Basic
+import FLTForHuman.WeierstrassCurve.Automorphism.CharTwo
+import FLTForHuman.WeierstrassCurve.Automorphism.CharThree
+-- W2 — the same shelf: full level structure and the `n`-division field
+-- (topics/deligneSerre/WORKORDER-W2-division-fields.md).
+import FLTForHuman.WeierstrassCurve.Torsion.NatCardStructure
+import FLTForHuman.WeierstrassCurve.Torsion.DivisionField
 
 set_option autoImplicit false
 
@@ -305,5 +314,104 @@ example :
     2 1
     (by norm_num [Algebra.smul_def, map_ofNat])
     (by rw [map_one]; simp)
+
+/-! ## Zone W1 — the exceptional automorphisms of the supersingular curves
+
+The first set of the `WeierstrassCurve` ready shelf
+(`topics/deligneSerre/WORKORDER-W1-automorphisms.md`), three modules: the shared
+point-transport prelude (`Automorphism/Basic.lean`: `xy`, `vcHom`, `xy_vcHom`), the
+characteristic-2 headline (`Automorphism/CharTwo.lean`) and the characteristic-3
+headline (`Automorphism/CharThree.lean`).
+
+The arithmetic inputs — a primitive cube root of unity in characteristic 2, a square
+root of `-1` in characteristic 3 — are taken as hypotheses: exhibiting one needs an
+explicit extension of `𝔽₂`/`𝔽₃` that is not ported, and the headlines take them as
+arguments, exactly as the pin does. Each zone does real work with the conclusion
+rather than projecting it: the prelude zone proves the identity variable change acts
+as the identity *through the bundled `vcHom` and the coordinate projection*; the
+characteristic-2 zone extracts the order-three endomorphism, its quadratic relation and
+a non-scalar `3`-torsion witness; the characteristic-3 zone uses the **converse** half of
+the classification (`∀ m, six-way m → ∃ γ`) to realise `α ∘ β` by a variable change and
+re-expresses that action through the prelude. Deleting any of the three modules fails
+its zone. -/
+
+section W1
+open WeierstrassCurve WeierstrassCurve.Affine
+
+-- Prelude (Basic.lean): the `HEq`-level coordinate transport `heq_of_xy_eq`, read back
+-- through the bundled `vcHom` as an honest equality — this goes through `vcHom_apply`,
+-- `castPt`/`heq_castPt`, `xy_vcInvFun` and the ported `Point.vcInvFun`.
+example {K : Type*} [Field K] [DecidableEq K] {W : WeierstrassCurve K}
+    (γ : VariableChange K) (hW : γ • W = W) (T Q : W.toAffine.Point)
+    (h : (WeierstrassCurve.Automorphism.xy T).map (fun q =>
+          (WeierstrassCurve.Affine.vcXInv γ q.1, WeierstrassCurve.Affine.vcYInv γ q.1 q.2))
+        = WeierstrassCurve.Automorphism.xy Q) :
+    WeierstrassCurve.Automorphism.vcHom γ W hW T = Q := by
+  rw [WeierstrassCurve.Automorphism.vcHom_apply]
+  exact (eq_of_heq ((WeierstrassCurve.Automorphism.heq_of_xy_eq γ hW T Q h).symm.trans
+    (WeierstrassCurve.Automorphism.heq_castPt hW _))).symm
+
+-- Characteristic 2 (CharTwo.lean): `σ` satisfies `σ² + σ + 1 = 0`, and it is not a
+-- scalar on the `3`-torsion — a witness of order exactly `3` is moved by `σ` to something
+-- that is neither itself nor `0`.
+example {L : Type*} [Field L] [DecidableEq L] [IsAlgClosed L] [CharP L 2]
+    (w : Lˣ) (hw : (w : L) ^ 3 = 1) (hw1 : (w : L) ≠ 1) :
+    ∃ σ : (⟨0, 0, 1, 0, 0⟩ : WeierstrassCurve L).toAffine.Point →+
+        (⟨0, 0, 1, 0, 0⟩ : WeierstrassCurve L).toAffine.Point,
+      (∀ P, σ (σ P) + σ P + P = 0) ∧
+        ∃ a : (⟨0, 0, 1, 0, 0⟩ : WeierstrassCurve L).toAffine.Point,
+          addOrderOf a = 3 ∧ σ a ≠ a ∧ σ a ≠ 0 := by
+  obtain ⟨σ, -, -, -, hσ, -, hpσ, -⟩ :=
+    WeierstrassCurve.exists_addMonoidHom_vcInvFun_pow_heq_and_forall_exists_ne_smul_of_char_two
+      w hw hw1 3 (fun h => absurd ((CharP.cast_eq_zero_iff L 2 3).mp h) (by norm_num))
+  obtain ⟨a, ha, hne⟩ := hpσ 3 (by norm_num) (by norm_num)
+  exact ⟨σ, hσ, a, ha, by simpa using hne 1, by simpa using hne 0⟩
+
+-- Characteristic 3 (CharThree.lean ⨯ Basic.lean): the converse half of the
+-- classification — `α ∘ β` is the action of some variable change fixing `E₀` — read back
+-- through the prelude's bundled `vcHom`.
+example {K : Type*} [Field K] [DecidableEq K] [CharP K 3] (i : Kˣ) (hi : (i : K) ^ 2 = -1) :
+    ∃ γ : VariableChange K, ∃ hγ : γ • (⟨0, 0, 0, -1, 0⟩ : WeierstrassCurve K) =
+        (⟨0, 0, 0, -1, 0⟩ : WeierstrassCurve K),
+      ∀ T : (⟨0, 0, 0, -1, 0⟩ : WeierstrassCurve K).toAffine.Point,
+        HEq (Point.vcInvFun γ (⟨0, 0, 0, -1, 0⟩ : WeierstrassCurve K).toAffine T)
+          (WeierstrassCurve.Automorphism.vcHom γ (⟨0, 0, 0, -1, 0⟩ : WeierstrassCurve K) hγ T) := by
+  obtain ⟨α, β, -, -, -, -, -, -, h7⟩ :=
+    WeierstrassCurve.exists_addMonoidHom_i_tau_vcInvFun_of_char_three i hi
+  obtain ⟨γ, hγ, hcomp⟩ := h7 (α.comp β) (by simp)
+  refine ⟨γ, hγ, fun T => (hcomp T).trans (heq_of_eq ?_)⟩
+  exact eq_of_heq ((hcomp T).symm.trans (WeierstrassCurve.Automorphism.heq_vcHom γ _ hγ T))
+
+end W1
+
+/-! ## Zone W2 — full level structure and the `n`-division field
+
+The second set of the `WeierstrassCurve` ready shelf
+(`topics/deligneSerre/WORKORDER-W2-division-fields.md`): `Torsion/DivisionField.lean`
+produces, for an elliptic curve over `F` and an algebraic closure `Ω`, an intermediate
+field `L` finite and Galois over `F` with exactly `n²` points of `n`-torsion and a faithful
+Galois action; `Torsion/NatCardStructure.lean` then turns that cardinality hypothesis into
+the structure theorem `ZMod n × ZMod n ≃+ E(L)[n]`. The zone *composes the two headlines*:
+the division field's cardinality conjunct is exactly the structure theorem's `hfull`, and
+the `[NeZero n]` the latter needs is taken as a hypothesis beside `(n : F) ≠ 0` (the two are
+equivalent here; carrying it keeps the wire test a term in the headlines' own interfaces).
+Deleting either module fails the zone. -/
+
+section W2
+open WeierstrassCurve WeierstrassCurve.Affine
+
+example {F Ω : Type*} [Field F] [Field Ω] [Algebra F Ω] [IsAlgClosed Ω]
+    [Algebra.IsAlgebraic F Ω] [DecidableEq Ω]
+    (E : WeierstrassCurve F) [E.IsElliptic] {n : ℕ} [NeZero n] (hn : (n : F) ≠ 0) :
+    ∃ L : IntermediateField F Ω,
+      FiniteDimensional F L ∧ IsGalois F L ∧
+        Nonempty (ZMod n × ZMod n ≃+
+          Submodule.torsionBy ℤ (E.baseChange L).toAffine.Point n) := by
+  obtain ⟨L, hfin, hgal, hcard, -⟩ :=
+    WeierstrassCurve.exists_intermediateField_isGalois_card_torsion_eq_sq (F := F) (Ω := Ω) E hn
+  exact ⟨L, hfin, hgal,
+    WeierstrassCurve.nonempty_torsionBy_addEquiv_zmod_prod_of_natCard_torsion_eq_sq E n hn hcard⟩
+
+end W2
 
 end DeligneSerreConsumer

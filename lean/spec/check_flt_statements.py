@@ -2526,6 +2526,41 @@ SOURCES = [
     "Theorems/Thm_ModularCurve_exists_algEquiv_atkinLehner_heckeAlphaHBar_heckeBetaHBar.lean",
     "P2M/Sol/S_ModularCurve_exists_algEquiv_x1x0FunctionFieldC_atkinLehner.lean",
     "Theorems/Thm_ModularCurve_exists_algEquiv_x1x0FunctionFieldC_atkinLehner.lean",
+    # --- WORKORDER-W1 order 1 (`topics/deligneSerre/WORKORDER-W1-automorphisms.md`):
+    # the shared point-transport prelude of the exceptional-automorphism set. Both
+    # `S_` files carry the block byte-identically (char 2 under `§Action`, char 3
+    # lines 18–84) and both `Theorems/` wrappers are the headline statement
+    # authority. Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_WeierstrassCurve_exists_addMonoidHom_vcInvFun_pow_heq_and_forall_exists_ne_smul_of_char_two.lean",
+    "P2M/Sol/S_WeierstrassCurve_exists_addMonoidHom_vcInvFun_pow_heq_and_forall_exists_ne_smul_of_char_two.lean",
+    "Theorems/Thm_WeierstrassCurve_exists_addMonoidHom_i_tau_vcInvFun_of_char_three.lean",
+    "P2M/Sol/S_WeierstrassCurve_exists_addMonoidHom_i_tau_vcInvFun_of_char_three.lean",
+    # --- WORKORDER-W2 order 1 (`topics/deligneSerre/WORKORDER-W2-division-fields.md`):
+    # the count-`N²` structure theorem, matched against its `Theorems/` wrapper; the
+    # pin's `torsionEquiv` and `main` stay `private`, so the headline is the module's
+    # only compared declaration. Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_WeierstrassCurve_nonempty_torsionBy_addEquiv_zmod_prod_of_natCard_torsion_eq_sq.lean",
+    "P2M/Sol/S_WeierstrassCurve_nonempty_torsionBy_addEquiv_zmod_prod_of_natCard_torsion_eq_sq.lean",
+    # --- WORKORDER-W2 order 2 (`topics/deligneSerre/WORKORDER-W2-division-fields.md`):
+    # the `n`-division field, matched against its `Theorems/` wrapper; every helper
+    # stays `private`, so the headline is the module's only compared declaration.
+    # Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_WeierstrassCurve_exists_intermediateField_isGalois_card_torsion_eq_sq.lean",
+    "P2M/Sol/S_WeierstrassCurve_exists_intermediateField_isGalois_card_torsion_eq_sq.lean",
+    # --- WORKORDER-W3 (`topics/deligneSerre/WORKORDER-W3-stepcurve.md`): the odd
+    # prime-degree step of the abscissa-indexed Vélu construction, matched against
+    # its `Theorems/` wrapper; every helper stays `private` (including the recorded
+    # local re-derivation of `sigma_eq_of_eq`), so the headline is the module's only
+    # compared declaration. Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_WeierstrassCurve_stepCurve_stepSubgroup_eq_of_prime_ne_two.lean",
+    "P2M/Sol/S_WeierstrassCurve_stepCurve_stepSubgroup_eq_of_prime_ne_two.lean",
+    # --- WORKORDER-W3b (`topics/deligneSerre/WORKORDER-W3b-zmultiples.md`): equal
+    # Vélu-quotient `j` forces equal cyclic subgroups, matched against its
+    # `Theorems/` wrapper; every helper stays `private`, so the headline is the
+    # module's only compared declaration. Appended last so no earlier last-name
+    # match can flip.
+    "Theorems/Thm_WeierstrassCurve_zmultiples_eq_of_veluQuotient_j_eq_of_forall_isogenyEndDatum_exists_int.lean",
+    "P2M/Sol/S_WeierstrassCurve_zmultiples_eq_of_veluQuotient_j_eq_of_forall_isogenyEndDatum_exists_int.lean",
 ]
 
 PORT_FILES = [
@@ -3657,6 +3692,49 @@ PORT_FILES = [
     # wrappers appended to `SOURCES` last. Appended last so no earlier last-name
     # match can flip.
     "FLTForHuman/ModularCurve/X1/AtkinLehnerExchange.lean",
+    # --- WORKORDER-W1 order 1 (`topics/deligneSerre/WORKORDER-W1-automorphisms.md`):
+    # the shared point-transport prelude of the exceptional-automorphism set, the
+    # 11 declarations both story-A `S_` files repeat byte-identically. Appended last
+    # so no earlier last-name match can flip.
+    "FLTForHuman/WeierstrassCurve/Automorphism/Basic.lean",
+    # --- WORKORDER-W1 order 2 (`topics/deligneSerre/WORKORDER-W1-automorphisms.md`):
+    # the char-2 exceptional automorphisms; only the headline is public, matched
+    # against its `Theorems/` wrapper appended to `SOURCES` above. Appended last so
+    # no earlier last-name match can flip.
+    "FLTForHuman/WeierstrassCurve/Automorphism/CharTwo.lean",
+    # --- WORKORDER-W1 order 3 (`topics/deligneSerre/WORKORDER-W1-automorphisms.md`):
+    # the char-3 exceptional automorphisms; only the headline is public, matched
+    # against its `Theorems/` wrapper appended to `SOURCES` above. Appended last so
+    # no earlier last-name match can flip.
+    "FLTForHuman/WeierstrassCurve/Automorphism/CharThree.lean",
+    # --- WORKORDER-W2 order 1 (`topics/deligneSerre/WORKORDER-W2-division-fields.md`):
+    # the count-`N²` structure theorem; only the headline is public, matched against
+    # its `Theorems/` wrapper appended to `SOURCES` above. Appended last so no earlier
+    # last-name match can flip.
+    "FLTForHuman/WeierstrassCurve/Torsion/NatCardStructure.lean",
+    # --- WORKORDER-W2 order 2 (`topics/deligneSerre/WORKORDER-W2-division-fields.md`):
+    # the `n`-division field; only the headline is public, matched against its
+    # `Theorems/` wrapper appended to `SOURCES` above. Appended last so no earlier
+    # last-name match can flip.
+    "FLTForHuman/WeierstrassCurve/Torsion/DivisionField.lean",
+    # --- WORKORDER-W3 (`topics/deligneSerre/WORKORDER-W3-stepcurve.md`): the odd
+    # prime-degree step of the abscissa-indexed Vélu construction; only the headline
+    # is public, matched against its `Theorems/` wrapper appended to `SOURCES` above.
+    # Appended last so no earlier last-name match can flip.
+    "FLTForHuman/WeierstrassCurve/Velu/StepCurveSubgroup.lean",
+    # --- WORKORDER-W4 (`topics/deligneSerre/WORKORDER-W4-definition-wave.md`), stage 1:
+    # the reduction-point definition layer. Its pin source
+    # `Definitions/Def_WeierstrassCurve_ReductionMap.lean` is already in `SOURCES` from the
+    # earlier `ValuationSubring` promotion, so no new source row is needed; the four
+    # `ValuationSubring` tool rows of the same pin file are appended to
+    # `FLTForHuman/NumberTheory/ValuationAtPlace.lean`, which is already in `PORT_FILES`.
+    # Appended last so no earlier last-name match can flip.
+    "FLTForHuman/WeierstrassCurve/Reduction/Point.lean",
+    # --- WORKORDER-W3b (`topics/deligneSerre/WORKORDER-W3b-zmultiples.md`): equal
+    # Vélu-quotient `j` forces equal cyclic subgroups; only the headline is public,
+    # matched against its `Theorems/` wrapper appended to `SOURCES` above. Appended
+    # last so no earlier last-name match can flip.
+    "FLTForHuman/WeierstrassCurve/Velu/CyclicQuotientJInjective.lean",
 ]
 
 
@@ -3844,6 +3922,22 @@ OWN_PROOFS = {
     # declarations are at the pin names (the `iotaDescent*` family, and the headline
     # against its wrapper).
     "ModularCurve.exists_twoCurveDescent",
+    # Refactor wave (2026-10-08): the character-free copy of
+    # `WeierstrassCurve.Affine.normFormulaAlong_of_elliptic` in
+    # `FLTForHuman/WeierstrassCurve/Velu/RestrictAlong.lean`. The pin declares that name
+    # twice at two different statements — this one (`[IsAlgClosed F]` with an explicit
+    # `hsep`) and the `[IsAlgClosed F] [CharZero F]`, `hsep`-free special case, which the
+    # port carries in `IsogenyEndDatum/Engine.lean`. Two different declarations cannot
+    # share one fully qualified name, so `Engine.lean` and `Velu/RestrictAlong.lean` were
+    # unimportable together, and the ready node
+    # `WeierstrassCurve.zmultiples_eq_of_veluQuotient_j_eq_of_forall_isogenyEndDatum_exists_int`
+    # needs both cones. The Engine copy keeps the pin name (it has ~100 references across
+    # the library and the `spec/` zones); this copy is renamed to the file's own `_cf`
+    # convention with its statement unchanged, so the last-name lookup can no longer find
+    # its pin counterpart. Dotted, so the exemption cannot leak. See
+    # `topics/deligneSerre/TOPIC-weierstrass-ready-shelf.md` §5.1 and the declaration's
+    # docstring.
+    "WeierstrassCurve.Affine.normFormulaAlong_of_elliptic_cf",
 }
 
 # Declaration keywords. `instance` matters for PhiGen; `structure` for Polynomial.

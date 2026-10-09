@@ -201,6 +201,20 @@ entry.
   `tools/deps/build_ladder.py --edit`, not inline, and move the affected consumer
   zones with the renamed pin name (the checker matches by last name).
 
+  **Resolved 2026-10-08 (manager refactor wave).** Both halves are settled.
+  `instInfinitePlace` no longer collides (`private` at `IsogenyEndDatum/Engine.lean:96`,
+  `scoped` at `Place/RRSpace.lean:444`). The `normFormulaAlong_of_elliptic` clash was
+  broken by renaming the **character-free** copy in `Velu/RestrictAlong.lean` to
+  `normFormulaAlong_of_elliptic_cf` (that file's own `_cf` convention, statement
+  unchanged, `OWN_PROOFS`-exempted by dotted name). The copy was chosen by measurement:
+  every referencing module outside `RestrictAlong` itself has `Engine` in its import
+  cone, so ~100 of 101 references resolve to the Engine copy and the character-free copy
+  had one user — its own file, at one call site. `import Engine` +
+  `import Velu.RestrictAlong` now elaborates, as does the whole twelve-module union of
+  the `zmultiples` premise homes. Checker 7234 → 7233 identical / 37 own; wave build
+  9,352 jobs / 65.6 s. Record: `logs/deligne-serre-friction.md`, "Refactor wave
+  (2026-10-08)"; still live at the time of writing: none.
+
 - **The second-order `XYIdeal` block belongs lower in the DAG (found 2026-10-06, while
   porting V3).** `IsogenyEndDatum/DualEndData.lean` carries the generic
   second-order-at-a-point development — `derivative_polynomial`,
