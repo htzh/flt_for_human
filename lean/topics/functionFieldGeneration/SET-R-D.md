@@ -28,6 +28,21 @@ proposal; if the mathematics admits a leaf-side home, re-home and record it
 
 ## 0. What is already in the port
 
+**What is new in this set (read before coding).** Orders 1 and 2 are the
+**characteristic-`p`** results of the column. Every q-expansion finiteness result
+already in the port is characteristic 0 — `JOneES.exists_transcendental_finiteDimensional_qExpFunctionFieldC`
+is over `ℚ` with an unnamed generator (`xq = q(E₆²)/q(E₄³)`, not `j`), and
+`…_laurentBaseChange` is over a characteristic-0 base change — and the ~166 other
+`FiniteDimensional` statements in the tree are generic function-field algebra that
+*consumes* finiteness. Order 1 is **Deuring reduction**: it compares the
+characteristic-0 field with the q-expansion field over the residue field of a
+valuation subring (characteristic `p`), carrying a degree bound across, with the
+valuation subring and `π` as *inert data* and the comparison running through a
+shared integral series pair. Order 2 spreads the residue-field statement to every
+algebraically closed `K`, `𝔽̄_p` included, with `jqModC = q(j)` pinned as the
+generator. Verify any "finiteness" step against the pin rather than re-deriving it
+generically: the generic route does not give characteristic `p`.
+
 * **Order 1** has one premise, `AlgebraicCurve.finiteDimensional_adjoin_of_transcendental`,
   already ported. 26 declarations / 557 lines, **0 substitutions** — everything in
   the `S_` file is new. Big items: `main` (111), `card_le_finrank_of_linearIndependent`

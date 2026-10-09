@@ -2494,6 +2494,38 @@ SOURCES = [
     # headline is its `Theorems/` wrapper, appended last so no earlier last-name
     # match can flip.
     "Theorems/Thm_ModularCurve_exists_isIntegralQExp_smul_atkinLehnerSlash_of_even.lean",
+    # --- SET-R-E prerequisite: the definition layer. The opening
+    # `ValuationSubring` block of the pin's `Def_WeierstrassCurve_ReductionMap.lean`
+    # (`liesOverPrime_iff`, `natCast_mem'`,
+    # `natCast_mem_maximalIdeal_of_liesOverPrime`,
+    # `charP_residueField_of_liesOverPrime_def`) is homed publicly in
+    # `FLTForHuman/NumberTheory/ValuationAtPlace.lean`, so the pin definition file
+    # is appended to verify it. The rest of that pin module (the Weierstrass
+    # reduction map) is unported. Appended last so no earlier last-name match can
+    # flip.
+    "Definitions/Def_WeierstrassCurve_ReductionMap.lean",
+    # --- SET-R-E order 1 (`topics/functionFieldGeneration/SET-R-E.md`): the
+    # `isAlgClosed` finrank/index bound in the `q`-expansion model. The `S_` file
+    # supplies the pin names of the four genuinely-new rows
+    # (`jqModC_eq_div` / `jqModC_mem_laurentBaseChange` / `bound_of_place` /
+    # `solution`); its SET-R-D engine block (`isAlgebraic_residueField`,
+    # `coe_eq_zero_of_mem_maximalIdeal_top`, `residueTopHom`) is already public in
+    # `FLTForHuman/ModularCurve/X1/FunctionFieldIsAlgClosed.lean`. Its `Theorems/`
+    # wrapper is appended last so the public headline copy wins a last-name match.
+    "P2M/Sol/S_ModularCurve_finrank_adjoin_jqModC_qExpFunctionFieldC_le_index_of_isAlgClosed.lean",
+    "Theorems/Thm_ModularCurve_finrank_adjoin_jqModC_qExpFunctionFieldC_le_index_of_isAlgClosed.lean",
+    # --- SET-R-E order 2 (`topics/functionFieldGeneration/SET-R-E.md`): the two
+    # Atkin–Lehner exchanges, written as one module. Both `S_` files supply the pin
+    # names of the shared engine (the `H`-independent lines are homed once in
+    # `FLTForHuman/ModularCurve/X1/AtkinLehnerExchange.lean`; the `Γt`/`Γb`-dependent
+    # lines appear once per target under its own sub-namespace) and the pin names of
+    # the two headlines (`solution`). The two `Theorems/` wrappers are the statement
+    # authority and are appended last so the public headline copies win a last-name
+    # match.
+    "P2M/Sol/S_ModularCurve_exists_algEquiv_atkinLehner_heckeAlphaHBar_heckeBetaHBar.lean",
+    "Theorems/Thm_ModularCurve_exists_algEquiv_atkinLehner_heckeAlphaHBar_heckeBetaHBar.lean",
+    "P2M/Sol/S_ModularCurve_exists_algEquiv_x1x0FunctionFieldC_atkinLehner.lean",
+    "Theorems/Thm_ModularCurve_exists_algEquiv_x1x0FunctionFieldC_atkinLehner.lean",
 ]
 
 PORT_FILES = [
@@ -3610,6 +3642,21 @@ PORT_FILES = [
     # appended last. The twenty already-public prelude declarations are imported,
     # not re-declared. Appended last so no earlier last-name match can flip.
     "FLTForHuman/ModularCurve/X1/IsIntegralAtkinLehner.lean",
+    # --- SET-R-E order 1 (`topics/functionFieldGeneration/SET-R-E.md`): the
+    # `isAlgClosed` finrank/index bound, matched against its `S_` file and
+    # `Theorems/` wrapper appended to `SOURCES` last. The SET-R-D engine block is
+    # imported from `FunctionFieldIsAlgClosed.lean`, not re-declared. Appended last
+    # so no earlier last-name match can flip.
+    "FLTForHuman/ModularCurve/X1/FunctionFieldFinrankIsAlgClosed.lean",
+    # --- SET-R-E order 2 (`topics/functionFieldGeneration/SET-R-E.md`): the two
+    # Atkin–Lehner exchanges. The `H`-independent engine lines are written once in
+    # the module's `ModularCurve.A2K1A` namespace (or imported from
+    # `X1/IsIntegralAtkinLehner.lean` / the `JOneES.JOneESRat` block); the
+    # `Γt`/`Γb`-dependent lines appear once per target in `…A2K1A.Hecke` and
+    # `…A2K1A.X1x0`, and the two headlines are matched against their `Theorems/`
+    # wrappers appended to `SOURCES` last. Appended last so no earlier last-name
+    # match can flip.
+    "FLTForHuman/ModularCurve/X1/AtkinLehnerExchange.lean",
 ]
 
 

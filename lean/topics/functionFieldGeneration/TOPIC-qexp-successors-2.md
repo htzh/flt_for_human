@@ -22,6 +22,35 @@ the new headlines):
 | `ModularCurve.exists_algEquiv_atkinLehner_heckeAlphaHBar_heckeBetaHBar` | SET-R-D order 3 | 1,195 |
 | `ModularCurve.exists_algEquiv_x1x0FunctionFieldC_atkinLehner` | SET-R-D order 3 | 1,237 |
 
+## 1a. The definition layer (done, 2026-10-08)
+
+Hand-checked against the three `S_` files' import lists (the head's §3 warns that
+`--ready`/`--with-defs` do not see import-only definitions). Six pin definition
+modules are imported; every declaration they use is public **except one block**:
+
+* the opening `ValuationSubring` block of
+  `Definitions/Def_WeierstrassCurve_ReductionMap.lean`
+  (`liesOverPrime_iff`, `natCast_mem'`,
+  `natCast_mem_maximalIdeal_of_liesOverPrime`,
+  `charP_residueField_of_liesOverPrime_def`) was carried only as a `private`
+  re-derivation inside `ModularCurve/X1/FunctionFieldIsAlgClosed.lean`. It is now
+  **public in `NumberTheory/ValuationAtPlace.lean`** (its natural home: places of
+  `ℚ̄` and integral elements, already importing
+  `GaloisRep/Defs/Ramification.lean` for `LiesOverPrime`), `Def_WeierstrassCurve_ReductionMap.lean`
+  is appended to `SOURCES`, and the `FunctionFieldIsAlgClosed.lean` copies were
+  deleted in favour of the import. Checker **6975 → 6979, 0/0** (+4); wave green
+  (4,692 jobs). The rest of that pin module — the Weierstrass reduction map
+  (`reducePoint`, `equation_residue`, …) — stays unported and is not needed.
+* `Def_ModularCurve_XHOperators`, `Def_ModularCurve_X1HeckeOperator`,
+  `Def_ModularCurve_X1Diamond`, `Def_ModularCurve_X1`, `Def_ModularCurve_JqCoeff`,
+  `Def_FLTPrelim_Ramification`: the used declarations are all public — no
+  promotion needed.
+* `ModularForm.heckeDiagMatrix_zero` / `heckeMatrix_zero` appear only in the pin's
+  `attribute [-simp] …` scaffolding, never in a statement or proof — not needed.
+
+So this head needs **no hub promotion and no hub edit**; the only hub node touched
+was `ValuationAtPlace.lean` itself, above.
+
 ## 2. At a glance
 
 | | `…heckeAlphaHBar_heckeBetaHBar` | `…x1x0FunctionFieldC_atkinLehner` | `…finrank_…_of_isAlgClosed` |
@@ -48,9 +77,13 @@ shape as the Γ₀-rationality pair in SET-R-A (`next5_plan`'s block detector, h
 (16), `conjSL_mem_Gamma0` (15), `heckeDiag_mul_mul_inv` (15).
 
 `…x1x0FunctionFieldC_atkinLehner` also carries a second small block —
-`conj_mem_Gamma1` (48) and `T_mem_Gamma1` (4) — and **both are already public**:
-they are among the sixteen `Gamma0Integral.lean` rows promoted for SET-R-D (the
-`X1DiamondRationalForms` block). Reuse them; do not re-prove.
+`conj_mem_Gamma1` (48) and `T_mem_Gamma1` (4). `conj_mem_Gamma1` **is** public: it is
+one of the sixteen `Gamma0Integral.lean` rows promoted for SET-R-D (the
+`X1DiamondRationalForms` block). **`T_mem_Gamma1` is not** — the promotion took
+sixteen rows, and this was not among them (it is still `private` at
+`Gamma0Integral.lean:1408`, and the `X1BoundedDenominators` copy was deleted in the
+same pass's duplicate collapse). Re-derive the four lines in the consumer rather
+than reopening the hub; SET-R-E did exactly that.
 
 Statements (abridged; the `Theorems/` wrappers are the authority):
 `…heckeAlphaHBar_heckeBetaHBar` produces a `w` in
@@ -67,7 +100,21 @@ exchange behind the `(ℓ+1)`-dimensional relrank of SET-R-B.
 lines) is the field-of-constants extension of SET-R-C order 1: for algebraically
 closed `K` and `Γ ≤ Γ'` with the `±`-negation condition, the degree of
 `qExpFunctionFieldC K Γ` over `K(jq)` is bounded by `Γ'.index`. Six premises, all
-ported. Its block is 87 lines (78 already in the port) and its top rows —
+ported.
+
+**This is the characteristic-`p` step of the index computation.** The earlier
+finrank/index bounds — `finrank_adjoin_jqModC_laurentBaseChange_qExpFunctionFieldC_le_index`
+(SET-R-C order 1) and its γ₀/γ_H/γ₁ instances — are statements over `ℚ` and its
+characteristic-0 base changes. This one holds over an **arbitrary algebraically
+closed `K`**, `𝔽̄_p` included: it says the index bound is a statement about the
+q-expansion model **in characteristic `p`**, not just over `ℚ`. Its proof is the
+constant-extension step of SET-R-D order 2, and its numeric input is SET-R-D
+order 1's Deuring reduction (which compares the two characteristics through a
+shared integral series pair). Contrast with the ~166 generic `FiniteDimensional`
+statements in `AlgebraicCurve/`, which *take* finiteness as a hypothesis: here the
+finiteness **and the degree** are produced in characteristic `p`.
+
+Its block is 87 lines (78 already in the port) and its top rows —
 `isAlgebraic_residueField` (59), `residueTopHom` (11), `jqModC_eq_div` (9),
 `coe_eq_zero_of_mem_maximalIdeal_top` (8) — are **the engine of SET-R-D order 2**
 (`ModularCurve/X1/FunctionFieldIsAlgClosed.lean`), where `isAlgebraic_residueField`
@@ -75,14 +122,17 @@ and `residueTopHom` are public. Reuse them; the transcription is then short.
 
 ## 5. Hub contact: none required
 
-The only port-`private` row in the union is **`T_mem_Gamma1`** in
-`ModularCurve/X1/Inputs.lean`, matched by the `x1x0` target. It is avoidable: the
-promoted hub copy `…X1DiamondRationalForms.T_mem_Gamma1` (public since SET-R-D) is
-the same statement and is already imported by the sibling module's cone. The new
-module should use the public copy, or re-derive four lines. **No promotion and no
-hub edit is proposed for this head.**
+The only port-`private` row in the union is **`T_mem_Gamma1`** — matched by the
+`x1x0` target to `ModularCurve/X1/Inputs.lean`, and still `private` in the hub
+`Gamma0Integral.lean:1408`. *Correction (2026-10-08, found during SET-R-E):* an
+earlier draft of this section claimed the hub's `X1DiamondRationalForms` copy was
+public; it is not — the SET-R-D promotion took sixteen rows and `T_mem_Gamma1` was
+not one of them. The four-line pin copy is transcribed in place in the consumer.
+**No promotion and no hub edit is proposed for this head.**
 
-## 6. Proposed cut — one set, SET-R-E, two orders
+## 6. The cut — one set, SET-R-E, two orders
+
+Written as [SET-R-E.md](SET-R-E.md).
 
 * **Order 1** `FLTForHuman/ModularCurve/X1/FunctionFieldFinrankIsAlgClosed.lean`
   — the `isAlgClosed` finrank bound (193 lines, 3 substitutions all importable,
@@ -90,7 +140,7 @@ hub edit is proposed for this head.**
 * **Order 2** `FLTForHuman/ModularCurve/X1/AtkinLehnerExchange.lean` — the shared
   472-line engine written once plus the two Atkin–Lehner headlines (1,195 + 1,237
   raw lines; ≈1,900 written with the block deduped). Reuses SET-R-D order 3 and
-  the promoted `conj_mem_Gamma1`/`T_mem_Gamma1`.
+  the promoted `conj_mem_Gamma1` (the `T_mem_Gamma1` copy is re-derived, §5).
 
 Total ≈1,902 net new lines over 250 declaration groups — one set, one subagent,
 after the module paths are confirmed. The implementer may re-home a node to a

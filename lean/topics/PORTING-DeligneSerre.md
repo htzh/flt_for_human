@@ -1,23 +1,18 @@
-# The Deligne–Serre weight-one port — status, method and subject plan
+# The Deligne–Serre weight-one column — frontier, workflow and plan
 
-**Status: the unconditional 54-node slice is COMPLETE (2026-09-29); the
-density-dependent and converse halves are deferred behind two large gates (§6).**
-This note was rewritten after the fact: §1 records what actually shipped, §2 the
-order and the way it was executed, §3 the build economy that made it cheap, and
-§6 what remains. Everything is measured against the pin
+**Status (2026-10-08).** The unconditional 54-node slice shipped 2026-09-29 (§1).
+The column has since taken four more clusters off the same frontier — the
+q-expansion head, its two successor sets, and the definition layer and hub work
+under them — using the workflow of §3. The checker is at **7218 identical
+(313 promoted, 83 renamed), 0 mismatched, 0 missing, 36 own (7254 checked)**, and
+the `DeligneSerre` target's ready shelf is **83 nodes** (§2).
+
+This note is the column's plan, not its history: §1 what has shipped, §2 the
+frontier as it stands, §3 the workflow the manager follows, §4 the shared ground
+(definitions, promotions, hubs) that is the manager's own work, §5 the build
+economy, §6 verification, §7 what remains. Everything is measured against the pin
 `anthropics/fermats-last-theorem@aa2d8b3` with `tools/deps`; the port's mathlib is
 `v4.34.0`.
-
-The operative work orders are the nine files
-[deligneSerre/WORKORDER-H-homes.md](deligneSerre/WORKORDER-H-homes.md),
-`WORKORDER-S1-eisenstein.md`, `-S2-hecke-gamma1.md`, `-S3-relevement-lifting.md`,
-`-S4-coefficient-ring.md`, `-S5-semisimple-descent.md`,
-`-S7-frobenius-density.md`, `-S6-conjugacy-lifting.md`, `-S8-assembly.md` — each a
-self-contained brief (scope, pin file:line, exact target statements, homes and
-namespaces, route with negatives, build discipline, stop conditions). The
-after-the-fact record is [../logs/deligne-serre-port.md](../logs/deligne-serre-port.md);
-the running friction/promotion ledger is
-[../logs/deligne-serre-friction.md](../logs/deligne-serre-friction.md).
 
 Companions:
 
@@ -25,259 +20,271 @@ Companions:
   — the mathematics: the theorem, the lifting, the assembly from residual data.
 - [../../studies/deligne-serre-weight-one-scout.md](../../studies/deligne-serre-weight-one-scout.md)
   — the effort measurement, the subject clusters, and the two gates (§1, §3.1).
-- [porting-playbook.md](../porting-playbook.md) — the rules; §2.4 (dedup before
-  coding), §3.1–§3.4 (module-as-role, one topic at a time, sets and review gates),
-  §3.5 (the build ladder), §3.7 (porting order inside one effort), §4 (faithfulness).
-- The earlier planning sketches
-  [deligneSerre/TOPIC-port-order.md](deligneSerre/TOPIC-port-order.md),
-  [TOPIC-definitions-and-homes.md](deligneSerre/TOPIC-definitions-and-homes.md),
-  [TOPIC-theorem-order.md](deligneSerre/TOPIC-theorem-order.md) and
-  [TOPIC-weight-one-lifting-and-assembly.md](deligneSerre/TOPIC-weight-one-lifting-and-assembly.md)
-  hold the background mathematics; where they disagree with the work orders, the
-  work orders and the port are right.
-- Adjacent efforts: [PORTING-Hecke.md](PORTING-Hecke.md), [PORTING-Level.md](PORTING-Level.md).
+- [porting-playbook.md](../porting-playbook.md) — the rules; §2.1–§2.6 (planning),
+  §3.1–§3.7 (execution, sets, the build ladder), §4 (faithfulness), §5 (sharing).
+- The current head's planning record:
+  [functionFieldGeneration/TOPIC-qexp-rationality-degree-head.md](functionFieldGeneration/TOPIC-qexp-rationality-degree-head.md)
+  and its successors
+  [functionFieldGeneration/TOPIC-qexp-successors.md](functionFieldGeneration/TOPIC-qexp-successors.md),
+  [functionFieldGeneration/TOPIC-qexp-successors-2.md](functionFieldGeneration/TOPIC-qexp-successors-2.md).
+- Adjacent columns: [PORTING-Hecke.md](PORTING-Hecke.md), [PORTING-Level.md](PORTING-Level.md).
 
-## 0. What this effort is, and is not
+## 1. What has shipped
 
-**Is.** The weight-one `DeligneSerre.*` family in the three shapes FLT uses:
+**The unconditional slice (2026-09-29).** Everything that does not depend on the
+two automorphic gates — the weight-one mod-`ℓ` lifting half plus the assembly half,
+54 nodes, 55 new modules, ≈15,200 written lines, checker `2058 → 2552` at the time,
+milestone build 4,805 jobs, consumer wire test `spec/DeligneSerreConsumer.lean`.
+The slice takes the residual family as a hypothesis, so it lands without the
+ray-class input or the automorphic layer. The after-the-fact record is
+[../logs/deligne-serre-port.md](../logs/deligne-serre-port.md); the running
+friction/promotion ledger is
+[../logs/deligne-serre-friction.md](../logs/deligne-serre-friction.md).
 
-* **forward** — a normalized weight-one cuspidal newform produces an odd
-  finite-image $`\rho_f : G_{\mathbb{Q}} \to \mathrm{GL}_2(\mathbb{C})`$ with
-  $`\mathrm{charpoly}(\rho_f(\mathrm{Frob}_p)) = X^2 - a_p X + \varepsilon(p)`$ at
-  good $`p`$;
-* **lifting** — the reduction of a weight-one mod-$`\ell`$ eigenform is a weight-two
-  mod-$`\ell`$ eigenform (multiply by a weight-one Eisenstein series, then the
-  *relèvement*);
-* **assembly** — semisimple descent, characteristic-polynomial conjugacy, and the
-  complex-trace gluing that turn a compatible family of residual representations
-  into the complex one.
+**The q-expansion column (2026-10-08).** The frontier's head moved to the
+`ModularCurve` q-expansion cluster; it has run as:
 
-**Shipped is the unconditional slice**: everything that does not depend on the two
-automorphic gates — the lifting half plus the assembly half, 54 nodes. The slice
-takes the residual family as a hypothesis (`hfam` in the S8 capstone), so it lands
-without the ray-class input or the automorphic layer.
+| set | subject | modules | checker |
+|---|---|---|---:|
+| prerequisite | the promotion pass (82 declarations, JOneES block + hub rows) | `X1/FunctionField.lean` + 3 hubs | 6520 → 6602 |
+| [SET-R-A](functionFieldGeneration/SET-R-A.md) | the Γ₀-rationality pair, engine once | `WeightOne/RationalityDvd.lean` (1,204) | 6602 → 6652 |
+| [SET-R-B](functionFieldGeneration/SET-R-B.md) | the `X_H` relative-degree bound | `XH/Relrank.lean` (1,153) | 6652 → 6798 |
+| [SET-R-C](functionFieldGeneration/SET-R-C.md) | the JOneES tail: finrank/index + residue field | `X1/FunctionFieldDegree.lean` (690), `X1/FunctionFieldResidue.lean` (1,027) | 6798 → 6904 |
+| hub edit | `Gamma0Integral` promotion + duplicate-block collapse | that hub | 6904 → 6920 |
+| [SET-R-D](functionFieldGeneration/SET-R-D.md) | the three successors: Deuring reduction, constant extension, Atkin–Lehner | `Defs/QExpValuationReduction.lean` (601), `X1/FunctionFieldIsAlgClosed.lean` (405), `X1/IsIntegralAtkinLehner.lean` (484) | 6920 → 6975 |
+| definition layer | the `ValuationSubring` residue block, homed publicly | `NumberTheory/ValuationAtPlace.lean` | 6975 → 6979 |
+| [SET-R-E](functionFieldGeneration/SET-R-E.md) | the `isAlgClosed` finrank bound; the two Atkin–Lehner exchanges | `X1/FunctionFieldFinrankIsAlgClosed.lean` (154), `X1/AtkinLehnerExchange.lean` (2,110) | 6979 → 7218 |
 
-**Is not shipped** (§6): the two gates and the automorphic/adèlic subject beneath
-them, the shared ray-class continuation, the density-dependent pair of lemmas, the
-forward capstone above them, and the converse cone (local factors and Artin
-conductor).
+Every set is: one work order, one subagent, reviewed by the manager before the
+next; no existing module edited by a subagent; nothing committed by an agent.
 
-## 1. What shipped
-
-| phase | subject | nodes / modules | written lines | checker (identical) |
-|---|---|---|---:|---:|
-| **D** | the 20 pin `Def_*` modules | 15 new + 5 verify-only | 1,922 | 2058 → 2252 |
-| **H1** | the four shared prelude homes | 4 new | 624 | 2252 → 2295 |
-| **H2** | promotions and the 22 clash reconciliations | edits in 11 files | — | 2295 → 2301 |
-| **S1** | weight-one Eisenstein series | 5 / 5 | 2,074 | 2301 → 2444 |
-| **S2** | Hecke / Γ₁ vanishing and nebentypus | 9 / 5 | 1,893 | 2444 → 2453 |
-| **S3** | relèvement and the lifting | 2 / 2 | ~2,000 | 2453 → 2457 |
-| **S4** | coefficient ring and Galois conjugation | 6 / 2 new + 2 extended | 1,381 | 2457 → 2463 |
-| **S5** | semisimple descent | 1 / 1 | 727 | 2463 → 2467 |
-| **S7** | Frobenius density and Frobenius elements | 27 / 17 | ~2,900 | 2467 → 2548 |
-| **S6** | representation conjugacy and lifting | 3 / 3 | 1,174 | 2548 → 2551 |
-| **S8** | the complex-trace assembly | 1 / 1 | 493 | 2551 → 2552 |
-| | **total** | **54 targets / 55 new modules** | **≈15,200** | **2058 → 2552 (+494)** |
-
-Plus the consumer wire test `spec/DeligneSerreConsumer.lean` (281 lines, one
-executed cross-module zone per set). Baseline before the effort: 2058 identical /
-0 mismatched / 0 missing / 30 own-proof exempted; final: **2552 / 0 / 0 / 30**,
-92 promoted from pin-`private` declarations.
-
-Homes, in brief: definitions under their subject directories
-(`GaloisRep/Defs/`, `ModularForms/Eisenstein/`, `ModularCurve/Defs/`, `Algebra/`,
-`NumberTheory/FrobeniusDensity/`, `FieldTheory/`); the four new prelude homes in §2;
-the theorem sets in `ModularForms/Eisenstein/` (S1), `ModularForms/` +
-`ModularCurve/` (S2), `DeligneSerre/` (S3, S4's node 6, S8), `Algebra/` +
-`GaloisRep/` (S4, S5), `NumberTheory/FrobeniusDensity/` (S7), `GaloisRep/` (S6).
-
-## 2. The porting order and how it was executed
-
-The order is a **forward-import DAG**, and it is the primary planning object:
-
-```text
-D    the pin Def_* modules, in their own four-level import order
- └ H1  the shared preludes into four NEW files          (no cascade)
-    └ H2  promotions + clash reconciliations in EXISTING files   (the only cascade)
-       └ T   the theorem sets, importees first: S1, S2, S3, S4, S5, S7, S6, S8
-```
-
-* **D — definitions first.** Nothing can be *stated* before the 20 `Def_*` modules
-  exist; they are leaves, cheap to build, and the whole cone imports them. The
-  declarations that already had a port home with a different statement are not
-  shadowed — they are handed to H2.
-* **H1 — the shared preludes into new files.** `port_advise` gave 78 blocks repeated
-  inside the 54 targets (585 removable lines by its greedy count); they get one home
-  each in *new* files, which touch nothing and so cannot cascade. The proof-dedup
-  list misses repeated **definitions**: a manual scan added the union of `om` (four
-  Eisenstein files) and `ser` (two), which would otherwise have been copied three
-  and two times.
-* **H2 — reconciliation in existing files.** The seven port-`private` promotions and
-  the 22 clashes (binder-only, naming-only, dropped-conjunct, specialised-vs-general,
-  genuine, unrelated collision). This is the *only* phase that re-elaborates
-  existing modules; it is done in one pass, then the touched files freeze.
-* **T — the theorem sets, importees first.** The unit is the mathematical set (§1),
-  not the pin's file order; each set imports only levels below it.
-
-**One work order and one subagent per set, with a review gate between sets.** The
-manager writes a self-contained work order — scope; pin files with `file:line` for
-every declaration; exact target statements; home modules and namespaces; route with
-recorded negatives; the build-discipline block; stop conditions; the report shape —
-and hands the subagent that plus the playbook (method), never the whole plan. The
-subagent ports, builds, wires the statement checker, and reports. The manager then
-reviews the tree itself (checker at 0 mismatched / 0 missing; a bounded build;
-hygiene; git state; statement spot-checks) *before* writing and dispatching the next
-order. That review is what made a 54-node, 8-set port tractable without one agent
-carrying the whole cone.
-
-**Freezing and the friction log.** A file that is ported and reviewed is *closed*.
-A worker that needs something from a closed file resolves it locally — a `private`
-restatement — and appends an entry to `lean/logs/deligne-serre-friction.md`; it does
-not reopen the file. A dedicated **refactor round** at the end promotes the recorded
-shares and deletes the local copies. One real duplication surfaced this way
-(S3 transcribed S4's node 5 before S4 landed); the refactor round swapped it for the
-public copy and deleted the private one.
-
-**Workers stop at a boundary and report.** Two genuine ordering stops occurred —
-S7-I's tail node needed S7-II's `degOneSum_add_log_isBigO`, and H1 could not home
-`hasSum_ser` because its pin proof calls S1's own target — and both were resolved by
-a focused later dispatch rather than by editing a frozen file. Nothing was
-`sorry`-ed or weakened.
-
-## 3. The build economy — why the order pays off
-
-This is the methodological finding worth keeping: **the order let the effort run on
-per-module builds and a single whole-tree build.** The discipline:
-
-* edit loop `lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false <file>`
-  (writes no `.olean`, recompiles nothing);
-* `lake build <module>` when a file is done (writes the `.olean`, builds
-  dependencies, never dependents);
-* **no bare whole-tree `lake build` during a phase**; one at the milestone;
-* every `lake build` serialized with `flock` and bounded with `timeout`;
-* never raise the heartbeat cap (a blow-up is bisected, and the wall bound is the
-  protection).
-
-Measured here: phase D wrote 1,922 lines and touched **only its own 11 modules'
-`.olean`s** — no existing module was re-elaborated. Each set closed on per-module
-builds of 2–20 s. The effort's **single whole-tree build was the milestone gate
-(4805 jobs, green)**, and because D and H had landed first and every set imports
-downward, almost nothing was stale, so it ran in seconds. The earlier failure mode
-this avoids is transcribing pin files in filesystem order: each new file then sits
-under a large cone that must be re-elaborated, and the full build is paid
-repeatedly.
-
-The manager watched this from outside: after each phase, the `.olean` mtimes and the
-process table confirmed that only the phase's own modules were being built and that
-no bare whole-tree build was running. The subagent briefs carried the four build
-rules verbatim, and the two phases that could cascade (D1's remainder, H2) were
-bounded on purpose.
-
-## 4. Reuse and dedup, as it actually happened
-
-* The 78 shared in-target blocks were homed once in H1; the load-bearing ones are
-  `card_le_of_forall_pow_eq`, `ncard_conj_mem_eq_card_mul_ncard`, the zeta/`tsum`
-  chain, and the cotangent calculus of S1.
-* 28 substitutions / 21 importable reuse points were imported, not re-proved; S1's
-  multiplier imports `ModularFormClass.qCoeff` from the existing `HeckeQCoeff`.
-* Three semisimple engines duplicated verbatim between S5 and the *deferred*
-  `DSRt` sibling are homed **publicly** so that half can import them.
-* The refactor round found exactly one now-redundant private copy (S3/S4's node 5)
-  and deleted it. Deliberately kept: S2's prelude copies whose public homes sit in
-  the heavy `WeightOne` cone (sharing would invert the import graph),
-  `exists_finset_separating` (no public home), and S7-III's deliberate 7-line
-  duplicate.
-* Coset geometry: the S7 ideal-coset steps use mathlib's `Ideal` orbit API. The
-  PhiGen and Hecke SL(2,ℤ) coset ports, and even `FieldTheory/FiniteGroupAction.lean`
-  / `WeilExchange/Bifibre.lean`, are the **wrong geometry** for them — a recorded
-  negative, not a reuse.
-
-## 5. Verification
-
-The gate that closed each set, and the milestone gate:
-
-```bash
-cd lean
-python3 spec/check_flt_statements.py          # 2552 identical / 0 / 0
-flock /tmp/flt_for_human.lock timeout 400 lake build          # 4805 jobs, green
-flock /tmp/flt_for_human.lock timeout 180 \
-  lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false spec/DeligneSerreConsumer.lean
-```
-
-plus a generated `#print axioms` probe over **all 54 headlines** (every name
-resolves, no `sorryAx`, axioms `[propext, Classical.choice, Quot.sound]`), a
-`grep` sweep for `sorry`/`admit`/`axiom`/`native_decide`/`import Mathlib`/
-heartbeat overrides, and the workers' one-token checker mutation tests. The full
-per-phase numbers are in [../logs/deligne-serre-port.md](../logs/deligne-serre-port.md).
-
-## 6. What remains, and its two gates
-
-The slice stops where the automorphic input begins. The remaining forward work is
-the two density-dependent lemmas and the capstones above them, and both hang on one
-subject:
-
-* **Gate 1 — the Rankin-type second-moment bound.**
-  `DeligneSerre.exists_tsum_norm_qCoeff_sq_mul_rpow_le_log_of_weightOne_hecke_eigen`
-  (271-line statement, **775 new nodes**). It is what makes
-  `DeligneSerre.isIrreducible_matrixRepresentation_of_tsum_norm_trace_sq_le_log_of_odd`
-  (18 nodes) available.
-* **Gate 2 — coefficient-ring finiteness by upper density.**
-  `DeligneSerre.exists_finset_qCoeff_mem_of_upperDensity_le_of_weightOne_hecke_eigen`
-  (248-line statement, **783 new nodes**). It is what makes
-  `DeligneSerre.exists_natCard_range_le_of_charpoly_frobenius_mem_of_upperDensity_le`
-  (21 nodes) available.
-
-The two gates have almost the same cone, so they are **one subject**, not two: the
-automorphic/adèlic `GL₂` layer (scout: 534 nodes / 242k raw `S_` lines) plus the
-number-field/adelic infrastructure (133 / 70k) it rests on. The scout's caveat
-matters for budgeting: those nodes are mostly self-contained against mathlib and so
-show cost 1 in `frontier.py` — read the `S_`-line column, and port the 242k lines
-module by module (Iwasawa, Whittaker/cuspidal constituents, Rankin–Selberg), not as
-a closure of 534 nodes.
-
-One more seam is already measured. The two density-dependent lemmas also reach the
-shared ray-class node `M4aTorus.completedRayL_fe` (12,126 lines), but by exactly one
-route — `NumberField.exists_differentiable_eq_rayClassLSeries_of_ne_one` — and they
-use only its *continuation* conjunct, discarding the functional equation. That is
-the classical Hecke continuation of the nontrivial narrow ray-class `L`-function,
-strictly weaker than the pin's theorem: behind that one interface the pair is
-21 nodes / 8,265 lines, and behind a second (density) interface 5 / 2,428 (scout
-§3.1). The full ray-class file is ported once by the converse cone, which does need
-its functional equation.
-
-The **converse cone** (`exists_weightOne_cuspForm_tameConductor_of_qCoeff_eq_trace`,
-421 nodes) — local factors, Artin conductor, the Artin-`L` functional equation — is
-a separate subject and a separate effort.
-
-Because the 54-node slice takes the residual family as a hypothesis and states the
-gates as explicit hypotheses, both remainders attach to a **fixed interface**: they
-can be ported later without reworking what shipped.
-
-## 7. Reproduce
+## 2. The current frontier
 
 ```bash
 cd tools/deps
-# the slice's own advice reading
-python3 port_advise.py --nodes "$(paste -sd, build/groupA_nodes.txt)" --json build/groupA_advise.json
-# the remaining half's two gates
-python3 frontier.py --target DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen --top 40
-python3 port_advise.py --target 'P2M/Sol/S_DeligneSerre_*'
+python3 frontier.py --target DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen \
+  --rank-by silo --ready --top 0
 ```
 
-The per-set declaration inventories (pin `file:line` and span for every block) are
-the appendices of the nine work orders and were generated with `port_advise`'s
-`factor` reading; the checker wiring convention (append the `Thm_*` wrapper *and* its
-`S_` file to `SOURCES`, the target's name lives on the wrapper) is in §2 of every
-work order and in the friction log.
+| quantity | value |
+|---|---:|
+| target closure | 2,308 nodes / 1,089,430 raw `S_` lines |
+| frontier `F` | 812 nodes / 425,264 |
+| `needed` (unported demand) | 1,715 nodes / 752,548 |
+| **ready to port** (`needed == 1`) | **83 nodes** |
 
-## 8. Residuals
+The ready shelf by top-level namespace: `ModularCurve` 32, `AlgebraicCurve` 23,
+`CuspForm` 10, `WeierstrassCurve` 8, `PeriodPair` 2, `ModularForm` 2,
+`CuspFormClass` 2, `CohCarrier` 2, `AutomorphicForm` 2. The head by silo is
+`WeierstrassCurve.exists_addMonoidHom_vcInvFun_pow_heq_and_forall_exists_ne_smul_of_char_two`
+(988 `S_` lines), then the `ModularCurve.LevelN.*` group
+(`exists_place_ord_neg_forall_smul_eq` 891,
+`valuation_apply_smul_le_one_of_tendsto_div_smul` 820,
+`exists_algHom_laurentSeries_qExpansion` 602,
+`exists_place_ord_sub_pos_forall_smul_eq` 521,
+`exists_monoidHom_algEquiv_fixedField_eq_adjoin` 472, …) — a level-`N` cluster, and
+the natural next cut.
+
+The two gates of §7 are still in the unported demand but are not ready; they are
+not on this list and must not be scheduled from it.
+
+## 3. The workflow
+
+This is the loop the column now runs. Steps 1–4 are the manager's; step 5 is the
+subagents'; step 6 closes.
+
+**1. Read the frontier.** The command above. `--ready` keeps only the nodes whose
+whole demand is themselves — every premise is already ported, so only the node's
+own proof is missing — and `--rank-by silo` orders them by the raw `S_` lines of
+their **whole demand**, i.e. by how much mathematics stands behind them, not by
+the size of their own file. This is demand, and it is the only list to plan from.
+The `hops`/`used_by` columns choose *within* a cluster; they do not choose the
+cluster.
+
+**2. Cut a cluster by mathematics.** 3–6 ready nodes that tell one story in one
+layer — the Γ₀-rationality pair; the `X_H` relative-degree bound; the JOneES
+tail; the Atkin–Lehner exchange. Namespace and pin file are *not* the cut: the
+first q-expansion head was one namespace but three different layers, which is why
+it ran as three sets. The test is whether one sentence states the cluster's
+subject without an "and".
+
+**3. Scope the cluster with the tools.**
+
+* `port_advise.py --target <node> … --json build/<cluster>_advise.json` — the
+  substitution table (declarations already byte-identical in the port: import,
+  never re-prove), the port-`private` rows (promote or re-derive), the **shared
+  blocks** the target files have in common (the dedup: write once), the
+  near-duplicate / binder-only rows, and the *suspect* type-only `def` matches the
+  parser cannot judge (read both copies before applying any).
+* `port_plan.py --json …` — the budget: raw lines, once-only dedup, boilerplate,
+  **net new math lines**, declaration groups.
+* `build_ladder.py --edit <host>` on **every** candidate host — the cascade each
+  edit will force, in modules and lines.
+* **Hand-check the import list.** `--ready` and `--with-defs` do not see
+  import-only definitions: every `Definitions/Def_*.lean` a target `S_` file
+  imports must be checked by hand against the port, declaration by declaration
+  (§4a).
+
+**4. The manager does the shared ground — this is the point of the split.** Before
+any subagent runs:
+
+* **(a) the definition layer.** Home whatever definitions the cluster's pin
+  `Def_*` imports need and the port lacks, at the natural *theory* home rather
+  than a new `Def_`-named file; promote out of `private` whatever the cluster must
+  name. Checked against the pin, wiring appended to `SOURCES`/`PORT_FILES`.
+* **(b) promotions and every other hub edit.** Any edit to an existing module is
+  the manager's, not a subagent's: it is the only thing that re-elaborates the
+  cone, so it is done once, deliberately, with the price known.
+* **(c) dedup the scoping turned up.** A hub that carries the same private block
+  twice, a copy that a promotion makes redundant — fold it into the same pass,
+  because the wave is already being paid and deferring it pays nothing.
+
+Each such edit is priced, applied, built at tier 1, checker-run, and followed by
+**one** wave build; then the touched files freeze and no subagent may edit them.
+Worked examples: the `Gamma0Integral` promotion of sixteen rows *and* the
+collapse of the seventeen-row duplicate block in the same edit (module 2,349 →
+2,253 lines, rebuild 36 s → 15 s); the `ValuationSubring` residue block homed in
+`NumberTheory/ValuationAtPlace.lean`, which removed the last `private`
+re-derivation from a landed module.
+
+**5. Divide into sets; dispatch and review in series.** One set = one mathematical
+story = one module or a small group = one subagent = one work order. Sets run
+**one at a time**: parallel `lake build`s contend on Lake's lock and
+cross-invalidate, so the second one looks like a blow-up and both are slower. The
+manager writes the work order, dispatches, and then reviews the tree *itself*
+before writing the next order.
+
+*Work-order template* (playbook §3.3): scope and what is explicitly not this set;
+pin sources (`Theorems/` wrapper for the statement, `P2M/Sol/S_` for the proof);
+deliverable modules and the public/`private` split; what is already in the port and
+must be reused; route with recorded negatives; risks; the build-discipline block
+verbatim; the stop conditions; the report shape. Every order carries the
+**hub prohibition**: a subagent that needs a `private` helper re-derives it
+locally and reports it; one that believes a promotion is genuinely required
+**stops and reports** with the declaration, host and `build_ladder.py --edit`
+price. The manager decides.
+
+*Review checklist* after each set: checker `0 mismatched / 0 missing` with the
+`identical` delta reconciled against the new public surface; a one-token mutation
+test (exactly one more `mismatched`, reverted); tier 1 green and 0 warnings; no
+`sorry`/`admit`, no bare `import Mathlib`; `#print axioms` on every headline
+`[propext, Classical.choice, Quot.sound]`; `git status` showing only the set's
+files.
+
+**6. Close out, then re-read the frontier.** Re-run step 1: the landed nodes leave
+the shelf and their successors appear. Record the outcome in the work order (§8)
+and in the cluster's topic, name the successors the landing unblocked, and cut the
+next cluster.
+
+## 4. The shared ground
+
+**(a) Definitions first, and check them by hand.** Nothing can be *stated* before
+the pin `Def_*` modules the cluster imports exist in the port. They are leaves —
+cheap to build, no cascade — and they are invisible to `frontier.py`'s readiness
+test, so the list is built by reading each target `S_` file's `import` block and
+walking its `Definitions/Def_*.lean` declarations against the port. If only a
+block of a pin definition module is needed (the common case), home that block and
+record the rest as unported.
+
+**(b) `private` is a build tool, not a statement about mathematics.** A helper
+stays `private` when it only adapts another theory, or is generic glue a consumer
+can re-derive in a few lines; it is promoted when it carries mathematics another
+theory will state or reuse. A promoted pin-`private` helper is renamed at the
+pin's name, and the checker verifies it through its dotted-name fallback. The
+counterexample to avoid: a "promotion" of a declaration whose pin statement is not
+the port's — the parser's type-only `def` matches are exactly this, and they are
+how the X_H topic went wrong twice.
+
+**(c) A hub edit is a wave, and the wave is the same price whether or not you
+also clean up in it.** So: price it, do all of it at once, and only then freeze.
+A subagent never opens the question; it reports and stops.
+
+## 5. The build economy
+
+* edit loop `timeout 300 lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false <file>`
+  (writes no `.olean`, builds no dependent);
+* `flock .lake/flt_build.lock timeout 300 lake build <module>` when a file is done
+  (writes the `.olean`, builds dependencies, never dependents);
+* **no bare whole-tree `lake build`** while a set is in flight; one at a milestone;
+* every `lake build` serialized and bounded; never raise the heartbeat cap.
+
+The wave that a hub edit forces can exceed the 300 s bound on a real compute
+(`ModularPolynomialE4Cube` alone is ~280 s). That is not a blow-up: the tell is
+CPU time — high user CPU with a timeout is real work and the target list should be
+re-run with a larger wall bound; ~0 CPU wall-time is another agent's lock. A
+genuine blow-up is bisected, never re-run with a bigger heartbeat cap.
+
+## 6. Verification
+
+```bash
+cd lean
+timeout 300 python3 spec/check_flt_statements.py        # 7218 identical / 0 / 0 / 36 own
+flock .lake/flt_build.lock timeout 900 lake build       # the milestone build
+timeout 180 lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false spec/DeligneSerreConsumer.lean
+```
+
+plus a `#print axioms` probe over the set's headlines, a `grep` sweep for
+`sorry`/`admit`/`axiom`/`native_decide`/`import Mathlib`/heartbeat overrides, and
+the one-token mutation test on a headline. The checker's `identical` delta must
+equal the new public surface exactly; anything else is a bug. Per-set numbers are
+in the work orders' §8.
+
+## 7. What remains
+
+The slice stopped where the automorphic input begins; two gates remain, both on
+one subject (the automorphic/adèlic `GL₂` layer, scout §2):
+
+* **Gate 1 — the Rankin-type second-moment bound.**
+  `DeligneSerre.exists_tsum_norm_qCoeff_sq_mul_rpow_le_log_of_weightOne_hecke_eigen`
+  (775 new nodes), feeding
+  `…isIrreducible_matrixRepresentation_of_tsum_norm_trace_sq_le_log_of_odd`.
+* **Gate 2 — coefficient-ring finiteness by upper density.**
+  `DeligneSerre.exists_finset_qCoeff_mem_of_upperDensity_le_of_weightOne_hecke_eigen`
+  (783 new nodes), feeding `…exists_natCard_range_le_of_charpoly_frobenius_mem_…`.
+
+Both also reach the shared ray-class node `M4aTorus.completedRayL_fe` by exactly
+one route — `NumberField.exists_differentiable_eq_rayClassLSeries_of_ne_one` — and
+use only its continuation conjunct, discarding the functional equation; behind
+that interface the pair is 21 nodes / 8,265 lines. Budget by the `S_`-line column,
+not by node count: most of those nodes are self-contained against mathlib and show
+cost 1 in `frontier.py`. The **converse cone**
+(`exists_weightOne_cuspForm_tameConductor_of_qCoeff_eq_trace`, 421 nodes) is a
+separate subject and a separate effort.
+
+Because the slice takes the residual family as a hypothesis and states the gates
+as explicit hypotheses, both remainders attach to a fixed interface: they can be
+ported later without reworking what shipped.
+
+## 8. Reproduce
+
+```bash
+cd tools/deps
+# the frontier (step 1)
+python3 frontier.py --target DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen \
+  --rank-by silo --ready --top 0
+# scope one cluster (step 3): advise → plan → price
+python3 port_advise.py --target <node> --target <node> --json build/cluster_advise.json
+python3 port_plan.py --json build/cluster_advise.json
+python3 build_ladder.py --edit FLTForHuman/<host>.lean
+# the gates
+python3 frontier.py --target DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen --top 40
+```
+
+The checker wiring convention (append the `Theorems/` wrapper *and*, where it is
+not already listed, the `S_` file to `SOURCES`; the module to `PORT_FILES`; both
+last) is in every work order and in the friction log.
+
+## 9. Residuals
 
 * `locKer`/`adjoinRoot'` are public in `DeligneSerre/Lifting.lean` with no consumer
   today (kept per the pin).
-* A handful of style-linter notes (`linter.style.haveILetI`, `unusedSectionVars`)
-  remain in proof modules; pin-inherited deprecations outside the refactor
-  whitelist were left as the pin wrote them.
 * The private `det_eq` copies in `Gamma1Vanishing.lean`/`HeckeEigenNebentypus.lean`
-  are statement-identical to the public `ModularForm.HeckeRepresentatives.det_eq`
-  and are the one un-promoted dedup candidate.
-* The deferred half as in §6, by design.
+  are statement-identical to the public `ModularForm.HeckeRepresentatives.det_eq`;
+  the one un-promoted dedup candidate.
+* The `Gamma0Integral.lean` prelude still exists `private` in its two sibling
+  namespaces (`…GammaNBounded`, `…X1BoundedDenominators`); `GammaNBounded`'s
+  `IsRat` is a *different formulation*, not a copy, and was deliberately left.
+* `Definitions/Def_WeierstrassCurve_ReductionMap.lean`'s Weierstrass reduction half
+  (`reducePoint`, `equation_residue`, …) is unported; only its `ValuationSubring`
+  block was needed.
+* The deferred half as in §7, by design.

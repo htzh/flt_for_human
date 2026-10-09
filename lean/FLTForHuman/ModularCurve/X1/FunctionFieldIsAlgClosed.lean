@@ -12,15 +12,17 @@
 
   The pin's `S_` file is appended to `SOURCES`, so its 15 public declarations are
   re-hosted here at their pin names; the headline is matched against the
-  `Theorems/` wrapper. Two helpers whose pin homes are deliberately-unported
-  definition modules are re-derived `private` in this module and reported:
+  `Theorems/` wrapper. One helper whose pin home is a deliberately-unported
+  definition module is re-derived `private` in this module and reported:
 
   * `coeffMap_jqModC` — pin host `Definitions/Def_ModularCurve_X0ModL.lean`
-    (the order-2 import check; also re-derived by SET-R-C order 2);
-  * `ValuationSubring.charP_residueField_of_liesOverPrime_def` — pin host
-    `Definitions/Def_WeierstrassCurve_ReductionMap.lean` (absent from the port);
-    kept at its pin name inside `namespace ValuationSubring` so the pin's
-    `isAlgebraic_residueField` statement text is preserved.
+    (the order-2 import check; also re-derived by SET-R-C order 2).
+
+  The `ValuationSubring` residue block
+  (`liesOverPrime_iff` / `natCast_mem_maximalIdeal_of_liesOverPrime` /
+  `charP_residueField_of_liesOverPrime_def`, pin host
+  `Definitions/Def_WeierstrassCurve_ReductionMap.lean`) was re-derived here; it is
+  now public in `FLTForHuman/NumberTheory/ValuationAtPlace.lean` and imported.
 
   The pin's file-scope `synthInstance.maxHeartbeats 1600000` /
   `maxHeartbeats 6400000` (lines 16–17) are not transcribed; a scoped
@@ -38,6 +40,7 @@ import FLTForHuman.ModularCurve.Defs.Laurent
 import FLTForHuman.ModularCurve.Frobenius.Defs
 import FLTForHuman.ModularCurve.Degree.PhiDegree
 import FLTForHuman.ModularCurve.X1.FunctionFieldResidue
+import FLTForHuman.NumberTheory.ValuationAtPlace
 import FLTForHuman.GaloisRep.Defs.Ramification
 import FLTForHuman.NumberTheory.FrobeniusAtPlace
 
@@ -54,36 +57,11 @@ set_option synthInstance.maxHeartbeats 1600000
 
 noncomputable section
 
-namespace ValuationSubring
-
-/-! ## Local re-derivations of the pin's `Def_WeierstrassCurve_ReductionMap` helpers
-
-These are the pin's `liesOverPrime_iff` / `natCast_mem_maximalIdeal_of_liesOverPrime`
-/ `charP_residueField_of_liesOverPrime_def`. The definition module
-`Definitions/Def_WeierstrassCurve_ReductionMap.lean` is not ported; the three
-statements are re-proved here. They are `private`, so the checker does not see
-them, but they keep the pin's name in `isAlgebraic_residueField`'s statement text. -/
-
-private theorem liesOverPrime_iff {L : Type*} [Field L] {A : ValuationSubring L} {q : ℕ} :
-    A.LiesOverPrime q ↔ (q : L) ∈ A.nonunits :=
-  Iff.rfl
-
-private theorem natCast_mem_maximalIdeal_of_liesOverPrime {L : Type*} [Field L]
-    {A : ValuationSubring L} {q : ℕ} (h : A.LiesOverPrime q) :
-    (q : A) ∈ IsLocalRing.maximalIdeal A := by
-  have : ((q : A) : L) ∈ A.nonunits := liesOverPrime_iff.mp h
-  exact A.coe_mem_nonunits_iff.mp this
-
-private theorem charP_residueField_of_liesOverPrime_def {L : Type*} [Field L]
-    {A : ValuationSubring L} {q : ℕ} (hq : q.Prime) (h : A.LiesOverPrime q) :
-    CharP (IsLocalRing.ResidueField A) q := by
-  rw [CharP.charP_iff_prime_eq_zero hq]
-  have : ((q : ℕ) : IsLocalRing.ResidueField A) = IsLocalRing.residue A ((q : ℕ) : A) := by
-    simp
-  rw [this]
-  exact Ideal.Quotient.eq_zero_iff_mem.mpr (natCast_mem_maximalIdeal_of_liesOverPrime h)
-
-end ValuationSubring
+/-! The pin's `Def_WeierstrassCurve_ReductionMap` residue block —
+`ValuationSubring.liesOverPrime_iff` / `natCast_mem_maximalIdeal_of_liesOverPrime` /
+`charP_residueField_of_liesOverPrime_def` — is now public in
+`FLTForHuman/NumberTheory/ValuationAtPlace.lean`; it was carried here as a
+`private` re-derivation before. Imported, not re-proved. -/
 
 namespace ModularCurve
 

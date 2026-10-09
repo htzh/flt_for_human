@@ -207,3 +207,42 @@ theorem ValuationSubring.exists_integral_mul_eq_of_liesOverPrime
       calc A.valuation a * A.valuation a⁻¹ ≤ A.valuation a⁻¹ := mul_le_of_le_one_left' hle
         _ < 1 := hlt
     exact absurd hone (ne_of_lt hprod)
+
+/-! ## The residue field of a place over `q`
+
+The opening `ValuationSubring` block of the pin's
+`Definitions/Def_WeierstrassCurve_ReductionMap.lean` (pinned `aa2d8b3`). The pin
+continues into the Weierstrass reduction map, which is **not** ported; this half
+is, because the q-expansion column needs it — `ModularCurve/X1/FunctionFieldIsAlgClosed.lean`
+and the `isAlgClosed` finrank target both set
+`CharP (IsLocalRing.ResidueField A) q` from `A.LiesOverPrime q`. It was carried as
+a `private` re-derivation there; it is homed here, publicly, at the pin's names so
+both consumers import it. -/
+
+namespace ValuationSubring
+
+variable {L : Type*} [Field L]
+
+lemma liesOverPrime_iff {A : ValuationSubring L} {q : ℕ} :
+    A.LiesOverPrime q ↔ (q : L) ∈ A.nonunits :=
+  Iff.rfl
+
+lemma natCast_mem' (A : ValuationSubring L) (q : ℕ) : (q : L) ∈ A :=
+  natCast_mem A.toSubring q
+
+lemma natCast_mem_maximalIdeal_of_liesOverPrime {A : ValuationSubring L} {q : ℕ}
+    (h : A.LiesOverPrime q) : (q : A) ∈ IsLocalRing.maximalIdeal A := by
+  have : ((q : A) : L) ∈ A.nonunits := by
+    simpa using liesOverPrime_iff.mp h
+  exact A.coe_mem_nonunits_iff.mp this
+
+theorem charP_residueField_of_liesOverPrime_def {A : ValuationSubring L} {q : ℕ} (hq : q.Prime)
+    (h : A.LiesOverPrime q) : CharP (IsLocalRing.ResidueField A) q := by
+  rw [CharP.charP_iff_prime_eq_zero hq]
+
+  have : ((q : ℕ) : IsLocalRing.ResidueField A) = IsLocalRing.residue A ((q : ℕ) : A) := by
+    simp
+  rw [this]
+  exact Ideal.Quotient.eq_zero_iff_mem.mpr (natCast_mem_maximalIdeal_of_liesOverPrime h)
+
+end ValuationSubring

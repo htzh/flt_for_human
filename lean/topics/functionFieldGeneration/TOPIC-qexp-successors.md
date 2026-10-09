@@ -31,6 +31,43 @@ so it was ready before this head and is a pre-existing shelf head, not a
 successor. It is scoped below anyway (§4) because it is the next largest ready
 node in the same family.
 
+## 1a. What is new here: reduction to characteristic `p`
+
+The q-expansion finiteness results already in the port are **characteristic-0**
+statements. `JOneES.exists_transcendental_finiteDimensional_qExpFunctionFieldC`
+is over `ℚ`, with an unnamed generator — in the pin it is
+`xq = q(E₆²)/q(E₄³)`, not `j` — and
+`…exists_transcendental_finiteDimensional_laurentBaseChange` is over a
+characteristic-0 base change `L`. Both assert only `FiniteDimensional`; the
+~166 other `FiniteDimensional` statements in the tree are generic function-field
+algebra that *consumes* finiteness (`finiteDimensional_adjoin_of_transcendental`,
+`isCurveOver_of_transcendental_of_perfectField`, `essFiniteType_…`, the
+Tate/Weil-exchange index lemmas).
+
+The two results of this set are different in kind, and that difference is the
+whole point of the set:
+
+* **Order 1** (`finrank_adjoin_qExpFunctionFieldC_le_of_valuationSubring`) is
+  **Deuring reduction**: it compares the characteristic-0 field
+  `laurentBaseChange L (qExpFunctionFieldC ℚ Γ)` with the q-expansion field over
+  `k`, the **residue field of a valuation subring** of `L` — a field of
+  characteristic `p` — and carries the degree across. The valuation subring `A`
+  and `π : A →+* k` are **inert data**: no integral model, no good-reduction
+  hypothesis, no hypothesis relating them to `a`, `b`, `X` or `x`. The comparison
+  runs entirely through the shared *integral* series pair
+  `intSeriesC K a / intSeriesC K b`.
+* **Order 2** (`…_of_isAlgClosed`) spreads the residue-field statement (SET-R-C
+  target 5) to **every algebraically closed `K`**, `𝔽̄_p` included, by extending
+  the constants — and pins the generator to `jqModC = q(j)`.
+
+So the content is *not* "another finiteness result for the q-expansion field" —
+those exist, over `ℚ` and over a characteristic-0 base change. It is that the
+finiteness **survives reduction to characteristic `p`**, uniformly in the
+constants, with `j` as the coordinate. That is what makes
+`isCurveOver_qExpFunctionFieldC_of_isAlgClosed`,
+`essFiniteType_qExpFunctionFieldC_of_isAlgClosed`, `coeff_jqModC_neg_one` and the
+`q`-expansion Frobenius place theory available over `𝔽̄_p`.
+
 ## 2. The three nodes at a glance
 
 | | successor 1 | successor 2 | sibling |
