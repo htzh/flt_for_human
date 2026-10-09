@@ -2466,6 +2466,34 @@ SOURCES = [
     # wrapper last. Appended last so no earlier last-name match can flip.
     "P2M/Sol/S_ModularCurve_exists_transcendental_finiteDimensional_qExpFunctionFieldC_residueField.lean",
     "Theorems/Thm_ModularCurve_exists_transcendental_finiteDimensional_qExpFunctionFieldC_residueField.lean",
+    # --- SET-R-D prerequisite: the `Gamma0Integral` hub promotion. Sixteen
+    # declarations of `…X1DiamondRationalForms` were `private` while the pin's
+    # Atkin–Lehner `S_` file declares them publicly (and they are the engine of
+    # the successor headline); they are promoted and verified against this `S_`
+    # file. The same names survive `private` in two sibling namespaces of the
+    # module (`…GammaNBounded`, `…X1BoundedDenominators`); the refactor round should
+    # collapse the duplication. Appended last so no earlier match can flip.
+    "P2M/Sol/S_ModularCurve_exists_isIntegralQExp_smul_atkinLehnerSlash_of_even.lean",
+    # --- SET-R-D order 1 (`topics/functionFieldGeneration/SET-R-D.md`): Deuring's
+    # degree inequality over a valuation subring. The whole engine is `private` in
+    # the new module (its last names collide with other pin `S_` files already in
+    # `SOURCES`), so only the headline is comparable and it is matched against its
+    # `Theorems/` wrapper. Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_ModularCurve_finrank_adjoin_qExpFunctionFieldC_le_of_valuationSubring.lean",
+    # --- SET-R-D order 2 (`topics/functionFieldGeneration/SET-R-D.md`): finiteness
+    # of the `q`-expansion function field over `K(j)` for algebraically closed `K`.
+    # The target's `S_` file carries the 14 public engine declarations (matched by
+    # the new module's own copies) and the headline is matched against its
+    # `Theorems/` wrapper. Both appended last so no earlier last-name match can
+    # flip.
+    "P2M/Sol/S_ModularCurve_exists_transcendental_finiteDimensional_qExpFunctionFieldC_of_isAlgClosed.lean",
+    "Theorems/Thm_ModularCurve_exists_transcendental_finiteDimensional_qExpFunctionFieldC_of_isAlgClosed.lean",
+    # --- SET-R-D order 3 (`topics/functionFieldGeneration/SET-R-D.md`): the
+    # Atkin–Lehner / diamond slash integrality. The pin `S_` file is already listed
+    # above (the prerequisite promotion appended it); the comparable copy of the
+    # headline is its `Theorems/` wrapper, appended last so no earlier last-name
+    # match can flip.
+    "Theorems/Thm_ModularCurve_exists_isIntegralQExp_smul_atkinLehnerSlash_of_even.lean",
 ]
 
 PORT_FILES = [
@@ -3565,6 +3593,23 @@ PORT_FILES = [
     # wrapper appended to `SOURCES` last. Appended last so no earlier last-name
     # match can flip.
     "FLTForHuman/ModularCurve/X1/FunctionFieldResidue.lean",
+    # --- SET-R-D order 1 (`topics/functionFieldGeneration/SET-R-D.md`): Deuring's
+    # degree inequality over a valuation subring, matched against its `Theorems/`
+    # wrapper appended to `SOURCES` last. The engine stays `private`, so the
+    # headline is the module's only compared declaration. Appended last so no
+    # earlier last-name match can flip.
+    "FLTForHuman/ModularCurve/Defs/QExpValuationReduction.lean",
+    # --- SET-R-D order 2 (`topics/functionFieldGeneration/SET-R-D.md`): finiteness
+    # of the `q`-expansion function field over `K(j)` for algebraically closed `K`,
+    # matched against target's `S_` file and `Theorems/` wrapper appended to
+    # `SOURCES` last. Appended last so no earlier last-name match can flip.
+    "FLTForHuman/ModularCurve/X1/FunctionFieldIsAlgClosed.lean",
+    # --- SET-R-D order 3 (`topics/functionFieldGeneration/SET-R-D.md`): the
+    # Atkin–Lehner / diamond slash integrality; its pin `S_` file is already in
+    # `SOURCES`, and the headline is matched against its `Theorems/` wrapper
+    # appended last. The twenty already-public prelude declarations are imported,
+    # not re-declared. Appended last so no earlier last-name match can flip.
+    "FLTForHuman/ModularCurve/X1/IsIntegralAtkinLehner.lean",
 ]
 
 

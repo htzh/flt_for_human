@@ -1347,9 +1347,9 @@ private def restrictForm {Γ Γ' : Subgroup (GL (Fin 2) ℝ)} {k : ℤ} (h : Γ'
 local notation "Γ₁(" M ")" => ((Gamma1 M : Subgroup SL(2, ℤ)) : Subgroup (GL (Fin 2) ℝ))
 local notation "Δ" => ModularForm.discriminant
 
-private def IsRat (q : PowerSeries ℂ) : Prop := ∀ n, ∃ r : ℚ, q.coeff n = (r : ℂ)
+def IsRat (q : PowerSeries ℂ) : Prop := ∀ n, ∃ r : ℚ, q.coeff n = (r : ℂ)
 
-private theorem isRat_iff_exists_map {q : PowerSeries ℂ} :
+theorem isRat_iff_exists_map {q : PowerSeries ℂ} :
     IsRat q ↔ ∃ p : PowerSeries ℚ, p.map (algebraMap ℚ ℂ) = q := by
   constructor
   · intro h
@@ -1358,13 +1358,13 @@ private theorem isRat_iff_exists_map {q : PowerSeries ℂ} :
   · rintro ⟨p, rfl⟩ n
     exact ⟨PowerSeries.coeff n p, by rw [PowerSeries.coeff_map]; rfl⟩
 
-private theorem IsRat.mul {q q' : PowerSeries ℂ} (h : IsRat q) (h' : IsRat q') : IsRat (q * q') := by
+theorem IsRat.mul {q q' : PowerSeries ℂ} (h : IsRat q) (h' : IsRat q') : IsRat (q * q') := by
   rw [isRat_iff_exists_map] at h h' ⊢
   obtain ⟨p, rfl⟩ := h
   obtain ⟨p', rfl⟩ := h'
   exact ⟨p * p', by rw [map_mul]⟩
 
-private theorem IsRat.pow {q : PowerSeries ℂ} (h : IsRat q) (n : ℕ) : IsRat (q ^ n) := by
+theorem IsRat.pow {q : PowerSeries ℂ} (h : IsRat q) (n : ℕ) : IsRat (q ^ n) := by
   rw [isRat_iff_exists_map] at h ⊢
   obtain ⟨p, rfl⟩ := h
   exact ⟨p ^ n, by rw [map_pow]⟩
@@ -1379,7 +1379,7 @@ private theorem IsRat.neg {q : PowerSeries ℂ} (h : IsRat q) : IsRat (-q) := by
   obtain ⟨s, hs⟩ := h n
   exact ⟨-s, by simp [hs]⟩
 
-private theorem IsRat.of_mul_eq {q u p : PowerSeries ℂ} (hu : IsRat u) (hu0 : PowerSeries.constantCoeff u = 1)
+theorem IsRat.of_mul_eq {q u p : PowerSeries ℂ} (hu : IsRat u) (hu0 : PowerSeries.constantCoeff u = 1)
     (hp : IsRat p) (h : q * u = p) : IsRat q := by
   rw [isRat_iff_exists_map] at hu hp ⊢
   obtain ⟨U, rfl⟩ := hu
@@ -1412,7 +1412,7 @@ private theorem one_mem_strictPeriods (M : ℕ) : (1 : ℝ) ∈ (Γ₁(M)).stric
   rw [Subgroup.strictPeriods_eq_zmultiples_one_of_T_mem (T_mem_Gamma1 M)]
   exact AddSubgroup.mem_zmultiples 1
 
-private theorem conj_mem_Gamma1 {γ A : SL(2, ℤ)} (hγ : γ ∈ Gamma0 M) (hA : A ∈ Gamma1 M) :
+theorem conj_mem_Gamma1 {γ A : SL(2, ℤ)} (hγ : γ ∈ Gamma0 M) (hA : A ∈ Gamma1 M) :
     γ * A * γ⁻¹ ∈ Gamma1 M := ModularForm.Level.conj_mem_Gamma1 hγ hA
 
 private theorem isBoundedAtImInfty_slash [NeZero M] (f : ModularForm Γ₁(M) k) (γ : SL(2, ℤ)) :
@@ -1538,7 +1538,7 @@ private theorem apply_smul (f : ModularForm Γ₁(M) k) {g : SL(2, ℤ)} (hg : g
   exact this
 
 
-private theorem levelOne_smul {k' : ℤ} (E : ModularForm 𝒮ℒ k') (α : SL(2, ℤ)) (τ : ℍ) :
+theorem levelOne_smul {k' : ℤ} (E : ModularForm 𝒮ℒ k') (α : SL(2, ℤ)) (τ : ℍ) :
     E (α • τ) = denom (α : GL (Fin 2) ℝ) τ ^ k' * E τ := by
   have := SlashInvariantForm.slash_action_eqn'' E (Γ := 𝒮ℒ) (γ := (α : GL (Fin 2) ℝ)) ⟨α, rfl⟩ τ
   rw [← ModularGroup.sl_moeb] at this
@@ -1612,47 +1612,47 @@ section Even
 
 variable {M : ℕ} [NeZero M] {k : ℤ}
 
-private theorem isRat_E4 : IsRat (qExpansion 1 (E₄ : ℍ → ℂ)) := by
+theorem isRat_E4 : IsRat (qExpansion 1 (E₄ : ℍ → ℂ)) := by
   intro n
   rw [ModularForm.E₄, EisensteinSeries.E_qExpansion_coeff (by norm_num) (by decide) n]
   split_ifs
   · exact ⟨1, by simp⟩
   · exact ⟨-(2 * 4 / bernoulli 4) * (ArithmeticFunction.sigma 3 n : ℚ), by push_cast; ring⟩
 
-private theorem isRat_E6 : IsRat (qExpansion 1 (E₆ : ℍ → ℂ)) := by
+theorem isRat_E6 : IsRat (qExpansion 1 (E₆ : ℍ → ℂ)) := by
   intro n
   rw [ModularForm.E₆, EisensteinSeries.E_qExpansion_coeff (by norm_num) (by decide) n]
   split_ifs
   · exact ⟨1, by simp⟩
   · exact ⟨-(2 * 6 / bernoulli 6) * (ArithmeticFunction.sigma 5 n : ℚ), by push_cast; ring⟩
 
-private theorem constantCoeff_E4 : PowerSeries.constantCoeff (qExpansion 1 (E₄ : ℍ → ℂ)) = 1 := by
+theorem constantCoeff_E4 : PowerSeries.constantCoeff (qExpansion 1 (E₄ : ℍ → ℂ)) = 1 := by
   rw [← PowerSeries.coeff_zero_eq_constantCoeff_apply, ModularForm.E₄,
     EisensteinSeries.E_qExpansion_coeff_zero (by norm_num) (by decide)]
 
-private theorem constantCoeff_E6 : PowerSeries.constantCoeff (qExpansion 1 (E₆ : ℍ → ℂ)) = 1 := by
+theorem constantCoeff_E6 : PowerSeries.constantCoeff (qExpansion 1 (E₆ : ℍ → ℂ)) = 1 := by
   rw [← PowerSeries.coeff_zero_eq_constantCoeff_apply, ModularForm.E₆,
     EisensteinSeries.E_qExpansion_coeff_zero (by norm_num) (by decide)]
 
-private def Eaux (a b : ℕ) : ModularForm 𝒮ℒ (a * 4 + b * 6) := (E₄.pow a).mul (E₆.pow b)
+def Eaux (a b : ℕ) : ModularForm 𝒮ℒ (a * 4 + b * 6) := (E₄.pow a).mul (E₆.pow b)
 
 private theorem coe_Eaux (a b : ℕ) : (⇑(Eaux a b) : ℍ → ℂ) = (⇑E₄) ^ a * (⇑E₆) ^ b := by
   rw [Eaux, coe_mul, coe_pow, coe_pow]
 
-private theorem qExpansion_Eaux (a b : ℕ) :
+theorem qExpansion_Eaux (a b : ℕ) :
     qExpansion 1 (⇑(Eaux a b)) = qExpansion 1 ⇑E₄ ^ a * qExpansion 1 ⇑E₆ ^ b := by
   rw [Eaux, coe_mul, ModularForm.qExpansion_mul_coe one_pos one_mem_strictPeriods_SL,
     ModularForm.qExpansion_pow one_pos one_mem_strictPeriods_SL,
     ModularForm.qExpansion_pow one_pos one_mem_strictPeriods_SL]
 
-private theorem isRat_Eaux (a b : ℕ) : IsRat (qExpansion 1 (⇑(Eaux a b))) := by
+theorem isRat_Eaux (a b : ℕ) : IsRat (qExpansion 1 (⇑(Eaux a b))) := by
   rw [qExpansion_Eaux]; exact (isRat_E4.pow a).mul (isRat_E6.pow b)
 
-private theorem constantCoeff_Eaux (a b : ℕ) : PowerSeries.constantCoeff (qExpansion 1 (⇑(Eaux a b))) = 1 := by
+theorem constantCoeff_Eaux (a b : ℕ) : PowerSeries.constantCoeff (qExpansion 1 (⇑(Eaux a b))) = 1 := by
   rw [qExpansion_Eaux, map_mul, map_pow, map_pow, constantCoeff_E4, constantCoeff_E6, one_pow, one_pow,
     one_mul]
 
-private theorem exists_weights (hk : Even k) : ∃ (m a b : ℕ), k + (a * 4 + b * 6 : ℕ) = 12 * (m : ℤ) := by
+theorem exists_weights (hk : Even k) : ∃ (m a b : ℕ), k + (a * 4 + b * 6 : ℕ) = 12 * (m : ℤ) := by
   obtain ⟨j, rfl⟩ := hk
   have hjabs : j ≤ (j.natAbs : ℤ) := Int.le_natAbs
   have hjabs' : -j ≤ (j.natAbs : ℤ) := by
@@ -1917,41 +1917,13 @@ open Complex UpperHalfPlane ModularForm CongruenceSubgroup Function ModularCurve
 open scoped Real Manifold MatrixGroups ModularForm Topology
 
 namespace X1BoundedDenominators
-private def restrictForm {Γ Γ' : Subgroup (GL (Fin 2) ℝ)} {k : ℤ} (h : Γ' ≤ Γ)
-    (f : ModularForm Γ k) : ModularForm Γ' k where
-  toFun := f
-  slash_action_eq' A hA := f.slash_action_eq' A (h hA)
-  holo' := f.holo'
-  bdd_at_cusps' hc := f.bdd_at_cusps' (hc.mono h)
 
-
+open WLightS10.S_ModularCurve_exists_ratCast_qExpansion_slash_of_mem_Gamma0.X1DiamondRationalForms
 local notation "Γ₁(" M ")" => ((Gamma1 M : Subgroup SL(2, ℤ)) : Subgroup (GL (Fin 2) ℝ))
 local notation "Δ" => ModularForm.discriminant
 
-private def IsRat (q : PowerSeries ℂ) : Prop := ∀ n, ∃ r : ℚ, q.coeff n = (r : ℂ)
-
 private def IsBdd (q : PowerSeries ℂ) : Prop :=
   ∃ (D : ℤ) (P : PowerSeries ℤ), D ≠ 0 ∧ P.map (Int.castRingHom ℂ) = (D : ℂ) • q
-
-private theorem isRat_iff_exists_map {q : PowerSeries ℂ} :
-    IsRat q ↔ ∃ p : PowerSeries ℚ, p.map (algebraMap ℚ ℂ) = q := by
-  constructor
-  · intro h
-    choose r hr using h
-    exact ⟨PowerSeries.mk r, by ext n; simp [hr n]⟩
-  · rintro ⟨p, rfl⟩ n
-    exact ⟨PowerSeries.coeff n p, by rw [PowerSeries.coeff_map]; rfl⟩
-
-private theorem IsRat.mul {q q' : PowerSeries ℂ} (h : IsRat q) (h' : IsRat q') : IsRat (q * q') := by
-  rw [isRat_iff_exists_map] at h h' ⊢
-  obtain ⟨p, rfl⟩ := h
-  obtain ⟨p', rfl⟩ := h'
-  exact ⟨p * p', by rw [map_mul]⟩
-
-private theorem IsRat.pow {q : PowerSeries ℂ} (h : IsRat q) (n : ℕ) : IsRat (q ^ n) := by
-  rw [isRat_iff_exists_map] at h ⊢
-  obtain ⟨p, rfl⟩ := h
-  exact ⟨p ^ n, by rw [map_pow]⟩
 
 private theorem isRat_of_int {q : PowerSeries ℂ} (P : PowerSeries ℤ) (h : P.map (Int.castRingHom ℂ) = q) :
     IsRat q := fun n => ⟨((PowerSeries.coeff n P : ℤ) : ℚ), by rw [← h, PowerSeries.coeff_map]; simp⟩
@@ -1990,48 +1962,11 @@ section Level
 
 variable {M : ℕ} {k : ℤ}
 
-private theorem T_mem_Gamma1 (N : ℕ) : ModularGroup.T ∈ Gamma1 N := by
-  simp
-
-private theorem one_mem_strictPeriods (M : ℕ) : (1 : ℝ) ∈ (Γ₁(M)).strictPeriods := by
-  rw [Subgroup.strictPeriods_eq_zmultiples_one_of_T_mem (T_mem_Gamma1 M)]
-  exact AddSubgroup.mem_zmultiples 1
-
 private theorem Gamma_le_Gamma1 (M : ℕ) : CongruenceSubgroup.Gamma M ≤ Gamma1 M := by
   intro g hg
   rw [Gamma_mem] at hg
   rw [Gamma1_mem]
   exact ⟨hg.1, hg.2.2.2, hg.2.2.1⟩
-
-private theorem isBoundedAtImInfty_slash [NeZero M] (f : ModularForm Γ₁(M) k) (γ : SL(2, ℤ)) :
-    IsBoundedAtImInfty ((⇑f : ℍ → ℂ) ∣[k] γ) := by
-  rw [ModularForm.SL_slash, ← OnePoint.isBoundedAt_infty_iff, ← OnePoint.IsBoundedAt.smul_iff]
-  apply f.bdd_at_cusps'
-  rw [Subgroup.IsArithmetic.isCusp_iff_isCusp_SL2Z]
-  exact isCusp_SL2Z_iff'.mpr ⟨γ, rfl⟩
-
-private theorem Gamma1_le_of_dvd {M M' : ℕ} (h : M ∣ M') : Gamma1 M' ≤ Gamma1 M := by
-  intro A hA
-  rw [Gamma1_mem] at hA ⊢
-  obtain ⟨h00, h11, h10⟩ := hA
-  refine ⟨?_, ?_, ?_⟩
-  · have := congrArg (ZMod.castHom h (ZMod M)) h00
-    rwa [map_intCast, map_one] at this
-  · have := congrArg (ZMod.castHom h (ZMod M)) h11
-    rwa [map_intCast, map_one] at this
-  · have := congrArg (ZMod.castHom h (ZMod M)) h10
-    rwa [map_intCast, map_zero] at this
-
-
-private def res {M' : ℕ} (h : M ∣ M') (f : ModularForm Γ₁(M) k) : ModularForm Γ₁(M') k :=
-  restrictForm (Subgroup.map_mono (Gamma1_le_of_dvd h)) f
-
-@[scoped simp] private theorem coe_res {M' : ℕ} (h : M ∣ M') (f : ModularForm Γ₁(M) k) : (⇑(res h f) : ℍ → ℂ) = f := rfl
-
-private def resSL (M : ℕ) {k : ℤ} (f : ModularForm 𝒮ℒ k) : ModularForm Γ₁(M) k :=
-  restrictForm (Subgroup.map_le_range _ _) f
-
-@[scoped simp] private theorem coe_resSL (M : ℕ) {k : ℤ} (f : ModularForm 𝒮ℒ k) : (⇑(resSL M f) : ℍ → ℂ) = f := rfl
 
 end Level
 
@@ -2053,12 +1988,6 @@ section Core
 
 variable {M : ℕ} [NeZero M] {k : ℤ}
 
-
-private theorem levelOne_smul {k' : ℤ} (E : ModularForm 𝒮ℒ k') (α : SL(2, ℤ)) (τ : ℍ) :
-    E (α • τ) = denom (α : GL (Fin 2) ℝ) τ ^ k' * E τ := by
-  have := SlashInvariantForm.slash_action_eqn'' E (Γ := 𝒮ℒ) (γ := (α : GL (Fin 2) ℝ)) ⟨α, rfl⟩ τ
-  rw [← ModularGroup.sl_moeb] at this
-  exact this
 
 private theorem isBdd_mul (f : ModularForm Γ₁(M) k) (m : ℕ) {kE : ℤ} (E : ModularForm 𝒮ℒ kE)
     (hkE : k + kE = 12 * m) (hf : IsRat (qExpansion 1 f)) (hE : IsRat (qExpansion 1 E)) :
@@ -2187,37 +2116,14 @@ private theorem constantCoeff_P4 : PowerSeries.constantCoeff P4 = 1 := by
 private theorem constantCoeff_P6 : PowerSeries.constantCoeff P6 = 1 := by
   rw [← PowerSeries.coeff_zero_eq_constantCoeff_apply, P6, PowerSeries.coeff_mk]; simp
 
-private def Eaux (a b : ℕ) : ModularForm 𝒮ℒ (a * 4 + b * 6) := (E₄.pow a).mul (E₆.pow b)
-
 private theorem qExpansion_Eaux (a b : ℕ) :
     qExpansion 1 (⇑(Eaux a b)) = (P4 ^ a * P6 ^ b).map (Int.castRingHom ℂ) := by
   rw [Eaux, coe_mul, ModularForm.qExpansion_mul_coe one_pos one_mem_strictPeriods_SL,
     ModularForm.qExpansion_pow one_pos one_mem_strictPeriods_SL,
     ModularForm.qExpansion_pow one_pos one_mem_strictPeriods_SL, map_mul, map_pow, map_pow, map_P4, map_P6]
 
-private theorem isRat_Eaux (a b : ℕ) : IsRat (qExpansion 1 (⇑(Eaux a b))) :=
-  isRat_of_int _ (qExpansion_Eaux a b).symm
-
 private theorem constantCoeff_Eaux (a b : ℕ) : PowerSeries.constantCoeff (P4 ^ a * P6 ^ b) = 1 := by
   rw [map_mul, map_pow, map_pow, constantCoeff_P4, constantCoeff_P6, one_pow, one_pow, one_mul]
-
-private theorem exists_weights (hk : Even k) : ∃ (m a b : ℕ), k + (a * 4 + b * 6 : ℕ) = 12 * (m : ℤ) := by
-  obtain ⟨j, rfl⟩ := hk
-  rcases Int.emod_two_eq_zero_or_one j with hpar | hpar
-  · set q : ℤ := j / 2 with hq
-    have hjq : j = 2 * q := by omega
-    have h0 : 0 ≤ 3 * (j.natAbs : ℤ) + 3 - q := by omega
-    obtain ⟨a, ha⟩ := Int.eq_ofNat_of_zero_le h0
-    refine ⟨j.natAbs + 1, a, 0, ?_⟩
-    simp only [Nat.cast_add, Nat.cast_mul, Nat.cast_ofNat, Nat.cast_one, ← ha]
-    omega
-  · set q : ℤ := j / 2 with hq
-    have hjq : j = 2 * q + 1 := by omega
-    have h0 : 0 ≤ 3 * (j.natAbs : ℤ) + 1 - q := by omega
-    obtain ⟨a, ha⟩ := Int.eq_ofNat_of_zero_le h0
-    refine ⟨j.natAbs + 1, a, 1, ?_⟩
-    simp only [Nat.cast_add, Nat.cast_mul, Nat.cast_ofNat, Nat.cast_one, ← ha]
-    omega
 
 private theorem isBdd_of_even (hk : Even k) (f : ModularForm Γ₁(M) k) (hf : IsRat (qExpansion 1 f)) :
     IsBdd (qExpansion 1 f) := by

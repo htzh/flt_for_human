@@ -413,9 +413,14 @@ tier 1 and a one-token mutation test (exactly one more `mismatched`, reverted).
 No whole-tree `lake build` was issued during the sets.
 
 **Coverage.** §8 item 5's command now leaves **86 ready nodes** (89 at planning):
-the five landed, and `ModularCurve.finrank_adjoin_qExpFunctionFieldC_le_of_valuationSubring`
+the five landed, and **exactly two** successors became ready on the new headlines —
+`ModularCurve.exists_isIntegralQExp_smul_atkinLehnerSlash_of_even` (on target 1)
 and `ModularCurve.exists_transcendental_finiteDimensional_qExpFunctionFieldC_of_isAlgClosed`
-became ready on the new headlines. The next cut is the remaining 86.
+(on target 5). `ModularCurve.finrank_adjoin_qExpFunctionFieldC_le_of_valuationSubring`
+is also ready, but its sole premise
+`AlgebraicCurve.finiteDimensional_adjoin_of_transcendental` was already ported, so
+it was ready *before* this head, not unblocked by it. All three are scoped in
+[TOPIC-qexp-successors.md](TOPIC-qexp-successors.md).
 
 **Friction handed forward.** (1) The pin's
 `attribute [-instance] DivisionRing.toRatAlgebra` (`...le_index.lean:18`) is
