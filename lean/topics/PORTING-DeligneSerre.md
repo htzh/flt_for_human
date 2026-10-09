@@ -148,7 +148,12 @@ declarations / 2,081 lines — was the floor and the writing order, not the scop
 has consumers elsewhere in the pin, and `frontier.py` prices by source file. **All four stages
 landed 2026-10-08**, checker 7246 → **7368 identical**, 0 mismatched / 0 missing, every stage
 warning-free at tier 1, milestone whole-tree build green (9,357 jobs). Story C's two headlines
-are no longer gated on unported definitions.
+are no longer gated on unported definitions. They landed as sets **C1**
+([WORKORDER-W5](deligneSerre/WORKORDER-W5-reducehom-surjective.md), reduction surjectivity, 185
+`S_` lines, checker +1) and **C2**
+([WORKORDER-W6](deligneSerre/WORKORDER-W6-inertia-reduction.md), the inertia-equivariant
+reduction, 601, checker +1), one subagent each, manager-wired — combined checker
+**7368 → 7370 identical**, 0 mismatched / 0 missing, warning-free, axioms clean.
 
 The two gates of §7 are still in the unported demand but are not ready; they are
 not on this list and must not be scheduled from it.

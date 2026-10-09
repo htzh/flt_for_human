@@ -1,13 +1,13 @@
 # The `WeierstrassCurve` ready shelf — four stories, and the good-reduction gate
 
-**Status: scoped 2026-10-08.** The Deligne–Serre column's ready shelf carries **8**
-`WeierstrassCurve.*` nodes out of 83
-([`PORTING-DeligneSerre.md`](../PORTING-DeligneSerre.md) §2 is the column plan); this note
-is their scoping — what mathematics each one brings, how they cut into sets, and the one
-definition-layer gate the shelf hides. Pin `anthropics/fermats-last-theorem@aa2d8b3`, port
-mathlib `v4.34.0`, checker baseline at scoping
-**7218 identical (313 promoted, 83 renamed), 0 mismatched, 0 missing, 36 own (7254
-checked)**.
+**Status: all eight nodes landed (2026-10-08).** The Deligne–Serre column's ready shelf carried
+**8** `WeierstrassCurve.*` nodes out of 83
+([`PORTING-DeligneSerre.md`](../PORTING-DeligneSerre.md) §2 is the column plan); this note is
+their scoping — what mathematics each one brings, how they cut into sets, and the one
+definition-layer gate the shelf hid. Pin `anthropics/fermats-last-theorem@aa2d8b3`, port
+mathlib `v4.34.0`; checker baseline at scoping **7218 identical (313 promoted, 83 renamed),
+0 mismatched, 0 missing, 36 own (7254 checked)**, now **7370 identical, 0/0, 37 own (7407
+checked)** with every node ported (§5).
 
 ## 1. The shelf, measured
 
@@ -179,18 +179,23 @@ build green. Story C's theorem set is now ungated.
 | [WORKORDER-W3-stepcurve.md](WORKORDER-W3-stepcurve.md) | D | `WeierstrassCurve/Velu/StepCurveSubgroup.lean` | 298 written | **landed 2026-10-08**, checker 7233 → **7234** identical (+1), 0/0 |
 | [WORKORDER-W3b-zmultiples.md](WORKORDER-W3b-zmultiples.md) | D | `WeierstrassCurve/Velu/CyclicQuotientJInjective.lean` | 468 written | **landed 2026-10-08**, checker 7246 → **7247** identical (+1), 0/0 |
 | W4 | C | the reduction definition wave, then the two headlines | 3,078 pin lines / 145 decls, 4 whole nodes | **complete 2026-10-08** (checker 7233 → **7368**, 0/0, warning-free, milestone build green) — [order](WORKORDER-W4-definition-wave.md) §6 |
+| [WORKORDER-W5](WORKORDER-W5-reducehom-surjective.md) | C | `WeierstrassCurve/Reduction/ReduceHomSurjective.lean` (217 lines) | 185 pin lines | **landed 2026-10-08**, checker 7368 → **7369** (+1), 0/0, warning-free; axioms clean — [order](WORKORDER-W5-reducehom-surjective.md) §9 |
+| [WORKORDER-W6](WORKORDER-W6-inertia-reduction.md) | C | `WeierstrassCurve/Reduction/InertiaReduction.lean` (630 lines) | 601 pin lines | **landed 2026-10-08**, checker 7368 → **7369** (+1), 0/0, warning-free; axioms clean — [order](WORKORDER-W6-inertia-reduction.md) §9 |
 
 Sets run one at a time, one subagent each, reviewed before the next
 ([`porting-playbook.md`](../../porting-playbook.md) §0.2, §3.4). Module paths are the
 reviewer's proposal; the implementer may re-home within the mathematics and must record it.
 
-**Story D is closed and the shelf is fully accounted for (2026-10-08).** W1, W2, W3a and W3b
-have landed (checker 7218 → **7247** across them), the refactor wave removed the story-D blocker
-(§5.1), and W4 stage 1 landed (7247 includes the wave's +13). The only remaining `WeierstrassCurve`
-ready nodes — `exists_inertia_equivariant_reduction_of_variableChange_eq_map` (601) and
-`exists_reduceHom_eq_of_nsmul_eq_zero_of_natCast_ne_zero` (185) — are gated on **W4 stages 2–4**,
-which are paused and handed off (§ below and the order's §1a). Nothing else on this shelf is
-waiting on a decision.
+**The shelf is fully accounted for (2026-10-08).** W1, W2, W3a, W3b and W4 landed, and story C's
+two headlines followed as sets **C1 = [WORKORDER-W5](WORKORDER-W5-reducehom-surjective.md)**
+(`exists_reduceHom_eq_of_nsmul_eq_zero_of_natCast_ne_zero`, 185 pin lines) and
+**C2 = [WORKORDER-W6](WORKORDER-W6-inertia-reduction.md)**
+(`exists_inertia_equivariant_reduction_of_variableChange_eq_map`, 601) — one subagent each, both
+landed 2026-10-08, manager-wired into `spec/check_flt_statements.py`. Combined checker
+**7368 → 7370 identical**, 0 mismatched / 0 missing, every set warning-free with axioms
+`[propext, Classical.choice, Quot.sound]`, milestone whole-tree build green (9,359 jobs). All
+eight `WeierstrassCurve` ready-shelf nodes are ported; nothing on this shelf is waiting on a
+decision.
 
 ### 5.1 Story D splits: `zmultiples` is blocked by a co-import collision
 

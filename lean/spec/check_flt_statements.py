@@ -2577,6 +2577,16 @@ SOURCES = [
     # pin definition file is appended to verify it. Appended last so no earlier last-name
     # match can flip.
     "Definitions/Def_WeierstrassCurve_ZeroComponentReduction.lean",
+    # --- WORKORDER-W5 (set C1, `topics/deligneSerre/WORKORDER-W5-reducehom-surjective.md`):
+    # reduction is surjective on the prime-to-`p` torsion. The headline is the module's only
+    # public declaration; appended last so no earlier last-name match can flip.
+    "Theorems/Thm_WeierstrassCurve_exists_reduceHom_eq_of_nsmul_eq_zero_of_natCast_ne_zero.lean",
+    "P2M/Sol/S_WeierstrassCurve_exists_reduceHom_eq_of_nsmul_eq_zero_of_natCast_ne_zero.lean",
+    # --- WORKORDER-W6 (set C2, `topics/deligneSerre/WORKORDER-W6-inertia-reduction.md`): the
+    # inertia-equivariant good-reduction map. The headline is the module's only public
+    # declaration; appended last so no earlier last-name match can flip.
+    "Theorems/Thm_WeierstrassCurve_exists_inertia_equivariant_reduction_of_variableChange_eq_map.lean",
+    "P2M/Sol/S_WeierstrassCurve_exists_inertia_equivariant_reduction_of_variableChange_eq_map.lean",
 ]
 
 PORT_FILES = [
@@ -3764,6 +3774,15 @@ PORT_FILES = [
     # matched against the pin definition file appended to `SOURCES` above. Appended last so no
     # earlier last-name match can flip.
     "FLTForHuman/WeierstrassCurve/Reduction/ZeroComponent.lean",
+    # --- WORKORDER-W5 (set C1): the headline `exists_reduceHom_eq_of_nsmul_eq_zero_of_natCast_ne_zero`
+    # is the module's only public declaration, matched against its `Theorems/` wrapper appended to
+    # `SOURCES` above. Appended last so no earlier last-name match can flip.
+    "FLTForHuman/WeierstrassCurve/Reduction/ReduceHomSurjective.lean",
+    # --- WORKORDER-W6 (set C2): the headline
+    # `exists_inertia_equivariant_reduction_of_variableChange_eq_map` is the module's only
+    # public declaration, matched against its `Theorems/` wrapper appended to `SOURCES` above.
+    # Appended last so no earlier last-name match can flip.
+    "FLTForHuman/WeierstrassCurve/Reduction/InertiaReduction.lean",
 ]
 
 
