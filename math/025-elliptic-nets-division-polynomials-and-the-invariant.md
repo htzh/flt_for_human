@@ -383,6 +383,72 @@ cancellation is legal, and are then transported along `aeval`. That is how
 `invar₂_normEDS` (§4), `redInvar_normEDS`, and the general multiplicativity of
 the complement (§3) are all obtained.
 
+## 8. What this layer supplies to the FLT project
+
+The mathematics is above; this closing section records the layer's *purpose* in the
+pin, read off where the dependence bottlenecks. The measurement uses the citation
+graph the pin's docs-site generator ships in `html/data/` (29,511 theorem nodes,
+1,450 definition modules). One caution: raw `grep` is useless on the pin, because it
+copies a single `attribute [-simp] …` line listing essentially every `simp` lemma —
+the EDS vocabulary included — into thousands of `S_` files. The graph records proof
+dependencies instead.
+
+**Eleven interface theorems, one kernel.** Eleven proofs import
+`Def_WeierstrassCurve_EDSEngine` directly, and every one is a premise of
+`fermat_last_theorem`. At declaration level the load is carried by very few names:
+
+| engine declaration | what it states | named in the proof of |
+|---|---|---|
+| `zsmul_eq_smulEval` | the multiplication-by-$`n`$ formula: $`n \cdot P`$ as the evaluation of $`\mathrm{smulEval}\,W\,x\,y\,n`$ | 9 of 11 |
+| `evalEval_ψ_sq`, `evalEval_φ` | $`(\psi_n)^2 = \Psi\mathrm{Sq}_n`$ and $`\varphi_n = \Phi_n`$ at a point — the bivariate-to-univariate bridge | 9 of 11 |
+| `smul_eq_zero_iff_evalEval_ψ` | $`n \cdot P = 0 \iff \psi_n(x,y) = 0`$ — the criterion for the kernel | 6 of 11 |
+| `ωe`, `ψc`, `two_mul_ωe` | the $`y`$-coordinate path | 4 of 11 |
+| `normEDS`, `IsEllSequence` | the EDS core itself | 1 of 11 |
+
+Everything else in the file — `complEDS`, `redInvarNum`/`redInvarDenom`,
+`invarNum`/`invarDenom`, `complEDSAux` — is named **zero** times outside the engine.
+The complement and invariant sequences are not an interface: they exist to prove the
+kernel and to make the $`y`$-numerator a polynomial, exactly as §3–§5 describe.
+
+**The purpose.** The layer exists to supply the multiplication-by-$`n`$ formula for
+the affine point group and the division-polynomial criterion for its kernel, over an
+arbitrary commutative ring. That is the single service the rest of FLT buys. The
+interface is eleven theorems rather than one because each consumer needs a different
+face of it — the formula, the criterion, divisibility, surjectivity, base change, the
+cardinality — not because the theory has several uses. It is a broad interface over
+one purpose, and that purpose is the $`[n]P`$ formula.
+
+What the kernel feeds:
+
+- `card_torsion_of_isAlgClosed` ($`\#E[n] = n^2`$): the Mazur/Eisenstein-ideal step
+  (`FreyPackage.frey_no_cofixed_large`) and the Čerednik–Drinfeld level-lowering and
+  patching machinery.
+- `smul_some_eq_zero_iff`: the torsion points of the Frey curve and their integrality.
+- `zsmul_x_mul_psi_sq` / `zsmul_y_mul_psi_cube`: the explicit coordinates of $`[n]P`$,
+  hence the Frobenius/Cayley–Hamilton argument
+  (`FrobeniusEndo.frobCharEqOnPoints_of_charEq_on_torsion_of_trace_ne_zero`) and the
+  Weil-pairing, isogeny and rational-endomorphism layer.
+- `isCoprime_Φ_ΨSq`: the Wronskian coprimality that makes the fibre count separable.
+
+**The pin solves $`\omega`$ twice.** The halving problem of §5 is answered in two
+independent files:
+
+- [`Def_WeierstrassCurve_EDSEngine.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_WeierstrassCurve_EDSEngine.lean)
+  defines `ωe` by the EDS-invariant route — the one this note develops.
+- [`Def_EllipticCurve_DivisionPolynomialOmega.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_EllipticCurve_DivisionPolynomialOmega.lean)
+  defines $`\mathrm{two}\omega_n = \psi\mathrm{Dbl}_n - \psi_n\,(a_1\varphi_n + a_3\psi_n^2)`$
+  — the same division-free right-hand side — and then `ω` by **halving coefficients**
+  of `twoω` over the universal ring $`\mathbb{Z}[A_1,\dots,A_6][X][Y]`$, where dividing
+  by $`2`$ is legitimate coefficientwise.
+
+The two are reconciled, not merely compatible. In
+[`S_WeierstrassCurve_Affine_Point_zsmul_y_mul_psi_cube.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_Affine_Point_zsmul_y_mul_psi_cube.lean#L113-L129),
+`ψc_eq_ψDbl` is `rfl`, `twoω_eq_two_mul_ωe` gives $`\mathrm{two}\omega_n = 2\,\omega e_n`$,
+and `ω_eq_ωe` proves $`\omega_n = \omega e_n`$ over every commutative ring. The
+$`y`$-coordinate theorem is stated with the halved `ω` and its proof crosses to `ωe`
+through these bridges; so the characteristic-free $`y`$-numerator is not one
+construction in the pin but two, with an equality theorem between them.
+
 ## Links
 
 Pinned pin sources (`aa2d8b3`):
@@ -390,6 +456,8 @@ Pinned pin sources (`aa2d8b3`):
 - [`Definitions/Def_WeierstrassCurve_EDSEngine.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_WeierstrassCurve_EDSEngine.lean) — `invarNum` (83), `invarDenom` (87), `invar_of_net` (89), `compl₂EDSAux` (566), `compl₂EDS` (580), `redInvarNum` (844), `redInvarDenom` (856), `net_normEDS` (949), `invar` (1196), `preΨ₄_add_Ψ₂Sq_sq` (1208), `ωe` (1220), `ωe_spec` (1226)
 - [`Theorems/Thm_WeierstrassCurve_card_torsion_of_isAlgClosed.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_WeierstrassCurve_card_torsion_of_isAlgClosed.lean) — the consumer ([math/005](005-card-torsion-p-squared.md))
 - [`P2M/Sol/S_WeierstrassCurve_card_torsion_of_isAlgClosed.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_card_torsion_of_isAlgClosed.lean) — the fibre count
+- [`Definitions/Def_EllipticCurve_DivisionPolynomialOmega.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_EllipticCurve_DivisionPolynomialOmega.lean) — the second $`\omega`$: `ψDbl`, `twoω`, universal coefficient-halving
+- [`P2M/Sol/S_WeierstrassCurve_Affine_Point_zsmul_y_mul_psi_cube.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_Affine_Point_zsmul_y_mul_psi_cube.lean#L113-L129) — the bridges `ψc_eq_ψDbl`, `twoω_eq_two_mul_ωe`, `ω_eq_ωe`
 
 mathlib (tag `v4.34.0`):
 
