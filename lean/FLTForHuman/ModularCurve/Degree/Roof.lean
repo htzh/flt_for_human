@@ -41,17 +41,6 @@ private theorem full_congr {a b : ℕ} [NeZero a] [NeZero b] (h : a = b) :
     modularFunctionFieldFull a = modularFunctionFieldFull b := by
   subst h; rfl
 
-private theorem dedekindPsi_pos' (A : ℕ) [NeZero A] : 0 < dedekindPsi A := by
-  rw [dedekindPsi]
-  have h1 : (1 : ℕ) ∈ A.divisors.filter (fun d => Squarefree d) := by
-    rw [Finset.mem_filter, Nat.mem_divisors]
-    exact ⟨⟨one_dvd A, NeZero.ne A⟩, squarefree_one⟩
-  calc 0 < A / 1 := by
-        rw [Nat.div_one]
-        exact Nat.pos_of_ne_zero (NeZero.ne A)
-  _ ≤ ∑ d ∈ A.divisors with Squarefree d, A / d :=
-      Finset.single_le_sum (fun _ _ => Nat.zero_le _) h1
-
 private theorem fieldRange_heckeBetaBar (L : Type*) [Field L] [Algebra ℚ L] (A : ℕ) [NeZero A]
     (ℓ : ℕ) [NeZero ℓ] :
     (((laurentBaseChange L (modularFunctionFieldFull (A * ℓ))).val.comp
@@ -146,7 +135,7 @@ private theorem finrankAlong_heckeBetaBar (L : Type*) [Field L] [Algebra ℚ L]
   rw [hTR1a, hanchor_val] at hbar
   rw [hTR1b, hQside] at hbar
 
-  exact Nat.eq_of_mul_eq_mul_left (dedekindPsi_pos' A) hbar
+  exact Nat.eq_of_mul_eq_mul_left (dedekindPsi_pos A (NeZero.ne A)) hbar
 
 private theorem finrankAlong_towerInclBar_of_eq (L : Type*) [Field L] [Algebra ℚ L]
     (A B : ℕ) [NeZero A] [NeZero B] (hAB : A = B) (h : A ∣ B) :

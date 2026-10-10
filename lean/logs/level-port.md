@@ -374,9 +374,11 @@ and `card_fibre` were byte-identical private copies in
 `Gamma0Index.PrimCosetCount` (SET-3's transcription of the pin's private block).
 Both now import them from
 
-- `FLTForHuman/NumberTheory/DedekindPsiCount.lean` — `card_filter_coprime_range_mul`
+- `FLTForHuman/NumberTheory/DedekindPsi.lean` — `card_filter_coprime_range_mul`
   (public; mathlib has only its three ingredients, not the block statement),
-  `dedekindPsiFibre` and `card_fibre`.
+  `dedekindPsiFibre` and `card_fibre`. (The module was named `DedekindPsiCount.lean`
+  when this was written; §7 merged it into `DedekindPsi.lean`, which now also owns
+  the `ψ` function itself.)
 
 Which side stays: **neither theory**. A generic `Nat.totient`/fibre count is not
 `ModularCurve` or `ModularForms` mathematics, so it gets its own `NumberTheory/`
@@ -433,3 +435,86 @@ This is a deliberate deviation from the pin's file layout, which keeps the
 special case: the pin's `S_ModularForm_S2_Gamma0_2_eq_zero` is self-contained,
 while the port may reach SET-3's module (no cycle, and `ModularForms` already
 imports `ModularCurve.Defs.*`).
+
+## §7 The `ψ` subject, moved out of `Jq.lean` (2026-10-09)
+
+The third overlap, and the one that motivated §5's rule in the first place. The
+Dedekind `ψ` block sat in `ModularCurve/Defs/Jq.lean` — a file about the
+`q`-expansion of `j` — only because the pin keeps it in
+`Def_ModularCurve_X0.lean`'s `NamedInputs` section. It is generic number theory:
+its proofs cite only mathlib, and nothing in the block touches `jq`, `qExpand` or
+`Laurent`. Worse, its `ArithmeticFunction` view was **`private`** there, so
+`Gamma0Index.PrimCosetCount` — which imports `Jq` — could not use it and
+re-derived it privately. Three further modules re-proved parts of the public
+surface as well.
+
+**Decision: one home for the subject, plus a pin-namespaced alias layer.**
+
+| moved to `FLTForHuman/NumberTheory/DedekindPsi.lean` (234 lines) | was |
+|---|---|
+| `dedekindPsi` + `_one` / `_prime` / `_prime_pow` / `_mul_of_coprime` / `_mul_prime` / `_pos` | `Defs/Jq.lean:206–329` |
+| `Psi`, `Psi_apply`, `isMultiplicative_Psi` (now **public**, pin's names) | `private` in `Defs/Jq.lean` **and** `private` in `Gamma0Index.PrimCosetCount` |
+| `dedekindPsi_mul_prime_dvd` / `_not_dvd` (new, promoted) | `private` in **both** `Spine.lean` and `SlotProduct.lean` |
+| `card_filter_coprime_range_mul`, `dedekindPsiFibre`, `card_fibre` | absorbed from `NumberTheory/DedekindPsiCount.lean` (deleted) |
+
+Deleted as stale re-derivations: `Gamma0Index.lean`'s `sqf`/`sqf_apply`/
+`isMultiplicative_sqf`/`Psi`/`isMultiplicative_Psi`/`Psi_apply`/`Psi_prime_pow`
+(≈51 lines; `Psi_prime_pow` was outright derivable from `Psi_apply` +
+`dedekindPsi_prime_pow`), `Roof.lean`'s `dedekindPsi_pos'` (now the public
+`dedekindPsi_pos`), and the `SlotProduct.lean` `dedekindPsi_prime_pow_succ`
+wrapper. `CuspDichotomy.lean`'s `TwoCuspAux.dedekindPsi_prime` keeps its statement
+(the pin has that last name elsewhere) but its nine-line re-proof is now a
+one-line delegation.
+
+**Namespace.** The playbook already fixes this shape: *"an internal namespace plus
+a consumer-namespace alias is fine if the two agree"* (§ `Namespace policy`). So
+`NumberTheory/DedekindPsi.lean` stays in the root namespace, and
+`ModularCurve/Defs/DedekindPsi.lean` (52 lines, no proofs — one `def` plus six
+one-line `theorem`s) re-presents the pin's `ModularCurve.dedekindPsi…` spelling for
+the five qualified uses (`Gamma0TwoIndex.lean:39`, `CyclicCount.lean:320,386,443`,
+`PlaceDegree.lean:85`) and the `spec/` probes. The shim keeps the pin's declaration
+*kind* (`def`, not `abbrev`) — the checker compares kinds, and `abbrev` would be a
+`MISMATCH`. Where those names live: `Defs/Polynomial.lean` imports the shim (it
+genuinely uses `dedekindPsi`), which covers the other 21 consumers transitively;
+`Gamma0Index.lean` and `SlotProduct.lean` import `NumberTheory/DedekindPsi.lean`
+directly for the counting core. No cycle in either direction.
+
+**The dead `Defs/Jq` import.** The ψ block was `Gamma0Index.lean`'s only reason to
+import `Defs/Jq.lean`, so with the move its direct import is gone. Verified
+mechanically, not by inspection: `lake env lean` on the module is green without it
+(4.7 s → 5.7 s, both fully cached), and the import closure still contains
+`Defs/Jq` by the pin's own route —
+`Gamma0Index → PrimCosetReps → PhiGen → Fields → Polynomial → Defs/Jq` — so no
+consumer sees a smaller environment. Nothing in the file mentions a `Jq`
+declaration or the `Laurent` vocabulary `Jq` re-exports: with
+`pat='\b(jq|jqN|evalAtJ|jNum|jNumQ|eisenstein4|etaProd|dedekindEtaUnit|dedekindEtaUnitInv|ofPowerSeries|qExpand|LaurentSeries|HahnSeries|PowerSeries)\w*'`,
+`grep -cE "$pat" FLTForHuman/ModularCurve/Gamma0Index.lean` prints `0`.
+
+**Checker bookkeeping.** `PORT_FILES` gained
+`FLTForHuman/ModularCurve/Defs/DedekindPsi.lean` (beside `Jq.lean`, where the names
+used to be) and `DedekindPsiCount.lean` → `DedekindPsi.lean`; `OWN_PROOFS` gained
+the two promoted case splits (the pin has them only inlined).
+
+| check | before | after |
+|---|---|---|
+| `spec/check_flt_statements.py` | 7,592 identical, 0 mismatched, 0 missing, 36 own-proof | **7,602 identical, 0 mismatched, 0 missing, 38 own-proof** |
+| `#print axioms` spot check | `[propext, Classical.choice, Quot.sound]` | unchanged |
+
+The `+10` identical is the seven `ModularCurve.*` names now declared in both the
+root module and the shim (double-counted, harmless), plus the three newly public
+`Psi` names; the `+2` own-proof is the promoted case splits.
+
+| build | result |
+|---|---|
+| `NumberTheory.DedekindPsi`, `ModularCurve.Defs.DedekindPsi` | green |
+| `ModularCurve.Defs.Jq`, `ModularCurve.Gamma0Index` | green, 0 warnings, no `sorry` |
+| `Degree.Roof`, `FunctionFieldGeneration.{Spine,SlotProduct}`, `Analytic.CuspDichotomy` | green |
+| the remaining 12 `dedekindPsi` consumers in one invocation | green, 9,019 jobs |
+
+Net **−190 lines** across the seven edited library files (57 insertions / 247
+deletions), plus the two new modules. The three remaining warnings are
+pre-existing `linter.style.haveILetI` hits in `CyclicCount.lean` (353, 445, 446),
+surfaced only because that file rebuilt; they are unrelated to this change.
+
+**Still deferred, by instruction:** the full-tree `lake build`.
+

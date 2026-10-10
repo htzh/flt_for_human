@@ -173,14 +173,9 @@ structure Inputs where
 
 /-! ## The auxiliary block -/
 
-private theorem dedekindPsi_mul_prime_not_dvd {m p : ℕ} (hp : p.Prime) (hpm : ¬ p ∣ m) :
-    dedekindPsi (m * p) = dedekindPsi m * (p + 1) := by
-  have hco : Nat.Coprime m p := ((Nat.Prime.coprime_iff_not_dvd hp).mpr hpm).symm
-  rw [dedekindPsi_mul_of_coprime m p hco, dedekindPsi_prime hp]
-
-private theorem dedekindPsi_mul_prime_dvd {m p : ℕ} (hm : m ≠ 0) (hp : p.Prime)
-    (hpm : p ∣ m) : dedekindPsi (m * p) = dedekindPsi m * p := by
-  rw [@dedekindPsi_mul_prime m p ⟨hm⟩ hp, ite_eq_left hpm, mul_comm]
+-- The two prime-step case splits `dedekindPsi_mul_prime_{dvd,not_dvd}` were
+-- private here and duplicated verbatim in `SlotProduct.lean`; both now live
+-- once, publicly, in `FLTForHuman/NumberTheory/DedekindPsi.lean`.
 
 private theorem relfinrank_full_of (N : ℕ) [NeZero N] (ht : Tight N) (hg : Gen N) :
     IntermediateField.relfinrank ℚ⟮jq⟯ (modularFunctionFieldFull N) = dedekindPsi N := by
@@ -388,8 +383,8 @@ theorem hall_all (h : Inputs) : ∀ N : ℕ, N ≠ 0 → Hall N := by
       exact dedekindPsi_mul_prime_not_dvd hp hpM
     · have h2 : M * p ^ (a + 1) = M * p ^ a * p := by rw [pow_succ, mul_assoc]
       rw [h2]
-      refine dedekindPsi_mul_prime_dvd (mul_ne_zero hM0 (pow_ne_zero _ hp.ne_zero)) hp
-        ⟨M * p ^ (a - 1), ?_⟩
+      refine @dedekindPsi_mul_prime_dvd (M * p ^ a) p
+        ⟨mul_ne_zero hM0 (pow_ne_zero _ hp.ne_zero)⟩ hp ⟨M * p ^ (a - 1), ?_⟩
       obtain ⟨a', rfl⟩ := Nat.exists_eq_succ_of_ne_zero ha
       rw [Nat.succ_sub_one, pow_succ]; ring
   rw [hpsi]

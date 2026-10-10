@@ -2733,6 +2733,13 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/Defs/Laurent.lean",
     "FLTForHuman/ModularCurve/Defs/Twist.lean",
     "FLTForHuman/ModularCurve/Defs/Jq.lean",
+    # The pin-namespaced spelling of the Dedekind `ψ` function. The mathematics
+    # moved on 2026-10-09 to `NumberTheory/DedekindPsi.lean` (listed below); this
+    # shim keeps the pin's `ModularCurve.dedekindPsi…` names for the five qualified
+    # uses and the `spec/` probes. Both files are listed, so the pin names are
+    # diffed twice — harmless, and it keeps the moved statements verified even if
+    # the shim is ever dropped.
+    "FLTForHuman/ModularCurve/Defs/DedekindPsi.lean",
     "FLTForHuman/ModularCurve/FunctionFieldGeneration/Target.lean",
     "FLTForHuman/ModularCurve/Defs/Polynomial.lean",
     "FLTForHuman/ModularCurve/Defs/Fields.lean",
@@ -3006,8 +3013,10 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/Defs/ProjectiveLine.lean",
     "FLTForHuman/ModularCurve/Defs/PrimCosetReps.lean",
     "FLTForHuman/ModularCurve/Gamma0Index.lean",
-    # Post-SET-3 dedup: the counting core shared by SlotProduct and Gamma0Index.
-    "FLTForHuman/NumberTheory/DedekindPsiCount.lean",
+    # Post-SET-3 dedup: the counting core shared by SlotProduct and Gamma0Index,
+    # and (2026-10-09) the whole Dedekind `ψ` subject moved out of `Defs/Jq.lean`
+    # and merged with `DedekindPsiCount.lean` into this one `NumberTheory/` module.
+    "FLTForHuman/NumberTheory/DedekindPsi.lean",
     # The general-weight Eichler–Shimura period map and its injectivity
     # (TOPIC-period-map-injectivity): the four generic facts in their subject
     # homes, the definitions, the leaves and the map.
@@ -4017,12 +4026,18 @@ OWN_PROOFS = {
     # helper of the Γ-rationality region.
     "qExpansion_coeff_width_fn",
     "map_eq",
-    # `NumberTheory/DedekindPsiCount.lean`: the generic block count is FLT-private in
+    # `NumberTheory/DedekindPsi.lean`: the generic block count is FLT-private in
     # the pin and promoted here; `dedekindPsiFibre` is the port's rename of the pin's
     # `h`/`slotH` (the name `slotH` is taken publicly by `ModularCurve.QExpN.slotH`),
     # so `card_fibre`'s statement is the pin's modulo that rename.
     "dedekindPsiFibre",
     "card_fibre",
+    # The two prime-step case splits of `ψ`. The pin has them only inlined, and the
+    # port had written them privately in both `Spine.lean` and `SlotProduct.lean`
+    # (2026-10-09: one public copy, in `NumberTheory/DedekindPsi.lean`); the pin's
+    # `dedekindPsi_mul_prime` is the general form and is matched separately.
+    "dedekindPsi_mul_prime_dvd",
+    "dedekindPsi_mul_prime_not_dvd",
     "coeff_jq_zero",
     "coeff_jq_one",
     # `Spine.lean`'s public surface. `Tight`/`Gen`/`Hall` are FLT's private

@@ -4,8 +4,8 @@
   `jq` is assembled as `E₄ ^ 3 / Δ`, where `Δ` is written as a unit times its
   inverse so that only its constant term `1` is needed. The module then records
   the shape that matters for the field theory: `jq = q⁻¹ + ⋯`, i.e. a simple
-  pole at `q = 0` with leading coefficient `1`. Finally it defines `jqN`, the
-  Dedekind psi function, and evaluation `Polynomial ℤ → LaurentSeries ℚ` at `jq`.
+  pole at `q = 0` with leading coefficient `1`. Finally it defines `jqN` and the
+  evaluation `Polynomial ℤ → LaurentSeries ℚ` at `jq`.
 
   FLT provenance, pinned `aa2d8b3`:
   `Definitions/Def_ModularCurve_X0.lean` lines 111–212.
@@ -17,18 +17,19 @@
   `FLTForHuman/ModularCurve/JqCoefficients.lean`).
 
   This module also carries the part of the cone's **outbound interface** stated
-  over `jq` and `dedekindPsi`: `dedekindPsi_prime`, `dedekindPsi_prime_pow`,
-  `dedekindPsi_mul_of_coprime`, and — added 2026-09-22 from the audit sweep — the
-  two out-of-cone ψ facts `dedekindPsi_mul_prime` and `dedekindPsi_pos`, which FLT
-  publishes as `Them_` wrappers (indeg 20 and 76) and which the port had been
-  re-proving privately in `Spine.lean` and again in the T19 pin's slot-counting
-  block. Then `aeval_jq_eq_zero` and `transcendental_jq`. They are transcribed
-  verbatim from their `Theorems/Thm_ModularCurve_*` wrappers in the pin and are
-  public; the indegrees in FLT's graph are 72, 33, 46, 20, 76, 2 and 56. See
-  `logs/ffg-port.md` §2e.
+  over `jq`: `aeval_jq_eq_zero` and `transcendental_jq`, transcribed verbatim from
+  their `Theorems/Thm_ModularCurve_*` wrappers in the pin and public.
 
-  Names are FLT's verbatim; `PowerSeries`, `HahnSeries`, `Finset`,
-  `ArithmeticFunction` are mathlib's.
+  The `dedekindPsi` block used to sit here too — `dedekindPsi_prime`,
+  `dedekindPsi_prime_pow`, `dedekindPsi_mul_of_coprime`, and the two out-of-cone ψ
+  facts `dedekindPsi_mul_prime` and `dedekindPsi_pos` (indegrees 72, 33, 46, 20, 76;
+  see `logs/ffg-port.md` §2e). It moved on 2026-10-09 to
+  `FLTForHuman/NumberTheory/DedekindPsi.lean`: `ψ` is generic number theory with no
+  `jq` content, and its `ArithmeticFunction` view was `private` here, which forced
+  `Gamma0Index.lean` to re-derive it. The pin's `ModularCurve` spelling of those
+  names is kept by `FLTForHuman/ModularCurve/Defs/DedekindPsi.lean`.
+
+  Names are FLT's verbatim; `PowerSeries`, `HahnSeries`, `Finset` are mathlib's.
   Assumes `qExpand` and its coefficient lemmas from `FLTForHuman.ModularCurve.Defs.Laurent`.
 -/
 import Mathlib.RingTheory.PowerSeries.PiTopology
@@ -202,130 +203,6 @@ theorem jqN_congr {n m : ℕ} [NeZero n] [NeZero m] (h : n = m) : jqN n = jqN m 
   subst h; rfl
 
 section NamedInputs
-
-/-- The Dedekind psi function: `ψ(N) = ∑_{d ∣ N, d squarefree} N / d`, which
-equals `N ∏_{p ∣ N} (1 + 1/p)`. -/
-def dedekindPsi (N : ℕ) : ℕ := ∑ d ∈ N.divisors with Squarefree d, N / d
-
-@[simp]
-theorem dedekindPsi_one : dedekindPsi 1 = 1 := by
-  rw [dedekindPsi, Nat.divisors_one, Finset.filter_singleton, ite_eq_left squarefree_one]
-  simp
-
-/-- `ψ(p) = p + 1` for a prime `p`. Part of the cone's outbound interface
-(indeg 72). -/
-theorem dedekindPsi_prime {p : ℕ} (hp : p.Prime) : dedekindPsi p = p + 1 := by
-  rw [dedekindPsi, Finset.sum_filter, hp.divisors, Finset.sum_pair hp.one_lt.ne]
-  simp [hp.squarefree, Nat.div_self hp.pos]
-
-/-- `ψ(p ^ k) = p ^ k + p ^ (k - 1)` for a prime `p` and `k ≠ 0`. Part of the
-cone's outbound interface (indeg 33). -/
-theorem dedekindPsi_prime_pow (p k : ℕ) (hp : p.Prime) (hk : k ≠ 0) :
-    dedekindPsi (p ^ k) = p ^ k + p ^ (k - 1) := by
-  have hsqfree : ∀ j, Squarefree (p ^ j) ↔ j ≤ 1 := fun j => by
-    constructor
-    · intro hsq
-      by_contra hj
-      exact hp.one_lt.ne'
-        (Nat.isUnit_iff.mp (hsq p (by rw [← pow_two]; exact pow_dvd_pow p (by omega))))
-    · intro hj
-      interval_cases j
-      · simp
-      · simpa using hp.prime.squarefree
-  have hfilter : {d ∈ (p ^ k).divisors | Squarefree d} = {1, p} := by
-    ext d
-    simp only [Finset.mem_filter, Nat.mem_divisors, Finset.mem_insert, Finset.mem_singleton]
-    constructor
-    · rintro ⟨⟨hdvd, -⟩, hsq⟩
-      obtain ⟨j, hj, rfl⟩ := (Nat.dvd_prime_pow hp).mp hdvd
-      have : j ≤ 1 := (hsqfree j).mp hsq
-      interval_cases j
-      · exact Or.inl (pow_zero p)
-      · exact Or.inr (pow_one p)
-    · rintro (rfl | rfl)
-      · exact ⟨⟨one_dvd _, pow_ne_zero _ hp.pos.ne'⟩, squarefree_one⟩
-      · exact ⟨⟨dvd_pow_self _ hk, pow_ne_zero _ hp.pos.ne'⟩, hp.prime.squarefree⟩
-  have hdiv : p ^ k / p = p ^ (k - 1) := by
-    conv_lhs => rw [show k = (k - 1) + 1 by omega, pow_succ]
-    exact Nat.mul_div_cancel _ hp.pos
-  rw [dedekindPsi, hfilter, Finset.sum_pair hp.one_lt.ne, Nat.div_one, hdiv]
-
-/-- The squarefree indicator as an arithmetic function. -/
-private def squarefreeIndicator : ArithmeticFunction ℕ :=
-  ⟨fun n => if Squarefree n then 1 else 0, by simp [not_squarefree_zero]⟩
-
-@[simp]
-private theorem squarefreeIndicator_apply {n : ℕ} :
-    squarefreeIndicator n = if Squarefree n then 1 else 0 :=
-  rfl
-
-private theorem isMultiplicative_squarefreeIndicator :
-    squarefreeIndicator.IsMultiplicative := by
-  refine ⟨by simp, fun {m n} h => ?_⟩
-  simp only [squarefreeIndicator_apply, Nat.squarefree_mul h]
-  by_cases hm : Squarefree m <;> by_cases hn : Squarefree n <;> simp [hm, hn]
-
-private theorem dedekindPsi_eq_mul_apply (N : ℕ) :
-    dedekindPsi N = (squarefreeIndicator * ArithmeticFunction.id) N :=
-  calc dedekindPsi N
-      = ∑ d ∈ N.divisors, squarefreeIndicator d * ArithmeticFunction.id (N / d) := by
-        rw [dedekindPsi, Finset.sum_filter]
-        refine Finset.sum_congr rfl fun d _ => ?_
-        by_cases hd : Squarefree d <;> simp [hd]
-    _ = ∑ x ∈ N.divisorsAntidiagonal, squarefreeIndicator x.1 * ArithmeticFunction.id x.2 :=
-        (Nat.sum_divisorsAntidiagonal fun d e =>
-          squarefreeIndicator d * ArithmeticFunction.id e).symm
-    _ = (squarefreeIndicator * ArithmeticFunction.id) N := ArithmeticFunction.mul_apply.symm
-
-private theorem isMultiplicative_squarefreeIndicator_mul_id :
-    (squarefreeIndicator * ArithmeticFunction.id).IsMultiplicative :=
-  isMultiplicative_squarefreeIndicator.mul ArithmeticFunction.isMultiplicative_id
-
-/-- `ψ` is multiplicative: `ψ(mn) = ψ(m)ψ(n)` for coprime `m`, `n`. Part of the
-cone's outbound interface (indeg 46). -/
-theorem dedekindPsi_mul_of_coprime (M N : ℕ) (h : Nat.Coprime M N) :
-    dedekindPsi (M * N) = dedekindPsi M * dedekindPsi N := by
-  simp only [dedekindPsi_eq_mul_apply]
-  exact isMultiplicative_squarefreeIndicator_mul_id.map_mul_of_coprime h
-
-/-- The prime step of `ψ`: `ψ(Mℓ) = (if ℓ ∣ M then ℓ else ℓ + 1) · ψ(M)`. Part of
-the cone's neighbourhood interface (indeg 20). FLT publishes it as a `Them_`
-wrapper; the port had re-proved its two cases privately in `Spine.lean` and again
-in the T19 pin's slot-counting block, so it is written once here. Verbatim from
-`Thm_ModularCurve_dedekindPsi_mul_prime`. -/
-theorem dedekindPsi_mul_prime (M ℓ : ℕ) [NeZero M] (hℓ : ℓ.Prime) :
-    dedekindPsi (M * ℓ) = (if ℓ ∣ M then ℓ else ℓ + 1) * dedekindPsi M := by
-  have hM : M ≠ 0 := NeZero.ne M
-  obtain ⟨k, M', hM', rfl⟩ := Nat.exists_eq_pow_mul_and_not_dvd hM ℓ hℓ.ne_one
-  have hcop : Nat.Coprime (ℓ ^ k) M' :=
-    Nat.Coprime.pow_left k ((Nat.Prime.coprime_iff_not_dvd hℓ).mpr hM')
-  have hcop' : Nat.Coprime M' ℓ := ((Nat.Prime.coprime_iff_not_dvd hℓ).mpr hM').symm
-  rcases Nat.eq_zero_or_pos k with rfl | hk
-  · simp only [pow_zero, one_mul] at hcop ⊢
-    rw [ite_eq_right hM', dedekindPsi_mul_of_coprime M' ℓ hcop', dedekindPsi_prime hℓ,
-      mul_comm]
-  · have hdvd : ℓ ∣ ℓ ^ k * M' := dvd_mul_of_dvd_left (dvd_pow_self ℓ hk.ne') M'
-    rw [ite_eq_left hdvd]
-    have e1 : ℓ ^ k * M' * ℓ = ℓ ^ (k + 1) * M' := by ring
-    have hcop1 : Nat.Coprime (ℓ ^ (k + 1)) M' :=
-      Nat.Coprime.pow_left (k + 1) ((Nat.Prime.coprime_iff_not_dvd hℓ).mpr hM')
-    rw [e1, dedekindPsi_mul_of_coprime _ _ hcop1, dedekindPsi_mul_of_coprime _ _ hcop,
-      dedekindPsi_prime_pow ℓ (k + 1) hℓ (Nat.succ_ne_zero k),
-      dedekindPsi_prime_pow ℓ k hℓ hk.ne', Nat.add_sub_cancel]
-    obtain ⟨j, rfl⟩ := Nat.exists_eq_add_of_lt hk
-    simp only [Nat.zero_add, Nat.add_sub_cancel]
-    ring
-
-/-- `ψ` is positive at every nonzero level. Part of the cone's neighbourhood
-interface (indeg 76); the pin proves it from `le_dedekindPsi`, whose argument is
-inlined here. Verbatim statement from `Thm_ModularCurve_dedekindPsi_pos`. -/
-theorem dedekindPsi_pos (N : ℕ) (hN : N ≠ 0) : 0 < dedekindPsi N := by
-  rw [dedekindPsi]
-  have h1 : (1 : ℕ) ∈ {d ∈ N.divisors | Squarefree d} :=
-    Finset.mem_filter.mpr ⟨Nat.one_mem_divisors.mpr hN, squarefree_one⟩
-  have hs : N ≤ ∑ d ∈ {d ∈ N.divisors | Squarefree d}, N / d := by
-    simpa using Finset.single_le_sum (f := fun d => N / d) (fun d _ => Nat.zero_le _) h1
-  exact lt_of_lt_of_le (Nat.pos_of_ne_zero hN) hs
 
 /-- Evaluation of an integer polynomial at `jq`, as a ring hom into the Laurent
 series over `ℚ`. -/

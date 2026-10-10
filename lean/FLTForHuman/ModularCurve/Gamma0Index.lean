@@ -22,9 +22,19 @@
 
   The three public headlines are the pin's `Theorems/` wrappers verbatim:
   `Gamma0_index`, `card_projectiveLine_zmod`, `card_primCosetReps_eq_dedekindPsi`.
-  `dedekindPsi` and its arithmetic lemmas live in `Defs/Jq.lean` and are imported,
-  not re-ported. Statements are transcribed verbatim; proofs are adapted only for
-  mathlib `v4.34.0` (and the pin's local `maxHeartbeats` bumps are not carried).
+  `dedekindPsi` and its arithmetic live in
+  `FLTForHuman/NumberTheory/DedekindPsi.lean` and are imported, not re-ported; the
+  pin's `ModularCurve` spelling of those names is kept by
+  `FLTForHuman/ModularCurve/Defs/DedekindPsi.lean`. The `ArithmeticFunction` view
+  (`Psi`, `Psi_apply`, `isMultiplicative_Psi`) was `private` in `PrimCosetCount`
+  here until 2026-10-09, duplicating a `private` copy in `Defs/Jq.lean`; both are
+  now the one public copy in `NumberTheory/`, which is why `G_eq_Psi` is stated
+  against the imported `Psi`. The ψ block was this module's only connection to
+  `Defs/Jq.lean`, so the direct `Defs/Jq` import was dropped with the move
+  (2026-10-09); `Jq` stays in scope transitively through `Defs/PrimCosetReps.lean`,
+  which is where the pin gets it. Statements are transcribed verbatim; proofs are
+  adapted only for mathlib `v4.34.0` (and the pin's local `maxHeartbeats` bumps are
+  not carried).
 -/
 import Mathlib.NumberTheory.ModularForms.CongruenceSubgroups
 import Mathlib.GroupTheory.Index
@@ -36,8 +46,7 @@ import Mathlib.Data.ZMod.Units
 import Mathlib.Tactic
 import FLTForHuman.ModularCurve.Defs.ProjectiveLine
 import FLTForHuman.ModularCurve.Defs.PrimCosetReps
-import FLTForHuman.ModularCurve.Defs.Jq
-import FLTForHuman.NumberTheory.DedekindPsiCount
+import FLTForHuman.NumberTheory.DedekindPsi
 
 set_option autoImplicit false
 
@@ -701,63 +710,13 @@ private theorem G_prime_pow {p : ℕ} (hp : p.Prime) (k : ℕ) (hk : 0 < k) :
   rw [Finset.sum_congr rfl hterm, Finset.sum_range_succ, sum_h_prime_pow_partial hp k k hk le_rfl,
     Nat.sub_self, pow_zero, h_one_left, add_comm]
 
-private def sqf : ArithmeticFunction ℕ :=
-  ⟨fun n => if Squarefree n then 1 else 0, by simp [not_squarefree_zero]⟩
-
-private theorem sqf_apply (n : ℕ) : sqf n = if Squarefree n then 1 else 0 := rfl
-
-private theorem isMultiplicative_sqf : sqf.IsMultiplicative := by
-  refine ⟨by simp [sqf_apply], ?_⟩
-  intro m n hmn
-  simp only [sqf_apply]
-  by_cases hm : Squarefree m <;> by_cases hn : Squarefree n <;>
-    simp [hm, hn, Nat.squarefree_mul hmn]
-
-private def Psi : ArithmeticFunction ℕ := sqf * ArithmeticFunction.id
-
-private theorem isMultiplicative_Psi : Psi.IsMultiplicative :=
-  isMultiplicative_sqf.mul ArithmeticFunction.isMultiplicative_id
-
-private theorem Psi_apply (n : ℕ) : Psi n = dedekindPsi n := by
-  rw [Psi, ArithmeticFunction.mul_apply, dedekindPsi,
-    Nat.sum_divisorsAntidiagonal (fun x y => sqf x * ArithmeticFunction.id y), Finset.sum_filter]
-  refine Finset.sum_congr rfl (fun d _ => ?_)
-  rw [sqf_apply, ArithmeticFunction.id_apply]
-  split_ifs <;> simp
-
-private theorem Psi_prime_pow {p : ℕ} (hp : p.Prime) (k : ℕ) (hk : 0 < k) :
-    Psi (p ^ k) = p ^ k + p ^ (k - 1) := by
-  rw [Psi_apply, dedekindPsi, Finset.sum_filter, Nat.sum_divisors_prime_pow hp]
-
-  have hterm : ∀ j ∈ range (k + 1),
-      (if Squarefree (p ^ j) then p ^ k / p ^ j else 0) = if j = 0 then p ^ k else if j = 1 then p ^ (k - 1) else 0 := by
-    intro j hj
-    rw [Finset.mem_range] at hj
-    rcases Nat.eq_zero_or_pos j with rfl | hjpos
-    · simp
-    · rcases eq_or_ne j 1 with rfl | hj1
-      · rw [pow_one, ite_eq_left (Irreducible.squarefree hp), ite_eq_right one_ne_zero, ite_eq_left rfl]
-        exact Nat.div_eq_of_eq_mul_left hp.pos (by rw [← pow_succ]; congr 1; omega)
-      · have : ¬ Squarefree (p ^ j) := by
-          rw [Nat.squarefree_pow_iff hp.ne_one (by omega)]
-          exact fun h => hj1 h.2
-        simp [this, hj1, Nat.pos_iff_ne_zero.mp hjpos]
-  rw [Finset.sum_congr rfl hterm]
-  rw [Finset.sum_ite, Finset.sum_ite]
-  simp only [Finset.sum_const_zero, add_zero, Finset.sum_const, smul_eq_mul]
-  have h0 : (range (k + 1)).filter (fun j => j = 0) = {0} := by
-    ext j; simp
-  have h1 : ((range (k + 1)).filter (fun j => ¬ j = 0)).filter (fun j => j = 1) = {1} := by
-    ext j; simp; omega
-  rw [h0, h1]
-  simp
-
 private theorem G_eq_Psi : G = Psi := by
-  rw [ArithmeticFunction.IsMultiplicative.eq_iff_eq_on_prime_powers G isMultiplicative_G Psi isMultiplicative_Psi]
+  rw [ArithmeticFunction.IsMultiplicative.eq_iff_eq_on_prime_powers G isMultiplicative_G
+    Psi isMultiplicative_Psi]
   intro p i hp
   rcases Nat.eq_zero_or_pos i with rfl | hi
   · rw [pow_zero, isMultiplicative_G.map_one, isMultiplicative_Psi.map_one]
-  · rw [G_prime_pow hp i hi, Psi_prime_pow hp i hi]
+  · rw [G_prime_pow hp i hi, Psi_apply, _root_.dedekindPsi_prime_pow p i hp hi.ne']
 
 end PrimCosetCount
 
@@ -766,7 +725,8 @@ representatives equals the Dedekind psi function. -/
 theorem card_primCosetReps_eq_dedekindPsi (N : ℕ) (hN : N ≠ 0) :
     (primCosetReps N).card = dedekindPsi N := by
   rw [PrimCosetCount.card_primCosetReps_eq_sum N hN, ← PrimCosetCount.G_apply,
-    PrimCosetCount.G_eq_Psi, PrimCosetCount.Psi_apply]
+    PrimCosetCount.G_eq_Psi]
+  exact Psi_apply N
 
 end ModularCurve
 

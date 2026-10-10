@@ -12,9 +12,13 @@
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_X0.lean
 
   `Polynomial` is mathlib's; `ModularPolynomialData` is FLT's name, verbatim.
-  Assumes `dedekindPsi`, `evalAtJ` and `jqN` from `FLTForHuman.ModularCurve.Defs.Jq`.
+  Assumes `evalAtJ` and `jqN` from `FLTForHuman.ModularCurve.Defs.Jq`, and
+  `dedekindPsi` via the pin-namespaced shim
+  `FLTForHuman/ModularCurve/Defs/DedekindPsi.lean` (whose mathematics lives in
+  `FLTForHuman/NumberTheory/DedekindPsi.lean`).
 -/
 import FLTForHuman.ModularCurve.Defs.Jq
+import FLTForHuman.ModularCurve.Defs.DedekindPsi
 
 set_option autoImplicit false
 

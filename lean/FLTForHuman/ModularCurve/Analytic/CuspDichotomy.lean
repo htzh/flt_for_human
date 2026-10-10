@@ -86,15 +86,12 @@ variable (ℓ : ℕ) [Fact ℓ.Prime]
 
 theorem prime' : ℓ.Prime := Fact.out
 
-theorem dedekindPsi_prime : dedekindPsi ℓ = ℓ + 1 := by
-  have hℓ : ℓ.Prime := Fact.out
-  rw [dedekindPsi, hℓ.divisors, Finset.filter_true_of_mem, Finset.sum_pair hℓ.one_lt.ne, Nat.div_one,
-    Nat.div_self hℓ.pos, add_comm]
-  intro d hd
-  simp only [Finset.mem_insert, Finset.mem_singleton] at hd
-  rcases hd with rfl | rfl
-  · exact squarefree_one
-  · exact hℓ.squarefree
+/-- `ψ(ℓ) = ℓ + 1` at the `[Fact ℓ.Prime]` variable form this file uses. The
+statement is kept (the pin has the same last name elsewhere); the proof is now a
+one-line delegation to the public `dedekindPsi_prime` of
+`FLTForHuman/NumberTheory/DedekindPsi.lean`, where it had been re-derived. -/
+theorem dedekindPsi_prime : dedekindPsi ℓ = ℓ + 1 :=
+  _root_.dedekindPsi_prime (Fact.out : ℓ.Prime)
 
 def jb : modularFunctionFieldBar ℓ := ⟨coeffEmb 𝕂 jq, coeffEmb_mem_laurentBaseChange 𝕂 (jq_mem_full ℓ)⟩
 

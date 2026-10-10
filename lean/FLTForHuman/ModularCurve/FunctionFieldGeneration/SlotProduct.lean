@@ -58,7 +58,7 @@ import FLTForHuman.ModularCurve.PhiSlotRoots
 import FLTForHuman.ModularCurve.PhiGenSplits
 import FLTForHuman.ModularCurve.ModularPolynomialProperties
 import FLTForHuman.ModularCurve.ModularPolynomialUniqueness
-import FLTForHuman.NumberTheory.DedekindPsiCount
+import FLTForHuman.NumberTheory.DedekindPsi
 
 set_option autoImplicit false
 -- The pin installs the `Algebra ℚ⟮jq⟯ (LaurentSeries K)` instance (via `letI`) and
@@ -169,13 +169,6 @@ private theorem slots_prime_pow {p : ℕ} (hp : p.Prime) (k : ℕ) :
   rw [Finset.sum_congr rfl hrest, slotAt_self _ (pow_pos hp.pos _),
     ← Nat.sum_divisors_prime_pow (f := Nat.totient) hp, Nat.sum_totient, Nat.add_comm]
 
-/-- `ψ (p ^ (j + 1)) = p ^ (j + 1) + p ^ j`, the prime-power form of the public
-`Defs/Jq.lean` `dedekindPsi_prime_pow`. -/
-private theorem dedekindPsi_prime_pow_succ {p : ℕ} (hp : p.Prime) (j : ℕ) :
-    dedekindPsi (p ^ (j + 1)) = p ^ (j + 1) + p ^ j := by
-  rw [dedekindPsi_prime_pow p (j + 1) hp (Nat.succ_ne_zero j)]
-  simp
-
 private theorem slots_mul (M M' : ℕ) (hco : Nat.Coprime M M') :
     slots (M * M') = slots M * slots M' := by
   unfold slots
@@ -199,7 +192,8 @@ private theorem slots_eq_dedekindPsi : ∀ n : ℕ, n ≠ 0 → slots n = dedeki
   | prime_pow p k hp hk =>
     intro _
     obtain ⟨j, rfl⟩ : ∃ j, k = j + 1 := ⟨k - 1, by omega⟩
-    rw [slots_prime_pow hp j, dedekindPsi_prime_pow_succ hp j]
+    rw [slots_prime_pow hp j, dedekindPsi_prime_pow p (j + 1) hp (Nat.succ_ne_zero j)]
+    simp
   | zero => exact fun h0 => absurd rfl h0
   | one =>
     intro _
@@ -344,15 +338,9 @@ count and the public `ψ` lemmas are the only route changes. -/
 
 section RValCore
 
-/-- The prime-power step of `ψ` when `p` divides `m`. -/
-private theorem dedekindPsi_mul_prime_dvd {m p : ℕ} [NeZero m] (hp : p.Prime) (hpm : p ∣ m) :
-    dedekindPsi (m * p) = dedekindPsi m * p := by
-  rw [dedekindPsi_mul_prime m p hp, ite_eq_left hpm, mul_comm]
-
-/-- The prime-power step of `ψ` when `p` does not divide `m`. -/
-private theorem dedekindPsi_mul_prime_not_dvd {m p : ℕ} [NeZero m] (hp : p.Prime)
-    (hpm : ¬ p ∣ m) : dedekindPsi (m * p) = dedekindPsi m * (p + 1) := by
-  rw [dedekindPsi_mul_prime m p hp, ite_eq_right hpm, mul_comm]
+-- The two prime-step case splits `dedekindPsi_mul_prime_{dvd,not_dvd}` were
+-- private here and duplicated verbatim in `Spine.lean`; both now live once,
+-- publicly, in `FLTForHuman/NumberTheory/DedekindPsi.lean`.
 
 private theorem rval_aux : ∀ (M : ℕ) [NeZero M] {K : Type*} [Field K] [Algebra ℚ K]
     (ζ : Kˣ), IsPrimitiveRoot ((ζ : Kˣ) : K) M →
