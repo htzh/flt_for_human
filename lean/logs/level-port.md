@@ -398,3 +398,38 @@ docstring). The line saving is small — the point is the single public API.
 **Still open** (from §4): the `det_eq` and `conjSL`/`heckeDiagMatrix_mul_mapGL`
 duplicates in `Analytic/Gamma0Cosets.lean`; decision recorded there —
 `HeckeRepresentatives` keeps them.
+
+## §6 The `Γ₀(2)` index, folded into the general theorem (2026-10-09)
+
+A third overlap, missed by §4: `ModularForms/Gamma0TwoIndex.lean` (137 lines) was
+a verbatim transcription of the pin's *second, private* proof of the `N = 2`
+index — the coset block and `Gamma0_two_index_eq_three` in
+`S_ModularForm_S2_Gamma0_2_eq_zero.lean:94–174`, written for the Sturm-bound
+route. SET-3 had meanwhile ported the general theorem
+(`ModularCurve/Gamma0Index.lean:513`, `[Γ₀(N)] = ψ(N)`), so the special case was
+a duplicate of a theorem the port already owned.
+
+**Decision: keep the module and the public name, drop the proof.** The
+`N = 2` statement is still the pin's, and `spec/check_flt_statements.py:810`
+lists `S_ModularForm_S2_Gamma0_2_eq_zero.lean` as a source carrying public
+helpers, so the name `ModularForm.Gamma0_two_index_eq_three` must survive. It is
+now two `rw`s against `ModularCurve.Gamma0_index` and
+`ModularCurve.dedekindPsi_prime` (`Defs/Jq.lean:217`).
+
+| check | result |
+|---|---|
+| `timeout 600 lake build FLTForHuman.ModularForms.Gamma0TwoIndex` | green, 3,149 jobs, 0 warnings, no `sorry` |
+| `#check @ModularForm.Gamma0_two_index_eq_three` | `(CongruenceSubgroup.Gamma0 2).index = 3` — statement unchanged |
+| `#print axioms ModularForm.Gamma0_two_index_eq_three` | `[propext, Classical.choice, Quot.sound]` |
+| cycle check | `ModularCurve.Gamma0Index`'s transitive `FLTForHuman` closure is 10 modules, none under `ModularForms/`; the only `ModularForms` hit is mathlib's `Mathlib.NumberTheory.ModularForms.CongruenceSubgroups` |
+
+`Gamma0TwoIndex.lean` **−132 lines**. Not re-run (deferred by instruction, only
+the module was rebuilt): the full `lake build`, `spec/check_flt_statements.py`
+and `spec/LevelTwoCuspConsumer.lean`. Consumers (`SturmBound.lean:291`,
+`spec/LevelTwoCuspConsumer.lean:35,37`) are untouched by construction, since
+neither the module path nor the name changed.
+
+This is a deliberate deviation from the pin's file layout, which keeps the
+special case: the pin's `S_ModularForm_S2_Gamma0_2_eq_zero` is self-contained,
+while the port may reach SET-3's module (no cycle, and `ModularForms` already
+imports `ModularCurve.Defs.*`).
