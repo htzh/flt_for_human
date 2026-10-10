@@ -16,7 +16,10 @@ and the research loop in [`../notes/research-workflow-math-notes.md`](../notes/r
 pin every FLT citation to the sha `aa2d8b3`, cite mathlib at tag `v4.33.0` — or at
 the port's `v4.34.0` where the note quotes the copies the checked code was
 elaborated against, saying which — quote Lean verbatim, and never cite an untracked
-local file. Line-number citations are rendered GitHub links carrying `#L` anchors.
+local file. A note states its mathematics in notation and uses Lean as grounding;
+a citation to *this* repository's Lean carries a commit (`htzh/flt_for_human@<sha>`),
+because the port, unlike the pin, is a working tree whose line numbers move.
+Line-number citations are rendered GitHub links carrying `#L` anchors.
 
 **Reading order and assumed background.** Note 001 is the primer on field and
 Galois theory: it fixes how the project writes field extensions (`Algebra`, the

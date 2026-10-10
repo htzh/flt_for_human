@@ -2,44 +2,46 @@
 
 Twentieth of the `base/` notes. [018](018-congruence-subgroups-and-invariance.md)
 fixed the four congruence subgroups and, in its §4.3, quoted the lifting statement
-that the level theory leans on; [005](005-cyclic-isogenies-and-level.md) drew the
-lattice picture behind $`\Gamma_0(N)`$ and stated the Dedekind count $`\psi(N)`$;
-[013](013-riemann-existence-and-the-q-expansion-principle.md) used the number
-$`\psi(N)`$ as the degree of the cover $`X_0(N) \to X(1)`$. This note is the
-*proof* the port actually carries: the first headline of
-[`Gamma0Index.lean`](../lean/FLTForHuman/ModularCurve/Gamma0Index.lean),
+the level theory leans on; [005](005-cyclic-isogenies-and-level.md) drew the lattice
+picture behind $`\Gamma_0(N)`$ and stated the Dedekind count $`\psi(N)`$;
+[013](013-riemann-existence-and-the-q-expansion-principle.md) used $`\psi(N)`$ as
+the degree of the cover $`X_0(N) \to X(1)`$. This note is the *proof* the port
+carries, written as mathematics:
 
-$$[\mathrm{SL}_2(\mathbb{Z}) : \Gamma_0(N)] = \psi(N),$$
+$$[\mathrm{SL}_2(\mathbb{Z}) : \Gamma_0(N)] = \psi(N), \qquad
+  \\#\\,\mathrm{primCosetReps}(N) = \psi(N),$$
 
-step by step, together with the second and independent count
-$`\#\,\mathrm{primCosetReps}(N) = \psi(N)`$ that the $`q`$-expansion layer uses as
-its index set.
+the first through the coset bijection with the projective line over
+$`\mathbb{Z}/N`$, the second through an independent count of explicit
+representatives that never mentions the group at all.
 
-It is also the right place to put mathlib's Euler $`\varphi`$ next to the port's
-Dedekind $`\psi`$, because the index proof is exactly where they meet. Mathlib has
-a finished totient API and **no** $`\psi`$ anywhere; the port's $`\psi`$ is the
-pin's, and its three counting lemmas are proved from $`\varphi`$ on each prime
-power (§6.1) and from a $`\varphi`$-count of residues (§8.2). §9 tabulates what is
-mathlib's and what is ours.
+It is also the right place to put Euler's $`\varphi`$ beside Dedekind's $`\psi`$,
+because the index proof is exactly where they meet: mathlib has a finished totient
+API and **no** $`\psi`$ anywhere, while the port's $`\psi`$ is proved from
+$`\varphi`$ — on each prime power in §6.1, and as a count of reduced residues in
+§8.2. §9 tabulates what is mathlib's and what is ours.
 
-Line-number citations point at `anthropics/fermats-last-theorem@aa2d8b3`. Mathlib
-declarations are cited at tag **v4.34.0** (rev `5ed2965256`), the version this port
-builds against, one minor version on from the pin's own `v4.33.0` — so the anchors
-below match the copies the checked code was elaborated against. The two mathlib
-files this note leans on hardest, `GroupTheory/Index.lean` and
-`RingTheory/ZMod/UnitsCyclic.lean`, sit at identical lines in both versions; the
-totient file shifted by two lines, so a `v4.33.0` reader should expect a small
-offset there. Both kinds of citation are rendered GitHub links carrying `#L`
-anchors.
+**Citations and how to read the Lean here.** Line numbers for the pin point at
+`anthropics/fermats-last-theorem@aa2d8b3`; mathlib is cited at tag **v4.34.0**
+(rev `5ed2965256`), the version this port builds against — one minor version on
+from the pin's own `v4.33.0`, so that the anchors match the copies the checked code
+was elaborated against. (The two mathlib files this note leans on hardest,
+`GroupTheory/Index.lean` and `RingTheory/ZMod/UnitsCyclic.lean`, sit at identical
+lines in both versions; `Data/Nat/Totient.lean` shifted by two.) Citations to the
+port's own Lean are **pinned to `htzh/flt_for_human@250e7c0`**, the commit at which
+the statements and line numbers were read: unlike the pin, the port is a working
+tree. Lean appears below only as *grounding* — the mathematics is written in
+notation, and each section closes with the declarations that carry it, followed by
+the declaration map of §10.
 
 The plan:
 
-1. the statement, the two functions, and the closed form of the answer;
+1. the statement, the two arithmetic functions, and the closed form of the answer;
 2. the shape of the argument: four moves, of which one is arithmetic;
 3. step 1 — $`\Gamma_0(N)`$ is the preimage of the Borel subgroup;
 4. step 2 — reduction is surjective, and lifting is Bezout arithmetic;
-5. step 3 — the coset bijection $`\mathrm{SL}_2 \big/ \mathrm{borel} \cong
-   \mathbb{P}^1(\mathbb{Z}/N)`$;
+5. step 3 — the coset bijection
+   $`\mathrm{SL}_2(R) \big/ B(R) \cong \mathbb{P}^1(R)`$;
 6. step 4 — counting the projective line: the local case, the Chinese remainder,
    and the induction;
 7. step 5 — assembling the headline;
@@ -50,77 +52,58 @@ The plan:
 
 ## 1. The statement, and the answer in closed form
 
-Mathlib defines the level group by its congruence condition
-([CongruenceSubgroups.lean, lines 79–80, v4.34.0](https://github.com/leanprover-community/mathlib4/blob/v4.34.0/Mathlib/NumberTheory/ModularForms/CongruenceSubgroups.lean#L79-L80)):
+Let
 
-```lean
-def Gamma0 : Subgroup SL(2, ℤ) where
-  carrier := { g | (g 1 0 : ZMod N) = 0 }
-```
+$$\Gamma_0(N) = \left\\{\begin{pmatrix} a & b \\\\ c & d\end{pmatrix} \in
+  \mathrm{SL}_2(\mathbb{Z}) : c \equiv 0 \pmod N\right\\}$$
 
-with `Gamma0_mem` recording the same thing as a membership test. The *index* of a
-subgroup is the number of its cosets, and in mathlib it is by definition the
-cardinality of the quotient
-([Index.lean, line 348, v4.34.0](https://github.com/leanprover-community/mathlib4/blob/v4.34.0/Mathlib/GroupTheory/Index.lean#L348)):
+be the level-$`N`$ congruence subgroup — the stabiliser of a cyclic subgroup of
+order $`N`$, as [018 §1.3](018-congruence-subgroups-and-invariance.md) computes —
+and let $`[\mathrm{SL}_2(\mathbb{Z}) : \Gamma_0(N)]`$ denote its index, the number of
+cosets. Write
 
-```lean
-theorem index_eq_card : H.index = Nat.card (G ⧸ H)
-```
+$$B(R) = \left\\{ M \in \mathrm{SL}_2(R) : M_{10} = 0 \right\\}$$
 
-The Dedekind $`\psi`$ function is the pin's, and lives in the port at
-[`NumberTheory/DedekindPsi.lean`](../lean/FLTForHuman/NumberTheory/DedekindPsi.lean)
-(lines 54 and 69):
+for the upper-triangular **Borel subgroup**. The two functions that count the cosets
+are
 
-```lean
-def dedekindPsi (N : ℕ) : ℕ := ∑ d ∈ N.divisors with Squarefree d, N / d
-```
+$$\psi(N) = \sum_{d \mid N,\ d\ \text{squarefree}} \frac{N}{d}
+  = N \prod_{p \mid N} \left(1 + \frac{1}{p}\right),$$
 
-the sum of $`N/d`$ over the *squarefree* divisors. Its closed form is the Euler
-product with a plus sign,
+$$\varphi(N) = \\#\\{a \lt N : \gcd(a,N) = 1\\} = \\#(\mathbb{Z}/N)^{\times}
+  = N \prod_{p \mid N} \left(1 - \frac{1}{p}\right).$$
 
-$$\psi(N) = N \prod_{p \mid N} \left(1 + \frac{1}{p}\right),$$
+On a prime power they are complementary,
 
-and on prime powers it is $`\psi(p^k) = p^k + p^{k-1}`$ (`dedekindPsi_prime_pow`),
-with $`\psi(p) = p + 1`$ (`dedekindPsi_prime`) and $`\psi(1) = 1`$
-(`dedekindPsi_one`). The product form itself is **not** in the ported module; the
-pin states it (`ModularCurve.dedekindPsi_eq_prod_primeFactors`) and §9 records it
-as deferred.
+$$\psi(p^k) = p^k + p^{k-1}, \qquad \varphi(p^k) = p^k - p^{k-1},
+  \qquad \psi(p^k) + \varphi(p^k) = 2p^k,$$
 
-The contrast with Euler's function is one sign. Mathlib's totient counts the
-reduced residues
-([Totient.lean, line 39, v4.34.0](https://github.com/leanprover-community/mathlib4/blob/v4.34.0/Mathlib/Data/Nat/Totient.lean#L39)):
-
-```lean
-def totient (n : ℕ) : ℕ := #{a ∈ range n | n.Coprime a}
-```
-
-so $`\varphi(N) = N \prod_{p \mid N} (1 - 1/p) = \#(\mathbb{Z}/N)^{\times}`$ (the
-last equality is `ZMod.card_units_eq_totient`,
-[line 113](https://github.com/leanprover-community/mathlib4/blob/v4.34.0/Mathlib/Data/Nat/Totient.lean#L113)), while $`\psi(N) = N \prod_{p \mid N} (1 + 1/p)`$.
-On a prime power they are complementary: $`\psi(p^k) = 2p^k - \varphi(p^k)`$. This
-is the arithmetic shadow of the group theory: $`\varphi(N)`$ is the index of
-$`\Gamma_1(N)`$ in $`\Gamma_0(N)`$ (the diamond quotient), and $`\psi(N)`$ is the
-index of $`\Gamma_0(N)`$ in the full group, so the two multiply up the tower
-$`\Gamma(N) \subseteq \Gamma_1(N) \subseteq \Gamma_0(N) \subseteq
+with $`\psi(p) = p + 1`$, $`\varphi(p) = p - 1`$ and
+$`\psi(1) = \varphi(1) = 1`$. This is the arithmetic shadow of the group theory:
+$`\varphi(N)`$ is the index of $`\Gamma_1(N)`$ in $`\Gamma_0(N)`$ (the diamond
+quotient $`\Gamma_0(N)/\Gamma_1(N) \cong (\mathbb{Z}/N)^{\times}`$), while
+$`\psi(N)`$ is the index of $`\Gamma_0(N)`$ in the full group, so the two multiply
+up the tower $`\Gamma(N) \subseteq \Gamma_1(N) \subseteq \Gamma_0(N) \subseteq
 \mathrm{SL}_2(\mathbb{Z})`$.
 
-**Why $`\psi`$ is the expected answer.** A coset of $`\Gamma_0(N)`$ should be a
-*line* in $`(\mathbb{Z}/N)^2`$ (§5), and the lines can be counted before any of the
-formal work: units act freely on unimodular rows (if $`ua = a`$, $`uc = c`$ and
-$`xa + yc = 1`$ then $`u = 1`$), so
+**The two headlines.** The port proves
 
-$$\\#\mathbb{P}^1(\mathbb{Z}/N) = \frac{\\#\\{\text{unimodular rows}\\}}{\varphi(N)}
-  = \frac{N^2 \prod_{p \mid N} (1 - p^{-2})}{N \prod_{p \mid N} (1 - p^{-1})}
-  = N \prod_{p \mid N} \left(1 + \frac{1}{p}\right) = \psi(N).$$
+$$[\mathrm{SL}_2(\mathbb{Z}) : \Gamma_0(N)] = \psi(N) \quad (N \neq 0),
+  \qquad \\#\\,\mathrm{primCosetReps}(N) = \psi(N) \quad (N \neq 0),$$
 
-The Lean proof does not take this route — it counts $`\mathbb{P}^1(\mathbb{Z}/p^k)`$
-locally and multiplies by the Chinese remainder theorem (§6), and it gets
-$`\psi`$ from $`\varphi`$ at each prime power. The display above is the one-line
-human summary of the answer, not a formalized step.
+where
 
-Both headlines are public in the port
-([`Gamma0Index.lean`](../lean/FLTForHuman/ModularCurve/Gamma0Index.lean), lines 522
-and 725), transcribed verbatim from the pin's `Theorems/` wrappers:
+$$\mathrm{primCosetReps}(N) = \\{(a,b,d) : ad = N,\ 0 \le b \lt d,\ \gcd(a, \gcd(b,d)) = 1\\}$$
+
+is the set of upper-triangular coset representatives of §8.1. The side condition
+$`N \neq 0`$ is not decoration: the prime-power count of §6.1 needs a genuine
+$`k \neq 0`$, the Chinese-remainder step needs nonzero factors, and the induction of
+§6.3 splits off $`N = 0`$ explicitly. The pin states the same two theorems with the
+same side conditions. At $`N = 2`$ both give $`3`$ — $`\psi(2) = 3`$, and there are
+three lines in $`(\mathbb{Z}/2)^2`$.
+
+*Grounding.* The two statements are verbatim Lean in the port
+([`Gamma0Index.lean` L522 and L725](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L522)):
 
 ```lean
 theorem Gamma0_index (N : ℕ) [NeZero N] : (CongruenceSubgroup.Gamma0 N).index = dedekindPsi N
@@ -129,171 +112,143 @@ theorem card_primCosetReps_eq_dedekindPsi (N : ℕ) (hN : N ≠ 0) :
     (primCosetReps N).card = dedekindPsi N
 ```
 
-The hypotheses are not decoration: the prime-power count of §6.1 needs a genuine
-$`k \neq 0`$, the CRT step needs nonzero factors, and the induction of §6.3 splits
-off $`N = 0`$ explicitly. The pin states the same two theorems with the same
-side conditions.
+$`\psi`$ is [`NumberTheory/DedekindPsi.lean` L54](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/NumberTheory/DedekindPsi.lean#L54)
+with the prime-power and multiplicativity lemmas beside it
+([L69](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/NumberTheory/DedekindPsi.lean#L69),
+[L139](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/NumberTheory/DedekindPsi.lean#L139));
+$`\varphi`$ is mathlib's `Nat.totient`
+([Totient.lean, line 39, v4.34.0](https://github.com/leanprover-community/mathlib4/blob/v4.34.0/Mathlib/Data/Nat/Totient.lean#L39)),
+and $`\#(\mathbb{Z}/N)^{\times} = \varphi(N)`$ is
+[`ZMod.card_units_eq_totient`](https://github.com/leanprover-community/mathlib4/blob/v4.34.0/Mathlib/Data/Nat/Totient.lean#L113).
+The index itself is `Subgroup.index`, which is by definition a cardinality
+([Index.lean, line 348, v4.34.0](https://github.com/leanprover-community/mathlib4/blob/v4.34.0/Mathlib/GroupTheory/Index.lean#L348)).
+
+**Why $`\psi`$ is the expected answer.** A coset of $`\Gamma_0(N)`$ should be a
+*line* in $`(\mathbb{Z}/N)^2`$ (§5), and the lines can be counted before any of the
+formal work: a unit acts freely on unimodular rows (if $`ua = a`$, $`uc = c`$ and
+$`xa + yc = 1`$ then $`u = 1`$), so
+
+$$\\#\mathbb{P}^1(\mathbb{Z}/N) = \frac{\\#\\{\text{unimodular rows}\\}}{\varphi(N)}
+  = \frac{N^2 \prod_{p \mid N} (1 - p^{-2})}{N \prod_{p \mid N} (1 - p^{-1})}
+  = N \prod_{p \mid N} \left(1 + \frac{1}{p}\right) = \psi(N).$$
+
+The Lean proof does not take this route — it counts $`\mathbb{P}^1(\mathbb{Z}/p^k)`$
+locally and multiplies by the Chinese remainder theorem (§6), getting $`\psi`$ from
+$`\varphi`$ at each prime power. The display above is the one-line human summary of
+the answer, not a formalized step.
 
 ## 2. The shape of the argument
 
 Five moves, and only the second is arithmetic:
 
 ```text
-(1)  Γ₀(N) = borel(ℤ/N).comap (reduction)              Gamma0_eq_comap_borel
-(2)  reduction is surjective                           sl2_surj
-     ⟹ (Γ₀ N).index = (borel (ℤ/N)).index              index_comap_of_surjective
-(3)  SL₂(R) ⧸ borel(R) ≅ ℙ¹(R), by the first column    card_quotient_borel
-(4)  #ℙ¹(ℤ/N) = ψ(N)                                   card_projectiveLine_zmod
-(5)  index = Nat.card (G ⧸ H)                          index_eq_card
+(1)  Γ₀(N) = B(ℤ/N) pulled back along reduction         Gamma0_eq_comap_borel
+(2)  reduction is surjective                             sl2_surj
+     ⟹ the cosets of Γ₀(N) are the cosets of B(ℤ/N)      index_comap_of_surjective
+(3)  SL₂(R) / B(R) ≅ ℙ¹(R), by the first column          card_quotient_borel
+(4)  #ℙ¹(ℤ/N) = ψ(N)                                     card_projectiveLine_zmod
+(5)  index = cardinality of the coset space              index_eq_card
 ```
 
-Move (3) is a statement about an arbitrary commutative ring, with no arithmetic
-in it — it is the *definition* of the coset space in coordinates. Move (4) is where
-all the number theory is. Move (2) is where a reader expects the arithmetic to be
-too, and it is; but its content is a lifting statement about matrices, not a count.
-Moves (1) and (5) are bookkeeping: mathlib's $`\Gamma_0`$ is defined intrinsically,
-so it has to be *identified* with a preimage before the index lemma applies, and
-the index has to be identified with a cardinality.
+Move (3) is a statement about an arbitrary commutative ring and contains no
+arithmetic; it is the *definition* of the coset space in coordinates. Move (4) is
+where all the number theory is. Move (2) is where a reader expects arithmetic too,
+and it is there — but its content is a lifting statement about matrices, not a count.
+Moves (1) and (5) are bookkeeping: mathlib's $`\Gamma_0`$ is defined intrinsically, so
+it must be *identified* with a preimage before the index lemma applies, and the
+index must be identified with a cardinality.
 
 ## 3. Step 1: $`\Gamma_0(N)`$ is the preimage of the Borel subgroup
 
-The Borel subgroup of $`\mathrm{SL}_2(R)`$ is the upper-triangular one, and in the
-port it is the subgroup cut out by the lower-left entry
-([`ProjectiveLine.lean`, lines 97–117](../lean/FLTForHuman/ModularCurve/Defs/ProjectiveLine.lean)):
+Let $`\pi : \mathrm{SL}_2(\mathbb{Z}) \to \mathrm{SL}_2(\mathbb{Z}/N)`$ be reduction
+of entries modulo $`N`$. Then
 
-```lean
-def borel (R : Type*) [CommRing R] : Subgroup (SpecialLinearGroup (Fin 2) R) where
-  carrier := { M | M.1 1 0 = 0 }
+$$\Gamma_0(N) = \pi^{-1}\bigl(B(\mathbb{Z}/N)\bigr),$$
 
-theorem mem_borel_iff {A : SpecialLinearGroup (Fin 2) R} : A ∈ borel R ↔ A.1 1 0 = 0 :=
-  Iff.rfl
-```
+because both sides say that the lower-left entry vanishes modulo $`N`$: the left by
+definition, the right by the definition of $`B`$. The content of the statement is
+that mathlib defines $`\Gamma_0`$ by a congruence on one matrix entry, whereas the
+index machinery wants a preimage — and the preimage description is what composes
+with the lemma of the next section.
 
-Mathlib has no Borel subgroup; the port supplies it once, beside the projective
-line, because the two are the same object seen twice.
-
-The bridge from mathlib's $`\Gamma_0`$ to that subgroup is a real theorem in the
-port, not a `rfl` (lines 261–268):
-
-```lean
-private theorem Gamma0_eq_comap_borel (N : ℕ) :
-    Gamma0 N = (borel (ZMod N)).comap
-      (SpecialLinearGroup.map (n := Fin 2) (Int.castRingHom (ZMod N))) := by
-  ext A
-  rw [Gamma0_mem, Subgroup.mem_comap, mem_borel_iff]
-```
-
-The proof is an `ext` and a rewrite: both sides say that the lower-left entry of
-$`A`$, read in $`\mathbb{Z}/N`$, vanishes. The work is in *knowing* that it is worth
-saying: `Gamma0` is defined by a congruence on one matrix entry, and the preimage
-description is what composes with the index lemma of the next section. The pin
-keeps this helper `private` (lines 216–217) and the port does the same.
+*Grounding.*
+[`Gamma0_eq_comap_borel`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L261)
+(the pin keeps this helper `private` too);
+$`B`$ is
+[`borel`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Defs/ProjectiveLine.lean#L97)
+with
+[`mem_borel_iff`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Defs/ProjectiveLine.lean#L116),
+and mathlib's group is `CongruenceSubgroup.Gamma0`.
 
 ## 4. Step 2: reduction is surjective, and lifting is Bezout arithmetic
 
 ### 4.1 The statement to prove
 
-Reduction of entries modulo $`N`$ is a group homomorphism
-$`\mathrm{SL}_2(\mathbb{Z}) \to \mathrm{SL}_2(\mathbb{Z}/N)`$, and the index of a
-preimage under a surjection is the index of the subgroup
-([Index.lean, lines 68–69, v4.34.0](https://github.com/leanprover-community/mathlib4/blob/v4.34.0/Mathlib/GroupTheory/Index.lean#L68-L69)):
+Reduction $`\pi`$ is **surjective**: every $`M \in \mathrm{SL}_2(\mathbb{Z}/N)`$ with
+$`\det M = 1`$ in $`\mathbb{Z}/N`$ is the reduction of a matrix of determinant $`1`$
+over $`\mathbb{Z}`$. Since $`\Gamma_0(N) = \pi^{-1}(B)`$ by §3, the maps
 
-```lean
-theorem index_comap_of_surjective {f : G' →* G} (hf : Function.Surjective f) :
-    (H.comap f).index = H.index
-```
+$$A\\,\Gamma_0(N) \longmapsto \pi(A)\\,B(\mathbb{Z}/N)$$
 
-So the whole of step 2 is the surjectivity statement
-([`Gamma0Index.lean`, lines 179–181](../lean/FLTForHuman/ModularCurve/Gamma0Index.lean)):
+is a bijection between the coset spaces — injective because
+$`\pi(A)^{-1}\pi(A') \in B`$ forces $`A^{-1}A' \in \pi^{-1}(B) = \Gamma_0(N)`$, and
+surjective because $`\pi`$ is — so the two indices are equal. In mathlib this is the
+specialisation to a surjection of the general fact that a preimage has the same
+index as its target ([Index.lean, lines 68–69, v4.34.0](https://github.com/leanprover-community/mathlib4/blob/v4.34.0/Mathlib/GroupTheory/Index.lean#L68-L69)).
 
-```lean
-private theorem sl2_surj (N : ℕ) [NeZero N] :
-    Function.Surjective
-      (Matrix.SpecialLinearGroup.map (n := Fin 2) (Int.castRingHom (ZMod N))) := by
-```
-
-The mathematics behind it is the standard strong-approximation fact for
-$`\mathrm{SL}_2`$: reduction at level $`N`$ is onto. (The pin keeps the helper
-`private` at lines 137–138; the port keeps it `private` too, and exposes only the
-four-entry lifting lemma below. Section §9 lists what that costs a consumer.) The
-pin's own prose for this step is [018 §4.3](018-congruence-subgroups-and-invariance.md),
-which quotes the two statements and explains why a choice of lift is not
-canonical: two lifts of one mod-$`N`$ matrix differ by an element of $`\Gamma(N)`$.
+The mathematics behind surjectivity is the standard approximation fact for
+$`\mathrm{SL}_2`$, and the pin proves it by Bezout arithmetic. The pin's own prose
+for this step is [018 §4.3](018-congruence-subgroups-and-invariance.md); what follows
+is the construction those two declarations perform, in notation.
 
 ### 4.2 Why it is not formal: the naive lift fails
 
-It is tempting to lift the four entries independently: pick $`a_0, b_0, c_0, d_0
-\in \mathbb{Z}`$ reducing to $`a, b, c, d`$ and declare victory. That does not give
-a matrix in $`\mathrm{SL}_2(\mathbb{Z})`$: the determinant condition is only
-$`a_0d_0 - b_0c_0 \equiv 1 \pmod N`$, i.e.
+It is tempting to lift the four entries independently: pick
+$`a_0, b_0, c_0, d_0 \in \mathbb{Z}`$ reducing to $`a, b, c, d`$ and declare victory.
+That does not give a matrix in $`\mathrm{SL}_2(\mathbb{Z})`$: the determinant condition
+is only $`a_0 d_0 - b_0 c_0 \equiv 1 \pmod N`$, i.e.
 
 $$N \mid a_0 d_0 - b_0 c_0 - 1,$$
 
-and the integral matrix needs determinant *exactly* $`1`$. The pin's
-`exists_sl2_int_lift` therefore chooses the entries rather than lifting them
-(lines 132–135):
-
-```lean
-theorem exists_sl2_int_lift {N : ℕ} [NeZero N] {a b c d : ZMod N}
-    (h : a * d - b * c = 1) :
-    ∃ α β γ δ : ℤ, α * δ - β * γ = 1 ∧
-      (α : ZMod N) = a ∧ (β : ZMod N) = b ∧ (γ : ZMod N) = c ∧ (δ : ZMod N) = d := by
-```
-
-The construction has three parts.
+whereas the integral matrix needs determinant *exactly* $`1`$. So the entries must
+be *chosen*, not lifted.
 
 ### 4.3 Fix the second column: a coprime pair congruent to $`(c_0, d_0)`$
 
-The first observation is that no prime may divide $`c_0`$, $`d_0`$ *and* $`N`$ at
-once. If $`p \mid c_0`$, $`p \mid d_0`$ and $`p \mid N`$, then $`p`$ divides both
-$`a_0d_0 - b_0c_0`$ and $`a_0d_0 - b_0c_0 - 1`$, hence $`p \mid 1`$, absurd. The
-proof packages this as the hypothesis `H` of `exists_coprime_lift` (lines 90–93):
+First observation: no prime divides $`c_0`$, $`d_0`$ and $`N`$ at once. For if
+$`p \mid c_0`$, $`p \mid d_0`$ and $`p \mid N`$, then $`p`$ divides both
+$`a_0 d_0 - b_0 c_0`$ and $`a_0 d_0 - b_0 c_0 - 1`$, hence $`p \mid 1`$, absurd.
 
-```lean
-private theorem exists_coprime_lift (N : ℕ) [NeZero N] {c₀ d₀ : ℤ}
-    (H : ∀ p : ℕ, p.Prime → (p : ℤ) ∣ c₀ → (p : ℤ) ∣ d₀ → ¬(p : ℤ) ∣ (N : ℤ)) :
-    ∃ γ δ : ℤ, Int.gcd γ δ = 1 ∧
-      (γ : ZMod N) = (c₀ : ZMod N) ∧ (δ : ZMod N) = (d₀ : ZMod N) := by
-```
+Second, replace the second column by a **coprime** pair with the same residues.
+With
 
-It then *replaces* the second column by a coprime pair still congruent to
-$`(c_0, d_0)`$. The device is `primeSel` (lines 68–69):
+$$\gamma = \begin{cases} c_0, & c_0 \neq 0, \\\\ N, & c_0 = 0,\end{cases}
+  \qquad \delta = d_0 + \mathrm{primeSel}(\gamma, d_0) \cdot N, \qquad
+  \mathrm{primeSel}(c,d) = \prod_{p \mid c,\ p \nmid d} p,$$
 
-```lean
-private def primeSel (c d : ℤ) : ℕ :=
-  ∏ p ∈ c.natAbs.primeFactors, if p ∣ d.natAbs then 1 else p
-```
-
-the product of the primes of $`c`$ that do not already divide $`d`$. Put
-$`\gamma := c_0`$ (or $`N`$ if $`c_0 = 0`$, which is still $`\equiv 0`$ and keeps
-$`\gamma \neq 0`$) and
-
-$$\delta := d_0 + \mathrm{primeSel}(\gamma, d_0) \cdot N.$$
-
-Then $`\delta \equiv d_0 \pmod N`$ and $`\gcd(\gamma, \delta) = 1`$: a common prime
-$`p`$ satisfies $`p \mid d_0`$ or not. If $`p \mid d_0`$ then $`p \nmid
-\mathrm{primeSel}(\gamma,d_0)`$ (every prime of $`\gamma`$ dividing $`d_0`$
-contributes the factor $`1`$), so from $`p \mid \delta`$ and $`p \mid d_0`$ we get
-$`p \mid N`$, against `H`. If $`p \nmid d_0`$ then $`p \mid
-\mathrm{primeSel}(\gamma,d_0)`$ (it is a prime of $`\gamma`$), so $`p \mid \delta`$
-gives $`p \mid d_0`$, a contradiction. Either way, no common prime exists; the two
-lemmas `dvd_primeSel` and `not_dvd_primeSel` are exactly these two cases.
+we have $`\gamma \equiv c_0`$ and $`\delta \equiv d_0 \pmod N`$, and
+$`\gcd(\gamma, \delta) = 1`$. For a common prime $`p`$ either divides $`d_0`$ or not:
+if $`p \mid d_0`$ then $`p \nmid \mathrm{primeSel}(\gamma, d_0)`$ (every prime of
+$`\gamma`$ dividing $`d_0`$ contributes the factor $`1`$), so $`p \mid \delta`$ and
+$`p \mid d_0`$ force $`p \mid N`$, against the first observation; if
+$`p \nmid d_0`$ then $`p \mid \mathrm{primeSel}(\gamma, d_0)`$, and $`p \mid \delta`$
+forces $`p \mid d_0`$, a contradiction. Either way no common prime exists.
 
 ### 4.4 Bezout, then slide the first column
 
-With a coprime second column in hand, the first column is free: Bezout's identity
+A coprime second column makes the first one free. Bezout's identity
 $`\mathrm{gcdA}(\gamma,\delta)\,\gamma + \mathrm{gcdB}(\gamma,\delta)\,\delta =
-\gcd(\gamma,\delta) = 1`$ makes
+\gcd(\gamma,\delta) = 1`$ exhibits
 
-$$\alpha_0 := \mathrm{gcdB}(\gamma,\delta), \qquad \beta_0 := -\mathrm{gcdA}(\gamma,\delta)$$
+$$\alpha_0 = \mathrm{gcdB}(\gamma,\delta), \qquad
+  \beta_0 = -\mathrm{gcdA}(\gamma,\delta), \qquad
+  \alpha_0 \delta - \beta_0 \gamma = 1,$$
 
-a pair with $`\alpha_0 \delta - \beta_0 \gamma = 1`$ exactly, so
-$`[[\alpha_0,\beta_0],[\gamma,\delta]] \in \mathrm{SL}_2(\mathbb{Z})`$ already. Only
-its residues are wrong: $`\gamma \equiv c`$ and $`\delta \equiv d`$ by construction,
-but $`(\alpha_0,\beta_0)`$ is some Bezout solution, not the target $`(a,b)`$.
-
-The two columns satisfy the same determinant relation modulo $`N`$, namely
-$`a d - b c = 1`$ and $`\alpha_0 d - \beta_0 c = 1`$, so the mismatch is measured by
+so $`[[\alpha_0,\beta_0],[\gamma,\delta]] \in \mathrm{SL}_2(\mathbb{Z})`$ already.
+Only its residues are wrong: $`\gamma \equiv c`$ and $`\delta \equiv d`$ by
+construction, but $`(\alpha_0,\beta_0)`$ is some Bezout solution, not the target
+$`(a,b)`$ — and the two pairs satisfy the same determinant relation modulo $`N`$.
+The mismatch is therefore measured by
 
 $$\lambda := b\\,\alpha_0 - a\\,\beta_0 \in \mathbb{Z}/N,$$
 
@@ -301,403 +256,370 @@ and sliding the first column along the second,
 
 $$(\alpha, \beta) := (\alpha_0, \beta_0) + \lambda\\,(\gamma, \delta),$$
 
-leaves the determinant alone (it is an integer row operation) and lands on the
+leaves the determinant alone — it is an integer row operation — and lands on the
 target:
 
 $$\alpha_0 + (b\alpha_0 - a\beta_0)c = \alpha_0(1 + bc) - a\beta_0c
   = \alpha_0\\,ad - a\beta_0c = a(\alpha_0 d - \beta_0 c) = a,$$
 
 using $`1 + bc = ad`$ from $`ad - bc = 1`$; the computation for $`\beta`$ is the same
-with the roles swapped. In the Lean these are two `linear_combination` calls with
-certificates $`-(\alpha_0)\cdot h + a \cdot h_{\det}`$ and
-$`-(\beta_0)\cdot h + b \cdot h_{\det}`$ (lines 170–175). Finally `sl2_surj`
-applies the lemma to the entries of the given matrix, using
-$`M_{00}M_{11} - M_{01}M_{10} = 1`$ from `M.prop`, and checks the map is entrywise
-the original (lines 179–190).
+with the roles swapped. Hence
+$`[[\alpha,\beta],[\gamma,\delta]] \in \mathrm{SL}_2(\mathbb{Z})`$ reduces to
+$`M`$, and $`\pi`$ is surjective.
+
+*Grounding.* The construction is `exists_sl2_int_lift`
+([L132](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L132)),
+whose input is the determinant equation and whose output is the four integers; the
+coprime lift is
+[`exists_coprime_lift`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L90)
+with
+[`primeSel`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L68),
+and the surjectivity statement is
+[`sl2_surj`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L179).
+The two `linear_combination` certificates that close §4.4 are
+$`-(\alpha_0)\cdot h + a \cdot h_{\det}`$ and
+$`-(\beta_0)\cdot h + b \cdot h_{\det}`$ at
+[L170–175](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L170-L175).
 
 ## 5. Step 3: the coset bijection with the projective line
 
-Now the group theory. The port defines the projective line over an *arbitrary*
-commutative ring, because that is what $`\mathbb{Z}/N`$ is
-([`ProjectiveLine.lean`, lines 37–67](../lean/FLTForHuman/ModularCurve/Defs/ProjectiveLine.lean)):
+Now the group theory, over an arbitrary commutative ring $`R`$ — because
+$`\mathbb{Z}/N`$ is one. A row $`(a,c) \in R^2`$ is **unimodular** if it generates
+the unit ideal,
 
-```lean
-def IsUnimodularRow (a c : R) : Prop :=
-  ∃ x y : R, x * a + y * c = 1
+$$\mathrm{unimodular}(a,c) :\iff \exists x, y \in R,\ xa + yc = 1,$$
 
-abbrev UnimodularRow (R : Type*) [CommRing R] := { v : R × R // IsUnimodularRow v.1 v.2 }
+and the **projective line** is
 
-def ProjectiveLine (R : Type*) [CommRing R] : Type _ :=
-  Quotient (unimodularRowSetoid R)
-```
+$$\mathbb{P}^1(R) = \\{\text{unimodular rows}\\} \big/ R^{\times},$$
 
-— unimodular rows modulo scaling by a unit, since a row generates the unit ideal.
-Mathlib has the projective line only over a division ring (`OnePoint`), so this
-too is vocabulary the port supplies.
+rows modulo scaling by a unit. Mathlib has the projective line only over a division
+ring, and no Borel subgroup at all, so both are port vocabulary.
 
-The map that identifies the coset space with the lines takes a matrix to its
-**first column**. It is well defined because a matrix in $`\mathrm{SL}_2`$ has a
-unimodular first column: from $`\det A = 1`$ one reads off
-$`A_{11}A_{00} + (-A_{01})A_{10} = 1`$ (`isUnimodularRow_firstCol`). The substance is
-the equivalence (lines 208–209):
+The bijection is by the first column. A matrix in $`\mathrm{SL}_2(R)`$ has a
+unimodular first column, since $`\det A = 1`$ reads off
+$`A_{11}A_{00} + (-A_{01})A_{10} = 1`$. Write $`[A] \in \mathbb{P}^1(R)`$ for the
+line of that column. The substance is the equivalence
 
-```lean
-private theorem firstColumnClass_eq_iff (A B : SpecialLinearGroup (Fin 2) R) :
-    firstColumnClass A = firstColumnClass B ↔ A⁻¹ * B ∈ borel R := by
-```
+$$[A] = [B] \iff A^{-1}B \in B(R),$$
 
-*Forward*: if the first columns differ by a unit $`u`$, then the $`(1,0)`$-entry of
-$`A^{-1}B`$ is $`(-A_{10})(uA_{00}) + A_{00}(uA_{10}) = 0`$ — the two terms cancel.
-The Lean expands $`A^{-1}`$ with `SL2_inv_expl` and the product with
-`Matrix.two_mul_expl`, then `ring`.
-*Backward*: if $`C = A^{-1}B`$ is upper triangular of determinant $`1`$, then
-$`C_{00}C_{11} = 1`$, so $`C_{00}`$ is a unit; and $`B = AC`$ has first column
-$`C_{00}`$ times that of $`A`$, because the upper-triangular $`C`$ contributes
-nothing through its second column to the first.
+which is proved in two directions:
 
-*Surjectivity* is the completing trick: a unimodular row $`(a,c)`$ with
-$`xa + yc = 1`$ is the first column of
+* if the first columns of $`A`$ and $`B`$ differ by a unit $`u`$, then the
+  $`(1,0)`$-entry of $`A^{-1}B`$ is $`(-A_{10})(uA_{00}) + A_{00}(uA_{10}) = 0`$ —
+  the two terms cancel;
+* if $`C = A^{-1}B`$ is upper triangular of determinant $`1`$, then
+  $`C_{00}C_{11} = 1`$, so $`C_{00}`$ is a unit, and $`B = AC`$ has first column
+  $`C_{00}`$ times that of $`A`$ — the second column of $`C`$ contributes nothing to
+  the first column of the product.
 
-$$[[a, -y], [c, x]], \qquad \det = ax + cy = 1.$$
+Surjectivity is the completing trick: a unimodular row $`(a,c)`$ with $`xa + yc = 1`$
+is the first column of
 
-So the first-column map is a bijection, and `Nat.card_eq_of_bijective` turns it
-into the cardinality statement, for every commutative ring (lines 236–238):
+$$[[a, -y], [c, x]], \qquad \det = ax + cy = 1 .$$
 
-```lean
-private theorem card_quotient_borel (R : Type*) [CommRing R] :
-    Nat.card (SpecialLinearGroup (Fin 2) R ⧸ borel R) = Nat.card (ProjectiveLine R) := by
-```
+So the first-column map is a bijection, and
 
-Read with §4, this is the classical coset bijection: because $`\Gamma_0(N)`$ is the
-preimage of the Borel subgroup and reduction is onto, the cosets of
-$`\Gamma_0(N)`$ are in bijection with the cosets of the Borel subgroup, and the
-latter are in bijection with the lines in $`(\mathbb{Z}/N)^2`$. The port proves the
-two cardinality equalities separately and never exhibits the composed bijection.
+$$\\#\bigl(\mathrm{SL}_2(R) \big/ B(R)\bigr) = \\#\mathbb{P}^1(R)$$
+
+for every commutative ring $`R`$. Read with §4, this is the classical coset
+bijection: because $`\Gamma_0(N) = \pi^{-1}(B)`$ and $`\pi`$ is onto, the cosets of
+$`\Gamma_0(N)`$ correspond to the cosets of $`B(\mathbb{Z}/N)`$, which correspond to
+the lines in $`(\mathbb{Z}/N)^2`$. The port proves the two cardinality equalities
+separately and never exhibits the composed bijection.
+
+*Grounding.*
+[`IsUnimodularRow`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Defs/ProjectiveLine.lean#L37),
+[`ProjectiveLine`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Defs/ProjectiveLine.lean#L66),
+the equivalence as
+[`firstColumnClass_eq_iff`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L208),
+and the cardinality statement as
+[`card_quotient_borel`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L236).
+The two explicit matrix computations use mathlib's `Matrix.two_mul_expl` and
+`SpecialLinearGroup.SL2_inv_expl`.
 
 ## 6. Step 4: counting the projective line
 
 ### 6.1 The local case: $`\mathbb{Z}/p^k`$ is a local ring
 
-Over $`R = \mathbb{Z}/p^k`$ with $`k \neq 0`$ there is a maximal ideal $`(p)`$, and
-two facts do all the work. First, an element is a unit exactly when it survives
-reduction modulo $`p`$ (lines 274–275):
+Let $`p`$ be prime and $`k \neq 0`$. Then $`\mathbb{Z}/p^k`$ is a local ring with
+maximal ideal $`(p)`$, and two facts do all the work:
 
-```lean
-private theorem isUnit_zmod_prime_pow_iff {p k : ℕ} (hp : p.Prime) (hk : k ≠ 0) (z : ZMod (p ^ k)) :
-    IsUnit z ↔ ZMod.castHom (dvd_pow_self p hk) (ZMod p) z ≠ 0 := by
-```
+1. $`z \in \mathbb{Z}/p^k`$ is a unit if and only if its reduction modulo $`p`$ is
+   nonzero — a unit maps to a unit, and $`0`$ is not one in the field
+   $`\mathbb{Z}/p`$; conversely a non-unit is divisible by $`p`$;
+2. hence a **unimodular row has a unit entry**: if both entries reduced to $`0`$,
+   then so would $`1 = xa + yc`$.
 
-Second, a unimodular row therefore has at least one unit entry, since if both
-entries reduced to $`0`$ then so would $`1 = xa + yc`$ (lines 298–299):
-
-```lean
-private theorem isUnit_or_isUnit {p k : ℕ} (hp : p.Prime) (hk : k ≠ 0)
-    {a c : ZMod (p ^ k)} (h : IsUnimodularRow a c) : IsUnit a ∨ IsUnit c := by
-```
-
-Consequently every line has exactly one representative $`[1 : t]`$ (when the first
-entry is a unit) or $`[m : 1]`$ with $`m`$ a **non**-unit (when only the second is).
-That is a bijection
+It follows that every line has exactly one representative of the form $`[1 : t]`$
+(when the first entry is a unit) or $`[m : 1]`$ with $`m`$ a **non**-unit (when only
+the second is), giving a bijection
 
 $$\mathbb{Z}/p^k \\;\sqcup\\; \\{z : \mathbb{Z}/p^k \mid z \text{ not a unit}\\}
-  \\;\xrightarrow{\sim}\\; \mathbb{P}^1(\mathbb{Z}/p^k),$$
+  \\;\xrightarrow{\ \sim\ }\\; \mathbb{P}^1(\mathbb{Z}/p^k).$$
 
-and the count follows from two cardinalities. The units number $`\varphi(p^k)`$,
-by `ZMod.card_units_eq_totient`; the non-units number $`p^{k-1}`$, because
-$`\#R = \#\{\text{units}\} + \#\{\text{non-units}\}`$ and
-$`\varphi(p^k) + p^{k-1} = p^k`$ (lines 323–324):
+The two sides are counted by the two functions of §1: the units number
+$`\varphi(p^k) = p^{k-1}(p-1)`$, the non-units number $`p^{k-1}`$ because
+$`\#\mathbb{Z}/p^k = p^k`$ and $`\varphi(p^k) + p^{k-1} = p^k`$. Hence
 
-```lean
-private theorem card_not_isUnit_zmod_prime_pow {p k : ℕ} (hp : p.Prime) (hk : k ≠ 0) :
-    Nat.card { z : ZMod (p ^ k) // ¬IsUnit z } = p ^ (k - 1) := by
-```
+$$\\#\mathbb{P}^1(\mathbb{Z}/p^k) = \varphi(p^k) + p^{k-1} = p^k + p^{k-1}
+  = \psi(p^k).$$
 
-The totient input is `Nat.totient_prime_pow_succ`
-([Totient.lean, line 182, v4.34.0](https://github.com/leanprover-community/mathlib4/blob/v4.34.0/Mathlib/Data/Nat/Totient.lean#L182)),
-and the whole arithmetic of the port's $`\psi`$ at prime powers follows from
-exactly this pair of numbers (lines 347–348):
-
-```lean
-private theorem card_projectiveLine_prime_pow (p k : ℕ) (hp : p.Prime) (hk : k ≠ 0) :
-    Nat.card (ProjectiveLine (ZMod (p ^ k))) = p ^ k + p ^ (k - 1) := by
-```
-
-which is $`\psi(p^k)`$ by `dedekindPsi_prime_pow`. This is the one place where
-$`\psi`$ and $`\varphi`$ genuinely meet: both count residues of $`\mathbb{Z}/p^k`$
-— the units and the non-units — and their sum $`p^{k-1}(p-1) + p^{k-1}(p+1) =
-2p^k`$ is twice the ring.
+This is the one place where $`\psi`$ and $`\varphi`$ genuinely meet: both count
+residues of $`\mathbb{Z}/p^k`$ — the units and the non-units — and their sum is twice
+the ring.
 
 ### 6.2 Multiplicativity across coprime factors
 
-For coprime $`M`$ and $`N`$, the Chinese remainder theorem is a ring equivalence
+For coprime $`M`$ and $`N`$ the Chinese remainder theorem is a ring equivalence
 $`\mathbb{Z}/MN \cong \mathbb{Z}/M \times \mathbb{Z}/N`$
-([Data/ZMod/Basic.lean, line 889, v4.34.0](https://github.com/leanprover-community/mathlib4/blob/v4.34.0/Mathlib/Data/ZMod/Basic.lean#L889)):
+([Data/ZMod/Basic.lean, line 889, v4.34.0](https://github.com/leanprover-community/mathlib4/blob/v4.34.0/Mathlib/Data/ZMod/Basic.lean#L889)),
+and pushing a row through the two projections sends lines to pairs of lines. The
+induced map is bijective — injective by lifting representatives and gluing the two
+units through the ring equivalence, surjective by gluing one row from each factor,
+whose unimodularity is componentwise — so
 
-```lean
-def chineseRemainder {m n : ℕ} (h : m.Coprime n) : ZMod (m * n) ≃+* ZMod m × ZMod n
-```
-
-Pushing a row through the two projections gives two rows, one over each factor, and
-`ProjectiveLine.map` is functorial enough to send lines to lines. The port's
-`card_projectiveLine_mul` (lines 422–423) shows the induced map on lines is
-bijective: injective by lifting representatives and gluing the two units through
-the ring equivalence (`e.symm (u₁, u₂)`), surjective by gluing a row from one factor
-and a row from the other, whose unimodularity is componentwise:
-
-```lean
-private theorem card_projectiveLine_mul (M N : ℕ) [NeZero M] [NeZero N] (h : M.Coprime N) :
-    Nat.card (ProjectiveLine (ZMod (M * N))) =
-      Nat.card (ProjectiveLine (ZMod M)) * Nat.card (ProjectiveLine (ZMod N)) := by
-```
+$$\\#\mathbb{P}^1(\mathbb{Z}/MN) = \\#\mathbb{P}^1(\mathbb{Z}/M) \cdot
+  \\#\mathbb{P}^1(\mathbb{Z}/N) \qquad (\gcd(M,N) = 1).$$
 
 ### 6.3 The induction, and the headline of this section
 
 Assembling the local computations along the factorization of $`N`$ is an induction
-on the prime-power decomposition, for which mathlib has exactly one tool
-([Factorization/Induction.lean, lines 49–53, v4.34.0](https://github.com/leanprover-community/mathlib4/blob/v4.34.0/Mathlib/Data/Nat/Factorization/Induction.lean#L49-L53)):
+on the prime-power decomposition. Mathlib supplies exactly one tool for that shape
+([Factorization/Induction.lean, lines 49–53, v4.34.0](https://github.com/leanprover-community/mathlib4/blob/v4.34.0/Mathlib/Data/Nat/Factorization/Induction.lean#L49-L53)),
+whose four cases here are:
 
-```lean
-def recOnPosPrimePosCoprime {motive : ℕ → Sort*}
-    (prime_pow : ∀ p n : ℕ, Prime p → 0 < n → motive (p ^ n))
-    (zero : motive 0) (one : motive 1)
-    (coprime : ∀ a b, 1 < a → 1 < b → Coprime a b → motive a → motive b → motive (a * b)) :
-    ∀ a, motive a
-```
-
-The four cases of
-[`card_projectiveLine_zmod`](../lean/FLTForHuman/ModularCurve/Gamma0Index.lean)
-(lines 498–516) are then:
-
-* a prime power: §6.1, with `dedekindPsi_prime_pow` for the right-hand side;
-* $`N = 0`$: excluded by the hypothesis `hN : N ≠ 0`;
-* $`N = 1`$: $`\mathbb{Z}/1`$ is the zero ring, every row is the same line, so
+* a prime power $`N = p^n`$: §6.1, with $`\psi(p^n) = p^n + p^{n-1}`$;
+* $`N = 0`$: excluded by the hypothesis $`N \neq 0`$;
+* $`N = 1`$: $`\mathbb{Z}/1`$ is the zero ring, every row is the same line, and
   $`\#\mathbb{P}^1 = 1 = \psi(1)`$;
-* a coprime product: §6.2, with `dedekindPsi_mul_of_coprime` and the two induction
-  hypotheses.
+* a coprime product $`N = ab`$: §6.2 for the left-hand side and multiplicativity
+  $`\psi(ab) = \psi(a)\psi(b)`$ for the right.
 
-```lean
-theorem card_projectiveLine_zmod (N : ℕ) (hN : N ≠ 0) :
-    Nat.card (ProjectiveLine (ZMod N)) = dedekindPsi N := by
-  induction N using Nat.recOnPosPrimePosCoprime with
-  | prime_pow p n hp hn =>
-      rw [card_projectiveLine_prime_pow p n hp hn.ne', dedekindPsi_prime_pow p n hp hn.ne']
-  | zero => exact absurd rfl hN
-  | one => …
-  | coprime a b ha hb hab iha ihb =>
-      haveI : NeZero a := ⟨by omega⟩
-      haveI : NeZero b := ⟨by omega⟩
-      rw [card_projectiveLine_mul a b hab, iha (by omega), ihb (by omega),
-        dedekindPsi_mul_of_coprime a b hab]
-```
+Therefore
 
-Unfolding the product over the prime powers gives the closed form of §1, and the
-three $`\psi`$ facts the induction consumes — `dedekindPsi_one`,
-`dedekindPsi_prime_pow`, `dedekindPsi_mul_of_coprime` — are the ported module's,
-imported from `NumberTheory/DedekindPsi.lean`, not re-proved here. The prime-power
-identity is where the two functions are tied: it is proved from the totient
-identity $`\varphi(p^k) + p^{k-1} = p^k`$.
+$$\\#\mathbb{P}^1(\mathbb{Z}/N) = \prod_{p^k \parallel N} (p^k + p^{k-1})
+  = N \prod_{p \mid N} \left(1 + \frac{1}{p}\right) = \psi(N) \qquad (N \neq 0).$$
+
+*Grounding.*
+[`card_projectiveLine_zmod`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L498)
+is the assembled statement; its local input is
+[`card_projectiveLine_prime_pow`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L347),
+built from the unit criterion
+([`isUnit_zmod_prime_pow_iff`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L274),
+[`isUnit_or_isUnit`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L298)) and the non-unit count
+([`card_not_isUnit_zmod_prime_pow`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L323),
+from `ZMod.card_units_eq_totient` and `Nat.totient_prime_pow_succ`); the CRT step is
+[`card_projectiveLine_mul`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L422).
+The three $`\psi`$ facts the induction consumes —
+$`\psi(1) = 1`$, $`\psi(p^k) = p^k + p^{k-1}`$,
+$`\psi(ab) = \psi(a)\psi(b)`$ for coprime $`a,b`$ — are the ported module's
+([`dedekindPsi_one`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/NumberTheory/DedekindPsi.lean#L57),
+[`dedekindPsi_prime_pow`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/NumberTheory/DedekindPsi.lean#L69),
+[`dedekindPsi_mul_of_coprime`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/NumberTheory/DedekindPsi.lean#L139)),
+imported and not re-proved here.
 
 ## 7. Step 5: the headline, assembled
 
-Everything now composes into four rewrites
-([`Gamma0Index.lean`, lines 522–527](../lean/FLTForHuman/ModularCurve/Gamma0Index.lean)):
-
-```lean
-theorem Gamma0_index (N : ℕ) [NeZero N] : (CongruenceSubgroup.Gamma0 N).index = dedekindPsi N := by
-  have h1 : (Gamma0 N).index = (borel (ZMod N)).index := by
-    rw [Gamma0_eq_comap_borel]
-    exact Subgroup.index_comap_of_surjective _ (sl2_surj N)
-  rw [h1, Subgroup.index_eq_card, card_quotient_borel,
-    card_projectiveLine_zmod N (NeZero.ne N)]
-```
-
-Read as a chain:
+The four moves compose into one chain of equalities:
 
 ```text
-(Γ₀ N).index
-  = (borel (ℤ/N)).index                 step 1 + step 2, index_comap_of_surjective
-  = Nat.card (SL₂(ℤ/N) ⧸ borel)          Subgroup.index_eq_card
-  = Nat.card (ℙ¹(ℤ/N))                   card_quotient_borel   (step 3)
-  = dedekindPsi N                        card_projectiveLine_zmod (step 4)
+[SL₂(ℤ) : Γ₀(N)]
+  = [SL₂(ℤ) : B(ℤ/N)]              step 1 + step 2 (cosets correspond)
+  = #(SL₂(ℤ/N) / B(ℤ/N))           index is the cardinality of the coset space
+  = #ℙ¹(ℤ/N)                       step 3 (first-column bijection)
+  = ψ(N)                           step 4 (local count + CRT)
 ```
 
-Note what is *not* in the chain: no coset representative is ever exhibited, no
-Euclidean algorithm appears, and no group acts on anything. The index theorem is
-the composition of a lifting statement with a cardinality computation over the
-quotient, and the quotient itself is never more than `Nat.card` of a type.
+Note what is *not* in the chain: no coset representative is exhibited, no Euclidean
+algorithm appears, and no group acts on anything. The index theorem is a lifting
+statement composed with a cardinality computation over a quotient.
+
+*Grounding.*
+[`Gamma0_index`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L522)
+is the four rewrites; the middle equalities are mathlib's
+[`index_eq_card`](https://github.com/leanprover-community/mathlib4/blob/v4.34.0/Mathlib/GroupTheory/Index.lean#L348)
+and the port's `card_quotient_borel` and `card_projectiveLine_zmod` from §5–§6.
 
 ## 8. The second, independent count: primitive coset representatives
 
 ### 8.1 The set, and why its cardinality is the same number
 
 The index set the $`q`$-expansion layer actually enumerates is not the projective
-line but a set of upper-triangular matrices. The representatives of the cosets of
-$`\Gamma_0(N)`$ can be taken of the form $`[[a,b],[0,d]]`$ with $`ad = N`$, $`0 \le b
-\lt d`$; the port records the index set as triples
-([`Defs/PrimCosetReps.lean`, lines 26–31](../lean/FLTForHuman/ModularCurve/Defs/PrimCosetReps.lean)):
+line but a set of upper-triangular matrices. Coset representatives of
+$`\Gamma_0(N)`$ can be taken of the form
 
-```lean
-def primCosetReps (N : ℕ) : Finset (ℕ × ℕ × ℕ) :=
-  Finset.filter
-    (fun t => t.1 * t.2.2 = N ∧ t.2.1 < t.2.2 ∧ Nat.gcd t.1 (Nat.gcd t.2.1 t.2.2) = 1)
-    (Finset.range (N + 1) ×ˢ Finset.range (N + 1) ×ˢ Finset.range (N + 1))
-```
+$$\begin{pmatrix} a & b \\\\ 0 & d\end{pmatrix}, \qquad ad = N, \qquad
+  0 \le b \lt d, \qquad \gcd\bigl(a, \gcd(b,d)\bigr) = 1,$$
 
-The headline is `card_primCosetReps_eq_dedekindPsi` (quoted in §1). Its proof shares
-nothing with §§3–7: it never mentions $`\mathrm{SL}_2`$, the Borel subgroup, or
-lifting. It is a pure counting argument on `Finset`s and `ArithmeticFunction`s,
-which is exactly why it is worth having — two proofs of one number.
+and the port records the index set as the triples in §1. Its cardinality is the
+subject of this section, and the argument shares nothing with §§3–7: it never
+mentions $`\mathrm{SL}_2`$, the Borel subgroup, or lifting. That is exactly why it is
+worth having — two proofs of one number.
 
 ### 8.2 The fibre count is a totient count
 
-Reindex the triples by their first and third entries
-(`card_primCosetReps_eq_sum`): the set is the sigma, over pairs $`(a,d)`$ with
-$`ad = N`$, of the $`b \lt d`$ coprime to $`\gcd(a,d)`$. So its cardinality is
+Reindex the triples by their first and third entries: the set is the disjoint union,
+over pairs $`(a,d)`$ with $`ad = N`$, of the $`b \lt d`$ coprime to $`\gcd(a,d)`$. Hence
 
-$$\\#\mathrm{primCosetReps}(N) = \sum_{(a,d) \in \mathrm{divisorsAntidiagonal}(N)}
-  \\#\\{b \lt d : \gcd(\gcd(a,d), b) = 1\\},$$
+$$\\#\mathrm{primCosetReps}(N)
+  = \sum_{(a,d) \in \mathrm{divisorsAntidiagonal}(N)}
+    \\#\\{b \lt d : \gcd(\gcd(a,d), b) = 1\\}.$$
 
-and each inner count is the port's fibre value
-([`NumberTheory/DedekindPsi.lean`, lines 217–221](../lean/FLTForHuman/NumberTheory/DedekindPsi.lean)):
+Each inner count is a totient times a number of periods. Writing
+$`g = \gcd(a,d)`$, the residues coprime to $`g`$ are $`g`$-periodic, so a block of
+$`m`$ periods contains exactly $`m\varphi(g)`$ of them:
 
-```lean
-abbrev dedekindPsiFibre (x : ℕ × ℕ) : ℕ :=
-  (x.2 / Nat.gcd x.1 x.2) * Nat.totient (Nat.gcd x.1 x.2)
+$$\\#\\{b \lt gm : \gcd(g,b) = 1\\} = m\\,\varphi(g), \qquad\text{and}\qquad
+  \\#\\{b \lt d : \gcd(g,b) = 1\\} = \frac{d}{g}\\,\varphi(g).$$
 
-theorem card_fibre (a d : ℕ) :
-    ((range d).filter (fun b => Nat.Coprime (Nat.gcd a d) b)).card =
-      dedekindPsiFibre (a, d) := by
-```
-
-The value is $`\frac{d}{g}\varphi(g)`$ with $`g = \gcd(a,d)`$: the $`b`$ coprime to
-$`g`$ are periodic in $`g`$, so a block of $`d = (d/g)\cdot g`$ consecutive residues
-contains exactly $`(d/g)\varphi(g)`$ of them — that is the companion lemma
-`card_filter_coprime_range_mul`, proved from mathlib's `Nat.periodic_coprime` and
-`Nat.totient_eq_card_coprime`. This is Euler's function doing the counting inside
-Dedekind's.
+The fibre value $`h(a,d) = \frac{d}{\gcd(a,d)}\,\varphi(\gcd(a,d))`$ is therefore the
+$`\varphi`$-count that the $`\psi`$-count is built from.
 
 ### 8.3 Turning the sum into an arithmetic function
 
-The rest of the argument makes the sum multiplicative, which is where the
-`ArithmeticFunction` machinery of the ported $`\psi`$ module is reused. Define
+Define
 
-$$G(n) := \sum_{(a,d) \in \mathrm{divisorsAntidiagonal}(n)} h(a,d), \qquad h = \mathrm{dedekindPsiFibre},$$
+$$G(n) := \sum_{(a,d) \in \mathrm{divisorsAntidiagonal}(n)} h(a,d),
+  \qquad h = \text{the fibre value above}.$$
 
-as an `ArithmeticFunction ℕ` (lines 644–645). Then:
+Then:
 
-* $`G`$ is multiplicative (`isMultiplicative_G`), because the divisors-antidiagonal
-  sum of a multiplicative two-variable function multiplies over coprime
-  factorizations: `sum_divisorsAntidiagonal_mul_of_coprime`, fed the hypothesis
-  `h_mul` that $`h(a_1a_2, d_1d_2) = h(a_1,d_1)h(a_2,d_2)`$ for coprime products —
-  a four-way application of `Nat.Coprime.gcd_mul` and `Nat.totient_mul`;
-* $`G(p^k) = p^k + p^{k-1}`$ (`G_prime_pow`), by telescoping: the summand is
-  $`h(p^{k-j}, p^j) = \varphi(p^j)`$ for $`1 \le j \le k-1`$ (both cases of
-  $`\min(k-j, j)`$ collapse to $`\varphi(p^j)`$ by the definition of
-  `dedekindPsiFibre`), while the two end terms contribute $`1`$ and $`p^k`$; the
-  telescoping step is `h_prime_pow`, $`h(p^i,p^j) + p^{j-1} = p^j`$, and
-  `sum_h_prime_pow_partial` accumulates it.
+* $`G`$ is **multiplicative**, because the divisors-antidiagonal sum of a
+  multiplicative two-variable function multiplies over coprime factorizations, and
+  $`h`$ is multiplicative in the pair:
+  $`h(a_1a_2, d_1d_2) = h(a_1,d_1)h(a_2,d_2)`$ for coprime products, by
+  multiplicativity of $`\gcd`$ and of $`\varphi`$;
+* on a prime power, $`h(p^{k-j}, p^j) = \varphi(p^j)`$ for $`1 \le j \le k-1`$ — both
+  cases of the minimum collapse, by the definition of $`h`$ — while the two end terms
+  contribute $`1`$ and $`p^k`$; summing the telescoping identity
+  $`h(p^i,p^j) + p^{j-1} = p^j`$ gives
 
-Two multiplicative arithmetic functions agreeing on prime powers are equal
-([ArithmeticFunction/Defs.lean, lines 565–567, v4.34.0](https://github.com/leanprover-community/mathlib4/blob/v4.34.0/Mathlib/NumberTheory/ArithmeticFunction/Defs.lean#L565-L567)):
+$$G(p^k) = 1 + p^k + \sum_{j=1}^{k-1} \varphi(p^j)
+  = 1 + p^k + (p^{k-1} - 1) = p^k + p^{k-1}.$$
 
-```lean
-theorem eq_iff_eq_on_prime_powers [CommMonoidWithZero R] (f : ArithmeticFunction R)
-    (hf : f.IsMultiplicative) (g : ArithmeticFunction R) (hg : g.IsMultiplicative) :
-    f = g ↔ ∀ p i : ℕ, Nat.Prime p → f (p ^ i) = g (p ^ i)
-```
+Two multiplicative arithmetic functions that agree on prime powers are equal, so
+$`G = \Psi`$, where $`\Psi`$ is the convolution presentation of $`\psi`$,
 
-so `G_eq_Psi : G = Psi` (line 713), and `Psi_apply : Psi n = dedekindPsi n` converts
-back to the $`\psi`$ of §1. The headline follows:
+$$\Psi = \mu^2 \ast \mathrm{id}, \qquad \Psi(n) = \psi(n),$$
 
-```lean
-theorem card_primCosetReps_eq_dedekindPsi (N : ℕ) (hN : N ≠ 0) :
-    (primCosetReps N).card = dedekindPsi N := by
-  rw [PrimCosetCount.card_primCosetReps_eq_sum N hN, ← PrimCosetCount.G_apply,
-    PrimCosetCount.G_eq_Psi]
-  exact Psi_apply N
-```
+$`\mu^2`$ being the indicator of the squarefree numbers. Therefore
+$`G(N) = \Psi(N) = \psi(N)`$, which is the second headline.
 
-Note the shape of the reuse: the port defines $`\psi`$ *twice* — as the divisor sum
-`dedekindPsi` and as the convolution `Psi = μ² ∗ id` of the squarefree indicator
-with the identity — and this proof is what makes the second definition pay. The
-pin had both `Psi` and the squarefree indicator `private` in two different files;
-the port promotes them once ([`NumberTheory/DedekindPsi.lean`](../lean/FLTForHuman/NumberTheory/DedekindPsi.lean),
-the move recorded in [level-port.md §7](../lean/logs/level-port.md)). The
-`ModularCurve`-namespaced spelling of the pin's names survives as the one-line
-delegation module
-[`ModularCurve/Defs/DedekindPsi.lean`](../lean/FLTForHuman/ModularCurve/Defs/DedekindPsi.lean).
+Note the shape of the reuse: $`\psi`$ is presented in the port **twice** — as the
+divisor sum of §1 and as the convolution $`\Psi = \mu^2 * \mathrm{id}`$ — and this
+proof is what makes the second presentation pay. The pin kept $`\Psi`$ and the
+squarefree indicator `private` in two different files; the port promotes them once
+([`NumberTheory/DedekindPsi.lean`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/NumberTheory/DedekindPsi.lean#L119),
+the move recorded in [level-port.md §7](../lean/logs/level-port.md)), and the pin's
+`ModularCurve`-namespaced spelling survives as a one-line delegation module
+([`ModularCurve/Defs/DedekindPsi.lean`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Defs/DedekindPsi.lean#L28)).
+
+*Grounding.* The set is
+[`primCosetReps`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Defs/PrimCosetReps.lean#L31);
+the reindexing is
+[`card_primCosetReps_eq_sum`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L537);
+the fibre value is
+[`dedekindPsiFibre`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/NumberTheory/DedekindPsi.lean#L217)
+with
+[`card_fibre`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/NumberTheory/DedekindPsi.lean#L221),
+resting on the block count
+[`card_filter_coprime_range_mul`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/NumberTheory/DedekindPsi.lean#L201).
+Multiplicativity is `sum_divisorsAntidiagonal_mul_of_coprime`, `h_mul` and
+`isMultiplicative_G` ([L561](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L561),
+[L619](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L619),
+[L649](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L649));
+the prime-power value is `h_prime_pow` and `G_prime_pow`
+([L657](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L657),
+[L702](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L702));
+and the conclusion is `G_eq_Psi` with `Psi_apply`
+([L713](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L713),
+[L130](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/NumberTheory/DedekindPsi.lean#L130)).
 
 ## 9. What mathlib supplies, and what has no counterpart there
 
-**$`\varphi`$**: mathlib has the full theory —
-`Nat.totient` and its scoped notation $`\varphi`$ (Totient.lean line 39), the
-multiplicativity `totient_mul` (line 133), the divisor sum
-`sum_totient : ∑_{d \mid n} \varphi(d) = n` (line 165), the prime and prime-power
-values `totient_prime` (line 216) and `totient_prime_pow_succ` (line 182), the
-bounds `totient_le` and `totient_pos` (lines 62, 75), the group-theoretic reading
-`ZMod.card_units_eq_totient` (line 113), the Euler product
-`totient_eq_mul_prod_factors` (line 289), the gcd identity
-`totient_gcd_mul_totient_mul` (line 331) with `totient_super_multiplicative`
-(line 349) and `totient_dvd_of_dvd` (line 358), and the block count
-`filter_coprime_Ico_eq_totient` (line 80).
+**$`\varphi`$**: mathlib has the full theory of Euler's totient. In notation, with
+the declaration names beside the statements:
+
+* $`\varphi(n) = \#\{a \lt n : \gcd(a,n) = 1\}`$ and $`\gcd`$-multiplicativity,
+  $`\varphi(mn) = \varphi(m)\varphi(n)`$ (`Nat.totient` line 39, `totient_mul`
+  line 133);
+* the divisor sum $`\sum_{d \mid n} \varphi(d) = n`$ (`sum_totient` line 165);
+* the prime and prime-power values $`\varphi(p) = p-1`$ (line 216) and
+  $`\varphi(p^k) = p^{k-1}(p-1)`$ (line 182);
+* the bounds $`\varphi(n) \le n`$ and $`\varphi(n) \gt 0`$ for $`n \gt 0`$
+  (lines 62, 75);
+* the group-theoretic reading $`\#(\mathbb{Z}/n)^{\times} = \varphi(n)`$
+  (`ZMod.card_units_eq_totient`, line 113);
+* the Euler product $`\varphi(n) = n\prod_{p\mid n}(1 - 1/p)`$ over $`\mathbb{Q}`$
+  (`totient_eq_mul_prod_factors`, line 289);
+* the gcd identity
+  $`\varphi(\gcd(a,b))\,\varphi(ab) = \varphi(a)\,\varphi(b)\,\gcd(a,b)`$ with
+  super-multiplicativity $`\varphi(a)\varphi(b) \le \varphi(ab)`$ and
+  $`a \mid b \Rightarrow \varphi(a) \mid \varphi(b)`$ (lines 331, 349, 358);
+* the block count $`\#\{x \in [n, n+a) : \gcd(a,x) = 1\} = \varphi(a)`$ (line 80).
+
+All line numbers are in [Totient.lean at v4.34.0](https://github.com/leanprover-community/mathlib4/blob/v4.34.0/Mathlib/Data/Nat/Totient.lean).
 
 **$`\psi`$**: mathlib has nothing. A search for `dedekindPsi` (and for
 `dedekind_psi`) over the whole of `Mathlib/` at v4.34.0 returns no declaration; the
-`Dedekind` hits are cuts, domains, and zeta, and every `Jordan` hit is
-Jordan–Hölder or Jordan's inequality. The port's $`\psi`$ module therefore holds
-the definition, the multiplicativity, the prime step in three shapes, positivity,
-the totient-based block count, and the fibre value.
+`Dedekind` hits are cuts, domains and zeta, and every `Jordan` hit is Jordan–Hölder
+or Jordan's inequality. The port's $`\psi`$ module therefore holds the definition,
+the multiplicativity, the prime step in three shapes, positivity, the totient-based
+block count, and the fibre value.
 
-Three further gaps are worth naming, because they are why the port had to write
-the vocabulary itself:
+Three further gaps are worth naming, because they are why the port writes the
+vocabulary itself:
 
 * **no Borel subgroup** of $`\mathrm{SL}_2(R)`$ — the port's `borel`;
 * **no projective line over a general commutative ring** — mathlib's `OnePoint`
-  requires a division ring, and $`\mathbb{Z}/N`$ is full of zero divisors precisely
-  when $`N`$ is composite, which is the interesting case here;
-* **no index formula for $`\Gamma_0(N)`$** — and no `dedekindPsi` to state it with.
+  needs a division ring, and $`\mathbb{Z}/N`$ is full of zero divisors precisely when
+  $`N`$ is composite, which is the interesting case here;
+* **no index formula for $`\Gamma_0(N)`$**, and no $`\psi`$ to state it with.
 
 Two honest caveats.
 
-1. Mathlib's `filter_coprime_Ico_eq_totient` says
-   $`\#\{x \in [n, n+a) : \gcd(a,x) = 1\} = \varphi(a)`$ — a full period at an
-   *arbitrary* offset — while the port's `card_filter_coprime_range_mul` counts
-   $`m`$ periods starting at $`0`$. The former looks strictly stronger, so the latter
-   may be a short induction away from it, but that has **not been machine-checked**
-   and no replacement is claimed; the port's proof uses `Nat.periodic_coprime`
-   directly.
-2. The port's totient-adjacent statements are the two the index proof needs. The
-   pin's other $`\psi`$ facts are public there and unported here:
-   `ModularCurve.le_dedekindPsi` ($`N \le \psi(N)`$, whose argument the port inlines
-   inside `dedekindPsi_pos` without exporting the lemma),
-   `ModularCurve.dedekindPsi_eq_prod_primeFactors` and `dedekindPsi_of_squarefree`
-   (the product form of §1 — stated in the module's docstring but not as a theorem),
-   and `ModularCurve.card_quotient_gamma0_le_dedekindPsi`. None of them is needed by
+1. Mathlib's block count is stated at an *arbitrary* offset,
+   $`\#\{x \in [n, n+a) : \gcd(a,x) = 1\} = \varphi(a)`$, while the port's
+   `card_filter_coprime_range_mul` counts $`m`$ periods starting at $`0`$. The former
+   looks strictly stronger, so the latter may be a short induction away from it — but
+   that has **not been machine-checked** here, and no replacement is claimed; the
+   port's proof uses `Nat.periodic_coprime` directly.
+2. The port's totient-adjacent facts are the two the index proof needs. The pin's
+   other $`\psi`$ facts are public there and unported here: the lower bound
+   $`N \le \psi(N)`$ (`ModularCurve.le_dedekindPsi`, whose argument the port inlines
+   inside `dedekindPsi_pos` without exporting the lemma), the product form of §1
+   (`ModularCurve.dedekindPsi_eq_prod_primeFactors` and `dedekindPsi_of_squarefree` —
+   stated in the ported module's docstring but not as a theorem), and
+   `ModularCurve.card_quotient_gamma0_le_dedekindPsi`. None of them is needed by
    §§3–8.
 
 ## 10. Key point $`\to`$ declaration map
 
+Port declarations are linked into the pinned tree `htzh/flt_for_human@250e7c0`;
+pin sources are pinned to `aa2d8b3`.
+
 | mathematics | port declaration | pin source |
 |---|---|---|
-| $`\Gamma_0(N)`$ as a congruence condition | `CongruenceSubgroup.Gamma0`, `Gamma0_mem` (mathlib) | — |
-| $`\mathrm{SL}_2(R)`$ upper triangular | `ModularCurve.borel`, `mem_borel_iff` | [Def_ModularCurve_ProjectiveLine.lean, lines 69, 88](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_ProjectiveLine.lean#L69-L88) |
-| unimodular rows, $`\mathbb{P}^1(R)`$ | `IsUnimodularRow`, `ProjectiveLine`, `ProjectiveLine.map` | [same, lines 14–59](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_ProjectiveLine.lean#L14-L59) |
-| step 1: $`\Gamma_0(N)`$ is a preimage | `Gamma0_eq_comap_borel` | [S_ModularCurve_Gamma0_index.lean, lines 216–217](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_Gamma0_index.lean#L216-L217) |
-| step 2: reduction is onto | `sl2_surj`, `exists_sl2_int_lift` | [same, lines 88–91, 137–138](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_Gamma0_index.lean#L137-L138) |
-| step 2, the coprime second column | `exists_coprime_lift`, `primeSel` | [same, lines 24–86](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_Gamma0_index.lean#L24-L86) |
-| step 3: Borel cosets are the first columns | `firstColumnClass`, `firstColumnClass_eq_iff`, `card_quotient_borel` | [same, lines 160–214](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_Gamma0_index.lean#L160-L214) |
-| step 3: index = cardinality of the quotient | `Subgroup.index_eq_card` (mathlib) | — |
-| step 4, local: a row has a unit entry | `isUnit_zmod_prime_pow_iff`, `isUnit_or_isUnit` | [S_ModularCurve_card_projectiveLine_zmod.lean, lines 19–62](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_card_projectiveLine_zmod.lean#L19-L62) |
-| step 4, local: the count $`p^k + p^{k-1}`$ | `card_not_isUnit_zmod_prime_pow`, `card_projectiveLine_prime_pow` | [same, lines 71–95](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_card_projectiveLine_zmod.lean#L71-L95) |
-| step 4, global: CRT multiplicativity | `card_projectiveLine_mul` | [same, lines 156–246](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_card_projectiveLine_zmod.lean#L156-L246) |
-| $`\#\mathbb{P}^1(\mathbb{Z}/N) = \psi(N)`$ | `card_projectiveLine_zmod` | [same, line 248](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_card_projectiveLine_zmod.lean#L248) |
-| $`[\mathrm{SL}_2(\mathbb{Z}) : \Gamma_0(N)] = \psi(N)`$ | `Gamma0_index` | [S_ModularCurve_Gamma0_index.lean, line 227](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_Gamma0_index.lean#L227) |
-| $`\psi(N) = N \prod (1 + 1/p)`$, multiplicativity | `dedekindPsi`, `dedekindPsi_prime_pow`, `dedekindPsi_mul_of_coprime` | [Thm_ModularCurve_dedekindPsi_prime_pow.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_dedekindPsi_prime_pow.lean), [Thm_ModularCurve_dedekindPsi_mul_of_coprime.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_dedekindPsi_mul_of_coprime.lean) |
-| $`\psi = \mu^2 * \mathrm{id}`$ | `Psi`, `Psi_apply`, `isMultiplicative_Psi` | [S_ModularCurve_card_primCosetReps_eq_dedekindPsi.lean, lines 226–248](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_card_primCosetReps_eq_dedekindPsi.lean#L226-L248) |
-| the fibre value $`(d/g)\varphi(g)`$ | `dedekindPsiFibre`, `card_fibre`, `card_filter_coprime_range_mul` | [same, lines 16–45](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_card_primCosetReps_eq_dedekindPsi.lean#L16-L45) |
-| the sum $`G`$ is multiplicative | `sum_divisorsAntidiagonal_mul_of_coprime`, `h_mul`, `isMultiplicative_G` | [same, lines 74–168](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_card_primCosetReps_eq_dedekindPsi.lean#L74-L168) |
-| $`G(p^k) = p^k + p^{k-1}`$, $`G = \Psi`$ | `h_prime_pow`, `G_prime_pow`, `G_eq_Psi` | [same, lines 170–277](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_card_primCosetReps_eq_dedekindPsi.lean#L170-L277) |
-| $`\#\mathrm{primCosetReps}(N) = \psi(N)`$ | `card_primCosetReps_eq_dedekindPsi` | [same, line 288](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_card_primCosetReps_eq_dedekindPsi.lean#L288) |
+| $`\Gamma_0(N)`$, $`[\mathrm{SL}_2 : \Gamma_0]`$ | mathlib `CongruenceSubgroup.Gamma0`, `Subgroup.index` | — |
+| $`B(R)`$ upper triangular | [`borel`, `mem_borel_iff`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Defs/ProjectiveLine.lean#L97) | [Def_ModularCurve_ProjectiveLine.lean, lines 69, 88](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_ProjectiveLine.lean#L69-L88) |
+| unimodular rows, $`\mathbb{P}^1(R)`$ | [`IsUnimodularRow`, `ProjectiveLine`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Defs/ProjectiveLine.lean#L37) | [same, lines 14–59](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_ProjectiveLine.lean#L14-L59) |
+| step 1: $`\Gamma_0(N) = \pi^{-1}(B)`$ | [`Gamma0_eq_comap_borel`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L261) | [S_ModularCurve_Gamma0_index.lean, lines 216–217](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_Gamma0_index.lean#L216-L217) |
+| step 2: $`\pi`$ is onto | [`sl2_surj`, `exists_sl2_int_lift`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L179) | [same, lines 88–91, 137–138](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_Gamma0_index.lean#L137-L138) |
+| step 2, the coprime second column | [`exists_coprime_lift`, `primeSel`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L90) | [same, lines 24–86](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_Gamma0_index.lean#L24-L86) |
+| step 3: cosets are first columns | [`firstColumnClass_eq_iff`, `card_quotient_borel`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L208) | [same, lines 160–214](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_Gamma0_index.lean#L160-L214) |
+| step 3: index $`=`$ cardinality of the quotient | mathlib `Subgroup.index_eq_card` | — |
+| step 4, local: a row has a unit | [`isUnit_zmod_prime_pow_iff`, `isUnit_or_isUnit`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L274) | [S_ModularCurve_card_projectiveLine_zmod.lean, lines 19–62](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_card_projectiveLine_zmod.lean#L19-L62) |
+| step 4, local: $`\#\mathbb{P}^1 = p^k + p^{k-1}`$ | [`card_not_isUnit_zmod_prime_pow`, `card_projectiveLine_prime_pow`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L323) | [same, lines 71–95](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_card_projectiveLine_zmod.lean#L71-L95) |
+| step 4, global: CRT multiplicativity | [`card_projectiveLine_mul`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L422) | [same, lines 156–246](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_card_projectiveLine_zmod.lean#L156-L246) |
+| $`\#\mathbb{P}^1(\mathbb{Z}/N) = \psi(N)`$ | [`card_projectiveLine_zmod`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L498) | [same, line 248](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_card_projectiveLine_zmod.lean#L248) |
+| $`[\mathrm{SL}_2(\mathbb{Z}) : \Gamma_0(N)] = \psi(N)`$ | [`Gamma0_index`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L522) | [S_ModularCurve_Gamma0_index.lean, line 227](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_Gamma0_index.lean#L227) |
+| $`\psi`$: divisor sum, $`p^k + p^{k-1}`$, multiplicativity | [`dedekindPsi`, `dedekindPsi_prime_pow`, `dedekindPsi_mul_of_coprime`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/NumberTheory/DedekindPsi.lean#L54) | [Thm_ModularCurve_dedekindPsi_prime_pow.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_dedekindPsi_prime_pow.lean), [Thm_ModularCurve_dedekindPsi_mul_of_coprime.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_dedekindPsi_mul_of_coprime.lean) |
+| $`\Psi = \mu^2 * \mathrm{id}`$ | [`Psi`, `Psi_apply`, `isMultiplicative_Psi`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/NumberTheory/DedekindPsi.lean#L119) | [S_ModularCurve_card_primCosetReps_eq_dedekindPsi.lean, lines 226–248](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_card_primCosetReps_eq_dedekindPsi.lean#L226-L248) |
+| the fibre value $`(d/g)\,\varphi(g)`$ | [`dedekindPsiFibre`, `card_fibre`, `card_filter_coprime_range_mul`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/NumberTheory/DedekindPsi.lean#L201) | [same, lines 16–45](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_card_primCosetReps_eq_dedekindPsi.lean#L16-L45) |
+| $`G`$ is multiplicative | `sum_divisorsAntidiagonal_mul_of_coprime`, `h_mul`, `isMultiplicative_G` ([L561](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L561), [L619](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L619), [L649](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L649)) | [same, lines 74–168](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_card_primCosetReps_eq_dedekindPsi.lean#L74-L168) |
+| $`G(p^k) = p^k + p^{k-1}`$, $`G = \Psi`$ | `G_prime_pow`, `G_eq_Psi` ([L702](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L702), [L713](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L713)) | [same, lines 170–277](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_card_primCosetReps_eq_dedekindPsi.lean#L170-L277) |
+| $`\#\mathrm{primCosetReps}(N) = \psi(N)`$ | [`card_primCosetReps_eq_dedekindPsi`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L725) | [same, line 288](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_card_primCosetReps_eq_dedekindPsi.lean#L288) |
 
 ## 11. Links
 
@@ -716,9 +638,9 @@ Two honest caveats.
 * [level-port.md §7](../lean/logs/level-port.md) — the record of moving the
   $`\psi`$ block out of `Defs/Jq.lean` into `NumberTheory/DedekindPsi.lean`, with
   the measured statement-checker delta.
-* [`spec/LevelConsumer.lean`](../lean/spec/LevelConsumer.lean) — the executed wire
-  test: at $`N = 2`$ both routes give $`3`$, and the index is stated equal to the
-  cardinality of the projective line.
+* [LevelConsumer.lean at `250e7c0`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/spec/LevelConsumer.lean#L112)
+  — the executed wire test: at $`N = 2`$ both routes give $`3`$, and the index is
+  stated equal to the cardinality of the projective line.
 * [S_ModularCurve_Gamma0_index.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_Gamma0_index.lean),
   [S_ModularCurve_card_projectiveLine_zmod.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_card_projectiveLine_zmod.lean),
   [S_ModularCurve_card_primCosetReps_eq_dedekindPsi.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_card_primCosetReps_eq_dedekindPsi.lean)
