@@ -24,20 +24,21 @@ $`\varphi`$ — on each prime power in §6.1, and as a count of reduced residues
 **Citations and how to read the Lean here.** Line numbers for the pin point at
 `anthropics/fermats-last-theorem@aa2d8b3`; mathlib is cited at tag **v4.34.0**
 (rev `5ed2965256`), the version this port builds against — one minor version on
-from the pin's own `v4.33.0`, so that the anchors match the copies the checked code
-was elaborated against. (The two mathlib files this note leans on hardest,
-`GroupTheory/Index.lean` and `RingTheory/ZMod/UnitsCyclic.lean`, sit at identical
-lines in both versions; `Data/Nat/Totient.lean` shifted by two.) Citations to the
-port's own Lean are **pinned to `htzh/flt_for_human@250e7c0`**, the commit at which
-the statements and line numbers were read: unlike the pin, the port is a working
-tree. Lean appears below only as *grounding* — the mathematics is written in
-notation, and each section closes with the declarations that carry it, followed by
-the declaration map of §10.
+from the pin's `v4.33.1` toolchain (whose mathlib is the `master-2026-08-10`
+snapshot), so that the anchors match the copies the checked code was elaborated
+against. (The anchors into `GroupTheory/Index.lean` and
+`Data/Nat/Factorization/Induction.lean` sit at identical lines in both versions;
+`Data/Nat/Totient.lean` shifted by a line or two, `Data/ZMod/Basic.lean` by four.)
+Citations to the port's own Lean are **pinned to `htzh/flt_for_human@250e7c0`**,
+the commit at which the statements and line numbers were read: unlike the pin, the
+port is a working tree. Lean appears below only as *grounding* — the mathematics
+is written in notation, and each section closes with the declarations that carry
+it, followed by the declaration map of §10.
 
 The plan:
 
 1. the statement, the two arithmetic functions, and the closed form of the answer;
-2. the shape of the argument: four moves, of which one is arithmetic;
+2. the shape of the argument: five moves, of which two are arithmetic;
 3. step 1 — $`\Gamma_0(N)`$ is the preimage of the Borel subgroup;
 4. step 2 — reduction is surjective, and lifting is Bezout arithmetic;
 5. step 3 — the coset bijection
@@ -125,10 +126,10 @@ The index itself is `Subgroup.index`, which is by definition a cardinality
 
 **Why $`\psi`$ is the expected answer.** A coset of $`\Gamma_0(N)`$ should be a
 *line* in $`(\mathbb{Z}/N)^2`$ (§5), and the lines can be counted before any of the
-formal work: a unit acts freely on unimodular rows (if $`ua = a`$, $`uc = c`$ and
+formal work: a unit acts freely on unimodular pairs (if $`ua = a`$, $`uc = c`$ and
 $`xa + yc = 1`$ then $`u = 1`$), so
 
-$$\\#\mathbb{P}^1(\mathbb{Z}/N) = \frac{\\#\\{\text{unimodular rows}\\}}{\varphi(N)}
+$$\\#\mathbb{P}^1(\mathbb{Z}/N) = \frac{\\#\\{\text{unimodular pairs}\\}}{\varphi(N)}
   = \frac{N^2 \prod_{p \mid N} (1 - p^{-2})}{N \prod_{p \mid N} (1 - p^{-1})}
   = N \prod_{p \mid N} \left(1 + \frac{1}{p}\right) = \psi(N).$$
 
@@ -139,7 +140,7 @@ the answer, not a formalized step.
 
 ## 2. The shape of the argument
 
-Five moves, and only the second is arithmetic:
+Five moves, and only two of them are arithmetic:
 
 ```text
 (1)  Γ₀(N) = B(ℤ/N) pulled back along reduction         Gamma0_eq_comap_borel
@@ -186,11 +187,11 @@ and mathlib's group is `CongruenceSubgroup.Gamma0`.
 
 Reduction $`\pi`$ is **surjective**: every $`M \in \mathrm{SL}_2(\mathbb{Z}/N)`$ with
 $`\det M = 1`$ in $`\mathbb{Z}/N`$ is the reduction of a matrix of determinant $`1`$
-over $`\mathbb{Z}`$. Since $`\Gamma_0(N) = \pi^{-1}(B)`$ by §3, the maps
+over $`\mathbb{Z}`$. Since $`\Gamma_0(N) = \pi^{-1}(B)`$ by §3, the map
 
 $$A\\,\Gamma_0(N) \longmapsto \pi(A)\\,B(\mathbb{Z}/N)$$
 
-is a bijection between the coset spaces — injective because
+is a bijection between the left-coset spaces — injective because
 $`\pi(A)^{-1}\pi(A') \in B`$ forces $`A^{-1}A' \in \pi^{-1}(B) = \Gamma_0(N)`$, and
 surjective because $`\pi`$ is — so the two indices are equal. In mathlib this is the
 specialisation to a surjection of the general fact that a preimage has the same
@@ -201,7 +202,7 @@ $`\mathrm{SL}_2`$, and the pin proves it by Bezout arithmetic. The pin's own pro
 for this step is [018 §4.3](018-congruence-subgroups-and-invariance.md); what follows
 is the construction those two declarations perform, in notation.
 
-### 4.2 Why it is not formal: the naive lift fails
+### 4.2 The naive lift does not work
 
 It is tempting to lift the four entries independently: pick
 $`a_0, b_0, c_0, d_0 \in \mathbb{Z}`$ reducing to $`a, b, c, d`$ and declare victory.
@@ -213,13 +214,13 @@ $$N \mid a_0 d_0 - b_0 c_0 - 1,$$
 whereas the integral matrix needs determinant *exactly* $`1`$. So the entries must
 be *chosen*, not lifted.
 
-### 4.3 Fix the second column: a coprime pair congruent to $`(c_0, d_0)`$
+### 4.3 Fix the second row: a coprime pair congruent to $`(c_0, d_0)`$
 
 First observation: no prime divides $`c_0`$, $`d_0`$ and $`N`$ at once. For if
 $`p \mid c_0`$, $`p \mid d_0`$ and $`p \mid N`$, then $`p`$ divides both
 $`a_0 d_0 - b_0 c_0`$ and $`a_0 d_0 - b_0 c_0 - 1`$, hence $`p \mid 1`$, absurd.
 
-Second, replace the second column by a **coprime** pair with the same residues.
+Second, replace the second row by a **coprime** pair with the same residues.
 With
 
 $$\gamma = \begin{cases} c_0, & c_0 \neq 0, \\\\ N, & c_0 = 0,\end{cases}
@@ -234,9 +235,9 @@ $`p \mid d_0`$ force $`p \mid N`$, against the first observation; if
 $`p \nmid d_0`$ then $`p \mid \mathrm{primeSel}(\gamma, d_0)`$, and $`p \mid \delta`$
 forces $`p \mid d_0`$, a contradiction. Either way no common prime exists.
 
-### 4.4 Bezout, then slide the first column
+### 4.4 Bezout, then slide the first row
 
-A coprime second column makes the first one free. Bezout's identity
+A coprime second row makes the first one free. Bezout's identity
 $`\mathrm{gcdA}(\gamma,\delta)\,\gamma + \mathrm{gcdB}(\gamma,\delta)\,\delta =
 \gcd(\gamma,\delta) = 1`$ exhibits
 
@@ -252,18 +253,24 @@ The mismatch is therefore measured by
 
 $$\lambda := b\\,\alpha_0 - a\\,\beta_0 \in \mathbb{Z}/N,$$
 
-and sliding the first column along the second,
+and sliding the first row along the second by any integer lift of $`\lambda`$,
 
 $$(\alpha, \beta) := (\alpha_0, \beta_0) + \lambda\\,(\gamma, \delta),$$
 
-leaves the determinant alone — it is an integer row operation — and lands on the
-target:
+leaves the determinant alone — the change is $`\lambda(\gamma\delta - \delta\gamma)
+= 0`$ whatever the lift, so
+$`(\alpha_0 + \lambda\gamma)\delta - (\beta_0 + \lambda\delta)\gamma =
+\alpha_0\delta - \beta_0\gamma = 1`$ — and lands on the
+target: the congruences $`\gamma \equiv c`$ and $`\delta \equiv d`$ turn
+$`\lambda = b\alpha_0 - a\beta_0`$ and $`ad - bc = 1`$, i.e. $`1 + bc = ad`$, into
 
 $$\alpha_0 + (b\alpha_0 - a\beta_0)c = \alpha_0(1 + bc) - a\beta_0c
-  = \alpha_0\\,ad - a\beta_0c = a(\alpha_0 d - \beta_0 c) = a,$$
+  = \alpha_0\\,ad - a\beta_0c = a(\alpha_0 d - \beta_0 c) = a
+  \qquad \text{in } \mathbb{Z}/N;$$
 
-using $`1 + bc = ad`$ from $`ad - bc = 1`$; the computation for $`\beta`$ is the same
-with the roles swapped. Hence
+$`\alpha_0 d - \beta_0 c = 1`$ by reducing $`\alpha_0\delta - \beta_0\gamma = 1`$.
+The computation for $`\beta`$ is the same
+with the roles of $`(a,\alpha_0)`$ and $`(b,\beta_0)`$ swapped. Hence
 $`[[\alpha,\beta],[\gamma,\delta]] \in \mathrm{SL}_2(\mathbb{Z})`$ reduces to
 $`M`$, and $`\pi`$ is surjective.
 
@@ -284,22 +291,24 @@ $`-(\beta_0)\cdot h + b \cdot h_{\det}`$ at
 ## 5. Step 3: the coset bijection with the projective line
 
 Now the group theory, over an arbitrary commutative ring $`R`$ — because
-$`\mathbb{Z}/N`$ is one. A row $`(a,c) \in R^2`$ is **unimodular** if it generates
-the unit ideal,
+$`\mathbb{Z}/N`$ is one. A pair $`(a,c) \in R^2`$ is **unimodular** if it
+generates the unit ideal,
 
 $$\mathrm{unimodular}(a,c) :\iff \exists x, y \in R,\ xa + yc = 1,$$
 
 and the **projective line** is
 
-$$\mathbb{P}^1(R) = \\{\text{unimodular rows}\\} \big/ R^{\times},$$
+$$\mathbb{P}^1(R) = \\{\text{unimodular pairs}\\} \big/ R^{\times},$$
 
-rows modulo scaling by a unit. Mathlib has the projective line only over a division
+pairs modulo scaling by a unit — a homogeneous pair, not literally a row of any
+matrix. Mathlib has the projective line only over a division
 ring, and no Borel subgroup at all, so both are port vocabulary.
 
 The bijection is by the first column. A matrix in $`\mathrm{SL}_2(R)`$ has a
-unimodular first column, since $`\det A = 1`$ reads off
+unimodular first column $`(A_{00}, A_{10})`$, since $`\det A = 1`$ reads off
 $`A_{11}A_{00} + (-A_{01})A_{10} = 1`$. Write $`[A] \in \mathbb{P}^1(R)`$ for the
-line of that column. The substance is the equivalence
+line of that **pair, read as a column** (entries $`0`$ then $`1`$). The substance
+is the equivalence
 
 $$[A] = [B] \iff A^{-1}B \in B(R),$$
 
@@ -310,15 +319,17 @@ which is proved in two directions:
   the two terms cancel;
 * if $`C = A^{-1}B`$ is upper triangular of determinant $`1`$, then
   $`C_{00}C_{11} = 1`$, so $`C_{00}`$ is a unit, and $`B = AC`$ has first column
-  $`C_{00}`$ times that of $`A`$ — the second column of $`C`$ contributes nothing to
-  the first column of the product.
+  $`C_{00}`$ times that of $`A`$ — the off-diagonal entry of $`C`$ contributes
+  nothing to the first column of the product.
 
-Surjectivity is the completing trick: a unimodular row $`(a,c)`$ with $`xa + yc = 1`$
-is the first column of
+Surjectivity is the completing trick: a unimodular pair $`(a,c)`$ with
+$`xa + yc = 1`$ is the first column of
 
-$$[[a, -y], [c, x]], \qquad \det = ax + cy = 1 .$$
+$$\begin{pmatrix} a & -y \\\\ c & x \end{pmatrix}, \qquad
+  \det = ax - (-y)c = ax + cy = 1,$$
 
-So the first-column map is a bijection, and
+whose rows are $`(a, -y)`$ and $`(c, x)`$. So the first-column map is a bijection,
+and
 
 $$\\#\bigl(\mathrm{SL}_2(R) \big/ B(R)\bigr) = \\#\mathbb{P}^1(R)$$
 
@@ -348,7 +359,7 @@ maximal ideal $`(p)`$, and two facts do all the work:
 1. $`z \in \mathbb{Z}/p^k`$ is a unit if and only if its reduction modulo $`p`$ is
    nonzero — a unit maps to a unit, and $`0`$ is not one in the field
    $`\mathbb{Z}/p`$; conversely a non-unit is divisible by $`p`$;
-2. hence a **unimodular row has a unit entry**: if both entries reduced to $`0`$,
+2. hence a **unimodular pair has a unit entry**: if both entries reduced to $`0`$,
    then so would $`1 = xa + yc`$.
 
 It follows that every line has exactly one representative of the form $`[1 : t]`$
@@ -374,9 +385,9 @@ the ring.
 For coprime $`M`$ and $`N`$ the Chinese remainder theorem is a ring equivalence
 $`\mathbb{Z}/MN \cong \mathbb{Z}/M \times \mathbb{Z}/N`$
 ([Data/ZMod/Basic.lean, line 889, v4.34.0](https://github.com/leanprover-community/mathlib4/blob/v4.34.0/Mathlib/Data/ZMod/Basic.lean#L889)),
-and pushing a row through the two projections sends lines to pairs of lines. The
+and pushing a pair through the two projections sends lines to pairs of lines. The
 induced map is bijective — injective by lifting representatives and gluing the two
-units through the ring equivalence, surjective by gluing one row from each factor,
+units through the ring equivalence, surjective by gluing one pair from each factor,
 whose unimodularity is componentwise — so
 
 $$\\#\mathbb{P}^1(\mathbb{Z}/MN) = \\#\mathbb{P}^1(\mathbb{Z}/M) \cdot
@@ -391,7 +402,7 @@ whose four cases here are:
 
 * a prime power $`N = p^n`$: §6.1, with $`\psi(p^n) = p^n + p^{n-1}`$;
 * $`N = 0`$: excluded by the hypothesis $`N \neq 0`$;
-* $`N = 1`$: $`\mathbb{Z}/1`$ is the zero ring, every row is the same line, and
+* $`N = 1`$: $`\mathbb{Z}/1`$ is the zero ring, every pair is the same line, and
   $`\#\mathbb{P}^1 = 1 = \psi(1)`$;
 * a coprime product $`N = ab`$: §6.2 for the left-hand side and multiplicativity
   $`\psi(ab) = \psi(a)\psi(b)`$ for the right.
@@ -421,7 +432,7 @@ imported and not re-proved here.
 
 ## 7. Step 5: the headline, assembled
 
-The four moves compose into one chain of equalities:
+The five moves compose into one chain of four equalities:
 
 ```text
 [SL₂(ℤ) : Γ₀(N)]
@@ -493,7 +504,7 @@ Then:
 * on a prime power, $`h(p^{k-j}, p^j) = \varphi(p^j)`$ for $`1 \le j \le k-1`$ — both
   cases of the minimum collapse, by the definition of $`h`$ — while the two end terms
   contribute $`1`$ and $`p^k`$; summing the telescoping identity
-  $`h(p^i,p^j) + p^{j-1} = p^j`$ gives
+  $`h(p^{k-j},p^j) + p^{j-1} = p^j`$ gives
 
 $$G(p^k) = 1 + p^k + \sum_{j=1}^{k-1} \varphi(p^j)
   = 1 + p^k + (p^{k-1} - 1) = p^k + p^{k-1}.$$
@@ -552,7 +563,7 @@ the declaration names beside the statements:
 * the group-theoretic reading $`\#(\mathbb{Z}/n)^{\times} = \varphi(n)`$
   (`ZMod.card_units_eq_totient`, line 113);
 * the Euler product $`\varphi(n) = n\prod_{p\mid n}(1 - 1/p)`$ over $`\mathbb{Q}`$
-  (`totient_eq_mul_prod_factors`, line 289);
+  (`totient_eq_mul_prod_factors`, line 316);
 * the gcd identity
   $`\varphi(\gcd(a,b))\,\varphi(ab) = \varphi(a)\,\varphi(b)\,\gcd(a,b)`$ with
   super-multiplicativity $`\varphi(a)\varphi(b) \le \varphi(ab)`$ and
@@ -603,13 +614,13 @@ pin sources are pinned to `aa2d8b3`.
 |---|---|---|
 | $`\Gamma_0(N)`$, $`[\mathrm{SL}_2 : \Gamma_0]`$ | mathlib `CongruenceSubgroup.Gamma0`, `Subgroup.index` | — |
 | $`B(R)`$ upper triangular | [`borel`, `mem_borel_iff`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Defs/ProjectiveLine.lean#L97) | [Def_ModularCurve_ProjectiveLine.lean, lines 69, 88](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_ProjectiveLine.lean#L69-L88) |
-| unimodular rows, $`\mathbb{P}^1(R)`$ | [`IsUnimodularRow`, `ProjectiveLine`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Defs/ProjectiveLine.lean#L37) | [same, lines 14–59](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_ProjectiveLine.lean#L14-L59) |
+| unimodular pairs, $`\mathbb{P}^1(R)`$ | [`IsUnimodularRow`, `ProjectiveLine`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Defs/ProjectiveLine.lean#L37) | [same, lines 14–59](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_ProjectiveLine.lean#L14-L59) |
 | step 1: $`\Gamma_0(N) = \pi^{-1}(B)`$ | [`Gamma0_eq_comap_borel`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L261) | [S_ModularCurve_Gamma0_index.lean, lines 216–217](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_Gamma0_index.lean#L216-L217) |
 | step 2: $`\pi`$ is onto | [`sl2_surj`, `exists_sl2_int_lift`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L179) | [same, lines 88–91, 137–138](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_Gamma0_index.lean#L137-L138) |
-| step 2, the coprime second column | [`exists_coprime_lift`, `primeSel`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L90) | [same, lines 24–86](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_Gamma0_index.lean#L24-L86) |
+| step 2, the coprime second row | [`exists_coprime_lift`, `primeSel`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L90) | [same, lines 24–86](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_Gamma0_index.lean#L24-L86) |
 | step 3: cosets are first columns | [`firstColumnClass_eq_iff`, `card_quotient_borel`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L208) | [same, lines 160–214](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_Gamma0_index.lean#L160-L214) |
 | step 3: index $`=`$ cardinality of the quotient | mathlib `Subgroup.index_eq_card` | — |
-| step 4, local: a row has a unit | [`isUnit_zmod_prime_pow_iff`, `isUnit_or_isUnit`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L274) | [S_ModularCurve_card_projectiveLine_zmod.lean, lines 19–62](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_card_projectiveLine_zmod.lean#L19-L62) |
+| step 4, local: a pair has a unit | [`isUnit_zmod_prime_pow_iff`, `isUnit_or_isUnit`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L274) | [S_ModularCurve_card_projectiveLine_zmod.lean, lines 19–62](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_card_projectiveLine_zmod.lean#L19-L62) |
 | step 4, local: $`\#\mathbb{P}^1 = p^k + p^{k-1}`$ | [`card_not_isUnit_zmod_prime_pow`, `card_projectiveLine_prime_pow`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L323) | [same, lines 71–95](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_card_projectiveLine_zmod.lean#L71-L95) |
 | step 4, global: CRT multiplicativity | [`card_projectiveLine_mul`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L422) | [same, lines 156–246](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_card_projectiveLine_zmod.lean#L156-L246) |
 | $`\#\mathbb{P}^1(\mathbb{Z}/N) = \psi(N)`$ | [`card_projectiveLine_zmod`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L498) | [same, line 248](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_card_projectiveLine_zmod.lean#L248) |
