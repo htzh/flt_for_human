@@ -32,6 +32,8 @@ pymath/
   residue_theorem.expected.txt
   hexagonal_theta.py         demo 11 — the hexagonal theta series and chi_{-3}
   hexagonal_theta.expected.txt
+  prim_coset_reps.py         demo 12 — primitive coset reps: Smith/Hermite forms, P^1, fibre count
+  prim_coset_reps.expected.txt
   report.py                  presentation: note / data / check / finish
   ffcurve/                   the shared foundation for all demos
     __init__.py
@@ -47,6 +49,7 @@ pymath/
     level.py                 conductor levels, exact division, descent chains
     residue.py               residues on P^1, logarithmic derivatives, sums
     hexagonal.py             the hexagonal form x^2 + xy + y^2 and Z[zeta_6]
+    lattices.py              2x2 integer matrices: Smith/Hermite forms, P^1(Z/N)
 ```
 
 ## Foundation: what sympy gives us, and what `ffcurve` adds
@@ -67,7 +70,7 @@ sympy does **not** provide:
   over `QQ` only;
 - the Weil pairing (or torsion bases).
 
-So `ffcurve` adds exactly two things and nothing else:
+So for the curve work `ffcurve` adds exactly two things and nothing else:
 
 - `fields.FiniteField` — a uniform, representation-hiding wrapper over sympy for `GF(p)`
   and `GF(p^k) = GF(p)[t]/(f)`, where `f` is found with sympy's `is_irreducible`.
@@ -79,6 +82,13 @@ So `ffcurve` adds exactly two things and nothing else:
 
 There is no hand-rolled polynomial arithmetic and no second field backend: sympy is the
 trusted implementation.
+
+A third, independent module sits beside the curve foundation: `ffcurve/lattices.py` holds
+the 2x2 integer-matrix machinery (Smith and Hermite normal forms, row/column lattices,
+unimodular pairs and the projective line) used by `prim_coset_reps.py`; sympy's
+`smith_normal_decomp` supplies the Smith decomposition, and the Hermite-with-transformation
+and lattice-membership routines are local because sympy's `hermite_normal_form` uses the
+transposed (column) convention. It needs no field or curve code.
 
 Three sympy facts the foundation absorbs:
 
@@ -358,6 +368,38 @@ to a putative Fermat counterexample, symbolically in `X = a^p`, `Y = b^p`:
 
 26 checks, all passing.
 
+## Demo 12: primitive coset representatives for Gamma_0(N)
+
+`prim_coset_reps.py` turns the vocabulary of [base/020 §8](../base/020-the-index-of-gamma0.md)
+into explicit matrices and vectors at a chosen `N` (default `N = 12`, override with
+`python3 prim_coset_reps.py N`), and proves the count `#primCosetReps(N) = psi(N)` a second
+time:
+
+- the projective line `P^1(Z/N)`: unimodular pairs `(a, c)` with `gcd(a, c, N) = 1`,
+  the free scaling action of `(Z/N)^*`, the `psi(N)` lines, and the brute-force identity
+  `#(SL_2(Z/N) / B(Z/N)) = #P^1(Z/N)` (at `N = 12`, `1152 / 48 = 24`);
+- Smith normal form `U M V = diag(d1, d2)`: `d1 = gcd(entries)`, `d1 d2 = N`, and the
+  equivalence *primitive ⟺ `diag(1, N)` ⟺ `Z^2 / (row lattice)` cyclic*; a generator of
+  the cyclic quotient is exhibited as a vector, and `diag(2, 6)` is shown to have none;
+- Hermite normal form `U M = [[a, b], [0, d]]` (`a, d > 0`, `0 <= b < d`) as the canonical
+  representative of the left action, with the warning that its diagonal is not the Smith
+  diagonal (`[[2, 1], [0, 6]]` has Hermite diagonal `(2, 6)` but Smith diagonal `(1, 12)`);
+- the left action preserving the row lattice versus the right action preserving the column
+  lattice, the double coset `SL_2(Z) diag(1, N) SL_2(Z)` recovered from Smith form, and the
+  stabiliser computation printed on explicit `gamma` (with the fractional entry `c/N` of
+  `diag(N,1) gamma diag(N,1)^-1` visible) and verified over a box of `SL_2(Z)`: the
+  conjugate is integral iff `N | gamma[1][0]` iff `gamma` stabilises the row lattice
+  `N Z x Z`, i.e. `gamma` in `Gamma_0(N)`;
+- the fibre count `#{b < d : gcd(gcd(a,d), b) = 1} = (d/g) phi(g)`, its block law
+  `#{b < g m : gcd(g,b) = 1} = m phi(g)`, multiplicativity of `G`, and `G = Psi = mu^2 * id`.
+
+The 24 triples of `primCosetReps(12)` are listed, each verified to be a fixed point of
+Hermite reduction, and the map sending a triple to a generator of its reduced row lattice
+is checked to be a bijection onto `P^1(Z/12)` — the concrete form of "both sides
+parameterise the cyclic subgroups of order `N`".
+
+39 checks, all passing.
+
 ## Roadmap
 
 Concepts worth a demo, roughly in dependency order. Each entry names the math and the
@@ -376,6 +418,7 @@ formalization it should instantiate.
 | `level_lowering` ✅ | level invariants and what Ribet's theorem removes | `FreyPackage.level_lowering_to_two` |
 | `residue_theorem` ✅ | `sum of residues = 0` for a differential on a curve | `AlgebraicCurve.ResidueTheorem`, `WeilOfKaehler` |
 | `hexagonal_theta` ✅ | `r(n) = 6 sigma_chi(n)`, the three splitting laws, and `theta = e1Chi3` | `EisensteinWeightOne.e1Chi3IsModular`, `HexagonalLattice.summable_thetaTerm_and_tsum_neg_inv_three_mul` |
+| `prim_coset_reps` ✅ | Smith/Hermite normal forms, left/right actions, `P^1(Z/N)`, the totient fibre count; `#primCosetReps(N) = psi(N)` | `ModularCurve.primCosetReps`, `card_primCosetReps_eq_dedekindPsi`, `exists_eq_mul_diagonal_mul_of_gcd_eq_one` |
 
 ## Conventions inherited from the repo
 

@@ -710,3 +710,7 @@ pin sources are pinned to `aa2d8b3`.
   [S_ModularCurve_card_projectiveLine_zmod.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_card_projectiveLine_zmod.lean),
   [S_ModularCurve_card_primCosetReps_eq_dedekindPsi.lean](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_card_primCosetReps_eq_dedekindPsi.lean)
   — the three pinned solution files the port transcribes.
+* [pymath/prim_coset_reps.py](../pymath/prim_coset_reps.py) — §8's vocabulary on explicit
+  matrices and vectors at a chosen $`N`$ (default $`12`$): Smith and Hermite normal forms,
+  the left and right actions, $`\mathbb{P}^1(\mathbb{Z}/N)`$, row cyclicity, and the
+  totient fibre count, with its [golden output](../pymath/prim_coset_reps.expected.txt).
