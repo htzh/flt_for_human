@@ -466,10 +466,11 @@ $$\alpha = \begin{pmatrix} a & b \\\\ 0 & d\end{pmatrix}, \qquad ad = N, \qquad
   0 \le b \lt d, \qquad \gcd\bigl(a, \gcd(b,d)\bigr) = 1,$$
 
 and the port records the index set as the triples in §1. Since $`\det\alpha = N`$,
-these matrices are **not** in $`\mathrm{SL}_2(\mathbb{Z})`$, so they are not literally
-coset representatives of $`\Gamma_0(N)`$; the classical name is a shorthand for a
-bijection, and it is worth spelling out which one. Call an integer matrix
-**primitive** when its Smith normal form is $`\mathrm{diag}(1,N)`$ — equivalently,
+for $`N \gt 1`$ these matrices are **not** in $`\mathrm{SL}_2(\mathbb{Z})`$, so they
+are not literally coset representatives of $`\Gamma_0(N)`$; the classical name is a
+shorthand for a bijection, and it is worth spelling out which one. Call an integer
+matrix of determinant $`N`$ **primitive** when its Smith normal form is
+$`\mathrm{diag}(1,N)`$ — equivalently,
 when the quotient of $`\mathbb{Z}^2`$ by its row lattice is cyclic — and put
 
 $$\Delta_N^{\mathrm{prim}} = \bigl\\{M \in \mathrm{M}_2(\mathbb{Z}) : \det M = N
@@ -478,9 +479,10 @@ $$\Delta_N^{\mathrm{prim}} = \bigl\\{M \in \mathrm{M}_2(\mathbb{Z}) : \det M = N
 The displayed list is exactly the set of Hermite normal forms in
 $`\Delta_N^{\mathrm{prim}}`$: for an upper-triangular matrix the first invariant factor
 is $`\gcd(a,b,d) = \gcd(a, \gcd(b,d))`$, so the coprimality condition is precisely
-primitivity, while $`a, d \gt 0`$ and $`0 \le b \lt d`$ is the Hermite normalisation.
-It is therefore a transversal for the **left** $`\mathrm{SL}_2(\mathbb{Z})`$-action on
-$`\Delta_N^{\mathrm{prim}}`$, and $`\Delta_N^{\mathrm{prim}}`$ is the double coset
+primitivity, while $`a, d \gt 0`$ and $`0 \le b \lt d`$ are the Hermite normalisation.
+The set is therefore a transversal for the **left**
+$`\mathrm{SL}_2(\mathbb{Z})`$-action on $`\Delta_N^{\mathrm{prim}}`$, and
+$`\Delta_N^{\mathrm{prim}}`$ is the double coset
 $`\mathrm{SL}_2(\mathbb{Z})\,\mathrm{diag}(1,N)\,\mathrm{SL}_2(\mathbb{Z})`$ by Smith
 normal form — the port's
 `Matrix.SpecialLinearGroup.exists_eq_mul_diagonal_mul_of_gcd_eq_one` exhibits the two
@@ -499,12 +501,15 @@ $`c/N`$, integral exactly when $`N \mid c`$. The quotient is thus the coset spac
 $$\mathrm{SL}_2(\mathbb{Z}) \backslash \Delta_N^{\mathrm{prim}}
   \\;\cong\\; \Gamma_0(N) \backslash \mathrm{SL}_2(\mathbb{Z}),$$
 
-and the classical literature reads the displayed matrices as representatives of the
+right cosets, because the action is on the right; inversion $`A \mapsto A^{-1}`$
+identifies them with the left cosets of §4, so the index is the same number either
+way. The classical literature reads the displayed matrices as representatives of the
 $`\Gamma_0(N)`$-cosets **through this isomorphism**, not through their own membership
-in a coset. Concretely, a triple $`(a,b,d)`$ corresponds to a generator of its cyclic
-cokernel, i.e. to a primitive vector $`(u,v)`$ in $`(\mathbb{Z}/N)^2`$ up to units — a
-point of the projective line of §5 — so both sides parameterise the same level data,
-the cyclic subgroups of order $`N`$.
+in a coset. Concretely, a triple $`(a,b,d)`$ cuts out a cyclic subgroup of order
+$`N`$ in $`(\mathbb{Z}/N)^2`$ — its row lattice reduced modulo $`N`$ — and a
+generator of that subgroup is a unimodular pair $`(u,v)`$, well-defined up to a
+unit: a point of the projective line of §5. So both sides parameterise the same
+level data, the cyclic subgroups of order $`N`$.
 
 The counting argument of §8.2–8.3 shares nothing with §§3–7: it never mentions
 $`\mathrm{SL}_2`$, the Borel subgroup, lifting, or this isomorphism. It counts the
