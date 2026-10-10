@@ -75,7 +75,7 @@ $`\mathbb{H}^* = \mathbb{H} \cup \mathbb{P}^1(\mathbb{Q})`$ be the upper
 half-plane with the cusps. Then
 
 $$Y(\Gamma) \\;=\\; \Gamma \backslash \mathbb{H}, \qquad
-  X(\Gamma) \\;=\\; \Gamma \backslash \mathbb{H}^*$$
+  X(\Gamma) \\;=\\; \Gamma \backslash \mathbb{H}^{\ast}$$
 
 are Riemann surfaces, $`X(\Gamma)`$ is compact, and $`M(X(\Gamma))`$ is the field
 of modular functions for $`\Gamma`$ — the $`\Gamma`$-invariant meromorphic

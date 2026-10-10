@@ -118,6 +118,26 @@ against both engines locally; single observations are flagged as such.
 - `tools/check_math_delimiters.py`'s docstring says "GitHub renders math
   client-side (KaTeX)". That sentence is wrong for GitHub (it describes the
   GUI); the checker itself is about delimiters and is unaffected.
+- **The star guard had a dead branch** (found and fixed 2026-10-09). `STAR_TOUCH`
+  in `tools/check_math_escaping.py` was written to catch both sides of the rule
+  above, but its closing-delimiter alternative tested `(?!\*)` — the next character
+  is *not* a star — and then required `\*`, a star, at the same position: a
+  contradiction, so that half of the guard could never fire, and only the opening
+  side was ever caught. That is why the regression guard added after the `base/001`
+  fix did not keep the class fixed. A repo-wide scan found **8 live instances** of
+  the closing form — `base/014`, `base/018`, `math/011` (two), `math/024` (three)
+  and `studies/r-equals-t-in-the-proof-base` — every one of them the shape the rule
+  predicts. They were repaired by moving the emphasis so that it no longer touches
+  a delimiter — in `base/014` the italic phrase now ends before the math span, in
+  `math/011` it covers only the word — except at one contrastive site, where the
+  pair was made bold — bold is safe on the closing side, as the table above says.
+  The alternative now tests for a star directly after the closing delimiter, and the
+  guard is verified by mutation: a scratch file containing the bad closing form is
+  reported, the same span written bold is not, and a fenced copy is skipped.
+
+  ```text
+  bad:  $`x`$*        good: $`x`$**        also good: $`x`$ *spaced*
+  ```
 
 ## Part 2 — How to debug a rendering problem
 

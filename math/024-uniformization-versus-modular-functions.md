@@ -48,7 +48,7 @@ prove different kinds of statement.
 ### 2.1 The level-one input is analytic, and small
 
 Theory J is the classical exercise of Diamond–Shurman:
-*generate the function field of $`X_0(N)`$ from $`j(q)`$ and $`j(q^N)`$*. The one
+generate the function field of $`X_0(N)`$ from $`j(q)`$ and $`j(q^N)`$. The one
 analytic input is the description of the base $`X(1)`$: it has genus zero and
 $`j`$ is a Hauptmodul. In mathlib that is exactly
 
@@ -81,7 +81,7 @@ nome), and a strong induction on the divisors of $`N`$. The capstone
 theorem ModularCurve.functionFieldGeneration (N : ℕ) [NeZero N] : FunctionFieldGeneration N
 ```
 
-is a statement about *fields of Laurent series over $`\mathbb{Q}`$*. Its corollaries
+is a statement about *fields of Laurent series over* $`\mathbb{Q}`$. Its corollaries
 give the degrees of the tower $`X_0(Mp^a) \to X(1)`$, with $`\psi`$ the Dedekind psi
 function: `modularFunctionField_eq_full`, `finrank_adjoin_jqN_eq_dedekindPsi`,
 `relfinrank_full_eq_dedekindPsi`.
@@ -226,7 +226,7 @@ things about it:
 Over $`\mathbb{C}`$ the two overlap at "X(1) is the $`j`$-line", and there uniformization
 is cheaper: a bijection $`\mathbb{H}/\Gamma(1) \cong \mathbb{C}`$ gives the function
 field in one step. But that is not the statement the FLT proof uses. Theory J's
-consumers need generation *over $`\mathbb{Q}`$* of the $`X_0(N)`$ tower; theory P's
+consumers need generation *over* $`\mathbb{Q}`$ of the $`X_0(N)`$ tower; theory P's
 consumers need the torus. Each is silent exactly where the other is used.
 
 ### 4.2 Where the pin refuses to choose

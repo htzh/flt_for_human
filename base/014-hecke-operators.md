@@ -16,7 +16,7 @@ the route is headed, where the same operators act on `J₀(N)` as correspondence
 
 The one-sentence answer: **a Hecke operator is an average of slash actions over
 the `ℓ+1` representatives of a double coset**
-$`\Gamma_0(N)\begin{pmatrix}\ell&0\\0&1\end{pmatrix}\Gamma_0(N)`$; the two
+$`\Gamma_0(N)[[\ell,0],[0,1]]\Gamma_0(N)`$; the two
 matrices are the diagonal representative and the `ℓ` unipotent representatives;
 and in the PhiGen segment they are used not to define eigenforms but to make a
 *symmetric function* of `ℓ+1` translates invariant under all of
@@ -32,7 +32,7 @@ is quoted.
 ## 1. The double coset, and the two substitutions
 
 **The slash action.** Fix a weight $`k \in \mathbb{Z}`$. For
-$`g = \begin{pmatrix}a&b\\c&d\end{pmatrix} \in \mathrm{GL}_2^+(\mathbb{Q})`$
+$`g = [[a,b],[c,d]] \in \mathrm{GL}_2^+(\mathbb{Q})`$
 (positive determinant, rational entries) and a function
 $`f : \mathbb{H} \to \mathbb{C}`$, the weight-`k` slash action is
 
@@ -282,7 +282,7 @@ $$\prod_{i=0}^{\ell}\bigl(X - \mathrm{conj}_i\bigr),
 
 shows its coefficients descend to $`\mathbb{Q}((q))`$ (the twist plus Galois
 invariance), are integral, and satisfy a pole bound, and then proves each
-descended coefficient $`c_k`$ is a *polynomial in $`j`$* before assembling
+descended coefficient $`c_k`$ is a polynomial in $`j`$ before assembling
 the datum. The $`q`$-expansion of the slots is the code's `PhiGen.conj`:
 `conj 0 = qExpand K (ℓ*ℓ) (coeffEmb K jq)` and
 `conj (b+1) = qTwist (ζ^b) (coeffEmb K jq)`.
@@ -506,9 +506,9 @@ which is where the operator of this note and the correspondence meet.
 |---|---|---|
 | slash action, $`f \mid_k g`$ | `SlashAction.map`, `ModularForm.slash_apply` | [mathlib v4.33.0, line 143](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/NumberTheory/ModularForms/SlashActions.lean#L143) |
 | the diagonal Hecke matrix $`\mathrm{diag}(p,1)`$ | `heckeDiagMatrix` | [port line 57](../lean/FLTForHuman/ModularForms/Defs/HeckeOperator.lean) |
-| the unipotent Hecke matrices $`\begin{pmatrix}1&j\\0&p\end{pmatrix}`$ | `heckeMatrix` | [port line 53](../lean/FLTForHuman/ModularForms/Defs/HeckeOperator.lean) |
+| the unipotent Hecke matrices $`[[1,j],[0,p]]`$ | `heckeMatrix` | [port line 53](../lean/FLTForHuman/ModularForms/Defs/HeckeOperator.lean) |
 | $`\mathrm{diag}(p,1) \cdot \tau = p\tau`$ | `coe_heckeDiagMatrix_smul` | [port line 107](../lean/FLTForHuman/ModularForms/Defs/HeckeOperator.lean) |
-| $`\begin{pmatrix}1&j\\0&p\end{pmatrix} \cdot \tau = (\tau+j)/p`$ | `coe_heckeMatrix_smul` | [port line 101](../lean/FLTForHuman/ModularForms/Defs/HeckeOperator.lean) |
+| $`[[1,j],[0,p]] \cdot \tau = (\tau+j)/p`$ | `coe_heckeMatrix_smul` | [port line 101](../lean/FLTForHuman/ModularForms/Defs/HeckeOperator.lean) |
 | the average defining $`U_p`$ | `heckeU` | [FLT line 93](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularForm_HeckeOperator.lean#L93) |
 | $`T_p = U_p + [\mathrm{diag}(p,1)]`$ | `heckeT` | [FLT line 96](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularForm_HeckeOperator.lean#L96) |
 | $`U_p`$ on coefficients: $`a_{mp}`$ | `coeffHeckeU` | [FLT line 165](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularForm_HeckeOperator.lean#L165) |

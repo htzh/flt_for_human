@@ -29,8 +29,8 @@ capstone).
 
 The estimate is `frontier.py`'s: for a target $`t`$,
 
-$$\mathrm{needed}(t) \;=\; \bigl\{\, v \text{ reachable from } t
-  \text{ avoiding } R \,\bigr\} \setminus F,$$
+$$\mathrm{needed}(t) \\;=\\; \bigl\\{\\, v \text{ reachable from } t
+  \text{ avoiding } R \\,\bigr\\} \setminus F,$$
 
 with $`F`$ the ported frontier (the checker's `SOURCES` wrappers plus the
 declarations found in `lean/FLTForHuman/`) and no removal set $`R`$. "Lines" is

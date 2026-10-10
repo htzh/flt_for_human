@@ -152,9 +152,9 @@ $$T_\ell^{\mathrm{coc}}(z)(g) = \sum_q \rho_n((g\cdot q).\mathrm{out})
 the pin's `coeffHeckeFun`. It preserves cocycles and coboundaries, hence exists on
 $`H^1`$ and on $`H^1_{par}`$, and
 
-$$T_\ell^{\mathrm{coc}}(ES\,f) = ES(T_\ell f) \quad (\text{good } \ell),
+$$T_\ell^{\mathrm{coc}}(ES\\,f) = ES(T_\ell f) \quad (\text{good } \ell),
 \qquad
-T_\ell^{\mathrm{coc}}(ES\,f) = ES(U_\ell f) \quad (\text{bad } \ell).$$
+T_\ell^{\mathrm{coc}}(ES\\,f) = ES(U_\ell f) \quad (\text{bad } \ell).$$
 
 This is the telescoping/coset identity of route B §4: in each coset term the two
 $`F`$-values are pushed to a common representative, the leftover differences are

@@ -579,8 +579,8 @@ theorem d_mul {γ₁ γ₂ : SL(2, ℤ)} (h₁ : γ₁ ∈ CongruenceSubgroup.Ga
 ```
 
 ([Def_CuspForm_Gamma1HeckeOperators.lean, lines 225–229](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_CuspForm_Gamma1HeckeOperators.lean#L225-L229)); this is the
-statement that the *mod-$`N`$* multiplication of the lower-right entries is the
-shadow of the *integer* multiplication of the matrices. Its companion is the
+statement that the **mod-$`N`$** multiplication of the lower-right entries is the
+shadow of the **integer** multiplication of the matrices. Its companion is the
 determinant congruence
 
 ```lean

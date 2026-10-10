@@ -186,7 +186,7 @@ theorem solution … (D : GaloisRep.DeformationRingData 𝒪 ρbar 𝒟)
   exact ⟨φ, H.surjective_of_isEquiv_baseChangeAlong hS D.ρ φ hφ he, hφ, he⟩
 ```
 
-So the map exists by *applying $`R`$'s universal property to $`T`$* (`D.universal`,
+So the map exists by *applying $`R`$'s universal property to* $`T`$ (`D.universal`,
 with the uniqueness clause discarded), and surjectivity is a separate input from
 the Hecke side: the premise `CuspForm.HeckeGaloisRepDatum.surjective_of_isEquiv_baseChangeAlong`
 ("Frobenius traces generate T: surjectivity of φ : R → T", closure 6). Its content

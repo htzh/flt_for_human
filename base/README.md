@@ -13,9 +13,10 @@ series are deliberately separate:
 
 Both series follow the writing and citation rules in [`../AGENTS.md`](../AGENTS.md)
 and the research loop in [`../notes/research-workflow-math-notes.md`](../notes/research-workflow-math-notes.md):
-pin every FLT citation to the sha `aa2d8b3`, cite mathlib at tag `v4.33.0`,
-quote Lean verbatim, and never cite an untracked local file. Line-number
-citations are rendered GitHub links carrying `#L` anchors.
+pin every FLT citation to the sha `aa2d8b3`, cite mathlib at tag `v4.33.0` — or at
+the port's `v4.34.0` where the note quotes the copies the checked code was
+elaborated against, saying which — quote Lean verbatim, and never cite an untracked
+local file. Line-number citations are rendered GitHub links carrying `#L` anchors.
 
 **Reading order and assumed background.** Note 001 is the primer on field and
 Galois theory: it fixes how the project writes field extensions (`Algebra`, the
@@ -231,3 +232,17 @@ notation, spending their space on the subject at hand.
   models and the $`\mathrm{H}^1`$ bridge; and one summary section (§8) mapping
   the fourteen declarations to the mathematics, with the Lean encoding and the
   mathlib inventory.
+- [020 — The index of $`\Gamma_0(N)`$, and the two functions that count it](020-the-index-of-gamma0.md):
+  the proof of the port's first headline $`[\mathrm{SL}_2(\mathbb{Z}) :
+  \Gamma_0(N)] = \psi(N)`$, step by step — identifying mathlib's $`\Gamma_0`$ with
+  the preimage of the Borel subgroup; the surjectivity of reduction, with the
+  coprime second column (`primeSel`) and the Bezout row adjustment that lift a
+  mod-$`N`$ matrix to an integral one; the coset bijection with
+  $`\mathbb{P}^1`$ over an arbitrary commutative ring (mathlib has it only over a
+  division ring); the local $`p^k`$ count of lines as units plus non-units and the
+  Chinese-remainder induction; the assembled index chain; and the second,
+  independent count $`\#\mathrm{primCosetReps}(N) = \psi(N)`$ through the fibre
+  value $`(d/\gcd(a,d))\,\varphi(\gcd(a,d))`$ and the multiplicative
+  $`G = \Psi = \mu^2 * \mathrm{id}`$; with a mathlib inventory contrasting Euler's
+  $`\varphi`$ (a finished totient API) with the port's Dedekind $`\psi`$ (which
+  mathlib does not have), the deferred pin lemmas, and the key-point table.

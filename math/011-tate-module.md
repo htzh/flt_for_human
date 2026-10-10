@@ -156,7 +156,7 @@ counts.
 A one-dimensional $`\mathbb{F}_p`$-subspace of $`E[p]`$ stable under $`G_K`$ is
 the same thing as the kernel of a $`K`$-rational $`p`$-isogeny $`E \to E'`$:
 the quotient $`E/\ker\phi`$ is again an elliptic curve over $`K`$ exactly when
-the kernel is Galois-stable. So *reducibility of $`\bar\rho_{E,p}`$* and *the
+the kernel is Galois-stable. So *reducibility of* $`\bar\rho_{E,p}`$ and *the
 existence of a rational $`p`$-isogeny* are the same statement — the equivalence
 [note 004](004-irreducible-and-cofixed-line.md) turns into the "cofixed line"
 form used in the proof. In the FLT development the stable subspace is
@@ -236,7 +236,7 @@ suitable $`\mathbb{Z}_p`$-lattice modulo the maximal ideal gives the residual
 representation $`\bar\rho_f`$ with characteristic polynomial
 $`X^2 - a_\ell X + \ell \bmod \mathfrak{p}`$.
 
-*Modularity of $`E`$* is the statement that some $`\rho_f`$ has the same
+*Modularity* of $`E`$ is the statement that some $`\rho_f`$ has the same
 Frobenius traces as $`\rho_{E,p}`$ — equivalently, that the two representations
 are isomorphic after semisimplification. That is exactly the shape in which FLT
 states it, and why the proof can move between curves and forms at the level of
