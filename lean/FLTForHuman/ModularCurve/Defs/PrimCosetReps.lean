@@ -1,11 +1,16 @@
 /-
-  The primitive coset representatives of `Γ₀(N)\SL₂(ℤ)`.
+  The primitive representatives of the cyclic `N`-isogenies attached to `Γ₀(N)`.
 
   `primCosetReps N` is the finite set of triples `(a, b, d)` with `a * d = N`,
   `b < d` and `gcd a (gcd b d) = 1`: the upper-triangular matrices
-  `[[a, b], [0, d]]` of determinant `N`. It is the index set for the `q`-expansion
-  of the level-`N` modular polynomial, and `card_primCosetReps_eq_dedekindPsi`
-  (`Gamma0Index.lean`) counts it by `ψ(N)`.
+  `[[a, b], [0, d]]` of determinant `N` — the Hermite normal forms of the primitive
+  determinant-`N` matrices. They are not elements of `SL₂(ℤ)`, since `det = N`; they
+  are the classical "coset representatives" of `Γ₀(N)` only through the bijection
+  `SL₂(ℤ)\Δ_N^prim ≅ Γ₀(N)\SL₂(ℤ)` (the class of `diag(N,1)` has stabiliser
+  `Γ₀(N)`), which is why their number equals the index while the entries parameterise
+  the cyclic order-`N` subgroups. `primCosetReps N` is the index set for the
+  `q`-expansion of the level-`N` modular polynomial, and
+  `card_primCosetReps_eq_dedekindPsi` (`Gamma0Index.lean`) counts it by `ψ(N)`.
 
   This is SET-3 (l3) of `topics/PORTING-Level.md`. `cosetSubst` (the substitution
   `q ↦ ζ ^ (a * b) q ^ (a * a)`) is already ported in `Defs/PhiGen.lean`, so it is
@@ -26,8 +31,11 @@ set_option autoImplicit false
 
 namespace ModularCurve
 
-/-- The primitive coset representatives of `Γ₀(N)\SL₂(ℤ)`: the triples
-`(a, b, d)` with `a * d = N`, `b < d` and `gcd a (gcd b d) = 1`. -/
+/-- The primitive representatives of the cyclic `N`-isogenies attached to
+`Γ₀(N)`: the triples `(a, b, d)` with `a * d = N`, `b < d` and
+`gcd a (gcd b d) = 1`. The matrix `[[a, b], [0, d]]` has determinant `N`, so it is
+not itself an element of `SL₂(ℤ)`; see the module docstring for the sense in which
+these represent `Γ₀(N)`-cosets. -/
 def primCosetReps (N : ℕ) : Finset (ℕ × ℕ × ℕ) :=
   Finset.filter
     (fun t => t.1 * t.2.2 = N ∧ t.2.1 < t.2.2 ∧ Nat.gcd t.1 (Nat.gcd t.2.1 t.2.2) = 1)

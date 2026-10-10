@@ -96,7 +96,10 @@ where
 
 $$\mathrm{primCosetReps}(N) = \\{(a,b,d) : ad = N,\ 0 \le b \lt d,\ \gcd(a, \gcd(b,d)) = 1\\}$$
 
-is the set of upper-triangular coset representatives of §8.1. The side condition
+is the set of upper-triangular determinant-$`N`$ representatives of §8.1 (matrices
+of determinant $`N`$, hence not in $`\mathrm{SL}_2(\mathbb{Z})`$; §8.1 makes precise
+the sense in which they are the classical coset representatives of
+$`\Gamma_0(N)`$). The side condition
 $`N \neq 0`$ is not decoration: the prime-power count of §6.1 needs a genuine
 $`k \neq 0`$, the Chinese-remainder step needs nonzero factors, and the induction of
 §6.3 splits off $`N = 0`$ explicitly. The pin states the same two theorems with the
@@ -457,16 +460,56 @@ and the port's `card_quotient_borel` and `card_projectiveLine_zmod` from §5–�
 ### 8.1 The set, and why its cardinality is the same number
 
 The index set the $`q`$-expansion layer actually enumerates is not the projective
-line but a set of upper-triangular matrices. Coset representatives of
-$`\Gamma_0(N)`$ can be taken of the form
+line but a set of upper-triangular matrices of determinant $`N`$:
 
-$$\begin{pmatrix} a & b \\\\ 0 & d\end{pmatrix}, \qquad ad = N, \qquad
+$$\alpha = \begin{pmatrix} a & b \\\\ 0 & d\end{pmatrix}, \qquad ad = N, \qquad
   0 \le b \lt d, \qquad \gcd\bigl(a, \gcd(b,d)\bigr) = 1,$$
 
-and the port records the index set as the triples in §1. Its cardinality is the
-subject of this section, and the argument shares nothing with §§3–7: it never
-mentions $`\mathrm{SL}_2`$, the Borel subgroup, or lifting. That is exactly why it is
-worth having — two proofs of one number.
+and the port records the index set as the triples in §1. Since $`\det\alpha = N`$,
+these matrices are **not** in $`\mathrm{SL}_2(\mathbb{Z})`$, so they are not literally
+coset representatives of $`\Gamma_0(N)`$; the classical name is a shorthand for a
+bijection, and it is worth spelling out which one. Call an integer matrix
+**primitive** when its Smith normal form is $`\mathrm{diag}(1,N)`$ — equivalently,
+when the quotient of $`\mathbb{Z}^2`$ by its row lattice is cyclic — and put
+
+$$\Delta_N^{\mathrm{prim}} = \bigl\\{M \in \mathrm{M}_2(\mathbb{Z}) : \det M = N
+  \text{ and } M \text{ primitive}\bigr\\}.$$
+
+The displayed list is exactly the set of Hermite normal forms in
+$`\Delta_N^{\mathrm{prim}}`$: for an upper-triangular matrix the first invariant factor
+is $`\gcd(a,b,d) = \gcd(a, \gcd(b,d))`$, so the coprimality condition is precisely
+primitivity, while $`a, d \gt 0`$ and $`0 \le b \lt d`$ is the Hermite normalisation.
+It is therefore a transversal for the **left** $`\mathrm{SL}_2(\mathbb{Z})`$-action on
+$`\Delta_N^{\mathrm{prim}}`$, and $`\Delta_N^{\mathrm{prim}}`$ is the double coset
+$`\mathrm{SL}_2(\mathbb{Z})\,\mathrm{diag}(1,N)\,\mathrm{SL}_2(\mathbb{Z})`$ by Smith
+normal form — the port's
+`Matrix.SpecialLinearGroup.exists_eq_mul_diagonal_mul_of_gcd_eq_one` exhibits the two
+outer factors explicitly. The quotient
+$`\mathrm{SL}_2(\mathbb{Z}) \backslash \Delta_N^{\mathrm{prim}}`$ carries a right
+$`\mathrm{SL}_2(\mathbb{Z})`$-action, and the class of $`\mathrm{diag}(N,1)`$ has
+stabiliser
+
+$$\bigl\\{\gamma \in \mathrm{SL}_2(\mathbb{Z}) :
+  \mathrm{diag}(N,1)\\,\gamma\\,\mathrm{diag}(N,1)^{-1} \in \mathrm{SL}_2(\mathbb{Z})\bigr\\}
+  = \Gamma_0(N),$$
+
+because $`\mathrm{diag}(N,1)\,\gamma\,\mathrm{diag}(N,1)^{-1}`$ has lower-left entry
+$`c/N`$, integral exactly when $`N \mid c`$. The quotient is thus the coset space,
+
+$$\mathrm{SL}_2(\mathbb{Z}) \backslash \Delta_N^{\mathrm{prim}}
+  \\;\cong\\; \Gamma_0(N) \backslash \mathrm{SL}_2(\mathbb{Z}),$$
+
+and the classical literature reads the displayed matrices as representatives of the
+$`\Gamma_0(N)`$-cosets **through this isomorphism**, not through their own membership
+in a coset. Concretely, a triple $`(a,b,d)`$ corresponds to a generator of its cyclic
+cokernel, i.e. to a primitive vector $`(u,v)`$ in $`(\mathbb{Z}/N)^2`$ up to units — a
+point of the projective line of §5 — so both sides parameterise the same level data,
+the cyclic subgroups of order $`N`$.
+
+The counting argument of §8.2–8.3 shares nothing with §§3–7: it never mentions
+$`\mathrm{SL}_2`$, the Borel subgroup, lifting, or this isomorphism. It counts the
+triples directly, and that is exactly why it is worth having — two proofs of one
+number.
 
 ### 8.2 The fibre count is a totient count
 
@@ -546,6 +589,12 @@ the prime-power value is `h_prime_pow` and `G_prime_pow`
 and the conclusion is `G_eq_Psi` with `Psi_apply`
 ([L713](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/ModularCurve/Gamma0Index.lean#L713),
 [L130](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/NumberTheory/DedekindPsi.lean#L130)).
+The double-coset statement behind §8.1 — that
+$`\Delta_N^{\mathrm{prim}}`$ is the $`\mathrm{SL}_2(\mathbb{Z})`$-double coset of
+$`\mathrm{diag}(1,N)`$ — is
+[`Matrix.SpecialLinearGroup.exists_eq_mul_diagonal_mul_of_gcd_eq_one`](https://github.com/htzh/flt_for_human/blob/250e7c0/lean/FLTForHuman/Algebra/SpecialLinearGroupSmith.lean#L105),
+whose proof builds the two outer $`\mathrm{SL}_2(\mathbb{Z})`$ factors. The §8.1
+bijection itself is not formalized in the port; only the count is.
 
 ## 9. What mathlib supplies, and what has no counterpart there
 
