@@ -256,7 +256,7 @@ For a number field $`L`$ the pin fixes the following objects.
 The decomposition
 
 $$\\mathrm{primeSum}(s) = \\mathrm{degOneSum}(S_0, s) + \\mathrm{cutSum}(S_0, s)
-+ \\mathrm{tailSum}(s)$$
+ \quad + \\mathrm{tailSum}(s)$$
 
 (`FrobeniusDensity.primeSum_eq_degOneSum_add`) is the division of the prime sum
 into the part whose behaviour is *governed by Frobenius* (degree one) and the part

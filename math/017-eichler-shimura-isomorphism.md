@@ -234,7 +234,7 @@ $$\dim H^1_{par}(W) + \dim\ker(W(S)-1) + \dim\ker(W(ST)-1) + \dim\ker(W(T)-1) \l
   $`\dim H^1_{par} \le 2\dim S_k(\Gamma_0)`$, with
 
 $$\dim S_k(\Gamma_0(N)) = (k-1)(g-1) + \left\lfloor\frac{k}{4}\right\rfloor \nu_2
-+ \left\lfloor\frac{k}{3}\right\rfloor \nu_3 + \left(\frac{k}{2}-1\right)c,$$
+ \quad + \left\lfloor\frac{k}{3}\right\rfloor \nu_3 + \left(\frac{k}{2}-1\right)c,$$
 
   where $`g`$ is the genus, $`\nu_2, \nu_3`$ the numbers of elliptic points of
   order $`2, 3`$ and $`c`$ the number of cusps.

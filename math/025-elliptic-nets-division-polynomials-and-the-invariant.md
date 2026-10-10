@@ -94,8 +94,8 @@ $`W : \mathbb{Z} \to R`$ an **elliptic net** if for all $`p,q,r,s`$ the
 *elliptic relator*
 
 $$ER(p,q,r,s) = W(p{+}q{+}s)\\,W(p{-}q)\\,W(r{+}s)\\,W(r)
- - W(p{+}r{+}s)\\,W(p{-}r)\\,W(q{+}s)\\,W(q)
- + W(q{+}r{+}s)\\,W(q{-}r)\\,W(p{+}s)\\,W(p)$$
+ \quad - W(p{+}r{+}s)\\,W(p{-}r)\\,W(q{+}s)\\,W(q)
+ \quad + W(q{+}r{+}s)\\,W(q{-}r)\\,W(p{+}s)\\,W(p)$$
 
 vanishes. Equivalently, with the **elliptic atoms**
 
