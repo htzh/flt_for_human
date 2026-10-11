@@ -92,6 +92,36 @@ reaches `JOne.torsionGaloisRep` reads as one node closer while the declaration i
 absent — the usual file-granular shadowing. Treat those citers as blocked on this
 entry.
 
+### `Def_EllipticCurve_FunctionFieldPullback` — the surface behind `placeOf`/`transEquiv`
+
+`FLTForHuman/WeierstrassCurve/Place/PointPlace.lean` is a **partial** port of the
+pinned `Definitions/Def_EllipticCurve_FunctionFieldPullback.lean` (1,218 lines):
+it carries only the declarations the `weilPairing0` entry point consumes —
+`Point.xc`/`yc` (with `xc_some`/`yc_some`, `nonsingular_xc_yc`, `eq_some_xc_yc`),
+`placeOf`/`placeOf_asIdeal`, and `transEquiv`. `placeOf` is re-derived over the
+port's `CoordinateRing.heightOneSpectrumOfEquation`, and `transEquiv` over
+`WeierstrassCurve.Affine.translationAlgEquivOf` (`Velu/Engine.lean`); the pin's
+`transPull`/`pointPull`/`pointHom` route is not transcribed.
+
+Deferred (same node, no consumer in the Weil-pairing entry points): `genericX`/
+`genericY`, `evalEval_baseChange_polynomial`, `genericPoint`, `pointHom` and its
+lemmas, `pointPull`, `FunctionField.algHom_ext`,
+`exists_eq_baseChange_of_isIntegral_xc`, `not_isIntegral_xc_of_ne_baseChange`,
+`genericPoint_*`, `transPull` (with `map_*`/`transPull_*`), the `transEquiv_*`
+lemmas beyond the definition, `negPull`/`negEquiv`/`MulGood`/`mulPull`, and
+`exists_point_xc_eq`/`infinite_point` — the whole algebraic content of the
+pullback/translation/multiplication dictionary.
+
+**Trigger / consumers**: the rest of `Def_EllipticCurve_FunctionFieldPullback.lean`
+is reached by the Frey/Galois-representation and `Elliptic/PeriodPair` cones; port
+it whole before those are priced through `PointPlace.lean`.
+
+**Frontier caveat**: `Definitions/Def_EllipticCurve_FunctionFieldPullback.lean` is
+now in the checker's `SOURCES` and `Place/PointPlace.lean` in `PORT_FILES`, so the
+node reads as partially ported. A citer that reaches `transPull`, `pointHom`,
+`genericPoint` or `negPull` still reads one node closer than it is — the usual
+file-granular shadowing.
+
 ## Open follow-ups
 
 - **`AlgebraicCurve.essFiniteType_of_transcendental_of_finiteDimensional`**

@@ -2726,6 +2726,19 @@ SOURCES = [
     "P2M/Sol/S_ModularCurve_LevelN_exists_place_ord_sub_pos_forall_smul_eq.lean",
     "P2M/Sol/S_ModularCurve_LevelN_exists_place_analyticOrderAt_eq_mul_ord.lean",
     "P2M/Sol/S_ModularCurve_LevelN_valuation_apply_smul_le_one_of_tendsto_div_smul.lean",
+    # --- The Weil-pairing entry points. `Def_EllipticCurve_FunctionFieldPullback`
+    # is the *partial* node boundary for `Place/PointPlace.lean`: only the pin's
+    # `Point.xc`/`yc`, `placeOf` and `transEquiv` are carried there (the rest of
+    # the 1,218-line node is deferred; see CARRY-FORWARD.md). Appended last so no
+    # earlier last-name match can flip.
+    "Definitions/Def_EllipticCurve_FunctionFieldPullback.lean",
+    "Definitions/Def_EllipticCurve_WeilPairingFun.lean",
+    "Definitions/Def_GaloisRep_WeilPairing.lean",
+    # The `[n]`-fibre finiteness: the wrapper first (its `fibSet_finite` is the
+    # interface), then the `S_` file for the promoted `torsion_finite` /
+    # `card_torsion_toFinset` and the local `fibSet_finite'`.
+    "Theorems/Thm_WeierstrassCurve_Affine_fibSet_finite.lean",
+    "P2M/Sol/S_WeierstrassCurve_Affine_fibSet_finite.lean",
 ]
 
 PORT_FILES = [
@@ -4005,6 +4018,15 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/LevelN/Prelude.lean",
     "FLTForHuman/ModularCurve/LevelN/FieldGalois.lean",
     "FLTForHuman/ModularCurve/LevelN/Places.lean",
+    # The Weil-pairing entry points: the needed `Def_EllipticCurve_FunctionFieldPullback`
+    # slice (`PointPlace`), the `weilPairing0` construction, and the six-law
+    # `IsWeilPairing` interface.
+    "FLTForHuman/WeierstrassCurve/Place/PointPlace.lean",
+    "FLTForHuman/WeierstrassCurve/WeilPairingFun.lean",
+    "FLTForHuman/WeierstrassCurve/WeilPairing.lean",
+    # The next node on the shelf: the `[n]`-fibre finiteness (and the shared
+    # `torsion_finite`/`card_torsion_toFinset` promotion).
+    "FLTForHuman/WeierstrassCurve/FibSetFinite.lean",
 ]
 
 
