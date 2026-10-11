@@ -2,6 +2,14 @@
 
 We will be developing math notes and tools to comprehend the Lean proof of FLT.
 
+## Porting
+
+We are porting parts of FLT using the [playbook](lean/porting-playbook.md).
+
+## Dependendcy tools
+
+`tools/deps/` is untracked and contains tools for studying the dependency graphs.
+
 ## git
 
 This project is separately tracked on its own with a public repository.
