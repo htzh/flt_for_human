@@ -249,3 +249,16 @@ notation, spending their space on the subject at hand.
   $`G = \Psi = \mu^2 * \mathrm{id}`$; with a mathlib inventory contrasting Euler's
   $`\varphi`$ (a finished totient API) with the port's Dedekind $`\psi`$ (which
   mathlib does not have), the deferred pin lemmas, and the key-point table.
+- [021 — Uniformization: the isomorphism $`\mathbb{C}/\Lambda \cong E(\mathbb{C})`$](021-uniformization-c-over-lambda.md):
+  the proof, purely complex-analytic, that the ℘-map
+  $`z \mapsto (\wp(z), \wp'(z)/2)`$ is a surjective group homomorphism with kernel the
+  lattice — the Weierstrass differential equation and Liouville for elliptic functions
+  (the extension principle for meromorphic $`\Lambda`$-periodic functions); surjectivity of
+  $`\wp`$ and of the point map; the two addition laws as the vanishing of the elliptic
+  functions $`\Phi_w`$ and $`\Psi_w`$, proved by removable-singularity computations at
+  $`0`$ and $`-w`$ plus Liouville; the countable-exception perturbation that removes the
+  degenerate cases and gives additivity for all $`z, w`$; the pin's `IsUniformization` and
+  the port's `toPointAddEquiv : (ℂ ⧸ Λ) ≃+ E(ℂ)`; and one summary section (§11) on the
+  Lean, with the step-by-step table and the mathlib inventory
+  (`derivWeierstrassP_sq`, `apply_eq_apply_of_bounded`, `add_of_X_ne`,
+  `eqOn_zero_or_eventually_ne_zero_of_preconnected`, `countable_of_Lindelof_of_discrete`).
