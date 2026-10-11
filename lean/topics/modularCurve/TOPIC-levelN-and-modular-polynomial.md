@@ -165,6 +165,21 @@ qExpFunctionFieldC_levelN` (955) and its `_qExpansion` form (982) at the head, `
 isUnit_leadingCoeff_diag` (14) — the same subjects one layer up, and the natural next cut once
 their own definition layers are hand-checked.
 
+**Successors (2026-10-11).** The two level-`N` rows this wave put at the head of the shelf are one
+twin development — 98 of their 101 declaration groups are statement-identical, and the `_levelN`
+headline is the `_qExpansion` `main2` with the two `E` conjuncts projected off — so they were cut
+as one set and one module, [WORKORDER-E-levelN-qexp-bridge.md](WORKORDER-E-levelN-qexp-bridge.md):
+`LevelN/QExpBridge.lean`, 668 lines, 54 `private` helpers and the two wrapper headlines verbatim.
+The prelude is `LevelN/Prelude.lean` imported rather than re-proved; the three helpers that are not
+importable (`algebraMap_laurentSeries`, `one_mem_strictPeriods`, `coeffMap_ofPowerSeries`) are
+few-line adaptors re-derived `private`, and no promotion or hub edit is made. The checker moved
++2 (7,632 identical, 0 mismatched, 0 missing, 38 own; the true pre-set baseline is 7,630 / 38, not
+this note's earlier 7,592 / 36) and the milestone build is green at 9,394 jobs. The step-6 re-read
+takes both rows off the shelf (**55 → 54 ready**) and puts **one** successor on it,
+`ModularCurve.LevelN.exists_algHom_laurentBaseChange_apply_eq_qExpand` (165 silo lines) — the same
+`LevelN` subject one layer up. The `ModularCurve` part of the shelf is now **10 rows / 1,779 silo
+lines**.
+
 **Substitutions to import, not re-prove** (`port_advise` §1): `roots_prime_at_slot_nodup`,
 `isRoot_prime_at_slot_iff`, `roots_prime_at_slot`, `TS_injective`, `phiAtSeed_iota_eval`,
 `cycUnit_pow`, `qExpand_qTwist_TS`, `qTwist_iota_of_pow_eq_one`, `roots_phiProd_conj`,

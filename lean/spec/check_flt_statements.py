@@ -2739,6 +2739,18 @@ SOURCES = [
     # `card_torsion_toFinset` and the local `fibSet_finite'`.
     "Theorems/Thm_WeierstrassCurve_Affine_fibSet_finite.lean",
     "P2M/Sol/S_WeierstrassCurve_Affine_fibSet_finite.lean",
+    # --- WORKORDER-E: the level-`N` `q`-expansion bridge. The two pin `S_` files are
+    # twins (98 of their 101 declaration groups are statement-identical; only
+    # `main2`/`solution` in the `_qExpansion` file and `solution` in the `_levelN`
+    # file live alone). The port writes the stronger development once in
+    # `ModularCurve/LevelN/QExpBridge.lean` and derives the `_levelN` headline as the
+    # projection of `main2`. Both wrappers and both `S_` files are listed so the pin's
+    # public prelude rows can resolve; every port helper is `private`, so only the two
+    # public headlines are diffed. Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_ModularCurve_exists_ringHom_laurentBaseChange_qExpFunctionFieldC_levelN.lean",
+    "P2M/Sol/S_ModularCurve_exists_ringHom_laurentBaseChange_qExpFunctionFieldC_levelN.lean",
+    "Theorems/Thm_ModularCurve_exists_ringHom_laurentBaseChange_qExpFunctionFieldC_levelN_qExpansion.lean",
+    "P2M/Sol/S_ModularCurve_exists_ringHom_laurentBaseChange_qExpFunctionFieldC_levelN_qExpansion.lean",
 ]
 
 PORT_FILES = [
@@ -4027,6 +4039,8 @@ PORT_FILES = [
     # The next node on the shelf: the `[n]`-fibre finiteness (and the shared
     # `torsion_finite`/`card_torsion_toFinset` promotion).
     "FLTForHuman/WeierstrassCurve/FibSetFinite.lean",
+    # WORKORDER-E: the level-`N` `q`-expansion bridge, the deduped twin development.
+    "FLTForHuman/ModularCurve/LevelN/QExpBridge.lean",
 ]
 
 
