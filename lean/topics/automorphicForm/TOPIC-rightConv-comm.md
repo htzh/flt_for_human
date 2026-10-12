@@ -302,7 +302,7 @@ and `SmoothCuspRealization`.
 The two rows are **not schedulable on their own**. They are the doorway to the
 143-module / 25,727-line `Def_(AutomorphicForm|RepTheory|AdelicDock|Deformations)`
 layer that [PORTING-AutomorphicForm.md](../PORTING-AutomorphicForm.md) §1 counted as
-its optional tail, and the honest sequence is definitions first (§4.5). The good
+its optional tail, and the honest sequence is definitions first (§4.6). The good
 news is that the *proof* half of the work is unusually cheap per line: one generic
 engine, one shared home, two statements.
 
@@ -319,11 +319,11 @@ of whose in-cone `Definitions/` dependencies are already in the port. As of
 | **W1** | the adèlic box | `Def_NumberField_AdelicBox` (finish the half-ported node) | deps landed; the box is named by both headline statements | **landed** |
 | **W2** | the centre and the projective quotient | `Def_NumberField_AdelicCentre` | deps landed; the PGL₂ vocabulary the cusp carriers use | **landed** |
 | W3 | contraction decay on measure spaces | `Def_MeasureTheory_{ContractionDecay,ScalingDichotomy}` | mathlib-only; generic, so its home is not `AutomorphicForm/` | **landed** |
-| W4 | the Siegel window topology | `Def_AutomorphicForm_{WindowedSiegelTopology,SiegelCoordinates}` | deps landed; the windowed-Siegel vocabulary | next |
-| W5 | the Hecke/local vocabulary | `Def_AbstractHeckeOperator`, `Def_AutomorphicForm_HeckeEigensystem`, `Def_LocalNewvector_CongruenceSubgroupK1`, `Def_M4aHerbrand_IdeleClassVocab` | mathlib-only; unblocks `ProductionPins*` | |
+| W4 | the Siegel window topology | `Def_AutomorphicForm_{WindowedSiegelTopology,SiegelCoordinates}` | deps landed; the windowed-Siegel vocabulary | **landed** |
+| W5 | the Hecke/local vocabulary | `Def_AbstractHeckeOperator`, `Def_AutomorphicForm_HeckeEigensystem`, `Def_LocalNewvector_CongruenceSubgroupK1`, `Def_M4aHerbrand_IdeleClassVocab` | mathlib-only; unblocks `ProductionPins*` | next |
 | W6 | the mathlib stubs | the eight `Def_Mathlib_*` modules (~1.5k lines) | a decision wave, not a port: `#check` each against mathlib, record the substitution in `SOURCES`, port only the residue | |
 | W7+ | the definition gate proper | `ArchSpherical`, `IsotypicCuspSpace`, `CuspidalConstituent`, `ProductionPins*`, `AdelicDock_LocalEmbedding`, the Siegel/cusp/volume remainder | re-measure the frontier after each of W1–W6 | |
-| P0–P3 | the proof half (§4.5) | | once the gate closes | |
+| P0–P3 | the proof half (§4.6) | | once the gate closes | |
 
 ### 4.1 W1 — the adèlic box
 
@@ -516,7 +516,78 @@ reverted.
 then one `lake build` of the two modules; the consumer probe is the only cross-module
 check. No whole-tree build (§3.5).
 
-### 4.4 Discipline common to every wave
+### 4.4 W4 — the windowed-Siegel topology
+
+**Subject.** The topology and coordinates of the windowed Siegel set.
+`WindowedSiegelTopology` proves the window data continuous — the matrix entries,
+`topNormSq`/`rowNormSq`, `localHeight`, `xWindowSq` of `GL₂(K)` and the archimedean
+height `archHeight` — and derives that `1` is an interior point of
+`integralWindowedSiegelSet c u` for `c < 1` and `u ≠ 0`, that the set is measurable
+for the Borel structure, and that it contains a nonempty open subset.
+`SiegelCoordinates` supplies the matrix coordinates behind the estimates:
+`norm_det_sq_le` and `xWindowSq_nonneg`, the upper-triangular unit `upperUnit` with
+its `localHeight`/`xWindowSq` scaling laws, and `xCoord` with the identification
+`xWindowSq = ‖xCoord‖ ^ 2`, its affine transformation law, and transport along a
+norm-preserving ring hom (with `norm_extensionEmbedding` the infinite-place case).
+
+**Why now.** Both nodes are on the frontier: their only in-cone `Definitions/`
+dependency, `Def_AutomorphicForm_WindowedSiegelSet`, landed in D6. They are the
+windowed-Siegel vocabulary the centre-cut/cusp wave (W7+) states over, and
+`SiegelCoordinates`' `upperUnit`/`xCoord` are the coordinate normal form its analytic
+estimates use.
+
+**Scope (whole nodes).** 392 pin lines / 35 declarations, landed whole in the
+existing `WindowedSiegel/` theory directory:
+
+- `Def_AutomorphicForm_WindowedSiegelTopology` (131 lines / 10 declarations) →
+  `AutomorphicForm/Adelic/WindowedSiegel/Topology.lean`, namespace
+  `AutomorphicForm.WindowedSiegel`: `continuous_entry`,
+  `continuous_{topNormSq,rowNormSq,det}_gl`, `continuous_{localHeight,xWindowSq}`,
+  `continuous_archHeight`, `one_mem_interior_integralWindowedSiegelSet`,
+  `measurableSet_integralWindowedSiegelSet`,
+  `exists_isOpen_subset_integralWindowedSiegelSet`;
+- `Def_AutomorphicForm_SiegelCoordinates` (261 lines / 25 declarations) →
+  `AutomorphicForm/Adelic/WindowedSiegel/Coordinates.lean`, namespace
+  `AutomorphicForm.SiegelCoordinates`: `norm_det_sq_le`, `xWindowSq_nonneg`,
+  `sq_mul_sq_le_rowNormSq_mul`, `localHeight_mul_mul_localHeight_le`, the
+  `*_upper_entries_mul` laws, `upperUnit` with its four entry lemmas, the
+  `{topNormSq,rowNormSq,coe,localHeight,xWindowSq}_map` transport block,
+  `map_upperUnit`, `xCoord`, `ofReal_rowNormSq`, `topNormSq_mul_rowNormSq`,
+  `xWindowSq_eq_norm_xCoord_sq`, `xCoord_upper_entries_mul`,
+  `xWindowSq_eq_norm_xCoord_map_sq`, `norm_extensionEmbedding`.
+
+**Route: mathlib-first.** The only port import is the landed `WindowedSiegel/Set.lean`
+and, through it, `AdelicLevel/{Projections,Level}` and `Adelic/CarrierPins`.
+`Units.continuous_val.matrix_elem`/`matrix_det`,
+`Matrix.GeneralLinearGroup.mkOfDetNeZero`/`map`,
+`RingHom.mapMatrix_apply`/`map_det`, `Complex.mul_conj`/`normSq_eq_norm_sq` and the
+infinite-place isometry are mathlib `v4.34.0`; both files are transcribed verbatim
+with **no drift adaptation**. Recorded negative: none of the 35 last names existed in
+the port, so there is no promotion and no dedup.
+
+**Deliverable.**
+`FLTForHuman/AutomorphicForm/Adelic/WindowedSiegel/{Topology,Coordinates}.lean` (new;
+headers in the house style). Landed: both build warning-free at `3.3 s` / `3.8 s`,
+the checker reads `8221 identical / 0 mismatched / 0 missing` (+35, exactly the two
+nodes' declaration count), and `spec/AutomorphicFormConsumer.lean` carries the W4
+zone.
+
+**Verification.** Definition layer, so coverage is by name: all 35 pin declarations
+present, none renamed. Both modules are in `PORT_FILES` and both pin files in
+`SOURCES` (last). The consumer zone exercises `continuous_xWindowSq`,
+`one_mem_interior_integralWindowedSiegelSet`,
+`exists_isOpen_subset_integralWindowedSiegelSet`, `xWindowSq_nonneg`,
+`xWindowSq_eq_norm_xCoord_sq` and `localHeight_upper_entries_mul` (the last through
+`upperUnit`) cross-module. A one-token mutation of `xWindowSq_nonneg`'s statement
+moved the count to exactly one `mismatched` and was reverted.
+
+**Build discipline.** New files: edit loop `timeout 300 lake env lean
+-DmaxHeartbeats=4000000 -DautoImplicit=false
+FLTForHuman/AutomorphicForm/Adelic/WindowedSiegel/<file>.lean`; then one `lake build`
+of the two modules; the consumer probe is the only cross-module check. No whole-tree
+build (§3.5).
+
+### 4.5 Discipline common to every wave
 
 - **Whole nodes** (§2.3): a module in scope is transcribed in full, not cherry-picked
   for the current target; the residue is content with no consumer anywhere, verified
@@ -530,7 +601,7 @@ check. No whole-tree build (§3.5).
 - **No log in the plan.** State lives in the wave table's `why now` column and in
   the records under `logs/`; this file stays forward-looking.
 
-### 4.5 The proof half (after the gate)
+### 4.6 The proof half (after the gate)
 
 | set | content | home | ≈ written |
 |---|---|---|---:|

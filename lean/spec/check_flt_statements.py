@@ -2820,6 +2820,11 @@ SOURCES = [
     # `MeasureTheory/` (playbook §3.1). Appended last.
     "Definitions/Def_MeasureTheory_ContractionDecay.lean",
     "Definitions/Def_MeasureTheory_ScalingDichotomy.lean",
+    # --- TOPIC-rightConv-comm W4: the windowed-Siegel topology and coordinates. Both pin
+    # nodes are definition layers with no `Theorems/` wrapper; they import the landed
+    # `Def_AutomorphicForm_WindowedSiegelSet`. Appended last.
+    "Definitions/Def_AutomorphicForm_WindowedSiegelTopology.lean",
+    "Definitions/Def_AutomorphicForm_SiegelCoordinates.lean",
 ]
 
 PORT_FILES = [
@@ -4163,6 +4168,10 @@ PORT_FILES = [
     # under `MeasureTheory/` rather than `AutomorphicForm/` (playbook §3.1).
     "FLTForHuman/MeasureTheory/ContractionDecay.lean",
     "FLTForHuman/MeasureTheory/ScalingDichotomy.lean",
+    # --- TOPIC-rightConv-comm W4: the windowed-Siegel topology and coordinates, beside
+    # the landed `WindowedSiegel/{Set,RowIsometry}.lean`.
+    "FLTForHuman/AutomorphicForm/Adelic/WindowedSiegel/Topology.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/WindowedSiegel/Coordinates.lean",
 ]
 
 

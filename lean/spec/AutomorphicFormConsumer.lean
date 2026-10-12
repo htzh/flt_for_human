@@ -14,6 +14,8 @@ import FLTForHuman.AutomorphicForm.Adelic.CarrierPins
 import FLTForHuman.AutomorphicForm.Adelic.RightConvolution
 import FLTForHuman.AutomorphicForm.Adelic.SmoothAutomorphicFn
 import FLTForHuman.AutomorphicForm.Adelic.WindowedSiegel.RowIsometry
+import FLTForHuman.AutomorphicForm.Adelic.WindowedSiegel.Topology
+import FLTForHuman.AutomorphicForm.Adelic.WindowedSiegel.Coordinates
 import FLTForHuman.AutomorphicForm.Adelic.ArchType
 import FLTForHuman.AutomorphicForm.Adelic.TestFnNearIdentity
 import FLTForHuman.AutomorphicForm.Adelic.RightConvNeZero
@@ -368,6 +370,40 @@ example :
     (fun g _ => sq_pos_of_ne_zero g.ne_zero) MeasurableSet.univ (by ext g; simp)
 
 end
+
+-- Zone W4 (TOPIC-rightConv-comm): the windowed-Siegel topology and coordinates.
+-- `Topology.lean` gives the continuity of the window data and the open structure of
+-- `integralWindowedSiegelSet`; `Coordinates.lean` gives the matrix coordinates
+-- (`upperUnit`, `xCoord`) and their height-scaling laws.
+example {K : Type*} [NormedField K] :
+    Continuous (AutomorphicForm.WindowedSiegel.xWindowSq (K := K)) :=
+  AutomorphicForm.WindowedSiegel.continuous_xWindowSq
+
+example (F : Type) [Field F] [NumberField F] {c u : ℝ} (hc : c < 1) (hu : u ≠ 0) :
+    (1 : AdelicGL2 (𝓞 F) F) ∈
+      interior (AutomorphicForm.WindowedSiegel.integralWindowedSiegelSet F c u) :=
+  AutomorphicForm.WindowedSiegel.one_mem_interior_integralWindowedSiegelSet F hc hu
+
+example (F : Type) [Field F] [NumberField F] {c u : ℝ} (hc : c < 1) (hu : u ≠ 0) :
+    ∃ U : Set (AdelicGL2 (𝓞 F) F), IsOpen U ∧ U.Nonempty ∧
+      U ⊆ AutomorphicForm.WindowedSiegel.integralWindowedSiegelSet F c u :=
+  AutomorphicForm.WindowedSiegel.exists_isOpen_subset_integralWindowedSiegelSet F hc hu
+
+example {K : Type*} [NormedField K] (g : GL (Fin 2) K) :
+    0 ≤ AutomorphicForm.WindowedSiegel.xWindowSq g :=
+  AutomorphicForm.SiegelCoordinates.xWindowSq_nonneg g
+
+example (g : GL (Fin 2) ℂ) :
+    AutomorphicForm.WindowedSiegel.xWindowSq g =
+      ‖AutomorphicForm.SiegelCoordinates.xCoord (g : Matrix (Fin 2) (Fin 2) ℂ)‖ ^ 2 :=
+  AutomorphicForm.SiegelCoordinates.xWindowSq_eq_norm_xCoord_sq g
+
+example {K : Type*} [NormedField K] (a b t : K) (ha : a ≠ 0) (ht : t ≠ 0) :
+    AutomorphicForm.WindowedSiegel.localHeight
+        (AutomorphicForm.SiegelCoordinates.upperUnit a b t ha ht) =
+      ‖a‖ / ‖t‖ * AutomorphicForm.WindowedSiegel.localHeight (1 : GL (Fin 2) K) := by
+  simpa using AutomorphicForm.SiegelCoordinates.localHeight_upper_entries_mul (s :=
+    AutomorphicForm.SiegelCoordinates.upperUnit a b t ha ht) ht rfl rfl rfl 1
 
 end AutomorphicFormConsumer
 
