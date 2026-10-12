@@ -302,7 +302,7 @@ and `SmoothCuspRealization`.
 The two rows are **not schedulable on their own**. They are the doorway to the
 143-module / 25,727-line `Def_(AutomorphicForm|RepTheory|AdelicDock|Deformations)`
 layer that [PORTING-AutomorphicForm.md](../PORTING-AutomorphicForm.md) §1 counted as
-its optional tail, and the honest sequence is definitions first (§4.3). The good
+its optional tail, and the honest sequence is definitions first (§4.4). The good
 news is that the *proof* half of the work is unusually cheap per line: one generic
 engine, one shared home, two statements.
 
@@ -317,13 +317,13 @@ of whose in-cone `Definitions/` dependencies are already in the port. As of
 | wave | subject | nodes | why now | state |
 |---|---|---|---|---|
 | **W1** | the adèlic box | `Def_NumberField_AdelicBox` (finish the half-ported node) | deps landed; the box is named by both headline statements | **landed** |
-| W2 | the centre and the projective quotient | `Def_NumberField_AdelicCentre` | deps landed; the PGL₂ vocabulary the cusp carriers use | next |
-| W3 | contraction decay on measure spaces | `Def_MeasureTheory_{ContractionDecay,ScalingDichotomy}` | mathlib-only; generic, so its home is not `AutomorphicForm/` | |
+| **W2** | the centre and the projective quotient | `Def_NumberField_AdelicCentre` | deps landed; the PGL₂ vocabulary the cusp carriers use | **landed** |
+| W3 | contraction decay on measure spaces | `Def_MeasureTheory_{ContractionDecay,ScalingDichotomy}` | mathlib-only; generic, so its home is not `AutomorphicForm/` | next |
 | W4 | the Siegel window topology | `Def_AutomorphicForm_{WindowedSiegelTopology,SiegelCoordinates}` | deps landed; the windowed-Siegel vocabulary | |
 | W5 | the Hecke/local vocabulary | `Def_AbstractHeckeOperator`, `Def_AutomorphicForm_HeckeEigensystem`, `Def_LocalNewvector_CongruenceSubgroupK1`, `Def_M4aHerbrand_IdeleClassVocab` | mathlib-only; unblocks `ProductionPins*` | |
 | W6 | the mathlib stubs | the eight `Def_Mathlib_*` modules (~1.5k lines) | a decision wave, not a port: `#check` each against mathlib, record the substitution in `SOURCES`, port only the residue | |
 | W7+ | the definition gate proper | `ArchSpherical`, `IsotypicCuspSpace`, `CuspidalConstituent`, `ProductionPins*`, `AdelicDock_LocalEmbedding`, the Siegel/cusp/volume remainder | re-measure the frontier after each of W1–W6 | |
-| P0–P3 | the proof half (§4.3) | | once the gate closes | |
+| P0–P3 | the proof half (§4.4) | | once the gate closes | |
 
 ### 4.1 W1 — the adèlic box
 
@@ -395,7 +395,64 @@ to `SOURCES` (last), and add a `spec/AutomorphicFormConsumer.lean` zone that use
 one `lake build FLTForHuman.NumberTheory.AdelicBox` at the end. No whole-tree build
 (§3.5).
 
-### 4.2 Discipline common to every wave
+### 4.2 W2 — the centre and the projective quotient
+
+**Subject.** `AdelicPGL2 R K = GL₂(𝔸_K) ⧸ center` is the projective linear group of the
+adèle ring, with Borel σ-algebra `pglBorel` and Haar measure `adelicPGLHaar`; the centre
+is the injective scalar image (`center_eq_range_scalar`, `scalar_injective`).
+
+**Why now.** `Def_NumberField_AdelicCentre` is on the frontier — its only in-cone
+`Definitions/` dependency, `Def_NumberField_AdelicHaar`, landed in D1 — and it is the
+PGL₂ vocabulary that `Def_NumberField_AdelicVolume`, the Siegel-volume node, names. It is
+a clean whole-node port with no promotion: the only non-mathlib input is the landed
+`AdelicHaar/GeneralLinear.lean`.
+
+**Scope (whole node).** `Def_NumberField_AdelicCentre`, 107 pin lines / 16 declarations
+(pin lines 11–53 the general quotient, 55–103 the `NumberField` case), landed whole in a
+new `NumberTheory/AdelicCentre.lean` under the pin's namespace
+`NumberField.AdelicCentre`, in the pin's order:
+
+- general: `center_eq_range_scalar`, `scalar_injective`, `AdelicPGL2`,
+  `measure_image_mk_{pos,lt_top}`, `image_mk_subset_of_subset_mul_center`, `pglBorel`,
+  `borelSpace_pglBorel`;
+- `NumberField` case: `isClosed_center`,
+  `t2Space/locallyCompactSpace/isTopologicalGroup_adelicPGL2`, `adelicPGLHaar`,
+  `isHaarMeasure_adelicPGLHaar`, `adelicPGLHaar_image_{pos,lt_top_of_subset}`.
+
+**Route: mathlib-first.** `Matrix.GeneralLinearGroup.scalar` and its
+`center_eq_range_scalar`, `QuotientGroup.continuous_mk`/`isOpenMap_coe`/`eq`,
+`Measure.haar`/`Measure.isHaarMeasure_haarMeasure` and the quotient-group
+T2/locally-compact/topological-group instances are mathlib `v4.34.0`; the only port
+import is `NumberTheory/AdelicHaar/GeneralLinear.lean`, through which the `GL₂(𝔸_K)`
+topology and Haar measure arrive. Recorded negative: no pin `Definitions/` module other
+than `AdelicCentre` itself is on this path, and none of the 16 declarations already
+existed in the port, so the wave carries no promotion and no dedup.
+
+**Drift adapted (statements unchanged).** `Set.mem_setOf_eq` in `isClosed_center` is the
+deprecated alias of `Set.mem_ofPred_eq`, so only the proof term changes. The pin's
+`letI`/`haveI` walls in `adelicPGLHaar`, `isHaarMeasure_adelicPGLHaar` and the two
+`…_image_*` wrappers are kept verbatim, with the file's one
+`set_option linter.style.haveILetI false` (house style, as in the other measure modules).
+
+**Deliverable.** `FLTForHuman/NumberTheory/AdelicCentre.lean` (new; header in the house
+style with the pin line ranges recorded). Landed: the module builds warning-free at
+`7.0 s` (3,449 jobs), the checker reads `8169 identical / 0 mismatched / 0 missing`
+(+16, exactly the node's declaration count), and `spec/AutomorphicFormConsumer.lean`
+carries the W2 zone.
+
+**Verification.** Definition layer, so coverage is by name: all 16 pin declarations
+present, none renamed. The module is in `PORT_FILES` and the pin file in `SOURCES` (both
+last). The consumer zone exercises `scalar_injective`, `isHaarMeasure_adelicPGLHaar`,
+`adelicPGLHaar_image_pos` and `adelicPGLHaar_image_lt_top_of_subset` cross-module. A
+one-token mutation of `measure_image_mk_lt_top`'s statement moved the count to exactly
+one `mismatched` and was reverted.
+
+**Build discipline.** New file: edit loop `timeout 300 lake env lean
+-DmaxHeartbeats=4000000 -DautoImplicit=false FLTForHuman/NumberTheory/AdelicCentre.lean`;
+then one `lake build FLTForHuman.NumberTheory.AdelicCentre`, and the consumer probe is
+the only cross-module check. No whole-tree build (§3.5).
+
+### 4.3 Discipline common to every wave
 
 - **Whole nodes** (§2.3): a module in scope is transcribed in full, not cherry-picked
   for the current target; the residue is content with no consumer anywhere, verified
@@ -409,7 +466,7 @@ one `lake build FLTForHuman.NumberTheory.AdelicBox` at the end. No whole-tree bu
 - **No log in the plan.** State lives in the wave table's `why now` column and in
   the records under `logs/`; this file stays forward-looking.
 
-### 4.3 The proof half (after the gate)
+### 4.4 The proof half (after the gate)
 
 | set | content | home | ≈ written |
 |---|---|---|---:|

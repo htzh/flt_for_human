@@ -23,6 +23,7 @@ import FLTForHuman.AutomorphicForm.Adelic.ConstantTerm
 import FLTForHuman.AutomorphicForm.Adelic.LsXi
 import FLTForHuman.AutomorphicForm.Adelic.TestFnTop
 import FLTForHuman.NumberTheory.AdelicBox
+import FLTForHuman.NumberTheory.AdelicCentre
 
 set_option autoImplicit false
 
@@ -269,6 +270,41 @@ example (K : Type) [Field K] [NumberField K] :
     IsProbabilityMeasure
       ((NumberField.AdelicHaar.adelicAddHaar (𝓞 K) K)[|NumberField.AdelicBox.adelicBox K]) :=
   NumberField.AdelicBox.isProbabilityMeasure_cond_adelicBox K
+
+-- Zone W2 (TOPIC-rightConv-comm): the adèlic centre and the projective quotient.
+-- `AdelicPGL2` is `GL₂(𝔸_K)` modulo its centre (`scalar_injective` names the centre
+-- as the injective scalar image) and `adelicPGLHaar` is a Haar measure on it:
+-- positive on the image of any open nonempty set and finite on the image of a
+-- compact set times the centre — the two estimates the cusp and Siegel carriers
+-- integrate against.
+example (K : Type) [Field K] [NumberField K] :
+    Function.Injective
+      (Matrix.GeneralLinearGroup.scalar (Fin 2) : (AdeleRing (𝓞 K) K)ˣ →* _) :=
+  NumberField.AdelicCentre.scalar_injective (𝓞 K) K
+
+example (K : Type) [Field K] [NumberField K] :
+    @Measure.IsHaarMeasure (NumberField.AdelicCentre.AdelicPGL2 (𝓞 K) K) _ _
+      (NumberField.AdelicCentre.pglBorel (𝓞 K) K)
+      (NumberField.AdelicCentre.adelicPGLHaar (𝓞 K) K) :=
+  NumberField.AdelicCentre.isHaarMeasure_adelicPGLHaar (𝓞 K) K
+
+example (K : Type) [Field K] [NumberField K] :
+    0 < NumberField.AdelicCentre.adelicPGLHaar (𝓞 K) K
+      ((QuotientGroup.mk : GL (Fin 2) (AdeleRing (𝓞 K) K) →
+          NumberField.AdelicCentre.AdelicPGL2 (𝓞 K) K) '' Set.univ) :=
+  NumberField.AdelicCentre.adelicPGLHaar_image_pos (𝓞 K) K
+    ⟨Set.univ, isOpen_univ, ⟨1, Set.mem_univ _⟩, Set.subset_univ _⟩
+
+open scoped Pointwise in
+example (K : Type) [Field K] [NumberField K] :
+    NumberField.AdelicCentre.adelicPGLHaar (𝓞 K) K
+      ((QuotientGroup.mk : GL (Fin 2) (AdeleRing (𝓞 K) K) →
+          NumberField.AdelicCentre.AdelicPGL2 (𝓞 K) K) ''
+        ({(1 : GL (Fin 2) (AdeleRing (𝓞 K) K))} *
+          ((Subgroup.center (GL (Fin 2) (AdeleRing (𝓞 K) K)) :
+            Set (GL (Fin 2) (AdeleRing (𝓞 K) K)))))) < ⊤ :=
+  NumberField.AdelicCentre.adelicPGLHaar_image_lt_top_of_subset (𝓞 K) K
+    isCompact_singleton le_rfl
 
 end AutomorphicFormConsumer
 

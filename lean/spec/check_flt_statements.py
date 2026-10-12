@@ -2811,6 +2811,10 @@ SOURCES = [
     # `AdelicLevel/IdealBall.lean` above, and this source supplies the remaining 29.
     # Appended last.
     "Definitions/Def_NumberField_AdelicBox.lean",
+    # --- TOPIC-rightConv-comm W2: the adèlic centre and the projective quotient. The pin
+    # node is a definition layer with no `Theorems/` wrapper; `Matrix.GeneralLinearGroup.scalar`
+    # and `center_eq_range_scalar` are mathlib `v4.34.0`. Appended last.
+    "Definitions/Def_NumberField_AdelicCentre.lean",
 ]
 
 PORT_FILES = [
@@ -4148,6 +4152,8 @@ PORT_FILES = [
     # --- TOPIC-rightConv-comm W1: the adèlic box (and the pin home of
     # `continuous_ringEquiv_mixedSpace`, promoted out of `TestFnNearIdentity`).
     "FLTForHuman/NumberTheory/AdelicBox.lean",
+    # --- TOPIC-rightConv-comm W2: the adèlic centre and the projective quotient.
+    "FLTForHuman/NumberTheory/AdelicCentre.lean",
 ]
 
 
