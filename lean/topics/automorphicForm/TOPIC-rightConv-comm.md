@@ -306,47 +306,122 @@ its optional tail, and the honest sequence is definitions first (§4.3). The goo
 news is that the *proof* half of the work is unusually cheap per line: one generic
 engine, one shared home, two statements.
 
-## 4. The cut
+## 4. The wave plan
 
-### 4.1 Set D — the definition gate
+The definition gate is several sessions of work, so it is planned as waves, each one
+work order and one coherent story, executed in import order. The wave boundary is
+the **dependency frontier**, re-measured after each wave: the unported modules all
+of whose in-cone `Definitions/` dependencies are already in the port. As of
+2026-10-11 that frontier is 15 of the 51 closure modules.
 
-Cut by mathematics, not by pin file (playbook §2.1). Each node is taken whole.
+| wave | subject | nodes | why now | state |
+|---|---|---|---|---|
+| **W1** | the adèlic box | `Def_NumberField_AdelicBox` (finish the half-ported node) | deps landed; the box is named by both headline statements | **landed** |
+| W2 | the centre and the projective quotient | `Def_NumberField_AdelicCentre` | deps landed; the PGL₂ vocabulary the cusp carriers use | next |
+| W3 | contraction decay on measure spaces | `Def_MeasureTheory_{ContractionDecay,ScalingDichotomy}` | mathlib-only; generic, so its home is not `AutomorphicForm/` | |
+| W4 | the Siegel window topology | `Def_AutomorphicForm_{WindowedSiegelTopology,SiegelCoordinates}` | deps landed; the windowed-Siegel vocabulary | |
+| W5 | the Hecke/local vocabulary | `Def_AbstractHeckeOperator`, `Def_AutomorphicForm_HeckeEigensystem`, `Def_LocalNewvector_CongruenceSubgroupK1`, `Def_M4aHerbrand_IdeleClassVocab` | mathlib-only; unblocks `ProductionPins*` | |
+| W6 | the mathlib stubs | the eight `Def_Mathlib_*` modules (~1.5k lines) | a decision wave, not a port: `#check` each against mathlib, record the substitution in `SOURCES`, port only the residue | |
+| W7+ | the definition gate proper | `ArchSpherical`, `IsotypicCuspSpace`, `CuspidalConstituent`, `ProductionPins*`, `AdelicDock_LocalEmbedding`, the Siegel/cusp/volume remainder | re-measure the frontier after each of W1–W6 | |
+| P0–P3 | the proof half (§4.3) | | once the gate closes | |
 
-| set | homes | pin modules | pin lines |
-|---|---|---|---:|
-| **D-type** | `AutomorphicForm/Adelic/ArchSpherical`, `…/IsotypicCuspSpace` (+ the `AdelicBox` remainder) | ArchSpherical, IsotypicCuspSpace, AdelicBox | ~1,800 |
-| **D-cusp** | `AutomorphicForm/Adelic/Cusp/*` | CuspidalConstituent, SmoothCuspRealization, ArithCuspRealization, SigmaAdelicAction | ~900 |
-| **D-Siegel** | `AutomorphicForm/Adelic/Siegel/*` | CentreCutSiegelSet, SiegelCoordinates, SiegelCovering, SiegelReduction, WindowedSiegelTopology | ~1,500 |
-| **D-measure** | `NumberTheory/AdelicVolume`, `…/AdelicCentre`, `AutomorphicForm/Adelic/Volume` | AdelicCentre, AdelicVolume, SiegelVolume, ContractionDecay, ScalingDichotomy | ~1,000 |
-| **D-Hecke** | `AutomorphicForm/Adelic/Hecke*`, `LocalLanglands/*` | AbstractHeckeOperator, LocalLanglands_HeckePair, HeckeCosetSystem, HeckeEigensystem(Map), LocalNewvector_CongruenceSubgroupK1, M4aHerbrand_IdeleClassVocab | ~1,300 |
-| **D-pins** | `AutomorphicForm/Adelic/ProductionPins*`, `AdelicDock/LocalEmbedding` | ProductionPins, ProductionPinsCompact, ProductionPinsGeneral, AdelicDock_LocalEmbedding | ~1,000 |
-| **D-mathlib** | adopt mathlib, do not port | `Def_Mathlib_*` (8 modules) | ~1,530 |
+### 4.1 W1 — the adèlic box
 
-`D-mathlib` is a decision, not a port: these are pin re-exports of mathlib facts
-(`RestrictedProduct` topology/equiv, `Cofinite`, `Group.Units`, `Module.Quotient`,
-`Bases`, `ContinuousMonoidHom`) written because the pin had to. Before each is
-dropped, `#check` the corresponding mathlib name at `v4.34.0` and record the
-substitution in `SOURCES`. That is the recorded-negative discipline of §2.2.
+**Subject.** The box `adelicBox K` is a fundamental domain for the diagonal image of
+`K` in `𝔸_K`, of finite positive Haar measure and contained in a compact set.
 
-### 4.2 Set P — the proof half
+**Why it is first.** Both headline statements name `adelicBox F` (it is an argument
+of `productionPinsOf`), and the pin's theorem layer leans on the node hard: 417 pin
+files mention `AdelicBox.adelicBox`, 480 the box vocabulary, 51 the continuity lemma
+promoted below. It is also the one frontier node that is *half landed* — 7 of its 36
+declarations are already in the port — so finishing it removes the "partially ported
+file reads as unported" distortion of §2.3 rather than adding to it.
+
+**Scope (whole node).** `Def_NumberField_AdelicBox`, 537 pin lines / 36 declarations,
+of which 7 present (`integralFiniteAdeles`, `isOpen/isClosed/isCompact_integralFiniteAdeles`,
+`algebraMap_mem_adicCompletionIntegers`, `valued_algebraMap` under
+`NumberField.AdelicLevel` in `NumberTheory/AdelicLevel/IdealBall.lean`). The wave
+lands the remaining 29 in a new `NumberTheory/AdelicBox.lean`, under the pin's
+namespace `NumberField.AdelicBox`, in the pin's order:
+
+- finite adèles: `ball_mem_nhds`, `exists_valued_sub_algebraMap_lt`,
+  `exists_valued_algebraMap_sub_lt`, `exists_mul_mem_adicCompletionIntegers`,
+  `algebraMap_{mul,add}_apply`, `exists_mul_mem_integralFiniteAdeles`,
+  `exists_forall_valued_sub_le`, `exists_algebraMap_add_mem_integralFiniteAdeles`;
+- infinite adèles: `infiniteBox`, `continuous_ringEquiv_mixedSpace`,
+  `existsUnique_int_add_mem_infiniteBox`;
+- the box: `adelicBox`, `existsUnique_algebraMap_add_mem_adelicBox`,
+  `measurableSet_{infiniteBox,adelicBox}`,
+  `isAddFundamentalDomain_adelicBox{,_adelicAddHaar}`;
+- compactness and measure: `properSpace_completion`,
+  `norm_apply_le_of_{isReal,isComplex}`,
+  `exists_forall_norm_apply_le_of_mem_infiniteBox`,
+  `exists_isCompact_infiniteBox_subset`, `exists_isCompact_adelicBox_subset`,
+  `exists_isOpen_subset_adelicBox`, `measure_adelicBox_{lt_top,pos}`,
+  `adelicAddHaar_adelicBox_{lt_top,pos}`, `isProbabilityMeasure_cond_adelicBox`.
+
+**Route: mathlib-first, then the two ported modules.** `𝔸_K`,
+`InfiniteAdeleRing.ringEquiv_mixedSpace`, `ZSpan.fundamentalDomain`,
+`ZSpan.exist_unique_vadd_mem_fundamentalDomain`,
+`ZSpan.fundamentalDomain_{measurableSet,isBounded}`,
+`mixedEmbedding.latticeBasis`, `AdeleRing.principalSubgroup`, `IsAddFundamentalDomain`
+and `ProbabilityTheory.cond_isProbabilityMeasure_of_finite` are mathlib `v4.34.0`.
+The only port imports are `NumberTheory/AdelicLevel/IdealBall.lean` (the integral
+finite adèles — do not re-derive) and, through it, `AdelicHaar`. Recorded negative:
+no pin `Definitions/` module other than `AdelicBox` itself is on this path.
+
+**The promotion the wave carries.** `continuous_ringEquiv_mixedSpace` is a *public
+pin declaration of this node*, and the port re-derived it as a public helper in
+`AutomorphicForm/Adelic/TestFnNearIdentity.lean` (a module whose header already
+concedes the copy). W1 gives it its pin home and deletes the local copy, leaving
+`TestFnNearIdentity` to import it. Same statement, one home: playbook §3.1.
+
+**Deliverable.** `FLTForHuman/NumberTheory/AdelicBox.lean` (new; header in the house
+style, pin line ranges and the promotion recorded), plus the one-file reorg in
+`AutomorphicForm/Adelic/TestFnNearIdentity.lean`. Landed: the module builds
+warning-free at `4.6 s`, the reorg cascade (`RightConvNeZero{,Principal,Arch}`) is
+green, the checker reads `8153 identical / 0 mismatched / 0 missing` (+29, the new
+declarations), and `spec/AutomorphicFormConsumer.lean` carries the W1 zone.
+
+**Verification.** Definition layer, so coverage is by name: every one of the 36 pin
+declarations present, none renamed. Add the module to `PORT_FILES` and the pin file
+to `SOURCES` (last), and add a `spec/AutomorphicFormConsumer.lean` zone that uses
+`adelicBox`, `existsUnique_algebraMap_add_mem_adelicBox` and
+`isProbabilityMeasure_cond_adelicBox` cross-module.
+
+**Build discipline.** New file: edit loop `timeout 60 lake env lean
+-DmaxHeartbeats=4000000 -DautoImplicit=false NumberTheory/AdelicBox.lean`; the
+`TestFnNearIdentity` edit is the wave's only cascade and is built in the same wave;
+one `lake build FLTForHuman.NumberTheory.AdelicBox` at the end. No whole-tree build
+(§3.5).
+
+### 4.2 Discipline common to every wave
+
+- **Whole nodes** (§2.3): a module in scope is transcribed in full, not cherry-picked
+  for the current target; the residue is content with no consumer anywhere, verified
+  by `grep -c`.
+- **Cut by mathematical role, not by pin file** (§3.1): one pin `Def_` module may
+  become several homes, and a generic block belongs in its own top-level area
+  (`MeasureTheory/`, `RepTheory/`), never under `AutomorphicForm/`.
+- **Promotions go to the pin's home** (§5): a re-derived copy of a public pin
+  declaration is deleted in favour of the pin-named one. The frontier waves are
+  cheap now and re-elaborate a cone later.
+- **No log in the plan.** State lives in the wave table's `why now` column and in
+  the records under `logs/`; this file stays forward-looking.
+
+### 4.3 The proof half (after the gate)
 
 | set | content | home | ≈ written |
 |---|---|---|---:|
 | **P0** | scout of §5 (`Scratch.lean`) | — | — |
 | **P1** | the generic engines, written once and public | `RepTheory/ProjectedHaar.lean`, `RepTheory/TypeSpan.lean`, `RepTheory/BiIsotypic.lean`, `RepTheory/AntiInvolutionHaar.lean` | 2.3k |
 | **P2** | the adelic instantiation | `AutomorphicForm/Adelic/RightConvComm/{Frame,MeasureAssembly,PlaceClassData,SliceCentrality}.lean` | 1.0k |
-| **P3** | the general headline and the derived level headline | `…/RightConvComm/Compact.lean`, `…/RightConvComm/Level.lean` | 0.4k, or a few dozen lines if P0 succeeds |
+| **P3** | the general headline and the derived level headline | `…/RightConvComm/{Compact,Level}.lean` | 0.4k, or a few dozen lines if P0 succeeds |
 
 P1 and P2 are new files and cascade on nothing (playbook §3.7 phase 2); P3 imports
 them. One set per subagent, review between sets (§0.2), one build per wave (§3.5).
-
-### 4.3 Order
-
-Definitions first in their own import order (D-type and D-cusp can run in parallel:
-they are disjoint cones), then D-Siegel and D-measure, then D-Hecke and D-pins, then
-P1, P2, P3. The pin's own order is not the order (its `S_` file carries the whole
-prelude before any of it is consumable). Keep the generic engines last among the
-definitions but before P2 — they import only mathlib.
+The pin's own order is not the order: its `S_` file carries the whole prelude before
+any of it is consumable.
 
 ## 5. The scout gate
 

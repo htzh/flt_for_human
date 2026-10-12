@@ -2805,6 +2805,12 @@ SOURCES = [
     # the wrappers carry the public headline statements. Appended last.
     "Theorems/Thm_AutomorphicForm_exists_isFactorizableTestFn_hasArchCharacterAt_rightConv_ne_zero_of_hasArchCharacterAt.lean",
     "Theorems/Thm_NumberField_AdelicHaar_isMulRightInvariant_adelicGLHaar.lean",
+    # --- TOPIC-rightConv-comm W1: the adèlic box. The pin node is a definition layer
+    # with no `Theorems/` wrapper; the port's finite-half declarations
+    # (`integralFiniteAdeles` and its openness/closedness/compactness) live in
+    # `AdelicLevel/IdealBall.lean` above, and this source supplies the remaining 29.
+    # Appended last.
+    "Definitions/Def_NumberField_AdelicBox.lean",
 ]
 
 PORT_FILES = [
@@ -4139,6 +4145,9 @@ PORT_FILES = [
     # --- PORTING-AutomorphicForm T1: the arch-character headline and its measure input.
     "FLTForHuman/NumberTheory/AdelicHaar/MulRightInvariant.lean",
     "FLTForHuman/AutomorphicForm/Adelic/RightConvNeZeroArch.lean",
+    # --- TOPIC-rightConv-comm W1: the adèlic box (and the pin home of
+    # `continuous_ringEquiv_mixedSpace`, promoted out of `TestFnNearIdentity`).
+    "FLTForHuman/NumberTheory/AdelicBox.lean",
 ]
 
 

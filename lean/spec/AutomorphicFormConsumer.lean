@@ -22,6 +22,7 @@ import FLTForHuman.AutomorphicForm.Adelic.RightConvNeZeroArch
 import FLTForHuman.AutomorphicForm.Adelic.ConstantTerm
 import FLTForHuman.AutomorphicForm.Adelic.LsXi
 import FLTForHuman.AutomorphicForm.Adelic.TestFnTop
+import FLTForHuman.NumberTheory.AdelicBox
 
 set_option autoImplicit false
 
@@ -245,6 +246,29 @@ example (F : Type) [Field F] [NumberField F] :
       HasCompactSupport (fun _ : GL (Fin 2) (AdeleRing (𝓞 F) F) => (0 : ℂ)) :=
   AutomorphicForm.continuous_and_hasCompactSupport_of_isFactorizableTestFn F _
     (AutomorphicForm.isFactorizableTestFn_zero F)
+
+-- Zone W1 (TOPIC-rightConv-comm): the adèlic box. `adelicBox` is the pinned argument
+-- of `productionPinsOf`; here it is a fundamental domain with finite positive Haar
+-- measure, and conditioning on it is a probability measure.
+example (K : Type) [Field K] [NumberField K] (x : AdeleRing (𝓞 K) K) :
+    ∃! k : K, algebraMap K (AdeleRing (𝓞 K) K) k + x ∈ NumberField.AdelicBox.adelicBox K :=
+  NumberField.AdelicBox.existsUnique_algebraMap_add_mem_adelicBox K x
+
+attribute [local instance] NumberField.AdelicHaar.adeleBorel NumberField.AdelicHaar.borelSpace_adeleBorel in
+example (K : Type) [Field K] [NumberField K] :
+    IsAddFundamentalDomain (AdeleRing.principalSubgroup (𝓞 K) K)
+      (NumberField.AdelicBox.adelicBox K) (NumberField.AdelicHaar.adelicAddHaar (𝓞 K) K) :=
+  NumberField.AdelicBox.isAddFundamentalDomain_adelicBox_adelicAddHaar K
+
+example (K : Type) [Field K] [NumberField K] :
+    0 < NumberField.AdelicHaar.adelicAddHaar (𝓞 K) K (NumberField.AdelicBox.adelicBox K) :=
+  NumberField.AdelicBox.adelicAddHaar_adelicBox_pos K
+
+open scoped ProbabilityTheory in
+example (K : Type) [Field K] [NumberField K] :
+    IsProbabilityMeasure
+      ((NumberField.AdelicHaar.adelicAddHaar (𝓞 K) K)[|NumberField.AdelicBox.adelicBox K]) :=
+  NumberField.AdelicBox.isProbabilityMeasure_cond_adelicBox K
 
 end AutomorphicFormConsumer
 

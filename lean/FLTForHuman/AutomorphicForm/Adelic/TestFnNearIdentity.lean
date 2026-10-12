@@ -17,6 +17,10 @@
   `Ws1.H2K.Scaffold` in
   `P2M/Sol/S_AutomorphicForm_exists_isFactorizableTestFn_hasArchCharacterAt_rightConv_ne_zero_of_hasArchCharacterAt.lean`;
   see `topics/PORTING-AutomorphicForm.md` §4.2.
+
+  `continuous_ringEquiv_mixedSpace` is *not* re-derived here: the pin states it in
+  `Definitions/Def_NumberField_AdelicBox.lean`, so it is imported from
+  `NumberTheory/AdelicBox.lean` at its pin home (playbook §3.1, §5).
 -/
 import FLTForHuman.AutomorphicForm.Adelic.FactorizableTestFn
 import Mathlib.Analysis.Calculus.BumpFunction.Basic
@@ -25,6 +29,7 @@ import FLTForHuman.AutomorphicForm.Adelic.RightConvolution
 import FLTForHuman.AutomorphicForm.Adelic.SmoothAutomorphicFn
 import FLTForHuman.AutomorphicForm.Adelic.ArchType
 import FLTForHuman.NumberTheory.AdelicLevel.Level
+import FLTForHuman.NumberTheory.AdelicBox
 
 set_option autoImplicit false
 
@@ -48,12 +53,6 @@ variable (F : Type) [Field F] [NumberField F]
 abbrev E : Type := Fin 2 → Fin 2 → mixedEmbedding.mixedSpace F
 
 def ofE (m : E F) : Matrix (Fin 2) (Fin 2) (mixedEmbedding.mixedSpace F) := m
-
-omit [NumberField F] in
-theorem continuous_ringEquiv_mixedSpace : Continuous (ringEquiv_mixedSpace F) := by
-  refine continuous_prodMk.2 ⟨continuous_pi fun v => ?_, continuous_pi fun v => ?_⟩
-  · exact (isometry_extensionEmbeddingOfIsReal v.2).continuous.comp (continuous_apply _)
-  · exact (isometry_extensionEmbedding v.1).continuous.comp (continuous_apply _)
 
 omit [NumberField F] in
 theorem continuous_ringEquiv_mixedSpace_symm : Continuous (ringEquiv_mixedSpace F).symm := by
@@ -86,7 +85,7 @@ theorem continuous_ringEquiv_mixedSpace_symm : Continuous (ringEquiv_mixedSpace 
 
 def mixedHomeo : InfiniteAdeleRing F ≃ₜ mixedEmbedding.mixedSpace F where
   toEquiv := (ringEquiv_mixedSpace F).toEquiv
-  continuous_toFun := continuous_ringEquiv_mixedSpace F
+  continuous_toFun := NumberField.AdelicBox.continuous_ringEquiv_mixedSpace F
   continuous_invFun := continuous_ringEquiv_mixedSpace_symm F
 
 def matHomeo : (Fin 2 → Fin 2 → InfiniteAdeleRing F) ≃ₜ E F :=

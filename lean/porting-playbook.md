@@ -1098,6 +1098,7 @@ same mathlib line" into a work order.
 | `ModularForm.coe_smul`, `ModularForm.coe_zero` | `FunLike.coe_smul`, `FunLike.coe_zero` (the `ModularForm.*` names are deprecated aliases in `v4.34.0`) |
 | `Finite.of_equiv` / `Set.toFinite` | `Nat.finite_of_card_ne_zero`, with the `Finite` instance passed explicitly |
 | `Nat.card_zmod` | no longer needs `NeZero m` — the pin's `haveI : NeZero m` is dropped, not suppressed |
+| `Isometry.antilipschitz.properSpace` | `Isometry.antilipschitzWith.properSpace` (the pin's three-argument `Isometry.antilipschitz` is deprecated; same proof, warning-free) |
 
 The recurring *shapes* of drift, beyond a rename:
 
