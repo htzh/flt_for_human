@@ -2760,6 +2760,30 @@ SOURCES = [
     "P2M/Sol/S_CuspForm_exists_hasNebentypus_of_qCoeff_hecke_eigen.lean",
     "Theorems/Thm_CuspForm_hasNebentypus_inv_and_qCoeff_hecke_eigen_of_fricke.lean",
     "P2M/Sol/S_CuspForm_hasNebentypus_inv_and_qCoeff_hecke_eigen_of_fricke.lean",
+    # --- PORTING-AutomorphicForm D0 (`topics/PORTING-AutomorphicForm.md`): the
+    # mathlib-only leaves. The pin `Def_AutomorphicForm_AdelicLsXi` is split into
+    # `Adelic/Basic` + `Adelic/LsXi`, so both port modules look it up. Appended last.
+    "Definitions/Def_Deformations_ContinuousSMulDiscrete.lean",
+    "Definitions/Def_AutomorphicForm_AdelicLsXi.lean",
+    "Definitions/Def_AutomorphicForm_ConstantTerm.lean",
+    # --- PORTING-AutomorphicForm D2: smooth vectors (generic representation theory).
+    # Appended last.
+    "Definitions/Def_RepTheory_SmoothVectors.lean",
+    # --- PORTING-AutomorphicForm D4: the automorphic carrier pins and right convolution.
+    # `Def_AutomorphicForm_FactorizableTestFn` is already listed above. Appended last.
+    "Definitions/Def_AutomorphicForm_CarrierPins.lean",
+    "Definitions/Def_AutomorphicForm_RightConvolution.lean",
+    # --- PORTING-AutomorphicForm D5: automorphic and smooth automorphic functions.
+    # Appended last.
+    "Definitions/Def_AutomorphicForm_AutomorphicFnAt.lean",
+    "Definitions/Def_AutomorphicForm_SmoothAutomorphicFnAt.lean",
+    # --- PORTING-AutomorphicForm D6: the windowed Siegel norms and row isometries.
+    # Appended last.
+    "Definitions/Def_AutomorphicForm_WindowedSiegelSet.lean",
+    "Definitions/Def_AutomorphicForm_RowIsometryInvariance.lean",
+    # --- PORTING-AutomorphicForm D7: the archimedean inclusion and archimedean types.
+    # Appended last.
+    "Definitions/Def_AutomorphicForm_ArchType.lean",
 ]
 
 PORT_FILES = [
@@ -3444,13 +3468,19 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/Frobenius/Defs.lean",
     "FLTForHuman/ModularCurve/Frobenius/QExpModL.lean",
     # --- Factorisable test functions on GL₂(𝔸_K) (AutomorphicForm) ---
-    # The adele-ring topology instances, the level projections, the definitions,
+    # The adele-ring topology/Haar layer (the former `AdelicHaar/Topology.lean` stub is
+    # absorbed into the three D1 role modules), the level projections, the definitions,
     # and the headline. The pin `S_` helpers are `private` here, so only the
-    # headline is diffed. Appended last.
-    "FLTForHuman/NumberTheory/AdelicHaar/Topology.lean",
+    # headline is diffed.
+    "FLTForHuman/NumberTheory/AdelicHaar/Local.lean",
+    "FLTForHuman/NumberTheory/AdelicHaar/Adele.lean",
+    "FLTForHuman/NumberTheory/AdelicHaar/GeneralLinear.lean",
     "FLTForHuman/NumberTheory/AdelicLevel/Projections.lean",
-    "FLTForHuman/AutomorphicForm/FactorizableTestFn.lean",
-    "FLTForHuman/AutomorphicForm/TestFnTop.lean",
+    "FLTForHuman/NumberTheory/AdelicLevel/IdealBall.lean",
+    "FLTForHuman/NumberTheory/AdelicLevel/Level.lean",
+    "FLTForHuman/NumberTheory/AdelicLevel/HeckeGen.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/FactorizableTestFn.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/TestFnTop.lean",
     # The `K(x)` finite-extension `EssFiniteType` headline. Appended last.
     "FLTForHuman/AlgebraicCurve/IsCurveOver/EssFiniteType.lean",
     # --- Principal divisors on a Weierstrass curve (capstone route only) ---
@@ -3968,10 +3998,10 @@ PORT_FILES = [
     # --- WORKORDER-D1 (`topics/modularCurve/WORKORDER-D1-petersson.md`) phase 1: the four
     # pin `Def_AutomorphicForm_*` modules ported whole, matched against the pin definition
     # files appended to `SOURCES` above. Appended last so no earlier last-name match can flip.
-    "FLTForHuman/AutomorphicForm/HyperbolicMeasure.lean",
-    "FLTForHuman/AutomorphicForm/FundamentalDomainVolume.lean",
-    "FLTForHuman/AutomorphicForm/SiegelSetCover.lean",
-    "FLTForHuman/AutomorphicForm/Gamma0FundamentalSet.lean",
+    "FLTForHuman/AutomorphicForm/UpperHalfPlane/HyperbolicMeasure.lean",
+    "FLTForHuman/AutomorphicForm/UpperHalfPlane/FundamentalDomainVolume.lean",
+    "FLTForHuman/AutomorphicForm/UpperHalfPlane/SiegelSetCover.lean",
+    "FLTForHuman/AutomorphicForm/UpperHalfPlane/Gamma0FundamentalSet.lean",
     # --- WORKORDER-D1 phase 2: the Petersson pairing pair. The shared Riesz-representation
     # prelude is written once, `private`; the two headlines are matched against their
     # `Theorems/` wrappers appended to `SOURCES` above. Appended last so no earlier last-name
@@ -4055,6 +4085,26 @@ PORT_FILES = [
     # exactly its one wrapper headline, so the delta is +2.
     "FLTForHuman/ModularForms/HeckeNebentypusExistence.lean",
     "FLTForHuman/ModularForms/HeckeNebentypusFricke.lean",
+    # --- PORTING-AutomorphicForm D0 (`topics/PORTING-AutomorphicForm.md`): the
+    # mathlib-only leaves. `Adelic/Basic` and `Adelic/LsXi` split the pin's
+    # `Def_AutomorphicForm_AdelicLsXi`. Appended last.
+    "FLTForHuman/RepTheory/ContinuousSMulDiscrete.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/Basic.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/LsXi.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/ConstantTerm.lean",
+    # --- PORTING-AutomorphicForm D2: smooth vectors. Appended last.
+    "FLTForHuman/RepTheory/SmoothVectors.lean",
+    # --- PORTING-AutomorphicForm D4: carrier pins and right convolution. Appended last.
+    "FLTForHuman/AutomorphicForm/Adelic/CarrierPins.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/RightConvolution.lean",
+    # --- PORTING-AutomorphicForm D5: automorphic / smooth automorphic functions. Appended last.
+    "FLTForHuman/AutomorphicForm/Adelic/AutomorphicFn.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/SmoothAutomorphicFn.lean",
+    # --- PORTING-AutomorphicForm D6: windowed Siegel set and row isometries. Appended last.
+    "FLTForHuman/AutomorphicForm/Adelic/WindowedSiegel/Set.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/WindowedSiegel/RowIsometry.lean",
+    # --- PORTING-AutomorphicForm D7: archimedean inclusion and types. Appended last.
+    "FLTForHuman/AutomorphicForm/Adelic/ArchType.lean",
 ]
 
 

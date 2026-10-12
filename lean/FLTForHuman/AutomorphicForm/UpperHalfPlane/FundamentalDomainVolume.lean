@@ -12,7 +12,7 @@
   finiteness off the geometric series. The corollaries are the ones the
   `Γ`-fundamental-set volume lemmas consume.
 -/
-import FLTForHuman.AutomorphicForm.HyperbolicMeasure
+import FLTForHuman.AutomorphicForm.UpperHalfPlane.HyperbolicMeasure
 import Mathlib.NumberTheory.Modular
 import Mathlib.MeasureTheory.Constructions.BorelSpace.Complex
 import Mathlib.MeasureTheory.Measure.Lebesgue.Basic

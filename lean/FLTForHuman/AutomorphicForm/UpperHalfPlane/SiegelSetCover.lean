@@ -12,7 +12,7 @@
   at the elliptic point `ρ`; the `gate_*` lemmas pin that point down. The
   `private` helper `one_le_quadratic_form` stays `private`.
 -/
-import FLTForHuman.AutomorphicForm.HyperbolicMeasure
+import FLTForHuman.AutomorphicForm.UpperHalfPlane.HyperbolicMeasure
 import Mathlib.NumberTheory.Modular
 import Mathlib.NumberTheory.ModularForms.CongruenceSubgroups
 

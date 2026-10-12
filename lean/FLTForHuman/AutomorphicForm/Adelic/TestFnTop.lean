@@ -20,8 +20,8 @@
   the headline. `open Topology` is the pin's own `p2m_open`, needed because
   `IsClosedEmbedding`/`IsInducing` live under `Topology` in the current mathlib.
 -/
-import FLTForHuman.AutomorphicForm.FactorizableTestFn
-import FLTForHuman.NumberTheory.AdelicHaar.Topology
+import FLTForHuman.AutomorphicForm.Adelic.FactorizableTestFn
+import FLTForHuman.NumberTheory.AdelicHaar.GeneralLinear
 import Mathlib.Topology.Algebra.Group.Units
 import Mathlib.Topology.Maps.Basic
 

@@ -30,7 +30,7 @@
   hypotheses that are instances for finite-index subgroups). The two public
   headlines are the pin's statements verbatim.
 -/
-import FLTForHuman.AutomorphicForm.Gamma0FundamentalSet
+import FLTForHuman.AutomorphicForm.UpperHalfPlane.Gamma0FundamentalSet
 import FLTForHuman.ModularForms.Defs.GammaH
 import FLTForHuman.ModularForms.WeightOne.Basic
 import Mathlib.Analysis.Complex.UpperHalfPlane.Manifold

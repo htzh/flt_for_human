@@ -12,8 +12,8 @@
   `y`. The volume lemmas (finite, positive, not `⊤`) and the compactness of the
   truncation are what the Petersson pairing consumes.
 -/
-import FLTForHuman.AutomorphicForm.FundamentalDomainVolume
-import FLTForHuman.AutomorphicForm.SiegelSetCover
+import FLTForHuman.AutomorphicForm.UpperHalfPlane.FundamentalDomainVolume
+import FLTForHuman.AutomorphicForm.UpperHalfPlane.SiegelSetCover
 
 set_option autoImplicit false
 
