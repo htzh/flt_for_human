@@ -28,6 +28,18 @@ import FLTForHuman.NumberTheory.AdelicBox
 import FLTForHuman.NumberTheory.AdelicCentre
 import FLTForHuman.MeasureTheory.ContractionDecay
 import FLTForHuman.MeasureTheory.ScalingDichotomy
+import FLTForHuman.RepTheory.AbstractHeckeOperator
+import FLTForHuman.AutomorphicForm.Adelic.HeckeEigensystem
+import FLTForHuman.RepTheory.LocalNewvector.CongruenceSubgroupK1
+import FLTForHuman.NumberTheory.M4aHerbrand.IdeleClassVocab
+import FLTForHuman.Order.Filter.Cofinite
+import FLTForHuman.Topology.Bases
+import FLTForHuman.Topology.Algebra.Module.Quotient
+import FLTForHuman.Topology.Algebra.ContinuousMonoidHom
+import FLTForHuman.Topology.Algebra.RestrictedProduct.Basic
+import FLTForHuman.Topology.Algebra.RestrictedProduct.Equiv
+import FLTForHuman.Topology.Algebra.RestrictedProduct.TopologicalSpace
+import Mathlib.Topology.Algebra.Group.Units
 import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
 
 set_option autoImplicit false
@@ -404,6 +416,63 @@ example {K : Type*} [NormedField K] (a b t : K) (ha : a ≠ 0) (ht : t ≠ 0) :
       ‖a‖ / ‖t‖ * AutomorphicForm.WindowedSiegel.localHeight (1 : GL (Fin 2) K) := by
   simpa using AutomorphicForm.SiegelCoordinates.localHeight_upper_entries_mul (s :=
     AutomorphicForm.SiegelCoordinates.upperUnit a b t ha ht) ht rfl rfl rfl 1
+
+-- Zone W5 (TOPIC-rightConv-comm): the Hecke/local vocabulary, cut by mathematical role.
+-- `AbstractHeckeOperator` is the generic Hecke operator on `fixedPoints`; the automorphic
+-- `HeckeEigensystem` and its Satake recursion are the eigenvalue datum; `LocalNewvector`
+-- supplies the congruence subgroups `K₀`/`K₁`; `M4aHerbrand` the idèle-class group with its
+-- Galois descent.
+example {G : Type*} [Group G] {A : Type*} [AddCommMonoid A] [DistribMulAction G A]
+    (a b : MulAction.fixedPoints G A) :
+    ((a + b : MulAction.fixedPoints G A) : A) = a + b :=
+  FixedPoints.coe_add a b
+
+open scoped Pointwise in
+example {G : Type*} [Group G] (U : Subgroup G) (X : Set G) {u : G} (hu : u ∈ U) :
+    Set.BijOn (fun x ↦ u • x) ((U : Set G) * X) (U * X) :=
+  Set.bijOn_smul G U X hu
+
+example : AutomorphicForm.satakePow 2 (3 : ℤ) 5 = 9 - 10 := by
+  rw [AutomorphicForm.satakePow_add_two 0, AutomorphicForm.satakePow_one,
+    AutomorphicForm.satakePow_zero]
+  norm_num
+
+example (χ : HeightOneSpectrum (𝓞 ℚ) → ℂ) (v : HeightOneSpectrum (𝓞 ℚ)) :
+    (({ level := ⊤, level_ne_bot := by simp, a := fun _ => (1 : ℂ),
+        b := fun _ => (1 : ℂ) } : AutomorphicForm.HeckeEigensystem ℚ ℂ).twist χ).a v
+      = χ v * 1 :=
+  AutomorphicForm.HeckeEigensystem.twist_a _ χ v
+
+example (p : ℕ) [Fact p.Prime] :
+    LocalNewvector.padicK1 p 1 ≤ LocalNewvector.padicK0 p 1 :=
+  LocalNewvector.congruenceK1_le_congruenceK0 (p : ℤ_[p]) 1
+
+example : M4aHerbrand.IdeleGaloisDescent ℤ ℚ ℚ :=
+  M4aHerbrand.identityDescent ℤ ℚ ℚ
+
+-- Zone W6 (TOPIC-rightConv-comm): the mathlib-gap stubs of the twin's definition closure,
+-- ported whole to a mathlib-mirroring tree (`Order/`, `Topology/`). Two are mathlib
+-- substitutions rather than ports: `Submonoid.units_isOpen` is mathlib's
+-- `Submonoid.isOpen_units`, and `RestrictedProduct.singleAddMonoidHom` is mathlib's
+-- `to_additive` companion of `mulSingleMonoidHom`.
+example : Countable (Filter.cofinite : Filter ℕ).sets := inferInstance
+
+example (ι : Type*) [Countable ι] : (Filter.cofinite : Filter ι).sets.Countable :=
+  Filter.cofinite.sets.countable ι
+
+example :
+    (((i : Fin 2) → ℝ) ⧸ Submodule.pi Set.univ (fun _ => (⊥ : Submodule ℝ ℝ)))
+      ≃L[ℝ] ((i : Fin 2) → ℝ ⧸ (⊥ : Submodule ℝ ℝ)) :=
+  Submodule.quotientPiContinuousLinearEquiv (fun _ : Fin 2 => (⊥ : Submodule ℝ ℝ))
+
+example : ((i : Fin 1) → ℝ) ≃ₜ* ℝ := ContinuousMulEquiv.piUnique (fun _ : Fin 1 => ℝ)
+
+example {M : Type*} [TopologicalSpace M] [Monoid M] {U : Submonoid M} (hU : IsOpen (U : Set M)) :
+    IsOpen (U.units : Set Mˣ) := Submonoid.isOpen_units hU
+
+open scoped RestrictedProduct in
+example : SecondCountableTopology (Πʳ _i : ℕ, [ℝ, Set.univ]) :=
+  RestrictedProduct.secondCountableTopology (fun _ : ℕ => isOpen_univ)
 
 end AutomorphicFormConsumer
 

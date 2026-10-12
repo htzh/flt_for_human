@@ -302,7 +302,7 @@ and `SmoothCuspRealization`.
 The two rows are **not schedulable on their own**. They are the doorway to the
 143-module / 25,727-line `Def_(AutomorphicForm|RepTheory|AdelicDock|Deformations)`
 layer that [PORTING-AutomorphicForm.md](../PORTING-AutomorphicForm.md) §1 counted as
-its optional tail, and the honest sequence is definitions first (§4.6). The good
+its optional tail, and the honest sequence is definitions first (§4.8). The good
 news is that the *proof* half of the work is unusually cheap per line: one generic
 engine, one shared home, two statements.
 
@@ -320,10 +320,10 @@ of whose in-cone `Definitions/` dependencies are already in the port. As of
 | **W2** | the centre and the projective quotient | `Def_NumberField_AdelicCentre` | deps landed; the PGL₂ vocabulary the cusp carriers use | **landed** |
 | W3 | contraction decay on measure spaces | `Def_MeasureTheory_{ContractionDecay,ScalingDichotomy}` | mathlib-only; generic, so its home is not `AutomorphicForm/` | **landed** |
 | W4 | the Siegel window topology | `Def_AutomorphicForm_{WindowedSiegelTopology,SiegelCoordinates}` | deps landed; the windowed-Siegel vocabulary | **landed** |
-| W5 | the Hecke/local vocabulary | `Def_AbstractHeckeOperator`, `Def_AutomorphicForm_HeckeEigensystem`, `Def_LocalNewvector_CongruenceSubgroupK1`, `Def_M4aHerbrand_IdeleClassVocab` | mathlib-only; unblocks `ProductionPins*` | next |
-| W6 | the mathlib stubs | the eight `Def_Mathlib_*` modules (~1.5k lines) | a decision wave, not a port: `#check` each against mathlib, record the substitution in `SOURCES`, port only the residue | |
-| W7+ | the definition gate proper | `ArchSpherical`, `IsotypicCuspSpace`, `CuspidalConstituent`, `ProductionPins*`, `AdelicDock_LocalEmbedding`, the Siegel/cusp/volume remainder | re-measure the frontier after each of W1–W6 | |
-| P0–P3 | the proof half (§4.6) | | once the gate closes | |
+| W5 | the Hecke/local vocabulary | `Def_AbstractHeckeOperator`, `Def_AutomorphicForm_HeckeEigensystem`, `Def_LocalNewvector_CongruenceSubgroupK1`, `Def_M4aHerbrand_IdeleClassVocab` | mathlib-only; unblocks `ProductionPins*` | **landed** |
+| W6 | the mathlib stubs | the eight `Def_Mathlib_*` modules (~1.5k lines) | a decision wave: `#check` each against mathlib, record the substitution, port only the residue | **landed** |
+| W7+ | the definition gate proper | `ArchSpherical`, `IsotypicCuspSpace`, `CuspidalConstituent`, `ProductionPins*`, `AdelicDock_LocalEmbedding`, the Siegel/cusp/volume remainder | re-measure the frontier after each of W1–W6 | next |
+| P0–P3 | the proof half (§4.8) | | once the gate closes | |
 
 ### 4.1 W1 — the adèlic box
 
@@ -587,7 +587,189 @@ FLTForHuman/AutomorphicForm/Adelic/WindowedSiegel/<file>.lean`; then one `lake b
 of the two modules; the consumer probe is the only cross-module check. No whole-tree
 build (§3.5).
 
-### 4.5 Discipline common to every wave
+### 4.5 W5 — the Hecke/local vocabulary
+
+**Subject.** Four definition nodes the `ProductionPins*` / local-Langlands layer is
+stated over:
+
+- `AbstractHeckeOperator` — on the fixed points `fixedPoints V A` of a subgroup
+  `V ≤ G` acting on an additive commutative monoid `A`, the finite double coset
+  `U * {g}` mod `V` defines `HeckeOperator : fixedPoints V A →ₗ[R] fixedPoints U A`,
+  together with the `FixedPoints` instances (`AddCommMonoid`, `SMul`, `MulAction`,
+  `Module`) that mathlib lacks, the reindexing `eq_finsum_quotient_out_of_bijOn'` that
+  makes the value `U`-fixed, and the translation lemma `Set.bijOn_smul`;
+- `AutomorphicForm.HeckeEigensystem` — the level/`a`/`b` eigenvalue datum, its
+  `twist`, `AgreesAwayFromFinite`, `IsConstantOnFibers`, the Satake recursion
+  `satakePow`, the base-change predicates `IsBaseChangeAt`/`IsBaseChangeOf`/
+  `IsDescentOf`, and the `CuspidalityNotion`/`DescentPackage` bundles;
+- `LocalNewvector` — the congruence subgroups `K₀(ϖⁿ)`/`K₁(ϖⁿ)` of `GL₂(K)` cut out
+  by the lower-left (and `(1,1)`) entry mod `(ϖⁿ)`, their level-`0` identification
+  with the range of `GL₂(R) → GL₂(K)`, the nesting/monotonicity lemmas, and the
+  `p`-adic `padicK0`/`padicK1`;
+- `M4aHerbrand` — the principal idèles, `IdeleClassGroup`, the `IdeleGaloisDescent`
+  structure with its `unitsAct`/`classAct`, `ideleClassNorm`/`ideleClassDerive`, and
+  the `identityDescent` inhabitant.
+
+**Why now.** All four are on the frontier and mathlib-only: each imports nothing from
+the pin's `Definitions/`, and they unblock the `ProductionPins*` and local-Langlands
+waves. The Hecke-operator and congruence-subgroup nodes are named by
+`Def_LocalLanglands_HeckePair`/`HeckeCosetLocal`, `Def_AdelicDock_LocalEmbedding` and
+the `CuspForm` adèlic-lift theorems; the eigensystem by
+`Def_AutomorphicForm_ProductionNotionGateEigensystems`, `SmoothCuspRealization` and
+the Langlands–Tunnell dictionary; the idèle-class vocabulary by
+`Def_M4aHerbrand_AdeleBaseChange`/`GenuineDescent` and the
+`AutomorphicForm.SigmaAdelicAction`/`AdelicTracePushforward` carriers.
+
+**Organization (the wave's own decision).** The four nodes are cut by mathematical
+role, not by pin file (playbook §3.1), into three areas:
+
+| pin node | home | namespace |
+|---|---|---|
+| `Def_AbstractHeckeOperator` | `RepTheory/AbstractHeckeOperator` | `FixedPoints`, `AbstractHeckeOperator` (top-level `Set.bijOn_smul`) |
+| `Def_AutomorphicForm_HeckeEigensystem` | `AutomorphicForm/Adelic/HeckeEigensystem` | `AutomorphicForm` |
+| `Def_LocalNewvector_CongruenceSubgroupK1` | `RepTheory/LocalNewvector/CongruenceSubgroupK1` | `LocalNewvector` |
+| `Def_M4aHerbrand_IdeleClassVocab` | `NumberTheory/M4aHerbrand/IdeleClassVocab` | `M4aHerbrand` |
+
+`AbstractHeckeOperator` and the congruence subgroups are generic/local representation
+theory, so they open `RepTheory/` (the first as a sibling of the D2 foundations, the
+second as the head of the `LocalNewvector` family, whose five further pin modules land
+later); the eigensystem is automorphic vocabulary, so it sits in
+`AutomorphicForm/Adelic/`; the idèle-class group is number-theoretic, so it opens
+`NumberTheory/M4aHerbrand/` (13 further pin modules).
+
+**Scope (whole nodes).** 544 pin lines / 48 declarations, landed whole; the
+checker-visible surface is 45 (the three anonymous `FixedPoints` instances are
+verified by the build, not the text checker).
+
+**Route: mathlib-first.** All four nodes are pure mathlib — no pin `Definitions/`
+input at all (the eigensystem's bare `import Mathlib` is replaced by
+`NumberField.Basic` / `DedekindDomain.Ideal.Lemmas` / `RamificationInertia.Inertia`,
+the house rule). `FixedPoints.addSubmonoid`, `finsum_mem_eq_of_bijOn`,
+`Matrix.GeneralLinearGroup.map`, `QuotientGroup.congr`, `Units.mapEquiv`,
+`Matrix.adjugate_fin_two` and the `p`-adic integers are mathlib `v4.34.0`; the bodies
+are transcribed verbatim. **No promotion and no dedup**: none of the 45 checkable last
+names existed in the port. Two drift adaptations, both non-statement: `Ideal.inertiaDeg'`
+is deprecated in favour of `Ideal.inertiaDeg` but is kept in the statements for
+checker fidelity, so `HeckeEigensystem.lean` carries `set_option linter.deprecated
+false`; and the pin's one proof-level `letI` in the Galois product keeps its
+`set_option linter.style.haveILetI false` (house style).
+
+**Deliverable.** The four new modules above (headers in the house style). Landed: each
+builds warning-free (`3.0 s`–`5.6 s`), the checker reads `8266 identical / 0
+mismatched / 0 missing` (+45, exactly the checker-visible surface), and
+`spec/AutomorphicFormConsumer.lean` carries the W5 zone.
+
+**Verification.** Definition layer, so coverage is by name: all four pin nodes present
+whole, none renamed. All four modules are in `PORT_FILES` and all four pin files in
+`SOURCES` (last). The consumer zone exercises `FixedPoints.coe_add`, `Set.bijOn_smul`,
+`satakePow` with a concrete `HeckeEigensystem ℚ ℂ` (`twist`/`twist_a`),
+`congruenceK1_le_congruenceK0` at `padicK1`/`padicK0`, and `identityDescent`
+cross-module. A one-token mutation of `satakePow_zero`'s statement moved the count to
+exactly one `mismatched` and was reverted.
+
+**Build discipline.** New files: edit loop `timeout 300 lake env lean
+-DmaxHeartbeats=4000000 -DautoImplicit=false <file>` per module; then one `lake build`
+of the four; the consumer probe is the only cross-module check. No whole-tree build
+(§3.5).
+
+### 4.6 W6 — the mathlib stubs (a decision wave)
+
+**Subject.** The eight `Def_Mathlib_*` nodes in the twin's `Definitions/` closure
+(§3.2): mathlib-adjacent facts the pin needed at mathlib `v4.33.0` and packaged as
+`Def_Mathlib_*` modules. The wave audits their 114 declarations against mathlib
+`v4.34.0`, substitutes what mathlib has absorbed, and ports the residue.
+
+**The audit (the wave's decision).** Exactly **two** declarations have been absorbed by
+mathlib and are substitutions:
+
+- `Submonoid.units_isOpen` → mathlib `Submonoid.isOpen_units`
+  (`Mathlib.Topology.Algebra.Group.Units`), identically stated, renamed. This is the
+  *whole* `Def_Mathlib_Topology_Algebra_Group_Units` node (7 lines / 1 declaration), so
+  it has no port module.
+- `RestrictedProduct.singleAddMonoidHom` → mathlib's `@[to_additive]`-generated
+  constant of the same fully-qualified name (from the new
+  `RestrictedProduct.mulSingleMonoidHom`). `RestrictedProduct_Basic` therefore lands 22
+  of the pin's 23 declarations; the binder arrangement differs (mathlib's first explicit
+  argument is the submonoid *element* family, the pin's is the *carrier* family), so the
+  one call site in `TopologicalSpace` writes `singleAddMonoidHom (G := A) B j`.
+
+Both follow the port's substitution policy: adopt mathlib's declaration and do **not**
+re-export the pin name, so a consumer uses mathlib's name; the record is prose — the
+module header, the `SOURCES` comment and this section. Because the checker only iterates
+over *port* declarations, a substituted pin declaration is never diffed (there is no
+`missing` direction), so a renamed substitution is documentation-only and the header is
+the pointer for a later transcriber. No `alias` is used.
+
+The remaining **112 declarations are residue**. mathlib `v4.34.0` has the
+`RestrictedProduct` base API but none of the pin's additions under any name: a
+declaration-name index over all of `Mathlib/` plus targeted statement search finds no
+match — it has `Homeomorph.piUnique`/`piEquivPiSubtypeProd` but not the
+`ContinuousMulEquiv` forms, `Homeomorph.Lemmas`' `IsEmbedding.toHomeomorph` but not
+`IsOpenEmbedding.toHomeomorph`, and the set-indexed
+`secondCountableTopology_of_countable_cover` but not the type-indexed `'` variant.
+
+**Homing (the wave's organization).** The residue opens a mathlib-mirroring tree, so the
+gaps are obvious and disposable if upstreamed:
+
+| pin node | home |
+|---|---|
+| `Order_Filter_Cofinite` | `Order/Filter/Cofinite.lean` |
+| `Topology_Bases` | `Topology/Bases.lean` |
+| `Topology_Algebra_Module_Quotient` | `Topology/Algebra/Module/Quotient.lean` |
+| `Topology_Algebra_ContinuousMonoidHom` | `Topology/Algebra/ContinuousMonoidHom.lean` |
+| `Topology_Algebra_RestrictedProduct_{Basic,Equiv,TopologicalSpace}` | `Topology/Algebra/RestrictedProduct/{Basic,Equiv,TopologicalSpace}.lean` |
+| `Topology_Algebra_Group_Units` | *(substituted; no module)* |
+
+The pin's bare `import Mathlib` is replaced by specific imports throughout (the house
+rule), and each header records its pin line/declaration count and its own drift ledger.
+
+**Drift adapted (statements unchanged).** Every statement is verbatim (the checker's 111
+new `identical` rows). The proof/body-level adaptations, by module:
+
+- `Order/Filter/Cofinite`: `Set.Countable.setOf_finite` → `ofPred_finite` (deprecated).
+- `Topology/Bases`: `IsOpenEmbedding.toHomeomorph` → `IsEmbedding.toHomeomorph` (moved
+  to `Homeomorph.Lemmas`).
+- `Topology/Algebra/Module/Quotient`: `continuous_finset_sum` → `continuous_finsetSum`
+  (deprecated).
+- `Topology/Algebra/RestrictedProduct/Equiv` and `…/TopologicalSpace`:
+  - the pin's `filter_upwards` witnesses become `hφ.mono …` — `v4.34.0`'s
+    `filter_upwards` yields a raw set-membership proof that no longer unifies with
+    `RestrictedProduct.map`'s `∀ᶠ`-binder, so `map_apply` stops firing; the two terms are
+    definitionally equal by proof irrelevance;
+  - `piCongrLeft'_apply`/`piCongrLeft'_symm_apply` are namespace-qualified
+    `Equiv.piCongrLeft'_…`;
+  - the `RingEquiv`/`LinearEquiv` `map_mul'`/`map_smul'` proofs `change` to the
+    underlying `Equiv` spelling (keyed `simp`/`rw` no longer sees through the coercion);
+  - `dif_neg` → `dite_eq_right`; `Set.mem_setOf_eq` → `Set.mem_ofPred_eq`;
+  - `Equiv.coe_fn_mk`/`coe_fn_symm_mk` no longer reduce under `simp only`, so
+    `Equiv.continuous_restrictedProductProd{,_symm}` and
+    `Homeomorph.restrictedProductPrincipal` are rewritten through their `@[simps]`
+    projection lemmas / an explicit `change … dite …` + `split_ifs`;
+  - `map_sum (RestrictedProduct.evalAddMonoidHom …)` is spelled with `(B := C)`.
+- The pin's blank-bodied `@[to_additive\n\n  ]` attributes are normalized to
+  `@[to_additive]`; the generated companion names are unchanged, and the ones the pin
+  carries as hand-written/private companions land as `promoted` through the checker's
+  dotted fallback.
+
+**Deliverable.** The seven new modules above (headers in the house style). Landed: all
+seven build warning-free (`1.0 s`–`8.4 s`), the checker reads `8377 identical / 0
+mismatched / 0 missing` (+111, exactly the residue), and
+`spec/AutomorphicFormConsumer.lean` carries the W6 zone.
+
+**Verification.** The residue nodes are in `PORT_FILES` and their pin files in
+`SOURCES`; `Def_Mathlib_Topology_Algebra_Group_Units` is in neither (fully substituted).
+The consumer zone exercises `Filter.cofinite.sets.countable`,
+`Submodule.quotientPiContinuousLinearEquiv`, `ContinuousMulEquiv.piUnique`,
+`Submonoid.isOpen_units` (the substitution) and
+`RestrictedProduct.secondCountableTopology` cross-module. A one-token mutation of
+`RestrictedProduct.secondCountableTopology`'s conclusion moved the count to exactly one
+`mismatched` and was reverted.
+
+**Build discipline.** Each module: edit loop `timeout 400 lake env lean
+-DmaxHeartbeats=4000000 -DautoImplicit=false <file>`, then one `lake build` of the
+seven; the consumer probe is the only cross-module check. No whole-tree build (§3.5).
+
+### 4.7 Discipline common to every wave
 
 - **Whole nodes** (§2.3): a module in scope is transcribed in full, not cherry-picked
   for the current target; the residue is content with no consumer anywhere, verified
@@ -601,7 +783,7 @@ build (§3.5).
 - **No log in the plan.** State lives in the wave table's `why now` column and in
   the records under `logs/`; this file stays forward-looking.
 
-### 4.6 The proof half (after the gate)
+### 4.8 The proof half (after the gate)
 
 | set | content | home | ≈ written |
 |---|---|---|---:|

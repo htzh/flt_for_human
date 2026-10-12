@@ -2825,6 +2825,28 @@ SOURCES = [
     # `Def_AutomorphicForm_WindowedSiegelSet`. Appended last.
     "Definitions/Def_AutomorphicForm_WindowedSiegelTopology.lean",
     "Definitions/Def_AutomorphicForm_SiegelCoordinates.lean",
+    # --- TOPIC-rightConv-comm W5: the Hecke/local vocabulary. Four definition nodes with no
+    # `Theorems/` wrapper: the generic abstract Hecke operator, the automorphic Hecke
+    # eigensystem, the local-newvector congruence subgroups, and the idèle-class/Galois-descent
+    # vocabulary. Appended last.
+    "Definitions/Def_AbstractHeckeOperator.lean",
+    "Definitions/Def_AutomorphicForm_HeckeEigensystem.lean",
+    "Definitions/Def_LocalNewvector_CongruenceSubgroupK1.lean",
+    "Definitions/Def_M4aHerbrand_IdeleClassVocab.lean",
+    # --- TOPIC-rightConv-comm W6: the mathlib-gap stubs in the twin's definition closure.
+    # Two substitutions: `Submonoid.units_isOpen` is mathlib's renamed `Submonoid.isOpen_units`
+    # (whole `Def_Mathlib_Topology_Algebra_Group_Units` node, no port module), and
+    # `RestrictedProduct.singleAddMonoidHom` is mathlib's `@[to_additive]`-generated constant
+    # (so `RestrictedProduct_Basic` lands 22 of its 23 declarations). The other seven nodes are
+    # residue, ported to a mathlib-mirroring tree under `FLTForHuman/{Order,Topology}/`.
+    # Appended last.
+    "Definitions/Def_Mathlib_Order_Filter_Cofinite.lean",
+    "Definitions/Def_Mathlib_Topology_Bases.lean",
+    "Definitions/Def_Mathlib_Topology_Algebra_Module_Quotient.lean",
+    "Definitions/Def_Mathlib_Topology_Algebra_ContinuousMonoidHom.lean",
+    "Definitions/Def_Mathlib_Topology_Algebra_RestrictedProduct_Basic.lean",
+    "Definitions/Def_Mathlib_Topology_Algebra_RestrictedProduct_Equiv.lean",
+    "Definitions/Def_Mathlib_Topology_Algebra_RestrictedProduct_TopologicalSpace.lean",
 ]
 
 PORT_FILES = [
@@ -4172,6 +4194,24 @@ PORT_FILES = [
     # the landed `WindowedSiegel/{Set,RowIsometry}.lean`.
     "FLTForHuman/AutomorphicForm/Adelic/WindowedSiegel/Topology.lean",
     "FLTForHuman/AutomorphicForm/Adelic/WindowedSiegel/Coordinates.lean",
+    # --- TOPIC-rightConv-comm W5: the Hecke/local vocabulary, cut by mathematical role — the
+    # generic Hecke operator and the local congruence subgroups under `RepTheory/`, the
+    # eigensystem under `AutomorphicForm/Adelic/`, the idèle-class vocabulary under
+    # `NumberTheory/M4aHerbrand/`.
+    "FLTForHuman/RepTheory/AbstractHeckeOperator.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/HeckeEigensystem.lean",
+    "FLTForHuman/RepTheory/LocalNewvector/CongruenceSubgroupK1.lean",
+    "FLTForHuman/NumberTheory/M4aHerbrand/IdeleClassVocab.lean",
+    # --- TOPIC-rightConv-comm W6: the residue of the mathlib-gap stubs, homed in a
+    # mathlib-mirroring tree. `Def_Mathlib_Topology_Algebra_Group_Units` is fully
+    # substituted by mathlib `Submonoid.isOpen_units` and has no port module.
+    "FLTForHuman/Order/Filter/Cofinite.lean",
+    "FLTForHuman/Topology/Bases.lean",
+    "FLTForHuman/Topology/Algebra/Module/Quotient.lean",
+    "FLTForHuman/Topology/Algebra/ContinuousMonoidHom.lean",
+    "FLTForHuman/Topology/Algebra/RestrictedProduct/Basic.lean",
+    "FLTForHuman/Topology/Algebra/RestrictedProduct/Equiv.lean",
+    "FLTForHuman/Topology/Algebra/RestrictedProduct/TopologicalSpace.lean",
 ]
 
 
