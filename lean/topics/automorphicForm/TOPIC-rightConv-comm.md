@@ -302,7 +302,7 @@ and `SmoothCuspRealization`.
 The two rows are **not schedulable on their own**. They are the doorway to the
 143-module / 25,727-line `Def_(AutomorphicForm|RepTheory|AdelicDock|Deformations)`
 layer that [PORTING-AutomorphicForm.md](../PORTING-AutomorphicForm.md) §1 counted as
-its optional tail, and the honest sequence is definitions first (§4.8). The good
+its optional tail, and the honest sequence is definitions first (§4.9). The good
 news is that the *proof* half of the work is unusually cheap per line: one generic
 engine, one shared home, two statements.
 
@@ -322,8 +322,13 @@ of whose in-cone `Definitions/` dependencies are already in the port. As of
 | W4 | the Siegel window topology | `Def_AutomorphicForm_{WindowedSiegelTopology,SiegelCoordinates}` | deps landed; the windowed-Siegel vocabulary | **landed** |
 | W5 | the Hecke/local vocabulary | `Def_AbstractHeckeOperator`, `Def_AutomorphicForm_HeckeEigensystem`, `Def_LocalNewvector_CongruenceSubgroupK1`, `Def_M4aHerbrand_IdeleClassVocab` | mathlib-only; unblocks `ProductionPins*` | **landed** |
 | W6 | the mathlib stubs | the eight `Def_Mathlib_*` modules (~1.5k lines) | a decision wave: `#check` each against mathlib, record the substitution, port only the residue | **landed** |
-| W7+ | the definition gate proper | `ArchSpherical`, `IsotypicCuspSpace`, `CuspidalConstituent`, `ProductionPins*`, `AdelicDock_LocalEmbedding`, the Siegel/cusp/volume remainder | re-measure the frontier after each of W1–W6 | next |
-| P0–P3 | the proof half (§4.8) | | once the gate closes | |
+| **W7** | the definition gate, part 1 (ready set + Siegel chain) | `LocalLanglands_{HeckePair,HeckeCosetSystem}`, `AdelicDock_LocalEmbedding`, `AdelicVolume`, `CentreCutSiegelSet`, `SiegelReduction`, `SiegelCovering`, `SiegelVolume`, `SigmaAdelicAction`, `HeckeEigensystemMap`, `SmoothCuspRealization` | 11 modules; deps landed | **landed** |
+| **W8** | the production pins and the arithmetic cusp realization | `Def_AutomorphicForm_ProductionPins`, `Def_AutomorphicForm_ArithCuspRealization` | `AdelicBox`/`SiegelVolume`/`SmoothCuspRealization` landed | **landed** |
+| W9 | the compact production pins | `Def_AutomorphicForm_ProductionPinsCompact` | after W8's `ProductionPins` | **landed** |
+| W10 | the general production pins | `Def_AutomorphicForm_ProductionPinsGeneral` | after W9 + W8's `ArithCuspRealization` + W7's `SiegelCovering` | **landed** |
+| W11 | the isotypic cusp space | `Def_AutomorphicForm_IsotypicCuspSpace` | after W10 (+ landed `RightConvolution`, `SigmaAdelicAction`, `ArchWeightChar`) | **landed** |
+| W12 | the cuspidal constituent and the archimedean spherical predicate | `Def_AutomorphicForm_CuspidalConstituent`, `Def_AutomorphicForm_ArchSpherical` | after W11; closes the definition gate | |
+| P0–P3 | the proof half (§4.9) | | once the gate closes | |
 
 ### 4.1 W1 — the adèlic box
 
@@ -769,7 +774,89 @@ The consumer zone exercises `Filter.cofinite.sets.countable`,
 -DmaxHeartbeats=4000000 -DautoImplicit=false <file>`, then one `lake build` of the
 seven; the consumer probe is the only cross-module check. No whole-tree build (§3.5).
 
-### 4.7 Discipline common to every wave
+### 4.7 W7–W11 — the definition gate (status and the remaining plan)
+
+**Measured scope.** Re-walking the twin's `Definitions/` closure after W1–W6
+(2026-10-11): 51 modules, **30 fully present, 21 unported (~6,000 pin lines)**, and a
+7-batch dependency chain. W7–W11 land 15 of those 21.
+
+**Landed (15 modules; checker +521 over the post-W6 baseline, now 8898 identical /
+0 mismatched / 0 missing):**
+
+| set | modules | pin lines |
+|---|---|---:|
+| W7 ready | `LocalLanglands_HeckePair`, `AdelicDock_LocalEmbedding`, `NumberField_AdelicVolume`, `SiegelReduction`, `SigmaAdelicAction`, `HeckeEigensystemMap` | 1,589 |
+| W7 second | `LocalLanglands_HeckeCosetSystem`, `CentreCutSiegelSet` | 697 |
+| W7 third | `SmoothCuspRealization`, `SiegelCovering`, `NumberField_SiegelVolume` | 1,053 |
+| W8 | `ProductionPins`, `ArithCuspRealization` | 200 |
+| W9 | `ProductionPinsCompact` | 92 |
+| W10 | `ProductionPinsGeneral` | 468 |
+| W11 | `IsotypicCuspSpace` | 1,063 |
+
+**Homes (the wave's organization).** `RepTheory/LocalLanglands/{HeckePair,HeckeCosetSystem}.lean`,
+`NumberTheory/AdelicDock/LocalEmbedding.lean`, `NumberTheory/{AdelicVolume,SiegelVolume}.lean`,
+`AutomorphicForm/Adelic/WindowedSiegel/CentreCutSet.lean`,
+`AutomorphicForm/Adelic/Siegel/{Reduction,Covering}.lean`,
+`AutomorphicForm/Adelic/Cusp/{SmoothRealization,ArithRealization}.lean`, and
+`AutomorphicForm/Adelic/{SigmaAdelicAction,HeckeEigensystemMap,ProductionPins,ProductionPinsCompact,ProductionPinsGeneral,IsotypicCuspSpace}.lean`.
+
+**Drift ledger (statements unchanged).** `Finset.prod_le_prod` → `prod_le_prod₀` for
+the ordered form (`SiegelReduction`, `CentreCutSiegelSet`, and by default elsewhere);
+`mem_setOf_eq`/`Set.mem_setOf_eq` → `ofPred_eq`; `if_pos`/`if_neg` →
+`ite_eq_left`/`ite_eq_right`; `dif_pos`/`dif_neg` → `dite_eq_left`/`dite_eq_right`;
+`continuous_finset_sum` →
+`continuous_finsetSum`; `zero_le'` → `zero_le`; `IsOpenEmbedding.toHomeomorph` from
+`IsEmbedding`; `haveI := …` in a Prop goal → `have := …`; `Nat.Primes`
+semireducibility in `rw` (explicit arguments); and the pervasive one —
+`InfiniteAdeleRing` is a semireducible `def` in v4.34.0, so `Matrix.of`/
+`Function.update` terms over it stop reducing under `rfl`/`simp`
+(`NumberField_AdelicVolume`, `NumberField_SiegelVolume`). `SiegelVolume` restores the
+pin's proof terms with the file-level
+`set_option backward.isDefEq.respectTransparency false` (the same escape the pin uses
+in its own `Def_Mathlib_Topology_Algebra_RestrictedProduct_TopologicalSpace.lean`).
+`ProductionPins` adds `AdelicLevel/HeckeGen` (the pin reaches `heckeGen` transitively);
+`ProductionPinsGeneral` adds `Mathlib.NumberTheory.NumberField.ClassNumber` for the
+`Finite (ClassGroup (𝓞 F))` instance and drops the pin's trailing `#check`/`#print
+axioms` `Battery`. `IsotypicCuspSpace` adds `Mathlib.RepresentationTheory.Basic` for
+`Representation` and `Representation.dual_apply`, which the pin reaches transitively
+through its stub imports, and keeps a narrow `set_option linter.style.haveILetI false`
+for its `letI`/`haveI` walls.
+
+**W11 record (the isotypic cusp space, 2026-10-11).** `Def_AutomorphicForm_IsotypicCuspSpace`
+was generated whole (1,080 lines, the full pin body) and its first check stalled past the
+harness's 600 s bound at the project cap. The cause was not compute: the generated header
+replaces the pin's stub imports and the four port modules do not reach `Representation`, so
+the `TypePiece` section was ill-typed and its unification spun to `maxHeartbeats`. The
+low-cap diagnostic (`timeout 120 lake env lean -DmaxHeartbeats=200000 …`) finished in 49.6 s
+with 33 errors on the target lines and separated the two, D-6 §5; with the mathlib import
+added the module elaborates green in 7.0 s at the 4,000,000 cap. Landed: `lake build`
+warning-free at 7.4 s, a six-probe W11 consumer zone (6.7 s), `#print axioms`
+on five representative declarations all `[propext, Classical.choice, Quot.sound]`, and the
+checker at `8898 identical / 0 mismatched / 0 missing` (+124 checked declarations).
+
+**The remaining plan (W12; 1 module / 226 pin lines):**
+
+| wave | modules | pin lines | ready when |
+|---|---|---:|---|
+| **W12** | `CuspidalConstituent`, `ArchSpherical` | 226 | **now** (W11 landed); closes the definition gate |
+
+When W12 lands, the twin's statements (`IsLevelSphericalOfType` via `ArchSpherical`
+and the cuspidal-constituent carriers) are statable on landed definitions and the
+proof half (P0–P3, §4.9) can run.
+
+**Residual.** `Def_NumberField_AdelicBox` reads 33/36: its three
+`isOpen/isClosed/isCompact_integralFiniteAdeles` rows are the `(𝓞 K)`-specialized
+restatements of the general `NumberField.AdelicLevel` versions already home'd in
+`AdelicLevel/IdealBall.lean` by W1; they are deliberately not re-derived. The node is
+otherwise complete.
+
+**Execution note.** Transcriptions were delegated, but roughly a third of the runs
+stalled with no file output and were taken over by the manager (AdelicVolume,
+HeckeCosetSystem, CentreCutSiegelSet, and all three of the third set). The reliable
+route for these large mathlib-gap-adjacent modules is a direct port plus the
+`respectTransparency` escape where noted.
+
+### 4.8 Discipline common to every wave
 
 - **Whole nodes** (§2.3): a module in scope is transcribed in full, not cherry-picked
   for the current target; the residue is content with no consumer anywhere, verified
@@ -780,10 +867,16 @@ seven; the consumer probe is the only cross-module check. No whole-tree build (�
 - **Promotions go to the pin's home** (§5): a re-derived copy of a public pin
   declaration is deleted in favour of the pin-named one. The frontier waves are
   cheap now and re-elaborate a cone later.
+- **Bound the check before believing a timeout.** For a generated module run the
+  low-cap form first — `timeout 120 lake env lean -DmaxHeartbeats=200000
+  -DautoImplicit=false <file>` — which finishes in seconds to a minute and still
+  shows the target lines. It separates genuine compute from an impossible unification
+  or a dropped import (W11's `Representation`; D-6 §5). Only then pay for the
+  4,000,000 cap and the `lake build`.
 - **No log in the plan.** State lives in the wave table's `why now` column and in
   the records under `logs/`; this file stays forward-looking.
 
-### 4.8 The proof half (after the gate)
+### 4.9 The proof half (after the gate)
 
 | set | content | home | ≈ written |
 |---|---|---|---:|

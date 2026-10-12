@@ -32,6 +32,11 @@ import FLTForHuman.RepTheory.AbstractHeckeOperator
 import FLTForHuman.AutomorphicForm.Adelic.HeckeEigensystem
 import FLTForHuman.RepTheory.LocalNewvector.CongruenceSubgroupK1
 import FLTForHuman.NumberTheory.M4aHerbrand.IdeleClassVocab
+import FLTForHuman.AutomorphicForm.Adelic.ProductionPins
+import FLTForHuman.AutomorphicForm.Adelic.ProductionPinsCompact
+import FLTForHuman.AutomorphicForm.Adelic.Cusp.ArithRealization
+import FLTForHuman.AutomorphicForm.Adelic.IsotypicCuspSpace
+import FLTForHuman.NumberTheory.SiegelVolume
 import FLTForHuman.Order.Filter.Cofinite
 import FLTForHuman.Topology.Bases
 import FLTForHuman.Topology.Algebra.Module.Quotient
@@ -473,6 +478,70 @@ example {M : Type*} [TopologicalSpace M] [Monoid M] {U : Submonoid M} (hU : IsOp
 open scoped RestrictedProduct in
 example : SecondCountableTopology (Πʳ _i : ℕ, [ℝ, Set.univ]) :=
   RestrictedProduct.secondCountableTopology (fun _ : ℕ => isOpen_univ)
+
+-- Zone W7-W10 (TOPIC-rightConv-comm): the definition gate proper, cross-module. The
+-- production-pins bundles, the arithmetic cusp realization and the Siegel-volume
+-- archimedean embedding.
+example (F : Type) [Field F] [NumberField F] :
+    (AutomorphicForm.productionPins F).μ =
+      NumberField.AdelicHaar.adelicGLHaar (Fin 2) (𝓞 F) F :=
+  AutomorphicForm.productionPins_μ F
+
+example (F : Type) [Field F] [NumberField F] (N : Ideal (𝓞 F)) :
+    (AutomorphicForm.productionPinsCompact F).U N ≤ (AutomorphicForm.productionPins F).U N :=
+  AutomorphicForm.productionPinsCompact_U_le_productionPins_U F N
+
+example (F : Type) [Field F] [NumberField F] (v : HeightOneSpectrum (𝓞 F)) :
+    AutomorphicForm.HeckeEigensystem.cNorm v ≠ 0 :=
+  AutomorphicForm.HeckeEigensystem.cNorm_ne_zero v
+
+example (F : Type) [Field F] [NumberField F] (v₀ : InfinitePlace F)
+    (g : Matrix (Fin 2) (Fin 2) v₀.Completion) :
+    (NumberField.AdelicLevel.archEval F v₀).mapMatrix
+        (NumberField.SiegelVolume.archPiMat F v₀ g) = g :=
+  NumberField.SiegelVolume.archEval_mapMatrix_archPiMat_self F v₀ g
+
+-- Zone W11 (TOPIC-rightConv-comm): the isotypic cusp space. Probes across the module's
+-- sections: the isotypic predicate and its span (`Isotypic`), the trace/contraction
+-- pairing (`Trace`), the isotypic-component algebra (`TypePiece`, where the port needs
+-- mathlib's `RepresentationTheory.Basic` for `Representation`), the archimedean cut
+-- (`ArchCut`) and the cut trace (`CutTrace`, which composes the `Operators` layer).
+example {K : Type} [Field K] [NumberField K] {pins : CarrierPins K} {ξ : pins.Z →* ℂˣ}
+    {N : Ideal (𝓞 K)} {S : Finset (HeightOneSpectrum (𝓞 K))} {Φ : HeckeEigensystem K ℂ}
+    {φ : AdelicGL2 (𝓞 K) K → ℂ} (h : IsIsotypicCuspFormAt K pins ξ N S Φ φ) :
+    φ ∈ isotypicCuspSubmodule K pins ξ N S Φ :=
+  h.mem_isotypicCuspSubmodule
+
+example (K : Type) [Field K] [NumberField K] (pins : CarrierPins K) (ξ : pins.Z →* ℂˣ)
+    (N : Ideal (𝓞 K)) (S : Finset (HeightOneSpectrum (𝓞 K))) (Φ : HeckeEigensystem K ℂ) :
+    isotypicCuspSubmodule K pins ξ N S Φ = ⊥ ↔
+      ∀ φ : AdelicGL2 (𝓞 K) K → ℂ, IsIsotypicCuspFormAt K pins ξ N S Φ φ → φ = 0 :=
+  isotypicCuspSubmodule_eq_bot_iff K pins ξ N S Φ
+
+example {M : Type*} [AddCommGroup M] [Module ℂ M] (V : Submodule ℂ M) (T : M → M)
+    (h : IsStableLinearOn V T) : traceOn V T h = LinearMap.trace ℂ V h.toEnd :=
+  traceOn_eq V T h
+
+example {H G : Type*} [Group H] [Group G] (ι : H →* G) (χ : H →* ℂˣ) (f : G → ℂ) :
+    f ∈ typeSubmodule ι (charRep χ) ↔
+      ∀ (k : H) (x : G), f (x * ι k) = ((χ k : ℂˣ) : ℂ) * f x :=
+  mem_typeSubmodule_charRep_iff ι χ f
+
+example (F : Type) [Field F] [NumberField F] (tys : ArchTypeFamily F)
+    (f : AdelicGL2 (𝓞 F) F → ℂ) :
+    f ∈ archCutSubmodule F tys ↔
+      ∀ w : InfinitePlace F,
+        f ∈ ⨆ i : Fin (tys.card w), archTypeSubmoduleAt F w (tys.rep w i) :=
+  mem_archCutSubmodule_iff F tys f
+
+example (K : Type) [Field K] [NumberField K] (pins : CarrierPins K) (ξ : pins.Z →* ℂˣ)
+    (N : Ideal (𝓞 K)) (S : Finset (HeightOneSpectrum (𝓞 K))) (Ψ : HeckeEigensystem K ℂ)
+    (tys : ArchTypeFamily K) (f : AdelicGL2 (𝓞 K) K → ℂ) (hf : Continuous f)
+    (hfc : HasCompactSupport f) :
+    cutTrace K pins ξ N S Ψ tys f hf hfc =
+      convTraceOn K (isotypicCuspSubmodule K pins ξ N S Ψ ⊓ archCutSubmodule K tys)
+        (continuous_of_mem_isotypicCuspSubmodule_inf K) f hf hfc :=
+  cutTrace_eq K pins ξ N S Ψ tys f hf hfc
 
 end AutomorphicFormConsumer
 

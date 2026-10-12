@@ -2847,6 +2847,24 @@ SOURCES = [
     "Definitions/Def_Mathlib_Topology_Algebra_RestrictedProduct_Basic.lean",
     "Definitions/Def_Mathlib_Topology_Algebra_RestrictedProduct_Equiv.lean",
     "Definitions/Def_Mathlib_Topology_Algebra_RestrictedProduct_TopologicalSpace.lean",
+    # --- TOPIC-rightConv-comm W7+ (the definition gate proper), ready set. Appended last.
+    "Definitions/Def_LocalLanglands_HeckePair.lean",
+    "Definitions/Def_AdelicDock_LocalEmbedding.lean",
+    "Definitions/Def_NumberField_AdelicVolume.lean",
+    "Definitions/Def_AutomorphicForm_SiegelReduction.lean",
+    "Definitions/Def_AutomorphicForm_SigmaAdelicAction.lean",
+    "Definitions/Def_AutomorphicForm_HeckeEigensystemMap.lean",
+    "Definitions/Def_LocalLanglands_HeckeCosetSystem.lean",
+    "Definitions/Def_AutomorphicForm_CentreCutSiegelSet.lean",
+    "Definitions/Def_AutomorphicForm_SmoothCuspRealization.lean",
+    "Definitions/Def_AutomorphicForm_SiegelCovering.lean",
+    "Definitions/Def_NumberField_SiegelVolume.lean",
+    "Definitions/Def_AutomorphicForm_ProductionPins.lean",
+    "Definitions/Def_AutomorphicForm_ArithCuspRealization.lean",
+    "Definitions/Def_AutomorphicForm_ProductionPinsCompact.lean",
+    "Definitions/Def_AutomorphicForm_ProductionPinsGeneral.lean",
+    # --- TOPIC-rightConv-comm W11: the isotypic cusp space. Appended last.
+    "Definitions/Def_AutomorphicForm_IsotypicCuspSpace.lean",
 ]
 
 PORT_FILES = [
@@ -4212,6 +4230,23 @@ PORT_FILES = [
     "FLTForHuman/Topology/Algebra/RestrictedProduct/Basic.lean",
     "FLTForHuman/Topology/Algebra/RestrictedProduct/Equiv.lean",
     "FLTForHuman/Topology/Algebra/RestrictedProduct/TopologicalSpace.lean",
+    # --- TOPIC-rightConv-comm W7+ (the definition gate proper), ready set.
+    "FLTForHuman/RepTheory/LocalLanglands/HeckePair.lean",
+    "FLTForHuman/NumberTheory/AdelicDock/LocalEmbedding.lean",
+    "FLTForHuman/NumberTheory/AdelicVolume.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/Siegel/Reduction.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/SigmaAdelicAction.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/HeckeEigensystemMap.lean",
+    "FLTForHuman/RepTheory/LocalLanglands/HeckeCosetSystem.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/WindowedSiegel/CentreCutSet.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/Cusp/SmoothRealization.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/Siegel/Covering.lean",
+    "FLTForHuman/NumberTheory/SiegelVolume.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/ProductionPins.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/Cusp/ArithRealization.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/ProductionPinsCompact.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/ProductionPinsGeneral.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/IsotypicCuspSpace.lean",
 ]
 
 
