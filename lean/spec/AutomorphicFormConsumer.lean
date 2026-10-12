@@ -24,6 +24,9 @@ import FLTForHuman.AutomorphicForm.Adelic.LsXi
 import FLTForHuman.AutomorphicForm.Adelic.TestFnTop
 import FLTForHuman.NumberTheory.AdelicBox
 import FLTForHuman.NumberTheory.AdelicCentre
+import FLTForHuman.MeasureTheory.ContractionDecay
+import FLTForHuman.MeasureTheory.ScalingDichotomy
+import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
 
 set_option autoImplicit false
 
@@ -305,6 +308,66 @@ example (K : Type) [Field K] [NumberField K] :
             Set (GL (Fin 2) (AdeleRing (𝓞 K) K)))))) < ⊤ :=
   NumberField.AdelicCentre.adelicPGLHaar_image_lt_top_of_subset (𝓞 K) K
     isCompact_singleton le_rfl
+
+-- Zone W3 (TOPIC-rightConv-comm): the generic measure-theoretic decay engines, both over
+-- an arbitrary group and so homed in `MeasureTheory/` rather than `AutomorphicForm/`.
+-- `ContractionDecay` cuts a set into `r`-scaled shells (`iUnion_shell`) and sums them to
+-- bound the whole mass by the low shell; `ScalingDichotomy` cuts a positive function into
+-- `ℤ`-slices and shows that a measure invariant under the scaling is `0` or `⊤`. The zone
+-- instantiates both in `ℝˣ` with the zero measure.
+example :
+    ⋃ k, MeasureTheory.ContractionDecay.shell (Set.univ : Set ℝˣ) (fun _ => (1 : ℝ)) 1 2 k
+      = Set.univ :=
+  MeasureTheory.ContractionDecay.iUnion_shell (G := ℝˣ) (S := Set.univ)
+    (φ := fun _ => (1 : ℝ)) (c := 1) (r := 2) one_pos one_lt_two (fun _ _ => le_rfl)
+
+example : MeasurableSet (MeasureTheory.ContractionDecay.shell (Set.univ : Set ℝˣ)
+    (fun _ => (1 : ℝ)) 1 2 3) :=
+  MeasureTheory.ContractionDecay.measurableSet_shell MeasurableSet.univ measurable_const 1 2 3
+
+example :
+    ⋃ k : ℤ, MeasureTheory.ScalingDichotomy.zpowSlice (Set.univ : Set ℝˣ)
+      (fun _ => (1 : ℝ)) 2 k = Set.univ :=
+  MeasureTheory.ScalingDichotomy.iUnion_zpowSlice (D := Set.univ) (f := fun _ => (1 : ℝ))
+    (r := 2) one_lt_two (fun _ _ => one_pos)
+
+section
+-- The default `MeasurableSpace ℝˣ` is not Borel, so pin it locally to let the
+-- `ContinuousMul → MeasurableMul` instance fire for the two measure headlines.
+local instance : MeasurableSpace ℝˣ := borel ℝˣ
+local instance : BorelSpace ℝˣ := ⟨rfl⟩
+
+example :
+    (0 : Measure ℝˣ) Set.univ ≤
+      2 * (0 : Measure ℝˣ) (Set.univ ∩ (fun _ : ℝˣ => (1 : ℝ)) ⁻¹' Set.Iio 2) := by
+  have : (0 : Measure ℝˣ).IsMulLeftInvariant := ⟨fun g => by simp⟩
+  exact MeasureTheory.ContractionDecay.measure_le_two_mul_measure_inter (0 : Measure ℝˣ)
+    MeasurableSet.univ measurable_const one_pos one_lt_two (S := Set.univ)
+    (φ := fun _ => (1 : ℝ)) (c := 1) (r := 2) (p := 1) (q := 1)
+    (fun _ _ => le_rfl) (fun _ _ h => absurd h (by norm_num))
+    (fun _ _ h => absurd h (by norm_num))
+    (fun _ _ _ _ h _ => absurd h (by norm_num))
+
+example : (0 : Measure ℝˣ) Set.univ < ⊤ := by
+  have : (0 : Measure ℝˣ).IsMulLeftInvariant := ⟨fun g => by simp⟩
+  exact MeasureTheory.ContractionDecay.measure_lt_top_of_measure_inter_lt_top (0 : Measure ℝˣ)
+    MeasurableSet.univ measurable_const one_pos one_lt_two (S := Set.univ)
+    (φ := fun _ => (1 : ℝ)) (c := 1) (r := 2) (p := 1) (q := 1)
+    (fun _ _ => le_rfl) (fun _ _ h => absurd h (by norm_num))
+    (fun _ _ h => absurd h (by norm_num))
+    (fun _ _ _ _ h _ => absurd h (by norm_num)) (by simp)
+
+example :
+    (0 : Measure ℝˣ) Set.univ = 0 ∨ (0 : Measure ℝˣ) Set.univ = ⊤ := by
+  have : (0 : Measure ℝˣ).IsMulLeftInvariant := ⟨fun g => by simp⟩
+  exact MeasureTheory.ScalingDichotomy.measure_eq_zero_or_top_of_mul_preimage_eq
+    (μ := (0 : Measure ℝˣ)) (z := Units.mk0 (2 : ℝ) (by norm_num))
+    (f := fun x : ℝˣ => ((x : ℝ)) ^ 2) (r := 4)
+    (by fun_prop) (by norm_num)
+    (fun g => by rw [Units.val_mul, Units.val_mk0]; ring)
+    (fun g _ => sq_pos_of_ne_zero g.ne_zero) MeasurableSet.univ (by ext g; simp)
+
+end
 
 end AutomorphicFormConsumer
 

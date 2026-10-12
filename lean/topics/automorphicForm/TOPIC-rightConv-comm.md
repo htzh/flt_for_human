@@ -302,7 +302,7 @@ and `SmoothCuspRealization`.
 The two rows are **not schedulable on their own**. They are the doorway to the
 143-module / 25,727-line `Def_(AutomorphicForm|RepTheory|AdelicDock|Deformations)`
 layer that [PORTING-AutomorphicForm.md](../PORTING-AutomorphicForm.md) §1 counted as
-its optional tail, and the honest sequence is definitions first (§4.4). The good
+its optional tail, and the honest sequence is definitions first (§4.5). The good
 news is that the *proof* half of the work is unusually cheap per line: one generic
 engine, one shared home, two statements.
 
@@ -318,12 +318,12 @@ of whose in-cone `Definitions/` dependencies are already in the port. As of
 |---|---|---|---|---|
 | **W1** | the adèlic box | `Def_NumberField_AdelicBox` (finish the half-ported node) | deps landed; the box is named by both headline statements | **landed** |
 | **W2** | the centre and the projective quotient | `Def_NumberField_AdelicCentre` | deps landed; the PGL₂ vocabulary the cusp carriers use | **landed** |
-| W3 | contraction decay on measure spaces | `Def_MeasureTheory_{ContractionDecay,ScalingDichotomy}` | mathlib-only; generic, so its home is not `AutomorphicForm/` | next |
-| W4 | the Siegel window topology | `Def_AutomorphicForm_{WindowedSiegelTopology,SiegelCoordinates}` | deps landed; the windowed-Siegel vocabulary | |
+| W3 | contraction decay on measure spaces | `Def_MeasureTheory_{ContractionDecay,ScalingDichotomy}` | mathlib-only; generic, so its home is not `AutomorphicForm/` | **landed** |
+| W4 | the Siegel window topology | `Def_AutomorphicForm_{WindowedSiegelTopology,SiegelCoordinates}` | deps landed; the windowed-Siegel vocabulary | next |
 | W5 | the Hecke/local vocabulary | `Def_AbstractHeckeOperator`, `Def_AutomorphicForm_HeckeEigensystem`, `Def_LocalNewvector_CongruenceSubgroupK1`, `Def_M4aHerbrand_IdeleClassVocab` | mathlib-only; unblocks `ProductionPins*` | |
 | W6 | the mathlib stubs | the eight `Def_Mathlib_*` modules (~1.5k lines) | a decision wave, not a port: `#check` each against mathlib, record the substitution in `SOURCES`, port only the residue | |
 | W7+ | the definition gate proper | `ArchSpherical`, `IsotypicCuspSpace`, `CuspidalConstituent`, `ProductionPins*`, `AdelicDock_LocalEmbedding`, the Siegel/cusp/volume remainder | re-measure the frontier after each of W1–W6 | |
-| P0–P3 | the proof half (§4.4) | | once the gate closes | |
+| P0–P3 | the proof half (§4.5) | | once the gate closes | |
 
 ### 4.1 W1 — the adèlic box
 
@@ -452,7 +452,71 @@ one `mismatched` and was reverted.
 then one `lake build FLTForHuman.NumberTheory.AdelicCentre`, and the consumer probe is
 the only cross-module check. No whole-tree build (§3.5).
 
-### 4.3 Discipline common to every wave
+### 4.3 W3 — contraction decay on measure spaces
+
+**Subject.** Two generic measure-theoretic decay engines over an arbitrary group.
+`ContractionDecay` cuts a set `S` into the `r`-scaled shells of a positive function
+`φ`; if two elements `p, q` contract `φ` by `r` on the high part of `S` and stay in
+`S`, the shell images are disjoint and the mass decays geometrically
+(`measure_shell_le`), giving the doubling bound
+`μ S ≤ 2 * μ (S ∩ φ ⁻¹' Iio (r * c))` and `μ S < ⊤` from the single low shell
+(`measure_lt_top_of_measure_inter_lt_top`). `ScalingDichotomy` cuts a positive `f`
+on `D` into `ℤ`-slices; a scaling element `z` (`f (z * g) = r * f g`, `D`
+invariant) makes every slice the same measure, so `μ D = 0 ∨ μ D = ⊤`.
+
+**Why now.** Both nodes are on the frontier, mathlib-only, and are the decay
+arguments behind the Siegel-volume and centre-cut estimates the later waves consume:
+the pin's `Def_NumberField_SiegelVolume` imports `ContractionDecay`, and
+`Def_NumberField_AdelicVolume` imports `ScalingDichotomy`.
+
+**Scope (whole nodes).** 248 pin lines / 17 declarations, landed whole, one pin
+module per home:
+
+- `Def_MeasureTheory_ContractionDecay` (149 lines / 11 declarations) →
+  `MeasureTheory/ContractionDecay.lean`, namespace `MeasureTheory.ContractionDecay`:
+  `shell`, `shell_zero_eq`, `iUnion_shell`, `pairwise_disjoint_shell`,
+  `measurableSet_shell`, `mul_le_of_mem_shell_succ`, `image_mul_shell_succ_subset`,
+  `two_mul_measure_shell_succ_le`, `measure_shell_le`,
+  `measure_le_two_mul_measure_inter`, `measure_lt_top_of_measure_inter_lt_top`;
+- `Def_MeasureTheory_ScalingDichotomy` (99 lines / 6 declarations) →
+  `MeasureTheory/ScalingDichotomy.lean`, namespace `MeasureTheory.ScalingDichotomy`:
+  `zpowSlice`, `iUnion_zpowSlice`, `pairwise_disjoint_zpowSlice`,
+  `measurableSet_zpowSlice`, `preimage_mul_zpowSlice_succ`,
+  `measure_eq_zero_or_top_of_mul_preimage_eq`.
+
+**Route: mathlib-first, and a new top-level home.** Both pin modules import only
+`Mathlib.MeasureTheory.Group.Measure`; every lemma they use (`exists_nat_pow_near`,
+`exists_mem_Ico_zpow`, `zpow_right_strictMono₀`, `measure_preimage_mul`,
+`ENNReal.tsum_geometric`, `ENNReal.tsum_const_eq_top_of_ne_zero`, …) is mathlib
+`v4.34.0`, and the two files are transcribed verbatim with **no drift adaptation**.
+They mention neither the adèles nor `GL₂`, so by the mathematical-role cut
+(playbook §3.1) they open the port's `MeasureTheory/` area rather than going under
+`AutomorphicForm/`; the pin namespaces are kept. Recorded negative: none of the 17
+last names existed in the port, so there is no promotion and no dedup.
+
+**Deliverable.** `FLTForHuman/MeasureTheory/{ContractionDecay,ScalingDichotomy}.lean`
+(new; headers in the house style). Landed: both build warning-free at `9.2 s` /
+`9.4 s`, the checker reads `8186 identical / 0 mismatched / 0 missing` (+17, exactly
+the two nodes' declaration count), and `spec/AutomorphicFormConsumer.lean` carries
+the W3 zone.
+
+**Verification.** Definition layer, so coverage is by name: all 17 pin declarations
+present, none renamed. Both modules are in `PORT_FILES` and both pin files in
+`SOURCES` (last). The consumer zone exercises `iUnion_shell`, `measurableSet_shell`,
+`iUnion_zpowSlice`, `measure_le_two_mul_measure_inter`,
+`measure_lt_top_of_measure_inter_lt_top` and
+`measure_eq_zero_or_top_of_mul_preimage_eq` cross-module — concretely in `ℝˣ` with
+the zero measure, the zone pinning a local Borel `MeasurableSpace ℝˣ` so the generic
+`[MeasurableMul]` hypotheses have an instance. A one-token mutation of
+`shell_zero_eq`'s statement moved the count to exactly one `mismatched` and was
+reverted.
+
+**Build discipline.** New files: edit loop `timeout 300 lake env lean
+-DmaxHeartbeats=4000000 -DautoImplicit=false FLTForHuman/MeasureTheory/<file>.lean`;
+then one `lake build` of the two modules; the consumer probe is the only cross-module
+check. No whole-tree build (§3.5).
+
+### 4.4 Discipline common to every wave
 
 - **Whole nodes** (§2.3): a module in scope is transcribed in full, not cherry-picked
   for the current target; the residue is content with no consumer anywhere, verified
@@ -466,7 +530,7 @@ the only cross-module check. No whole-tree build (§3.5).
 - **No log in the plan.** State lives in the wave table's `why now` column and in
   the records under `logs/`; this file stays forward-looking.
 
-### 4.4 The proof half (after the gate)
+### 4.5 The proof half (after the gate)
 
 | set | content | home | ≈ written |
 |---|---|---|---:|

@@ -2815,6 +2815,11 @@ SOURCES = [
     # node is a definition layer with no `Theorems/` wrapper; `Matrix.GeneralLinearGroup.scalar`
     # and `center_eq_range_scalar` are mathlib `v4.34.0`. Appended last.
     "Definitions/Def_NumberField_AdelicCentre.lean",
+    # --- TOPIC-rightConv-comm W3: the generic measure-theoretic decay engines. Both pin
+    # nodes are mathlib-only definitions with no `Theorems/` wrapper; their home is
+    # `MeasureTheory/` (playbook §3.1). Appended last.
+    "Definitions/Def_MeasureTheory_ContractionDecay.lean",
+    "Definitions/Def_MeasureTheory_ScalingDichotomy.lean",
 ]
 
 PORT_FILES = [
@@ -4154,6 +4159,10 @@ PORT_FILES = [
     "FLTForHuman/NumberTheory/AdelicBox.lean",
     # --- TOPIC-rightConv-comm W2: the adèlic centre and the projective quotient.
     "FLTForHuman/NumberTheory/AdelicCentre.lean",
+    # --- TOPIC-rightConv-comm W3: the generic measure-theoretic decay engines, homed
+    # under `MeasureTheory/` rather than `AutomorphicForm/` (playbook §3.1).
+    "FLTForHuman/MeasureTheory/ContractionDecay.lean",
+    "FLTForHuman/MeasureTheory/ScalingDichotomy.lean",
 ]
 
 
