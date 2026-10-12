@@ -721,6 +721,22 @@ instruments, all cheap:
      comment shifts every later namespace event. The **primary** last-name lookup
      is unaffected, but the *dotted* name (used by `OWN_PROOFS` and
      `--prop-bodies`) is wrong. Write header prose in `/- … -/` blocks.
+   - **A statement that opens a `let`/`letI` binding must not be cut at that
+     binding.** `top_level_cut` took the first top-level `:=` for the body
+     separator, so `theorem haar_facts : letI := glBorel … ; …` (the adèlic measure
+     prelude of the `S_AutomorphicForm_rightConv_rightConv_comm_of_isLevelSphericalOfType*`
+     family) read as the literal statement `': letI'` — and *any* two `let`-headed
+     declarations then compared equal: a check that cannot fail. Twenty-four port
+     declarations and 75 pin `SOURCES` declarations were in that class; their
+     ports were faithful, but they had never actually been diffed, and
+     `port_advise`/`port_plan` reported a spurious substitution off the same
+     truncation (`haar_facts` "already in the port" as
+     `AlgebraicCurve.Place.polynomialAlgebra_algebraMap_X`). Fixed 2026-10-11:
+     `top_level_cut` counts pending `let`/`letI`/`let rec` binders at bracket depth
+     0 and consumes their `:=`. The rule generalizes — before recording a
+     statement as verified, ask whether the diff could be degenerate (a truncated
+     signature, an extracted `Prop` type, an unelaborated spelling), because a
+     vacuous `identical` and a real one look the same in the count.
 2. **A consumer** (`spec/<X>Consumer.lean`) outside every library. Its error
    count is the deliverable metric, and each zone must contain a **real, executed
    cross-module composition** — no `#check`s, no `sorry`; deleting any one module

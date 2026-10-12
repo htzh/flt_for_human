@@ -4424,27 +4424,64 @@ def strip_comments(text: str) -> str:
 
 
 def top_level_cut(text: str) -> int:
-    """Index of the first `:=` or `where` outside any bracket pair."""
+    """Index of the first `:=` or `where` outside any bracket pair.
+
+    A `:=` that closes a `let`/`letI`/`let rec` *binding in the type* is not the
+    declaration's body separator.  `theorem haar_facts : letI := glBorel … ; …`
+    (the adèlic measure prelude of the
+    `S_AutomorphicForm_rightConv_rightConv_comm_of_isLevelSphericalOfType*` family)
+    was cut at that binding, so every such statement read as the literal `': letI'`
+    — and any two `let`-headed declarations then compared equal, a check that
+    cannot fail.  24 port declarations and 75 pin `SOURCES` declarations were in
+    that class; their ports were faithful, but had never actually been diffed, and
+    `port_advise` reported a spurious substitution off the same truncation
+    (`haar_facts` "already in the port" as
+    `AlgebraicCurve.Place.polynomialAlgebra_algebraMap_X`).  Count the pending
+    binders at bracket depth 0 and consume their `:=` instead.  2026-10-11.
+    """
     depth = 0
+    pending_lets = 0
     i = 0
     n = len(text)
     while i < n:
         c = text[i]
         if c in "([{":
             depth += 1
-        elif c in ")]}":
+            i += 1
+            continue
+        if c in ")]}":
             depth -= 1
-        elif depth == 0:
-            if text.startswith(":=", i):
+            i += 1
+            continue
+        if depth != 0:
+            i += 1
+            continue
+        if text.startswith(":=", i):
+            if pending_lets:
+                pending_lets -= 1
+                i += 2
+                continue
+            return i
+        if text.startswith("where", i):
+            before = text[i - 1] if i else " "
+            after = text[i + 5] if i + 5 < n else " "
+            if not (before.isalnum() or before == "_") and not (
+                after.isalnum() or after == "_"
+            ):
                 return i
-            if text.startswith("where", i):
-                before = text[i - 1] if i else " "
-                after = text[i + 5] if i + 5 < n else " "
-                if not (before.isalnum() or before == "_") and not (
-                    after.isalnum() or after == "_"
-                ):
-                    return i
-        i += 1
+        before = text[i - 1] if i else " "
+        if not (before.isalnum() or before == "_"):
+            for tok in ("letrec", "letI", "let_fun", "let"):
+                if text.startswith(tok, i):
+                    k = i + len(tok)
+                    if not (k < n and (text[k].isalnum() or text[k] == "_")):
+                        pending_lets += 1
+                        i = k
+                        break
+            else:
+                i += 1
+        else:
+            i += 1
     return n
 
 
