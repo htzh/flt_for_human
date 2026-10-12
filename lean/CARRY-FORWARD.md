@@ -638,3 +638,25 @@ are repeated in the playbook §2.1; keep the specific instances here.
   Reproduce:
   `python3 tools/deps/port_advise.py --nodes WeierstrassCurve.Affine.exists_intermediateField_countable_map_eq_of_isAddCyclic_ker_pointMapOfPushforward`,
   then `port_plan.py` on its `--json`; the frontier command is the one above.
+
+### `AlgebraicCurve.linearIndependent_of_constantFieldExtension` — a shelf head whose twin `--ready` cannot show
+
+The row that heads the Deligne–Serre ready shelf is
+`AlgebraicCurve.linearIndependent_of_constantFieldExtension_of_isAlgClosed` (583 lines,
+silo rank 1). The pin proves the same development a second time in
+`S_AlgebraicCurve_linearIndependent_of_constantFieldExtension.lean` (579 lines,
+`[CharZero K]` in place of the separating-transcendental route); through the checker's
+own normaliser **17 of the 21 declarations are statement-identical**. That second node
+is unported and *demanded* by 16 nodes of the same cone, but it cites nothing, so it is
+a graph leaf and `frontier.py --ready` drops it by design (the `i in hops` guard) — it
+appears only under `--include-leaves` (`used_by` 16 / 19), behind 566 other leaves on
+this cone. Cut the two as one cluster. Four of the 21 (`algebraMap_mem_adjoin`,
+`exists_ringHom_adjoin`, `isIntegral_algebraMap`, `transcendental_algebraMap`) are also
+statement-identical in the unported
+`S_AlgebraicCurve_genus_eq_of_constantFieldExtension_of_isAlgClosed.lean`
+(lines 344/353/358/368), so give those one home. Scope, the promotion reading and the
+hub-edit prices are
+[topics/algebraicCurve/TOPIC-constant-field-extension.md](topics/algebraicCurve/TOPIC-constant-field-extension.md).
+Reproduce:
+`python3 tools/deps/twin_scan.py --node AlgebraicCurve.linearIndependent_of_constantFieldExtension`
+and the `--include-leaves` frontier command in that note §12.
