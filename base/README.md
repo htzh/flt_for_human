@@ -262,3 +262,17 @@ notation, spending their space on the subject at hand.
   Lean, with the step-by-step table and the mathlib inventory
   (`derivWeierstrassP_sq`, `apply_eq_apply_of_bounded`, `add_of_X_ne`,
   `eqOn_zero_or_eventually_ne_zero_of_preconnected`, `countable_of_Lindelof_of_discrete`).
+- [022 — Haar measure: invariance, unimodularity, and convolution on the adeles](022-haar-measure.md):
+  the measure layer the automorphic right-convolution topic is written against —
+  left- and right-invariance of a measure and why they differ; Haar's existence by
+  covering numbers and uniqueness up to `haarScalarFactor`; the modular character and
+  the equivalence unimodular ⇔ left = right ⇔ inversion-invariant, with the
+  "involution forces scale `c² = 1`" argument; the stable-range proof that
+  $`\mathrm{GL}_2(\mathbb{A}_F)`$ is unimodular (LDU decomposition, elementary and
+  diagonal factors conjugate to their inverses, and stable range at the finite and
+  infinite places); associativity of convolution as left invariance plus Fubini, and
+  the reflection dictionary that makes the port's `rightConv`/`convKer` an ordinary
+  convolution; the pushed-forward measure $`\nu = (\mu \restriction S) \circ \pi^{-1}`$
+  and exactly which hypotheses make it Haar; the projective quotient Haar measure; what
+  mathlib does and does not formalize; and one Lean section (§10) with the mathlib API,
+  the port files and the `IsHaarMeasure`-is-left-only encoding trap.
