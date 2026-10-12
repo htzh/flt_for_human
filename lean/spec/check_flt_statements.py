@@ -2784,6 +2784,27 @@ SOURCES = [
     # --- PORTING-AutomorphicForm D7: the archimedean inclusion and archimedean types.
     # Appended last.
     "Definitions/Def_AutomorphicForm_ArchType.lean",
+    # --- PORTING-AutomorphicForm H1: the shared `isFactorizableTestFn` prelude.
+    # The public `Ws1.H2K.Scaffold` block of the `hasArchCharacterAt` file is listed
+    # first so the bare last-name lookup finds the public copy; the two private siblings
+    # follow as fallbacks. Appended last.
+    "P2M/Sol/S_AutomorphicForm_exists_isFactorizableTestFn_hasArchCharacterAt_rightConv_ne_zero_of_hasArchCharacterAt.lean",
+    "P2M/Sol/S_AutomorphicForm_exists_isFactorizableTestFn_rightConv_ne_zero_of_levelOne_invariant.lean",
+    "P2M/Sol/S_AutomorphicForm_exists_isFactorizableTestFn_rightConv_ne_zero_of_principalLevel_invariant.lean",
+    # --- PORTING-AutomorphicForm T1: the `rightConv_ne_zero_of_*` headlines and the
+    # principal-level def module. The wrappers carry the public headline statements; the
+    # `S_` files' `solution` theorems are the proofs. Appended last.
+    "Theorems/Thm_AutomorphicForm_exists_isFactorizableTestFn_rightConv_ne_zero_of_levelOne_invariant.lean",
+    "Theorems/Thm_AutomorphicForm_exists_isFactorizableTestFn_rightConv_ne_zero_of_principalLevel_invariant.lean",
+    "Definitions/Def_NumberField_PrincipalLevel.lean",
+    # --- PORTING-AutomorphicForm: the arch-weight-character def layer. Appended last.
+    "Definitions/Def_AutomorphicForm_ArchWeightChar.lean",
+    "Definitions/Def_AutomorphicForm_ArchWeightCharTransport.lean",
+    # --- PORTING-AutomorphicForm T1: the arch-character headline and the measure development
+    # it uses. The hasArchCharacterAt `S_` file is already listed above (as H1's public copy);
+    # the wrappers carry the public headline statements. Appended last.
+    "Theorems/Thm_AutomorphicForm_exists_isFactorizableTestFn_hasArchCharacterAt_rightConv_ne_zero_of_hasArchCharacterAt.lean",
+    "Theorems/Thm_NumberField_AdelicHaar_isMulRightInvariant_adelicGLHaar.lean",
 ]
 
 PORT_FILES = [
@@ -4105,6 +4126,19 @@ PORT_FILES = [
     "FLTForHuman/AutomorphicForm/Adelic/WindowedSiegel/RowIsometry.lean",
     # --- PORTING-AutomorphicForm D7: archimedean inclusion and types. Appended last.
     "FLTForHuman/AutomorphicForm/Adelic/ArchType.lean",
+    # --- PORTING-AutomorphicForm H1: the public shared `isFactorizableTestFn` prelude home.
+    "FLTForHuman/AutomorphicForm/Adelic/TestFnNearIdentity.lean",
+    # --- PORTING-AutomorphicForm T1: the levelOne and principalLevel headlines.
+    "FLTForHuman/NumberTheory/AdelicLevel/PrincipalLevel.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/RightConvNeZero.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/RightConvNeZeroPrincipal.lean",
+    # --- PORTING-AutomorphicForm: the arch-weight-character def layer (groundwork for the
+    # `hasArchCharacterAt` headline, which needs its own `ArchProfile`-parameterised prelude).
+    "FLTForHuman/AutomorphicForm/Adelic/ArchWeightChar.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/ArchWeightCharTransport.lean",
+    # --- PORTING-AutomorphicForm T1: the arch-character headline and its measure input.
+    "FLTForHuman/NumberTheory/AdelicHaar/MulRightInvariant.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/RightConvNeZeroArch.lean",
 ]
 
 

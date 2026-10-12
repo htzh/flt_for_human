@@ -15,6 +15,10 @@ import FLTForHuman.AutomorphicForm.Adelic.RightConvolution
 import FLTForHuman.AutomorphicForm.Adelic.SmoothAutomorphicFn
 import FLTForHuman.AutomorphicForm.Adelic.WindowedSiegel.RowIsometry
 import FLTForHuman.AutomorphicForm.Adelic.ArchType
+import FLTForHuman.AutomorphicForm.Adelic.TestFnNearIdentity
+import FLTForHuman.AutomorphicForm.Adelic.RightConvNeZero
+import FLTForHuman.AutomorphicForm.Adelic.RightConvNeZeroPrincipal
+import FLTForHuman.AutomorphicForm.Adelic.RightConvNeZeroArch
 import FLTForHuman.AutomorphicForm.Adelic.ConstantTerm
 import FLTForHuman.AutomorphicForm.Adelic.LsXi
 import FLTForHuman.AutomorphicForm.Adelic.TestFnTop
@@ -24,6 +28,7 @@ set_option autoImplicit false
 noncomputable section
 
 open NumberField IsDedekindDomain AutomorphicForm Matrix MeasureTheory
+open NumberField.InfinitePlace NumberField.InfinitePlace.Completion
 
 namespace AutomorphicFormConsumer
 
@@ -173,6 +178,60 @@ example (F : Type) [Field F] [NumberField F]
       AutomorphicForm.WindowedSiegel.rowIsometrySubgroup w.Completion →* ℂˣ) :
     HasArchType F χ (fun _ => (0 : ℂ)) :=
   hasArchType_zero F χ
+
+-- Zone H1: the shared near-identity factorisable-test-function prelude.
+example (F : Type) [Field F] [NumberField F] (ρ : ℝ) (hρ : 0 < ρ)
+    (hρε : ρ ≤ AutomorphicForm.TestFnNearIdentity.ε F / 2) {N : Ideal (𝓞 F)} (hN : N ≠ ⊥) :
+    IsFactorizableTestFn F (AutomorphicForm.TestFnNearIdentity.testFn F ρ hρ N) :=
+  AutomorphicForm.TestFnNearIdentity.isFactorizableTestFn_testFn F ρ hρ hρε hN
+
+example (F : Type) [Field F] [NumberField F] (ρ : ℝ) (hρ : 0 < ρ) (N : Ideal (𝓞 F)) :
+    AutomorphicForm.TestFnNearIdentity.testFnR F ρ hρ N 1 = 1 :=
+  AutomorphicForm.TestFnNearIdentity.testFnR_one F ρ hρ N
+
+example (F : Type) [Field F] [NumberField F] (ρ : ℝ) (hρ : 0 < ρ) (N : Ideal (𝓞 F))
+    (g : AdelicGL2 (𝓞 F) F) :
+    0 ≤ AutomorphicForm.TestFnNearIdentity.testFnR F ρ hρ N g :=
+  AutomorphicForm.TestFnNearIdentity.testFnR_nonneg F ρ hρ N g
+
+-- Zone T1: the two H1-served `rightConv_ne_zero_of_*` headlines.
+example (K : Type) [Field K] [NumberField K] (N : Ideal (𝓞 K)) (hN : N ≠ ⊥)
+    (φ : AdelicGL2 (𝓞 K) K → ℂ) (hcont : Continuous φ) (hne : ∃ g, φ g ≠ 0)
+    (hlev : ∀ g : AdelicGL2 (𝓞 K) K,
+      ∀ k ∈ NumberField.AdelicLevel.levelOne (𝓞 K) K N ⊓ finiteAdelicGL2Subgroup K,
+        φ (g * k) = φ g) :
+    ∃ f : AdelicGL2 (𝓞 K) K → ℂ, IsFactorizableTestFn K f ∧ ∃ g, rightConv K φ f g ≠ 0 := by
+  obtain ⟨f, hf, -, -, hg⟩ :=
+    AutomorphicForm.exists_isFactorizableTestFn_rightConv_ne_zero_of_levelOne_invariant
+      K N hN φ hcont hne hlev
+  exact ⟨f, hf, hg⟩
+
+example (K : Type) [Field K] [NumberField K] (N : Ideal (𝓞 K)) (hN : N ≠ ⊥)
+    (φ : AdelicGL2 (𝓞 K) K → ℂ) (hcont : Continuous φ) (hne : ∃ g, φ g ≠ 0)
+    (hlev : ∀ g : AdelicGL2 (𝓞 K) K,
+      ∀ k ∈ NumberField.AdelicLevel.principalLevel (𝓞 K) K N ⊓ finiteAdelicGL2Subgroup K,
+        φ (g * k) = φ g) :
+    ∃ f : AdelicGL2 (𝓞 K) K → ℂ, IsFactorizableTestFn K f ∧ ∃ g, rightConv K φ f g ≠ 0 := by
+  obtain ⟨f, hf, -, -, hg⟩ :=
+    AutomorphicForm.exists_isFactorizableTestFn_rightConv_ne_zero_of_principalLevel_invariant
+      K N hN φ hcont hne hlev
+  exact ⟨f, hf, hg⟩
+
+-- Zone T1c: the arch-character headline.
+example (K : Type) [Field K] [NumberField K] (N : Ideal (𝓞 K)) (hN : N ≠ ⊥)
+    (w : InfinitePlace K) (hw : w.IsReal) (k : ℤ)
+    (φ : AdelicGL2 (𝓞 K) K → ℂ) (hcont : Continuous φ) (hne : ∃ g, φ g ≠ 0)
+    (hlev : ∀ g : AdelicGL2 (𝓞 K) K,
+      ∀ u ∈ NumberField.AdelicLevel.levelOne (𝓞 K) K N ⊓ finiteAdelicGL2Subgroup K,
+        φ (g * u) = φ g)
+    (hk : HasArchCharacterAt₀ K w
+      ((archWeightCharℝ k).comp (rowIsometrySubgroup₀Map (ringEquivRealOfIsReal hw)
+        (norm_ringEquivRealOfIsReal hw))) φ) :
+    ∃ f : AdelicGL2 (𝓞 K) K → ℂ, IsFactorizableTestFn K f ∧ ∃ g, rightConv K φ f g ≠ 0 := by
+  obtain ⟨f, hf, -, -, -, hg⟩ :=
+    AutomorphicForm.exists_isFactorizableTestFn_hasArchCharacterAt_rightConv_ne_zero_of_hasArchCharacterAt
+      K N hN w hw k φ hcont hne hlev hk
+  exact ⟨f, hf, hg⟩
 
 -- Zone 2: the definitions and their non-vacuity witness.
 example (F : Type) [Field F] [NumberField F] :
