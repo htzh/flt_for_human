@@ -7,6 +7,24 @@ them without rediscovering the plumbing. Writing/citation conventions are in
 
 ## 1. Sources of truth, in order of authority
 
+**Cite our own port first whenever it covers the material.** `lean/FLTForHuman/`
+is the same mathematics reorganized — one module per mathematical role, shared
+preludes written once, FLT's `Def_`/`Thm_`/`S_` split dissolved — so it is much
+easier to read and to navigate than the pin, and a declaration that exists there
+should be cited there rather than in the raw FLT file. Our tree is a working tree
+whose line numbers still move, so **pin the citation to our repo's HEAD at
+writing time** (`git rev-parse HEAD` at the sandbox root;
+`git -C ~/proj/fermats-last-theorem rev-parse HEAD` gives the pin's):
+
+- `https://github.com/htzh/flt_for_human/blob/<sha>/lean/FLTForHuman/<Area>/<Module>.lean#L12-L20`
+  (rendered, with anchors). To hand a tool the text, swap
+  `github.com/htzh/flt_for_human/blob/` for `raw.githubusercontent.com/htzh/flt_for_human/`
+  — the path after the sha is the same, and `#L` is a no-op there.
+
+Authority is unchanged: faithfulness is still measured against the pin below
+(`spec/check_flt_statements.py` diffs the port against `aa2d8b3`), and the pin is
+the fallback for whatever is not yet ported.
+
 1. **The local clone**: `~/proj/fermats-last-theorem`, pinned at
    `anthropics/fermats-last-theorem@aa2d8b3` (main, 2026-09-03) — check with
    `git -C ~/proj/fermats-last-theorem rev-parse HEAD` before citing line
@@ -46,9 +64,9 @@ them without rediscovering the plumbing. Writing/citation conventions are in
 Question: "`GaloisRepIsIrreducible` takes a very general `Affine R` — why
 does the application to the Frey curve even typecheck?"
 
-1. **Grep the identifier in the local clone**, definition first, then all use
-   sites. Whole-repo grep can time out — narrow to `Definitions/`,
-   `Theorems/`, `P2M/Sol/`.
+1. **Grep the identifier — our port first, then the pin** (§1), definition
+   first, then all use sites. Whole-repo grep can time out — narrow a pin search
+   to `Definitions/`, `Theorems/`, `P2M/Sol/`.
 2. **Read the definition file whole.** A def inside `namespace` + section
    `variable`s is meaningless alone: the puzzling binder `(W' : Affine R)`
    only made sense with lines 21–23 (the `R S K` tower + instances), and the
@@ -70,8 +88,9 @@ does the application to the Frey curve even typecheck?"
 5. **Cross-check the generated def page** (`html/def/FLTPrelim_GaloisRep.html`)
    — its English gloss independently confirmed the reading ("basis-free …
    A final instance supplies classical decidable equality").
-6. **Write the note**, citing line numbers re-grepped from source at write
-   time — never from memory.
+6. **Write the note**, citing line numbers re-grepped from source at write time —
+   never from memory: our port at its current HEAD sha where it has the
+   declaration, the pin at `aa2d8b3` otherwise (§1).
 
 Follow-up questions get the same loop (the "map into GL₂" aside: grep
 `galoisRep`/`residualGaloisRepOf` → `DistribMulAction.toModuleAut` in
@@ -138,14 +157,17 @@ Galois side — `GL (Fin 2)` is automorphic-side only).
 
 ## 5. Writing checklist for a new math/ note
 
-1. Header: companion links, one-paragraph scope, the `@aa2d8b3` pin (and the
-   mathlib tag if mathlib lines are cited).
+1. Header: companion links, one-paragraph scope, the pin sha(s) actually used —
+   `htzh/flt_for_human@<head>` for our port, `@aa2d8b3` for FLT (and the mathlib
+   tag if mathlib lines are cited).
 2. Numbered sections; quote Lean verbatim (≤ a screenful) with
-   `[File.lean, lines a–b](raw-url)` links on first mention. Every
-   line-number citation is pinned to the sha (`…/aa2d8b3/…`), never `/main`.
-3. Key-point → code map table; Links section (raw Lean sources at the pinned
-   sha, tianyipeng def/route pages, mathlib at the pinned tag, upstream
-   background).
+   `[File.lean, lines a–b](url)` links on first mention. **Cite our port first
+   when it has the declaration** (§1), the pin otherwise; every line-number
+   citation is pinned to its sha (`…/aa2d8b3/…` for FLT, `…/<our-head>/…` for our
+   tree), never `/main`.
+3. Key-point → code map table; Links section (our port at its HEAD sha first, the
+   pin's raw Lean at `aa2d8b3` for what is unported, tianyipeng def/route pages,
+   mathlib at the pinned tag, upstream background).
 4. Math hygiene per AGENTS.md: `$`…`$` inline whenever in doubt (always for
    `E_P[p](K)`-shaped terms), `\\,` for thin space.
 5. Do not commit — the user commits and pushes.

@@ -81,6 +81,8 @@ At the end:
 
 11. Checker `0 mismatched / 0 missing`, consumer exit 0, `#print axioms` clean,
     no `sorry`, and (where a coverage report exists) coverage `0 / 0 / 0` (§4).
+    A whole-tree build is *not* part of a wave's gate: it is the session's last
+    act, and needs permission (§3.5).
 
 ### 0.2 Working with subagents
 
@@ -540,10 +542,13 @@ often than needed. What a build costs is the **dependent cascade**, not the
 breadth of the command: `lake env lean <file>` writes no `.olean` and recompiles
 nothing; `lake build <module>` writes the `.olean` and builds dependencies, never
 dependents; only building a dependent (or `lake build`) re-elaborates the cascade.
-Measured here: 4–78 s to elaborate one file, 6–10 s per module build, 2–7 min per
-wave cascade, 3.4 s for a fully cached whole-tree build. The full measurement,
-the profiling, and the `maxHeartbeats := 4_000_000` global cap are in
-[../notes/lean-build-cost.md](../notes/lean-build-cost.md).
+The whole-tree build is therefore a **once-per-session** action, taken at the end
+and with permission (rule 5): a session holds several waves of porting, often
+several topics, and a tree-wide rebuild between them buys information the next
+wave invalidates. Measured here: 4–78 s to elaborate one file, 6–10 s per module
+build, 2–7 min per wave cascade, 3.4 s for a fully cached whole-tree build. The
+full measurement, the profiling, and the `maxHeartbeats := 4_000_000` global cap
+are in [../notes/lean-build-cost.md](../notes/lean-build-cost.md).
 
 **`lake env lean` must be given the package's options.** It runs Lean directly
 and does **not** inherit the lakefile's `leanOptions`; `lake build` does. Without
@@ -557,10 +562,10 @@ errors on a module `lake build` compiles happily — `WeightOne.Basic` fails at
 |---|---|---|---|
 | 0 edit loop | every edit | `timeout 60 lake env lean <opts> <file>` | no cascade; 4–78 s |
 | 1 module done | file compiles | `timeout 90 lake build <module>` + checker | 6–10 s |
-| 2 wave done | all wave edits in | one `lake build` (or its affected targets) | 2–7 min |
-| 3 milestone | definition of done | full build + consumers + axioms | the tier-2 cost |
+| 2 wave done | all wave edits in | the wave's affected targets, not a bare `lake build` | 2–7 min |
+| 3 session end | session closing, **with permission** | full build + consumers + axioms | the tier-2 cost |
 
-Four rules:
+Five rules:
 
 1. **Never `lake build` in the edit loop.** For a 2,500-line module the check is
    itself 78 s, so iterate on the declaration in `Scratch.lean` (§6).
@@ -574,6 +579,13 @@ Four rules:
    user/sys. Two agents on one tree contend rather than parallelize (a 4 m 34 s
    wall with 0.5 s user), and a heartbeat blow-up shows high user CPU. Never run
    builds concurrently.
+5. **The whole-tree build is the session's last act, and needs permission.** A
+   session runs several waves of porting — often several topics — and each wave's
+   edits are covered by that wave's own affected-target build (tier 2). A bare
+   `lake build` between waves pays the full cascade for a tree the next wave is
+   about to change: minutes of wall time, plus the effort of reading a result that
+   is already stale. Run it once, when nothing further will be edited, and ask
+   first.
 
 If a build still misbehaves — a module that used to be fast is slow, a bound is
 exceeded, a result looks wrong — do not investigate it inline: hand it to a
@@ -583,10 +595,12 @@ has less to do; the note holds the measurements and the recipes.
 
 > **Build discipline (copy into each work order).** Edit loop `timeout 60
 > lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false <file>`;
-> `lake build <module>` per finished file; one `lake build` per wave; full build
-> at the milestone. Serialize every `lake build` with `flock`, bound each with
-> `timeout`, and time it: high user CPU is a blow-up, ~0 CPU is contention. Never
-> raise `maxHeartbeats`.
+> `lake build <module>` per finished file; per wave, build only the wave's
+> affected targets — **never a bare whole-tree `lake build`**. A whole-tree build
+> happens once, at the session's end, and only with the user's permission.
+> Serialize every `lake build` with `flock`, bound each with `timeout`, and time
+> it: high user CPU is a blow-up, ~0 CPU is contention. Never raise
+> `maxHeartbeats`.
 
 Two traps the ladder exposes:
 
@@ -632,12 +646,12 @@ editing a closed file or weakening a statement.
 
 **Why the order is a build-cost decision.** With a forward-import DAG a worker's
 module is usually already built, so each set closes on per-module builds of
-seconds and the only whole-tree build is the milestone: one ≈15,200-line effort
-touched only its own eleven modules' `.olean`s, every set closed on 2–20 s builds,
-and the milestone gate was 4,805 jobs in seconds. Transcribing pin files in
-filesystem order instead puts each new file under a large cone that must be
-re-elaborated, paying the full build at every step. The four ladder rules (§3.5)
-are what keep it cheap.
+seconds and the only whole-tree build is the one at the session's end (§3.5): one
+≈15,200-line effort touched only its own eleven modules' `.olean`s, every set
+closed on 2–20 s builds, and the whole-tree gate, when it finally ran, was 4,805
+jobs in seconds. Transcribing pin files in filesystem order instead puts each new
+file under a large cone that must be re-elaborated, paying a cascade at every step.
+The ladder rules (§3.5) are what keep it cheap.
 
 ## 4. Faithfulness, made mechanical
 
