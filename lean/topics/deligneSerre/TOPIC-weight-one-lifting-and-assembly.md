@@ -138,6 +138,51 @@ from the weight-one instance.
 homes; the port_advise substitution list flags 7 port-private statements to
 promote here.
 
+### S8 — the Γ₁/Nebentypus pair and its deferred third row
+
+The two `CuspForm` rows that the ready shelf promoted after S2/S3 landed, plus the third row
+considered with them ([WORKORDER-S8-nebentypus.md](WORKORDER-S8-nebentypus.md)):
+
+| node | `S_` | module |
+|---|---:|---|
+| `CuspForm.exists_hasNebentypus_of_qCoeff_hecke_eigen` | 591 | `ModularForms/HeckeNebentypusExistence.lean` |
+| `CuspForm.hasNebentypus_inv_and_qCoeff_hecke_eigen_of_fricke` | 667 | `ModularForms/HeckeNebentypusFricke.lean` |
+| `CuspForm.exists_degeneracy_gamma1_hasNebentypus` | 218 | **deferred** — its own definition-first order |
+
+The first is the **existence** of the nebentypus character from the `q`-coefficient Hecke-eigenvalue
+relation; the second is its **Fricke inversion** (`g` of nebentypus `ε` has Fricke transform of
+nebentypus `ε⁻¹`, with the Hecke eigenvalue transformed by `ε⁻¹(p)`). They are *not* twins — the pin
+files differ at 1,019 lines and share only a 118-line prelude — so this is a genuine two-module
+set: `port_plan` prices it at 1,258 raw / **944 net new math lines**, 31 trusted / 0 suspect
+substitutions.
+
+**Promotion (landed).** `ModularForms/HeckeEigenNebentypus.lean`'s `dd`/Γ₁ vocabulary was
+`private`; the two successors state it, so it is shared API and is promoted for clarity:
+`dd`, `dd_mul`, `isUnit_dd`, `mem_Gamma1_iff_dd`, `inv_mul_mem_Gamma1`, `exists_lift`, `dd_pow`.
+Checker 7,632 → 7,639. The generic facts (`det_eq`, `det_mod`, `T_mem_Gamma1`, `T_pow_mem_Gamma1`,
+`conj_mem_Gamma1`) reuse their existing public homes instead of a second copy.
+
+**Outcome (2026-10-11).** Both rows landed, deduped:
+`ModularForms/HeckeNebentypusExistence.lean` (481 lines) and
+`ModularForms/HeckeNebentypusFricke.lean` (619 lines), each exposing exactly its one headline and
+importing the promoted API plus the existing `ModularForms/` prelude homes (`HeckePrelude`,
+`HeckeQCoeff`, `HeckeAnalytic`, `Gamma1Vanishing`, `Defs/HeckeRepresentatives`, `Defs/HeckeOperator`,
+`WeightOne/Defs/{GammaRational,RatAt}`, `HeckeFricke`, `DeligneSerre/Relevement`). Every helper is
+`private`; the only drift fix was `heckeMatrix_mul_frickeGL`, whose pin proof relied on the
+`db584cd6` simp key for the `SL → GL` coercion of `Matrix.SpecialLinearGroup.map (Int.castRingHom ℝ)`
+— the port follows the already-ported `HeckeFricke.fricke_mul_mapGL`'s drift-free route
+(`Units.val_mul` + `mapGL_coe_matrix` + `map_apply_coe` + the pin's `simp`/`nlinarith`). Checker
+**7,639 → 7,641 identical, 0 mismatched, 0 missing, 38 own**, the +2 being exactly the two
+headlines; both modules are tier-0 0-warning, tier-1 green, and `#print axioms` is
+`[propext, Classical.choice, Quot.sound]`.
+
+**Deferred third row.** The frontier lists `exists_degeneracy_gamma1_hasNebentypus` ready, but that
+is the known `Definitions/` blind spot: its `S_` file uses
+`FreyPackage.ModMCarrier.rescaleSlash_isZeroAt`, and neither
+`Def_ModularForm_AtkinLehnerDatum.lean` (157 lines) nor `Def_FreyPackage_ModMCarrier_Rescale.lean`
+(176 lines) is ported. It is also a different subject (nebentypus under the `V_d` rescaling), so it
+needs its own definition-first order, not this set.
+
 ### S4 — coefficient ring and Galois conjugation (6 nodes)
 
 | node | `S_` |
@@ -262,6 +307,11 @@ heckeTLinOne_slashOfMemGamma0, HasNebentypus.diamondLinOne_apply_eq_smul}`;
 
 **S3 (2).** `DeligneSerre.{exists_weightTwo_hecke_eigen_reduction_eq_of_weightOne_hecke_eigen,
 exists_hecke_eigen_reduction_eq_of_qCoeff_hecke_congr}`.
+
+**S8 (2, successor; 1 deferred).** `CuspForm.{exists_hasNebentypus_of_qCoeff_hecke_eigen,
+hasNebentypus_inv_and_qCoeff_hecke_eigen_of_fricke}`;
+`CuspForm.exists_degeneracy_gamma1_hasNebentypus` (deferred — unported
+`Def_ModularForm_AtkinLehnerDatum` / `Def_FreyPackage_ModMCarrier_Rescale`).
 
 **S4 (6).** `DeligneSerre.{exists_subalgebra_qCoeff_mem_forall_ringHom_exists_qCoeff_eq_of_weightOne_hecke_eigen,
 exists_eigenvector_of_mem_minimalPrimes_of_faithfulSMul}`;

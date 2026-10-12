@@ -5,8 +5,13 @@
   nebentypus: `g ∣[k] γ = χ (γ 1 1) • g`.
 
   Transcribed from `P2M/Sol/S_CuspForm_slash_eq_dirichlet_smul_of_qCoeff_hecke_eigen.lean`
-  (pinned `aa2d8b3`, 436 lines). The public helper block (`det_eq`, `det_mod`,
-  `dd`, `…`) is kept `private`; the two shared targets it consumes
+  (pinned `aa2d8b3`, 436 lines). The `Γ₁ = ker dd` vocabulary (`dd`, `dd_mul`,
+  `isUnit_dd`, `mem_Gamma1_iff_dd`, `inv_mul_mem_Gamma1`, `dd_pow`, `exists_lift`)
+  is **public** (`WORKORDER-S8`, promoted for clarity): the two successor headlines
+  state it, so it is shared API rather than per-file glue. The generic facts
+  (`det_eq`, `det_mod`, `T_mem_Gamma1`, `conj_mem_Gamma1`) reuse their existing public
+  homes, and the predecessor's own proof internals stay `private`; the two shared
+  targets it consumes
   (`ModularForm.heckeU_add_slash_heckeDiagMatrix_slash_eq_of_mem_Gamma1` and
   `CuspForm.eq_zero_of_slash_heckeDiagMatrix_slash_eq_of_mem_Gamma1`) come from
   `ModularForms/Gamma1Vanishing.lean`, and the analytic/`T`-periodicity
@@ -49,17 +54,21 @@ private theorem det_mod {N : ℕ} (γ : SL(2, ℤ)) (hγ : γ ∈ Gamma0 N) :
   rw [hc] at this
   linear_combination this
 
-private def dd {N : ℕ} (γ : SL(2, ℤ)) : ZMod N := ((γ 1 1 : ℤ) : ZMod N)
+/-- The `γ 1 1` coordinate of `γ ∈ Γ₀(N)`, as a unit of `ZMod N`; the nebentypus
+character is evaluated on it.  Promoted from this module's private prelude
+(`WORKORDER-S8`, clarity): the `Γ₁ = ker dd` vocabulary is stated by the two
+successor headlines, so it is shared API, not per-file glue. -/
+def dd {N : ℕ} (γ : SL(2, ℤ)) : ZMod N := ((γ 1 1 : ℤ) : ZMod N)
 
-private theorem dd_mul {N : ℕ} {γ₁ γ₂ : SL(2, ℤ)} (h₁ : γ₁ ∈ Gamma0 N) (h₂ : γ₂ ∈ Gamma0 N) :
+theorem dd_mul {N : ℕ} {γ₁ γ₂ : SL(2, ℤ)} (h₁ : γ₁ ∈ Gamma0 N) (h₂ : γ₂ ∈ Gamma0 N) :
     dd (N := N) (γ₁ * γ₂) = dd (N := N) γ₁ * dd γ₂ := by
   have := map_mul (Gamma0Map N) ⟨γ₁, h₁⟩ ⟨γ₂, h₂⟩
   exact this
 
-private theorem isUnit_dd {N : ℕ} {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 N) : IsUnit (dd (N := N) γ) :=
+theorem isUnit_dd {N : ℕ} {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 N) : IsUnit (dd (N := N) γ) :=
   IsUnit.of_mul_eq_one _ (by rw [dd, mul_comm]; exact det_mod γ hγ)
 
-private theorem mem_Gamma1_iff_dd {N : ℕ} {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 N) :
+theorem mem_Gamma1_iff_dd {N : ℕ} {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 N) :
     γ ∈ Gamma1 N ↔ dd (N := N) γ = 1 := by
   rw [Gamma1_mem, dd]
   constructor
@@ -69,7 +78,7 @@ private theorem mem_Gamma1_iff_dd {N : ℕ} {γ : SL(2, ℤ)} (hγ : γ ∈ Gamm
       have := det_mod γ hγ; rw [hd, mul_one] at this; exact this
     exact ⟨by simpa using ha, by simpa using hd, by simpa using Gamma0_mem.mp hγ⟩
 
-private theorem inv_mul_mem_Gamma1 {N : ℕ} {γ₁ γ₂ : SL(2, ℤ)} (h₁ : γ₁ ∈ Gamma0 N)
+theorem inv_mul_mem_Gamma1 {N : ℕ} {γ₁ γ₂ : SL(2, ℤ)} (h₁ : γ₁ ∈ Gamma0 N)
     (h₂ : γ₂ ∈ Gamma0 N) (h : dd (N := N) γ₁ = dd γ₂) : γ₁⁻¹ * γ₂ ∈ Gamma1 N := by
   have hmem : γ₁⁻¹ * γ₂ ∈ Gamma0 N := mul_mem (inv_mem h₁) h₂
   rw [mem_Gamma1_iff_dd hmem]
@@ -90,7 +99,8 @@ private theorem conj_mem_Gamma1 {N : ℕ} {σ γ : SL(2, ℤ)} (hσ : σ ∈ Gam
 
 private def sl2 (A : Matrix (Fin 2) (Fin 2) ℤ) (h : A.det = 1) : SL(2, ℤ) := ⟨A, h⟩
 
-private theorem exists_lift (n : ℕ) (hn : n.Coprime M) :
+/-- Every unit `n` of `ZMod M` lifts to `σ ∈ Γ₀(M)` with `dd σ = n`. -/
+theorem exists_lift (n : ℕ) (hn : n.Coprime M) :
     ∃ σ : SL(2, ℤ), σ ∈ Gamma0 M ∧ dd (N := M) σ = n := by
   obtain ⟨u, v, huv⟩ : IsCoprime (n : ℤ) (M : ℤ) := Nat.isCoprime_iff_coprime.mpr hn
   refine ⟨sl2 !![u, -v; (M : ℤ), (n : ℤ)]
@@ -288,7 +298,8 @@ section All
 
 variable [NeZero M] {k : ℤ}
 
-private theorem dd_pow {σ : SL(2, ℤ)} (hσ : σ ∈ Gamma0 M) (r : ℕ) :
+set_option linter.unusedSectionVars false in
+theorem dd_pow {σ : SL(2, ℤ)} (hσ : σ ∈ Gamma0 M) (r : ℕ) :
     dd (N := M) (σ ^ r) = dd (N := M) σ ^ r := by
   induction r with
   | zero => simp [dd]

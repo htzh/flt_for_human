@@ -17,6 +17,18 @@ meets them.
 
 ## Deferred API
 
+### `CuspForm.exists_degeneracy_gamma1_hasNebentypus` — the frontier's `Definitions/` blind spot
+
+The frontier lists this row ready (218 silo lines) but it is **not**: its `S_` file imports and
+uses `FreyPackage.ModMCarrier.rescaleSlash_isZeroAt`, and neither
+`Definitions/Def_ModularForm_AtkinLehnerDatum.lean` (157 lines, 21 declarations) nor
+`Definitions/Def_FreyPackage_ModMCarrier_Rescale.lean` (176 lines, 10 declarations) is ported.
+It was considered with `WORKORDER-S8`'s Γ₁/Nebentypus pair
+([deligneSerre/WORKORDER-S8-nebentypus.md](topics/deligneSerre/WORKORDER-S8-nebentypus.md)) and
+deferred: it is a different subject (nebentypus under the `V_d` rescaling), so it needs its own
+definition-first order. Reproduce:
+`python3 tools/deps/port_advise.py --nodes CuspForm.exists_degeneracy_gamma1_hasNebentypus`.
+
 ### `ModularCurve.exists_hasEquivariantPrimitiveOf` — the parts of the period API left out
 
 This node's shadowing is **resolved**: the

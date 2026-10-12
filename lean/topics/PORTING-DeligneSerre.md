@@ -9,10 +9,10 @@ manager's own work, §5 the build economy, §6 verification, §7 what remains, �
 residuals. Every measurement is the pin's, read through `tools/deps`. The section numbers are
 stable: work orders across the column cite §3 for the workflow and §7 for the gates.
 
-The checker reads **7632 identical (313 promoted, 83 renamed), 0 mismatched, 0 missing, 38
-own-proof declarations exempted (7670 checked)**, and the milestone whole-tree build is green
-(9,394 jobs). The last landing (WORKORDER-E, §7) took the count from a measured 7630 / 38 own to
-7632 / 38.
+The checker reads **7641 identical (313 promoted, 83 renamed), 0 mismatched, 0 missing, 38
+own-proof declarations exempted (7679 checked)**, and the milestone whole-tree build is green
+(9,396 jobs). The last landing (WORKORDER-E, §7) took the count from a measured 7630 / 38 own to
+7632 / 38; the Γ₁/Nebentypus pair (WORKORDER-S8, the lifting column's) took it on to 7641 / 38.
 
 Companions:
 
@@ -30,6 +30,8 @@ Companions:
 - Adjacent columns: [PORTING-Hecke.md](PORTING-Hecke.md), [PORTING-Level.md](PORTING-Level.md).
 - The `WeierstrassCurve` ready shelf, its scoping and its set orders:
   [deligneSerre/TOPIC-weierstrass-ready-shelf.md](deligneSerre/TOPIC-weierstrass-ready-shelf.md).
+- The Γ₁/Nebentypus successor pair — the two `CuspForm` rows on the ready shelf, which are the
+  lifting column's, not this column's: [deligneSerre/WORKORDER-S8-nebentypus.md](deligneSerre/WORKORDER-S8-nebentypus.md).
 - The `ModularCurve` ready shelf's first cut — the level-`N` function field and the modular
   polynomial, plus the sets that have since landed:
   [modularCurve/TOPIC-levelN-and-modular-polynomial.md](modularCurve/TOPIC-levelN-and-modular-polynomial.md),
@@ -131,23 +133,23 @@ python3 frontier.py --target DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_h
 | target closure | 2,308 nodes / 1,089,430 raw `S_` lines |
 | frontier `F` | 855 nodes / 437,951 |
 | `needed` (unported demand, `F` terminal) | 1,672 nodes / 739,953 |
-| **ready to port** (all premises available) | **54 nodes** |
+| **ready to port** (all premises available) | **52 nodes** |
 
-The ready shelf by top-level namespace: `AlgebraicCurve` 23, `ModularCurve` 10, `CuspForm` 10,
+The ready shelf by top-level namespace: `AlgebraicCurve` 23, `ModularCurve` 10, `CuspForm` 8,
 `ModularForm` 3, `PeriodPair` 2, `CuspFormClass` 2, `CohCarrier` 2, `AutomorphicForm` 2.
 `WeierstrassCurve` no longer appears on it — all eight shelf nodes are ported (§1). The first
 eight rows by silo demand:
 
 | node | silo lines |
 |---|---:|
-| `CuspForm.hasNebentypus_inv_and_qCoeff_hecke_eigen_of_fricke` | 667 |
-| `CuspForm.exists_hasNebentypus_of_qCoeff_hecke_eigen` | 591 |
 | `AlgebraicCurve.linearIndependent_of_constantFieldExtension_of_isAlgClosed` | 583 |
 | `PeriodPair.weierstrassP_torsion_modularForm_slash_tendsto_atImInfty` | 558 |
 | `AutomorphicForm.exists_isFactorizableTestFn_rightConv_ne_zero_of_levelOne_invariant` | 508 |
 | `ModularCurve.phiIrreducible_all` | 434 |
 | `ModularCurve.exists_exp_eq_of_invariant_ne_zero_isParabolicHom` | 410 |
 | `ModularCurve.SerreImage.contains_SL2` | 390 |
+| `CuspForm.gamma1_eq_zero_of_prime_not_dvd_of_qCoeff_eq_zero` | 351 |
+| `CuspForm.exists_gamma1_div_coe_eq_heckeU_of_dvd_div` | 348 |
 
 The `ModularCurve` part is now 11 nodes / 3,551 silo lines — the column's own shelf, and the last
 re-read is the step-6 effect working: the landings of §1 took the shelf's 14 subject-A and
@@ -341,12 +343,18 @@ subject and a separate effort.
 Both remainders attach to the fixed interface the slice leaves, so they can be ported without
 reworking what is there.
 
-**The ready shelf** of §2 is now 54 nodes, of which 10 are `ModularCurve` and the column's own.
+**The ready shelf** of §2 is now 52 nodes, of which 10 are `ModularCurve` and the column's own.
 Subjects A and B have landed, and so has the level-`N` `q`-expansion bridge (WORKORDER-E) — the two
 twin rows the A/B wave unblocked, written once. The step-6 re-read puts their successor
 `ModularCurve.LevelN.exists_algHom_laurentBaseChange_apply_eq_qExpand` (165 silo lines) on the shelf,
 with `ModularCurve.phiIrreducible_all` (434) the natural next cut once a definition-layer check
 says so.
+
+The **Γ₁/Nebentypus pair** the shelf then showed at its head — the two `CuspForm` rows — is the
+**lifting column's**, not this column's, and has landed there as
+[deligneSerre/WORKORDER-S8-nebentypus.md](deligneSerre/WORKORDER-S8-nebentypus.md)
+(`ModularForms/HeckeNebentypus{Existence,Fricke}.lean`, checker +2, deduped onto the promoted
+`CuspForm.HeckeEigenNebentypus` API). The re-read takes the shelf 54 → 52 (`CuspForm` 10 → 8).
 
 **Deferred to its own order** is the C2 row
 `ModularCurve.exists_sum_smul_eq_of_isIntegralQExp_gamma1`. Its one substantive step is the

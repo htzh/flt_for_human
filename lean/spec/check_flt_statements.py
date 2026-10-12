@@ -2751,6 +2751,15 @@ SOURCES = [
     "P2M/Sol/S_ModularCurve_exists_ringHom_laurentBaseChange_qExpFunctionFieldC_levelN.lean",
     "Theorems/Thm_ModularCurve_exists_ringHom_laurentBaseChange_qExpFunctionFieldC_levelN_qExpansion.lean",
     "P2M/Sol/S_ModularCurve_exists_ringHom_laurentBaseChange_qExpFunctionFieldC_levelN_qExpansion.lean",
+    # --- WORKORDER-S8: the Γ₁/Nebentypus pair. Both wrappers and both `S_` files are
+    # listed; the `S_` files also carry the public `dd`/Γ₁ prelude that
+    # `ModularForms/HeckeEigenNebentypus.lean` now promotes, so the promoted
+    # declarations verify against the pin's public copies. Appended last so no earlier
+    # last-name match can flip.
+    "Theorems/Thm_CuspForm_exists_hasNebentypus_of_qCoeff_hecke_eigen.lean",
+    "P2M/Sol/S_CuspForm_exists_hasNebentypus_of_qCoeff_hecke_eigen.lean",
+    "Theorems/Thm_CuspForm_hasNebentypus_inv_and_qCoeff_hecke_eigen_of_fricke.lean",
+    "P2M/Sol/S_CuspForm_hasNebentypus_inv_and_qCoeff_hecke_eigen_of_fricke.lean",
 ]
 
 PORT_FILES = [
@@ -4041,6 +4050,11 @@ PORT_FILES = [
     "FLTForHuman/WeierstrassCurve/FibSetFinite.lean",
     # WORKORDER-E: the level-`N` `q`-expansion bridge, the deduped twin development.
     "FLTForHuman/ModularCurve/LevelN/QExpBridge.lean",
+    # WORKORDER-S8: the Γ₁/Nebentypus pair. The promoted `dd`/Γ₁ API lives in
+    # `HeckeEigenNebentypus.lean` (already listed); each of these two modules exposes
+    # exactly its one wrapper headline, so the delta is +2.
+    "FLTForHuman/ModularForms/HeckeNebentypusExistence.lean",
+    "FLTForHuman/ModularForms/HeckeNebentypusFricke.lean",
 ]
 
 
