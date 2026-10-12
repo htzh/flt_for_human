@@ -2881,6 +2881,16 @@ SOURCES = [
     "Theorems/Thm_AutomorphicForm_rightConv_rightConv_comm_of_isLevelSphericalOfType.lean",
     "Theorems/Thm_AutomorphicForm_rightConv_rightConv_comm_of_isLevelSphericalOfType_of_isCompact.lean",
     "Theorems/Thm_AutomorphicForm_rightConv_rightConv_comm_of_isLevelSphericalOfType_principal.lean",
+    # The constant-field-extension linear-independence pair: the `of_isAlgClosed`
+    # node and its characteristic-zero twin. The twin is listed for its three
+    # `[CharZero K]` spellings, which are not the general `[IsSeparable]` ones;
+    # the two wrappers carry the headlines. The port transcribes both once, in
+    # `AlgebraicCurve/IsCurveOver/ConstantFieldExtension.lean`; see
+    # `topics/algebraicCurve/TOPIC-constant-field-extension.md`.
+    "Theorems/Thm_AlgebraicCurve_linearIndependent_of_constantFieldExtension_of_isAlgClosed.lean",
+    "Theorems/Thm_AlgebraicCurve_linearIndependent_of_constantFieldExtension.lean",
+    "P2M/Sol/S_AlgebraicCurve_linearIndependent_of_constantFieldExtension_of_isAlgClosed.lean",
+    "P2M/Sol/S_AlgebraicCurve_linearIndependent_of_constantFieldExtension.lean",
 ]
 
 
@@ -4291,6 +4301,7 @@ PORT_FILES = [
     "FLTForHuman/AutomorphicForm/Adelic/RightConvComm/Compact.lean",
     "FLTForHuman/AutomorphicForm/Adelic/RightConvComm/Level.lean",
     "FLTForHuman/AutomorphicForm/Adelic/RightConvComm/Principal.lean",
+    "FLTForHuman/AlgebraicCurve/IsCurveOver/ConstantFieldExtension.lean",
 ]
 
 

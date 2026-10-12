@@ -641,7 +641,12 @@ are repeated in the playbook §2.1; keep the specific instances here.
 
 ### `AlgebraicCurve.linearIndependent_of_constantFieldExtension` — a shelf head whose twin `--ready` cannot show
 
-The row that heads the Deligne–Serre ready shelf is
+**Landed 2026-10-12** in
+`FLTForHuman/AlgebraicCurve/IsCurveOver/ConstantFieldExtension.lean` (checker +25,
+build green; the record is
+[topics/algebraicCurve/TOPIC-constant-field-extension.md](topics/algebraicCurve/TOPIC-constant-field-extension.md)).
+The caution is what to carry forward. The row that headed the Deligne–Serre ready
+shelf is
 `AlgebraicCurve.linearIndependent_of_constantFieldExtension_of_isAlgClosed` (583 lines,
 silo rank 1). The pin proves the same development a second time in
 `S_AlgebraicCurve_linearIndependent_of_constantFieldExtension.lean` (579 lines,
@@ -655,8 +660,7 @@ this cone. Cut the two as one cluster. Four of the 21 (`algebraMap_mem_adjoin`,
 statement-identical in the unported
 `S_AlgebraicCurve_genus_eq_of_constantFieldExtension_of_isAlgClosed.lean`
 (lines 344/353/358/368), so give those one home. Scope, the promotion reading and the
-hub-edit prices are
-[topics/algebraicCurve/TOPIC-constant-field-extension.md](topics/algebraicCurve/TOPIC-constant-field-extension.md).
-Reproduce:
+hub-edit prices are in the topic record. Read the two frontier views together before
+pricing a shelf head. Reproduce:
 `python3 tools/deps/twin_scan.py --node AlgebraicCurve.linearIndependent_of_constantFieldExtension`
 and the `--include-leaves` frontier command in that note §12.

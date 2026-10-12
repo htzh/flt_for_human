@@ -1,7 +1,14 @@
 # TOPIC — the constant-field-extension linear-independence pair
 
-**Status (2026-10-12): scoping record; no work order written.** This is the
-planning note for the two pin nodes
+**Status (2026-10-12): landed and green — this note is now the landing record.**
+The port is `FLTForHuman/AlgebraicCurve/IsCurveOver/ConstantFieldExtension.lean`
+(694 lines): checker **+25 identical, 0 promoted, 0 renamed, 0 mismatched, 0
+missing** measured on the module alone (whole checker: 9,230 identical / 0 / 0 / 38
+own, 9,268 checked); tier 1 `lake build` green in 8.3 s with 0 warnings;
+`#print axioms` on both headlines `[propext, Classical.choice, Quot.sound]`; the
+one-token mutation on the general headline's conclusion moved exactly one
+`mismatched` and was reverted. §3 is the pre-port measurement; §10 the verification
+as run; §13 the landing record. The planning subject is the two pin nodes
 
 ```
 AlgebraicCurve.linearIndependent_of_constantFieldExtension_of_isAlgClosed
@@ -157,6 +164,7 @@ head is one half of a **two-node cluster**, and the second half is invisible to
 | 2. port once | no name proved in ≥2 target files; no factor row touches the target set |
 | 3. generalise | no target name carries two statements; **0 port name clashes** |
 | 4. drags | S_: public surface 21, closure adds **0 helpers**; wrapper: 1, 0 |
+| mathlib statement matches (hand-checked, §4 addendum) | **0 of 22** |
 
 The import list, hand-checked because `--ready` and `port_advise` never walk
 imports (§3 step 3): `Mathlib`, `P2M.Util`, and
@@ -215,6 +223,45 @@ not a gap.
   facts; the pin states them public and the port transcribes them public, but they
   carry no mathematics of their own.
 
+### Addendum — mathlib's `LinearDisjoint` assembly is a route, not a substitution
+
+`LinearDisjoint.linearIndependent_left` has the exact shape of #19/#20's last step:
+
+```lean
+theorem LinearDisjoint.linearIndependent_left (H : A.LinearDisjoint L)
+    {ι : Type*} {a : ι → A} (ha : LinearIndependent F a) : LinearIndependent L (A.val ∘ a)
+```
+
+It is worth stating why this is **not** a substitution candidate, since the shapes
+are close enough that a reader will ask:
+
+1. **It is a different proposition.** The disjointness is a *hypothesis*; #19/#20
+   take `hx`, `hx₁` and `hb` and derive the independence. The port's declaration
+   must be the pin's statement — the checker diffs it — so it cannot be an alias of
+   a mathlib name, and the port's consumers call the pin's name. The index binder
+   differs too: mathlib's is generic in `ι`, the pin's #20 is `[Fintype κ]` and
+   reaches the general `ι` only at the headline, through
+   `linearIndependent_iff_finset_linearIndependent`.
+2. **The missing hypothesis is the pin's own content.** Supplying `H` means proving
+   that the image of `F` and `K'` are linearly disjoint in `F'` over `K` — which is
+   what the core computes (the primitive element's minimal polynomial stays
+   irreducible after base change). Mathlib has no producer for it: there is no
+   regularity notion for field extensions anywhere in mathlib (`IsRegular` occurs
+   only for Heyting regularity, filters and `IsSMulRegular`), and every non-trivial
+   producer requires either a basis whose image is already independent (`of_basis_*`
+   — circular), `A ⊗ K'` to be a *field* (`of_isField`; false here — `K(t) ⊗_K K(t)`
+   is a domain but not a field), a finite Galois subextension (`of_inf_eq_bot`) or a
+   smaller already-disjoint pair (`of_linearDisjoint_finite_*`). The one producer
+   outside the API file, `IntermediateField.linearDisjoint_of_isPurelyInseparable_of_isSeparable`,
+   needs `IsPurelyInseparable F E`, which a transcendence-degree-one extension is
+   not.
+3. **It is invisible to the tools.** `port_advise`'s corpus is `FLTForHuman` +
+   `Reserve` and `twin_scan`'s index is `FLTForHuman`; neither reads mathlib, so a
+   mathlib statement match never shows up in the `0 substitutions` line. It is a
+   hand-check item of the same species as the `Definitions/` import sweep of §3
+   step 3 — and here the hand-check is negative: 0 of the 22 target declarations has
+   a mathlib statement match, so §3's 567 net-new lines are not reduced by it.
+
 ## 5. Deliverable
 
 **Home: one new module, no existing module touched.**
@@ -222,6 +269,12 @@ not a gap.
 ```
 FLTForHuman/AlgebraicCurve/IsCurveOver/ConstantFieldExtension.lean
 ```
+
+As landed (694 lines): the pin's 21 declarations transcribed verbatim under
+`AlgebraicCurve.ConstantFieldExtension`, the two headlines at `AlgebraicCurve` (the
+wrappers' names), and the twin's three `[CharZero K]` spellings under
+`AlgebraicCurve.LinDisjSol` — the pin's own nesting for that block, and the split
+that keeps the two same-last-name pairs apart without touching either statement.
 
 Its imports are the theory it needs (polynomials, `MvPolynomial`, `RatFunc`,
 `IntermediateField`) plus, for the general headline,
@@ -249,15 +302,13 @@ collision (`port_advise` drops it, `NOISE_NAMES`); the headline declaration serv
 both the `S_` and the wrapper statement, as `PerfectField.lean` already does for
 its node.
 
-**Namespace.** The checker matches by *last name*, so namespaces are free — but
-#11, #19 and #20 occur **twice in the pin with different statements**, so their two
-port spellings need two namespaces (the same situation as the pin's
-`ModularForm.heckeTLin` / `CuspForm.heckeTLin`). Suggested: the `[IsSeparable]`
-block and the two headlines under `AlgebraicCurve` (the headlines must keep the
-wrapper's last names), the `[CharZero K]` block under a sub-namespace such as
-`AlgebraicCurve.ConstantFieldExtension.CharZero` — or the pin's own
-`AlgebraicCurve.LinDisjSol` for that block, which is also what its consumers'
-`open` lines will expect. This is a naming decision, not a promotion (§6(a)).
+**Namespace (as landed).** The checker matches by *last name*, so namespaces are
+free — but #11, #19 and #20 occur **twice in the pin with different statements**, so
+their two port spellings need two namespaces (the same situation as the pin's
+`ModularForm.heckeTLin` / `CuspForm.heckeTLin`). The general block and the two
+headlines sit under `AlgebraicCurve` (`ConstantFieldExtension` for the block, the
+wrappers' names for the headlines); the `[CharZero K]` block sits under the pin's
+own `AlgebraicCurve.LinDisjSol`. This is a naming decision, not a promotion (§6(a)).
 
 **Split, if the genus node lands first.** That node needs only #12–#15 from this
 cluster, and it is otherwise a 539-line file of its own; it can import this module
@@ -283,6 +334,16 @@ or public, so there is no port-`private` declaration to promote either. And
 reconciliation. The four declarations shared with the genus file (#12–#15) are
 public in *both* pin files: giving them one home is a **placement** decision
 (§5), not a visibility promotion, and it changes no statement.
+
+**As landed.** Because both nodes live in one module, the shared declarations have
+no cross-module consumer at all: the only thing a promotion is *for* — a second
+module importing the helper — does not arise, and equally nothing pin-public was
+turned `private` (the port mirrors the pin's surface). The twin's three adapters
+keep the pin's own names under `LinDisjSol`, which is what keeps them from
+colliding with #11/#19/#20 in the parent namespace, and their statements are the
+twin's, not re-spelled. The one promotion-shaped relationship in the cluster is the
+genus node importing #12–#15 when it lands; those four are public exactly as the pin
+has them, so nothing needs to change then either.
 
 **(b) The one name collision to be aware of, and its non-action.**
 `exists_common_denom` (#10) shares a last name with a port `private`
@@ -354,6 +415,15 @@ Both `S_` files are needed, not only the wrappers: the twin's three
 differently-bound helpers are public only in its `S_` file, and the lookup that
 finds them is the by-last-name map over all of `SOURCES`. Adding entries can only
 *add* candidates to that map, so it cannot un-match an existing port declaration.
+Applied on landing: all five appends are in place, last in their lists.
+
+**(g) One file-wide linter option was avoided.** The pin's `haveI` instance walls
+draw twelve `linter.style.haveILetI` warnings, and the linter's suggested rewrite
+(`have` for `haveI`) is wrong for the two `haveI := hfin` / `haveI := hsep` lines —
+it would drop instances typeclass search needs. They are suppressed **per
+declaration** (seven `set_option linter.style.haveILetI false in` lines), not
+file-wide: the narrowed form the Deligne–Serre topic's §9 residual records as house
+style. The build is 0 warnings.
 
 ## 7. Route, alternatives, recorded negatives
 
@@ -437,16 +507,16 @@ flock .lake/flt_build.lock timeout 900 lake build
 timeout 180 lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false spec/DeligneSerreConsumer.lean
 ```
 
-* **Checker.** The cluster's statements form **25 distinct (kind, statement)
-  classes** over the two `S_` files and the two wrappers (measured, §12.6), so the
-  expected delta is **+25 `identical`, 0 promoted, 0 renamed, 0 mismatched, 0
-  missing** — node `of_isAlgClosed` alone is +21. The `identical` delta must equal
-  the new public surface exactly; anything else is a bug (§6 of the Deligne–Serre
-  note).
-* **Axioms.** `#print axioms` on the two headlines:
+* **Checker (measured).** The module alone: **25 identical, 0 promoted, 0 renamed,
+  0 mismatched, 0 missing** — the predicted delta exactly. Whole tree: 9,230
+  identical (648 promoted, 83 renamed), 0 mismatched, 0 missing, 38 own-proof
+  exempted, 9,268 checked. The tree has grown 1,564 declarations since the
+  Deligne–Serre note's 7,641 / 7,679 figures, so compare the delta, not the total.
+* **Axioms (measured).** `#print axioms` on both headlines, and on
+  `irreducible_map_of_isAlgClosed` and `linearIndependent_algebraMap_of_fintype`:
   `[propext, Classical.choice, Quot.sound]`.
-* **Mutation test.** One token on a headline (e.g. drop an `IsScalarTower`) must
-  move exactly one `mismatched`; revert.
+* **Mutation test (measured).** The general headline's conclusion changed `K'` → `K`:
+  9,229 identical / **1 mismatched** / 0 missing; reverted, back to 9,230 / 0 / 0.
 * **Sweep.** No `sorry`/`admit`/`axiom`/`native_decide`, no bare `import Mathlib`,
   no heartbeat override, no file-wide `set_option linter.*`.
 * **Consumer.** None today: the 16 consumers are unported, so the wire test is the
@@ -521,3 +591,32 @@ cls = {(k if k != "lemma" else "theorem", s)
 print(f"\ndistinct (kind, statement) classes = {len(cls)}")
 EOF
 ```
+
+## 13. Landing record (2026-10-12)
+
+| item | value |
+|---|---|
+| module | `FLTForHuman/AlgebraicCurve/IsCurveOver/ConstantFieldExtension.lean`, 694 lines |
+| transcribed whole | the `of_isAlgClosed` node: pin `S_` lines 13–557 verbatim, plus the headline taken from its `solution` and renamed to the wrapper's last name |
+| derived | the twin's three `[CharZero K]` helpers (two `haveI`s and a delegation each) and the twin headline (one line from the general one) |
+| imports | the mathlib slice the file needs plus the ported `IsCurveOver/PerfectField.lean` for `exists_separating_transcendental_of_perfectField` |
+| checker, module alone | 25 identical, 0 promoted, 0 renamed, 0 mismatched, 0 missing |
+| checker, whole tree | 9,230 identical (648 promoted, 83 renamed), 0 mismatched, 0 missing, 38 own-proof exempted, 9,268 checked |
+| build | `flock .lake/flt_build.lock timeout 300 lake build FLTForHuman.AlgebraicCurve.IsCurveOver.ConstantFieldExtension` → 2,590 jobs, 8.3 s, 0 warnings |
+| axioms | both headlines `[propext, Classical.choice, Quot.sound]` |
+| mutation | `K'` → `K` in the general headline's conclusion: 1 mismatched; reverted to 0 |
+| suppressions | 7 × `set_option linter.style.haveILetI false in`, one per declaration (§6(g)) |
+| promotions / exemptions | none; no `OWN_PROOFS` entry |
+| hub edits | none; the module is a new leaf, nothing re-elaborated |
+| wiring | both `Theorems/` wrappers and both `S_` files appended to `SOURCES`, the module appended to `PORT_FILES` |
+
+Deviations from the pre-port plan: the three characteristic-zero helpers are
+*derived* rather than transcribed, and the twin headline is a one-liner from the
+general one. Both are proof-level; every statement is the pin's text, and the
+derivation is the pin's own step (the twin's file contains the same two `haveI`s).
+
+Not done here, deliberately: the genus node (`…genus_eq_of_constantFieldExtension_of_isAlgClosed`,
+539 lines) is its own node and waits for its own order — when it lands it imports
+#12–#15 from this module; the four cone consumers of the general headline and the
+sixteen of the twin are each their own node; no `spec/` consumer zone was added,
+because nothing in the port consumes these headlines yet (§10).
