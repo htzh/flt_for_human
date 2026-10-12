@@ -2865,7 +2865,24 @@ SOURCES = [
     "Definitions/Def_AutomorphicForm_ProductionPinsGeneral.lean",
     # --- TOPIC-rightConv-comm W11: the isotypic cusp space. Appended last.
     "Definitions/Def_AutomorphicForm_IsotypicCuspSpace.lean",
+    # --- TOPIC-rightConv-comm W12: the cuspidal constituent and the archimedean
+    # spherical predicate. Appended last.
+    "Definitions/Def_AutomorphicForm_CuspidalConstituent.lean",
+    "Definitions/Def_AutomorphicForm_ArchSpherical.lean",
+    # --- WORKORDER-P-rightConv-comm P1
+    # (`topics/automorphicForm/WORKORDER-P-rightConv-comm.md`): the three proof silos whose
+    # shared engine the four `RepTheory/` modules transcribe, and their `Theorems/` wrappers
+    # (the statement authority; P3). The engine is `private` at the pin, so it is registered
+    # through the checker's promoted-from-pin-private lookup. Appended last so no earlier
+    # last-name match can flip.
+    "P2M/Sol/S_AutomorphicForm_rightConv_rightConv_comm_of_isLevelSphericalOfType.lean",
+    "P2M/Sol/S_AutomorphicForm_rightConv_rightConv_comm_of_isLevelSphericalOfType_of_isCompact.lean",
+    "P2M/Sol/S_AutomorphicForm_rightConv_rightConv_comm_of_isLevelSphericalOfType_principal.lean",
+    "Theorems/Thm_AutomorphicForm_rightConv_rightConv_comm_of_isLevelSphericalOfType.lean",
+    "Theorems/Thm_AutomorphicForm_rightConv_rightConv_comm_of_isLevelSphericalOfType_of_isCompact.lean",
+    "Theorems/Thm_AutomorphicForm_rightConv_rightConv_comm_of_isLevelSphericalOfType_principal.lean",
 ]
+
 
 PORT_FILES = [
     "FLTForHuman/FieldTheory/CommonRoot.lean",
@@ -4247,6 +4264,33 @@ PORT_FILES = [
     "FLTForHuman/AutomorphicForm/Adelic/ProductionPinsCompact.lean",
     "FLTForHuman/AutomorphicForm/Adelic/ProductionPinsGeneral.lean",
     "FLTForHuman/AutomorphicForm/Adelic/IsotypicCuspSpace.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/Cusp/Constituent.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/ArchSpherical.lean",
+    # --- WORKORDER-P-rightConv-comm P1
+    # (`topics/automorphicForm/WORKORDER-P-rightConv-comm.md`): the four generic engine modules
+    # of the right-convolution commutation proof, written once from the shared block of the
+    # three `S_` silos (all `private` at the pin, hence `promoted`). The pin proof silos and the
+    # `Theorems/` wrappers are appended to `SOURCES` above. Appended last so no earlier last-name
+    # match can flip.
+    "FLTForHuman/RepTheory/TypeSpan.lean",
+    "FLTForHuman/RepTheory/AntiInvolutionHaar.lean",
+    "FLTForHuman/RepTheory/ProjectedHaar.lean",
+    "FLTForHuman/RepTheory/BiIsotypic.lean",
+    # --- P2/P3 (`topics/automorphicForm/WORKORDER-P-rightConv-comm.md`, round 2): the
+    # adèlic instantiation of the P1 engine and the three headlines. The pin's three
+    # silos and wrappers are already in `SOURCES` above. `Frame` is the adèlic
+    # `ProjectedHaar` frame and `MeasureGlue`; `PlaceClassData` the place-class datum and
+    # `thetaArch`; `SliceCentrality` the slice centrality engine at the general-`U`
+    # spelling; `MeasureAssembly` the archimedean projection measure and the level-`N`
+    # side facts. The three headlines are matched against their `Theorems/` wrappers (so
+    # `identical`, not `promoted`). Appended last so no earlier last-name match can flip.
+    "FLTForHuman/AutomorphicForm/Adelic/RightConvComm/Frame.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/RightConvComm/PlaceClassData.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/RightConvComm/SliceCentrality.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/RightConvComm/MeasureAssembly.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/RightConvComm/Compact.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/RightConvComm/Level.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/RightConvComm/Principal.lean",
 ]
 
 

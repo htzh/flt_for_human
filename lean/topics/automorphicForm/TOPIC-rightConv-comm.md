@@ -70,6 +70,23 @@ Two instrument notes from this measurement:
   **0 substitutions / 0 already in the port**, and net new is 3,715, not 3,687.
 - A work order for this topic must **not** quote the shelf's 6,865.
 
+**The principal sibling, measured and folded in (2026-10-11).** The third silo
+`S_…_isLevelSphericalOfType_principal.lean` (3,498 lines / 284 declarations) is the same
+engine with `principalLevel` in place of `levelOne`. Re-running the two commands above with
+the third node (`build/ds-trio.json`) gives raw `S_` 10,363; duplicate copies 6,454; distinct
+declaration groups 304; **net new math 3,824** — i.e. **+109 lines** for the whole principal
+headline. The shared block grows to **3,178 lines / 248 declarations across the three
+files**: 269 declarations are shared by all three, 7 more by plain and principal only, and
+the principal-only surface is 8 (`solution`, `finitePrincipalLevel`, `weylFin`,
+`isOpen/isClosed/isCompact_finitePrincipalLevel`, `mem_principalLevel_iff_glFin`,
+`mem_map_conj_iff` — the last already landed as
+`AutomorphicForm.TestFnPrincipalLevel.mem_map_conj_iff`). The hand-check the parser cannot
+make: `levelSubgroup`, `archNu`, `pins_U` and `glFin_image_level` each carry two *bodies*
+under one name (level vs principal vs `U`), which the statement-only checker reads as
+identical. The phase is therefore cut as a **trio**: deriving both specializations from the
+general `U` spelling is what makes the third one a few dozen lines instead of a second
+3.5k-line transcription.
+
 ## 2. The mathematics
 
 ### 2.1 The statement
@@ -269,6 +286,9 @@ additionally import `Def_AdelicDock_LocalEmbedding`,
 | fully present in the port | 15 | 2,723 | 344 |
 | **not (or only partly) present** | **36** | **8,535** | **794** |
 
+*(Superseded 2026-10-11: the W7–W12 waves landed the remaining modules of this closure
+and the gate is closed — see §4.7 and [WORKORDER-P-rightConv-comm.md](WORKORDER-P-rightConv-comm.md).)*
+
 Of the closure, ~5,933 lines are declarations actually *named* in the two `S_`
 files; ~5,325 lines are import-only (dragged in by the definitional imports of the
 named ones). The biggest unported members are `Def_AutomorphicForm_IsotypicCuspSpace`
@@ -327,8 +347,8 @@ of whose in-cone `Definitions/` dependencies are already in the port. As of
 | W9 | the compact production pins | `Def_AutomorphicForm_ProductionPinsCompact` | after W8's `ProductionPins` | **landed** |
 | W10 | the general production pins | `Def_AutomorphicForm_ProductionPinsGeneral` | after W9 + W8's `ArithCuspRealization` + W7's `SiegelCovering` | **landed** |
 | W11 | the isotypic cusp space | `Def_AutomorphicForm_IsotypicCuspSpace` | after W10 (+ landed `RightConvolution`, `SigmaAdelicAction`, `ArchWeightChar`) | **landed** |
-| W12 | the cuspidal constituent and the archimedean spherical predicate | `Def_AutomorphicForm_CuspidalConstituent`, `Def_AutomorphicForm_ArchSpherical` | after W11; closes the definition gate | |
-| P0–P3 | the proof half (§4.9) | | once the gate closes | |
+| W12 | the cuspidal constituent and the archimedean spherical predicate | `Def_AutomorphicForm_CuspidalConstituent`, `Def_AutomorphicForm_ArchSpherical` | after W11; closes the definition gate | **landed** |
+| **P0–P3** | the proof half (§4.9) | | the gate is closed; [WORKORDER-P-rightConv-comm.md](WORKORDER-P-rightConv-comm.md) | **landed** |
 
 ### 4.1 W1 — the adèlic box
 
@@ -774,13 +794,14 @@ The consumer zone exercises `Filter.cofinite.sets.countable`,
 -DmaxHeartbeats=4000000 -DautoImplicit=false <file>`, then one `lake build` of the
 seven; the consumer probe is the only cross-module check. No whole-tree build (§3.5).
 
-### 4.7 W7–W11 — the definition gate (status and the remaining plan)
+### 4.7 W7–W12 — the definition gate, closed
 
 **Measured scope.** Re-walking the twin's `Definitions/` closure after W1–W6
 (2026-10-11): 51 modules, **30 fully present, 21 unported (~6,000 pin lines)**, and a
-7-batch dependency chain. W7–W11 land 15 of those 21.
+7-batch dependency chain. W7–W12 land 16 of those 21; the gate is closed and the
+proof half (§4.9) is schedulable.
 
-**Landed (15 modules; checker +521 over the post-W6 baseline, now 8898 identical /
+**Landed (16 modules; checker +549 over the post-W6 baseline, now 8926 identical /
 0 mismatched / 0 missing):**
 
 | set | modules | pin lines |
@@ -792,13 +813,15 @@ seven; the consumer probe is the only cross-module check. No whole-tree build (�
 | W9 | `ProductionPinsCompact` | 92 |
 | W10 | `ProductionPinsGeneral` | 468 |
 | W11 | `IsotypicCuspSpace` | 1,063 |
+| W12 | `CuspidalConstituent`, `ArchSpherical` | 224 |
 
 **Homes (the wave's organization).** `RepTheory/LocalLanglands/{HeckePair,HeckeCosetSystem}.lean`,
 `NumberTheory/AdelicDock/LocalEmbedding.lean`, `NumberTheory/{AdelicVolume,SiegelVolume}.lean`,
 `AutomorphicForm/Adelic/WindowedSiegel/CentreCutSet.lean`,
 `AutomorphicForm/Adelic/Siegel/{Reduction,Covering}.lean`,
 `AutomorphicForm/Adelic/Cusp/{SmoothRealization,ArithRealization}.lean`, and
-`AutomorphicForm/Adelic/{SigmaAdelicAction,HeckeEigensystemMap,ProductionPins,ProductionPinsCompact,ProductionPinsGeneral,IsotypicCuspSpace}.lean`.
+`AutomorphicForm/Adelic/{SigmaAdelicAction,HeckeEigensystemMap,ProductionPins,ProductionPinsCompact,ProductionPinsGeneral,IsotypicCuspSpace}.lean`,
+plus `AutomorphicForm/Adelic/Cusp/Constituent.lean` and `AutomorphicForm/Adelic/ArchSpherical.lean`.
 
 **Drift ledger (statements unchanged).** `Finset.prod_le_prod` → `prod_le_prod₀` for
 the ordered form (`SiegelReduction`, `CentreCutSiegelSet`, and by default elsewhere);
@@ -820,7 +843,9 @@ in its own `Def_Mathlib_Topology_Algebra_RestrictedProduct_TopologicalSpace.lean
 axioms` `Battery`. `IsotypicCuspSpace` adds `Mathlib.RepresentationTheory.Basic` for
 `Representation` and `Representation.dual_apply`, which the pin reaches transitively
 through its stub imports, and keeps a narrow `set_option linter.style.haveILetI false`
-for its `letI`/`haveI` walls.
+for its `letI`/`haveI` walls; `CuspidalConstituent` restates `rightRegular`'s
+`map_one'`/`map_mul'` as `change` + `rw`, the pin's `simp [rightTranslate]` no longer
+normalizing the `Representation` structure literal's coercion.
 
 **W11 record (the isotypic cusp space, 2026-10-11).** `Def_AutomorphicForm_IsotypicCuspSpace`
 was generated whole (1,080 lines, the full pin body) and its first check stalled past the
@@ -834,15 +859,19 @@ warning-free at 7.4 s, a six-probe W11 consumer zone (6.7 s), `#print axioms`
 on five representative declarations all `[propext, Classical.choice, Quot.sound]`, and the
 checker at `8898 identical / 0 mismatched / 0 missing` (+124 checked declarations).
 
-**The remaining plan (W12; 1 module / 226 pin lines):**
+**W12 record (2026-10-11).** Both modules were transcribed whole, checked at the low cap
+first (200,000 heartbeats, 0 errors, 0 warnings), then green at the project cap and
+warning-free; `CuspidalConstituent` needed one drift restatement (`rightRegular`'s
+structure-literal proofs). Landed: `lake build` at 3.0 s / 3.5 s, a six-probe W12 consumer
+zone, `#print axioms` on five representative declarations all
+`[propext, Classical.choice, Quot.sound]`, and the checker at `8926 identical /
+0 mismatched / 0 missing` (+28, the two nodes' 21 + 7 declarations).
 
-| wave | modules | pin lines | ready when |
-|---|---|---:|---|
-| **W12** | `CuspidalConstituent`, `ArchSpherical` | 226 | **now** (W11 landed); closes the definition gate |
-
-When W12 lands, the twin's statements (`IsLevelSphericalOfType` via `ArchSpherical`
+**The gate is closed.** The twin's statements (`IsLevelSphericalOfType` via `ArchSpherical`
 and the cuspidal-constituent carriers) are statable on landed definitions and the
-proof half (P0–P3, §4.9) can run.
+proof half (P0–P3, §4.9) can run; the phase order is [WORKORDER-P-rightConv-comm.md](WORKORDER-P-rightConv-comm.md), 3,824
+net new math lines in three sets, against a 3,178-line / 248-declaration block the three silos
+carry up to three times.
 
 **Residual.** `Def_NumberField_AdelicBox` reads 33/36: its three
 `isOpen/isClosed/isCompact_integralFiniteAdeles` rows are the `(𝓞 K)`-specialized
@@ -887,8 +916,21 @@ route for these large mathlib-gap-adjacent modules is a direct port plus the
 
 P1 and P2 are new files and cascade on nothing (playbook §3.7 phase 2); P3 imports
 them. One set per subagent, review between sets (§0.2), one build per wave (§3.5).
-The pin's own order is not the order: its `S_` file carries the whole prelude before
-any of it is consumable.
+The pin's own order is not the order: its `S_` files carry the whole prelude before
+any of it is consumable. The measured phase order — the three sets, their modules, the
+pin line ranges, the build discipline and the stop conditions — is
+[WORKORDER-P-rightConv-comm.md](WORKORDER-P-rightConv-comm.md); `port_advise`/`port_plan`
+price the trio (the twin plus the `principalLevel` sibling, §1) at 3,824 net new math lines,
+of which a 3,178-line / 248-declaration block is carried up to three times and is written
+once. **Landed (2026-10-12).** Eleven new modules — the generic engine in
+`RepTheory/{TypeSpan,AntiInvolutionHaar,ProjectedHaar,BiIsotypic}.lean`, the adelic instantiation in
+`AutomorphicForm/Adelic/RightConvComm/{Frame,PlaceClassData,SliceCentrality,MeasureAssembly}.lean`,
+and the three headlines in `…/RightConvComm/{Compact,Level,Principal}.lean` (3,866 written lines
+against the 3,824 measured net new math lines).
+The compact headline transcribes the compact `solution`; the level and principal headlines are
+derivations from the P0 verdict. Checker `9205 identical (648 promoted, 83 renamed), 0 mismatched,
+0 missing`; the milestone whole-tree build is green at 9,467 jobs; the consumer carries Zone P;
+`#print axioms` on all three headlines is `[propext, Classical.choice, Quot.sound]`.
 
 ## 5. The scout gate
 
@@ -901,12 +943,14 @@ One `Scratch.lean` probe before P3 decides the whole shape of the topic:
 > `isCompact_level_image'` plus injectivity of `glFin` on `ker glArch`
 > (`eq_of_glArch_eq_of_glFin_eq`)?
 
-- **If yes**, the shared home is written at the $`U`$ spelling once and the plain
-  headline is a specialization: the port writes one proof of 2,923 shared lines plus
-  a derivation, and the level file shrinks to its public statement and side lemmas.
+- **If yes**, the shared home is written at the $`U`$ spelling once and the level and
+  principal headlines are specializations: the port writes one proof of 3,178 shared
+  lines plus two derivations, and each level file shrinks to its public statement and
+  side lemmas.
 - **If no** (a hypothesis is genuinely stronger in one direction, or the instance
-  transport does not line up), both proofs are transcribed and the dedup is still
-  the 2,923-line shared home — P3 grows by ≈3.4k written lines.
+  transport does not line up for one of the two), that `solution` is transcribed and the
+  dedup is still the 3,178-line shared home — P3 grows by that file's own lines, not by a
+  second engine.
 
 The scout also settles the two `def`-level questions: whether `MeasureAssembly.archNu`
 must be the pushed-forward measure or can be mathlib's Haar measure on the
@@ -914,25 +958,35 @@ archimedean group, and whether the `BiIsotypic` engine can be stated over
 `Representation k K V` (as the pin does) rather than over functions on the
 archimedean adeles.
 
+It is step **P0** of [WORKORDER-P-rightConv-comm.md](WORKORDER-P-rightConv-comm.md), which
+fixes the expected answer (`hUO := rfl`, the level's own compact/open lemmas) and the
+fallback (transcribe both `solution`s behind the same shared home). **Answered yes for both
+instantiations** (`lean/tmp/P-scout.lean`): `hUO := rfl` by `productionPinsOf_U`, `hO` from
+`AdelicLevel.isOpen_levelOne` and `TestFnPrincipalLevel.isOpen_finitePrincipalLevel`, `hU` from
+`IsCompact.image` over the landed finite-level compactness plus the separation
+`ProjectedHaar.eq_of_glArch_eq_of_glFin_eq`; so `Level.lean` and `Principal.lean` are a few dozen
+lines each and only the compact `solution` is transcribed.
+
 ## 6. Verification
 
 - **Checker.** Every port module in `PORT_FILES`; every pin source in `SOURCES`
-  appended last. Target `0 mismatched / 0 missing`. The 250 statement-identical
-  shared names verify through the ordinary last-name lookup; the 16 carrier-carrying
-  ones need the `SOURCES` order to put the *interface* copy (the general `U`
-  spelling) first, with the level spelling reachable by its dotted name. Re-run the
-  checker with `--prop-bodies` if any `def … : Prop` is promoted.
+  appended last. Target `0 mismatched / 0 missing`. Measured (2026-10-11): the shared
+  engine's **248 declarations are `private` at the pin** (`private def _root_.ProjectedHaar.…`),
+  so they verify through the checker's dotted-name fallback and land as `promoted` (+≈300
+  with the one-sided ones); the three headlines match the `Theorems/` wrappers by last name,
+  so `identical` moves by exactly +3. Re-run the checker with `--prop-bodies` if any
+  `def … : Prop` is promoted.
 - **Consumer.** `spec/AutomorphicFormConsumer.lean` gains one zone per set, each a
   real executed cross-module composition: for P1 a concrete non-vacuous instance of
   the generic `convKer_cut_comm` on a finite group frame; for P2 the adelic frame's
-  separation and `levelSpherical_eq_cut`; for P3 both headlines at a concrete
-  `N = ⊤`/`levelOne` and at a compact `U`, proving the same identity two ways.
-  Deleting any one module must break the zone.
-- **Axioms.** `#print axioms` on both headlines returns
+  separation and `levelSpherical_eq_cut`; for P3 all three headlines at a concrete
+  `N = ⊤`/`levelOne`, at a compact `U`, and at `principalLevel`, proving the same identity
+  three ways. Deleting any one module must break the zone.
+- **Axioms.** `#print axioms` on all three headlines returns
   `[propext, Classical.choice, Quot.sound]`; no `sorry` anywhere, including in
   `def`s.
 - **Faithfulness.** Statements are transcribed from the `Theorems/` wrappers, which
-  for these two are the statement authority verbatim (they differ from the `S_`
+  for these three are the statement authority verbatim (they differ from the `S_`
   copies only in the `p2m_exact_reverting` proof term). Public declarations keep the
   wrapper's binders; the `productionPinsOf` hypothesis must stay written as the
   wrapper writes it, not as its `levelSubgroup` unfolding, or the checker reports

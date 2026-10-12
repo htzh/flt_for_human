@@ -36,6 +36,14 @@ import FLTForHuman.AutomorphicForm.Adelic.ProductionPins
 import FLTForHuman.AutomorphicForm.Adelic.ProductionPinsCompact
 import FLTForHuman.AutomorphicForm.Adelic.Cusp.ArithRealization
 import FLTForHuman.AutomorphicForm.Adelic.IsotypicCuspSpace
+import FLTForHuman.AutomorphicForm.Adelic.ArchSpherical
+import FLTForHuman.AutomorphicForm.Adelic.RightConvComm.Frame
+import FLTForHuman.AutomorphicForm.Adelic.RightConvComm.PlaceClassData
+import FLTForHuman.AutomorphicForm.Adelic.RightConvComm.SliceCentrality
+import FLTForHuman.AutomorphicForm.Adelic.RightConvComm.MeasureAssembly
+import FLTForHuman.AutomorphicForm.Adelic.RightConvComm.Compact
+import FLTForHuman.AutomorphicForm.Adelic.RightConvComm.Level
+import FLTForHuman.AutomorphicForm.Adelic.RightConvComm.Principal
 import FLTForHuman.NumberTheory.SiegelVolume
 import FLTForHuman.Order.Filter.Cofinite
 import FLTForHuman.Topology.Bases
@@ -542,6 +550,171 @@ example (K : Type) [Field K] [NumberField K] (pins : CarrierPins K) (ξ : pins.Z
       convTraceOn K (isotypicCuspSubmodule K pins ξ N S Ψ ⊓ archCutSubmodule K tys)
         (continuous_of_mem_isotypicCuspSubmodule_inf K) f hf hfc :=
   cutTrace_eq K pins ξ N S Ψ tys f hf hfc
+
+-- Zone W12 (TOPIC-rightConv-comm): the cuspidal constituent and the archimedean
+-- spherical predicate. `CuspidalConstituent` gives the cuspidal subrepresentation
+-- datum, its irreducibility predicate and the isotypic-cut meeting condition;
+-- `ArchSpherical` gives the archimedean factor together with the level-spherical
+-- predicate the twin headlines are stated over.
+example (F : Type) [Field F] [NumberField F] (pins : CarrierPins F) (ξ : pins.Z →* ℂˣ) :
+    CuspidalConstituent.IsCuspSubrep F pins ξ ⊥ :=
+  CuspidalConstituent.isCuspSubrep_bot F pins ξ
+
+example (F : Type) [Field F] [NumberField F] (pins : CarrierPins F) (ξ : pins.Z →* ℂˣ) :
+    ¬ CuspidalConstituent.IsCuspConstituent F pins ξ ⊥ :=
+  CuspidalConstituent.not_isCuspConstituent_bot F pins ξ
+
+example {F : Type} [Field F] [NumberField F] {pins : CarrierPins F} {ξ : pins.Z →* ℂˣ}
+    {N : Ideal (𝓞 F)} {S : Finset (HeightOneSpectrum (𝓞 F))} {Ψ : HeckeEigensystem F ℂ}
+    {V : Submodule ℂ (AdelicGL2 (𝓞 F) F → ℂ)}
+    (h : CuspidalConstituent.CuspConstituentMeets F pins ξ N S Ψ V) :
+    V ⊓ isotypicCuspSubmodule F pins ξ N S Ψ ≠ ⊥ :=
+  CuspidalConstituent.inf_isotypicCuspSubmodule_ne_bot_of_cuspConstituentMeets F h
+
+example (F : Type) [Field F] [NumberField F] (tys : ArchTypeFamily F) :
+    IsArchSphericalOfType F tys (fun _ => 0) :=
+  isArchSphericalOfType_zero F tys
+
+example (F : Type) [Field F] [NumberField F] (tys : ArchTypeFamily F)
+    (U : Subgroup (AdelicGL2 (𝓞 F) F)) :
+    IsLevelSphericalOfType F tys U (fun _ => 0) :=
+  isLevelSphericalOfType_zero F tys U
+
+example (F : Type) [Field F] [NumberField F] (tys : ArchTypeFamily F)
+    (U : Subgroup (AdelicGL2 (𝓞 F) F)) (f : AdelicGL2 (𝓞 F) F → ℂ) :
+    IsLevelSphericalOfType F tys U f ↔
+      ∃ fa : GL (Fin 2) (InfiniteAdeleRing F) → ℂ, IsArchSphericalOfType F tys fa ∧
+        ∀ g : AdelicGL2 (𝓞 F) F, f g = fa (NumberField.AdelicLevel.glArch (𝓞 F) F g) *
+          Set.indicator ((NumberField.AdelicLevel.glFin (𝓞 F) F) '' (U : Set (AdelicGL2 (𝓞 F) F)))
+            (fun _ => (1 : ℂ)) (NumberField.AdelicLevel.glFin (𝓞 F) F g) :=
+  isLevelSphericalOfType_iff' F tys U f
+
+/-! ### Zone P (WORKORDER-P-rightConv-comm, round 2)
+
+The adèlic instantiation of the projected-Haar engine and the three right-convolution
+commutation headlines. P1 exercises the generic cut engine on the finite-product frame
+`ℂˣ × ℂˣ → ℂˣ`; P2 the adèlic frame's separation, the archimedean measure assembly and
+`levelSpherical_eq_cut`; P3 the three headlines executed at `N = ⊤` (`levelOne`), at an
+abstract compact carrier `U = O ⊓ finiteAdelicGL2Subgroup F`, and at `principalLevel`.
+Every one of the seven round-2 modules is named, so deleting any of them breaks this
+zone. -/
+
+-- Zone P1: `ProjectedHaar.convKer_cut_comm` on the finite-product frame
+-- `Multiplicative ℝ × Multiplicative ℝ → Multiplicative ℝ` (the additive group of `ℝ`
+-- written multiplicatively — `Multiplicative ℝ` carries no `MeasurableSpace` instance of
+-- its own, so the two local instances below equip it), with counting measure and the
+-- zero cut function. Non-vacuous: the engine is applied with all hypotheses discharged,
+-- and the central identity is a real Bochner-integral computation.
+private instance : MeasurableSpace (Multiplicative ℝ) := borel _
+
+private instance : BorelSpace (Multiplicative ℝ) := ⟨rfl⟩
+
+private def prodUnitsFrame :
+    ProjectedHaar.Frame (Multiplicative ℝ × Multiplicative ℝ) (Multiplicative ℝ) (Multiplicative ℝ) where
+  π := MonoidHom.fst _ _
+  πf := MonoidHom.snd _ _
+  ι := MonoidHom.inl _ _
+  ιf := MonoidHom.inr _ _
+  π_ι := fun _ => rfl
+  πf_ι := fun _ => rfl
+  π_ιf := fun _ => rfl
+  πf_ιf := fun _ => rfl
+  sep := fun _ _ h₁ h₂ => Prod.ext h₁ h₂
+
+example :
+    ProjectedHaar.convKer MeasureTheory.Measure.count
+        (ProjectedHaar.cut prodUnitsFrame ⊤ (0 : Multiplicative ℝ → ℂ))
+        (1 : Multiplicative ℝ × Multiplicative ℝ → ℂ) =
+      ProjectedHaar.convKer MeasureTheory.Measure.count
+        (1 : Multiplicative ℝ × Multiplicative ℝ → ℂ)
+        (ProjectedHaar.cut prodUnitsFrame ⊤ (0 : Multiplicative ℝ → ℂ)) :=
+  ProjectedHaar.convKer_cut_comm prodUnitsFrame MeasureTheory.Measure.count ⊤
+    (0 : Multiplicative ℝ → ℂ) (1 : Multiplicative ℝ × Multiplicative ℝ → ℂ)
+    continuous_fst (by rw [ProjectedHaar.slab]; exact MeasurableSet.univ) measurable_const
+    continuous_const (continuous_id.prodMk continuous_const)
+    (fun _ _ _ => rfl) (fun _ _ _ => rfl) (fun _ => by
+      unfold ProjectedHaar.convKer
+      simp)
+
+-- Zone P2: the adèlic frame (`Frame.lean`), its measure assembly
+-- (`MeasureAssembly.lean`), the place-class anti-involution (`PlaceClassData.lean`) and
+-- the slice centrality surface (`SliceCentrality.lean`).
+attribute [local instance] NumberField.AdelicHaar.glBorel MeasureAssembly.archBorel
+
+example (F : Type) [Field F] [NumberField F] {x y : AdelicGL2 (𝓞 F) F}
+    (h₁ : AdelicLevel.glArch (𝓞 F) F x = AdelicLevel.glArch (𝓞 F) F y)
+    (h₂ : AdelicLevel.glFin (𝓞 F) F x = AdelicLevel.glFin (𝓞 F) F y) : x = y :=
+  ProjectedHaar.eq_of_glArch_eq_of_glFin_eq F h₁ h₂
+
+example (F : Type) [Field F] [NumberField F] (D : Set (AdelicGL2 (𝓞 F) F)) (N : Ideal (𝓞 F)) :
+    (productionPinsOf F D (fun N => AdelicLevel.levelOne (𝓞 F) F N ⊓ finiteAdelicGL2Subgroup F)
+        (fun v => NumberField.AdelicLevel.heckeGen (𝓞 F) F v) (NumberField.AdelicBox.adelicBox F)).U N
+      = AdelicLevel.levelOne (𝓞 F) F N ⊓ finiteAdelicGL2Subgroup F :=
+  MeasureGlue.pins_U F D (fun v => NumberField.AdelicLevel.heckeGen (𝓞 F) F v)
+    (NumberField.AdelicBox.adelicBox F) N
+
+example (F : Type) [Field F] [NumberField F] (U : Subgroup (AdelicGL2 (𝓞 F) F))
+    {tys : ArchTypeFamily F} {f : AdelicGL2 (𝓞 F) F → ℂ}
+    (hf : IsLevelSphericalOfType F tys U f) :
+    ∃ fa : GL (Fin 2) (InfiniteAdeleRing F) → ℂ, IsArchSphericalOfType F tys fa ∧
+      f = ProjectedHaar.cut (ProjectedHaar.adelicFrame F)
+        (U.map (ProjectedHaar.adelicFrame F).πf) fa :=
+  MeasureAssembly.levelSpherical_eq_cut F U hf
+
+example (F : Type) [Field F] [NumberField F] (U : Subgroup (AdelicGL2 (𝓞 F) F))
+    (hUo : IsOpen (AdelicLevel.glFin (𝓞 F) F '' (U : Set (AdelicGL2 (𝓞 F) F)))) :
+    (MeasureAssembly.archNu F U).IsMulRightInvariant :=
+  MeasureAssembly.archNu_isMulRightInvariant F U hUo
+
+example (F : Type) [Field F] [NumberField F] (x : GL (Fin 2) (InfiniteAdeleRing F)) :
+    (PlaceClassData.archAntiInvolution F).θ x = PlaceClassData.thetaArch F x :=
+  PlaceClassData.archAntiInvolution_θ F x
+
+example (F : Type) [Field F] [NumberField F] (ψ : GL (Fin 2) (InfiniteAdeleRing F) → ℂ) :
+    ψ ∈ SliceCentrality.contSubmodule F ↔ Continuous ψ :=
+  SliceCentrality.mem_contSubmodule_iff F ψ
+
+-- Zone P3: the three headlines, executed at `N = ⊤`, at an abstract compact `U`, and at
+-- `principalLevel`. The archimedean data `τ`/`hirr` stay parameters; the substance is
+-- the landed `isLevelSphericalOfType_zero`, `isFactorizableTestFn_zero`,
+-- `isArchBiFinite_zero` with `φ := 0`, `h := 0`, `f := 0`.
+example (F : Type) [Field F] [NumberField F] (D : Set (AdelicGL2 (𝓞 F) F))
+    (hN : (⊤ : Ideal (𝓞 F)) ≠ ⊥)
+    (τ : ∀ w : InfinitePlace F, ArchRepAt F w) (hirr : ∀ w, (τ w).ρ.IsIrreducible) :
+    rightConv F (rightConv F (0 : AdelicGL2 (𝓞 F) F → ℂ) 0) 0 =
+      rightConv F (rightConv F 0 0) 0 :=
+  AutomorphicForm.rightConv_rightConv_comm_of_isLevelSphericalOfType F D ⊤ hN τ hirr
+    (0 : AdelicGL2 (𝓞 F) F → ℂ)
+    (isLevelSphericalOfType_zero F (⟨fun _ => 1, fun w _ => τ w⟩ : ArchTypeFamily F) _)
+    (0 : AdelicGL2 (𝓞 F) F → ℂ) (isFactorizableTestFn_zero F)
+    (isArchBiFinite_zero F (⟨fun _ => 1, fun w _ => τ w⟩ : ArchTypeFamily F))
+    (fun _ _ _ => ⟨rfl, rfl⟩) (0 : AdelicGL2 (𝓞 F) F → ℂ) continuous_zero
+
+example (F : Type) [Field F] [NumberField F]
+    (U : Subgroup (AdelicGL2 (𝓞 F) F)) (hU : IsCompact (U : Set (AdelicGL2 (𝓞 F) F)))
+    (O : Subgroup (AdelicGL2 (𝓞 F) F)) (hO : IsOpen (O : Set (AdelicGL2 (𝓞 F) F)))
+    (hUO : U = O ⊓ finiteAdelicGL2Subgroup F)
+    (τ : ∀ w : InfinitePlace F, ArchRepAt F w) (hirr : ∀ w, (τ w).ρ.IsIrreducible) :
+    rightConv F (rightConv F (0 : AdelicGL2 (𝓞 F) F → ℂ) 0) 0 =
+      rightConv F (rightConv F 0 0) 0 :=
+  AutomorphicForm.rightConv_rightConv_comm_of_isLevelSphericalOfType_of_isCompact F U hU O hO hUO
+    τ hirr (0 : AdelicGL2 (𝓞 F) F → ℂ)
+    (isLevelSphericalOfType_zero F (⟨fun _ => 1, fun w _ => τ w⟩ : ArchTypeFamily F) U)
+    (0 : AdelicGL2 (𝓞 F) F → ℂ) (isFactorizableTestFn_zero F)
+    (isArchBiFinite_zero F (⟨fun _ => 1, fun w _ => τ w⟩ : ArchTypeFamily F))
+    (fun _ _ _ => ⟨rfl, rfl⟩) (0 : AdelicGL2 (𝓞 F) F → ℂ) continuous_zero
+
+example (F : Type) [Field F] [NumberField F] (D : Set (AdelicGL2 (𝓞 F) F))
+    (hN : (⊤ : Ideal (𝓞 F)) ≠ ⊥)
+    (τ : ∀ w : InfinitePlace F, ArchRepAt F w) (hirr : ∀ w, (τ w).ρ.IsIrreducible) :
+    rightConv F (rightConv F (0 : AdelicGL2 (𝓞 F) F → ℂ) 0) 0 =
+      rightConv F (rightConv F 0 0) 0 :=
+  AutomorphicForm.rightConv_rightConv_comm_of_isLevelSphericalOfType_principal F D ⊤ hN τ hirr
+    (0 : AdelicGL2 (𝓞 F) F → ℂ)
+    (isLevelSphericalOfType_zero F (⟨fun _ => 1, fun w _ => τ w⟩ : ArchTypeFamily F) _)
+    (0 : AdelicGL2 (𝓞 F) F → ℂ) (isFactorizableTestFn_zero F)
+    (isArchBiFinite_zero F (⟨fun _ => 1, fun w _ => τ w⟩ : ArchTypeFamily F))
+    (fun _ _ _ => ⟨rfl, rfl⟩) (0 : AdelicGL2 (𝓞 F) F → ℂ) continuous_zero
 
 end AutomorphicFormConsumer
 
