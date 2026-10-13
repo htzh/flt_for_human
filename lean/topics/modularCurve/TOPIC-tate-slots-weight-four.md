@@ -128,14 +128,14 @@ second `ModularCurve` block) is written **once**, in `Convergence.lean`.
 
 | module | content |
 |---|---|
-| `FLTForHuman/ModularCurve/TateSlots/Headlines.lean` | the fourteen public `ModularCurve.<name>` statements, verbatim from the pin's `Theorems/Thm_ModularCurve_*` wrappers, each proved from the engine's kernel lemma |
+| `FLTForHuman/ModularCurve/TateSlots/CoefficientFormulas.lean` | the fourteen public `ModularCurve.<name>` statements, verbatim from the pin's `Theorems/Thm_ModularCurve_*` wrappers, each proved from the engine's kernel lemma |
 
 **The interface between the tiers.** The pin writes each headline as a `solution` theorem
 forwarding to a **`private`** kernel. The port promotes the fourteen kernels to **public** in the
 engine, under the uniform namespace `ModularCurve.TateSlots.<name>` (a port-chosen name; the pin's
 `private` name is not available publicly, and for eleven of the fourteen it *is* the public
 wrapper name, so it cannot be reused). Each kernel is stated with the pin `Theorems/` wrapper's
-binders, so the façade in `Headlines.lean` is a one-line application. This is exactly the pin's own
+binders, so the façade in `QPow.lean` is a one-line application. This is exactly the pin's own
 `solution := kernel` shape, one namespace deeper.
 
 ## 4. The fourteen headlines
@@ -187,7 +187,7 @@ fourteen files carries the same kernel at the same line.
 ## 6. Registers and next steps
 
 * **Landed.** WORKORDER-F1's engine is in, the tier-1 façade
-  `FLTForHuman/ModularCurve/TateSlots/Headlines.lean` carries the fourteen public
+  `FLTForHuman/ModularCurve/TateSlots/CoefficientFormulas.lean` carries the fourteen public
   `ModularCurve.<name>` headlines, and the checker reads **9318 identical (648 promoted, 83
   renamed), 0 mismatched, 0 missing, 38 own (9356 checked)** — a measured **+14** on the
   pre-F1 tree's 9304, exactly the façade surface. All fourteen headlines are
@@ -202,7 +202,7 @@ fourteen files carries the same kernel at the same line.
   unlisted until a consumer needs its whole surface.
 * The façade is tier 1: `Theorems/Thm_ModularCurve_<name>.lean` (statement authority) and
   `P2M/Sol/S_ModularCurve_<name>.lean` appended to `SOURCES`, and
-  `FLTForHuman/ModularCurve/TateSlots/Headlines.lean` to `PORT_FILES` — all appended last.
+  `FLTForHuman/ModularCurve/TateSlots/CoefficientFormulas.lean` to `PORT_FILES` — all appended last.
 * **Reproduce the measurement** (the two frontier readings and the dedup):
 
 ```bash

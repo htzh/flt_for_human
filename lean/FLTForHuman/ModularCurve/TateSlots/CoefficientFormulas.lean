@@ -1,7 +1,12 @@
 /-
-  The fourteen public headlines of the Tate-slot weight-4 package.
+  The public coefficient and convergence theorems of the universal Tate curve under
+  `Γ₀(ℓ)`-slot substitution: the convergence criterion `tsum_of_coeff_lt_eq_zero`
+  and the Lambert identity `tsum_lambertTerm_eq`, the `single`-series closed forms,
+  the injectivity of the generic slot substitution, the coefficient formulas
+  `coeff_slotSubst_tateUnivX`/`_tateUnivY`, the `tateBase` equation, and the
+  toric-point coefficients.
 
-  These are the port's tier-1 façade over the tier-3 engine
+  These are the port's tier-1 surface over the tier-3 engine
   (`TateSlots/Convergence.lean`, `TateSlots/SlotCoeff.lean`). Each statement is
   the pin's `Theorems/Thm_ModularCurve_<name>.lean` wrapper verbatim — that
   wrapper, not the `S_` file's section-implicit `solution`, is the checker's
@@ -10,7 +15,7 @@
 
   The pin writes the same shape inside each `S_` file: a `private` kernel and a
   public `solution` forwarding to it. The port promotes the kernel to public in
-  the engine (the fourteeen `S_` files are near-identical copies of one
+  the engine (the fourteen `S_` files are near-identical copies of one
   development; see TOPIC-tate-slots-weight-four.md) and keeps the public
   statement here, at the pin's wrapper name.
 

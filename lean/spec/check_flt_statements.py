@@ -2982,6 +2982,39 @@ SOURCES = [
     "P2M/Sol/S_ModularCurve_toricPoint_snd_coeff_of_not_dvd.lean",
     "P2M/Sol/S_ModularCurve_toricPoint_snd_coeff_zero.lean",
     "P2M/Sol/S_ModularCurve_tsum_of_coeff_lt_eq_zero.lean",
+    # --- WORKORDER-F2: the `tateCurve` twins and triplet, definition layer. Two
+    # clusters of near-identical pin `S_` files (see
+    # topics/modularCurve/TOPIC-tate-curve-twins.md) import six unported
+    # `Definitions/` modules, homed whole (playbook §2.3) at
+    # `Algebra/LaurentSeriesXAdic.lean`, `TateCurve/{QSeries,PointSeries}.lean`,
+    # `ModularForms/KatzLevelOne.lean` and `ModularCurve/Defs/{KatzLevelP,KatzLevelPCusps}.lean`.
+    # None has a `Theorems/` wrapper, so all verify by name against their
+    # `Definitions/` files. Appended last so no earlier last-name match can flip.
+    "Definitions/Def_LaurentSeries_XAdic.lean",
+    "Definitions/Def_TateCurve_QSeries.lean",
+    "Definitions/Def_TateCurve_PointSeries.lean",
+    "Definitions/Def_ModularForm_KatzLevelOne.lean",
+    "Definitions/Def_ModularCurve_KatzLevelP.lean",
+    "Definitions/Def_ModularCurve_KatzLevelPCusps.lean",
+    # --- WORKORDER-F2: the `tateCurve` twin/triplet public headline module. Five
+    # near-identical pin `S_` files carry one `BridgeX` development; the engine is
+    # tier 3 (`TateCurve/Bridge.lean`, `TateCurve/NonToricSlot.lean`) and only the
+    # façade (`TateCurve/QPow.lean`) is listed. Each
+    # `Theorems/Thm_ModularCurve_<name>.lean` wrapper is the
+    # statement authority (listed first); its `S_` file follows so the engine's
+    # promoted `ModularCurve.TateCurve.<kernel>` aliases resolve through the
+    # pin-private dotted fallback. Appended last so no earlier last-name match can
+    # flip.
+    "Theorems/Thm_ModularCurve_tateCurve_curve_X_pow_eq_tateBase.lean",
+    "Theorems/Thm_ModularCurve_tateCurve_pointX_C_eq_tateToricPoint_fst.lean",
+    "Theorems/Thm_ModularCurve_tateCurve_pointY_C_eq_tateToricPoint_snd.lean",
+    "Theorems/Thm_ModularCurve_tateCurve_pointX_C_mul_X_pow_eq_nonToricPoint_fst.lean",
+    "Theorems/Thm_ModularCurve_tateCurve_pointY_C_mul_X_pow_eq_nonToricPoint_snd.lean",
+    "P2M/Sol/S_ModularCurve_tateCurve_curve_X_pow_eq_tateBase.lean",
+    "P2M/Sol/S_ModularCurve_tateCurve_pointX_C_eq_tateToricPoint_fst.lean",
+    "P2M/Sol/S_ModularCurve_tateCurve_pointY_C_eq_tateToricPoint_snd.lean",
+    "P2M/Sol/S_ModularCurve_tateCurve_pointX_C_mul_X_pow_eq_nonToricPoint_fst.lean",
+    "P2M/Sol/S_ModularCurve_tateCurve_pointY_C_mul_X_pow_eq_nonToricPoint_snd.lean",
 ]
 
 
@@ -4438,8 +4471,22 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/Defs/TateSlots.lean",
     # --- WORKORDER-F1: the weight-4 Tate-slot tier-1 façade. The engine modules
     # (`TateSlots/Convergence.lean`, `TateSlots/SlotCoeff.lean`) stay tier 3 and
-    # are recorded in spec/UNWIRED-PUBLIC.md; only the façade is diffed.
-    "FLTForHuman/ModularCurve/TateSlots/Headlines.lean",
+    # are recorded in spec/UNWIRED-PUBLIC.md; only the façade
+    # (`TateSlots/CoefficientFormulas.lean`) is diffed.
+    "FLTForHuman/ModularCurve/TateSlots/CoefficientFormulas.lean",
+    # --- WORKORDER-F2: the `tateCurve` twins/triplet definition layer (see SOURCES).
+    # Six new leaf modules; no existing module was edited, so no hub wave is owed.
+    "FLTForHuman/Algebra/LaurentSeriesXAdic.lean",
+    "FLTForHuman/TateCurve/QSeries.lean",
+    "FLTForHuman/TateCurve/PointSeries.lean",
+    "FLTForHuman/ModularForms/KatzLevelOne.lean",
+    "FLTForHuman/ModularCurve/Defs/KatzLevelP.lean",
+    "FLTForHuman/ModularCurve/Defs/KatzLevelPCusps.lean",
+    # --- WORKORDER-F2: the `tateCurve` twin/triplet tier-1 façade. The engine
+    # (`TateCurve/Bridge.lean`, `TateCurve/NonToricSlot.lean`) stays tier 3 and is
+    # recorded in spec/UNWIRED-PUBLIC.md; only the façade (`TateCurve/QPow.lean`) is
+    # diffed.
+    "FLTForHuman/ModularCurve/TateCurve/QPow.lean",
 ]
 
 

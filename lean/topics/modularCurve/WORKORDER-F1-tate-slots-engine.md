@@ -15,7 +15,7 @@ Pin `anthropics/fermats-last-theorem@aa2d8b3` (Lean `v4.33.1` / mathlib `db584cd
 Port **once** the shared development that the fourteen `S_ModularCurve_*` files each carry in full
 (23,094 raw lines → 1,671 net new / 134 declaration groups), into the two engine modules of §2,
 tier 3. The fourteen **public headline façades are explicitly not this order** — the manager writes
-`TateSlots/Headlines.lean` afterwards. Also **not** this order: the definition layer, the checker,
+`TateSlots/CoefficientFormulas.lean` afterwards. Also **not** this order: the definition layer, the checker,
 `UNWIRED-PUBLIC.md`, any other `S_` file, and any existing module.
 
 Each block is taken **whole** (playbook §2.3): transcribe every declaration of the named sections,
@@ -199,7 +199,7 @@ The manager's half:
 
 | check | result |
 |---|---|
-| `TateSlots/Headlines.lean` (tier 1) | 14 public headlines, tier-0 exit 0 / 0 warnings, tier-1 green (3,157 jobs, 3.1 s) |
+| `TateSlots/CoefficientFormulas.lean` (tier 1) | 14 public headlines, tier-0 exit 0 / 0 warnings, tier-1 green (3,157 jobs, 3.1 s) |
 | checker before F1 | 9304 identical, 0 mismatched, 0 missing, 38 own (9342) |
 | checker after F1 | **9318 identical, 0 mismatched, 0 missing, 38 own (9356)** — delta **+14**, exactly the façade |
 | one-token mutation (`(hMut : True)` on `toricPoint_fst_coeff_zero`) | exactly 1 mismatched (9317), reverted |
@@ -208,5 +208,5 @@ The manager's half:
 | `unwired_register.py` | 78 modules / 1,906 public / 1,618 with pin original; 38 + 81 rows for the engines, none missing a pin original |
 
 Wiring: the fourteen wrappers then their fourteen `S_` files appended last to `SOURCES`;
-`FLTForHuman/ModularCurve/TateSlots/Headlines.lean` appended last to `PORT_FILES`. The engine
+`FLTForHuman/ModularCurve/TateSlots/CoefficientFormulas.lean` appended last to `PORT_FILES`. The engine
 modules stay tier 3 and are recorded in `spec/UNWIRED-PUBLIC.md`.

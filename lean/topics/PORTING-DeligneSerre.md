@@ -9,12 +9,14 @@ manager's own work, §5 the build economy, §6 verification, §7 what remains, �
 residuals. Every measurement is the pin's, read through `tools/deps`. The section numbers are
 stable: work orders across the column cite §3 for the workflow and §7 for the gates.
 
-The checker reads **9318 identical (648 promoted, 83 renamed), 0 mismatched, 0 missing, 38
-own-proof declarations exempted (9356 checked)**. Of that, this column's two most recent landings
-are the `TateFormal`/`TateSlots` definition layer (§1), a measured 9241 → 9304, and the weight-4
-Tate-slot engine and headline façade (WORKORDER-F1, §1), 9304 → 9318 — each delta exactly its new
-public surface, 0 mismatched / 0 missing. The remaining growth since the note's earlier figures is
-other columns' landings; the column's own history lives in `../logs/` and the work orders.
+The checker reads **9540 identical (656 promoted, 83 renamed), 0 mismatched, 0 missing, 38
+own-proof declarations exempted (9578 checked)**. This column's recent landings: the
+`TateFormal`/`TateSlots` definition layer, 9241 → 9304; the weight-4 Tate-slot engine and headline
+façade (WORKORDER-F1), 9304 → 9318; the six `tateCurve`/Katz definition modules of WORKORDER-F2,
+9318 → 9535 (+217); and the `BridgeX` twin/triplet engine and headline façade (WORKORDER-F2),
+9535 → 9540 (+5). Each delta is exactly its new public surface, 0 mismatched / 0 missing. The
+remaining growth since the note's earlier figures is other columns' landings; the column's own
+history lives in `../logs/` and the work orders.
 
 Companions:
 
@@ -50,6 +52,10 @@ Companions:
   [modularCurve/TOPIC-tate-slots-weight-four.md](modularCurve/TOPIC-tate-slots-weight-four.md), and
   the shared-engine order is
   [modularCurve/WORKORDER-F1-tate-slots-engine.md](modularCurve/WORKORDER-F1-tate-slots-engine.md).
+- The `tateCurve` twin pair and the triplet lurking beside it — the three rows F1's step-6 re-read
+  put on the shelf, five near-identical files sharing one `BridgeX` development:
+  [modularCurve/TOPIC-tate-curve-twins.md](modularCurve/TOPIC-tate-curve-twins.md) and
+  [modularCurve/WORKORDER-F2-tate-curve-twins.md](modularCurve/WORKORDER-F2-tate-curve-twins.md).
 
 ## 1. What the port contains
 
@@ -142,7 +148,7 @@ frontier's `--include-leaves` view showed at ~1650 lines are one 1,671-net-line 
 fourteen times (23,094 raw lines, 112 shared names, ≈20,810 removable); it is ported once as the
 tier-3 engine `ModularCurve/TateSlots/{Convergence,SlotCoeff}.lean` (537 + 1,293 lines, 38 + 81
 public declarations, declaration parity exact, no build-time blow-up) and the fourteen public
-headlines in the tier-1 façade `ModularCurve/TateSlots/Headlines.lean`. The engine's fourteeen
+headlines in the tier-1 façade `ModularCurve/TateSlots/CoefficientFormulas.lean`. The engine's fourteeen
 kernels are public as `ModularCurve.TateSlots.<name>` with the pin `Theorems/` wrapper binders;
 the façade states the wrappers verbatim. The engine stays tier 3 and is recorded in
 [spec/UNWIRED-PUBLIC.md](../spec/UNWIRED-PUBLIC.md); the façade is the checker wire (delta +14).
@@ -150,6 +156,21 @@ No existing module was edited. Mathematics, measurement and structure:
 [modularCurve/TOPIC-tate-slots-weight-four.md](modularCurve/TOPIC-tate-slots-weight-four.md); the
 order and its results:
 [modularCurve/WORKORDER-F1-tate-slots-engine.md](modularCurve/WORKORDER-F1-tate-slots-engine.md).
+
+**The `tateCurve` `BridgeX` layer and its definition chain.** The three `tateCurve` rows F1's
+step-6 re-read put on the shelf are a **twin pair and a triplet** — five near-identical pin `S_`
+files sharing one 1,338-line `ModularCurve.BridgeX` development (47 declarations in all five, 23
+more in the pair only, 5 headlines). Ported once as the tier-3 engine
+`ModularCurve/TateCurve/{Bridge,Slot}.lean` (839 + 674 lines, 50 + 25 public declarations, no
+build-time blow-up), with the five public headlines in the tier-1 façade
+`ModularCurve/TateCurve/QPow.lean`. Its six unported `Definitions/` modules are homed whole at
+`Algebra/LaurentSeriesXAdic.lean`, `TateCurve/{QSeries,PointSeries}.lean`,
+`ModularForms/KatzLevelOne.lean` and `ModularCurve/Defs/{KatzLevelP,KatzLevelPCusps}.lean` (217
+declarations, checker +217). The engine stays tier 3 and is recorded in
+[spec/UNWIRED-PUBLIC.md](../spec/UNWIRED-PUBLIC.md). Mathematics and structure:
+[modularCurve/TOPIC-tate-curve-twins.md](modularCurve/TOPIC-tate-curve-twins.md); the order and its
+results:
+[modularCurve/WORKORDER-F2-tate-curve-twins.md](modularCurve/WORKORDER-F2-tate-curve-twins.md).
 
 **The shared ground that edits existing modules.** The `ValuationSubring` residue block in
 `NumberTheory/ValuationAtPlace.lean`; the `Gamma0Integral` promotion and its duplicate-block
@@ -454,7 +475,7 @@ and in the friction log.
 * **Register.** The weight-4 engine (`TateSlots/{Convergence,SlotCoeff}.lean`) is tier 3: built and
   importable, not in `PORT_FILES`, with its 119 public declarations carrying `-- pin:` provenance
   in [spec/UNWIRED-PUBLIC.md](../spec/UNWIRED-PUBLIC.md) (78 modules / 1,906 public / 1,618 with a
-  pin original). Only the façade `TateSlots/Headlines.lean` is diffed.
+  pin original). Only the façade `TateSlots/CoefficientFormulas.lean` is diffed.
 * `locKer`/`adjoinRoot'` are public in `DeligneSerre/Lifting.lean` with no consumer today (kept
   per the pin).
 * The private `det_eq` copies in `Gamma1Vanishing.lean`/`HeckeEigenNebentypus.lean` are
