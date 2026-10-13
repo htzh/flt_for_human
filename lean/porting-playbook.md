@@ -196,13 +196,11 @@ nor the pin's definitional imports.
 **Walk the proof's definition uses, not only the import block.** A
 `Definitions/Def_*.lean` import can be an *empty stub* while the `S_` proof still
 consumes a public block of a different `Def_*` module the stub drags in
-transitively — one division-field target imports only a stub yet needs the
-≈1,750-line `Def_WeierstrassCurve_DivPolyMulFormula.lean`. The docs-site graph
-carries the list per node (`fltdata.proof_defs`), so check it before calling a
-definition layer empty. **Sweep the port by name and by `#check` before pricing
-any closure member**: one wave priced four members at 1,246 / 911 / 58 / 269 lines
-and wrote ≈15 lines for the last and nothing for the first three; a `ucl`-only
-budget said ≈4 k where the truth was 1.6 k.
+transitively. The docs-site graph carries the list per node
+(`fltdata.proof_defs`), so check it before calling a definition layer empty.
+**Sweep the port by name and by `#check` before pricing any closure member**: a
+`ucl`-only budget badly overestimates what a member costs once its mathematics is
+found in the port under another name.
 
 Then make the table *act*:
 
@@ -226,15 +224,12 @@ Then make the table *act*:
 Three ways a frontier figure misleads:
 
 - **A citation-leaf is not a leaf.** `needed == 1` says nothing about
-  *definitional* prerequisites, which the citation graph does not carry: a
-  126-line leaf once needed three `Definitions/` modules. Measure the pin `S_`
-  file's `Definitions/` import closure before trusting a leaf.
+  *definitional* prerequisites, which the citation graph does not carry. Measure the
+  pin `S_` file's `Definitions/` import closure before trusting a leaf.
 - **A pin `S_` file's `lines` is an upper bound on the headline's route.** A
-  solution file may inline its prerequisites and carry an off-path silo — one
-  2,248-line file had ~200 lines on the headline's path and ~1,400 in a
-  place/Riemann–Roch/class-group silo. Grep the capstone region for the file's
-  other declaration names; the silo is still ported whole (§2.3), but the
-  headline's route cost excludes it.
+  solution file may inline its prerequisites and carry an off-path silo. Grep the
+  capstone region for the file's other declaration names; the silo is still ported
+  whole (§2.3), but the headline's route cost excludes it.
 - **File-granular edges shadow.** The citation graph's edges are file-granular
   while "already ported" is name-granular, so a partially ported file makes its
   citers read one node closer than they are. Porting the node whole (§2.3)
@@ -271,22 +266,20 @@ Route selection is a measurement, not a preference:
 
 - **Price the marginal closure under the substitution, not the headline cone.**
   Drop the route's outgoing edges and recompute; a graph-only estimate can be
-  orders too large (one residual read 12 nodes / 5,595 lines where the truth was
-  5 / 235).
+  orders too large.
 - **Prefer a cone that is a subset of work the endgame needs anyway**
   (`cone ⊆ closure(branch)`), counting only the route-specific addition; retire a
   route that adds no coverage the chosen statement does not give.
 - **Disambiguate same-named objects before pricing**, and verify a brief's named
-  ingredient (name, hypotheses, crutch) against the pin — "the Eichler–Shimura
-  layer" once named three cones, and one plan cited a lemma that does not exist.
+  ingredient (name, hypotheses, crutch) against the pin.
 - **The pin's `p2m_export`/`p2m_open` list is the FLT → mathlib gap list**; check
   every name against the pinned mathlib (a mathlib TODO comment is a reliable gap
   inventory).
 - **Check a mathlib substitute's hypothesis strength against the source's** — a
   candidate can need primitivity where the cone has only `ζ^ℓ = 1`, or state a sum
   where the port needs a product.
-- **Price the glue, not the mathlib-replaceable leaves** (a 199-line lemma with no
-  replacement cost full price while a 76-line file collapsed to 8 lines).
+- **Price the glue, not the mathlib-replaceable leaves**: a lemma with no
+  replacement costs full price, and one that is glue collapses.
 - **Order the remaining nodes by outbound statement-demand, not file size**, and
   scope a topic from the pin's import graph over whole nodes: do not trim an
   in-scope node to its in-cone declarations (§2.3), and do not assume a
@@ -344,11 +337,9 @@ removed.
 
 ### 2.4 Deduplicate before coding, and drop by count
 
-The pin repeats itself heavily: a private prelude copied into every `S_` file
-that consumes it (the slot vocabulary in 38 files, the fibre dictionary in four,
-the Fricke/inclusion prelude in three, the modular-unit `q`-expansion in four).
-**Find those copies in the plan and give them one home before writing the first
-module.** Detection is measurement, not inspection:
+The pin repeats itself heavily: a private prelude copied into every `S_` file that
+consumes it. **Find those copies in the plan and give them one home before writing
+the first module.** Detection is measurement, not inspection:
 
 - **Diff normalized bodies** — strip imports, namespaces, `p2m_*` lines and the
   `solution` tail — and price the saving as `(copies − 1) × block content`. Find
@@ -363,9 +354,9 @@ module.** Detection is measurement, not inspection:
   The checker compares a `def`'s *type*, which for `def foo : Prop := P` is just
   `Prop`, so any same-last-name `Prop`-valued `def` reads as a substitute whatever
   its body. Read the pin body (or run `--prop-bodies`) on every such row.
-- **Graph-node multiplicity undercounts copies** — one graph node can ship five
-  times through hidden exports. Quantify a dedup by *duplicate lines shipped* (one
-  895-line block: ~4,475 → 1,023), not by "a copy exists".
+- **Graph-node multiplicity undercounts copies** — one graph node can ship several
+  times through hidden exports. Quantify a dedup by *duplicate lines shipped*, not
+  by "a copy exists".
 - **A large pin-`private` block re-exported by name mangling is a promotion**:
   write it once, publicly, at the pinned names, promoting the *union* of the
   duplicate preludes; an out-of-cone byte-identical duplicate is resolved by
@@ -390,36 +381,26 @@ the effort's measured written-lines ÷ content-lines ratio (`AlgebraicCurve`
 1.25–1.45, `ModularCurve` 1.0–1.3). The budget *unit* is the named shape risk,
 not lines. Name the risks in the order they will bite — a typeclass/coercion
 mismatch, a defeq between concrete carriers, an instance diamond, a renamed API —
-each with its mitigation, and mark each resolved or open with the measurement
-that resolved it. Record **predicted non-events** too, so they are not budgeted
-again. Measured outcomes:
-
-- line budgets have been accurate to within ~10% (`AlgebraicCurve`: budgeted
-  5.1k–5.9k, measured 5,559);
-- risk registers have been pessimistic (an orbit count, an instance block,
-  instance diamonds and a `PerfectField` requirement all failed to materialize as
-  budgeted);
-- the real recurring cost was **API drift**, which is cheap per item but
-  numerous — keep the drift list (§7);
-- record a route win as a *measured delta* and re-price, rather than banking it.
+each with its mitigation, and mark each resolved or open with the measurement that
+resolved it. Record **predicted non-events** too, so they are not budgeted again.
+Measured outcomes: line budgets have been accurate to within ~10%; risk registers
+have been pessimistic; and the real recurring cost has been **API drift**, cheap per
+item but numerous — keep the drift list (§7). Record a route win as a *measured
+delta* and re-price, rather than banking it.
 
 Before committing to a route, audit it as a named `logs/audit-*.md`, re-deriving
-load-bearing claims rather than trusting the brief. The audits that did this
-found a slot-count closed form worth ≈110–150 lines, that `rval_aux` was ~64%
-irreducible, and that one `relNorm` route answered "no".
+load-bearing claims rather than trusting the brief; an audit may answer "no" and
+retire the route.
 
 ### 2.6 The scout gate
 
 When exactly one topic carries genuinely new mathematics, prototype it in a
-gitignored `Scratch.lean` before dispatching it. A scout is cheap insurance
-against a whole topic being routed wrongly: one scout cost 3.2 s and converted
-its biggest unknown into a known quantity, and the manager pre-checked the `Φ`
-one-liners and the `qParam_coeff_unique` API the same way. Its output is a
-**corrected estimate and work order**, not just go/no-go: record the pre-scout and
-post-scout numbers. A scout may also **kill a route outright** — record the
-missing ingredient and the unsupported figure. And a scout showing that the pin's
-proof transcribes unchanged converts "new mathematics" into "transcription" and
-de-risks the whole topic.
+gitignored `Scratch.lean` before dispatching it. A scout is cheap insurance against
+a whole topic being routed wrongly. Its output is a **corrected estimate and work
+order**, not just go/no-go: record the pre-scout and post-scout numbers. A scout may
+also **kill a route outright** — record the missing ingredient and the unsupported
+figure. And a scout showing that the pin's proof transcribes unchanged converts "new
+mathematics" into "transcription" and de-risks the whole topic.
 
 ## 3. Executing a port
 
@@ -469,9 +450,8 @@ concretisation** — `AlgebraicCurve`'s 5.5k lines are three statements,
 in the tree, the split is wrong.
 
 Two hygiene rules: keep imports specific (never `import Mathlib` in a library
-module — two such files once took the planned build from 2,086 to 8,936 jobs), and
-keep `spec/` outside the libraries so the library's green/no-`sorry`/seconds-warm
-build stays meaningful.
+module), and keep `spec/` outside the libraries so the library's green/no-`sorry`/
+seconds-warm build stays meaningful.
 
 ### 3.3 One topic at a time, with a work order
 
@@ -495,10 +475,9 @@ The work-order template the topics converged on:
 6. **Verification** — checker delta, consumer zones, `#print axioms`, `grep -c`
    of anything dropped.
 
-Update the order's numbers in place when reconnaissance re-prices it (one
-estimate was corrected 180–240 → ≈747 content lines inside the order). Re-cut a
-topic that straddles several waves **by mathematical object** — construction,
-then properties, then consequence — without splitting a node across waves.
+Update the order's numbers in place when reconnaissance re-prices it. Re-cut a topic
+that straddles several waves **by mathematical object** — construction, then
+properties, then consequence — without splitting a node across waves.
 
 ### 3.4 Sets dispatched to agents, with review gates
 
@@ -513,22 +492,17 @@ next — is §0.2. It worked, for reasons worth keeping:
   real dependencies, so re-derive them instead of copying the pin's order. Keep
   topic numbering disjoint across parallel efforts.
 - **Split on the mathematical fork, not on size.** Each set should carry one
-  story and not need the other set's context. One effort split at its shared
-  prerequisite, and the two routes' independent halves became a second set. A
-  set's scope is a group of whole nodes; a node is not divided between sets
-  (§2.3).
+  story and not need the other set's context. A set's scope is a group of whole
+  nodes; a node is not divided between sets (§2.3).
 - **Write the next set's orders after the previous set is reviewed**, against the
   modules that actually exist. That is what makes a hand-off import real
   declarations instead of re-deriving them. Write the hand-off as part of
   finishing: the fixed names, instances and build budget the next set inherits.
 - **The capstone is the review.** Writing it is the final wire test: a wrong
   binder, a missing lemma or a mis-stated hypothesis upstream surfaces as a
-  compile failure in the reviewer's own file. Reserve it for the reviewer; in the
-  larger efforts it compiled first try.
+  compile failure in the reviewer's own file. Reserve it for the reviewer.
 - **Re-scope a blocked topic; do not stall the effort.** Keep the tree green by
   setting the blocked file aside, write a focused follow-up order, re-dispatch.
-  A `CuspDichotomy` re-scope solved in two rounds what the original topic could
-  not.
 - **Keep a per-set measured table** (rounds / declarations / lines / build /
   axioms / checker / consumer) and the friction log; when a set may not edit a
   consumer, record the replacement map and hand the dedup off. Close with a review
@@ -544,41 +518,40 @@ nothing; `lake build <module>` writes the `.olean` and builds dependencies, neve
 dependents; only building a dependent (or `lake build`) re-elaborates the cascade.
 The whole-tree build is therefore a **once-per-session** action, taken at the end
 and with permission (rule 5): a session holds several waves of porting, often
-several topics, and a tree-wide rebuild between them buys information the next
-wave invalidates. Measured here: 4–78 s to elaborate one file, 6–10 s per module
-build, 2–7 min per wave cascade, 3.4 s for a fully cached whole-tree build. The
-full measurement, the profiling, and the `maxHeartbeats := 4_000_000` global cap
-are in [../notes/lean-build-cost.md](../notes/lean-build-cost.md).
+several topics, and a tree-wide rebuild between them buys information the next wave
+invalidates. The measurements, the profiling and the package's global options are in
+[../notes/lean-build-cost.md](../notes/lean-build-cost.md).
 
-**`lake env lean` must be given the package's options.** It runs Lean directly
-and does **not** inherit the lakefile's `leanOptions`; `lake build` does. Without
-`-DmaxHeartbeats=4000000 -DautoImplicit=false` the edit-loop check runs at the
-default 200,000 cap and can report a timeout and a cascade of `unknown constant`
-errors on a module `lake build` compiles happily — `WeightOne.Basic` fails at
-30.7 s raw and compiles in 56.1 s with the options. Use the options, or
-`tools/deps/build_ladder.py --tier check`, which supplies them.
+**The edit loop runs on a deliberately low cap.** `lake env lean` runs Lean directly
+and does **not** inherit the lakefile's `leanOptions`; `lake build` does. Run the
+edit loop with `-DautoImplicit=false -DmaxHeartbeats=200000` and a wall timeout. A
+declaration that will not fit that cap is a symptom to diagnose, not a bound to
+raise: a build-time blow-up is instance inference — a `def` that blocks unification,
+a search that unfolds a coercion, an instance diamond — and the low cap is the
+instrument that finds the offending search (`set_option trace.Meta.synthInstance
+true` / `diagnostics true` on that one declaration). Fix the inference and re-run; a
+genuinely long proof is restructured, not exempted. The lakefile's higher global cap
+exists so that `lake build` is not what fails; it is not a target, and no module
+carries a `set_option maxHeartbeats`.
 
 | tier | when | command | cost |
 |---|---|---|---|
-| 0 edit loop | every edit | `timeout 60 lake env lean <opts> <file>` | no cascade; 4–78 s |
+| 0 edit loop | every edit | `timeout 120 lake env lean -DautoImplicit=false -DmaxHeartbeats=200000 <file>` | no cascade; the low cap is the instance-inference detector |
 | 1 module done | file compiles | `timeout 90 lake build <module>` + checker | 6–10 s |
 | 2 wave done | all wave edits in | the wave's affected targets, not a bare `lake build` | 2–7 min |
 | 3 session end | session closing, **with permission** | full build + consumers + axioms | the tier-2 cost |
 
 Five rules:
 
-1. **Never `lake build` in the edit loop.** For a 2,500-line module the check is
-   itself 78 s, so iterate on the declaration in `Scratch.lean` (§6).
+1. **Never `lake build` in the edit loop.** The check itself costs seconds to a
+   minute, so iterate on the declaration in `Scratch.lean` (§6).
 2. **A wave edits each module once.** The cascade is the union of the edited
-   modules' dependents; splitting a wave over one module pays it twice (a width
-   family paid ~6 m 45 s twice).
-3. **Price the cascade before triggering it** — dependent modules and lines; the
-   build-cost helper in the unpublished `tools/deps/` tree reports 14 modules /
-   20,732 lines ≈ 249 s for `WeightOne.Basic`, against the recorded 4 m 47 s.
+   modules' dependents; splitting a wave over one module pays it twice.
+3. **Price the cascade before triggering it** — the build-cost helper in the
+   unpublished `tools/deps/` tree reports the dependent modules and lines.
 4. **Serialize every `lake build`** with `flock`, and time it with wall **and**
-   user/sys. Two agents on one tree contend rather than parallelize (a 4 m 34 s
-   wall with 0.5 s user), and a heartbeat blow-up shows high user CPU. Never run
-   builds concurrently.
+   user/sys. Two agents on one tree contend rather than parallelize, and a
+   heartbeat blow-up shows high user CPU. Never run builds concurrently.
 5. **The whole-tree build is the session's last act, and needs permission.** A
    session runs several waves of porting — often several topics — and each wave's
    edits are covered by that wave's own affected-target build (tier 2). A bare
@@ -593,23 +566,23 @@ subagent whose brief is the build-cost note (§0.2, §0.4). Organisationally, ke
 heavy modules at the leaves and shared hubs small and cheap, so later cost work
 has less to do; the note holds the measurements and the recipes.
 
-> **Build discipline (copy into each work order).** Edit loop `timeout 60
-> lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false <file>`;
-> `lake build <module>` per finished file; per wave, build only the wave's
-> affected targets — **never a bare whole-tree `lake build`**. A whole-tree build
-> happens once, at the session's end, and only with the user's permission.
-> Serialize every `lake build` with `flock`, bound each with `timeout`, and time
-> it: high user CPU is a blow-up, ~0 CPU is contention. Never raise
-> `maxHeartbeats`.
+> **Build discipline (copy into each work order).** Edit loop
+> `timeout 120 lake env lean -DautoImplicit=false -DmaxHeartbeats=200000 <file>` —
+> the cap is **low on purpose**: a declaration that exceeds it has an
+> instance-inference defect, and the low cap is what finds it. Never raise
+> `maxHeartbeats`, never add a module `set_option maxHeartbeats`. `lake build
+> <module>` per finished file, serialized with `flock` and bounded with `timeout`.
+> Per wave, build only the wave's affected targets — **never a bare whole-tree
+> `lake build`**. A whole-tree build happens once, at the session's end, and only
+> with the user's permission.
 
 Two traps the ladder exposes:
 
 - **A stale `.olean` reads as a missing declaration.** After a `private` → public
   promotion, `lake env lean <consumer>` can report `Unknown constant …` because the
   defining module was not rebuilt; run `lake build <defining module>` first.
-- **Importing a huge `.olean` is an edit-loop cost of its own.** `lake env lean`
-  on a module that imports a 16 MB olean took 26 s before doing any work, so the
-  per-file times above are a *lower* bound on such modules.
+- **Importing a huge `.olean` is an edit-loop cost of its own**, so the per-file
+  times are a *lower* bound on a module that imports one.
 
 ### 3.6 Keep the friction log while you hit friction
 
@@ -645,13 +618,11 @@ reaches an unported prerequisite **stops at the boundary and reports** rather th
 editing a closed file or weakening a statement.
 
 **Why the order is a build-cost decision.** With a forward-import DAG a worker's
-module is usually already built, so each set closes on per-module builds of
-seconds and the only whole-tree build is the one at the session's end (§3.5): one
-≈15,200-line effort touched only its own eleven modules' `.olean`s, every set
-closed on 2–20 s builds, and the whole-tree gate, when it finally ran, was 4,805
-jobs in seconds. Transcribing pin files in filesystem order instead puts each new
-file under a large cone that must be re-elaborated, paying a cascade at every step.
-The ladder rules (§3.5) are what keep it cheap.
+module is usually already built, so each set closes on per-module builds of seconds
+and the only whole-tree build is the one at the session's end (§3.5). Transcribing
+pin files in filesystem order instead puts each new file under a large cone that
+must be re-elaborated, paying a cascade at every step. The ladder rules (§3.5) are
+what keep it cheap.
 
 ## 4. Faithfulness, made mechanical
 
@@ -721,22 +692,12 @@ instruments, all cheap:
      comment shifts every later namespace event. The **primary** last-name lookup
      is unaffected, but the *dotted* name (used by `OWN_PROOFS` and
      `--prop-bodies`) is wrong. Write header prose in `/- … -/` blocks.
-   - **A statement that opens a `let`/`letI` binding must not be cut at that
-     binding.** `top_level_cut` took the first top-level `:=` for the body
-     separator, so `theorem haar_facts : letI := glBorel … ; …` (the adèlic measure
-     prelude of the `S_AutomorphicForm_rightConv_rightConv_comm_of_isLevelSphericalOfType*`
-     family) read as the literal statement `': letI'` — and *any* two `let`-headed
-     declarations then compared equal: a check that cannot fail. Twenty-four port
-     declarations and 75 pin `SOURCES` declarations were in that class; their
-     ports were faithful, but they had never actually been diffed, and
-     `port_advise`/`port_plan` reported a spurious substitution off the same
-     truncation (`haar_facts` "already in the port" as
-     `AlgebraicCurve.Place.polynomialAlgebra_algebraMap_X`). Fixed 2026-10-11:
-     `top_level_cut` counts pending `let`/`letI`/`let rec` binders at bracket depth
-     0 and consumes their `:=`. The rule generalizes — before recording a
-     statement as verified, ask whether the diff could be degenerate (a truncated
-     signature, an extracted `Prop` type, an unelaborated spelling), because a
-     vacuous `identical` and a real one look the same in the count.
+   - **Before recording a statement as verified, ask whether the diff could be
+     degenerate** — a truncated signature, an extracted `Prop` type, an
+     unelaborated spelling — because a vacuous `identical` and a real one look the
+     same in the count. A `let`/`letI`-headed statement was once cut at its first
+     `:=` and read as the literal `': letI'`, so any two such declarations compared
+     equal; `top_level_cut` now counts pending `let` binders at bracket depth 0.
 2. **A consumer** (`spec/<X>Consumer.lean`) outside every library. Its error
    count is the deliverable metric, and each zone must contain a **real, executed
    cross-module composition** — no `#check`s, no `sorry`; deleting any one module
@@ -797,9 +758,12 @@ pure loss; glue and trivia are not worth exporting.
   matches any pin candidate, and the `--prop-bodies` pass confirms the body.
 - **Namespace policy is decided before the wave, from the pin's own namespace and
   sibling vocabulary** (one directory was `ModularCurve/` because every pin file
-  was `*_ModularCurve_*` and the shared `dedekindPsi` already lived there). A
-  home's public names must be reachable under the spelling consumers use, or the
-  wave breaks even when statements match; an internal namespace plus a
+  was `*_ModularCurve_*` and the shared `dedekindPsi` already lived there). When a
+  pin chapter wraps mathematical sub-theories (`M4aLocalCFT.X`), rename the chapter
+  to the theory's namespace and **keep `X` as a sub-namespace**: two sub-namespaces
+  can carry the same declaration name with different statements, so merging them
+  collides. A home's public names must be reachable under the spelling consumers
+  use, or the wave breaks even when statements match; an internal namespace plus a
   consumer-namespace alias is fine if the two agree.
 - **Check for co-import collisions before the consumer is designed.** Two modules
   can each be green while being **unimportable together** — a public name declared
@@ -828,8 +792,7 @@ pure loss; glue and trivia are not worth exporting.
 - **Home is a build-cost decision.** Promote to the module where the needed type
   is available, rename at promotion when the pin name is taken (keeping a local
   alias), and host a node on the leaf side of a hub boundary when the mathematics
-  admits either home: moving two nodes from a 56-module / 39,742-line hub to a
-  zero-dependency leaf changed the whole-tree build from ~14 min to 7 s. The
+  admits either home: a dependency-free leaf costs the whole tree nothing. The
   checker is module-agnostic (it needs only the home in `PORT_FILES`). Record the
   deviation; do not use this to split a genuine theory across modules.
 - **Name a promoted helper at the prefix-stripped pin name** (`kw_g₂_ofTau` →
@@ -840,8 +803,8 @@ pure loss; glue and trivia are not worth exporting.
   pin-public helper with consumers outside the effort is deferred, not skipped:
   record it in [CARRY-FORWARD.md](CARRY-FORWARD.md).
 - **Export a topic's outbound interface so the next topic imports instead of
-  copying** — one topic exported its `RealL`/closure and two Cauchy lemmas
-  precisely because the pin duplicates them in the next topic's file.
+  copying**: the pin duplicates the interface in the next topic's file, which is
+  the signal that it wants a home.
 - **Dissolve "externals"/"misc" modules into subject homes**, and give a generic
   cross-theory count its own top-level area rather than a theory's `Defs/`.
 - **Keep an alternative or narrative route in a separate library that is built
@@ -878,23 +841,20 @@ identification by `rfl` and rewrite through it; trying to `change` the goal can
 cost a multi-minute `whnf`.
 
 **A goal stated against an abstract `*_aux` lemma can blow the defeq budget.**
-FLT often ends a computation with `exact foo_aux h`; ported literally it can
-time out (one instance was 299 s). Push everything into normal form first and
-finish with `field_simp; ring`, supplying `field_simp`'s non-zero hypotheses
-explicitly.
+FLT often ends a computation with `exact foo_aux h`; ported literally it can time
+out. Push everything into normal form first and finish with `field_simp; ring`,
+supplying `field_simp`'s non-zero hypotheses explicitly.
 
 **`FunLike` at a bare function type.** A lemma quantified over `FunLike F ℍ ℂ`
 instantiated at `ℍ → ℂ` unfolds `DFunLike.coe` without bound;
-`UpperHalfPlane.qExpansion_coeff_unique` cost 5.1M reductions — and timed out at
-*both* the 200,000 default and the project's 4,000,000 cap, so the cap is not the
-lever. Pass the bundled form (or restate over the concrete function).
+`UpperHalfPlane.qExpansion_coeff_unique` cost 5.1M reductions and timed out at the
+low cap. The cap is not the lever — pass the bundled form (or restate over the
+concrete function).
 
 **A large slow module is usually cumulative, not one blow-up.** Bisect *by
-milestone*, not by declaration: one 3,761-line module was 53 s of `lake env lean`,
-4.5 s at the head and the rest spread across sections, with no single declaration
-over the default cap. A genuine blow-up has one declaration and one error.
-Attribute a slow module to defeq/instance synthesis and budget the next heavy
-module accordingly.
+milestone*, not by declaration; a genuine blow-up has one declaration and one error.
+Attribute a slow module to defeq/instance synthesis and budget the next heavy module
+accordingly.
 
 **`backward.isDefEq.respectTransparency.types false` is often the pin's own
 setting**, not a port hack — the pin sets it in eleven places, and without it the
@@ -914,10 +874,10 @@ private def ifRE (S T : IntermediateField K L) (h : S = T) : ↥S ≃+* ↥T whe
 -- then the concrete equivalence is `ifRE _ _ (eq_of_carriers …)`
 ```
 
-`CuspDichotomy` went from 3 m 09 s to 16 s this way. Related: a cross-field
-`algebraMap` `rfl` should go through
-`IntermediateField.coe_algebraMap_apply` on both sides, and a propositional
-`haveI` should be `have`.
+`CuspDichotomy`'s concrete equivalence was the case that taught this: prove the
+generic coercion once at abstract carriers. Related: a cross-field `algebraMap`
+`rfl` should go through `IntermediateField.coe_algebraMap_apply` on both sides, and
+a propositional `haveI` should be `have`.
 
 **Instance-search timeouts** are fixed by explicit local instances
 (`Algebra.IsIntegral.of_finite`, `Module.Free.of_divisionRing`), not a larger
@@ -1102,11 +1062,17 @@ same mathlib line" into a work order.
 
 The recurring *shapes* of drift, beyond a rename:
 
-- **A rename is not the same as a re-typed or re-ordered lemma.** The `Ideal`
-  ramification API moved argument order and module, and the deprecated module's
-  replacement changed the sum's shape; three statements were kept on the old text
-  under a reasoned `set_option linter.deprecated false`, with the migration
-  recorded as a residual item.
+- **A rename is not the same as a re-typed or re-ordered lemma.** An API move can
+  change argument order, its module, and the shape of a sum; a pin statement kept
+  on the old text under a reasoned `set_option linter.deprecated false` is a
+  residual item, not a silent pass.
+- **A lemma can *narrow*: same name, stronger hypotheses.** A ported proof that used
+  `Integrable.mul_prod` without `SFinite` stops compiling when the lemma gains
+  `[SFinite ν]`, and the gap can run through a whole API (the transfer
+  `Measure.prod_restrict` needs it on the *unrestricted* factors). A pin statement
+  over arbitrary measures then has no route through mathlib: isolate the missing
+  input, keep it as a port-only lemma, and defer the declaration with a
+  [CARRY-FORWARD.md](CARRY-FORWARD.md) entry — never weaken the statement to fit.
 - **A deprecated module can be dropped, and a module path is not always a module**
   (`Mathlib.LinearAlgebra.Quotient` is a directory — import `.Basic`; one
   `Mathlib.Tactic.Omega` path has no olean).
@@ -1118,17 +1084,15 @@ The recurring *shapes* of drift, beyond a rename:
   equation, and a non-reducible `def` stops elaboration from unfolding (bind the
   value with `let`).
 - **`open` can create name ambiguity** — qualify instead (`UpperHalfPlane.I`).
-- **A `rfl` that used to close can instead burn the whole heartbeat budget.** A
-  `rfl` for an `hq` equality ran a `whnf` to the 4,000,000-heartbeat cap before
-  failing. The fix is not a bigger cap but naming the missing bridge in the
-  `simp only` list (`Polynomial.map_X`, `IntermediateField.algebraMap_apply`).
-  Treat a slow *definitional* step as an unfolding problem, and look for the lemma
-  that states the equation the `rfl` used to see.
+- **A `rfl` that used to close can instead burn the whole heartbeat budget.** The
+  fix is not a bigger cap but naming the missing bridge in the `simp only` list
+  (`Polynomial.map_X`, `IntermediateField.algebraMap_apply`). Treat a slow
+  *definitional* step as an unfolding problem, and look for the lemma that states
+  the equation the `rfl` used to see.
 - **Self-base-change is not definitional in `v4.34.0`.** The pin lets
   `(E F)⁄F` be `E F` and computes with it; in the port carry
   `have hb : (E F).baseChange F = E F` and transport witnesses with `hb ▸ ⟨e⟩`
-  (the adaptation at `WeierstrassCurve/Velu/CyclicCount.lean:429`). Two sets have
-  now paid for this independently — read that file first.
+  (read `WeierstrassCurve/Velu/CyclicCount.lean` first).
 - **Transcribe the pin's `linter.*` suppressions exactly; never its
   `maxHeartbeats`.** The lint options are part of the pin's declaration
   environment (86 landed modules carry
@@ -1143,16 +1107,15 @@ The recurring *shapes* of drift, beyond a rename:
   verbatim without changing the checker's text**; `set_option … in` cannot follow
   a doc comment (use `--` line comments there).
 - **A pin's `set_option maxHeartbeats N in` is a claim to re-measure, not a
-  fact.** The pin may carry `6_400_000` where the project-wide `4_000_000`
-  suffices; time the port's own ceiling before budgeting a bump (and never raise
-  the cap to make a declaration fit).
-- **A pin's `synthInstance.maxHeartbeats` bump is the same kind of claim.** A
-  capstone carrying `synthInstance.maxHeartbeats 1600000` / `maxHeartbeats
-  16000000` elaborated under the global `4_000_000` cap, so neither bump was
-  transcribed. A library theorem can also be cheap while its *concrete-instance*
-  use is not: applying a headline at a concrete `weierstrassCurve` can exceed
-  3 m 20 s through the `AdjoinRoot` defeq stack. Keep a `spec/` capstone zone
-  hypothesis-form and put concreteness in the ground field.
+  fact.** The pin's overrides are preemptive: every one the ports met elaborated at
+  the low edit-loop cap once the offending instance inference was found, so none is
+  transcribed and none is replaced by a module-level option. A declaration that
+  genuinely will not fit is restructured, not exempted.
+- **A pin's `synthInstance.maxHeartbeats` bump is the same kind of claim.** Neither
+  it nor `maxSynthPendingDepth` is transcribed. A library theorem can be cheap while
+  its *concrete-instance* use is not: applying a headline at a concrete
+  `weierstrassCurve` can run for minutes through the `AdjoinRoot` defeq stack. Keep a
+  `spec/` capstone zone hypothesis-form and put concreteness in the ground field.
 - **`time` under-reports `lake env lean`.** `lake` forks `lean`, so the
   grandchild's CPU is not charged to the measured command; a run that reports
   `user 0m0.5s` can be elaborating hard. Treat wall time as the real figure (and
