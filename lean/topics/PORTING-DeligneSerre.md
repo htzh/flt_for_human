@@ -14,6 +14,11 @@ own-proof declarations exempted (7679 checked)**, and the milestone whole-tree b
 (9,396 jobs). The last landing (WORKORDER-E, §7) took the count from a measured 7630 / 38 own to
 7632 / 38; the Γ₁/Nebentypus pair (WORKORDER-S8, the lifting column's) took it on to 7641 / 38.
 
+*(Re-read 2026-10-13: the tree now stands at **9304 identical (648 promoted, 83 renamed), 0
+mismatched, 0 missing, 38 own (9342 checked)**; the figures above are the column's own landing
+history, not the current tree. The `TateFormal`/`TateSlots` definition layer below took it from a
+measured 9241 to 9304 — the full +63 declaration surface, 0 mismatched / 0 missing.)*
+
 Companions:
 
 - [../../math/019-deligne-serre-weight-one.md](../../math/019-deligne-serre-weight-one.md)
@@ -110,6 +115,19 @@ automorphisms in characteristics 2 and 3, full level structure and the division 
 surjectivity on the prime-to-`p` torsion, the inertia-equivariant reduction, and the
 Vélu-quotient `j`-map. The shelf is empty; its scoping and set orders are
 [deligneSerre/TOPIC-weierstrass-ready-shelf.md](deligneSerre/TOPIC-weierstrass-ready-shelf.md).
+
+**The `TateFormal`/`TateSlots` definition layer.** The two pin `Definitions/` modules the
+weight-4 slot cluster's fourteen `S_ModularCurve_*` leaves all import, ported whole (playbook
+§2.3) at `ModularCurve/Defs/TateFormal.lean` (26 declarations — `tateB`, `tateA4`/`tateA6`,
+`eisenstein6`, the `tatePowerSeries`/`tateLaurent` curves with their ellipticity instances, and
+`laurentOfInt`) and `ModularCurve/Defs/TateSlots.lean` (37 declarations — `tateUnivX`/`tateUnivY`,
+`slotFamily`/`slotSubst`, `tateBase`, the non-toric/toric and Vélu slot sets). The pin's
+downstream consumers (`Def_ModularCurve_TatePoint`, `…_TateVeluRing`, `…_TateOrigin`,
+`…_ShimuraGenerator`, `Theorems/Thm_ModularCurve_Delta_tatePowerSeries`) name the same
+declarations, so the whole node is homed rather than only the block the `S_` files reach. Neither
+pin module has a `Theorems/` wrapper, so both verify by name against their `Definitions/` files;
+neither has a `private` declaration, so no promotion is owed. Both are appended last to
+`SOURCES` / `PORT_FILES`.
 
 **The shared ground that edits existing modules.** The `ValuationSubring` residue block in
 `NumberTheory/ValuationAtPlace.lean`; the `Gamma0Integral` promotion and its duplicate-block

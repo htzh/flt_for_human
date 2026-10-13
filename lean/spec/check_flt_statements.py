@@ -2919,6 +2919,32 @@ SOURCES = [
     # new source. Appended last so no earlier last-name match can flip.
     "Theorems/Thm_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean",
     "P2M/Sol/S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean",
+    # --- WORKORDER-R turn 2 (`topics/automorphicForm/WORKORDER-R-bruhat-transversal.md`):
+    # the Bruhat-transversal / Weyl-integrand trio. The three `Theorems/` wrappers carry
+    # the headlines the façade `AutomorphicForm/Adelic/WeylIntegrable.lean` spells, so they
+    # are those declarations' statement authority; the three `S_` silos are listed so that
+    # later wiring of the development's other declarations needs no new source (the port
+    # transcribes the shared block once, in
+    # `AutomorphicForm/Adelic/WeylIntegrable/{LatticeEstimates,Assembly,UniformBound,Caps}.lean`).
+    # Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_AutomorphicForm_bruhatTransversal_summand_norm_summable_of_re_gt_half.lean",
+    "Theorems/Thm_AutomorphicForm_continuous_bruhatTransversal_tsum_of_re_gt_half.lean",
+    "Theorems/Thm_AutomorphicForm_weylIntertwiningIntegrand_integrable_of_re_gt_half.lean",
+    "P2M/Sol/S_AutomorphicForm_bruhatTransversal_summand_norm_summable_of_re_gt_half.lean",
+    "P2M/Sol/S_AutomorphicForm_continuous_bruhatTransversal_tsum_of_re_gt_half.lean",
+    "P2M/Sol/S_AutomorphicForm_weylIntertwiningIntegrand_integrable_of_re_gt_half.lean",
+    # --- The ModularCurve weight-4 Tate-slot cluster, definition layer. `frontier.py
+    # --include-leaves` shows 14 `S_ModularCurve_*` leaves at ~1650 lines; all 14 import
+    # `Def_ModularCurve_TateSlots`, which imports `Def_ModularCurve_TateFormal`, which
+    # imports the already-listed `Def_ModularCurve_JqCoeff`. Both new modules are homed
+    # whole (playbook §2.3) at `Defs/TateFormal.lean` / `Defs/TateSlots.lean`; the pin's
+    # downstream consumers (`TatePoint`, `TateVeluRing`, `TateOrigin`, `ShimuraGenerator`,
+    # `Thm_ModularCurve_Delta_tatePowerSeries`) name the same declarations, so the whole
+    # node and not only the `S_`-visible block. Neither has a `Theorems/` wrapper, so they
+    # verify by name against their `Definitions/` files. Appended last so no earlier
+    # last-name match can flip.
+    "Definitions/Def_ModularCurve_TateFormal.lean",
+    "Definitions/Def_ModularCurve_TateSlots.lean",
 ]
 
 
@@ -4358,6 +4384,21 @@ PORT_FILES = [
     # `…/ArchHaar.lean` stay unlisted (tier 3). Appended last so no earlier last-name
     # match can flip.
     "FLTForHuman/AutomorphicForm/Adelic/ArchApproxIdentity.lean",
+    # --- WORKORDER-R turn 2 (`topics/automorphicForm/WORKORDER-R-bruhat-transversal.md`):
+    # the Bruhat-transversal / Weyl-integrand façade, the topic's only checked module. It
+    # declares exactly the three headlines
+    # `AutomorphicForm.bruhatTransversal_summand_norm_summable_of_re_gt_half`,
+    # `AutomorphicForm.continuous_bruhatTransversal_tsum_of_re_gt_half` and
+    # `AutomorphicForm.weylIntertwiningIntegrand_integrable_of_re_gt_half`, each stated
+    # from its pin wrapper and proved by the corresponding cap in
+    # `…/WeylIntegrable/Caps.lean` (the shared `…_impl` lives in `…/WeylIntegrable/Assembly.lean`).
+    # The four development modules stay unlisted (tier 3). Appended last so no earlier
+    # last-name match can flip.
+    "FLTForHuman/AutomorphicForm/Adelic/WeylIntegrable.lean",
+    # --- The ModularCurve weight-4 Tate-slot cluster, definition layer (see SOURCES).
+    # Two new leaf modules; no existing module was edited, so no hub wave is owed.
+    "FLTForHuman/ModularCurve/Defs/TateFormal.lean",
+    "FLTForHuman/ModularCurve/Defs/TateSlots.lean",
 ]
 
 

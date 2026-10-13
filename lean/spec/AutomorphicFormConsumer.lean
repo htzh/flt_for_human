@@ -53,6 +53,19 @@ import FLTForHuman.RepTheory.TypeReproducer
 import FLTForHuman.RepTheory.ConvolutionLimit
 import FLTForHuman.AutomorphicForm.Adelic.ArchApproxIdentity.Instantiate
 import FLTForHuman.AutomorphicForm.Adelic.ArchApproxIdentity
+-- The Bruhat-transversal / Weyl-integrand trio (WORKORDER-R): the generic base, the
+-- coset/transfer/box layers, the estimates/assembly/uniform bound, the per-file caps
+-- and the façade headlines.
+import FLTForHuman.NumberTheory.AdelicLevel.Countability
+import FLTForHuman.NumberTheory.AdelicHaar.PlaceMeasure
+import FLTForHuman.AutomorphicForm.Adelic.WeylIntegrable.Coset
+import FLTForHuman.AutomorphicForm.Adelic.WeylIntegrable.Transfer
+import FLTForHuman.AutomorphicForm.Adelic.WeylIntegrable.BoxBounds
+import FLTForHuman.AutomorphicForm.Adelic.WeylIntegrable.LatticeEstimates
+import FLTForHuman.AutomorphicForm.Adelic.WeylIntegrable.Assembly
+import FLTForHuman.AutomorphicForm.Adelic.WeylIntegrable.UniformBound
+import FLTForHuman.AutomorphicForm.Adelic.WeylIntegrable.Caps
+import FLTForHuman.AutomorphicForm.Adelic.WeylIntegrable
 import FLTForHuman.NumberTheory.SiegelVolume
 import FLTForHuman.Order.Filter.Cofinite
 import FLTForHuman.Topology.Bases
@@ -70,6 +83,8 @@ noncomputable section
 
 open NumberField IsDedekindDomain AutomorphicForm Matrix MeasureTheory
 open NumberField.InfinitePlace NumberField.InfinitePlace.Completion
+open NumberField.AdelicHaar
+open scoped NNReal
 
 namespace AutomorphicFormConsumer
 
@@ -779,6 +794,111 @@ example (F : Type) [Field F] [NumberField F] (τ : ∀ w : InfinitePlace F, Arch
   exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule F
     (⟨fun _ => 1, fun w _ => τ w⟩ : ArchTypeFamily F) (0 : AdelicGL2 (𝓞 F) F → ℂ)
     continuous_zero (Submodule.zero_mem (archCutSubmodule F ⟨fun _ => 1, fun w _ => τ w⟩))
+
+-- The pin's adèlic Borel structure is a local instance: the R zones' measure types
+-- (`Measure (AdeleRing …)`, `adelicAddHaar`) are elaborated against it.
+attribute [local instance] NumberField.AdelicHaar.adeleBorel NumberField.AdelicHaar.borelSpace_adeleBorel
+
+-- Zone R1 (WORKORDER-R turn 1): the generic `S4Base` base — the place measures and
+-- the distributive-character product formula (`M4aS4`, `NumberField.AdeleRing`).
+example {c : ℝ} (hc : c ≠ 0) :
+    (volume : Measure ℝ).map (fun x => c * x) = ‖c‖ₑ⁻¹ • volume :=
+  M4aS4.map_mul_left_volume_real hc
+
+example (F : Type) [Field F] [NumberField F]
+    (a : (AdeleRing (𝓞 F) F)ˣ) (ha : (a : AdeleRing (𝓞 F) F).2 = 1) :
+    (distribHaarChar (AdeleRing (𝓞 F) F) a : ℝ) =
+      ∏ w : InfinitePlace F, ‖(a : AdeleRing (𝓞 F) F).1 w‖ ^ w.mult :=
+  NumberField.AdeleRing.distribHaarChar_eq_prod_norm_pow_mult_of_snd_eq_one_impl F a ha
+
+-- Zone R2 (WORKORDER-R turn 1): the coset transversal (`Coset`), the transfer algebra
+-- (`Transfer`) and the entry-box bound (`BoxBounds`).
+example (F : Type) [Field F] [NumberField F] {S : Set (InfiniteAdeleRing F)}
+    {T : Set (FiniteAdeleRing (𝓞 F) F)} {x : AdeleRing (𝓞 F) F} :
+    x ∈ WeylIntegrable.slab F S T ↔ x.1 ∈ S ∧ x.2 ∈ T :=
+  WeylIntegrable.mem_slab F
+
+example (F : Type) [Field F] [NumberField F] (μ : Measure (AdeleRing (𝓞 F) F))
+    [μ.IsAddLeftInvariant] {S : Set (InfiniteAdeleRing F)} (hS : IsClosed S)
+    (A B : AddSubgroup (FiniteAdeleRing (𝓞 F) F)) (hAB : A ≤ B)
+    (hA : IsClosed (A : Set (FiniteAdeleRing (𝓞 F) F))) (hfin : A.relIndex B ≠ 0) :
+    μ (WeylIntegrable.slab F S B) = A.relIndex B * μ (WeylIntegrable.slab F S A) :=
+  WeylIntegrable.measure_slab_eq_relIndex_mul F μ hS A B hAB hA hfin
+
+example (F : Type) [Field F] [NumberField F] (a : InfiniteAdeleRing F)
+    (b : FiniteAdeleRing (𝓞 F) F) :
+    WeylIntegrable.mFactor F a b ∈ WeylIntegrable.unitBox (WeylIntegrable.entrySet F) :=
+  WeylIntegrable.mFactor_mem_unitBox F a b
+
+-- Zone R3 (WORKORDER-R turn 2): the estimates (`LatticeEstimates`), the assembly
+-- (`Assembly`) and the uniform bound (`UniformBound`), plus the continuous cap
+-- `RhSContinuity.rhs_hole` (`Caps`).
+example {G : Type*} [Group G] (α : G →* ℝˣ)
+    (hα : ∀ x, 0 < ((α x : ℝˣ) : ℝ)) {e : G} (he : e * e = 1) :
+    ((α e : ℝˣ) : ℝ) = 1 :=
+  WeylIntegrable.val_eq_one_of_mul_self_eq_one α hα he
+
+example (F : Type) [Field F] [NumberField F] :
+    ∃ C : ℝ, Filter.Tendsto
+      (fun n : ℕ => (∑ k ∈ Finset.Icc 1 n, WeylIntegrable.idealCount F k) / n)
+      Filter.atTop (nhds C) :=
+  WeylIntegrable.tendsto_sum_idealCount_div F
+
+example (F : Type) [Field F] [NumberField F] (x : AdeleRing (𝓞 F) F) :
+    0 < WeylIntegrable.Dy F x :=
+  WeylIntegrable.Dy_pos F x
+
+example (F : Type) [Field F] [NumberField F] (α : (AdeleRing (𝓞 F) F)ˣ →* ℝˣ)
+    (hαΔ : ∀ x, ((α x : ℝˣ) : ℝ) = (distribHaarChar (AdeleRing (𝓞 F) F) x : ℝ))
+    (μ ν : (AdeleRing (𝓞 F) F)ˣ →* ℂˣ)
+    (hμ : IsUnitaryChar (𝓞 F) F μ) (hν : IsUnitaryChar (𝓞 F) F ν) (s : ℂ)
+    (hs : 1 / 2 < s.re)
+    (hα : ∀ x, 0 < ((α x : ℝˣ) : ℝ)) :
+    Continuous (fun g : AdelicGL2 (𝓞 F) F => ∑' ξ : F, (0 : AdelicGL2 (𝓞 F) F → ℂ)
+      (adelicWeyl (𝓞 F) F * unipotentGL2 (algebraMap F (AdeleRing (𝓞 F) F) ξ) * g)) :=
+  AutomorphicForm.RhSContinuity.rhs_hole F α hαΔ hα μ ν hμ hν s hs
+    (0 : AdelicGL2 (𝓞 F) F → ℂ) (isInducedSection_zero _ _) continuous_zero
+
+-- The pin's `α` for the Bruhat-transversal trio (the headline's `let`) — spelled once
+-- so the distributive Haar character's implicit group is pinned.
+abbrev bruhatAlpha (F : Type) [Field F] [NumberField F] : (AdeleRing (𝓞 F) F)ˣ →* ℝˣ :=
+  ((NNReal.toRealHom : ℝ≥0 →+* ℝ).toMonoidHom.comp
+    (distribHaarChar (AdeleRing (𝓞 F) F))).toHomUnits
+
+-- Zone R4 (WORKORDER-R turn 2): the three façade headlines, executed at the zero
+-- section `φ := 0` (`isInducedSection_zero`), the identity group element `g := 1`,
+-- and abstract unitary characters; the `let`-bound `α`/`hα` are the headline's own.
+-- Deleting any of `LatticeEstimates`/`Assembly`/`UniformBound`/`Caps` or the façade
+-- breaks this zone.
+example (F : Type) [Field F] [NumberField F] (μ ν : (AdeleRing (𝓞 F) F)ˣ →* ℂˣ)
+    (hμ : IsUnitaryChar (𝓞 F) F μ) (hν : IsUnitaryChar (𝓞 F) F ν) (s : ℂ)
+    (hs : 1 / 2 < s.re)
+    (hα : ∀ x, 0 < ((bruhatAlpha F x : ℝˣ) : ℝ)) :
+    Summable (fun ξ : F => ‖(0 : AdelicGL2 (𝓞 F) F → ℂ)
+      (adelicWeyl (𝓞 F) F
+        * unipotentGL2 (algebraMap F (AdeleRing (𝓞 F) F) ξ) * 1)‖) :=
+  bruhatTransversal_summand_norm_summable_of_re_gt_half F hα μ ν hμ hν s hs
+    (0 : AdelicGL2 (𝓞 F) F → ℂ) (isInducedSection_zero _ _) continuous_zero 1
+
+example (F : Type) [Field F] [NumberField F] (μ ν : (AdeleRing (𝓞 F) F)ˣ →* ℂˣ)
+    (hμ : IsUnitaryChar (𝓞 F) F μ) (hν : IsUnitaryChar (𝓞 F) F ν) (s : ℂ)
+    (hs : 1 / 2 < s.re)
+    (hα : ∀ x, 0 < ((bruhatAlpha F x : ℝˣ) : ℝ)) :
+    Continuous (fun g : AdelicGL2 (𝓞 F) F => ∑' ξ : F, (0 : AdelicGL2 (𝓞 F) F → ℂ)
+      (adelicWeyl (𝓞 F) F * unipotentGL2 (algebraMap F (AdeleRing (𝓞 F) F) ξ) * g)) :=
+  continuous_bruhatTransversal_tsum_of_re_gt_half F hα μ ν hμ hν s hs
+    (0 : AdelicGL2 (𝓞 F) F → ℂ) (isInducedSection_zero _ _) continuous_zero
+
+example (F : Type) [Field F] [NumberField F] (μ ν : (AdeleRing (𝓞 F) F)ˣ →* ℂˣ)
+    (hμ : IsUnitaryChar (𝓞 F) F μ) (hν : IsUnitaryChar (𝓞 F) F ν) (s : ℂ)
+    (hs : 1 / 2 < s.re) (g : AdelicGL2 (𝓞 F) F)
+    (hα : ∀ x, 0 < ((bruhatAlpha F x : ℝˣ) : ℝ)) :
+    letI := adeleBorel (𝓞 F) F
+    Integrable (fun x : AdeleRing (𝓞 F) F =>
+      (0 : AdelicGL2 (𝓞 F) F → ℂ) ((adelicWeyl (𝓞 F) F)⁻¹ * unipotentGL2 x * g))
+      (adelicAddHaar (𝓞 F) F) :=
+  weylIntertwiningIntegrand_integrable_of_re_gt_half F hα μ ν hμ hν s hs
+    (0 : AdelicGL2 (𝓞 F) F → ℂ) (isInducedSection_zero _ _) continuous_zero g
 
 end AutomorphicFormConsumer
 
