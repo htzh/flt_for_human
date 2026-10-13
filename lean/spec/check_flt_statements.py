@@ -2912,6 +2912,13 @@ SOURCES = [
     "P2M/Sol/S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean",
     "P2M/Sol/S_NumberField_TateGlobal_integrable_zetaIntegrand.lean",
     "P2M/Sol/S_NumberField_TateGlobal_exists_forall_zetaIntegral_mul_eulerFactors_eq_of_eq_indicator.lean",
+    # --- WORKORDER-Q turn 2: the archimedean approximate-identity façade. The wrapper
+    # carries the headline the façade spells, so it is that declaration's statement
+    # authority; the `S_` silo is listed because the wrapper alone does not carry the
+    # proof, and so that later wiring of the development's other declarations needs no
+    # new source. Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean",
+    "P2M/Sol/S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean",
 ]
 
 
@@ -4339,6 +4346,18 @@ PORT_FILES = [
     # `…/IndicatorEulerFactors.lean`). The twenty development modules of the topic stay
     # unlisted (tier 3). Appended last so no earlier last-name match can flip.
     "FLTForHuman/NumberTheory/NumberField/TateGlobal.lean",
+    # --- WORKORDER-Q turn 2 (`topics/automorphicForm/WORKORDER-Q-archTestFactor.md`):
+    # the archimedean approximate-identity façade, the topic's only checked module. It
+    # declares exactly one declaration — the consumed headline
+    # `AutomorphicForm.exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule`,
+    # stated from the pin wrapper and proved by `Q09.main`
+    # (`…/ArchApproxIdentity/Instantiate.lean`). Its four development modules
+    # (`RepTheory/TypeReproducer.lean`, `RepTheory/ConvolutionLimit.lean`,
+    # `…/ArchApproxIdentity/Instantiate.lean`, and the landed
+    # `…/ArchApproxIdentity/{ArchInfra,EntryBall}.lean`) plus the definition gate
+    # `…/ArchHaar.lean` stay unlisted (tier 3). Appended last so no earlier last-name
+    # match can flip.
+    "FLTForHuman/AutomorphicForm/Adelic/ArchApproxIdentity.lean",
 ]
 
 

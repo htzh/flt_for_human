@@ -44,6 +44,15 @@ import FLTForHuman.AutomorphicForm.Adelic.RightConvComm.MeasureAssembly
 import FLTForHuman.AutomorphicForm.Adelic.RightConvComm.Compact
 import FLTForHuman.AutomorphicForm.Adelic.RightConvComm.Level
 import FLTForHuman.AutomorphicForm.Adelic.RightConvComm.Principal
+-- The archimedean approximate-identity chain (WORKORDER-Q): the definition gate, the
+-- adèlic half, the two generic engines, the instantiation, and the façade headline.
+import FLTForHuman.AutomorphicForm.Adelic.ArchHaar
+import FLTForHuman.AutomorphicForm.Adelic.ArchApproxIdentity.ArchInfra
+import FLTForHuman.AutomorphicForm.Adelic.ArchApproxIdentity.EntryBall
+import FLTForHuman.RepTheory.TypeReproducer
+import FLTForHuman.RepTheory.ConvolutionLimit
+import FLTForHuman.AutomorphicForm.Adelic.ArchApproxIdentity.Instantiate
+import FLTForHuman.AutomorphicForm.Adelic.ArchApproxIdentity
 import FLTForHuman.NumberTheory.SiegelVolume
 import FLTForHuman.Order.Filter.Cofinite
 import FLTForHuman.Topology.Bases
@@ -715,6 +724,61 @@ example (F : Type) [Field F] [NumberField F] (D : Set (AdelicGL2 (𝓞 F) F))
     (0 : AdelicGL2 (𝓞 F) F → ℂ) (isFactorizableTestFn_zero F)
     (isArchBiFinite_zero F (⟨fun _ => 1, fun w _ => τ w⟩ : ArchTypeFamily F))
     (fun _ _ _ => ⟨rfl, rfl⟩) (0 : AdelicGL2 (𝓞 F) F → ℂ) continuous_zero
+
+-- Zone Q-D0: the archimedean Borel σ-algebra `glBorelOf` at an abstract topological ring,
+-- and Haar measure `archHaarK` on `GL₂(𝔸_{F,∞})` (the definition gate).
+example (R : Type) [CommRing R] [TopologicalSpace R] :
+    @BorelSpace (GL (Fin 2) R) _ (glBorelOf R) :=
+  borelSpace_glBorelOf R
+
+example (F : Type) [Field F] [NumberField F] : (archHaarK F).IsHaarMeasure :=
+  Q09.isHaarMeasure_archHaarK F
+
+-- Zone Q-Q1: the adèlic infrastructure — the product Haar `muK` on the row-isometry
+-- product is a probability measure.
+example (F : Type) [Field F] [NumberField F] : Q09AIarch.muK F Set.univ = 1 :=
+  Q09AIarch.muK_univ F
+
+-- Zone Q-Q2: the entry map and the ball/bump layer — `archEntries` is the matrix-entry
+-- embedding, and the approximate identity exists in the archimedean factor.
+example (F : Type) [Field F] [NumberField F] (g : GL (Fin 2) (InfiniteAdeleRing F)) :
+    archEntries F g =
+      Q09AIarchG.matrixEntries F (g : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F)) :=
+  Q09AIarchG.archEntries_eq F g
+
+example (F : Type) [Field F] [NumberField F] [(archHaarK F).IsHaarMeasure] :
+    ∃ ψ : ℕ → GL (Fin 2) (InfiniteAdeleRing F) → ℝ,
+      (∀ n, IsArchTestFactor F (fun g => (ψ n g : ℂ)) ∧ Continuous (ψ n) ∧
+        HasCompactSupport (ψ n) ∧ (∀ g, 0 ≤ ψ n g) ∧ (∫ g, ψ n g ∂archHaarK F) = 1) ∧
+      ∀ U ∈ nhds (1 : GL (Fin 2) (InfiniteAdeleRing F)), ∀ᶠ n in Filter.atTop, tsupport (ψ n) ⊆ U :=
+  Q09AIarchG.exists_approxIdentity F
+
+-- Zone Q-Q3: the generic type reproducer — the product representation acts componentwise.
+example {H A : Type} [Group H] {W : A → Type} [∀ a, AddCommGroup (W a)] [∀ a, Module ℂ (W a)]
+    (ρ : ∀ a, Representation ℂ H (W a)) (k : H) (v : ∀ a, W a) (a : A) :
+    Q09.piRep ρ k v a = ρ a k (v a) :=
+  Q09.piRep_apply ρ k v a
+
+-- Zone Q-Q4: the generic double-convolution engine — the continuous functions form a
+-- submodule of all functions.
+example {X : Type} [TopologicalSpace X] {u : X → ℂ} :
+    u ∈ Q09.contSubmodule X ↔ Continuous u :=
+  Q09.mem_contSubmodule
+
+-- Zone Q-Q6: the headline, executed at the zero function and a concrete `tys` built from
+-- abstract archimedean representations. The zone forces the façade and the whole
+-- `ArchApproxIdentity/Instantiate.lean` engine beneath it.
+example (F : Type) [Field F] [NumberField F] (τ : ∀ w : InfinitePlace F, ArchRepAt F w) :
+    ∃ fa : ℕ → (GL (Fin 2) (InfiniteAdeleRing F) → ℂ),
+      (∀ n, IsArchTestFactor F (fa n) ∧
+        IsArchFactorBiFinite F (⟨fun _ => 1, fun w _ => τ w⟩ : ArchTypeFamily F) (fa n)) ∧
+      ∀ g, Filter.Tendsto
+        (fun n => letI := glBorelOf (InfiniteAdeleRing F)
+          ∫ y, (0 : AdelicGL2 (𝓞 F) F → ℂ) (g * adelicArchGLIncl F y) * fa n y ∂(archHaarK F))
+        Filter.atTop (nhds ((0 : AdelicGL2 (𝓞 F) F → ℂ) g)) :=
+  exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule F
+    (⟨fun _ => 1, fun w _ => τ w⟩ : ArchTypeFamily F) (0 : AdelicGL2 (𝓞 F) F → ℂ)
+    continuous_zero (Submodule.zero_mem (archCutSubmodule F ⟨fun _ => 1, fun w _ => τ w⟩))
 
 end AutomorphicFormConsumer
 

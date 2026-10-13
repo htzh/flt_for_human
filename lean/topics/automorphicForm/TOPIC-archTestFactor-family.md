@@ -1,6 +1,7 @@
 # The archimedean approximate-identity family
 
-**Status: scoped, not started** (2026-10-13). This is the planning note for the
+**Status: the silo LANDED (2026-10-13)**; the four consumer headlines remain out of
+scope. This is the planning note for the
 `AutomorphicForm` silo
 `AutomorphicForm.exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule`
 and the four headlines that rest on it. It follows the two recent large-silo
@@ -169,12 +170,13 @@ declaration across a dependency):
 
 | module | contents | ≈ lines |
 |---|---|---:|
-| `NumberTheory/AdelicHaar/Archimedean.lean` | **definition gate** (§5): `glBorelOf`, `borelSpace_glBorelOf`, `archHaarK`, the public instance stack | 90 |
+| `AutomorphicForm/Adelic/ArchHaar.lean` (**landed**) | **definition gate** (§5): `glBorelOf`, `borelSpace_glBorelOf`, `archHaarK` | 68 |
 | `AutomorphicForm/Adelic/ArchApproxIdentity/ArchInfra.lean` | `isHaarMeasure_archHaarK`, `Kw`/`Kprod`, `muK`, `inclArch`/`inclAdelic`, `integral_archHaarK_mul_inclArch`, row-isometry compactness | 700 |
 | `AutomorphicForm/Adelic/ArchApproxIdentity/EntryBall.lean` | `matrixEntries`…`tendsto_integral_mul_approxIdentity` | 450 |
 | `RepTheory/TypeReproducer.lean` | movement 3, generic | 1,150 |
 | `RepTheory/ConvolutionLimit.lean` | movement 4, generic | 700 |
-| `AutomorphicForm/Adelic/ArchApproxIdentity.lean` | movement 5 + the headline; **tier-1 façade** | 300 |
+| `AutomorphicForm/Adelic/ArchApproxIdentity/Instantiate.lean` | `Ent`, `twoSided`, `rtStabilizer`, `exists_contDiff_dconvWith`, `main`; **tier 3** | 280 |
+| `AutomorphicForm/Adelic/ArchApproxIdentity.lean` | the headline only, at the wrapper's name; **tier-1 façade** | 20 |
 
 `ArchInfra` should **import rather than re-prove** what the port already has:
 `RightConvComm/Frame.lean`'s `SecondCountableAdelic` block, `Adelic/ArchType.lean`'s
@@ -223,23 +225,36 @@ the four `Mathlib_*` supplements, `InfiniteAdeleRing_BaseChangeData`,
 (`semiLocalHaar`, `IsTwistedOrbitalIntegral`, `AreMatchingOn`, `archHaarL`,
 `archIdent`, `AreMatchingArch`, …) is not named either.
 
-**The cut.** Home the archimedean-Haar subject
+**The cut, landed.** Home the archimedean-Haar subject
 `{glBorelOf, borelSpace_glBorelOf, archHaarK}` — the part with known consumers —
-in a new `NumberTheory/AdelicHaar/Archimedean.lean`, reusing
-`MeasureAssembly.archBorel` as the one `glBorelOf` spelling (a `@[reducible] def`,
-never a registered `MeasurableSpace` instance, so no diamond with mathlib's Borel
-instance). The rest of `TwistedOrbital` (the finite-place twisted-orbital subject,
-83 − 3 declarations, plus `archHaarL`/`archIdent`/`AreMatchingArch` whose
-dependency is the unported tensor/base-change chain) is its **own** definition
-wave; it has no consumer here, and forcing it in front of this silo would drag
-`Completion_BaseChange` + `M4aHerbrand_ArchSemilocal` + the `Def_Mathlib_*`
-supplements. This is the split-by-mathematical-role precedent the foundation used
-for `Def_NumberField_AdelicHaar` and `Def_AutomorphicForm_AdelicLsXi`.
+in `AutomorphicForm/Adelic/ArchHaar.lean` (68 lines, namespace `AutomorphicForm`,
+the pin's own), keeping the pin's declaration texts: `glBorelOf` is the pin's
+`@[reducible] def := borel _`, never a registered `MeasurableSpace` instance, so it
+cannot diamond with mathlib's Borel instance. The rest of `TwistedOrbital` (the
+finite-place twisted-orbital subject, 83 − 3 declarations, plus
+`archHaarL`/`archIdent`/`AreMatchingArch` whose dependency is the unported
+tensor/base-change chain) is its **own** definition wave; it has no consumer here,
+and forcing it in front of this silo would drag `Completion_BaseChange` +
+`M4aHerbrand_ArchSemilocal` + the `Def_Mathlib_*` supplements. This is the
+split-by-mathematical-role precedent the foundation used for
+`Def_NumberField_AdelicHaar` and `Def_AutomorphicForm_AdelicLsXi`.
+
+**Postscript — the pre-existing `glBorelOf` twin.** The port's
+`MeasureAssembly.archBorel` (`RightConvComm/MeasureAssembly.lean:61`) and its
+`local instance` uses in `SliceCentrality.lean:55` are statement-identical to
+`glBorelOf` specialized at `InfiniteAdeleRing F`. D0 did **not** collapse them:
+`archBorel` is a port-only adapter carrying a `[Field F] [NumberField F]` binder
+shape, so replacing it means editing two modules of the `RightConvComm` cone. It
+is registered as a dedup follow-up in
+[CARRY-FORWARD.md](../../CARRY-FORWARD.md); until then the two `borel _` defs
+coexist harmlessly.
 
 **Verification of the gate.** Coverage by name: the three declarations present, at
-the pin's names, plus the port-only instance stack recorded explicitly. The module
-is added to `PORT_FILES` and `TwistedOrbital.lean` to `SOURCES` (both last) only
-when the façade is wired; before that it is tier 3.
+the pin's names; tier-0 green at the 200,000 heartbeat cap with 0 warnings;
+tier-1 `3,447 jobs` green; the register gains one module / three declarations, each
+with a `pin original`. The checker is unchanged (9,237 identical / 0 mismatched /
+0 missing / 38 own) because the module is tier 3. It is added to `PORT_FILES` and
+`TwistedOrbital.lean` to `SOURCES` (both last) only when the façade is wired.
 
 ## 6. The instance stack and the build cycle
 
@@ -259,18 +274,23 @@ in `AdelicHaar/{Adele,GeneralLinear}.lean`.
 
 The plan:
 
-1. `AdelicHaar/Archimedean.lean` homes the **public** topology/Borel/measure
-   instances once — `SecondCountableTopology (InfiniteAdeleRing F)`, `T2Space` /
-   `LocallyCompactSpace` on the matrix ring and on `GL₂(𝔸_{F,∞})`, and the
-   `BorelSpace` fact for `glBorelOf` — and defines `archHaarK := Measure.haar`
-   with `letI`/`haveI` supplying `glBorelOf` and `borelSpace_glBorelOf`
-   explicitly. `InfiniteAdeleRing` is a `def`, so instance search must not be left
-   to unfold it; the TateGlobal port hit exactly this on `Function.update`.
-2. Every silo module imports that home; the pin's repeated `private theorem`
-   instance facts are **not** re-derived. The pin's genuinely file-local
-   `scoped instance`s (the `Kprod` probability measure and its invariance) stay
-   local to the module whose section binds them, per WORKORDER-T1 §3.5 — they are
-   invisible to the checker and deliberately not promoted.
+1. `AutomorphicForm/Adelic/ArchHaar.lean` carries the definition gate. It needed
+   **no new instance stack**: `archHaarK` elaborates at the pin's text against
+   mathlib's `LocallyCompactSpace K∞` (`InfiniteAdeleRing` is the Pi type
+   `(v : InfinitePlace K) → v.Completion`) and the port's public
+   `t2Space_infiniteAdeleRing`, with the matrix and `GL₂` instances supplied by the
+   pin's own `inferInstanceAs` and
+   `Units.isClosedEmbedding_embedProduct.locallyCompactSpace` inside the body.
+   `InfiniteAdeleRing` is a `def`, so the instances stay explicit rather than left
+   to unfold the Pi type — the TateGlobal lesson on `Function.update`.
+2. The `S_` file's own `secondCountableTopology_*` / `archGLMeasurableSpace` /
+   `archGLBorelSpace` / `t2Space_archMatrix` block is the pin's file-local
+   plumbing: the port's `RightConvComm/Frame.lean` keeps its versions `private
+   scoped`, so the silo modules re-derive the few facts they need as `private`
+   declarations, exactly as the pin does. The genuinely `scoped` ones (the `Kprod`
+   probability measure and its invariance) stay local to the module whose section
+   binds them, per WORKORDER-T1 §3.5 — invisible to the checker, deliberately not
+   promoted.
 3. **`maxHeartbeats` is never raised**, file-wide or per declaration. The tier-0
    loop is `timeout 120 lake env lean -DmaxHeartbeats=200000 -DautoImplicit=false
    <file>`; the first declaration to exceed the low cap is the culprit, diagnosed
@@ -279,36 +299,36 @@ The plan:
    the elaborated type) or by avoiding the unfolding that hides it. The port's
    current automorphic modules re-elaborate in 5–9 s at the 200,000 cap, so the
    baseline is healthy; a new module outside that band is an inference defect.
-4. **New files only.** No existing Lean module is edited except the one-line
-   re-pointing of `TestFnNearIdentity.continuous_archEntries` if the promotion is
-   taken; that edit is the manager's, priced with
-   `python3 tools/deps/build_ladder.py --edit FLTForHuman/AutomorphicForm/Adelic/TestFnNearIdentity.lean`
-   before it is applied, and followed by one wave build. No whole-tree build.
+4. **New files only.** D0 landed as one new file with no cascade. No promotion is
+   needed: the silo's `continuous_archEntries` is a pin-`private` proof helper, so
+   a `private` local re-derivation is the right treatment and
+   `TestFnNearIdentity.continuous_archEntries` stays `private`. The one candidate
+   hub edit is the `archBorel` dedup of §5, deliberately deferred. No whole-tree
+   build.
 
 ## 7. The plan
 
 Two stages, the first a gate for the second.
 
-**Stage 1 — the definition gate (one set).** `AdelicHaar/Archimedean.lean` as in
-§5–§6, plus the `continuous_archEntries` promotion if the manager takes it. New
-file, no cascade. Deliverable: the three named declarations in the port, tier 3,
-the instance stack public and documented, the register regenerated, `archHaarK`
-tier-0 green at the low cap.
+**Stage 1 — the definition gate (one set; landed).**
+`AutomorphicForm/Adelic/ArchHaar.lean`, 68 lines / 3 declarations, as in §5–§6. No
+promotion, no cascade. `glBorelOf`, `borelSpace_glBorelOf` and `archHaarK` are in
+the port at the pin's names, tier-0 green at the 200,000 cap and tier-1 green, with
+the register carrying one new module and three `pin original` rows.
 
-**Stage 2 — the proof silo (a phase order, set in series).** The five modules of
-§3, built in import order, each dispatch one subagent:
+**Stage 2 — the proof silo (two subagent turns, in series).** The five modules of
+§3, built in import order. The manager runs **two** subagent turns, not five: the
+first carries the adèlic half, the second the generic engines and the façade. The
+manager reviews the tree between the turns.
 
-| set | modules | pin range | ≈ lines |
-|---|---|---|---:|
-| Q1 | `ArchApproxIdentity/ArchInfra` | 9–920 | 700 |
-| Q2 | `ArchApproxIdentity/EntryBall` | 520–874 | 450 |
-| Q3 | `RepTheory/TypeReproducer` | 926–2131 | 1,150 |
-| Q4 | `RepTheory/ConvolutionLimit` | 2216–2856 | 700 |
-| Q5 | `ArchApproxIdentity` (façade + headline) | 2859–3153 | 300 |
+| turn | sets | modules | pin range | ≈ lines | state |
+|---|---|---|---|---|---:|---|
+| 1 | Q1, Q2 | `ArchApproxIdentity/{ArchInfra,EntryBall}` | 9–923 (Q1 9–517, Q2 520–923) | 1,150 | **landed** (556 + 453 lines, 84 declarations, tier-0 0 warnings, register current) |
+| 2 | Q3, Q4, Q5a, Q5b | `RepTheory/{TypeReproducer,ConvolutionLimit}`, `ArchApproxIdentity/Instantiate`, `ArchApproxIdentity` (façade) | 926–3153 | 2,150 | **landed** (1,380 + 682 + 323 + 35 lines; checker +1, milestone build 9,519 jobs green) |
 
-Sets run one at a time; the manager reviews the tree between them and re-issues
-the next range against the tree that exists. Q1 and Q2 may be merged if the ball
-layer's dependency on `Kprod` is shallow.
+Q1 and Q2 may be split differently inside turn 1 if the ball layer's dependency on
+`Kprod` is shallow; turn 2 writes Q3 and Q4 first and finishes with the façade Q5,
+which is the only listed dispatch.
 
 **Out of scope.** The four consumer silos (separate sets); the finite-place
 twisted-orbital subject of `TwistedOrbital`; the 13 import-only `Definitions/`
@@ -343,12 +363,12 @@ modules; any `Definitions/` edit; the `p2m_*` scaffolding; the pin's file-wide
 
 ## 9. Risks and open questions
 
-1. **The definition-gate cut (§5).** Porting the three named declarations into
-   `AdelicHaar/Archimedean.lean` is the recommended unblock; the alternative is to
-   port `TwistedOrbital` whole first, which is correct under a strict whole-node
-   reading but costs the 4,390-line closure for mathematics this silo never names.
-   The manager decides; either way the module is written once and the split is
-   recorded.
+1. **The definition-gate cut (§5) — resolved.** The three named declarations
+   landed in `AutomorphicForm/Adelic/ArchHaar.lean`; the finite-place
+   twisted-orbital subject of `TwistedOrbital` is deferred to its own whole-node
+   wave. The alternative (port `TwistedOrbital` whole first) is correct under a
+   strict whole-node reading but costs the 4,390-line closure for mathematics this
+   silo never names; that closure is now a recorded future set, not a blocker.
 2. **The two-body trap.** `contSubmodule` is copied in four pin files; the
    `isHaarMeasure_archHaarK`/`locallyCompactSpace_archGL` pair in four and five.
    Write one body per pin *name* in the shared home; the other spellings go
@@ -387,9 +407,11 @@ python3 build_ladder.py --edit FLTForHuman/AutomorphicForm/Adelic/TestFnNearIden
 # the definition gate, by hand
 python3 explore.py AutomorphicForm.exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule
 cd ../lean
-timeout 120 lake env lean -DmaxHeartbeats=200000 -DautoImplicit=false FLTForHuman/NumberTheory/AdelicHaar/Archimedean.lean
-flock .lake/flt_build.lock timeout 300 lake build FLTForHuman.NumberTheory.AdelicHaar.Archimedean
-timeout 300 python3 spec/check_flt_statements.py
+timeout 120 lake env lean -DmaxHeartbeats=200000 -DautoImplicit=false FLTForHuman/AutomorphicForm/Adelic/ArchHaar.lean
+flock .lake/flt_build.lock timeout 300 lake build FLTForHuman.AutomorphicForm.Adelic.ArchHaar
+cd ..
+python3 tools/deps/unwired_register.py
+cd lean && timeout 300 python3 spec/check_flt_statements.py
 ```
 
 The pin sources are public at

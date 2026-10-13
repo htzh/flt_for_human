@@ -17,6 +17,34 @@ meets them.
 
 ## Deferred API
 
+### The finite-place twisted-orbital subject of `Def_AutomorphicForm_TwistedOrbital` — a deferred whole-node wave
+
+The archimedean approximate-identity silo
+(`AutomorphicForm.exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule`)
+imports `Definitions/Def_AutomorphicForm_TwistedOrbital.lean` (574 lines / 83 declarations) but
+names only three of its declarations — `glBorelOf` (:57), `borelSpace_glBorelOf` (:59) and
+`archHaarK` (:401) — which landed (D0, 2026-10-13) in
+`FLTForHuman/AutomorphicForm/Adelic/ArchHaar.lean`. The rest of the node is the **finite-place
+twisted-orbital subject** (`semiLocalHaar`, `IsTwistedOrbitalIntegral`, `AreMatchingOn`,
+`twistedCentralizer`, …), together with the archimedean `archHaarL`/`archIdent`/
+`AreMatchingArch` whose dependency is the unported tensor/base-change chain, plus the node's 13
+import-only `Definitions/` closure modules (4,390 pin lines). None of those declarations is named
+by the silo, so the whole-node port is deferred to its own definition-first wave; forcing it in
+front of the silo would drag `Def_DedekindDomain_Completion_BaseChange` +
+`Def_M4aHerbrand_ArchSemilocal` + the four `Def_Mathlib_*` supplements for mathematics the silo
+never states. Plan and measurement:
+[topics/automorphicForm/TOPIC-archTestFactor-family.md](topics/automorphicForm/TOPIC-archTestFactor-family.md) §5.
+
+### `MeasureAssembly.archBorel` is a twin of the new `AutomorphicForm.glBorelOf`
+
+The `WORKORDER-Q` definition gate landed the pin's `glBorelOf` in
+`FLTForHuman/AutomorphicForm/Adelic/ArchHaar.lean`. The port already had a statement-identical
+port-only adapter, `AutomorphicForm.MeasureAssembly.archBorel`
+(`RightConvComm/MeasureAssembly.lean:61`), used as a `local instance` there and in
+`SliceCentrality.lean:55`. Collapsing the twin means editing two modules of the `RightConvComm`
+cone, so it is a dedup follow-up rather than part of `WORKORDER-Q`. Price it first:
+`python3 tools/deps/build_ladder.py --edit FLTForHuman/AutomorphicForm/Adelic/RightConvComm/MeasureAssembly.lean`.
+
 ### `CuspForm.exists_degeneracy_gamma1_hasNebentypus` — the frontier's `Definitions/` blind spot
 
 The frontier lists this row ready (218 silo lines) but it is **not**: its `S_` file imports and

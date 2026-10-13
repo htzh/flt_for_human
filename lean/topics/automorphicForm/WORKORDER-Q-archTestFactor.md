@@ -1,9 +1,30 @@
-# WORKORDER-Q — the archimedean approximate identity: gate + five dispatches
+# WORKORDER-Q — the archimedean approximate identity: gate + two turns
 
-**Status (2026-10-13): order written; D0 ready to run.** One dispatch = one
-subagent = one or two natural modules. Dispatches run **in series, one at a time**;
-the manager reviews the tree between them and re-issues the next dispatch against
-the tree that then exists.
+**Status (2026-10-13): LANDED.** The definition gate D0 and both subagent turns are
+complete; the tree is green and the headline is checker-wired. Turn 1 = the adèlic
+half (Q1, Q2); turn 2 = the generic engines, the instantiation and the façade (Q3,
+Q4, Q5a, Q5b). The two turns ran in series; the manager reviewed the tree between
+them.
+
+**Outcome.** Seven new modules, 3,495 written lines against the 3,077 measured net
+new math lines:
+`AutomorphicForm/Adelic/ArchHaar.lean` (68),
+`AutomorphicForm/Adelic/ArchApproxIdentity/{ArchInfra 556, EntryBall 453, Instantiate 323}.lean`,
+`AutomorphicForm/Adelic/ArchApproxIdentity.lean` (35, the façade), and
+`RepTheory/{TypeReproducer 1,380, ConvolutionLimit 682}.lean`. 194 declarations
+transcribed (3 + 92 + 110), every one carrying `-- pin:` provenance and
+statement-identical to the pin modulo the dropped `private`. **Checker 9,237 →
+9,238 identical (648 promoted, 83 renamed), 0 mismatched, 0 missing, 38 own** — the
++1 is exactly the façade's headline; the other 193 declarations stay tier 3 in
+[spec/UNWIRED-PUBLIC.md](../../spec/UNWIRED-PUBLIC.md) (63 modules / 1,447 public
+declarations / 1,159 with a pin original). Tier-0 on all seven at the **200,000**
+heartbeat cap, exit 0 with **0 warnings**; the milestone whole-tree build is green
+at **9,519 jobs**. The one-token mutation on the headline moved exactly one
+`mismatched` and was reverted; `#print axioms` is
+`[propext, Classical.choice, Quot.sound]`; `spec/AutomorphicFormConsumer.lean` runs
+seven zones through the headline. No promotion and **no existing Lean module
+edited**; the pin's `set_option maxHeartbeats 4000000 in` was dropped and its
+declaration fits the low cap.
 
 **Audience.** A fresh subagent with no memory of the reconnaissance. Read §3 twice:
 §3 is the protocol and §4 is the recipe you execute. The method is
@@ -36,9 +57,8 @@ other four only ≈43 lines / 2 new declarations, so the cut is the silo alone.
 (`exists_isUnitFactorizableAboveOfType_*`, `exists_finTestFactor_…`,
 `exists_isIrreducibleGLRep_…`); the finite-place twisted-orbital subject of
 `Def_AutomorphicForm_TwistedOrbital` and its 13 import-only `Definitions/` modules;
-any edit to an existing Lean module other than the single `TestFnNearIdentity`
-re-pointing of §5; the pin's `P2M.Util` / `p2m_*` scaffolding; any file-wide
-`set_option`.
+any edit to an existing Lean module; the pin's `P2M.Util` / `p2m_*` scaffolding;
+any file-wide `set_option`.
 
 ## 2. What is already in the port (import it; never re-derive)
 
@@ -52,8 +72,9 @@ re-pointing of §5; the pin's `P2M.Util` / `p2m_*` scaffolding; any file-wide
   `adelicArchGLInclAt`.
 * `FLTForHuman/AutomorphicForm/Adelic/TestFnNearIdentity.lean` —
   `continuous_adelicArchGLIncl` (public; the silo's substitute for its own copy).
-  Its `continuous_archEntries` is **`private`**: either promote it or re-derive the
-  seven-line proof locally (§5, §8).
+  Its `continuous_archEntries` is **`private`**, and the silo's copy is a pin
+  `private` proof helper with no public face: re-derive the seven-line proof
+  locally as `private`, do **not** promote it.
 * `FLTForHuman/AutomorphicForm/Adelic/RightConvComm/Frame.lean` — the
   `SecondCountableAdelic` block (`private scoped instance`s; the instances are
   found by search, the names are not importable) and `adelicFrame`.
@@ -74,11 +95,12 @@ report.
 
 ### 3.1 Natural module homes, natural names
 
-* D0 lands `FLTForHuman/NumberTheory/AdelicHaar/Archimedean.lean`: `glBorelOf`,
-  `borelSpace_glBorelOf`, `archHaarK`, and the port-own instance stack of §6 of the
-  topic. `glBorelOf` is a `@[reducible] def`, **not** a registered
+* **D0 (landed)** is `FLTForHuman/AutomorphicForm/Adelic/ArchHaar.lean`: the pin's
+  `glBorelOf`, `borelSpace_glBorelOf`, `archHaarK`, 68 lines, namespace
+  `AutomorphicForm`. `glBorelOf` is a `@[reducible] def`, **not** a registered
   `MeasurableSpace` instance — do not create a diamond with mathlib's Borel
-  instance. Reuse `MeasureAssembly.archBorel` as the single `borel _` spelling.
+  instance. The pin's `MeasureAssembly.archBorel` is a statement-identical twin;
+  collapsing it is a recorded dedup follow-up, not part of this order.
 * The proof lives under `FLTForHuman/AutomorphicForm/Adelic/ArchApproxIdentity/`
   and `FLTForHuman/RepTheory/`, at the namespaces the declarations force. Strip the
   pin's `P2MW.S_…` chapter prefix; keep every mathematical sub-namespace. Do **not**
@@ -168,26 +190,42 @@ finding, not a licence: report the declaration and the trace.
 
 ## 5. The dispatch table
 
-| dispatch | modules | pin range | ≈ lines |
-|---|---|---|---:|
-| **D0** | `NumberTheory/AdelicHaar/Archimedean.lean` (new) | `TwistedOrbital.lean:57–59,401–410` | 90 |
-| **Q1** | `AutomorphicForm/Adelic/ArchApproxIdentity/ArchInfra.lean` | 9–920 | 700 |
-| **Q2** | `AutomorphicForm/Adelic/ArchApproxIdentity/EntryBall.lean` | 520–874 | 450 |
-| **Q3** | `RepTheory/TypeReproducer.lean` | 926–2131 | 1,150 |
-| **Q4** | `RepTheory/ConvolutionLimit.lean` | 2216–2856 | 700 |
-| **Q5** | `AutomorphicForm/Adelic/ArchApproxIdentity.lean` (façade) | 2859–3153 | 300 |
+The gate is **D0 (landed)**. The proof is two subagent turns in series; the module
+sets Q1–Q5 are the units, the turns the batches.
 
-**D0 — the definition gate.** Transcribe `glBorelOf` (`TwistedOrbital.lean:57`),
-`borelSpace_glBorelOf` (`:59`) and `archHaarK` (`:401–410`) at their pin names,
-plus the port-own public instance stack the `S_` file needs (topic §6): second
-countability of `𝔸_{L,∞}`, its matrix ring, `GL₂`, the place completions and
-`∏_w rowIsometrySubgroup₀`; `T2Space` / `LocallyCompactSpace` on the matrix ring
-and `GL₂`; and the `BorelSpace` fact for `glBorelOf`. Reuse `MeasureAssembly.archBorel`.
-`archHaarK` is `Measure.haar` with `letI`/`haveI` supplying `glBorelOf` and
-`borelSpace_glBorelOf` explicitly. The module is **tier 3** until Q5 wires the
-façade; if the `continuous_archEntries` promotion is taken, it is a one-line change
-in `TestFnNearIdentity.lean`, priced with `build_ladder.py --edit` first, built as
-one wave, then frozen.
+| turn | sets | modules | pin range | ≈ lines | status |
+|---|---|---|---|---|---:|---|
+| — | **D0** | `AutomorphicForm/Adelic/ArchHaar.lean` (new) | `TwistedOrbital.lean:57–59,401–410` | 68 | **landed** |
+| 1 | Q1, Q2 | `ArchApproxIdentity/{ArchInfra,EntryBall}` | 9–923 (Q1 9–517, Q2 520–923) | 1,150 | **landed** |
+| 2 | Q3, Q4, Q5a, Q5b | `RepTheory/{TypeReproducer,ConvolutionLimit}`, `ArchApproxIdentity/Instantiate`, `ArchApproxIdentity` (façade) | 926–3153 | 2,150 | ready |
+
+**D0 — the definition gate (landed).** `glBorelOf` (`TwistedOrbital.lean:57`),
+`borelSpace_glBorelOf` (`:59`) and `archHaarK` (`:401–410`) at their pin names in
+namespace `AutomorphicForm`, 68 lines. `archHaarK` is `Measure.haar` with
+`letI`/`haveI` supplying `glBorelOf`/`borelSpace_glBorelOf` and the matrix/`GL₂`
+instances via the pin's `inferInstanceAs` and
+`Units.isClosedEmbedding_embedProduct.locallyCompactSpace`. No new instance stack
+was needed and no existing module was edited. Tier-0 green at the 200,000 cap with
+0 warnings; tier-1 `3,447 jobs` green; the register carries the module and its
+three `pin original` rows; the checker is unchanged. The module stays **tier 3**
+until turn 2 wires the façade.
+
+**Turn 1 — the adèlic half (landed 2026-10-13).** One subagent, two new modules:
+`ArchApproxIdentity/ArchInfra.lean` (556 lines, 48 public declarations, pin 9–517)
+and `ArchApproxIdentity/EntryBall.lean` (453 lines, 36, pin 520–923); 92
+declarations transcribed, 92/92 with `-- pin:` provenance and 92/92 statement
+probes identical modulo the dropped `private`. One substitution imported
+(`continuous_adelicArchGLIncl`); `Q09AIarchG.continuous_archEntries` and the pin's
+same-file `Q09AIarch`/`Q09AIarchG` instance duplicates re-derived `private`; the
+four `scoped instance`s stay scoped. Tier-0 8.2 s / 3.8 s at the 200,000 cap, 0
+warnings; tier-1 `3,872 jobs` green; no instance-inference fix and no heartbeat
+override; register current (+84 rows, all with pin originals). Two manager-accepted
+deviations: (a) the pin's cross-block `private` `Q09AIarchC.secondCountableTopology_*`
+facts land **public** because `EntryBall`'s `attribute [local instance]` block names
+them across the module split (the alternative is private copies); (b) each module
+carries the file-wide `set_option linter.style.haveILetI false` with a one-line
+reason, matching 199 sibling port modules and the pin's load-bearing `letI`/`haveI`
+walls. Neither is a stop condition; the checker is untouched (tier 3).
 
 **Q1 — adèlic infrastructure.** `isHaarMeasure_archHaarK`, the `Kw`/`Kprod` product
 Haar (`KprodTop`, `muK`, its probability/left/right-invariance instances and
@@ -195,29 +233,42 @@ integral lemmas), `inclArch`/`inclAdelic` and their continuity, the Haar scaling
 (`exists_isCompact_preimage_mul_inclArch_eq`, `haarScalarFactor_map_mul_inclArch`,
 `integral_archHaarK_mul_inclArch`), and the row-isometry compactness (`rowIsoSet`,
 `isCompact_rowIsometrySubgroup₀`, `archRowIsometryInclAt₀` injectivity). Import
-the D0 module and §2's modules; re-derive only what they lack.
+the D0 module and §2's modules; re-derive only what they lack. The pin's
+`secondCountableTopology_*` facts are re-derived locally as `private`, not homed
+publicly.
 
 **Q2 — balls and bump.** `matrixEntries`, `entryBall`, `detLocus`, `toGL`,
 `exists_bump`, `exists_approxIdentity`, `tendsto_integral_mul_approxIdentity`, and
 the entry-ball comparison lemmas. May be merged into Q1 if the dependency is
 shallow.
 
-**Q3 — the type reproducer (generic).** `piRep`, `coeffFun`/`dualCoeffFun`/
-`transRep`, `rt`/`spanTranslates`/`exists_finiteDimensional_stable`, `piE`/`Pm`/
-`Mint`/`Hm`/`Dm`, `exists_reproducer`, `Pm_entry_mem_iSup`. Mentions neither the
-adèles nor `GL₂` — declare over the abstract compact group the pin uses.
+**Turn 2 — the generic engines and the façade.** Q3 and Q4 first, then Q5, one
+subagent. Q5 is cut in two so that the **listed** module carries only the headline:
+`ArchApproxIdentity/Instantiate.lean` is tier 3 and holds the instantiation, and the
+façade `ArchApproxIdentity.lean` holds the single headline.
 
-**Q4 — the convolution limit (generic).** `contSubmodule`, `dconvWith`,
-`convOpR`/`convOpL`, the type-membership lemmas, support,
+**Q3 — the type reproducer (generic).** Pin 926–2206 (the `ZetaB0` tail included).
+`piRep`, `coeffFun`/`dualCoeffFun`/`transRep`, `rt`/`spanTranslates`/
+`exists_finiteDimensional_stable`, `piE`/`Pm`/`Mint`/`Hm`/`Dm`, `exists_reproducer`,
+`Pm_entry_mem_iSup`. Mentions neither the adèles nor `GL₂` — declare over the
+abstract compact group the pin uses.
+
+**Q4 — the convolution limit (generic).** Pin 2216–2856. `contSubmodule`,
+`dconvWith`, `convOpR`/`convOpL`, the type-membership lemmas, support,
 `tendsto_integral_mul_dconvWith`, `contDiffNat_parametricIntegral_postcompCLM`,
 `contDiff_parametricIntegral_mul`.
 
-**Q5 — the façade.** `Ent`, `twoSided`, `rtStabilizer`, `exists_contDiff_dconvWith`,
-`main`, and the headline at the wrapper's name. This is the **only** listed
-dispatch: add the façade to `PORT_FILES` and the wrapper plus the `S_` file to
-`SOURCES` (both last), run the checker, and reconcile the `identical` delta against
-the one headline. A one-token mutation on the headline must move exactly one
-`mismatched`, then be reverted.
+**Q5a — the instantiation (tier 3).** Pin 2859–3141 in
+`ArchApproxIdentity/Instantiate.lean`: `Ent`, `twoSided`, `rtStabilizer`,
+`exists_contDiff_dconvWith`, `main`.
+
+**Q5b — the façade (tier 1).** Pin 3142–3153 in `ArchApproxIdentity.lean`: the
+headline `solution` only, at the wrapper's name. This is the **only** listed module:
+add the façade to `PORT_FILES` and the wrapper plus the `S_` file to `SOURCES`
+(both last), run the checker, and reconcile the `identical` delta against the one
+headline (a façade that also carried `main`/`Ent` would show them in the delta). A
+one-token mutation on the headline must move exactly one `mismatched`, then be
+reverted.
 
 The headline, verbatim (binders, order and spellings are the checker's contract):
 
@@ -242,8 +293,8 @@ The `letI := glBorelOf …` inside the integral is part of the statement; keep i
 * **no bare whole-tree `lake build`**; one `lake build <module>` per module,
   serialized;
 * never raise the heartbeat cap, never add `set_option maxHeartbeats`;
-* new files only; the one permitted existing-module edit is the D0
-  `TestFnNearIdentity` promotion, and if it is taken, build **only** that module.
+* **new files only**; D0 and the five proof modules are all new, and no existing
+  Lean module is edited.
 
 ## 7. Verification (per dispatch)
 
@@ -294,7 +345,8 @@ condition hit. Keep it short — the manager reads the tree.
 cd tools/deps
 python3 port_advise.py --nodes AutomorphicForm.exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule --json build/arch_ident_advise.json
 python3 port_plan.py --json build/arch_ident_advise.json
-cd ../lean
+cd ..
 python3 tools/deps/unwired_register.py
+cd lean
 timeout 300 python3 spec/check_flt_statements.py
 ```
