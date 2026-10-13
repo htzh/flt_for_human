@@ -259,11 +259,11 @@ homed whole in the port at
 
 | Lean | pin line | mathematics |
 |---|---|---|
-| `ideleNorm F x : ℝ` | 19 | $`|x|`$, as `distribHaarChar` coerced to $`\mathbb{R}`$ |
-| `normOneIdeles F` | 16 | $`\mathbb{A}_F^1 = \ker |\cdot|`$ |
-| `ideleNorm_pos` | 24 | $`|x| \gt 0`$ |
+| `ideleNorm F x : ℝ` | 19 | $`\lvert x \rvert`$, as `distribHaarChar` coerced to $`\mathbb{R}`$ |
+| `normOneIdeles F` | 16 | $`\mathbb{A}_F^1 = \ker \lvert \cdot \rvert`$ |
+| `ideleNorm_pos` | 24 | $`\lvert x \rvert \gt 0`$ |
 | `ideleNorm_mul` | 73 | multiplicativity |
-| `mem_normOneIdeles_iff` | 76 | $`x \in \mathbb{A}_F^1 \leftrightarrow |x| = 1`$ |
+| `mem_normOneIdeles_iff` | 76 | $`x \in \mathbb{A}_F^1 \leftrightarrow \lvert x \rvert = 1`$ |
 | `integralOutside S` | 64 | $`\mathfrak{o}_F(S)`$ of §3 |
 
 The modulus character itself is mathlib's
@@ -285,7 +285,7 @@ are mathlib's
 | `exists_mem_unitsOutside` | 2578 | 1: $`\mathbb{A}_F^\times = \bigcup_S U_S`$ |
 | `normQ` | 2599 | 3: the finite-product norm on the coordinates |
 | `continuous_normQ` | 2603 | 3: continuity of the finite product |
-| `ideleNorm_asm_eq_normQ` | 2610 | 4: $`|x| = \mathrm{normQ}(\mathrm{coord}\,x)`$ on $`U_S`$ |
+| `ideleNorm_asm_eq_normQ` | 2610 | 4: $`\lvert x \rvert = \mathrm{normQ}(\mathrm{coord}\,x)`$ on $`U_S`$ |
 | `continuousOn_ideleNorm` | 2619 | 4: continuity on one open piece |
 | `continuous_ideleNorm` | 2628 | 4: glue over the cover |
 
