@@ -366,6 +366,18 @@ theorem measurableSet_adelicBox : MeasurableSet (adelicBox K) := by
   exact ((measurableSet_infiniteBox K).preimage h1).inter
     ((AdelicLevel.isClosed_integralFiniteAdeles (𝓞 K) K).measurableSet.preimage h2)
 
+-- pin: isClosed_integralFiniteAdeles (Def_NumberField_AdelicBox.lean:339)
+theorem isClosed_integralFiniteAdeles : IsClosed (integralFiniteAdeles (𝓞 K) K) :=
+  AdelicLevel.isClosed_integralFiniteAdeles (𝓞 K) K
+
+-- pin: isCompact_integralFiniteAdeles (Def_NumberField_AdelicBox.lean:450)
+theorem isCompact_integralFiniteAdeles : IsCompact (integralFiniteAdeles (𝓞 K) K) :=
+  AdelicLevel.isCompact_integralFiniteAdeles (𝓞 K) K
+
+-- pin: isOpen_integralFiniteAdeles (Def_NumberField_AdelicBox.lean:461)
+theorem isOpen_integralFiniteAdeles : IsOpen (integralFiniteAdeles (𝓞 K) K) :=
+  AdelicLevel.isOpen_integralFiniteAdeles (𝓞 K) K
+
 theorem isAddFundamentalDomain_adelicBox (μ : Measure (AdeleRing (𝓞 K) K)) :
     IsAddFundamentalDomain (AdeleRing.principalSubgroup (𝓞 K) K) (adelicBox K) μ := by
   refine IsAddFundamentalDomain.mk' (measurableSet_adelicBox K).nullMeasurableSet fun x => ?_

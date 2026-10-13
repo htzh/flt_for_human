@@ -1,11 +1,15 @@
 # TOPIC — the TateGlobal analytic core: a one-set, three-node port
 
-**Status (2026-10-13): scoping note.** The three nodes are chosen and measured, the
-shared structure is settled, and no work order is issued yet. This note is the
-reconnaissance a fresh session needs before writing one. It is the upstream
-neighbour of [WORKORDER-Z1-completed-dedekind-zeta.md](../WORKORDER-Z1-completed-dedekind-zeta.md)
-(Z1 landed the completed Dedekind zeta package; this set is the adelic Tate/zeta
-layer the Z1 consumers' analytic chain is stated in).
+**Status (2026-10-13): executed.** The order this note scopes,
+[WORKORDER-T1-tateglobal-core.md](WORKORDER-T1-tateglobal-core.md), was issued and run
+to completion by six subagents: 24 development modules under
+`FLTForHuman/NumberTheory/NumberField/TateGlobal/` plus the three-headline façade, the
+checker at 0 mismatched / 0 missing, and one declaration deferred
+(`integrable_refMeasure_mul`, WORKORDER-T1 §8.8/§11 and
+[CARRY-FORWARD.md](../../../CARRY-FORWARD.md)). The body below remains the
+reconnaissance that fixed the set, the module map and the measurement. It is the
+upstream neighbour of
+[WORKORDER-Z1-completed-dedekind-zeta.md](../WORKORDER-Z1-completed-dedekind-zeta.md).
 
 **Method.** [porting-playbook.md](../../../porting-playbook.md) §2.3–§2.4 (whole
 nodes, deduplicate before coding), §3.1–§3.5 (module roles, work order, build
@@ -271,6 +275,55 @@ second half of the pin's `Def_AutomorphicForm_AdelicLsXi.lean`, split per playbo
 §3.1. So this row is covered; the other eight are unverified and the 868-line
 residual is a lower bound until each is checked by name.
 
+### 5.1 Status of the port (2026-10-13)
+
+The layer is ported as far as the S_ set's statements and proofs need, in natural
+homes; each module is tier-0 exit 0 with 0 warnings and tier-1 green.
+
+| module | tier | pin node | declarations |
+|---|---|---|---|
+| `FLTForHuman/LanglandsTunnell/TateLocalZeta.lean` | 3, unlisted | `Def_LanglandsTunnell_TateLocalZeta` | 23 |
+| `FLTForHuman/NumberTheory/AdelicFourier.lean` | 3, unlisted | `Def_NumberField_AdelicFourier` | 15 |
+| `FLTForHuman/NumberTheory/NumberField/TateGlobal/Defs.lean` | 3, unlisted | `Def_NumberField_TateGlobalZeta` | 15 |
+| `FLTForHuman/AlgebraicCurve/Place/AdicCompletion.lean` | 3, unlisted | `Def_DedekindDomain_AdicValuation_InlineSpecific` (second slice) | 17 |
+| `FLTForHuman/LinearAlgebra/Countable.lean` | 3, unlisted | `Def_Mathlib_LinearAlgebra_Countable` | 2 |
+| `FLTForHuman/RingTheory/Ideal/Quotient/Basic.lean` | 3, unlisted | `Def_Mathlib_RingTheory_Ideal_Quotient_Basic` | 1 |
+| `FLTForHuman/Topology/Algebra/Valued/WithZeroMulInt.lean` | 3, unlisted | `Def_Mathlib_Topology_Algebra_Valued_WithZeroMulInt` | 6 |
+| `FLTForHuman/NumberTheory/AdelicBox.lean` (3 added) | 3, unlisted | `Def_NumberField_AdelicBox` | 3 |
+| `FLTForHuman/NumberTheory/NumberField/Completion/Finite.lean` | 3, unlisted | `Def_NumberField_Completion_Finite` | 5 |
+
+The three `Def_Mathlib_*` shims are homed at their mathlib paths under
+`FLTForHuman/`, and `v4.34.0` supersedes parts of them: `Countable.of_module_finite`
+is `Finsupp.Countable.of_moduleFinite` and `finite_quotient_maximalIdeal_pow_of_finite_residueField`
+is a deprecated `Valued.integer` alias; the pin's names are kept as thin wrappers.
+Two further drift items are recorded in `AdicCompletion.lean`: `Ideal.inertiaDeg'`
+is now `Ideal.inertiaDeg` (proof re-routed through `Ideal.inertiaDeg_eq_of_isMaximal`),
+and `InfiniteAdeleRing` is a `def`, so the pin's `Function.update (1 : InfiniteAdeleRing F)`
+is spelled as the Pi type in `TateGlobal/Defs.lean`.
+
+Of the 105 public residual names, 24 turned out to be the checker's context false
+negatives and are statement-identical in the port already: the 17 `_apply`
+adapters in `NumberField.AdelicLevel`, plus `norm_two_completion`,
+`not_pos_and_lt_top_of_eq_zero_or_top` and `mem_completionIdeal_iff`; the three
+`isClosed/isCompact/isOpen_integralFiniteAdeles` were genuine `𝓞 K`
+specialisations of the port's general-`R` versions and are now stated at the pin's
+names. The layer is closed: a re-run of `port_advise --targets` over the 18-file
+closure now finds 351 statement-identical declarations, and every one of the 26
+remaining public residual names has a port counterpart — 25 statement-identical
+under the same name (the tool's adapter/glue filter hides them: the 17 `_apply`
+adapters, `charExt_coe_units`, `modulus_coe_units`, `IsSchwartzBruhat.zero`,
+`archUnitHom_apply`, `localChar_apply`, `valued_apply_le_one`,
+`norm_two_completion`, `not_pos_and_lt_top_of_eq_zero_or_top`,
+`mem_completionIdeal_iff`) and one — `inertiaDeg_asIdeal_completionIdeal` —
+ported with its statement adapted to `v4.34.0`'s `Ideal.inertiaDeg`. The pin's
+four `Def_NumberField_Completion_Finite` names are now stated in
+`NumberField/Completion/Finite.lean`, delegating to the port's
+`NumberField.AdelicHaar` instances, so the S_ set's `attribute [-instance]` lines
+will find them. The two remaining residuals are the pin's `private` helpers
+`intValuation_eq_coe_neg_multiplicity` (mathlib's
+`intValuation_eq_exp_neg_multiplicity`) and `ValuationSubring.subtype_inj`
+(trivial).
+
 ## 6. What is deliberately not in this set
 
 * **The rest of the `S_NumberField_TateGlobal_*` family** (93 further `S_` files).
@@ -306,9 +359,20 @@ residual is a lower bound until each is checked by name.
    candidates.
 5. **mathlib drift.** Pin Lean `v4.33.1` vs port `v4.34.0`: adapt proofs, never
    statements. Statements are the contract shared with the checker.
-6. **Heartbeats.** These files are large; if a transcribed proof exceeds the port's
-   4,000,000 cap, use a per-declaration `set_option … in` with a note and report
-   it, not a file-wide option.
+6. **Heartbeats — never raise the limit.** `maxHeartbeats` is not raised, file-wide or
+   per declaration: the global cap stays as it is, and a ported module that exceeds
+   it has a *defect*, not a budget shortfall. Since the development is homed in
+   natural modules, file size is not a reason for a long build — a build-time
+   blow-up is almost always **instance inference** (a `def` that blocks
+   unification, an instance that is searched through an unfolding coercion, an
+   `Algebra`/`SMul` diamond). Locate it by recompiling with a *low* cap and a
+   wall-clock timeout (`timeout 120 lake env lean -DmaxHeartbeats=200000 …`): the
+   first declaration to fail is the one to fix. Fix the inference — supply the
+   instance explicitly (`letI`/`haveI`, an `@`-application, a local `instance`, an
+   `inferInstanceAs` with the elaborated type), or avoid the unfolding that hides
+   it — and report the fix in the hand-off. If a fix genuinely is not found, stop
+   and report the declaration with a `set_option diagnostics true` trace; do not
+   paper over it with a heartbeat override.
 7. **Scope creep in the core.** The home must be family-first, but do not port the
    other 93 files' variants into it now: `port_advise` §3 reports binder variants
    across the family. A later "generalise" pass decides which variants the home

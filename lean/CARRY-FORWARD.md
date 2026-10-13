@@ -134,6 +134,40 @@ node reads as partially ported. A citer that reaches `transPull`, `pointHom`,
 `genericPoint` or `negPull` still reads one node closer than it is — the usual
 file-granular shadowing.
 
+### `NumberField.TateGlobal.integrable_refMeasure_mul` — the product-measure API's `SFinite` gate
+
+The TateGlobal analytic-core port (`WORKORDER-T1`) is complete except for this one
+declaration of pin file **B**
+(`S_NumberField_TateGlobal_integrable_zetaIntegrand.lean:5146`, pinned `aa2d8b3`):
+
+```lean
+theorem integrable_refMeasure_mul {L} [NormedRing L] {A} {B} {C}
+    (hA : Integrable A (archRef μa)) (hB : Integrable B (sRef S μf))
+    (hC : Integrable C (deepRef S)) :
+    Integrable (fun q => A q.1 * (B q.2.1 * C q.2.2)) (refMeasure S μa μf)
+```
+
+It has **no measure hypotheses** — no `SFinite`, no `IsAddHaarMeasure` — because
+mathlib `v4.33.0` proved `Integrable.mul_prod`/`smul_prod`/`op_fst_snd` with
+`omit [SFinite ν]`. In `v4.34.0` those lemmas carry `[SFinite ν]` (through the
+enclosing section), and the gap is not confined to them: transferring back from
+the support-restricted product needs `Measure.prod_restrict`, whose proof
+decomposes through `sum_sfiniteSeq` and so needs `[SFinite μ] [SFinite ν]` on the
+**unrestricted** factors, and `Measure.prod_eq` needs `SigmaFinite`. The statement
+is true — `Integrable f μ` makes `μ.restrict (Function.support f)` s-finite, and
+`FLTForHuman/MeasureTheory/Integral/Prod.lean` proves exactly that
+(`MeasureTheory.sFinite_restrict_support_of_integrable`, a port-only mathlib
+supplement) — but the `v4.34.0` product-measure API cannot consummate it without a
+redevelopment of that API for non-s-finite measures.
+
+The headline (`NumberField.TateGlobal.integrable_zetaIntegrand`) and the whole
+downstream chain are complete: the declaration's only consumer,
+`integrableOn_unitsOutside_norm_mul_ideleNorm_rpow` (B 5190), states the step in a
+section that *does* carry the Haar hypotheses, so `SFinite (sRef S μf)` is
+available there and the port inlines it. A later dispatch that needs the general
+statement (any of the other `S_NumberField_TateGlobal_*` files may) must first
+redevelop the SFinite-free product-measure API, not change the statement.
+
 ## Open follow-ups
 
 - **`AlgebraicCurve.essFiniteType_of_transcendental_of_finiteDimensional`**

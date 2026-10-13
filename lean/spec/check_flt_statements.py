@@ -2898,6 +2898,20 @@ SOURCES = [
     # The silo is listed so that later wiring of the development's other declarations
     # needs no new source; today only the headline in the façade is checked.
     "P2M/Sol/S_NumberField_exists_completedDedekindZeta_package.lean",
+    # --- WORKORDER T1 (`topics/numberTheory/tateGlobal/WORKORDER-T1-tateglobal-core.md`):
+    # the TateGlobal analytic core. The three `Theorems/` wrappers carry the headlines
+    # the façade spells, so they are those declarations' statement authorities; the
+    # three `S_` silos are listed so that later wiring of the development's other
+    # declarations needs no new source (the port transcribes the caps once, in
+    # `TateGlobal/EulerFactors.lean`, `…/IntegrableZetaIntegrand.lean` and
+    # `…/IndicatorEulerFactors.lean`). Appended last so no earlier last-name match
+    # can flip.
+    "Theorems/Thm_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean",
+    "Theorems/Thm_NumberField_TateGlobal_integrable_zetaIntegrand.lean",
+    "Theorems/Thm_NumberField_TateGlobal_exists_forall_zetaIntegral_mul_eulerFactors_eq_of_eq_indicator.lean",
+    "P2M/Sol/S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean",
+    "P2M/Sol/S_NumberField_TateGlobal_integrable_zetaIntegrand.lean",
+    "P2M/Sol/S_NumberField_TateGlobal_exists_forall_zetaIntegral_mul_eulerFactors_eq_of_eq_indicator.lean",
 ]
 
 
@@ -4315,6 +4329,16 @@ PORT_FILES = [
     # and proved by `…/CompletedDedekindZeta/Bounds.lean`. The nine development modules
     # of the topic stay unlisted (tier 3); `spec/UNWIRED-PUBLIC.md` lists what they hold.
     "FLTForHuman/NumberTheory/NumberField/CompletedDedekindZeta.lean",
+    # --- WORKORDER T1: the TateGlobal analytic core façade, the topic's only checked
+    # module. It declares exactly the three consumed headlines
+    # `NumberField.TateGlobal.zetaIntegral_mul_eulerFactors_eq`,
+    # `NumberField.TateGlobal.integrable_zetaIntegrand` and
+    # `NumberField.TateGlobal.exists_forall_zetaIntegral_mul_eulerFactors_eq_of_eq_indicator`,
+    # each stated from its pin wrapper and proved by the corresponding cap module
+    # (`…/TateGlobal/EulerFactors.lean`, `…/IntegrableZetaIntegrand.lean`,
+    # `…/IndicatorEulerFactors.lean`). The twenty development modules of the topic stay
+    # unlisted (tier 3). Appended last so no earlier last-name match can flip.
+    "FLTForHuman/NumberTheory/NumberField/TateGlobal.lean",
 ]
 
 
