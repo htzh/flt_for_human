@@ -2945,6 +2945,43 @@ SOURCES = [
     # last-name match can flip.
     "Definitions/Def_ModularCurve_TateFormal.lean",
     "Definitions/Def_ModularCurve_TateSlots.lean",
+    # --- WORKORDER-F1: the weight-4 Tate-slot headline façade. The fourteen pin
+    # `S_ModularCurve_*` files are near-identical copies of one shared development
+    # (see topics/modularCurve/TOPIC-tate-slots-weight-four.md); the engine is
+    # tier 3 (`TateSlots/Convergence.lean`, `TateSlots/SlotCoeff.lean`) and only
+    # the façade module is listed. Each `Theorems/Thm_ModularCurve_<name>.lean`
+    # wrapper is the statement authority (listed first); its `S_` file follows so
+    # the engine's promoted `ModularCurve.TateSlots.<name>` kernels resolve through
+    # the pin-private dotted fallback. Appended last so no earlier last-name match
+    # can flip.
+    "Theorems/Thm_ModularCurve_tsum_lambertTerm_eq.lean",
+    "Theorems/Thm_ModularCurve_single_div_one_sub_sq.lean",
+    "Theorems/Thm_ModularCurve_single_sq_div_one_sub_cube.lean",
+    "Theorems/Thm_ModularCurve_slotSubst_gen_injective.lean",
+    "Theorems/Thm_ModularCurve_coeff_slotSubst_tateUnivX.lean",
+    "Theorems/Thm_ModularCurve_coeff_slotSubst_tateUnivY.lean",
+    "Theorems/Thm_ModularCurve_equation_tateBase_iff.lean",
+    "Theorems/Thm_ModularCurve_toricPoint_fst_coeff_mul.lean",
+    "Theorems/Thm_ModularCurve_toricPoint_fst_coeff_of_not_dvd.lean",
+    "Theorems/Thm_ModularCurve_toricPoint_fst_coeff_zero.lean",
+    "Theorems/Thm_ModularCurve_toricPoint_snd_coeff_mul_eq_sum_divisors.lean",
+    "Theorems/Thm_ModularCurve_toricPoint_snd_coeff_of_not_dvd.lean",
+    "Theorems/Thm_ModularCurve_toricPoint_snd_coeff_zero.lean",
+    "Theorems/Thm_ModularCurve_tsum_of_coeff_lt_eq_zero.lean",
+    "P2M/Sol/S_ModularCurve_tsum_lambertTerm_eq.lean",
+    "P2M/Sol/S_ModularCurve_single_div_one_sub_sq.lean",
+    "P2M/Sol/S_ModularCurve_single_sq_div_one_sub_cube.lean",
+    "P2M/Sol/S_ModularCurve_slotSubst_gen_injective.lean",
+    "P2M/Sol/S_ModularCurve_coeff_slotSubst_tateUnivX.lean",
+    "P2M/Sol/S_ModularCurve_coeff_slotSubst_tateUnivY.lean",
+    "P2M/Sol/S_ModularCurve_equation_tateBase_iff.lean",
+    "P2M/Sol/S_ModularCurve_toricPoint_fst_coeff_mul.lean",
+    "P2M/Sol/S_ModularCurve_toricPoint_fst_coeff_of_not_dvd.lean",
+    "P2M/Sol/S_ModularCurve_toricPoint_fst_coeff_zero.lean",
+    "P2M/Sol/S_ModularCurve_toricPoint_snd_coeff_mul_eq_sum_divisors.lean",
+    "P2M/Sol/S_ModularCurve_toricPoint_snd_coeff_of_not_dvd.lean",
+    "P2M/Sol/S_ModularCurve_toricPoint_snd_coeff_zero.lean",
+    "P2M/Sol/S_ModularCurve_tsum_of_coeff_lt_eq_zero.lean",
 ]
 
 
@@ -4399,6 +4436,10 @@ PORT_FILES = [
     # Two new leaf modules; no existing module was edited, so no hub wave is owed.
     "FLTForHuman/ModularCurve/Defs/TateFormal.lean",
     "FLTForHuman/ModularCurve/Defs/TateSlots.lean",
+    # --- WORKORDER-F1: the weight-4 Tate-slot tier-1 façade. The engine modules
+    # (`TateSlots/Convergence.lean`, `TateSlots/SlotCoeff.lean`) stay tier 3 and
+    # are recorded in spec/UNWIRED-PUBLIC.md; only the façade is diffed.
+    "FLTForHuman/ModularCurve/TateSlots/Headlines.lean",
 ]
 
 

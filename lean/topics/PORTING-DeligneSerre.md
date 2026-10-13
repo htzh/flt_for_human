@@ -9,15 +9,12 @@ manager's own work, §5 the build economy, §6 verification, §7 what remains, �
 residuals. Every measurement is the pin's, read through `tools/deps`. The section numbers are
 stable: work orders across the column cite §3 for the workflow and §7 for the gates.
 
-The checker reads **7641 identical (313 promoted, 83 renamed), 0 mismatched, 0 missing, 38
-own-proof declarations exempted (7679 checked)**, and the milestone whole-tree build is green
-(9,396 jobs). The last landing (WORKORDER-E, §7) took the count from a measured 7630 / 38 own to
-7632 / 38; the Γ₁/Nebentypus pair (WORKORDER-S8, the lifting column's) took it on to 7641 / 38.
-
-*(Re-read 2026-10-13: the tree now stands at **9304 identical (648 promoted, 83 renamed), 0
-mismatched, 0 missing, 38 own (9342 checked)**; the figures above are the column's own landing
-history, not the current tree. The `TateFormal`/`TateSlots` definition layer below took it from a
-measured 9241 to 9304 — the full +63 declaration surface, 0 mismatched / 0 missing.)*
+The checker reads **9318 identical (648 promoted, 83 renamed), 0 mismatched, 0 missing, 38
+own-proof declarations exempted (9356 checked)**. Of that, this column's two most recent landings
+are the `TateFormal`/`TateSlots` definition layer (§1), a measured 9241 → 9304, and the weight-4
+Tate-slot engine and headline façade (WORKORDER-F1, §1), 9304 → 9318 — each delta exactly its new
+public surface, 0 mismatched / 0 missing. The remaining growth since the note's earlier figures is
+other columns' landings; the column's own history lives in `../logs/` and the work orders.
 
 Companions:
 
@@ -35,22 +32,31 @@ Companions:
 - Adjacent columns: [PORTING-Hecke.md](PORTING-Hecke.md), [PORTING-Level.md](PORTING-Level.md).
 - The `WeierstrassCurve` ready shelf, its scoping and its set orders:
   [deligneSerre/TOPIC-weierstrass-ready-shelf.md](deligneSerre/TOPIC-weierstrass-ready-shelf.md).
-- The Γ₁/Nebentypus successor pair — the two `CuspForm` rows on the ready shelf, which are the
-  lifting column's, not this column's: [deligneSerre/WORKORDER-S8-nebentypus.md](deligneSerre/WORKORDER-S8-nebentypus.md).
-- The `ModularCurve` ready shelf's first cut — the level-`N` function field and the modular
-  polynomial, plus the sets that have since landed:
+- The Γ₁/Nebentypus successor pair — the two `CuspForm` rows the shelf once showed, which are the
+  lifting column's, not this column's:
+  [deligneSerre/WORKORDER-S8-nebentypus.md](deligneSerre/WORKORDER-S8-nebentypus.md).
+- The `ModularCurve` ready shelf's first cuts — the level-`N` function field and the modular
+  polynomial:
   [modularCurve/TOPIC-levelN-and-modular-polynomial.md](modularCurve/TOPIC-levelN-and-modular-polynomial.md),
+  [modularCurve/WORKORDER-A-levelN-field.md](modularCurve/WORKORDER-A-levelN-field.md),
+  [modularCurve/WORKORDER-B1-phi-rows.md](modularCurve/WORKORDER-B1-phi-rows.md),
+  [modularCurve/WORKORDER-B2-fibre-two.md](modularCurve/WORKORDER-B2-fibre-two.md),
   [modularCurve/WORKORDER-C2-x1-function-field.md](modularCurve/WORKORDER-C2-x1-function-field.md),
   [modularCurve/WORKORDER-D1-petersson.md](modularCurve/WORKORDER-D1-petersson.md),
   [modularCurve/WORKORDER-D2-period-map.md](modularCurve/WORKORDER-D2-period-map.md),
   [modularCurve/WORKORDER-E-levelN-qexp-bridge.md](modularCurve/WORKORDER-E-levelN-qexp-bridge.md).
+- The weight-4 Tate-slot group the frontier's `--include-leaves` view once showed as fourteen
+  `ModularCurve` leaves at ~1650 lines: its mathematics, dedup and port structure are
+  [modularCurve/TOPIC-tate-slots-weight-four.md](modularCurve/TOPIC-tate-slots-weight-four.md), and
+  the shared-engine order is
+  [modularCurve/WORKORDER-F1-tate-slots-engine.md](modularCurve/WORKORDER-F1-tate-slots-engine.md).
 
 ## 1. What the port contains
 
 The port holds the column's unconditional half, the `ModularCurve` q-expansion, function-field and
-Frobenius layers, the analytic and period layer, and the definition and hub ground the rest builds
-on. This is the state; the dated records are in `../logs/` and, for the `ModularCurve` sets, in the
-work order that produced them.
+Frobenius layers, the analytic and period layer, the Tate-slots definition and weight-4 layers, and
+the definition and hub ground the rest builds on. The dated records are in `../logs/` and, for the
+`ModularCurve` sets, in the work order that produced them.
 
 **The unconditional slice.** Everything that does not depend on the two automorphic gates — the
 weight-one mod-`ℓ` lifting half and the assembly half. It takes the residual family as a
@@ -93,27 +99,29 @@ and the pin's `Def_ModularCurve_QExpansionDiff.lean` node is whole across
 [modularCurve/WORKORDER-D1-petersson.md](modularCurve/WORKORDER-D1-petersson.md),
 [modularCurve/WORKORDER-D2-period-map.md](modularCurve/WORKORDER-D2-period-map.md).
 
-**The level-`N` function field and the `Φ_N` rows.** The ready shelf's own first cut, both subjects
-landed. Subject **A**: `ModularCurve/LevelN/FunctionField.lean` is the pin's 53-line definition
-module whole (`wp`, `fricke`, `jAnalytic`, `generators`, `ring`, `jGen` and the membership lemmas),
-and `LevelN/{Prelude,FieldGalois,Places}.lean` hold the eight rows — `isDomain_ring`,
-`slash_eq_self_of_mem_Gamma_of_mul_eq`, `exists_monoidHom_algEquiv_fixedField_eq_adjoin`,
-`exists_algHom_laurentSeries_qExpansion`, `exists_place_ord_neg_forall_smul_eq`,
-`exists_place_ord_sub_pos_forall_smul_eq`, `exists_place_analyticOrderAt_eq_mul_ord`,
-`valuation_apply_smul_le_one_of_tendsto_div_smul`. Subject **B**: the six `Φ_N` rows in
+**The level-`N` function field and the `Φ_N` rows.** `ModularCurve/LevelN/FunctionField.lean` is
+the pin's 53-line definition module whole (`wp`, `fricke`, `jAnalytic`, `generators`, `ring`,
+`jGen` and the membership lemmas), and `LevelN/{Prelude,FieldGalois,Places}.lean` hold the eight
+rows — `isDomain_ring`, `slash_eq_self_of_mem_Gamma_of_mul_eq`,
+`exists_monoidHom_algEquiv_fixedField_eq_adjoin`, `exists_algHom_laurentSeries_qExpansion`,
+`exists_place_ord_neg_forall_smul_eq`, `exists_place_ord_sub_pos_forall_smul_eq`,
+`exists_place_analyticOrderAt_eq_mul_ord`, `valuation_apply_smul_le_one_of_tendsto_div_smul`. The
+six `Φ_N` rows sit in
 `ModularCurve/ModularPolynomial{LeadingCoeff,UniquenessIrreducible,StarBank,FibreTwo}.lean`, on the
 wave's `Defs/{ClassicalModularPolynomials,FibrePoly}.lean` (`phiTwo`/`phiThree`/`intFibre`, the
-public `fibrePoly`, the `ReduceModBivar` block). Records:
+public `fibrePoly`, the `ReduceModBivar` block), and the level-`N` `q`-expansion bridge is the
+deduped twin development in `ModularCurve/LevelN/QExpBridge.lean`. Records:
 [modularCurve/WORKORDER-A-levelN-field.md](modularCurve/WORKORDER-A-levelN-field.md),
 [modularCurve/WORKORDER-B1-phi-rows.md](modularCurve/WORKORDER-B1-phi-rows.md),
-[modularCurve/WORKORDER-B2-fibre-two.md](modularCurve/WORKORDER-B2-fibre-two.md).
+[modularCurve/WORKORDER-B2-fibre-two.md](modularCurve/WORKORDER-B2-fibre-two.md),
+[modularCurve/WORKORDER-E-levelN-qexp-bridge.md](modularCurve/WORKORDER-E-levelN-qexp-bridge.md).
 
 **The `WeierstrassCurve` layer.** The whole good-reduction definition chain —
 `WeierstrassCurve/Reduction/{Point,TorsionIntegral,ReduceHom,ZeroComponent}.lean`, the pin's four
 `Def_*` modules ported whole — and the eight ready-shelf nodes it gated: the exceptional
 automorphisms in characteristics 2 and 3, full level structure and the division field, reduction
 surjectivity on the prime-to-`p` torsion, the inertia-equivariant reduction, and the
-Vélu-quotient `j`-map. The shelf is empty; its scoping and set orders are
+Vélu-quotient `j`-map. Its scoping and set orders are
 [deligneSerre/TOPIC-weierstrass-ready-shelf.md](deligneSerre/TOPIC-weierstrass-ready-shelf.md).
 
 **The `TateFormal`/`TateSlots` definition layer.** The two pin `Definitions/` modules the
@@ -129,13 +137,27 @@ pin module has a `Theorems/` wrapper, so both verify by name against their `Defi
 neither has a `private` declaration, so no promotion is owed. Both are appended last to
 `SOURCES` / `PORT_FILES`.
 
+**The weight-4 Tate-slot engine and headline façade.** The fourteen `S_ModularCurve_*` leaves the
+frontier's `--include-leaves` view showed at ~1650 lines are one 1,671-net-line development written
+fourteen times (23,094 raw lines, 112 shared names, ≈20,810 removable); it is ported once as the
+tier-3 engine `ModularCurve/TateSlots/{Convergence,SlotCoeff}.lean` (537 + 1,293 lines, 38 + 81
+public declarations, declaration parity exact, no build-time blow-up) and the fourteen public
+headlines in the tier-1 façade `ModularCurve/TateSlots/Headlines.lean`. The engine's fourteeen
+kernels are public as `ModularCurve.TateSlots.<name>` with the pin `Theorems/` wrapper binders;
+the façade states the wrappers verbatim. The engine stays tier 3 and is recorded in
+[spec/UNWIRED-PUBLIC.md](../spec/UNWIRED-PUBLIC.md); the façade is the checker wire (delta +14).
+No existing module was edited. Mathematics, measurement and structure:
+[modularCurve/TOPIC-tate-slots-weight-four.md](modularCurve/TOPIC-tate-slots-weight-four.md); the
+order and its results:
+[modularCurve/WORKORDER-F1-tate-slots-engine.md](modularCurve/WORKORDER-F1-tate-slots-engine.md).
+
 **The shared ground that edits existing modules.** The `ValuationSubring` residue block in
 `NumberTheory/ValuationAtPlace.lean`; the `Gamma0Integral` promotion and its duplicate-block
 collapse; the resolution of the `normFormulaAlong_of_elliptic` co-import collision (one public
 copy; the character-free copy is named `normFormulaAlong_of_elliptic_cf`); the C1 append into
-`ModularCurve/Frobenius/QExpModL.lean` above — the one landing that edits a module rather than
-adds one; and the wave that homed the shelf's definition layer, which also deduped `fibrePoly` out
-of `Degree/PhiData.lean` into `Defs/FibrePoly.lean` at its public pin name (§1). Registered in
+`ModularCurve/Frobenius/QExpModL.lean` — the one landing that edits a module rather than adds
+one; and the wave that homed the shelf's definition layer, which also deduped `fibrePoly` out of
+`Degree/PhiData.lean` into `Defs/FibrePoly.lean` at its public pin name. Registered in
 [CARRY-FORWARD.md](../CARRY-FORWARD.md).
 
 ## 2. The frontier
@@ -149,51 +171,67 @@ python3 frontier.py --target DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_h
 | quantity | value |
 |---|---:|
 | target closure | 2,308 nodes / 1,089,430 raw `S_` lines |
-| frontier `F` | 855 nodes / 437,951 |
-| `needed` (unported demand, `F` terminal) | 1,672 nodes / 739,953 |
-| **ready to port** (all premises available) | **52 nodes** |
+| frontier `F` (union) | 901 nodes / 517,169 |
+| `F` inside the cone | 660 nodes / 412,941 |
+| `needed` (unported demand, `F` terminal) | 1,635 nodes / 673,014 |
+| `needed` (literal closure-minus-ported) | 1,648 nodes / 676,489 |
+| **ready to port** (all premises available) | **67 nodes** |
 
-The ready shelf by top-level namespace: `AlgebraicCurve` 23, `ModularCurve` 10, `CuspForm` 8,
-`ModularForm` 3, `PeriodPair` 2, `CuspFormClass` 2, `CohCarrier` 2, `AutomorphicForm` 2.
-`WeierstrassCurve` no longer appears on it — all eight shelf nodes are ported (§1). The first
-eight rows by silo demand:
+The ready shelf by top-level namespace: `AlgebraicCurve` 24, `ModularCurve` 13, `CuspForm` 8,
+`NumberField` 5, `AutomorphicForm` 4, `ModularForm` 3, `PeriodPair` 2, `LanglandsTunnell` 2,
+`CohCarrier` 2, `EisensteinGeneral` 2, `CuspFormClass` 2. `WeierstrassCurve` no longer appears —
+all eight shelf nodes are ported. The `ModularCurve` part is **13 nodes**, the column's own shelf:
 
 | node | silo lines |
 |---|---:|
-| `AlgebraicCurve.linearIndependent_of_constantFieldExtension_of_isAlgClosed` | 583 |
-| `PeriodPair.weierstrassP_torsion_modularForm_slash_tendsto_atImInfty` | 558 |
-| `AutomorphicForm.exists_isFactorizableTestFn_rightConv_ne_zero_of_levelOne_invariant` | 508 |
+| `ModularCurve.tateCurve_pointX_C_mul_X_pow_eq_nonToricPoint_fst` | 1,343 |
+| `ModularCurve.tateCurve_pointY_C_mul_X_pow_eq_nonToricPoint_snd` | 1,343 |
 | `ModularCurve.phiIrreducible_all` | 434 |
 | `ModularCurve.exists_exp_eq_of_invariant_ne_zero_isParabolicHom` | 410 |
 | `ModularCurve.SerreImage.contains_SL2` | 390 |
-| `CuspForm.gamma1_eq_zero_of_prime_not_dvd_of_qCoeff_eq_zero` | 351 |
-| `CuspForm.exists_gamma1_div_coe_eq_heckeU_of_dvd_div` | 348 |
+| `ModularCurve.qTwist_nonToricPoint_of_pow_eq_one` | 185 |
+| `ModularCurve.LevelN.exists_algHom_laurentBaseChange_apply_eq_qExpand` | 165 |
+| `ModularCurve.j_tateLaurent` | 144 |
+| `ModularCurve.exists_modularForm_mul_qExpansion_eq_coeffEmb_qExpand_jq` | 102 |
+| `ModularCurve.ModularPolynomialData.natDegree_coeff_le` | 62 |
+| `ModularCurve.exists_sum_smul_eq_of_isIntegralQExp_gamma1` (mispriced, §7) | 36 |
+| `ModularCurve.hasCanonicalDivisor_x1FunctionFieldBar` | 22 |
+| `ModularCurve.ModularPolynomialData.isUnit_leadingCoeff_diag` | 14 |
 
-The `ModularCurve` part is now 11 nodes / 3,551 silo lines — the column's own shelf, and the last
-re-read is the step-6 effect working: the landings of §1 took the shelf's 14 subject-A and
-subject-B rows off it and put **5 successors** on (the two `levelN` function-field rows above at
-982/955, `phiIrreducible_all` 434 and `ModularPolynomialData.natDegree_coeff_le` 62, and
-`ModularPolynomialData.isUnit_leadingCoeff_diag` 14 — the last a different node from the landed
-"of_not_isSquare"). The other six `ModularCurve` rows predate this round
-(`exists_exp_eq_of_invariant_ne_zero_isParabolicHom`, `SerreImage.contains_SL2`, `j_tateLaurent`,
-`exists_modularForm_mul_qExpansion_eq_coeffEmb_qExpand_jq`, `hasCanonicalDivisor_x1FunctionFieldBar`,
-and the mispriced row below). The `CuspForm`, `AlgebraicCurve`, `PeriodPair`, `ModularForm` and
-`CohCarrier` rows are reached by the target closure but are not `ModularCurve` rows, and are not
-this column's to cut.
+**The step-6 effect of the last landing.** WORKORDER-F1's engine and façade took the fourteen
+~1650-line leaves off the demand and put **three successors** on the shelf, all reading the
+slot-substitution engine it homed: the two `tateCurve_…_nonToricPoint_…` rows at 1,343 silo lines
+each and `qTwist_nonToricPoint_of_pow_eq_one` (185). The first two are the largest `ModularCurve`
+rows and the natural next cut; `phiIrreducible_all` (434) remains the standing candidate behind
+them. The other ten rows predate the Tate-slot round. The `CuspForm`, `AlgebraicCurve`,
+`PeriodPair`, `ModularForm`, `NumberField` and `CohCarrier` rows are reached by the target closure
+but are not `ModularCurve` rows, and are not this column's to cut.
 
-*(Re-read 2026-10-11 after WORKORDER-E: the two `levelN` rows land and their successor
-`LevelN.exists_algHom_laurentBaseChange_apply_eq_qExpand` (165) takes their place, so the
-`ModularCurve` part is now **10 nodes / 1,779 silo lines** and the shelf is 54. The rows above are
-the pre-landing top eight.)*
+**The two `tateCurve_…_nonToricPoint_…` rows are exact twins, and must be cut as one.**
+`S_ModularCurve_tateCurve_pointX_C_mul_X_pow_eq_nonToricPoint_fst.lean` and its `_pointY_…_snd`
+sibling are both 1,343 lines and differ by **8 diff lines**; normalized at the namespace stem, the
+only difference is the final `solution` — `… = (nonToricPoint F p c j).1 := BridgeX.pointX_slot …`
+against `… = (nonToricPoint F p c j).2 := BridgeX.pointY_slot …`. The 69 other declarations
+(1,311 lines) are byte-identical at the same line numbers. `port_plan` reads 2,686 raw → **1,325
+net new** / 72 groups, 0 substitutions. The order is the WORKORDER-E shape: write the shared
+development once (`private`) and derive both public headlines from the two `BridgeX` conjuncts;
+the checker delta is exactly +2.
 
-Not everything the frontier reports here is schedulable from it. The two gates of §7 remain in the
-unported demand but are not ready; they are not on this list and must not be scheduled from it.
-And one row that *is* on the list is mispriced:
-`ModularCurve.exists_sum_smul_eq_of_isIntegralQExp_gamma1` is listed at 36 silo lines, but its
-premise `ModularForm.exists_basis_gamma1_qCoeff_mem_range_ratCast` is unported and the `CuspForm`
-twin cannot substitute — so it is a whole node, deferred to its own order (§7, §9). The same query
-with `--frontier sources` (the conservative reading, no name scan) prices it at 10 needed nodes /
-5,172 raw `S_` lines and is the number to plan from.
+**The readings differ, and the conservative one is the one to plan from.** The table above is the
+default `union` name scan. `--frontier sources` (no name scan) gives `F` 756 nodes / 444,955, a
+`needed` of 1,704 nodes / 708,235, and 61 ready candidates. The gap is the last-name blindness of
+§9: a pin node whose last name matches a ported declaration of another namespace is priced as
+ported. `port_advise` and `port_plan` never walk imports either, so an unported premise outside
+the target files is invisible to them; both frontier readings stay in the loop.
+
+**One ready row is mispriced.** `ModularCurve.exists_sum_smul_eq_of_isIntegralQExp_gamma1` is
+listed at 36 silo lines, but its premise
+`ModularForm.exists_basis_gamma1_qCoeff_mem_range_ratCast` is unported and the `CuspForm` twin
+cannot substitute — so it is a whole node, deferred to its own order (§7, §9). Under
+`--frontier sources` the same query prices it at 10 needed nodes / 5,172 raw `S_` lines.
+
+**Not schedulable from this list.** The two gates of §7 remain in the unported demand but are not
+ready; they must not be scheduled off a ready shelf.
 
 ## 3. The workflow
 
@@ -205,7 +243,9 @@ themselves — every premise is already ported, so only the node's own proof is 
 `--rank-by silo` orders them by the raw `S_` lines of their **whole demand**, i.e. by how much
 mathematics stands behind them, not by the size of their own file. This is demand, and it is the
 only list to plan from. The `hops`/`used_by` columns choose *within* a cluster; they do not choose
-the cluster.
+the cluster. `--include-leaves` additionally surfaces the demand's graph leaves (no premises, so
+they never reach `F`); that view prices a leaf at its whole file, so a cluster of near-identical
+leaves — the Tate-slot fourteen were one — must be deduped by `port_advise` before it is believed.
 
 **2. Cut a cluster by mathematics.** 3–6 ready nodes that tell one story in one layer — the
 level-`N` place/valuation cluster, the `AlgebraicCurve` curve-and-divisor cluster, the `CuspForm`
@@ -287,7 +327,7 @@ exclusion, and it needs a `grep -c` (excluding the pin's global `attribute [-sim
 `p2m_export` rows) to justify. The partial-port failure this guards against is on the record:
 `Def_ModularCurve_QExpansionDiff.lean` had its `thetaL` half ported against a set's needs while its
 `QExpansionDiff` and `TraceDiff` halves, with no consumer in that set but pin consumers elsewhere,
-were not — and `port_advise`'s per-target view did not show it (§1).
+were not — and `port_advise`'s per-target view did not show it.
 
 **(b) `private` is a build tool, not a statement about mathematics.** A helper stays `private`
 when it only adapts another theory, or is generic glue a consumer can re-derive in a few lines; it
@@ -302,12 +342,17 @@ question; it reports and stops.
 
 ## 5. The build economy
 
-* edit loop `timeout 300 lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false <file>`
-  (writes no `.olean`, builds no dependent);
+* edit loop `timeout 120 lake env lean -DautoImplicit=false -DmaxHeartbeats=200000 <file>` — the
+  cap is **low on purpose**: a declaration that exceeds it has an instance-inference defect, and
+  the low cap is what finds it. Diagnose it (`set_option diagnostics true` /
+  `trace.Meta.synthInstance true` on that one declaration, in a scratch copy), fix the inference,
+  re-run. Never raise `maxHeartbeats`, never add a module `set_option maxHeartbeats`. The edit loop
+  writes no `.olean` and builds no dependent;
 * `flock .lake/flt_build.lock timeout 300 lake build <module>` when a file is done (writes the
   `.olean`, builds dependencies, never dependents);
-* **no bare whole-tree `lake build`** while a set is in flight; one at a milestone;
-* every `lake build` serialized and bounded; never raise the heartbeat cap.
+* **no bare whole-tree `lake build`** while a set is in flight; one at a milestone, with
+  permission;
+* every `lake build` serialized and bounded.
 
 The wave that a hub edit forces can exceed the 300 s bound on a real compute
 (`ModularPolynomialE4Cube` alone is ~280 s). That is not a blow-up: the tell is CPU time — high
@@ -319,15 +364,17 @@ a bigger heartbeat cap.
 
 ```bash
 cd lean
-timeout 300 python3 spec/check_flt_statements.py        # 7592 identical / 0 / 0 / 36 own
+timeout 300 python3 spec/check_flt_statements.py        # 9318 identical / 0 / 0 / 38 own
 flock .lake/flt_build.lock timeout 900 lake build       # the milestone build
 timeout 180 lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false spec/DeligneSerreConsumer.lean
+python3 tools/deps/unwired_register.py --check          # tier-3 surface current
 ```
 
 plus a `#print axioms` probe over the set's headlines, a `grep` sweep for
 `sorry`/`admit`/`axiom`/`native_decide`/`import Mathlib`/heartbeat overrides, and the one-token
 mutation test on a headline. The checker's `identical` delta must equal the new public surface
-exactly; anything else is a bug. Each work order records its own numbers.
+exactly; anything else is a bug. Each work order records its own numbers, measured on the tree it
+leaves, not copied from this note.
 
 The checker's exemption list is keyed by **dotted name, never bare last name**: a bare
 `"correspondence"` silently exempted two live declarations alongside its namesake, and dotting it
@@ -358,21 +405,19 @@ most of those nodes are self-contained against mathlib and show cost 1 in `front
 **converse cone** (`exists_weightOne_cuspForm_tameConductor_of_qCoeff_eq_trace`) is a separate
 subject and a separate effort.
 
-Both remainders attach to the fixed interface the slice leaves, so they can be ported without
-reworking what is there.
+**The ready shelf** of §2 is 67 nodes, of which 13 are `ModularCurve` and the column's own. The
+step-6 re-read after WORKORDER-F1 put the two `tateCurve_…_nonToricPoint_…` rows (1,343 each) and
+`qTwist_nonToricPoint_of_pow_eq_one` (185) on it; the first two are the natural next cut and are
+**exact twins** — one 1,325-net-line development with two headlines, the WORKORDER-E shape (§2) —
+with `phiIrreducible_all` (434) behind them once a definition-layer check says so. The level-`N`
+and `Φ_N` subjects and the level-`N` `q`-expansion bridge have landed, and their successor
+`ModularCurve.LevelN.exists_algHom_laurentBaseChange_apply_eq_qExpand` (165) is on the shelf.
 
-**The ready shelf** of §2 is now 52 nodes, of which 10 are `ModularCurve` and the column's own.
-Subjects A and B have landed, and so has the level-`N` `q`-expansion bridge (WORKORDER-E) — the two
-twin rows the A/B wave unblocked, written once. The step-6 re-read puts their successor
-`ModularCurve.LevelN.exists_algHom_laurentBaseChange_apply_eq_qExpand` (165 silo lines) on the shelf,
-with `ModularCurve.phiIrreducible_all` (434) the natural next cut once a definition-layer check
-says so.
-
-The **Γ₁/Nebentypus pair** the shelf then showed at its head — the two `CuspForm` rows — is the
+The **Γ₁/Nebentypus pair** the shelf once showed at its head — the two `CuspForm` rows — is the
 **lifting column's**, not this column's, and has landed there as
 [deligneSerre/WORKORDER-S8-nebentypus.md](deligneSerre/WORKORDER-S8-nebentypus.md)
 (`ModularForms/HeckeNebentypus{Existence,Fricke}.lean`, checker +2, deduped onto the promoted
-`CuspForm.HeckeEigenNebentypus` API). The re-read takes the shelf 54 → 52 (`CuspForm` 10 → 8).
+`CuspForm.HeckeEigenNebentypus` API).
 
 **Deferred to its own order** is the C2 row
 `ModularCurve.exists_sum_smul_eq_of_isIntegralQExp_gamma1`. Its one substantive step is the
@@ -385,23 +430,31 @@ cuspidal subspace does not span the Eisenstein part. The row is documented in
 
 ```bash
 cd tools/deps
-# the frontier (step 1)
+# the frontier (step 1), both readings
 python3 frontier.py --target DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen \
   --rank-by silo --ready --top 0
+python3 frontier.py --target DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen \
+  --frontier sources --ready --top 0
+
 # scope one cluster (step 3): advise → plan → price
 python3 port_advise.py --target <node> --target <node> --json build/cluster_advise.json
 python3 port_plan.py --json build/cluster_advise.json
 python3 build_ladder.py --edit FLTForHuman/<host>.lean
+
 # the gates
 python3 frontier.py --target DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen --top 0
 ```
 
-The checker wiring convention (append the `Theorems/` wrapper *and*, where it is not already
+The checker wiring convention (append the `Theorems/` wrapper and, where it is not already
 listed, the `S_` file to `SOURCES`; the module to `PORT_FILES`; both last) is in every work order
 and in the friction log.
 
 ## 9. Residuals
 
+* **Register.** The weight-4 engine (`TateSlots/{Convergence,SlotCoeff}.lean`) is tier 3: built and
+  importable, not in `PORT_FILES`, with its 119 public declarations carrying `-- pin:` provenance
+  in [spec/UNWIRED-PUBLIC.md](../spec/UNWIRED-PUBLIC.md) (78 modules / 1,906 public / 1,618 with a
+  pin original). Only the façade `TateSlots/Headlines.lean` is diffed.
 * `locKer`/`adjoinRoot'` are public in `DeligneSerre/Lifting.lean` with no consumer today (kept
   per the pin).
 * The private `det_eq` copies in `Gamma1Vanishing.lean`/`HeckeEigenNebentypus.lean` are
