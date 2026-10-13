@@ -324,26 +324,17 @@ list).
 **This cluster needs neither a promotion nor a hub edit.** The evidence, spelled
 out because the rule is what keeps the wave count at zero:
 
-**(a) No promotion arises — there is nothing to promote.**
-The pin `S_` file declares **zero `private` declarations** (all 21 are public), so
-there is no pin-private prelude to lift — the case that drove the WeightOne
-rectification does not occur here. `twin_scan` reports `twin_private` empty and
-`prelude 0/21`: no statement-identical copy exists anywhere in the port, `private`
-or public, so there is no port-`private` declaration to promote either. And
-`port_advise` §3 finds **0 port name clashes**, so there is no `generalise`
-reconciliation. The four declarations shared with the genus file (#12–#15) are
-public in *both* pin files: giving them one home is a **placement** decision
-(§5), not a visibility promotion, and it changes no statement.
-
-**As landed.** Because both nodes live in one module, the shared declarations have
-no cross-module consumer at all: the only thing a promotion is *for* — a second
-module importing the helper — does not arise, and equally nothing pin-public was
-turned `private` (the port mirrors the pin's surface). The twin's three adapters
-keep the pin's own names under `LinDisjSol`, which is what keeps them from
-colliding with #11/#19/#20 in the parent namespace, and their statements are the
-twin's, not re-spelled. The one promotion-shaped relationship in the cluster is the
-genus node importing #12–#15 when it lands; those four are public exactly as the pin
-has them, so nothing needs to change then either.
+**(a) Promotion is moot here — neither pin file declares a `private` declaration.**
+`grep -cE '^\s*private '` is 0 on both `S_` files (21 declarations each), so there is
+no pin-private prelude to lift and the WeightOne case this rule exists for does not
+occur. The two other ways a promotion could arise are empty as well: the port holds
+no `private` copy of any of these statements (`twin_scan`: `twin_private` empty,
+`prelude 0/21`), and `port_advise` finds 0 port name clashes, so no `generalise`
+reconciliation either. What remains is placement, not visibility: #12–#15 are public
+in *both* pin files, so they need one home rather than a promotion. As landed, the
+whole surface is public because the pin's is, and the twin's three adapters keep the
+pin's own names under `LinDisjSol` — which is also what keeps them from colliding
+with #11/#19/#20 in the parent namespace.
 
 **(b) The one name collision to be aware of, and its non-action.**
 `exists_common_denom` (#10) shares a last name with a port `private`
@@ -388,7 +379,9 @@ will *state* and reuse (playbook §4(b)). The converse also holds and is worth
 stating, because it looks like the same rule and is not: the pin's own public
 5-line adapters (#8, #9, #2, #3, #4) are **transcribed public**, because they are
 pin declarations and the port mirrors the pin's visibility. The `private` rule is
-for helpers the port invents, not for thin pin statements.
+for helpers the port invents, not for thin pin statements. None arose in the landed
+module: the only derivations there produce pin declarations (the twin's four), and
+the module declares no `private` at all.
 
 **(e) Do not create a second copy of the premise.** The pin's file carries
 `p2m_export "AlgebraicCurve" "exists_separating_transcendental_of_perfectField"`

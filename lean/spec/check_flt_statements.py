@@ -2891,6 +2891,13 @@ SOURCES = [
     "Theorems/Thm_AlgebraicCurve_linearIndependent_of_constantFieldExtension.lean",
     "P2M/Sol/S_AlgebraicCurve_linearIndependent_of_constantFieldExtension_of_isAlgClosed.lean",
     "P2M/Sol/S_AlgebraicCurve_linearIndependent_of_constantFieldExtension.lean",
+    # --- WORKORDER Z1 (`topics/numberTheory/WORKORDER-Z1-completed-dedekind-zeta.md`):
+    # the completed Dedekind zeta façade. The `Theorems/` wrapper carries the headline
+    # the façade spells, so it is that declaration's statement authority.
+    "Theorems/Thm_NumberField_exists_completedDedekindZeta_package.lean",
+    # The silo is listed so that later wiring of the development's other declarations
+    # needs no new source; today only the headline in the façade is checked.
+    "P2M/Sol/S_NumberField_exists_completedDedekindZeta_package.lean",
 ]
 
 
@@ -4302,6 +4309,12 @@ PORT_FILES = [
     "FLTForHuman/AutomorphicForm/Adelic/RightConvComm/Level.lean",
     "FLTForHuman/AutomorphicForm/Adelic/RightConvComm/Principal.lean",
     "FLTForHuman/AlgebraicCurve/IsCurveOver/ConstantFieldExtension.lean",
+    # --- WORKORDER Z1: the completed Dedekind zeta façade, the topic's only checked
+    # module. It declares exactly one declaration — the consumed headline
+    # `NumberField.exists_completedDedekindZeta_package`, stated from the pin wrapper
+    # and proved by `…/CompletedDedekindZeta/Bounds.lean`. The nine development modules
+    # of the topic stay unlisted (tier 3); `spec/UNWIRED-PUBLIC.md` lists what they hold.
+    "FLTForHuman/NumberTheory/NumberField/CompletedDedekindZeta.lean",
 ]
 
 

@@ -359,6 +359,29 @@ its budget and scaffolding may fall.
   suppression" should be read as "no *file-wide* suppression and no suppression of a real
   warning"; a work order that meets this case should record each narrowed use in its report.
 
+- **The completed Dedekind zeta package — `WORKORDER Z1`** (**landed 2026-10-12**). `NumberField.exists_completedDedekindZeta_package` is 7,555 pin lines /
+  388 public declarations, imports `Mathlib` plus the pin's tactic file only, and has
+  no `Definitions/` dependency. Exactly **one** declaration is consumed — the
+  headline, by ten pin files (two of them in the Deligne–Serre cone) — and its
+  same-file closure is 359/388 declarations / 93% of the lines, so the package is
+  all-or-nothing: there is nothing to trim. It is ported as a **natural-named theory**
+  in themed modules (no `gapsw80_tN_` / `kwDyf2_` prefixes anywhere in Lean), public
+  but deliberately **not** listed in `PORT_FILES` — tier 3, tracked by
+  `spec/UNWIRED-PUBLIC.md`, whose `pin original` column is filled from a
+  `-- pin: <name> (<file>:<line>)` comment above each declaration — with a thin
+  **listed façade** carrying the headline so the checker diffs the one statement a
+  consumer needs. The two sibling silos that re-declare the same obligation
+  vocabulary (`…hadamard_logDeriv…`, 5,932 lines, its own `S18.HADPkg` class;
+  `…archTermDerived…`, 7,676 lines, imports this package *and* re-declares it) share
+  81 names with it, but 27 of those are the same name with a **different
+  proposition**: separate developments, out of scope. Order:
+  [topics/numberTheory/WORKORDER-Z1-completed-dedekind-zeta.md](topics/numberTheory/WORKORDER-Z1-completed-dedekind-zeta.md).
+  **Outcome:** nine development modules (7,865 lines, 388/388 declarations) plus the
+  44-line façade; checker `9,231 identical / 0 mismatched / 0 missing` (+1, the façade's
+  declaration); `#print axioms` on the headline clean; the register lists the theory's
+  remaining public declarations. The ten consumers and the two sibling silos stay
+  unported by design.
+
 ## Scoping cautions
 
 Ways a frontier figure misleads, each with the case that taught it. These
