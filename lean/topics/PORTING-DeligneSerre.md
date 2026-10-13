@@ -32,6 +32,10 @@ Companions:
   [functionFieldGeneration/TOPIC-qexp-successors.md](functionFieldGeneration/TOPIC-qexp-successors.md),
   [functionFieldGeneration/TOPIC-qexp-successors-2.md](functionFieldGeneration/TOPIC-qexp-successors-2.md).
 - Adjacent columns: [PORTING-Hecke.md](PORTING-Hecke.md), [PORTING-Level.md](PORTING-Level.md).
+- The `NumberField` rows the target closure reaches but this column does not cut: the
+  `continuous_ideleNorm` hub's port plan and landing record (the frontier's most connected
+  `NumberField` leaf, 15 of the closure's nodes directly above it) is
+  [numberTheory/tateGlobal/TOPIC-continuous-ideleNorm.md](numberTheory/tateGlobal/TOPIC-continuous-ideleNorm.md).
 - The `WeierstrassCurve` ready shelf, its scoping and its set orders:
   [deligneSerre/TOPIC-weierstrass-ready-shelf.md](deligneSerre/TOPIC-weierstrass-ready-shelf.md).
 - The Γ₁/Nebentypus successor pair — the two `CuspForm` rows the shelf once showed, which are the

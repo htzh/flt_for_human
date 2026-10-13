@@ -3015,6 +3015,18 @@ SOURCES = [
     "P2M/Sol/S_ModularCurve_tateCurve_pointY_C_eq_tateToricPoint_snd.lean",
     "P2M/Sol/S_ModularCurve_tateCurve_pointX_C_mul_X_pow_eq_nonToricPoint_fst.lean",
     "P2M/Sol/S_ModularCurve_tateCurve_pointY_C_mul_X_pow_eq_nonToricPoint_snd.lean",
+    # --- the `continuous_ideleNorm` façade
+    # (`topics/numberTheory/tateGlobal/TOPIC-continuous-ideleNorm.md`): the shared
+    # `FujisakiC3` block is tier 3 (`…/TateGlobal/FujisakiC3.lean`) and only the thin
+    # façade (`…/NumberField/TateGlobalContinuousIdeleNorm.lean`) is listed. Each
+    # `Theorems/Thm_NumberField_TateGlobal_continuous_ideleNorm*.lean` wrapper is the
+    # statement authority (listed first); its `S_` file follows so the engine's public
+    # block resolves through the pin-private dotted fallback. Appended last so no
+    # earlier last-name match can flip.
+    "Theorems/Thm_NumberField_TateGlobal_continuous_ideleNorm.lean",
+    "Theorems/Thm_NumberField_TateGlobal_continuous_ideleNorm_det.lean",
+    "P2M/Sol/S_NumberField_TateGlobal_continuous_ideleNorm.lean",
+    "P2M/Sol/S_NumberField_TateGlobal_continuous_ideleNorm_det.lean",
 ]
 
 
@@ -4487,6 +4499,15 @@ PORT_FILES = [
     # recorded in spec/UNWIRED-PUBLIC.md; only the façade (`TateCurve/QPow.lean`) is
     # diffed.
     "FLTForHuman/ModularCurve/TateCurve/QPow.lean",
+    # --- the `continuous_ideleNorm` thin tier-1 façade. It declares exactly the two
+    # consumed headlines `NumberField.TateGlobal.continuous_ideleNorm` and
+    # `NumberField.TateGlobal.continuous_ideleNorm_det`, each stated from its pin wrapper
+    # (`Theorems/Thm_NumberField_TateGlobal_continuous_ideleNorm*.lean`) and proved by
+    # the shared `FujisakiC3` engine. The engine
+    # (`FLTForHuman/NumberTheory/NumberField/TateGlobal/FujisakiC3.lean`) stays tier 3 and
+    # is recorded in spec/UNWIRED-PUBLIC.md. Appended last so no earlier last-name match
+    # can flip.
+    "FLTForHuman/NumberTheory/NumberField/TateGlobalContinuousIdeleNorm.lean",
 ]
 
 
