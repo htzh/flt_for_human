@@ -20,7 +20,9 @@ and [porting-playbook.md](../../../porting-playbook.md) §2–§5.
 
 **Companions.** [TOPIC-tateglobal-analytic-core.md](TOPIC-tateglobal-analytic-core.md)
 — the T1 home this node imports — and its order
-[WORKORDER-T1-tateglobal-core.md](WORKORDER-T1-tateglobal-core.md). The node is in the
+[WORKORDER-T1-tateglobal-core.md](WORKORDER-T1-tateglobal-core.md). The mathematics of the
+two headlines is [math/027](../../../../math/027-the-continuity-of-the-idele-norm.md). The node
+is in the
 Deligne–Serre target's closure (15 direct / 162 transitive dependents inside it), so
 [PORTING-DeligneSerre.md](../../PORTING-DeligneSerre.md) §2 lists it under the
 `NumberField` rows that are "reached by the target closure but are not `ModularCurve`
