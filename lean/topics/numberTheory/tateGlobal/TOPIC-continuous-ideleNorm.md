@@ -168,6 +168,19 @@ S_NumberField_TateGlobal_zetaIntegral_meromorphic_continuation_fe
 S_NumberField_TateGlobal_zetaIntegral_meromorphic_continuation_fe_analyticAt_one_of_ne_one
 ```
 
+**Only three of the nine are in the Deligne–Serre target's closure** — the target itself,
+`exists_meromorphicOn_eq_partialEulerProduct` (1 direct dependent in the cone) and
+`zetaIntegral_meromorphic_continuation_fe` (1). The other six are `NumberField.TateGlobal`
+nodes outside that cone (each with 1–26 whole-project dependents). The engine is therefore
+justified family-wide, not by this column: only **two of the eight siblings** are
+Deligne–Serre work.
+
+`NumberField.TateGlobal.continuous_ideleNorm_det` is **not** one of the nine: its 15-line
+silo (`S_NumberField_TateGlobal_continuous_ideleNorm_det.lean`) carries no `normQ` block,
+it only composes the headline with `continuous_det`. It is a separate derived corollary,
+and inside the Deligne–Serre cone it is the *more* connected of the two — 33 direct
+dependents against the target's 15.
+
 `port_advise` over all nine (`--targets`, with the `Theorems/` wrappers):
 
 ```bash
@@ -396,12 +409,12 @@ the façade to `PORT_FILES`; both last) is in every work order and in the fricti
 
 * The 11 port-`private` `ValuationOrd` helpers in `TateGlobal/Ideles.lean` stay private
   (§2). If a later family order needs one directly, it is a priced hub edit then.
-* `continuous_ideleNorm_det` is planned as an optional +1 (§4). It is in the
-  Deligne–Serre closure and its own `Theorems/` wrapper exists, so its absence is a
-  deliberate scope choice, not an oversight.
-* The eight siblings' engines: this plan homes the shared `normQ` block; the siblings'
-  *other* blocks (4,314 / 2,885 / 513 once-lines) are untouched and unmeasured beyond
-  §3.
+* `continuous_ideleNorm_det` was scoped as an optional +1 (§4) and **landed** with the
+  headline (§10). It is not one of the nine `normQ` files (§3); it is a separate derived
+  corollary whose `Theorems/` wrapper is its statement authority.
+* The eight `normQ` siblings' engines: this plan homes the shared block; only two of the
+  eight are in the Deligne–Serre cone (§3), and the siblings' *other* blocks
+  (4,314 / 2,885 / 513 once-lines) are untouched and unmeasured beyond §3.
 * `port_advise`'s four suspect substitutions (`SUnits`, `archBox`, `box`, `DeepUnits`)
   are the known `Type`-shaped parser artifact; none is needed for the 65 lines.
 
@@ -433,3 +446,67 @@ the façade to `PORT_FILES`; both last) is in every work order and in the fricti
 Both are proof/import adaptations; the two checked statements are the pin wrappers'
 verbatim. The 8 `normQ` siblings remain unported: they should import
 `NumberField.TateGlobal.FujisakiC3`, not copy it.
+
+## 11. The sibling set, priced after the landing
+
+With the target in the port, `port_advise`/`port_plan` re-priced the eight siblings. Let
+
+* **A** = the two Deligne–Serre-cone siblings,
+  `exists_meromorphicOn_eq_partialEulerProduct` and
+  `zetaIntegral_meromorphic_continuation_fe`;
+* **B** = the other six (§3).
+
+Each row is the net-new math lines of that target set over the current tree; the bracket
+is the marginal cost of adding that file to **A**.
+
+| target set | net new |
+|---|---:|
+| **A** (2 files, 14,047 raw `S_` lines) | **7,544** |
+| A + `exists_eq_normPowChar_of_forall_mem_normOneIdeles` | 7,575 (+**31**) |
+| A + `exists_differentiable_eq_partialEulerProduct_of_exists_mem_normOneIdeles_ne_one` | 7,988 (+444) |
+| A + `exists_meromorphicOn_analyticAt_one_eq_partialEulerProduct_of_ne_one` | 7,988 (+444) |
+| A + `zetaIntegral_entire_continuation_fe_of_exists_mem_normOneIdeles_ne_one` | 8,128 (+584) |
+| A + `zetaIntegral_entire_continuation_fe_norm_le_of_re_mem_Icc_…` | 8,167 (+623) |
+| A + `zetaIntegral_meromorphic_continuation_fe_analyticAt_one_of_ne_one` | 8,244 (+700) |
+| **A ∪ B** (8 siblings) | **10,370** |
+
+**The two groups share every shared block.** The four multi-file blocks over the eight
+siblings, and their membership:
+
+| block | files | once | in port | decls |
+|---|---|---:|---:|---:|
+| the 8-sibling core (`continuous_archUnitHom`, `continuousOn_coord`, …) | all 8 | 3,264 | 2,765 | 206 |
+| the `D2`/unitary-character block (`skeleton_D2_body`, `unitary_char_eq_exp`, …) | O₂, O₄, O₅, **IN₂**, O₆ | 4,314 | 371 | 215 |
+| the local-zeta/indicator block (`exists_localZeta_indicator_const`, `circleHom_eq_exp`, …) | O₁, O₃, **IN₁** | 2,885 | 388 | 144 |
+| the Mellin pair (`mellin_gaussian`, `integral_comp_abs_cx`) | O₁, **IN₁** | 74 | 0 | 3 |
+
+Every block contains a D-S sibling (`IN₁` or `IN₂`), so **no block is shared only among
+B**. The independent confirmation: the six B marginals sum to 444 + 31 + 444 + 623 + 584 +
+700 = **2,826**, which equals `A ∪ B` − `A` = 10,370 − 7,544 exactly. Porting **A**
+therefore homes all the shared ground, and each B file costs exactly its own unique body.
+
+**Reading.** The two D-S nodes are the expensive part — **7,544 net-new**, two 6.4k/7.7k
+raw-line files, because A is a member of every shared block and so its port writes them.
+The six non-cone siblings add **2,826 lines total (27% over A)**, of which only one is
+free:
+
+* `exists_eq_normPowChar_of_forall_mem_normOneIdeles` — **+31 lines**: an automatic
+  rider on A;
+* the other five are 444–700 lines each: real caps, not glue.
+
+Ordering does not change the total (the blocks are written once either way), so the
+decision is scope, not cost: port A as the Deligne–Serre work, take the +31 rider, and
+defer the five medium caps to the family column unless this wave wants them — they cost
+the same later, because A leaves their shared home in place.
+
+Reproduce:
+
+```bash
+cd tools/deps
+# A alone
+printf '%s\n' P2M/Sol/S_NumberField_TateGlobal_exists_meromorphicOn_eq_partialEulerProduct.lean \
+  P2M/Sol/S_NumberField_TateGlobal_zetaIntegral_meromorphic_continuation_fe.lean > build/A.txt
+python3 port_advise.py --targets build/A.txt --no-drags --json build/A.json
+python3 port_plan.py --json build/A.json
+# A plus one sibling, then A plus all eight, as in the table
+```
