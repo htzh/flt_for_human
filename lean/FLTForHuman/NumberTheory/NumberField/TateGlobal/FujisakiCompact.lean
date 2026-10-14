@@ -26,6 +26,7 @@ import FLTForHuman.NumberTheory.NumberField.TateGlobal.Ideles
 import FLTForHuman.NumberTheory.NumberField.TateGlobal.FiniteSlab
 import FLTForHuman.NumberTheory.NumberField.TateGlobal.ArchSlab
 import FLTForHuman.NumberTheory.NumberField.TateGlobal.ArchMulHaar
+import FLTForHuman.NumberTheory.NumberField.TateGlobal.ArchNorm
 import FLTForHuman.NumberTheory.NumberField.TateGlobal.ValuedOrdBridge
 import FLTForHuman.NumberTheory.NumberField.TateGlobal.ZetaIntegrand
 import FLTForHuman.NumberTheory.NumberField.TateGlobal.DistribHaarChar
@@ -395,34 +396,11 @@ end M4aLocalCFT.FujisakiC1
 
 open MeasureTheory NumberField NumberField.TateGlobal NumberField.InfinitePlace NumberField.InfinitePlace.Completion M4aHerbrand M4aLocalCFT
 open scoped NNReal
-namespace M4aLocalCFT.FujisakiC3
-variable (F : Type) [Field F] [NumberField F]
-
--- pin: ideleNorm_archCentralUnit (S_NumberField_TateGlobal_exists_isCompact_subset_normOneIdeles_forall_mem_exists_eq_map_algebraMap_mul.lean:2511)
-private theorem ideleNorm_archCentralUnit (w : InfinitePlace F) (a : (w.Completion)ˣ) :
-    ideleNorm F (NumberField.AdelicVolume.archCentralUnit F w a) =
-      ((distribHaarChar (w.Completion) a : ℝ≥0) : ℝ) := by
-  unfold ideleNorm
-  rw [distribHaarChar_archCentralUnit]
-
-end M4aLocalCFT.FujisakiC3
 
 /-! ### section Fold_FujisakiC3b -/
 
 open MeasureTheory NumberField NumberField.TateGlobal NumberField.InfinitePlace NumberField.InfinitePlace.Completion M4aHerbrand M4aLocalCFT
 open scoped NNReal
-namespace M4aLocalCFT.FujisakiC3
-variable {F : Type} [Field F] [NumberField F]
-
--- pin: ideleNorm_archUnitHom (S_NumberField_TateGlobal_exists_isCompact_subset_normOneIdeles_forall_mem_exists_eq_map_algebraMap_mul.lean:2554)
-private theorem ideleNorm_archUnitHom (w : InfinitePlace F) (a : (w.Completion)ˣ) :
-    ideleNorm F (archUnitHom w a) = ‖(a : w.Completion)‖ ^ w.mult := by
-  borelize (w.Completion)
-  rw [archUnitHom_apply, ideleNorm_archCentralUnit, NumberField.TateGlobal.FujisakiC3.distribHaarChar_completion_eq_pow_mult]
-  push_cast
-  rfl
-
-end M4aLocalCFT.FujisakiC3
 
 /-! ### section Fold_FujisakiC2a -/
 
@@ -787,33 +765,6 @@ private theorem ideleClass_eq_one_of_mem_unitsOutside {u : (AdeleRing (𝓞 F) F
     ideleClass u = 1 := by
   rw [ideleClass, MonoidHom.comp_apply, (ideleIdeal_eq_one_iff u).mpr hu, map_one]
 
--- pin: exists_norm_pow_mult_eq (S_NumberField_TateGlobal_exists_isCompact_subset_normOneIdeles_forall_mem_exists_eq_map_algebraMap_mul.lean:3487)
-omit [NumberField F] in
-private theorem exists_norm_pow_mult_eq (w : InfinitePlace F) (r : ℝ) (hr : 0 < r) :
-    ∃ t : w.Completion, t ≠ 0 ∧ ‖t‖ ^ w.mult = r := by
-  rcases isReal_or_isComplex w with hv | hv
-  · refine ⟨(ringEquivRealOfIsReal hv).symm r, ?_, ?_⟩
-    · rw [ne_eq, ← map_zero (ringEquivRealOfIsReal hv).symm, (ringEquivRealOfIsReal hv).symm.injective.eq_iff]
-      exact hr.ne'
-    · have hn : ‖(ringEquivRealOfIsReal hv).symm r‖ = ‖r‖ := by
-        have h := congrArg (fun z : ℝ≥0 => (z : ℝ))
-          (NumberField.TateGlobal.ArchMulHaarCompletion.nnnorm_ringEquivReal hv ((ringEquivRealOfIsReal hv).symm r))
-        simp only [RingEquiv.apply_symm_apply, coe_nnnorm] at h
-        exact h.symm
-      rw [mult, ite_eq_left hv, pow_one, hn, Real.norm_eq_abs, abs_of_pos hr]
-  · refine ⟨(ringEquivComplexOfIsComplex hv).symm (Real.sqrt r : ℂ), ?_, ?_⟩
-    · rw [ne_eq, ← map_zero (ringEquivComplexOfIsComplex hv).symm,
-        (ringEquivComplexOfIsComplex hv).symm.injective.eq_iff, Complex.ofReal_eq_zero]
-      exact fun h => hr.ne' ((Real.sqrt_eq_zero hr.le).mp h)
-    · have hn : ‖(ringEquivComplexOfIsComplex hv).symm (Real.sqrt r : ℂ)‖ = ‖(Real.sqrt r : ℂ)‖ := by
-        have h := congrArg (fun z : ℝ≥0 => (z : ℝ))
-          (NumberField.TateGlobal.ArchMulHaarCompletion.nnnorm_ringEquivComplex hv
-            ((ringEquivComplexOfIsComplex hv).symm (Real.sqrt r : ℂ)))
-        simp only [RingEquiv.apply_symm_apply, coe_nnnorm] at h
-        exact h.symm
-      rw [mult, ite_eq_right (not_isReal_iff_isComplex.mpr hv), hn, Complex.norm_real, Real.norm_eq_abs,
-        abs_of_nonneg (Real.sqrt_nonneg r), Real.sq_sqrt hr.le]
-
 -- pin: exists_mem_unitsOutside_ideleNorm_eq (S_NumberField_TateGlobal_exists_isCompact_subset_normOneIdeles_forall_mem_exists_eq_map_algebraMap_mul.lean:3512)
 private theorem exists_mem_unitsOutside_ideleNorm_eq (r : ℝ) (hr : 0 < r) :
     ∃ y : (AdeleRing (𝓞 F) F)ˣ, y ∈ unitsOutside (F := F) ∅ ∧ ideleNorm F y = r := by
@@ -822,7 +773,7 @@ private theorem exists_mem_unitsOutside_ideleNorm_eq (r : ℝ) (hr : 0 < r) :
   refine ⟨archUnitHom w (Units.mk0 t ht0), ?_, ?_⟩
   · exact mem_unitsOutside_of_unitAtHom_eq_one ∅ fun v _ => Units.ext rfl
   · borelize (w.Completion)
-    rw [M4aLocalCFT.FujisakiC3.ideleNorm_archUnitHom, Units.val_mk0, ht]
+    rw [NumberField.TateGlobal.ideleNorm_archUnitHom, Units.val_mk0, ht]
 
 -- pin: exists_normOne_ideleClass_eq (S_NumberField_TateGlobal_exists_isCompact_subset_normOneIdeles_forall_mem_exists_eq_map_algebraMap_mul.lean:3521)
 private theorem exists_normOne_ideleClass_eq (c : ClassGroup (𝓞 F)) :

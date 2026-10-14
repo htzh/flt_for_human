@@ -11,7 +11,7 @@ whether the tree has drifted.  Nothing here is verified against the pin: the
 `pin original` column names the declaration (and the file holding it) that
 carries the statement to diff when the entry is wired.
 
-`2341` public declarations in `91` unlisted modules; `2053` of them have a pin counterpart by name and statement.
+`2344` public declarations in `92` unlisted modules; `2056` of them have a pin counterpart by name and statement.
 
 This is tier 3 only.  Tier 2 — a declaration in a *listed* module that the
 checker skips — is `OWN_PROOFS` in the checker itself, each entry carrying its
@@ -46,6 +46,7 @@ wrappers whose statements the checker diffs).
 | [`FLTForHuman/AutomorphicForm/Adelic/BorelSubgroup.lean`](#fltforhumanautomorphicformadelicborelsubgrouplean) | 248 | 19 | 19 | 0 | 2 | 0 |
 | [`FLTForHuman/AutomorphicForm/Adelic/EtaFamily.lean`](#fltforhumanautomorphicformadelicetafamilylean) | 139 | 15 | 15 | 0 | 1 | 0 |
 | [`FLTForHuman/AutomorphicForm/Adelic/InducedSection.lean`](#fltforhumanautomorphicformadelicinducedsectionlean) | 115 | 10 | 10 | 0 | 1 | 0 |
+| [`FLTForHuman/AutomorphicForm/Adelic/Siegel/SlabCovering.lean`](#fltforhumanautomorphicformadelicsiegelslabcoveringlean) | 1,130 | 3 | 3 | 0 | 1 | 0 |
 | [`FLTForHuman/AutomorphicForm/Adelic/WeylIntegrable/Assembly.lean`](#fltforhumanautomorphicformadelicweylintegrableassemblylean) | 321 | 26 | 26 | 0 | 1 | 1 |
 | [`FLTForHuman/AutomorphicForm/Adelic/WeylIntegrable/BoxBounds.lean`](#fltforhumanautomorphicformadelicweylintegrableboxboundslean) | 261 | 26 | 26 | 0 | 1 | 1 |
 | [`FLTForHuman/AutomorphicForm/Adelic/WeylIntegrable/Caps.lean`](#fltforhumanautomorphicformadelicweylintegrablecapslean) | 155 | 6 | 6 | 0 | 1 | 1 |
@@ -96,20 +97,20 @@ wrappers whose statements the checker diffs).
 | [`FLTForHuman/NumberTheory/NumberField/CompletedDedekindZeta/Poisson.lean`](#fltforhumannumbertheorynumberfieldcompleteddedekindzetapoissonlean) | 1,112 | 17 | 17 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/CompletedDedekindZeta/ThetaKernel.lean`](#fltforhumannumbertheorynumberfieldcompleteddedekindzetathetakernellean) | 1,310 | 84 | 84 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/CompletedDedekindZeta/Unfolding.lean`](#fltforhumannumbertheorynumberfieldcompleteddedekindzetaunfoldinglean) | 1,231 | 22 | 22 | 0 | 1 | 0 |
-| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ArchMulHaar.lean`](#fltforhumannumbertheorynumberfieldtateglobalarchmulhaarlean) | 566 | 33 | 33 | 0 | 2 | 0 |
-| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ArchSlab.lean`](#fltforhumannumbertheorynumberfieldtateglobalarchslablean) | 375 | 27 | 27 | 0 | 2 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ArchMulHaar.lean`](#fltforhumannumbertheorynumberfieldtateglobalarchmulhaarlean) | 566 | 33 | 33 | 0 | 3 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ArchSlab.lean`](#fltforhumannumbertheorynumberfieldtateglobalarchslablean) | 375 | 27 | 27 | 0 | 3 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/Coordinates.lean`](#fltforhumannumbertheorynumberfieldtateglobalcoordinateslean) | 863 | 73 | 73 | 0 | 3 | 0 |
-| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/Defs.lean`](#fltforhumannumbertheorynumberfieldtateglobaldefslean) | 132 | 15 | 15 | 0 | 4 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/Defs.lean`](#fltforhumannumbertheorynumberfieldtateglobaldefslean) | 132 | 15 | 15 | 0 | 6 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/DistribHaarChar.lean`](#fltforhumannumbertheorynumberfieldtateglobaldistribhaarcharlean) | 185 | 4 | 4 | 0 | 3 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/EulerBookkeeping.lean`](#fltforhumannumbertheorynumberfieldtateglobaleulerbookkeepinglean) | 398 | 23 | 23 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/EulerFactors.lean`](#fltforhumannumbertheorynumberfieldtateglobaleulerfactorslean) | 551 | 36 | 36 | 0 | 3 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/FiniteSlab.lean`](#fltforhumannumbertheorynumberfieldtateglobalfiniteslablean) | 407 | 30 | 30 | 0 | 2 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/FujisakiC3.lean`](#fltforhumannumbertheorynumberfieldtateglobalfujisakic3lean) | 121 | 6 | 6 | 0 | 1 | 0 |
-| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/FujisakiCompact.lean`](#fltforhumannumbertheorynumberfieldtateglobalfujisakicompactlean) | 967 | 2 | 2 | 0 | 1 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/FujisakiCompact.lean`](#fltforhumannumbertheorynumberfieldtateglobalfujisakicompactlean) | 918 | 2 | 2 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/HMajorant.lean`](#fltforhumannumbertheorynumberfieldtateglobalhmajorantlean) | 367 | 14 | 14 | 0 | 2 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/Ideles.lean`](#fltforhumannumbertheorynumberfieldtateglobalideleslean) | 541 | 46 | 46 | 0 | 2 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/IndicatorEulerFactors.lean`](#fltforhumannumbertheorynumberfieldtateglobalindicatoreulerfactorslean) | 486 | 19 | 19 | 0 | 1 | 0 |
-| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/IntLocalIntegrability.lean`](#fltforhumannumbertheorynumberfieldtateglobalintlocalintegrabilitylean) | 368 | 8 | 8 | 0 | 3 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/IntLocalIntegrability.lean`](#fltforhumannumbertheorynumberfieldtateglobalintlocalintegrabilitylean) | 368 | 8 | 8 | 0 | 4 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/IntegrableZetaIntegrand.lean`](#fltforhumannumbertheorynumberfieldtateglobalintegrablezetaintegrandlean) | 183 | 4 | 4 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/LocalZetaUnramified.lean`](#fltforhumannumbertheorynumberfieldtategloballocalzetaunramifiedlean) | 258 | 15 | 15 | 0 | 2 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/MulHaar.lean`](#fltforhumannumbertheorynumberfieldtateglobalmulhaarlean) | 434 | 25 | 25 | 0 | 3 | 0 |
@@ -343,6 +344,16 @@ wrappers whose statements the checker diffs).
 | `AutomorphicForm.mem_inducedSectionSubmodule_iff` | theorem | `mem_inducedSectionSubmodule_iff` (provenance comment) | [`Def_AutomorphicForm_InducedSection.lean:60`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AutomorphicForm_InducedSection.lean#L60) |
 | `AutomorphicForm.rightTranslate` | theorem | `rightTranslate` (provenance comment) | [`Def_AutomorphicForm_InducedSection.lean:64`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AutomorphicForm_InducedSection.lean#L64) |
 | `AutomorphicForm.rightTranslate_mem_inducedSectionSubmodule` | theorem | `rightTranslate_mem_inducedSectionSubmodule` (provenance comment) | [`Def_AutomorphicForm_InducedSection.lean:71`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AutomorphicForm_InducedSection.lean#L71) |
+
+## `FLTForHuman/AutomorphicForm/Adelic/Siegel/SlabCovering.lean`
+
+1,130 lines, 3 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s).
+
+| importable name | kind | pin original | pin file |
+|---|---|---|---|
+| `AutomorphicForm.SiegelCovering.Engine.exists_finset_central_slab_covering_of_coversModCentre` | theorem | `exists_finset_central_slab_covering_of_coversModCentre` (provenance comment) | [`S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:896`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean#L896) |
+| `AutomorphicForm.SiegelCovering.Engine.exists_finset_central_slab_covering_of_coversModCentre_centreCutSiegelSetAmple` | theorem | `exists_finset_central_slab_covering_of_coversModCentre_centreCutSiegelSetAmple` (provenance comment) | [`S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre_centreCutSiegelSetAmple.lean:896`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre_centreCutSiegelSetAmple.lean#L896) |
+| `AutomorphicForm.SiegelCovering.Engine.exists_finset_slab_covering_of_coversModCentre` | theorem | `exists_finset_slab_covering_of_coversModCentre` (provenance comment) | [`S_AutomorphicForm_exists_finset_slab_covering_of_coversModCentre.lean:896`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AutomorphicForm_exists_finset_slab_covering_of_coversModCentre.lean#L896) |
 
 ## `FLTForHuman/AutomorphicForm/Adelic/WeylIntegrable/Assembly.lean`
 
@@ -2245,7 +2256,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/ArchMulHaar.lean`
 
-566 lines, 33 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
+566 lines, 33 public declarations — transcribed from the pin, not wired. Imported by 3 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -2285,7 +2296,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/ArchSlab.lean`
 
-375 lines, 27 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
+375 lines, 27 public declarations — transcribed from the pin, not wired. Imported by 3 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -2399,7 +2410,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/Defs.lean`
 
-132 lines, 15 public declarations — transcribed from the pin, not wired. Imported by 4 port module(s).
+132 lines, 15 public declarations — transcribed from the pin, not wired. Imported by 6 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -2555,7 +2566,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/FujisakiCompact.lean`
 
-967 lines, 2 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s).
+918 lines, 2 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -2664,7 +2675,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/IntLocalIntegrability.lean`
 
-368 lines, 8 public declarations — transcribed from the pin, not wired. Imported by 3 port module(s).
+368 lines, 8 public declarations — transcribed from the pin, not wired. Imported by 4 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|

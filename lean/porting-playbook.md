@@ -414,9 +414,12 @@ With a pinned source, correctness is checkable rather than trusted. Four instrum
    declaration**: the API is wired so it stays verified, while a public declaration with no
    known consumer may stay unwired — record it in [CARRY-FORWARD.md](CARRY-FORWARD.md) rather
    than inflating the comparison. Text-shaped rules:
-   - **Verify the checker with a one-token mutation** (expect exactly `N identical / 1 mismatched
-     / 0 missing`, then revert), and put a declaration that is ours on an exemption list *with the
-     reason* — add an `OWN_PROOFS` entry only when the statement differs or the name is shadowed.
+   - **The checker's own unit test covers its mutation sensitivity** —
+     `python3 spec/check_flt_statements.py --selftest` mutates a statement in memory and asserts
+     exactly the one `mismatched` a full run would report. It is a test of the instrument, run when
+     the checker changes, not a per-set manual mutation-and-revert. Put a declaration that is ours
+     on an exemption list *with the reason* — add an `OWN_PROOFS` entry only when the statement
+     differs or the name is shadowed.
    - **Keep `scoped` exactly where the pin has it** (invisible to the checker on both sides, so
      dropping it creates a spurious `MISSING IN FLT`) and **order `SOURCES` so the interface copy
      wins, appending new entries last**.

@@ -3148,6 +3148,22 @@ SOURCES = [
     "P2M/Sol/S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_forall_bound_iteratedFDeriv_cpow_neg_radC_of_isCompact.lean",
     "P2M/Sol/S_AutomorphicForm_ComplexIwasawa_exists_forall_norm_fourierIntegral_cpow_radC_mul_le_polyDecay_of_isCompact.lean",
     "P2M/Sol/S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean",
+    # --- The adelic Siegel-covering definition layer (`topics/PORTING-DeligneSerre.md` §4(a)):
+    # the pin `Definitions/Def_AutomorphicForm_CentreCutSiegelSetAmple.lean` ported whole
+    # (11 declarations), homed beside its sibling `Def_AutomorphicForm_CentreCutSiegelSet`
+    # at `AutomorphicForm/Adelic/WindowedSiegel/CentreCutSiegelSetAmple.lean`. Every name is
+    # unique, so no earlier last-name match can flip. Appended last.
+    "Definitions/Def_AutomorphicForm_CentreCutSiegelSetAmple.lean",
+    # --- WORKORDER-SC1 (`topics/automorphicForm/WORKORDER-SC1-slab-covering.md`): the (central)
+    # slab-covering headlines. Each is matched against its `Theorems/` wrapper and its `S_` engine;
+    # the `S_`-local helpers are transcribed `private` in the tier-3 engine and so are skipped by
+    # the checker. Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean",
+    "P2M/Sol/S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean",
+    "Theorems/Thm_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre_centreCutSiegelSetAmple.lean",
+    "P2M/Sol/S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre_centreCutSiegelSetAmple.lean",
+    "Theorems/Thm_AutomorphicForm_exists_finset_slab_covering_of_coversModCentre.lean",
+    "P2M/Sol/S_AutomorphicForm_exists_finset_slab_covering_of_coversModCentre.lean",
 ]
 
 
@@ -4681,6 +4697,24 @@ PORT_FILES = [
     # `…/Iwasawa/Complex/{Core,Decay,UniformDecay,Continuation}.lean`. Appended last so no earlier
     # last-name match can flip.
     "FLTForHuman/AutomorphicForm/Iwasawa/Complex/Estimates.lean",
+    # --- The adelic Siegel-covering definition layer (`topics/PORTING-DeligneSerre.md` §4(a)):
+    # the pin `Def_AutomorphicForm_CentreCutSiegelSetAmple.lean` ported whole at the natural
+    # theory home beside `CentreCutSet.lean`. A leaf (no dependents). Appended last so no
+    # earlier last-name match can flip.
+    "FLTForHuman/AutomorphicForm/Adelic/WindowedSiegel/CentreCutSiegelSetAmple.lean",
+    # --- The archimedean-norm block of the Fujisaki-compactness prelude, homed by subject:
+    # the pin `S_NumberField_TateGlobal_exists_isCompact_subset_normOneIdeles_forall_mem_exists_eq_map_algebraMap_mul.lean`
+    # carries `ideleNorm_archCentralUnit` / `ideleNorm_archUnitHom` / `exists_norm_pow_mult_eq`
+    # `private`, re-copied into 21 / 35 / 13 pin `S_` files, so they are public mathematics.
+    # Their pin source is already listed above; this module is the diffed home and
+    # `TateGlobal/FujisakiCompact.lean` now imports them. Appended last so no earlier
+    # last-name match can flip.
+    "FLTForHuman/NumberTheory/NumberField/TateGlobal/ArchNorm.lean",
+    # --- WORKORDER-SC1 (`topics/automorphicForm/WORKORDER-SC1-slab-covering.md`): the tier-1
+    # façade stating the three slab-covering headlines and delegating to the tier-3
+    # `AutomorphicForm.SiegelCovering.Engine` kernels of `Siegel/SlabCovering.lean` (unlisted).
+    # Appended last so no earlier last-name match can flip.
+    "FLTForHuman/AutomorphicForm/Adelic/Siegel/SlabCoveringTheorems.lean",
 ]
 
 
@@ -5316,6 +5350,59 @@ def strip_pin_prefix(name: str) -> str | None:
     return None
 
 
+def match_candidate(cands: list[tuple] | None, kind: str, stmt: str) -> tuple | None:
+    """The first candidate whose kind and normalized statement both equal the port's."""
+    for c in cands or ():
+        if c[0] == kind and c[1] == stmt:
+            return c
+    return None
+
+
+def selftest() -> int:
+    """Unit tests for the checker's own sensitivity.
+
+    The historical review ritual was a manual one-token mutation of a headline
+    followed by a revert.  That tests a property of *this instrument*, not of the
+    set being landed, so it belongs here and runs when the checker changes rather
+    than on every set: the parser, `norm`, and the (kind, statement) equality are
+    exercised on a synthetic pin/port pair, and a one-token mutation of the
+    statement must fail to match.  `--selftest`.
+    """
+    checks = 0
+
+    def check(cond: bool, msg: str) -> None:
+        nonlocal checks
+        if not cond:
+            raise SystemExit(f"check_flt_statements selftest FAILED: {msg}")
+        checks += 1
+
+    # The normalisation the textual diff relies on.
+    check(norm("a   b\n  c") == "a b c", "whitespace is not collapsed")
+    check(norm("kw_foo") == "foo", "leading kw_ is not erased")
+    check(norm("L.kw_foo") == "L.foo", "method kw_ is not erased")
+    check(norm("ModularCurve.foo") == "foo", "namespace qualifier is not erased")
+
+    # One-token mutation sensitivity: an identical copy matches, a mutated
+    # statement does not.  Bodies are outside the statement and must not matter.
+    pin = "theorem foo (h : 0 < r) : P := by\n  sorry\n"
+    copy = "theorem foo (h : 0 < r) : P := by\n  trivial\n"
+    mutant = "theorem foo (h : 0 ≤ r) : P := by\n  trivial\n"
+    pk = raw_declarations(pin)[0]
+    ck = raw_declarations(copy)[0]
+    mk = raw_declarations(mutant)[0]
+    check(pk[0] == ck[0] == mk[0], "the parser disagrees on the declaration name")
+    check(pk[1] == ck[1] == mk[1] == "theorem", "the parser disagrees on the kind")
+    cands = [(pk[1], pk[2])]
+    check(match_candidate(cands, ck[1], ck[2]) is not None,
+          "an identical copy is not matched")
+    check(match_candidate(cands, mk[1], mk[2]) is None,
+          "a one-token mutation is not caught")
+    check(ck[2] != mk[2], "a one-token mutation normalises to the same statement")
+
+    print(f"check_flt_statements selftest ok ({checks} assertions)")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument(
@@ -5329,7 +5416,15 @@ def main() -> int:
         help="also compare the body of every public `def … : Prop` (its real "
         "statement); the main pass compares only the type, i.e. `Prop`",
     )
+    ap.add_argument(
+        "--selftest",
+        action="store_true",
+        help="run the checker's own unit tests (parser, normalisation, one-token "
+        "mutation sensitivity) and exit",
+    )
     args = ap.parse_args()
+    if args.selftest:
+        return selftest()
     flt = Path(args.flt)
 
     source: dict[str, list[tuple[str, str, str]]] = {}
@@ -5372,12 +5467,6 @@ def main() -> int:
             if stripped is not None:
                 stripped_source.setdefault(stripped, []).append((kind, stmt, rel, raw))
 
-    def find(cands, kind, stmt):
-        for c in cands or ():
-            if c[0] == kind and c[1] == stmt:
-                return c
-        return None
-
     ok = promoted = renamed = missing = mismatch = own = 0
     for rel in PORT_FILES:
         p = LEAN / rel
@@ -5386,22 +5475,22 @@ def main() -> int:
             if raw in OWN_PROOFS or name in OWN_PROOFS:
                 own += 1
                 continue
-            if find(source.get(name), kind, stmt):
+            if match_candidate(source.get(name), kind, stmt):
                 ok += 1
                 continue
             # Promoted from a pin-private declaration: the last-name lookup
             # either missed it (attributed `@[scoped simp]` in the public pin
             # copy) or found an unrelated same-named declaration; the dotted
             # name disambiguates.
-            hit = find(dotted_source.get(promoted_key(raw)), kind, stmt) \
-                or find(dotted_source.get(name), kind, stmt)
+            hit = match_candidate(dotted_source.get(promoted_key(raw)), kind, stmt) \
+                or match_candidate(dotted_source.get(name), kind, stmt)
             if hit:
                 ok += 1
                 promoted += 1
                 continue
             # Promoted at the prefix-stripped pin name: a pure fallback after the
             # public and dotted lookups, still requiring kind and statement to match.
-            hit = find(stripped_source.get(name), kind, stmt)
+            hit = match_candidate(stripped_source.get(name), kind, stmt)
             if hit:
                 ok += 1
                 renamed += 1

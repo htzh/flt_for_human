@@ -353,10 +353,11 @@ it locally and reports it; one that believes a promotion is genuinely required *
 reports** with the declaration, host and `build_ladder.py --edit` price. The manager decides.
 
 *Review checklist* after each set: checker `0 mismatched / 0 missing` with the `identical` delta
-reconciled against the new public surface; a one-token mutation test (exactly one more
-`mismatched`, reverted); tier 1 green and 0 warnings; no `sorry`/`admit`, no bare `import
-Mathlib`; `#print axioms` on every headline `[propext, Classical.choice, Quot.sound]`; `git
-status` showing only the set's files.
+reconciled against the new public surface; tier 1 green and 0 warnings; no `sorry`/`admit`, no bare
+`import Mathlib`; `#print axioms` on every headline `[propext, Classical.choice, Quot.sound]`; `git
+status` showing only the set's files. The checker's mutation sensitivity is the instrument's own
+test (`python3 spec/check_flt_statements.py --selftest`), run when the checker changes — not a
+per-set manual mutation.
 
 **6. Close out, then re-read the frontier.** Re-run step 1: the landed nodes leave the shelf and
 their successors appear. Record the outcome in the work order and in the cluster's topic, name
@@ -418,11 +419,12 @@ timeout 180 lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false spec/Deli
 python3 tools/deps/unwired_register.py --check          # tier-3 surface current
 ```
 
-plus a `#print axioms` probe over the set's headlines, a `grep` sweep for
-`sorry`/`admit`/`axiom`/`native_decide`/`import Mathlib`/heartbeat overrides, and the one-token
-mutation test on a headline. The checker's `identical` delta must equal the new public surface
-exactly; anything else is a bug. Each work order records its own numbers, measured on the tree it
-leaves, not copied from this note.
+plus a `#print axioms` probe over the set's headlines and a `grep` sweep for
+`sorry`/`admit`/`axiom`/`native_decide`/`import Mathlib`/heartbeat overrides. The checker's
+`identical` delta must equal the new public surface exactly; anything else is a bug. Each work
+order records its own numbers, measured on the tree it leaves, not copied from this note. The
+checker's mutation sensitivity lives in the instrument:
+`python3 spec/check_flt_statements.py --selftest`.
 
 The checker's exemption list is keyed by **dotted name, never bare last name**: a bare
 `"correspondence"` silently exempted two live declarations alongside its namesake, and dotting it
@@ -496,6 +498,14 @@ python3 frontier.py --target DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_h
 The checker wiring convention (append the `Theorems/` wrapper and, where it is not already
 listed, the `S_` file to `SOURCES`; the module to `PORT_FILES`; both last) is in every work order
 and in the friction log.
+
+The checker's mutation sensitivity is its own unit test, run when the checker changes rather than
+on every set:
+
+```bash
+cd lean
+python3 spec/check_flt_statements.py --selftest
+```
 
 ## 9. Residuals
 
