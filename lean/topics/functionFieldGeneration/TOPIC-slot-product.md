@@ -66,7 +66,7 @@ Read, in this order:
 2. **`jqN_prime_not_mem_full`** (the last `Inputs` field) —
    `` $`j(q^p) \notin F_M^{\mathrm{full}}`$ `` for `` $`p \nmid M`$ ``, from `Hall M`.
    The proof reads the ψ(M) slot roots off node 1, writes
-   `` $`j(q^p) = g(j(q^M))`$ `` with `` $`\deg g < \psi(M)`$ ``, shows `` $`g`$ ``
+   `` $`j(q^p) = g(j(q^M))`$ `` with `` $`\deg g \lt \psi(M)`$ ``, shows `` $`g`$ ``
    constant on the slots (T4's `mem_range_of_eval_eq_const`), so
    `` $`j(q^p) \in \mathbb{Q}(j)`$ ``, contradicting T16's
    `` $`[\mathbb{Q}(j)(j(q^p)) : \mathbb{Q}(j)] = p+1`$ ``. The pin keeps this

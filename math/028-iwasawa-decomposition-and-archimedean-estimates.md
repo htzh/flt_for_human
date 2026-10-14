@@ -48,13 +48,13 @@ about. When a pin file says `Iwasawa` in this column it always means the decompo
 We follow the pin, which works with one specific translate rather than the decomposition in
 abstract form. Fix a field $`K = \mathbb{R}`$ or $`\mathbb{C}`$, a matrix
 
-$$g = \begin{pmatrix} g_{00} & g_{01} \\ g_{10} & g_{11} \end{pmatrix} \in \mathrm{GL}_2(K),$$
+$$g = \begin{pmatrix} g_{00} & g_{01} \\\\ g_{10} & g_{11} \end{pmatrix} \in \mathrm{GL}_2(K),$$
 
-the Weyl element $`w = \begin{pmatrix} 0 & 1 \\ 1 & 0 \end{pmatrix}`$ and the upper unipotent
-$`n(z) = \begin{pmatrix} 1 & z \\ 0 & 1 \end{pmatrix}`$ with $`z \in K`$ (for $`K = \mathbb{R}`$ we
+the Weyl element $`w = [[0,1],[1,0]]`$ and the upper unipotent
+$`n(z) = [[1,z],[0,1]]`$ with $`z \in K`$ (for $`K = \mathbb{R}`$ we
 write $`x`$ for the real variable). The product is
 
-$$w \, n(z) \, g = \begin{pmatrix} g_{10} & g_{11} \\ g_{00} + z g_{10} & g_{01} + z g_{11} \end{pmatrix},$$
+$$w \\, n(z) \\, g = \begin{pmatrix} g_{10} & g_{11} \\\\ g_{00} + z g_{10} & g_{01} + z g_{11} \end{pmatrix},$$
 
 so its **bottom row** is exactly the pair the pin calls $`P(z)`$ and $`Q(z)`$:
 
@@ -68,20 +68,20 @@ the radial length of the next paragraph bounded away from zero.
 
 - Over $`\mathbb{C}`$, with $`P, Q : \mathbb{C} \to \mathbb{C}`$ as above,
 
-$$\operatorname{radC}(g, z) = \sqrt{\lvert P(z) \rvert^2 + \lvert Q(z) \rvert^2}, \qquad
-k_{\mathbb{C}}(g,z) = \frac{1}{\operatorname{radC}(g,z)}
-  \begin{pmatrix} \overline{Q(z)} & -\overline{P(z)} \\ P(z) & Q(z) \end{pmatrix}.$$
+$$\mathrm{radC}(g, z) = \sqrt{\lvert P(z) \rvert^2 + \lvert Q(z) \rvert^2}, \qquad
+k_{\mathbb{C}}(g,z) = \frac{1}{\mathrm{radC}(g,z)}
+  \begin{pmatrix} \overline{Q(z)} & -\overline{P(z)} \\\\ P(z) & Q(z) \end{pmatrix}.$$
 
 The matrix $`k_{\mathbb{C}}`$ has orthogonal columns of norm $`1`$ and determinant
-$`(\lvert P\rvert^2 + \lvert Q\rvert^2)/\operatorname{radC}^2 = 1`$, hence lies in $`\mathrm{SU}(2)`$.
+$`(\lvert P\rvert^2 + \lvert Q\rvert^2)/\mathrm{radC}^2 = 1`$, hence lies in $`\mathrm{SU}(2)`$.
 This is the pin's `kC`.
 
 - Over $`\mathbb{R}`$, with the same $`P, Q`$ read as real linear functions and
 $`r(g,x) = \sqrt{P(x)^2 + Q(x)^2}`$,
 
 $$k_{\mathbb{R}}(g,x) = \frac{1}{r(g,x)}
-  \begin{pmatrix} Q(x) & -P(x) \\ P(x) & Q(x) \end{pmatrix}
-  = \begin{pmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{pmatrix}
+  \begin{pmatrix} Q(x) & -P(x) \\\\ P(x) & Q(x) \end{pmatrix}
+  = \begin{pmatrix} \cos\theta & -\sin\theta \\\\ \sin\theta & \cos\theta \end{pmatrix}
   \quad \text{with } \cos\theta = \frac{Q(x)}{r}, \ \sin\theta = \frac{P(x)}{r}.$$
 
 So the real compact factor is a rotation, and the whole analytic content of the real case is the
@@ -91,11 +91,11 @@ behaviour of the angle $`\theta(g,x)`$; the pin states it inline, without naming
 **The decomposition itself.** Because $`k_{\mathbb{C}}`$ (resp. $`k_{\mathbb{R}}`$) is invertible
 and unitary (resp. orthogonal), the translate factors as
 
-$$w \, n(z) \, g = b(g,z) \cdot k(g,z), \qquad
+$$w \\, n(z) \\, g = b(g,z) \cdot k(g,z), \qquad
 b(g,z) = \begin{pmatrix}
-  -\det g / \operatorname{radC} &
-  \bigl(g_{10}\overline{P} + g_{11}\overline{Q}\bigr)/\operatorname{radC} \\
-  0 & \operatorname{radC}
+  -\det g / \mathrm{radC} &
+  \bigl(g_{10}\overline{P} + g_{11}\overline{Q}\bigr)/\mathrm{radC} \\\\
+  0 & \mathrm{radC}
 \end{pmatrix},$$
 
 an upper triangular (Borel) factor. Checking determinants,
@@ -109,7 +109,7 @@ can estimate the compact factor by hand, without the structure theory of reducti
 Write $`K = \mathbb{R}`$ and $`x`$ for the variable first. Then
 
 $$r(g,x)^2 = (g_{00} + x g_{10})^2 + (g_{01} + x g_{11})^2
-        = (g_{10}^2 + g_{11}^2)\, x^2 + 2(g_{00}g_{10} + g_{01}g_{11})\, x + (g_{00}^2 + g_{01}^2),$$
+        = (g_{10}^2 + g_{11}^2)\\, x^2 + 2(g_{00}g_{10} + g_{01}g_{11})\\, x + (g_{00}^2 + g_{01}^2),$$
 
 a quadratic polynomial whose leading coefficient $`\lambda(g) = g_{10}^2 + g_{11}^2`$ is positive
 (bottom row nonzero) and whose discriminant is $`-(\det g)^2 \lt 0`$ by the identity
@@ -121,55 +121,55 @@ $$c(\mathcal{G})^{-1}(1 + x^2) \le r(g,x)^2 \le c(\mathcal{G})(1 + x^2),
   \qquad g \in \mathcal{G} \text{ compact}, \ \det \neq 0 .$$
 
 Over $`\mathbb{C}`$ the same computation in the two real coordinates of $`z = u + iv`$ says that
-$`\operatorname{radC}(g,z)^2`$ is a positive definite Hermitian form in $`(u,v)`$, so
+$`\mathrm{radC}(g,z)^2`$ is a positive definite Hermitian form in $`(u,v)`$, so
 
-$$\operatorname{radC}(g,z)^2 \asymp 1 + \lvert z \rvert^2$$
+$$\mathrm{radC}(g,z)^2 \asymp 1 + \lvert z \rvert^2$$
 
 with constants uniform on compacta of invertible matrices.
 
 Two immediate consequences, both headlines in the pin:
 
 - **Smoothness.** A positive definite quadratic form has no real zeros, so $`r`$ (resp.
-  $`\operatorname{radC}`$) is smooth and strictly positive, and so are the entries of the compact
+  $`\mathrm{radC}`$) is smooth and strictly positive, and so are the entries of the compact
   factor.
 - **Integrability.** On $`\mathbb{R}`$ the integral $`\int_{\mathbb{R}} r^{-s}\,dx`$ converges at
   infinity exactly when $`s \gt 1`$, because $`r^{-s} \asymp (1+x^2)^{-s/2}`$ and
   $`\int_1^\infty x^{-s}\,dx`$ converges iff $`s \gt 1`$. On $`\mathbb{C}`$, viewed as
   $`\mathbb{R}^2`$,
 
-$$\int_{\mathbb{C}} \operatorname{radC}(g,z)^{-\kappa}\,dz \lt \infty
+$$\int_{\mathbb{C}} \mathrm{radC}(g,z)^{-\kappa}\\,dz \lt \infty
   \iff \kappa \gt 2 ,$$
 
 the exponent $`2`$ being the real dimension; this is why every complex statement in the pin carries
-$`\kappa \gt 2`$ (or $`\operatorname{Re} u \gt 2`$), while the real statements carry the half-plane
-$`\operatorname{Re} u \gt 1`$. The half-planes are not technicalities: they are the exact
+$`\kappa \gt 2`$ (or $`\mathrm{Re} u \gt 2`$), while the real statements carry the half-plane
+$`\mathrm{Re} u \gt 1`$. The half-planes are not technicalities: they are the exact
 convergence region of the archimedean weight, and the analytic continuation past them is the whole
 point of §5.
 
 ## 4. Symbol bounds for the weight `rad^{-u}`
 
 The archimedean weight attached to the compact factor is the complex power
-$`z \mapsto (\operatorname{radC}(g,z) \cdot \mathbb{C})^{-u}`$ for $`u \in \mathbb{C}`$, and the
-input to every Fourier estimate is that this weight is a **symbol of order** $`\operatorname{Re} u`$:
+$`z \mapsto (\mathrm{radC}(g,z) \cdot \mathbb{C})^{-u}`$ for $`u \in \mathbb{C}`$, and the
+input to every Fourier estimate is that this weight is a **symbol of order** $`\mathrm{Re} u`$:
 smooth, with every derivative dominated by the undifferentiated majorant.
 
 **Proposition (symbol bound).** For every $`n`$ and every compact set $`\mathcal{G}`$ of invertible
 matrices and compact $`U \subset \mathbb{C}`$ there is $`K \gt 0`$ with
 
-$$\bigl\lVert D^n_z \bigl(\operatorname{radC}(g,z)^{-u}\bigr) \bigr\rVert
-  \le K \cdot \operatorname{radC}(g,z)^{-\operatorname{Re} u},
+$$\bigl\lVert D^n_z \bigl(\mathrm{radC}(g,z)^{-u}\bigr) \bigr\rVert
+  \le K \cdot \mathrm{radC}(g,z)^{-\mathrm{Re} u},
   \qquad g \in \mathcal{G}, \ u \in U, \ z \in \mathbb{C}.$$
 
-*Why.* Write $`\operatorname{radC}^{-u} = \exp(-u \log \operatorname{radC})`$. Since
-$`\operatorname{radC}^2`$ is a positive definite quadratic form,
-$`\log \operatorname{radC} = \tfrac12 \log(\text{quadratic form})`$ has derivatives of every order
+*Why.* Write $`\mathrm{radC}^{-u} = \exp(-u \log \mathrm{radC})`$. Since
+$`\mathrm{radC}^2`$ is a positive definite quadratic form,
+$`\log \mathrm{radC} = \tfrac12 \log(\text{quadratic form})`$ has derivatives of every order
 bounded by constants depending only on the compact set of matrices (each derivative of
 $`\log `$ of a positive definite form is a rational function whose numerator is bounded and whose
 denominator is bounded below by a positive constant). The chain rule then writes
-$`D^n \operatorname{radC}^{-u}`$ as $`\operatorname{radC}^{-u}`$ times a polynomial in $`u`$ and
-those bounded derivatives, and $`\lvert \operatorname{radC}^{-u}\rvert = \operatorname{radC}^{-\operatorname{Re} u}`$. This is the pin's
+$`D^n \mathrm{radC}^{-u}`$ as $`\mathrm{radC}^{-u}`$ times a polynomial in $`u`$ and
+those bounded derivatives, and $`\lvert \mathrm{radC}^{-u}\rvert = \mathrm{radC}^{-\mathrm{Re} u}`$. This is the pin's
 `contDiff_and_exists_forall_bound_iteratedFDeriv_cpow_neg_radC_of_isCompact`, and the real case is
-identical with $`\operatorname{radC}`$ replaced by $`r`$ and the variable $`z`$ by $`x`$.
+identical with $`\mathrm{radC}`$ replaced by $`r`$ and the variable $`z`$ by $`x`$.
 
 The same computation with $`u`$ fixed, and the smoothness of the entries of $`k`$ in §2, gives the
 two *compact-factor* headlines: the entries of $`k_{\mathbb{C}}(g,\cdot)`$ and
@@ -195,8 +195,8 @@ $$\forall w \in W \ \exists v \in V, \quad \lVert v \rVert \le 1
 For $`f : V \to E`$ of class $`C^n`$ with the iterated derivative norms integrable, the Fourier
 integral against the standard additive character $`\mathbf{e}(t) = e^{2\pi i t}`$ obeys
 
-$$(c \lVert w \rVert)^n \, \Bigl\lVert \int_V f(v)\, \mathbf{e}\bigl(-L(v,w)\bigr)\, dv
-  \Bigr\rVert \le 2^n \sum_{j=0}^{n} \int_V \lVert D^j f(v) \rVert \, dv .$$
+$$(c \lVert w \rVert)^n \\, \Bigl\lVert \int_V f(v)\\, \mathbf{e}\bigl(-L(v,w)\bigr)\\, dv
+  \Bigr\rVert \le 2^n \sum_{j=0}^{n} \int_V \lVert D^j f(v) \rVert \\, dv .$$
 
 The proof is $`n`$ integrations by parts against the coercive direction: the boundary terms vanish
 because $`f`$ and its derivatives are integrable, and each integration by parts produces a factor
@@ -204,39 +204,39 @@ $`L(v,w)/(c\lVert w\rVert)`$ of modulus at most $`1`$. This is the pin's
 `pow_mul_norm_fourierIntegral_le_of_coercive`, and it is a completely general measure/Fourier fact,
 with no arithmetic or automorphic input.
 
-**Rapid decay of the weight transform.** Take $`V = W = \mathbb{C}`$, $`L(v,w) = \operatorname{Re}(v \bar w)`$
-(or its real analogue), and $`f(z) = \operatorname{radC}(g,z)^{-u} P(z)`$ with $`P`$ smooth and all
+**Rapid decay of the weight transform.** Take $`V = W = \mathbb{C}`$, $`L(v,w) = \mathrm{Re}(v \bar w)`$
+(or its real analogue), and $`f(z) = \mathrm{radC}(g,z)^{-u} P(z)`$ with $`P`$ smooth and all
 its derivatives bounded. The symbol bound of §4 bounds $`\int \lVert D^j f \rVert`$ by
-$`\sum_i \binom{j}{i} K_i C_{j-i} \int \operatorname{radC}^{-\operatorname{Re} u}`$, which is finite
-as soon as $`\operatorname{Re} u \gt 2`$ by §3. Feeding that into the coercive bound with $`n = N`$
+$`\sum_i \binom{j}{i} K_i C_{j-i} \int \mathrm{radC}^{-\mathrm{Re} u}`$, which is finite
+as soon as $`\mathrm{Re} u \gt 2`$ by §3. Feeding that into the coercive bound with $`n = N`$
 gives, for every $`N`$,
 
-$$\Bigl\lVert \int_{\mathbb{C}} \operatorname{radC}(g,z)^{-u} P(z)\,
-  e^{-i L(z,\xi)}\, dz \Bigr\rVert \le C(g,u,P,N)\,(1 + \lVert \xi \rVert)^{-N}.$$
+$$\Bigl\lVert \int_{\mathbb{C}} \mathrm{radC}(g,z)^{-u} P(z)\\,
+  e^{-i L(z,\xi)}\\, dz \Bigr\rVert \le C(g,u,P,N)\\,(1 + \lVert \xi \rVert)^{-N}.$$
 
 This is the pin's `norm_fourierIntegral_cpow_radC_mul_le_polyDecay` — faster-than-any-polynomial
 decay in the frequency variable, uniform in $`g`$ over compacta in the uniform version
 `exists_forall_norm_fourierIntegral_cpow_radC_mul_le_polyDecay_of_isCompact`. The real case is the
-same with $`\operatorname{radC}`$ replaced by $`r(x) = \sqrt{(g_{00}+xg_{10})^2 + (g_{01}+xg_{11})^2}`$
-and the half-plane $`\operatorname{Re} u \gt 1`$.
+same with $`\mathrm{radC}`$ replaced by $`r(x) = \sqrt{(g_{00}+xg_{10})^2 + (g_{01}+xg_{11})^2}`$
+and the half-plane $`\mathrm{Re} u \gt 1`$.
 
 **The Jacquet (Whittaker) integral.** The headline that packages all of this is the archimedean
 local Whittaker function, written as an integral over the additive group,
 
 $$j_{a,b}(w, \zeta) = \int_{\mathbb{C}} z^{a} \bar z^{b} (1 + \lvert z \rvert^2)^{-w}
-  e^{-4\pi i \operatorname{Re}(\zeta z)}\, dz
+  e^{-4\pi i \mathrm{Re}(\zeta z)}\\, dz
   \qquad (a,b \in \mathbb{N}, \ w \in \mathbb{C}, \ \zeta \in \mathbb{C}),$$
 
 for the complex place, and
 
 $$j_{k}(w, t) = \int_{\mathbb{R}} \Bigl(\frac{x - i}{\sqrt{1 + x^2}}\Bigr)^{k}
-  (1 + x^2)^{-w} e^{-2\pi i\, t x}\, dx
+  (1 + x^2)^{-w} e^{-2\pi i\\, t x}\\, dx
   \qquad (k \in \mathbb{Z}, \ w \in \mathbb{C}, \ t \in \mathbb{R})$$
 
-for the real place. The half-plane of absolute convergence is $`\operatorname{Re} w \gt (a+b)/2 + 1`$
+for the real place. The half-plane of absolute convergence is $`\mathrm{Re} w \gt (a+b)/2 + 1`$
 in the complex case (the polynomial factor $`z^a \bar z^b`$ has absolute value
-$`\lvert z\rvert^{a+b}`$, and the weight contributes $`\lvert z\rvert^{-2\operatorname{Re} w}`$, so
-convergence needs $`2 \operatorname{Re} w \gt a + b + 2`$) and $`\operatorname{Re} w \gt 1/2`$ in the
+$`\lvert z\rvert^{a+b}`$, and the weight contributes $`\lvert z\rvert^{-2\mathrm{Re} w}`$, so
+convergence needs $`2 \mathrm{Re} w \gt a + b + 2`$) and $`\mathrm{Re} w \gt 1/2`$ in the
 real case (where the weight is $`(\sqrt{1+x^2})^{-2w}`$, modulo the unitary factor
 $`(x-i)/\sqrt{1+x^2}`$). On that half-plane the integral
 
@@ -276,7 +276,7 @@ $`\sum_n \lvert a_n\rvert^2 n^{-s}`$ for a weight-one Hecke eigenform. That boun
 Rankin–Selberg-type integral of the cusp form against itself, and the archimedean factor of that
 integral is exactly the local estimate above: after unfolding, the archimedean contribution is an
 integral of $`\lvert W(g)\rvert^2`$ against the weight $`(1 + \lvert z\rvert^2)^{-w}`$, and its
-convergence and polynomial-in-$`\operatorname{Im} w`$ bounds are the analytic input at the infinite
+convergence and polynomial-in-$`\mathrm{Im} w`$ bounds are the analytic input at the infinite
 place. The two gates of [019](019-deligne-serre-weight-one.md) §7 wait on this; the archimedean
 estimates of this note are the part of the gate that is *already* self-contained and provable today.
 
@@ -297,7 +297,7 @@ complex compact factor is a $`\mathrm{SU}(2)`$-matrix whose entries involve $`\o
 $`\overline{Q}`$, the real one is a rotation, and the pin proves the two sets of estimates
 separately (the shared surface is a single generic Fourier lemma). Second, **the exponents are not
 interchangeable**: the complex place has real dimension $`2`$ and so needs $`\kappa \gt 2`$, the
-real place dimension $`1`$ and so needs $`\operatorname{Re} u \gt 1`$; a port that unified the two
+real place dimension $`1`$ and so needs $`\mathrm{Re} u \gt 1`$; a port that unified the two
 would have to take the worse bound on each, which is why the pin keeps them apart.
 
 ## References

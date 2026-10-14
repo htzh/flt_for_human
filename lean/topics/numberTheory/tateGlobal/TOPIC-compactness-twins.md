@@ -25,7 +25,7 @@ Companions:
 Fujisaki's compactness theorem, in the two forms the development consumes.
 
 Write $`\mathbb{A}_F`$ for the adele ring, $`\mathbb{A}_F^\times`$ for the ideles, and
-$`\mathbb{A}_F^1 = \mathrm{normOneIdeles}(F) = \ker(\operatorname{distribHaarChar})`$ for the
+$`\mathbb{A}_F^1 = \mathrm{normOneIdeles}(F) = \ker(\mathrm{distribHaarChar})`$ for the
 norm-one ideles. The two headlines are:
 
 1. **Compact representatives.** There is a compact

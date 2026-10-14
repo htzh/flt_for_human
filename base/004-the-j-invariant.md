@@ -230,7 +230,7 @@ consequence of the product formula. The same recursion is the content of FLT's
 ## 5. First properties
 
 **Weight zero, hence invariance.** $`E_4`$ and $`E_6`$ are modular of weights
-$`4`$ and $`6`$: for $`\gamma = \begin{pmatrix} a & b \\ c & d\end{pmatrix} \in
+$`4`$ and $`6`$: for $`\gamma = [[a,b],[c,d]] \in
 \mathrm{SL}_2(\mathbb{Z})`$,
 
 $$E_4(\gamma\tau) = (c\tau+d)^4 E_4(\tau), \qquad

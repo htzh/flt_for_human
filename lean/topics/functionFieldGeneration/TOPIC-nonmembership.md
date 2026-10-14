@@ -67,7 +67,7 @@ one module (§4):
    `Theorems/` API. `jqN r` is not in `` $`\mathbb{Q}(j, j(q^p) : p \in S)`$ ``
    for a finite set `` $`S`$ `` of primes with `` $`r \notin S`$ ``. The engine is
    `step_contradiction`: if `` $`j(q^r) = g(j(q^p))`$ ``, then `` $`g`$ `` has
-   degree `` $`< p+1`$ `` and is constant on the `` $`p+1`$ `` roots of
+   degree `` $`\lt p+1`$ `` and is constant on the `` $`p+1`$ `` roots of
    `` $`\Phi_p(j(q), \cdot)`$ `` (a T4 `CommonRoot` engine), so
    `` $`j(q^r) \in \mathbb{Q}(j)`$ ``, contradicting
    `` $`[\mathbb{Q}(j)(j(q^p)) : \mathbb{Q}(j)] = p+1`$ `` — **T16's first

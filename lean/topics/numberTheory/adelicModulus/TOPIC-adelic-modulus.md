@@ -34,7 +34,7 @@ Write $`F`$ for a number field, $`\mathbb{A}_F`$ for its adele ring and
 $`\mathbb{A}_F^\times`$ for the ideles. The **modulus character** is the positive real
 scalar by which an idele dilates additive Haar measure:
 
-$$\mu(a \cdot S) = \operatorname{distribHaarChar}(\mathbb{A}_F, a) \cdot \mu(S),
+$$\mu(a \cdot S) = \mathrm{distribHaarChar}(\mathbb{A}_F, a) \cdot \mu(S),
 \qquad a \in \mathbb{A}_F^\times .$$
 
 The family proves that this character is the product of the local normalised absolute
@@ -45,10 +45,10 @@ read through the two bridge lemmas the port already owns
 independent pieces:
 
 1. **Archimedean, trivial finite part.** For $`a`$ with $`a_2 = 1`$,
-   $`\operatorname{distribHaarChar}(\mathbb{A}_F, a) = \prod_{w \mid \infty} \lVert a_w
+   $`\mathrm{distribHaarChar}(\mathbb{A}_F, a) = \prod_{w \mid \infty} \lVert a_w
    \rVert^{n_w}`$, the multiplicity $`n_w = [F_w : \mathbb{R}]`$. This is
    `distribHaarChar_eq_prod_norm_pow_mult_of_snd_eq_one` — **already ported**.
-2. **Finite part.** $`\operatorname{distribHaarChar}(\mathbb{A}_F, u) = \prod_v \lVert u_v
+2. **Finite part.** $`\mathrm{distribHaarChar}(\mathbb{A}_F, u) = \prod_v \lVert u_v
    \rVert_v`$ for $`u`$ with trivial archimedean component, a `finprod` over the height-one
    primes. The proof is measure-theoretic: the integral lattice $`\widehat{\mathcal{O}}_F
    = \prod_v \mathfrak{o}_v`$ is a compact open with a transversal for the

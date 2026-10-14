@@ -19,7 +19,7 @@ $`v`$ run over the places of $`F`$. Write $`F_v`$ for the completion at $`v`$ an
 $`\mathfrak{o}_v`$ for the ring of integers of $`F_v`$ at a finite place. The **adele ring**
 is the restricted product
 
-$$\mathbb{A}_F \;=\; \prod_{v \mid \infty} F_v \;\times\; \prod_{v \nmid \infty}{}' F_v ,$$
+$$\mathbb{A}_F \\;=\\; \prod_{v \mid \infty} F_v \\;\times\\; \prod_{v \nmid \infty}{}' F_v ,$$
 
 the second factor keeping only the tuples with $`x_v \in \mathfrak{o}_v`$ for almost all
 finite $`v`$. The **ideles** are its unit group $`\mathbb{A}_F^\times`$.
@@ -40,19 +40,19 @@ $$|z|_w = \lVert z \rVert^{n_w}, \qquad n_w \in \\{1, 2\\}.$$
 
 The **idele norm** is the product of the local factors,
 
-$$|x| \;=\; \prod_v |x_v|_v \qquad (x = (x_v)_v \in \mathbb{A}_F^\times),$$
+$$|x| \\;=\\; \prod_v |x_v|_v \qquad (x = (x_v)_v \in \mathbb{A}_F^\times),$$
 
 which is a *finite* product: an idele is a unit at almost every finite place, and the local
 factor there is $`1`$. It takes values in $`\mathbb{R}_{\gt 0}`$ because every local factor
 does, and it is multiplicative,
 
-$$|xy| = |x| \, |y|, \qquad |1| = 1 .$$
+$$|xy| = |x| \\, |y|, \qquad |1| = 1 .$$
 
 **The same object by measure.** The norm is not an ad hoc product: it is the scalar by which
 multiplication by $`x`$ distorts additive Haar measure on $`\mathbb{A}_F`$. For a Haar
 measure $`\mu`$ on $`\mathbb{A}_F`$ and a measurable set $`E`$,
 
-$$\mu(x E) = |x| \, \mu(E) \qquad \text{for all } x \in \mathbb{A}_F^\times ,$$
+$$\mu(x E) = |x| \\, \mu(E) \qquad \text{for all } x \in \mathbb{A}_F^\times ,$$
 
 and the scalar is independent of the choice of $`\mu`$. This is the **modulus character**
 (distributive Haar character) of the multiplicative action of $`\mathbb{A}_F^\times`$ on
@@ -129,8 +129,8 @@ sets is an $`S`$ with $`x \in U_S`$.
 **Move 2 — coordinates on a piece.** On $`U_S`$ the idele decomposes into three independent
 factors,
 
-$$U_S \;\cong\; \Bigl( \prod_{w \mid \infty} F_w^\times \Bigr) \;\times\;
-  \Bigl( \prod_{v \in S} F_v^\times \Bigr) \;\times\;
+$$U_S \\;\cong\\; \Bigl( \prod_{w \mid \infty} F_w^\times \Bigr) \\;\times\\;
+  \Bigl( \prod_{v \in S} F_v^\times \Bigr) \\;\times\\;
   \Bigl( \prod_{v \notin S} \mathfrak{o}_v^\times \Bigr),$$
 
 the archimedean units, the units at the finitely many places of $`S`$, and the units at all
@@ -142,8 +142,8 @@ restriction: outside $`S`$ nothing can run away.
 **Move 3 — the norm on the coordinates is a finite product, hence continuous.** Writing a
 point of the product as $`q = (q_\infty, q_S, q_{\notin S})`$, the norm becomes
 
-$$\mathrm{normQ}(q) \;=\; \prod_{w \mid \infty} \lVert q_\infty(w) \rVert^{\,n_w}
-  \;\cdot\; \prod_{v \in S} \lVert q_S(v) \rVert \;\cdot\; \prod_{v \notin S} 1 .$$
+$$\mathrm{normQ}(q) \\;=\\; \prod_{w \mid \infty} \lVert q_\infty(w) \rVert^{\\,n_w}
+  \\;\cdot\\; \prod_{v \in S} \lVert q_S(v) \rVert \\;\cdot\\; \prod_{v \notin S} 1 .$$
 
 The last product is $`1`$ because $`|u|_v = 1`$ for $`u \in \mathfrak{o}_v^\times`$. What
 remains is a product over the finitely many places in $`S`$ together with the finitely many
@@ -182,7 +182,7 @@ continuous on $`G`$.)
 
 Composing with the norm gives the **determinant norm**
 
-$$g \;\longmapsto\; |\det g| , \qquad \mathrm{GL}_2(\mathbb{A}_F) \longrightarrow \mathbb{R}_{\gt 0},$$
+$$g \\;\longmapsto\\; |\det g| , \qquad \mathrm{GL}_2(\mathbb{A}_F) \longrightarrow \mathbb{R}_{\gt 0},$$
 
 which is continuous: it is the composite of the continuous determinant and the continuous
 idele norm. This is the second ported theorem.
@@ -219,8 +219,8 @@ uses account for most of the citations.
 2. **Growth and decay estimates.** The standard bounds for cusp forms and their Whittaker
    coefficients are of the shape
 
-$$\lvert f(g) \rvert \le M \, \lvert \det g \rvert^{\,w_0/2}, \qquad
-   \lvert W(\mathrm{diag}(1, \cdot)) \rvert \le M \, \lvert \det \rvert^{\,\sigma},$$
+$$\lvert f(g) \rvert \le M \\, \lvert \det g \rvert^{\\,w_0/2}, \qquad
+   \lvert W(\mathrm{diag}(1, \cdot)) \rvert \le M \\, \lvert \det \rvert^{\\,\sigma},$$
 
    and the majorants on Siegel domains carry a factor $`|\det g|^{\sigma}`$. These are
    measurable/integrable statements about a continuous function of $`g`$; without continuity
@@ -233,7 +233,7 @@ $$\lvert f(g) \rvert \le M \, \lvert \det g \rvert^{\,w_0/2}, \qquad
    a fundamental domain. All of this starts from continuity of $`|\det|`$.
 4. **The zeta integral and unfolding.** The Tate zeta integral
 
-$$\zeta(f, \chi, s) = \int_{\mathbb{A}_F^\times} f(x) \, \chi(x) \, |x|^s \, d^\times x$$
+$$\zeta(f, \chi, s) = \int_{\mathbb{A}_F^\times} f(x) \\, \chi(x) \\, |x|^s \\, d^\times x$$
 
    is built from the factor $`|x|^s`$; the Euler unfolding and the meromorphic continuation
    manipulate it as a function of $`x`$ and of $`s`$, again through the continuity and the
