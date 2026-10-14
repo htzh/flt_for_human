@@ -9,14 +9,17 @@ manager's own work, §5 the build economy, §6 verification, §7 what remains, �
 residuals. Every measurement is the pin's, read through `tools/deps`. The section numbers are
 stable: work orders across the column cite §3 for the workflow and §7 for the gates.
 
-The checker reads **9540 identical (656 promoted, 83 renamed), 0 mismatched, 0 missing, 38
-own-proof declarations exempted (9578 checked)**. This column's recent landings: the
+The checker reads **9569 identical (656 promoted, 83 renamed), 0 mismatched, 0 missing, 38
+own-proof declarations exempted (9607 checked)**. This column's recent landings: the
 `TateFormal`/`TateSlots` definition layer, 9241 → 9304; the weight-4 Tate-slot engine and headline
 façade (WORKORDER-F1), 9304 → 9318; the six `tateCurve`/Katz definition modules of WORKORDER-F2,
 9318 → 9535 (+217); and the `BridgeX` twin/triplet engine and headline façade (WORKORDER-F2),
-9535 → 9540 (+5). Each delta is exactly its new public surface, 0 mismatched / 0 missing. The
-remaining growth since the note's earlier figures is other columns' landings; the column's own
-history lives in `../logs/` and the work orders.
+9535 → 9540 (+5). Each delta is exactly its new public surface, 0 mismatched / 0 missing. Since
+then the 9542 → 9569 (+27) step is the `NumberField.AdelicHeight` definition gate, the manager's
+own ground for the adelic-modulus round
+([numberTheory/adelicModulus/TOPIC-adelic-modulus.md](numberTheory/adelicModulus/TOPIC-adelic-modulus.md)),
+not this column's; the remaining growth since the note's earlier figures is other columns'
+landings; the column's own history lives in `../logs/` and the work orders.
 
 Companions:
 
@@ -389,7 +392,7 @@ a bigger heartbeat cap.
 
 ```bash
 cd lean
-timeout 300 python3 spec/check_flt_statements.py        # 9318 identical / 0 / 0 / 38 own
+timeout 300 python3 spec/check_flt_statements.py        # 9569 identical / 0 / 0 / 38 own
 flock .lake/flt_build.lock timeout 900 lake build       # the milestone build
 timeout 180 lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false spec/DeligneSerreConsumer.lean
 python3 tools/deps/unwired_register.py --check          # tier-3 surface current

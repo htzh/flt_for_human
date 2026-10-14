@@ -3027,6 +3027,49 @@ SOURCES = [
     "Theorems/Thm_NumberField_TateGlobal_continuous_ideleNorm_det.lean",
     "P2M/Sol/S_NumberField_TateGlobal_continuous_ideleNorm.lean",
     "P2M/Sol/S_NumberField_TateGlobal_continuous_ideleNorm_det.lean",
+    # --- TOPIC-adelic-modulus definition gate
+    # (`topics/numberTheory/adelicModulus/TOPIC-adelic-modulus.md`): the pin node
+    # `Def_NumberField_AdelicHeight` is a definition layer with no `Theorems/` wrapper,
+    # imported (and left unused in the proof) by the headline's `S_` silo and named by
+    # 525 pin theorems elsewhere, so it is homed whole (playbook §2.3). Its prerequisite
+    # `Definitions/Def_AutomorphicForm_SiegelReduction.lean` is listed above, and
+    # `NumberField.FinitePlace.*`, `NumberField.prod_abs_eq_one` and
+    # `NumberField.InfinitePlace.prod_eq_abs_norm` are mathlib `v4.34.0`. Appended last so
+    # no earlier last-name match can flip.
+    "Definitions/Def_NumberField_AdelicHeight.lean",
+    # --- WORKORDER-T2 (`topics/numberTheory/tateGlobal/WORKORDER-T2-ideleNorm-det-slab.md`):
+    # the two `GL₂` idele-norm headlines that read the landed `continuous_ideleNorm_det`
+    # wire. Each `Theorems/` wrapper is the statement authority (listed first); its `S_`
+    # file follows. The module
+    # (`FLTForHuman/NumberTheory/NumberField/TateGlobalIdeleNormDet.lean`) is tier 1.
+    # Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_NumberField_TateGlobal_measurableSet_setOf_ideleNorm_det_mem_Icc.lean",
+    "Theorems/Thm_NumberField_TateGlobal_ideleNorm_det_eq_one_of_isCompact_of_mem.lean",
+    "P2M/Sol/S_NumberField_TateGlobal_measurableSet_setOf_ideleNorm_det_mem_Icc.lean",
+    "P2M/Sol/S_NumberField_TateGlobal_ideleNorm_det_eq_one_of_isCompact_of_mem.lean",
+    # --- TOPIC-adelic-modulus, WORKORDER-A2: the four-node principal-idele product
+    # formula. Each `Theorems/` wrapper is the statement authority (listed first); its
+    # `S_` file follows. The engine
+    # (`FLTForHuman/NumberTheory/AdelicHaar/ProductFormula.lean`) stays tier 3 and is
+    # recorded in spec/UNWIRED-PUBLIC.md. Appended last so no earlier last-name match can
+    # flip.
+    "Theorems/Thm_NumberField_AdelicBox_isAddFundamentalDomain_preimage_mul_algebraMap_adelicBox.lean",
+    "Theorems/Thm_NumberField_AdeleRing_measurePreserving_mul_algebraMap.lean",
+    "Theorems/Thm_NumberField_AdelicHaar_measurePreserving_mul_algebraMap_adelicAddHaar.lean",
+    "Theorems/Thm_NumberField_AdeleRing_distribHaarChar_algebraMap.lean",
+    "P2M/Sol/S_NumberField_AdelicBox_isAddFundamentalDomain_preimage_mul_algebraMap_adelicBox.lean",
+    "P2M/Sol/S_NumberField_AdeleRing_measurePreserving_mul_algebraMap.lean",
+    "P2M/Sol/S_NumberField_AdelicHaar_measurePreserving_mul_algebraMap_adelicAddHaar.lean",
+    "P2M/Sol/S_NumberField_AdeleRing_distribHaarChar_algebraMap.lean",
+    # --- TOPIC-adelic-modulus, WORKORDER-A1: the two modulus headlines. Each
+    # `Theorems/` wrapper is the statement authority (listed first); its `S_` file follows.
+    # The two engines (`FLTForHuman/NumberTheory/AdelicHaar/AdelicModulus.lean`,
+    # `…/ArchModulus.lean`) stay tier 3 and are recorded in spec/UNWIRED-PUBLIC.md.
+    # Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_NumberField_AdeleRing_distribHaarChar_eq_prod_norm_pow_mult_mul_finprod_norm.lean",
+    "Theorems/Thm_NumberField_InfiniteAdeleRing_distribHaarChar_eq_prod_norm_pow_mult.lean",
+    "P2M/Sol/S_NumberField_AdeleRing_distribHaarChar_eq_prod_norm_pow_mult_mul_finprod_norm.lean",
+    "P2M/Sol/S_NumberField_InfiniteAdeleRing_distribHaarChar_eq_prod_norm_pow_mult.lean",
 ]
 
 
@@ -4508,6 +4551,21 @@ PORT_FILES = [
     # is recorded in spec/UNWIRED-PUBLIC.md. Appended last so no earlier last-name match
     # can flip.
     "FLTForHuman/NumberTheory/NumberField/TateGlobalContinuousIdeleNorm.lean",
+    # --- TOPIC-adelic-modulus definition gate: `Def_NumberField_AdelicHeight` homed
+    # whole at `NumberTheory/AdelicHeight.lean` (see SOURCES). One new leaf module; no
+    # existing module was edited, so no hub wave is owed. Appended last so no earlier
+    # last-name match can flip.
+    "FLTForHuman/NumberTheory/AdelicHeight.lean",
+    # --- WORKORDER-T2: the `GL₂` idele-norm slab headlines (see SOURCES). Two public
+    # statements from their pin wrappers; no engine module, no promotion, no existing
+    # module edited. Appended last so no earlier last-name match can flip.
+    "FLTForHuman/NumberTheory/NumberField/TateGlobalIdeleNormDet.lean",
+    # --- TOPIC-adelic-modulus: the façade (see SOURCES). It declares the four
+    # principal-idele product-formula headlines from their pin wrappers and proves them by
+    # `NumberTheory/AdelicHaar/ProductFormula.lean` (tier 3). The two modulus headlines
+    # (WORKORDER-A1) land into this same module. Appended last so no earlier last-name
+    # match can flip.
+    "FLTForHuman/NumberTheory/AdelicModulus.lean",
 ]
 
 
