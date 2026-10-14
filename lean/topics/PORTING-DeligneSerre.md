@@ -63,6 +63,15 @@ Companions:
   put on the shelf, five near-identical files sharing one `BridgeX` development:
   [modularCurve/TOPIC-tate-curve-twins.md](modularCurve/TOPIC-tate-curve-twins.md) and
   [modularCurve/WORKORDER-F2-tate-curve-twins.md](modularCurve/WORKORDER-F2-tate-curve-twins.md).
+- The archimedean Iwasawa analytic core — the 13 `AutomorphicForm.{Complex,Real}Iwasawa` rows of
+  §7's Gate 1 at the infinite place, ported as two deduped engine/façade waves:
+  [automorphicForm/TOPIC-iwasawa-analytic-core.md](automorphicForm/TOPIC-iwasawa-analytic-core.md),
+  its mathematics
+  [../../math/028-iwasawa-decomposition-and-archimedean-estimates.md](../../math/028-iwasawa-decomposition-and-archimedean-estimates.md),
+  and the orders
+  [automorphicForm/WORKORDER-I1-complex-engine.md](automorphicForm/WORKORDER-I1-complex-engine.md),
+  [automorphicForm/WORKORDER-I2-complex-successors.md](automorphicForm/WORKORDER-I2-complex-successors.md),
+  [automorphicForm/WORKORDER-I3-real-engine.md](automorphicForm/WORKORDER-I3-real-engine.md).
 
 ## 1. What the port contains
 
@@ -178,6 +187,17 @@ declarations, checker +217). The engine stays tier 3 and is recorded in
 [modularCurve/TOPIC-tate-curve-twins.md](modularCurve/TOPIC-tate-curve-twins.md); the order and its
 results:
 [modularCurve/WORKORDER-F2-tate-curve-twins.md](modularCurve/WORKORDER-F2-tate-curve-twins.md).
+
+**The archimedean Iwasawa analytic core.** The two gates of §7 take their input at the infinite
+place from 13 `AutomorphicForm.{Complex,Real}Iwasawa` rows — the decomposition's compact factor and
+the Fourier decay of its radial length. They are ported as the pre-gate wave the gates attach to:
+the pin `Def_AutomorphicForm_ComplexIwasawa` (4 declarations) and the shared generic Fourier bound
+(`M4aP3B.FourierDecay`, 2 declarations) homed as the definition layer, seven tier-3 engines
+(`AutomorphicForm/Iwasawa/{Complex,Real}/{Core,Decay,UniformDecay,Continuation}.lean`, 5,818 lines)
+holding the deduped development (10,378 raw `S_` lines → 5,256 net), and the two subject façades
+`AutomorphicForm/Iwasawa/{Complex,Real}/Estimates.lean` (13 headlines) as the checker wire. Checker
+9654 → 9673, 0 mismatched / 0 missing; the cone's `needed` falls 1,617 → 1,604 nodes and no Iwasawa
+row remains in the demand. Topic, mathematics and orders: the companion bullet above.
 
 **The shared ground that edits existing modules.** The `ValuationSubring` residue block in
 `NumberTheory/ValuationAtPlace.lean`; the `Gamma0Integral` promotion and its duplicate-block

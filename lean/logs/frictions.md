@@ -339,3 +339,17 @@ round promotes what generalizes.
   non-`-- pin:` comment is a block comment, and the tracked name is correct again. Note the
   `-- pin:` comments are exempt in practice only because direct last-name matches carry the diff.
 - **seen**: 2026-10-14.
+
+## FR-0022 [lean] [imports] — two pin `Mathlib.Data.*` import paths are deprecated in `v4.34.0` and warn on a verbatim def-layer transcription
+
+- **where**: `AutomorphicForm/Iwasawa/Complex/Basic.lean` (the pin
+  `Definitions/Def_AutomorphicForm_ComplexIwasawa.lean` transcribed whole).
+- **symptom**: the pin's `import Mathlib.Data.Complex.Basic` and `import Mathlib.Data.Real.Sqrt`
+  elaborate but emit `has been deprecated: please replace this import by …` warnings, so a verbatim
+  transcription is not warning-free.
+- **cause**: the module paths moved (`v4.33.1` → `v4.34.0`): `Mathlib.Data.Complex.Basic` →
+  `Mathlib.Basic.Complex.Basic`, `Mathlib.Data.Real.Sqrt` → `Mathlib.Analysis.Real.Sqrt`.
+- **fix**: use the new paths (a comment records the pin's spellings); the declarations are unchanged,
+  so the checker is unaffected. `Mathlib.LinearAlgebra.Matrix.Notation` did not move.
+- **seen**: 2026-10-14; `lean/FLTForHuman/AutomorphicForm/Iwasawa/Complex/Basic.lean`; tier-0 exit 0
+  with 0 warnings after the swap.

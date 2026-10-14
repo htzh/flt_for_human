@@ -3101,6 +3101,53 @@ SOURCES = [
     "Theorems/Thm_AutomorphicForm_LocalIntertwining_integral_smoothWeylIntegrand_adicCompletion.lean",
     "P2M/Sol/S_AutomorphicForm_LocalIntertwining_integral_smoothWeylIntegrand_adicCompletion.lean",
     "Definitions/Def_LanglandsTunnell_TateLocalConstantsAt.lean",
+    # --- TOPIC-iwasawa-analytic-core definition gate
+    # (topics/automorphicForm/TOPIC-iwasawa-analytic-core.md): `Def_AutomorphicForm_ComplexIwasawa`
+    # homed whole at `FLTForHuman/AutomorphicForm/Iwasawa/Complex/Basic.lean` (see PORT_FILES). Its
+    # `botP`/`botQ`/`radC`/`kC` are the statement vocabulary of the complex-place headlines. The
+    # topic's shared generic `M4aP3B.FourierDecay` block is homed at
+    # `FLTForHuman/MeasureTheory/FourierDecay.lean`; the pin's complex `norm` `S_` file carries its
+    # two statements, so it is listed here too, and it is also the complex wave's kernel source.
+    # Appended last so no earlier last-name match can flip.
+    "Definitions/Def_AutomorphicForm_ComplexIwasawa.lean",
+    "P2M/Sol/S_AutomorphicForm_ComplexIwasawa_norm_fourierIntegral_cpow_radC_mul_le_polyDecay.lean",
+    # --- WORKORDER-I3 (the real Iwasawa engine; see PORT_FILES): each `Theorems/` wrapper is the
+    # statement authority (listed first), its `S_` file follows and supplies the engine's prelude
+    # statements. The three engine modules stay tier 3 and are recorded in spec/UNWIRED-PUBLIC.md.
+    # Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_AutomorphicForm_RealIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kR_apply.lean",
+    "Theorems/Thm_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean",
+    "Theorems/Thm_AutomorphicForm_RealIwasawa_exists_forall_norm_fourierIntegral_cpow_rad_mul_le_polyDecay_of_isCompact.lean",
+    "Theorems/Thm_AutomorphicForm_RealIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean",
+    "P2M/Sol/S_AutomorphicForm_RealIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kR_apply.lean",
+    "P2M/Sol/S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean",
+    "P2M/Sol/S_AutomorphicForm_RealIwasawa_exists_forall_norm_fourierIntegral_cpow_rad_mul_le_polyDecay_of_isCompact.lean",
+    "P2M/Sol/S_AutomorphicForm_RealIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean",
+    # --- WORKORDER-I1 (the complex Iwasawa engine, base layer; see PORT_FILES): each `Theorems/`
+    # wrapper is the statement authority (listed first), its `S_` file follows and supplies the
+    # engine's prelude statements. The complex `norm` `S_` file is already listed above (it carries
+    # the shared FourierDecay statements). The two engine modules stay tier 3 and are recorded in
+    # spec/UNWIRED-PUBLIC.md. Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean",
+    "Theorems/Thm_AutomorphicForm_ComplexIwasawa_exists_forall_bound_iteratedFDeriv_kC_apply_of_isCompact.lean",
+    "Theorems/Thm_AutomorphicForm_ComplexIwasawa_kC_mem_specialUnitaryGroup.lean",
+    "Theorems/Thm_AutomorphicForm_ComplexIwasawa_weyl_mul_unipotent_mul_eq_borel_mul_kC.lean",
+    "Theorems/Thm_AutomorphicForm_ComplexIwasawa_exists_forall_integrable_integral_rpow_neg_radC_le_of_isCompact.lean",
+    "Theorems/Thm_AutomorphicForm_ComplexIwasawa_norm_fourierIntegral_cpow_radC_mul_le_polyDecay.lean",
+    "P2M/Sol/S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_bound_iteratedFDeriv_kC_apply.lean",
+    "P2M/Sol/S_AutomorphicForm_ComplexIwasawa_exists_forall_bound_iteratedFDeriv_kC_apply_of_isCompact.lean",
+    "P2M/Sol/S_AutomorphicForm_ComplexIwasawa_kC_mem_specialUnitaryGroup.lean",
+    "P2M/Sol/S_AutomorphicForm_ComplexIwasawa_weyl_mul_unipotent_mul_eq_borel_mul_kC.lean",
+    "P2M/Sol/S_AutomorphicForm_ComplexIwasawa_exists_forall_integrable_integral_rpow_neg_radC_le_of_isCompact.lean",
+    # --- WORKORDER-I2 (the complex Iwasawa engine, successors; see PORT_FILES): same shape, the
+    # three successor wrappers then their `S_` files. Appended last so no earlier last-name match
+    # can flip.
+    "Theorems/Thm_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_forall_bound_iteratedFDeriv_cpow_neg_radC_of_isCompact.lean",
+    "Theorems/Thm_AutomorphicForm_ComplexIwasawa_exists_forall_norm_fourierIntegral_cpow_radC_mul_le_polyDecay_of_isCompact.lean",
+    "Theorems/Thm_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean",
+    "P2M/Sol/S_AutomorphicForm_ComplexIwasawa_contDiff_and_exists_forall_bound_iteratedFDeriv_cpow_neg_radC_of_isCompact.lean",
+    "P2M/Sol/S_AutomorphicForm_ComplexIwasawa_exists_forall_norm_fourierIntegral_cpow_radC_mul_le_polyDecay_of_isCompact.lean",
+    "P2M/Sol/S_AutomorphicForm_ComplexIwasawa_continuousOn_differentiableOn_norm_le_polyDecay_weightFourierIntegral.lean",
 ]
 
 
@@ -4618,6 +4665,22 @@ PORT_FILES = [
     "FLTForHuman/NumberTheory/NumberField/TateGlobal/WeylUnramified.lean",
     # Set LI-2: the smooth headline and its private development (see SOURCES).
     "FLTForHuman/NumberTheory/NumberField/TateGlobal/WeylSmooth.lean",
+    # --- TOPIC-iwasawa-analytic-core definition gate (see SOURCES): the pin's complex Iwasawa
+    # vocabulary homed whole, and the shared generic Fourier-decay block. Both are manager-owned
+    # leaves; the complex/real engine modules of the two waves stay tier 3. Appended last so no
+    # earlier last-name match can flip.
+    "FLTForHuman/AutomorphicForm/Iwasawa/Complex/Basic.lean",
+    "FLTForHuman/MeasureTheory/FourierDecay.lean",
+    # --- WORKORDER-I3 (the real Iwasawa engine; see SOURCES): the four public real-place headlines,
+    # proved by the tier-3 `AutomorphicForm.RealIwasawa.Engine.*` kernels of
+    # `…/Iwasawa/Real/{Core,Decay,Continuation}.lean`. Appended last so no earlier last-name match
+    # can flip.
+    "FLTForHuman/AutomorphicForm/Iwasawa/Real/Estimates.lean",
+    # --- WORKORDER-I1/I2 (the complex Iwasawa engine; see SOURCES): the nine public complex-place
+    # headlines, proved by the tier-3 `AutomorphicForm.ComplexIwasawa.Engine.*` kernels of
+    # `…/Iwasawa/Complex/{Core,Decay,UniformDecay,Continuation}.lean`. Appended last so no earlier
+    # last-name match can flip.
+    "FLTForHuman/AutomorphicForm/Iwasawa/Complex/Estimates.lean",
 ]
 
 
