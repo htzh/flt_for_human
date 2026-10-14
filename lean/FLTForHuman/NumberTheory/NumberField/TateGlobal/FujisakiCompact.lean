@@ -286,7 +286,7 @@ private theorem ordAt_unitAtHom_principal (v : HeightOneSpectrum (𝓞 F)) (α :
       = count F v (spanSingleton (𝓞 F)⁰ (α : F)) := by
   rw [← neg_inj, ← WithZero.exp_inj]
   rw [show ordAt v (unitAtHom v _)
-        = ValuationOrd.ord (v.adicCompletionIntegers F)
+        = IsDiscreteValuationRing.ord (v.adicCompletionIntegers F)
           (Additive.ofMul (unitAtHom v (Units.map (algebraMap F (AdeleRing (𝓞 F) F)).toMonoidHom α)))
       from rfl]
   rw [← ValuedOrdBridge.valued_coe_units_eq_exp_neg_ord]

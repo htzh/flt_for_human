@@ -49,7 +49,7 @@ theorem distribHaarChar_unifPow (ϖ : Uniformizers F) (k : HeightOneSpectrum (�
   refine Finset.prod_congr rfl fun v _ => ?_
   rw [map_zpow, TateGlobal.distribHaarChar_embUnit_eq_local,
     LocalHaarModulus.distribHaarChar_adicCompletion]
-  have h1 : ValuationOrd.ord (v.adicCompletionIntegers F) (Additive.ofMul (ϖ.ϖ v)) = 1 :=
+  have h1 : IsDiscreteValuationRing.ord (v.adicCompletionIntegers F) (Additive.ofMul (ϖ.ϖ v)) = 1 :=
     ϖ.ordAt_eq_one v
   rw [h1, ← zpow_mul, neg_one_mul]
 

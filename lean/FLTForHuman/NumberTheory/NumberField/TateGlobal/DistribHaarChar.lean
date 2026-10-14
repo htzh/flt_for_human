@@ -133,21 +133,21 @@ theorem distribHaarChar_mk0_irreducible {ϖ : v.adicCompletionIntegers F} (hϖ :
 theorem distribHaarChar_adicCompletion (x : (v.adicCompletion F)ˣ) :
     distribHaarChar (v.adicCompletion F) x
       = ((Ideal.absNorm v.asIdeal : ℝ≥0))
-          ^ (-(ValuationOrd.ord (v.adicCompletionIntegers F) (Additive.ofMul x))) := by
+          ^ (-(IsDiscreteValuationRing.ord (v.adicCompletionIntegers F) (Additive.ofMul x))) := by
   obtain ⟨ϖ, hϖ⟩ := IsDiscreteValuationRing.exists_irreducible (v.adicCompletionIntegers F)
   have h0 : ((ϖ : v.adicCompletionIntegers F) : v.adicCompletion F) ≠ 0 := by
     simpa using (Subtype.coe_injective.ne_iff.mpr hϖ.ne_zero)
   set w : (v.adicCompletion F)ˣ := Units.mk0 _ h0 with hw
-  set k : ℤ := ValuationOrd.ord (v.adicCompletionIntegers F) (Additive.ofMul x) with hk
+  set k : ℤ := IsDiscreteValuationRing.ord (v.adicCompletionIntegers F) (Additive.ofMul x) with hk
   set y : (v.adicCompletion F)ˣ := x * w ^ (-k) with hy
-  have hordw : ValuationOrd.ord (v.adicCompletionIntegers F) (Additive.ofMul w) = 1 :=
-    ValuationOrd.ord_ofMul_mk0_of_irreducible (v.adicCompletionIntegers F) hϖ h0
-  have hordy : ValuationOrd.ord (v.adicCompletionIntegers F) (Additive.ofMul y) = 0 := by
+  have hordw : IsDiscreteValuationRing.ord (v.adicCompletionIntegers F) (Additive.ofMul w) = 1 :=
+    IsDiscreteValuationRing.ord_ofMul_mk0_of_irreducible (v.adicCompletionIntegers F) hϖ h0
+  have hordy : IsDiscreteValuationRing.ord (v.adicCompletionIntegers F) (Additive.ofMul y) = 0 := by
     have hmul : Additive.ofMul y = Additive.ofMul x + (-k) • Additive.ofMul w := rfl
     rw [hmul, map_add, map_zsmul, hordw, smul_eq_mul, mul_one, ← hk, add_neg_cancel]
   have hyunit : distribHaarChar (v.adicCompletion F) y = 1 :=
     distribHaarChar_eq_one_of_mem_range y
-      ((ValuationOrd.ord_eq_zero_iff (v.adicCompletionIntegers F) y).mp hordy)
+      ((IsDiscreteValuationRing.ord_eq_zero_iff (v.adicCompletionIntegers F) y).mp hordy)
   have hxy : x = y * w ^ k := by
     rw [hy, mul_assoc, ← zpow_add, neg_add_cancel, zpow_zero, mul_one]
   have hqw : distribHaarChar (v.adicCompletion F) w
@@ -165,7 +165,7 @@ theorem measure_smul_integers [MeasurableSpace (v.adicCompletion F)]
     [μ.IsAddHaarMeasure] [μ.Regular] (x : (v.adicCompletion F)ˣ) :
     μ ((x : v.adicCompletion F) • (v.adicCompletionIntegers F : Set (v.adicCompletion F)))
       = (((Ideal.absNorm v.asIdeal : ℝ≥0))
-          ^ (-(ValuationOrd.ord (v.adicCompletionIntegers F) (Additive.ofMul x))) : ℝ≥0)
+          ^ (-(IsDiscreteValuationRing.ord (v.adicCompletionIntegers F) (Additive.ofMul x))) : ℝ≥0)
         * μ (v.adicCompletionIntegers F : Set (v.adicCompletion F)) := by
   rw [← distribHaarChar_adicCompletion, distribHaarChar_mul]
   rfl

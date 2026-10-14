@@ -4,7 +4,7 @@
   The uniformizer unit `piUnit`, the shells `shellSet hϖ k` of exact order `k`
   (the `ϖ ^ k`-multiples of the completed integers with nothing deeper), their
   compactness, openness and measurability, `mem_shellSet_iff_ord_eq` identifying a
-  shell with a level set of `ValuationOrd.ord`, and
+  shell with a level set of `IsDiscreteValuationRing.ord`, and
   `measure_integers_lt_top`.
 
   Transcribed from the pin's `M4aLocalCFT.LocalZetaUnramified` block, declared
@@ -62,12 +62,12 @@ def piUnit (hϖ : Irreducible ϖ) : (v.adicCompletion F)ˣ := Units.mk0 _ (coe_n
 
 -- pin: ord_piUnit (S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean:1566)
 theorem ord_piUnit (hϖ : Irreducible ϖ) :
-    ValuationOrd.ord (v.adicCompletionIntegers F) (Additive.ofMul (piUnit hϖ)) = 1 :=
-  ValuationOrd.ord_ofMul_mk0_of_irreducible _ hϖ _
+    IsDiscreteValuationRing.ord (v.adicCompletionIntegers F) (Additive.ofMul (piUnit hϖ)) = 1 :=
+  IsDiscreteValuationRing.ord_ofMul_mk0_of_irreducible _ hϖ _
 
 -- pin: ord_piUnit_pow (S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean:1570)
 theorem ord_piUnit_pow (hϖ : Irreducible ϖ) (k : ℕ) :
-    ValuationOrd.ord (v.adicCompletionIntegers F) (Additive.ofMul ((piUnit hϖ) ^ k)) = k := by
+    IsDiscreteValuationRing.ord (v.adicCompletionIntegers F) (Additive.ofMul ((piUnit hϖ) ^ k)) = k := by
   have h : Additive.ofMul ((piUnit hϖ) ^ k) = k • Additive.ofMul (piUnit hϖ) := rfl
   rw [h, map_nsmul, ord_piUnit]
   simp
@@ -129,7 +129,7 @@ theorem zero_notMem_shellSet (hϖ : Irreducible ϖ) (k : ℕ) : (0 : v.adicCompl
 -- pin: mem_shellSet_iff_ord_eq (S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean:1622)
 theorem mem_shellSet_iff_ord_eq (hϖ : Irreducible ϖ) (k : ℕ) {x : v.adicCompletion F} (hx : x ≠ 0) :
     x ∈ shellSet hϖ k
-      ↔ ValuationOrd.ord (v.adicCompletionIntegers F) (Additive.ofMul (Units.mk0 x hx))
+      ↔ IsDiscreteValuationRing.ord (v.adicCompletionIntegers F) (Additive.ofMul (Units.mk0 x hx))
           = k := by
   constructor
   · intro hmem
@@ -155,10 +155,10 @@ theorem mem_shellSet_iff_ord_eq (hϖ : Irreducible ϖ) (k : ℕ) {x : v.adicComp
       push_cast [piUnit_val, Units.coe_map]
       rw [← hu]
       rfl
-    have hordu : ValuationOrd.ord (v.adicCompletionIntegers F)
+    have hordu : IsDiscreteValuationRing.ord (v.adicCompletionIntegers F)
         (Additive.ofMul (Units.map ((v.adicCompletionIntegers F).subtype.toMonoidHom) u))
           = 0 :=
-      (ValuationOrd.ord_eq_zero_iff _ _).mpr ⟨u, rfl⟩
+      (IsDiscreteValuationRing.ord_eq_zero_iff _ _).mpr ⟨u, rfl⟩
     have hsplit : Additive.ofMul (Units.mk0 x hx)
         = Additive.ofMul (piUnit hϖ ^ k)
           + Additive.ofMul (Units.map ((v.adicCompletionIntegers F).subtype.toMonoidHom) u) := by
@@ -166,11 +166,11 @@ theorem mem_shellSet_iff_ord_eq (hϖ : Irreducible ϖ) (k : ℕ) {x : v.adicComp
     rw [hsplit, map_add, hordu, add_zero, ord_piUnit_pow]
   · intro hord
     set w : (v.adicCompletion F)ˣ := Units.mk0 x hx * (piUnit hϖ ^ k)⁻¹ with hwdef
-    have hword : ValuationOrd.ord (v.adicCompletionIntegers F) (Additive.ofMul w) = 0 := by
+    have hword : IsDiscreteValuationRing.ord (v.adicCompletionIntegers F) (Additive.ofMul w) = 0 := by
       have hsub : Additive.ofMul w = Additive.ofMul (Units.mk0 x hx)
           - Additive.ofMul (piUnit hϖ ^ k) := rfl
       rw [hsub, map_sub, hord, ord_piUnit_pow, sub_self]
-    obtain ⟨u, hu⟩ := (ValuationOrd.ord_eq_zero_iff _ _).mp hword
+    obtain ⟨u, hu⟩ := (IsDiscreteValuationRing.ord_eq_zero_iff _ _).mp hword
     have hxw : x = ((piUnit hϖ ^ k : (v.adicCompletion F)ˣ) : v.adicCompletion F)
         * ((w : (v.adicCompletion F)ˣ) : v.adicCompletion F) := by
       have hfac : Units.mk0 x hx = piUnit hϖ ^ k * w := by
@@ -198,7 +198,7 @@ theorem mem_shellSet_iff_ord_eq (hϖ : Irreducible ϖ) (k : ℕ) {x : v.adicComp
       have hwz := mul_left_cancel₀ (Units.ne_zero (piUnit hϖ ^ k)) hcan
       have hwmem : ((w : (v.adicCompletion F)ˣ) : v.adicCompletion F) ∈ v.adicCompletionIntegers F := by
         rw [hwz]; exact mul_mem ϖ.2 z.2
-      obtain ⟨uw, huw⟩ := (ValuationOrd.ord_eq_zero_iff _ _).mp hword
+      obtain ⟨uw, huw⟩ := (IsDiscreteValuationRing.ord_eq_zero_iff _ _).mp hword
       have huwO : ((uw : (v.adicCompletionIntegers F)ˣ) : v.adicCompletionIntegers F)
           = ϖ * z := by
         apply Subtype.coe_injective

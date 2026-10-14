@@ -59,12 +59,12 @@ def unifOf (ϖ : (v : HeightOneSpectrum (𝓞 F)) → (v.adicCompletion F)ˣ)
     (hϖ : ∀ v, Valued.v (ϖ v : v.adicCompletion F) = Multiplicative.ofAdd (-1 : ℤ)) : Uniformizers F where
   ϖ := ϖ
   ordAt_eq_one v := by
-    have h : WithZero.exp (-(ValuationOrd.ord (v.adicCompletionIntegers F) (Additive.ofMul (ϖ v))))
+    have h : WithZero.exp (-(IsDiscreteValuationRing.ord (v.adicCompletionIntegers F) (Additive.ofMul (ϖ v))))
         = WithZero.exp (-1 : ℤ) := by
       rw [← ValuedOrdBridge.valued_coe_units_eq_exp_neg_ord]
       exact hϖ v
     have h' := WithZero.exp_injective h
-    show ValuationOrd.ord (v.adicCompletionIntegers F) (Additive.ofMul (ϖ v)) = 1
+    show IsDiscreteValuationRing.ord (v.adicCompletionIntegers F) (Additive.ofMul (ϖ v)) = 1
     omega
 
 -- pin: unifOf_ϖ (S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean:5147)

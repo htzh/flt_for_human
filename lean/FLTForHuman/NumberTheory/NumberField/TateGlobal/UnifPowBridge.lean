@@ -52,7 +52,7 @@ theorem ordAt_nonneg_of_mem (v : HeightOneSpectrum (𝓞 F)) (t : (v.adicComplet
   have hspan : Ideal.span {(⟨(t : v.adicCompletion F), ht⟩ : v.adicCompletionIntegers F)}
       = IsLocalRing.maximalIdeal (v.adicCompletionIntegers F) ^ n := by
     rw [hn, hϖ.maximalIdeal_eq, Ideal.span_singleton_pow]
-  have h := NumberField.TateGlobal.ValuationOrd.ord_ofMul_of_mem (v.adicCompletionIntegers F) ht hspan
+  have h := IsDiscreteValuationRing.ord_ofMul_of_mem (v.adicCompletionIntegers F) ht hspan
   rw [ordAt, h]
   exact Int.natCast_nonneg n
 

@@ -140,6 +140,30 @@ internally — but those helpers are imported as already-proved public declarati
 new proof term reaches the private names. Promoting them would force a wave over the
 whole T1 cone (below) for zero statement surface. They stay private, per playbook §4(b).
 
+**Reversed, then moved, 2026-10-13 — the block left this file.** Three steps, in order.
+
+1. *Promotion.* Eleven `private` keywords removed on `TateGlobal/Ideles.lean`, so all sixteen
+   declarations are public. The reason is not that a consumer needs them — none does, and none
+   ever has; the pin keeps them `private` per file because it copies the prelude verbatim into
+   sixteen `S_` files, a file-scoping device, not a judgement about the content.
+2. *The correction.* The promotion was first justified as "three separate rounds have needed
+   it", which was false and was caught in review. What recurred was `port_advise` *flagging* the
+   block as a promotion candidate; no ported module names any of the eleven; and the worker's
+   stop-and-ask was about `AdelicHeight.norm_le_one_of_mem_adicCompletionIntegers`, a different
+   lemma. The decisive tell: **if the block had really blocked three rounds, promoting it would
+   have produced importers — and it produced none.** Check a claimed dependency by looking for
+   the dependents, not by counting how often the question was asked.
+3. *The move.* Review then asked the better question — *is the block even adelic?* It is not:
+   it is generic discrete-valuation-ring theory (`variable {L : Type*} [Field L]
+   (A : ValuationSubring L) [IsDiscreteValuationRing A]`), applied by its consumers at
+   `A := v.adicCompletionIntegers F`. So it now lives at
+   `FLTForHuman/RingTheory/DiscreteValuationRing/Order.lean` (248 lines, namespace
+   `IsDiscreteValuationRing`), `Ideles.lean` imports it and shrank 784 → 541 lines, and the 35
+   reference sites across ten `TateGlobal` modules were re-pointed. It compiled standalone in
+   a fresh module with **mathlib-only imports on the first try** — the proof that it never
+   belonged here. Listing the new home gave the checker **+16 identical, 0 mismatched**: the
+   sixteen had been invisible to it while private inside an unlisted module.
+
 ## 3. The shared block — the reason to plan this at all
 
 The six new declarations are all in the pin's final `Fold_FujisakiC3d` section
@@ -409,8 +433,10 @@ the façade to `PORT_FILES`; both last) is in every work order and in the fricti
 
 ## 9. Residuals
 
-* The 11 port-`private` `ValuationOrd` helpers in `TateGlobal/Ideles.lean` stay private
-  (§2). If a later family order needs one directly, it is a priced hub edit then.
+* The `ValuationOrd` block — `private` in `TateGlobal/Ideles.lean` from the T1 landing — was
+  promoted and then **moved out** on 2026-10-13: it is generic DVR theory and now lives at
+  `RingTheory/DiscreteValuationRing/Order.lean` (§2's reversal note). `Ideles.lean` shrank
+  784 → 541 lines and the register's public count went 62 → 46 there.
 * `continuous_ideleNorm_det` was scoped as an optional +1 (§4) and **landed** with the
   headline (§10). It is not one of the nine `normQ` files (§3); it is a separate derived
   corollary whose `Theorems/` wrapper is its statement authority.

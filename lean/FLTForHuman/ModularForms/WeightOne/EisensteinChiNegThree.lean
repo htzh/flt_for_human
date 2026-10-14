@@ -11,8 +11,8 @@
 
   The development has two halves:
 
-  * the analytic half (`...S17E1.FLT.EisensteinWeightOne` and
-    `...S17E1.FLT.AnalyticCore`): the hexagonal theta series
+  * the analytic half (`FLT.EisensteinWeightOne` and
+    `FLT.AnalyticCore`): the hexagonal theta series
     `hexTheta σ = ∑'_{x,y} e^{2πiσ(x²+xy+y²)}`, its Poisson-summation
     functional equation, its values at the fixed points of `T` and `U₃`, and
     the resulting weight-one modularity on `Γ₀(3)`;
@@ -67,9 +67,6 @@ noncomputable section
 
 open EisensteinWeightOne
 
-namespace P2MW.S_EisensteinWeightOne_e1Chi3IsModular
-
-namespace S17E1
 section File_FLT_Modularity_EisensteinWeightOne
 
 namespace FLT
@@ -3812,14 +3809,11 @@ end FLT.AnalyticCore
 
 end File_FLT_AnalyticCore_E1Chi3Modular
 
-end S17E1
-
-end P2MW.S_EisensteinWeightOne_e1Chi3IsModular
 
 /-- **SET-6 order 2.** The weight-one `χ₋₃` Eisenstein series `e1Chi3` is the
 `q`-expansion of a modular form on `Γ₁(3)`. -/
 theorem EisensteinWeightOne.e1Chi3IsModular : EisensteinWeightOne.E1Chi3IsModular :=
-  P2MW.S_EisensteinWeightOne_e1Chi3IsModular.S17E1.FLT.AnalyticCore.e1Chi3IsModular
+  FLT.AnalyticCore.e1Chi3IsModular
 
 
 

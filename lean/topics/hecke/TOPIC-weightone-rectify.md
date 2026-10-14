@@ -1,6 +1,10 @@
 # The WeightOne rectification — plan and set schedule
 
-**Status: planned (SET-W1 not started).** The route-C′ port (SET-5 – SET-11 plus the
+**Status: executed — the close-out is
+[TOPIC-weightone-rectify-closeout.md](TOPIC-weightone-rectify-closeout.md); this file is kept as
+the plan and the set schedule, and its §3 table carries the per-set outcome. (The status line
+read "planned (SET-W1 not started)" until 2026-10-13, long after W2–W4 had run; the close-out
+says what remains.)** The route-C′ port (SET-5 – SET-11 plus the
 capstone) transcribed FLT package-by-package, so each `S_` file's private prelude was
 re-proved in the port module that consumed it. The result builds and is verified, but it
 does not conform to [porting-playbook.md](../../porting-playbook.md): a module is a

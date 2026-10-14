@@ -1,5 +1,5 @@
 /-
-  The bridge between the adic valuation and `ValuationOrd`: the uniformizer
+  The bridge between the adic valuation and `IsDiscreteValuationRing.ord`: the uniformizer
   `exists_irreducible_valued` has valuation `exp(-1)`, every irreducible does
   (`valued_coe_of_irreducible`), and on units the valuation is
   `exp(-ord)` (`valued_coe_units_eq_exp_neg_ord`).
@@ -10,7 +10,7 @@
 
   Chapter-prefix rename (work order §3.1): `M4aLocalCFT.ValuedOrdBridge` becomes
   `NumberField.TateGlobal.ValuedOrdBridge`; the sub-namespace is kept.  The
-  uniformizer/`ord` prelude (`ValuationOrd`, `piUnit`, `ord_ofMul_*`) is imported
+  uniformizer/`ord` prelude (`IsDiscreteValuationRing`, `piUnit`, `ord_ofMul_*`) is imported
   from `Ideles`/`LocalZetaUnramified`/`MulHaarFromAdditive`.
 
   Build notes: the pin's `p2m_*` scaffolding is dropped; no file-wide option
@@ -185,17 +185,17 @@ theorem valued_coe_of_irreducible (hϖ : Irreducible ϖ) :
 -- pin: valued_coe_units_eq_exp_neg_ord (S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean:2818)
 theorem valued_coe_units_eq_exp_neg_ord (x : (v.adicCompletion F)ˣ) :
     Valued.v ((x : (v.adicCompletion F)ˣ) : v.adicCompletion F)
-      = WithZero.exp (-(ValuationOrd.ord (v.adicCompletionIntegers F) (Additive.ofMul x))) := by
+      = WithZero.exp (-(IsDiscreteValuationRing.ord (v.adicCompletionIntegers F) (Additive.ofMul x))) := by
   obtain ⟨π₀, hπ₀, hv₀⟩ := exists_irreducible_valued (v := v)
-  set n : ℤ := ValuationOrd.ord (v.adicCompletionIntegers F) (Additive.ofMul x) with hn
+  set n : ℤ := IsDiscreteValuationRing.ord (v.adicCompletionIntegers F) (Additive.ofMul x) with hn
   set u : (v.adicCompletion F)ˣ := (piUnit hπ₀ ^ n)⁻¹ * x with hu
-  have hordu : ValuationOrd.ord (v.adicCompletionIntegers F) (Additive.ofMul u) = 0 := by
+  have hordu : IsDiscreteValuationRing.ord (v.adicCompletionIntegers F) (Additive.ofMul u) = 0 := by
     rw [hu, ord_ofMul_mul,
       show ((piUnit hπ₀ ^ n)⁻¹ : (v.adicCompletion F)ˣ) = piUnit hπ₀ ^ (-n) from
         (zpow_neg _ _).symm,
       ord_ofMul_zpow_piUnit hπ₀, ← hn]
     omega
-  obtain ⟨w, hw⟩ := (ValuationOrd.ord_eq_zero_iff (v.adicCompletionIntegers F) u).mp hordu
+  obtain ⟨w, hw⟩ := (IsDiscreteValuationRing.ord_eq_zero_iff (v.adicCompletionIntegers F) u).mp hordu
   have hvu : Valued.v ((u : (v.adicCompletion F)ˣ) : v.adicCompletion F) = 1 := by
     have hiso : ((u : (v.adicCompletion F)ˣ) : v.adicCompletion F)
         = (algebraMap (v.adicCompletionIntegers F) (v.adicCompletion F)) (w : _) := by

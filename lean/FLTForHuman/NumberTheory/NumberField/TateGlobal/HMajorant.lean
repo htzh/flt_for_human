@@ -61,7 +61,7 @@ def someUniformizers : Uniformizers F where
     have h0 : ((ϖ : v.adicCompletionIntegers F) : v.adicCompletion F) ≠ 0 := fun h =>
       hirr.ne_zero (Subtype.ext h)
     show ordAt v (Units.mk0 _ h0) = 1
-    exact ValuationOrd.ord_ofMul_mk0_of_irreducible _ hirr h0
+    exact IsDiscreteValuationRing.ord_ofMul_mk0_of_irreducible _ hirr h0
 
 end NumberField.TateGlobal
 

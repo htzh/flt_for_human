@@ -11,7 +11,7 @@ whether the tree has drifted.  Nothing here is verified against the pin: the
 `pin original` column names the declaration (and the file holding it) that
 carries the statement to diff when the entry is wired.
 
-`2057` public declarations in `84` unlisted modules; `1769` of them have a pin counterpart by name and statement.
+`2052` public declarations in `84` unlisted modules; `1764` of them have a pin counterpart by name and statement.
 
 This is tier 3 only.  Tier 2 — a declaration in a *listed* module that the
 checker skips — is `OWN_PROOFS` in the checker itself, each entry carrying its
@@ -100,7 +100,7 @@ wrappers whose statements the checker diffs).
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/FujisakiC3.lean`](#fltforhumannumbertheorynumberfieldtateglobalfujisakic3lean) | 121 | 6 | 6 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/FujisakiCompact.lean`](#fltforhumannumbertheorynumberfieldtateglobalfujisakicompactlean) | 967 | 2 | 2 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/HMajorant.lean`](#fltforhumannumbertheorynumberfieldtateglobalhmajorantlean) | 367 | 14 | 14 | 0 | 2 | 0 |
-| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/Ideles.lean`](#fltforhumannumbertheorynumberfieldtateglobalideleslean) | 763 | 51 | 51 | 0 | 2 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/Ideles.lean`](#fltforhumannumbertheorynumberfieldtateglobalideleslean) | 541 | 46 | 46 | 0 | 2 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/IndicatorEulerFactors.lean`](#fltforhumannumbertheorynumberfieldtateglobalindicatoreulerfactorslean) | 486 | 19 | 19 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/IntLocalIntegrability.lean`](#fltforhumannumbertheorynumberfieldtateglobalintlocalintegrabilitylean) | 368 | 8 | 8 | 0 | 3 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/IntegrableZetaIntegrand.lean`](#fltforhumannumbertheorynumberfieldtateglobalintegrablezetaintegrandlean) | 183 | 4 | 4 | 0 | 1 | 0 |
@@ -2241,17 +2241,12 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/Ideles.lean`
 
-763 lines, 51 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
+541 lines, 46 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
 | `NumberField.TateGlobal.ExpIndex` | def | `ExpIndex` (provenance comment) | [`S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean:511`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean#L511) |
 | `NumberField.TateGlobal.Uniformizers` | structure | `Uniformizers` (provenance comment) | [`S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean:368`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean#L368) |
-| `NumberField.TateGlobal.ValuationOrd.ord` | def | `ord` (provenance comment) | [`S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean:213`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean#L213) |
-| `NumberField.TateGlobal.ValuationOrd.ord_eq_zero_iff` | theorem | `ord_eq_zero_iff` (provenance comment) | [`S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean:259`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean#L259) |
-| `NumberField.TateGlobal.ValuationOrd.ord_ofMul_mk0_of_irreducible` | theorem | `ord_ofMul_mk0_of_irreducible` (provenance comment) | [`S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean:251`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean#L251) |
-| `NumberField.TateGlobal.ValuationOrd.ord_ofMul_of_mem` | theorem | `ord_ofMul_of_mem` (provenance comment) | [`S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean:243`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean#L243) |
-| `NumberField.TateGlobal.ValuationOrd.ord_spec` | theorem | `ord_spec` (provenance comment) | [`S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean:235`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean#L235) |
 | `NumberField.TateGlobal.archUnits` | def | `archUnits` (provenance comment) | [`S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean:455`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean#L455) |
 | `NumberField.TateGlobal.char_unifPow` | theorem | `char_unifPow` (provenance comment) | [`S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean:457`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean#L457) |
 | `NumberField.TateGlobal.countable_heightOneSpectrum` | theorem | `countable_heightOneSpectrum` (provenance comment) | [`S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean:492`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean#L492) |

@@ -120,15 +120,15 @@ theorem one_mem_shellSet_zero (hϖ : Irreducible ϖ) :
 
 -- pin: ord_ofMul_mul (S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean:1836)
 theorem ord_ofMul_mul (u w : (v.adicCompletion F)ˣ) :
-    ValuationOrd.ord (v.adicCompletionIntegers F) (Additive.ofMul (u * w))
-      = ValuationOrd.ord (v.adicCompletionIntegers F) (Additive.ofMul u)
-        + ValuationOrd.ord (v.adicCompletionIntegers F) (Additive.ofMul w) := by
+    IsDiscreteValuationRing.ord (v.adicCompletionIntegers F) (Additive.ofMul (u * w))
+      = IsDiscreteValuationRing.ord (v.adicCompletionIntegers F) (Additive.ofMul u)
+        + IsDiscreteValuationRing.ord (v.adicCompletionIntegers F) (Additive.ofMul w) := by
   have h : Additive.ofMul (u * w) = Additive.ofMul u + Additive.ofMul w := rfl
   rw [h, map_add]
 
 -- pin: ord_ofMul_zpow_piUnit (S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean:1843)
 theorem ord_ofMul_zpow_piUnit (hϖ : Irreducible ϖ) (k : ℤ) :
-    ValuationOrd.ord (v.adicCompletionIntegers F) (Additive.ofMul (piUnit hϖ ^ k)) = k := by
+    IsDiscreteValuationRing.ord (v.adicCompletionIntegers F) (Additive.ofMul (piUnit hϖ ^ k)) = k := by
   have h : Additive.ofMul (piUnit hϖ ^ k) = k • Additive.ofMul (piUnit hϖ) := rfl
   rw [h, map_zsmul, ord_piUnit hϖ, smul_eq_mul, mul_one]
 
@@ -139,7 +139,7 @@ def genShell (hϖ : Irreducible ϖ) (k : ℤ) : Set (v.adicCompletion F) :=
 -- pin: mem_genShell_iff (S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean:1851)
 theorem mem_genShell_iff (hϖ : Irreducible ϖ) {k : ℤ} {x : v.adicCompletion F} (hx : x ≠ 0) :
     x ∈ genShell hϖ k
-      ↔ ValuationOrd.ord (v.adicCompletionIntegers F) (Additive.ofMul (Units.mk0 x hx)) = k := by
+      ↔ IsDiscreteValuationRing.ord (v.adicCompletionIntegers F) (Additive.ofMul (Units.mk0 x hx)) = k := by
   constructor
   · rintro ⟨y, hy, rfl⟩
     have hy0 : y ≠ 0 := fun h => zero_notMem_shellSet hϖ 0 (h ▸ hy)

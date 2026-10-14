@@ -4593,6 +4593,7 @@ PORT_FILES = [
     # and `M4aLocalCFT.FujisakiC2c.compactSpace_normOneIdeleClass_impl` of the tier-3 engine
     # `…/TateGlobal/FujisakiCompact.lean`. No existing module was edited.
     "FLTForHuman/NumberTheory/NumberField/TateGlobalCompactness.lean",
+    "FLTForHuman/RingTheory/DiscreteValuationRing/Order.lean",
 ]
 
 

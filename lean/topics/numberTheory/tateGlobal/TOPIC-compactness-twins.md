@@ -140,19 +140,25 @@ Wiring (appended last, per the friction log): the two wrappers then their two `S
 
 ## 5. Risks and recorded negatives
 
-1. **The `ValuationOrd` prelude is dead in this node — do not transcribe it and do not
-   promote it.** Both files re-carry the pin's `M4aLocalCFT.ValuationOrd` block (lines 85–284),
+1. **The `ValuationOrd` prelude is dead in this node — transcribed here only if it were
+   live, and public since 2026-10-13.** Both files re-carry the pin's `M4aLocalCFT.ValuationOrd` block (lines 85–284),
    whose 11 declarations `port_advise` matches to *port-`private`* declarations in
    `TateGlobal/Ideles.lean` (`NumberField.TateGlobal.ValuationOrd.*`). That is the block the T1
    topic kept private. **Verified mechanically:** in both files every occurrence of the eleven
    names (`ordA`, `ordZ`, `ordA_span`, `ordA_mul`, `ordA_unique`, `ordZ_spec`, `coe_mk_ne_zero`,
    `exists_rep`, `exists_span_eq_pow`, `pow_maximalIdeal_ne_of_lt`,
    `pow_maximalIdeal_injective`) lies between lines 93 and 248, i.e. **inside the block
-   itself**; nothing after line 284 names any of them. So no new proof term reaches a
-   port-`private` name, the block is substituted by its existing home, and **no promotion is
-   owed**. (Had it been live, the promotion would have been a hub edit on
-   `TateGlobal/Ideles.lean` priced by `build_ladder.py --edit` at 27 modules / 8,389 lines
-   ≈ 110 s.)
+   itself**; nothing after line 284 names any of them. So no new proof term of this node
+   reaches them and the block is **not transcribed** — the engine has no
+   `M4aLocalCFT.ValuationOrd` namespace, and its only occurrence in a proof is the port-public
+   `IsDiscreteValuationRing.ord` (it was `NumberField.TateGlobal.ValuationOrd.ord` until the
+   block moved on 2026-10-13). The manager promoted it and then **moved it out of `Ideles.lean`
+   altogether**: it is generic DVR theory, quantified over an abstract `(A : ValuationSubring L)
+   [IsDiscreteValuationRing A]`, and now lives at
+   `RingTheory/DiscreteValuationRing/Order.lean`; see
+   [TOPIC-continuous-ideleNorm.md](TOPIC-continuous-ideleNorm.md) §2's reversal-and-move note and
+   [CARRY-FORWARD.md](../../CARRY-FORWARD.md) §Cleanup families. The order's §3 still stands:
+   transcribe nothing, re-derive nothing.
 2. **The 2,638 in-port lines are tier 3.** The engine imports the T1 modules
    (`TateGlobal/{Defs,Coordinates,Ideles,FiniteSlab,ArchSlab,DistribHaarChar,ZetaIntegrand,
    LocalZetaUnramified,ArchMulHaar,ValuedOrdBridge,…}`); they are importable but unlisted, so

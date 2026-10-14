@@ -197,10 +197,16 @@ took them on the first run):
 * `NumberField.TateGlobal.compactSpace_normOneIdeleClass`
   ← `M4aLocalCFT.FujisakiC2c.compactSpace_normOneIdeleClass_impl`.
 
-**The `ValuationOrd` decision held.** The engine contains no `M4aLocalCFT.ValuationOrd`
-namespace; the only occurrence of the name in a proof is the port-public
-`NumberField.TateGlobal.ValuationOrd.ord`, exactly as §3 predicted. The 11 block names are
-absent, and no promotion was owed or stopped on.
+**The `ValuationOrd` scoping held; the block itself was promoted afterwards.** The engine
+contains no `M4aLocalCFT.ValuationOrd` namespace; the only occurrence of the name in a proof is
+the port-public `NumberField.TateGlobal.ValuationOrd.ord`, exactly as §3 predicted. The 11 block
+names are absent from the engine and none was needed. The block was later promoted **and then
+moved** out of `Ideles.lean`: it is generic discrete-valuation-ring theory and now lives at
+`RingTheory/DiscreteValuationRing/Order.lean`, so the qualified reference in this engine reads
+`IsDiscreteValuationRing.ord`. That sequence was not driven by this set — the block is *dead*
+here — and the manager's first justification for the promotion ("three rounds needed it") was
+false and is recorded as such in
+[TOPIC-continuous-ideleNorm.md](TOPIC-continuous-ideleNorm.md) §2.
 
 **Tool artifact: a self-reference hazard in re-running `port_advise` after a module lands.**
 The worker reported ten declarations (`fracIdealProd_add`, `fracIdealProdHom`,
