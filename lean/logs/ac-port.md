@@ -882,3 +882,102 @@ recurring real cost was not mathematics but v4.34 API drift: `Set.mem_setOf_eq`,
 `zero_le'`, `if_pos`/`if_neg`, `RatFunc.inftyValuation`'s new `DecidableEq`,
 `Polynomial.degree_sub_lt`, `prime_of_normalized_factor`,
 `finiteDimensional_adjoin`, and the deprecated `Ideal` ramification API.
+
+## 12. P1 — the place realising a prime over a valuation subring
+
+`FLTForHuman/AlgebraicCurve/Place/IsPrimeOverValuationSubring.lean`, 1,775 lines
+(the pin `S_` 1,886 minus 111 scaffolding lines), **1 public** headline and 124
+`private` declaration lines (the pin has exactly one non-`private` declaration).
+Pin `aa2d8b3`. Order:
+[WORKORDER-P1-isPrimeOverValuationSubring.md](../topics/algebraicCurve/WORKORDER-P1-isPrimeOverValuationSubring.md).
+
+| check | result |
+|---|---|
+| `lake env lean -DautoImplicit=false -DmaxHeartbeats=200000` | green, 0 errors, 0 warnings |
+| `flock … lake build FLTForHuman.AlgebraicCurve.Place.IsPrimeOverValuationSubring` | green, **0 warnings**, 2691 jobs, wall 8.99 s / user 23.88 s / sys 3.74 s |
+| `spec/check_flt_statements.py` | **9743 identical (671 promoted, 83 renamed), 0 mismatched, 0 missing**, 38 exempted (9781 checked) — up 1, the headline |
+| `#print axioms` | `[propext, Classical.choice, Quot.sound]` |
+| `spec/DeligneSerreConsumer.lean` | 0 errors |
+| grep sweep | `sorry`/`admit`/`axiom`/`native_decide`/bare `import Mathlib`/`maxHeartbeats` all 0 |
+
+The pin transcribed essentially verbatim on v4.34.0; two substitutions, both
+proof-local. (1) `Ideal.eq_bot_of_comap_eq_bot` → `Ideal.eq_bot_of_under_eq_bot`
+(the v4.34 rename, identical shape) in the private
+`ValuationSubring.algebraMap_bijective_of_isIntegral_of_isAlgClosed`. (2)
+`set_option linter.style.haveILetI false` module-wide (as `Defs/PlacesOverDVR.lean`)
+because the pin's `letI`/`haveI` walls are kept literal, otherwise 18 style warnings.
+
+The `p2m_export`/`p2m_open`/`p2m_reactivate`/`p2m_alias` machinery is not ported:
+plain `namespace`/`end`, each declaration in its pin namespace, `private` except the
+headline. The blanket `attribute [-instance]`/`[-simp]` preludes are not copied and no
+narrowing was needed. No existing module was edited and no promotion was owed: the
+pin's `centreOver`/`inv_algebraMap_mem` cluster is re-derived `private` in the pin's
+own `ValuationSubring` namespace, so `Defs/PlacesOverDVR`'s port-`private`
+`inv_algebraMap_mem`/`chartHom`/`mem_center_iff` are untouched.
+
+**This row was a genuine orphan**, reached by the `ModularCurve` target cone but
+claimed by neither [PORTING-AC.md](../topics/PORTING-AC.md) nor
+[PORTING-DeligneSerre.md](../topics/PORTING-DeligneSerre.md) §2 (which lists the
+`AlgebraicCurve` ready rows as "not this column's"). No manager pre-round was owed:
+both imported `Definitions/` modules
+(`Def_AlgebraicCurve_PlacesOverDVR`, `Def_AlgebraicCurve_DivisorClassGroup`) are
+already homed, and the proof names none of the deferred definition-module API of
+§11.1. The declaration inventory is a 1:1 map to the pin — 125 declarations each,
+the only difference being `solution` → the public headline.
+
+`AlgebraicCurve.RadialRegion.exists_rect_sixArcs` is the sibling `AlgebraicCurve`
+leaf and is **not** related to this row: it shares no premise, no consumer and no
+definition module. It remains unported (1,839 pin lines) and its
+`Def_AlgebraicCurve_CellDissection` pre-round is still owed; it must not be scheduled
+off a ready shelf until that definition layer is homed.
+
+## 13. P2 — the P1 prelude split into a generic layer and the Place dictionary
+
+`FLTForHuman/AlgebraicCurve/Place/IsPrimeOverValuationSubring.lean`'s 124-declaration
+private prelude was extracted, made public, and split by subject into two **unwired**
+(tier-3) modules, with the tier-1 headline module importing the upper one:
+
+| module | decls | lines | content |
+|---|---:|---:|---|
+| `NumberTheory/ValuationSubring/Domination.lean` (B) | 54 | 898 | `Place`-free: domination, `centreOver`/`valuationSubringAtPrime`, residue/constants/`CharP`, integral closure, `RingHom.imagePrime` |
+| `AlgebraicCurve/Place/ValueDictionary.lean` (A) | 70 | 989 | the `AlgebraicCurve.Place.*` value/centre dictionary and the realisation core |
+| `AlgebraicCurve/Place/IsPrimeOverValuationSubring.lean` (tier 1) | 1 | 104 | the public headline; imports A |
+
+`ValueDictionary` imports `Domination`; the dependency is one-way (only A mentions
+`Place`). Checker **unchanged** at 9743 identical (671 promoted, 83 renamed), 0
+mismatched, 0 missing, 38 own-proof exempted (9781 checked); all three build clean
+(2537 / 2692 / 2693 jobs); `unwired_register.py --check` current (94 modules, 2465
+public); a `#check` over all 124 consumer names resolves. `ValuationSubringCore.lean`
+(the first, single-core landing) was deleted. Order:
+[WORKORDER-P2-valuationSubring-core-split.md](../topics/algebraicCurve/WORKORDER-P2-valuationSubring-core-split.md);
+reuse note:
+[TOPIC-valuation-subring-core.md](../topics/algebraicCurve/TOPIC-valuation-subring-core.md).
+
+**The driver was cross-silo duplication, not this column.** A statement-level scan of
+all 29,511 pin `S_` files (the checker's own parser) found the prelude copied
+near-verbatim into a 19-file `ModularCurve` cluster on the Mazur/Frey level-lowering
+branch (top: `S_ModularCurve_CharPModel_FibreModel_spPlace_surjective.lean`, 120/122
+statements and 111 bodies identical). Those files are **not** in the Deligne–Serre
+cone, so nothing is wasted here — but a future port of them must import A (and B), not
+re-prove ~8,367 lines.
+
+**The shape lesson — tier is per module.** The first plan was one core; the manager
+then found only 70 of the 124 declarations mention a `Place`, so B got a `Place`-free
+home. Keeping A public *and* unwired then forced A to be its **own** module: the
+checker iterates `PORT_FILES` and diffs every public declaration in a listed module
+(only `OWN_PROOFS` skips one), so a public declaration cannot stay undiffed inside the
+wired headline module. Merging A there would have cost +70 checked declarations;
+making it `private` would have hidden it from the future consumers. Two files is the
+price of the tier boundary, not of the mathematics.
+
+**Two tool defects, one fixed on the spot.** `unwired_register.py` dropped the
+`_root_.` absolute prefix when building a row's importable name, so ~161 register rows
+(name-space-qualified) were mis-homed — e.g. `IntermediateField.adjoin_simple_inv_eq`
+was listed as `AlgebraicCurve.Place.adjoin_simple_inv_eq`. Fixed in the tool (untracked)
+and the register regenerated (136 rows corrected). **Still open:** the checker's
+`DECL_RE` admits only `private`/`noncomputable`, so `scoped instance`s are invisible to
+`raw_declarations` — the register counts 121 of the 124 (A 68/70, B 53/54) and, if a
+module were wired, those three would not be statement-diffed. They are present, public
+and pinned. Fixing it means teaching the tracked checker to see `scoped` and
+re-running its selftest; it changes the global checked surface, so it is a deliberate
+separate pass, not a rider on a split.

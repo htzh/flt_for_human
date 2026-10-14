@@ -422,6 +422,13 @@ unrelated (`Transcendence ↔ RestrictAlong`). The statement-identical residue i
   declarations as substitutions (the tool scans the whole port tree, so every transcribed
   declaration matches itself). Use the advise file generated before the module was written, or
   exclude the new module.
+- The checker's `DECL_RE` admits only `private`/`noncomputable`, so a `scoped instance` is
+  invisible to `raw_declarations`: `unwired_register.py` skips it (the P1 prelude registers 121 of
+  its 124 declarations — `A` 68/70, `B` 53/54), and the statement checker would not diff it if its
+  module were wired. The three are present, public and pinned. Teaching the tracked checker to see
+  `scoped` changes the global checked surface and needs its own pass with `--selftest`; record in
+  `logs/ac-port.md` §13. (The companion defect — `unwired_register.py` dropping the `_root_.`
+  absolute prefix, which mis-homed ~161 register rows — was fixed 2026-10-14.)
 
 ### Co-import constraint: the gate producer and `Engine`
 

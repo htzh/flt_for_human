@@ -3206,6 +3206,9 @@ SOURCES = [
     "P2M/Sol/S_AutomorphicForm_isInducedSection_adelicHeight_cpow.lean",
     "Theorems/Thm_AutomorphicForm_IsInducedSection_apply_globalPoints_mul_of_mem_borelSubgroup_and_apply_unipotentGL2_mul.lean",
     "P2M/Sol/S_AutomorphicForm_IsInducedSection_apply_globalPoints_mul_of_mem_borelSubgroup_and_apply_unipotentGL2_mul.lean",
+    # --- WORKORDER-P1 (`topics/algebraicCurve/WORKORDER-P1-isPrimeOverValuationSubring.md`): the place realising a prime over a valuation subring; the wrapper carries the sole public headline and the `S_` silo is listed for it and the dotted fallback. Appended last.
+    "Theorems/Thm_AlgebraicCurve_Place_exists_of_isPrime_over_valuationSubring.lean",
+    "P2M/Sol/S_AlgebraicCurve_Place_exists_of_isPrime_over_valuationSubring.lean",
 ]
 
 
@@ -4781,6 +4784,8 @@ PORT_FILES = [
     # --- WORKORDER-SC4: the listed `IsInducedSection` pair module (both headlines plus the
     # pin-public helper surface, the 4 modulus-prelude rows imported). Appended last.
     "FLTForHuman/AutomorphicForm/Adelic/InducedSectionFlat.lean",
+    # --- WORKORDER-P1 (`topics/algebraicCurve/WORKORDER-P1-isPrimeOverValuationSubring.md`): the place realising a prime over a valuation subring; every declaration but the headline is `private`, so the checker sees only the headline. Appended last.
+    "FLTForHuman/AlgebraicCurve/Place/IsPrimeOverValuationSubring.lean",
 ]
 
 
