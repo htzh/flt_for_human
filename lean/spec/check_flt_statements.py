@@ -3070,6 +3070,23 @@ SOURCES = [
     "Theorems/Thm_NumberField_InfiniteAdeleRing_distribHaarChar_eq_prod_norm_pow_mult.lean",
     "P2M/Sol/S_NumberField_AdeleRing_distribHaarChar_eq_prod_norm_pow_mult_mul_finprod_norm.lean",
     "P2M/Sol/S_NumberField_InfiniteAdeleRing_distribHaarChar_eq_prod_norm_pow_mult.lean",
+    # --- TOPIC-compactness-twins definition gate: `Def_NumberField_Completion_Finite`
+    # (the adic-completion integrality instances) is a definition layer with no
+    # `Theorems/` wrapper, homed whole at
+    # `FLTForHuman/NumberTheory/NumberField/Completion/Finite.lean`. It was tier 3 until
+    # the Fujisaki compactness pair gave it a consumer
+    # (`NumberField.isCompactAdicCompletionIntegers` at the pin's lines 595 and 638).
+    # Appended last so no earlier last-name match can flip.
+    "Definitions/Def_NumberField_Completion_Finite.lean",
+    # --- TOPIC-compactness-twins, WORKORDER-T3: the Fujisaki compactness pair. Each
+    # `Theorems/` wrapper is the statement authority (listed first); its `S_` file follows.
+    # The engine (`FLTForHuman/NumberTheory/NumberField/TateGlobal/FujisakiCompact.lean`)
+    # stays tier 3 and is recorded in spec/UNWIRED-PUBLIC.md. Appended last so no earlier
+    # last-name match can flip.
+    "Theorems/Thm_NumberField_TateGlobal_exists_isCompact_subset_normOneIdeles_forall_mem_exists_eq_map_algebraMap_mul.lean",
+    "Theorems/Thm_NumberField_TateGlobal_compactSpace_normOneIdeleClass.lean",
+    "P2M/Sol/S_NumberField_TateGlobal_exists_isCompact_subset_normOneIdeles_forall_mem_exists_eq_map_algebraMap_mul.lean",
+    "P2M/Sol/S_NumberField_TateGlobal_compactSpace_normOneIdeleClass.lean",
 ]
 
 
@@ -4566,6 +4583,16 @@ PORT_FILES = [
     # (WORKORDER-A1) land into this same module. Appended last so no earlier last-name
     # match can flip.
     "FLTForHuman/NumberTheory/AdelicModulus.lean",
+    # --- TOPIC-compactness-twins definition gate: the adic-completion integrality
+    # instances (see SOURCES). One already-homed leaf module, promoted from tier 3 to
+    # tier 1 because the Fujisaki compactness pair consumes
+    # `isCompactAdicCompletionIntegers`. No existing module was edited.
+    "FLTForHuman/NumberTheory/NumberField/Completion/Finite.lean",
+    # --- TOPIC-compactness-twins, WORKORDER-T3: the two Fujisaki compactness headlines
+    # (see SOURCES). They read the public kernels `M4aLocalCFT.FujisakiR1.exists_isCompact_impl`
+    # and `M4aLocalCFT.FujisakiC2c.compactSpace_normOneIdeleClass_impl` of the tier-3 engine
+    # `…/TateGlobal/FujisakiCompact.lean`. No existing module was edited.
+    "FLTForHuman/NumberTheory/NumberField/TateGlobalCompactness.lean",
 ]
 
 

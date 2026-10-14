@@ -1,5 +1,7 @@
 # WORKORDER-A1 — the adelic modulus engines (tier 3)
 
+**Status: landed 2026-10-13** — results in §11.
+
 Read [TOPIC-adelic-modulus.md](TOPIC-adelic-modulus.md) first; §1 carries the mathematics,
 §2–§4 the measurement and the block split, §5 the port structure. This order is the two
 engine modules and nothing else.

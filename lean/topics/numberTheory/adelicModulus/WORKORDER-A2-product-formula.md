@@ -1,5 +1,7 @@
 # WORKORDER-A2 — the product formula: principal ideles preserve Haar (tier 3)
 
+**Status: landed 2026-10-13** — results in §9.
+
 Read [TOPIC-adelic-modulus.md](TOPIC-adelic-modulus.md) first; §1 carries the mathematics
 (the corollary half) and §4 the four-node chain. This order is one engine module and
 nothing else.

@@ -11,7 +11,7 @@ whether the tree has drifted.  Nothing here is verified against the pin: the
 `pin original` column names the declaration (and the file holding it) that
 carries the statement to diff when the entry is wired.
 
-`2060` public declarations in `84` unlisted modules; `1772` of them have a pin counterpart by name and statement.
+`2057` public declarations in `84` unlisted modules; `1769` of them have a pin counterpart by name and statement.
 
 This is tier 3 only.  Tier 2 — a declaration in a *listed* module that the
 checker skips — is `OWN_PROOFS` in the checker itself, each entry carrying its
@@ -89,33 +89,33 @@ wrappers whose statements the checker diffs).
 | [`FLTForHuman/NumberTheory/NumberField/CompletedDedekindZeta/Poisson.lean`](#fltforhumannumbertheorynumberfieldcompleteddedekindzetapoissonlean) | 1,112 | 17 | 17 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/CompletedDedekindZeta/ThetaKernel.lean`](#fltforhumannumbertheorynumberfieldcompleteddedekindzetathetakernellean) | 1,310 | 84 | 84 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/CompletedDedekindZeta/Unfolding.lean`](#fltforhumannumbertheorynumberfieldcompleteddedekindzetaunfoldinglean) | 1,231 | 22 | 22 | 0 | 1 | 0 |
-| [`FLTForHuman/NumberTheory/NumberField/Completion/Finite.lean`](#fltforhumannumbertheorynumberfieldcompletionfinitelean) | 63 | 5 | 5 | 0 | 1 | 0 |
-| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ArchMulHaar.lean`](#fltforhumannumbertheorynumberfieldtateglobalarchmulhaarlean) | 566 | 33 | 33 | 0 | 1 | 0 |
-| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ArchSlab.lean`](#fltforhumannumbertheorynumberfieldtateglobalarchslablean) | 375 | 27 | 27 | 0 | 1 | 0 |
-| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/Coordinates.lean`](#fltforhumannumbertheorynumberfieldtateglobalcoordinateslean) | 863 | 73 | 73 | 0 | 2 | 0 |
-| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/Defs.lean`](#fltforhumannumbertheorynumberfieldtateglobaldefslean) | 132 | 15 | 15 | 0 | 2 | 0 |
-| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/DistribHaarChar.lean`](#fltforhumannumbertheorynumberfieldtateglobaldistribhaarcharlean) | 185 | 4 | 4 | 0 | 1 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ArchMulHaar.lean`](#fltforhumannumbertheorynumberfieldtateglobalarchmulhaarlean) | 566 | 33 | 33 | 0 | 2 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ArchSlab.lean`](#fltforhumannumbertheorynumberfieldtateglobalarchslablean) | 375 | 27 | 27 | 0 | 2 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/Coordinates.lean`](#fltforhumannumbertheorynumberfieldtateglobalcoordinateslean) | 863 | 73 | 73 | 0 | 3 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/Defs.lean`](#fltforhumannumbertheorynumberfieldtateglobaldefslean) | 132 | 15 | 15 | 0 | 4 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/DistribHaarChar.lean`](#fltforhumannumbertheorynumberfieldtateglobaldistribhaarcharlean) | 185 | 4 | 4 | 0 | 2 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/EulerBookkeeping.lean`](#fltforhumannumbertheorynumberfieldtateglobaleulerbookkeepinglean) | 398 | 23 | 23 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/EulerFactors.lean`](#fltforhumannumbertheorynumberfieldtateglobaleulerfactorslean) | 551 | 36 | 36 | 0 | 3 | 0 |
-| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/FiniteSlab.lean`](#fltforhumannumbertheorynumberfieldtateglobalfiniteslablean) | 407 | 30 | 30 | 0 | 1 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/FiniteSlab.lean`](#fltforhumannumbertheorynumberfieldtateglobalfiniteslablean) | 407 | 30 | 30 | 0 | 2 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/FujisakiC3.lean`](#fltforhumannumbertheorynumberfieldtateglobalfujisakic3lean) | 121 | 6 | 6 | 0 | 1 | 0 |
-| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/HMajorant.lean`](#fltforhumannumbertheorynumberfieldtateglobalhmajorantlean) | 367 | 14 | 14 | 0 | 1 | 0 |
-| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/Ideles.lean`](#fltforhumannumbertheorynumberfieldtateglobalideleslean) | 763 | 51 | 51 | 0 | 1 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/FujisakiCompact.lean`](#fltforhumannumbertheorynumberfieldtateglobalfujisakicompactlean) | 967 | 2 | 2 | 0 | 1 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/HMajorant.lean`](#fltforhumannumbertheorynumberfieldtateglobalhmajorantlean) | 367 | 14 | 14 | 0 | 2 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/Ideles.lean`](#fltforhumannumbertheorynumberfieldtateglobalideleslean) | 763 | 51 | 51 | 0 | 2 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/IndicatorEulerFactors.lean`](#fltforhumannumbertheorynumberfieldtateglobalindicatoreulerfactorslean) | 486 | 19 | 19 | 0 | 1 | 0 |
-| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/IntLocalIntegrability.lean`](#fltforhumannumbertheorynumberfieldtateglobalintlocalintegrabilitylean) | 368 | 8 | 8 | 0 | 2 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/IntLocalIntegrability.lean`](#fltforhumannumbertheorynumberfieldtateglobalintlocalintegrabilitylean) | 368 | 8 | 8 | 0 | 3 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/IntegrableZetaIntegrand.lean`](#fltforhumannumbertheorynumberfieldtateglobalintegrablezetaintegrandlean) | 183 | 4 | 4 | 0 | 1 | 0 |
-| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/LocalZetaUnramified.lean`](#fltforhumannumbertheorynumberfieldtategloballocalzetaunramifiedlean) | 258 | 15 | 15 | 0 | 1 | 0 |
-| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/MulHaar.lean`](#fltforhumannumbertheorynumberfieldtateglobalmulhaarlean) | 432 | 24 | 24 | 0 | 1 | 0 |
-| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/NormIntegrable.lean`](#fltforhumannumbertheorynumberfieldtateglobalnormintegrablelean) | 370 | 16 | 16 | 0 | 2 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/LocalZetaUnramified.lean`](#fltforhumannumbertheorynumberfieldtategloballocalzetaunramifiedlean) | 258 | 15 | 15 | 0 | 2 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/MulHaar.lean`](#fltforhumannumbertheorynumberfieldtateglobalmulhaarlean) | 432 | 24 | 24 | 0 | 2 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/NormIntegrable.lean`](#fltforhumannumbertheorynumberfieldtateglobalnormintegrablelean) | 370 | 16 | 16 | 0 | 3 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/PlaceSum.lean`](#fltforhumannumbertheorynumberfieldtateglobalplacesumlean) | 163 | 9 | 9 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/PureTensor.lean`](#fltforhumannumbertheorynumberfieldtateglobalpuretensorlean) | 426 | 6 | 6 | 0 | 1 | 0 |
-| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ReferenceMeasure.lean`](#fltforhumannumbertheorynumberfieldtateglobalreferencemeasurelean) | 387 | 24 | 24 | 0 | 2 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ReferenceMeasure.lean`](#fltforhumannumbertheorynumberfieldtateglobalreferencemeasurelean) | 387 | 24 | 24 | 0 | 3 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ShellBound.lean`](#fltforhumannumbertheorynumberfieldtateglobalshellboundlean) | 167 | 12 | 12 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ShellSupport.lean`](#fltforhumannumbertheorynumberfieldtateglobalshellsupportlean) | 177 | 11 | 11 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ShellTranslate.lean`](#fltforhumannumbertheorynumberfieldtateglobalshelltranslatelean) | 145 | 4 | 4 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/UnifPowBridge.lean`](#fltforhumannumbertheorynumberfieldtateglobalunifpowbridgelean) | 147 | 7 | 7 | 0 | 3 | 0 |
-| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ValuedOrdBridge.lean`](#fltforhumannumbertheorynumberfieldtateglobalvaluedordbridgelean) | 232 | 6 | 6 | 0 | 1 | 0 |
-| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ZetaIntegrand.lean`](#fltforhumannumbertheorynumberfieldtateglobalzetaintegrandlean) | 384 | 27 | 27 | 0 | 2 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ValuedOrdBridge.lean`](#fltforhumannumbertheorynumberfieldtateglobalvaluedordbridgelean) | 232 | 6 | 6 | 0 | 2 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ZetaIntegrand.lean`](#fltforhumannumbertheorynumberfieldtateglobalzetaintegrandlean) | 384 | 27 | 27 | 0 | 3 | 0 |
 | [`FLTForHuman/RepTheory/ConvolutionLimit.lean`](#fltforhumanreptheoryconvolutionlimitlean) | 683 | 24 | 24 | 0 | 1 | 1 |
 | [`FLTForHuman/RepTheory/TypeReproducer.lean`](#fltforhumanreptheorytypereproducerlean) | 1,381 | 76 | 76 | 0 | 2 | 1 |
 | [`FLTForHuman/RingTheory/Ideal/Quotient/Basic.lean`](#fltforhumanringtheoryidealquotientbasiclean) | 19 | 1 | 1 | 0 | 1 | 0 |
@@ -1899,21 +1899,9 @@ wrappers whose statements the checker diffs).
 | `NumberField.CompletedDedekindZeta.symmLambda_eq_completedPartialZeta` | theorem | `gapsw80_t8_symmLambda_eq_completedPartialZeta` (provenance comment) | [`S_NumberField_exists_completedDedekindZeta_package.lean:5363`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_exists_completedDedekindZeta_package.lean#L5363) |
 | `NumberField.CompletedDedekindZeta.symmLambda_unfold_eq` | theorem | `gapsw80_t8_symmLambda_unfold_eq` (provenance comment) | [`S_NumberField_exists_completedDedekindZeta_package.lean:5115`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_exists_completedDedekindZeta_package.lean#L5115) |
 
-## `FLTForHuman/NumberTheory/NumberField/Completion/Finite.lean`
-
-63 lines, 5 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s).
-
-| importable name | kind | pin original | pin file |
-|---|---|---|---|
-| `NumberField.instCompactSpaceAdicCompletionIntegers` | instance | `instCompactSpaceAdicCompletionIntegers` (provenance comment) | [`Def_NumberField_Completion_Finite.lean:26`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Completion_Finite.lean#L26) |
-| `NumberField.instFiniteResidueFieldAdicCompletionIntegers` | instance | `instFiniteResidueFieldAdicCompletionIntegers` (provenance comment) | [`Def_NumberField_Completion_Finite.lean:16`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Completion_Finite.lean#L16) |
-| `NumberField.isCompactAdicCompletionIntegers` | lemma | `isCompactAdicCompletionIntegers` (provenance comment) | [`Def_NumberField_Completion_Finite.lean:30`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Completion_Finite.lean#L30) |
-| `NumberField.isOpenAdicCompletionIntegers` | lemma | `isOpenAdicCompletionIntegers` (provenance comment) | [`Def_NumberField_Completion_Finite.lean:35`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Completion_Finite.lean#L35) |
-| `Rat.adicCompletion.locallyCompactSpace` | instance | `locallyCompactSpace` (provenance comment) | [`Def_NumberField_Completion_Finite.lean:39`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Completion_Finite.lean#L39) |
-
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/ArchMulHaar.lean`
 
-566 lines, 33 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s).
+566 lines, 33 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -1953,7 +1941,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/ArchSlab.lean`
 
-375 lines, 27 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s).
+375 lines, 27 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -1987,7 +1975,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/Coordinates.lean`
 
-863 lines, 73 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
+863 lines, 73 public declarations — transcribed from the pin, not wired. Imported by 3 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -2067,7 +2055,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/Defs.lean`
 
-132 lines, 15 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
+132 lines, 15 public declarations — transcribed from the pin, not wired. Imported by 4 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -2089,7 +2077,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/DistribHaarChar.lean`
 
-185 lines, 4 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s).
+185 lines, 4 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -2173,7 +2161,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/FiniteSlab.lean`
 
-407 lines, 30 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s).
+407 lines, 30 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -2221,9 +2209,18 @@ wrappers whose statements the checker diffs).
 | `NumberField.TateGlobal.FujisakiC3.ideleNorm_asm_eq_normQ` | theorem | `ideleNorm_asm_eq_normQ` (provenance comment) | [`S_NumberField_TateGlobal_continuous_ideleNorm.lean:2610`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_continuous_ideleNorm.lean#L2610) |
 | `NumberField.TateGlobal.FujisakiC3.normQ` | def | `normQ` (provenance comment) | [`S_NumberField_TateGlobal_continuous_ideleNorm.lean:2599`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_continuous_ideleNorm.lean#L2599) |
 
+## `FLTForHuman/NumberTheory/NumberField/TateGlobal/FujisakiCompact.lean`
+
+967 lines, 2 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s).
+
+| importable name | kind | pin original | pin file |
+|---|---|---|---|
+| `M4aLocalCFT.FujisakiC2c.compactSpace_normOneIdeleClass_impl` | theorem | `compactSpace_normOneIdeleClass_impl` (provenance comment) | [`S_NumberField_TateGlobal_exists_isCompact_subset_normOneIdeles_forall_mem_exists_eq_map_algebraMap_mul.lean:3559`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_exists_isCompact_subset_normOneIdeles_forall_mem_exists_eq_map_algebraMap_mul.lean#L3559) |
+| `M4aLocalCFT.FujisakiR1.exists_isCompact_impl` | theorem | `exists_isCompact_impl` (provenance comment) | [`S_NumberField_TateGlobal_exists_isCompact_subset_normOneIdeles_forall_mem_exists_eq_map_algebraMap_mul.lean:3623`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_exists_isCompact_subset_normOneIdeles_forall_mem_exists_eq_map_algebraMap_mul.lean#L3623) |
+
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/HMajorant.lean`
 
-367 lines, 14 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s).
+367 lines, 14 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -2244,7 +2241,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/Ideles.lean`
 
-763 lines, 51 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s).
+763 lines, 51 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -2328,7 +2325,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/IntLocalIntegrability.lean`
 
-368 lines, 8 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
+368 lines, 8 public declarations — transcribed from the pin, not wired. Imported by 3 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -2354,7 +2351,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/LocalZetaUnramified.lean`
 
-258 lines, 15 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s).
+258 lines, 15 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -2376,7 +2373,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/MulHaar.lean`
 
-432 lines, 24 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s).
+432 lines, 24 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -2407,7 +2404,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/NormIntegrable.lean`
 
-370 lines, 16 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
+370 lines, 16 public declarations — transcribed from the pin, not wired. Imported by 3 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -2459,7 +2456,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/ReferenceMeasure.lean`
 
-387 lines, 24 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
+387 lines, 24 public declarations — transcribed from the pin, not wired. Imported by 3 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -2552,7 +2549,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/ValuedOrdBridge.lean`
 
-232 lines, 6 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s).
+232 lines, 6 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -2565,7 +2562,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/ZetaIntegrand.lean`
 
-384 lines, 27 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
+384 lines, 27 public declarations — transcribed from the pin, not wired. Imported by 3 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
