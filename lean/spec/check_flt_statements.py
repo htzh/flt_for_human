@@ -3188,6 +3188,24 @@ SOURCES = [
     # can flip.
     "Theorems/Thm_AutomorphicForm_exists_sesqForm_eq_peterssonIntegral_of_isGenuineCuspRealizationAt_of_isFundamentalDomain.lean",
     "P2M/Sol/S_AutomorphicForm_exists_sesqForm_eq_peterssonIntegral_of_isGenuineCuspRealizationAt_of_isFundamentalDomain.lean",
+    # --- WORKORDER-SC3 (`topics/automorphicForm/WORKORDER-SC3-fundamental-domain.md`): the
+    # determinant-norm slab fundamental domain. The headline is matched against its `Theorems/`
+    # wrapper; the pin's 25 private helpers are transcribed `private` (two of them imported from
+    # tier-3 `AdelicLevel/Countability.lean`) and so are skipped by the checker. Appended last.
+    "Theorems/Thm_AutomorphicForm_exists_isFundamentalDomain_globalPoints_range_restrict_ideleNorm_det_Icc.lean",
+    "P2M/Sol/S_AutomorphicForm_exists_isFundamentalDomain_globalPoints_range_restrict_ideleNorm_det_Icc.lean",
+    # --- WORKORDER-SC4 pre-wave: the shared archimedean-`K`-finiteness vocabulary
+    # (`Definitions/Def_AutomorphicForm_ArchKFinite.lean`, 9 declarations, imported by 731 pin
+    # files), homed whole. Appended last so no earlier last-name match can flip.
+    "Definitions/Def_AutomorphicForm_ArchKFinite.lean",
+    # --- WORKORDER-SC4 (`topics/automorphicForm/WORKORDER-SC4-induced-section-pair.md`): the
+    # `IsInducedSection` pair. Both headlines are matched against their `Theorems/` wrappers and
+    # the pin-public helpers against the `S_` files; the 4 re-carried modulus prelude rows are
+    # imported from tier 3, so no port declaration matches them. Appended last.
+    "Theorems/Thm_AutomorphicForm_isInducedSection_adelicHeight_cpow.lean",
+    "P2M/Sol/S_AutomorphicForm_isInducedSection_adelicHeight_cpow.lean",
+    "Theorems/Thm_AutomorphicForm_IsInducedSection_apply_globalPoints_mul_of_mem_borelSubgroup_and_apply_unipotentGL2_mul.lean",
+    "P2M/Sol/S_AutomorphicForm_IsInducedSection_apply_globalPoints_mul_of_mem_borelSubgroup_and_apply_unipotentGL2_mul.lean",
 ]
 
 
@@ -4754,6 +4772,15 @@ PORT_FILES = [
     # the pin `Theorems/` wrapper and exposes the engine `AutomorphicForm.PeterssonSlabPairing.main`
     # (the pin's private `main`); the checker verifies both. Appended last.
     "FLTForHuman/AutomorphicForm/Adelic/PeterssonSlabPairing.lean",
+    # --- WORKORDER-SC3: the listed determinant-norm slab fundamental-domain module (headline +
+    # private prelude, the two countability substitutions imported). Appended last.
+    "FLTForHuman/AutomorphicForm/Adelic/DetNormSlabFundamentalDomain.lean",
+    # --- WORKORDER-SC4 pre-wave: the archimedean-`K`-finiteness definition module (9 public
+    # declarations, homed whole beside the `ArchType` vocabulary it depends on). Appended last.
+    "FLTForHuman/AutomorphicForm/Adelic/ArchKFinite.lean",
+    # --- WORKORDER-SC4: the listed `IsInducedSection` pair module (both headlines plus the
+    # pin-public helper surface, the 4 modulus-prelude rows imported). Appended last.
+    "FLTForHuman/AutomorphicForm/Adelic/InducedSectionFlat.lean",
 ]
 
 

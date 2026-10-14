@@ -43,9 +43,9 @@ wrappers whose statements the checker diffs).
 | [`FLTForHuman/AutomorphicForm/Adelic/ArchApproxIdentity/EntryBall.lean`](#fltforhumanautomorphicformadelicarchapproxidentityentryballlean) | 453 | 36 | 36 | 0 | 1 | 1 |
 | [`FLTForHuman/AutomorphicForm/Adelic/ArchApproxIdentity/Instantiate.lean`](#fltforhumanautomorphicformadelicarchapproxidentityinstantiatelean) | 324 | 10 | 10 | 0 | 1 | 1 |
 | [`FLTForHuman/AutomorphicForm/Adelic/ArchHaar.lean`](#fltforhumanautomorphicformadelicarchhaarlean) | 68 | 3 | 3 | 0 | 1 | 1 |
-| [`FLTForHuman/AutomorphicForm/Adelic/BorelSubgroup.lean`](#fltforhumanautomorphicformadelicborelsubgrouplean) | 248 | 19 | 19 | 0 | 2 | 0 |
-| [`FLTForHuman/AutomorphicForm/Adelic/EtaFamily.lean`](#fltforhumanautomorphicformadelicetafamilylean) | 139 | 15 | 15 | 0 | 1 | 0 |
-| [`FLTForHuman/AutomorphicForm/Adelic/InducedSection.lean`](#fltforhumanautomorphicformadelicinducedsectionlean) | 115 | 10 | 10 | 0 | 1 | 0 |
+| [`FLTForHuman/AutomorphicForm/Adelic/BorelSubgroup.lean`](#fltforhumanautomorphicformadelicborelsubgrouplean) | 248 | 19 | 19 | 0 | 3 | 0 |
+| [`FLTForHuman/AutomorphicForm/Adelic/EtaFamily.lean`](#fltforhumanautomorphicformadelicetafamilylean) | 139 | 15 | 15 | 0 | 2 | 0 |
+| [`FLTForHuman/AutomorphicForm/Adelic/InducedSection.lean`](#fltforhumanautomorphicformadelicinducedsectionlean) | 115 | 10 | 10 | 0 | 2 | 0 |
 | [`FLTForHuman/AutomorphicForm/Adelic/Siegel/SlabCovering.lean`](#fltforhumanautomorphicformadelicsiegelslabcoveringlean) | 1,119 | 3 | 3 | 0 | 2 | 0 |
 | [`FLTForHuman/AutomorphicForm/Adelic/WeylIntegrable/Assembly.lean`](#fltforhumanautomorphicformadelicweylintegrableassemblylean) | 321 | 26 | 26 | 0 | 1 | 1 |
 | [`FLTForHuman/AutomorphicForm/Adelic/WeylIntegrable/BoxBounds.lean`](#fltforhumanautomorphicformadelicweylintegrableboxboundslean) | 261 | 26 | 26 | 0 | 1 | 1 |
@@ -83,11 +83,11 @@ wrappers whose statements the checker diffs).
 | [`FLTForHuman/ModularCurve/TateSlots/Convergence.lean`](#fltforhumanmodularcurvetateslotsconvergencelean) | 538 | 38 | 38 | 0 | 1 | 0 |
 | [`FLTForHuman/ModularCurve/TateSlots/SlotCoeff.lean`](#fltforhumanmodularcurvetateslotsslotcoefflean) | 1,294 | 81 | 81 | 0 | 2 | 0 |
 | [`FLTForHuman/NumberTheory/AdelicFourier.lean`](#fltforhumannumbertheoryadelicfourierlean) | 152 | 15 | 15 | 0 | 1 | 0 |
-| [`FLTForHuman/NumberTheory/AdelicHaar/AdelicModulus.lean`](#fltforhumannumbertheoryadelichaaradelicmoduluslean) | 826 | 57 | 57 | 0 | 1 | 0 |
+| [`FLTForHuman/NumberTheory/AdelicHaar/AdelicModulus.lean`](#fltforhumannumbertheoryadelichaaradelicmoduluslean) | 826 | 57 | 57 | 0 | 2 | 0 |
 | [`FLTForHuman/NumberTheory/AdelicHaar/ArchModulus.lean`](#fltforhumannumbertheoryadelichaararchmoduluslean) | 143 | 7 | 7 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/AdelicHaar/PlaceMeasure.lean`](#fltforhumannumbertheoryadelichaarplacemeasurelean) | 623 | 34 | 34 | 0 | 3 | 1 |
 | [`FLTForHuman/NumberTheory/AdelicHaar/ProductFormula.lean`](#fltforhumannumbertheoryadelichaarproductformulalean) | 217 | 9 | 9 | 0 | 1 | 0 |
-| [`FLTForHuman/NumberTheory/AdelicLevel/Countability.lean`](#fltforhumannumbertheoryadeliclevelcountabilitylean) | 168 | 2 | 2 | 0 | 1 | 1 |
+| [`FLTForHuman/NumberTheory/AdelicLevel/Countability.lean`](#fltforhumannumbertheoryadeliclevelcountabilitylean) | 168 | 2 | 2 | 0 | 2 | 1 |
 | [`FLTForHuman/NumberTheory/NumberField/CompletedDedekindZeta/Bounds.lean`](#fltforhumannumbertheorynumberfieldcompleteddedekindzetaboundslean) | 685 | 31 | 31 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/CompletedDedekindZeta/CompletedZeta.lean`](#fltforhumannumbertheorynumberfieldcompleteddedekindzetacompletedzetalean) | 592 | 48 | 48 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/CompletedDedekindZeta/Hadamard.lean`](#fltforhumannumbertheorynumberfieldcompleteddedekindzetahadamardlean) | 838 | 51 | 51 | 0 | 1 | 0 |
@@ -100,7 +100,7 @@ wrappers whose statements the checker diffs).
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ArchMulHaar.lean`](#fltforhumannumbertheorynumberfieldtateglobalarchmulhaarlean) | 566 | 33 | 33 | 0 | 3 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ArchSlab.lean`](#fltforhumannumbertheorynumberfieldtateglobalarchslablean) | 375 | 27 | 27 | 0 | 3 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/Coordinates.lean`](#fltforhumannumbertheorynumberfieldtateglobalcoordinateslean) | 863 | 73 | 73 | 0 | 3 | 0 |
-| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/Defs.lean`](#fltforhumannumbertheorynumberfieldtateglobaldefslean) | 132 | 15 | 15 | 0 | 8 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/Defs.lean`](#fltforhumannumbertheorynumberfieldtateglobaldefslean) | 132 | 15 | 15 | 0 | 9 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/DistribHaarChar.lean`](#fltforhumannumbertheorynumberfieldtateglobaldistribhaarcharlean) | 185 | 4 | 4 | 0 | 3 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/EulerBookkeeping.lean`](#fltforhumannumbertheorynumberfieldtateglobaleulerbookkeepinglean) | 398 | 23 | 23 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/EulerFactors.lean`](#fltforhumannumbertheorynumberfieldtateglobaleulerfactorslean) | 551 | 36 | 36 | 0 | 3 | 0 |
@@ -282,7 +282,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/AutomorphicForm/Adelic/BorelSubgroup.lean`
 
-248 lines, 19 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
+248 lines, 19 public declarations — transcribed from the pin, not wired. Imported by 3 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -308,7 +308,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/AutomorphicForm/Adelic/EtaFamily.lean`
 
-139 lines, 15 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s).
+139 lines, 15 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -330,7 +330,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/AutomorphicForm/Adelic/InducedSection.lean`
 
-115 lines, 10 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s).
+115 lines, 10 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -1661,7 +1661,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/NumberTheory/AdelicHaar/AdelicModulus.lean`
 
-826 lines, 57 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s).
+826 lines, 57 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -1796,7 +1796,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/NumberTheory/AdelicLevel/Countability.lean`
 
-168 lines, 2 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s), and used by 1 `spec/` consumer(s).
+168 lines, 2 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s), and used by 1 `spec/` consumer(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -2410,7 +2410,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/Defs.lean`
 
-132 lines, 15 public declarations — transcribed from the pin, not wired. Imported by 8 port module(s).
+132 lines, 15 public declarations — transcribed from the pin, not wired. Imported by 9 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
