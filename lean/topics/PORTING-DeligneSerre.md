@@ -278,6 +278,15 @@ listed at 36 silo lines, but its premise
 cannot substitute — so it is a whole node, deferred to its own order (§7, §9). Under
 `--frontier sources` the same query prices it at 10 needed nodes / 5,172 raw `S_` lines.
 
+**A prunable subject sits on this shelf and is not this column's.** The complex-analytic
+Jacobian / path-integral / Abel–Jacobi / `CellDissection` subject is in the target *closure*
+(44 nodes / 30,570 lines on 2026-10-14) but is a second supply to a step the D-S route already
+reaches by the differentials ↔ cusp-forms transport, so it is prunable — 205 nodes / 107,257
+lines, a 186-node / 91,105-line saving on that tree. Read the frontier with it excluded —
+`frontier.py --ds` is the one-flag form ([deligneSerre/PRUNABLE-complex-analytic.md](deligneSerre/PRUNABLE-complex-analytic.md),
+`tools/deps/ds_prunable.py`) — or its leaves read as D-S work; its plan is RR phase 3
+([algebraicCurve/TOPIC-cell-dissection.md](algebraicCurve/TOPIC-cell-dissection.md)).
+
 **Not schedulable from this list.** The two gates of §7 remain in the unported demand but are not
 ready; they must not be scheduled off a ready shelf.
 
@@ -485,6 +494,9 @@ python3 frontier.py --target DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_h
   --rank-by silo --ready --top 0
 python3 frontier.py --target DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen \
   --frontier sources --ready --top 0
+# the same with the prunable complex-analytic subject excluded, in one flag
+# (deligneSerre/PRUNABLE-complex-analytic.md §4; tools/deps/ds_prunable.py)
+python3 frontier.py --ds --rank-by silo --ready --top 0
 
 # scope one cluster (step 3): advise → plan → price
 python3 port_advise.py --target <node> --target <node> --json build/cluster_advise.json

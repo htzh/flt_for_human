@@ -385,6 +385,16 @@ Its ten pin consumers and the two sibling silos that re-declare the same obligat
 unported by design. Order:
 [topics/numberTheory/WORKORDER-Z1-completed-dedekind-zeta.md](topics/numberTheory/WORKORDER-Z1-completed-dedekind-zeta.md).
 
+The cell-dissection / radial-region cluster
+([topics/algebraicCurve/TOPIC-cell-dissection.md](topics/algebraicCurve/TOPIC-cell-dissection.md))
+is ported the same way. Its pin `S_` files declare the development's lemmas public
+(537 across the nine `RadialRegion` nodes, more in the `CellDissection` half); per
+playbook §0.5/§4.1 they stay public and stay unwired, in per-node tier-3 engines
+`AlgebraicCurve/RadialRegion/Engine/<Node>.lean` (registered with `-- pin:`
+provenance), with a thin listed façade `AlgebraicCurve/RadialRegion/<Node>.lean` per
+node carrying the wrapper headline. First order:
+[topics/algebraicCurve/WORKORDER-R1-radial-rectangle.md](topics/algebraicCurve/WORKORDER-R1-radial-rectangle.md).
+
 ## Cleanup families
 
 ### Four pin-chapter namespaces still in use
@@ -429,6 +439,23 @@ unrelated (`Transcendence ↔ RestrictAlong`). The statement-identical residue i
   `scoped` changes the global checked surface and needs its own pass with `--selftest`; record in
   `logs/ac-port.md` §13. (The companion defect — `unwired_register.py` dropping the `_root_.`
   absolute prefix, which mis-homed ~161 register rows — was fixed 2026-10-14.)
+- `unwired_register.py`'s namespace tracker (`NS_EVENT`) did not admit a modifier before
+  `section`, so a `noncomputable section` frame was never pushed while its closing `end` was
+  popped — silently dropping the enclosing namespace from every later row (the R3b
+  `GridGeometry` engine had ~100 wrong importable names; the port worked around it by writing
+  the four `Finset ℂ` defs `noncomputable` and dropping the section). Fixed 2026-10-14:
+  `NS_EVENT` accepts an optional `noncomputable|private|protected|public` modifier.
+- The same tracker mis-homed 36 `RadialRegion/../ValueDictionary.lean` rows to
+  `AlgebraicCurve.Place.AlgebraicCurve.Place.…`: `raw_declarations` prefixes the enclosing
+  namespace to a `_root_.`-absolute name, so the right rule is to take the text *after*
+  `_root_.` (fixed 2026-10-14), not to substitute it in place.
+- The checker's `strip_comments` removes only block comments (`/- … -/`), not `--` line
+  comments, while `top_level_cut` finds no `:=` in an equation-style `def` — so a `-- pin:`
+  line above the *next* declaration is absorbed into an equation-style def's statement. Harmless
+  today (only unlisted tier-3 engines carry per-declaration `-- pin:` comments, and the register
+  does not compare statements), but a wired module with that pairing would report a spurious
+  mismatch. Fixing it means stripping `--` comments in the tracked checker and re-running its
+  selftest; deliberately not a rider on a set (see `logs/ac-port.md` §13).
 
 ### Co-import constraint: the gate producer and `Engine`
 

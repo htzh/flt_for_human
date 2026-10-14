@@ -3209,6 +3209,48 @@ SOURCES = [
     # --- WORKORDER-P1 (`topics/algebraicCurve/WORKORDER-P1-isPrimeOverValuationSubring.md`): the place realising a prime over a valuation subring; the wrapper carries the sole public headline and the `S_` silo is listed for it and the dotted fallback. Appended last.
     "Theorems/Thm_AlgebraicCurve_Place_exists_of_isPrime_over_valuationSubring.lean",
     "P2M/Sol/S_AlgebraicCurve_Place_exists_of_isPrime_over_valuationSubring.lean",
+    # --- The `AlgebraicCurve.CellDissection.*`/`RadialRegion.*` cluster pre-wave: the two
+    # pinned `Definitions/` modules every cluster node imports, homed whole. Appended last
+    # so no earlier last-name match can flip.
+    "Definitions/Def_AlgebraicCurve_ComplexLineIntegral.lean",
+    "Definitions/Def_AlgebraicCurve_CellDissection.lean",
+    # --- WORKORDER-R1 (`topics/algebraicCurve/WORKORDER-R1-radial-rectangle.md`): the two
+    # radial-rectangle nodes. Statements from the `Theorems/` wrappers, proofs from the `S_`
+    # silos; the tier-3 engines are unlisted (see `PORT_FILES`) and registered in
+    # `spec/UNWIRED-PUBLIC.md`. Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_AlgebraicCurve_RadialRegion_exists_rect_sixArcs.lean",
+    "P2M/Sol/S_AlgebraicCurve_RadialRegion_exists_rect_sixArcs.lean",
+    "Theorems/Thm_AlgebraicCurve_RadialRegion_exists_refine_exact.lean",
+    "P2M/Sol/S_AlgebraicCurve_RadialRegion_exists_refine_exact.lean",
+    # --- WORKORDER-R2 (`topics/algebraicCurve/WORKORDER-R2-window-perimeter.md`): the window-perimeter node. Statement from the `Theorems/` wrapper, proof from the `S_` silo; the tier-3 engine is unlisted (see `PORT_FILES`) and registered in `spec/UNWIRED-PUBLIC.md`. Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_AlgebraicCurve_RadialRegion_exists_window_perimeter.lean",
+    "P2M/Sol/S_AlgebraicCurve_RadialRegion_exists_window_perimeter.lean",
+    # --- WORKORDER-R3a (`topics/algebraicCurve/WORKORDER-R3a-reparam-twin.md`): the reparametrisation
+    # twin. The two `S_` files are byte-identical through line 704 (the shared development and both
+    # internal theorems); statements from the `Theorems/` wrappers, proofs from the `S_` silos; the
+    # single tier-3 engine is unlisted (see `PORT_FILES`) and registered in `spec/UNWIRED-PUBLIC.md`.
+    # Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_AlgebraicCurve_RadialRegion_exists_reparam_across_edge.lean",
+    "P2M/Sol/S_AlgebraicCurve_RadialRegion_exists_reparam_across_edge.lean",
+    "Theorems/Thm_AlgebraicCurve_RadialRegion_exists_reparam_same_side.lean",
+    "P2M/Sol/S_AlgebraicCurve_RadialRegion_exists_reparam_same_side.lean",
+    # --- WORKORDER-R3b (`topics/algebraicCurve/WORKORDER-R3b-grid-geometry.md`): the grid-geometry
+    # node. Statement from the `Theorems/` wrapper, proof from the `S_` silo; the tier-3 engine is
+    # unlisted (see `PORT_FILES`) and registered in `spec/UNWIRED-PUBLIC.md`. Appended last so no
+    # earlier last-name match can flip.
+    "Theorems/Thm_AlgebraicCurve_RadialRegion_exists_grid_geometry.lean",
+    "P2M/Sol/S_AlgebraicCurve_RadialRegion_exists_grid_geometry.lean",
+    # --- WORKORDER-R4 (`topics/algebraicCurve/WORKORDER-R4-radial-miscellany.md`): the three radial
+    # miscellany nodes (isOpen_starConvex_subset, recip, pow_pullback_laps). Statements from the
+    # `Theorems/` wrappers, proofs from the `S_` silos; the tier-3 engines are unlisted (see
+    # `PORT_FILES`) and registered in `spec/UNWIRED-PUBLIC.md`. Appended last so no earlier
+    # last-name match can flip.
+    "Theorems/Thm_AlgebraicCurve_RadialRegion_exists_isOpen_starConvex_subset.lean",
+    "P2M/Sol/S_AlgebraicCurve_RadialRegion_exists_isOpen_starConvex_subset.lean",
+    "Theorems/Thm_AlgebraicCurve_RadialRegion_exists_recip.lean",
+    "P2M/Sol/S_AlgebraicCurve_RadialRegion_exists_recip.lean",
+    "Theorems/Thm_AlgebraicCurve_RadialRegion_exists_pow_pullback_laps.lean",
+    "P2M/Sol/S_AlgebraicCurve_RadialRegion_exists_pow_pullback_laps.lean",
 ]
 
 
@@ -4786,6 +4828,34 @@ PORT_FILES = [
     "FLTForHuman/AutomorphicForm/Adelic/InducedSectionFlat.lean",
     # --- WORKORDER-P1 (`topics/algebraicCurve/WORKORDER-P1-isPrimeOverValuationSubring.md`): the place realising a prime over a valuation subring; every declaration but the headline is `private`, so the checker sees only the headline. Appended last.
     "FLTForHuman/AlgebraicCurve/Place/IsPrimeOverValuationSubring.lean",
+    # --- The `AlgebraicCurve.CellDissection.*`/`RadialRegion.*` cluster pre-wave: the two
+    # definition modules homed whole (tier 1, beside the other `Defs/` modules). Appended
+    # last so no earlier last-name match can flip.
+    "FLTForHuman/AlgebraicCurve/Defs/ComplexLineIntegral.lean",
+    "FLTForHuman/AlgebraicCurve/Defs/CellDissection.lean",
+    # --- WORKORDER-R1 (`topics/algebraicCurve/WORKORDER-R1-radial-rectangle.md`): the two
+    # radial-rectangle façades only (their tier-3 engines stay unlisted, registered in
+    # `spec/UNWIRED-PUBLIC.md`). Appended last.
+    "FLTForHuman/AlgebraicCurve/RadialRegion/RectSixArcs.lean",
+    "FLTForHuman/AlgebraicCurve/RadialRegion/RefineExact.lean",
+    # --- WORKORDER-R2 (`topics/algebraicCurve/WORKORDER-R2-window-perimeter.md`): the window-perimeter façade only (its tier-3 engine stays unlisted, registered in `spec/UNWIRED-PUBLIC.md`). Appended last.
+    "FLTForHuman/AlgebraicCurve/RadialRegion/WindowPerimeter.lean",
+    # --- WORKORDER-R3a (`topics/algebraicCurve/WORKORDER-R3a-reparam-twin.md`): the two reparametrisation
+    # façades only (the single shared tier-3 engine `Engine/Reparam.lean` stays unlisted, registered in
+    # `spec/UNWIRED-PUBLIC.md`). Appended last.
+    "FLTForHuman/AlgebraicCurve/RadialRegion/ReparamAcrossEdge.lean",
+    "FLTForHuman/AlgebraicCurve/RadialRegion/ReparamSameSide.lean",
+    # --- WORKORDER-R3b (`topics/algebraicCurve/WORKORDER-R3b-grid-geometry.md`): the grid-geometry
+    # façade only (its tier-3 engine `Engine/GridGeometry.lean` stays unlisted, registered in
+    # `spec/UNWIRED-PUBLIC.md`). Appended last.
+    "FLTForHuman/AlgebraicCurve/RadialRegion/GridGeometry.lean",
+    # --- WORKORDER-R4 (`topics/algebraicCurve/WORKORDER-R4-radial-miscellany.md`): the three radial
+    # miscellany façades only (their tier-3 engines
+    # `Engine/{IsOpenStarConvex,Recip,PowPullback}.lean` stay unlisted, registered in
+    # `spec/UNWIRED-PUBLIC.md`). Appended last.
+    "FLTForHuman/AlgebraicCurve/RadialRegion/IsOpenStarConvex.lean",
+    "FLTForHuman/AlgebraicCurve/RadialRegion/Recip.lean",
+    "FLTForHuman/AlgebraicCurve/RadialRegion/PowPullbackLaps.lean",
 ]
 
 

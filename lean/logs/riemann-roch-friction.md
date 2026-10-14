@@ -2579,3 +2579,41 @@ Checker `6308 → 6315 identical` (312 promoted / 83 renamed unmoved), 0 mismatc
 0 missing, 6344 → 6351 checked; axioms clean; no `sorry`; the consumer's `[genusff]`
 zone includes `genusFF ℂ (RatFunc ℂ) = 0`; whole-tree build 9329 jobs exit 0 in
 ~7 s (both edited modules are leaves).
+
+## Set R — the radial geometry, phase 3 (2026-10-14)
+
+**What landed.** The nine `AlgebraicCurve.RadialRegion.*` nodes, in the engine/façade
+split the playbook prescribes for public-but-unwired declarations (§0.5, §4.1): eight
+tier-3 engines (the pin `S_` development minus the top-level `solution`, at the pin's
+visibility, `-- pin:` on every public declaration) and nine tier-1 façades (the wrapper
+headline), 17 modules / 9,934 lines. Checker `9780 → 9789` — delta +9, exactly the nine
+headlines, 0 mismatched / 0 missing; register +489 rows.
+
+| set | node(s) | shape |
+|---|---|---|
+| R1 | `exists_rect_sixArcs`, `exists_refine_exact` | 2 engines + 2 façades |
+| R2 | `exists_window_perimeter` | 1 + 1 |
+| R3a | `exists_reparam_across_edge`, `exists_reparam_same_side` | **port once**: the two `S_` files are byte-identical through line 704 (the whole `SegmentTransport`/`SegmentReparam` development and both theorems); only the `solution` differs → 1 engine + 2 façades |
+| R3b | `exists_grid_geometry` | 1 + 1 |
+| R4 | `exists_isOpen_starConvex_subset`, `exists_recip`, `exists_pow_pullback_laps` | 3 + 3 |
+
+Orders: `topics/algebraicCurve/WORKORDER-R1-radial-rectangle.md` … `-R4`; plan:
+`topics/algebraicCurve/TOPIC-cell-dissection.md`.
+
+**Phase 3 is paused here.** The `CellDissection` sets (C1 combinatorics, C2 the
+path-integral/residue block and its external premises) and the `exists_pairedCellFamily`
+consumer are not begun: the D-S column does not need the subject, it is prunable — 205
+nodes / 107,257 lines — and its D-S-side exclusion is now a canonical set in the tools
+(`tools/deps/ds_prunable.py`, `frontier.py --ds`, documented at
+`topics/deligneSerre/PRUNABLE-complex-analytic.md`).
+
+**Two register-tool defects the set exposed, both fixed** (untracked `tools/deps`, in
+CARRY-FORWARD's "Tool hazards"): `unwired_register.NS_EVENT` did not admit a modifier
+before `section`, so a `noncomputable section` frame was never pushed while its `end`
+popped a namespace (R3b's `GridGeometry` engine had ~100 wrong importable names until
+the port worked around it); and the `_root_.` handling *substituted in place*, doubling
+the prefix on `_root_.`-absolute names inside a namespace (36 `ValueDictionary.lean`
+rows). One tracked-checker quirk is recorded and deliberately not changed: the
+checker's `strip_comments` ignores `--` line comments, so an equation-style `def`
+followed by a `-- pin:` comment absorbs it into its statement (harmless while the
+engines are unwired).
