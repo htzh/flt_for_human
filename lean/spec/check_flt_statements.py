@@ -3164,6 +3164,13 @@ SOURCES = [
     "P2M/Sol/S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre_centreCutSiegelSetAmple.lean",
     "Theorems/Thm_AutomorphicForm_exists_finset_slab_covering_of_coversModCentre.lean",
     "P2M/Sol/S_AutomorphicForm_exists_finset_slab_covering_of_coversModCentre.lean",
+    # --- Landau's theorem for L-series (`topics/numberTheory/WORKORDER-LS1-landau.md`): the
+    # headline from its `Theorems/` wrapper, the engine/helper/corollaries from the `S_` file's
+    # `P2M_Landau` section. The same `S_` file's ~2,960-line Landau–Siegel silo is unported and
+    # has no consumer anywhere (it is not even in the pin's citation graph), so no port
+    # declaration matches it and nothing is owed for it. Appended last.
+    "Theorems/Thm_LSeries_abscissaOfAbsConv_lt_of_differentiableOn_ball.lean",
+    "P2M/Sol/S_LSeries_abscissaOfAbsConv_lt_of_differentiableOn_ball.lean",
 ]
 
 
@@ -4715,6 +4722,11 @@ PORT_FILES = [
     # `AutomorphicForm.SiegelCovering.Engine` kernels of `Siegel/SlabCovering.lean` (unlisted).
     # Appended last so no earlier last-name match can flip.
     "FLTForHuman/AutomorphicForm/Adelic/Siegel/SlabCoveringTheorems.lean",
+    # --- Landau's theorem for L-series (`topics/numberTheory/WORKORDER-LS1-landau.md`): the
+    # `P2M_Landau` section of the pin `S_LSeries_abscissaOfAbsConv_lt_of_differentiableOn_ball`
+    # plus its headline wrapper. The rest of that `S_` file (the Landau–Siegel silo) is dropped.
+    # Appended last so no earlier last-name match can flip.
+    "FLTForHuman/NumberTheory/LSeries/Landau.lean",
 ]
 
 
