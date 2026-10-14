@@ -4750,10 +4750,10 @@ PORT_FILES = [
     # Appended last so no earlier last-name match can flip.
     "FLTForHuman/AutomorphicForm/Adelic/PeterssonIntegral.lean",
     "FLTForHuman/AutomorphicForm/Adelic/IdeleNormDet.lean",
-    # --- WORKORDER-SC2 §5: the tier-1 façade stating the weighted-Petersson headline and
-    # supplying the SC1 covering to the tier-3 `AutomorphicForm.PeterssonSlabPairing.main`
-    # engine of `PeterssonSlabPairing.lean` (unlisted). Appended last.
-    "FLTForHuman/AutomorphicForm/Adelic/PeterssonSlabPairingTheorems.lean",
+    # --- WORKORDER-SC2 (§5): the weighted-Petersson module, listed. It states the headline from
+    # the pin `Theorems/` wrapper and exposes the engine `AutomorphicForm.PeterssonSlabPairing.main`
+    # (the pin's private `main`); the checker verifies both. Appended last.
+    "FLTForHuman/AutomorphicForm/Adelic/PeterssonSlabPairing.lean",
 ]
 
 

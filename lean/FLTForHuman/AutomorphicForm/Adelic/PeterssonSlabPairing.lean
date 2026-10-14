@@ -1,5 +1,5 @@
 /-
-  The weighted-Petersson pairing engine (tier 3, unlisted).
+  The weighted-Petersson pairing (listed, tier 1).
 
   The shared proof body behind the pin ready node
   `AutomorphicForm.exists_sesqForm_eq_peterssonIntegral_of_isGenuineCuspRealizationAt_of_isFundamentalDomain`
@@ -11,12 +11,13 @@
 
   The pin `S_` file transcribes in three pieces, all here: the generic measure-theory
   prelude `FundamentalDomainSlab` (pin lines 24–375), written once `private`; the adelic
-  vocabulary (pin lines 377–974), `private`; and the engine `main` (pin line 844), the one
-  public declaration. The pin's `solution` (line 980) is the manager's: it states the pin
-  `Theorems/` wrapper and supplies the SC1 covering
-  (`AutomorphicForm.exists_finset_central_slab_covering_of_coversModCentre`). The engine
-  therefore does **not** import the SC1 façade; `main` keeps its final covering hypothesis
-  and the covering is supplied one level up, exactly as the pin's `solution` does.
+  vocabulary (pin lines 377–974), `private`; the engine `main` (pin line 844) public; and the
+  headline itself, stated verbatim from the pin `Theorems/` wrapper and proved by `main`, to
+  which the SC1 covering
+  (`AutomorphicForm.exists_finset_central_slab_covering_of_coversModCentre`) is supplied —
+  exactly as the pin's `solution` does. The module is listed, so the checker verifies both
+  public declarations: the headline against the wrapper, `main` against the pin's private
+  `main` through the dotted fallback.
 
   Reuse, do not re-prove: `NumberField.TateGlobal.exists_norm_pow_mult_eq`
   (`FLTForHuman/NumberTheory/NumberField/TateGlobal/ArchNorm.lean`). The pin's private copy
@@ -33,6 +34,7 @@
   https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_AutomorphicForm_exists_sesqForm_eq_peterssonIntegral_of_isGenuineCuspRealizationAt_of_isFundamentalDomain.lean
 -/
 import FLTForHuman.AutomorphicForm.Adelic.PeterssonIntegral
+import FLTForHuman.AutomorphicForm.Adelic.Siegel.SlabCoveringTheorems
 import FLTForHuman.AutomorphicForm.Adelic.ProductionPinsGeneral
 import FLTForHuman.AutomorphicForm.Adelic.IdeleNormDet
 import FLTForHuman.NumberTheory.NumberField.TateGlobalContinuousIdeleNorm
@@ -988,4 +990,77 @@ theorem main (c u d₁ d₂ : ℝ) (T : Finset (AdelicGL2 (𝓞 F) F))
     exact hpos
 
 end PeterssonSlabPairing
+end AutomorphicForm
+
+/- The headline: stated verbatim from the pin `Theorems/` wrapper and proved by `main` above,
+   supplying the SC1 covering
+   (`AutomorphicForm.exists_finset_central_slab_covering_of_coversModCentre`) — exactly as the
+   pin's `solution` does. -/
+
+open IsDedekindDomain NumberField MeasureTheory
+open NumberField.AdelicHaar NumberField.AdelicLevel NumberField.AdelicBox
+open AutomorphicForm.WindowedSiegel AutomorphicForm.SiegelCovering
+open scoped NumberField
+
+namespace AutomorphicForm
+
+theorem exists_sesqForm_eq_peterssonIntegral_of_isGenuineCuspRealizationAt_of_isFundamentalDomain
+    (F : Type) [Field F] [NumberField F] (c u d₁ d₂ : ℝ) (T : Finset (AdelicGL2 (𝓞 F) F))
+    (hd : d₁ < d₂) (hcov : CoversModCentre F (⋃ x ∈ T, (· * x) '' centreCutSiegelSet F c u d₁ d₂))
+    (π π' : HeckeEigensystem F ℂ)
+    (R : SmoothCuspRealizationAt F
+      (productionPinsOf F (⋃ x ∈ T, (· * x) '' centreCutSiegelSet F c u d₁ d₂)
+        (fun N => levelOne (𝓞 F) F N ⊓ finiteAdelicGL2Subgroup F) (fun v => heckeGen (𝓞 F) F v) (adelicBox F))
+      π.toRawCentral)
+    (R' : SmoothCuspRealizationAt F
+      (productionPinsOf F (⋃ x ∈ T, (· * x) '' centreCutSiegelSet F c u d₁ d₂)
+        (fun N => levelOne (𝓞 F) F N ⊓ finiteAdelicGL2Subgroup F) (fun v => heckeGen (𝓞 F) F v) (adelicBox F))
+      π'.toRawCentral)
+    (hR' : IsGenuineCuspRealizationAt F
+      (productionPinsOf F (⋃ x ∈ T, (· * x) '' centreCutSiegelSet F c u d₁ d₂)
+        (fun N => levelOne (𝓞 F) F N ⊓ finiteAdelicGL2Subgroup F) (fun v => heckeGen (𝓞 F) F v) (adelicBox F))
+      π'.toRawCentral R')
+    (s : ℝ)
+    (hs : ∀ x : (AdeleRing (𝓞 F) F)ˣ,
+      ‖((R'.centralChar ⟨x, Subgroup.mem_top x⟩ : ℂˣ) : ℂ)‖ = NumberField.TateGlobal.ideleNorm F x ^ s)
+    (α β : ℝ) (hα : 0 < α) (hαβ : α < β)
+    (S : Set (AdelicGL2 (𝓞 F) F))
+    (hSs : S ⊆ {g | NumberField.TateGlobal.ideleNorm F (Matrix.GeneralLinearGroup.det g) ∈ Set.Icc α β})
+    (hS : IsFundamentalDomain (globalPoints (𝓞 F) F).range S
+      ((adelicGLHaar (Fin 2) (𝓞 F) F).restrict
+        {g | NumberField.TateGlobal.ideleNorm F (Matrix.GeneralLinearGroup.det g) ∈ Set.Icc α β})) :
+    (∀ g : AdelicGL2 (𝓞 F) F, ∀ x y : AdelicGL2 (𝓞 F) F → ℂ,
+      x ∈ Submodule.span ℂ (Set.range fun h : AdelicGL2 (𝓞 F) F => fun z => R'.toFun (z * h)) →
+      y ∈ Submodule.span ℂ (Set.range fun h : AdelicGL2 (𝓞 F) F => fun z => R'.toFun (z * h)) →
+      peterssonIntegral F s S (fun z => x (z * g)) (fun z => y (z * g)) =
+        ((NumberField.TateGlobal.ideleNorm F (Matrix.GeneralLinearGroup.det g) ^ s : ℝ) : ℂ) *
+          peterssonIntegral F s S x y) ∧
+    peterssonIntegral F s S R'.toFun R'.toFun ≠ 0 ∧
+    (R.centralChar = R'.centralChar →
+      (∀ g : AdelicGL2 (𝓞 F) F, ∀ x y : AdelicGL2 (𝓞 F) F → ℂ,
+        x ∈ Submodule.span ℂ (Set.range fun h : AdelicGL2 (𝓞 F) F => fun z => R.toFun (z * h)) ⊔
+            Submodule.span ℂ (Set.range fun h : AdelicGL2 (𝓞 F) F => fun z => R'.toFun (z * h)) →
+        y ∈ Submodule.span ℂ (Set.range fun h : AdelicGL2 (𝓞 F) F => fun z => R'.toFun (z * h)) →
+        peterssonIntegral F s S (fun z => x (z * g)) (fun z => y (z * g)) =
+          ((NumberField.TateGlobal.ideleNorm F (Matrix.GeneralLinearGroup.det g) ^ s : ℝ) : ℂ) *
+            peterssonIntegral F s S x y) ∧
+      ∃ P : (AdelicGL2 (𝓞 F) F → ℂ) →ₗ[ℂ] (AdelicGL2 (𝓞 F) F → ℂ) →ₗ⋆[ℂ] ℂ,
+        (∀ g : AdelicGL2 (𝓞 F) F, ∀ x y : AdelicGL2 (𝓞 F) F → ℂ,
+          x ∈ Submodule.span ℂ (Set.range fun h : AdelicGL2 (𝓞 F) F => fun z => R.toFun (z * h)) ⊔
+              Submodule.span ℂ (Set.range fun h : AdelicGL2 (𝓞 F) F => fun z => R'.toFun (z * h)) →
+          y ∈ Submodule.span ℂ (Set.range fun h : AdelicGL2 (𝓞 F) F => fun z => R'.toFun (z * h)) →
+          P (fun z => x (z * g)) (fun z => y (z * g)) =
+            ((NumberField.TateGlobal.ideleNorm F (Matrix.GeneralLinearGroup.det g) ^ s : ℝ) : ℂ) * P x y) ∧
+        (∃ y ∈ Submodule.span ℂ (Set.range fun h : AdelicGL2 (𝓞 F) F => fun z => R'.toFun (z * h)),
+          P y y ≠ 0) ∧
+        ∀ x y : AdelicGL2 (𝓞 F) F → ℂ,
+          x ∈ Submodule.span ℂ (Set.range fun h : AdelicGL2 (𝓞 F) F => fun z => R.toFun (z * h)) ⊔
+              Submodule.span ℂ (Set.range fun h : AdelicGL2 (𝓞 F) F => fun z => R'.toFun (z * h)) →
+          y ∈ Submodule.span ℂ (Set.range fun h : AdelicGL2 (𝓞 F) F => fun z => R'.toFun (z * h)) →
+          P x y = peterssonIntegral F s S x y) := by
+  have := NumberField.AdelicHaar.isMulRightInvariant_adelicGLHaar F
+  exact PeterssonSlabPairing.main c u d₁ d₂ T π π' R R' hR' s hs α β hα hαβ S hSs hS
+    fun a b ha =>
+      exists_finset_central_slab_covering_of_coversModCentre F c u d₁ d₂ T hd hcov a b ha
+
 end AutomorphicForm

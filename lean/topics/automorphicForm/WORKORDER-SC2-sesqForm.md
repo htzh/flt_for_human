@@ -73,7 +73,7 @@ Wiring: `Definitions/Def_AutomorphicForm_PeterssonIntegral.lean`,
 After this round the node is genuinely schedulable. The manager's half is landed (§4); this section
 is the order for the proof body.
 
-**Deliverable.** One new tier-3 module, `FLTForHuman/AutomorphicForm/Adelic/PeterssonSlabPairing.lean`,
+**Deliverable.** One new module, `FLTForHuman/AutomorphicForm/Adelic/PeterssonSlabPairing.lean`,
 in the pin's namespace `AutomorphicForm.PeterssonSlabPairing`. Nothing else is created or edited; no
 checker run, no register edit, no wiring (all the manager's).
 
@@ -83,15 +83,17 @@ The pin `S_` file splits into three pieces, and the module transcribes all of th
 |---|---|---|
 | `namespace FundamentalDomainSlab` (sections `FDAction`, `Group`, `Positivity`, `Pairing`, `Spans`, `Forms`) | 24–375 | the generic measure-theory prelude (`setLIntegral_fd_le_of_cover`, `setIntegral_mul_right_eq_of_isFundamentalDomain`, `trSpan`, `rt`, `exists_sesqForm_eq_on`, …) — write **once**, `private`, at the pin's names |
 | `namespace AutomorphicForm` / `namespace PeterssonSlabPairing` | 377–974 | the adelic vocabulary (`dn`, `slab`, `μH`, `Γp`, `pairFn`, `CoveredBy`, `cc`, and their 40-odd lemmas) `private`, and the engine **`main` public** |
-| `solution` | 980–1036 | not the worker's: the manager's façade states this wrapper and supplies the covering (below) |
+| `solution` | 980–1036 | the headline: state it verbatim from the pin `Theorems/` wrapper, proved by `main` with the SC1 covering supplied (below) |
 
-`main` (pin line 844) is the one **public** declaration: state it verbatim from the pin. It takes the
-SC1 covering as its final argument
+`main` (pin line 844) is public and states the pin's `main` verbatim. It takes the SC1 covering as
+its final argument
 (`fun a b ha => AutomorphicForm.exists_finset_central_slab_covering_of_coversModCentre F c u d₁ d₂ T hd hcov a b ha`),
-which is why the engine must **not** import the SC1 façade — the covering is supplied one level up,
-exactly as the pin's `solution` does. The manager's façade will be
-`AutomorphicForm.exists_sesqForm_eq_peterssonIntegral_of_isGenuineCuspRealizationAt_of_isFundamentalDomain`
-from the pin `Theorems/` wrapper, proved by `main` applied to the SC1 headline.
+and the module states the headline from the pin `Theorems/` wrapper by supplying exactly that
+covering — as the pin's `solution` does. This is why the module imports the SC1 façade
+(`Siegel/SlabCoveringTheorems.lean`) and is **listed**: the checker then verifies both public
+declarations, the headline against the wrapper and `main` against the pin's private `main` through
+the dotted fallback. (The 92-line separate tier-1 façade this order first described was merged back
+in on review; one module is the natural size here.)
 
 **Sources.** Statements from
 `https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Theorems/Thm_AutomorphicForm_exists_sesqForm_eq_peterssonIntegral_of_isGenuineCuspRealizationAt_of_isFundamentalDomain.lean`
@@ -169,13 +171,12 @@ last to `SOURCES`, façade to `PORT_FILES`); the register refresh for the tier-3
 
 ## 6. Results as landed
 
-Worker (§5 engine), then manager review, façade and wire. Checker `9697 → 9698` (**delta +1**,
-exactly the headline), 0 mismatched / 0 missing.
+Worker (§5 engine), then manager review and wire. Checker `9697 → 9699` (**delta +2**: the headline,
+plus `main` itself once the module was listed; `promoted` 670 → 671), 0 mismatched / 0 missing.
 
 | module | lines | public | private | tier-0 (wall/user/sys) | tier-1 |
 |---|---:|---:|---:|---|---|
-| `Adelic/PeterssonSlabPairing.lean` (worker, tier 3) | 991 | 1 (`main`) | 76 | exit 0, 0 warnings (7.3/9.7/1.9 s) | 7.2 s build (9.5 s wall) |
-| `Adelic/PeterssonSlabPairingTheorems.lean` (manager, tier 1) | 92 | 1 | 0 | exit 0, 0 warnings (4.1 s) | 3.2 s build |
+| `Adelic/PeterssonSlabPairing.lean` (listed, tier 1) | 1,066 | 2 (`main`, the headline) | 76 | exit 0, 0 warnings (8.0/11.0/2.1 s) | 7.6 s build |
 
 The worker's `main` was re-checked byte-equal to the pin `S_` file's `main` (raw and normalized)
 with the checker's own parser, the covering hypothesis included. The private `exists_norm_pow_mult_eq`
@@ -191,12 +192,15 @@ structure in mathlib `v4.34.0` (`def … := eLpNorm f p μ < ∞`), so `hf.2`/`h
 `IsAutomorphicFnAt`; the pin's `haveI`s became `have` (the `linter.style.haveILetI` fix, not a
 suppression); the pin's `attribute [-instance]`/`[-simp]` preludes are dropped.
 
-**Manager's half.** The façade states the pin `Theorems/` wrapper verbatim and supplies the SC1
-covering to `main`; the same `haveI`→`have` fix. Wiring: the wrapper and its `S_` file appended last
-to `SOURCES`; the façade appended last to `PORT_FILES`. The engine stays tier 3 and is registered:
-`spec/UNWIRED-PUBLIC.md` 92 → 93 modules, 2,344 → 2,345 public declarations, 2,056 → 2,057 with a pin
-original (`AutomorphicForm.PeterssonSlabPairing.main`, pin `S_…:844`). `#print axioms` on the
-headline and on `main`: `[propext, Classical.choice, Quot.sound]`.
+**Review: the façade was merged back in.** The order's first cut put the headline in a separate
+92-line tier-1 façade, which is disproportionate; on review it was appended to
+`PeterssonSlabPairing.lean` and the façade file deleted. The module is now **listed**, so the checker
+verifies both public declarations: the headline against the wrapper (+1) and `main` against the pin's
+private `main` through the dotted fallback (+1, the `promoted` count moving 670 → 671). The module
+leaves tier 3, so `spec/UNWIRED-PUBLIC.md` returns to 92 modules / 2,344 public / 2,056 with a pin
+original. Wiring: the wrapper and its `S_` file appended last to `SOURCES`;
+`FLTForHuman/AutomorphicForm/Adelic/PeterssonSlabPairing.lean` appended last to `PORT_FILES`.
+`#print axioms` on the headline and on `main`: `[propext, Classical.choice, Quot.sound]`.
 
 **Step-6 re-read (successors).** The node has left the ready shelf (it was the head at 1,036 silo
 lines). The shelf still reads 91 candidates; the new head is
@@ -204,6 +208,5 @@ lines). The shelf still reads 91 candidates; the new head is
 `AutomorphicForm.exists_isUnitFactorizableAboveOfType_tendsto_rightConv_of_mem_archCutSubmodule` (823)
 and `AlgebraicCurve.residue_norm_eq_norm_residue_of_retraction` (697).
 
-Files changed: `FLTForHuman/AutomorphicForm/Adelic/PeterssonSlabPairing.lean` (new, worker),
-`FLTForHuman/AutomorphicForm/Adelic/PeterssonSlabPairingTheorems.lean` (new, manager),
+Files changed: `FLTForHuman/AutomorphicForm/Adelic/PeterssonSlabPairing.lean`,
 `spec/check_flt_statements.py`, `spec/UNWIRED-PUBLIC.md`.
