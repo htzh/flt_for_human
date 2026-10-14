@@ -51,7 +51,9 @@ open LocalZetaUnramified
 variable {F : Type} [Field F] [NumberField F] {v : HeightOneSpectrum (𝓞 F)}
 
 -- pin: isOpenEmbedding_val (S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean:1774)
-private theorem isOpenEmbedding_val :
+-- public since the `AutomorphicForm.LocalIntertwining` prelude needs it (it is `private` in the
+-- pin, which re-copies it per file); see topics/automorphicForm/TOPIC-local-intertwining-weyl-integrand.md.
+theorem isOpenEmbedding_val :
     Topology.IsOpenEmbedding (Units.val : (v.adicCompletion F)ˣ → v.adicCompletion F) := by
   refine ⟨Units.isEmbedding_val₀, ?_⟩
   have hr : Set.range (Units.val : (v.adicCompletion F)ˣ → v.adicCompletion F)

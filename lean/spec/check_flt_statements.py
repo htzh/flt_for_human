@@ -3087,6 +3087,20 @@ SOURCES = [
     "Theorems/Thm_NumberField_TateGlobal_compactSpace_normOneIdeleClass.lean",
     "P2M/Sol/S_NumberField_TateGlobal_exists_isCompact_subset_normOneIdeles_forall_mem_exists_eq_map_algebraMap_mul.lean",
     "P2M/Sol/S_NumberField_TateGlobal_compactSpace_normOneIdeleClass.lean",
+    # --- The `AutomorphicForm.LocalIntertwining` cluster, set LI-1
+    # (topics/automorphicForm/WORKORDER-LI1-weyl-unramified.md). The `Theorems/` wrapper is the
+    # statement authority (listed first); the `S_` file is the proof source and re-carries the
+    # whole T1 prelude the port already has. The rest of the cluster is not yet listed.
+    "Theorems/Thm_AutomorphicForm_LocalIntertwining_integral_unramifiedWeylIntegrand_adicCompletion.lean",
+    "P2M/Sol/S_AutomorphicForm_LocalIntertwining_integral_unramifiedWeylIntegrand_adicCompletion.lean",
+    # --- The other half of the pair, set LI-2 (topics/automorphicForm/WORKORDER-LI2-weyl-smooth.md).
+    # Same shape as LI-1: the `Theorems/` wrapper first, the `S_` file second.
+    # `Definitions/Def_LanglandsTunnell_TateLocalConstantsAt.lean` carries `higherUnitsAt`, which
+    # the smooth headline's hypothesis names and which has no other port home; the rest of that
+    # Definitions file stays unported (CARRY-FORWARD).
+    "Theorems/Thm_AutomorphicForm_LocalIntertwining_integral_smoothWeylIntegrand_adicCompletion.lean",
+    "P2M/Sol/S_AutomorphicForm_LocalIntertwining_integral_smoothWeylIntegrand_adicCompletion.lean",
+    "Definitions/Def_LanglandsTunnell_TateLocalConstantsAt.lean",
 ]
 
 
@@ -4594,6 +4608,16 @@ PORT_FILES = [
     # `…/TateGlobal/FujisakiCompact.lean`. No existing module was edited.
     "FLTForHuman/NumberTheory/NumberField/TateGlobalCompactness.lean",
     "FLTForHuman/RingTheory/DiscreteValuationRing/Order.lean",
+    # --- The `AutomorphicForm.LocalIntertwining` prelude and its unramified headline, set LI-1
+    # (topics/automorphicForm/WORKORDER-LI1-weyl-unramified.md; see SOURCES). `WeylPrelude` is
+    # the manager's Set-0 definition layer (the pin's `ValuationOrd` block and the shell API the
+    # T1 port did not need), `WeylShell` the residual prelude, `WeylUnramified` the headline.
+    # No existing module was edited.
+    "FLTForHuman/NumberTheory/NumberField/TateGlobal/WeylPrelude.lean",
+    "FLTForHuman/NumberTheory/NumberField/TateGlobal/WeylShell.lean",
+    "FLTForHuman/NumberTheory/NumberField/TateGlobal/WeylUnramified.lean",
+    # Set LI-2: the smooth headline and its private development (see SOURCES).
+    "FLTForHuman/NumberTheory/NumberField/TateGlobal/WeylSmooth.lean",
 ]
 
 
@@ -4970,6 +4994,24 @@ def norm(text: str) -> str:
     # The change is monotone: both sides are normalised identically, so it can
     # only turn a mismatch/missing into a match, never the other way.
     text = re.sub(r"(?<![\w'ₐ-ₜ])kw_", "", text)
+    # The port homed the pin's re-carried `ValuationOrd` prelude once, in
+    # `FLTForHuman/RingTheory/DiscreteValuationRing/Order.lean`, under mathlib's own
+    # `IsDiscreteValuationRing` namespace (2026-10-13; see
+    # `topics/automorphicForm/TOPIC-local-intertwining-weyl-integrand.md` §1 and
+    # `CARRY-FORWARD.md`). A statement that *mentions* a member of that block therefore
+    # differs from the pin only by that qualifier: the pin writes `ValuationOrd.ord`, the
+    # port `IsDiscreteValuationRing.ord`. Erase both qualifiers when they qualify one of
+    # the block's sixteen names, on both sides, exactly as the `kw_` prefix is erased. The
+    # alternation is restricted to those names so that an unrelated
+    # `IsDiscreteValuationRing.*` (mathlib's `addVal`, `idealOrderIsoENat`) is left alone.
+    text = re.sub(
+        r"\b(?:ValuationOrd|IsDiscreteValuationRing)\.(?=(?:ord_eq_zero_iff|"
+        r"ord_ofMul_mk0_of_irreducible|ord_ofMul_of_mem|pow_maximalIdeal_injective|"
+        r"pow_maximalIdeal_ne_of_lt|exists_span_eq_pow|ord_spec|ordA_unique|ordA_span|"
+        r"ordA_mul|ordZ_spec|ordA|ordZ|exists_rep|coe_mk_ne_zero|ord)\b)",
+        "",
+        text,
+    )
     return re.sub(r"\s+", " ", text).strip()
 
 

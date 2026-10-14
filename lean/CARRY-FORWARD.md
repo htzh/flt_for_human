@@ -225,6 +225,46 @@ cone — `frontier.py --target DeligneSerre.exists_galoisRep_of_weightOne_qCoeff
 Note: the port's `ModularForms/WeightOne/Defs/PeriodPair.lean` is a **different** object — the
 weight-one prelude `periodPairOfTau`/`smulPeriodPair` over mathlib's `PeriodPair` struct.
 
+### The rest of the `AutomorphicForm.LocalIntertwining` cluster
+
+Two of the 19 nodes are ported — `integral_unramifiedWeylIntegrand_adicCompletion` and
+`integral_smoothWeylIntegrand_adicCompletion`, sets LI-1/LI-2, with their prelude
+(`TateGlobal/{WeylPrelude,WeylShell}.lean`); record:
+[topics/automorphicForm/TOPIC-local-intertwining-weyl-integrand.md](topics/automorphicForm/TOPIC-local-intertwining-weyl-integrand.md).
+The prelude is now in the port, so the rest are their own new files. Remaining, by the cluster's own
+import order:
+
+- **layer 0** — `integral_one_add_norm_sq_cpow_neg_eq_pi_div`,
+  `integral_one_add_sq_cpow_neg_eq_GammaReal_div`,
+  `integral_pow_mul_conj_pow_mul_one_add_norm_sq_cpow_neg`,
+  `exists_bound_norm_integral_mixedSpace_archAtom_prod`,
+  `integrable_{complex,real}Atom_and_integrable_moebiusShift`, the two
+  `bounded_and_tendsto_integral_{weylShift_sub_integral_smoothAtom_adicCompletion,moebiusShift_sub_integral_*Atom}`,
+  the two `tendsto_integral_{normSq_rpow_sub_one_mul_complexAtom,sq_rpow_sub_one_mul_realAtom}_nhdsGT_one_half`
+  — 5–25 declarations each, and a 13-declaration shared block between
+  `bounded_and_tendsto_integral_weylShift_…` and `integrable_smoothAtom_and_integrable_weylShift_adicCompletion`;
+- **layer 1** — the two `moebiusShift` rows,
+  `exists_meromorphicOn_eq_integral_smoothWeylIntegrand_adicCompletion`,
+  `exists_one_sub_mul_integral_smoothWeylIntegrand_eq_sum`,
+  `integral_finiteAdeleRing_prod_mul_finprod_unramifiedWeylIntegrand_mul_tprod` (1,291 lines, its own
+  5-declaration block), `integral_pow_mul_conj_pow_mul_one_add_norm_sq_cpow_neg`,
+  `integral_sub_I_div_sqrt_one_add_sq_zpow_mul_cpow_neg_eq_GammaReal` (465);
+- **layer 2** — `integral_adeleRing_pureTensor_prod_mul_finprod_unramifiedWeylIntegrand_mul_tprod`.
+
+### `Definitions/Def_LanglandsTunnell_TateLocalConstantsAt.lean` — the remainder
+
+Only `higherUnitsAt` is ported (with the smooth headline, in `TateGlobal/WeylSmooth.lean`; the pin
+file is in `SOURCES` for that one declaration). The rest of the module — `HasConductorExponentAt`,
+`conductorExponentAt`, … — is unported; port the node whole when a consumer needs it.
+
+### `ofReal_pow_cpow` — two `private` re-proofs beside a public port copy
+
+`TateGlobal/WeylShell.lean` and `TateGlobal/WeylSmooth.lean` each re-prove it `private`: the public
+port copy at `NumberTheory/NumberField/TateGlobal/EulerFactors.lean:80` is the same identity with the
+binders `(x) (m) (s)`, while the LocalIntertwining pin spells them `(a) (s) (k)`, and a `private`
+declaration is not importable. Unifying them means generalising the public copy's binders, which
+edits a frozen module.
+
 ## Open follow-ups
 
 ### `AlgebraicCurve.essFiniteType_of_transcendental_of_finiteDimensional`

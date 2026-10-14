@@ -11,7 +11,7 @@ whether the tree has drifted.  Nothing here is verified against the pin: the
 `pin original` column names the declaration (and the file holding it) that
 carries the statement to diff when the entry is wired.
 
-`2052` public declarations in `84` unlisted modules; `1764` of them have a pin counterpart by name and statement.
+`2053` public declarations in `84` unlisted modules; `1765` of them have a pin counterpart by name and statement.
 
 This is tier 3 only.  Tier 2 — a declaration in a *listed* module that the
 checker skips — is `OWN_PROOFS` in the checker itself, each entry carrying its
@@ -67,7 +67,7 @@ wrappers whose statements the checker diffs).
 | [`FLTForHuman/Elliptic/RedInvar.lean`](#fltforhumanellipticredinvarlean) | 108 | 8 | 0 | 8 | 1 | 0 |
 | [`FLTForHuman/Elliptic/TorsionCard.lean`](#fltforhumanelliptictorsioncardlean) | 1,174 | 24 | 3 | 21 | 7 | 1 |
 | [`FLTForHuman/Elliptic/Universal.lean`](#fltforhumanellipticuniversallean) | 241 | 36 | 0 | 36 | 1 | 0 |
-| [`FLTForHuman/LanglandsTunnell/TateLocalZeta.lean`](#fltforhumanlanglandstunnelltatelocalzetalean) | 187 | 23 | 23 | 0 | 1 | 0 |
+| [`FLTForHuman/LanglandsTunnell/TateLocalZeta.lean`](#fltforhumanlanglandstunnelltatelocalzetalean) | 187 | 23 | 23 | 0 | 2 | 0 |
 | [`FLTForHuman/LinearAlgebra/Countable.lean`](#fltforhumanlinearalgebracountablelean) | 25 | 1 | 1 | 0 | 1 | 0 |
 | [`FLTForHuman/MeasureTheory/Integral/Prod.lean`](#fltforhumanmeasuretheoryintegralprodlean) | 106 | 1 | 0 | 1 | 0 | 0 |
 | [`FLTForHuman/ModularCurve/TateCurve/Bridge.lean`](#fltforhumanmodularcurvetatecurvebridgelean) | 840 | 50 | 50 | 0 | 2 | 0 |
@@ -93,7 +93,7 @@ wrappers whose statements the checker diffs).
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ArchSlab.lean`](#fltforhumannumbertheorynumberfieldtateglobalarchslablean) | 375 | 27 | 27 | 0 | 2 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/Coordinates.lean`](#fltforhumannumbertheorynumberfieldtateglobalcoordinateslean) | 863 | 73 | 73 | 0 | 3 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/Defs.lean`](#fltforhumannumbertheorynumberfieldtateglobaldefslean) | 132 | 15 | 15 | 0 | 4 | 0 |
-| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/DistribHaarChar.lean`](#fltforhumannumbertheorynumberfieldtateglobaldistribhaarcharlean) | 185 | 4 | 4 | 0 | 2 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/DistribHaarChar.lean`](#fltforhumannumbertheorynumberfieldtateglobaldistribhaarcharlean) | 185 | 4 | 4 | 0 | 3 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/EulerBookkeeping.lean`](#fltforhumannumbertheorynumberfieldtateglobaleulerbookkeepinglean) | 398 | 23 | 23 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/EulerFactors.lean`](#fltforhumannumbertheorynumberfieldtateglobaleulerfactorslean) | 551 | 36 | 36 | 0 | 3 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/FiniteSlab.lean`](#fltforhumannumbertheorynumberfieldtateglobalfiniteslablean) | 407 | 30 | 30 | 0 | 2 | 0 |
@@ -105,7 +105,7 @@ wrappers whose statements the checker diffs).
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/IntLocalIntegrability.lean`](#fltforhumannumbertheorynumberfieldtateglobalintlocalintegrabilitylean) | 368 | 8 | 8 | 0 | 3 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/IntegrableZetaIntegrand.lean`](#fltforhumannumbertheorynumberfieldtateglobalintegrablezetaintegrandlean) | 183 | 4 | 4 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/LocalZetaUnramified.lean`](#fltforhumannumbertheorynumberfieldtategloballocalzetaunramifiedlean) | 258 | 15 | 15 | 0 | 2 | 0 |
-| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/MulHaar.lean`](#fltforhumannumbertheorynumberfieldtateglobalmulhaarlean) | 432 | 24 | 24 | 0 | 2 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/MulHaar.lean`](#fltforhumannumbertheorynumberfieldtateglobalmulhaarlean) | 434 | 25 | 25 | 0 | 3 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/NormIntegrable.lean`](#fltforhumannumbertheorynumberfieldtateglobalnormintegrablelean) | 370 | 16 | 16 | 0 | 3 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/PlaceSum.lean`](#fltforhumannumbertheorynumberfieldtateglobalplacesumlean) | 163 | 9 | 9 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/PureTensor.lean`](#fltforhumannumbertheorynumberfieldtateglobalpuretensorlean) | 426 | 6 | 6 | 0 | 1 | 0 |
@@ -114,7 +114,7 @@ wrappers whose statements the checker diffs).
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ShellSupport.lean`](#fltforhumannumbertheorynumberfieldtateglobalshellsupportlean) | 177 | 11 | 11 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ShellTranslate.lean`](#fltforhumannumbertheorynumberfieldtateglobalshelltranslatelean) | 145 | 4 | 4 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/UnifPowBridge.lean`](#fltforhumannumbertheorynumberfieldtateglobalunifpowbridgelean) | 147 | 7 | 7 | 0 | 3 | 0 |
-| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ValuedOrdBridge.lean`](#fltforhumannumbertheorynumberfieldtateglobalvaluedordbridgelean) | 232 | 6 | 6 | 0 | 2 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ValuedOrdBridge.lean`](#fltforhumannumbertheorynumberfieldtateglobalvaluedordbridgelean) | 232 | 6 | 6 | 0 | 3 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ZetaIntegrand.lean`](#fltforhumannumbertheorynumberfieldtateglobalzetaintegrandlean) | 384 | 27 | 27 | 0 | 3 | 0 |
 | [`FLTForHuman/RepTheory/ConvolutionLimit.lean`](#fltforhumanreptheoryconvolutionlimitlean) | 683 | 24 | 24 | 0 | 1 | 1 |
 | [`FLTForHuman/RepTheory/TypeReproducer.lean`](#fltforhumanreptheorytypereproducerlean) | 1,381 | 76 | 76 | 0 | 2 | 1 |
@@ -1016,7 +1016,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/LanglandsTunnell/TateLocalZeta.lean`
 
-187 lines, 23 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s).
+187 lines, 23 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -2077,7 +2077,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/DistribHaarChar.lean`
 
-185 lines, 4 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
+185 lines, 4 public declarations — transcribed from the pin, not wired. Imported by 3 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -2368,7 +2368,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/MulHaar.lean`
 
-432 lines, 24 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
+434 lines, 25 public declarations — transcribed from the pin, not wired. Imported by 3 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -2380,6 +2380,7 @@ wrappers whose statements the checker diffs).
 | `NumberField.TateGlobal.MulHaarFromAdditive.isFiniteMeasureOnCompacts_mulHaar` | theorem | `isFiniteMeasureOnCompacts_mulHaar` (provenance comment) | [`S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean:2033`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean#L2033) |
 | `NumberField.TateGlobal.MulHaarFromAdditive.isHaarMeasure_mulHaar` | theorem | `isHaarMeasure_mulHaar` (provenance comment) | [`S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean:2102`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean#L2102) |
 | `NumberField.TateGlobal.MulHaarFromAdditive.isMulLeftInvariant_mulHaar` | theorem | `isMulLeftInvariant_mulHaar` (provenance comment) | [`S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean:2019`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean#L2019) |
+| `NumberField.TateGlobal.MulHaarFromAdditive.isOpenEmbedding_val` | theorem | `isOpenEmbedding_val` (provenance comment) | [`S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean:1774`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean#L1774) |
 | `NumberField.TateGlobal.MulHaarFromAdditive.isOpenPosMeasure_mulHaar` | theorem | `isOpenPosMeasure_mulHaar` (provenance comment) | [`S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean:2081`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean#L2081) |
 | `NumberField.TateGlobal.MulHaarFromAdditive.isOpen_shellSet` | theorem | `isOpen_shellSet` (provenance comment) | [`S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean:1821`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean#L1821) |
 | `NumberField.TateGlobal.MulHaarFromAdditive.isOpen_smul_set` | theorem | `isOpen_smul_set` (provenance comment) | [`S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean:1801`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean#L1801) |
@@ -2544,7 +2545,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/ValuedOrdBridge.lean`
 
-232 lines, 6 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
+232 lines, 6 public declarations — transcribed from the pin, not wired. Imported by 3 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
