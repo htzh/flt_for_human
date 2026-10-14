@@ -3171,6 +3171,23 @@ SOURCES = [
     # declaration matches it and nothing is owed for it. Appended last.
     "Theorems/Thm_LSeries_abscissaOfAbsConv_lt_of_differentiableOn_ball.lean",
     "P2M/Sol/S_LSeries_abscissaOfAbsConv_lt_of_differentiableOn_ball.lean",
+    # --- The manager's ground for the weighted-Petersson node (sesqForm): the pin
+    # `Definitions/Def_AutomorphicForm_PeterssonIntegral.lean` (homed whole at
+    # `AutomorphicForm/Adelic/PeterssonIntegral.lean`) and the public node
+    # `AutomorphicForm.ideleNorm_det_globalPoints` (wrapper + `S_` file), which was previously
+    # carried `private` in the slab engine and is now homed at
+    # `AutomorphicForm/Adelic/IdeleNormDet.lean`. Appended last so no earlier last-name match
+    # can flip.
+    "Definitions/Def_AutomorphicForm_PeterssonIntegral.lean",
+    "Theorems/Thm_AutomorphicForm_ideleNorm_det_globalPoints.lean",
+    "P2M/Sol/S_AutomorphicForm_ideleNorm_det_globalPoints.lean",
+    # --- WORKORDER-SC2 §5 (`topics/automorphicForm/WORKORDER-SC2-sesqForm.md`): the weighted
+    # Petersson headline. The `S_` file's 70 private helpers are transcribed `private` in the
+    # tier-3 engine and so are skipped by the checker; its public `solution` has no port
+    # counterpart (the façade states the wrapper). Appended last so no earlier last-name match
+    # can flip.
+    "Theorems/Thm_AutomorphicForm_exists_sesqForm_eq_peterssonIntegral_of_isGenuineCuspRealizationAt_of_isFundamentalDomain.lean",
+    "P2M/Sol/S_AutomorphicForm_exists_sesqForm_eq_peterssonIntegral_of_isGenuineCuspRealizationAt_of_isFundamentalDomain.lean",
 ]
 
 
@@ -4727,6 +4744,16 @@ PORT_FILES = [
     # plus its headline wrapper. The rest of that `S_` file (the Landau–Siegel silo) is dropped.
     # Appended last so no earlier last-name match can flip.
     "FLTForHuman/NumberTheory/LSeries/Landau.lean",
+    # --- The manager's ground for the weighted-Petersson node (sesqForm): the homed
+    # `Def_AutomorphicForm_PeterssonIntegral` and the promoted public node
+    # `AutomorphicForm.ideleNorm_det_globalPoints` (the slab engine now imports the latter).
+    # Appended last so no earlier last-name match can flip.
+    "FLTForHuman/AutomorphicForm/Adelic/PeterssonIntegral.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/IdeleNormDet.lean",
+    # --- WORKORDER-SC2 §5: the tier-1 façade stating the weighted-Petersson headline and
+    # supplying the SC1 covering to the tier-3 `AutomorphicForm.PeterssonSlabPairing.main`
+    # engine of `PeterssonSlabPairing.lean` (unlisted). Appended last.
+    "FLTForHuman/AutomorphicForm/Adelic/PeterssonSlabPairingTheorems.lean",
 ]
 
 

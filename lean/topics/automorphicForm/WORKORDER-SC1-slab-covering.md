@@ -99,7 +99,8 @@ in namespace `AutomorphicForm.SiegelCovering` (the namespace of the sibling
 * the three kernels **public** at
   `AutomorphicForm.SiegelCovering.Engine.<name>` with the `Theorems/` wrapper statements, so the
   manager's façade can state the headlines and delegate;
-* `-- pin: <name> (S_<stem>.lean:<line>)` above every transcribed declaration;
+* `-- pin: <name> (S_<stem>.lean:<line>)` above every **public** declaration (the tier-3 register
+  reads it there); on the `private` prelude it is optional, for traceability only;
 * a header stating the subject, the pin and the two landed reuse edges.
 
 No other file is created or edited. The module is not wired (`PORT_FILES`) in this order.

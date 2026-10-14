@@ -11,7 +11,7 @@ whether the tree has drifted.  Nothing here is verified against the pin: the
 `pin original` column names the declaration (and the file holding it) that
 carries the statement to diff when the entry is wired.
 
-`2344` public declarations in `92` unlisted modules; `2056` of them have a pin counterpart by name and statement.
+`2345` public declarations in `93` unlisted modules; `2057` of them have a pin counterpart by name and statement.
 
 This is tier 3 only.  Tier 2 — a declaration in a *listed* module that the
 checker skips — is `OWN_PROOFS` in the checker itself, each entry carrying its
@@ -46,7 +46,8 @@ wrappers whose statements the checker diffs).
 | [`FLTForHuman/AutomorphicForm/Adelic/BorelSubgroup.lean`](#fltforhumanautomorphicformadelicborelsubgrouplean) | 248 | 19 | 19 | 0 | 2 | 0 |
 | [`FLTForHuman/AutomorphicForm/Adelic/EtaFamily.lean`](#fltforhumanautomorphicformadelicetafamilylean) | 139 | 15 | 15 | 0 | 1 | 0 |
 | [`FLTForHuman/AutomorphicForm/Adelic/InducedSection.lean`](#fltforhumanautomorphicformadelicinducedsectionlean) | 115 | 10 | 10 | 0 | 1 | 0 |
-| [`FLTForHuman/AutomorphicForm/Adelic/Siegel/SlabCovering.lean`](#fltforhumanautomorphicformadelicsiegelslabcoveringlean) | 1,130 | 3 | 3 | 0 | 1 | 0 |
+| [`FLTForHuman/AutomorphicForm/Adelic/PeterssonSlabPairing.lean`](#fltforhumanautomorphicformadelicpeterssonslabpairinglean) | 992 | 1 | 1 | 0 | 1 | 0 |
+| [`FLTForHuman/AutomorphicForm/Adelic/Siegel/SlabCovering.lean`](#fltforhumanautomorphicformadelicsiegelslabcoveringlean) | 1,119 | 3 | 3 | 0 | 2 | 0 |
 | [`FLTForHuman/AutomorphicForm/Adelic/WeylIntegrable/Assembly.lean`](#fltforhumanautomorphicformadelicweylintegrableassemblylean) | 321 | 26 | 26 | 0 | 1 | 1 |
 | [`FLTForHuman/AutomorphicForm/Adelic/WeylIntegrable/BoxBounds.lean`](#fltforhumanautomorphicformadelicweylintegrableboxboundslean) | 261 | 26 | 26 | 0 | 1 | 1 |
 | [`FLTForHuman/AutomorphicForm/Adelic/WeylIntegrable/Caps.lean`](#fltforhumanautomorphicformadelicweylintegrablecapslean) | 155 | 6 | 6 | 0 | 1 | 1 |
@@ -100,7 +101,7 @@ wrappers whose statements the checker diffs).
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ArchMulHaar.lean`](#fltforhumannumbertheorynumberfieldtateglobalarchmulhaarlean) | 566 | 33 | 33 | 0 | 3 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ArchSlab.lean`](#fltforhumannumbertheorynumberfieldtateglobalarchslablean) | 375 | 27 | 27 | 0 | 3 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/Coordinates.lean`](#fltforhumannumbertheorynumberfieldtateglobalcoordinateslean) | 863 | 73 | 73 | 0 | 3 | 0 |
-| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/Defs.lean`](#fltforhumannumbertheorynumberfieldtateglobaldefslean) | 132 | 15 | 15 | 0 | 6 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/Defs.lean`](#fltforhumannumbertheorynumberfieldtateglobaldefslean) | 132 | 15 | 15 | 0 | 8 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/DistribHaarChar.lean`](#fltforhumannumbertheorynumberfieldtateglobaldistribhaarcharlean) | 185 | 4 | 4 | 0 | 3 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/EulerBookkeeping.lean`](#fltforhumannumbertheorynumberfieldtateglobaleulerbookkeepinglean) | 398 | 23 | 23 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/EulerFactors.lean`](#fltforhumannumbertheorynumberfieldtateglobaleulerfactorslean) | 551 | 36 | 36 | 0 | 3 | 0 |
@@ -345,9 +346,17 @@ wrappers whose statements the checker diffs).
 | `AutomorphicForm.rightTranslate` | theorem | `rightTranslate` (provenance comment) | [`Def_AutomorphicForm_InducedSection.lean:64`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AutomorphicForm_InducedSection.lean#L64) |
 | `AutomorphicForm.rightTranslate_mem_inducedSectionSubmodule` | theorem | `rightTranslate_mem_inducedSectionSubmodule` (provenance comment) | [`Def_AutomorphicForm_InducedSection.lean:71`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AutomorphicForm_InducedSection.lean#L71) |
 
+## `FLTForHuman/AutomorphicForm/Adelic/PeterssonSlabPairing.lean`
+
+992 lines, 1 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s).
+
+| importable name | kind | pin original | pin file |
+|---|---|---|---|
+| `AutomorphicForm.PeterssonSlabPairing.main` | theorem | `main` (provenance comment) | [`S_AutomorphicForm_exists_sesqForm_eq_peterssonIntegral_of_isGenuineCuspRealizationAt_of_isFundamentalDomain.lean:844`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AutomorphicForm_exists_sesqForm_eq_peterssonIntegral_of_isGenuineCuspRealizationAt_of_isFundamentalDomain.lean#L844) |
+
 ## `FLTForHuman/AutomorphicForm/Adelic/Siegel/SlabCovering.lean`
 
-1,130 lines, 3 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s).
+1,119 lines, 3 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -2410,7 +2419,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/Defs.lean`
 
-132 lines, 15 public declarations — transcribed from the pin, not wired. Imported by 6 port module(s).
+132 lines, 15 public declarations — transcribed from the pin, not wired. Imported by 8 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|

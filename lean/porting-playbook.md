@@ -284,7 +284,9 @@ A **topic** is the unit of work: one mathematical step, one module or a small gr
 order, stating before any code the subject, pin source, exact statements, imports, route/risk,
 verification and build bound. The template: **(1) Scope** — one paragraph plus what is
 explicitly *not* this topic, the in-scope nodes, and that each is taken whole (§2.3); **(2)
-Source** — pinned files and line ranges, the wrappers for statements; **(3) Deliverable** —
+Source** — pinned files and line ranges, the wrappers for statements, and the `-- pin:
+<name> (<file>:<line>)` provenance comment, owed **only on public declarations** (§4.1);
+**(3) Deliverable** —
 module path and declaration list, public vs `private`; **(4) Route** — the mathlib map, the
 alternatives, the recorded negatives, and a **stop-early risk list with a deviation protocol**;
 **(5) Build discipline** — the bound and the ladder (§3.5), copied in; **(6) Verification** —
@@ -413,7 +415,12 @@ With a pinned source, correctness is checkable rather than trusted. Four instrum
    **new wired public surface**. **Wiring is the manager's and is not owed to every public
    declaration**: the API is wired so it stays verified, while a public declaration with no
    known consumer may stay unwired — record it in [CARRY-FORWARD.md](CARRY-FORWARD.md) rather
-   than inflating the comparison. Text-shaped rules:
+   than inflating the comparison. A public declaration in an **unlisted** (tier-3) module is not
+   lost either: the register `spec/UNWIRED-PUBLIC.md` recovers it from the `-- pin: <name>
+   (<file>:<line>)` comment above it. That comment is therefore owed on every **public**
+   declaration and nowhere else — a `private` helper is filtered out of the register before its
+   provenance is read, so it may carry the comment for traceability but owes nothing. Text-shaped
+   rules:
    - **The checker's own unit test covers its mutation sensitivity** —
      `python3 spec/check_flt_statements.py --selftest` mutates a statement in memory and asserts
      exactly the one `mismatched` a full run would report. It is a test of the instrument, run when

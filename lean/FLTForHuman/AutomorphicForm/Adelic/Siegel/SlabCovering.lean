@@ -40,6 +40,7 @@
   written once here, generalised over the set `S` with the two set-specific inputs
   (`hwin`, `hmul`), so each shared name occurs a single time.
 -/
+import FLTForHuman.AutomorphicForm.Adelic.IdeleNormDet
 import FLTForHuman.AutomorphicForm.Adelic.Siegel.Covering
 import FLTForHuman.AutomorphicForm.Adelic.WindowedSiegel.CentreCutSiegelSetAmple
 import FLTForHuman.NumberTheory.AdelicModulus
@@ -697,20 +698,8 @@ private theorem ideleNorm_det_eq_archDetNorm_rat (X : AdelicGL2 (𝓞 ℚ) ℚ)
   unfold InfinitePlace.mult
   rw [ite_eq_left Rat.isReal_infinitePlace, pow_one]
 
--- pin: ideleNorm_det_globalPoints (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:607)
-private theorem ideleNorm_det_globalPoints (γ : GL (Fin 2) F) :
-    ideleNorm F (Matrix.GeneralLinearGroup.det (globalPoints (𝓞 F) F γ)) = 1 := by
-  have hdet : Matrix.GeneralLinearGroup.det (globalPoints (𝓞 F) F γ)
-      = Units.map (algebraMap F (AdeleRing (𝓞 F) F)).toMonoidHom (Matrix.GeneralLinearGroup.det γ) := by
-    refine Units.ext ?_
-    rw [Units.coe_map, Matrix.GeneralLinearGroup.val_det_apply, Matrix.GeneralLinearGroup.val_det_apply,
-      RingHom.toMonoidHom_eq_coe, MonoidHom.coe_coe, RingHom.map_det]
-    rfl
-  let := adeleBorel (𝓞 F) F
-  have := borelSpace_adeleBorel (𝓞 F) F
-  unfold ideleNorm
-  rw [hdet, NumberField.AdeleRing.distribHaarChar_algebraMap F (Matrix.GeneralLinearGroup.det γ)]
-  rfl
+-- `ideleNorm_det_globalPoints` is the public node `AutomorphicForm.ideleNorm_det_globalPoints`
+-- (`FLTForHuman/AutomorphicForm/Adelic/IdeleNormDet.lean`), imported rather than re-derived here.
 
 -- pin: det_centralScalar_sq (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:634)
 private theorem det_centralScalar_sq (z : (AdeleRing (𝓞 F) F)ˣ) :
