@@ -212,9 +212,15 @@ one; and the wave that homed the shelf's definition layer, which also deduped `f
 
 ```bash
 cd tools/deps
-python3 frontier.py --target DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen \
-  --rank-by silo --ready --top 0
+# the canonical D-S cone read: --ds excludes the prunable complex-analytic subject
+# (deligneSerre/PRUNABLE-complex-analytic.md) and --include-leaves shows the demand's
+# graph leaves, which --ready and --hops drop
+python3 frontier.py --ds --include-leaves --rank-by silo --top 0
+python3 frontier.py --ds --rank-by silo --ready --top 0   # the ready shelf alone
 ```
+
+The table below is the **default** (unexcluded, `union`) reading, kept for reference;
+the `--ds` commands above are the ones to use for "what is left".
 
 | quantity | value |
 |---|---:|
@@ -295,7 +301,9 @@ ready; they must not be scheduled off a ready shelf.
 This is the loop the column runs. Steps 1–4 are the manager's; step 5 is the subagents'; step 6
 closes.
 
-**1. Read the frontier.** The command above. `--ready` keeps only the nodes whose whole demand is
+**1. Read the frontier.** The canonical command above is `--ds --include-leaves` (`--ds` excludes
+the prunable complex-analytic subject, `--include-leaves` surfaces the demand's graph leaves);
+`--ready` narrows to the nodes whose whole demand is
 themselves — every premise is already ported, so only the node's own proof is missing — and
 `--rank-by silo` orders them by the raw `S_` lines of their **whole demand**, i.e. by how much
 mathematics stands behind them, not by the size of their own file. This is demand, and it is the
@@ -489,14 +497,15 @@ cuspidal subspace does not span the Eisenstein part. The row is documented in
 
 ```bash
 cd tools/deps
-# the frontier (step 1), both readings
-python3 frontier.py --target DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen \
-  --rank-by silo --ready --top 0
-python3 frontier.py --target DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen \
-  --frontier sources --ready --top 0
-# the same with the prunable complex-analytic subject excluded, in one flag
-# (deligneSerre/PRUNABLE-complex-analytic.md §4; tools/deps/ds_prunable.py)
+# the D-S cone, canonical: --ds targets the weight-one headline and excludes the
+# prunable complex-analytic subject (deligneSerre/PRUNABLE-complex-analytic.md §4;
+# tools/deps/ds_prunable.py), --include-leaves shows the demand's graph leaves that
+# --ready/--hops drop
+python3 frontier.py --ds --include-leaves --rank-by silo --top 0
+# ... the conservative (no name-scan) reading, and the ready shelf / needed alone
+python3 frontier.py --ds --include-leaves --frontier sources --top 0
 python3 frontier.py --ds --rank-by silo --ready --top 0
+python3 frontier.py --ds --top 0
 
 # scope one cluster (step 3): advise → plan → price
 python3 port_advise.py --target <node> --target <node> --json build/cluster_advise.json

@@ -3251,6 +3251,13 @@ SOURCES = [
     "P2M/Sol/S_AlgebraicCurve_RadialRegion_exists_recip.lean",
     "Theorems/Thm_AlgebraicCurve_RadialRegion_exists_pow_pullback_laps.lean",
     "P2M/Sol/S_AlgebraicCurve_RadialRegion_exists_pow_pullback_laps.lean",
+    # --- WORKORDER-KF1 (`topics/automorphicForm/WORKORDER-KF1-kfinite-family-span.md`): the
+    # K-finite-family local-finite-type leaf. Statement from the `Theorems/` wrapper, proof from
+    # the `S_` silo; the two tier-3 engines (`RepTheory/TranslateSpan.lean`,
+    # `AutomorphicForm/Adelic/ArchKFiniteFamily.lean`) stay unlisted (see `PORT_FILES`) and are
+    # registered in `spec/UNWIRED-PUBLIC.md`. Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean",
+    "P2M/Sol/S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean",
 ]
 
 
@@ -4856,6 +4863,11 @@ PORT_FILES = [
     "FLTForHuman/AlgebraicCurve/RadialRegion/IsOpenStarConvex.lean",
     "FLTForHuman/AlgebraicCurve/RadialRegion/Recip.lean",
     "FLTForHuman/AlgebraicCurve/RadialRegion/PowPullbackLaps.lean",
+    # --- WORKORDER-KF1 (`topics/automorphicForm/WORKORDER-KF1-kfinite-family-span.md`): the
+    # façade only (its tier-3 engines `RepTheory/TranslateSpan.lean` and
+    # `AutomorphicForm/Adelic/ArchKFiniteFamily.lean` stay unlisted, registered in
+    # `spec/UNWIRED-PUBLIC.md`). Appended last.
+    "FLTForHuman/AutomorphicForm/Adelic/ArchKFiniteFamilyTheorems.lean",
 ]
 
 
