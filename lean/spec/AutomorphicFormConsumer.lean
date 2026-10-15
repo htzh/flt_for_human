@@ -31,7 +31,7 @@ import FLTForHuman.MeasureTheory.ScalingDichotomy
 import FLTForHuman.RepTheory.AbstractHeckeOperator
 import FLTForHuman.AutomorphicForm.Adelic.HeckeEigensystem
 import FLTForHuman.RepTheory.LocalNewvector.CongruenceSubgroupK1
-import FLTForHuman.NumberTheory.M4aHerbrand.IdeleClassVocab
+import FLTForHuman.NumberTheory.NumberField.IdeleClass.Vocab
 import FLTForHuman.AutomorphicForm.Adelic.ProductionPins
 import FLTForHuman.AutomorphicForm.Adelic.ProductionPinsCompact
 import FLTForHuman.AutomorphicForm.Adelic.Cusp.ArithRealization

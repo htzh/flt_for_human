@@ -12,7 +12,7 @@
 
   Transcribed verbatim from `Definitions/Def_M4aHerbrand_IdeleClassVocab.lean`
   (pinned `aa2d8b3`, 114 lines / 9 declarations). The idèle class group is a
-  number-theoretic carrier, so its home is the port's `NumberTheory/M4aHerbrand/`
+  number-theoretic carrier, so its home is the port's `NumberTheory/NumberField/IdeleClass/`
   area (the pin's `Def_M4aHerbrand_*` family, playbook §3.1); the pin namespace
   `M4aHerbrand` is kept.
 -/

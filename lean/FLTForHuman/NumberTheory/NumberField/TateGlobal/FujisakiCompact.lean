@@ -37,7 +37,7 @@ import FLTForHuman.NumberTheory.NumberField.TateGlobal.NormIntegrable
 import FLTForHuman.NumberTheory.NumberField.TateGlobal.IntLocalIntegrability
 import FLTForHuman.NumberTheory.NumberField.TateGlobal.HMajorant
 import FLTForHuman.NumberTheory.NumberField.Completion.Finite
-import FLTForHuman.NumberTheory.M4aHerbrand.IdeleClassVocab
+import FLTForHuman.NumberTheory.NumberField.IdeleClass.Vocab
 import FLTForHuman.NumberTheory.AdelicModulus
 
 set_option autoImplicit false

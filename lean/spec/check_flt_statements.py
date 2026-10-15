@@ -4620,11 +4620,11 @@ PORT_FILES = [
     # --- TOPIC-rightConv-comm W5: the Hecke/local vocabulary, cut by mathematical role — the
     # generic Hecke operator and the local congruence subgroups under `RepTheory/`, the
     # eigensystem under `AutomorphicForm/Adelic/`, the idèle-class vocabulary under
-    # `NumberTheory/M4aHerbrand/`.
+    # `NumberTheory/NumberField/IdeleClass/`.
     "FLTForHuman/RepTheory/AbstractHeckeOperator.lean",
     "FLTForHuman/AutomorphicForm/Adelic/HeckeEigensystem.lean",
     "FLTForHuman/RepTheory/LocalNewvector/CongruenceSubgroupK1.lean",
-    "FLTForHuman/NumberTheory/M4aHerbrand/IdeleClassVocab.lean",
+    "FLTForHuman/NumberTheory/NumberField/IdeleClass/Vocab.lean",
     # --- TOPIC-rightConv-comm W6: the residue of the mathlib-gap stubs, homed in a
     # mathlib-mirroring tree. `Def_Mathlib_Topology_Algebra_Group_Units` is fully
     # substituted by mathlib `Submonoid.isOpen_units` and has no port module.

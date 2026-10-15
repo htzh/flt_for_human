@@ -105,7 +105,6 @@ wrappers whose statements the checker diffs).
 | [`FLTForHuman/NumberTheory/AdelicHaar/PlaceMeasure.lean`](#fltforhumannumbertheoryadelichaarplacemeasurelean) | 623 | 34 | 34 | 0 | 3 | 1 |
 | [`FLTForHuman/NumberTheory/AdelicHaar/ProductFormula.lean`](#fltforhumannumbertheoryadelichaarproductformulalean) | 217 | 9 | 9 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/AdelicLevel/Countability.lean`](#fltforhumannumbertheoryadeliclevelcountabilitylean) | 168 | 2 | 2 | 0 | 2 | 1 |
-| [`FLTForHuman/NumberTheory/M4aHerbrand/ArchSemilocal.lean`](#fltforhumannumbertheorym4aherbrandarchsemilocallean) | 354 | 22 | 22 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/CompletedDedekindZeta/Bounds.lean`](#fltforhumannumbertheorynumberfieldcompleteddedekindzetaboundslean) | 685 | 31 | 31 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/CompletedDedekindZeta/CompletedZeta.lean`](#fltforhumannumbertheorynumberfieldcompleteddedekindzetacompletedzetalean) | 592 | 48 | 48 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/CompletedDedekindZeta/Hadamard.lean`](#fltforhumannumbertheorynumberfieldcompleteddedekindzetahadamardlean) | 838 | 51 | 51 | 0 | 1 | 0 |
@@ -116,6 +115,7 @@ wrappers whose statements the checker diffs).
 | [`FLTForHuman/NumberTheory/NumberField/CompletedDedekindZeta/ThetaKernel.lean`](#fltforhumannumbertheorynumberfieldcompleteddedekindzetathetakernellean) | 1,310 | 84 | 84 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/CompletedDedekindZeta/Unfolding.lean`](#fltforhumannumbertheorynumberfieldcompleteddedekindzetaunfoldinglean) | 1,231 | 22 | 22 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/Extension.lean`](#fltforhumannumbertheorynumberfieldextensionlean) | 257 | 35 | 35 | 0 | 1 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/IdeleClass/ArchSemilocal.lean`](#fltforhumannumbertheorynumberfieldideleclassarchsemilocallean) | 354 | 22 | 22 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/InfiniteAdeleRing/BaseChangeData.lean`](#fltforhumannumbertheorynumberfieldinfiniteadeleringbasechangedatalean) | 329 | 36 | 36 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ArchMulHaar.lean`](#fltforhumannumbertheorynumberfieldtateglobalarchmulhaarlean) | 566 | 33 | 33 | 0 | 3 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ArchSlab.lean`](#fltforhumannumbertheorynumberfieldtateglobalarchslablean) | 375 | 27 | 27 | 0 | 3 | 0 |
@@ -2696,35 +2696,6 @@ wrappers whose statements the checker diffs).
 | `NumberField.AdelicCountability.isCountablyGenerated_uniformity_of_valued` | theorem | `isCountablyGenerated_uniformity_of_valued` (provenance comment) | [`S_AutomorphicForm_bruhatTransversal_summand_norm_summable_of_re_gt_half.lean:65`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AutomorphicForm_bruhatTransversal_summand_norm_summable_of_re_gt_half.lean#L65) |
 | `NumberField.AdelicCountability.secondCountableTopology_restrictedProduct` | theorem | `secondCountableTopology_restrictedProduct` (provenance comment) | [`S_AutomorphicForm_bruhatTransversal_summand_norm_summable_of_re_gt_half.lean:79`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AutomorphicForm_bruhatTransversal_summand_norm_summable_of_re_gt_half.lean#L79) |
 
-## `FLTForHuman/NumberTheory/M4aHerbrand/ArchSemilocal.lean`
-
-354 lines, 22 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s).
-
-| importable name | kind | pin original | pin file |
-|---|---|---|---|
-| `M4aHerbrand.ArchSemilocal.continuous_algebraMap_completion` | theorem | `continuous_algebraMap_completion` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:256`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L256) |
-| `M4aHerbrand.ArchSemilocal.continuous_conorm` | theorem | `continuous_conorm` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:266`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L266) |
-| `M4aHerbrand.ArchSemilocal.denseRange_algebraMap_completion` | theorem | `denseRange_algebraMap_completion` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:59`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L59) |
-| `M4aHerbrand.ArchSemilocal.extLiesOver` | theorem | `extLiesOver` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:154`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L154) |
-| `M4aHerbrand.ArchSemilocal.extensionEquivPlacesOver` | def | `extensionEquivPlacesOver` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:201`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L201) |
-| `M4aHerbrand.ArchSemilocal.finiteDimensional_completion` | theorem | `finiteDimensional_completion` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:19`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L19) |
-| `M4aHerbrand.ArchSemilocal.finrank_pi_extension` | theorem | `finrank_pi_extension` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:207`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L207) |
-| `M4aHerbrand.ArchSemilocal.genuineInfinitePlaceData` | def | `genuineInfinitePlaceData` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:251`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L251) |
-| `M4aHerbrand.ArchSemilocal.instIsScalarTowerCompletion` | instance | `instIsScalarTowerCompletion` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:28`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L28) |
-| `M4aHerbrand.ArchSemilocal.ker_psiFactor_ne` | theorem | `ker_psiFactor_ne` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:141`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L141) |
-| `M4aHerbrand.ArchSemilocal.liesOver_of_comap_eq` | theorem | `liesOver_of_comap_eq` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:14`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L14) |
-| `M4aHerbrand.ArchSemilocal.nontriviallyNormedCompletion` | def | `nontriviallyNormedCompletion` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:48`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L48) |
-| `M4aHerbrand.ArchSemilocal.norm_algebraMap_completion` | theorem | `norm_algebraMap_completion` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:89`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L89) |
-| `M4aHerbrand.ArchSemilocal.placeEquivAlg` | def | `placeEquivAlg` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:247`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L247) |
-| `M4aHerbrand.ArchSemilocal.psi` | def | `psi` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:159`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L159) |
-| `M4aHerbrand.ArchSemilocal.psiFactor` | def | `psiFactor` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:31`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L31) |
-| `M4aHerbrand.ArchSemilocal.psiFactor_one_tmul` | theorem | `psiFactor_one_tmul` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:44`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L44) |
-| `M4aHerbrand.ArchSemilocal.psiFactor_surjective` | theorem | `psiFactor_surjective` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:68`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L68) |
-| `M4aHerbrand.ArchSemilocal.psiFactor_tmul` | theorem | `psiFactor_tmul` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:37`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L37) |
-| `M4aHerbrand.ArchSemilocal.psi_apply` | theorem | `psi_apply` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:165`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L165) |
-| `M4aHerbrand.ArchSemilocal.psi_bijective` | theorem | `psi_bijective` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:230`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L230) |
-| `M4aHerbrand.ArchSemilocal.psi_surjective` | theorem | `psi_surjective` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:169`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L169) |
-
 ## `FLTForHuman/NumberTheory/NumberField/CompletedDedekindZeta/Bounds.lean`
 
 685 lines, 31 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s).
@@ -3217,6 +3188,35 @@ wrappers whose statements the checker diffs).
 | `NumberField.InfinitePlace.toExtension` | abbrev | `toExtension` (provenance comment) | [`Def_NumberField_Extension.lean:87`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L87) |
 | `NumberField.InfinitePlace.toRamifiedExtension` | def | `Extension.toRamifiedExtension` (provenance comment) | [`Def_NumberField_Extension.lean:160`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L160) |
 | `NumberField.InfinitePlace.toUnramifiedExtension` | def | `Extension.toUnramifiedExtension` (provenance comment) | [`Def_NumberField_Extension.lean:163`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L163) |
+
+## `FLTForHuman/NumberTheory/NumberField/IdeleClass/ArchSemilocal.lean`
+
+354 lines, 22 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s).
+
+| importable name | kind | pin original | pin file |
+|---|---|---|---|
+| `M4aHerbrand.ArchSemilocal.continuous_algebraMap_completion` | theorem | `continuous_algebraMap_completion` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:256`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L256) |
+| `M4aHerbrand.ArchSemilocal.continuous_conorm` | theorem | `continuous_conorm` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:266`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L266) |
+| `M4aHerbrand.ArchSemilocal.denseRange_algebraMap_completion` | theorem | `denseRange_algebraMap_completion` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:59`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L59) |
+| `M4aHerbrand.ArchSemilocal.extLiesOver` | theorem | `extLiesOver` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:154`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L154) |
+| `M4aHerbrand.ArchSemilocal.extensionEquivPlacesOver` | def | `extensionEquivPlacesOver` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:201`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L201) |
+| `M4aHerbrand.ArchSemilocal.finiteDimensional_completion` | theorem | `finiteDimensional_completion` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:19`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L19) |
+| `M4aHerbrand.ArchSemilocal.finrank_pi_extension` | theorem | `finrank_pi_extension` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:207`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L207) |
+| `M4aHerbrand.ArchSemilocal.genuineInfinitePlaceData` | def | `genuineInfinitePlaceData` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:251`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L251) |
+| `M4aHerbrand.ArchSemilocal.instIsScalarTowerCompletion` | instance | `instIsScalarTowerCompletion` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:28`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L28) |
+| `M4aHerbrand.ArchSemilocal.ker_psiFactor_ne` | theorem | `ker_psiFactor_ne` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:141`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L141) |
+| `M4aHerbrand.ArchSemilocal.liesOver_of_comap_eq` | theorem | `liesOver_of_comap_eq` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:14`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L14) |
+| `M4aHerbrand.ArchSemilocal.nontriviallyNormedCompletion` | def | `nontriviallyNormedCompletion` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:48`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L48) |
+| `M4aHerbrand.ArchSemilocal.norm_algebraMap_completion` | theorem | `norm_algebraMap_completion` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:89`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L89) |
+| `M4aHerbrand.ArchSemilocal.placeEquivAlg` | def | `placeEquivAlg` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:247`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L247) |
+| `M4aHerbrand.ArchSemilocal.psi` | def | `psi` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:159`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L159) |
+| `M4aHerbrand.ArchSemilocal.psiFactor` | def | `psiFactor` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:31`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L31) |
+| `M4aHerbrand.ArchSemilocal.psiFactor_one_tmul` | theorem | `psiFactor_one_tmul` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:44`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L44) |
+| `M4aHerbrand.ArchSemilocal.psiFactor_surjective` | theorem | `psiFactor_surjective` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:68`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L68) |
+| `M4aHerbrand.ArchSemilocal.psiFactor_tmul` | theorem | `psiFactor_tmul` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:37`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L37) |
+| `M4aHerbrand.ArchSemilocal.psi_apply` | theorem | `psi_apply` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:165`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L165) |
+| `M4aHerbrand.ArchSemilocal.psi_bijective` | theorem | `psi_bijective` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:230`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L230) |
+| `M4aHerbrand.ArchSemilocal.psi_surjective` | theorem | `psi_surjective` (provenance comment) | [`Def_M4aHerbrand_ArchSemilocal.lean:169`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_M4aHerbrand_ArchSemilocal.lean#L169) |
 
 ## `FLTForHuman/NumberTheory/NumberField/InfiniteAdeleRing/BaseChangeData.lean`
 

@@ -12,11 +12,11 @@
   Transcribed verbatim from `Definitions/Def_AutomorphicForm_SigmaAdelicAction.lean`
   (pinned `aa2d8b3`, 95 lines / 10 declarations incl. the inhabitant `example`). The
   pin's `import Definitions.Def_M4aHerbrand_IdeleClassVocab` is replaced by the port's
-  `NumberTheory/M4aHerbrand/IdeleClassVocab`; the pin namespace `AutomorphicForm` is
+  `NumberTheory/NumberField/IdeleClass/Vocab`; the pin namespace `AutomorphicForm` is
   kept. All declarations are residue (mathlib `v4.34.0` has no counterpart), with no
   proof-level drift.
 -/
-import FLTForHuman.NumberTheory.M4aHerbrand.IdeleClassVocab
+import FLTForHuman.NumberTheory.NumberField.IdeleClass.Vocab
 import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
 import Mathlib.Topology.Instances.Matrix
 import Mathlib.Topology.Algebra.Group.Units

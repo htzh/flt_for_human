@@ -31,7 +31,7 @@
   | `HeightOneSpectrum.adicCompletion.baseChangeContinuousAlgEquiv`, `baseChange`, `baseChange_bijective`, `range_baseChange_comp_tensorAdicCompletionTo_eq_pi` | landed in `RingTheory/DedekindDomain/CompletionBaseChange.lean` | imported, used by `semiLocalHomeomorph`/`semiLocalIntegers_eq_preimage` |
   | `HeightOneSpectrum.Extension.finite` | landed in `RingTheory/DedekindDomain/IntegralClosure.lean` | imported |
   | `sigmaCentralizer` | landed in `Adelic/SigmaCentralizer.lean` | imported, used by `twistedCentralizer` |
-  | `M4aHerbrand.ArchSemilocal.genuineInfinitePlaceData` | landed in `NumberTheory/M4aHerbrand/ArchSemilocal.lean` | imported, used by `archIdent` |
+  | `M4aHerbrand.ArchSemilocal.genuineInfinitePlaceData` | landed in `NumberTheory/NumberField/IdeleClass/ArchSemilocal.lean` | imported, used by `archIdent` |
 
   The pin's bare `import Mathlib` is replaced by the explicit imports below.  Where the
   pin uses the `letI`/`haveI` tactics in a proof whose goal is a proposition, this port
@@ -41,7 +41,7 @@
 import FLTForHuman.AutomorphicForm.Adelic.ArchHaar
 import FLTForHuman.AutomorphicForm.Adelic.SigmaCentralizer
 import FLTForHuman.AutomorphicForm.Adelic.UnitFactorizableOfType
-import FLTForHuman.NumberTheory.M4aHerbrand.ArchSemilocal
+import FLTForHuman.NumberTheory.NumberField.IdeleClass.ArchSemilocal
 import FLTForHuman.RingTheory.DedekindDomain.CompletionBaseChange
 
 set_option autoImplicit false
