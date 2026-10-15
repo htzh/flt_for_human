@@ -68,15 +68,43 @@ $`\{P \mid n \bullet P = 0\}`$. The steps:
 
 1. **Division polynomials** (`PortTorsionSmulFormulaEngine`,
    `PortGenNetIdentities`, `PortGenInduction`, `PortGenSmulFormula`, lines
-   32–294). Mathlib's `WeierstrassCurve.ψ` / `Φ` / `ΨSq` / `preΨ`
-   (`Mathlib.AlgebraicGeometry.EllipticCurve.DivisionPolynomial`) give the
-   multiplication formula on $`x`$-coordinates,
-   $`x(nP) = \Phi_n(x(P)) / \Psi_n(x(P))^2`$
-   (`smul_x_eq`, line 196), and the vanishing criterion
-   $`nP = O \iff \Psi_n^2(x(P)) = 0`$ (`smul_eq_zero_of_ΨSq_eval_eq_zero`,
-   line 261, via mathlib's `smul_eq_zero_iff_evalEval_ψ`). Two coprimality
-   facts drive everything else: $`\Phi_n`$ is coprime to $`\Psi_n^2`$
-   (`isCoprime_Φ_ΨSq`, line 213), and the $`\Psi^2`$ of consecutive
+   32–294). These are the classical division polynomials in mathlib's
+   univariate packaging
+   ([DivisionPolynomial/Basic.lean](https://github.com/leanprover-community/mathlib4/blob/v4.33.0/Mathlib/AlgebraicGeometry/EllipticCurve/DivisionPolynomial/Basic.lean)):
+
+   - $`\psi_n \in R[X,Y]`$ is the $`n`$-division polynomial proper,
+     characterised by $`nP = O \iff \psi_n(P) = 0`$; mathlib builds it as the
+     normalised EDS `WeierstrassCurve.ψ`.
+   - $`\Psi\mathrm{Sq}_n \in R[X]`$ is its univariate shadow, congruent to
+     $`\psi_n^2`$ in the coordinate ring (mathlib's `ΨSq`). On a point it is
+     the $`y`$-part: for $`n = 2`$,
+     $`(y - \mathrm{negY}\,x\,y)^2 = \Psi\mathrm{Sq}_2(x)`$.
+   - $`\Phi_n \in R[X]`$ is the **numerator of the $`x`$-coordinate of
+     multiplication by $`n`$** (mathlib's `Φ`), the univariate form of the
+     classical $`\varphi_n = X\psi_n^2 - \psi_{n+1}\psi_{n-1}`$.
+
+   It is assembled from the auxiliary normalised-EDS sequence `preΨ` and from
+   `ΨSq`:
+
+   ```lean
+   protected def WeierstrassCurve.Φ (n : ℤ) : R[X] :=
+     X * W.ΨSq n - W.preΨ (n + 1) * W.preΨ (n - 1) * if Even n then 1 else W.Ψ₂Sq
+   ```
+
+   Its two degrees are the whole content of the theorem's exponent:
+   $`\deg \Phi_n = n^2`$ and $`\deg \Psi\mathrm{Sq}_n = n^2 - 1`$ (mathlib's
+   `natDegree_Φ` / `natDegree_ΨSq`). Against them stand the two facts of this
+   step: the multiplication formula
+   $`x(nP) = \Phi_n(x(P)) / \Psi\mathrm{Sq}_n(x(P))`$ (`smul_x_eq`, line 196),
+   and the vanishing criterion
+   $`nP = O \iff \Psi\mathrm{Sq}_n(x(P)) = 0`$
+   (`smul_eq_zero_of_ΨSq_eval_eq_zero`, line 261). Mathlib has the polynomials
+   but **no** bridge from them to the point group, so `smul_x_eq`,
+   `smul_eq_zero_iff_evalEval_ψ`, `evalEval_ψ_sq` and `zsmul_eq_smulEval` are
+   the pin's own (`Def_WeierstrassCurve_EDSEngine.lean`), not mathlib's —
+   filling that gap is the substance of the port. Two coprimality facts drive
+   everything else: $`\Phi_n`$ is coprime to $`\Psi\mathrm{Sq}_n`$
+   (`isCoprime_Φ_ΨSq`, line 213), and the $`\Psi\mathrm{Sq}`$ of consecutive
    indices are coprime
    (`isCoprime_ΨSq_succ`, line 77 — a common root would give a finite point
    killed by both $`n`$ and $`n+1`$, hence by 1, contradicting
@@ -90,24 +118,49 @@ $`\{P \mid n \bullet P = 0\}`$. The steps:
    (`finite_not_squarefree_fiber`, line 397).
 3. **Surjectivity of** $`[n]`$ (`smul_surjective`, line 452, for odd $`n`$;
    `smul_surjective_all`, line 955, in general). For $`Q = (x_Q, y_Q)`$ the
-   polynomial $`\Phi_n - x_Q \cdot \Psi_n^2`$ has degree $`n^2 \gt 0`$
+   polynomial $`\Phi_n - x_Q \cdot \Psi\mathrm{Sq}_n`$ has degree $`n^2 \gt 0`$
    (mathlib's `natDegree_Φ` / `natDegree_ΨSq`), hence a root $`x_0`$ since
-   $`K`$ is algebraically closed; coprimality of $`\Phi_n, \Psi_n^2`$ forces
-   $`\Psi_n^2(x_0) \neq 0`$, so $`n \cdot (x_0, y_0)`$ is a finite point
-   with $`x`$-coordinate $`x_Q`$, i.e. it equals $`\pm Q`$; negate the
+   $`K`$ is algebraically closed; coprimality of
+   $`\Phi_n, \Psi\mathrm{Sq}_n`$ forces
+   $`\Psi\mathrm{Sq}_n(x_0) \neq 0`$, so $`n \cdot (x_0, y_0)`$ is a finite
+   point with $`x`$-coordinate $`x_Q`$, i.e. it equals $`\pm Q`$; negate the
    preimage if needed.
 4. **All fibers of** $`[n]`$ **have size** $`\# E[n]`$ (`card_smul_fiber`,
    line 533; `card_smul_fiber_all`, line 1035): picking any preimage
    $`P_0`$ of $`Q`$, translation $`P \mapsto P + P_0`$ bijects $`E[n]`$
-   with the fiber over $`Q`$.
+   with the fiber over $`Q`$. This is the covering-map picture — $`[n]`$ is
+   surjective (step 3) and every fiber is an $`E[n]`$-torsor, so all fibers
+   have the same cardinality, the algebraic form of
+   $`\mathbb{C}/\Lambda \to^{\times n} \mathbb{C}/\Lambda`$, whose fibers are
+   $`(\mathbb{Z}/n)^2`$. An infinite cover with a finite fiber is the ordinary
+   case, and this is one. What steps 3–4 still do **not** give is the *value*
+   of that common cardinality: the value is the degree of $`[n]`$, i.e.
+   $`\deg \Phi_n = n^2`$ from step 1, and the infinite group $`E(K)`$ cannot
+   supply it. (Formally `card_smul_fiber` is an equation of `Nat.card`s, so it
+   records constancy only, not finiteness; finiteness is first obtained from
+   the count in step 5, which is also what extracts the value.)
 5. **Odd** $`n`$: **counting via a double fiber**
-   (`card_nTorsion_odd_fibers`, line 847). A full-size fiber of
-   $`x \circ [n]`$ produces a $`Q`$ with
+   (`card_nTorsion_odd_fibers`, line 847). Choose $`c`$ outside two finite
+   exceptional sets: the values for which
+   $`\Phi_n - C\,c\,\Psi\mathrm{Sq}_n`$ is not squarefree, and the values
+   $`\Phi_n(x)/\Psi\mathrm{Sq}_n(x)`$ at the roots of the 2-division
+   polynomial `Ψ₂Sq` (where the two $`y`$'s coincide). Put
+   $`Q = (c, y_Q)`$. That polynomial has degree $`n^2`$ (step 1) and, being
+   squarefree and split over $`K`$, has exactly $`n^2`$ roots: the admissible
+   $`x`$-coordinates of preimages of $`\pm Q`$. Each root carries exactly two
+   points, $`y`$ and $`\mathrm{negY}\,x\,y`$ (the $`x`$-coordinate map is
+   2-to-1), so
    $`\# \{P : nP = \pm Q\} = 2n^2`$ (`exists_double_fiber_card`, line 614).
-   Since $`n`$ is odd, $`Q \neq -Q`$ — otherwise $`2 \mid \# E[n]`$, giving
-   a point of order 2 killed by the odd number $`n`$ (lines 853–873). The
-   two fibers are then disjoint, each of size $`\# E[n]`$ by step 4, so
-   $`2 \cdot \# E[n] = 2n^2`$.
+   The factor $`2`$ here is the $`P \mapsto -P`$ pairing, not anything special
+   about $`n = 2`$: the count holds for every $`n`$ with
+   $`(n : K) \neq 0`$ (the `Odd n` hypothesis of that lemma is unused in its
+   proof), and it already contains the answer, since $`n^2`$ is
+   $`\deg \Phi_n`$. Since $`n`$ is odd, $`Q \neq -Q`$ — otherwise the two
+   fibers coincide and $`2 \mid \# E[n]`$, giving a point of order 2 killed by
+   the odd number $`n`$ (lines 853–873). With $`Q \neq -Q`$ the two fibers are
+   disjoint, each of size $`\# E[n]`$ by step 4, so
+   $`2 \cdot \# E[n] = 2n^2`$ and the common factor $`2`$ cancels:
+   $`\# E[n] = n^2`$.
 6. $`n = 2`$ **directly** (`card_nTorsion_two`, line 1054): $`E[2]`$
    consists of $`O`$ and the points $`(x, -(a_1 x + a_3)/2)`$ for $`x`$ a
    root of the two-torsion cubic; the cubic has 3 distinct roots because
@@ -312,8 +365,9 @@ residues and Riemann–Roch).
 | $`\# E[n](K) = n^2`$ | `WeierstrassCurve.card_torsion_of_isAlgClosed` (`Thm_WeierstrassCurve_card_torsion_of_isAlgClosed.lean:9`) |
 | Proof: 1335-line division-polynomial argument | `P2MW.S_WeierstrassCurve_card_torsion_of_isAlgClosed.solution` (`S_…card_torsion_of_isAlgClosed.lean:1330`) |
 | Local torsion subgroup | `nTorsion` (`S_…:308`) |
-| $`x(nP) = \Phi_n/\Psi_n^2`$ | `smul_x_eq` (`S_…:196`) |
-| $`\Phi_n \perp \Psi_n^2`$; $`\Psi_n^2 \perp \Psi_{n+1}^2`$ | `isCoprime_Φ_ΨSq` (`S_…:213`); `isCoprime_ΨSq_succ` (`S_…:77`) |
+| $`x(nP) = \Phi_n/\Psi\mathrm{Sq}_n`$ | `smul_x_eq` (`S_…:196`) |
+| Source of the exponent: $`\deg \Phi_n = n^2`$, $`\deg \Psi\mathrm{Sq}_n = n^2-1`$ | mathlib `natDegree_Φ`, `natDegree_ΨSq` |
+| $`\Phi_n \perp \Psi\mathrm{Sq}_n`$; $`\Psi\mathrm{Sq}_n \perp \Psi\mathrm{Sq}_{n+1}`$ | `isCoprime_Φ_ΨSq` (`S_…:213`); `isCoprime_ΨSq_succ` (`S_…:77`) |
 | $`[n]`$ separable when $`(n:K)\neq 0`$ | `wronskian_Φ_ΨSq_ne_zero` (`S_…:343`) |
 | $`[n]`$ surjective over $`\bar K`$ | `smul_surjective` (`S_…:452`), `smul_surjective_all` (`S_…:955`) |
 | All fibers of $`[n]`$ have size $`\# E[n]`$ | `card_smul_fiber` (`S_…:533`), `card_smul_fiber_all` (`S_…:1035`) |

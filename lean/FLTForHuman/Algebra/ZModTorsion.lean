@@ -14,7 +14,14 @@ for reuse. The pin's public `solution` is not exposed (SET-2 pattern).
 Reference (public mirror, pinned):
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AddCommGroup_nonempty_zmod_prod_addEquiv_torsionBy_of_card_torsionBy_eq_sq.lean>
 -/
-import Mathlib
+import Mathlib.Algebra.Field.ZMod
+import Mathlib.Algebra.Module.StablyFree.Basic
+import Mathlib.Algebra.Order.Ring.Star
+import Mathlib.Data.Int.Star
+import Mathlib.FieldTheory.Finiteness
+import Mathlib.LinearAlgebra.FreeModule.PID
+import Mathlib.RingTheory.Flat.TorsionFree
+import Mathlib.RingTheory.SimpleRing.Principal
 
 set_option autoImplicit false
 set_option linter.style.haveILetI false
