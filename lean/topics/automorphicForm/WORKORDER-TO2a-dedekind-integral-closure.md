@@ -108,3 +108,32 @@ declaration that needed an instance fix (and the fix), any `set_option` you stop
 Register the module; then cut **W2b** (`Def_DedekindDomain_Completion_BaseChange`, the 1,160-line
 core) together with whatever residual of `Def_DedekindDomain_AdicValuation_InlineSpecific` the
 consumer actually reaches once mathlib substitutes are taken.
+
+## 9. Results as landed (2026-10-14)
+
+`FLTForHuman/RingTheory/DedekindDomain/IntegralClosure.lean` — **363 lines, 22 public / 0 private**,
+tier-0 exit 0 / **0 warnings** (5.10 s warm), tier-1 green (2,677 jobs, 4.5 s). Bare `import
+Mathlib` replaced by 10 explicit imports + the landed W1 `RingTheory/Localization/BaseChange.lean`.
+
+**Substitution table: all 22 `transcribed`, 0 substituted** — no mathlib v4.34 declaration carries
+a pin statement (`Algebra.TensorProduct.algEquivOfLinearEquivTensorProduct` and
+`IsIntegralClosure.isLocalization` have different statements and are used only inside proofs).
+
+**One statement-level deviation, accepted.** `Ideal.inertiaDeg'` (pin `:147`) is `@[deprecated]` in
+v4.34.0, so the transcribed `Ideal.sum_ramification_inertia_extensions` uses `Ideal.inertiaDeg`;
+its proof uses `Ideal.sum_ramification_inertia_eq_finrank` and
+`Ideal.ramificationIdx'_eq_ramificationIdx`, because the pin's `Ideal.sum_ramification_inertia`
+lives in the deprecated, unexported `Mathlib.NumberTheory.RamificationInertia.Basic`. `Set.coe_setOf`
+→ `Set.coe_ofPred` in `Extension.finite`. This is the recorded `Ideal.inertiaDeg'` precedent
+(mathlib-rename drift at the statement level, noted in the module header); the module is tier 3, so
+the checker never sees it, and its only consumer is the not-yet-cut `TwistedOrbital.piIntegers` line.
+
+**Instance fix (order §5 method; cap never raised).** `sum_ramification_inertia_extensions`'s
+statement `letI` was invisible to TC inside the proof; `letI`/`haveI` tripped
+`linter.style.haveILetI` and a plain `have` is opaque to defeq. Fix: a plain `let hinst : Fintype
+(Extension B v) := …` (instance-registering *and* zeta-transparent) plus a `Finset.sum_nbij`
+reindexing. In `LinearEquivTensorProduct`, pass `(IsScalarTower.toAlgHom A B L).toLinearMap` to
+`IsLocalizedModule.iso` to keep the instance defeq.
+
+Checker **9790 / 0 / 0 / 38 own** — unchanged (tier 3). Register **111 → 112 modules, 3,118 → 3,140
+public, 2,830 → 2,852 with a pin original**. File: the one above; no other file edited.

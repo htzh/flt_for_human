@@ -3258,6 +3258,17 @@ SOURCES = [
     # registered in `spec/UNWIRED-PUBLIC.md`. Appended last so no earlier last-name match can flip.
     "Theorems/Thm_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean",
     "P2M/Sol/S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean",
+    # --- WORKORDER-TO4 (`topics/automorphicForm/WORKORDER-TO4-unit-factorizable-trio.md`): the
+    # unit-factorizable trio. Statements from the three `Theorems/` wrappers, proofs from the three
+    # `S_` silos; the tier-3 engine `AutomorphicForm/Adelic/UnitFactorizableEngine.lean` stays
+    # unlisted (see `PORT_FILES`) and is registered in `spec/UNWIRED-PUBLIC.md`. Appended last so
+    # no earlier last-name match can flip.
+    "Theorems/Thm_AutomorphicForm_exists_isUnitFactorizableAboveOfType_tendsto_rightConv_of_mem_archCutSubmodule.lean",
+    "P2M/Sol/S_AutomorphicForm_exists_isUnitFactorizableAboveOfType_tendsto_rightConv_of_mem_archCutSubmodule.lean",
+    "Theorems/Thm_AutomorphicForm_exists_finTestFactor_isUnitFactorizableAboveOfType_tendsto_rightConv_of_mem_archCutSubmodule.lean",
+    "P2M/Sol/S_AutomorphicForm_exists_finTestFactor_isUnitFactorizableAboveOfType_tendsto_rightConv_of_mem_archCutSubmodule.lean",
+    "Theorems/Thm_AutomorphicForm_exists_isUnitFactorizableAboveOfType_principalLevel_tendsto_rightConv_of_mem_archCutSubmodule.lean",
+    "P2M/Sol/S_AutomorphicForm_exists_isUnitFactorizableAboveOfType_principalLevel_tendsto_rightConv_of_mem_archCutSubmodule.lean",
 ]
 
 
@@ -4868,6 +4879,10 @@ PORT_FILES = [
     # `AutomorphicForm/Adelic/ArchKFiniteFamily.lean` stay unlisted, registered in
     # `spec/UNWIRED-PUBLIC.md`). Appended last.
     "FLTForHuman/AutomorphicForm/Adelic/ArchKFiniteFamilyTheorems.lean",
+    # --- WORKORDER-TO4 (`topics/automorphicForm/WORKORDER-TO4-unit-factorizable-trio.md`): the
+    # façade only (its tier-3 engine `AutomorphicForm/Adelic/UnitFactorizableEngine.lean` stays
+    # unlisted, registered in `spec/UNWIRED-PUBLIC.md`). Appended last.
+    "FLTForHuman/AutomorphicForm/Adelic/UnitFactorizableTheorems.lean",
 ]
 
 

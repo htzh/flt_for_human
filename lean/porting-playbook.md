@@ -60,13 +60,22 @@ the capstone.
 
 - **Dispatch above roughly 1,500 content lines, and size each order at that.** Below it the
   briefing and review cost more than they save; above it a fresh agent beats one
-  accumulating detail.
+  accumulating detail. This is a **sizing** rule, not an effort model — a small set can cost
+  more than a large one (§1).
 - **Give a synthesized instruction, never a pointer to this file.** A subagent shares no
   context, so "read the playbook and the logs" burns its budget on reconnaissance. Hand it
   the work order (§3.3).
 - **Bound its own scoping**: local reconnaissance (a mathlib search, a `Scratch.lean` probe,
   a `#check`) is fine; re-planning, re-routing and roaming the pin are not. If the task
   cannot be stated without broad scoping, the plan is not ready (§2).
+- **Tell it what counts as a blocker, and to raise one at first belief.** A subagent has no
+  context beyond its order, so it cannot know that a one-place hub edit is cheap for the manager,
+  or that its diagnosis is not the deliverable. Instruct it explicitly: on first belief that a
+  name cannot be matched, a prerequisite is unported, or an existing-module edit is needed, send a
+  **short** message — "blocked on `<decl>` at pin `:NNN`; likely needs `<X>`" — and keep working on
+  whatever is independent. It must not grind out a complete diagnosis first, and must never work
+  around a hub defect locally. The edit is cheap while the worker is still in context; a full
+  report arriving a wave later has lost that context.
 - **Leave it alone while it works** — no polling, no progress churn; it reports at the set's
   end or at a stop condition, and the manager then reviews its tree (build, checker, consumer,
   code) before writing the next order (§3.4).
@@ -99,9 +108,15 @@ inline: dispatch a subagent briefed on
 measured this, in both directions: a cone whose engine has left mathlib collapses to a few
 generic lemmas, while a cone with an accurate line budget can still be dominated by its route.
 
+**Effort is not proportional to lines.** Line counts predict *output*, not cost. The cost is
+charged per declaration of **mathlib adaptation** — API drift (§7) and instance alignment — so a
+small module can cost several times a large one: a ~1,200-line definition node whose statements had
+to be re-tied to a changed instance took far longer than a ~1,400-line straight transcription, and
+a thirty-line instance body gated the last half of a wave. Budget the shape risks, not the lines.
+
 - **Budget content, not raw lines**: content subtracts `p2m_*`/`attribute` scaffolding
   (28–35% of a pin cone, never written).
-- **Budget named shape risks, not rounds or lines.** Line budgets landed within ~10%, risk
+- **Budget named shape risks, not rounds, lines or time.** Line budgets landed within ~10%, risk
   registers over-warned; the recurring real cost is **API drift** (§7).
 - **A wrong statement is maximally expensive, a wrong proof cheap** — hence mechanical
   faithfulness front-loaded (§4) and the route audited before any module is written.
@@ -309,7 +324,9 @@ subagent per set, review before the next, no polling) is §0.2.
 - **The capstone is the review**: a wrong binder or mis-stated hypothesis upstream surfaces as a
   compile failure in the reviewer's own file. Reserve it for the reviewer.
 - **Re-scope a blocked topic; do not stall** — keep the tree green, write a focused follow-up
-  order, re-dispatch.
+  order, re-dispatch. A worker raises a blocker at first belief and never works around it
+  (§0.2); the manager's job is to answer the blocker (often a hub edit, which is the manager's
+  own, done once with the price known — §3.7) rather than to let the set die at its end.
 - **Keep a per-set measured table** (rounds / declarations / lines / build / axioms / checker /
   consumer) and the friction log; close with a review, a plan-vs-actual honesty section, and
   retire the blueprint to `topics/`.
@@ -599,8 +616,11 @@ The recurring *shapes*, beyond a rename:
   `haveI` style-linter fix is not universal, so suppress locally rather than weaken the proof.
 - **A pin's `set_option maxHeartbeats N in` and its `synthInstance.maxHeartbeats` bump are claims
   to re-measure, not facts**; every one met elaborated at the low cap once the inference was
-  found. A library theorem can be cheap while its *concrete-instance* use is not: keep a `spec/`
-  capstone zone hypothesis-form and put concreteness in the ground field.
+  found — and some needed no inference found at all: a transparency setting
+  (`backward.isDefEq.respectTransparency false`) or a bulk budget was carrying an ill-shaped proof,
+  and the fix was to restructure the proof, not to supply an instance. A library theorem can be
+  cheap while its *concrete-instance* use is not: keep a `spec/` capstone zone hypothesis-form and
+  put concreteness in the ground field.
 - **`time` under-reports `lake env lean`** (the forked grandchild's CPU is not charged).
 - **`end A.B` closes *both* nested scopes**, silently de-nesting every later declaration; write
   two bare `end`s, since the symptom appears downstream.

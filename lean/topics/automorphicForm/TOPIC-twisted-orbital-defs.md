@@ -1,5 +1,14 @@
 # The twisted-orbital definition program — the base-change chain behind the unit-factorizable cluster
 
+**Status: COMPLETE (2026-10-14).** W1 → W2a/b → W3a/b → W4 all landed: the whole base-change chain
+and both whole def nodes are ported, the unit-factorizable trio is at checker **9793 (+3)**, 0
+mismatched / 0 missing, and **no elaborator budget was transcribed** — the pin's
+`maxHeartbeats 1200000` / `synthInstance.maxHeartbeats 400000` / `maxSynthPendingDepth 3` /
+`Elab.async false`, `tensorPiAlgHom_bijective`'s 800k and `backward.isDefEq.respectTransparency false`
+are gone, replaced by restructuring under the 200k cap. One priced hub edit was needed
+(`Algebra/RightActionInstances.lean`, 1 module / 731 lines / ≈11 s). 119 modules / 3,415 public
+registered. Results: [WORKORDER-TO4](WORKORDER-TO4-unit-factorizable-trio.md) §10.
+
 This note is the manager's plan for the **definitional** dependency the frontier cannot see: the
 base-change chain under `Def_AutomorphicForm_TwistedOrbital`. It exists because
 `AutomorphicForm.exists_isUnitFactorizableAboveOfType_tendsto_rightConv_of_mem_archCutSubmodule`
@@ -119,7 +128,7 @@ override entirely. `Completion_BaseChange` itself remains the 1,160-line / 73-de
 it alone will not fit the low cap, W2 splits into W2a (`IntegralClosure` + the InlineSpecific
 substitutes) and W2b (`Completion_BaseChange`).
 
-### W3 — the number-field and automorphic definition nodes (≈1,200 pin lines)
+### W3 — the remaining definition nodes, whole (≈1,800 pin lines, split W3a/W3b)
 
 | pin module | lines / decls | home | note |
 |---|---:|---|---|
@@ -127,24 +136,52 @@ substitutes) and W2b (`Completion_BaseChange`).
 | `Def_M4aHerbrand_ArchSemilocal` | 284 / 23 | `FLTForHuman/NumberTheory/M4aHerbrand/ArchSemilocal.lean` | `IdeleClassVocab.lean` already there |
 | `Def_AutomorphicForm_SigmaCentralizer` | 62 / 6 | `FLTForHuman/AutomorphicForm/Adelic/SigmaCentralizer.lean` | |
 | `Def_AutomorphicForm_UnitFactorizableOfType` | 78 / 9 | `FLTForHuman/AutomorphicForm/Adelic/UnitFactorizableOfType.lean` | |
-| `Def_AutomorphicForm_LocalOrbitalBase` (rest) | 434 / 62 | `FLTForHuman/AutomorphicForm/Adelic/LocalOrbitalBase.lean` | 13 already in `IntegralUnits.lean` |
-| `Def_AutomorphicForm_TwistedOrbital` | 575 / 83 | `FLTForHuman/AutomorphicForm/Adelic/TwistedOrbital.lean` | 3 already in `ArchHaar.lean` |
+| `Def_AutomorphicForm_LocalOrbitalBase` (whole) | 434 / 62 | `FLTForHuman/AutomorphicForm/Adelic/LocalOrbitalBase.lean` | 13 already in `IntegralUnits.lean`; import it, do not re-declare |
+| `Def_AutomorphicForm_TwistedOrbital` (whole) | 575 / 83 | `FLTForHuman/AutomorphicForm/Adelic/TwistedOrbital.lean` | 3 already in `ArchHaar.lean`; import it, do not re-declare |
 
 Whole node: `TwistedOrbital` and `LocalOrbitalBase` land **entire** here, so the orbital-integral
 and archimedean sections deferred in [CARRY-FORWARD.md](../../CARRY-FORWARD.md) are no longer cut.
+Split by the pin's import order, not by size: **W3a** `InfiniteAdeleRing_BaseChangeData` →
+`M4aHerbrand_ArchSemilocal`, with `SigmaCentralizer` independent (≈707 lines); **W3b**
+`LocalOrbitalBase` (whole) → `UnitFactorizableOfType` → `TwistedOrbital` (whole) (≈1,087 lines) —
+`UnitFactorizableOfType` imports `LocalOrbitalBase`, so the whole-node `LocalOrbitalBase` must
+precede it, and `TwistedOrbital` imports all three.
 
-### W4–W5 — the consumer
+### W4 — the consumer (the trio's proof port)
 
-* **W4** re-cuts [WORKORDER-UF1](WORKORDER-UF1-unit-factorizable-defs.md) §1.2 — `SemiLocal.lean`
-  and `UnitFactorizable.lean` — now that the chain exists.
-* **W5** is the trio's proof port (`WORKORDER-UF2`): 2,648 raw / **1,281 net new**, a 582-line /
-  46-declaration block shared by all three and a 151-line / 7-declaration block shared by two; one
-  general-`U` engine serving `levelOne` and `principalLevel` (`principalLevel ≤ levelOne`), plus
-  the finTestFactor variant, plus three headlines.
+Formerly W5, renumbered: because W3b lands `TwistedOrbital` **whole**, the `SemiLocal`/`AboveTier`/
+`AboveTierRefined` definitions the trio needs are already in it, so the W4 of the first plan (the
+UF1 `SemiLocal.lean`/`UnitFactorizable.lean` role-cut, [WORKORDER-UF1](WORKORDER-UF1-unit-factorizable-defs.md)
+§1.2) is **dissolved** — the trio imports `TwistedOrbital.lean` directly and there is no third cut
+of the node.
+
+The trio: 2,648 raw / **1,281 net new**, a 582-line / 46-declaration block shared by all three and
+a 151-line / 7-declaration block shared by two; one general-`U` engine serving `levelOne` and
+`principalLevel` (`principalLevel ≤ levelOne`), plus the finTestFactor variant, plus three
+headlines.
 
 ## 3. Order and economy
 
-W1 → W2 → W3 → W4 → W5, each a new-file wave with no existing-module edits (so no cascade; each
-module is a tier-3 definition module registered in `spec/UNWIRED-PUBLIC.md`). W2 is the only wave
-with a build-cost risk. The trio's `+3` checker delta still comes only in W5. No whole-tree build
-until the session's end, with the user's agreement.
+W1 → W2 → W3a → W3b → W4, each a new-file wave with no existing-module edits (so no cascade; each
+module is a tier-3 definition module registered in `spec/UNWIRED-PUBLIC.md`). W1 and W2 are landed
+(1,369 + 363 + 1,392 lines; register 113 modules / 3,210 public; checker unchanged at 9790 because
+all three are tier 3). W2 needed one manager hub edit (see the W2b order §9). The trio's `+3`
+checker delta still comes only in W4. No whole-tree build until the session's end, with the user's
+agreement.
+
+**Escalate blockers early (standing instruction for every wave).** A subagent that believes it has
+hit an existing-module/hub defect, an unported prerequisite, or a statement it cannot match must
+send a *short* message the moment it forms that belief — "blocked at pin `:NNN` on `<decl>`; likely
+needs a hub edit to `<module>`" — and must not spend a long stretch narrowing it first. The hub
+edit is the manager's to authorize and apply, and it is cheap while the worker is still in
+context; a complete diagnostic that arrives an hour (or a wave) later costs that context. Do not
+work around a hub defect locally, and do not stop only at the end: escalate at first belief, then
+continue on whatever is independent.
+
+**Option convention (corrected 2026-10-14).** Forbid *budget* options — `maxHeartbeats`,
+`synthInstance.maxHeartbeats`, `maxSynthPendingDepth`, `Elab.async`,
+`backward.isDefEq.respectTransparency` — but **expect** `set_option autoImplicit false`, which is
+the project default (the lakefile sets it package-wide and 242 port modules restate it) and which
+`lake env lean` does **not** inherit, so a module without it is not self-contained under the edit
+loop. The earlier orders said "no `set_option` of any kind"; W3a/W3b followed that literally and
+the manager restored the option afterwards.

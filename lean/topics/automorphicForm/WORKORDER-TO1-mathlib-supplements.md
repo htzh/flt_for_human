@@ -128,12 +128,22 @@ Six new files, tier-0 exit 0 / **0 warnings** each, tier-1 green; no stop condit
 | `RingTheory/Localization/BaseChange.lean` | 109 | 6 | 2.7 s | 1,440 jobs, 1.26 s |
 | `NumberTheory/NumberField/Extension.lean` | 256 | 35 | 3.7 s | 3,019 jobs, 1.81 s |
 
-**1,369 lines; 115 pin declarations → 108 transcribed (public at the pin name) + 7 substituted.**
-Substitutions: `continuous_mul'`/`continuous_mul` → `IsModuleTopology.continuous_mul_of_finite`,
-`Module.topologicalRing` → `IsModuleTopology.isTopologicalRing`; `algebraMap_eval` →
-`Algebra.TensorProduct.right_algebraMap_apply`, and the pin's `Algebra.TensorProduct.comm*` trio →
-`commRight`/`commRight_tmul`/`commRight_symm_tmul` (the pin's was `≃ₐ[A]`, mathlib's `comm` is only
-`≃ₐ[R]` — the order's §3 hint was wrong here and the worker corrected it).
+**1,369 lines; 115 pin declarations → 108 transcribed (public at the pin name) + 7 substituted**
+at the time of landing. Substitutions: `continuous_mul'`/`continuous_mul` →
+`IsModuleTopology.continuous_mul_of_finite`, `Module.topologicalRing` →
+`IsModuleTopology.isTopologicalRing`; `algebraMap_eval` →
+`Algebra.TensorProduct.right_algebraMap_apply` (**later reverted — see below**), and the pin's
+`Algebra.TensorProduct.comm*` trio → `commRight`/`commRight_tmul`/`commRight_symm_tmul` (the pin's
+was `≃ₐ[A]`, mathlib's `comm` is only `≃ₐ[R]` — the order's §3 hint was wrong here and the worker
+corrected it).
+
+**Superseded (W2b, 2026-10-14).** The `algebraMap_eval` substitution is **reverted**: the W2b stop
+at pin `:630` proved the scoped `Algebra S (B ⊗[R] S)` must be the pin's *explicit* body
+(`algebraMap := includeRight.toRingHom`), under which `algebraMap_eval` is `rfl` again and
+`right_algebraMap_apply` (a `rightAlgebra` lemma) is inapplicable. The manager made that one-place
+hub edit to `Algebra/RightActionInstances.lean` (1 module / 731 lines / ≈11 s). So this module
+now has **8 substitutions and 107 transcribed**, not 7/108. See
+[WORKORDER-TO2b](WORKORDER-TO2b-completion-base-change.md) §9.
 
 **No instance fix was needed anywhere** — nothing exceeded the 200k cap, so no `letI`/`haveI`/
 `inferInstanceAs` bricking. Seven proof adaptations for v4.34.0 drift

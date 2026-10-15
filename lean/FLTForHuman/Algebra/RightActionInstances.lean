@@ -11,22 +11,27 @@
 
   Substitutions against mathlib `v4.34.0` (dropped, use the mathlib name):
 
-  * `algebraMap_eval` is `Algebra.TensorProduct.right_algebraMap_apply` (pin line 55);
   * `Algebra.TensorProduct.comm` is `Algebra.TensorProduct.commRight` (pin line 57);
   * `Algebra.TensorProduct.comm_apply_tmul` is `Algebra.TensorProduct.commRight_tmul`
     (pin line 62);
   * `Algebra.TensorProduct.comm_symm_apply_tmul` is `Algebra.TensorProduct.commRight_symm_tmul`
     (pin line 66).
 
-  The scoped `Algebra S (B ⊗[R] S)` instance keeps its pin statement and delegates its
-  body to mathlib's `Algebra.TensorProduct.rightAlgebra`.  Everything else is transcribed
-  at the pin's name; the proof changes are: mathlib `v4.34.0` registers
-  `TensorProduct.inductionOn` (no `zero` alternative) as induction eliminator, so the
-  pin's separate `zero` cases in `Module.TensorProduct.comm` are dropped;
-  `IsModuleTopology.topologicalAddGroup` is now `isTopologicalAddGroup`; and
-  `AlgebraMap.baseChange`'s `commutes'`, which v4.34.0's generalized
-  `Algebra.TensorProduct.map` no longer closes by `simp` alone, is closed with
-  `Algebra.TensorProduct.right_algebraMap_apply`.  The pin's names
+  The scoped `Algebra S (B ⊗[R] S)` instance is the pin's **explicit** body
+  (`algebraMap := includeRight.toRingHom`, `commutes'`, `smul_def'`), *not* mathlib's
+  `Algebra.TensorProduct.rightAlgebra`.  The pin leaves `smul` implicit, so its
+  `Algebra.toModule` is definitionally the scoped `Module S (M ⊗[R] S)`; delegating to
+  `rightAlgebra` yields a different `SMul`, and
+  `RingTheory/DedekindDomain/CompletionBaseChange.lean` needs that defeq
+  (`IsModuleTopology.t2Space'`, `Module.Finite.base_change`) — it was the W2b stop at pin
+  `:630`.  For the same reason the pin's `algebraMap_eval` (pin line 55) is transcribed (`rfl`
+  under this instance), not substituted by `Algebra.TensorProduct.right_algebraMap_apply`,
+  which belongs to `rightAlgebra`.  Everything else is transcribed at the pin's name; the proof
+  changes are: mathlib `v4.34.0` registers `TensorProduct.inductionOn` (no `zero` alternative) as
+  induction eliminator, so the pin's separate `zero` cases in `Module.TensorProduct.comm` are
+  dropped; `IsModuleTopology.topologicalAddGroup` is now `isTopologicalAddGroup`; and
+  `AlgebraMap.baseChange`'s `commutes'` is closed by `simp [Algebra.TensorProduct.map_tmul]`.
+  The pin's names
   repeat the `TensorProduct` namespace (`Module.TensorProduct.comm`,
   `Algebra.TensorProduct.basis`), so `linter.dupNamespace` is disabled as mathlib does in
   `Mathlib/RingTheory/TensorProduct/Maps.lean`.
@@ -77,8 +82,43 @@ scoped instance : Module S (M ⊗[R] S) where
   add_smul := by simp [add_smul]
   zero_smul := by simp
 
-scoped instance : Algebra S (B ⊗[R] S) :=
-  Algebra.TensorProduct.rightAlgebra
+-- pin: Algebra S (B ⊗[R] S) instance (Definitions/Def_Mathlib_RightActionInstances.lean:29)
+--
+-- Deliberately the pin's *explicit* body, not mathlib's `Algebra.TensorProduct.rightAlgebra`:
+-- the pin leaves `smul` implicit, so its `Algebra.toModule` is definitionally the scoped
+-- `Module S (M ⊗[R] S)` above. Delegating to `rightAlgebra` gives a *different* `SMul`, and the
+-- later `IsModuleTopology`/`Module.Finite.base_change` proofs of
+-- `RingTheory/DedekindDomain/CompletionBaseChange.lean` need the defeq
+-- (`Algebra.toModule = scoped Module`), not merely an equal-but-not-defeq instance.
+scoped instance : Algebra S (B ⊗[R] S) where
+  algebraMap := Algebra.TensorProduct.includeRight.toRingHom
+  commutes' s bs := by
+    induction bs with
+    | tmul x y =>
+        simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe,
+          Algebra.TensorProduct.includeRight_apply, Algebra.TensorProduct.tmul_mul_tmul, one_mul,
+          mul_one, mul_comm]
+    | add x y _ _ =>
+        simp_all only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe,
+          Algebra.TensorProduct.includeRight_apply, mul_add, add_mul]
+  smul_def' s bs := by
+    induction bs with
+    | tmul b t =>
+        simp only [smul_def, TensorProduct.comm_tmul, AlgHom.toRingHom_eq_coe, RingHom.coe_coe,
+          Algebra.TensorProduct.includeRight_apply, Algebra.TensorProduct.tmul_mul_tmul, one_mul]
+        rw [TensorProduct.smul_tmul']
+        simp only [smul_eq_mul, TensorProduct.comm_symm_tmul]
+    | add x y hx hy =>
+        simp_all only [smul_def, AlgHom.toRingHom_eq_coe, RingHom.coe_coe,
+          Algebra.TensorProduct.includeRight_apply, smul_add, mul_add]
+
+-- pin: algebraMap_eval (Definitions/Def_Mathlib_RightActionInstances.lean:55)
+--
+-- `rfl` under the pin's explicit `Algebra` instance above (`algebraMap = includeRight.toRingHom`).
+-- W1 had substituted this row with mathlib's `Algebra.TensorProduct.right_algebraMap_apply`, which
+-- belongs to mathlib's `rightAlgebra`; reverting the instance to the pin's shape makes the pin's
+-- own statement valid again and that substitute inapplicable.
+@[simp] lemma algebraMap_eval (s : S) : algebraMap S (B ⊗[R] S) s = 1 ⊗ₜ s := rfl
 
 -- pin: Module.TensorProduct.comm (Definitions/Def_Mathlib_RightActionInstances.lean:69)
 noncomputable def Module.TensorProduct.comm : A ⊗[R] M ≃ₗ[A] M ⊗[R] A where
@@ -170,8 +210,7 @@ noncomputable def AlgebraMap.baseChange (R : Type*) [CommRing R]
     (φ : B →ₐ[R] C) : B ⊗[R] A →ₐ[A] C ⊗[R] A where
   __ := Algebra.TensorProduct.map φ (.id R A)
   commutes' a := by
-    rw [Algebra.TensorProduct.right_algebraMap_apply, Algebra.TensorProduct.right_algebraMap_apply]
-    simp
+    simp [Algebra.TensorProduct.map_tmul]
 
 -- pin: Algebra.TensorProduct.basis (Definitions/Def_Mathlib_RightActionInstances.lean:158)
 def Algebra.TensorProduct.basis {R : Type*} (A : Type*) {M : Type*} {ι : Type*}

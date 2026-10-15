@@ -12,6 +12,18 @@ Deferred API that has been ported and verified is in `Reserve/`, not here.
 
 ### `Def_AutomorphicForm_TwistedOrbital` — the finite-place twisted-orbital subject
 
+> **RESOLVED (2026-10-14).** The whole node landed, together with the base-change chain it needed,
+> as the twisted-orbital definition program
+> ([topics/automorphicForm/TOPIC-twisted-orbital-defs.md](topics/automorphicForm/TOPIC-twisted-orbital-defs.md),
+> W1–W4). `TwistedOrbital.lean` (83/83), `LocalOrbitalBase.lean` (62/62, folding the old
+> `IntegralUnits.lean`), `UnitFactorizableOfType.lean` (9/9), the three W3a support nodes, and the
+> eight-module chain (`IntegralClosure`, `AdicValuation`-substitutes, `CompletionBaseChange`, the
+> `Def_Mathlib_*` supplements, `InfiniteAdeleRing_BaseChangeData`, `M4aHerbrand_ArchSemilocal`,
+> `SigmaCentralizer`) are all landed and registered — 119 modules / 3,415 public. The
+> unit-factorizable trio then landed at checker **9793 (+3)**, 0 mismatched / 0 missing. **No
+> elaborator budget was transcribed**: the pin's `maxHeartbeats 1200000` family and the rest were
+> removed by restructuring under the 200k cap. The paragraph below is the pre-resolution record.
+
 Pin node 574 lines / 83 declarations. The archimedean approximate-identity silo names three of
 them — `glBorelOf` (:57), `borelSpace_glBorelOf` (:59), `archHaarK` (:401) — which landed in
 `FLTForHuman/AutomorphicForm/Adelic/ArchHaar.lean`.
