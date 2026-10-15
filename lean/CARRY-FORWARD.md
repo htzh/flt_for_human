@@ -29,6 +29,36 @@ Deferred to its own definition-first wave. Forcing it in front of the silo would
 `Def_Mathlib_*` supplements for mathematics the silo never states. Measurement:
 [topics/automorphicForm/TOPIC-archTestFactor-family.md](topics/automorphicForm/TOPIC-archTestFactor-family.md) §5.
 
+**Update (2026-10-14) — the unit-factorizable trio is blocked by the same chain.** The three
+ready-shelf nodes `AutomorphicForm.exists_isUnitFactorizableAboveOfType_tendsto_rightConv_of_mem_archCutSubmodule`
+(823), its `_finTestFactor_` sibling (854) and its `_principalLevel_` sibling (971) were scoped as
+`WORKORDER-UF1` + `WORKORDER-UF2`. Their **statements** name `IsUnitFactorizableAboveOfType`, so
+they need the `SemiLocal`/`AboveTier`/`AboveTierRefined` blocks of this module — and those blocks
+are **not** free of the chain: `semiLocalIntegers` names `HeightOneSpectrum.tensorAdicCompletionIntegersTo`
+and `semiLocalEval` names `HeightOneSpectrum.adicCompletion.baseChangeAlgEquiv`, while
+`isCompact_semiLocalIntegralSet` pulls `piIntegers`/`HeightOneSpectrum.Extension`/`semiLocalHomeomorph` and the
+`IsModuleTopology.*` instances (`WORKORDER-UF1` §1.2 was wrong to treat `SemiLocal` as chain-free).
+Measured minimal closure of those named seeds: **127 declarations / ≈1,966 pin lines across nine
+modules** (`Def_DedekindDomain_Completion_BaseChange` 43/792, `Def_DedekindDomain_AdicValuation_InlineSpecific`
+31/536, `Def_Mathlib_IsModuleTopology` 22/267, `Def_DedekindDomain_IntegralClosure` 9/157,
+`Def_Mathlib_RightActionInstances` 8/102, `Def_NumberField_InfiniteAdeleRing_BaseChangeData` 10/83,
+`Def_Mathlib_Topology_Algebra_UniformRing` 1/12, `Def_NumberField_Extension` 1/4,
+`Def_AutomorphicForm_UnitFactorizableOfType` 2/13); whole-node it is **3,740 pin lines / 341
+declarations** over eleven modules. That is larger than the trio it unlocks (`port_plan`: 1,281 net
+new), it is not a citation dependency of the D-S target (`frontier --ds --top 0 --list` shows
+**zero** hits for any chain name, while the trio itself is `needed` at 823), and
+`Def_DedekindDomain_Completion_BaseChange` carries `set_option maxHeartbeats 1200000` /
+`synthInstance.maxHeartbeats 400000`, which collides with the port's never-raise rule.
+
+**Decision: defer the trio, do not port the chain now.** The trio stays in `needed` (deferring a
+ready node blocks nothing) and should be re-cut when its larger siblings are taken, so the chain is
+paid once: `AutomorphicForm.convOp_mem_isotypicCuspSubmodule_inf_archCutSubmodule_of_isUnitFactorizableAboveOfType`
+(1,231, `needed`) and, behind them, the `coversModCentre` silo (3,038) and
+`twistedConvOp_mem_isotypicCuspSubmodule_…` (2,542). The one chain-free piece landed and is
+registered: `FLTForHuman/AutomorphicForm/Adelic/IntegralUnits.lean` (13 public, tier 3) —
+the pin's `integralMatrixSet`/`integralUnitsSet`/`IsBiInvariantUnder` block. Records:
+[topics/automorphicForm/WORKORDER-UF1-unit-factorizable-defs.md](topics/automorphicForm/WORKORDER-UF1-unit-factorizable-defs.md) §10.
+
 ### `MeasureAssembly.archBorel` — duplicate of `AutomorphicForm.glBorelOf`
 
 `AutomorphicForm.MeasureAssembly.archBorel`

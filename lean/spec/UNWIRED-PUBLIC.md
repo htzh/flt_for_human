@@ -11,7 +11,7 @@ whether the tree has drifted.  Nothing here is verified against the pin: the
 `pin original` column names the declaration (and the file holding it) that
 carries the statement to diff when the entry is wired.
 
-`2998` public declarations in `104` unlisted modules; `2710` of them have a pin counterpart by name and statement.
+`3118` public declarations in `111` unlisted modules; `2830` of them have a pin counterpart by name and statement.
 
 This is tier 3 only.  Tier 2 — a declaration in a *listed* module that the
 checker skips — is `OWN_PROOFS` in the checker itself, each entry carrying its
@@ -38,6 +38,8 @@ wrappers whose statements the checker diffs).
 
 | module | lines | public | transcribed | own | imported by | in `spec/` |
 |---|---:|---:|---:|---:|---:|---:|
+| [`FLTForHuman/Algebra/Algebra/SemialgHom.lean`](#fltforhumanalgebraalgebrasemialghomlean) | 179 | 18 | 18 | 0 | 1 | 0 |
+| [`FLTForHuman/Algebra/RightActionInstances.lean`](#fltforhumanalgebrarightactioninstanceslean) | 201 | 10 | 10 | 0 | 0 | 0 |
 | [`FLTForHuman/AlgebraicCurve/Place/AdicCompletion.lean`](#fltforhumanalgebraiccurveplaceadiccompletionlean) | 397 | 17 | 16 | 1 | 1 | 0 |
 | [`FLTForHuman/AlgebraicCurve/Place/ValueDictionary.lean`](#fltforhumanalgebraiccurveplacevaluedictionarylean) | 990 | 68 | 68 | 0 | 1 | 0 |
 | [`FLTForHuman/AlgebraicCurve/RadialRegion/Engine/GridGeometry.lean`](#fltforhumanalgebraiccurveradialregionenginegridgeometrylean) | 2,909 | 193 | 193 | 0 | 1 | 0 |
@@ -56,6 +58,7 @@ wrappers whose statements the checker diffs).
 | [`FLTForHuman/AutomorphicForm/Adelic/BorelSubgroup.lean`](#fltforhumanautomorphicformadelicborelsubgrouplean) | 248 | 19 | 19 | 0 | 3 | 0 |
 | [`FLTForHuman/AutomorphicForm/Adelic/EtaFamily.lean`](#fltforhumanautomorphicformadelicetafamilylean) | 139 | 15 | 15 | 0 | 2 | 0 |
 | [`FLTForHuman/AutomorphicForm/Adelic/InducedSection.lean`](#fltforhumanautomorphicformadelicinducedsectionlean) | 115 | 10 | 10 | 0 | 2 | 0 |
+| [`FLTForHuman/AutomorphicForm/Adelic/IntegralUnits.lean`](#fltforhumanautomorphicformadelicintegralunitslean) | 168 | 13 | 13 | 0 | 0 | 0 |
 | [`FLTForHuman/AutomorphicForm/Adelic/Siegel/SlabCovering.lean`](#fltforhumanautomorphicformadelicsiegelslabcoveringlean) | 1,119 | 3 | 3 | 0 | 2 | 0 |
 | [`FLTForHuman/AutomorphicForm/Adelic/WeylIntegrable/Assembly.lean`](#fltforhumanautomorphicformadelicweylintegrableassemblylean) | 321 | 26 | 26 | 0 | 1 | 1 |
 | [`FLTForHuman/AutomorphicForm/Adelic/WeylIntegrable/BoxBounds.lean`](#fltforhumanautomorphicformadelicweylintegrableboxboundslean) | 261 | 26 | 26 | 0 | 1 | 1 |
@@ -107,6 +110,7 @@ wrappers whose statements the checker diffs).
 | [`FLTForHuman/NumberTheory/NumberField/CompletedDedekindZeta/Poisson.lean`](#fltforhumannumbertheorynumberfieldcompleteddedekindzetapoissonlean) | 1,112 | 17 | 17 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/CompletedDedekindZeta/ThetaKernel.lean`](#fltforhumannumbertheorynumberfieldcompleteddedekindzetathetakernellean) | 1,310 | 84 | 84 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/CompletedDedekindZeta/Unfolding.lean`](#fltforhumannumbertheorynumberfieldcompleteddedekindzetaunfoldinglean) | 1,231 | 22 | 22 | 0 | 1 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/Extension.lean`](#fltforhumannumbertheorynumberfieldextensionlean) | 257 | 35 | 35 | 0 | 0 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ArchMulHaar.lean`](#fltforhumannumbertheorynumberfieldtateglobalarchmulhaarlean) | 566 | 33 | 33 | 0 | 3 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ArchSlab.lean`](#fltforhumannumbertheorynumberfieldtateglobalarchslablean) | 375 | 27 | 27 | 0 | 3 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/Coordinates.lean`](#fltforhumannumbertheorynumberfieldtateglobalcoordinateslean) | 863 | 73 | 73 | 0 | 3 | 0 |
@@ -139,9 +143,54 @@ wrappers whose statements the checker diffs).
 | [`FLTForHuman/RepTheory/TranslateSpan.lean`](#fltforhumanreptheorytranslatespanlean) | 870 | 43 | 43 | 0 | 1 | 0 |
 | [`FLTForHuman/RepTheory/TypeReproducer.lean`](#fltforhumanreptheorytypereproducerlean) | 1,381 | 76 | 76 | 0 | 2 | 1 |
 | [`FLTForHuman/RingTheory/Ideal/Quotient/Basic.lean`](#fltforhumanringtheoryidealquotientbasiclean) | 19 | 1 | 1 | 0 | 1 | 0 |
+| [`FLTForHuman/RingTheory/Localization/BaseChange.lean`](#fltforhumanringtheorylocalizationbasechangelean) | 110 | 6 | 6 | 0 | 0 | 0 |
+| [`FLTForHuman/Topology/Algebra/ModuleTopology.lean`](#fltforhumantopologyalgebramoduletopologylean) | 572 | 35 | 35 | 0 | 0 | 0 |
+| [`FLTForHuman/Topology/Algebra/UniformRing.lean`](#fltforhumantopologyalgebrauniformringlean) | 56 | 3 | 3 | 0 | 0 | 0 |
 | [`FLTForHuman/Topology/Algebra/Valued/WithZeroMulInt.lean`](#fltforhumantopologyalgebravaluedwithzeromulintlean) | 127 | 6 | 6 | 0 | 1 | 0 |
 | [`Reserve/ModularCurve/Analytic/LevelTauBridge.lean`](#reservemodularcurveanalyticleveltaubridgelean) | 269 | 19 | 0 | 19 | 0 | 0 |
 | [`Reserve/ModularForms/LevelTwoCuspVanishing.lean`](#reservemodularformsleveltwocuspvanishinglean) | 141 | 6 | 6 | 0 | 0 | 0 |
+
+## `FLTForHuman/Algebra/Algebra/SemialgHom.lean`
+
+179 lines, 18 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s).
+
+| importable name | kind | pin original | pin file |
+|---|---|---|---|
+| `SemialgHom` | structure | `SemialgHom` (provenance comment) | [`Def_Mathlib_Algebra_Algebra_Hom.lean:11`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_Algebra_Algebra_Hom.lean#L11) |
+| `SemialgHomClass` | class | `SemialgHomClass` (provenance comment) | [`Def_Mathlib_Algebra_Algebra_Hom.lean:47`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_Algebra_Algebra_Hom.lean#L47) |
+| `algebraMap_apply` | theorem | `SemialgHom.algebraMap_apply` (provenance comment) | [`Def_Mathlib_Algebra_Algebra_Hom.lean:95`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_Algebra_Algebra_Hom.lean#L95) |
+| `coe_coe` | theorem | `SemialgHom.coe_coe` (provenance comment) | [`Def_Mathlib_Algebra_Algebra_Hom.lean:73`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_Algebra_Algebra_Hom.lean#L73) |
+| `coe_mk` | theorem | `coe_mk` (provenance comment) | [`Def_Mathlib_Algebra_Algebra_Hom.lean:40`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_Algebra_Algebra_Hom.lean#L40) |
+| `commutes` | lemma | `SemialgHom.commutes` (provenance comment) | [`Def_Mathlib_Algebra_Algebra_Hom.lean:83`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_Algebra_Algebra_Hom.lean#L83) |
+| `comp` | def | `SemialgHom.comp` (provenance comment) | [`Def_Mathlib_Algebra_Algebra_Hom.lean:100`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_Algebra_Algebra_Hom.lean#L100) |
+| `compAlgHom` | def | `SemialgHom.compAlgHom` (provenance comment) | [`Def_Mathlib_Algebra_Algebra_Hom.lean:113`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_Algebra_Algebra_Hom.lean#L113) |
+| `instFunLike` | instance | `instFunLike` (provenance comment) | [`Def_Mathlib_Algebra_Algebra_Hom.lean:27`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_Algebra_Algebra_Hom.lean#L27) |
+| `instSemialgHom` | instance | `SemialgHomClass.instSemialgHom` (provenance comment) | [`Def_Mathlib_Algebra_Algebra_Hom.lean:57`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_Algebra_Algebra_Hom.lean#L57) |
+| `map_smul` | lemma | `SemialgHom.map_smul` (provenance comment) | [`Def_Mathlib_Algebra_Algebra_Hom.lean:36`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_Algebra_Algebra_Hom.lean#L36) |
+| `prod` | def | `SemialgHom.prod` (provenance comment) | [`Def_Mathlib_Algebra_Algebra_Hom.lean:118`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_Algebra_Algebra_Hom.lean#L118) |
+| `prodMap` | def | `SemialgHom.prodMap` (provenance comment) | [`Def_Mathlib_Algebra_Algebra_Hom.lean:124`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_Algebra_Algebra_Hom.lean#L124) |
+| `restrictScalars` | def | `SemialgHom.restrictScalars` (provenance comment) | [`Def_Mathlib_Algebra_Algebra_Hom.lean:130`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_Algebra_Algebra_Hom.lean#L130) |
+| `toLinearMap_eq_coe` | theorem | `SemialgHom.toLinearMap_eq_coe` (provenance comment) | [`Def_Mathlib_Algebra_Algebra_Hom.lean:89`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_Algebra_Algebra_Hom.lean#L89) |
+| `toRingHom_eq_coe` | theorem | `SemialgHom.toRingHom_eq_coe` (provenance comment) | [`Def_Mathlib_Algebra_Algebra_Hom.lean:92`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_Algebra_Algebra_Hom.lean#L92) |
+| `toSemialgHom` | def | `SemialgHomClass.toSemialgHom` (provenance comment) | [`Def_Mathlib_Algebra_Algebra_Hom.lean:66`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_Algebra_Algebra_Hom.lean#L66) |
+| `toSemialgHom` | def | `AlgHom.toSemialgHom` (provenance comment) | [`Def_Mathlib_Algebra_Algebra_Hom.lean:107`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_Algebra_Algebra_Hom.lean#L107) |
+
+## `FLTForHuman/Algebra/RightActionInstances.lean`
+
+201 lines, 10 public declarations — transcribed from the pin, not wired. Imported by 0 port module(s).
+
+| importable name | kind | pin original | pin file |
+|---|---|---|---|
+| `TensorProduct.RightActions.baseChange` | abbrev | `LinearMap.baseChange` (provenance comment) | [`Def_Mathlib_RightActionInstances.lean:107`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_RightActionInstances.lean#L107) |
+| `TensorProduct.RightActions.baseChange` | abbrev | `LinearEquiv.baseChange` (provenance comment) | [`Def_Mathlib_RightActionInstances.lean:135`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_RightActionInstances.lean#L135) |
+| `TensorProduct.RightActions.baseChange` | def | `AlgebraMap.baseChange` (provenance comment) | [`Def_Mathlib_RightActionInstances.lean:151`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_RightActionInstances.lean#L151) |
+| `TensorProduct.RightActions.baseChange_comp` | theorem | `LinearMap.baseChange_comp` (provenance comment) | [`Def_Mathlib_RightActionInstances.lean:123`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_RightActionInstances.lean#L123) |
+| `TensorProduct.RightActions.baseChange_id` | lemma | `LinearMap.baseChange_id` (provenance comment) | [`Def_Mathlib_RightActionInstances.lean:116`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_RightActionInstances.lean#L116) |
+| `TensorProduct.RightActions.basis` | def | `Algebra.TensorProduct.basis` (provenance comment) | [`Def_Mathlib_RightActionInstances.lean:158`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_RightActionInstances.lean#L158) |
+| `TensorProduct.RightActions.comm` | def | `Module.TensorProduct.comm` (provenance comment) | [`Def_Mathlib_RightActionInstances.lean:69`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_RightActionInstances.lean#L69) |
+| `TensorProduct.RightActions.comm_apply_tmul` | lemma | `Module.TensorProduct.comm_apply_tmul` (provenance comment) | [`Def_Mathlib_RightActionInstances.lean:83`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_RightActionInstances.lean#L83) |
+| `TensorProduct.RightActions.comm_symm_apply_tmul` | lemma | `Module.TensorProduct.comm_symm_apply_tmul` (provenance comment) | [`Def_Mathlib_RightActionInstances.lean:86`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_RightActionInstances.lean#L86) |
+| `TensorProduct.RightActions.smul_def` | lemma | `smul_def` (provenance comment) | [`Def_Mathlib_RightActionInstances.lean:18`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_RightActionInstances.lean#L18) |
 
 ## `FLTForHuman/AlgebraicCurve/Place/AdicCompletion.lean`
 
@@ -984,6 +1033,26 @@ wrappers whose statements the checker diffs).
 | `AutomorphicForm.mem_inducedSectionSubmodule_iff` | theorem | `mem_inducedSectionSubmodule_iff` (provenance comment) | [`Def_AutomorphicForm_InducedSection.lean:60`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AutomorphicForm_InducedSection.lean#L60) |
 | `AutomorphicForm.rightTranslate` | theorem | `rightTranslate` (provenance comment) | [`Def_AutomorphicForm_InducedSection.lean:64`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AutomorphicForm_InducedSection.lean#L64) |
 | `AutomorphicForm.rightTranslate_mem_inducedSectionSubmodule` | theorem | `rightTranslate_mem_inducedSectionSubmodule` (provenance comment) | [`Def_AutomorphicForm_InducedSection.lean:71`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AutomorphicForm_InducedSection.lean#L71) |
+
+## `FLTForHuman/AutomorphicForm/Adelic/IntegralUnits.lean`
+
+168 lines, 13 public declarations — transcribed from the pin, not wired. Imported by 0 port module(s).
+
+| importable name | kind | pin original | pin file |
+|---|---|---|---|
+| `AutomorphicForm.IsBiInvariantUnder` | def | `IsBiInvariantUnder` (provenance comment) | [`Def_AutomorphicForm_LocalOrbitalBase.lean:298`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AutomorphicForm_LocalOrbitalBase.lean#L298) |
+| `AutomorphicForm.integralMatrixSet` | def | `integralMatrixSet` (provenance comment) | [`Def_AutomorphicForm_LocalOrbitalBase.lean:15`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AutomorphicForm_LocalOrbitalBase.lean#L15) |
+| `AutomorphicForm.integralMatrixSet_eq_pi` | theorem | `integralMatrixSet_eq_pi` (provenance comment) | [`Def_AutomorphicForm_LocalOrbitalBase.lean:17`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AutomorphicForm_LocalOrbitalBase.lean#L17) |
+| `AutomorphicForm.integralUnitsSet` | def | `integralUnitsSet` (provenance comment) | [`Def_AutomorphicForm_LocalOrbitalBase.lean:33`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AutomorphicForm_LocalOrbitalBase.lean#L33) |
+| `AutomorphicForm.isBiInvariantUnder_bot` | theorem | `isBiInvariantUnder_bot` (provenance comment) | [`Def_AutomorphicForm_LocalOrbitalBase.lean:310`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AutomorphicForm_LocalOrbitalBase.lean#L310) |
+| `AutomorphicForm.isCompact_integralMatrixSet` | theorem | `isCompact_integralMatrixSet` (provenance comment) | [`Def_AutomorphicForm_LocalOrbitalBase.lean:22`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AutomorphicForm_LocalOrbitalBase.lean#L22) |
+| `AutomorphicForm.isCompact_integralUnitsSet` | theorem | `isCompact_integralUnitsSet` (provenance comment) | [`Def_AutomorphicForm_LocalOrbitalBase.lean:67`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AutomorphicForm_LocalOrbitalBase.lean#L67) |
+| `AutomorphicForm.isLocallyConstant_indicator_one` | theorem | `isLocallyConstant_indicator_one` (provenance comment) | [`Def_AutomorphicForm_LocalOrbitalBase.lean:131`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AutomorphicForm_LocalOrbitalBase.lean#L131) |
+| `AutomorphicForm.isOpen_integralMatrixSet` | theorem | `isOpen_integralMatrixSet` (provenance comment) | [`Def_AutomorphicForm_LocalOrbitalBase.lean:27`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AutomorphicForm_LocalOrbitalBase.lean#L27) |
+| `AutomorphicForm.isOpen_integralUnitsSet` | theorem | `isOpen_integralUnitsSet` (provenance comment) | [`Def_AutomorphicForm_LocalOrbitalBase.lean:75`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AutomorphicForm_LocalOrbitalBase.lean#L75) |
+| `AutomorphicForm.mem_integralUnitsSet` | theorem | `mem_integralUnitsSet` (provenance comment) | [`Def_AutomorphicForm_LocalOrbitalBase.lean:37`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AutomorphicForm_LocalOrbitalBase.lean#L37) |
+| `AutomorphicForm.mono` | theorem | `IsBiInvariantUnder.mono` (provenance comment) | [`Def_AutomorphicForm_LocalOrbitalBase.lean:303`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AutomorphicForm_LocalOrbitalBase.lean#L303) |
+| `AutomorphicForm.one_mem_integralUnitsSet` | theorem | `one_mem_integralUnitsSet` (provenance comment) | [`Def_AutomorphicForm_LocalOrbitalBase.lean:42`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AutomorphicForm_LocalOrbitalBase.lean#L42) |
 
 ## `FLTForHuman/AutomorphicForm/Adelic/Siegel/SlabCovering.lean`
 
@@ -2894,6 +2963,48 @@ wrappers whose statements the checker diffs).
 | `NumberField.CompletedDedekindZeta.symmLambda_eq_completedPartialZeta` | theorem | `gapsw80_t8_symmLambda_eq_completedPartialZeta` (provenance comment) | [`S_NumberField_exists_completedDedekindZeta_package.lean:5363`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_exists_completedDedekindZeta_package.lean#L5363) |
 | `NumberField.CompletedDedekindZeta.symmLambda_unfold_eq` | theorem | `gapsw80_t8_symmLambda_unfold_eq` (provenance comment) | [`S_NumberField_exists_completedDedekindZeta_package.lean:5115`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_exists_completedDedekindZeta_package.lean#L5115) |
 
+## `FLTForHuman/NumberTheory/NumberField/Extension.lean`
+
+257 lines, 35 public declarations — transcribed from the pin, not wired. Imported by 0 port module(s).
+
+| importable name | kind | pin original | pin file |
+|---|---|---|---|
+| `NumberField.ComplexEmbedding.IsExtension` | abbrev | `IsExtension` (provenance comment) | [`Def_NumberField_Extension.lean:12`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L12) |
+| `NumberField.ComplexEmbedding.IsMixedExtension` | abbrev | `IsMixedExtension` (provenance comment) | [`Def_NumberField_Extension.lean:28`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L28) |
+| `NumberField.ComplexEmbedding.IsMixedExtension.isExtension` | theorem | `IsMixedExtension.isExtension` (provenance comment) | [`Def_NumberField_Extension.lean:38`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L38) |
+| `NumberField.ComplexEmbedding.IsMixedExtension.isReal` | theorem | `IsMixedExtension.isReal` (provenance comment) | [`Def_NumberField_Extension.lean:41`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L41) |
+| `NumberField.ComplexEmbedding.IsMixedExtension.not_isReal` | theorem | `IsMixedExtension.not_isReal` (provenance comment) | [`Def_NumberField_Extension.lean:44`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L44) |
+| `NumberField.ComplexEmbedding.IsUnmixedExtension` | abbrev | `IsUnmixedExtension` (provenance comment) | [`Def_NumberField_Extension.lean:49`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L49) |
+| `NumberField.ComplexEmbedding.isExtensionEquivSum` | def | `isExtensionEquivSum` (provenance comment) | [`Def_NumberField_Extension.lean:60`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L60) |
+| `NumberField.ComplexEmbedding.isReal_of_isReal` | theorem | `IsUnmixedExtension.isReal_of_isReal` (provenance comment) | [`Def_NumberField_Extension.lean:52`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L52) |
+| `NumberField.ComplexEmbedding.ne` | theorem | `IsExtension.ne` (provenance comment) | [`Def_NumberField_Extension.lean:21`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L21) |
+| `NumberField.ComplexEmbedding.not_isExtension_conjugate` | theorem | `IsExtension.not_isExtension_conjugate` (provenance comment) | [`Def_NumberField_Extension.lean:15`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L15) |
+| `NumberField.ComplexEmbedding.not_isReal_of_not_isReal` | theorem | `not_isReal_of_not_isReal` (provenance comment) | [`Def_NumberField_Extension.lean:31`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L31) |
+| `NumberField.InfinitePlace.Extension` | abbrev | `Extension` (provenance comment) | [`Def_NumberField_Extension.lean:83`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L83) |
+| `NumberField.InfinitePlace.Extension.IsConjugateLift` | class | `Extension.IsConjugateLift` (provenance comment) | [`Def_NumberField_Extension.lean:136`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L136) |
+| `NumberField.InfinitePlace.Extension.IsLift` | class | `Extension.IsLift` (provenance comment) | [`Def_NumberField_Extension.lean:130`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L130) |
+| `NumberField.InfinitePlace.Extension.isComplex_of_isComplex` | theorem | `Extension.isComplex_of_isComplex` (provenance comment) | [`Def_NumberField_Extension.lean:95`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L95) |
+| `NumberField.InfinitePlace.Extension.isExtension` | theorem | `Extension.IsLift.isExtension` (provenance comment) | [`Def_NumberField_Extension.lean:133`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L133) |
+| `NumberField.InfinitePlace.Extension.isExtension` | theorem | `Extension.IsConjugateLift.isExtension` (provenance comment) | [`Def_NumberField_Extension.lean:139`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L139) |
+| `NumberField.InfinitePlace.Extension.isExtension_conjugate_of_not_isExtension` | theorem | `Extension.isExtension_conjugate_of_not_isExtension` (provenance comment) | [`Def_NumberField_Extension.lean:122`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L122) |
+| `NumberField.InfinitePlace.Extension.isExtension_or_isExtension_conjugate` | theorem | `Extension.isExtension_or_isExtension_conjugate` (provenance comment) | [`Def_NumberField_Extension.lean:113`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L113) |
+| `NumberField.InfinitePlace.Extension.isLift_or_isConjugateLift` | theorem | `Extension.isLift_or_isConjugateLift` (provenance comment) | [`Def_NumberField_Extension.lean:142`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L142) |
+| `NumberField.InfinitePlace.Extension.isReal_base` | theorem | `Extension.isReal_base` (provenance comment) | [`Def_NumberField_Extension.lean:105`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L105) |
+| `NumberField.InfinitePlace.Extension.mk_embedding` | theorem | `Extension.mk_embedding` (provenance comment) | [`Def_NumberField_Extension.lean:110`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L110) |
+| `NumberField.InfinitePlace.RamifiedExtension` | abbrev | `RamifiedExtension` (provenance comment) | [`Def_NumberField_Extension.lean:152`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L152) |
+| `NumberField.InfinitePlace.RamifiedExtension.comap_eq` | theorem | `RamifiedExtension.comap_eq` (provenance comment) | [`Def_NumberField_Extension.lean:168`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L168) |
+| `NumberField.InfinitePlace.RamifiedExtension.isComplex` | theorem | `RamifiedExtension.isComplex` (provenance comment) | [`Def_NumberField_Extension.lean:181`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L181) |
+| `NumberField.InfinitePlace.RamifiedExtension.isRamified` | theorem | `RamifiedExtension.isRamified` (provenance comment) | [`Def_NumberField_Extension.lean:170`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L170) |
+| `NumberField.InfinitePlace.RamifiedExtension.isReal` | theorem | `RamifiedExtension.isReal` (provenance comment) | [`Def_NumberField_Extension.lean:178`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L178) |
+| `NumberField.InfinitePlace.RamifiedExtension.isReal_comap` | theorem | `RamifiedExtension.isReal_comap` (provenance comment) | [`Def_NumberField_Extension.lean:172`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L172) |
+| `NumberField.InfinitePlace.UnramifiedExtension` | abbrev | `UnramifiedExtension` (provenance comment) | [`Def_NumberField_Extension.lean:155`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L155) |
+| `NumberField.InfinitePlace.UnramifiedExtension.comap_eq` | theorem | `UnramifiedExtension.comap_eq` (provenance comment) | [`Def_NumberField_Extension.lean:189`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L189) |
+| `NumberField.InfinitePlace.UnramifiedExtension.isUnramified` | theorem | `UnramifiedExtension.isUnramified` (provenance comment) | [`Def_NumberField_Extension.lean:191`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L191) |
+| `NumberField.InfinitePlace.coe_toExtension` | theorem | `coe_toExtension` (provenance comment) | [`Def_NumberField_Extension.lean:89`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L89) |
+| `NumberField.InfinitePlace.toExtension` | abbrev | `toExtension` (provenance comment) | [`Def_NumberField_Extension.lean:87`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L87) |
+| `NumberField.InfinitePlace.toRamifiedExtension` | def | `Extension.toRamifiedExtension` (provenance comment) | [`Def_NumberField_Extension.lean:160`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L160) |
+| `NumberField.InfinitePlace.toUnramifiedExtension` | def | `Extension.toUnramifiedExtension` (provenance comment) | [`Def_NumberField_Extension.lean:163`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_NumberField_Extension.lean#L163) |
+
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/ArchMulHaar.lean`
 
 566 lines, 33 public declarations — transcribed from the pin, not wired. Imported by 3 port module(s).
@@ -3816,6 +3927,71 @@ wrappers whose statements the checker diffs).
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
 | `out_sub` | theorem | `Ideal.Quotient.out_sub` (provenance comment) | [`Def_Mathlib_RingTheory_Ideal_Quotient_Basic.lean:7`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_RingTheory_Ideal_Quotient_Basic.lean#L7) |
+
+## `FLTForHuman/RingTheory/Localization/BaseChange.lean`
+
+110 lines, 6 public declarations — transcribed from the pin, not wired. Imported by 0 port module(s).
+
+| importable name | kind | pin original | pin file |
+|---|---|---|---|
+| `IsLocalization.leftModuleTensorEquiv` | def | `leftModuleTensorEquiv` (provenance comment) | [`Def_Mathlib_RingTheory_Localization_BaseChange.lean:51`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_RingTheory_Localization_BaseChange.lean#L51) |
+| `IsLocalization.leftModuleTensorEquiv_restrictScalars_eq` | lemma | `leftModuleTensorEquiv_restrictScalars_eq` (provenance comment) | [`Def_Mathlib_RingTheory_Localization_BaseChange.lean:66`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_RingTheory_Localization_BaseChange.lean#L66) |
+| `IsLocalization.map_moduleTensorEquiv_symm_tmul` | lemma | `map_moduleTensorEquiv_symm_tmul` (provenance comment) | [`Def_Mathlib_RingTheory_Localization_BaseChange.lean:22`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_RingTheory_Localization_BaseChange.lean#L22) |
+| `IsLocalization.map_moduleTensorEquiv_tmul` | lemma | `map_moduleTensorEquiv_tmul` (provenance comment) | [`Def_Mathlib_RingTheory_Localization_BaseChange.lean:18`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_RingTheory_Localization_BaseChange.lean#L18) |
+| `IsLocalization.moduleLid_symm_apply` | lemma | `moduleLid_symm_apply` (provenance comment) | [`Def_Mathlib_RingTheory_Localization_BaseChange.lean:13`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_RingTheory_Localization_BaseChange.lean#L13) |
+| `IsLocalization.tensorProduct_ext` | theorem | `tensorProduct_ext` (provenance comment) | [`Def_Mathlib_RingTheory_Localization_BaseChange.lean:40`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_RingTheory_Localization_BaseChange.lean#L40) |
+
+## `FLTForHuman/Topology/Algebra/ModuleTopology.lean`
+
+572 lines, 35 public declarations — transcribed from the pin, not wired. Imported by 0 port module(s).
+
+| importable name | kind | pin original | pin file |
+|---|---|---|---|
+| `Algebra.moduleTopology_le` | lemma | `Algebra.moduleTopology_le` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:246`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L246) |
+| `IsBiscalar` | class | `IsBiscalar` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:37`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L37) |
+| `IsModuleTopology.continuousAlgEquivOfAlgEquiv` | def | `continuousAlgEquivOfAlgEquiv` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:420`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L420) |
+| `IsModuleTopology.continuousAlgEquivOfIsBiscalar` | def | `continuousAlgEquivOfIsBiscalar` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:393`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L393) |
+| `IsModuleTopology.continuousAlgEquivOfIsBiscalar_apply` | theorem | `continuousAlgEquivOfIsBiscalar_apply` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:412`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L412) |
+| `IsModuleTopology.continuousLinearEquiv` | def | `continuousLinearEquiv` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:363`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L363) |
+| `IsModuleTopology.continuousLinearEquivOfIsBiscalar` | def | `continuousLinearEquivOfIsBiscalar` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:377`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L377) |
+| `IsModuleTopology.continuous_bilinear_of_finite_free` | theorem | `Module.continuous_bilinear_of_finite_free` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:147`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L147) |
+| `IsModuleTopology.equivFun_homeo` | def | `Module.Basis.equivFun_homeo` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:482`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L482) |
+| `IsModuleTopology.iff_Continuous_algebraMap` | lemma | `iff_Continuous_algebraMap` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:222`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L222) |
+| `IsModuleTopology.isTopologicalModule` | theorem | `isTopologicalModule` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:236`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L236) |
+| `IsModuleTopology.locallyCompactSpaceOfFinite` | theorem | `locallyCompactSpaceOfFinite` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:463`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L463) |
+| `IsModuleTopology.of_continuous_isOpenMap_algebraMap` | theorem | `of_continuous_isOpenMap_algebraMap` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:297`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L297) |
+| `IsModuleTopology.of_inverse` | theorem | `of_inverse` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:355`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L355) |
+| `IsModuleTopology.of_isOpenMap_surjective` | theorem | `of_isOpenMap_surjective` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:350`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L350) |
+| `IsModuleTopology.of_isQuotientMap` | theorem | `of_isQuotientMap` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:345`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L345) |
+| `IsModuleTopology.t2Space` | theorem | `t2Space` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:433`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L433) |
+| `IsModuleTopology.t2Space'` | theorem | `t2Space'` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:452`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L452) |
+| `IsModuleTopology.topologicalSemiring` | lemma | `topologicalSemiring` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:186`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L186) |
+| `IsModuleTopology.trans` | lemma | `trans` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:282`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L282) |
+| `IsTopologicalModule` | class | `IsTopologicalModule` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:10`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L10) |
+| `Module.Finite.secondCountabletopology` | lemma | `Module.Finite.secondCountabletopology` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:497`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L497) |
+| `changeScalars` | def | `LinearMap.changeScalars` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:48`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L48) |
+| `changeScalars` | def | `LinearEquiv.changeScalars` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:57`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L57) |
+| `changeScalars` | def | `AlgHom.changeScalars` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:89`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L89) |
+| `changeScalars` | def | `AlgEquiv.changeScalars` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:98`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L98) |
+| `changeScalars_apply` | theorem | `LinearMap.changeScalars_apply` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:53`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L53) |
+| `changeScalars_apply` | theorem | `AlgHom.changeScalars_apply` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:94`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L94) |
+| `commutes` | theorem | `IsBiscalar.commutes` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:79`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L79) |
+| `extendScalars` | def | `AlgEquiv.extendScalars` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:69`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L69) |
+| `iff` | lemma | `ModuleTopology.iff` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:131`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L131) |
+| `instIsTopologicalModuleSubtypeMem` | instance | `Submodule.instIsTopologicalModuleSubtypeMem` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:23`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L23) |
+| `instTopologicalModule` | instance | `Pi.instTopologicalModule` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:26`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L26) |
+| `isModuleTopology` | theorem | `ModuleTopology.isModuleTopology` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:126`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L126) |
+| `moduleTopology.trans` | lemma | `moduleTopology.trans` (provenance comment) | [`Def_Mathlib_IsModuleTopology.lean:257`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_IsModuleTopology.lean#L257) |
+
+## `FLTForHuman/Topology/Algebra/UniformRing.lean`
+
+56 lines, 3 public declarations — transcribed from the pin, not wired. Imported by 0 port module(s).
+
+| importable name | kind | pin original | pin file |
+|---|---|---|---|
+| `UniformSpace.Completion.mapSemialgHom` | def | `mapSemialgHom` (provenance comment) | [`Def_Mathlib_Topology_Algebra_UniformRing.lean:14`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_Topology_Algebra_UniformRing.lean#L14) |
+| `UniformSpace.Completion.mapSemialgHom_apply` | theorem | `mapSemialgHom_apply` (provenance comment) | [`Def_Mathlib_Topology_Algebra_UniformRing.lean:26`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_Topology_Algebra_UniformRing.lean#L26) |
+| `UniformSpace.Completion.mapSemialgHom_coe` | theorem | `mapSemialgHom_coe` (provenance comment) | [`Def_Mathlib_Topology_Algebra_UniformRing.lean:32`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_Topology_Algebra_UniformRing.lean#L32) |
 
 ## `FLTForHuman/Topology/Algebra/Valued/WithZeroMulInt.lean`
 

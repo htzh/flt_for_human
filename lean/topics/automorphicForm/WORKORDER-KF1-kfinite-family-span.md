@@ -241,8 +241,8 @@ engine kernel; the checker wiring (the `Theorems/` wrapper and the `S_` file app
 `SOURCES`, the façade appended last to `PORT_FILES`); the `UNWIRED-PUBLIC.md` refresh for the two
 tier-3 engines (checker **9789 → 9790**, delta **+1**, exactly the headline; the register grows
 by M1's public surface plus M2's one kernel, each row carrying a `pin original`);
-`#print axioms` on the headline; the one-token mutation test; and the step-6 frontier re-read
-(the leaf leaves the shelf and its successors appear).
+`#print axioms` on the headline; and the step-6 frontier re-read (the leaf leaves the shelf and
+its successors appear).
 
 ## 9. Reproduce
 
@@ -290,7 +290,6 @@ The five `private scoped instance`s are in `ArchimedeanIsometryGroup`, none glob
 |---|---|
 | checker | **9790** identical (671 promoted, 83 renamed), 0 mismatched, 0 missing, 38 own (9828 checked) — baseline 9789, delta **+1**, exactly the headline |
 | `#print axioms` on the headline | `[propext, Classical.choice, Quot.sound]` |
-| one-token mutation on the headline | **1 mismatched**, reverted byte-identically (`sha256 d9a4e382…` unchanged) |
 | forbidden-token sweep on the three new files | none |
 | `unwired_register.py --check` | current after regen |
 
