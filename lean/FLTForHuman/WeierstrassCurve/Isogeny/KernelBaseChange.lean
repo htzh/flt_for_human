@@ -229,9 +229,11 @@ theorem kw_surge_hgf4_bcTensorFracIotaSeam (hfin₀ : FiniteAlong F ι₀) :
   haveI hfreeFF : Module.Free FF' FF := Module.Free.of_divisionRing FF' FF
   let D := finrankAlong F ι₀
   let b : Module.Basis (Fin D) FF' FF := Module.finBasisOfFinrankEq FF' FF (n := D) rfl
+  have hrepr_smul : ∀ (c : FF') (x : FF), b.repr (c • x) = c • b.repr x :=
+    fun c x => LinearMap.map_smul b.repr.toLinearMap c x
   have hrepr_mul : ∀ (c : FF') (x : FF) (j : Fin D),
       b.repr (ι₀ c * x) j = c * b.repr x j := fun c x j => by
-    rw [← hsmul_ι, LinearMap.map_smul b.repr.toLinearMap c x, Finsupp.smul_apply, smul_eq_mul]
+    rw [← hsmul_ι, hrepr_smul, Finsupp.smul_apply, smul_eq_mul]
   let e : Fin D → T := fun i => (b i) ⊗ₜ[F] (1 : F')
   let bFr : Fin D → FrT := fun i => algebraMap T FrT (e i)
 
