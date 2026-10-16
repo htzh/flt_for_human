@@ -214,6 +214,17 @@ theorem kw_surge_hgf4_bcTensorFracIotaSeam (hfin₀ : FiniteAlong F ι₀) :
   let T' := (E₀'⁄F).toAffine.FunctionField ⊗[F] F'
   let FrT := FractionRing ((E₀⁄F).toAffine.FunctionField ⊗[F] F')
   let FrT' := FractionRing ((E₀'⁄F).toAffine.FunctionField ⊗[F] F')
+  -- `WeierstrassCurve.baseChange` is a semireducible `def`, so instance search
+  -- cannot see the instances keyed on `W.map` through the `⁄` spelling and
+  -- re-derives them by unfolding (≈0.6 s each here).  Each brick below is stated
+  -- at the unfolded `map` spelling, which search matches directly, and named.
+  haveI hT'_nontrivial : Nontrivial T' :=
+    inferInstanceAs (Nontrivial ((E₀'.map (algebraMap R₀ F)).toAffine.FunctionField ⊗[F] F'))
+  haveI hFF'_strongRankCondition : StrongRankCondition FF' :=
+    inferInstanceAs (StrongRankCondition (E₀'.map (algebraMap R₀ F)).toAffine.FunctionField)
+  haveI hFrT_isFractionRing : IsFractionRing T FrT :=
+    inferInstanceAs (IsFractionRing ((E₀.map (algebraMap R₀ F)).toAffine.FunctionField ⊗[F] F')
+      (FractionRing ((E₀.map (algebraMap R₀ F)).toAffine.FunctionField ⊗[F] F')))
   let ιT : T' →+* T := (kw_surge_hgf4_bcTensorIota E₀ E₀' F F' ι₀).toRingHom
   let ιFr : FrT' →+* FrT := kw_surge_hgf4_bcTensorFracIota E₀ E₀' F F' ι₀
   have hιT_inj : Function.Injective ιT :=
