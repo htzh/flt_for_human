@@ -58,7 +58,7 @@ import FLTForHuman.WeierstrassCurve.PrincipalDivisors
 import FLTForHuman.WeierstrassCurve.Velu.PointMapOddOrder
 import FLTForHuman.WeierstrassCurve.Velu.MapEquation
 import Mathlib.AlgebraicGeometry.EllipticCurve.IsomOfJ
-import Mathlib.RingTheory.HahnSeries.Basic
+import Mathlib.RingTheory.HahnSeries.Summable
 import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
 import Mathlib.Tactic
 
@@ -187,8 +187,10 @@ private theorem Pic0_pushforwardAlongHom_comp
       = Pic0.pushforwardAlongHom (f.comp g) hfg hfinfg hNfg x := by
   obtain ⟨D, rfl⟩ := Pic0.mk_surjective x
   rw [Pic0.pushforwardAlongHom_mk, Pic0.pushforwardAlongHom_mk, Pic0.pushforwardAlongHom_mk]
-  congr 1
-  refine Subtype.ext ?_
+  -- `congr 1` here asked the elaborator to unify the two `Pic0` quotients
+  -- (`Divisor.degZero ⧸ principal.addSubgroupOf`) and cost 153 s of the module.
+  -- `mk` is a plain function, so state the representative equality explicitly.
+  refine congrArg Pic0.mk (Subtype.ext ?_)
   rw [Pic0.coe_pushforwardAlongDegZero, Pic0.coe_pushforwardAlongDegZero,
     Pic0.coe_pushforwardAlongDegZero]
   exact Divisor.pushforwardAlong_pushforwardAlong g f hg hf hfg (D : Divisor F A.FunctionField)

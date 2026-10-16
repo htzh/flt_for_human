@@ -142,6 +142,28 @@ variable (ι₀ : (E₀'⁄F).toAffine.FunctionField →ₐ[F] (E₀⁄F).toAffi
 
 attribute [local instance] Algebra.TensorProduct.rightAlgebra
 
+/-- The canonical `F`-algebra map `b ↦ algebraMap (b ⊗ₜ 1)` into the fraction ring of
+`(W⁄F).FunctionField ⊗[F] F'`.  Naming it keeps the naturality square with
+`functionFieldMapAlongGeneral` — "base change of the structural map is the structural map
+of the base change" — stated without unfolding the carrier inside the goal. -/
+def kw_surge_hgf4_tensorUnit (W : WeierstrassCurve R₀) [W.IsElliptic]
+    [IsDomain ((W⁄F).toAffine.FunctionField ⊗[F] F')] :
+    (W⁄F).toAffine.FunctionField →ₐ[F]
+      FractionRing ((W⁄F).toAffine.FunctionField ⊗[F] F') :=
+  (IsScalarTower.toAlgHom F ((W⁄F).toAffine.FunctionField ⊗[F] F')
+      (FractionRing ((W⁄F).toAffine.FunctionField ⊗[F] F'))).comp
+    (Algebra.TensorProduct.includeLeft (R := F))
+
+theorem kw_surge_hgf4_tensorUnit_apply (W : WeierstrassCurve R₀) [W.IsElliptic]
+    [IsDomain ((W⁄F).toAffine.FunctionField ⊗[F] F')]
+    (b : (W⁄F).toAffine.FunctionField) :
+    kw_surge_hgf4_tensorUnit (F := F) (F' := F') W b
+      = algebraMap ((W⁄F).toAffine.FunctionField ⊗[F] F')
+          (FractionRing ((W⁄F).toAffine.FunctionField ⊗[F] F')) (b ⊗ₜ[F] (1 : F')) := by
+  rw [kw_surge_hgf4_tensorUnit, AlgHom.comp_apply,
+    Algebra.TensorProduct.includeLeft_apply]
+  rfl
+
 def kw_surge_hgf4_bcTensorIota :
     (E₀'⁄F).toAffine.FunctionField ⊗[F] F' →ₐ[F] (E₀⁄F).toAffine.FunctionField ⊗[F] F' :=
   Algebra.TensorProduct.map ι₀ (AlgHom.id F F')
@@ -201,12 +223,18 @@ def kw_surge_hgf4_bcIota₁ :
   (ψE.symm.toAlgHom.comp (kw_surge_hgf4_bcTensorFracIotaAlg E₀ E₀' F F' ι₀)).comp
     ψE'.toAlgHom
 
+/-- The `finrank` of the base-changed fraction field over the fraction ring of the base:
+the left-hand side of `kw_surge_hgf4_bcTensorFracIotaSeam`.  Named so that the seam's
+statement does not have to elaborate the `letI`/`@Module.finrank … Algebra.toModule`
+spelling, which is what made its statement `whnf` past the default heartbeat budget. -/
+def kw_surge_hgf4_bcTensorFracIotaFinrank : ℕ :=
+  letI := (kw_surge_hgf4_bcTensorFracIota E₀ E₀' F F' ι₀).toAlgebra
+  @Module.finrank (FractionRing ((E₀'⁄F).toAffine.FunctionField ⊗[F] F'))
+    (FractionRing ((E₀⁄F).toAffine.FunctionField ⊗[F] F')) _ _ Algebra.toModule
+
 theorem kw_surge_hgf4_bcTensorFracIotaSeam (hfin₀ : FiniteAlong F ι₀) :
     (kw_surge_hgf4_bcTensorFracIota E₀ E₀' F F' ι₀).Finite ∧
-    (letI := (kw_surge_hgf4_bcTensorFracIota E₀ E₀' F F' ι₀).toAlgebra
-     @Module.finrank (FractionRing ((E₀'⁄F).toAffine.FunctionField ⊗[F] F'))
-       (FractionRing ((E₀⁄F).toAffine.FunctionField ⊗[F] F')) _ _ Algebra.toModule)
-      = finrankAlong F ι₀ := by
+    kw_surge_hgf4_bcTensorFracIotaFinrank E₀ E₀' F F' ι₀ = finrankAlong F ι₀ := by
   classical
   let FF := (E₀⁄F).toAffine.FunctionField
   let FF' := (E₀'⁄F).toAffine.FunctionField
@@ -338,7 +366,9 @@ theorem kw_surge_hgf4_bcTensorFracIotaSeam (hfin₀ : FiniteAlong F ι₀) :
         = (algebraMap T FrT (ιT s₀))⁻¹ * algebraMap T FrT (t * u) := by
       rw [← div_eq_inv_mul, ← hsu, map_mul, map_mul,
         ← div_mul_div_comm, div_self hum, mul_one]
-    rw [hz, hc, map_sum, Finset.mul_sum]
+    rw [hz]
+    rw [hc]
+    rw [map_sum, Finset.mul_sum]
     refine Finset.sum_congr rfl fun i _ => ?_
     rw [map_mul, map_mul, ← hιFr_am s₀, ← hιFr_am (c i), ← map_inv₀ ιFr, mul_assoc]
 
@@ -356,8 +386,9 @@ theorem kw_surge_hgf4_bcTensorFracIotaSeam (hfin₀ : FiniteAlong F ι₀) :
         rw [← Finset.mul_sum, hd, mul_zero]
       rw [map_sum, ← h1]; refine Finset.sum_congr rfl fun i _ => ?_
       rw [map_mul, ← hιFr_am (p i), ← mul_assoc, ← map_mul, ← hp' i]
-    have hpj : p j = 0 :=
-      hliT p ((IsFractionRing.injective T FrT) (by simpa using hd')) j
+    have hd'' : (∑ i, ιT (p i) * e i) = 0 :=
+      (IsFractionRing.injective T FrT) (by simpa using hd')
+    have hpj : p j = 0 := hliT p hd'' j
     have hthis : algebraMap T' FrT' (q : T') * d j = 0 := by
       rw [← hp' j, hpj, map_zero]
     exact (mul_eq_zero.mp hthis).resolve_left hq0
@@ -774,16 +805,14 @@ theorem kw_surge_hgf4_bcIota₁_compat (a : (E₀'⁄F).toAffine.FunctionField) 
       = algebraMap ((E₀'⁄F).toAffine.FunctionField ⊗[F] F') _ (a ⊗ₜ[F] (1 : F')) := by
     have hκ : ((functionFieldTensorFracHomGeneral E₀' F F').restrictScalars F).comp
         (functionFieldMapAlongGeneral E₀' F F')
-        = (IsScalarTower.toAlgHom F ((E₀'⁄F).toAffine.FunctionField ⊗[F] F')
-            (FractionRing ((E₀'⁄F).toAffine.FunctionField ⊗[F] F'))).comp
-            (Algebra.TensorProduct.includeLeft (R := F)) := by
+        = kw_surge_hgf4_tensorUnit (F := F) (F' := F') E₀' := by
       refine functionField_algHom_ext ?_ ?_
-      · show functionFieldTensorFracHomGeneral E₀' F F' (χE' _) = _
-        rw [functionFieldMapAlongGeneral_polyToFunctionField_X,
-          functionFieldTensorFracHomGeneral_X]; rfl
-      · show functionFieldTensorFracHomGeneral E₀' F F' (χE' _) = _
-        rw [functionFieldMapAlongGeneral_yGen, functionFieldTensorFracHomGeneral_yGen]
-        rfl
+      · rw [AlgHom.comp_apply, AlgHom.restrictScalars_apply,
+          functionFieldMapAlongGeneral_polyToFunctionField_X,
+          functionFieldTensorFracHomGeneral_X, kw_surge_hgf4_tensorUnit_apply]
+      · rw [AlgHom.comp_apply, AlgHom.restrictScalars_apply,
+          functionFieldMapAlongGeneral_yGen, functionFieldTensorFracHomGeneral_yGen,
+          kw_surge_hgf4_tensorUnit_apply]
     exact DFunLike.congr_fun hκ a
 
   have hκE : ∀ b, ψE.symm (algebraMap ((E₀⁄F).toAffine.FunctionField ⊗[F] F') _
@@ -793,16 +822,14 @@ theorem kw_surge_hgf4_bcIota₁_compat (a : (E₀'⁄F).toAffine.FunctionField) 
     rw [AlgEquiv.apply_symm_apply]
     have hκ : ((functionFieldTensorFracHomGeneral E₀ F F').restrictScalars F).comp
         (functionFieldMapAlongGeneral E₀ F F')
-        = (IsScalarTower.toAlgHom F ((E₀⁄F).toAffine.FunctionField ⊗[F] F')
-            (FractionRing ((E₀⁄F).toAffine.FunctionField ⊗[F] F'))).comp
-            (Algebra.TensorProduct.includeLeft (R := F)) := by
+        = kw_surge_hgf4_tensorUnit (F := F) (F' := F') E₀ := by
       refine functionField_algHom_ext ?_ ?_
-      · show functionFieldTensorFracHomGeneral E₀ F F' (χE _) = _
-        rw [functionFieldMapAlongGeneral_polyToFunctionField_X,
-          functionFieldTensorFracHomGeneral_X]; rfl
-      · show functionFieldTensorFracHomGeneral E₀ F F' (χE _) = _
-        rw [functionFieldMapAlongGeneral_yGen, functionFieldTensorFracHomGeneral_yGen]
-        rfl
+      · rw [AlgHom.comp_apply, AlgHom.restrictScalars_apply,
+          functionFieldMapAlongGeneral_polyToFunctionField_X,
+          functionFieldTensorFracHomGeneral_X, kw_surge_hgf4_tensorUnit_apply]
+      · rw [AlgHom.comp_apply, AlgHom.restrictScalars_apply,
+          functionFieldMapAlongGeneral_yGen, functionFieldTensorFracHomGeneral_yGen,
+          kw_surge_hgf4_tensorUnit_apply]
     exact (DFunLike.congr_fun hκ b).symm
 
   show ψE.symm (kw_surge_hgf4_bcTensorFracIotaAlg E₀ E₀' F F' ι₀ (ψE' (χE' a)))
@@ -976,7 +1003,7 @@ theorem kw_surge_hgf4_pmop_naturality :
             (CoordinateRing.XClass (E₀'⁄F).toAffine qx)) :=
           (ord_placeOfEquation_pos_iff hQ₀ns.left (CoordinateRing.XClass_ne_zero _)).mpr
             (Ideal.subset_span (Set.mem_insert _ _))
-        positivity
+        exact mul_pos (by exact_mod_cast hram_pos) hQord
       have hdyF : 0 < (placeOfEquation hP.left).ord
           (ι₀ (yGen (E₀'⁄F).toAffine) - algebraMap F _ qy) := by
         rw [← ι₀.commutes, ← map_sub, ← hbrY,
@@ -985,7 +1012,7 @@ theorem kw_surge_hgf4_pmop_naturality :
             (CoordinateRing.YClass (E₀'⁄F).toAffine (C qy))) :=
           (ord_placeOfEquation_pos_iff hQ₀ns.left (CoordinateRing.YClass_ne_zero _)).mpr
             (Ideal.subset_span (Set.mem_insert_of_mem _ rfl))
-        positivity
+        exact mul_pos (by exact_mod_cast hram_pos) hQord
 
       refine AbstractSeam.restrictAlong_placeOfEquation (ι₁) hι₁ rfl rfl
         hσP.left hσQ.left ?_ ?_ ?_
