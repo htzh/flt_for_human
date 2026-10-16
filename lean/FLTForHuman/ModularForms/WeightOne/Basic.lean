@@ -699,10 +699,22 @@ scoped instance charZero_KFldT : CharZero ↥(KFldT F t S) :=
   haveI : CharZero ↥(RFld F t) := charZero_KFld F (RFld F t)
   charZero_of_injective_algebraMap (algebraMap ↥(RFld F t) ↥(KFldT F t S)).injective
 
+/-- `KFldT` is separable over `RFld` (characteristic zero, integral extension).
+Bricked explicitly: the instance search costs ~1.4 s and rides the default
+`synthInstance.maxHeartbeats` cap (`CharZero ↥(RFld F t)` is not an instance). -/
+private theorem isSeparable_KFldT (hSint : ∀ s ∈ S, IsIntegral ↥(TRng F t) s) :
+    Algebra.IsSeparable ↥(RFld F t) ↥(KFldT F t S) :=
+  haveI : CharZero ↥(RFld F t) := charZero_KFld F (RFld F t)
+  haveI : Algebra.IsIntegral ↥(RFld F t) ↥(KFldT F t S) :=
+    Algebra.isAlgebraic_iff_isIntegral.mp
+      (IntermediateField.isAlgebraic_adjoin fun s hs => (hSint s hs).tower_top)
+  Algebra.IsSeparable.of_integral ↥(RFld F t) ↥(KFldT F t S)
+
 private theorem isDedekindDomain_RFa (ht : Transcendental ℂ t) (hSfin : S.Finite)
     (hSint : ∀ s ∈ S, IsIntegral ↥(TRng F t) s) : IsDedekindDomain ↥(RFa F t S) := by
   haveI := isPrincipalIdealRing_TRng F t ht
   haveI := finiteDimensional_KFldT F t S hSfin hSint
+  haveI := isSeparable_KFldT F t S hSint
   exact integralClosure.isDedekindDomain ↥(TRng F t) ↥(RFld F t) ↥(KFldT F t S)
 
 private theorem isFractionRing_RFa (ht : Transcendental ℂ t) (hSfin : S.Finite)
@@ -711,6 +723,7 @@ private theorem isFractionRing_RFa (ht : Transcendental ℂ t) (hSfin : S.Finite
   have hPID := isPrincipalIdealRing_TRng F t ht
   haveI : IsDedekindDomain ↥(TRng F t) := @IsPrincipalIdealRing.isDedekindDomain _ _ _ hPID
   haveI := finiteDimensional_KFldT F t S hSfin hSint
+  haveI := isSeparable_KFldT F t S hSint
   exact integralClosure.isFractionRing_of_finite_extension ↥(RFld F t) ↥(KFldT F t S)
 
 end instances
@@ -879,6 +892,7 @@ private theorem exists_clear_denominator (htS : t ∈ S) {a : K}
 variable {F t}
 
 
+set_option maxHeartbeats 2000000 in
 private theorem mem_span_RSet_of_adjoin_simple_transcendental
     (ht : Transcendental ℂ t) (htS : t ∈ S) (hSfin : S.Finite)
     (hSint : ∀ s ∈ S, IsIntegral ↥(TRng F t) s)
@@ -916,7 +930,7 @@ private theorem mem_span_RSet_of_adjoin_simple_transcendental
           ψ (algebraMap _ _ (Polynomial.C r)) := by rw [hψalg]; simp [rfPolyEval]
       have h2 : algebraMap ↥(KFldT F t S) K (algebraMap ↥(RFa F t S) ↥(KFldT F t S) s) =
           ψ (algebraMap _ _ (Polynomial.C s)) := by rw [hψalg]; simp [rfPolyEval]
-      rw [map_div₀, h1, h2]
+      rw [map_div₀ (algebraMap ↥(KFldT F t S) K) _ _, h1, h2]
       exact div_mem (RingHom.mem_fieldRange_self ψ _) (RingHom.mem_fieldRange_self ψ _)
     · exact ⟨algebraMap _ _ Polynomial.X, by rw [hψalg, hc']; simp [rfPolyEval]⟩
 
@@ -969,12 +983,13 @@ private theorem mem_span_RSet_of_adjoin_simple_transcendental
     obtain ⟨B₁, hB₁⟩ := evalF_mem_range_rfPolyEval F t S htS (c := c)
       ((∏ j ∈ (Finset.range n).erase k, Q j) * D ^ (n - k - 1))
     refine ⟨B₁ * A₁, ?_⟩
-    rw [map_mul, hB₁, hA₁, map_mul, map_pow, ← hDv]
+    rw [map_mul (rfPolyEval F t S c), hB₁, hA₁, map_mul (Polynomial.aeval c'),
+      map_pow (Polynomial.aeval c'), ← hDv]
     have hDvsplit : Dv ^ (n - k) = Polynomial.aeval c' (qd k hk) *
         Polynomial.aeval c' (∏ j ∈ (Finset.range n).erase k, Q j) * Dv ^ (n - k - 1) := by
       have h1 : Polynomial.aeval c' (qd k hk) *
           Polynomial.aeval c' (∏ j ∈ (Finset.range n).erase k, Q j) = Dv := by
-        rw [← hQk, ← map_mul, Finset.mul_prod_erase _ _ hk, hDv, hD]
+        rw [← hQk, ← map_mul (Polynomial.aeval c'), Finset.mul_prod_erase _ _ hk, hDv, hD]
       rw [h1, ← pow_succ']
       congr 1
       have hkn := Finset.mem_range.mp hk; omega
@@ -1000,13 +1015,7 @@ private theorem mem_span_RSet_of_adjoin_simple_transcendental
   obtain ⟨m, hm⟩ := RingHom.mem_fieldRange.mp hyψ
   have hmrel : m ^ n + ∑ k ∈ Finset.range n, algebraMap _ _ (BB k) * m ^ k = 0 := by
     apply hψinj
-    have hsum : ψ (∑ k ∈ Finset.range n, algebraMap (↥(RFa F t S))[X] (FractionRing ((↥(RFa F t S))[X])) (BB k) * m ^ k)
-        = ∑ k ∈ Finset.range n, ψ (algebraMap (↥(RFa F t S))[X] (FractionRing ((↥(RFa F t S))[X])) (BB k) * m ^ k) :=
-      map_sum ψ (fun k => algebraMap (↥(RFa F t S))[X] (FractionRing ((↥(RFa F t S))[X])) (BB k) * m ^ k) (Finset.range n)
-    rw [map_add ψ _ _]
-    rw [map_pow ψ]
-    rw [hsum]
-    rw [ψ.map_zero, hm]
+    rw [ψ.map_add, map_pow ψ, map_sum ψ, ψ.map_zero, hm]
     rw [show (∑ k ∈ Finset.range n, ψ (algebraMap _ _ (BB k) * m ^ k)) =
         ∑ k ∈ Finset.range n, (Dv ^ (n - k) * (P.coeff k)) * y ^ k from
       Finset.sum_congr rfl fun k hk => by
