@@ -22,6 +22,7 @@ References (public mirror, pinned):
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_nonempty_torsionBy_addEquiv_zmod_prod_of_natCard_torsion_eq_sq.lean>
 -/
 import FLTForHuman.Elliptic.TorsionZMod
+import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
 
 noncomputable section
 

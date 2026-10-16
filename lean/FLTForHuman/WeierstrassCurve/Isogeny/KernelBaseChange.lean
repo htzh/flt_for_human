@@ -231,7 +231,7 @@ theorem kw_surge_hgf4_bcTensorFracIotaSeam (hfin₀ : FiniteAlong F ι₀) :
   let b : Module.Basis (Fin D) FF' FF := Module.finBasisOfFinrankEq FF' FF (n := D) rfl
   have hrepr_mul : ∀ (c : FF') (x : FF) (j : Fin D),
       b.repr (ι₀ c * x) j = c * b.repr x j := fun c x j => by
-    rw [← hsmul_ι, map_smul, Finsupp.smul_apply, smul_eq_mul]
+    rw [← hsmul_ι, LinearMap.map_smul b.repr.toLinearMap c x, Finsupp.smul_apply, smul_eq_mul]
   let e : Fin D → T := fun i => (b i) ⊗ₜ[F] (1 : F')
   let bFr : Fin D → FrT := fun i => algebraMap T FrT (e i)
 
@@ -316,7 +316,7 @@ theorem kw_surge_hgf4_bcTensorFracIotaSeam (hfin₀ : FiniteAlong F ι₀) :
     rcases eq_or_ne s 0 with rfl | hs'
     · exact ⟨0, by simp⟩
     obtain ⟨u, s₀, hs₀, hsu⟩ := hint s hs'
-    have hιTs₀ : ιT s₀ ≠ 0 := fun h => hs₀ (hιT_inj (h.trans (map_zero ιT).symm))
+    have hιTs₀ : ιT s₀ ≠ 0 := (map_ne_zero_iff _ hιT_inj).mpr hs₀
     have hu_ne : u ≠ 0 := fun h => hιTs₀ (by rw [← hsu, h, mul_zero])
     obtain ⟨c, hc⟩ := hspanT (t * u)
     refine ⟨fun i => (algebraMap T' FrT' s₀)⁻¹ * algebraMap T' FrT' (c i), ?_⟩
@@ -601,10 +601,12 @@ theorem kw_surge_hgf4_χE_VSR_compat {x y : F} (hP : (E₀⁄F).toAffine.Nonsing
     have hfirst_unit : IsUnit (⟨algebraMap F' _ (algebraMap F F' c),
         (placeOfEquation hσP.left).algebraMap_mem' _⟩ :
         (placeOfEquation hσP.left).toValuationSubring) := by
+      have hne : algebraMap F' (E₀⁄F').toAffine.FunctionField (algebraMap F F' c) ≠ 0 :=
+        (map_ne_zero_iff _ (algebraMap F' (E₀⁄F').toAffine.FunctionField).injective).mpr hσc_ne
       refine isUnit_iff_exists_inv.mpr ⟨⟨algebraMap F' _ (algebraMap F F' c)⁻¹,
         (placeOfEquation hσP.left).algebraMap_mem' _⟩, Subtype.ext ?_⟩
       push_cast
-      rw [← map_inv₀, ← map_mul, mul_inv_cancel₀ hσc_ne, map_one]
+      rw [map_inv₀, mul_inv_cancel₀ hne]
     have hsecond_𝔪 := hχE_mem_𝔪 (s - algebraMap F _ c) hc
 
     by_contra hnotunit

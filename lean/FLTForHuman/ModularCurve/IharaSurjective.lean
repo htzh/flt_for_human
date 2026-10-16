@@ -186,8 +186,8 @@ private theorem exists_row_scalar (hq : q.Prime) {B : Matrix (Fin 2) (Fin 2) ℤ
     (hrow1 : ¬(((q : ℕ) : ℤ) ∣ B 1 0 ∧ ((q : ℕ) : ℤ) ∣ B 1 1)) :
     ∃ lam : ℤ,
       ((q : ℕ) : ℤ) ∣ (B 0 0 - lam * B 1 0) ∧ ((q : ℕ) : ℤ) ∣ (B 0 1 - lam * B 1 1) := by
-  haveI : Fact q.Prime := ⟨hq⟩
-  haveI : NeZero q := ⟨hq.ne_zero⟩
+  have : Fact q.Prime := ⟨hq⟩
+  have : NeZero q := ⟨hq.ne_zero⟩
   suffices hmu : ∃ mu : ZMod q, (B 0 0 : ZMod q) = mu * (B 1 0 : ZMod q) ∧
       (B 0 1 : ZMod q) = mu * (B 1 1 : ZMod q) by
     obtain ⟨mu, h0, h1⟩ := hmu
