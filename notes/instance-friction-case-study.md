@@ -146,7 +146,11 @@ leading modifiers.** `scan_declarations` ends a declaration one line before the
 next, so the range can include a following `include hσ in` (line 818 here). A
 truncated scratch ending on that line is a dangling modifier:
 `unexpected end of input`. The tool now trims trailing blank/`include`/`variable`/
-`open`/`attribute`/`@[…`/comment lines before cutting.
+`open`/`attribute`/`@[…`/comment lines before cutting. It recurred in a hand-cut
+scratch (`WeightOne.Basic`): the line after the declaration's last tactic is
+`variable (F) in`, and keeping it produced
+`Unexpected name `IsIntAuxT` after `end`: The current section is unnamed` — a
+misleading scope error, not `unexpected end of input`. Same cause, same trim.
 
 **FC-8 — `?m.`-typed class goals cannot be `#synth`-ed.** The low-cap goals
 include `AddHomClass (T' →+* T) ?m ?m`, `MulActionSemiHomClass (FF ≃ₗ[FF'] Fin D →₀ FF') ?m ?m ?m`
@@ -169,6 +173,26 @@ guard is required.
 **FC-10 — local gains are not build gains.** See the 15.1 → 10.6 s local vs
 242.3 → 242.7 s module result above. Rank declarations by module share before
 spending a batch on them.
+
+**FC-11 — a failing search costs more than the raise that silences it.** A
+`synthInstance.maxHeartbeats` timeout is paid *at every retry of every affected
+site*, plus the cascade: `CompletionTraceSum` burned 79 s failing at one line
+and builds in 13.4 s with the raise restored — the failure mode cost 6× the
+success. So when a cap campaign strips a raise and the build then fails, the
+failure is usually more expensive than whatever the raise was hiding. The order
+of operations is: measure the search, keep (a scoped form of) the raise if the
+module stays under the wall-clock bar, and only then try to buy the search
+down. The lowered cap is a diagnostic; the wall clock is the budget.
+
+**FC-12 — `trace.profiler` can itself tip a borderline search into failure.**
+Profiler instrumentation counts heartbeats: a search that passes at ~90 % of
+`synthInstance.maxHeartbeats` in the real build *fails* under
+`set_option trace.profiler true` (observed:
+`Algebra.IsSeparable ↥(RFld F t) ↥(KFldT F t S)` at
+`WeightOne/Basic.lean` line 706, 1.43 s against the 20,000 cap). A
+`failed to synthesize` that appears only under profiling is an artifact —
+re-run clean before believing it — and any search above ~50 % of the synth cap
+is fragile enough to brick regardless (see `isSeparable_KFldT` below).
 
 ## What instances alone do not fix
 
@@ -485,6 +509,115 @@ builds (`--profile --threshold 100`) to name the tactic *kind*, then one low-cap
 (FC-1), and do not escalate the cap to hunt for more sites — an aborting declaration just
 re-reports its own first one.
 
+## A third unit: `WeightOne.Basic` at the lowered cap — failure costs more than the raise
+
+Context for this one: the lakefile cap was dropped 4,000,000 → 500,000 *to
+surface hogs*, and the pin's local `set_option maxHeartbeats` /
+`synthInstance.maxHeartbeats` bumps were stripped tree-wide. The 500k tree
+build then failed in two modules; both are instructive, and the second is the
+headline (FC-11).
+
+**`IsIntAuxT.mem_span_RSet_of_adjoin_simple_transcendental` (line 882).** The
+tree build reported `882:0 whnf timeout (500000)` plus the usual
+`(kernel) unknown constant` cascade at 1094. The pin
+(`P2M/Sol/S_IsIntegral_mem_span_of_adjoin_simple_constants_transcendental.lean:364`)
+proves this declaration under `maxHeartbeats 51,200,000` with
+`synthInstance.maxHeartbeats 4,000,000`; the port's five `haveI` bricks had
+already bought that down to ~1.0–1.5M — but 500k is 2–3× too small, and the
+declaration genuinely does not fit. Measured anatomy: the low-cap probe reports
+a single command-level site (`882:0 whnf`), so the per-block view is a
+truncation ladder — `sorry` the proof at successive lines, wall time including
+the ~13 s prefix:
+
+| through | wall | Δ block |
+|---|---:|---:|
+| statement + `sorry` | 15.0 s | ~300k heartbeats (fails 200k, passes 400k) |
+| + `set ψ`, five `haveI` bricks, `hrange` stmt | 19.4 s | +4.4 |
+| + `hrange` proof, `hxψ` | 23.5 s | +4.1 |
+| + poly block (`hrel`…`hbW`) | 29.2 s | +5.7 |
+| + `y`/`hyrel` | 30.7 s | +1.5 |
+| + `choose B`…`hmrel` | 42.4 s | **+11.7** |
+| + `hmint` | 47.0 s | +4.6 |
+| full | ~51 s | +4 |
+
+and the scoped profiler attributes it as 13 `rewriteSeq` ≈ 20–23 s plus TC ≈ 7 s
+(`Field` ×2, `IsFractionRing` ×2, `DistribMulAction` ×3–5): death by a thousand
+cuts over the concrete `FractionRing ((↥(RFa F t S))[X])` carrier, no single
+site dominant.
+
+What worked:
+
+1. **A scoped raise, measured not guessed.** `set_option maxHeartbeats 2000000 in`
+   on the one declaration — the need was bisected to 1.0–1.5M (fails @1M,
+   passes @1.5M) and 2M set for margin. This is the `lean-build-cost.md` §3
+   "localize the cap to the declarations that need it" policy, under the rule
+   agreed for the campaign: a module that builds in under a minute may carry
+   the raise. Module: **372 s (fail) → 51.7 s build**.
+2. **Merging five `rw`s into one dot-form chain in `hmrel`** — `rw [map_add ψ _ _]`
+   plus three siblings became
+   `rw [ψ.map_add, map_pow ψ, map_sum ψ, ψ.map_zero, hm]`, deleting the
+   redundant explicitly-spelled `hsum`: −5 s. The un-merged chain was
+   FC-8-shaped (generic `map_*` with wildcards at a `RingHom`).
+3. **The `isSeparable_KFldT` brick** (hardening, below).
+
+What did **not** work (negative, so the next pass skips them):
+
+- Pinning the `algebraMap` spellings inside the two big `show` types: no effect
+  (47.9 s vs 46.7). The stuck-wildcard theory was wrong *here* — pin experiments
+  are cheap, but measure before keeping.
+- `haveI` bricks for `Field`/`IsFractionRing`/`DistribMulAction` at the
+  `FractionRing` carrier spelling: **slower** (50.8 s) — the up-front searches
+  cost ~2.5 s and the goals never recurred in that spelling (FC-5 again: brick
+  the goal's own spelling or don't brick).
+- Named `rfPolyEval_C`/`rfPolyEval_X` computation lemmas: neutral, and `rw`'s
+  auto-`rfl` could not close the `algebraMap ↥(RFa) ↥(KFldT) s = ↑s` coercion
+  equation that `simp [rfPolyEval]` closes — reverted; the `simp` sites stay.
+
+**The borderline synth search, hardened.** `isDedekindDomain_RFa` (line 706)
+synthesizes `Algebra.IsSeparable ↥(RFld F t) ↥(KFldT F t S)` in ~1.43 s —
+inside the 20,000 synth cap, but within ~10 % of it, and over it under
+`trace.profiler` (FC-12). Probing the sub-instances showed
+`CharZero ↥(RFld F t)` is not TC-derivable at all, so the fast path is not the
+instance's own; the brick supplies the three steps explicitly:
+
+```lean
+private theorem isSeparable_KFldT (hSint : ∀ s ∈ S, IsIntegral ↥(TRng F t) s) :
+    Algebra.IsSeparable ↥(RFld F t) ↥(KFldT F t S) :=
+  haveI : CharZero ↥(RFld F t) := charZero_KFld F (RFld F t)
+  haveI : Algebra.IsIntegral ↥(RFld F t) ↥(KFldT F t S) :=
+    Algebra.isAlgebraic_iff_isIntegral.mp
+      (IntermediateField.isAlgebraic_adjoin fun s hs => (hSint s hs).tower_top)
+  Algebra.IsSeparable.of_integral ↥(RFld F t) ↥(KFldT F t S)
+```
+
+It elaborates in ~150–190 ms, and `haveI := isSeparable_KFldT F t S hSint`
+went into both `isDedekindDomain_RFa` and `isFractionRing_RFa` (the same search
+via `integralClosure.isFractionRing_of_finite_extension`). Module under
+`trace.profiler` afterwards: zero errors, and ~3 s faster (55 s → 51.7 s) from
+the two removed searches.
+
+**`AlgebraicCurve.Tate.CompletionTraceSum` — the headline lesson.** The same
+tree build failed it at line 409
+(`∀ (i : ↥(fiber F v)), Module.Free v.adicCompletion (↑i).adicCompletion`,
+20k synth timeout). The cause was *not* a missing instance — the module's
+19-module import closure does not contain `ZModTorsion`, so the narrowed import
+did not cascade here — but the campaign having commented out two
+`synthInstance.maxHeartbeats 800000` raises (a section-wide one at line 204 and
+a scoped one at line 613). The search genuinely needs the budget. Restored;
+the module builds in **13.4 s**. The same module took **79 s to fail** in the
+tree build: every retry of the search runs to the 20k timeout and cascades
+(FC-11). The pin's `synthInstance.maxHeartbeats` bumps are claims that the
+search is slow, and here the claim was simply correct.
+
+| | before (500k cap) | after |
+|---|---:|---:|
+| `lake build` `WeightOne.Basic` | 372 s, ✖ at 882 | **51.7 s** ✔ |
+| `lake build` `CompletionTraceSum` | 79 s, ✖ at 409 | **13.4 s** ✔ |
+
+Standing state: both failures from the 500k tree build are cleared. That tree
+build was killed at 1 h around `[5266/5394]`, so ~130 modules past the kill
+point remain unverified until the next tree build.
+
 ## Per-declaration cost, and the one-run call-site list
 
 A note on per-declaration cost: Lean `v4.34` has no "seconds per theorem" table.
@@ -494,7 +627,13 @@ scratch theorem measured 0.45 s — because Lean detaches proof elaboration into
 `Elab.async` nodes; the `trace.profiler.output` Firefox export carries those
 named async nodes but has **no source positions** (`funcTable.fileName` is
 empty), so it can rank declarations, not tactic call sites. `set_option diagnostics true`
-reports operation *counts*, not time.
+reports operation *counts*, not time. Two additions from the WeightOne case:
+the `[Elab.async] elaborating proof of <name> [t]` span *is* the honest
+proof-body time — the same command whose `[Elab.command]` read 0.81 s had an
+async proof node of 42.6 s — and `count_heartbeats in` does not compose with
+`set_option … in` in v4.34 (parse error), so "how many heartbeats does this
+declaration need" is a cap bisection: 1M fails, 1.5M passes is two
+`lake env lean` runs.
 
 The profiler names tactic *kinds* (`tactic execution of Positivity.positivity took
 155s`), which is context-dependent: the same tactic is fine elsewhere. The
