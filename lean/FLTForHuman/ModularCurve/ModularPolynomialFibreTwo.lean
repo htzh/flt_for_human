@@ -14,7 +14,12 @@
   elementary-symmetric expressions in them. Comparing coefficients of the two cubics —
   `fibrePoly phiTwo` expanded and the three linear factors multiplied out — reduces the
   identity to three coefficient identities in `c₄/Δ` and the quotient data, each closed by
-  `field_simp; ring`.
+  `field_simp; ring`. Those three are stated for the normalized root triple `(0, a, b)`,
+  which `main` reaches by `a = x₁-x₀`, `b = x₂-x₀`: the identities are
+  translation-invariant, and shifting the first root to `0` needs no division (so it is
+  valid in characteristic `3`) while shrinking the cleared polynomials from hundreds of
+  monomials to dozens. That normalization is what keeps this module's proof terms, and
+  hence its `.olean`, small; the note above the identities has the details.
 
   ## Source
 
@@ -86,54 +91,66 @@ variable {K : Type*} [Field K] {x0 x1 x2 c4 Δ g0 g1 g2 d0 d1 d2 : K}
 private theorem sixteen_ne_zero (h2 : (2 : K) ≠ 0) : (16 : K) ≠ 0 := by
   rw [show (16 : K) = 2 ^ 4 by norm_num]; exact pow_ne_zero _ h2
 
-private theorem coeff_two_identity (h01 : x0 ≠ x1) (h02 : x0 ≠ x2) (h12 : x1 ≠ x2) (h2 : (2 : K) ≠ 0)
-    (hc4 : c4 = 16 * (x0 ^ 2 + x1 ^ 2 + x2 ^ 2 - x0 * x1 - x0 * x2 - x1 * x2))
-    (hΔ : Δ = 16 * (x0 - x1) ^ 2 * (x0 - x2) ^ 2 * (x1 - x2) ^ 2)
-    (hg0 : g0 = (x0 - x1) * (x0 - x2)) (hg1 : g1 = (x1 - x0) * (x1 - x2))
-    (hg2 : g2 = (x2 - x0) * (x2 - x1))
-    (hd0 : d0 = 16 * (x1 - x2) ^ 2) (hd1 : d1 = 16 * (x0 - x2) ^ 2) (hd2 : d2 = 16 * (x0 - x1) ^ 2) :
+-- Normalization of the three coefficient identities. Each is translation-invariant
+-- in the three roots: only differences occur, and `c4`, `Δ` and the products `g i`,
+-- `d i` are unchanged by `x i ↦ x i + t`. Each is therefore stated for the
+-- normalized triple `(0, a, b)`, and `main` supplies the general triple through
+-- `a = x₁-x₀`, `b = x₂-x₀`. Shifting by `x₀` (rather than to the centroid) needs
+-- no division, so it is sound in characteristic 3. The gain is in `ring`'s proof
+-- term: the cleared identity has a few dozen monomials in `a, b` against hundreds
+-- in `x₀, x₁, x₂`, which is what takes this module's `.olean` from ~86 MB to a
+-- single-digit MB.
+private theorem coeff_two_identity {a b : K} (ha : a ≠ 0) (hb : b ≠ 0) (hab : a ≠ b)
+    (h2 : (2 : K) ≠ 0)
+    (hc4 : c4 = 16 * (a ^ 2 + b ^ 2 - a * b))
+    (hΔ : Δ = 16 * (0 - a) ^ 2 * (0 - b) ^ 2 * (a - b) ^ 2)
+    (hg0 : g0 = (0 - a) * (0 - b)) (hg1 : g1 = (a - 0) * (a - b))
+    (hg2 : g2 = (b - 0) * (b - a))
+    (hd0 : d0 = 16 * (a - b) ^ 2) (hd1 : d1 = 16 * (0 - b) ^ 2) (hd2 : d2 = 16 * (0 - a) ^ 2) :
     -(c4 ^ 3 / Δ) ^ 2 + 1488 * (c4 ^ 3 / Δ) - 162000
       = -((c4 + 240 * g0) ^ 3 / (g0 * d0 ^ 2) + (c4 + 240 * g1) ^ 3 / (g1 * d1 ^ 2)
           + (c4 + 240 * g2) ^ 3 / (g2 * d2 ^ 2)) := by
   have h16 := sixteen_ne_zero h2
-  have h01' := sub_ne_zero.mpr h01; have h02' := sub_ne_zero.mpr h02; have h12' := sub_ne_zero.mpr h12
-  have h10' := sub_ne_zero.mpr h01.symm; have h20' := sub_ne_zero.mpr h02.symm
-  have h21' := sub_ne_zero.mpr h12.symm
+  have h01' := sub_ne_zero.mpr ha.symm; have h10' := sub_ne_zero.mpr ha
+  have h02' := sub_ne_zero.mpr hb.symm; have h20' := sub_ne_zero.mpr hb
+  have h12' := sub_ne_zero.mpr hab; have h21' := sub_ne_zero.mpr hab.symm
   subst hc4 hΔ hg0 hg1 hg2 hd0 hd1 hd2
   field_simp
   ring
 
-private theorem coeff_one_identity (h01 : x0 ≠ x1) (h02 : x0 ≠ x2) (h12 : x1 ≠ x2) (h2 : (2 : K) ≠ 0)
-    (hc4 : c4 = 16 * (x0 ^ 2 + x1 ^ 2 + x2 ^ 2 - x0 * x1 - x0 * x2 - x1 * x2))
-    (hΔ : Δ = 16 * (x0 - x1) ^ 2 * (x0 - x2) ^ 2 * (x1 - x2) ^ 2)
-    (hg0 : g0 = (x0 - x1) * (x0 - x2)) (hg1 : g1 = (x1 - x0) * (x1 - x2))
-    (hg2 : g2 = (x2 - x0) * (x2 - x1))
-    (hd0 : d0 = 16 * (x1 - x2) ^ 2) (hd1 : d1 = 16 * (x0 - x2) ^ 2) (hd2 : d2 = 16 * (x0 - x1) ^ 2) :
+private theorem coeff_one_identity {a b : K} (ha : a ≠ 0) (hb : b ≠ 0) (hab : a ≠ b)
+    (h2 : (2 : K) ≠ 0)
+    (hc4 : c4 = 16 * (a ^ 2 + b ^ 2 - a * b))
+    (hΔ : Δ = 16 * (0 - a) ^ 2 * (0 - b) ^ 2 * (a - b) ^ 2)
+    (hg0 : g0 = (0 - a) * (0 - b)) (hg1 : g1 = (a - 0) * (a - b))
+    (hg2 : g2 = (b - 0) * (b - a))
+    (hd0 : d0 = 16 * (a - b) ^ 2) (hd1 : d1 = 16 * (0 - b) ^ 2) (hd2 : d2 = 16 * (0 - a) ^ 2) :
     1488 * (c4 ^ 3 / Δ) ^ 2 + 40773375 * (c4 ^ 3 / Δ) + 8748000000
       = (c4 + 240 * g0) ^ 3 / (g0 * d0 ^ 2) * ((c4 + 240 * g1) ^ 3 / (g1 * d1 ^ 2))
         + (c4 + 240 * g0) ^ 3 / (g0 * d0 ^ 2) * ((c4 + 240 * g2) ^ 3 / (g2 * d2 ^ 2))
         + (c4 + 240 * g1) ^ 3 / (g1 * d1 ^ 2) * ((c4 + 240 * g2) ^ 3 / (g2 * d2 ^ 2)) := by
   have h16 := sixteen_ne_zero h2
-  have h01' := sub_ne_zero.mpr h01; have h02' := sub_ne_zero.mpr h02; have h12' := sub_ne_zero.mpr h12
-  have h10' := sub_ne_zero.mpr h01.symm; have h20' := sub_ne_zero.mpr h02.symm
-  have h21' := sub_ne_zero.mpr h12.symm
+  have h01' := sub_ne_zero.mpr ha.symm; have h10' := sub_ne_zero.mpr ha
+  have h02' := sub_ne_zero.mpr hb.symm; have h20' := sub_ne_zero.mpr hb
+  have h12' := sub_ne_zero.mpr hab; have h21' := sub_ne_zero.mpr hab.symm
   subst hc4 hΔ hg0 hg1 hg2 hd0 hd1 hd2
   field_simp
   ring
 
-private theorem coeff_zero_identity (h01 : x0 ≠ x1) (h02 : x0 ≠ x2) (h12 : x1 ≠ x2) (h2 : (2 : K) ≠ 0)
-    (hc4 : c4 = 16 * (x0 ^ 2 + x1 ^ 2 + x2 ^ 2 - x0 * x1 - x0 * x2 - x1 * x2))
-    (hΔ : Δ = 16 * (x0 - x1) ^ 2 * (x0 - x2) ^ 2 * (x1 - x2) ^ 2)
-    (hg0 : g0 = (x0 - x1) * (x0 - x2)) (hg1 : g1 = (x1 - x0) * (x1 - x2))
-    (hg2 : g2 = (x2 - x0) * (x2 - x1))
-    (hd0 : d0 = 16 * (x1 - x2) ^ 2) (hd1 : d1 = 16 * (x0 - x2) ^ 2) (hd2 : d2 = 16 * (x0 - x1) ^ 2) :
+private theorem coeff_zero_identity {a b : K} (ha : a ≠ 0) (hb : b ≠ 0) (hab : a ≠ b)
+    (h2 : (2 : K) ≠ 0)
+    (hc4 : c4 = 16 * (a ^ 2 + b ^ 2 - a * b))
+    (hΔ : Δ = 16 * (0 - a) ^ 2 * (0 - b) ^ 2 * (a - b) ^ 2)
+    (hg0 : g0 = (0 - a) * (0 - b)) (hg1 : g1 = (a - 0) * (a - b))
+    (hg2 : g2 = (b - 0) * (b - a))
+    (hd0 : d0 = 16 * (a - b) ^ 2) (hd1 : d1 = 16 * (0 - b) ^ 2) (hd2 : d2 = 16 * (0 - a) ^ 2) :
     (c4 ^ 3 / Δ) ^ 3 - 162000 * (c4 ^ 3 / Δ) ^ 2 + 8748000000 * (c4 ^ 3 / Δ) - 157464000000000
       = -((c4 + 240 * g0) ^ 3 / (g0 * d0 ^ 2) * ((c4 + 240 * g1) ^ 3 / (g1 * d1 ^ 2))
           * ((c4 + 240 * g2) ^ 3 / (g2 * d2 ^ 2))) := by
   have h16 := sixteen_ne_zero h2
-  have h01' := sub_ne_zero.mpr h01; have h02' := sub_ne_zero.mpr h02; have h12' := sub_ne_zero.mpr h12
-  have h10' := sub_ne_zero.mpr h01.symm; have h20' := sub_ne_zero.mpr h02.symm
-  have h21' := sub_ne_zero.mpr h12.symm
+  have h01' := sub_ne_zero.mpr ha.symm; have h10' := sub_ne_zero.mpr ha
+  have h02' := sub_ne_zero.mpr hb.symm; have h20' := sub_ne_zero.mpr hb
+  have h12' := sub_ne_zero.mpr hab; have h21' := sub_ne_zero.mpr hab.symm
   subst hc4 hΔ hg0 hg1 hg2 hd0 hd1 hd2
   field_simp
   ring
@@ -252,10 +269,30 @@ private theorem main {K : Type*} [Field K] (h2 : (2 : K) ≠ 0)
   have hJ2 : @WeierstrassCurve.j K _ (W.veluQuotient2 x2 y2) ⟨isUnit_iff_ne_zero.mpr (hΔ (e.symm 2))⟩
       = (W.c₄ + 240 * W.veluGx x2 y2) ^ 3 / (W.veluGx x2 y2 * W.velu2QuadDisc x2 ^ 2) :=
     veluQuotient2_j (hPeq (e.symm 2)) (hPgy (e.symm 2))
+
+  -- The coefficient identities are stated at `(0, a, b)` with `a = x₁-x₀`,
+  -- `b = x₂-x₀` (see the normalization note above the identities); transport the
+  -- general hypotheses to that triple. Each transport is a small `ring` identity.
+  have ha : x1 - x0 ≠ 0 := sub_ne_zero.mpr h01.symm
+  have hb : x2 - x0 ≠ 0 := sub_ne_zero.mpr h02.symm
+  have hab : x1 - x0 ≠ x2 - x0 := by
+    intro h
+    exact h12 (by simpa using congrArg (· + x0) h)
+  have hc4n : W.c₄ = 16 * ((x1 - x0) ^ 2 + (x2 - x0) ^ 2 - (x1 - x0) * (x2 - x0)) := by
+    rw [hc4]; ring
+  have hΔn : W.Δ
+      = 16 * (0 - (x1 - x0)) ^ 2 * (0 - (x2 - x0)) ^ 2 * ((x1 - x0) - (x2 - x0)) ^ 2 := by
+    rw [hΔ']; ring
+  have hg0n : W.veluGx x0 y0 = (0 - (x1 - x0)) * (0 - (x2 - x0)) := by rw [hg0]; ring
+  have hg1n : W.veluGx x1 y1 = ((x1 - x0) - 0) * ((x1 - x0) - (x2 - x0)) := by rw [hg1]; ring
+  have hg2n : W.veluGx x2 y2 = ((x2 - x0) - 0) * ((x2 - x0) - (x1 - x0)) := by rw [hg2]; ring
+  have hd0n : W.velu2QuadDisc x0 = 16 * ((x1 - x0) - (x2 - x0)) ^ 2 := by rw [hd0]; ring
+  have hd1n : W.velu2QuadDisc x1 = 16 * (0 - (x2 - x0)) ^ 2 := by rw [hd1]; ring
+  have hd2n : W.velu2QuadDisc x2 = 16 * (0 - (x1 - x0)) ^ 2 := by rw [hd2]; ring
   rw [hJ0, hJ1, hJ2, fibrePoly_phiTwo_eq, hj, cubic_expand,
-    coeff_two_identity h01 h02 h12 h2 hc4 hΔ' hg0 hg1 hg2 hd0 hd1 hd2,
-    coeff_one_identity h01 h02 h12 h2 hc4 hΔ' hg0 hg1 hg2 hd0 hd1 hd2,
-    coeff_zero_identity h01 h02 h12 h2 hc4 hΔ' hg0 hg1 hg2 hd0 hd1 hd2]
+    coeff_two_identity ha hb hab h2 hc4n hΔn hg0n hg1n hg2n hd0n hd1n hd2n,
+    coeff_one_identity ha hb hab h2 hc4n hΔn hg0n hg1n hg2n hd0n hd1n hd2n,
+    coeff_zero_identity ha hb hab h2 hc4n hΔn hg0n hg1n hg2n hd0n hd1n hd2n]
 
 end VeluTwoSym
 

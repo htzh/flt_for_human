@@ -361,6 +361,9 @@ true positive in a 44-candidate sweep (≈19 s), and a bad deletion in a hub
 
 ## 11. Pointers
 
+- [olean-attribution-and-shrinking.md](olean-attribution-and-shrinking.md) —
+  the per-declaration follow-up to this note: attribute one module's `.olean`
+  to a declaration, classify the failure signature, and shrink the proof term.
 - [../lean/porting-playbook.md](../lean/porting-playbook.md) — the reusable
   policy, including the proof-engineering failure modes this note measures.
 - [../lean/logs/weightone-rectify.md](../lean/logs/weightone-rectify.md) — the
