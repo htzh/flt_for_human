@@ -204,6 +204,18 @@ certificate must also use the curve equation. Both identities keep their ported
 certificates, with a `-- Reading.` comment giving the factorization; the
 obstruction, not a smaller certificate, is the thing to write down.
 
+**Look for the second copy of the identity.** Before optimizing a certificate,
+grep the tree for its statement's left-hand side. `Velu/Defs.lean`'s
+`velu_singleton_equation_cleared` and `Velu/Formula.lean`'s
+`velu_singleton_deficit_cleared_eq_psi` are the `Ψ₃ = 0` specialization and the
+general form of one identity, and each carried its own ~40 MiB
+`linear_combination`. Proving the general form once *upstream* — in `Defs`, which
+`Formula` already imports — and deriving both from it cut **≈40 MiB** with no
+statement change; it is the largest single win of the campaign and it came from
+reading the statements, not the certificates. A new port-local declaration is
+normal here: register it in `spec/check_flt_statements.py`'s `OWN_PROOFS` so the
+check stays at 0 missing rather than 1.
+
 ## 8. Checklist
 
 1. Rank `.olean`s; pick the outlier.
