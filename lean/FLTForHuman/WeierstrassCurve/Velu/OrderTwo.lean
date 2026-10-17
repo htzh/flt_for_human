@@ -215,13 +215,13 @@ noncomputable def veluPointMap2 :
 lemma veluPointMap2_some_of_eq {x y : F} (h : W.toAffine.Nonsingular x y) (hx : x = x₀) :
     veluPointMap2 hchar hQ hgy hΔ (.some x y h) = .zero := by
   simp only [veluPointMap2]
-  exact dif_pos hx
+  exact dite_eq_left hx
 
 lemma veluPointMap2_some_of_ne {x y : F} (h : W.toAffine.Nonsingular x y) (hx : x ≠ x₀) :
     veluPointMap2 hchar hQ hgy hΔ (.some x y h)
       = .some _ _ (velu2_map_nonsingular hchar h.1 hQ hgy hx hΔ) := by
   simp only [veluPointMap2]
-  exact dif_neg hx
+  exact dite_eq_right hx
 
 end Field
 
@@ -584,7 +584,7 @@ theorem veluQuotient2_j (hQ : W.toAffine.Equation x₀ y₀) (hgy : W.veluGy x�
     (W.veluQuotient2 x₀ y₀).j
       = (W.c₄ + 240 * W.veluGx x₀ y₀) ^ 3
         / (W.veluGx x₀ y₀ * W.velu2QuadDisc x₀ ^ 2)  :=  by
-  haveI hE : (W.veluQuotient2 x₀ y₀).IsElliptic :=
+  have hE : (W.veluQuotient2 x₀ y₀).IsElliptic :=
     isElliptic_veluQuotient2_of_isElliptic hQ hgy
   have hΔ' : (W.veluQuotient2 x₀ y₀).Δ ≠ 0 := (W.veluQuotient2 x₀ y₀).isUnit_Δ.ne_zero
   rw [← veluQuotient2_Delta_eq hQ hgy, eq_div_iff hΔ', mul_comm, Δ_mul_j, veluQuotient2_cFour]

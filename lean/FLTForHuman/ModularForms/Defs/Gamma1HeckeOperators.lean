@@ -167,7 +167,7 @@ theorem heckeU_add_slash_heckeDiagMatrix_slash
     (hγ : γ ∈ ((CongruenceSubgroup.Gamma1 N : Subgroup SL(2, ℤ)) : Subgroup (GL (Fin 2) ℝ))) :
     (heckeU k p f + (f ∣[k] (mapGL ℝ σ)) ∣[k] heckeDiagMatrix p) ∣[k] γ
       = heckeU k p f + (f ∣[k] (mapGL ℝ σ)) ∣[k] heckeDiagMatrix p := by
-  haveI : Fact p.Prime := ⟨hp⟩
+  have : Fact p.Prime := ⟨hp⟩
   obtain ⟨g, hg, rfl⟩ := hγ
   rw [sum_eq k f σ]
   exact sum_slash_mapGL k hpN f hf σ hσ hσp g hg
@@ -181,7 +181,7 @@ theorem heckeU_add_slash_heckeDiagMatrix_slash_of_mem_Gamma0
     (heckeU k p f + (f ∣[k] (mapGL ℝ σ)) ∣[k] heckeDiagMatrix p) ∣[k] (mapGL ℝ g)
       = heckeU k p (f ∣[k] (mapGL ℝ g))
         + ((f ∣[k] (mapGL ℝ g)) ∣[k] (mapGL ℝ σ)) ∣[k] heckeDiagMatrix p := by
-  haveI : Fact p.Prime := ⟨hp⟩
+  have : Fact p.Prime := ⟨hp⟩
   rw [sum_eq k f σ, sum_eq k (f ∣[k] mapGL ℝ g) σ]
   exact sum_slash_mapGL_of_mem_Gamma0 k hpN f hf σ hσ hσp g hg
 
@@ -220,10 +220,10 @@ def heckeTOne (hℓ : ℓ.Prime) (hℓM : ¬ ℓ ∣ M) (f : CuspForm (Γ₁ℝ 
 def heckeTLinOne (hℓ : ℓ.Prime) (hℓM : ¬ ℓ ∣ M) : CuspForm (Γ₁ℝ M) k →ₗ[ℂ] CuspForm (Γ₁ℝ M) k where
   toFun := heckeTOne k hℓ hℓM
   map_add' f g := DFunLike.coe_injective <| by
-    simp only [coe_heckeTOne, CuspForm.coe_add, map_add, heckeU_add, SlashAction.add_slash]
+    simp only [coe_heckeTOne, FunLike.coe_add, map_add, heckeU_add, SlashAction.add_slash]
     abel
   map_smul' c f := DFunLike.coe_injective <| by
-    simp only [coe_heckeTOne, CuspForm.IsGLPos.coe_smul, map_smul, heckeU_smul, RingHom.id_apply,
+    simp only [coe_heckeTOne, FunLike.coe_smul, map_smul, heckeU_smul, RingHom.id_apply,
       ModularForm.smul_slash, σ_heckeDiagMatrix, ContinuousAlgEquiv.refl_apply, smul_add]
 
 @[simp] theorem coe_heckeTLinOne_apply (hℓ : ℓ.Prime) (hℓM : ¬ ℓ ∣ M) (f : CuspForm (Γ₁ℝ M) k) :

@@ -207,8 +207,8 @@ variable {K F : Type*} [Field K] [Field F] [Algebra K F] (v : Place K F)
 private theorem isSeparable_residueField_of_charZero_of_finiteResidue
     [CharZero K] [v.FiniteResidue] :
     Algebra.IsSeparable K (IsLocalRing.ResidueField v.toValuationSubring) := by
-  haveI : Module.Finite K (IsLocalRing.ResidueField v.toValuationSubring) := Place.FiniteResidue.finite
-  haveI : Algebra.IsAlgebraic K (IsLocalRing.ResidueField v.toValuationSubring) :=
+  have : Module.Finite K (IsLocalRing.ResidueField v.toValuationSubring) := Place.FiniteResidue.finite
+  have : Algebra.IsAlgebraic K (IsLocalRing.ResidueField v.toValuationSubring) :=
     Algebra.IsAlgebraic.of_finite K _
   exact Algebra.IsAlgebraic.isSeparable_of_perfectField
 
@@ -217,7 +217,7 @@ private theorem subsingleton_polynomialKaehler_of_charZero_of_finite
     [Module.Finite v.toValuationSubring Ω[v.toValuationSubring⁄K]] :
     letI := v.polynomialAlgebra
     Subsingleton Ω[v.toValuationSubring⁄K[X]] := by
-  haveI := v.isSeparable_residueField_of_charZero_of_finiteResidue
+  have := v.isSeparable_residueField_of_charZero_of_finiteResidue
   exact v.subsingleton_polynomialKaehler_of_isSeparable_of_finite
 
 end ResidueEngine
@@ -231,7 +231,7 @@ theorem valSubringPolynomialFormallyUnramified_of_kaehlerFinite_of_charZero
     (hfin : ValSubringKaehlerFinite K F) :
     ValSubringPolynomialFormallyUnramified K F := by
   intro v
-  haveI := hfin v
+  have := hfin v
   exact v.subsingleton_polynomialKaehler_of_charZero_of_finite
 
 theorem valSubringKaehlerSpanTop_of_kaehlerFinite_of_charZero

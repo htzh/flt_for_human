@@ -814,9 +814,9 @@ private theorem tensorFracIotaFinrankSeam_aux
           · exact TensorProduct.zero_tmul _ c'
         · show b.repr (ι x * b i) j = if i = j then x else 0
           rw [hrepr_mul, b.repr_self, Finsupp.single_apply]
-          split_ifs with h <;> simp [h]
+          split_ifs with h <;> simp
     have hc' : Ej (∑ i, ιT (c i) * e i) = 0 := by rw [hc, _root_.map_zero]
-    simpa only [map_sum, hEj_key, Finset.sum_ite_eq', Finset.mem_univ, if_true] using hc'
+    simpa only [map_sum, hEj_key, Finset.sum_ite_eq', Finset.mem_univ, ite_true] using hc'
   have hint : ∀ s : T, s ≠ 0 → ∃ (u s₀ : T), s₀ ≠ 0 ∧ s * u = ιT s₀ := by
     intro s hs
     obtain ⟨p, hp_monic, hp_eval⟩ : ιT.IsIntegralElem s := hιT_fin.to_isIntegral s

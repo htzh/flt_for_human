@@ -73,7 +73,7 @@ theorem eq_zero_of_forall_vadd_inv_pow_eq
     rw [show (((Gamma0 R : Subgroup SL(2, ℤ)) : Subgroup (GL (Fin 2) ℝ))) =
       Subgroup.map (Matrix.SpecialLinearGroup.mapGL ℝ) (Gamma0 R) from rfl, CongruenceSubgroup.strictPeriods_Gamma0]
     exact AddSubgroup.mem_zmultiples 1
-  haveI : Fact (IsCusp OnePoint.infty (((Gamma0 R : Subgroup SL(2, ℤ)) : Subgroup (GL (Fin 2) ℝ)))) :=
+  have : Fact (IsCusp OnePoint.infty (((Gamma0 R : Subgroup SL(2, ℤ)) : Subgroup (GL (Fin 2) ℝ)))) :=
     ⟨Subgroup.isCusp_of_mem_strictPeriods one_pos h1⟩
   have hper : Function.Periodic ((⇑y : ℍ → ℂ) ∘ UpperHalfPlane.ofComplex) (1 : ℝ) :=
     SlashInvariantFormClass.periodic_comp_ofComplex y h1
@@ -416,7 +416,7 @@ private theorem exists_T_zpow_dvd [Fact p.Prime] (r : SL(2, ℤ)) (ha : ¬ (p : 
   rw [ZMod.natCast_zmod_val, mul_comm, mul_assoc, inv_mul_cancel₀ ha', mul_one, neg_add_cancel]
 
 private theorem exists_mul_mem_Gamma1_dvd [Fact p.Prime] (hpM : ¬ p ∣ M) (r : SL(2, ℤ))
-    (hr : r ∈ Gamma0 M) :
+    (_hr : r ∈ Gamma0 M) :
     ∃ g : SL(2, ℤ), g ∈ Gamma1 M ∧ (p : ℤ) ∣ (r * g) 0 1 := by
   have hp : Prime (p : ℤ) := Nat.prime_iff_prime_int.mp Fact.out
   by_cases ha : (p : ℤ) ∣ r 0 0
@@ -504,7 +504,7 @@ private def stretch (hp : p ≠ 0) (y : CuspForm Γ₁(M) k)
   holo' := (CuspForm.holo' y).slash k _
   zero_at_cusps' := by
     intro c hc
-    haveI := isArithmetic_conj_heckeDiagMatrix hp Γ₁(M)
+    have := isArithmetic_conj_heckeDiagMatrix hp Γ₁(M)
     have hc' : IsCusp c (ConjAct.toConjAct (heckeDiagMatrix p)⁻¹ • Γ₁(M)) := by
       rw [Subgroup.IsArithmetic.isCusp_iff_isCusp_SL2Z] at hc ⊢; exact hc
     exact (CuspForm.translate y (heckeDiagMatrix p)).zero_at_cusps' hc'
@@ -532,7 +532,7 @@ private def normCusp (f : CuspForm Γ₁(M) k) : CuspForm Γ₀(M) (k * Nat.card
       rw [Finset.prod_const, Finset.card_univ, zero_pow Fintype.card_ne_zero, smul_zero]]
     refine Filter.Tendsto.const_smul ?_ _
     rw [Finset.prod_fn]
-    refine tendsto_finset_prod _ (Quotient.forall.mpr fun ⟨r, hr⟩ _ => ?_)
+    refine tendsto_finsetProd _ (Quotient.forall.mpr fun ⟨r, hr⟩ _ => ?_)
     refine (CuspForm.translate f _).zero_at_cusps' ?_ γ rfl
     simpa using h.of_isFiniteRelIndex_conj hr
 
@@ -551,6 +551,7 @@ private theorem quotientFunc_mk' {𝒢 ℋ : Subgroup (GL (Fin 2) ℝ)} {F : Typ
     [SlashInvariantFormClass F 𝒢 k] (h : ℋ) :
     quotientFunc f (QuotientGroup.mk h : ℋ ⧸ 𝒢.subgroupOf ℋ) = (⇑f : ℍ → ℂ) ∣[k] h.val⁻¹ := rfl
 
+omit [NeZero M] in
 private theorem exists_rep (hpM : ¬ p ∣ M) (q : 𝒬) :
     ∃ (r : SL(2, ℤ)) (hr : r ∈ Gamma0 M), (p : ℤ) ∣ r 0 1 ∧
       (QuotientGroup.mk ⟨Matrix.SpecialLinearGroup.mapGL ℝ r, Subgroup.mem_map_of_mem _ hr⟩ : 𝒬) = q := by
@@ -567,12 +568,15 @@ private theorem exists_rep (hpM : ¬ p ∣ M) (q : 𝒬) :
 
 private def rep (hpM : ¬ p ∣ M) (q : 𝒬) : SL(2, ℤ) := (exists_rep hpM q).choose
 
+omit [NeZero M] in
 private theorem rep_mem (hpM : ¬ p ∣ M) (q : 𝒬) : rep hpM q ∈ Gamma0 M :=
   (exists_rep hpM q).choose_spec.1
 
+omit [NeZero M] in
 private theorem rep_dvd (hpM : ¬ p ∣ M) (q : 𝒬) : (p : ℤ) ∣ rep hpM q 0 1 :=
   (exists_rep hpM q).choose_spec.2.1
 
+omit [NeZero M] in
 private theorem mk_rep (hpM : ¬ p ∣ M) (q : 𝒬) :
     (QuotientGroup.mk ⟨Matrix.SpecialLinearGroup.mapGL ℝ (rep hpM q),
       Subgroup.mem_map_of_mem _ (rep_mem hpM q)⟩ : 𝒬) = q :=
@@ -580,11 +584,13 @@ private theorem mk_rep (hpM : ¬ p ∣ M) (q : 𝒬) :
 
 private def repE (hpM : ¬ p ∣ M) (q : 𝒬) : ℤ := (rep_dvd hpM q).choose
 
+omit [NeZero M] in
 private theorem rep_eq (hpM : ¬ p ∣ M) (q : 𝒬) : rep hpM q 0 1 = p * repE hpM q :=
   (rep_dvd hpM q).choose_spec
 
 private def rep' (hpM : ¬ p ∣ M) (q : 𝒬) : SL(2, ℤ) := conjRep p (rep hpM q) (repE hpM q) (rep_eq hpM q)
 
+omit [NeZero M] in
 private theorem rep'_mem (hpM : ¬ p ∣ M) (q : 𝒬) : rep' hpM q ∈ Gamma0 M :=
   conjRep_mem_Gamma0 _ _ _ (rep_mem hpM q)
 
@@ -592,6 +598,7 @@ private def Phi (hpM : ¬ p ∣ M) (q : 𝒬) : 𝒬 :=
   QuotientGroup.mk ⟨Matrix.SpecialLinearGroup.mapGL ℝ (rep' hpM q),
     Subgroup.mem_map_of_mem _ (rep'_mem hpM q)⟩
 
+omit [NeZero M] in
 private theorem Phi_injective (hpM : ¬ p ∣ M) : Function.Injective (Phi (M := M) hpM) := by
   intro q₁ q₂ h
   rw [Phi, Phi, QuotientGroup.eq, Subgroup.mem_subgroupOf] at h
@@ -659,7 +666,6 @@ private theorem main (hp : p.Prime) (hpM : ¬ p ∣ M) (y : CuspForm Γ₁(M) k)
     rw [h0]
     rfl
   apply DFunLike.coe_injective
-  change ⇑y = ⇑(0 : CuspForm Γ₁(M) k)
   rw [hy0]
   rfl
 

@@ -52,7 +52,7 @@ theorem trace_pow_div_aeval_derivative_minpoly_of_lt (pb : PowerBasis K L) {k : 
   have hlt : pb.dim - 1 < pb.dim := by omega
   have key := pb.basis.trace_mul_traceDual ⟨k, hk'⟩ ⟨pb.dim - 1, hlt⟩
   rw [traceDual_eq_one_div_of_val_eq pb rfl, pb.basis_eq_pow, mul_one_div] at key
-  rw [key, if_neg]
+  rw [key, ite_eq_right]
   simp only [Fin.mk.injEq]
   omega
 
@@ -63,7 +63,7 @@ theorem trace_pow_div_aeval_derivative_minpoly_self (pb : PowerBasis K L)
   have hlt : pb.dim - 1 < pb.dim := by omega
   have key := pb.basis.trace_mul_traceDual ⟨pb.dim - 1, hlt⟩ ⟨pb.dim - 1, hlt⟩
   rw [traceDual_eq_one_div_of_val_eq pb rfl, pb.basis_eq_pow, mul_one_div] at key
-  rw [key, if_pos rfl]
+  rw [key, ite_eq_left rfl]
 
 variable {F : Type*} [Field F] [CharZero F] {g : F[X]} [Fact (Irreducible g)]
 
@@ -71,7 +71,7 @@ theorem trace_root_pow_div_derivative_of_lt (hg : g.Monic) {k : ℕ}
     (hk : k < g.natDegree - 1) :
     Algebra.trace F (AdjoinRoot g)
       (AdjoinRoot.root g ^ k / aeval (AdjoinRoot.root g) (derivative g)) = 0 := by
-  haveI : FiniteDimensional F (AdjoinRoot g) :=
+  have : FiniteDimensional F (AdjoinRoot g) :=
     Module.Finite.of_basis (AdjoinRoot.powerBasis hg.ne_zero).basis
   have hmin : minpoly F (AdjoinRoot.powerBasis hg.ne_zero).gen = g :=
     AdjoinRoot.minpoly_powerBasis_gen_of_monic hg
@@ -84,7 +84,7 @@ theorem trace_root_pow_div_derivative_self (hg : g.Monic) (hd : 0 < g.natDegree)
     Algebra.trace F (AdjoinRoot g)
       (AdjoinRoot.root g ^ (g.natDegree - 1) /
         aeval (AdjoinRoot.root g) (derivative g)) = 1 := by
-  haveI : FiniteDimensional F (AdjoinRoot g) :=
+  have : FiniteDimensional F (AdjoinRoot g) :=
     Module.Finite.of_basis (AdjoinRoot.powerBasis hg.ne_zero).basis
   have hmin : minpoly F (AdjoinRoot.powerBasis hg.ne_zero).gen = g :=
     AdjoinRoot.minpoly_powerBasis_gen_of_monic hg
@@ -250,7 +250,7 @@ theorem finite_setOf_valuation_ne_one {f : RatFunc K} (hf : f ≠ 0) :
   refine Set.Finite.subset ((Ideal.finite_factors hnum).union (Ideal.finite_factors hden))
     fun w hw => ?_
   by_contra hcon
-  simp only [Set.mem_union, Set.mem_setOf_eq, not_or, Ideal.dvd_span_singleton] at hcon
+  simp only [Set.mem_union, Set.mem_ofPred_eq, not_or, Ideal.dvd_span_singleton] at hcon
   refine hw ?_
   have h1 : w.valuation (RatFunc K) (algebraMap K[X] (RatFunc K) f.num) = 1 :=
     (HeightOneSpectrum.valuation_eq_one_iff_notMem w).mpr hcon.1
@@ -664,7 +664,7 @@ theorem finite_setOf_ord_ne_zero_of_finiteDimensional {f : F'} (hf : f ≠ 0) :
   ·
     intro w hw
     obtain ⟨i, hi, hci, hord⟩ := w.exists_coeff_ord_ne_zero (F := RatFunc K) hf hw
-    simp only [Set.mem_iUnion, Set.mem_setOf_eq, exists_prop]
+    simp only [Set.mem_iUnion, Set.mem_ofPred_eq, exists_prop]
     refine ⟨i, hi, w.restrict (RatFunc K), ?_, rfl⟩
     intro h0
     apply hord

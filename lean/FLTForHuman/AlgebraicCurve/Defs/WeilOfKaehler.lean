@@ -252,7 +252,7 @@ theorem simplePoleProbe_mem_adeleBdd {ω : Ω[F⁄K]} (hω : ω ≠ 0) (v : Plac
   rw [adeleSingle_coe]
   refine single_mem_adeleBdd v _ D ?_
   rcases eq_or_ne (c : F) 0 with hc | hc
-  · rw [hc, zero_mul, zero_mul, Valuation.map_zero]; exact zero_le'
+  · rw [hc, zero_mul, zero_mul, Valuation.map_zero]; exact zero_le
   · set g : F := (c : F) * v.uniformizer⁻¹ * (v.differentialCoeff ω)⁻¹ with hg
     have hg0 : g ≠ 0 :=
       mul_ne_zero (mul_ne_zero hc (inv_ne_zero v.uniformizer_ne_zero))

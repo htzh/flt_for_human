@@ -141,7 +141,7 @@ theorem trace_adjoinRoot_mk_div_mk_derivative_of_degree_lt (hpmon : p.Monic)
     Algebra.trace K (AdjoinRoot p)
         (AdjoinRoot.mk p c / AdjoinRoot.mk p (derivative p))
       = c.coeff (p.natDegree - 1) := by
-  haveI : FiniteDimensional K (AdjoinRoot p) :=
+  have : FiniteDimensional K (AdjoinRoot p) :=
     Module.Finite.of_basis (AdjoinRoot.powerBasis hpmon.ne_zero).basis
 
   have hpd : 0 < p.natDegree := (Fact.out : Irreducible p).natDegree_pos
@@ -252,7 +252,7 @@ theorem trace_finitePlace_simplePoleResidue_of_adjoinRootValue
     Algebra.trace K (finitePlace K hpirr).ResidueField
         ((finitePlace K hpirr).simplePoleResidueAux ⟨_, hfmem⟩)
       = c.coeff (p.natDegree - 1) := by
-  haveI : Fact (Irreducible p) := ⟨hpirr⟩
+  have : Fact (Irreducible p) := ⟨hpirr⟩
   have hval := hbridge p c hpmon hpirr hdeg
   rw [trace_finitePlace_residueField_eq_trace_adjoinRoot K hpirr, hval hfmem,
     trace_adjoinRoot_mk_div_mk_derivative_of_degree_lt K hpmon hdeg]
@@ -366,6 +366,7 @@ variable [∀ v : Place K (RatFunc K), v.DCoordGenerates] [Nontrivial Ω[(RatFun
 
 open KaehlerDifferential
 
+omit [DecidableEq (RatFunc K)] in
 private theorem differentialCoeff_add' (v : Place K (RatFunc K)) (ω₁ ω₂ : Ω[(RatFunc K)⁄K]) :
     v.differentialCoeff (ω₁ + ω₂) = v.differentialCoeff ω₁ + v.differentialCoeff ω₂ :=
   v.differentialCoeff_unique
@@ -605,7 +606,7 @@ theorem simplePoleResidueAux_finitePlace_p1PrincipalPartAtom_mOne
 theorem p1FinitePlaceSimplePoleResidueAdjoinRootValue_dX :
     P1FinitePlaceSimplePoleResidueAdjoinRootValue K := by
   intro p c _ hpirr _
-  letI : Fact (Irreducible p) := ⟨hpirr⟩
+  let : Fact (Irreducible p) := ⟨hpirr⟩
   intro hfmem
   rw [simplePoleResidueAux_finitePlace_p1PrincipalPartAtom_mOne K hpirr hfmem,
     AlgEquiv.symm_apply_eq, map_div₀,

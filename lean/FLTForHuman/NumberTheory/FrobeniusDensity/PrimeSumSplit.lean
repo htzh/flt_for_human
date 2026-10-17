@@ -32,7 +32,7 @@ private noncomputable def primeNormFiberEquiv :
 
 private instance (ℓ : ℕ) : Finite (PrimeNormFiber K ℓ) := by
   have : Finite {I : Ideal (𝓞 K) // Ideal.absNorm I = ℓ} :=
-    (Ideal.finite_setOf_absNorm_eq ℓ).to_subtype
+    (Ideal.finite_setOfPred_absNorm_eq ℓ).to_subtype
   exact Finite.of_injective
     (fun v => (⟨v.1.asIdeal, v.2⟩ : {I : Ideal (𝓞 K) // Ideal.absNorm I = ℓ}))
     fun v w h => Subtype.ext (HeightOneSpectrum.ext (congrArg Subtype.val h))
@@ -51,8 +51,8 @@ private theorem natCard_primeNormFiber {ℓ : ℕ} (hℓ : ℓ.Prime) :
     (Submodule.cardQuot_apply _).symm.trans (Ideal.absNorm_apply I).symm
   refine Nat.card_congr ⟨fun v => ⟨v.1.asIdeal, ?_⟩, fun 𝔮 => ⟨⟨𝔮.1, 𝔮.2.1.1, ?_⟩, ?_⟩, ?_, ?_⟩
   · exact ⟨⟨v.1.isPrime, liesOver_of_absNorm_eq K hℓ v.2⟩, (hcard _).trans v.2⟩
-  · haveI := 𝔮.2.1.1
-    haveI := 𝔮.2.1.2
+  · have := 𝔮.2.1.1
+    have := 𝔮.2.1.2
     exact ne_bot_of_liesOver_ratPrimeIdeal hℓ
   · exact (hcard 𝔮.1).symm.trans 𝔮.2.2
   · intro v; rfl

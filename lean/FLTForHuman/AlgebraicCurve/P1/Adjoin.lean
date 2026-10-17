@@ -57,7 +57,7 @@ theorem hasSeparatingTranscendentalCore_of_isPurelyTranscendentalSimple
     (h : IsPurelyTranscendentalSimple K F) :
     HasSeparatingTranscendentalCore K F := by
   obtain ⟨t, ht, htop⟩ := h
-  haveI : FiniteDimensional ↥(⊤ : IntermediateField K F) F :=
+  have : FiniteDimensional ↥(⊤ : IntermediateField K F) F :=
     IntermediateField.finiteDimensional_top
   exact ⟨t, ht, IntermediateField.finiteDimensional_of_eq htop.symm⟩
 

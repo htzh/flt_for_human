@@ -857,6 +857,7 @@ variable [IsCurveOver K F] [∀ v : Place K F, v.DCoordGenerates]
   [IsCurveOver K F'] [∀ w : Place K F', w.DCoordGenerates]
 
 omit [Algebra.IsIntegral F F'] in
+omit [∀ w : Place K F', w.DCoordGenerates] in
 private theorem nontrivial_kaehler_of_isCurveOver' : Nontrivial Ω[F'⁄K] :=
   Module.nontrivial_of_finrank_eq_succ (IsCurveOver.kaehler_free_rank_one (K := K) (F := F')).2
 
@@ -869,7 +870,7 @@ theorem ordDifferential_map_eq
     w.ordDifferential (KaehlerDifferential.map K K F F' ω₀)
       = (w.ramificationIndex F : ℤ) * (w.restrict F).ordDifferential ω₀
           + ((w.ramificationIndex F : ℤ) - 1) := by
-  haveI : Nontrivial Ω[F'⁄K] := nontrivial_kaehler_of_isCurveOver' (K := K) (F' := F')
+  have : Nontrivial Ω[F'⁄K] := nontrivial_kaehler_of_isCurveOver' (K := K) (F' := F')
   exact ordDifferential_kaehlerMap_universal (tameLocalDifferentExponent_of_hreg hreg htame) hω₀ w
 
 theorem map_ne_zero_of_tame_port
@@ -879,7 +880,7 @@ theorem map_ne_zero_of_tame_port
     (htame : ∀ w : Place K F', ((w.ramificationIndex F : ℕ) : F') ≠ 0)
     (w₀ : Place K F') {ω₀ : Ω[F⁄K]} (hω₀ : ω₀ ≠ 0) :
     KaehlerDifferential.map K K F F' ω₀ ≠ 0 := by
-  haveI : Nontrivial Ω[F'⁄K] := nontrivial_kaehler_of_isCurveOver' (K := K) (F' := F')
+  have : Nontrivial Ω[F'⁄K] := nontrivial_kaehler_of_isCurveOver' (K := K) (F' := F')
   exact kaehlerMap_ne_zero_of_tameLocalDifferent (tameLocalDifferentExponent_of_hreg hreg htame) w₀ hω₀
 
 theorem exists_finset_unramified_off
@@ -891,7 +892,7 @@ theorem exists_finset_unramified_off
     {ω₀ : Ω[F⁄K]} (hω₀ : ω₀ ≠ 0) (hω₀' : KaehlerDifferential.map K K F F' ω₀ ≠ 0) :
     ∃ S : Finset (Place K F'), ∀ w : Place K F', w ∉ S → w.ramificationIndex F = 1 := by
   classical
-  haveI : HasPrincipalDivisors K F' := IsCurveOver.hasPrincipalDivisors
+  have : HasPrincipalDivisors K F' := IsCurveOver.hasPrincipalDivisors
 
   let T : Finset (Place K F') := (canonicalDivisorOf (K := K) hω₀').support ∪
     (canonicalDivisorOf (K := K) hω₀).support.biUnion (fun v => v.fiber F')
@@ -923,7 +924,7 @@ theorem canonicalDivisorOf_map_eq
     {S : Finset (Place K F')} (hS : ∀ w : Place K F', w ∉ S → w.ramificationIndex F = 1) :
     canonicalDivisorOf (K := K) hω₀'
       = Divisor.pullback F' (canonicalDivisorOf (K := K) hω₀) + tameDifferentDivisor K F S := by
-  haveI : Nontrivial Ω[F'⁄K] := nontrivial_kaehler_of_isCurveOver' (K := K) (F' := F')
+  have : Nontrivial Ω[F'⁄K] := nontrivial_kaehler_of_isCurveOver' (K := K) (F' := F')
   exact canonicalDivisorOf_eq_of_localHurwitzExponent hω₀ hω₀'
     (localHurwitzExponent_kaehlerMap_of_tameLocalDifferent
       (tameLocalDifferentExponent_of_hreg hreg htame) hω₀ hS)
@@ -940,7 +941,7 @@ theorem degree_canonicalDivisorOf_map
       = (Module.finrank F F' : ℤ) * Divisor.degree (canonicalDivisorOf (K := K) hω₀)
         + ∑ᶠ w : Place K F', ((w.ramificationIndex F : ℤ) - 1) * (w.deg : ℤ) := by
   classical
-  haveI : HasPrincipalDivisors K F' := IsCurveOver.hasPrincipalDivisors
+  have : HasPrincipalDivisors K F' := IsCurveOver.hasPrincipalDivisors
   obtain ⟨S, hS⟩ := exists_finset_unramified_off hreg htame hω₀ hω₀'
   have hdiv := canonicalDivisorOf_map_eq hreg htame hω₀ hω₀' hS
   have hfin : ∑ᶠ w : Place K F', ((w.ramificationIndex F : ℤ) - 1) * (w.deg : ℤ)
@@ -964,7 +965,7 @@ theorem map_ne_zero_of_tame {K : Type*} {F : Type*} {F' : Type*} [Field K] [Fiel
     (htame : ∀ w : Place K F', ((w.ramificationIndex F : ℕ) : F') ≠ 0)
     (w₀ : Place K F') {ω₀ : Ω[F⁄K]} (hω₀ : ω₀ ≠ 0) :
     KaehlerDifferential.map K K F F' ω₀ ≠ 0 := by
-  haveI : Nontrivial Ω[F'⁄K] := nontrivial_kaehler_of_isCurveOver' (K := K) (F' := F')
+  have : Nontrivial Ω[F'⁄K] := nontrivial_kaehler_of_isCurveOver' (K := K) (F' := F')
   exact kaehlerMap_ne_zero_of_tameLocalDifferent
     (tameLocalDifferentExponent_of_hreg hreg htame) w₀ hω₀
 

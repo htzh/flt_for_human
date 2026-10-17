@@ -8,9 +8,12 @@ certificates for those identities were replaced by small ones. That replacement 
 port-local work with no counterpart in the pin; §6 records it in detail — the
 build measurement that found the problem, why the certificates cost what they did,
 the tangent and secant refactors, and the techniques that found the new proofs.
-The pin's giant certificate is cited only indirectly: its content is a brute-force
-expansion, and reproducing it would add nothing. The Lean statements are
-collected in §8. Method and measurements: the work note
+§6.6 applies the same treatment to the four heavy certificates of
+`Velu/OrderTwoMap.lean`; together they take that module from 459 s / 391 MiB to
+**49 s / 60.3 MiB**. The pin's giant certificate is cited only indirectly: its
+content is
+a brute-force expansion, and reproducing it would add nothing. The Lean statements
+are collected in §8. Method and measurements: the work note
 [../lean/topics/velu/TOPIC-order-two-tangent-direct.md](../lean/topics/velu/TOPIC-order-two-tangent-direct.md).
 
 Companions: [023-velu-isogenies-and-endomorphism-ring.md](023-velu-isogenies-and-endomorphism-ring.md)
@@ -178,8 +181,11 @@ tens of thousands of characters, and the pin itself needs
 certificates verbatim. Everything in this section replaces that: it is port-local
 work with no counterpart in the pin, and it is what takes `Velu/OrderTwo.lean`
 from a 36-minute, 276 MB module to a 23-second, 29.3 MiB one. Line references are
-pinned to [`htzh/flt_for_human@129e571`](https://github.com/htzh/flt_for_human/tree/129e571),
-the commit that landed the Vieta secant proof.
+pinned to
+[`htzh/flt_for_human@c46cb57`](https://github.com/htzh/flt_for_human/tree/c46cb57),
+the commit that landed the `OrderTwoMap` alignment rewrites; `OrderTwo.lean` is
+identical between it and the Vieta-secant commit
+[`129e571`](https://github.com/htzh/flt_for_human/tree/129e571) it descends from.
 
 ### 6.1 The measurement that found the hog
 
@@ -259,12 +265,12 @@ give $`T = 0`$. The powers of two clear the halves of
 the elimination, so no division is introduced and the argument is valid in every
 characteristic. The largest polynomial anywhere in the proof has 19 terms. In
 Lean the core is
-[`velu_tangent_core`](https://github.com/htzh/flt_for_human/blob/129e571/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwo.lean#L433-L475)
+[`velu_tangent_core`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwo.lean#L433-L475)
 and the public theorem
-[`velu2_tangent_negAddY_cleared_identity`](https://github.com/htzh/flt_for_human/blob/129e571/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwo.lean#L477-L518).
+[`velu2_tangent_negAddY_cleared_identity`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwo.lean#L477-L518).
 The tangent `addX` identity was handled the same way a little earlier, through
 the three-hypothesis assembler
-[`velu2TangentAddX_assemble`](https://github.com/htzh/flt_for_human/blob/129e571/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwo.lean#L279-L282),
+[`velu2TangentAddX_assemble`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwo.lean#L279-L282),
 whose certificates are of a few terms. With the tangent `negAddY` proof alone the
 module already built in **55 s** with a **68 MB** `.olean` (from 2168 s / 276 MB);
 that is the baseline the secant work started from.
@@ -295,11 +301,11 @@ private lemmas (`secant_branchA`, `secant_T_sub`, `secant_L_eq`, `secant_degen_k
 
 The Vieta proof of §5 removes the elimination entirely, and with it the case
 split: it is two private lemmas,
-[`secant_factor`](https://github.com/htzh/flt_for_human/blob/129e571/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwo.lean#L335-L342)
+[`secant_factor`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwo.lean#L335-L342)
 (the factorization, a ring identity with $`u_R`$ a free variable) and
-[`velu_secant_core`](https://github.com/htzh/flt_for_human/blob/129e571/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwo.lean#L345-L384).
+[`velu_secant_core`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwo.lean#L345-L384).
 The public statement
-[`velu2_secant_negAddY_cleared_identity`](https://github.com/htzh/flt_for_human/blob/129e571/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwo.lean#L386-L424)
+[`velu2_secant_negAddY_cleared_identity`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwo.lean#L386-L424)
 is unchanged. The case split, in hindsight, was an artefact of eliminating
 $`v_1`$ first: that is what singled out the degenerate locus $`2m+a_1 = 0`$ and
 its characteristic-$`2`$ corner.
@@ -346,6 +352,165 @@ The techniques that produced §6.3 and §6.4, roughly in the order they mattered
    declarations; and `set_option profiler true` reports the typeclass-inference
    total, which was the metric that mattered (62.9 s → 5.4 s across the secant
    pass).
+7. **Read the residual, and normalise shape before atomising.** Replacing the
+   `linear_combination` normaliser by `(norm := skip)` and printing the goal
+   shows exactly what `ring` must prove; when a coordinate change makes that
+   residual nonzero, factoring it in a CAS names the relation the change has
+   severed — for the tangent `addX` identity, $`\Sigma = a_1D+2E`$ of §6.6(b).
+   Atomising a compound is sound only if *every* occurrence of it is the same
+   subterm: one and the same factor written $`\Sigma`$ in a hypothesis and
+   $`a_1D+2E`$ in the goal is enough to break the substitution.
+
+### 6.6 `Velu/OrderTwoMap.lean`: the four alignment certificates, rewritten
+
+`Velu/OrderTwoMap.lean` carries the pin's *functional* statements — the point map
+$`\pi`$ against the quotient curve's own `addX`/`addY` — and with them its own
+machine-generated certificates. Isolating the module's declarations (all theorem
+bodies replaced by `sorry` except one, so that a single compile's `.olean`
+increment is one declaration's proof term) shows that its whole 391 MiB is
+concentrated in four declarations:
+
+| declaration | `.olean` |
+|---|---:|
+| `kw_velu2_tanX_align` | 242.1 MB |
+| `kw_velu2_tanY_negAddY_align` | 71.7 MB |
+| `kw_velu2_secY_negAddY_align` | 67.9 MB |
+| `kw_velu2_secX_align` | 15.1 MB |
+| everything else | $`\le 2.3`$ MB |
+
+Every one of those costs is in the final `linear_combination`: for `tanX_align`
+the whole `rw`/`simp`/`field_simp` setup is 0.6 MB and the single
+`linear_combination -G·hNpp` is the other 242 MB. The certificate *text* is not
+the problem; the problem is `ring` normalising the residual identity over the raw
+presentation. The same statements in shifted coordinates are short, and the four
+proofs below are their shifted rewrites. The residual that `ring` must close is
+read off directly with `linear_combination (norm := skip)` plus `trace_state`;
+when it does not vanish, factoring it in a CAS names the relation the
+coordinate change has severed (this is how $`\Sigma-a_1D-2E`$ in (b) was found).
+
+**(a) The collinearity certificate.** Let $`P_1,P_2 \in E`$ have $`x_1 \ne x_2`$,
+and let $`R = (x_A,y_A)`$ be the third point in which the chord through
+$`P_1,P_2`$ meets $`E`$, so that $`P_1+P_2 = -R`$. The group law on $`E'`$ wants
+$`\pi(P_1)+\pi(P_2) = -\pi(R)`$, and the whole content of the comparison is that
+the three images are collinear:
+
+$$(\pi_x(P_2)-\pi_x(P_1))\,(\pi_y(R)-\pi_y(P_1)) \;=\; (\pi_x(R)-\pi_x(P_1))\,(\pi_y(P_2)-\pi_y(P_1)).$$
+
+With the shifted atoms of §3, $`u_i = x_i-x_0`$, $`v_i = y_i-y_0`$,
+$`U = x_A-x_0`$, $`V = y_A-y_0`$, $`G = \mathrm{veluGx}\,x_0\,y_0`$ and
+
+$$Z_i \;:=\; v_iu_i^2 - G(a_1u_i+v_i),\qquad Q \;:=\; VU^2 - G(a_1U+V),$$
+
+the four differences are single fractions:
+
+$$\pi_x(P_2)-\pi_x(P_1) = \frac{(u_1-u_2)(G-u_1u_2)}{u_1u_2},\qquad
+\pi_x(R)-\pi_x(P_1) = \frac{(u_1-U)(G-u_1U)}{u_1U},$$
+
+$$\pi_y(R)-\pi_y(P_1) = \frac{Qu_1^2-Z_1U^2}{U^2u_1^2},\qquad
+\pi_y(P_2)-\pi_y(P_1) = \frac{Z_2u_1^2-Z_1u_2^2}{u_1^2u_2^2}.$$
+
+Clearing $`u_1^3u_2^2U^2`$ turns the collinearity into the 30-term polynomial
+
+$$T \;=\; u_2\,(G-u_1u_2)(u_1-u_2)\,(Qu_1^2-Z_1U^2) \;-\; U\,(u_1-U)(G-u_1U)\,(Z_2u_1^2-Z_1u_2^2).$$
+
+Two facts kill it, and only two. The first is the secant cleared identity of §5,
+read with the third point's parameters free ($`u_R = U`$, $`w = V`$),
+
+$$h_{SIY} \;=\; u_2U(u_2-U)v_1 - u_1\bigl((a_1u_2+v_2)U^2-(a_1U+V)u_2^2\bigr) + G\,(Uv_2-u_2V) \;=\; 0 ;$$
+
+the second is the chord relation
+
+$$h_{RY} \;=\; (u_1-u_2)(V-v_1) - (v_1-v_2)(U-u_1) \;=\; 0 .$$
+
+The certificate is a **4 + 4 monomial** identity,
+
+$$T \;=\; G\,u_1(u_1-U)(u_1-u_2)\,h_{SIY}
+ \;-\; U\,u_1u_2(Uu_1-G)(u_1u_2-G)\,h_{RY} .$$
+
+This is [`hColQ`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L889-L940) in
+[`kw_velu2_secY_negAddY_align`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L869-L943): collinearity of the images is a
+consequence of the preimage chord facts alone. The ported certificate used three
+terms, its middle coefficient running to some seventy monomials, and listed the
+`addX` relation $`h_{RA}`$ as a third input, which the identity does not need.
+Factoring the four differences as above makes `field_simp` produce exactly
+$`T`$, so the small certificate applies.
+
+**(b) The tangent `addX` identity and $`\Sigma = a_1D+2E`$.** For
+[`kw_velu2_tanX_align`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L1032-L1072) the cleared goal is killed by the single input
+`velu2_tangent_addX_cleared_identity`, with certificate $`-G\,h_{Npp}`$; the
+certificate was already one term. What costs is the normalisation. In the atoms
+
+$$u = x-x_0,\quad D = 2y+a_1x+a_3 = 2v+a_1u,\quad
+E = 3x^2+2a_2x+a_4-a_1y = 3u^2+2\beta u+G-a_1v,$$
+
+$$A = a_1^2(x-x_0)+4\bigl(x^2+xx_0+x_0^2+a_2(x+x_0)+a_4-a_1y_0\bigr) = a_1^2u+4(u^2+\beta u+G),$$
+
+the identity is short. The obstruction to atomising it is a shape mismatch: the
+cleared goal carries $`a_1D+2E`$, while $`h_{Npp}`$ carries
+
+$$\Sigma \;:=\; 6x^2+(4a_2+a_1^2)x+2a_4+a_1a_3 .$$
+
+These are the same polynomial,
+
+$$\Sigma \;=\; a_1D + 2E ,$$
+
+since $`a_1D+2E = a_1(2y+a_1x+a_3)+2(3x^2+2a_2x+a_4-a_1y) = 6x^2+(a_1^2+4a_2)x+2a_4+a_1a_3`$
+(the $`a_1y`$-terms cancel). If $`D,E`$ are generalised before $`\Sigma`$ is
+rewritten, the residual is a nonzero multiple of $`\Sigma-a_1D-2E`$: the
+substitution is not uniform, because one and the same factor is
+written $`\Sigma`$ there and $`a_1D+2E`$ in the goal. Rewriting $`\Sigma`$ into
+$`a_1D+2E`$ as a `ring` identity, and only then generalising $`A,D,E,G,u`$
+*after* `simp only [velu2X, …]` has exposed them, makes the residual vanish and
+drops the declaration from 242 MB to about 1 MB. The order matters: generalising
+$`\mathrm{veluGx}\,x_0\,y_0`$ *before* unfolding `velu2X`/`velu2Y` leaves the
+freshly created occurrences raw, and the residual is nonzero again.
+
+**(c) The tangent `negAddY` alignment.** [`kw_velu2_tanY_negAddY_align`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L1095-L1168)
+is the tangent collinearity, and its certificate is four terms in the same shifted data.
+Writing $`d_2 = x_{2P}-x`$, $`U_2 = x_{2P}-x_0`$,
+$`V_d = y-\mathrm{negY}\,x\,y = D`$, and $`h_{SIYt}`$, $`h_{x2P}`$,
+$`h_{nAY}`$, $`h_{SI2c}`$ for the four tangent inputs (the tangent cleared
+identity, the doubled-point relation, the tangent `negAddY` relation, and the
+shifted identity `tanY_SI2c_shifted`), it is
+
+$$T_{\text{tanY}} \;=\; -G(u^2-G)V_d^3\,h_{SIYt}
+\quad - G\,d_2(uU_2-G)A\,u^2\,h_{x2P}
+\quad + uV_d^2(u^2-G)(uU_2-G)(uU_2+G)\,h_{nAY}
+\quad - G\,d_2(uU_2-G)\,h_{SI2c} .$$
+
+Here only $`A,E,G`$ are generalised (again after the `velu2X`/`velu2Y`
+unfolding), while $`u`$, $`d_2`$, $`U_2`$, $`V_d`$ stay raw: generalising them
+would sever the relations tying them to $`x,x_0,x_{2P}`$ and the `set`-bound
+$`x_{2P},nAY`$, and the residual would no longer be an identity in the free
+atoms. The declaration falls from 71.7 MB to about 22 MB.
+
+**(d) The secant `addX` alignment.** [`kw_velu2_secX_align`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L825-L868) is the case whose
+certificate is genuinely *syntactic*: it verifies only while $`x_1-x_0`$,
+$`x_2-x_0`$, $`x_1-x_2`$ and $`\mathrm{veluGx}\,x_0\,y_0`$ are the literal
+subterms, which is why atomising the goal (or `set`ting the atoms as local
+definitions, which `ring` then unfolds) either fails the ring check or stays
+slow. `generalize … at *` names the four subterms $`u_1,u_2,d,G`$ in the goal
+*and* in the pin's `SI2`/`SI3` hypotheses, at the cost of dropping the
+definitional relation $`d = u_1-u_2`$; a port-local `hrel : d = u₁-u₂` restores
+it, and the certificate gains a third term whose coefficient is a 208-monomial
+polynomial. That takes the declaration from $`\gt 150`$ s to about 10 s, and
+leaves 15.1 MB — the largest of the four now.
+
+**(e) [`kw_velu2_tanY_SI2c`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L449-L484).** This one is the direct case: a 4.8 kB raw-monomial
+certificate, 15.9 MB and about 11 s of the module on its own. In the shifted
+variables of §3 it is 18 $`(u,v)`$-monomials and a **nine-term** multiple of the
+shifted curve, so the technique of §6.3 applies verbatim: a port-local helper
+[`tanY_SI2c_shifted`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L433-L444) holds the shifted identity, and four short `ring` rewrites —
+$`2y+a_1x+a_3 = 2v+a_1u`$ (from `hord`), $`3x^2+2a_2x+a_4-a_1y = E`$,
+$`a_1^2(x-x_0)+4(x^2+xx_0+x_0^2+\cdots) = a_1^2u+4(u^2+\beta u+G)`$ and
+$`a_2+2x+x_0 = \beta+2u`$ — put the raw statement into shifted form, at which
+point the helper applies definitionally. The declaration went 15.89 MB / 15.1 s
+to **1.21 MB / ~1.3 s**.
+
+**Result.** With (a)–(e) landed, `Velu/OrderTwoMap.lean` builds in **49 s** with a
+**60.3 MiB** (63,207,200 B) `.olean`, from 459 s / 391.2 MiB before the four
+alignment rewrites. The remaining weight is `kw_velu2_secX_align` (15.1 MB),
+`kw_velu2_tan_quotSlope_eq` (9.6 MB) and `kw_velu2_tanY_negAddY_align` (~22 MB).
 
 ## 7. What this bought
 
@@ -372,8 +537,11 @@ it to `velu2_equation_cleared_four` (≈ 16 MB / 11 s of the module), then
 `veluQuotient2_Delta_eq` (≈ 4.7 MB) and
 `Delta_eq_veluGx_sq_mul_velu2QuadDisc` (≈ 2.5 MB) — all three still carry their
 ported certificates, and are the next candidates for the same treatment.
-`Velu/OrderTwoMap.lean` (569 MB, 728 s) similarly carries its own and remains the
-tree's hog.
+
+`Velu/OrderTwoMap.lean` carried four heavy certificates of its own, all now
+rewritten in the shifted coordinates of §3–§5 (§6.6). Its `.olean` falls from
+391.2 MiB to **60.3 MiB** (63,207,200 B) and its module build from 459 s to
+**49 s**; `kw_velu2_secX_align` (15.1 MB) is the largest of the four remaining.
 
 ## 8. The Lean statements
 
@@ -388,6 +556,23 @@ Transcribed from the pin, statements unchanged (only proofs rewritten):
 * The shifted cores are private port-local lemmas: `velu_tangent_core`, and
   `velu_secant_core` with its single helper `secant_factor` (the factorization of
   §5). They are proof-local, so the public surface is unchanged.
+* `Velu/OrderTwoMap.lean`'s public headline,
+  `WeierstrassCurve.exists_addMonoidHom_coe_eq_veluPointMap2`, is likewise
+  unchanged; the four rewritten alignments are private. In the pinned commit
+  [`c46cb57`](https://github.com/htzh/flt_for_human/tree/c46cb57):
+  [`kw_velu2_secX_align`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L825-L868),
+  [`kw_velu2_secY_negAddY_align`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L869-L943)
+  with the collinearity lemma `hColQ`
+  ([#L889-L940](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L889-L940)),
+  [`kw_velu2_tanX_align`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L1032-L1072)
+  and
+  [`kw_velu2_tanY_negAddY_align`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L1095-L1168);
+  the shifted secant-`tanY` helper is
+  [`tanY_SI2c_shifted`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L433-L444)
+  with [`kw_velu2_tanY_SI2c`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L449-L484).
+* The one relation introduced for the tangent `addX` atomisation is
+  $`\Sigma = a_1D+2E`$ of §6.6(b), i.e.
+  $`6x^2+(4a_2+a_1^2)x+2a_4+a_1a_3 = a_1(2y+a_1x+a_3)+2(3x^2+2a_2x+a_4-a_1y)`$.
 * Statement faithfulness: `spec/check_flt_statements.py` reports 9791 identical
   statements, with the port-local cores exempted as own-proof declarations.
 * The certificate derivations are re-checked from scratch by

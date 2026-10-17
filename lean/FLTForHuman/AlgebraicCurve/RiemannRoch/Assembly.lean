@@ -116,13 +116,13 @@ theorem mem_adeleSpace_iff_mem_repartitions [HasPrincipalDivisors K F] {α : Pla
           intro h0
           have : ¬v.adicValuation (β v) ≤ 1 := by simpa [S] using hv
           apply this; simp [h0]
-        rw [v.adicValuation_eq_exp_neg_ord hβv, exp_le_exp, Finsupp.finset_sum_apply,
+        rw [v.adicValuation_eq_exp_neg_ord hβv, exp_le_exp, Finsupp.finsetSum_apply,
           Finset.sum_eq_single v (fun w _ hw => Finsupp.single_eq_of_ne (Ne.symm hw)) (fun h => (h hv).elim),
           Finsupp.single_eq_same]
       · have : v.adicValuation (β v) ≤ 1 := by
           by_contra h; exact hv (by simpa [S] using h)
         refine this.trans ?_
-        rw [Finsupp.finset_sum_apply, Finset.sum_eq_zero (fun w hw => ?_), exp_zero]
+        rw [Finsupp.finsetSum_apply, Finset.sum_eq_zero (fun w hw => ?_), exp_zero]
         exact Finsupp.single_eq_of_ne (fun h => hv (h ▸ hw))
     obtain ⟨D, hD⟩ := h hα
     exact adeleBdd_le_adeleSpace (D := D) hD
@@ -252,12 +252,12 @@ theorem adeleBdd_sup_le (A B : Divisor K F) :
     · have := hx v
       rwa [Finsupp.sup_apply, sup_eq_left.mpr h] at this
     · rw [map_zero]
-      exact zero_le'
+      exact zero_le
   have hz : x - y ∈ adeleBdd B := fun v => by
     simp only [Pi.sub_apply, y]
     split_ifs with h
     · rw [sub_self, map_zero]
-      exact zero_le'
+      exact zero_le
     · have := hx v
       rw [Finsupp.sup_apply, sup_eq_right.mpr (not_le.mp h).le] at this
       rwa [sub_zero]
@@ -285,7 +285,7 @@ theorem mem_omegaSpace_sup {A B : Divisor K F} {φ : Module.Dual K (adeleSpace K
 theorem weilDifferentialRankOne_of_stichtenothGenusExists [IsCurveOver K F]
     (h : StichtenothGenusExists K F) : WeilDifferentialRankOne K F := by
   obtain ⟨hne, hfin, γ, D₀, hγ⟩ := h
-  haveI := hne; haveI := hfin
+  have := hne; have := hfin
   intro φ hφ hφ0 μ hμ
   exact weilDifferentialRankOne_of_genusReached hγ hφ hφ0 hμ
 
@@ -306,15 +306,15 @@ theorem weilDualityAdelic_of_functionFieldRiemannRoch_of_stichtenothGenusExists
     WeilDualityAdelic K F := by
   intro _instCurve _instCan _instDC ω hω D
   obtain ⟨⟨v⟩, hfd, γ, D₀, hγ⟩ := hSG
-  haveI : Nonempty (Place K F) := ⟨v⟩
-  haveI : FiniteDimensional K ↥(LSpace (0 : Divisor K F)) := hfd
+  have : Nonempty (Place K F) := ⟨v⟩
+  have : FiniteDimensional K ↥(LSpace (0 : Divisor K F)) := hfd
 
   have hi : ∀ D' : Divisor K F,
       (indexOfSpecialty D' : ℤ) = (ell D' : ℤ) - (Divisor.degree D' + 1 - γ) :=
     fun D' => (indexOfSpecialty_eq_of_genusReached hγ D').2
 
   have hdegv : 0 < (v.deg : ℤ) := by
-    haveI : Module.Finite K v.ResidueField := IsCurveOver.finiteResidue v
+    have : Module.Finite K v.ResidueField := IsCurveOver.finiteResidue v
     exact_mod_cast (Module.finrank_pos : 0 < Module.finrank K v.ResidueField)
 
   have hγle : γ ≤ (genus K F : ℤ) := by
@@ -374,21 +374,21 @@ theorem stichtenothGenusExists_of_isCurveOver {K : Type*} {F : Type*} [Field K] 
   classical
   obtain ⟨x, htr, hfd, hsep⟩ :=
     IsCurveOver.exists_separating_transcendental (K := K) (F := F)
-  haveI := hfd; haveI := hsep
+  have := hfd; have := hsep
   set e : RatFunc K ≃ₐ[K] K⟮x⟯ := RatFunc.algEquivOfTranscendental x htr with he
-  letI : Algebra (RatFunc K) F := ((algebraMap K⟮x⟯ F).comp e.toAlgHom.toRingHom).toAlgebra
+  let : Algebra (RatFunc K) F := ((algebraMap K⟮x⟯ F).comp e.toAlgHom.toRingHom).toAlgebra
   have hsq : RingHom.comp (algebraMap (RatFunc K) F) (e.symm.toRingEquiv : K⟮x⟯ →+* RatFunc K)
       = RingHom.comp (RingEquiv.refl F : F →+* F) (algebraMap K⟮x⟯ F) := by
     refine RingHom.ext fun a => ?_
     show algebraMap K⟮x⟯ F (e (e.symm a)) = algebraMap K⟮x⟯ F a
     rw [e.apply_symm_apply]
-  haveI : IsScalarTower K (RatFunc K) F :=
+  have : IsScalarTower K (RatFunc K) F :=
     IsScalarTower.of_algebraMap_eq fun a => by
       show algebraMap K F a = algebraMap K⟮x⟯ F (e (algebraMap K (RatFunc K) a))
       rw [e.commutes, ← IsScalarTower.algebraMap_apply]
-  haveI : FiniteDimensional (RatFunc K) F :=
+  have : FiniteDimensional (RatFunc K) F :=
     Module.Finite.of_equiv_equiv e.symm.toRingEquiv (RingEquiv.refl F) hsq
-  haveI : Algebra.IsSeparable (RatFunc K) F :=
+  have : Algebra.IsSeparable (RatFunc K) F :=
     Algebra.IsSeparable.of_equiv_equiv e.symm.toRingEquiv (RingEquiv.refl F) hsq
   exact RationalFunctionField.stichtenothGenusExists K F hC
 
@@ -412,8 +412,8 @@ private theorem main [PerfectField K] [IsCurveOver K F] [Algebra.EssFiniteType K
       (ell D : ℤ) - (ell (W - D) : ℤ) = Divisor.degree D + 1 - (genusFF K F : ℤ) := by
   classical
   obtain ⟨hne, hfin, γ, D₀, hR⟩ := stichtenothGenusExists_of_isCurveOver hC
-  haveI : Nonempty (Place K F) := hne
-  haveI : FiniteDimensional K (LSpace (0 : Divisor K F)) := hfin
+  have : Nonempty (Place K F) := hne
+  have : FiniteDimensional K (LSpace (0 : Divisor K F)) := hfin
 
   have hidx : ∀ D : Divisor K F,
       Module.Finite K (adeleSpace K F ⧸ adeleBddPrincipal K F D) ∧
@@ -431,12 +431,12 @@ private theorem main [PerfectField K] [IsCurveOver K F] [Algebra.EssFiniteType K
     positivity
 
   have hfinΩ : ∀ E : Divisor K F, Module.Finite K (omegaSpace E) := fun E => by
-    haveI := (hidx E).1
+    have := (hidx E).1
     exact Module.Finite.equiv (omegaSpaceEquivIndexDual E).symm
   have hpos : ∀ (E : Divisor K F) (ψ : Module.Dual K (adeleSpace K F)),
       ψ ∈ omegaSpace E → ψ ≠ 0 → 1 ≤ indexOfSpecialty E := by
     intro E ψ hψ hψ0
-    haveI := hfinΩ E
+    have := hfinΩ E
     rw [← finrank_omegaSpace_eq_indexOfSpecialty, Nat.one_le_iff_ne_zero, Ne,
       Submodule.finrank_eq_zero]
     intro hbot
@@ -459,10 +459,10 @@ private theorem main [PerfectField K] [IsCurveOver K F] [Algebra.EssFiniteType K
       have : (indexOfSpecialty D₀ : ℤ) = 0 := by linarith
       exact_mod_cast this
     have hbot : omegaSpace D₀ = ⊥ := by
-      haveI := hfinΩ D₀
+      have := hfinΩ D₀
       rw [← Submodule.finrank_eq_zero, finrank_omegaSpace_eq_indexOfSpecialty, h0]
     have hle : omegaSpace E ≤ ⊥ := hbot ▸ omegaSpace_antitone hE
-    haveI := hfinΩ E
+    have := hfinΩ E
     rw [← finrank_omegaSpace_eq_indexOfSpecialty, Submodule.finrank_eq_zero]
     exact le_bot_iff.mp hle
 

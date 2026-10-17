@@ -30,14 +30,14 @@ theorem finite_range_of_factorsThroughFiniteLevel {M : Type} [Group M] (ρ : Γ�
     (hρ : GaloisFactorsThroughFiniteLevel ρ) : Finite (MonoidHom.range ρ) := by
   classical
   obtain ⟨L, hL, hker⟩ := hρ
-  haveI := hL
+  have := hL
   let F : Γℚ → (L →ₐ[ℚ] AlgebraicClosure ℚ) := fun σ => σ.toAlgHom.comp L.val
   have hF : ∀ σ τ : Γℚ, F σ = F τ → ρ σ = ρ τ := by
     intro σ τ h
     have hfix : ∀ x ∈ L, (τ⁻¹ * σ) x = x := by
       intro x hx
       have hx' := congrArg (fun φ : L →ₐ[ℚ] AlgebraicClosure ℚ => φ ⟨x, hx⟩) h
-      simp only [F, AlgHom.coe_comp, Function.comp_apply, AlgEquiv.coe_algHom] at hx'
+      simp only [F, AlgHom.coe_comp, Function.comp_apply, AlgEquiv.coe_toAlgHom] at hx'
       change σ x = τ x at hx'
       rw [AlgEquiv.mul_apply, hx']
       exact τ.symm_apply_apply x

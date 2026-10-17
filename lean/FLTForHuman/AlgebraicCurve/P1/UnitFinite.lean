@@ -73,7 +73,7 @@ theorem sum_ramificationIndex_mul_inertiaDeg_of_forall_mem_iff
     ∑ w ∈ s, (w.ramificationIndex F : ℤ) * (w.inertiaDeg F : ℤ)
       = (Module.finrank F F' : ℤ) := by
   classical
-  haveI hfin : Fintype ↥((IsLocalRing.maximalIdeal v.toValuationSubring).primesOver
+  have hfin : Fintype ↥((IsLocalRing.maximalIdeal v.toValuationSubring).primesOver
       (integralClosureAt F' v)) :=
     (IsDedekindDomain.coe_primesOverFinset (maximalIdeal_ne_bot v) (integralClosureAt F' v)) ▸
       (IsDedekindDomain.primesOverFinset (IsLocalRing.maximalIdeal v.toValuationSubring)
@@ -125,7 +125,7 @@ theorem sum_ramificationIndex_mul_inertiaDeg_of_forall_mem_iff
   ·
     intro w hw
     have hwr := (hs w).mp hw
-    haveI : (fiberCenter F' v hwr).asIdeal.LiesOver
+    have : (fiberCenter F' v hwr).asIdeal.LiesOver
         (IsLocalRing.maximalIdeal v.toValuationSubring) := fiberCenter_liesOver hwr
     rw [ramificationIndex_eq_ramificationIdx_fiberCenter hwr,
       inertiaDeg_eq_inertiaDeg_fiberCenter hwr,

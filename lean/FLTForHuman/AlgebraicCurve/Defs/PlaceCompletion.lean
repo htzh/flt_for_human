@@ -414,8 +414,8 @@ theorem kw_ffgc_denseRange_completionLinearCombination {ι : Type*} [Fintype ι]
 
 instance kw_ffgc_finiteDimensional_adicCompletion [FiniteDimensional F F'] :
     FiniteDimensional (W.restrict F).adicCompletion W.adicCompletion := by
-  letI := kw_ffgc_rankOne_adicCompletion (W.restrict F)
-  letI : NontriviallyNormedField (W.restrict F).adicCompletion :=
+  let := kw_ffgc_rankOne_adicCompletion (W.restrict F)
+  let : NontriviallyNormedField (W.restrict F).adicCompletion :=
     Valued.toNontriviallyNormedField (W.restrict F).adicCompletion ℤᵐ⁰
   let b := Module.finBasis F F'
   exact Module.Finite.of_surjective (kw_ffgc_completionLinearCombination F W b) (by
@@ -468,9 +468,7 @@ theorem kwHgfV352_valued_algebraMap_adicCompletion (v : Place K E) (x : E) :
     Valued.v (algebraMap E v.adicCompletion x) = v.heightOneSpectrum.valuation E x := by
   have h := IsDedekindDomain.HeightOneSpectrum.valuedAdicCompletion_eq_valuation'
     (K := E) v.heightOneSpectrum x
-  first
-    | exact h
-    | (rw [IsDedekindDomain.HeightOneSpectrum.algebraMap_adicCompletion]; exact h)
+  exact h
 
 -- The pin's `namespace Place` block held the two private ord helpers
 -- `mem_of_ord_nonneg_placeCompletionAux` / `ord_nonneg_of_mem_placeCompletionAux`

@@ -118,7 +118,7 @@ private theorem T_pow_mem_Gamma1 (N n : ℕ) : ModularGroup.T ^ n ∈ Gamma1 N :
   simp
 
 private theorem T_mem_Gamma1 (N : ℕ) : ModularGroup.T ∈ Gamma1 N := by
-  simpa using T_pow_mem_Gamma1 N 1
+  simp
 
 end Slash
 

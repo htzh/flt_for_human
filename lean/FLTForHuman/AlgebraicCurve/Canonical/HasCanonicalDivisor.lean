@@ -104,7 +104,7 @@ theorem _root_.AlgebraicCurve.Place.polynomialAlgebra_algebraMap_X :
     algebraMap K[X] v.toValuationSubring X = v.uniformizerSubring'' :=
   aeval_X _
 
-@[reducible] def _root_.AlgebraicCurve.Place.polynomialIsScalarTower :
+theorem _root_.AlgebraicCurve.Place.polynomialIsScalarTower :
     letI := v.polynomialAlgebra
     IsScalarTower K K[X] v.toValuationSubring := by
   letI := v.polynomialAlgebra
@@ -1498,7 +1498,7 @@ theorem finite_ordDifferential_D_ne_zero_s12 (hspan : ValSubringKaehlerSpanTop K
   have hpole : {v : Place K F | v.ord t < 0}.Finite := by
     refine (Dt.support.finite_toSet).subset ?_
     intro v hv
-    simp only [Set.mem_setOf_eq, Finset.mem_coe, Finsupp.mem_support_iff] at hv ⊢
+    simp only [Set.mem_ofPred_eq, Finset.mem_coe, Finsupp.mem_support_iff] at hv ⊢
     rw [hDt v]; omega
   have hsub : ∀ v : Place K F, 0 ≤ v.ord t →
       ((transcendentalChart K t : Subalgebra K F) : Set F) ⊆ (v.toValuationSubring : Set F) := by

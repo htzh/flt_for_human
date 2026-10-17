@@ -33,7 +33,7 @@ variable (τ : ℍ)
 lemma coe_smul_eq (γ : SL(2, ℤ)) :
     ((γ • τ : ℍ) : ℂ) = (((γ 0 0 : ℤ) : ℂ) * τ + ((γ 0 1 : ℤ) : ℂ)) / denom γ τ := by
   have := om_smul τ γ ![1, 0]
-  simp [om, Matrix.vecMul, Matrix.vec2_dotProduct] at this
+  simp [om, Matrix.vecMul] at this
   exact this
 
 lemma denom_eq (γ : SL(2, ℤ)) :

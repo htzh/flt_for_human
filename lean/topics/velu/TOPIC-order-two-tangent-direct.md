@@ -1,13 +1,17 @@
 # The order-two tangent identity, proved directly — the `Velu/OrderTwo` hog
 
-**Status: both identities are refactored and landed (2026-10-16; the secant one
-re-proved by a Vieta argument in the follow-up).** The proofs of
+**Status: both `OrderTwo` identities are refactored and landed (2026-10-16; the
+secant one re-proved by a Vieta argument in the follow-up), and all four heavy
+alignments of `OrderTwoMap` — `kw_velu2_tanY_SI2c`, `kw_velu2_secX_align`,
+`kw_velu2_secY_negAddY_align` and `kw_velu2_tanX_align` — are rewritten and
+landed (§9).** The proofs of
 `velu2_tangent_negAddY_cleared_identity` and
 `velu2_secant_negAddY_cleared_identity` no longer contain large certificates: the
 tangent one is a two-branch argument (largest polynomial 19 terms), and the secant
 one is now a *single* Vieta argument with no case split at all. Measured in
 `Velu/OrderTwo.lean`: `.olean` **276 MB → 29.3 MiB**, module build
-**2168 s → 23 s**. The remaining work is `Velu/OrderTwoMap.lean` (§6.2). This note
+**2168 s → 23 s**; `Velu/OrderTwoMap.lean`: **391.2 MiB → 60.3 MiB** and
+**459 s → 49 s** (§9). This note
 records (i) the measurement that found the hog, (ii) why the ported proof is
 catastrophic, (iii) the refactored proofs and their small certificates, and
 (iv) exactly what is left. Pin `anthropics/fermats-last-theorem@aa2d8b3`;
@@ -243,8 +247,9 @@ and its characteristic-$`2`$ corner, disappear.
    The Vieta proof of §4′ replaced all of them by two short-statement lemmas, at
    **29.3 MiB / 23 s**. Statements unchanged throughout
    (`spec/check_flt_statements.py`: 9791 identical).
-2. **`Velu/OrderTwoMap` (569 MB, 728 s) — plan for a new session.** Attribution
-   by prefix compiles with `-o`, each inside the 2-minute cap:
+2. **`Velu/OrderTwoMap` (596 MB, 728 s) — target (c) landed; (a), (b)
+   diagnosed.** Attribution by prefix compiles with `-o`, each inside the
+   2-minute cap. The original ladder:
 
    | prefix end | `.olean` | wall |
    |---|---:|---:|
@@ -254,28 +259,102 @@ and its characteristic-$`2`$ corner, disappear.
    | line 820 (`SecantAlign: kw_velu2_secX_align`) | — | **> 120 s** |
    | same, with that theorem's `linear_combination` replaced by `sorry` | 19.9 MB | **33 s** |
 
-   **Targets, in order.**
-   (a) `kw_velu2_secX_align` (`OrderTwoMap.lean:790-819`) — **> 87 s by itself**;
-       its certificate multiplies two very large cleared expressions, so the
-       elaboration (not `field_simp`) is the hog. Refactor: state the cleared
-       `addX` alignment in shifted coordinates, certify it with small
-       polynomials (its ingredients `kw_velu2_secX_SI2/3` are already moderate),
-       then derive the alignment.
-   (b) the rest of `SecantAlign`: `kw_velu2_secY_negAddY_align` (`:821-871`,
-       808/836-character arguments) and `kw_velu2_secY_align` — same shape.
-   (c) `kw_velu2_tanY_SI2c` (`:431-450`) — **15.9 MB** on its own; the tangent
-       machinery of §4 should apply directly.
-   (d) then the heavy proofs in lines 1109-1428 (`PointMap2_add_self`,
-       `PointMap2_add'`, the carrier discharge), re-measuring as we go.
-   **Method and constraints.** The full module build (~728 s) exceeds the
-   2-minute cap, so iterate by extracting individual theorems into scratch files
-   importing `Velu.OrderTwo`/`Velu.Defs` and compiling with `lake env lean -o`;
-   attribute with prefix compiles as in the table. Land a batch, then take one
-   full `lake build` to re-measure.
-   **Risk.** Several of these are *functional* statements (`velu2X`/`velu2Y`
-   against the quotient's `addX`/`addY`) proved through `field_simp`; the win
-   comes from replacing the giant ring verification by a cleared identity with a
-   small certificate, exactly as for `OrderTwo`'s two identities.
+   and the same ladder re-taken after (c) (line numbers shifted by +25):
+
+   | prefix end | `.olean` | wall |
+   |---|---:|---:|
+   | line 489 (`TangentYContent`, holds `kw_velu2_tanY_SI2c`) | **4.36 MB** | **6.0 s** (was 19.08 MB / 17.6 s) |
+   | line 670 (`SecantCarrier`) | 5.47 MB | 7.7 s |
+   | line 806 (`SecantConjunctOne`) | 5.91 MB | 7.8 s |
+   | line 867 (`kw_velu2_secX_align`) | **20.6 MB** | **18.4 s** (was > 170 s) |
+   | line 919 (`kw_velu2_secY_negAddY_align`) | 88.1 MB | 75.2 s |
+
+   **(c) `kw_velu2_tanY_SI2c` — landed.** Its statement is unchanged; its 4.8 kB
+   raw-monomial certificate is replaced by a port-local helper
+   `tanY_SI2c_shifted`, a **nine-term** multiple of the shifted curve, plus four
+   short `ring` rewrites that put the raw statement into shifted form so the
+   helper applies definitionally (the technique of §4′). The declaration alone
+   went 15.89 MB / 15.1 s to **1.21 MB / ~1.3 s**; the module prefix through it
+   went 19.08 MB / 17.6 s to 4.36 MB / 6.0 s. Re-checked by
+   `tools/deps/warnings/velu_map_check.py`.
+
+   **(a) `kw_velu2_secX_align` — landed.** The pin's certificate is *syntactic*:
+   it verifies only while `x₁-x₀`, `x₂-x₀`, `x₁-x₂`, `veluGx` are the literal
+   subterms, which is why every attempt to atomise the goal (and every attempt to
+   `set` instead of `generalize`) either failed the ring check or unfolded the
+   local definitions and stayed slow. `generalize … at *` names the four
+   subterms `u₁,u₂,d,G` in the goal *and* in the `SI2`/`SI3` hypotheses, at the
+   cost of dropping the definitional relation `d = u₁-u₂`; a port-local
+   `hrel : d = u₁-u₂` restores it, and the certificate gains a third term whose
+   coefficient is a 208-monomial polynomial (computed with `sympy`). The
+   declaration went from **> 150 s** to about **10 s**; the prefix through it
+   from **> 170 s** to **18.4 s / 20.6 MB**.
+
+   **(b) `kw_velu2_secY_negAddY_align` — partially landed, then blocked on the
+   normalizer.** Its local `set xA`/`set nAY` are now `generalize`d, so `simp` can
+   no longer zeta-unfold the whole `addX`/`negAddY` bodies into the goal; the
+   certificate is unchanged and the prefix through `kw_velu2_secY_align` went
+   75.2 s / 88.1 MB → **71.1 s / 87.76 MB**. The *full* recipe of (a) does **not**
+   transfer: generalizing `x₁-x₀, x₂-x₀, x₁-x₂, veluGx` and substituting
+   `d = u₁-u₂` away with `rw` leaves a **small** goal (1.6 kB printed, and the
+   whole setup through `mul_left_cancel₀` is only 1.6–3.5 s), and the three
+   certificate coefficients are only **42/125/229** expanded monomials — yet the
+   final `linear_combination` does not finish within 115 s.
+
+   A one-line diagnostic isolates it: `linear_combination (norm := skip) …`
+   compiles in **3.9 s**. So neither the certificate elaboration nor the goal is
+   the problem; the default post-normalizer `ring1` is the hog (it is asked to
+   prove the target over the generalized atoms), and `ring_nf` as the normalizer
+   does not help either. That is different from (a), where the same recipe made
+   `ring1` cheap.
+
+   **What the next session needs to know.** (i) The substitution step must be
+   `subst hrel`, *not* `rw [hrel] at *`: the latter rewrites `hrel` itself first,
+   turning it into `u₁-u₂ = u₁-u₂`, and so is a no-op everywhere else — `d`
+   survives in the goal and all hypotheses. With `subst`, everything is
+   genuinely shifted, the goal is 1.6 kB, and `(norm := skip)` is ~4 s.
+   (ii) The pin's certificate does **not** transfer by substitution alone: a
+   `sympy` model of the shifted goal and hypotheses says `c₁·hSIY +
+   c₂·hxA_rel + c₃·hnAY_rel` is *not* the goal (that model also fails to
+   reproduce the *original* certificate, so the model or `linear_combination`'s
+   own target-forming step must be pinned down first). The ground truth for that
+   is the goal `linear_combination (norm := skip)` leaves, which
+   `lean/tmp/study_b_skip.lean` prints in full. (iii) `hSIY` is the cleared
+   secant identity that `OrderTwo` now proves cheaply by Vieta, so deriving
+   `hColQ`'s certificate in those shifted coordinates is the natural route; the
+   isolated block is `lean/tmp/study_b.lean` (its dependencies are public).
+   **Scratches (kept):** `lean/tmp/study_b.lean` — isolated landed `hColQ`;
+   `lean/tmp/study_b_gen.lean` — the `generalize`+`subst` recipe;
+   `lean/tmp/study_b_skip.lean` — the `(norm := skip)` diagnostic and its
+   printed target.
+
+   **(d) `TangentXAlign` is the next hog, and it is `field_simp`-bound.**
+   Prefixes: through `kw_velu2_secY_align` **72.7 s**; through
+   `Piece_KwVeluOrderTwoTangentXAlign` **> 160 s**. Yet `kw_velu2_tanX_align`'s
+   certificate is the tiny `linear_combination -W.veluGx x₀ y₀ * hNpp`, so its
+   cost is the `field_simp`/`simp`/`rw` setup — a different bottleneck from (a)
+   and (b). The `tanY` alignments and the block at 1109-1428 are still
+   unmeasured.
+
+   **The earlier diagnosis still explains (a)/(b) ring cost.** The goal
+   `field_simp` leaves is *not* big — 3.5 kB printed and only 5,584
+   `(x,y,x₀,y₀)`-monomials expanded (9,005 with `a₁,a₂,a₄`) — yet `ring_nf` on it
+   alone takes 53–74 s (profiler: `tactic execution` 53 s, `ring` 0.5 s,
+   typeclass inference 1 s); removing the dead `(common factor) * 0` on its RHS,
+   lowering `maxRecDepth`, and `ring_nf` as the `linear_combination` normalizer
+   all fail to help. The cost is ring's per-monomial proof construction on the
+   **raw** presentation, which the `generalize`-plus-relation recipe of (a)
+   removes when the certificate is small enough to elaborate.
+   **Method and constraints.** The full module build (~688 s) exceeds the
+   2-minute cap. To attribute cost, do *not* prefix-compile (it re-elaborates
+   everything from line 1); instead copy the target declaration plus its private
+   dependencies into a scratch importing the built module, and compile that with
+   `lake env lean -o`. Remember `set_option maxHeartbeats 4000000`, which
+   `lake build` supplies but `lake env lean` on a scratch does not. Land a batch,
+   then take one full `lake build` to re-measure.
+   **Risk.** (b) and (d) are *functional* statements (`velu2X`/`velu2Y` against
+   the quotient's `addX`/`addY`) proved through `field_simp`; (b) needs its
+   certificate re-derived, (d) needs the clearing itself made cheaper.
 3. **Re-take the tree measurement** (4 threads) and re-rank the modules with
    `tools/deps/warnings/analyze_build.py`; `OrderTwo` should now read ~45.8 MB
    and ~69 s, and the tree should have lost the old 48-minute `OrderTwo` chain.
@@ -290,6 +369,12 @@ and its characteristic-$`2`$ corner, disappear.
 | `lean/tmp/velu_full.lean` | core + wired theorem, compiles at 200 K (6.8 s wall) |
 | `tools/deps/warnings/velu_refactor_check.py` | sympy verification of every identity in §4 |
 | `tools/deps/warnings/velu_secant_check.py` | sympy verification of the Vieta proof of §4′ (statement = `T`, the factorization, and the two Vieta certificates) |
+| `tools/deps/warnings/velu_map_check.py` | sympy verification of the `OrderTwoMap` target (c): the shifted `kw_velu2_tanY_SI2c` and its nine-term certificate |
+| `lean/tmp/map_tanY3.lean` | the landed `OrderTwoMap` target (c): `tanY_SI2c_shifted` + the rewired theorem, compiles at the global heartbeat cap |
+| `lean/tmp/study_b.lean` | isolated copy of `kw_velu2_secY_negAddY_align`'s `hColQ` block (its dependencies are public), for cheap iteration on (b)'s certificate |
+| `lean/tmp/study_b_gen.lean` | the same block with the `generalize`+`subst hrel` recipe (shifted goal, fast setup, slow `ring1`) |
+| `lean/tmp/study_b_skip.lean` | the `linear_combination (norm := skip)` diagnostic; prints the exact normalisation target for (b) |
+| `lean/tmp/map_tanY.lean` | the previous session's probe of the *ported* `kw_velu2_tanY_SI2c` (15.89 MB / 15.1 s), kept for the before/after |
 | `lean/tmp/velu_secant_v2.lean` | the landed secant core: `secant_factor` + the Vieta `velu_secant_core`, compiles at `maxHeartbeats 200000` |
 | `lean/tmp/velu_secant_core3.lean` | the superseded three-branch secant core (branch A, char ≠ 2, char 2) |
 | `lean/tmp/velu_secant_full.lean` | the superseded three-branch core + wired theorem |
@@ -328,3 +413,59 @@ free, then verify the two Vieta certificates against the two curve equations —
   `OrderTwo`'s dependents — one more `lake build` reaches a green tree.
 - The 4-thread build itself: `tmp/tree_build_4t.log`, ranked with
   `python3 tools/deps/warnings/analyze_build.py tmp/tree_build_4t.log`.
+
+## 9. Second wave (2026-10-16, evening): the three ring-term hogs
+
+A later tree build (`tmp/my.log`) showed `OrderTwoMap` at 1070 s wall (that
+figure is a 4-thread tree wall, inflated by contention). Measured cleanly with
+one `lake env lean -DmaxHeartbeats=4000000 -o` per module, the pre-fix module is
+**459.3 s / 391.2 MiB**.
+
+**Isolation.** `tmp/iso_gen.py` copies the module with all theorem bodies
+replaced by `sorry` except a named keep-list, so each declaration can be timed
+and sized on its own (`tmp/iso/run*.sh`; results in `tmp/iso/RESULTS*.txt`).
+The `.olean` difference from the all-`sorry` baseline is the declaration's proof
+term. The whole 391 MiB was four declarations:
+
+| declaration | wall | `.olean` |
+|---|---:|---:|
+| `kw_velu2_tanX_align` | 306 s | 242.1 MB |
+| `kw_velu2_tanY_negAddY_align` | 67 s | 71.7 MB |
+| `kw_velu2_secY_negAddY_align` | 54 s | 67.9 MB |
+| `kw_velu2_secX_align` | 16 s | 15.1 MB |
+| everything else | ≤ 24 s | ≤ 2.3 MB |
+
+All four costs are in the final `linear_combination`: e.g. for `tanX_align` the
+whole `rw`/`simp`/`field_simp` setup is 0.6 MB / 5 s, and the last
+`linear_combination -W.veluGx x₀ y₀ * hNpp` is 242 MB / 306 s. The certificate
+text is tiny; the cost is `ring`'s normalisation of the raw presentation.
+
+**The fixes.** `sympy` is the ground truth for what `ring` must prove: replace
+the normaliser with `linear_combination (norm := skip)`, `trace_state`, and
+parse the residual (`tmp/iso/tanx_skip.log`). It is an identity; the question is
+only its *presentation*.
+
+- `secY_negAddY_align`'s `hColQ`: the statement's cleared form is 30 terms and
+  its certificate against `veluGx`-free atoms is **4 + 4 monomials**
+  (`tmp/colq.py`, `tmp/colq2.py`): `T = G·u₁·(u₁-U)·(u₁-u₂)·hSIY
+  - U·u₁·u₂·(Uu₁-G)·(u₁u₂-G)·hnAY_rel`, with `hxA_rel` not needed at all.
+  Factoring the four `velu2X/Y` differences into single fractions
+  (`hX21/hXR1/hYR1/hY21`) makes `field_simp` produce exactly `T`.
+- `tanX_align`: `generalize` the shifted atoms *after* `simp only [velu2X, …]`,
+  but first normalise the shapes so the goal and `hNpp` agree syntactically.
+  `sympy` factors the naive atomised residual as
+  `-A·G·u·(u²-G)·C·(S - a₁D - 2E)`; `S = a₁D + 2E` holds in the base variables
+  but is lost once `D,E` are atoms, so `S` is rewritten to `a₁D + 2E` in the
+  same `simp only`. (Generalising *before* `simp only [velu2X, velu2Y]` re-mints
+  raw `veluGx` — that was the first failed attempt.)
+- `tanY_negAddY_align`: same idea with only `A, E, G` generalised, again after
+  `simp only [velu2X, velu2Y]`; the certificate keeps the raw `(x-x₀)`,
+  `(x2P-x₀)` factors, so no relations are severed.
+
+**Result.** `lake env lean -DmaxHeartbeats=4000000 -o … OrderTwoMap.lean`:
+**459.3 s / 391.2 MiB → 48.6 s / 60.3 MiB**, 0 errors, 0 warnings (landed in
+[`htzh/flt_for_human@c46cb57`](https://github.com/htzh/flt_for_human/tree/c46cb57);
+`lake build` of the module reports 49 s). The
+remaining weight is `secX_align` (15 MB), `tan_quotSlope_eq` (9.6 MB) and `tanY`
+(~22 MB), all now under the port's caps by a wide margin. Scratch certificates:
+`tmp/iso/tanx_fix.lean`, `tmp/iso/tany3.lean`.

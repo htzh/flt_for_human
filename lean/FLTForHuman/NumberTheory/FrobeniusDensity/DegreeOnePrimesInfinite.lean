@@ -71,7 +71,7 @@ theorem finiteDimensional_fractionRing :
     haveI := charZero_fractionRing R
     FiniteDimensional ℚ (FractionRing R) := by
   classical
-  haveI := charZero_fractionRing R
+  have := charZero_fractionRing R
   set K := FractionRing R
   obtain ⟨n, v, hv⟩ := Module.Finite.exists_fin (R := ℤ) (M := R)
 
@@ -118,8 +118,8 @@ theorem finiteDimensional_fractionRing :
 theorem numberField_fractionRing :
     haveI := charZero_fractionRing R
     NumberField (FractionRing R) := by
-  haveI := charZero_fractionRing R
-  haveI := finiteDimensional_fractionRing R
+  have := charZero_fractionRing R
+  have := finiteDimensional_fractionRing R
   exact NumberField.mk
 
 end fracfield
@@ -135,8 +135,8 @@ theorem nonempty_ringHom_zmod {R : Type*} [CommRing R] (K : Type*) [Field K] [Nu
   · rw [ite_eq_left hℓ] at h
     obtain ⟨𝔮, -, h𝔮⟩ := Set.nonempty_of_ncard_ne_zero h
     have hcard : Nat.card (𝓞 K ⧸ 𝔮) = ℓ := h𝔮
-    haveI : Finite (𝓞 K ⧸ 𝔮) := Nat.finite_of_card_ne_zero (by rw [hcard]; exact hℓ.ne_zero)
-    letI : Fintype (𝓞 K ⧸ 𝔮) := Fintype.ofFinite _
+    have : Finite (𝓞 K ⧸ 𝔮) := Nat.finite_of_card_ne_zero (by rw [hcard]; exact hℓ.ne_zero)
+    let : Fintype (𝓞 K ⧸ 𝔮) := Fintype.ofFinite _
     have hcard' : Fintype.card (𝓞 K ⧸ 𝔮) = ℓ := by rw [← Nat.card_eq_fintype_card, hcard]
     let e : ZMod ℓ ≃+* 𝓞 K ⧸ 𝔮 := ZMod.ringEquivOfPrime (𝓞 K ⧸ 𝔮) hℓ hcard'
     exact ⟨hℓ, ⟨e.symm.toRingHom.comp ((Ideal.Quotient.mk 𝔮).comp i)⟩⟩
@@ -189,8 +189,8 @@ open DegreeOnePrimes in
 theorem CommRing.infinite_setOf_prime_nonempty_ringHom_zmod_of_moduleFinite_int
     (R : Type) [CommRing R] [IsDomain R] [CharZero R] [Module.Finite ℤ R] :
     {ℓ : ℕ | ℓ.Prime ∧ Nonempty (R →+* ZMod ℓ)}.Infinite := by
-  haveI := charZero_fractionRing R
-  haveI := numberField_fractionRing R
+  have := charZero_fractionRing R
+  have := numberField_fractionRing R
 
   have hint : ∀ x : R, algebraMap R (FractionRing R) x ∈
       @integralClosure ℤ (FractionRing R) _ (FractionRing.field R).toCommRing
@@ -200,7 +200,7 @@ theorem CommRing.infinite_setOf_prime_nonempty_ringHom_zmod_of_moduleFinite_int
     refine ⟨p, hp, ?_⟩
     have h := Polynomial.hom_eval₂ p (algebraMap ℤ R) (algebraMap R (FractionRing R)) x
     rw [hpx, map_zero] at h
-    convert h.symm using 2 <;> first | rfl | exact Subsingleton.elim _ _
+    convert h.symm using 2; first | rfl | exact Subsingleton.elim _ _
   let i : R →+* NumberField.RingOfIntegers (FractionRing R) :=
     { toFun := fun x => ⟨algebraMap R (FractionRing R) x, hint x⟩
       map_one' := NumberField.RingOfIntegers.ext (map_one (algebraMap R (FractionRing R)))

@@ -189,7 +189,7 @@ theorem kaehlerToWeil_eq_weilOfKaehler {ω : Ω[F⁄K]} (hω : ω ≠ 0) :
   LinearMap.ext fun _ => rfl
 
 theorem kaehlerToWeil_zero : kaehlerToWeil (0 : Ω[F⁄K]) = (0 : Module.Dual K (adeleSpace K F)) :=
-  LinearMap.ext fun α => finsum_eq_zero_of_forall_eq_zero fun v => kaehlerResidueTerm_zero_left_s2 _ v
+  LinearMap.ext fun _α => finsum_eq_zero_of_forall_eq_zero fun v => kaehlerResidueTerm_zero_left_s2 _ v
 
 theorem kaehlerToWeil_add (ω η : Ω[F⁄K]) :
     kaehlerToWeil (ω + η) = (kaehlerToWeil ω + kaehlerToWeil η : Module.Dual K (adeleSpace K F)) := by
@@ -248,8 +248,8 @@ theorem exists_linearEquiv_regularDifferentials_omegaSpace_zero' {K : Type*} {F 
       ∀ (ω : ↥(regularDifferentials K F)) (hω : (ω : Ω[F⁄K]) ≠ 0),
         ((e ω : ↥(omegaSpace (K := K) (F := F) (0 : Divisor K F))) : Module.Dual K ↥(adeleSpace K F))
           = weilOfKaehler K F hω := by
-  haveI : HasSeparableResidue K F := hasSeparableResidue_of_perfectField
-  haveI : Nonempty (Place K F) := nonempty_place_of_constantsAreBase hC
+  have : HasSeparableResidue K F := hasSeparableResidue_of_perfectField
+  have : Nonempty (Place K F) := nonempty_place_of_constantsAreBase hC
   have hinj : Function.Injective (regularToOmega (K := K) (F := F) hRT) := by
     intro ω η h
     apply Subtype.ext

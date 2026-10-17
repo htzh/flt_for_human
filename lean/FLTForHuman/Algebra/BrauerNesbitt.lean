@@ -155,7 +155,7 @@ theorem trace_actionEndo_eq_finrank_comap [FiniteDimensional k P]
     (ha : ∀ x : P, a • x = C.projection C' hcompl x) (W : Submodule A P) :
     LinearMap.trace k ↥W (actionEndo k A ↥W a)
       = (finrank k ↥((C.restrictScalars k).comap ((W.subtype).restrictScalars k)) : k) := by
-  haveI : FiniteDimensional k ↥W := finiteDimensional_coe_submodule W
+  have : FiniteDimensional k ↥W := finiteDimensional_coe_submodule W
   set p : Submodule k ↥W := (C.restrictScalars k).comap ((W.subtype).restrictScalars k) with hp
   have hmem : ∀ x : ↥W, x ∈ p ↔ (x : P) ∈ C := by
     intro x
@@ -186,7 +186,7 @@ private theorem finrank_comap_pos_of_mem (W C : Submodule A P) [FiniteDimensiona
     apply hvne
     have h1 : ((w : ↥W) : P) = 0 := by rw [h0]; rfl
     exact h1
-  haveI : Nontrivial ↥((C.restrictScalars k).comap ((W.subtype).restrictScalars k)) :=
+  have : Nontrivial ↥((C.restrictScalars k).comap ((W.subtype).restrictScalars k)) :=
     nontrivial_of_ne w 0 hwne
   exact (Module.finrank_pos_iff_of_free k _).mpr inferInstance
 
@@ -222,7 +222,7 @@ theorem exists_linearEquiv_simple_of_actionTrace_eq [CharZero k]
     ∃ T : Submodule A N, Nonempty (↥S ≃ₗ[A] ↥T) := by
   classical
   by_contra hcon
-  haveI : IsSemisimpleModule A (M × N) := isSemisimpleModule_prod
+  have : IsSemisimpleModule A (M × N) := isSemisimpleModule_prod
 
   set M' : Submodule A (M × N) := LinearMap.range (LinearMap.inl A M N) with hM'
   set N' : Submodule A (M × N) := LinearMap.range (LinearMap.inr A M N) with hN'
@@ -232,7 +232,7 @@ theorem exists_linearEquiv_simple_of_actionTrace_eq [CharZero k]
   set S₁ : Submodule A (M × N) := S.map (LinearMap.inl A M N) with hS₁
   have eS₁ : ↥S ≃ₗ[A] ↥S₁ :=
     Submodule.equivMapOfInjective (LinearMap.inl A M N) LinearMap.inl_injective S
-  haveI hS₁simple : IsSimpleModule A ↥S₁ := IsSimpleModule.congr eS₁.symm
+  have hS₁simple : IsSimpleModule A ↥S₁ := IsSimpleModule.congr eS₁.symm
   set C : Submodule A (M × N) := isotypicComponent A (M × N) S₁ with hC
   have hCmem : C ∈ isotypicComponents A (M × N) := ⟨S₁, hS₁simple, hC⟩
   set C' : Submodule A (M × N) := sSup (isotypicComponents A (M × N) \ {C}) with hC'
@@ -278,7 +278,7 @@ theorem exists_linearEquiv_simple_of_actionTrace_eq [CharZero k]
 
     obtain ⟨T', hT'le, hT'simple⟩ :=
       (IsSemisimpleModule.eq_bot_or_exists_simple_le (N' ⊓ C)).resolve_left hne
-    haveI := hT'simple
+    have := hT'simple
     have hT'C : T' ≤ C := hT'le.trans inf_le_right
     have hT'N' : T' ≤ N' := hT'le.trans inf_le_left
 
@@ -294,7 +294,7 @@ theorem exists_linearEquiv_simple_of_actionTrace_eq [CharZero k]
         (LinearEquiv.ofEq _ _ hmapT)
     exact hcon ⟨T, ⟨eS₁.trans (hT'S₁.some.symm.trans eT.symm)⟩⟩
 
-  haveI : FiniteDimensional k ↥M' := finiteDimensional_coe_submodule M'
+  have : FiniteDimensional k ↥M' := finiteDimensional_coe_submodule M'
   have hMpos : 0 < finrank k ↥((C.restrictScalars k).comap ((M'.subtype).restrictScalars k)) := by
     have hS₁M' : S₁ ≤ M' := by
       rw [hS₁, hM']
@@ -304,7 +304,7 @@ theorem exists_linearEquiv_simple_of_actionTrace_eq [CharZero k]
       exact LinearMap.mem_range_self _ y
     have hS₁C : S₁ ≤ C := Submodule.le_isotypicComponent S₁
 
-    haveI : Nontrivial ↥S₁ := IsSimpleModule.nontrivial A ↥S₁
+    have : Nontrivial ↥S₁ := IsSimpleModule.nontrivial A ↥S₁
     obtain ⟨v, hv⟩ := exists_ne (0 : ↥S₁)
     exact finrank_comap_pos_of_mem M' C (hS₁M' v.2) (hS₁C v.2)
       (fun h => hv (Subtype.ext h))
@@ -342,12 +342,12 @@ private theorem nonempty_linearEquiv_of_subsingleton
   have hN0 : finrank k N = 0 := by
     have h3 : (finrank k N : k) = 0 := by rw [h1, hM0, Nat.cast_zero]
     exact_mod_cast h3
-  haveI : Subsingleton N := by
+  have : Subsingleton N := by
     rw [← not_nontrivial_iff_subsingleton]
     intro h
     have h4 : 0 < finrank k N := (Module.finrank_pos_iff_of_free k N).mpr h
     omega
-  refine ⟨LinearEquiv.ofLinear (0 : M →ₗ[A] N) (0 : N →ₗ[A] M) ?_ ?_⟩
+  refine ⟨LinearEquiv.ofLinearMap (0 : M →ₗ[A] N) (0 : N →ₗ[A] M) ?_ ?_⟩
   · ext x; exact Subsingleton.elim _ _
   · ext x; exact Subsingleton.elim _ _
 
@@ -364,7 +364,7 @@ private theorem nonempty_linearEquiv_of_actionTrace_eq_aux : ∀ (d : ℕ)
   induction d with
   | zero =>
     intro M N _ _ _ _ _ _ _ _ _ _ _ _ hle htr
-    haveI : Subsingleton M := by
+    have : Subsingleton M := by
       rw [← not_nontrivial_iff_subsingleton]
       intro h
       have h1 : 0 < finrank k M := (Module.finrank_pos_iff_of_free k M).mpr h
@@ -374,7 +374,7 @@ private theorem nonempty_linearEquiv_of_actionTrace_eq_aux : ∀ (d : ℕ)
     intro M N _ _ _ _ _ _ _ _ _ _ _ _ hle htr
     by_cases hsub : Subsingleton M
     · exact nonempty_linearEquiv_of_subsingleton htr
-    · haveI : Nontrivial M := not_subsingleton_iff_nontrivial.mp hsub
+    · have : Nontrivial M := not_subsingleton_iff_nontrivial.mp hsub
 
       have htop : (⊤ : Submodule A M) ≠ ⊥ := by
         intro h
@@ -385,17 +385,17 @@ private theorem nonempty_linearEquiv_of_actionTrace_eq_aux : ∀ (d : ℕ)
         rw [hu, hv]
       obtain ⟨S, -, hSsimple⟩ :=
         (IsSemisimpleModule.eq_bot_or_exists_simple_le (⊤ : Submodule A M)).resolve_left htop
-      haveI := hSsimple
+      have := hSsimple
 
       obtain ⟨T, ⟨eST⟩⟩ := exists_linearEquiv_simple_of_actionTrace_eq htr S
-      haveI : IsSimpleModule A ↥T := IsSimpleModule.congr eST.symm
+      have : IsSimpleModule A ↥T := IsSimpleModule.congr eST.symm
 
       obtain ⟨Sc, hScompl⟩ := exists_isCompl S
       obtain ⟨Tc, hTcompl⟩ := exists_isCompl T
-      haveI : FiniteDimensional k ↥S := finiteDimensional_coe_submodule S
-      haveI : FiniteDimensional k ↥Sc := finiteDimensional_coe_submodule Sc
-      haveI : FiniteDimensional k ↥T := finiteDimensional_coe_submodule T
-      haveI : FiniteDimensional k ↥Tc := finiteDimensional_coe_submodule Tc
+      have : FiniteDimensional k ↥S := finiteDimensional_coe_submodule S
+      have : FiniteDimensional k ↥Sc := finiteDimensional_coe_submodule Sc
+      have : FiniteDimensional k ↥T := finiteDimensional_coe_submodule T
+      have : FiniteDimensional k ↥Tc := finiteDimensional_coe_submodule Tc
 
       have htr' : ∀ a : A, actionTrace k A ↥Sc a = actionTrace k A ↥Tc a := by
         intro a
@@ -412,7 +412,7 @@ private theorem nonempty_linearEquiv_of_actionTrace_eq_aux : ∀ (d : ℕ)
           ((Submodule.prodEquivOfIsCompl S Sc hScompl).restrictScalars k)
         rwa [Module.finrank_prod] at h5
       have hSpos : 0 < finrank k ↥S := by
-        haveI : Nontrivial ↥S := IsSimpleModule.nontrivial A ↥S
+        have : Nontrivial ↥S := IsSimpleModule.nontrivial A ↥S
         exact (Module.finrank_pos_iff_of_free k ↥S).mpr inferInstance
       have hScle : finrank k ↥Sc ≤ d := by omega
 

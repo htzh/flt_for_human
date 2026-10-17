@@ -5,6 +5,10 @@ We will be developing math notes and tools to comprehend the Lean proof of FLT.
 ## Porting
 
 We are porting parts of FLT using the [playbook](lean/porting-playbook.md).
+No tree `lake build` without user permission.
+All tool calls must finish within 2 minutes or time out.
+You are not allowed to use a loop to circumvent the 2 minutes limit.
+Exception will be explicitly granted by the user.
 
 ## Dependendcy tools
 

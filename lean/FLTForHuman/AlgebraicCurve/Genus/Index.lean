@@ -485,12 +485,12 @@ def adeleBddQuotSingleEquivResidueField (D : Divisor K F) (P : Place K F) :
           · exact absurd h' htn0
           · exact h'
         by_cases hv : v = P
-        · subst v; rw [hα0, Valuation.map_zero]; exact zero_le'
+        · subst v; rw [hα0, Valuation.map_zero]; exact zero_le
         · rw [hEv v hv]; exact hαD v
       · by_cases hv : v = P
         · subst v
           rcases eq_or_ne ((α : Place K F → F) P) 0 with hα0 | hα0
-          · rw [hα0, Valuation.map_zero]; exact zero_le'
+          · rw [hα0, Valuation.map_zero]; exact zero_le
           · rw [P.adicValuation_eq_exp_neg_ord hα0, WithZero.exp_le_exp, hEP]
             rw [hordmul hα0] at h; omega
         · rw [hEv v hv]; exact hαD v
@@ -514,13 +514,13 @@ def adeleBddQuotSingleEquivResidueField (D : Divisor K F) (P : Place K F) :
       · subst v
         simp only [Pi.single_eq_same]
         rcases eq_or_ne (cl : F) 0 with hc0 | hc0
-        · rw [hf, hc0, zero_mul, Valuation.map_zero]; exact zero_le'
+        · rw [hf, hc0, zero_mul, Valuation.map_zero]; exact zero_le
         · have hf0 : f ≠ 0 := by rw [hf]; exact mul_ne_zero hc0 (zpow_ne_zero _ ht0)
           rw [P.adicValuation_eq_exp_neg_ord hf0, WithZero.exp_le_exp]
           rw [hf, P.ord_mul hc0 (zpow_ne_zero _ ht0), P.ord_zpow, ht1, mul_one]
           have hclnn := P.ord_nonneg_of_mem cl.2
           linarith
-      · rw [Pi.single_eq_of_ne hv, Valuation.map_zero]; exact zero_le'
+      · rw [Pi.single_eq_of_ne hv, Valuation.map_zero]; exact zero_le
     refine ⟨⟨Pi.single P f, hαD⟩, ?_⟩
 
     show res (ψ ⟨Pi.single P f, hαD⟩) = c

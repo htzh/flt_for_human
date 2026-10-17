@@ -302,7 +302,7 @@ private theorem xF_mem_lSpace_poleDivisor : T.xF ∈ LSpace T.poleDivisor := by
   rw [T.poleDivisor_apply, Place.ord_restrict, Finsupp.single_apply]
   rcases eq_or_ne (w.restrict E) T.v with hw | hw
   · simp only [hw, T.hxv, ite_true, mul_one, mul_neg_one, le_refl]
-  · simp only [if_neg (Ne.symm hw), mul_zero, neg_zero]
+  · simp only [ite_eq_right (Ne.symm hw), mul_zero, neg_zero]
     exact mul_nonneg (Int.natCast_nonneg _) (T.hxreg _ hw)
 
 private theorem degree_poleDivisor_eq_finrank :
@@ -330,7 +330,7 @@ private theorem mem_lSpace_nsmul_poleDivisor_of_regular_outside {f : F}
     have hbdd := hc w (Place.mem_fiber.mpr hw)
     nlinarith [Int.natCast_nonneg c]
   ·
-    simp only [if_neg (Ne.symm hw), mul_zero, neg_zero]
+    simp only [ite_eq_right (Ne.symm hw), mul_zero, neg_zero]
     exact hreg w hw
 
 omit [FiniteDimensional E F] in

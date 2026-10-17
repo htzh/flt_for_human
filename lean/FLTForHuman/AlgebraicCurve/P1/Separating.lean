@@ -74,7 +74,7 @@ theorem hasSeparatingTranscendental_of_core [CharZero K]
     (h : HasSeparatingTranscendentalCore K F) :
     HasSeparatingTranscendental K F := by
   obtain ⟨t, ht, hfin⟩ := h
-  haveI : Algebra.IsSeparable K⟮t⟯ F :=
+  have : Algebra.IsSeparable K⟮t⟯ F :=
     isSeparable_adjoin_of_charZero_of_finiteDimensional t
   exact ⟨t, ht, hfin, ‹_›,
     IntermediateField.finiteDimensional_adjoin_inv t,

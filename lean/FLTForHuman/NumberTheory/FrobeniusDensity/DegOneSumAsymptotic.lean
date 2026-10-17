@@ -181,6 +181,7 @@ private theorem tailSum_le {s : ℝ} (hs : 1 ≤ s) :
     _ = (Module.finrank ℚ K : ℝ≥0∞) * tailConst := by
         rw [tailConst, ENNReal.tsum_mul_left]
 
+omit [NumberField K] in
 private theorem cutSum_le (S₀ : Finset ℕ) {s : ℝ} (hs : 0 < s) :
     cutSum K S₀ s ≤ ∑ ℓ ∈ S₀, (degOneCount K ℓ : ℝ≥0∞) := by
   have hterm : ∀ ℓ : ℕ, (if ℓ ∈ S₀ then (degOneCount K ℓ : ℝ≥0∞) else 0) * (ℓ : ℝ≥0∞) ^ (-s)
@@ -203,10 +204,12 @@ private theorem cutSum_le (S₀ : Finset ℕ) {s : ℝ} (hs : 0 < s) :
     _ = ∑ ℓ ∈ S₀, (degOneCount K ℓ : ℝ≥0∞) :=
         Finset.sum_congr rfl fun _ hℓ => ite_eq_left hℓ
 
+omit [NumberField K] in
 private theorem sum_degOneCount_ne_top (S₀ : Finset ℕ) :
     (∑ ℓ ∈ S₀, (degOneCount K ℓ : ℝ≥0∞)) ≠ ⊤ :=
   (ENNReal.sum_lt_top.mpr fun _ _ => ENNReal.natCast_lt_top _).ne
 
+omit [NumberField K] in
 private theorem term_ne_top (S₀ : Finset ℕ) {s : ℝ} (hs : 0 < s) (ℓ : ℕ) :
     (if ℓ ∈ S₀ then 0 else (degOneCount K ℓ : ℝ≥0∞)) * (ℓ : ℝ≥0∞) ^ (-s) ≠ ⊤ := by
   rcases Nat.eq_zero_or_pos ℓ with rfl | hℓ
@@ -216,6 +219,7 @@ private theorem term_ne_top (S₀ : Finset ℕ) {s : ℝ} (hs : 0 < s) (ℓ : �
     exact ((ENNReal.rpow_le_one_of_one_le_of_neg (by exact_mod_cast hℓ)
       (neg_neg_iff_pos.mpr hs)).trans_lt ENNReal.one_lt_top).ne
 
+omit [NumberField K] in
 private theorem degOneSum_toReal_eq (S₀ : Finset ℕ) {s : ℝ} (hs : 0 < s) :
     (degOneSum K S₀ s).toReal
       = ∑' ℓ : ℕ, (if ℓ ∈ S₀ then 0 else (degOneCount K ℓ : ℝ)) * (ℓ : ℝ) ^ (-s) := by
@@ -233,6 +237,7 @@ private theorem tailSum_toReal_isBigO :
   exact ENNReal.toReal_mono
     (ENNReal.mul_ne_top (ENNReal.natCast_ne_top _) tailConst_ne_top) (tailSum_le K hs.le)
 
+omit [NumberField K] in
 private theorem cutSum_toReal_isBigO (S₀ : Finset ℕ) :
     (fun s : ℝ => (cutSum K S₀ s).toReal) =O[𝓝[>] 1] (fun _ => (1 : ℝ)) := by
   rw [isBigO_one_iff]

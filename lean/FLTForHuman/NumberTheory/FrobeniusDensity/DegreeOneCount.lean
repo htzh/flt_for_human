@@ -77,13 +77,13 @@ section Stabilizer
 private theorem isSeparable_residue' {L : Type*} [Field L] [NumberField L] {ℓ : ℕ}
     (hℓ : ℓ.Prime) (Q : Ideal (𝓞 L)) [Q.IsPrime] [Q.LiesOver (ratPrimeIdeal ℓ)] :
     Algebra.IsSeparable (ℤ ⧸ ratPrimeIdeal ℓ) ((𝓞 L) ⧸ Q) := by
-  haveI : Fact ℓ.Prime := ⟨hℓ⟩
+  have : Fact ℓ.Prime := ⟨hℓ⟩
   have hQbot : Q ≠ ⊥ := ne_bot_of_liesOver_ratPrimeIdeal hℓ
-  haveI : Finite ((𝓞 L) ⧸ Q) := finite_quotient_of_ne_bot hQbot
-  haveI : Finite (ℤ ⧸ ratPrimeIdeal ℓ) :=
+  have : Finite ((𝓞 L) ⧸ Q) := finite_quotient_of_ne_bot hQbot
+  have : Finite (ℤ ⧸ ratPrimeIdeal ℓ) :=
     Ring.HasFiniteQuotients.finiteQuotient (ratPrimeIdeal_ne_bot hℓ)
-  haveI : Q.IsMaximal := Ideal.IsPrime.isMaximal ‹_› hQbot
-  haveI : (ratPrimeIdeal ℓ).IsMaximal :=
+  have : Q.IsMaximal := Ideal.IsPrime.isMaximal ‹_› hQbot
+  have : (ratPrimeIdeal ℓ).IsMaximal :=
     ((Ideal.span_singleton_prime (by exact_mod_cast hℓ.ne_zero)).mpr
       (Int.prime_iff_natAbs_prime.mpr (by simpa using hℓ))).isMaximal (ratPrimeIdeal_ne_bot hℓ)
   exact Algebra.IsAlgebraic.isSeparable_of_perfectField
@@ -97,16 +97,16 @@ theorem stabilizer_eq_zpowers_arithFrobAt
         (FrobeniusDensity.ne_bot_of_liesOver_ratPrimeIdeal hℓ)
     MulAction.stabilizer (L ≃ₐ[ℚ] L) Q
       = Subgroup.zpowers (arithFrobAt ℤ (L ≃ₐ[ℚ] L) Q) := by
-  haveI : Fact ℓ.Prime := ⟨hℓ⟩
+  have : Fact ℓ.Prime := ⟨hℓ⟩
   have hQbot : Q ≠ ⊥ := ne_bot_of_liesOver_ratPrimeIdeal hℓ
-  haveI : Finite ((𝓞 L) ⧸ Q) := finite_quotient_of_ne_bot hQbot
-  haveI : Q.IsMaximal := Ideal.IsPrime.isMaximal ‹_› hQbot
-  haveI : (ratPrimeIdeal ℓ).IsMaximal :=
+  have : Finite ((𝓞 L) ⧸ Q) := finite_quotient_of_ne_bot hQbot
+  have : Q.IsMaximal := Ideal.IsPrime.isMaximal ‹_› hQbot
+  have : (ratPrimeIdeal ℓ).IsMaximal :=
     ((Ideal.span_singleton_prime (by exact_mod_cast hℓ.ne_zero)).mpr
       (Int.prime_iff_natAbs_prime.mpr (by simpa using hℓ))).isMaximal (ratPrimeIdeal_ne_bot hℓ)
-  haveI : Finite (ℤ ⧸ ratPrimeIdeal ℓ) :=
+  have : Finite (ℤ ⧸ ratPrimeIdeal ℓ) :=
     Ring.HasFiniteQuotients.finiteQuotient (ratPrimeIdeal_ne_bot hℓ)
-  haveI := isSeparable_residue' (L := L) hℓ Q
+  have := isSeparable_residue' (L := L) hℓ Q
   have hfrob : IsArithFrobAt ℤ (arithFrobAt ℤ (L ≃ₐ[ℚ] L) Q) Q :=
     IsArithFrobAt.arithFrobAt ℤ (L ≃ₐ[ℚ] L) Q
   have hle : Subgroup.zpowers (arithFrobAt ℤ (L ≃ₐ[ℚ] L) Q)
@@ -185,10 +185,11 @@ private theorem mem_of_isArithFrobAt_of_card_eq {Q : Ideal (𝓞 L)} [Q.IsPrime]
 
 variable {ℓ : ℕ} [IsGalois ℚ L]
 
+omit [IsGalois ℚ L] in
 private theorem le_card_quotient_under (hℓ : ℓ.Prime) (Q : Ideal (𝓞 L)) [Q.IsPrime]
     [Q.LiesOver (ratPrimeIdeal ℓ)] :
     ℓ ≤ Nat.card ((𝓞 E) ⧸ Q.under (𝓞 E)) := by
-  haveI h𝔮 : (Q.under (𝓞 E)).LiesOver (ratPrimeIdeal ℓ) := Ideal.LiesOver.tower_bot Q _ _
+  have h𝔮 : (Q.under (𝓞 E)).LiesOver (ratPrimeIdeal ℓ) := Ideal.LiesOver.tower_bot Q _ _
   have h𝔮bot : Q.under (𝓞 E) ≠ ⊥ :=
     Ideal.ne_bot_of_liesOver_of_ne_bot (ratPrimeIdeal_ne_bot hℓ) _
   have : Finite ((𝓞 E) ⧸ Q.under (𝓞 E)) := finite_quotient_of_ne_bot h𝔮bot
@@ -210,7 +211,7 @@ private theorem card_under_eq_of_stabilizer_le (hℓ : ℓ.Prime) (Q : Ideal (�
   have hQbot : Q ≠ ⊥ := ne_bot_of_liesOver_ratPrimeIdeal hℓ
   obtain ⟨σ, hσ⟩ := exists_isArithFrobAt' (L := L) hQbot
   have hσH : σ ∈ H := hstab hσ.mem_stabilizer
-  haveI h𝔮 : (Q.under (𝓞 E)).LiesOver (ratPrimeIdeal ℓ) := Ideal.LiesOver.tower_bot Q _ _
+  have h𝔮 : (Q.under (𝓞 E)).LiesOver (ratPrimeIdeal ℓ) := Ideal.LiesOver.tower_bot Q _ _
   have h𝔮bot : Q.under (𝓞 E) ≠ ⊥ :=
     Ideal.ne_bot_of_liesOver_of_ne_bot (ratPrimeIdeal_ne_bot hℓ) _
   have : Finite ((𝓞 E) ⧸ Q.under (𝓞 E)) := finite_quotient_of_ne_bot h𝔮bot
@@ -230,7 +231,7 @@ private theorem stabilizer_le_of_card_under_eq (hℓ : ℓ.Prime) (Q : Ideal (�
     (hdeg : Nat.card ((𝓞 E) ⧸ Q.under (𝓞 E)) = ℓ) :
     MulAction.stabilizer (L ≃ₐ[ℚ] L) Q ≤ H := by
   have hQbot : Q ≠ ⊥ := ne_bot_of_liesOver_ratPrimeIdeal hℓ
-  haveI : Finite ((𝓞 L) ⧸ Q) := finite_quotient_of_ne_bot hQbot
+  have : Finite ((𝓞 L) ⧸ Q) := finite_quotient_of_ne_bot hQbot
   rw [stabilizer_eq_zpowers_arithFrobAt hℓ Q hinertia, Subgroup.zpowers_le]
   refine mem_of_isArithFrobAt_of_card_eq (E := E) hQbot
     (IsArithFrobAt.arithFrobAt ℤ (L ≃ₐ[ℚ] L) Q) ?_ (hinertia ▸ bot_le)
@@ -244,9 +245,11 @@ private def restrictPrime (Q₀ : Ideal (𝓞 L)) (x : (L ≃ₐ[ℚ] L) ⧸ H) 
     rw [show g₂⁻¹ = (g₁⁻¹ * g₂)⁻¹ * g₁⁻¹ by group, mul_smul]
     exact (under_smul_of_mem (inv_mem h) _).symm
 
+omit [IsGalois ℚ L] in
 private theorem restrictPrime_mk (Q₀ : Ideal (𝓞 L)) (g : L ≃ₐ[ℚ] L) :
     restrictPrime E Q₀ (g : (L ≃ₐ[ℚ] L) ⧸ H) = (g⁻¹ • Q₀).under (𝓞 E) := rfl
 
+omit [IsGalois ℚ L] in
 private theorem mem_stabilizer_inv_smul_iff (Q₀ : Ideal (𝓞 L)) (g σ : L ≃ₐ[ℚ] L) :
     σ ∈ MulAction.stabilizer (L ≃ₐ[ℚ] L) (g⁻¹ • Q₀)
       ↔ g * σ * g⁻¹ ∈ MulAction.stabilizer (L ≃ₐ[ℚ] L) Q₀ := by
@@ -254,6 +257,7 @@ private theorem mem_stabilizer_inv_smul_iff (Q₀ : Ideal (𝓞 L)) (g σ : L �
     MulAut.conj_symm_apply]
   group
 
+omit [IsGalois ℚ L] in
 private theorem forall_smul_eq_iff_stabilizer_le (Q₀ : Ideal (𝓞 L)) (g : L ≃ₐ[ℚ] L) :
     (∀ d ∈ MulAction.stabilizer (L ≃ₐ[ℚ] L) Q₀, d • (g : (L ≃ₐ[ℚ] L) ⧸ H) = g)
       ↔ MulAction.stabilizer (L ≃ₐ[ℚ] L) (g⁻¹ • Q₀) ≤ H := by
@@ -272,10 +276,11 @@ private theorem forall_smul_eq_iff_stabilizer_le (Q₀ : Ideal (𝓞 L)) (g : L 
     rw [show g * (g⁻¹ * d⁻¹ * g) * g⁻¹ = d⁻¹ by group]
     exact inv_mem hd
 
+omit [IsGalois ℚ L] in
 private theorem exists_mem_smul_eq_of_under_eq (Q Q' : Ideal (𝓞 L)) [Q.IsPrime] [Q'.IsPrime]
     (h : Q.under (𝓞 E) = Q'.under (𝓞 E)) :
     ∃ σ ∈ H, σ • Q = Q' := by
-  haveI : Q'.LiesOver (Q.under (𝓞 E)) := ⟨h⟩
+  have : Q'.LiesOver (Q.under (𝓞 E)) := ⟨h⟩
   obtain ⟨τ, hτ⟩ := Ideal.exists_smul_eq_of_isGaloisGroup (Q.under (𝓞 E)) Q Q' H
   exact ⟨(τ : L ≃ₐ[ℚ] L), τ.2, hτ⟩
 
@@ -321,12 +326,12 @@ theorem ncard_degreeOne_primesOver_under
       refine ⟨⟨inferInstance, Ideal.LiesOver.tower_bot (g⁻¹ • Q₀) _ _⟩, ?_⟩
       exact card_under_eq_of_stabilizer_le hℓ (g⁻¹ • Q₀) hx
     · rintro ⟨⟨h𝔮p, h𝔮l⟩, h𝔮deg⟩
-      haveI := h𝔮p
-      haveI := h𝔮l
+      have := h𝔮p
+      have := h𝔮l
       obtain ⟨⟨Q, hQp, hQl⟩⟩ := Ideal.nonempty_primesOver (S := 𝓞 L) 𝔮
-      haveI := hQp
-      haveI := hQl
-      haveI : Q.LiesOver (ratPrimeIdeal ℓ) := Ideal.LiesOver.trans Q 𝔮 _
+      have := hQp
+      have := hQl
+      have : Q.LiesOver (ratPrimeIdeal ℓ) := Ideal.LiesOver.trans Q 𝔮 _
       obtain ⟨g, hg⟩ := Ideal.exists_smul_eq_of_isGaloisGroup
         (ratPrimeIdeal ℓ) Q₀ Q (L ≃ₐ[ℚ] L)
       refine ⟨((g⁻¹ : L ≃ₐ[ℚ] L) : (L ≃ₐ[ℚ] L) ⧸ H), ?_, ?_⟩
@@ -367,7 +372,7 @@ theorem ncard_degreeOne_primesOver_eq_ncard_frobFixed
     {𝔮 ∈ (FrobeniusDensity.ratPrimeIdeal ℓ).primesOver (𝓞 E) |
       Nat.card ((𝓞 E) ⧸ 𝔮) = ℓ}.ncard
       = {x : (L ≃ₐ[ℚ] L) ⧸ H | arithFrobAt ℤ (L ≃ₐ[ℚ] L) Q₀ • x = x}.ncard := by
-  haveI : Finite ((𝓞 L) ⧸ Q₀) :=
+  have : Finite ((𝓞 L) ⧸ Q₀) :=
     FrobeniusDensity.finite_quotient_of_ne_bot
       (FrobeniusDensity.ne_bot_of_liesOver_ratPrimeIdeal hℓ)
   rw [ncard_degreeOne_primesOver_under (H := H) (E := E) hℓ Q₀ hinertia]

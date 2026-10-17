@@ -189,7 +189,7 @@ theorem finiteDimensional_ker_inf_poleWindow [u.FiniteResidue]
     (πh : u.adicCompletionIntegers) (hπh : Irreducible πh) (M : ℕ) :
     FiniteDimensional K
       ((LinearMap.ker (tateProj u) ⊓ poleWindowKSubmod u πh M : Submodule K _)) := by
-  haveI := hPW u πh hπh M
+  have := hPW u πh hπh M
   set A := adicIntegersKSubmod u
   set P := poleWindowKSubmod u πh M
   let A' : Submodule K P := A.comap P.subtype
@@ -217,7 +217,7 @@ theorem finiteDimensional_principalPart_range [u.FiniteResidue]
         ((LinearMap.id - tateProj u) ∘ₗ lmulK u fh ∘ₗ (adicIntegersKSubmod u).subtype)) := by
   obtain ⟨πh, hπh⟩ := IsDiscreteValuationRing.exists_irreducible u.adicCompletionIntegers
   obtain ⟨M, hM⟩ := hCP u πh hπh fh
-  haveI := finiteDimensional_ker_inf_poleWindow u hPW πh hπh M
+  have := finiteDimensional_ker_inf_poleWindow u hPW πh hπh M
   refine Submodule.finiteDimensional_of_le
     (S₂ := LinearMap.ker (tateProj u) ⊓ poleWindowKSubmod u πh M) ?_
   rintro y ⟨⟨a, ha⟩, rfl⟩
@@ -244,8 +244,8 @@ theorem kwF4gRRTate_commFinite_of_clearPole_of_poleWindowFinite
     simp only [LinearMap.comp_apply, lmulK, Algebra.coe_lmul_eq_mul, LinearMap.mul_apply']
     simp only [IsDedekindDomain.HeightOneSpectrum.adicCompletion.toCompletion_mul]
     ring
-  haveI hRf := finiteDimensional_principalPart_range u hCP hPW fh
-  haveI hRg := finiteDimensional_principalPart_range u hCP hPW gh
+  have hRf := finiteDimensional_principalPart_range u hCP hPW fh
+  have hRg := finiteDimensional_principalPart_range u hCP hPW gh
   set pA := tateProj u
   set A := adicIntegersKSubmod u
   set Rf := LinearMap.range ((LinearMap.id - pA) ∘ₗ lmulK u fh ∘ₗ A.subtype)
@@ -253,13 +253,13 @@ theorem kwF4gRRTate_commFinite_of_clearPole_of_poleWindowFinite
   set S : Submodule K u.adicCompletion :=
     Submodule.map (pA ∘ₗ lmulK u gh) Rf ⊔ Submodule.map (pA ∘ₗ lmulK u fh) Rg
 
-  haveI : FiniteDimensional K (Submodule.map (pA ∘ₗ lmulK u gh) Rf) := Module.Finite.map _ _
-  haveI : FiniteDimensional K (Submodule.map (pA ∘ₗ lmulK u fh) Rg) := Module.Finite.map _ _
-  haveI hSfin : FiniteDimensional K S := Submodule.finiteDimensional_sup _ _
+  have : FiniteDimensional K (Submodule.map (pA ∘ₗ lmulK u gh) Rf) := Module.Finite.map _ _
+  have : FiniteDimensional K (Submodule.map (pA ∘ₗ lmulK u fh) Rg) := Module.Finite.map _ _
+  have hSfin : FiniteDimensional K S := Submodule.finiteDimensional_sup _ _
 
   have hSle : S ≤ LinearMap.range pA :=
     tateComm_target_le_range u pA (lmulK u fh) (lmulK u gh) Rf Rg
-  haveI : FiniteDimensional K (S.comap (LinearMap.range pA).subtype) := by
+  have : FiniteDimensional K (S.comap (LinearMap.range pA).subtype) := by
     have e := Submodule.comapSubtypeEquivOfLe hSle
     exact FiniteDimensional.of_injective e.toLinearMap e.injective
 
@@ -508,7 +508,7 @@ theorem kwF4gRRTate_poleWindowFinite_of_DVRQuotPowKFinite
     (hDVR : KwF4gRRTateDVRQuotPowKFinite K L) :
     KwF4gRRTatePoleWindowFinite K L := by
   intro u _ πh hπh M
-  haveI := hDVR u πh hπh M
+  have := hDVR u πh hπh M
 
   let e' := Submodule.Quotient.equiv
     ((adicIntegersKSubmod u).comap (poleWindowKSubmod u πh M).subtype)
@@ -581,14 +581,14 @@ theorem finiteDimensional_restrictScalarsQuot_pow [u.FiniteResidue]
       (Submodule.restrictScalars K (Ideal.span {πh^M} : Ideal u.adicCompletionIntegers)).map
         (Submodule.restrictScalars K (Ideal.span {πh^(M+1)} : Ideal _)).mkQ with hN_def
 
-    haveI hquot : FiniteDimensional K
+    have hquot : FiniteDimensional K
         ((u.adicCompletionIntegers ⧸
           (Ideal.span {πh^(M+1)} : Ideal _).restrictScalars K) ⧸ N) := by
-      haveI := ih
+      have := ih
       exact Module.Finite.equiv
         (Submodule.quotientQuotientEquivQuotient _ _ hle').symm
 
-    haveI hN : FiniteDimensional K N := by
+    have hN : FiniteDimensional K N := by
       set φ : u.adicCompletionIntegers →ₗ[K] (u.adicCompletionIntegers ⧸
           (Ideal.span {πh^(M+1)} : Ideal u.adicCompletionIntegers).restrictScalars K) :=
         (Submodule.restrictScalars K
@@ -616,9 +616,9 @@ theorem finiteDimensional_restrictScalarsQuot_pow [u.FiniteResidue]
       let e₂ : (u.adicCompletionIntegers ⧸ LinearMap.ker φ) ≃ₗ[K] LinearMap.range φ :=
         φ.quotKerEquivRange
       let e₃ : (LinearMap.range φ : Submodule K _) ≃ₗ[K] N := LinearEquiv.ofEq _ _ hrange
-      haveI hCK : FiniteDimensional K (u.adicCompletionIntegers ⧸
+      have hCK : FiniteDimensional K (u.adicCompletionIntegers ⧸
           (Ideal.span {πh} : Ideal u.adicCompletionIntegers).restrictScalars K) := by
-        haveI := hCot u πh hπh
+        have := hCot u πh hπh
         exact Module.Finite.equiv
           (Submodule.Quotient.restrictScalarsEquiv K
             (Ideal.span {πh} : Ideal u.adicCompletionIntegers)).symm
@@ -630,14 +630,14 @@ theorem finiteDimensional_idealQuot_pow [u.FiniteResidue]
     (πh : u.adicCompletionIntegers) (hπh : Irreducible πh) (M : ℕ) :
     FiniteDimensional K
       (u.adicCompletionIntegers ⧸ (Ideal.span {πh^M} : Ideal u.adicCompletionIntegers)) := by
-  haveI := finiteDimensional_restrictScalarsQuot_pow u hCot πh hπh M
+  have := finiteDimensional_restrictScalarsQuot_pow u hCot πh hπh M
   exact Module.Finite.equiv (Submodule.Quotient.restrictScalarsEquiv K _)
 
 theorem kwF4gRRTate_DVRQuotPowKFinite_of_cotangent
     (hCot : KwF4gRRTateDVRCotangentKFinite K L) :
     KwF4gRRTateDVRQuotPowKFinite K L := by
   intro u _ πh hπh M
-  haveI := finiteDimensional_idealQuot_pow u hCot πh hπh M
+  have := finiteDimensional_idealQuot_pow u hCot πh hπh M
   exact Module.Finite.equiv (quotPiPowEquivIdealQuot u πh M).symm
 
 theorem kwF4gRRTate_commFinite_of_cotangent [∀ u : Place K L, u.FiniteResidue]
@@ -695,7 +695,7 @@ def quotSpanIrreducibleEquivResidueField (πh : u.adicCompletionIntegers) (hπh 
 
 theorem kwF4gRRTate_DVRCotangentKFinite : KwF4gRRTateDVRCotangentKFinite K L := by
   intro u _ πh hπh
-  haveI : Module.Finite K u.ResidueField := FiniteResidue.finite
+  have : Module.Finite K u.ResidueField := FiniteResidue.finite
   exact Module.Finite.equiv (quotSpanIrreducibleEquivResidueField u πh hπh).symm
 
 theorem kwF4gRRTate_commFinite [∀ u : Place K L, u.FiniteResidue] :
