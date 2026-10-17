@@ -141,12 +141,25 @@ theorem velu2_equation_cleared_four {x₀ y₀ x y : R}
         + (W.a₆ - W.b₂ * W.veluGx x₀ y₀ - 7 * (x₀ * W.veluGx x₀ y₀)) * (x - x₀) ^ 6) := by
   rw [Affine.equation_iff] at hP hQ
   simp only [veluGy] at hgy
+  -- Shift to the 2-torsion point: `u = x - x₀`, `v = y - y₀`, `G = veluGx x₀ y₀`.  Subtracting
+  -- the equation at `Q` from the one at `P` and using `2y₀ + a₁x₀ + a₃ = 0` turns the curve
+  -- into `v² + a₁uv = u³ + βu² + Gu` with `β = a₂ + 3x₀` and `G` the polynomial below.
+  have hC : (y - y₀) ^ 2 + W.a₁ * (x - x₀) * (y - y₀)
+      = (x - x₀) ^ 3 + (W.a₂ + 3 * x₀) * (x - x₀) ^ 2
+        + (3 * x₀ ^ 2 + 2 * W.a₂ * x₀ + W.a₄ - W.a₁ * y₀) * (x - x₀) := by
+    linear_combination hP - hQ + (y - y₀) * hgy
   simp only [velu2XNum, velu2YNum, veluGx, b₂]
+  -- The cleared identity is the combination
+  --   `4u²(u²-G)²·hC + 4u⁶·hQ + (4a₁u⁵G - 4u⁴(u²-G)v)·hgy`,
+  -- the `hQ` term supplying the `a₆` data that the shifted curve equation does not see.
+  -- (`G` is written out so that `ring` sees the same atoms as the goal.)
   linear_combination
-    (4*W.a₁^2*x^2*y₀^2 - 8*W.a₁^2*x*x₀*y₀^2 + 4*W.a₁^2*x₀^2*y₀^2 - 16*W.a₁*W.a₂*x^2*x₀*y₀ + 32*W.a₁*W.a₂*x*x₀^2*y₀ - 16*W.a₁*W.a₂*x₀^3*y₀ - 8*W.a₁*W.a₄*x^2*y₀ + 16*W.a₁*W.a₄*x*x₀*y₀ - 8*W.a₁*W.a₄*x₀^2*y₀ + 8*W.a₁*x^4*y₀ - 32*W.a₁*x^3*x₀*y₀ + 24*W.a₁*x^2*x₀^2*y₀ + 16*W.a₁*x*x₀^3*y₀ - 16*W.a₁*x₀^4*y₀ + 16*W.a₂^2*x^2*x₀^2 - 32*W.a₂^2*x*x₀^3 + 16*W.a₂^2*x₀^4 + 16*W.a₂*W.a₄*x^2*x₀ - 32*W.a₂*W.a₄*x*x₀^2 + 16*W.a₂*W.a₄*x₀^3 - 16*W.a₂*x^4*x₀ + 64*W.a₂*x^3*x₀^2 - 48*W.a₂*x^2*x₀^3 - 32*W.a₂*x*x₀^4 + 32*W.a₂*x₀^5 + 4*W.a₄^2*x^2 - 8*W.a₄^2*x*x₀ + 4*W.a₄^2*x₀^2 - 8*W.a₄*x^4 + 32*W.a₄*x^3*x₀ - 24*W.a₄*x^2*x₀^2 - 16*W.a₄*x*x₀^3 + 16*W.a₄*x₀^4 + 4*x^6 - 24*x^5*x₀ + 36*x^4*x₀^2 + 16*x^3*x₀^3 - 48*x^2*x₀^4 + 16*x₀^6) * hP
-    + (-W.a₁^4*x^2*x₀^2 + 2*W.a₁^4*x*x₀^3 - W.a₁^4*x₀^4 - 2*W.a₁^3*W.a₃*x^2*x₀ + 4*W.a₁^3*W.a₃*x*x₀^2 - 2*W.a₁^3*W.a₃*x₀^3 - 8*W.a₁^2*W.a₂*x^2*x₀^2 + 16*W.a₁^2*W.a₂*x*x₀^3 - 8*W.a₁^2*W.a₂*x₀^4 - W.a₁^2*W.a₃^2*x^2 + 2*W.a₁^2*W.a₃^2*x*x₀ - W.a₁^2*W.a₃^2*x₀^2 - 4*W.a₁^2*W.a₄*x^2*x₀ + 8*W.a₁^2*W.a₄*x*x₀^2 - 4*W.a₁^2*W.a₄*x₀^3 + 4*W.a₁^2*x^4*x₀ - 16*W.a₁^2*x^3*x₀^2 + 12*W.a₁^2*x^2*x₀^3 + 8*W.a₁^2*x*x₀^4 - 8*W.a₁^2*x₀^5 - 8*W.a₁*W.a₂*W.a₃*x^2*x₀ + 16*W.a₁*W.a₂*W.a₃*x*x₀^2 - 8*W.a₁*W.a₂*W.a₃*x₀^3 - 4*W.a₁*W.a₃*W.a₄*x^2 + 8*W.a₁*W.a₃*W.a₄*x*x₀ - 4*W.a₁*W.a₃*W.a₄*x₀^2 + 4*W.a₁*W.a₃*x^4 - 16*W.a₁*W.a₃*x^3*x₀ + 12*W.a₁*W.a₃*x^2*x₀^2 + 8*W.a₁*W.a₃*x*x₀^3 - 8*W.a₁*W.a₃*x₀^4 - 16*W.a₂^2*x^2*x₀^2 + 32*W.a₂^2*x*x₀^3 - 16*W.a₂^2*x₀^4 - 16*W.a₂*W.a₄*x^2*x₀ + 32*W.a₂*W.a₄*x*x₀^2 - 16*W.a₂*W.a₄*x₀^3 + 16*W.a₂*x^4*x₀ - 64*W.a₂*x^3*x₀^2 + 48*W.a₂*x^2*x₀^3 + 32*W.a₂*x*x₀^4 - 32*W.a₂*x₀^5 - 4*W.a₄^2*x^2 + 8*W.a₄^2*x*x₀ - 4*W.a₄^2*x₀^2 + 8*W.a₄*x^4 - 32*W.a₄*x^3*x₀ + 24*W.a₄*x^2*x₀^2 + 16*W.a₄*x*x₀^3 - 16*W.a₄*x₀^4 + 24*x^4*x₀^2 - 96*x^3*x₀^3 + 108*x^2*x₀^4 - 24*x*x₀^5 - 12*x₀^6) * hQ
-    + (-W.a₁^4*x^2*x₀^2*y₀ + 2*W.a₁^4*x*x₀^3*y₀ - W.a₁^4*x₀^4*y₀ + W.a₁^3*W.a₂*x^2*x₀^3 - 2*W.a₁^3*W.a₂*x*x₀^4 + W.a₁^3*W.a₂*x₀^5 - 2*W.a₁^3*W.a₃*x^2*x₀*y₀ + 4*W.a₁^3*W.a₃*x*x₀^2*y₀ - 2*W.a₁^3*W.a₃*x₀^3*y₀ + W.a₁^3*W.a₄*x^2*x₀^2 - 2*W.a₁^3*W.a₄*x*x₀^3 + W.a₁^3*W.a₄*x₀^4 + W.a₁^3*W.a₆*x^2*x₀ - 2*W.a₁^3*W.a₆*x*x₀^2 + W.a₁^3*W.a₆*x₀^3 + W.a₁^3*x^2*x₀^4 + W.a₁^3*x^2*x₀*y₀^2 - 2*W.a₁^3*x*x₀^5 - 2*W.a₁^3*x*x₀^2*y₀^2 + W.a₁^3*x₀^6 + W.a₁^3*x₀^3*y₀^2 + W.a₁^2*W.a₂*W.a₃*x^2*x₀^2 - 2*W.a₁^2*W.a₂*W.a₃*x*x₀^3 + W.a₁^2*W.a₂*W.a₃*x₀^4 - 10*W.a₁^2*W.a₂*x^2*x₀^2*y₀ + 20*W.a₁^2*W.a₂*x*x₀^3*y₀ - 10*W.a₁^2*W.a₂*x₀^4*y₀ - W.a₁^2*W.a₃^2*x^2*y₀ + 2*W.a₁^2*W.a₃^2*x*x₀*y₀ - W.a₁^2*W.a₃^2*x₀^2*y₀ + W.a₁^2*W.a₃*W.a₄*x^2*x₀ - 2*W.a₁^2*W.a₃*W.a₄*x*x₀^2 + W.a₁^2*W.a₃*W.a₄*x₀^3 + W.a₁^2*W.a₃*W.a₆*x^2 - 2*W.a₁^2*W.a₃*W.a₆*x*x₀ + W.a₁^2*W.a₃*W.a₆*x₀^2 + W.a₁^2*W.a₃*x^2*x₀^3 + W.a₁^2*W.a₃*x^2*y₀^2 - 2*W.a₁^2*W.a₃*x*x₀^4 - 2*W.a₁^2*W.a₃*x*x₀*y₀^2 + W.a₁^2*W.a₃*x₀^5 + W.a₁^2*W.a₃*x₀^2*y₀^2 - 6*W.a₁^2*W.a₄*x^2*x₀*y₀ + 12*W.a₁^2*W.a₄*x*x₀^2*y₀ - 6*W.a₁^2*W.a₄*x₀^3*y₀ - 2*W.a₁^2*W.a₆*x^2*y₀ + 4*W.a₁^2*W.a₆*x*x₀*y₀ - 2*W.a₁^2*W.a₆*x₀^2*y₀ - 4*W.a₁^2*x^5*y₀ + 24*W.a₁^2*x^4*x₀*y₀ - 56*W.a₁^2*x^3*x₀^2*y₀ + 50*W.a₁^2*x^2*x₀^3*y₀ + 4*W.a₁^2*x^2*y*y₀^2 - 2*W.a₁^2*x^2*y₀^3 - 8*W.a₁^2*x*x₀^4*y₀ - 8*W.a₁^2*x*x₀*y*y₀^2 + 4*W.a₁^2*x*x₀*y₀^3 - 6*W.a₁^2*x₀^5*y₀ + 4*W.a₁^2*x₀^2*y*y₀^2 - 2*W.a₁^2*x₀^2*y₀^3 + 8*W.a₁*W.a₂^2*x^2*x₀^3 - 16*W.a₁*W.a₂^2*x*x₀^4 + 8*W.a₁*W.a₂^2*x₀^5 - 8*W.a₁*W.a₂*W.a₃*x^2*x₀*y₀ + 16*W.a₁*W.a₂*W.a₃*x*x₀^2*y₀ - 8*W.a₁*W.a₂*W.a₃*x₀^3*y₀ + 12*W.a₁*W.a₂*W.a₄*x^2*x₀^2 - 24*W.a₁*W.a₂*W.a₄*x*x₀^3 + 12*W.a₁*W.a₂*W.a₄*x₀^4 + 8*W.a₁*W.a₂*W.a₆*x^2*x₀ - 16*W.a₁*W.a₂*W.a₆*x*x₀^2 + 8*W.a₁*W.a₂*W.a₆*x₀^3 + 8*W.a₁*W.a₂*x^5*x₀ - 44*W.a₁*W.a₂*x^4*x₀^2 + 96*W.a₁*W.a₂*x^3*x₀^3 - 84*W.a₁*W.a₂*x^2*x₀^4 - 16*W.a₁*W.a₂*x^2*x₀*y*y₀ + 8*W.a₁*W.a₂*x^2*x₀*y₀^2 + 16*W.a₁*W.a₂*x*x₀^5 + 32*W.a₁*W.a₂*x*x₀^2*y*y₀ - 16*W.a₁*W.a₂*x*x₀^2*y₀^2 + 8*W.a₁*W.a₂*x₀^6 - 16*W.a₁*W.a₂*x₀^3*y*y₀ + 8*W.a₁*W.a₂*x₀^3*y₀^2 - 4*W.a₁*W.a₃*W.a₄*x^2*y₀ + 8*W.a₁*W.a₃*W.a₄*x*x₀*y₀ - 4*W.a₁*W.a₃*W.a₄*x₀^2*y₀ + 4*W.a₁*W.a₃*x^4*y₀ - 16*W.a₁*W.a₃*x^3*x₀*y₀ + 12*W.a₁*W.a₃*x^2*x₀^2*y₀ + 8*W.a₁*W.a₃*x*x₀^3*y₀ - 8*W.a₁*W.a₃*x₀^4*y₀ + 4*W.a₁*W.a₄^2*x^2*x₀ - 8*W.a₁*W.a₄^2*x*x₀^2 + 4*W.a₁*W.a₄^2*x₀^3 + 4*W.a₁*W.a₄*W.a₆*x^2 - 8*W.a₁*W.a₄*W.a₆*x*x₀ + 4*W.a₁*W.a₄*W.a₆*x₀^2 + 4*W.a₁*W.a₄*x^5 - 24*W.a₁*W.a₄*x^4*x₀ + 56*W.a₁*W.a₄*x^3*x₀^2 - 48*W.a₁*W.a₄*x^2*x₀^3 - 8*W.a₁*W.a₄*x^2*y*y₀ + 4*W.a₁*W.a₄*x^2*y₀^2 + 4*W.a₁*W.a₄*x*x₀^4 + 16*W.a₁*W.a₄*x*x₀*y*y₀ - 8*W.a₁*W.a₄*x*x₀*y₀^2 + 8*W.a₁*W.a₄*x₀^5 - 8*W.a₁*W.a₄*x₀^2*y*y₀ + 4*W.a₁*W.a₄*x₀^2*y₀^2 - 4*W.a₁*W.a₆*x^4 + 16*W.a₁*W.a₆*x^3*x₀ - 12*W.a₁*W.a₆*x^2*x₀^2 - 8*W.a₁*W.a₆*x*x₀^3 + 8*W.a₁*W.a₆*x₀^4 + 12*W.a₁*x^5*x₀^2 - 64*W.a₁*x^4*x₀^3 + 4*W.a₁*x^4*y*y₀ + 136*W.a₁*x^3*x₀^4 - 16*W.a₁*x^3*x₀*y*y₀ - 132*W.a₁*x^2*x₀^5 + 12*W.a₁*x^2*x₀^2*y₀^2 + 52*W.a₁*x*x₀^6 + 32*W.a₁*x*x₀^3*y*y₀ - 24*W.a₁*x*x₀^3*y₀^2 - 4*W.a₁*x₀^7 - 20*W.a₁*x₀^4*y*y₀ + 12*W.a₁*x₀^4*y₀^2 + 16*W.a₂^2*x^2*x₀^2*y - 16*W.a₂^2*x^2*x₀^2*y₀ - 32*W.a₂^2*x*x₀^3*y + 32*W.a₂^2*x*x₀^3*y₀ + 16*W.a₂^2*x₀^4*y - 16*W.a₂^2*x₀^4*y₀ + 16*W.a₂*W.a₄*x^2*x₀*y - 16*W.a₂*W.a₄*x^2*x₀*y₀ - 32*W.a₂*W.a₄*x*x₀^2*y + 32*W.a₂*W.a₄*x*x₀^2*y₀ + 16*W.a₂*W.a₄*x₀^3*y - 16*W.a₂*W.a₄*x₀^3*y₀ - 8*W.a₂*x^4*x₀*y + 8*W.a₂*x^4*x₀*y₀ + 32*W.a₂*x^3*x₀^2*y - 32*W.a₂*x^3*x₀^2*y₀ - 64*W.a₂*x*x₀^4*y + 64*W.a₂*x*x₀^4*y₀ + 40*W.a₂*x₀^5*y - 40*W.a₂*x₀^5*y₀ + 4*W.a₄^2*x^2*y - 4*W.a₄^2*x^2*y₀ - 8*W.a₄^2*x*x₀*y + 8*W.a₄^2*x*x₀*y₀ + 4*W.a₄^2*x₀^2*y - 4*W.a₄^2*x₀^2*y₀ - 4*W.a₄*x^4*y + 4*W.a₄*x^4*y₀ + 16*W.a₄*x^3*x₀*y - 16*W.a₄*x^3*x₀*y₀ - 32*W.a₄*x*x₀^3*y + 32*W.a₄*x*x₀^3*y₀ + 20*W.a₄*x₀^4*y - 20*W.a₄*x₀^4*y₀ - 12*x^4*x₀^2*y + 12*x^4*x₀^2*y₀ + 48*x^3*x₀^3*y - 48*x^3*x₀^3*y₀ - 36*x^2*x₀^4*y + 36*x^2*x₀^4*y₀ - 24*x*x₀^5*y + 24*x*x₀^5*y₀ + 24*x₀^6*y - 24*x₀^6*y₀) * hgy
-
+    (4 * (x - x₀) ^ 2 * ((x - x₀) ^ 2 - (3 * x₀ ^ 2 + 2 * W.a₂ * x₀ + W.a₄ - W.a₁ * y₀)) ^ 2)
+        * hC
+    + (4 * (x - x₀) ^ 6) * hQ
+    + (4 * W.a₁ * (x - x₀) ^ 5 * (3 * x₀ ^ 2 + 2 * W.a₂ * x₀ + W.a₄ - W.a₁ * y₀)
+        - 4 * (x - x₀) ^ 4 * ((x - x₀) ^ 2 - (3 * x₀ ^ 2 + 2 * W.a₂ * x₀ + W.a₄ - W.a₁ * y₀))
+          * (y - y₀)) * hgy
 end CommRing
 
 section Field
@@ -247,6 +260,12 @@ open Affine
 theorem Delta_eq_veluGx_sq_mul_velu2QuadDisc {x₀ y₀ : R}
     (hQ : W.toAffine.Equation x₀ y₀) (hgy : W.veluGy x₀ y₀ = 0) :
     W.Δ = W.veluGx x₀ y₀ ^ 2 * W.velu2QuadDisc x₀  :=  by
+  -- Reading.  `x₀` is a root of the 2-division cubic `Ψ₂(X) = 4X³ + b₂X² + 2b₄X + b₆`; its
+  -- quadratic cofactor `4X² + (b₂+4x₀)X + (2b₄+b₂x₀+4x₀²)` has discriminant exactly
+  -- `velu2QuadDisc x₀`, and the 2-torsion condition gives `2·veluGx x₀ y₀ = 6x₀² + b₂x₀ + b₄`.
+  -- So the identity is the discriminant factorization of `Ψ₂` through that root.  The
+  -- certificate below is its cleared form against the curve equation at `Q` and the 2-torsion
+  -- condition (both relations are needed; `sympy` re-checked the certificate from scratch).
   rw [Affine.equation_iff] at hQ
   simp only [veluGy] at hgy
   simp only [Δ, b₂, b₄, b₆, b₈, veluGx, velu2QuadDisc]
@@ -265,6 +284,10 @@ open Affine
 theorem veluQuotient2_Delta_eq {x₀ y₀ : R}
     (hQ : W.toAffine.Equation x₀ y₀) (hgy : W.veluGy x₀ y₀ = 0) :
     (W.veluQuotient2 x₀ y₀).Δ = W.veluGx x₀ y₀ * W.velu2QuadDisc x₀ ^ 2  :=  by
+  -- Reading.  This is the same cofactor factorization as `Delta_eq_veluGx_sq_mul_velu2QuadDisc`,
+  -- for the quotient curve: its `b₄`, `b₆` are `b₄ - 10G`, `b₆ - 4(b₂+7x₀)G` with
+  -- `G = veluGx x₀ y₀`, and its discriminant is `G · velu2QuadDisc x₀²` — one power of `G` and
+  -- two of the cofactor discriminant, against `G²` and one for `W` itself.
   rw [Affine.equation_iff] at hQ
   simp only [veluGy] at hgy
   simp only [Δ, b₂, b₄, b₆, b₈, veluQuotient2, veluGx, velu2QuadDisc]

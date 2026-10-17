@@ -170,7 +170,41 @@ touching the proof.
   probes under `lean/tmp/` (untracked) for review; delete the generated copies,
   which are large.
 
-## 7. Checklist
+## 7. Size and readability
+
+A proof term is the *proof*, serialised. A declaration whose proof term is a 4 kB
+`linear_combination` of monomials is unreadable even when correct: a human cannot
+check it, a reviewer cannot see what it means, and the next refactor cannot find
+the crux. So size is not only a build metric — **it is a proxy for whether the
+mathematics in the proof can be read**. Three working rules follow from the two
+passes:
+
+* **Name the relations.** A certificate over `hP`, `hQ`, `hgy` says nothing about
+  what it proves. A certificate over a *named* shifted-curve equation, a named
+  2-division root relation, and `b_relation` reads as a sentence.
+* **Factor the coefficients.** `4u²(u²-G)²`, `4u⁶` and
+  `4a₁u⁵G - 4u⁴(u²-G)v` are checkable at a glance; the same identity written as
+  three monomial lists is not. Factor the certificate in a CAS before writing it.
+* **A readable rewrite need not shrink the term much.** `OrderTwo.lean`'s
+  `velu2_equation_cleared_four` went from three monomial monoliths to a 3-term
+  factored certificate plus one named hypothesis, and its isolated size fell only
+  14.9 → 12.6 MiB, because `ring` still normalises the same 3-variable identity.
+  The readability gain is in the *declaration*; the size gain came from the
+  coordinate change (§5), not from editing the certificate. If the goal is size,
+  change the coordinates; if the goal is comprehension, name and factor.
+
+**Some certificates cannot be reduced, and that is worth recording.** `OrderTwo`'s
+`Delta_eq_veluGx_sq_mul_velu2QuadDisc` and `veluQuotient2_Delta_eq` state the
+2-division cofactor factorization `Δ = G x² · velu2QuadDisc`. A compact
+certificate would use the 2-division root relation and `b_relation`
+(`4 b₈ = b₂ b₆ - b₄²`); the coefficient of `b₈` is `-b₂²`, so `b_relation` enters
+with `-b₂²/4` — a division by 4 that the statements' `CommRing` does not allow.
+Expanding `b₈` (`simp only [..., b₈, ...]`) is therefore forced, and the
+certificate must also use the curve equation. Both identities keep their ported
+certificates, with a `-- Reading.` comment giving the factorization; the
+obstruction, not a smaller certificate, is the thing to write down.
+
+## 8. Checklist
 
 1. Rank `.olean`s; pick the outlier.
 2. Isolate per declaration (`-o` copies, last-first replacement, heartbeat and
@@ -182,3 +216,7 @@ touching the proof.
 5. Verify the algebra in a CAS; land; measure size and time; run the statement
    checker; 0 warnings.
 6. Write the topic note and record the numbers.
+7. For a **readability** pass (which is not the same as a size pass): factor the
+   certificate coefficients in a CAS, name every relation the certificate uses,
+   and record any certificate that cannot be reduced together with the
+   obstruction that blocks it.

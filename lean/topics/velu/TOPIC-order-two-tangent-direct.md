@@ -101,7 +101,7 @@ $`D = 2v + a_1u`$ (this is `y - negY x y`, nonzero by `hy`).
 ($`2y_0 + a_1x_0 + a_3 = 0`$, the 2-torsion condition), the Weierstrass equation
 becomes, for $`(u,v)`$ on the curve,
 
-$$v^2 + a_1 u v \;=\; u^3 + \beta u^2 + G u .$$
+$$v^2 + a_1 u v \\;=\\; u^3 + \beta u^2 + G u .$$
 
 **2. Every chord through `Q` has the same root product.** Substituting the line
 $`v = mu`$ into that cubic gives
@@ -117,7 +117,7 @@ from `Q` to `P` and $`m_R = v_R/u_R`$ for the chord from `Q` to $`-2P`$ (where
 $`(u_R, v_R)`$ is the double, i.e. `addX`/`negAddY` of the tangent at `P`), the
 theorem's left-hand side is *identically*
 
-$$T \;=\; u \, u_R \, \bigl[u^2 (a_1 + m + m_R) \;-\; u\,u_R\,(a_1 + 2m) \;+\; G\,(m - m_R)\bigr].$$
+$$T \\;=\\; u \\, u_R \\, \bigl[u^2 (a_1 + m + m_R) \\;-\\; u\\,u_R\\,(a_1 + 2m) \\;+\\; G\\,(m - m_R)\bigr].$$
 
 This is the relation between the slope from `Q` to `P` and the slope from `Q` to
 its double — the chord–tangent compatibility that `OrderTwoMap`'s conceptual
@@ -133,7 +133,7 @@ With $`E = 3u^2 + 2\beta u + G - a_1 v`$, $`D = 2v + a_1u`$,
 $`g_2 = m_P D - E`$ and $`F = 2E + a_1D = (2m_P+a_1)D - 2g_2`$, the first cut at
 the direct proof needed
 
-$$T \cdot D^3 \;=\; C_1 \cdot \text{curve} \;+\; q \cdot g_2$$
+$$T \cdot D^3 \\;=\\; C_1 \cdot \text{curve} \\;+\\; q \cdot g_2$$
 
 with a 570-character $`C_1`$ and a 1532-character, **irreducible** $`q`$. That
 identity is true, but `q` does not factor and cannot be shrunk, and elaborating
@@ -469,3 +469,49 @@ only its *presentation*.
 remaining weight is `secX_align` (15 MB), `tan_quotSlope_eq` (9.6 MB) and `tanY`
 (~22 MB), all now under the port's caps by a wide margin. Scratch certificates:
 `tmp/iso/tanx_fix.lean`, `tmp/iso/tany3.lean`.
+
+## 10. Third wave: `velu2_equation_cleared_four`, and the two discriminant certificates
+
+`OrderTwo.lean`'s largest remaining proof term was
+`velu2_equation_cleared_four` (**14.9 MiB** isolated — the module's single biggest
+declaration): the point map $`\pi`$ lands on the quotient curve, cleared by $`4`$. Its
+`linear_combination` was three monomial lists (the coefficients of `hP`, `hQ`,
+`hgy`), unreadable and impossible to check by eye. It is now three *factored*
+terms against a named shifted-curve relation. With $`u = x-x_0`$,
+$`v = y-y_0`$, $`G = \mathrm{veluGx}\,x_0\,y_0`$ and $`\beta = a_2+3x_0`$:
+
+* **`hC`** (named, one line): the curve at the 2-torsion point,
+  $`v^2 + a_1uv = u^3+\beta u^2+Gu`$, obtained from
+  `linear_combination hP - hQ + (y-y₀) * hgy` (the `+` because
+  `veluGy = -(2y+a₁x+a₃)`);
+* **the certificate**
+  $`4u^2(u^2-G)^2\cdot hC + 4u^6\cdot hQ + (4a_1u^5G - 4u^4(u^2-G)v)\cdot hgy`$,
+  with a comment saying that the `hQ` term supplies the $`a_6`$ data the shifted
+  curve equation does not see.
+
+The three coefficient polynomials are products of two factors each, and each of
+the three hypotheses is a named mathematical relation. The declaration's isolated
+size fell **14.9 → 12.6 MiB** and the module's `.olean` **29.28 → 26.98 MiB**
+(30,698,344 → 28,287,888 B) with a module build of **14 s**; the statement is
+untouched (checker `9792` identical, 0 mismatched, 0 missing). The size fall is
+modest because `ring` still normalises the same 3-variable identity — the
+readability gain is in the *declaration*, and it is the reason to do this pass at
+all ([olean-attribution-and-shrinking.md](../../../notes/olean-attribution-and-shrinking.md) §7).
+
+**The two discriminant identities resist the same treatment.**
+`Delta_eq_veluGx_sq_mul_velu2QuadDisc` (1.7 MiB isolated) and
+`veluQuotient2_Delta_eq` (4.8 MiB) state the 2-division cofactor factorization:
+$`x_0`$ is a root of $`\Psi_2(X) = 4X^3+b_2X^2+2b_4X+b_6`$, whose quadratic cofactor
+$`4X^2+(b_2+4x_0)X+(2b_4+b_2x_0+4x_0^2)`$ has discriminant `velu2QuadDisc x₀`, and
+the 2-torsion condition gives $`2\,\mathrm{veluGx}\,x_0\,y_0 = 6x_0^2+b_2x_0+b_4`$;
+then $`\Delta = G^2\cdot\mathrm{disc}`$ for $`W`$ and
+$`G\cdot\mathrm{disc}^2`$ for the quotient. A compact certificate would use the
+2-division root relation together with `b_relation` (`4 b₈ = b₂ b₆ - b₄²`), but the
+coefficient of $`b_8`$ in $`\Delta`$ is $`-b_2^2`$, so `b_relation` enters with
+$`-b_2^2/4`$ — a division by $`4`$ that the statements' `CommRing` does not allow.
+Expanding $`b_8`$ is forced, and the certificate must then also use the curve
+equation at $`Q`$; the CAS-reduced certificates are no smaller overall (the
+$`h_Q`$ coefficient shrinks, the $`hgy`$ coefficient grows). Both
+declarations therefore keep their ported certificates, now with a `-- Reading.`
+comment giving the factorization; the obstruction, not a smaller certificate, is
+the recorded outcome.

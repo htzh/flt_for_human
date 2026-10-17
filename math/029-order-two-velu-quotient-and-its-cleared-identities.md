@@ -4,7 +4,10 @@
 explains the mathematics of the quotient of an elliptic curve by a rational
 2-torsion point, the two *cleared identities* (tangent and secant) that make the
 quotient's point map a morphism, and how the port's machine-generated
-certificates for those identities were replaced by small ones. The replacement is
+certificates for those identities were replaced by small ones. Readability is as
+much the point as build cost: a proof whose term is a monomial list can be checked
+by the kernel but not read as mathematics, and §6 states the mathematics the
+rewritten proofs now display. The replacement is
 port-local work with no counterpart in the pin; §7 records it in detail for both
 modules — the build measurement that found the problem, why the certificates cost
 what they did, the tangent and secant refactors of `Velu/OrderTwo.lean`, and the
@@ -181,30 +184,90 @@ the slope relation; nothing else is used. The factorization is a polynomial
 identity with $`u_R`$ a *free* variable, so no elimination and no case split on
 the characteristic is needed.
 
-## 6. The point map against the quotient curve
+## 6. The quotient curve and its point map
+
+The point map $`\pi`$ of §1 has to be shown to be a morphism of curves before it
+can be a homomorphism of groups. Three statements do that, and all three are the
+arithmetic of §3's shift written out. The first two, §6.1 and §6.2, are the
+`Velu/OrderTwo.lean` facts that $`\pi`$ lands on $`E'`$ and that the
+discriminants behave; the rest, §6.3–§6.7, are the `Velu/OrderTwoMap.lean`
+comparisons of $`\pi`$ with the group law that $`E'`$ itself carries, which the
+headline `exists_addMonoidHom_coe_eq_veluPointMap2` needs.
 
 Section 2 fixed the algebraic target: after clearing denominators, "the point map
 is a homomorphism" is a polynomial identity on the curve, the 2-torsion condition
 and the slope relation, and §4–§5 prove the two `negAddY` instances of it that
-dominate the build. The port's headline is more than those instances:
-`exists_addMonoidHom_coe_eq_veluPointMap2` exhibits the point map $`\pi`$ as an
-`AddMonoidHom` *onto* the quotient curve $`E'`$ of §1, so $`\pi`$ has to be
-compared with the group law that $`E'`$ itself carries — `addX`, `addY` and
-`negAddY` on the Weierstrass coefficients
-$`(a_1,a_2,a_3,a_4-5G,a_6-b_2G-7x_0G)`$ — and not only with the chord construction
-on $`E`$. Those comparisons are `Velu/OrderTwoMap.lean`, and they split exactly as
-in §2: the **tangent** pair `kw_velu2_tanX_align`,
-`kw_velu2_tanY_negAddY_align`, and the **secant** pair `kw_velu2_secX_align`,
-`kw_velu2_secY_negAddY_align`, one $`x`$-statement and one $`y`$-statement each.
+dominate the build. The alignment comparisons split exactly as in §2, into the
+**tangent** pair `kw_velu2_tanX_align`, `kw_velu2_tanY_negAddY_align` and the
+**secant** pair `kw_velu2_secX_align`, `kw_velu2_secY_negAddY_align`, one
+$`x`$-statement and one $`y`$-statement each. Every one of the four is again a
+cleared polynomial identity in the raw $`x,y,x_0,y_0`$, and every one says the
+same geometric thing: the image under $`\pi`$ of a chord-and-tangent configuration
+on $`E`$ is the corresponding configuration on $`E'`$. Each therefore reduces to
+the shifted facts of §3 together with one of the two identities of §4–§5. Making
+them cheap is §7.6's story.
 
-Every one of the four is again a cleared polynomial identity in the raw
-$`x,y,x_0,y_0`$, and every one says the same geometric thing: the image under
-$`\pi`$ of a chord-and-tangent configuration on $`E`$ is the corresponding
-configuration on $`E'`$. Each therefore reduces to the shifted facts of §3
-together with one of the two identities of §4–§5, and the four reductions are the
-whole mathematical content of the module. Making them cheap is §7.6's story.
+### 6.1 The image of the point map lies on the quotient curve
 
-### 6.1 The secant images are collinear
+Before any group law, $`\pi`$ must land on $`E'`$: at
+$`(\mathrm{velu2X},\mathrm{velu2Y})`$ the quotient equation holds
+(`velu2_map_equation`, through the cleared form `velu2_equation_cleared_four`).
+The mathematics is §3's shift, used once. Put $`u = x-x_0`$, $`v = y-y_0`$,
+$`G = \mathrm{veluGx}\,x_0\,y_0`$ and $`\beta = a_2+3x_0`$; subtracting the
+equation at $`Q`$ from the one at $`P`$ and using $`2y_0+a_1x_0+a_3 = 0`$ leaves
+the shifted curve
+
+$$\text{curve}:\quad v^2+a_1uv \\;=\\; u^3+\beta u^2+Gu .$$
+
+The image coordinates are $`X/u^2`$ and $`Y/u^3`$ with
+$`X = u^2(x_0+u)+Gu`$ and $`Y = u^3(y_0+v)-Gu(a_1u+v)`$, and clearing the
+denominators of the quotient equation by $`u^6`$ leaves
+
+$$4\Bigl(Y^2+a_1uXY+a_3u^3Y\Bigr) \\;=\\;
+4\Bigl(X^3+a_2u^2X^2+(a_4-5G)u^4X+(a_6-b_2G-7x_0G)u^6\Bigr).$$
+
+The difference of the two sides is *identically*
+
+$$4u^2(u^2-G)^2\cdot\text{curve} \\;+\\; 4u^6\cdot h_Q
+  \\;+\\; \bigl(4a_1u^5G-4u^4(u^2-G)v\bigr)\cdot h_{\text{ord}},$$
+
+where $`h_Q`$ is the curve equation at $`Q`$ — it carries the $`a_6`$ data that
+the shifted curve has lost — and $`h_{\text{ord}} = 0`$ is the 2-torsion
+condition. Three named factors, each a product of visible ones: the proof *is*
+that display, and it is why this declaration reads as the statement it proves
+instead of as three unreadable monomial lists.
+
+### 6.2 The discriminant of the quotient
+
+The other two `OrderTwo.lean` statements that dominate the build are the
+discriminant side of the same shift. The $`x`$-coordinates of the three 2-torsion
+points are the roots of the 2-division cubic
+$`\Psi_2(T) = 4T^3+b_2T^2+2b_4T+b_6`$, so at a root $`x_0`$ the cubic is
+$`(T-x_0)`$ times
+
+$$4T^2+(b_2+4x_0)T+(2b_4+b_2x_0+4x_0^2),$$
+
+whose discriminant is exactly `velu2QuadDisc x₀`; and the 2-torsion condition
+gives $`2\,\mathrm{veluGx}\,x_0\,y_0 = 6x_0^2+b_2x_0+b_4`$. Reading $`\Delta`$ as
+the discriminant of $`\Psi_2`$ through that factorization gives, at a 2-torsion
+point,
+
+$$W.\Delta \\;=\\; \bigl(\mathrm{veluGx}\\,x_0\\,y_0\bigr)^2
+  \cdot \mathrm{velu2QuadDisc}\\,x_0 ,$$
+
+and the same computation for the quotient curve $`W' = E/\langle Q\rangle`$ gives
+
+$$(W').\Delta \\;=\\; \mathrm{veluGx}\\,x_0\\,y_0
+  \cdot \bigl(\mathrm{velu2QuadDisc}\\,x_0\bigr)^2 .$$
+
+These are `Delta_eq_veluGx_sq_mul_velu2QuadDisc` and `veluQuotient2_Delta_eq`; the
+$`N = 2`$ fibre of the modular polynomial later consumes them as the relation
+$`\Delta = g_i^2\,d_i`$. Unlike §6.1 they do *not* compress into a short
+certificate — the natural shorter route would divide by 4, which the statements'
+`CommRing` does not allow — so their proofs keep the ported certificates with a
+comment recording this reading (§7.7).
+
+### 6.3 The secant images are collinear
 
 Let $`P_1,P_2 \in E`$ have $`x_1 \ne x_2`$, and let $`R = (x_A,y_A)`$ be the third
 point in which the chord through $`P_1,P_2`$ meets $`E`$, so that $`P_1+P_2 = -R`$.
@@ -250,7 +313,7 @@ in
 [`kw_velu2_secY_negAddY_align`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L869-L943):
 collinearity of the images is a consequence of the preimage chord facts alone.
 
-### 6.2 The tangent `addX` alignment and $`\Sigma = a_1D+2E`$
+### 6.4 The tangent `addX` alignment and $`\Sigma = a_1D+2E`$
 
 For
 [`kw_velu2_tanX_align`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L1032-L1072)
@@ -277,31 +340,31 @@ $`a_1D+2E = a_1(2y+a_1x+a_3)+2(3x^2+2a_2x+a_4-a_1y) = 6x^2+(a_1^2+4a_2)x+2a_4+a_
 (the $`a_1y`$-terms cancel). Nothing else about this alignment is special: its
 cost is entirely in the normalisation, which is §7.6(b)'s story.
 
-### 6.3 The tangent `negAddY` alignment
+### 6.5 The tangent `negAddY` alignment
 
 [`kw_velu2_tanY_negAddY_align`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L1095-L1168)
-is the tangent counterpart of §6.1: the two preimage points coincide, the "chord"
+is the tangent counterpart of §6.3: the two preimage points coincide, the "chord"
 is the tangent at $`P`$, and the third intersection is the doubled point, so its
 parameters are tied to $`P`$ by the doubling relation. Writing
 $`d_2 = x_{2P}-x`$, $`U_2 = x_{2P}-x_0`$,
 $`V_d = y-\mathrm{negY}\,x\,y = D`$, and $`h_{SIYt}`$, $`h_{x2P}`$,
 $`h_{nAY}`$, $`h_{SI2c}`$ for the four tangent inputs (the tangent cleared
 identity of §4, the doubled-point relation, the tangent `negAddY` relation, and
-the shifted identity `tanY_SI2c_shifted` of §6.5), it is
+the shifted identity `tanY_SI2c_shifted` of §6.7), it is
 
 $$T_{\text{tanY}} \\;=\\; -G(u^2-G)V_d^3\\,h_{SIYt}
  \quad - G\\,d_2(uU_2-G)A\\,u^2\\,h_{x2P}
  \quad + uV_d^2(u^2-G)(uU_2-G)(uU_2+G)\\,h_{nAY}
  \quad - G\\,d_2(uU_2-G)\\,h_{SI2c} .$$
 
-As in §6.1 the content is that the images of the chord and of its third point are
+As in §6.3 the content is that the images of the chord and of its third point are
 collinear, and the certificate is a consequence of the preimage relations alone.
 The atomisation that makes it cheap is §7.6(c).
 
-### 6.4 The secant `addX` alignment
+### 6.6 The secant `addX` alignment
 
 [`kw_velu2_secX_align`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L825-L868)
-is the $`x`$-half of the secant alignment: like §6.1–§6.3 it compares the cleared
+is the $`x`$-half of the secant alignment: like §6.3–§6.5 it compares the cleared
 point map with the quotient curve's own `addX`, and what remains is a pair of
 shifted chord identities —
 [`kw_velu2_secX_SI2`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L369-L382)
@@ -314,9 +377,9 @@ $`d = u_1-u_2`$, so it is sound only while $`d`$ is literally the same subterm
 throughout, and its certificate — unlike the other three — is syntactic rather
 than algebraic; the consequences are §7.6(d).
 
-### 6.5 The `tanY` relation in shifted form
+### 6.7 The `tanY` relation in shifted form
 
-The tangent $`y`$-alignment of §6.3 consumes one further identity,
+The tangent $`y`$-alignment of §6.5 consumes one further identity,
 `kw_velu2_tanY_SI2c`. Its raw statement is a long explicit polynomial; in the
 shifted variables of §3 it is 18 $`(u,v)`$-monomials and a **nine-term** multiple
 of the shifted curve $`v^2+a_1uv = u^3+\beta u^2+Gu`$. It is therefore again a
@@ -527,7 +590,7 @@ mattered:
    `linear_combination` normaliser by `(norm := skip)` and printing the goal
    shows exactly what `ring` must prove; when a coordinate change makes that
    residual nonzero, factoring it in a CAS names the relation the change has
-   severed — for the tangent `addX` identity, $`\Sigma = a_1D+2E`$ of §6.2.
+   severed — for the tangent `addX` identity, $`\Sigma = a_1D+2E`$ of §6.4.
    Atomising a compound is sound only if *every* occurrence of it is the same
    subterm: one and the same factor written $`\Sigma`$ in a hypothesis and
    $`a_1D+2E`$ in the goal is enough to break the substitution.
@@ -561,15 +624,15 @@ close is read off directly with `linear_combination (norm := skip)` plus
 the coordinate change has severed (this is how the $`\Sigma-a_1D-2E`$ residual of
 (b) was found).
 
-**(a) `kw_velu2_secY_negAddY_align`.** The collinearity of §6.1 is certified by
+**(a) `kw_velu2_secY_negAddY_align`.** The collinearity of §6.3 is certified by
 [`hColQ`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L889-L940):
-factoring the four point-map differences into the single fractions of §6.1 makes
-`field_simp` produce exactly $`T`$, so the **4 + 4 monomial** certificate of §6.1
+factoring the four point-map differences into the single fractions of §6.3 makes
+`field_simp` produce exactly $`T`$, so the **4 + 4 monomial** certificate of §6.3
 applies. The ported certificate used three terms, its middle coefficient running
 to some seventy monomials, and listed the `addX` relation $`h_{RA}`$ as a third
 input, which the identity does not need.
 
-**(b) `kw_velu2_tanX_align`.** The certificate of §6.2 is already one term and the
+**(b) `kw_velu2_tanX_align`.** The certificate of §6.4 is already one term and the
 goal is short; what costs is the normalisation. Atomising it is sound only if
 $`\Sigma`$ and $`a_1D+2E`$ are the *same subterm* everywhere: if $`D,E`$ are
 generalised before $`\Sigma`$ is rewritten, the residual is a nonzero multiple of
@@ -581,7 +644,7 @@ about 1 MB. The order matters: generalising
 $`\mathrm{veluGx}\,x_0\,y_0`$ *before* unfolding `velu2X`/`velu2Y` leaves the
 freshly created occurrences raw, and the residual is nonzero again.
 
-**(c) `kw_velu2_tanY_negAddY_align`.** The four-term certificate of §6.3 is
+**(c) `kw_velu2_tanY_negAddY_align`.** The four-term certificate of §6.5 is
 already small, but its atoms are not all free: only $`A,E,G`$ are generalised
 (again after the `velu2X`/`velu2Y` unfolding), while $`u`$, $`d_2`$, $`U_2`$,
 $`V_d`$ stay raw. Generalising those would sever the relations tying them to
@@ -590,7 +653,7 @@ longer be an identity in the free atoms. The declaration falls from 71.7 MB to
 about 22 MB.
 
 **(d) `kw_velu2_secX_align`.** The certificate is genuinely *syntactic*, for the
-shape reason of §6.4: it verifies only while $`x_1-x_0`$, $`x_2-x_0`$,
+shape reason of §6.6: it verifies only while $`x_1-x_0`$, $`x_2-x_0`$,
 $`x_1-x_2`$ and $`\mathrm{veluGx}\,x_0\,y_0`$ are the literal subterms, which is
 why atomising the goal (or `set`ting the atoms as local definitions, which `ring`
 then unfolds) either fails the ring check or stays slow. `generalize … at *` names
@@ -602,7 +665,7 @@ $`\gt 150`$ s to about 10 s, and leaves 15.1 MB — the largest of the four now.
 
 **(e) `kw_velu2_tanY_SI2c`.** This is the direct case: a 4.8 kB raw-monomial
 certificate, 15.9 MB and about 11 s of the module on its own. The shifted identity
-of §6.5 replaces it, by the technique of §7.3: a port-local helper
+of §6.7 replaces it, by the technique of §7.3: a port-local helper
 [`tanY_SI2c_shifted`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L433-L444)
 holds it, and four short `ring` rewrites —
 $`2y+a_1x+a_3 = 2v+a_1u`$ (from `hord`), $`3x^2+2a_2x+a_4-a_1y = E`$,
@@ -619,6 +682,25 @@ pin's figure (§7.1): the pin-transcribed module measured 568 MB, and the
 that starting measurement. The remaining weight is `kw_velu2_secX_align`
 (15.1 MB), `kw_velu2_tan_quotSlope_eq` (9.6 MB) and
 `kw_velu2_tanY_negAddY_align` (~22 MB).
+
+### 7.7 The last three certificates of `OrderTwo.lean`
+
+Isolating `Velu/OrderTwo.lean`'s declarations puts the residual 29.3 MiB in three
+of them: `velu2_equation_cleared_four` (14.9 MiB), `veluQuotient2_Delta_eq`
+(4.8 MiB) and `Delta_eq_veluGx_sq_mul_velu2QuadDisc` (1.7 MiB), all still
+carrying ported monomial certificates. The first is now §6.1's display: a named
+shifted-curve hypothesis `hC`, obtained from `hP - hQ + (y-y₀)·hgy`, and three
+factored terms. Its proof term falls 14.9 → 12.6 MiB and the module's `.olean`
+29.28 → 26.98 MiB (28,287,888 B), but the point is readability, not the
+megabytes: `ring` still normalises the same three-variable identity, so size
+follows a change of coordinates, not certificate editing (as in §7.3–§7.4).
+The other two are §6.2's factorization; they keep their certificates, with a
+`-- Reading.` comment, because the compact route needs a division by 4 that the
+statements' `CommRing` does not have. The three declarations still account for
+~19 MiB of the module, and the obstruction — not a smaller certificate — is the
+recorded outcome. Certificates and measurements:
+[../lean/topics/velu/TOPIC-order-two-tangent-direct.md](../lean/topics/velu/TOPIC-order-two-tangent-direct.md)
+§10.
 
 ## 8. What this bought
 
@@ -637,7 +719,9 @@ for the ported certificate, 69 s for the three-branch refactor, 23 s for the
 Vieta proof — are contended 4-thread wall times and are quoted only to say that a
 minutes-long module became a seconds-long one (§7.1). The ported figure in
 particular is one tree build, never an idle-machine measurement: the improvement
-is real, but the baseline is a magnitude, not a number.
+is real, but the baseline is a magnitude, not a number. A later rewrite of the
+module's last three certificates (§7.7) brings `OrderTwo.olean` to **27.0 MiB**
+(28,287,888 B).
 
 The earlier three-branch secant refactor is the middle column: it shrank the proof
 term $`2.6\times`$ yet pushed the module build *up* (55 s → 69 s), because nine
@@ -646,11 +730,12 @@ replaces all of them by two short-statement lemmas (`secant_factor`,
 `velu_secant_core`), and the module's typeclass inference fell from 62.9 s to
 5.4 s (profiler, single-threaded `lake env lean`: 60.8 s → 16.6 s).
 
-The residual 29.3 MiB is no longer the secant identity. A prefix build attributes
-it to `velu2_equation_cleared_four` (≈ 16 MB / 11 s of the module), then
-`veluQuotient2_Delta_eq` (≈ 4.7 MB) and
-`Delta_eq_veluGx_sq_mul_velu2QuadDisc` (≈ 2.5 MB) — all three still carry their
-ported certificates, and are the next candidates for the same treatment.
+The residual is no longer the secant identity. Isolating the module's
+declarations attributes it to `velu2_equation_cleared_four` (14.9 MiB before
+§7.7's rewrite, 12.6 MiB after), `veluQuotient2_Delta_eq` (4.8 MiB) and
+`Delta_eq_veluGx_sq_mul_velu2QuadDisc` (1.7 MiB). The first is §6.1's three
+factored terms; the other two are §6.2's discriminant factorization, and their
+certificates stay.
 
 `Velu/OrderTwoMap.lean` carried four heavy certificates of its own, all now
 rewritten in the shifted coordinates of §3–§5 (§6, §7.6). Its `.olean` falls from
@@ -688,9 +773,14 @@ Transcribed from the pin, statements unchanged (only proofs rewritten):
   [`tanY_SI2c_shifted`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L433-L444)
   with [`kw_velu2_tanY_SI2c`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L449-L484).
 * The one relation introduced for the tangent `addX` atomisation is
-  $`\Sigma = a_1D+2E`$ of §6.2, i.e.
+  $`\Sigma = a_1D+2E`$ of §6.4, i.e.
   $`6x^2+(4a_2+a_1^2)x+2a_4+a_1a_3 = a_1(2y+a_1x+a_3)+2(3x^2+2a_2x+a_4-a_1y)`$.
-* Statement faithfulness: `spec/check_flt_statements.py` reports 9791 identical
+* The other three statements of `OrderTwo.lean` are §6.1–§6.2: the cleared
+  point-map equation `WeierstrassCurve.velu2_equation_cleared_four` (proof
+  rewritten to §6.1's display), and the discriminant factorization
+  `Delta_eq_veluGx_sq_mul_velu2QuadDisc` / `veluQuotient2_Delta_eq` (statements
+  and certificates unchanged, §7.7). Statements are unaffected throughout.
+* Statement faithfulness: `spec/check_flt_statements.py` reports 9792 identical
   statements, with the port-local cores exempted as own-proof declarations.
 * The certificate derivations are re-checked from scratch by
   [../tools/deps/warnings/velu_refactor_check.py](../tools/deps/warnings/velu_refactor_check.py)
