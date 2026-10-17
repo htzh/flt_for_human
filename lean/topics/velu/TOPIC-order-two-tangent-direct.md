@@ -1,15 +1,15 @@
 # The order-two tangent identity, proved directly — the `Velu/OrderTwo` hog
 
-**Status: both identities are refactored and landed (2026-10-16).** The proofs
-of `velu2_tangent_negAddY_cleared_identity` and
+**Status: both identities are refactored and landed (2026-10-16; the secant one
+re-proved by a Vieta argument in the follow-up).** The proofs of
+`velu2_tangent_negAddY_cleared_identity` and
 `velu2_secant_negAddY_cleared_identity` no longer contain large certificates: the
-tangent one is a two-branch argument (largest polynomial 19 terms), the secant
-one a three-branch argument (certificate text 14,355 → 7,066 chars), and neither
-uses a giant `linear_combination`. Measured in `Velu/OrderTwo.lean`: `.olean`
-**276 MB → 45.8 MB**, module build **2168 s → 69 s**. The remaining work is
-`Velu/OrderTwoMap.lean` (§6.2). This note
+tangent one is a two-branch argument (largest polynomial 19 terms), and the secant
+one is now a *single* Vieta argument with no case split at all. Measured in
+`Velu/OrderTwo.lean`: `.olean` **276 MB → 29.3 MiB**, module build
+**2168 s → 23 s**. The remaining work is `Velu/OrderTwoMap.lean` (§6.2). This note
 records (i) the measurement that found the hog, (ii) why the ported proof is
-catastrophic, (iii) the refactored proof and its two small certificates, and
+catastrophic, (iii) the refactored proofs and their small certificates, and
 (iv) exactly what is left. Pin `anthropics/fermats-last-theorem@aa2d8b3`;
 mathlib `v4.34.0`. Method:
 [../../porting-playbook.md](../../porting-playbook.md) §3.5 (build ladder), §4
@@ -158,6 +158,39 @@ argument is valid in every characteristic. The first certificate is literally
 "reduce $`T`$ by the curve, then use $`m_P = E/D`$"; the second is the
 elimination of $`m_P`$ and $`G`$ by $`2m_P+a_1`$ and $`F`$.
 
+## 4′. The secant identity, re-proved by Vieta
+
+§6.1's three-branch secant proof was itself replaced by the following, which has
+no case split. Write the chord through $`P_1,P_2`$ as $`v = mu+c`$, so that
+$`c = v_1-mu_1 = v_2-mu_2`$ is its intercept and $`u_R = c+mu_R`$ is the third
+intersection. Substituting $`v = mu+c`$ into the shifted curve
+$`v^2+a_1uv = u^3+\beta u^2+Gu`$ gives the cubic
+
+$$u^3 - (m^2+a_1m-\beta)u^2 + \bigl(G-c(2m+a_1)\bigr)u - c^2 ,$$
+
+whose roots are exactly $`u_1,u_2,u_R`$. Hence the Vieta relations
+
+$$u_1u_2+u_1u_R+u_2u_R \\;=\\; G-c(2m+a_1),\qquad u_1u_2u_R \\;=\\; c^2 .$$
+
+The statement is *identically* (with $`u_R`$ a free variable!)
+
+$$T_{\text{sec}} \\;=\\; (u_2-u_R)\Bigl[c\\,(\sigma_2-G) + (2m+a_1)\\,u_1u_2u_R\Bigr],
+\qquad \sigma_2 := u_1u_2+u_1u_R+u_2u_R ,$$
+
+and its bracket is $`c\,(\sigma_2-G+c(2m+a_1))+(2m+a_1)(u_1u_2u_R-c^2)`$, killable
+by the two Vieta relations. In Lean those two relations are certified from the
+two shifted curve equations alone: writing $`c_1,c_2`$ for them and
+$`v_2 = v_1-md`$ for the slope relation,
+
+$$d\\,\bigl(\sigma_2-G+c(2m+a_1)\bigr) \\;=\\; c_1-c_2,\qquad
+u_1u_2u_R-c^2 \\;=\\; u_1\bigl(\sigma_2-G+c(2m+a_1)\bigr)-c_1 ,$$
+
+so $`d \ne 0`$ gives $`\sigma_2-G = -c(2m+a_1)`$ and $`u_1u_2u_R = c^2`$, the
+bracket vanishes and $`T_{\text{sec}} = 0`$ in every characteristic. The whole
+proof is two private lemmas: `secant_factor` (the factorization, a ring identity
+on free variables) and `velu_secant_core`. The nine lemmas of the branch proof,
+and its characteristic-$`2`$ corner, disappear.
+
 ## 5. Verification and measurements (2026-10-16)
 
 - **Symbolic check**: `tools/deps/warnings/velu_refactor_check.py` re-derives
@@ -173,24 +206,42 @@ elimination of $`m_P`$ and $`G`$ by $`2m_P+a_1`$ and $`F`$.
 - **Module**: `lake build FLTForHuman.WeierstrassCurve.Velu.OrderTwo`
   **55 s**, `.olean` **68 MB** (was 2168 s / 276 MB). The module now succeeds
   under the port's global cap and under a 200 K local cap.
-- The residual 68 MB / 55 s is the **secant** certificate, which is still the
-  ported one.
+- The residual 68 MB / 55 s was the **secant** certificate, then still the ported
+  one.
+- **Second pass (secant, Vieta).** The three-branch secant refactor of §6.1 was
+  replaced by the Vieta proof of §4′: the statement factors as
+  $`T_{\text{sec}} = (u_2-u_R)\bigl(c(\sigma_2-G)+(2m+a_1)u_1u_2u_R\bigr)`$ with
+  $`c = v_1-mu_1`$ and $`\sigma_2 = u_1u_2+u_1u_R+u_2u_R`$, and the two Vieta
+  relations $`\sigma_2-G = -c(2m+a_1)`$, $`u_1u_2u_R = c^2`$ are certified from the
+  two *shifted curve equations* alone. The nine private lemmas of the branch
+  proof collapse to two (`secant_factor`, `velu_secant_core`), and no
+  characteristic hypothesis or case split survives. Measured:
+  `.olean` **45.8 MB → 29.3 MiB**, module build **69 s → 23 s**, and the
+  profiler's typeclass inference **62.9 s → 5.4 s** (single-threaded
+  `lake env lean`: 60.8 s → 16.6 s). Statement check unchanged (9791 identical).
+- **Where the remaining 29.3 MiB is.** A prefix build of the module attributes it
+  to `velu2_equation_cleared_four` (≈ 16 MB; line 150 prefix alone is 16.1 MB /
+  15 s), then `veluQuotient2_Delta_eq` (≈ 4.7 MB) and
+  `Delta_eq_veluGx_sq_mul_velu2QuadDisc` (≈ 2.5 MB). Those three still carry
+  ported certificates and are the next candidates; the two `negAddY` identities
+  now cost almost nothing.
 
 ## 6. What is left
 
-1. **The secant identity — landed (2026-10-16).** `velu2_secant_negAddY_cleared_identity`
-   now uses three small certificates in shifted coordinates instead of the ported
-   14,355-character `linear_combination` (four arguments of 6,783 / 3,189 / 2,830 /
-   1,553 characters), split on $`A := d(a_1+2m)`$:
+1. **The secant identity — landed, then superseded by §4′.** The first refactor
+   (kept here for the record) used three small certificates in shifted coordinates
+   instead of the ported 14,355-character `linear_combination` (four arguments of
+   6,783 / 3,189 / 2,830 / 1,553 characters), split on $`A := d(a_1+2m)`$:
    - branch $`A \ne 0`$: $`d\,A\,T = \alpha_1c_1+\alpha_2c_2+\alpha_3g_2`$;
    - branch $`A = 0`$, $`2 \ne 0`$: $`32\,d\,T^{(s)} = 4B\,P_2 + M\,(2m+a_1)`$;
    - characteristic 2 (where $`A = d\,a_1`$, so the case is $`a_1 = 0`$): the
      mod-2 certificate $`d\,T = \mu_0g_2+\mu_2\hat R+2E+a_1F`$, whose essential
-     factor is the unit $`d = u_1-u_2 \ne 0`$. Without it, $`T`$ is *not* in the
-     ideal generated by the shifted relations (§5 of the math note).
-   Measured: certificate text 14,355 → 7,066 chars; the proof term 40.4 → 15.3 MB;
-   `OrderTwo.olean` 67.3 → **45.8 MB**; module build 55 → 69 s (the cost sits in
-   the many large statements, not in the certificates). Statements unchanged
+     factor is the unit $`d = u_1-u_2 \ne 0`$.
+   Measured: certificate text 14,355 → 7,066 chars; proof term 40.4 → 15.3 MB;
+   `OrderTwo.olean` 67.3 → 45.8 MB. But the module build went 55 → 69 s: the cost
+   was in the *nine* private lemmas, each restating the expanded $`T_{\text{sec}}`$.
+   The Vieta proof of §4′ replaced all of them by two short-statement lemmas, at
+   **29.3 MiB / 23 s**. Statements unchanged throughout
    (`spec/check_flt_statements.py`: 9791 identical).
 2. **`Velu/OrderTwoMap` (569 MB, 728 s) — plan for a new session.** Attribution
    by prefix compiles with `-o`, each inside the 2-minute cap:
@@ -238,19 +289,23 @@ elimination of $`m_P`$ and $`G`$ by $`2m_P+a_1`$ and $`F`$.
 | `lean/tmp/velu_core2.lean` | the landed core: two-branch small certificates, compiles at `maxHeartbeats 200000` |
 | `lean/tmp/velu_full.lean` | core + wired theorem, compiles at 200 K (6.8 s wall) |
 | `tools/deps/warnings/velu_refactor_check.py` | sympy verification of every identity in §4 |
-| `tools/deps/warnings/velu_secant_check.py` | sympy facts for the secant identity (statement = `T`, ideal membership, branch-`A` certificate, `B₀ = -d·D₀'`) |
-| `lean/tmp/velu_secant_core3.lean` | the landed secant core: three branches (branch A, char ≠ 2, char 2), compiles |
-| `lean/tmp/velu_secant_full.lean` | secant core + wired theorem (the landing reference) |
-| `math/029-order-two-velu-quotient-and-its-cleared-identities.md` | the mathematics of the quotient, both identities, and the refactor |
+| `tools/deps/warnings/velu_secant_check.py` | sympy verification of the Vieta proof of §4′ (statement = `T`, the factorization, and the two Vieta certificates) |
+| `lean/tmp/velu_secant_v2.lean` | the landed secant core: `secant_factor` + the Vieta `velu_secant_core`, compiles at `maxHeartbeats 200000` |
+| `lean/tmp/velu_secant_core3.lean` | the superseded three-branch secant core (branch A, char ≠ 2, char 2) |
+| `lean/tmp/velu_secant_full.lean` | the superseded three-branch core + wired theorem |
+| `math/029-order-two-velu-quotient-and-its-cleared-identities.md` | the mathematics of the quotient, both identities, and the refactors |
 | `lean/tmp/velu_core.lean` | the superseded D³ core (single 2 kB certificate; does not fit 200 K) |
 | `tmp/velu_cert.txt` | the superseded certificate `C₁` and `q` (as sympy expressions) |
 | `tools/deps/warnings/analyze_build.py` | ranks a `lake build` log by module wall time |
 | `tools/deps/warnings/{fix_warnings,fix_loop.sh,fix_dep,sweep,screen}.py` | the warning sweep's tooling |
 
-To reproduce the refactor (any CAS): define `T` as the statement's left-hand
+To reproduce the tangent refactor (any CAS): define `T` as the statement's left-hand
 side with `addX`/`negAddY`/`slope`/`veluGx` unfolded and `u_R, v_R` inlined via
 `m_P`; then take the `v`-coefficient `B`, the substitution residual `S`, and the
 elimination multipliers `P₁`, `Q` of §4. The script above does exactly that.
+To reproduce the secant Vieta proof: factor the statement as in §4′ with `u_R`
+free, then verify the two Vieta certificates against the two curve equations —
+`velu_secant_check.py` does that.
 
 ## 8. Open threads elsewhere (campaign state at handoff)
 
