@@ -27,6 +27,26 @@ pin under two namespaces (e.g. `ModularForm.heckeTLin` and `CuspForm.heckeTLin`)
 also resolves; the bare last-name key is still registered, so earlier matches are
 unchanged.
 
+**Tier 3 (unwired) is read from the provenance comments.** The policy is: everything
+a listed module wires is checked, but no public declaration is *forced* to be wired —
+a statement with no listed source stays in `spec/UNWIRED-PUBLIC.md`, and its
+`-- pin: <pin name> (<pin file>:<line>)` comment is the exemption. That comment is
+what the register (via `tools/deps/unwired_register.py`) is built from, and it is
+the only record of an unwired declaration's pin source. The checker consults it as
+a fallthrough, never as a way to skip a diff that `SOURCES` can perform:
+
+* if the marker names a pin file that `SOURCES` does not read, the declaration is
+  registered tier 3 and is **exempted** (`UNWIRED`) instead of reported
+  `MISSING IN FLT`, and no last-name collision with an unrelated `SOURCES`
+  declaration can turn it into a spurious `MISMATCH`;
+* if the marker names a pin file that `SOURCES` does read, the marker's pin name is
+  the exact pin original to diff (it reaches a renamed declaration the by-name
+  lookups cannot); a counterpart that exists but differs is a real `MISMATCH`, and
+  only a missing counterpart is exempted.
+
+So a marker can only *remove* a `missing`/`mismatch` that no `SOURCES` copy could
+justify; it never suppresses a statement a listed pin file already provides.
+
 Usage:
 
     python3 spec/check_flt_statements.py [--flt ~/proj/fermats-last-theorem]
@@ -5203,6 +5223,19 @@ DECL_RE = re.compile(
 )
 FIELD_RE = re.compile(r"^\s{2,}([\w'ₐ]+)\s*:", re.MULTILINE)
 
+# The provenance convention of playbook §4 and `spec/UNWIRED-PUBLIC.md`: a public
+# declaration transcribed from the pin carries the pin original on a comment line
+# just above it,
+#     -- pin: gapsw80_t9_completedDedekindZeta (S_..._package.lean:5577)
+# `tools/deps/unwired_register.py` builds the tier-3 register from exactly these
+# comments, and they are the only record of an unwired declaration's pin source.
+# The checker reads them for the same reason (see `pin_markers`): a marker naming a
+# pin file that `SOURCES` does not list must not turn into `MISSING IN FLT`, and a
+# marker naming a listed file hands the diff the exact pin original to compare.
+PIN_MARKER_RE = re.compile(
+    r"--\s*pin:\s*([\w.'\u2080-\u209c]+)(?:\s*\(([^):\s]+)(?::(\d+))?\))?"
+)
+
 # Enclosing-namespace tracking.  The same last name can occur twice in one pinned
 # file under two different namespaces (e.g. `ModularForm.heckeTLin` and
 # `CuspForm.heckeTLin` in `Def_ModularForm_HeckeOperatorForms.lean`, or
@@ -5410,6 +5443,106 @@ def declarations(text: str) -> dict[str, tuple[str, str]]:
     for raw, kind, stmt in raw_declarations(text):
         # First occurrence wins; later duplicates would be redefinitions.
         out.setdefault(raw.rsplit(".", 1)[-1], (kind, stmt))
+    return out
+
+
+# A `-- pin:` comment sits above its declaration, but between the two the port may
+# write `@[…]` attribute lines and the inline scoping commands (`omit … in`,
+# `include … in`, `set_option … in`, `variable … in`).  Association therefore walks
+# *forward* from the marker over exactly those and stops at anything else.  A marker
+# that cannot see its declaration — the `scoped instance` the checker cannot read, a
+# declaration whose header it does not recognise — associates with nothing, rather
+# than attaching itself to whatever declaration happens to follow: a stray marker
+# must never exempt an unrelated statement.  (The register's three-line window has
+# this hazard; the checker is stricter, so it can only exempt less.)
+PIN_MARKER_MAX_GAP = 8
+PIN_MARKER_LEAD_RE = re.compile(
+    r"^(?:@\[|omit\b|include\b|variable\b|set_option\b|attribute\b|open\b|local\b|"
+    r"noncomputable\b|unsafe\b|private\b|protected\b|scoped\b|nonrec\b)"
+)
+
+
+def _code_lines(text: str) -> list[str]:
+    """`text` line by line, with block comments blanked and `--` comments kept.
+
+    Used only for the marker scan.  `strip_comments` cannot serve: it removes a
+    multi-line block comment outright, shifting every later line number, and the
+    marker is associated *by line*.  Keeping the line count and blanking the
+    comment interior makes a `-- pin:` example inside a docstring invisible while a
+    real comment line stays where it was.
+    """
+    out: list[str] = []
+    depth = 0
+    for line in text.split("\n"):
+        buf: list[str] = []
+        i = 0
+        while i < len(line):
+            if line.startswith("/-", i):
+                depth += 1
+                i += 2
+            elif depth and line.startswith("-/", i):
+                depth -= 1
+                i += 2
+            elif depth:
+                buf.append(" ")
+                i += 1
+            elif line.startswith("--", i):
+                # Keep the comment: it is where the marker lives.  `DECL_RE` still
+                # sees a declaration that opens the line before one.
+                buf.append(line[i:])
+                i = len(line)
+            else:
+                buf.append(line[i])
+                i += 1
+        out.append("".join(buf))
+    return out
+
+
+def pin_markers(text: str) -> dict[str, list[tuple[str, str | None]]]:
+    """`-- pin:` provenance per public declaration name, in source order.
+
+    Returns `bare name -> [(pin name, pin file), …]`, one entry per non-`private`
+    declaration of that name (a marker-less declaration contributes `("", None)`,
+    so a name declared twice keeps its markers aligned positionally).  The caller
+    consumes each list with a cursor in `raw_declarations` order; both sides skip
+    `private` declarations, so the sequences agree.
+    """
+    code = _code_lines(text)
+    n = len(code)
+    targets: dict[int, tuple[str, str | None]] = {}
+    for j, line in enumerate(code):
+        m = PIN_MARKER_RE.search(line)
+        if not m:
+            continue
+        mark = (m.group(1), m.group(2))
+        k, gap = j + 1, 0
+        while k < n and gap < PIN_MARKER_MAX_GAP:
+            stripped = code[k].strip()
+            if not stripped or stripped.startswith("--"):
+                k += 1
+                gap += 1
+                continue
+            if DECL_RE.match(code[k]):
+                targets[k] = mark
+                break
+            if stripped.startswith("@["):
+                # an attribute may wrap; skip to the line that closes it
+                while k < n and "]" not in code[k]:
+                    k += 1
+                k += 1
+                gap += 1
+                continue
+            if PIN_MARKER_LEAD_RE.match(stripped):
+                k += 1
+                gap += 1
+                continue
+            break
+    out: dict[str, list[tuple[str, str | None]]] = {}
+    for i, line in enumerate(code):
+        m = DECL_RE.match(line)
+        if not m or "private" in m.group("mods"):
+            continue
+        out.setdefault(m.group("name"), []).append(targets.get(i, ("", None)))
     return out
 
 
@@ -5676,6 +5809,33 @@ def selftest() -> int:
     check(match_candidate([("def", pk[2])], "structure", pk[2]) is None,
           "def/structure with the same text wrongly match")
 
+    # The tier-3 provenance marker: a `-- pin:` comment binds to the declaration
+    # it stands above, and to nothing else.  A marker that cannot see its own
+    # declaration must not leak to the next one — that would exempt an unrelated
+    # statement from the diff (the whole reason the marker is read at all).
+    prov = pin_markers("-- pin: foo (S_X.lean:12)\ntheorem foo : P := by\n  sorry\n")
+    check(prov == {"foo": [("foo", "S_X.lean")]}, "a marker does not bind to its declaration")
+    prov = pin_markers("/- -- pin: fake (S_Nope.lean:1) -/\ntheorem foo : P := by\n  sorry\n")
+    check(prov == {"foo": [("", None)]}, "a marker inside a docstring is not a marker")
+    prov = pin_markers(
+        "-- pin: foo (S_X.lean:1)\ntheorem foo : P := by\n  sorry\n\n"
+        "theorem bar : Q := by\n  sorry\n")
+    check(prov["bar"] == [("", None)], "a marker leaks onto the next declaration")
+    prov = pin_markers(
+        "-- pin: foo (S_X.lean:1)\nomit [NeZero n] in\ntheorem foo : P := by\n  sorry\n")
+    check(prov["foo"] == [("foo", "S_X.lean")],
+          "a marker does not bind across an inline scoping command")
+    prov = pin_markers(
+        "-- pin: helper (S_X.lean:1)\nprivate theorem helper : P := by\n  sorry\n\n"
+        "theorem foo : Q := by\n  sorry\n")
+    check(prov == {"foo": [("", None)]},
+          "a private declaration's marker leaks onto the next public one")
+    prov = pin_markers(
+        "-- pin: a (S_X.lean:1)\ntheorem foo : P := by\n  sorry\n"
+        "-- pin: b (S_X.lean:2)\ntheorem foo : Q := by\n  sorry\n")
+    check(prov["foo"] == [("a", "S_X.lean"), ("b", "S_X.lean")],
+          "two declarations of one name do not keep their markers in order")
+
     print(f"check_flt_statements selftest ok ({checks} assertions)")
     return 0
 
@@ -5744,11 +5904,28 @@ def main() -> int:
             if stripped is not None:
                 stripped_source.setdefault(stripped, []).append((kind, stmt, rel, raw))
 
-    ok = promoted = renamed = missing = mismatch = own = 0
+    ok = promoted = renamed = missing = mismatch = own = unwired = 0
+    source_basenames = {rel.rsplit("/", 1)[-1] for rel in SOURCES}
+
+    def pin_source_listed(pin_file: str | None) -> bool:
+        """Whether the pin file a `-- pin:` marker names is one `SOURCES` reads."""
+        if not pin_file:
+            return False
+        return pin_file in SOURCES or pin_file.rsplit("/", 1)[-1] in source_basenames
+
     for rel in PORT_FILES:
         p = LEAN / rel
-        for raw, kind, stmt in raw_declarations(p.read_text(encoding="utf-8")):
+        text = p.read_text(encoding="utf-8")
+        markers = pin_markers(text)
+        consumed: dict[str, int] = {}
+        for raw, kind, stmt in raw_declarations(text):
             name = raw.rsplit(".", 1)[-1]
+            # This declaration's provenance marker, if any (`pin_markers` skips the
+            # same `private` declarations, so the two sequences stay aligned).
+            seen = consumed.get(name, 0)
+            consumed[name] = seen + 1
+            marks = markers.get(name) or []
+            pin_name, pin_file = marks[seen] if seen < len(marks) else ("", None)
             if raw in OWN_PROOFS or name in OWN_PROOFS:
                 own += 1
                 continue
@@ -5773,6 +5950,38 @@ def main() -> int:
                 renamed += 1
                 print(f"RENAMED  {rel}: {raw}  ->  {hit[3]} ({hit[2]})")
                 continue
+            # The `-- pin:` provenance comment decides the fallthrough.  It is the
+            # register's marker, and it names the pin file holding the statement:
+            #   * pin file not in `SOURCES` — the statement is transcribed from a
+            #     file this run does not read, so no diff is possible.  It is tier 3
+            #     (`spec/UNWIRED-PUBLIC.md`), and the marker is its provenance, so
+            #     it is exempted rather than reported `MISSING IN FLT` (or wrongly
+            #     `MISMATCH`ed against an unrelated `SOURCES` declaration that
+            #     happens to share the last name);
+            #   * pin file in `SOURCES` — the marker names the exact pin original,
+            #     which may be a renamed declaration the by-name lookups cannot
+            #     reach; diff against it, and exempt only if it is not there (a
+            #     counterpart that exists but differs is a genuine `MISMATCH`).
+            if pin_name:
+                pin_last = pin_name.rsplit(".", 1)[-1]
+                if pin_source_listed(pin_file):
+                    pin_cands = (source.get(pin_last)
+                                 or dotted_source.get(promoted_key(pin_name))
+                                 or dotted_source.get(pin_last))
+                    if match_candidate(pin_cands, kind, stmt):
+                        ok += 1
+                        continue
+                    if pin_cands:
+                        mismatch += 1
+                        print(f"MISMATCH  {rel}: {name}  (pin marker {pin_name}, "
+                              f"source {pin_cands[0][2]}, {pin_cands[0][0]})")
+                        print(f"    port: {stmt}")
+                        print(f"    flt : {pin_cands[0][1]}")
+                        continue
+                unwired += 1
+                print(f"UNWIRED  {rel}: {raw}  (pin: {pin_name}, "
+                      f"{pin_file or 'no file named'}; register only, not diffed)")
+                continue
             cands = (source.get(name) or dotted_source.get(promoted_key(raw))
                      or dotted_source.get(name))
             if not cands:
@@ -5786,11 +5995,12 @@ def main() -> int:
                 print(f"    port: {stmt}")
                 print(f"    flt : {sstmt}")
 
+    exempt = f", {unwired} registered-unwired declarations exempted" if unwired else ""
     print(
         f"\n{ok} statements identical ({promoted} promoted from pin-private "
         f"declarations, {renamed} renamed), {mismatch} mismatched, {missing} missing, "
-        f"{own} own-proof declarations exempted "
-        f"({ok + mismatch + missing + own} port declarations checked)"
+        f"{own} own-proof declarations exempted{exempt} "
+        f"({ok + mismatch + missing + own + unwired} port declarations checked)"
     )
     if args.prop_bodies:
         print()

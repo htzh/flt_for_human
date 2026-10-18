@@ -436,7 +436,12 @@ With a pinned source, correctness is checkable rather than trusted. Four instrum
    lost either: the register `spec/UNWIRED-PUBLIC.md` recovers it from the `-- pin: <name>
    (<file>:<line>)` comment above it. That comment is therefore owed on every **public**
    declaration and nowhere else — a `private` helper is filtered out of the register before its
-   provenance is read, so it may carry the comment for traceability but owes nothing. Text-shaped
+   provenance is read, so it may carry the comment for traceability but owes nothing. The checker
+   reads the same comment as its tier-3 exemption: a declaration whose marker names a pin file
+   absent from `SOURCES` is counted `UNWIRED`, not reported `MISSING IN FLT`; when the marker
+   names a listed file, the marker's pin name is the copy diffed, so a wired statement is never
+   exempted. The policy is *everything wired is checked; no public statement is forced to be
+   wired*. Text-shaped
    rules:
    - **The checker's own unit test covers its mutation sensitivity** —
      `python3 spec/check_flt_statements.py --selftest` mutates a statement in memory and asserts
