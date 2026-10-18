@@ -4,8 +4,9 @@
   `T_p f = heckeU k p f + ε(p) • (f ∣ heckeDiagMatrix p)`.
 
   Tier-1 façade over the tier-3 engine
-  `FLTForHuman/ModularForms/Analytic/PeterssonHecke.lean` (118 public
-  declarations, registered in `spec/UNWIRED-PUBLIC.md`). The statement is the pin's
+  `FLTForHuman/ModularForms/Analytic/PeterssonHecke.lean` (100 public
+  declarations, registered in `spec/UNWIRED-PUBLIC.md`; the engine's other 18
+  declarations live in the definition layer `PeterssonCoset.lean`). The statement is the pin's
   `Theorems/Thm_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean`
   verbatim; the proof is the one-line application of the engine's
   `CuspForm.PetHeckeAdj.main`, exactly as the pin's `solution` forwards.

@@ -3326,6 +3326,16 @@ SOURCES = [
     # lemmas the port keeps (its four gate theorems are deferred in CARRY-FORWARD).
     "Definitions/Def_CuspForm_PeterssonOn.lean",
     "Definitions/Def_AutomorphicForm_ModularFundamentalDomain.lean",
+    # --- The coset-space Petersson definition layer
+    # (`topics/deligneSerre/TOPIC-petersson-coset-and-level-prime-eigenvalue.md`
+    # §5, set P1): the source of all 56 declarations of
+    # `ModularForms/Analytic/PeterssonCoset.lean`. Appended last.
+    "Definitions/Def_CuspForm_PeterssonCoset.lean",
+    # --- Set P2, the level-prime eigenvalue (`WORKORDER-P2-normsq.md`): the wrapper is the
+    # headline's statement authority, the `S_` file the source of the 71 `LiNormSq`
+    # declarations. Appended last.
+    "Theorems/Thm_CuspForm_norm_sq_eq_pow_of_qCoeff_mul_eq_of_not_factorsThrough.lean",
+    "P2M/Sol/S_CuspForm_norm_sq_eq_pow_of_qCoeff_mul_eq_of_not_factorsThrough.lean",
 ]
 
 
@@ -4961,6 +4971,13 @@ PORT_FILES = [
     # engine `FLTForHuman/ModularForms/Analytic/PeterssonHecke.lean` stays unlisted
     # (registered in `spec/UNWIRED-PUBLIC.md`). Appended last.
     "FLTForHuman/ModularForms/Analytic/PeterssonHeckeTheorems.lean",
+    # --- The coset-space Petersson definition layer (set P1 of
+    # `TOPIC-petersson-coset-and-level-prime-eigenvalue.md`): wired, because it is
+    # the definition layer both `norm_sq` leaves consume. Appended last.
+    "FLTForHuman/ModularForms/Analytic/PeterssonCoset.lean",
+    # --- Set P2 (`WORKORDER-P2-normsq.md`): the silo, wired whole — its 71 helpers and the
+    # headline are all statement-diffed (+72 against the wrapper + `S_` sources above).
+    "FLTForHuman/ModularForms/Analytic/NormSqPow.lean",
 ]
 
 

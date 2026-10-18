@@ -26,7 +26,7 @@ Newton–Puiseux theorem, 67 public declarations, all registered in
 the module is unlisted; and the Petersson adjointness of `T_p` on the nebentypus component,
 `CuspForm.peterssonOn_hecke_eq_conj_mul_of_hasNebentypus` (1,230 pin lines, the leaf above the
 nebentypus eigenbasis), 9857 → **9877 (+20)**: `peterssonOn` (+3), the fundamental-domain
-ground (+16), the tier-1 headline (+1), with its 118-declaration engine tier-3 and registered
+ground (+16), the tier-1 headline (+1), with its 100-declaration engine tier-3 and registered
 (record: [deligneSerre/TOPIC-petersson-hecke-adjointness.md](deligneSerre/TOPIC-petersson-hecke-adjointness.md)). Each
 wired delta is exactly its new public surface, 0 mismatched / 0 missing. The 9542 → 9569 (+27) step is
 the `NumberField.AdelicHeight` definition gate, the manager's own ground for the adelic-modulus
@@ -107,6 +107,15 @@ two gates attach to a fixed interface and can be ported later without reworking 
 wire test is `spec/DeligneSerreConsumer.lean`; the record is
 [../logs/deligne-serre-port.md](../logs/deligne-serre-port.md) and the friction/promotion ledger
 is [../logs/deligne-serre-friction.md](../logs/deligne-serre-friction.md).
+
+**The coset-space Petersson layer, and the level-prime eigenvalue.** The definition layer
+`ModularForms/Analytic/PeterssonCoset.lean` — `Nice`, the raw pairing `pair`, the slash
+transfer and the relative-index machinery, 56 declarations, checker +56 — and the silo
+`ModularForms/Analytic/NormSqPow.lean`, the level-prime bound `‖a‖² = ℓ^(k-1)` for a form new at
+`ℓ`, 72 declarations, checker +72; the 18 statement-identical declarations the pin wrote twice
+were moved out of the `PeterssonHecke` engine into the definition layer. Record:
+[deligneSerre/TOPIC-petersson-coset-and-level-prime-eigenvalue.md](deligneSerre/TOPIC-petersson-coset-and-level-prime-eigenvalue.md),
+order: [deligneSerre/WORKORDER-P2-normsq.md](deligneSerre/WORKORDER-P2-normsq.md).
 
 **The `ModularCurve` q-expansion layer.** The Γ₀-rationality pair, the `X_H` relative-degree
 bound, the JOneES finrank/index and residue-field rows, the Deuring-reduction /

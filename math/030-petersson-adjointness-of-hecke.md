@@ -1,30 +1,27 @@
 # The Petersson adjointness of the Hecke operator on a nebentypus component
 
-**Status.** Mathematical exposition, pinned to the FLT commit `aa2d8b3`; the port
-is cross-referenced at commit `2d8e5c1` of
-[`htzh/flt_for_human`](https://github.com/htzh/flt_for_human). This note explains the classical
-adjointness
+**Status.** Mathematical exposition, pinned to the FLT commit `aa2d8b3` (the
+source is `P2M/Sol/S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean`
+and its `Theorems/` wrapper). This note explains the classical adjointness
 
 $$\langle T_p f, g\rangle \\;=\\; \overline{\varepsilon(p)} \\, \langle f, T_p g\rangle$$
 
 for cusp forms of weight $`k`$, level $`\Gamma_1(N)`$ and nebentypus
 $`\varepsilon`$, the unfolding/double-coset proof behind it, and the two
 consequences the Deligne–Serre column uses: the conjugation relation for Hecke
-eigenvalues and the existence of a basis of nebentypus Hecke eigenforms. The Lean
-statements are collected in §7.
+eigenvalues and the existence of a basis of nebentypus Hecke eigenforms.
 
 Companions: [019-deligne-serre-weight-one.md](019-deligne-serre-weight-one.md)
 (the weight-one theorem where both consequences are consumed),
 [009-hecke-jacobian-commute.md](009-hecke-jacobian-commute.md) ($`T_p`$ and the
 diamond operators commute — the other half of the Hecke algebra),
 [015-weight-two-hecke-periods.md](015-weight-two-hecke-periods.md) (weight-two
-Petersson products and periods), and the port records
-[../lean/topics/deligneSerre/TOPIC-petersson-hecke-adjointness.md](../lean/topics/deligneSerre/TOPIC-petersson-hecke-adjointness.md)
-and [../lean/topics/PORTING-DeligneSerre.md](../lean/topics/PORTING-DeligneSerre.md).
+Petersson products and periods), and the formalization record
+[../lean/topics/deligneSerre/TOPIC-petersson-hecke-adjointness.md](../lean/topics/deligneSerre/TOPIC-petersson-hecke-adjointness.md).
 
 ## 1. Cusp forms with a nebentypus
 
-Let $`N \ge 1`$ and $`k \in \mathbb{Z}`$. Write $`\mathbb{H} = \{\tau \in \mathbb{C} : \mathrm{Im}\,\tau > 0\}`$
+Let $`N \ge 1`$ and $`k \in \mathbb{Z}`$. Write $`\mathbb{H} = \{\tau \in \mathbb{C} : \mathrm{Im}\,\tau \gt 0\}`$
 for the upper half-plane, $`\mathrm{SL}_2(\mathbb{Z})`$ for the modular group, and
 
 $$\Gamma_0(N) = \Bigl\\{\begin{pmatrix} a & b \\\\ c & d\end{pmatrix} \in \mathrm{SL}_2(\mathbb{Z}) : N \mid c\Bigr\\},
@@ -34,8 +31,8 @@ $$\Gamma_0(N) = \Bigl\\{\begin{pmatrix} a & b \\\\ c & d\end{pmatrix} \in \mathr
 so that $`\Gamma_1(N) \subseteq \Gamma_0(N)`$ is the kernel of the reduction
 $`\Gamma_0(N) \to (\mathbb{Z}/N\mathbb{Z})^\times`$, $`\gamma \mapsto \gamma_{11}`$.
 
-**The weight-$`k`$ slash.** For $`\gamma = \begin{pmatrix} a & b \\ c & d\end{pmatrix} \in \mathrm{GL}_2(\mathbb{Q})`$
-with $`\det \gamma > 0`$ and a function $`f : \mathbb{H} \to \mathbb{C}`$, put
+**The weight-$`k`$ slash.** For $`\gamma = [[a,b],[c,d]] \in \mathrm{GL}_2(\mathbb{Q})`$
+with $`\det \gamma \gt 0`$ and a function $`f : \mathbb{H} \to \mathbb{C}`$, put
 
 $$(f \mid_k \gamma)(\tau) \\;=\\; \det(\gamma)^{k-1}\\,(c\tau+d)^{-k}\\, f(\gamma\tau),
 \qquad
@@ -88,7 +85,7 @@ $$\langle f, g\rangle_{\Gamma_1(N)} \\;=\\; \int_{\Gamma_1(N) \backslash \mathbb
 
 The integral converges for cusp forms: $`|f|^2 y^k`$ is bounded on the standard
 fundamental domain and decays at the cusps. It is positive definite,
-$`\langle f,f\rangle > 0`$ for $`f \ne 0`$, because $`|f|^2 y^k`$ is continuous and
+$`\langle f,f\rangle \gt 0`$ for $`f \ne 0`$, because $`|f|^2 y^k`$ is continuous and
 nonnegative, and strictly positive on a set of positive measure. Note the
 convention: **antilinear in the first slot, linear in the second**, which is the
 number-theory convention and the one FLT and its port use. Some textbooks
@@ -106,9 +103,10 @@ $$\langle f, g\rangle_{\Gamma}
 \\;=\\; \int_{\mathcal{D}} \sum_{q \in \mathrm{SL}_2(\mathbb{Z})/\Gamma}
 D_{f,g}(q^{-1}\tau)\\, d\mu(\tau).$$
 
-This is exactly how the FLT development defines the product in practice: the
-port's `peterssonOn` is the integral over $`\mathcal{D}`$ of the coset sum of
-the pointwise density $`\overline{f} g`$, indexed by
+This unfolding is how the product is defined in practice: `peterssonOn`
+([`Petersson.lean`](https://github.com/htzh/flt_for_human/blob/2d8e5c1/lean/FLTForHuman/ModularForms/Analytic/Petersson.lean#L27-L36))
+is the integral over $`\mathcal{D}`$ of the coset sum of the pointwise density
+$`\overline{f} g`$, indexed by
 $`\mathrm{SL}_2(\mathbb{Z}) \sslash \Gamma_1(N)`$. The coset sum is what
 replaces the quotient $`\Gamma_1(N)\backslash\mathbb{H}`$; its convergence is
 the convergence of the integral, and the two are the same number.
@@ -217,7 +215,7 @@ calculus on $`\mathbb{H}`$; the second and third are the substance.
 ### 5.1 Adjunction for a slash
 
 > **Lemma.** Let $`\alpha \in \mathrm{GL}_2(\mathbb{Q})`$ with
-> $`\det(\alpha) > 0`$, and put $`\alpha^* = \det(\alpha)\,\alpha^{-1}`$
+> $`\det(\alpha) \gt 0`$, and put $`\alpha^* = \det(\alpha)\,\alpha^{-1}`$
 > (the adjugate). For cusp forms $`f, g`$ for which both integrals converge,
 > $$\langle f \mid_k \alpha,\\; g\rangle \\;=\\; \langle f,\\; g \mid_k \alpha^*\rangle.$$
 
@@ -232,9 +230,9 @@ $`\overline{f(w)}\,(g \mid_k \alpha^*)(w)\,\mathrm{Im}(w)^k`$. $`\square`$
 For the diagonal matrix $`\alpha = \mathrm{diag}(p,1)`$ the lemma reads
 $`\langle V_p f, g\rangle = \langle f, g \mid_k \mathrm{diag}(1,p)\rangle`$:
 the adjoint of the $`p`$-dilation is the $`p`$-contraction, as it must be. For
-the unipotent representatives $`\alpha_j = \begin{pmatrix}1&j\\0&p\end{pmatrix}`$,
-the adjugate is $`\alpha_j^* = \begin{pmatrix}p&-j\\0&1\end{pmatrix}
-= \begin{pmatrix}1&-j\\0&1\end{pmatrix}\begin{pmatrix}p&0\\0&1\end{pmatrix}`$,
+the unipotent representatives $`\alpha_j = [[1,j],[0,p]]`$,
+the adjugate is $`\alpha_j^* = [[p,-j],[0,1]]
+= [[1,-j],[0,1]][[p,0],[0,1]]`$,
 a unipotent translate of the $`p`$-dilation. Summed over $`j`$ and unfolded
 against the coset sum, the $`p+1`$ adjugates reassemble into the same
 $`\Lambda`$-coset sum: this is the classical pairing $`U_p \leftrightarrow V_p`$.
@@ -378,102 +376,199 @@ by $`\varepsilon(p)`$, which is exactly the determinant of the representation.
 Second, the modular form itself is extracted from a Hecke-stable space; the
 eigenbasis of §6.2 is what guarantees that the space has a basis of forms with
 well-defined eigenvalues and nebentypus, and hence that the Galois
-representation can be read off coefficient by coefficient. In the FLT column,
-the first is
-`CuspForm.conj_heckeEigenvalue_eq_of_hasNebentypus` and the second is
-`CuspForm.exists_basis_hasNebentypus_qCoeff_hecke_eigen`; both sit directly
-under the weight-one theorem of [019](019-deligne-serre-weight-one.md), and the
-node proved here is the leaf their proofs rest on.
+representation can be read off coefficient by coefficient. In the pin's
+development the first is `CuspForm.conj_heckeEigenvalue_eq_of_hasNebentypus` and
+the second is `CuspForm.exists_basis_hasNebentypus_qCoeff_hecke_eigen`; both sit
+directly under the weight-one theorem of [019](019-deligne-serre-weight-one.md),
+and the adjointness proved here is exactly the lemma their proofs rest on.
 
-## 7. Lean summary
+## 7. The eigenvalue at a level prime
 
-### 7.1 The statement
+The adjointness of §4 compares $`T_p`$ with its adjoint at a good prime
+$`p \nmid N`$. At a prime $`\ell \mid N`$ the double-coset argument of §5 has no
+analogue — the $`\ell`$-th Hecke operator is a different sum — but the same tools
+(unfolding, slash transfer, one character computation) applied to the *additive*
+sum $`\tau \mapsto \tau + u/\ell`$, $`u = 0, \dots, \ell-1`$, still pin the
+eigenvalue completely:
 
-The port states the theorem with the convention of §2 and the operator of §3:
+**Theorem.** Let $`k \in \mathbb{Z}`$, $`N \ge 1`$, $`\varepsilon`$ a nebentypus
+modulo $`N`$, $`\ell`$ a prime with $`\ell \mid N`$, and
+$`F \in S_k(\Gamma_1(N))`$, $`F \ne 0`$, with nebentypus $`\varepsilon`$ and
+$`a_{\ell n} = a\,a_n`$ for all $`n`$. If $`\varepsilon`$ does **not** factor
+through $`N/\ell`$, then
 
-```lean
-theorem CuspForm.peterssonOn_hecke_eq_conj_mul_of_hasNebentypus
-    (N : ℕ) [NeZero N] (k : ℤ) (ε : DirichletCharacter ℂ N) {p : ℕ} (hp : p.Prime)
-    (hpN : ¬ p ∣ N) (f g : CuspForm (Gamma1 N) k) (hf : CuspForm.HasNebentypus ε f)
-    (hg : CuspForm.HasNebentypus ε g) :
-    CuspForm.peterssonOn (Gamma1 N) k
-        (heckeU k p ⇑f + ε (p : ZMod N) • (⇑f ∣[k] heckeDiagMatrix p)) ⇑g
-      = starRingEnd ℂ (ε (p : ZMod N)) *
-        CuspForm.peterssonOn (Gamma1 N) k ⇑f
-          (heckeU k p ⇑g + ε (p : ZMod N) • (⇑g ∣[k] heckeDiagMatrix p))
-```
+$$|a|^2 \\;=\\; \ell^{k-1}.$$
 
-([`PeterssonHeckeTheorems.lean`](https://github.com/htzh/flt_for_human/blob/2d8e5c1/lean/FLTForHuman/ModularForms/Analytic/PeterssonHeckeTheorems.lean#L25-L37);
-the pin's statement authority is
-[`Thm_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean)).
-Here `heckeU k p f` is §3's `U_p`, `heckeDiagMatrix p` is `diag(p,1)`, and
-`starRingEnd ℂ` is complex conjugation.
+The condition says that $`\varepsilon`$ is not the inflation of a character
+modulo $`N/\ell`$ along
+$`(\mathbb{Z}/N)^\times \to (\mathbb{Z}/(N/\ell))^\times`$: the nebentypus is new
+at $`\ell`$. Together with $`U_\ell F = aF`$ (which is what
+$`a_{\ell n} = a a_n`$ says) this is the newform situation at a level prime, and
+the conclusion is the classical statement that a form new at $`\ell`$ has
+$`|a_\ell| = \ell^{(k-1)/2}`$.
 
-### 7.2 The definition layer
+### 7.1 The product on a finite-index subgroup
 
-The product is the pin's `peterssonOn`, a three-line wrapper over mathlib's
-pointwise density (`UpperHalfPlane.petersson`):
+Let $`\Lambda \subseteq \mathrm{SL}_2(\mathbb{Z})`$ have finite index. For
+admissible $`H_1, H_2 : \mathbb{H} \to \mathbb{C}`$ — continuous,
+$`\|H\|^2 y^k`$ bounded, $`\Lambda`$-invariant — the product of §2, taken over
+$`\Lambda`$ instead of $`\Gamma_1(N)`$, is
 
-```lean
-def peterssonOnIntegrand (Γ : Subgroup SL(2, ℤ)) (k : ℤ) (f g : UpperHalfPlane → ℂ)
-    (τ : UpperHalfPlane) : ℂ :=
-  ∑ᶠ q : SL(2, ℤ) ⧸ Γ,
-    UpperHalfPlane.petersson k (f ∣[k] (q.out⁻¹ : SL(2, ℤ))) (g ∣[k] (q.out⁻¹ : SL(2, ℤ))) τ
+$$\langle H_1, H_2\rangle_{\Lambda}
+\\;=\\; \int_{\mathcal{D}} \sum_{q \in \mathrm{SL}_2(\mathbb{Z}) \sslash \Lambda}
+\overline{H_1(q^{-1}\tau)}\\,H_2(q^{-1}\tau)\\,
+(\mathrm{Im}\\,q^{-1}\tau)^k \\, d\mu(\tau).$$
 
-def peterssonOn (Γ : Subgroup SL(2, ℤ)) (k : ℤ) (f g : UpperHalfPlane → ℂ) : ℂ :=
-  MeasureTheory.integral (MeasureTheory.volume.restrict ModularGroup.fd)
-    (peterssonOnIntegrand Γ k f g)
-```
+The coset integral is `cosum` and its slash transfer is `integral_cosum_pair` in
+our `PeterssonHecke` engine
+([`#L919`](https://github.com/htzh/flt_for_human/blob/2d8e5c1/lean/FLTForHuman/ModularForms/Analytic/PeterssonHecke.lean#L919),
+[`#L1035`](https://github.com/htzh/flt_for_human/blob/2d8e5c1/lean/FLTForHuman/ModularForms/Analytic/PeterssonHecke.lean#L1035));
+the density $`\|H\|^2 y^k`$ is `dens` at
+[`#L888`](https://github.com/htzh/flt_for_human/blob/2d8e5c1/lean/FLTForHuman/ModularForms/Analytic/PeterssonHecke.lean#L888).
 
-([`Petersson.lean`](https://github.com/htzh/flt_for_human/blob/2d8e5c1/lean/FLTForHuman/ModularForms/Analytic/Petersson.lean)).
-`ModularGroup.fd` is the standard fundamental domain $`\mathcal{D}`$; the
-`finsum` over the quotient is the coset sum of §2. The proof's other definition
-layer is the fundamental-domain ground — `goodSet`, the set of points at which
-exactly two translates of $`\mathcal{D}`$ meet, and the double-counting
-identities for integrals over $`\mathcal{D}`$ —
-[`ModularFundamentalDomain.lean`](https://github.com/htzh/flt_for_human/blob/2d8e5c1/lean/FLTForHuman/AutomorphicForm/UpperHalfPlane/ModularFundamentalDomain.lean).
+Two properties are used below.
 
-### 7.3 The engine
+* **Slash transfer.** If $`\beta \in \mathrm{GL}_2(\mathbb{R})`$ has
+  $`\det\beta \gt 0`$ and conjugates $`\Lambda`$ onto $`\Lambda'`$, then
+  $$\langle H_1 \mid_k \beta, H_2 \mid_k \beta\rangle_{\Lambda}
+  \\;=\\; (\det\beta)^{k-2}\\,\langle H_1, H_2\rangle_{\Lambda'}.$$
+  This is §5.1's invariance, the determinant factor coming from
+  $`\mathrm{Im}(\beta\tau) = \mathrm{Im}\,\tau \cdot \det\beta / |c\tau+d|^2`$.
+* **Index comparison.** If $`\Lambda \subseteq \Gamma`$ and $`H_1, H_2`$ are
+  $`\Gamma`$-invariant, then
+  $`\langle H_1,H_2\rangle_{\Lambda} = [\Gamma : \Lambda]\,
+  \langle H_1,H_2\rangle_{\Gamma}`$: the coset sum over $`\Lambda`$ has
+  $`[\Gamma : \Lambda]`$ times the terms of the coset sum over $`\Gamma`$, and
+  the factor is constant on the integrand.
 
-The 118-declaration development is the tier-3 engine
-[`PeterssonHecke.lean`](https://github.com/htzh/flt_for_human/blob/2d8e5c1/lean/FLTForHuman/ModularForms/Analytic/PeterssonHecke.lean),
-in namespace `CuspForm.PetHeckeAdj`. The names corresponding to §5 are:
+Positivity is inherited from §2: a nonzero admissible $`H`$ has
+$`\langle H,H\rangle_{\Lambda} \gt 0`$.
 
-| §5 | engine |
-|---|---|
-| the $`p+1`$ representatives, $`\Lambda`$ | `Lam`, `rr`, `exists_rr_mul_mem`, `rr_mul_rr_inv_mem` |
-| the unfolding | `unfold_sum` |
-| $`\Phi`$, $`\Psi`$ | `Φ`, `Ψ` |
-| the character identity §5.3 | `slash_heckeDiagMatrix_eq`, `Ψ_eq`, `norm_char_p` |
-| the two integrands | `integrand_left`, `integrand_right` |
-| the integral invariance | `integral_cosum_pair`, `adm_slash_α`, `adm_coe` |
-| assembly | `main` |
+### 7.2 The subgroup, and the $`q`$-expansion sum
 
-The engine is unlisted (tier 3) and registered in
-[`UNWIRED-PUBLIC.md`](https://github.com/htzh/flt_for_human/blob/2d8e5c1/lean/spec/UNWIRED-PUBLIC.md)
-with all 118 declarations and their pin originals; the tier-1 façade above is
-the only wired declaration, and it is the one-line application of `main`.
+Set
 
-### 7.4 Verification
+$$\Lambda_0
+\\;=\\; \Bigl\\{\begin{pmatrix} a & b \\\\ c & d\end{pmatrix} \in \Gamma_1(N) :
+\tfrac{N}{\ell} \mid b,\ \\; N\ell \mid c \Bigr\\}.$$
 
-* The four modules build with 0 errors and 0 warnings;
-  `#print axioms CuspForm.peterssonOn_hecke_eq_conj_mul_of_hasNebentypus` is
-  `[propext, Classical.choice, Quot.sound]`; there is no `sorry`.
-* The checker reads **9877 identical, 0 mismatched, 0 missing**; this node's
-  wired surface is the headline (+1), the `peterssonOn` definitions (+3) and the
-  fundamental-domain ground (+16).
-* The engine's 118 statements were additionally diffed against the pin's
-  `S_` file by last name: 118/118 equal.
-* The deferred surface — the pin's exact-volume/L2 chain
-  (`Gamma0ExactVolume`, `FundamentalDomainExactVolume`, `EisensteinScattering`,
-  `L2ProductionInstance`, `L2AutomorphicCarrier`, `TruncatedDomainPartition`)
-  and the four "gate" theorems of the fundamental-domain module — is registered
-  in [`CARRY-FORWARD.md`](https://github.com/htzh/flt_for_human/blob/2d8e5c1/lean/CARRY-FORWARD.md);
-  no needed D-S node imports that chain directly.
+Then $`\Gamma(N\ell) \subseteq \Lambda_0 \subseteq \Gamma_1(N)`$, and the matrix
+$`D = \mathrm{diag}(\ell,1)`$ conjugates $`\Lambda_0`$ onto $`\Gamma(N)`$:
+$`D\gamma D^{-1} = [[a,\ell b],[c/\ell,d]]`$,
+and $`N \mid \ell b`$, $`N \mid c/\ell`$ is exactly
+$`\tfrac{N}{\ell} \mid b`$, $`N\ell \mid c`$. Consequently
+$`[\Gamma_1(N) : \Lambda_0] = [\Gamma_1(N) : \Gamma(N)]`$, so by §7.1's index
+comparison the products over $`\Lambda_0`$ and over $`\Gamma(N)`$ agree on
+$`\Gamma_1(N)`$-invariant functions.
 
-The full port record, with the build measurements and the `v4.34.0` API
-adaptations, is
-[../lean/topics/deligneSerre/TOPIC-petersson-hecke-adjointness.md](../lean/topics/deligneSerre/TOPIC-petersson-hecke-adjointness.md).
+Now let $`t_u = [[1,u/\ell],[0,1]]`$, so that
+$`(F \mid_k t_u)(\tau) = F(\tau + u/\ell)`$ (the determinant is $`1`$). With
+$`\zeta = e^{2\pi i/\ell}`$ and $`q = e^{2\pi i \tau}`$, the $`q`$-expansion of
+$`F`$ gives
+
+$$\sum_{u=0}^{\ell-1} (F \mid_k t_u)(\tau)
+\\;=\\; \sum_n a_n \Bigl(\sum_{u=0}^{\ell-1} \zeta^{un}\Bigr) q^n
+\\;=\\; \ell \sum_m a_{\ell m}\\, q^{\ell m}
+\\;=\\; \ell a \sum_m a_m q^{\ell m},$$
+
+because $`\sum_u \zeta^{un}`$ is $`\ell`$ for $`\ell \mid n`$ and $`0`$
+otherwise, and by $`a_{\ell m} = a\,a_m`$. On the other hand
+$`F(\ell\tau) = \sum_m a_m q^{\ell m}`$ and
+$`F \mid_k D = \ell^{k-1} F(\ell\tau)`$. Hence the vector identity
+
+$$\sum_{u=0}^{\ell-1} F \mid_k t_u
+\\;=\\; a\\,\ell^{2-k}\\,\bigl(F \mid_k D\bigr).$$
+
+### 7.3 The character conjugate
+
+Since $`\varepsilon`$ does not factor through $`N/\ell`$, there is a unit
+$`x \in (\mathbb{Z}/N)^\times`$ with $`x \equiv 1 \pmod{N/\ell}`$ and
+$`\varepsilon(x) \ne 1`$; let $`d \in \{1, \dots, N-1\}`$ be its residue, so
+$`d = 1 + (N/\ell)m`$ and $`d \not\equiv 0 \pmod{\ell}`$.
+
+For $`w \in \mathbb{Z}/\ell`$ put
+
+$$\Phi(w) \\;=\\; \langle F \mid_k t_w,\\, F\rangle_{\Lambda_0}.$$
+
+Then
+
+$$\Phi(wd) \\;=\\; \varepsilon(d)\\,\Phi(w)
+\qquad (w \ne 0).$$
+
+For the proof, the lower-unipotent cocycle supplies $`c_0 \in \mathbb{Z}`$ and a
+matrix $`\gamma' \in \Gamma_0(N)`$ with
+$`t_w \cdot \mathrm{lowSL}(Nc_0) = \gamma' \cdot t_{wd}`$ and
+$`\gamma'_{11} \equiv d \pmod N`$; slashing $`F`$ by $`\gamma'`$ multiplies it by
+$`\varepsilon(\gamma'_{11}) = \varepsilon(d)`$, while
+$`\mathrm{lowSL}(Nc_0) \in \Gamma_1(N)`$ acts trivially. The factors move through
+the product by §7.1's transfer (determinant $`1`$), and the scalar
+$`\varepsilon(d)^{-1}`$ passes through the **antilinear first slot**, where it
+contributes $`\overline{\varepsilon(d)^{-1}} = \varepsilon(d)`$ because
+$`|\varepsilon(d)| = 1`$ (the unit-norm property of §5.3).
+
+Multiplying by $`d`$ permutes the nonzero classes of $`\mathbb{Z}/\ell`$, so
+
+$$(1 - \varepsilon(d)) \sum_{w \ne 0} \Phi(w) \\;=\\; 0,$$
+
+and $`\varepsilon(d) \ne 1`$ gives $`\sum_{w \ne 0} \Phi(w) = 0`$. Since
+$`\Phi(0) = \langle F,F\rangle_{\Lambda_0} = P`$,
+
+$$\sum_{w \in \mathbb{Z}/\ell} \Phi(w) \\;=\\; P.$$
+
+### 7.4 The two values of the norm
+
+Let $`V = \sum_{u=0}^{\ell-1} F \mid_k t_u`$ and
+$`P = \langle F,F\rangle_{\Lambda_0}`$. Compute
+$`\langle V,V\rangle_{\Lambda_0}`$ twice.
+
+*By the character sum.* By additivity in each slot and the slash transfer with
+$`t_{u'}`$ (determinant $`1`$, and $`t_{u'}`$ normalizes $`\Lambda_0`$),
+
+$$\langle V,V\rangle_{\Lambda_0}
+\\;=\\; \sum_{u,u'} \langle F \mid_k t_u, F \mid_k t_{u'}\rangle
+\\;=\\; \sum_{u,u'} \Phi(u-u')
+\\;=\\; \ell \sum_w \Phi(w)
+\\;=\\; \ell P,$$
+
+the penultimate step because $`u \mapsto u - u'`$ is a bijection of
+$`\mathbb{Z}/\ell`$ for fixed $`u'`$.
+
+*By the $`q`$-expansion.* By §7.2, $`V = a\ell^{2-k}\,(F \mid_k D)`$, so
+
+$$\langle V,V\rangle_{\Lambda_0}
+\\;=\\; |a|^2 \ell^{2(2-k)}\\\,
+       \langle F \mid_k D, F \mid_k D\rangle_{\Lambda_0}
+\\;=\\; |a|^2 \ell^{4-2k} \\, \ell^{k-2}\\\, \langle F,F\rangle_{\Gamma(N)}
+\\;=\\; |a|^2 \ell^{2-k} P,$$
+
+where the middle step is §7.1's transfer with $`\beta = D`$ ($`\det D = \ell`$,
+$`D \Lambda_0 D^{-1} = \Gamma(N)`$), and the last uses
+$`\langle F,F\rangle_{\Gamma(N)} = P`$ from the index comparison of §7.2.
+
+Equating the two values, $`\ell P = |a|^2 \ell^{2-k} P`$. The form is nonzero, so
+$`P \gt 0`$ and
+
+$$|a|^2 \\;=\\; \ell^{k-1}.$$
+
+### 7.5 Remarks
+
+* **Where the hypothesis enters.** Only in §7.3, through the existence of a unit
+  $`d \equiv 1 \pmod{N/\ell}`$ with $`\varepsilon(d) \ne 1`$. If $`\varepsilon`$
+  factors through $`N/\ell`$, every such $`d`$ has $`\varepsilon(d) = 1`$, the
+  character-sum step has no content, and the conclusion is false: an old form
+  inflated from level $`N/\ell`$ keeps the eigenvalue of its lower-level
+  neighbour, which is unrelated to $`\ell^{(k-1)/2}`$ (weight $`12`$, level
+  $`1`$, inflated to level $`\ell`$ is the standard example).
+* **What is pinned.** The theorem pins $`|a|`$, not the phase. If $`a`$ is known
+  to be real — for instance a rational eigenform with trivial nebentypus — then
+  $`a = \pm \ell^{(k-1)/2}`$.
+* **Relation to §5.** The same three ingredients: unfold the coset sum, transfer
+  the product across a slash, and evaluate one character sum. At a good prime
+  §5.3 uses $`\varepsilon(p)^{-1} = \overline{\varepsilon(p)}`$; here the
+  identical unit-norm identity appears as
+  $`\overline{\varepsilon(d)^{-1}} = \varepsilon(d)`$, and the place of the
+  $`p+1`$ double coset is taken by the $`\ell`$ additive translates
+  $`t_0, \dots, t_{\ell-1}`$.
 
 ## References
 

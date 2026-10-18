@@ -597,6 +597,7 @@ mathlib line" into a work order.
 | `Finite.of_equiv` / `Set.toFinite` | `Nat.finite_of_card_ne_zero`, with the `Finite` instance passed explicitly |
 | `Nat.card_zmod` | no longer needs `NeZero m` — the pin's `haveI : NeZero m` is dropped, not suppressed |
 | `Isometry.antilipschitz.properSpace` | `Isometry.antilipschitzWith.properSpace` (same proof, warning-free) |
+| `⟨dConjMat ℓ γ, ⋯⟩` as an `SL(2, ℤ)` element inside a `Subgroup` membership goal | `Matrix.SpecialLinearGroup` is a semireducible `def` (a `Subtype`) in v4.34, so the anonymous constructor elaborates at `{A // A.det = 1}` and the following `rw [Gamma_mem]` fails with "target expression is not type-correct under the implicit transparency level". Bind it first — `let x : SL(2, ℤ) := ⟨…, h⟩` — then `rw [Gamma_mem]` (or `mem_Lam0`) and `show` the entrywise conjunction; it also removes the pin's `simp only [Matrix.SpecialLinearGroup.coe_mk, …]` blocks |
 
 The recurring *shapes*, beyond a rename:
 

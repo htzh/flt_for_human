@@ -7,9 +7,20 @@
   `P2M/Sol/S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:17–1212`,
   taken whole (119 public declarations, none `private`), less its top-level
   `solution`, which is re-proved in the tier-1 façade
-  `FLTForHuman/ModularForms/Analytic/PeterssonHecke.lean`. Every public
+  `FLTForHuman/ModularForms/Analytic/PeterssonHeckeTheorems.lean`. Every public
   declaration carries its `-- pin: <name> (<file>:<line>)` comment; the module is
   tier 3 (unlisted) and registered in `spec/UNWIRED-PUBLIC.md`.
+
+  **100 declarations, not 118.** The coset-integral layer of the pin's file — 18
+  declarations (`mp_smul_*`, `measurable_smul_*`, `splitEquiv`, the `tsum_*`
+  reindexings, `wt`, `measurable_wt`, `indicator_smul`, `tsum_wt_smul`,
+  `ae_tsum_wt_smul`, `tsum_G_eq`, `weight_lintegral`, `cvn_lintegral`, `cosum`,
+  `petersson_polarization`) — is statement-identical to the pin's *second* copy of
+  that layer in `Definitions/Def_CuspForm_PeterssonCoset.lean`, which the port now
+  carries as the wired definition layer
+  `FLTForHuman/ModularForms/Analytic/PeterssonCoset.lean`. Those 18 were moved
+  there on 2026-10-18 and are imported and opened below, so they are no longer
+  duplicated in this engine.
 
   The proof: unfold `peterssonOn` (coset sum over `SL(2, ℤ) ⧸ Γ₁(N)`, integrated
   over `𝒟`) with `petersson_sum_left`/`petersson_sum_right`, rewrite the Hecke
@@ -19,6 +30,7 @@
 -/
 import FLTForHuman.AutomorphicForm.UpperHalfPlane.ModularFundamentalDomain
 import FLTForHuman.ModularForms.Analytic.Petersson
+import FLTForHuman.ModularForms.Analytic.PeterssonCoset
 import FLTForHuman.ModularForms.Defs.HeckeOperator
 import FLTForHuman.ModularForms.Defs.PrimitiveFormGamma1
 import Mathlib.Analysis.Complex.Basic
@@ -37,6 +49,8 @@ open scoped MatrixGroups ModularForm ComplexConjugate Modular ENNReal Pointwise
 namespace CuspForm
 
 namespace PetHeckeAdj
+
+open CuspForm.PeterssonCoset
 
 
 -- pin: mapGL_coe_eq (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:18)
@@ -72,13 +86,8 @@ theorem mul_apply_11 (A B : SL(2, ℤ)) :
         + (A : Matrix (Fin 2) (Fin 2) ℤ) 1 1 * (B : Matrix (Fin 2) (Fin 2) ℤ) 1 1 := by
   rw [Matrix.SpecialLinearGroup.coe_mul, Matrix.mul_apply, Fin.sum_univ_two]
 
--- Local helper: the pin's `det_heckeMatrix` lives `private` in
--- `FLTForHuman/ModularForms/Defs/HeckeOperator.lean`; the public `val_heckeMatrix`
--- makes the pin's two-line proof available here.
-private theorem det_heckeMatrix {p : ℕ} (hp : p ≠ 0) (j : ℕ) :
-    ((heckeMatrix p j).det : ℝ) = p := by
-  rw [Matrix.GeneralLinearGroup.val_det_apply, val_heckeMatrix hp, Matrix.det_fin_two_of]
-  ring
+-- `det_heckeMatrix` is public in `ModularForms/Defs/HeckeOperator.lean` (it was
+-- `private` until 2026-10-18); the local copy that stood here is gone.
 
 -- pin: T_zpow_coe (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:46)
 theorem T_zpow_coe (t : ℤ) :
@@ -624,218 +633,12 @@ theorem Ψ_eq (hp : p.Prime) (hpN : ¬ p ∣ N) (ε : DirichletCharacter ℂ N)
 
 end Hecke
 
--- pin: mp_smul_SL (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:534)
-theorem mp_smul_SL (γ : SL(2, ℤ)) : MeasurePreserving (fun x : ℍ => γ • x) volume volume := by
-  have hemb : MeasurableEmbedding (fun w : ℍ => γ • w) :=
-    (Homeomorph.smul γ (α := ℍ)).measurableEmbedding
-  exact ⟨hemb.measurable, by
-    ext s hs
-    rw [Measure.map_apply hemb.measurable hs, Set.preimage_smul,
-      FLT.HyperbolicMeasure.volume_smul_sl2z]⟩
-
--- pin: mp_smul_GL (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:542)
-theorem mp_smul_GL (g : GL (Fin 2) ℝ) : MeasurePreserving (fun x : ℍ => g • x) volume volume := by
-  have hemb : MeasurableEmbedding (fun w : ℍ => g • w) :=
-    (Homeomorph.smul g (α := ℍ)).measurableEmbedding
-  exact ⟨hemb.measurable, by
-    ext s hs
-    rw [Measure.map_apply hemb.measurable hs, Set.preimage_smul,
-      FLT.HyperbolicMeasure.volume_smul_gl]⟩
-
--- pin: measurable_smul_SL (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:550)
-theorem measurable_smul_SL (γ : SL(2, ℤ)) : Measurable (fun x : ℍ => γ • x) :=
-  (continuous_const_smul γ).measurable
-
--- pin: measurable_smul_GL (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:553)
-theorem measurable_smul_GL (g : GL (Fin 2) ℝ) : Measurable (fun x : ℍ => g • x) :=
-  (continuous_const_smul g).measurable
-
-section weight
-
-variable (Λ : Subgroup SL(2, ℤ))
-
--- pin: splitEquiv (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:560)
-def splitEquiv : SL(2, ℤ) ≃ (SL(2, ℤ) ⧸ Λ) × Λ where
-  toFun σ := (QuotientGroup.mk σ, ⟨(QuotientGroup.mk σ : SL(2, ℤ) ⧸ Λ).out⁻¹ * σ, by
-    rw [← QuotientGroup.eq]; exact QuotientGroup.out_eq' _⟩)
-  invFun x := x.1.out * x.2
-  left_inv σ := by simp
-  right_inv := by
-    rintro ⟨q, h⟩
-    have hq : (QuotientGroup.mk (q.out * (h : SL(2, ℤ))) : SL(2, ℤ) ⧸ Λ) = q := by
-      rw [QuotientGroup.mk_mul_of_mem _ h.2, QuotientGroup.out_eq']
-    refine Prod.ext hq (Subtype.ext ?_)
-    simp only [hq]
-    rw [inv_mul_cancel_left]
-
--- pin: tsum_SL_eq (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:573)
-theorem tsum_SL_eq (F : SL(2, ℤ) → ℝ≥0∞) :
-    ∑' σ : SL(2, ℤ), F σ = ∑' q : SL(2, ℤ) ⧸ Λ, ∑' h : Λ, F (q.out * (h : SL(2, ℤ))) := by
-  rw [← (splitEquiv Λ).symm.tsum_eq, ENNReal.tsum_prod']
-  rfl
-
--- pin: tsum_SL_inv (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:578)
-theorem tsum_SL_inv (F : SL(2, ℤ) → ℝ≥0∞) : ∑' σ : SL(2, ℤ), F σ = ∑' σ : SL(2, ℤ), F σ⁻¹ :=
-  ((Equiv.inv SL(2, ℤ)).tsum_eq F).symm
-
--- pin: tsum_Λ_inv (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:581)
-theorem tsum_Λ_inv (F : Λ → ℝ≥0∞) : ∑' h : Λ, F h = ∑' h : Λ, F h⁻¹ :=
-  ((Equiv.inv Λ).tsum_eq F).symm
-
-variable [Fintype (SL(2, ℤ) ⧸ Λ)]
-
--- pin: wt (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:586)
-def wt (x : ℍ) : ℝ≥0∞ :=
-  ∑ q : SL(2, ℤ) ⧸ Λ, (𝒟 : Set ℍ).indicator (fun _ => (1 : ℝ≥0∞)) ((q.out : SL(2, ℤ)) • x)
-
--- pin: measurable_wt (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:589)
-theorem measurable_wt : Measurable (wt Λ) := by
-  refine Finset.measurable_sum _ fun q _ => ?_
-  exact (measurable_const.indicator ModularGroup.isClosed_fd.measurableSet).comp
-    (measurable_smul_SL _)
-
--- pin: indicator_smul (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:594)
-theorem indicator_smul (σ : SL(2, ℤ)) (x : ℍ) :
-    (𝒟 : Set ℍ).indicator (fun _ => (1 : ℝ≥0∞)) (σ • x)
-      = (σ⁻¹ • (𝒟 : Set ℍ)).indicator (fun _ => (1 : ℝ≥0∞)) x := by
-  by_cases h : σ • x ∈ (𝒟 : Set ℍ)
-  · rw [Set.indicator_of_mem h, Set.indicator_of_mem (Set.mem_inv_smul_set_iff.mpr h)]
-  · rw [Set.indicator_of_notMem h, Set.indicator_of_notMem (fun h' => h (Set.mem_inv_smul_set_iff.mp h'))]
-
--- pin: tsum_wt_smul (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:601)
-theorem tsum_wt_smul {x : ℍ} (hx : x ∈ FLT.ModularFundamentalDomain.goodSet) :
-    ∑' h : Λ, wt Λ ((h : SL(2, ℤ)) • x) = 2 := by
-  calc ∑' h : Λ, wt Λ ((h : SL(2, ℤ)) • x)
-      = ∑' h : Λ, ∑' q : SL(2, ℤ) ⧸ Λ,
-          (𝒟 : Set ℍ).indicator (fun _ => (1 : ℝ≥0∞)) ((q.out : SL(2, ℤ)) • (h : SL(2, ℤ)) • x) :=
-        tsum_congr fun h => by rw [wt, tsum_fintype]
-    _ = ∑' q : SL(2, ℤ) ⧸ Λ, ∑' h : Λ,
-          (𝒟 : Set ℍ).indicator (fun _ => (1 : ℝ≥0∞)) ((q.out : SL(2, ℤ)) • (h : SL(2, ℤ)) • x) :=
-        ENNReal.tsum_comm
-    _ = ∑' q : SL(2, ℤ) ⧸ Λ, ∑' h : Λ,
-          (𝒟 : Set ℍ).indicator (fun _ => (1 : ℝ≥0∞)) (((q.out : SL(2, ℤ)) * h) • x) :=
-        tsum_congr fun q => tsum_congr fun h => by rw [mul_smul]
-    _ = ∑' σ : SL(2, ℤ), (𝒟 : Set ℍ).indicator (fun _ => (1 : ℝ≥0∞)) (σ • x) :=
-        (tsum_SL_eq Λ (fun σ => (𝒟 : Set ℍ).indicator (fun _ => (1 : ℝ≥0∞)) (σ • x))).symm
-    _ = ∑' σ : SL(2, ℤ), (σ⁻¹ • (𝒟 : Set ℍ)).indicator (fun _ => (1 : ℝ≥0∞)) x :=
-        tsum_congr fun σ => indicator_smul σ x
-    _ = ∑' σ : SL(2, ℤ), (σ • (𝒟 : Set ℍ)).indicator (fun _ => (1 : ℝ≥0∞)) x := by
-        rw [tsum_SL_inv (fun σ => (σ • (𝒟 : Set ℍ)).indicator (fun _ => (1 : ℝ≥0∞)) x)]
-    _ = 2 := FLT.ModularFundamentalDomain.tsum_indicator_smul_fd hx
-
--- pin: ae_tsum_wt_smul (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:621)
-theorem ae_tsum_wt_smul : ∀ᵐ x : ℍ, ∑' h : Λ, wt Λ ((h : SL(2, ℤ)) • x) = 2 := by
-  filter_upwards [measure_eq_zero_iff_ae_notMem.mp FLT.ModularFundamentalDomain.volume_compl_goodSet]
-    with x hx
-  exact tsum_wt_smul Λ (by simpa using hx)
-
--- pin: tsum_G_eq (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:626)
-theorem tsum_G_eq (U w : ℍ → ℝ≥0∞) (hUinv : ∀ h ∈ Λ, ∀ x : ℍ, U (h • x) = U x) (x : ℍ)
-    (hwt : ∀ q : SL(2, ℤ) ⧸ Λ, ∑' h : Λ, w ((h : SL(2, ℤ)) • (q.out⁻¹ : SL(2, ℤ)) • x) = 2) :
-    ∑' σ : SL(2, ℤ), U (σ • x) * w (σ • x)
-      = 2 * ∑ q : SL(2, ℤ) ⧸ Λ, U ((q.out⁻¹ : SL(2, ℤ)) • x) := by
-  calc ∑' σ : SL(2, ℤ), U (σ • x) * w (σ • x)
-      = ∑' σ : SL(2, ℤ), U (σ⁻¹ • x) * w (σ⁻¹ • x) :=
-        tsum_SL_inv (fun σ => U (σ • x) * w (σ • x))
-    _ = ∑' q : SL(2, ℤ) ⧸ Λ, ∑' h : Λ,
-          U (((q.out : SL(2, ℤ)) * h)⁻¹ • x) * w (((q.out : SL(2, ℤ)) * h)⁻¹ • x) :=
-        tsum_SL_eq Λ (fun σ => U (σ⁻¹ • x) * w (σ⁻¹ • x))
-    _ = ∑' q : SL(2, ℤ) ⧸ Λ, ∑' h : Λ,
-          U ((q.out⁻¹ : SL(2, ℤ)) • x) * w (((h⁻¹ : Λ) : SL(2, ℤ)) • (q.out⁻¹ : SL(2, ℤ)) • x) := by
-        refine tsum_congr fun q => tsum_congr fun h => ?_
-        have h1 : ((q.out : SL(2, ℤ)) * h)⁻¹ • x = ((h⁻¹ : Λ) : SL(2, ℤ)) • (q.out⁻¹ : SL(2, ℤ)) • x := by
-          rw [mul_inv_rev, mul_smul, Subgroup.coe_inv]
-        rw [h1, hUinv _ (h⁻¹).2]
-    _ = ∑' q : SL(2, ℤ) ⧸ Λ, U ((q.out⁻¹ : SL(2, ℤ)) • x) *
-          ∑' h : Λ, w (((h⁻¹ : Λ) : SL(2, ℤ)) • (q.out⁻¹ : SL(2, ℤ)) • x) :=
-        tsum_congr fun q => ENNReal.tsum_mul_left
-    _ = ∑' q : SL(2, ℤ) ⧸ Λ, U ((q.out⁻¹ : SL(2, ℤ)) • x) * 2 := by
-        refine tsum_congr fun q => ?_
-        rw [← tsum_Λ_inv Λ (fun h => w ((h : SL(2, ℤ)) • (q.out⁻¹ : SL(2, ℤ)) • x)), hwt q]
-    _ = 2 * ∑ q : SL(2, ℤ) ⧸ Λ, U ((q.out⁻¹ : SL(2, ℤ)) • x) := by
-        rw [ENNReal.tsum_mul_right, tsum_fintype, mul_comm]
-
--- pin: weight_lintegral (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:651)
-theorem weight_lintegral (U w : ℍ → ℝ≥0∞) (hU : Measurable U) (hw : Measurable w)
-    (hUinv : ∀ h ∈ Λ, ∀ x : ℍ, U (h • x) = U x)
-    (hwt : ∀ᵐ x : ℍ, ∑' h : Λ, w ((h : SL(2, ℤ)) • x) = 2) :
-    ∫⁻ x, U x * w x = ∫⁻ x in (𝒟 : Set ℍ), ∑ q : SL(2, ℤ) ⧸ Λ, U ((q.out⁻¹ : SL(2, ℤ)) • x) := by
-  have hm : Measurable fun x => U x * w x := hU.mul hw
-  have hae : ∀ᵐ x : ℍ, ∀ q : SL(2, ℤ) ⧸ Λ,
-      ∑' h : Λ, w ((h : SL(2, ℤ)) • (q.out⁻¹ : SL(2, ℤ)) • x) = 2 := by
-    rw [ae_all_iff]
-    intro q
-    exact (mp_smul_SL (q.out⁻¹ : SL(2, ℤ))).quasiMeasurePreserving.ae
-      (p := fun y : ℍ => ∑' h : Λ, w ((h : SL(2, ℤ)) • y) = 2) hwt
-  have hA : ∑' γ : SL(2, ℤ), ∫⁻ x in (𝒟 : Set ℍ), U (γ • x) * w (γ • x) = 2 * ∫⁻ z, U z * w z :=
-    FLT.ModularFundamentalDomain.tsum_setLIntegral_fd_smul (fun x => U x * w x) hm
-  have hB : ∑' γ : SL(2, ℤ), ∫⁻ x in (𝒟 : Set ℍ), U (γ • x) * w (γ • x)
-      = ∫⁻ x in (𝒟 : Set ℍ), ∑' γ : SL(2, ℤ), U (γ • x) * w (γ • x) :=
-    (lintegral_tsum fun γ =>
-      ((hm.comp (measurable_smul_SL γ) : Measurable fun x => U (γ • x) * w (γ • x))).aemeasurable).symm
-  have hC : ∫⁻ x in (𝒟 : Set ℍ), ∑' γ : SL(2, ℤ), U (γ • x) * w (γ • x)
-      = ∫⁻ x in (𝒟 : Set ℍ), 2 * ∑ q : SL(2, ℤ) ⧸ Λ, U ((q.out⁻¹ : SL(2, ℤ)) • x) := by
-    refine lintegral_congr_ae (ae_restrict_of_ae ?_)
-    filter_upwards [hae] with x hx
-    exact tsum_G_eq Λ U w hUinv x hx
-  have hmeasS : Measurable fun x : ℍ => ∑ q : SL(2, ℤ) ⧸ Λ, U ((q.out⁻¹ : SL(2, ℤ)) • x) :=
-    Finset.measurable_sum _ fun q _ =>
-      (hU.comp (measurable_smul_SL _) : Measurable fun x => U ((q.out⁻¹ : SL(2, ℤ)) • x))
-  have hD : ∫⁻ x in (𝒟 : Set ℍ), 2 * ∑ q : SL(2, ℤ) ⧸ Λ, U ((q.out⁻¹ : SL(2, ℤ)) • x)
-      = 2 * ∫⁻ x in (𝒟 : Set ℍ), ∑ q : SL(2, ℤ) ⧸ Λ, U ((q.out⁻¹ : SL(2, ℤ)) • x) :=
-    lintegral_const_mul 2 hmeasS
-  have key : (2 : ℝ≥0∞) * ∫⁻ x, U x * w x
-      = 2 * ∫⁻ x in (𝒟 : Set ℍ), ∑ q : SL(2, ℤ) ⧸ Λ, U ((q.out⁻¹ : SL(2, ℤ)) • x) := by
-    rw [← hA, hB, hC, hD]
-  exact (ENNReal.mul_right_inj two_ne_zero ENNReal.ofNat_ne_top).mp key
-
-end weight
-
-section cvn
-
-variable (Λ₁ Λ₂ : Subgroup SL(2, ℤ)) [Fintype (SL(2, ℤ) ⧸ Λ₁)] [Fintype (SL(2, ℤ) ⧸ Λ₂)]
-
--- pin: cvn_lintegral (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:691)
-theorem cvn_lintegral (β : GL (Fin 2) ℝ) (c : Λ₁ ≃ Λ₂)
-    (hc : ∀ h : Λ₁, β * (Matrix.SpecialLinearGroup.mapGL ℝ (h : SL(2, ℤ)) : GL (Fin 2) ℝ)
-      = (Matrix.SpecialLinearGroup.mapGL ℝ ((c h : Λ₂) : SL(2, ℤ)) : GL (Fin 2) ℝ) * β)
-    (U : ℍ → ℝ≥0∞) (hU : Measurable U) (hUinv : ∀ h ∈ Λ₂, ∀ x : ℍ, U (h • x) = U x) :
-    ∫⁻ x in (𝒟 : Set ℍ), ∑ q : SL(2, ℤ) ⧸ Λ₁, U (β • (q.out⁻¹ : SL(2, ℤ)) • x)
-      = ∫⁻ x in (𝒟 : Set ℍ), ∑ q : SL(2, ℤ) ⧸ Λ₂, U ((q.out⁻¹ : SL(2, ℤ)) • x) := by
-  have hact : ∀ (γ : SL(2, ℤ)) (x : ℍ),
-      γ • x = (Matrix.SpecialLinearGroup.mapGL ℝ γ : GL (Fin 2) ℝ) • x := fun γ x =>
-    MulAction.compHom_smul_def _ γ x
-
-  have hUβinv : ∀ h ∈ Λ₁, ∀ x : ℍ, U (β • h • x) = U (β • x) := by
-    intro h hh x
-    rw [hact, ← mul_smul, hc ⟨h, hh⟩, mul_smul, ← hact, hUinv _ (c ⟨h, hh⟩).2]
-
-  have h1 := weight_lintegral Λ₁ (fun x => U (β • x)) (wt Λ₁) (hU.comp (measurable_smul_GL β))
-    (measurable_wt Λ₁) hUβinv (ae_tsum_wt_smul Λ₁)
-
-  have h2 : ∫⁻ x, U (β • x) * wt Λ₁ x = ∫⁻ y, U y * wt Λ₁ (β⁻¹ • y) := by
-    have hmeas : Measurable fun y : ℍ => U y * wt Λ₁ (β⁻¹ • y) :=
-      hU.mul ((measurable_wt Λ₁).comp (measurable_smul_GL β⁻¹))
-    have := (mp_smul_GL β).lintegral_comp hmeas
-    simpa only [inv_smul_smul] using this
-
-  have hwt' : ∀ᵐ y : ℍ, ∑' h : Λ₂, wt Λ₁ (β⁻¹ • (h : SL(2, ℤ)) • y) = 2 := by
-    have hT : ∀ᵐ y : ℍ, ∑' h : Λ₁, wt Λ₁ ((h : SL(2, ℤ)) • β⁻¹ • y) = 2 :=
-      (mp_smul_GL β⁻¹).quasiMeasurePreserving.ae
-        (p := fun z : ℍ => ∑' h : Λ₁, wt Λ₁ ((h : SL(2, ℤ)) • z) = 2) (ae_tsum_wt_smul Λ₁)
-    filter_upwards [hT] with y hy
-    rw [← hy, ← c.tsum_eq (fun h : Λ₂ => wt Λ₁ (β⁻¹ • (h : SL(2, ℤ)) • y))]
-    refine tsum_congr fun h => ?_
-    show wt Λ₁ (β⁻¹ • ((c h : Λ₂) : SL(2, ℤ)) • y) = wt Λ₁ ((h : SL(2, ℤ)) • β⁻¹ • y)
-    congr 1
-    rw [hact, hact, ← mul_smul, ← mul_smul]
-    congr 1
-    rw [eq_mul_inv_iff_mul_eq, mul_assoc, ← hc h, ← mul_assoc, inv_mul_cancel, one_mul]
-  have h3 := weight_lintegral Λ₂ U (fun y => wt Λ₁ (β⁻¹ • y)) hU
-    ((measurable_wt Λ₁).comp (measurable_smul_GL β⁻¹)) hUinv hwt'
-  rw [← h3, ← h2, h1]
-
-end cvn
+-- The coset-integral layer that used to sit here — `mp_smul_*`, `measurable_smul_*`,
+-- `splitEquiv`, the `tsum_*` reindexings, the weight function `wt`, `weight_lintegral`
+-- and `cvn_lintegral` — is the definition layer
+-- `ModularForms/Analytic/PeterssonCoset.lean` (namespace `CuspForm.PeterssonCoset`),
+-- imported and opened above. The 18 declarations were statement-identical and are no
+-- longer duplicated here (2026-10-18).
 
 section glue
 
@@ -915,10 +718,6 @@ theorem dens_smul_of_inv {H : ℍ → ℂ} {h : SL(2, ℤ)}
 
 variable (Λ : Subgroup SL(2, ℤ)) [Fintype (SL(2, ℤ) ⧸ Λ)]
 
--- pin: cosum (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:800)
-def cosum (g : GL (Fin 2) ℝ) (Φ : ℍ → ℂ) (x : ℍ) : ℂ :=
-  ∑ q : SL(2, ℤ) ⧸ Λ, Φ (g • (q.out⁻¹ : SL(2, ℤ)) • x)
-
 variable (Λ₂ : Subgroup SL(2, ℤ)) [Fintype (SL(2, ℤ) ⧸ Λ₂)]
 
 -- pin: integral_cosum_self (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:805)
@@ -961,17 +760,7 @@ theorem integral_cosum_self (β : GL (Fin 2) ℝ) (c : Λ ≃ Λ₂)
     (fun h hh x => by simp only [dens_smul_of_inv (hH.inv h hh)])
   simpa only [one_smul] using this
 
--- pin: petersson_polarization (S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean:844)
-theorem petersson_polarization (F G : ℍ → ℂ) (x : ℍ) :
-    UpperHalfPlane.petersson k F G x
-      = (4 : ℂ)⁻¹ * (UpperHalfPlane.petersson k (G + F) (G + F) x
-          + Complex.I * UpperHalfPlane.petersson k (G + Complex.I • F) (G + Complex.I • F) x
-          - UpperHalfPlane.petersson k (G - F) (G - F) x
-          - Complex.I * UpperHalfPlane.petersson k (G - Complex.I • F) (G - Complex.I • F) x) := by
-  simp only [UpperHalfPlane.petersson, Pi.add_apply, Pi.sub_apply, Pi.smul_apply, smul_eq_mul,
-    map_add, map_sub, map_mul, Complex.conj_I]
-  linear_combination (-(1 / 2 : ℂ) * ((starRingEnd ℂ) (G x) * F x - (starRingEnd ℂ) (F x) * G x)
-    * ((x.im : ℂ)) ^ k) * Complex.I_sq
+-- `petersson_polarization` is the definition layer's (moved with the coset block above).
 
 omit [Fintype (SL(2, ℤ) ⧸ Λ)] in
 

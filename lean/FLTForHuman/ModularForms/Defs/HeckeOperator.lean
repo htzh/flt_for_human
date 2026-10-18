@@ -18,12 +18,15 @@
 
   FLT provenance, pinned `aa2d8b3`:
   `Definitions/Def_ModularForm_HeckeOperator.lean` lines 11–200. All declarations
-  are verbatim (including the pin's `@[simp]` attributes); only `heckeMatrix_zero`,
-  `heckeDiagMatrix_zero` and the `det_*`/`denom_*` helpers are private here.
+  are verbatim, including the pin's `@[simp]` attributes, and all are public as the
+  pin has them: `heckeMatrix_zero`/`heckeDiagMatrix_zero`, the `det_*` family and
+  the `denom_*` family were `private` here until 2026-10-18, when the `norm_sq`
+  silo needed `det_heckeDiagMatrix{,_pos}` and the whole privatized family was
+  promoted rather than leaving a private-name gap for the next consumer.
   `val_heckeMatrix` is public because the Fricke pair consumes it,
   `val_heckeDiagMatrix` because the analytic layer does, and
   `upperTriangularGL`/`val_upperTriangularGL` because the cusp-class layer's
-  rational model needs them (the pin has all of these public too).
+  rational model needs them.
 -/
 import Mathlib.NumberTheory.ModularForms.SlashActions
 import Mathlib.Analysis.Complex.UpperHalfPlane.Exp
@@ -64,33 +67,33 @@ def heckeDiagMatrix (p : ℕ) : GL (Fin 2) ℝ :=
       !![(p : ℝ), 0; 0, 1] := by
   simp [heckeDiagMatrix, hp]
 
-@[simp] private theorem heckeMatrix_zero (j : ℕ) : heckeMatrix 0 j = 1 := by simp [heckeMatrix]
+@[simp] theorem heckeMatrix_zero (j : ℕ) : heckeMatrix 0 j = 1 := by simp [heckeMatrix]
 
-@[simp] private theorem heckeDiagMatrix_zero : heckeDiagMatrix 0 = 1 := by simp [heckeDiagMatrix]
+@[simp] theorem heckeDiagMatrix_zero : heckeDiagMatrix 0 = 1 := by simp [heckeDiagMatrix]
 
-private theorem det_heckeMatrix {p : ℕ} (hp : p ≠ 0) (j : ℕ) : ((heckeMatrix p j).det : ℝ) = p := by
+theorem det_heckeMatrix {p : ℕ} (hp : p ≠ 0) (j : ℕ) : ((heckeMatrix p j).det : ℝ) = p := by
   rw [Matrix.GeneralLinearGroup.val_det_apply, val_heckeMatrix hp, Matrix.det_fin_two_of]
   ring
 
-private theorem det_heckeDiagMatrix {p : ℕ} (hp : p ≠ 0) : ((heckeDiagMatrix p).det : ℝ) = p := by
+theorem det_heckeDiagMatrix {p : ℕ} (hp : p ≠ 0) : ((heckeDiagMatrix p).det : ℝ) = p := by
   rw [Matrix.GeneralLinearGroup.val_det_apply, val_heckeDiagMatrix hp, Matrix.det_fin_two_of]
   ring
 
-private theorem det_heckeMatrix_pos (p j : ℕ) : 0 < ((heckeMatrix p j).det : ℝ) := by
+theorem det_heckeMatrix_pos (p j : ℕ) : 0 < ((heckeMatrix p j).det : ℝ) := by
   rcases eq_or_ne p 0 with rfl | hp
   · simp
   · rw [det_heckeMatrix hp]; exact_mod_cast Nat.pos_of_ne_zero hp
 
-private theorem det_heckeDiagMatrix_pos (p : ℕ) : 0 < ((heckeDiagMatrix p).det : ℝ) := by
+theorem det_heckeDiagMatrix_pos (p : ℕ) : 0 < ((heckeDiagMatrix p).det : ℝ) := by
   rcases eq_or_ne p 0 with rfl | hp
   · simp
   · rw [det_heckeDiagMatrix hp]; exact_mod_cast Nat.pos_of_ne_zero hp
 
-private theorem denom_heckeMatrix {p : ℕ} (hp : p ≠ 0) (j : ℕ) (τ : UpperHalfPlane) :
+theorem denom_heckeMatrix {p : ℕ} (hp : p ≠ 0) (j : ℕ) (τ : UpperHalfPlane) :
     UpperHalfPlane.denom (heckeMatrix p j) τ = p := by
   simp [UpperHalfPlane.denom, val_heckeMatrix hp]
 
-private theorem denom_heckeDiagMatrix {p : ℕ} (hp : p ≠ 0) (τ : UpperHalfPlane) :
+theorem denom_heckeDiagMatrix {p : ℕ} (hp : p ≠ 0) (τ : UpperHalfPlane) :
     UpperHalfPlane.denom (heckeDiagMatrix p) τ = 1 := by
   simp [UpperHalfPlane.denom, val_heckeDiagMatrix hp]
 
