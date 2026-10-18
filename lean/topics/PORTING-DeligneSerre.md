@@ -9,17 +9,27 @@ manager's own work, §5 the build economy, §6 verification, §7 what remains, �
 residuals. Every measurement is the pin's, read through `tools/deps`. The section numbers are
 stable: work orders across the column cite §3 for the workflow and §7 for the gates.
 
-The checker reads **9569 identical (656 promoted, 83 renamed), 0 mismatched, 0 missing, 38
-own-proof declarations exempted (9607 checked)**. This column's recent landings: the
+The checker reads **9857 identical (667 promoted, 83 renamed), 0 mismatched, 0 missing, 42
+own-proof declarations exempted (9899 checked)**. This column's recent landings: the
 `TateFormal`/`TateSlots` definition layer, 9241 → 9304; the weight-4 Tate-slot engine and headline
 façade (WORKORDER-F1), 9304 → 9318; the six `tateCurve`/Katz definition modules of WORKORDER-F2,
-9318 → 9535 (+217); and the `BridgeX` twin/triplet engine and headline façade (WORKORDER-F2),
-9535 → 9540 (+5). Each delta is exactly its new public surface, 0 mismatched / 0 missing. Since
-then the 9542 → 9569 (+27) step is the `NumberField.AdelicHeight` definition gate, the manager's
-own ground for the adelic-modulus round
+9318 → 9535 (+217); the `BridgeX` twin/triplet engine and headline façade (WORKORDER-F2),
+9535 → 9540 (+5); and the `CohCarrier` Hecke–diamond definition layer
+([deligneSerre/TOPIC-cohcarrier-comm-triplet.md](deligneSerre/TOPIC-cohcarrier-comm-triplet.md) §4–§6),
+`CohCarrierLevel.lean` + `CohCarrierLower.lean`, 9786 → 9854 (+68) with both modules green,
+then its Hecke–diamond commutation triplet engine + three-headline façade (WORKORDER-CT1),
+9854 → **9857 (+3)**; and the D-S cone's `HahnSeries.isAlgClosed_rat` leaf, ported as a
+**tier-3** mathlib supplement (`RingTheory/HahnSeries/IsAlgClosed.lean`, the generalized
+Newton–Puiseux theorem, 67 public declarations, all registered in
+[spec/UNWIRED-PUBLIC.md](../spec/UNWIRED-PUBLIC.md); record:
+[logs/hahn-series-alg-closed.md](../logs/hahn-series-alg-closed.md)) — no checker delta, since
+the module is unlisted. Each wired delta is exactly its new public surface, 0 mismatched /
+0 missing. The 9542 → 9569 (+27) step is
+the `NumberField.AdelicHeight` definition gate, the manager's own ground for the adelic-modulus
+round
 ([numberTheory/adelicModulus/TOPIC-adelic-modulus.md](numberTheory/adelicModulus/TOPIC-adelic-modulus.md)),
-not this column's; the remaining growth since the note's earlier figures is other columns'
-landings; the column's own history lives in `../logs/` and the work orders.
+not this column's; the remaining growth since the note's earlier figures (9569 → 9786) is other
+columns' landings; the column's own history lives in `../logs/` and the work orders.
 
 Companions:
 
@@ -41,6 +51,10 @@ Companions:
   [numberTheory/tateGlobal/TOPIC-continuous-ideleNorm.md](numberTheory/tateGlobal/TOPIC-continuous-ideleNorm.md).
 - The `WeierstrassCurve` ready shelf, its scoping and its set orders:
   [deligneSerre/TOPIC-weierstrass-ready-shelf.md](deligneSerre/TOPIC-weierstrass-ready-shelf.md).
+- The `CohCarrier` Hecke–diamond commutativity triplet — the three `--include-leaves`
+  rows, the 914-line development they share, and the two unported definition modules both
+  pin files sit under:
+  [deligneSerre/TOPIC-cohcarrier-comm-triplet.md](deligneSerre/TOPIC-cohcarrier-comm-triplet.md).
 - The Γ₁/Nebentypus successor pair — the two `CuspForm` rows the shelf once showed, which are the
   lifting column's, not this column's:
   [deligneSerre/WORKORDER-S8-nebentypus.md](deligneSerre/WORKORDER-S8-nebentypus.md).

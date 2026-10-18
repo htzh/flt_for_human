@@ -11,7 +11,7 @@ whether the tree has drifted.  Nothing here is verified against the pin: the
 `pin original` column names the declaration (and the file holding it) that
 carries the statement to diff when the entry is wired.
 
-`3415` public declarations in `119` unlisted modules; `3125` of them have a pin counterpart by name and statement.
+`3587` public declarations in `122` unlisted modules; `3283` of them have a pin counterpart by name and statement.
 
 This is tier 3 only.  Tier 2 — a declaration in a *listed* module that the
 checker skips — is `OWN_PROOFS` in the checker itself, each entry carrying its
@@ -99,6 +99,7 @@ wrappers whose statements the checker diffs).
 | [`FLTForHuman/ModularCurve/TateCurve/NonToricSlot.lean`](#fltforhumanmodularcurvetatecurvenontoricslotlean) | 675 | 25 | 25 | 0 | 1 | 0 |
 | [`FLTForHuman/ModularCurve/TateSlots/Convergence.lean`](#fltforhumanmodularcurvetateslotsconvergencelean) | 538 | 38 | 38 | 0 | 1 | 0 |
 | [`FLTForHuman/ModularCurve/TateSlots/SlotCoeff.lean`](#fltforhumanmodularcurvetateslotsslotcoefflean) | 1,294 | 81 | 81 | 0 | 2 | 0 |
+| [`FLTForHuman/ModularForms/CohCarrier/Engine/CommTriplet.lean`](#fltforhumanmodularformscohcarrierenginecommtripletlean) | 1,022 | 89 | 89 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/AdelicFourier.lean`](#fltforhumannumbertheoryadelicfourierlean) | 152 | 15 | 15 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/AdelicHaar/AdelicModulus.lean`](#fltforhumannumbertheoryadelichaaradelicmoduluslean) | 826 | 57 | 57 | 0 | 2 | 0 |
 | [`FLTForHuman/NumberTheory/AdelicHaar/ArchModulus.lean`](#fltforhumannumbertheoryadelichaararchmoduluslean) | 143 | 7 | 7 | 0 | 1 | 0 |
@@ -150,11 +151,13 @@ wrappers whose statements the checker diffs).
 | [`FLTForHuman/RepTheory/TypeReproducer.lean`](#fltforhumanreptheorytypereproducerlean) | 1,381 | 76 | 76 | 0 | 2 | 1 |
 | [`FLTForHuman/RingTheory/DedekindDomain/CompletionBaseChange.lean`](#fltforhumanringtheorydedekinddomaincompletionbasechangelean) | 1,393 | 69 | 68 | 1 | 1 | 0 |
 | [`FLTForHuman/RingTheory/DedekindDomain/IntegralClosure.lean`](#fltforhumanringtheorydedekinddomainintegralclosurelean) | 364 | 22 | 22 | 0 | 1 | 0 |
+| [`FLTForHuman/RingTheory/HahnSeries/IsAlgClosed.lean`](#fltforhumanringtheoryhahnseriesisalgclosedlean) | 1,087 | 67 | 67 | 0 | 0 | 0 |
 | [`FLTForHuman/RingTheory/Ideal/Quotient/Basic.lean`](#fltforhumanringtheoryidealquotientbasiclean) | 19 | 1 | 1 | 0 | 1 | 0 |
 | [`FLTForHuman/RingTheory/Localization/BaseChange.lean`](#fltforhumanringtheorylocalizationbasechangelean) | 110 | 6 | 6 | 0 | 1 | 0 |
 | [`FLTForHuman/Topology/Algebra/ModuleTopology.lean`](#fltforhumantopologyalgebramoduletopologylean) | 572 | 35 | 35 | 0 | 1 | 0 |
 | [`FLTForHuman/Topology/Algebra/UniformRing.lean`](#fltforhumantopologyalgebrauniformringlean) | 56 | 3 | 3 | 0 | 1 | 0 |
 | [`FLTForHuman/Topology/Algebra/Valued/WithZeroMulInt.lean`](#fltforhumantopologyalgebravaluedwithzeromulintlean) | 127 | 6 | 6 | 0 | 2 | 0 |
+| [`FLTForHuman/WeierstrassCurve/Velu/Shift.lean`](#fltforhumanweierstrasscurvevelushiftlean) | 236 | 16 | 2 | 14 | 1 | 0 |
 | [`Reserve/ModularCurve/Analytic/LevelTauBridge.lean`](#reservemodularcurveanalyticleveltaubridgelean) | 269 | 19 | 0 | 19 | 0 | 0 |
 | [`Reserve/ModularForms/LevelTwoCuspVanishing.lean`](#reservemodularformsleveltwocuspvanishinglean) | 141 | 6 | 6 | 0 | 0 | 0 |
 
@@ -2530,6 +2533,102 @@ wrappers whose statements the checker diffs).
 | `ModularCurve.toricPoint_snd_coeff_mul` | theorem | `toricPoint_snd_coeff_mul` (provenance comment) | [`S_ModularCurve_tsum_of_coeff_lt_eq_zero.lean:842`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_tsum_of_coeff_lt_eq_zero.lean#L842) |
 | `ModularCurve.toricPoint_snd_coeff_natCast` | theorem | `toricPoint_snd_coeff_natCast` (provenance comment) | [`S_ModularCurve_tsum_of_coeff_lt_eq_zero.lean:794`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_tsum_of_coeff_lt_eq_zero.lean#L794) |
 
+## `FLTForHuman/ModularForms/CohCarrier/Engine/CommTriplet.lean`
+
+1,022 lines, 89 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s).
+
+| importable name | kind | pin original | pin file |
+|---|---|---|---|
+| `CohCarrier.IharaSolComm.HeckeFamily` | structure | `HeckeFamily` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:104`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L104) |
+| `CohCarrier.IharaSolComm.HeckeFamily.Distinct` | def | `Distinct` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:165`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L165) |
+| `CohCarrier.IharaSolComm.HeckeFamily.T` | def | `T` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:143`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L143) |
+| `CohCarrier.IharaSolComm.HeckeFamily.T_add` | theorem | `T_add` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:155`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L155) |
+| `CohCarrier.IharaSolComm.HeckeFamily.T_apply` | theorem | `T_apply` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:152`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L152) |
+| `CohCarrier.IharaSolComm.HeckeFamily.T_comm_of_sameCosets` | theorem | `T_comm_of_sameCosets` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:288`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L288) |
+| `CohCarrier.IharaSolComm.HeckeFamily.T_comp` | theorem | `T_comp` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:236`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L236) |
+| `CohCarrier.IharaSolComm.HeckeFamily.T_eq_of_sameCosets` | theorem | `T_eq_of_sameCosets` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:270`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L270) |
+| `CohCarrier.IharaSolComm.HeckeFamily.T_zero` | theorem | `T_zero` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:159`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L159) |
+| `CohCarrier.IharaSolComm.HeckeFamily.actEquiv` | def | `actEquiv` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:131`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L131) |
+| `CohCarrier.IharaSolComm.HeckeFamily.actEquiv_apply` | theorem | `actEquiv_apply` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:137`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L137) |
+| `CohCarrier.IharaSolComm.HeckeFamily.act_eq_of_sameCosets` | theorem | `act_eq_of_sameCosets` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:255`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L255) |
+| `CohCarrier.IharaSolComm.HeckeFamily.comp` | def | `comp` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:216`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L216) |
+| `CohCarrier.IharaSolComm.HeckeFamily.eq_of_mul_eq` | theorem | `eq_of_mul_eq` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean) |
+| `CohCarrier.IharaSolComm.HeckeFamily.ofDistinct` | def | `ofDistinct` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:178`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L178) |
+| `CohCarrier.IharaSolComm.HeckeFamily.sameCosets_of_exhibit` | theorem | `sameCosets_of_exhibit` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:543`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L543) |
+| `CohCarrier.IharaSolComm.HeckeFamily.η_one` | theorem | `η_one` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:126`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L126) |
+| `CohCarrier.IharaSolComm.SameCosetsComm` | def | `SameCosetsComm` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:522`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L522) |
+| `CohCarrier.IharaSolComm.TwoSidedReduction` | def | `TwoSidedReduction` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:750`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L750) |
+| `CohCarrier.IharaSolComm.alpha` | def | `alpha` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:331`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L331) |
+| `CohCarrier.IharaSolComm.alpha_coe` | theorem | `alpha_coe` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:343`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L343) |
+| `CohCarrier.IharaSolComm.alpha_mul_ιΓ` | theorem | `alpha_mul_ιΓ` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:345`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L345) |
+| `CohCarrier.IharaSolComm.alpha_rep_distinct` | theorem | `alpha_rep_distinct` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:372`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L372) |
+| `CohCarrier.IharaSolComm.alpha_val` | theorem | `alpha_val` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:445`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L445) |
+| `CohCarrier.IharaSolComm.commPrime_impl` | theorem | `commPrime_impl` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:943`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L943) |
+| `CohCarrier.IharaSolComm.commutator_mem_GammaH` | theorem | `commutator_mem_GammaH` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:970`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L970) |
+| `CohCarrier.IharaSolComm.comp_famT_distinct` | theorem | `comp_famT_distinct` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:454`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L454) |
+| `CohCarrier.IharaSolComm.diamondRaw_congr` | theorem | `diamondRaw_congr` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:587`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L587) |
+| `CohCarrier.IharaSolComm.diamondRaw_diamondRaw` | theorem | `diamondRaw_diamondRaw` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:957`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L957) |
+| `CohCarrier.IharaSolComm.diamondRaw_eq_famD` | theorem | `diamondRaw_eq_famD` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:580`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L580) |
+| `CohCarrier.IharaSolComm.dvd_of_dvd_mulLevel` | theorem | `dvd_of_dvd_mulLevel` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:606`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L606) |
+| `CohCarrier.IharaSolComm.eq_of_rep_mul_inv_mem` | theorem | `eq_of_rep_mul_inv_mem` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:362`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L362) |
+| `CohCarrier.IharaSolComm.famD` | def | `famD` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:570`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L570) |
+| `CohCarrier.IharaSolComm.famT` | def | `famT` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:394`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L394) |
+| `CohCarrier.IharaSolComm.gDia` | def | `gDia` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:666`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L666) |
+| `CohCarrier.IharaSolComm.gDiaSL` | def | `gDiaSL` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:648`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L648) |
+| `CohCarrier.IharaSolComm.gDiaSL_mem` | theorem | `gDiaSL_mem` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:656`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L656) |
+| `CohCarrier.IharaSolComm.gDiaSL_mem_Gamma0` | theorem | `gDiaSL_mem_Gamma0` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:651`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L651) |
+| `CohCarrier.IharaSolComm.gDia_coe` | theorem | `gDia_coe` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:670`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L670) |
+| `CohCarrier.IharaSolComm.gamma0Units_sigmaLow` | theorem | `gamma0Units_sigmaLow` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:621`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L621) |
+| `CohCarrier.IharaSolComm.heckeDiamond_impl` | theorem | `heckeDiamond_impl` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:677`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L677) |
+| `CohCarrier.IharaSolComm.heckeT_comm_of_sameCosetsComm` | theorem | `heckeT_comm_of_sameCosetsComm` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:530`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L530) |
+| `CohCarrier.IharaSolComm.heckeT_eq_famT` | theorem | `heckeT_eq_famT` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:427`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L427) |
+| `CohCarrier.IharaSolComm.isCoprime_of_prime_not_dvd` | theorem | `isCoprime_of_prime_not_dvd` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:872`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L872) |
+| `CohCarrier.IharaSolComm.mem_GammaH_of_entries` | theorem | `mem_GammaH_of_entries` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:856`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L856) |
+| `CohCarrier.IharaSolComm.pMat` | def | `pMat` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:821`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L821) |
+| `CohCarrier.IharaSolComm.pMat_00` | theorem | `pMat_00` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:824`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L824) |
+| `CohCarrier.IharaSolComm.pMat_01` | theorem | `pMat_01` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:826`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L826) |
+| `CohCarrier.IharaSolComm.pMat_10` | theorem | `pMat_10` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:827`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L827) |
+| `CohCarrier.IharaSolComm.pMat_11` | theorem | `pMat_11` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:828`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L828) |
+| `CohCarrier.IharaSolComm.pMat_mem` | theorem | `pMat_mem` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:831`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L831) |
+| `CohCarrier.IharaSolComm.sameCosetsComm_of_twoSided` | theorem | `sameCosetsComm_of_twoSided` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:756`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L756) |
+| `CohCarrier.IharaSolComm.sfac` | def | `sfac` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:637`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L637) |
+| `CohCarrier.IharaSolComm.sfac_spec` | theorem | `sfac_spec` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:644`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L644) |
+| `CohCarrier.IharaSolComm.sigmaLow` | def | `sigmaLow` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:609`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L609) |
+| `CohCarrier.IharaSolComm.sigmaLow_coe` | theorem | `sigmaLow_coe` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:617`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L617) |
+| `CohCarrier.IharaSolComm.twoDiamonds_impl` | theorem | `twoDiamonds_impl` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:979`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L979) |
+| `CohCarrier.IharaSolComm.twoSidedReduction_of_prime` | theorem | `twoSidedReduction_of_prime` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:881`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L881) |
+| `CohCarrier.IharaSolComm.zMat` | def | `zMat` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:846`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L846) |
+| `CohCarrier.IharaSolComm.zMat_00` | theorem | `zMat_00` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:849`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L849) |
+| `CohCarrier.IharaSolComm.zMat_01` | theorem | `zMat_01` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:851`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L851) |
+| `CohCarrier.IharaSolComm.zMat_10` | theorem | `zMat_10` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:852`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L852) |
+| `CohCarrier.IharaSolComm.zMat_11` | theorem | `zMat_11` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:853`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L853) |
+| `CohCarrier.IharaSolComm.αZ` | def | `αZ` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:438`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L438) |
+| `CohCarrier.IharaSolComm.αZ_00` | theorem | `αZ_00` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:440`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L440) |
+| `CohCarrier.IharaSolComm.αZ_01` | theorem | `αZ_01` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:442`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L442) |
+| `CohCarrier.IharaSolComm.αZ_10` | theorem | `αZ_10` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:443`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L443) |
+| `CohCarrier.IharaSolComm.αZ_11` | theorem | `αZ_11` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:444`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L444) |
+| `CohCarrier.IharaSolComm.ιQ` | def | `ιQ` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:308`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L308) |
+| `CohCarrier.IharaSolComm.ιQ_coe_apply` | theorem | `ιQ_coe_apply` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:311`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L311) |
+| `CohCarrier.IharaSolComm.ιQ_injective` | theorem | `ιQ_injective` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:314`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L314) |
+| `CohCarrier.IharaSolComm.ιQ_mul_alpha` | theorem | `ιQ_mul_alpha` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:626`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L626) |
+| `CohCarrier.IharaSolComm.ιQ_mul_ιΓ` | theorem | `ιQ_mul_ιΓ` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:564`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L564) |
+| `CohCarrier.IharaSolComm.ιΓ` | def | `ιΓ` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:322`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L322) |
+| `CohCarrier.IharaSolComm.ιΓ_coe_apply` | theorem | `ιΓ_coe_apply` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:329`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L329) |
+| `CohCarrier.IharaSolComm.ιΓ_injective` | theorem | `ιΓ_injective` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:326`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L326) |
+| `CohCarrier.IharaSolComm.ιΓ_val` | theorem | `ιΓ_val` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:450`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L450) |
+| `CohCarrier.IharaSolRQ.cls_rep_mul` | theorem | `cls_rep_mul` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:20`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L20) |
+| `CohCarrier.IharaSolRQ.coe_slip` | theorem | `coe_slip` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:17`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L17) |
+| `CohCarrier.IharaSolRQ.heckeT_apply_eq_sum_rq` | theorem | `heckeT_apply_eq_sum_rq` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:88`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L88) |
+| `CohCarrier.IharaSolRQ.mulRight` | def | `mulRight` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:26`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L26) |
+| `CohCarrier.IharaSolRQ.mulRight_eq_cls_rep_mul` | theorem | `mulRight_eq_cls_rep_mul` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:35`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L35) |
+| `CohCarrier.IharaSolRQ.secL` | def | `secL` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:45`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L45) |
+| `CohCarrier.IharaSolRQ.secL_spec` | theorem | `secL_spec` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:47`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L47) |
+| `CohCarrier.IharaSolRQ.toAdditiveLeft_transfer_apply` | theorem | `toAdditiveLeft_transfer_apply` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:69`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L69) |
+| `CohCarrier.IharaSolRQ.toRight` | def | `toRight` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:42`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L42) |
+| `CohCarrier.IharaSolRQ.toRight_inv_smul` | theorem | `toRight_inv_smul` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:56`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L56) |
+| `CohCarrier.IharaSolRQ.transL` | def | `transL` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:63`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L63) |
+| `CohCarrier.IharaSolRQ.transL_apply` | theorem | `transL_apply` (direct name) | [`S_CohCarrier_heckeT_diamondRaw_comm.lean:66`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean#L66) |
+
 ## `FLTForHuman/NumberTheory/AdelicFourier.lean`
 
 152 lines, 15 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s).
@@ -4281,6 +4380,80 @@ wrappers whose statements the checker diffs).
 | `IsDedekindDomain.linearEquivTensorProductModule_tmul` | lemma | `linearEquivTensorProductModule_tmul` (provenance comment) | [`Def_DedekindDomain_IntegralClosure.lean:261`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_DedekindDomain_IntegralClosure.lean#L261) |
 | `IsIntegralClosure.isLocalizedModule` | lemma | `IsIntegralClosure.isLocalizedModule` (provenance comment) | [`Def_DedekindDomain_IntegralClosure.lean:281`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_DedekindDomain_IntegralClosure.lean#L281) |
 
+## `FLTForHuman/RingTheory/HahnSeries/IsAlgClosed.lean`
+
+1,087 lines, 67 public declarations — transcribed from the pin, not wired. Imported by 0 port module(s).
+
+| importable name | kind | pin original | pin file |
+|---|---|---|---|
+| `DorgePuiseux.IsBallChain` | structure | `IsBallChain` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:371`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L371) |
+| `DorgePuiseux.IsNewtonSlopeBound` | def | `IsNewtonSlopeBound` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:79`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L79) |
+| `DorgePuiseux.KaplanskyBelowSlope` | def | `KaplanskyBelowSlope` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:792`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L792) |
+| `DorgePuiseux.KaplanskyLE` | def | `KaplanskyLE` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:626`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L626) |
+| `DorgePuiseux.KaplanskySlope` | def | `KaplanskySlope` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:563`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L563) |
+| `DorgePuiseux.addVal_eval_le` | theorem | `KaplanskySlope.addVal_eval_le` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:575`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L575) |
+| `DorgePuiseux.addVal_eval_le` | theorem | `KaplanskyLE.addVal_eval_le` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:635`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L635) |
+| `DorgePuiseux.addVal_sub_le_addVal_sub` | theorem | `KaplanskyLE.addVal_sub_le_addVal_sub` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:681`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L681) |
+| `DorgePuiseux.antisymm` | theorem | `KaplanskyLE.antisymm` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:673`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L673) |
+| `DorgePuiseux.coeff_eq_of_lt` | theorem | `IsBallChain.coeff_eq_of_lt` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:382`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L382) |
+| `DorgePuiseux.coeff_eval_single` | theorem | `coeff_eval_single` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:64`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L64) |
+| `DorgePuiseux.coeff_eval_single_of_lt` | theorem | `coeff_eval_single_of_lt` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:82`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L82) |
+| `DorgePuiseux.coeff_eval_single_of_lt_order_zero` | theorem | `coeff_eval_single_of_lt_order_zero` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:304`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L304) |
+| `DorgePuiseux.coeff_eval_single_order_zero` | theorem | `coeff_eval_single_order_zero` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:297`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L297) |
+| `DorgePuiseux.coeff_eval_single_top` | theorem | `coeff_eval_single_top` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:71`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L71) |
+| `DorgePuiseux.coeff_pseudoLimit` | theorem | `IsBallChain.coeff_pseudoLimit` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:435`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L435) |
+| `DorgePuiseux.evalEdgeForm` | def | `evalEdgeForm` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:272`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L272) |
+| `DorgePuiseux.evalEdgeForm_coeff` | theorem | `evalEdgeForm_coeff` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:276`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L276) |
+| `DorgePuiseux.evalEdgeForm_coeff_of_eq` | theorem | `evalEdgeForm_coeff_of_eq` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:292`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L292) |
+| `DorgePuiseux.evalEdgeForm_coeff_zero` | theorem | `evalEdgeForm_coeff_zero` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:287`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L287) |
+| `DorgePuiseux.eval_eq_zero_of_kaplanskyLE_max` | theorem | `eval_eq_zero_of_kaplanskyLE_max` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:752`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L752) |
+| `DorgePuiseux.eval_sub_eval_eq_sum_taylor` | theorem | `eval_sub_eval_eq_sum_taylor` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:547`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L547) |
+| `DorgePuiseux.exists_addVal_eval_gt` | theorem | `exists_addVal_eval_gt` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:459`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L459) |
+| `DorgePuiseux.exists_addVal_eval_gt_of_eval_zero_ne_zero` | theorem | `exists_addVal_eval_gt_of_eval_zero_ne_zero` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:323`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L323) |
+| `DorgePuiseux.exists_addVal_taylor_coeff_of_addVal_eval_lt` | theorem | `exists_addVal_taylor_coeff_of_addVal_eval_lt` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:602`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L602) |
+| `DorgePuiseux.exists_evalNewtonSlope` | theorem | `exists_evalNewtonSlope` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:239`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L239) |
+| `DorgePuiseux.exists_isRoot_hahnSeries` | theorem | `exists_isRoot_hahnSeries` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:951`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L951) |
+| `DorgePuiseux.exists_kaplanskyLE_of_eval_ne_zero` | theorem | `exists_kaplanskyLE_of_eval_ne_zero` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:696`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L696) |
+| `DorgePuiseux.exists_kaplanskyLE_upperBound` | theorem | `exists_kaplanskyLE_upperBound` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:925`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L925) |
+| `DorgePuiseux.exists_ne_zero_root_of_coeff_ne_zero` | theorem | `exists_ne_zero_root_of_coeff_ne_zero` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:172`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L172) |
+| `DorgePuiseux.exists_newtonFirstApprox` | theorem | `exists_newtonFirstApprox` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:195`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L195) |
+| `DorgePuiseux.exists_newtonSlope` | theorem | `exists_newtonSlope` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:130`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L130) |
+| `DorgePuiseux.exists_pseudoLimit` | theorem | `exists_pseudoLimit` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:448`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L448) |
+| `DorgePuiseux.isAlgClosed_hahnSeries_rat` | theorem | `isAlgClosed_hahnSeries_rat` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:959`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L959) |
+| `DorgePuiseux.isPWO_support_pseudoLimitCoeff` | theorem | `IsBallChain.isPWO_support_pseudoLimitCoeff` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:402`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L402) |
+| `DorgePuiseux.isRoot_or_not_isMax_addVal_eval` | theorem | `isRoot_or_not_isMax_addVal_eval` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:483`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L483) |
+| `DorgePuiseux.isRoot_zero_or_exists_newtonFirstApprox` | theorem | `isRoot_zero_or_exists_newtonFirstApprox` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:205`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L205) |
+| `DorgePuiseux.kaplanskyChainOrder` | def | `kaplanskyChainOrder` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:774`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L774) |
+| `DorgePuiseux.kaplanskyChainOrder_le_iff` | theorem | `kaplanskyChainOrder_le_iff` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:780`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L780) |
+| `DorgePuiseux.kaplanskyChain_addVal_injOn` | theorem | `kaplanskyChain_addVal_injOn` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:764`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L764) |
+| `DorgePuiseux.kaplanskyChain_coeff_eq` | theorem | `kaplanskyChain_coeff_eq` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:835`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L835) |
+| `DorgePuiseux.kaplanskyLimit` | def | `kaplanskyLimit` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:893`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L893) |
+| `DorgePuiseux.kaplanskyLimitCoeff` | def | `kaplanskyLimitCoeff` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:855`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L855) |
+| `DorgePuiseux.kaplanskyLimitCoeff_eq` | theorem | `kaplanskyLimitCoeff_eq` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:858`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L858) |
+| `DorgePuiseux.kaplanskyLimitCoeff_isPWO_support` | theorem | `kaplanskyLimitCoeff_isPWO_support` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:866`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L866) |
+| `DorgePuiseux.kaplanskySlope_kaplanskyLimit` | theorem | `kaplanskySlope_kaplanskyLimit` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:898`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L898) |
+| `DorgePuiseux.le_orderTop_sub_pseudoLimit` | theorem | `IsBallChain.le_orderTop_sub_pseudoLimit` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:441`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L441) |
+| `DorgePuiseux.lt_addVal_sub` | theorem | `KaplanskyBelowSlope.lt_addVal_sub` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:802`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L802) |
+| `DorgePuiseux.monic_taylor` | theorem | `monic_taylor` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:453`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L453) |
+| `DorgePuiseux.mono` | theorem | `KaplanskySlope.mono` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:594`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L594) |
+| `DorgePuiseux.newtonInitialForm` | def | `newtonInitialForm` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:16`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L16) |
+| `DorgePuiseux.newtonInitialForm_coeff` | theorem | `newtonInitialForm_coeff` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:20`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L20) |
+| `DorgePuiseux.newtonInitialForm_coeff_natDegree` | theorem | `newtonInitialForm_coeff_natDegree` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:39`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L39) |
+| `DorgePuiseux.newtonInitialForm_monic` | theorem | `newtonInitialForm_monic` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:45`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L45) |
+| `DorgePuiseux.newtonInitialForm_natDegree` | theorem | `newtonInitialForm_natDegree` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:54`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L54) |
+| `DorgePuiseux.newtonInitialForm_natDegree_le` | theorem | `newtonInitialForm_natDegree_le` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:32`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L32) |
+| `DorgePuiseux.newtonStep_addVal_lt` | theorem | `newtonStep_addVal_lt` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:117`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L117) |
+| `DorgePuiseux.newtonStep_orderTop_lt` | theorem | `newtonStep_orderTop_lt` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:96`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L96) |
+| `DorgePuiseux.of_kaplanskyLE` | theorem | `KaplanskyBelowSlope.of_kaplanskyLE` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:815`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L815) |
+| `DorgePuiseux.of_kaplanskyLE_of_lt` | theorem | `KaplanskySlope.of_kaplanskyLE_of_lt` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:642`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L642) |
+| `DorgePuiseux.pseudoLimit` | def | `IsBallChain.pseudoLimit` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:429`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L429) |
+| `DorgePuiseux.pseudoLimitCoeff` | def | `pseudoLimitCoeff` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:378`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L378) |
+| `DorgePuiseux.pseudoLimitCoeff_eq` | theorem | `IsBallChain.pseudoLimitCoeff_eq` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:394`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L394) |
+| `DorgePuiseux.refl` | theorem | `KaplanskySlope.refl` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:569`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L569) |
+| `DorgePuiseux.refl` | theorem | `KaplanskyLE.refl` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:630`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L630) |
+| `DorgePuiseux.trans` | theorem | `KaplanskyLE.trans` (provenance comment) | [`S_HahnSeries_isAlgClosed_rat.lean:667`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean#L667) |
+| `isAlgClosed_rat` | theorem | `isAlgClosed_rat` (provenance comment) | [`Thm_HahnSeries_isAlgClosed_rat.lean:9`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_HahnSeries_isAlgClosed_rat.lean#L9) |
+
 ## `FLTForHuman/RingTheory/Ideal/Quotient/Basic.lean`
 
 19 lines, 1 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s).
@@ -4366,6 +4539,29 @@ wrappers whose statements the checker diffs).
 | `Valued.WithZeroMulInt.irreducible_valuation_le_ofAdd_neg_one` | theorem | `irreducible_valuation_le_ofAdd_neg_one` (provenance comment) | [`Def_Mathlib_Topology_Algebra_Valued_WithZeroMulInt.lean:18`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_Topology_Algebra_Valued_WithZeroMulInt.lean#L18) |
 | `Valued.WithZeroMulInt.irreducible_valuation_lt_one` | theorem | `irreducible_valuation_lt_one` (provenance comment) | [`Def_Mathlib_Topology_Algebra_Valued_WithZeroMulInt.lean:14`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_Topology_Algebra_Valued_WithZeroMulInt.lean#L14) |
 | `Valued.WithZeroMulInt.mem_maximalIdeal_pow_valuation` | theorem | `mem_maximalIdeal_pow_valuation` (provenance comment) | [`Def_Mathlib_Topology_Algebra_Valued_WithZeroMulInt.lean:24`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_Mathlib_Topology_Algebra_Valued_WithZeroMulInt.lean#L24) |
+
+## `FLTForHuman/WeierstrassCurve/Velu/Shift.lean`
+
+236 lines, 16 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s).
+
+| importable name | kind | pin original | pin file |
+|---|---|---|---|
+| `WeierstrassCurve.clr` | def | — | the port's own |
+| `WeierstrassCurve.clr_shift_sub` | theorem | — | the port's own |
+| `WeierstrassCurve.qResidual` | def | — | the port's own |
+| `WeierstrassCurve.shiftCurve` | def | — | the port's own |
+| `WeierstrassCurve.shiftCurve_a₁` | theorem | — | the port's own |
+| `WeierstrassCurve.shiftCurve_a₂` | theorem | — | the port's own |
+| `WeierstrassCurve.shiftCurve_a₃` | theorem | — | the port's own |
+| `WeierstrassCurve.shiftCurve_a₄` | theorem | — | the port's own |
+| `WeierstrassCurve.shiftCurve_a₆` | theorem | — | the port's own |
+| `WeierstrassCurve.shiftCurve_def` | theorem | — | the port's own |
+| `WeierstrassCurve.shiftCurve_equation` | theorem | — | the port's own |
+| `WeierstrassCurve.veluDeficitPsiCofactorReduced_shift_sub` | theorem | — | the port's own |
+| `WeierstrassCurve.velu_singleton_deficit_cleared_eq_psi` | theorem | — | the port's own |
+| `WeierstrassCurve.velu_singleton_deficit_cleared_normalized` | theorem | — | the port's own |
+| `WeierstrassCurve.velu_singleton_equation_cleared` | theorem | `velu_singleton_equation_cleared` (direct name) | [`Def_WeierstrassCurve_VeluPointMap.lean:27`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_WeierstrassCurve_VeluPointMap.lean#L27) |
+| `WeierstrassCurve.velu_singleton_map_equation` | theorem | `velu_singleton_map_equation` (direct name) | [`Def_WeierstrassCurve_VeluPointMap.lean:70`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_WeierstrassCurve_VeluPointMap.lean#L70) |
 
 ## `Reserve/ModularCurve/Analytic/LevelTauBridge.lean`
 

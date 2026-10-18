@@ -1011,6 +1011,12 @@ SOURCES = [
     # arrangement). They are appended after every existing source so no earlier
     # last-name match can flip.
     "Definitions/Def_CohCarrier_Level.lean",
+    # The lower leg of the `CohCarrier` definition layer
+    # (TOPIC-cohcarrier-comm-triplet.md §4): no `Theorems/` wrapper exists, so this
+    # is the comparable copy for `FLTForHuman/ModularForms/Defs/CohCarrierLower.lean`.
+    # Its declarations are disjoint from `Def_CohCarrier_Level`'s, so its position
+    # cannot flip an earlier last-name match.
+    "Definitions/Def_CohCarrier_Lower.lean",
     "Definitions/Def_CohCarrier_Inst.lean",
     "Definitions/Def_ModularCurve_XH.lean",
     # SET-H-A (TOPIC-xH-hecke-diamond-inputs.md): the `X_H(M)` definition layer.
@@ -3269,6 +3275,25 @@ SOURCES = [
     "P2M/Sol/S_AutomorphicForm_exists_finTestFactor_isUnitFactorizableAboveOfType_tendsto_rightConv_of_mem_archCutSubmodule.lean",
     "Theorems/Thm_AutomorphicForm_exists_isUnitFactorizableAboveOfType_principalLevel_tendsto_rightConv_of_mem_archCutSubmodule.lean",
     "P2M/Sol/S_AutomorphicForm_exists_isUnitFactorizableAboveOfType_principalLevel_tendsto_rightConv_of_mem_archCutSubmodule.lean",
+    # --- WORKORDER-CT1 (`topics/deligneSerre/WORKORDER-CT1-comm-triplet.md`): the
+    # `CohCarrier` Hecke–diamond commutation triplet. The three `Theorems/` wrappers are the
+    # statement authority for the three tier-1 headlines; the shared `S_` development is the
+    # pin original for the tier-3 engine `CohCarrier/Engine/CommTriplet.lean` (unlisted,
+    # registered in `spec/UNWIRED-PUBLIC.md`), so it is listed for the register's pin-original
+    # column even though no declaration of it is diffed directly. Appended last so no earlier
+    # last-name match can flip.
+    "Theorems/Thm_CohCarrier_heckeT_diamondRaw_comm.lean",
+    "Theorems/Thm_CohCarrier_heckeT_comm_of_prime.lean",
+    "Theorems/Thm_CohCarrier_diamondRaw_comm.lean",
+    "P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean",
+    # --- The Hahn-series algebraic-closure supplement (pure mathlib content,
+    # `FLTForHuman/RingTheory/HahnSeries/IsAlgClosed.lean`). The module is **unlisted**
+    # (tier 3): nothing of it is statement-diffed here. These two sources are the pin
+    # originals its 67 public declarations resolve against -- the wrapper for the
+    # headline, the `S_` development for the other 66 -- so the tier-3 register
+    # `spec/UNWIRED-PUBLIC.md` can fill its pin-original column. Appended last.
+    "Theorems/Thm_HahnSeries_isAlgClosed_rat.lean",
+    "P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean",
 ]
 
 
@@ -4883,6 +4908,17 @@ PORT_FILES = [
     # façade only (its tier-3 engine `AutomorphicForm/Adelic/UnitFactorizableEngine.lean` stays
     # unlisted, registered in `spec/UNWIRED-PUBLIC.md`). Appended last.
     "FLTForHuman/AutomorphicForm/Adelic/UnitFactorizableTheorems.lean",
+    # --- The `CohCarrier` Hecke–diamond triplet's definition layer
+    # (`topics/deligneSerre/TOPIC-cohcarrier-comm-triplet.md` §4–§6): the two pin
+    # `Definitions/` modules homed whole. This ground is shared by all twelve needed
+    # `CohCarrier` nodes, not only the triplet. Appended last so no earlier last-name
+    # match can flip.
+    "FLTForHuman/ModularForms/Defs/CohCarrierLevel.lean",
+    "FLTForHuman/ModularForms/Defs/CohCarrierLower.lean",
+    # --- WORKORDER-CT1: the triplet's tier-1 façade only (its tier-3 engine
+    # `FLTForHuman/ModularForms/CohCarrier/Engine/CommTriplet.lean` stays unlisted,
+    # registered in `spec/UNWIRED-PUBLIC.md`). Appended last.
+    "FLTForHuman/ModularForms/CohCarrier/CommTriplet.lean",
 ]
 
 

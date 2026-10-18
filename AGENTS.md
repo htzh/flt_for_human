@@ -30,6 +30,16 @@ tools/ for now are not git tracked and won't be published
 * `/tmp` is `tmpfs`: it does not persist across tool calls.
 * `tmp/` in the project dir are not git tracked.
 
+## Web access
+
+The MCP web tools are metered and expensive. Do not reach for them by default.
+
+* **Never use the `web_fetch` MCP tool.** For any known URL use direct egress — `curl -sSL` (or `wget`) — and write to `tmp/` or pipe straight into `grep`/`sed`, remembering `/tmp` does not persist. Direct https works from this sandbox for github, raw.githubusercontent.com, the tianyipeng static site, docs sites, and API endpoints.
+* Use `gh` (already authenticated as `htzh`) for GitHub: `gh api`, `gh search code`, `gh search issues` — 5000 req/h, and no MCP cost.
+* **`web_search` only if strictly necessary** — i.e. the URL/entity is genuinely unknown and neither the local FLT/mathlib clone, `gh`, nor a direct API (Wikipedia, arXiv, Crossref, npm) can answer it.
+* One `web_search` call fans out to **one metered LLM+search request per query**, so batch queries into a single call and never repeat a rephrased query. Verify each result; a search that errors out has still been paid for.
+* Prefer following a hit with `curl` rather than a second MCP call.
+
 ## FLT urls
 
 Anthropic's FLT is both available on github and cloned locally.
