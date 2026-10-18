@@ -13,7 +13,7 @@ Deferred API that has been ported and verified is in `Reserve/`, not here.
 ### The exact-volume / L2 chain — `Def_AutomorphicForm_{Gamma0ExactVolume,FundamentalDomainExactVolume,EisensteinScattering,L2ProductionInstance,L2AutomorphicCarrier,TruncatedDomainPartition}`
 
 Deferred 2026-10-17 while porting `CuspForm.peterssonOn_hecke_eq_conj_mul_of_hasNebentypus`
-(record: [logs/petersson-hecke-adjointness.md](logs/petersson-hecke-adjointness.md)). The pin's
+(record: [topics/deligneSerre/TOPIC-petersson-hecke-adjointness.md](topics/deligneSerre/TOPIC-petersson-hecke-adjointness.md)). The pin's
 `Def_AutomorphicForm_ModularFundamentalDomain.lean` (217 lines) reaches this six-module chain
 (1,436 pin lines: 176 + 236 + 278 + 111 + 147 + 488) only for five facts:
 `volume_fd_diff_fdo`, `volume_fdo_eq_volume_fd` (from `Gamma0ExactVolume`), `volume_fd_eq`,
@@ -335,6 +335,33 @@ declaration is not importable. Unifying them means generalising the public copy'
 edits a frozen module.
 
 ## Open follow-ups
+
+### Checker: per-declaration wiring — retire the façade pattern
+
+`PORT_FILES` is a **module** list, so a pin `Theorems/Thm_*.lean` wrapper — one declaration, the
+statement authority — can only be wired by giving it a one-declaration port module (a "façade")
+beside its tier-3 engine, or by wiring the engine whole and diffing its internal helpers. The pin
+has **29,511** `Theorems/` files, so one façade per wired wrapper does not scale. The five pure
+façades today:
+
+- `FLTForHuman/AutomorphicForm/Adelic/Siegel/SlabCoveringTheorems.lean`
+- `FLTForHuman/AutomorphicForm/Adelic/ArchKFiniteFamilyTheorems.lean`
+- `FLTForHuman/AutomorphicForm/Adelic/UnitFactorizableTheorems.lean`
+- `FLTForHuman/ModularForms/CohCarrier/CommTriplet.lean` (three headlines)
+- `FLTForHuman/ModularForms/Analytic/PeterssonHeckeTheorems.lean`
+
+Fix: a per-declaration wired list in `spec/check_flt_statements.py`, e.g.
+
+```python
+WIRED = ["CuspForm.peterssonOn_hecke_eq_conj_mul_of_hasNebentypus", ...]
+```
+
+scanned in addition to `PORT_FILES`; a module can then stay unlisted (tier 3, registered) while the
+named declaration is diffed. The façade collapses into the engine — the headline is stated
+verbatim at the end of the engine — and the five façades above can be deleted. The `--selftest`
+must cover the new path: a mutated wired declaration has to produce exactly one `mismatched`.
+Pricing: the checker edit + selftest + moving five headlines; each façade is ~30 lines and one
+declaration. Do not add a sixth façade before this lands.
 
 ### `AlgebraicCurve.essFiniteType_of_transcendental_of_finiteDimensional`
 

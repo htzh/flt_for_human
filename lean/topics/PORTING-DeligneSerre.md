@@ -27,7 +27,7 @@ the module is unlisted; and the Petersson adjointness of `T_p` on the nebentypus
 `CuspForm.peterssonOn_hecke_eq_conj_mul_of_hasNebentypus` (1,230 pin lines, the leaf above the
 nebentypus eigenbasis), 9857 → **9877 (+20)**: `peterssonOn` (+3), the fundamental-domain
 ground (+16), the tier-1 headline (+1), with its 118-declaration engine tier-3 and registered
-(record: [logs/petersson-hecke-adjointness.md](../logs/petersson-hecke-adjointness.md)). Each
+(record: [deligneSerre/TOPIC-petersson-hecke-adjointness.md](deligneSerre/TOPIC-petersson-hecke-adjointness.md)). Each
 wired delta is exactly its new public surface, 0 mismatched / 0 missing. The 9542 → 9569 (+27) step is
 the `NumberField.AdelicHeight` definition gate, the manager's own ground for the adelic-modulus
 round
@@ -53,6 +53,8 @@ Companions:
   `continuous_ideleNorm` hub's port plan and landing record (the frontier's most connected
   `NumberField` leaf, 15 of the closure's nodes directly above it) is
   [numberTheory/tateGlobal/TOPIC-continuous-ideleNorm.md](numberTheory/tateGlobal/TOPIC-continuous-ideleNorm.md).
+- The mathematics of the Petersson adjointness proved in this column:
+  [../../math/030-petersson-adjointness-of-hecke.md](../../math/030-petersson-adjointness-of-hecke.md).
 - The `WeierstrassCurve` ready shelf, its scoping and its set orders:
   [deligneSerre/TOPIC-weierstrass-ready-shelf.md](deligneSerre/TOPIC-weierstrass-ready-shelf.md).
 - The `CohCarrier` Hecke–diamond commutativity triplet — the three `--include-leaves`

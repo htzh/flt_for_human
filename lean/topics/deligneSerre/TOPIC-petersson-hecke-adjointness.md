@@ -1,6 +1,8 @@
 # The Petersson adjointness of `T_p` on a nebentypus component — `peterssonOn_hecke_eq_conj_mul_of_hasNebentypus`
 
-**Status: landed 2026-10-17.** Four modules, checker `9857 → 9877 identical (+20)`, 0
+**Status: landed 2026-10-17.** Mathematics:
+[../../../math/030-petersson-adjointness-of-hecke.md](../../../math/030-petersson-adjointness-of-hecke.md)
+(the classical adjointness, the unfolding proof, and the two consumers). Four modules, checker `9857 → 9877 identical (+20)`, 0
 mismatched / 0 missing; the headline is `#print axioms`-clean
 (`[propext, Classical.choice, Quot.sound]`).
 
@@ -19,6 +21,12 @@ mismatched / 0 missing; the headline is `#print axioms`-clean
 | consumers | 2 in the D-S cone: `CuspForm.exists_basis_hasNebentypus_qCoeff_hecke_eigen` (864), `CuspForm.conj_heckeEigenvalue_eq_of_hasNebentypus` (269) |
 | build | engine edit loop ~10 s; module builds 3–4 s each |
 
+**Façade note.** `PeterssonHeckeTheorems.lean` exists because the checker wires modules, not
+declarations: it carries the pin wrapper's statement verbatim (+1) while the 118-declaration engine
+stays tier 3. It is a bridge, not a permanent home — when the checker gains per-declaration wiring
+([CARRY-FORWARD.md](../../CARRY-FORWARD.md), "Checker: per-declaration wiring") the headline folds
+into the engine and the façade is deleted.
+
 ## 1. Where it is homed, and why
 
 Mathlib `v4.34.0` already has the **pointwise** Petersson density
@@ -28,7 +36,7 @@ coset sum over `SL(2, ℤ) ⧸ Γ` and its integral over `volume.restrict 𝒟`.
 adjointness proof itself, so the module lives under our `ModularForms/` (beside the Hecke column,
 `HeckeNebentypus.lean`, `HeckeEigenNebentypus.lean`), not under the pin's consumers in
 `ModularCurve/`. This is **not** a mathlib supplement (contrast
-[logs/hahn-series-alg-closed.md](hahn-series-alg-closed.md)): the definition wraps mathlib, and
+[../../logs/hahn-series-alg-closed.md](../../logs/hahn-series-alg-closed.md)): the definition wraps mathlib, and
 the theorem is FLT's analytic Hecke theory.
 
 ## 2. The definition layer, and the one cut
@@ -50,7 +58,7 @@ chain of 1,436 lines (`Gamma0ExactVolume` 176, `FundamentalDomainExactVolume` 23
 The port carries the first two and the last as `private` helpers (short measure-theory proofs over
 the already-ported `FundamentalDomainVolume`/`HyperbolicMeasure`), wires the module's other **16**
 public declarations verbatim, and defers the four gate theorems plus the whole chain in
-[CARRY-FORWARD.md](../CARRY-FORWARD.md). The cut is justified by measurement: over the 1,396
+[CARRY-FORWARD.md](../../CARRY-FORWARD.md). The cut is justified by measurement: over the 1,396
 needed rows of `frontier.py --ds --include-leaves --list`, **no needed D-S node imports any of the
 six directly**; they are reached only through `ModularFundamentalDomain`, which three needed nodes
 use (this row plus the two `norm_sq` rows).
@@ -82,7 +90,7 @@ The engine is unlisted, so the checker does not diff it; a last-name/statement c
 checker's own parser gives **118/118 matches, 0 differences** (`solution` skipped). The one
 apparent difference, `rr`, is the known register/parser artifact: `def rr` is equation-style, so
 the checker's statement cut runs to the next `:=` and absorbs the following `-- pin:` line
-([CARRY-FORWARD.md](../CARRY-FORWARD.md), "known issues").
+([CARRY-FORWARD.md](../../CARRY-FORWARD.md), "known issues").
 
 ## 4. Reproduce
 
