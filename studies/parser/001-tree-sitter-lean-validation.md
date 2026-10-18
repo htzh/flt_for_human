@@ -4,7 +4,8 @@ Date: 2026-09-04 · Tool: `flt_for_human/tools/parser` · Status: **approach val
 Toolchain field guide: `002-moonbit-lean4-toolchain-notes.md`
 Follow-up at corpus scale on the port: [003-fltforhuman-parser-report.md](003-fltforhuman-parser-report.md)
 (2026-10-18). It finds two extractor bugs behind the "errors are localized" claim
-here and adds chunked resync (98.7% declaration retention on `lean/FLTForHuman`).
+here and adds chunked resync (98.8% declaration retention on `lean/FLTForHuman` with the
+2026-10-04 grammar).
 
 ## Verdict
 

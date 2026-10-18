@@ -13,8 +13,8 @@
   Status    open
   Date      2026-10-14
 
-  This is a worksheet, not library code: nothing globs `play/`, the directory is
-  gitignored, and it exists so that the ported statement can be read, poked at
+  This is a worksheet, not library code: nothing globs `lean/play/`, the sheets
+  are tracked, and it exists so that the ported statement can be read, poked at
   and questioned in the editor. Ground rules and workflow: `play/README.md`.
 
   Zones

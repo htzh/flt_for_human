@@ -1,7 +1,9 @@
 # `lean/play/` — the playback bench
 
 **Status:** open. Ground rules fixed 2026-10-14; the workflow below is v0 and
-grows as we use it.
+grows as we use it. The sheets are tracked and also rendered by the browser
+reader under [`play/`](../../play/) — serve it statically and open
+`play/index.html`.
 
 The porting push is over for a large segment of FLT. This directory is where we
 read it back. The mode is different from everything else under `lean/`: it is
@@ -67,12 +69,16 @@ verification artifact; anything genuinely new goes into `FLTForHuman/` through
 module it reads, and the pinned FLT source (`aa2d8b3`, per AGENTS.md), so a later
 reader can trace a claim without opening anything else.
 
-**R7 — Untracked, and pointing the right way.** The root `.gitignore` ignores
-`lean/play/`; nothing globs it and it can be deleted with no consequence. It may
-freely cross-reference other local paths. **The reverse is forbidden** — a
-tracked file (including `lean/README.md`) must never point into `play/`. To
-publish something learned here, promote it into a tracked note (`math/`,
-`topics/`, `logs/`) and re-cite it with public URLs.
+**R7 — Tracked, and pointing the right way.** Worksheets are tracked and
+published. Nothing globs `lean/play/` — it is not a library and `lake build`
+never touches it — but the files themselves are part of the repository, so
+they must obey the repository's citation rules: cite public URLs (the pin,
+mathlib, or a tracked file), never an untracked local path. The generated
+browser view lives in `play/` and is part of the tracked app; the generator is a
+local-only tool. A tracked worksheet may point at `play/`, not at the generator.
+To publish distilled prose, still promote it
+into a tracked note (`math/`, `topics/`, `logs/`) and re-cite it with public
+URLs; the worksheet remains the working artifact.
 
 **R8 — Math rendering depends on the reader.** Worksheets are read in the
 editor, so plain Unicode (`#E[n] = n²`, `→`, `ℤ`) is fine and preferred. Text
@@ -155,6 +161,5 @@ Things not settled yet; they get settled by using the bench, not by guessing.
 - Do we pre-check on every edit, or only on hand-off? (Default: every hand-off,
   which is the expensive moment; mid-session edits are checked when they change
   a proof term.)
-- Does `lean/README.md` want a line about this bench? It cannot have one while
-  `lean/play/` is gitignored (R7) — so the answer is either "no" or "un-ignore
-  `play/`", which is a real decision about publishing worksheets.
+- Does `lean/README.md` want a line about this bench? It can now point at
+  `lean/play/` (the sheets are tracked); a short line is enough.

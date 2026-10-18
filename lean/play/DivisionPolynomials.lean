@@ -30,8 +30,8 @@
   layers are free at this scale and the subject is the whole layer. (R1:
   `play/README.md`.)
 
-  This is a worksheet, not library code: nothing globs `play/`, the directory is
-  gitignored, and it exists so that the ported EDS theory can be read, poked at
+  This is a worksheet, not library code: nothing globs `lean/play/`, the sheets
+  are tracked, and it exists so that the ported EDS theory can be read, poked at
   and questioned in the editor. Ground rules and workflow: `play/README.md`.
 
   The mathematics of this layer — Ward, Stange, Silverman, and where the Lean

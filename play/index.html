@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FLT · Play</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="index" data-base="">
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><a href="./">FLT <span>play</span></a></div>
+    <div class="searchbox">
+      <input id="search" type="search" autocomplete="off" spellcheck="false"
+             placeholder="search declarations — name, short name, docstring…">
+      <div id="search-results" class="search-results" hidden></div>
+    </div>
+  </div>
+</header>
+<div class="index-layout wrap">
+  <main class="index-main">
+    <h1>Play — reading the FLT port in a browser</h1>
+    <p class="lead">Worksheet reader and one-layer declaration lookup. Pick a subject,
+      read the zones, and click any checked name to see its source declaration,
+      docstring, and the declarations it directly uses. Sugared source first; the
+      elaborated <code>#check</code> view is behind the Type tab.</p>
+    <div id="sheets" class="sheet-grid"></div>
+  </main>
+</div>
+<aside id="cardpanel" class="card-panel" hidden></aside>
+<script src="assets/app.js"></script>
+</body>
+</html>
