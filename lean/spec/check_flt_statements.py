@@ -3294,6 +3294,18 @@ SOURCES = [
     # `spec/UNWIRED-PUBLIC.md` can fill its pin-original column. Appended last.
     "Theorems/Thm_HahnSeries_isAlgClosed_rat.lean",
     "P2M/Sol/S_HahnSeries_isAlgClosed_rat.lean",
+    # --- The Petersson adjointness on a nebentypus component. The wrapper is the tier-1
+    # headline's statement authority; the `S_` development is the pin original for the
+    # tier-3 engine `ModularForms/Analytic/PeterssonHecke.lean` (unlisted, registered in
+    # `spec/UNWIRED-PUBLIC.md`), so it is listed for the register's pin-original column.
+    "Theorems/Thm_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean",
+    "P2M/Sol/S_CuspForm_peterssonOn_hecke_eq_conj_mul_of_hasNebentypus.lean",
+    # --- The Petersson definition layer and the fundamental-domain ground it needs.
+    # `Def_CuspForm_PeterssonOn` is the source of the three `peterssonOn` definitions;
+    # `Def_AutomorphicForm_ModularFundamentalDomain` of the sixteen `goodSet`/translate
+    # lemmas the port keeps (its four gate theorems are deferred in CARRY-FORWARD).
+    "Definitions/Def_CuspForm_PeterssonOn.lean",
+    "Definitions/Def_AutomorphicForm_ModularFundamentalDomain.lean",
 ]
 
 
@@ -4919,6 +4931,16 @@ PORT_FILES = [
     # `FLTForHuman/ModularForms/CohCarrier/Engine/CommTriplet.lean` stays unlisted,
     # registered in `spec/UNWIRED-PUBLIC.md`). Appended last.
     "FLTForHuman/ModularForms/CohCarrier/CommTriplet.lean",
+    # --- The Petersson definition layer (`peterssonOn`) and the fundamental-domain
+    # ground (`goodSet`, the translate-double-counting identities). Both are transcribed
+    # verbatim and wired so they stay verified; the deferred exact-volume/L2 surface is in
+    # CARRY-FORWARD.md. Appended last.
+    "FLTForHuman/ModularForms/Analytic/Petersson.lean",
+    "FLTForHuman/AutomorphicForm/UpperHalfPlane/ModularFundamentalDomain.lean",
+    # --- The Petersson adjointness (tier 1): the headline façade only. Its tier-3
+    # engine `FLTForHuman/ModularForms/Analytic/PeterssonHecke.lean` stays unlisted
+    # (registered in `spec/UNWIRED-PUBLIC.md`). Appended last.
+    "FLTForHuman/ModularForms/Analytic/PeterssonHeckeTheorems.lean",
 ]
 
 

@@ -9,8 +9,8 @@ manager's own work, §5 the build economy, §6 verification, §7 what remains, �
 residuals. Every measurement is the pin's, read through `tools/deps`. The section numbers are
 stable: work orders across the column cite §3 for the workflow and §7 for the gates.
 
-The checker reads **9857 identical (667 promoted, 83 renamed), 0 mismatched, 0 missing, 42
-own-proof declarations exempted (9899 checked)**. This column's recent landings: the
+The checker reads **9877 identical (667 promoted, 83 renamed), 0 mismatched, 0 missing, 42
+own-proof declarations exempted (9919 checked)**. This column's recent landings: the
 `TateFormal`/`TateSlots` definition layer, 9241 → 9304; the weight-4 Tate-slot engine and headline
 façade (WORKORDER-F1), 9304 → 9318; the six `tateCurve`/Katz definition modules of WORKORDER-F2,
 9318 → 9535 (+217); the `BridgeX` twin/triplet engine and headline façade (WORKORDER-F2),
@@ -23,8 +23,12 @@ then its Hecke–diamond commutation triplet engine + three-headline façade (WO
 Newton–Puiseux theorem, 67 public declarations, all registered in
 [spec/UNWIRED-PUBLIC.md](../spec/UNWIRED-PUBLIC.md); record:
 [logs/hahn-series-alg-closed.md](../logs/hahn-series-alg-closed.md)) — no checker delta, since
-the module is unlisted. Each wired delta is exactly its new public surface, 0 mismatched /
-0 missing. The 9542 → 9569 (+27) step is
+the module is unlisted; and the Petersson adjointness of `T_p` on the nebentypus component,
+`CuspForm.peterssonOn_hecke_eq_conj_mul_of_hasNebentypus` (1,230 pin lines, the leaf above the
+nebentypus eigenbasis), 9857 → **9877 (+20)**: `peterssonOn` (+3), the fundamental-domain
+ground (+16), the tier-1 headline (+1), with its 118-declaration engine tier-3 and registered
+(record: [logs/petersson-hecke-adjointness.md](../logs/petersson-hecke-adjointness.md)). Each
+wired delta is exactly its new public surface, 0 mismatched / 0 missing. The 9542 → 9569 (+27) step is
 the `NumberField.AdelicHeight` definition gate, the manager's own ground for the adelic-modulus
 round
 ([numberTheory/adelicModulus/TOPIC-adelic-modulus.md](numberTheory/adelicModulus/TOPIC-adelic-modulus.md)),

@@ -10,6 +10,33 @@ Deferred API that has been ported and verified is in `Reserve/`, not here.
 
 ## Deferred API
 
+### The exact-volume / L2 chain — `Def_AutomorphicForm_{Gamma0ExactVolume,FundamentalDomainExactVolume,EisensteinScattering,L2ProductionInstance,L2AutomorphicCarrier,TruncatedDomainPartition}`
+
+Deferred 2026-10-17 while porting `CuspForm.peterssonOn_hecke_eq_conj_mul_of_hasNebentypus`
+(record: [logs/petersson-hecke-adjointness.md](logs/petersson-hecke-adjointness.md)). The pin's
+`Def_AutomorphicForm_ModularFundamentalDomain.lean` (217 lines) reaches this six-module chain
+(1,436 pin lines: 176 + 236 + 278 + 111 + 147 + 488) only for five facts:
+`volume_fd_diff_fdo`, `volume_fdo_eq_volume_fd` (from `Gamma0ExactVolume`), `volume_fd_eq`,
+`gate_volume_ne_zero` (from `FundamentalDomainExactVolume`) and `measurableSet_smul_fd` (from
+`L2ProductionInstance`). The port's
+`FLTForHuman/AutomorphicForm/UpperHalfPlane/ModularFundamentalDomain.lean` carries the first two
+and the last `private` — short measure-theory proofs over the already-ported
+`FundamentalDomainVolume`/`HyperbolicMeasure` — and wires the other 16 public declarations of the
+module verbatim.
+
+Deferred:
+- the four gate theorems of `ModularFundamentalDomain` (`gate_not_isFundamentalDomain_sl2z`,
+  `gate_two_routes`, `gate_factor_two_load_bearing`, `gate_two_routes_ne_zero_ne_top`), the only
+  consumers of `volume_fd_eq = ENNReal.ofReal (π / 3)`;
+- the whole public surface of the six modules above.
+
+**Not a D-S dependency of its own.** Checked against the 1,396 needed rows of
+`frontier.py --ds --include-leaves --list`: no needed node imports any of the six directly; they
+enter only through `ModularFundamentalDomain`, which three needed nodes use — this row,
+`CuspForm.norm_sq_eq_pow_of_qCoeff_mul_eq_of_not_factorsThrough` and
+`CuspForm.norm_sq_lt_of_hasNebentypus_qCoeff_hecke_eigen`. The latter two additionally need
+`Definitions/Def_CuspForm_PeterssonCoset.lean` (744 lines), not ported and not needed here.
+
 ### `Def_AutomorphicForm_TwistedOrbital` — the finite-place twisted-orbital subject
 
 > **RESOLVED (2026-10-14).** The whole node landed, together with the base-change chain it needed,
