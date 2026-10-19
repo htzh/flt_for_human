@@ -13,7 +13,7 @@ whether the tree has drifted.  Nothing here is verified against the pin: the
 `pin original` column names the declaration (and the file holding it) that
 carries the statement to diff when the entry is wired.
 
-`3931` public declarations in `126` unlisted modules; `3627` of them have a pin counterpart by name and statement.
+`3934` public declarations in `127` unlisted modules; `3630` of them have a pin counterpart by name and statement.
 
 This is tier 3 only.  Tier 2 — a declaration in a *listed* module that the
 checker skips for another reason — is `OWN_PROOFS` in the checker itself, each
@@ -64,6 +64,7 @@ wrappers whose statements the checker diffs).
 | [`FLTForHuman/AutomorphicForm/Adelic/EtaFamily.lean`](#fltforhumanautomorphicformadelicetafamilylean) | 139 | 15 | 15 | 0 | 2 | 0 |
 | [`FLTForHuman/AutomorphicForm/Adelic/InducedSection.lean`](#fltforhumanautomorphicformadelicinducedsectionlean) | 115 | 10 | 10 | 0 | 2 | 0 |
 | [`FLTForHuman/AutomorphicForm/Adelic/LocalOrbitalBase.lean`](#fltforhumanautomorphicformadeliclocalorbitalbaselean) | 543 | 62 | 62 | 0 | 1 | 0 |
+| [`FLTForHuman/AutomorphicForm/Adelic/PeterssonSlabPairing.lean`](#fltforhumanautomorphicformadelicpeterssonslabpairinglean) | 1,259 | 3 | 3 | 0 | 2 | 0 |
 | [`FLTForHuman/AutomorphicForm/Adelic/Siegel/SlabCovering.lean`](#fltforhumanautomorphicformadelicsiegelslabcoveringlean) | 1,119 | 3 | 3 | 0 | 2 | 0 |
 | [`FLTForHuman/AutomorphicForm/Adelic/SigmaCentralizer.lean`](#fltforhumanautomorphicformadelicsigmacentralizerlean) | 94 | 6 | 6 | 0 | 1 | 0 |
 | [`FLTForHuman/AutomorphicForm/Adelic/TwistedOrbital.lean`](#fltforhumanautomorphicformadelictwistedorbitallean) | 681 | 80 | 80 | 0 | 1 | 0 |
@@ -1385,6 +1386,16 @@ wrappers whose statements the checker diffs).
 | `AutomorphicForm.unitFinSet` | def | `unitFinSet` (provenance comment) | [`Def_AutomorphicForm_LocalOrbitalBase.lean:237`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AutomorphicForm_LocalOrbitalBase.lean#L237) |
 | `AutomorphicForm.unitFinSet_eq` | theorem | `unitFinSet_eq` (provenance comment) | [`Def_AutomorphicForm_LocalOrbitalBase.lean:240`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AutomorphicForm_LocalOrbitalBase.lean#L240) |
 | `AutomorphicForm.unitFinSet_eq_finiteIntegralGL2` | theorem | `unitFinSet_eq_finiteIntegralGL2` (provenance comment) | [`Def_AutomorphicForm_LocalOrbitalBase.lean:270`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AutomorphicForm_LocalOrbitalBase.lean#L270) |
+
+## `FLTForHuman/AutomorphicForm/Adelic/PeterssonSlabPairing.lean`
+
+1,259 lines, 3 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
+
+| importable name | kind | pin original | pin file |
+|---|---|---|---|
+| `AutomorphicForm.PeterssonSlabPairing.cover_of_forall` | theorem | `P2MW.S_AutomorphicForm_CuspidalSpectrum_exists_forall_setLIntegral_le_mul_setLIntegral_of_isSlabFundamentalDomain_of_coversModCentre_ample.cover_of_forall` (provenance comment) | [`S_AutomorphicForm_CuspidalSpectrum_exists_forall_setLIntegral_le_mul_setLIntegral_of_isSlabFundamentalDomain_of_coversModCentre_ample.lean:187`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AutomorphicForm_CuspidalSpectrum_exists_forall_setLIntegral_le_mul_setLIntegral_of_isSlabFundamentalDomain_of_coversModCentre_ample.lean#L187) |
+| `AutomorphicForm.PeterssonSlabPairing.setLIntegral_fd_le_sum_mul` | theorem | `P2MW.S_AutomorphicForm_CuspidalSpectrum_exists_forall_setLIntegral_le_mul_setLIntegral_of_isSlabFundamentalDomain_of_coversModCentre_ample.setLIntegral_fd_le_sum_mul` (provenance comment) | [`S_AutomorphicForm_CuspidalSpectrum_exists_forall_setLIntegral_le_mul_setLIntegral_of_isSlabFundamentalDomain_of_coversModCentre_ample.lean:151`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AutomorphicForm_CuspidalSpectrum_exists_forall_setLIntegral_le_mul_setLIntegral_of_isSlabFundamentalDomain_of_coversModCentre_ample.lean#L151) |
+| `FundamentalDomainSlab.exists_measurableSet_isFundamentalDomain_subset` | theorem | `P2MW.S_AutomorphicForm_exists_measurableSet_isFundamentalDomain_subset_iUnion_integralWindowedSiegelSet_of_coversModCentre.exists_measurableSet_isFundamentalDomain_subset` (provenance comment) | [`S_AutomorphicForm_exists_measurableSet_isFundamentalDomain_subset_iUnion_integralWindowedSiegelSet_of_coversModCentre.lean:37`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AutomorphicForm_exists_measurableSet_isFundamentalDomain_subset_iUnion_integralWindowedSiegelSet_of_coversModCentre.lean#L37) |
 
 ## `FLTForHuman/AutomorphicForm/Adelic/Siegel/SlabCovering.lean`
 

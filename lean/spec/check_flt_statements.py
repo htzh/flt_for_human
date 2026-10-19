@@ -3378,6 +3378,15 @@ SOURCES = [
     # file the pin original of the sibling's tail; the engine is not re-listed. Appended last.
     "Theorems/Thm_AutomorphicForm_not_isArithGenuineCuspRealizable_of_nonpos_of_lt_of_coversModCentre.lean",
     "P2M/Sol/S_AutomorphicForm_not_isArithGenuineCuspRealizable_of_nonpos_of_lt_of_coversModCentre.lean",
+    # --- The centre-cut fundamental-domain trio: automorphy transfer (325) and the two
+    # measurable-fundamental-domain twins (267/266). The wrappers are the statement
+    # authorities; the `S_` files are deliberately NOT listed — the shared 20-declaration
+    # slab prelude promoted public in `PeterssonSlabPairing.lean` carries `-- pin:` markers
+    # into them (the checker's UNWIRED tier 3) and is registered in
+    # `spec/UNWIRED-PUBLIC.md`. Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.lean",
+    "Theorems/Thm_AutomorphicForm_exists_measurableSet_isFundamentalDomain_subset_iUnion_integralWindowedSiegelSet_of_coversModCentre.lean",
+    "Theorems/Thm_AutomorphicForm_exists_measurableSet_isFundamentalDomain_subset_iUnion_centreCutSiegelSet_of_coversModCentre.lean",
 ]
 
 
@@ -5043,6 +5052,11 @@ PORT_FILES = [
     # (`Cusp/CentreCutEngine.lean`, tier 3, registered in `spec/UNWIRED-PUBLIC.md`).
     "FLTForHuman/AutomorphicForm/Adelic/Cusp/CentreCutVanishing.lean",
     "FLTForHuman/AutomorphicForm/Adelic/Cusp/CuspUnrealizable.lean",
+    # --- The centre-cut fundamental-domain trio: one automorphy-transfer headline and the
+    # two measurable-fundamental-domain twins (+1 each). The shared slab prelude is public
+    # tier 3 in `PeterssonSlabPairing.lean` (already listed).
+    "FLTForHuman/AutomorphicForm/Adelic/DetNormSlab.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/MeasurableFundamentalDomainCover.lean",
 ]
 
 

@@ -10,14 +10,28 @@
   central-character-twisted covariance (`hcovW`) and the span construction.
 
   The pin `S_` file transcribes in three pieces, all here: the generic measure-theory
-  prelude `FundamentalDomainSlab` (pin lines 24–375), written once `private`; the adelic
-  vocabulary (pin lines 377–974), `private`; the engine `main` (pin line 844) public; and the
-  headline itself, stated verbatim from the pin `Theorems/` wrapper and proved by `main`, to
-  which the SC1 covering
-  (`AutomorphicForm.exists_finset_central_slab_covering_of_coversModCentre`) is supplied —
-  exactly as the pin's `solution` does. The module is listed, so the checker verifies both
-  public declarations: the headline against the wrapper, `main` against the pin's private
-  `main` through the dotted fallback.
+  prelude `FundamentalDomainSlab` (pin lines 24–375); the adelic vocabulary (pin lines
+  377–974); the engine `main` (pin line 844) public; and the headline itself, stated
+  verbatim from the pin `Theorems/` wrapper and proved by `main`, to which the SC1
+  covering (`AutomorphicForm.exists_finset_central_slab_covering_of_coversModCentre`) is
+  supplied — exactly as the pin's `solution` does. The module is listed, so the checker
+  verifies the headline against the wrapper and `main` against the pin's private `main`
+  through the dotted fallback.
+
+  **Shared centre-cut prelude (tier 3).** The same prelude is the shared home of the three
+  centre-cut fundamental-domain nodes: `DetNormSlab.lean` (automorphy transfer, 325 pin
+  lines) and the two `MeasurableFundamentalDomainCover.lean` twins (267/266). The
+  declarations they name are public here with `-- pin:` markers into the three S files
+  (`setLIntegral_fd_le_of_cover`, `smulInvariantMeasure_restrict`,
+  `aestronglyMeasurable_of_cover_translates`, `setLIntegral_biUnion_translates_le`,
+  `memLp_two_of_lintegral`, `lintegral_lt_top_of_memLp_two`,
+  `exists_measurableSet_isFundamentalDomain_subset`, `setLIntegral_fd_le_sum_mul`,
+  `cover_of_forall`, `dn`, `slab`, `μH`, `Γp`, the `dn_*` lemmas,
+  `subtype_mul_mem_slab`, `measurableSet_slab`, `preimage_subtype_mul_slab`,
+  `smulInvariantMeasure_slab`, `CoveredBy`, `coveredBy_of_forall`,
+  `memLp_of_coveredBy`). The marker names a pin file `SOURCES` does not read, so the
+  checker exempts them and `spec/UNWIRED-PUBLIC.md` registers them; the three façades are
+  the only wired declarations. The rest of the prelude stays `private`.
 
   Reuse, do not re-prove: `NumberField.TateGlobal.exists_norm_pow_mult_eq`
   (`FLTForHuman/NumberTheory/NumberField/TateGlobal/ArchNorm.lean`). The pin's private copy
@@ -61,7 +75,8 @@ section FDAction
 variable {H α : Type*} [Group H] [MulAction H α] [MeasurableSpace α] [MeasurableConstSMul H α]
   [Countable H] {ν : Measure α} [SMulInvariantMeasure H α ν]
 
-private theorem setLIntegral_fd_le_of_cover {S E : Set α} (hS : IsFundamentalDomain H S ν)
+-- pin: P2MW.S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.setLIntegral_fd_le_of_cover (P2M/Sol/S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.lean:38)
+theorem setLIntegral_fd_le_of_cover {S E : Set α} (hS : IsFundamentalDomain H S ν)
     (hcov : S ⊆ ⋃ γ : H, (γ • ·) ⁻¹' E) (F : α → ℝ≥0∞) (hF : ∀ (γ : H) (w : α), F (γ • w) = F w) :
     ∫⁻ w in S, F w ∂ν ≤ ∫⁻ w in E, F w ∂ν := by
   calc ∫⁻ w in S, F w ∂ν ≤ ∫⁻ w in ⋃ γ : H, S ∩ (γ • ·) ⁻¹' E, F w ∂ν := by
@@ -88,11 +103,113 @@ private theorem exists_measure_smul_inter_ne_zero {S U : Set α} (hS : IsFundame
 
 end FDAction
 
+section Transfer
+
+variable {G α : Type*} [Group G] [MulAction G α] [MeasurableSpace α] [MeasurableConstSMul G α]
+  [Countable G] {ν : Measure α} [SMulInvariantMeasure G α ν]
+
+-- pin: P2MW.S_AutomorphicForm_exists_measurableSet_isFundamentalDomain_subset_iUnion_integralWindowedSiegelSet_of_coversModCentre.exists_measurableSet_isFundamentalDomain_subset (P2M/Sol/S_AutomorphicForm_exists_measurableSet_isFundamentalDomain_subset_iUnion_integralWindowedSiegelSet_of_coversModCentre.lean:37)
+theorem exists_measurableSet_isFundamentalDomain_subset {S T E : Set α}
+    (hS : IsFundamentalDomain G S ν) (hST : S ⊆ T)
+    (hE : MeasurableSet E) (hcov : ∀ x ∈ T, ∃ g : G, g • x ∈ E) :
+    ∃ F : Set α, MeasurableSet F ∧ F ⊆ E ∧ IsFundamentalDomain G F ν := by
+  classical
+
+  set S₁ := fundamentalInterior G S with hS₁def
+  have hS₁ : IsFundamentalDomain G S₁ ν := hS.fundamentalInterior
+  have hS₁S : S₁ ⊆ S := fundamentalInterior_subset
+  have hdisj₁ : Pairwise (Function.onFun Disjoint fun g : G => g • S₁) := pairwise_disjoint_fundamentalInterior G S
+  obtain ⟨S₂, hS₂S₁, hS₂m, hS₂ae⟩ := hS₁.nullMeasurableSet.exists_measurable_subset_ae_eq
+  have hnull : ν (S₁ \ S₂) = 0 := (ae_eq_set.mp hS₂ae).2
+  have hdisj₂ : ∀ g : G, g ≠ 1 → ∀ x ∈ S₂, g • x ∉ S₂ := by
+    intro g hg x hx hgx
+    have h := hdisj₁ hg
+    rw [Function.onFun, one_smul] at h
+    exact Set.disjoint_left.mp h (Set.smul_mem_smul_set (hS₂S₁ hx)) (hS₂S₁ hgx)
+
+  obtain ⟨f, hf⟩ := Countable.exists_injective_nat G
+  let Q : G → Set α := fun g => S₂ ∩ {x : α | g • x ∈ E} ∩ {x : α | ∀ g' : G, g' • x ∈ E → f g ≤ f g'}
+  have hQm : ∀ g, MeasurableSet (Q g) := by
+    intro g
+    have h1 : MeasurableSet {x : α | g • x ∈ E} := (measurable_const_smul g) hE
+    have h2 : MeasurableSet {x : α | ∀ g' : G, g' • x ∈ E → f g ≤ f g'} := by
+      have : {x : α | ∀ g' : G, g' • x ∈ E → f g ≤ f g'} = ⋂ g' : G, ({x : α | g' • x ∈ E}ᶜ ∪ {_x | f g ≤ f g'}) := by
+        ext x; simp [Set.mem_iInter, imp_iff_not_or]
+      rw [this]
+      exact MeasurableSet.iInter fun g' => ((measurable_const_smul g') hE).compl.union (MeasurableSet.const _)
+    exact (hS₂m.inter h1).inter h2
+  have hQdisj : ∀ g g' : G, ∀ x, x ∈ Q g → x ∈ Q g' → g = g' := by
+    intro g g' x hx hx'
+    exact hf (le_antisymm (hx.2 g' hx'.1.2) (hx'.2 g hx.1.2))
+  have hQcov : ∀ x ∈ S₂, ∃ g, x ∈ Q g := by
+    intro x hx
+    have hxT : x ∈ T := hST (hS₁S (hS₂S₁ hx))
+    have hne : ∃ n, ∃ g : G, g • x ∈ E ∧ f g = n := by
+      obtain ⟨g, hg⟩ := hcov x hxT; exact ⟨f g, g, hg, rfl⟩
+    obtain ⟨g, hgE, hgn⟩ := Nat.find_spec hne
+    refine ⟨g, ⟨hx, hgE⟩, fun g' hg' => ?_⟩
+    rw [hgn]
+    exact Nat.find_min' hne ⟨g', hg', rfl⟩
+
+  let F : Set α := ⋃ g : G, g • Q g
+  have hFm : MeasurableSet F := MeasurableSet.iUnion fun g => (hQm g).const_smul g
+  have hFE : F ⊆ E := by
+    intro x hx
+    obtain ⟨g, hx⟩ := Set.mem_iUnion.mp hx
+    obtain ⟨q, hq, rfl⟩ := Set.mem_smul_set.mp hx
+    exact hq.1.2
+
+  have hFfree : ∀ x ∈ F, ∀ d : G, d ≠ 1 → d • x ∉ F := by
+    intro x hx d hd hdx
+    obtain ⟨g, hxg⟩ := Set.mem_iUnion.mp hx
+    obtain ⟨q, hq, rfl⟩ := Set.mem_smul_set.mp hxg
+    obtain ⟨g', hxg'⟩ := Set.mem_iUnion.mp hdx
+    obtain ⟨q', hq', hq'eq⟩ := Set.mem_smul_set.mp hxg'
+
+    have hrel : q' = (g'⁻¹ * d * g) • q := by
+      rw [mul_smul, mul_smul, ← hq'eq, inv_smul_smul]
+    by_cases he : g'⁻¹ * d * g = 1
+    · rw [he, one_smul] at hrel
+      subst hrel
+      have hgg' : g = g' := hQdisj g g' q' hq hq'
+      subst hgg'
+      apply hd
+      have : d = g * (g⁻¹ * d * g) * g⁻¹ := by group
+      rw [this, he]; group
+    · exact hdisj₂ _ he q hq.1.1 (hrel ▸ hq'.1.1)
+  refine ⟨F, hFm, hFE, ⟨hFm.nullMeasurableSet, ?_, ?_⟩⟩
+  ·
+    have hbad : ∀ᵐ x ∂ν, ∀ g : G, g • x ∉ S₁ \ S₂ := by
+      have : ν (⋃ g : G, (fun x => g • x) ⁻¹' (S₁ \ S₂)) = 0 := by
+        refine measure_iUnion_null fun g => ?_
+        rw [Set.preimage_smul]
+        exact measure_smul_null hnull g⁻¹
+      rw [ae_iff]
+      refine measure_mono_null (fun x hx => ?_) this
+      simp only [Set.mem_ofPred_eq, not_forall, not_not] at hx
+      obtain ⟨g, hg⟩ := hx
+      exact Set.mem_iUnion.mpr ⟨g, hg⟩
+    filter_upwards [hS₁.ae_covers, hbad] with x hx hx'
+    obtain ⟨g, hg⟩ := hx
+    have hg₂ : g • x ∈ S₂ := by
+      by_contra h; exact hx' g ⟨hg, h⟩
+    obtain ⟨g₀, hg₀⟩ := hQcov _ hg₂
+    exact ⟨g₀ * g, Set.mem_iUnion.mpr ⟨g₀, Set.mem_smul_set.mpr ⟨g • x, hg₀, (mul_smul g₀ g x).symm⟩⟩⟩
+  ·
+    intro g h hgh
+    refine Disjoint.aedisjoint (Set.disjoint_left.mpr fun x hxg hxh => ?_)
+    obtain ⟨y, hy, rfl⟩ := Set.mem_smul_set.mp hxg
+    obtain ⟨y', hy', hyy'⟩ := Set.mem_smul_set.mp hxh
+    have : (g⁻¹ * h) • y' = y := by rw [mul_smul, hyy', inv_smul_smul]
+    exact hFfree y' hy' (g⁻¹ * h) (fun h1 => hgh (inv_mul_eq_one.mp h1)) (this ▸ hy)
+end Transfer
+
 section Group
 
 variable {G : Type*} [Group G] [MeasurableSpace G]
 
-private theorem smulInvariantMeasure_restrict (Γ : Subgroup G) [MeasurableConstSMul ↥Γ G]
+-- pin: P2MW.S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.smulInvariantMeasure_restrict (P2M/Sol/S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.lean:63)
+theorem smulInvariantMeasure_restrict (Γ : Subgroup G) [MeasurableConstSMul ↥Γ G]
     (μ : Measure G) [SMulInvariantMeasure ↥Γ G μ] {T : Set G} (hT : MeasurableSet T)
     (hΓT : ∀ γ : ↥Γ, (fun w : G => γ • w) ⁻¹' T = T) :
     SMulInvariantMeasure ↥Γ G (μ.restrict T) := by
@@ -165,7 +282,8 @@ private theorem setIntegral_mul_right_eq_of_isFundamentalDomain
         (measurePreserving_mul_left μ z).setIntegral_image_emb (measurableEmbedding_mulLeft z) Φ S
     _ = ∫ w in S, Φ w ∂μ := by simp_rw [hΦz]
 
-private theorem aestronglyMeasurable_of_cover_translates (μ : Measure G) [μ.IsMulLeftInvariant]
+-- pin: P2MW.S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.aestronglyMeasurable_of_cover_translates (P2M/Sol/S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.lean:74)
+theorem aestronglyMeasurable_of_cover_translates (μ : Measure G) [μ.IsMulLeftInvariant]
     {D X : Set G} {f : G → ℂ} (hf : AEStronglyMeasurable f (μ.restrict D))
     {ι : Type*} [Countable ι] (a : ι → G) (c : ι → ℂ) (hc : ∀ i, c i ≠ 0)
     (hfa : ∀ (i : ι) (w : G), f (a i * w) = c i * f w) (hX : X ⊆ ⋃ i, (fun w => a i * w) ⁻¹' D) :
@@ -184,7 +302,8 @@ private theorem aestronglyMeasurable_of_cover_translates (μ : Measure G) [μ.Is
     exact h1.const_mul _
   exact (AEStronglyMeasurable.iUnion hpiece).mono_measure (Measure.restrict_mono hX le_rfl)
 
-private theorem setLIntegral_biUnion_translates_le (μ : Measure G) [μ.IsMulLeftInvariant]
+-- pin: P2MW.S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.setLIntegral_biUnion_translates_le (P2M/Sol/S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.lean:93)
+theorem setLIntegral_biUnion_translates_le (μ : Measure G) [μ.IsMulLeftInvariant]
     {D : Set G} (F : G → ℝ≥0∞) {ι : Type*} (I : Finset ι) (b : ι → G) (k : ι → ℝ≥0∞)
     (hk : ∀ i, k i ≠ ∞) (hFb : ∀ (i : ι) (w : G), F (b i * w) = k i * F w) :
     ∫⁻ w in ⋃ i ∈ I, (fun w => b i * w) '' D, F w ∂μ ≤ ∑ i ∈ I, k i * ∫⁻ w in D, F w ∂μ := by
@@ -279,13 +398,15 @@ private theorem integral_mul_conj_mul_self (f : α → ℂ) (wt : α → ℝ) :
   simp_rw [h]
   exact integral_ofReal
 
-private theorem memLp_two_of_lintegral {f : α → ℂ} (h1 : AEStronglyMeasurable f μ)
+-- pin: P2MW.S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.memLp_two_of_lintegral (P2M/Sol/S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.lean:118)
+theorem memLp_two_of_lintegral {f : α → ℂ} (h1 : AEStronglyMeasurable f μ)
     (h2 : ∫⁻ a, ‖f a‖ₑ ^ (2 : ℝ) ∂μ < ∞) : MemLp f 2 μ := by
   rw [memLp_iff]
   refine (eLpNorm_lt_top_iff_lintegral_rpow_enorm_lt_top two_ne_zero ENNReal.ofNat_ne_top h1).mpr ?_
   simpa only [ENNReal.toReal_ofNat] using h2
 
-private theorem lintegral_lt_top_of_memLp_two {f : α → ℂ} (hf : MemLp f 2 μ) :
+-- pin: P2MW.S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.lintegral_lt_top_of_memLp_two (P2M/Sol/S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.lean:123)
+theorem lintegral_lt_top_of_memLp_two {f : α → ℂ} (hf : MemLp f 2 μ) :
     ∫⁻ a, ‖f a‖ₑ ^ (2 : ℝ) ∂μ < ∞ := by
   have h := (eLpNorm_lt_top_iff_lintegral_rpow_enorm_lt_top two_ne_zero ENNReal.ofNat_ne_top
     hf.aestronglyMeasurable).mp hf
@@ -418,22 +539,27 @@ variable {F : Type} [Field F] [NumberField F]
 attribute [local instance] NumberField.AdelicHaar.borelSpace_glBorel
 attribute [local instance] NumberField.AdelicHaar.isHaarMeasure_adelicGLHaar
 
-private abbrev dn (g : AdelicGL2 (𝓞 F) F) : ℝ :=
+-- pin: P2MW.S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.dn (P2M/Sol/S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.lean:145)
+abbrev dn (g : AdelicGL2 (𝓞 F) F) : ℝ :=
   NumberField.TateGlobal.ideleNorm F (Matrix.GeneralLinearGroup.det g)
 
-private abbrev slab (F : Type) [Field F] [NumberField F] (a b : ℝ) : Set (AdelicGL2 (𝓞 F) F) :=
+-- pin: P2MW.S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.slab (P2M/Sol/S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.lean:148)
+abbrev slab (F : Type) [Field F] [NumberField F] (a b : ℝ) : Set (AdelicGL2 (𝓞 F) F) :=
   {g | NumberField.TateGlobal.ideleNorm F (Matrix.GeneralLinearGroup.det g) ∈ Set.Icc a b}
 
-private abbrev μH (F : Type) [Field F] [NumberField F] : Measure (AdelicGL2 (𝓞 F) F) :=
+-- pin: P2MW.S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.μH (P2M/Sol/S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.lean:151)
+abbrev μH (F : Type) [Field F] [NumberField F] : Measure (AdelicGL2 (𝓞 F) F) :=
   adelicGLHaar (Fin 2) (𝓞 F) F
 
-private abbrev Γp (F : Type) [Field F] [NumberField F] : Subgroup (AdelicGL2 (𝓞 F) F) :=
+-- pin: P2MW.S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.Γp (P2M/Sol/S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.lean:154)
+abbrev Γp (F : Type) [Field F] [NumberField F] : Subgroup (AdelicGL2 (𝓞 F) F) :=
   (globalPoints (𝓞 F) F).range
 
 private abbrev pairFn (s : ℝ) (x y : AdelicGL2 (𝓞 F) F → ℂ) : AdelicGL2 (𝓞 F) F → ℂ :=
   fun w => x w * (starRingEnd ℂ) (y w) * ((dn w ^ (-s) : ℝ) : ℂ)
 
-private scoped instance instCountableF : Countable F :=
+-- pin: P2MW.S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.instCountableF (P2M/Sol/S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.lean:157)
+scoped instance instCountableF : Countable F :=
   (Module.finBasis ℚ F).equivFun.toEquiv.injective.countable
 
 private scoped instance instCountableΓ : Countable ↥(Γp F) := by
@@ -443,17 +569,20 @@ private scoped instance instCountableΓ : Countable ↥(Γp F) := by
 
 private theorem dn_pos (g : AdelicGL2 (𝓞 F) F) : 0 < dn g := ideleNorm_pos _
 
-private theorem dn_mul (g h : AdelicGL2 (𝓞 F) F) : dn (g * h) = dn g * dn h := by
+-- pin: P2MW.S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.dn_mul (P2M/Sol/S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.lean:167)
+theorem dn_mul (g h : AdelicGL2 (𝓞 F) F) : dn (g * h) = dn g * dn h := by
   show ideleNorm F _ = _
   rw [map_mul, ideleNorm_mul]
 
-private theorem dn_globalPoints_mul (γ : GL (Fin 2) F) (g : AdelicGL2 (𝓞 F) F) :
+-- pin: P2MW.S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.dn_globalPoints_mul (P2M/Sol/S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.lean:171)
+theorem dn_globalPoints_mul (γ : GL (Fin 2) F) (g : AdelicGL2 (𝓞 F) F) :
     dn (globalPoints (𝓞 F) F γ * g) = dn g := by
   rw [dn_mul]
   show ideleNorm F (Matrix.GeneralLinearGroup.det (globalPoints (𝓞 F) F γ)) * dn g = dn g
   rw [AutomorphicForm.ideleNorm_det_globalPoints, one_mul]
 
-private theorem dn_subtype_mul (γ : ↥(Γp F)) (g : AdelicGL2 (𝓞 F) F) : dn ((γ : AdelicGL2 (𝓞 F) F) * g) = dn g := by
+-- pin: P2MW.S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.dn_subtype_mul (P2M/Sol/S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.lean:177)
+theorem dn_subtype_mul (γ : ↥(Γp F)) (g : AdelicGL2 (𝓞 F) F) : dn ((γ : AdelicGL2 (𝓞 F) F) * g) = dn g := by
   obtain ⟨_, γ', rfl⟩ := γ
   exact dn_globalPoints_mul γ' g
 
@@ -478,22 +607,26 @@ private theorem dn_centralScalar_mul (n : (AdeleRing (𝓞 F) F)ˣ) (g : AdelicG
     dn (centralScalar (𝓞 F) F n * g) = ideleNorm F n ^ 2 * dn g := by
   rw [dn_mul, dn_centralScalar]
 
-private theorem continuous_dn : Continuous (fun g : AdelicGL2 (𝓞 F) F => dn g) :=
+-- pin: P2MW.S_AutomorphicForm_exists_measurableSet_isFundamentalDomain_subset_iUnion_integralWindowedSiegelSet_of_coversModCentre.continuous_dn (P2M/Sol/S_AutomorphicForm_exists_measurableSet_isFundamentalDomain_subset_iUnion_integralWindowedSiegelSet_of_coversModCentre.lean:174)
+theorem continuous_dn : Continuous (fun g : AdelicGL2 (𝓞 F) F => dn g) :=
   NumberField.TateGlobal.continuous_ideleNorm_det F
 
 private theorem continuous_dn_rpow (s : ℝ) : Continuous (fun g : AdelicGL2 (𝓞 F) F => dn g ^ s) :=
   continuous_dn.rpow_const fun g => Or.inl (dn_pos g).ne'
 
-private theorem subtype_mul_mem_slab (γ : ↥(Γp F)) {a b : ℝ} {g : AdelicGL2 (𝓞 F) F} (hg : g ∈ slab F a b) :
+-- pin: P2MW.S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.subtype_mul_mem_slab (P2M/Sol/S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.lean:181)
+theorem subtype_mul_mem_slab (γ : ↥(Γp F)) {a b : ℝ} {g : AdelicGL2 (𝓞 F) F} (hg : g ∈ slab F a b) :
     (γ : AdelicGL2 (𝓞 F) F) * g ∈ slab F a b := by
   show dn ((γ : AdelicGL2 (𝓞 F) F) * g) ∈ Set.Icc a b
   rw [dn_subtype_mul]
   exact hg
 
-private theorem measurableSet_slab (a b : ℝ) : MeasurableSet (slab F a b) :=
+-- pin: P2MW.S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.measurableSet_slab (P2M/Sol/S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.lean:187)
+theorem measurableSet_slab (a b : ℝ) : MeasurableSet (slab F a b) :=
   NumberField.TateGlobal.measurableSet_setOf_ideleNorm_det_mem_Icc F a b
 
-private theorem preimage_subtype_mul_slab (γ : ↥(Γp F)) (a b : ℝ) :
+-- pin: P2MW.S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.preimage_subtype_mul_slab (P2M/Sol/S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.lean:190)
+theorem preimage_subtype_mul_slab (γ : ↥(Γp F)) (a b : ℝ) :
     (fun w : AdelicGL2 (𝓞 F) F => (γ : AdelicGL2 (𝓞 F) F) * w) ⁻¹' slab F a b = slab F a b := by
   ext w
   simp only [Set.mem_preimage, Set.mem_ofPred_eq]
@@ -577,9 +710,65 @@ private theorem exists_dn_centralScalar_eq {t : ℝ} (ht : 0 < t) :
   obtain ⟨n, hn⟩ := exists_ideleNorm_eq (F := F) (Real.sqrt_pos.mpr ht)
   exact ⟨n, by rw [hn, Real.sq_sqrt ht.le]⟩
 
-private theorem smulInvariantMeasure_slab (a b : ℝ) :
+-- pin: P2MW.S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.smulInvariantMeasure_slab (P2M/Sol/S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.lean:197)
+theorem smulInvariantMeasure_slab (a b : ℝ) :
     SMulInvariantMeasure ↥(Γp F) (AdelicGL2 (𝓞 F) F) ((μH F).restrict (slab F a b)) :=
   smulInvariantMeasure_restrict (Γp F) (μH F) (measurableSet_slab a b) (fun γ => preimage_subtype_mul_slab γ a b)
+
+set_option linter.style.haveILetI false in
+-- pin: P2MW.S_AutomorphicForm_CuspidalSpectrum_exists_forall_setLIntegral_le_mul_setLIntegral_of_isSlabFundamentalDomain_of_coversModCentre_ample.setLIntegral_fd_le_sum_mul (P2M/Sol/S_AutomorphicForm_CuspidalSpectrum_exists_forall_setLIntegral_le_mul_setLIntegral_of_isSlabFundamentalDomain_of_coversModCentre_ample.lean:151)
+theorem setLIntegral_fd_le_sum_mul {D S : Set (AdelicGL2 (𝓞 F) F)} {a b : ℝ} {N : Finset (AdeleRing (𝓞 F) F)ˣ}
+    {f : AdelicGL2 (𝓞 F) F → ℂ} {χ : (AdeleRing (𝓞 F) F)ˣ → ℂ}
+    (hΓ : ∀ (γ : GL (Fin 2) F) (w : AdelicGL2 (𝓞 F) F), f (globalPoints (𝓞 F) F γ * w) = f w)
+    (hZ : ∀ (n : (AdeleRing (𝓞 F) F)ˣ) (w : AdelicGL2 (𝓞 F) F), f (centralScalar (𝓞 F) F n * w) = χ n * f w)
+    (hS : IsFundamentalDomain ↥(Γp F) S ((μH F).restrict (slab F a b))) (hSs : S ⊆ slab F a b)
+    (hX : ∀ g ∈ slab F a b, ∃ γ : GL (Fin 2) F, ∃ n ∈ N,
+      (centralScalar (𝓞 F) F n)⁻¹ * (globalPoints (𝓞 F) F γ * g) ∈ D) :
+    ∫⁻ w in S, (‖f w‖₊ : ℝ≥0∞) ^ 2 ∂(μH F)
+      ≤ (∑ n ∈ N, (‖χ n‖₊ : ℝ≥0∞) ^ 2) * ∫⁻ w in D, (‖f w‖₊ : ℝ≥0∞) ^ 2 ∂(μH F) := by
+  haveI := smulInvariantMeasure_slab (F := F) a b
+  have hcovE : S ⊆ ⋃ γ : ↥(Γp F), (γ • ·) ⁻¹'
+      ((⋃ n ∈ N, (fun w => centralScalar (𝓞 F) F n * w) '' D) ∩ slab F a b) := fun g hg => by
+    obtain ⟨γ, n, hn, h⟩ := hX g (hSs hg)
+    refine Set.mem_iUnion.mpr ⟨⟨globalPoints (𝓞 F) F γ, γ, rfl⟩,
+      Set.mem_iUnion₂.mpr ⟨n, hn, _, h, mul_inv_cancel_left _ _⟩, ?_⟩
+    exact subtype_mul_mem_slab ⟨globalPoints (𝓞 F) F γ, γ, rfl⟩ (hSs hg)
+  have hF : ∀ (γ : ↥(Γp F)) (w : AdelicGL2 (𝓞 F) F),
+      (‖f (γ • w)‖₊ : ℝ≥0∞) ^ 2 = (‖f w‖₊ : ℝ≥0∞) ^ 2 := by
+    rintro ⟨_, γ, rfl⟩ w
+    show (‖f (globalPoints (𝓞 F) F γ * w)‖₊ : ℝ≥0∞) ^ 2 = _
+    rw [hΓ]
+  calc ∫⁻ w in S, (‖f w‖₊ : ℝ≥0∞) ^ 2 ∂(μH F)
+      = ∫⁻ w in S, (‖f w‖₊ : ℝ≥0∞) ^ 2 ∂((μH F).restrict (slab F a b)) := by
+        rw [Measure.restrict_restrict_of_subset hSs]
+    _ ≤ ∫⁻ w in (⋃ n ∈ N, (fun w => centralScalar (𝓞 F) F n * w) '' D) ∩ slab F a b,
+          (‖f w‖₊ : ℝ≥0∞) ^ 2 ∂((μH F).restrict (slab F a b)) :=
+        setLIntegral_fd_le_of_cover hS hcovE _ hF
+    _ ≤ ∫⁻ w in ⋃ n ∈ N, (fun w => centralScalar (𝓞 F) F n * w) '' D, (‖f w‖₊ : ℝ≥0∞) ^ 2 ∂(μH F) :=
+        lintegral_mono' (Measure.restrict_mono Set.inter_subset_left Measure.restrict_le_self) le_rfl
+    _ ≤ ∑ n ∈ N, (‖χ n‖₊ : ℝ≥0∞) ^ 2 * ∫⁻ w in D, (‖f w‖₊ : ℝ≥0∞) ^ 2 ∂(μH F) :=
+        setLIntegral_biUnion_translates_le (μH F) _ N (fun n => centralScalar (𝓞 F) F n)
+          (fun n => (‖χ n‖₊ : ℝ≥0∞) ^ 2) (fun n => ENNReal.pow_ne_top ENNReal.coe_ne_top)
+          (fun n w => by rw [hZ, nnnorm_mul, ENNReal.coe_mul, mul_pow])
+    _ = (∑ n ∈ N, (‖χ n‖₊ : ℝ≥0∞) ^ 2) * ∫⁻ w in D, (‖f w‖₊ : ℝ≥0∞) ^ 2 ∂(μH F) := by
+        rw [Finset.sum_mul]
+
+
+-- pin: P2MW.S_AutomorphicForm_CuspidalSpectrum_exists_forall_setLIntegral_le_mul_setLIntegral_of_isSlabFundamentalDomain_of_coversModCentre_ample.cover_of_forall (P2M/Sol/S_AutomorphicForm_CuspidalSpectrum_exists_forall_setLIntegral_le_mul_setLIntegral_of_isSlabFundamentalDomain_of_coversModCentre_ample.lean:187)
+theorem cover_of_forall {D : Set (AdelicGL2 (𝓞 F) F)} {a b : ℝ} {N : Finset (AdeleRing (𝓞 F) F)ˣ}
+    (h : ∀ g : AdelicGL2 (𝓞 F) F,
+      NumberField.TateGlobal.ideleNorm F (Matrix.GeneralLinearGroup.det g) ∈ Set.Icc a b →
+        ∃ γ : GL (Fin 2) F, ∃ n ∈ N, globalPoints (𝓞 F) F γ * g ∈ (· * centralScalar (𝓞 F) F n) '' D) :
+    ∀ g ∈ slab F a b, ∃ γ : GL (Fin 2) F, ∃ n ∈ N,
+      (centralScalar (𝓞 F) F n)⁻¹ * (globalPoints (𝓞 F) F γ * g) ∈ D := by
+  intro g hg
+  obtain ⟨γ, n, hn, y, hy, hyx⟩ := h g hg
+  refine ⟨γ, n, hn, ?_⟩
+  rw [← hyx]
+  show (centralScalar (𝓞 F) F n)⁻¹ * (y * centralScalar (𝓞 F) F n) ∈ D
+  rw [mul_centralScalar_comm n y, inv_mul_cancel_left]
+  exact hy
+
 
 private theorem pairFn_invariant (s : ℝ) {x y : AdelicGL2 (𝓞 F) F → ℂ} {χ : (AdeleRing (𝓞 F) F)ˣ → ℂ}
     (hxΓ : ∀ (γ : GL (Fin 2) F) (w : AdelicGL2 (𝓞 F) F), x (globalPoints (𝓞 F) F γ * w) = x w)
@@ -651,7 +840,8 @@ private theorem peterssonIntegral_translate [(μH F).IsMulRightInvariant] {S : S
     (fun γ => preimage_subtype_mul_slab γ _ _) (preimage_mul_right_slab g) ?_ (pairFn s x y) hΓ (hZ n)
   rw [preimage_mul_left_slab, hn]
 
-private def CoveredBy (D : Set (AdelicGL2 (𝓞 F) F)) (N : Finset (AdeleRing (𝓞 F) F)ˣ)
+-- pin: P2MW.S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.CoveredBy (P2M/Sol/S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.lean:201)
+def CoveredBy (D : Set (AdelicGL2 (𝓞 F) F)) (N : Finset (AdeleRing (𝓞 F) F)ˣ)
     (X : Set (AdelicGL2 (𝓞 F) F)) : Prop :=
   ∀ g ∈ X, ∃ γ : GL (Fin 2) F, ∃ n ∈ N,
     (centralScalar (𝓞 F) F n)⁻¹ * (globalPoints (𝓞 F) F γ * g) ∈ D
@@ -660,7 +850,8 @@ private theorem CoveredBy.mono {D : Set (AdelicGL2 (𝓞 F) F)} {N : Finset (Ade
     {X X' : Set (AdelicGL2 (𝓞 F) F)} (h : CoveredBy D N X) (hX : X' ⊆ X) : CoveredBy D N X' :=
   fun g hg => h g (hX hg)
 
-private theorem coveredBy_of_forall {c u d₁ d₂ : ℝ} {T : Finset (AdelicGL2 (𝓞 F) F)} {a b : ℝ}
+-- pin: P2MW.S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.coveredBy_of_forall (P2M/Sol/S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.lean:210)
+theorem coveredBy_of_forall {c u d₁ d₂ : ℝ} {T : Finset (AdelicGL2 (𝓞 F) F)} {a b : ℝ}
     {N : Finset (AdeleRing (𝓞 F) F)ˣ}
     (h : ∀ g : AdelicGL2 (𝓞 F) F,
       NumberField.TateGlobal.ideleNorm F (Matrix.GeneralLinearGroup.det g) ∈ Set.Icc a b →
@@ -676,7 +867,8 @@ private theorem coveredBy_of_forall {c u d₁ d₂ : ℝ} {T : Finset (AdelicGL2
   rw [← mul_assoc y, mul_centralScalar_comm n y, mul_assoc, inv_mul_cancel_left]
   exact Set.mem_iUnion₂.mpr ⟨x, hx, y, hy, rfl⟩
 
-private theorem memLp_of_coveredBy {D S : Set (AdelicGL2 (𝓞 F) F)} {a b : ℝ} {N : Finset (AdeleRing (𝓞 F) F)ˣ}
+-- pin: P2MW.S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.memLp_of_coveredBy (P2M/Sol/S_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.lean:226)
+theorem memLp_of_coveredBy {D S : Set (AdelicGL2 (𝓞 F) F)} {a b : ℝ} {N : Finset (AdeleRing (𝓞 F) F)ˣ}
     {f : AdelicGL2 (𝓞 F) F → ℂ} {χ : (AdeleRing (𝓞 F) F)ˣ → ℂ}
     (hmem : MemLp f 2 ((μH F).restrict D))
     (hΓ : ∀ (γ : GL (Fin 2) F) (w : AdelicGL2 (𝓞 F) F), f (globalPoints (𝓞 F) F γ * w) = f w)

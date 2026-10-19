@@ -9,8 +9,8 @@ manager's own work, §5 the build economy, §6 verification, §7 what remains, �
 residuals. Every measurement is the pin's, read through `tools/deps`. The section numbers are
 stable: work orders across the column cite §3 for the workflow and §7 for the gates.
 
-The checker reads **10239 identical (676 promoted, 83 renamed), 0 mismatched, 0 missing, 42
-own-proof declarations exempted, 195 registered-unwired declarations exempted (10476 checked)**. This column's recent landings: the
+The checker reads **10263 identical (697 promoted, 83 renamed), 0 mismatched, 0 missing, 42
+own-proof declarations exempted, 198 registered-unwired declarations exempted (10503 checked)**. This column's recent landings: the
 `TateFormal`/`TateSlots` definition layer, 9241 → 9304; the weight-4 Tate-slot engine and headline
 façade (WORKORDER-F1), 9304 → 9318; the six `tateCurve`/Katz definition modules of WORKORDER-F2,
 9318 → 9535 (+217); the `BridgeX` twin/triplet engine and headline façade (WORKORDER-F2),
@@ -53,6 +53,17 @@ façades are `CentreCutVanishing.lean` (64 lines) and `CuspUnrealizable.lean` (5
 [logs/centre-cut-sibling.md](../logs/centre-cut-sibling.md); orders:
 [automorphicForm/WORKORDER-CMV-centre-cut-vanishing.md](automorphicForm/WORKORDER-CMV-centre-cut-vanishing.md),
 [automorphicForm/WORKORDER-CCS-centre-cut-sibling.md](automorphicForm/WORKORDER-CCS-centre-cut-sibling.md).
+The **centre-cut fundamental-domain trio** then landed on the shared slab prelude promoted public in
+`PeterssonSlabPairing.lean`: the automorphy-transfer node
+`AutomorphicForm.isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre`
+(325 pin lines, `Adelic/DetNormSlab.lean`) and the two measurable-fundamental-domain twins
+`exists_measurableSet_isFundamentalDomain_subset_iUnion_{integralWindowed,centreCut}SiegelSet_of_coversModCentre`
+(267/266, one module `Adelic/MeasurableFundamentalDomainCover.lean`); checker **10263 identical**
+(+3 headlines, +21 promoted prelude declarations the checker can diff). The fourth `--ready` row,
+the 234-line slab-integral bound, is deferred on the missing
+`Def_AutomorphicForm_CuspidalSpectrumCarrier.lean` (carry-forward). Record:
+[logs/centre-cut-fundamental-domain-trio.md](../logs/centre-cut-fundamental-domain-trio.md); order:
+[automorphicForm/WORKORDER-CCF-centre-cut-fundamental-domain.md](automorphicForm/WORKORDER-CCF-centre-cut-fundamental-domain.md).
 Each wired delta is exactly its new public surface, 0 mismatched / 0 missing. The 9542 → 9569 (+27) step is
 the `NumberField.AdelicHeight` definition gate, the manager's own ground for the adelic-modulus
 round
@@ -278,6 +289,23 @@ headlines, so the sibling's pin-specific `no_realization_of_ne_zero` is not port
 [logs/centre-cut-sibling.md](../logs/centre-cut-sibling.md); orders:
 [automorphicForm/WORKORDER-CMV-centre-cut-vanishing.md](automorphicForm/WORKORDER-CMV-centre-cut-vanishing.md),
 [automorphicForm/WORKORDER-CCS-centre-cut-sibling.md](automorphicForm/WORKORDER-CCS-centre-cut-sibling.md).
+
+**The centre-cut fundamental-domain trio.** The next ready rows were the automorphy-transfer node
+`AutomorphicForm.isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre`
+(325 pin lines) and the two twins
+`AutomorphicForm.exists_measurableSet_isFundamentalDomain_subset_iUnion_{integralWindowed,centreCut}SiegelSet_of_coversModCentre`
+(267/266). They need the same fundamental-domain/slab prelude that `PeterssonSlabPairing.lean`
+already carried `private`; the prelude was promoted once there (20 declarations, plus the 107-line
+`exists_measurableSet_isFundamentalDomain_subset` and the 36/23-line `setLIntegral_fd_le_sum_mul` /
+`cover_of_forall`), and the façades `Adelic/DetNormSlab.lean` and
+`Adelic/MeasurableFundamentalDomainCover.lean` hold the three headlines. Checker **10263
+identical** (+3 headlines, +21 promoted prelude declarations). The fourth `--ready` row, the
+234-line `CuspidalSpectrum.exists_forall_setLIntegral_le_mul_setLIntegral_…_ample`, is **not
+actually ready**: it needs the unported 288-line
+`Def_AutomorphicForm_CuspidalSpectrumCarrier.lean`, recorded in
+[CARRY-FORWARD.md](../CARRY-FORWARD.md). Record:
+[logs/centre-cut-fundamental-domain-trio.md](../logs/centre-cut-fundamental-domain-trio.md); order:
+[automorphicForm/WORKORDER-CCF-centre-cut-fundamental-domain.md](automorphicForm/WORKORDER-CCF-centre-cut-fundamental-domain.md).
 
 **The shared ground that edits existing modules.** The `ValuationSubring` residue block in
 `NumberTheory/ValuationAtPlace.lean`; the `Gamma0Integral` promotion and its duplicate-block
@@ -560,14 +588,17 @@ with `phiIrreducible_all` (434) behind them once a definition-layer check says s
 and `Φ_N` subjects and the level-`N` `q`-expansion bridge have landed, and their successor
 `ModularCurve.LevelN.exists_algHom_laurentBaseChange_apply_eq_qExpand` (165) is on the shelf.
 
-The **centre-cut pair** has landed
+The **centre-cut pair** and the **fundamental-domain trio** have landed
 ([../logs/centre-cut-vanishing.md](../logs/centre-cut-vanishing.md),
-[../logs/centre-cut-sibling.md](../logs/centre-cut-sibling.md)): the vanishing leaf and its
-`not_isArithGenuineCuspRealizable` sibling now share the tier-3 engine
-`Cusp/CentreCutEngine.lean`. The larger `coversModCentre` silo
-(`exists_isIrreducibleGLRep_linearMap_span_translate_realization_of_coversModCentre`, 3,038
-lines) is still behind the unit-factorizable chain recorded in
-[CARRY-FORWARD.md](../CARRY-FORWARD.md); no other centre-cut row is ready at this cut.
+[../logs/centre-cut-sibling.md](../logs/centre-cut-sibling.md),
+[../logs/centre-cut-fundamental-domain-trio.md](../logs/centre-cut-fundamental-domain-trio.md)):
+the pair shares the tier-3 `Cusp/CentreCutEngine.lean`, the trio shares the promoted slab prelude in
+`PeterssonSlabPairing.lean`. The 234-line
+`CuspidalSpectrum.exists_forall_setLIntegral_le_mul_setLIntegral_…_ample` is deferred on the
+unported `Def_AutomorphicForm_CuspidalSpectrumCarrier.lean`; the larger `coversModCentre` silo
+(`exists_isIrreducibleGLRep_linearMap_span_translate_realization_of_coversModCentre`, 3,038 lines)
+is still behind the unit-factorizable chain recorded in [CARRY-FORWARD.md](../CARRY-FORWARD.md).
+No other centre-cut row is genuinely ready at this cut.
 
 The **Γ₁/Nebentypus pair** the shelf once showed at its head — the two `CuspForm` rows — is the
 **lifting column's**, not this column's, and has landed there as

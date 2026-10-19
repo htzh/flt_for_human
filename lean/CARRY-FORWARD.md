@@ -10,6 +10,24 @@ Deferred API that has been ported and verified is in `Reserve/`, not here.
 
 ## Deferred API
 
+### `Def_AutomorphicForm_CuspidalSpectrumCarrier` — the carrier definition module behind the deferred centre-cut slab bound
+
+Deferred 2026-10-18 while porting the centre-cut fundamental-domain trio
+([logs/centre-cut-fundamental-domain-trio.md](logs/centre-cut-fundamental-domain-trio.md)).
+The node
+`AutomorphicForm.CuspidalSpectrum.exists_forall_setLIntegral_le_mul_setLIntegral_of_isSlabFundamentalDomain_of_coversModCentre_ample`
+(234 pin lines) is priced `--ready` by `frontier.py`, but its wrapper imports
+`Definitions/Def_AutomorphicForm_CuspidalSpectrumCarrier.lean` (288 lines / 31 declarations:
+`IsSlabFundamentalDomain`, `fdPins`, `HasModulus`, `weight`, `weightedMeasure`, `Carrier`,
+`memberSubmodule`, `cuspMemberSubmodule`, `pairing`, `toCarrier`, `cuspSubcarrier`, `IsLift`, …),
+which the port does not have. The frontier does not walk import-only definitions; this is the
+playbook §4(a) blindness. The module imports only the already-ported
+`Def_AutomorphicForm_CuspidalConstituent` and `Def_NumberField_TateGlobalZeta`, so it is a cheap
+definition wave when the node is scheduled. **Do not schedule the 234 off `--ready` until it
+lands.** The three sibling nodes landed without it:
+`isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre` and the two
+`exists_measurableSet_isFundamentalDomain_subset_iUnion_…` twins.
+
 ### The exact-volume / L2 chain — `Def_AutomorphicForm_{Gamma0ExactVolume,FundamentalDomainExactVolume,EisensteinScattering,L2ProductionInstance,L2AutomorphicCarrier,TruncatedDomainPartition}`
 
 Deferred 2026-10-17 while porting `CuspForm.peterssonOn_hecke_eq_conj_mul_of_hasNebentypus`
