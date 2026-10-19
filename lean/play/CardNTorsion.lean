@@ -12,6 +12,10 @@
   Check     cd lean && lake env lean play/CardNTorsion.lean   (~3 s, oleans warm)
   Status    open
   Date      2026-10-14
+  Intro     The port's main theorem as the compiler sees it: over an
+            algebraically closed field, the `n`-torsion of an elliptic curve
+            has `n²` elements. The worksheet unpacks the statement, the fibre
+            count, and the division-polynomial engine behind it.
 
   This is a worksheet, not library code: nothing globs `lean/play/`, the sheets
   are tracked, and it exists so that the ported statement can be read, poked at

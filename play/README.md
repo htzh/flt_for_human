@@ -35,6 +35,8 @@ The same files work on GitHub Pages; all URLs are relative.
 
 On a worksheet, **Hide zones** collapses the left zone outline and gives the
 worksheet (and the open card) more width. The choice is remembered across pages.
+The head shows the worksheet's `Intro`; provenance and build metadata (`reads`,
+`pin`, `file`, `check`, `status`, `date`) are collapsed under “source & build”.
 
 - `index.html` — the worksheet list and a global declaration search.
 - `worksheets/<Slug>.html` — one worksheet; the card panel opens on the right
@@ -50,6 +52,7 @@ worksheets/CardNTorsion.html
 worksheets/DivisionPolynomials.html
 assets/app.js
 assets/style.css
+version.json                          build id, fetched no-store for cache busting
 data/index.js                         manifest: worksheets, names, card_module, search
 data/ws-<Slug>.js                     one worksheet: blocks + modules to prefetch
 data/modules/<ModulePath>.js          one shared module: cards defined there
@@ -71,6 +74,12 @@ port and mathlib grow, instead of a flat directory with thousands of files.
 
 The generated files are checked in so the app works without any tooling; they
 are produced from the tracked worksheets and the Lean environment.
+
+Each page's inline bootstrap fetches `version.json` with `cache: "no-store"` and
+loads `app.js` and the data shards with `?v=<build>`. That keeps an aggressively
+caching browser (Silk, GitHub Pages edge cache) from serving old JS; `file://`
+falls back to a plain script tag because `fetch` is unavailable there. The build
+only rewrites shards whose bytes actually changed, so a rebuild is idempotent.
 
 ## Data format
 

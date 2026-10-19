@@ -14,12 +14,11 @@
   Check     cd lean && lake env lean play/DivisionPolynomials.lean  (~3.3 s warm)
   Status    open
   Date      2026-10-15
-
-  Companion to `CardNTorsion.lean`, which reads the *point* side of the same
-  story (its Zone D: `smul_x_eq`, `isCoprime_Φ_ΨSq`, the Wronskian; its Zone B:
-  the degree count). This worksheet reads the *polynomial* side: what `W.Φ`,
-  `W.Ψ`, `W.ΨSq`, `W.ψ` are, which recurrence generates them, and what the EDS
-  vocabulary buys.
+  Intro     Companion to `CardNTorsion.lean`, which reads the *point* side of
+            the same story; this worksheet reads the *polynomial* side: what
+            `W.Φ`, `W.Ψ`, `W.ΨSq`, `W.ψ` are, which recurrence generates them,
+            and what the EDS vocabulary buys. The mathematics is written up in
+            `math/025-elliptic-nets-division-polynomials-and-the-invariant.md`.
 
   One import, and it is the whole cone. `Omega` is the `y`-coordinate invariant
   at the top of the EDS layer, so it contains `DivisionPolynomial.lean` (the
@@ -33,11 +32,6 @@
   This is a worksheet, not library code: nothing globs `lean/play/`, the sheets
   are tracked, and it exists so that the ported EDS theory can be read, poked at
   and questioned in the editor. Ground rules and workflow: `play/README.md`.
-
-  The mathematics of this layer — Ward, Stange, Silverman, and where the Lean
-  encoding sits relative to them — is written up in
-  `math/025-elliptic-nets-division-polynomials-and-the-invariant.md`; this file
-  is the playback bench for that note.
 
   Zones
     A  the cast — eleven names over four sequences

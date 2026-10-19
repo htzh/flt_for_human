@@ -128,8 +128,8 @@ Conventions that keep the loop cheap:
 ## 3. The shape of a worksheet
 
 ```
-header comment   subject · source module · pinned FLT URL · check command ·
-                 status · date · zone list
+header comment   subject · intro · source module · pinned FLT URL · check
+                 command · status · date · zone list
 imports          one narrow port module (R1)
 Zone A           the statement, unpacked
 Zone B           the mechanism — why the proof works, not what it calls
@@ -138,6 +138,12 @@ Zone D           the engine — the parts worth reading line by line
 Zone E           things to poke at — concrete edits to try, with what to expect
 Question log     oldest-first: date, question, one-line answer
 ```
+
+The `Intro` label is the public summary: it is shown at the top of the worksheet
+page and on the index. `Check`, `Status` and `Date` are build metadata and stay
+inside the page's collapsed “source & build” details, not at the headline. Prose
+outside `Intro` is editor-facing context (workflow, import timing, provenance)
+and is not promoted to the public headline.
 
 Zones A–E are a default, not a law: a definitional subject may need only two.
 What matters is that every `#check` in the file names something real and every

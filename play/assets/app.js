@@ -4,6 +4,7 @@
 
   const PAGE = document.body.dataset.page || "index";
   const BASE = document.body.dataset.base || (PAGE === "worksheet" ? "../" : "");
+  const BUILD = window.PLAY_BUILD || "";
   const DATA = BASE + "data/";
   const SHEET_DIR = PAGE === "worksheet" ? "" : "worksheets/";
   const state = { index: null, sheet: null, cache: new Map(), modulePromises: new Map(), searchRows: [] };
@@ -31,11 +32,14 @@
   // Classic script shards, not fetch: this is what makes file:// work in
   // Chrome, where fetch/XHR is blocked for local files.
   function loadScript(src) {
+    const url = BUILD
+      ? src + (src.includes("?") ? "&" : "?") + "v=" + encodeURIComponent(BUILD)
+      : src;
     return new Promise((resolve, reject) => {
       const el = document.createElement("script");
-      el.src = src;
+      el.src = url;
       el.onload = () => resolve();
-      el.onerror = () => reject(new Error("could not load " + src));
+      el.onerror = () => reject(new Error("could not load " + url));
       document.head.appendChild(el);
     });
   }
@@ -663,14 +667,20 @@
     if (tag) tag.textContent = d.tagline || "";
     const subj = $("#ws-subject");
     if (subj) { subj.innerHTML = md(d.subject || ""); linkifyProse(subj); }
+    const intro = $("#ws-intro");
+    if (intro) {
+      intro.innerHTML = d.intro ? md(d.intro) : "";
+      linkifyProse(intro);
+    }
     const meta = $("#ws-meta");
     if (meta) {
       const rows = [
         ["reads", d.reads || "—"],
-        ["status", d.status || "—"],
-        ["date", d.date || "—"],
+        ...(d.pin ? [["pin", d.pin]] : []),
         ["file", d.file || "—"],
         ["check", d.check || "—"],
+        ["status", d.status || "—"],
+        ["date", d.date || "—"],
       ];
       meta.innerHTML = rows.map(([k, v]) =>
         `<div class="k">${esc(k)}</div><div class="v mono small">${inlineMd(v)}</div>`).join("");
@@ -766,10 +776,8 @@
       return `<a class="sheet-card" href="worksheets/${encodeURIComponent(s.slug)}.html">
         <h3>${esc(s.title)}</h3>
         <div class="tag">${esc(s.tagline || "")}</div>
-        <p>${esc((s.subject || "").slice(0, 220))}</p>
+        <p>${esc(oneLine(s.intro || s.subject || "", 220))}</p>
         <div class="meta">
-          <span class="pill">${esc(s.status || "open")}</span>
-          <span class="pill">${esc(s.date || "")}</span>
           <span class="pill">${n} cards</span>
         </div>
       </a>`;
