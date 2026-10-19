@@ -4,7 +4,10 @@ One set, one module, one headline. The mathematics and the landing record are in
 [../../logs/centre-cut-vanishing.md](../../logs/centre-cut-vanishing.md); the column is
 [../PORTING-DeligneSerre.md](../PORTING-DeligneSerre.md) §3.
 
-**Status: landed 2026-10-18.**
+**Status: landed 2026-10-18; refactored when the sibling was cut.** The shared block now lives in
+`Cusp/CentreCutEngine.lean` and this module is a 64-line façade; the first-pass numbers below are
+kept for the record. See [WORKORDER-CCS-centre-cut-sibling.md](WORKORDER-CCS-centre-cut-sibling.md)
+and [../../logs/centre-cut-vanishing.md](../../logs/centre-cut-vanishing.md).
 
 ## 1. Scope
 
@@ -80,7 +83,7 @@ Append to `spec/check_flt_statements.py`:
 * `SOURCES`: the `Theorems/` wrapper and the `P2M/Sol/S_` file, last;
 * `PORT_FILES`: `FLTForHuman/AutomorphicForm/Adelic/Cusp/CentreCutVanishing.lean`, last.
 
-## 7. Results
+## 7. Results (first pass)
 
 * edit loop: **0 errors / 0 warnings**;
 * `lake build`: **11 s**, 3,622 jobs;
@@ -92,5 +95,7 @@ Append to `spec/check_flt_statements.py`:
 ## 8. Successor
 
 `AutomorphicForm.not_isArithGenuineCuspRealizable_of_nonpos_of_lt_of_coversModCentre` (892 pin
-lines) is now the natural next leaf of the family; it was already on the `--include-leaves` shelf
-and is not part of this set.
+lines) was the next leaf; it landed with the engine extraction in
+[WORKORDER-CCS-centre-cut-sibling.md](WORKORDER-CCS-centre-cut-sibling.md). After that pair the
+larger `coversModCentre` silo remains behind the unit-factorizable chain
+([CARRY-FORWARD.md](../../CARRY-FORWARD.md)).

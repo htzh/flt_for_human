@@ -9,8 +9,8 @@ manager's own work, §5 the build economy, §6 verification, §7 what remains, �
 residuals. Every measurement is the pin's, read through `tools/deps`. The section numbers are
 stable: work orders across the column cite §3 for the workflow and §7 for the gates.
 
-The checker reads **10238 identical (676 promoted, 83 renamed), 0 mismatched, 0 missing, 42
-own-proof declarations exempted, 195 registered-unwired declarations exempted (10475 checked)**. This column's recent landings: the
+The checker reads **10239 identical (676 promoted, 83 renamed), 0 mismatched, 0 missing, 42
+own-proof declarations exempted, 195 registered-unwired declarations exempted (10476 checked)**. This column's recent landings: the
 `TateFormal`/`TateSlots` definition layer, 9241 → 9304; the weight-4 Tate-slot engine and headline
 façade (WORKORDER-F1), 9304 → 9318; the six `tateCurve`/Katz definition modules of WORKORDER-F2,
 9318 → 9535 (+217); the `BridgeX` twin/triplet engine and headline façade (WORKORDER-F2),
@@ -40,13 +40,19 @@ first proof set, the real-place `CasCore` trio
 one listed module, `AutomorphicForm/Adelic/ArchCasimir.lean`, whose wire is exactly three headlines,
 10104 → **10107 (+3)**, with the 128-declaration shared engine public and registered tier 3
 ([automorphicForm/TOPIC-arch-casimir.md](automorphicForm/TOPIC-arch-casimir.md),
-[automorphicForm/WORKORDER-AC1-defs.md](automorphicForm/WORKORDER-AC1-defs.md)). The next leaf is
-the centre-cut vanishing theorem, `AutomorphicForm.eq_zero_of_isAutomorphicFnAt_of_continuous_of_nonpos_of_lt_of_coversModCentre`
-(902 pin lines, one listed module, one headline), landed with the checker at **10238 identical**
-(its wire is exactly +1): 48 `private` helpers, 0 substitutions, the whole premise surface already
-in `Cusp/Constituent.lean` (record:
-[logs/centre-cut-vanishing.md](../logs/centre-cut-vanishing.md), order:
-[automorphicForm/WORKORDER-CMV-centre-cut-vanishing.md](automorphicForm/WORKORDER-CMV-centre-cut-vanishing.md)).
+[automorphicForm/WORKORDER-AC1-defs.md](automorphicForm/WORKORDER-AC1-defs.md)). The **centre-cut
+pair** — the vanishing leaf
+`AutomorphicForm.eq_zero_of_isAutomorphicFnAt_of_continuous_of_nonpos_of_lt_of_coversModCentre`
+(902 pin lines) and its sibling
+`AutomorphicForm.not_isArithGenuineCuspRealizable_of_nonpos_of_lt_of_coversModCentre`
+(892 pin lines) — landed together with the checker at **10239 identical**, one headline each (+1
+per leaf). The two pin files share a 645-line block, ported once and public as the tier-3 engine
+`AutomorphicForm/Adelic/Cusp/CentreCutEngine.lean` (964 lines, 49 declarations, registered); the
+façades are `CentreCutVanishing.lean` (64 lines) and `CuspUnrealizable.lean` (59 lines). Records:
+[logs/centre-cut-vanishing.md](../logs/centre-cut-vanishing.md),
+[logs/centre-cut-sibling.md](../logs/centre-cut-sibling.md); orders:
+[automorphicForm/WORKORDER-CMV-centre-cut-vanishing.md](automorphicForm/WORKORDER-CMV-centre-cut-vanishing.md),
+[automorphicForm/WORKORDER-CCS-centre-cut-sibling.md](automorphicForm/WORKORDER-CCS-centre-cut-sibling.md).
 Each wired delta is exactly its new public surface, 0 mismatched / 0 missing. The 9542 → 9569 (+27) step is
 the `NumberField.AdelicHeight` definition gate, the manager's own ground for the adelic-modulus
 round
@@ -254,16 +260,24 @@ holding the deduped development (10,378 raw `S_` lines → 5,256 net), and the t
 9654 → 9673, 0 mismatched / 0 missing; the cone's `needed` falls 1,617 → 1,604 nodes and no Iwasawa
 row remains in the demand. Topic, mathematics and orders: the companion bullet above.
 
-**The centre-cut vanishing leaf.** `AutomorphicForm.eq_zero_of_isAutomorphicFnAt_of_continuous_of_nonpos_of_lt_of_coversModCentre`
-is the leaf that rules out a continuous automorphic function supported on a centre-cut Siegel
-cover: if `c ≤ 0 < d₁ < d₂` and the finite union of translates of `centreCutSiegelSet F c u d₁ d₂`
-covers the centre, then `φ = 0`. It is one listed module,
-`AutomorphicForm/Adelic/Cusp/CentreCutVanishing.lean` (939 lines: one headline, 48 `private`
-helpers), transcribed from the 902-line pin `S_` file with 0 substitutions and 0 shared blocks; the
-whole premise surface is the already-ported `Cusp/Constituent.lean` closure. Checker **10238
-identical** (the module's wire is exactly +1). Record:
-[logs/centre-cut-vanishing.md](../logs/centre-cut-vanishing.md); order:
-[automorphicForm/WORKORDER-CMV-centre-cut-vanishing.md](automorphicForm/WORKORDER-CMV-centre-cut-vanishing.md).
+**The centre-cut pair.** The vanishing leaf
+`AutomorphicForm.eq_zero_of_isAutomorphicFnAt_of_continuous_of_nonpos_of_lt_of_coversModCentre`
+rules out a continuous automorphic function supported on a centre-cut Siegel cover: if
+`c ≤ 0 < d₁ < d₂` and the finite union of translates of `centreCutSiegelSet F c u d₁ d₂` covers
+the centre, then `φ = 0`. Its sibling
+`AutomorphicForm.not_isArithGenuineCuspRealizable_of_nonpos_of_lt_of_coversModCentre` rules out an
+arithmetic genuine cuspidal realization on the same cover. The two pin `S_` files share a
+645-line / 47-declaration block byte-for-byte; it is ported once as the tier-3 engine
+`AutomorphicForm/Adelic/Cusp/CentreCutEngine.lean` (964 lines, 49 public declarations, each with
+`-- pin:` provenance), and the two façades `CentreCutVanishing.lean` (64 lines) and
+`CuspUnrealizable.lean` (59 lines) hold one headline each. The first pass's 902-line module was
+reduced when the sibling was cut; the engine's general `no_function_of_ne_zero` serves both
+headlines, so the sibling's pin-specific `no_realization_of_ne_zero` is not ported. Checker
+**10239 identical** (one headline each, +1 per leaf). Records:
+[logs/centre-cut-vanishing.md](../logs/centre-cut-vanishing.md),
+[logs/centre-cut-sibling.md](../logs/centre-cut-sibling.md); orders:
+[automorphicForm/WORKORDER-CMV-centre-cut-vanishing.md](automorphicForm/WORKORDER-CMV-centre-cut-vanishing.md),
+[automorphicForm/WORKORDER-CCS-centre-cut-sibling.md](automorphicForm/WORKORDER-CCS-centre-cut-sibling.md).
 
 **The shared ground that edits existing modules.** The `ValuationSubring` residue block in
 `NumberTheory/ValuationAtPlace.lean`; the `Gamma0Integral` promotion and its duplicate-block
@@ -546,13 +560,14 @@ with `phiIrreducible_all` (434) behind them once a definition-layer check says s
 and `Φ_N` subjects and the level-`N` `q`-expansion bridge have landed, and their successor
 `ModularCurve.LevelN.exists_algHom_laurentBaseChange_apply_eq_qExpand` (165) is on the shelf.
 
-The **centre-cut vanishing leaf** has landed
-([../logs/centre-cut-vanishing.md](../logs/centre-cut-vanishing.md)); its sibling
-`AutomorphicForm.not_isArithGenuineCuspRealizable_of_nonpos_of_lt_of_coversModCentre` (892 pin
-lines) remains on the `--include-leaves` shelf and is the next leaf of that family. The larger
-`coversModCentre` silo (`exists_isIrreducibleGLRep_linearMap_span_translate_realization_of_coversModCentre`,
-3,038 lines) is still behind the unit-factorizable chain recorded in
-[CARRY-FORWARD.md](../CARRY-FORWARD.md).
+The **centre-cut pair** has landed
+([../logs/centre-cut-vanishing.md](../logs/centre-cut-vanishing.md),
+[../logs/centre-cut-sibling.md](../logs/centre-cut-sibling.md)): the vanishing leaf and its
+`not_isArithGenuineCuspRealizable` sibling now share the tier-3 engine
+`Cusp/CentreCutEngine.lean`. The larger `coversModCentre` silo
+(`exists_isIrreducibleGLRep_linearMap_span_translate_realization_of_coversModCentre`, 3,038
+lines) is still behind the unit-factorizable chain recorded in
+[CARRY-FORWARD.md](../CARRY-FORWARD.md); no other centre-cut row is ready at this cut.
 
 The **Γ₁/Nebentypus pair** the shelf once showed at its head — the two `CuspForm` rows — is the
 **lifting column's**, not this column's, and has landed there as

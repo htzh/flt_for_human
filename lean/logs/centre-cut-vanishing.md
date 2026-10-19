@@ -1,22 +1,24 @@
 # The centre-cut vanishing leaf — `AutomorphicForm.eq_zero_of_isAutomorphicFnAt_of_continuous_of_nonpos_of_lt_of_coversModCentre`
 
-**Status: landed 2026-10-18.** One module,
-`FLTForHuman/AutomorphicForm/Adelic/Cusp/CentreCutVanishing.lean` (939 lines,
-one public headline + 48 `private` helpers), green with 0 errors and 0 warnings;
-no `sorry`, no axiom beyond `[propext, Classical.choice, Quot.sound]`. The
-module is listed (tier 1): its wire is exactly the one headline, checker
-**10,238 identical**, 0 mismatched / 0 missing.
+**Status: landed 2026-10-18, refactored the same day when the sibling was cut.** The leaf first
+landed as a self-contained 939-line module. The next leaf
+([centre-cut-sibling.md](centre-cut-sibling.md)) shares the whole 645-line development, so the
+shared block was extracted to `Cusp/CentreCutEngine.lean` (964 lines, 49 public declarations,
+tier 3) and this leaf became a 64-line façade holding only its headline. Green with 0 errors and
+0 warnings; no `sorry`, no axiom beyond `[propext, Classical.choice, Quot.sound]`. Checker after
+the pair: **10,239 identical**, 0 mismatched / 0 missing.
 
 | | |
 |---|---|
 | statement | `AutomorphicForm.eq_zero_of_isAutomorphicFnAt_of_continuous_of_nonpos_of_lt_of_coversModCentre` |
 | pin proof | `P2M/Sol/S_AutomorphicForm_eq_zero_of_isAutomorphicFnAt_of_continuous_of_nonpos_of_lt_of_coversModCentre.lean` (902 lines) |
 | statement authority | `Theorems/Thm_AutomorphicForm_eq_zero_of_isAutomorphicFnAt_of_continuous_of_nonpos_of_lt_of_coversModCentre.lean` |
-| scope | 902 raw lines → **884 net new math lines**, 51 declaration groups, 0 substitutions, 0 shared blocks |
-| public surface | **one theorem**, statement copied binder for binder from the wrapper; the 48 helpers are `private` |
+| scope (first pass) | 902 raw lines → **884 net new math lines**, 51 declaration groups, 0 substitutions, 0 shared blocks within the target |
+| final structure | 64-line façade + `Cusp/CentreCutEngine.lean` (49 declarations shared with the sibling) |
+| public surface | **one theorem** here; the engine's 49 declarations are public tier 3 and registered |
 | FLT premises | only `Definitions/Def_AutomorphicForm_CuspidalConstituent.lean` (ported at `Cusp/Constituent.lean`), plus its transitive ported closure |
-| build | edit loop 0 errors / 0 warnings; `lake build` 11 s (3,622 jobs) |
-| register | current (`unwired_register.py --check`) — no tier-3 surface |
+| build | engine 9.7 s, façades 3 s; 0 warnings |
+| register | 49 engine declarations with `-- pin:` provenance, current |
 
 ## 1. What the theorem says
 
@@ -61,32 +63,50 @@ The pin's proof is the classical disjoint-translates argument, in three blocks.
   and a small open neighbourhood `O` on which `φ` stays nonzero, the translates
   `γ k * O` are pairwise disjoint and contained in `W`; left invariance of `φ`
   makes `‖φ‖²` integrate to `⊤` over `W`, contradicting the `MemLp` half of
-  `IsAutomorphicFnAt` (`lsXiMemberAt_iff`).
+  `IsAutomorphicFnAt` (`lsXiMemberAt_iff`). This final contradiction is the
+  engine's general lemma `no_function_of_ne_zero`, which takes `ξ`, `φ`, the
+  automorphy hypothesis, continuity, and one point with `φ g₀ ≠ 0`.
 
-## 3. The port
+## 3. The port, and the engine extraction
 
-`port_advise` reports **0 substitutions**, **0 shared blocks** and **0 helpers
-already in the port**: the whole 902-line file is a single self-contained
-development. It is transcribed whole, with two unused pin helpers dropped
-(`toFun_unipT_mul`, `topNormSq_le_of_entries`) and the pin's `p2m_exact_reverting`
-glue inlined. Everything except the headline is `private`, so the checker sees
+`port_advise` on the first target reported **0 substitutions**, **0 shared
+blocks** and **0 helpers already in the port**: the 902-line file is a single
+self-contained development. It was transcribed whole, with the unused pin
+helper `topNormSq_le_of_entries` dropped and the pin's `p2m_exact_reverting`
+glue inlined. Everything except the headline was `private`, so the checker saw
 exactly one declaration.
 
-The import is only
+When the sibling target was scoped, `port_advise` reported **46 of its
+declarations already identical in the port — as `private` in this module**. The
+two pin files share the whole 645-line block byte-for-byte; only the tail
+differs. Rather than copy 636 lines or promote 46 declarations in place, the
+block was extracted to
+
+```lean
+FLTForHuman/AutomorphicForm/Adelic/Cusp/CentreCutEngine.lean
+```
+
+(964 lines, 49 public declarations, `namespace AutomorphicForm.CentreCutEngine`,
+each with a `-- pin:` marker). The module is unlisted (tier 3) and registered in
+`spec/UNWIRED-PUBLIC.md`; the checker wires only the two façades. The general
+`no_function_of_ne_zero` is in the engine and serves both headlines; the
+sibling's pin-specific `no_realization_of_ne_zero` is not ported separately.
+
+The engine imports
 
 ```lean
 import FLTForHuman.AutomorphicForm.Adelic.Cusp.Constituent
 ```
 
-— the port's home of the pin definition module. Its transitive closure already
-contains every other premise (`CoversModCentre`, `centreCutSiegelSet`,
-`productionPinsOf`, `IsAutomorphicFnAt`, `adelicGLHaar`, `glFin`,
-`archDetNorm`, the window functions). No promotion was needed: the pin's helpers
-are `private` and no other target file shares them.
+— the port's home of the pin definition module. Its transitive closure contains
+every premise (`CoversModCentre`, `centreCutSiegelSet`, `productionPinsOf`,
+`IsAutomorphicFnAt`, `lsXiMemberAt_iff`, `adelicGLHaar`, `glFin`,
+`archDetNorm`, the window functions, and `SmoothCuspRealizationAt`).
 
 ## 4. Mathlib `v4.34.0` drift
 
-Two proofs needed adaptation; both are statement-preserving.
+Two proofs needed adaptation; both are statement-preserving and live in the
+engine.
 
 * `coe_mapGL_lowerUnip`: the pin's `ext i j; simp [mapGL, lowerUnip]` no longer
   normalizes the `SpecialLinearGroup.mapGL` composite. The port uses
@@ -105,15 +125,20 @@ The remaining renames are the recorded deprecations: `if_pos`/`if_neg` →
 `ite_eq_left`/`ite_eq_right`, `Polynomial.finite_setOf_isRoot` →
 `Polynomial.finite_setOfPred_isRoot`, `Set.mem_setOf_eq` → `Set.mem_ofPred_eq`.
 Four `set_option linter.style.haveILetI false in` suppressions are local to the
-declarations that genuinely introduce instances (`Countable C`, `Countable K`,
-`Countable (GL …)`, the measure/Borel instances of `no_function_of_ne_zero`);
-they are the house-style narrow form recorded in `CARRY-FORWARD.md`.
+engine declarations that genuinely introduce instances (`Countable C`,
+`Countable K`, `Countable (GL …)`, the measure/Borel instances of
+`no_function_of_ne_zero`); they are the house-style narrow form recorded in
+`CARRY-FORWARD.md`.
 
 ## 5. What it buys
 
-The node leaves the D-S `--include-leaves` demand. Its sibling
+Both centre-cut leaves leave the D-S `--include-leaves` demand:
+this one and
 `AutomorphicForm.not_isArithGenuineCuspRealizable_of_nonpos_of_lt_of_coversModCentre`
-(892 lines) remains on the shelf and is the natural next cut; the rest of the
-centre-cut family is unchanged. The module is listed in `PORT_FILES`, and its
-wrapper and `S_` file are appended to `SOURCES`, so the headline stays
-statement-diffed against the pin wrapper.
+(892 lines), which now shares the engine
+([centre-cut-sibling.md](centre-cut-sibling.md)). The larger
+`coversModCentre` silo
+(`exists_isIrreducibleGLRep_linearMap_span_translate_realization_of_coversModCentre`,
+3,038 lines) is still behind the unit-factorizable chain recorded in
+`CARRY-FORWARD.md`. The façades are listed in `PORT_FILES`, their wrappers and
+`S_` files are appended to `SOURCES`, and the engine is registered tier 3.

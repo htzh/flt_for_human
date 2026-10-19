@@ -3369,10 +3369,15 @@ SOURCES = [
     "Theorems/Thm_AutomorphicForm_CuspidalConstituent_exists_eq_sum_hasArchCharacterAt_archWeightCharAt_of_isCuspConstituent.lean",
     # --- The centre-cut vanishing leaf (`AutomorphicForm.eq_zero_of_isAutomorphicFnAt_of_continuous_of_nonpos_of_lt_of_coversModCentre`).
     # The wrapper is the headline's statement authority; the `S_` file is the pin original
-    # for the one headline, every other declaration of which is `private` in the port.
-    # Appended last.
+    # for the shared engine and the headline. The engine itself is unlisted (tier 3,
+    # `Cusp/CentreCutEngine.lean`), so only the façade is diffed. Appended last.
     "Theorems/Thm_AutomorphicForm_eq_zero_of_isAutomorphicFnAt_of_continuous_of_nonpos_of_lt_of_coversModCentre.lean",
     "P2M/Sol/S_AutomorphicForm_eq_zero_of_isAutomorphicFnAt_of_continuous_of_nonpos_of_lt_of_coversModCentre.lean",
+    # --- The sibling (`AutomorphicForm.not_isArithGenuineCuspRealizable_of_nonpos_of_lt_of_coversModCentre`):
+    # same shared engine, one headline. The wrapper is the statement authority, the `S_`
+    # file the pin original of the sibling's tail; the engine is not re-listed. Appended last.
+    "Theorems/Thm_AutomorphicForm_not_isArithGenuineCuspRealizable_of_nonpos_of_lt_of_coversModCentre.lean",
+    "P2M/Sol/S_AutomorphicForm_not_isArithGenuineCuspRealizable_of_nonpos_of_lt_of_coversModCentre.lean",
 ]
 
 
@@ -5033,9 +5038,11 @@ PORT_FILES = [
     "FLTForHuman/NumberTheory/NumberField/IntegralAdelicTrace.lean",
     "FLTForHuman/NumberTheory/NumberField/AdelicTraceFin.lean",
     "FLTForHuman/AutomorphicForm/Adelic/Cusp/CutWeightDecomposition.lean",
-    # --- The centre-cut vanishing leaf: one listed module, one headline (+1); the 48 private
-    # helpers are not part of the checker surface.
+    # --- The centre-cut vanishing leaf and its `not_isArithGenuineCuspRealizable` sibling: two
+    # listed façades, one headline each (+1 each). The shared 49-declaration engine is unlisted
+    # (`Cusp/CentreCutEngine.lean`, tier 3, registered in `spec/UNWIRED-PUBLIC.md`).
     "FLTForHuman/AutomorphicForm/Adelic/Cusp/CentreCutVanishing.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/Cusp/CuspUnrealizable.lean",
 ]
 
 
