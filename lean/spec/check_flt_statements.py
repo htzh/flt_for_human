@@ -3367,6 +3367,12 @@ SOURCES = [
     # declaration of the module carries a `-- pin:` marker into it (the checker's UNWIRED tier 3)
     # and is registered in spec/UNWIRED-PUBLIC.md. Appended last.
     "Theorems/Thm_AutomorphicForm_CuspidalConstituent_exists_eq_sum_hasArchCharacterAt_archWeightCharAt_of_isCuspConstituent.lean",
+    # --- The centre-cut vanishing leaf (`AutomorphicForm.eq_zero_of_isAutomorphicFnAt_of_continuous_of_nonpos_of_lt_of_coversModCentre`).
+    # The wrapper is the headline's statement authority; the `S_` file is the pin original
+    # for the one headline, every other declaration of which is `private` in the port.
+    # Appended last.
+    "Theorems/Thm_AutomorphicForm_eq_zero_of_isAutomorphicFnAt_of_continuous_of_nonpos_of_lt_of_coversModCentre.lean",
+    "P2M/Sol/S_AutomorphicForm_eq_zero_of_isAutomorphicFnAt_of_continuous_of_nonpos_of_lt_of_coversModCentre.lean",
 ]
 
 
@@ -5027,6 +5033,9 @@ PORT_FILES = [
     "FLTForHuman/NumberTheory/NumberField/IntegralAdelicTrace.lean",
     "FLTForHuman/NumberTheory/NumberField/AdelicTraceFin.lean",
     "FLTForHuman/AutomorphicForm/Adelic/Cusp/CutWeightDecomposition.lean",
+    # --- The centre-cut vanishing leaf: one listed module, one headline (+1); the 48 private
+    # helpers are not part of the checker surface.
+    "FLTForHuman/AutomorphicForm/Adelic/Cusp/CentreCutVanishing.lean",
 ]
 
 
