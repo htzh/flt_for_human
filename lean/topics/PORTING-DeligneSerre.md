@@ -603,7 +603,7 @@ reports** with the declaration, host and `build_ladder.py --edit` price. The man
 reconciled against the new public surface; tier 1 green and 0 warnings; no `sorry`/`admit`, no bare
 `import Mathlib`; `#print axioms` on every headline `[propext, Classical.choice, Quot.sound]`; `git
 status` showing only the set's files. The checker's mutation sensitivity is the instrument's own
-test (`python3 spec/check_flt_statements.py --selftest`), run when the checker changes — not a
+test (`python3 spec/old_check_stmts.py --selftest`), run when the checker changes — not a
 per-set manual mutation.
 
 **6. Close out, then re-read the frontier.** Re-run step 1: the landed nodes leave the shelf and
@@ -660,7 +660,7 @@ a bigger heartbeat cap.
 
 ```bash
 cd lean
-timeout 300 python3 spec/check_flt_statements.py        # 10476 identical / 0 / 0 / 42 own
+timeout 300 python3 spec/old_check_stmts.py        # 10476 identical / 0 / 0 / 42 own
 flock .lake/flt_build.lock timeout 900 lake build       # the milestone build
 timeout 180 lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false spec/DeligneSerreConsumer.lean
 python3 tools/deps/unwired_register.py --check          # tier-3 surface current
@@ -671,7 +671,7 @@ plus a `#print axioms` probe over the set's headlines and a `grep` sweep for
 `identical` delta must equal the new public surface exactly; anything else is a bug. Each work
 order records its own numbers, measured on the tree it leaves, not copied from this note. The
 checker's mutation sensitivity lives in the instrument:
-`python3 spec/check_flt_statements.py --selftest`.
+`python3 spec/old_check_stmts.py --selftest`.
 
 The checker's exemption list is keyed by **dotted name, never bare last name**: a bare
 `"correspondence"` silently exempted two live declarations alongside its namesake, and dotting it
@@ -806,7 +806,7 @@ on every set:
 
 ```bash
 cd lean
-python3 spec/check_flt_statements.py --selftest
+python3 spec/old_check_stmts.py --selftest
 ```
 
 ## 9. Residuals

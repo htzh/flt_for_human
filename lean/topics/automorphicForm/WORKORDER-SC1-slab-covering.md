@@ -233,5 +233,5 @@ pin original.
 
 Files changed by this order: `FLTForHuman/AutomorphicForm/Adelic/Siegel/SlabCovering.lean` (new),
 `FLTForHuman/AutomorphicForm/Adelic/Siegel/SlabCoveringTheorems.lean` (new),
-`spec/check_flt_statements.py`, `spec/UNWIRED-PUBLIC.md`.
+`spec/old_check_stmts.py`, `spec/UNWIRED-PUBLIC.md`.
 

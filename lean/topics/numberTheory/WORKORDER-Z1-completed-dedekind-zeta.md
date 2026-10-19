@@ -246,7 +246,7 @@ Final wave only:
 
 * the façade on `PORT_FILES` (one entry) and the wrapper plus the silo on `SOURCES`
   (two entries), appended last;
-* `timeout 300 python3 spec/check_flt_statements.py` — **0 mismatched / 0 missing**,
+* `timeout 300 python3 spec/old_check_stmts.py` — **0 mismatched / 0 missing**,
   and the `identical` delta equal to the façade's public surface (the headline; plus
   whatever else the façade exposes, one row each);
 * a one-token mutation on the headline moves exactly one `mismatched`, then revert;
@@ -299,7 +299,7 @@ import importlib.util, sys
 from pathlib import Path
 sys.path.insert(0, ".")
 import port_graph as pg
-spec = importlib.util.spec_from_file_location("ck", "../../lean/spec/check_flt_statements.py")
+spec = importlib.util.spec_from_file_location("ck", "../../lean/spec/old_check_stmts.py")
 ck = importlib.util.module_from_spec(spec); sys.modules["ck"] = ck; spec.loader.exec_module(ck)
 PIN = Path.home() / "proj" / "fermats-last-theorem"
 F = PIN / "P2M/Sol/S_NumberField_exists_completedDedekindZeta_package.lean"

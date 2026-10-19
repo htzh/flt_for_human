@@ -252,7 +252,7 @@ rather than over functions on the archimedean adeles. **Neither answer may chang
 
 ## 6. Verification, per set
 
-* **Checker.** `timeout 300 python3 spec/check_flt_statements.py`, `0 mismatched / 0 missing`.
+* **Checker.** `timeout 300 python3 spec/old_check_stmts.py`, `0 mismatched / 0 missing`.
   Reconcile the delta before building: this phase adds the three headlines as `identical` (+3) and
   the promoted engine as `promoted` (+≈300, the pin's private declarations); `promoted` rising is the
   expected signal, and a `MISSING IN FLT` line means a public helper has no pin counterpart under its
@@ -320,5 +320,5 @@ python3 port_plan.py --json build/ds-twin.json --section all    # 3,715 for the 
 python3 frontier.py --target DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen \
   --rank-by silo --ready --top 0
 cd ../lean
-python3 spec/check_flt_statements.py                            # 8926 / 0 / 0 / 38 own
+python3 spec/old_check_stmts.py                            # 8926 / 0 / 0 / 38 own
 ```

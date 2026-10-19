@@ -218,7 +218,7 @@ pair; the consumers (the whole Eisenstein-analytic layer is a later effort); any
 
 ## 7. Verification
 
-* **Checker.** `timeout 300 python3 spec/check_flt_statements.py` — **9,238 → 9,241
+* **Checker.** `timeout 300 python3 spec/old_check_stmts.py` — **9,238 → 9,241
   identical** (+3, the façade's three headlines), 0 mismatched, 0 missing, 38 own.
 * **Build.** tier-0 at the 200,000 heartbeat cap, **0 warnings**; tier-1
   `flock .lake/flt_build.lock timeout 300 lake build <module>` per module; no whole-tree
@@ -260,7 +260,7 @@ python3 port_advise.py --nodes AutomorphicForm.continuous_bruhatTransversal_tsum
 python3 port_plan.py --json build/weyl_trio_advise.json --section all
 python3 frontier.py --target DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen --include-leaves --rank-by silo --top 0
 cd ../lean
-timeout 300 python3 spec/check_flt_statements.py
+timeout 300 python3 spec/old_check_stmts.py
 ```
 
 The three pin sources are public at

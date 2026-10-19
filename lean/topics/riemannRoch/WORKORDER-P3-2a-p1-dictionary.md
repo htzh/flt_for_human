@@ -212,7 +212,7 @@ mathlib `uniformizer` def (`IsDiscreteValuationRing.exists_irreducible` + the po
 
 ## 5. Checker wiring, verification
 
-Append **last** to `spec/check_flt_statements.py`:
+Append **last** to `spec/old_check_stmts.py`:
 - `SOURCES` += `Definitions/Def_AlgebraicCurve_PlaceEvaluation.lean`,
   `Definitions/Def_AlgebraicCurve_PlaceEvaluationAlgebra.lean`, then the 11
   `Theorems/Thm_*` wrappers, then the 11 `P2M/Sol/S_*` files (wrapper-first, as in
@@ -224,7 +224,7 @@ Append **last** to `spec/check_flt_statements.py`:
 
 ```bash
 cd lean
-python3 spec/check_flt_statements.py                 # 0 mismatched / 0 missing
+python3 spec/old_check_stmts.py                 # 0 mismatched / 0 missing
 for m in PlaceEvaluation PlaceEvaluationAlgebra P1Dictionary; do
   flock /tmp/flt_for_human.lock timeout 240 lake build "FLTForHuman.AlgebraicCurve.Defs.$m"
 done

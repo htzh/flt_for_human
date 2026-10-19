@@ -121,14 +121,14 @@ rows and five private. Extra drift on this path: `if_neg` → `ite_eq_right`,
 
 ## 5. Checker wiring, verification
 
-Append **last** to `spec/check_flt_statements.py`:
+Append **last** to `spec/old_check_stmts.py`:
 - `SOURCES` += `P2M/Sol/S_AlgebraicCurve_RationalFunctionField_trace_localResidue_placeInfty_X_pow_eq_zero.lean`
   and its `Theorems/Thm_*` wrapper (wrapper first).
 - `PORT_FILES` += `FLTForHuman/AlgebraicCurve/Defs/P1ResidueCore.lean`.
 
 ```bash
 cd lean
-python3 spec/check_flt_statements.py                 # 0 mismatched / 0 missing
+python3 spec/old_check_stmts.py                 # 0 mismatched / 0 missing
 flock /tmp/flt_for_human.lock timeout 300 lake build FLTForHuman.AlgebraicCurve.Defs.P1ResidueCore
 # #print axioms over this chunk's public surface
 ```

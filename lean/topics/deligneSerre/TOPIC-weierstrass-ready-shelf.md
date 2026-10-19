@@ -191,7 +191,7 @@ two headlines followed as sets **C1 = [WORKORDER-W5](WORKORDER-W5-reducehom-surj
 (`exists_reduceHom_eq_of_nsmul_eq_zero_of_natCast_ne_zero`, 185 pin lines) and
 **C2 = [WORKORDER-W6](WORKORDER-W6-inertia-reduction.md)**
 (`exists_inertia_equivariant_reduction_of_variableChange_eq_map`, 601) — one subagent each, both
-landed 2026-10-08, manager-wired into `spec/check_flt_statements.py`. Combined checker
+landed 2026-10-08, manager-wired into `spec/old_check_stmts.py`. Combined checker
 **7368 → 7370 identical**, 0 mismatched / 0 missing, every set warning-free with axioms
 `[propext, Classical.choice, Quot.sound]`, milestone whole-tree build green (9,359 jobs). All
 eight `WeierstrassCurve` ready-shelf nodes are ported; nothing on this shelf is waiting on a

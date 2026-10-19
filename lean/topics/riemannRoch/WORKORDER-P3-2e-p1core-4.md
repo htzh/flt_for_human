@@ -77,7 +77,7 @@ computation is mostly pin-bespoke (`Place.ord`, `uniformizer`, `differentialCoef
 
 ## 4. Build discipline, checker wiring, report shape
 
-As 3.2b §4–§7. Checker wiring is already done; no `spec/check_flt_statements.py`
+As 3.2b §4–§7. Checker wiring is already done; no `spec/old_check_stmts.py`
 edit. Verify the checker rises and stays `0 mismatched / 0 missing`. Append friction
 under `### Set 3.2e`.
 

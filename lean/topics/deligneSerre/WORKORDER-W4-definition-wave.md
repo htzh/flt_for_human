@@ -129,7 +129,7 @@ stage 4.
 
 ```bash
 cd lean
-timeout 400 python3 spec/check_flt_statements.py    # expect 7246 / 0 / 0 / 37 own
+timeout 400 python3 spec/old_check_stmts.py    # expect 7246 / 0 / 0 / 37 own
 git status --porcelain                              # everything uncommitted, by design
 ```
 
@@ -190,7 +190,7 @@ wave as the stage's new module, not separately.
 
 ## 4. Wiring
 
-Per stage, in `lean/spec/check_flt_statements.py`, appending **last**: the pin
+Per stage, in `lean/spec/old_check_stmts.py`, appending **last**: the pin
 `Definitions/Def_<…>.lean` to `SOURCES` (stage 1's `Def_WeierstrassCurve_ReductionMap.lean` is
 **already** in `SOURCES` from the earlier `ValuationSubring` promotion — do not duplicate it),
 and the new module to `PORT_FILES`. Definition modules get coverage by name against the pin's

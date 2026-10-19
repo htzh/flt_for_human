@@ -145,7 +145,7 @@ sc = re.compile(r'^\s*(import |attribute |namespace |end\b|open |p2m_open|p2m_ex
 raw = lambda i: sum(1 for _ in open(FLT/f"P2M/Sol/S_{d.stem_of[i]}.lean", encoding='utf-8'))
 cont = lambda i: sum(1 for l in open(FLT/f"P2M/Sol/S_{d.stem_of[i]}.lean", encoding='utf-8') if not sc.match(l))
 port = "\n".join(p.read_text(encoding='utf-8') for p in (LEAN/'FLTForHuman').rglob('*.lean'))
-src = re.search(r'SOURCES = \[(.*?)\n\]', (LEAN/'spec/check_flt_statements.py').read_text(), re.S).group(1)
+src = re.search(r'SOURCES = \[(.*?)\n\]', (LEAN/'spec/old_check_stmts.py').read_text(), re.S).group(1)
 srcs = set(re.findall(r'"([^"]+)"', src))
 def ported(q):
     if any(s.endswith('Thm_'+q.replace('.','_')+'.lean') for s in srcs): return True
@@ -712,7 +712,7 @@ function-field block is already paid for.
 
 1. **Checker.** Append the set's `Theorems/Thm_<stem>.lean` wrapper(s) to
    `SOURCES` last and the new module(s) to `PORT_FILES`; run
-   `python3 spec/check_flt_statements.py`. Target `0 mismatched / 0 missing`.
+   `python3 spec/old_check_stmts.py`. Target `0 mismatched / 0 missing`.
    Verify the checker with a one-token mutation (expect exactly one more
    `mismatched`) and revert. Helpers that are ours go on `OWN_PROOFS` with the
    reason (the X1 modules should need very few: the `X1HDIGeneric` dedups are

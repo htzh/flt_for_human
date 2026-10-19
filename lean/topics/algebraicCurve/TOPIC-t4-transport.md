@@ -230,7 +230,7 @@ declarations failing the checker with no clean `SOURCES` ordering.
 - [ ] Consumer **Zone D** extended: `finiteAlong_comp` + `separableAlong_of_charZero`
       applied to a concrete tower, and a `Pic0` descent check (`mk_eq_zero_iff` or
       `zsmul_mk` composed with a `Divisor` lemma).
-- [ ] `spec/check_flt_statements.py`: the 16 AC wrappers in `SOURCES`; the prelude
+- [ ] `spec/old_check_stmts.py`: the 16 AC wrappers in `SOURCES`; the prelude
       matched by last name/dotted fallback or listed in `OWN_PROOFS` with reasons;
       0 mismatched, 0 missing.
 - [ ] `timeout 90 lake build` green, 0 warnings, no `sorry`.

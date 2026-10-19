@@ -196,7 +196,7 @@ model of the effort is protecting that property.
    is the only one that means anything. Measured 2026-10-04: a manager
    `lake build` issued while a subagent was building ran the full 400 s at
    `user 0m0.004s` (blocked, not compiling) and produced no `.olean`.
-4. **Checker at every module close**: `python3 spec/check_flt_statements.py`
+4. **Checker at every module close**: `python3 spec/old_check_stmts.py`
    (text-only, needs no build). This is the cheap faithfulness gate and catches
    a mis-stated binder before the build does.
 5. **Never run a bare `lake build`** during the effort. The dependent cascade is

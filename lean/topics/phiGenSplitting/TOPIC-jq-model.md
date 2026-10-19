@@ -76,7 +76,7 @@ port's `PowerSeries` definition of `jq` (`Defs/Jq.lean`) and mathlib's analytic
 `ModularForm.E₄`/`discriminant`.
 
 - **Settled: statements are the pin's, verbatim.** Both have `Theorems/`
-  wrappers, so `spec/check_flt_statements.py` verifies them. Add both to
+  wrappers, so `spec/old_check_stmts.py` verifies them. Add both to
   `SOURCES`.
 - **Settled: audit mathlib first — but for correctness, not to save time.**
   T5 measured the point: the audit, the header and the corollary made the port
@@ -249,7 +249,7 @@ slash action.
       (§2.1).
 - [x] `lake build` green, 0 warnings, no `sorry`.
 - [x] `#print axioms` clean on both.
-- [x] `spec/check_flt_statements.py`: both wrappers in `SOURCES`, verified count
+- [x] `spec/old_check_stmts.py`: both wrappers in `SOURCES`, verified count
       151 → 153, 0 mismatched; `PORT_FILES` gains the module; `hasSum_jNum_qParam`
       is private and noted as such.
 - [x] the wire item from §4 recorded, with its form named (consumer Zone D).

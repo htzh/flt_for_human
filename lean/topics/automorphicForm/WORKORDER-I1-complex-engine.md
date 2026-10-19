@@ -155,7 +155,7 @@ report the declaration and the fix.
 | the six `AutomorphicForm.ComplexIwasawa.Engine.*` kernels | present, public, statements equal to their `Theorems/` wrappers |
 | `python3 tools/deps/unwired_register.py --check` | report only (do **not** rewrite the register) |
 
-Do **not** run `spec/check_flt_statements.py` and do **not** edit the register. No wiring for this
+Do **not** run `spec/old_check_stmts.py` and do **not** edit the register. No wiring for this
 order: the engines are tier 3.
 
 ## 7. Report shape

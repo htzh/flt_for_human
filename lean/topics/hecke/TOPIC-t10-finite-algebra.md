@@ -345,7 +345,7 @@ FLT's own `hasIntegralStructure_of_two_le` uses them at neither site.
 
 The finiteness half is complete; the four §5 eigenbasis-span targets are not.
 Measured with `tools/deps/frontier.py` against the current port frontier (the
-`Thm_` wrappers in `spec/check_flt_statements.py` plus the port tree's declared
+`Thm_` wrappers in `spec/old_check_stmts.py` plus the port tree's declared
 names): a target's **needed** set is what its proof reaches that the port does not
 yet provide.
 

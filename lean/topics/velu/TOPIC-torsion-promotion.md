@@ -96,7 +96,7 @@ genuine addition.
    (`lake env lean` does not inherit the lakefile options).
 2. Module done: `timeout 300 flock .lake/flt_build.lock bash -c 'time lake build <module>'`
    (the lock lives at `lean/.lake/flt_build.lock`, not `/tmp`).
-3. `python3 spec/check_flt_statements.py` at every module close; target
+3. `python3 spec/old_check_stmts.py` at every module close; target
    `0 mismatched / 0 missing`, record the `identical` delta.
 4. `#print axioms` clean, no `sorry`; never raise `maxHeartbeats`.
 5. No bare `lake build` (the whole-tree milestone is the manager's); no

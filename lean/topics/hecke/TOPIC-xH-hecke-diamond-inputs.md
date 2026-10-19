@@ -464,7 +464,7 @@ vocabulary and the SET-10 slash inputs are all ported; `qExpFunctionFieldC` and
 
 1. **Checker.** Append the set's `Theorems/Thm_<stem>.lean` wrappers to `SOURCES`
    last and the new modules to `PORT_FILES`; run
-   `python3 spec/check_flt_statements.py`. Target `0 mismatched / 0 missing`.
+   `python3 spec/old_check_stmts.py`. Target `0 mismatched / 0 missing`.
    Baseline today: `6315 (312 promoted, 83 renamed), 0 mismatched, 0 missing,
    36 own (6351 checked)`. Verify the checker with a one-token mutation (expect
    exactly one more `mismatched`) and revert.

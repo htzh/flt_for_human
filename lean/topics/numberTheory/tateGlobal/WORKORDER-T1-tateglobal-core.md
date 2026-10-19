@@ -274,7 +274,7 @@ Final dispatch only (the façade):
 
 * the façade listed in `PORT_FILES` (three entries / three headlines) and the three
   wrapper files plus the three silos in `SOURCES` (six entries), appended last;
-* `timeout 300 python3 spec/check_flt_statements.py` — 0 mismatched / 0 missing, and
+* `timeout 300 python3 spec/old_check_stmts.py` — 0 mismatched / 0 missing, and
   the `identical` delta equal to the façade's public surface (the three headlines);
 * a one-token mutation on one headline moves exactly one `mismatched`, then revert;
 * `#print axioms` on the three headlines is `[propext, Classical.choice, Quot.sound]`;
@@ -332,7 +332,7 @@ import importlib.util, sys
 from pathlib import Path
 sys.path.insert(0, ".")
 import port_graph as pg
-spec = importlib.util.spec_from_file_location("ck", "../../lean/spec/check_flt_statements.py")
+spec = importlib.util.spec_from_file_location("ck", "../../lean/spec/old_check_stmts.py")
 ck = importlib.util.module_from_spec(spec); sys.modules["ck"] = ck; spec.loader.exec_module(ck)
 PIN = Path.home() / "proj" / "fermats-last-theorem"
 F = PIN / "P2M/Sol/S_NumberField_TateGlobal_zetaIntegral_mul_eulerFactors_eq.lean"  # A
@@ -375,7 +375,7 @@ tier-1 `flock … lake build` green. No `maxHeartbeats` / `synthInstance.maxHear
 B 3113/4350/4493/4636/5377/5973/6063, A 4249/4841/4984/5113) were all dropped and every
 declaration fits the low cap.
 
-**Checker.** `python3 spec/check_flt_statements.py` → **9,237 identical** (648 promoted,
+**Checker.** `python3 spec/old_check_stmts.py` → **9,237 identical** (648 promoted,
 83 renamed), **0 mismatched, 0 missing**, 38 own-proof exempted, 9,275 checked. The
 delta over the pre-port baseline (9,234 / 9,272) is +3, exactly the façade's three
 headlines. A one-token mutation (`0 < c` → `0 ≤ c`) on the first headline moved exactly

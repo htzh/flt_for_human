@@ -95,7 +95,7 @@ heartbeat stall errors in ~15–20 s.
 2. Specific imports; no `import Mathlib` in a port module.
 3. Only the headlines are public; pin-private helpers stay `private`.
 4. Checker: append each order's wrappers to `SOURCES` and the two modules to
-   `PORT_FILES` in `spec/check_flt_statements.py` (order 2 imports the already-
+   `PORT_FILES` in `spec/old_check_stmts.py` (order 2 imports the already-
    registered definition module `Definitions/Def_ModularForm_EisensteinChiNegThree.lean`;
    verify the name and register it if absent). Target **0 mismatched, 0 missing**.
 5. **No commits.** The working tree is the hand-off. Never touch the pin.

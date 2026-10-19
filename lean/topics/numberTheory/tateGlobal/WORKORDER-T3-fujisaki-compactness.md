@@ -28,7 +28,7 @@ already in the port.
 
 **Explicitly not this order.** The tier-1 façade
 (`FLTForHuman/NumberTheory/NumberField/TateGlobalCompactness.lean`), the `SOURCES`/`PORT_FILES`
-wiring, `spec/UNWIRED-PUBLIC.md`, `spec/check_flt_statements.py`, the other rows listed in the
+wiring, `spec/UNWIRED-PUBLIC.md`, `spec/old_check_stmts.py`, the other rows listed in the
 topic's §5.5, and every pin declaration the plan marks as already in the port. No promotion, no
 edit to any existing module.
 
@@ -160,7 +160,7 @@ re-run. Report the declaration and the fix.
 | `#print axioms` on both kernels | `[propext, Classical.choice, Quot.sound]` |
 | `python3 tools/deps/unwired_register.py --check` | report only (do **not** rewrite the register) |
 
-Do **not** run `spec/check_flt_statements.py` and do **not** edit the register. No wiring for
+Do **not** run `spec/old_check_stmts.py` and do **not** edit the register. No wiring for
 this order: the engine is tier 3.
 
 ## 8. Report shape

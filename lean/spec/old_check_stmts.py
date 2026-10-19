@@ -1,5 +1,16 @@
 #!/usr/bin/env python3
-"""Diff every Layer 0 port declaration's *statement* against the pinned FLT source.
+"""LEGACY / FROZEN -- the grandfathered statement checker and its registry.
+
+This checker still decides what is verified from two hand-maintained lists
+(`PORT_FILES`, `SOURCES`).  That does not scale (it is 87 % of this file at 5 % of
+the pin), so it is **frozen**: do not add modules or sources here.  New modules
+wire themselves in their own header with `spec-pin:` and are checked by
+`spec/check_port.py`; a module is removed from `PORT_FILES` when it is handed over.
+The parser functions below (`DECL_RE`, `ENCLOSE_RE`, `norm`, `top_level_cut`) are
+still the single definition of "the same statement" and are imported by the new
+checker and the statement corpus; only the *lists* are retired.
+
+Diff every Layer 0 port declaration's *statement* against the pinned FLT source.
 
 The name/statement check was first run by hand on Layer 0a, and automating it was
 a stated follow-up. This does that: for each declaration in the port, it
@@ -31,7 +42,7 @@ unchanged.
 a listed module wires is checked, but no public declaration is *forced* to be wired —
 a statement with no listed source stays in `spec/UNWIRED-PUBLIC.md`, and its
 `-- pin: <pin name> (<pin file>:<line>)` comment is the exemption. That comment is
-what the register (via `tools/deps/unwired_register.py`) is built from, and it is
+what the register (via `spec/unwired_register.py`) is built from, and it is
 the only record of an unwired declaration's pin source. The checker consults it as
 a fallthrough, never as a way to skip a diff that `SOURCES` can perform:
 
@@ -49,7 +60,7 @@ justify; it never suppresses a statement a listed pin file already provides.
 
 Usage:
 
-    python3 spec/check_flt_statements.py [--flt ~/proj/fermats-last-theorem]
+    python3 spec/old_check_stmts.py [--flt ~/proj/fermats-last-theorem]
 
 Exit status is 0 when every statement matches, 1 otherwise.
 """
@@ -5075,10 +5086,11 @@ PORT_FILES = [
     # match can flip.
     "FLTForHuman/ModularForms/Defs/CohCarrierLevel.lean",
     "FLTForHuman/ModularForms/Defs/CohCarrierLower.lean",
-    # --- WORKORDER-CT1: the triplet's tier-1 façade only (its tier-3 engine
-    # `FLTForHuman/ModularForms/CohCarrier/Engine/CommTriplet.lean` stays unlisted,
-    # registered in `spec/UNWIRED-PUBLIC.md`). Appended last.
-    "FLTForHuman/ModularForms/CohCarrier/CommTriplet.lean",
+    # --- WORKORDER-CT1's triplet has been handed over to `spec/check_port.py`: its
+    # three `Theorems/` wrappers are named by `spec-pin:` lines in
+    # `FLTForHuman/ModularForms/CohCarrier/CommTriplet.lean`, and its tier-3 engine
+    # (`.../Engine/CommTriplet.lean`) stays unlisted, registered in
+    # `spec/UNWIRED-PUBLIC.md`. Do not re-list it here.
     # --- The Petersson definition layer (`peterssonOn`) and the fundamental-domain
     # ground (`goodSet`, the translate-double-counting identities). Both are transcribed
     # verbatim and wired so they stay verified; the deferred exact-volume/L2 surface is in
@@ -5429,7 +5441,7 @@ FIELD_RE = re.compile(r"^\s{2,}([\w'ₐ]+)\s*:", re.MULTILINE)
 # declaration transcribed from the pin carries the pin original on a comment line
 # just above it,
 #     -- pin: gapsw80_t9_completedDedekindZeta (S_..._package.lean:5577)
-# `tools/deps/unwired_register.py` builds the tier-3 register from exactly these
+# `spec/unwired_register.py` builds the tier-3 register from exactly these
 # comments, and they are the only record of an unwired declaration's pin source.
 # The checker reads them for the same reason (see `pin_markers`): a marker naming a
 # pin file that `SOURCES` does not list must not turn into `MISSING IN FLT`, and a

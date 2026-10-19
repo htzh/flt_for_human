@@ -140,7 +140,7 @@ cap and bisect the `simp only` set (playbook §3.5).
 ## 5. Verification gates
 
 1. `cd lean && timeout 180 lake build` — green, no `sorry`/`admit`.
-2. `python3 spec/check_flt_statements.py` — **0 mismatched, 0 missing**; the
+2. `python3 spec/old_check_stmts.py` — **0 mismatched, 0 missing**; the
    identical count is unchanged by this set (the capstone is `OWN_PROOFS`), the
    exempted count rises by one. Confirm no other declaration moved.
 3. `#print axioms` on the conditional capstone — only

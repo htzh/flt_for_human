@@ -138,7 +138,7 @@ short application, not a copy.
 ## 4. Verification gates
 
 1. `cd lean && timeout 180 lake build` — green, no `sorry`/`admit`.
-2. `python3 spec/check_flt_statements.py` — the **verbatim** assembly and the exit
+2. `python3 spec/old_check_stmts.py` — the **verbatim** assembly and the exit
    both identical to their wrappers, **0 mismatched, 0 missing**; the exempted
    count is unchanged at 28 (the conditional stays an own-proof). Mutate one token
    of each and confirm `1 mismatched`, then revert.

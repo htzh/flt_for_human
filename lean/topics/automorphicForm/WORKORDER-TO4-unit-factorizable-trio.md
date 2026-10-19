@@ -133,7 +133,7 @@ v4.34 — use `have`/`let`.
 | tier-0 loop | exit 0, **0 warnings**, no budget option, no `sorry`/`admit`/`axiom`/`native_decide`/bare `import Mathlib` |
 | tier-1 build | green; record jobs and wall/user/sys |
 | parity | all 53 shared names present **once**; the 88 pin declaration groups covered exactly; nothing invented |
-| the three kernels | present, public at `AutomorphicForm.UnitFactorizable.Engine.<name>`, byte-equal to their `Theorems/` wrappers under `check_flt_statements.raw_declarations` |
+| the three kernels | present, public at `AutomorphicForm.UnitFactorizable.Engine.<name>`, byte-equal to their `Theorems/` wrappers under `old_check_stmts.raw_declarations` |
 | the P0 verdict | recorded with its quotation |
 | `python3 tools/deps/unwired_register.py --check` | report only (do **not** rewrite) |
 

@@ -44,7 +44,7 @@ They also have **private rebuilds** in `Genus/Stichtenoth.lean`:
    (`placeInfty_ne_ofHeightOneSpectrum K w`). `eq_ofHeightOneSpectrum_or_eq_placeInfty`
    already matches (implicit `{K : Type*}` on both sides) and needs no change.
    Re-run the checker simulation first; expected `2944 identical / 0 mismatched`.
-2. In `spec/check_flt_statements.py`, append to `SOURCES` the two `Theorems/Thm_*`
+2. In `spec/old_check_stmts.py`, append to `SOURCES` the two `Theorems/Thm_*`
    wrappers **first**, then their pin `S_` sources (the pin repeats the dichotomy
    privately in its first three `S_` files; add the one the wrapper's statement
    lives in — `P2M/Sol/S_AlgebraicCurve_RationalFunctionField_finite_setOf_ord_ne_zero.lean`

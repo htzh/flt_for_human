@@ -36,7 +36,7 @@ dictionary; so does T5. Write it once.
   place. Expose all 17 declarations at their pinned names under
   `AlgebraicCurve.Place`, and let the checker's **dotted fallback** read the pin's
   `private` originals (they need no `OWN_PROOFS` exemption;
-  [SET-1.md](SET-1.md) §5 and `check_flt_statements.py` both describe the fallback).
+  [SET-1.md](SET-1.md) §5 and `old_check_stmts.py` both describe the fallback).
 - **Settled: one copy of the Assembly, not two.** The pin ships the 45-line
   `sum_ramificationIndex_mul_inertiaDeg_fiberOver` assembly **twice** (in the
   `fiberOver` and `le_finrank` files, byte-identical). Write it once, public, in
@@ -286,7 +286,7 @@ choice making the promoted dictionary unusable from T9's context; or a
       verbatim, one copy of the Assembly.
 - [ ] Consumer **Zone C** (dictionary facts + `le_finrank` on an abstract separable
       extension) at 0 errors, with a proved composition.
-- [ ] `spec/check_flt_statements.py`: the three AC wrappers plus the pin's
+- [ ] `spec/old_check_stmts.py`: the three AC wrappers plus the pin's
       `P2M/Sol/S_AlgebraicCurve_Place_sum_ramificationIndex_mul_inertiaDeg_fiberOver.lean`
       (for the dotted fallback) in `SOURCES`; 0 mismatched, 0 missing.
 - [ ] `timeout 90 lake build` green, 0 warnings, no `sorry`.

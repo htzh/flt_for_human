@@ -22,7 +22,7 @@ the capstone.
 | check | result |
 |---|---|
 | `lake build` | **4,107 jobs, 0 warnings, no `sorry`** in `FLTForHuman/` |
-| `spec/check_flt_statements.py` | **1,240 identical (67 promoted), 0 mismatched, 0 missing**, 14 exemptions (1,254 port declarations) — 1,237/1,251 at close; §8 promoted three helpers |
+| `spec/old_check_stmts.py` | **1,240 identical (67 promoted), 0 mismatched, 0 missing**, 14 exemptions (1,254 port declarations) — 1,237/1,251 at close; §8 promoted three helpers |
 | coverage (the §7 recipe of the report) | **remaining 0 nodes, 0 raw, 0 content** |
 | `spec/ModularCurveHeckeConsumer.lean` | **0 errors, 0 warnings**, Zones A–K |
 | `#print axioms ModularCurve.heckeOperatorsCommuteBar` | `[propext, Classical.choice, Quot.sound]` |

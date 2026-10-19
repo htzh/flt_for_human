@@ -311,7 +311,7 @@ Final dispatch only (Q5):
 
 * the façade in `PORT_FILES`; the wrapper and the `S_` file in `SOURCES`, appended
   last;
-* `timeout 300 python3 spec/check_flt_statements.py` — 0 mismatched / 0 missing,
+* `timeout 300 python3 spec/old_check_stmts.py` — 0 mismatched / 0 missing,
   and the `identical` delta equal to the one headline;
 * a one-token mutation on the headline moves exactly one `mismatched`, then revert;
 * `#print axioms` on the headline is `[propext, Classical.choice, Quot.sound]`;
@@ -348,5 +348,5 @@ python3 port_plan.py --json build/arch_ident_advise.json
 cd ..
 python3 tools/deps/unwired_register.py
 cd lean
-timeout 300 python3 spec/check_flt_statements.py
+timeout 300 python3 spec/old_check_stmts.py
 ```

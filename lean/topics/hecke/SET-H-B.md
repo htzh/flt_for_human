@@ -195,13 +195,13 @@ what SET-H-A already did; `Def_ModularCurve_XHDRModelAtP.lean`.
 
 ## 5. Verification
 
-1. Checker: `python3 spec/check_flt_statements.py`; target `0 mismatched /
+1. Checker: `python3 spec/old_check_stmts.py`; target `0 mismatched /
    0 missing`. Baseline before this set is `6365 identical (312 promoted,
    83 renamed), 0 mismatched, 0 missing, 36 own (6401 checked)`; the expected delta
    is the engine's public declarations plus the two headlines. Reconcile every
    count. Verify with a one-token mutation (expect exactly one more `mismatched`)
    and revert.
-2. `python3 spec/check_flt_statements.py --prop-bodies` (advisory): the prelude's
+2. `python3 spec/old_check_stmts.py --prop-bodies` (advisory): the prelude's
    `def … : Prop` bodies (`IsLevel`, `Normalizes`, `RationalSlash`) should diff
    identical.
 3. Consumer: extend `spec/XHConsumer.lean` with a Zone XH-D `[xh-diamondlift]`:

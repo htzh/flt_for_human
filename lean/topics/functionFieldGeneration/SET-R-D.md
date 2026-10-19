@@ -95,7 +95,7 @@ and `python3 tools/deps/build_ladder.py --edit <host>` — the manager decides.
 
 ## 4. Wiring
 
-Per order, in `lean/spec/check_flt_statements.py`:
+Per order, in `lean/spec/old_check_stmts.py`:
 
 * order 1: append `Theorems/Thm_ModularCurve_finrank_adjoin_qExpFunctionFieldC_le_of_valuationSubring.lean`
   to `SOURCES` last; append `"FLTForHuman/ModularCurve/Defs/QExpValuationReduction.lean"`

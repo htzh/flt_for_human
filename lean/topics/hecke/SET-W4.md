@@ -52,7 +52,7 @@ are frozen; FFG/T-side untouched; no commits.
 
 ## 1. Bookkeeping
 
-- `spec/check_flt_statements.py`: reconcile `PORT_FILES` with the final layout — every module
+- `spec/old_check_stmts.py`: reconcile `PORT_FILES` with the final layout — every module
   that now carries a public ported declaration is listed; any module whose *only* public
   content was moved away is removed from `PORT_FILES`. Confirm the `identical` count moves
   only by the deliberately demoted declarations, which are listed in the report; a drop of
@@ -68,7 +68,7 @@ are frozen; FFG/T-side untouched; no commits.
 ```bash
 cd lean
 timeout 180 lake build                       # green, 0 warnings, no sorry
-python3 spec/check_flt_statements.py         # 0 mismatched, 0 missing; identical accounted for
+python3 spec/old_check_stmts.py         # 0 mismatched, 0 missing; identical accounted for
 timeout 120 lake env lean spec/WeightOneConsumer.lean
 cd ../tools/deps && python3 port_graph.py --blocks 5 --no-json   # no block over threshold
 ```

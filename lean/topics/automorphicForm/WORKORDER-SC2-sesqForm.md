@@ -209,4 +209,4 @@ lines). The shelf still reads 91 candidates; the new head is
 and `AlgebraicCurve.residue_norm_eq_norm_residue_of_retraction` (697).
 
 Files changed: `FLTForHuman/AutomorphicForm/Adelic/PeterssonSlabPairing.lean`,
-`spec/check_flt_statements.py`, `spec/UNWIRED-PUBLIC.md`.
+`spec/old_check_stmts.py`, `spec/UNWIRED-PUBLIC.md`.

@@ -229,7 +229,7 @@ this order avoids both.
 | `git status` | only the two new modules, the register and the checker wiring |
 
 The checker's mutation sensitivity is the instrument's own test
-(`python3 spec/check_flt_statements.py --selftest`), not a per-set manual mutation; run it
+(`python3 spec/old_check_stmts.py --selftest`), not a per-set manual mutation; run it
 only if you touch the checker.
 
 ## 8. Report shape

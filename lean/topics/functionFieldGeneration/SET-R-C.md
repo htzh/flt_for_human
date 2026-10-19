@@ -75,7 +75,7 @@ If a promotion seems genuinely required, **stop and report** with the host and
 
 ## 4. Wiring
 
-In `lean/spec/check_flt_statements.py`:
+In `lean/spec/old_check_stmts.py`:
 
 * order 1: append the wrapper
   (`Theorems/Thm_ModularCurve_finrank_adjoin_jqModC_laurentBaseChange_qExpFunctionFieldC_le_index.lean`)
@@ -139,5 +139,5 @@ different statement).
 dropped the attribute; order 1 re-supplied it locally. Follow up in the refactor
 round if the promoted engine is ever used for another `finrank` goal.
 
-Working tree: the two modules added, `spec/check_flt_statements.py` +46 wiring;
+Working tree: the two modules added, `spec/old_check_stmts.py` +46 wiring;
 no hub edited, nothing committed.

@@ -279,7 +279,7 @@ module edited.**
 
 **Parity.** All 89 pin declarations present **exactly once**, 0 duplicates, nothing invented; the
 only extra base name is the kernel (pin `solution` renamed to the wrapper's name). Kernel
-statement byte-equal to the `Theorems/` wrapper under `check_flt_statements.raw_declarations`.
+statement byte-equal to the `Theorems/` wrapper under `old_check_stmts.raw_declarations`.
 `port_advise` reads 89 groups and **0 tier-1 substitutions**; `port_plan` once-cost 1,492. The
 `box → Q09AIarchG.detLocus` row stayed **suspect and unused**; `box` is transcribed privately.
 The five `private scoped instance`s are in `ArchimedeanIsometryGroup`, none globalised.
@@ -313,5 +313,5 @@ by `EisensteinGeneral.LocalRam.integral_twisted_smooth_eq` (864).
 `FLTForHuman/AutomorphicForm/Adelic/ArchKFiniteFamily.lean`,
 `FLTForHuman/AutomorphicForm/Adelic/ArchKFiniteFamilyTheorems.lean`,
 `topics/automorphicForm/WORKORDER-KF1-kfinite-family-span.md`. Edited:
-`spec/check_flt_statements.py`, `spec/UNWIRED-PUBLIC.md`. (`topics/PORTING-DeligneSerre.md` shows
+`spec/old_check_stmts.py`, `spec/UNWIRED-PUBLIC.md`. (`topics/PORTING-DeligneSerre.md` shows
 as modified in `git status` but is a pre-existing edit, not this order's.)

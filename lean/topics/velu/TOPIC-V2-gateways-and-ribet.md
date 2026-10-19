@@ -145,7 +145,7 @@ from lower modules.
 
 Checker wiring, per set, at the two spec files only (never a library module):
 
-- `spec/check_flt_statements.py`: append the set's new modules to `PORT_FILES`
+- `spec/old_check_stmts.py`: append the set's new modules to `PORT_FILES`
   **last**; append the pin statement sources to `SOURCES` **last** — the
   `Theorems/Thm_<stem>.lean` wrapper for every headline *and* every non-`solution`
   declaration, and the pin `S_` file for the helper declarations that the wrappers
@@ -220,7 +220,7 @@ Consequences, binding:
 Baseline for the progress metric (2026-10-06, warm tree):
 
 ```
-$ python3 spec/check_flt_statements.py
+$ python3 spec/old_check_stmts.py
 5750 statements identical (312 promoted from pin-private declarations), 0 mismatched,
 0 missing, 36 own-proof declarations exempted (5786 port declarations checked)
 $ flock .lake/flt_build.lock bash -c 'time lake build'      # 9294 jobs, green, 13.6 s
@@ -525,7 +525,7 @@ no `sorry`; deleting any one module must make the file fail. Suggested zones:
 
 - `lake env lean` clean per module; `lake build` per module; then one wave
   `lake build` over the four modules (bounded, `flock`ed).
-- `python3 spec/check_flt_statements.py` → `0 mismatched / 0 missing`; record the
+- `python3 spec/old_check_stmts.py` → `0 mismatched / 0 missing`; record the
   `identical` before → after delta (baseline `5750`) and reconcile it against the
   new public surface. A mismatch is a bug, not a drift to accept.
 - The checker's own sanity probe: mutate one token in a transcribed statement,
@@ -803,7 +803,7 @@ the new `spec/IsogenyEndDatumConsumer.lean`.
 
 - `lake env lean` clean per module; `lake build` per module; then one wave build
   over the reconciliation + the five modules (bounded, `flock`ed).
-- `python3 spec/check_flt_statements.py` → `0 mismatched / 0 missing`; record the
+- `python3 spec/old_check_stmts.py` → `0 mismatched / 0 missing`; record the
   `identical` delta. The reconciliation is expected to move it by +2 (the two AC
   promotions) and the four aliases by +4; reconcile the rest against the two
   headlines' public surface.

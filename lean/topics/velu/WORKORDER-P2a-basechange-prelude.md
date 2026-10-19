@@ -153,7 +153,7 @@ This module imports the 16 MB `LevelField`/`WeightOne` oleans through
   `Theorems/Thm_WeierstrassCurve_Affine_exists_algHom_functionField_baseChange_finrankAlong_eq.lean`
   and the two `S_` files of §2.1 and §2.3. (D-1 draws nothing from `siloBC` that the
   other three do not also carry; if a declaration forces `siloBC`, add it too and say so.)
-- `python3 spec/check_flt_statements.py` → **0 mismatched / 0 missing**. Baseline
+- `python3 spec/old_check_stmts.py` → **0 mismatched / 0 missing**. Baseline
   `5869 identical (313 promoted, 5 renamed), 0 mismatched, 0 missing, 36 own, 5905 checked`.
   Reconcile the delta against §2 (it is the count of §2 declarations that the checker
   had not already seen; a mismatch is a bug).

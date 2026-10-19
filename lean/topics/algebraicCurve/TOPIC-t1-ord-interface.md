@@ -247,7 +247,7 @@ choice between two AC declarations with the same last name.
       (`placeSubalgebra`, `mem_placeSubalgebra`, `valuationSubring_integers`,
       `le_exp_neg_one_of_lt_one` — or their equivalents).
 - [ ] Consumer **Zone B** at 0 errors, with the cross-module wire test proved.
-- [ ] `spec/check_flt_statements.py`: the 19 AC wrappers in `SOURCES`; line
+- [ ] `spec/old_check_stmts.py`: the 19 AC wrappers in `SOURCES`; line
       `N identical, 0 mismatched, 0 missing`.
 - [ ] `timeout 90 lake build` green, 0 warnings, no `sorry`.
 - [ ] `logs/ac-port.md` T1 section: the **interface table**

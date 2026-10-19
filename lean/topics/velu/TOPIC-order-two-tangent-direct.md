@@ -62,7 +62,7 @@ transcribed from the pin's
   (`https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/P2M/Sol/S_WeierstrassCurve_velu2_tangent_negAddY_cleared_identity.lean`)
 
 Only the *statement* is pinned (and it is untouched by this work, so
-`spec/check_flt_statements.py` is unaffected). The *proof* is a hand-written
+`spec/old_check_stmts.py` is unaffected). The *proof* is a hand-written
 `linear_combination` whose arguments are enormous polynomials written out
 monomial by monomial — the largest single argument runs to tens of thousands of
 characters, and the pin itself needs `set_option maxHeartbeats 16000000` and
@@ -246,7 +246,7 @@ and its characteristic-$`2`$ corner, disappear.
    was in the *nine* private lemmas, each restating the expanded $`T_{\text{sec}}`$.
    The Vieta proof of §4′ replaced all of them by two short-statement lemmas, at
    **29.3 MiB / 23 s**. Statements unchanged throughout
-   (`spec/check_flt_statements.py`: 9791 identical).
+   (`spec/old_check_stmts.py`: 9791 identical).
 2. **`Velu/OrderTwoMap` (596 MB, 728 s) — target (c) landed; (a), (b)
    diagnosed.** Attribution by prefix compiles with `-o`, each inside the
    2-minute cap. The original ladder:

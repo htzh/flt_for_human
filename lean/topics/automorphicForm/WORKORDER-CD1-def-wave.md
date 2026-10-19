@@ -127,7 +127,7 @@ Each port module:
 | declaration counts per module | 14 / 21 / 45 (10 private) / 24 (18 private), matching the pin |
 | `git status` | only the four new modules (+ anything under `tmp/`) |
 
-Do **not** run the statement checker and do **not** edit `spec/check_flt_statements.py`.
+Do **not** run the statement checker and do **not** edit `spec/old_check_stmts.py`.
 
 ## 8. Stop conditions (report, do not work around)
 

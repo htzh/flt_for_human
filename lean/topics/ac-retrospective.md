@@ -22,7 +22,7 @@ with no schemes, no curve axiom, and mathlib as the only dependency.
 | check | result |
 |---|---|
 | `lake build` | **4,034 jobs, 0 warnings, no `sorry`** in `FLTForHuman/` |
-| `spec/check_flt_statements.py` | **618 identical (34 promoted from pin-`private`), 0 mismatched, 0 missing**, 14 exemptions (632 port declarations) |
+| `spec/old_check_stmts.py` | **618 identical (34 promoted from pin-`private`), 0 mismatched, 0 missing**, 14 exemptions (632 port declarations) |
 | `spec/AlgebraicCurveConsumer.lean` | **0 errors**, Zones A–J, with a real cross-module composition per zone |
 | `#print axioms` on the capstone, the local exchange, the bifibre count, `hasPrincipalDivisors_of_transcendental`, the two generic engine lemmas, the interface leaves | `[propext, Classical.choice, Quot.sound]` |
 | commits | none — the working tree is the hand-off |

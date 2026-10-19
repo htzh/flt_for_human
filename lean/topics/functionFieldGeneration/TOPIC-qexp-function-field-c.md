@@ -46,7 +46,7 @@ Everything mathematical and every statement comes from the pin, not from this po
   (`modularFunctionFieldFullC` line 100).
 
 The port keeps FLT's names, so every declaration below is searched by last name in
-`spec/check_flt_statements.py`; a node whose statement exists is verified, and only
+`spec/old_check_stmts.py`; a node whose statement exists is verified, and only
 genuinely own declarations need `OWN_PROOFS`.
 
 ## 2. The measured cone
@@ -190,7 +190,7 @@ in the library. At the end:
 
 - [ ] `qExpFunctionFieldC_rat_gamma0_eq_modularFunctionFieldFull` in a library module,
       statement verbatim from the wrapper, in the default build target.
-- [ ] `spec/check_flt_statements.py`: 0 mismatched / 0 missing, with `SOURCES` gaining
+- [ ] `spec/old_check_stmts.py`: 0 mismatched / 0 missing, with `SOURCES` gaining
       the five wrappers the target's `S_` file imports and the `C`-layer wrappers; the
       three definitions verified against their `Def_` files; any own declaration on an
       explicit `OWN_PROOFS` entry with a reason.
@@ -206,7 +206,7 @@ in the library. At the end:
 ```bash
 cd lean
 flock -n /tmp/flt-build.lock timeout 240 lake build <module>      # tier 1, per module
-python3 spec/check_flt_statements.py                              # 0/0
+python3 spec/old_check_stmts.py                              # 0/0
 flock -n /tmp/flt-build.lock timeout 300 lake env lean spec/ModularCurveConsumer.lean
 cd ../tools/deps && python3 frontier.py --target ModularCurve.qExpFunctionFieldC_rat_gamma0_eq_modularFunctionFieldFull --no-rank
 ```

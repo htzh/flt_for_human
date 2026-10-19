@@ -101,7 +101,7 @@ with the declaration, host, reason, and `python3 tools/deps/build_ladder.py
 
 ## 4. Wiring
 
-In `lean/spec/check_flt_statements.py`:
+In `lean/spec/old_check_stmts.py`:
 
 * append to `SOURCES` **last**: the relrank `S_` file
   (`P2M/Sol/S_ModularCurve_le_relrank_xHFunctionField_xHTopFunctionFieldC_of_not_dvd.lean`)
@@ -157,4 +157,4 @@ to survive. `expandInt` reused the ported `HeckeInputsHAll.expandInt`; `AÎ“`/`BÎ
 names after reading both copies. Binder-spelling rows (`levelRaise`, `coeffMap_qExpand`,
 `coeffEmb_intSeriesC`, `isIntegralQExp_const`, `one_mem_strictPeriods`) took the
 pin's binders. Working tree: `Relrank.lean` added, `RationalityDvd.lean` cleaned,
-`spec/check_flt_statements.py` +24 wiring; no hub edited, nothing committed.
+`spec/old_check_stmts.py` +24 wiring; no hub edited, nothing committed.

@@ -91,7 +91,7 @@ conclusion with `.1`, and so on).
 * **Stop and report** if a kernel's statement cannot be matched to its wrapper, if `Slot.lean`
   cannot be kept free of a `Bridge.lean` dependency inversion, or if a block is not self-contained
   against the six definition modules + mathlib.
-* Do not touch `spec/check_flt_statements.py`, `spec/UNWIRED-PUBLIC.md`, the definition modules, or
+* Do not touch `spec/old_check_stmts.py`, `spec/UNWIRED-PUBLIC.md`, the definition modules, or
   any other existing module. The engine modules stay **tier 3** (not listed in `PORT_FILES`).
 
 ## 5. Build discipline (copy in, verbatim)
@@ -123,7 +123,7 @@ it), fix the inference, and re-run. Report the declaration and the fix.
 | the five `ModularCurve.TateCurve.*` kernels | present, public, statements equal to their `Theorems/` wrappers |
 | `python3 tools/deps/unwired_register.py --check` | report only (do **not** rewrite the register) |
 
-Do **not** run `spec/check_flt_statements.py` and do **not** edit the register. No wiring for this
+Do **not** run `spec/old_check_stmts.py` and do **not** edit the register. No wiring for this
 order: the engines are tier 3.
 
 ## 7. Report shape

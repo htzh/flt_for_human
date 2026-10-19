@@ -139,7 +139,7 @@ that each home's lifted block be the *canonical* copy, not a paraphrase.
 1. Public statements keep their names and binder spelling (the checker diffs text, §7.4);
    only proofs and `private` helpers move.
 2. Specific imports; no `import Mathlib` in a library module.
-3. A new home is added to `PORT_FILES` in `spec/check_flt_statements.py` **only** for the
+3. A new home is added to `PORT_FILES` in `spec/old_check_stmts.py` **only** for the
    public declarations it carries; a demoted helper drops out of the compared count by
    exactly the number demoted — check that the total moves as expected, never silently.
 4. `README.md` rows are updated for new/renamed modules; the set/log files are the
@@ -189,7 +189,7 @@ wall-clock bound is the protection.
   threshold).
 - Generic subjects live outside `WeightOne/`.
 - `timeout 180 lake build` green, 0 warnings, no `sorry`/`admit`.
-- `python3 spec/check_flt_statements.py`: 0 mismatched, 0 missing (the identical count may
+- `python3 spec/old_check_stmts.py`: 0 mismatched, 0 missing (the identical count may
   fall only by deliberate demotions, which are listed).
 - `lake env lean spec/WeightOneConsumer.lean` exit 0.
 - `#print axioms` on the six Γ₁/Γ₀ headlines and the capstone unchanged

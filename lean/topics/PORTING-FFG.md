@@ -175,7 +175,7 @@ graph: **70 nodes**, of which **26 cite no FLT theorem at all** and **0** are
 `AlgebraicCurve` — it sits at the floor of FLT's arithmetic tower — with **500
 direct citers** and **5,804 transitive dependents** (19.7% of the 29,511 theorem
 nodes), all outbound. A wrong *statement* here is maximally expensive and a wrong
-*proof* maximally cheap to replace, which is why `spec/check_flt_statements.py` and
+*proof* maximally cheap to replace, which is why `spec/old_check_stmts.py` and
 `#print axioms` are the highest-value things the port has built.
 
 **The tier, by total indegree over the 70-node cone.** The nine public interface
@@ -321,7 +321,7 @@ lean/FLTForHuman/FieldTheory/CommonRoot.lean   -- the three generic engine lemma
 lean/FLTForHuman/ModularForms/                 -- the Φ_p cone's analytic area
 lean/spec/
   ModularCurveConsumer.lean      -- the consumer; outside every library
-  check_flt_statements.py        -- diffs every port statement against the pin
+  old_check_stmts.py        -- diffs every port statement against the pin
 ```
 
 `Defs/` is the shared **X₀(N) vocabulary** any later `ModularCurve` theory would
@@ -982,6 +982,6 @@ reference. The closing cost record is §7.8's T20 row and
   T15–T20 should keep accumulating there.
 - **Transcription risk.** Declarations must be transcribed verbatim in shape
   (names, argument order, instances) or `#check` correspondence fails. This is
-  mechanically checked: `spec/check_flt_statements.py` diffs every port statement
+  mechanically checked: `spec/old_check_stmts.py` diffs every port statement
   against the pinned source — **297 of 297 identical, 0 mismatched, 0 missing** —
   and the consumer's cross-module compositions are the runtime wire test.

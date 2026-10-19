@@ -91,4 +91,4 @@ Adaptations (proof-level, statements unchanged):
 
 Wiring: the wrapper and the `S_` file appended last to `SOURCES`; `NumberTheory/LSeries/Landau.lean`
 appended last to `PORT_FILES`. Files changed: `FLTForHuman/NumberTheory/LSeries/Landau.lean` (new),
-`spec/check_flt_statements.py`.
+`spec/old_check_stmts.py`.

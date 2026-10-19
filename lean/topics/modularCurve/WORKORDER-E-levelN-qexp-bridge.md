@@ -82,7 +82,7 @@ no hub wave: the whole set is one new file plus the checker wiring.
 ## 4. The definition layer
 
 Hand-checked, declaration by declaration, per the column's §4(a). Both pin `S_` files import the
-same eight pin modules, and **all eight are already wired** in `spec/check_flt_statements.py`:
+same eight pin modules, and **all eight are already wired** in `spec/old_check_stmts.py`:
 
 * `Def_ModularCurve_LevelNFunctionField` (L2694) — subject A's layer, whole, at
   `ModularCurve/LevelN/FunctionField.lean`;
@@ -145,7 +145,7 @@ python3 port_advise.py \
   --json build/levelN_advise.json
 python3 port_plan.py --json build/levelN_advise.json
 cd ../lean
-timeout 300 python3 spec/check_flt_statements.py
+timeout 300 python3 spec/old_check_stmts.py
 flock .lake/flt_build.lock timeout 900 lake build
 ```
 

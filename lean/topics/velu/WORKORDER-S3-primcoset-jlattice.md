@@ -3,7 +3,7 @@
 **Status: drafted 2026-10-07; the node cites no row node (leaf, 0 premises), but S-2 lands two
 lemmas this file also carries (`kw_scale_lattice_toAddSubgroup`, `kwSublatticeIndex_scale`,
 byte-identical statements — verified), so dispatch after S-2 lands and **import** them rather
-than redeclare; the shared `check_flt_statements.py` / log edits also serialize.** Third set of
+than redeclare; the shared `old_check_stmts.py` / log edits also serialize.** Third set of
 row S; reconnaissance is [TOPIC-V5-row-S-scoping.md](TOPIC-V5-row-S-scoping.md) §2.3 and §5.4,
 re-measured here. Pin `anthropics/fermats-last-theorem@aa2d8b3`; port mathlib `v4.34.0`.
 Depends only on landed sets: P-SET-1/P-SET-2
@@ -190,7 +190,7 @@ two forbidden modules. Keep the tree green.
 
 - `lake env lean` clean; `lake build` both modules; one `flock`ed wave build; whole-tree
   `lake build` green.
-- `python3 spec/check_flt_statements.py` → **0 mismatched / 0 missing**. Baseline at drafting
+- `python3 spec/old_check_stmts.py` → **0 mismatched / 0 missing**. Baseline at drafting
   (after S-1): `6074 statements identical (313 promoted, 83 renamed), 0 mismatched, 0 missing,
   36 own-proof declarations exempted (6110 checked)` — but **re-run it at dispatch**: S-2 will
   have moved it. Reconcile every delta.

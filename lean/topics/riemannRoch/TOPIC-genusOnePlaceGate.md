@@ -161,7 +161,7 @@ Predicted non-events: no new mathlib gap in the RR basis family; no instance dia
 1. Edit loop per file:
    `lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false <file>` (≤ 90 s).
 2. `lake build <module>` when a file compiles (serialize with `flock`).
-3. `python3 spec/check_flt_statements.py` after SOURCES/PORT_FILES are extended —
+3. `python3 spec/old_check_stmts.py` after SOURCES/PORT_FILES are extended —
    target `0 mismatched / 0 missing`.
 4. `lake env lean spec/WeierstrassCurveConsumer.lean` with the new zones — exit 0.
 5. `#print axioms` on the headline — `[propext, Classical.choice, Quot.sound]`.

@@ -174,7 +174,7 @@ in a way that needs the `Inputs` type to change rather than shrink.
 - [x] `lake build` green, 0 warnings, no `sorry`.
 - [x] `#print axioms` on `functionFieldGeneration_of` still only `propext,
       Classical.choice, Quot.sound`.
-- [x] `spec/check_flt_statements.py`: the nine wrappers added to `SOURCES`, the
+- [x] `spec/old_check_stmts.py`: the nine wrappers added to `SOURCES`, the
       verified count up (137 → 146), `OWN_PROOFS` unchanged, 0 mismatched.
 - [x] Consumer unchanged except its count prose if it states one (it should still
       be 0 errors, one `sorry`).

@@ -331,7 +331,7 @@ flock .lake/flt_build.lock timeout 300 lake build \
     FLTForHuman.ModularForms.CohCarrier.Engine.CommTriplet               # background job
 flock .lake/flt_build.lock timeout 300 lake build \
     FLTForHuman.ModularForms.CohCarrier.CommTriplet                      # background job
-python3 spec/check_flt_statements.py                                   # 9857 identical
+python3 spec/old_check_stmts.py                                   # 9857 identical
 python3 tools/deps/unwired_register.py                                 # register (tier 3)
 ```
 

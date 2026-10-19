@@ -340,7 +340,7 @@ be copied), and the port's `coeffEmb_qExpand` takes the field explicitly — cal
       them with their pin lines.
 - [ ] `lake build` green, 0 warnings, no `sorry`.
 - [ ] `#print axioms` clean on all four public declarations.
-- [ ] `spec/check_flt_statements.py`: four wrappers added, 233 → 237, 0
+- [ ] `spec/old_check_stmts.py`: four wrappers added, 233 → 237, 0
       mismatched; `PORT_FILES` gains the two modules.
 - [ ] the capstone wire from §5.4 recorded, green in Zone K, with a note that the
       consumer's remaining `sorry` is the FFG `Inputs` gap.

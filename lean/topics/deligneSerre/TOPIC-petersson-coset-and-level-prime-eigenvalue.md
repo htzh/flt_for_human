@@ -348,7 +348,7 @@ python3 - <<'EOF'
 import importlib.util, sys
 from pathlib import Path
 from collections import defaultdict
-spec = importlib.util.spec_from_file_location("chk", "lean/spec/check_flt_statements.py")
+spec = importlib.util.spec_from_file_location("chk", "lean/spec/old_check_stmts.py")
 chk = importlib.util.module_from_spec(spec); sys.modules["chk"] = chk; spec.loader.exec_module(chk)
 pin = Path.home() / "proj" / "fermats-last-theorem"
 eng = chk.raw_declarations(Path("lean/FLTForHuman/ModularForms/Analytic/PeterssonHecke.lean").read_text())
@@ -370,9 +370,9 @@ lake env lean -DautoImplicit=false -DmaxHeartbeats=200000 \
 lake env lean -DautoImplicit=false -DmaxHeartbeats=200000 \
     FLTForHuman/ModularForms/Analytic/NormSqPow.lean
 flock .lake/flt_build.lock timeout 300 lake build FLTForHuman.ModularForms.Analytic.NormSqPow
-python3 spec/check_flt_statements.py          # +128 identical, 0 mismatched / 0 missing
+python3 spec/old_check_stmts.py          # +128 identical, 0 mismatched / 0 missing
 python3 tools/deps/unwired_register.py --check
-python3 spec/check_flt_statements.py --selftest
+python3 spec/old_check_stmts.py --selftest
 ```
 
 Closing: `#print axioms CuspForm.norm_sq_eq_pow_of_qCoeff_mul_eq_of_not_factorsThrough`

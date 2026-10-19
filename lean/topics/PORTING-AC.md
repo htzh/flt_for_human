@@ -741,7 +741,7 @@ The instruments are the ones FFG built; nothing new is required.
 
 ### 7.1 The statement checker
 
-`spec/check_flt_statements.py` currently diffs 293 FFG declarations against the
+`spec/old_check_stmts.py` currently diffs 293 FFG declarations against the
 pin. The AC effort appends its `Theorems/Thm_AlgebraicCurve_*.lean` wrappers to
 `SOURCES` — most of the 63 AC nodes have one, as do the two generic engine nodes
 (`Theorems/Thm_MulAction_ncard_orbit_inter_orbit_mul_card.lean`,

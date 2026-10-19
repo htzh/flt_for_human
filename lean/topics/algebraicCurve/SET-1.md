@@ -161,7 +161,7 @@ against the pinned mathlib:
   So `PORTING-AC.md` §8 risk 4's "write against the new API from the first
   declaration" is **not a drop-in rename**: the new `Ideal.inertiaDeg` and the new
   sum theorem changed argument order and statement shape. **Statements stay the
-  pin's** (so `spec/check_flt_statements.py` remains an exact textual diff); the
+  pin's** (so `spec/old_check_stmts.py` remains an exact textual diff); the
   affected modules carry `set_option linter.deprecated false` with a one-line
   reason, and the *proofs* are migrated to the new lemmas. This decision and its
   evidence go in `logs/ac-port.md`; the follow-up (migrate the statements and let
@@ -184,7 +184,7 @@ every topic in this run:
 2. `timeout 60 lake env lean spec/AlgebraicCurveConsumer.lean` reports the
    zone's expected error count, and the zone's wire test is a real (not
    `sorry`-terminated) composition.
-3. `python3 spec/check_flt_statements.py` reports **0 mismatched, 0 missing**, with
+3. `python3 spec/old_check_stmts.py` reports **0 mismatched, 0 missing**, with
    the topic's wrappers (and definition files where needed) appended to `SOURCES`
    and any port-authored declaration named in the topic's work order added to
    `OWN_PROOFS` with a reason.
@@ -216,7 +216,7 @@ every topic in this run:
   - **D `[exchange]`** (after T4, closed by the human's T7) and **E `[principal]`**
     (after T9) are SET 2's and the human's. Leave the file compiling at 0 errors
     with only deliberately documented `sorry`s.
-- **`spec/check_flt_statements.py`** — the `norm` function currently strips only
+- **`spec/old_check_stmts.py`** — the `norm` function currently strips only
   `ModularCurve.`; AC0 must also strip `AlgebraicCurve.`. Append the topic's
   `Theorems/Thm_AlgebraicCurve_*.lean` wrappers to `SOURCES`, and for the
   definition modules append `Definitions/Def_AlgebraicCurve_*.lean` (the checker

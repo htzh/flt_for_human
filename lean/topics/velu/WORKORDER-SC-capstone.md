@@ -65,7 +65,7 @@ gate producer, `Field.nonempty_ringHom_complex_of_countable K₀`, `complexCase`
 `FLTForHuman/FieldTheory/NonemptyRingHomComplex.lean` exist and elaborate clean
 (`lake env lean`, exit 0) at the wrapper statements. What remains of SC is the capstone module
 and the wiring of all three into `SOURCES`/`PORT_FILES` — but the wiring edits
-`check_flt_statements.py`, so it waits until no other set is editing that file.
+`old_check_stmts.py`, so it waits until no other set is editing that file.
 
 1. **`FLTForHuman/Elliptic/PeriodPair/VariableChange.lean`** — *landed*. The `variableChange`
    leaf at its pin name in `PeriodPair`; imports `Elliptic/PeriodPair/JLine` and
@@ -137,7 +137,7 @@ environment still clashes, stop and report (do not rename anything).
 
 - `lake env lean` clean; `lake build` the three modules; one `flock`ed wave; whole-tree
   `lake build` green.
-- `python3 spec/check_flt_statements.py` → **0 mismatched / 0 missing**. **Re-run at dispatch**;
+- `python3 spec/old_check_stmts.py` → **0 mismatched / 0 missing**. **Re-run at dispatch**;
   S-2/S-3/S-4 have moved the baseline: at dispatch it is
   `6219 statements identical (312 promoted, 83 renamed), 0 mismatched, 0 missing, 36 own
   (6255 port declarations checked)`.

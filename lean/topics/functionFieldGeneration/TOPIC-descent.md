@@ -85,7 +85,7 @@ content is only the tail — §2 measures it at ~173 lines, not 325, and far bel
 the §7.8 row's `~350`, which was priced from the file size before T14 landed.
 
 **Settled: the two ports are the pin's statements, verbatim.** Both nodes have
-`Theorems/` wrappers, so `spec/check_flt_statements.py` verifies them by direct
+`Theorems/` wrappers, so `spec/old_check_stmts.py` verifies them by direct
 name match rather than exempting them, even though the pin keeps them `private`
 in the `S_` file and exports them through `solution`.
 

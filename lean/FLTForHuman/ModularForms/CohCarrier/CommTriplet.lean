@@ -1,5 +1,7 @@
 /-
-  The three commuting-operator leaves of the `CohCarrier` layer, tier 1:
+  The three commuting-operator leaves of the `CohCarrier` layer, owned by
+  `spec/check_port.py` (handed off from the frozen `old_check_stmts.py`, so this is
+  the first module the new checker owns):
   `heckeT` commutes with the diamond action, `heckeT` at a prime commutes with
   `heckeT` at a coprime level, and two diamond actions commute.
 
@@ -15,6 +17,14 @@
   checker's comparable copies, line 9 of each); the wrappers' `attribute
   [-instance] CohCarrier.GammaHLower_finiteIndex` / `attribute [-simp] …uMat_apply_*`
   prelude is deliberately not reproduced — the port keeps those global.
+
+  Wire (`spec/check_port.py`): the three wrappers are the statement authority and
+  are the whole public surface of this module, so every public declaration below
+  is diffed against the file its `-- pin:` line names.
+
+  spec-pin: Theorems/Thm_CohCarrier_heckeT_diamondRaw_comm.lean
+  spec-pin: Theorems/Thm_CohCarrier_heckeT_comm_of_prime.lean
+  spec-pin: Theorems/Thm_CohCarrier_diamondRaw_comm.lean
 -/
 import FLTForHuman.ModularForms.CohCarrier.Engine.CommTriplet
 
@@ -22,7 +32,7 @@ set_option autoImplicit false
 
 namespace CohCarrier
 
--- pin: `CohCarrier.heckeT_diamondRaw_comm` (Theorems/Thm_CohCarrier_heckeT_diamondRaw_comm.lean:9)
+-- pin: CohCarrier.heckeT_diamondRaw_comm (Theorems/Thm_CohCarrier_heckeT_diamondRaw_comm.lean:9)
 theorem heckeT_diamondRaw_comm (M : ℕ) (H : Subgroup (ZMod M)ˣ) (ℓ : ℕ) [NeZero ℓ]
     (σ : CongruenceSubgroup.Gamma0 M)
     (hσ : ((ℓ * M : ℕ) : ℤ) ∣ (σ : Matrix.SpecialLinearGroup (Fin 2) ℤ) 1 0)
@@ -30,13 +40,13 @@ theorem heckeT_diamondRaw_comm (M : ℕ) (H : Subgroup (ZMod M)ˣ) (ℓ : ℕ) [
     heckeT M H ℓ V (diamondRaw M H V σ F) = diamondRaw M H V σ (heckeT M H ℓ V F) :=
   IharaSolComm.heckeDiamond_impl M H ℓ σ hσ V F
 
--- pin: `CohCarrier.heckeT_comm_of_prime` (Theorems/Thm_CohCarrier_heckeT_comm_of_prime.lean:9)
+-- pin: CohCarrier.heckeT_comm_of_prime (Theorems/Thm_CohCarrier_heckeT_comm_of_prime.lean:9)
 theorem heckeT_comm_of_prime (M : ℕ) (H : Subgroup (ZMod M)ˣ) (ℓ ℓ' : ℕ) [NeZero ℓ] [NeZero ℓ']
     (hℓ : ℓ.Prime) (hcop : Nat.Coprime ℓ ℓ') {V : Type} [AddCommGroup V] (F : H1 M H V) :
     heckeT M H ℓ V (heckeT M H ℓ' V F) = heckeT M H ℓ' V (heckeT M H ℓ V F) :=
   IharaSolComm.commPrime_impl M H ℓ ℓ' hℓ hcop V F
 
--- pin: `CohCarrier.diamondRaw_comm` (Theorems/Thm_CohCarrier_diamondRaw_comm.lean:9)
+-- pin: CohCarrier.diamondRaw_comm (Theorems/Thm_CohCarrier_diamondRaw_comm.lean:9)
 theorem diamondRaw_comm (M : ℕ) (H : Subgroup (ZMod M)ˣ) (σ σ' : CongruenceSubgroup.Gamma0 M)
     {V : Type} [AddCommGroup V] (F : H1 M H V) :
     diamondRaw M H V σ (diamondRaw M H V σ' F) = diamondRaw M H V σ' (diamondRaw M H V σ F) :=

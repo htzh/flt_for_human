@@ -73,7 +73,7 @@ topic against the other work:
 - **0 of the 27 nodes are in the port.** `frontier.py` reports `needed 27 / 2,759`
   with no path to the frontier (hops `–`): the whole cone is from scratch. The five
   externals are all unported, all three definition modules are unregistered in
-  `spec/check_flt_statements.py`, and there is no
+  `spec/old_check_stmts.py`, and there is no
   `FLTForHuman/ModularForms/EichlerShimura/` directory. So the ~3,400-line estimate
   is the entire price, not a remainder.
 - **It is on the driver's critical path.** 13 of the 27 nodes / 1,704 lines lie

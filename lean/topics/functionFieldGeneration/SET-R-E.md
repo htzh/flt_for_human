@@ -96,7 +96,7 @@ with the declaration, host, reason and
 
 ## 4. Wiring
 
-Per order, in `lean/spec/check_flt_statements.py`, appending **last** so no earlier
+Per order, in `lean/spec/old_check_stmts.py`, appending **last** so no earlier
 last-name match can flip:
 
 * order 1: `P2M/Sol/S_ModularCurve_finrank_adjoin_jqModC_qExpFunctionFieldC_le_index_of_isAlgClosed.lean`

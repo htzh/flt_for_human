@@ -85,7 +85,7 @@ other seventeen `LocalIntertwining` nodes, and **any edit to an existing module*
 **Stop and report** when: a needed declaration is `private` in a frozen module (name it — the manager
 promotes it); a fix needs an edit to any existing module (name the host and the `build_ladder.py --edit`
 price); a declaration cannot fit the low cap after a genuine instance-inference fix; or a statement's
-binders cannot be taken from the wrapper. Do not touch `spec/check_flt_statements.py`, do not add to
+binders cannot be taken from the wrapper. Do not touch `spec/old_check_stmts.py`, do not add to
 `SOURCES`/`PORT_FILES`, do not edit the three `Weyl*` modules.
 
 ## 8. Report shape

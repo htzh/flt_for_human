@@ -90,7 +90,7 @@ file is public surface, which is why `port_advise`'s drags section reports a pub
 surface of 21 and a same-file closure that adds nothing.
 
 `shared` below is statement identity through the checker's own normaliser
-(`check_flt_statements.raw_declarations`), not by eye; see §12 for the scan.
+(`old_check_stmts.raw_declarations`), not by eye; see §12 for the scan.
 
 | # | declaration | pin lines | kind | shared with |
 |---:|---|---:|---|---|
@@ -372,7 +372,7 @@ this port needs that is *not* a pin declaration (a binder bridge, a
 uses it. The checker iterates `PORT_FILES` and looks each **public** port
 declaration up in `SOURCES` by last name; one with no pin counterpart is reported
 `MISSING IN FLT` and the `0 missing` gate fails
-(`spec/check_flt_statements.py`, the `missing` branch of `main`). `private`
+(`spec/old_check_stmts.py`, the `missing` branch of `main`). `private`
 declarations are invisible to that pass, which is exactly why they are the right
 place for glue. Promote only for **math clarity**: a declaration another theory
 will *state* and reuse (playbook §4(b)). The converse also holds and is worth
@@ -495,7 +495,7 @@ The manager decides.
 
 ```bash
 cd lean
-timeout 300 python3 spec/check_flt_statements.py
+timeout 300 python3 spec/old_check_stmts.py
 flock .lake/flt_build.lock timeout 900 lake build
 timeout 180 lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false spec/DeligneSerreConsumer.lean
 ```
@@ -558,7 +558,7 @@ python3 port_plan.py --json build/algcurve_linindep_advise.json
 #    and the cluster's distinct-statement count (the expected checker delta, §10)
 python3 - <<'EOF'
 import importlib.util, sys
-spec = importlib.util.spec_from_file_location("ck", "../../lean/spec/check_flt_statements.py")
+spec = importlib.util.spec_from_file_location("ck", "../../lean/spec/old_check_stmts.py")
 ck = importlib.util.module_from_spec(spec); sys.modules["ck"] = ck; spec.loader.exec_module(ck)
 PIN = "/home/haitao/proj/fermats-last-theorem/"
 A = PIN + "P2M/Sol/S_AlgebraicCurve_linearIndependent_of_constantFieldExtension_of_isAlgClosed.lean"

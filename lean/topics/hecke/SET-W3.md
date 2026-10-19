@@ -74,7 +74,7 @@ report the change rather than duplicating it here.
   their duplicated private copies deleted, references resolved.
 - Public surface unchanged; `PORT_FILES` entries unchanged except the new home.
 - `timeout 180 lake build` green, 0 warnings, no `sorry`.
-- `python3 spec/check_flt_statements.py`: **0 mismatched, 0 missing**, `identical`
+- `python3 spec/old_check_stmts.py`: **0 mismatched, 0 missing**, `identical`
   unchanged except the new home's public surface (matched or listed as exempt with reason).
 - `timeout 120 lake env lean spec/WeightOneConsumer.lean` exit 0.
 - `python3 ../tools/deps/port_graph.py --blocks 5`: no block over threshold (both the level

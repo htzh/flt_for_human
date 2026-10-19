@@ -17,7 +17,7 @@ mathlib is `v4.34.0`.
 §1 (the mathematics), §2 (the pin's sections), §4 (the `pair`/`Nice` conventions), §7 (risks);
 [../../../math/030-petersson-adjointness-of-hecke.md](../../../math/030-petersson-adjointness-of-hecke.md)
 §2 and §7; `FLTForHuman/ModularForms/Analytic/PeterssonCoset.lean` (the API you import — read
-its declarations, do not re-derive them); `spec/check_flt_statements.py` (only to know what the
+its declarations, do not re-derive them); `spec/old_check_stmts.py` (only to know what the
 manager will wire — do not edit it).
 
 **Two instructions that shape this order.**

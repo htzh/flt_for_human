@@ -339,6 +339,6 @@ python3 port_advise.py --target 'P2M/Sol/S_AutomorphicForm_exists_isFactorizable
 # price an edit before triggering its cascade
 python3 build_ladder.py --edit FLTForHuman/AutomorphicForm/Adelic/TestFnNearIdentity.lean
 cd ../lean
-timeout 300 python3 spec/check_flt_statements.py
+timeout 300 python3 spec/old_check_stmts.py
 flock .lake/flt_build.lock timeout 900 lake build
 ```

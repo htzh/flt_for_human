@@ -33,7 +33,7 @@ highest insight-per-line artifact available in this segment.
   `ModularCurve/`. This also settles where a future `ModularCurve` theory's
   generic prerequisites go: here, not into a theory directory.
 - **Settled: statements are the pin's, verbatim.** Each has a `Theorems/` wrapper,
-  so `spec/check_flt_statements.py` verifies them rather than exempting them. Add
+  so `spec/old_check_stmts.py` verifies them rather than exempting them. Add
   the three wrappers to `SOURCES`.
 - **Settled: Tier 1's generic restatements are *not* ported.** The survey's Tier 1
   is FLT's monomorphic restatement of mathlib's `IntermediateField` API, and it
@@ -170,7 +170,7 @@ anything beyond mathlib's two `IntermediateField` lemmas.
 - [ ] `lake build` green, 0 warnings, no `sorry`; `#print axioms` on
       `functionFieldGeneration_of` still only `propext, Classical.choice,
       Quot.sound`.
-- [ ] `spec/check_flt_statements.py`: the three `Thm_Polynomial_*` wrappers plus
+- [ ] `spec/old_check_stmts.py`: the three `Thm_Polynomial_*` wrappers plus
       `Thm_ModularCurve_relfinrank_modularFunctionField` added to `SOURCES`;
       verified count 146 → **~150**, 0 mismatched; `OWN_PROOFS` unchanged.
 - [ ] both wire tests from §4, with the instantiation's location named.

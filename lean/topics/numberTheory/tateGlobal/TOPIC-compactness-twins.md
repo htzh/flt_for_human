@@ -186,7 +186,7 @@ python3 port_advise.py --targets build/compactness_pair.txt --json build/compact
 python3 port_plan.py --json build/compactness_advise.json
 python3 build_ladder.py --edit FLTForHuman/NumberTheory/NumberField/TateGlobal/Ideles.lean
 cd ../lean
-timeout 300 python3 spec/check_flt_statements.py
+timeout 300 python3 spec/old_check_stmts.py
 ```
 
 ## 7. The set

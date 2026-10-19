@@ -217,7 +217,7 @@ frontier of PORTING-RR §3).
 
 ```bash
 cd lean
-python3 spec/check_flt_statements.py                    # 0 mismatched / 0 missing
+python3 spec/old_check_stmts.py                    # 0 mismatched / 0 missing
 flock /tmp/flt_for_human.lock timeout 240 lake build <module>
 flock /tmp/flt_for_human.lock timeout 120 \
   lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false <file>

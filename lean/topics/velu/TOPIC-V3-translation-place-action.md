@@ -251,12 +251,12 @@ recorded.
 
 ### 3.3 Checker wiring and consumer
 
-- `spec/check_flt_statements.py`: append the new module to `PORT_FILES` **last**;
+- `spec/old_check_stmts.py`: append the new module to `PORT_FILES` **last**;
   append the two wrappers to `SOURCES` **last**. The `S_` files are **not** added:
   with the helpers `private` the checker never reads them, and both carry the same
   188 declaration names (the `source` map is a list and tolerates duplicates, but
   there is nothing to gain). Confirm in the report that
-  `python3 spec/check_flt_statements.py` moves `5805 → 5807 identical`, with
+  `python3 spec/old_check_stmts.py` moves `5805 → 5807 identical`, with
   `promoted` unchanged at 311 and `0 mismatched / 0 missing`.
 - `spec/IsogenyEndDatumConsumer.lean` (**append one zone; the only existing file
   this topic edits**): the module is in the `DualEndData` cone (which contains
@@ -397,7 +397,7 @@ needs), check once, then extend — never check per declaration.
 
 - `lake env lean` clean per batch; `lake build FLTForHuman.WeierstrassCurve.IsogenyEndDatum.TranslationAlgEquiv`;
   then one wave `lake build` over the module and the consumer.
-- `python3 spec/check_flt_statements.py` → `5805 → 5807 identical`, `promoted`
+- `python3 spec/old_check_stmts.py` → `5805 → 5807 identical`, `promoted`
   311 → 311, `0 mismatched / 0 missing`, 36 own-proof exempted. A mismatch is a bug,
   not a drift to accept.
 - The checker's sanity probe (manager, at the milestone): mutate one token in a
@@ -449,7 +449,7 @@ mid-flight route amendment (§2.4).
 |---|---:|---|
 | `WeierstrassCurve/IsogenyEndDatum/TranslationAlgEquiv.lean` | 1,123 | new; 1 import (`…IsogenyEndDatum.DualEndData`); 54 `private` + exactly the 2 public headlines; 0 `sorry` |
 | `spec/IsogenyEndDatumConsumer.lean` | 178 → 253 | zone 5 = 68 lines, the only existing file edited |
-| `spec/check_flt_statements.py` | +18 | module last in `PORT_FILES`; the two wrappers last in `SOURCES`; no `S_` files |
+| `spec/old_check_stmts.py` | +18 | module last in `PORT_FILES`; the two wrappers last in `SOURCES`; no `S_` files |
 
 **Measured.** `lake env lean` on the amended cone: 149.0 s wall / 80.2 user /
 38.0 sys for the finished module (115.3 s on the batch that first caught the

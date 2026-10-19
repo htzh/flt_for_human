@@ -145,7 +145,7 @@ transcribe; the only expected work is the `𝕢`-notation and `open`-scope setup
 ## 5. Verification
 
 - Append the nine wrappers to `SOURCES`; the three modules to `PORT_FILES`.
-- `python3 spec/check_flt_statements.py`: 0 mismatched, 0 missing.
+- `python3 spec/old_check_stmts.py`: 0 mismatched, 0 missing.
 - `#print axioms` on all nine headlines.
 - Consumer Zone B: the four `hasSum` heads instantiated at `N = 2`
   (`modularUnitSeries 2`), the `discriminant` identity at `N = 2`, and one

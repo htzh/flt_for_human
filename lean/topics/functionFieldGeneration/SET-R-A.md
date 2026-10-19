@@ -100,7 +100,7 @@ manager decides.
 
 ## 5. Wiring
 
-In `lean/spec/check_flt_statements.py`:
+In `lean/spec/old_check_stmts.py`:
 
 * append the two wrappers to `SOURCES` **last**, with a comment (the two `S_`
   files are already listed; the wrappers are the comparable copies of the
@@ -145,5 +145,5 @@ the cleanup is carried as SET-R-B §0a (consumer-side only; no hub edit).
 to the public theorems, since the hub forms are not drop-ins (a private `kN`; an
 extra `hjf` binder). Module now **50 public / 13 private**; checker unchanged.
 
-Working tree at hand-off: `spec/check_flt_statements.py` modified (+12) and
+Working tree at hand-off: `spec/old_check_stmts.py` modified (+12) and
 `RationalityDvd.lean` added. Nothing committed.

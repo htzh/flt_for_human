@@ -124,7 +124,7 @@ Measured in this checkout with mathlib prebuilt: `lake env lean` small module
 - Module(s) as named; statements verbatim; specific imports.
 - `timeout 180 lake build` green, 0 warnings, no `sorry`/`admit`.
 - `#print axioms` on the topic's headlines clean.
-- `spec/check_flt_statements.py`: sources appended; **0 mismatched, 0 missing**.
+- `spec/old_check_stmts.py`: sources appended; **0 mismatched, 0 missing**.
 - Dedup demonstrated with `grep -c` (T8, T10).
 - `logs/hecke-port.md` section; `README.md` rows.
 

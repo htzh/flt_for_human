@@ -244,7 +244,7 @@ reachable from `Defs/Jq.lean`'s definition without unfolding `jNumQ`.
       (**A**) and its reason in the header.
 - [x] `lake build` green, 0 warnings, no `sorry`.
 - [x] `#print axioms` clean (`propext, Classical.choice, Quot.sound`).
-- [x] `spec/check_flt_statements.py`: both wrappers in `SOURCES`, 0 mismatched
+- [x] `spec/old_check_stmts.py`: both wrappers in `SOURCES`, 0 mismatched
       (176 → 180, with the promotion at 178); `PORT_FILES` gains the module.
 - [x] the wire item from §4 recorded, with the `P = X` instantiation named
       (`aeval_jq_intCoeffs_descent_X`, private in the module because the public

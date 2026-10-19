@@ -104,7 +104,7 @@ on top. This topic does the naming.
   `c : ℕ → ℂ`; it mentions neither `jq` nor `jqN` nor any field. So this topic
   needs no part of the cone and no earlier topic.
 - **Settled: the statement is the pin's, verbatim.** The wrapper exists, so
-  `spec/check_flt_statements.py` verifies it rather than exempting it. Add the
+  `spec/old_check_stmts.py` verifies it rather than exempting it. Add the
   wrapper to `SOURCES`.
 - **Settled: the corollary is ours.** It has no FLT source; handle it explicitly
   in the checker's `OWN_PROOFS` (as `coeff_jq_zero` / `coeff_jq_one` are), with a
@@ -314,7 +314,7 @@ first requirement, not a §5 afterthought. The worked blow-up is
 - [x] `lake build` green, 0 warnings, no `sorry`; no half-finished proof left in
       the library (experiment in the gitignored `Scratch.lean`).
 - [x] `#print axioms` clean on both.
-- [x] `spec/check_flt_statements.py`: wrapper added to `SOURCES`, verified count
+- [x] `spec/old_check_stmts.py`: wrapper added to `SOURCES`, verified count
       up by 1 (150 → 151), 0 mismatched; the corollary handled explicitly in
       `OWN_PROOFS`.
 - [x] the two wire items from §4 recorded, with the non-vacuity example's

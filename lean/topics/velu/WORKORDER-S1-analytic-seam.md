@@ -224,7 +224,7 @@ import the two forbidden modules.
 
 - `lake env lean` clean; `lake build FLTForHuman.Elliptic.PeriodPair.HoloLift`; one `flock`ed
   wave build.
-- `python3 spec/check_flt_statements.py` → **0 mismatched / 0 missing**. Baseline at dispatch
+- `python3 spec/old_check_stmts.py` → **0 mismatched / 0 missing**. Baseline at dispatch
   (2026-10-07, after D-6 landed):
   `6054 statements identical (313 promoted from pin-private declarations, 83 renamed), 0
   mismatched, 0 missing, 36 own-proof declarations exempted (6090 port declarations checked)`.
@@ -235,7 +235,7 @@ import the two forbidden modules.
   last-name match can flip). `SOURCES`: the `S_` file is **already** there — P-2e §1.5 appended
   `P2M/Sol/S_PeriodPair_exists_differentiable_toPoint_comp_eq_pointMapOfPushforward_toPoint.lean`
   for the `kw_toPointHom` promotion set, and at drafting it sits at
-  `spec/check_flt_statements.py:2237`; the `Theorems/` wrapper is **not** in the list. The
+  `spec/old_check_stmts.py:2237`; the `Theorems/` wrapper is **not** in the list. The
   wrapper is this set's statement authority and the checker takes the first match, so the
   wrapper must come **before** its `S_` file: insert it immediately above line 2237 rather
   than appending it last. This is the one entry that is not appended, and it is safe because

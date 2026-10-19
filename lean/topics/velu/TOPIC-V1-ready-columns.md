@@ -86,7 +86,7 @@ state the subject, the pin source and what they assume from lower modules.
 
 Checker wiring, per set, at the two spec files only (never a library module):
 
-- `spec/check_flt_statements.py`: append the set's new modules to `PORT_FILES`
+- `spec/old_check_stmts.py`: append the set's new modules to `PORT_FILES`
   **last**; append the `Theorems/Thm_<stem>.lean` statement sources to `SOURCES`
   **last** (the wrapper is the statement authority).
 - `spec/WeierstrassCurveConsumer.lean`: add one zone per new module with a real,
@@ -114,7 +114,7 @@ timeout 60 lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false <file>
 # module done
 timeout 90 flock .lake/flt_build.lock bash -c 'time lake build <module>'
 # the cheap faithfulness gate at every module close
-python3 spec/check_flt_statements.py
+python3 spec/old_check_stmts.py
 ```
 
 Then `#print axioms` on each headline must be
@@ -245,7 +245,7 @@ Register both in `PORT_FILES` (append last) and the thirteen wrappers in `SOURCE
 ### 4.6 Verification
 
 - `lake env lean` clean on both modules; `lake build` each.
-- `python3 spec/check_flt_statements.py` → `0 mismatched / 0 missing`; record the
+- `python3 spec/old_check_stmts.py` → `0 mismatched / 0 missing`; record the
   `identical` before → after delta, and reconcile it against the new public surface.
 - Consumer: extend `spec/WeierstrassCurveConsumer.lean` with a zone per module — at
   minimum a concrete `veluQuotient2` computation on a curve with 2-torsion, a

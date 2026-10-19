@@ -72,7 +72,7 @@ The pin references are to `aa2d8b3`; the work order for the full statements is
 
 - Append the four pin `Definitions/` files to `SOURCES` and
   `FLTForHuman/ModularForms/Defs/GammaH.lean` to `PORT_FILES` in
-  `spec/check_flt_statements.py`; the checker reports 0 mismatched / 0 missing
+  `spec/old_check_stmts.py`; the checker reports 0 mismatched / 0 missing
   for the new module.
 - Add a `[level]` zone to `spec/ModularCurveConsumer.lean`: instantiate
   `GammaH 2 ⊤`, prove `= Gamma0 2` by `GammaH_top`, use `gammaLift`/

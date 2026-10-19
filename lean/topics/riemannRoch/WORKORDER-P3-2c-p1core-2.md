@@ -106,7 +106,7 @@ is an instance; `Polynomial.multiplicity` does not exist.
 
 Exactly [WORKORDER-P3-2b-p1core-1.md](WORKORDER-P3-2b-p1core-1.md) §4–§7. The
 checker wiring is **already done** (the master `S_` file and wrapper are in
-`SOURCES`; the module is in `PORT_FILES`), so no `spec/check_flt_statements.py`
+`SOURCES`; the module is in `PORT_FILES`), so no `spec/old_check_stmts.py`
 edit is needed. Verify the checker rises and stays `0 mismatched / 0 missing`.
 Append friction under `### Set 3.2c`.
 

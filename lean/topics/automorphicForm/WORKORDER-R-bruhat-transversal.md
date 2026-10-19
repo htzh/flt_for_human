@@ -257,7 +257,7 @@ Final turn only (the façade):
 
 * the façade in `PORT_FILES`; the three wrappers and the three `S_` files in `SOURCES`,
   appended last;
-* `timeout 300 python3 spec/check_flt_statements.py` — **9,238 → 9,241 identical**, 0
+* `timeout 300 python3 spec/old_check_stmts.py` — **9,238 → 9,241 identical**, 0
   mismatched / 0 missing, 38 own;
 * a one-token mutation on each of the three headlines moves exactly one `mismatched`,
   then revert;
@@ -296,5 +296,5 @@ python3 port_plan.py --json build/weyl_trio_advise.json --section all
 cd ..
 python3 tools/deps/unwired_register.py
 cd lean
-timeout 300 python3 spec/check_flt_statements.py
+timeout 300 python3 spec/old_check_stmts.py
 ```

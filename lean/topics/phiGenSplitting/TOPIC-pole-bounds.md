@@ -219,7 +219,7 @@ it does not have.
       verbatim from their wrappers. **310 lines, 2 public + 16 `private`.**
 - [x] `lake build` green, 0 warnings, no `sorry` (3840 jobs).
 - [x] `#print axioms` clean (`propext, Classical.choice, Quot.sound`) on both.
-- [x] `spec/check_flt_statements.py`: both wrappers in `SOURCES`, 0 mismatched;
+- [x] `spec/old_check_stmts.py`: both wrappers in `SOURCES`, 0 mismatched;
       `PORT_FILES` gains the module. **180 → 205, 0 missing; 11 of the new
       statements verified against the pin's `private` declarations** through a new
       dotted-name fallback (`Defs/PhiGen.lean`'s existing `PORT_FILES` entry

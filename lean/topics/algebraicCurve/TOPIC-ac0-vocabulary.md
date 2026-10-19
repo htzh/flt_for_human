@@ -19,7 +19,7 @@ dictionary's objects, the along-map API, `SemilinearAut`, and the `P¹` vocabula
 — as `FLTForHuman/AlgebraicCurve/Defs/*.lean`, mathlib-only, in namespace
 `AlgebraicCurve`, with statements transcribed from the pin's `Definitions/` files.
 Then stand up `spec/AlgebraicCurveConsumer.lean` Zone A and extend
-`spec/check_flt_statements.py`.
+`spec/old_check_stmts.py`.
 
 This is a definitions layer: the FFG Layer-0 treatment applies (transcribe
 bottom-up, build after every module, promote nothing prematurely). The measured
@@ -448,7 +448,7 @@ alias whose replacement changes a statement.
       lands in `Defs/Place.lean`).
 - [ ] `spec/AlgebraicCurveConsumer.lean` exists with **Zone A** at 0 errors, and
       its `#check`s are live imports, not restatements.
-- [ ] `spec/check_flt_statements.py`: `norm` strips `AlgebraicCurve.`; the AC
+- [ ] `spec/old_check_stmts.py`: `norm` strips `AlgebraicCurve.`; the AC
       definition files appended to `SOURCES`; `OWN_PROOFS` additions justified;
       final line `N identical, 0 mismatched, 0 missing`.
 - [ ] `timeout 90 lake build` green, **0 warnings**, no `sorry` in

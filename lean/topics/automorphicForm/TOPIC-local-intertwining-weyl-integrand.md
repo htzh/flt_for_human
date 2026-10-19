@@ -235,7 +235,7 @@ Per set, at the end:
 ```bash
 cd lean
 flock .lake/flt_build.lock timeout 900 lake build FLTForHuman.<new modules>
-timeout 300 python3 spec/check_flt_statements.py        # 0 mismatched / 0 missing
+timeout 300 python3 spec/old_check_stmts.py        # 0 mismatched / 0 missing
 timeout 180 python3 spec/check_instance_probes.py
 ```
 
@@ -276,7 +276,7 @@ axioms` on both headlines is `[propext, Classical.choice, Quot.sound]`.
 
 Two things a future session must not re-derive:
 
-* **`norm()` in `spec/check_flt_statements.py` now erases the recorded `ValuationOrd` →
+* **`norm()` in `spec/old_check_stmts.py` now erases the recorded `ValuationOrd` →
   `IsDiscreteValuationRing` rename inside statements** (frictions FR-0014/FR-0018). Without it,
   `WeylPrelude.lean` wires at 8 MISMATCH. A future rename that touches a *signature* needs the same
   treatment.

@@ -159,5 +159,5 @@ The head is unchanged: `EisensteinGeneral.LocalRam.integral_twisted_smooth_eq` (
 and `AlgebraicCurve.residue_norm_eq_norm_residue_of_retraction` (697).
 
 Files changed: `FLTForHuman/AutomorphicForm/Adelic/ArchKFinite.lean` (new, pre-wave),
-`FLTForHuman/AutomorphicForm/Adelic/InducedSectionFlat.lean` (new), `spec/check_flt_statements.py`,
+`FLTForHuman/AutomorphicForm/Adelic/InducedSectionFlat.lean` (new), `spec/old_check_stmts.py`,
 `spec/UNWIRED-PUBLIC.md`.

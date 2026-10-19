@@ -179,7 +179,7 @@ SC-only leaves or the capstone; any pressure to import the two forbidden modules
 
 - `lake env lean` clean; `lake build` both modules; one `flock`ed wave; whole-tree `lake build`
   green.
-- `python3 spec/check_flt_statements.py` → **0 mismatched / 0 missing**. **Re-run it at
+- `python3 spec/old_check_stmts.py` → **0 mismatched / 0 missing**. **Re-run it at
   dispatch** (S-2/S-3 will have moved the baseline off `6074 (313,83) / 0 / 0 / 36 own (6110)`).
   Reconcile every delta.
 - `SOURCES`: append, wrapper before its `S_` file, the four pairs

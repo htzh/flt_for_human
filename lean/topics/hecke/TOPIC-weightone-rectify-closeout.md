@@ -101,7 +101,7 @@ python3 port_graph.py --duplicates 900     # 839 names in >=2 modules: name-leve
 python3 port_graph.py                       # 633 modules / 17,555 declarations / 260,742 lines
 cd ../lean
 timeout 300 python3 spec/WeightOneConsumer.lean   # exit 0 (run via lake env lean for the options)
-timeout 300 python3 spec/check_flt_statements.py  # 9600 / 667 / 0 / 0 / 38 own
+timeout 300 python3 spec/old_check_stmts.py  # 9600 / 667 / 0 / 0 / 38 own
 ```
 
 ## 6. The forward path

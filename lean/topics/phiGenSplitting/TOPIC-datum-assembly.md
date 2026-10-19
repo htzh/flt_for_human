@@ -454,7 +454,7 @@ in the log if it is used.
       public and verbatim. **201 lines, 2 public + 5 `private`.**
 - [x] `lake build` green, 0 warnings, no `sorry` (2594 jobs).
 - [x] `#print axioms` clean on all eight public declarations.
-- [x] `spec/check_flt_statements.py`: the eight wrappers in `SOURCES`, 0
+- [x] `spec/old_check_stmts.py`: the eight wrappers in `SOURCES`, 0
       mismatched; `PORT_FILES` gains the three modules. **205 → 213, 0 missing.**
 - [x] the end-to-end wire item from §5.4 recorded and green in Zone I:
       `K = CyclotomicField ℓ ℚ`, `(a)` + `(b)` + `(c)` + `(d)` in one example,

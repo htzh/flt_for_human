@@ -91,7 +91,7 @@ flock /tmp/flt_for_human.lock timeout 240 lake build <module>
 
 ## 5. Checker wiring + verification
 
-- `SOURCES` (`lean/spec/check_flt_statements.py`): append the three
+- `SOURCES` (`lean/spec/old_check_stmts.py`): append the three
   `Theorems/Thm_AlgebraicCurve_…` wrappers **first**, then the three
   `P2M/Sol/S_AlgebraicCurve_…` files, appended last so no earlier last-name match
   flips.
@@ -101,7 +101,7 @@ flock /tmp/flt_for_human.lock timeout 240 lake build <module>
 
 ```bash
 cd lean
-python3 spec/check_flt_statements.py                       # 0 mismatched / 0 missing
+python3 spec/old_check_stmts.py                       # 0 mismatched / 0 missing
 flock /tmp/flt_for_human.lock timeout 240 lake build FLTForHuman.AlgebraicCurve.P1.TwoPlace
 flock /tmp/flt_for_human.lock timeout 240 lake build FLTForHuman.AlgebraicCurve.P1.DivPow
 flock /tmp/flt_for_human.lock timeout 240 lake build FLTForHuman.AlgebraicCurve.P1.PerfectBase

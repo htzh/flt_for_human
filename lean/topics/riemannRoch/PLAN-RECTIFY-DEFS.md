@@ -227,7 +227,7 @@ Verification (the WORKFLOW §7 gate):
 
 ```bash
 cd lean
-python3 spec/check_flt_statements.py                       # 3642 / 0 / 0 / 30
+python3 spec/old_check_stmts.py                       # 3642 / 0 / 0 / 30
 flock /tmp/flt_for_human.lock timeout 300 lake build <each new module>
 lake build                                                  # ONE whole-tree build, at the end
 lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false spec/RiemannRochConsumer.lean
@@ -269,7 +269,7 @@ re-landing deleted (the HANDOFF §4.4 fix). All three now match the pin's
 `p2m_export`ed declarations.
 
 **Verified:** `lake build` green (4,873 jobs, the round's one whole-tree build);
-`python3 spec/check_flt_statements.py` → **3645 / 0 / 0 / 30** (135 promoted from
+`python3 spec/old_check_stmts.py` → **3645 / 0 / 0 / 30** (135 promoted from
 pin-private, +3 over the pre-round 3,642 / 132); `RiemannRochConsumer.lean` 0 errors;
 hygiene clean. `PlaceEvaluationAlgebra` stays in `Defs/` under exception 1.
 

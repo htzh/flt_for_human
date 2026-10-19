@@ -186,7 +186,7 @@ report which one.
 - `lake env lean` clean; `lake build FLTForHuman.WeierstrassCurve.Isogeny.KernelBaseChange`.
 - Append the module to `PORT_FILES` (last). Append the two wrappers and the two `S_` files to
   `SOURCES` (last, wrapper before its `S_` file) — unless D-1/D-4 already did.
-- `python3 spec/check_flt_statements.py` → 0 mismatched / 0 missing. Reconcile the delta
+- `python3 spec/old_check_stmts.py` → 0 mismatched / 0 missing. Reconcile the delta
   against §2 and **report the duplicate-line saving**: the two `S_` files are 10,695 raw
   lines; the module should be about 2,300 new lines. Give both numbers.
 - A `spec/` zone with both headlines at a concrete `R₀, E₀, E₀'` from ported material, or a

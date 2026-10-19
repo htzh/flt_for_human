@@ -113,7 +113,7 @@ The `Hecke` section's two `scoped instance`s (`gammaH_finiteIndex`,
 
 ## 6. Verification
 
-1. Checker: `python3 spec/check_flt_statements.py`; target `0 mismatched /
+1. Checker: `python3 spec/old_check_stmts.py`; target `0 mismatched /
    0 missing`. Baseline before this set is `6486 identical (312 promoted,
    83 renamed), 0 mismatched, 0 missing, 36 own (6522 checked)`; the delta is the
    33 declarations (+1, since the pin's `HeckeInputsHAll.heckeInputsHAlong` and the

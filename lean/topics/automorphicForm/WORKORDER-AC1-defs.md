@@ -50,8 +50,8 @@ term — and the warning-free build is what forced the change.
 | tier-2 build, `ArchParam` | `flock .lake/flt_build.lock timeout 300 lake build FLTForHuman.LanglandsTunnell.ArchParam` | green, 2,847 jobs, 3.5 s |
 | tier-1 loop, `ArchDerivCasimir` | as above | exit 0, 0 warnings, 7.3 s (one `dif_pos` deprecation fixed first) |
 | tier-2 build, `ArchDerivCasimir` | `… lake build FLTForHuman.AutomorphicForm.Adelic.ArchDerivCasimir` | green, 3,533 jobs, 9.5 s |
-| checker, before (HEAD spec, same tree) | `python3 spec/check_flt_statements.py` from `git show HEAD:lean/spec/check_flt_statements.py` | 10,013 identical (667 promoted, 83 renamed), 0 / 0, 42 own (10,055 checked) |
-| checker, after | `python3 spec/check_flt_statements.py` | **10,104 identical (676 promoted, 83 renamed), 0 mismatched, 0 missing, 42 own (10,146 checked)** |
+| checker, before (HEAD spec, same tree) | `python3 spec/old_check_stmts.py` from `git show HEAD:lean/spec/old_check_stmts.py` | 10,013 identical (667 promoted, 83 renamed), 0 / 0, 42 own (10,055 checked) |
+| checker, after | `python3 spec/old_check_stmts.py` | **10,104 identical (676 promoted, 83 renamed), 0 mismatched, 0 missing, 42 own (10,146 checked)** |
 | register | `python3 tools/deps/unwired_register.py --check` | `register is current` — correct, nothing here is tier 3 |
 
 **The delta is +91** and it is per module exactly the pin's declaration count: +33 for `ArchParam`

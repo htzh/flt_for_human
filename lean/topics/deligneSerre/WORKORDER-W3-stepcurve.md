@@ -103,7 +103,7 @@ it locally as `private` in your module and report it. If a promotion seems genui
 
 ## 6. Wiring
 
-In `lean/spec/check_flt_statements.py`, appending **last** so no earlier last-name match can
+In `lean/spec/old_check_stmts.py`, appending **last** so no earlier last-name match can
 flip: the target's `Theorems/Thm_WeierstrassCurve_stepCurve_stepSubgroup_eq_of_prime_ne_two.lean`
 and `P2M/Sol/S_WeierstrassCurve_stepCurve_stepSubgroup_eq_of_prime_ne_two.lean` to `SOURCES`;
 `"FLTForHuman/WeierstrassCurve/Velu/StepCurveSubgroup.lean"` to `PORT_FILES`.

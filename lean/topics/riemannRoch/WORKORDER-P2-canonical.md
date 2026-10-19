@@ -127,7 +127,7 @@ only the three `S_` files plus already-landed port lemmas.
 
 ## 5. Checker wiring, build, verification
 
-Append **last** to `spec/check_flt_statements.py`:
+Append **last** to `spec/old_check_stmts.py`:
 - `SOURCES` += the three `Theorems/Thm_*` wrappers **first**, then the three `S_`
   files (wrapper binder authority).
 - `PORT_FILES` += the two new modules.
@@ -141,7 +141,7 @@ Build discipline: edit loop `timeout 120 lake env lean
 Verification:
 ```bash
 cd lean
-python3 spec/check_flt_statements.py                    # 0 mismatched / 0 missing
+python3 spec/old_check_stmts.py                    # 0 mismatched / 0 missing
 flock /tmp/flt_for_human.lock timeout 240 lake build FLTForHuman.AlgebraicCurve.Canonical.HasCanonicalDivisor
 # #print axioms on the headline and the two Kähler theorems
 ```

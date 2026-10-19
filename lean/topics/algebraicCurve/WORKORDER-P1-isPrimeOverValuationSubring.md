@@ -334,10 +334,10 @@ actual numbers; they must be `0 mismatched / 0 missing`.
 
 **8.2 Wiring (append last, in this order).**
 
-* `spec/check_flt_statements.py` `SOURCES` (pin paths):
+* `spec/old_check_stmts.py` `SOURCES` (pin paths):
   * `"Theorems/Thm_AlgebraicCurve_Place_exists_of_isPrime_over_valuationSubring.lean"`
   * `"P2M/Sol/S_AlgebraicCurve_Place_exists_of_isPrime_over_valuationSubring.lean"`
-* `spec/check_flt_statements.py` `PORT_FILES`:
+* `spec/old_check_stmts.py` `PORT_FILES`:
   * `"FLTForHuman/AlgebraicCurve/Place/IsPrimeOverValuationSubring.lean"`
 
 Add a one-line comment naming this order, as the neighbouring entries do. The
@@ -348,7 +348,7 @@ headline and the dotted fallback.
 
 ```bash
 cd lean
-python3 spec/check_flt_statements.py                 # expect 9743 identical / 0 / 0 / 38
+python3 spec/old_check_stmts.py                 # expect 9743 identical / 0 / 0 / 38
 flock .lake/flt_build.lock timeout 900 lake build FLTForHuman.AlgebraicCurve.Place.IsPrimeOverValuationSubring
 timeout 180 lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false spec/DeligneSerreConsumer.lean
 ```

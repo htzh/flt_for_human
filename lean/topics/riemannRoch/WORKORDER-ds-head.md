@@ -154,7 +154,7 @@ blow-up, ~0 CPU = contention). **Never raise `maxHeartbeats`**; the pin's
 command.**
 
 **Verification.**
-- `python3 spec/check_flt_statements.py` → 0 mismatched / 0 missing.
+- `python3 spec/old_check_stmts.py` → 0 mismatched / 0 missing.
 - One flocked wave `lake build` of the three modules, then a whole-tree `lake build`.
 - `#print axioms` on the four headlines and on the four Prop classes:
   `[propext, Classical.choice, Quot.sound]`; `grep -c sorry` = 0.

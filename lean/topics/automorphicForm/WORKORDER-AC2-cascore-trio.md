@@ -27,7 +27,7 @@ duplicate copies removable, 66 boilerplate, 133 groups, 0 substitutions).
 * the two `…_rowIsometryInclAt_of_ne` siblings (133, 110) and the other 37 real-place proof files —
   set C, ordinary scheduling later;
 * the definition layer — already landed, do not touch those two modules;
-* `spec/check_flt_statements.py` and any other wiring: **the manager wires**. Do not edit it, do not
+* `spec/old_check_stmts.py` and any other wiring: **the manager wires**. Do not edit it, do not
   run the checker for a delta, do not add yourself to `SOURCES`/`PORT_FILES`;
 * any edit to an existing port module (the hub prohibition, §8).
 

@@ -128,7 +128,7 @@ the S headlines.
 - `lake env lean` clean; `lake build FLTForHuman.WeierstrassCurve.Isogeny.KernelCyclicTransfer`.
 - Append the module to `PORT_FILES` (last); append the `conj` wrapper and `S_` file to
   `SOURCES` (last) — unless D-1 already did.
-- `python3 spec/check_flt_statements.py` → 0 mismatched / 0 missing; reconcile the delta.
+- `python3 spec/old_check_stmts.py` → 0 mismatched / 0 missing; reconcile the delta.
 - A `spec/` zone exercising the headline and the seam at concrete complex curves, or a
   hypothesis-form test; deleting the module must make it fail.
 - `#print axioms` clean; no `sorry`. Whole-tree `flock`ed `lake build`; jobs + seconds.

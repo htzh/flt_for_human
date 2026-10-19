@@ -188,7 +188,7 @@ needing a statement the T2/T3/T4 surface does not expose.
       generic orbit-intersection count (the FFG generic-kernel lesson: budget the
       instantiation, not the transcription — a finite group action on a small
       concrete `X`).
-- [ ] `spec/check_flt_statements.py`: the five wrappers
+- [ ] `spec/old_check_stmts.py`: the five wrappers
       (`Thm_MulAction_ncard_orbit_inter_orbit_mul_card.lean`,
       `Thm_Subgroup_exists_eq_mul_of_index_inf_eq.lean`, the three
       `Thm_AlgebraicCurve_Place_*`) in `SOURCES`; 0 mismatched, 0 missing.

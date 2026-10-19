@@ -224,7 +224,7 @@ premises it consumes, and the build/verification block.
 
 ## 6. Verification
 
-Each set is green when `spec/check_flt_statements.py` is unchanged in `mismatched` /
+Each set is green when `spec/old_check_stmts.py` is unchanged in `mismatched` /
 `missing` and its `identical` delta equals the new public surface, both modules
 build at tier 1, and a `#print axioms` probe over the headlines is
 `[propext, Classical.choice, Quot.sound]`. The pre-round landed as exactly **+37**

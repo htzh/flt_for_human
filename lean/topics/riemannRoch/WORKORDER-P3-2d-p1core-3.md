@@ -105,7 +105,7 @@ does not exist in v4.34 — it is `Ideal.sum_ramification_inertia_eq_finrank`; r
 ## 4. Build discipline, checker wiring, report shape
 
 As 3.2b §4–§7. The checker wiring is **already done** for this module (the master
-`S_` file and wrapper are in `SOURCES`), so no `spec/check_flt_statements.py` edit is
+`S_` file and wrapper are in `SOURCES`), so no `spec/old_check_stmts.py` edit is
 needed; verify the checker rises and stays `0 mismatched / 0 missing`. Append
 friction under `### Set 3.2d`.
 

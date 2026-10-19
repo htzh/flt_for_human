@@ -19,7 +19,7 @@ Write **two tier-3 engine modules**:
 | `FLTForHuman/NumberTheory/AdelicHaar/ArchModulus.lean` | `P2M/Sol/S_NumberField_InfiniteAdeleRing_distribHaarChar_eq_prod_norm_pow_mult.lean` | 8 | 93 |
 
 **Explicitly not this order.** The tier-1 façade, `SOURCES`/`PORT_FILES` wiring,
-`spec/UNWIRED-PUBLIC.md`, `spec/check_flt_statements.py`, the product-formula chain
+`spec/UNWIRED-PUBLIC.md`, `spec/old_check_stmts.py`, the product-formula chain
 (WORKORDER-A2), and every pin section listed in §2 as already ported. No promotion, no edit
 to any existing module.
 
@@ -180,7 +180,7 @@ copy (never commit it), fix the inference, and re-run. Report the declaration an
 | `placeModulus` | declared, not substituted by `ideleNorm` |
 | `python3 tools/deps/unwired_register.py --check` | report only (do **not** rewrite the register) |
 
-Do **not** run `spec/check_flt_statements.py` and do **not** edit the register. No wiring
+Do **not** run `spec/old_check_stmts.py` and do **not** edit the register. No wiring
 for this order: the engines are tier 3.
 
 ## 10. Report shape

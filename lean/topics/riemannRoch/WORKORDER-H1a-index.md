@@ -137,7 +137,7 @@ re-check the whole file); file-done
 **Verification.**
 ```bash
 cd lean
-python3 spec/check_flt_statements.py
+python3 spec/old_check_stmts.py
 flock /tmp/flt_for_human.lock timeout 180 lake build FLTForHuman.AlgebraicCurve.Genus.Index
 # #print axioms on indexOfSpecialty_eq_of_genusReached, omegaSpace_finite_of_genusReached,
 #   RiemannGenusReachedAt.eq_of_ge, exists_genus_riemannIndex_of_stichtenothGenusExists

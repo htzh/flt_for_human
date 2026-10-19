@@ -529,5 +529,5 @@ against the landed files are: the six **wrapper** names
 `P1Dictionary.lean` delegating to the public `_of_forall_*` laws — decide whether the
 wrappers' own `Theorems/` files belong in `SOURCES`; and the
 `PORT_FILES`/`SOURCES` wiring (no `PlaceEvaluation`/`P1Dictionary`/
-`PlaceEvaluationAlgebra` entry could be found in `spec/check_flt_statements.py` at
+`PlaceEvaluationAlgebra` entry could be found in `spec/old_check_stmts.py` at
 audit time).

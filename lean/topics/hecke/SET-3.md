@@ -122,7 +122,7 @@ to 4,000,000 globally, so the `timeout` is the only real guard.
 - `timeout 180 lake build` green, **0 warnings**, no `sorry`/`admit`.
 - `#print axioms` on the topic's public headlines: only
   `propext, Classical.choice, Quot.sound`.
-- `spec/check_flt_statements.py`: sources appended; **0 mismatched, 0 missing**.
+- `spec/old_check_stmts.py`: sources appended; **0 mismatched, 0 missing**.
 - The dedup demonstrated with `grep -c` counts (T5).
 - `logs/hecke-port.md` section; `README.md` rows.
 

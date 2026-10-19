@@ -55,7 +55,7 @@ from lower modules.
 
 Checker wiring, at the two spec files only — never a library module:
 
-- `spec/check_flt_statements.py`: append the three modules to `PORT_FILES` **last**, and
+- `spec/old_check_stmts.py`: append the three modules to `PORT_FILES` **last**, and
   these to `SOURCES` **last**, wrappers before their `S_` files:
 
   ```
@@ -75,7 +75,7 @@ Checker wiring, at the two spec files only — never a library module:
 ### 2.1 The prefix-strip promotion path (checker)
 
 Promotions are written at the prefix-stripped pin name and verified through a new
-fallback in `check_flt_statements.py`. The pin's `private` declarations are additionally
+fallback in `old_check_stmts.py`. The pin's `private` declarations are additionally
 indexed under their prefix-stripped last name (`kw_G_ofTau_eq` → `G_ofTau_eq`); after
 every name lookup fails, the checker tries that index, still requiring the `kind` and the
 normalised statement to match, counts the hit separately as `renamed`, and prints
@@ -83,7 +83,7 @@ normalised statement to match, counts the hit separately as `renamed`, and print
 so a pin public name is never shadowed; `OWN_PROOFS` is still consulted first. The token
 list starts minimal, `PIN_PREFIXES = ("kw",)`.
 
-Concretely, in `check_flt_statements.py`: add `PIN_PREFIXES` and `strip_pin_prefix` after
+Concretely, in `old_check_stmts.py`: add `PIN_PREFIXES` and `strip_pin_prefix` after
 `promoted_key`; add a `stripped_source: dict[str, list]` in `main()` and fill it in the
 `SOURCES` loop when the declaration is `private` and `strip_pin_prefix(last)` is not
 `None`; after the existing `hit = find(dotted_source…)` block in the main loop, add
@@ -252,7 +252,7 @@ wrappers before `S_` files), and add `spec/PeriodPairConsumer.lean`.
 
 - `lake env lean` clean per module; `lake build` per module; then **one** wave
   `lake build` over the three modules, bounded and `flock`ed (§8).
-- `python3 spec/check_flt_statements.py` → `0 mismatched / 0 missing`; record the
+- `python3 spec/old_check_stmts.py` → `0 mismatched / 0 missing`; record the
   `identical` before → after delta against the baseline
   **`5809 identical (311 promoted), 0 mismatched, 0 missing, 36 own, 5845 checked`**
   (2026-10-06) and reconcile it against the new public surface. A mismatch is a bug.
@@ -305,7 +305,7 @@ Baseline commands (warm tree):
 ```bash
 cd lean
 timeout 300 lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false <module>
-python3 spec/check_flt_statements.py
+python3 spec/old_check_stmts.py
 flock .lake/flt_build.lock bash -c 'time lake build'
 ```
 

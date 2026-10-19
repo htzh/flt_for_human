@@ -258,7 +258,7 @@ helper blocks* promoted versus replayed, not rounds.
 
 - [ ] The target in a library module, statement verbatim from the wrapper, in the
       default build target.
-- [ ] `spec/check_flt_statements.py`: 0 mismatched / 0 missing, with `SOURCES`
+- [ ] `spec/old_check_stmts.py`: 0 mismatched / 0 missing, with `SOURCES`
       gaining the two `Thm_AlgebraicCurve_*` wrappers the target's `S_` imports
       plus the Set A/B wrappers and the definition modules; any own declaration on
       an explicit `OWN_PROOFS` entry with a reason.
@@ -279,7 +279,7 @@ cd lean
 flock /tmp/flt_for_human.lock timeout 60 lake env lean \
   -DmaxHeartbeats=4000000 -DautoImplicit=false <file>          # tier 0, per edit
 flock /tmp/flt_for_human.lock timeout 120 lake build FLTForHuman.<Dotted.Path>   # tier 1
-python3 spec/check_flt_statements.py                            # 0/0
+python3 spec/old_check_stmts.py                            # 0/0
 flock /tmp/flt_for_human.lock timeout 300 lake env lean \
   -DmaxHeartbeats=4000000 -DautoImplicit=false spec/<X>Consumer.lean
 cd ../tools/deps && python3 frontier.py --target \

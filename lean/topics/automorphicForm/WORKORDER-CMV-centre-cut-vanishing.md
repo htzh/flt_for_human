@@ -78,7 +78,7 @@ Its transitive closure supplies `CoversModCentre`, `centreCutSiegelSet`,
 
 ## 6. Wiring (manager)
 
-Append to `spec/check_flt_statements.py`:
+Append to `spec/old_check_stmts.py`:
 
 * `SOURCES`: the `Theorems/` wrapper and the `P2M/Sol/S_` file, last;
 * `PORT_FILES`: `FLTForHuman/AutomorphicForm/Adelic/Cusp/CentreCutVanishing.lean`, last.

@@ -84,7 +84,7 @@ task, not a write. A name-based test is an upper bound (§2.1 of the playbook): 
 renamed port copy will still need the block.
 
 **Checker wiring.** For each home module: append its path to `PORT_FILES` (before
-the `]` at line 1607 of `spec/check_flt_statements.py`), and append the pin `S_`
+the `]` at line 1607 of `spec/old_check_stmts.py`), and append the pin `S_`
 files named in its table to `SOURCES` (before the `]` at line 1248) so the
 promoted pin-`private` blocks verify through the checker's dotted fallback. Append
 new entries last. Then run the checker from `lean/`; it must stay **0 mismatched /

@@ -195,7 +195,7 @@ local helpers (`exists_factor_of_range_le`, `finiteAlong_factor`,
 
 ### 3.3 Checker wiring and consumer
 
-- `spec/check_flt_statements.py`: `Vocabulary.lean` is **already** in `PORT_FILES`, so
+- `spec/old_check_stmts.py`: `Vocabulary.lean` is **already** in `PORT_FILES`, so
   no entry is added; append the two wrappers to `SOURCES` **last**. The `S_` files are
   **not** added (the helpers are `private`). Expected: `5807 → 5809 identical`,
   `promoted` unchanged at 311, `0 mismatched / 0 missing`.
@@ -233,7 +233,7 @@ scope **stops at the boundary and reports**.
 
 ### 4.2 Reconnaissance (bounded, before writing; report the outcome)
 
-1. Confirm the checker baseline: `python3 spec/check_flt_statements.py` →
+1. Confirm the checker baseline: `python3 spec/old_check_stmts.py` →
    `5807 identical / 311 promoted / 0 mismatched / 0 missing / 36 own`.
 2. Statement-check every unsubstituted declaration of the two `S_` files against the
    port (§2.2's list plus anything the name sweep misses), and report the drops with
@@ -311,7 +311,7 @@ check.
 
 - `lake env lean` clean; `lake build FLTForHuman.WeierstrassCurve.IsogenyEndDatum.Vocabulary`;
   then the one wave build (`Vocabulary` + its two dependents).
-- `python3 spec/check_flt_statements.py` → `5809 identical`, `promoted` 311,
+- `python3 spec/old_check_stmts.py` → `5809 identical`, `promoted` 311,
   `0 mismatched / 0 missing`, 36 own-proof exempted.
 - The manager's one-token probe at the milestone (mutate `φ₁ = φ₂` or the headline's
   conclusion, expect exactly one `mismatched`, revert).
@@ -356,7 +356,7 @@ amendment.
 | artifact | lines | notes |
 |---|---:|---|
 | `IsogenyEndDatum/Vocabulary.lean` | 177 → 643 | one added import (`…TranslationAlgEquiv`, the case §4.2.3 anticipated); appended block L184–643; **2** new public headlines + 40 `private`; 0 `sorry` |
-| `spec/check_flt_statements.py` | +7 | the two wrappers last in `SOURCES` (L2164–2165); `PORT_FILES` untouched; no `S_` files |
+| `spec/old_check_stmts.py` | +7 | the two wrappers last in `SOURCES` (L2164–2165); `PORT_FILES` untouched; no `S_` files |
 | `spec/IsogenyEndDatumConsumer.lean` | 253 → 313 | zone 6 (60 lines), the only existing spec edited |
 
 **Measured.** Scout of the 70-line rigidity core: 1 m 44.7 s (contended) for a

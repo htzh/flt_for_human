@@ -75,8 +75,8 @@ needs a visibility switch (which would edit the module and trigger a build wave)
 ## To wire (only if a consumer's statement is diffed)
 
 Add the module to `PORT_FILES` and the pin `S_` file to `SOURCES` — both appended
-last in `spec/check_flt_statements.py` — run
-`python3 spec/check_flt_statements.py`, and reconcile the `identical` delta against
+last in `spec/old_check_stmts.py` — run
+`python3 spec/old_check_stmts.py`, and reconcile the `identical` delta against
 the new public surface (expect roughly +70 for A and +54 for B, all
 promoted-from-pin-private). Then re-run `tools/deps/unwired_register.py` (from the
 repo root) to drop the module's rows from `spec/UNWIRED-PUBLIC.md`. Do not wire a

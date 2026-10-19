@@ -542,7 +542,7 @@ The instruments are those FFG and AC built; nothing new is required.
 
 ### 7.1 The statement checker
 
-`spec/check_flt_statements.py` currently reports **802 identical (53 promoted), 0
+`spec/old_check_stmts.py` currently reports **802 identical (53 promoted), 0
 mismatched, 0 missing**. Each topic appends its `Theorems/Thm_ModularCurve_*.lean`
 wrappers to `SOURCES` and each new module to `PORT_FILES`. Definition
 declarations (m1/m2) have no wrappers and verify by name against their
@@ -658,7 +658,7 @@ sc = re.compile(r'^\s*(import |attribute |namespace |end\b|open |p2m_open|p2m_ex
 def raw(i):  return sum(1 for _ in open(FLT / f"P2M/Sol/S_{d.stem_of[i]}.lean", encoding='utf-8'))
 def cont(i): return sum(1 for l in open(FLT / f"P2M/Sol/S_{d.stem_of[i]}.lean", encoding='utf-8') if not sc.match(l))
 port = "\n".join(p.read_text(encoding='utf-8') for p in (LEAN / 'FLTForHuman').rglob('*.lean'))
-src = re.search(r'SOURCES = \[(.*?)\n\]', (LEAN / 'spec/check_flt_statements.py').read_text(), re.S).group(1)
+src = re.search(r'SOURCES = \[(.*?)\n\]', (LEAN / 'spec/old_check_stmts.py').read_text(), re.S).group(1)
 srcs = set(re.findall(r'"([^"]+)"', src))
 def ported(q):
     if any(s.endswith('Thm_' + q.replace('.', '_') + '.lean') for s in srcs): return True

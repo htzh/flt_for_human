@@ -189,7 +189,7 @@ the ordered field names".
 
 ## 3. Wiring
 
-- **`spec/check_flt_statements.py`.** Append to `SOURCES` the pin files:
+- **`spec/old_check_stmts.py`.** Append to `SOURCES` the pin files:
   `Definitions/Def_FLTPrelim_GaloisRep.lean`,
   `Definitions/Def_FLTPrelim_Ramification.lean`,
   `Definitions/Def_EllipticCurve_FrobeniusTrace.lean`,
@@ -229,7 +229,7 @@ the ordered field names".
 ## 4. Verification gates
 
 1. `cd lean && timeout 180 lake build` — green, no `sorry`/`admit`.
-2. `python3 spec/check_flt_statements.py` — **0 mismatched, 0 missing**; the
+2. `python3 spec/old_check_stmts.py` — **0 mismatched, 0 missing**; the
    identical count rises by the number of new public declarations. Verify the
    checker itself by mutating one token of one new statement and confirming it is
    reported (playbook §7.4).

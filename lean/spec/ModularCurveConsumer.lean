@@ -1253,7 +1253,7 @@ every entry.
     `phiProd` and `toAdjoin_monic` worked verbatim. `TS_injective` — the one
     proof with content, reading the pair `(e, u)` off two coefficients — also
     worked as transcribed.
-12. **Statement correspondence is now mechanical.** `spec/check_flt_statements.py`
+12. **Statement correspondence is now mechanical.** `spec/old_check_stmts.py`
     extracts each port declaration's statement and diffs it against the pinned
     source: **146 of 146 identical** (68 from 0a, 69 from 0b, 9 interface
     lemmas), 0 mismatched, 0 missing. The check is non-vacuous (a mutated

@@ -145,7 +145,7 @@ node needing an `IntermediateField` lemma mathlib lacks.
 - [ ] Consumer **Zone I** (`[transcendence]`) at 0 errors:
       `HasPrincipalDivisors K (RatFunc K)` and the transcendence statement, and a
       composition of the two (the blueprint §7.2 Zone G).
-- [ ] `spec/check_flt_statements.py`: the two wrappers **plus** the two pin `S_`
+- [ ] `spec/old_check_stmts.py`: the two wrappers **plus** the two pin `S_`
       files in `SOURCES`; 0 mismatched, 0 missing.
 - [ ] `#print axioms` on `hasPrincipalDivisors_of_transcendental` and
       `hasPrincipalDivisors_adjoin_of_transcendental` clean.

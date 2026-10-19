@@ -19,7 +19,7 @@ goals in the plain spelling instead of rewriting `⁄`). One declaration,
 `synthInstance.maxHeartbeats 8000000`, transcribed from `kw_surgehgf4_hfgkd_hKD_of_kerTransport`
 (`S_:2882–2885`); that is a fidelity fix, not a cap exception, and it is where the 4 m 49 s goes.
 `FLTForHuman/WeierstrassCurve/Isogeny/TwoCurveDescent.lean` is 1,299 lines and `lake build` is
-green. `spec/TwoCurveDescentConsumer.lean` and the `spec/check_flt_statements.py` wiring
+green. `spec/TwoCurveDescentConsumer.lean` and the `spec/old_check_stmts.py` wiring
 exist; the headline is at `:1255` and the D-5 seam is reused at `:1236`. The promotion pass in
 `IntermediateField.lean` landed 10 helpers (`iA_crCoeffsIn`, `iA_phi`, `iA_ffDescend_exists`,
 `iCa_ffNum`, `iCa_ffDen`, `iCa_ffCoeffSet`, `iCa_crCoeffsIn_of_ffCoeffSet_subset`,
@@ -317,7 +317,7 @@ toward the S row or the capstone; and — the live one — any pressure to impor
 
 - `lake env lean` clean per module; `lake build` for the promoted module and for
   `TwoCurveDescent`; one `flock`ed wave build.
-- `python3 spec/check_flt_statements.py` → **0 mismatched / 0 missing**. Baseline at drafting:
+- `python3 spec/old_check_stmts.py` → **0 mismatched / 0 missing**. Baseline at drafting:
   **`6037 identical (313 promoted, 67 renamed), 0 mismatched, 0 missing, 36 own, 6073 checked`**.
   Expect **+7-or-so promoted** (the §4.1 set, each a `renamed` row) and `+N identical` for the
   new module's public surface; anything else is a bug and must be reconciled. A one-token drift

@@ -87,7 +87,7 @@ demotions (SET-W4), the capstone, the FFG/T-side modules, commits.
 - Public surface unchanged: every headline keeps its name, binders and statement, and the
   `PORT_FILES` entries are unchanged.
 - `timeout 180 lake build` green, 0 warnings, no `sorry`.
-- `python3 spec/check_flt_statements.py`: **0 mismatched, 0 missing**, and the `identical`
+- `python3 spec/old_check_stmts.py`: **0 mismatched, 0 missing**, and the `identical`
   count unchanged from the W1 review (no public declaration moved out of a checked module).
 - `timeout 120 lake env lean spec/WeightOneConsumer.lean` exit 0.
 - `python3 ../tools/deps/port_graph.py --blocks 5` in the tool dir: the level-family block

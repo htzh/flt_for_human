@@ -26,7 +26,7 @@ after SET 1 was reviewed.
 - **`lake build` green**, mathlib `v4.34.0` prebuilt; the paused Hecke effort's
   SET 4 is uncommitted in the working tree and must not be disturbed.
 - **Statement checker: 802 identical (53 promoted), 0 mismatched, 0 missing, 14
-  own-proof** (`python3 spec/check_flt_statements.py`). This is the baseline.
+  own-proof** (`python3 spec/old_check_stmts.py`). This is the baseline.
 - The `AlgebraicCurve` vocabulary the Hecke layer consumes is in
   `FLTForHuman/AlgebraicCurve/Defs/` — in particular `Place` and its `≃ₐ`-action,
   `Divisor`, `Correspondence` (`Divisor.correspondence`, `FundamentalIdentityAlong`,
@@ -117,7 +117,7 @@ jobs in seconds to about a minute**. The lakefile sets `maxHeartbeats` to
 - `timeout 180 lake build` green, 0 warnings, no `sorry`/`admit`.
 - `#print axioms` on the topic's headlines clean
   (`[propext, Classical.choice, Quot.sound]`).
-- `spec/check_flt_statements.py`: sources/files appended; **0 mismatched, 0
+- `spec/old_check_stmts.py`: sources/files appended; **0 mismatched, 0
   missing**, and the identical count ≥ 802.
 - Dedup demonstrated with `grep -c` (m1's private preludes, m3's 4-way prelude).
 - `logs/mc-port.md` section; `README.md` rows.

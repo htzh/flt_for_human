@@ -129,7 +129,7 @@ surface does not expose.
 - [ ] Consumer **Zone G** (`[exchange]`) at 0 errors: the exchange applied to a
       concrete abstract square (this is T7's wire-test rehearsal), with the
       `algebraAlong`/`IsScalarTower` setup itself as the test.
-- [ ] `spec/check_flt_statements.py`: the wrapper plus the pin `S_` source in
+- [ ] `spec/old_check_stmts.py`: the wrapper plus the pin `S_` source in
       `SOURCES`; 0 mismatched, 0 missing.
 - [ ] `#print axioms` on the exchange clean.
 - [ ] `timeout 90 lake build` green, 0 warnings, no `sorry`.

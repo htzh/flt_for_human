@@ -196,7 +196,7 @@ targets):
   five conclusions, and no `jqModC`/`qExpFunctionFieldC` vocabulary — those are the
   pin's and are ported.
 * `Def_ModularCurve_X0ModL.lean` (imported by target 5) is **not** a missing module,
-  despite the `SOURCES` note at `spec/check_flt_statements.py:1830` that its generic
+  despite the `SOURCES` note at `spec/old_check_stmts.py:1830` that its generic
   `modularFunctionFieldFullC` half is deliberately unported: target 5 uses only two
   of that file's 20 declarations, `coeffMap_ofPowerSeries` (ported,
   `Frobenius/Defs.lean:57`) and `coeffMap_jqModC` (**not** a named lemma in the port;
@@ -355,7 +355,7 @@ substitution rows (≈2,104 raw lines) are import, not work.
 
 1. **Checker.** Append the set's `Theorems/Thm_<stem>.lean` wrappers to `SOURCES`
    last and the new modules to `PORT_FILES`; run
-   `python3 spec/check_flt_statements.py`. Target `0 mismatched / 0 missing`.
+   `python3 spec/old_check_stmts.py`. Target `0 mismatched / 0 missing`.
    Baseline today `6520 (312 promoted, 83 renamed), 0 mismatched, 0 missing, 36 own
    (6556 checked)`. Verify with a one-token mutation (expect exactly one more
    `mismatched`) and revert.

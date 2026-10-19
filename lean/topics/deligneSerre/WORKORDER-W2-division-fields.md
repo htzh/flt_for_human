@@ -157,7 +157,7 @@ not be factored into `Elliptic/TorsionZMod.lean`.
 
 ## 7. Wiring
 
-In `lean/spec/check_flt_statements.py`, appending **last** so no earlier last-name match can
+In `lean/spec/old_check_stmts.py`, appending **last** so no earlier last-name match can
 flip, per order:
 
 * order 1: `Theorems/Thm_WeierstrassCurve_nonempty_torsionBy_addEquiv_zmod_prod_of_natCard_torsion_eq_sq.lean`

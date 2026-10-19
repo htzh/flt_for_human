@@ -98,8 +98,8 @@ Two consequences:
   first port. Do not assume it; measure and report it.
 - **This proof has no FLT route to copy.** The port has so far been a
   transcription exercise with mechanical faithfulness checking
-  (`spec/check_flt_statements.py`). Here the *statement* still comes from
-  base/004, but the proof is ours. So `check_flt_statements.py` will report these
+  (`spec/old_check_stmts.py`). Here the *statement* still comes from
+  base/004, but the proof is ours. So `old_check_stmts.py` will report these
   two declarations as `MISSING IN FLT` — that is expected and correct, not a
   failure. Either add an explicit exemption list to the script (preferred, with a
   comment saying why) or state the lemmas with `-- own proof, no FLT source` and
@@ -144,7 +144,7 @@ topic", not "port the cluster".
 - [x] `#print axioms` on both: only `propext, Classical.choice, Quot.sound`.
 - [x] Consumer: the two Zone C `sorry`s replaced by references to the new
       theorems; the file's only remaining `sorry` is the capstone.
-- [x] `spec/check_flt_statements.py` still reports 0 mismatches (with the two new
+- [x] `spec/old_check_stmts.py` still reports 0 mismatches (with the two new
       declarations handled explicitly, not silently).
 - [x] `logs/ffg-port.md` gains a short section: measured cost of this topic, the
       proof-cost ratio, and whether the mathlib route held up.

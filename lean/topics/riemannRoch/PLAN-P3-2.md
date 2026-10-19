@@ -379,7 +379,7 @@ bounded refactor round** (R1–R10, 2026-09-30): every open item is resolved exc
 **R7**, which the human directed to keep as accepted duplication (§6.3). The round
 edited existing modules, so it ended with one whole-tree build.
 
-Final verification: `python3 spec/check_flt_statements.py` → **4071 identical / 0
+Final verification: `python3 spec/old_check_stmts.py` → **4071 identical / 0
 mismatched / 0 missing / 30 own-proof** (4101 checked), up from the 4049 baseline.
 
 ### 6.1 R1–R10 — executed (2026-09-30)

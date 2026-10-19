@@ -17,7 +17,7 @@ checklist.
 
 ## 1. State
 
-- **Checker:** `python3 spec/check_flt_statements.py` → **4182 identical / 0
+- **Checker:** `python3 spec/old_check_stmts.py` → **4182 identical / 0
   mismatched / 0 missing / 30 own-proof** (4212 checked) — 4144 before row 3.7, 4071
   before row 3.6, 4049 before the refactor round. Re-verified live.
 - **Builds:** whole-tree `lake build` green (4,901 jobs) at the refactor round; rows
@@ -119,7 +119,7 @@ The P3.2 round is done; the authoritative dispositions are
 
 ```bash
 cd lean
-python3 spec/check_flt_statements.py                       # 4071 / 0 / 0 / 30
+python3 spec/old_check_stmts.py                       # 4071 / 0 / 0 / 30
 flock /tmp/flt_for_human.lock timeout 300 lake build FLTForHuman.AlgebraicCurve.P1.Core
 lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false spec/RiemannRochConsumer.lean
 python3 ../tools/check_math_delimiters.py ../lean/topics/riemannRoch/*.md

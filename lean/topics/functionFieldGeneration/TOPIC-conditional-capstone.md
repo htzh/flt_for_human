@@ -192,7 +192,7 @@ turn out to be glue, expect 1–2.
   reason for each survivor.
 - [x] Consumer: `functionFieldGeneration_of` bound in Zone B; prose updated; the
   only `sorry` still the unconditional capstone.
-- [x] `spec/check_flt_statements.py` reports 0 mismatches, with
+- [x] `spec/old_check_stmts.py` reports 0 mismatches, with
   `functionFieldGeneration_of` in `OWN_PROOFS` (commented).
 - [x] `logs/ffg-port.md` gains a §2d with measured cost, and §8's option space
   updated: the conditional capstone is done, so the remainder is now a structure

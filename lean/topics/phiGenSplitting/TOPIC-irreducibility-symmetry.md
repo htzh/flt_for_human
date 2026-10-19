@@ -524,7 +524,7 @@ one that matches the statement; keep it.
       the block's `_rat` copy are deleted; T11 modules rebuilt green.
 - [x] `lake build` green, 0 warnings, no `sorry` (3817 jobs).
 - [x] `#print axioms` clean on every public declaration.
-- [x] `spec/check_flt_statements.py`: thirteen wrappers added plus the two block
+- [x] `spec/old_check_stmts.py`: thirteen wrappers added plus the two block
       `S_` files, **213 → 233, 0 mismatched, 0 missing**; `PORT_FILES` gains the
       three modules.
 - [x] the wire item from §5.4 recorded, green in Zone J.

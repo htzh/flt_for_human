@@ -149,7 +149,7 @@ pin sources are already listed (P-SET-1's `Def_PeriodPair_Uniformization` plus t
 
 - `lake env lean` clean per edited file; `lake build` per module; one wave `lake build`;
   then the whole-tree `flock`ed build.
-- `python3 spec/check_flt_statements.py` → `0 mismatched / 0 missing`. Baseline (P-SET-1
+- `python3 spec/old_check_stmts.py` → `0 mismatched / 0 missing`. Baseline (P-SET-1
   landed): **`5853 identical (313 promoted, 4 renamed), 0 mismatched, 0 missing, 36 own,
   5889 checked`**. Reconcile every delta: a deleted duplicate is an expected −1; an alias
   is a new compared declaration.

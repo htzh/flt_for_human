@@ -310,7 +310,7 @@ Tier 1 only; Tiers 2–4 are explicitly out of scope. **All items satisfied
       unchanged (the T8 payload calls the shared `heckeRep_mul` at `N := 1`).
 - [x] `lake build` green, 0 warnings, no `sorry`.
 - [x] `#print axioms` on the five: only `propext, Classical.choice, Quot.sound`.
-- [x] `spec/check_flt_statements.py`: the five Tier-1 wrappers added to
+- [x] `spec/old_check_stmts.py`: the five Tier-1 wrappers added to
       `SOURCES`, verified count 618 → **682**, 0 mismatched, 0 missing. The
       Tier-0 operator declarations are matched by name against
       `Definitions/Def_ModularForm_HeckeOperator.lean` (already in `SOURCES`); no

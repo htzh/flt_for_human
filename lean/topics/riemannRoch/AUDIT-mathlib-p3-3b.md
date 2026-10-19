@@ -143,7 +143,7 @@ in the definitions file's neighbourhood but the port's `Defs/TateResidueCurrency
 does not carry it.)
 
 **Correction 3 — the ten `scoped instance`s are invisible to both tools.** The
-checker's `DECL_RE` (`spec/check_flt_statements.py:2395`) only accepts the modifiers
+checker's `DECL_RE` (`spec/old_check_stmts.py:2395`) only accepts the modifiers
 `private`/`noncomputable`, so `scoped instance` is never read; `port_advise` likewise
 reports 108 declarations with none of the tail instances. They still must elaborate:
 the six trace-range instances and the four `DualDom` instances. Land them explicitly.

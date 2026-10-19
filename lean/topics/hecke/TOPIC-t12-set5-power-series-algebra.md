@@ -128,7 +128,7 @@ state which you chose.
 ## 5. Verification gates
 
 1. `cd lean && timeout 180 lake build` — green, no `sorry`/`admit`.
-2. `python3 spec/check_flt_statements.py` — the three statements identical,
+2. `python3 spec/old_check_stmts.py` — the three statements identical,
    **0 mismatched, 0 missing**; mutate one token and confirm `1 mismatched`, then
    revert.
 3. `#print axioms` on the three new statements — only

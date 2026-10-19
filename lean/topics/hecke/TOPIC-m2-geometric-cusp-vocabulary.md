@@ -168,7 +168,7 @@ AC lemma is missing, report it rather than reproving.
 
 - Append the six pin definition files to the checker's `SOURCES` and the six port
   modules to `PORT_FILES`.
-- Run `python3 spec/check_flt_statements.py`: 0 mismatched, 0 missing, identical
+- Run `python3 spec/old_check_stmts.py`: 0 mismatched, 0 missing, identical
   count ≥ 802.
 - `#print axioms` on `geomAut`, `qInftyPlaceBar`,
   `qIntegersBar_isPrincipalIdealRing`, `modularUnitSeries`,

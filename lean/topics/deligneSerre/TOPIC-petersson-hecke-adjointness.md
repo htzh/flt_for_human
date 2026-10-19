@@ -172,6 +172,6 @@ lake env lean -DautoImplicit=false -DmaxHeartbeats=200000 \
     FLTForHuman/ModularForms/Analytic/PeterssonHeckeTheorems.lean
 flock .lake/flt_build.lock timeout 300 lake build \
     FLTForHuman.ModularForms.Analytic.PeterssonHeckeTheorems
-python3 spec/check_flt_statements.py          # 9877 identical
+python3 spec/old_check_stmts.py          # 9877 identical
 python3 tools/deps/unwired_register.py        # engine 100/100 pin originals
 ```

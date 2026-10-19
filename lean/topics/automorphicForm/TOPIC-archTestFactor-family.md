@@ -18,7 +18,7 @@ The organizing rules this note applies are the ones the recent landings settled:
   declarations the current headline reaches are the floor, not the scope;
 * **public API public, checker wiring by consumer** — every ported declaration is
   public at the pin's name, but only modules with a real consumer are listed in
-  `spec/check_flt_statements.py`; everything else is registered in
+  `spec/old_check_stmts.py`; everything else is registered in
   [spec/UNWIRED-PUBLIC.md](../../spec/UNWIRED-PUBLIC.md) by
   `tools/deps/unwired_register.py`;
 * **natural homing** — one module per mathematical role, not one per pin file;
@@ -337,7 +337,7 @@ modules; any `Definitions/` edit; the `p2m_*` scaffolding; the pin's file-wide
 
 ## 8. Verification
 
-* **Checker.** `timeout 300 python3 spec/check_flt_statements.py`, `0 mismatched /
+* **Checker.** `timeout 300 python3 spec/old_check_stmts.py`, `0 mismatched /
   0 missing`; the `identical` delta equals the new listed surface (the façade's
   one headline, once wired). Pin-`private` matches verify through the dotted
   fallback and show as `promoted`.
@@ -411,7 +411,7 @@ timeout 120 lake env lean -DmaxHeartbeats=200000 -DautoImplicit=false FLTForHuma
 flock .lake/flt_build.lock timeout 300 lake build FLTForHuman.AutomorphicForm.Adelic.ArchHaar
 cd ..
 python3 tools/deps/unwired_register.py
-cd lean && timeout 300 python3 spec/check_flt_statements.py
+cd lean && timeout 300 python3 spec/old_check_stmts.py
 ```
 
 The pin sources are public at

@@ -247,7 +247,7 @@ a written report, not a forced transcription.
 
 - `lake env lean` clean; `lake build FLTForHuman.Elliptic.PeriodPair.LatticeIndex`; one
   `flock`ed wave build; whole-tree `lake build` green.
-- `python3 spec/check_flt_statements.py` → **0 mismatched / 0 missing**. Baseline at drafting
+- `python3 spec/old_check_stmts.py` → **0 mismatched / 0 missing**. Baseline at drafting
   (after S-1 landed): `6074 statements identical (313 promoted from pin-private declarations,
   83 renamed), 0 mismatched, 0 missing, 36 own-proof declarations exempted (6110 port
   declarations checked)`. **Re-run it at dispatch.** Reconcile every delta: the set adds the

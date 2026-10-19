@@ -142,7 +142,7 @@ Append **last**:
 
 ```bash
 cd lean
-python3 spec/check_flt_statements.py                    # 0 mismatched / 0 missing
+python3 spec/old_check_stmts.py                    # 0 mismatched / 0 missing
 flock /tmp/flt_for_human.lock timeout 900 lake build FLTForHuman.AlgebraicCurve.ResidueTheorem.RRAssembly
 lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false spec/RiemannRochConsumer.lean
 # #print axioms on the headline; hygiene grep; .olean mtimes

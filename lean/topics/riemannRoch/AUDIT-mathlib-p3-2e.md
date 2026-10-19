@@ -177,7 +177,7 @@ versions (`{K F} [Algebra K F]`, `LocalResidueCalculus.lean:397–1182`), while 
 `p0n22_cpf_res_differentialCoeff_D_mul_pow_inv_of_surj`
 (`LocalResidueCalculus.lean:1182`) even carries an extra `hint` hypothesis the master's
 `RatFunc K` copy discharges with `ag9b13e_differentialCoeff_D_mem_of_mem_of_perfectField`
-(#519). This is safe only because the checker (`lean/spec/check_flt_statements.py:2509–2536`)
+(#519). This is safe only because the checker (`lean/spec/old_check_stmts.py:2509–2536`)
 keys port declarations against *all* `SOURCES` candidates by last name and accepts a match
 against any: the generic 3.2d′ `S_` file is registered (`:1638–1639`), so the generic port
 copy verifies against it. Because the port *cannot* declare a second global
@@ -592,7 +592,7 @@ P1Dictionary, CanonicalLocalResidueInstanceV2, PlaceDictionary, RatFuncPlaces}.l
 or `Mathlib.FieldTheory.Differential.Basic` — off-path (§18.2–§18.4).
 
 **Checker wiring.** `SOURCES` already list the `Theorems/` wrapper and the master `S_` file
-(`spec/check_flt_statements.py:1631–1632`) and the 3.2d′ files (`:1638–1639`); `PORT_FILES`
+(`spec/old_check_stmts.py:1631–1632`) and the 3.2d′ files (`:1638–1639`); `PORT_FILES`
 already include `Defs/P1ResidueCore.lean` and `Defs/LocalResidueCalculus.lean`. No checker
 edit. Note that the checker iterates `PORT_FILES` and looks each port declaration up among
 *all* source candidates by last name (`:2538–2570`), so "0 missing" is not by itself

@@ -300,7 +300,7 @@ The port side, per the column's §6:
 cd lean
 timeout 120 lake env lean -DautoImplicit=false -DmaxHeartbeats=200000 FLTForHuman/LanglandsTunnell/ArchParam.lean
 flock .lake/flt_build.lock timeout 300 lake build FLTForHuman.LanglandsTunnell.ArchParam
-timeout 300 python3 spec/check_flt_statements.py
+timeout 300 python3 spec/old_check_stmts.py
 python3 tools/deps/unwired_register.py --check
 ```
 

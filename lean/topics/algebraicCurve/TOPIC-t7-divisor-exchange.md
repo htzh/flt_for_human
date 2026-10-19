@@ -131,7 +131,7 @@ production of an impossible goal shape (quote it).
       wire test, then compose with `Pic0.correspondence_correspondence_comm`.
       (T4 already added a first exchange zone; this closes it.)
 - [ ] `#print axioms` on the theorem is `[propext, Classical.choice, Quot.sound]`.
-- [ ] `spec/check_flt_statements.py`: the AC wrapper in `SOURCES`; 0 mismatched,
+- [ ] `spec/old_check_stmts.py`: the AC wrapper in `SOURCES`; 0 mismatched,
       0 missing.
 - [ ] `timeout 90 lake build` green, **0 warnings**, no `sorry`; the consumer at
       0 errors.

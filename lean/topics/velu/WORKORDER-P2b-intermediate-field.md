@@ -104,7 +104,7 @@ declaration** is allowed only if the pin does it — prefer restructuring).
   `Theorems/Thm_WeierstrassCurve_exists_intermediateField_countable_map_eq_and_finrankAlong_eq.lean`
   and `P2M/Sol/S_WeierstrassCurve_exists_intermediateField_countable_map_eq_and_finrankAlong_eq.lean`
   to `SOURCES` (last, wrapper first) if D-1 did not already.
-- `python3 spec/check_flt_statements.py` → 0 mismatched / 0 missing; reconcile the delta
+- `python3 spec/old_check_stmts.py` → 0 mismatched / 0 missing; reconcile the delta
   against §2.
 - One `spec/` zone composing the headline with a concrete curve and a ported
   `finrankAlong` fact, or a hypothesis-form test if a concrete instance needs unported

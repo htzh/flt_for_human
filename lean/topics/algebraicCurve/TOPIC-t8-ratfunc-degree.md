@@ -219,7 +219,7 @@ result the AC0 `RatFuncPlaces` surface does not expose.
       `finite_setOf_ord_ne_zero` and `degree_eq_zero_of_forall_eq_ord` on a concrete
       rational function (e.g. `RatFunc.X` or `Polynomial.X`), plus
       `deg_ofHeightOneSpectrum`/`deg_eq_one…` on `RatFunc.X`'s place.
-- [ ] `spec/check_flt_statements.py`: the 11 wrappers in `SOURCES`; 0 mismatched,
+- [ ] `spec/old_check_stmts.py`: the 11 wrappers in `SOURCES`; 0 mismatched,
       0 missing.
 - [ ] `#print axioms` on `finite_setOf_ord_ne_zero` and
       `degree_eq_zero_of_forall_eq_ord_algebraMap` clean.

@@ -38,7 +38,7 @@ audit. Pin `anthropics/fermats-last-theorem@aa2d8b3` (local clone
 | defs rectification plan | [PLAN-RECTIFY-DEFS.md](PLAN-RECTIFY-DEFS.md) — the definitions-round rule, the `Defs/` home table, the ℙ¹ core breakout |
 | work orders | `WORKORDER-<set>.md`, one per dispatched set |
 | mathlib audits | `AUDIT-mathlib*.md`, one per set, **written by the port worker** as its first step |
-| statement checker | `lean/spec/check_flt_statements.py` |
+| statement checker | `lean/spec/old_check_stmts.py` |
 | consumer wire test | `lean/spec/RiemannRochConsumer.lean` |
 | friction log | `lean/logs/riemann-roch-friction.md` |
 | port modules | `lean/FLTForHuman/AlgebraicCurve/{Defs,PrincipalDivisors,Genus,RiemannRoch,Canonical,IsCurveOver,WeilExchange,P1,LocalResidue}/` |
@@ -97,7 +97,7 @@ python3 port_advise.py --nodes "$(cat build/<set>_nodes.txt)" \
 
 # 2. the checker, after any port work (from lean/)
 cd lean
-python3 spec/check_flt_statements.py          # must end 0 mismatched / 0 missing
+python3 spec/old_check_stmts.py          # must end 0 mismatched / 0 missing
 
 # 3. builds — the ladder (see §3)
 timeout 120 lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false <file>
@@ -136,7 +136,7 @@ three new modules cost 2.0 / 2.6 / 5.3 s with no whole-tree build at all.
 
 ## 4. Checker wiring
 
-`lean/spec/check_flt_statements.py` diffs every port declaration's *statement*
+`lean/spec/old_check_stmts.py` diffs every port declaration's *statement*
 against the pin, by last name, proof bodies ignored. For each new set append
 **last** (order matters only to disambiguate same-last-name collisions):
 
@@ -218,7 +218,7 @@ promotion debt — do not inline new mathematics and do not edit a frozen module
 
 Before accepting a set, the manager independently:
 
-- [ ] `python3 spec/check_flt_statements.py` → `0 mismatched / 0 missing`, `30
+- [ ] `python3 spec/old_check_stmts.py` → `0 mismatched / 0 missing`, `30
       own-proof`.
 - [ ] forced per-module `lake build <module>` green for each new module; **no
       whole-tree build** unless the set edited existing files.

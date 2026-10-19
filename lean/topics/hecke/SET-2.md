@@ -52,7 +52,7 @@ on:
   `exists_levelOne_coe_eq_zpow_smul_add_heckeU_slash_fricke`), the second two
   in the private namespaces `HeckeFricke` (123–337) and `HeckeFrickeLevelOne`
   (358–637).
-- **`spec/check_flt_statements.py`** has the five Tier-1 wrappers in `SOURCES`
+- **`spec/old_check_stmts.py`** has the five Tier-1 wrappers in `SOURCES`
   and the two new modules in `PORT_FILES`; `README.md` and `logs/hecke-port.md`
   are current.
 
@@ -142,7 +142,7 @@ error quickly; the `timeout` bound is load-bearing.
 - `timeout 90 lake build` green, **0 warnings**, no `sorry`/`admit`.
 - `#print axioms` on the topic's public headlines: only
   `propext, Classical.choice, Quot.sound`.
-- `spec/check_flt_statements.py`: the topic's sources appended; **0 mismatched,
+- `spec/old_check_stmts.py`: the topic's sources appended; **0 mismatched,
   0 missing**.
 - The dedup is demonstrated with `grep -c` counts (T2: the deleted private
   copies; T3/T4: the block exists in exactly one port module).

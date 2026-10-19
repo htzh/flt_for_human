@@ -101,8 +101,8 @@ locally as `private` in your module and report it. If a promotion seems genuinel
 ## 6. Wiring — verify with a private probe; the manager wires the shared file
 
 This wave dispatches W5 and W6 in parallel, so **do not edit the shared
-`lean/spec/check_flt_statements.py`** — the manager appends both sets' rows at review. For full
-checker feedback, run a private copy: `cp spec/check_flt_statements.py spec/_probe_w5.py` (W6 uses
+`lean/spec/old_check_stmts.py`** — the manager appends both sets' rows at review. For full
+checker feedback, run a private copy: `cp spec/old_check_stmts.py spec/_probe_w5.py` (W6 uses
 `_probe_w6.py`, so the two never collide), append to that copy the target's
 `Theorems/Thm_WeierstrassCurve_exists_reduceHom_eq_of_nsmul_eq_zero_of_natCast_ne_zero.lean` and
 `P2M/Sol/S_WeierstrassCurve_exists_reduceHom_eq_of_nsmul_eq_zero_of_natCast_ne_zero.lean` to
@@ -146,4 +146,4 @@ gave 7368/1/0 and the revert restored 7369/0/0. `#print axioms`:
 `[propext, Classical.choice, Quot.sound]`. Drift handled at the call site only: the pin's
 now-unneeded `NeZero ℓ` block before `Nat.card_zmod` was dropped, and `Affine.Point.some_ne_zero`
 is the port's one-argument form. The manager appended the two `SOURCES` rows (wrapper + `S_` file)
-and the `PORT_FILES` row to `spec/check_flt_statements.py` and re-confirmed 7369/0/0.
+and the `PORT_FILES` row to `spec/old_check_stmts.py` and re-confirmed 7369/0/0.

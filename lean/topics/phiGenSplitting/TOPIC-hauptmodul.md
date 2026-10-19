@@ -97,7 +97,7 @@ sum — and it closes R1.
   it — the "deduplicate at the source" rule of [porting-playbook.md](../../porting-playbook.md)
   §2. Say so in the module header.
 - **Settled: the headline's statement is the pin's, verbatim.** Its wrapper
-  exists, so `spec/check_flt_statements.py` verifies it. Add the wrapper to
+  exists, so `spec/old_check_stmts.py` verifies it. Add the wrapper to
   `SOURCES`. The newly public `RealL`/`hasSum_qParam_mul*` also have `Thm_`
   wrappers — verify them too (`hasSum_qParam_mul_laurent`'s wrapper statement is
   in the pin at the `solution`).
@@ -235,7 +235,7 @@ predicate.
       `mem_adjoin_jq_of_realL_invariant` private.
 - [x] `lake build` green, 0 warnings, no `sorry`.
 - [x] `#print axioms` clean.
-- [x] `spec/check_flt_statements.py`: the wrappers added to `SOURCES` (153 → 168),
+- [x] `spec/old_check_stmts.py`: the wrappers added to `SOURCES` (153 → 168),
       0 mismatched; `PORT_FILES` gains the module.
 - [x] the cross-module wire test from §4 recorded, with its form named (consumer
       Zone E).

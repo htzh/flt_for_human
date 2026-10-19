@@ -91,7 +91,7 @@ two copies without a reason.
 
 ### Not in this round
 
-The checker's missing `class` branch (`DECL_RE` at `spec/check_flt_statements.py:2124`)
+The checker's missing `class` branch (`DECL_RE` at `spec/old_check_stmts.py:2124`)
 is a **separate tooling task**; note it, do not change the checker's kind set here.
 
 ## 1. Acceptance criteria
@@ -118,7 +118,7 @@ git commands.
 
 ```bash
 cd lean
-python3 spec/check_flt_statements.py
+python3 spec/old_check_stmts.py
 flock /tmp/flt_for_human.lock timeout 400 lake build FLTForHuman.AlgebraicCurve
 ```
 

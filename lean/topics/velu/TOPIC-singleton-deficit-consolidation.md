@@ -60,7 +60,7 @@ same expansion.
 
 The general identity has to live in `Defs` (or upstream): `Formula` imports
 `Defs`, so the shared proof cannot live in the pinned home. The new public
-declaration is registered in `spec/check_flt_statements.py`'s `OWN_PROOFS` (by
+declaration is registered in `spec/old_check_stmts.py`'s `OWN_PROOFS` (by
 last name), which is what keeps the check at 0 missing rather than 1.
 
 ## 3. What this says about the recipe
@@ -336,7 +336,7 @@ identity itself was 42 MB of monomial certificate; it is now a 1.2 MB normalized
 curve-equation transport.
 
 **Verification.** `Engine`, `CyclicQuotientJ`, `Equivariance`,
-`ModularPolynomialFibreTwo` and `OrderTwo` rebuild. `spec/check_flt_statements.py`
+`ModularPolynomialFibreTwo` and `OrderTwo` rebuild. `spec/old_check_stmts.py`
 reports **0 mismatched, 0 missing**, 42 exemptions (9786 identical); no public
 statement changed.
 

@@ -136,8 +136,8 @@ its helpers stay `EisensteinSeries`/`private`.
 ## 4. Verification, build discipline, closing
 
 - Checker wiring: append each new module to `PORT_FILES` and each pin
-  `P2M/Sol/S_*.lean` to `SOURCES` in `spec/check_flt_statements.py` (closing `]` at
-  lines 1607 and 1248); append last. Run `python3 spec/check_flt_statements.py`
+  `P2M/Sol/S_*.lean` to `SOURCES` in `spec/old_check_stmts.py` (closing `]` at
+  lines 1607 and 1248); append last. Run `python3 spec/old_check_stmts.py`
   after each module; it must stay 0 mismatched / 0 missing.
 - Edit loop: `timeout 60 lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false <file>`.
   File done: `flock /tmp/flt_for_human.lock timeout 120 lake build FLTForHuman.<Dotted.Path>`.

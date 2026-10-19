@@ -251,7 +251,7 @@ module before writing the whole file, and report a blow-up rather than bisecting
 
 - `lake env lean` clean per module; `lake build <module>`; then one wave `lake build`
   over the set, bounded and `flock`ed, timed (wall + user/sys).
-- `python3 spec/check_flt_statements.py` → **0 mismatched / 0 missing**. Baseline
+- `python3 spec/old_check_stmts.py` → **0 mismatched / 0 missing**. Baseline
   **`5869 identical (313 promoted, 5 renamed), 0 mismatched, 0 missing, 36 own, 5905
   checked`** (2026-10-06, after P-SET-2). Reconcile every delta; a mismatch is a bug.
 - The `SOURCES` entries for a set are the `Theorems/` wrapper plus the `S_` file of each

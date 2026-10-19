@@ -179,7 +179,7 @@ Do **not** reimplement any T11 declaration. Import
 
 ## 4. Wiring
 
-- Append to `SOURCES` in `spec/check_flt_statements.py`:
+- Append to `SOURCES` in `spec/old_check_stmts.py`:
   `Theorems/Thm_ValuationSubring_exists_integral_mul_eq_of_liesOverPrime.lean`,
   `Theorems/Thm_ValuationSubring_exists_isFrobeniusAt_of_liesOverPrime.lean`,
   `Theorems/Thm_ValuationSubring_exists_isFrobeniusAt_rat.lean`,
@@ -204,7 +204,7 @@ Do **not** reimplement any T11 declaration. Import
 ## 5. Verification gates
 
 1. `cd lean && timeout 180 lake build` — green, no `sorry`/`admit`.
-2. `python3 spec/check_flt_statements.py` — the seven new statements identical,
+2. `python3 spec/old_check_stmts.py` — the seven new statements identical,
    **0 mismatched, 0 missing**; the identical count rises by the number of new
    public declarations and the exempted count by the §2 promotion. Mutate one
    token of one new statement and confirm it reports `1 mismatched`, then revert

@@ -265,7 +265,7 @@ lemma (R5) is **not** the route — PlaceCompletion's weaker
 
 ## 5. Checker wiring, build, verification
 
-Append **last** to `spec/check_flt_statements.py`:
+Append **last** to `spec/old_check_stmts.py`:
 - `SOURCES` += `Definitions/Def_AlgebraicCurve_PlaceCompletion.lean`, then
   `Definitions/Def_AlgebraicCurve_CanonicalLocalResidueInstanceV2.lean` (last so
   no earlier last-name match flips; `Def_AlgebraicCurve_DivisorPushPull` and
@@ -281,7 +281,7 @@ Build discipline: edit loop `timeout 120 lake env lean
 Verification:
 ```bash
 cd lean
-python3 spec/check_flt_statements.py                    # 0 mismatched / 0 missing
+python3 spec/old_check_stmts.py                    # 0 mismatched / 0 missing
 flock /tmp/flt_for_human.lock timeout 240 lake build FLTForHuman.AlgebraicCurve.Defs.PlaceCompletion
 flock /tmp/flt_for_human.lock timeout 240 lake build FLTForHuman.AlgebraicCurve.Defs.CanonicalLocalResidueInstanceV2
 # #print axioms on instHasCanonicalLocalResidueKStar's witness and completionSection_nonempty_generic

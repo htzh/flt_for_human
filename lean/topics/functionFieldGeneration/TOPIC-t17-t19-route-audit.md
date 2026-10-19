@@ -227,7 +227,7 @@ no path.
 3. **Fan out the five level-0 workstreams** in parallel; keep `rval_aux` and the
    private non-membership in one module.
 4. **Route-check the slot-count closed form** before writing `slotAt_mul`.
-5. Keep `check_flt_statements.py` green on the *statements*: the survivors'
+5. Keep `old_check_stmts.py` green on the *statements*: the survivors'
    statements are the pin's verbatim, and the six dropped nodes are not in the
    outbound tier, so checker coverage of what the rest of FLT reaches is
    unchanged. Record the reduced statement count rather than claiming the full

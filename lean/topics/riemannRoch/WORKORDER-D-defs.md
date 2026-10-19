@@ -138,7 +138,7 @@ from `Defs/Divisor.lean`, `Divisor.pullback` from `Defs/PushPull.lean`,
 
 ## 4. Checker wiring, build discipline, verification
 
-**Checker wiring** (`spec/check_flt_statements.py`), appended **last** so a bare
+**Checker wiring** (`spec/old_check_stmts.py`), appended **last** so a bare
 last-name match cannot flip an earlier entry:
 - `SOURCES` += the seven pin `Definitions/Def_*.lean` files of §1, in the §1 order.
   `Def_AlgebraicCurve_CanonicalDivisor` must come **after**
@@ -163,7 +163,7 @@ with `flock`.
 **Verification.**
 ```bash
 cd lean
-python3 spec/check_flt_statements.py        # expect 0 mismatched / 0 missing; identical count up by ~147
+python3 spec/old_check_stmts.py        # expect 0 mismatched / 0 missing; identical count up by ~147
 flock /tmp/flt_for_human.lock timeout 120 lake build FLTForHuman.AlgebraicCurve.Defs.AdelicIndex
 # #print axioms on the six predicates + genus + indexOfSpecialty once they are public
 ```

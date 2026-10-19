@@ -90,7 +90,7 @@ the default cap errors in ~15–20 s (it does not hang).
 3. Public surface: only the headlines. Pin-private helpers that the port needs
    become `private` in the port's module.
 4. Checker: append every order's wrappers to `SOURCES` and both modules to
-   `PORT_FILES` in `spec/check_flt_statements.py`. Target **0 mismatched,
+   `PORT_FILES` in `spec/old_check_stmts.py`. Target **0 mismatched,
    0 missing**.
 5. **No commits.** The working tree is the hand-off. Do not touch the pin.
 6. Do not touch the FFG modules (`ModularCurve/ModularPolynomial*`,
@@ -103,7 +103,7 @@ the default cap errors in ~15–20 s (it does not hang).
 - `timeout 90 lake build <module>` green with 0 warnings, no `sorry`/`admit`.
 - `#print axioms` on the module's headlines clean
   (`[propext, Classical.choice, Quot.sound]`).
-- `spec/check_flt_statements.py`: sources appended, **0 mismatched, 0 missing**.
+- `spec/old_check_stmts.py`: sources appended, **0 mismatched, 0 missing**.
 - `README.md` row added.
 - No statement weakened; if one cannot match its wrapper, quote both and stop.
 

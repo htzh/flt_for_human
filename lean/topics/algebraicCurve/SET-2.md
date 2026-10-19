@@ -115,7 +115,7 @@ checker **586 identical, 0 mismatched, 0 missing**, consumer **0 errors**,
   mathlib-only imports, namespace `AlgebraicCurve`.
 - `timeout 90 lake build` green, **0 warnings**, no `sorry`.
 - The topic's consumer zone at 0 errors with a real wire test.
-- `spec/check_flt_statements.py`: the topic's sources appended; **0 mismatched,
+- `spec/old_check_stmts.py`: the topic's sources appended; **0 mismatched,
   0 missing**.
 - `#print axioms` on the topic's headlines clean.
 - `logs/ac-port.md` section + friction log; `README.md` table row(s).

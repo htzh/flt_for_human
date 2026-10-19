@@ -135,8 +135,8 @@ locally as `private` in your module and report it. If a promotion seems genuinel
 ## 6. Wiring — verify with a private probe; the manager wires the shared file
 
 This wave dispatches W5 and W6 in parallel, so **do not edit the shared
-`lean/spec/check_flt_statements.py`** — the manager appends both sets' rows at review. For full
-checker feedback, run a private copy: `cp spec/check_flt_statements.py spec/_probe_w6.py` (W5 uses
+`lean/spec/old_check_stmts.py`** — the manager appends both sets' rows at review. For full
+checker feedback, run a private copy: `cp spec/old_check_stmts.py spec/_probe_w6.py` (W5 uses
 `_probe_w5.py`, so the two never collide), append to that copy the target's
 `Theorems/Thm_WeierstrassCurve_exists_inertia_equivariant_reduction_of_variableChange_eq_map.lean`
 and `P2M/Sol/S_WeierstrassCurve_exists_inertia_equivariant_reduction_of_variableChange_eq_map.lean`

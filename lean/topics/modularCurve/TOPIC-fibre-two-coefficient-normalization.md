@@ -122,7 +122,7 @@ the characteristic-3 reason.
 
 ## 5. Verification and measurements
 
-* **Statement faithfulness.** `spec/check_flt_statements.py`: **9792 statements identical, 0
+* **Statement faithfulness.** `spec/old_check_stmts.py`: **9792 statements identical, 0
   mismatched, 0 missing, 83 renamed, 42 own-proof declarations exempted**; the headline is still
   the pin's wrapper statement verbatim.
 * **Module.** `lake build FLTForHuman.ModularCurve.ModularPolynomialFibreTwo`: **6.3 s**, 0

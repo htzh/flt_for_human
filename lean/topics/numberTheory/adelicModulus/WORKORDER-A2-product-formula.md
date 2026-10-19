@@ -18,7 +18,7 @@ files below, 177 net new lines, 17 declaration groups.
 
 **Explicitly not this order.** The four `solution` declarations (the façade owns the four
 wrapped headlines), the tier-1 façade, `SOURCES`/`PORT_FILES` wiring,
-`spec/UNWIRED-PUBLIC.md`, `spec/check_flt_statements.py`, and everything in
+`spec/UNWIRED-PUBLIC.md`, `spec/old_check_stmts.py`, and everything in
 WORKORDER-A1. No promotion, no edit to any existing module.
 
 ## 2. The chain, in dependency order
@@ -118,7 +118,7 @@ the fix.
 | name parity against `port_advise` on the four files | all 17 new names present once each, none invented, the four `solution`s absent |
 | `python3 tools/deps/unwired_register.py --check` | report only (do **not** rewrite the register) |
 
-Do **not** run `spec/check_flt_statements.py` and do **not** edit the register. No wiring
+Do **not** run `spec/old_check_stmts.py` and do **not** edit the register. No wiring
 for this order: the engine is tier 3.
 
 ## 8. Report shape

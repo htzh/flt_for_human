@@ -168,7 +168,7 @@ report.
 ## 5. Verification gates
 
 1. `cd lean && timeout 180 lake build` — green, no `sorry`/`admit`.
-2. `python3 spec/check_flt_statements.py` — after the public theorem lands, it is
+2. `python3 spec/old_check_stmts.py` — after the public theorem lands, it is
    identical to the wrapper, **0 mismatched, 0 missing**; mutate one token and
    confirm `1 mismatched`, then revert.
 3. `#print axioms` on `Algebra.PatchingDatum.nonempty_patchingLevel_bot` — only

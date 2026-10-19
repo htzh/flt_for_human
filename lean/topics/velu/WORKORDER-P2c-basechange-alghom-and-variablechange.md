@@ -104,7 +104,7 @@ to `v4.34.0`; a shared declaration D-1 claimed differently; any pull toward the 
 - `lake env lean` clean on both; `lake build` each.
 - Append both modules to `PORT_FILES` (last); append the two wrappers and their `S_` files to
   `SOURCES` (last, wrapper first) — unless D-1 already did.
-- `python3 spec/check_flt_statements.py` → 0 mismatched / 0 missing; reconcile the delta.
+- `python3 spec/old_check_stmts.py` → 0 mismatched / 0 missing; reconcile the delta.
 - A `spec/` zone per module (or one shared zone) with a real executed cross-module
   composition; deleting either module must make it fail.
 - `#print axioms` clean on both headlines; no `sorry`. Whole-tree `flock`ed `lake build`;

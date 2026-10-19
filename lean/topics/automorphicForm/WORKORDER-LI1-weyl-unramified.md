@@ -29,7 +29,7 @@ job: the headline cannot be stated before the prelude is homed.
   prelude declaration is shared, home it in the prelude module so LI-2 imports it;
 * **any edit to an existing module.** `TateGlobal/WeylPrelude.lean`, `TateGlobal/MulHaar.lean` (whose
   `isOpenEmbedding_val` is now public) and every other existing file are **frozen**;
-* the checker wiring (`spec/check_flt_statements.py`): the manager appends to `SOURCES`/`PORT_FILES`
+* the checker wiring (`spec/old_check_stmts.py`): the manager appends to `SOURCES`/`PORT_FILES`
   after you report.
 
 ## 2. Sources
@@ -124,7 +124,7 @@ shell, and the headline is the resulting Euler-factor/integral identity. Everyth
 * a declaration cannot fit the low cap after a genuine instance-inference fix;
 * a statement's binders cannot be taken from the wrapper.
 
-Do not touch `spec/check_flt_statements.py`, do not add to `SOURCES`/`PORT_FILES`, do not edit
+Do not touch `spec/old_check_stmts.py`, do not add to `SOURCES`/`PORT_FILES`, do not edit
 `TateGlobal/WeylPrelude.lean`.
 
 ## 8. Report shape

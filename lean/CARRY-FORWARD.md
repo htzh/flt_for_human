@@ -368,7 +368,7 @@ façades today:
 - `FLTForHuman/ModularForms/CohCarrier/CommTriplet.lean` (three headlines)
 - `FLTForHuman/ModularForms/Analytic/PeterssonHeckeTheorems.lean`
 
-Fix: a per-declaration wired list in `spec/check_flt_statements.py`, e.g.
+Fix: a per-declaration wired list in `spec/old_check_stmts.py`, e.g.
 
 ```python
 WIRED = ["CuspForm.peterssonOn_hecke_eq_conj_mul_of_hasNebentypus", ...]
@@ -539,9 +539,10 @@ unrelated (`Transcendence ↔ RestrictAlong`). The statement-identical residue i
 
 ### Tool hazards
 
-- `unwired_register.py --json` rewrites `lean/spec/UNWIRED-PUBLIC.md` unconditionally, even with
-  `--json` — a read-only-looking invocation dirties a tracked file. Use `--check` unless the
-  register is meant to be regenerated.
+- `spec/unwired_register.py --json` rewrites `lean/spec/UNWIRED-PUBLIC.md` unconditionally, even
+  with `--json` — a read-only-looking invocation still writes the register (it is git-ignored
+  now, so only the working tree is touched). Use `--check` unless the register is meant to be
+  regenerated.
 - Re-running `port_advise` on a pin file **after** its engine has landed reports the engine's own
   declarations as substitutions (the tool scans the whole port tree, so every transcribed
   declaration matches itself). Use the advise file generated before the module was written, or

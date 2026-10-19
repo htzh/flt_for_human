@@ -129,10 +129,10 @@ weight-one material: they use only `UpperHalfPlane.qExpansion`, `qParam`, `MDiff
 - The declaration is removed from **no** consumer in this set (that is W2), so the full
   `timeout 180 lake build` stays green and the checker count is unchanged except for the
   new module's public surface.
-- Add the module to `PORT_FILES` in `spec/check_flt_statements.py`; for every new public
+- Add the module to `PORT_FILES` in `spec/old_check_stmts.py`; for every new public
   declaration, ensure the checker matches it (public or promoted-from-pin-private) or add
   it to the exemption list with a reason. Run
-  `python3 spec/check_flt_statements.py`; report the before/after
+  `python3 spec/old_check_stmts.py`; report the before/after
   `identical / promoted / mismatched / missing / own`. **`0 mismatched, 0 missing`.**
 - `README.md` gains one row per module.
 - Report the closure surprises: any helper that had to come along, any home that had to

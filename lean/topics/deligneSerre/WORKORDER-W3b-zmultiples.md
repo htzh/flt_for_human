@@ -149,7 +149,7 @@ locally as `private` in your module and report it. If a promotion seems genuinel
 
 ## 6. Wiring
 
-In `lean/spec/check_flt_statements.py`, appending **last**: the target's
+In `lean/spec/old_check_stmts.py`, appending **last**: the target's
 `Theorems/Thm_WeierstrassCurve_zmultiples_eq_of_veluQuotient_j_eq_of_forall_isogenyEndDatum_exists_int.lean`
 and `P2M/Sol/S_WeierstrassCurve_zmultiples_eq_of_veluQuotient_j_eq_of_forall_isogenyEndDatum_exists_int.lean`
 to `SOURCES`; `"FLTForHuman/WeierstrassCurve/Velu/CyclicQuotientJInjective.lean"` to

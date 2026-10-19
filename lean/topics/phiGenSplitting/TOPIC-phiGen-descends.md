@@ -274,7 +274,7 @@ cannot make).
       imported, not copied; `hasSum_coeff_of_phiGenDescends` private.
 - [x] `lake build` green, 0 warnings, no `sorry`.
 - [x] `#print axioms` clean.
-- [x] `spec/check_flt_statements.py`: the four wrappers in `SOURCES` (168 → 176),
+- [x] `spec/old_check_stmts.py`: the four wrappers in `SOURCES` (168 → 176),
       0 mismatched; `PORT_FILES` gains the module(s).
 - [x] the wire item and the dropped-block counts from §4 recorded.
 - [x] `PORTING-PhiGen.md` §5 marks T8 done (the planned sequence complete, the

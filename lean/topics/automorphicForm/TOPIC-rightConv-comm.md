@@ -1019,7 +1019,7 @@ python3 frontier.py --target DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_h
   --rank-by silo --ready --top 0
 python3 explore.py AutomorphicForm.rightConv_rightConv_comm_of_isLevelSphericalOfType
 cd ../../lean
-timeout 300 python3 spec/check_flt_statements.py
+timeout 300 python3 spec/old_check_stmts.py
 ```
 
 ## 9. Sources

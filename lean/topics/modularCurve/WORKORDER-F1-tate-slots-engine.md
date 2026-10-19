@@ -122,7 +122,7 @@ are needed exactly once.
 * **Stop and report** if a declaration's statement cannot be matched to a wrapper, if the module
   split of §2 forces an import between the two engine modules, or if a block is not self-contained
   against `Defs/TateSlots.lean` + mathlib.
-* Do not touch `spec/check_flt_statements.py`, `spec/UNWIRED-PUBLIC.md`, `Defs/*`, or any other
+* Do not touch `spec/old_check_stmts.py`, `spec/UNWIRED-PUBLIC.md`, `Defs/*`, or any other
   existing module. The engine modules stay **tier 3** (not listed in `PORT_FILES`).
 
 ## 5. Build discipline (copy in, verbatim)
@@ -161,7 +161,7 @@ proof is restructured, not exempted.
 | the fourteen `ModularCurve.TateSlots.<name>` kernels | present, public, statements equal to their `Theorems/` wrappers |
 | `python3 tools/deps/unwired_register.py --check` | report only (do **not** rewrite the register; the manager regenerates it) |
 
-Do **not** run `spec/check_flt_statements.py` (the manager wires the façade first) and do **not**
+Do **not** run `spec/old_check_stmts.py` (the manager wires the façade first) and do **not**
 edit the register.
 
 ## 7. Wiring

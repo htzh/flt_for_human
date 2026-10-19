@@ -59,7 +59,7 @@ which ~306 lines are new work here). Concretely:
 2. **port** the unported rest — the twist equivalence, the `phiProd` roots, the
    `phiAtSeed` block and the at-slot roots API — statements verbatim from the pin;
 3. deliver it as the parent remainder's import, with `#print axioms` clean and the
-   statements covered by `spec/check_flt_statements.py`.
+   statements covered by `spec/old_check_stmts.py`.
 
 **Why now, and why it was not T13's.** T13's route proves
 `splits_of_prime`/`splits_prime_at_slot` without this prelude and correctly left it

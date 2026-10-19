@@ -213,7 +213,7 @@ it locally as `private` in your module and report it. If a promotion seems genui
 
 ## 7. Wiring
 
-In `lean/spec/check_flt_statements.py`, appending **last** so no earlier last-name match can
+In `lean/spec/old_check_stmts.py`, appending **last** so no earlier last-name match can
 flip, per order:
 
 * order 1: the two `Theorems/Thm_…` wrappers and the two `P2M/Sol/S_…` files to `SOURCES`;

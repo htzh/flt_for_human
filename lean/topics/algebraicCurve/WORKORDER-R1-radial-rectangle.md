@@ -80,7 +80,7 @@ every adaptation. Do not edit anything else.
 
 ## 5. Wiring
 
-Append last, with one-line comments, to `lean/spec/check_flt_statements.py`:
+Append last, with one-line comments, to `lean/spec/old_check_stmts.py`:
 `SOURCES` += the two `Theorems/Thm_…` wrappers and the two `P2M/Sol/S_…` files;
 `PORT_FILES` += the **two façades only** (the engines stay unlisted). Then, from the
 repo root, run `python3 tools/deps/unwired_register.py` to register the engines and
