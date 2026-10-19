@@ -539,6 +539,12 @@ unrelated (`Transcendence ↔ RestrictAlong`). The statement-identical residue i
 
 ### Tool hazards
 
+- **`frontier.py` credits a `spec-pin:` header before the module is green.** The `sources`
+  tier now reads the `spec-pin:` lines of the port tree, so a node counts as ported as soon
+  as the header exists — including while the module is still half-written and does not
+  compile (the `names` tier behaves the same way: a partial file already declares some
+  names). Harmless for the final reading, misleading mid-wave: do not trust the frontier
+  between dispatch and review, and use `check_port` as the gate.
 - `spec/unwired_register.py --json` rewrites `lean/spec/UNWIRED-PUBLIC.md` unconditionally, even
   with `--json` — a read-only-looking invocation still writes the register (it is git-ignored
   now, so only the working tree is touched). Use `--check` unless the register is meant to be

@@ -749,7 +749,7 @@ unpublished `tools/deps/` tree.
 | `prune.py` | which nodes a replacement lets the port drop (reachability, not closure) |
 | `frontier.py` | how far a target still is from the ported frontier, in new **source-file** nodes — so a half-ported file still reads as unported (§2.3) |
 | `port_graph.py` | our port's graph: blobs, duplicated private proofs grouped into blocks, promotion candidates, closures |
-| `port_advise.py` | before a port: what the port already has (substitute), what the set re-proves (port once), what differs only by binders (generalise), what each public declaration drags |
+| `port_advise.py` | before a port: what the port already has (substitute, by *shape* — byte-identical text and "same conclusion, same hypotheses, binder-only spelling" are two tiers, and the shape tier is the reuse answer), what the set re-proves (port once), what differs only by binders (generalise), what each public declaration drags |
 | `build_ladder.py` | the dependent cascade of an edit, the cheapest sufficient build under `flock`/`timeout`, a wave plan, and (`--audit` / `--profile`) which modules and declarations cost the time |
 
 **Instrument vs tool, when it comes to caching.** The statement checker is published and does

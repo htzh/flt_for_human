@@ -9,8 +9,11 @@ manager's own work, §5 the build economy, §6 verification, §7 what remains, �
 residuals. Every measurement is the pin's, read through `tools/deps`. The section numbers are
 stable: work orders across the column cite §3 for the workflow and §7 for the gates.
 
-The checker reads **10476 identical (774 promoted, 83 renamed), 0 mismatched, 0 missing, 42
-own-proof declarations exempted, 294 registered-unwired declarations exempted (10812 checked)**. This column's recent landings: the
+The checker reads **10473 identical (774 promoted, 83 renamed), 0 mismatched, 0 missing, 42
+own-proof declarations exempted, 294 registered-unwired declarations exempted (10809 checked)** —
+three fewer than the 10476 this note carried until 2026-10-19, all three the `CommTriplet`
+handoff of commit `610b73d`, which moved that module's three headlines to the new per-module
+checker; no statement was lost. This column's recent landings: the
 `TateFormal`/`TateSlots` definition layer, 9241 → 9304; the weight-4 Tate-slot engine and headline
 façade (WORKORDER-F1), 9304 → 9318; the six `tateCurve`/Katz definition modules of WORKORDER-F2,
 9318 → 9535 (+217); the `BridgeX` twin/triplet engine and headline façade (WORKORDER-F2),
@@ -146,7 +149,44 @@ order and results:
 [deligneSerre/WORKORDER-P3-normsq-lt.md](deligneSerre/WORKORDER-P3-normsq-lt.md); the set's topic
 (now complete: P1/P2/P3) is
 [deligneSerre/TOPIC-petersson-coset-and-level-prime-eigenvalue.md](deligneSerre/TOPIC-petersson-coset-and-level-prime-eigenvalue.md).
-Each wired delta is exactly its new public surface, 0 mismatched / 0 missing. The 9542 → 9569 (+27) step is
+The **local-parameter finite cover** then landed as the cone's first `AlgebraicCurve` cut
+after the `normsq-lt` set, and the column's first landing under the **new per-module statement
+protocol** (§6): the 857-line leaf `AlgebraicCurve.Place.exists_finset_forall_exists_localParam_eq_complex`
+("finitely many parameter discs cover every place" — the compactness of the Riemann surface of a
+complex function field) as **two modules, 30 statement-checked declarations, one headline**. The
+manager's pre-round `AlgebraicCurve/Place/OrdCalculus.lean` (218 lines, 13 declarations) homes the
+generic place calculus the pin writes into the prelim section of all three `localParam` `S_` files —
+five of the thirteen appear verbatim in both siblings and two more in one, and eleven are re-proved
+in 3–40 pin files each, so this is a real dedup, not a convenience; the silo itself is
+`AlgebraicCurve/Place/FiniteCover.lean` (654 lines, 17 declarations: `sum_support_eq_zero`, the two
+local-analysis lemmas, `structure Fam` and its eleven lemmas, `Fam.exists_finset_cover`, and the
+headline at the wrapper's name). Both modules carry `spec-pin:` lines and **no** `PORT_FILES`
+entry: `spec/check_port.py` verifies **30 ok / 0 mismatch / 0 missing** against the pin, the frozen
+checker is unchanged at **10473**, the tier-1 build is 3,295 jobs with 0 warnings, and every
+headline's axioms are `[propext, Classical.choice, Quot.sound]`. Records:
+[logs/localParam-finite-cover.md](../logs/localParam-finite-cover.md); topic and order:
+[algebraicCurve/TOPIC-localParam-finite-cover.md](algebraicCurve/TOPIC-localParam-finite-cover.md),
+[algebraicCurve/WORKORDER-LP1-localParam-finite-cover.md](algebraicCurve/WORKORDER-LP1-localParam-finite-cover.md).
+
+The **rest of the `localParam` family** then landed in six modules, 2,653 lines and **167
+statement-checked declarations** — the largest wired surface of the column, all of it under the
+new checker: the branch-uniqueness leaf (`Place/BranchUniqueness.lean`, 37 ok), the third leaf as a
+60-declaration `MeroRealize` engine plus a 40-declaration `LocalParam.Datum` layer
+(`Place/MeroRealize.lean`, `Place/LocalParamDatum.lean`), and its four premise leaves
+(`Place/LaurentSeriesModel.lean` 1, `Place/TranscendentalOfOrdNeZero.lean` 2,
+`IsCurveOver/FinitenessTransfer.lean` 3, `Analysis/PowerSeries/EisensteinAlgSeries.lean` 24 — the
+column's first `Analysis/` module). Tier-1 builds 0 warnings throughout, axioms
+`[propext, Classical.choice, Quot.sound]`, the frozen checker unchanged at **10473** (nothing was
+wired the old way), and the frontier's demand fell by exactly the six nodes. Record:
+[logs/localParam-family.md](../logs/localParam-family.md); orders:
+[algebraicCurve/WORKORDER-LP2-branch-uniqueness.md](algebraicCurve/WORKORDER-LP2-branch-uniqueness.md),
+[algebraicCurve/WORKORDER-LP3a-laurent-and-generator-transfers.md](algebraicCurve/WORKORDER-LP3a-laurent-and-generator-transfers.md),
+[algebraicCurve/WORKORDER-LP3b-power-series-growth.md](algebraicCurve/WORKORDER-LP3b-power-series-growth.md),
+[algebraicCurve/WORKORDER-LP4-meromorphic-order-dictionary.md](algebraicCurve/WORKORDER-LP4-meromorphic-order-dictionary.md).
+
+For the landings above that wired into the frozen checker's lists, each delta is exactly its new
+public surface, 0 mismatched / 0 missing; the `localParam` landing has no such delta (§6). The
+9542 → 9569 (+27) step is
 the `NumberField.AdelicHeight` definition gate, the manager's own ground for the adelic-modulus
 round
 ([numberTheory/adelicModulus/TOPIC-adelic-modulus.md](numberTheory/adelicModulus/TOPIC-adelic-modulus.md)),
@@ -194,6 +234,11 @@ Companions:
   with [logs/normsq-lt.md](../logs/normsq-lt.md) for P3.
 - The `WeierstrassCurve` ready shelf, its scoping and its set orders:
   [deligneSerre/TOPIC-weierstrass-ready-shelf.md](deligneSerre/TOPIC-weierstrass-ready-shelf.md).
+- The `AlgebraicCurve` local-parameter leaves — the finite cover as the `Fam` engine, the
+  24-lemma prelim block the three `localParam` `S_` files share, and the family's charted-space
+  capstone:
+  [algebraicCurve/TOPIC-localParam-finite-cover.md](algebraicCurve/TOPIC-localParam-finite-cover.md),
+  [algebraicCurve/WORKORDER-LP1-localParam-finite-cover.md](algebraicCurve/WORKORDER-LP1-localParam-finite-cover.md).
 - The `CohCarrier` Hecke–diamond commutativity triplet — the three `--include-leaves`
   rows, the 914-line development they share, and the two unported definition modules both
   pin files sit under:
@@ -484,12 +529,21 @@ all eight shelf nodes are ported. The `ModularCurve` part is **13 nodes**, the c
 slot-substitution engine it homed: the two `tateCurve_…_nonToricPoint_…` rows at 1,343 silo lines
 each and `qTwist_nonToricPoint_of_pow_eq_one` (185). The first two are the largest `ModularCurve`
 rows and the natural next cut; `phiIrreducible_all` (434) remains the standing candidate behind
-them. The other ten rows predate the Tate-slot round. The `CuspForm`, `AlgebraicCurve`,
+them. The other ten rows predate the Tate-slot round. The `CuspForm`,
 `PeriodPair`, `ModularForm` and `CohCarrier` rows are reached by the target closure but are not
 `ModularCurve` rows, and are not this column's to cut; the `NumberField.TateGlobal` rows are cut
 through their own topic notes (the `continuous_ideleNorm` hub and, now, the continuous norm
 section — §1), and their remaining shelf rows are the two
 `exists_norm_apply_eq_ideleNorm_rpow` cousins (§7).
+
+**The `AlgebraicCurve` rows are now being cut too**, through their own AC-homed notes: the
+`localParam` family's first leaf, `AlgebraicCurve.Place.exists_finset_forall_exists_localParam_eq_complex`,
+landed on 2026-10-19 (§1) and the rest of the family followed the same day — the branch
+uniqueness, the local parameter with its meromorphic-order dictionary, and the four leaves those
+rest on — so the charted-space capstone
+`Place.exists_chartedSpace_meromorphicOrderAt_evalAt_eq_ord_complex` (1,576 silo lines) now lacks
+only its own assembly, with `Place.exists_forall_ord_eq_finset` (291) ready beside it. The `--ds` ready shelf itself read
+**85 candidates** at that landing (the 67 in §7 predates four other columns' landings).
 
 **The two `tateCurve_…_nonToricPoint_…` rows are exact twins, and must be cut as one.**
 `S_ModularCurve_tateCurve_pointX_C_mul_X_pow_eq_nonToricPoint_fst.lean` and its `_pointY_…_snd`
@@ -502,8 +556,11 @@ development once (`private`) and derive both public headlines from the two `Brid
 the checker delta is exactly +2.
 
 **The readings differ, and the conservative one is the one to plan from.** The table above is the
-default `union` name scan. `--frontier sources` (no name scan) gives `F` 756 nodes / 444,955, a
-`needed` of 1,704 nodes / 708,235, and 61 ready candidates. The gap is the last-name blindness of
+default `union` name scan. `--frontier sources` (no name scan) gives `F` 837 nodes / 519,647, a
+`needed` of 1,438 nodes / 542,136, and 85 ready candidates (2026-10-19; the 756 / 1,704 / 61 this
+note carried predate four columns' landings). Both readings now count a module wired by its own
+`spec-pin:` header as ported — `frontier.py` reads those headers into the `sources` tier — so the
+new wire's handoff does not drop a landing out of the conservative reading. The gap is the last-name blindness of
 §9: a pin node whose last name matches a ported declaration of another namespace is priced as
 ported. `port_advise` and `port_plan` never walk imports either, so an unported premise outside
 the target files is invisible to them; both frontier readings stay in the loop.
@@ -551,10 +608,18 @@ states the cluster's subject without an "and".
 **3. Scope the cluster with the tools.**
 
 * `port_advise.py --target <node> … --json build/<cluster>_advise.json` — the substitution table
-  (declarations already byte-identical in the port: import, never re-prove), the port-`private`
-  rows (promote or re-derive), the **shared blocks** the target files have in common (the dedup:
-  write once), the near-duplicate / binder-only rows, and the *suspect* type-only `def` matches the
-  parser cannot judge (read both copies before applying any).
+  (declarations the port already has: import, never re-prove), the port-`private` rows (promote or
+  re-derive), the **shared blocks** the target files have in common (the dedup: write once), the
+  near-duplicate / binder-only rows, and the *suspect* type-only `def` matches the parser cannot
+  judge (read both copies before applying any). **Read the substitution table by shape, not by
+  text**: it reports two tiers — the checker's byte-identical tier, and the *shape* tier (same
+  conclusion, same hypothesis list, once section variables, instance arguments and bound names are
+  normalised). The shape tier is the reuse answer: the pin writes one lemma many ways
+  (`mem_of_ord_nonneg` occurs in 33 distinct texts across 263 files), and the port's copies were
+  homed from the `Theorems/` wrappers, so a byte scan under-reports systematically. Its `residue`
+  list names the few the shape tier cannot settle (one side keeps the variable in a file-level
+  `variable`); read those two texts. A *restated* lemma must still use the pin's own text shape, or
+  `check_port.py` reports a `MISMATCH` — importing is the normal move.
 * `port_plan.py --json …` — the budget: raw lines, once-only dedup, boilerplate, **net new math
   lines**, declaration groups.
 * `build_ladder.py --edit <host>` on **every** candidate host — the cascade each edit will force,
@@ -570,8 +635,8 @@ runs:
 * **(a) the definition layer, whole node.** Home the pin `Def_*` module the cluster imports **in
   full** — every declaration with a consumer, not only the block the cluster reaches (playbook
   §2.3) — at the natural *theory* home rather than a new `Def_`-named file; promote out of
-  `private` whatever the cluster must name. Checked against the pin, wiring appended to
-  `SOURCES`/`PORT_FILES`.
+  `private` whatever the cluster must name. Checked against the pin; a new module is wired by its
+  own `spec-pin:` header (§6) and **not** by an entry in the frozen `SOURCES`/`PORT_FILES`.
 * **(b) promotions and every other hub edit.** Any edit to an existing module is the manager's,
   not a subagent's: it is the only thing that re-elaborates the cone, so it is done once,
   deliberately, with the price known.
@@ -599,12 +664,15 @@ Every order carries the **hub prohibition**: a subagent that needs a `private` h
 it locally and reports it; one that believes a promotion is genuinely required **stops and
 reports** with the declaration, host and `build_ladder.py --edit` price. The manager decides.
 
-*Review checklist* after each set: checker `0 mismatched / 0 missing` with the `identical` delta
-reconciled against the new public surface; tier 1 green and 0 warnings; no `sorry`/`admit`, no bare
-`import Mathlib`; `#print axioms` on every headline `[propext, Classical.choice, Quot.sound]`; `git
-status` showing only the set's files. The checker's mutation sensitivity is the instrument's own
-test (`python3 spec/old_check_stmts.py --selftest`), run when the checker changes — not a
-per-set manual mutation.
+*Review checklist* after each set: `spec/check_port.py` on the set's modules with **0 mismatched /
+0 missing** and every public declaration accounted for (matched, `-- pin:`-marked or `-- own:`);
+the frozen checker's count **unchanged** unless the set appended an old-style entry (it should
+not); tier 1 green and 0 warnings; no `sorry`/`admit`, no bare `import Mathlib`; `#print axioms` on
+every headline `[propext, Classical.choice, Quot.sound]`; `git status` showing only the set's
+files. The checker's mutation sensitivity is the instrument's own test
+(`python3 spec/old_check_stmts.py --selftest`, run when that checker changes — not a per-set manual
+mutation); the new checker is cache-aware and `--force` re-checks one module from scratch, which is
+the per-set gate.
 
 **6. Close out, then re-read the frontier.** Re-run step 1: the landed nodes leave the shelf and
 their successors appear. Record the outcome in the work order and in the cluster's topic, name
@@ -660,18 +728,23 @@ a bigger heartbeat cap.
 
 ```bash
 cd lean
-timeout 300 python3 spec/old_check_stmts.py        # 10476 identical / 0 / 0 / 42 own
-flock .lake/flt_build.lock timeout 900 lake build       # the milestone build
+python3 spec/check_port.py --changed                    # the new per-module wire (the registry)
+python3 spec/check_port.py --force <the set's module>   # one module, every public declaration
+timeout 300 python3 spec/old_check_stmts.py             # frozen: 10473 identical / 0 / 0 / 42 own
+flock .lake/flt_build.lock timeout 900 lake build        # the milestone build
 timeout 180 lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false spec/DeligneSerreConsumer.lean
-python3 tools/deps/unwired_register.py --check          # tier-3 surface current
+python3 spec/unwired_register.py --check                # tier-3 surface current
 ```
 
 plus a `#print axioms` probe over the set's headlines and a `grep` sweep for
-`sorry`/`admit`/`axiom`/`native_decide`/`import Mathlib`/heartbeat overrides. The checker's
-`identical` delta must equal the new public surface exactly; anything else is a bug. Each work
-order records its own numbers, measured on the tree it leaves, not copied from this note. The
-checker's mutation sensitivity lives in the instrument:
-`python3 spec/old_check_stmts.py --selftest`.
+`sorry`/`admit`/`axiom`/`native_decide`/`import Mathlib`/heartbeat overrides.
+
+**Two checkers, one owner per module** (playbook §4). A set's new module carries `spec-pin:` lines
+and is verified by `spec/check_port.py`, which matches on the statement hash — so a faithful but
+renamed copy verifies, a same-name statement that differs is a `MISMATCH`, and an engine's
+internal declarations are checked, not only its headline. The frozen `old_check_stmts.py` owns the
+grandfathered `PORT_FILES` set: do not append to it, and expect its count to stay at 10473. Each
+work order records its own numbers, measured on the tree it leaves, not copied from this note.
 
 The checker's exemption list is keyed by **dotted name, never bare last name**: a bare
 `"correspondence"` silently exempted two live declarations alongside its namesake, and dotting it
@@ -702,7 +775,8 @@ most of those nodes are self-contained against mathlib and show cost 1 in `front
 **converse cone** (`exists_weightOne_cuspForm_tameConductor_of_qCoeff_eq_trace`) is a separate
 subject and a separate effort.
 
-**The ready shelf** of §2 is 67 nodes, of which 13 are `ModularCurve` and the column's own. The
+**The ready shelf** of §2 read 85 candidates on 2026-10-19 (67 when this note was last
+refreshed), of which 13 are `ModularCurve` and the column's own. The
 step-6 re-read after WORKORDER-F1 put the two `tateCurve_…_nonToricPoint_…` rows (1,343 each) and
 `qTwist_nonToricPoint_of_pow_eq_one` (185) on it; the first two are the natural next cut and are
 **exact twins** — one 1,325-net-line development with two headlines, the WORKORDER-E shape (§2) —
@@ -726,6 +800,19 @@ The **complex archimedean Casimir** wave has landed its definition pair and firs
 subject are `leftCasimirComplex_eq_archCasimirAtComplex_of_isArchSmoothAtComplex` (1,227) and the
 133-line `archCasimirAtComplex_rightTranslate_rowIsometryInclAt_of_ne`, then the 35-file complex
 fan of [TOPIC-arch-casimir.md](TOPIC-arch-casimir.md) §5 Set C.
+
+The **local-parameter family** is complete (§1): the finite cover
+([logs/localParam-finite-cover.md](../logs/localParam-finite-cover.md)), the branch uniqueness,
+the local parameter with its meromorphic-order dictionary, and the four leaves those rest on
+([logs/localParam-family.md](../logs/localParam-family.md)). Its capstone is the charted-space
+node `AlgebraicCurve.Place.exists_chartedSpace_meromorphicOrderAt_evalAt_eq_ord_complex` ("the
+places of a complex function field form a compact Riemann surface", 1,576 silo lines), which now
+lacks only its own assembly; beside it sit
+`Place.connectedSpace_of_chartedSpace_of_meromorphicOrderAt_eq_ord_complex` (679),
+`Place.exists_forall_ord_eq_finset` (291, ready) and `Place.exists_ord_eq_one`. The family's own
+prelim blocks are *not* reproduced: the port imports one copy of each, at its theory home
+(`Place/OrdCalculus.lean`, 19 declarations after the re-home) — see
+[logs/localParam-family.md](../logs/localParam-family.md) §1 and §3.5.
 
 The **Γ₁/Nebentypus pair** the shelf once showed at its head — the two `CuspForm` rows — is the
 **lifting column's**, not this column's, and has landed there as
@@ -797,9 +884,13 @@ python3 build_ladder.py --edit FLTForHuman/<host>.lean
 python3 frontier.py --target DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen --top 0
 ```
 
-The checker wiring convention (append the `Theorems/` wrapper and, where it is not already
-listed, the `S_` file to `SOURCES`; the module to `PORT_FILES`; both last) is in every work order
-and in the friction log.
+The checker wiring convention is the new one: a module carries `spec-pin:` lines in its leading
+`/- … -/` block naming the pin files that verify it (the `Theorems/` wrapper for a headline, the
+`P2M/Sol/S_` file for a transcribed engine), plus a `-- pin:` marker for a rename or a source
+outside the header and `-- own:` for a statement of ours. Nothing is appended to
+`spec/old_check_stmts.py`: that checker is frozen and its lists are the grandfathered set.
+`spec/statement_db.py build` makes the pin corpus (`tmp/flt-statements/`, git-ignored) that the
+checker reads; `spec/statement_db.py show <name>` prints a pin signature with its `file:line`.
 
 The checker's mutation sensitivity is its own unit test, run when the checker changes rather than
 on every set:
@@ -879,6 +970,14 @@ python3 spec/old_check_stmts.py --selftest
   same, so this is house style narrowed, not a new licence — but a work order's "no
   `set_option linter.*` suppression" line should say so. Recorded in
   [CARRY-FORWARD.md](../CARRY-FORWARD.md).
+* **The frontier and the new wire.** `frontier.py`'s `sources` tier reads the frozen checker's
+  `SOURCES` *and* the `spec-pin:` headers of the port tree (2026-10-19), so a module handed over from
+  `PORT_FILES` is ported in both readings; the `names` tier had always seen it (it scans
+  `lean/FLTForHuman`). Measured on this landing: `union` `needed` 511,586 → 510,729 and `F` 991 →
+  992, `sources` `needed` 542,993 → 542,136 and `F` 836 → 837, each exactly the 857 silo lines.
+  Neither reading has any per-declaration "ported" flag: the unit is the pin *node*, so the pin's
+  hundreds of copies of one lemma (263 for `mem_of_ord_nonneg`) stay in the demand as nodes of their
+  own even when the port homes the lemma once — the landing only makes each of them cheaper.
 * `frontier.py --ready` resolves names by last name, so a pin node that shares a last name with a
   ported declaration of another namespace is priced as ported. The known instance is the
   `ModularForm`/`CuspForm` rename pair of §7's deferred row — 10 needed nodes / 5,172 raw `S_`
