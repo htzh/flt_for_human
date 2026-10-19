@@ -9,8 +9,8 @@ manager's own work, §5 the build economy, §6 verification, §7 what remains, �
 residuals. Every measurement is the pin's, read through `tools/deps`. The section numbers are
 stable: work orders across the column cite §3 for the workflow and §7 for the gates.
 
-The checker reads **10343 identical (700 promoted, 83 renamed), 0 mismatched, 0 missing, 42
-own-proof declarations exempted, 294 registered-unwired declarations exempted (10679 checked)**. This column's recent landings: the
+The checker reads **10344 identical (700 promoted, 83 renamed), 0 mismatched, 0 missing, 42
+own-proof declarations exempted, 294 registered-unwired declarations exempted (10680 checked)**. This column's recent landings: the
 `TateFormal`/`TateSlots` definition layer, 9241 → 9304; the weight-4 Tate-slot engine and headline
 façade (WORKORDER-F1), 9304 → 9318; the six `tateCurve`/Katz definition modules of WORKORDER-F2,
 9318 → 9535 (+217); the `BridgeX` twin/triplet engine and headline façade (WORKORDER-F2),
@@ -87,6 +87,18 @@ leaf with 57 whole-project dependents and lies on the shortest citation path to
 `fermatLastTheorem`. Record: [logs/norm-section.md](../logs/norm-section.md); topic and order:
 [numberTheory/tateGlobal/TOPIC-norm-section.md](numberTheory/tateGlobal/TOPIC-norm-section.md),
 [numberTheory/tateGlobal/WORKORDER-T4-norm-section.md](numberTheory/tateGlobal/WORKORDER-T4-norm-section.md).
+**GL₂ strong approximation over ℚ** then landed as the first *theorem* over the `AdelicLevel`
+definition layer: `NumberField.AdelicLevel.exists_globalPoints_mul_mem_finiteIntegralGL2_rat` —
+every finite idèle class has a rational representative modulo the integral level — as a
+five-module tier-3 engine `NumberField/AdelicLevel/StrongApprox/{Elementary,Membership,Conjugation,Gauss,Approximation}.lean`
+(45 public declarations, 1,136 lines) plus the 49-line listed façade
+`NumberField/AdelicLevel/StrongApproxRat.lean`. This is the column's first **pure
+transcription**: `port_advise` reports **0 substitutions**, so 874 of the 898 pin lines are new
+mathematics, and none of the 45 names is re-proved anywhere else in the pin. Checker **+1**,
+**10344 identical**; no existing module edited. Record:
+[logs/gl2-strong-approximation.md](../logs/gl2-strong-approximation.md); topic and order:
+[numberTheory/adelicLevel/TOPIC-gl2-strong-approximation.md](numberTheory/adelicLevel/TOPIC-gl2-strong-approximation.md),
+[numberTheory/adelicLevel/WORKORDER-T5-gl2-strong-approximation.md](numberTheory/adelicLevel/WORKORDER-T5-gl2-strong-approximation.md).
 Each wired delta is exactly its new public surface, 0 mismatched / 0 missing. The 9542 → 9569 (+27) step is
 the `NumberField.AdelicHeight` definition gate, the manager's own ground for the adelic-modulus
 round
@@ -114,7 +126,11 @@ Companions:
   [numberTheory/tateGlobal/TOPIC-continuous-ideleNorm.md](numberTheory/tateGlobal/TOPIC-continuous-ideleNorm.md),
   and the next cut of the same family — the continuous splitting of the idèle norm — is
   [numberTheory/tateGlobal/TOPIC-norm-section.md](numberTheory/tateGlobal/TOPIC-norm-section.md)
-  with [logs/norm-section.md](../logs/norm-section.md).
+  with [logs/norm-section.md](../logs/norm-section.md). The first *theorem* over the
+  `AdelicLevel` layer, GL₂ strong approximation over ℚ, is
+  [numberTheory/adelicLevel/TOPIC-gl2-strong-approximation.md](numberTheory/adelicLevel/TOPIC-gl2-strong-approximation.md)
+  with [logs/gl2-strong-approximation.md](../logs/gl2-strong-approximation.md); its definition
+  layer is [PORTING-AutomorphicForm.md](PORTING-AutomorphicForm.md).
 - The mathematics of the Petersson adjointness proved in this column:
   [../../math/030-petersson-adjointness-of-hecke.md](../../math/030-petersson-adjointness-of-hecke.md).
 - The `WeierstrassCurve` ready shelf, its scoping and its set orders:
@@ -585,7 +601,7 @@ a bigger heartbeat cap.
 
 ```bash
 cd lean
-timeout 300 python3 spec/check_flt_statements.py        # 10343 identical / 0 / 0 / 42 own
+timeout 300 python3 spec/check_flt_statements.py        # 10344 identical / 0 / 0 / 42 own
 flock .lake/flt_build.lock timeout 900 lake build       # the milestone build
 timeout 180 lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false spec/DeligneSerreConsumer.lean
 python3 tools/deps/unwired_register.py --check          # tier-3 surface current
@@ -669,6 +685,15 @@ an `expUnit`/`expUnit_*` block they share with each other. They are their own or
 [numberTheory/tateGlobal/TOPIC-norm-section.md](numberTheory/tateGlobal/TOPIC-norm-section.md)
 §5, §7.
 
+**GL₂ strong approximation over ℚ** has landed too ([../logs/gl2-strong-approximation.md](../logs/gl2-strong-approximation.md)):
+the five-module engine `NumberField/AdelicLevel/StrongApprox/` puts the `AdelicLevel` vocabulary
+to work for the first time (874 of 898 pin lines were new, 0 substitutions). Its successors are
+the level-`N` variant `NumberField.AdelicLevel.exists_glFin_globalPoints_mul_mem_finiteLevelOne_rat`
+(397 pin lines; demand now 3 nodes / ≈720 raw `S_` lines), then
+`AutomorphicForm.SiegelCovering.centreCutSiegelSet_coversModCentre_rat` — the adelic cover the
+centre-cut subject of §1 needs at ℚ — and two `AutomorphicForm` coset/isotypic nodes. None is
+ready; the level-`N` row is the next cut of that family.
+
 **Deferred to its own order** is the C2 row
 `ModularCurve.exists_sum_smul_eq_of_isIntegralQExp_gamma1`. Its one substantive step is the
 unported premise `ModularForm.exists_basis_gamma1_qCoeff_mem_range_ratCast`, and the chain behind
@@ -721,6 +746,13 @@ python3 spec/check_flt_statements.py --selftest
   `TateGlobal/ArchNorm.lean` and a public copy in
   `AutomorphicForm/Adelic/WeylIntegrable/LatticeEstimates.lean`; `ArchNorm.lean` is the natural
   home if `AutomorphicForm` ever needs them from here (≈45 s hub wave, not owed).
+* **The GL₂ strong-approximation engine.** `NumberField/AdelicLevel/StrongApprox/*.lean` is tier 3
+  with 45 declarations and one importer (the façade); the intended consumers are the headline's
+  5 whole-project dependents, unported. Two of its names collide *by spelling only* with other pin
+  declarations (`exists_common_denominator` with six `ModularCurve` PD-pairing files, `detUnit`
+  with a `ℝˣ`-valued `private def` in an `AutomorphicForm` silo), so neither is a home to share;
+  recorded so a later `port_advise` run does not read them as duplicates. The five-module split
+  is the layout, not a promise: merging them changes no statement.
 * **Register.** The weight-4 engine (`TateSlots/{Convergence,SlotCoeff}.lean`) is tier 3: built and
   importable, not in `PORT_FILES`, with its 119 public declarations carrying `-- pin:` provenance
   in [spec/UNWIRED-PUBLIC.md](../spec/UNWIRED-PUBLIC.md) (78 modules / 1,906 public / 1,618 with a

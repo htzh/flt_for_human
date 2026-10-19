@@ -3403,6 +3403,13 @@ SOURCES = [
     # (the checker's UNWIRED tier 3) and is registered in `spec/UNWIRED-PUBLIC.md`. Appended last
     # so no earlier last-name match can flip.
     "Theorems/Thm_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean",
+    # --- GL₂ strong approximation over ℚ (`topics/numberTheory/adelicLevel/TOPIC-gl2-strong-approximation.md`;
+    # WORKORDER-T5): `NumberField.AdelicLevel.exists_globalPoints_mul_mem_finiteIntegralGL2_rat`.
+    # The wrapper is the statement authority; the `S_` file is deliberately NOT listed — the
+    # 45-declaration engine (`…/AdelicLevel/StrongApprox/*.lean`) carries `-- pin:` markers into
+    # it (the checker's UNWIRED tier 3) and is registered in `spec/UNWIRED-PUBLIC.md`. Appended
+    # last so no earlier last-name match can flip.
+    "Theorems/Thm_NumberField_AdelicLevel_exists_globalPoints_mul_mem_finiteIntegralGL2_rat.lean",
 ]
 
 
@@ -5083,6 +5090,10 @@ PORT_FILES = [
     # (`NumberTheory/NumberField/TateGlobal/NormSection.lean`) stays tier 3 and is registered
     # in `spec/UNWIRED-PUBLIC.md`. No existing module was edited, so no hub wave is owed.
     "FLTForHuman/NumberTheory/NumberField/TateGlobalNormSection.lean",
+    # --- WORKORDER-T5: GL₂ strong approximation over ℚ. One headline (+1); the five engine
+    # modules (`NumberTheory/AdelicLevel/StrongApprox/*.lean`) stay tier 3 and are registered in
+    # `spec/UNWIRED-PUBLIC.md`. No existing module was edited, so no hub wave is owed.
+    "FLTForHuman/NumberTheory/AdelicLevel/StrongApproxRat.lean",
 ]
 
 
