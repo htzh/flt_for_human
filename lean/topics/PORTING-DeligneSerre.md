@@ -9,8 +9,8 @@ manager's own work, §5 the build economy, §6 verification, §7 what remains, �
 residuals. Every measurement is the pin's, read through `tools/deps`. The section numbers are
 stable: work orders across the column cite §3 for the workflow and §7 for the gates.
 
-The checker reads **10263 identical (697 promoted, 83 renamed), 0 mismatched, 0 missing, 42
-own-proof declarations exempted, 198 registered-unwired declarations exempted (10503 checked)**. This column's recent landings: the
+The checker reads **10342 identical (700 promoted, 83 renamed), 0 mismatched, 0 missing, 42
+own-proof declarations exempted, 294 registered-unwired declarations exempted (10678 checked)**. This column's recent landings: the
 `TateFormal`/`TateSlots` definition layer, 9241 → 9304; the weight-4 Tate-slot engine and headline
 façade (WORKORDER-F1), 9304 → 9318; the six `tateCurve`/Katz definition modules of WORKORDER-F2,
 9318 → 9535 (+217); the `BridgeX` twin/triplet engine and headline façade (WORKORDER-F2),
@@ -64,6 +64,18 @@ the 234-line slab-integral bound, is deferred on the missing
 `Def_AutomorphicForm_CuspidalSpectrumCarrier.lean` (carry-forward). Record:
 [logs/centre-cut-fundamental-domain-trio.md](../logs/centre-cut-fundamental-domain-trio.md); order:
 [automorphicForm/WORKORDER-CCF-centre-cut-fundamental-domain.md](automorphicForm/WORKORDER-CCF-centre-cut-fundamental-domain.md).
+The **complex archimedean Casimir layer** then landed as Set B wave 0: the missing 196-line
+`ArchDerivCasimirComplex` and 381-line `ArchDerivCasimirComplexAPI` definition pair (checker +78),
+the 857-line complex engine `AutomorphicForm/Adelic/ArchCasimirComplex.lean` (96 declarations public
+tier 3), and its first headline
+`AutomorphicForm.archCasimirAtComplex_rightTranslate_archComplexGLAt` (+1); checker **10342
+identical**, 294 registered-unwired exempted. `port_advise` found 0 substitutions and only 43
+binder-spelling variants against the real `ArchCasimir.lean`; the two engines are architectural
+mirrors (normalized similarity ≈0.38) because the complex half adds `archDelAt`/`archDelBarAt`,
+`Del1`/`Del2`, the conjugate transport and `archCasimirBarAtComplex`, so the complex engine was
+ported once as a separate tier-3 engine. Record:
+[logs/arch-casimir-complex.md](../logs/arch-casimir-complex.md); order:
+[automorphicForm/WORKORDER-ACC-arch-casimir-complex.md](automorphicForm/WORKORDER-ACC-arch-casimir-complex.md).
 Each wired delta is exactly its new public surface, 0 mismatched / 0 missing. The 9542 → 9569 (+27) step is
 the `NumberField.AdelicHeight` definition gate, the manager's own ground for the adelic-modulus
 round
@@ -306,6 +318,24 @@ actually ready**: it needs the unported 288-line
 [CARRY-FORWARD.md](../CARRY-FORWARD.md). Record:
 [logs/centre-cut-fundamental-domain-trio.md](../logs/centre-cut-fundamental-domain-trio.md); order:
 [automorphicForm/WORKORDER-CCF-centre-cut-fundamental-domain.md](automorphicForm/WORKORDER-CCF-centre-cut-fundamental-domain.md).
+
+**The complex archimedean Casimir layer.** Set B of the arch-Casimir subject was blocked on two
+unported pin `Definitions/` modules: `Def_AutomorphicForm_ArchDerivCasimirComplex` (196 lines / 32
+declarations) and `…ComplexAPI` (381 / 46). Both were homed whole at
+`AutomorphicForm/Adelic/ArchDerivCasimirComplex.lean` and `…ComplexAPI.lean` (checker +78), and the
+first complex headline
+`AutomorphicForm.archCasimirAtComplex_rightTranslate_archComplexGLAt` was ported as the 857-line
+engine `AutomorphicForm/Adelic/ArchCasimirComplex.lean` (96 public declarations, tier 3,
+registered; +1 headline). The engine is the complex mirror of the real `ArchCasimir.lean`: the
+types are `ℂ` rather than `ℝ`, and the complex half adds the holomorphic/anti-holomorphic Del
+operators, the conjugate transport and the second Casimir. `port_advise` reports 0 substitutions
+and 43 binder-spelling variants; a normalized comparison is only ≈0.38 similar, so the
+architectural duplication did not justify a generic `RCLike` rewrite of the landed real engine.
+The remaining complex headlines are `leftCasimirComplex_eq_archCasimirAtComplex_of_isArchSmoothAtComplex`
+(1,227) and `archCasimirAtComplex_rightTranslate_rowIsometryInclAt_of_ne` (133), then the 35-file
+complex fan. Records:
+[logs/arch-casimir-complex.md](../logs/arch-casimir-complex.md); order:
+[automorphicForm/WORKORDER-ACC-arch-casimir-complex.md](automorphicForm/WORKORDER-ACC-arch-casimir-complex.md).
 
 **The shared ground that edits existing modules.** The `ValuationSubring` residue block in
 `NumberTheory/ValuationAtPlace.lean`; the `Gamma0Integral` promotion and its duplicate-block
@@ -598,7 +628,12 @@ the pair shares the tier-3 `Cusp/CentreCutEngine.lean`, the trio shares the prom
 unported `Def_AutomorphicForm_CuspidalSpectrumCarrier.lean`; the larger `coversModCentre` silo
 (`exists_isIrreducibleGLRep_linearMap_span_translate_realization_of_coversModCentre`, 3,038 lines)
 is still behind the unit-factorizable chain recorded in [CARRY-FORWARD.md](../CARRY-FORWARD.md).
-No other centre-cut row is genuinely ready at this cut.
+
+The **complex archimedean Casimir** wave has landed its definition pair and first headline
+([../logs/arch-casimir-complex.md](../logs/arch-casimir-complex.md)); the next leaves of that
+subject are `leftCasimirComplex_eq_archCasimirAtComplex_of_isArchSmoothAtComplex` (1,227) and the
+133-line `archCasimirAtComplex_rightTranslate_rowIsometryInclAt_of_ne`, then the 35-file complex
+fan of [TOPIC-arch-casimir.md](TOPIC-arch-casimir.md) §5 Set C.
 
 The **Γ₁/Nebentypus pair** the shelf once showed at its head — the two `CuspForm` rows — is the
 **lifting column's**, not this column's, and has landed there as

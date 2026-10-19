@@ -3387,6 +3387,15 @@ SOURCES = [
     "Theorems/Thm_AutomorphicForm_isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre.lean",
     "Theorems/Thm_AutomorphicForm_exists_measurableSet_isFundamentalDomain_subset_iUnion_integralWindowedSiegelSet_of_coversModCentre.lean",
     "Theorems/Thm_AutomorphicForm_exists_measurableSet_isFundamentalDomain_subset_iUnion_centreCutSiegelSet_of_coversModCentre.lean",
+    # --- The complex archimedean Casimir definition layer (two pin `Definitions/` modules) and
+    # the complex engine's headline. The two Definitions modules have no wrappers, so they verify
+    # by name against their `Definitions/` files; the engine `S_` file is deliberately NOT listed
+    # (its ~96 public declarations carry `-- pin:` markers into it, the checker's UNWIRED tier 3,
+    # and are registered in `spec/UNWIRED-PUBLIC.md`). Appended last so no earlier last-name
+    # match can flip.
+    "Definitions/Def_AutomorphicForm_ArchDerivCasimirComplex.lean",
+    "Definitions/Def_AutomorphicForm_ArchDerivCasimirComplexAPI.lean",
+    "Theorems/Thm_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean",
 ]
 
 
@@ -5057,6 +5066,12 @@ PORT_FILES = [
     # tier 3 in `PeterssonSlabPairing.lean` (already listed).
     "FLTForHuman/AutomorphicForm/Adelic/DetNormSlab.lean",
     "FLTForHuman/AutomorphicForm/Adelic/MeasurableFundamentalDomainCover.lean",
+    # --- The complex archimedean Casimir definition layer and engine. The two definition
+    # modules are checked whole; the engine `ArchCasimirComplex.lean` wires only the headline
+    # and keeps its ~96 declarations public tier 3 (registered in `spec/UNWIRED-PUBLIC.md`).
+    "FLTForHuman/AutomorphicForm/Adelic/ArchDerivCasimirComplex.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/ArchDerivCasimirComplexAPI.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/ArchCasimirComplex.lean",
 ]
 
 

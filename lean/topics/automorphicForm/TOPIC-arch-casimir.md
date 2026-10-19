@@ -204,8 +204,10 @@ nothing to price — the cascade is the two `.olean`s and the two checker rows. 
 `SOURCES`/`PORT_FILES` append and one checker run.
 
 The Complex pair (`…ArchDerivCasimirComplex` 196 lines / 32 declarations, `…ComplexAPI` 381 / 46;
-both all-public, importing only each other and the layer above) is **not** homed in this wave: no
-real-place file needs it. It is set B's prerequisite (§5).
+both all-public, importing only each other and the layer above) was **homed in Set B wave 0**
+([WORKORDER-ACC-arch-casimir-complex.md](WORKORDER-ACC-arch-casimir-complex.md)), together with the
+complex engine and its first headline
+([../../logs/arch-casimir-complex.md](../../logs/arch-casimir-complex.md)).
 
 `Def_LanglandsTunnell_ArchCasimirCompanion` (61 lines, 7 declarations) is a different subject and is
 **not** homed here (§6).
@@ -235,12 +237,16 @@ real-place file needs it. It is set B's prerequisite (§5).
   `-- pin:` markers as the exemption — so the engine is reusable *and* the delta is exactly the
   headlines. The earlier plan (a `private` engine, or an engine/façade split with an unlisted
   engine module) is superseded.
-* **Set B — the complex mirror.** Needs `…Complex` + `…ComplexAPI` homed first (577 lines / 78
-  declarations, the same whole-node shape as wave 0, no new subject), then its own engine + the
-  headlines (16,365 → 11,851). Its shelf leaves are
-  `archCasimirAtComplex_rightTranslate_archComplexGLAt` (857),
-  `leftCasimirComplex_eq_archCasimirAtComplex_of_isArchSmoothAtComplex` (1,227) and the complex
-  `…_rowIsometryInclAt_of_ne` (133).
+* **Set B — the complex mirror (wave 0 landed).** `…Complex` + `…ComplexAPI` are homed (577 lines
+  / 78 declarations, checker +78), the complex engine `ArchCasimirComplex.lean` is public tier 3
+  (96 declarations) and its first headline
+  `archCasimirAtComplex_rightTranslate_archComplexGLAt` (857) is wired (+1). Record:
+  [WORKORDER-ACC-arch-casimir-complex.md](WORKORDER-ACC-arch-casimir-complex.md),
+  [../../logs/arch-casimir-complex.md](../../logs/arch-casimir-complex.md). The remaining complex
+  leaves are `leftCasimirComplex_eq_archCasimirAtComplex_of_isArchSmoothAtComplex` (1,227) and the
+  complex `…_rowIsometryInclAt_of_ne` (133); the full complex fan is 35 files / 16,365 raw →
+  11,851 net. The complex engine's declarations are in `AutomorphicForm.ArchCxGL`, so the remaining
+  headlines import them directly; no further ground is needed.
 * **Set C — the proof fan** (the remaining 40 real + 35 complex files, 24,111 net new lines across
   both halves) is left to the column's ordinary set-by-set scheduling once A and B are in; each of
   those files uses the definition API directly and needs no new ground.
@@ -314,11 +320,14 @@ python3 tools/deps/unwired_register.py --check
 * **`laplaceEigenvalue`** (`ArchParam`'s `LanglandsTunnell.RealArchParam.laplaceEigenvalue` plus its
   two `rfl` lemmas) is homed with `ArchDerivCasimir` because that is where the pin puts it; it has
   no consumer in set A and is kept per the pin (whole-node rule).
-* **The complex mirror's definition pair is measured but not scoped.** `…Complex` 196 lines / 32
-  declarations and `…ComplexAPI` 381 / 46, both all-public and importing only the layer above, so
-  set B's wave 0 is the same whole-node append as wave 0 here (expected checker **+78**). Its proof
-  slice is 35 files / 16,365 raw → 11,851 net with 13 declarations already at tier 3; the dedup and
-  the headline split have not been run through `port_advise` per file.
+* **The complex mirror's definition pair is homed, and the first proof cut is in.** `…Complex`
+  196 lines / 32 declarations and `…ComplexAPI` 381 / 46 were the same whole-node append as wave 0
+  (checker **+78**), followed by the 857-line engine and its first headline (+1); see
+  [WORKORDER-ACC-arch-casimir-complex.md](WORKORDER-ACC-arch-casimir-complex.md). The remaining
+  proof slice is 35 files / 16,365 raw → 11,851 net with 13 declarations already at tier 3; the
+  per-file dedup for the fan has still not been run through `port_advise`. The `leftCasimirComplex`
+  headline (1,227) is the structural successor of the engine; the 133-line
+  `…_rowIsometryInclAt_of_ne` is the smallest next leaf.
 * **The 78-file count depends on a mapping that is easy to get wrong.** See §2: the `S_` stem is the
   qualified name with dots replaced by underscores. Any recomputation that splits at the first
   underscore reports 47 / 22,607 and drops the whole `CuspidalConstituent` part of the fan.
