@@ -124,12 +124,13 @@ body.outline-hidden.card-open .layout {
 }
 .md blockquote { border-left: 3px solid var(--accent2); margin: .7em 0; padding: .1em 0 .1em 14px; color: var(--muted); }
 .md a { text-decoration: underline; text-decoration-style: dotted; }
-.codeblock { position: relative; margin: 10px 0 16px; }
-.codeblock pre, .card-source pre, .type-pre {
+.md hr { border: 0; border-top: 1px solid var(--line); margin: 1em 0; }
+.md pre, .codeblock pre, .card-source pre, .type-pre {
   background: #f8fafc; border: 1px solid var(--line); border-radius: 8px;
   padding: 12px 14px; overflow: auto; font-size: .88rem; line-height: 1.55; margin: 0;
   tab-size: 2;
 }
+.md pre { margin: .7em 0; white-space: pre; }
 /* Card source/type and inline #print defs are narrow: wrap instead of a
    horizontal scrollbar. Worksheet code blocks keep horizontal scrolling. */
 .card-source pre, .type-pre, .inline-def pre {

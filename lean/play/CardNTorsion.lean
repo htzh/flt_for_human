@@ -6,8 +6,8 @@
             over an algebraically closed field has `n²` elements
   Reads     FLTForHuman/Elliptic/TorsionCard.lean, the port of the pinned FLT
             P2M/Sol/S_WeierstrassCurve_card_torsion_of_isAlgClosed.lean,
-            re-exported at Theorems/Thm_WeierstrassCurve_card_torsion_of_
-            isAlgClosed.lean:8-9
+            re-exported at
+            Theorems/Thm_WeierstrassCurve_card_torsion_of_isAlgClosed.lean:8-9
             <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_WeierstrassCurve_card_torsion_of_isAlgClosed.lean#L8-L9>
   Check     cd lean && lake env lean play/CardNTorsion.lean   (~3 s, oleans warm)
   Status    open

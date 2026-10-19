@@ -1,2 +1,26 @@
 window.PLAY_MODULES = window.PLAY_MODULES || {};
-window.PLAY_MODULES["Mathlib.Algebra.Field.Defs"] = {"module":"Mathlib.Algebra.Field.Defs","cards":{"Field":{"seed":false,"refs":[],"range":{"start":{"line":170,"column":0},"end":{"line":180,"column":59}},"name":"Field","module":"Mathlib.Algebra.Field.Defs","kind":"inductive","elaborated_type":"Type u → Type u","doc":"A `Field` is a `CommRing` with multiplicative inverses for nonzero elements.\n\nAn instance of `Field K` includes maps `ratCast : ℚ → K` and `qsmul : ℚ → K → K`.\nThose two fields are needed to implement the `DivisionRing K → Algebra ℚ K` instance since we need\nto control the specific definitions for some special cases of `K` (in particular `K = ℚ` itself).\nSee also note [forgetful inheritance].\n\nIf the field has positive characteristic `p`, our division by zero convention forces\n`ratCast (1 / p) = 1 / 0 = 0`. ","short":"Field","signature_source":"@[stacks 09FD \"first part\"]\nclass Field (K : Type u) extends CommRing K, DivisionRing K","body_source":"","source_file":"lean/.lake/packages/mathlib/Mathlib/Algebra/Field/Defs.lean","has_source":true,"has_refs":false,"worksheets":["CardNTorsion","DivisionPolynomials"]}}};
+window.PLAY_MODULES["Mathlib.Algebra.Field.Defs"] = {
+  "module": "Mathlib.Algebra.Field.Defs",
+  "cards": {
+    "Field": {
+      "seed": false,
+      "refs": [],
+      "range": {"start":{"line":170,"column":0},"end":{"line":180,"column":59}},
+      "name": "Field",
+      "module": "Mathlib.Algebra.Field.Defs",
+      "kind": "inductive",
+      "elaborated_type": "Type u → Type u",
+      "doc": "A `Field` is a `CommRing` with multiplicative inverses for nonzero elements.\n\nAn instance of `Field K` includes maps `ratCast : ℚ → K` and `qsmul : ℚ → K → K`.\nThose two fields are needed to implement the `DivisionRing K → Algebra ℚ K` instance since we need\nto control the specific definitions for some special cases of `K` (in particular `K = ℚ` itself).\nSee also note [forgetful inheritance].\n\nIf the field has positive characteristic `p`, our division by zero convention forces\n`ratCast (1 / p) = 1 / 0 = 0`. ",
+      "short": "Field",
+      "signature_source": "@[stacks 09FD \"first part\"]\nclass Field (K : Type u) extends CommRing K, DivisionRing K",
+      "body_source": "",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/Algebra/Field/Defs.lean",
+      "has_source": true,
+      "has_refs": false,
+      "worksheets": [
+        "CardNTorsion",
+        "DivisionPolynomials"
+      ]
+    }
+  }
+};

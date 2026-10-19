@@ -88,5 +88,10 @@ window.PLAY_INDEX = {…};
 
 This is the same approach the FLT documentation site uses (`data/*.js` shards),
 and it is why opening the page from disk works without a static server. There is
-no LFS: the whole data set is ~0.6 MB of normal tracked files and grows by one
+no LFS: the whole data set is ~0.7 MB of normal tracked files and grows by one
 module shard at a time.
+
+The shards are written line-oriented: one card per entry, one field per line, and
+one worksheet block / search entry per line. A docstring edit therefore changes a
+line rather than replacing a whole one-line shard, so generated data stays
+reviewable in `git diff`.

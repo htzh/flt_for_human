@@ -89,75 +89,261 @@
 
   /* ------------------------------ markdown ------------------------------ */
 
-  function inlineMd(s) {
-    s = esc(s);
-    s = s.replace(/`([^`]+)`/g, (_, c) => `<code>${c}</code>`);
-    s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
-    s = s.replace(/(^|[^*])\*([^*]+)\*/g, "$1<em>$2</em>");
-    s = s.replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g,
-      (_, t, u) => `<a href="${u}" target="_blank" rel="noopener">${t}</a>`);
-    s = s.replace(/&lt;(https?:[^&\s]+)&gt;/g,
-      (_, u) => `<a href="${u}" target="_blank" rel="noopener">${u}</a>`);
-    return s;
+  // Docstrings and worksheet comments are written for the editor: the reader
+  // should preserve the Markdown that survives there (aligned indented blocks,
+  // list continuations, CommonMark emphasis rules) rather than a naive subset.
+
+  function protectCodeSpans(src, stash) {
+    let out = "";
+    let i = 0;
+    while (i < src.length) {
+      if (src[i] !== "`") { out += src[i]; i += 1; continue; }
+      let run = 1;
+      while (src[i + run] === "`") run += 1;
+      let close = -1;
+      let j = i + run;
+      while (j < src.length) {
+        const k = src.indexOf("`", j);
+        if (k < 0) break;
+        let r = 1;
+        while (src[k + r] === "`") r += 1;
+        if (r === run) { close = k; break; }
+        j = k + r;
+      }
+      if (close < 0) {
+        out += src.slice(i, i + run);
+        i += run;
+        continue;
+      }
+      let code = src.slice(i + run, close).replace(/\n/g, " ");
+      if (code.length >= 2 && code.startsWith(" ") && code.endsWith(" ") && code.trim()) {
+        code = code.slice(1, -1);
+      }
+      out += stash(`<code>${esc(code)}</code>`);
+      i = close + run;
+    }
+    return out;
   }
 
-  function md(src) {
-    const lines = String(src || "").replace(/\r/g, "").split("\n");
+  function inlineMarkup(src, refs, slots, stash) {
+    let out = protectCodeSpans(src, stash);
+    out = out.replace(/\\([\\`*_{}\[\]()#+\-.!|~><])/g, (_, c) => stash(esc(c)));
+    out = out.replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, (_, text, url) =>
+      stash(`<a href="${esc(url)}" target="_blank" rel="noopener">${
+        inlineMarkup(text, refs, slots, stash)}</a>`));
+    out = out.replace(/\[([^\]]+)\]\[([^\]]*)\]/g, (all, text, label) => {
+      const url = refs && refs[((label || text).trim().toLowerCase())];
+      if (!url) return all;
+      return stash(`<a href="${esc(url)}" target="_blank" rel="noopener">${
+        inlineMarkup(text, refs, slots, stash)}</a>`);
+    });
+    out = out.replace(/<(https?:\/\/[^>\s]+)>/g, (_, url) =>
+      stash(`<a href="${esc(url)}" target="_blank" rel="noopener">${esc(url)}</a>`));
+    out = esc(out);
+    // CommonMark flanking: `2 * n²` is multiplication, not emphasis.
+    out = out.replace(/\*\*(?=\S)([\s\S]*?\S)\*\*/g, "<strong>$1</strong>");
+    out = out.replace(/(^|[^\w*])\*(?=\S)([^*\n]*?\S)\*(?![\w*])/g, "$1<em>$2</em>");
+    out = out.replace(/(^|[^\w_])_(?=\S)([^_\n]*?\S)_(?![\w_])/g, "$1<em>$2</em>");
+    return out;
+  }
+
+  function inlineMd(s, refs = null) {
+    const slots = [];
+    const stash = (html) => {
+      slots.push(html);
+      return `\u0000${slots.length - 1}\u0000`;
+    };
+    let out = inlineMarkup(String(s == null ? "" : s), refs, slots, stash);
+    let prev;
+    do {
+      prev = out;
+      out = out.replace(/\u0000(\d+)\u0000/g, (_, n) => slots[Number(n)]);
+    } while (out !== prev);
+    return out;
+  }
+
+  function indentWidth(line) {
+    let n = 0;
+    for (const ch of line) {
+      if (ch === " ") n += 1;
+      else if (ch === "\t") n += 4 - (n % 4);
+      else break;
+    }
+    return n;
+  }
+
+  function stripIndent(line, n) {
+    let removed = 0;
+    let i = 0;
+    while (i < line.length && removed < n) {
+      if (line[i] === " ") { removed += 1; i += 1; }
+      else if (line[i] === "\t") { removed += 4 - (removed % 4); i += 1; }
+      else break;
+    }
+    return line.slice(i);
+  }
+
+  function isBlockStart(line) {
+    if (!line.trim()) return true;
+    return /^ {0,3}(?:#{1,6}\s|(?:`{3,}|~{3,})|>|[-*+]\s|\d+[.)]\s)/.test(line)
+      || /^ {0,3}(?:(?:\*\s*){3,}|(?:-\s*){3,}|(?:_\s*){3,})$/.test(line);
+  }
+
+  function md(src, inheritedRefs = null) {
+    const rawLines = String(src || "").replace(/\r/g, "").split("\n");
+    const refs = Object.assign(Object.create(null), inheritedRefs || {});
+    const lines = [];
+    for (const line of rawLines) {
+      const def = line.match(/^ {0,3}\[([^\]]+)\]:\s*(\S+)\s*$/);
+      if (def) refs[def[1].trim().toLowerCase()] = def[2].trim();
+      else lines.push(line);
+    }
     const out = [];
     let i = 0;
+    const bulletRe = /^( {0,3})([-*+])\s+(.*)$/;
+    const orderRe = /^( {0,3})(\d+)[.)]\s+(.*)$/;
+
+    function listItemHtml(content) {
+      const html = md(content, refs);
+      const single = html.match(/^<p>([\s\S]*)<\/p>$/);
+      return single ? single[1] : html;
+    }
+
+    function renderList(start, re) {
+      const first = lines[start].match(re);
+      if (!first) return start + 1;
+      const ordered = re === orderRe;
+      const items = [];
+      let j = start;
+      while (j < lines.length) {
+        const m = lines[j].match(re);
+        if (!m) break;
+        // A marker indented less than this item's content column is another
+        // item in the same list; a deeper marker is nested content.
+        const contentIndent = m[0].length - m[3].length;
+        let content = m[3];
+        j += 1;
+        while (j < lines.length) {
+          const l = lines[j];
+          if (!l.trim()) {
+            let k = j + 1;
+            while (k < lines.length && !lines[k].trim()) k += 1;
+            if (k >= lines.length) { j = k; break; }
+            const nm = lines[k].match(re);
+            if (nm && nm[1].length < contentIndent) { j = k; break; }
+            if (!nm && indentWidth(lines[k]) < contentIndent) { j = k; break; }
+            if (isBlockStart(lines[k]) && indentWidth(lines[k]) <= contentIndent) {
+              j = k;
+              break;
+            }
+            content += "\n";
+            j += 1;
+            continue;
+          }
+          const nm = lines[j].match(re);
+          if (nm && nm[1].length < contentIndent) break;
+          if (isBlockStart(l) && indentWidth(l) <= contentIndent) break;
+          content += "\n" + stripIndent(l, Math.min(indentWidth(l), contentIndent));
+          j += 1;
+        }
+        items.push(`<li>${listItemHtml(content)}</li>`);
+        let k = j;
+        while (k < lines.length && !lines[k].trim()) k += 1;
+        if (k < lines.length && re.test(lines[k])) { j = k; continue; }
+        break;
+      }
+      out.push(ordered ? `<ol>${items.join("")}</ol>` : `<ul>${items.join("")}</ul>`);
+      return j;
+    }
+
     while (i < lines.length) {
-      let line = lines[i];
-      if (!line.trim()) { i++; continue; }
-      let m = line.match(/^```\s*(\w*)\s*$/);
+      const line = lines[i];
+      if (!line.trim()) { i += 1; continue; }
+
+      let m = line.match(/^ {0,3}(`{3,}|~{3,})[ \t]*([\w+-]*)[ \t]*$/);
       if (m) {
+        const fenceChar = m[1][0];
+        const fenceLen = m[1].length;
+        const lang = m[2] || "";
         const buf = [];
-        i++;
-        while (i < lines.length && !/^```\s*$/.test(lines[i])) buf.push(lines[i++]);
-        i++;
-        out.push(`<pre class="mono">${esc(buf.join("\n"))}</pre>`);
+        i += 1;
+        while (i < lines.length) {
+          const close = lines[i].match(/^ {0,3}(`{3,}|~{3,})[ \t]*$/);
+          if (close && close[1][0] === fenceChar && close[1].length >= fenceLen) {
+            i += 1;
+            break;
+          }
+          buf.push(lines[i]);
+          i += 1;
+        }
+        const cls = lang ? `mono lang-${esc(lang)}` : "mono";
+        out.push(`<pre class="${cls}">${esc(buf.join("\n"))}</pre>`);
         continue;
       }
-      m = line.match(/^(#{1,6})\s+(.*)$/);
+
+      // Indented code, plus the editor-style aligned tables that begin at two
+      // spaces and continue at four: preserve the column alignment.
+      const firstIndent = indentWidth(line);
+      if (firstIndent >= 2 && !isBlockStart(line)) {
+        const run = [];
+        let k = i;
+        while (k < lines.length) {
+          if (!lines[k].trim()) {
+            let n = k + 1;
+            while (n < lines.length && !lines[n].trim()) n += 1;
+            if (n < lines.length && indentWidth(lines[n]) >= 2) {
+              while (k < n) { run.push(""); k += 1; }
+              continue;
+            }
+            break;
+          }
+          run.push(lines[k]);
+          k += 1;
+        }
+        const indents = run.filter((l) => l.trim()).map(indentWidth);
+        if (indents.length && (indents[0] >= 4 || indents.some((n) => n >= 4))) {
+          const common = Math.min(...indents);
+          out.push(`<pre class="mono">${esc(
+            run.map((l) => (l.trim() ? stripIndent(l, common) : "")).join("\n"))}</pre>`);
+          i = k;
+          continue;
+        }
+      }
+
+      m = line.match(/^ {0,3}(#{1,6})\s+(.*?)\s*#*\s*$/);
       if (m) {
-        const level = Math.min(6, m[1].length + 1);
-        out.push(`<h${level}>${inlineMd(m[2])}</h${level}>`);
-        i++;
+        const level = Math.min(6, m[1].length);
+        out.push(`<h${level}>${inlineMd(m[2], refs)}</h${level}>`);
+        i += 1;
         continue;
       }
-      if (/^\s*[-*]\s+/.test(line)) {
-        const items = [];
-        while (i < lines.length && /^\s*[-*]\s+/.test(lines[i])) {
-          items.push(`<li>${inlineMd(lines[i].replace(/^\s*[-*]\s+/, ""))}</li>`);
-          i++;
-        }
-        out.push(`<ul>${items.join("")}</ul>`);
+
+      if (/^ {0,3}(?:(?:\*\s*){3,}|(?:-\s*){3,}|(?:_\s*){3,})$/.test(line)) {
+        out.push("<hr>");
+        i += 1;
         continue;
       }
-      if (/^\s*\d+\.\s+/.test(line)) {
-        const items = [];
-        while (i < lines.length && /^\s*\d+\.\s+/.test(lines[i])) {
-          items.push(`<li>${inlineMd(lines[i].replace(/^\s*\d+\.\s+/, ""))}</li>`);
-          i++;
-        }
-        out.push(`<ol>${items.join("")}</ol>`);
-        continue;
-      }
-      if (/^>\s?/.test(line)) {
+
+      if (/^ {0,3}>/.test(line)) {
         const buf = [];
-        while (i < lines.length && /^>\s?/.test(lines[i])) {
-          buf.push(lines[i].replace(/^>\s?/, ""));
-          i++;
+        while (i < lines.length && /^ {0,3}>/.test(lines[i])) {
+          buf.push(lines[i].replace(/^ {0,3}> ?/, ""));
+          i += 1;
         }
-        out.push(`<blockquote>${md(buf.join("\n"))}</blockquote>`);
+        out.push(`<blockquote>${md(buf.join("\n"), refs)}</blockquote>`);
         continue;
       }
+
+      if (bulletRe.test(line)) { i = renderList(i, bulletRe); continue; }
+      if (orderRe.test(line)) { i = renderList(i, orderRe); continue; }
+
       const para = [];
-      while (i < lines.length && lines[i].trim() &&
-             !/^(#{1,6})\s|^\s*[-*]\s|^\s*\d+\.\s|^>|^```/.test(lines[i])) {
+      while (i < lines.length && lines[i].trim() && !isBlockStart(lines[i])) {
         para.push(lines[i]);
-        i++;
+        i += 1;
       }
-      out.push(`<p>${inlineMd(para.join(" "))}</p>`);
+      if (!para.length) { para.push(line); i += 1; }
+      out.push(`<p>${inlineMd(para.join(" "), refs)}</p>`);
     }
     return out.join("\n");
   }
