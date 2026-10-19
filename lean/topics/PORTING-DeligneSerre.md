@@ -9,8 +9,8 @@ manager's own work, §5 the build economy, §6 verification, §7 what remains, �
 residuals. Every measurement is the pin's, read through `tools/deps`. The section numbers are
 stable: work orders across the column cite §3 for the workflow and §7 for the gates.
 
-The checker reads **10344 identical (700 promoted, 83 renamed), 0 mismatched, 0 missing, 42
-own-proof declarations exempted, 294 registered-unwired declarations exempted (10680 checked)**. This column's recent landings: the
+The checker reads **10445 identical (774 promoted, 83 renamed), 0 mismatched, 0 missing, 42
+own-proof declarations exempted, 294 registered-unwired declarations exempted (10781 checked)**. This column's recent landings: the
 `TateFormal`/`TateSlots` definition layer, 9241 → 9304; the weight-4 Tate-slot engine and headline
 façade (WORKORDER-F1), 9304 → 9318; the six `tateCurve`/Katz definition modules of WORKORDER-F2,
 9318 → 9535 (+217); the `BridgeX` twin/triplet engine and headline façade (WORKORDER-F2),
@@ -99,6 +99,40 @@ mathematics, and none of the 45 names is re-proved anywhere else in the pin. Che
 [logs/gl2-strong-approximation.md](../logs/gl2-strong-approximation.md); topic and order:
 [numberTheory/adelicLevel/TOPIC-gl2-strong-approximation.md](numberTheory/adelicLevel/TOPIC-gl2-strong-approximation.md),
 [numberTheory/adelicLevel/WORKORDER-T5-gl2-strong-approximation.md](numberTheory/adelicLevel/WORKORDER-T5-gl2-strong-approximation.md).
+The **`EisensteinGeneral` local twisted integral** then landed as the column's first
+`EisensteinGeneral` cut: the five ready shelf rows of that namespace are one story — the local
+integral of a twisted smooth function at one place — 2,134 raw `S_` lines of which 673 are
+duplicate copies. The set opened with its **definition gate**,
+`LanglandsTunnell/TateLocalConstantsAt.lean` (the pin's `Def_LanglandsTunnell_TateLocalConstantsAt`
+whole, 21 declarations, +21; the five statements all quantify over `higherUnitsAt`), three
+promotions out of `private` in `TateGlobal/WeylSmooth.lean` and `WeylShell.lean` (+3), and the
+dedup that the gate forced — `WeylSmooth.lean` carried a second `higherUnitsAt` and now imports
+the gate (−1). Then **Set A** (the ramified trio): two tier-3 engines
+`EisensteinGeneral/LocalTwisted.lean` (527 lines, 25 declarations — the 486-line prelude the pin
+writes twice, so 972 → 527 lines) and `LocalRamShells.lean` (265, 9), plus the 354-line listed
+façade `LocalRam.lean` with three headlines (**+3**); and **Set B** (the unramified pair): the
+single listed module `EisensteinGeneral/LocalUnr.lean` (408 lines, 18 declarations, **+18**),
+listed whole with its two `S_` files because its machinery has no other consumer — the first set
+in the column where most of the checker delta comes through the promoted-from-pin-private
+fallback (702 → 718). Checker **10388 identical**, 0 mismatched / 0 missing. Records:
+[logs/eisenstein-local-twisted-ram.md](../logs/eisenstein-local-twisted-ram.md),
+[logs/eisenstein-local-twisted-unr.md](../logs/eisenstein-local-twisted-unr.md); topic and
+orders: [numberTheory/eisensteinGeneral/TOPIC-local-twisted-integral.md](numberTheory/eisensteinGeneral/TOPIC-local-twisted-integral.md),
+[numberTheory/eisensteinGeneral/WORKORDER-E1-local-twisted-ram.md](numberTheory/eisensteinGeneral/WORKORDER-E1-local-twisted-ram.md),
+[numberTheory/eisensteinGeneral/WORKORDER-E2-local-twisted-unr.md](numberTheory/eisensteinGeneral/WORKORDER-E2-local-twisted-unr.md).
+The **finite-adelic integral as an Euler product** then landed as the column's largest
+`EisensteinGeneral` cut: `EisensteinGeneral.Factorization.integrable_finprod_and_inv_measure_mul_integral_eq_tprod`
+(864 pin lines, 58 declarations, 839 net new) — the integral of `∏ᶠ v, h v (x v)` over the finite
+adèles equals the Euler product of the normalized local integrals, given summable deviations from
+`1`. It is homed as five engines (`EisensteinGeneral/Factorization/{ProductMeasure,Stratum,Measure,Integrability,Tprod}.lean`,
+1,035 lines, 56 declarations) plus a 145-line listed façade, and — unlike every other engine in the
+column — **all six modules are listed** with the pin `S_` file in `SOURCES`, so all **57**
+declarations are statement-checked (**+57**, the column's biggest single wired delta; the
+promoted-from-pin-private count moves 718 → 774). The only non-new declaration is a one-line alias
+of `TateGlobal.ShellSupport.integralOff`. Checker **10445 identical**, 0 mismatched / 0 missing.
+Record: [logs/eisenstein-factorization.md](../logs/eisenstein-factorization.md); topic and order:
+[numberTheory/eisensteinGeneral/TOPIC-factorization.md](numberTheory/eisensteinGeneral/TOPIC-factorization.md),
+[numberTheory/eisensteinGeneral/WORKORDER-E3-factorization.md](numberTheory/eisensteinGeneral/WORKORDER-E3-factorization.md).
 Each wired delta is exactly its new public surface, 0 mismatched / 0 missing. The 9542 → 9569 (+27) step is
 the `NumberField.AdelicHeight` definition gate, the manager's own ground for the adelic-modulus
 round
@@ -130,7 +164,15 @@ Companions:
   `AdelicLevel` layer, GL₂ strong approximation over ℚ, is
   [numberTheory/adelicLevel/TOPIC-gl2-strong-approximation.md](numberTheory/adelicLevel/TOPIC-gl2-strong-approximation.md)
   with [logs/gl2-strong-approximation.md](../logs/gl2-strong-approximation.md); its definition
-  layer is [PORTING-AutomorphicForm.md](PORTING-AutomorphicForm.md).
+  layer is [PORTING-AutomorphicForm.md](PORTING-AutomorphicForm.md). The `EisensteinGeneral`
+  local twisted integral — the local factor computation of the Godement–Eisenstein series, five
+  ready rows plus its definition gate — is
+  [numberTheory/eisensteinGeneral/TOPIC-local-twisted-integral.md](numberTheory/eisensteinGeneral/TOPIC-local-twisted-integral.md)
+  with [logs/eisenstein-local-twisted-ram.md](../logs/eisenstein-local-twisted-ram.md) and
+  [logs/eisenstein-local-twisted-unr.md](../logs/eisenstein-local-twisted-unr.md); its global
+  counterpart, the Euler-product factorization of the finite-adelic integral, is
+  [numberTheory/eisensteinGeneral/TOPIC-factorization.md](numberTheory/eisensteinGeneral/TOPIC-factorization.md)
+  with [logs/eisenstein-factorization.md](../logs/eisenstein-factorization.md).
 - The mathematics of the Petersson adjointness proved in this column:
   [../../math/030-petersson-adjointness-of-hecke.md](../../math/030-petersson-adjointness-of-hecke.md).
 - The `WeierstrassCurve` ready shelf, its scoping and its set orders:
@@ -601,7 +643,7 @@ a bigger heartbeat cap.
 
 ```bash
 cd lean
-timeout 300 python3 spec/check_flt_statements.py        # 10344 identical / 0 / 0 / 42 own
+timeout 300 python3 spec/check_flt_statements.py        # 10445 identical / 0 / 0 / 42 own
 flock .lake/flt_build.lock timeout 900 lake build       # the milestone build
 timeout 180 lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false spec/DeligneSerreConsumer.lean
 python3 tools/deps/unwired_register.py --check          # tier-3 surface current
@@ -694,6 +736,20 @@ the level-`N` variant `NumberField.AdelicLevel.exists_glFin_globalPoints_mul_mem
 centre-cut subject of §1 needs at ℚ — and two `AutomorphicForm` coset/isotypic nodes. None is
 ready; the level-`N` row is the next cut of that family.
 
+The **`EisensteinGeneral` local twisted integral** is complete on the ready shelf: five headlines
+landed (three ramified, two unramified) over a shared engine and one definition gate
+([numberTheory/eisensteinGeneral/TOPIC-local-twisted-integral.md](numberTheory/eisensteinGeneral/TOPIC-local-twisted-integral.md)
+§6). The family's remaining rows are `EisensteinGeneral.LocalUnr.integral_twisted_eq` (601 pin
+lines — the general unramified formula, of which the landed vanishing row is the special case;
+it needs two unported `LanglandsTunnell` rows, 249 raw lines) and the `LocalCorrection` pair
+(173 lines, not ready). The five headlines' consumers — the `AutomorphicForm`
+Godement–Eisenstein local-factor assembly — are not this column's.
+
+The **factorization** node (the global counterpart: `∏ᶠ` integral = Euler `∏'`) has landed too
+([logs/eisenstein-factorization.md](../logs/eisenstein-factorization.md)); its successor
+`EisensteinGeneral.Factorization.inv_measure_adelicBox_mul_fourierIntegral_tensor_eq` (185 pin
+lines) needs two unported `NumberField` rows (420 raw `S_` lines) before it is ready.
+
 **Deferred to its own order** is the C2 row
 `ModularCurve.exists_sum_smul_eq_of_isIntegralQExp_gamma1`. Its one substantive step is the
 unported premise `ModularForm.exists_basis_gamma1_qCoeff_mem_range_ratCast`, and the chain behind
@@ -753,6 +809,22 @@ python3 spec/check_flt_statements.py --selftest
   with a `ℝˣ`-valued `private def` in an `AutomorphicForm` silo), so neither is a home to share;
   recorded so a later `port_advise` run does not read them as duplicates. The five-module split
   is the layout, not a promise: merging them changes no statement.
+* **The local twisted-integral engine.** `EisensteinGeneral/LocalTwisted.lean` +
+  `LocalRamShells.lean` are tier 3 (34 declarations) with one importer each (the façade, and Set
+  B's module); their intended other consumer is the `AutomorphicForm` Godement–Eisenstein
+  local-factor assembly, unported. The two `untwisted` definitions (5-arg ramified in
+  `TwistedSmoothLocal`, 3-arg unramified in `TwistedUnramifiedLocal`) are deliberately *not*
+  unified: their statements differ, and a `Set B` proof that opened both would tie on
+  `untwisted` — the ambiguity is recorded in the log.
+* **Two wiring lessons from the factorization landing**, both now in the checker's comments: a
+  listed `S_` file shadows its own `Theorems/` wrapper for last-name matching unless the wrapper is
+  listed **first** (the headline's pin-private twin inherits its binders from a section variable, so
+  the two texts differ); and a pin spelling the port seems to lack may already exist as a port-only
+  alias elsewhere (`AdelicBox.integralFinteAdeles` is such an alias, in
+  `NumberTheory/AdelicHaar/PlaceMeasure.lean`), so grep for the alias before declaring a name
+  unspellable. The factorization set also carries the column's one file-level
+  `set_option linter.style.haveILetI false` (six modules, 24 load-bearing `haveI` sites) — a
+  candidate for narrowing.
 * **Register.** The weight-4 engine (`TateSlots/{Convergence,SlotCoeff}.lean`) is tier 3: built and
   importable, not in `PORT_FILES`, with its 119 public declarations carrying `-- pin:` provenance
   in [spec/UNWIRED-PUBLIC.md](../spec/UNWIRED-PUBLIC.md) (78 modules / 1,906 public / 1,618 with a

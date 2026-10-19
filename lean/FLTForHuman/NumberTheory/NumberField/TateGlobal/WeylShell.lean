@@ -240,12 +240,14 @@ theorem charExt_of_mem_shellSet (hϖ : Irreducible ϖ)
   norm_cast
 
 -- A file-local copy of the pin's `ofReal_pow_cpow` (line 888 of the same file), whose
--- statement is `(((a ^ k : ℝ)) : ℂ) ^ s = (((a : ℝ) : ℂ) ^ s) ^ k`. The port already has a
--- `ofReal_pow_cpow` in `NumberField/CompletedDedekindZeta/Mellin.lean`, but it is a different
--- statement (`((a : ℂ) ^ n) ^ z = (a : ℂ) ^ (n * z)`) and that module is not on the import
--- path here, so the pin's 8-line proof is re-run locally rather than dragging in the olean.
+-- statement is `(((a ^ k : ℝ)) : ℂ) ^ s = (((a : ℝ) : ℂ) ^ s) ^ k`. **Public** since
+-- WORKORDER-E1: the `EisensteinGeneral.LocalRam` local-integral development re-proves this
+-- 8-line lemma as a private prelude, so it imports this one instead (a promotion, playbook
+-- §4(b); the statement is the pin's and the checker now diffs it). The port also has an
+-- `ofReal_pow_cpow` in `NumberField/CompletedDedekindZeta/Mellin.lean`, but that one is a
+-- *different* statement (`((a : ℂ) ^ n) ^ z = (a : ℂ) ^ (n * z)`) and is not the pin's here.
 -- pin: ofReal_pow_cpow (S_AutomorphicForm_LocalIntertwining_integral_unramifiedWeylIntegrand_adicCompletion.lean:888)
-private theorem ofReal_pow_cpow {a : ℝ} (ha : 0 ≤ a) (s : ℂ) (k : ℕ) :
+theorem ofReal_pow_cpow {a : ℝ} (ha : 0 ≤ a) (s : ℂ) (k : ℕ) :
     (((a ^ k : ℝ)) : ℂ) ^ s = (((a : ℝ) : ℂ) ^ s) ^ k := by
   induction k with
   | zero => simp

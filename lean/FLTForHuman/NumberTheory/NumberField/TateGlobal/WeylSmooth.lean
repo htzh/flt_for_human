@@ -27,6 +27,7 @@
   rename.
 -/
 import FLTForHuman.NumberTheory.NumberField.TateGlobal.WeylShell
+import FLTForHuman.LanglandsTunnell.TateLocalConstantsAt
 
 set_option autoImplicit false
 
@@ -37,25 +38,6 @@ open WithZero Multiplicative
 open LanglandsTunnell.TateLocal
 
 noncomputable section
-
-namespace LanglandsTunnell
-
-namespace TateLocal
-
-/-
-`K` and `v` are section variables in the pin, so the checker's signature text is `(n : ℕ)`;
-keep that form (the elaborated signature is the same either way).
--/
-variable (K : Type) [Field K] [NumberField K] (v : HeightOneSpectrum (𝓞 K))
-
--- pin: higherUnitsAt (Def_LanglandsTunnell_TateLocalConstantsAt.lean:14)
-def higherUnitsAt (n : ℕ) : Set (v.adicCompletion K)ˣ :=
-  {u | Valued.v (u : v.adicCompletion K) = 1 ∧
-    (n = 0 ∨ Valued.v ((u : v.adicCompletion K) - 1) ≤ WithZero.exp (-(n : ℤ)))}
-
-end TateLocal
-
-end LanglandsTunnell
 
 namespace NumberField
 
@@ -280,7 +262,7 @@ end Substitution
 section Regularity
 
 -- pin: setOf_valued_sub_le_mem_nhds (S_AutomorphicForm_LocalIntertwining_integral_smoothWeylIntegrand_adicCompletion.lean:1632)
-private theorem setOf_valued_sub_le_mem_nhds (x z : v.adicCompletion F) (hz : Valued.v z ≠ 0) :
+theorem setOf_valued_sub_le_mem_nhds (x z : v.adicCompletion F) (hz : Valued.v z ≠ 0) :
     {y : v.adicCompletion F | Valued.v (y - x) ≤ Valued.v z} ∈ 𝓝 x := by
   have hr : Valued.v.restrict z ≠ 0 := by
     rwa [Ne, Valuation.restrict_eq_zero_iff]
@@ -295,7 +277,7 @@ private theorem setOf_valued_sub_le_mem_nhds (x z : v.adicCompletion F) (hz : Va
   exact hy
 
 -- pin: setOf_valued_sub_lt_mem_nhds (S_AutomorphicForm_LocalIntertwining_integral_smoothWeylIntegrand_adicCompletion.lean:1646)
-private theorem setOf_valued_sub_lt_mem_nhds (x z : v.adicCompletion F) (hz : Valued.v z ≠ 0) :
+theorem setOf_valued_sub_lt_mem_nhds (x z : v.adicCompletion F) (hz : Valued.v z ≠ 0) :
     {y : v.adicCompletion F | Valued.v (y - x) < Valued.v z} ∈ 𝓝 x := by
   have hr : Valued.v.restrict z ≠ 0 := by
     rwa [Ne, Valuation.restrict_eq_zero_iff]

@@ -3410,6 +3410,43 @@ SOURCES = [
     # it (the checker's UNWIRED tier 3) and is registered in `spec/UNWIRED-PUBLIC.md`. Appended
     # last so no earlier last-name match can flip.
     "Theorems/Thm_NumberField_AdelicLevel_exists_globalPoints_mul_mem_finiteIntegralGL2_rat.lean",
+    # --- WORKORDER-E1, the definition gate of the local twisted-integral set
+    # (`topics/numberTheory/eisensteinGeneral/TOPIC-local-twisted-integral.md`): the pin's
+    # `Def_LanglandsTunnell_TateLocalConstantsAt` has no `Theorems/` wrapper, so it is its own
+    # statement authority and the port module is diffed whole (`higherUnitsAt`,
+    # `HasConductorExponentAt`, `conductorExponentAt`, `localLFactorAt`, `localEpsilonAt`, 21
+    # declarations). Appended last so no earlier last-name match can flip.
+    "Definitions/Def_LanglandsTunnell_TateLocalConstantsAt.lean",
+    # --- WORKORDER-E1, Set A of the local twisted-integral cluster
+    # (`topics/numberTheory/eisensteinGeneral/TOPIC-local-twisted-integral.md`): the three
+    # `EisensteinGeneral.LocalRam` headlines at a ramified place. The wrappers are the statement
+    # authorities; the three `S_` files are deliberately NOT listed — the two engines
+    # (`EisensteinGeneral/LocalTwisted.lean`, `…/LocalRamShells.lean`) carry `-- pin:` markers into
+    # them (the checker's UNWIRED tier 3) and are registered in `spec/UNWIRED-PUBLIC.md`.
+    # Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean",
+    "Theorems/Thm_EisensteinGeneral_LocalRam_integrable_twisted_smooth.lean",
+    "Theorems/Thm_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq_zero_of_exp_lt.lean",
+    # --- WORKORDER-E2, Set B of the same cluster: the unramified pair. Here the two `S_` files ARE
+    # listed, unlike Set A: this set's machinery has no other consumer, so it is written into the
+    # one listed module `EisensteinGeneral/LocalUnr.lean` and every declaration of it is diffed
+    # against the wrappers (statement authority) or the `S_` files (the machinery). The pin's
+    # `private` machinery is matched through the checker's promoted-from-pin-private fallback.
+    "Theorems/Thm_EisensteinGeneral_LocalUnr_integrable_twisted_and_integral_norm_eq.lean",
+    "Theorems/Thm_EisensteinGeneral_LocalUnr_integral_twisted_eq_zero_of_exp_lt.lean",
+    "P2M/Sol/S_EisensteinGeneral_LocalUnr_integrable_twisted_and_integral_norm_eq.lean",
+    "P2M/Sol/S_EisensteinGeneral_LocalUnr_integral_twisted_eq_zero_of_exp_lt.lean",
+    # --- WORKORDER-E3: the finite-adelic integral as an Euler product
+    # (`topics/numberTheory/eisensteinGeneral/TOPIC-factorization.md`). Unlike Sets A/B, the pin `S_`
+    # file IS listed and all six port modules are in `PORT_FILES`: the silo is 57 unique public
+    # declarations with no other consumer, so every one of them is statement-diffed through the
+    # `-- pin:` markers (the checker's exact-pin-name route) instead of being exempted as tier 3.
+    # The wrapper comes FIRST: it is the statement authority for the headline, whose pin-private
+    # copy inside the `S_` file has `F` as a section variable and would shadow it by last name
+    # (that pairing was caught as a MISMATCH on the first run). The `S_` file follows so the
+    # engine's public block resolves through the pin-private dotted fallback.
+    "Theorems/Thm_EisensteinGeneral_Factorization_integrable_finprod_and_inv_measure_mul_integral_eq_tprod.lean",
+    "P2M/Sol/S_EisensteinGeneral_Factorization_integrable_finprod_and_inv_measure_mul_integral_eq_tprod.lean",
 ]
 
 
@@ -5094,6 +5131,27 @@ PORT_FILES = [
     # modules (`NumberTheory/AdelicLevel/StrongApprox/*.lean`) stay tier 3 and are registered in
     # `spec/UNWIRED-PUBLIC.md`. No existing module was edited, so no hub wave is owed.
     "FLTForHuman/NumberTheory/AdelicLevel/StrongApproxRat.lean",
+    # --- WORKORDER-E1: the local-constants definition layer homed whole from the pin's
+    # `Def_LanglandsTunnell_TateLocalConstantsAt` (21 declarations, checked). It is the gate of
+    # the `EisensteinGeneral.LocalRam`/`LocalUnr` local-integral set that follows.
+    "FLTForHuman/LanglandsTunnell/TateLocalConstantsAt.lean",
+    # --- WORKORDER-E1 (Set A): the three `EisensteinGeneral.LocalRam` headlines (+3). The two
+    # engines (`EisensteinGeneral/LocalTwisted.lean`, `…/LocalRamShells.lean`) stay tier 3 and are
+    # registered in `spec/UNWIRED-PUBLIC.md`.
+    "FLTForHuman/EisensteinGeneral/LocalRam.lean",
+    # --- WORKORDER-E2 (Set B): the two `EisensteinGeneral.LocalUnr` headlines and their
+    # machinery, all in one listed module (see SOURCES for why the `S_` files are listed here and
+    # not for Set A).
+    "FLTForHuman/EisensteinGeneral/LocalUnr.lean",
+    # --- WORKORDER-E3: the factorization silo. Five engines + one façade, all listed (see SOURCES
+    # for why). Expected delta: every declaration of the six modules except the substituted
+    # `integralOffSet`, whose port copy is a one-line alias of `TateGlobal.ShellSupport.integralOff`.
+    "FLTForHuman/EisensteinGeneral/Factorization/ProductMeasure.lean",
+    "FLTForHuman/EisensteinGeneral/Factorization/Stratum.lean",
+    "FLTForHuman/EisensteinGeneral/Factorization/Measure.lean",
+    "FLTForHuman/EisensteinGeneral/Factorization/Integrability.lean",
+    "FLTForHuman/EisensteinGeneral/Factorization/Tprod.lean",
+    "FLTForHuman/EisensteinGeneral/Factorization.lean",
 ]
 
 

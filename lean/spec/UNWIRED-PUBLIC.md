@@ -13,7 +13,7 @@ whether the tree has drifted.  Nothing here is verified against the pin: the
 `pin original` column names the declaration (and the file holding it) that
 carries the statement to diff when the entry is wired.
 
-`4100` public declarations in `134` unlisted modules; `3796` of them have a pin counterpart by name and statement.
+`4134` public declarations in `136` unlisted modules; `3830` of them have a pin counterpart by name and statement.
 
 This is tier 3 only.  Tier 2 — a declaration in a *listed* module that the
 checker skips for another reason — is `OWN_PROOFS` in the checker itself, each
@@ -86,6 +86,8 @@ wrappers whose statements the checker diffs).
 | [`FLTForHuman/AutomorphicForm/Iwasawa/Real/Continuation.lean`](#fltforhumanautomorphicformiwasawarealcontinuationlean) | 415 | 1 | 1 | 0 | 1 | 0 |
 | [`FLTForHuman/AutomorphicForm/Iwasawa/Real/Core.lean`](#fltforhumanautomorphicformiwasawarealcorelean) | 820 | 113 | 113 | 0 | 3 | 0 |
 | [`FLTForHuman/AutomorphicForm/Iwasawa/Real/Decay.lean`](#fltforhumanautomorphicformiwasawarealdecaylean) | 873 | 53 | 53 | 0 | 2 | 0 |
+| [`FLTForHuman/EisensteinGeneral/LocalRamShells.lean`](#fltforhumaneisensteingenerallocalramshellslean) | 266 | 9 | 9 | 0 | 1 | 0 |
+| [`FLTForHuman/EisensteinGeneral/LocalTwisted.lean`](#fltforhumaneisensteingenerallocaltwistedlean) | 528 | 25 | 25 | 0 | 3 | 0 |
 | [`FLTForHuman/Elliptic/Basic.lean`](#fltforhumanellipticbasiclean) | 35 | 1 | 0 | 1 | 1 | 0 |
 | [`FLTForHuman/Elliptic/Bridge.lean`](#fltforhumanellipticbridgelean) | 79 | 3 | 0 | 3 | 1 | 0 |
 | [`FLTForHuman/Elliptic/Complement.lean`](#fltforhumanellipticcomplementlean) | 106 | 2 | 0 | 2 | 1 | 0 |
@@ -99,7 +101,7 @@ wrappers whose statements the checker diffs).
 | [`FLTForHuman/Elliptic/RedInvar.lean`](#fltforhumanellipticredinvarlean) | 108 | 8 | 0 | 8 | 1 | 0 |
 | [`FLTForHuman/Elliptic/TorsionCard.lean`](#fltforhumanelliptictorsioncardlean) | 1,174 | 24 | 3 | 21 | 7 | 1 |
 | [`FLTForHuman/Elliptic/Universal.lean`](#fltforhumanellipticuniversallean) | 241 | 36 | 0 | 36 | 1 | 0 |
-| [`FLTForHuman/LanglandsTunnell/TateLocalZeta.lean`](#fltforhumanlanglandstunnelltatelocalzetalean) | 187 | 23 | 23 | 0 | 2 | 0 |
+| [`FLTForHuman/LanglandsTunnell/TateLocalZeta.lean`](#fltforhumanlanglandstunnelltatelocalzetalean) | 187 | 23 | 23 | 0 | 4 | 0 |
 | [`FLTForHuman/LinearAlgebra/Countable.lean`](#fltforhumanlinearalgebracountablelean) | 25 | 1 | 1 | 0 | 1 | 0 |
 | [`FLTForHuman/MeasureTheory/Integral/Prod.lean`](#fltforhumanmeasuretheoryintegralprodlean) | 106 | 1 | 0 | 1 | 0 | 0 |
 | [`FLTForHuman/ModularCurve/TateCurve/Bridge.lean`](#fltforhumanmodularcurvetatecurvebridgelean) | 840 | 50 | 50 | 0 | 2 | 0 |
@@ -111,7 +113,7 @@ wrappers whose statements the checker diffs).
 | [`FLTForHuman/NumberTheory/AdelicFourier.lean`](#fltforhumannumbertheoryadelicfourierlean) | 152 | 15 | 15 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/AdelicHaar/AdelicModulus.lean`](#fltforhumannumbertheoryadelichaaradelicmoduluslean) | 826 | 57 | 57 | 0 | 2 | 0 |
 | [`FLTForHuman/NumberTheory/AdelicHaar/ArchModulus.lean`](#fltforhumannumbertheoryadelichaararchmoduluslean) | 143 | 7 | 7 | 0 | 1 | 0 |
-| [`FLTForHuman/NumberTheory/AdelicHaar/PlaceMeasure.lean`](#fltforhumannumbertheoryadelichaarplacemeasurelean) | 623 | 34 | 34 | 0 | 3 | 1 |
+| [`FLTForHuman/NumberTheory/AdelicHaar/PlaceMeasure.lean`](#fltforhumannumbertheoryadelichaarplacemeasurelean) | 623 | 34 | 34 | 0 | 4 | 1 |
 | [`FLTForHuman/NumberTheory/AdelicHaar/ProductFormula.lean`](#fltforhumannumbertheoryadelichaarproductformulalean) | 217 | 9 | 9 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/AdelicLevel/Countability.lean`](#fltforhumannumbertheoryadeliclevelcountabilitylean) | 168 | 2 | 2 | 0 | 2 | 1 |
 | [`FLTForHuman/NumberTheory/AdelicLevel/StrongApprox/Approximation.lean`](#fltforhumannumbertheoryadeliclevelstrongapproxapproximationlean) | 214 | 5 | 5 | 0 | 1 | 0 |
@@ -146,15 +148,15 @@ wrappers whose statements the checker diffs).
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/IndicatorEulerFactors.lean`](#fltforhumannumbertheorynumberfieldtateglobalindicatoreulerfactorslean) | 486 | 19 | 19 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/IntLocalIntegrability.lean`](#fltforhumannumbertheorynumberfieldtateglobalintlocalintegrabilitylean) | 368 | 8 | 8 | 0 | 4 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/IntegrableZetaIntegrand.lean`](#fltforhumannumbertheorynumberfieldtateglobalintegrablezetaintegrandlean) | 183 | 4 | 4 | 0 | 1 | 0 |
-| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/LocalZetaUnramified.lean`](#fltforhumannumbertheorynumberfieldtategloballocalzetaunramifiedlean) | 258 | 15 | 15 | 0 | 2 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/LocalZetaUnramified.lean`](#fltforhumannumbertheorynumberfieldtategloballocalzetaunramifiedlean) | 258 | 15 | 15 | 0 | 4 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/MulHaar.lean`](#fltforhumannumbertheorynumberfieldtateglobalmulhaarlean) | 434 | 25 | 25 | 0 | 3 | 0 |
-| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/NormIntegrable.lean`](#fltforhumannumbertheorynumberfieldtateglobalnormintegrablelean) | 370 | 16 | 16 | 0 | 3 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/NormIntegrable.lean`](#fltforhumannumbertheorynumberfieldtateglobalnormintegrablelean) | 370 | 16 | 16 | 0 | 5 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/NormSection.lean`](#fltforhumannumbertheorynumberfieldtateglobalnormsectionlean) | 240 | 25 | 25 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/PlaceSum.lean`](#fltforhumannumbertheorynumberfieldtateglobalplacesumlean) | 163 | 9 | 9 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/PureTensor.lean`](#fltforhumannumbertheorynumberfieldtateglobalpuretensorlean) | 426 | 6 | 6 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ReferenceMeasure.lean`](#fltforhumannumbertheorynumberfieldtateglobalreferencemeasurelean) | 387 | 24 | 24 | 0 | 3 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ShellBound.lean`](#fltforhumannumbertheorynumberfieldtateglobalshellboundlean) | 167 | 12 | 12 | 0 | 1 | 0 |
-| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ShellSupport.lean`](#fltforhumannumbertheorynumberfieldtateglobalshellsupportlean) | 177 | 11 | 11 | 0 | 1 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ShellSupport.lean`](#fltforhumannumbertheorynumberfieldtateglobalshellsupportlean) | 177 | 11 | 11 | 0 | 2 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ShellTranslate.lean`](#fltforhumannumbertheorynumberfieldtateglobalshelltranslatelean) | 145 | 4 | 4 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/UnifPowBridge.lean`](#fltforhumannumbertheorynumberfieldtateglobalunifpowbridgelean) | 147 | 7 | 7 | 0 | 3 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ValuedOrdBridge.lean`](#fltforhumannumbertheorynumberfieldtateglobalvaluedordbridgelean) | 232 | 6 | 6 | 0 | 3 | 0 |
@@ -2296,6 +2298,54 @@ wrappers whose statements the checker diffs).
 | `AutomorphicForm.RealIwasawa.RealDecay.Ψ` | def | `Ψ` (provenance comment) | [`S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:933`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean#L933) |
 | `AutomorphicForm.RealIwasawa.ScalarMajorant.norm_iteratedFDeriv_comp_log_rad_le` | theorem | `norm_iteratedFDeriv_comp_log_rad_le` (provenance comment) | [`S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean:827`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AutomorphicForm_RealIwasawa_norm_fourierIntegral_cpow_rad_mul_le_polyDecay.lean#L827) |
 
+## `FLTForHuman/EisensteinGeneral/LocalRamShells.lean`
+
+266 lines, 9 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s).
+
+| importable name | kind | pin original | pin file |
+|---|---|---|---|
+| `EisensteinGeneral.TwistedSmoothLocal.coe_modulus_of_valued_eq` | theorem | `coe_modulus_of_valued_eq` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:568`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L568) |
+| `EisensteinGeneral.TwistedSmoothLocal.integrable_twisted_aux` | theorem | `integrable_twisted_aux` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:490`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L490) |
+| `EisensteinGeneral.TwistedSmoothLocal.isOpen_setOf_valued_le` | theorem | `isOpen_setOf_valued_le` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:510`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L510) |
+| `EisensteinGeneral.TwistedSmoothLocal.isOpen_setOf_valued_lt` | theorem | `isOpen_setOf_valued_lt` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:520`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L520) |
+| `EisensteinGeneral.TwistedSmoothLocal.measurableSet_setOf_exp_lt` | theorem | `measurableSet_setOf_exp_lt` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:549`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L549) |
+| `EisensteinGeneral.TwistedSmoothLocal.measurableSet_setOf_valued_eq` | theorem | `measurableSet_setOf_valued_eq` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:534`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L534) |
+| `EisensteinGeneral.TwistedSmoothLocal.toAdd_unzero_exp` | theorem | `toAdd_unzero_exp` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:564`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L564) |
+| `EisensteinGeneral.TwistedSmoothLocal.untwisted_add_eq` | theorem | `untwisted_add_eq` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq_zero_of_exp_lt.lean:67`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq_zero_of_exp_lt.lean#L67) |
+| `EisensteinGeneral.TwistedSmoothLocal.untwisted_add_eq_of_sphere` | theorem | `untwisted_add_eq_of_sphere` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:583`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L583) |
+
+## `FLTForHuman/EisensteinGeneral/LocalTwisted.lean`
+
+528 lines, 25 public declarations — transcribed from the pin, not wired. Imported by 3 port module(s).
+
+| importable name | kind | pin original | pin file |
+|---|---|---|---|
+| `EisensteinGeneral.TwistedSmoothLocal.absChar` | def | `absChar` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:289`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L289) |
+| `EisensteinGeneral.TwistedSmoothLocal.absChar_apply` | theorem | `absChar_apply` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:299`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L299) |
+| `EisensteinGeneral.TwistedSmoothLocal.absChar_higherUnits` | theorem | `absChar_higherUnits` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:303`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L303) |
+| `EisensteinGeneral.TwistedSmoothLocal.absNorm_pos` | theorem | `absNorm_pos` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:327`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L327) |
+| `EisensteinGeneral.TwistedSmoothLocal.aestronglyMeasurable_untwisted` | theorem | `aestronglyMeasurable_untwisted` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:259`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L259) |
+| `EisensteinGeneral.TwistedSmoothLocal.charExt_absChar_inv_eq` | theorem | `charExt_absChar_inv_eq` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:380`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L380) |
+| `EisensteinGeneral.TwistedSmoothLocal.charExt_inv_eq_of_sub_le` | theorem | `charExt_inv_eq_of_sub_le` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:83`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L83) |
+| `EisensteinGeneral.TwistedSmoothLocal.compl_integers_subset` | theorem | `compl_integers_subset` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:246`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L246) |
+| `EisensteinGeneral.TwistedSmoothLocal.continuousOn_charExt_inv` | theorem | `continuousOn_charExt_inv` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:112`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L112) |
+| `EisensteinGeneral.TwistedSmoothLocal.continuousOn_modulus_cpow` | theorem | `continuousOn_modulus_cpow` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:242`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L242) |
+| `EisensteinGeneral.TwistedSmoothLocal.continuousOn_of_valued_eq` | theorem | `continuousOn_of_valued_eq` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:231`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L231) |
+| `EisensteinGeneral.TwistedSmoothLocal.continuous_addChar_neg_mul` | theorem | `continuous_addChar_neg_mul` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:135`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L135) |
+| `EisensteinGeneral.TwistedSmoothLocal.continuous_of_depth` | theorem | `continuous_of_depth` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:65`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L65) |
+| `EisensteinGeneral.TwistedSmoothLocal.depth_norm_add_one` | theorem | `depth_norm_add_one` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:320`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L320) |
+| `EisensteinGeneral.TwistedSmoothLocal.hs_absChar` | theorem | `hs_absChar` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:331`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L331) |
+| `EisensteinGeneral.TwistedSmoothLocal.integrableOn_norm_add_one` | theorem | `integrableOn_norm_add_one` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:371`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L371) |
+| `EisensteinGeneral.TwistedSmoothLocal.integrable_dominator` | theorem | `integrable_dominator` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:395`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L395) |
+| `EisensteinGeneral.TwistedSmoothLocal.isOpen_integers` | theorem | `isOpen_integers` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:217`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L217) |
+| `EisensteinGeneral.TwistedSmoothLocal.modulus_eq_of_valued_eq` | theorem | `modulus_eq_of_valued_eq` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:210`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L210) |
+| `EisensteinGeneral.TwistedSmoothLocal.norm_addChar_of_level` | theorem | `norm_addChar_of_level` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:164`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L164) |
+| `EisensteinGeneral.TwistedSmoothLocal.norm_charExt_inv_absChar` | theorem | `norm_charExt_inv_absChar` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:311`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L311) |
+| `EisensteinGeneral.TwistedSmoothLocal.norm_untwisted_le` | theorem | `norm_untwisted_le` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:343`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L343) |
+| `EisensteinGeneral.TwistedSmoothLocal.untwisted` | def | `untwisted` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:204`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L204) |
+| `EisensteinGeneral.TwistedSmoothLocal.valued_uniformizer_exp` | theorem | `valued_uniformizer_exp` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:53`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L53) |
+| `EisensteinGeneral.TwistedSmoothLocal.valued_uniformizer_pow` | theorem | `valued_uniformizer_pow` (provenance comment) | [`S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean:58`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_EisensteinGeneral_LocalRam_integral_twisted_smooth_eq.lean#L58) |
+
 ## `FLTForHuman/Elliptic/Basic.lean`
 
 35 lines, 1 public declarations — the port's own, no pin source. Imported by 1 port module(s).
@@ -2659,7 +2709,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/LanglandsTunnell/TateLocalZeta.lean`
 
-187 lines, 23 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
+187 lines, 23 public declarations — transcribed from the pin, not wired. Imported by 4 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -3230,7 +3280,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/NumberTheory/AdelicHaar/PlaceMeasure.lean`
 
-623 lines, 34 public declarations — transcribed from the pin, not wired. Imported by 3 port module(s), and used by 1 `spec/` consumer(s).
+623 lines, 34 public declarations — transcribed from the pin, not wired. Imported by 4 port module(s), and used by 1 `spec/` consumer(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -4386,7 +4436,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/LocalZetaUnramified.lean`
 
-258 lines, 15 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
+258 lines, 15 public declarations — transcribed from the pin, not wired. Imported by 4 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -4440,7 +4490,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/NormIntegrable.lean`
 
-370 lines, 16 public declarations — transcribed from the pin, not wired. Imported by 3 port module(s).
+370 lines, 16 public declarations — transcribed from the pin, not wired. Imported by 5 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -4574,7 +4624,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/ShellSupport.lean`
 
-177 lines, 11 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s).
+177 lines, 11 public declarations — transcribed from the pin, not wired. Imported by 2 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
