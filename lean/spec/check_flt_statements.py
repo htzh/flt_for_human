@@ -3351,6 +3351,22 @@ SOURCES = [
     "Theorems/Thm_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean",
     "Theorems/Thm_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean",
     "Theorems/Thm_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean",
+    # --- The cut-vector weight decomposition's definition layer
+    # (`topics/automorphicForm/TOPIC-cut-weight-decomposition.md`): the first of the six
+    # unported pin `Definitions/` modules its closure needs. Appended last.
+    "Definitions/Def_AutomorphicForm_WhittakerCoefficient.lean",
+    "Definitions/Def_NumberField_StandardGlobalAddCharRat.lean",
+    # --- `WORKORDER-CD1-def-wave.md`: the rest of the cut-weight definition wave, all four
+    # transcribed verbatim by the set and reviewed here. Appended last.
+    "Definitions/Def_NumberField_StandardGlobalAddChar.lean",
+    "Definitions/Def_NumberField_AdelicTraceProducer.lean",
+    "Definitions/Def_NumberField_IntegralAdelicTrace.lean",
+    "Definitions/Def_NumberField_AdelicTraceFin.lean",
+    # --- `WORKORDER-CD2-cut-weight-proof.md`: statement authority for the cut-vector weight
+    # decomposition headline. The `S_` file is deliberately NOT listed — every other public
+    # declaration of the module carries a `-- pin:` marker into it (the checker's UNWIRED tier 3)
+    # and is registered in spec/UNWIRED-PUBLIC.md. Appended last.
+    "Theorems/Thm_AutomorphicForm_CuspidalConstituent_exists_eq_sum_hasArchCharacterAt_archWeightCharAt_of_isCuspConstituent.lean",
 ]
 
 
@@ -5004,6 +5020,13 @@ PORT_FILES = [
     # tier 3 — `-- pin:`-marked into the three `S_` files above, which `SOURCES` does not read —
     # so a later proof can import them; they are registered in spec/UNWIRED-PUBLIC.md.
     "FLTForHuman/AutomorphicForm/Adelic/ArchCasimir.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/WhittakerCoefficient.lean",
+    "FLTForHuman/NumberTheory/NumberField/StandardGlobalAddCharRat.lean",
+    "FLTForHuman/NumberTheory/NumberField/StandardGlobalAddChar.lean",
+    "FLTForHuman/NumberTheory/NumberField/AdelicTraceProducer.lean",
+    "FLTForHuman/NumberTheory/NumberField/IntegralAdelicTrace.lean",
+    "FLTForHuman/NumberTheory/NumberField/AdelicTraceFin.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/Cusp/CutWeightDecomposition.lean",
 ]
 
 

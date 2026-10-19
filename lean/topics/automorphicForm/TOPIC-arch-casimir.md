@@ -230,8 +230,8 @@ real-place file needs it. It is set B's prerequisite (§5).
   `AutomorphicForm.CasCore17.*`, `…CommAway17.*`, `…Elem17LR.*`, `…CasLR17.*`, `…OsAlg17.*`
   directly instead of re-deriving the chart or the brackets.
 
-  The design point this set settles for the column: **do not make a shared engine `private` to keep
-  the wire small.** A listed module may carry tier-3 public declarations — the checker reads their
+  The design point this set settles for the column (now the playbook's rule, §4.1 and §5):
+  **do not make a shared engine `private` to keep the wire small.** A listed module may carry tier-3 public declarations — the checker reads their
   `-- pin:` markers as the exemption — so the engine is reusable *and* the delta is exactly the
   headlines. The earlier plan (a `private` engine, or an engine/façade split with an unlisted
   engine module) is superseded.

@@ -25,10 +25,16 @@ mechanical. **A node is ported whole** (§2.3). Earlier records cite an older nu
 3. **The manager scopes, ports the definition layer, and settles every promotion and
    hub-edit question.** A subagent never opens one; it reports and stops (§3.4).
 4. **Proof bodies go to subagents under a written work order**, sized at roughly **1,500
-   content lines per turn**. Hand over a complete, self-contained brief, then leave the
-   agent alone — no polling, no micromanaging — and review when it reports (§0.2, §3.3).
-5. **The manager owns the checker wiring. Public theorems (the API) stay public; a public
-   declaration with no known consumer need not be wired** into `SOURCES`/`PORT_FILES` (§4).
+   content lines per dispatch** — and expect that dispatch to be hours of wall time, so give it
+   time rather than counting rounds (§0.2). Hand over a complete, self-contained brief, then
+   leave the agent alone — no polling, no micromanaging — and review when it reports (§0.2,
+   §3.3, §3.4).
+5. **The manager owns the checker wiring, and the wire is the surface you choose to diff, not
+   every public declaration.** Public theorems (the API) stay public; a module is listed for the
+   statements that must stay verified, and the rest of its public surface — a shared engine, a
+   family of helpers — is **registered tier 3** in `spec/UNWIRED-PUBLIC.md` behind a `-- pin:`
+   marker. Never make real mathematics `private`, and never add a module, to make the checker's
+   delta smaller (§4.1, §5).
 6. **Enforce the build discipline: plan, then edit in waves.** Build time is the one
    unbounded cost; keep the edit-loop cap low and fix what exceeds it — almost always an
    instance-inference defect — rather than raising it (§3.5, §6).
@@ -76,6 +82,14 @@ the capstone.
   whatever is independent. It must not grind out a complete diagnosis first, and must never work
   around a hub defect locally. The edit is cheap while the worker is still in context; a full
   report arriving a wave later has lost that context.
+- **A port turn is long, and a round is not its unit.** A 1,000–1,500-line set is hours of an
+  agent's wall time — transcription, the low-cap edit loop, the per-file builds, the axiom probe —
+  while a round-based driver (a goal loop that re-prompts on a fixed cadence, a scheduled
+  check-in) runs on a much shorter clock. So a round boundary is a **status**, never a
+  completion gate: do not split a set to fit one, do not re-plan because a round found the worker
+  still working, and do not read "the agent has not reported" as a stall. At a round boundary the
+  manager makes progress on something independent — the next order, the definition layer, the
+  topic note — and waits for the worker's own report (§3.4, §9).
 - **Leave it alone while it works** — no polling, no progress churn; it reports at the set's
   end or at a stop condition, and the manager then reviews its tree (build, checker, consumer,
   code) before writing the next order (§3.4).
@@ -327,9 +341,16 @@ subagent per set, review before the next, no polling) is §0.2.
   order, re-dispatch. A worker raises a blocker at first belief and never works around it
   (§0.2); the manager's job is to answer the blocker (often a hub edit, which is the manager's
   own, done once with the price known — §3.7) rather than to let the set die at its end.
+- **Size a set in wall time as well as in lines** (§0.2), and say who finished which part. A
+  set the manager has to interrupt is still one set: keep it whole, and at each interruption do
+  independent work rather than re-cutting it. If a driver's cadence fits the work badly, either
+  widen the cadence or take the tail in hand — the archimedean Casimir set landed that way: one
+  dispatch, interrupted at the verification step, with the manager finishing the private/public
+  decision, the drift fixes and the wiring. Record it in the set's own table, not as a failure.
 - **Keep a per-set measured table** (rounds / declarations / lines / build / axioms / checker /
-  consumer) and the friction log; close with a review, a plan-vs-actual honesty section, and
-  retire the blueprint to `topics/`.
+  consumer, and for an interrupted set the split between worker and manager) and the friction
+  log; close with a review, a plan-vs-actual honesty section, and retire the blueprint to
+  `topics/`.
 
 ### 3.5 The build ladder
 
@@ -430,19 +451,28 @@ With a pinned source, correctness is checkable rather than trusted. Four instrum
    Proofs are ignored: the port adapts proofs, never statements. Target `0 mismatched / 0
    missing`; the *identical* count is the progress metric, its delta reconciled against the
    **new wired public surface**. **Wiring is the manager's and is not owed to every public
-   declaration**: the API is wired so it stays verified, while a public declaration with no
-   known consumer may stay unwired — record it in [CARRY-FORWARD.md](CARRY-FORWARD.md) rather
-   than inflating the comparison. A public declaration in an **unlisted** (tier-3) module is not
-   lost either: the register `spec/UNWIRED-PUBLIC.md` recovers it from the `-- pin: <name>
-   (<file>:<line>)` comment above it. That comment is therefore owed on every **public**
-   declaration and nowhere else — a `private` helper is filtered out of the register before its
-   provenance is read, so it may carry the comment for traceability but owes nothing. The checker
-   reads the same comment as its tier-3 exemption: a declaration whose marker names a pin file
-   absent from `SOURCES` is counted `UNWIRED`, not reported `MISSING IN FLT`; when the marker
-   names a listed file, the marker's pin name is the copy diffed, so a wired statement is never
-   exempted. The policy is *everything wired is checked; no public statement is forced to be
-   wired*. Text-shaped
-   rules:
+   declaration**: the API is wired so it stays verified, while the rest of a module's surface is
+   marked and registered rather than either wired or hidden. **Tier 3 is not "unlisted module".** A *listed* module may carry public
+   declarations the checker does not diff: the register `spec/UNWIRED-PUBLIC.md` recovers it from
+   the `-- pin: <name> (<file>:<line>)` comment above it, and a declaration whose marker names a
+   pin file absent from `SOURCES` is counted `UNWIRED` rather than reported `MISSING IN FLT`. So a
+   module can be listed for the statements that must stay verified — its headlines — while its
+   shared engine stays public, importable and findable. A marker is a **fallthrough**, not a
+   suppression: when the marker names a listed file, the marker's name is the copy diffed, and
+   when any `SOURCES` file already provides the same name and statement the declaration is diffed
+   anyway, so a marker can only remove a `missing`/`mismatch` that no listed source could justify.
+   The policy is *everything wired is checked; no public statement is forced to be wired*.
+
+   The comment is therefore owed on every **public** declaration and nowhere else — a `private`
+   helper is filtered out of the register before its provenance is read, so it may carry the
+   comment for traceability but owes nothing. Decide the wire deliberately, at the module level:
+   list the module, wire the headlines, mark and register the rest. Text-shaped rules:
+   - **Never make real mathematics `private` to shrink the delta, and never add a module to please
+     the checker.** A `private` engine is one the next theory must re-derive (§5); a façade split
+     into "engine module + headline module" exists only so that the headline is the whole wire,
+     which the marker makes unnecessary. Both were tried on the archimedean Casimir set and both
+     were reverted; the landed shape is one listed module, three wired headlines and 128 public
+     declarations registered tier 3 (§5, §9).
    - **The checker's own unit test covers its mutation sensitivity** —
      `python3 spec/check_flt_statements.py --selftest` mutates a statement in memory and asserts
      exactly the one `mismatched` a full run would report. It is a test of the instrument, run when
@@ -511,7 +541,8 @@ exporting.
   not a rename — and never while another set is mid-check.
 - **`private` and local instances are a first-class build tool**: prefer `haveI`/`letI` or a
   `private` instance over global instance search (cheaper, collision-free, the checker is
-  text-only), reserving *public* for the pin's names and the exported API
+  text-only), reserving *public* for the pin's names, the exported API and a shared engine — which
+  is exported on purpose and registered rather than hidden (§4.1)
   ([../notes/lean-build-cost.md](../notes/lean-build-cost.md) §2).
 - **Home is a build-cost decision**: promote where the needed type is available, rename at
   promotion when the pin name is taken (keeping a local alias), and prefer the leaf side of a hub
@@ -523,8 +554,16 @@ exporting.
 - **Export a topic's outbound interface so the next topic imports instead of copying**; dissolve
   "externals"/"misc" modules into subject homes; give a generic cross-theory count its own
   top-level area or a `Reserve/` library built but not diffed.
-- **Promotion shrinks its host module; measure it**, and a tight public surface is a deliberate
-  cost — keep named instances and wire tests `private`.
+- **One engine, public, registered — not `private`, and not a façade.** When the pin writes the
+  same development k times (the `CasCore17` triple: 2,342 raw lines of three near-identical files
+  → 1,208 net), write it once as a public engine and wire only the headlines; the register keeps
+  the wire honest without hiding the engine (§4.1). A `private` engine costs the next theory the
+  re-derivation the dedup was meant to save; a façade module costs a file, an import and a frozen
+  name for no gain in verification. The measurable check: the checker's `identical` delta equals
+  the wired headline count and its `UNWIRED` count equals the public engine.
+- **Promotion shrinks its host module; measure it**, and a tight *wire* is a deliberate cost —
+  keep named instances and wire tests `private`, but let real mathematics be public and
+  registered (§4.1).
 
 ## 6. Proof engineering: the failure modes that cost rounds
 
@@ -597,6 +636,11 @@ mathlib line" into a work order.
 | `Finite.of_equiv` / `Set.toFinite` | `Nat.finite_of_card_ne_zero`, with the `Finite` instance passed explicitly |
 | `Nat.card_zmod` | no longer needs `NeZero m` — the pin's `haveI : NeZero m` is dropped, not suppressed |
 | `Isometry.antilipschitz.properSpace` | `Isometry.antilipschitzWith.properSpace` (same proof, warning-free) |
+| a "statement-identical" substitute offered by `port_advise` | check the **direction**: the port's `RealIwasawa.rot θ` is the transpose of the pin's local `rotMat θ` (= `rot (-θ)`). Substituting at `+θ` compiles and silently flips every downstream character identity; substitute at `-θ` and let the pin's statements stay verbatim |
+| a short last name (`add`, `smul`, `zero`, `sum`) on a pin-**public** declaration | it cannot be registered tier 3: the marker is a fallthrough, so a listed `SOURCES` file that carries an unrelated `add` turns the marker into a `MISMATCH`. Keep those `private` (they are structure lemmas of a local namespace) and say so in the note |
+| `exists_subset_nhds_of_isCompact'` with a pointwise `(hU : ∀ x ∈ ⋂ i, V i, U ∈ 𝓝 x)` | v4.34 takes set-relative `(hU : U ∈ 𝓝ˢ (⋂ i, V i))`; wrap the pin's lambda in `mem_nhdsSet_iff_forall.mpr` — the proof content is unchanged |
+| `zero_le'`, `not_lt_zero'` | `zero_le`, `not_lt_zero` (the primed forms are deprecated aliases) |
+| a literal pair passed where `AdeleRing R K` is expected, and `.1`/`.2` of it taken by `rfl` | `AdeleRing` is a plain `def` (`InfiniteAdeleRing K × FiniteAdeleRing R K`), so the pair is an adele only at *default* transparency: `rw`/`simp` fail with "not type-correct under the implicit transparency level". Bind it once — `set x : AdeleRing R K := (…) with hx` — then rewrite on `x.1`/`x.2` via `show … from by rw [hx]` (`by rw [hx]` already closes it). `erw` is a trap: it unfolds far enough to also unfold the definition under study, and the following projection rewrites then find nothing |
 | `⟨dConjMat ℓ γ, ⋯⟩` as an `SL(2, ℤ)` element inside a `Subgroup` membership goal | `Matrix.SpecialLinearGroup` is a semireducible `def` (a `Subtype`) in v4.34, so the anonymous constructor elaborates at `{A // A.det = 1}` and the following `rw [Gamma_mem]` fails with "target expression is not type-correct under the implicit transparency level". Bind it first — `let x : SL(2, ℤ) := ⟨…, h⟩` — then `rw [Gamma_mem]` (or `mem_Lam0`) and `show` the entrywise conjunction; it also removes the pin's `simp only [Matrix.SpecialLinearGroup.coe_mk, …]` blocks |
 
 The recurring *shapes*, beyond a rename:
@@ -611,6 +655,14 @@ The recurring *shapes*, beyond a rename:
 - **A module path is not always a module** (`Mathlib.LinearAlgebra.Quotient` is a directory —
   import `.Basic`), and **blanket `import Mathlib` hides transitive dependencies** (expect 3–5
   missing per file).
+- **An unused *statement* binder** (a hypothesis the pin's proof never uses) is silenced by
+  `have _ := h` in the proof, not by `clear h` — the linter counts the binding, and `clear` removes
+  it. Renaming the binder is the one thing not to do: the checker diffs the statement text.
+- **An unused variable is a warning, not a defect**: a pin lemma that does not use
+  `[NumberField F]` (e.g. a `rfl`-shaped identity) needs `omit [NumberField F] in` above it, not a
+  weaker signature; and a lambda whose binder is unreferenced (`fun v => rfl` in a `∀ v, …` slot)
+  becomes `fun _ => rfl`. Both are `linter.unusedVariables` in v4.34.0 and neither touches the
+  statement.
 - **Tactics and terms change shape silently**: `convert h2 using 1` reorders goals (use
   `h2.congr_deriv`), `congr(...)` yields a different equation, a non-reducible `def` stops
   unfolding (bind with `let`), and `open` can create ambiguity — qualify instead.
@@ -649,6 +701,16 @@ unpublished `tools/deps/` tree.
 | `port_advise.py` | before a port: what the port already has (substitute), what the set re-proves (port once), what differs only by binders (generalise), what each public declaration drags |
 | `build_ladder.py` | the dependent cascade of an edit, the cheapest sufficient build under `flock`/`timeout`, a wave plan, and (`--audit` / `--profile`) which modules and declarations cost the time |
 
+**Instrument vs tool, when it comes to caching.** The statement checker is published and does
+its own live scan of `SOURCES` on every run: it never caches. A tool may cache its own
+reconnaissance. `unwired_register.py` is the one that must read the pin's whole `SOURCES` list, so
+it caches that scan under `build/` — the parse, ~13 MB of statements, plus a stamp of the
+`SOURCES` list and every source file's size+mtime (0.04 s to verify) — and re-reads only the port
+each run: ~7 s → 0.45 s, with `--rebuild` to rescan. Keep the boundary when adding tooling, and
+keep a tool's own decisions text-derived: the register's tier-3 predicate is the marker **plus**
+"no `SOURCES` counterpart by name and statement", which it computes from the same parse, not by
+running the checker (§4.1, §9).
+
 The loop: a coverage report from the pin graph chooses the target; `port_advise.py` prices reuse
 and duplication before coding; `port_graph.py` measures the redundancy afterwards; the ladder
 and the checker are the per-wave gate. The `fltdata` object answers "who consumes this pin
@@ -661,7 +723,18 @@ call `raw_declarations` — to diff a module not yet in `PORT_FILES`.
 - **Hybrid vs faithful is a per-layer choice, and only a few mixes are measured.** No effort yet
   tested mathlib absorbing the core but not the periphery, or the reverse.
 - **Round counts are not a cost model**; they track how often an agent stalled on a defeq or a
-  name. Lines, declarations and named shape risks are stable.
+  name. Lines, declarations and named shape risks are stable. Nor is a *driver's* round a measure
+  of a set: a port turn is hours of wall time, so a cadence that re-prompts sooner than that is a
+  status request, not a checkpoint (§0.2, §3.4).
+- **A `private` engine to keep the checker delta small is the wrong trade**, and so is a façade
+  module added for the checker's sake. The tier-3 marker is the mechanism; measured on the
+  Casimir set, the one-module shape gives delta +3 with 128 registered declarations, where
+  `private` would have hidden real mathematics and a façade would have added a file (§4.1, §5).
+- **The register's tier-3 predicate is not "marker into an unlisted file".** The checker consults
+  a marker only as a fallthrough, so the predicate also needs "no `SOURCES` counterpart by name and
+  statement — public or pin-`private`". Guessing it from `SOURCES` membership alone over-collected
+  461 declarations across 39 modules; deriving it by running the checker instead worked but cost a
+  7 s subprocess and coupled the tool to the instrument (§8).
 - **Nothing is independently audited.** The "removed clutter" numbers are what each effort
   avoided writing, measured against FLT's own files, not a third-party check that the dropped
   items were dead.
