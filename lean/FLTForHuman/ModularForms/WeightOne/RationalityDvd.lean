@@ -23,6 +23,7 @@ import FLTForHuman.ModularForms.WeightOne.Gamma1Basis
 import FLTForHuman.ModularForms.WeightOne.MonicRel
 import FLTForHuman.ModularForms.QExpansionCoeff
 import FLTForHuman.ModularForms.DiscPow
+import FLTForHuman.NumberTheory.ModularForms.CongruenceSubgroupOrder
 
 set_option linter.unusedSectionVars false
 set_option linter.unnecessarySimpa false
@@ -828,15 +829,8 @@ theorem T_zpow_mem_ΓSL (t : ℤ) : ModularGroup.T ^ t ∈ ΓSL M ℓ := by
   rw [Gamma0_mem, ModularGroup.coe_T_zpow]
   simp
 
-theorem Gamma1_le_of_dvd' {M' : ℕ} (h : M ∣ M') : Gamma1 M' ≤ Gamma1 M := by
-  intro A hA
-  rw [Gamma1_mem] at hA ⊢
-  obtain ⟨h1, h2, h3⟩ := hA
-  refine ⟨?_, ?_, ?_⟩
-  · have := congrArg (ZMod.castHom h (ZMod M)) h1; rwa [map_intCast, map_one] at this
-  · have := congrArg (ZMod.castHom h (ZMod M)) h2; rwa [map_intCast, map_one] at this
-  · have := congrArg (ZMod.castHom h (ZMod M)) h3; rwa [map_intCast, map_zero] at this
-
+theorem Gamma1_le_of_dvd' {M' : ℕ} (h : M ∣ M') : Gamma1 M' ≤ Gamma1 M :=
+  CongruenceSubgroup.Gamma1_le_of_dvd h
 theorem Gamma_le_ΓSL : CongruenceSubgroup.Gamma (M * ℓ) ≤ ΓSL M ℓ :=
   le_inf ((Gamma_le_Gamma1 (M * ℓ)).trans (Gamma1_le_of_dvd' (dvd_mul_right M ℓ)))
     ((Gamma_le_Gamma1 (M * ℓ)).trans (Gamma1_in_Gamma0 _))

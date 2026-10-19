@@ -1,6 +1,6 @@
 # The coset-space Petersson pairing and the eigenvalue at a level prime — math, measurement, port plan
 
-**Status: landed 2026-10-18 — P1 (the definition layer) and P2 (the silo) are green and wired, checker 9,941 → 10,013 (+72 for P2); the sibling `norm_sq_lt` remains.**
+**Status: landed 2026-10-18 — P1 (the definition layer), P2 (the sibling silo) and P3 (the `norm_sq_lt` bound) are all green and wired; the column's checker reads 10,478. P3 is §5.3; its record is [logs/normsq-lt.md](../../logs/normsq-lt.md).**
 
 The D-S frontier's `--include-leaves` view surfaces the two `norm_sq` leaves of the
 Hecke/nebentypus layer, each one whole pin `S_` file behind one shared definition module:
@@ -246,7 +246,41 @@ four are the pin's `scoped instance`s), 0 errors/0 warnings at the 200k cap, mod
   is wired whole (unlike the tier-3 engine, which needed `PeterssonHeckeTheorems.lean`).
 
 The sibling `norm_sq_lt` is a third set, taken after P2: it reuses P1 and needs no
-new definition layer.
+new definition layer. It landed as P3 — see §5.3, which also records what it shares
+with P2 (24 declarations, not the 18 above: a different overlap, in the two silos'
+common prelude, not in the coset module).
+
+### 5.3 P3 — `ModularForms/Analytic/NormSqLt.lean` (landed 2026-10-18)
+
+Work order: [WORKORDER-P3-normsq-lt.md](WORKORDER-P3-normsq-lt.md). Record:
+[logs/normsq-lt.md](../../logs/normsq-lt.md).
+
+**The dedup finding.** The two silos share their *prelude*: 24 of P3's 57 declarations are
+statement-identical to declarations already ported in P2 (`CuspForm.LiNormSq`: `Lam0`, `mem_Lam0`,
+`Lam0_le_Gamma1`, `Gamma_le_Lam0`, `Gamma_le_Gamma1`, `mul_apply'`, `intCast_eq_one_iff`,
+`dConj`, `dConjInv`, `dConjMat`/`dConjInvMat` (one port declaration), `det_dConjMat`,
+`det_dConjInvMat`, `dvd_10_of_mem_Lam0`, `dvd_01_of_mem_Gamma`, `mapGL_dConj`, `mapGL_dConjInv`,
+`heckeDiag_mul_eq`, `heckeDiag_mul_eq'`, `hasSum_F`, `dens_slash`, `nice_cuspForm`,
+`slash_eq_smul_of_hasNebentypus`, `one_mem_strictPeriods`, and the four `scoped instance`s). So
+the 893-line silo is **≈614 net new lines / 30 new declarations**, not 893.
+
+**Two names that look like variants are subsumed.** `geom_sum_root` and `qParam_heckeDiag_smul`
+appear in both silos, over `p` here and over `ℓ` there; but the prime is a *section variable* in
+both, so `CuspForm.LiNormSq`'s copies are the same universally quantified statements and serve this
+silo at `ℓ := p`. They are not declared here — the consumers in `sum_apply_heckeMatrix_smul` call
+the imported lemmas (bare, via `open CuspForm.LiNormSq`, the implicit prime unifying with `p`).
+The first landing declared them; the review substituted them at the consumers, which is why the
+delta is +31 and not +33, and why the tree has one copy of each rather than two.
+
+**Shape.** One **listed** module, namespace `CuspForm.HeckeBoundGamma1`, importing
+`NormSqPow.lean` with `open CuspForm.LiNormSq` and `open scoped CuspForm.LiNormSq` — the pin's
+silo has its prelude in the same file, so its proofs use those names unqualified and the two
+`open`s reproduce that. Checker **+31** (30 declarations + the headline), 0 mismatched / 0
+missing; the whole file (including the 169-line `norm_sq_lt`) fits the 200k heartbeat cap, so
+the pin's `3200000` is not carried. `Gamma1_le_of_dvd` was the fourth copy of that fact in the
+tree; it is now a one-line wrapper over the homed mathlib supplement
+`CongruenceSubgroup.Gamma1_le_of_dvd`, and the three `private` copies elsewhere were deleted in the
+same wave ([logs/gamma1-le-of-dvd-home.md](../../logs/gamma1-le-of-dvd-home.md)).
 
 ## 6. Wiring and the checker delta
 

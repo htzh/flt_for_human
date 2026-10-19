@@ -11,8 +11,10 @@
 
   `ModularCurve.IsIntegralQExp` is the pin's definition from
   `Definitions/Def_ModularCurve_X1.lean`, transcribed verbatim because the third
-  headline's statement names it; the two proof-only X1 helpers (`restrictForm`,
-  `Gamma1_le_of_dvd`) are carried `private` inside each package that needs them,
+  headline's statement names it; the remaining proof-only X1 helper (`restrictForm`) is
+  carried `private` inside each package that needs it (`Gamma1_le_of_dvd` now comes from
+  the shared home `CongruenceSubgroup.Gamma1_le_of_dvd` in
+  `NumberTheory/ModularForms/CongruenceSubgroupOrder.lean`),
   per the cross-module-`private` policy.  Each pin file's helpers stay `private`
   in the pin's own inner namespace (`GammaNBounded` /
   `X1DiamondRationalForms` / `X1BoundedDenominators`), nested in this module's
@@ -80,6 +82,7 @@ import FLTForHuman.ModularForms.WeightOne.Defs.PTorsion
 import FLTForHuman.ModularForms.WeightOne.Defs.Gamma
 import FLTForHuman.ModularForms.WeightOne.Fricke
 import FLTForHuman.ModularForms.DiscPow
+import FLTForHuman.NumberTheory.ModularForms.CongruenceSubgroupOrder
 open X1DiamondRational
 open UpperHalfPlaneAux
 open WLight
@@ -1497,18 +1500,6 @@ private theorem slash_eq_of_apply_eq [NeZero M] (f : ModularForm Γ₁(M) k) {γ
     _ = ((⇑f : ℍ → ℂ) ∣[k] (γ * γ'⁻¹)) ∣[k] γ' := SlashAction.slash_mul _ _ _ _
     _ = (⇑f : ℍ → ℂ) ∣[k] γ' := by rw [hinv]
 
-private theorem Gamma1_le_of_dvd {M M' : ℕ} (h : M ∣ M') : Gamma1 M' ≤ Gamma1 M := by
-  intro A hA
-  rw [Gamma1_mem] at hA ⊢
-  obtain ⟨h00, h11, h10⟩ := hA
-  refine ⟨?_, ?_, ?_⟩
-  · have := congrArg (ZMod.castHom h (ZMod M)) h00
-    rwa [map_intCast, map_one] at this
-  · have := congrArg (ZMod.castHom h (ZMod M)) h11
-    rwa [map_intCast, map_one] at this
-  · have := congrArg (ZMod.castHom h (ZMod M)) h10
-    rwa [map_intCast, map_zero] at this
-
 private theorem Gamma0_le_of_dvd {M' : ℕ} (h : M ∣ M') : Gamma0 M' ≤ Gamma0 M := by
   intro A hA
   rw [Gamma0_mem] at hA ⊢
@@ -1516,7 +1507,7 @@ private theorem Gamma0_le_of_dvd {M' : ℕ} (h : M ∣ M') : Gamma0 M' ≤ Gamma
   rwa [map_intCast, map_zero] at this
 
 private def res {M' : ℕ} (h : M ∣ M') (f : ModularForm Γ₁(M) k) : ModularForm Γ₁(M') k :=
-  restrictForm (Subgroup.map_mono (Gamma1_le_of_dvd h)) f
+  restrictForm (Subgroup.map_mono (CongruenceSubgroup.Gamma1_le_of_dvd h)) f
 
 @[scoped simp] private theorem coe_res {M' : ℕ} (h : M ∣ M') (f : ModularForm Γ₁(M) k) : (⇑(res h f) : ℍ → ℂ) = f := rfl
 

@@ -9,8 +9,8 @@ manager's own work, §5 the build economy, §6 verification, §7 what remains, �
 residuals. Every measurement is the pin's, read through `tools/deps`. The section numbers are
 stable: work orders across the column cite §3 for the workflow and §7 for the gates.
 
-The checker reads **10445 identical (774 promoted, 83 renamed), 0 mismatched, 0 missing, 42
-own-proof declarations exempted, 294 registered-unwired declarations exempted (10781 checked)**. This column's recent landings: the
+The checker reads **10476 identical (774 promoted, 83 renamed), 0 mismatched, 0 missing, 42
+own-proof declarations exempted, 294 registered-unwired declarations exempted (10812 checked)**. This column's recent landings: the
 `TateFormal`/`TateSlots` definition layer, 9241 → 9304; the weight-4 Tate-slot engine and headline
 façade (WORKORDER-F1), 9304 → 9318; the six `tateCurve`/Katz definition modules of WORKORDER-F2,
 9318 → 9535 (+217); the `BridgeX` twin/triplet engine and headline façade (WORKORDER-F2),
@@ -133,6 +133,19 @@ of `TateGlobal.ShellSupport.integralOff`. Checker **10445 identical**, 0 mismatc
 Record: [logs/eisenstein-factorization.md](../logs/eisenstein-factorization.md); topic and order:
 [numberTheory/eisensteinGeneral/TOPIC-factorization.md](numberTheory/eisensteinGeneral/TOPIC-factorization.md),
 [numberTheory/eisensteinGeneral/WORKORDER-E3-factorization.md](numberTheory/eisensteinGeneral/WORKORDER-E3-factorization.md).
+The **nebentypus Hecke bound** `CuspForm.norm_sq_lt_of_hasNebentypus_qCoeff_hecke_eigen`
+(`‖a‖² < (p+1)² p^{k-2}` for `p ∤ M`) then landed as **P3** of the coset/Petersson set — and it
+is the column's clearest dedup case: the pin's two `norm_sq` silos share their prelude, so **24
+of the silo's 57 declarations were already in the tree** (in `ModularForms/Analytic/NormSqPow.lean`,
+namespace `CuspForm.LiNormSq`), and two more (the `p`/`ℓ` variants of `geom_sum_root` and
+`qParam_heckeDiag_smul`) are subsumed by the ported copies at the consumers — so the landing is
+**≈614 net new lines / 30 declarations**, not 893. One listed module, `ModularForms/Analytic/NormSqLt.lean` (732 lines, namespace
+`CuspForm.HeckeBoundGamma1`, importing the sibling's silo and `open`ing it so the pin's proofs
+transcribe), checker **+31**, **10476 identical**. Record: [logs/normsq-lt.md](../logs/normsq-lt.md);
+order and results:
+[deligneSerre/WORKORDER-P3-normsq-lt.md](deligneSerre/WORKORDER-P3-normsq-lt.md); the set's topic
+(now complete: P1/P2/P3) is
+[deligneSerre/TOPIC-petersson-coset-and-level-prime-eigenvalue.md](deligneSerre/TOPIC-petersson-coset-and-level-prime-eigenvalue.md).
 Each wired delta is exactly its new public surface, 0 mismatched / 0 missing. The 9542 → 9569 (+27) step is
 the `NumberField.AdelicHeight` definition gate, the manager's own ground for the adelic-modulus
 round
@@ -175,6 +188,10 @@ Companions:
   with [logs/eisenstein-factorization.md](../logs/eisenstein-factorization.md).
 - The mathematics of the Petersson adjointness proved in this column:
   [../../math/030-petersson-adjointness-of-hecke.md](../../math/030-petersson-adjointness-of-hecke.md).
+  The coset/Petersson set's own topic — now complete, P1 the definition layer, P2 the newform
+  eigenvalue, P3 the nebentypus bound — is
+  [deligneSerre/TOPIC-petersson-coset-and-level-prime-eigenvalue.md](deligneSerre/TOPIC-petersson-coset-and-level-prime-eigenvalue.md),
+  with [logs/normsq-lt.md](../logs/normsq-lt.md) for P3.
 - The `WeierstrassCurve` ready shelf, its scoping and its set orders:
   [deligneSerre/TOPIC-weierstrass-ready-shelf.md](deligneSerre/TOPIC-weierstrass-ready-shelf.md).
 - The `CohCarrier` Hecke–diamond commutativity triplet — the three `--include-leaves`
@@ -643,7 +660,7 @@ a bigger heartbeat cap.
 
 ```bash
 cd lean
-timeout 300 python3 spec/check_flt_statements.py        # 10445 identical / 0 / 0 / 42 own
+timeout 300 python3 spec/check_flt_statements.py        # 10476 identical / 0 / 0 / 42 own
 flock .lake/flt_build.lock timeout 900 lake build       # the milestone build
 timeout 180 lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false spec/DeligneSerreConsumer.lean
 python3 tools/deps/unwired_register.py --check          # tier-3 surface current
@@ -834,6 +851,20 @@ python3 spec/check_flt_statements.py --selftest
 * The private `det_eq` copies in `Gamma1Vanishing.lean`/`HeckeEigenNebentypus.lean` are
   statement-identical to the public `ModularForm.HeckeRepresentatives.det_eq`; the one
   un-promoted dedup candidate.
+* **`Gamma1_le_of_dvd` is homed (2026-10-18).** mathlib has no order lemma for `Gamma1`, the pin
+  re-declares the fact in 12 files and uses it at 135 sites, and the port carried five copies. The
+  wave [logs/gamma1-le-of-dvd-home.md](../logs/gamma1-le-of-dvd-home.md) added the tier-3 mathlib
+  supplement `NumberTheory/ModularForms/CongruenceSubgroupOrder.lean`
+  (`CongruenceSubgroup.Gamma1_le_of_dvd`, the general `{m n}` shape — "the API lemma every consumer
+  wants" — plus the `Gamma0` companion), deleted the three `private` copies (`DeligneSerre/Lifting.lean`
+  ×2 including the `Gamma0` one, `WeightOne/IntegralWeightOneForm.lean`,
+  `WeightOne/Gamma0Integral.lean`) and turned the three checker-listed copies into one-line wrappers
+  at their pin binders (`ModularCurve/X1/Defs.lean`, `Analytic/NormSqLt.lean`,
+  `WeightOne/RationalityDvd.lean` as `Gamma1_le_of_dvd'`). The checker is unchanged at 10,476 / 0 / 0;
+  the wave also cleared `Lifting.lean`'s 18 `haveILetI` warnings by taking Lean's own
+  `haveI`→`have` suggestion at every site. The next tenant of the same home is `Gamma_le_Gamma1`
+  (public in `CuspForm.LiNormSq` — that copy must stay, it is the pin's — and `private` in
+  `WeightOne/Gamma1IntegralBasis.lean` and `…/Gamma0Integral.lean`).
 * The `Gamma0Integral.lean` prelude still exists `private` in its two sibling namespaces
   (`…GammaNBounded`, `…X1BoundedDenominators`); `GammaNBounded`'s `IsRat` is a *different
   formulation*, not a copy, and was deliberately left.

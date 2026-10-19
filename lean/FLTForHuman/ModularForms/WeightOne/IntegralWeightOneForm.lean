@@ -17,8 +17,10 @@
   `private`; only the structure and the headline are public.  `restrictForm`/
   `coe_restrictForm` are imported from `ModularCurve/JqIntegralRatios.lean` (SET-X1-A
   promoted them public at the pin's names, so this module's copies are deleted);
-  `Gamma1_le_of_dvd` is the pin's proof-only X1 helper, still carried `private` here
-  as in `WeightOne/Gamma0Integral.lean`.  `ModularFormClass.qCoeff` is the port's own
+  `Gamma1_le_of_dvd` — the pin's proof-only X1 helper — is no longer declared here: the
+  shared home `CongruenceSubgroup.Gamma1_le_of_dvd`
+  (`NumberTheory/ModularForms/CongruenceSubgroupOrder.lean`) supplies it (as it does for
+  `WeightOne/Gamma0Integral.lean`).  `ModularFormClass.qCoeff` is the port's own
   definition (its home `ModularForms/HeckeQCoeff.lean`) and is definitionally the
   `qExpansion` coefficient, so the pin's `exact hE.2.1` becomes a `simpa only
   [ModularFormClass.qCoeff]`.
@@ -31,6 +33,7 @@
 import FLTForHuman.ModularForms.Eisenstein.WeightOneMultiplier
 import FLTForHuman.ModularCurve.JqIntegralRatios
 import Mathlib.NumberTheory.DirichletCharacter.Orthogonality
+import FLTForHuman.NumberTheory.ModularForms.CongruenceSubgroupOrder
 
 set_option autoImplicit false
 
@@ -54,18 +57,6 @@ namespace ModularCurve
 -- `ModularCurve/JqIntegralRatios.lean`, where the SET-X1-A promotion made them
 -- public at the pin's names; this module's former `private` copies are deleted so
 -- the pin has one home (the import already existed).
-private theorem Gamma1_le_of_dvd {M M' : ℕ} (h : M ∣ M') : Gamma1 M' ≤ Gamma1 M := by
-  intro A hA
-  rw [Gamma1_mem] at hA ⊢
-  obtain ⟨h00, h11, h10⟩ := hA
-  refine ⟨?_, ?_, ?_⟩
-  · have := congrArg (ZMod.castHom h (ZMod M)) h00
-    rwa [map_intCast, map_one] at this
-  · have := congrArg (ZMod.castHom h (ZMod M)) h11
-    rwa [map_intCast, map_one] at this
-  · have := congrArg (ZMod.castHom h (ZMod M)) h10
-    rwa [map_intCast, map_zero] at this
-
 variable (κ : Type*) [Field κ] (M : ℕ)
 
 /-- A weight-one form on `Gamma1 M` together with an integral `q`-expansion whose
@@ -405,7 +396,7 @@ private theorem nonempty_integralWeightOneForm_of_dvd (κ : Type) [Field κ] {L 
     Nonempty (ModularCurve.IntegralWeightOneForm κ M) := by
   have hle : ((Gamma1 M : Subgroup SL(2, ℤ)) : Subgroup (GL (Fin 2) ℝ)) ≤
       ((Gamma1 L : Subgroup SL(2, ℤ)) : Subgroup (GL (Fin 2) ℝ)) :=
-    Subgroup.map_mono (Gamma1_le_of_dvd hLM)
+    Subgroup.map_mono (CongruenceSubgroup.Gamma1_le_of_dvd hLM)
   refine ⟨{ form := restrictForm hle f, series := s, isIntegralQExp := hfs, intSeriesC_ne_zero := ?_ }⟩
   intro h0
   apply hn

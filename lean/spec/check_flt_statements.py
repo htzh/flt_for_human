@@ -3447,6 +3447,13 @@ SOURCES = [
     # engine's public block resolves through the pin-private dotted fallback.
     "Theorems/Thm_EisensteinGeneral_Factorization_integrable_finprod_and_inv_measure_mul_integral_eq_tprod.lean",
     "P2M/Sol/S_EisensteinGeneral_Factorization_integrable_finprod_and_inv_measure_mul_integral_eq_tprod.lean",
+    # --- WORKORDER-P3: the nebentypus Hecke bound (`topics/deligneSerre/WORKORDER-P3-normsq-lt.md`),
+    # the sibling of the `NormSqPow` silo. The wrapper comes FIRST: it is the statement authority
+    # for the headline; the `S_` file follows so the 32 new engine declarations resolve through
+    # their `-- pin:` markers. The 24 declarations this silo shares with `NormSqPow.lean` are NOT
+    # redeclared (they are already checked there), so they are not diffed twice.
+    "Theorems/Thm_CuspForm_norm_sq_lt_of_hasNebentypus_qCoeff_hecke_eigen.lean",
+    "P2M/Sol/S_CuspForm_norm_sq_lt_of_hasNebentypus_qCoeff_hecke_eigen.lean",
 ]
 
 
@@ -5152,6 +5159,10 @@ PORT_FILES = [
     "FLTForHuman/EisensteinGeneral/Factorization/Integrability.lean",
     "FLTForHuman/EisensteinGeneral/Factorization/Tprod.lean",
     "FLTForHuman/EisensteinGeneral/Factorization.lean",
+    # --- WORKORDER-P3: the nebentypus Hecke bound. One listed module: 32 new engine declarations at
+    # the pin names (namespace `CuspForm.HeckeBoundGamma1`) plus the headline; the 24 declarations
+    # shared with the already-ported `NormSqPow.lean` are imported from `CuspForm.LiNormSq`.
+    "FLTForHuman/ModularForms/Analytic/NormSqLt.lean",
 ]
 
 

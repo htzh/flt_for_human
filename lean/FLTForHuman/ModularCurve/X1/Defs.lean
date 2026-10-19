@@ -24,6 +24,7 @@ import FLTForHuman.ModularCurve.JqIntegralRatios
 import FLTForHuman.ModularCurve.Defs.Laurent
 import FLTForHuman.AlgebraicCurve.Defs.Divisor
 import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
+import FLTForHuman.NumberTheory.ModularForms.CongruenceSubgroupOrder
 
 set_option autoImplicit false
 
@@ -98,18 +99,8 @@ theorem x1x0FunctionFieldC_one : x1x0FunctionFieldC K M 1 = x1FunctionFieldC K M
 
 variable {M} in
 
-theorem Gamma1_le_of_dvd {M' : ℕ} (h : M ∣ M') : Gamma1 M' ≤ Gamma1 M := by
-  intro A hA
-  rw [Gamma1_mem] at hA ⊢
-  obtain ⟨h00, h11, h10⟩ := hA
-  refine ⟨?_, ?_, ?_⟩
-  · have := congrArg (ZMod.castHom h (ZMod M)) h00
-    rwa [map_intCast, map_one] at this
-  · have := congrArg (ZMod.castHom h (ZMod M)) h11
-    rwa [map_intCast, map_one] at this
-  · have := congrArg (ZMod.castHom h (ZMod M)) h10
-    rwa [map_intCast, map_zero] at this
-
+theorem Gamma1_le_of_dvd {M' : ℕ} (h : M ∣ M') : Gamma1 M' ≤ Gamma1 M :=
+  CongruenceSubgroup.Gamma1_le_of_dvd h
 variable {M} in
 
 theorem x1FunctionFieldC_le_of_dvd {M' : ℕ} (h : M ∣ M') :

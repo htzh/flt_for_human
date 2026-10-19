@@ -31,6 +31,7 @@ import FLTForHuman.ModularCurve.Defs.IharaIota
 import FLTForHuman.ModularCurve.Defs.IharaAmalgam
 import FLTForHuman.ModularCurve.Defs.IharaAmalgamMap
 import Mathlib.NumberTheory.DirichletCharacter.Basic
+import FLTForHuman.NumberTheory.ModularForms.CongruenceSubgroupOrder
 
 set_option autoImplicit false
 
@@ -60,29 +61,11 @@ attribute [-simp] Ihara.wConj_coe Ihara.wConj_symm_coe Ihara.coe_iota1 Ihara.coe
   ModularForm.Level.coe_slashOfMemGamma0
   CuspForm.coe_heckeTOne CuspForm.coe_heckeTLinOne_apply
 
-private theorem gamma1_le_of_dvd {A B : ℕ} (h : A ∣ B) : Gamma1 B ≤ Gamma1 A := by
-  intro γ hγ
-  rw [Gamma1_mem] at hγ ⊢
-  obtain ⟨h00, h11, h10⟩ := hγ
-  refine ⟨?_, ?_, ?_⟩
-  · have := congrArg (ZMod.castHom h (ZMod A)) h00
-    rwa [map_one, map_intCast] at this
-  · have := congrArg (ZMod.castHom h (ZMod A)) h11
-    rwa [map_one, map_intCast] at this
-  · have := congrArg (ZMod.castHom h (ZMod A)) h10
-    rwa [map_zero, map_intCast] at this
-
-private theorem gamma0_le_of_dvd {A B : ℕ} (h : A ∣ B) : Gamma0 B ≤ Gamma0 A := by
-  intro γ hγ
-  rw [Gamma0_mem] at hγ ⊢
-  have := congrArg (ZMod.castHom h (ZMod A)) hγ
-  rwa [map_zero, map_intCast] at this
-
 private theorem gamma1GL_le_of_dvd {A B : ℕ} (h : A ∣ B) :
     ((Gamma1 B : Subgroup SL(2, ℤ)) : Subgroup (GL (Fin 2) ℝ)) ≤
       ((Gamma1 A : Subgroup SL(2, ℤ)) : Subgroup (GL (Fin 2) ℝ)) := by
   rintro _ ⟨γ, hγ, rfl⟩
-  exact ⟨γ, gamma1_le_of_dvd h hγ, rfl⟩
+  exact ⟨γ, CongruenceSubgroup.Gamma1_le_of_dvd h hγ, rfl⟩
 
 private noncomputable def restrictMF {A B : ℕ} [NeZero A] [NeZero B] (h : A ∣ B) {k : ℤ}
     (E : ModularForm (Gamma1 A) k) : ModularForm (Gamma1 B) k where
@@ -416,18 +399,18 @@ private theorem exists_ringHom_extends_of_pow_eq_one
     refine ⟨X ^ (ℓ - 1) - 1, ?_, ?_⟩
     · exact monic_X_pow_sub_C (1 : A) (by have := hℓ.two_le; omega)
     · simp [hb]
-  haveI : Algebra.IsIntegral A B := by
+  have : Algebra.IsIntegral A B := by
     refine ⟨fun x => ?_⟩
     have hle : Algebra.adjoin A {b} ≤ integralClosure A B :=
       Algebra.adjoin_le (Set.singleton_subset_iff.2 ((mem_integralClosure_iff A B).2 hbint))
     exact (mem_integralClosure_iff A B).1 (hle (hgen x))
 
   set 𝔭 : Ideal A := RingHom.ker φ with h𝔭
-  haveI h𝔭prime : 𝔭.IsPrime := RingHom.ker_isPrime φ
-  haveI : IsDomain (A ⧸ 𝔭) := (Ideal.Quotient.isDomain_iff_prime 𝔭).2 h𝔭prime
+  have h𝔭prime : 𝔭.IsPrime := RingHom.ker_isPrime φ
+  have : IsDomain (A ⧸ 𝔭) := (Ideal.Quotient.isDomain_iff_prime 𝔭).2 h𝔭prime
   have hinjφ : Function.Injective (RingHom.kerLift φ) := RingHom.kerLift_injective φ
-  haveI : Finite (A ⧸ 𝔭) := Finite.of_injective _ hinjφ
-  haveI h𝔭max : 𝔭.IsMaximal :=
+  have : Finite (A ⧸ 𝔭) := Finite.of_injective _ hinjφ
+  have h𝔭max : 𝔭.IsMaximal :=
     Ideal.Quotient.maximal_of_isField 𝔭 (Finite.isField_of_domain (A ⧸ 𝔭))
 
   have hker : RingHom.ker (algebraMap A B) ≤ 𝔭 := by
@@ -436,7 +419,7 @@ private theorem exists_ringHom_extends_of_pow_eq_one
     have hx0 : x = 0 := hinj (by rw [hx, map_zero])
     rw [hx0]; exact zero_mem 𝔭
   obtain ⟨Q, hQmax, hQ⟩ := Ideal.exists_ideal_over_maximal_of_isIntegral (S := B) 𝔭 hker
-  haveI : Q.IsMaximal := hQmax
+  have : Q.IsMaximal := hQmax
   have hle : 𝔭 ≤ Q.comap (algebraMap A B) := le_of_eq hQ.symm
   set ι : A ⧸ 𝔭 →+* B ⧸ Q := Ideal.quotientMap Q (algebraMap A B) hle with hι
 
@@ -449,8 +432,8 @@ private theorem exists_ringHom_extends_of_pow_eq_one
       exact h1
     have := congrArg ι h2
     rwa [map_natCast, map_zero] at this
-  haveI : Nontrivial (B ⧸ Q) := Ideal.Quotient.nontrivial_iff.2 hQmax.ne_top
-  haveI : CharP (B ⧸ Q) ℓ := by
+  have : Nontrivial (B ⧸ Q) := Ideal.Quotient.nontrivial_iff.2 hQmax.ne_top
+  have : CharP (B ⧸ Q) ℓ := by
     have := CharP.ringChar_of_prime_eq_zero hℓ hℓQ
     exact this ▸ ringChar.charP (B ⧸ Q)
 
@@ -529,7 +512,7 @@ private theorem exists_ringHom_adjoinRoot'_extends :
   classical
   set R₁ := adjoinRoot' R ζ with hR₁
   let incl : R →ₐ[ℤ] R₁ := Subalgebra.inclusion (le_adjoinRoot' R ζ)
-  letI : Algebra R R₁ := incl.toRingHom.toAlgebra
+  let : Algebra R R₁ := incl.toRingHom.toAlgebra
   have halg : ∀ r : R, algebraMap R R₁ r = incl r := fun _ => rfl
   have hinj : Function.Injective (algebraMap R R₁) := Subalgebra.inclusion_injective _
   set b : R₁ := ⟨ζ, self_mem_adjoinRoot' R ζ⟩ with hbdef
@@ -565,7 +548,7 @@ private theorem isPrimitiveRoot_map_of_isPrimitiveRoot {R₁ : Subalgebra ℤ �
     intro h
     have : ((n : ℕ) : κ) = 0 := by rw [h, Nat.cast_zero]
     exact NeZero.ne (n : κ) this
-  haveI : NeZero (n : ℂ) := ⟨by exact_mod_cast hn0⟩
+  have : NeZero (n : ℂ) := ⟨by exact_mod_cast hn0⟩
 
   have hrootC : (cyclotomic n ℂ).IsRoot ζ := (isRoot_cyclotomic_iff).2 hζ
   set ζ' : R₁ := ⟨ζ, hζR⟩ with hζ'
@@ -629,7 +612,7 @@ private theorem ubar_inv_pow (u : (ZMod ℓ)ˣ) : (ubar ℓ κ u)⁻¹ ^ (ℓ - 
 include hμ in
 private theorem exists_pow_eq_ubar_inv (u : (ZMod ℓ)ˣ) :
     ∃ j : ℕ, (φ₁ ⟨ζ, hζR⟩) ^ j = (ubar ℓ κ u)⁻¹ := by
-  haveI : NeZero (ℓ - 1) := ⟨by have := hℓ.out.two_le; omega⟩
+  have : NeZero (ℓ - 1) := ⟨by have := hℓ.out.two_le; omega⟩
   obtain ⟨j, -, hj⟩ := hμ.eq_pow_of_pow_eq_one (ubar_inv_pow u)
   exact ⟨j, hj⟩
 
@@ -743,7 +726,7 @@ private theorem teich_odd (hℓ2 : ℓ ≠ 2) : (teich φ₁ hζ hζR hμ).Odd :
 
 private theorem teich_isPrimitive (hℓ2 : ℓ ≠ 2) : (teich φ₁ hζ hζR hμ).IsPrimitive := by
   have hℓp := hℓ.out
-  haveI : NeZero ℓ := ⟨hℓp.ne_zero⟩
+  have : NeZero ℓ := ⟨hℓp.ne_zero⟩
   rw [DirichletCharacter.isPrimitive_def]
   have hne : teich φ₁ hζ hζR hμ ≠ 1 := by
     intro h
@@ -841,7 +824,7 @@ private theorem engine :
   classical
 
   set M : ℕ := N * L with hM
-  haveI : NeZero M := ⟨mul_ne_zero (NeZero.ne N) (NeZero.ne L)⟩
+  have : NeZero M := ⟨mul_ne_zero (NeZero.ne N) (NeZero.ne L)⟩
   have hNM : N ∣ M := Dvd.intro L rfl
   have hLM : L ∣ M := Dvd.intro_left N rfl
   have hMprimes : ∀ p : ℕ, p.Prime → (p ∣ M ↔ p ∣ N ∨ (p : κ) = 0) := by
@@ -872,8 +855,8 @@ private theorem engine :
   have hfε : CuspForm.HasNebentypus ε f := hasNebentypus_of_hecke ε f hT
   have hηh : CuspForm.HasNebentypus η h := by
     intro γ hγ τ
-    have hγN : γ ∈ Gamma0 N := gamma0_le_of_dvd hNM hγ
-    have hγL : γ ∈ Gamma0 L := gamma0_le_of_dvd hLM hγ
+    have hγN : γ ∈ Gamma0 N := CongruenceSubgroup.Gamma0_le_of_dvd hNM hγ
+    have hγL : γ ∈ Gamma0 L := CongruenceSubgroup.Gamma0_le_of_dvd hLM hγ
     have h1 := hfε γ hγN τ
     have h2 := hEχ γ hγL τ
     rw [hcoe]
@@ -1152,10 +1135,10 @@ theorem exists_weightTwo_hecke_eigen_reduction_eq_of_weightOne_hecke_eigen
   classical
 
   set ℓ := ringChar κ with hℓ_def
-  haveI hchar : CharP κ ℓ := ringChar.charP κ
+  have hchar : CharP κ ℓ := ringChar.charP κ
   have hℓ0 : ℓ ≠ 0 := CharP.ringChar_ne_zero_of_finite κ
   have hℓ : ℓ.Prime := (CharP.char_is_prime_or_zero κ ℓ).resolve_right hℓ0
-  haveI : Fact ℓ.Prime := ⟨hℓ⟩
+  have : Fact ℓ.Prime := ⟨hℓ⟩
   have hℓκ : (ℓ : κ) = 0 := CharP.cast_eq_zero κ ℓ
   have hprime_iff : ∀ p : ℕ, p.Prime → ((p : κ) = 0 ↔ p = ℓ) := by
     intro p hp
@@ -1170,7 +1153,7 @@ theorem exists_weightTwo_hecke_eigen_reduction_eq_of_weightOne_hecke_eigen
       have h := hℓκ
       rw [hℓ2] at h
       exact_mod_cast h
-    haveI : NeZero (4 : ℕ) := ⟨by norm_num⟩
+    have : NeZero (4 : ℕ) := ⟨by norm_num⟩
     obtain ⟨E, hEχ, hE0, hEn⟩ :=
       ModularForm.exists_weightOne_eisenstein_qCoeff_eq_of_isPrimitive_of_odd 4 chi4
         chi4_isPrimitive chi4_odd
@@ -1223,7 +1206,7 @@ theorem exists_weightTwo_hecke_eigen_reduction_eq_of_weightOne_hecke_eigen
   ·
 
     have hℓ1 : ℓ - 1 ≠ 0 := by have := hℓ.two_le; omega
-    haveI : NeZero ℓ := ⟨hℓ0⟩
+    have : NeZero ℓ := ⟨hℓ0⟩
 
     set ζ : ℂ := Complex.exp (2 * Real.pi * Complex.I / (ℓ - 1 : ℕ)) with hζ_def
     have hζ : IsPrimitiveRoot ζ (ℓ - 1) := Complex.isPrimitiveRoot_exp (ℓ - 1) hℓ1
@@ -1232,7 +1215,7 @@ theorem exists_weightTwo_hecke_eigen_reduction_eq_of_weightOne_hecke_eigen
     have hζR : ζ ∈ adjoinRoot' R ζ := self_mem_adjoinRoot' R ζ
     obtain ⟨φ₁, hφ₁⟩ := exists_ringHom_adjoinRoot'_extends R φ ζ hζpow
 
-    haveI : NeZero ((ℓ - 1 : ℕ) : κ) := ⟨by
+    have : NeZero ((ℓ - 1 : ℕ) : κ) := ⟨by
       rw [Nat.cast_sub hℓ.one_lt.le, Nat.cast_one, hℓκ, zero_sub]
       exact neg_ne_zero.2 one_ne_zero⟩
     have hμ : IsPrimitiveRoot (φ₁ ⟨ζ, hζR⟩) (ℓ - 1) :=

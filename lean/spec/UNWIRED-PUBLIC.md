@@ -13,7 +13,7 @@ whether the tree has drifted.  Nothing here is verified against the pin: the
 `pin original` column names the declaration (and the file holding it) that
 carries the statement to diff when the entry is wired.
 
-`4134` public declarations in `136` unlisted modules; `3830` of them have a pin counterpart by name and statement.
+`4136` public declarations in `137` unlisted modules; `3830` of them have a pin counterpart by name and statement.
 
 This is tier 3 only.  Tier 2 — a declaration in a *listed* module that the
 checker skips for another reason — is `OWN_PROOFS` in the checker itself, each
@@ -121,6 +121,7 @@ wrappers whose statements the checker diffs).
 | [`FLTForHuman/NumberTheory/AdelicLevel/StrongApprox/Elementary.lean`](#fltforhumannumbertheoryadeliclevelstrongapproxelementarylean) | 165 | 14 | 14 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/AdelicLevel/StrongApprox/Gauss.lean`](#fltforhumannumbertheoryadeliclevelstrongapproxgausslean) | 110 | 3 | 3 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/AdelicLevel/StrongApprox/Membership.lean`](#fltforhumannumbertheoryadeliclevelstrongapproxmembershiplean) | 235 | 15 | 15 | 0 | 1 | 0 |
+| [`FLTForHuman/NumberTheory/ModularForms/CongruenceSubgroupOrder.lean`](#fltforhumannumbertheorymodularformscongruencesubgrouporderlean) | 66 | 2 | 0 | 2 | 6 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/CompletedDedekindZeta/Bounds.lean`](#fltforhumannumbertheorynumberfieldcompleteddedekindzetaboundslean) | 685 | 31 | 31 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/CompletedDedekindZeta/CompletedZeta.lean`](#fltforhumannumbertheorynumberfieldcompleteddedekindzetacompletedzetalean) | 592 | 48 | 48 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/CompletedDedekindZeta/Hadamard.lean`](#fltforhumannumbertheorynumberfieldcompleteddedekindzetahadamardlean) | 838 | 51 | 51 | 0 | 1 | 0 |
@@ -3423,6 +3424,15 @@ wrappers whose statements the checker diffs).
 | `NumberField.AdelicLevel.GL2StrongApproxW8M.unipotentGL2_mem` | theorem | `unipotentGL2_mem` (provenance comment) | [`S_NumberField_AdelicLevel_exists_globalPoints_mul_mem_finiteIntegralGL2_rat.lean:158`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_AdelicLevel_exists_globalPoints_mul_mem_finiteIntegralGL2_rat.lean#L158) |
 | `NumberField.AdelicLevel.GL2StrongApproxW8M.valued_algebraMap_finiteAdeleRing_apply` | theorem | `valued_algebraMap_finiteAdeleRing_apply` (provenance comment) | [`S_NumberField_AdelicLevel_exists_globalPoints_mul_mem_finiteIntegralGL2_rat.lean:136`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_AdelicLevel_exists_globalPoints_mul_mem_finiteIntegralGL2_rat.lean#L136) |
 | `NumberField.AdelicLevel.GL2StrongApproxW8M.zero_apply_mem` | theorem | `zero_apply_mem` (provenance comment) | [`S_NumberField_AdelicLevel_exists_globalPoints_mul_mem_finiteIntegralGL2_rat.lean:145`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_AdelicLevel_exists_globalPoints_mul_mem_finiteIntegralGL2_rat.lean#L145) |
+
+## `FLTForHuman/NumberTheory/ModularForms/CongruenceSubgroupOrder.lean`
+
+66 lines, 2 public declarations — the port's own, no pin source. Imported by 6 port module(s).
+
+| importable name | kind | pin original | pin file |
+|---|---|---|---|
+| `CongruenceSubgroup.Gamma0_le_of_dvd` | theorem | — | the port's own |
+| `CongruenceSubgroup.Gamma1_le_of_dvd` | theorem | — | the port's own |
 
 ## `FLTForHuman/NumberTheory/NumberField/CompletedDedekindZeta/Bounds.lean`
 
