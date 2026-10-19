@@ -184,6 +184,22 @@ wired the old way), and the frontier's demand fell by exactly the six nodes. Rec
 [algebraicCurve/WORKORDER-LP3b-power-series-growth.md](algebraicCurve/WORKORDER-LP3b-power-series-growth.md),
 [algebraicCurve/WORKORDER-LP4-meromorphic-order-dictionary.md](algebraicCurve/WORKORDER-LP4-meromorphic-order-dictionary.md).
 
+The **correspondence-regular leaf** of the `AlgebraicCurve` `Differential` layer then landed as
+one module, `AlgebraicCurve/Differential/CorrespondenceRegular.lean` (653 lines,
+**19 statement-checked declarations**, one headline): a correspondence — pull back along `φ`,
+trace down along `ψ` — preserves regular differentials. It is the column's first set where the
+byte tier of `port_advise` fires hard (7 of 26 pin rows already in the tree, 219 lines imported,
+581 net new), and it takes two homing decisions worth recording: `Place.exists_restrict_eq` is
+the `M := F'` instance of the general theorem in `WeilExchange/Bifibre.lean` and is *called*, not
+restated; and the byte tier's suggested home for `ord_nonneg_of_mem'`
+(`Canonical/WeilDifferential.lean`, above the Riemann–Roch assembly) was declined for
+`Defs/PushPull.lean`'s copy of the same lemma, which keeps the module in the `Defs/` layer (build
+2,775 → 2,740 jobs, and the 7 `WeilDifferential` warnings leave the log). The pin's local
+`maxHeartbeats` raises are not inherited — the transcription fits the 200,000 cap. Record:
+[logs/differential-correspondence-regular.md](../logs/differential-correspondence-regular.md);
+order:
+[algebraicCurve/WORKORDER-DC1-correspondence-regular.md](algebraicCurve/WORKORDER-DC1-correspondence-regular.md).
+
 For the landings above that wired into the frozen checker's lists, each delta is exactly its new
 public surface, 0 mismatched / 0 missing; the `localParam` landing has no such delta (§6). The
 9542 → 9569 (+27) step is
