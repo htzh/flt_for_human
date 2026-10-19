@@ -538,3 +538,21 @@ python3 port_advise.py --targets build/A.txt --no-drags --json build/A.json
 python3 port_plan.py --json build/A.json
 # A plus one sibling, then A plus all eight, as in the table
 ```
+
+## 12. The family's second shared block, homed separately (2026-10-18)
+
+The eight siblings share a **second** prelude that is not `normQ`: the continuous norm section
+(`ideleNormU`, the real/complex `localSection`s, `normSectionAt`), 25 declarations, re-proved in
+each of the eight plus
+`S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean` — which *lacks*
+`normQ` exactly as this node lacks the section. That node was ported on 2026-10-18
+([TOPIC-norm-section.md](TOPIC-norm-section.md), [logs/norm-section.md](../../../logs/norm-section.md))
+and the block now lives public tier 3 at
+`FLTForHuman/NumberTheory/NumberField/TateGlobal/NormSection.lean`, namespace
+`NumberField.TateGlobal.FujisakiC3`, importing only `TateGlobal/Defs.lean` and
+`TateGlobal/ArchNorm.lean`.
+
+**The eight siblings must import it**, not copy it, when their orders come — the same rule §3
+states for `normQ`, and the same reason: the block would otherwise be written eight more times.
+It is not in `FujisakiC3.lean` deliberately, so a consumer of the section does not drag this
+module's 11k-line T1 cone.

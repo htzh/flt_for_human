@@ -13,7 +13,7 @@ whether the tree has drifted.  Nothing here is verified against the pin: the
 `pin original` column names the declaration (and the file holding it) that
 carries the statement to diff when the entry is wired.
 
-`4030` public declarations in `128` unlisted modules; `3726` of them have a pin counterpart by name and statement.
+`4055` public declarations in `129` unlisted modules; `3751` of them have a pin counterpart by name and statement.
 
 This is tier 3 only.  Tier 2 — a declaration in a *listed* module that the
 checker skips for another reason — is `OWN_PROOFS` in the checker itself, each
@@ -129,7 +129,7 @@ wrappers whose statements the checker diffs).
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ArchMulHaar.lean`](#fltforhumannumbertheorynumberfieldtateglobalarchmulhaarlean) | 566 | 33 | 33 | 0 | 3 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ArchSlab.lean`](#fltforhumannumbertheorynumberfieldtateglobalarchslablean) | 375 | 27 | 27 | 0 | 3 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/Coordinates.lean`](#fltforhumannumbertheorynumberfieldtateglobalcoordinateslean) | 863 | 73 | 73 | 0 | 3 | 0 |
-| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/Defs.lean`](#fltforhumannumbertheorynumberfieldtateglobaldefslean) | 132 | 15 | 15 | 0 | 9 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/Defs.lean`](#fltforhumannumbertheorynumberfieldtateglobaldefslean) | 132 | 15 | 15 | 0 | 10 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/DistribHaarChar.lean`](#fltforhumannumbertheorynumberfieldtateglobaldistribhaarcharlean) | 185 | 4 | 4 | 0 | 3 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/EulerBookkeeping.lean`](#fltforhumannumbertheorynumberfieldtateglobaleulerbookkeepinglean) | 398 | 23 | 23 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/EulerFactors.lean`](#fltforhumannumbertheorynumberfieldtateglobaleulerfactorslean) | 551 | 36 | 36 | 0 | 3 | 0 |
@@ -144,6 +144,7 @@ wrappers whose statements the checker diffs).
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/LocalZetaUnramified.lean`](#fltforhumannumbertheorynumberfieldtategloballocalzetaunramifiedlean) | 258 | 15 | 15 | 0 | 2 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/MulHaar.lean`](#fltforhumannumbertheorynumberfieldtateglobalmulhaarlean) | 434 | 25 | 25 | 0 | 3 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/NormIntegrable.lean`](#fltforhumannumbertheorynumberfieldtateglobalnormintegrablelean) | 370 | 16 | 16 | 0 | 3 | 0 |
+| [`FLTForHuman/NumberTheory/NumberField/TateGlobal/NormSection.lean`](#fltforhumannumbertheorynumberfieldtateglobalnormsectionlean) | 240 | 25 | 25 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/PlaceSum.lean`](#fltforhumannumbertheorynumberfieldtateglobalplacesumlean) | 163 | 9 | 9 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/PureTensor.lean`](#fltforhumannumbertheorynumberfieldtateglobalpuretensorlean) | 426 | 6 | 6 | 0 | 1 | 0 |
 | [`FLTForHuman/NumberTheory/NumberField/TateGlobal/ReferenceMeasure.lean`](#fltforhumannumbertheorynumberfieldtateglobalreferencemeasurelean) | 387 | 24 | 24 | 0 | 3 | 0 |
@@ -4009,7 +4010,7 @@ wrappers whose statements the checker diffs).
 
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/Defs.lean`
 
-132 lines, 15 public declarations — transcribed from the pin, not wired. Imported by 9 port module(s).
+132 lines, 15 public declarations — transcribed from the pin, not wired. Imported by 10 port module(s).
 
 | importable name | kind | pin original | pin file |
 |---|---|---|---|
@@ -4374,6 +4375,38 @@ wrappers whose statements the checker diffs).
 | `NumberField.TateGlobal.norm_apply_asm_mul_ideleNorm_rpow` | theorem | `norm_apply_asm_mul_ideleNorm_rpow` (provenance comment) | [`S_NumberField_TateGlobal_integrable_zetaIntegrand.lean:5061`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_integrable_zetaIntegrand.lean#L5061) |
 | `NumberField.TateGlobal.sNormIntegrand` | def | `sNormIntegrand` (provenance comment) | [`S_NumberField_TateGlobal_integrable_zetaIntegrand.lean:5057`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_integrable_zetaIntegrand.lean#L5057) |
 | `NumberField.TateGlobal.toNNReal_exp` | theorem | `toNNReal_exp` (provenance comment) | [`S_NumberField_TateGlobal_integrable_zetaIntegrand.lean:5243`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_integrable_zetaIntegrand.lean#L5243) |
+
+## `FLTForHuman/NumberTheory/NumberField/TateGlobal/NormSection.lean`
+
+240 lines, 25 public declarations — transcribed from the pin, not wired. Imported by 1 port module(s).
+
+| importable name | kind | pin original | pin file |
+|---|---|---|---|
+| `NumberField.TateGlobal.FujisakiC3.coe_val_ideleNormU` | theorem | `coe_val_ideleNormU` (provenance comment) | [`S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean:780`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean#L780) |
+| `NumberField.TateGlobal.FujisakiC3.continuous_archUnitHom` | theorem | `continuous_archUnitHom` (provenance comment) | [`S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean:737`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean#L737) |
+| `NumberField.TateGlobal.FujisakiC3.continuous_archUnitHom_val` | theorem | `continuous_archUnitHom_val` (provenance comment) | [`S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean:729`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean#L729) |
+| `NumberField.TateGlobal.FujisakiC3.continuous_localSection` | theorem | `continuous_localSection` (provenance comment) | [`S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean:851`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean#L851) |
+| `NumberField.TateGlobal.FujisakiC3.continuous_normSectionAt` | theorem | `continuous_normSectionAt` (provenance comment) | [`S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean:871`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean#L871) |
+| `NumberField.TateGlobal.FujisakiC3.continuous_realSectionOfIsComplex` | theorem | `continuous_realSectionOfIsComplex` (provenance comment) | [`S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean:839`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean#L839) |
+| `NumberField.TateGlobal.FujisakiC3.continuous_realSectionOfIsReal` | theorem | `continuous_realSectionOfIsReal` (provenance comment) | [`S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean:834`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean#L834) |
+| `NumberField.TateGlobal.FujisakiC3.continuous_ringEquivComplexOfIsComplex_symm` | theorem | `continuous_ringEquivComplexOfIsComplex_symm` (provenance comment) | [`S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean:811`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean#L811) |
+| `NumberField.TateGlobal.FujisakiC3.continuous_ringEquivRealOfIsReal_symm` | theorem | `continuous_ringEquivRealOfIsReal_symm` (provenance comment) | [`S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean:807`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean#L807) |
+| `NumberField.TateGlobal.FujisakiC3.ideleNormU` | def | `ideleNormU` (provenance comment) | [`S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean:774`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean#L774) |
+| `NumberField.TateGlobal.FujisakiC3.ideleNormU_eq_one_iff` | theorem | `ideleNormU_eq_one_iff` (provenance comment) | [`S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean:783`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean#L783) |
+| `NumberField.TateGlobal.FujisakiC3.ideleNormU_normSectionAt` | theorem | `ideleNormU_normSectionAt` (provenance comment) | [`S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean:877`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean#L877) |
+| `NumberField.TateGlobal.FujisakiC3.ideleNormU_of_mem` | theorem | `ideleNormU_of_mem` (provenance comment) | [`S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean:786`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean#L786) |
+| `NumberField.TateGlobal.FujisakiC3.ideleNorm_normSectionAt` | theorem | `ideleNorm_normSectionAt` (provenance comment) | [`S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean:874`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean#L874) |
+| `NumberField.TateGlobal.FujisakiC3.localSection` | def | `localSection` (provenance comment) | [`S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean:847`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean#L847) |
+| `NumberField.TateGlobal.FujisakiC3.normSectionAt` | def | `normSectionAt` (provenance comment) | [`S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean:866`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean#L866) |
+| `NumberField.TateGlobal.FujisakiC3.normSectionAt_apply` | theorem | `normSectionAt_apply` (provenance comment) | [`S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean:869`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean#L869) |
+| `NumberField.TateGlobal.FujisakiC3.norm_localSection_pow_mult` | theorem | `norm_localSection_pow_mult` (provenance comment) | [`S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean:857`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean#L857) |
+| `NumberField.TateGlobal.FujisakiC3.norm_ringEquivComplexOfIsComplex_symm` | theorem | `norm_ringEquivComplexOfIsComplex_symm` (provenance comment) | [`S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean:800`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean#L800) |
+| `NumberField.TateGlobal.FujisakiC3.norm_ringEquivRealOfIsReal_symm` | theorem | `norm_ringEquivRealOfIsReal_symm` (provenance comment) | [`S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean:794`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean#L794) |
+| `NumberField.TateGlobal.FujisakiC3.realSectionOfIsComplex` | def | `realSectionOfIsComplex` (provenance comment) | [`S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean:818`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean#L818) |
+| `NumberField.TateGlobal.FujisakiC3.realSectionOfIsReal` | def | `realSectionOfIsReal` (provenance comment) | [`S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean:815`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean#L815) |
+| `NumberField.TateGlobal.FujisakiC3.val_ideleNormU` | theorem | `val_ideleNormU` (provenance comment) | [`S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean:777`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean#L777) |
+| `NumberField.TateGlobal.FujisakiC3.val_realSectionOfIsComplex` | theorem | `val_realSectionOfIsComplex` (provenance comment) | [`S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean:829`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean#L829) |
+| `NumberField.TateGlobal.FujisakiC3.val_realSectionOfIsReal` | theorem | `val_realSectionOfIsReal` (provenance comment) | [`S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean:824`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean#L824) |
 
 ## `FLTForHuman/NumberTheory/NumberField/TateGlobal/PlaceSum.lean`
 

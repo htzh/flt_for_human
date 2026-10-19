@@ -3396,6 +3396,13 @@ SOURCES = [
     "Definitions/Def_AutomorphicForm_ArchDerivCasimirComplex.lean",
     "Definitions/Def_AutomorphicForm_ArchDerivCasimirComplexAPI.lean",
     "Theorems/Thm_AutomorphicForm_archCasimirAtComplex_rightTranslate_archComplexGLAt.lean",
+    # --- The continuous norm section (`topics/numberTheory/tateGlobal/TOPIC-norm-section.md`;
+    # WORKORDER-T4): `NumberField.TateGlobal.exists_continuous_monoidHom_ideleNorm_apply_eq`. The
+    # wrapper is the statement authority; the `S_` file is deliberately NOT listed — the shared
+    # 25-declaration engine (`…/TateGlobal/NormSection.lean`) carries `-- pin:` markers into it
+    # (the checker's UNWIRED tier 3) and is registered in `spec/UNWIRED-PUBLIC.md`. Appended last
+    # so no earlier last-name match can flip.
+    "Theorems/Thm_NumberField_TateGlobal_exists_continuous_monoidHom_ideleNorm_apply_eq.lean",
 ]
 
 
@@ -5072,6 +5079,10 @@ PORT_FILES = [
     "FLTForHuman/AutomorphicForm/Adelic/ArchDerivCasimirComplex.lean",
     "FLTForHuman/AutomorphicForm/Adelic/ArchDerivCasimirComplexAPI.lean",
     "FLTForHuman/AutomorphicForm/Adelic/ArchCasimirComplex.lean",
+    # --- WORKORDER-T4: the continuous norm section. One headline (+1); the engine
+    # (`NumberTheory/NumberField/TateGlobal/NormSection.lean`) stays tier 3 and is registered
+    # in `spec/UNWIRED-PUBLIC.md`. No existing module was edited, so no hub wave is owed.
+    "FLTForHuman/NumberTheory/NumberField/TateGlobalNormSection.lean",
 ]
 
 

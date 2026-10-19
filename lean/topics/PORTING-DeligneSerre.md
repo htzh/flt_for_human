@@ -9,8 +9,8 @@ manager's own work, §5 the build economy, §6 verification, §7 what remains, �
 residuals. Every measurement is the pin's, read through `tools/deps`. The section numbers are
 stable: work orders across the column cite §3 for the workflow and §7 for the gates.
 
-The checker reads **10342 identical (700 promoted, 83 renamed), 0 mismatched, 0 missing, 42
-own-proof declarations exempted, 294 registered-unwired declarations exempted (10678 checked)**. This column's recent landings: the
+The checker reads **10343 identical (700 promoted, 83 renamed), 0 mismatched, 0 missing, 42
+own-proof declarations exempted, 294 registered-unwired declarations exempted (10679 checked)**. This column's recent landings: the
 `TateFormal`/`TateSlots` definition layer, 9241 → 9304; the weight-4 Tate-slot engine and headline
 façade (WORKORDER-F1), 9304 → 9318; the six `tateCurve`/Katz definition modules of WORKORDER-F2,
 9318 → 9535 (+217); the `BridgeX` twin/triplet engine and headline façade (WORKORDER-F2),
@@ -76,6 +76,17 @@ mirrors (normalized similarity ≈0.38) because the complex half adds `archDelAt
 ported once as a separate tier-3 engine. Record:
 [logs/arch-casimir-complex.md](../logs/arch-casimir-complex.md); order:
 [automorphicForm/WORKORDER-ACC-arch-casimir-complex.md](automorphicForm/WORKORDER-ACC-arch-casimir-complex.md).
+The **continuous norm section** then landed as the first `NumberField.TateGlobal` cut after the
+`continuous_ideleNorm` hub: `NumberField.TateGlobal.exists_continuous_monoidHom_ideleNorm_apply_eq`
+— a continuous monoid hom `ℝ≥0ˣ →* (AdeleRing (𝓞 F) F)ˣ` splitting the idèle norm, with trivial
+finite part — as the 239-line tier-3 engine `NumberField/TateGlobal/NormSection.lean` (25 public
+declarations, at the pin's `FujisakiC3` names; the same block is re-proved in nine sibling `S_`
+files) plus the 44-line listed façade `NumberField/TateGlobalNormSection.lean` (one headline,
+checker **+1**, **10343 identical**), again with no existing module edited. The node is a graph
+leaf with 57 whole-project dependents and lies on the shortest citation path to
+`fermatLastTheorem`. Record: [logs/norm-section.md](../logs/norm-section.md); topic and order:
+[numberTheory/tateGlobal/TOPIC-norm-section.md](numberTheory/tateGlobal/TOPIC-norm-section.md),
+[numberTheory/tateGlobal/WORKORDER-T4-norm-section.md](numberTheory/tateGlobal/WORKORDER-T4-norm-section.md).
 Each wired delta is exactly its new public surface, 0 mismatched / 0 missing. The 9542 → 9569 (+27) step is
 the `NumberField.AdelicHeight` definition gate, the manager's own ground for the adelic-modulus
 round
@@ -100,7 +111,10 @@ Companions:
 - The `NumberField` rows the target closure reaches but this column does not cut: the
   `continuous_ideleNorm` hub's port plan and landing record (the frontier's most connected
   `NumberField` leaf, 15 of the closure's nodes directly above it) is
-  [numberTheory/tateGlobal/TOPIC-continuous-ideleNorm.md](numberTheory/tateGlobal/TOPIC-continuous-ideleNorm.md).
+  [numberTheory/tateGlobal/TOPIC-continuous-ideleNorm.md](numberTheory/tateGlobal/TOPIC-continuous-ideleNorm.md),
+  and the next cut of the same family — the continuous splitting of the idèle norm — is
+  [numberTheory/tateGlobal/TOPIC-norm-section.md](numberTheory/tateGlobal/TOPIC-norm-section.md)
+  with [logs/norm-section.md](../logs/norm-section.md).
 - The mathematics of the Petersson adjointness proved in this column:
   [../../math/030-petersson-adjointness-of-hecke.md](../../math/030-petersson-adjointness-of-hecke.md).
 - The `WeierstrassCurve` ready shelf, its scoping and its set orders:
@@ -396,8 +410,11 @@ slot-substitution engine it homed: the two `tateCurve_…_nonToricPoint_…` row
 each and `qTwist_nonToricPoint_of_pow_eq_one` (185). The first two are the largest `ModularCurve`
 rows and the natural next cut; `phiIrreducible_all` (434) remains the standing candidate behind
 them. The other ten rows predate the Tate-slot round. The `CuspForm`, `AlgebraicCurve`,
-`PeriodPair`, `ModularForm`, `NumberField` and `CohCarrier` rows are reached by the target closure
-but are not `ModularCurve` rows, and are not this column's to cut.
+`PeriodPair`, `ModularForm` and `CohCarrier` rows are reached by the target closure but are not
+`ModularCurve` rows, and are not this column's to cut; the `NumberField.TateGlobal` rows are cut
+through their own topic notes (the `continuous_ideleNorm` hub and, now, the continuous norm
+section — §1), and their remaining shelf rows are the two
+`exists_norm_apply_eq_ideleNorm_rpow` cousins (§7).
 
 **The two `tateCurve_…_nonToricPoint_…` rows are exact twins, and must be cut as one.**
 `S_ModularCurve_tateCurve_pointX_C_mul_X_pow_eq_nonToricPoint_fst.lean` and its `_pointY_…_snd`
@@ -568,7 +585,7 @@ a bigger heartbeat cap.
 
 ```bash
 cd lean
-timeout 300 python3 spec/check_flt_statements.py        # 9569 identical / 0 / 0 / 38 own
+timeout 300 python3 spec/check_flt_statements.py        # 10343 identical / 0 / 0 / 42 own
 flock .lake/flt_build.lock timeout 900 lake build       # the milestone build
 timeout 180 lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false spec/DeligneSerreConsumer.lean
 python3 tools/deps/unwired_register.py --check          # tier-3 surface current
@@ -641,6 +658,17 @@ The **Γ₁/Nebentypus pair** the shelf once showed at its head — the two `Cus
 (`ModularForms/HeckeNebentypus{Existence,Fricke}.lean`, checker +2, deduped onto the promoted
 `CuspForm.HeckeEigenNebentypus` API).
 
+The **continuous norm section** has landed ([../logs/norm-section.md](../logs/norm-section.md)):
+the tier-3 engine `NumberField/TateGlobal/NormSection.lean` now homes the 25 declarations nine
+pin `S_` files re-prove, so the family's remaining cuts import it rather than copy it. The next
+two rows of that family are the cousins
+`NumberField.TateGlobal.exists_norm_apply_eq_ideleNorm_rpow` (236 silo lines, 42 project
+dependents) and `RatIdele.exists_norm_apply_eq_ideleNorm_rpow` (312, 7) — "the absolute value of
+a continuous idèle-class character is a power of the norm", 496 net new lines for the pair, with
+an `expUnit`/`expUnit_*` block they share with each other. They are their own order:
+[numberTheory/tateGlobal/TOPIC-norm-section.md](numberTheory/tateGlobal/TOPIC-norm-section.md)
+§5, §7.
+
 **Deferred to its own order** is the C2 row
 `ModularCurve.exists_sum_smul_eq_of_isIntegralQExp_gamma1`. Its one substantive step is the
 unported premise `ModularForm.exists_basis_gamma1_qCoeff_mem_range_ratCast`, and the chain behind
@@ -685,6 +713,14 @@ python3 spec/check_flt_statements.py --selftest
 
 ## 9. Residuals
 
+* **The norm-section engine.** `NumberField/TateGlobal/NormSection.lean` is tier 3 and its 25
+  declarations have exactly one importer today (the façade); their intended consumers are the
+  eight `normQ` siblings, unported, which must import it rather than copy it
+  ([numberTheory/tateGlobal/TOPIC-norm-section.md](numberTheory/tateGlobal/TOPIC-norm-section.md)
+  §3, §5). Two of the 25 (`norm_ringEquiv{,Real,Complex}*_symm`) duplicate an inline argument in
+  `TateGlobal/ArchNorm.lean` and a public copy in
+  `AutomorphicForm/Adelic/WeylIntegrable/LatticeEstimates.lean`; `ArchNorm.lean` is the natural
+  home if `AutomorphicForm` ever needs them from here (≈45 s hub wave, not owed).
 * **Register.** The weight-4 engine (`TateSlots/{Convergence,SlotCoeff}.lean`) is tier 3: built and
   importable, not in `PORT_FILES`, with its 119 public declarations carrying `-- pin:` provenance
   in [spec/UNWIRED-PUBLIC.md](../spec/UNWIRED-PUBLIC.md) (78 modules / 1,906 public / 1,618 with a
