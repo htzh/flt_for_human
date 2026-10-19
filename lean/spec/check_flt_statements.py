@@ -3336,6 +3336,21 @@ SOURCES = [
     # declarations. Appended last.
     "Theorems/Thm_CuspForm_norm_sq_eq_pow_of_qCoeff_mul_eq_of_not_factorsThrough.lean",
     "P2M/Sol/S_CuspForm_norm_sq_eq_pow_of_qCoeff_mul_eq_of_not_factorsThrough.lean",
+    # --- The archimedean Casimir definition layer (`WORKORDER-AC1-defs.md`,
+    # `topics/automorphicForm/TOPIC-arch-casimir.md` §4): the two pin `Definitions/`
+    # modules the whole 78-file arch-derivative subject is phrased against. A
+    # definition module has no `Theorems/` wrapper, so both verify by name against
+    # their `Definitions/` files. Appended last.
+    "Definitions/Def_LanglandsTunnell_ArchParam.lean",
+    "Definitions/Def_AutomorphicForm_ArchDerivCasimir.lean",
+    # --- Set A (`WORKORDER-AC2-cascore-trio.md`): the statement authority for the three
+    # real-place headlines. The engine `S_` files are deliberately NOT listed: every
+    # non-headline public declaration of `ArchCasimir.lean` carries a `-- pin:` marker into
+    # one of them, which is the checker's UNWIRED (tier-3) exemption, and they are registered
+    # in spec/UNWIRED-PUBLIC.md. Appended last so no earlier last-name match can flip.
+    "Theorems/Thm_AutomorphicForm_archCasimirAt_rightTranslate_archRealGLAt.lean",
+    "Theorems/Thm_AutomorphicForm_leftCasimir_eq_archCasimirAt_of_isArchSmoothAt.lean",
+    "Theorems/Thm_AutomorphicForm_iterate_raise_iterate_lower_eq_smul_of_archCasimirAt_eq_smul.lean",
 ]
 
 
@@ -4978,6 +4993,17 @@ PORT_FILES = [
     # --- Set P2 (`WORKORDER-P2-normsq.md`): the silo, wired whole — its 71 helpers and the
     # headline are all statement-diffed (+72 against the wrapper + `S_` sources above).
     "FLTForHuman/ModularForms/Analytic/NormSqPow.lean",
+    # --- The archimedean Casimir definition layer (`WORKORDER-AC1-defs.md`,
+    # `topics/automorphicForm/TOPIC-arch-casimir.md` §4): two new leaf modules, both
+    # wired — the pin has no `private` declaration in either, so the whole surface is
+    # statement-diffed (+84). Appended last.
+    "FLTForHuman/LanglandsTunnell/ArchParam.lean",
+    "FLTForHuman/AutomorphicForm/Adelic/ArchDerivCasimir.lean",
+    # --- Set A (`WORKORDER-AC2-cascore-trio.md`): one listed module whose wire is exactly the
+    # three headlines (+3). The shared `CasCore17` engine and the three pin tails are public and
+    # tier 3 — `-- pin:`-marked into the three `S_` files above, which `SOURCES` does not read —
+    # so a later proof can import them; they are registered in spec/UNWIRED-PUBLIC.md.
+    "FLTForHuman/AutomorphicForm/Adelic/ArchCasimir.lean",
 ]
 
 

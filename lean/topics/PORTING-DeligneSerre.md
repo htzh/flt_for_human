@@ -9,8 +9,8 @@ manager's own work, §5 the build economy, §6 verification, §7 what remains, �
 residuals. Every measurement is the pin's, read through `tools/deps`. The section numbers are
 stable: work orders across the column cite §3 for the workflow and §7 for the gates.
 
-The checker reads **9877 identical (667 promoted, 83 renamed), 0 mismatched, 0 missing, 42
-own-proof declarations exempted (9919 checked)**. This column's recent landings: the
+The checker reads **10107 identical (676 promoted, 83 renamed), 0 mismatched, 0 missing, 42
+own-proof declarations exempted, 128 registered-unwired declarations exempted (10277 checked)**. This column's recent landings: the
 `TateFormal`/`TateSlots` definition layer, 9241 → 9304; the weight-4 Tate-slot engine and headline
 façade (WORKORDER-F1), 9304 → 9318; the six `tateCurve`/Katz definition modules of WORKORDER-F2,
 9318 → 9535 (+217); the `BridgeX` twin/triplet engine and headline façade (WORKORDER-F2),
@@ -27,7 +27,20 @@ the module is unlisted; and the Petersson adjointness of `T_p` on the nebentypus
 `CuspForm.peterssonOn_hecke_eq_conj_mul_of_hasNebentypus` (1,230 pin lines, the leaf above the
 nebentypus eigenbasis), 9857 → **9877 (+20)**: `peterssonOn` (+3), the fundamental-domain
 ground (+16), the tier-1 headline (+1), with its 100-declaration engine tier-3 and registered
-(record: [deligneSerre/TOPIC-petersson-hecke-adjointness.md](deligneSerre/TOPIC-petersson-hecke-adjointness.md)). Each
+(record: [deligneSerre/TOPIC-petersson-hecke-adjointness.md](deligneSerre/TOPIC-petersson-hecke-adjointness.md)); and
+the archimedean Casimir **definition layer**, the ground for the arch-derivative subject the
+`--include-leaves` shelf shows 78 needed nodes of (33,726 raw `S_` lines): the pin's
+`Def_LanglandsTunnell_ArchParam` (33 declarations) and `Def_AutomorphicForm_ArchDerivCasimir` (58,
+the whole `archDerivAt`/`archCasimirAt`/`IsArchSmoothAt`/`ArchDir` API, which the port did not have
+at all) homed whole at `LanglandsTunnell/ArchParam.lean` and
+`AutomorphicForm/Adelic/ArchDerivCasimir.lean`, 9877 → **10104 (+91)** — measured against the tree
+as found, which the note's 9877 had already left at 10013 by other columns' landings — and then its
+first proof set, the real-place `CasCore` trio
+([automorphicForm/WORKORDER-AC2-cascore-trio.md](automorphicForm/WORKORDER-AC2-cascore-trio.md)):
+one listed module, `AutomorphicForm/Adelic/ArchCasimir.lean`, whose wire is exactly three headlines,
+10104 → **10107 (+3)**, with the 128-declaration shared engine public and registered tier 3
+([automorphicForm/TOPIC-arch-casimir.md](automorphicForm/TOPIC-arch-casimir.md),
+[automorphicForm/WORKORDER-AC1-defs.md](automorphicForm/WORKORDER-AC1-defs.md)). Each
 wired delta is exactly its new public surface, 0 mismatched / 0 missing. The 9542 → 9569 (+27) step is
 the `NumberField.AdelicHeight` definition gate, the manager's own ground for the adelic-modulus
 round
@@ -92,6 +105,13 @@ Companions:
   [automorphicForm/WORKORDER-I1-complex-engine.md](automorphicForm/WORKORDER-I1-complex-engine.md),
   [automorphicForm/WORKORDER-I2-complex-successors.md](automorphicForm/WORKORDER-I2-complex-successors.md),
   [automorphicForm/WORKORDER-I3-real-engine.md](automorphicForm/WORKORDER-I3-real-engine.md).
+- The archimedean `𝔰𝔩₂` / Casimir calculus — the other archimedean subject at the same places, and
+  the one the `--include-leaves` reading prices highest after the ray-class hub: the definition
+  layer, the 78-node / 33,726-line demand behind it, and the real-place `CasCore` trio that is its
+  first proof set:
+  [automorphicForm/TOPIC-arch-casimir.md](automorphicForm/TOPIC-arch-casimir.md),
+  [automorphicForm/WORKORDER-AC1-defs.md](automorphicForm/WORKORDER-AC1-defs.md),
+  [automorphicForm/WORKORDER-AC2-cascore-trio.md](automorphicForm/WORKORDER-AC2-cascore-trio.md).
 
 ## 1. What the port contains
 
