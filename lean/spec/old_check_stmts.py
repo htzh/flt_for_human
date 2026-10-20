@@ -4805,7 +4805,6 @@ PORT_FILES = [
     "FLTForHuman/AutomorphicForm/Adelic/Siegel/Reduction.lean",
     "FLTForHuman/AutomorphicForm/Adelic/SigmaAdelicAction.lean",
     "FLTForHuman/AutomorphicForm/Adelic/HeckeEigensystemMap.lean",
-    "FLTForHuman/RepTheory/LocalLanglands/HeckeCosetSystem.lean",
     "FLTForHuman/AutomorphicForm/Adelic/WindowedSiegel/CentreCutSet.lean",
     "FLTForHuman/AutomorphicForm/Adelic/Cusp/SmoothRealization.lean",
     "FLTForHuman/AutomorphicForm/Adelic/Siegel/Covering.lean",

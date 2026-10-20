@@ -11,6 +11,10 @@
   left-invariant measure, the cosets are measurable, equiponderous, and the measure of
   the double coset is the cardinality of the system times `μ U`
   (`measure_doubleCoset`, `measurableSet_doubleCoset`).
+  `heckeCosetSum_eq_of_isHeckeCosetSystem` is the well-definedness half: the coset sum
+  `∑ i, φ (g * reps i)` of a right-`U`-invariant `φ` does not depend on which coset system is
+  chosen, so it is a property of the double coset (and hence of the Hecke operator) rather than
+  of the representatives.
 
   Transcribed verbatim from `Definitions/Def_LocalLanglands_HeckeCosetSystem.lean`
   (pinned `aa2d8b3`, 135 lines / 14 declarations). The pin's `import Mathlib` is
@@ -19,10 +23,23 @@
   `RepTheory/LocalLanglands/HeckePair`; the pin namespaces `HeckeIntegralSeam` /
   `IsHeckeCosetSystem` are kept. mathlib `v4.34.0` has no counterpart, so all
   declarations are residue; there is no proof-level drift.
+
+  `heckeCosetSum_eq_of_isHeckeCosetSystem` is transcribed verbatim from
+  `P2M/Sol/S_HeckeIntegralSeam_heckeCosetSum_eq_of_isHeckeCosetSystem.lean` (pinned `aa2d8b3`,
+  39 lines); the pin splits it into a `P1RepIndep.…_impl` helper and a `solution` alias, which is
+  `p2m` plumbing and is inlined here.
+
+  Wired by its own `spec-pin:` header (the column's §6 protocol); the module was handed over from
+  the frozen registry on 2026-10-20, when the coset-sum lemma was appended.
+
+  spec-pin: Definitions/Def_LocalLanglands_HeckeCosetSystem.lean
+  spec-pin: Theorems/Thm_HeckeIntegralSeam_heckeCosetSum_eq_of_isHeckeCosetSystem.lean
 -/
 import FLTForHuman.RepTheory.LocalLanglands.HeckePair
 import Mathlib.MeasureTheory.Group.Measure
 import Mathlib.Algebra.Group.Pointwise.Set.Basic
+import Mathlib.Basic.Complex.Basic
+import Mathlib.Algebra.BigOperators.Group.Finset.Basic
 
 set_option autoImplicit false
 
@@ -109,6 +126,36 @@ theorem canonical_isHeckeCosetSystem
     have h' : QuotientGroup.mk (Quotient.out (q : G ⧸ U))
         = QuotientGroup.mk (Quotient.out (q' : G ⧸ U)) := h
     rwa [QuotientGroup.out_eq', QuotientGroup.out_eq'] at h'
+
+/-- **The coset sum does not depend on the representatives.**  For a right-`U`-invariant
+`φ`, two `IsHeckeCosetSystem` families over the same double coset give the same sum
+`∑ i, φ (g * reps i)` — the pin's
+`HeckeIntegralSeam.heckeCosetSum_eq_of_isHeckeCosetSystem`, whose `P1RepIndep.…_impl` helper is
+inlined. -/
+theorem heckeCosetSum_eq_of_isHeckeCosetSystem
+    {G : Type*} [Group G] {n : ℕ} {U : Subgroup G} {gv : G}
+    {reps reps' : Fin n → G}
+    (hsys : HeckeIntegralSeam.IsHeckeCosetSystem U gv reps)
+    (hsys' : HeckeIntegralSeam.IsHeckeCosetSystem U gv reps')
+    {φ : G → ℂ} (hinv : ∀ g : G, ∀ u ∈ U, φ (g * u) = φ g) (g : G) :
+    ∑ i, φ (g * reps' i) = ∑ i, φ (g * reps i) := by
+  have hchoice : ∀ i : Fin n, ∃ j : Fin n,
+      (QuotientGroup.mk (reps i) : G ⧸ U) = QuotientGroup.mk (reps' j) :=
+    fun i => hsys'.covers (reps i) (hsys.mem_doubleCoset i)
+  choose e he using hchoice
+  have hinj : Function.Injective e := fun i₁ i₂ h => hsys.mk_injective (by
+    show (QuotientGroup.mk (reps i₁) : G ⧸ U) = QuotientGroup.mk (reps i₂)
+    rw [he i₁, he i₂, h])
+  have hbij : Function.Bijective e := Finite.injective_iff_bijective.mp hinj
+  have hpt : ∀ i : Fin n, φ (g * reps' (e i)) = φ (g * reps i) := by
+    intro i
+    have hu : (reps i)⁻¹ * reps' (e i) ∈ U := QuotientGroup.eq.mp (he i)
+    have harg : g * reps' (e i) = g * reps i * ((reps i)⁻¹ * reps' (e i)) := by
+      rw [mul_assoc, mul_inv_cancel_left]
+    rw [harg]
+    exact hinv (g * reps i) _ hu
+  exact (Fintype.sum_bijective e hbij (fun i => φ (g * reps i))
+    (fun j => φ (g * reps' j)) (fun i => (hpt i).symm)).symm
 
 end CosetSystem
 

@@ -10,8 +10,8 @@ residuals. Every measurement is the pin's, read through `tools/deps`. The sectio
 stable: work orders across the column cite §3 for the workflow and §7 for the gates.
 
 The checker is **`spec/check_port.py` alone**, one module at a time, wired by the module's own
-`spec-pin:` header (§6). On 2026-10-20 it reads **1822 ok, 0 mismatched, 0 missing, 4 own, 0 kw
-over 47 wired modules** (583 `PORT_FILES` modules exempt; corpus `aa2d8b3`). `spec/old_check_stmts.py`
+`spec-pin:` header (§6). On 2026-10-20 it reads **1942 ok, 0 mismatched, 0 missing, 4 own, 0 kw
+over 53 wired modules** (582 `PORT_FILES` modules exempt; corpus `aa2d8b3`). `spec/old_check_stmts.py`
 is the grandfathered registry and is **not run as a gate**; its last reading, before the handoff,
 was 10473 identical (774 promoted, 83 renamed), 0 mismatched, 0 missing, 42 own-proof exemptions
 (10809 checked). Declaration-level exceptions live in `spec/decl_markers.tsv`, never in the Lean
@@ -238,13 +238,49 @@ and 1,975 jobs, the dependent wave 4,329 jobs, 0 warnings from the set; axioms
 [logs/separating-uniformiser.md](../logs/separating-uniformiser.md); order:
 [algebraicCurve/WORKORDER-SU1-separable-uniformiser.md](algebraicCurve/WORKORDER-SU1-separable-uniformiser.md).
 
+The **Hecke coset seam** then landed as the column's largest set so far — a leaf whose whole cost
+was its definition gate: `HeckeIntegralSeam.exists_isHeckeCosetSystem_localRep_heckeGen` (807 pin
+lines, `cites 0`, cited by **40** theorems), the explicit `q_v + 1`-coset decomposition of the Hecke
+double coset at a finite place, as an engine module `AutomorphicForm/Adelic/HeckeCosetSeam.lean`
+(49 statement-checked declarations, the pin's 48 `private` ones made **public** because the
+`_principalLevel` sibling imports them) plus the **gate** the statement forced —
+`RepTheory/LocalLanglands/{IntegralSubgroup,IntegralSubgroupOpen,HeckeCosetLocal}.lean`, the three
+pin `Definitions/` modules the port had never homed (45 declarations, verbatim). `port_advise` read
+**0 substitutions** on the leaf and the gate's five "type-only `def` matches" are wrong (recorded);
+the transcription is mechanical except one real drift — mathlib `v4.34.0`'s `adicCompletion` is a
+one-field structure, so `ext` on an `adicCompletion`-valued matrix now compares `.toCompletion`
+images (three proof steps adapted, the pin's `attribute [-ext] adicCompletion.ext` not restored).
+Checker **+94**, **1916 ok / 0 mismatched / 0 missing** over 51 modules; tier-1 builds 1,795 / 2,164
+/ 2,247 (gate) and 3,625 (leaf) jobs, 0 warnings; axioms
+`[propext, Classical.choice, Quot.sound]`. Records:
+[logs/hecke-coset-seam.md](../logs/hecke-coset-seam.md); order:
+[automorphicForm/WORKORDER-HS1-hecke-coset-seam.md](automorphicForm/WORKORDER-HS1-hecke-coset-seam.md).
+
+The seam's last in-demand row then followed as an **append, not a module**:
+`HeckeIntegralSeam.heckeCosetSum_eq_of_isHeckeCosetSystem` (39 pin lines, `cites 0`, 33 project
+citers) is the *well-definedness* half of the coset-system structure — the coset sum does not depend
+on the representatives — so it belongs in the module that already homes `IsHeckeCosetSystem`,
+`RepTheory/LocalLanglands/HeckeCosetSystem.lean`. The append was priced as the hub edit it is
+(**34 dependent modules / 16,230 lines**, because `SmoothRealization` and `HeckeCosetSeam` import
+it), built once as one wave, and it doubles as that module's **handoff** — `spec-pin:` in,
+`PORT_FILES` out, so its 14 existing declarations become verified too. Checker **+15**,
+**1931 ok**; the `HeckeIntegralSeam.` namespace leaves the D-S demand entirely (`needed`
+1,363 → 1,362 nodes, −39 lines). Work-order addendum §9. The family's **`_principalLevel` near
+twin** (908 pin lines, 171 diff lines from the leaf) then landed too, although it is outside the
+cone: with the engine public it is **11 restated declarations** (the Weyl-conjugacy block, the
+`prinU`-flavoured docked statement and the headline) and **45 imported**, including the twin's
+`l1U`-spelled membership lemmas — the parent's `(productionPinsGeneral F).U` versions, the same
+group by definition. Checker **+11**, **1942 ok** over 53 modules. Work-order addendum §10.
+
 For the landings above that wired into the frozen checker's lists, each delta is exactly its new
 public surface, 0 mismatched / 0 missing; the `localParam` landing has no such delta (§6). Since
 the 2026-10-19–20 handoff the column verifies with `spec/check_port.py` instead (§6), and a
-landing's delta is its statement-checked surface there: the arch-type-span leaf is **+1** and the
-separating-uniformiser twin **+6** (four on the handed-over host, two headlines) of the 1822. The
-host handoff is also the column's first **deletion** from `PORT_FILES` — a migration, not an
-append (§6). The 9542 → 9569 (+27) step is
+landing's delta is its statement-checked surface there: the arch-type-span leaf is **+1**, the
+separating-uniformiser twin **+6** (four on the handed-over host, two headlines), the Hecke-seam
+gate + leaf **+94**, the coset-sum append **+15** (14 from the handed-over coset-system module,
+1 headline) and the `_principalLevel` sibling **+11** (the engine imported, not re-proved) of the
+1942. The host handoff is also the column's first **deletion** from
+`PORT_FILES` — a migration, not an append (§6). The 9542 → 9569 (+27) step is
 the `NumberField.AdelicHeight` definition gate, the manager's own ground for the adelic-modulus
 round
 ([numberTheory/adelicModulus/TOPIC-adelic-modulus.md](numberTheory/adelicModulus/TOPIC-adelic-modulus.md)),
@@ -345,6 +381,13 @@ Companions:
   [automorphicForm/WORKORDER-ATS-arch-type-span.md](automorphicForm/WORKORDER-ATS-arch-type-span.md),
   [logs/arch-type-span.md](../logs/arch-type-span.md). The engine's own planning note is
   [automorphicForm/TOPIC-archTestFactor-family.md](automorphicForm/TOPIC-archTestFactor-family.md).
+- The `HeckeIntegralSeam` **coset seam** — the explicit `q_v + 1`-coset decomposition of the Hecke
+  double coset at a finite place, its three-module `LocalLanglands` definition gate, and the public
+  engine its `_principalLevel` sibling will import:
+  [automorphicForm/WORKORDER-HS1-hecke-coset-seam.md](automorphicForm/WORKORDER-HS1-hecke-coset-seam.md),
+  [logs/hecke-coset-seam.md](../logs/hecke-coset-seam.md). The adelic definition layer it sits on
+  is [PORTING-AutomorphicForm.md](PORTING-AutomorphicForm.md) (`D3`–`D6`: `levelOne`,
+  `finiteAdelicGL2Subgroup`, `heckeGen`, `localEmbed`, `finEmbed`).
 - The `Place` **separating-uniformiser twin** — a uniformiser (or a tame-order element) is a
   separating element, the ready pair ported as two headlines over the promoted Frobenius-subfield
   engine, with the criterion *called* rather than re-proved:
@@ -906,6 +949,22 @@ family's third row,
 nodes / 369 lines; the seven other consumers are the `CuspidalConstituent` cut-weight and
 isotypic-cut rows of §2.
 
+The **Hecke coset seam** has landed (§1, WORKORDER-HS1) with its definition gate — the three
+`LocalLanglands` `Definitions/` modules the port had never homed — and its 39-line well-definedness
+row has landed as an append to `RepTheory/LocalLanglands/HeckeCosetSystem.lean` (addendum §9 of the
+order). **The `HeckeIntegralSeam.` namespace is out of the D-S demand entirely.** The
+`_principalLevel` near twin has landed as well (addendum §10): outside the cone, but banked now
+because it re-proves the same engine — with the engine public it cost 11 restated declarations and
+45 imports. What the family still holds, all outside the cone and cut when a column needs it:
+`exists_isHeckeCosetSystem_integralSubgroup_diagPi` (35),
+`IsHeckeCosetSystem.exists_bijective_forall_exists_mul_eq_mul_of_mem` (72),
+`IsHeckeCosetSystem.sum_apply_mul_prod_ofFn_eq_of_mem` (111),
+`exists_isHeckeCosetSystem_and_isHeckeCosetSystem_mul_inv_of_conj_eq` (137), and
+`exists_isHeckeCosetSystem_localRepSome_heckeGen_of_dvd` (957 pin lines, the same engine under
+`v ∣ N`, which is now a small module on the public engine). The first consumer to become ready is
+`AutomorphicForm.SmoothCusp.not_isHeckeCosetEigenfunctionAt_levelOne_bot_inf_finiteAdelicGL2Subgroup`
+(229).
+
 The `Place` **separability pair** has landed too (§1, WORKORDER-SU1): a uniformiser at a place
 is a separating element, and so is an element of nonzero tame order
 ([../logs/separating-uniformiser.md](../logs/separating-uniformiser.md)). It put four rows on the
@@ -1120,3 +1179,11 @@ python3 spec/old_check_stmts.py --selftest
   landings were wired, not instructions; a new set follows §6. The 583 modules still owned by the
   frozen registry are the migration backlog, and each moves when it is edited for another reason
   (playbook §4) — the Frobenius-subfield host moved that way on 2026-10-20 (§1).
+* **The `of_dvd` seam sibling is scoped and deferred.** `HeckeIntegralSeam.exists_isHeckeCosetSystem_localRepSome_heckeGen_of_dvd`
+  (957 pin lines, 55 declarations) is the family's last large row and sits outside the cone. It
+  drags in **no modules** (every dependency is inside `HeckeCosetSeam`'s closure; its five extra
+  `Definitions/` imports are inert), but its residual — 13 declarations / ≈320 lines — is dominated
+  by a 153-line covering lemma that carries `set_option maxHeartbeats 3200000 in` in the pin and
+  whose entrywise matrix steps no longer close under mathlib `v4.34.0`. That is proof development
+  under the no-heartbeat-raise rule, so it waits for its own order (WORKORDER-HS1 addendum §11; a
+  compiling draft is parked at `lean/tmp/HeckeCosetSeamDvd.draft.lean`).
