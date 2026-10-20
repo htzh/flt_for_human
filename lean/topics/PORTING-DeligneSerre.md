@@ -10,8 +10,8 @@ residuals. Every measurement is the pin's, read through `tools/deps`. The sectio
 stable: work orders across the column cite §3 for the workflow and §7 for the gates.
 
 The checker is **`spec/check_port.py` alone**, one module at a time, wired by the module's own
-`spec-pin:` header (§6). On 2026-10-20 it reads **1942 ok, 0 mismatched, 0 missing, 4 own, 0 kw
-over 53 wired modules** (582 `PORT_FILES` modules exempt; corpus `aa2d8b3`). `spec/old_check_stmts.py`
+`spec-pin:` header (§6). On 2026-10-20 it reads **2038 ok, 0 mismatched, 0 missing, 4 own, 0 kw
+over 56 wired modules** (582 `PORT_FILES` modules exempt; corpus `aa2d8b3`). `spec/old_check_stmts.py`
 is the grandfathered registry and is **not run as a gate**; its last reading, before the handoff,
 was 10473 identical (774 promoted, 83 renamed), 0 mismatched, 0 missing, 42 own-proof exemptions
 (10809 checked). Declaration-level exceptions live in `spec/decl_markers.tsv`, never in the Lean
@@ -272,6 +272,35 @@ cone: with the engine public it is **11 restated declarations** (the Weyl-conjug
 `l1U`-spelled membership lemmas — the parent's `(productionPinsGeneral F).U` versions, the same
 group by definition. Checker **+11**, **1942 ok** over 53 modules. Work-order addendum §10.
 
+The **matrix-group right-finite supplement** then landed as the column's largest single wired delta
+and its cleanest supplement case: the two pin leaves
+`Matrix.UnitaryGroup.exists_polynomial_eq_of_continuous_of_rightFinite` (802 pin lines) and
+`Matrix.OrthogonalGroup.…` (748) — the D-S leaf shelf's ranks #2 and #5 of 442 — are **one
+development the pin writes twice**, since mathlib's `Matrix.orthogonalGroup` *is* the `abbrev` for
+`unitaryGroup` and the `ℝ` proof text is the `ℂ` one without conjugation (≈80 % identical at the
+base field: 170 changed lines, 37 hunks). It is a Fejér-kernel argument on a compact matrix group
+("a continuous right-finite function on `U(2)`/`O(2)` is a polynomial in the entries"), it names
+only mathlib objects, and both pin files import mathlib plus the pin's tactic macros and nothing
+else — **no definition gate**. Ported faithfully and *not* strengthened (the generic `[RCLike 𝕜]`
+and general-`n` routes are recorded as declined, with reasons) as the shared prelude
+`LinearAlgebra/Dual/EvalSpan.lean` (68 lines, 1 declaration — the evaluation-combination lemma the
+two files duplicate byte-identically) plus `Analysis/MatrixGroup/{Unitary,Orthogonal}RightFinite.lean`
+(816 / 760 lines, 49 / 46 wired declarations), 1,434 net new lines. Checker **+96**, **2038
+identical** over 56 modules, 0 mismatched / 0 missing; tier-1 builds 2,051 / 2,639 / 2,639 jobs with
+0 warnings; a pre-dispatch scout compiled both pin files unchanged on `v4.34.0` (0 proof drift,
+axioms `[propext, Classical.choice, Quot.sound]`), so the set's whole diff is eight warning fixes.
+The landing removes 2 nodes / 1,550 raw `S_` lines from the demand. Records:
+[logs/matrixgroup-rightfinite.md](../logs/matrixgroup-rightfinite.md); topic and order:
+[deligneSerre/TOPIC-matrixgroup-rightfinite.md](deligneSerre/TOPIC-matrixgroup-rightfinite.md),
+[deligneSerre/WORKORDER-MG1-right-finite-supplement.md](deligneSerre/WORKORDER-MG1-right-finite-supplement.md).
+The rest of the `Matrix.`-namespace demand — nine nodes / 2,969 raw lines after the landing — is
+priced together in
+[deligneSerre/TOPIC-matrix-family-in-cone.md](deligneSerre/TOPIC-matrix-family-in-cone.md): four
+ready leaves (1,041 → 970 net new, +73, WORKORDER-MG2), the
+`GeneralLinearGroup.exists_natCard_le_…` row behind its own `ModularCurve.SerreImage.contains_SL2`
+premise (1,632 → 1,611 net new, +53, set MG3), and four `SpecialLinearGroup` free-group rows that
+are not ready and belong to another column's subject.
+
 For the landings above that wired into the frozen checker's lists, each delta is exactly its new
 public surface, 0 mismatched / 0 missing; the `localParam` landing has no such delta (§6). Since
 the 2026-10-19–20 handoff the column verifies with `spec/check_port.py` instead (§6), and a
@@ -279,7 +308,8 @@ landing's delta is its statement-checked surface there: the arch-type-span leaf 
 separating-uniformiser twin **+6** (four on the handed-over host, two headlines), the Hecke-seam
 gate + leaf **+94**, the coset-sum append **+15** (14 from the handed-over coset-system module,
 1 headline) and the `_principalLevel` sibling **+11** (the engine imported, not re-proved) of the
-1942. The host handoff is also the column's first **deletion** from
+1942; the **matrix-group right-finite supplement of §1 is +96** (1942 → **2038** over 56 modules),
+the column's largest wired delta. The host handoff is also the column's first **deletion** from
 `PORT_FILES` — a migration, not an append (§6). The 9542 → 9569 (+27) step is
 the `NumberField.AdelicHeight` definition gate, the manager's own ground for the adelic-modulus
 round
@@ -381,6 +411,13 @@ Companions:
   [automorphicForm/WORKORDER-ATS-arch-type-span.md](automorphicForm/WORKORDER-ATS-arch-type-span.md),
   [logs/arch-type-span.md](../logs/arch-type-span.md). The engine's own planning note is
   [automorphicForm/TOPIC-archTestFactor-family.md](automorphicForm/TOPIC-archTestFactor-family.md).
+- The **matrix-group right-finite supplement** — `U(2)`/`O(2)`, the pin's twin pair ported as one
+  faithful development over a shared evaluation-combination prelude, and the pricing of the rest of
+  the `Matrix.`-namespace demand in the cone:
+  [deligneSerre/TOPIC-matrixgroup-rightfinite.md](deligneSerre/TOPIC-matrixgroup-rightfinite.md),
+  [deligneSerre/WORKORDER-MG1-right-finite-supplement.md](deligneSerre/WORKORDER-MG1-right-finite-supplement.md),
+  [deligneSerre/TOPIC-matrix-family-in-cone.md](deligneSerre/TOPIC-matrix-family-in-cone.md),
+  [logs/matrixgroup-rightfinite.md](../logs/matrixgroup-rightfinite.md).
 - The `HeckeIntegralSeam` **coset seam** — the explicit `q_v + 1`-coset decomposition of the Hecke
   double coset at a finite place, its three-module `LocalLanglands` definition gate, and the public
   engine its `_principalLevel` sibling will import:
@@ -675,6 +712,16 @@ moves to `HeckeIntegralSeam.exists_isHeckeCosetSystem_localRep_heckeGen` (807). 
 successor `AutomorphicForm.finiteDimensional_span_translates_of_mem_archCutSubmodule` (184) is now
 on the `--ready` shelf — the same principle at the whole cut, and the next cut of the family.
 
+**The leaf shelf's next two rows were the `Matrix.` pair, and they have landed** (§1, WORKORDER-MG1):
+the shelf reads **442 → 440** and loses 1,550 raw lines, and the `Matrix.`-namespace demand goes
+**11 nodes / 4,519 lines → 9 / 2,969**. The family's remainder is priced together in
+[deligneSerre/TOPIC-matrix-family-in-cone.md](deligneSerre/TOPIC-matrix-family-in-cone.md) — four
+ready leaves (970 net new, +73, WORKORDER-MG2), the
+`GeneralLinearGroup.exists_natCard_le_of_isSemisimpleRepresentation_of_card_image_charpoly_le` row
+(1,242) behind its own `ModularCurve.SerreImage.contains_SL2` premise (390), and four
+`Matrix.SpecialLinearGroup` free-group rows that are **not ready** (686 own lines behind 3,275 raw
+lines of `Monoid.CoprodI` / `SimpleGraph` / `Subgroup` premises) and are another column's subject.
+
 **The two `tateCurve_…_nonToricPoint_…` rows are exact twins, and must be cut as one.**
 `S_ModularCurve_tateCurve_pointX_C_mul_X_pow_eq_nonToricPoint_fst.lean` and its `_pointY_…_snd`
 sibling are both 1,343 lines and differ by **8 diff lines**; normalized at the namespace stem, the
@@ -949,6 +996,17 @@ family's third row,
 nodes / 369 lines; the seven other consumers are the `CuspidalConstituent` cut-weight and
 isotypic-cut rows of §2.
 
+The **matrix-group right-finite pair** has landed too (§1, WORKORDER-MG1) as a mathlib supplement,
+and it moved the `Matrix.`-namespace remainder onto the shelf: the four ready leaves of
+`Matrix.exists_bijective_transpose_mulVec_of_adjoin_intCast` (765), `…specialUnitaryGroup_fin_two_eq_diag_mul_rotation_mul_diag`
+(114), `…SpecialLinearGroup.closure_diagonal_unipotent_weyl_eq_top` (86) and
+`…exists_specialLinearGroup_mul_upperTriangular` (76) are WORKORDER-MG2 (970 net new, +73); the
+`GeneralLinearGroup.exists_natCard_le_of_isSemisimpleRepresentation_of_card_image_charpoly_le` row
+(1,242) is ready only with `ModularCurve.SerreImage.contains_SL2` (390, the column's own §2 shelf
+row) and is set MG3 (1,611 net new, +53); the four `Matrix.SpecialLinearGroup` free-group rows are
+not ready. All three cuts are priced in
+[deligneSerre/TOPIC-matrix-family-in-cone.md](deligneSerre/TOPIC-matrix-family-in-cone.md).
+
 The **Hecke coset seam** has landed (§1, WORKORDER-HS1) with its definition gate — the three
 `LocalLanglands` `Definitions/` modules the port had never homed — and its 39-line well-definedness
 row has landed as an append to `RepTheory/LocalLanglands/HeckeCosetSystem.lean` (addendum §9 of the
@@ -1123,6 +1181,15 @@ python3 spec/old_check_stmts.py --selftest
   leaf will find the engine there, not in their own silos; (ii) their proofs rely, as the pin does,
   on `archTypeSubmoduleAt` being *definitionally* `typeSubmodule (rowIsometryInclAt₀ F w) τ.ρ`
   (`hcut := rfl`), so a wrapper around that definition would turn a `rfl` into a proof obligation.
+* **The matrix-group twin is parallel by construction.** `Analysis/MatrixGroup/{Unitary,Orthogonal}RightFinite.lean`
+  are ≈80 % identical (898 diff lines, 33 hunks) because the pin writes the `ℝ` development as the
+  `ℂ` one without conjugation, and the port keeps the pin's text. The generic `[RCLike 𝕜]` statement
+  — which after the base-field normalization is *one* sentence, since `Matrix.orthogonalGroup` is
+  mathlib's `abbrev` for `unitaryGroup` — is the natural revision, not a cleanup: it would wire 2
+  headlines instead of 96 statements and leave ≈45 declarations in the tier-3 register. The route
+  was priced and declined on 2026-10-20 (topic §7). The shared
+  `LinearAlgebra/Dual/EvalSpan.lean` lemma has no mathlib counterpart (a recorded negative from
+  `Mathlib/LinearAlgebra/Dual/`) and exactly two importers today.
 * `locKer`/`adjoinRoot'` are public in `DeligneSerre/Lifting.lean` with no consumer today (kept
   per the pin).
 * The private `det_eq` copies in `Gamma1Vanishing.lean`/`HeckeEigenNebentypus.lean` are
