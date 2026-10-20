@@ -55,7 +55,6 @@ import Mathlib.MeasureTheory.Measure.Haar.InnerProductSpace
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Ring
 
-namespace P2MW.S_SchwartzMap_tsum_eq_tsum_fourier_euclideanSpace
 
 set_option autoImplicit false
 
@@ -571,8 +570,6 @@ end Schwartz
 
 end PiPoissonSummation
 
-end
-
 section Euclidean
 open PiPoissonSummation
 
@@ -584,7 +581,7 @@ theorem SchwartzMap.tsum_eq_tsum_fourier_euclideanSpace
 
   set h : SchwartzMap (ι → ℝ) ℂ :=
     SchwartzMap.compCLMOfContinuousLinearEquiv ℝ (euclideanToPi (d := ι)).symm f with hh
-  have hh_apply : ∀ v : ι → ℝ, h v = f (toLp 2 v) := fun v => by
+  have hh_apply : ∀ v : ι → ℝ, h v = f (WithLp.toLp 2 v) := fun v => by
     simp only [hh, SchwartzMap.compCLMOfContinuousLinearEquiv_apply, Function.comp_apply]
     rfl
   have hback : SchwartzMap.compCLMOfContinuousLinearEquiv ℝ (euclideanToPi (d := ι)) h = f := by
@@ -593,7 +590,7 @@ theorem SchwartzMap.tsum_eq_tsum_fourier_euclideanSpace
     rfl
   have key := PiPoissonSummation.SchwartzMap.tsum_add_intVec_eq_tsum_piFourierIntegral h (ofLp x)
 
-  have hL : ∀ n : ι → ℤ, h (ofLp x + intVec n) = f (x + WithLp.toLp 2 (fun i ↦ (n i : ℝ))) := by
+  have hL : ∀ n : ι → ℤ, h (WithLp.ofLp x + intVec n) = f (x + WithLp.toLp 2 (fun i ↦ (n i : ℝ))) := by
     intro n
     rw [hh_apply, WithLp.toLp_add, WithLp.toLp_ofLp]
     rfl

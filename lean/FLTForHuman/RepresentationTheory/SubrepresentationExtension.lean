@@ -19,7 +19,7 @@
   — `Theorems/Thm_Representation_exists_extend_forall_apply_mul_of_injective.lean` (the
   statement authority) and `P2M/Sol/S_Representation_exists_extend_forall_apply_mul_of_injective.lean`
   (69 pin lines, pinned `aa2d8b3`). The pin's public target is its `solution` tail; the
-  port keeps the wrapper's statement verbatim and the pin's `P2MW.S_…` namespace, and
+  port keeps the wrapper's statement verbatim and strips the pin's `P2MW.S_…` wrapper namespace, and
   drops `import P2M.Util` (nothing of it is used).
 
   Mathlib-first audit (one line per declaration; the pin's helper-free proof has no
@@ -53,7 +53,6 @@ set_option autoImplicit false
 
 universe u v w
 
-namespace P2MW.S_Representation_exists_extend_forall_apply_mul_of_injective
 
 theorem Representation.exists_extend_forall_apply_mul_of_injective
     {H : Type u} {G : Type v} [Group H] [Group G] {W : Type w} [AddCommGroup W] [Module ℂ W]
@@ -116,4 +115,3 @@ theorem Representation.exists_extend_forall_apply_mul_of_injective
     have : ℓ (sec x) (ρ (kof x) (v : W)) = ℓ (sec x) ((⟨ρ (kof x) v, hmem⟩ : P) : W) := rfl
     rw [this, hℓ, hT, ← hkof]
 
-end P2MW.S_Representation_exists_extend_forall_apply_mul_of_injective

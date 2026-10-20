@@ -13,7 +13,7 @@ The checker is **`spec/check_port.py` alone**, one module at a time, wired by th
 `spec-pin:` header (§6). The statement parser itself is **`spec/lean_parser.py`** (2026-10-20):
 the checker, the corpus builder and the `tools/deps` planning tools import it directly, and the
 frozen `old_check_stmts.py` imports it rather than owning it; the extraction also fixed the
-`end A.B` namespace-stack bug (FR-0035). On 2026-10-20 it reads **3496 ok, 0 mismatched, 0 missing, 11 own, 0 kw
+`end A.B` namespace-stack bug (FR-0035). On 2026-10-20 it reads **3506 ok, 0 mismatched, 0 missing, 11 own, 0 kw
 over 129 wired modules** (582 `PORT_FILES` modules exempt; corpus `aa2d8b3`). `spec/old_check_stmts.py`
 is the grandfathered registry and is **not run as a gate**; its last reading, before the handoff,
 was 10473 identical (774 promoted, 83 renamed), 0 mismatched, 0 missing, 42 own-proof exemptions
@@ -362,16 +362,18 @@ whole and never needed, and the `distribHaarChar` premise's statement is identic
 order: [deligneSerre/WORKORDER-RN1-rat-nodes.md](deligneSerre/WORKORDER-RN1-rat-nodes.md).
 
 **The `q`-expansion trio and the free-group family then landed (WORKORDER-FG1).** Thirteen nodes /
-4,342 pin lines → **eight mathlib-shaped modules**, 3,846 body lines, **checker +400** (3096 →
+4,342 pin lines → **eight modules**, ~3,730 body lines, **checker +400** (3096 →
 **3496 ok over 129 modules**), 0 mismatch / 0 missing / 0 own / 0 kw, 0 warnings, every headline's
 axioms `[propext, Classical.choice, Quot.sound]`. The trio is one module,
 `NumberTheory/ModularForms/QExpansionCoeff.lean` (19 wired). The free-group family was re-homed by
 subject rather than kept as one engine file — the first cut's single 3,079-line module was split —
-into `Combinatorics/SimpleGraph/Transversal.lean` (10), `GroupTheory/FreeDoubleCoset.lean` (12),
-`GroupTheory/CoprodI/CosetGraph.lean` (49),
-`LinearAlgebra/Matrix/SpecialLinearGroupFreeProduct.lean` (68), `GroupTheory/CoprodI/MinimalPeriod.lean`
-(75), `GroupTheory/FreeGroup/KuroshRank.lean` (115, its own node) and
-`LinearAlgebra/Matrix/SpecialLinearGroupFreeGenerators.lean` (52, the four headlines). The set paid
+into `Combinatorics/SimpleGraph/Transversal.lean` (21: the prelude plus the eleven graph
+declarations the engine used to carry), `GroupTheory/FreeDoubleCoset.lean` (12),
+`GroupTheory/BassSerre/CosetGraph.lean` (49), `GroupTheory/ModularGroup/FreeProduct.lean` (68),
+`GroupTheory/BassSerre/MinimalPeriod.lean` (75), `GroupTheory/FreeGroup/KuroshRank.lean`
+(104, the Kurosh engine) and `GroupTheory/FreeGroup/SpecialLinearGroupGenerators.lean` (52, the
+four `Matrix.SpecialLinearGroup` headlines — a user-facing API module over the engine, kept for the
+user's import path, not as a checker façade). The set paid
 the measured dedup — 52 copies deleted (39 in the Kurosh engine: 29 Bass–Serre + 10 graph
 transversal; 10 in the façade prelude including `mem_center_iff_eq` 4→1), the one real
 substitution (`det_entries`), `mul_entry` restated because the legacy module's copy is private,
@@ -381,6 +383,17 @@ and the three parser type-only matches declined. It closes the free-group family
 `NumberField.`-qualified aliases of the `Rat*` rows). Records:
 [logs/qexp-and-freegroup.md](../logs/qexp-and-freegroup.md); order:
 [deligneSerre/WORKORDER-FG1-qexp-and-freegroup.md](deligneSerre/WORKORDER-FG1-qexp-and-freegroup.md).
+
+**The last `UpperHalfPlane` row then followed (2026-10-20).** The Fricke conjugate of `U_q`
+(`UpperHalfPlane.sum_slash_S_mul_T_zpow_mul_S_inv_apply_eq_of_fricke_heckeU`, 156 lines) had
+been excluded by the six-family audit on the *shape* test — FLT's Hecke/Fricke layer, not a
+mathlib supplement — although it was never blocked (`Def_ModularForm_HeckeOperator` is homed
+whole). It was taken as `ModularForms/HeckeFrickeTrace.lean` (10 wired, build 3,011 jobs /
+4.4 s, axioms `[propext, Classical.choice, Quot.sound]`, the pin's `ALTraceIdentity` namespace
+kept; the private `frickeGL` copies in the legacy `HeckeNebentypusFricke.lean` are a different
+namespace and were not touched). Checker **+10** (3496 → **3506** over 130 modules); the
+`UpperHalfPlane` demand row is gone and the D-S demand reads **1,258 nodes / 480,148 raw `S_`
+lines**. Record: [logs/hecke-fricke-trace.md](../logs/hecke-fricke-trace.md).
 
 For the landings above that wired into the frozen checker's lists, each delta is exactly its new
 public surface, 0 mismatched / 0 missing; the `localParam` landing has no such delta (§6). Since

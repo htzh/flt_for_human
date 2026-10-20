@@ -22,7 +22,7 @@
   (the statement authority) and
   `P2M/Sol/S_Representation_exists_isCompl_forall_mem_of_compactSpace_of_continuous.lean`
   (112 pin lines, pinned `aa2d8b3`). The pin's public target is its `solution` tail; the
-  port keeps the wrapper's statement verbatim and the pin's `P2MW.S_…` namespace, and
+  port keeps the wrapper's statement verbatim and strips the pin's `P2MW.S_…` wrapper namespace, and
   drops `import Mathlib`/`P2M.Util` in favour of the specific imports below. The
   continuity hypothesis is the pin's weak form and is not strengthened.
 
@@ -68,7 +68,6 @@ universe u v
 
 open MeasureTheory
 
-namespace P2MW.S_Representation_exists_isCompl_forall_mem_of_compactSpace_of_continuous
 
 theorem Representation.exists_isCompl_forall_mem_of_compactSpace_of_continuous
     {H : Type u} [Group H] [TopologicalSpace H] [IsTopologicalGroup H] [CompactSpace H]
@@ -173,4 +172,3 @@ theorem Representation.exists_isCompl_forall_mem_of_compactSpace_of_continuous
   show p (π k v) = 0
   rw [hpeq, hv', map_zero]
 
-end P2MW.S_Representation_exists_isCompl_forall_mem_of_compactSpace_of_continuous

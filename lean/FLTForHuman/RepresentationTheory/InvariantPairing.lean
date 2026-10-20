@@ -16,7 +16,7 @@
   (the statement authority) and
   `P2M/Sol/S_Representation_pairing_eq_zero_of_invariant_of_isSimpleOrder_of_exists_ne_zero.lean`
   (36 pin lines, pinned `aa2d8b3`). The pin's public target is its `solution` tail; the
-  port keeps the wrapper's statement verbatim and the pin's `P2MW.S_…` namespace, and
+  port keeps the wrapper's statement verbatim and strips the pin's `P2MW.S_…` wrapper namespace, and
   drops `import Mathlib`/`P2M.Util` in favour of the specific imports below.
 
   Mathlib-first audit (one line per declaration; the pin's helper-free proof has no
@@ -46,7 +46,6 @@ import Mathlib.RepresentationTheory.Subrepresentation
 
 set_option autoImplicit false
 
-namespace P2MW.S_Representation_pairing_eq_zero_of_invariant_of_isSimpleOrder_of_exists_ne_zero
 
 theorem Representation.pairing_eq_zero_of_invariant_of_isSimpleOrder_of_exists_ne_zero
     {k : Type*} [CommSemiring k] {K : Type*} [Group K]
@@ -79,4 +78,3 @@ theorem Representation.pairing_eq_zero_of_invariant_of_isSimpleOrder_of_exists_n
   have : s' ∈ N := by rw [hT]; trivial
   exact (hmem s').mp this s
 
-end P2MW.S_Representation_pairing_eq_zero_of_invariant_of_isSimpleOrder_of_exists_ne_zero

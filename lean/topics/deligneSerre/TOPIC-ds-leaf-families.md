@@ -322,18 +322,19 @@ remaining cut), the five gate-blocked nodes, and the §5 families / outliers**; 
 the ready tail is owed any more.
 
 **Status 2026-10-20 (later) — wave 3 landed, and two of the five gate-blocked nodes are done.** The
-free-group family was ported whole (WORKORDER-FG1) and re-homed by subject into seven mathlib-shaped
-modules — `Combinatorics/SimpleGraph/Transversal.lean`, `GroupTheory/FreeDoubleCoset.lean`,
-`GroupTheory/CoprodI/{CosetGraph,MinimalPeriod}.lean`,
-`LinearAlgebra/Matrix/SpecialLinearGroup{FreeProduct,FreeGenerators}.lean`,
-`GroupTheory/FreeGroup/KuroshRank.lean` — plus the one-module `UpperHalfPlane` q-expansion trio; the
+free-group family was ported whole (WORKORDER-FG1) and re-homed by subject — the graph lemma under
+`Combinatorics/SimpleGraph/Transversal.lean`, the group theory under
+`GroupTheory/{FreeDoubleCoset,BassSerre/{CosetGraph,MinimalPeriod},ModularGroup/FreeProduct,FreeGroup/KuroshRank}.lean`
+(the four `Matrix.SpecialLinearGroup` headlines in a user-facing API module over the Kurosh engine) — plus the
+one-module `UpperHalfPlane` q-expansion trio; the
 checker is **3496 ok over 129 modules** (from 3010), with the measured dedup paid (52 copies, 39 in
 the Kurosh engine). The two `Rat*` gates that phase 2 deferred
 (`Def_LanglandsTunnell_StandardLocalConstantsAt` and `Def_RatIdele_Normalizer`) were homed whole and
 both nodes ported (`NumberTheory/RatAdele/DenseRange.lean`, `NumberTheory/RatIdele/ClassCharNorm.lean`).
-The live `--ds` rows that remain of this note's subjects: `Matrix` 1 / 1,242 (set MG3 only),
-`UpperHalfPlane` 1 / 156 (the Fricke row, out on the shape test); `SimpleGraph`/`Subgroup`/
-`ModularGroup`/`Monoid`/`RatAdele`/`RatIdele` are gone. The gate-blocked nodes still deferred are
+The live `--ds` rows that remain of this note's subjects: `Matrix` 1 / 1,242 (set MG3 only);
+`SimpleGraph`/`Subgroup`/`ModularGroup`/`Monoid`/`RatAdele`/`RatIdele` are gone, and so is
+`UpperHalfPlane` — its last Fricke row (1 / 156) was taken on 2026-10-20 as
+`ModularForms/HeckeFrickeTrace.lean` (10 wired), clearing the namespace. The gate-blocked nodes still deferred are
 `LocalNewvector` (864-line gate), `HeckeEis.coresHom_eq_transfer` (304) and `EigenformIdeal` (24).
 Records: [../../logs/qexp-and-freegroup.md](../../logs/qexp-and-freegroup.md),
 [../../logs/rat-def-gates.md](../../logs/rat-def-gates.md), [../../logs/rat-nodes.md](../../logs/rat-nodes.md).

@@ -63,17 +63,17 @@ the seven headline homes import their preludes from there. The shipped layout is
 | # | module | pin node(s) | imports |
 |---|--------|-------------|---------|
 | A | `lean/FLTForHuman/NumberTheory/ModularForms/QExpansionCoeff.lean` | the `UpperHalfPlane.qExpansion_*` trio | mathlib |
-| 1 | `lean/FLTForHuman/Combinatorics/SimpleGraph/Transversal.lean` | `SimpleGraph.exists_walkConnected_transversal_of_preconnected` + `GroupTheory.GraphTransversal` prelude | mathlib |
+| 1 | `lean/FLTForHuman/Combinatorics/SimpleGraph/Transversal.lean` | `SimpleGraph.exists_walkConnected_transversal_of_preconnected` + the `SimpleGraph.GraphTransversal` prelude (including the 11 graph declarations moved from the engine) | mathlib |
 | 2 | `lean/FLTForHuman/GroupTheory/FreeDoubleCoset.lean` | `Subgroup.card_orbitRelQuotient_mul_card_eq_index` + `GroupTheory.FreeDoubleCoset` block | mathlib |
-| 3 | `lean/FLTForHuman/GroupTheory/CoprodI/CosetGraph.lean` | `Monoid.CoprodI.isTree_cosetGraph` + Bass–Serre prelude | mathlib |
-| 4 | `lean/FLTForHuman/LinearAlgebra/Matrix/SpecialLinearGroupFreeProduct.lean` | `ModularGroup.exists_mulEquiv_freeProduct_quotient_center` + ping-pong prelude (incl. `mem_center_iff_eq`) | mathlib + `PeterssonCoset` (`det_entries`) |
-| 5 | `lean/FLTForHuman/GroupTheory/CoprodI/MinimalPeriod.lean` | `Monoid.CoprodI.exists_addMonoidHom_conj_pow_minimalPeriod_eq_of_finsum_eq_zero` + prelude | mathlib |
-| 6 | `lean/FLTForHuman/GroupTheory/FreeGroup/KuroshRank.lean` | `Monoid.CoprodI.nonempty_freeGroupBasis_fin_kuroshRank` only | 1 + 2 + 3 |
-| 7 | `lean/FLTForHuman/LinearAlgebra/Matrix/SpecialLinearGroupFreeGenerators.lean` | the four `Matrix.SpecialLinearGroup` headlines + shared prelude | 2 + 4 + 6 |
+| 3 | `lean/FLTForHuman/GroupTheory/BassSerre/CosetGraph.lean` | `Monoid.CoprodI.isTree_cosetGraph` + Bass–Serre prelude | mathlib |
+| 4 | `lean/FLTForHuman/GroupTheory/ModularGroup/FreeProduct.lean` | `ModularGroup.exists_mulEquiv_freeProduct_quotient_center` + ping-pong prelude (incl. `mem_center_iff_eq`) | mathlib + `PeterssonCoset` (`det_entries`) |
+| 5 | `lean/FLTForHuman/GroupTheory/BassSerre/MinimalPeriod.lean` | `Monoid.CoprodI.exists_addMonoidHom_conj_pow_minimalPeriod_eq_of_finsum_eq_zero` + prelude | mathlib |
+| 6 | `lean/FLTForHuman/GroupTheory/FreeGroup/KuroshRank.lean` | the Kurosh engine | 1 + 2 + 3 |
+| 7 | `lean/FLTForHuman/GroupTheory/FreeGroup/SpecialLinearGroupGenerators.lean` | the four `Matrix.SpecialLinearGroup` headlines — the user-facing API module over 6 (kept for discovery, not for the checker) | 2 + 4 + 6 |
 
 Dedup homes: the GraphTransversal prelude in 1, the double-coset block in 2, the Bass–Serre
 prelude in 3, `mem_center_iff_eq` in 4, the `Matrix` prelude in 7. Measured: 4,342 pin lines →
-3,846 module-body lines (496 pin lines not carried; `port_advise` estimated 513 removable).
+~3,730 module-body lines in eight modules (the user-facing API module and the 11-declaration move to the graph module came after the first table; 496 pin lines not carried; `port_advise` estimated 513 removable).
 
 All declarations public except genuinely local helpers; no module `set_option maxHeartbeats`;
 `set_option autoImplicit false`; no `import Mathlib` in a library module.
@@ -159,14 +159,20 @@ The revised deliverable (the engine file keeps its path but shrinks to its own n
 |---|---|---|
 | `Combinatorics/SimpleGraph/Transversal.lean` | `SimpleGraph.exists_walkConnected_transversal_of_preconnected` + `GraphTransversal` prelude | — |
 | `GroupTheory/FreeDoubleCoset.lean` | `Subgroup.card_orbitRelQuotient_mul_card_eq_index` + `GroupTheory.FreeDoubleCoset` block | — |
-| `GroupTheory/CoprodI/CosetGraph.lean` | `Monoid.CoprodI.isTree_cosetGraph` + `BassSerre` prelude | — |
-| `LinearAlgebra/Matrix/SpecialLinearGroupFreeProduct.lean` | `ModularGroup.exists_mulEquiv_freeProduct_quotient_center` + ping-pong prelude | — |
-| `GroupTheory/CoprodI/MinimalPeriod.lean` | `Monoid.CoprodI.exists_addMonoidHom_conj_pow_minimalPeriod_eq_of_finsum_eq_zero` + prelude | — |
+| `GroupTheory/BassSerre/CosetGraph.lean` | `Monoid.CoprodI.isTree_cosetGraph` + `BassSerre` prelude | — |
+| `GroupTheory/ModularGroup/FreeProduct.lean` | `ModularGroup.exists_mulEquiv_freeProduct_quotient_center` + ping-pong prelude | — |
+| `GroupTheory/BassSerre/MinimalPeriod.lean` | `Monoid.CoprodI.exists_addMonoidHom_conj_pow_minimalPeriod_eq_of_finsum_eq_zero` + prelude | — |
 | `GroupTheory/FreeGroup/KuroshRank.lean` | `Monoid.CoprodI.nonempty_freeGroupBasis_fin_kuroshRank` | the three leaf modules |
-| `LinearAlgebra/Matrix/SpecialLinearGroupFreeGenerators.lean` | the four `Matrix.SpecialLinearGroup` headlines + shared prelude | `FreeDoubleCoset`, `…FreeProduct`, `KuroshRank` |
+| `GroupTheory/FreeGroup/KuroshRank.lean` | the four `Matrix.SpecialLinearGroup` headlines + shared prelude | `FreeDoubleCoset`, `…FreeProduct`, `KuroshRank` |
 
 The dedup moves with the subject: the `GraphTransversal` block lives in module 1, the `BassSerre`
 block in module 3, `mem_center_iff_eq` in module 4 (used by 7). Every module keeps its own
 `spec-pin:` wire (its `S_` and `Thm`), its own edit loop and its own flock'd build + checker run.
 The mathlib-first reading is unchanged: `SimpleGraph`/`CoprodI`/`FreeGroupBasis`/`ModularGroup` are
 mathlib vocabulary, and these are supplements in mathlib's own directories.
+
+**Superseded 2026-10-20 by the subject re-homing** (see `logs/qexp-and-freegroup.md` §6): the graph
+theorem and the engine's 11 graph declarations live in `Combinatorics/SimpleGraph/Transversal.lean`
+(`SimpleGraph.GraphTransversal`); the Bass–Serre pair is under `GroupTheory/BassSerre/`; the
+ping-pong equivalence under `GroupTheory/ModularGroup/FreeProduct.lean`; and the four headlines live in the user-facing API module
+row 7 (restored after the user-view review: a façade is not needed, a module named for the API is).

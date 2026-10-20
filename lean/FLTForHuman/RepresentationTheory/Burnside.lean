@@ -21,7 +21,7 @@
   authority) and `P2M/Sol/S_Representation_span_range_eq_top_of_isIrreducible.lean`
   (151 pin lines, pinned `aa2d8b3`). The pin's public target is its `solution` tail; the
   port keeps the wrapper's statement (whose binders are the wrapper's, not the `S_`
-  file's inline ones) verbatim and the pin's `P2MW.S_…` namespace, and drops
+  file's inline ones) verbatim and strips the pin's `P2MW.S_…` wrapper namespace, and drops
   `import P2M.Util` and the `p2m_export`/`p2m_open_scoped` scaffolding.
 
   Two of the node's helpers — `Representation.range_asAlgebraHom_toLinearMap` and
@@ -102,7 +102,6 @@ set_option linter.style.haveILetI false
 
 open Module LinearMap
 
-namespace P2MW.S_Representation_span_range_eq_top_of_isIrreducible
 
 section Burnside
 
@@ -172,4 +171,3 @@ private theorem nontrivial_of_isIrreducible {k G V : Type*} [Field k] [Monoid G]
   have : Nontrivial ρ.asModule := IsSimpleModule.nontrivial (MonoidAlgebra k G) ρ.asModule
   exact ρ.asModuleEquiv.symm.toEquiv.nontrivial
 
-end P2MW.S_Representation_span_range_eq_top_of_isIrreducible

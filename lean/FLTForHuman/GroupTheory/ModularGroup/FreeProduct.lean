@@ -31,7 +31,7 @@
   `moebius`, `permS`/`permU`, `pingPong`, `lift_injective`, `range_lift_eq`,
   `mem_center_iff_eq`, `ker_toPerm_eq_center`, `equivRange`, `mulEquiv`, …).
   `mem_center_iff_eq` is the copy the four `Matrix.SpecialLinearGroup` headlines
-  use: `FLTForHuman/LinearAlgebra/Matrix/SpecialLinearGroupFreeGenerators.lean`
+  use: `FLTForHuman/GroupTheory/FreeGroup/KuroshRank.lean`
   imports this module instead of re-proving it (the pin has five copies, 72
   lines).
 
@@ -64,9 +64,9 @@ set_option autoImplicit false
 open Matrix MatrixGroups ModularGroup
 open scoped Pointwise
 
-namespace ModularCurve
+namespace ModularGroup
 
-namespace ModularGroupPingPong
+namespace PingPong
 
 
 def IrrationalPt : Type := {x : ℝ // Irrational x}
@@ -556,9 +556,9 @@ theorem mulEquiv_of_one :
     mulEquiv (Monoid.CoprodI.of (i := 1) (Multiplicative.ofAdd 1)) = QuotientGroup.mk (S * T) :=
   mulEquiv_apply_of_eq 1 _ (S * T) (by rw [incl_ofAdd_one, gen_one, permU])
 
-end ModularGroupPingPong
+end PingPong
 
-end ModularCurve
+end ModularGroup
 
 
 theorem ModularGroup.exists_mulEquiv_freeProduct_quotient_center :
@@ -568,8 +568,8 @@ theorem ModularGroup.exists_mulEquiv_freeProduct_quotient_center :
           (Multiplicative.ofAdd 1)) = QuotientGroup.mk ModularGroup.S ∧
       e (Monoid.CoprodI.of (M := fun i : Fin 2 => Multiplicative (ZMod (i.val + 2))) (i := 1)
           (Multiplicative.ofAdd 1)) = QuotientGroup.mk (ModularGroup.S * ModularGroup.T) :=
-  ⟨ModularCurve.ModularGroupPingPong.mulEquiv, ModularCurve.ModularGroupPingPong.mulEquiv_of_zero,
-    ModularCurve.ModularGroupPingPong.mulEquiv_of_one⟩
+  ⟨ModularGroup.PingPong.mulEquiv, ModularGroup.PingPong.mulEquiv_of_zero,
+    ModularGroup.PingPong.mulEquiv_of_one⟩
 
 
 

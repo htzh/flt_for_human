@@ -33,6 +33,7 @@
 
   spec-pin: P2M/Sol/S_SimpleGraph_exists_walkConnected_transversal_of_preconnected.lean
   spec-pin: Theorems/Thm_SimpleGraph_exists_walkConnected_transversal_of_preconnected.lean
+  spec-pin: P2M/Sol/S_Monoid_CoprodI_nonempty_freeGroupBasis_fin_kuroshRank.lean
 -/
 import Mathlib.Combinatorics.SimpleGraph.Connectivity.Connected
 import Mathlib.Combinatorics.SimpleGraph.Walk.Basic
@@ -46,7 +47,7 @@ set_option autoImplicit false
 
 open Subgroup MulAction SimpleGraph Monoid
 
-namespace GroupTheory
+namespace SimpleGraph
 
 namespace GraphTransversal
 
@@ -181,9 +182,68 @@ theorem exists_isConnectedTransversal
 
   exact hwD (hDmax hins (Set.subset_insert w D) (Set.mem_insert w D))
 
+
+variable {V : Type*} {T : SimpleGraph V} {Γ : Type*} [Group Γ] [MulAction Γ V]
+
+variable {D : Set V}
+
+noncomputable def orbitRepr (hD : IsConnectedTransversal T Γ D) (v : V) : V :=
+  (hD.exists_mem_orbit v).choose
+
+theorem orbitRepr_mem (hD : IsConnectedTransversal T Γ D) (v : V) : orbitRepr hD v ∈ D :=
+  (hD.exists_mem_orbit v).choose_spec.1
+
+theorem orbitRepr_mem_orbit (hD : IsConnectedTransversal T Γ D) (v : V) :
+    orbitRepr hD v ∈ orbit Γ v :=
+  (hD.exists_mem_orbit v).choose_spec.2
+
+noncomputable def transl (hD : IsConnectedTransversal T Γ D) (v : V) : Γ :=
+  (orbitRepr_mem_orbit hD v).choose⁻¹
+
+theorem transl_smul_orbitRepr (hD : IsConnectedTransversal T Γ D) (v : V) :
+    transl hD v • orbitRepr hD v = v :=
+  inv_smul_eq_iff.mpr (orbitRepr_mem_orbit hD v).choose_spec.symm
+
+theorem orbitRepr_eq_self (hD : IsConnectedTransversal T Γ D) {v : V} (hv : v ∈ D) :
+    orbitRepr hD v = v :=
+  hD.eq_of_mem_orbit _ (orbitRepr_mem hD v) _ hv (orbitRepr_mem_orbit hD v)
+
+theorem orbitRepr_smul (hD : IsConnectedTransversal T Γ D) (γ : Γ) (v : V) :
+    orbitRepr hD (γ • v) = orbitRepr hD v := by
+  refine hD.eq_of_mem_orbit _ (orbitRepr_mem hD _) _ (orbitRepr_mem hD _) ?_
+  rw [MulAction.orbit_eq_iff.mpr (orbitRepr_mem_orbit hD v), ← MulAction.orbit_smul γ v]
+  exact orbitRepr_mem_orbit hD (γ • v)
+
+theorem eq_of_smul_eq_smul_of_free (hfree : ∀ (γ : Γ) (v : V), γ • v = v → γ = 1)
+    {γ γ' : Γ} {v : V} (h : γ • v = γ' • v) : γ = γ' := by
+  have h1 : (γ'⁻¹ * γ) • v = v := by rw [mul_smul, h, inv_smul_smul]
+  have h2 := hfree _ _ h1
+  rwa [inv_mul_eq_one, eq_comm] at h2
+
+theorem transl_eq_one (hD : IsConnectedTransversal T Γ D)
+    (hfree : ∀ (γ : Γ) (v : V), γ • v = v → γ = 1) {v : V} (hv : v ∈ D) :
+    transl hD v = 1 := by
+  apply hfree _ v
+  have h := transl_smul_orbitRepr hD v
+  rwa [orbitRepr_eq_self hD hv] at h
+
+theorem mem_of_transl_eq_one (hD : IsConnectedTransversal T Γ D) {v : V}
+    (h : transl hD v = 1) : v ∈ D := by
+  have h1 := transl_smul_orbitRepr hD v
+  rw [h, one_smul] at h1
+  rw [← h1]
+  exact orbitRepr_mem hD v
+
+theorem transl_smul (hD : IsConnectedTransversal T Γ D)
+    (hfree : ∀ (γ : Γ) (v : V), γ • v = v → γ = 1) (γ : Γ) (v : V) :
+    transl hD (γ • v) = γ * transl hD v := by
+  refine eq_of_smul_eq_smul_of_free hfree (v := orbitRepr hD v) ?_
+  rw [mul_smul, transl_smul_orbitRepr, ← orbitRepr_smul hD γ v, transl_smul_orbitRepr]
+
+
 end GraphTransversal
 
-end GroupTheory
+end SimpleGraph
 
 
 theorem SimpleGraph.exists_walkConnected_transversal_of_preconnected {V : Type*} {T : SimpleGraph V} {Γ : Type*} [Group Γ] [MulAction Γ V]
@@ -193,7 +253,7 @@ theorem SimpleGraph.exists_walkConnected_transversal_of_preconnected {V : Type*}
       (∀ v ∈ D, ∀ w ∈ D, ∃ p : T.Walk v w, ∀ x ∈ p.support, x ∈ D) ∧
       (∀ v ∈ D, ∀ w ∈ D, v ∈ MulAction.orbit Γ w → v = w) ∧
       (∀ u : V, ∃ v ∈ D, v ∈ MulAction.orbit Γ u) := by
-  obtain ⟨D, h0, hD⟩ := GroupTheory.GraphTransversal.exists_isConnectedTransversal hsmul hpre v₀
+  obtain ⟨D, h0, hD⟩ := SimpleGraph.GraphTransversal.exists_isConnectedTransversal hsmul hpre v₀
   exact ⟨D, h0, hD.walkConnected, hD.eq_of_mem_orbit, hD.exists_mem_orbit⟩
 
 

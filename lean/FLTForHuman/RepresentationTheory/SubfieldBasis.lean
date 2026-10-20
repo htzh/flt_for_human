@@ -26,7 +26,7 @@
   `P2M/Sol/S_Representation_exists_basis_toMatrix_mem_subfield_of_trace_det_mem_of_hasEigenvalue.lean`
   (291 pin lines / 17 public declarations, pinned `aa2d8b3`). The pin's public target is
   its `solution` tail; the port keeps the wrapper's statement verbatim and the pin's
-  `P2MW.S_…` namespace and `P2mWs11Desc` inner namespace, keeps the pin's `variable`
+  `P2MW.S_…` wrapper namespace (removed) and renames the pin's `P2mWs11Desc` engine namespace to `Representation.SubfieldBasisAux`, keeps the pin's `variable`
   binders (so the `variable (ρ : G →* (V ≃ₗ[Ω] V))` block and its later `variable {ρ}`
   stay exactly where the pin has them), and drops `import Mathlib`/`P2M.Util` in favour of
   the specific imports below. The pin's `set_option maxHeartbeats 6400000` is **not**
@@ -115,9 +115,8 @@ set_option linter.style.haveILetI false
 
 open Module
 
-namespace P2MW.S_Representation_exists_basis_toMatrix_mem_subfield_of_trace_det_mem_of_hasEigenvalue
 
-namespace P2mWs11Desc
+namespace Representation.SubfieldBasisAux
 
 variable {Ω : Type*} [Field Ω] {V : Type*} [AddCommGroup V] [Module Ω V] {G : Type*} [Group G]
 
@@ -386,7 +385,7 @@ theorem main (F : Subfield Ω) (ρ : G →* (V ≃ₗ[Ω] V)) (hV : finrank Ω V
       fin_cases i <;> fin_cases j
       exacts [(hdiag h).1, hq h, hr h, (hdiag h).2]⟩
 
-end P2mWs11Desc
+end Representation.SubfieldBasisAux
 
 theorem Representation.exists_basis_toMatrix_mem_subfield_of_trace_det_mem_of_hasEigenvalue
     {Ω : Type*} [Field Ω] {V : Type*} [AddCommGroup V] [Module Ω V] {G : Type*} [Group G]
@@ -398,6 +397,5 @@ theorem Representation.exists_basis_toMatrix_mem_subfield_of_trace_det_mem_of_ha
     (hns : (ρ g₀).toLinearMap ≠ a • LinearMap.id) :
     ∃ b : Module.Basis (Fin 2) Ω V,
       ∀ g (i j : Fin 2), LinearMap.toMatrix b b (ρ g).toLinearMap i j ∈ F :=
-  P2mWs11Desc.main F ρ hV hirr htr hdet g₀ a haF hev hns
+  Representation.SubfieldBasisAux.main F ρ hV hirr htr hdet g₀ a haF hev hns
 
-end P2MW.S_Representation_exists_basis_toMatrix_mem_subfield_of_trace_det_mem_of_hasEigenvalue

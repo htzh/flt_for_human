@@ -60,7 +60,7 @@ open Subgroup Monoid Monoid.CoprodI MulAction
 
 noncomputable section
 
-namespace BassSerreCusp
+namespace GroupTheory.BassSerre
 
 section EdgeChain
 
@@ -565,7 +565,7 @@ theorem engine (H : Subgroup Gp) [H.FiniteIndex] (R : Type*) [AddCommGroup R]
       Finset.sum_eq_zero fun c _ => ite_eq_right h
     rw [h2, sub_zero]
 
-end BassSerreCusp
+end GroupTheory.BassSerre
 
 
 theorem Monoid.CoprodI.exists_addMonoidHom_conj_pow_minimalPeriod_eq_of_finsum_eq_zero
@@ -587,7 +587,7 @@ theorem Monoid.CoprodI.exists_addMonoidHom_conj_pow_minimalPeriod_eq_of_finsum_e
           = a (Quotient.mk (MulAction.orbitRel (Subgroup.zpowers t) _)
               (g : Monoid.CoprodI (fun i : Fin 2 => Multiplicative (ZMod (i.val + 2))) ⧸ H)) := by
   subst ht
-  obtain ⟨φ, hφ⟩ := BassSerreCusp.engine H R a ha
+  obtain ⟨φ, hφ⟩ := GroupTheory.BassSerre.engine H R a ha
   exact ⟨φ, fun g hg => hφ g⟩
 
 

@@ -5,7 +5,7 @@
 
   The node is `Monoid.CoprodI.nonempty_freeGroupBasis_fin_kuroshRank` (pin lines
   1-1545).  The proof builds a Bass–Serre tree for the action of
-  `CoprodI G` on the coset graph (`FLTForHuman/GroupTheory/CoprodI/CosetGraph.lean`),
+  `CoprodI G` on the coset graph (`FLTForHuman/GroupTheory/BassSerre/CosetGraph.lean`),
   a connected orbit transversal
   (`FLTForHuman/Combinatorics/SimpleGraph/Transversal.lean`), counts the vertex
   and edge orbits by the double-coset formula
@@ -32,7 +32,7 @@
   `eq_one_of_mem_range_of_mem_range`, `range_inf_range_eq_bot`, `eq_of_mk_eq_mk`,
   `adj_base_iff`, `isTree_of_isAcyclic`, `isAcyclic_two`, `isTree_two`,
   `fromRel_eq_graph`) is the copy of
-  `FLTForHuman/GroupTheory/CoprodI/CosetGraph.lean`; `GroupTheory.GraphTransversal`
+  `FLTForHuman/GroupTheory/BassSerre/CosetGraph.lean`; `GroupTheory.GraphTransversal`
   (`WalkConnected`, `IsConnectedTransversal`, `walkConnected_singleton`,
   `insert_of_adj`, `walkConnected_sUnion`, `eq_of_mem_orbit_*`,
   `exists_adj_of_walk`, `exists_isConnectedTransversal`) is the copy of
@@ -49,9 +49,10 @@
 
   spec-pin: P2M/Sol/S_Monoid_CoprodI_nonempty_freeGroupBasis_fin_kuroshRank.lean
   spec-pin: Theorems/Thm_Monoid_CoprodI_nonempty_freeGroupBasis_fin_kuroshRank.lean
+
 -/
 import FLTForHuman.Combinatorics.SimpleGraph.Transversal
-import FLTForHuman.GroupTheory.CoprodI.CosetGraph
+import FLTForHuman.GroupTheory.BassSerre.CosetGraph
 import FLTForHuman.GroupTheory.FreeDoubleCoset
 import Mathlib.Combinatorics.SimpleGraph.Acyclic
 import Mathlib.Data.ZMod.Basic
@@ -268,70 +269,10 @@ open Subgroup MulAction SimpleGraph SimpleGraph Monoid
 
 namespace GroupTheory
 
-namespace GraphTransversal
-
-variable {V : Type*} {T : SimpleGraph V} {Γ : Type*} [Group Γ] [MulAction Γ V]
-
-variable {D : Set V}
-
-noncomputable def orbitRepr (hD : IsConnectedTransversal T Γ D) (v : V) : V :=
-  (hD.exists_mem_orbit v).choose
-
-theorem orbitRepr_mem (hD : IsConnectedTransversal T Γ D) (v : V) : orbitRepr hD v ∈ D :=
-  (hD.exists_mem_orbit v).choose_spec.1
-
-theorem orbitRepr_mem_orbit (hD : IsConnectedTransversal T Γ D) (v : V) :
-    orbitRepr hD v ∈ orbit Γ v :=
-  (hD.exists_mem_orbit v).choose_spec.2
-
-noncomputable def transl (hD : IsConnectedTransversal T Γ D) (v : V) : Γ :=
-  (orbitRepr_mem_orbit hD v).choose⁻¹
-
-theorem transl_smul_orbitRepr (hD : IsConnectedTransversal T Γ D) (v : V) :
-    transl hD v • orbitRepr hD v = v :=
-  inv_smul_eq_iff.mpr (orbitRepr_mem_orbit hD v).choose_spec.symm
-
-theorem orbitRepr_eq_self (hD : IsConnectedTransversal T Γ D) {v : V} (hv : v ∈ D) :
-    orbitRepr hD v = v :=
-  hD.eq_of_mem_orbit _ (orbitRepr_mem hD v) _ hv (orbitRepr_mem_orbit hD v)
-
-theorem orbitRepr_smul (hD : IsConnectedTransversal T Γ D) (γ : Γ) (v : V) :
-    orbitRepr hD (γ • v) = orbitRepr hD v := by
-  refine hD.eq_of_mem_orbit _ (orbitRepr_mem hD _) _ (orbitRepr_mem hD _) ?_
-  rw [MulAction.orbit_eq_iff.mpr (orbitRepr_mem_orbit hD v), ← MulAction.orbit_smul γ v]
-  exact orbitRepr_mem_orbit hD (γ • v)
-
-theorem eq_of_smul_eq_smul_of_free (hfree : ∀ (γ : Γ) (v : V), γ • v = v → γ = 1)
-    {γ γ' : Γ} {v : V} (h : γ • v = γ' • v) : γ = γ' := by
-  have h1 : (γ'⁻¹ * γ) • v = v := by rw [mul_smul, h, inv_smul_smul]
-  have h2 := hfree _ _ h1
-  rwa [inv_mul_eq_one, eq_comm] at h2
-
-theorem transl_eq_one (hD : IsConnectedTransversal T Γ D)
-    (hfree : ∀ (γ : Γ) (v : V), γ • v = v → γ = 1) {v : V} (hv : v ∈ D) :
-    transl hD v = 1 := by
-  apply hfree _ v
-  have h := transl_smul_orbitRepr hD v
-  rwa [orbitRepr_eq_self hD hv] at h
-
-theorem mem_of_transl_eq_one (hD : IsConnectedTransversal T Γ D) {v : V}
-    (h : transl hD v = 1) : v ∈ D := by
-  have h1 := transl_smul_orbitRepr hD v
-  rw [h, one_smul] at h1
-  rw [← h1]
-  exact orbitRepr_mem hD v
-
-theorem transl_smul (hD : IsConnectedTransversal T Γ D)
-    (hfree : ∀ (γ : Γ) (v : V), γ • v = v → γ = 1) (γ : Γ) (v : V) :
-    transl hD (γ • v) = γ * transl hD v := by
-  refine eq_of_smul_eq_smul_of_free hfree (v := orbitRepr hD v) ?_
-  rw [mul_smul, transl_smul_orbitRepr, ← orbitRepr_smul hD γ v, transl_smul_orbitRepr]
-
-end GraphTransversal
 
 namespace BassSerre
 
-open GraphTransversal
+open SimpleGraph.GraphTransversal
 
 variable {G : Fin 2 → Type*} [∀ i, Group (G i)] {H : Subgroup (CoprodI G)}
   {D : Set (Vertex G)}
@@ -1298,5 +1239,3 @@ theorem Monoid.CoprodI.nonempty_freeGroupBasis_fin_kuroshRank {G : Fin 2 → Typ
     rintro i g x ⟨a, rfl⟩ h
     rw [hH i g a h, map_one]
   exact GroupTheory.Kurosh.kuroshRankFormula G H inferInstance hCT
-
-
