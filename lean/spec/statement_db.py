@@ -38,14 +38,14 @@ What the columns mean
   citation should point at, and what the pin's docs-site index records); an
   `@[...]` attribute line above it belongs to the signature column.
 * `kind` -- `theorem`/`lemma`/`def`/`abbrev`/`structure`/`class`/`instance`, as the
-  checker's own `DECL_RE` reads it.
+  parser's own `DECL_RE` reads it.
 * `flags` -- two characters: `p`/`-` private, `a`/`-` anonymous instance.
 * `name` -- the name as the pin writes it (enclosing namespaces included, `_root_.`
   left alone).  It may be empty, for an anonymous instance.
 * `nhash` -- `sha1` of the **checker-normalised** statement, 20 hex characters.  This
   is the matching key: normalise a port declaration's statement, hash it, and
   `rg -F '\\t<hash>\\t'` finds every pin copy in ~0.1 s.  Normalisation follows
-  `spec/old_check_stmts.py` (`ModularCurve.`/`AlgebraicCurve.`/`kw_` prefixes
+  `spec/lean_parser.py` (`ModularCurve.`/`AlgebraicCurve.`/`kw_` prefixes
   erased), which is what a statement diff compares.
 * `signature` -- the *raw* signature with `--` comments dropped and whitespace
   collapsed: the declaration as printed, up to the first top-level `:=`/`where`
@@ -65,9 +65,10 @@ and lets a consumer tell a stale corpus from a current one.
 
 What it is not
 --------------
-* Not a second parser.  `DECL_RE`/`ENCLOSE_RE`/`norm`/`top_level_cut` are imported
-  from `spec/old_check_stmts.py`, so the corpus cannot drift from the checker's
-  view of a statement.  `verify` holds every `SOURCES` file to that parse.
+* Not a second parser.  `DECL_RE`/`ENCLOSE_RE`/`norm`/`top_level_cut` come from
+  `spec/lean_parser.py`, the one parser the new checker, the corpus and the
+  planning tools share; the frozen `old_check_stmts.py` imports it too.  `verify`
+  holds every `SOURCES` file to that parse.
 * Not a source of truth.  It is regenerated atomically; tools read the TSV (or the
   `.idx`), never a hand-edited copy.
 * Not complete beyond the parser: anonymous instances are indexed (`flags` ends in
@@ -101,10 +102,14 @@ from collections import Counter
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent          # lean/spec/
+if str(HERE) not in sys.path:
+    sys.path.insert(0, str(HERE))
+import lean_parser as P  # noqa: E402  (the parser, not the legacy registry)
 REPO = HERE.parent.parent
-# The frozen legacy checker: its *parser* is still the definition of "the same
-# statement" (imported here), but its registry lists are retired -- do not add to
-# them.  New modules wire themselves with `spec-pin:` and `spec/check_port.py`.
+# The frozen legacy registry (`PORT_FILES`/`SOURCES`), read here only for
+# `legacy_port_files`/`legacy_source_files`; do not add to its lists.  The parser
+# is `spec/lean_parser.py`, imported above.  New modules wire themselves with
+# `spec-pin:` and are checked by `spec/check_port.py`.
 CHECKER_PATH = HERE / "old_check_stmts.py"
 PIN_DEFAULT = Path.home() / "proj" / "fermats-last-theorem"
 CACHE = REPO / "tmp" / "flt-statements"
@@ -116,24 +121,12 @@ SKIP_DIRS = {".lake", "html", "build", ".git"}
 NCOL = 8                    # path line end_line kind flags name nhash signature
 SIG_COL = NCOL - 1
 
-CK = None                   # the checker module, set in each process
 _PIN_ROOT = ""
 
 
 # --------------------------------------------------------------------- parsing
 # Everything down to `_worker` is the checker's parser, run over the
 # comment-blanked text so line numbers survive; see the module docstring.
-def load_checker(path: Path = CHECKER_PATH):
-    """The legacy checker, as a module: its parser *is* the semantics to reproduce."""
-    if not path.exists():
-        sys.exit(f"statement_db: cannot find the statement checker at {path}")
-    spec = importlib.util.spec_from_file_location("_stmt_checker", path)
-    mod = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = mod
-    spec.loader.exec_module(mod)
-    return mod
-
-
 def flat_code(text: str) -> str:
     """`text` with block comments blanked, newlines kept, so line numbers survive.
 
@@ -184,7 +177,7 @@ def _structure_end(raw_lines: list[str], header_end: int, limit: int) -> int:
     return max(header_end, limit - 1)
 
 
-def parse_file(rel: str, text: str, ck=None) -> tuple[list[tuple], int]:
+def parse_file(rel: str, text: str) -> tuple[list[tuple], int]:
     """(rows, line_count) for one Lean file.
 
     A row is `(line, end_line, name, last, kind, private, stmt, raw, nhash)`, in
@@ -192,12 +185,11 @@ def parse_file(rel: str, text: str, ck=None) -> tuple[list[tuple], int]:
     declaration walk (position, namespace stack, name and kind, exactly as
     `old_check_stmts.raw_declarations` does it) and the signature slice.
     """
-    ck = ck or CK
     code = flat_code(text)
     raw_lines = text.split("\n")
     starts = _line_starts(code)
 
-    named = list(ck.DECL_RE.finditer(code))
+    named = list(P.DECL_RE.finditer(code))
     named_starts = [m.start() for m in named]
     named_at = set(named_starts)
     anon = [m for m in ANON_RE.finditer(code) if m.start() not in named_at]
@@ -209,7 +201,7 @@ def parse_file(rel: str, text: str, ck=None) -> tuple[list[tuple], int]:
     decls += [(m.start(), m.end(), "instance", "private" in m.group("mods"), None)
               for m in anon]
     decls.sort()
-    events = ck.namespace_events(code)
+    events = P.namespace_events(code)
     stack: list[str | None] = []
     ei = 0
     rows: list[tuple] = []
@@ -222,8 +214,8 @@ def parse_file(rel: str, text: str, ck=None) -> tuple[list[tuple], int]:
                 # a `section`/`mutual` frame holds no name, but its `end` must pop
                 # this placeholder rather than the enclosing namespace
                 stack.append(None)
-            elif stack:
-                stack.pop()
+            else:
+                P.pop_frames(stack, ename)
             ei += 1
         # The chunk boundary is the next *named* declaration, exactly as in the
         # checker: an anonymous instance indexed here must not shorten the
@@ -232,12 +224,12 @@ def parse_file(rel: str, text: str, ck=None) -> tuple[list[tuple], int]:
         k = bisect.bisect_right(named_starts, start)
         end = named_starts[k] if k < len(named_starts) else len(code)
         chunk = code[name_end:end]
-        cut = ck.top_level_cut(chunk)
+        cut = P.top_level_cut(chunk)
         if kind in ("structure", "class"):
-            stmt = ck.norm(chunk[:cut]) + " FIELDS " + " ".join(
-                ck.FIELD_RE.findall(chunk))
+            stmt = P.norm(chunk[:cut]) + " FIELDS " + " ".join(
+                P.FIELD_RE.findall(chunk))
         else:
-            stmt = ck.norm(chunk[:cut])
+            stmt = P.norm(chunk[:cut])
         # `line` is the declaration's *keyword* line (what a citation should point
         # at, and what the pin's own docs-site index records); the attribute line an
         # `@[...]` may sit on belongs to `raw`, which therefore starts one line up.
@@ -260,11 +252,11 @@ def parse_file(rel: str, text: str, ck=None) -> tuple[list[tuple], int]:
                 col = (name_end + cut) - ls      # column of the cut in its line
                 raw = raw[:len(raw) - len(code_last)] + code_last[:col]
         raw = raw.rstrip()
-        prefix = ck.enclosing_namespace(stack)
+        prefix = P.enclosing_namespace(stack)
         name = (f"{prefix}.{written}" if prefix else written) if written else ""
         rows.append((
             line, end_line, name,
-            ck.promoted_key(name) if name else "",
+            P.promoted_key(name) if name else "",
             name.rsplit(".", 1)[-1] if name else "", kind,
             1 if is_priv else 0, 0 if written else 1,
             stmt, raw,
@@ -285,10 +277,9 @@ def _worker(rel: str) -> tuple[str, list[tuple], int]:
 
 
 
-def _init_worker(checker_path: str, pin_root: str) -> None:
-    global CK, _PIN_ROOT
+def _init_worker(pin_root: str) -> None:
+    global _PIN_ROOT
     _PIN_ROOT = pin_root
-    CK = load_checker(Path(checker_path))
 
 
 def row_line(rel: str, r) -> str:
@@ -330,21 +321,20 @@ def pin_commit(pin: Path) -> str:
 
 
 def checker_sha1() -> str:
-    """Digest of the legacy *parser*, not of its frozen registry lists.
+    """Digest of the statement parser (`lean_parser`), not of any registry list.
 
-    The old checker is now being dismantled one module at a time: every handoff
+    The legacy registry is being dismantled one module at a time: every handoff
     deletes a `PORT_FILES` line, and every handoff must not invalidate a 1 GB corpus
     that nothing about the parser changed.  So the digest covers the regexes, the
     name-prefix and kind tables, and the functions that read a statement -- not the
     lists.
     """
-    ck = load_checker()
-    parts = [ck.DECL_RE.pattern, ck.ENCLOSE_RE.pattern, ck.FIELD_RE.pattern,
-             repr(ck.PIN_PREFIXES), repr(ck.KIND_EQUIV)]
-    for fn in (ck.strip_comments, ck.strip_line_comments, ck.namespace_events,
-               ck.enclosing_namespace, ck.top_level_cut, ck.norm,
-               ck.raw_declarations, ck.declarations, ck.promoted_key,
-               ck.strip_pin_prefix, ck.same_kind):
+    parts = [P.DECL_RE.pattern, P.ENCLOSE_RE.pattern, P.FIELD_RE.pattern,
+             repr(P.PIN_PREFIXES), repr(P.KIND_EQUIV)]
+    for fn in (P.strip_comments, P.strip_line_comments, P.namespace_events,
+               P.enclosing_namespace, P.pop_frames, P.top_level_cut, P.norm,
+               P.raw_declarations, P.declarations, P.promoted_key,
+               P.strip_pin_prefix, P.same_kind):
         parts.append(inspect.getsource(fn))
     return hashlib.sha1("\n".join(parts).encode()).hexdigest()
 
@@ -435,7 +425,7 @@ def build(pin: Path, out: Path = TSV_DEFAULT, jobs: int = 1,
     pos = 0
     with tsv_tmp.open("wb") as fh, idx_tmp.open("w", encoding="utf-8") as ix:
         with mp.Pool(jobs, initializer=_init_worker,
-                     initargs=(str(CHECKER_PATH), str(pin))) as pool:
+                     initargs=(str(pin),)) as pool:
             # ordered: the file must be sorted by path, line (and the .idx with it)
             for rel, rows, _lines in pool.imap(
                     _worker, [rel for rel, _s, _m in files], chunksize=8):
@@ -620,10 +610,7 @@ class Statements:
         if kind:
             # the checker's equivalence, not a string compare: it treats
             # theorem/lemma/def as one kind
-            global CK
-            if CK is None:
-                CK = load_checker()
-            rows = [r for r in rows if CK.same_kind(kind, r["kind"])]
+            rows = [r for r in rows if P.same_kind(kind, r["kind"])]
         return rows[:limit] if limit else rows
 
     def by_hashes(self, hashes) -> dict[str, list[dict]]:
@@ -852,8 +839,6 @@ def _sample_files(pin: Path) -> list[str]:
 
 
 def selftest() -> int:
-    global CK
-    CK = load_checker()
     pin = PIN_DEFAULT
     if not pin.is_dir():
         sys.exit(f"statement_db selftest: pin clone not found at {pin}")
@@ -870,7 +855,7 @@ def selftest() -> int:
         # (1) the corpus's statement view == the legacy checker's own parse
         mine = [(r[2], r[5], r[8]) for r in rows if not r[7]]
         theirs = [(raw, kind, stmt) for raw, kind, stmt
-                  in CK.raw_declarations(text, include_private=True)]
+                  in P.raw_declarations(text, include_private=True)]
         assert len(mine) == len(theirs), (rel, len(mine), len(theirs))
         for k, (x, y) in enumerate(zip(mine, theirs)):
             assert x[0] == y[0], f"{rel} #{k} name {x[0]!r} != {y[0]!r}"
@@ -881,7 +866,7 @@ def selftest() -> int:
             assert nhash == hashlib.sha1(stmt.encode()).hexdigest()[:20], name
             assert raw.strip(), f"{rel}:{line} empty signature"
             if kind not in ("structure", "class"):
-                again = CK.norm(raw[:CK.top_level_cut(raw)])
+                again = P.norm(raw[:P.top_level_cut(raw)])
                 assert again.endswith(stmt), (
                     f"{rel}:{line} {name} signature/norm drift:\n"
                     f"  sig->{again!r}\n  stmt->{stmt!r}")
@@ -925,7 +910,6 @@ def selftest() -> int:
 
 def verify(a) -> int:
     """Every pin file the legacy checker reads: the corpus must equal its parse."""
-    CK = load_checker()
     pin = Path(a.pin)
     sources = legacy_source_files()
     db = Statements(Path(a.tsv))
@@ -941,7 +925,7 @@ def verify(a) -> int:
             continue
         theirs = [(raw, kind, hashlib.sha1(stmt.encode()).hexdigest()[:20])
                   for raw, kind, stmt
-                  in CK.raw_declarations(p.read_text(encoding="utf-8"),
+                  in P.raw_declarations(p.read_text(encoding="utf-8"),
                                          include_private=True)]
         mine = [(r["name"], r["kind"], r["nhash"]) for r in rows if not r["anon"]]
         checked += 1

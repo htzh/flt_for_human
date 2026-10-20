@@ -353,3 +353,231 @@ round promotes what generalizes.
   so the checker is unaffected. `Mathlib.LinearAlgebra.Matrix.Notation` did not move.
 - **seen**: 2026-10-14; `lean/FLTForHuman/AutomorphicForm/Iwasawa/Complex/Basic.lean`; tier-0 exit 0
   with 0 warnings after the swap.
+
+## FR-0023 [lean] [imports] — a `scoped instance` on a restricted product only elaborates if the *mathlib* module supplying its pointwise instances is imported
+
+- **where**: `NumberTheory/RatIdele/ClassCharNorm.lean`, the pin's
+  `private scoped instance : TotallyDisconnectedSpace 𝔸ℚf` (and its `ᵐᵒᵖ`/`ˣ` companions).
+- **symptom**: the instance body is pin-verbatim, yet elaboration stops with
+  `failed to synthesize instance of type class TotallyDisconnectedSpace ((a : HeightOneSpectrum
+  (𝓞 ℚ)) → HeightOneSpectrum.adicCompletion ℚ a)`. `TotallyDisconnectedSpace 𝔸ℚf` needs the Pi
+  instance, and the Pi instance needs each place's completion to be totally disconnected; the
+  per-place fact in `v4.34.0` comes from `NonarchimedeanAddGroup.instTotallySeparated`, a lemma of
+  `Mathlib.Topology.Algebra.Nonarchimedean.TotallyDisconnected`.
+- **cause**: the pin reached that mathlib module through `Def_NumberField_TateGlobalZeta`'s import
+  cone. The port's homed premise modules (`AdelicHaar/PlaceMeasure`, `AdelicModulus`,
+  `TateGlobalContinuousIdeleNorm`, `RatIdele/Normalizer`) are narrower and do not pull it, and the
+  instance is *scoped*, so no downstream module was ever forced to import it either. Nothing about
+  the statement or the proof is pin-specific here.
+- **fix**: `import Mathlib.Topology.Algebra.Nonarchimedean.TotallyDisconnected` (one line, no
+  statement change; the instance stays pin-verbatim). Diagnose this class of failure with
+  `#synth TotallyDisconnectedSpace (v.adicCompletion K)` in a scratch file: if it succeeds after the
+  import and fails before it, the problem is the import cone, not the instance.
+- **seen**: 2026-10-20; `NumberTheory/RatIdele/ClassCharNorm.lean`; 0 warnings after the import.
+
+## FR-0024 [lean] — `(↑x).1` on an idèle is only type-correct at *default* transparency, so `Function.update_*` rewrites stop matching
+
+- **where**: `NumberTheory/RatIdele/ClassCharNorm.lean`, the pin helper `coe_archCentralUnit_eq`.
+- **symptom**: the pin proves it by `Prod.ext`/`funext`, then `rw [Function.update_self]` (resp.
+  `Function.update_of_ne`) for the `w = Rat.infinitePlace` (resp. `≠`) branch. In `v4.34.0` both
+  `rw`s fail with *"Did not find an occurrence of the pattern `Function.update ?f ?a ?v ?a`"*, and
+  the reported goal is not even type-correct: `Application type mismatch: The argument
+  ↑(AdelicVolume.archCentralUnit ℚ Rat.infinitePlace b) has type 𝔸ℚ but is expected to have type
+  InfiniteAdeleRing ℚ × 𝔸ℚf`.
+- **cause**: `AdeleRing R K` is a `def` (`InfiniteAdeleRing K × FiniteAdeleRing R K`), so the
+  projection notation `(↑x).1` elaborates by unfolding it at default transparency, while `rw`'s
+  matcher re-checks the goal at *implicit* transparency and sees the ill-typed spelling. Nothing is
+  wrong with the mathematics; the same proof shape does work in files where the target is a bare
+  `Prod`.
+- **fix**: use the definitional fact instead of rewriting — the port's `archCentralUnit`'s `val`
+  field *is* that `Function.update` pair, so `coe_archCentralUnit_eq` is closed by `rfl` (same
+  statement, shorter proof). General prescription: if a pin proof rewrites inside `(↑x).1`/`.2`,
+  state the pair equality and discharge it by `rfl`/`Prod.ext` *before* rewriting, rather than
+  trying to rewrite the projected goal.
+- **seen**: 2026-10-20; `NumberTheory/RatIdele/ClassCharNorm.lean`.
+
+## FR-0025 [lean] [checker] — two `v4.34` linters fire on *pin-verbatim* proof text (`haveI` in a proposition goal, a dead `first` branch)
+
+- **where**: `NumberTheory/RatAdele/DenseRange.lean` (`exists_generator`,
+  `valued_algebraMap_adicCompletion`) and `NumberTheory/RatIdele/ClassCharNorm.lean`
+  (`ideleNorm_principal`).
+- **symptom**: `linter.style.haveILetI` on the pin's `haveI :=
+  isPrincipalIdealRing_ringOfIntegers_rat` and on `ideleNorm_principal`'s load-bearing `letI
+  MeasurableSpace`/`haveI BorelSpace`; `linter.unusedTactic` + `linter.unreachableTactic` on the
+  second arm of the pin's `first | exact HeightOneSpectrum.valuedAdicCompletion_eq_valuation' i _ |
+  (rw [HeightOneSpectrum.algebraMap_adicCompletion]; exact …)`.
+- **cause**: these linters post-date the pin (Lean `v4.33.1`). The `haveI`s *must* stay (they are
+  the instance environment the pin's proof runs in — `have`/`let` would not register the local
+  instance), and the `first`'s first arm already succeeds in `v4.34.0`, so its fallback is dead.
+- **fix**: keep the `haveI`/`letI` and switch the style linter off at module level (as
+  `NumberTheory/AdelicBox.lean` and `TateGlobal/WeylShell.lean` already do); **delete** the dead
+  `first` arm rather than suppress the tactic linters, because here the fallback really is
+  unreachable and no statement is involved. Neither choice touches a statement.
+- **seen**: 2026-10-20; both modules build with 0 warnings.
+
+## FR-0026 [checker] [pin] — a pin "declaration count" in a work order can exclude the `private scoped instance`s
+
+- **where**: WORKORDER-RN1's `RatIdele.exists_norm_apply_eq_ideleNorm_rpow` line ("312 pin lines,
+  45 declarations: 1 headline + private helpers + 4 private instances").
+- **symptom**: the pin's `S_RatIdele_exists_norm_apply_eq_ideleNorm_rpow.lean` contributes **49**
+  corpus rows (`statements.tsv` 639767–639815), not 45: 45 is the count of `def`/`theorem` rows
+  and the four `private scoped instance`s are tallied separately in the same sentence. A verbatim
+  port therefore has 49 declarations, and a "declaration count matches the work order" check
+  would falsely report drift. (`S_RatAdele_…` is consistent: 309 lines / 21 = 1 + 20.)
+- **cause**: the audit's declaration tally drops anonymous `instance`s (they have no last name to
+  diff), so the two numbers in one sentence count different things.
+- **fix**: when a work order's declaration count is used as a check, compare against
+  `spec/statement_db.py`'s row count for the `spec-pin:` files, not against the prose. Recorded in
+  `logs/rat-nodes.md` §1.
+- **seen**: 2026-10-20.
+
+## FR-0027 [pin] [tooling] — a pin `S_` file's `p2m_export`/`p2m_open` namespace scaffolding does not survive a verbatim copy
+
+- **where**: the six set-B `S_` files (`S_Monoid_CoprodI_isTree_cosetGraph.lean:7,185`,
+  `S_Monoid_CoprodI_nonempty_freeGroupBasis_fin_kuroshRank.lean:159,392,823,826,836`, …).
+- **symptom**: the files declare their prelude in a *doubled* namespace and patch visibility with
+  `p2m_open "Subgroup SimpleGraph P2MW.S_X.SimpleGraph"` / `p2m_export "SimpleGraph" "…"`
+  (a `P2M.Util` alias command), so a text copy either fails on `open P2MW.S_X.SimpleGraph`
+  (unknown namespace once the `P2MW.S_X` wrapper is stripped) or silently loses names that only
+  the alias made visible.
+- **cause**: `p2m_open`/`p2m_export` are metaprogramming: they register a namespace without
+  checking it exists (`modifyScope`), and they add aliases the parser cannot see.
+- **fix**: strip the `P2MW.S_X.` prefix from every `open` line, delete `p2m_export` lines
+  (after the wrapper is stripped the exported names already live in the root namespace), and
+  replace genuinely missing visibility with an explicit `open` of the real namespace.
+- **seen**: 2026-10-20; all six modules then elaborated.
+
+## FR-0028 [checker] [tooling] — the corpus's namespace tracker treats `end A.B` as closing one level, so its names carry a doubled namespace and `port_advise` misses 10 duplicates
+
+- **where**: `tmp/flt-statements/statements.tsv`, rows for
+  `S_Monoid_CoprodI_nonempty_freeGroupBasis_fin_kuroshRank.lean`: they read
+  `…Kurosh.GroupTheory.GroupTheory.GraphTransversal.WalkConnected`, because the file writes
+  `end GroupTheory.BassSerre` (which closes **two** namespaces in Lean).
+- **symptom**: `port_advise` reported `WalkConnected`, `IsConnectedTransversal`,
+  `walkConnected_singleton`, `insert_of_adj`, `walkConnected_sUnion`, `mem_orbit_symm'`,
+  `eq_of_mem_orbit_sUnion`, `eq_of_mem_orbit_insert`, `exists_adj_of_walk`,
+  `exists_isConnectedTransversal` only once, and the merged module said "already declared" for
+  all ten — the doubles were in the target files but keyed by different (wrong) names.
+- **cause**: the tracker pops one frame per `end` regardless of the dotted name; Lean pops one per
+  dotted component. The same bug makes the tool's `ConjTrivial` vs `Kurosh.ConjTrivial` row look
+  like a `generalise` pair when the file-local names are actually the same.
+- **fix**: for dedup, do not trust the corpus's namespace for files containing `end A.B`;
+  identify duplicates by statement hash (which is namespace-free) and delete by line span.
+  10 declarations, 103 lines, removed by hand.
+- **seen**: 2026-10-20; worth fixing in `statement_db.parse_file` (recorded here, not edited —
+  `spec/old_check_stmts.py` is frozen for this work order).
+
+## FR-0029 [tooling] — `statements.tsv`'s `end_line` is the statement's end, not the declaration's
+
+- **where**: any `def`/`abbrev` row: `abbrev Vertex : Type _ :=` has `line = end_line`.
+- **symptom**: deleting a duplicate declaration by its corpus `line..end_line` removes the header
+  and leaves the body, producing "unexpected token `×`; expected command" and "unknown tactic"
+  cascades far away from the seam.
+- **cause**: `end_line = line + chunk[:cut].count("\n")`, and `cut` stops at the first top-level
+  `:=`. For `theorem` rows this is the same line as the body's last line only by accident.
+- **fix**: compute the declaration's extent lexically (from the keyword line to the first
+  following non-blank line that starts at column 0), and delete exactly that plus the
+  `@[…]` lines directly above.
+- **seen**: 2026-10-20; the first merge attempt was silently mutilated this way.
+
+## FR-0030 [lean] [mathlib] — v4.34 `open N` is what activates a `scoped instance`; the pin's `p2m_reactivate` has no port spelling
+
+- **where**: `IrrationalPt`'s `scoped instance : CoeOut IrrationalPt ℝ` and the `MulAction SL(2,ℤ)`
+  instance in `S_ModularGroup_exists_mulEquiv_freeProduct_quotient_center.lean` (pin
+  `p2m_reactivate` at 43, 506, 509); the `BassSerre.Vertex` `SMul`/`MulAction` pair (kurosh pin
+  207-226).
+- **symptom**: `x` of type `IrrationalPt` is "expected to have type ℝ"; `h • v` on a `Vertex`
+  fails `synthInstanceFailed` in the *consumer* module.
+- **cause**: `scoped instance`s are only active where the namespace is open; `p2m_reactivate`
+  re-activates them without a namespace, and nothing in `open scoped` does that (`open N` does —
+  verified with a two-line harness).
+- **fix**: `open IrrationalPt` right after `end IrrationalPt`; for cross-module consumers
+  (`Vertex`) drop `scoped` on the two instances, since the pin's re-activation cannot cross a
+  module boundary.
+- **seen**: 2026-10-20.
+
+## FR-0031 [mathlib] — four v4.34 module paths / lemma shapes that the `v4.33.1` pin used
+
+- **where**: set B.
+- **symptom / fix**:
+  - `Mathlib.Combinatorics.SimpleGraph.Connectivity` does not exist: it is a directory now
+    (`Connectivity/Connected.lean`); walks are `SimpleGraph/Walk/Basic.lean`.
+  - `SpecialLinearGroup.SL2Z_generators` moved to `Mathlib/LinearAlgebra/Matrix/FixedDetMatrices.lean`.
+  - `FreeGroup.toWord` / `toWord_eq_nil_iff` need `Mathlib/GroupTheory/FreeGroup/Reduce.lean`
+    (not pulled in by `GroupTheory.CoprodI`).
+  - `SemidirectProduct` needs `Mathlib/GroupTheory/SemidirectProduct.lean`.
+- **cause**: ordinary version drift; the pin imported `Mathlib` wholesale so never named them.
+- **seen**: 2026-10-20; each was a one-line import fix.
+
+## FR-0032 [lean] — the pin's `rw [Subtype.mk.injEq, Sym2.eq_iff] at h` no longer rewrites a *dependent* `Subtype` in v4.34
+
+- **where**: `S_Monoid_CoprodI_nonempty_freeGroupBasis_fin_kuroshRank.lean`, `treeRepEquivEdgeSet`
+  (`rw [Subtype.mk.injEq, Sym2.eq_iff] at hgg'`).
+- **symptom**: `motive is not type correct … g.property has type ↑g ∈ treeRep H hD but is expected
+  to have type Vertex.mk 0 ↑g ∈ D ∧ …`; with `beta_reduce` first, the same failure with a
+  different motive.
+- **cause**: the edge-set elements are `Subtype` of `Sym2`, where the property mentions the
+  value; `rw` abstracts the value and the motive stops typechecking. `v4.33`'s `simp`-backed
+  `Subtype.mk.injEq` happened to work.
+- **fix**: project first — `have hval := congrArg Subtype.val hgg'` then `rw [Sym2.eq_iff] at hval`
+  — and keep the rest of the pin's proof (it only ever used `Subtype.val` of the components).
+  Proof-only, statement untouched.
+- **seen**: 2026-10-20.
+
+## FR-0033 [tooling] [build] — the shared mathlib olean tree is partial: importing an existing mathlib module can fail on a missing `.olean`
+
+- **where**: first compile of the merged engine: `…/SimpleGraph/Connectivity.olean does not exist`.
+- **symptom**: `lake env lean file.lean` dies at the first import whose `.olean` is absent, even
+  though the `.lean` exists.
+- **cause**: the tree is built incrementally for what the port uses; `lake env lean` never builds
+  dependencies.
+- **fix**: check `.lake/packages/mathlib/.lake/build/lib/lean/<Module>.olean` before naming an
+  import, or `lake build` the module (flock'd) and re-check. All eight final modules' imports are
+  present and built.
+- **seen**: 2026-10-20.
+
+## FR-0034 [lean] [tooling] — `alias` does not accept a `def`, so deduping a `generalise` definition needs a `private abbrev`
+
+- **where**: deduping `ConjTrivial` (`GroupTheory.FreeDoubleCoset.ConjTrivial` vs the kurosh
+  file's `Kurosh.ConjTrivial`, 2 lines each, same body, different binder names).
+- **symptom**: `alias ConjT := A.Foo` for a `def` fails to parse ("unexpected identifier; expected
+  command"); deleting the second copy and rewriting its references changes the *statement text* of
+  five downstream lemmas (`Kurosh.ConjTrivial` → `GroupTheory.FreeDoubleCoset.ConjTrivial`), which
+  the checker reports as 6 `MISMATCH` (the corpus hashes the statement text, not the elaborated
+  type).
+- **cause**: the checker compares statement *text*; a definition's alias is not text-neutral, but a
+  `private` declaration is skipped by the checker (`if priv: continue`).
+- **fix**: one definition in the home module, and a `private abbrev ConjTrivial … :=
+  GroupTheory.FreeDoubleCoset.ConjTrivial A H` in the consumer, so the pin's statement text
+  survives while the mathematics lives once. 0 mismatch, and `port_advise`'s
+  `card_orbitRelQuotient_mul_card'` row is handled the same way (call the wrapper's headline).
+- **seen**: 2026-10-20.
+
+## FR-0035 [checker] [tooling] — the parser moved out of the frozen checker; the `end A.B` fix must count *namespace components*, not frames
+
+- **where**: `spec/old_check_stmts.py` → new `spec/lean_parser.py` (2026-10-20, manager's set).
+- **what**: FR-0028's `end A.B` bug is fixed at the root. `ENCLOSE_RE` captures the
+  dotted name after `end`, `namespace_events` returns it, and `pop_frames` consumes
+  namespace components from the frame stack. `old_check_stmts.py` now *imports* the
+  parser (its frozen registry and check behaviour are otherwise unchanged);
+  `spec/statement_db.py`, `spec/check_port.py` and `tools/deps/port_advise.py` import
+  `lean_parser` directly, so the new toolchain no longer loads the legacy registry
+  to parse text.
+- **the trap**: the naive "pop one frame per dotted component" over-pops the other
+  shape. `namespace I.R … end I.R` **pushes one** dotted frame (two components) and
+  must pop one; the naive rule popped the enclosing namespace too, so
+  `FLTForHuman/Patching/PatchingConstruction.lean`'s `IsPatchingSystem` lost its
+  `PatchingConstruction.` prefix, its `OWN_PROOFS` dotted exemption stopped
+  matching, and the legacy full run reported 1 mismatched. `pop_frames` now counts
+  components per frame (a `None` section frame counts one), which is right for both
+  shapes: `namespace A / namespace B / end A.B` pops two frames, `namespace I.R /
+  end I.R` pops one.
+- **verification**: `statement_db selftest` 16 assertions and `old_check_stmts
+  --selftest` 56 pass; the corpus was rebuilt (parser digest changed) at 718,874
+  declarations / 459 MB / 33 s; `check_port --all` reads **3496 ok, 0 mismatch, 0
+  missing, 11 own over 129 modules** (identical to before the extraction); the
+  legacy full run reads **8866 identical, 0 mismatched, 0 missing, 37 own-proof
+  exemptions** (the 37th is the `IsPatchingSystem` exemption restored by the
+  corrected pop); `port_advise` now prints the single `GroupTheory.` prefix for the
+  Kurosh file and sees the ten graph-transversal duplicates it used to miss.
+- **seen**: 2026-10-20.

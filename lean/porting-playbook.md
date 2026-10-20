@@ -491,7 +491,11 @@ With a pinned source, correctness is checkable rather than trusted. Four instrum
    A new module is wired in its own header (`spec-pin:`, below) and checked by
    `spec/check_port.py`; a module is handed over by adding those lines and deleting its
    `PORT_FILES` entry in the same change. While an entry remains, the old checker owns the
-   module and the new one exempts it. **Wiring is the manager's and is not owed to every public
+   module and the new one exempts it. **Touching a legacy module hands it over**: any edit to a
+   module still named in `PORT_FILES` — a proof change, a promotion, a new consumer — is the
+   trigger, and the handoff rides in that same change. A half-done handoff is worse than either
+   state: a stale `PORT_FILES` entry silently keeps the module exempt from the new checker, and an
+   entry left at an old path after a move stops its declarations being verified at all. **Wiring is the manager's and is not owed to every public
    declaration**: the API is wired so it stays verified, while the rest of a module's surface is
    marked and registered rather than either wired or hidden. **Tier 3 is not "unlisted module".** A *listed* module may carry public
    declarations the checker does not diff: a declaration-level marker records it — a `pin:` entry
@@ -598,11 +602,11 @@ re-checks everything, `--timestamps` prints the per-module stamp. State is
 `tmp/check-port/state.json`; a corpus rebuild invalidates it. A module has one
 owner, and the exempt list is the frozen registry itself: every module in
 `old_check_stmts.py`'s `PORT_FILES` is a ported file that predates the protocol,
-so `--changed`/`--all` skip it **by path without opening the file** (617 of 751
-modules today) and read only the rest; there is no second list to maintain, and
-the exemption shrinks with each handoff. `--include-legacy` overrides, and an
+so `--changed`/`--all` skip it **by path without opening the file** and read only
+the rest; there is no second list to maintain, and the exemption shrinks with each
+handoff. `--include-legacy` overrides, and an
 explicit path is always checked. The handoff is one change — `spec-pin:` lines in,
-`PORT_FILES` entry out. The pilot, now the
+`PORT_FILES` entry out — and a module edited for any other reason is handed over in that edit. The pilot, now the
 first module the new checker owns, is
 `FLTForHuman/ModularForms/CohCarrier/CommTriplet.lean` (three wrappers, three
 statements, 0 mismatched); its tier-3 engine stays unlisted, as a module without a

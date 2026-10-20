@@ -97,7 +97,7 @@ STATE_DIR = REPO / "tmp" / "check-port"
 STATE = STATE_DIR / "state.json"
 LIBS = ("FLTForHuman", "Reserve")
 
-CK = statement_db.load_checker()
+P = statement_db.P  # the parser (lean_parser), not the legacy registry
 
 HEADER = re.compile(r"\A\s*/-(?:!)?.*?-/", re.S)
 SPEC_PIN = re.compile(r"^[ \t]*spec-pin:[ \t]*(\S+)(?:[ \t]+--.*)?$", re.M)
@@ -177,16 +177,16 @@ class Wire:
             if not last:                      # anonymous instance: no name to match
                 continue
             self.by_last[last].append(r)
-            self.by_key[CK.promoted_key(name)].append(r)
-            self.by_key[CK.promoted_key(last)].append(r)
-            s = CK.strip_pin_prefix(last)
+            self.by_key[P.promoted_key(name)].append(r)
+            self.by_key[P.promoted_key(last)].append(r)
+            s = P.strip_pin_prefix(last)
             if s:
                 self.by_strip[s].append(r)
             self.by_hash[r["nhash"]].append(r)
             self.by_file_last[(r["rel"], last)].append(r)
 
 def same_kind(a: str, b: str) -> bool:
-    return CK.same_kind(a, b)
+    return P.same_kind(a, b)
 
 
 def pick(cands: list[dict], kind: str, h: str) -> dict | None:
@@ -233,10 +233,10 @@ def check_decl(row: dict, wire: Wire, db, marker, effective: list[str]) -> dict:
     c = pick(wire.by_last.get(last), kind, h)
     if c:
         return hit(c, "direct name")
-    c = pick(wire.by_key.get(CK.promoted_key(name)), kind, h)
+    c = pick(wire.by_key.get(P.promoted_key(name)), kind, h)
     if c:
         return hit(c, "promoted key")
-    stripped = CK.strip_pin_prefix(last)
+    stripped = P.strip_pin_prefix(last)
     if stripped:
         c = pick(wire.by_strip.get(stripped), kind, h)
         if c:
@@ -278,7 +278,7 @@ def check_module(path: Path, db, rel: str | None = None,
         return None
     rel = rel or path.as_posix()
     ext = (external or {}).get(rel, {})
-    rows, _lines = statement_db.parse_file(rel, text, CK)
+    rows, _lines = statement_db.parse_file(rel, text)
     rows = [r for r in rows if not r[7]]                  # anonymous instances: skip
     markers = decl_markers(text, [{"line": r[0]} for r in rows])
     # a `pin:` marker may name a file the header does not list: it is part of this
@@ -300,8 +300,8 @@ def check_module(path: Path, db, rel: str | None = None,
         # drift.  This is a name check, not a statement check: the content tier
         # would happily match a `kw_foo` against the pin's `foo` because a
         # declaration's own name is not in its statement.
-        m = CK.KW_PREFIX_RE.search(last) if last else None
-        mfam = CK.KW_FAMILY_RE.search(name) if name else None
+        m = P.KW_PREFIX_RE.search(last) if last else None
+        mfam = P.KW_FAMILY_RE.search(name) if name else None
         if m or mfam:
             counts["kw"] += 1
             hit = m.group(0) if m else mfam.group(0)

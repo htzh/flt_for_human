@@ -78,7 +78,7 @@ removed:
   Trigger: any ported node whose statement or proof names one of those declarations — then home the
   block that is needed, verbatim, at the pin's suffixed names, and record it here.
 
-### `HeckeEis.coresHom_eq_transfer` and `RatAdele.denseRange_algebraMap_add_adeleSingleAt` — two definition gates, both deferred
+### `HeckeEis.coresHom_eq_transfer` — a definition gate still deferred; the two `Rat*` gates are homed
 
 Deferred 2026-10-20 at the close of WORKORDER-MG3 phase 2, when the column stopped cutting this front.
 Both are statement-level gaps (nothing in the port can be imported for them), and both ask for a pin
@@ -87,23 +87,29 @@ definition module the port has never homed:
 | node | pin lines | gate module | gate lines | pin importers |
 |---|---:|---|---:|---:|
 | `HeckeEis.coresHom_eq_transfer` | 59 | `Def_Gamma0HeckeOperatorHom` (`HeckeEis.coresHom`, `transferAux`, `coe_transferAux`) | 304 | 144 |
-| `RatAdele.denseRange_algebraMap_add_adeleSingleAt` | 309 | `Def_LanglandsTunnell_StandardLocalConstantsAt` (`NumberField.StandardAddChar.adeleSingleAt`) | 144 | **799** |
+| ~~`RatAdele.denseRange_algebraMap_add_adeleSingleAt`~~ | ~~309~~ | ~~`Def_LanglandsTunnell_StandardLocalConstantsAt`~~ — **homed 2026-10-20**, `LanglandsTunnell/StandardLocalConstantsAt.lean` (21 ok) | ~~144~~ | **799** |
 
-`rg` over `FLTForHuman/` finds neither `coresHom`/`transferAux` nor `adeleSingleAt`: not homed at all.
-`StandardLocalConstantsAt` is a pin **hub** (799 importers), so it is a definition order of its own, not a
-side-charge on a 309-line node — the same finding as `LocalNewvector`'s carrier and `Def_Compat_Mathlib430`.
-**Trigger:** a session that wants either node homes the named gate **whole and verbatim** (playbook §2.3),
-with its own `spec-pin:` header, before stating the node.
+`rg` over `FLTForHuman/` still finds no `coresHom`/`transferAux`; that gate remains deferred. The
+`RatAdele` gate is **resolved**: `Def_LanglandsTunnell_StandardLocalConstantsAt` was homed whole
+(2026-10-20) at `LanglandsTunnell/StandardLocalConstantsAt.lean` — 21 declarations, checker 21 ok / 0
+mismatch, build 3.9 s — on top of the already-homed `NumberField/AdelicTraceFin.lean` and
+`LanglandsTunnell/TateLocalConstantsAt.lean`; the `Def_NumberField_AdelicBox` import is homed too and the
+`RestrictedProduct` import is inert, so the node is now statement-ready. Record:
+[logs/rat-def-gates.md](logs/rat-def-gates.md). **Trigger** for `HeckeEis` is unchanged: home
+`Def_Gamma0HeckeOperatorHom` **whole and verbatim** (playbook §2.3), with its own `spec-pin:` header,
+before stating the node.
 
-**Third deferral of the same wave, larger than expected:** `RatIdele.exists_norm_apply_eq_ideleNorm_rpow`
-(312 pin lines) — its *statement* is fine (`TateGlobal.ideleNorm` and `AutomorphicForm.IsIdeleClassChar` are
-homed) but its *proof* needs the normalizer API of the unported `Definitions/Def_RatIdele_Normalizer.lean`:
-`RatIdele.ρ`, `ρ_spec`, `ρ_ne_zero`, `IsNormalizer` (grep over `FLTForHuman/` → nothing). So the node is
-blocked on that gate, not on the `distribHaarChar` question: the port's
+**Third deferral of the same wave, now resolved:** `RatIdele.exists_norm_apply_eq_ideleNorm_rpow`
+(312 pin lines) — its *statement* was always fine (`TateGlobal.ideleNorm` and
+`AutomorphicForm.IsIdeleClassChar` are homed) but its *proof* needs the normalizer API of
+`Definitions/Def_RatIdele_Normalizer.lean` (`RatIdele.ρ`, `ρ_spec`, `ρ_ne_zero`, `IsNormalizer`).
+`Def_RatIdele_Normalizer` was homed whole (2026-10-20) at
+`NumberTheory/RatIdele/Normalizer.lean` — 63 declarations, checker 63 ok / 0 mismatch, build 4.0 s — so
+the node is now unblocked. The `distribHaarChar` route recorded here still stands: the port's
 `AdeleRing.distribHaarChar_eq_prod_norm_pow_mult_mul_finprod_norm`
 (`NumberTheory/AdelicModulus.lean:80`) is a *stronger* form whose extra `∏ᶠ` factor is `1` under the pin's
-`snd = 1` hypothesis, i.e. the pin's variant is a two-line corollary — take it that way rather than
-restating a third version, and home `Def_RatIdele_Normalizer` whole first.
+`snd = 1` hypothesis, so take the pin's variant as a two-line corollary rather than restating a third
+version. Record: [logs/rat-def-gates.md](logs/rat-def-gates.md).
 
 ### The `LocalNewvector` pair of WORKORDER-MG3 — a definition gate bigger than the family
 

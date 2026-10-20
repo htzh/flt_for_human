@@ -321,6 +321,23 @@ So the note's open residue is: **phase 3's remaining 33 nodes (the `Representati
 remaining cut), the five gate-blocked nodes, and the §5 families / outliers**; nothing in wave 1 or
 the ready tail is owed any more.
 
+**Status 2026-10-20 (later) — wave 3 landed, and two of the five gate-blocked nodes are done.** The
+free-group family was ported whole (WORKORDER-FG1) and re-homed by subject into seven mathlib-shaped
+modules — `Combinatorics/SimpleGraph/Transversal.lean`, `GroupTheory/FreeDoubleCoset.lean`,
+`GroupTheory/CoprodI/{CosetGraph,MinimalPeriod}.lean`,
+`LinearAlgebra/Matrix/SpecialLinearGroup{FreeProduct,FreeGenerators}.lean`,
+`GroupTheory/FreeGroup/KuroshRank.lean` — plus the one-module `UpperHalfPlane` q-expansion trio; the
+checker is **3496 ok over 129 modules** (from 3010), with the measured dedup paid (52 copies, 39 in
+the Kurosh engine). The two `Rat*` gates that phase 2 deferred
+(`Def_LanglandsTunnell_StandardLocalConstantsAt` and `Def_RatIdele_Normalizer`) were homed whole and
+both nodes ported (`NumberTheory/RatAdele/DenseRange.lean`, `NumberTheory/RatIdele/ClassCharNorm.lean`).
+The live `--ds` rows that remain of this note's subjects: `Matrix` 1 / 1,242 (set MG3 only),
+`UpperHalfPlane` 1 / 156 (the Fricke row, out on the shape test); `SimpleGraph`/`Subgroup`/
+`ModularGroup`/`Monoid`/`RatAdele`/`RatIdele` are gone. The gate-blocked nodes still deferred are
+`LocalNewvector` (864-line gate), `HeckeEis.coresHom_eq_transfer` (304) and `EigenformIdeal` (24).
+Records: [../../logs/qexp-and-freegroup.md](../../logs/qexp-and-freegroup.md),
+[../../logs/rat-def-gates.md](../../logs/rat-def-gates.md), [../../logs/rat-nodes.md](../../logs/rat-nodes.md).
+
 **The `Representation` family, audited and dispatched 2026-10-20.** The live family is six nodes /
 2,351 raw lines — the four small ones of phase 3 (69/112/36/151) plus `exists_basis_toMatrix_…`
 (291; over the 250-line test) and `exists_conj_eq_map_of_charpoly_coeff_mem_range_of_finite_of_span_range_eq_top`

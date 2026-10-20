@@ -10,8 +10,11 @@ residuals. Every measurement is the pin's, read through `tools/deps`. The sectio
 stable: work orders across the column cite §3 for the workflow and §7 for the gates.
 
 The checker is **`spec/check_port.py` alone**, one module at a time, wired by the module's own
-`spec-pin:` header (§6). On 2026-10-20 it reads **3010 ok, 0 mismatched, 0 missing, 11 own, 0 kw
-over 117 wired modules** (582 `PORT_FILES` modules exempt; corpus `aa2d8b3`). `spec/old_check_stmts.py`
+`spec-pin:` header (§6). The statement parser itself is **`spec/lean_parser.py`** (2026-10-20):
+the checker, the corpus builder and the `tools/deps` planning tools import it directly, and the
+frozen `old_check_stmts.py` imports it rather than owning it; the extraction also fixed the
+`end A.B` namespace-stack bug (FR-0035). On 2026-10-20 it reads **3496 ok, 0 mismatched, 0 missing, 11 own, 0 kw
+over 129 wired modules** (582 `PORT_FILES` modules exempt; corpus `aa2d8b3`). `spec/old_check_stmts.py`
 is the grandfathered registry and is **not run as a gate**; its last reading, before the handoff,
 was 10473 identical (774 promoted, 83 renamed), 0 mismatched, 0 missing, 42 own-proof exemptions
 (10809 checked). Declaration-level exceptions live in `spec/decl_markers.tsv`, never in the Lean
@@ -343,6 +346,41 @@ The front's scope criterion (§8 of the leaf-families note) and the re-scoped **
 nodes / 3,641 lines / 7 families, recorded and **not scheduled** — are in
 [deligneSerre/TOPIC-phase3-small-supplements.md](deligneSerre/TOPIC-phase3-small-supplements.md); phase 2
 overshot that criterion and the note says how.
+
+**The two `Rat*` definition gates and their two proof nodes then landed (2026-10-20).** The gates
+phase 2 deferred were homed whole and verbatim: `LanglandsTunnell/StandardLocalConstantsAt.lean`
+(the pin's `Def_LanglandsTunnell_StandardLocalConstantsAt`, 144 lines, 799 importers, 21
+declarations) and `NumberTheory/RatIdele/Normalizer.lean` (the pin's `Def_RatIdele_Normalizer`,
+391 lines, 63 declarations), checker **+84** (3010 → 3094 over 119 modules); the only proof drift
+is the v4.34 namespacing of `FiniteAdeleRing.ext` and the `Set.mem_setOf_eq` deprecation. Their
+two proof nodes followed in one set: `NumberTheory/RatAdele/DenseRange.lean` (372 lines, 21
+declarations, 20 `private`) and `NumberTheory/RatIdele/ClassCharNorm.lean` (376 lines, 49
+declarations), checker **+2** (3094 → 3096 over 121 modules), axioms
+`[propext, Classical.choice, Quot.sound]`; the pin's `attribute [-instance]` block was dropped
+whole and never needed, and the `distribHaarChar` premise's statement is identical. Records:
+[logs/rat-def-gates.md](../logs/rat-def-gates.md), [logs/rat-nodes.md](../logs/rat-nodes.md);
+order: [deligneSerre/WORKORDER-RN1-rat-nodes.md](deligneSerre/WORKORDER-RN1-rat-nodes.md).
+
+**The `q`-expansion trio and the free-group family then landed (WORKORDER-FG1).** Thirteen nodes /
+4,342 pin lines → **eight mathlib-shaped modules**, 3,846 body lines, **checker +400** (3096 →
+**3496 ok over 129 modules**), 0 mismatch / 0 missing / 0 own / 0 kw, 0 warnings, every headline's
+axioms `[propext, Classical.choice, Quot.sound]`. The trio is one module,
+`NumberTheory/ModularForms/QExpansionCoeff.lean` (19 wired). The free-group family was re-homed by
+subject rather than kept as one engine file — the first cut's single 3,079-line module was split —
+into `Combinatorics/SimpleGraph/Transversal.lean` (10), `GroupTheory/FreeDoubleCoset.lean` (12),
+`GroupTheory/CoprodI/CosetGraph.lean` (49),
+`LinearAlgebra/Matrix/SpecialLinearGroupFreeProduct.lean` (68), `GroupTheory/CoprodI/MinimalPeriod.lean`
+(75), `GroupTheory/FreeGroup/KuroshRank.lean` (115, its own node) and
+`LinearAlgebra/Matrix/SpecialLinearGroupFreeGenerators.lean` (52, the four headlines). The set paid
+the measured dedup — 52 copies deleted (39 in the Kurosh engine: 29 Bass–Serre + 10 graph
+transversal; 10 in the façade prelude including `mem_center_iff_eq` 4→1), the one real
+substitution (`det_entries`), `mul_entry` restated because the legacy module's copy is private,
+and the three parser type-only matches declined. It closes the free-group family, the four
+`Matrix.SpecialLinearGroup` rows and the `UpperHalfPlane` q-expansion rows; the frontier falls
+**1,276 → 1,259 nodes / 485,836 → 480,304 raw `S_` lines** (the 15 nodes plus the two
+`NumberField.`-qualified aliases of the `Rat*` rows). Records:
+[logs/qexp-and-freegroup.md](../logs/qexp-and-freegroup.md); order:
+[deligneSerre/WORKORDER-FG1-qexp-and-freegroup.md](deligneSerre/WORKORDER-FG1-qexp-and-freegroup.md).
 
 For the landings above that wired into the frozen checker's lists, each delta is exactly its new
 public surface, 0 mismatched / 0 missing; the `localParam` landing has no such delta (§6). Since
