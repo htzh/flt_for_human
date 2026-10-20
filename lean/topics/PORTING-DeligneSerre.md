@@ -9,11 +9,13 @@ manager's own work, §5 the build economy, §6 verification, §7 what remains, �
 residuals. Every measurement is the pin's, read through `tools/deps`. The section numbers are
 stable: work orders across the column cite §3 for the workflow and §7 for the gates.
 
-The checker reads **10473 identical (774 promoted, 83 renamed), 0 mismatched, 0 missing, 42
-own-proof declarations exempted, 294 registered-unwired declarations exempted (10809 checked)** —
-three fewer than the 10476 this note carried until 2026-10-19, all three the `CommTriplet`
-handoff of commit `610b73d`, which moved that module's three headlines to the new per-module
-checker; no statement was lost. This column's recent landings: the
+The checker is **`spec/check_port.py` alone**, one module at a time, wired by the module's own
+`spec-pin:` header (§6). On 2026-10-20 it reads **1816 ok, 0 mismatched, 0 missing, 4 own, 0 kw
+over 45 wired modules** (584 `PORT_FILES` modules exempt; corpus `aa2d8b3`). `spec/old_check_stmts.py`
+is the grandfathered registry and is **not run as a gate**; its last reading, before the handoff,
+was 10473 identical (774 promoted, 83 renamed), 0 mismatched, 0 missing, 42 own-proof exemptions
+(10809 checked). Declaration-level exceptions live in `spec/decl_markers.tsv`, never in the Lean
+source. This column's recent landings: the
 `TateFormal`/`TateSlots` definition layer, 9241 → 9304; the weight-4 Tate-slot engine and headline
 façade (WORKORDER-F1), 9304 → 9318; the six `tateCurve`/Katz definition modules of WORKORDER-F2,
 9318 → 9535 (+217); the `BridgeX` twin/triplet engine and headline façade (WORKORDER-F2),
@@ -200,9 +202,29 @@ restated; and the byte tier's suggested home for `ord_nonneg_of_mem'`
 order:
 [algebraicCurve/WORKORDER-DC1-correspondence-regular.md](algebraicCurve/WORKORDER-DC1-correspondence-regular.md).
 
+The **archimedean type-span leaf** then landed as the automorphic demand's rank-#2 high-impact
+leaf: `AutomorphicForm.CuspidalConstituent.finiteDimensional_span_rightTranslate_of_mem_iSup_archTypeSubmoduleAt`
+(813 pin lines) — the `ℂ`-span of the row-isometry right translates of a vector in finitely many
+archimedean types is finite-dimensional, stable and still in the same supremum — as **one module,
+125 lines, one statement-checked declaration**, `AutomorphicForm/Adelic/Cusp/ArchTypeSpan.lean`.
+It is the column's clearest **cross-silo reuse**: 31 of the pin's 39 declarations (696 of 786
+declaration lines) are byte-identical to the shared `Q09` engine in
+`RepTheory/TypeReproducer.lean` (tier 3, registered), which was homed from the *archTestFactor*
+silo's pin file — the pin writes that engine twice and the port wrote it once, so this leaf
+**imports** it and adds only the pin's 59-line instantiation plus the headline (90 net new lines,
+31 trusted / 0 suspect substitutions, no host edit, no promotion, no registration). Checker **+1**,
+**1816 ok / 0 mismatched / 0 missing** over 45 modules; tier-1 build 3,838 jobs, 0 warnings;
+axioms `[propext, Classical.choice, Quot.sound]`. The definition walk found no gate owed: the pin
+imports the unported `Def_AutomorphicForm_CuspidalSpectrumCarrier`, but none of its declarations
+(and none of `FactorizableTestFn`'s) occurs in the proof, so it stays where it was — the centre-cut
+slab bound's gate. Record: [logs/arch-type-span.md](../logs/arch-type-span.md); order:
+[automorphicForm/WORKORDER-ATS-arch-type-span.md](automorphicForm/WORKORDER-ATS-arch-type-span.md).
+
 For the landings above that wired into the frozen checker's lists, each delta is exactly its new
-public surface, 0 mismatched / 0 missing; the `localParam` landing has no such delta (§6). The
-9542 → 9569 (+27) step is
+public surface, 0 mismatched / 0 missing; the `localParam` landing has no such delta (§6). Since
+the 2026-10-19–20 handoff the column verifies with `spec/check_port.py` instead (§6), and a
+landing's delta is its statement-checked surface there: the arch-type-span leaf is **+1** of the
+1816. The 9542 → 9569 (+27) step is
 the `NumberField.AdelicHeight` definition gate, the manager's own ground for the adelic-modulus
 round
 ([numberTheory/adelicModulus/TOPIC-adelic-modulus.md](numberTheory/adelicModulus/TOPIC-adelic-modulus.md)),
@@ -297,6 +319,12 @@ Companions:
   [automorphicForm/TOPIC-arch-casimir.md](automorphicForm/TOPIC-arch-casimir.md),
   [automorphicForm/WORKORDER-AC1-defs.md](automorphicForm/WORKORDER-AC1-defs.md),
   [automorphicForm/WORKORDER-AC2-cascore-trio.md](automorphicForm/WORKORDER-AC2-cascore-trio.md).
+- The archimedean **type-span** leaf — the `--include-leaves` demand's rank-#2 row, ported as a
+  façade over the shared `Q09` engine, and its `finiteDimensional_span_translates_of_mem_archCutSubmodule`
+  successor (now ready at 184 lines):
+  [automorphicForm/WORKORDER-ATS-arch-type-span.md](automorphicForm/WORKORDER-ATS-arch-type-span.md),
+  [logs/arch-type-span.md](../logs/arch-type-span.md). The engine's own planning note is
+  [automorphicForm/TOPIC-archTestFactor-family.md](automorphicForm/TOPIC-archTestFactor-family.md).
 
 ## 1. What the port contains
 
@@ -561,6 +589,17 @@ rest on — so the charted-space capstone
 only its own assembly, with `Place.exists_forall_ord_eq_finset` (291) ready beside it. The `--ds` ready shelf itself read
 **85 candidates** at that landing (the 67 in §7 predates four other columns' landings).
 
+**The demand's leaves are the other shelf, and its rank-#2 row has landed.** `--ready` and `--hops`
+drop graph leaves (a leaf has `needed == 1` and can never reach `F`), so the automorphic demand's
+biggest self-contained rows appear only under `--include-leaves` or in a direct query. The
+archimedean type-span leaf
+`AutomorphicForm.CuspidalConstituent.finiteDimensional_span_rightTranslate_of_mem_iSup_archTypeSubmoduleAt`
+— 813 silo lines, `used_by` 3 cone / 9 project — was rank #2 there behind the ray-class hub and
+landed 2026-10-20 (§1, WORKORDER-ATS); the leaf shelf drops 445 → **444** candidates and its head
+moves to `HeckeIntegralSeam.exists_isHeckeCosetSystem_localRep_heckeGen` (807). The leaf's own
+successor `AutomorphicForm.finiteDimensional_span_translates_of_mem_archCutSubmodule` (184) is now
+on the `--ready` shelf — the same principle at the whole cut, and the next cut of the family.
+
 **The two `tateCurve_…_nonToricPoint_…` rows are exact twins, and must be cut as one.**
 `S_ModularCurve_tateCurve_pointX_C_mul_X_pow_eq_nonToricPoint_fst.lean` and its `_pointY_…_snd`
 sibling are both 1,343 lines and differ by **8 diff lines**; normalized at the namespace stem, the
@@ -680,15 +719,17 @@ Every order carries the **hub prohibition**: a subagent that needs a `private` h
 it locally and reports it; one that believes a promotion is genuinely required **stops and
 reports** with the declaration, host and `build_ladder.py --edit` price. The manager decides.
 
-*Review checklist* after each set: `spec/check_port.py` on the set's modules with **0 mismatched /
-0 missing** and every public declaration accounted for (matched, `-- pin:`-marked or `-- own:`);
-the frozen checker's count **unchanged** unless the set appended an old-style entry (it should
-not); tier 1 green and 0 warnings; no `sorry`/`admit`, no bare `import Mathlib`; `#print axioms` on
+*Review checklist* after each set: `spec/check_port.py --force` on the set's modules with **0
+mismatched / 0 missing** and every public declaration accounted for (matched, or recorded in
+`spec/decl_markers.tsv` as a `pin:`/`own:` entry) — no in-source per-declaration marker is added;
+`--all` (or `--changed`) green over the whole wired surface, whose counts are the progress metric;
+tier 1 green and 0 warnings; no `sorry`/`admit`, no bare `import Mathlib`; `#print axioms` on
 every headline `[propext, Classical.choice, Quot.sound]`; `git status` showing only the set's
-files. The checker's mutation sensitivity is the instrument's own test
-(`python3 spec/old_check_stmts.py --selftest`, run when that checker changes — not a per-set manual
-mutation); the new checker is cache-aware and `--force` re-checks one module from scratch, which is
-the per-set gate.
+files. `spec/old_check_stmts.py` is the frozen registry, not run as a gate and never appended to
+(§6). The checker is cache-aware and `--force` re-checks one module from scratch, which is the
+per-set gate. The statement instrument itself — `norm`, the declaration regex, the hash — is
+shared with `spec/old_check_stmts.py`, so its mutation sensitivity is still exercised by
+`python3 spec/old_check_stmts.py --selftest` when that parser changes, not per set.
 
 **6. Close out, then re-read the frontier.** Re-run step 1: the landed nodes leave the shelf and
 their successors appear. Record the outcome in the work order and in the cluster's topic, name
@@ -746,7 +787,7 @@ a bigger heartbeat cap.
 cd lean
 python3 spec/check_port.py --changed                    # the new per-module wire (the registry)
 python3 spec/check_port.py --force <the set's module>   # one module, every public declaration
-timeout 300 python3 spec/old_check_stmts.py             # frozen: 10473 identical / 0 / 0 / 42 own
+python3 spec/check_port.py --all                        # the whole wired surface
 flock .lake/flt_build.lock timeout 900 lake build        # the milestone build
 timeout 180 lake env lean -DmaxHeartbeats=4000000 -DautoImplicit=false spec/DeligneSerreConsumer.lean
 python3 spec/unwired_register.py --check                # tier-3 surface current
@@ -755,12 +796,17 @@ python3 spec/unwired_register.py --check                # tier-3 surface current
 plus a `#print axioms` probe over the set's headlines and a `grep` sweep for
 `sorry`/`admit`/`axiom`/`native_decide`/`import Mathlib`/heartbeat overrides.
 
-**Two checkers, one owner per module** (playbook §4). A set's new module carries `spec-pin:` lines
-and is verified by `spec/check_port.py`, which matches on the statement hash — so a faithful but
-renamed copy verifies, a same-name statement that differs is a `MISMATCH`, and an engine's
-internal declarations are checked, not only its headline. The frozen `old_check_stmts.py` owns the
-grandfathered `PORT_FILES` set: do not append to it, and expect its count to stay at 10473. Each
-work order records its own numbers, measured on the tree it leaves, not copied from this note.
+**One checker, one wire per module** (playbook §4). A set's new module carries `spec-pin:` lines —
+the pin file per source, the `Theorems/` wrapper for a statement and the `P2M/Sol/S_` file for a
+transcribed proof — and is verified by `spec/check_port.py`, which matches on the statement hash:
+a faithful but renamed copy verifies, a same-name statement that differs is a `MISMATCH`, and an
+engine's internal declarations are checked, not only its headline. Declaration-level exceptions
+are `pin:`/`own:` entries in **`spec/decl_markers.tsv`**, keyed by `(module, full declaration
+name)`; the source carries no marker for new work, and the grandfathered in-source `-- pin:`/
+`-- own:` comments are still read where they exist. `spec/old_check_stmts.py` is the frozen
+registry of the grandfathered `PORT_FILES`/`SOURCES` set, **not run as a gate**: do not append to
+it, and do not expect its 10473 to move. Each work order records its own numbers, measured on the
+tree it leaves, not copied from this note.
 
 The checker's exemption list is keyed by **dotted name, never bare last name**: a bare
 `"correspondence"` silently exempted two live declarations alongside its namesake, and dotting it
@@ -815,7 +861,18 @@ The **complex archimedean Casimir** wave has landed its definition pair and firs
 ([../logs/arch-casimir-complex.md](../logs/arch-casimir-complex.md)); the next leaves of that
 subject are `leftCasimirComplex_eq_archCasimirAtComplex_of_isArchSmoothAtComplex` (1,227) and the
 133-line `archCasimirAtComplex_rightTranslate_rowIsometryInclAt_of_ne`, then the 35-file complex
-fan of [TOPIC-arch-casimir.md](TOPIC-arch-casimir.md) §5 Set C.
+fan of [automorphicForm/TOPIC-arch-casimir.md](automorphicForm/TOPIC-arch-casimir.md) §5 Set C.
+
+The **archimedean type-span leaf** has landed too
+([../logs/arch-type-span.md](../logs/arch-type-span.md), WORKORDER-ATS): it was the demand's
+rank-#2 high-impact leaf, it is a façade over the shared `Q09` engine
+(`RepTheory/TypeReproducer.lean`), and it put its successor
+`AutomorphicForm.finiteDimensional_span_translates_of_mem_archCutSubmodule` — the same principle at
+the whole archimedean cut, 184 silo lines, `used_by` 6 cone / 7 project — on the ready shelf. The
+family's third row,
+`CuspidalConstituent.inf_iSup_archTypeSubmoduleAt_le_iSup_inf_of_continuous`, still needs three
+nodes / 369 lines; the seven other consumers are the `CuspidalConstituent` cut-weight and
+isotypic-cut rows of §2.
 
 The **local-parameter family** is complete (§1): the finite cover
 ([logs/localParam-finite-cover.md](../logs/localParam-finite-cover.md)), the branch uniqueness,
@@ -900,16 +957,20 @@ python3 build_ladder.py --edit FLTForHuman/<host>.lean
 python3 frontier.py --target DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen --top 0
 ```
 
-The checker wiring convention is the new one: a module carries `spec-pin:` lines in its leading
-`/- … -/` block naming the pin files that verify it (the `Theorems/` wrapper for a headline, the
-`P2M/Sol/S_` file for a transcribed engine), plus a `-- pin:` marker for a rename or a source
-outside the header and `-- own:` for a statement of ours. Nothing is appended to
-`spec/old_check_stmts.py`: that checker is frozen and its lists are the grandfathered set.
-`spec/statement_db.py build` makes the pin corpus (`tmp/flt-statements/`, git-ignored) that the
-checker reads; `spec/statement_db.py show <name>` prints a pin signature with its `file:line`.
+The checker wiring convention is the per-module one: a module carries `spec-pin:` lines in its
+leading `/- … -/` block naming the pin files that verify it (the `Theorems/` wrapper for a
+headline, the `P2M/Sol/S_` file for a transcribed engine). Declaration-level exceptions — a rename,
+a source outside the header, a tier-2 statement — are `pin:`/`own:` entries in
+**`spec/decl_markers.tsv`**, keyed by `(module, full declaration name)`; the Lean source carries
+**no** per-declaration marker for new work (the grandfathered in-source comments still work).
+Nothing is appended to `spec/old_check_stmts.py`: that file is now only the frozen registry and
+the shared parser. `spec/statement_db.py build` makes the pin corpus (`tmp/flt-statements/`,
+git-ignored) that the checker reads; `spec/statement_db.py show <name>` prints a pin signature
+with its `file:line`.
 
-The checker's mutation sensitivity is its own unit test, run when the checker changes rather than
-on every set:
+The statement instrument's mutation sensitivity is its own unit test — the parser and hash are
+shared with `spec/old_check_stmts.py`, so run it when that parser changes rather than on every
+set:
 
 ```bash
 cd lean
@@ -953,6 +1014,15 @@ python3 spec/old_check_stmts.py --selftest
   importable, not in `PORT_FILES`, with its 119 public declarations carrying `-- pin:` provenance
   in [spec/UNWIRED-PUBLIC.md](../spec/UNWIRED-PUBLIC.md) (78 modules / 1,906 public / 1,618 with a
   pin original). Only the façade `TateSlots/CoefficientFormulas.lean` is diffed.
+* **The `Q09` engine now has a second pin-silo consumer.** `RepTheory/TypeReproducer.lean` (tier 3,
+  registered) is the home of the `TypePiece`…`MultiPlace` engine that the pin writes into both
+  `S_AutomorphicForm_exists_isArchTestFactor_…` and
+  `S_AutomorphicForm_CuspidalConstituent_finiteDimensional_span_rightTranslate_of_mem_iSup_archTypeSubmoduleAt`;
+  the arch-type-span landing ([logs/arch-type-span.md](../logs/arch-type-span.md)) imports it and
+  re-proves nothing. Two consequences for later work: (i) the remaining eight consumers of that
+  leaf will find the engine there, not in their own silos; (ii) their proofs rely, as the pin does,
+  on `archTypeSubmoduleAt` being *definitionally* `typeSubmodule (rowIsometryInclAt₀ F w) τ.ρ`
+  (`hcut := rfl`), so a wrapper around that definition would turn a `rfl` into a proof obligation.
 * `locKer`/`adjoinRoot'` are public in `DeligneSerre/Lifting.lean` with no consumer today (kept
   per the pin).
 * The private `det_eq` copies in `Gamma1Vanishing.lean`/`HeckeEigenNebentypus.lean` are
@@ -1001,3 +1071,11 @@ python3 spec/old_check_stmts.py --selftest
   before trusting `ready` for such a pair, price the pin's `Theorems/` imports too, not only its
   `Definitions/` ones, and re-run both frontier readings: `port_advise` and `port_plan` never walk
   imports, so an unported premise outside the target files is invisible to them.
+* **Protocol migration.** The per-module wire (`spec-pin:` header + `spec/check_port.py`, with
+  `spec/decl_markers.tsv` for declaration-level exceptions) is current in
+  [porting-playbook.md](../porting-playbook.md) §4, in this note's §3/§6/§8 and in the tooling
+  (`tools/deps`, `spec/unwired_register.py`). The **older column notes and work orders still
+  describe the retired "append to `PORT_FILES`/`SOURCES`" route** — they are the record of how those
+  landings were wired, not instructions; a new set follows §6. The 584 modules still owned by the
+  frozen registry are the migration backlog, and each moves when it is edited for another reason
+  (playbook §4).

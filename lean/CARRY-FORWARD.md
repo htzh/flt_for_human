@@ -28,6 +28,14 @@ lands.** The three sibling nodes landed without it:
 `isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre` and the two
 `exists_measurableSet_isFundamentalDomain_subset_iUnion_…` twins.
 
+The module is imported by more pin `S_` files than the slab bound: the arch-type-span leaf
+`S_AutomorphicForm_CuspidalConstituent_finiteDimensional_span_rightTranslate_of_mem_iSup_archTypeSubmoduleAt`
+imports it and uses **none** of its 31 declarations (2026-10-20,
+[logs/arch-type-span.md](logs/arch-type-span.md)). A pin `import` is a module-granular fact —
+`fltdata.proof_defs` records it that way — so the test for "is this definition module on the
+path" is a declaration-level `grep` over the consumer's `S_` file, not its import block. This
+entry is unchanged: the module is still owed when the 234-line slab bound is scheduled.
+
 ### The exact-volume / L2 chain — `Def_AutomorphicForm_{Gamma0ExactVolume,FundamentalDomainExactVolume,EisensteinScattering,L2ProductionInstance,L2AutomorphicCarrier,TruncatedDomainPartition}`
 
 Deferred 2026-10-17 while porting `CuspForm.peterssonOn_hecke_eq_conj_mul_of_hasNebentypus`

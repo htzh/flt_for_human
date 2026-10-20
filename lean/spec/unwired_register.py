@@ -5,18 +5,20 @@ Why this file exists
 --------------------
 The port has three tiers of public declaration:
 
-  1. **checked**  -- the module is in the checker's `PORT_FILES`, so the statement
-     checker diffs the declaration against the pinned FLT source;
+  1. **checked**  -- the module is in the checker's `PORT_FILES`, or carries its
+     own `spec-pin:` header (the per-module wire `spec/check_port.py` reads), so
+     the declaration is diffed against the pinned FLT source;
   2. **own**      -- listed in `OWN_PROOFS`: the port's own statement, no pin
      source, deliberately not diffed;
-  3. **unwired**  -- public in the port tree, in a module that is *not* in
-     `PORT_FILES`: built, importable, and with no statement diff at all.
+  3. **unwired**  -- public in the port tree, in a module that has *neither* a
+     `PORT_FILES` entry nor a `spec-pin:` header: built, importable, and with no
+     statement diff at all.
 
 Tier 3 is a deliberate economy, not an oversight.  A module can hold a whole
 development whose API no consumer has needed yet -- `Elliptic/TorsionCard.lean` is
 the `card_torsion_of_isAlgClosed` home, kept out while only its two aliases are
-diffed -- and wiring it costs a `SOURCES`/`PORT_FILES` pair plus a review of the
-delta, which is verification nobody asked for until a consumer exists.
+diffed -- and wiring it costs a `spec-pin:` header plus a review of the delta,
+which is verification nobody asked for until a consumer exists.
 
 The cost of that economy is discoverability: a future proof looking for a
 substitute cannot see what tier 3 holds, and the reason a module is unlisted lives
@@ -471,13 +473,15 @@ def render(unlisted, importers, consumers, lean: Path, pin: Path, db) -> str:
         "checker skips for another reason — is `OWN_PROOFS` in the checker itself, each",
         "entry carrying its reason; tier 1 is the checked surface.",
         "",
-        "**To wire one** (or a whole module): add the module to `PORT_FILES` and the",
-        "pin files its declarations come from to `SOURCES` — both appended last — then",
-        "run `python3 spec/old_check_stmts.py` and reconcile the `identical` delta",
-        "against the new public surface.  A port name that is not the pin's is matched",
-        "through the marker, the `kw_` prefix strip or the dotted fallback; if none of",
-        "them reaches it the checker reports it and the marker records the pin original.",
-        "Then delete the entry here.",
+        "**To wire one** (or a whole module): give the module a leading `/- … -/` header with",
+        "one `spec-pin: <pin file>` line per pin source — the `Theorems/` wrapper for a",
+        "headline, the `P2M/Sol/S_` file for a transcribed proof — and run",
+        "`python3 spec/check_port.py --force <module>`; reconcile its `ok` delta against the",
+        "new public surface.  A port name that is not the pin's is matched through a",
+        "`pin:`/`own:` entry in `spec/decl_markers.tsv`, the `kw_` prefix strip or the dotted",
+        "fallback; if none of them reaches it the checker reports it and the entry records",
+        "the pin original.  Then delete the entry here.  (`PORT_FILES`/`SOURCES` in",
+        "`spec/old_check_stmts.py` are the grandfathered registry: do not append to them.)",
         "",
         "Names are the port's own (mathlib style); the pin original is recovered from",
         "a `-- pin: <name> (<file>:<line>)` comment above a transcribed declaration,",
