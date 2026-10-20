@@ -58,9 +58,9 @@ to register (all four are listed). Order:
 [WORKORDER-MG2-matrix-family.md](WORKORDER-MG2-matrix-family.md); record:
 [logs/matrix-family-four.md](../../logs/matrix-family-four.md). Measured on landing: 850 / 162 / 150 /
 118 lines, 73 wired (63 + 7 + 1 + 2), checker 2038 → **2111 ok** over 60 modules, 0 warnings. The
-`Matrix.`-namespace demand falls to **5 nodes / 1,928 lines**: MG3 below, plus the four free-group rows.
+`Matrix.`-namespace demand falls to **5 nodes / 1,928 lines**: MG4 below, plus the four free-group rows.
 
-## Set MG3 — the GL row behind the Serre-image row: 1,632 raw → 1,611 net new, 53 wired
+## Set MG4 — the GL row behind the Serre-image row: 1,632 raw → 1,611 net new, 53 wired
 
 Row 5 needs row 6. Row 6 is the column's own §2 shelf row (`ModularCurve.SerreImage.contains_SL2`,
 390 pin lines): `port_advise` reads **0 substitutions**, 14 declaration groups, 369 net new
@@ -97,9 +97,9 @@ this list**; it is recorded here so the `Matrix.` family's remaining demand is a
 ## Recommendation
 
 1. ~~**MG2 now**~~ — **landed 2026-10-20** (970 net new, +73, 850/162/150/118 lines, 0 warnings).
-2. **MG3 next round**, as one set: 1,611 net new, +53, and it is the column's own
+2. **MG4 next round**, as one set: 1,611 net new, +53, and it is the column's own
    `ModularCurve.SerreImage` subject meeting the `GL₂` count.
 3. Rows 7–10 are now fully priced as the **free-group family** of
-   [TOPIC-mathlib-leaf-families.md](TOPIC-mathlib-leaf-families.md) §3 — 3,961 raw → 3,291 net
+   [TOPIC-ds-leaf-families.md](TOPIC-ds-leaf-families.md) §3 — 3,961 raw → 3,291 net
    new (measured), one engine + four headlines, 2 modules, 506 removable duplicate lines. It is the
    cheapest way to close the `Matrix.` namespace.

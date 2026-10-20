@@ -7,7 +7,9 @@ silently accumulates into a build-time hog. Kept apart from:
 * [porting-playbook.md](porting-playbook.md) §6 — which states the *fixes* (this
   register says where a fix was needed and whether it holds);
 * [../notes/lean-build-cost.md](../notes/lean-build-cost.md) — which holds the
-  *measurement method* (`--profile`, `--audit`, heartbeat semantics).
+  *measurement method* (`--profile`, `--audit`, heartbeat semantics);
+* [logs/build-time-issues.md](logs/build-time-issues.md) — the D-S column's register of open build-time
+  issues (over-budget declarations, olean gaps, lock/memory rules, measurement traps).
 
 The list is expected to grow, so every entry below must be **re-runnable**, in two
 halves:

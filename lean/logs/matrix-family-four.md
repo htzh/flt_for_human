@@ -82,7 +82,7 @@ plus `#print axioms` on the four headlines (`[propext, Classical.choice, Quot.so
 The `Matrix.`-namespace demand drops from 9 nodes / 2,969 lines to **5 / 1,928** — set MG3
 (`GeneralLinearGroup.exists_natCard_le_…` behind `ModularCurve.SerreImage.contains_SL2`, 1,611 net new,
 +53) and the four `SpecialLinearGroup` free-group rows, whose blockers are now the family priced in
-[TOPIC-mathlib-leaf-families.md](../topics/deligneSerre/TOPIC-mathlib-leaf-families.md) §3 (3,291 net
+[TOPIC-ds-leaf-families.md](../topics/deligneSerre/TOPIC-ds-leaf-families.md) §3 (3,291 net
 new measured, 2 modules).
 
 ## 5. Residuals

@@ -10,8 +10,8 @@ residuals. Every measurement is the pin's, read through `tools/deps`. The sectio
 stable: work orders across the column cite §3 for the workflow and §7 for the gates.
 
 The checker is **`spec/check_port.py` alone**, one module at a time, wired by the module's own
-`spec-pin:` header (§6). On 2026-10-20 it reads **2111 ok, 0 mismatched, 0 missing, 4 own, 0 kw
-over 60 wired modules** (582 `PORT_FILES` modules exempt; corpus `aa2d8b3`). `spec/old_check_stmts.py`
+`spec-pin:` header (§6). On 2026-10-20 it reads **2851 ok, 0 mismatched, 0 missing, 4 own, 0 kw
+over 107 wired modules** (582 `PORT_FILES` modules exempt; corpus `aa2d8b3`). `spec/old_check_stmts.py`
 is the grandfathered registry and is **not run as a gate**; its last reading, before the handoff,
 was 10473 identical (774 promoted, 83 renamed), 0 mismatched, 0 missing, 42 own-proof exemptions
 (10809 checked). Declaration-level exceptions live in `spec/decl_markers.tsv`, never in the Lean
@@ -313,6 +313,37 @@ drift (a `convert` between two `Membership.mem` props now yields an `Iff`), and 
 Mathlib` became 33 named imports. The `Matrix.`-namespace demand falls to 5 nodes / 1,928 lines: set
 MG3 and the four free-group rows. Record: [logs/matrix-family-four.md](../logs/matrix-family-four.md).
 
+**The nine small-family pairs of the leaf-families survey then landed** (WORKORDER-MG3, phase 1) — the
+wave's first large dedup batch: **18 modules, 6,291 port lines, 323 statement-checked declarations**,
+**28 of its 31 priced nodes** plus the bonus `ModularCurve.theta_mul` (185 pin lines, the one declaration
+`omegaRow_T2`'s proof lacked). Checker **2111 → 2434 ok over 78 modules**, 0 mismatched / 0 missing,
+0 warnings, axioms `[propext, Classical.choice, Quot.sound]`. Along the way it homed **four pin
+definition modules whole** — `Def_AlgebraicCurve_ConstantReduction` (127 lines, a hub with 1,944
+importers) and `Def_AlgebraicCurve_RegularProlongation` (84, with its 3-declaration
+`toRegularProlongation` bridge), `Def_HeckeCharacter_FiniteOrder` (30), `Def_ModularCurve_OmegaOf` (94) —
+and deferred one (`Def_ModularCurve_EigenformIdeal`, whose three declarations need the port-blocked
+`Def_HeckeGalois_EichlerShimura`; `omegaRow_T2` references none of them; recorded with its trigger in
+[CARRY-FORWARD.md](../CARRY-FORWARD.md)). Two items came out of it as standing policy: the 200k
+edit-loop cap is a **diagnostic, not the build budget** (§5), and the `ZLattice` pair — drafted but not
+landable, because its 563-line `SchwartzMap` module needs >4 minutes at ~110 % CPU — is deferred with its
+drafts parked at `lean/tmp/` and its two hotspots diagnosed (§5 of the record). Record:
+[logs/ds-leaf-families-wave1.md](../logs/ds-leaf-families-wave1.md); order:
+[deligneSerre/WORKORDER-MG3-ds-leaf-families.md](deligneSerre/WORKORDER-MG3-ds-leaf-families.md).
+**Phase 2 of that same order then landed and closed the front** (2026-10-20): three groups, **29 modules,
+9,874 port lines, 417 statement-checked declarations**, **44 of 49 dispatched nodes** (8,504 pin lines
+including the 99-line `Def_Compat_Mathlib430` block-D gate that v4.34's deletion of `Group (AddAut A)`
+forced), checker **2434 → 2851 ok over 107 modules**, 0 warnings, axioms
+`[propext, Classical.choice, Quot.sound]`, and **no `set_option maxHeartbeats` in any module** — five of the
+pins' large bumps turned out to be precaution and were dropped, the two real ones being instance-inference
+shape problems. Five nodes are deferred on missing definition gates (`LocalNewvector` 864 lines,
+`HeckeEis` 304, `RatAdele` 144 with 799 importers, `RatIdele`'s `Def_RatIdele_Normalizer`), all recorded in
+[CARRY-FORWARD.md](../CARRY-FORWARD.md). The frontier over the session: **1,360 → 1,285 nodes / 505,110 →
+489,200 raw `S_` lines**. Record: [logs/ds-leaf-families-wave2.md](../logs/ds-leaf-families-wave2.md).
+The front's scope criterion (§8 of the leaf-families note) and the re-scoped **phase 3** cut it admits — 37
+nodes / 3,641 lines / 7 families, recorded and **not scheduled** — are in
+[deligneSerre/TOPIC-phase3-small-supplements.md](deligneSerre/TOPIC-phase3-small-supplements.md); phase 2
+overshot that criterion and the note says how.
+
 For the landings above that wired into the frozen checker's lists, each delta is exactly its new
 public surface, 0 mismatched / 0 missing; the `localParam` landing has no such delta (§6). Since
 the 2026-10-19–20 handoff the column verifies with `spec/check_port.py` instead (§6), and a
@@ -321,8 +352,9 @@ separating-uniformiser twin **+6** (four on the handed-over host, two headlines)
 gate + leaf **+94**, the coset-sum append **+15** (14 from the handed-over coset-system module,
 1 headline) and the `_principalLevel` sibling **+11** (the engine imported, not re-proved) of the
 1942; the **matrix-group right-finite supplement of §1 is +96** (1942 → 2038 over 56 modules), the
-column's largest wired delta, and the **four ready `Matrix.` rows of §1 are +73** (2038 → **2111**
-over 60 modules). The host handoff is also the column's first **deletion** from
+column's largest wired delta, the **four ready `Matrix.` rows of §1 are +73** (2038 → 2111 over 60
+modules), the **nine small-family pairs of §1 are +323** (2111 → 2434 over 78 modules), and **phase 2 of
+the same order is +417** (2434 → **2851** over 107 modules). The host handoff is also the column's first **deletion** from
 `PORT_FILES` — a migration, not an append (§6). The 9542 → 9569 (+27) step is
 the `NumberField.AdelicHeight` definition gate, the manager's own ground for the adelic-modulus
 round
@@ -436,8 +468,22 @@ Companions:
 - The **mathlib-like leaf families of the cone** — the 179 self-contained leaves that carry no FLT
   import, grouped by the frontier's own family preamble, with the free-group family priced as one
   engine + four headlines, and the preamble's one-to-three-node families split into 43 ready and 11
-  blocked (nine of them one ready leaf away):
-  [deligneSerre/TOPIC-mathlib-leaf-families.md](deligneSerre/TOPIC-mathlib-leaf-families.md).
+  blocked (nine of them one ready leaf away), plus the nine-pair wave that landed from it:
+  [deligneSerre/TOPIC-ds-leaf-families.md](deligneSerre/TOPIC-ds-leaf-families.md),
+  [deligneSerre/WORKORDER-MG3-ds-leaf-families.md](deligneSerre/WORKORDER-MG3-ds-leaf-families.md),
+  [logs/ds-leaf-families-wave1.md](../logs/ds-leaf-families-wave1.md),
+  [logs/ds-leaf-families-wave2.md](../logs/ds-leaf-families-wave2.md). The re-scoped cut that
+  the criterion actually admits — 37 nodes / 3,641 lines / 7 families, all ready and gate-free — is
+  [deligneSerre/TOPIC-phase3-small-supplements.md](deligneSerre/TOPIC-phase3-small-supplements.md),
+  recorded but **not scheduled**.
+- The **mathlib-first check for supplements, and the survey behind it** — first the habit (name /
+  concept / statement `rg` over mathlib `v4.34.0`, with the three traps: trailing-name collisions, a
+  more general mathlib lemma, a pin `import Mathlib` hiding the library), then the one-off study of the
+  pin's 2,723 clean-import unported `S_` files (538,498 raw lines) outside the D-S cone: the subject
+  families, the ten hand-read supplements with mathlib-mirroring homes and verified gaps (the 57-line
+  `ValuationSubring` residue-field pair at 124 + 197 consumers is the cheapest), the FLT-flavoured
+  ~135k lines that are *not* supplements, and the dedup cases:
+  [TOPIC-mathlib-supplements.md](TOPIC-mathlib-supplements.md).
 - The `HeckeIntegralSeam` **coset seam** — the explicit `q_v + 1`-coset decomposition of the Hecke
   double coset at a finite place, its three-module `LocalLanglands` definition gate, and the public
   engine its `_principalLevel` sibling will import:
@@ -911,6 +957,28 @@ question; it reports and stops.
   `trace.Meta.synthInstance true` on that one declaration, in a scratch copy), fix the inference,
   re-run. Never raise `maxHeartbeats`, never add a module `set_option maxHeartbeats`. The edit loop
   writes no `.olean` and builds no dependent;
+* **to isolate a slow declaration, never re-elaborate a file.** The quick recipe, in order of
+  preference: (i) `import` the module that already owns the declaration (its olean is the prelude) and
+  restate only the target, proof pasted — the probe then costs that proof alone; (ii) in a scratch copy,
+  stub the prelude with `sorry` (keep the statements, replace the proofs) and elaborate the one target;
+  (iii) cut at *section* boundaries only, deleting a whole section's proofs rather than truncating the
+  file — a truncated file fails to elaborate at all, which burns a long run and answers nothing. Every
+  probe is a ≤ 60 s turn; if a probe cannot finish in that, the probe is wrong, not the file. One long
+  *profiled* run per module is the sanctioned exception — `set_option profiler true` at the library cap
+  gives the per-declaration split (elaboration vs typeclass inference vs tactics) and the module's total,
+  once, after which the isolation above takes over:
+* **the register of open build-time issues is [logs/build-time-issues.md](../logs/build-time-issues.md)**
+  (the owed `ResidueSumQExpansion` rework, the parked 429 s `ZLattice` draft, the tree's incomplete oleans,
+  the lock/memory rules, and the `/usr/bin/time` measurement trap). Read it before any build-heavy wave;
+* **the cap is a diagnostic, not the build budget.** The library's own setting is the lakefile's
+  `maxHeartbeats 4000000`, so a declaration whose measured cost is **arithmetic defeq** rather than
+  instance synthesis (`Add.add`/`Nat.rec` unfolding from a large expression) may exceed the 200,000
+  edit-loop budget and still be correct and green at tier 1. The rule for that case: **no `set_option`
+  of any kind**, the pin's own bump, the bisection and the diagnosis recorded in the module header, and
+  the tier-1 `lake build` as the gate. First instance:
+  `EisensteinSeries.sum_eisensteinG_vecCons_eq_mul_tsum_divisorSum_mul_cexp_pow` (pin 4,000,000; port
+  300k–400k; `lake build` 31 s, WORKORDER-MG3). Deferral is reserved for a proof that no longer
+  **closes** at any budget — the `HeckeCosetSeam.of_dvd` case;
 * `flock .lake/flt_build.lock timeout 300 lake build <module>` when a file is done (writes the
   `.olean`, builds dependencies, never dependents);
 * **no bare whole-tree `lake build`** while a set is in flight; one at a milestone, with

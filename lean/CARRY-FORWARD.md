@@ -36,6 +36,132 @@ imports it and uses **none** of its 31 declarations (2026-10-20,
 path" is a declaration-level `grep` over the consumer's `S_` file, not its import block. This
 entry is unchanged: the module is still owed when the 234-line slab bound is scheduled.
 
+### `Def_ModularCurve_EigenformIdeal` — the gate of `omegaRow_T2`'s definition layer
+
+Deferred 2026-10-20 while porting the nine small-family pairs (WORKORDER-MG3, group C). The 24-line pin
+module defines three declarations **in terms of** declarations of another pin definition module:
+
+- `ModularCurve.IsEigenformIdeal (N) (𝔪 : Ideal HeckeAlg) : Prop` :=
+  `∃ f IsNormalizedEigenform …, 𝔪 = eigenIdeal (…)` — uses `eigenIdeal`;
+- `ModularCurve.EigenformSupportAt` := `EigenformSupport p J (IsEigenformIdeal N)` — uses `EigenformSupport`;
+- `ModularCurve.EichlerShimuraDataAt` := `EichlerShimuraDataReduced … (IsEigenformIdeal N)` — uses
+  `EichlerShimuraDataReduced`.
+
+All three of `eigenIdeal`, `EigenformSupport`, `EichlerShimuraDataReduced` live in
+`Definitions/Def_HeckeGalois_EichlerShimura.lean`, which this register already records as blocked
+(`ModularForms/HeckeFiniteAlgebra.lean`, "Still blocked (not this module)"; §`exists_hasEquivariantPrimitiveOf`
+above). Homing the 24-line gate therefore means homing that module and its prerequisites first.
+
+**What is deferred is only the gate.** `ModularCurve.omegaRow_T2` (447 pin lines) and its six
+`ModularForm`/`ModularCurve` premises reference none of the three declarations
+(`rg -c 'eigenIdeal|EigenformSupport|EichlerShimuraDataReduced' P2M/Sol/S_omegaRow_T2.lean` → 0), so the
+pair landed without it. **Trigger:** a consumer that states `IsEigenformIdeal`, `EigenformSupportAt` or
+`EichlerShimuraDataAt` — i.e. any `Def_HeckeGalois_EichlerShimura` consumer — must home that module (and
+then this 24-line gate) first. Do not port a consumer of the three by stubbing them.
+
+### `Def_Compat_Mathlib430` blocks A–C — not homed, only block D is
+
+Decided 2026-10-20 while porting `AddAut.exists_mem_apply_eq_of_addOrderOf_eq_of_transvection_mem`
+(WORKORDER-MG3 group D). The pin module (`Definitions/Def_Compat_Mathlib430.lean`, 340 lines, imported
+by 197 pin `S_`/`Theorems` files) vendors four blocks of mathlib **4.30.0** API that `v4.34.0` renamed or
+removed:
+
+- **block D** (lines 124–340): `instance : Group (AddAut A)` plus thirteen primed lemmas
+  (`coe_mul'`, `mul_apply'`, `inv_def'`, …). **Homed** as `FLTForHuman/Algebra/AddAutCompat.lean`,
+  because v4.34 gives `AddAut` only an *additive* group and the `AddAut` node's statement
+  (`(H : Subgroup (AddAut (ZMod M × ZMod M)))`) cannot elaborate without a `Group` instance. `rg` cannot
+  see this need — it is a typeclass instance, not a symbol — so a "the compat import is dead" reading is
+  wrong here.
+- **blocks A–C** (lines 20–122): the v4.30 `Representation`/`Rep` API (`ofMulActionFinsupp*`,
+  `leftRegularHomFinsupp*`, and their `Bridge` lemmas). **Not homed**: no port consumer, and vendoring
+  old representation API wholesale invites future landings to use it instead of adapting to `v4.34`.
+  Trigger: any ported node whose statement or proof names one of those declarations — then home the
+  block that is needed, verbatim, at the pin's suffixed names, and record it here.
+
+### `HeckeEis.coresHom_eq_transfer` and `RatAdele.denseRange_algebraMap_add_adeleSingleAt` — two definition gates, both deferred
+
+Deferred 2026-10-20 at the close of WORKORDER-MG3 phase 2, when the column stopped cutting this front.
+Both are statement-level gaps (nothing in the port can be imported for them), and both ask for a pin
+definition module the port has never homed:
+
+| node | pin lines | gate module | gate lines | pin importers |
+|---|---:|---|---:|---:|
+| `HeckeEis.coresHom_eq_transfer` | 59 | `Def_Gamma0HeckeOperatorHom` (`HeckeEis.coresHom`, `transferAux`, `coe_transferAux`) | 304 | 144 |
+| `RatAdele.denseRange_algebraMap_add_adeleSingleAt` | 309 | `Def_LanglandsTunnell_StandardLocalConstantsAt` (`NumberField.StandardAddChar.adeleSingleAt`) | 144 | **799** |
+
+`rg` over `FLTForHuman/` finds neither `coresHom`/`transferAux` nor `adeleSingleAt`: not homed at all.
+`StandardLocalConstantsAt` is a pin **hub** (799 importers), so it is a definition order of its own, not a
+side-charge on a 309-line node — the same finding as `LocalNewvector`'s carrier and `Def_Compat_Mathlib430`.
+**Trigger:** a session that wants either node homes the named gate **whole and verbatim** (playbook §2.3),
+with its own `spec-pin:` header, before stating the node.
+
+**Third deferral of the same wave, larger than expected:** `RatIdele.exists_norm_apply_eq_ideleNorm_rpow`
+(312 pin lines) — its *statement* is fine (`TateGlobal.ideleNorm` and `AutomorphicForm.IsIdeleClassChar` are
+homed) but its *proof* needs the normalizer API of the unported `Definitions/Def_RatIdele_Normalizer.lean`:
+`RatIdele.ρ`, `ρ_spec`, `ρ_ne_zero`, `IsNormalizer` (grep over `FLTForHuman/` → nothing). So the node is
+blocked on that gate, not on the `distribHaarChar` question: the port's
+`AdeleRing.distribHaarChar_eq_prod_norm_pow_mult_mul_finprod_norm`
+(`NumberTheory/AdelicModulus.lean:80`) is a *stronger* form whose extra `∏ᶠ` factor is `1` under the pin's
+`snd = 1` hypothesis, i.e. the pin's variant is a two-line corollary — take it that way rather than
+restating a third version, and home `Def_RatIdele_Normalizer` whole first.
+
+### The `LocalNewvector` pair of WORKORDER-MG3 — a definition gate bigger than the family
+
+Deferred 2026-10-20 while phase 2 was dispatching. The two nodes — `LocalNewvector.AdelicSpan.exists_hasNewvectorConductor_le_factorization`
+(58 pin lines) and `…exists_mem_span_fixed_padicK1_of_fixedSubmodule_padicK1_ne_bot_of_apply_mul_finEmbed_eq` (589) — total
+647 pin lines, but **none of the vocabulary they are stated over is homed**. The gate, measured by the group that found it:
+
+| pin module | lines | pin importers | needed for |
+|---|---:|---:|---|
+| `Def_LocalNewvector_AdelicSpanCarrier` | 179 | **173** | both (`LocalNewvector.AdelicSpan`, `AdelicFnCarrier`, `AdelicSpanSubmodule`) |
+| `Def_LocalNewvector_ConductorDatum` | 114 | 56 | both (`fixedSubmodule`, `mem_fixedSubmodule_iff`, `HasNewvectorConductor`, `congruenceK1_le_integralSubgroup`) |
+| `Def_RepTheory_GL2CongruenceSubgroup` | 531 | 23 | node 2 (`FLT.SmoothVectors.gl2CongruenceSubgroup` and its API) |
+| `Def_LocalLanglands_IntegralSubgroupCompact` | 40 | 17 | node 2 (`FLT.SpectralSide.isCompact_coe_integralSubgroup_padic`) |
+
+≈ **864 pin definition lines for a 647-line family** — it is not a small family, and `AdelicSpanCarrier`
+(173 pin importers) and `GL2CongruenceSubgroup` (531 lines) are definition sets with consumers of their
+own, so they want an order and a review of their own rather than being a side-charge on a pair.
+
+Two further pin definition modules are touched **only** by the wrappers' `open`/`attribute` lines (so
+dropping them leaves no statement effect; record the drift): `Def_LocalNewvector_PrincipalSeriesCarrier`
+(255, the `PSCarrier` `attribute [-instance]`/`[-simp]` prelude) and
+`Def_AutomorphicForm_DihedralWeightOneLift` (30, an `open … DihedralWeightOne`).
+
+Already homed and *not* owed: `LocalNewvector.padicK1`/`congruenceK0`
+(`RepTheory/LocalNewvector/CongruenceSubgroupK1.lean`), `AdelicDock.*`
+(`NumberTheory/AdelicDock/LocalEmbedding.lean`), `FLT.SmoothVectors` (`RepTheory/SmoothVectors.lean`),
+`AdelicLevel.*`, `LocalGL2.integralSubgroup`, and the `open`-only
+`FLT.SpectralSide.isOpen_coe_integralSubgroup_padic`. **Trigger:** the next session that wants these two
+nodes homes the four modules **whole and verbatim** (playbook §2.3), `spec-pin:`-header each, before
+stating either node.
+
+### The `ZLattice` pair of WORKORDER-MG3 — deferred on elaboration cost, not on mathematics
+
+Deferred 2026-10-20 when MG3's phase 1 closed. The pair is
+`SchwartzMap.tsum_eq_tsum_fourier_euclideanSpace` (563 pin lines) plus
+`ZLattice.tsum_translate_eq_inv_covolume_mul_tsum_fourierIntegral` (229) and
+`ZLattice.summable_fourierIntegral_mul_fourierChar_dualSubmodule` (221) — **1,013 pin lines**, no
+definition gate (the pin files import mathlib only), and priced at ~1,000 net new. A faithful draft was
+written (614 + 293 port lines, no `sorry`) and is parked at `lean/tmp/zlattice/`, with its profile log and a handover note (`HANDOVER.md`); it was
+**not** landed because the `SchwartzMap` module cannot be iterated inside 2 minutes. Measured on the
+parked draft with `set_option profiler true` at the library cap: it **elaborates clean in 429 s**
+(exit 0, 0 errors, 0 `sorry`), of which **elaboration 191 s and typeclass inference 237 s** (tactic
+execution 1.79 s, `simp` 0.53 s) — i.e. the cost is **instance inference**, the class the 200k cap
+exists to find, not arithmetic defeq. Three declarations account for most of it: 67.6 s, 66.5 s and
+56 s. The pin sets `set_option maxHeartbeats 16000000` on its `PeriodizeLift` section and `3200000`
+file-wide, so it hit the same wall. The `ZLattice` module is blocked behind the `SchwartzMap` one (it
+needs its olean).
+
+The one hotspot already fixed is worth keeping: in `periodizeLiftFun`,
+`Function.surjInv toUnitAddTorus_surjective z` spent minutes inferring `surjInv`'s implicit function
+argument from a *proof term*; pinning `(f := toUnitAddTorus)` on the four `Function.surjInv` and the
+one `Function.surjInv_eq` made that prefix elaborate in seconds (minimal proof: `lean/tmp/zlattice/pi_G.lean`).
+The next attempt should therefore **not** raise anything: bisect the remaining three declarations with
+`set_option profiler true` on prefixes, and for each fix the *instance* argument the search is
+guessing — pin the implicit (`(f := …)`, `(𝕜 := …)`, `(E := …)`), give the search a local `letI`, or
+state the intermediate as a `private` helper with fully explicit binders. Land it only when the module
+elaborates inside 2 minutes; a module that cannot be iterated must not enter the library.
+
 ### The exact-volume / L2 chain — `Def_AutomorphicForm_{Gamma0ExactVolume,FundamentalDomainExactVolume,EisensteinScattering,L2ProductionInstance,L2AutomorphicCarrier,TruncatedDomainPartition}`
 
 Deferred 2026-10-17 while porting `CuspForm.peterssonOn_hecke_eq_conj_mul_of_hasNebentypus`

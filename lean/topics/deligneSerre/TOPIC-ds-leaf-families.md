@@ -1,8 +1,16 @@
-# Mathlib-like leaf families in the D-S cone — the close-out survey
+# The D-S cone's leaf families — the pool, the pricing, and the criterion
 
 Scoped 2026-10-20, after WORKORDER-MG1's landing (checker 2038) and with WORKORDER-MG2 in flight.
 This note answers one question: *of the D-S demand, what is left that is mathlib-shaped, how is it
 grouped into families, and what does closing it cost?*
+
+> **On the name.** This front was filed as *mathlib-small-families* for its first day, and that was a
+> misnomer on both counts: the wave took every ready leaf in a one-to-three-node family of the D-S cone,
+> which included nodes of 1,111 and 797 pin lines, and subjects that are FLT-flavoured however clean their
+> imports (`PeriodPair`'s ℘-torsion, `LocalNewvector`, `RatIdele`). It is now **the D-S cone's leaf
+> families**, and the four tests a "small supplement" actually has to pass are §8 of
+> this note; the re-scoped cut that
+> passes them is [TOPIC-phase3-small-supplements.md](TOPIC-phase3-small-supplements.md).
 
 ## 1. The pool
 
@@ -154,38 +162,64 @@ cheapest cuts of all when the import is already ported. Measured on the same tre
 ### 7.1 Ready one-to-three-node families
 
 All of these are `needed 1..3`: one module each (or one module for a related pair), nothing to home,
-nothing to promote. Excluding the outlier of §7.3: **42 families / 56 nodes / 11,624 raw lines**.
+nothing to promote. **42 families / 56 nodes / 11,624 raw lines / 554 public declarations** (596 wired with
+their headlines), ~10,700 net new at the 0.92 ratio. The last column names the families those nodes are premises *of*, i.e. what
+cutting them also closes.
 
-| lines | nodes | family | | lines | nodes | family |
-|---:|---:|---|---|---:|---:|---|
-| 1,111 | 3 | `PeriodPair` | | 235 | 1 | `VectorFourier` |
-| 848 | 2 | `MulAction` | | 223 | 1 | `ZSpan` |
-| 743 | 2 | `SchwartzMap` | | 221 | 1 | `integralClosure` |
-| 702 | 1 | `jacobiTheta_two_eq_tprod` | | 204 | 2 | `IsLocalRing` |
-| 647 | 2 | `LocalNewvector` | | 157 | 2 | `IsLocallyConstant` |
-| 626 | 3 | `Function` | | 156 | 1 | `SimpleGraph` |
-| 519 | 1 | `ModularGroup` | | 152 | 1 | `WittVector` |
-| 414 | 2 | `LSeries` | | 145 | 1 | the `tsupport` bound |
-| 414 | 1 | `BrauerNesbitt` | | 101 | 1 | `ZMod` |
-| 398 | 1 | `LinearEquiv` | | 98 | 2 | `CuspFormClass` |
-| 394 | 1 | `HexagonalLattice` | | 91 | 1 | `AbsoluteValue` |
-| **370** | **1** | **`AddAut`** | | 83 | 2 | `Submodule` |
-| 329 | 2 | `Subgroup` | | 77 | 1 | `LaurentSeries` |
-| 312 | 1 | `RatIdele` | | 77 | 1 | `LinearMap` |
-| 309 | 1 | `RatAdele` | | 68 | 1 | `ContinuousMap` |
-| 305 | 1 | `Nat` | | 59 | 1 | `HeckeEis` |
-| 272 | 2 | `Complex` | | 58 | 1 | `RingHom` |
-| 258 | 1 | `IntermediateField` | | 52 | 1 | `ValuationRing` |
-| 241 | 1 | `LocalGL2` | | 45 | 1 | `AddChar` |
-| | | | | 42 | 1 | `integrableOn_Ioi…` |
-| | | | | 36 | 1 | `Subalgebra` |
-| | | | | 18 | 1 | `ClassGroup` |
-| | | | | 14 | 1 | `IsAddCyclic` |
+| lines | nd | publics | net | family | closes / feeds |
+|---:|---:|---:|---:|---|---|
+| 1,111 | 3 | 88 | 1,022 | `PeriodPair` | `CuspForm`, `ModularCurve` |
+| 848 | 2 | 32 | 780 | `MulAction` | `CuspForm`, `ModularCurve` |
+| 743 | 2 | 44 | 683 | `SchwartzMap` | **blocker of `ZLattice`** |
+| 702 | 1 | 31 | 645 | `jacobiTheta_two_eq_tprod` | `CuspForm`, `ModularCurve` |
+| 647 | 2 | 4 | 595 | `LocalNewvector` | `AutomorphicForm`, `DihedralWeightOne` |
+| 626 | 3 | 31 | 575 | `Function` | `AutomorphicForm`, `ModularCurve` |
+| 519 | 1 | 58 | 477 | `ModularGroup` | **premise of the free-group family** (§3) |
+| 414 | 2 | 12 | 380 | `LSeries` | `AutomorphicForm` |
+| 414 | 1 | 1 | 380 | `BrauerNesbitt` | `GaloisRep`, `Representation` |
+| 398 | 1 | 19 | 366 | `LinearEquiv` | `AlgebraicCurve`, `ModularCurve` |
+| 394 | 1 | 32 | 362 | `HexagonalLattice` | `CuspForm`, `ModularCurve` |
+| **370** | **1** | **40** | **340** | **`AddAut`** | `CuspForm`, `WeierstrassCurve` |
+| 329 | 2 | 12 | 302 | `Subgroup` | **premise of the free-group family** (the 121-line node) |
+| 312 | 1 | 1 | 287 | `RatIdele` | `AutomorphicForm`, `LanglandsTunnell` |
+| 309 | 1 | 1 | 284 | `RatAdele` | `AutomorphicForm`, `LanglandsTunnell` |
+| 305 | 1 | 10 | 280 | `Nat` | **blocker of `Int`** |
+| 272 | 2 | 4 | 250 | `Complex` | `GaloisRep`, `ModularCurve` |
+| 258 | 1 | 12 | 237 | `IntermediateField` | `CuspForm`, `ModularCurve` |
+| 241 | 1 | 18 | 221 | `LocalGL2` | `AutomorphicForm`, `EisensteinGeneral` |
+| 235 | 1 | 7 | 216 | `VectorFourier` | `AutomorphicForm`, `NumberField` |
+| **223** | **1** | **9** | **205** | **`ZSpan`** | `AutomorphicForm` |
+| 221 | 1 | 10 | 203 | `integralClosure` | `CuspForm` |
+| 204 | 2 | 8 | 187 | `IsLocalRing` | `AlgebraicCurve`, `ModularCurve` |
+| 157 | 2 | 8 | 144 | `IsLocallyConstant` | `AutomorphicForm` |
+| 156 | 1 | 10 | 143 | `SimpleGraph` | **premise of the free-group family** (§3) |
+| 152 | 1 | 8 | 139 | `WittVector` | `ModularCurve`, `WeierstrassCurve` |
+| 145 | 1 | 5 | 133 | the `tsupport` bound | `AutomorphicForm` |
+| **101** | **1** | **7** | **92** | **`ZMod`** | **blocker of `EisensteinSeries`** |
+| 98 | 2 | 9 | 90 | `CuspFormClass` | `CohCarrier`, `ModularCurve` |
+| 91 | 1 | 1 | 83 | `AbsoluteValue` | **blocker of `HeckeCharacter`** |
+| 83 | 2 | 2 | 76 | `Submodule` | `AlgebraicCurve`, `AutomorphicForm` |
+| 77 | 1 | 4 | 70 | `LaurentSeries` | `ModularCurve` |
+| 77 | 1 | 1 | 70 | `LinearMap` | `AutomorphicForm` |
+| 68 | 1 | 1 | 62 | `ContinuousMap` | `MeasureTheory` |
+| 59 | 1 | 4 | 54 | `HeckeEis` | `CohCarrier`, `ModularCurve` |
+| 58 | 1 | 2 | 53 | `RingHom` | `CuspForm` |
+| 52 | 1 | 1 | 47 | `ValuationRing` | `AlgebraicCurve`, `CuspForm` |
+| 45 | 1 | 1 | 41 | `AddChar` | `NumberField` |
+| 42 | 1 | 3 | 38 | `integrableOn_Ioi…` | `AutomorphicForm` |
+| 36 | 1 | 1 | 33 | `Subalgebra` | **blocker of `Polynomial`** |
+| 18 | 1 | 1 | 16 | `ClassGroup` | `AutomorphicForm` |
+| 14 | 1 | 1 | 12 | `IsAddCyclic` | `CuspForm`, `WeierstrassCurve` |
 
-Cost: **~10,700 net new** at the 0.92 ratio, ~42 modules if each family is its own module, ~20 if the
-`≤ 60`-line one-liners are grouped by area (they are single declarations, and grouping unrelated ones
-in one module is against §3.1 — accept the extra small modules, or cut the tiny ones only when a
-neighbouring batch touches the same area).
+Nine of the 42 are also *premises* elsewhere, and three of those (`SchwartzMap`, `SimpleGraph`,
+`ModularGroup`, plus `Subgroup`'s 121-line node) land inside another batch — so the effective extra
+cost of the nine pairs and of the free-group family is smaller than their tables suggest.
+
+Grouping for dispatch: the 11 entries under 80 lines (546 lines, 20 declarations) are single
+declarations each. Cutting them one-per-module is honest (§3.1 directory = theory) but wasteful; the
+better move is to let each ride with the neighbour it feeds (`ZMod` → `EisensteinSeries`,
+`Subalgebra` → `Polynomial`, `AbsoluteValue` → `HeckeCharacter`, `Nat` → `Int`), which is exactly what
+§7.2's pairs do.
 
 ### 7.2 The blocked ones, and the nine that are one leaf away
 
@@ -203,8 +237,28 @@ neighbouring batch touches the same area).
 | `Monoid` | 2,479 | the free-group family (§3) | 3,275 | already priced: 3,291 net, 2 modules |
 | `GaloisRep` | 1,440 | **16 nodes / 20,438 lines** (`M4aTorus` 12,126, the `Representation`/`NumberField` cyclotomic chain, `BrauerNesbitt` …) | — | **not closeable cheaply**: this is the cone's centre, not a family |
 
-The nine pairs are **26 nodes / 5,927 raw lines → ~5,450 net new**, and they close **14 families**
+The nine pairs are **31 nodes / 5,927 raw lines → ~5,450 net new**, and they close **14 families**
 (the nine + `Subalgebra`, `ZMod`, `Nat`, `AbsoluteValue`, `SchwartzMap`).
+
+A **definition-gate audit of the 31 nodes** (the §1 classifier is per-file, so a *pair's* leaf can still
+import a gate the blocked family's file did not — this is the §4(a) blindness and it bites here):
+**six pairs are gate-free, three carry small unported `Definitions/` modules** (359 lines in all), and the other eight gate imports the pairs make are already homed:
+
+| pair | unported gate | lines | homed? |
+|---|---|---:|---|
+| `GaussProlongation` | `Def_AlgebraicCurve_RegularProlongation` + its prerequisite `Def_AlgebraicCurve_ConstantReduction` | 84 + 127 | no — owed (the prerequisite is a pin hub: 1,944 importers) |
+| `HeckeCharacter` | `Def_HeckeCharacter_FiniteOrder` | 30 | no — owed |
+| `omegaRow_T2` | `Def_ModularCurve_OmegaOf` + `Def_ModularCurve_EigenformIdeal` | 94 + 24 | no — owed |
+| the other six | — (`Def_EisensteinSeries_EisensteinG`, `Def_CohCarrier_Level` already homed) | 0 | yes |
+
+So wave 1 is really **31 nodes / 5,927 lines + a 359-line definition gate**, and the gate is the
+manager's (or delegated to the group that needs it — a leaf module with no dependents is not a hub edit).
+
+The order is
+[WORKORDER-MG3-ds-leaf-families.md](WORKORDER-MG3-ds-leaf-families.md); it is dispatched as
+three coding groups (A: `Polynomial`/`Int`/`IsAlgClosed`/`GaussProlongation`, 1,403 + 84; B:
+`EisensteinSeries`/`ZLattice`/`AddCommGroup`, 2,911; C: `HeckeCharacter`/`omegaRow_T2`, 1,613 + 148) with
+phase 2 (the 34 free-standing small families, 46 nodes / 9,344 lines) as the next wave.
 
 ### 7.3 The two outliers of the small-family view
 
@@ -221,9 +275,44 @@ The nine pairs are **26 nodes / 5,927 raw lines → ~5,450 net new**, and they c
 
 | wave | content | nodes | raw | price | why |
 |---:|---|---:|---:|---:|---|
-| 1 | **the nine pairs** (§7.2) | 26 | 5,927 | ~5,450 E | closes 14 families for ~200 lines each, every blocker a ready leaf |
+| 1 | **the nine pairs** (§7.2) — **landed 2026-10-20**: 18 modules, 323 wired, checker 2111 → 2434; the `ZLattice` pair deferred (drafts parked, hotspots diagnosed) | 31 | 5,927 | **measured: 6,291 port lines, +323 wired** | closes 14 families for ~200 lines each, every blocker a ready leaf |
 | 2 | **the ready tail** (§7.1) | 56 | 11,624 | ~10,700 E | 42 families, no blockers; group the `≤ 60`-line ones by area |
 | 3 | the free-group family (§3) | 10 | 3,961 | **3,291 M** | closes the four `Matrix.SpecialLinearGroup` rows |
 | 4 | `ValuationSubring` + `LanglandsTunnell` | 25 | 7,731 | **3,553 M** + 3,548 E | the two largest single-subject families |
 | 5 | the medium families (§2) | 60 | 12,000 | ~11,000 E | `WeierstrassCurve`, `MeasureTheory`, the q-expansion group, … |
 | 6 | `M4aTorus` (own topic) | 1 | 12,126 | ~11,200 E | the ray-class hub; behind it, `GaloisRep` |
+
+## 8. What the "small mathlib-like family" criterion must be (phase 2's scoping error)
+
+Phase 2 was dispatched on **"a ready leaf in a one-to-three-node family"** alone, and that is not the
+criterion this note's §7.1 table actually stated. Measured on the 46 nodes it dispatched:
+
+| | nodes | pin lines |
+|---|---:|---:|
+| phase 2 as dispatched | 46 | 9,552 |
+| of which **> 300 pin lines each** (not small) | **12** | **5,477** (57 %) |
+| of which FLT-flavoured subject (not mathlib-shaped) | ≥ 8 (`PeriodPair` ℘-torsion/modular forms, `LocalNewvector` adelic newvectors, `RatAdele`/`RatIdele` idèle-class characters, `jacobiTheta_two_eq_tprod`, `CuspFormClass`, `HeckeEis`, `ZSpan`) | ≳ 2,600 |
+| of which a definition gate exceeds the family (`LocalNewvector`: 864 gate lines for 647 family lines) | 1 family | 1,511 |
+
+The wave was already in flight when this was noticed, so it completes; **nothing further is cut from
+this pool** until it is re-scoped under four tests, all of which phase 2 failed at least once:
+
+1. **Size.** A node is a "small supplement" at **≤ ~250 pin lines**; a family is small if its nodes are
+   each that size (a 2–3 node family of 50–200-line leaves is fine; a single 797-line node is not).
+2. **Shape, read not inferred.** Read the `Theorems/` statement: FLT-specific vocabulary or subject
+   (Weierstrass ℘ and modular forms, adelic/newvector, idèle-class characters, Hecke operators, Tate
+   slots) disqualifies it, however clean its imports. The §1 import classifier only says the file names
+   mathlib objects, not that the mathematics is mathlib's.
+3. **The mathlib-first negative** of [TOPIC-mathlib-supplements.md](../TOPIC-mathlib-supplements.md) §1,
+   recorded in the module header.
+4. **The gate-to-family ratio.** If the pin `Definitions/` gate is larger than the family (the
+   `LocalNewvector` case: 179 + 114 + 531 + 40 = 864 lines of gate for 647 of statement), the gate is a
+   set of its own with its own consumers, not a side-charge — defer, and record it in `CARRY-FORWARD.md`
+   as that pair is now recorded.
+
+What survives these tests from this pool is recorded as the cut itself, recomputed on the tree phase 2
+left: **37 nodes / 3,641 pin lines / 283 public declarations in 7 families**, every node `needed 1`, gate-free
+and subject-read — `MeasureTheory` 1,336, `ValuationSubring` 738, `Representation` 368, `Algebra` 349,
+`ContinuousLinearMap` 328, `PowerSeries` 265, `Module.End` 257. That is
+[TOPIC-phase3-small-supplements.md](TOPIC-phase3-small-supplements.md), with the exclusions and the reasons
+on the record. It is **recorded, not scheduled**: the column stopped this front after phase 2.
