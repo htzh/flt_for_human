@@ -10,8 +10,8 @@ residuals. Every measurement is the pin's, read through `tools/deps`. The sectio
 stable: work orders across the column cite §3 for the workflow and §7 for the gates.
 
 The checker is **`spec/check_port.py` alone**, one module at a time, wired by the module's own
-`spec-pin:` header (§6). On 2026-10-20 it reads **2884 ok, 0 mismatched, 0 missing, 11 own, 0 kw
-over 109 wired modules** (582 `PORT_FILES` modules exempt; corpus `aa2d8b3`). `spec/old_check_stmts.py`
+`spec-pin:` header (§6). On 2026-10-20 it reads **3010 ok, 0 mismatched, 0 missing, 11 own, 0 kw
+over 117 wired modules** (582 `PORT_FILES` modules exempt; corpus `aa2d8b3`). `spec/old_check_stmts.py`
 is the grandfathered registry and is **not run as a gate**; its last reading, before the handoff,
 was 10473 identical (774 promoted, 83 renamed), 0 mismatched, 0 missing, 42 own-proof exemptions
 (10809 checked). Declaration-level exceptions live in `spec/decl_markers.tsv`, never in the Lean
@@ -707,6 +707,24 @@ never been elaborated and carried two hard name errors (a bare `open PiPoissonSu
 lives under `P2MW.S_….PiPoissonSummation`, and one qualified helper use) — fixed; its head is a
 proof just over 20k. Record:
 [logs/poisson-summation-statements.md](../logs/poisson-summation-statements.md).
+
+**The `Representation` family then closed whole** — six ready nodes / 2,351 raw pin lines, cut by size
+and subject as the family note's §7.5 priced it. The five small mathlib-shaped leaves landed as five
+mathlib-mirrored modules
+(`RepresentationTheory/{Burnside,InvariantPairing,CompactGroup,SubrepresentationExtension}.lean`,
+`LinearAlgebra/Matrix/SubfieldBasis.lean`; 21 wired), and the 1,692-line descent development as three
+`GaloisRep/Deformation/` modules (`Charpoly`, `Cocycle`, `FiniteDescent`; 103 wired) — **eight modules,
+2,893 port lines, 124 checked declarations**, 0 mismatch / 0 missing / 0 own, 0 warnings, axioms
+`[propext, Classical.choice, Quot.sound]` (the `InvariantPairing` headline a subset without
+`Classical`). The mathlib-first audit recorded a negative for every declaration, with mathlib supplying
+ingredients only (`Matrix.map_injective`, Schur, Jacobson density, Haar averaging, `toMatrix`/trace
+dictionary, the `FiniteField` Frobenius/norm API); two helpers in `Algebra/BrauerNesbittRepresentation.lean`
+were promoted for the Burnside module and now diff through the pin-private fallback (+2 ok, no `own:`).
+The family is complete: checker **2,884 → 3,010 ok, 109 → 117 wired modules**. Records:
+[logs/representation-leaves.md](../logs/representation-leaves.md),
+[logs/descent-charpoly.md](../logs/descent-charpoly.md); orders:
+[WORKORDER-R2-representation-leaves.md](deligneSerre/WORKORDER-R2-representation-leaves.md),
+[WORKORDER-R1-descent-charpoly.md](deligneSerre/WORKORDER-R1-descent-charpoly.md).
 
 **The shared ground that edits existing modules.** The `ValuationSubring` residue block in
 `NumberTheory/ValuationAtPlace.lean`; the `Gamma0Integral` promotion and its duplicate-block

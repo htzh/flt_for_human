@@ -53,7 +53,7 @@ new lines** and **≈320 wired declarations** (283 publics + 37 wrapper headline
 |---|---:|---:|---:|---|
 | `MeasureTheory` (integration, `IsFundamentalDomain`, `Lp`) | 13 | 1,336 | 33 | 2–3 modules |
 | `ValuationSubring` (residue/degree/Krull-dim criteria) | 7 | 738 | 19 | 1–2 modules |
-| `Representation` (compact-group representations) | 4 | 368 | 4 | 1 module |
+| `Representation` (compact-group representations) — **landed 2026-10-20** as five mathlib-shaped modules (`RepresentationTheory/{Burnside,InvariantPairing,CompactGroup,SubrepresentationExtension}.lean`, `LinearAlgebra/Matrix/SubfieldBasis.lean`): 21 wired, 0 mismatch/0 missing, record [logs/representation-leaves.md](../../logs/representation-leaves.md) | 4 (+1 over-threshold basis node) | 659 | 21 | 5 modules |
 | `Algebra` (norms, integral closure of a simple adjoin) | 5 | 349 | 13 | 1 module |
 | `ContinuousLinearMap` (integral-representation of operators) | 3 | 328 | 20 | 1 module |
 | `PowerSeries` (coefficient/subring criteria) | 3 | 265 | 11 | 1 module |

@@ -28,6 +28,14 @@
   directly). The pin's two `end Module.End` closers are written as two bare `end`s
   (playbook §7: `end A.B` closes one scope for the checker's namespace tracker).
 
+  Two helpers are **promoted** (2026-10-20): `Representation.range_asAlgebraHom_toLinearMap`
+  and `Representation.span_range_eq_top_iff_surjective_asAlgebraHom` are also pin
+  declarations of the node `S_Representation_span_range_eq_top_of_isIrreducible`, whose
+  port (`FLTForHuman/RepresentationTheory/Burnside.lean`) imports them from here instead
+  of re-proving them; the promotion drops only `private` and leaves both statements
+  untouched. `trace_asAlgebraHom_eq_of_forall_trace_eq` stays private here — that node's
+  module records why it is not duplicated there.
+
   Drift against `v4.34.0` — statements untouched:
 
   * port:381: the pin's private `exists_linearEquiv_of_span_range_eq_top_of_trace_eq` is
@@ -324,7 +332,7 @@ section Dictionary
 
 variable {k G V : Type*} [Field k] [Monoid G] [AddCommGroup V] [Module k V]
 
-private theorem _root_.Representation.range_asAlgebraHom_toLinearMap (ρ : Representation k G V) :
+theorem _root_.Representation.range_asAlgebraHom_toLinearMap (ρ : Representation k G V) :
     LinearMap.range ρ.asAlgebraHom.toLinearMap = Submodule.span k (Set.range ⇑ρ) := by
   refine le_antisymm ?_ ?_
   · rintro _ ⟨r, rfl⟩
@@ -340,7 +348,7 @@ private theorem _root_.Representation.range_asAlgebraHom_toLinearMap (ρ : Repre
     exact ⟨MonoidAlgebra.single g 1, ρ.asAlgebraHom_single_one g⟩
 
 
-private theorem _root_.Representation.span_range_eq_top_iff_surjective_asAlgebraHom (ρ : Representation k G V) :
+theorem _root_.Representation.span_range_eq_top_iff_surjective_asAlgebraHom (ρ : Representation k G V) :
     Submodule.span k (Set.range ⇑ρ) = ⊤ ↔ Function.Surjective ρ.asAlgebraHom := by
   rw [← range_asAlgebraHom_toLinearMap]
   exact LinearMap.range_eq_top

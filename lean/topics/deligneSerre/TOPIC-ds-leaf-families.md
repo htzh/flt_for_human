@@ -23,7 +23,8 @@ macros.
 * **179 nodes / 36,993 raw `S_` lines / 1,952 named declarations** (1,462 public, 311 `private`,
   179 `solution` copies) — 13.2 % of the demand's nodes, 7.3 % of its raw lines. Measured on the tree
   before WORKORDER-MG2 landed; its four `Matrix` rows have since landed (+73), so the pool now reads
-  **175 nodes / 35,952 lines** and the remaining wired surface is ≈1,568.
+  **175 nodes / 35,952 lines** and the remaining wired surface is ≈1,568 (both are the pre-wave-1
+  snapshot; §7.5 has the live figures — 103 ready candidates).
 * **All 179 are graph leaves** (`needed 1`, `--include-leaves`): every premise is already ported, so
   the whole pool is *ready*; none of it is a gate for anything else in the cone.
 * **No definition gate anywhere in the pool** — by construction (no `Definitions/` import survives
@@ -242,17 +243,20 @@ The nine pairs are **31 nodes / 5,927 raw lines → ~5,450 net new**, and they c
 
 A **definition-gate audit of the 31 nodes** (the §1 classifier is per-file, so a *pair's* leaf can still
 import a gate the blocked family's file did not — this is the §4(a) blindness and it bites here):
-**six pairs are gate-free, three carry small unported `Definitions/` modules** (359 lines in all), and the other eight gate imports the pairs make are already homed:
+**six pairs are gate-free, three needed small `Definitions/` modules** (359 lines in all) — **four
+of the five gates were homed in wave 1, and only `Def_ModularCurve_EigenformIdeal` (24 lines) is still
+deferred** — and the other eight gate imports the pairs make are already homed:
 
 | pair | unported gate | lines | homed? |
 |---|---|---:|---|
-| `GaussProlongation` | `Def_AlgebraicCurve_RegularProlongation` + its prerequisite `Def_AlgebraicCurve_ConstantReduction` | 84 + 127 | no — owed (the prerequisite is a pin hub: 1,944 importers) |
-| `HeckeCharacter` | `Def_HeckeCharacter_FiniteOrder` | 30 | no — owed |
-| `omegaRow_T2` | `Def_ModularCurve_OmegaOf` + `Def_ModularCurve_EigenformIdeal` | 94 + 24 | no — owed |
+| `GaussProlongation` | `Def_AlgebraicCurve_RegularProlongation` + its prerequisite `Def_AlgebraicCurve_ConstantReduction` | 84 + 127 | **yes** — both homed in wave 1 (`AlgebraicCurve/{ConstantReduction,RegularProlongation}.lean`) |
+| `HeckeCharacter` | `Def_HeckeCharacter_FiniteOrder` | 30 | **yes** — homed in wave 1 (`HeckeCharacter/FiniteOrder.lean`) |
+| `omegaRow_T2` | `Def_ModularCurve_OmegaOf` + `Def_ModularCurve_EigenformIdeal` | 94 + 24 | **partly** — `OmegaOf` homed (`ModularCurve/Defs/OmegaOf.lean`); `EigenformIdeal` still deferred ([CARRY-FORWARD.md](../../CARRY-FORWARD.md)) |
 | the other six | — (`Def_EisensteinSeries_EisensteinG`, `Def_CohCarrier_Level` already homed) | 0 | yes |
 
-So wave 1 is really **31 nodes / 5,927 lines + a 359-line definition gate**, and the gate is the
-manager's (or delegated to the group that needs it — a leaf module with no dependents is not a hub edit).
+So wave 1 was really **31 nodes / 5,927 lines + a 359-line definition gate** — of which 335 gate
+lines were homed in wave 1 and 24 are still deferred — and the gate was the manager's (or delegated to
+the group that needed it; a leaf module with no dependents is not a hub edit).
 
 The order is
 [WORKORDER-MG3-ds-leaf-families.md](WORKORDER-MG3-ds-leaf-families.md); it is dispatched as
@@ -275,12 +279,69 @@ phase 2 (the 34 free-standing small families, 46 nodes / 9,344 lines) as the nex
 
 | wave | content | nodes | raw | price | why |
 |---:|---|---:|---:|---:|---|
-| 1 | **the nine pairs** (§7.2) — **landed 2026-10-20**: 18 modules, 323 wired, checker 2111 → 2434; the `ZLattice` pair deferred (drafts parked, hotspots diagnosed) | 31 | 5,927 | **measured: 6,291 port lines, +323 wired** | closes 14 families for ~200 lines each, every blocker a ready leaf |
+| 1 | **the nine pairs** (§7.2) — **complete 2026-10-20**: 18 modules, 323 wired, checker 2111 → 2434; the `ZLattice` pair landed later the same day (+2 modules, +33 wired, 5.5 s + 5.4 s builds) | 31 | 5,927 | **measured: 6,291 port lines, +323 wired, then +33** | closes 14 families for ~200 lines each, every blocker a ready leaf |
 | 2 | **the ready tail** (§7.1) | 56 | 11,624 | ~10,700 E | 42 families, no blockers; group the `≤ 60`-line ones by area |
 | 3 | the free-group family (§3) | 10 | 3,961 | **3,291 M** | closes the four `Matrix.SpecialLinearGroup` rows |
 | 4 | `ValuationSubring` + `LanglandsTunnell` | 25 | 7,731 | **3,553 M** + 3,548 E | the two largest single-subject families |
 | 5 | the medium families (§2) | 60 | 12,000 | ~11,000 E | `WeierstrassCurve`, `MeasureTheory`, the q-expansion group, … |
 | 6 | `M4aTorus` (own topic) | 1 | 12,126 | ~11,200 E | the ray-class hub; behind it, `GaloisRep` |
+
+### 7.5 Status against the live tree — re-read 2026-10-20, after waves 1–2 and the `ZLattice` landing
+
+`frontier.py --ds --include-leaves` now reads **1,282 needed nodes / 488,187 lines**, with **103 ready
+candidates** (`--ready`, all premises ported) — §1's scoping figure was 175. What remains of this note's
+programme, by wave:
+
+* **wave 1 is complete** (31/31 nodes): the nine pairs all landed, the `ZLattice` pair on 2026-10-20 as
+  `Analysis/Fourier/{PoissonSummationPi,PoissonSummationZLattice}.lean` — 31 + 7 `own:` and 2 wired
+  declarations, 5.5 s and 5.4 s builds; its statement hotspot is
+  [logs/poisson-summation-statements.md](../../logs/poisson-summation-statements.md). The one gate still
+  deferred is `Def_ModularCurve_EigenformIdeal` (24 lines; no consumer in `omegaRow_T2`);
+* **wave 2's ready tail** was cut by phase 2 (44 of 49 dispatched nodes; five deferred on gates). What is left of it is the
+  re-scoped [TOPIC-phase3-small-supplements.md](TOPIC-phase3-small-supplements.md): **37 nodes / 3,641
+  lines / 283 publics in 7 families** — recorded and **not scheduled**; its §1 also notes a "phase 3b",
+  seven `ValuationSubring.*` nodes that are not `needed 1` (the 1,155-line family, once the bigger
+  nodes land);
+* **wave 3 — the free-group family is untouched**: no `CoprodI`/`freeGroupBasis` declaration is in the
+  tree. The live namespace rows are exactly the priced family — `Monoid` 3 / 2,479
+  (`nonempty_freeGroupBasis_fin_kuroshRank` 1,545, `conj_pow_minimalPeriod` 543, `isTree_cosetGraph`
+  391), `Matrix` 4 / 686 (the four `SpecialLinearGroup` headlines), `ModularGroup` 1 / 519, `Subgroup`
+  1 / 121, `SimpleGraph` 1 / 156 — 10 nodes / 3,961 raw, as in §3. (`Matrix` also carries set MG3: 5
+  nodes / 1,928 total.)
+* **waves 4–6 are untouched** — the live `--ds` namespace rows: `ValuationSubring` 24 / 6,218,
+  `LanglandsTunnell` 37 / 16,932, `WeierstrassCurve` 30 / 9,506, `NumberField` 110 / 35,595,
+  `ModularCurve` 238 / 109,359, `AutomorphicForm` 427 / 178,247; the §7.3 outliers `M4aTorus` 1 /
+  12,126 and `GaloisRep` 2 / 1,440 are still behind them;
+* **the gate-blocked nodes** are still the five in [CARRY-FORWARD.md](../../CARRY-FORWARD.md):
+  `LocalNewvector` (864-line gate), `HeckeEis.coresHom_eq_transfer` (304), `RatAdele` (144, 799
+  importers), `RatIdele`'s `Def_RatIdele_Normalizer`, and `EigenformIdeal` (24).
+
+So the note's open residue is: **phase 3's remaining 33 nodes (the `Representation` family landed
+2026-10-20, see below; the rest scheduled nowhere), the free-group family (10 nodes, the cheapest
+remaining cut), the five gate-blocked nodes, and the §5 families / outliers**; nothing in wave 1 or
+the ready tail is owed any more.
+
+**The `Representation` family, audited and dispatched 2026-10-20.** The live family is six nodes /
+2,351 raw lines — the four small ones of phase 3 (69/112/36/151) plus `exists_basis_toMatrix_…`
+(291; over the 250-line test) and `exists_conj_eq_map_of_charpoly_coeff_mem_range_of_finite_of_span_range_eq_top`
+(**1,692**; 105 public declarations). All six are `needed 1` and gate-free (only `P2M.Util`, plus
+one `Theorems/` import whose declaration — `BrauerNesbitt.exists_linearEquiv_of_span_range_eq_top_of_trace_eq` —
+is ported). `port_advise`/`port_plan` on the six: 2,268 declaration lines, 143 groups, **71 already
+in the port**, **2,197 net**; 6 trusted substitutions (3 public imports in
+`GaloisRep/Defs/MatrixRepresentation.lean`, 3 port-private helpers to promote) and 1 suspect
+(`DescentConjugatorSupply ↔ PeriodPair.DiscriminantNeZero`, the parser's type-only `def` match). The
+family is cut by size and subject, not as one wave:
+[WORKORDER-R2-representation-leaves.md](WORKORDER-R2-representation-leaves.md) took the five
+mathlib-shaped leaves — **landed 2026-10-20**: five modules in mathlib's layout
+(`RepresentationTheory/{Burnside,InvariantPairing,CompactGroup,SubrepresentationExtension}.lean`,
+`LinearAlgebra/Matrix/SubfieldBasis.lean`), 955 port lines, 21 wired, 0 mismatch / 0 missing, 0
+warnings, `grep -c sorry` 0; the mathlib-first audit recorded a negative for every declaration and
+supplied ingredients only (record: [logs/representation-leaves.md](../../logs/representation-leaves.md)); [WORKORDER-R1-descent-charpoly.md](WORKORDER-R1-descent-charpoly.md) took the 1,692-line descent
+development as three `GaloisRep/Deformation/` modules — **landed 2026-10-20**: 1,938 port lines,
+103 checked, 0 mismatch / 0 missing, the Galois subject the §7.3 note puts behind `M4aTorus`
+(record: [logs/descent-charpoly.md](../../logs/descent-charpoly.md)). **The whole family is therefore
+complete: six nodes / 2,351 raw lines → eight modules / 124 checked declarations.** §1's pool counts (175 / 35,952 / ≈1,568 wired) are the
+pre-wave-1 scoping snapshot.
 
 ## 8. What the "small mathlib-like family" criterion must be (phase 2's scoping error)
 
