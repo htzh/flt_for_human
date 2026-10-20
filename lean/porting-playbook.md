@@ -373,6 +373,40 @@ declaration). Fix the inference and re-run; a genuinely long proof is restructur
 exempted. `lake build`'s higher cap is not a target, and no module carries a
 `set_option maxHeartbeats`.
 
+**Diagnosing a blow-up: the probe ladder.** A timeout is a probe first and a diagnosis second. Every
+step is a `lake env lean` turn of seconds, none re-elaborates the module at the library cap, and
+every probe stays on the low cap — the cap is a *bisector*, not only a detector, because it turns a
+minute-long elaboration into a one-second abort. Worked example: the `ZLattice` pair's three
+`PeriodizeLift` statements, 429 s → 5.5 s at the same declarations
+([logs/poisson-summation-statements.md](../logs/poisson-summation-statements.md)).
+
+1. **Statement or proof?** Stub the suspect declaration's *proof* with `sorry` and re-run the edit
+   loop. The body is skipped but the statement still elaborates: if the timeout survives, the cost
+   is in the *type* and no tactic change can move it — and `trace.Meta.synthInstance` will show
+   nothing, because no search runs.
+2. **Isolate the declaration.** With no `.olean` of the module, `import` is not available: build a
+   scratch file from the module's imports plus the definitions the declaration needs. Replace the
+   *proofs* of the declarations before the target with `sorry` — keep their statements, the target
+   needs the names and types — keep the target's own statement, and put one `example` per candidate
+   behind a `-- PROBE <label>` comment. One run then reports every offender at once, and the labels
+   give the attribution. Stubbing the *prelude's proofs* is what makes the probe cheap; truncating
+   the file at a prefix line and appending `end`s does not, and usually does not parse either.
+3. **Shrink the statement, not the file.** The same application can be free in a `have` or a `def`
+   body and expensive in a declaration's *type*; bisect the statement's terms, not the module's.
+4. **Read the counters.** `set_option diagnostics true` on the one declaration prints the reduction
+   table (`ContinuousMap.instNorm ↦ 3854`, `Elem ↦ 10283`, …); `set_option trace.Meta.isDefEq true`
+   at a *tiny* cap (`-DmaxHeartbeats=3000`) prints the comparisons just before the abort and names
+   the subterm that will not unify.
+5. **Classify, then fix.** Instance *search* (`synthInstance` timeout) → the §6 brick recipe.
+   Instance *terms* compared by an argument check (`isDefEq`/`whnf` timeouts, no search goal, a big
+   instance such as `Norm C(α,E) = dist x 0` unfolding `sInf`/`Finset.sum`) → give the type one
+   syntactic form: name it once and use the name where it is **bound**; the statement text then
+   deviates, so it is a registered `own:` deviation (§4), not a bump. Arithmetic defeq → the pin's
+   bump rule (§6). A genuine proof cost → restructure.
+
+A probe that cannot finish inside a minute is the *probe's* fault, not the file's: it is still
+elaborating what it should have stubbed.
+
 | tier | when | command | cost |
 |---|---|---|---|
 | 0 edit loop | every edit | `timeout 120 lake env lean -DautoImplicit=false -DmaxHeartbeats=200000 <file>` | no cascade; the low cap is the instance-inference detector |
@@ -649,7 +683,15 @@ longer write-ups are in the records, and the instance-shaped ones, with re-runna
 - **`FunLike` at a bare function type** (`ℍ → ℂ`) — pass the bundled form.
 - **A kernel `Subtype.val` defeq between concrete `adjoin` carriers** — prove a generic coercion
   once at abstract carriers.
-- **A slow module is usually cumulative** — bisect by milestone, do not hunt one blow-up.
+- **A slow module is usually cumulative** — bisect by milestone, do not hunt one blow-up; but run
+  the ladder's first probe (§3.5: statement vs proof) on the worst declaration first, because one
+  statement can be the whole cost.
+- **A statement that will not elaborate at any proof budget** — a hypothesis whose instance *terms*
+  `isDefEq` must compare (`hf : ∀ K : Compacts α, Summable fun n => ‖(f.comp …).restrict K‖`, with
+  `Norm C(↥K, ℂ) = dist x 0` unfolding `BoundedContinuousFunction`/`sInf`/`Finset.sum`). Naming the
+  type once and using the name where it is bound fixes the elaboration; the binder then deviates
+  from the pin, so register the `own:` rows. Worked example:
+  [logs/poisson-summation-statements.md](../logs/poisson-summation-statements.md).
 - **Instance timeout** — supply the instance explicitly (`Algebra.IsIntegral.of_finite`), sometimes
   naming the element too (`private abbrev` **and** the instance).
 - **Two `Algebra`-like instances in one context** — a hard type error, not a cost; keep exactly one.
@@ -744,9 +786,12 @@ The recurring *shapes*, beyond a rename:
   to re-measure, not facts**; every one met elaborated at the low cap once the inference was
   found — and some needed no inference found at all: a transparency setting
   (`backward.isDefEq.respectTransparency false`) or a bulk budget was carrying an ill-shaped proof,
-  and the fix was to restructure the proof, not to supply an instance. A library theorem can be
-  cheap while its *concrete-instance* use is not: keep a `spec/` capstone zone hypothesis-form and
-  put concreteness in the ground field.
+  and the fix was to restructure the proof, not to supply an instance. A *statement*-level cost is
+  neither: the pin's `16000000` on the `PeriodizeLift` section was precaution (the library's 4M
+  already sufficed, at 429 s), no inference fix moves it, and the fix is a named hypothesis type
+  plus registered `own:` rows (§3.5, `logs/poisson-summation-statements.md`). A library theorem can
+  be cheap while its *concrete-instance* use is not: keep a `spec/` capstone zone hypothesis-form
+  and put concreteness in the ground field.
 - **`time` under-reports `lake env lean`** (the forked grandchild's CPU is not charged).
 - **`end A.B` closes *both* nested scopes**, silently de-nesting every later declaration; write
   two bare `end`s, since the symptom appears downstream.
