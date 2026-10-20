@@ -1,7 +1,13 @@
 # WORKORDER-MG2 — the four ready `Matrix.` rows of the D-S cone
 
-**Status (open, scoped 2026-10-20).** One set, **four modules, zero host edits**, dispatched to one
-coding session. Pricing, readiness and the rest of the `Matrix.` family:
+**Status (closed 2026-10-20): landed and reviewed green.** One set, **four modules, zero host edits,
+zero promotions**, one coding session. Measured: 850 / 162 / 150 / 118 lines, **73 statement-checked
+declarations** (63 + 7 + 1 + 2 — row 3's whole proof is private), checker **2038 → 2111 ok**, 0 mismatch /
+0 missing over 60 modules; tier-1 builds 2,958 / 2,203 / 1,731 / 1,731 jobs at 10.85 / 5.95 / 4.32 /
+4.35 s, **0 warnings**; axioms `[propext, Classical.choice, Quot.sound]`; zero `set_option linter.*`
+suppressions. Record: [logs/matrix-family-four.md](../../logs/matrix-family-four.md).
+The order's one misread (row 1's `descent` is public; the private helper is `finrank_eq`) is corrected
+there. Pricing, readiness and the rest of the `Matrix.` family:
 [TOPIC-matrix-family-in-cone.md](TOPIC-matrix-family-in-cone.md). This order is the "MG2 now" of its
 § Recommendation: **1,041 raw `S_` lines → 970 net new**, 81 declaration groups, **0 substitutions**,
 **no block shared by two files**, expected checker **+73**.

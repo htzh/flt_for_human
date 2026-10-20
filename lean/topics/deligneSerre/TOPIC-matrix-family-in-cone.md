@@ -28,7 +28,7 @@ carries a definition gate** — the one exception is #5, whose `Def_Deformations
 import is already homed (`GaloisRep/Defs/MatrixRepresentation.lean`, the pin's 23-line module
 verbatim) and whose theorem premise is #6.
 
-## Set MG2 — the four ready rows: 1,041 raw → 970 net new, 73 wired
+## Set MG2 — the four ready rows: 1,041 raw → 970 net new, 73 wired — **LANDED 2026-10-20**
 
 `port_advise --target` ×4, `port_plan`: raw 1,041, declaration lines 977, boilerplate 64,
 **81 declaration groups**, **0 substitutions** (trusted or suspect), **no block shared by two
@@ -55,7 +55,10 @@ statement text is the **wrapper's** (`Matrix.SpecialLinearGroup`, not the S_ fil
 
 Total: **four modules, 970 net new lines, checker +73**, no host edit, no promotion, nothing
 to register (all four are listed). Order:
-[WORKORDER-MG2-matrix-family.md](WORKORDER-MG2-matrix-family.md).
+[WORKORDER-MG2-matrix-family.md](WORKORDER-MG2-matrix-family.md); record:
+[logs/matrix-family-four.md](../../logs/matrix-family-four.md). Measured on landing: 850 / 162 / 150 /
+118 lines, 73 wired (63 + 7 + 1 + 2), checker 2038 → **2111 ok** over 60 modules, 0 warnings. The
+`Matrix.`-namespace demand falls to **5 nodes / 1,928 lines**: MG3 below, plus the four free-group rows.
 
 ## Set MG3 — the GL row behind the Serre-image row: 1,632 raw → 1,611 net new, 53 wired
 
@@ -93,8 +96,10 @@ this list**; it is recorded here so the `Matrix.` family's remaining demand is a
 
 ## Recommendation
 
-1. **MG2 now**: 970 net new, +73, four modules, no gate, no risk (§ above).
+1. ~~**MG2 now**~~ — **landed 2026-10-20** (970 net new, +73, 850/162/150/118 lines, 0 warnings).
 2. **MG3 next round**, as one set: 1,611 net new, +53, and it is the column's own
    `ModularCurve.SerreImage` subject meeting the `GL₂` count.
-3. Rows 7–10 stay where they are until a column owns the free-product subject; their own
-   lines are small, their premises are not.
+3. Rows 7–10 are now fully priced as the **free-group family** of
+   [TOPIC-mathlib-leaf-families.md](TOPIC-mathlib-leaf-families.md) §3 — 3,961 raw → 3,291 net
+   new (measured), one engine + four headlines, 2 modules, 506 removable duplicate lines. It is the
+   cheapest way to close the `Matrix.` namespace.
