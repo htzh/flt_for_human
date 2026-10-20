@@ -239,8 +239,10 @@ The port-side guard (`spec/check_port.py`):
   44 wired modules.
 * the four `own` declarations are the port-own base-change helpers with no exact
   pin declaration: `ModularCurve.tensorUnit`, `tensorUnit_apply`,
-  `bcTensorFracIotaFinrank` and `bcTensorFracIotaSeam`. They carry `-- own:`
-  markers; they are tier 2, not diffed.
+  `bcTensorFracIotaFinrank` and `bcTensorFracIotaSeam`. They carry the legacy
+  in-source `-- own:` markers; going forward declaration-level exceptions live in
+  the central `spec/decl_markers.tsv` (checker metadata, no build impact), and the
+  in-source form is grandfathered. They are tier 2, not diffed.
 
 The legacy checker (`spec/old_check_stmts.py`):
 
@@ -341,9 +343,9 @@ The base rule is the `norm` image, then a small exception table.
    checker-invisible instances, are renamed.
 4. **Capital `Kw` pass** — done: namespaces and declarations, with the checker
    map and the six `spec/` consumers updated.
-5. **Consumers and docs** — the six `spec/` consumers are updated; the `math/`
-   notes and the topics/logs still carry the old spellings and are the remaining
-   documentation sweep.
+5. **Consumers and docs** — done: the six `spec/` consumers are updated and every
+   `math/`/`base/` reference to a junk `kw`/`Kw` name now uses the port name. The
+   port-module docstrings, topics and logs keep the old pin spellings as history.
 6. **Close-out** — `PORT_FILES` 584, `check_port --all` green, the corpus rebuilt,
    the register current, the hash decision unchanged.
 
@@ -356,9 +358,9 @@ The base rule is the `norm` image, then a small exception table.
   meaningful suffixes (`Tate…`, `BetweenCurves…`, `HrouteR`, `LocalResiduePin`,
   `IsogenyEndDatum…`); a later post-processing pass can still give the public ones
   nicer names, with `CANONICAL_NAMES` extended in the same change.
-* The rename was textual, so module docstrings that say `Pin <new name>` now cite
-  the port spelling rather than the pin original. The documentation sweep should
-  restore the pin name wherever the sentence is about provenance.
+* The rename was textual, so port-module docstrings that say `Pin <new name>` now
+  cite the port spelling rather than the pin original. The `math/`/`base/` notes
+  are clean; the porting topics/logs are deliberately left as historical records.
 * The four `own` declarations are tier 2 and not diffed; they are the port-own
   base-change helpers with no exact pin declaration.
 * `CANONICAL_NAMES` is part of the checker's definition of "the same statement";

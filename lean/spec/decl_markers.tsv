@@ -1,0 +1,15 @@
+# Central declaration-level exceptions for spec/check_port.py.
+#
+# `spec-pin:` stays in the module header; this file replaces the per-declaration
+# `-- pin:` / `-- own:` comments in the source (existing comments are grandfathered
+# and still work).  An entry here takes precedence over an in-source marker.
+#
+# Columns are tab-separated:
+#   module        path relative to lean/ (the checker's module key)
+#   declaration   full importable name, namespace prefix included
+#   directive     `pin: <name> (<file>:<line>)` or `own: <reason>`
+#
+# A `pin:` file is added to that module's wire.  `own:` is tier 2 (not diffed).
+# Changing this file never affects a Lean build; `check_port --strict-markers`
+# fails on an entry that no longer matches a declaration.
+module	declaration	directive

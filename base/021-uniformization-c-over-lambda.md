@@ -176,7 +176,7 @@ nonsingular, hence an affine point of $`E_\Lambda`$; this is the pin's
 `equation_weierstrassP` followed by `equation_iff_nonsingular_of_Δ_ne_zero`. This makes
 $`\Phi`$ well defined, and it makes the "kernel" direction of the theorem easy: the
 affine point $`(\wp(z), \wp'(z)/2)`$ is never the origin, so $`\Phi(z) = 0`$ forces the
-defining case $`z \in \Lambda`$ (`kw_toPoint_eq_zero_iff`).
+defining case $`z \in \Lambda`$ (`toPoint_eq_zero_iff`).
 
 ## 6. Surjectivity of ℘
 
@@ -203,11 +203,11 @@ holomorphic elliptic function, hence constant, hence $`\wp`$ constant, absurd.
 
 Two immediate corollaries.
 
-- **$`\Phi`$ is surjective** (`kw_toPoint_surjective`). Given $`P = (x_0,y_0)`$ on
+- **$`\Phi`$ is surjective** (`toPoint_surjective`). Given $`P = (x_0,y_0)`$ on
   $`E_\Lambda`$, choose $`z \notin \Lambda`$ with $`\wp(z) = x_0`$; then
   $`(\wp'(z)/2)^2 = y_0^2`$ by §5, so $`\wp'(z)/2 = \pm y_0`$. If the sign is wrong,
   replace $`z`$ by $`-z`$, using $`\wp(-z) = \wp(z)`$ and $`\wp'(-z) = -\wp'(z)`$.
-- **The level sets of $`\wp`$ are countable** (`kw_countable_weierstrassP_eq`). The
+- **The level sets of $`\wp`$ are countable** (`countable_weierstrassP_eq`). The
   function $`\wp - c`$ is analytic and not identically zero, so its zero set is discrete,
   and a discrete subset of the Lindelöf space $`\mathbb{C}`$ is countable. This is used
   only in §8, to know that the "bad" values to avoid form a countable set.
@@ -277,7 +277,7 @@ constant (Liouville). Its value at $`w`$ is $`0`$ (this is where $`2w \notin \La
 needed: then $`w \in U_w`$, so the extension agrees with $`\Phi_w`$ there). Therefore the
 extension is $`\equiv 0`$, and $`\Phi_w \equiv 0`$ on $`U_w`$. $`\square`$
 
-The rearrangement is the pin's `kw_weierstrassP_add_eq_addX`:
+The rearrangement is the pin's `weierstrassP_add_eq_addX`:
 
 $$\wp(z+w) = \mathrm{addX}\bigl(\wp(z), \wp(w), \mathrm{slope}(\wp(z),\wp(w),\wp'(z)/2,\wp'(w)/2)\bigr),$$
 
@@ -306,7 +306,7 @@ This is the $`y`$-coordinate of the addition law. Its proof is the same four ste
 4. $`\Psi_w(w) = 0`$, directly.
 
 Liouville then gives $`\Psi_w \equiv 0`$, and the rearrangement is
-`kw_derivWeierstrassP_add_eq_addY`:
+`derivWeierstrassP_add_eq_addY`:
 
 $$\frac{\wp'(z+w)}{2} = \mathrm{addY}\bigl(\wp(z),\wp(w),\wp'(z)/2,
   \mathrm{slope}(\wp(z),\wp(w),\wp'(z)/2,\wp'(w)/2)\bigr).$$
@@ -324,7 +324,7 @@ and gives
 
 $$\Phi(z+w) = \Phi(z) + \Phi(w).$$
 
-This is `kw_toPoint_add_generic`. The remaining work is to remove the five hypotheses.
+This is `toPoint_add_generic`. The remaining work is to remove the five hypotheses.
 
 ## 8. Removing the degenerate cases
 
@@ -352,7 +352,7 @@ where each set is understood off $`\Lambda`$ as in §6. Every piece is a transla
 dilate of $`\Lambda`$, of the zero set of $`\wp'`$, or of a level set $`\wp = c`$; the
 last two are countable by §6, the lattice is countable, and countable unions of countable
 sets are countable. Since $`\mathbb{C}`$ is uncountable, $`S \neq \mathbb{C}`$:
-**a good $`u`$ exists.** This is `kw_exists_generic_perturbation`.
+**a good $`u`$ exists.** This is `exists_generic_perturbation`.
 
 For such a $`u`$, all of $`u`$, $`2u`$, $`z+u`$, $`w+u`$, $`z+w+u`$, $`2(w+u)`$ avoid
 $`\Lambda`$, and the three pairs $`(z+w,u)`$, $`(z,w+u)`$, $`(w,u)`$ are generic in the
@@ -362,7 +362,7 @@ $$\Phi(z+w+u) = \Phi(z+w) + \Phi(u) = \Phi(z) + \Phi(w+u) = \Phi(z) + \Phi(w) + 
 
 using $`z+w+u = z+(w+u)`$; cancelling $`\Phi(u)`$ gives $`\Phi(z+w) = \Phi(z)+\Phi(w)`$.
 
-This is `kw_toPoint_add`, and with it additivity holds for **all** $`z, w \in \mathbb{C}`$.
+This is `toPoint_add`, and with it additivity holds for **all** $`z, w \in \mathbb{C}`$.
 
 ## 9. The isomorphism
 
@@ -370,10 +370,10 @@ Putting the pieces together:
 
 - $`\Phi`$ is $`\Lambda`$-periodic (`toPoint_add_mem`), so it factors through the quotient
   $`\mathbb{C} \to \mathbb{C}/\Lambda`$;
-- $`\Phi`$ is additive (`kw_toPoint_add`) and $`\Phi(0) = 0`$, so it is a group
+- $`\Phi`$ is additive (`toPoint_add`) and $`\Phi(0) = 0`$, so it is a group
   homomorphism;
-- $`\Phi`$ is surjective (`kw_toPoint_surjective`);
-- $`\Phi(z) = 0 \iff z \in \Lambda`$ (`kw_toPoint_eq_zero_iff`), which is exactly the
+- $`\Phi`$ is surjective (`toPoint_surjective`);
+- $`\Phi(z) = 0 \iff z \in \Lambda`$ (`toPoint_eq_zero_iff`), which is exactly the
   kernel condition.
 
 Hence the induced map $`\mathbb{C}/\Lambda \to E_\Lambda(\mathbb{C})`$ is a surjective
@@ -458,56 +458,56 @@ the chord-and-tangent group law
 $`\wp`$, and no uniformization statement; all of §4–§9 beyond the differential equation is
 the pin's.
 
-**The proof, step by step, in Lean.** The internal names carry the pin's `kw_` prefix and
+**The proof, step by step, in Lean.** The port's internal names are stripped of the pin's collision prefix and
 are `private`; the line numbers are for `aa2d8b3`.
 
-| Lean (pin) | line | mathematics |
+| Lean (port) | pin line | mathematics |
 |---|---|---|
 | `apply_eq_apply_of_differentiable_of_forall_periodic` | 155 | §3, Liouville for differentiable $`\Lambda`$-periodic functions |
 | `toPoint_add_mem` | 185 | $`\Phi`$ is $`\Lambda`$-periodic |
 | `toPoint_neg` | 198 | $`\Phi(-z) = -\Phi(z)`$ |
-| `kw_weierstrassP_surjective` | 367 | §6, $`\wp`$ is onto |
-| `kw_toPoint_eq_zero_iff` | 429 | $`\Phi(z)=0 \iff z \in \Lambda`$ |
-| `kw_toPoint_surjective` | 437 | §6 corollary, $`\Phi`$ is onto |
-| `kw_addΦ` | 795 | the $`x`$-addition expression $`\Phi_w`$ |
-| `kw_addΦ_diffEq` | 801 | rewrite $`\Phi_w`$ using the ODE |
-| `kw_addBridge_identity` | 812 | $`z^4\Phi_w(z) = E(z) + R(z)`$, the removability decomposition |
-| `kw_addCoreE_order_ge_four` | 679 | $`E`$ has order $`\ge 4`$ at $`0`$ |
-| `kw_addBridgeR_order_ge_four` | 762 | $`R`$ has order $`\ge 4`$ at $`0`$ |
-| `kw_elliptic_Liouville_zero` | 984 | the extension principle of §3, in full generality |
-| `kw_addΦ_eq_zero` | 1098 | §7.1, $`\Phi_w \equiv 0`$ |
-| `kw_weierstrassP_add_eq_addX` | 1107 | the $`x`$-coordinate formula |
-| `kw_addΨ` | 1120 | the $`y`$-addition expression $`\Psi_w`$ |
-| `kw_addΨ_neg_sub` | 1150 | $`\Psi_w(-z-w) = -\Psi_w(z)`$ |
-| `kw_addΨ_eq_zero` | 1304 | §7.2, $`\Psi_w \equiv 0`$ |
-| `kw_derivWeierstrassP_add_eq_addY` | 1313 | the $`y`$-coordinate formula |
-| `kw_toPoint_add_generic` | 1332 | §7.3, additivity in the generic case |
-| `kw_exists_generic_perturbation` | 1394 | §8, existence of the good $`u`$ |
-| `kw_toPoint_add` | 1435 | §8, additivity in all cases |
-| `kw_isUniformization` | 1478 | §9, the three conjuncts |
+| `weierstrassP_surjective` | 367 | §6, $`\wp`$ is onto |
+| `toPoint_eq_zero_iff` | 429 | $`\Phi(z)=0 \iff z \in \Lambda`$ |
+| `toPoint_surjective` | 437 | §6 corollary, $`\Phi`$ is onto |
+| `addΦ` | 795 | the $`x`$-addition expression $`\Phi_w`$ |
+| `addΦ_diffEq` | 801 | rewrite $`\Phi_w`$ using the ODE |
+| `addBridge_identity` | 812 | $`z^4\Phi_w(z) = E(z) + R(z)`$, the removability decomposition |
+| `addCoreE_order_ge_four` | 679 | $`E`$ has order $`\ge 4`$ at $`0`$ |
+| `addBridgeR_order_ge_four` | 762 | $`R`$ has order $`\ge 4`$ at $`0`$ |
+| `elliptic_Liouville_zero` | 984 | the extension principle of §3, in full generality |
+| `addΦ_eq_zero` | 1098 | §7.1, $`\Phi_w \equiv 0`$ |
+| `weierstrassP_add_eq_addX` | 1107 | the $`x`$-coordinate formula |
+| `addΨ` | 1120 | the $`y`$-addition expression $`\Psi_w`$ |
+| `addΨ_neg_sub` | 1150 | $`\Psi_w(-z-w) = -\Psi_w(z)`$ |
+| `addΨ_eq_zero` | 1304 | §7.2, $`\Psi_w \equiv 0`$ |
+| `derivWeierstrassP_add_eq_addY` | 1313 | the $`y`$-coordinate formula |
+| `toPoint_add_generic` | 1332 | §7.3, additivity in the generic case |
+| `exists_generic_perturbation` | 1394 | §8, existence of the good $`u`$ |
+| `toPoint_add` | 1435 | §8, additivity in all cases |
+| `isUniformization_toPoint` | 1478 | §9, the three conjuncts |
 
 The final assembly is four lines:
 
 ```lean
 theorem solution (L : PeriodPair) (h : L.DiscriminantNeZero) : L.IsUniformization h :=
-  L.kw_isUniformization
+  L.isUniformization_toPoint
 ```
 
-with `kw_isUniformization` built from `kw_toPoint_add`, `kw_toPoint_surjective` and
-`kw_toPoint_eq_zero_iff`.
+with `isUniformization_toPoint` built from `toPoint_add`, `toPoint_surjective` and
+`toPoint_eq_zero_iff`.
 
 **Two statement-shape notes.** First, `IsUniformization` is stated for
 `toPoint : ℂ → E(ℂ)`, not for a map $`\mathbb{C}/\Lambda \to E(\mathbb{C})`$: the
 descended isomorphism is not a separate declaration in the pin. It is made explicit in
 the port (below) as `toPointAddEquiv`. Second, the removability computations are not done
 by hand on Laurent coefficients: the pin defines explicit auxiliary functions
-(`kwAddCoreE`, `kwAddBridgeT`, `kwAddBridgeR`, `kwAddCoreE₁`, `kwAddCoreE₂`,
-`kwAddΨCoreE`, `kwAddΨTail`) whose `analyticOrderAt` at `0` is bounded below by
+(`addCoreE`, `addBridgeT`, `addBridgeR`, `addCoreE₁`, `addCoreE₂`,
+`addΨCoreE`, `addΨTail`) whose `analyticOrderAt` at `0` is bounded below by
 `natCast_le_analyticOrderAt` / `natCast_le_analyticOrderAt_iff_iteratedDeriv_eq_zero`, and
 then the removability of $`\Phi_w`$ and $`\Psi_w`$ follows from an algebraic bridge
 identity. That is the formal counterpart of "the negative powers cancel" in §7.
 
-**The port.** This file has been ported, with the pin's `kw_` prefix dropped and the
+**The port.** This file has been ported, with the pin's collision prefix dropped and the
 helpers named for content, at
 [`lean/FLTForHuman/Elliptic/PeriodPair/Uniformization.lean`](https://github.com/htzh/flt_for_human/blob/34f235a/lean/FLTForHuman/Elliptic/PeriodPair/Uniformization.lean)
 (commit `34f235a`). Its header carries the full pin-name mapping. The headline is
@@ -527,7 +527,7 @@ noncomputable def toPointAddEquiv :
 ```
 
 at line 1281 — the additive group isomorphism of this note, as an `AddEquiv`. The pin's
-own copy of that packaging is `PeriodPair.kw_toPointAddEquiv`, private and exported from
+own copy of that packaging is `PeriodPair.toPointAddEquiv`, private and exported from
 `S_WeierstrassCurve_Affine_exists_algHom_baseChange_of_isAddCyclic_ker_pointMapOfPushforward.lean`
 (line 950), used by the isogeny/Vélu files of
 [math/023](../math/023-velu-isogenies-and-endomorphism-ring.md).
@@ -543,9 +543,9 @@ Pinned pin sources (`aa2d8b3`):
 
 - [`Definitions/Def_PeriodPair_Uniformization.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_PeriodPair_Uniformization.lean) — `weierstrassCurve`, `equation_weierstrassP` (37), `DiscriminantNeZero` (48), `toPoint` (57), `IsUniformization` (75)
 - [`Theorems/Thm_PeriodPair_isUniformization_toPoint.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_PeriodPair_isUniformization_toPoint.lean#L6) — the headline
-- [`P2M/Sol/S_PeriodPair_isUniformization_toPoint.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_PeriodPair_isUniformization_toPoint.lean) — the proof; `kw_addΦ` (795), `kw_addΦ_eq_zero` (1098), `kw_addΨ` (1120), `kw_addΨ_eq_zero` (1304), `kw_toPoint_add` (1435), `kw_isUniformization` (1478)
+- [`P2M/Sol/S_PeriodPair_isUniformization_toPoint.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_PeriodPair_isUniformization_toPoint.lean) — the proof; `addΦ` (795), `addΦ_eq_zero` (1098), `addΨ` (1120), `addΨ_eq_zero` (1304), `toPoint_add` (1435), `isUniformization_toPoint` (1478)
 - [`Theorems/Thm_PeriodPair_discriminant_ne_zero.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_PeriodPair_discriminant_ne_zero.lean#L6) — $`\Delta \neq 0`$
-- [`P2M/Sol/S_WeierstrassCurve_Affine_exists_algHom_baseChange_of_isAddCyclic_ker_pointMapOfPushforward.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_Affine_exists_algHom_baseChange_of_isAddCyclic_ker_pointMapOfPushforward.lean#L950) — `kw_toPointAddEquiv`
+- [`P2M/Sol/S_WeierstrassCurve_Affine_exists_algHom_baseChange_of_isAddCyclic_ker_pointMapOfPushforward.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_Affine_exists_algHom_baseChange_of_isAddCyclic_ker_pointMapOfPushforward.lean#L950) — `toPointAddEquiv`
 
 This repository (`34f235a`):
 

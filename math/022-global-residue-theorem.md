@@ -243,7 +243,7 @@ completion at $`v`$ decomposes over the fibre:
 
 $$\mathrm{algebraMap}\bigl(\mathrm{Tr}_{E/F}(g)\bigr) \\;=\\; \sum_{w \mid v} \mathrm{completionTraceAt}_w(g) \qquad \text{in } \hat E_v ,$$
 
-`KwHgfV352CompletionTraceSum`
+`CompletionTraceSum`
 ([Def_AlgebraicCurve_TateResidueCurrency.lean, lines 237–241](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_TateResidueCurrency.lean#L237-L241)),
 where $`\mathrm{completionTraceAt}_w`$ is the trace of the local extension
 $`\hat E_v \subseteq \hat F_w`$
@@ -257,17 +257,17 @@ $$ \hat E_v \otimes_E F \\;\\cong\\; \prod_{w \mid v} \hat F_w ,$$
 
 and under this isomorphism the trace becomes the sum of the local traces. The pin
 proves the identification through the semilocal Chinese-remainder map
-`kwF4R1V384a_semilocalDiag`
+`semilocalDiag`
 ([line 7263](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_residueTheoremK_of_isAlgClosed.lean#L7263)),
 its bijectivity for distinct maximal ideals
-(`kwF4R1V384a_completionSemilocalBij_of_distinctKernels_finrankEF`,
+(`completionSemilocalBij_of_distinctKernels_finrankEF`,
 [line 7401](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_residueTheoremK_of_isAlgClosed.lean#L7401)),
 and the trace comparison
-(`kwF4R1V384a_completionTraceSum_of_distinctKernels_finrankEF`,
+(`completionTraceSum_of_distinctKernels_finrankEF`,
 [line 7488](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_residueTheoremK_of_isAlgClosed.lean#L7488));
 separability of $`E \subseteq F`$ makes the local extension separable and the
 comparison compatible with the traces
-(`kwF4R1V386a_completionTraceSum_of_isSeparable`,
+(`completionTraceSum_of_isSeparable`,
 [line 7879](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_residueTheoremK_of_isAlgClosed.lean#L7879)).
 
 **The residue-trace completion commutation (RTCC).** At each $`w \mid v`$, the
@@ -276,7 +276,7 @@ completion trace:
 
 $$\mathrm{kaehlerResidueTerm}\bigl(\mathrm{pullback}\\,\mathrm{d}\pi_v,\ g,\ w\bigr) \\;=\\; \mathrm{Tr}_{k(v)/K}\Bigl(\mathrm{Res}_v\bigl(\mathrm{completionTraceAt}_w(g)\bigr)\Bigr),$$
 
-`KwF4R1V391aResidueTraceCompletionCommute`
+`ResidueTraceCompletionCommute`
 ([Def_AlgebraicCurve_TateResidueCurrency.lean, lines 368–376](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_TateResidueCurrency.lean#L368-L376)).
 This is [math/021 §7](021-tate-residue.md): it is assembled from the agreement
 theorem, the chain rule for the residue, and the compatibility of the Tate
@@ -285,7 +285,7 @@ residue with the completion trace.
 **Composition.** Summing RTCC over the fibre and applying the completion trace
 sum turns the fibre sum of local residue terms into the residue term of the
 trace, which is exactly the fibre-integration formula. The pin packages this as
-`kw_es_fiberKaehlerCotraceResidueIdentity_of_RTCC_CTS`
+`fiberKaehlerCotraceResidueIdentity_of_RTCC_CTS`
 ([line 7929](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_residueTheoremK_of_isAlgClosed.lean#L7929)).
 Then the whole chain
 
@@ -297,10 +297,10 @@ residueTheoremK_ratFunc_of_isAlgClosed        (base case, §2)
         -> ResidueTheoremK K F                (descent)
 ```
 
-is `kw_es_residueTheoremK_of_RTCC_isAlgClosed`
+is `residueTheoremK_of_RTCC_isAlgClosed`
 ([line 7985](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_residueTheoremK_of_isAlgClosed.lean#L7985)),
 and the headline is
-`kwTateRR3_residueTheoremK_of_isAlgClosed`
+`residueTheoremK_of_isAlgClosed`
 ([line 8082](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_residueTheoremK_of_isAlgClosed.lean#L8082)).
 
 ## 5. Characteristic $`p`$
@@ -386,10 +386,10 @@ theorem really is the composition its name suggests.
 | fibre integration | `FiberKaehlerCotraceResidueIdentityK` | `Def_AlgebraicCurve_TateResidueCurrency.lean:399` |
 | localized fibre form | `CotraceResidueIdentityOnFiberLocalizedK` | `Def_AlgebraicCurve_TateResidueCurrency.lean:432` |
 | descent from $`\mathbb{P}^1`$ | `residueTheoremK_of_cotraceResidueIdentityK_ratFunc_isAlgClosed` | `S_..._of_isAlgClosed.lean:5666` |
-| completion trace sum | `KwHgfV352CompletionTraceSum`, `..._of_isSeparable` | `Def_..._TateResidueCurrency.lean:237`; `S_..._of_isAlgClosed.lean:7879` |
-| semilocal tensor decomposition | `kwF4R1V384a_semilocalDiag`, `..._completionSemilocalBij...` | `S_..._of_isAlgClosed.lean:7263`, `:7401` |
-| local residue = completion trace | `KwF4R1V391aResidueTraceCompletionCommute` | `Def_..._TateResidueCurrency.lean:368` |
-| fibre integration from RTCC | `kw_es_fiberKaehlerCotraceResidueIdentity_of_RTCC_CTS` | `S_..._of_isAlgClosed.lean:7929` |
+| completion trace sum | `CompletionTraceSum`, `..._of_isSeparable` | `Def_..._TateResidueCurrency.lean:237`; `S_..._of_isAlgClosed.lean:7879` |
+| semilocal tensor decomposition | `semilocalDiag`, `..._completionSemilocalBij...` | `S_..._of_isAlgClosed.lean:7263`, `:7401` |
+| local residue = completion trace | `ResidueTraceCompletionCommute` | `Def_..._TateResidueCurrency.lean:368` |
+| fibre integration from RTCC | `fiberKaehlerCotraceResidueIdentity_of_RTCC_CTS` | `S_..._of_isAlgClosed.lean:7929` |
 | the headline | `residueTheoremK_of_isAlgClosed` | `Thm_..._of_isAlgClosed.lean:16` |
 | characteristic $`p`$ base case | `p0n22_cpf_residueTheoremK_ratFunc_of_isAlgClosed_of_charP` | `S_..._ratFunc_of_isAlgClosed.lean:13125` |
 

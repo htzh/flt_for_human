@@ -25,15 +25,19 @@ The module says which pin files verify it, in its leading `/- ... -/` block:
     spec-pin: Theorems/Thm_CohCarrier_heckeT_diamondRaw_comm.lean
     spec-pin: P2M/Sol/S_CohCarrier_heckeT_diamondRaw_comm.lean   -- comparable copy
 
-A public declaration that is not found in those files is an error; the three
-ways to account for one are the register's existing per-declaration markers:
+A public declaration that is not found in those files is an error; the ways to
+account for one are declaration-level markers:
 
-    -- pin: CohCarrier.heckeT_diamondRaw_comm (Theorems/…:9)   rename / extra file
-    -- own: restated against the port's `Inputs` bundle       tier 2, not diffed
+    pin: CohCarrier.heckeT_diamondRaw_comm (Theorems/…:9)   rename / extra file
+    own: restated against the port's `Inputs` bundle        tier 2, not diffed
 
-(backticks around the pin name are tolerated, since one module writes them so).
-A module with no `spec-pin:` line is not wired at all — tier 3, as an unlisted
-module is today.
+New markers should go in the central `spec/decl_markers.tsv`, keyed by
+`(module, full declaration name)`; the checker reads that table first.  The
+grandfathered `-- pin:` / `-- own:` comments above a declaration still work and
+are still read, so no existing module needs to move.  Backticks around a pin
+name are tolerated.  `spec/decl_markers.tsv` is checker metadata: editing it
+never affects a Lean build.  A module with no `spec-pin:` line is not wired at
+all — tier 3, as an unlisted module is today.
 
 Matching.  The pin side comes from `spec/statement_db.py`'s corpus: each
 `spec-pin:` file's declarations are a byte range in `statements.tsv`, and every
@@ -87,6 +91,7 @@ LEAN = HERE.parent                              # lean/
 REPO = LEAN.parent
 sys.path.insert(0, str(HERE))
 import statement_db  # noqa: E402
+import decl_markers as marker_db  # noqa: E402
 
 STATE_DIR = REPO / "tmp" / "check-port"
 STATE = STATE_DIR / "state.json"
@@ -260,23 +265,33 @@ def check_decl(row: dict, wire: Wire, db, marker, effective: list[str]) -> dict:
     return {"verdict": "missing", "how": "", "pin": None, "note": note}
 
 
-def check_module(path: Path, db, rel: str | None = None) -> dict | None:
-    """Parse + check one module; None when it carries no `spec-pin:` line."""
+def check_module(path: Path, db, rel: str | None = None,
+                 external: dict | None = None) -> dict | None:
+    """Parse + check one module; None when it carries no `spec-pin:` line.
+
+    `external` is the central marker table for this module (full declaration name
+    -> ("pin"|"own", payload)).  It takes precedence over an in-source marker.
+    """
     text = path.read_text(encoding="utf-8", errors="replace")
     sources = module_sources(text)
     if sources is None:
         return None
     rel = rel or path.as_posix()
+    ext = (external or {}).get(rel, {})
     rows, _lines = statement_db.parse_file(rel, text, CK)
     rows = [r for r in rows if not r[7]]                  # anonymous instances: skip
     markers = decl_markers(text, [{"line": r[0]} for r in rows])
-    # a `-- pin:` marker may name a file the header does not list: it is part of
-    # this module's wire for that declaration, so the wire reads it too
-    files = list(dict.fromkeys(sources + [m[1]["file"] for m in markers.values()
-                                          if m[1].get("file")]))
+    # a `pin:` marker may name a file the header does not list: it is part of this
+    # module's wire for that declaration, so the wire reads it too.  Both the
+    # central and the legacy in-source markers can name such a file.
+    files = list(dict.fromkeys(
+        sources
+        + [m[1]["file"] for m in markers.values() if m[1].get("file")]
+        + marker_db.marker_files(ext)))
     wire = Wire(db, files)
     wire.sources = sources
     decls = []
+    used_external: set[str] = set()
     counts = {"ok": 0, "mismatch": 0, "missing": 0, "own": 0, "kw": 0}
     for line, end_line, name, _key, last, kind, priv, _anon, stmt, raw, h in rows:
         # A residual `kw*` name in the port is a naming regression.  The
@@ -301,7 +316,12 @@ def check_module(path: Path, db, rel: str | None = None) -> dict | None:
             continue
         row = {"name": name, "last": last, "kind": kind, "stmt": stmt,
                "raw": raw, "nhash": h, "line": line, "end_line": end_line}
-        res = check_decl(row, wire, db, markers.get(line), sources)
+        marker = ext.get(name)
+        if marker is not None:
+            used_external.add(name)
+        else:
+            marker = markers.get(line)
+        res = check_decl(row, wire, db, marker, sources)
         if res["pin"] is not None and not res["pin"].get("rel"):
             res["pin"]["rel"] = ""
         counts[res["verdict"]] += 1
@@ -313,8 +333,9 @@ def check_module(path: Path, db, rel: str | None = None) -> dict | None:
                       "port": row["stmt"] if res["verdict"] != "ok" else "",
                       "pin_sig": (res["pin"]["sig"]
                                   if res["verdict"] == "mismatch" else "")})
+    stale = sorted(set(ext) - used_external)
     return {"module": rel, "sources": sources, "unknown_sources": wire.unknown,
-            "counts": counts, "decls": decls}
+            "counts": counts, "decls": decls, "stale_markers": stale}
 
 
 # ----------------------------------------------------------------------- state
@@ -355,6 +376,8 @@ def print_module(res: dict, cached: bool, checked_at: str | None) -> None:
           f"{c['own']} own, {c.get('kw', 0)} kw — {tail}")
     for rel in res.get("unknown_sources", []):
         print(f"  UNKNOWN PIN FILE  {rel}")
+    for name in res.get("stale_markers", []):
+        print(f"  STALE MARKER  {name} (no declaration in this module)")
     for d in res["decls"]:
         mark = {"ok": "ok     ", "own": "own    ", "mismatch": "MISMATCH",
                 "missing": "MISSING", "kw": "KW-NAME"}[d["verdict"]]
@@ -416,9 +439,22 @@ def main() -> int:
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--verbose", action="store_true", help="show cached declarations too")
     ap.add_argument("--tsv", default=str(statement_db.TSV_DEFAULT))
+    ap.add_argument("--markers", default=str(marker_db.DEFAULT),
+                    help="central declaration-marker table (TSV); default "
+                         "spec/decl_markers.tsv")
+    ap.add_argument("--strict-markers", action="store_true",
+                    help="fail when a central marker names no declaration")
     a = ap.parse_args()
 
     db = statement_db.Statements(Path(a.tsv))
+    try:
+        external = marker_db.load(Path(a.markers))
+    except ValueError as exc:
+        print(f"check_port: {exc}", file=sys.stderr)
+        return 2
+    markers_path = Path(a.markers)
+    markers_sha1 = (hashlib.sha1(markers_path.read_bytes()).hexdigest()
+                    if markers_path.exists() else "")
     stale = db.stale(statement_db.PIN_DEFAULT)
     if stale:
         print("check_port: warning — the corpus is stale (" + "; ".join(stale)
@@ -426,6 +462,7 @@ def main() -> int:
     stamp = corpus_stamp(db)
     state = load_state()
     state_corpus_ok = state.get("corpus") == stamp
+    state_markers_ok = state.get("markers_sha1") == markers_sha1
 
     if a.timestamps:
         rows = sorted(state.get("modules", {}).items())
@@ -440,6 +477,8 @@ def main() -> int:
             here = (LEAN / mod)
             now = content_sha1(here) if here.exists() else ""
             fresh = "" if now == e.get("sha1") and state_corpus_ok else "  (edited)"
+            if not state_markers_ok:
+                fresh += " (markers)"
             print(f"{mod:70s}  {e.get('checked_at', ''):19s}  {v}{fresh}")
         return 0
 
@@ -463,6 +502,12 @@ def main() -> int:
         if not (a.all or a.changed):
             a.changed = True
 
+    if a.all:
+        known = {rel for rel, _p in targets}
+        for mod in sorted(set(external) - known):
+            print(f"check_port: STALE MARKER MODULE  {mod} (not a wired module)",
+                  file=sys.stderr)
+
     results, checked = [], 0
     for rel, path in targets:
         if not path.exists():
@@ -471,22 +516,26 @@ def main() -> int:
         old = state.get("modules", {}).get(rel)
         sha = content_sha1(path)
         if (not a.force and not a.all and old and state_corpus_ok
-                and old.get("sha1") == sha):
+                and state_markers_ok and old.get("sha1") == sha):
             res = {"module": rel, "sources": old.get("sources", []),
                    "unknown_sources": old.get("unknown_sources", []),
                    "counts": old.get("counts", {}),
+                   "stale_markers": old.get("stale_markers", []),
                    "decls": old.get("decls", []) if (a.verbose or a.json) else []}
             results.append((res, True, old.get("checked_at")))
             continue
-        res = check_module(path, db, rel)
+        res = check_module(path, db, rel, external)
         if res is None:
-            print(f"{rel}: no `spec-pin:` directive — not wired (tier 3)",
+            extra = (f"; {len(external[rel])} central marker(s) ignored"
+                     if rel in external else "")
+            print(f"{rel}: no `spec-pin:` directive — not wired (tier 3){extra}",
                   file=sys.stderr)
             continue
         res["checked_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
         res["sha1"] = sha
         state.setdefault("modules", {})[rel] = res
         state["corpus"] = stamp
+        state["markers_sha1"] = markers_sha1
         checked += 1
         results.append((res, False, res["checked_at"]))
 
@@ -510,15 +559,20 @@ def main() -> int:
         for res, _c, _t in results:
             for k, v in res["counts"].items():
                 total[k] = total.get(k, 0) + v
+        stale_n = sum(len(r.get("stale_markers", [])) for r, _c, _t in results)
         print(f"{total['ok']} ok, {total['mismatch']} mismatch, {total['missing']} "
               f"missing, {total['own']} own, {total['kw']} kw — {len(results)} module(s), "
               f"{checked} checked, {len(results) - checked} cached"
               + (f", {exempt_count} exempt (PORT_FILES)" if exempt_count else "")
+              + (f", {stale_n} stale marker(s)" if stale_n else "")
               + f"; corpus {str(stamp.get('pin_commit'))[:7]}")
 
+    stale_n = sum(len(r.get("stale_markers", [])) for r, _c, _t in results)
     bad = any(r["counts"].get("mismatch") or r["counts"].get("missing")
               or r["counts"].get("kw") or r.get("unknown_sources")
               for r, _c, _t in results)
+    if a.strict_markers and stale_n:
+        bad = True
     return 1 if bad else 0
 
 

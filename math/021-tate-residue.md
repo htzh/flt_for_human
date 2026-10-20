@@ -239,7 +239,7 @@ Three mathematical points are built into this definition:
   defines the trace of an operator by restricting to its range
   ([lines 28–30](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_TateResidueCurrency.lean#L28-L30)),
   and the hypothesis that this range is finite-dimensional is the separate
-  atom `KwF4gRRTateCommFinite`
+  atom `TateCommFinite`
   ([line 300](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_TateResidueCurrency.lean#L300)).
   It holds because the commutator's image is confined to a bounded pole window
   and the quotients $`\hat{\mathcal O}_u/\pi^M`$ are finite-dimensional over
@@ -252,7 +252,7 @@ Three mathematical points are built into this definition:
 * **The value does not depend on the projection.** Two idempotent projections
   with the same range (the integers) differ by an operator with image in a
   finite-dimensional space, so the commutator traces agree; this is the pin's
-  `KwF4gRRTateProjectorIndep` / `SameRangeIdemProjectors`
+  `TateProjectorIndep` / `SameRangeIdemProjectors`
   ([S_AlgebraicCurve_tateAgreement.lean, lines 1831–1886 and 2844](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_tateAgreement.lean#L1831-L1886)).
 
 On monomials the definition reproduces the residue: for the truncated shift
@@ -277,10 +277,10 @@ because the residue vanishes on the integers
 The formal statement is the `Prop`
 
 ```lean
-def KwF4gRRTateAgreement (hfin : KwF4gRRTateCommFinite K L) : Prop :=
+def TateAgreement (hfin : TateCommFinite K L) : Prop :=
   ∀ (u : Place K L) [u.FiniteResidue] (fh : u.adicCompletion),
     tateRes u fh (algebraMap L u.adicCompletion u.uniformizer)
-      = Algebra.trace K u.ResidueField (kwHgfV352_localResidueCompletion u fh)
+      = Algebra.trace K u.ResidueField (localResidueCompletion u fh)
 ```
 
 ([Def_AlgebraicCurve_TateResidueCurrency.lean, lines 307–311](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_TateResidueCurrency.lean#L307-L311)),
@@ -333,7 +333,7 @@ i.e. the residue reads off the $`\pi^{-1}`$ coefficient of the expansion
 (`locResCompl_cohenΦ`, [lines 4518–4540](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_tateAgreement.lean#L4518-L4540)).
 
 **The kernel computation.** The pair (projector, Cohen–Laurent complement) is
-packaged as `KwTateRR3CohenLaurentCompl` and then as a `TateCohenKernelData`:
+packaged as `CohenLaurentCompl` and then as a `TateCohenKernelData`:
 a projector `pC` with the same range as the integers, together with a $`K`$-linear
 injection `liftκ` of the residue field into that range such that the commutator
 acts on the embedded copy of $`k(u)`$ as multiplication by the residue,
@@ -341,7 +341,7 @@ acts on the embedded copy of $`k(u)`$ as multiplication by the residue,
 ```lean
 tateComm_liftκ : ∀ (fh : u.adicCompletion) (c : u.ResidueField),
   tateCommRestrict pC (lmulK u fh) (lmulK u uniformizerHat) (liftκ c)
-    = liftκ (kwHgfV352_localResidueCompletion u fh * c)
+    = liftκ (localResidueCompletion u fh * c)
 ```
 
 ([S_AlgebraicCurve_tateAgreement.lean, lines 3053–3072](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_tateAgreement.lean#L3053-L3072)).
@@ -356,12 +356,12 @@ is invariant under conjugation (`LinearMap.trace_conj'`).
 
 **Independence of the projector.** Since the arbitrary `tateProj` and the
 canonical `pC` have the same range, their commutator traces agree
-(`kwF4gRRTate_projectorIndep`, [line 2844](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_tateAgreement.lean#L2844)),
+(`projectorIndep`, [line 2844](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_tateAgreement.lean#L2844)),
 so the agreement proved for `pC` transfers to the definition of `tateRes`.
-Assembling the pieces, `kwTateRR3_cohenKernelDataExists` produces the kernel
+Assembling the pieces, `cohenKernelDataExists` produces the kernel
 data at every place
 ([line 4790](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_tateAgreement.lean#L4790)),
-and the top-level `solution` concludes `KwF4gRRTateAgreement`
+and the top-level `solution` concludes `TateAgreement`
 ([line 4809](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_tateAgreement.lean#L4809)).
 
 ## 7. From one place to the global residue theorem
@@ -423,11 +423,11 @@ The **completion trace** of a finite extension is `Algebra.trace` over the base
 completion, transported to a $`K`$-linear map on the field,
 
 ```lean
-abbrev kw_ffgc_completionTrace [FiniteDimensional F F'] :
+abbrev completionTrace [FiniteDimensional F F'] :
     W.adicCompletion →ₗ[(W.restrict F).adicCompletion] (W.restrict F).adicCompletion :=
   Algebra.trace (W.restrict F).adicCompletion W.adicCompletion
 
-def kw_ffgc_completionTraceF' [FiniteDimensional F F'] : F' →ₗ[F] (W.restrict F).adicCompletion
+def completionTraceF' [FiniteDimensional F F'] : F' →ₗ[F] (W.restrict F).adicCompletion
 ```
 
 ([lines 390–398](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_PlaceCompletion.lean#L390-L398)).
@@ -442,8 +442,8 @@ computed on any finite-dimensional stable superspace of the range
 ([S_AlgebraicCurve_tateAgreement.lean, line 1980](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_tateAgreement.lean#L1980)),
 which is what makes the conjugation argument of §6 work.
 
-**The atoms as hypotheses.** `KwF4gRRTateAgreement` is stated with the
-finiteness atom as an argument, `KwF4gRRTateAgreement K L hfin`, and the four
+**The atoms as hypotheses.** `TateAgreement` is stated with the
+finiteness atom as an argument, `TateAgreement K L hfin`, and the four
 atoms are supplied separately: `tateCommFinite`, `tateAgreement`,
 `tateChainRule`, `tateTraceCompat_of_isSeparable`. RTCC then takes all four as
 hypotheses, and only the final wrapper
@@ -465,22 +465,22 @@ None of them mentions $`\mathbb{C}`$.
 | mathematical point | Lean declaration | file |
 |---|---|---|
 | completion at a place, its integers | `adicCompletion`, `adicCompletionIntegers` | `Def_AlgebraicCurve_PlaceCompletion.lean:31`, `:33` |
-| trace of a finite extension of completions | `kw_ffgc_completionTrace`, `kw_ffgc_completionTraceF'` | `Def_AlgebraicCurve_PlaceCompletion.lean:390`, `:394` |
-| extension of the residue to the completion | `kwHgfV352_localResidueCompletion` | `Def_AlgebraicCurve_TateResidueCurrency.lean:185` |
+| trace of a finite extension of completions | `completionTrace`, `completionTraceF'` | `Def_AlgebraicCurve_PlaceCompletion.lean:390`, `:394` |
+| extension of the residue to the completion | `localResidueCompletion` | `Def_AlgebraicCurve_TateResidueCurrency.lean:185` |
 | the local residue axioms | `LocalResidueData`, `CanonicalLocalResidueDataK` | `Def_AlgebraicCurve_LocalResidue.lean:20`, `:29` |
 | residue term, traced to $`K`$ | `kaehlerResidueTerm` | `Def_AlgebraicCurve_LocalResidue.lean:111` |
 | projection onto the integers | `tateProj` | `Def_AlgebraicCurve_TateResidueCurrency.lean:274` |
 | the commutator, and its trace | `tateComm`, `tateCommTrace` | `Def_AlgebraicCurve_TateResidueCurrency.lean:38`, `:59` |
 | the Tate residue | `tateRes` | `Def_AlgebraicCurve_TateResidueCurrency.lean:289` |
-| trace class: finite-dimensional commutator range | `KwF4gRRTateCommFinite`, `tateCommFinite` | `Def_AlgebraicCurve_TateResidueCurrency.lean:300`; `Thm_AlgebraicCurve_tateCommFinite.lean:20` |
-| independence of the projection | `KwF4gRRTateProjectorIndep`, `kwF4gRRTate_projectorIndep` | `S_AlgebraicCurve_tateAgreement.lean:1867`, `:2844` |
-| the agreement | `KwF4gRRTateAgreement`, `tateAgreement` | `Def_AlgebraicCurve_TateResidueCurrency.lean:307`; `Thm_AlgebraicCurve_tateAgreement.lean:19` |
+| trace class: finite-dimensional commutator range | `TateCommFinite`, `tateCommFinite` | `Def_AlgebraicCurve_TateResidueCurrency.lean:300`; `Thm_AlgebraicCurve_tateCommFinite.lean:20` |
+| independence of the projection | `TateProjectorIndep`, `projectorIndep` | `S_AlgebraicCurve_tateAgreement.lean:1867`, `:2844` |
+| the agreement | `TateAgreement`, `tateAgreement` | `Def_AlgebraicCurve_TateResidueCurrency.lean:307`; `Thm_AlgebraicCurve_tateAgreement.lean:19` |
 | Cohen section (Hensel) | `Lg37CompletionSection`, `completionSection_nonempty_generic` | `Def_AlgebraicCurve_CanonicalLocalResidueInstanceV2.lean:956`, `:2137` |
-| Cohen–Laurent complement and kernel data | `KwTateRR3CohenLaurentCompl`, `TateCohenKernelData` | `S_AlgebraicCurve_tateAgreement.lean:4330`, `:3053` |
+| Cohen–Laurent complement and kernel data | `CohenLaurentCompl`, `TateCohenKernelData` | `S_AlgebraicCurve_tateAgreement.lean:4330`, `:3053` |
 | commutator acts as multiplication by the residue | `tateComm_liftκ` | `S_AlgebraicCurve_tateAgreement.lean:3069` |
-| change of variables for the residue | `KwF4gRRTateChainRule`, `tateChainRule` | `Def_AlgebraicCurve_TateResidueCurrency.lean:317`; `Thm_AlgebraicCurve_tateChainRule.lean:18` |
-| compatibility with the extension trace | `KwF4gRRTateTraceCompat`, `tateTraceCompat_of_isSeparable` | `Def_AlgebraicCurve_TateResidueCurrency.lean:331`; `Thm_AlgebraicCurve_tateTraceCompat_of_isSeparable.lean:18` |
-| local → global: RTCC | `KwF4R1V391aResidueTraceCompletionCommute`, `residueTraceCompletionCommute` | `Def_AlgebraicCurve_TateResidueCurrency.lean:368`; `Thm_AlgebraicCurve_residueTraceCompletionCommute.lean:21` |
+| change of variables for the residue | `TateChainRule`, `tateChainRule` | `Def_AlgebraicCurve_TateResidueCurrency.lean:317`; `Thm_AlgebraicCurve_tateChainRule.lean:18` |
+| compatibility with the extension trace | `TateTraceCompat`, `tateTraceCompat_of_isSeparable` | `Def_AlgebraicCurve_TateResidueCurrency.lean:331`; `Thm_AlgebraicCurve_tateTraceCompat_of_isSeparable.lean:18` |
+| local → global: RTCC | `ResidueTraceCompletionCommute`, `residueTraceCompletionCommute` | `Def_AlgebraicCurve_TateResidueCurrency.lean:368`; `Thm_AlgebraicCurve_residueTraceCompletionCommute.lean:21` |
 | the residue theorem over any algebraically closed field | `ResidueTheoremK`, `residueTheoremK_of_isAlgClosed` | `Def_AlgebraicCurve_LocalResidue.lean:297`; `Thm_AlgebraicCurve_residueTheoremK_of_isAlgClosed.lean:16` |
 
 ## 9. What this note does not cover

@@ -198,8 +198,8 @@ Section 2 fixed the algebraic target: after clearing denominators, "the point ma
 is a homomorphism" is a polynomial identity on the curve, the 2-torsion condition
 and the slope relation, and §4–§5 prove the two `negAddY` instances of it that
 dominate the build. The alignment comparisons split exactly as in §2, into the
-**tangent** pair `kw_velu2_tanX_align`, `kw_velu2_tanY_negAddY_align` and the
-**secant** pair `kw_velu2_secX_align`, `kw_velu2_secY_negAddY_align`, one
+**tangent** pair `velu2_tanX_align`, `velu2_tanY_negAddY_align` and the
+**secant** pair `velu2_secX_align`, `velu2_secY_negAddY_align`, one
 $`x`$-statement and one $`y`$-statement each. Every one of the four is again a
 cleared polynomial identity in the raw $`x,y,x_0,y_0`$, and every one says the
 same geometric thing: the image under $`\pi`$ of a chord-and-tangent configuration
@@ -310,13 +310,13 @@ $$T \\;=\\; G\\,u_1(u_1-U)(u_1-u_2)\\,h_{SIY}
 This is
 [`hColQ`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L889-L940)
 in
-[`kw_velu2_secY_negAddY_align`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L869-L943):
+[`velu2_secY_negAddY_align`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L869-L943):
 collinearity of the images is a consequence of the preimage chord facts alone.
 
 ### 6.4 The tangent `addX` alignment and $`\Sigma = a_1D+2E`$
 
 For
-[`kw_velu2_tanX_align`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L1032-L1072)
+[`velu2_tanX_align`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L1032-L1072)
 the cleared goal is killed by the single input
 `velu2_tangent_addX_cleared_identity`, with certificate $`-G\,h_{Npp}`$; the
 certificate was already one term, and the statement is short. In the atoms
@@ -342,7 +342,7 @@ cost is entirely in the normalisation, which is §7.6(b)'s story.
 
 ### 6.5 The tangent `negAddY` alignment
 
-[`kw_velu2_tanY_negAddY_align`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L1095-L1168)
+[`velu2_tanY_negAddY_align`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L1095-L1168)
 is the tangent counterpart of §6.3: the two preimage points coincide, the "chord"
 is the tangent at $`P`$, and the third intersection is the doubled point, so its
 parameters are tied to $`P`$ by the doubling relation. Writing
@@ -363,13 +363,13 @@ The atomisation that makes it cheap is §7.6(c).
 
 ### 6.6 The secant `addX` alignment
 
-[`kw_velu2_secX_align`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L825-L868)
+[`velu2_secX_align`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L825-L868)
 is the $`x`$-half of the secant alignment: like §6.3–§6.5 it compares the cleared
 point map with the quotient curve's own `addX`, and what remains is a pair of
 shifted chord identities —
-[`kw_velu2_secX_SI2`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L369-L382)
+[`velu2_secX_SI2`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L369-L382)
 and
-[`kw_velu2_secX_SI3`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L384-L402)
+[`velu2_secX_SI3`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L384-L402)
 — each of which is itself a small `linear_combination` over the curve equations
 and the 2-torsion condition, i.e. over §3 alone. What is special about this one is
 not its algebra but its *shape*. The comparison is divided by the difference
@@ -380,7 +380,7 @@ than algebraic; the consequences are §7.6(d).
 ### 6.7 The `tanY` relation in shifted form
 
 The tangent $`y`$-alignment of §6.5 consumes one further identity,
-`kw_velu2_tanY_SI2c`. Its raw statement is a long explicit polynomial; in the
+`velu2_tanY_SI2c`. Its raw statement is a long explicit polynomial; in the
 shifted variables of §3 it is 18 $`(u,v)`$-monomials and a **nine-term** multiple
 of the shifted curve $`v^2+a_1uv = u^3+\beta u^2+Gu`$. It is therefore again a
 Vieta statement of the kind §3 collects, with the shifted curve as its only input.
@@ -602,15 +602,15 @@ cheap. Isolating the module's declarations (all theorem bodies replaced by `sorr
 except one, so that a single compile's `.olean` increment is one declaration's
 proof term) shows that its whole 391 MiB is concentrated in four declarations. That
 391 MiB is **not** the pin's starting point: the pin-transcribed module measured
-568 MB (§7.1), and two of the rewrites below — `kw_velu2_secX_align` in (d) and
-`kw_velu2_tanY_SI2c` in (e) — had already landed when the isolation was taken:
+568 MB (§7.1), and two of the rewrites below — `velu2_secX_align` in (d) and
+`velu2_tanY_SI2c` in (e) — had already landed when the isolation was taken:
 
 | declaration | `.olean` |
 |---|---:|
-| `kw_velu2_tanX_align` | 242.1 MB |
-| `kw_velu2_tanY_negAddY_align` | 71.7 MB |
-| `kw_velu2_secY_negAddY_align` | 67.9 MB |
-| `kw_velu2_secX_align` | 15.1 MB |
+| `velu2_tanX_align` | 242.1 MB |
+| `velu2_tanY_negAddY_align` | 71.7 MB |
+| `velu2_secY_negAddY_align` | 67.9 MB |
+| `velu2_secX_align` | 15.1 MB |
 | everything else | $`\le 2.3`$ MB |
 
 Every one of those costs is in the final `linear_combination`: for `tanX_align`
@@ -624,7 +624,7 @@ close is read off directly with `linear_combination (norm := skip)` plus
 the coordinate change has severed (this is how the $`\Sigma-a_1D-2E`$ residual of
 (b) was found).
 
-**(a) `kw_velu2_secY_negAddY_align`.** The collinearity of §6.3 is certified by
+**(a) `velu2_secY_negAddY_align`.** The collinearity of §6.3 is certified by
 [`hColQ`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L889-L940):
 factoring the four point-map differences into the single fractions of §6.3 makes
 `field_simp` produce exactly $`T`$, so the **4 + 4 monomial** certificate of §6.3
@@ -632,7 +632,7 @@ applies. The ported certificate used three terms, its middle coefficient running
 to some seventy monomials, and listed the `addX` relation $`h_{RA}`$ as a third
 input, which the identity does not need.
 
-**(b) `kw_velu2_tanX_align`.** The certificate of §6.4 is already one term and the
+**(b) `velu2_tanX_align`.** The certificate of §6.4 is already one term and the
 goal is short; what costs is the normalisation. Atomising it is sound only if
 $`\Sigma`$ and $`a_1D+2E`$ are the *same subterm* everywhere: if $`D,E`$ are
 generalised before $`\Sigma`$ is rewritten, the residual is a nonzero multiple of
@@ -644,7 +644,7 @@ about 1 MB. The order matters: generalising
 $`\mathrm{veluGx}\,x_0\,y_0`$ *before* unfolding `velu2X`/`velu2Y` leaves the
 freshly created occurrences raw, and the residual is nonzero again.
 
-**(c) `kw_velu2_tanY_negAddY_align`.** The four-term certificate of §6.5 is
+**(c) `velu2_tanY_negAddY_align`.** The four-term certificate of §6.5 is
 already small, but its atoms are not all free: only $`A,E,G`$ are generalised
 (again after the `velu2X`/`velu2Y` unfolding), while $`u`$, $`d_2`$, $`U_2`$,
 $`V_d`$ stay raw. Generalising those would sever the relations tying them to
@@ -652,7 +652,7 @@ $`x,x_0,x_{2P}`$ and the `set`-bound $`x_{2P},nAY`$, and the residual would no
 longer be an identity in the free atoms. The declaration falls from 71.7 MB to
 about 22 MB.
 
-**(d) `kw_velu2_secX_align`.** The certificate is genuinely *syntactic*, for the
+**(d) `velu2_secX_align`.** The certificate is genuinely *syntactic*, for the
 shape reason of §6.6: it verifies only while $`x_1-x_0`$, $`x_2-x_0`$,
 $`x_1-x_2`$ and $`\mathrm{veluGx}\,x_0\,y_0`$ are the literal subterms, which is
 why atomising the goal (or `set`ting the atoms as local definitions, which `ring`
@@ -663,7 +663,7 @@ port-local `hrel : d = u₁-u₂` restores it, and the certificate gains a third
 whose coefficient is a 208-monomial polynomial. That takes the declaration from
 $`\gt 150`$ s to about 10 s, and leaves 15.1 MB — the largest of the four now.
 
-**(e) `kw_velu2_tanY_SI2c`.** This is the direct case: a 4.8 kB raw-monomial
+**(e) `velu2_tanY_SI2c`.** This is the direct case: a 4.8 kB raw-monomial
 certificate, 15.9 MB and about 11 s of the module on its own. The shifted identity
 of §6.7 replaces it, by the technique of §7.3: a port-local helper
 [`tanY_SI2c_shifted`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L433-L444)
@@ -679,9 +679,9 @@ the helper applies definitionally. The declaration went 15.89 MB / 15.1 s to
 (4-thread wall; §7.1). The 391.2 MiB / 459 s it started from is **not** the
 pin's figure (§7.1): the pin-transcribed module measured 568 MB, and the
 `secX_align` and `tanY_SI2c` rewrites of §7.6(d)–(e) had already landed before
-that starting measurement. The remaining weight is `kw_velu2_secX_align`
-(15.1 MB), `kw_velu2_tan_quotSlope_eq` (9.6 MB) and
-`kw_velu2_tanY_negAddY_align` (~22 MB).
+that starting measurement. The remaining weight is `velu2_secX_align`
+(15.1 MB), `velu2_tan_quotSlope_eq` (9.6 MB) and
+`velu2_tanY_negAddY_align` (~22 MB).
 
 ### 7.7 The last three certificates of `OrderTwo.lean`
 
@@ -741,7 +741,7 @@ certificates stay.
 rewritten in the shifted coordinates of §3–§5 (§6, §7.6). Its `.olean` falls from
 391.2 MiB to **60.3 MiB** (63,207,200 B) — and the 391.2 MiB is itself the
 already-improved figure, the pin-transcribed module having measured 568 MB
-(§7.6). `kw_velu2_secX_align` (15.1 MB) is the largest of the four
+(§7.6). `velu2_secX_align` (15.1 MB) is the largest of the four
 remaining.
 
 ## 9. The Lean statements
@@ -762,16 +762,16 @@ Transcribed from the pin, statements unchanged (only proofs rewritten):
   unchanged; the four rewritten alignments are private, and their mathematics is
   §6. In the pinned commit
   [`c46cb57`](https://github.com/htzh/flt_for_human/tree/c46cb57):
-  [`kw_velu2_secX_align`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L825-L868),
-  [`kw_velu2_secY_negAddY_align`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L869-L943)
+  [`velu2_secX_align`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L825-L868),
+  [`velu2_secY_negAddY_align`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L869-L943)
   with the collinearity lemma `hColQ`
   ([#L889-L940](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L889-L940)),
-  [`kw_velu2_tanX_align`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L1032-L1072)
+  [`velu2_tanX_align`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L1032-L1072)
   and
-  [`kw_velu2_tanY_negAddY_align`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L1095-L1168);
+  [`velu2_tanY_negAddY_align`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L1095-L1168);
   the shifted secant-`tanY` helper is
   [`tanY_SI2c_shifted`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L433-L444)
-  with [`kw_velu2_tanY_SI2c`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L449-L484).
+  with [`velu2_tanY_SI2c`](https://github.com/htzh/flt_for_human/blob/c46cb57/lean/FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean#L449-L484).
 * The one relation introduced for the tangent `addX` atomisation is
   $`\Sigma = a_1D+2E`$ of §6.4, i.e.
   $`6x^2+(4a_2+a_1^2)x+2a_4+a_1a_3 = a_1(2y+a_1x+a_3)+2(3x^2+2a_2x+a_4-a_1y)`$.

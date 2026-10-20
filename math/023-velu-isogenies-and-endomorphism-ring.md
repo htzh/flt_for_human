@@ -455,17 +455,17 @@ Two inputs beyond the divisor identity are needed, and both are already in the
 cluster:
 
 * the dual is **unique**: if $`\varphi\psi = [\deg\varphi]`$ then
-  $`\psi = \hat\varphi`$ (`kw_dualPointEnd_unique`,
+  $`\psi = \hat\varphi`$ (`dualPointEnd_unique`,
   [line 7955](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_Affine_IsogenyEndDatum_exists_dualEndData_dual_mem_and_norm_eq_finrankAlong.lean#L7955-L7960)). The proof kills the
   difference on the left and uses that $`[\deg]`$ is surjective on $`E(F)`$ together
   with $`\#\ker = \deg`$ — the divisibility theorem and the card-torsion port of
   §5.
 * the **trace witness**: for every datum $`D`$ there is $`t \in \mathbb{Z}`$ with
-  $`D.\texttt{pointEnd}' + \texttt{kw\_dualPointEnd}\ D = t`$
-  (`KwDualTraceWitness`,
+  $`D.\texttt{pointEnd}' + \texttt{dualPointEnd}\ D = t`$
+  (`DualTraceWitness`,
   [line 7962](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_Affine_IsogenyEndDatum_exists_dualEndData_dual_mem_and_norm_eq_finrankAlong.lean#L7962-L7965)). This is
   the classical integrality of $`\mathrm{tr}\,\varphi`$; the pin obtains it from
-  *additivity of the dual*, `kw_hk5f_dualTraceWitness_of_dualAdditivity`
+  *additivity of the dual*, `dualTraceWitness_of_dualAdditivity`
   ([line 8514](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_Affine_IsogenyEndDatum_exists_dualEndData_dual_mem_and_norm_eq_finrankAlong.lean#L8514)), which is
   the other headline.
 
@@ -473,7 +473,7 @@ cluster:
 
 **The dual.** With the trace witness in hand, $`\hat\varphi = t - \varphi`$ is a
 difference of two elements of the subring, hence lies in it
-(`kw_dualInSubring_of_traceWitness`,
+(`dualInSubring_of_traceWitness`,
 [line 7966](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_Affine_IsogenyEndDatum_exists_dualEndData_dual_mem_and_norm_eq_finrankAlong.lean#L7966-L7976)); and the norm is
 $`\deg = \texttt{finrankAlong}`$ by §4.2. That assembles the first headline:
 
@@ -540,7 +540,7 @@ it.
 ### 4.4 Additivity of the dual
 
 The trace witness is the last piece, and it is where the two H5 columns meet.
-`KwDualConormAdditivityAtOne` and `KwDualAdditivityPhiRowGenericW`
+`DualConormAdditivityAtOne` and `DualAdditivityPhiRowGenericW`
 ([line 8385](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_Affine_IsogenyEndDatum_exists_dualEndData_dual_mem_and_norm_eq_finrankAlong.lean#L8385),
 [line 8558](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_Affine_IsogenyEndDatum_exists_dualEndData_dual_mem_and_norm_eq_finrankAlong.lean#L8558)) record the
 statement that the conorm of a sum is the sum of the conorms — again a

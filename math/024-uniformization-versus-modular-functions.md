@@ -124,14 +124,14 @@ Its route
 ([`S_PeriodPair_isUniformization_toPoint.lean`](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_PeriodPair_isUniformization_toPoint.lean))
 is exactly the classical one:
 
-1. $`\wp`$ is *surjective onto* $`\mathbb{C}`$ — `kw_weierstrassP_surjective`, from
+1. $`\wp`$ is *surjective onto* $`\mathbb{C}`$ — `weierstrassP_surjective`, from
    $`\wp(z) \to \infty`$ at lattice points and the open mapping / Liouville argument;
-2. the addition theorem — `kw_hasDerivAt_weierstrassP_add`, with the auxiliary
-   functions `kwAddCoreE`, `kwAddCoreE₁`, `kwAddCoreE₂` and their vanishing derivatives
+2. the addition theorem — `hasDerivAt_weierstrassP_add`, with the auxiliary
+   functions `addCoreE`, `addCoreE₁`, `addCoreE₂` and their vanishing derivatives
    at $`0`$, giving $`\mathrm{toPoint}(z+w) = \mathrm{toPoint}(z) + \mathrm{toPoint}(w)`$;
-3. the kernel: `kw_toPoint_eq_zero_iff`, from the pole order of $`\wp - \wp(c)`$ at a
-   non-lattice point (`kw_analyticOrderAt_weierstrassP_sub_self_ne_top`,
-   `kw_weierstrassP_not_eventually_const`) and the identity theorem in the form
+3. the kernel: `toPoint_eq_zero_iff`, from the pole order of $`\wp - \wp(c)`$ at a
+   non-lattice point (`analyticOrderAt_weierstrassP_sub_self_ne_top`,
+   `weierstrassP_not_eventually_const`) and the identity theorem in the form
    `apply_eq_apply_of_differentiable_of_forall_periodic`, a differentiable periodic
    function with no poles is constant.
 
@@ -146,36 +146,35 @@ $`\forall c, \exists L, c = j(L)`$. It is *not* proved by uniformization. Its ro
 is theory J's:
 
 ```lean
-def kw_E4cube              : ModularForm 𝒮ℒ 12   -- E₄³
-def kw_E6sq                : ModularForm 𝒮ℒ 12   -- E₆²
-def kw_E4cube_sub_E6sq_cuspForm : CuspForm 𝒮ℒ 12
-theorem kw_E4cube_ne_E6sq (τ : ℍ) : E₄ τ ^ 3 ≠ E₆ τ ^ 2
-theorem kw_riemannZeta_six : riemannZeta 6 = (π : ℂ) ^ 6 / 945
-theorem kw_g₂_ofTau (τ : ℍ) : ...        -- g₂ of the lattice (τ, 1) is E₄(τ)/…
-theorem kw_g₃_ofTau (τ : ℍ) : ...        -- g₃ is E₆(τ)/…
+def E4cube              : ModularForm 𝒮ℒ 12   -- E₄³
+def E6sq                : ModularForm 𝒮ℒ 12   -- E₆²
+theorem E4cube_ne_E6sq (τ : ℍ) : E₄ τ ^ 3 ≠ E₆ τ ^ 2
+theorem riemannZeta_six : riemannZeta 6 = (π : ℂ) ^ 6 / 945
+theorem g₂_ofTau (τ : ℍ) : ...        -- g₂ of the lattice (τ, 1) is E₄(τ)/…
+theorem g₃_ofTau (τ : ℍ) : ...        -- g₃ is E₆(τ)/…
 ```
 
 The argument is classical, and its first half is a **modular-forms identity**. $`E_4^3`$
 and $`E_6^2`$ are level-one forms of weight 12 with the same constant term, so their
-difference is a cusp form (`kw_E4cube_sub_E6sq_cuspForm`); the space of weight-12 cusp
-forms is one-dimensional — **mathlib's**
+difference is a cusp form; the space of weight-12 cusp forms is
+one-dimensional — **mathlib's**
 `CuspForm.exists_smul_discriminant_of_weight_eq_twelve` — so
 
 $$`E_4^3 - E_6^2 \;=\; c\,\Delta`$$
 
-for a constant $`c`$, and the $`q^1`$-coefficient pins $`c`$ (it is $`1728`$,
-`kw_E4cube_sub_E6sq_coeff_one`), hence $`c \neq 0`$ and the difference never vanishes
-(`kw_E4cube_ne_E6sq`). The second half reads the lattice invariants off the Eisenstein
+for a constant $`c`$, and the $`q^1`$-coefficient pins $`c`$ (it is $`1728`$),
+hence $`c \neq 0`$ and the difference never vanishes
+(`E4cube_ne_E6sq`). The second half reads the lattice invariants off the Eisenstein
 series: on the lattice $`(\tau, 1)`$,
 
 $$`g_2 \;=\; \tfrac{4\pi^4}{3} E_4(\tau), \qquad g_3 \;=\; \tfrac{8\pi^6}{27} E_6(\tau)`$$
 
-(`kw_g₂_ofTau`, `kw_g₃_ofTau`, the constants coming from $`\zeta(4)`$ and
-$`\zeta(6)`$ — `kw_riemannZeta_six`). The scaling family $`L \mapsto L.\mathrm{scale}\,\beta`$
+(`g₂_ofTau`, `g₃_ofTau`, the constants coming from $`\zeta(4)`$ and
+$`\zeta(6)`$ — `riemannZeta_six`). The scaling family $`L \mapsto L.\mathrm{scale}\,\beta`$
 acts by $`g_2 \mapsto \beta^{-4}g_2`$, $`g_3 \mapsto \beta^{-6}g_3`$, which is what
-makes the $`j`$-invariant of a lattice depend only on its shape; the file closes with
-an explicit construction (`kwQepw123c_jH`, `…E₄cubeExt`, `…ΔExt`, `…pencil`,
-`kw_JSurjective`). **Surjectivity of $`j`$ is established here with the modular-forms
+makes the $`j`$-invariant of a lattice depend only on its shape; the port closes with
+`jLattice_surjective`, assembled from these forms; the pin's explicit pencil
+construction is not re-proved. **Surjectivity of $`j`$ is established here with the modular-forms
 instruments**, the same $`E_4, E_6`$, `CuspForm`, `discriminant` and `qExpansion`
 vocabulary that [base/004](../base/004-the-j-invariant.md) already introduced.
 
