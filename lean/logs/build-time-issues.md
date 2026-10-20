@@ -28,21 +28,31 @@ in the module header and land it. Deferral is reserved for a proof that no longe
   seams the pin already has, so no declaration needs the bump. Recorded in
   [ds-leaf-families-wave2.md](ds-leaf-families-wave2.md) §4 as owed.
 
-## 2. Not landed, far over budget — parked with its diagnosis
+## 2. Resolved — the `ZLattice` pair: landed at 20k hearts with a registered deviation
 
-`SchwartzMap.tsum_eq_tsum_fourier_euclideanSpace` (the `ZLattice` pair's blocker), draft at
-`lean/tmp/zlattice/PoissonSummationPi.lean`:
+Landed 2026-10-20 as `FLTForHuman/Analysis/Fourier/PoissonSummationPi.lean` (613 lines) and
+`PoissonSummationZLattice.lean` (293 lines). Record and bisection:
+[poisson-summation-statements.md](poisson-summation-statements.md).
 
-* **429 s** at the library cap, exit 0, 0 errors, 0 `sorry` — so it is slow, not broken;
-* **typeclass inference 237 s** of it (elaboration 191 s, tactics 1.79 s, `simp` 0.53 s) — i.e. the
-  *instance* class, so it is fixable by shape;
-* three declarations at **67.6 / 66.5 / 56 s**, unnamed by `set_option profiler true` (which prints
-  anonymous `elaboration took` lines — one reason that profile run was low-yield);
-* the pin sets `maxHeartbeats 16000000` on its `PeriodizeLift` section and `3200000` file-wide;
-* one hotspot already fixed: pinning `(f := toUnitAddTorus)` on the four `Function.surjInv` and one
-  `Function.surjInv_eq` (minimal proof `lean/tmp/zlattice/pi_G.lean`) — the pattern for the rest;
-* `HANDOVER.md` in the same directory carries the measurement, the regeneration command, and the
-  "cut at section boundaries, never truncate" warning.
+* what the 429 s was: exactly **three** declarations — `periodizeCM_apply`,
+  `periodizeLiftFun_toUnitAddTorus`, `periodizeLift_toUnitAddTorus` — over the diagnostic **in
+  their statements**, not their proofs. A locally bound `hf : ∀ K : Compacts (d → ℝ), Summable fun
+  n : d → ℤ => ‖(f.comp (ContinuousMap.addRight (intVec n))).restrict K‖` made `isDefEq` unable to
+  close `restrict (↑K)` against `restrict ?m`, so it unfolded `Norm C(↥K, ℂ)` (`= dist x 0`, the
+  `BoundedContinuousFunction` distance, `sInf`, `Finset.sum`). The profiler counted that as
+  "typeclass inference"; it is instance *terms*, not instance *search*, so no argument could be
+  pinned;
+* fix: name the hypothesis type once (`def LocSum (f) : Prop := …`) and use `(hf : LocSum f)` in the
+  three defs and three theorems. No `set_option` anywhere: the module builds at the library's 4M
+  default in **5.5 s** (3,189 jobs), 0 warnings (the pin's 16M on the section was precaution);
+* registered deviations: 7 `own:` rows in `spec/decl_markers.tsv` (the 6 binders + `LocSum`), the
+  statements remaining defeq to the pin's. The module reads **31 ok / 0 mismatch / 0 missing /
+  7 own**; the ZLattice module reads **2 ok** and builds in 5.4 s (3,202 jobs); `--all` reads
+  **2,884 ok / 11 own over 109 wired modules**;
+* the second module had never been elaborated and carried two hard name errors (a bare `open
+  PiPoissonSummation`, the engine lives under `P2MW.S_….PiPoissonSummation`, and one qualified
+  helper use); both are fixed, and its only declaration over 20,000 hearts is the first headline's
+  proof (passes at 21,000).
 
 ## 3. The tree's oleans are incomplete — treat a "missing declaration" as possibly a stale build
 

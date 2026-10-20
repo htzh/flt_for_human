@@ -135,33 +135,6 @@ Already homed and *not* owed: `LocalNewvector.padicK1`/`congruenceK0`
 nodes homes the four modules **whole and verbatim** (playbook §2.3), `spec-pin:`-header each, before
 stating either node.
 
-### The `ZLattice` pair of WORKORDER-MG3 — deferred on elaboration cost, not on mathematics
-
-Deferred 2026-10-20 when MG3's phase 1 closed. The pair is
-`SchwartzMap.tsum_eq_tsum_fourier_euclideanSpace` (563 pin lines) plus
-`ZLattice.tsum_translate_eq_inv_covolume_mul_tsum_fourierIntegral` (229) and
-`ZLattice.summable_fourierIntegral_mul_fourierChar_dualSubmodule` (221) — **1,013 pin lines**, no
-definition gate (the pin files import mathlib only), and priced at ~1,000 net new. A faithful draft was
-written (614 + 293 port lines, no `sorry`) and is parked at `lean/tmp/zlattice/`, with its profile log and a handover note (`HANDOVER.md`); it was
-**not** landed because the `SchwartzMap` module cannot be iterated inside 2 minutes. Measured on the
-parked draft with `set_option profiler true` at the library cap: it **elaborates clean in 429 s**
-(exit 0, 0 errors, 0 `sorry`), of which **elaboration 191 s and typeclass inference 237 s** (tactic
-execution 1.79 s, `simp` 0.53 s) — i.e. the cost is **instance inference**, the class the 200k cap
-exists to find, not arithmetic defeq. Three declarations account for most of it: 67.6 s, 66.5 s and
-56 s. The pin sets `set_option maxHeartbeats 16000000` on its `PeriodizeLift` section and `3200000`
-file-wide, so it hit the same wall. The `ZLattice` module is blocked behind the `SchwartzMap` one (it
-needs its olean).
-
-The one hotspot already fixed is worth keeping: in `periodizeLiftFun`,
-`Function.surjInv toUnitAddTorus_surjective z` spent minutes inferring `surjInv`'s implicit function
-argument from a *proof term*; pinning `(f := toUnitAddTorus)` on the four `Function.surjInv` and the
-one `Function.surjInv_eq` made that prefix elaborate in seconds (minimal proof: `lean/tmp/zlattice/pi_G.lean`).
-The next attempt should therefore **not** raise anything: bisect the remaining three declarations with
-`set_option profiler true` on prefixes, and for each fix the *instance* argument the search is
-guessing — pin the implicit (`(f := …)`, `(𝕜 := …)`, `(E := …)`), give the search a local `letI`, or
-state the intermediate as a `private` helper with fully explicit binders. Land it only when the module
-elaborates inside 2 minutes; a module that cannot be iterated must not enter the library.
-
 ### The exact-volume / L2 chain — `Def_AutomorphicForm_{Gamma0ExactVolume,FundamentalDomainExactVolume,EisensteinScattering,L2ProductionInstance,L2AutomorphicCarrier,TruncatedDomainPartition}`
 
 Deferred 2026-10-17 while porting `CuspForm.peterssonOn_hecke_eq_conj_mul_of_hasNebentypus`

@@ -43,6 +43,13 @@ be seen to match (IF-003: the goal is `foo (bar x)` with `bar` a semireducible
 `def`), the fix is an explicit brick (`inferInstanceAs`/`haveI`), and it belongs
 here.
 
+One case deliberately stays in the build-time register instead of this table: a
+**statement-level** blow-up, where `isDefEq` compares two spellings of a
+hypothesis type and unfolds the instance *terms* (the profiler counts it as
+typeclass inference, but no search goal runs, so there is no budget to record and
+nothing to pin — the fix is to name the type). First instance, bisection and the
+register rows: [logs/poisson-summation-statements.md](logs/poisson-summation-statements.md).
+
 ## How to detect
 
 1. **`tools/deps/build_ladder.py --profile MODULE`** — ranks the expensive

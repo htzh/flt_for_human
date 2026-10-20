@@ -10,8 +10,8 @@ residuals. Every measurement is the pin's, read through `tools/deps`. The sectio
 stable: work orders across the column cite §3 for the workflow and §7 for the gates.
 
 The checker is **`spec/check_port.py` alone**, one module at a time, wired by the module's own
-`spec-pin:` header (§6). On 2026-10-20 it reads **2851 ok, 0 mismatched, 0 missing, 4 own, 0 kw
-over 107 wired modules** (582 `PORT_FILES` modules exempt; corpus `aa2d8b3`). `spec/old_check_stmts.py`
+`spec-pin:` header (§6). On 2026-10-20 it reads **2884 ok, 0 mismatched, 0 missing, 11 own, 0 kw
+over 109 wired modules** (582 `PORT_FILES` modules exempt; corpus `aa2d8b3`). `spec/old_check_stmts.py`
 is the grandfathered registry and is **not run as a gate**; its last reading, before the handoff,
 was 10473 identical (774 promoted, 83 renamed), 0 mismatched, 0 missing, 42 own-proof exemptions
 (10809 checked). Declaration-level exceptions live in `spec/decl_markers.tsv`, never in the Lean
@@ -690,6 +690,24 @@ complex fan. Records:
 [logs/arch-casimir-complex.md](../logs/arch-casimir-complex.md); order:
 [automorphicForm/WORKORDER-ACC-arch-casimir-complex.md](automorphicForm/WORKORDER-ACC-arch-casimir-complex.md).
 
+**The Poisson-summation pair then closed the `ZLattice` deferral** (§9's last parked item): the
+563-line `SchwartzMap.tsum_eq_tsum_fourier_euclideanSpace` and the two `ZLattice` headlines (229 +
+221 pin lines) as `FLTForHuman/Analysis/Fourier/PoissonSummationPi.lean` (613 lines, **31 wired + 7
+`own:`**) and `PoissonSummationZLattice.lean` (293 lines, **2 wired**). The 429 s the pair was
+deferred on was exactly three declarations blowing the diagnostic **in their statements**: a locally
+bound `hf` — "every lattice translate is summable in sup-norm on every compact", written inline in
+all six `PeriodizeLift` declarations — made `isDefEq` unfold the norm on a restricted
+`ContinuousMap` (`ContinuousMap.instNorm = dist x 0`, `sInf`, `Finset.sum`); naming that type
+`LocSum` removed the unfolding, and the module now builds in **5.5 s** (3,189 jobs), 0 warnings, the
+sibling in 5.4 s (3,202 jobs). This is the column's first **registered deviation set**: 7 `own:`
+rows in `spec/decl_markers.tsv` (the six binders and `LocSum`; the statements stay defeq to the
+pin's). Checker **2,851 → 2,884 ok, 107 → 109 wired modules, 4 → 11 own**, 0 mismatched / 0
+missing; both headlines' axioms are `[propext, Classical.choice, Quot.sound]`. The second module had
+never been elaborated and carried two hard name errors (a bare `open PiPoissonSummation`, the engine
+lives under `P2MW.S_….PiPoissonSummation`, and one qualified helper use) — fixed; its head is a
+proof just over 20k. Record:
+[logs/poisson-summation-statements.md](../logs/poisson-summation-statements.md).
+
 **The shared ground that edits existing modules.** The `ValuationSubring` residue block in
 `NumberTheory/ValuationAtPlace.lean`; the `Gamma0Integral` promotion and its duplicate-block
 collapse; the resolution of the `normFormulaAlong_of_elliptic` co-import collision (one public
@@ -966,10 +984,21 @@ question; it reports and stops.
   probe is a ≤ 60 s turn; if a probe cannot finish in that, the probe is wrong, not the file. One long
   *profiled* run per module is the sanctioned exception — `set_option profiler true` at the library cap
   gives the per-declaration split (elaboration vs typeclass inference vs tactics) and the module's total,
-  once, after which the isolation above takes over:
+  once, after which the isolation above takes over;
+* **a timeout is not automatically a slow proof.** Stub the suspect declaration's *proof* with `sorry`
+  and re-probe at the low cap: if the statement still times out, the cost is a term in the type, and
+  no proof-level change (pinning a search argument, a local `letI`, a reshaped tactic block) can move
+  it. First instance: the now-landed `ZLattice` pair's three `PeriodizeLift` declarations, each far
+  over the 200k diagnostic (one alone still timed out at 1M) — all of it the argument check of a
+  hypothesis whose type contains the norm on a restricted `ContinuousMap` (`isDefEq` unfolds `dist x 0`
+  and its `BoundedContinuousFunction` machinery); naming that hypothesis type once brought the whole
+  614-line module to ~6 s at 20k hearts and a 5.5 s build. The fix was a name, not a pinned instance —
+  full bisection, mechanism and the 7 registered `own:` rows:
+  [logs/poisson-summation-statements.md](../logs/poisson-summation-statements.md);
 * **the register of open build-time issues is [logs/build-time-issues.md](../logs/build-time-issues.md)**
-  (the owed `ResidueSumQExpansion` rework, the parked 429 s `ZLattice` draft, the tree's incomplete oleans,
-  the lock/memory rules, and the `/usr/bin/time` measurement trap). Read it before any build-heavy wave;
+  (the owed `ResidueSumQExpansion` rework, the resolved `ZLattice` blocker, the tree's incomplete
+  oleans, the lock/memory rules, and the `/usr/bin/time` measurement trap). Read it before any
+  build-heavy wave;
 * **the cap is a diagnostic, not the build budget.** The library's own setting is the lakefile's
   `maxHeartbeats 4000000`, so a declaration whose measured cost is **arithmetic defeq** rather than
   instance synthesis (`Add.add`/`Nat.rec` unfolding from a large expression) may exceed the 200,000

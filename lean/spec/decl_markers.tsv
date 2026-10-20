@@ -13,3 +13,10 @@
 # Changing this file never affects a Lean build; `check_port --strict-markers`
 # fails on an entry that no longer matches a declaration.
 module	declaration	directive
+FLTForHuman/Analysis/Fourier/PoissonSummationPi.lean	P2MW.S_SchwartzMap_tsum_eq_tsum_fourier_euclideanSpace.PiPoissonSummation.LocSum	own: build-time name for the PeriodizeLift hypothesis type (defeq to the pin's inline binder)
+FLTForHuman/Analysis/Fourier/PoissonSummationPi.lean	P2MW.S_SchwartzMap_tsum_eq_tsum_fourier_euclideanSpace.PiPoissonSummation.periodizeCM	own: binder type named LocSum (defeq); the pin's inline spelling needs >1M hearts in the statement
+FLTForHuman/Analysis/Fourier/PoissonSummationPi.lean	P2MW.S_SchwartzMap_tsum_eq_tsum_fourier_euclideanSpace.PiPoissonSummation.periodizeCM_apply	own: binder type named LocSum (defeq); the pin's inline spelling needs >1M hearts in the statement
+FLTForHuman/Analysis/Fourier/PoissonSummationPi.lean	P2MW.S_SchwartzMap_tsum_eq_tsum_fourier_euclideanSpace.PiPoissonSummation.periodizeLiftFun	own: binder type named LocSum (defeq); the pin's inline spelling needs >1M hearts in the statement
+FLTForHuman/Analysis/Fourier/PoissonSummationPi.lean	P2MW.S_SchwartzMap_tsum_eq_tsum_fourier_euclideanSpace.PiPoissonSummation.periodizeLiftFun_toUnitAddTorus	own: binder type named LocSum (defeq); the pin's inline spelling needs >1M hearts in the statement
+FLTForHuman/Analysis/Fourier/PoissonSummationPi.lean	P2MW.S_SchwartzMap_tsum_eq_tsum_fourier_euclideanSpace.PiPoissonSummation.periodizeLift	own: binder type named LocSum (defeq); the pin's inline spelling needs >1M hearts in the statement
+FLTForHuman/Analysis/Fourier/PoissonSummationPi.lean	P2MW.S_SchwartzMap_tsum_eq_tsum_fourier_euclideanSpace.PiPoissonSummation.periodizeLift_toUnitAddTorus	own: binder type named LocSum (defeq); the pin's inline spelling needs >1M hearts in the statement
