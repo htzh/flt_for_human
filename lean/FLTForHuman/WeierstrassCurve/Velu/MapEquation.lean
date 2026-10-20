@@ -27,6 +27,11 @@ proof body is not transcribed.
 
 Reference (public mirror, pinned):
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_velu_map_equation_of_oddOrderSummingSet_of_isAlgClosed.lean>
+
+  spec-pin: Theorems/Thm_WeierstrassCurve_velu_map_equation_of_oddOrderSummingSet.lean
+  spec-pin: Theorems/Thm_WeierstrassCurve_velu_map_equation_of_oddOrderSummingSet_of_isAlgClosed.lean
+  spec-pin: Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean
+  spec-pin: P2M/Sol/S_WeierstrassCurve_velu_map_equation_of_oddOrderSummingSet_of_isAlgClosed.lean
 -/
 import FLTForHuman.WeierstrassCurve.Velu.OddOrder
 import FLTForHuman.WeierstrassCurve.FunctionFieldFinite
@@ -302,7 +307,7 @@ end AlgebraicCurve.Place
 `VeluThmOneOddAt` is the proposition the map `S_` file discharges at the odd
 order `p = 2 * n + 1`; the three `kw_no6_hroute_*` theorems are its proof. They
 consume only `Velu/OddOrder.lean` plus the `HasPrincipalDivisors` supplier
-`kw_veluHPDSupplier` built from the dictionary block above. -/
+`veluHPDSupplier` built from the dictionary block above. -/
 
 namespace WeierstrassCurve
 
@@ -341,8 +346,8 @@ private theorem two_ne_zero_or_a₁_ne_zero_or_a₃_ne_zero_of_Δ_ne_zero
     rw [WeierstrassCurve.b₆, h3]; linear_combination (2 * W.a₆) * h2
   rw [WeierstrassCurve.Δ, hb2, hb4, hb6]; ring
 
-/-- Pin `WeierstrassCurve.kw_veluHPDSupplier` (map `S_` line 8507). -/
-theorem kw_veluHPDSupplier :
+/-- Pin `WeierstrassCurve.veluHPDSupplier` (map `S_` line 8507). -/
+theorem veluHPDSupplier :
     ∀ (W : WeierstrassCurve F), W.Δ ≠ 0 →
       AlgebraicCurve.HasPrincipalDivisors F W.toAffine.FunctionField :=
   fun W hΔ => WeierstrassCurve.Affine.hasPrincipalDivisors_functionField_of_wqDiscPoly_ne_zero
@@ -357,45 +362,45 @@ variable {F : Type*} [Field F] [DecidableEq F] [IsAlgClosed F]
 
 variable (F) in
 
-/-- Pin `WeierstrassCurve.kw_no6_hroute_veluDeficitIsConstantAt_odd`
+/-- Pin `WeierstrassCurve.hroute_veluDeficitIsConstantAt_odd`
 (map `S_` line 11935). -/
-theorem kw_no6_hroute_veluDeficitIsConstantAt_odd
+theorem hroute_veluDeficitIsConstantAt_odd
     {p : ℕ} (hp3 : 3 ≤ p) (hpodd : Odd p) :
     VeluDeficitIsConstantAt F p :=
   veluDeficitIsConstantAt_of_ordNonneg_of_dedekind
-    kw_veluHPDSupplier kw_hDDTerm
-    (kw_veluDeficitFunOrdNonnegAt_odd F kw_hDDTerm hp3 hpodd)
+    veluHPDSupplier hDDTerm
+    (veluDeficitFunOrdNonnegAt_odd F hDDTerm hp3 hpodd)
 
 variable (F) in
 
-/-- Pin `WeierstrassCurve.kw_no6_hroute_veluDeficitConstancyAt_odd`
+/-- Pin `WeierstrassCurve.hroute_veluDeficitConstancyAt_odd`
 (map `S_` line 11944). -/
-theorem kw_no6_hroute_veluDeficitConstancyAt_odd
+theorem hroute_veluDeficitConstancyAt_odd
     {p : ℕ} (hp3 : 3 ≤ p) (hpodd : Odd p) :
     VeluDeficitConstancyAt F p := by
-  haveI : Infinite F := kw_infinite_of_isAlgClosed
+  haveI : Infinite F := infinite_of_isAlgClosed
   refine veluDeficitConstancyAt_of_isConstant_of_constantZero F
-    (kw_no6_hroute_veluDeficitIsConstantAt_odd F hp3 hpodd)
-    (kw_veluDeficitConstantIsZeroAt_odd hp3 hpodd ?_)
-  exact kw_veluDeficitCrossQuadProdDegLtAt_odd hp3 hpodd
-    (kw_veluDeficitCrossQuadCubeBetaDegLtAt_odd hp3 hpodd
-      (kw_veluDeficitCrossQuadBetaOnlyDegLtAt_odd
+    (hroute_veluDeficitIsConstantAt_odd F hp3 hpodd)
+    (veluDeficitConstantIsZeroAt_odd hp3 hpodd ?_)
+  exact veluDeficitCrossQuadProdDegLtAt_odd hp3 hpodd
+    (veluDeficitCrossQuadCubeBetaDegLtAt_odd hp3 hpodd
+      (veluDeficitCrossQuadBetaOnlyDegLtAt_odd
         (veluDeficitCrossQuadBetaSDecompDegLtAt_of_betaSq_of_alphaBeta
-          (kw_veluDeficitCrossQuadBetaSqDecompDegLtAt_odd hp3 hpodd)
-          (kw_veluDeficitCrossQuadAlphaBetaDecompDegLtAt_odd hp3 hpodd))))
+          (veluDeficitCrossQuadBetaSqDecompDegLtAt_odd hp3 hpodd)
+          (veluDeficitCrossQuadAlphaBetaDecompDegLtAt_odd hp3 hpodd))))
 
 variable {W : WeierstrassCurve F} {Q : W.toAffine.Point} {p : ℕ}
 
-/-- Pin `WeierstrassCurve.kw_no6_hroute_veluThmOneOddAt_odd`
+/-- Pin `WeierstrassCurve.hroute_veluThmOneOddAt_odd`
 (map `S_` line 11960). -/
-theorem kw_no6_hroute_veluThmOneOddAt_odd
+theorem hroute_veluThmOneOddAt_odd
     (hΔ : W.Δ ≠ 0) (hp3 : 3 ≤ p) (hpodd : Odd p) (hord : addOrderOf Q = p) :
     VeluThmOneOddAt W Q ((p - 1) / 2) := by
   have hQ0 : Q ≠ 0 := by intro h; rw [h, addOrderOf_zero] at hord; omega
   obtain ⟨x₀, y₀, h₀, rfl, -⟩ := exists_some_of_ne_zero hQ0
   intro r s hrs hav
   exact (W.veluQuotient_equation_iff_veluDeficit_eq_zero _ r s).mpr
-    (kw_no6_hroute_veluDeficitConstancyAt_odd F hp3 hpodd
+    (hroute_veluDeficitConstancyAt_odd F hp3 hpodd
       W hΔ x₀ y₀ h₀ hord hrs hav)
 
 end CharAgnosticOdd
@@ -422,7 +427,7 @@ theorem velu_map_equation_of_oddOrderSummingSet_of_isAlgClosed
   · have hp3 : 3 ≤ 2 * n + 1 := by omega
     have hpodd : Odd (2 * n + 1) := ⟨n, rfl⟩
     have hn_eq : ((2 * n + 1) - 1) / 2 = n := by omega
-    have key := WeierstrassCurve.kw_no6_hroute_veluThmOneOddAt_odd
+    have key := WeierstrassCurve.hroute_veluThmOneOddAt_odd
       (W := W) (Q := Q) W.Δ'.ne_zero hp3 hpodd hQ
     rw [hn_eq] at key
     exact key hxy hx

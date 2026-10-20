@@ -12,11 +12,14 @@ adds the residue-theorem chain that consumes it and the two `ResidueTheoremK`
 producers, ending at the pin's `solution` body.  The `RatFunc` headline itself is
 `KRatFunc.lean`.
 
-The three pin-`private` `Prop` rows `KwF4R1V384aCompletionSemilocalBij`,
-`KwF4R1V384aDistinctKernels` and `KwF4R1V384aFinrankCompletionEF` live `private`
+The three pin-`private` `Prop` rows `CompletionSemilocalBij`,
+`DistinctKernels` and `FinrankCompletionEF` live `private`
 in `Tate/CompletionTraceSum.lean`; the proofs here reach only the port's public
 `completionTraceSum_of_isSeparable`, so they are not re-landed (recorded promotion
 debt, pin `S_` 269/282/288).
+
+  spec-pin: Theorems/Thm_AlgebraicCurve_residueTheoremK_of_isAlgClosed.lean
+  spec-pin: P2M/Sol/S_AlgebraicCurve_residueTheoremK_of_isAlgClosed.lean
 -/
 import FLTForHuman.AlgebraicCurve.ResidueTheorem.KCotrace
 import FLTForHuman.AlgebraicCurve.ResidueTheorem.KRatFunc
@@ -28,7 +31,7 @@ set_option linter.unusedSectionVars false
 
 open KaehlerDifferential LinearMap Submodule
 open WithZero IsDedekindDomain IsLocalRing
-open ModularCurve.KwF4R1V391a
+open ModularCurve
 
 noncomputable section
 
@@ -616,7 +619,7 @@ variable [Algebra.IsIntegral E F]
 
 /-- (pin 6638) The fiber Kähler cotrace residue identity gives the canonical
 fiber-localized identity. -/
-theorem kw_mlc_hrtCharP9_cotraceResidueIdentityOnFiberLocalized_of_fkcri
+theorem hrtCharP9_cotraceResidueIdentityOnFiberLocalized_of_fkcri
     (h : FiberKaehlerCotraceResidueIdentity K F E) :
     CotraceResidueIdentityOnFiberLocalized K F E := by
   intro _ _ ωE hωE hgen v p _
@@ -647,7 +650,7 @@ theorem residueTheoremK_of_fiberKaehlerCotraceResidueIdentity_ratFunc_isAlgClose
   residueTheoremK_of_rowAK_ratFunc_isAlgClosed hgen
     (cotraceResidueIdentityOnFiberLocalizedK_of_committed
       (fun w => w.subsingleton_canonicalLocalResidueDataK_of_isAlgClosed_of_finiteResidue)
-      (kw_mlc_hrtCharP9_cotraceResidueIdentityOnFiberLocalized_of_fkcri K F (RatFunc K)
+      (hrtCharP9_cotraceResidueIdentityOnFiberLocalized_of_fkcri K F (RatFunc K)
         hFKCRI))
 
 end FKCRIProduction
@@ -661,18 +664,18 @@ variable {K E : Type*} [Field K] [Field E] [Algebra K E]
 variable [HasCanonicalLocalResidueKStar K E]
 
 /-- (pin 6756) The completion residue is additive. -/
-theorem kwHgfV352_localResidueCompletion_sum (v : Place K E) {ι : Type*}
+theorem localResidueCompletion_sum (v : Place K E) {ι : Type*}
     (s : Finset ι) (f : ι → v.adicCompletion) :
-    kwHgfV352_localResidueCompletion v (∑ i ∈ s, f i)
-      = ∑ i ∈ s, kwHgfV352_localResidueCompletion v (f i) := by
+    localResidueCompletion v (∑ i ∈ s, f i)
+      = ∑ i ∈ s, localResidueCompletion v (f i) := by
   classical
   induction s using Finset.induction_on with
   | empty =>
     simp only [Finset.sum_empty]
     rw [show (0 : v.adicCompletion) = algebraMap E v.adicCompletion 0 from (_root_.map_zero _).symm,
-      kwHgfV352_localResidueCompletion_algebraMap, _root_.map_zero]
+      localResidueCompletion_algebraMap, _root_.map_zero]
   | insert a s ha ih =>
-    rw [Finset.sum_insert ha, kwHgfV352_localResidueCompletion_add, ih,
+    rw [Finset.sum_insert ha, localResidueCompletion_add, ih,
       Finset.sum_insert ha]
 
 end LocalResidueCompletion
@@ -705,7 +708,7 @@ end AlgebraicCurve
 
 /-! ## The trace coefficient linearity (pin 7058–7126) -/
 
-namespace ModularCurve.KwF4R1V391a
+namespace ModularCurve
 
 open AlgebraicCurve AlgebraicCurve.Place
 
@@ -717,31 +720,31 @@ variable [Algebra.IsIntegral E F] [HasPrincipalDivisors K E] [HasPrincipalDiviso
 variable [FiniteDimensional E F]
 
 /-- (pin 7058) The completion trace is `E`-semilinear. -/
-theorem kwF4R1V391a_completionTraceF'_mul_algebraMap (w : Place K F) (g : F) (c : E) :
-    kw_ffgc_completionTraceF' E w (g * algebraMap E F c)
-      = kw_ffgc_completionTraceF' E w g
+theorem completionTraceF'_mul_algebraMap (w : Place K F) (g : F) (c : E) :
+    completionTraceF' E w (g * algebraMap E F c)
+      = completionTraceF' E w g
           * algebraMap E (w.restrict E).adicCompletion c := by
-  rw [kw_ffgc_completionTraceF'_apply, kw_ffgc_completionTraceF'_apply, map_mul,
-    kw_ffgc_adicCompletionComap_algebraMap_algebraMap E w c,
+  rw [completionTraceF'_apply, completionTraceF'_apply, map_mul,
+    adicCompletionComap_algebraMap_algebraMap E w c,
     mul_comm (algebraMap F w.adicCompletion g) _, ← Algebra.smul_def,
     LinearMap.map_smul, smul_eq_mul, mul_comm]
 
 /-- (pin 7067) The fiber completion trace is `E`-semilinear. -/
-theorem kwF4R1V391a_completionTraceAt_mul_algebraMap
+theorem completionTraceAt_mul_algebraMap
     (v : Place K E) (w : Place K F) (hw : w ∈ v.fiber F) (g : F) (c : E) :
-    kwHgfV352_completionTraceAt v w hw (g * algebraMap E F c)
-      = kwHgfV352_completionTraceAt v w hw g * algebraMap E v.adicCompletion c := by
+    completionTraceAt v w hw (g * algebraMap E F c)
+      = completionTraceAt v w hw g * algebraMap E v.adicCompletion c := by
   have hv : w.restrict E = v := Place.mem_fiber.mp hw
   subst hv
-  show (Place.mem_fiber.mp hw ▸ kw_ffgc_completionTraceF' E w (g * algebraMap E F c))
-    = (Place.mem_fiber.mp hw ▸ kw_ffgc_completionTraceF' E w g)
+  show (Place.mem_fiber.mp hw ▸ completionTraceF' E w (g * algebraMap E F c))
+    = (Place.mem_fiber.mp hw ▸ completionTraceF' E w g)
         * algebraMap E (w.restrict E).adicCompletion c
 
-  rw [kwF4R1V391a_completionTraceF'_mul_algebraMap w g c]
+  rw [completionTraceF'_mul_algebraMap w g c]
 
 end CompletionTraceAtLinear
 
-end ModularCurve.KwF4R1V391a
+end ModularCurve
 
 namespace AlgebraicCurve
 
@@ -760,9 +763,9 @@ variable [Nontrivial Ω[F⁄K]] [∀ w : Place K F, w.DCoordGenerates]
 
 /-- (pin 7929) The trace-completion commutation plus the completion trace sum give
 the fiber Kähler cotrace residue identity. -/
-theorem kw_es_fiberKaehlerCotraceResidueIdentity_of_RTCC_CTS
-    (hRTCC : KwF4R1V391aResidueTraceCompletionCommute K F E)
-    (hCTS : KwHgfV352CompletionTraceSum K F E) :
+theorem fiberKaehlerCotraceResidueIdentity_of_RTCC_CTS
+    (hRTCC : ResidueTraceCompletionCommute K F E)
+    (hCTS : CompletionTraceSum K F E) :
     FiberKaehlerCotraceResidueIdentity K F E := by
   intro _ _ ωE _hωE _hωF v f
   calc ∑ w ∈ v.fiber F,
@@ -770,34 +773,34 @@ theorem kw_es_fiberKaehlerCotraceResidueIdentity_of_RTCC_CTS
 
       = ∑ w' ∈ (v.fiber F).attach,
           Algebra.trace K v.ResidueField
-            (kwHgfV352_localResidueCompletion v
-              (kwHgfV352_completionTraceAt v w'.1 w'.2 f
+            (localResidueCompletion v
+              (completionTraceAt v w'.1 w'.2 f
                 * algebraMap E v.adicCompletion (v.differentialCoeff ωE))) := by
         rw [← Finset.sum_attach (v.fiber F)
           (fun w => kaehlerResidueTerm (kaehlerPullback K F E ωE) (diagonalHom K F f) w)]
         refine Finset.sum_congr rfl fun w' _ => ?_
         rw [kaehlerResidueTerm_kaehlerPullback_diagonal_eq_dCoord_shift v w'.1 ωE f,
           hRTCC v w'.1 w'.2 (f * algebraMap E F (v.differentialCoeff ωE)),
-          kwF4R1V391a_completionTraceAt_mul_algebraMap v w'.1 w'.2 f
+          completionTraceAt_mul_algebraMap v w'.1 w'.2 f
             (v.differentialCoeff ωE)]
 
     _ = Algebra.trace K v.ResidueField
-          (kwHgfV352_localResidueCompletion v
-            ((∑ w' ∈ (v.fiber F).attach, kwHgfV352_completionTraceAt v w'.1 w'.2 f)
+          (localResidueCompletion v
+            ((∑ w' ∈ (v.fiber F).attach, completionTraceAt v w'.1 w'.2 f)
               * algebraMap E v.adicCompletion (v.differentialCoeff ωE))) := by
         rw [Finset.sum_mul,
-          kwHgfV352_localResidueCompletion_sum v (v.fiber F).attach _,
+          localResidueCompletion_sum v (v.fiber F).attach _,
           map_sum]
 
     _ = Algebra.trace K v.ResidueField
-          (kwHgfV352_localResidueCompletion v
+          (localResidueCompletion v
             (algebraMap E v.adicCompletion (Algebra.trace E F f)
               * algebraMap E v.adicCompletion (v.differentialCoeff ωE))) := by
         rw [← hCTS v f]
 
     _ = Algebra.trace K v.ResidueField
           (v.localResidue (Algebra.trace E F f * v.differentialCoeff ωE)) := by
-        rw [← map_mul, kwHgfV352_localResidueCompletion_algebraMap v]
+        rw [← map_mul, localResidueCompletion_algebraMap v]
 
     _ = kaehlerResidueTerm ωE (diagonalHom K E (Algebra.trace E F f)) v := by
         unfold kaehlerResidueTerm; rw [diagonalHom_apply]
@@ -817,27 +820,27 @@ variable [Nontrivial Ω[F⁄K]]
 
 /-- (pin 7985) The trace-completion commutation closes the residue theorem, given the
 separating differential. -/
-theorem kw_es_residueTheoremK_of_RTCC_isAlgClosed
+theorem residueTheoremK_of_RTCC_isAlgClosed
     [HasPrincipalDivisors K F] [Algebra.IsSeparable (RatFunc K) F]
     [Nontrivial Ω[(RatFunc K)⁄K]] [∀ v : Place K (RatFunc K), v.DCoordGenerates]
     (hgen : kaehlerPullback K F (RatFunc K) (dX K) ≠ 0)
-    (hRTCC : KwF4R1V391aResidueTraceCompletionCommute K F (RatFunc K)) :
+    (hRTCC : ResidueTraceCompletionCommute K F (RatFunc K)) :
     ResidueTheoremK K F := by
 
-  have hCTS : KwHgfV352CompletionTraceSum K F (RatFunc K) :=
+  have hCTS : CompletionTraceSum K F (RatFunc K) :=
     completionTraceSum_of_isSeparable (K := K) (F := F) (E := RatFunc K)
 
   exact residueTheoremK_of_fiberKaehlerCotraceResidueIdentity_ratFunc_isAlgClosed hgen
-    (kw_es_fiberKaehlerCotraceResidueIdentity_of_RTCC_CTS hRTCC hCTS)
+    (fiberKaehlerCotraceResidueIdentity_of_RTCC_CTS hRTCC hCTS)
 
 /-- (pin 7998) The separating differential is supplied by separability, so the
 trace-completion commutation closes the residue theorem. -/
-theorem kw_es_residueTheoremK_of_RTCC_isAlgClosed'
+theorem residueTheoremK_of_RTCC_isAlgClosed'
     [HasPrincipalDivisors K F] [Algebra.IsSeparable (RatFunc K) F]
     [Nontrivial Ω[(RatFunc K)⁄K]] [∀ v : Place K (RatFunc K), v.DCoordGenerates]
-    (hRTCC : KwF4R1V391aResidueTraceCompletionCommute K F (RatFunc K)) :
+    (hRTCC : ResidueTraceCompletionCommute K F (RatFunc K)) :
     ResidueTheoremK K F :=
-  kw_es_residueTheoremK_of_RTCC_isAlgClosed
+  residueTheoremK_of_RTCC_isAlgClosed
     (kaehlerPullback_eq_kaehlerCotrace (K := K) (F := F) (E := RatFunc K) (dX K) ▸
       kaehlerCotrace_dX_ne_zero_of_isSeparable K F
         (AlgebraicCurve.RationalFunctionField.placeInfty K))
@@ -849,7 +852,7 @@ end AlgebraicCurve
 
 /-! ## The pin's `solution` body (pin 8082–8104) -/
 
-namespace ModularCurve.KwTateRR3
+namespace ModularCurve
 
 open AlgebraicCurve
 
@@ -867,14 +870,14 @@ variable [∀ u : Place K (RatFunc K), u.FiniteResidue]
 /-- (pin 8082) The residue theorem for `F`, from the trace-completion commutation of
 the `RatFunc` extension (the pin's `kwTateRR3_RTCC_of_isSeparable`, the port's
 `residueTraceCompletionCommute`). -/
-theorem kwTateRR3_residueTheoremK_of_isAlgClosed
+theorem residueTheoremK_of_isAlgClosed
     [HasPrincipalDivisors K F] [Algebra.IsSeparable (RatFunc K) F]
     [Nontrivial Ω[(RatFunc K)⁄K]] [∀ v : Place K (RatFunc K), v.DCoordGenerates] :
     ResidueTheoremK K F :=
-  kw_es_residueTheoremK_of_RTCC_isAlgClosed'
+  residueTheoremK_of_RTCC_isAlgClosed'
     (residueTraceCompletionCommute (E := RatFunc K))
 
-end ModularCurve.KwTateRR3
+end ModularCurve
 
 /-! ## The public headline (pin `Thm_` wrapper) -/
 
@@ -894,4 +897,4 @@ theorem AlgebraicCurve.residueTheoremK_of_isAlgClosed
     [AlgebraicCurve.HasPrincipalDivisors K F] [Algebra.IsSeparable (RatFunc K) F]
     [Nontrivial Ω[(RatFunc K)⁄K]] [∀ v : AlgebraicCurve.Place K (RatFunc K), v.DCoordGenerates] :
     AlgebraicCurve.ResidueTheoremK K F :=
-  ModularCurve.KwTateRR3.kwTateRR3_residueTheoremK_of_isAlgClosed
+  ModularCurve.residueTheoremK_of_isAlgClosed

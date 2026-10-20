@@ -18,6 +18,11 @@ so the checker's dotted fallback verifies them.
 
 Reference (public mirror, pinned):
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_Affine_IsogenyEndDatum_exists_dualEndData_dual_mem_and_norm_eq_finrankAlong.lean>
+
+  spec-pin: P2M/Sol/S_WeierstrassCurve_Affine_IsogenyEndDatum_exists_dualEndData_dual_mem_and_norm_eq_finrankAlong.lean
+  spec-pin: P2M/Sol/S_WeierstrassCurve_exists_veluFunctionFieldHom_restrictAlong_placeOfPoint_eq_of_isAlgClosed.lean
+  spec-pin: P2M/Sol/S_WeierstrassCurve_Affine_IsogenyEndDatum_exists_pointEnd_eq_of_mem_isogenyEndSubring.lean
+  spec-pin: P2M/Sol/S_WeierstrassCurve_Affine_IsogenyEndDatum_exists_restrictAlong_placeOfPoint_eq_add.lean
 -/
 import FLTForHuman.WeierstrassCurve.Place.Dictionary
 import FLTForHuman.WeierstrassCurve.Isogeny.ConditionalCurrency
@@ -231,7 +236,7 @@ variable (W : Affine F) [W.IsElliptic]
   [WeierstrassCurve.Affine.GenusOnePlaceGate W]
   [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred W] [WeierstrassCurve.Affine.AbelTheorem W]
 
-abbrev KwIsogenyEndAddDatumSupply : Prop :=
+abbrev IsogenyEndAddDatumSupply : Prop :=
   ∀ D₁ D₂ : IsogenyEndDatum W,
     D₁.pointEnd' + D₂.pointEnd' ≠ 0 →
     ∃ D₃ : IsogenyEndDatum W,
@@ -354,14 +359,14 @@ variable (W : Affine F) [W.IsElliptic]
   [WeierstrassCurve.Affine.GenusOnePlaceGate W]
   [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred W] [WeierstrassCurve.Affine.AbelTheorem W]
 
-abbrev KwIsogenyEndAddGeomMorphSupply : Prop :=
+abbrev IsogenyEndAddGeomMorphSupply : Prop :=
   ∀ D₁ D₂ : IsogenyEndDatum W, D₁.pointEnd' + D₂.pointEnd' ≠ 0 →
     ∃ D₃ : IsogenyEndDatum W, ∀ P : W.Point,
       D₃.geomMorph P = D₁.geomMorph P + D₂.geomMorph P
 
-theorem kw_isogenyEndAddDatumSupply_of_addGeomMorphSupply
-    (hgm : KwIsogenyEndAddGeomMorphSupply W) :
-    KwIsogenyEndAddDatumSupply W := by
+theorem isogenyEndAddDatumSupply_of_addGeomMorphSupply
+    (hgm : IsogenyEndAddGeomMorphSupply W) :
+    IsogenyEndAddDatumSupply W := by
   intro D₁ D₂ h0
   obtain ⟨D₃, hD₃⟩ := hgm D₁ D₂ h0
   refine ⟨D₃, AddMonoidHom.ext fun P => ?_⟩
@@ -1714,7 +1719,7 @@ variable {W : Affine F} [W.IsElliptic]
   [WeierstrassCurve.Affine.GenusOnePlaceGate W]
   [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred W] [WeierstrassCurve.Affine.AbelTheorem W]
 
-theorem kw_coordSeamDataAt_geomMorph (D : IsogenyEndDatum W) (P : W.Point) :
+theorem coordSeamDataAt_geomMorph (D : IsogenyEndDatum W) (P : W.Point) :
     es1a11_coordSeamDataAt D.ι (placeOfPoint P) (D.geomMorph P) :=
   (es1a11_coordSeamDataAt_iff_pbd D.ι (placeOfPoint P) (D.geomMorph P)).mpr
     (es1a8_coordSeamDataAt_of_restrictAlong_pbd D.ι D.hι (placeOfPoint P)
@@ -2142,11 +2147,11 @@ variable (W : Affine F) [W.IsElliptic]
 
 attribute [local instance] ModularCurve.Es1a1.instDecEqFunctionFieldEs1a6Add
 
-abbrev kw_hk5f_addSumXNonConstGuardAt : Prop :=
+abbrev addSumXNonConstGuardAt : Prop :=
   ∀ D₁ D₂ : IsogenyEndDatum W, D₁.pointEnd' + D₂.pointEnd' ≠ 0 →
     ∀ c : F, es1a6_addSumX W D₁.ι D₂.ι ≠ algebraMap F W.FunctionField c
 
-abbrev kw_hk5f_addSumCoordSeamDataNCAt : Prop :=
+abbrev addSumCoordSeamDataNCAt : Prop :=
   ∀ φ₁ φ₂ : W.FunctionField →ₐ[F] W.FunctionField,
     ¬ es1a6_addCollapse W φ₁ φ₂ →
     (∀ c : F, es1a6_addSumX W φ₁ φ₂ ≠ algebraMap F W.FunctionField c) →
@@ -2154,18 +2159,18 @@ abbrev kw_hk5f_addSumCoordSeamDataNCAt : Prop :=
       es1a11_coordSeamDataAt φ₁ v Q₁ → es1a11_coordSeamDataAt φ₂ v Q₂ →
       es1a6_addSumSeamDataAt φ₁ φ₂ v (Q₁ + Q₂)
 
-abbrev kw_hk5f_addIntegralFiniteDataAt : Prop :=
+abbrev addIntegralFiniteDataAt : Prop :=
   ∀ D₁ D₂ : IsogenyEndDatum W,
     ∀ (hcol : ¬ es1a6_addCollapse W D₁.ι D₂.ι)
       (htr : Function.Injective (Polynomial.aeval (R := F) (es1a6_addSumX W D₁.ι D₂.ι))),
       (es1a6_addSumPullbackHom W D₁.ι D₂.ι hcol htr).toRingHom.IsIntegral ∧
         FiniteAlong F (es1a6_addSumPullbackHom W D₁.ι D₂.ι hcol htr)
 
-theorem kw_hk5f_addGeomMorphSupply_of_atoms
-    (hg : kw_hk5f_addSumXNonConstGuardAt W)
-    (hncseam : kw_hk5f_addSumCoordSeamDataNCAt W)
-    (hifd : kw_hk5f_addIntegralFiniteDataAt W) :
-    KwIsogenyEndAddGeomMorphSupply W := by
+theorem addGeomMorphSupply_of_atoms
+    (hg : addSumXNonConstGuardAt W)
+    (hncseam : addSumCoordSeamDataNCAt W)
+    (hifd : addIntegralFiniteDataAt W) :
+    IsogenyEndAddGeomMorphSupply W := by
   intro D₁ D₂ h0
   have hcol : ¬ es1a6_addCollapse W D₁.ι D₂.ι := by
     have := es1a8_add_not_collapse_of_pointEnd_add_ne_zero_cmp D₁ D₂ h0
@@ -2177,8 +2182,8 @@ theorem kw_hk5f_addGeomMorphSupply_of_atoms
     es1a6_add_aeval_sumX_injective_of_forall_ne W D₁.ι D₂.ι hnc
   obtain ⟨hι, hfin⟩ := hifd D₁ D₂ hcol htr
   refine ⟨⟨es1a6_addSumPullbackHom W D₁.ι D₂.ι hcol htr, hι, hfin⟩, fun P => ?_⟩
-  have h1 := kw_coordSeamDataAt_geomMorph D₁ P
-  have h2 := kw_coordSeamDataAt_geomMorph D₂ P
+  have h1 := coordSeamDataAt_geomMorph D₁ P
+  have h2 := coordSeamDataAt_geomMorph D₂ P
   have hsum := hncseam D₁.ι D₂.ι hcol hnc (placeOfPoint P)
     (D₁.geomMorph P) (D₂.geomMorph P) h1 h2
   have hseam := es1a6_addSumSeam_of_data D₁.ι D₂.ι hcol htr hι P
@@ -2207,7 +2212,7 @@ variable (W : Affine F) [W.IsElliptic]
 
 attribute [local instance] ModularCurve.Es1a1.instDecEqFunctionFieldEs1a6Add
 
-theorem kw_hk5f_addIntegralFiniteDataAt_proved : kw_hk5f_addIntegralFiniteDataAt W := by
+theorem addIntegralFiniteDataAt_proved : addIntegralFiniteDataAt W := by
   intro D₁ D₂ hcol htr
   have htrans : Transcendental F
       (es1a6_addSumPullbackHom W D₁.ι D₂.ι hcol htr (polyToFunctionField W X)) := by
@@ -2216,7 +2221,7 @@ theorem kw_hk5f_addIntegralFiniteDataAt_proved : kw_hk5f_addIntegralFiniteDataAt
   exact ⟨es1a8_addInt_selfHom_isIntegral_cmp _ htrans,
     es1a8_addInt_selfHom_finiteAlong_cmp _ htrans⟩
 
-theorem kw_hk5f_two_datum_pointEnd_add_eq_geomMorph
+theorem two_datum_pointEnd_add_eq_geomMorph
     (D₁ D₂ : IsogenyEndDatum W) (Q : W.Point) :
     (D₁.pointEnd' + D₂.pointEnd') Q
       = (D₁.geomMorph Q + D₂.geomMorph Q) - (D₁.geomMorph 0 + D₂.geomMorph 0) := by
@@ -2225,7 +2230,7 @@ theorem kw_hk5f_two_datum_pointEnd_add_eq_geomMorph
     D₂.pointEnd_eq_geomMorph_sub_geomMorph_zero Q]
   abel
 
-theorem kw_hk5f_pointEnd_add_eq_zero_of_cofinite_geomMorph_sum
+theorem pointEnd_add_eq_zero_of_cofinite_geomMorph_sum
     (D₁ D₂ : IsogenyEndDatum W) (T : W.Point)
     (hcof : {Q : W.Point | D₁.geomMorph Q + D₂.geomMorph Q ≠ T}.Finite) :
     D₁.pointEnd' + D₂.pointEnd' = 0 := by
@@ -2233,9 +2238,9 @@ theorem kw_hk5f_pointEnd_add_eq_zero_of_cofinite_geomMorph_sum
   refine mmr72_pp_end_eq_zero_of_cofinite_const (D₁.pointEnd' + D₂.pointEnd')
     (T - (D₁.geomMorph 0 + D₂.geomMorph 0)) (hcof.subset ?_)
   intro Q hQ hT
-  exact hQ (by rw [kw_hk5f_two_datum_pointEnd_add_eq_geomMorph W D₁ D₂ Q, hT])
+  exact hQ (by rw [two_datum_pointEnd_add_eq_geomMorph W D₁ D₂ Q, hT])
 
-theorem kw_hk5f_collision_pointEnd_add_eq_zero
+theorem collision_pointEnd_add_eq_zero
     (D₁ D₂ : IsogenyEndDatum W)
     (hX : D₁.ι (polyToFunctionField W X) = D₂.ι (polyToFunctionField W X))
     (c : F) (hx : es1a6_addSumX W D₁.ι D₂.ι = algebraMap F W.FunctionField c) :
@@ -2245,7 +2250,7 @@ theorem kw_hk5f_collision_pointEnd_add_eq_zero
   · exact absurd hx (mmr62_cd_collision_addSumX_ne_const W D₁.ι D₂.ι hX
       (mmr62_cd_not_collapse_of_not_collapse_cmp W D₁.ι D₂.ι hcol) c)
 
-theorem kw_hk5f_transversal_cofinite_geomMorph_sum
+theorem transversal_cofinite_geomMorph_sum
     (D₁ D₂ : IsogenyEndDatum W)
     (hX : D₁.ι (polyToFunctionField W X) ≠ D₂.ι (polyToFunctionField W X))
     (c d : F) (hEq : W.Equation c d)
@@ -2279,17 +2284,17 @@ theorem kw_hk5f_transversal_cofinite_geomMorph_sum
   exact hQ (mmr73_cs_geomMorph_add_eq_of_addSum_const D₁ D₂ hX hcd hx hy Q
     hb1 hb2 hb3 hb4 hb5)
 
-theorem kw_hk5f_addSumXNonConstGuardAt_proved : kw_hk5f_addSumXNonConstGuardAt W := by
+theorem addSumXNonConstGuardAt_proved : addSumXNonConstGuardAt W := by
   intro D₁ D₂ h0
   refine mmr46_gc_addSumX_ne_const_of_not_constPoint W D₁.ι D₂.ι ?_ ?_
   · intro hc
     exact es1a8_add_not_collapse_of_pointEnd_add_ne_zero_cmp D₁ D₂ h0 ⟨hc.1, hc.2⟩
   · rintro c d hEq ⟨hx, hy⟩
     by_cases hX : D₁.ι (polyToFunctionField W X) = D₂.ι (polyToFunctionField W X)
-    · exact h0 (kw_hk5f_collision_pointEnd_add_eq_zero W D₁ D₂ hX c hx)
+    · exact h0 (collision_pointEnd_add_eq_zero W D₁ D₂ hX c hx)
     · obtain ⟨T, hT⟩ :=
-        kw_hk5f_transversal_cofinite_geomMorph_sum W D₁ D₂ hX c d hEq hx hy
-      exact h0 (kw_hk5f_pointEnd_add_eq_zero_of_cofinite_geomMorph_sum W D₁ D₂ T hT)
+        transversal_cofinite_geomMorph_sum W D₁ D₂ hX c d hEq hx hy
+      exact h0 (pointEnd_add_eq_zero_of_cofinite_geomMorph_sum W D₁ D₂ T hT)
 
 end ProvedEngine
 

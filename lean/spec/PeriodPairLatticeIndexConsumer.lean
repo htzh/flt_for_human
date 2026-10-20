@@ -7,7 +7,7 @@
   A `spec/` probe, not a library module: it is outside every lake target and is run with
   `lake env lean`, so a green library build stays meaningful. Deleting `LatticeIndex.lean`
   makes every zone fail: no other module declares any of the names used below (the imports
-  supply the `PeriodPair` promotion set and S-1's `kw_surgehgf4_hH2f_betweenCurvesHoloLift`,
+  supply the `PeriodPair` promotion set and S-1's `betweenCurvesHoloLift`,
   which the zones only *consume*).
 
   Executed zones (each a real composition, no `#check`, no `sorry`):
@@ -19,8 +19,8 @@
   * zone 2 — the 978 headline at `ofTau`, composed with the ported
     `PeriodPair.toPointHom_apply` / `ker_toPointHom` API and the `PeriodPair.sublatticeIndex`
     conclusion;
-  * zone 3 — the S-1 → S-2 hand-off: S-1's `kw_surgehgf4_hH2f_betweenCurvesHoloLift` and
-    this module's `hID`/`kqe` feed `kw_surgehgf4_hscd_pointHomSublatticeCyc_of_three`, both
+  * zone 3 — the S-1 → S-2 hand-off: S-1's `betweenCurvesHoloLift` and
+    this module's `hID`/`kqe` feed `hscd_pointHomSublatticeCyc_of_three`, both
     abstractly and applied at a concrete `ofTau` pair;
   * zone 4 — the `zlattice` torsion count and the index/scale API at arbitrary pairs.
 -/
@@ -97,11 +97,11 @@ example (τ τ' : ℍ)
 /-! ### Zone 3 — the S-1 → S-2 hand-off feeding the 2,021 route -/
 
 /-- The three-way assembly: S-1's `hH2`, this module's `hID` and `hKQE`. -/
-example : ModularCurve.KwD5BetweenCurvesPointHomSublatticeCyclic :=
-  ModularCurve.kw_surgehgf4_hscd_pointHomSublatticeCyc_of_three
-    ModularCurve.kw_surgehgf4_hH2f_betweenCurvesHoloLift
-    ModularCurve.kw_surgehgf4_hID_betweenCurvesIndexDual_proved
-    ModularCurve.kw_surgehgf4_kqe_proved
+example : ModularCurve.BetweenCurvesPointHomSublatticeCyclic :=
+  ModularCurve.hscd_pointHomSublatticeCyc_of_three
+    ModularCurve.betweenCurvesHoloLift
+    ModularCurve.betweenCurvesIndexDual_proved
+    ModularCurve.kerQuotEquivBC_proved
 
 /-- The hand-off applied at a concrete `ofTau` pair: the assembled class produces the
 existential whose `ψ` is `pointMapOfPushforward ι hι hfin (normFormulaAlong_of_elliptic …)`. -/
@@ -125,10 +125,10 @@ example (τ τ' : ℍ)
     ∃ β : ℂˣ, (((PeriodPair.ofTau τ').scale β).lattice : Set ℂ) ⊆ (PeriodPair.ofTau τ).lattice ∧
       PeriodPair.sublatticeIndex (PeriodPair.ofTau τ) ((PeriodPair.ofTau τ').scale β) = N ∧
       IsAddCyclic (PeriodPair.sublatticeQuotient (PeriodPair.ofTau τ) ((PeriodPair.ofTau τ').scale β)) :=
-  (ModularCurve.kw_surgehgf4_hscd_pointHomSublatticeCyc_of_three
-    ModularCurve.kw_surgehgf4_hH2f_betweenCurvesHoloLift
-    ModularCurve.kw_surgehgf4_hID_betweenCurvesIndexDual_proved
-    ModularCurve.kw_surgehgf4_kqe_proved)
+  (ModularCurve.hscd_pointHomSublatticeCyc_of_three
+    ModularCurve.betweenCurvesHoloLift
+    ModularCurve.betweenCurvesIndexDual_proved
+    ModularCurve.kerQuotEquivBC_proved)
     (PeriodPair.ofTau τ) (PeriodPair.ofTau τ') ι hι hfin N hcyc hcard
 
 /-! ### Zone 4 — the torsion count and the index/scale API -/
@@ -137,13 +137,13 @@ example (τ τ' : ℍ)
 `PeriodPair` lattice (`IsZLattice ℝ`/`DiscreteTopology` are mathlib instances). -/
 example (M : PeriodPair) {n : ℕ} (hn : (n : ℤ) ≠ 0) :
     Nat.card (Submodule.torsionBy ℤ (ℂ ⧸ M.lattice.toAddSubgroup) (n : ℤ)) = n ^ 2 := by
-  rw [ModularCurve.kw_card_torsionBy_zlatticeQuotient_finrank_real M.lattice hn,
+  rw [ModularCurve.card_torsionBy_zlatticeQuotient_finrank_real M.lattice hn,
     Complex.finrank_real_complex]
 
 /-- The sublattice index is invariant under rescaling both pairs. -/
 example (L L' : PeriodPair) (α : ℂˣ) :
     PeriodPair.sublatticeIndex (L.scale α) (L'.scale α) = PeriodPair.sublatticeIndex L L' :=
-  ModularCurve.kwSublatticeIndex_scale L L' α
+  ModularCurve.sublatticeIndex_scale L L' α
 
 /-- Two rescalings compose. -/
 example (L : PeriodPair) (α β : ℂˣ) :
@@ -151,12 +151,12 @@ example (L : PeriodPair) (α β : ℂˣ) :
   PeriodPair.gate_scale_mul L α β
 
 /-- The 978 class at its pin name. -/
-example : ModularCurve.KwD5BetweenCurvesIndexDual :=
-  ModularCurve.kw_surgehgf4_hID_betweenCurvesIndexDual_proved
+example : ModularCurve.BetweenCurvesIndexDual :=
+  ModularCurve.betweenCurvesIndexDual_proved
 
 /-- The kernel-quotient engine at its pin name. -/
-example : ModularCurve.KwD5BetweenCurvesKerQuotEquivBC :=
-  ModularCurve.kw_surgehgf4_kqe_proved
+example : ModularCurve.BetweenCurvesKerQuotEquivBC :=
+  ModularCurve.kerQuotEquivBC_proved
 
 end PeriodPairLatticeIndexConsumer
 

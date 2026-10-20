@@ -15,6 +15,8 @@ imported, not redeclared.
 
 Reference (public mirror, pinned):
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_velu_map_equation_of_oddOrderSummingSet_of_isAlgClosed.lean>
+
+  spec-pin: P2M/Sol/S_WeierstrassCurve_velu_map_equation_of_oddOrderSummingSet_of_isAlgClosed.lean
 -/
 import FLTForHuman.WeierstrassCurve.Velu.Discharge
 
@@ -64,19 +66,19 @@ lemma veluGy_ne_zero_of_two_nsmul_ne_zero {x y : F} (h : W.toAffine.Nonsingular 
 
 end Prerequisites
 
-lemma kw_vdcoog_some_congr {R : Type*} [CommRing R] {V : Affine R} {x₁ x₂ y₁ y₂ : R}
+lemma some_congr {R : Type*} [CommRing R] {V : Affine R} {x₁ x₂ y₁ y₂ : R}
     (hx : x₁ = x₂) (hy : y₁ = y₂) (h₁ : V.Nonsingular x₁ y₁) (h₂ : V.Nonsingular x₂ y₂) :
     (Affine.Point.some x₁ y₁ h₁ : V.Point) = Affine.Point.some x₂ y₂ h₂ := by
   subst hx hy; rfl
 
-theorem kw_not_dvd_of_le_half_odd {p k : ℕ} (hp3 : 3 ≤ p) (hpodd : Odd p)
+theorem not_dvd_of_le_half_odd {p k : ℕ} (hp3 : 3 ≤ p) (hpodd : Odd p)
     (hk1 : 1 ≤ k) (hkn : k ≤ (p - 1) / 2) : ¬ p ∣ k ∧ ¬ p ∣ 2 * k := by
   have hodd : p % 2 = 1 := Nat.odd_iff.mp hpodd
   have hhalf : 2 * ((p - 1) / 2) = p - 1 := by omega
   exact ⟨Nat.not_dvd_of_pos_of_lt (by omega) (by omega),
     Nat.not_dvd_of_pos_of_lt (by omega) (by omega)⟩
 
-theorem kw_not_dvd_add_of_le_half_odd {p k k' : ℕ} (hp3 : 3 ≤ p) (hpodd : Odd p)
+theorem not_dvd_add_of_le_half_odd {p k k' : ℕ} (hp3 : 3 ≤ p) (hpodd : Odd p)
     (hk1 : 1 ≤ k) (hkn : k ≤ (p - 1) / 2) (hk'1 : 1 ≤ k') (hk'n : k' ≤ (p - 1) / 2) :
     ¬ p ∣ k + k' := by
   have hodd : p % 2 = 1 := Nat.odd_iff.mp hpodd
@@ -88,19 +90,19 @@ section AbstractCofixed
 variable {F : Type*} [Field F] [DecidableEq F] {W : WeierstrassCurve F}
 variable {Q : W.toAffine.Point} {p : ℕ}
 
-theorem kw_exists_nsmul_of_mem_oddOrderSummingSet_odd (hp3 : 3 ≤ p) (hpodd : Odd p)
+theorem exists_nsmul_of_mem_oddOrderSummingSet_odd (hp3 : 3 ≤ p) (hpodd : Odd p)
     (hord : addOrderOf Q = p) {n : ℕ} (hn : n ≤ (p - 1) / 2) {P : F × F}
     (hP : P ∈ W.oddOrderSummingSet Q n) :
     ∃ (k : ℕ) (x y : F) (h : W.toAffine.Nonsingular x y), 1 ≤ k ∧ k ≤ n ∧
       k • Q = Point.some x y h ∧ P = (x, y) ∧ (2 * k) • Q ≠ 0 := by
   obtain ⟨k, hk1, hkn, hkP⟩ := W.mem_oddOrderSummingSet.mp hP
-  obtain ⟨hndvd, hndvd2⟩ := kw_not_dvd_of_le_half_odd hp3 hpodd hk1 (hkn.trans hn)
+  obtain ⟨hndvd, hndvd2⟩ := not_dvd_of_le_half_odd hp3 hpodd hk1 (hkn.trans hn)
   have hne : k • Q ≠ 0 := nsmul_ne_zero_of_addOrderOf_eq_of_not_dvd hord hndvd
   obtain ⟨x, y, h, heq, hcoords⟩ := exists_some_of_ne_zero hne
   exact ⟨k, x, y, h, hk1, hkn, heq, by rw [← hkP, hcoords],
     nsmul_ne_zero_of_addOrderOf_eq_of_not_dvd hord hndvd2⟩
 
-theorem kw_nsmul_eq_of_xOrZero_eq_odd (hp3 : 3 ≤ p) (hpodd : Odd p)
+theorem nsmul_eq_of_xOrZero_eq_odd (hp3 : 3 ≤ p) (hpodd : Odd p)
     (hord : addOrderOf Q = p) {k k' : ℕ} (hk1 : 1 ≤ k) (hkn : k ≤ (p - 1) / 2)
     (hk'1 : 1 ≤ k') (hk'n : k' ≤ (p - 1) / 2)
     {x y : F} {h : W.toAffine.Nonsingular x y} (heq : k • Q = Point.some x y h)
@@ -110,10 +112,10 @@ theorem kw_nsmul_eq_of_xOrZero_eq_odd (hp3 : 3 ≤ p) (hpodd : Odd p)
   · rw [heq, heq', hPP]
   · exfalso
     have hsum : (k + k') • Q = 0 := by rw [add_nsmul, heq, heq', hPP, _root_.neg_add_cancel]
-    exact kw_not_dvd_add_of_le_half_odd hp3 hpodd hk1 hkn hk'1 hk'n
+    exact not_dvd_add_of_le_half_odd hp3 hpodd hk1 hkn hk'1 hk'n
       (hord ▸ addOrderOf_dvd_iff_nsmul_eq_zero.mpr hsum)
 
-theorem kw_nsmul_injOn_odd (hp3 : 3 ≤ p) (hord : addOrderOf Q = p) {k k' : ℕ}
+theorem nsmul_injOn_odd (hp3 : 3 ≤ p) (hord : addOrderOf Q = p) {k k' : ℕ}
     (hk1 : 1 ≤ k) (hkn : k ≤ (p - 1) / 2) (hk'1 : 1 ≤ k') (hk'n : k' ≤ (p - 1) / 2)
     (heq : k • Q = k' • Q) : k = k' := by
   have hhalf : (p - 1) / 2 ≤ p - 1 := Nat.div_le_self _ _
@@ -128,45 +130,45 @@ theorem kw_nsmul_injOn_odd (hp3 : 3 ≤ p) (hord : addOrderOf Q = p) {k k' : ℕ
   · omega
   · exact absurd hdvd (Nat.not_dvd_of_pos_of_lt h0 (by omega))
 
-theorem kw_isOddVeluSet_oddOrderSummingSet_odd (hp3 : 3 ≤ p) (hpodd : Odd p)
+theorem isOddVeluSet_oddOrderSummingSet_odd (hp3 : 3 ≤ p) (hpodd : Odd p)
     (hord : addOrderOf Q = p) {n : ℕ} (hn : n ≤ (p - 1) / 2) :
     W.IsOddVeluSet (W.oddOrderSummingSet Q n) where
   equation P hP := by
     obtain ⟨_, _, _, h, _, _, _, hPxy, _⟩ :=
-      kw_exists_nsmul_of_mem_oddOrderSummingSet_odd hp3 hpodd hord hn hP
+      exists_nsmul_of_mem_oddOrderSummingSet_odd hp3 hpodd hord hn hP
     rw [hPxy]; exact h.left
   gy_ne_zero P hP := by
     obtain ⟨k, x, y, h, _, _, heq, hPxy, h2k⟩ :=
-      kw_exists_nsmul_of_mem_oddOrderSummingSet_odd hp3 hpodd hord hn hP
+      exists_nsmul_of_mem_oddOrderSummingSet_odd hp3 hpodd hord hn hP
     rw [hPxy]
     exact veluGy_ne_zero_of_two_nsmul_ne_zero h fun h2 => h2k (by
       rw [two_mul, add_nsmul, heq, ← two_nsmul, h2])
   x_injOn P hP P' hP' hx := by
     obtain ⟨k, x, y, h, hk1, hkn, heq, hPxy, _⟩ :=
-      kw_exists_nsmul_of_mem_oddOrderSummingSet_odd hp3 hpodd hord hn hP
+      exists_nsmul_of_mem_oddOrderSummingSet_odd hp3 hpodd hord hn hP
     obtain ⟨k', x', y', h', hk'1, hk'n, heq', hP'xy, _⟩ :=
-      kw_exists_nsmul_of_mem_oddOrderSummingSet_odd hp3 hpodd hord hn hP'
+      exists_nsmul_of_mem_oddOrderSummingSet_odd hp3 hpodd hord hn hP'
     subst hPxy; subst hP'xy
-    have hQQ' := kw_nsmul_eq_of_xOrZero_eq_odd hp3 hpodd hord hk1 (hkn.trans hn)
+    have hQQ' := nsmul_eq_of_xOrZero_eq_odd hp3 hpodd hord hk1 (hkn.trans hn)
       hk'1 (hk'n.trans hn) heq heq' hx
     exact congrArg Point.coordsOrZero (heq ▸ heq' ▸ hQQ')
 
-theorem kw_card_oddOrderSummingSet_odd (hp3 : 3 ≤ p) (hpodd : Odd p)
+theorem card_oddOrderSummingSet_odd (hp3 : 3 ≤ p) (hpodd : Odd p)
     (hord : addOrderOf Q = p) {n : ℕ} (hn : n ≤ (p - 1) / 2) :
     (W.oddOrderSummingSet Q n).card = n := by
   have hinj : Set.InjOn (fun k : ℕ => (k • Q).coordsOrZero) (Finset.Icc 1 n : Finset ℕ) := by
     intro k hk k' hk' hcoords
     simp only [Finset.coe_Icc, Set.mem_Icc] at hk hk'
-    obtain ⟨hndvd, _⟩ := kw_not_dvd_of_le_half_odd hp3 hpodd hk.1 (hk.2.trans hn)
-    obtain ⟨hndvd', _⟩ := kw_not_dvd_of_le_half_odd hp3 hpodd hk'.1 (hk'.2.trans hn)
+    obtain ⟨hndvd, _⟩ := not_dvd_of_le_half_odd hp3 hpodd hk.1 (hk.2.trans hn)
+    obtain ⟨hndvd', _⟩ := not_dvd_of_le_half_odd hp3 hpodd hk'.1 (hk'.2.trans hn)
     obtain ⟨x, y, h, heq, hc⟩ :=
       exists_some_of_ne_zero (nsmul_ne_zero_of_addOrderOf_eq_of_not_dvd hord hndvd (k := k))
     obtain ⟨x', y', h', heq', hc'⟩ :=
       exists_some_of_ne_zero (nsmul_ne_zero_of_addOrderOf_eq_of_not_dvd hord hndvd' (k := k'))
     have hx : x = x' :=
       congrArg Prod.fst (show ((x, y) : F × F) = (x', y') from hc ▸ hc' ▸ hcoords)
-    exact kw_nsmul_injOn_odd hp3 hord hk.1 (hk.2.trans hn) hk'.1 (hk'.2.trans hn)
-      (kw_nsmul_eq_of_xOrZero_eq_odd hp3 hpodd hord hk.1 (hk.2.trans hn) hk'.1
+    exact nsmul_injOn_odd hp3 hord hk.1 (hk.2.trans hn) hk'.1 (hk'.2.trans hn)
+      (nsmul_eq_of_xOrZero_eq_odd hp3 hpodd hord hk.1 (hk.2.trans hn) hk'.1
         (hk'.2.trans hn) heq heq' hx)
   rw [oddOrderSummingSet, Finset.card_image_of_injOn hinj, Nat.card_Icc, Nat.add_sub_cancel]
 
@@ -177,7 +179,7 @@ section OrdNonneg
 variable {F : Type*} [Field F] [DecidableEq F] {W : WeierstrassCurve F}
 variable {Q : W.toAffine.Point} {p : ℕ}
 
-theorem kw_veluX_oddOrderSummingSet_eq_sum_Icc_odd (hp3 : 3 ≤ p) (hpodd : Odd p)
+theorem veluX_oddOrderSummingSet_eq_sum_Icc_odd (hp3 : 3 ≤ p) (hpodd : Odd p)
     (hord : addOrderOf Q = p) {x y : F} (hP : W.toAffine.Nonsingular x y)
     (hPmem : (Point.some x y hP : W.toAffine.Point) ∉ AddSubgroup.zmultiples Q) :
     W.veluX (W.oddOrderSummingSet Q ((p - 1) / 2)) x
@@ -186,18 +188,18 @@ theorem kw_veluX_oddOrderSummingSet_eq_sum_Icc_odd (hp3 : 3 ≤ p) (hpodd : Odd 
             + (Point.some x y hP + -(k • Q) : W.toAffine.Point).xOrZero
             - 2 * (k • Q).xOrZero) := by
   set d := (p - 1) / 2
-  have hSset := kw_isOddVeluSet_oddOrderSummingSet_odd (W := W) hp3 hpodd hord (le_refl d)
+  have hSset := isOddVeluSet_oddOrderSummingSet_odd (W := W) hp3 hpodd hord (le_refl d)
   have hx : ∀ A ∈ W.oddOrderSummingSet Q d, x ≠ A.1 := by
     intro A hA
     obtain ⟨k, a, b, h, _, _, heq, hAeq, _⟩ :=
-      kw_exists_nsmul_of_mem_oddOrderSummingSet_odd hp3 hpodd hord le_rfl hA
+      exists_nsmul_of_mem_oddOrderSummingSet_odd hp3 hpodd hord le_rfl hA
     subst hAeq
     exact xOrZero_ne_of_not_mem_zmultiples hPmem
       (fun h0 => hPmem (h0 ▸ AddSubgroup.zero_mem _))
       (heq ▸ AddSubgroup.nsmul_mem _ (AddSubgroup.mem_zmultiples Q) k)
   rw [W.veluX_eq_orbitSum hP.1 hSset.equation hx]
   congr 1
-  have hcard := kw_card_oddOrderSummingSet_odd (W := W) hp3 hpodd hord (le_refl d)
+  have hcard := card_oddOrderSummingSet_odd (W := W) hp3 hpodd hord (le_refl d)
   have hIcc : (Finset.Icc 1 d).card = d := by rw [Nat.card_Icc]; omega
   have hinj : Set.InjOn (fun k : ℕ => (k • Q).coordsOrZero) (Finset.Icc 1 d) := by
     rw [← Finset.card_image_iff]; exact hcard.trans hIcc.symm
@@ -205,7 +207,7 @@ theorem kw_veluX_oddOrderSummingSet_eq_sum_Icc_odd (hp3 : 3 ≤ p) (hpodd : Odd 
   rw [oddOrderSummingSet, Finset.sum_image (fun a ha b hb => hinj ha hb)]
   refine Finset.sum_congr rfl fun k hk => ?_
   rw [Finset.mem_Icc] at hk
-  obtain ⟨hndvd, _⟩ := kw_not_dvd_of_le_half_odd hp3 hpodd hk.1 hk.2
+  obtain ⟨hndvd, _⟩ := not_dvd_of_le_half_odd hp3 hpodd hk.1 hk.2
   obtain ⟨a, b, hab, hkQeq, hkQc⟩ :=
     exists_some_of_ne_zero (nsmul_ne_zero_of_addOrderOf_eq_of_not_dvd hord hndvd)
   rw [hkQc]; dsimp only
@@ -223,14 +225,14 @@ theorem kw_veluX_oddOrderSummingSet_eq_sum_Icc_odd (hp3 : 3 ≤ p) (hpodd : Odd 
     rw [hnegkQ, Point.add_of_X_ne hxk, Point.xOrZero_some]
   rw [hPkQ, hPmkQ, show (k • Q).xOrZero = a from by rw [hkQeq, Point.xOrZero_some]]
 
-theorem kw_veluX_oddOrderSummingSet_eq_sum_range_odd (hp3 : 3 ≤ p) (hpodd : Odd p)
+theorem veluX_oddOrderSummingSet_eq_sum_range_odd (hp3 : 3 ≤ p) (hpodd : Odd p)
     (hord : addOrderOf Q = p) {x y : F} (hP : W.toAffine.Nonsingular x y)
     (hPmem : (Point.some x y hP : W.toAffine.Point) ∉ AddSubgroup.zmultiples Q) :
     W.veluX (W.oddOrderSummingSet Q ((p - 1) / 2)) x
       = (∑ j ∈ Finset.range p, (Point.some x y hP + j • Q : W.toAffine.Point).xOrZero)
         - 2 * ∑ k ∈ Finset.Icc 1 ((p - 1) / 2), (k • Q).xOrZero := by
   have hodd : p % 2 = 1 := Nat.odd_iff.mp hpodd
-  rw [kw_veluX_oddOrderSummingSet_eq_sum_Icc_odd hp3 hpodd hord hP hPmem]
+  rw [veluX_oddOrderSummingSet_eq_sum_Icc_odd hp3 hpodd hord hP hPmem]
   obtain ⟨d, hpeq, hd_def⟩ : ∃ d, p = 2 * d + 1 ∧ d = (p - 1) / 2 := ⟨(p - 1) / 2, by omega, rfl⟩
   rw [← hd_def, Finset.sum_sub_distrib, Finset.sum_add_distrib, ← Finset.mul_sum,
     show ∀ a b c : F, a + (b - c) = a + b - c from fun a b c => (add_sub_assoc a b c).symm]
@@ -265,7 +267,7 @@ theorem kw_veluX_oddOrderSummingSet_eq_sum_range_odd (hp3 : 3 ≤ p) (hpodd : Od
     congr 1; omega
   rw [hrefl]; ring
 
-theorem kw_veluX_xOrZero_add_gen_odd (hp3 : 3 ≤ p) (hpodd : Odd p)
+theorem veluX_xOrZero_add_gen_odd (hp3 : 3 ≤ p) (hpodd : Odd p)
     (hord : addOrderOf Q = p) {P : W.toAffine.Point}
     (hPmem : P ∉ AddSubgroup.zmultiples Q) :
     W.veluX (W.oddOrderSummingSet Q ((p - 1) / 2)) (P + Q).xOrZero
@@ -278,8 +280,8 @@ theorem kw_veluX_xOrZero_add_gen_odd (hp3 : 3 ≤ p) (hpodd : Odd p)
     add_ne_zero_of_not_mem_zmultiples hPmem hQmem
   obtain ⟨x', y', hns', heqPQ, -⟩ := exists_some_of_ne_zero hPQ0
   rw [heqPQ, Point.xOrZero_some, Point.xOrZero_some,
-    kw_veluX_oddOrderSummingSet_eq_sum_range_odd hp3 hpodd hord hns' (heqPQ ▸ hPQmem),
-    kw_veluX_oddOrderSummingSet_eq_sum_range_odd hp3 hpodd hord hns hPmem]
+    veluX_oddOrderSummingSet_eq_sum_range_odd hp3 hpodd hord hns' (heqPQ ▸ hPQmem),
+    veluX_oddOrderSummingSet_eq_sum_range_odd hp3 hpodd hord hns hPmem]
   congr 1
   calc ∑ j ∈ Finset.range p, (Point.some x' y' hns' + j • Q : W.toAffine.Point).xOrZero
       = ∑ j ∈ Finset.range p,
@@ -288,7 +290,7 @@ theorem kw_veluX_xOrZero_add_gen_odd (hp3 : 3 ≤ p) (hpodd : Odd p)
     _ = ∑ j ∈ Finset.range p, (Point.some x y hns + j • Q : W.toAffine.Point).xOrZero :=
         sum_range_addOrderOf_shift_invariant hord _ _
 
-theorem kw_veluY_oddOrderSummingSet_eq_sum_Icc_odd (hp3 : 3 ≤ p) (hpodd : Odd p)
+theorem veluY_oddOrderSummingSet_eq_sum_Icc_odd (hp3 : 3 ≤ p) (hpodd : Odd p)
     (hord : addOrderOf Q = p) {x y : F} (hP : W.toAffine.Nonsingular x y)
     (hPmem : (Point.some x y hP : W.toAffine.Point) ∉ AddSubgroup.zmultiples Q) :
     W.veluY (W.oddOrderSummingSet Q ((p - 1) / 2)) x y
@@ -298,18 +300,18 @@ theorem kw_veluY_oddOrderSummingSet_eq_sum_Icc_odd (hp3 : 3 ≤ p) (hpodd : Odd 
             - (k • Q).coordsOrZero.2
             - W.toAffine.negY (k • Q).coordsOrZero.1 (k • Q).coordsOrZero.2) := by
   set d := (p - 1) / 2
-  have hSset := kw_isOddVeluSet_oddOrderSummingSet_odd (W := W) hp3 hpodd hord (le_refl d)
+  have hSset := isOddVeluSet_oddOrderSummingSet_odd (W := W) hp3 hpodd hord (le_refl d)
   have hx : ∀ A ∈ W.oddOrderSummingSet Q d, x ≠ A.1 := by
     intro A hA
     obtain ⟨k, a, b, h, _, _, heq, hAeq, _⟩ :=
-      kw_exists_nsmul_of_mem_oddOrderSummingSet_odd hp3 hpodd hord le_rfl hA
+      exists_nsmul_of_mem_oddOrderSummingSet_odd hp3 hpodd hord le_rfl hA
     subst hAeq
     exact xOrZero_ne_of_not_mem_zmultiples hPmem
       (fun h0 => hPmem (h0 ▸ AddSubgroup.zero_mem _))
       (heq ▸ AddSubgroup.nsmul_mem _ (AddSubgroup.mem_zmultiples Q) k)
   rw [W.veluY_eq_orbitSum_fieldRed hP.1 hSset.equation hx]
   congr 1
-  have hcard := kw_card_oddOrderSummingSet_odd (W := W) hp3 hpodd hord (le_refl d)
+  have hcard := card_oddOrderSummingSet_odd (W := W) hp3 hpodd hord (le_refl d)
   have hIcc : (Finset.Icc 1 d).card = d := by rw [Nat.card_Icc]; omega
   have hinj : Set.InjOn (fun k : ℕ => (k • Q).coordsOrZero) (Finset.Icc 1 d) := by
     rw [← Finset.card_image_iff]; exact hcard.trans hIcc.symm
@@ -317,7 +319,7 @@ theorem kw_veluY_oddOrderSummingSet_eq_sum_Icc_odd (hp3 : 3 ≤ p) (hpodd : Odd 
   rw [oddOrderSummingSet, Finset.sum_image (fun a ha b hb => hinj ha hb)]
   refine Finset.sum_congr rfl fun k hk => ?_
   rw [Finset.mem_Icc] at hk
-  obtain ⟨hndvd, _⟩ := kw_not_dvd_of_le_half_odd hp3 hpodd hk.1 hk.2
+  obtain ⟨hndvd, _⟩ := not_dvd_of_le_half_odd hp3 hpodd hk.1 hk.2
   obtain ⟨a, b, hab, hkQeq, hkQc⟩ :=
     exists_some_of_ne_zero (nsmul_ne_zero_of_addOrderOf_eq_of_not_dvd hord hndvd)
   rw [hkQc]; dsimp only
@@ -335,7 +337,7 @@ theorem kw_veluY_oddOrderSummingSet_eq_sum_Icc_odd (hp3 : 3 ≤ p) (hpodd : Odd 
     rw [hnegkQ, Point.add_of_X_ne hxk, Point.coordsOrZero_some]
   rw [hPkQ, hPmkQ]
 
-theorem kw_veluY_oddOrderSummingSet_eq_sum_range_odd (hp3 : 3 ≤ p) (hpodd : Odd p)
+theorem veluY_oddOrderSummingSet_eq_sum_range_odd (hp3 : 3 ≤ p) (hpodd : Odd p)
     (hord : addOrderOf Q = p) {x y : F} (hP : W.toAffine.Nonsingular x y)
     (hPmem : (Point.some x y hP : W.toAffine.Point) ∉ AddSubgroup.zmultiples Q) :
     W.veluY (W.oddOrderSummingSet Q ((p - 1) / 2)) x y
@@ -345,7 +347,7 @@ theorem kw_veluY_oddOrderSummingSet_eq_sum_range_odd (hp3 : 3 ≤ p) (hpodd : Od
           ((k • Q).coordsOrZero.2
             + W.toAffine.negY (k • Q).coordsOrZero.1 (k • Q).coordsOrZero.2) := by
   have hodd : p % 2 = 1 := Nat.odd_iff.mp hpodd
-  rw [kw_veluY_oddOrderSummingSet_eq_sum_Icc_odd hp3 hpodd hord hP hPmem]
+  rw [veluY_oddOrderSummingSet_eq_sum_Icc_odd hp3 hpodd hord hP hPmem]
   obtain ⟨d, hpeq, hd_def⟩ : ∃ d, p = 2 * d + 1 ∧ d = (p - 1) / 2 := ⟨(p - 1) / 2, by omega, rfl⟩
   rw [← hd_def]
   simp only [sub_sub, Finset.sum_sub_distrib, Finset.sum_add_distrib,
@@ -381,7 +383,7 @@ theorem kw_veluY_oddOrderSummingSet_eq_sum_range_odd (hp3 : 3 ≤ p) (hpodd : Od
     congr 1; omega
   rw [hrefl]; ring
 
-theorem kw_veluY_coordsOrZero_add_gen_odd (hp3 : 3 ≤ p) (hpodd : Odd p)
+theorem veluY_coordsOrZero_add_gen_odd (hp3 : 3 ≤ p) (hpodd : Odd p)
     (hord : addOrderOf Q = p) {P : W.toAffine.Point}
     (hPmem : P ∉ AddSubgroup.zmultiples Q) :
     W.veluY (W.oddOrderSummingSet Q ((p - 1) / 2)) (P + Q).coordsOrZero.1
@@ -395,8 +397,8 @@ theorem kw_veluY_coordsOrZero_add_gen_odd (hp3 : 3 ≤ p) (hpodd : Odd p)
     add_ne_zero_of_not_mem_zmultiples hPmem hQmem
   obtain ⟨x', y', hns', heqPQ, -⟩ := exists_some_of_ne_zero hPQ0
   rw [heqPQ, Point.coordsOrZero_some, Point.coordsOrZero_some,
-    kw_veluY_oddOrderSummingSet_eq_sum_range_odd hp3 hpodd hord hns' (heqPQ ▸ hPQmem),
-    kw_veluY_oddOrderSummingSet_eq_sum_range_odd hp3 hpodd hord hns hPmem]
+    veluY_oddOrderSummingSet_eq_sum_range_odd hp3 hpodd hord hns' (heqPQ ▸ hPQmem),
+    veluY_oddOrderSummingSet_eq_sum_range_odd hp3 hpodd hord hns hPmem]
   congr 1
   calc ∑ j ∈ Finset.range p, (Point.some x' y' hns' + j • Q : W.toAffine.Point).coordsOrZero.2
       = ∑ j ∈ Finset.range p,
@@ -406,17 +408,17 @@ theorem kw_veluY_coordsOrZero_add_gen_odd (hp3 : 3 ≤ p) (hpodd : Odd p)
         sum_range_addOrderOf_shift_invariant hord
           (fun P => Point.coordsOrZero P |>.2) (Point.some x y hns)
 
-theorem kw_veluDeficit_add_gen_odd (hp3 : 3 ≤ p) (hpodd : Odd p) (hord : addOrderOf Q = p)
+theorem veluDeficit_add_gen_odd (hp3 : 3 ≤ p) (hpodd : Odd p) (hord : addOrderOf Q = p)
     {P : W.toAffine.Point} (hPmem : P ∉ AddSubgroup.zmultiples Q) :
     W.veluDeficit (W.oddOrderSummingSet Q ((p - 1) / 2))
         (P + Q).coordsOrZero.1 (P + Q).coordsOrZero.2
       = W.veluDeficit (W.oddOrderSummingSet Q ((p - 1) / 2))
         P.coordsOrZero.1 P.coordsOrZero.2 := by
-  refine W.veluDeficit_congr ?_ (kw_veluY_coordsOrZero_add_gen_odd hp3 hpodd hord hPmem)
+  refine W.veluDeficit_congr ?_ (veluY_coordsOrZero_add_gen_odd hp3 hpodd hord hPmem)
   rw [Point.coordsOrZero_fst, Point.coordsOrZero_fst]
-  exact kw_veluX_xOrZero_add_gen_odd hp3 hpodd hord hPmem
+  exact veluX_xOrZero_add_gen_odd hp3 hpodd hord hPmem
 
-theorem kw_veluDeficit_add_nsmul_odd (hp3 : 3 ≤ p) (hpodd : Odd p) (hord : addOrderOf Q = p)
+theorem veluDeficit_add_nsmul_odd (hp3 : 3 ≤ p) (hpodd : Odd p) (hord : addOrderOf Q = p)
     {P : W.toAffine.Point} (hPmem : P ∉ AddSubgroup.zmultiples Q) (n : ℕ) :
     W.veluDeficit (W.oddOrderSummingSet Q ((p - 1) / 2))
         (P + n • Q).coordsOrZero.1 (P + n • Q).coordsOrZero.2
@@ -427,9 +429,9 @@ theorem kw_veluDeficit_add_nsmul_odd (hp3 : 3 ≤ p) (hpodd : Odd p) (hord : add
   | succ m ih =>
     have hPm : P + m • Q ∉ AddSubgroup.zmultiples Q :=
       not_mem_zmultiples_add hPmem (AddSubgroup.nsmul_mem _ (AddSubgroup.mem_zmultiples Q) m)
-    rw [succ_nsmul, ← add_assoc, kw_veluDeficit_add_gen_odd hp3 hpodd hord hPm, ih]
+    rw [succ_nsmul, ← add_assoc, veluDeficit_add_gen_odd hp3 hpodd hord hPm, ih]
 
-theorem kw_veluDeficit_eq_of_sub_mem_zmultiples_odd (hp3 : 3 ≤ p) (hpodd : Odd p)
+theorem veluDeficit_eq_of_sub_mem_zmultiples_odd (hp3 : 3 ≤ p) (hpodd : Odd p)
     (hord : addOrderOf Q = p) {P P' : W.toAffine.Point}
     (hPmem : P ∉ AddSubgroup.zmultiples Q) (hdiff : P' - P ∈ AddSubgroup.zmultiples Q) :
     W.veluDeficit (W.oddOrderSummingSet Q ((p - 1) / 2))
@@ -450,26 +452,26 @@ theorem kw_veluDeficit_eq_of_sub_mem_zmultiples_odd (hp3 : 3 ≤ p) (hpodd : Odd
     have h1 : P' - P = n • Q := hk ▸ hkQ
     rw [← h1, add_sub_cancel]
   rw [hP'eq]
-  exact kw_veluDeficit_add_nsmul_odd hp3 hpodd hord hPmem n
+  exact veluDeficit_add_nsmul_odd hp3 hpodd hord hPmem n
 
-theorem kw_mem_zmultiples_of_abscissa_mem_oddOrderSummingSet_odd (hp3 : 3 ≤ p) (hpodd : Odd p)
+theorem mem_zmultiples_of_abscissa_mem_oddOrderSummingSet_odd (hp3 : 3 ≤ p) (hpodd : Odd p)
     (hord : addOrderOf Q = p) {a b : F} (hab : W.toAffine.Nonsingular a b)
     (hA : ∃ A ∈ W.oddOrderSummingSet Q ((p - 1) / 2), A.1 = a) :
     Affine.Point.some a b hab ∈ AddSubgroup.zmultiples Q := by
   obtain ⟨A, hAmem, hAfst⟩ := hA
   obtain ⟨k, xk, yk, hk, hk1, _, hkQ, hAeq, _⟩ :=
-    kw_exists_nsmul_of_mem_oddOrderSummingSet_odd hp3 hpodd hord le_rfl hAmem
+    exists_nsmul_of_mem_oddOrderSummingSet_odd hp3 hpodd hord le_rfl hAmem
   have hax : a = xk := hAfst ▸ congrArg Prod.fst hAeq
   rcases Affine.Y_eq_of_X_eq hab.1 hk.1 hax with hby | hby
   · exact AddSubgroup.mem_zmultiples_iff.mpr ⟨(k : ℤ), by
-      rw [natCast_zsmul, hkQ]; exact kw_vdcoog_some_congr hax.symm hby.symm _ _⟩
+      rw [natCast_zsmul, hkQ]; exact some_congr hax.symm hby.symm _ _⟩
   · exact AddSubgroup.mem_zmultiples_iff.mpr ⟨-(k : ℤ), by
       rw [neg_zsmul, natCast_zsmul, hkQ, Affine.Point.neg_some]
-      exact kw_vdcoog_some_congr hax.symm hby.symm _ _⟩
+      exact some_congr hax.symm hby.symm _ _⟩
 
 variable (F : Type*) [Field F] [DecidableEq F] in
 
-theorem kw_veluDeficitFunKernelTranslationFixesAt_odd {p : ℕ} (hp3 : 3 ≤ p) (hpodd : Odd p) :
+theorem veluDeficitFunKernelTranslationFixesAt_odd {p : ℕ} (hp3 : 3 ≤ p) (hpodd : Odd p) :
     VeluDeficitFunKernelTranslationFixesAt F p := by
   intro W hΔ x₀ y₀ h₀ hord a b hab hA
   classical
@@ -485,7 +487,7 @@ theorem kw_veluDeficitFunKernelTranslationFixesAt_odd {p : ℕ} (hp3 : 3 ≤ p) 
   have hab' : W.toAffine.Nonsingular a b :=
     (Affine.equation_iff_nonsingular_of_Δ_ne_zero hΔ).mp hab
   have hAmem : Affine.Point.some a b hab' ∈ AddSubgroup.zmultiples Q :=
-    kw_mem_zmultiples_of_abscissa_mem_oddOrderSummingSet_odd hp3 hpodd hord hab' hA
+    mem_zmultiples_of_abscissa_mem_oddOrderSummingSet_odd hp3 hpodd hord hab' hA
   have hdiff : Affine.genericPoint hΔ + Affine.mapPoint hΔ hab - Affine.genericPoint hΔ
       ∈ AddSubgroup.zmultiples Q' := by
     rw [add_sub_cancel_left]
@@ -493,25 +495,25 @@ theorem kw_veluDeficitFunKernelTranslationFixesAt_odd {p : ℕ} (hp3 : 3 ≤ p) 
     exact AddSubgroup.mem_zmultiples_iff.mpr ⟨n, by
       show n • Q' = ratPointHom (W₀ := W.toAffine) ι (Affine.Point.some a b hab')
       rw [← hn, ← map_zsmul]⟩
-  exact kw_veluDeficit_eq_of_sub_mem_zmultiples_odd hp3 hpodd hord' hPmem hdiff
+  exact veluDeficit_eq_of_sub_mem_zmultiples_odd hp3 hpodd hord' hPmem hdiff
 
 variable (F : Type*) [Field F] [DecidableEq F] in
 
-theorem kw_veluDeficitFunOrdNonnegAtInftyAt_odd {p : ℕ} (hp3 : 3 ≤ p) (hpodd : Odd p) :
+theorem veluDeficitFunOrdNonnegAtInftyAt_odd {p : ℕ} (hp3 : 3 ≤ p) (hpodd : Odd p) :
     VeluDeficitFunOrdNonnegAtInftyAt F p := by
   intro W _hΔ x₀ y₀ h₀ hord v hv
   exact ord_veluDeficitFun_nonneg_of_not_isFinitePlace hv
-    (kw_isOddVeluSet_oddOrderSummingSet_odd hp3 hpodd hord le_rfl).equation
+    (isOddVeluSet_oddOrderSummingSet_odd hp3 hpodd hord le_rfl).equation
 
 variable (F : Type*) [Field F] [DecidableEq F] [IsAlgClosed F] in
 
-theorem kw_veluDeficitFunKernelTranslationYNotCentreAt_odd
+theorem veluDeficitFunKernelTranslationYNotCentreAt_odd
     (hDD : ∀ (W : WeierstrassCurve F), W.Δ ≠ 0 → IsDedekindDomain W.toAffine.CoordinateRing)
     {p : ℕ} (hp3 : 3 ≤ p) (hpodd : Odd p) :
     VeluDeficitFunKernelTranslationYNotCentreAt F p := by
   intro W hΔ x₀ y₀ h₀ hord v hv ⟨A, hA, hXA⟩
   haveI := hDD W hΔ
-  have hSset := kw_isOddVeluSet_oddOrderSummingSet_odd (W := W) hp3 hpodd hord
+  have hSset := isOddVeluSet_oddOrderSummingSet_odd (W := W) hp3 hpodd hord
     (le_refl ((p - 1) / 2))
   have hAeq : W.toAffine.Equation A.1 A.2 := hSset.equation A hA
   have hAgy : W.veluGy A.1 A.2 ≠ 0 := hSset.gy_ne_zero A hA
@@ -521,16 +523,16 @@ theorem kw_veluDeficitFunKernelTranslationYNotCentreAt_odd
 
 variable (F : Type*) [Field F] [DecidableEq F] [IsAlgClosed F] in
 
-theorem kw_veluDeficitFunOrdNonnegAt_odd
+theorem veluDeficitFunOrdNonnegAt_odd
     (hDD : ∀ (W : WeierstrassCurve F), W.Δ ≠ 0 → IsDedekindDomain W.toAffine.CoordinateRing)
     {p : ℕ} (hp3 : 3 ≤ p) (hpodd : Odd p) :
     VeluDeficitFunOrdNonnegAt F p :=
   veluDeficitFunOrdNonnegAt_of_kernelTranslation_of_atInfty_of_offKernel
     (veluDeficitFunKernelTranslationAt_of_fixes_of_toInfty F
-      (kw_veluDeficitFunKernelTranslationFixesAt_odd F hp3 hpodd)
+      (veluDeficitFunKernelTranslationFixesAt_odd F hp3 hpodd)
       (veluDeficitFunKernelTranslationToInftyAt_of_yNotCentre F
-        (kw_veluDeficitFunKernelTranslationYNotCentreAt_odd F hDD hp3 hpodd)))
-    (kw_veluDeficitFunOrdNonnegAtInftyAt_odd F hp3 hpodd)
+        (veluDeficitFunKernelTranslationYNotCentreAt_odd F hDD hp3 hpodd)))
+    (veluDeficitFunOrdNonnegAtInftyAt_odd F hp3 hpodd)
     (veluDeficitFunOrdNonnegOffKernelAt F p)
 
 end OrdNonneg
@@ -539,37 +541,37 @@ section ConstantIsZero
 
 variable {F : Type*} [Field F] [DecidableEq F]
 
-theorem kw_veluDeficitCrossQuadBetaSqDecompDegLtAt_odd {p : ℕ} (hp3 : 3 ≤ p) (hpodd : Odd p) :
+theorem veluDeficitCrossQuadBetaSqDecompDegLtAt_odd {p : ℕ} (hp3 : 3 ≤ p) (hpodd : Odd p) :
     VeluDeficitCrossQuadBetaSqDecompDegLtAt F p := by
   intro W hΔ x₀ y₀ h₀ hord
   have hodd : p % 2 = 1 := Nat.odd_iff.mp hpodd
   set S := W.oddOrderSummingSet (Point.some x₀ y₀ h₀) ((p - 1) / 2)
-  have hScard : S.card = (p - 1) / 2 := kw_card_oddOrderSummingSet_odd hp3 hpodd hord le_rfl
+  have hScard : S.card = (p - 1) / 2 := card_oddOrderSummingSet_odd hp3 hpodd hord le_rfl
   have hSne : S.Nonempty := Finset.card_pos.mp (by rw [hScard]; omega)
   exact ⟨W.veluDeficitCrossQuadBetaSqConstS2ClearedPoly S,
     W.veluDeficitCrossQuadBetaSqSCoeffS2ClearedPoly S,
     hScard ▸ W.veluDeficitCrossQuadBetaSqConstS2ClearedPoly_natDegree_lt hSne,
     fun r s hrs hav => W.veluDeficitCrossQuadBetaSq_mul_prodPow_sDecomp hrs hav⟩
 
-theorem kw_veluDeficitCrossQuadAlphaBetaDecompDegLtAt_odd {p : ℕ} (hp3 : 3 ≤ p)
+theorem veluDeficitCrossQuadAlphaBetaDecompDegLtAt_odd {p : ℕ} (hp3 : 3 ≤ p)
     (hpodd : Odd p) : VeluDeficitCrossQuadAlphaBetaDecompDegLtAt F p := by
   intro W hΔ x₀ y₀ h₀ hord
   have hodd : p % 2 = 1 := Nat.odd_iff.mp hpodd
   set S := W.oddOrderSummingSet (Point.some x₀ y₀ h₀) ((p - 1) / 2)
-  have hScard : S.card = (p - 1) / 2 := kw_card_oddOrderSummingSet_odd hp3 hpodd hord le_rfl
+  have hScard : S.card = (p - 1) / 2 := card_oddOrderSummingSet_odd hp3 hpodd hord le_rfl
   have hSne : S.Nonempty := Finset.card_pos.mp (by rw [hScard]; omega)
   exact ⟨W.veluDeficitCrossQuadAlphaBetaConstClearedPoly S,
     W.veluDeficitCrossQuadAlphaBetaSCoeffClearedPoly S,
     hScard ▸ W.veluDeficitCrossQuadAlphaBetaConstClearedPoly_natDegree_lt hSne,
     fun r s _hrs hav => W.veluDeficitCrossQuadAlphaBeta_mul_prodPow_sDecomp s hav⟩
 
-theorem kw_veluDeficitCrossQuadCubeBetaDegLtAt_odd {p : ℕ} (hp3 : 3 ≤ p) (hpodd : Odd p)
+theorem veluDeficitCrossQuadCubeBetaDegLtAt_odd {p : ℕ} (hp3 : 3 ≤ p) (hpodd : Odd p)
     (hβ : VeluDeficitCrossQuadBetaOnlyDegLtAt F p) :
     VeluDeficitCrossQuadCubeBetaDegLtAt F p := by
   intro W hΔ x₀ y₀ h₀ hord
   have hodd : p % 2 = 1 := Nat.odd_iff.mp hpodd
   set S := W.oddOrderSummingSet (Point.some x₀ y₀ h₀) ((p - 1) / 2)
-  have hScard : S.card = (p - 1) / 2 := kw_card_oddOrderSummingSet_odd hp3 hpodd hord le_rfl
+  have hScard : S.card = (p - 1) / 2 := card_oddOrderSummingSet_odd hp3 hpodd hord le_rfl
   have hSne : S.Nonempty := Finset.card_pos.mp (by rw [hScard]; omega)
   obtain ⟨M, hMdeg, hM⟩ := hβ W hΔ x₀ y₀ h₀ hord
   refine ⟨M - W.veluDeficitCrossQuadAlphaCubeClearedPoly S, ?_, fun r s hrs hav => ?_⟩
@@ -578,13 +580,13 @@ theorem kw_veluDeficitCrossQuadCubeBetaDegLtAt_odd {p : ℕ} (hp3 : 3 ≤ p) (hp
   · rw [W.veluDeficitCrossQuadCubeBeta_eq_betaOnly_sub_alphaCube, sub_mul,
       W.veluDeficitCrossQuadAlphaCube_mul_prodPow_eq hav, hM hrs hav, eval_sub]
 
-theorem kw_veluDeficitCrossQuadProdDegLtAt_odd {p : ℕ} (hp3 : 3 ≤ p) (hpodd : Odd p)
+theorem veluDeficitCrossQuadProdDegLtAt_odd {p : ℕ} (hp3 : 3 ≤ p) (hpodd : Odd p)
     (hCB : VeluDeficitCrossQuadCubeBetaDegLtAt F p) :
     VeluDeficitCrossQuadProdDegLtAt F p := by
   intro W hΔ x₀ y₀ h₀ hord
   have hodd : p % 2 = 1 := Nat.odd_iff.mp hpodd
   set S := W.oddOrderSummingSet (Point.some x₀ y₀ h₀) ((p - 1) / 2)
-  have hScard : S.card = (p - 1) / 2 := kw_card_oddOrderSummingSet_odd hp3 hpodd hord le_rfl
+  have hScard : S.card = (p - 1) / 2 := card_oddOrderSummingSet_odd hp3 hpodd hord le_rfl
   have hSne : S.Nonempty := Finset.card_pos.mp (by rw [hScard]; omega)
   obtain ⟨M, hMdeg, hM⟩ := hCB W hΔ x₀ y₀ h₀ hord
   refine ⟨W.veluDeficitCrossQuadAlphaSqClearedPoly S + M, ?_, fun r s hrs hav => ?_⟩
@@ -593,7 +595,7 @@ theorem kw_veluDeficitCrossQuadProdDegLtAt_odd {p : ℕ} (hp3 : 3 ≤ p) (hpodd 
   · rw [W.veluDeficitCrossQuad_eq_alphaSq_add_cubeBeta, add_mul,
       W.veluDeficitCrossQuadAlphaSq_mul_prodPow_eq hav, hM hrs hav, eval_add]
 
-theorem kw_veluDeficitCrossQuadBetaOnlyDegLtAt_odd [Infinite F] [IsAlgClosed F] {p : ℕ}
+theorem veluDeficitCrossQuadBetaOnlyDegLtAt_odd [Infinite F] [IsAlgClosed F] {p : ℕ}
     (hSD : VeluDeficitCrossQuadBetaSDecompDegLtAt F p) :
     VeluDeficitCrossQuadBetaOnlyDegLtAt F p := by
   intro W hΔ x₀ y₀ h₀ hord
@@ -624,16 +626,16 @@ theorem kw_veluDeficitCrossQuadBetaOnlyDegLtAt_odd [Infinite F] [IsAlgClosed F] 
       ((mul_eq_zero.mp hN2Ψ).resolve_right (W.Ψ₂Sq_ne_zero_of_Δ_ne_zero hΔ))
   exact ⟨M, hMdeg, fun r s hrs hav => by rw [hMN hrs hav, hN0, eval_zero, zero_mul, add_zero]⟩
 
-theorem kw_veluDeficitConstantIsZeroAt_odd [Infinite F] [IsAlgClosed F]
+theorem veluDeficitConstantIsZeroAt_odd [Infinite F] [IsAlgClosed F]
     {p : ℕ} (hp3 : 3 ≤ p) (hpodd : Odd p) (hCQ : VeluDeficitCrossQuadProdDegLtAt F p) :
     VeluDeficitConstantIsZeroAt F p := by
   intro W hΔ x₀ y₀ h₀ hord c hc
   have hodd : p % 2 = 1 := Nat.odd_iff.mp hpodd
   set S := W.oddOrderSummingSet (Point.some x₀ y₀ h₀) ((p - 1) / 2)
-  have hScard : S.card = (p - 1) / 2 := kw_card_oddOrderSummingSet_odd hp3 hpodd hord le_rfl
+  have hScard : S.card = (p - 1) / 2 := card_oddOrderSummingSet_odd hp3 hpodd hord le_rfl
   have hSne : S.Nonempty := Finset.card_pos.mp (by rw [hScard]; omega)
   have hSeq : ∀ A ∈ S, W.toAffine.Equation A.1 A.2 :=
-    (kw_isOddVeluSet_oddOrderSummingSet_odd hp3 hpodd hord le_rfl).equation
+    (isOddVeluSet_oddOrderSummingSet_odd hp3 hpodd hord le_rfl).equation
   obtain ⟨M, hMdeg, hM⟩ := hCQ W hΔ x₀ y₀ h₀ hord
   exact W.veluDeficit_isConstant_constant_eq_zero_of_crossQuadProdDegLt hSne hSeq
     (Affine.exists_equation_of_isAlgClosed W) hc (M := M) (hScard ▸ hMdeg)

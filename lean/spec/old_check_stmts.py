@@ -3989,11 +3989,9 @@ PORT_FILES = [
     # --- P3.1a (the adic-completion layer the `HasCanonicalLocalResidueKStar`
     # producer of P3.1b runs over). Appended last so no earlier last-name match can
     # flip.
-    "FLTForHuman/AlgebraicCurve/Defs/PlaceCompletion.lean",
     # --- P3.1b-i: the `Place` pole/Laurent layer of the V2 producer (pin lines
     # 1–789). Set 3.1b-ii appends the Hensel engine and the final instance to the
     # same module. Appended last so no earlier last-name match can flip.
-    "FLTForHuman/AlgebraicCurve/LocalResidue/Instance.lean",
     # --- P3.2a (the ℙ¹ place/ord dictionary): the generic place-evaluation
     # interface, the `Divisor.evalFun_*` algebra it consumes, and the ℙ¹
     # dictionary itself. Appended last so no earlier last-name match can flip.
@@ -4032,35 +4030,28 @@ PORT_FILES = [
     # `trace_localResidue_finitePlace_div_pow_eq_zero` was gated on the Tate
     # agreement when 3.2f landed; set 3.2g supplies it in
     # `P1/DivPowEnding.lean` (registered below).
-    "FLTForHuman/AlgebraicCurve/P1/DivPow.lean",
     # --- P3.3a: the Tate agreement finiteness half. `Defs/TateResidueCurrency.lean`
     # is the row-3.3 shared API definitions home (PLAN-RECTIFY-DEFS §2/§8.2); the
     # proof theory is `Tate/CommFinite.lean`. Appended last.
-    "FLTForHuman/AlgebraicCurve/Defs/TateResidueCurrency.lean",
-    "FLTForHuman/AlgebraicCurve/Tate/CommFinite.lean",
     # --- P3.3b: the Tate chain rule. Imports `Defs/TateResidueCurrency.lean` (the
     # shared row-3.3 API) and `Tate/CommFinite.lean` (the prelude substitutes). The
     # ten `scoped instance`s of the tail are checker-invisible and are landed for
     # elaboration only. Appended last.
-    "FLTForHuman/AlgebraicCurve/Tate/ChainRule.lean",
     # --- P3.3d: the Tate trace compatibility. Imports `Tate/CommFinite.lean` (the
     # 3.3a prelude substitutes) and `LocalResidue/Instance.lean` (the canonical
     # local residue instance and `Place.uniformizer_mem`). Appended last.
-    "FLTForHuman/AlgebraicCurve/Tate/TraceCompat.lean",
     # --- P3.3c: the Tate agreement. Imports `Tate/CommFinite.lean` (the shared
     # finiteness chain), `Defs/TateResidueCurrency.lean` (the vocabulary),
     # `LocalResidue/Instance.lean` (the `Lg37` completion layer and `aCoeff`) and
     # `P1/DivPow.lean` (`kwHgfV352_localResidueCompletion_{spec,algebraMap}`). The five
     # `scoped instance`s are checker-invisible and are landed for elaboration only.
     # Appended last.
-    "FLTForHuman/AlgebraicCurve/Tate/Agreement.lean",
     # --- Refactor round (row 3.3 shared prelude): the 25 declarations that
     # `Tate/ChainRule.lean` (3.3b) and `Tate/TraceCompat.lean` (3.3d) had each
     # re-proved statement-identically are hoisted here, and the duplicate copies
     # are deleted from the two consumers. No new `SOURCES` entry: these rows are
     # already sourced by the `tateChainRule`/`tateTraceCompat` `S_` files above.
     # Appended last so no earlier last-name match can flip.
-    "FLTForHuman/AlgebraicCurve/Tate/Prelude.lean",
     # --- Refactor round (row 3.4): the P3.3 detector's "Agreement declares no
     # public overlap" was wrong — `Tate/Agreement.lean` still declared 22 public
     # copies colliding with `Prelude.lean` (4) and `TraceCompat.lean` (18), which
@@ -4068,8 +4059,6 @@ PORT_FILES = [
     # (exactly what 3.4 needs). The refactor imports both and deletes the 40
     # duplicate copies; the names are still supplied by `Prelude`/`TraceCompat`, so
     # the checker's identical count is unchanged. Appended last.
-    "FLTForHuman/AlgebraicCurve/Tate/TraceCompletionCommute.lean",
-    "FLTForHuman/AlgebraicCurve/Tate/CompletionTraceSum.lean",
     # --- P3.2f: the atom-3 `P1Tower` tail, completed by the gated headline. The
     # `P1Tower` block is in `P1/DivPow.lean` above; this module adds the pin's
     # `P1Tower.trace_localResidue_finitePlace_div_pow_eq_zero` (S_ line 2016) and
@@ -4100,8 +4089,6 @@ PORT_FILES = [
     # (`KFamily.lean`). Statements are the pin's; the wrapper headlines are verbatim
     # from their `Thm_` files. Appended last so no earlier last-name match can flip.
     "FLTForHuman/AlgebraicCurve/ResidueTheorem/KRatFunc.lean",
-    "FLTForHuman/AlgebraicCurve/ResidueTheorem/KCotrace.lean",
-    "FLTForHuman/AlgebraicCurve/ResidueTheorem/KFamily.lean",
     # --- P3.7 (row 3.7, the RR assembly against the K ending) ---
     # The K-route chain over the phase-1 engine (`Genus/Index.lean`,
     # `Genus/Stichtenoth.lean`, `RiemannRoch/Assembly.lean`) plus the
@@ -4217,7 +4204,6 @@ PORT_FILES = [
     # generic point / translation / function-field layer (F). Its statements are
     # in the map `S_` file already in `SOURCES`; the res `S_` file supplies the
     # adapted proof bodies. Appended last so no earlier last-name match can flip.
-    "FLTForHuman/WeierstrassCurve/Velu/Engine.lean",
     # --- SET-3 (the Vélu port): the deficit-fun `ord`/`evalAt` discharge (G) and
     # the odd-order summing-set combinatorics (H). Statements come from the map
     # `S_` file already in `SOURCES` (with the res `S_` file as the second copy).
@@ -4230,20 +4216,17 @@ PORT_FILES = [
     # there) and folded `exists_some_of_ne_zero` to `Velu/Formula.lean`.
     # Appended last so no earlier last-name match can flip.
     "FLTForHuman/WeierstrassCurve/Velu/Discharge.lean",
-    "FLTForHuman/WeierstrassCurve/Velu/OddOrder.lean",
     # --- Capstone H3: the explicit-Vélu map equation. The general and plain
     # headlines (statements from the `Theorems/` wrappers, appended to `SOURCES`
     # above), the `VeluThmOneOddAt` carrier, its `kw_no6_hroute_*` discharge and
     # the `wqDiscPoly`/Galois/HasPrincipalDivisors dictionary block that supplies
     # it. Appended last so no earlier last-name match can flip.
-    "FLTForHuman/WeierstrassCurve/Velu/MapEquation.lean",
     # --- Capstone H4: the explicit-Vélu `restrictAlong` engine. The two headline
     # theorems are blocked on unported upstream (see the module header); the 65
     # engine declarations whose types do not mention `placeOfPoint` /
     # `pointMapOfPushforward` / `GenusOnePlaceGate` / `AbelTheorem` /
     # `IsogenyEndDatum` are diffed here. Appended last so no earlier last-name
     # match can flip.
-    "FLTForHuman/WeierstrassCurve/Velu/RestrictAlong.lean",
     # --- H5a: the Weierstrass genus-one place gate and the conditional-currency
     # isogeny dictionary (the two modules that unblock the H4 wire test). Appended
     # last so no earlier last-name match can flip.
@@ -4253,7 +4236,6 @@ PORT_FILES = [
     # three helper wrappers, and the verbatim `section Prerequisites` (the pin
     # `S_` chain for `natCard_ker_pointMapOfPushforward`). Appended last so no
     # earlier last-name match can flip.
-    "FLTForHuman/WeierstrassCurve/Isogeny/NatCard.lean",
     # --- H5 SET-1: the `AddMonoidHom.IsDualPair`/`AddMonoid.End.DualEndData`
     # algebra (mathlib-only) and the extracted `restrictAlong` place calculus.
     # Appended last so no earlier last-name match can flip.
@@ -4262,16 +4244,12 @@ PORT_FILES = [
     # --- H5 SET-1: the shared `IsogenyEndDatum` engine (the declarations whose
     # names occur in both H5 `S_` files, plus the H5 `normFormulaAlong_of_elliptic`).
     # Appended last so no earlier last-name match can flip.
-    "FLTForHuman/WeierstrassCurve/IsogenyEndDatum/Engine.lean",
     # --- H5 SET-2: the `restrictAlong`-add column (the `addX_addY_specialize_at_place`
     # node, the res-only engine, the three `kw_hk5f_*_proved` producers and the
     # additivity headline). Appended last so no earlier last-name match can flip.
-    "FLTForHuman/WeierstrassCurve/IsogenyEndDatum/RestrictAlongAdd.lean",
     # --- H5 SET-3: the dual-end-data column and the H5 vocabulary tail (the two
     # headline modules of the home). Appended last so no earlier last-name match
     # can flip.
-    "FLTForHuman/WeierstrassCurve/IsogenyEndDatum/DualEndData.lean",
-    "FLTForHuman/WeierstrassCurve/IsogenyEndDatum/Vocabulary.lean",
     # --- The torsion-API promotion (H5 follow-up): the `Mathlib`-only `A[n] ≅ (Z/n)²`
     # classification and the elliptic char-free torsion theory. Appended last.
     "FLTForHuman/Algebra/ZModTorsion.lean",
@@ -4286,7 +4264,6 @@ PORT_FILES = [
     # `Def_..._VeluQuotientJInvariant`, all appended to `SOURCES` just above.
     # Appended last so no earlier last-name match can flip.
     "FLTForHuman/WeierstrassCurve/Velu/OrderTwo.lean",
-    "FLTForHuman/WeierstrassCurve/Velu/OrderTwoMap.lean",
     # --- V1 SET-2 (the Vélu port): the discriminant identity of the odd-order
     # quotient. `Equivariance.lean` is the variable-change/base-change definition
     # layer — the pin's `Def_..._VeluVariableChange` whole, the
@@ -4328,7 +4305,8 @@ PORT_FILES = [
     # --- V2 SET-1 (the two Mazur gateways). Four leaves: the shared coordinate-ring
     # pair (`Place/CoordinateRingDedekind.lean`), the two light torsion aliases
     # (`Elliptic/TorsionCardLight.lean`), gateway 1 plus its pin helper surface
-    # (`IsogenyEndDatum/PointEndSubring.lean`) and gateway 2, the `Ws13S7` prelude and
+    # (`IsogenyEndDatum/PointEndSubring.lean`, now wired by its own `spec-pin:`
+    # header and no longer listed here) and gateway 2, the `Ws13S7` prelude and
     # the number-theoretic headline (`IsogenyEndDatum/CharPolySquare.lean`). Each
     # imports only downward, so no set cascades. `Elliptic/TorsionCard.lean` itself is
     # *not* in `PORT_FILES` (it is the `card_torsion_of_isAlgClosed` home); only its
@@ -4336,7 +4314,6 @@ PORT_FILES = [
     # Appended last so no earlier last-name match can flip.
     "FLTForHuman/WeierstrassCurve/Place/CoordinateRingDedekind.lean",
     "FLTForHuman/Elliptic/TorsionCardLight.lean",
-    "FLTForHuman/WeierstrassCurve/IsogenyEndDatum/PointEndSubring.lean",
     "FLTForHuman/WeierstrassCurve/IsogenyEndDatum/CharPolySquare.lean",
     # --- V2 SET-2 (the Ribet-side completion). Five leaves: the generic
     # separable-coprime lemma (`FieldTheory/SeparableOfCoprime.lean`), the `ratFunc`
@@ -4360,7 +4337,6 @@ PORT_FILES = [
     # `ord_ofHeightOneSpectrum_algebraMap_eq_zero` leaf and the whole `kw_*` chain)
     # is `private`. It imports `IsogenyEndDatum/DualEndData.lean`, whose cone supplies
     # `Engine`, `Velu/Engine` and `Place/Dictionary`. Appended last.
-    "FLTForHuman/WeierstrassCurve/IsogenyEndDatum/TranslationAlgEquiv.lean",
     # --- P-SET-1: the `PeriodPair` uniformization core (new-file-only). `Basic.lean` is
     # the dictionary at the pin's `PeriodPair.*` names; `Discriminant.lean` carries the
     # discriminant headline plus the public `kw_`-stripped promotions the `j`-line set
@@ -4400,7 +4376,6 @@ PORT_FILES = [
     "FLTForHuman/Elliptic/PeriodPair/JLine.lean",
     # --- D-1: the shared base-change prelude. Appended last so no earlier last-name
     # match can flip.
-    "FLTForHuman/WeierstrassCurve/Isogeny/BaseChange.lean",
     # --- D-2: the countable function-field descent (set D-2 of
     # `topics/velu/WORKORDER-P2-basechange.md`; order
     # `topics/velu/WORKORDER-P2b-intermediate-field.md`). Its public surface is the
@@ -4413,7 +4388,6 @@ PORT_FILES = [
     # `iPFA_finiteDimensional_adjoin_transcendental`, `iPFE_functionField_ringHom_ext`,
     # `iotaSubd_countable_of_fg`), which the checker now reads and verifies through the
     # `stripped_source` fallback. Appended last so no earlier last-name match can flip.
-    "FLTForHuman/WeierstrassCurve/Isogeny/IntermediateField.lean",
     # --- D-3: the two mid-size base-change nodes of
     # `topics/velu/WORKORDER-P2c-basechange-alghom-and-variablechange.md`.
     # `BaseChangeAlgHom.lean` is the `bcff` headline; everything else the pin's `S_` file
@@ -4431,7 +4405,6 @@ PORT_FILES = [
     # `pck_s17`; there are no `private` helpers. It imports D-1 downward and the
     # `IsogenyEndDatum/Engine.lean` cone (which the pin's own `S_` file needs), and it is a
     # leaf. Appended last so no earlier last-name match can flip.
-    "FLTForHuman/WeierstrassCurve/Isogeny/KernelCyclicTransfer.lean",
     # --- D-5: the two `IsAddCyclic`-kernel base-change silos in **one** home
     # (`KernelBaseChange.lean`, `topics/velu/WORKORDER-P2e-kernel-base-change.md`). The
     # two pin `S_` files are 5,357 / 5,338 lines and share 163 of their 176 declarations
@@ -4445,7 +4418,6 @@ PORT_FILES = [
     # the pin's `solution` rows are superseded by the two headlines. It imports D-4 and the
     # `IsogenyEndDatum/Engine.lean` cone and is a leaf. Appended last so no earlier
     # last-name match can flip.
-    "FLTForHuman/WeierstrassCurve/Isogeny/KernelBaseChange.lean",
     # --- D-6: the two-curve countable descent and its headline. Public surface: the
     # pin's `iotaDescent{Curve_map_FF,Phi,Phi_equation,Phi_transcendental,Phi_X,Phi_yGen}`
     # at the prefix-stripped names (verified through the §2.1 `stripped_source`
@@ -4466,7 +4438,6 @@ PORT_FILES = [
     # as the pin has them. The `kw_fdn2_qephod_hend7_geomMorphBC*` block is the ported
     # `Isogeny/NatCard.lean` generalisation, not re-declared. Appended last so no earlier
     # last-name match can flip.
-    "FLTForHuman/Elliptic/PeriodPair/HoloLift.lean",
     # --- S-2: the lattice/index arithmetic (`topics/velu/WORKORDER-S2-lattice-index.md`).
     # Public surface: the two headlines (matched against their `Theorems/` wrappers in
     # `SOURCES`), the three `ModularCurve` classes, the shared `hID_*` block written once,
@@ -4479,7 +4450,6 @@ PORT_FILES = [
     # is `private` with a content name. The pin's inlined uniformization prelude,
     # `MilneI72IntersectionData` and the `*_axiomAnchor` stubs are not transcribed. Appended
     # last so no earlier last-name match can flip.
-    "FLTForHuman/Elliptic/PeriodPair/LatticeIndex.lean",
     # --- S-3: the primitive-coset / `jLattice` column
     # (`topics/velu/WORKORDER-S3-primcoset-jlattice.md`). Two modules: the generic
     # mathlib-only `ℤ²`-lattice invariants (`IntPairSubgroup`, re-homed from the pin's
@@ -4494,7 +4464,6 @@ PORT_FILES = [
     # `private`; the pin's `p2m_*` scaffolding and the `qtzz_axiomAnchor : True` stub are not
     # transcribed. Appended last so no earlier last-name match can flip.
     "FLTForHuman/Algebra/IntPairSubgroup.lean",
-    "FLTForHuman/Elliptic/PeriodPair/PrimCosetReps.lean",
     # --- S-4: the `E₄³ − E₆²` / `jLattice` modular-polynomial tail
     # (`topics/velu/WORKORDER-S4-e4cube-jlattice.md`). Two new leaves:
     # `Algebra/SpecialLinearGroupSmith.lean` (the mathlib-only `SL₂(ℤ)` Smith
@@ -4654,7 +4623,6 @@ PORT_FILES = [
     # Vélu-quotient `j` forces equal cyclic subgroups; only the headline is public,
     # matched against its `Theorems/` wrapper appended to `SOURCES` above. Appended
     # last so no earlier last-name match can flip.
-    "FLTForHuman/WeierstrassCurve/Velu/CyclicQuotientJInjective.lean",
     # --- WORKORDER-W4 stage 2 (`topics/deligneSerre/WORKORDER-W4-definition-wave.md`):
     # the whole pin `Def_WeierstrassCurve_TorsionIntegral.lean`, matched against the pin
     # definition file appended to `SOURCES` above. Appended last so no earlier last-name
@@ -5559,6 +5527,120 @@ def top_level_cut(text: str) -> int:
     return n
 
 
+# Junk tokens that the pin uses as a leading name segment in its generated
+# `kw*` blocks (`kw_surgehgf4_hfgkd_ktd_…`, `kw_mlc_hrt…`, `kw_ffgc_…`); they
+# carry no mathematical content and the port drops them.  They are erased in
+# `norm` too, so a renamed statement that mentions one still matches the pin.
+# Step labels (`s12`, `s17`, `v277`, …) are deliberately *not* here: they mark
+# pin proof steps and are kept.
+KW_JUNK_TOKENS = (
+    "surgehgf4", "surge", "hgf4", "dcao", "ffgc", "fdn2", "qephod", "hend21",
+    "hk5f", "taseq", "kqe", "hID", "pck", "qtzz", "hH2f", "hH2", "hfgkd",
+    "ktd", "cfe", "hBC", "hu5c", "hKD", "ipfd", "HZZ", "mlc", "es", "no6",
+    "iucz", "vdcoog", "affod", "vdc", "no3ahbad_riqsucr_a1a",
+    "hH2a", "hH2b", "hH2c", "hH2d", "hH2e", "hH2f", "hH2g", "hH2h", "hH2i",
+    "hH2j", "hH2k", "hH2l", "hH2m", "hH2n", "hH2o", "hH2p", "hH2q", "hH2r",
+    "hH2s", "hH2t", "hH2u", "hH2v", "hH2w", "hH2x", "hH2y", "hH2z",
+)
+_KW_JUNK_RE = re.compile(
+    r"(?<![\w'ₐ-ₜ])(?:" + "|".join(map(re.escape, KW_JUNK_TOKENS)) + r")_"
+)
+# The `kw*` prefix matcher shared with `spec/check_port.py`'s residual-name
+# guard: a port declaration whose last name matches this is a regression.
+# `norm` erases the match; the guard rejects the name.  Both use this one
+# object, so the two can never drift.
+KW_PREFIX_RE = re.compile(
+    r"(?:(?<![\w'ₐ-ₜ])|(?<=_))(?:kw[^\W_]*_|kw(?=[A-Z]))"
+)
+# The capital-`Kw` family: `KwD5…`, `KwF4…`, `KwTateRR3…`, `KwNo6…`,
+# `KwVelu…`, `KwDual…`, … and the `Kw…` namespaces.  A declaration whose full
+# name has such a segment is a residual; the port-side guard in
+# `spec/check_port.py` rejects it.  The exact `Kw` abbreviation (`ArchInfra`'s
+# row-isometry subgroup) is not a family name: the pattern requires an
+# uppercase/digit immediately after `Kw`.  This is the *name* policy.
+KW_FAMILY_RE = re.compile(
+    r"(?:(?<![\w'])|(?<=_))Kw[A-Z0-9][A-Za-z0-9_']*")
+# The rectification's statement normalisation for the capital family.  The
+# generated block token is stripped as a unit: `KwF4gRRTate` → `Tate`,
+# `KwF4R1V384aCompletion…` → `Completion…`, `KwTateRR3Cohen…` → `Cohen…`,
+# `KwNo6Pin` → `Pin`, `KwD5Between…` → `Between…`.  A namespace that becomes
+# empty (`KwF4R1V384a`, `KwTateRR3`, `KwOdaDHDR`, `KwNo3a…`) disappears, taking
+# its dot with it.  Remaining `Kw` prefixes (`KwIsogeny…`, `KwVelu…`) are then
+# erased by `KW_FAMILY_PREFIX_RE`.
+KW_GENERATED_TOKENS = (
+    "F4R1V384a", "F4R1V386a", "F4R1V391a", "F4R1V394a", "F4R1V410a",
+    "F4R1V392a", "TateRR3", "No3aHbadRiqsucrA1a", "OdaDHDR", "HgfV352",
+    "DCAO", "F4gRR", "Hgf", "No6", "D5",
+)
+KW_GENERATED_RE = re.compile(
+    r"(?<![\w'])Kw(?:" + "|".join(
+        map(re.escape, sorted(KW_GENERATED_TOKENS, key=len, reverse=True)))
+    + r")(?:\.)?"
+)
+# The generic capital prefix, for the names that keep their suffix
+# (`KwIsogenyEndDatum…` → `IsogenyEndDatum…`, `KwVelu…` → `Velu…`).
+KW_FAMILY_PREFIX_RE = re.compile(r"(?<![\w'])Kw(?=[A-Z0-9])")
+# A few names are renamed past their `norm` image because the mechanical target
+# is ambiguous (`charFree` ×7, `proved` ×4, `map_eq` ×2, `axiomAnchor` ×3,
+# `zero`/`some_of_mem`/`some_of_ne`, the `HZZ` family and the embedded `kwVelu…`
+# names).  This map puts the port spelling back to the pin's normalised spelling
+# before the hash is taken; it is the checker's rename exemption, not a
+# declaration marker.  Keys are applied longest-first on word boundaries.
+CANONICAL_NAMES = {
+    'adicValuation_algebraMap_ramificationIndex': 'adicValuation_algebraMap',
+    'axiomAnchor_hBC': 'axiomAnchor',
+    'axiomAnchor_hfgkd_ktd': 'axiomAnchor',
+    'axiomAnchor_pck': 'axiomAnchor',
+    'completionTraceSum_of_isSeparable_aux': 'completionTraceSum_of_isSeparable',
+    'Δ_ne_zero_of_isElliptic_local': 'Δ_ne_zero_of_isElliptic',
+    'hDDTerm_velu': 'hDDTerm',
+    'instHPD_dcao': 'instHPD',
+    'LocalResiduePin': 'Pin',
+    'LocalResidueSection': 'Section',
+    'ffSeamBaseChange_proved': 'proved',
+    'kerQuotEquivBC_map_eq': 'map_eq',
+    'kerQuotEquivBC_proved': 'proved',
+    'pmopConjKerEquiv_proved': 'proved',
+    'point_infinite_charFree': 'point_infinite',
+    'pmopConjKerEquiv_proved_core': 'proved_core',
+    'sublatticeCoords': 'HZZ',
+    'sublatticeCoords_index': 'index',
+    'sublatticeCoords_map_eq': 'map_eq',
+    'sublatticeIndex_scale': 'scale',
+    'sublatticeQuotientZZTransport_proved': 'proved',
+    'tisdCharFreeα': 'charFree',
+    'tisdCharFreeβ': 'charFree',
+    'tisdCharFreeγ': 'charFree',
+    'tisdCharFreeδ0': 'charFree',
+    'tisdCharFreeδ1': 'charFree',
+    'tisdCharFreeδ2': 'charFree',
+    'tisdCharFreeδY': 'charFree',
+    'VeluPointMap_some_of_mem': 'some_of_mem',
+    'VeluPointMap_some_of_ne': 'some_of_ne',
+    'VeluPointMap_zero': 'zero',
+    'VeluMapEquationAt_oddOrderSummingSet_odd': 'kwVeluMapEquationAt_oddOrderSummingSet_odd',
+    'VeluXGenFun_mem_placeOfEquation_of_ne_odd': 'kwVeluXGenFun_mem_placeOfEquation_of_ne_odd',
+    'VeluXGenFun_mul_denom_sq_eq_cleared': 'kwVeluXGenFun_mul_denom_sq_eq_cleared',
+    'VeluXGenFun_notMem_of_not_isFinitePlace': 'kwVeluXGenFun_notMem_of_not_isFinitePlace',
+    'VeluXGenFun_notMem_placeOfEquation_of_mem_odd': 'kwVeluXGenFun_notMem_placeOfEquation_of_mem_odd',
+    'VeluYGenFun_mem_placeOfEquation_of_ne_odd': 'kwVeluYGenFun_mem_placeOfEquation_of_ne_odd',
+    'VeluYGenFun_ne_algebraMap_odd': 'kwVeluYGenFun_ne_algebraMap_odd',
+    'aeval_VeluXGenFun_injective': 'aeval_kwVeluXGenFun_injective',
+    'equation_map_veluQuotient_VeluGenFun_odd': 'equation_map_veluQuotient_kwVeluGenFun_odd',
+    'eval₂_polynomial_VeluGenFun_odd': 'eval₂_polynomial_kwVeluGenFun_odd',
+    'restrictAlong_placeOfPoint_VeluPointMap_odd': 'restrictAlong_placeOfPoint_kwVeluPointMap_odd',
+    'transcendental_VeluXGenFun': 'transcendental_kwVeluXGenFun',
+}
+_CANONICAL_RE = re.compile(
+    r"(?<![\w'ₐ-ₜ])(?:" + "|".join(
+        map(re.escape, sorted(CANONICAL_NAMES, key=len, reverse=True))) + r")(?![\w'ₐ-ₜ])"
+)
+
+
+def _canonical(text: str) -> str:
+    return _CANONICAL_RE.sub(lambda m: CANONICAL_NAMES[m.group(0)], text)
+
+
 def norm(text: str) -> str:
     # Both the port and the definitions layer spell these declarations inside
     # `namespace ModularCurve`/`namespace AlgebraicCurve`, but the `Theorems/`
@@ -5567,28 +5649,49 @@ def norm(text: str) -> str:
     # before comparing.
     text = re.sub(r"\bModularCurve\.", "", strip_comments(text))
     text = re.sub(r"\bAlgebraicCurve\.", "", text)
-    # The port's promotion convention names a promoted helper at the
-    # prefix-stripped pin name (`kw_g₂_ofTau` -> `g₂_ofTau`); the `kw_` prefix is
-    # therefore noise for a statement diff, exactly as a namespace prefix is.
-    # It must be erased *inside* statements too, not only on the declaration
-    # name: a declaration whose statement mentions a promoted helper (say
+    # A `kw*` name is a collision token, not mathematics.  The `kw_` form is the
+    # promotion convention (`kw_g₂_ofTau` -> `g₂_ofTau`); the `kwF4R1V384a_*`,
+    # `kwTateRR*_*`, `kwTISDα_*` forms are generated prefixes kept from the pin.
+    # Both are noise for a statement diff, exactly as a namespace prefix is, and
+    # both must be erased *inside* statements too, not only on the declaration
+    # name: a declaration whose statement mentions a renamed helper (say
     # `kw_functionFieldMapAlongGeneralNoAC_polyToFunctionField_X`, which states
     # `kw_functionFieldMapAlongGeneralNoAC W F F' (polyToFunctionField (W⁄F) X)
     # = polyToFunctionField (W⁄F') X`) could otherwise not be promoted at all —
     # the renamed helper would change the statement text and the diff would
-    # fail. Erasing it on both sides keeps `kw_foo` and `foo` comparable.
+    # fail.  Two rules make the general `kw*` family noise:
     #
-    # 2026-10-06 (D-5 §1.5): the lookbehind used to exclude a preceding `.` as
-    # well. That made a *method-style* reference to a promoted helper unmatchable:
-    # the pin's `private theorem PeriodPair.kw_toPointHom_apply` states
-    # `L.kw_toPointHom z = L.toPoint L.kw_discriminantNeZero z`, and the port's
-    # promotion `PeriodPair.toPointHom_apply` states
-    # `L.toPointHom z = L.toPoint L.discriminantNeZero z`; with `.` excluded the
-    # pin side kept `L.kw_toPointHom` and the diff reported `missing`. A preceding
-    # `.` is the same kind of noise as a bare prefix here, so it is erased too.
-    # The change is monotone: both sides are normalised identically, so it can
-    # only turn a mismatch/missing into a match, never the other way.
-    text = re.sub(r"(?<![\w'ₐ-ₜ])kw_", "", text)
+    #   1. `kw` + word characters + `_` is the generated form; drop the whole
+    #      prefix through the first `_`, so `kw_foo` -> `foo` and
+    #      `kwF4R1V384a_foo` / `kwTISDα_charFree` -> `foo` / `charFree`.
+    #   2. a standalone `kwWord` (no `_`) keeps the word and loses only `kw`,
+    #      so `kwVeluPointMap` -> `VeluPointMap` and `kwHgf` -> `Hgf`.
+    #
+    # The lookbehind keeps a `kw` inside a word (`backward`) untouched and allows
+    # a preceding `.`, so method-style references (`L.kw_foo` -> `L.foo`) are
+    # erased too (2026-10-06, D-5 §1.5: excluding `.` made
+    # `PeriodPair.kw_toPointHom_apply` unmatchable after promotion).  Monotone:
+    # both sides are normalised identically, so this can only turn a
+    # mismatch/missing into a match, never the other way.
+    text = KW_PREFIX_RE.sub("", text)
+    # A `kw_` name can carry several junk segments (`kw_surgehgf4_hfgkd_ktd_…`);
+    # erase the known leading ones repeatedly.  The loop is bounded: a segment
+    # either disappears or the pattern is absent, and eight rounds cover the
+    # deepest block in the port.
+    for _ in range(8):
+        text, n = _KW_JUNK_RE.subn("", text)
+        if not n:
+            break
+    # The capital-`Kw` family is the same kind of collision token.  The generated
+    # block token goes as a unit first (`KwF4gRRTate` → `Tate`,
+    # `KwF4R1V384aCompletion…` → `Completion…`, `KwD5Between…` → `Between…`),
+    # then the remaining generic `Kw` prefix (`KwIsogeny…` → `Isogeny…`).  The
+    # exact `Kw` abbreviation is untouched.
+    text = KW_GENERATED_RE.sub("", text)
+    text = KW_FAMILY_PREFIX_RE.sub("", text)
+    # The approved ambiguity fixes are not `norm` images of the old name, so the
+    # explicit map puts the new spelling back to the pin's normalised spelling.
+    text = _canonical(text)
     # The port homed the pin's re-carried `ValuationOrd` prelude once, in
     # `FLTForHuman/RingTheory/DiscreteValuationRing/Order.lean`, under mathlib's own
     # `IsDiscreteValuationRing` namespace (2026-10-13; see
@@ -5994,6 +6097,63 @@ def selftest() -> int:
     check(norm("a   b\n  c") == "a b c", "whitespace is not collapsed")
     check(norm("kw_foo") == "foo", "leading kw_ is not erased")
     check(norm("L.kw_foo") == "L.foo", "method kw_ is not erased")
+    check(norm("kwF4R1V384a_foo") == "foo", "generated kw prefix is not erased")
+    check(norm("kwTISDα_charFree") == "charFree", "Greek kw prefix is not erased")
+    check(norm("kwVeluPointMap") == "VeluPointMap", "standalone kw word is not erased")
+    check(norm("kwHgf_v277_foo") == "v277_foo", "kw abbreviation prefix is not erased")
+    check(norm("kw_surgehgf4_hfgkd_ktd_kerTransport_proved") == "kerTransport_proved",
+          "deep kw junk prefix is not erased")
+    check(norm("kw_surgehgf4_hH2c_between") == "between",
+          "hH2 subfamily token is not erased")
+    check(norm("kw_mlc_hrtCharP9_foo") == "hrtCharP9_foo",
+          "kw_ junk token is not erased")
+    check(norm("kw_es_residueTheoremK") == "residueTheoremK",
+          "two-letter kw_ token is not erased")
+    check(norm("kw_dualEndData_proof") == "dualEndData_proof",
+          "meaningful kw_ name was erased")
+    check(norm("kw_velu2X_apply") == "velu2X_apply",
+          "legitimate velu kw_ name was erased")
+    check(norm("pck_s17") == "s17", "a step stub token was not erased")
+    check(norm("backward") == "backward", "kw inside a word was erased")
+    # The same matcher is the port-side residual-name guard in check_port:
+    # what `norm` erases is exactly what that guard rejects.
+    check(KW_PREFIX_RE.search("kw_foo") is not None, "guard misses kw_")
+    check(KW_PREFIX_RE.search("kwF4R1V384a_foo") is not None, "guard misses kwX")
+    check(KW_PREFIX_RE.search("kwVeluPointMap") is not None, "guard misses standalone kw word")
+    check(KW_PREFIX_RE.search("backward") is None, "guard falsely matches inside a word")
+    check(KW_PREFIX_RE.search("foo_kw_bar") is not None,
+          "guard misses a middle kw_ token")
+    check(norm("foo_kw_bar") == "foo_bar", "middle kw_ token is not erased")
+    check(KW_FAMILY_RE.search("Piece_KwVelu") is not None,
+          "guard misses a middle Kw token")
+    check(KW_PREFIX_RE.search("dualEndData") is None, "guard matches a clean name")
+    # The capital-Kw name policy, shared with check_port's residual guard.
+    check(KW_FAMILY_RE.search("KwD5BetweenCurvesHoloLift") is not None, "guard misses KwD5")
+    check(KW_FAMILY_RE.search("KwF4gRRTate") is not None, "guard misses KwF4")
+    check(KW_FAMILY_RE.search("KwTateRR3") is not None, "guard misses KwTate")
+    check(KW_FAMILY_RE.search("Kw") is None, "guard matches the exact Kw abbrev")
+    check(KW_FAMILY_RE.search("Kwota") is None, "guard matches a lowercase Kw word")
+    check(norm("KwD5BetweenCurvesHoloLift") == "BetweenCurvesHoloLift",
+          "capital Kw prefix is not erased in statements")
+    check(norm("KwF4gRRTate.KwF4gRRTateCommFinite")
+          == "Tate.TateCommFinite",
+          "capital Kw namespace prefix is not erased in statements")
+    check(norm("Kw") == "Kw", "the exact Kw abbrev was erased")
+    check(norm("KwF4gRRTate") == "Tate",
+          "generated F4gRR token was not stripped as a unit")
+    check(norm("KwF4R1V384aCompletion") == "Completion",
+          "generated F4R1V token was not stripped as a unit")
+    check(norm("KwTateRR3Cohen") == "Cohen",
+          "generated TateRR3 token was not stripped as a unit")
+    check(norm("KwNo6Pin") == "Pin", "generated No6 token was not stripped")
+    check(norm("KwD5Between") == "Between", "generated D5 token was not stripped")
+    check(norm("KwOdaDHDR") == "", "an empty generated namespace did not vanish")
+    check(norm("LocalResiduePin") == "Pin", "canonical No6Pin map is missing")
+    check(norm("tisdCharFreeα") == "charFree", "canonical charFree map is missing")
+    check(norm("sublatticeCoords_index") == "index",
+          "canonical HZZ map is missing")
+    check(norm("VeluPointMap_zero") == "zero",
+          "canonical VeluPointMap lemma map is missing")
     check(norm("ModularCurve.foo") == "foo", "namespace qualifier is not erased")
 
     # One-token mutation sensitivity: an identical copy matches, a mutated

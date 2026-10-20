@@ -23,10 +23,10 @@ What this module carries, and what it drops:
   `coe_isogenyEndSubmonoid`, `submonoid_closure_range_pointEnd`,
   `coe_submonoid_closure_range_pointEnd`,
   `mem_isogenyEndSubring_iff_mem_addSubgroup_closure`), and the `ModularCurve`
-  foundation (`KwIsogenyEndDatumOfNonzeroEnd`, `Es1a1.es1a4_negDatum_pointEnd`,
-  `kw_neg_mem_range_pointEnd`,
-  `kw_zero_or_mem_range_pointEnd_of_mem_addSubgroup_closure`,
-  `kw_isogenyEndDatumOfNonzeroEnd_of_addDatumSupply`);
+  foundation (`IsogenyEndDatumOfNonzeroEnd`, `Es1a1.es1a4_negDatum_pointEnd`,
+  `neg_mem_range_pointEnd`,
+  `zero_or_mem_range_pointEnd_of_mem_addSubgroup_closure`,
+  `isogenyEndDatumOfNonzeroEnd_of_addDatumSupply`);
 * dropped as already present in the port (see the friction log and the checker
   report): the pin's `Divisor.pushforwardAlong_pushforwardAlong'` (private in the
   pin) is the port's public hypothesis-free
@@ -53,6 +53,9 @@ extra `Vocabulary` import is required because the pin's `solution` invokes
 
 Reference (public mirror, pinned):
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_Affine_IsogenyEndDatum_exists_pointEnd_eq_of_mem_isogenyEndSubring.lean>
+
+  spec-pin: Theorems/Thm_WeierstrassCurve_Affine_IsogenyEndDatum_exists_pointEnd_eq_of_mem_isogenyEndSubring.lean
+  spec-pin: P2M/Sol/S_WeierstrassCurve_Affine_IsogenyEndDatum_exists_pointEnd_eq_of_mem_isogenyEndSubring.lean
 -/
 import FLTForHuman.WeierstrassCurve.IsogenyEndDatum.Engine
 import FLTForHuman.WeierstrassCurve.IsogenyEndDatum.Vocabulary
@@ -319,15 +322,15 @@ end ModularCurve
 
 end NegDatum
 
-section KwFoundation
+section Foundation
 
 namespace ModularCurve
 
 variable {F : Type u} [Field F] [DecidableEq F] [IsAlgClosed F] [CharZero F]
 
-/-- The pin's `KwIsogenyEndDatumOfNonzeroEnd`: the gateway-1 conclusion, as a `Prop`
+/-- The pin's `IsogenyEndDatumOfNonzeroEnd`: the gateway-1 conclusion, as a `Prop`
 about the `pointEnd'` spelling of the endomorphism ring. -/
-abbrev KwIsogenyEndDatumOfNonzeroEnd (W : Affine F) [W.IsElliptic]
+abbrev IsogenyEndDatumOfNonzeroEnd (W : Affine F) [W.IsElliptic]
     [WeierstrassCurve.Affine.GenusOnePlaceGate W]
     [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred W]
     [WeierstrassCurve.Affine.AbelTheorem W] : Prop :=
@@ -338,9 +341,9 @@ variable (W : Affine F) [W.IsElliptic]
 variable [WeierstrassCurve.Affine.GenusOnePlaceGate W]
 variable [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred W] [WeierstrassCurve.Affine.AbelTheorem W]
 
-/-- The pin's `kw_neg_mem_range_pointEnd`: the range of `pointEnd'` is closed under
+/-- The pin's `neg_mem_range_pointEnd`: the range of `pointEnd'` is closed under
 negation. -/
-theorem kw_neg_mem_range_pointEnd {f : AddMonoid.End W.Point}
+theorem neg_mem_range_pointEnd {f : AddMonoid.End W.Point}
     (hf : f ∈ Set.range (IsogenyEndDatum.pointEnd' (W := W))) :
     -f ∈ Set.range (IsogenyEndDatum.pointEnd' (W := W)) := by
   obtain ⟨D, rfl⟩ := hf
@@ -348,11 +351,11 @@ theorem kw_neg_mem_range_pointEnd {f : AddMonoid.End W.Point}
   rw [IsogenyEndDatum.compDatum_pointEnd, Es1a1.es1a4_negDatum_pointEnd]
   exact neg_one_mul D.pointEnd'
 
-/-- The pin's `kw_zero_or_mem_range_pointEnd_of_mem_addSubgroup_closure`: every
+/-- The pin's `zero_or_mem_range_pointEnd_of_mem_addSubgroup_closure`: every
 element of the additive closure of the range of `pointEnd'` is either zero or in
 the range. -/
-theorem kw_zero_or_mem_range_pointEnd_of_mem_addSubgroup_closure
-    (hadd : KwIsogenyEndAddDatumSupply W) {ψ : AddMonoid.End W.Point}
+theorem zero_or_mem_range_pointEnd_of_mem_addSubgroup_closure
+    (hadd : IsogenyEndAddDatumSupply W) {ψ : AddMonoid.End W.Point}
     (hψ : ψ ∈ AddSubgroup.closure (Set.range (IsogenyEndDatum.pointEnd' (W := W)))) :
     ψ = 0 ∨ ψ ∈ Set.range (IsogenyEndDatum.pointEnd' (W := W)) := by
   refine AddSubgroup.closure_induction ?_ ?_ ?_ ?_ hψ
@@ -367,22 +370,22 @@ theorem kw_zero_or_mem_range_pointEnd_of_mem_addSubgroup_closure
         · exact Or.inr (hadd D₁ D₂ h0)
   · rintro x - (rfl | hx)
     · exact Or.inl _root_.neg_zero
-    · exact Or.inr (kw_neg_mem_range_pointEnd W hx)
+    · exact Or.inr (neg_mem_range_pointEnd W hx)
 
-/-- The pin's `kw_isogenyEndDatumOfNonzeroEnd_of_addDatumSupply`: the additive supply
+/-- The pin's `isogenyEndDatumOfNonzeroEnd_of_addDatumSupply`: the additive supply
 implies gateway 1 in the `pointEnd'` spelling. -/
-theorem kw_isogenyEndDatumOfNonzeroEnd_of_addDatumSupply
-    (hadd : KwIsogenyEndAddDatumSupply W) :
-    KwIsogenyEndDatumOfNonzeroEnd W := by
+theorem isogenyEndDatumOfNonzeroEnd_of_addDatumSupply
+    (hadd : IsogenyEndAddDatumSupply W) :
+    IsogenyEndDatumOfNonzeroEnd W := by
   intro ψ hψ hne
   have hcl := (mem_isogenyEndSubring_iff_mem_addSubgroup_closure W).mp hψ
-  rcases kw_zero_or_mem_range_pointEnd_of_mem_addSubgroup_closure W hadd hcl with h0 | hD
+  rcases zero_or_mem_range_pointEnd_of_mem_addSubgroup_closure W hadd hcl with h0 | hD
   · exact absurd h0 hne
   · exact hD
 
 end ModularCurve
 
-end KwFoundation
+end Foundation
 
 /-! ## The headline -/
 
@@ -402,12 +405,12 @@ theorem exists_pointEnd_eq_of_mem_isogenyEndSubring
     (hNs : ∀ D : IsogenyEndDatum W, NormFormulaAlong F D.ι D.hfin)
     (ψ : AddMonoid.End W.Point) (hψ : ψ ∈ isogenyEndSubring W hNs) (hne : ψ ≠ 0) :
     ∃ D : IsogenyEndDatum W, D.pointEnd (hNs D) = ψ := by
-  have hadd : ModularCurve.KwIsogenyEndAddDatumSupply W := by
+  have hadd : ModularCurve.IsogenyEndAddDatumSupply W := by
     intro D₁ D₂ h0
     obtain ⟨D₃, hN₃, h3⟩ :=
       IsogenyEndDatum.exists_pointEnd_eq_add D₁ (hNs D₁) D₂ (hNs D₂) h0
     exact ⟨D₃, h3⟩
-  exact ModularCurve.kw_isogenyEndDatumOfNonzeroEnd_of_addDatumSupply W hadd ψ hψ hne
+  exact ModularCurve.isogenyEndDatumOfNonzeroEnd_of_addDatumSupply W hadd ψ hψ hne
 
 end IsogenyEndDatum
 

@@ -6,12 +6,12 @@ published by
 `Theorems/Thm_AlgebraicCurve_tateChainRule.lean` as `AlgebraicCurve.tateChainRule`.
 
 This is set 3.3b's theory module.  It proves the pin's
-`ModularCurve.KwF4gRRTate.KwF4gRRTateChainRule`: the Tate residue at a place `w` of `F`
+`ModularCurve.Tate.TateChainRule`: the Tate residue at a place `w` of `F`
 above `v` is unchanged when the differential coefficient of the pulled-back coordinate
 is folded into the argument.  The route is the pin's:
 
-`kwF4gRRTate_chainRule_of_derivationFactor` (the `E`/`F` dictionary) plus
-`kwTateRR2_derivationFactorSnd` (the derivation factor), where the derivation is the
+`chainRule_of_derivationFactor` (the `E`/`F` dictionary) plus
+`derivationFactorSnd` (the derivation factor), where the derivation is the
 `DualDom`-valued `tateResSndDer` and the factor is
 `derivation_apply_eq_diffCoeff_smul`.
 
@@ -25,6 +25,9 @@ in `Tate/CommFinite.lean` (40 public rows) and the shared API in
 
 The ten `scoped instance`s of the tail (six `instFinDimRange*`, four `DualDom`
 instances) are checker-invisible and are landed explicitly.
+
+  spec-pin: Theorems/Thm_AlgebraicCurve_tateChainRule.lean
+  spec-pin: P2M/Sol/S_AlgebraicCurve_tateChainRule.lean
 -/
 import FLTForHuman.AlgebraicCurve.Defs.TateResidueCurrency
 import FLTForHuman.AlgebraicCurve.Tate.CommFinite
@@ -38,7 +41,7 @@ set_option linter.unusedVariables false
 
 open LinearMap Submodule
 open AlgebraicCurve AlgebraicCurve.Place
-open ModularCurve.KwF4gRRTate
+open ModularCurve.Tate
 
 noncomputable section
 
@@ -62,7 +65,7 @@ end CorrectedCarrier
 
 end AlgebraicCurve
 
-namespace ModularCurve.KwF4gRRTate
+namespace ModularCurve.Tate
 
 
 section AddSnd
@@ -319,7 +322,7 @@ theorem finiteDimensional_range_epsRestrict_lmulK (φ ψ : u.adicCompletion) :
   rw [hfactor, LinearMap.range_comp]
   infer_instance
 
-theorem tateRes_leibniz_snd (hfin : KwF4gRRTateCommFinite K L)
+theorem tateRes_leibniz_snd (hfin : TateCommFinite K L)
     (f g h : u.adicCompletion) :
     haveI := hfin u f (g * h)
     haveI := hfin u (f * g) h
@@ -385,10 +388,10 @@ section DerivationFactor
 
 variable (K F : Type*) [Field K] [Field F] [Algebra K F]
 
-/-- The pin's `KwF4gRRTateDerivationFactorSnd`: the derivation form of the Tate chain
+/-- The pin's `TateDerivationFactorSnd`: the derivation form of the Tate chain
 rule, with the Kähler differential of `g` in place of the pulled-back coordinate. -/
-def KwF4gRRTateDerivationFactorSnd [HasPrincipalDivisors K F] [Nontrivial Ω[F⁄K]]
-    (hfinF : KwF4gRRTateCommFinite K F) : Prop :=
+def TateDerivationFactorSnd [HasPrincipalDivisors K F] [Nontrivial Ω[F⁄K]]
+    (hfinF : TateCommFinite K F) : Prop :=
   ∀ (w : Place K F) [w.DCoordGenerates] (f : w.adicCompletion) (g : F),
     haveI := hfinF w f (algebraMap F w.adicCompletion g)
     haveI := hfinF w (f * algebraMap F w.adicCompletion
@@ -410,11 +413,11 @@ variable [HasCanonicalLocalResidueKStar K F] [HasCanonicalLocalResidueKStar K E]
 
 /-- The `E`/`F` dictionary: the derivation factor at the Kähler differential of the
 uniformizer is the chain rule at the pulled-back coordinate. -/
-theorem kwF4gRRTate_chainRule_of_derivationFactor
-    (hfinF : KwF4gRRTateCommFinite K F)
+theorem chainRule_of_derivationFactor
+    (hfinF : TateCommFinite K F)
     (hDF : ∀ [HasPrincipalDivisors K F] [Nontrivial Ω[F⁄K]],
-      KwF4gRRTateDerivationFactorSnd K F hfinF) :
-    KwF4gRRTateChainRule K F E hfinF := by
+      TateDerivationFactorSnd K F hfinF) :
+    TateChainRule K F E hfinF := by
   intro _ _ _ _ _ v _ w _ _ fh
 
   have hDFw := hDF w fh (algebraMap E F v.uniformizer)
@@ -577,7 +580,7 @@ theorem tateRes_congr_snd (u : Place K F) {fh gh₁ gh₂ : u.adicCompletion} (h
     tateRes u fh gh₁ = tateRes u fh gh₂ := by
   subst heq; rfl
 
-theorem tateRes_add_snd (u : Place K F) (hfin : KwF4gRRTateCommFinite K F)
+theorem tateRes_add_snd (u : Place K F) (hfin : TateCommFinite K F)
     (f g h : u.adicCompletion) :
     haveI := hfin u f (g + h); haveI := hfin u f g; haveI := hfin u f h
     tateRes u f (g + h) = tateRes u f g + tateRes u f h := by
@@ -592,7 +595,7 @@ theorem tateRes_add_snd (u : Place K F) (hfin : KwF4gRRTateCommFinite K F)
   rw [← hct]
   exact finrankTrace_congr (by rw [heq])
 
-def tateResFstLM (w : Place K F) (hfin : KwF4gRRTateCommFinite K F)
+def tateResFstLM (w : Place K F) (hfin : TateCommFinite K F)
     (gh : w.adicCompletion) : DualDom w where
   toFun f := haveI := hfin w f gh; tateRes w f gh
   map_add' f₁ f₂ := by
@@ -609,14 +612,14 @@ def tateResFstLM (w : Place K F) (hfin : KwF4gRRTateCommFinite K F)
     unfold tateRes tateCommTrace
     rw [finrankTrace_congr heq, finrankTrace_smul]
 
-@[scoped simp] theorem tateResFstLM_apply (w : Place K F) (hfin : KwF4gRRTateCommFinite K F)
+@[scoped simp] theorem tateResFstLM_apply (w : Place K F) (hfin : TateCommFinite K F)
     (gh f : w.adicCompletion) :
     (tateResFstLM w hfin gh).toLM f = haveI := hfin w f gh; tateRes w f gh := rfl
 
 variable [HasPrincipalDivisors K F] [Nontrivial Ω[F⁄K]]
 
 def tateResSndDer (w : Place K F) [w.DCoordGenerates] [w.FiniteResidue]
-    (hfin : KwF4gRRTateCommFinite K F) : Derivation K F (DualDom w) :=
+    (hfin : TateCommFinite K F) : Derivation K F (DualDom w) :=
   Derivation.mk'
     { toFun := fun g => tateResFstLM w hfin (algebraMap F w.adicCompletion g)
       map_add' := fun g h => DualDom.ext fun f => by
@@ -659,7 +662,7 @@ def tateResSndDer (w : Place K F) [w.DCoordGenerates] [w.FiniteResidue]
         tateRes_congr_fst w (mul_comm f (algebraMap F _ h))])
 
 @[scoped simp] theorem tateResSndDer_apply (w : Place K F) [w.DCoordGenerates] [w.FiniteResidue]
-    (hfin : KwF4gRRTateCommFinite K F) (g : F) (f : w.adicCompletion) :
+    (hfin : TateCommFinite K F) (g : F) (f : w.adicCompletion) :
     ((tateResSndDer w hfin) g).toLM f
       = haveI := hfin w f (algebraMap F _ g); tateRes w f (algebraMap F _ g) := rfl
 
@@ -671,9 +674,9 @@ variable {K F : Type*} [Field K] [Field F] [Algebra K F]
 variable [HasPrincipalDivisors K F] [Nontrivial Ω[F⁄K]]
 
 /-- The derivation factor, from the `DualDom`-valued derivation `tateResSndDer`. -/
-theorem kwTateRR2_derivationFactorSnd [∀ w : Place K F, w.FiniteResidue]
-    (hfinF : KwF4gRRTateCommFinite K F) :
-    KwF4gRRTateDerivationFactorSnd K F hfinF := by
+theorem derivationFactorSnd [∀ w : Place K F, w.FiniteResidue]
+    (hfinF : TateCommFinite K F) :
+    TateDerivationFactorSnd K F hfinF := by
   intro w _ f g
   haveI := hfinF w f (algebraMap F _ g)
   haveI := hfinF w (f * algebraMap F _ (w.differentialCoeff (KaehlerDifferential.D K F g)))
@@ -697,7 +700,7 @@ theorem kwTateRR2_derivationFactorSnd [∀ w : Place K F, w.FiniteResidue]
 
 end Headline
 
-end ModularCurve.KwF4gRRTate
+end ModularCurve.Tate
 
 /-- The Tate chain rule, at the pin wrapper's binders. -/
 theorem AlgebraicCurve.tateChainRule
@@ -706,7 +709,7 @@ theorem AlgebraicCurve.tateChainRule
     [Algebra.IsIntegral E F]
     [AlgebraicCurve.HasCanonicalLocalResidueKStar K F] [AlgebraicCurve.HasCanonicalLocalResidueKStar K E]
     [∀ w : AlgebraicCurve.Place K F, w.FiniteResidue]
-    (hfinF : ModularCurve.KwF4gRRTate.KwF4gRRTateCommFinite K F) :
-    ModularCurve.KwF4gRRTate.KwF4gRRTateChainRule K F E hfinF :=
-  ModularCurve.KwF4gRRTate.kwF4gRRTate_chainRule_of_derivationFactor hfinF
-    (fun {_ _} => ModularCurve.KwF4gRRTate.kwTateRR2_derivationFactorSnd hfinF)
+    (hfinF : ModularCurve.Tate.TateCommFinite K F) :
+    ModularCurve.Tate.TateChainRule K F E hfinF :=
+  ModularCurve.Tate.chainRule_of_derivationFactor hfinF
+    (fun {_ _} => ModularCurve.Tate.derivationFactorSnd hfinF)

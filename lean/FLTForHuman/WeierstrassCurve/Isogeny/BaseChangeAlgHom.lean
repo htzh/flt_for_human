@@ -12,13 +12,13 @@ the pin's solution file
 (1,336 lines) is otherwise the source of D-1's prelude and is **not** re-proved here.
 
 Assumes from D-1 (`Isogeny/BaseChange.lean`): the whole `General` base-change prelude at
-its prefix-stripped names — `KwIsogenyEndDatumBaseChangeAlongGeneral`,
+its prefix-stripped names — `IsogenyEndDatumBaseChangeAlongGeneral`,
 `isogenyEndDatumBaseChangeAlong_of_tensorIsDomainGeneral`,
 `isogenyEndDatumBaseChangeAlong_dischargeGeneral`, the tensor-product base change of the
 function field, its domain discharge and the flat/`IsIntegral` seam. The node-unique
 declarations the work order listed for this file (`kw_tensorFracIotaRingHomGeneral*`,
 `kw_tensorIotaRingHomGeneral*`, `kw_isogenyEndDatumBaseChangeIotaGeneral`,
-`KwIsogenyEndDatumBaseChangeAlongGeneral`, `kw_tensorFracIotaFinrankSeam_dischargeGeneral`,
+`IsogenyEndDatumBaseChangeAlongGeneral`, `kw_tensorFracIotaFinrankSeam_dischargeGeneral`,
 `kw_tensorIotaRingHom_finiteGeneral`, `ofHeightOneSpectrum_injective`,
 `kw_equation_map_polyToFunctionField_yGen_over_baseGeneral`) were all landed by D-1, so the
 only new declaration is the headline itself.

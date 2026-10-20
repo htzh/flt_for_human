@@ -63,6 +63,9 @@ consumers of this module can import `Engine.lean` freely. See `CARRY-FORWARD.md`
 
 Reference (public mirror, pinned):
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_Affine_exists_algHom_functionField_baseChange_finrankAlong_eq.lean>
+
+  spec-pin: P2M/Sol/S_WeierstrassCurve_Affine_exists_algHom_functionField_baseChange_finrankAlong_eq.lean
+  spec-pin: P2M/Sol/S_WeierstrassCurve_exists_intermediateField_countable_map_eq_and_finrankAlong_eq.lean
 -/
 import FLTForHuman.WeierstrassCurve.FunctionFieldQuadratic
 import FLTForHuman.WeierstrassCurve.Isogeny.ConditionalCurrency
@@ -328,7 +331,7 @@ theorem functionFieldMapAlongGeneralNoAC_yGen :
     functionFieldMapAlongGeneralNoAC W F F' (yGen (W⁄F)) = yGen (W⁄F') :=
   pointPullbackHomTo_yGen _ _
 
-def KwFunctionFieldTensorIsDomainGeneralNoAC : Prop :=
+def FunctionFieldTensorIsDomainGeneralNoAC : Prop :=
   IsDomain ((W⁄F).FunctionField ⊗[F] F')
 
 attribute [local instance] Algebra.TensorProduct.rightAlgebra
@@ -535,7 +538,7 @@ theorem tensorFracIotaRingHomGeneralNoAC_algebraMap (D : TreeIsogenyEndDatum (W�
   unfold tensorFracIotaRingHomGeneralNoAC IsFractionRing.map
   exact IsLocalization.map_eq (T := nonZeroDivisors ((W⁄F).FunctionField ⊗[F] F')) _ t
 
-def KwTensorFracIotaFinrankSeamGeneralNoAC : Prop :=
+def TensorFracIotaFinrankSeamGeneralNoAC : Prop :=
   ∀ D : TreeIsogenyEndDatum (W⁄F),
     (tensorFracIotaRingHomGeneralNoAC W F F' D).Finite ∧
     (letI := (tensorFracIotaRingHomGeneralNoAC W F F' D).toAlgebra
@@ -561,13 +564,13 @@ def isogenyEndDatumBaseChangeIotaGeneralNoAC (D : TreeIsogenyEndDatum (W⁄F)) :
         map_one, ← hc]
       exact ψ.symm_apply_apply _ }
 
-def KwIsogenyEndDatumBaseChangeAlongGeneralNoAC (_σ : F →ₐ[R₀] F') (N : ℕ) : Prop :=
+def IsogenyEndDatumBaseChangeAlongGeneralNoAC (_σ : F →ₐ[R₀] F') (N : ℕ) : Prop :=
   (∃ D : TreeIsogenyEndDatum (W⁄F), D.degree = N) →
     ∃ D' : TreeIsogenyEndDatum (W⁄F'), D'.degree = N
 
 theorem isogenyEndDatumBaseChangeAlong_of_isDomain_tensorGeneralNoAC
-    (hseam : KwTensorFracIotaFinrankSeamGeneralNoAC W F F')
-    (σ : F →ₐ[R₀] F') (N : ℕ) : KwIsogenyEndDatumBaseChangeAlongGeneralNoAC W F F' σ N := by
+    (hseam : TensorFracIotaFinrankSeamGeneralNoAC W F F')
+    (σ : F →ₐ[R₀] F') (N : ℕ) : IsogenyEndDatumBaseChangeAlongGeneralNoAC W F F' σ N := by
   intro ⟨D, hD⟩
   let ψ := functionFieldTensorFracEquivGeneralNoAC W F F'
   let ιFr := tensorFracIotaRingHomGeneralNoAC W F F' D
@@ -593,11 +596,11 @@ theorem isogenyEndDatumBaseChangeAlong_of_isDomain_tensorGeneralNoAC
 end FracTensorNoAC
 
 theorem isogenyEndDatumBaseChangeAlong_of_tensorIsDomainGeneralNoAC
-    (htens : KwFunctionFieldTensorIsDomainGeneralNoAC W F F')
+    (htens : FunctionFieldTensorIsDomainGeneralNoAC W F F')
     (hseam : haveI : IsDomain ((W⁄F).FunctionField ⊗[F] F') := htens
-             KwTensorFracIotaFinrankSeamGeneralNoAC W F F')
+             TensorFracIotaFinrankSeamGeneralNoAC W F F')
     (σ : F →ₐ[R₀] F') (N : ℕ) :
-    KwIsogenyEndDatumBaseChangeAlongGeneralNoAC W F F' σ N :=
+    IsogenyEndDatumBaseChangeAlongGeneralNoAC W F F' σ N :=
   haveI : IsDomain ((W⁄F).FunctionField ⊗[F] F') := htens
   isogenyEndDatumBaseChangeAlong_of_isDomain_tensorGeneralNoAC W F F' hseam σ N
 
@@ -669,7 +672,7 @@ theorem coordinateRingTensor_isDomainGeneralNoAC : IsDomain (CR ⊗[F] F') := by
   exact Function.Injective.isDomain θ.toRingHom hθ
 
 theorem functionFieldTensorIsDomain_dischargeGeneralNoAC :
-    KwFunctionFieldTensorIsDomainGeneralNoAC W F F' := by
+    FunctionFieldTensorIsDomainGeneralNoAC W F F' := by
   show IsDomain (FFₗ ⊗[F] F')
   haveI hCR : IsDomain (CR ⊗[F] F') := coordinateRingTensor_isDomainGeneralNoAC W F F'
   letI : Algebra (CR ⊗[F] F') (FFₗ ⊗[F] F') :=
@@ -907,14 +910,14 @@ theorem tensorIotaRingHom_finiteGeneralNoAC (D : TreeIsogenyEndDatum (W⁄F)) :
   RingHom.Finite.tensorProductMap (f := D.ι) D.hfin (g := AlgHom.id F F') (RingHom.Finite.id F')
 
 theorem tensorFracIotaFinrankSeam_dischargeGeneralNoAC :
-    KwTensorFracIotaFinrankSeamGeneralNoAC W F F' := by
+    TensorFracIotaFinrankSeamGeneralNoAC W F F' := by
   intro D
   exact tensorFracIotaFinrankSeam_aux W F F' D.ι D.hι D.hfin
 
 end SeamNoAC
 
 theorem isogenyEndDatumBaseChangeAlong_dischargeGeneralNoAC (σ : F →ₐ[R₀] F') (N : ℕ) :
-    KwIsogenyEndDatumBaseChangeAlongGeneralNoAC W F F' σ N :=
+    IsogenyEndDatumBaseChangeAlongGeneralNoAC W F F' σ N :=
   haveI : IsDomain ((W⁄F).FunctionField ⊗[F] F') :=
     functionFieldTensorIsDomain_dischargeGeneralNoAC W F F'
   isogenyEndDatumBaseChangeAlong_of_tensorIsDomainGeneralNoAC W F F'
@@ -961,7 +964,7 @@ theorem functionFieldMapAlongGeneral_yGen :
     functionFieldMapAlongGeneral W F F' (yGen (W⁄F)) = yGen (W⁄F') :=
   functionFieldMapAlongGeneralNoAC_yGen W F F'
 
-def KwFunctionFieldTensorIsDomainGeneral : Prop :=
+def FunctionFieldTensorIsDomainGeneral : Prop :=
   IsDomain ((W⁄F).FunctionField ⊗[F] F')
 
 attribute [local instance] Algebra.TensorProduct.rightAlgebra
@@ -1047,7 +1050,7 @@ theorem tensorFracIotaRingHomGeneral_algebraMap (D : IsogenyEndDatum (W⁄F))
   unfold tensorFracIotaRingHomGeneral IsFractionRing.map
   exact IsLocalization.map_eq (T := nonZeroDivisors ((W⁄F).FunctionField ⊗[F] F')) _ t
 
-def KwTensorFracIotaFinrankSeamGeneral : Prop :=
+def TensorFracIotaFinrankSeamGeneral : Prop :=
   ∀ D : IsogenyEndDatum (W⁄F),
     (tensorFracIotaRingHomGeneral W F F' D).Finite ∧
     (letI := (tensorFracIotaRingHomGeneral W F F' D).toAlgebra
@@ -1074,13 +1077,13 @@ def isogenyEndDatumBaseChangeIotaGeneral (D : IsogenyEndDatum (W⁄F)) :
         map_one, ← hc]
       exact ψ.symm_apply_apply _ }
 
-def KwIsogenyEndDatumBaseChangeAlongGeneral (_σ : F →ₐ[R₀] F') (N : ℕ) : Prop :=
+def IsogenyEndDatumBaseChangeAlongGeneral (_σ : F →ₐ[R₀] F') (N : ℕ) : Prop :=
   (∃ D : IsogenyEndDatum (W⁄F), AlgebraicCurve.finrankAlong F D.ι = N) →
     ∃ D' : IsogenyEndDatum (W⁄F'), AlgebraicCurve.finrankAlong F' D'.ι = N
 
 theorem isogenyEndDatumBaseChangeAlong_of_isDomain_tensorGeneral
-    (hseam : KwTensorFracIotaFinrankSeamGeneral W F F')
-    (σ : F →ₐ[R₀] F') (N : ℕ) : KwIsogenyEndDatumBaseChangeAlongGeneral W F F' σ N := by
+    (hseam : TensorFracIotaFinrankSeamGeneral W F F')
+    (σ : F →ₐ[R₀] F') (N : ℕ) : IsogenyEndDatumBaseChangeAlongGeneral W F F' σ N := by
   intro ⟨D, hD⟩
   let ψ := functionFieldTensorFracEquivGeneral W F F'
   let ιFr := tensorFracIotaRingHomGeneral W F F' D
@@ -1106,11 +1109,11 @@ theorem isogenyEndDatumBaseChangeAlong_of_isDomain_tensorGeneral
 end FracHomGeneral
 
 theorem isogenyEndDatumBaseChangeAlong_of_tensorIsDomainGeneral
-    (htens : KwFunctionFieldTensorIsDomainGeneral W F F')
+    (htens : FunctionFieldTensorIsDomainGeneral W F F')
     (hseam : haveI : IsDomain ((W⁄F).FunctionField ⊗[F] F') := htens
-             KwTensorFracIotaFinrankSeamGeneral W F F')
+             TensorFracIotaFinrankSeamGeneral W F F')
     (σ : F →ₐ[R₀] F') (N : ℕ) :
-    KwIsogenyEndDatumBaseChangeAlongGeneral W F F' σ N :=
+    IsogenyEndDatumBaseChangeAlongGeneral W F F' σ N :=
   haveI : IsDomain ((W⁄F).FunctionField ⊗[F] F') := htens
   isogenyEndDatumBaseChangeAlong_of_isDomain_tensorGeneral W F F' hseam σ N
 
@@ -1135,7 +1138,7 @@ theorem coordinateRingTensor_isDomainGeneral : IsDomain (CR ⊗[F] F') :=
   coordinateRingTensor_isDomainGeneralNoAC W F F'
 
 theorem functionFieldTensorIsDomain_dischargeGeneral :
-    KwFunctionFieldTensorIsDomainGeneral W F F' :=
+    FunctionFieldTensorIsDomainGeneral W F F' :=
   functionFieldTensorIsDomain_dischargeGeneralNoAC W F F'
 
 end FFDomainGeneral
@@ -1149,14 +1152,14 @@ theorem tensorIotaRingHom_finiteGeneral (D : IsogenyEndDatum (W⁄F)) :
   RingHom.Finite.tensorProductMap (f := D.ι) D.hfin (g := AlgHom.id F F') (RingHom.Finite.id F')
 
 theorem tensorFracIotaFinrankSeam_dischargeGeneral :
-    KwTensorFracIotaFinrankSeamGeneral W F F' := by
+    TensorFracIotaFinrankSeamGeneral W F F' := by
   intro D
   exact tensorFracIotaFinrankSeam_aux W F F' D.ι D.hι D.hfin
 
 end SeamGeneral
 
 theorem isogenyEndDatumBaseChangeAlong_dischargeGeneral (σ : F →ₐ[R₀] F') (N : ℕ) :
-    KwIsogenyEndDatumBaseChangeAlongGeneral W F F' σ N :=
+    IsogenyEndDatumBaseChangeAlongGeneral W F F' σ N :=
   haveI : IsDomain ((W⁄F).FunctionField ⊗[F] F') :=
     functionFieldTensorIsDomain_dischargeGeneral W F F'
   isogenyEndDatumBaseChangeAlong_of_tensorIsDomainGeneral W F F'

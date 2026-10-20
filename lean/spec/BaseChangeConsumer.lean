@@ -82,21 +82,21 @@ example (W : WeierstrassCurve ℚ) [W.IsElliptic] :
   rfl
 
 example (W : WeierstrassCurve ℚ) [W.IsElliptic] :
-    KwFunctionFieldTensorIsDomainGeneral W (AlgebraicClosure ℚ) (AlgebraicClosure ℚ)
-      ↔ KwFunctionFieldTensorIsDomainGeneralNoAC W (AlgebraicClosure ℚ) (AlgebraicClosure ℚ) :=
+    FunctionFieldTensorIsDomainGeneral W (AlgebraicClosure ℚ) (AlgebraicClosure ℚ)
+      ↔ FunctionFieldTensorIsDomainGeneralNoAC W (AlgebraicClosure ℚ) (AlgebraicClosure ℚ) :=
   Iff.rfl
 
 /-! ### Zone 3 — the `NoAC` datum-level discharge, executed -/
 
 example (W : WeierstrassCurve ℚ) [W.IsElliptic] (N : ℕ) :
-    KwIsogenyEndDatumBaseChangeAlongGeneralNoAC W ℚ (AlgebraicClosure ℚ)
+    IsogenyEndDatumBaseChangeAlongGeneralNoAC W ℚ (AlgebraicClosure ℚ)
       (IsScalarTower.toAlgHom ℚ ℚ (AlgebraicClosure ℚ)) N :=
   isogenyEndDatumBaseChangeAlong_dischargeGeneralNoAC W ℚ (AlgebraicClosure ℚ) _ N
 
 /-! ### Zone 4 — the `General` datum-level discharge, executed -/
 
 example (W : WeierstrassCurve ℚ) [W.IsElliptic] (N : ℕ) :
-    KwIsogenyEndDatumBaseChangeAlongGeneral W (AlgebraicClosure ℚ) (AlgebraicClosure ℚ)
+    IsogenyEndDatumBaseChangeAlongGeneral W (AlgebraicClosure ℚ) (AlgebraicClosure ℚ)
       (IsScalarTower.toAlgHom ℚ (AlgebraicClosure ℚ) (AlgebraicClosure ℚ)) N :=
   isogenyEndDatumBaseChangeAlong_dischargeGeneral W (AlgebraicClosure ℚ)
     (AlgebraicClosure ℚ) _ N

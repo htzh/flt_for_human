@@ -15,6 +15,11 @@ Statements are transcribed verbatim; only proof bodies are adapted to mathlib
 
 Reference (public mirror, pinned):
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_Affine_FunctionField_addX_addY_specialize_at_place.lean>
+
+  spec-pin: Theorems/Thm_WeierstrassCurve_Affine_FunctionField_addX_addY_specialize_at_place.lean
+  spec-pin: Theorems/Thm_WeierstrassCurve_Affine_IsogenyEndDatum_exists_restrictAlong_placeOfPoint_eq_add.lean
+  spec-pin: P2M/Sol/S_WeierstrassCurve_Affine_IsogenyEndDatum_exists_restrictAlong_placeOfPoint_eq_add.lean
+  spec-pin: P2M/Sol/S_WeierstrassCurve_Affine_IsogenyEndDatum_exists_dualEndData_dual_mem_and_norm_eq_finrankAlong.lean
 -/
 import FLTForHuman.WeierstrassCurve.IsogenyEndDatum.Engine
 import FLTForHuman.WeierstrassCurve.GenusOnePlaceGate
@@ -2281,7 +2286,7 @@ section ProductionDictionary
 variable {F : Type u} [Field F] [DecidableEq F] [IsAlgClosed F] [CharZero F]
 variable (W : Affine F) [W.IsElliptic]
 
-theorem kw_hk5f_addSumCoordSeamDataNCAt_proved : kw_hk5f_addSumCoordSeamDataNCAt W := by
+theorem addSumCoordSeamDataNCAt_proved : addSumCoordSeamDataNCAt W := by
   intro φ₁ φ₂ hcol hnc v Q₁ Q₂ h1 h2
   have hΔ : W.Δ ≠ 0 := isElliptic_Δ_ne_zero (W := W)
   cases Q₁ with
@@ -2377,7 +2382,7 @@ private theorem solution
     | zero => exact h₂0 rfl
     | some a b h => exact h₂s a b h rfl
   have H : es1a6_addSumSeamDataAt φ₁ φ₂ v (Q₁ + Q₂) :=
-    kw_hk5f_addSumCoordSeamDataNCAt_proved W φ₁ φ₂ (fun hc => hcol hc) hnc v Q₁ Q₂ h1 h2
+    addSumCoordSeamDataNCAt_proved W φ₁ φ₂ (fun hc => hcol hc) hnc v Q₁ Q₂ h1 h2
   refine ⟨fun h0 => ?_, fun a b h hs => ?_⟩
   · rw [h0] at H; exact H
   · rw [hs] at H; exact H
@@ -2439,17 +2444,17 @@ variable (W : Affine F) [W.IsElliptic]
   [WeierstrassCurve.Affine.GenusOnePlaceGate W]
   [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred W] [WeierstrassCurve.Affine.AbelTheorem W]
 
-theorem kw_hk5f_addGeomMorphSupply_proved :
-    KwIsogenyEndAddGeomMorphSupply W :=
-  kw_hk5f_addGeomMorphSupply_of_atoms W
-    (kw_hk5f_addSumXNonConstGuardAt_proved W)
-    (kw_hk5f_addSumCoordSeamDataNCAt_proved W)
-    (kw_hk5f_addIntegralFiniteDataAt_proved W)
+theorem addGeomMorphSupply_proved :
+    IsogenyEndAddGeomMorphSupply W :=
+  addGeomMorphSupply_of_atoms W
+    (addSumXNonConstGuardAt_proved W)
+    (addSumCoordSeamDataNCAt_proved W)
+    (addIntegralFiniteDataAt_proved W)
 
-theorem kw_hk5f_addDatumSupply_proved :
-    KwIsogenyEndAddDatumSupply W :=
-  kw_isogenyEndAddDatumSupply_of_addGeomMorphSupply W
-    (kw_hk5f_addGeomMorphSupply_proved W)
+theorem addDatumSupply_proved :
+    IsogenyEndAddDatumSupply W :=
+  isogenyEndAddDatumSupply_of_addGeomMorphSupply W
+    (addGeomMorphSupply_proved W)
 
 end GeomMorphSupply
 
@@ -2492,7 +2497,7 @@ theorem exists_restrictAlong_placeOfPoint_eq_add
             ((pointEquivPlace (W := W)).symm ((placeOfPoint P).restrictAlong D₁.ι D₁.hι)
               + (pointEquivPlace (W := W)).symm ((placeOfPoint P).restrictAlong D₂.ι D₂.hι)) := by
   have h' : D₁.pointEnd' + D₂.pointEnd' ≠ 0 := h
-  obtain ⟨D₃, hD₃⟩ := ModularCurve.Es1a1.kw_hk5f_addGeomMorphSupply_proved W D₁ D₂ h'
+  obtain ⟨D₃, hD₃⟩ := ModularCurve.Es1a1.addGeomMorphSupply_proved W D₁ D₂ h'
   refine ⟨D₃, fun P => ?_⟩
   rw [D₃.placeOfPoint_geomMorph P, hD₃ P]
   simp only [IsogenyEndDatum.geomMorph, placeOfPointEquiv_symm_eq]

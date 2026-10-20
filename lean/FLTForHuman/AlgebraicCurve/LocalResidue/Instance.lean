@@ -44,10 +44,12 @@ pin's `p2m_*`/`attribute [-instance]` scaffolding is dropped as usual.
 
 Part 2 of set 3.1b (3.1b-ii) appends the `ModularCurve.Lg37` layer, the
 Hensel/adic-completion engine (`Mp72a102T1/T2/T3`, `Mp72a103T2`,
-`ModularCurve.KwNo6Section`), the `ModularCurve.KwNo6Pin` block
+`ModularCurve.LocalResidueSection`), the `ModularCurve.LocalResiduePin` block
 (`aCoeff`/`resStar`/`canonicalLocalResidueDataKStar`) and the final
 unconditional `instHasCanonicalLocalResidueKStar`, together with its mathlib
 imports.
+
+  spec-pin: Definitions/Def_AlgebraicCurve_CanonicalLocalResidueInstanceV2.lean
 -/
 import FLTForHuman.AlgebraicCurve.Defs.LocalResidue
 import FLTForHuman.AlgebraicCurve.Defs.IsCurveOver
@@ -901,7 +903,7 @@ end ResidueCalculus
 
 end Mp72a102T2
 
-namespace ModularCurve.KwNo6Section
+namespace ModularCurve.LocalResidueSection
 
 open AlgebraicCurve ModularCurve.Lg37 Polynomial IntermediateField
 open Mp72a102T1 Mp72a102T2
@@ -963,7 +965,7 @@ noncomputable def sectionOfPrimitiveRoot {ᾱ : v.ResidueField} (hint : IsIntegr
 
 end GenericSection
 
-end ModularCurve.KwNo6Section
+end ModularCurve.LocalResidueSection
 
 namespace Mp72a103T2
 
@@ -1072,9 +1074,9 @@ end Mp72a103T2
 
 open Polynomial IsLocalRing AlgebraicCurve
 open ModularCurve.Lg37 ModularCurve.Mp72a102T3 Mp72a103T2 Mp72a102T1
-open ModularCurve.KwNo6Section
+open ModularCurve.LocalResidueSection
 
-namespace ModularCurve.KwNo6Pin
+namespace ModularCurve.LocalResiduePin
 
 variable {K F : Type*} [Field K] [Field F] [Algebra K F]
 
@@ -1216,9 +1218,9 @@ theorem section_unique (v : Place K F)
   have hb := DFunLike.congr_fun hcomp b
   simpa only [AlgHom.comp_apply, AlgEquiv.coe_toAlgHom] using hb
 
-end ModularCurve.KwNo6Pin
+end ModularCurve.LocalResiduePin
 
-namespace ModularCurve.KwNo6Pin
+namespace ModularCurve.LocalResiduePin
 
 variable {K F : Type*} [Field K] [Field F] [Algebra K F]
 
@@ -1643,10 +1645,10 @@ noncomputable def canonicalLocalResidueDataKStar (v : Place K F)
   res_simplePole f hf := resStar_simplePole v S f hf
   res_higherPoleMonomial _n hn := resStar_higherPoleMonomial v S hn
 
-end ModularCurve.KwNo6Pin
+end ModularCurve.LocalResiduePin
 
 open Polynomial IsLocalRing AlgebraicCurve
-open ModularCurve.Lg37 ModularCurve.KwNo6Section ModularCurve.KwNo6Pin
+open ModularCurve.Lg37 ModularCurve.LocalResidueSection ModularCurve.LocalResiduePin
 open Mp72a102T1
 
 namespace AlgebraicCurve

@@ -22,6 +22,13 @@ are transcribed verbatim; only proof bodies are adapted to mathlib `v4.34.0`.
 
 Reference (public mirror, pinned):
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_Affine_natCard_ker_pointMapOfPushforward_eq_finrankAlong.lean>
+
+  spec-pin: Theorems/Thm_WeierstrassCurve_Affine_IsogenyEndDatum_exists_pointEnd_eq_add.lean
+  spec-pin: Theorems/Thm_WeierstrassCurve_Affine_IsogenyEndDatum_pointEnd_apply_eq_sub.lean
+  spec-pin: Theorems/Thm_WeierstrassCurve_Affine_IsogenyHomDatum_exists_pointHom_comp_eq_of_ker_le_of_isCentred.lean
+  spec-pin: Theorems/Thm_WeierstrassCurve_Affine_IsogenyHomDatum_pointHom_apply_eq_sub.lean
+  spec-pin: Theorems/Thm_WeierstrassCurve_Affine_algHom_ext_of_forall_restrictAlong_placeOfPoint_eq.lean
+  spec-pin: Theorems/Thm_WeierstrassCurve_Affine_natCard_ker_pointMapOfPushforward_eq_finrankAlong.lean
 -/
 import FLTForHuman.WeierstrassCurve.IsogenyEndDatum.DualEndData
 import FLTForHuman.WeierstrassCurve.Isogeny.NatCard
@@ -183,7 +190,6 @@ end Affine
 end WeierstrassCurve
 namespace WeierstrassCurve
 
-namespace KwNo3aHbadRiqsucrA1a
 
 open AlgebraicCurve
 
@@ -191,7 +197,7 @@ section RouteEta
 
 variable {K F F' : Type*} [Field K] [Field F] [Field F'] [Algebra K F] [Algebra K F']
 
-private theorem no3ahbad_riqsucr_a1a_ord_pos_of_restrictAlong_ord_pos
+private theorem ord_pos_of_restrictAlong_ord_pos
     (φ : F' →ₐ[K] F) (hφ : φ.toRingHom.IsIntegral) (v : Place K F)
     (f : F') (c : K) (hord : (v.restrictAlong φ hφ).ord (f - algebraMap K F' c) > 0) :
     v.ord (φ f - algebraMap K F c) > 0 := by
@@ -208,7 +214,7 @@ section FiniteZeros
 variable {F : Type*} [Field F] [DecidableEq F] [IsAlgClosed F] [CharZero F]
 variable {V : Affine F} [IsDedekindDomain V.CoordinateRing] [GenusOnePlaceGate V] [GenusOnePlaceGate.IsCentred V] [AbelTheorem V]
 
-private theorem no3ahbad_riqsucr_a1a_finite_ord_ne_zero (h : V.FunctionField) (hne : h ≠ 0) :
+private theorem finite_ord_ne_zero (h : V.FunctionField) (hne : h ≠ 0) :
     {P : V.Point | (placeOfPoint P).ord h ≠ 0}.Finite := by
   haveI : HasPrincipalDivisors F V.FunctionField := hasPrincipalDivisors_functionField V
   have hfin : {v : Place F V.FunctionField | v.ord h ≠ 0}.Finite :=
@@ -224,7 +230,7 @@ section Ext
 variable {K F' : Type*} [Field K] [IsAlgClosed K] [CharZero K] [Field F'] [Algebra K F']
 variable {V : Affine K} [DecidableEq K] [IsDedekindDomain V.CoordinateRing] [GenusOnePlaceGate V] [GenusOnePlaceGate.IsCentred V] [AbelTheorem V]
 
-private theorem no3ahbad_riqsucr_a1a_exists_residue (w : Place K F')
+private theorem exists_residue (w : Place K F')
     (hsurj : Function.Surjective (algebraMap K w.ResidueField))
     (f : F') (hf : w.ord f ≥ 0) :
     ∃ c : K, f = algebraMap K F' c ∨ w.ord (f - algebraMap K F' c) > 0 := by
@@ -235,7 +241,7 @@ private theorem no3ahbad_riqsucr_a1a_exists_residue (w : Place K F')
   · exact Or.inl (sub_eq_zero.mp heq)
   · exact Or.inr (w.ord_sub_evalAt_pos hsurj (w.mem_of_ord_nonneg hf0 hf) hne)
 
-private theorem no3ahbad_riqsucr_a1a_ord_sub_pos_of_pos {L : Type*} [Field L] [Algebra K L]
+private theorem ord_sub_pos_of_pos {L : Type*} [Field L] [Algebra K L]
     (v : Place K L) {a b : L} (ha : v.ord a > 0) (hb : v.ord b > 0) (hab : a ≠ b) :
     v.ord (a - b) > 0 := by
   have ha0 : a ≠ 0 := fun h => absurd (h ▸ ha) (by simp [v.ord_zero])
@@ -253,7 +259,7 @@ private theorem no3ahbad_riqsucr_a1a_ord_sub_pos_of_pos {L : Type*} [Field L] [A
       (v.adicValuation_ne_zero hb0)).mpr hval
     simp only [Place.ord] at hb ⊢; omega
 
-private theorem no3ahbad_riqsucr_a1a_algHom_ext_of_restrictAlong_placeOfPoint_eq
+private theorem algHom_ext_of_restrictAlong_placeOfPoint_eq
     (hVinf : Infinite V.Point) (hrat : ∀ w : Place K F', w.IsRational)
     (φ₁ φ₂ : F' →ₐ[K] V.FunctionField)
     (hφ₁ : φ₁.toRingHom.IsIntegral) (hφ₂ : φ₂.toRingHom.IsIntegral)
@@ -263,7 +269,7 @@ private theorem no3ahbad_riqsucr_a1a_algHom_ext_of_restrictAlong_placeOfPoint_eq
   ext f
   by_contra hne
   have hne' : φ₁ f - φ₂ f ≠ 0 := sub_ne_zero.mpr hne
-  have hfin := no3ahbad_riqsucr_a1a_finite_ord_ne_zero (V := V) (φ₁ f - φ₂ f) hne'
+  have hfin := finite_ord_ne_zero (V := V) (φ₁ f - φ₂ f) hne'
   have hpoles : {P : V.Point |
       ((placeOfPoint P).restrictAlong φ₁ hφ₁).ord f < 0}.Finite := by
     rcases eq_or_ne (φ₁ f) 0 with h0 | h0
@@ -271,7 +277,7 @@ private theorem no3ahbad_riqsucr_a1a_algHom_ext_of_restrictAlong_placeOfPoint_eq
       exact absurd (by
         have hf0 : f = 0 := φ₁.injective (by simp [h0])
         simp [hf0]) hne'
-    · refine (no3ahbad_riqsucr_a1a_finite_ord_ne_zero (V := V) (φ₁ f) h0).subset ?_
+    · refine (finite_ord_ne_zero (V := V) (φ₁ f) h0).subset ?_
       intro P hP
       simp only [Set.mem_ofPred_eq] at hP ⊢
       rw [Place.ord_restrictAlong φ₁ hφ₁ (placeOfPoint P) f]
@@ -286,16 +292,16 @@ private theorem no3ahbad_riqsucr_a1a_algHom_ext_of_restrictAlong_placeOfPoint_eq
     simp only [Set.mem_compl_iff, Set.mem_ofPred_eq, not_lt] at hP ⊢
     by_contra hge
     simp only [not_lt] at hge
-    obtain ⟨c, hc⟩ := no3ahbad_riqsucr_a1a_exists_residue
+    obtain ⟨c, hc⟩ := exists_residue
       ((placeOfPoint P).restrictAlong φ₁ hφ₁) (hrat _) f hge
     rcases hc with heq | hc
     ·
       exact absurd (heq ▸ (φ₁.commutes c).trans (φ₂.commutes c).symm) hne
-    have h1 := no3ahbad_riqsucr_a1a_ord_pos_of_restrictAlong_ord_pos φ₁ hφ₁
+    have h1 := ord_pos_of_restrictAlong_ord_pos φ₁ hφ₁
       (placeOfPoint P) f c hc
-    have h2 := no3ahbad_riqsucr_a1a_ord_pos_of_restrictAlong_ord_pos φ₂ hφ₂
+    have h2 := ord_pos_of_restrictAlong_ord_pos φ₂ hφ₂
       (placeOfPoint P) f c (hres P ▸ hc)
-    have h12 := no3ahbad_riqsucr_a1a_ord_sub_pos_of_pos (placeOfPoint P) h1 h2
+    have h12 := ord_sub_pos_of_pos (placeOfPoint P) h1 h2
       (fun heq => hne (sub_left_inj.mp heq))
     simp only [sub_sub_sub_cancel_right] at h12
     exact absurd h12 (not_lt.mpr hP)
@@ -308,7 +314,6 @@ private theorem no3ahbad_riqsucr_a1a_algHom_ext_of_restrictAlong_placeOfPoint_eq
 
 end Ext
 
-end KwNo3aHbadRiqsucrA1a
 
 namespace Affine
 
@@ -323,7 +328,7 @@ theorem algHom_ext_of_forall_restrictAlong_placeOfPoint_eq
     (hres : ∀ P : V.Point,
       (placeOfPoint P).restrictAlong φ₁ hφ₁ = (placeOfPoint P).restrictAlong φ₂ hφ₂) :
     φ₁ = φ₂ :=
-  WeierstrassCurve.KwNo3aHbadRiqsucrA1a.no3ahbad_riqsucr_a1a_algHom_ext_of_restrictAlong_placeOfPoint_eq
+  WeierstrassCurve.algHom_ext_of_restrictAlong_placeOfPoint_eq
     (WeierstrassCurve.point_infinite (W := V)) hrat φ₁ φ₂ hφ₁ hφ₂ hres
 
 

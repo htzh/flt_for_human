@@ -1,6 +1,6 @@
 /-
 The ℂ-analytic seam of the `PeriodPair` uniformization: the differentiability of the
-isogeny-direction map, and the `ModularCurve.KwD5BetweenCurvesHoloLift` reduction chain
+isogeny-direction map, and the `ModularCurve.BetweenCurvesHoloLift` reduction chain
 that proves it.
 
 Ported from the pin's
@@ -8,10 +8,10 @@ Ported from the pin's
   `P2M/Sol/S_PeriodPair_exists_differentiable_toPoint_comp_eq_pointMapOfPushforward_toPoint.lean`
 
 (`anthropics/fermats-last-theorem@aa2d8b3`), regions `:1112–1189` (the covering-map layer,
-which is `private` in the pin), `:1622–1678` (`kw_evalAt_placeOfEquation_mk` and the
+which is `private` in the pin), `:1622–1678` (`evalAt_placeOfEquation_mk` and the
 ℘-differentiability of `evalEval`), `:1903–1925` (`kw_countable_toPointHom_preimage`),
 `:2034–2055` (the finite-kernel bridge), `:2323–2643` (the `geomMorphBC` atoms and the
-whole `KwD5BetweenCurves{Locally,Cocountable,CocountableAffine,CocountableAffineWeak}`
+whole `BetweenCurves{Locally,Cocountable,CocountableAffine,CocountableAffineWeak}`
 chain) and `:2658–2673` (the headline, whose statement authority is the `Theorems/`
 wrapper).
 
@@ -21,9 +21,9 @@ the place dictionary and the `placeOfEquation` algebra from
 `FLTForHuman/Elliptic/PeriodPair/`, the `kw_fdn2_qephod_hend7_*`/`mmr73_cs_*` engine and
 the gate vocabulary from `FLTForHuman/WeierstrassCurve/IsogenyEndDatum/Engine.lean` and
 `FLTForHuman/WeierstrassCurve/Isogeny/NatCard.lean`. In particular
-`ModularCurve.KwD5BetweenCurvesHoloLift` — the seam class — is **imported** from
+`ModularCurve.BetweenCurvesHoloLift` — the seam class — is **imported** from
 `FLTForHuman/WeierstrassCurve/Isogeny/KernelBaseChange.lean` (set D-5), never
-redeclared; this module *proves* it. Likewise `ModularCurve.kw_fdn2_qephod_hend7_geomMorphBC`
+redeclared; this module *proves* it. Likewise `ModularCurve.hend7_geomMorphBC`
 and `…_pmop_eq_geomMorphBC_sub` are the ported (`Isogeny/NatCard.lean`) generalisations
 and are used as such, and `PeriodPair.{toPointHom,toPointHom_apply,ker_toPointHom,
 toPointAddEquiv,toPointAddEquiv_mk,discriminantNeZero}` are the D-5 §1.5 promotions
@@ -42,6 +42,9 @@ and its `maxHeartbeats` bumps are not transcribed (the port's cap is 4,000,000).
 
 Reference (public mirror, pinned):
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_PeriodPair_exists_differentiable_toPoint_comp_eq_pointMapOfPushforward_toPoint.lean>
+
+  spec-pin: Theorems/Thm_PeriodPair_exists_differentiable_toPoint_comp_eq_pointMapOfPushforward_toPoint.lean
+  spec-pin: P2M/Sol/S_PeriodPair_exists_differentiable_toPoint_comp_eq_pointMapOfPushforward_toPoint.lean
 -/
 import FLTForHuman.Elliptic.PeriodPair.Basic
 import FLTForHuman.Elliptic.PeriodPair.Lattice
@@ -172,9 +175,9 @@ namespace WeierstrassCurve.Affine
 
 variable {F : Type*} [Field F] {W : Affine F} [IsDedekindDomain W.CoordinateRing]
 
-/-- Pin `kw_evalAt_placeOfEquation_mk` (`:1622`): evaluating a coordinate-ring element at
+/-- Pin `evalAt_placeOfEquation_mk` (`:1622`): evaluating a coordinate-ring element at
 the place of an equation is `evalEval` at the point. -/
-theorem kw_evalAt_placeOfEquation_mk {r s : F} (hrs : W.Equation r s) (p : Polynomial F[X]) :
+theorem evalAt_placeOfEquation_mk {r s : F} (hrs : W.Equation r s) (p : Polynomial F[X]) :
     (placeOfEquation hrs).evalAt
         (algebraMap W.CoordinateRing W.FunctionField (CoordinateRing.mk W p))
       = p.evalEval r s := by
@@ -249,14 +252,14 @@ variable {E E' : Affine K} [E.IsElliptic] [WeierstrassCurve.Affine.GenusOnePlace
 variable (ι : E'.FunctionField →ₐ[K] E.FunctionField)
 variable (hι : ι.toRingHom.IsIntegral)
 
-local notation "gBC" => kw_fdn2_qephod_hend7_geomMorphBC ι hι
+local notation "gBC" => hend7_geomMorphBC ι hι
 
-/-- Pin `kw_surgehgf4_hH2f_geomMorphBC_ne_zero` (`:2334`). -/
-theorem kw_surgehgf4_hH2f_geomMorphBC_ne_zero (Q : E.Point)
+/-- Pin `geomMorphBC_ne_zero` (`:2334`). -/
+theorem geomMorphBC_ne_zero (Q : E.Point)
     (hx : ι (polyToFunctionField E' X) ∈ (placeOfPoint Q).toValuationSubring) :
     gBC Q ≠ 0 := by
   intro hcon
-  have hseam := kw_fdn2_qephod_hend7_placeOfPoint_geomMorphBC ι hι Q
+  have hseam := hend7_placeOfPoint_geomMorphBC ι hι Q
   rw [hcon, Point.zero_def, placeOfPoint_zero] at hseam
   have hxmem : polyToFunctionField E' X
       ∈ ((placeOfPoint Q).restrictAlong ι hι).toValuationSubring :=
@@ -266,8 +269,8 @@ theorem kw_surgehgf4_hH2f_geomMorphBC_ne_zero (Q : E.Point)
   exact InfinitePlace.not_isFinitePlace (isFinitePlace_of_mem _ hxmem)
 
 open ModularCurve.Mmr73 in
-/-- Pin `kw_surgehgf4_hH2f_geomMorphBC_some_coords` (`:2348`). -/
-theorem kw_surgehgf4_hH2f_geomMorphBC_some_coords (Q : E.Point)
+/-- Pin `geomMorphBC_some_coords` (`:2348`). -/
+theorem geomMorphBC_some_coords (Q : E.Point)
     {a b : K} {hab : E'.Nonsingular a b}
     (hQ : gBC Q = Point.some a b hab)
     (hx : ι (polyToFunctionField E' X) ∈ (placeOfPoint Q).toValuationSubring)
@@ -276,7 +279,7 @@ theorem kw_surgehgf4_hH2f_geomMorphBC_some_coords (Q : E.Point)
       ∧ (placeOfPoint Q).evalAt (ι (yGen E')) = b := by
   have hrat : (placeOfPoint Q).IsRational :=
     (placeOfPoint Q).isRational_of_deg_eq_one (deg_placeOfPoint Q)
-  have hseam := kw_fdn2_qephod_hend7_placeOfPoint_geomMorphBC ι hι Q
+  have hseam := hend7_placeOfPoint_geomMorphBC ι hι Q
   rw [hQ, placeOfPoint_some] at hseam
   have hXsub_eq : polyToFunctionField E' X - algebraMap K E'.FunctionField a
       = algebraMap E'.CoordinateRing E'.FunctionField
@@ -338,8 +341,8 @@ theorem kw_surgehgf4_hH2f_geomMorphBC_some_coords (Q : E.Point)
   exact ⟨mmr73_cs_evalAt_eq_of_ord_sub_pos (placeOfPoint Q) hrat hx hposwX,
     mmr73_cs_evalAt_eq_of_ord_sub_pos (placeOfPoint Q) hrat hy hposwY⟩
 
-/-- Pin `kw_surgehgf4_hH2f_finite_geomMorphBC_preimage` (`:2419`). -/
-theorem kw_surgehgf4_hH2f_finite_geomMorphBC_preimage (t : E'.Point) :
+/-- Pin `finite_geomMorphBC_preimage` (`:2419`). -/
+theorem finite_geomMorphBC_preimage (t : E'.Point) :
     {P : E.Point | gBC P = t}.Finite := by
   have hT : {w : AlgebraicCurve.Place K E.FunctionField |
       w.restrictAlong ι hι = placeOfPoint t}.Finite := by
@@ -349,7 +352,7 @@ theorem kw_surgehgf4_hH2f_finite_geomMorphBC_preimage (t : E'.Point) :
     exact Place.restrict_fiber_finite (placeOfPoint t)
   refine (Set.Finite.preimage (placeOfPoint_injective (W := E)).injOn hT).subset
     fun P hP => ?_
-  exact (kw_fdn2_qephod_hend7_placeOfPoint_geomMorphBC ι hι P).trans
+  exact (hend7_placeOfPoint_geomMorphBC ι hι P).trans
     (congrArg placeOfPoint hP)
 
 end GeomMorphBCAtoms
@@ -357,8 +360,8 @@ end GeomMorphBCAtoms
 /-! ## The finite-kernel bridge
 
 Pin `:2034–2055`: `finrankAlong` is positive, so the kernel of the pushforward is
-finite. The pin's `kw_fdn2_qephod_hend7_pmopKerCard_proved` is the port's
-`KwD5PointMapOfPushforwardKerCard` (`Isogeny/NatCard.lean`), which carries an extra
+finite. The pin's `hend7_pmopKerCard_proved` is the port's
+`PointMapOfPushforwardKerCard` (`Isogeny/NatCard.lean`), which carries an extra
 `hsep`; the general direction is derived here with the same `normFormulaAlong_of_elliptic`
 argument the pin's `IsogenyEndDatum` engine already uses. -/
 
@@ -373,15 +376,15 @@ variable (ι : E'.FunctionField →ₐ[K] E.FunctionField)
 variable (hι : ι.toRingHom.IsIntegral) (hfin : FiniteAlong K ι)
 
 include hfin in
-/-- Pin `kw_fdn2_qephod_hend10_finrankAlong_pos` (`:2042`). -/
-theorem kw_fdn2_qephod_hend10_finrankAlong_pos : 0 < finrankAlong K ι := by
+/-- Pin `hend10_finrankAlong_pos` (`:2042`). -/
+theorem hend10_finrankAlong_pos : 0 < finrankAlong K ι := by
   unfold finrankAlong
   letI := algebraAlong ι
   haveI : Module.Finite E'.FunctionField E.FunctionField := hfin
   exact Module.finrank_pos
 
-/-- Pin `kw_fdn2_qephod_hend10_kerPMOP_finite` (`:2048`). -/
-theorem kw_fdn2_qephod_hend10_kerPMOP_finite :
+/-- Pin `hend10_kerPMOP_finite` (`:2048`). -/
+theorem hend10_kerPMOP_finite :
     Finite ↥(AddMonoidHom.ker
       (pointMapOfPushforward ι hι hfin (normFormulaAlong_of_elliptic ι hfin))) := by
   haveI : HasPrincipalDivisors K E.FunctionField := hasPrincipalDivisors_functionField E
@@ -395,9 +398,9 @@ theorem kw_fdn2_qephod_hend10_kerPMOP_finite :
     show Algebra.IsSeparable E'.FunctionField E.FunctionField
     infer_instance
   refine Nat.finite_of_card_ne_zero ?_
-  rw [ModularCurve.kw_fdn2_qephod_hend7_pmopKerCard_proved K E E' ι hι hfin hsep
+  rw [ModularCurve.hend7_pmopKerCard_proved K E E' ι hι hfin hsep
     (normFormulaAlong_of_elliptic ι hfin)]
-  exact (kw_fdn2_qephod_hend10_finrankAlong_pos ι hfin).ne'
+  exact (hend10_finrankAlong_pos ι hfin).ne'
 
 end Fintype
 
@@ -407,15 +410,15 @@ end ModularCurve
 
 Pin `:1524–2300` and `:2436–2643`. The four `Prop`s of the chain, the reductions
 `Weak → Coords → Cocountable → Locally → HoloLift` (each stated at its pin name), and the
-constructive proof of `Weak`. `ModularCurve.KwD5BetweenCurvesHoloLift` itself is imported
-from `KernelBaseChange.lean`; `kw_surgehgf4_hH2f_betweenCurvesHoloLift` below proves it. -/
+constructive proof of `Weak`. `ModularCurve.BetweenCurvesHoloLift` itself is imported
+from `KernelBaseChange.lean`; `betweenCurvesHoloLift` below proves it. -/
 
 namespace ModularCurve
 
 section Chain
 
-/-- Pin `KwD5BetweenCurvesLocallyHoloLift` (`:1525`). -/
-def KwD5BetweenCurvesLocallyHoloLift : Prop :=
+/-- Pin `BetweenCurvesLocallyHoloLift` (`:1525`). -/
+def BetweenCurvesLocallyHoloLift : Prop :=
   ∀ (L L' : PeriodPair)
     [L.weierstrassCurve.IsElliptic] [WeierstrassCurve.Affine.GenusOnePlaceGate L.weierstrassCurve] [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred L.weierstrassCurve] [WeierstrassCurve.Affine.AbelTheorem L.weierstrassCurve] [L'.weierstrassCurve.IsElliptic] [WeierstrassCurve.Affine.GenusOnePlaceGate L'.weierstrassCurve] [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred L'.weierstrassCurve] [WeierstrassCurve.Affine.AbelTheorem L'.weierstrassCurve]
     (ι'' : L'.weierstrassCurve.toAffine.FunctionField →ₐ[ℂ]
@@ -426,10 +429,10 @@ def KwD5BetweenCurvesLocallyHoloLift : Prop :=
         = (pointMapOfPushforward ι'' hι'' hfin''
             (normFormulaAlong_of_elliptic ι'' hfin'')) (L.toPointHom z)
 
-/-- Pin `kw_surgehgf4_hH2_betweenCurvesHoloLift_of_locallyHolo` (`:1536`). -/
-theorem kw_surgehgf4_hH2_betweenCurvesHoloLift_of_locallyHolo
-    (hH2c : KwD5BetweenCurvesLocallyHoloLift) :
-    KwD5BetweenCurvesHoloLift := by
+/-- Pin `betweenCurvesHoloLift_of_locallyHolo` (`:1536`). -/
+theorem betweenCurvesHoloLift_of_locallyHolo
+    (hH2c : BetweenCurvesLocallyHoloLift) :
+    BetweenCurvesHoloLift := by
   intro L L' _ _ _ _ _ _ _ _ ι'' hι'' hfin''
   set ψ := pointMapOfPushforward ι'' hι'' hfin'' (normFormulaAlong_of_elliptic ι'' hfin'')
     with hψdef
@@ -467,8 +470,8 @@ theorem kw_surgehgf4_hH2_betweenCurvesHoloLift_of_locallyHolo
     intro z
     rw [L'.toPointHom_eq_toPointAddEquiv_mk, hFliftz z, hg, AddEquiv.apply_symm_apply]
 
-/-- Pin `KwD5BetweenCurvesCocountableHoloLift` (`:1953`). -/
-def KwD5BetweenCurvesCocountableHoloLift : Prop :=
+/-- Pin `BetweenCurvesCocountableHoloLift` (`:1953`). -/
+def BetweenCurvesCocountableHoloLift : Prop :=
   ∀ (L L' : PeriodPair)
     [L.weierstrassCurve.IsElliptic] [WeierstrassCurve.Affine.GenusOnePlaceGate L.weierstrassCurve] [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred L.weierstrassCurve] [WeierstrassCurve.Affine.AbelTheorem L.weierstrassCurve] [L'.weierstrassCurve.IsElliptic] [WeierstrassCurve.Affine.GenusOnePlaceGate L'.weierstrassCurve] [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred L'.weierstrassCurve] [WeierstrassCurve.Affine.AbelTheorem L'.weierstrassCurve]
     (ι'' : L'.weierstrassCurve.toAffine.FunctionField →ₐ[ℂ]
@@ -480,10 +483,10 @@ def KwD5BetweenCurvesCocountableHoloLift : Prop :=
         = (pointMapOfPushforward ι'' hι'' hfin''
             (normFormulaAlong_of_elliptic ι'' hfin'')) (L.toPointHom z)
 
-/-- Pin `kw_surgehgf4_hH2c_betweenCurvesLocallyHoloLift_of_cocountable` (`:1965`). -/
-theorem kw_surgehgf4_hH2c_betweenCurvesLocallyHoloLift_of_cocountable
-    (hH2d : KwD5BetweenCurvesCocountableHoloLift) :
-    KwD5BetweenCurvesLocallyHoloLift := by
+/-- Pin `betweenCurvesLocallyHoloLift_of_cocountable` (`:1965`). -/
+theorem betweenCurvesLocallyHoloLift_of_cocountable
+    (hH2d : BetweenCurvesCocountableHoloLift) :
+    BetweenCurvesLocallyHoloLift := by
   intro L L' _ _ _ _ _ _ _ _ ι'' hι'' hfin'' z₀
   obtain ⟨S, hSc, hgen⟩ := hH2d L L' ι'' hι'' hfin''
   obtain ⟨w, hw⟩ : ∃ w, z₀ + w ∉ S := by
@@ -507,15 +510,15 @@ theorem kw_surgehgf4_hH2c_betweenCurvesLocallyHoloLift_of_cocountable
       (normFormulaAlong_of_elliptic ι'' hfin'')),
     ← map_sub L.toPointHom, add_sub_cancel_right]
 
-/-- Pin `kw_surgehgf4_hH2_betweenCurvesHoloLift_of_cocountable` (`:1989`). -/
-theorem kw_surgehgf4_hH2_betweenCurvesHoloLift_of_cocountable
-    (hH2d : KwD5BetweenCurvesCocountableHoloLift) :
-    KwD5BetweenCurvesHoloLift :=
-  kw_surgehgf4_hH2_betweenCurvesHoloLift_of_locallyHolo
-    (kw_surgehgf4_hH2c_betweenCurvesLocallyHoloLift_of_cocountable hH2d)
+/-- Pin `betweenCurvesHoloLift_of_cocountable` (`:1989`). -/
+theorem betweenCurvesHoloLift_of_cocountable
+    (hH2d : BetweenCurvesCocountableHoloLift) :
+    BetweenCurvesHoloLift :=
+  betweenCurvesHoloLift_of_locallyHolo
+    (betweenCurvesLocallyHoloLift_of_cocountable hH2d)
 
-/-- Pin `KwD5BetweenCurvesCocountableAffineHoloCoords` (`:2112`). -/
-def KwD5BetweenCurvesCocountableAffineHoloCoords : Prop :=
+/-- Pin `BetweenCurvesCocountableAffineHoloCoords` (`:2112`). -/
+def BetweenCurvesCocountableAffineHoloCoords : Prop :=
   ∀ (L L' : PeriodPair)
     [L.weierstrassCurve.IsElliptic] [WeierstrassCurve.Affine.GenusOnePlaceGate L.weierstrassCurve] [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred L.weierstrassCurve] [WeierstrassCurve.Affine.AbelTheorem L.weierstrassCurve] [L'.weierstrassCurve.IsElliptic] [WeierstrassCurve.Affine.GenusOnePlaceGate L'.weierstrassCurve] [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred L'.weierstrassCurve] [WeierstrassCurve.Affine.AbelTheorem L'.weierstrassCurve]
     (ι'' : L'.weierstrassCurve.toAffine.FunctionField →ₐ[ℂ]
@@ -529,11 +532,11 @@ def KwD5BetweenCurvesCocountableAffineHoloCoords : Prop :=
             (normFormulaAlong_of_elliptic ι'' hfin'')) (L.toPointHom z)
           = Point.some (X z) (Y z) h
 
-/-- Pin `kw_surgehgf4_hH2d_betweenCurvesCocountableHoloLift_of_affineHoloCoords`
+/-- Pin `betweenCurvesCocountableHoloLift_of_affineHoloCoords`
 (`:2126`). -/
-theorem kw_surgehgf4_hH2d_betweenCurvesCocountableHoloLift_of_affineHoloCoords
-    (hH2e : KwD5BetweenCurvesCocountableAffineHoloCoords) :
-    KwD5BetweenCurvesCocountableHoloLift := by
+theorem betweenCurvesCocountableHoloLift_of_affineHoloCoords
+    (hH2e : BetweenCurvesCocountableAffineHoloCoords) :
+    BetweenCurvesCocountableHoloLift := by
   intro L L' _ _ _ _ _ _ _ _ ι'' hι'' hfin''
   obtain ⟨S, hSc, hgen⟩ := hH2e L L' ι'' hι'' hfin''
   refine ⟨S, hSc, fun z₀ hz₀ => ?_⟩
@@ -607,15 +610,15 @@ theorem kw_surgehgf4_hH2d_betweenCurvesCocountableHoloLift_of_affineHoloCoords
     rw [L'.toPointHom_apply, L'.toPoint_of_notMem _ hGzΛ, hcoordz, Point.some.injEq]
     exact ⟨hPGz, hPGy⟩
 
-/-- Pin `kw_surgehgf4_hH2_betweenCurvesHoloLift_of_affineHoloCoords` (`:2202`). -/
-theorem kw_surgehgf4_hH2_betweenCurvesHoloLift_of_affineHoloCoords
-    (hH2e : KwD5BetweenCurvesCocountableAffineHoloCoords) :
-    KwD5BetweenCurvesHoloLift :=
-  kw_surgehgf4_hH2_betweenCurvesHoloLift_of_cocountable
-    (kw_surgehgf4_hH2d_betweenCurvesCocountableHoloLift_of_affineHoloCoords hH2e)
+/-- Pin `betweenCurvesHoloLift_of_affineHoloCoords` (`:2202`). -/
+theorem betweenCurvesHoloLift_of_affineHoloCoords
+    (hH2e : BetweenCurvesCocountableAffineHoloCoords) :
+    BetweenCurvesHoloLift :=
+  betweenCurvesHoloLift_of_cocountable
+    (betweenCurvesCocountableHoloLift_of_affineHoloCoords hH2e)
 
-/-- Pin `KwD5BetweenCurvesCocountableAffineHoloCoordsWeak` (`:2232`). -/
-def KwD5BetweenCurvesCocountableAffineHoloCoordsWeak : Prop :=
+/-- Pin `BetweenCurvesCocountableAffineHoloCoordsWeak` (`:2232`). -/
+def BetweenCurvesCocountableAffineHoloCoordsWeak : Prop :=
   ∀ (L L' : PeriodPair)
     [L.weierstrassCurve.IsElliptic] [WeierstrassCurve.Affine.GenusOnePlaceGate L.weierstrassCurve] [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred L.weierstrassCurve] [WeierstrassCurve.Affine.AbelTheorem L.weierstrassCurve] [L'.weierstrassCurve.IsElliptic] [WeierstrassCurve.Affine.GenusOnePlaceGate L'.weierstrassCurve] [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred L'.weierstrassCurve] [WeierstrassCurve.Affine.AbelTheorem L'.weierstrassCurve]
     (ι'' : L'.weierstrassCurve.toAffine.FunctionField →ₐ[ℂ]
@@ -628,17 +631,17 @@ def KwD5BetweenCurvesCocountableAffineHoloCoordsWeak : Prop :=
             (normFormulaAlong_of_elliptic ι'' hfin'')) (L.toPointHom z)
           = Point.some (X z) (Y z) h
 
-/-- Pin `kw_surgehgf4_hH2e_betweenCurvesCocountableAffineHoloCoords_of_weak` (`:2245`). -/
-theorem kw_surgehgf4_hH2e_betweenCurvesCocountableAffineHoloCoords_of_weak
-    (hH2f : KwD5BetweenCurvesCocountableAffineHoloCoordsWeak) :
-    KwD5BetweenCurvesCocountableAffineHoloCoords := by
+/-- Pin `betweenCurvesCocountableAffineHoloCoords_of_weak` (`:2245`). -/
+theorem betweenCurvesCocountableAffineHoloCoords_of_weak
+    (hH2f : BetweenCurvesCocountableAffineHoloCoordsWeak) :
+    BetweenCurvesCocountableAffineHoloCoords := by
   intro L L' _ _ _ _ _ _ _ _ ι'' hι'' hfin''
   obtain ⟨S, hSc, hgen⟩ := hH2f L L' ι'' hι'' hfin''
   set K : Set L.weierstrassCurve.toAffine.Point :=
     {P | (pointMapOfPushforward ι'' hι'' hfin''
       (normFormulaAlong_of_elliptic ι'' hfin'')) P = 0} with hKdef
   have hKfin : K.Finite := by
-    have hfin := kw_fdn2_qephod_hend10_kerPMOP_finite
+    have hfin := hend10_kerPMOP_finite
       (K := ℂ) (E := L.weierstrassCurve.toAffine) (E' := L'.weierstrassCurve.toAffine)
       ι'' hι'' hfin''
     have heq : K = ((AddMonoidHom.ker (pointMapOfPushforward ι'' hι'' hfin''
@@ -674,24 +677,24 @@ theorem kw_surgehgf4_hH2e_betweenCurvesCocountableAffineHoloCoords_of_weak
   obtain ⟨hns, hc⟩ := hcoord z hz.1
   exact ⟨hz.2, hns, hc⟩
 
-/-- Pin `kw_surgehgf4_hH2_betweenCurvesHoloLift_of_affineHoloCoordsWeak` (`:2290`). -/
-theorem kw_surgehgf4_hH2_betweenCurvesHoloLift_of_affineHoloCoordsWeak
-    (hH2f : KwD5BetweenCurvesCocountableAffineHoloCoordsWeak) :
-    KwD5BetweenCurvesHoloLift :=
-  kw_surgehgf4_hH2_betweenCurvesHoloLift_of_affineHoloCoords
-    (kw_surgehgf4_hH2e_betweenCurvesCocountableAffineHoloCoords_of_weak hH2f)
+/-- Pin `betweenCurvesHoloLift_of_affineHoloCoordsWeak` (`:2290`). -/
+theorem betweenCurvesHoloLift_of_affineHoloCoordsWeak
+    (hH2f : BetweenCurvesCocountableAffineHoloCoordsWeak) :
+    BetweenCurvesHoloLift :=
+  betweenCurvesHoloLift_of_affineHoloCoords
+    (betweenCurvesCocountableAffineHoloCoords_of_weak hH2f)
 
 open WeierstrassCurve.Affine.CoordinateRing in
-/-- Pin `kw_surgehgf4_hH2f_betweenCurvesCocountableAffineHoloCoordsWeak` (`:2436`): the
+/-- Pin `betweenCurvesCocountableAffineHoloCoordsWeak` (`:2436`): the
 constructive base of the chain. -/
-theorem kw_surgehgf4_hH2f_betweenCurvesCocountableAffineHoloCoordsWeak :
-    KwD5BetweenCurvesCocountableAffineHoloCoordsWeak := by
+theorem betweenCurvesCocountableAffineHoloCoordsWeak :
+    BetweenCurvesCocountableAffineHoloCoordsWeak := by
   intro L L' _ _ _ _ _ _ _ _ ι'' hι'' hfin''
   let W := L.weierstrassCurve.toAffine
   let W' := L'.weierstrassCurve.toAffine
   set ξ := ι'' (polyToFunctionField W' X) with hξdef
   set η := ι'' (yGen W') with hηdef
-  set c₀ := kw_fdn2_qephod_hend7_geomMorphBC ι'' hι'' 0 with hc₀def
+  set c₀ := hend7_geomMorphBC ι'' hι'' 0 with hc₀def
   obtain ⟨pξ, qξ, hqξ, hξeq⟩ := IsFractionRing.div_surjective (A := W.CoordinateRing) ξ
   obtain ⟨pη, qη, hqη, hηeq⟩ := IsFractionRing.div_surjective (A := W.CoordinateRing) η
   obtain ⟨pξ', rfl⟩ := AdjoinRoot.mk_surjective pξ
@@ -712,11 +715,11 @@ theorem kw_surgehgf4_hH2f_betweenCurvesCocountableAffineHoloCoordsWeak :
     exact Df.support.finite_toSet.subset fun v hv => Finsupp.mem_support_iff.mpr (hDf v ▸ hv)
   have hTq_fin : Tq.Finite := Set.Finite.preimage placeOfPoint_injective.injOn
     ((hfin_ord hqξ0).union (hfin_ord hqη0))
-  set Tc : Set W.Point := {P | kw_fdn2_qephod_hend7_geomMorphBC ι'' hι'' P = c₀}
-    ∪ {P | kw_fdn2_qephod_hend7_geomMorphBC ι'' hι'' P = -c₀}
+  set Tc : Set W.Point := {P | hend7_geomMorphBC ι'' hι'' P = c₀}
+    ∪ {P | hend7_geomMorphBC ι'' hι'' P = -c₀}
   have hTc_fin : Tc.Finite :=
-    (kw_surgehgf4_hH2f_finite_geomMorphBC_preimage ι'' hι'' c₀).union
-      (kw_surgehgf4_hH2f_finite_geomMorphBC_preimage ι'' hι'' (-c₀))
+    (finite_geomMorphBC_preimage ι'' hι'' c₀).union
+      (finite_geomMorphBC_preimage ι'' hι'' (-c₀))
   set S : Set ℂ := (L.lattice : Set ℂ) ∪ L.toPointHom ⁻¹' (Tq ∪ Tc) with hSdef
   have hSc : S.Countable := L.countable_lattice.union
     (L.countable_toPointHom_preimage (hTq_fin.union hTc_fin))
@@ -744,7 +747,7 @@ theorem kw_surgehgf4_hH2f_betweenCurvesCocountableAffineHoloCoordsWeak :
     ((L.differentiableOn_evalEval_wp pη').mono hU₁Λ).div
       ((L.differentiableOn_evalEval_wp qη').mono hU₁Λ) fun z hz => hz.2.2
   have hgeom : ∀ z ∈ U₁, ∃ hns : W'.Nonsingular (A z) (B z),
-      kw_fdn2_qephod_hend7_geomMorphBC ι'' hι'' (L.toPointHom z)
+      hend7_geomMorphBC ι'' hι'' (L.toPointHom z)
         = Point.some (A z) (B z) hns := by
     intro z hz
     have hzΛ : z ∉ L.lattice := hU₁Λ hz
@@ -787,17 +790,17 @@ theorem kw_surgehgf4_hH2f_betweenCurvesCocountableAffineHoloCoordsWeak :
       refine (placeOfEquation hrs).mem_of_ord_nonneg hηne ?_
       rw [← hηeq, (placeOfEquation hrs).ord_div hpη0 hqη0, hordqη, sub_zero]
       exact ord_placeOfEquation_nonneg hrs _
-    have hgm_ne : kw_fdn2_qephod_hend7_geomMorphBC ι'' hι'' (L.toPointHom z) ≠ 0 :=
-      kw_surgehgf4_hH2f_geomMorphBC_ne_zero ι'' hι'' _ (hplace ▸ hξmem)
+    have hgm_ne : hend7_geomMorphBC ι'' hι'' (L.toPointHom z) ≠ 0 :=
+      geomMorphBC_ne_zero ι'' hι'' _ (hplace ▸ hξmem)
     obtain ⟨a, b, hab, hgm_eq⟩ : ∃ a b hab,
-        kw_fdn2_qephod_hend7_geomMorphBC ι'' hι'' (L.toPointHom z)
+        hend7_geomMorphBC ι'' hι'' (L.toPointHom z)
           = Point.some a b hab := by
-      rcases hP : kw_fdn2_qephod_hend7_geomMorphBC ι'' hι'' (L.toPointHom z) with
+      rcases hP : hend7_geomMorphBC ι'' hι'' (L.toPointHom z) with
         _ | ⟨a, b, hab⟩
       · exact absurd hP hgm_ne
       · exact ⟨a, b, hab, rfl⟩
     have hrat := isRational_placeOfEquation hrs
-    obtain ⟨ha, hb⟩ := kw_surgehgf4_hH2f_geomMorphBC_some_coords ι'' hι'' _ hgm_eq
+    obtain ⟨ha, hb⟩ := geomMorphBC_some_coords ι'' hι'' _ hgm_eq
       (hplace ▸ hξmem) (hplace ▸ hηmem)
     rw [hplace, ← hξdef] at ha
     rw [hplace, ← hηdef] at hb
@@ -805,12 +808,12 @@ theorem kw_surgehgf4_hH2f_betweenCurvesCocountableAffineHoloCoordsWeak :
       simp only [hAdef]
       rw [← ha, ← hξeq, (placeOfEquation hrs).evalAt_div' hrat
           (isFinitePlace_placeOfEquation hrs _) hqξ0 hordqξ,
-        kw_evalAt_placeOfEquation_mk hrs pξ', kw_evalAt_placeOfEquation_mk hrs qξ']
+        evalAt_placeOfEquation_mk hrs pξ', evalAt_placeOfEquation_mk hrs qξ']
     have hBz : B z = b := by
       simp only [hBdef]
       rw [← hb, ← hηeq, (placeOfEquation hrs).evalAt_div' hrat
           (isFinitePlace_placeOfEquation hrs _) hqη0 hordqη,
-        kw_evalAt_placeOfEquation_mk hrs pη', kw_evalAt_placeOfEquation_mk hrs qη']
+        evalAt_placeOfEquation_mk hrs pη', evalAt_placeOfEquation_mk hrs qη']
     obtain ⟨rfl, rfl⟩ : a = A z ∧ b = B z := ⟨hAz.symm, hBz.symm⟩
     exact ⟨hab, hgm_eq⟩
   have hplace₀ : placeOfPoint (W := W) (L.toPointHom z₀)
@@ -834,7 +837,7 @@ theorem kw_surgehgf4_hH2f_betweenCurvesCocountableAffineHoloCoordsWeak :
     refine ⟨U₁, hU₁nhds, A, B, hAd, hBd, fun z hz => ?_⟩
     obtain ⟨hns, heq⟩ := hgeom z hz
     refine ⟨hns, ?_⟩
-    rw [kw_fdn2_qephod_hend7_pmop_eq_geomMorphBC_sub ι'' hι'' hfin''
+    rw [hend7_pmop_eq_geomMorphBC_sub ι'' hι'' hfin''
         (normFormulaAlong_of_elliptic ι'' hfin''), ← hc₀def, hc₀cases,
       ← Point.zero_def, sub_zero, heq]
   ·
@@ -884,17 +887,17 @@ theorem kw_surgehgf4_hH2f_betweenCurvesCocountableAffineHoloCoordsWeak :
           (normFormulaAlong_of_elliptic ι'' hfin'') (L.toPointHom z)
         = Point.some (A z) (B z) hns + Point.some x₀ (W'.negY x₀ y₀)
             ((nonsingular_neg ..).mpr h₀) := by
-      rw [kw_fdn2_qephod_hend7_pmop_eq_geomMorphBC_sub ι'' hι'' hfin''
+      rw [hend7_pmop_eq_geomMorphBC_sub ι'' hι'' hfin''
           (normFormulaAlong_of_elliptic ι'' hfin''), ← hc₀def,
         hc₀cases, heq, sub_eq_add_neg, Point.neg_some]
     rw [hpeq, Point.add_of_X_ne hXne]
     exact ⟨_, rfl⟩
 
-/-- Pin `kw_surgehgf4_hH2f_betweenCurvesHoloLift` (`:2640`): the seam class, proved. -/
-theorem kw_surgehgf4_hH2f_betweenCurvesHoloLift :
-    KwD5BetweenCurvesHoloLift :=
-  kw_surgehgf4_hH2_betweenCurvesHoloLift_of_affineHoloCoordsWeak
-    kw_surgehgf4_hH2f_betweenCurvesCocountableAffineHoloCoordsWeak
+/-- Pin `betweenCurvesHoloLift` (`:2640`): the seam class, proved. -/
+theorem betweenCurvesHoloLift :
+    BetweenCurvesHoloLift :=
+  betweenCurvesHoloLift_of_affineHoloCoordsWeak
+    betweenCurvesCocountableAffineHoloCoordsWeak
 
 end Chain
 
@@ -902,7 +905,7 @@ end ModularCurve
 
 /-! ## The headline
 
-Pin `:2658`; the binders are the `Theorems/` wrapper's verbatim. `KwD5BetweenCurvesHoloLift`
+Pin `:2658`; the binders are the `Theorems/` wrapper's verbatim. `BetweenCurvesHoloLift`
 is stated with `toPointHom`; the two occurrences are rewritten to `toPoint` by the ported
 `PeriodPair.toPointHom_apply`, and the `hN` argument is passed through (both are `Prop`
 proofs, so the `normFormulaAlong_of_elliptic` the chain uses is definitionally the same). -/
@@ -920,7 +923,7 @@ theorem exists_differentiable_toPoint_comp_eq_pointMapOfPushforward_toPoint
     (hι : ι.toRingHom.IsIntegral) (hfin : FiniteAlong ℂ ι) (hN : NormFormulaAlong ℂ ι hfin) :
     ∃ F : ℂ → ℂ, Differentiable ℂ F ∧ F 0 ∈ L'.lattice ∧
       ∀ z : ℂ, L'.toPoint hL' (F z) = pointMapOfPushforward ι hι hfin hN (L.toPoint hL z) := by
-  obtain ⟨F, hF, hF0, hFz⟩ := ModularCurve.kw_surgehgf4_hH2f_betweenCurvesHoloLift L L' ι hι hfin
+  obtain ⟨F, hF, hF0, hFz⟩ := ModularCurve.betweenCurvesHoloLift L L' ι hι hfin
   refine ⟨F, hF, hF0, fun z => ?_⟩
   have h := hFz z
   rw [PeriodPair.toPointHom_apply, PeriodPair.toPointHom_apply] at h

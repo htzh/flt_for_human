@@ -198,7 +198,7 @@ example (K : Type) [Field K] [NumberField K] (φ : GL (Fin 2) (AdeleRing (𝓞 K
     rightConv K φ (fun _ => 0) = fun _ => 0 :=
   rightConv_zero_right K φ
 
--- Zone D5: automorphic / smooth automorphic functions.
+-- Zone : automorphic / smooth automorphic functions.
 example (F : Type) [Field F] [NumberField F] (pins : CarrierPins F) (ξ : pins.Z →* ℂˣ) :
     IsAutomorphicFnAt F pins ξ (fun _ => (0 : ℂ)) :=
   isAutomorphicFnAt_zero F pins ξ

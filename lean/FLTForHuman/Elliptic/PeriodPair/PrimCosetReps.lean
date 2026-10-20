@@ -24,8 +24,8 @@
   `G_scale` / `discriminant_scale` / `*_eq_of_lattice_eq` prelude is the port's
   `Elliptic/PeriodPair/{Basic,Lattice}.lean`; the `toPointHom`/uniformization
   dictionary is `Uniformization.lean`; and the two shared lemmas
-  `ModularCurve.kw_scale_lattice_toAddSubgroup` and
-  `ModularCurve.kwSublatticeIndex_scale` are S-2's `LatticeIndex.lean` (imported,
+  `ModularCurve.scale_lattice_toAddSubgroup` and
+  `ModularCurve.sublatticeIndex_scale` are S-2's `LatticeIndex.lean` (imported,
   never redeclared).  The generic `ℤ²` block is
   `FLTForHuman/Algebra/IntPairSubgroup.lean` (this set's other module); the
   primitive-coset API is `ModularCurve/Defs/PrimCosetReps.lean`.
@@ -45,6 +45,10 @@
 
   **Namespaces.**  The generic `ℤ²` block goes to `IntPairSubgroup`; the transport,
   criterion and headline keep the pin's `ModularCurve` / `PeriodPair` namespaces.
+
+  spec-pin: Theorems/Thm_PeriodPair_exists_mem_primCosetReps_and_jLattice_eq_of_isAddCyclic.lean
+  spec-pin: P2M/Sol/S_PeriodPair_exists_mem_primCosetReps_and_jLattice_eq_of_isAddCyclic.lean
+  spec-pin: P2M/Sol/S_WeierstrassCurve_Affine_isAddCyclic_ker_pointMapOfPushforward_of_algEquiv_conj.lean
 -/
 import FLTForHuman.Elliptic.PeriodPair.Basic
 import FLTForHuman.Elliptic.PeriodPair.Lattice
@@ -159,9 +163,9 @@ namespace ModularCurve
 
 /-! ## Transport: normalising to `ofTau`, and moving the hypotheses -/
 
-/-- Pin `ModularCurve.kw_scale_lattice_subset`: rescaling preserves an inclusion of
+/-- Pin `ModularCurve.scale_lattice_subset`: rescaling preserves an inclusion of
 lattices. -/
-theorem kw_scale_lattice_subset (L L' : PeriodPair) (α : ℂˣ)
+theorem scale_lattice_subset (L L' : PeriodPair) (α : ℂˣ)
     (h : (L'.lattice : Set ℂ) ⊆ L.lattice) :
     ((L'.scale α).lattice : Set ℂ) ⊆ (L.scale α).lattice := by
   intro z hz
@@ -171,9 +175,9 @@ theorem kw_scale_lattice_subset (L L' : PeriodPair) (α : ℂˣ)
   obtain ⟨l, hl, rfl⟩ := hz
   exact ⟨l, h hl, rfl⟩
 
-/-- Pin `ModularCurve.kw_exists_scale_ofTau_lattice_eq`: every period pair is a
+/-- Pin `ModularCurve.exists_scale_ofTau_lattice_eq`: every period pair is a
 rescaled `ofTau`. -/
-theorem kw_exists_scale_ofTau_lattice_eq (L : PeriodPair) :
+theorem exists_scale_ofTau_lattice_eq (L : PeriodPair) :
     ∃ (α : ℂˣ) (τ : ℍ), (L.scale α).lattice = (ofTau τ).lattice := by
   have hω₂ : L.ω₂ ≠ 0 := by have := L.indep.ne_zero 1; simpa using this
   set α : ℂˣ := (Units.mk0 L.ω₂ hω₂)⁻¹
@@ -185,7 +189,7 @@ theorem kw_exists_scale_ofTau_lattice_eq (L : PeriodPair) :
       hlat.trans (PeriodPair.span_neg_fst _ _).symm⟩
   · exact ⟨α, ⟨L.ω₁ / L.ω₂, hpos⟩, hlat⟩
 
-/-! ## `kw_phiTau` and the `ℤ²` model `kw_HZZ` -/
+/-! ## `phiTau` and the `ℤ²` model `sublatticeCoords` -/
 
 section PhiTau
 
@@ -194,20 +198,20 @@ private theorem ofTau_latticeEquivProd_symm_apply (τ : ℍ) (p : ℤ × ℤ) :
     ((ofTau τ).latticeEquivProd.symm p : ℂ) = p.1 * (τ : ℂ) + p.2 := by
   rw [latticeEquiv_symm_apply]; simp
 
-/-- Pin `ModularCurve.kw_phiTau`: the coordinates of `ofTau τ` as an additive map. -/
-def kw_phiTau (τ : ℍ) : ℤ × ℤ →+ ℂ :=
+/-- Pin `ModularCurve.phiTau`: the coordinates of `ofTau τ` as an additive map. -/
+def phiTau (τ : ℍ) : ℤ × ℤ →+ ℂ :=
   ((ofTau τ).lattice.subtype.toAddMonoidHom).comp
     (ofTau τ).latticeEquivProd.symm.toLinearMap.toAddMonoidHom
 
-/-- Pin `ModularCurve.kw_phiTau_apply`. -/
-theorem kw_phiTau_apply (τ : ℍ) (p : ℤ × ℤ) :
-    kw_phiTau τ p = (p.1 : ℂ) * (τ : ℂ) + (p.2 : ℂ) := by
+/-- Pin `ModularCurve.phiTau_apply`. -/
+theorem phiTau_apply (τ : ℍ) (p : ℤ × ℤ) :
+    phiTau τ p = (p.1 : ℂ) * (τ : ℂ) + (p.2 : ℂ) := by
   change ((ofTau τ).latticeEquivProd.symm p : ℂ) = _
   exact_mod_cast ofTau_latticeEquivProd_symm_apply τ p
 
-/-- Pin `ModularCurve.kw_phiTau_range`. -/
-theorem kw_phiTau_range (τ : ℍ) :
-    (kw_phiTau τ).range = (ofTau τ).lattice.toAddSubgroup := by
+/-- Pin `ModularCurve.phiTau_range`. -/
+theorem phiTau_range (τ : ℍ) :
+    (phiTau τ).range = (ofTau τ).lattice.toAddSubgroup := by
   ext z
   simp only [AddMonoidHom.mem_range, Submodule.mem_toAddSubgroup]
   refine ⟨?_, fun hz => ⟨(ofTau τ).latticeEquivProd ⟨z, hz⟩, ?_⟩⟩
@@ -215,43 +219,43 @@ theorem kw_phiTau_range (τ : ℍ) :
   · change ((ofTau τ).latticeEquivProd.symm ((ofTau τ).latticeEquivProd ⟨z, hz⟩) : ℂ) = z
     rw [LinearEquiv.symm_apply_apply]
 
-/-- Pin `ModularCurve.kw_HZZ`: the sublattice `L'` read in the `ℤ²` coordinates of
+/-- Pin `ModularCurve.sublatticeCoords`: the sublattice `L'` read in the `ℤ²` coordinates of
 `ofTau τ`. -/
-def kw_HZZ (τ : ℍ) (L' : PeriodPair) : AddSubgroup (ℤ × ℤ) :=
-  L'.lattice.toAddSubgroup.comap (kw_phiTau τ)
+def sublatticeCoords (τ : ℍ) (L' : PeriodPair) : AddSubgroup (ℤ × ℤ) :=
+  L'.lattice.toAddSubgroup.comap (phiTau τ)
 
-/-- Pin `ModularCurve.kw_HZZ_index`. -/
-theorem kw_HZZ_index (τ : ℍ) (L' : PeriodPair) :
-    (kw_HZZ τ L').index = PeriodPair.sublatticeIndex (ofTau τ) L' := by
-  rw [kw_HZZ, AddSubgroup.index_comap, kw_phiTau_range]
+/-- Pin `ModularCurve.sublatticeCoords_index`. -/
+theorem sublatticeCoords_index (τ : ℍ) (L' : PeriodPair) :
+    (sublatticeCoords τ L').index = PeriodPair.sublatticeIndex (ofTau τ) L' := by
+  rw [sublatticeCoords, AddSubgroup.index_comap, phiTau_range]
   rfl
 
-/-- Pin `ModularCurve.kw_HZZ_map_eq`. -/
-theorem kw_HZZ_map_eq (τ : ℍ) (L' : PeriodPair)
+/-- Pin `ModularCurve.sublatticeCoords_map_eq`. -/
+theorem sublatticeCoords_map_eq (τ : ℍ) (L' : PeriodPair)
     (hsub : (L'.lattice : Set ℂ) ⊆ (ofTau τ).lattice) :
-    (kw_HZZ τ L').map (kw_phiTau τ) = L'.lattice.toAddSubgroup := by
-  rw [kw_HZZ, AddSubgroup.map_comap_eq_self]
-  rw [kw_phiTau_range]
+    (sublatticeCoords τ L').map (phiTau τ) = L'.lattice.toAddSubgroup := by
+  rw [sublatticeCoords, AddSubgroup.map_comap_eq_self]
+  rw [phiTau_range]
   exact fun z hz => hsub hz
 
-/-- Pin `ModularCurve.kw_sublattice_eq_span`: `L'` is spanned by the HNF triple of
-`kw_HZZ τ L'`, transported back through `kw_phiTau`. -/
-theorem kw_sublattice_eq_span (τ : ℍ) (L' : PeriodPair)
+/-- Pin `ModularCurve.sublattice_eq_span`: `L'` is spanned by the HNF triple of
+`sublatticeCoords τ L'`, transported back through `phiTau`. -/
+theorem sublattice_eq_span (τ : ℍ) (L' : PeriodPair)
     (hsub : (L'.lattice : Set ℂ) ⊆ (ofTau τ).lattice) :
     L'.lattice = Submodule.span ℤ
-      {(aOf (kw_HZZ τ L') : ℂ) * (τ : ℂ) + (bOf (kw_HZZ τ L') : ℂ),
-       (dOf (kw_HZZ τ L') : ℂ)} := by
+      {(aOf (sublatticeCoords τ L') : ℂ) * (τ : ℂ) + (bOf (sublatticeCoords τ L') : ℂ),
+       (dOf (sublatticeCoords τ L') : ℂ)} := by
   apply Submodule.toAddSubgroup_injective
-  rw [Submodule.span_int_eq_addSubgroupClosure, ← kw_HZZ_map_eq τ L' hsub]
-  conv_lhs => rw [← latticeOf_canonical_eq (kw_HZZ τ L')]
+  rw [Submodule.span_int_eq_addSubgroupClosure, ← sublatticeCoords_map_eq τ L' hsub]
+  conv_lhs => rw [← latticeOf_canonical_eq (sublatticeCoords τ L')]
   rw [latticeOf, AddMonoidHom.map_closure, Set.image_pair,
-    kw_phiTau_apply, kw_phiTau_apply]
+    phiTau_apply, phiTau_apply]
   push_cast
   ring_nf
 
-/-- Pin `ModularCurve.kw_hnfPoint`: the point `(a τ + b) / d` of the upper half
+/-- Pin `ModularCurve.hnfPoint`: the point `(a τ + b) / d` of the upper half
 plane. -/
-def kw_hnfPoint (τ : ℍ) (a : ℕ) (b : ℤ) (d : ℕ) (ha : 0 < a) (hd : 0 < d) : ℍ :=
+def hnfPoint (τ : ℍ) (a : ℕ) (b : ℤ) (d : ℕ) (ha : 0 < a) (hd : 0 < d) : ℍ :=
   ⟨((a : ℂ) * (τ : ℂ) + (b : ℂ)) / (d : ℂ), by
     have him : ((a : ℂ) * (τ : ℂ) + (b : ℂ)).im = (a : ℝ) * τ.im := by simp
     have haτ : (0 : ℝ) < (a : ℝ) * τ.im := mul_pos (by exact_mod_cast ha) τ.im_pos
@@ -260,20 +264,20 @@ def kw_hnfPoint (τ : ℍ) (a : ℕ) (b : ℤ) (d : ℕ) (ha : 0 < a) (hd : 0 < 
       Complex.natCast_re, Complex.normSq_natCast]
     positivity⟩
 
-/-- Pin `ModularCurve.kw_hnfPoint_coe`. -/
-@[scoped simp] theorem kw_hnfPoint_coe (τ : ℍ) (a : ℕ) (b : ℤ) (d : ℕ) (ha : 0 < a)
+/-- Pin `ModularCurve.hnfPoint_coe`. -/
+@[scoped simp] theorem hnfPoint_coe (τ : ℍ) (a : ℕ) (b : ℤ) (d : ℕ) (ha : 0 < a)
     (hd : 0 < d) :
-    (kw_hnfPoint τ a b d ha hd : ℂ) = ((a : ℂ) * (τ : ℂ) + (b : ℂ)) / (d : ℂ) := rfl
+    (hnfPoint τ a b d ha hd : ℂ) = ((a : ℂ) * (τ : ℂ) + (b : ℂ)) / (d : ℂ) := rfl
 
-/-- Pin `ModularCurve.kw_hnfPoint_scale_lattice`. -/
-theorem kw_hnfPoint_scale_lattice (τ : ℍ) (a : ℕ) (b : ℤ) (d : ℕ)
+/-- Pin `ModularCurve.hnfPoint_scale_lattice`. -/
+theorem hnfPoint_scale_lattice (τ : ℍ) (a : ℕ) (b : ℤ) (d : ℕ)
     (ha : 0 < a) (hd : 0 < d) :
-    ((ofTau (kw_hnfPoint τ a b d ha hd)).scale
+    ((ofTau (hnfPoint τ a b d ha hd)).scale
       (Units.mk0 (d : ℂ) (Nat.cast_ne_zero.mpr hd.ne'))).lattice
       = Submodule.span ℤ {(a : ℂ) * (τ : ℂ) + (b : ℂ), (d : ℂ)} := by
   have hd' : (d : ℂ) ≠ 0 := Nat.cast_ne_zero.mpr hd.ne'
   simp only [lattice, scale_ω₁, scale_ω₂, ofTau_ω₁, ofTau_ω₂, Units.val_mk0,
-    kw_hnfPoint_coe, mul_div_cancel₀ _ hd', mul_one]
+    hnfPoint_coe, mul_div_cancel₀ _ hd', mul_one]
 
 end PhiTau
 
@@ -283,9 +287,9 @@ section Criterion
 
 set_option maxHeartbeats 4000000
 
-/-- Pin `ModularCurve.kw_surgehgf4_hu5c_not_isAddCyclic_zmod_prod`: for `p > 1`,
+/-- Pin `ModularCurve.not_isAddCyclic_zmod_prod`: for `p > 1`,
 `ZMod p × ZMod p` is not cyclic. -/
-theorem kw_surgehgf4_hu5c_not_isAddCyclic_zmod_prod {p : ℕ} (hp : 1 < p) :
+theorem not_isAddCyclic_zmod_prod {p : ℕ} (hp : 1 < p) :
     ¬ IsAddCyclic (ZMod p × ZMod p) := by
   rintro ⟨⟨g, hg⟩⟩
   haveI : NeZero p := ⟨by omega⟩
@@ -304,9 +308,9 @@ theorem kw_surgehgf4_hu5c_not_isAddCyclic_zmod_prod {p : ℕ} (hp : 1 < p) :
   have : p * p ≤ p := hcard ▸ hspan ▸ Nat.le_of_dvd (by omega) hord
   nlinarith
 
-/-- Pin `ModularCurve.kw_surgehgf4_hu5c_gcd_eq_one_of_isAddCyclic`: a cyclic quotient
+/-- Pin `ModularCurve.gcd_eq_one_of_isAddCyclic`: a cyclic quotient
 of `ℤ × ℤ` forces the HNF triple to be primitive. -/
-theorem kw_surgehgf4_hu5c_gcd_eq_one_of_isAddCyclic
+theorem gcd_eq_one_of_isAddCyclic
     {H : AddSubgroup (ℤ × ℤ)} (hN : H.index ≠ 0)
     (hcyc : IsAddCyclic ((ℤ × ℤ) ⧸ H)) :
     Nat.gcd (aOf H) (Nat.gcd (bOf H).toNat (dOf H)) = 1 := by
@@ -356,100 +360,100 @@ theorem kw_surgehgf4_hu5c_gcd_eq_one_of_isAddCyclic
     exact ⟨⟨_, fun y => by
       obtain ⟨x, hx⟩ := hqsurj y; obtain ⟨k, hk⟩ := hg x
       exact ⟨k, by rw [← hx, ← hk, map_zsmul]⟩⟩⟩
-  exact kw_surgehgf4_hu5c_not_isAddCyclic_zmod_prod hp.one_lt this
+  exact not_isAddCyclic_zmod_prod hp.one_lt this
 
 end Criterion
 
-/-! ## `KwSublatticeQuotientZZTransport` and the `qtzz_*` block -/
+/-! ## `SublatticeQuotientZZTransport` and the `qtzz_*` block -/
 
-/-- Pin `ModularCurve.KwSublatticeQuotientZZTransport`: cyclicity of
-`sublatticeQuotient L L'` transports to the `ℤ²`-quotient `(ℤ × ℤ) ⧸ kw_HZZ τ (L'.scale α)`
+/-- Pin `ModularCurve.SublatticeQuotientZZTransport`: cyclicity of
+`sublatticeQuotient L L'` transports to the `ℤ²`-quotient `(ℤ × ℤ) ⧸ sublatticeCoords τ (L'.scale α)`
 along any scaled `ofTau` model of `L`. -/
-def KwSublatticeQuotientZZTransport : Prop :=
+def SublatticeQuotientZZTransport : Prop :=
   ∀ (L L' : PeriodPair), (L'.lattice : Set ℂ) ⊆ L.lattice →
     ∀ (α : ℂˣ) (τ : ℍ), (L.scale α).lattice = (ofTau τ).lattice →
       IsAddCyclic (PeriodPair.sublatticeQuotient L L') →
-        IsAddCyclic ((ℤ × ℤ) ⧸ kw_HZZ τ (L'.scale α))
+        IsAddCyclic ((ℤ × ℤ) ⧸ sublatticeCoords τ (L'.scale α))
 
 section Psi
 
 variable (L L' : PeriodPair) (α : ℂˣ) (τ : ℍ)
 
-/-- Pin `ModularCurve.kw_surgehgf4_qtzz_phiTau_mem_scale`. -/
-theorem kw_surgehgf4_qtzz_phiTau_mem_scale
+/-- Pin `ModularCurve.phiTau_mem_scale`. -/
+theorem phiTau_mem_scale
     (hlat : (L.scale α).lattice = (ofTau τ).lattice) (p : ℤ × ℤ) :
-    kw_phiTau τ p ∈ (L.scale α).lattice := by
-  have h : kw_phiTau τ p ∈ (ofTau τ).lattice.toAddSubgroup := by
-    rw [← kw_phiTau_range τ]; exact ⟨p, rfl⟩
+    phiTau τ p ∈ (L.scale α).lattice := by
+  have h : phiTau τ p ∈ (ofTau τ).lattice.toAddSubgroup := by
+    rw [← phiTau_range τ]; exact ⟨p, rfl⟩
   exact hlat ▸ h
 
-/-- Pin `ModularCurve.kw_surgehgf4_qtzz_phiTau_invMul_mem`. -/
-theorem kw_surgehgf4_qtzz_phiTau_invMul_mem
+/-- Pin `ModularCurve.phiTau_invMul_mem`. -/
+theorem phiTau_invMul_mem
     (hlat : (L.scale α).lattice = (ofTau τ).lattice) (p : ℤ × ℤ) :
-    ((α : ℂ)⁻¹ * kw_phiTau τ p) ∈ L.lattice := by
+    ((α : ℂ)⁻¹ * phiTau τ p) ∈ L.lattice := by
   obtain ⟨l, hl, hlp⟩ := (PeriodPair.mem_scale_lattice_iff L α).mp
-    (kw_surgehgf4_qtzz_phiTau_mem_scale L α τ hlat p)
+    (phiTau_mem_scale L α τ hlat p)
   rw [hlp, inv_mul_cancel_left₀ α.ne_zero]
   exact hl
 
-/-- Pin `ModularCurve.kw_surgehgf4_qtzz_psi₀`: `ℤ² → L.lattice`, `p ↦ α⁻¹ (phiTau p)`. -/
-def kw_surgehgf4_qtzz_psi₀ (hlat : (L.scale α).lattice = (ofTau τ).lattice) :
+/-- Pin `ModularCurve.psi₀`: `ℤ² → L.lattice`, `p ↦ α⁻¹ (phiTau p)`. -/
+def psi₀ (hlat : (L.scale α).lattice = (ofTau τ).lattice) :
     (ℤ × ℤ) →+ ↥L.lattice.toAddSubgroup where
-  toFun p := ⟨(α : ℂ)⁻¹ * kw_phiTau τ p,
-    kw_surgehgf4_qtzz_phiTau_invMul_mem L α τ hlat p⟩
+  toFun p := ⟨(α : ℂ)⁻¹ * phiTau τ p,
+    phiTau_invMul_mem L α τ hlat p⟩
   map_zero' := Subtype.ext (by simp)
   map_add' p q := Subtype.ext (by simp [mul_add])
 
-/-- Pin `ModularCurve.kw_surgehgf4_qtzz_psi₀_apply`. -/
-theorem kw_surgehgf4_qtzz_psi₀_apply
+/-- Pin `ModularCurve.psi₀_apply`. -/
+theorem psi₀_apply
     (hlat : (L.scale α).lattice = (ofTau τ).lattice) (p : ℤ × ℤ) :
-    ((kw_surgehgf4_qtzz_psi₀ L α τ hlat p : ↥L.lattice.toAddSubgroup) : ℂ)
-      = (α : ℂ)⁻¹ * kw_phiTau τ p := rfl
+    ((psi₀ L α τ hlat p : ↥L.lattice.toAddSubgroup) : ℂ)
+      = (α : ℂ)⁻¹ * phiTau τ p := rfl
 
-/-- Pin `ModularCurve.kw_surgehgf4_qtzz_psi`: `ℤ² → sublatticeQuotient L L'`. -/
-def kw_surgehgf4_qtzz_psi (hlat : (L.scale α).lattice = (ofTau τ).lattice) :
+/-- Pin `ModularCurve.psi`: `ℤ² → sublatticeQuotient L L'`. -/
+def psi (hlat : (L.scale α).lattice = (ofTau τ).lattice) :
     (ℤ × ℤ) →+ PeriodPair.sublatticeQuotient L L' :=
-  (QuotientAddGroup.mk' _).comp (kw_surgehgf4_qtzz_psi₀ L α τ hlat)
+  (QuotientAddGroup.mk' _).comp (psi₀ L α τ hlat)
 
-/-- Pin `ModularCurve.kw_surgehgf4_qtzz_psi_surjective`. -/
-theorem kw_surgehgf4_qtzz_psi_surjective
+/-- Pin `ModularCurve.psi_surjective`. -/
+theorem psi_surjective
     (hlat : (L.scale α).lattice = (ofTau τ).lattice) :
-    Function.Surjective (kw_surgehgf4_qtzz_psi L L' α τ hlat) := by
+    Function.Surjective (psi L L' α τ hlat) := by
   refine (QuotientAddGroup.mk'_surjective _).comp fun l => ?_
   have hαl : ((α : ℂ) * (l : ℂ)) ∈ (ofTau τ).lattice.toAddSubgroup := by
     rw [← hlat]
     exact (PeriodPair.mem_scale_lattice_iff L α).mpr ⟨l, l.2, rfl⟩
-  obtain ⟨p, hp⟩ := (kw_phiTau_range τ ▸ hαl : ((α : ℂ) * (l : ℂ)) ∈ (kw_phiTau τ).range)
+  obtain ⟨p, hp⟩ := (phiTau_range τ ▸ hαl : ((α : ℂ) * (l : ℂ)) ∈ (phiTau τ).range)
   refine ⟨p, Subtype.ext ?_⟩
-  rw [kw_surgehgf4_qtzz_psi₀_apply, hp, inv_mul_cancel_left₀ α.ne_zero]
+  rw [psi₀_apply, hp, inv_mul_cancel_left₀ α.ne_zero]
 
-/-- Pin `ModularCurve.kw_surgehgf4_qtzz_psi_ker`. -/
-theorem kw_surgehgf4_qtzz_psi_ker
+/-- Pin `ModularCurve.psi_ker`. -/
+theorem psi_ker
     (hlat : (L.scale α).lattice = (ofTau τ).lattice) :
-    (kw_surgehgf4_qtzz_psi L L' α τ hlat).ker = kw_HZZ τ (L'.scale α) := by
+    (psi L L' α τ hlat).ker = sublatticeCoords τ (L'.scale α) := by
   ext p
-  simp only [kw_surgehgf4_qtzz_psi, AddMonoidHom.mem_ker, AddMonoidHom.comp_apply,
+  simp only [psi, AddMonoidHom.mem_ker, AddMonoidHom.comp_apply,
     QuotientAddGroup.mk'_apply, QuotientAddGroup.eq_zero_iff,
-    AddSubgroup.mem_addSubgroupOf, kw_HZZ, AddSubgroup.mem_comap,
+    AddSubgroup.mem_addSubgroupOf, sublatticeCoords, AddSubgroup.mem_comap,
     Submodule.mem_toAddSubgroup]
 
-  rw [kw_surgehgf4_qtzz_psi₀_apply, PeriodPair.mem_scale_lattice_iff]
+  rw [psi₀_apply, PeriodPair.mem_scale_lattice_iff]
   constructor
   · intro hmem
-    exact ⟨(α : ℂ)⁻¹ * kw_phiTau τ p, hmem, (mul_inv_cancel_left₀ α.ne_zero _).symm⟩
+    exact ⟨(α : ℂ)⁻¹ * phiTau τ p, hmem, (mul_inv_cancel_left₀ α.ne_zero _).symm⟩
   · rintro ⟨l', hl', hp⟩
     rw [hp, inv_mul_cancel_left₀ α.ne_zero]
     exact hl'
 
 end Psi
 
-/-- Pin `ModularCurve.kw_surgehgf4_qtzz_proved`: the transport class is proved. -/
-theorem kw_surgehgf4_qtzz_proved : KwSublatticeQuotientZZTransport := by
+/-- Pin `ModularCurve.sublatticeQuotientZZTransport_proved`: the transport class is proved. -/
+theorem sublatticeQuotientZZTransport_proved : SublatticeQuotientZZTransport := by
   intro L L' hsub α τ hlat hcyc
-  let ψ := kw_surgehgf4_qtzz_psi L L' α τ hlat
-  have hψsurj := kw_surgehgf4_qtzz_psi_surjective L L' α τ hlat
-  have hψker := kw_surgehgf4_qtzz_psi_ker L L' α τ hlat
-  let e : ((ℤ × ℤ) ⧸ kw_HZZ τ (L'.scale α)) ≃+ PeriodPair.sublatticeQuotient L L' :=
+  let ψ := psi L L' α τ hlat
+  have hψsurj := psi_surjective L L' α τ hlat
+  have hψker := psi_ker L L' α τ hlat
+  let e : ((ℤ × ℤ) ⧸ sublatticeCoords τ (L'.scale α)) ≃+ PeriodPair.sublatticeQuotient L L' :=
     (QuotientAddGroup.quotientAddEquivOfEq hψker.symm).trans
       (QuotientAddGroup.quotientKerEquivOfSurjective ψ hψsurj)
   exact isAddCyclic_of_surjective e.symm.toAddMonoidHom e.symm.surjective
@@ -467,20 +471,20 @@ theorem PeriodPair.exists_mem_primCosetReps_and_jLattice_eq_of_isAddCyclic
       (σ : ℂ) = ((a : ℂ) * τ + b) / d ∧
       L.jLattice = (PeriodPair.ofTau τ).jLattice ∧
         L'.jLattice = (PeriodPair.ofTau σ).jLattice := by
-  obtain ⟨α, τ, hlat⟩ := kw_exists_scale_ofTau_lattice_eq L
+  obtain ⟨α, τ, hlat⟩ := exists_scale_ofTau_lattice_eq L
   have hjL : L.jLattice = (ofTau τ).jLattice :=
     (PeriodPair.jLattice_scale L α).symm.trans (jLattice_eq_of_lattice_eq hlat)
   have hjL' : L'.jLattice = (L'.scale α).jLattice := (PeriodPair.jLattice_scale L' α).symm
   have hsub' : ((L'.scale α).lattice : Set ℂ) ⊆ (ofTau τ).lattice :=
-    hlat ▸ kw_scale_lattice_subset L L' α hsub
+    hlat ▸ scale_lattice_subset L L' α hsub
   have hidx' : PeriodPair.sublatticeIndex (ofTau τ) (L'.scale α) = N := by
     have hstep : PeriodPair.sublatticeIndex (ofTau τ) (L'.scale α)
         = PeriodPair.sublatticeIndex (L.scale α) (L'.scale α) := by
       unfold PeriodPair.sublatticeIndex; rw [hlat]
-    rw [hstep, kwSublatticeIndex_scale]; exact hidx
-  set H := kw_HZZ τ (L'.scale α)
+    rw [hstep, ModularCurve.sublatticeIndex_scale]; exact hidx
+  set H := sublatticeCoords τ (L'.scale α)
   have hNH : dOf H * aOf H = N := (index_eq_dOf_mul_aOf H).symm.trans
-    ((kw_HZZ_index τ (L'.scale α)).trans hidx')
+    ((sublatticeCoords_index τ (L'.scale α)).trans hidx')
   have ha : 0 < aOf H := Nat.pos_of_ne_zero fun h =>
     NeZero.ne N (by rw [← hNH, h, mul_zero])
   have hd : 0 < dOf H := Nat.pos_of_ne_zero fun h =>
@@ -488,19 +492,19 @@ theorem PeriodPair.exists_mem_primCosetReps_and_jLattice_eq_of_isAddCyclic
   have hb0 : 0 ≤ bOf H := bOf_nonneg H hd.ne'
   have hbd : bOf H < ((dOf H : ℕ) : ℤ) := bOf_lt H hd.ne'
   have hb : ((bOf H).toNat : ℂ) = (bOf H : ℂ) := by exact_mod_cast Int.toNat_of_nonneg hb0
-  have hHidx : H.index ≠ 0 := by rw [kw_HZZ_index, hidx']; exact NeZero.ne N
-  have hcycH : IsAddCyclic ((ℤ × ℤ) ⧸ H) := kw_surgehgf4_qtzz_proved L L' hsub α τ hlat hcyc
-  have hgcd := kw_surgehgf4_hu5c_gcd_eq_one_of_isAddCyclic hHidx hcycH
-  let σ := kw_hnfPoint τ (aOf H) (bOf H) (dOf H) ha hd
+  have hHidx : H.index ≠ 0 := by rw [sublatticeCoords_index, hidx']; exact NeZero.ne N
+  have hcycH : IsAddCyclic ((ℤ × ℤ) ⧸ H) := sublatticeQuotientZZTransport_proved L L' hsub α τ hlat hcyc
+  have hgcd := gcd_eq_one_of_isAddCyclic hHidx hcycH
+  let σ := hnfPoint τ (aOf H) (bOf H) (dOf H) ha hd
   have hjM' : (L'.scale α).jLattice = (ofTau σ).jLattice := by
     have hlat' : (L'.scale α).lattice
         = ((ofTau σ).scale (Units.mk0 (dOf H : ℂ) (Nat.cast_ne_zero.mpr hd.ne'))).lattice := by
-      rw [kw_sublattice_eq_span τ (L'.scale α) hsub', kw_hnfPoint_scale_lattice]
+      rw [sublattice_eq_span τ (L'.scale α) hsub', hnfPoint_scale_lattice]
     exact (jLattice_eq_of_lattice_eq hlat').trans
       (PeriodPair.jLattice_scale (ofTau σ) (Units.mk0 (dOf H : ℂ) (Nat.cast_ne_zero.mpr hd.ne')))
   refine ⟨aOf H, (bOf H).toNat, dOf H, τ, σ, ?_, ?_, hjL, hjL'.trans hjM'⟩
   · exact (ModularCurve.mem_primCosetReps (NeZero.ne N)).mpr
       ⟨(mul_comm _ _).trans hNH, by omega, hgcd⟩
-  · rw [kw_hnfPoint_coe, hb]
+  · rw [hnfPoint_coe, hb]
 
 end

@@ -56,11 +56,11 @@ transcribed here because only this module may be edited; all are `private`):
   `normFormulaAlong_of_elliptic_cf` / `s2c_key` (renamed from the pin's
   `normFormulaAlong_of_elliptic`: see the declaration's docstring);
 * the char-free separability chain
-  `kw_isSeparable_of_aeval_derivative_ne_zero`,
-  `kw_derivative_mul_sq_sub_mul_derivative_sq_ne_zero`,
-  `kw_isSeparable_yGen_of_algebraMap_eq`,
-  `kw_isSeparable_polyToFunctionField_X_oddOrderSummingSet_odd`,
-  `kw_oddOrderSummingSetFunctionFieldHom_odd_separableAlong`, and
+  `isSeparable_of_aeval_derivative_ne_zero`,
+  `derivative_mul_sq_sub_mul_derivative_sq_ne_zero`,
+  `isSeparable_yGen_of_algebraMap_eq`,
+  `isSeparable_polyToFunctionField_X_oddOrderSummingSet_odd`,
+  `oddOrderSummingSetFunctionFieldHom_odd_separableAlong`, and
   `two_ne_zero_or_a₁_ne_zero_or_a₃_ne_zero_of_Δ_ne_zero'`.
 
 The `WeierstrassCurve/Place/Dictionary.lean` `ord`-at-a-point dictionary
@@ -70,6 +70,13 @@ was relocated to the dictionary by the H5r refactor round; the pin's
 
 Reference (public mirror, pinned):
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_exists_veluFunctionFieldHom_restrictAlong_placeOfPoint_eq_of_isAlgClosed.lean>
+
+  spec-pin: Theorems/Thm_AlgebraicCurve_Divisor_pushforwardNormFormula_of_isSeparable.lean
+  spec-pin: Theorems/Thm_AlgebraicCurve_normFormulaAlong_of_separableAlong.lean
+  spec-pin: Theorems/Thm_AlgebraicCurve_relNorm_eq_pow_of_isMaximal_of_isSeparable.lean
+  spec-pin: Theorems/Thm_WeierstrassCurve_exists_veluFunctionFieldHom_restrictAlong_placeOfPoint_eq.lean
+  spec-pin: Theorems/Thm_WeierstrassCurve_exists_veluFunctionFieldHom_restrictAlong_placeOfPoint_eq_of_isAlgClosed.lean
+  spec-pin: P2M/Sol/S_WeierstrassCurve_exists_veluFunctionFieldHom_restrictAlong_placeOfPoint_eq_of_isAlgClosed.lean
 -/
 import FLTForHuman.WeierstrassCurve.Velu.OddOrder
 import FLTForHuman.WeierstrassCurve.Velu.MapEquation
@@ -179,9 +186,9 @@ theorem two_ne_zero_or_a₁_ne_zero_or_a₃_ne_zero_of_Δ_ne_zero' (W : Weierstr
 
 end TwoNeZeroOrA1OrA3
 
-/-- Pin `WeierstrassCurve.kw_isSeparable_of_aeval_derivative_ne_zero`
+/-- Pin `WeierstrassCurve.isSeparable_of_aeval_derivative_ne_zero`
 (res `S_` line 8751). -/
-theorem kw_isSeparable_of_aeval_derivative_ne_zero {L K : Type*} [Field L] [Field K]
+theorem isSeparable_of_aeval_derivative_ne_zero {L K : Type*} [Field L] [Field K]
     [Algebra L K] {x : K} {f : L[X]} (hroot : aeval x f = 0)
     (hder : aeval x (derivative f) ≠ 0) : IsSeparable L x := by
   have hf0 : f ≠ 0 := by
@@ -199,9 +206,9 @@ theorem kw_isSeparable_of_aeval_derivative_ne_zero {L K : Type*} [Field L] [Fiel
     exact hg' (by rw [h0, _root_.map_zero])
   exact (separable_iff_derivative_ne_zero (minpoly.irreducible hint)).mpr hg'0
 
-/-- Pin `WeierstrassCurve.kw_derivative_mul_sq_sub_mul_derivative_sq_ne_zero`
+/-- Pin `WeierstrassCurve.derivative_mul_sq_sub_mul_derivative_sq_ne_zero`
 (res `S_` line 8769). -/
-theorem kw_derivative_mul_sq_sub_mul_derivative_sq_ne_zero {R : Type*} [CommRing R] [Nontrivial R]
+theorem derivative_mul_sq_sub_mul_derivative_sq_ne_zero {R : Type*} [CommRing R] [Nontrivial R]
     {N D : R[X]} {m : ℕ} (hN : N.Monic) (hNdeg : N.natDegree = 2 * m + 1) (hD : D.Monic)
     (hDdeg : D.natDegree = m) :
     derivative N * D ^ 2 - N * derivative (D ^ 2) ≠ 0 := by
@@ -236,9 +243,9 @@ section SeparabilityYGen
 
 variable {F : Type*} [Field F] {W : Affine F}
 
-/-- Pin `WeierstrassCurve.Affine.kw_isSeparable_yGen_of_algebraMap_eq`
+/-- Pin `WeierstrassCurve.Affine.isSeparable_yGen_of_algebraMap_eq`
 (res `S_` line 8809). -/
-theorem kw_isSeparable_yGen_of_algebraMap_eq (h2or : (2 : F) ≠ 0 ∨ W.a₁ ≠ 0 ∨ W.a₃ ≠ 0)
+theorem isSeparable_yGen_of_algebraMap_eq (h2or : (2 : F) ≠ 0 ∨ W.a₁ ≠ 0 ∨ W.a₃ ≠ 0)
     {M : Type*} [Field M]
     [Algebra M W.FunctionField] (b c : M)
     (hb : algebraMap M W.FunctionField b
@@ -252,7 +259,7 @@ theorem kw_isSeparable_yGen_of_algebraMap_eq (h2or : (2 : F) ≠ 0 ∨ W.a₁ �
   have heq := equation_map_polyToFunctionField_yGen (W := W)
   rw [equation_iff] at heq
   simp only [map_a₁, map_a₂, map_a₃, map_a₄, map_a₆] at heq
-  refine kw_isSeparable_of_aeval_derivative_ne_zero (f := X ^ 2 + C b * X - C c) ?_ ?_
+  refine isSeparable_of_aeval_derivative_ne_zero (f := X ^ 2 + C b * X - C c) ?_ ?_
   · simp only [map_sub, map_add, map_mul, map_pow, aeval_X, aeval_C, hb, hc]
     linear_combination heq
   · have hd : derivative (X ^ 2 + C b * X - C c) = C (2 : M) * X + C b := by
@@ -286,45 +293,45 @@ section PointMap
 variable {F : Type*} [Field F] {W : WeierstrassCurve F}
 
 variable (W) in
-private abbrev KwVeluMapEquationAt (S : Finset (F × F)) : Prop :=
+private abbrev VeluMapEquationAt (S : Finset (F × F)) : Prop :=
   ∀ ⦃r s : F⦄, W.toAffine.Equation r s → (∀ Q ∈ S, r ≠ Q.1) →
     (W.veluQuotient S).toAffine.Equation (W.veluX S r) (W.veluY S r s)
 
 variable {S : Finset (F × F)}
 
-theorem kw_velu_map_nonsingular (hmapeq : W.KwVeluMapEquationAt S)
+theorem velu_map_nonsingular (hmapeq : W.VeluMapEquationAt S)
     (hΔ : (W.veluQuotient S).Δ ≠ 0) {x y : F} (hP : W.toAffine.Equation x y)
     (hx : ∀ Q ∈ S, x ≠ Q.1) :
     (W.veluQuotient S).toAffine.Nonsingular (W.veluX S x) (W.veluY S x y) :=
   ((W.veluQuotient S).toAffine.equation_iff_nonsingular_of_Δ_ne_zero hΔ).mp (hmapeq hP hx)
 
-noncomputable def kwVeluPointMap (hmapeq : W.KwVeluMapEquationAt S)
+noncomputable def VeluPointMap (hmapeq : W.VeluMapEquationAt S)
     (hΔ : (W.veluQuotient S).Δ ≠ 0) :
     W.toAffine.Point → (W.veluQuotient S).toAffine.Point
   | .zero => .zero
   | .some x y h =>
     if hx : ∀ Q ∈ S, x ≠ Q.1 then
-      .some _ _ (kw_velu_map_nonsingular hmapeq hΔ h.1 hx)
+      .some _ _ (velu_map_nonsingular hmapeq hΔ h.1 hx)
     else .zero
 
-variable (hmapeq : W.KwVeluMapEquationAt S) (hΔ : (W.veluQuotient S).Δ ≠ 0)
+variable (hmapeq : W.VeluMapEquationAt S) (hΔ : (W.veluQuotient S).Δ ≠ 0)
 
-@[simp] lemma kwVeluPointMap_zero : kwVeluPointMap hmapeq hΔ .zero = .zero := rfl
+@[simp] lemma VeluPointMap_zero : VeluPointMap hmapeq hΔ .zero = .zero := rfl
 
 set_option linter.unusedVariables false in
-lemma kwVeluPointMap_some_of_mem {x y : F} (h : W.toAffine.Nonsingular x y)
+lemma VeluPointMap_some_of_mem {x y : F} (h : W.toAffine.Nonsingular x y)
     {Q : F × F} (hQ : Q ∈ S) (hx : x = Q.1) :
-    kwVeluPointMap hmapeq hΔ (.some x y h) = 0 := by
+    VeluPointMap hmapeq hΔ (.some x y h) = 0 := by
   classical
-  simp only [kwVeluPointMap]
+  simp only [VeluPointMap]
   exact dif_neg (fun hall => hall Q hQ hx)
 
-lemma kwVeluPointMap_some_of_ne {x y : F} (h : W.toAffine.Nonsingular x y)
+lemma VeluPointMap_some_of_ne {x y : F} (h : W.toAffine.Nonsingular x y)
     (hx : ∀ Q ∈ S, x ≠ Q.1) :
-    kwVeluPointMap hmapeq hΔ (.some x y h)
-      = .some _ _ (kw_velu_map_nonsingular hmapeq hΔ h.1 hx) := by
+    VeluPointMap hmapeq hΔ (.some x y h)
+      = .some _ _ (velu_map_nonsingular hmapeq hΔ h.1 hx) := by
   classical
-  simp only [kwVeluPointMap]
+  simp only [VeluPointMap]
   exact dif_pos hx
 
 end PointMap
@@ -473,20 +480,20 @@ section GenericVeluFun
 
 variable {F : Type*} [Field F] (W : Affine F) (S : Finset (F × F))
 
-def kwVeluXGenFun : W.FunctionField :=
+def VeluXGenFun : W.FunctionField :=
   (W.map (algebraMap F W.FunctionField)).veluX (W.liftSummingSet S) (polyToFunctionField W X)
 
-def kwVeluYGenFun : W.FunctionField :=
+def VeluYGenFun : W.FunctionField :=
   (W.map (algebraMap F W.FunctionField)).veluY (W.liftSummingSet S)
     (polyToFunctionField W X) (yGen W)
 
 variable {W S}
 
-theorem kw_kwVeluXGenFun_notMem_of_not_isFinitePlace
+theorem VeluXGenFun_notMem_of_not_isFinitePlace
     (v : Place F W.FunctionField) (hv : ¬ IsFinitePlace v) :
-    kwVeluXGenFun W S ∉ v.toValuationSubring := by
+    VeluXGenFun W S ∉ v.toValuationSubring := by
   intro hmem
-  have hdiff : kwVeluXGenFun W S - polyToFunctionField W X ∈ v.toValuationSubring :=
+  have hdiff : VeluXGenFun W S - polyToFunctionField W X ∈ v.toValuationSubring :=
     veluX_sub_self_genericPoint_mem_of_not_isFinitePlace (W := W) (v := v) hv S
   have hx : polyToFunctionField W X ∈ v.toValuationSubring := by
     have h := sub_mem hmem hdiff
@@ -503,7 +510,7 @@ section ExistsEquationAvoids
 
 variable {F : Type*} [Field F] [IsAlgClosed F]
 
-theorem kw_exists_equation_avoids (W : WeierstrassCurve F) (T : Finset F) :
+theorem exists_equation_avoids (W : WeierstrassCurve F) (T : Finset F) :
     ∃ r s : F, W.toAffine.Equation r s ∧ ∀ a ∈ T, r ≠ a := by
   obtain ⟨r, hr⟩ := Infinite.exists_notMem_finset T
   obtain ⟨s, hs⟩ := W.toAffine.exists_equation r
@@ -518,25 +525,25 @@ variable {W : WeierstrassCurve F} [W.toAffine.IsElliptic]
 variable [GenusOnePlaceGate W.toAffine] [GenusOnePlaceGate.IsCentred W.toAffine]
   [AbelTheorem W.toAffine]
 
-theorem kw_transcendental_kwVeluXGenFun (S : Finset (F × F)) :
-    Transcendental F (kwVeluXGenFun W.toAffine S) := by
+theorem transcendental_VeluXGenFun (S : Finset (F × F)) :
+    Transcendental F (VeluXGenFun W.toAffine S) := by
   rw [transcendental_iff]
   intro q hq
   by_contra hq0
-  have hint : _root_.IsIntegral F (kwVeluXGenFun W.toAffine S) :=
+  have hint : _root_.IsIntegral F (VeluXGenFun W.toAffine S) :=
     isAlgebraic_iff_isIntegral.mp ⟨q, hq0, hq⟩
-  have hdeg : (minpoly F (kwVeluXGenFun W.toAffine S)).degree = 1 :=
+  have hdeg : (minpoly F (VeluXGenFun W.toAffine S)).degree = 1 :=
     IsAlgClosed.degree_eq_one_of_irreducible F (minpoly.irreducible hint)
   obtain ⟨c, hc⟩ := minpoly.degree_eq_one_iff.mp hdeg
-  refine kw_kwVeluXGenFun_notMem_of_not_isFinitePlace (S := S)
+  refine VeluXGenFun_notMem_of_not_isFinitePlace (S := S)
     (InfinitePlace.place : Place F W.toAffine.FunctionField) InfinitePlace.not_isFinitePlace ?_
   rw [← hc]
   exact (InfinitePlace.place : Place F W.toAffine.FunctionField).algebraMap_mem' c
 
-theorem kw_aeval_kwVeluXGenFun_injective (S : Finset (F × F)) :
-    Function.Injective (Polynomial.aeval (R := F) (kwVeluXGenFun W.toAffine S)) :=
+theorem aeval_VeluXGenFun_injective (S : Finset (F × F)) :
+    Function.Injective (Polynomial.aeval (R := F) (VeluXGenFun W.toAffine S)) :=
   (injective_iff_map_eq_zero _).mpr fun q hq =>
-    transcendental_iff.mp (kw_transcendental_kwVeluXGenFun (W := W) S) q hq
+    transcendental_iff.mp (transcendental_VeluXGenFun (W := W) S) q hq
 
 end TranscendentalGenFun
 
@@ -546,7 +553,7 @@ section MapPoly
 
 variable {F : Type*} [Field F] [DecidableEq F] {F' : Type*} [Field F'] [DecidableEq F']
 
-theorem kw_map_veluXDenomPoly (f : F →+* F') (hf : Function.Injective f)
+theorem map_veluXDenomPoly (f : F →+* F') (hf : Function.Injective f)
     (S : Finset (F × F)) :
     (veluXDenomPoly S).map f
       = veluXDenomPoly (S.map ⟨Prod.map f f, hf.prodMap hf⟩) := by
@@ -554,13 +561,13 @@ theorem kw_map_veluXDenomPoly (f : F →+* F') (hf : Function.Injective f)
   rw [Polynomial.map_prod, Finset.prod_map]
   simp only [Polynomial.map_sub, map_X, map_C, Function.Embedding.coeFn_mk, Prod.map_fst]
 
-theorem kw_map_veluXClearedPoly (f : F →+* F') (hf : Function.Injective f)
+theorem map_veluXClearedPoly (f : F →+* F') (hf : Function.Injective f)
     (W : WeierstrassCurve F) (S : Finset (F × F)) :
     (veluXClearedPoly W S).map f
       = veluXClearedPoly (W.map f) (S.map ⟨Prod.map f f, hf.prodMap hf⟩) := by
   unfold veluXClearedPoly
   rw [Polynomial.map_add, Polynomial.map_mul, Polynomial.map_pow, map_X,
-    kw_map_veluXDenomPoly f hf, Polynomial.map_sum, Finset.sum_map]
+    map_veluXDenomPoly f hf, Polynomial.map_sum, Finset.sum_map]
   congr 1
   refine Finset.sum_congr rfl fun P hP => ?_
   rw [← Finset.map_erase]
@@ -574,8 +581,8 @@ section ClearedIdentity
 
 variable {F : Type*} [Field F] [DecidableEq F] (W : Affine F) (S : Finset (F × F))
 
-theorem kw_kwVeluXGenFun_mul_denom_sq_eq_cleared :
-    kwVeluXGenFun W S * polyToFunctionField W (veluXDenomPoly S) ^ 2
+theorem VeluXGenFun_mul_denom_sq_eq_cleared :
+    VeluXGenFun W S * polyToFunctionField W (veluXDenomPoly S) ^ 2
       = polyToFunctionField W (veluXClearedPoly W S) := by
   have hinj := (algebraMap F W.FunctionField).injective
   have hav : ∀ P ∈ W.liftSummingSet S, polyToFunctionField W X ≠ P.1 :=
@@ -585,12 +592,12 @@ theorem kw_kwVeluXGenFun_mul_denom_sq_eq_cleared :
   rw [show W.liftSummingSet S
         = S.map ⟨Prod.map (algebraMap F W.FunctionField) (algebraMap F W.FunctionField),
             hinj.prodMap hinj⟩ from rfl,
-    ← kw_map_veluXClearedPoly _ hinj, ← kw_map_veluXDenomPoly _ hinj,
+    ← map_veluXClearedPoly _ hinj, ← map_veluXDenomPoly _ hinj,
     ← polyToFunctionField_eq_eval_map, ← polyToFunctionField_eq_eval_map] at heval
   rw [heval]
   exact mul_comm _ _
 
-theorem kw_eval_veluXClearedPoly_ne_zero_of_mem (hset : W.IsOddVeluSet S)
+theorem eval_veluXClearedPoly_ne_zero_of_mem (hset : W.IsOddVeluSet S)
     {A : F × F} (hA : A ∈ S) : (veluXClearedPoly W S).eval A.1 ≠ 0 := by
   unfold veluXClearedPoly
   simp only [eval_add, eval_mul, eval_pow, eval_X, eval_finsetSum, eval_sub, eval_C, eval_prod]
@@ -633,7 +640,7 @@ section UnconditionalSpecializes
 
 variable {F : Type*} [Field F] [DecidableEq F] [IsAlgClosed F]
 
-private theorem hDDTerm :
+private theorem hDDTerm_velu :
     ∀ (W : WeierstrassCurve F), W.Δ ≠ 0 → IsDedekindDomain W.toAffine.CoordinateRing :=
   fun _W hΔ => Affine.CoordinateRing.isDedekindDomain_of_Δ_ne_zero hΔ
 
@@ -648,24 +655,24 @@ end UnconditionalSpecializes
 section OddConstancy
 
 variable (F : Type*) [Field F] [DecidableEq F] [IsAlgClosed F] in
-theorem kw_veluDeficitIsConstantAt_odd {p : ℕ} (hp3 : 3 ≤ p) (hpodd : Odd p) :
+theorem veluDeficitIsConstantAt_odd {p : ℕ} (hp3 : 3 ≤ p) (hpodd : Odd p) :
     VeluDeficitIsConstantAt F p :=
-  veluDeficitIsConstantAt_of_ordNonneg_of_dedekind (kw_veluHPDSupplier (F := F)) kw_hDDTerm
-    (kw_veluDeficitFunOrdNonnegAt_odd F kw_hDDTerm hp3 hpodd)
+  veluDeficitIsConstantAt_of_ordNonneg_of_dedekind (veluHPDSupplier (F := F)) hDDTerm_velu
+    (veluDeficitFunOrdNonnegAt_odd F hDDTerm_velu hp3 hpodd)
 
 variable (F : Type*) [Field F] [DecidableEq F] [IsAlgClosed F] in
-theorem kw_veluDeficitConstancyAt_odd {p : ℕ} (hp3 : 3 ≤ p) (hpodd : Odd p) :
+theorem veluDeficitConstancyAt_odd {p : ℕ} (hp3 : 3 ≤ p) (hpodd : Odd p) :
     VeluDeficitConstancyAt F p := by
-  haveI : Infinite F := kw_infinite_of_isAlgClosed
+  haveI : Infinite F := infinite_of_isAlgClosed
   refine veluDeficitConstancyAt_of_isConstant_of_constantZero F
-    (kw_veluDeficitIsConstantAt_odd F hp3 hpodd)
-    (kw_veluDeficitConstantIsZeroAt_odd hp3 hpodd ?_)
-  refine kw_veluDeficitCrossQuadProdDegLtAt_odd hp3 hpodd
-    (kw_veluDeficitCrossQuadCubeBetaDegLtAt_odd hp3 hpodd
-      (kw_veluDeficitCrossQuadBetaOnlyDegLtAt_odd
+    (veluDeficitIsConstantAt_odd F hp3 hpodd)
+    (veluDeficitConstantIsZeroAt_odd hp3 hpodd ?_)
+  refine veluDeficitCrossQuadProdDegLtAt_odd hp3 hpodd
+    (veluDeficitCrossQuadCubeBetaDegLtAt_odd hp3 hpodd
+      (veluDeficitCrossQuadBetaOnlyDegLtAt_odd
         (veluDeficitCrossQuadBetaSDecompDegLtAt_of_betaSq_of_alphaBeta
-          (kw_veluDeficitCrossQuadBetaSqDecompDegLtAt_odd hp3 hpodd)
-          (kw_veluDeficitCrossQuadAlphaBetaDecompDegLtAt_odd hp3 hpodd))))
+          (veluDeficitCrossQuadBetaSqDecompDegLtAt_odd hp3 hpodd)
+          (veluDeficitCrossQuadAlphaBetaDecompDegLtAt_odd hp3 hpodd))))
 
 end OddConstancy
 
@@ -673,11 +680,11 @@ end OddConstancy
 
 section MapEquationOdd
 
-theorem kw_kwVeluMapEquationAt_oddOrderSummingSet_odd
+theorem VeluMapEquationAt_oddOrderSummingSet_odd
     {F : Type*} [Field F] [DecidableEq F] [IsAlgClosed F]
     {W : WeierstrassCurve F} {Q : W.toAffine.Point} {p : ℕ}
     (hp3 : 3 ≤ p) (hpodd : Odd p) (hord : addOrderOf Q = p) (hΔW : W.Δ ≠ 0) :
-    W.KwVeluMapEquationAt (W.oddOrderSummingSet Q ((p - 1) / 2)) := by
+    W.VeluMapEquationAt (W.oddOrderSummingSet Q ((p - 1) / 2)) := by
   haveI : W.IsElliptic := ⟨(Ne.isUnit hΔW)⟩
   intro r s hrs hav
   have hQ : addOrderOf Q = 2 * ((p - 1) / 2) + 1 := by
@@ -689,7 +696,7 @@ end MapEquationOdd
 
 /-! ### The `vgffhso` anchor and the vanishing of the deficit function -/
 
-theorem kw_vgffhso_axiomAnchor : True :=
+theorem vgffhso_axiomAnchor : True :=
   have _h₁ : True = True := propext Iff.rfl
   have _h₂ : ℕ := Classical.choice ⟨0⟩
   have _h₃ : Quot.mk (fun (_ _ : ℕ) => True) 0 = Quot.mk (fun (_ _ : ℕ) => True) 1 :=
@@ -701,38 +708,38 @@ section DeficitZeroOdd
 variable {F : Type*} [Field F] [DecidableEq F] [IsAlgClosed F]
 variable {W : WeierstrassCurve F} {Q : W.toAffine.Point} {p : ℕ}
 
-theorem kw_veluDeficitFun_oddOrderSummingSet_eq_zero_odd
+theorem veluDeficitFun_oddOrderSummingSet_eq_zero_odd
     (hp3 : 3 ≤ p) (hpodd : Odd p) (hord : addOrderOf Q = p) (hΔW : W.Δ ≠ 0) :
     W.toAffine.veluDeficitFun (W.oddOrderSummingSet Q ((p - 1) / 2)) = 0 := by
-  have _ := kw_vgffhso_axiomAnchor
+  have _ := vgffhso_axiomAnchor
   have hQ0 : Q ≠ 0 := by intro h; rw [h, addOrderOf_zero] at hord; omega
   obtain ⟨x₀, y₀, h₀, rfl, -⟩ := exists_some_of_ne_zero hQ0
   set S := W.oddOrderSummingSet (Point.some x₀ y₀ h₀) ((p - 1) / 2) with hS
-  haveI : HasPrincipalDivisors F W.toAffine.FunctionField := kw_veluHPDSupplier (F := F) W hΔW
+  haveI : HasPrincipalDivisors F W.toAffine.FunctionField := veluHPDSupplier (F := F) W hΔW
   haveI : IsDedekindDomain W.toAffine.CoordinateRing :=
     Affine.CoordinateRing.isDedekindDomain_of_Δ_ne_zero hΔW
-  have hreg := kw_veluDeficitFunOrdNonnegAt_odd (F := F)
+  have hreg := veluDeficitFunOrdNonnegAt_odd (F := F)
     (fun V hΔV => Affine.CoordinateRing.isDedekindDomain_of_Δ_ne_zero hΔV)
     hp3 hpodd W hΔW x₀ y₀ h₀ hord
   obtain ⟨c, hc⟩ := Affine.functionField_liouville_of_equation (W := W.toAffine) h₀.1 hreg
-  obtain ⟨r, s, hrs, hrav⟩ := kw_exists_equation_avoids W (S.image Prod.fst)
+  obtain ⟨r, s, hrs, hrav⟩ := exists_equation_avoids W (S.image Prod.fst)
   have hav : ∀ A ∈ S, r ≠ A.1 := fun A hA =>
     hrav A.1 (Finset.mem_image.mpr ⟨A, hA, rfl⟩)
   have hspec := veluDeficitFunSpecializesConstAt_unconditional' F p W hΔW x₀ y₀ h₀ hord c hc
     hrs hav
-  have hcst := kw_veluDeficitConstancyAt_odd (F := F) hp3 hpodd W hΔW x₀ y₀ h₀ hord hrs hav
+  have hcst := veluDeficitConstancyAt_odd (F := F) hp3 hpodd W hΔW x₀ y₀ h₀ hord hrs hav
   rw [hc, show c = 0 from hspec.symm.trans hcst]
   exact (algebraMap F W.toAffine.FunctionField).map_zero
 
-theorem kw_equation_map_veluQuotient_kwVeluGenFun_odd
+theorem equation_map_veluQuotient_VeluGenFun_odd
     (hp3 : 3 ≤ p) (hpodd : Odd p) (hord : addOrderOf Q = p) (hΔW : W.Δ ≠ 0) :
     ((W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))).map
         (algebraMap F W.toAffine.FunctionField)).toAffine.Equation
-      (kwVeluXGenFun W.toAffine (W.oddOrderSummingSet Q ((p - 1) / 2)))
-      (kwVeluYGenFun W.toAffine (W.oddOrderSummingSet Q ((p - 1) / 2))) := by
+      (VeluXGenFun W.toAffine (W.oddOrderSummingSet Q ((p - 1) / 2)))
+      (VeluYGenFun W.toAffine (W.oddOrderSummingSet Q ((p - 1) / 2))) := by
   set S := W.oddOrderSummingSet Q ((p - 1) / 2)
   have key := (W.toAffine.veluDeficitFun_eq_zero_iff_equation S).mp
-    (kw_veluDeficitFun_oddOrderSummingSet_eq_zero_odd hp3 hpodd hord hΔW)
+    (veluDeficitFun_oddOrderSummingSet_eq_zero_odd hp3 hpodd hord hΔW)
   rwa [W.toAffine.map_veluQuotient_liftSummingSet S] at key
 
 end DeficitZeroOdd
@@ -753,13 +760,13 @@ set_option quotPrecheck false in
 local notation "V'" => (W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))).toAffine
 
 include hp3 hpodd hord in
-theorem kw_eval₂_polynomial_kwVeluGenFun_odd :
+theorem eval₂_polynomial_VeluGenFun_odd :
     ((W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))).toAffine.polynomial).eval₂
         (Polynomial.aeval
-            (kwVeluXGenFun W.toAffine (W.oddOrderSummingSet Q ((p - 1) / 2))) :
+            (VeluXGenFun W.toAffine (W.oddOrderSummingSet Q ((p - 1) / 2))) :
           F[X] →ₐ[F] W.toAffine.FunctionField).toRingHom
-        (kwVeluYGenFun W.toAffine (W.oddOrderSummingSet Q ((p - 1) / 2))) = 0 := by
-  have heq := kw_equation_map_veluQuotient_kwVeluGenFun_odd hp3 hpodd hord
+        (VeluYGenFun W.toAffine (W.oddOrderSummingSet Q ((p - 1) / 2))) = 0 := by
+  have heq := equation_map_veluQuotient_VeluGenFun_odd hp3 hpodd hord
     W.toAffine.isUnit_Δ.ne_zero
   rw [equation_iff'] at heq
   simp only [map_a₁, map_a₂, map_a₃, map_a₄, map_a₆] at heq
@@ -769,95 +776,95 @@ theorem kw_eval₂_polynomial_kwVeluGenFun_odd :
   linear_combination heq
 
 include hp3 hpodd hord in
-noncomputable def kw_oddOrderSummingSetCoordHom_odd :
+noncomputable def oddOrderSummingSetCoordHom_odd :
     (W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))).toAffine.CoordinateRing
       →ₐ[F] W.toAffine.FunctionField where
   __ := AdjoinRoot.lift
-    (Polynomial.aeval (kwVeluXGenFun W.toAffine (W.oddOrderSummingSet Q ((p - 1) / 2))) :
+    (Polynomial.aeval (VeluXGenFun W.toAffine (W.oddOrderSummingSet Q ((p - 1) / 2))) :
       F[X] →ₐ[F] W.toAffine.FunctionField).toRingHom
-    (kwVeluYGenFun W.toAffine (W.oddOrderSummingSet Q ((p - 1) / 2)))
-    (kw_eval₂_polynomial_kwVeluGenFun_odd hp3 hpodd hord)
+    (VeluYGenFun W.toAffine (W.oddOrderSummingSet Q ((p - 1) / 2)))
+    (eval₂_polynomial_VeluGenFun_odd hp3 hpodd hord)
   commutes' c := by
-    show AdjoinRoot.lift _ _ (kw_eval₂_polynomial_kwVeluGenFun_odd hp3 hpodd hord)
+    show AdjoinRoot.lift _ _ (eval₂_polynomial_VeluGenFun_odd hp3 hpodd hord)
       (algebraMap F _ c) = algebraMap F W.toAffine.FunctionField c
     rw [CoordinateRing.algebraMap_eq_mk_C_C, AdjoinRoot.lift_mk, eval₂_C]
     exact Polynomial.aeval_C _ c
 
 include hp3 hpodd hord in
-theorem kw_oddOrderSummingSetCoordHom_odd_mk (g : F[X][Y]) :
-    kw_oddOrderSummingSetCoordHom_odd hp3 hpodd hord
+theorem oddOrderSummingSetCoordHom_odd_mk (g : F[X][Y]) :
+    oddOrderSummingSetCoordHom_odd hp3 hpodd hord
         (CoordinateRing.mk
           (W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))).toAffine g)
       = g.eval₂
           (Polynomial.aeval
-              (kwVeluXGenFun W.toAffine (W.oddOrderSummingSet Q ((p - 1) / 2))) :
+              (VeluXGenFun W.toAffine (W.oddOrderSummingSet Q ((p - 1) / 2))) :
             F[X] →ₐ[F] W.toAffine.FunctionField).toRingHom
-          (kwVeluYGenFun W.toAffine (W.oddOrderSummingSet Q ((p - 1) / 2))) :=
-  AdjoinRoot.lift_mk (kw_eval₂_polynomial_kwVeluGenFun_odd hp3 hpodd hord) g
+          (VeluYGenFun W.toAffine (W.oddOrderSummingSet Q ((p - 1) / 2))) :=
+  AdjoinRoot.lift_mk (eval₂_polynomial_VeluGenFun_odd hp3 hpodd hord) g
 
 include hp3 hpodd hord in
-theorem kw_oddOrderSummingSetCoordHom_odd_comp_algebraMap :
-    (kw_oddOrderSummingSetCoordHom_odd hp3 hpodd hord).toRingHom.comp
+theorem oddOrderSummingSetCoordHom_odd_comp_algebraMap :
+    (oddOrderSummingSetCoordHom_odd hp3 hpodd hord).toRingHom.comp
         (algebraMap F[X]
           (W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))).toAffine.CoordinateRing)
       = (Polynomial.aeval
-            (kwVeluXGenFun W.toAffine (W.oddOrderSummingSet Q ((p - 1) / 2))) :
+            (VeluXGenFun W.toAffine (W.oddOrderSummingSet Q ((p - 1) / 2))) :
           F[X] →ₐ[F] W.toAffine.FunctionField).toRingHom := by
   refine RingHom.ext fun q => ?_
-  show kw_oddOrderSummingSetCoordHom_odd hp3 hpodd hord (algebraMap F[X] _ q) = _
-  rw [algebraMap_polynomial_eq_mk_C, kw_oddOrderSummingSetCoordHom_odd_mk, eval₂_C]
+  show oddOrderSummingSetCoordHom_odd hp3 hpodd hord (algebraMap F[X] _ q) = _
+  rw [algebraMap_polynomial_eq_mk_C, oddOrderSummingSetCoordHom_odd_mk, eval₂_C]
 
 include hp3 hpodd hord in
-theorem kw_oddOrderSummingSetCoordHom_odd_injective :
-    Function.Injective (kw_oddOrderSummingSetCoordHom_odd (W := W) hp3 hpodd hord) := by
-  have hker : RingHom.ker (kw_oddOrderSummingSetCoordHom_odd (W := W) hp3 hpodd hord).toRingHom
+theorem oddOrderSummingSetCoordHom_odd_injective :
+    Function.Injective (oddOrderSummingSetCoordHom_odd (W := W) hp3 hpodd hord) := by
+  have hker : RingHom.ker (oddOrderSummingSetCoordHom_odd (W := W) hp3 hpodd hord).toRingHom
       = ⊥ := by
     haveI : Module.Finite F[X]
         (W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))).toAffine.CoordinateRing :=
       Module.Finite.of_basis (CoordinateRing.basis
         (W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))).toAffine)
     refine Ideal.eq_bot_of_under_eq_bot (R := F[X]) ?_
-    rw [Ideal.under_def, RingHom.comap_ker, kw_oddOrderSummingSetCoordHom_odd_comp_algebraMap,
+    rw [Ideal.under_def, RingHom.comap_ker, oddOrderSummingSetCoordHom_odd_comp_algebraMap,
       ← RingHom.injective_iff_ker_eq_bot]
-    exact kw_aeval_kwVeluXGenFun_injective (W := W) _
+    exact aeval_VeluXGenFun_injective (W := W) _
   exact (RingHom.injective_iff_ker_eq_bot
-    (kw_oddOrderSummingSetCoordHom_odd (W := W) hp3 hpodd hord).toRingHom).mpr hker
+    (oddOrderSummingSetCoordHom_odd (W := W) hp3 hpodd hord).toRingHom).mpr hker
 
 include hp3 hpodd hord in
-noncomputable def kw_oddOrderSummingSetFunctionFieldHom_odd :
+noncomputable def oddOrderSummingSetFunctionFieldHom_odd :
     (W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))).toAffine.FunctionField
       →ₐ[F] W.toAffine.FunctionField :=
-  IsFractionRing.liftAlgHom (kw_oddOrderSummingSetCoordHom_odd_injective hp3 hpodd hord)
+  IsFractionRing.liftAlgHom (oddOrderSummingSetCoordHom_odd_injective hp3 hpodd hord)
 
 include hp3 hpodd hord in
-theorem kw_oddOrderSummingSetFunctionFieldHom_odd_algebraMap
+theorem oddOrderSummingSetFunctionFieldHom_odd_algebraMap
     (r : (W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))).toAffine.CoordinateRing) :
-    kw_oddOrderSummingSetFunctionFieldHom_odd hp3 hpodd hord
+    oddOrderSummingSetFunctionFieldHom_odd hp3 hpodd hord
         (algebraMap
           (W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))).toAffine.CoordinateRing
           (W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))).toAffine.FunctionField r)
-      = kw_oddOrderSummingSetCoordHom_odd hp3 hpodd hord r :=
-  IsFractionRing.lift_algebraMap (kw_oddOrderSummingSetCoordHom_odd_injective hp3 hpodd hord) r
+      = oddOrderSummingSetCoordHom_odd hp3 hpodd hord r :=
+  IsFractionRing.lift_algebraMap (oddOrderSummingSetCoordHom_odd_injective hp3 hpodd hord) r
 
 include hp3 hpodd hord in
-theorem kw_oddOrderSummingSetFunctionFieldHom_odd_polyToFunctionField_X :
-    kw_oddOrderSummingSetFunctionFieldHom_odd (W := W) hp3 hpodd hord
+theorem oddOrderSummingSetFunctionFieldHom_odd_polyToFunctionField_X :
+    oddOrderSummingSetFunctionFieldHom_odd (W := W) hp3 hpodd hord
         (polyToFunctionField
           (W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))).toAffine X)
-      = kwVeluXGenFun W.toAffine (W.oddOrderSummingSet Q ((p - 1) / 2)) := by
-  rw [polyToFunctionField_apply, kw_oddOrderSummingSetFunctionFieldHom_odd_algebraMap,
-    algebraMap_polynomial_eq_mk_C, kw_oddOrderSummingSetCoordHom_odd_mk, eval₂_C]
+      = VeluXGenFun W.toAffine (W.oddOrderSummingSet Q ((p - 1) / 2)) := by
+  rw [polyToFunctionField_apply, oddOrderSummingSetFunctionFieldHom_odd_algebraMap,
+    algebraMap_polynomial_eq_mk_C, oddOrderSummingSetCoordHom_odd_mk, eval₂_C]
   exact Polynomial.aeval_X _
 
 include hp3 hpodd hord in
-theorem kw_oddOrderSummingSetFunctionFieldHom_odd_yGen :
-    kw_oddOrderSummingSetFunctionFieldHom_odd (W := W) hp3 hpodd hord
+theorem oddOrderSummingSetFunctionFieldHom_odd_yGen :
+    oddOrderSummingSetFunctionFieldHom_odd (W := W) hp3 hpodd hord
         (yGen (W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))).toAffine)
-      = kwVeluYGenFun W.toAffine (W.oddOrderSummingSet Q ((p - 1) / 2)) := by
-  show kw_oddOrderSummingSetFunctionFieldHom_odd hp3 hpodd hord
+      = VeluYGenFun W.toAffine (W.oddOrderSummingSet Q ((p - 1) / 2)) := by
+  show oddOrderSummingSetFunctionFieldHom_odd hp3 hpodd hord
       (algebraMap _ _ (CoordinateRing.mk _ Y)) = _
-  rw [kw_oddOrderSummingSetFunctionFieldHom_odd_algebraMap,
-    kw_oddOrderSummingSetCoordHom_odd_mk]
+  rw [oddOrderSummingSetFunctionFieldHom_odd_algebraMap,
+    oddOrderSummingSetCoordHom_odd_mk]
   exact eval₂_X _ _
 
 end CoordHomOdd
@@ -876,10 +883,10 @@ variable (hp3 : 3 ≤ p) (hpodd : Odd p) (hord : addOrderOf Q = p)
 local notation "S_Q" => W.oddOrderSummingSet Q ((p - 1) / 2)
 set_option quotPrecheck false in
 local notation "V'" => (W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))).toAffine
-local notation "ι" => kw_oddOrderSummingSetFunctionFieldHom_odd (W := W) hp3 hpodd hord
+local notation "ι" => oddOrderSummingSetFunctionFieldHom_odd (W := W) hp3 hpodd hord
 
 include hp3 hpodd hord in
-theorem kw_isIntegral_polyToFunctionField_X_oddOrderSummingSet_odd :
+theorem isIntegral_polyToFunctionField_X_oddOrderSummingSet_odd :
     letI : Algebra (V').FunctionField W.toAffine.FunctionField := (ι).toRingHom.toAlgebra
     _root_.IsIntegral (V').FunctionField (polyToFunctionField W.toAffine X) := by
   letI : Algebra (V').FunctionField W.toAffine.FunctionField := (ι).toRingHom.toAlgebra
@@ -911,12 +918,12 @@ theorem kw_isIntegral_polyToFunctionField_X_oddOrderSummingSet_odd :
       ← Polynomial.eval_map, ← polyToFunctionField_eq_eval_map,
       ← Polynomial.eval_map, ← polyToFunctionField_eq_eval_map,
       show (algebraMap (V').FunctionField W.toAffine.FunctionField) (polyToFunctionField V' X)
-          = kwVeluXGenFun W.toAffine S_Q from
-        kw_oddOrderSummingSetFunctionFieldHom_odd_polyToFunctionField_X hp3 hpodd hord,
-      kw_kwVeluXGenFun_mul_denom_sq_eq_cleared, sub_self]
+          = VeluXGenFun W.toAffine S_Q from
+        oddOrderSummingSetFunctionFieldHom_odd_polyToFunctionField_X hp3 hpodd hord,
+      VeluXGenFun_mul_denom_sq_eq_cleared, sub_self]
 
 include hp3 hpodd hord in
-theorem kw_adjoin_X_yGen_eq_top_oddOrderSummingSet_odd :
+theorem adjoin_X_yGen_eq_top_oddOrderSummingSet_odd :
     letI : Algebra (V').FunctionField W.toAffine.FunctionField := (ι).toRingHom.toAlgebra
     IntermediateField.adjoin (V').FunctionField
         ({polyToFunctionField W.toAffine X, yGen W.toAffine} : Set W.toAffine.FunctionField)
@@ -947,11 +954,11 @@ theorem kw_adjoin_X_yGen_eq_top_oddOrderSummingSet_odd :
   rw [← hab]; exact div_mem (hcr a) (hcr b)
 
 include hp3 hpodd hord in
-theorem kw_oddOrderSummingSetFunctionFieldHom_odd_finiteAlong :
-    FiniteAlong F (kw_oddOrderSummingSetFunctionFieldHom_odd (W := W) hp3 hpodd hord) := by
+theorem oddOrderSummingSetFunctionFieldHom_odd_finiteAlong :
+    FiniteAlong F (oddOrderSummingSetFunctionFieldHom_odd (W := W) hp3 hpodd hord) := by
   letI : Algebra (V').FunctionField W.toAffine.FunctionField := (ι).toRingHom.toAlgebra
   show Module.Finite (V').FunctionField W.toAffine.FunctionField
-  have hxint := kw_isIntegral_polyToFunctionField_X_oddOrderSummingSet_odd hp3 hpodd hord
+  have hxint := isIntegral_polyToFunctionField_X_oddOrderSummingSet_odd hp3 hpodd hord
   set Lx := IntermediateField.adjoin (V').FunctionField
     ({polyToFunctionField W.toAffine X} : Set W.toAffine.FunctionField) with hLx
   haveI hxfd : FiniteDimensional (V').FunctionField Lx :=
@@ -998,21 +1005,21 @@ theorem kw_oddOrderSummingSetFunctionFieldHom_odd_finiteAlong :
     rcases hz with rfl | rfl
     · exact hxint
     · exact hyint'
-  rw [kw_adjoin_X_yGen_eq_top_oddOrderSummingSet_odd hp3 hpodd hord] at hfd
+  rw [adjoin_X_yGen_eq_top_oddOrderSummingSet_odd hp3 hpodd hord] at hfd
   exact (IntermediateField.topEquiv (F := (V').FunctionField)
     (E := W.toAffine.FunctionField)).toLinearEquiv.finiteDimensional
 
 include hp3 hpodd hord in
-theorem kw_oddOrderSummingSetFunctionFieldHom_odd_isIntegral :
-    (kw_oddOrderSummingSetFunctionFieldHom_odd (W := W) hp3 hpodd hord).toRingHom.IsIntegral
+theorem oddOrderSummingSetFunctionFieldHom_odd_isIntegral :
+    (oddOrderSummingSetFunctionFieldHom_odd (W := W) hp3 hpodd hord).toRingHom.IsIntegral
     := by
   letI : Algebra (V').FunctionField W.toAffine.FunctionField := (ι).toRingHom.toAlgebra
   haveI : Module.Finite (V').FunctionField W.toAffine.FunctionField :=
-    kw_oddOrderSummingSetFunctionFieldHom_odd_finiteAlong hp3 hpodd hord
+    oddOrderSummingSetFunctionFieldHom_odd_finiteAlong hp3 hpodd hord
   exact fun z => (Algebra.IsIntegral.of_finite _ _).isIntegral z
 
 include hp3 hpodd hord in
-theorem kw_isSeparable_polyToFunctionField_X_oddOrderSummingSet_odd :
+theorem isSeparable_polyToFunctionField_X_oddOrderSummingSet_odd :
     letI : Algebra (V').FunctionField W.toAffine.FunctionField := (ι).toRingHom.toAlgebra
     IsSeparable (V').FunctionField (polyToFunctionField W.toAffine X) := by
   letI : Algebra (V').FunctionField W.toAffine.FunctionField := (ι).toRingHom.toAlgebra
@@ -1020,18 +1027,18 @@ theorem kw_isSeparable_polyToFunctionField_X_oddOrderSummingSet_odd :
         (algebraMap F (V').FunctionField) = algebraMap F W.toAffine.FunctionField :=
     RingHom.ext fun c => (ι).commutes c
   have hX' : algebraMap (V').FunctionField W.toAffine.FunctionField (polyToFunctionField V' X)
-      = kwVeluXGenFun W.toAffine S_Q :=
-    kw_oddOrderSummingSetFunctionFieldHom_odd_polyToFunctionField_X hp3 hpodd hord
+      = VeluXGenFun W.toAffine S_Q :=
+    oddOrderSummingSetFunctionFieldHom_odd_polyToFunctionField_X hp3 hpodd hord
   have hev : ∀ q : F[X], aeval (polyToFunctionField W.toAffine X)
       (q.map (algebraMap F (V').FunctionField)) = polyToFunctionField W.toAffine q := by
     intro q
     rw [aeval_def, eval₂_map, hφ, ← eval_map, ← polyToFunctionField_eq_eval_map]
   have hNmon := veluXClearedPoly_monic W S_Q
-  have hclear : kwVeluXGenFun W.toAffine S_Q
+  have hclear : VeluXGenFun W.toAffine S_Q
         * polyToFunctionField W.toAffine (veluXDenomPoly S_Q ^ 2)
       = polyToFunctionField W.toAffine (veluXClearedPoly W S_Q) := by
-    rw [map_pow]; exact kw_kwVeluXGenFun_mul_denom_sq_eq_cleared W.toAffine S_Q
-  refine kw_isSeparable_of_aeval_derivative_ne_zero
+    rw [map_pow]; exact VeluXGenFun_mul_denom_sq_eq_cleared W.toAffine S_Q
+  refine isSeparable_of_aeval_derivative_ne_zero
     (f := (veluXClearedPoly W S_Q).map (algebraMap F (V').FunctionField)
       - C (polyToFunctionField V' X) * (veluXDenomPoly S_Q ^ 2).map (algebraMap F (V').FunctionField))
     ?_ ?_
@@ -1051,7 +1058,7 @@ theorem kw_isSeparable_polyToFunctionField_X_oddOrderSummingSet_odd :
         (-(polyToFunctionField W.toAffine (derivative (veluXDenomPoly S_Q ^ 2)))) * hclear
     have hkey : derivative (veluXClearedPoly W S_Q) * veluXDenomPoly S_Q ^ 2
         - veluXClearedPoly W S_Q * derivative (veluXDenomPoly S_Q ^ 2) ≠ 0 :=
-      kw_derivative_mul_sq_sub_mul_derivative_sq_ne_zero hNmon.1 hNmon.2
+      derivative_mul_sq_sub_mul_derivative_sq_ne_zero hNmon.1 hNmon.2
         (veluXDenomPoly_monic S_Q) (natDegree_veluXDenomPoly S_Q)
     intro h0
     refine polyToFunctionField_ne_zero (W := W.toAffine) hkey ?_
@@ -1059,11 +1066,11 @@ theorem kw_isSeparable_polyToFunctionField_X_oddOrderSummingSet_odd :
 
 include hp3 hpodd hord in
 
-theorem kw_oddOrderSummingSetFunctionFieldHom_odd_separableAlong :
+theorem oddOrderSummingSetFunctionFieldHom_odd_separableAlong :
     SeparableAlong F (ι) := by
   letI : Algebra (V').FunctionField W.toAffine.FunctionField := (ι).toRingHom.toAlgebra
   show Algebra.IsSeparable (V').FunctionField W.toAffine.FunctionField
-  have hx := kw_isSeparable_polyToFunctionField_X_oddOrderSummingSet_odd hp3 hpodd hord
+  have hx := isSeparable_polyToFunctionField_X_oddOrderSummingSet_odd hp3 hpodd hord
   have hy : IsSeparable (V').FunctionField (yGen W.toAffine) := by
     set M := IntermediateField.adjoin (V').FunctionField
       ({polyToFunctionField W.toAffine X} : Set W.toAffine.FunctionField) with hM
@@ -1080,7 +1087,7 @@ theorem kw_oddOrderSummingSetFunctionFieldHom_odd_separableAlong :
       add_mem (add_mem (add_mem (pow_mem hxM 3) (mul_mem (hFM _) (pow_mem hxM 2)))
         (mul_mem (hFM _) hxM)) (hFM _)
     have hyM : IsSeparable M (yGen W.toAffine) :=
-      kw_isSeparable_yGen_of_algebraMap_eq (W := W.toAffine)
+      isSeparable_yGen_of_algebraMap_eq (W := W.toAffine)
         (two_ne_zero_or_a₁_ne_zero_or_a₃_ne_zero_of_Δ_ne_zero' W
           (WeierstrassCurve.isUnit_Δ (W := W.toAffine)).ne_zero)
         (⟨_, hbM⟩ : M) (⟨_, hcM⟩ : M) rfl rfl
@@ -1090,7 +1097,7 @@ theorem kw_oddOrderSummingSetFunctionFieldHom_odd_separableAlong :
     exact IsSeparable.of_algebra_isSeparable_of_isSeparable (V').FunctionField hyM
   have hpair := IntermediateField.isSeparable_adjoin_pair_of_isSeparable
     (F := (V').FunctionField) (E := W.toAffine.FunctionField) hx hy
-  rw [kw_adjoin_X_yGen_eq_top_oddOrderSummingSet_odd hp3 hpodd hord] at hpair
+  rw [adjoin_X_yGen_eq_top_oddOrderSummingSet_odd hp3 hpodd hord] at hpair
   exact Algebra.IsSeparable.of_algHom (V').FunctionField _
     (IntermediateField.topEquiv (F := (V').FunctionField) (E := W.toAffine.FunctionField)).symm.toAlgHom
 
@@ -1179,42 +1186,42 @@ variable (hp3 : 3 ≤ p) (hpodd : Odd p) (hord : addOrderOf Q = p)
 local notation "S_Q" => W.oddOrderSummingSet Q ((p - 1) / 2)
 set_option quotPrecheck false in
 local notation "V'" => (W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))).toAffine
-local notation "ι" => kw_oddOrderSummingSetFunctionFieldHom_odd (W := W) hp3 hpodd hord
+local notation "ι" => oddOrderSummingSetFunctionFieldHom_odd (W := W) hp3 hpodd hord
 local notation "hι" =>
-  kw_oddOrderSummingSetFunctionFieldHom_odd_isIntegral (W := W) hp3 hpodd hord
+  oddOrderSummingSetFunctionFieldHom_odd_isIntegral (W := W) hp3 hpodd hord
 
 include hp3 hpodd hord in
-theorem kw_kwVeluXGenFun_notMem_placeOfEquation_of_mem_odd
+theorem VeluXGenFun_notMem_placeOfEquation_of_mem_odd
     {r s : F} (hrs : W.toAffine.Equation r s) {A : F × F} (hA : A ∈ S_Q) (hrA : r = A.1) :
-    kwVeluXGenFun W.toAffine S_Q ∉ (placeOfEquation hrs).toValuationSubring := by
-  have hset := kw_isOddVeluSet_oddOrderSummingSet_odd (W := W) hp3 hpodd hord (le_refl _)
+    VeluXGenFun W.toAffine S_Q ∉ (placeOfEquation hrs).toValuationSubring := by
+  have hset := isOddVeluSet_oddOrderSummingSet_odd (W := W) hp3 hpodd hord (le_refl _)
   have hDne : (veluXDenomPoly (F := F) S_Q) ≠ 0 := (veluXDenomPoly_monic S_Q).ne_zero
   have hNne : (veluXClearedPoly W S_Q) ≠ 0 := (veluXClearedPoly_monic W S_Q).1.ne_zero
   have hDeval : (veluXDenomPoly (F := F) S_Q).eval r = 0 := by
     subst hrA; unfold veluXDenomPoly
     rw [eval_prod]; exact Finset.prod_eq_zero hA (by simp)
   have hNeval : (veluXClearedPoly W S_Q).eval r ≠ 0 := by
-    subst hrA; exact kw_eval_veluXClearedPoly_ne_zero_of_mem W.toAffine S_Q hset hA
+    subst hrA; exact eval_veluXClearedPoly_ne_zero_of_mem W.toAffine S_Q hset hA
   have hDord : 0 < (placeOfEquation hrs).ord
       (polyToFunctionField W.toAffine (veluXDenomPoly S_Q)) :=
     (ord_polyToFunctionField_pos_iff hrs hDne).mpr hDeval
   have hNord : (placeOfEquation hrs).ord
       (polyToFunctionField W.toAffine (veluXClearedPoly W S_Q)) = 0 :=
     (ord_polyToFunctionField_eq_zero_iff hrs hNne).mpr hNeval
-  have hXne : kwVeluXGenFun W.toAffine S_Q ≠ 0 := fun h =>
-    kw_transcendental_kwVeluXGenFun (W := W) S_Q (h ▸ isAlgebraic_zero)
+  have hXne : VeluXGenFun W.toAffine S_Q ≠ 0 := fun h =>
+    transcendental_VeluXGenFun (W := W) S_Q (h ▸ isAlgebraic_zero)
   rw [(placeOfEquation hrs).mem_iff_ord_nonneg hXne, not_le]
   have hmul := (placeOfEquation hrs).ord_mul hXne
     (pow_ne_zero 2 (polyToFunctionField_ne_zero hDne))
-  rw [kw_kwVeluXGenFun_mul_denom_sq_eq_cleared, hNord,
+  rw [VeluXGenFun_mul_denom_sq_eq_cleared, hNord,
     (placeOfEquation hrs).ord_pow] at hmul
   push_cast at hmul
   linarith
 
-theorem kw_kwVeluXGenFun_mem_placeOfEquation_of_ne_odd
+theorem VeluXGenFun_mem_placeOfEquation_of_ne_odd
     {r s : F} (hrs : W.toAffine.Equation r s) (hS : ∀ A ∈ S_Q, r ≠ A.1) :
-    kwVeluXGenFun W.toAffine S_Q ∈ (placeOfEquation hrs).toValuationSubring := by
-  unfold kwVeluXGenFun WeierstrassCurve.veluX liftSummingSet
+    VeluXGenFun W.toAffine S_Q ∈ (placeOfEquation hrs).toValuationSubring := by
+  unfold VeluXGenFun WeierstrassCurve.veluX liftSummingSet
   rw [Finset.sum_map]
   simp only [Function.Embedding.coeFn_mk, Prod.map_fst, Prod.map_snd, map_veluT, map_veluU]
   refine add_mem (polyToFunctionField_X_mem_placeOfEquation hrs)
@@ -1230,10 +1237,10 @@ theorem kw_kwVeluXGenFun_mem_placeOfEquation_of_ne_odd
   · rw [div_eq_mul_inv, ← inv_pow]
     exact mul_mem ((placeOfEquation hrs).algebraMap_mem' _) (pow_mem hδ 2)
 
-theorem kw_kwVeluYGenFun_mem_placeOfEquation_of_ne_odd
+theorem VeluYGenFun_mem_placeOfEquation_of_ne_odd
     {r s : F} (hrs : W.toAffine.Equation r s) (hS : ∀ A ∈ S_Q, r ≠ A.1) :
-    kwVeluYGenFun W.toAffine S_Q ∈ (placeOfEquation hrs).toValuationSubring := by
-  unfold kwVeluYGenFun WeierstrassCurve.veluY liftSummingSet
+    VeluYGenFun W.toAffine S_Q ∈ (placeOfEquation hrs).toValuationSubring := by
+  unfold VeluYGenFun WeierstrassCurve.veluY liftSummingSet
   rw [Finset.sum_map]
   simp only [Function.Embedding.coeFn_mk, Prod.map_fst, Prod.map_snd, map_veluT, map_veluU,
     map_veluGx, map_veluGy, map_a₁, map_a₃]
@@ -1259,34 +1266,34 @@ theorem kw_kwVeluYGenFun_mem_placeOfEquation_of_ne_odd
     exact mul_mem (sub_mem (mul_mem (hF _) (hF _)) (mul_mem (hF _) (hF _))) (pow_mem hδ 2)
 
 include hp3 hpodd hord in
-theorem kw_map_XClass_oddOrderSummingSet_odd (c : F) :
+theorem map_XClass_oddOrderSummingSet_odd (c : F) :
     (ι) (algebraMap (V').CoordinateRing (V').FunctionField (XClass V' c))
-      = kwVeluXGenFun W.toAffine S_Q - algebraMap F W.toAffine.FunctionField c := by
+      = VeluXGenFun W.toAffine S_Q - algebraMap F W.toAffine.FunctionField c := by
   rw [show algebraMap (V').CoordinateRing (V').FunctionField (XClass V' c)
         = polyToFunctionField V' (X : F[X]) - algebraMap F (V').FunctionField c by
       rw [← polyToFunctionField_C, ← map_sub]; rfl,
-    map_sub, kw_oddOrderSummingSetFunctionFieldHom_odd_polyToFunctionField_X,
+    map_sub, oddOrderSummingSetFunctionFieldHom_odd_polyToFunctionField_X,
     AlgHom.commutes]
 
 include hp3 hpodd hord in
-theorem kw_map_YClass_oddOrderSummingSet_odd (c : F) :
+theorem map_YClass_oddOrderSummingSet_odd (c : F) :
     (ι) (algebraMap (V').CoordinateRing (V').FunctionField (YClass V' (C c)))
-      = kwVeluYGenFun W.toAffine S_Q - algebraMap F W.toAffine.FunctionField c := by
+      = VeluYGenFun W.toAffine S_Q - algebraMap F W.toAffine.FunctionField c := by
   rw [show algebraMap (V').CoordinateRing (V').FunctionField (YClass V' (C c))
         = yGen V' - algebraMap F (V').FunctionField c by
       rw [YClass, map_sub, map_sub, yGen]; congr 1,
-    map_sub, kw_oddOrderSummingSetFunctionFieldHom_odd_yGen, AlgHom.commutes]
+    map_sub, oddOrderSummingSetFunctionFieldHom_odd_yGen, AlgHom.commutes]
 
 include hp3 hpodd hord in
-theorem kw_kwVeluYGenFun_ne_algebraMap_odd (c : F) :
-    kwVeluYGenFun W.toAffine S_Q ≠ algebraMap F W.toAffine.FunctionField c := by
+theorem VeluYGenFun_ne_algebraMap_odd (c : F) :
+    VeluYGenFun W.toAffine S_Q ≠ algebraMap F W.toAffine.FunctionField c := by
   intro heq
   have hinj : Function.Injective (ι) := (ι).toRingHom.injective
   have hYne : (algebraMap (V').CoordinateRing (V').FunctionField) (YClass V' (C c)) ≠ 0 :=
     (map_ne_zero_iff _
       (IsFractionRing.injective (V').CoordinateRing (V').FunctionField)).mpr (YClass_ne_zero _)
   exact hYne (hinj (by
-    rw [kw_map_YClass_oddOrderSummingSet_odd hp3 hpodd hord, heq, sub_self, _root_.map_zero]))
+    rw [map_YClass_oddOrderSummingSet_odd hp3 hpodd hord, heq, sub_self, _root_.map_zero]))
 
 variable [(W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))).IsElliptic]
   [GenusOnePlaceGate (W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))).toAffine]
@@ -1294,45 +1301,45 @@ variable [(W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))).IsElliptic]
   [AbelTheorem (W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))).toAffine]
 
 include hp3 hpodd hord in
-theorem kw_restrictAlong_infinitePlace_oddOrderSummingSet_odd :
+theorem restrictAlong_infinitePlace_oddOrderSummingSet_odd :
     (InfinitePlace.place : Place F W.toAffine.FunctionField).restrictAlong (ι) (hι)
       = (InfinitePlace.place : Place F (V').FunctionField) := by
   refine InfinitePlace.eq_of_not_isFinitePlace _ ?_
   intro hfin
-  refine kw_kwVeluXGenFun_notMem_of_not_isFinitePlace (S := S_Q)
+  refine VeluXGenFun_notMem_of_not_isFinitePlace (S := S_Q)
     (InfinitePlace.place : Place F W.toAffine.FunctionField) InfinitePlace.not_isFinitePlace ?_
-  rw [← kw_oddOrderSummingSetFunctionFieldHom_odd_polyToFunctionField_X hp3 hpodd hord]
+  rw [← oddOrderSummingSetFunctionFieldHom_odd_polyToFunctionField_X hp3 hpodd hord]
   exact hfin (algebraMap F[X] (V').CoordinateRing (X : F[X]))
 
 include hp3 hpodd hord in
-theorem kw_restrictAlong_placeOfEquation_of_mem_oddOrderSummingSet_odd
+theorem restrictAlong_placeOfEquation_of_mem_oddOrderSummingSet_odd
     {r s : F} (hrs : W.toAffine.Equation r s) {A : F × F} (hA : A ∈ S_Q) (hrA : r = A.1) :
     (placeOfEquation hrs).restrictAlong (ι) (hι) = InfinitePlace.place := by
   refine InfinitePlace.eq_of_not_isFinitePlace _ ?_
   intro hfin
-  refine kw_kwVeluXGenFun_notMem_placeOfEquation_of_mem_odd hp3 hpodd hord hrs hA hrA ?_
-  rw [← kw_oddOrderSummingSetFunctionFieldHom_odd_polyToFunctionField_X hp3 hpodd hord]
+  refine VeluXGenFun_notMem_placeOfEquation_of_mem_odd hp3 hpodd hord hrs hA hrA ?_
+  rw [← oddOrderSummingSetFunctionFieldHom_odd_polyToFunctionField_X hp3 hpodd hord]
   exact hfin (algebraMap F[X] (V').CoordinateRing (X : F[X]))
 
 include hp3 hpodd hord in
-theorem kw_restrictAlong_placeOfEquation_of_ne_oddOrderSummingSet_odd
+theorem restrictAlong_placeOfEquation_of_ne_oddOrderSummingSet_odd
     {r s : F} (hrs : W.toAffine.Equation r s) (hS : ∀ A ∈ S_Q, r ≠ A.1)
     (h' : (V').Equation (W.veluX S_Q r) (W.veluY S_Q r s)) :
     (placeOfEquation hrs).restrictAlong (ι) (hι) = placeOfEquation h' := by
   have hrat := isRational_placeOfEquation hrs
-  have hXmem := kw_kwVeluXGenFun_mem_placeOfEquation_of_ne_odd (W := W) (Q := Q) (p := p)
+  have hXmem := VeluXGenFun_mem_placeOfEquation_of_ne_odd (W := W) (Q := Q) (p := p)
     hrs hS
-  have hYmem := kw_kwVeluYGenFun_mem_placeOfEquation_of_ne_odd (W := W) (Q := Q) (p := p)
+  have hYmem := VeluYGenFun_mem_placeOfEquation_of_ne_odd (W := W) (Q := Q) (p := p)
     hrs hS
-  have hXeval : (placeOfEquation hrs).evalAt (kwVeluXGenFun W.toAffine S_Q) = W.veluX S_Q r :=
+  have hXeval : (placeOfEquation hrs).evalAt (VeluXGenFun W.toAffine S_Q) = W.veluX S_Q r :=
     evalAt_veluX_liftSummingSet_placeOfEquation hrs hS
-  have hYeval : (placeOfEquation hrs).evalAt (kwVeluYGenFun W.toAffine S_Q)
+  have hYeval : (placeOfEquation hrs).evalAt (VeluYGenFun W.toAffine S_Q)
       = W.veluY S_Q r s :=
     evalAt_veluY_liftSummingSet_placeOfEquation hrs hS
   have hfin : IsFinitePlace ((placeOfEquation hrs).restrictAlong (ι) (hι)) :=
     isFinitePlace_of_mem _ (by
       rw [Place.mem_restrictAlong_iff,
-        kw_oddOrderSummingSetFunctionFieldHom_odd_polyToFunctionField_X hp3 hpodd hord]
+        oddOrderSummingSetFunctionFieldHom_odd_polyToFunctionField_X hp3 hpodd hord]
       exact hXmem)
   refine eq_placeOfEquation_of_le_centre hfin h' ?_
   rw [XYIdeal, Ideal.span_le]
@@ -1340,45 +1347,45 @@ theorem kw_restrictAlong_placeOfEquation_of_ne_oddOrderSummingSet_odd
   simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hg
   rcases hg with rfl | rfl
   · rw [SetLike.mem_coe, hfin.mem_centre_iff_ord_ne_zero (XClass_ne_zero _),
-      Place.ord_restrictAlong_ne_zero_iff, kw_map_XClass_oddOrderSummingSet_odd hp3 hpodd hord]
-    have hXne : kwVeluXGenFun W.toAffine S_Q
+      Place.ord_restrictAlong_ne_zero_iff, map_XClass_oddOrderSummingSet_odd hp3 hpodd hord]
+    have hXne : VeluXGenFun W.toAffine S_Q
         - algebraMap F W.toAffine.FunctionField (W.veluX S_Q r) ≠ 0 :=
-      sub_ne_zero.mpr fun heq => (kw_transcendental_kwVeluXGenFun (W := W) S_Q)
+      sub_ne_zero.mpr fun heq => (transcendental_VeluXGenFun (W := W) S_Q)
         (heq ▸ isAlgebraic_algebraMap _)
     have := (placeOfEquation hrs).ord_sub_evalAt_pos hrat hXmem (hXeval ▸ hXne)
     rw [hXeval] at this; omega
   · rw [SetLike.mem_coe, hfin.mem_centre_iff_ord_ne_zero (YClass_ne_zero _),
-      Place.ord_restrictAlong_ne_zero_iff, kw_map_YClass_oddOrderSummingSet_odd hp3 hpodd hord]
-    have hYne : kwVeluYGenFun W.toAffine S_Q
+      Place.ord_restrictAlong_ne_zero_iff, map_YClass_oddOrderSummingSet_odd hp3 hpodd hord]
+    have hYne : VeluYGenFun W.toAffine S_Q
         - algebraMap F W.toAffine.FunctionField (W.veluY S_Q r s) ≠ 0 :=
-      sub_ne_zero.mpr (kw_kwVeluYGenFun_ne_algebraMap_odd hp3 hpodd hord _)
+      sub_ne_zero.mpr (VeluYGenFun_ne_algebraMap_odd hp3 hpodd hord _)
     have := (placeOfEquation hrs).ord_sub_evalAt_pos hrat hYmem (hYeval ▸ hYne)
     rw [hYeval] at this; omega
 
 local notation "hmapeq" =>
-  kw_kwVeluMapEquationAt_oddOrderSummingSet_odd (W := W) hp3 hpodd hord
+  VeluMapEquationAt_oddOrderSummingSet_odd (W := W) hp3 hpodd hord
     W.toAffine.isUnit_Δ.ne_zero
 
 variable (hΔV : (W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))).Δ ≠ 0)
 
 include hp3 hpodd hord hΔV in
-theorem kw_restrictAlong_placeOfPoint_kwVeluPointMap_odd (P : W.toAffine.Point) :
+theorem restrictAlong_placeOfPoint_VeluPointMap_odd (P : W.toAffine.Point) :
     (placeOfPoint P).restrictAlong (ι) (hι)
-      = placeOfPoint (kwVeluPointMap (hmapeq) hΔV P) := by
+      = placeOfPoint (VeluPointMap (hmapeq) hΔV P) := by
   cases P with
   | zero =>
-      rw [kwVeluPointMap_zero]
-      exact kw_restrictAlong_infinitePlace_oddOrderSummingSet_odd hp3 hpodd hord
+      rw [VeluPointMap_zero]
+      exact restrictAlong_infinitePlace_oddOrderSummingSet_odd hp3 hpodd hord
   | some r s hns =>
       classical
       by_cases hx : ∀ A ∈ S_Q, r ≠ A.1
-      · rw [kwVeluPointMap_some_of_ne _ hΔV hns hx, placeOfPoint_some', placeOfPoint_some']
-        exact kw_restrictAlong_placeOfEquation_of_ne_oddOrderSummingSet_odd hp3 hpodd hord
+      · rw [VeluPointMap_some_of_ne _ hΔV hns hx, placeOfPoint_some', placeOfPoint_some']
+        exact restrictAlong_placeOfEquation_of_ne_oddOrderSummingSet_odd hp3 hpodd hord
           hns.1 hx _
       · simp only [not_forall, not_not] at hx
         obtain ⟨A, hA, hrA⟩ := hx
-        rw [kwVeluPointMap_some_of_mem _ hΔV hns hA hrA, placeOfPoint_some']
-        exact kw_restrictAlong_placeOfEquation_of_mem_oddOrderSummingSet_odd hp3 hpodd hord
+        rw [VeluPointMap_some_of_mem _ hΔV hns hA hrA, placeOfPoint_some']
+        exact restrictAlong_placeOfEquation_of_mem_oddOrderSummingSet_odd hp3 hpodd hord
           hns.1 hA hrA
 
 end SeamCasesOdd
@@ -1774,7 +1781,7 @@ route below does not itself need it.) -/
 
 namespace AlgebraicCurve
 
-private theorem kw_normFormulaAlong_of_separableAlong_cf {K F F' : Type*} [Field K] [Field F]
+private theorem normFormulaAlong_of_separableAlong_cf {K F F' : Type*} [Field K] [Field F]
     [Field F'] [Algebra K F] [Algebra K F'] (φ : F →ₐ[K] F') (hPD : HasPrincipalDivisors K F')
     (hfin : FiniteAlong K φ) (hsep : SeparableAlong K φ) : NormFormulaAlong K φ hfin := by
   letI := algebraAlong φ
@@ -1799,7 +1806,7 @@ no caller edit.
   already stronger than the pin's statement; the pin's `[HasPrincipalDivisors K F']`
   is carried in the statement and unused in the proof.
 * `normFormulaAlong_of_separableAlong`: the private
-  `kw_normFormulaAlong_of_separableAlong_cf`, with the
+  `normFormulaAlong_of_separableAlong_cf`, with the
   `[HasPrincipalDivisors K F']` instance supplied.
 
 Statements are the pin wrappers' verbatim text. -/
@@ -1820,7 +1827,7 @@ theorem normFormulaAlong_of_separableAlong {K F F' : Type*} [Field K] [Field F] 
     [Algebra K F] [Algebra K F'] (φ : F →ₐ[K] F') [HasPrincipalDivisors K F']
     (hfin : FiniteAlong K φ) (hsep : SeparableAlong K φ) :
     NormFormulaAlong K φ hfin :=
-  kw_normFormulaAlong_of_separableAlong_cf φ ‹HasPrincipalDivisors K F'› hfin hsep
+  normFormulaAlong_of_separableAlong_cf φ ‹HasPrincipalDivisors K F'› hfin hsep
 
 end AlgebraicCurve
 
@@ -1863,8 +1870,8 @@ name, so it is exempted by name in `spec/check_flt_statements.py`'s `OWN_PROOFS`
 reason. -/
 theorem normFormulaAlong_of_elliptic_cf (ι : V.FunctionField →ₐ[F] W.FunctionField)
     (hfin : FiniteAlong F ι) (hsep : SeparableAlong F ι) : NormFormulaAlong F ι hfin :=
-  kw_normFormulaAlong_of_separableAlong_cf (K := F) ι
-    (kw_veluHPDSupplier W W.isUnit_Δ.ne_zero) hfin hsep
+  normFormulaAlong_of_separableAlong_cf (K := F) ι
+    (veluHPDSupplier W W.isUnit_Δ.ne_zero) hfin hsep
 
 end AutoNorm
 
@@ -1958,21 +1965,21 @@ theorem s2c_key (hp3 : 3 ≤ p) (hpodd : Odd p) (hord : addOrderOf Q = p)
   classical
   have hn : addOrderOf Q = 2 * ((p - 1) / 2) + 1 := by
     obtain ⟨k, hk⟩ := hpodd; rw [hord, hk]; omega
-  have hmapeq : W.KwVeluMapEquationAt (W.oddOrderSummingSet Q ((p - 1) / 2)) :=
-    kw_kwVeluMapEquationAt_oddOrderSummingSet_odd (W := W) hp3 hpodd hord
+  have hmapeq : W.VeluMapEquationAt (W.oddOrderSummingSet Q ((p - 1) / 2)) :=
+    VeluMapEquationAt_oddOrderSummingSet_odd (W := W) hp3 hpodd hord
       W.toAffine.isUnit_Δ.ne_zero
-  refine ⟨kw_oddOrderSummingSetFunctionFieldHom_odd (W := W) hp3 hpodd hord,
-    kw_oddOrderSummingSetFunctionFieldHom_odd_isIntegral (W := W) hp3 hpodd hord,
-    kw_oddOrderSummingSetFunctionFieldHom_odd_finiteAlong (W := W) hp3 hpodd hord, ?_⟩
-  set ι := kw_oddOrderSummingSetFunctionFieldHom_odd (W := W) hp3 hpodd hord
-  set hι := kw_oddOrderSummingSetFunctionFieldHom_odd_isIntegral (W := W) hp3 hpodd hord
-  set hfin := kw_oddOrderSummingSetFunctionFieldHom_odd_finiteAlong (W := W) hp3 hpodd hord
+  refine ⟨oddOrderSummingSetFunctionFieldHom_odd (W := W) hp3 hpodd hord,
+    oddOrderSummingSetFunctionFieldHom_odd_isIntegral (W := W) hp3 hpodd hord,
+    oddOrderSummingSetFunctionFieldHom_odd_finiteAlong (W := W) hp3 hpodd hord, ?_⟩
+  set ι := oddOrderSummingSetFunctionFieldHom_odd (W := W) hp3 hpodd hord
+  set hι := oddOrderSummingSetFunctionFieldHom_odd_isIntegral (W := W) hp3 hpodd hord
+  set hfin := oddOrderSummingSetFunctionFieldHom_odd_finiteAlong (W := W) hp3 hpodd hord
   have hseam : ∀ P : W.toAffine.Point,
-      (placeOfPoint P).restrictAlong ι hι = placeOfPoint (kwVeluPointMap hmapeq hΔV P) :=
-    kw_restrictAlong_placeOfPoint_kwVeluPointMap_odd (W := W) hp3 hpodd hord hΔV
+      (placeOfPoint P).restrictAlong ι hι = placeOfPoint (VeluPointMap hmapeq hΔV P) :=
+    restrictAlong_placeOfPoint_VeluPointMap_odd (W := W) hp3 hpodd hord hΔV
 
   have hker : ∀ P : W.toAffine.Point,
-      kwVeluPointMap hmapeq hΔV P = 0 ↔ P ∈ AddSubgroup.zmultiples Q := by
+      VeluPointMap hmapeq hΔV P = 0 ↔ P ∈ AddSubgroup.zmultiples Q := by
     intro P
     cases P with
     | zero => exact ⟨fun _ => AddSubgroup.zero_mem _, fun _ => rfl⟩
@@ -1980,17 +1987,17 @@ theorem s2c_key (hp3 : 3 ≤ p) (hpodd : Odd p) (hord : addOrderOf Q = p)
       constructor
       · intro h0
         by_cases hx : ∀ A ∈ (W.oddOrderSummingSet Q ((p - 1) / 2)), x ≠ A.1
-        · rw [kwVeluPointMap_some_of_ne hmapeq hΔV h hx] at h0
+        · rw [VeluPointMap_some_of_ne hmapeq hΔV h hx] at h0
           exact absurd h0 (Point.some_ne_zero _)
         · simp only [not_forall, not_not] at hx
           obtain ⟨A, hA, hxA⟩ := hx
           exact s2c_mem_zmultiples_of_fst_eq hn h ⟨A, hA, hxA⟩
       · intro hP
         obtain ⟨A, hA, hxA⟩ := s2c_exists_fst_eq_of_mem_zmultiples hn hP
-        exact kwVeluPointMap_some_of_mem hmapeq hΔV h hA hxA
+        exact VeluPointMap_some_of_mem hmapeq hΔV h hA hxA
 
   have hpm : ∀ (hN : NormFormulaAlong F ι hfin) (P : W.toAffine.Point),
-      pointMapOfPushforward ι hι hfin hN P = kwVeluPointMap hmapeq hΔV P :=
+      pointMapOfPushforward ι hι hfin hN P = VeluPointMap hmapeq hΔV P :=
     fun hN P => pointMapOfPushforward_eq_of_seam_cf ι hι hfin hN _ rfl hseam P
   have hkerN : ∀ hN : NormFormulaAlong F ι hfin,
       (pointMapOfPushforward ι hι hfin hN).ker = AddSubgroup.zmultiples Q := by
@@ -2000,13 +2007,13 @@ theorem s2c_key (hp3 : 3 ≤ p) (hpodd : Odd p) (hord : addOrderOf Q = p)
   refine ⟨?_, hkerN, ?_, ?_⟩
   ·
     have hsep : SeparableAlong F ι :=
-      kw_oddOrderSummingSetFunctionFieldHom_odd_separableAlong (W := W) hp3 hpodd hord
+      oddOrderSummingSetFunctionFieldHom_odd_separableAlong (W := W) hp3 hpodd hord
     have hN₀ : NormFormulaAlong F ι hfin := normFormulaAlong_of_elliptic_cf ι hfin hsep
     haveI : HasPrincipalDivisors F W.toAffine.FunctionField :=
-      kw_veluHPDSupplier W W.toAffine.isUnit_Δ.ne_zero
+      veluHPDSupplier W W.toAffine.isUnit_Δ.ne_zero
     haveI : HasPrincipalDivisors F
         (W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))).toAffine.FunctionField :=
-      kw_veluHPDSupplier (W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))) hΔV
+      veluHPDSupplier (W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))) hΔV
     rw [← natCard_ker_pointMapOfPushforward_eq_finrankAlong_of_separableAlong W.toAffine
       (W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))).toAffine ι hι hfin hsep hN₀, hkerN hN₀,
       Nat.card_zmultiples]
@@ -2016,8 +2023,8 @@ theorem s2c_key (hp3 : 3 ≤ p) (hpodd : Odd p) (hord : addOrderOf Q = p)
     have hx : ∀ A ∈ (W.oddOrderSummingSet Q ((p - 1) / 2)), x ≠ A.1 := by
       intro A hA hxA
       exact hP (s2c_mem_zmultiples_of_fst_eq hn h ⟨A, hA, hxA⟩)
-    exact ⟨kw_velu_map_nonsingular hmapeq hΔV h.1 hx, by
-      rw [hseam, kwVeluPointMap_some_of_ne hmapeq hΔV h hx]⟩
+    exact ⟨velu_map_nonsingular hmapeq hΔV h.1 hx, by
+      rw [hseam, VeluPointMap_some_of_ne hmapeq hΔV h hx]⟩
 
 theorem s2c_zero (V : WeierstrassCurve F) (hVW : V = W)
     [instV : V.toAffine.IsElliptic]

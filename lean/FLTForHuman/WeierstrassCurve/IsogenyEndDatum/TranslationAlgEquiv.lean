@@ -38,6 +38,9 @@ re-proved here: `AlgebraicCurve.Place.ord_ofHeightOneSpectrum_eq_neg_log` and
 `XYIdeal²` non-membership chain `XClass_notMem_XYIdeal_sq` and its five-lemma
 support). See `lean/topics/velu/TOPIC-V3-translation-place-action.md` §2.4 (amended
 2026-10-06) and §4.2.
+
+  spec-pin: Theorems/Thm_WeierstrassCurve_Affine_exists_algEquiv_forall_restrictAlong_placeOfPoint_eq_add.lean
+  spec-pin: Theorems/Thm_WeierstrassCurve_Affine_exists_algEquiv_restrictAlong_placeOfPoint_eq_add.lean
 -/
 import FLTForHuman.WeierstrassCurve.IsogenyEndDatum.DualEndData
 
@@ -172,7 +175,7 @@ namespace WeierstrassCurve.Affine
 
 variable {F : Type u} [Field F] [DecidableEq F]
 
-private theorem kwWdp_Δ_ne_zero_of_isElliptic {W : Affine F} [W.IsElliptic] : W.Δ ≠ 0 :=
+private theorem Δ_ne_zero_of_isElliptic_local {W : Affine F} [W.IsElliptic] : W.Δ ≠ 0 :=
   W.coe_Δ' ▸ W.Δ'.ne_zero
 
 section Translate
@@ -182,7 +185,7 @@ variable (W : Affine F) [W.IsElliptic] [GenusOnePlaceGate W] [GenusOnePlaceGate.
 
 private def Point.translateFF : W.Point → (W.FunctionField ≃ₐ[F] W.FunctionField)
   | 0 => AlgEquiv.refl
-  | .some _ _ h => translationAlgEquivOf (kwWdp_Δ_ne_zero_of_isElliptic (W := W)) h.1
+  | .some _ _ h => translationAlgEquivOf (Δ_ne_zero_of_isElliptic_local (W := W)) h.1
 
 private theorem Point.translateFF_zero : Point.translateFF (W := W) 0 = AlgEquiv.refl := rfl
 
@@ -202,22 +205,22 @@ variable (W : Affine F) [W.IsElliptic] [GenusOnePlaceGate W] [GenusOnePlaceGate.
 
 local notation "ι" => algebraMap F W.FunctionField
 
-private theorem kw_ord_yGen_of_not_isFinitePlace_charFree (v : Place F W.FunctionField)
+private theorem ord_yGen_of_not_isFinitePlace_charFree (v : Place F W.FunctionField)
     (hv : ¬ IsFinitePlace v) : v.ord W.yGen = -3 :=
   ord_Y_eq_neg_three_of_not_isFinitePlace v hv
 
 variable (a b : F)
 
-private def kwTISDα_charFree : F := W.a₄ - W.a₁ * b + 3 * a ^ 2 + 2 * W.a₂ * a
+private def tisdCharFreeα : F := W.a₄ - W.a₁ * b + 3 * a ^ 2 + 2 * W.a₂ * a
 
-private def kwTISDβ_charFree : F := 2 * b + W.a₁ * a + W.a₃
+private def tisdCharFreeβ : F := 2 * b + W.a₁ * a + W.a₃
 
-private def kwTISDγ_charFree : F := W.a₆ + b ^ 2 + W.a₁ * a * b - 2 * a ^ 3 - W.a₂ * a ^ 2
+private def tisdCharFreeγ : F := W.a₆ + b ^ 2 + W.a₁ * a * b - 2 * a ^ 3 - W.a₂ * a ^ 2
 
-private theorem kw_addXFun_sub_mul_sq_num_charFree :
+private theorem addXFun_sub_mul_sq_num_charFree :
     (W.addXFun a b - ι a) * (W.polyToFunctionField X - ι a) ^ 2 =
-      ι (kwTISDα_charFree W a b) * W.polyToFunctionField X
-        - ι (kwTISDβ_charFree W a b) * W.yGen + ι (kwTISDγ_charFree W a b) := by
+      ι (tisdCharFreeα W a b) * W.polyToFunctionField X
+        - ι (tisdCharFreeβ W a b) * W.yGen + ι (tisdCharFreeγ W a b) := by
   have hxne : W.polyToFunctionField X ≠ ι a := polyToFunctionField_X_ne_algebraMap a
   have hd : W.polyToFunctionField X - ι a ≠ 0 := sub_ne_zero.mpr hxne
   have hEq := equation_map_polyToFunctionField_yGen (W := W)
@@ -228,31 +231,31 @@ private theorem kw_addXFun_sub_mul_sq_num_charFree :
       ((W.map ι).slope (W.polyToFunctionField X) (ι a) W.yGen (ι b)) - ι a)
         * (W.polyToFunctionField X - ι a) ^ 2 = _
   rw [slope_of_X_ne hxne, addX]
-  simp only [WeierstrassCurve.map_a₁, WeierstrassCurve.map_a₂, kwTISDα_charFree,
-    kwTISDβ_charFree, kwTISDγ_charFree, map_add, map_sub, map_mul, map_pow, map_ofNat]
+  simp only [WeierstrassCurve.map_a₁, WeierstrassCurve.map_a₂, tisdCharFreeα,
+    tisdCharFreeβ, tisdCharFreeγ, map_add, map_sub, map_mul, map_pow, map_ofNat]
   field_simp
   linear_combination hEq
 
-private def kwTISDδ2_charFree : F :=
-  3 * a * kwTISDβ_charFree W a b + W.a₂ * kwTISDβ_charFree W a b
-    - W.a₁ * kwTISDα_charFree W a b
+private def tisdCharFreeδ2 : F :=
+  3 * a * tisdCharFreeβ W a b + W.a₂ * tisdCharFreeβ W a b
+    - W.a₁ * tisdCharFreeα W a b
 
-private def kwTISDδ1_charFree : F :=
-  W.a₄ * kwTISDβ_charFree W a b + kwTISDα_charFree W a b * b
-    + W.a₁ * a * kwTISDα_charFree W a b - W.a₁ * kwTISDγ_charFree W a b
-    - 3 * a ^ 2 * kwTISDβ_charFree W a b
+private def tisdCharFreeδ1 : F :=
+  W.a₄ * tisdCharFreeβ W a b + tisdCharFreeα W a b * b
+    + W.a₁ * a * tisdCharFreeα W a b - W.a₁ * tisdCharFreeγ W a b
+    - 3 * a ^ 2 * tisdCharFreeβ W a b
 
-private def kwTISDδY_charFree : F :=
-  -kwTISDγ_charFree W a b - kwTISDβ_charFree W a b * b
-    - W.a₁ * a * kwTISDβ_charFree W a b - W.a₃ * kwTISDβ_charFree W a b
+private def tisdCharFreeδY : F :=
+  -tisdCharFreeγ W a b - tisdCharFreeβ W a b * b
+    - W.a₁ * a * tisdCharFreeβ W a b - W.a₃ * tisdCharFreeβ W a b
 
-private def kwTISDδ0_charFree : F :=
-  a ^ 3 * kwTISDβ_charFree W a b + kwTISDγ_charFree W a b * b
-    + W.a₁ * a * kwTISDγ_charFree W a b + W.a₆ * kwTISDβ_charFree W a b
+private def tisdCharFreeδ0 : F :=
+  a ^ 3 * tisdCharFreeβ W a b + tisdCharFreeγ W a b * b
+    + W.a₁ * a * tisdCharFreeγ W a b + W.a₆ * tisdCharFreeβ W a b
 
-private theorem kw_addYFun_sub_mul_linear_charFree :
+private theorem addYFun_sub_mul_linear_charFree :
     (W.addYFun a b - ι b) * (W.polyToFunctionField X - ι a) =
-      -(ι (kwTISDβ_charFree W a b)) * (W.polyToFunctionField X - ι a)
+      -(ι (tisdCharFreeβ W a b)) * (W.polyToFunctionField X - ι a)
         - ((W.yGen - ι b) + ι W.a₁ * (W.polyToFunctionField X - ι a))
           * (W.addXFun a b - ι a) := by
   have hxne : W.polyToFunctionField X ≠ ι a := polyToFunctionField_X_ne_algebraMap a
@@ -260,30 +263,30 @@ private theorem kw_addYFun_sub_mul_linear_charFree :
   show ((W.map ι).addY (W.polyToFunctionField X) (ι a) W.yGen
       ((W.map ι).slope (W.polyToFunctionField X) (ι a) W.yGen (ι b)) - ι b)
         * (W.polyToFunctionField X - ι a) =
-      -(ι (kwTISDβ_charFree W a b)) * (W.polyToFunctionField X - ι a)
+      -(ι (tisdCharFreeβ W a b)) * (W.polyToFunctionField X - ι a)
         - ((W.yGen - ι b) + ι W.a₁ * (W.polyToFunctionField X - ι a))
           * ((W.map ι).addX (W.polyToFunctionField X) (ι a)
               ((W.map ι).slope (W.polyToFunctionField X) (ι a) W.yGen (ι b)) - ι a)
   rw [slope_of_X_ne hxne, addY, negAddY, negY, addX]
   simp only [WeierstrassCurve.map_a₁, WeierstrassCurve.map_a₂, WeierstrassCurve.map_a₃,
-    kwTISDβ_charFree, map_add, map_mul, map_ofNat]
+    tisdCharFreeβ, map_add, map_mul, map_ofNat]
   field_simp
   ring
 
-private theorem kw_addYFun_sub_mul_cube_num_charFree :
+private theorem addYFun_sub_mul_cube_num_charFree :
     (W.addYFun a b - ι b) * (W.polyToFunctionField X - ι a) ^ 3 =
-      ι (kwTISDδ2_charFree W a b) * W.polyToFunctionField X ^ 2
-        - ι (kwTISDα_charFree W a b) * (W.polyToFunctionField X * W.yGen)
-        + ι (kwTISDδ1_charFree W a b) * W.polyToFunctionField X
-        + ι (kwTISDδY_charFree W a b) * W.yGen + ι (kwTISDδ0_charFree W a b) := by
+      ι (tisdCharFreeδ2 W a b) * W.polyToFunctionField X ^ 2
+        - ι (tisdCharFreeα W a b) * (W.polyToFunctionField X * W.yGen)
+        + ι (tisdCharFreeδ1 W a b) * W.polyToFunctionField X
+        + ι (tisdCharFreeδY W a b) * W.yGen + ι (tisdCharFreeδ0 W a b) := by
   have hEq := equation_map_polyToFunctionField_yGen (W := W)
   rw [Affine.equation_iff] at hEq
   simp only [WeierstrassCurve.map_a₁, WeierstrassCurve.map_a₂, WeierstrassCurve.map_a₃,
     WeierstrassCurve.map_a₄, WeierstrassCurve.map_a₆] at hEq
-  have h0a := kw_addXFun_sub_mul_sq_num_charFree W a b
-  have step_i := kw_addYFun_sub_mul_linear_charFree W a b
-  simp only [kwTISDδ2_charFree, kwTISDδ1_charFree, kwTISDδY_charFree, kwTISDδ0_charFree,
-    kwTISDα_charFree, kwTISDβ_charFree, kwTISDγ_charFree,
+  have h0a := addXFun_sub_mul_sq_num_charFree W a b
+  have step_i := addYFun_sub_mul_linear_charFree W a b
+  simp only [tisdCharFreeδ2, tisdCharFreeδ1, tisdCharFreeδY, tisdCharFreeδ0,
+    tisdCharFreeα, tisdCharFreeβ, tisdCharFreeγ,
     map_add, map_sub, map_mul, map_pow, map_ofNat, _root_.map_neg] at h0a step_i ⊢
   linear_combination (W.polyToFunctionField X - ι a) ^ 2 * step_i
     - ((W.yGen - ι b) + ι W.a₁ * (W.polyToFunctionField X - ι a)) * h0a
@@ -291,37 +294,37 @@ private theorem kw_addYFun_sub_mul_cube_num_charFree :
 
 variable {a b}
 
-private theorem kw_addXFun_ne_algebraMap_any_charFree (hA : W.Equation a b) (c : F) :
+private theorem addXFun_ne_algebraMap_any_charFree (hA : W.Equation a b) (c : F) :
     W.addXFun a b ≠ ι c := by
-  have hΔ : W.Δ ≠ 0 := W.kwWdp_Δ_ne_zero_of_isElliptic
+  have hΔ : W.Δ ≠ 0 := W.Δ_ne_zero_of_isElliptic_local
   intro heq
   refine polyToFunctionField_X_ne_algebraMap (W := W) c
     ((translationAlgEquivOf hΔ hA).injective ?_)
   rw [translationAlgEquivOf_polyToFunctionField_X hΔ hA, heq, AlgEquiv.commutes]
 
-private theorem kw_addYFun_ne_algebraMap_any_charFree (hA : W.Equation a b) (c : F) :
+private theorem addYFun_ne_algebraMap_any_charFree (hA : W.Equation a b) (c : F) :
     W.addYFun a b ≠ ι c := by
-  have hΔ : W.Δ ≠ 0 := W.kwWdp_Δ_ne_zero_of_isElliptic
+  have hΔ : W.Δ ≠ 0 := W.Δ_ne_zero_of_isElliptic_local
   intro heq
   have hy : W.yGen = ι c := (translationAlgEquivOf hΔ hA).injective <| by
     rw [translationAlgEquivOf_yGen hΔ hA, heq, AlgEquiv.commutes]
-  have hord := kw_ord_yGen_of_not_isFinitePlace_charFree W
+  have hord := ord_yGen_of_not_isFinitePlace_charFree W
     (InfinitePlace.place (W := W)) InfinitePlace.not_isFinitePlace
   rw [hy, Place.ord_algebraMap] at hord
   exact absurd hord (by norm_num)
 
-private theorem kw_ord_addXFun_sub_pos_charFree (hA : W.Equation a b)
+private theorem ord_addXFun_sub_pos_charFree (hA : W.Equation a b)
     (v : Place F W.FunctionField) (hv : ¬ IsFinitePlace v) :
     0 < v.ord (W.addXFun a b - ι a) := by
   have hne : W.addXFun a b - ι a ≠ 0 :=
-    sub_ne_zero.mpr (kw_addXFun_ne_algebraMap_any_charFree W hA a)
+    sub_ne_zero.mpr (addXFun_ne_algebraMap_any_charFree W hA a)
   have hXa : W.polyToFunctionField X - ι a ≠ 0 := X_sub_algebraMap_ne_zero a
   have hXa2 : (W.polyToFunctionField X - ι a) ^ 2 ≠ 0 := pow_ne_zero 2 hXa
   have hY0 : W.yGen ≠ (0 : W.FunctionField) := Y_image_ne_zero
-  have hordY : v.ord W.yGen = -3 := kw_ord_yGen_of_not_isFinitePlace_charFree W v hv
-  set num := ι (kwTISDα_charFree W a b) * W.polyToFunctionField X
-      - ι (kwTISDβ_charFree W a b) * W.yGen + ι (kwTISDγ_charFree W a b) with hnumdef
-  have hkey := kw_addXFun_sub_mul_sq_num_charFree W a b
+  have hordY : v.ord W.yGen = -3 := ord_yGen_of_not_isFinitePlace_charFree W v hv
+  set num := ι (tisdCharFreeα W a b) * W.polyToFunctionField X
+      - ι (tisdCharFreeβ W a b) * W.yGen + ι (tisdCharFreeγ W a b) with hnumdef
+  have hkey := addXFun_sub_mul_sq_num_charFree W a b
   rw [← hnumdef] at hkey
   have hnum0 : num ≠ 0 := by rw [← hkey]; exact mul_ne_zero hne hXa2
   have hordeq : v.ord (W.addXFun a b - ι a) = v.ord num + 4 := by
@@ -346,11 +349,11 @@ private theorem kw_ord_addXFun_sub_pos_charFree (hA : W.Equation a b)
     linarith
   linarith
 
-private theorem kw_ord_addYFun_sub_pos_charFree (hA : W.Equation a b)
+private theorem ord_addYFun_sub_pos_charFree (hA : W.Equation a b)
     (v : Place F W.FunctionField) (hv : ¬ IsFinitePlace v) :
     0 < v.ord (W.addYFun a b - ι b) := by
   have hne : W.addYFun a b - ι b ≠ 0 :=
-    sub_ne_zero.mpr (kw_addYFun_ne_algebraMap_any_charFree W hA b)
+    sub_ne_zero.mpr (addYFun_ne_algebraMap_any_charFree W hA b)
   have hXa : W.polyToFunctionField X - ι a ≠ 0 := X_sub_algebraMap_ne_zero a
   have hXa3 : (W.polyToFunctionField X - ι a) ^ 3 ≠ 0 := pow_ne_zero 3 hXa
   have hX0 : W.polyToFunctionField X ≠ (0 : W.FunctionField) :=
@@ -358,12 +361,12 @@ private theorem kw_ord_addYFun_sub_pos_charFree (hA : W.Equation a b)
   have hY0 : W.yGen ≠ (0 : W.FunctionField) := Y_image_ne_zero
   have hXY0 : W.polyToFunctionField X * W.yGen ≠ 0 := mul_ne_zero hX0 hY0
   have hordX : v.ord (W.polyToFunctionField X) = -2 := ord_X_eq_neg_two_of_not_isFinitePlace v hv
-  have hordY : v.ord W.yGen = -3 := kw_ord_yGen_of_not_isFinitePlace_charFree W v hv
-  set numY := ι (kwTISDδ2_charFree W a b) * W.polyToFunctionField X ^ 2
-      - ι (kwTISDα_charFree W a b) * (W.polyToFunctionField X * W.yGen)
-      + ι (kwTISDδ1_charFree W a b) * W.polyToFunctionField X
-      + ι (kwTISDδY_charFree W a b) * W.yGen + ι (kwTISDδ0_charFree W a b) with hnumYdef
-  have hkey := kw_addYFun_sub_mul_cube_num_charFree W a b
+  have hordY : v.ord W.yGen = -3 := ord_yGen_of_not_isFinitePlace_charFree W v hv
+  set numY := ι (tisdCharFreeδ2 W a b) * W.polyToFunctionField X ^ 2
+      - ι (tisdCharFreeα W a b) * (W.polyToFunctionField X * W.yGen)
+      + ι (tisdCharFreeδ1 W a b) * W.polyToFunctionField X
+      + ι (tisdCharFreeδY W a b) * W.yGen + ι (tisdCharFreeδ0 W a b) with hnumYdef
+  have hkey := addYFun_sub_mul_cube_num_charFree W a b
   rw [← hnumYdef] at hkey
   have hnumY0 : numY ≠ 0 := by rw [← hkey]; exact mul_ne_zero hne hXa3
   have hordeq : v.ord (W.addYFun a b - ι b) = v.ord numY + 6 := by
@@ -383,11 +386,11 @@ private theorem kw_ord_addYFun_sub_pos_charFree (hA : W.Equation a b)
       v.mem_of_ord_nonneg (mul_ne_zero hX0 (inv_ne_zero hY0))
         (by rw [v.ord_mul hX0 (inv_ne_zero hY0), v.ord_inv, hordX, hordY]; omega)
     have hsplit : numY * (W.polyToFunctionField X * W.yGen)⁻¹
-        = ι (kwTISDδ2_charFree W a b) * (W.polyToFunctionField X * W.yGen⁻¹)
-          - ι (kwTISDα_charFree W a b)
-          + ι (kwTISDδ1_charFree W a b) * W.yGen⁻¹
-          + ι (kwTISDδY_charFree W a b) * (W.polyToFunctionField X)⁻¹
-          + ι (kwTISDδ0_charFree W a b) * (W.polyToFunctionField X * W.yGen)⁻¹ := by
+        = ι (tisdCharFreeδ2 W a b) * (W.polyToFunctionField X * W.yGen⁻¹)
+          - ι (tisdCharFreeα W a b)
+          + ι (tisdCharFreeδ1 W a b) * W.yGen⁻¹
+          + ι (tisdCharFreeδY W a b) * (W.polyToFunctionField X)⁻¹
+          + ι (tisdCharFreeδ0 W a b) * (W.polyToFunctionField X * W.yGen)⁻¹ := by
       rw [hnumYdef]; field_simp
     rw [hsplit]
     exact add_mem (add_mem (add_mem
@@ -401,34 +404,34 @@ private theorem kw_ord_addYFun_sub_pos_charFree (hA : W.Equation a b)
     linarith
   linarith
 
-private theorem kw_affod_numX_eval_eq_zero_charFree {p q : F} (hP : W.Equation p q)
+private theorem numX_eval_eq_zero_charFree {p q : F} (hP : W.Equation p q)
     (hne : p ≠ a) :
-    kwTISDα_charFree W a b * p - kwTISDβ_charFree W a b * q + kwTISDγ_charFree W a b
+    tisdCharFreeα W a b * p - tisdCharFreeβ W a b * q + tisdCharFreeγ W a b
       - (W.addX p a (W.slope p a q b) - a) * (p - a) ^ 2 = 0 := by
   have hEq := (Affine.equation_iff ..).mp hP
   have hd : p - a ≠ 0 := sub_ne_zero.mpr hne
-  simp only [kwTISDα_charFree, kwTISDβ_charFree, kwTISDγ_charFree,
+  simp only [tisdCharFreeα, tisdCharFreeβ, tisdCharFreeγ,
     Affine.slope_of_X_ne hne, Affine.addX]
   field_simp
   linear_combination -hEq
 
-private theorem kw_affod_numYcube_eval_eq_zero_charFree {p q : F} (hP : W.Equation p q)
+private theorem numYcube_eval_eq_zero_charFree {p q : F} (hP : W.Equation p q)
     (hne : p ≠ a) :
-    kwTISDδ2_charFree W a b * p ^ 2 - kwTISDα_charFree W a b * (p * q)
-      + kwTISDδ1_charFree W a b * p + kwTISDδY_charFree W a b * q
-      + kwTISDδ0_charFree W a b
+    tisdCharFreeδ2 W a b * p ^ 2 - tisdCharFreeα W a b * (p * q)
+      + tisdCharFreeδ1 W a b * p + tisdCharFreeδY W a b * q
+      + tisdCharFreeδ0 W a b
       - (W.addY p a q (W.slope p a q b) - b) * (p - a) ^ 3 = 0 := by
   have hEq := (Affine.equation_iff ..).mp hP
   have hd : p - a ≠ 0 := sub_ne_zero.mpr hne
-  simp only [kwTISDδ2_charFree, kwTISDδ1_charFree, kwTISDδY_charFree, kwTISDδ0_charFree,
-    kwTISDα_charFree, kwTISDβ_charFree, kwTISDγ_charFree,
+  simp only [tisdCharFreeδ2, tisdCharFreeδ1, tisdCharFreeδY, tisdCharFreeδ0,
+    tisdCharFreeα, tisdCharFreeβ, tisdCharFreeγ,
     Affine.slope_of_X_ne hne, Affine.addX, Affine.addY, Affine.negAddY, Affine.negY]
   field_simp
   linear_combination ((q - b) + W.a₁ * (p - a) - (2 * b + W.a₁ * a + W.a₃)) * hEq
 
 variable {p q : F}
 
-private theorem kw_ord_addXFun_sub_addX_pos_charFree (h : W.Nonsingular a b)
+private theorem ord_addXFun_sub_addX_pos_charFree (h : W.Nonsingular a b)
     (hP : W.Nonsingular p q) (hne : p ≠ a) :
     0 < (placeOfEquation hP.1).ord
       (W.addXFun a b - ι (W.addX p a (W.slope p a q b))) := by
@@ -437,20 +440,20 @@ private theorem kw_ord_addXFun_sub_addX_pos_charFree (h : W.Nonsingular a b)
   have hXa : W.polyToFunctionField X - ι a ≠ 0 := X_sub_algebraMap_ne_zero a
   have hXa2 : (W.polyToFunctionField X - ι a) ^ 2 ≠ 0 := pow_ne_zero 2 hXa
   have hne_x₃ : W.addXFun a b - ι x₃ ≠ 0 :=
-    sub_ne_zero.mpr (kw_addXFun_ne_algebraMap_any_charFree W h.1 x₃)
+    sub_ne_zero.mpr (addXFun_ne_algebraMap_any_charFree W h.1 x₃)
   set qX : F[X][Y] :=
-    C (C (kwTISDα_charFree W a b) * X + C (kwTISDγ_charFree W a b)
+    C (C (tisdCharFreeα W a b) * X + C (tisdCharFreeγ W a b)
         - C (x₃ - a) * (X - C a) ^ 2)
-      - C (C (kwTISDβ_charFree W a b)) * Y with hqX
+      - C (C (tisdCharFreeβ W a b)) * Y with hqX
   have hprod :
       (W.addXFun a b - ι x₃) * (W.polyToFunctionField X - ι a) ^ 2
         = algebraMap W.CoordinateRing W.FunctionField (CoordinateRing.mk W qX) := by
-    have h0a := kw_addXFun_sub_mul_sq_num_charFree W a b
+    have h0a := addXFun_sub_mul_sq_num_charFree W a b
     have hmk : CoordinateRing.mk W qX
         = algebraMap F[X] W.CoordinateRing
-            (C (kwTISDα_charFree W a b) * X + C (kwTISDγ_charFree W a b)
+            (C (tisdCharFreeα W a b) * X + C (tisdCharFreeγ W a b)
               - C (x₃ - a) * (X - C a) ^ 2)
-          - algebraMap F[X] W.CoordinateRing (C (kwTISDβ_charFree W a b))
+          - algebraMap F[X] W.CoordinateRing (C (tisdCharFreeβ W a b))
             * CoordinateRing.mk W Y := by
       simp only [hqX, map_sub, map_mul]; rfl
     have hyGen : algebraMap W.CoordinateRing W.FunctionField (CoordinateRing.mk W Y)
@@ -462,7 +465,7 @@ private theorem kw_ord_addXFun_sub_addX_pos_charFree (h : W.Nonsingular a b)
     simp only [hqX, evalEval, eval_sub, eval_mul, eval_C, eval_add, eval_X, eval_pow,
       Polynomial.eval_C, Polynomial.eval_mul, Polynomial.eval_add, Polynomial.eval_sub,
       Polynomial.eval_pow, Polynomial.eval_X]
-    linear_combination kw_affod_numX_eval_eq_zero_charFree W hP.1 hne
+    linear_combination numX_eval_eq_zero_charFree W hP.1 hne
   have hmk_ne : CoordinateRing.mk W qX ≠ 0 := by
     intro h0
     rw [h0, _root_.map_zero] at hprod
@@ -480,7 +483,7 @@ private theorem kw_ord_addXFun_sub_addX_pos_charFree (h : W.Nonsingular a b)
   rw [hprod, v.ord_pow, hordXa] at heqord
   omega
 
-private theorem kw_ord_addYFun_sub_addY_pos_charFree (h : W.Nonsingular a b)
+private theorem ord_addYFun_sub_addY_pos_charFree (h : W.Nonsingular a b)
     (hP : W.Nonsingular p q) (hne : p ≠ a) :
     0 < (placeOfEquation hP.1).ord
       (W.addYFun a b - ι (W.addY p a q (W.slope p a q b))) := by
@@ -489,21 +492,21 @@ private theorem kw_ord_addYFun_sub_addY_pos_charFree (h : W.Nonsingular a b)
   have hXa : W.polyToFunctionField X - ι a ≠ 0 := X_sub_algebraMap_ne_zero a
   have hXa3 : (W.polyToFunctionField X - ι a) ^ 3 ≠ 0 := pow_ne_zero 3 hXa
   have hne_y₃ : W.addYFun a b - ι y₃ ≠ 0 :=
-    sub_ne_zero.mpr (kw_addYFun_ne_algebraMap_any_charFree W h.1 y₃)
+    sub_ne_zero.mpr (addYFun_ne_algebraMap_any_charFree W h.1 y₃)
   set qY : F[X][Y] :=
-    C (C (kwTISDδ2_charFree W a b) * X ^ 2 + C (kwTISDδ1_charFree W a b) * X
-        + C (kwTISDδ0_charFree W a b) - C (y₃ - b) * (X - C a) ^ 3)
-      + C (C (kwTISDδY_charFree W a b) - C (kwTISDα_charFree W a b) * X) * Y with hqY
+    C (C (tisdCharFreeδ2 W a b) * X ^ 2 + C (tisdCharFreeδ1 W a b) * X
+        + C (tisdCharFreeδ0 W a b) - C (y₃ - b) * (X - C a) ^ 3)
+      + C (C (tisdCharFreeδY W a b) - C (tisdCharFreeα W a b) * X) * Y with hqY
   have hprod :
       (W.addYFun a b - ι y₃) * (W.polyToFunctionField X - ι a) ^ 3
         = algebraMap W.CoordinateRing W.FunctionField (CoordinateRing.mk W qY) := by
-    have h0b := kw_addYFun_sub_mul_cube_num_charFree W a b
+    have h0b := addYFun_sub_mul_cube_num_charFree W a b
     have hmk : CoordinateRing.mk W qY
         = algebraMap F[X] W.CoordinateRing
-            (C (kwTISDδ2_charFree W a b) * X ^ 2 + C (kwTISDδ1_charFree W a b) * X
-              + C (kwTISDδ0_charFree W a b) - C (y₃ - b) * (X - C a) ^ 3)
+            (C (tisdCharFreeδ2 W a b) * X ^ 2 + C (tisdCharFreeδ1 W a b) * X
+              + C (tisdCharFreeδ0 W a b) - C (y₃ - b) * (X - C a) ^ 3)
           + algebraMap F[X] W.CoordinateRing
-              (C (kwTISDδY_charFree W a b) - C (kwTISDα_charFree W a b) * X)
+              (C (tisdCharFreeδY W a b) - C (tisdCharFreeα W a b) * X)
             * CoordinateRing.mk W Y := by
       simp only [hqY, map_add, map_sub, map_mul]; rfl
     have hyGen : algebraMap W.CoordinateRing W.FunctionField (CoordinateRing.mk W Y)
@@ -515,7 +518,7 @@ private theorem kw_ord_addYFun_sub_addY_pos_charFree (h : W.Nonsingular a b)
     simp only [hqY, evalEval, eval_add, eval_sub, eval_mul, eval_C, eval_X, eval_pow,
       Polynomial.eval_C, Polynomial.eval_mul, Polynomial.eval_add, Polynomial.eval_sub,
       Polynomial.eval_pow, Polynomial.eval_X]
-    linear_combination kw_affod_numYcube_eval_eq_zero_charFree W hP.1 hne
+    linear_combination numYcube_eval_eq_zero_charFree W hP.1 hne
   have hmk_ne : CoordinateRing.mk W qY ≠ 0 := by
     intro h0
     rw [h0, _root_.map_zero] at hprod
@@ -535,31 +538,31 @@ private theorem kw_ord_addYFun_sub_addY_pos_charFree (h : W.Nonsingular a b)
 
 variable {W}
 
-private theorem kw_translateFF_toAlgHom_isIntegral_charFree (R : W.Point) :
+private theorem translateFF_toAlgHom_isIntegral_charFree (R : W.Point) :
     (Point.translateFF (W := W) R).toAlgHom.toRingHom.IsIntegral :=
   RingHom.isIntegral_of_surjective _ (Point.translateFF (W := W) R).surjective
 
-private theorem kw_translateFF_some_X_charFree (h : W.Nonsingular a b) :
+private theorem translateFF_some_X_charFree (h : W.Nonsingular a b) :
     (Point.translateFF (W := W) (.some a b h)).toAlgHom (polyToFunctionField W X)
       = W.addXFun a b :=
-  translationAlgEquivOf_polyToFunctionField_X (hΔ := kwWdp_Δ_ne_zero_of_isElliptic) (hA := h.1)
+  translationAlgEquivOf_polyToFunctionField_X (hΔ := Δ_ne_zero_of_isElliptic_local) (hA := h.1)
 
-private theorem kw_translateFF_some_yGen_charFree (h : W.Nonsingular a b) :
+private theorem translateFF_some_yGen_charFree (h : W.Nonsingular a b) :
     (Point.translateFF (W := W) (.some a b h)).toAlgHom (yGen W)
       = W.addYFun a b :=
-  translationAlgEquivOf_yGen (hΔ := kwWdp_Δ_ne_zero_of_isElliptic) (hA := h.1)
+  translationAlgEquivOf_yGen (hΔ := Δ_ne_zero_of_isElliptic_local) (hA := h.1)
 
-private theorem kw_translAffineSeam_at_of_coordSeamData_charFree (h : W.Nonsingular a b)
+private theorem translAffineSeam_at_of_coordSeamData_charFree (h : W.Nonsingular a b)
     (v : AlgebraicCurve.Place F W.FunctionField) (Q : W.Point)
     (hdat : Q.rec
       (W.addXFun a b ∉ v.toValuationSubring)
       (fun x₃ y₃ _ =>
         0 < v.ord (W.addXFun a b - ι x₃) ∧ 0 < v.ord (W.addYFun a b - ι y₃))) :
     v.restrictAlong (Point.translateFF (W := W) (.some a b h)).toAlgHom
-        (kw_translateFF_toAlgHom_isIntegral_charFree (.some a b h))
+        (translateFF_toAlgHom_isIntegral_charFree (.some a b h))
       = placeOfPoint Q := by
-  have hX := kw_translateFF_some_X_charFree h
-  have hY := kw_translateFF_some_yGen_charFree h
+  have hX := translateFF_some_X_charFree h
+  have hY := translateFF_some_yGen_charFree h
   cases Q with
   | zero =>
     rw [placeOfPoint_zero]
@@ -574,36 +577,36 @@ private theorem kw_translAffineSeam_at_of_coordSeamData_charFree (h : W.Nonsingu
         rwa [sub_add_cancel] at this
     exact es1a6_addSeam_restrictAlong_eq_placeOfEquation _ _ hX hY v h₃.1 hreg hdx hdy
 
-private theorem kw_TISD_linear_eval_negA_charFree (h : W.Equation a b) :
-    kwTISDα_charFree W a b * a - kwTISDβ_charFree W a b * W.negY a b
-      + kwTISDγ_charFree W a b = kwTISDβ_charFree W a b ^ 2 := by
+private theorem TISD_linear_eval_negA_charFree (h : W.Equation a b) :
+    tisdCharFreeα W a b * a - tisdCharFreeβ W a b * W.negY a b
+      + tisdCharFreeγ W a b = tisdCharFreeβ W a b ^ 2 := by
   have hEq := (Affine.equation_iff ..).mp h
-  simp only [kwTISDα_charFree, kwTISDβ_charFree, kwTISDγ_charFree, Affine.negY]
+  simp only [tisdCharFreeα, tisdCharFreeβ, tisdCharFreeγ, Affine.negY]
   ring_nf
   linear_combination -hEq
 
-private theorem kw_addXFun_notMem_placeOfEquation_negA_charFree (h : W.Nonsingular a b)
-    (hβ : kwTISDβ_charFree W a b ≠ 0) :
+private theorem addXFun_notMem_placeOfEquation_negA_charFree (h : W.Nonsingular a b)
+    (hβ : tisdCharFreeβ W a b ≠ 0) :
     W.addXFun a b ∉ (placeOfEquation (W := W)
       ((W.nonsingular_neg a b).mpr h).1).toValuationSubring := by
   intro hmem
   set hnegA := ((W.nonsingular_neg a b).mpr h).1 with hnegA_def
   let v := placeOfEquation (W := W) hnegA
   have hne : W.addXFun a b - ι a ≠ 0 :=
-    sub_ne_zero.mpr (kw_addXFun_ne_algebraMap_any_charFree W h.1 a)
+    sub_ne_zero.mpr (addXFun_ne_algebraMap_any_charFree W h.1 a)
   have hXa : W.polyToFunctionField X - ι a ≠ 0 := X_sub_algebraMap_ne_zero a
   have hXa2 : (W.polyToFunctionField X - ι a) ^ 2 ≠ 0 := pow_ne_zero 2 hXa
   set qpoly : F[X][Y] :=
-    C (C (kwTISDα_charFree W a b) * X + C (kwTISDγ_charFree W a b))
-      - C (C (kwTISDβ_charFree W a b)) * Y with hq
+    C (C (tisdCharFreeα W a b) * X + C (tisdCharFreeγ W a b))
+      - C (C (tisdCharFreeβ W a b)) * Y with hq
   have hnum_mk :
-      ι (kwTISDα_charFree W a b) * W.polyToFunctionField X
-        - ι (kwTISDβ_charFree W a b) * W.yGen + ι (kwTISDγ_charFree W a b)
+      ι (tisdCharFreeα W a b) * W.polyToFunctionField X
+        - ι (tisdCharFreeβ W a b) * W.yGen + ι (tisdCharFreeγ W a b)
       = algebraMap W.CoordinateRing W.FunctionField (CoordinateRing.mk W qpoly) := by
     have hmk : CoordinateRing.mk W qpoly
-        = algebraMap F[X] W.CoordinateRing (C (kwTISDα_charFree W a b) * X
-              + C (kwTISDγ_charFree W a b))
-          - algebraMap F[X] W.CoordinateRing (C (kwTISDβ_charFree W a b))
+        = algebraMap F[X] W.CoordinateRing (C (tisdCharFreeα W a b) * X
+              + C (tisdCharFreeγ W a b))
+          - algebraMap F[X] W.CoordinateRing (C (tisdCharFreeβ W a b))
             * CoordinateRing.mk W Y := by
       simp only [hq, map_sub, map_mul]; rfl
     have hyGen : algebraMap W.CoordinateRing W.FunctionField (CoordinateRing.mk W Y)
@@ -613,13 +616,13 @@ private theorem kw_addXFun_notMem_placeOfEquation_negA_charFree (h : W.Nonsingul
       hyGen]
     ring
   have heval : qpoly.evalEval a (W.negY a b) ≠ 0 := by
-    have : qpoly.evalEval a (W.negY a b) = kwTISDβ_charFree W a b ^ 2 := by
+    have : qpoly.evalEval a (W.negY a b) = tisdCharFreeβ W a b ^ 2 := by
       simp only [hq, evalEval, eval_sub, eval_mul, eval_C, eval_add, eval_X,
         Polynomial.eval_C, Polynomial.eval_mul, Polynomial.eval_add, Polynomial.eval_X]
-      linear_combination kw_TISD_linear_eval_negA_charFree (W := W) h.1
+      linear_combination TISD_linear_eval_negA_charFree (W := W) h.1
     rw [this]; exact pow_ne_zero 2 hβ
-  have hordnum : v.ord (ι (kwTISDα_charFree W a b) * W.polyToFunctionField X
-      - ι (kwTISDβ_charFree W a b) * W.yGen + ι (kwTISDγ_charFree W a b)) = 0 := by
+  have hordnum : v.ord (ι (tisdCharFreeα W a b) * W.polyToFunctionField X
+      - ι (tisdCharFreeβ W a b) * W.yGen + ι (tisdCharFreeγ W a b)) = 0 := by
     rw [hnum_mk]
     exact ord_placeOfEquation_eq_zero_of_evalEval_ne_zero hnegA heval
   have hordXa : 1 ≤ v.ord (W.polyToFunctionField X - ι a) := by
@@ -632,36 +635,36 @@ private theorem kw_addXFun_notMem_placeOfEquation_negA_charFree (h : W.Nonsingul
     sub_mem hmem (v.algebraMap_mem' a)
   have hord' : 0 ≤ v.ord (W.addXFun a b - ι a) := (v.mem_iff_ord_nonneg hne).mp hmem'
   have heqord := v.ord_mul hne hXa2
-  rw [kw_addXFun_sub_mul_sq_num_charFree W a b, v.ord_pow, hordnum] at heqord
+  rw [addXFun_sub_mul_sq_num_charFree W a b, v.ord_pow, hordnum] at heqord
   omega
 
-private theorem kw_taseq_α_eq_neg_polyX_charFree :
-    kwTISDα_charFree W a b = -(W.polynomialX.evalEval a b) := by
-  simp only [kwTISDα_charFree, evalEval_polynomialX]; ring
+private theorem α_eq_neg_polyX_charFree :
+    tisdCharFreeα W a b = -(W.polynomialX.evalEval a b) := by
+  simp only [tisdCharFreeα, evalEval_polynomialX]; ring
 
-private theorem kw_taseq_β_eq_polyY_charFree :
-    kwTISDβ_charFree W a b = W.polynomialY.evalEval a b := by
-  simp only [kwTISDβ_charFree, evalEval_polynomialY]
+private theorem β_eq_polyY_charFree :
+    tisdCharFreeβ W a b = W.polynomialY.evalEval a b := by
+  simp only [tisdCharFreeβ, evalEval_polynomialY]
 
-private theorem kw_taseq_α_ne_zero_of_β_eq_zero_charFree (h : W.Nonsingular a b)
-    (hβ : kwTISDβ_charFree W a b = 0) : kwTISDα_charFree W a b ≠ 0 := by
-  rw [kw_taseq_α_eq_neg_polyX_charFree, neg_ne_zero]
+private theorem α_ne_zero_of_β_eq_zero_charFree (h : W.Nonsingular a b)
+    (hβ : tisdCharFreeβ W a b = 0) : tisdCharFreeα W a b ≠ 0 := by
+  rw [α_eq_neg_polyX_charFree, neg_ne_zero]
   have hβ' : W.polynomialY.evalEval a b = 0 := by
-    rw [← kw_taseq_β_eq_polyY_charFree]; exact hβ
+    rw [← β_eq_polyY_charFree]; exact hβ
   exact h.2.resolve_right (absurd hβ')
 
-private theorem kw_taseq_β_eq_zero_iff_eq_negY_charFree :
-    kwTISDβ_charFree W a b = 0 ↔ b = W.negY a b := by
-  rw [kw_taseq_β_eq_polyY_charFree, evalEval_polynomialY_eq_zero_iff_eq_negY]
+private theorem β_eq_zero_iff_eq_negY_charFree :
+    tisdCharFreeβ W a b = 0 ↔ b = W.negY a b := by
+  rw [β_eq_polyY_charFree, evalEval_polynomialY_eq_zero_iff_eq_negY]
 
-private theorem kw_taseq_linear_eval_self_charFree (h : W.Equation a b) :
-    kwTISDα_charFree W a b * a - kwTISDβ_charFree W a b * b
-      + kwTISDγ_charFree W a b = 0 := by
+private theorem linear_eval_self_charFree (h : W.Equation a b) :
+    tisdCharFreeα W a b * a - tisdCharFreeβ W a b * b
+      + tisdCharFreeγ W a b = 0 := by
   have hEq := (Affine.equation_iff ..).mp h
-  simp only [kwTISDα_charFree, kwTISDβ_charFree, kwTISDγ_charFree]
+  simp only [tisdCharFreeα, tisdCharFreeβ, tisdCharFreeγ]
   linear_combination -hEq
 
-private theorem kw_taseq_le_ord_sub_charFree {K L : Type*} [Field K] [Field L] [Algebra K L]
+private theorem le_ord_sub_charFree {K L : Type*} [Field K] [Field L] [Algebra K L]
     (v : Place K L) {N : ℤ} {f g : L} (hfg : f - g ≠ 0)
     (hf : f = 0 ∨ N ≤ v.ord f) (hg : g = 0 ∨ N ≤ v.ord g) :
     N ≤ v.ord (f - g) := by
@@ -677,7 +680,7 @@ private theorem kw_taseq_le_ord_sub_charFree {K L : Type*} [Field K] [Field L] [
     rw [hneg] at hmin
     omega
 
-private theorem kw_taseq_ord_ge_of_mem_XYIdeal_pow_charFree (h : W.Equation a b)
+private theorem ord_ge_of_mem_XYIdeal_pow_charFree (h : W.Equation a b)
     {r : W.CoordinateRing} (hr0 : r ≠ 0) {n : ℕ} (hr : r ∈ XYIdeal W a (C b) ^ n) :
     (n : ℤ) ≤ (placeOfEquation h).ord (algebraMap W.CoordinateRing W.FunctionField r) := by
   have hrL : algebraMap W.CoordinateRing W.FunctionField r ≠ 0 :=
@@ -693,30 +696,30 @@ private theorem kw_taseq_ord_ge_of_mem_XYIdeal_pow_charFree (h : W.Equation a b)
   rw [log_exp]
   omega
 
-private theorem kw_addXFun_notMem_placeOfEquation_self_of_β_eq_zero_charFree
-    (h : W.Nonsingular a b) (hβ : kwTISDβ_charFree W a b = 0) :
+private theorem addXFun_notMem_placeOfEquation_self_of_β_eq_zero_charFree
+    (h : W.Nonsingular a b) (hβ : tisdCharFreeβ W a b = 0) :
     W.addXFun a b ∉ (placeOfEquation h.1).toValuationSubring := by
   intro hmem
-  have hα : kwTISDα_charFree W a b ≠ 0 := kw_taseq_α_ne_zero_of_β_eq_zero_charFree h hβ
-  have hιαne : ι (kwTISDα_charFree W a b) ≠ 0 :=
+  have hα : tisdCharFreeα W a b ≠ 0 := α_ne_zero_of_β_eq_zero_charFree h hβ
+  have hιαne : ι (tisdCharFreeα W a b) ≠ 0 :=
     (map_ne_zero_iff _ (algebraMap F W.FunctionField).injective).mpr hα
   have hne : W.addXFun a b - ι a ≠ 0 :=
-    sub_ne_zero.mpr (kw_addXFun_ne_algebraMap_any_charFree W h.1 a)
+    sub_ne_zero.mpr (addXFun_ne_algebraMap_any_charFree W h.1 a)
   have hXa : W.polyToFunctionField X - ι a ≠ 0 := X_sub_algebraMap_ne_zero a
   have hXa2 : (W.polyToFunctionField X - ι a) ^ 2 ≠ 0 := pow_ne_zero 2 hXa
   have hprod :
       (W.addXFun a b - ι a) * (W.polyToFunctionField X - ι a) ^ 2
-        = ι (kwTISDα_charFree W a b) * (W.polyToFunctionField X - ι a) := by
-    rw [kw_addXFun_sub_mul_sq_num_charFree W a b, hβ, _root_.map_zero, zero_mul, sub_zero]
-    have hval : kwTISDγ_charFree W a b = -(kwTISDα_charFree W a b * a) := by
-      have h0 := kw_taseq_linear_eval_self_charFree (W := W) h.1
+        = ι (tisdCharFreeα W a b) * (W.polyToFunctionField X - ι a) := by
+    rw [addXFun_sub_mul_sq_num_charFree W a b, hβ, _root_.map_zero, zero_mul, sub_zero]
+    have hval : tisdCharFreeγ W a b = -(tisdCharFreeα W a b * a) := by
+      have h0 := linear_eval_self_charFree (W := W) h.1
       rw [hβ, zero_mul, sub_zero] at h0; linear_combination h0
     rw [hval, _root_.map_neg, map_mul]; ring
   have hordXa : 0 < (placeOfEquation h.1).ord (W.polyToFunctionField X - ι a) := by
     rw [show W.polyToFunctionField X - ι a = W.polyToFunctionField (X - C a) by
       rw [map_sub, polyToFunctionField_C]]
     exact (ord_polyToFunctionField_pos_iff h.1 (X_sub_C_ne_zero a)).mpr (by simp)
-  have hordα : (placeOfEquation h.1).ord (ι (kwTISDα_charFree W a b)) = 0 :=
+  have hordα : (placeOfEquation h.1).ord (ι (tisdCharFreeα W a b)) = 0 :=
     (placeOfEquation h.1).ord_algebraMap _
   have hmem' : W.addXFun a b - ι a ∈ (placeOfEquation h.1).toValuationSubring :=
     sub_mem hmem ((placeOfEquation h.1).algebraMap_mem' a)
@@ -727,9 +730,9 @@ private theorem kw_addXFun_notMem_placeOfEquation_self_of_β_eq_zero_charFree
     hordα] at heqord
   omega
 
-private theorem kw_taseq_linear_eq_neg_taylorLinear_charFree (h : W.Equation a b) :
-    ι (kwTISDα_charFree W a b) * W.polyToFunctionField X
-        - ι (kwTISDβ_charFree W a b) * W.yGen + ι (kwTISDγ_charFree W a b)
+private theorem linear_eq_neg_taylorLinear_charFree (h : W.Equation a b) :
+    ι (tisdCharFreeα W a b) * W.polyToFunctionField X
+        - ι (tisdCharFreeβ W a b) * W.yGen + ι (tisdCharFreeγ W a b)
       = - algebraMap W.CoordinateRing W.FunctionField
           (algebraMap F W.CoordinateRing (W.polynomialX.evalEval a b) * XClass W a
             + algebraMap F W.CoordinateRing (W.polynomialY.evalEval a b)
@@ -744,27 +747,27 @@ private theorem kw_taseq_linear_eq_neg_taylorLinear_charFree (h : W.Equation a b
         = CoordinateRing.mk W Y - algebraMap F W.CoordinateRing b := by
       show CoordinateRing.mk W (Y - C (C b)) = _; simp only [map_sub]; rfl
     rw [this, map_sub]; rfl
-  have hval := kw_taseq_linear_eval_self_charFree (W := W) h
-  have hιval : ι (kwTISDγ_charFree W a b)
-      = -(ι (kwTISDα_charFree W a b) * ι a) + ι (kwTISDβ_charFree W a b) * ι b := by
+  have hval := linear_eval_self_charFree (W := W) h
+  have hιval : ι (tisdCharFreeγ W a b)
+      = -(ι (tisdCharFreeα W a b) * ι a) + ι (tisdCharFreeβ W a b) * ι b := by
     rw [← map_mul, ← map_mul, ← _root_.map_neg, ← map_add]
     exact congrArg ι (by linear_combination hval)
-  have hιpX : ι (W.polynomialX.evalEval a b) = -ι (kwTISDα_charFree W a b) := by
-    rw [kw_taseq_α_eq_neg_polyX_charFree, _root_.map_neg, neg_neg]
-  have hιpY : ι (W.polynomialY.evalEval a b) = ι (kwTISDβ_charFree W a b) := by
-    rw [← kw_taseq_β_eq_polyY_charFree]
+  have hιpX : ι (W.polynomialX.evalEval a b) = -ι (tisdCharFreeα W a b) := by
+    rw [α_eq_neg_polyX_charFree, _root_.map_neg, neg_neg]
+  have hιpY : ι (W.polynomialY.evalEval a b) = ι (tisdCharFreeβ W a b) := by
+    rw [← β_eq_polyY_charFree]
   rw [map_add, map_mul, map_mul, hXC, hYC,
     ← IsScalarTower.algebraMap_apply F W.CoordinateRing W.FunctionField,
     ← IsScalarTower.algebraMap_apply F W.CoordinateRing W.FunctionField,
     hιpX, hιpY, hιval]
   ring
 
-private theorem kw_taseq_linear_eq_algebraMap_mk_taylorRemainder₂_charFree (h : W.Equation a b) :
-    ι (kwTISDα_charFree W a b) * W.polyToFunctionField X
-        - ι (kwTISDβ_charFree W a b) * W.yGen + ι (kwTISDγ_charFree W a b)
+private theorem linear_eq_algebraMap_mk_taylorRemainder₂_charFree (h : W.Equation a b) :
+    ι (tisdCharFreeα W a b) * W.polyToFunctionField X
+        - ι (tisdCharFreeβ W a b) * W.yGen + ι (tisdCharFreeγ W a b)
       = algebraMap W.CoordinateRing W.FunctionField
           (CoordinateRing.mk W (W.taylorRemainder₂ a b)) := by
-  rw [kw_taseq_linear_eq_neg_taylorLinear_charFree h, neg_eq_iff_eq_neg, ← _root_.map_neg]
+  rw [linear_eq_neg_taylorLinear_charFree h, neg_eq_iff_eq_neg, ← _root_.map_neg]
   refine congrArg _ ?_
   have h0 : CoordinateRing.mk W W.polynomial = 0 := AdjoinRoot.mk_self
   have hF0 : W.polynomial.evalEval a b = 0 := h
@@ -779,48 +782,48 @@ private theorem kw_taseq_linear_eq_algebraMap_mk_taylorRemainder₂_charFree (h 
   simp only [map_add, map_mul, _root_.map_zero, zero_add] at hexp
   linear_combination -hexp
 
-private theorem kw_taseq_ord_X_sub_eq_one_charFree (h : W.Nonsingular a b)
-    (hβ : kwTISDβ_charFree W a b ≠ 0) :
+private theorem ord_X_sub_eq_one_charFree (h : W.Nonsingular a b)
+    (hβ : tisdCharFreeβ W a b ≠ 0) :
     (placeOfEquation h.1).ord (W.polyToFunctionField X - ι a) = 1 := by
-  have hY : W.polynomialY.evalEval a b ≠ 0 := kw_taseq_β_eq_polyY_charFree (W := W) ▸ hβ
+  have hY : W.polynomialY.evalEval a b ≠ 0 := β_eq_polyY_charFree (W := W) ▸ hβ
   have hXC : W.polyToFunctionField X - ι a
       = algebraMap W.CoordinateRing W.FunctionField (XClass W a) := by
     have : (XClass W a : W.CoordinateRing) = algebraMap F[X] W.CoordinateRing (X - C a) := rfl
     rw [this, ← polyToFunctionField_apply, map_sub, polyToFunctionField_C]
   rw [hXC]; exact ord_placeOfEquation_XClass_self h.1 hY
 
-private theorem kw_taseq_betasq_x2_sub_a_charFree (hβ : kwTISDβ_charFree W a b ≠ 0) :
-    kwTISDβ_charFree W a b ^ 2 * (W.addX a a (W.slope a a b b) - a)
-      = kwTISDα_charFree W a b ^ 2 + W.a₁ * kwTISDα_charFree W a b * kwTISDβ_charFree W a b
-        - (3 * a + W.a₂) * kwTISDβ_charFree W a b ^ 2 := by
-  have hYne : b ≠ W.negY a b := fun hy => hβ (kw_taseq_β_eq_zero_iff_eq_negY_charFree.mpr hy)
+private theorem betasq_x2_sub_a_charFree (hβ : tisdCharFreeβ W a b ≠ 0) :
+    tisdCharFreeβ W a b ^ 2 * (W.addX a a (W.slope a a b b) - a)
+      = tisdCharFreeα W a b ^ 2 + W.a₁ * tisdCharFreeα W a b * tisdCharFreeβ W a b
+        - (3 * a + W.a₂) * tisdCharFreeβ W a b ^ 2 := by
+  have hYne : b ≠ W.negY a b := fun hy => hβ (β_eq_zero_iff_eq_negY_charFree.mpr hy)
   have hd : b - W.negY a b ≠ 0 := sub_ne_zero.mpr hYne
   rw [Affine.slope_of_Y_ne rfl hYne, Affine.addX]
-  simp only [kwTISDα_charFree, kwTISDβ_charFree, Affine.negY] at hd ⊢
+  simp only [tisdCharFreeα, tisdCharFreeβ, Affine.negY] at hd ⊢
   field_simp
   ring
 
-private theorem kw_taseq_beta_y2_coeff_charFree (hβ : kwTISDβ_charFree W a b ≠ 0) :
-    kwTISDβ_charFree W a b
-        * (kwTISDβ_charFree W a b + W.addY a a b (W.slope a a b b) - b
+private theorem beta_y2_coeff_charFree (hβ : tisdCharFreeβ W a b ≠ 0) :
+    tisdCharFreeβ W a b
+        * (tisdCharFreeβ W a b + W.addY a a b (W.slope a a b b) - b
             + W.a₁ * (W.addX a a (W.slope a a b b) - a))
-      + kwTISDα_charFree W a b * (W.addX a a (W.slope a a b b) - a) = 0 := by
-  have hYne : b ≠ W.negY a b := fun hy => hβ (kw_taseq_β_eq_zero_iff_eq_negY_charFree.mpr hy)
+      + tisdCharFreeα W a b * (W.addX a a (W.slope a a b b) - a) = 0 := by
+  have hYne : b ≠ W.negY a b := fun hy => hβ (β_eq_zero_iff_eq_negY_charFree.mpr hy)
   have hd : b - W.negY a b ≠ 0 := sub_ne_zero.mpr hYne
   rw [Affine.slope_of_Y_ne rfl hYne]
-  simp only [kwTISDα_charFree, kwTISDβ_charFree, Affine.addX, Affine.addY, Affine.negAddY,
+  simp only [tisdCharFreeα, tisdCharFreeβ, Affine.addX, Affine.addY, Affine.negAddY,
     Affine.negY] at hd ⊢
   field_simp
   ring
 
 section DoubleOrd
 
-variable (h : W.Nonsingular a b) (hβ : kwTISDβ_charFree W a b ≠ 0)
+variable (h : W.Nonsingular a b) (hβ : tisdCharFreeβ W a b ≠ 0)
 
 local notation "x₂" => W.addX a a (W.slope a a b b)
 local notation "y₂" => W.addY a a b (W.slope a a b b)
-local notation "α" => kwTISDα_charFree W a b
-local notation "β" => kwTISDβ_charFree W a b
+local notation "α" => tisdCharFreeα W a b
+local notation "β" => tisdCharFreeβ W a b
 local notation "Lcot" =>
   algebraMap F W.CoordinateRing (W.polynomialX.evalEval a b) * XClass W a
     + algebraMap F W.CoordinateRing (W.polynomialY.evalEval a b) * YClass W (C b)
@@ -828,14 +831,14 @@ local notation "ι'" => algebraMap F W.CoordinateRing
 
 include h hβ
 
-private theorem kw_taseq_ord_addXFun_sub_double_pos_charFree :
+private theorem ord_addXFun_sub_double_pos_charFree :
     0 < (placeOfEquation h.1).ord (W.addXFun a b - ι x₂) := by
   set R_X : W.CoordinateRing :=
     CoordinateRing.mk W (W.taylorRemainder₂ a b) - ι' (x₂ - a) * XClass W a ^ 2 with hR_X
   have hXa : W.polyToFunctionField X - ι a ≠ 0 := X_sub_algebraMap_ne_zero a
   have hXa2 : (W.polyToFunctionField X - ι a) ^ 2 ≠ 0 := pow_ne_zero 2 hXa
   have hne_x₂ : W.addXFun a b - ι x₂ ≠ 0 :=
-    sub_ne_zero.mpr (kw_addXFun_ne_algebraMap_any_charFree W h.1 x₂)
+    sub_ne_zero.mpr (addXFun_ne_algebraMap_any_charFree W h.1 x₂)
   have hprod :
       (W.addXFun a b - ι x₂) * (W.polyToFunctionField X - ι a) ^ 2
         = algebraMap W.CoordinateRing W.FunctionField R_X := by
@@ -844,8 +847,8 @@ private theorem kw_taseq_ord_addXFun_sub_double_pos_charFree :
       have : (XClass W a : W.CoordinateRing)
           = algebraMap F[X] W.CoordinateRing (X - C a) := rfl
       rw [this, ← polyToFunctionField_apply, map_sub, polyToFunctionField_C]
-    have h0a := kw_addXFun_sub_mul_sq_num_charFree W a b
-    have heqR := kw_taseq_linear_eq_algebraMap_mk_taylorRemainder₂_charFree (W := W) h.1
+    have h0a := addXFun_sub_mul_sq_num_charFree W a b
+    have heqR := linear_eq_algebraMap_mk_taylorRemainder₂_charFree (W := W) h.1
     rw [hR_X, map_sub, map_mul, map_pow, hXC,
       ← IsScalarTower.algebraMap_apply F W.CoordinateRing W.FunctionField,
       ← heqR, ← h0a, map_sub]
@@ -865,8 +868,8 @@ private theorem kw_taseq_ord_addXFun_sub_double_pos_charFree :
       have hLcot : (Lcot : W.CoordinateRing)
           = ι' (-α) * XClass W a + ι' β * YClass W (C b) := by
         congr 2
-        · exact congrArg ι' (by rw [kw_taseq_α_eq_neg_polyX_charFree]; ring)
-        · exact congrArg ι' kw_taseq_β_eq_polyY_charFree.symm
+        · exact congrArg ι' (by rw [α_eq_neg_polyX_charFree]; ring)
+        · exact congrArg ι' β_eq_polyY_charFree.symm
       have hXgen : CoordinateRing.mk W (C (X : F[X])) = XClass W a + ι' a := by
         rw [CoordinateRing.algebraMap_eq_mk_C_C, XClass, ← map_add, ← Polynomial.C_add,
           sub_add_cancel]
@@ -881,7 +884,7 @@ private theorem kw_taseq_ord_addXFun_sub_double_pos_charFree :
           hXgen]
         ring
       have hι'βx₂ := congrArg ι'
-        (kw_taseq_betasq_x2_sub_a_charFree (W := W) (a := a) (b := b) hβ)
+        (betasq_x2_sub_a_charFree (W := W) (a := a) (b := b) hβ)
       simp only [map_sub, map_add, map_mul, map_pow, map_ofNat, _root_.map_neg] at hι'βx₂ hLcot
       rw [hR_X, hLcot, htR₂]
       simp only [map_sub, map_add, map_mul, map_ofNat]
@@ -900,26 +903,26 @@ private theorem kw_taseq_ord_addXFun_sub_double_pos_charFree :
     rw [this]; exact Ideal.mul_mem_left _ _ hβ'sq_mem
   have hordR : (3 : ℤ) ≤ (placeOfEquation h.1).ord
       (algebraMap W.CoordinateRing W.FunctionField R_X) := by
-    have := kw_taseq_ord_ge_of_mem_XYIdeal_pow_charFree h.1 hR_Xne (n := 3) hR_Xmem
+    have := ord_ge_of_mem_XYIdeal_pow_charFree h.1 hR_Xne (n := 3) hR_Xmem
     exact_mod_cast this
-  have hordXa1 := kw_taseq_ord_X_sub_eq_one_charFree h hβ
+  have hordXa1 := ord_X_sub_eq_one_charFree h hβ
   have heqord := (placeOfEquation h.1).ord_mul hne_x₂ hXa2
   rw [hprod, (placeOfEquation h.1).ord_pow, hordXa1] at heqord
   omega
 
-private theorem kw_taseq_ord_addYFun_sub_double_pos_charFree :
+private theorem ord_addYFun_sub_double_pos_charFree :
     0 < (placeOfEquation h.1).ord (W.addYFun a b - ι y₂) := by
   set u := W.polyToFunctionField X - ι a with hu
   set M := (W.yGen - ι b) + ι W.a₁ * u with hM
   have hXa : u ≠ 0 := X_sub_algebraMap_ne_zero a
   have hXa2 : u ^ 2 ≠ 0 := pow_ne_zero 2 hXa
   have hne_y₂ : W.addYFun a b - ι y₂ ≠ 0 :=
-    sub_ne_zero.mpr (kw_addYFun_ne_algebraMap_any_charFree W h.1 y₂)
+    sub_ne_zero.mpr (addYFun_ne_algebraMap_any_charFree W h.1 y₂)
   set S : W.FunctionField := -ι (β + y₂ - b + W.a₁ * (x₂ - a)) * u ^ 2
       - ι (x₂ - a) * u * (W.yGen - ι b) with hS
   have hstep :
       (W.addYFun a b - ι y₂) * u ^ 2 = S - M * u * (W.addXFun a b - ι x₂) := by
-    have step_i := kw_addYFun_sub_mul_linear_charFree W a b
+    have step_i := addYFun_sub_mul_linear_charFree W a b
     rw [hS, hM, hu]
     simp only [map_add, map_sub, map_mul] at step_i ⊢
     linear_combination (W.polyToFunctionField X - ι a) * step_i
@@ -945,9 +948,9 @@ private theorem kw_taseq_ord_addYFun_sub_double_pos_charFree :
     rw [hR_S, show (Lcot : W.CoordinateRing)
         = ι' (-α) * XClass W a + ι' β * YClass W (C b) from by
           congr 2
-          · exact congrArg ι' (by rw [kw_taseq_α_eq_neg_polyX_charFree]; ring)
-          · exact congrArg ι' kw_taseq_β_eq_polyY_charFree.symm]
-    have hyc := kw_taseq_beta_y2_coeff_charFree (W := W) (a := a) (b := b) hβ
+          · exact congrArg ι' (by rw [α_eq_neg_polyX_charFree]; ring)
+          · exact congrArg ι' β_eq_polyY_charFree.symm]
+    have hyc := beta_y2_coeff_charFree (W := W) (a := a) (b := b) hβ
     have hι'yc : ι' (β * (β + y₂ - b + W.a₁ * (x₂ - a)) + α * (x₂ - a)) = ι' 0 :=
       congrArg ι' hyc
     simp only [map_mul, map_add, map_sub, _root_.map_neg, _root_.map_zero] at hι'yc ⊢
@@ -963,13 +966,13 @@ private theorem kw_taseq_ord_addYFun_sub_double_pos_charFree :
     have : R_S = (↑v⁻¹ : W.CoordinateRing) * (ι' β * R_S) := by
       rw [← hv, ← mul_assoc, Units.inv_mul, one_mul]
     rw [this]; exact Ideal.mul_mem_left _ _ hβ'mem
-  have hordXa1 := kw_taseq_ord_X_sub_eq_one_charFree h hβ
+  have hordXa1 := ord_X_sub_eq_one_charFree h hβ
   rw [← hu] at hordXa1
   have hordS : S = 0 ∨ (3 : ℤ) ≤ (placeOfEquation h.1).ord S := by
     rcases eq_or_ne R_S 0 with h0 | h0
     · left; rw [hSmap, h0, _root_.map_zero]
     · right; rw [hSmap]
-      have := kw_taseq_ord_ge_of_mem_XYIdeal_pow_charFree h.1 h0 (n := 3) hR_Smem
+      have := ord_ge_of_mem_XYIdeal_pow_charFree h.1 h0 (n := 3) hR_Smem
       exact_mod_cast this
   have hordMterm : M * u * (W.addXFun a b - ι x₂) = 0
       ∨ (3 : ℤ) ≤ (placeOfEquation h.1).ord (M * u * (W.addXFun a b - ι x₂)) := by
@@ -979,10 +982,10 @@ private theorem kw_taseq_ord_addYFun_sub_double_pos_charFree :
       have hMne : M ≠ 0 := by
         intro hM0; rw [hM0, zero_mul, zero_mul] at h0; exact h0 rfl
       have hXFne : W.addXFun a b - ι x₂ ≠ 0 :=
-        sub_ne_zero.mpr (kw_addXFun_ne_algebraMap_any_charFree W h.1 x₂)
+        sub_ne_zero.mpr (addXFun_ne_algebraMap_any_charFree W h.1 x₂)
       rw [(placeOfEquation h.1).ord_mul (mul_ne_zero hMne hXa) hXFne,
         (placeOfEquation h.1).ord_mul hMne hXa, hordXa1]
-      have hXord := kw_taseq_ord_addXFun_sub_double_pos_charFree h hβ
+      have hXord := ord_addXFun_sub_double_pos_charFree h hβ
       have hMmap : M = algebraMap W.CoordinateRing W.FunctionField
           (YClass W (C b) + ι' W.a₁ * XClass W a) := by
         have hXC : algebraMap W.CoordinateRing W.FunctionField (XClass W a) = u := by
@@ -1006,7 +1009,7 @@ private theorem kw_taseq_ord_addYFun_sub_double_pos_charFree :
         rw [h0, _root_.map_zero] at hMmap; exact hMne hMmap
       have hMord : (1 : ℤ) ≤ (placeOfEquation h.1).ord M := by
         rw [hMmap]
-        have := kw_taseq_ord_ge_of_mem_XYIdeal_pow_charFree h.1 hMcne (n := 1)
+        have := ord_ge_of_mem_XYIdeal_pow_charFree h.1 hMcne (n := 1)
           (by simpa using hMmem)
         exact_mod_cast this
       omega
@@ -1014,83 +1017,83 @@ private theorem kw_taseq_ord_addYFun_sub_double_pos_charFree :
   rw [hstep] at hfg_ne
   have hordLHS : (3 : ℤ) ≤ (placeOfEquation h.1).ord
       (S - M * u * (W.addXFun a b - ι x₂)) :=
-    kw_taseq_le_ord_sub_charFree (placeOfEquation h.1) hfg_ne hordS hordMterm
+    le_ord_sub_charFree (placeOfEquation h.1) hfg_ne hordS hordMterm
   have heqord := (placeOfEquation h.1).ord_mul hne_y₂ hXa2
   rw [hstep, (placeOfEquation h.1).ord_pow, hordXa1] at heqord
   omega
 
 end DoubleOrd
 
-private theorem kw_translAffineSeamAtEqX_charFree (h : W.Nonsingular a b) (hP : W.Nonsingular a b) :
+private theorem translAffineSeamAtEqX_charFree (h : W.Nonsingular a b) (hP : W.Nonsingular a b) :
     (placeOfEquation hP.1).restrictAlong
         (Point.translateFF (W := W) (.some a b h)).toAlgHom
-        (kw_translateFF_toAlgHom_isIntegral_charFree (.some a b h))
+        (translateFF_toAlgHom_isIntegral_charFree (.some a b h))
       = placeOfPoint (Point.some a b hP + Point.some a b h) := by
   have hPeq : (placeOfEquation hP.1 : Place F W.FunctionField) = placeOfEquation h.1 := rfl
   rw [hPeq, show (Point.some a b hP : W.Point) = Point.some a b h from rfl]
-  rcases eq_or_ne (kwTISDβ_charFree W a b) 0 with hβ | hβ
+  rcases eq_or_ne (tisdCharFreeβ W a b) 0 with hβ | hβ
   ·
     have h2A : Point.some a b h + Point.some a b h = 0 := by
-      have hbn : W.negY a b = b := (kw_taseq_β_eq_zero_iff_eq_negY_charFree.mp hβ).symm
+      have hbn : W.negY a b = b := (β_eq_zero_iff_eq_negY_charFree.mp hβ).symm
       have hneg : (-Point.some a b h : W.Point) = Point.some a b h := by
         rw [Point.neg_some, Point.some.injEq]; exact ⟨rfl, hbn⟩
       nth_rw 2 [← hneg]; exact add_neg_cancel _
     rw [h2A]
-    refine kw_translAffineSeam_at_of_coordSeamData_charFree h _ 0 ?_
-    exact kw_addXFun_notMem_placeOfEquation_self_of_β_eq_zero_charFree h hβ
+    refine translAffineSeam_at_of_coordSeamData_charFree h _ 0 ?_
+    exact addXFun_notMem_placeOfEquation_self_of_β_eq_zero_charFree h hβ
   ·
-    have hYne : b ≠ W.negY a b := fun hy => hβ (kw_taseq_β_eq_zero_iff_eq_negY_charFree.mpr hy)
+    have hYne : b ≠ W.negY a b := fun hy => hβ (β_eq_zero_iff_eq_negY_charFree.mpr hy)
     rw [Point.add_self_of_Y_ne hYne]
-    refine kw_translAffineSeam_at_of_coordSeamData_charFree h _ _ ?_
-    exact ⟨kw_taseq_ord_addXFun_sub_double_pos_charFree h hβ,
-      kw_taseq_ord_addYFun_sub_double_pos_charFree h hβ⟩
+    refine translAffineSeam_at_of_coordSeamData_charFree h _ _ ?_
+    exact ⟨ord_addXFun_sub_double_pos_charFree h hβ,
+      ord_addYFun_sub_double_pos_charFree h hβ⟩
 
-private theorem kw_restrictAlong_translateFF_infinitePlace_charFree (h : W.Nonsingular a b) :
+private theorem restrictAlong_translateFF_infinitePlace_charFree (h : W.Nonsingular a b) :
     (InfinitePlace.place : Place F W.FunctionField).restrictAlong
         (Point.translateFF (W := W) (.some a b h)).toAlgHom
-        (kw_translateFF_toAlgHom_isIntegral_charFree (.some a b h))
+        (translateFF_toAlgHom_isIntegral_charFree (.some a b h))
       = placeOfPoint (.some a b h) :=
-  kw_translAffineSeam_at_of_coordSeamData_charFree h _ (.some a b h)
-    ⟨kw_ord_addXFun_sub_pos_charFree W h.1 _ InfinitePlace.not_isFinitePlace,
-     kw_ord_addYFun_sub_pos_charFree W h.1 _ InfinitePlace.not_isFinitePlace⟩
+  translAffineSeam_at_of_coordSeamData_charFree h _ (.some a b h)
+    ⟨ord_addXFun_sub_pos_charFree W h.1 _ InfinitePlace.not_isFinitePlace,
+     ord_addYFun_sub_pos_charFree W h.1 _ InfinitePlace.not_isFinitePlace⟩
 
-private theorem kw_restrictAlong_translateFF_some_placeOfPoint_charFree (h : W.Nonsingular a b)
+private theorem restrictAlong_translateFF_some_placeOfPoint_charFree (h : W.Nonsingular a b)
     (Q : W.Point) :
     (placeOfPoint Q).restrictAlong
         (Point.translateFF (W := W) (.some a b h)).toAlgHom
-        (kw_translateFF_toAlgHom_isIntegral_charFree (.some a b h))
+        (translateFF_toAlgHom_isIntegral_charFree (.some a b h))
       = placeOfPoint (Q + .some a b h) := by
   cases Q with
   | zero =>
     rw [placeOfPoint_zero]
-    exact kw_restrictAlong_translateFF_infinitePlace_charFree h
+    exact restrictAlong_translateFF_infinitePlace_charFree h
   | some p q hP =>
     rw [placeOfPoint_some]
     rcases eq_or_ne p a with rfl | hne
     ·
       rcases eq_or_ne q b with rfl | hq
       ·
-        exact kw_translAffineSeamAtEqX_charFree h hP
+        exact translAffineSeamAtEqX_charFree h hP
       ·
         have hqn : q = W.negY p b :=
           (Affine.Y_eq_of_X_eq hP.1 h.1 rfl).resolve_left hq
         subst hqn
-        have hβ : kwTISDβ_charFree W p b ≠ 0 := by
+        have hβ : tisdCharFreeβ W p b ≠ 0 := by
           intro h0
-          exact hq (by simp only [Affine.negY]; simp only [kwTISDβ_charFree] at h0
+          exact hq (by simp only [Affine.negY]; simp only [tisdCharFreeβ] at h0
                        linear_combination -h0)
         have hsum : Point.some p (W.negY p b) hP + Point.some p b h = 0 := by
           have hneg : Point.some p (W.negY p b) hP = -Point.some p b h := by
             rw [Point.neg_some]
           rw [hneg]; exact _root_.neg_add_cancel _
         rw [hsum]
-        refine kw_translAffineSeam_at_of_coordSeamData_charFree h _ 0 ?_
-        exact kw_addXFun_notMem_placeOfEquation_negA_charFree h hβ
+        refine translAffineSeam_at_of_coordSeamData_charFree h _ 0 ?_
+        exact addXFun_notMem_placeOfEquation_negA_charFree h hβ
     ·
       rw [Point.add_of_X_ne hne]
-      refine kw_translAffineSeam_at_of_coordSeamData_charFree h _ _ ?_
-      exact ⟨kw_ord_addXFun_sub_addX_pos_charFree W h hP hne,
-        kw_ord_addYFun_sub_addY_pos_charFree W h hP hne⟩
+      refine translAffineSeam_at_of_coordSeamData_charFree h _ _ ?_
+      exact ⟨ord_addXFun_sub_addX_pos_charFree W h hP hne,
+        ord_addYFun_sub_addY_pos_charFree W h hP hne⟩
 
 end GenericW
 
@@ -1105,13 +1108,13 @@ theorem WeierstrassCurve.Affine.exists_algEquiv_forall_restrictAlong_placeOfPoin
     (R : W.Point) :
     ∃ (τ : W.FunctionField ≃ₐ[F] W.FunctionField) (hτ : τ.toAlgHom.toRingHom.IsIntegral),
       ∀ Q : W.Point, (placeOfPoint Q).restrictAlong τ.toAlgHom hτ = placeOfPoint (Q + R) := by
-  refine ⟨Point.translateFF (W := W) R, kw_translateFF_toAlgHom_isIntegral_charFree R,
+  refine ⟨Point.translateFF (W := W) R, translateFF_toAlgHom_isIntegral_charFree R,
     fun Q => ?_⟩
   cases R with
   | zero =>
       rw [show (Point.zero : W.Point) = 0 from rfl, add_zero]
       exact IsogenyEndDatum.restrictAlong_algHomId W (placeOfPoint Q)
-  | some a b h => exact kw_restrictAlong_translateFF_some_placeOfPoint_charFree h Q
+  | some a b h => exact restrictAlong_translateFF_some_placeOfPoint_charFree h Q
 
 theorem WeierstrassCurve.Affine.exists_algEquiv_restrictAlong_placeOfPoint_eq_add
     {F : Type u} [Field F] [DecidableEq F] [IsAlgClosed F] [CharZero F]

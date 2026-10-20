@@ -15,6 +15,8 @@ headline `RationalFunctionField.trace_localResidue_finitePlace_div_pow_eq_zero`
 port and in turn require the whole unported Tate agreement
 (`tateCommFinite` / `tateAgreement_v2` / `tateChainRule` /
 `tateTraceCompat_of_isSeparable`). See the P3.2f report for the promotion debt.
+
+  spec-pin: P2M/Sol/S_AlgebraicCurve_RationalFunctionField_trace_localResidue_finitePlace_div_pow_eq_zero.lean
 -/
 import FLTForHuman.AlgebraicCurve.P1.Core
 import FLTForHuman.AlgebraicCurve.Defs.PlaceCompletion
@@ -651,31 +653,31 @@ section LocalResidueCompletionC4
 
 variable {K E : Type*} [Field K] [Field E] [Algebra K E] [HasCanonicalLocalResidueKStar K E]
 
--- The public `kwHgfV352_localResidueCompletion` is imported from
+-- The public `localResidueCompletion` is imported from
 -- `Defs/TateResidueCurrency.lean`; the P3.2f `private` re-landing was deleted in
 -- the P3.2 refactor round (R5), so the `_spec`/`_algebraMap` below are stated
 -- about the public definition.
 
-theorem kwHgfV352_localResidueCompletion_spec (v : Place K E) (xh : v.adicCompletion)
+theorem localResidueCompletion_spec (v : Place K E) (xh : v.adicCompletion)
     {x : E} (hx : algebraMap E v.adicCompletion x - xh ∈ v.adicCompletionIntegers) :
-    kwHgfV352_localResidueCompletion v xh = v.localResidue x := by
-  unfold kwHgfV352_localResidueCompletion
-  set x₀ := (kwHgfV352_exists_sub_mem_adicCompletionIntegers v xh).choose
-  have hx₀ := (kwHgfV352_exists_sub_mem_adicCompletionIntegers v xh).choose_spec
+    localResidueCompletion v xh = v.localResidue x := by
+  unfold localResidueCompletion
+  set x₀ := (exists_sub_mem_adicCompletionIntegers v xh).choose
+  have hx₀ := (exists_sub_mem_adicCompletionIntegers v xh).choose_spec
   have heq : algebraMap E v.adicCompletion (x₀ - x)
       = (algebraMap E v.adicCompletion x₀ - xh) - (algebraMap E v.adicCompletion x - xh) := by
     rw [map_sub]; ring
   have hdiff : algebraMap E v.adicCompletion (x₀ - x) ∈ v.adicCompletionIntegers :=
     heq ▸ sub_mem hx₀ hx
   have hov : x₀ - x ∈ v.toValuationSubring :=
-    (kwHgfV352_algebraMap_mem_adicCompletionIntegers_iff v _).mp hdiff
+    (algebraMap_mem_adicCompletionIntegers_iff v _).mp hdiff
   have hzero : v.localResidue (x₀ - x) = 0 := v.localResidue_of_mem hov
   rw [map_sub, sub_eq_zero] at hzero
   exact hzero
 
-theorem kwHgfV352_localResidueCompletion_algebraMap (v : Place K E) (x : E) :
-    kwHgfV352_localResidueCompletion v (algebraMap E v.adicCompletion x) = v.localResidue x :=
-  kwHgfV352_localResidueCompletion_spec v _
+theorem localResidueCompletion_algebraMap (v : Place K E) (x : E) :
+    localResidueCompletion v (algebraMap E v.adicCompletion x) = v.localResidue x :=
+  localResidueCompletion_spec v _
     (by rw [sub_self]; exact zero_mem _)
 
 end LocalResidueCompletionC4

@@ -2,19 +2,21 @@
 Tate shared prelude — the row-3.3 declarations that set 3.3b (`Tate/ChainRule.lean`)
 and set 3.3d (`Tate/TraceCompat.lean`) had each re-proved.  They are byte-identical
 in statement in the two modules (the refactor round's detector found all 25 shared
-`ModularCurve.KwF4gRRTate.*` declarations statement-identical), so this file is the
+`ModularCurve.Tate.*` declarations statement-identical), so this file is the
 single home; both consumers import it and the duplicate copies are deleted.
 
 It imports `Defs/TateResidueCurrency.lean` (the shared row-3.3 API) and
 `Tate/CommFinite.lean` (set 3.3a's finiteness theory), because the pole-window
-discharge `kwF4gRRTate_poleWindowFinite` / `lmul_adicIntegers_subset_poleWindow` /
-`kwF4gRRTate_poleWindowImageFinite` uses `kwF4gRRTate_poleWindowFinite_of_DVRQuotPowKFinite`,
-`poleWindowKSubmod` and `kwF4gRRTate_clearPole` from there; everything else is
+discharge `poleWindowFinite` / `lmul_adicIntegers_subset_poleWindow` /
+`poleWindowImageFinite` uses `poleWindowFinite_of_DVRQuotPowKFinite`,
+`poleWindowKSubmod` and `clearPole` from there; everything else is
 mathlib through the API.
 
 The declaration text is the `Tate/ChainRule.lean` copy verbatim (the two copies are
 statement-identical; the checker verifies each against the pin's prelude in
 `P2M/Sol/S_AlgebraicCurve_tateChainRule.lean` / `..._tateTraceCompat_...`).
+
+  spec-pin: P2M/Sol/S_AlgebraicCurve_tateChainRule.lean
 -/
 import FLTForHuman.AlgebraicCurve.Defs.TateResidueCurrency
 import FLTForHuman.AlgebraicCurve.Tate.CommFinite
@@ -27,11 +29,11 @@ set_option linter.unusedVariables false
 
 open LinearMap Submodule
 open AlgebraicCurve AlgebraicCurve.Place
-open ModularCurve.KwF4gRRTate
+open ModularCurve.Tate
 
 noncomputable section
 
-namespace ModularCurve.KwF4gRRTate
+namespace ModularCurve.Tate
 
 section TateProj
 
@@ -148,8 +150,8 @@ variable [u.FiniteResidue]
 
 /-- The image of the completion integers under multiplication by a fixed completion
 element, modulo the completion integers, is finite-dimensional over `K` (the pin's
-`KwF4gRRTatePoleWindowImageFinite`). -/
-def KwF4gRRTatePoleWindowImageFinite : Prop :=
+`TatePoleWindowImageFinite`). -/
+def TatePoleWindowImageFinite : Prop :=
   ∀ (fh : u.adicCompletion),
     FiniteDimensional K (Submodule.map (adicIntegersKSubmod u).mkQ
       (Submodule.map (lmulK u fh) (adicIntegersKSubmod u)))
@@ -162,10 +164,10 @@ variable {K L : Type*} [Field K] [Field L] [Algebra K L]
 
 /-- The pole-window finiteness, discharged through the DVR quotient-power and
 cotangent finiteness of set 3.3a. -/
-theorem kwF4gRRTate_poleWindowFinite : KwF4gRRTatePoleWindowFinite K L :=
-  kwF4gRRTate_poleWindowFinite_of_DVRQuotPowKFinite
-    (kwF4gRRTate_DVRQuotPowKFinite_of_cotangent
-      kwF4gRRTate_DVRCotangentKFinite)
+theorem poleWindowFinite : TatePoleWindowFinite K L :=
+  poleWindowFinite_of_DVRQuotPowKFinite
+    (DVRQuotPowKFinite_of_cotangent
+      DVRCotangentKFinite)
 
 end Composite
 
@@ -194,13 +196,13 @@ section Discharge
 variable {K L : Type*} [Field K] [Field L] [Algebra K L] (u : Place K L)
 variable [u.FiniteResidue]
 
-/-- The pin's `KwF4gRRTatePoleWindowImageFinite`, discharged from the pole-window
+/-- The pin's `TatePoleWindowImageFinite`, discharged from the pole-window
 finiteness and the clearing of poles. -/
-theorem kwF4gRRTate_poleWindowImageFinite :
-    KwF4gRRTatePoleWindowImageFinite u := by
+theorem poleWindowImageFinite :
+    TatePoleWindowImageFinite u := by
   intro fh
   obtain ⟨πh, hπh⟩ := IsDiscreteValuationRing.exists_irreducible u.adicCompletionIntegers
-  obtain ⟨M, hfhM⟩ := kwF4gRRTate_clearPole u πh hπh fh
+  obtain ⟨M, hfhM⟩ := clearPole u πh hπh fh
 
   set A := adicIntegersKSubmod u
   set P := poleWindowKSubmod u πh M
@@ -212,7 +214,7 @@ theorem kwF4gRRTate_poleWindowImageFinite :
     exact Submodule.finiteDimensional_of_le hsub
 
   haveI : FiniteDimensional K (P ⧸ (A.comap P.subtype)) :=
-    kwF4gRRTate_poleWindowFinite (K := K) (L := L) u πh hπh M
+    poleWindowFinite (K := K) (L := L) u πh hπh M
   let r : P →ₗ[K] (u.adicCompletion ⧸ A) := A.mkQ ∘ₗ P.subtype
   have hrange : LinearMap.range r = Submodule.map A.mkQ P := by
     rw [LinearMap.range_comp, Submodule.range_subtype]
@@ -282,7 +284,7 @@ variable [u.FiniteResidue]
 theorem finiteDimensional_range_alphaMap (c : u.adicCompletion) :
     FiniteDimensional K (LinearMap.range (alphaMap u c)) := by
 
-  haveI hF21 := kwF4gRRTate_poleWindowImageFinite u c
+  haveI hF21 := poleWindowImageFinite u c
   set Q1 := u.adicCompletion ⧸ LinearMap.range (tateProj u)
   set Q2 := u.adicCompletion ⧸ adicIntegersKSubmod u
   let eQ : Q1 ≃ₗ[K] Q2 := Submodule.quotEquivOfEq _ _ (range_tateProj u)

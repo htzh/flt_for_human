@@ -15,6 +15,8 @@ family is declared after most of E and uses it).
 
 Reference (public mirror, pinned):
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_velu_map_equation_of_oddOrderSummingSet_of_isAlgClosed.lean>
+
+  spec-pin: P2M/Sol/S_WeierstrassCurve_velu_map_equation_of_oddOrderSummingSet_of_isAlgClosed.lean
 -/
 import FLTForHuman.WeierstrassCurve.Velu.Formula
 import FLTForHuman.WeierstrassCurve.Place.Dictionary
@@ -2194,7 +2196,7 @@ section Constancy
 
 variable {F : Type*} [Field F] [DecidableEq F] [IsAlgClosed F]
 
-theorem kw_infinite_of_isAlgClosed : Infinite F := by
+theorem infinite_of_isAlgClosed : Infinite F := by
   rw [← not_finite_iff_infinite]
   intro hfin
   haveI := Fintype.ofFinite F
@@ -2211,7 +2213,7 @@ theorem kw_infinite_of_isAlgClosed : Infinite F := by
   rw [Polynomial.IsRoot, heval] at hx
   exact one_ne_zero hx
 
-theorem kw_hDDTerm :
+theorem hDDTerm :
     ∀ (W : WeierstrassCurve F), W.Δ ≠ 0 → IsDedekindDomain W.toAffine.CoordinateRing :=
   fun _W hΔ => Affine.CoordinateRing.isDedekindDomain_of_Δ_ne_zero hΔ
 

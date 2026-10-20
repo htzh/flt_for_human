@@ -18,8 +18,10 @@ and the public headline live in `KFamily.lean`, which imports this module.
 The port's ℙ¹ chain spells the place `p1PlaceInfty`; here we state at the pin's
 `placeInfty` spelling and adapt with `change`/`simpa [p1PlaceInfty]` where a ℙ¹ lemma
 is consumed.  The pin's `private` helpers that the proofs reach and that are already
-public in the port are imported, not re-proved; the three private `KwF4R1V384a*`
+public in the port are imported, not re-proved; the three private `*`
 `Prop` rows are re-landed `private` in `KFamily.lean` (promotion debt).
+
+  spec-pin: P2M/Sol/S_AlgebraicCurve_residueTheoremK_of_isAlgClosed.lean
 -/
 import FLTForHuman.AlgebraicCurve.P1.DivPowEnding
 import FLTForHuman.AlgebraicCurve.LocalResidue.Instance
@@ -404,7 +406,7 @@ variable {K F : Type*} [Field K] [Field F] [Algebra K F]
 variable {E : Type*} [Field E] [Algebra K E] [Algebra E F] [IsScalarTower K E F]
 
 /-- (pin 6540) The pullback is `E`-semilinear. -/
-theorem kw_mlc_hrtCharP7_kaehlerPullback_smul (g : E) (ωE : Ω[E⁄K]) :
+theorem hrtCharP7_kaehlerPullback_smul (g : E) (ωE : Ω[E⁄K]) :
     kaehlerPullback K F E (g • ωE) = (algebraMap E F g) • kaehlerPullback K F E ωE := by
   show (KaehlerDifferential.map K K E F) (g • ωE)
     = (algebraMap E F g) • (KaehlerDifferential.map K K E F) ωE
@@ -427,7 +429,7 @@ theorem differentialCoeff_kaehlerPullback [Nontrivial Ω[E⁄K]]
       = algebraMap E F (v.differentialCoeff ωE)
         * w.differentialCoeff (kaehlerPullback K F E v.dCoord) := by
   conv_lhs => rw [← v.differentialCoeff_smul_dCoord ωE,
-    kw_mlc_hrtCharP7_kaehlerPullback_smul, w.differentialCoeff_smul]
+    hrtCharP7_kaehlerPullback_smul, w.differentialCoeff_smul]
 
 end PlaceDifferentialCoeffPullback
 

@@ -37,7 +37,7 @@ Route notes (they are deviations from the pin, and deliberate):
 * The pin's base-change engine (`kw_surgehgf4_hfgkd_bcIota₁NoAC`, `A:2501–2839`) is the **gate-
   free, `IsAlgClosed`-free** spelling, and the two-curve descent needs it at `F = K₀` — a
   subfield of `K` that is neither algebraically closed nor gate-equipped.  D-5's landed
-  `kw_surge_hgf4_bcIota₁` block is the same proof under the heavier `General` section (it
+  `bcIota₁` block is the same proof under the heavier `General` section (it
   hypothesises `[IsAlgClosed F]` and the four gate instances), so it **cannot** be
   instantiated at `K₀`.  The engine is therefore transcribed here, `private`, from the pin's
   `NoAC` block; the pin's `IsDomain` scoped instance becomes the gate-free

@@ -1,15 +1,15 @@
 /-
   Cross-module wire test for **S-1**, the ℂ-analytic seam
   (`FLTForHuman/Elliptic/PeriodPair/HoloLift.lean`): the four
-  `ModularCurve.KwD5BetweenCurves*HoloLift` chain `Prop`s and the
+  `ModularCurve.BetweenCurves*HoloLift` chain `Prop`s and the
   `kw_surgehgf4_hH2*` reduction that proves
-  `ModularCurve.KwD5BetweenCurvesHoloLift`, and the headline
+  `ModularCurve.BetweenCurvesHoloLift`, and the headline
   `PeriodPair.exists_differentiable_toPoint_comp_eq_pointMapOfPushforward_toPoint`.
 
   A `spec/` probe, not a library module: it is outside every lake target and is run with
   `lake env lean`, so a green library build stays meanwhat it says. Deleting
   `HoloLift.lean` makes every zone fail (no other module declares any of the names used
-  here except the imported `ModularCurve.KwD5BetweenCurvesHoloLift` seam and the
+  here except the imported `ModularCurve.BetweenCurvesHoloLift` seam and the
   `PeriodPair` promotion set, which the zones only *consume*).
 
   Executed zones (each a real composition, no `#check`, no `sorry`):
@@ -21,12 +21,12 @@
     co-importable with `Engine.lean`);
   * zone 2 — the same F composed with the ported `PeriodPair.toPointHom_apply` /
     `toPointAddEquiv_mk` API, recovering the `toPointHom` form the chain is stated in;
-  * zone 3 — the chain itself: the top seam `kw_surgehgf4_hH2f_betweenCurvesHoloLift` and
+  * zone 3 — the chain itself: the top seam `betweenCurvesHoloLift` and
     each of the reduction steps, from a proof of the upstream class;
   * zone 4 — the module's other pin-public atoms: the finite-kernel bridge
-    `kw_fdn2_qephod_hend10_kerPMOP_finite`, the `geomMorphBC` fibre finiteness
-    `kw_surgehgf4_hH2f_finite_geomMorphBC_preimage`, and the place/evaluation bridge
-    `WeierstrassCurve.Affine.kw_evalAt_placeOfEquation_mk`.
+    `hend10_kerPMOP_finite`, the `geomMorphBC` fibre finiteness
+    `finite_geomMorphBC_preimage`, and the place/evaluation bridge
+    `WeierstrassCurve.Affine.evalAt_placeOfEquation_mk`.
 -/
 import FLTForHuman.Elliptic.PeriodPair.HoloLift
 
@@ -122,33 +122,33 @@ example (L L' : PeriodPair) (hL : L.DiscriminantNeZero) (hL' : L'.DiscriminantNe
 /-! ### Zone 3 — the chain: each reduction at its pin name -/
 
 /-- The proved seam class, from the constructive base. -/
-example : ModularCurve.KwD5BetweenCurvesHoloLift :=
-  ModularCurve.kw_surgehgf4_hH2f_betweenCurvesHoloLift
+example : ModularCurve.BetweenCurvesHoloLift :=
+  ModularCurve.betweenCurvesHoloLift
 
 /-- `Weak → HoloLift` (the full chain in one step). -/
-example (h : ModularCurve.KwD5BetweenCurvesCocountableAffineHoloCoordsWeak) :
-    ModularCurve.KwD5BetweenCurvesHoloLift :=
-  ModularCurve.kw_surgehgf4_hH2_betweenCurvesHoloLift_of_affineHoloCoordsWeak h
+example (h : ModularCurve.BetweenCurvesCocountableAffineHoloCoordsWeak) :
+    ModularCurve.BetweenCurvesHoloLift :=
+  ModularCurve.betweenCurvesHoloLift_of_affineHoloCoordsWeak h
 
 /-- `Locally → HoloLift`. -/
-example (h : ModularCurve.KwD5BetweenCurvesLocallyHoloLift) :
-    ModularCurve.KwD5BetweenCurvesHoloLift :=
-  ModularCurve.kw_surgehgf4_hH2_betweenCurvesHoloLift_of_locallyHolo h
+example (h : ModularCurve.BetweenCurvesLocallyHoloLift) :
+    ModularCurve.BetweenCurvesHoloLift :=
+  ModularCurve.betweenCurvesHoloLift_of_locallyHolo h
 
 /-- `Cocountable → Locally`. -/
-example (h : ModularCurve.KwD5BetweenCurvesCocountableHoloLift) :
-    ModularCurve.KwD5BetweenCurvesLocallyHoloLift :=
-  ModularCurve.kw_surgehgf4_hH2c_betweenCurvesLocallyHoloLift_of_cocountable h
+example (h : ModularCurve.BetweenCurvesCocountableHoloLift) :
+    ModularCurve.BetweenCurvesLocallyHoloLift :=
+  ModularCurve.betweenCurvesLocallyHoloLift_of_cocountable h
 
 /-- `Coords → Cocountable → HoloLift`. -/
-example (h : ModularCurve.KwD5BetweenCurvesCocountableAffineHoloCoords) :
-    ModularCurve.KwD5BetweenCurvesHoloLift :=
-  ModularCurve.kw_surgehgf4_hH2_betweenCurvesHoloLift_of_affineHoloCoords h
+example (h : ModularCurve.BetweenCurvesCocountableAffineHoloCoords) :
+    ModularCurve.BetweenCurvesHoloLift :=
+  ModularCurve.betweenCurvesHoloLift_of_affineHoloCoords h
 
 /-- `Weak → Coords` (the step that removes the `Y z ≠ 0` defect). -/
-example (h : ModularCurve.KwD5BetweenCurvesCocountableAffineHoloCoordsWeak) :
-    ModularCurve.KwD5BetweenCurvesCocountableAffineHoloCoords :=
-  ModularCurve.kw_surgehgf4_hH2e_betweenCurvesCocountableAffineHoloCoords_of_weak h
+example (h : ModularCurve.BetweenCurvesCocountableAffineHoloCoordsWeak) :
+    ModularCurve.BetweenCurvesCocountableAffineHoloCoords :=
+  ModularCurve.betweenCurvesCocountableAffineHoloCoords_of_weak h
 
 /-! ### Zone 4 — the module's other pin-public atoms -/
 
@@ -162,7 +162,7 @@ example {K : Type u} [Field K] [DecidableEq K] [IsAlgClosed K] [CharZero K]
     (hι : ι.toRingHom.IsIntegral) (hfin : FiniteAlong K ι) :
     Finite ↥(AddMonoidHom.ker
       (pointMapOfPushforward ι hι hfin (normFormulaAlong_of_elliptic ι hfin))) :=
-  ModularCurve.kw_fdn2_qephod_hend10_kerPMOP_finite ι hι hfin
+  ModularCurve.hend10_kerPMOP_finite ι hι hfin
 
 /-- The `geomMorphBC` fibre over a point is finite. -/
 example {K : Type u} [Field K] [DecidableEq K] [IsAlgClosed K] [CharZero K]
@@ -171,15 +171,15 @@ example {K : Type u} [Field K] [DecidableEq K] [IsAlgClosed K] [CharZero K]
     [AbelTheorem E']
     (ι : E'.FunctionField →ₐ[K] E.FunctionField) (hι : ι.toRingHom.IsIntegral)
     (t : E'.Point) :
-    {P : E.Point | ModularCurve.kw_fdn2_qephod_hend7_geomMorphBC ι hι P = t}.Finite :=
-  ModularCurve.kw_surgehgf4_hH2f_finite_geomMorphBC_preimage ι hι t
+    {P : E.Point | ModularCurve.hend7_geomMorphBC ι hι P = t}.Finite :=
+  ModularCurve.finite_geomMorphBC_preimage ι hι t
 
-/-- The place/evaluation bridge `kw_evalAt_placeOfEquation_mk`. -/
+/-- The place/evaluation bridge `evalAt_placeOfEquation_mk`. -/
 example {F : Type*} [Field F] {W : Affine F} [IsDedekindDomain W.CoordinateRing]
     {r s : F} (hrs : W.Equation r s) (p : Polynomial F[X]) :
     (placeOfEquation hrs).evalAt
         (algebraMap W.CoordinateRing W.FunctionField (CoordinateRing.mk W p))
       = p.evalEval r s :=
-  kw_evalAt_placeOfEquation_mk hrs p
+  evalAt_placeOfEquation_mk hrs p
 
 end PeriodPairHoloLiftConsumer

@@ -47,7 +47,7 @@ variable {R : Type*} [CommRing R] {W : Affine R}
 /-- The `x`-coordinate of a point, `0` at the origin. The pin declares this
 `private` and re-exports it by name-mangling (`p2m_export`); the port promotes it
 publicly so the odd-order layer (`Velu/OddOrder.lean`, whose
-`kw_veluX_xOrZero_add_gen_odd` statement names `(P + Q).xOrZero`) can use it. -/
+`veluX_xOrZero_add_gen_odd` statement names `(P + Q).xOrZero`) can use it. -/
 def xOrZero : W.Point → R
   | .zero => 0
   | .some x _ _ => x

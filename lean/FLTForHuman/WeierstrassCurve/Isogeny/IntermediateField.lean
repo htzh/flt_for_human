@@ -36,7 +36,7 @@ at `aa2d8b3`.
 Pin↔port name map. The module's public surface is the pin's public *interface* of this
 node:
 
-* the self-contained descent predicates `KwIsogenyEndDatum{FGFieldDescent,
+* the self-contained descent predicates `IsogenyEndDatum{FGFieldDescent,
   SubfieldDescent'',IotaDescendToFG,SubfieldDescent,BaseChangeToAlgebraicClosure{,,''},
   FGFieldDescentIotaAtom',IotaDescendToFG''}`;
 * the headline.
@@ -45,8 +45,8 @@ Everything else is a helper **local to this module** (no other set imports this 
 so per `studies/pin-name-prefixes-and-the-checker.md` §4 it stays `private`, written at
 its pin name with the pin's collision token `kw_` stripped (`kw_iA_phi ↦ iA_phi`,
 `kw_iotaSubd_countable_of_fg ↦ iotaSubd_countable_of_fg`, …): the 66 pin helpers of the
-descent chain, the four `KwIota*` `Prop`s (`KwIotaPinnedFinrank`,
-`KwIotaPinnedFinrankEq`, `KwIotaPinnedFiniteSeam`, `KwIotaCanonicalFinrank`, which
+descent chain, the four `Iota*` `Prop`s (`IotaPinnedFinrank`,
+`IotaPinnedFinrankEq`, `IotaPinnedFiniteSeam`, `IotaCanonicalFinrank`, which
 mention those helpers in their bodies), and the two instances below — 72 private
 declarations in all. The checker does not read the port's private layer, so each
 renamed helper is deliberately outside the statement diff; its statement is transcribed
@@ -75,10 +75,13 @@ against that surface.
 
 Not ported here (deliberately, the boundary of the set): the `mrtw60a*` variable-change
 block (D-3), the `kw_surgehgf4_pck*` block (D-4), the `kw_surge_hgf4_*` /
-`KwD5BetweenCurves*` seam (D-4/D-5), and anything from the S row.
+`BetweenCurves*` seam (D-4/D-5), and anything from the S row.
 
 Reference (public mirror, pinned):
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_exists_intermediateField_countable_map_eq_and_finrankAlong_eq.lean>
+
+  spec-pin: Theorems/Thm_WeierstrassCurve_exists_intermediateField_countable_map_eq_and_finrankAlong_eq.lean
+  spec-pin: P2M/Sol/S_WeierstrassCurve_exists_intermediateField_countable_map_eq_and_finrankAlong_eq.lean
 -/
 import FLTForHuman.WeierstrassCurve.Isogeny.BaseChange
 import Mathlib.FieldTheory.IntermediateField.Adjoin.Basic
@@ -135,14 +138,14 @@ section DescentPredicates
 /-! ### The countable-descent predicates -/
 
 
-def KwIsogenyEndDatumFGFieldDescent (K : Type uK) [Field K] [Algebra ℚ K] [DecidableEq K]
+def IsogenyEndDatumFGFieldDescent (K : Type uK) [Field K] [Algebra ℚ K] [DecidableEq K]
     [IsAlgClosed K] [CharZero K] (E : WeierstrassCurve K) [E.IsElliptic] (N : ℕ) : Prop :=
   (∃ D : TreeIsogenyEndDatum E.toAffine, D.degree = N) →
     ∃ (K₀ : IntermediateField ℚ K) (_ : Countable K₀)
       (E₀ : WeierstrassCurve K₀) (_ : E₀.IsElliptic) (_ : E₀.map (algebraMap K₀ K) = E)
       (D₀ : TreeIsogenyEndDatum (E₀⁄(AlgebraicClosure K₀))), D₀.degree = N
 
-def KwIsogenyEndDatumSubfieldDescent'' (K : Type uK) [Field K] [Algebra ℚ K]
+def IsogenyEndDatumSubfieldDescent'' (K : Type uK) [Field K] [Algebra ℚ K]
     [DecidableEq K] [IsAlgClosed K] [CharZero K] (E : WeierstrassCurve K) [E.IsElliptic]
     (N : ℕ) : Prop :=
   (∃ D : TreeIsogenyEndDatum E.toAffine, D.degree = N) →
@@ -150,7 +153,7 @@ def KwIsogenyEndDatumSubfieldDescent'' (K : Type uK) [Field K] [Algebra ℚ K]
       (E₀ : WeierstrassCurve K₀) (_ : E₀.IsElliptic) (_ : E₀.map (algebraMap K₀ K) = E)
       (D' : TreeIsogenyEndDatum E₀.toAffine), D'.degree = N
 
-def KwIsogenyEndDatumIotaDescendToFG (K : Type uK) [Field K] [Algebra ℚ K]
+def IsogenyEndDatumIotaDescendToFG (K : Type uK) [Field K] [Algebra ℚ K]
     [DecidableEq K] [IsAlgClosed K] [CharZero K] (E : WeierstrassCurve K) [E.IsElliptic]
     (D : TreeIsogenyEndDatum E.toAffine) : Prop :=
   ∃ (K₀ : IntermediateField ℚ K) (_ : K₀.FG)
@@ -165,21 +168,21 @@ section SubfieldDescent
 private theorem subfieldDescent_of_iotaDescend (K : Type uK) [Field K] [Algebra ℚ K]
     [DecidableEq K] [IsAlgClosed K] [CharZero K] (E : WeierstrassCurve K) [E.IsElliptic]
     (N : ℕ)
-    (hIota : ∀ D : TreeIsogenyEndDatum E.toAffine, KwIsogenyEndDatumIotaDescendToFG K E D) :
-    KwIsogenyEndDatumSubfieldDescent'' K E N := by
+    (hIota : ∀ D : TreeIsogenyEndDatum E.toAffine, IsogenyEndDatumIotaDescendToFG K E D) :
+    IsogenyEndDatumSubfieldDescent'' K E N := by
   intro ⟨D, hDN⟩
   obtain ⟨K₀, hfg, E₀, hE₀ell, hE₀map, ι₀, hι₀, hfin₀, hdeg₀⟩ := hIota D
   haveI : E₀.IsElliptic := hE₀ell
   exact ⟨K₀, hfg, E₀, hE₀ell, hE₀map, ⟨ι₀, hι₀, hfin₀⟩, hdeg₀.trans hDN⟩
 
-def KwIsogenyEndDatumBaseChangeToAlgebraicClosure'' (K₀ : Type uK) [Field K₀] [CharZero K₀]
+def IsogenyEndDatumBaseChangeToAlgebraicClosure'' (K₀ : Type uK) [Field K₀] [CharZero K₀]
     (E₀ : WeierstrassCurve K₀) [E₀.IsElliptic] (N : ℕ) : Prop :=
   (∃ D' : TreeIsogenyEndDatum E₀.toAffine, D'.degree = N) →
     ∃ D₀ : TreeIsogenyEndDatum (E₀⁄(AlgebraicClosure K₀)), D₀.degree = N
 
 private theorem baseChangeToAC_uncond (K₀ : Type uK) [Field K₀] [DecidableEq K₀] [CharZero K₀]
     (E₀ : WeierstrassCurve K₀) [E₀.IsElliptic] (N : ℕ) :
-    KwIsogenyEndDatumBaseChangeToAlgebraicClosure'' K₀ E₀ N := by
+    IsogenyEndDatumBaseChangeToAlgebraicClosure'' K₀ E₀ N := by
   haveI : DecidableEq (AlgebraicClosure K₀) := Classical.decEq _
   haveI : CharZero (AlgebraicClosure K₀) :=
     charZero_of_injective_algebraMap (algebraMap K₀ (AlgebraicClosure K₀)).injective
@@ -198,7 +201,7 @@ end SubfieldDescent
 section Atom
 
 
-def KwIsogenyEndDatumSubfieldDescent (K : Type uK) [Field K] [Algebra ℚ K]
+def IsogenyEndDatumSubfieldDescent (K : Type uK) [Field K] [Algebra ℚ K]
     [DecidableEq K] [IsAlgClosed K] [CharZero K] (E : WeierstrassCurve K) [E.IsElliptic]
     (N : ℕ) : Prop :=
   (∃ D : TreeIsogenyEndDatum E.toAffine, D.degree = N) →
@@ -206,12 +209,12 @@ def KwIsogenyEndDatumSubfieldDescent (K : Type uK) [Field K] [Algebra ℚ K]
       (E₀ : WeierstrassCurve K₀) (_ : E₀.IsElliptic) (_ : E₀.map (algebraMap K₀ K) = E)
       (D' : TreeIsogenyEndDatum E₀.toAffine), D'.degree = N
 
-def KwIsogenyEndDatumBaseChangeToAlgebraicClosure (K₀ : Type uK) [Field K₀] [CharZero K₀]
+def IsogenyEndDatumBaseChangeToAlgebraicClosure (K₀ : Type uK) [Field K₀] [CharZero K₀]
     (E₀ : WeierstrassCurve K₀) [E₀.IsElliptic] (N : ℕ) : Prop :=
   (∃ D' : TreeIsogenyEndDatum E₀.toAffine, D'.degree = N) →
     ∃ D₀ : TreeIsogenyEndDatum (E₀⁄(AlgebraicClosure K₀)), D₀.degree = N
 
-def KwIsogenyEndDatumFGFieldDescentIotaAtom' (K : Type uK) [Field K] [Algebra ℚ K]
+def IsogenyEndDatumFGFieldDescentIotaAtom' (K : Type uK) [Field K] [Algebra ℚ K]
     [DecidableEq K] [IsAlgClosed K] [CharZero K] (E : WeierstrassCurve K) [E.IsElliptic]
     (N : ℕ) : Prop :=
   (∃ D : TreeIsogenyEndDatum E.toAffine, D.degree = N) →
@@ -221,10 +224,10 @@ def KwIsogenyEndDatumFGFieldDescentIotaAtom' (K : Type uK) [Field K] [Algebra �
 
 private theorem iotaAtom_of_subfieldDescent_of_baseChangeToAC (K : Type uK) [Field K] [Algebra ℚ K]
     [DecidableEq K] [IsAlgClosed K] [CharZero K] (E : WeierstrassCurve K) [E.IsElliptic]
-    (N : ℕ) (hSD : KwIsogenyEndDatumSubfieldDescent K E N)
+    (N : ℕ) (hSD : IsogenyEndDatumSubfieldDescent K E N)
     (hBC : ∀ (K₀ : Type uK) [Field K₀] [CharZero K₀] (E₀ : WeierstrassCurve K₀) [E₀.IsElliptic],
-      KwIsogenyEndDatumBaseChangeToAlgebraicClosure K₀ E₀ N) :
-    KwIsogenyEndDatumFGFieldDescentIotaAtom' K E N := by
+      IsogenyEndDatumBaseChangeToAlgebraicClosure K₀ E₀ N) :
+    IsogenyEndDatumFGFieldDescentIotaAtom' K E N := by
   intro hD
   obtain ⟨K₀, hfg, E₀, hE₀ell, hE₀map, D', hD'deg⟩ := hSD hD
   haveI : E₀.IsElliptic := hE₀ell
@@ -246,10 +249,10 @@ theorem iotaSubd_countable_of_fg {K : Type uK} [Field K] [Algebra ℚ K]
 
 private theorem fgFieldDescent_of_subfieldDescent_of_baseChangeToAC (K : Type uK) [Field K]
     [Algebra ℚ K] [DecidableEq K] [IsAlgClosed K] [CharZero K] (E : WeierstrassCurve K)
-    [E.IsElliptic] (N : ℕ) (hSD : KwIsogenyEndDatumSubfieldDescent K E N)
+    [E.IsElliptic] (N : ℕ) (hSD : IsogenyEndDatumSubfieldDescent K E N)
     (hBC : ∀ (K₀ : Type uK) [Field K₀] [CharZero K₀] (E₀ : WeierstrassCurve K₀) [E₀.IsElliptic],
-      KwIsogenyEndDatumBaseChangeToAlgebraicClosure K₀ E₀ N) :
-    KwIsogenyEndDatumFGFieldDescent K E N := by
+      IsogenyEndDatumBaseChangeToAlgebraicClosure K₀ E₀ N) :
+    IsogenyEndDatumFGFieldDescent K E N := by
   intro hD
   obtain ⟨K₀, hfg, E₀, hE₀ell, hE₀map, D₀, hD₀deg⟩ :=
     iotaAtom_of_subfieldDescent_of_baseChangeToAC K E N hSD hBC hD
@@ -410,7 +413,7 @@ private def iA_CoeffsHyp (D : TreeIsogenyEndDatum (E).toAffine) : Prop :=
         (E).toAffine.CoordinateRing) (D.ι (yGen (E).toAffine))).2 :
       (E).toAffine.CoordinateRing))
 
-def KwIsogenyEndDatumIotaDescendToFG'' (K : Type uK) [Field K] [Algebra ℚ K]
+def IsogenyEndDatumIotaDescendToFG'' (K : Type uK) [Field K] [Algebra ℚ K]
     [DecidableEq K] [IsAlgClosed K] [CharZero K] (E' : WeierstrassCurve K) [E'.IsElliptic]
     (D : TreeIsogenyEndDatum E'.toAffine) : Prop :=
   ∃ (K₀ : IntermediateField ℚ K) (_ : K₀.FG)
@@ -515,7 +518,7 @@ private theorem iP_ι₀_yGen :
     iP_ι₀ E₀ D hcoeffs (yGen E₀.toAffine) = iP_yP E₀ D hcoeffs :=
   pointPullbackHomTo_yGen _ _
 
-private def KwIotaPinnedFinrank : Prop :=
+private def IotaPinnedFinrank : Prop :=
   (iP_ι₀ E₀ D hcoeffs).toRingHom.IsIntegral
     ∧ FiniteAlong K₀ (iP_ι₀ E₀ D hcoeffs)
     ∧ finrankAlong K₀ (iP_ι₀ E₀ D hcoeffs) = D.degree
@@ -630,9 +633,9 @@ private def iCa_D' :
     TreeIsogenyEndDatum ((iCa_E₀ E D).map (algebraMap (iCa_K₀ E D) K)).toAffine :=
   Eq.mpr (congrArg (fun W => TreeIsogenyEndDatum W.toAffine) (iCa_E₀_map E D)) D
 
-private def KwIotaCanonicalFinrank : Prop :=
+private def IotaCanonicalFinrank : Prop :=
   ∀ hcoeffs : iA_CoeffsHyp (iCa_E₀ E D) (iCa_D' E D),
-    KwIotaPinnedFinrank (iCa_E₀ E D) (iCa_D' E D) hcoeffs
+    IotaPinnedFinrank (iCa_E₀ E D) (iCa_D' E D) hcoeffs
 
 private theorem iCa_ffCoeffSet_subset_X :
     (↑(iCa_ffCoeffSet E (D.ι (polyToFunctionField E.toAffine X))) : Set K)
@@ -665,13 +668,13 @@ private theorem iPF_phi_yGen :
     iA_phi E₀ (yGen E₀.toAffine) = yGen (E).toAffine :=
   pointPullbackHomTo_yGen _ _
 
-private def KwIotaPinnedFiniteSeam : Prop :=
+private def IotaPinnedFiniteSeam : Prop :=
   FiniteAlong K₀ (iP_ι₀ E₀ D hcoeffs)
     ∧ finrankAlong K₀ (iP_ι₀ E₀ D hcoeffs) = D.degree
 
 private theorem iotaPinnedFinrank_of_finiteSeam
-    (hSeam : KwIotaPinnedFiniteSeam E₀ D hcoeffs) :
-    KwIotaPinnedFinrank E₀ D hcoeffs := by
+    (hSeam : IotaPinnedFiniteSeam E₀ D hcoeffs) :
+    IotaPinnedFinrank E₀ D hcoeffs := by
   obtain ⟨hfin, hdeg⟩ := hSeam
   exact ⟨RingHom.Finite.to_isIntegral (f := (iP_ι₀ E₀ D hcoeffs).toRingHom) hfin,
     hfin, hdeg⟩
@@ -713,9 +716,9 @@ private theorem iCaW_descend_of_pinned_cast {K₀ : IntermediateField ℚ K}
     (D : TreeIsogenyEndDatum W'.toAffine) (hfg : K₀.FG)
     (hcoeffs : iA_CoeffsHyp E₀
         (Eq.mpr (congrArg (fun V => TreeIsogenyEndDatum V.toAffine) heq) D))
-    (hFinrank : KwIotaPinnedFinrank E₀
+    (hFinrank : IotaPinnedFinrank E₀
         (Eq.mpr (congrArg (fun V => TreeIsogenyEndDatum V.toAffine) heq) D) hcoeffs) :
-    KwIsogenyEndDatumIotaDescendToFG'' K W' D := by
+    IsogenyEndDatumIotaDescendToFG'' K W' D := by
   obtain ⟨hint, hfin, hdeg⟩ := hFinrank
   exact ⟨K₀, hfg, E₀, inferInstance, heq, iP_ι₀ E₀ _ hcoeffs, hint, hfin,
     hdeg.trans (iCaW_degree_mpr heq D)⟩
@@ -735,8 +738,8 @@ private theorem iCaW_hcoeffs_canonical :
     (iCa_ffCoeffSet_subset_X E D) (iCa_ffCoeffSet_subset_Y E D)
 
 private theorem iotaDescendToFG_of_canonicalFinrank
-    (hCan : KwIotaCanonicalFinrank E D) :
-    KwIsogenyEndDatumIotaDescendToFG'' K E D :=
+    (hCan : IotaCanonicalFinrank E D) :
+    IsogenyEndDatumIotaDescendToFG'' K E D :=
   iCaW_descend_of_pinned_cast (iCa_E₀ E D) (iCa_E₀_map E D) D
     (iCa_K₀_fg E D) (iCaW_hcoeffs_canonical E D)
     (hCan (iCaW_hcoeffs_canonical E D))
@@ -903,12 +906,12 @@ private theorem iPFA_finiteAlong :
   rw [hfactor]
   exact RingHom.Finite.comp hfdR (RingHom.Finite.of_surjective _ hsurj)
 
-private def KwIotaPinnedFinrankEq : Prop :=
+private def IotaPinnedFinrankEq : Prop :=
   finrankAlong K₀ (iP_ι₀ E₀ D hcoeffs) = D.degree
 
 private theorem iotaPinnedFiniteSeam_of_finrankEq
-    (hdeg : KwIotaPinnedFinrankEq E₀ D hcoeffs) :
-    KwIotaPinnedFiniteSeam E₀ D hcoeffs :=
+    (hdeg : IotaPinnedFinrankEq E₀ D hcoeffs) :
+    IotaPinnedFiniteSeam E₀ D hcoeffs :=
   ⟨iPFA_finiteAlong E₀ D hcoeffs, hdeg⟩
 
 end Discharge
@@ -940,7 +943,7 @@ theorem iPFE_functionField_ringHom_ext {F : Type*} [Field F] {W : Affine F}
   have heq : f' = g' := functionField_algHom_ext hX hy
   exact congrArg AlgHom.toRingHom heq
 
-private theorem iPFE_finrankEq : KwIotaPinnedFinrankEq E₀ D hcoeffs := by
+private theorem iPFE_finrankEq : IotaPinnedFinrankEq E₀ D hcoeffs := by
   set ι₀ := iP_ι₀ E₀ D hcoeffs
   have hfin := iPFA_finiteAlong E₀ D hcoeffs
   have hint : ι₀.toRingHom.IsIntegral :=
@@ -1037,7 +1040,7 @@ private theorem iPFE_finrankEq : KwIotaPinnedFinrankEq E₀ D hcoeffs := by
   show finrankAlong K₀ ι₀ = D.degree
   rw [show D.degree = finrankAlong K D.ι from rfl, hfin_eq, hD₀_deg]
 
-private theorem iPFE_pinnedFinrank_uncond : KwIotaPinnedFinrank E₀ D hcoeffs :=
+private theorem iPFE_pinnedFinrank_uncond : IotaPinnedFinrank E₀ D hcoeffs :=
   iotaPinnedFinrank_of_finiteSeam E₀ D hcoeffs
     (iotaPinnedFiniteSeam_of_finrankEq E₀ D hcoeffs
       (iPFE_finrankEq E₀ D hcoeffs))
@@ -1051,11 +1054,11 @@ variable {K : Type uK} [Field K] [Algebra ℚ K] [DecidableEq K] [IsAlgClosed K]
 variable (E : WeierstrassCurve K) [E.IsElliptic] (D : TreeIsogenyEndDatum E.toAffine)
 
 
-private theorem iPFE_canonicalFinrank_uncond : KwIotaCanonicalFinrank E D :=
+private theorem iPFE_canonicalFinrank_uncond : IotaCanonicalFinrank E D :=
   fun hcoeffs => iPFE_pinnedFinrank_uncond (iCa_E₀ E D) (iCa_D' E D) hcoeffs
 
 private theorem iPFE_iotaDescendToFG_uncond :
-    KwIsogenyEndDatumIotaDescendToFG'' K E D :=
+    IsogenyEndDatumIotaDescendToFG'' K E D :=
   iotaDescendToFG_of_canonicalFinrank E D (iPFE_canonicalFinrank_uncond E D)
 
 end Uncond
@@ -1068,28 +1071,28 @@ variable {K : Type uK} [Field K] [Algebra ℚ K] [DecidableEq K] [IsAlgClosed K]
 
 private theorem iE2E_iotaDescendToFG_of_iotaDescendToFG''
     (E : WeierstrassCurve K) [E.IsElliptic] (D : TreeIsogenyEndDatum E.toAffine)
-    (h : KwIsogenyEndDatumIotaDescendToFG'' K E D) :
-    KwIsogenyEndDatumIotaDescendToFG K E D := h
+    (h : IsogenyEndDatumIotaDescendToFG'' K E D) :
+    IsogenyEndDatumIotaDescendToFG K E D := h
 
 private theorem iE2E_iotaDescendToFG_uncond (E : WeierstrassCurve K) [E.IsElliptic]
     (D : TreeIsogenyEndDatum E.toAffine) :
-    KwIsogenyEndDatumIotaDescendToFG K E D :=
+    IsogenyEndDatumIotaDescendToFG K E D :=
   iE2E_iotaDescendToFG_of_iotaDescendToFG'' E D
     (iPFE_iotaDescendToFG_uncond E D)
 
 private theorem iE2E_subfieldDescent_of_subfieldDescent''
     (E : WeierstrassCurve K) [E.IsElliptic] (N : ℕ)
-    (h : KwIsogenyEndDatumSubfieldDescent'' K E N) :
-    KwIsogenyEndDatumSubfieldDescent K E N := h
+    (h : IsogenyEndDatumSubfieldDescent'' K E N) :
+    IsogenyEndDatumSubfieldDescent K E N := h
 
 private theorem iE2E_subfieldDescent_uncond (E : WeierstrassCurve K) [E.IsElliptic] (N : ℕ) :
-    KwIsogenyEndDatumSubfieldDescent K E N :=
+    IsogenyEndDatumSubfieldDescent K E N :=
   iE2E_subfieldDescent_of_subfieldDescent'' E N
     (subfieldDescent_of_iotaDescend K E N
       (fun D => iE2E_iotaDescendToFG_uncond E D))
 
 private theorem iE2E_fgFieldDescent_uncond (E : WeierstrassCurve K) [E.IsElliptic] (N : ℕ) :
-    KwIsogenyEndDatumFGFieldDescent K E N :=
+    IsogenyEndDatumFGFieldDescent K E N :=
   fgFieldDescent_of_subfieldDescent_of_baseChangeToAC K E N
     (iE2E_subfieldDescent_uncond E N)
     (fun K₀ _ _ E₀ _ =>

@@ -14,8 +14,8 @@ short of this headline; the proof additionally consumes the surviving
 (`Tate/CompletionTraceSum.lean`) landed by set 3.4. The pin's `_v2` twin of the
 first is dropped (PORTING-RR §3 name policy).
 
-`kwHgfV352_localResidueCompletion_algebraMap` is the public fact stated in
-`P1/DivPow.lean` about the public `kwHgfV352_localResidueCompletion` of
+`localResidueCompletion_algebraMap` is the public fact stated in
+`P1/DivPow.lean` about the public `localResidueCompletion` of
 `Defs/TateResidueCurrency.lean`; the P3.2f/3.3 `private` `…_spec₀`/`…_algebraMap₀`
 re-landings were deleted in the P3.2 refactor round (R5).
 -/
@@ -136,15 +136,15 @@ theorem trace_localResidue_finitePlace_div_pow_eq_zero
   have hRTCC := residueTraceCompletionCommute (K := K) (F := Kx K p hp) (E := E) v0 w hw g
   have hCTS := completionTraceSum_of_isSeparable (K := K) (F := Kx K p hp) (E := E) v0 g
   have hsum : (∑ w' ∈ (v0.fiber (Kx K p hp)).attach,
-        kwHgfV352_completionTraceAt v0 w'.1 w'.2 g)
-      = kwHgfV352_completionTraceAt v0 w hw g := by
+        completionTraceAt v0 w'.1 w'.2 g)
+      = completionTraceAt v0 w hw g := by
     have hone : ∀ w' : { x // x ∈ v0.fiber (Kx K p hp) }, (w' : Place K (Kx K p hp)) = w := fun w' => by
       have h : (w'.1 : Place K (Kx K p hp)) ∈ ({w} : Finset (Place K (Kx K p hp))) := hfib ▸ w'.2
       exact Finset.mem_singleton.mp h
     rw [Finset.sum_eq_single_of_mem (⟨w, hw⟩ : { x // x ∈ v0.fiber (Kx K p hp) }) (Finset.mem_attach _ _)
       (fun w' _ hne => (hne (Subtype.ext (hone w'))).elim)]
   rw [hsum] at hCTS
-  rw [← hCTS, kwHgfV352_localResidueCompletion_algebraMap] at hRTCC
+  rw [← hCTS, localResidueCompletion_algebraMap] at hRTCC
 
   have hLHS : kaehlerResidueTerm ω (diagonalHom K (Kx K p hp) g) w
       = Algebra.trace K (finitePlace K hirr).ResidueField

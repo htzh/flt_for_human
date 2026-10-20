@@ -205,7 +205,7 @@ example (F : Type*) [Field F] [DecidableEq F] {W : WeierstrassCurve F}
     {Q : W.toAffine.Point} {p : ℕ} (hp3 : 3 ≤ p) (hpodd : Odd p)
     (hord : addOrderOf Q = p) {n : ℕ} (hn : n ≤ (p - 1) / 2) :
     (W.oddOrderSummingSet Q n).card = n :=
-  WeierstrassCurve.kw_card_oddOrderSummingSet_odd hp3 hpodd hord hn
+  WeierstrassCurve.card_oddOrderSummingSet_odd hp3 hpodd hord hn
 
 -- Zone 7 (H3): the explicit-Vélu map-equation headlines and the map-column
 -- engine that supplies their `HasPrincipalDivisors` input. The general headline
@@ -214,8 +214,8 @@ example (F : Type*) [Field F] [DecidableEq F] {W : WeierstrassCurve F}
 #check @WeierstrassCurve.velu_map_equation_of_oddOrderSummingSet_of_isAlgClosed
 #check @WeierstrassCurve.velu_map_equation_of_oddOrderSummingSet
 #check @WeierstrassCurve.VeluThmOneOddAt
-#check @WeierstrassCurve.kw_no6_hroute_veluThmOneOddAt_odd
-#check @WeierstrassCurve.kw_veluHPDSupplier
+#check @WeierstrassCurve.hroute_veluThmOneOddAt_odd
+#check @WeierstrassCurve.veluHPDSupplier
 #check @WeierstrassCurve.Affine.wqDiscPoly
 #check @WeierstrassCurve.Affine.wqDiscPoly_ne_zero
 #check @WeierstrassCurve.Affine.isSplittingField_weierstrassQuadratic
@@ -252,7 +252,7 @@ example : WeierstrassCurve.Affine.wqDiscPoly
 
 example : AlgebraicCurve.HasPrincipalDivisors ℚ
     (WeierstrassCurve.mk (0 : ℚ) 0 0 0 1).toAffine.FunctionField :=
-  WeierstrassCurve.kw_veluHPDSupplier _ (by
+  WeierstrassCurve.veluHPDSupplier _ (by
     norm_num [WeierstrassCurve.Δ, WeierstrassCurve.b₂, WeierstrassCurve.b₄,
       WeierstrassCurve.b₆, WeierstrassCurve.b₈])
 
@@ -260,7 +260,7 @@ example {F : Type*} [Field F] [DecidableEq F] [IsAlgClosed F] {W : WeierstrassCu
     {Q : W.toAffine.Point} {p : ℕ} (hΔ : W.Δ ≠ 0) (hp3 : 3 ≤ p) (hpodd : Odd p)
     (hord : addOrderOf Q = p) :
     WeierstrassCurve.VeluThmOneOddAt W Q ((p - 1) / 2) :=
-  WeierstrassCurve.kw_no6_hroute_veluThmOneOddAt_odd hΔ hp3 hpodd hord
+  WeierstrassCurve.hroute_veluThmOneOddAt_odd hΔ hp3 hpodd hord
 
 -- The H4 `restrictAlong` engine (cluster I) is available across the module
 -- boundary. The two headline theorems are blocked on unported upstream (see the
@@ -268,8 +268,8 @@ example {F : Type*} [Field F] [DecidableEq F] [IsAlgClosed F] {W : WeierstrassCu
 -- surface that *is* available: the generic Vélu functions, the cleared level
 -- polynomial, the point map, the coordinate-ring/function-field homomorphisms
 -- and the seam at the odd-order summing set.
-#check @WeierstrassCurve.kwVeluXGenFun
-#check @WeierstrassCurve.kwVeluYGenFun
+#check @WeierstrassCurve.VeluXGenFun
+#check @WeierstrassCurve.VeluYGenFun
 #check @WeierstrassCurve.veluXDenomPoly
 #check @WeierstrassCurve.veluXDenomPoly_monic
 #check @WeierstrassCurve.natDegree_veluXDenomPoly
@@ -278,20 +278,20 @@ example {F : Type*} [Field F] [DecidableEq F] [IsAlgClosed F] {W : WeierstrassCu
 #check @WeierstrassCurve.eval_veluXClearedPoly
 #check @WeierstrassCurve.Affine.veluXFun
 #check @WeierstrassCurve.Affine.veluYFun
-#check @WeierstrassCurve.kw_velu_map_nonsingular
-#check @WeierstrassCurve.kwVeluPointMap
-#check @WeierstrassCurve.kwVeluPointMap_zero
-#check @WeierstrassCurve.kwVeluPointMap_some_of_mem
-#check @WeierstrassCurve.kwVeluPointMap_some_of_ne
-#check @WeierstrassCurve.kw_aeval_kwVeluXGenFun_injective
-#check @WeierstrassCurve.kw_kwVeluXGenFun_mul_denom_sq_eq_cleared
-#check @WeierstrassCurve.kw_eval_veluXClearedPoly_ne_zero_of_mem
-#check @WeierstrassCurve.kw_oddOrderSummingSetCoordHom_odd
-#check @WeierstrassCurve.kw_oddOrderSummingSetFunctionFieldHom_odd
-#check @WeierstrassCurve.kw_oddOrderSummingSetFunctionFieldHom_odd_finiteAlong
-#check @WeierstrassCurve.kw_oddOrderSummingSetFunctionFieldHom_odd_isIntegral
-#check @WeierstrassCurve.kw_restrictAlong_infinitePlace_oddOrderSummingSet_odd
-#check @WeierstrassCurve.kw_restrictAlong_placeOfEquation_of_ne_oddOrderSummingSet_odd
+#check @WeierstrassCurve.velu_map_nonsingular
+#check @WeierstrassCurve.VeluPointMap
+#check @WeierstrassCurve.VeluPointMap_zero
+#check @WeierstrassCurve.VeluPointMap_some_of_mem
+#check @WeierstrassCurve.VeluPointMap_some_of_ne
+#check @WeierstrassCurve.aeval_VeluXGenFun_injective
+#check @WeierstrassCurve.VeluXGenFun_mul_denom_sq_eq_cleared
+#check @WeierstrassCurve.eval_veluXClearedPoly_ne_zero_of_mem
+#check @WeierstrassCurve.oddOrderSummingSetCoordHom_odd
+#check @WeierstrassCurve.oddOrderSummingSetFunctionFieldHom_odd
+#check @WeierstrassCurve.oddOrderSummingSetFunctionFieldHom_odd_finiteAlong
+#check @WeierstrassCurve.oddOrderSummingSetFunctionFieldHom_odd_isIntegral
+#check @WeierstrassCurve.restrictAlong_infinitePlace_oddOrderSummingSet_odd
+#check @WeierstrassCurve.restrictAlong_placeOfEquation_of_ne_oddOrderSummingSet_odd
 #check @WeierstrassCurve.s2c_exists_fst_eq_of_mem_zmultiples
 #check @WeierstrassCurve.s2c_mem_zmultiples_of_fst_eq
 #check @WeierstrassCurve.zsmul_eq_emod_zsmul_of_nsmul_eq_zero
@@ -304,9 +304,9 @@ example {F : Type*} [Field F] [DecidableEq F] [IsAlgClosed F] {W : WeierstrassCu
     {Q : W.toAffine.Point} {p : ℕ} (hp3 : 3 ≤ p) (hpodd : Odd p)
     (hord : addOrderOf Q = p) :
     AlgebraicCurve.FiniteAlong F
-      (WeierstrassCurve.kw_oddOrderSummingSetFunctionFieldHom_odd
+      (WeierstrassCurve.oddOrderSummingSetFunctionFieldHom_odd
         (W := W) hp3 hpodd hord) :=
-  WeierstrassCurve.kw_oddOrderSummingSetFunctionFieldHom_odd_finiteAlong
+  WeierstrassCurve.oddOrderSummingSetFunctionFieldHom_odd_finiteAlong
     (W := W) hp3 hpodd hord
 
 example {F : Type*} [Field F] [DecidableEq F] [IsAlgClosed F] {W : WeierstrassCurve F}
@@ -315,9 +315,9 @@ example {F : Type*} [Field F] [DecidableEq F] [IsAlgClosed F] {W : WeierstrassCu
     [WeierstrassCurve.Affine.AbelTheorem W.toAffine]
     {Q : W.toAffine.Point} {p : ℕ} (hp3 : 3 ≤ p) (hpodd : Odd p)
     (hord : addOrderOf Q = p) :
-    (WeierstrassCurve.kw_oddOrderSummingSetFunctionFieldHom_odd
+    (WeierstrassCurve.oddOrderSummingSetFunctionFieldHom_odd
       (W := W) hp3 hpodd hord).toRingHom.IsIntegral :=
-  WeierstrassCurve.kw_oddOrderSummingSetFunctionFieldHom_odd_isIntegral
+  WeierstrassCurve.oddOrderSummingSetFunctionFieldHom_odd_isIntegral
     (W := W) hp3 hpodd hord
 
 -- Zone: the H5a weierstrass place gate and conditional-currency isogeny
@@ -370,7 +370,7 @@ example {F : Type*} [Field F] [DecidableEq F] {W : WeierstrassCurve.Affine F}
 #check @WeierstrassCurve.exists_veluFunctionFieldHom_restrictAlong_placeOfPoint_eq
 #check @WeierstrassCurve.s2c_key
 #check @WeierstrassCurve.s2c_zero
-#check @WeierstrassCurve.kw_restrictAlong_placeOfPoint_kwVeluPointMap_odd
+#check @WeierstrassCurve.restrictAlong_placeOfPoint_VeluPointMap_odd
 #check @WeierstrassCurve.Affine.IsogenyEndDatum.isIntegral_algHomId
 #check @WeierstrassCurve.Affine.IsogenyEndDatum.finiteAlong_algHomId
 #check @WeierstrassCurve.Affine.IsogenyEndDatum.restrictAlong_algHomId
@@ -844,22 +844,22 @@ example {F : Type*} [Field F] [DecidableEq F] [IsAlgClosed F] [CharZero F]
       (W.veluQuotient (W.oddOrderSummingSet Q ((p - 1) / 2))).toAffine]
     [AlgebraicCurve.HasPrincipalDivisors F W.toAffine.FunctionField] :
     Function.Surjective (WeierstrassCurve.Affine.pointMapOfPushforward
-      (WeierstrassCurve.kw_oddOrderSummingSetFunctionFieldHom_odd (W := W) hp3 hpodd hord)
-      (WeierstrassCurve.kw_oddOrderSummingSetFunctionFieldHom_odd_isIntegral
+      (WeierstrassCurve.oddOrderSummingSetFunctionFieldHom_odd (W := W) hp3 hpodd hord)
+      (WeierstrassCurve.oddOrderSummingSetFunctionFieldHom_odd_isIntegral
         (W := W) hp3 hpodd hord)
-      (WeierstrassCurve.kw_oddOrderSummingSetFunctionFieldHom_odd_finiteAlong
+      (WeierstrassCurve.oddOrderSummingSetFunctionFieldHom_odd_finiteAlong
         (W := W) hp3 hpodd hord)
       (AlgebraicCurve.normFormulaAlong_of_separableAlong _
-        (WeierstrassCurve.kw_oddOrderSummingSetFunctionFieldHom_odd_finiteAlong
+        (WeierstrassCurve.oddOrderSummingSetFunctionFieldHom_odd_finiteAlong
           (W := W) hp3 hpodd hord)
-        (WeierstrassCurve.kw_oddOrderSummingSetFunctionFieldHom_odd_separableAlong
+        (WeierstrassCurve.oddOrderSummingSetFunctionFieldHom_odd_separableAlong
           (W := W) hp3 hpodd hord))) := by
-  let ι := WeierstrassCurve.kw_oddOrderSummingSetFunctionFieldHom_odd (W := W) hp3 hpodd hord
-  let hι := WeierstrassCurve.kw_oddOrderSummingSetFunctionFieldHom_odd_isIntegral
+  let ι := WeierstrassCurve.oddOrderSummingSetFunctionFieldHom_odd (W := W) hp3 hpodd hord
+  let hι := WeierstrassCurve.oddOrderSummingSetFunctionFieldHom_odd_isIntegral
     (W := W) hp3 hpodd hord
-  let hfin := WeierstrassCurve.kw_oddOrderSummingSetFunctionFieldHom_odd_finiteAlong
+  let hfin := WeierstrassCurve.oddOrderSummingSetFunctionFieldHom_odd_finiteAlong
     (W := W) hp3 hpodd hord
-  have hsep := WeierstrassCurve.kw_oddOrderSummingSetFunctionFieldHom_odd_separableAlong
+  have hsep := WeierstrassCurve.oddOrderSummingSetFunctionFieldHom_odd_separableAlong
     (W := W) hp3 hpodd hord
   have hN : AlgebraicCurve.NormFormulaAlong F ι hfin :=
     AlgebraicCurve.normFormulaAlong_of_separableAlong ι hfin hsep

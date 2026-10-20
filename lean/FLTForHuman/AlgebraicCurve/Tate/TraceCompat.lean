@@ -5,7 +5,7 @@ engine, after FLT's `P2M/Sol/S_AlgebraicCurve_tateTraceCompat_of_isSeparable.lea
 (<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_tateTraceCompat_of_isSeparable.lean>).
 
 This is set 3.3d's theory module.  It discharges the Tate atom
-`ModularCurve.KwF4gRRTate.KwF4gRRTateTraceCompat` (the trace of the sandwiched
+`ModularCurve.Tate.TateTraceCompat` (the trace of the sandwiched
 commutator is independent of the idempotent projector with a fixed range) via the
 pin's route: the trace-cyclic identities on `finrankTrace`, the projector-independence
 computation `tateCommRestrict_diff`, the block decomposition along an integral basis,
@@ -24,7 +24,7 @@ Import-discharged (not re-proved here): the 53 pin declarations of the shared
 `tateCommFinite` chain that `Tate/CommFinite.lean` already carries with identical
 statements, the two pin-private `Place.ord_nonneg_of_mem`/`mem_of_ord_nonneg` (public in
 `Defs/PushPull.lean`), and the checker-invisible `scoped instance`s
-`kwF4R1V410a_subsingletonHeightOneSpectrumDVR` and
+`subsingletonHeightOneSpectrumDVR` and
 `instIsScalarTower_K_to_ValuationSubring_adicCompletionIntegers` (imported from
 `Tate/CommFinite.lean`).
 
@@ -32,6 +32,9 @@ The pin's `p2m_*` scaffolding, its outer `P2MW.S_...` namespace and its
 `maxHeartbeats`/`synthInstance.maxHeartbeats` raises are dropped (the project cap is
 4,000,000); its section/`variable` structure is preserved so every statement is diffed
 verbatim from the pin's `S_` file.
+
+  spec-pin: Theorems/Thm_AlgebraicCurve_tateTraceCompat_of_isSeparable.lean
+  spec-pin: P2M/Sol/S_AlgebraicCurve_tateTraceCompat_of_isSeparable.lean
 -/
 import FLTForHuman.AlgebraicCurve.Tate.CommFinite
 import FLTForHuman.AlgebraicCurve.Tate.Prelude
@@ -66,7 +69,7 @@ set_option linter.unusedSectionVars false
 noncomputable section
 
 namespace ModularCurve
-namespace KwF4gRRTate
+namespace Tate
 
 section FinrankTrace
 
@@ -86,7 +89,7 @@ variable {K V : Type*} [Field K] [AddCommGroup V] [Module K V]
 
 end TateFactoring
 
-end ModularCurve.KwF4gRRTate
+end ModularCurve.Tate
 
 end
 
@@ -357,22 +360,22 @@ variable {K F F' : Type*} [Field K] [Field F] [Field F'] [Algebra K F] [Algebra 
 variable (F)
 variable [Algebra F F'] [IsScalarTower K F F'] [Algebra.IsIntegral F F'] (W : Place K F')
 
-scoped instance kw_ffgc_isIntegrallyClosed_adicCompletionIntegers :
+scoped instance isIntegrallyClosed_adicCompletionIntegers :
     IsIntegrallyClosed (W.restrict F).adicCompletionIntegers :=
   Valuation.Integers.isIntegrallyClosed
     (HeightOneSpectrum.adicCompletionIntegers.integers
       (K := F) (v := (W.restrict F).heightOneSpectrum))
 
-theorem kw_ffgc_adicCompletionComapIntegers_injective :
-    Function.Injective (kw_ffgc_adicCompletionComapIntegers F W) := by
+theorem adicCompletionComapIntegers_injective :
+    Function.Injective (adicCompletionComapIntegers F W) := by
   intro a b hab
-  exact Subtype.ext ((kw_ffgc_adicCompletionComap F W).injective
+  exact Subtype.ext ((adicCompletionComap F W).injective
     (congrArg Subtype.val hab))
 
-scoped instance kw_ffgc_isTorsionFree_adicCompletionComapIntegers :
+scoped instance isTorsionFree_adicCompletionComapIntegers :
     Module.IsTorsionFree (W.restrict F).adicCompletionIntegers W.adicCompletionIntegers :=
   Module.isTorsionFree_iff_algebraMap_injective.mpr
-    (kw_ffgc_adicCompletionComapIntegers_injective F W)
+    (adicCompletionComapIntegers_injective F W)
 
 end CompletionAlgebra
 
@@ -389,10 +392,10 @@ section SpectralSetup
 
 variable {K F : Type*} [Field K] [Field F] [Algebra K F] (V : Place K F)
 
-theorem kw_ffgc_norm_adicCompletion_eq (x : V.adicCompletion) :
-    letI := kw_ffgc_rankOne_adicCompletion V
+theorem norm_adicCompletion_eq (x : V.adicCompletion) :
+    letI := rankOne_adicCompletion V
     ‖x‖ = (WithZeroMulInt.toNNReal (two_ne_zero) (Valued.v x) : ℝ) := by
-  let := kw_ffgc_rankOne_adicCompletion V
+  let := rankOne_adicCompletion V
   have h := valueGroup₀_equiv_withZeroMulInt_restrict_apply_of_surjective
     (V.heightOneSpectrum.valuedAdicCompletion_surjective F) x
   simp only [Valued.toNormedField.norm_def, Valuation.RankOne.hom]
@@ -408,18 +411,18 @@ variable {K F F' : Type*} [Field K] [Field F] [Field F'] [Algebra K F] [Algebra 
 variable (F)
 variable [Algebra F F'] [IsScalarTower K F F'] [Algebra.IsIntegral F F'] (W : Place K F')
 
-theorem kw_ffgc_absoluteValue_extends (c : (W.restrict F).adicCompletion) :
-    letI := kw_ffgc_rankOne_adicCompletion (W.restrict F)
-    kw_ffgc_absoluteValue F W
+theorem absoluteValue_extends (c : (W.restrict F).adicCompletion) :
+    letI := rankOne_adicCompletion (W.restrict F)
+    absoluteValue F W
       (algebraMap (W.restrict F).adicCompletion W.adicCompletion c) = ‖c‖ := by
-  let := kw_ffgc_rankOne_adicCompletion (W.restrict F)
-  let := kw_ffgc_rankOne_adicCompletion W
+  let := rankOne_adicCompletion (W.restrict F)
+  let := rankOne_adicCompletion W
   have hr : (0 : ℝ) < (W.ramificationIndex F : ℝ) :=
     Nat.cast_pos.mpr (W.ramificationIndex_pos (F := F))
   show ‖algebraMap (W.restrict F).adicCompletion W.adicCompletion c‖
       ^ ((W.ramificationIndex F : ℝ))⁻¹ = ‖c‖
-  rw [kw_ffgc_norm_adicCompletion_eq W, kw_ffgc_norm_adicCompletion_eq (W.restrict F),
-    kw_ffgc_algebraMap_adicCompletionComap_eq, kw_ffgc_valued_adicCompletionComap, map_pow]
+  rw [norm_adicCompletion_eq W, norm_adicCompletion_eq (W.restrict F),
+    algebraMap_adicCompletionComap_eq, valued_adicCompletionComap, map_pow]
   push_cast
   rw [← Real.rpow_natCast, ← Real.rpow_mul (NNReal.coe_nonneg _),
     mul_inv_cancel₀ hr.ne', Real.rpow_one]
@@ -433,12 +436,12 @@ variable {K F F' : Type*} [Field K] [Field F] [Field F'] [Algebra K F] [Algebra 
 variable (F)
 variable [Algebra F F'] [IsScalarTower K F F'] [Algebra.IsIntegral F F'] (W : Place K F')
 
-theorem kw_ffgc_isIntegral_adicCompletionIntegers_of_algebraic
+theorem isIntegral_adicCompletionIntegers_of_algebraic
     [Algebra.IsAlgebraic (W.restrict F).adicCompletion W.adicCompletion]
     (x : W.adicCompletionIntegers) :
     _root_.IsIntegral (W.restrict F).adicCompletionIntegers x := by
-  let := kw_ffgc_rankOne_adicCompletion (W.restrict F)
-  let := kw_ffgc_rankOne_adicCompletion W
+  let := rankOne_adicCompletion (W.restrict F)
+  let := rankOne_adicCompletion W
   let : NontriviallyNormedField (W.restrict F).adicCompletion :=
     Valued.toNontriviallyNormedField (W.restrict F).adicCompletion ℤᵐ⁰
   have : IsUltrametricDist (W.restrict F).adicCompletion :=
@@ -453,8 +456,8 @@ theorem kw_ffgc_isIntegral_adicCompletionIntegers_of_algebraic
   have hsn : spectralNorm (W.restrict F).adicCompletion W.adicCompletion
         (x : W.adicCompletion)
       = ‖(x : W.adicCompletion)‖ ^ ((W.ramificationIndex F : ℝ))⁻¹ :=
-    (spectralNorm_unique_field_norm_ext (f := kw_ffgc_absoluteValue F W)
-      (kw_ffgc_absoluteValue_extends F W) (x : W.adicCompletion)).symm
+    (spectralNorm_unique_field_norm_ext (f := absoluteValue F W)
+      (absoluteValue_extends F W) (x : W.adicCompletion)).symm
 
   have hspec : spectralValue (minpoly (W.restrict F).adicCompletion
       (x : W.adicCompletion)) ≤ 1 := by
@@ -482,7 +485,7 @@ theorem kw_ffgc_isIntegral_adicCompletionIntegers_of_algebraic
       W.adicCompletionIntegers W.adicCompletion)
     Subtype.val_injective).mp hxintW
 
-theorem kw_ffgc_isIntegralClosure_adicCompletionIntegers
+theorem isIntegralClosure_adicCompletionIntegers
     [Algebra.IsAlgebraic (W.restrict F).adicCompletion W.adicCompletion] :
     IsIntegralClosure W.adicCompletionIntegers (W.restrict F).adicCompletionIntegers
       W.adicCompletion where
@@ -497,7 +500,7 @@ theorem kw_ffgc_isIntegralClosure_adicCompletionIntegers
             (K := F') (v := W.heightOneSpectrum))
       exact IsIntegrallyClosed.isIntegral_iff.mp hxW
     · rintro ⟨y, rfl⟩
-      exact (kw_ffgc_isIntegral_adicCompletionIntegers_of_algebraic F W y).map
+      exact (isIntegral_adicCompletionIntegers_of_algebraic F W y).map
         (IsScalarTower.toAlgHom (W.restrict F).adicCompletionIntegers
           W.adicCompletionIntegers W.adicCompletion)
 
@@ -552,8 +555,8 @@ variable {K F F' : Type*} [Field K] [Field F] [Field F'] [Algebra K F] [Algebra 
 variable (F)
 variable [Algebra F F'] [IsScalarTower K F F'] [Algebra.IsIntegral F F'] (W : Place K F')
 
-theorem kw_ffgc_completionTraceF'_apply [FiniteDimensional F F'] (g : F') :
-    kw_ffgc_completionTraceF' F W g
+theorem completionTraceF'_apply [FiniteDimensional F F'] (g : F') :
+    completionTraceF' F W g
       = Algebra.trace (W.restrict F).adicCompletion W.adicCompletion
           (algebraMap F' W.adicCompletion g) := rfl
 
@@ -728,7 +731,7 @@ set_option linter.unusedSectionVars false
 noncomputable section
 
 namespace ModularCurve
-namespace KwF4gRRTate
+namespace Tate
 
 section PoleWindow
 
@@ -737,7 +740,7 @@ variable {K L : Type*} [Field K] [Field L] [Algebra K L] (u : Place K L)
 
 end PoleWindow
 
-end ModularCurve.KwF4gRRTate
+end ModularCurve.Tate
 
 end
 
@@ -789,7 +792,6 @@ noncomputable section
 
 
 namespace ModularCurve
-namespace KwF4R1V410a
 
 section Bridge
 
@@ -802,7 +804,7 @@ local notation "𝔪_W" => w.heightOneSpectrum.completionIdeal F
 
 end Bridge
 
-end ModularCurve.KwF4R1V410a
+end ModularCurve
 
 end
 end
@@ -818,7 +820,7 @@ set_option linter.unusedSectionVars false
 noncomputable section
 
 namespace ModularCurve
-namespace KwF4gRRTate
+namespace Tate
 
 section PoleWindowShift
 
@@ -827,7 +829,7 @@ variable {K L : Type*} [Field K] [Field L] [Algebra K L] (u : Place K L)
 
 end PoleWindowShift
 
-end ModularCurve.KwF4gRRTate
+end ModularCurve.Tate
 
 end
 
@@ -844,7 +846,7 @@ set_option linter.unusedSectionVars false
 noncomputable section
 
 namespace ModularCurve
-namespace KwF4gRRTate
+namespace Tate
 
 section AgreementReduce
 
@@ -874,7 +876,7 @@ theorem tateCommRestrict_single_term
 
 end AgreementReduce
 
-end ModularCurve.KwF4gRRTate
+end ModularCurve.Tate
 
 end
 
@@ -892,7 +894,7 @@ set_option linter.unusedSectionVars false
 noncomputable section
 
 namespace ModularCurve
-namespace KwF4gRRTate
+namespace Tate
 
 section DeltaLemmas
 
@@ -934,7 +936,7 @@ section Mint
 
 variable (K L : Type*) [Field K] [Field L] [Algebra K L]
 
-def KwF4gRRTateProjectorIndep : Prop :=
+def TateProjectorIndep : Prop :=
   ∀ (u : Place K L) (pA' : u.adicCompletion →ₗ[K] u.adicCompletion),
     SameRangeIdemProjectors (tateProj u) pA' →
     ∀ (fh gh : u.adicCompletion), gh ∈ u.adicCompletionIntegers →
@@ -1009,7 +1011,7 @@ theorem tateCommRestrict_diff
 
 end DiffComputation
 
-end ModularCurve.KwF4gRRTate
+end ModularCurve.Tate
 
 end
 
@@ -1027,7 +1029,7 @@ set_option linter.unusedSectionVars false
 noncomputable section
 
 namespace ModularCurve
-namespace KwF4gRRTate
+namespace Tate
 
 section DVRQuotDischarge
 
@@ -1037,7 +1039,7 @@ variable {K L : Type*} [Field K] [Field L] [Algebra K L] (u : Place K L)
 
 end DVRQuotDischarge
 
-end ModularCurve.KwF4gRRTate
+end ModularCurve.Tate
 
 end
 
@@ -1054,7 +1056,7 @@ set_option linter.unusedSectionVars false
 noncomputable section
 
 namespace ModularCurve
-namespace KwF4gRRTate
+namespace Tate
 
 section DVRCotangentDischarge
 
@@ -1062,7 +1064,7 @@ variable {K L : Type*} [Field K] [Field L] [Algebra K L] (u : Place K L)
 
 end DVRCotangentDischarge
 
-end ModularCurve.KwF4gRRTate
+end ModularCurve.Tate
 
 end
 
@@ -1081,7 +1083,7 @@ set_option linter.unusedVariables false
 noncomputable section
 
 namespace ModularCurve
-namespace KwF4gRRTate
+namespace Tate
 
 section DeltaQuotFactor
 
@@ -1107,14 +1109,14 @@ section DiffTraceZero
 variable {K L : Type*} [Field K] [Field L] [Algebra K L] (u : Place K L)
 variable (pA' : u.adicCompletion →ₗ[K] u.adicCompletion)
 
-def KwF4gRRTateCommFiniteGen : Prop :=
+def TateCommFiniteGen : Prop :=
   ∀ (h : SameRangeIdemProjectors (tateProj u) pA') (fh gh : u.adicCompletion),
     FiniteDimensional K
       (LinearMap.range (tateCommRestrict pA' (lmulK u fh) (lmulK u gh)))
 
 end DiffTraceZero
 
-end ModularCurve.KwF4gRRTate
+end ModularCurve.Tate
 
 end
 
@@ -1134,7 +1136,7 @@ set_option linter.unusedVariables false
 noncomputable section
 
 namespace ModularCurve
-namespace KwF4gRRTate
+namespace Tate
 
 section KerInf
 
@@ -1158,7 +1160,7 @@ theorem finiteDimensional_ker_pA'_inf_poleWindow
     [u.FiniteResidue] (πh : u.adicCompletionIntegers) (hπh : Irreducible πh) (M : ℕ) :
     FiniteDimensional K
       ((LinearMap.ker pA' ⊓ poleWindowKSubmod u πh M : Submodule K _)) := by
-  have := kwF4gRRTate_poleWindowFinite (K := K) (L := L) u πh hπh M
+  have := poleWindowFinite (K := K) (L := L) u πh hπh M
   set A := adicIntegersKSubmod u
   set P := poleWindowKSubmod u πh M
   let A' : Submodule K P := A.comap P.subtype
@@ -1192,7 +1194,7 @@ theorem finiteDimensional_principalPart_pA'_range
       (LinearMap.range
         ((LinearMap.id - pA') ∘ₗ lmulK u fh ∘ₗ (adicIntegersKSubmod u).subtype)) := by
   obtain ⟨πh, hπh⟩ := IsDiscreteValuationRing.exists_irreducible u.adicCompletionIntegers
-  obtain ⟨M, hfhM⟩ := kwF4gRRTate_clearPole u πh hπh fh
+  obtain ⟨M, hfhM⟩ := clearPole u πh hπh fh
   have := finiteDimensional_ker_pA'_inf_poleWindow u pA' h πh hπh M
   apply Submodule.finiteDimensional_of_le
     (S₂ := LinearMap.ker pA' ⊓ poleWindowKSubmod u πh M)
@@ -1213,8 +1215,8 @@ theorem finiteDimensional_principalPart_pA'_range
         rw [← h.range_eq, range_tateProj u]
       exact heq.le (LinearMap.mem_range_self pA' _)
 
-theorem kwF4gRRTate_commFiniteGen :
-    KwF4gRRTateCommFiniteGen u pA' := by
+theorem commFiniteGen :
+    TateCommFiniteGen u pA' := by
   intro h fh gh
 
   have h3f := finiteDimensional_principalPart_pA'_range u pA' h fh
@@ -1261,7 +1263,7 @@ theorem kwF4gRRTate_commFiniteGen :
 
 end Discharge
 
-end ModularCurve.KwF4gRRTate
+end ModularCurve.Tate
 
 end
 
@@ -1280,7 +1282,7 @@ set_option linter.unusedVariables false
 noncomputable section
 
 namespace ModularCurve
-namespace KwF4gRRTate
+namespace Tate
 
 
 section ConjInvariance
@@ -1412,7 +1414,7 @@ section Headline
 variable {K L : Type*} [Field K] [Field L] [Algebra K L]
 variable [∀ u : Place K L, u.FiniteResidue]
 
-theorem kwF4gRRTate_projectorIndep : KwF4gRRTateProjectorIndep K L := by
+theorem projectorIndep : TateProjectorIndep K L := by
   intro u pA' h fh gh hgh _ _
 
   set Φ := tateCommRestrict (tateProj u) (lmulK u fh) (lmulK u gh)
@@ -1480,7 +1482,7 @@ theorem kwF4gRRTate_projectorIndep : KwF4gRRTateProjectorIndep K L := by
 
 end Headline
 
-end ModularCurve.KwF4gRRTate
+end ModularCurve.Tate
 
 end
 
@@ -1500,7 +1502,7 @@ set_option linter.unusedVariables false
 noncomputable section
 
 namespace ModularCurve
-namespace KwF4gRRTate
+namespace Tate
 
 section DualAmbient
 
@@ -1638,7 +1640,7 @@ section TateResSum
 variable {K L : Type*} [Field K] [Field L] [Algebra K L] (u : Place K L)
 
 theorem tateRes_sum_fst {ι : Type*} (s : Finset ι) (f : ι → u.adicCompletion)
-    (gh : u.adicCompletion) (hfin : KwF4gRRTateCommFinite K L) :
+    (gh : u.adicCompletion) (hfin : TateCommFinite K L) :
     haveI := fun i => hfin u (f i) gh
     haveI := hfin u (∑ i ∈ s, f i) gh
     ∑ i ∈ s, tateRes u (f i) gh = tateRes u (∑ i ∈ s, f i) gh := by
@@ -1670,8 +1672,8 @@ variable (K F : Type*) [Field K] [Field F] [Algebra K F]
 variable (E : Type*) [Field E] [Algebra K E] [Algebra E F] [IsScalarTower K E F]
 variable [Algebra.IsIntegral E F]
 
-def KwF4gRRTateTraceCompatBlockSum (hfinF : KwF4gRRTateCommFinite K F)
-    (hfinE : KwF4gRRTateCommFinite K E) : Prop :=
+def TateTraceCompatBlockSum (hfinF : TateCommFinite K F)
+    (hfinE : TateCommFinite K E) : Prop :=
   ∀ [HasPrincipalDivisors K E] [HasPrincipalDivisors K F] [FiniteDimensional E F]
     (v : Place K E) (w : Place K F) (hw : w ∈ v.fiber F) (g : F),
     haveI := hfinF w (algebraMap F w.adicCompletion g)
@@ -1696,10 +1698,10 @@ variable {E : Type*} [Field E] [Algebra K E] [Algebra E F] [IsScalarTower K E F]
 variable [Algebra.IsIntegral E F]
 variable [HasCanonicalLocalResidueKStar K F] [HasCanonicalLocalResidueKStar K E]
 
-theorem kwF4gRRTate_traceCompat_of_blockSum
-    (hfinF : KwF4gRRTateCommFinite K F) (hfinE : KwF4gRRTateCommFinite K E)
-    (hBS : KwF4gRRTateTraceCompatBlockSum K F E hfinF hfinE) :
-    KwF4gRRTateTraceCompat K F E hfinF hfinE := by
+theorem traceCompat_of_blockSum
+    (hfinF : TateCommFinite K F) (hfinE : TateCommFinite K E)
+    (hBS : TateTraceCompatBlockSum K F E hfinF hfinE) :
+    TateTraceCompat K F E hfinF hfinE := by
   intro _ _ _ v w hw g
 
   have hv : w.restrict E = v := Place.mem_fiber.mp hw
@@ -1730,15 +1732,15 @@ theorem kwF4gRRTate_traceCompat_of_blockSum
       hM, Matrix.trace]
     rfl
 
-  have hcast : kwHgfV352_completionTraceAt (w.restrict E) w hw g
-      = kw_ffgc_completionTraceF' E w g := rfl
-  have hτ : ∑ i, M i i = kwHgfV352_completionTraceAt (w.restrict E) w hw g := by
-    rw [hcast, kw_ffgc_completionTraceF'_apply, hdiag]
+  have hcast : completionTraceAt (w.restrict E) w hw g
+      = completionTraceF' E w g := rfl
+  have hτ : ∑ i, M i i = completionTraceAt (w.restrict E) w hw g := by
+    rw [hcast, completionTraceF'_apply, hdiag]
   rw [show (∑ i ∈ Finset.univ, M i i) = ∑ i, M i i from rfl, hτ]
 
 end Headline
 
-end ModularCurve.KwF4gRRTate
+end ModularCurve.Tate
 
 end
 
@@ -1757,7 +1759,7 @@ set_option linter.unusedVariables false
 noncomputable section
 
 namespace ModularCurve
-namespace KwF4gRRTate
+namespace Tate
 
 section ConjNaturality
 
@@ -1931,11 +1933,11 @@ scoped instance instIsScalarTowerKVhatWhat (w : Place K F) :
     rw [IsScalarTower.algebraMap_apply K F w.adicCompletion c,
       IsScalarTower.algebraMap_apply K E F c,
       IsScalarTower.algebraMap_apply K E (w.restrict E).adicCompletion c]
-    exact kw_ffgc_adicCompletionComap_algebraMap_algebraMap E w (algebraMap K E c)
+    exact adicCompletionComap_algebraMap_algebraMap E w (algebraMap K E c)
 
 end Headline
 
-end ModularCurve.KwF4gRRTate
+end ModularCurve.Tate
 
 end
 
@@ -1954,7 +1956,7 @@ set_option linter.unusedVariables false
 noncomputable section
 
 namespace ModularCurve
-namespace KwF4gRRTate
+namespace Tate
 
 section Freeness
 
@@ -1962,13 +1964,13 @@ variable {K F : Type*} [Field K] [Field F] [Algebra K F]
 variable {E : Type*} [Field E] [Algebra K E] [Algebra E F] [IsScalarTower K E F]
 variable [Algebra.IsIntegral E F]
 
-theorem kwF4gRRTate_free_adicCompletionIntegers (w : Place K F) [FiniteDimensional E F]
+theorem free_adicCompletionIntegers (w : Place K F) [FiniteDimensional E F]
     [Algebra.IsSeparable (w.restrict E).adicCompletion w.adicCompletion] :
     Module.Free (w.restrict E).adicCompletionIntegers w.adicCompletionIntegers := by
   have : Algebra.IsAlgebraic (w.restrict E).adicCompletion w.adicCompletion :=
     Algebra.IsAlgebraic.of_finite _ _
   have : IsIntegralClosure w.adicCompletionIntegers (w.restrict E).adicCompletionIntegers
-      w.adicCompletion := kw_ffgc_isIntegralClosure_adicCompletionIntegers E w
+      w.adicCompletion := isIntegralClosure_adicCompletionIntegers E w
   have : IsNoetherian (w.restrict E).adicCompletionIntegers w.adicCompletionIntegers :=
     IsIntegralClosure.isNoetherian (w.restrict E).adicCompletionIntegers
       (w.restrict E).adicCompletion w.adicCompletion w.adicCompletionIntegers
@@ -1997,7 +1999,7 @@ structure IntegralBasisData (w : Place K F) [FiniteDimensional E F] where
 
 variable (K F E) in
 
-def KwF4gRRTateIntegralBasisCompat : Prop :=
+def TateIntegralBasisCompat : Prop :=
   ∀ [HasPrincipalDivisors K E] [HasPrincipalDivisors K F] [FiniteDimensional E F]
     (w : Place K F), Nonempty (IntegralBasisData (E := E) w)
 
@@ -2112,15 +2114,15 @@ theorem integralBasisEquivFunK_conj_lmulK_scalar (w : Place K F) [FiniteDimensio
   have halg : algebraMap F w.adicCompletion (algebraMap E F e)
       = algebraMap (w.restrict E).adicCompletion w.adicCompletion
           (algebraMap E (w.restrict E).adicCompletion e) :=
-    kw_ffgc_adicCompletionComap_algebraMap_algebraMap E w e
+    adicCompletionComap_algebraMap_algebraMap E w e
   rw [halg, ← Algebra.smul_def, map_smul, LinearEquiv.apply_symm_apply,
     Pi.smul_apply, smul_eq_mul]
 
-theorem kwF4gRRTate_blockSum_of_integralBasisCompat
+theorem blockSum_of_integralBasisCompat
     [∀ w : Place K F, w.FiniteResidue] [∀ v : Place K E, v.FiniteResidue]
-    (hfinF : KwF4gRRTateCommFinite K F) (hfinE : KwF4gRRTateCommFinite K E)
-    (hIBC : KwF4gRRTateIntegralBasisCompat K F E) :
-    KwF4gRRTateTraceCompatBlockSum K F E hfinF hfinE := by
+    (hfinF : TateCommFinite K F) (hfinE : TateCommFinite K E)
+    (hIBC : TateIntegralBasisCompat K F E) :
+    TateTraceCompatBlockSum K F E hfinF hfinE := by
   intro _ _ _ v w hw g
   have hv : w.restrict E = v := Place.mem_fiber.mp hw
   subst hv
@@ -2139,10 +2141,10 @@ theorem kwF4gRRTate_blockSum_of_integralBasisCompat
   set pI := integralProdProj w D with hpI
 
   have hghmem : ghF ∈ w.adicCompletionIntegers := by
-    rw [hghF]; exact (kwHgfV352_algebraMap_mem_adicCompletionIntegers_iff w _).mpr
+    rw [hghF]; exact (algebraMap_mem_adicCompletionIntegers_iff w _).mpr
       ((Place.mem_restrict_iff w).mp (w.restrict E).uniformizer_mem)
   have hπvmem : πv ∈ (w.restrict E).adicCompletionIntegers := by
-    rw [hπv]; exact (kwHgfV352_algebraMap_mem_adicCompletionIntegers_iff _ _).mpr
+    rw [hπv]; exact (algebraMap_mem_adicCompletionIntegers_iff _ _).mpr
       (w.restrict E).uniformizer_mem
 
   have hFw := hfinF w (algebraMap F W₀ g) ghF
@@ -2150,7 +2152,7 @@ theorem kwF4gRRTate_blockSum_of_integralBasisCompat
   have hFv' := fun i => hfinE (w.restrict E) (M' i i) πv
   have hFpI : FiniteDimensional K (LinearMap.range
       (tateCommRestrict pI (lmulK w (algebraMap F W₀ g)) (lmulK w ghF))) :=
-    kwF4gRRTate_commFiniteGen w pI
+    commFiniteGen w pI
       (sameRangeIdemProjectors_integralProdProj w D) (algebraMap F W₀ g) ghF
   have hD1 : FiniteDimensional K (LinearMap.range
       (tateCommDual (tateProj w) (lmulK w (algebraMap F W₀ g)) (lmulK w ghF))) :=
@@ -2216,7 +2218,7 @@ theorem kwF4gRRTate_blockSum_of_integralBasisCompat
     calc tateRes w (algebraMap F W₀ g) ghF
         = tateCommTrace (tateProj w) (lmulK w (algebraMap F W₀ g)) (lmulK w ghF) := rfl
       _ = tateCommTrace pI (lmulK w (algebraMap F W₀ g)) (lmulK w ghF) :=
-          kwF4gRRTate_projectorIndep w pI
+          projectorIndep w pI
             (sameRangeIdemProjectors_integralProdProj w D)
             (algebraMap F W₀ g) ghF hghmem
       _ = finrankTrace (tateCommDual pI (lmulK w (algebraMap F W₀ g)) (lmulK w ghF)) :=
@@ -2257,18 +2259,18 @@ theorem kwF4gRRTate_blockSum_of_integralBasisCompat
     show (∑ i ∈ Finset.univ, M' i i) = ∑ i, M' i i from rfl,
     show (∑ i ∈ Finset.univ, M i i) = ∑ i, M i i from rfl, htr]
 
-theorem kwF4gRRTate_traceCompat_of_integralBasisCompat
+theorem traceCompat_of_integralBasisCompat
     [HasCanonicalLocalResidueKStar K F] [HasCanonicalLocalResidueKStar K E]
     [∀ w : Place K F, w.FiniteResidue] [∀ v : Place K E, v.FiniteResidue]
-    (hfinF : KwF4gRRTateCommFinite K F) (hfinE : KwF4gRRTateCommFinite K E)
-    (hIBC : KwF4gRRTateIntegralBasisCompat K F E) :
-    KwF4gRRTateTraceCompat K F E hfinF hfinE :=
-  kwF4gRRTate_traceCompat_of_blockSum hfinF hfinE
-    (kwF4gRRTate_blockSum_of_integralBasisCompat hfinF hfinE hIBC)
+    (hfinF : TateCommFinite K F) (hfinE : TateCommFinite K E)
+    (hIBC : TateIntegralBasisCompat K F E) :
+    TateTraceCompat K F E hfinF hfinE :=
+  traceCompat_of_blockSum hfinF hfinE
+    (blockSum_of_integralBasisCompat hfinF hfinE hIBC)
 
 end Headline
 
-end ModularCurve.KwF4gRRTate
+end ModularCurve.Tate
 
 end
 
@@ -2287,7 +2289,7 @@ set_option linter.unusedVariables false
 noncomputable section
 
 namespace ModularCurve
-namespace KwF4gRRTate
+namespace Tate
 
 section Construct
 
@@ -2301,20 +2303,20 @@ variable [Module.IsTorsionFree (w.restrict E).adicCompletionIntegers w.adicCompl
 scoped instance instIsLocalizationAlgebraMapSubmonoid :
     haveI : Algebra.IsAlgebraic (w.restrict E).adicCompletion w.adicCompletion :=
       Algebra.IsAlgebraic.of_finite _ _
-    haveI := kw_ffgc_isIntegralClosure_adicCompletionIntegers E w
+    haveI := isIntegralClosure_adicCompletionIntegers E w
     IsLocalization (Algebra.algebraMapSubmonoid w.adicCompletionIntegers
       (nonZeroDivisors (w.restrict E).adicCompletionIntegers)) w.adicCompletion := by
   have : Algebra.IsAlgebraic (w.restrict E).adicCompletion w.adicCompletion :=
     Algebra.IsAlgebraic.of_finite _ _
-  have := kw_ffgc_isIntegralClosure_adicCompletionIntegers E w
+  have := isIntegralClosure_adicCompletionIntegers E w
   exact IsIntegralClosure.isLocalization (w.restrict E).adicCompletionIntegers
     (w.restrict E).adicCompletion w.adicCompletion w.adicCompletionIntegers
 
 def integralBasisDataOf : IntegralBasisData (E := E) w := by
   haveI : Algebra.IsAlgebraic (w.restrict E).adicCompletion w.adicCompletion :=
     Algebra.IsAlgebraic.of_finite _ _
-  haveI hIC := kw_ffgc_isIntegralClosure_adicCompletionIntegers E w
-  haveI hFree := kwF4gRRTate_free_adicCompletionIntegers (E := E) w
+  haveI hIC := isIntegralClosure_adicCompletionIntegers E w
+  haveI hFree := free_adicCompletionIntegers (E := E) w
   haveI : IsNoetherian (w.restrict E).adicCompletionIntegers w.adicCompletionIntegers :=
     IsIntegralClosure.isNoetherian (w.restrict E).adicCompletionIntegers
       (w.restrict E).adicCompletion w.adicCompletion w.adicCompletionIntegers
@@ -2379,7 +2381,7 @@ variable [Algebra.IsIntegral E F]
 
 end Headline
 
-end ModularCurve.KwF4gRRTate
+end ModularCurve.Tate
 
 end
 
@@ -2396,7 +2398,6 @@ set_option linter.unusedSectionVars false
 noncomputable section
 
 namespace ModularCurve
-namespace KwF4R1V384a
 
 section FiberAlgebra
 
@@ -2404,14 +2405,14 @@ variable {K F : Type*} [Field K] [Field F] [Algebra K F]
 variable {E : Type*} [Field E] [Algebra K E] [Algebra E F] [IsScalarTower K E F]
 variable [Algebra.IsIntegral E F] [HasPrincipalDivisors K E] [HasPrincipalDivisors K F]
 
-scoped instance kwF4R1V384a_instAlgebraFiberCompletion (v : Place K E) (w' : v.fiber F) :
+scoped instance instAlgebraFiberCompletion (v : Place K E) (w' : v.fiber F) :
     Algebra v.adicCompletion w'.1.adicCompletion := by
   rcases w' with ⟨w', hw'⟩
   have hv : w'.restrict E = v := Place.mem_fiber.mp hw'
   subst hv
-  exact kw_ffgc_algebraAdicCompletionComap E w'
+  exact algebraAdicCompletionComap E w'
 
-scoped instance kwF4R1V384a_instIsScalarTowerFiberCompletion (v : Place K E) (w' : v.fiber F) :
+scoped instance instIsScalarTowerFiberCompletion (v : Place K E) (w' : v.fiber F) :
     IsScalarTower E v.adicCompletion w'.1.adicCompletion := by
   rcases w' with ⟨w', hw'⟩
   have hv : w'.restrict E = v := Place.mem_fiber.mp hw'
@@ -2419,7 +2420,7 @@ scoped instance kwF4R1V384a_instIsScalarTowerFiberCompletion (v : Place K E) (w'
   refine IsScalarTower.of_algebraMap_eq fun e => ?_
   rw [show algebraMap E w'.adicCompletion e = algebraMap F w'.adicCompletion (algebraMap E F e)
     from IsScalarTower.algebraMap_apply E F w'.adicCompletion e]
-  exact kw_ffgc_adicCompletionComap_algebraMap_algebraMap E w' e
+  exact adicCompletionComap_algebraMap_algebraMap E w' e
 
 end FiberAlgebra
 
@@ -2429,18 +2430,18 @@ variable {K : Type*} (F : Type*) [Field K] [Field F] [Algebra K F]
 variable {E : Type*} [Field E] [Algebra K E] [Algebra E F] [IsScalarTower K E F]
 variable [Algebra.IsIntegral E F] [HasPrincipalDivisors K E] [HasPrincipalDivisors K F]
 
-def kwF4R1V384a_semilocalComponent (v : Place K E) (w' : v.fiber F) :
+def semilocalComponent (v : Place K E) (w' : v.fiber F) :
     v.adicCompletion ⊗[E] F →ₐ[v.adicCompletion] w'.1.adicCompletion :=
   Algebra.TensorProduct.lift (Algebra.ofId v.adicCompletion w'.1.adicCompletion)
     (IsScalarTower.toAlgHom E F w'.1.adicCompletion) (fun _ _ => Commute.all _ _)
 
 @[scoped simp]
-theorem kwF4R1V384a_semilocalComponent_tmul (v : Place K E) (w' : v.fiber F)
+theorem semilocalComponent_tmul (v : Place K E) (w' : v.fiber F)
     (c : v.adicCompletion) (g : F) :
-    kwF4R1V384a_semilocalComponent F v w' (c ⊗ₜ[E] g)
+    semilocalComponent F v w' (c ⊗ₜ[E] g)
       = algebraMap v.adicCompletion w'.1.adicCompletion c
           * algebraMap F w'.1.adicCompletion g := by
-  unfold kwF4R1V384a_semilocalComponent
+  unfold semilocalComponent
   rw [Algebra.TensorProduct.lift_tmul]
   rfl
 
@@ -2463,32 +2464,32 @@ variable {E : Type*} [Field E] [Algebra K E] [Algebra E F] [IsScalarTower K E F]
 variable [Algebra.IsIntegral E F] [HasPrincipalDivisors K E] [HasPrincipalDivisors K F]
 variable [FiniteDimensional E F]
 
-theorem kwF4R1V384a_completionLinearCombination_surjective
+theorem completionLinearCombination_surjective
     (w' : Place K F) {ι : Type*} [Fintype ι] (b : Module.Basis ι E F) :
-    Function.Surjective (kw_ffgc_completionLinearCombination E w' b) := by
-  let := kw_ffgc_rankOne_adicCompletion (K := K) (w'.restrict E)
+    Function.Surjective (completionLinearCombination E w' b) := by
+  let := rankOne_adicCompletion (K := K) (w'.restrict E)
   let : NontriviallyNormedField (w'.restrict E).adicCompletion :=
     Valued.toNontriviallyNormedField (w'.restrict E).adicCompletion
       (WithZero (Multiplicative ℤ))
   rw [← Set.range_eq_univ, ← LinearMap.coe_range,
-    ← (LinearMap.range (kw_ffgc_completionLinearCombination E w' b))
+    ← (LinearMap.range (completionLinearCombination E w' b))
         |>.closed_of_finiteDimensional.closure_eq]
-  exact (kw_ffgc_denseRange_completionLinearCombination E w' b).closure_range
+  exact (denseRange_completionLinearCombination E w' b).closure_range
 
-theorem kwF4R1V384a_semilocalComponent_surjective (v : Place K E) (w' : v.fiber F) :
-    Function.Surjective (kwF4R1V384a_semilocalComponent F v w') := by
+theorem semilocalComponent_surjective (v : Place K E) (w' : v.fiber F) :
+    Function.Surjective (semilocalComponent F v w') := by
   rcases w' with ⟨w', hw'⟩
   have hv : w'.restrict E = v := Place.mem_fiber.mp hw'
   subst hv
   intro y
   let b := Module.finBasis E F
-  obtain ⟨c, hc⟩ := kwF4R1V384a_completionLinearCombination_surjective w' b y
+  obtain ⟨c, hc⟩ := completionLinearCombination_surjective w' b y
   refine ⟨∑ i, c i ⊗ₜ[E] b i, ?_⟩
   rw [map_sum, ← hc]
-  unfold kw_ffgc_completionLinearCombination
+  unfold completionLinearCombination
   rw [Fintype.linearCombination_apply]
   refine Finset.sum_congr rfl fun i _ => ?_
-  rw [kwF4R1V384a_semilocalComponent_tmul, Algebra.smul_def]
+  rw [semilocalComponent_tmul, Algebra.smul_def]
 
 end PerComponentSurjective
 
@@ -2506,7 +2507,7 @@ variable {K F : Type*} [Field K] [Field F] [Algebra K F]
 variable {E : Type*} [Field E] [Algebra K E] [Algebra E F] [IsScalarTower K E F]
 variable [Algebra.IsIntegral E F]
 
-scoped instance kwF4R1V384a_instModuleFiberCompletion
+scoped instance instModuleFiberCompletion
     [HasPrincipalDivisors K E] [HasPrincipalDivisors K F]
     (v : Place K E) (w' : v.fiber F) :
     Module v.adicCompletion w'.1.adicCompletion :=
@@ -2523,7 +2524,7 @@ variable [Algebra.IsIntegral E F]
 
 end Headline
 
-end ModularCurve.KwF4R1V384a
+end ModularCurve
 
 end
 end
@@ -2539,9 +2540,8 @@ set_option linter.unusedSectionVars false
 noncomputable section
 
 namespace ModularCurve
-namespace KwF4R1V386a
 
-open ModularCurve.KwF4R1V384a
+open ModularCurve
 
 section IsSeparableLift
 
@@ -2549,7 +2549,7 @@ variable {K F : Type*} [Field K] [Field F] [Algebra K F]
 variable {E : Type*} [Field E] [Algebra K E] [Algebra E F] [IsScalarTower K E F]
 variable [Algebra.IsIntegral E F]
 
-theorem kwF4R1V386a_isSeparable_algebraMap_fiberCompletion
+theorem isSeparable_algebraMap_fiberCompletion
     [HasPrincipalDivisors K E] [HasPrincipalDivisors K F]
     [FiniteDimensional E F] [Algebra.IsSeparable E F]
     (v : Place K E) (w' : v.fiber F) (g : F) :
@@ -2569,7 +2569,7 @@ theorem kwF4R1V386a_isSeparable_algebraMap_fiberCompletion
 
 
 set_option linter.deprecated false in
-theorem kwF4R1V386a_isSeparable_fiberCompletion
+theorem isSeparable_fiberCompletion
     [HasPrincipalDivisors K E] [HasPrincipalDivisors K F]
     [FiniteDimensional E F] [Algebra.IsSeparable E F]
     (v : Place K E) (w' : v.fiber F) :
@@ -2579,18 +2579,18 @@ theorem kwF4R1V386a_isSeparable_fiberCompletion
       (Set.range (algebraMap F w'.1.adicCompletion)) = ⊤ := by
     rw [Algebra.eq_top_iff]
     intro y
-    obtain ⟨x, rfl⟩ := kwF4R1V384a_semilocalComponent_surjective v w' y
+    obtain ⟨x, rfl⟩ := semilocalComponent_surjective v w' y
     induction x using TensorProduct.induction_on with
     | zero => simp only [_root_.map_zero]; exact zero_mem _
     | tmul c g =>
-      rw [kwF4R1V384a_semilocalComponent_tmul, ← Algebra.smul_def]
+      rw [semilocalComponent_tmul, ← Algebra.smul_def]
       exact Subalgebra.smul_mem _ (Algebra.subset_adjoin (Set.mem_range_self g)) c
     | add x y hx hy => rw [map_add]; exact add_mem hx hy
 
   have hsep : ∀ x ∈ Set.range (algebraMap F w'.1.adicCompletion),
       IsSeparable v.adicCompletion x := by
     rintro _ ⟨g, rfl⟩
-    exact kwF4R1V386a_isSeparable_algebraMap_fiberCompletion v w' g
+    exact isSeparable_algebraMap_fiberCompletion v w' g
 
   have hgenI : IntermediateField.adjoin v.adicCompletion
       (Set.range (algebraMap F w'.1.adicCompletion)) = ⊤ := by
@@ -2636,7 +2636,7 @@ variable [Algebra.IsIntegral E F]
 
 end Headline
 
-end ModularCurve.KwF4R1V386a
+end ModularCurve
 
 end
 end
@@ -2654,7 +2654,7 @@ set_option linter.unusedVariables false
 noncomputable section
 
 namespace ModularCurve
-namespace KwF4gRRTate
+namespace Tate
 
 section IsSeparableLift
 
@@ -2662,13 +2662,13 @@ variable {K F : Type*} [Field K] [Field F] [Algebra K F]
 variable {E : Type*} [Field E] [Algebra K E] [Algebra E F] [IsScalarTower K E F]
 variable [Algebra.IsIntegral E F]
 
-open ModularCurve.KwF4R1V386a in
-theorem kwTateRR3_isSeparable_completion_of_global
+open ModularCurve in
+theorem isSeparable_completion_of_global
     [HasPrincipalDivisors K E] [HasPrincipalDivisors K F]
     [FiniteDimensional E F] [Algebra.IsSeparable E F]
     (w : Place K F) :
     Algebra.IsSeparable (w.restrict E).adicCompletion w.adicCompletion :=
-  kwF4R1V386a_isSeparable_fiberCompletion (K := K) (F := F) (E := E)
+  isSeparable_fiberCompletion (K := K) (F := F) (E := E)
     (w.restrict E) ⟨w, Place.restrict_mem_fiber w⟩
 
 end IsSeparableLift
@@ -2679,7 +2679,7 @@ variable {K F : Type*} [Field K] [Field F] [Algebra K F]
 variable {E : Type*} [Field E] [Algebra K E] [Algebra E F] [IsScalarTower K E F]
 variable [Algebra.IsIntegral E F]
 
-theorem kwTateRR3_isTorsionFree_integersCompletion (w : Place K F) :
+theorem isTorsionFree_integersCompletion (w : Place K F) :
     Module.IsTorsionFree (w.restrict E).adicCompletionIntegers w.adicCompletion :=
   .trans_faithfulSMul (w.restrict E).adicCompletionIntegers (w.restrict E).adicCompletion
     w.adicCompletion
@@ -2692,24 +2692,24 @@ variable {K F : Type*} [Field K] [Field F] [Algebra K F]
 variable {E : Type*} [Field E] [Algebra K E] [Algebra E F] [IsScalarTower K E F]
 variable [Algebra.IsIntegral E F]
 
-theorem kwTateRR3_integralBasisCompat_of_isSeparable_global [Algebra.IsSeparable E F] :
-    KwF4gRRTateIntegralBasisCompat K F E := by
+theorem integralBasisCompat_of_isSeparable_global [Algebra.IsSeparable E F] :
+    TateIntegralBasisCompat K F E := by
   intro _ _ _ w
-  have := kwTateRR3_isSeparable_completion_of_global (K := K) (E := E) w
-  have := kwTateRR3_isTorsionFree_integersCompletion (K := K) (E := E) w
+  have := isSeparable_completion_of_global (K := K) (E := E) w
+  have := isTorsionFree_integersCompletion (K := K) (E := E) w
   exact ⟨integralBasisDataOf w⟩
 
-theorem kwTateRR3_traceCompat_of_isSeparable_global [Algebra.IsSeparable E F]
+theorem traceCompat_of_isSeparable_global [Algebra.IsSeparable E F]
     [HasCanonicalLocalResidueKStar K F] [HasCanonicalLocalResidueKStar K E]
     [∀ w : Place K F, w.FiniteResidue] [∀ v : Place K E, v.FiniteResidue]
-    (hfinF : KwF4gRRTateCommFinite K F) (hfinE : KwF4gRRTateCommFinite K E) :
-    KwF4gRRTateTraceCompat K F E hfinF hfinE :=
-  kwF4gRRTate_traceCompat_of_integralBasisCompat hfinF hfinE
-    kwTateRR3_integralBasisCompat_of_isSeparable_global
+    (hfinF : TateCommFinite K F) (hfinE : TateCommFinite K E) :
+    TateTraceCompat K F E hfinF hfinE :=
+  traceCompat_of_integralBasisCompat hfinF hfinE
+    integralBasisCompat_of_isSeparable_global
 
 end Headline
 
-end ModularCurve.KwF4gRRTate
+end ModularCurve.Tate
 
 end
 
@@ -2717,6 +2717,6 @@ end
 
 end
 
-theorem AlgebraicCurve.tateTraceCompat_of_isSeparable {K F : Type*} [Field K] [Field F] [Algebra K F] {E : Type*} [Field E] [Algebra K E] [Algebra E F] [IsScalarTower K E F] [Algebra.IsIntegral E F] [Algebra.IsSeparable E F] [AlgebraicCurve.HasCanonicalLocalResidueKStar K F] [AlgebraicCurve.HasCanonicalLocalResidueKStar K E] [∀ w : AlgebraicCurve.Place K F, w.FiniteResidue] [∀ v : AlgebraicCurve.Place K E, v.FiniteResidue] (hfinF : ModularCurve.KwF4gRRTate.KwF4gRRTateCommFinite K F) (hfinE : ModularCurve.KwF4gRRTate.KwF4gRRTateCommFinite K E) : ModularCurve.KwF4gRRTate.KwF4gRRTateTraceCompat K F E hfinF hfinE :=
-  ModularCurve.KwF4gRRTate.kwTateRR3_traceCompat_of_isSeparable_global hfinF hfinE
+theorem AlgebraicCurve.tateTraceCompat_of_isSeparable {K F : Type*} [Field K] [Field F] [Algebra K F] {E : Type*} [Field E] [Algebra K E] [Algebra E F] [IsScalarTower K E F] [Algebra.IsIntegral E F] [Algebra.IsSeparable E F] [AlgebraicCurve.HasCanonicalLocalResidueKStar K F] [AlgebraicCurve.HasCanonicalLocalResidueKStar K E] [∀ w : AlgebraicCurve.Place K F, w.FiniteResidue] [∀ v : AlgebraicCurve.Place K E, v.FiniteResidue] (hfinF : ModularCurve.Tate.TateCommFinite K F) (hfinE : ModularCurve.Tate.TateCommFinite K E) : ModularCurve.Tate.TateTraceCompat K F E hfinF hfinE :=
+  ModularCurve.Tate.traceCompat_of_isSeparable_global hfinF hfinE
 

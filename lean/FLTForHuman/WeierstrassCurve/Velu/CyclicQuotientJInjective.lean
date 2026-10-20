@@ -8,10 +8,10 @@ Statement transcribed verbatim from the pinned FLT `aa2d8b3` wrapper
 `P2M/Sol/S_WeierstrassCurve_zmultiples_eq_of_veluQuotient_j_eq_of_forall_isogenyEndDatum_exists_int.lean`
 (525 lines; `cmm5_dp_natCard_ker_comp` at 39, `normFormulaAlong_of_elliptic` at 106,
 `charZero_addMonoidEnd_point` at 127, `intCast_addMonoidEnd_point_injective` at 155,
-`kw_point_infinite` at 162, `kw_nat_card_ker_of_zsmul` at 190, `kw_eq_zero_of_zsmul_eq_zero`
+`point_infinite` at 162, `nat_card_ker_of_zsmul` at 190, `eq_zero_of_zsmul_eq_zero`
 at 211, `Pic0_pushforwardAlongHom_comp` at 230, `pointMapOfPushforward_comp` at 248,
 `finrankAlong_eq_one_of_bijective` at 273, `pointMapOfPushforward_injective_of_bijective`
-at 287, `kw_veluOddQuotientJInjOnCyclic_of_isogenyEndInt` at 314, `solution` at 510).
+at 287, `veluOddQuotientJInjOnCyclic_of_isogenyEndInt` at 314, `solution` at 510).
 Every helper stays `private` at the pin's leaf names; only the headline is public.
 
 The mathematics: over the Hahn-series curve with `[IsAlgClosed]` and `[CharZero]`, every
@@ -28,7 +28,7 @@ endomorphism `ψ' ∘ β` of `W` is a scalar `m` by `hEnd`.  A two-sided kernel 
 [CharZero F]`, `hsep`-free copy — *not* the newly renamed character-free
 `normFormulaAlong_of_elliptic_cf` in `Velu/RestrictAlong.lean`),
 `charZero_addMonoidEnd_point` and `intCast_addMonoidEnd_point_injective` from
-`IsogenyEndDatum/CharPolySquare.lean` (namespace `Ws13S7`), and `kw_point_infinite` from
+`IsogenyEndDatum/CharPolySquare.lean` (namespace `Ws13S7`), and `point_infinite` from
 `Isogeny/NatCard.lean`.  The remaining eight pin helpers are re-derived `private` here,
 since no counterpart exists anywhere in the port.
 
@@ -43,6 +43,8 @@ linter suppressions the pin carries (`autoImplicit false`, `linter.unusedVariabl
 References (public mirror, pinned):
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_WeierstrassCurve_zmultiples_eq_of_veluQuotient_j_eq_of_forall_isogenyEndDatum_exists_int.lean>
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_zmultiples_eq_of_veluQuotient_j_eq_of_forall_isogenyEndDatum_exists_int.lean>
+
+  spec-pin: Theorems/Thm_WeierstrassCurve_zmultiples_eq_of_veluQuotient_j_eq_of_forall_isogenyEndDatum_exists_int.lean
 -/
 import FLTForHuman.AlgebraicCurve.WeilExchange.Transport
 import FLTForHuman.WeierstrassCurve.Isogeny.ConditionalCurrency
@@ -133,7 +135,7 @@ variable (W : Affine F) [W.IsElliptic]
 
 variable {W} in
 
-private theorem kw_nat_card_ker_of_zsmul {f : W.Point →+ W.Point} {N : ℤ}
+private theorem nat_card_ker_of_zsmul {f : W.Point →+ W.Point} {N : ℤ}
     (hN : N ≠ 0) (hf : ∀ P, f P = N • P) : Nat.card f.ker = N.natAbs ^ 2 := by
   have hsets : ∀ P : W.Point,
       P ∈ f.ker ↔ P ∈ Submodule.torsionBy ℤ W.Point (N.natAbs : ℤ) := by
@@ -154,7 +156,7 @@ private theorem kw_nat_card_ker_of_zsmul {f : W.Point →+ W.Point} {N : ℤ}
 
 variable {W} in
 
-private theorem kw_eq_zero_of_zsmul_eq_zero {N : ℤ} (hN : N ≠ 0) {G : Type*} [AddCommGroup G]
+private theorem eq_zero_of_zsmul_eq_zero {N : ℤ} (hN : N ≠ 0) {G : Type*} [AddCommGroup G]
     (δ : W.Point →+ G) (hδ : ∀ P, N • δ P = 0) : δ = 0 := by
   refine AddMonoidHom.ext fun P => ?_
   obtain ⟨R, hR⟩ : ∃ R : W.Point, N • R = P :=
@@ -255,7 +257,7 @@ end IsoInjective
 
 universe u
 
-private theorem kw_veluOddQuotientJInjOnCyclic_of_isogenyEndInt
+private theorem veluOddQuotientJInjOnCyclic_of_isogenyEndInt
     {F : Type u} [Field F] [DecidableEq F] [IsAlgClosed F] [CharZero F]
     (W : WeierstrassCurve F) [W.IsElliptic]
     [GenusOnePlaceGate W.toAffine] [GenusOnePlaceGate.IsCentred W.toAffine]
@@ -393,7 +395,7 @@ private theorem kw_veluOddQuotientJInjOnCyclic_of_isogenyEndInt
     rw [Nat.card_zmultiples, hQ]
   have hkerψ' : Nat.card ψ'.ker = 2 * n + 1 := by
     have hcomp : Nat.card (ψ'.comp φ').ker = (2 * n + 1) ^ 2 := by
-      have h := kw_nat_card_ker_of_zsmul (W := W.toAffine) (f := ψ'.comp φ')
+      have h := nat_card_ker_of_zsmul (W := W.toAffine) (f := ψ'.comp φ')
         (N := (2 * n + 1 : ℤ)) (by omega) (fun P => hdual₁ P)
       have habs : (2 * (n : ℤ) + 1).natAbs = 2 * n + 1 := by omega
       rw [habs] at h; exact h
@@ -411,11 +413,11 @@ private theorem kw_veluOddQuotientJInjOnCyclic_of_isogenyEndInt
     have htop : θ.ker = ⊤ :=
       AddSubgroup.ext fun P => ⟨fun _ => trivial, fun _ => AddMonoidHom.mem_ker.mpr (hall P)⟩
     rw [htop] at hkerθ
-    have : Infinite W.toAffine.Point := kw_point_infinite
+    have : Infinite W.toAffine.Point := point_infinite_charFree
     simp only [AddSubgroup.card_top, Nat.card_eq_zero_of_infinite] at hkerθ
     exact absurd hkerθ.symm (by positivity)
   have hm_abs : m.natAbs = 2 * n + 1 := by
-    have hcard := kw_nat_card_ker_of_zsmul (W := W.toAffine) hmne hθm
+    have hcard := nat_card_ker_of_zsmul (W := W.toAffine) hmne hθm
     rw [hkerθ, sq, sq] at hcard
     exact (Nat.mul_self_inj).mp hcard.symm
 
@@ -430,12 +432,12 @@ private theorem kw_veluOddQuotientJInjOnCyclic_of_isogenyEndInt
   have hkerβ' : β.ker = AddSubgroup.zmultiples Q' := by
     rcases hmcases with hm' | hm'
     · have hδ : β - φ' = 0 :=
-        kw_eq_zero_of_zsmul_eq_zero (W := W.toAffine) hNz (β - φ') fun P => by
+        eq_zero_of_zsmul_eq_zero (W := W.toAffine) hNz (β - φ') fun P => by
           rw [AddMonoidHom.sub_apply, smul_sub, hkey P, hm', sub_self]
       have heq : β = φ' := sub_eq_zero.mp hδ
       rw [heq]; exact hkerφ'
     · have hδ : β + φ' = 0 :=
-        kw_eq_zero_of_zsmul_eq_zero (W := W.toAffine) hNz (β + φ') fun P => by
+        eq_zero_of_zsmul_eq_zero (W := W.toAffine) hNz (β + φ') fun P => by
           rw [AddMonoidHom.add_apply, smul_add, hkey P, hm', ← add_smul, neg_add_cancel,
             zero_smul]
       have heq : β = -φ' := eq_neg_iff_add_eq_zero.mpr hδ
@@ -463,7 +465,7 @@ theorem zmultiples_eq_of_veluQuotient_j_eq_of_forall_isogenyEndDatum_exists_int
       haveI : (W.veluQuotient (W.oddOrderSummingSet Q' n)).IsElliptic := ⟨isUnit_iff_ne_zero.mpr hΔ'⟩
       (W.veluQuotient (W.oddOrderSummingSet Q n)).j = (W.veluQuotient (W.oddOrderSummingSet Q' n)).j) :
     AddSubgroup.zmultiples Q = AddSubgroup.zmultiples Q' :=
-  kw_veluOddQuotientJInjOnCyclic_of_isogenyEndInt W hNs hEnd n Q Q' hQ hQ' hΔ hΔ' hj
+  veluOddQuotientJInjOnCyclic_of_isogenyEndInt W hNs hEnd n Q Q' hQ hQ' hΔ hΔ' hj
 
 end WeierstrassCurve
 

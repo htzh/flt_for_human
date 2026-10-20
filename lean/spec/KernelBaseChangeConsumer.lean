@@ -6,8 +6,8 @@
 
   A `spec/` probe, not a library module. It is separate from
   `spec/KernelCyclicTransferConsumer.lean` because D-5 is the only set that declares the
-  `KwD5BetweenCurvesHoloLift` / `KwD5BetweenCurvesFFSeamBaseChange` /
-  `KwD5BetweenCurvesKerTransportAlongEmbed` triple and the two headlines that consume the
+  `BetweenCurvesHoloLift` / `BetweenCurvesFFSeamBaseChange` /
+  `BetweenCurvesKerTransportAlongEmbed` triple and the two headlines that consume the
   `kw_surge_hgf4_bc*` tensor transport; a separate file keeps the deletion probe
   unambiguous. (D-5, like D-4, imports the `IsogenyEndDatum/Engine.lean` cone, so it cannot
   be folded into `spec/BaseChangeConsumer.lean`.)
@@ -19,7 +19,7 @@
   * zone 1 — the D-5 §1.5 promotion: `PeriodPair.toPointAddEquiv` packages
     `ℂ ⧸ Λ ≃+ E(ℂ)`, `toPointHom_apply` identifies it with `toPoint`, and
     `ker_toPointHom` computes its kernel;
-  * zone 2 — the `KwD5BetweenCurvesHoloLift` seam, consumed at a pair of `PeriodPair`s
+  * zone 2 — the `BetweenCurvesHoloLift` seam, consumed at a pair of `PeriodPair`s
     (hypothesis form: the port has no `L.weierstrassCurve.IsElliptic` instance and the
     gate/`AbelTheorem` producers are not co-importable with `Engine.lean`);
   * zone 3 — `hBC_s17` and `kerTransport_s17`, the two bare seam names the pin's silos
@@ -65,9 +65,9 @@ example (L : PeriodPair) (z : ℂ) :
 example (L : PeriodPair) : L.toPointHom.ker = L.lattice.toAddSubgroup :=
   L.ker_toPointHom
 
-/-! ### Zone 2 — the `KwD5BetweenCurvesHoloLift` seam at a pair of `PeriodPair`s -/
+/-! ### Zone 2 — the `BetweenCurvesHoloLift` seam at a pair of `PeriodPair`s -/
 
-example (h : ModularCurve.KwD5BetweenCurvesHoloLift)
+example (h : ModularCurve.BetweenCurvesHoloLift)
     (L L' : PeriodPair)
     [L.weierstrassCurve.IsElliptic] [GenusOnePlaceGate L.weierstrassCurve]
     [GenusOnePlaceGate.IsCentred L.weierstrassCurve] [AbelTheorem L.weierstrassCurve]
@@ -84,9 +84,9 @@ example (h : ModularCurve.KwD5BetweenCurvesHoloLift)
 
 /-! ### Zone 3 — the two seam `Prop`s produced by the module's engines -/
 
-example : ModularCurve.KwD5BetweenCurvesFFSeamBaseChange := hBC_s17
+example : ModularCurve.BetweenCurvesFFSeamBaseChange := hBC_s17
 
-example : ModularCurve.KwD5BetweenCurvesKerTransportAlongEmbed := kerTransport_s17
+example : ModularCurve.BetweenCurvesKerTransportAlongEmbed := kerTransport_s17
 
 /-! ### Zone 4 — the first headline, hypothesis form -/
 

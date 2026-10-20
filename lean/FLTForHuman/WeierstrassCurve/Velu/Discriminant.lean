@@ -18,7 +18,7 @@ and proved from the pinned body
 * `WeierstrassCurve.isOddVeluSet_oddOrderSummingSet`
   (`Theorems/Thm_WeierstrassCurve_isOddVeluSet_oddOrderSummingSet.lean`), whose
   proof is the port's own: it routes through the promoted
-  `Velu/OddOrder.lean` `kw_isOddVeluSet_oddOrderSummingSet_odd` rather than
+  `Velu/OddOrder.lean` `isOddVeluSet_oddOrderSummingSet_odd` rather than
   re-deriving the `OSSPort` helpers of the pin's `S_` file.
 
 The pin's `set_option maxHeartbeats 4000000 in` on `expansion_core` restates the
@@ -47,7 +47,7 @@ namespace WeierstrassCurve
 /-! ### `isOddVeluSet_oddOrderSummingSet` — the summing set is an odd Vélu set
 
 The port's own proof, through the promoted `Velu/OddOrder.lean` lemma
-`kw_isOddVeluSet_oddOrderSummingSet_odd`. -/
+`isOddVeluSet_oddOrderSummingSet_odd`. -/
 
 theorem isOddVeluSet_oddOrderSummingSet
     {F : Type*} [Field F] [DecidableEq F] {W : WeierstrassCurve F}
@@ -58,7 +58,7 @@ theorem isOddVeluSet_oddOrderSummingSet
   have hp3 : 3 ≤ p := by
     have h2 : 2 < p := lt_of_le_of_ne hp.two_le (Ne.symm hp2)
     omega
-  exact kw_isOddVeluSet_oddOrderSummingSet_odd hp3 hpodd hord hn
+  exact isOddVeluSet_oddOrderSummingSet_odd hp3 hpodd hord hn
 
 end WeierstrassCurve
 

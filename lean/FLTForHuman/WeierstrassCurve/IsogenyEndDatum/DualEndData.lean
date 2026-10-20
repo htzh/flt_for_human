@@ -15,6 +15,11 @@ fallback verifies them.  Imports `IsogenyEndDatum/RestrictAlongAdd.lean`; never
 
 Reference (public mirror, pinned):
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_Affine_IsogenyEndDatum_exists_dualEndData_dual_mem_and_norm_eq_finrankAlong.lean>
+
+  spec-pin: Theorems/Thm_WeierstrassCurve_Affine_IsogenyEndDatum_exists_dualEndData_dual_mem_and_norm_eq_finrankAlong.lean
+  spec-pin: P2M/Sol/S_WeierstrassCurve_Affine_IsogenyEndDatum_exists_dualEndData_dual_mem_and_norm_eq_finrankAlong.lean
+  spec-pin: P2M/Sol/S_WeierstrassCurve_Affine_hasPrincipalDivisors_functionField.lean
+  spec-pin: P2M/Sol/S_WeierstrassCurve_velu_map_equation_of_oddOrderSummingSet_of_isAlgClosed.lean
 -/
 import FLTForHuman.WeierstrassCurve.IsogenyEndDatum.RestrictAlongAdd
 import FLTForHuman.WeierstrassCurve.GenusOnePlaceGate
@@ -866,7 +871,7 @@ variable {F : Type u} [Field F] [DecidableEq F] [IsAlgClosed F] [CharZero F]
 variable {W : Affine F} [W.IsElliptic] [WeierstrassCurve.Affine.GenusOnePlaceGate W] [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred W] [WeierstrassCurve.Affine.AbelTheorem W]
 namespace IsogenyEndDatum
 
-theorem kw_ipfd_mem_fiberAlong_placeOfPoint_iff (D : IsogenyEndDatum W)
+theorem mem_fiberAlong_placeOfPoint_iff (D : IsogenyEndDatum W)
     (P Q : W.Point) :
     placeOfPoint P ∈ Place.fiberAlong D.ι D.hι (placeOfPoint Q)
       ↔ D.geomMorph P = Q := by
@@ -874,7 +879,7 @@ theorem kw_ipfd_mem_fiberAlong_placeOfPoint_iff (D : IsogenyEndDatum W)
   rw [Place.mem_fiberAlong, D.placeOfPoint_geomMorph P]
   exact ⟨fun h => placeOfPoint_injective h, fun h => h ▸ rfl⟩
 
-theorem kw_ipfd_pullbackAlong_single_placeOfPoint_apply (D : IsogenyEndDatum W)
+theorem pullbackAlong_single_placeOfPoint_apply (D : IsogenyEndDatum W)
     (Q P : W.Point) :
     (Divisor.pullbackAlong D.ι D.hι (Finsupp.single (placeOfPoint Q) 1))
         (placeOfPoint P)
@@ -887,21 +892,21 @@ theorem kw_ipfd_pullbackAlong_single_placeOfPoint_apply (D : IsogenyEndDatum W)
   rw [Finset.sum_ite_eq' (Place.fiberAlong D.ι D.hι (placeOfPoint Q))
     (placeOfPoint P) (fun w => (w.ramificationIndexAlong D.ι : ℤ))]
   by_cases hm : D.geomMorph P = Q
-  · rw [if_pos ((kw_ipfd_mem_fiberAlong_placeOfPoint_iff D P Q).mpr hm),
+  · rw [if_pos ((mem_fiberAlong_placeOfPoint_iff D P Q).mpr hm),
       if_pos hm]
-  · rw [if_neg (fun h => hm ((kw_ipfd_mem_fiberAlong_placeOfPoint_iff D P Q).mp h)),
+  · rw [if_neg (fun h => hm ((mem_fiberAlong_placeOfPoint_iff D P Q).mp h)),
       if_neg hm]
 
-abbrev kw_ipfd_unramified (D : IsogenyEndDatum W) : Prop :=
+abbrev unramified (D : IsogenyEndDatum W) : Prop :=
   ∀ P : W.Point, (placeOfPoint P).ramificationIndexAlong D.ι = 1
 
-theorem kw_ipfd_pullbackAlong_single_placeOfPoint_apply_of_unramified
-    (D : IsogenyEndDatum W) (hunr : kw_ipfd_unramified D) (Q P : W.Point) :
+theorem pullbackAlong_single_placeOfPoint_apply_of_unramified
+    (D : IsogenyEndDatum W) (hunr : unramified D) (Q P : W.Point) :
     (Divisor.pullbackAlong D.ι D.hι (Finsupp.single (placeOfPoint Q) 1))
         (placeOfPoint P)
       = if D.geomMorph P = Q then 1 else 0 := by
   have _pin := Classical.em True
-  rw [kw_ipfd_pullbackAlong_single_placeOfPoint_apply D Q P, hunr P,
+  rw [pullbackAlong_single_placeOfPoint_apply D Q P, hunr P,
     Nat.cast_one]
 end IsogenyEndDatum
 end WeierstrassCurve.Affine
@@ -1892,7 +1897,7 @@ section GeneralW
 variable {F : Type u} [Field F] [DecidableEq F] [IsAlgClosed F] [CharZero F]
 variable {W : Affine F} [W.IsElliptic] [WeierstrassCurve.Affine.GenusOnePlaceGate W] [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred W] [WeierstrassCurve.Affine.AbelTheorem W]
 
-theorem kw_geomMorph_surjective (D : IsogenyEndDatum W) :
+theorem geomMorph_surjective (D : IsogenyEndDatum W) :
     Surjective D.geomMorph := fun Q => by
   haveI : CharZero W.FunctionField :=
     charZero_of_injective_algebraMap (algebraMap F W.FunctionField).injective
@@ -1901,9 +1906,9 @@ theorem kw_geomMorph_surjective (D : IsogenyEndDatum W) :
   exact ⟨(placeOfPointEquiv W).symm w, placeOfPoint_injective (by
     rw [← D.placeOfPoint_geomMorph, placeOfPoint_placeOfPointEquiv_symm, hw])⟩
 
-theorem kw_pointEnd_surjective (D : IsogenyEndDatum W) :
+theorem pointEnd_surjective (D : IsogenyEndDatum W) :
     Surjective (D.pointEnd' : W.Point → W.Point) := fun R => by
-  obtain ⟨P, hP⟩ := kw_geomMorph_surjective D (R + D.geomMorph 0)
+  obtain ⟨P, hP⟩ := geomMorph_surjective D (R + D.geomMorph 0)
   exact ⟨P, by rw [D.pointEnd_eq_geomMorph_sub_geomMorph_zero, hP, add_sub_cancel_right]⟩
 end GeneralW
 section ElevenA1
@@ -2006,10 +2011,10 @@ section GeneralW
 variable {F : Type u} [Field F] [DecidableEq F] [IsAlgClosed F] [CharZero F]
 variable {W : Affine F} [W.IsElliptic] [WeierstrassCurve.Affine.GenusOnePlaceGate W] [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred W] [WeierstrassCurve.Affine.AbelTheorem W]
 
-def kw_pointEnd_fiber_equiv_ker (D : IsogenyEndDatum W) (R : W.Point) :
+def pointEnd_fiber_equiv_ker (D : IsogenyEndDatum W) (R : W.Point) :
     {P : W.Point // D.pointEnd' P = R} ≃ (AddMonoidHom.ker D.pointEnd') :=
-  let P₀ : W.Point := (kw_pointEnd_surjective D R).choose
-  have hP₀ : D.pointEnd' P₀ = R := (kw_pointEnd_surjective D R).choose_spec
+  let P₀ : W.Point := (pointEnd_surjective D R).choose
+  have hP₀ : D.pointEnd' P₀ = R := (pointEnd_surjective D R).choose_spec
   { toFun := fun ⟨P, hP⟩ => ⟨P - P₀, by
       show D.pointEnd' (P - P₀) = 0
       rw [map_sub, hP, hP₀, sub_self]⟩
@@ -2020,7 +2025,7 @@ def kw_pointEnd_fiber_equiv_ker (D : IsogenyEndDatum W) (R : W.Point) :
     left_inv := fun ⟨P, _⟩ => Subtype.ext (sub_add_cancel P P₀)
     right_inv := fun ⟨K, _⟩ => Subtype.ext (add_sub_cancel_right K P₀) }
 
-def kw_restrictAlong_fiber_equiv_pointEnd_fiber (D : IsogenyEndDatum W)
+def restrictAlong_fiber_equiv_pointEnd_fiber (D : IsogenyEndDatum W)
     (v : AlgebraicCurve.Place F W.FunctionField) :
     {w : AlgebraicCurve.Place F W.FunctionField // w.restrictAlong D.ι D.hι = v}
       ≃ {P : W.Point //
@@ -2040,15 +2045,15 @@ def kw_restrictAlong_fiber_equiv_pointEnd_fiber (D : IsogenyEndDatum W)
   left_inv := fun ⟨w, _⟩ => Subtype.ext (placeOfPoint_placeOfPointEquiv_symm W w)
   right_inv := fun ⟨P, _⟩ => Subtype.ext (placeOfPointEquiv_symm_placeOfPoint W P)
 
-theorem kw_natCard_restrictAlong_fiber_eq_ker (D : IsogenyEndDatum W)
+theorem natCard_restrictAlong_fiber_eq_ker (D : IsogenyEndDatum W)
     (v : AlgebraicCurve.Place F W.FunctionField) :
     Nat.card {w : AlgebraicCurve.Place F W.FunctionField //
         w.restrictAlong D.ι D.hι = v}
       = Nat.card (AddMonoidHom.ker D.pointEnd') :=
-  Nat.card_congr ((kw_restrictAlong_fiber_equiv_pointEnd_fiber D v).trans
-    (kw_pointEnd_fiber_equiv_ker D _))
+  Nat.card_congr ((restrictAlong_fiber_equiv_pointEnd_fiber D v).trans
+    (pointEnd_fiber_equiv_ker D _))
 
-def kw_ExistsUnramifiedBasePlace (D : IsogenyEndDatum W) : Prop :=
+def ExistsUnramifiedBasePlace (D : IsogenyEndDatum W) : Prop :=
   letI := algebraAlong D.ι
   haveI := isScalarTower_along D.ι
   haveI := isIntegral_along D.ι D.hι
@@ -2056,7 +2061,7 @@ def kw_ExistsUnramifiedBasePlace (D : IsogenyEndDatum W) : Prop :=
     ∀ w : AlgebraicCurve.Place F W.FunctionField,
       w.restrict W.FunctionField = v → w.ramificationIndex W.FunctionField = 1
 
-theorem kw_natCard_restrictAlong_fiber_eq_degree_of_unramified (D : IsogenyEndDatum W)
+theorem natCard_restrictAlong_fiber_eq_degree_of_unramified (D : IsogenyEndDatum W)
     (v : AlgebraicCurve.Place F W.FunctionField)
     (hv : letI := algebraAlong D.ι
       haveI := isScalarTower_along D.ι
@@ -2090,12 +2095,12 @@ theorem kw_natCard_restrictAlong_fiber_eq_degree_of_unramified (D : IsogenyEndDa
     left_inv := fun _ => rfl
     right_inv := fun _ => rfl }
 
-theorem kw_datumKernelDegreeFace_of_existsUnramified
-    (hunram : ∀ D : IsogenyEndDatum W, kw_ExistsUnramifiedBasePlace D) :
+theorem datumKernelDegreeFace_of_existsUnramified
+    (hunram : ∀ D : IsogenyEndDatum W, ExistsUnramifiedBasePlace D) :
     ModularCurve.cmm10_deg_DatumKernelDegreeFace W := fun D => by
   obtain ⟨v, hv⟩ := hunram D
-  rw [← kw_natCard_restrictAlong_fiber_eq_ker D v,
-    kw_natCard_restrictAlong_fiber_eq_degree_of_unramified D v hv]
+  rw [← natCard_restrictAlong_fiber_eq_ker D v,
+    natCard_restrictAlong_fiber_eq_degree_of_unramified D v hv]
 end GeneralW
 section ElevenA1
 open ModularCurve
@@ -2165,8 +2170,8 @@ section GeneralW
 variable {F : Type u} [Field F] [DecidableEq F] [IsAlgClosed F] [CharZero F]
 variable {W : Affine F} [W.IsElliptic] [WeierstrassCurve.Affine.GenusOnePlaceGate W] [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred W] [WeierstrassCurve.Affine.AbelTheorem W]
 
-theorem kw_existsUnramifiedBasePlace_proved (D : IsogenyEndDatum W) :
-    kw_ExistsUnramifiedBasePlace D := by
+theorem existsUnramifiedBasePlace_proved (D : IsogenyEndDatum W) :
+    ExistsUnramifiedBasePlace D := by
   classical
   letI := algebraAlong D.ι
   haveI := isScalarTower_along D.ι
@@ -2195,7 +2200,7 @@ theorem kw_existsUnramifiedBasePlace_proved (D : IsogenyEndDatum W) :
   have hSfin : (S₁ ∪ (fun w => w.restrict W.FunctionField) '' S₂).Finite :=
     hS₁fin.union (hS₂fin.image _)
   haveI : Infinite (AlgebraicCurve.Place F W.FunctionField) :=
-    (placeOfPointEquiv W).symm.infinite_iff.mpr kw_point_infinite
+    (placeOfPointEquiv W).symm.infinite_iff.mpr point_infinite_charFree
   obtain ⟨v, hv⟩ := hSfin.infinite_compl.nonempty
   simp only [Set.mem_compl_iff, Set.mem_union, not_or] at hv
   obtain ⟨hvS₁, hvS₂⟩ := hv
@@ -2219,9 +2224,9 @@ theorem kw_existsUnramifiedBasePlace_proved (D : IsogenyEndDatum W) :
     (v := v) (w := w) hw θ hgen hθint hram
   exact hvS₂ ⟨w, hpos.ne', hw⟩
 
-theorem kw_datumKernelDegreeFace_unconditional :
+theorem datumKernelDegreeFace_unconditional :
     ModularCurve.cmm10_deg_DatumKernelDegreeFace W :=
-  kw_datumKernelDegreeFace_of_existsUnramified kw_existsUnramifiedBasePlace_proved
+  datumKernelDegreeFace_of_existsUnramified existsUnramifiedBasePlace_proved
 end GeneralW
 section ElevenA1
 open ModularCurve
@@ -2242,7 +2247,7 @@ variable {F : Type u} [Field F] [DecidableEq F] [IsAlgClosed F] [CharZero F]
 variable {W : Affine F} [W.IsElliptic] [WeierstrassCurve.Affine.GenusOnePlaceGate W] [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred W] [WeierstrassCurve.Affine.AbelTheorem W]
 namespace IsogenyEndDatum
 
-theorem kw_iucz_sum_ramificationIndex_eq_degree (D : IsogenyEndDatum W)
+theorem sum_ramificationIndex_eq_degree (D : IsogenyEndDatum W)
     (v : AlgebraicCurve.Place F W.FunctionField) :
     letI := algebraAlong D.ι
     haveI := isScalarTower_along D.ι
@@ -2260,9 +2265,9 @@ theorem kw_iucz_sum_ramificationIndex_eq_degree (D : IsogenyEndDatum W)
     (F := W.FunctionField) (F' := W.FunctionField)
     (deg_eq_one (W := W)) (deg_eq_one (W := W)) v
 
-theorem kw_iucz_unramified_of_existsUnramifiedBasePlace (D : IsogenyEndDatum W)
-    (heub : kw_ExistsUnramifiedBasePlace D) :
-    kw_ipfd_unramified D := by
+theorem unramified_of_existsUnramifiedBasePlace (D : IsogenyEndDatum W)
+    (heub : ExistsUnramifiedBasePlace D) :
+    unramified D := by
   have _pin := Classical.em True
   classical
   letI := algebraAlong D.ι
@@ -2270,12 +2275,12 @@ theorem kw_iucz_unramified_of_existsUnramifiedBasePlace (D : IsogenyEndDatum W)
   haveI := isIntegral_along D.ι D.hι
   obtain ⟨v₀, hv₀⟩ := heub
   have hkd : Nat.card (AddMonoidHom.ker D.pointEnd') = D.degree := by
-    rw [← kw_natCard_restrictAlong_fiber_eq_ker D v₀]
-    exact kw_natCard_restrictAlong_fiber_eq_degree_of_unramified D v₀ hv₀
+    rw [← natCard_restrictAlong_fiber_eq_ker D v₀]
+    exact natCard_restrictAlong_fiber_eq_degree_of_unramified D v₀ hv₀
   intro P
   set v := (placeOfPoint P).restrictAlong D.ι D.hι with hv
   have hmem : placeOfPoint P ∈ v.fiber W.FunctionField := Place.mem_fiber.mpr rfl
-  have hsum := kw_iucz_sum_ramificationIndex_eq_degree D v
+  have hsum := sum_ramificationIndex_eq_degree D v
   have hcard : (v.fiber W.FunctionField).card = D.degree := by
     have h1 : Nat.card {w : AlgebraicCurve.Place F W.FunctionField //
           w.restrictAlong D.ι D.hι = v}
@@ -2286,7 +2291,7 @@ theorem kw_iucz_unramified_of_existsUnramifiedBasePlace (D : IsogenyEndDatum W)
         invFun := fun ⟨w, hw⟩ => ⟨w, Place.mem_fiber.mp hw⟩
         left_inv := fun _ => rfl
         right_inv := fun _ => rfl }
-    rw [← h1, kw_natCard_restrictAlong_fiber_eq_ker D v, hkd]
+    rw [← h1, natCard_restrictAlong_fiber_eq_ker D v, hkd]
   have hpos : ∀ w ∈ v.fiber W.FunctionField,
       (1 : ℤ) ≤ (w.ramificationIndex W.FunctionField : ℤ) := fun w _ => by
     exact_mod_cast (w.ramificationIndex_pos (F := W.FunctionField))
@@ -2363,19 +2368,19 @@ section GeneralW
 variable {F : Type u} [Field F] [DecidableEq F] [IsAlgClosed F] [CharZero F]
 variable {W : Affine F} [W.IsElliptic] [WeierstrassCurve.Affine.GenusOnePlaceGate W] [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred W] [WeierstrassCurve.Affine.AbelTheorem W]
 
-def kw_dualPointEnd (D : IsogenyEndDatum W) : AddMonoid.End W.Point :=
+def dualPointEnd (D : IsogenyEndDatum W) : AddMonoid.End W.Point :=
   ModularCurve.Es1a1.es1a1_dualPointEnd D
     (ModularCurve.Es1a1.es1a3_fi_isogenyEndDatum D)
 
-theorem kw_pointEnd_mul_dualPointEnd (D : IsogenyEndDatum W) :
-    D.pointEnd' * kw_dualPointEnd D = ((D.degree : ℤ) : AddMonoid.End W.Point) :=
+theorem pointEnd_mul_dualPointEnd (D : IsogenyEndDatum W) :
+    D.pointEnd' * dualPointEnd D = ((D.degree : ℤ) : AddMonoid.End W.Point) :=
   ModularCurve.Es1a1.es1a1_pointEnd_mul_dualPointEnd D
     (ModularCurve.Es1a1.es1a3_fi_isogenyEndDatum D)
 
-theorem kw_pointEnd_mul_cancel (D : IsogenyEndDatum W) (ψ : AddMonoid.End W.Point)
+theorem pointEnd_mul_cancel (D : IsogenyEndDatum W) (ψ : AddMonoid.End W.Point)
     (hzero : D.pointEnd' * ψ = 0) : ψ = 0 := by
   have hkerF : Nat.card (AddMonoidHom.ker (D.pointEnd' : W.Point →+ W.Point)) = D.degree :=
-    kw_datumKernelDegreeFace_unconditional D
+    datumKernelDegreeFace_unconditional D
   have hdpos : (0 : ℤ) < (D.degree : ℤ) :=
     Int.natCast_pos.mpr (ModularCurve.cmm10_deg_degree_pos D)
   refine DFunLike.ext _ _ fun P => ?_
@@ -2390,22 +2395,22 @@ theorem kw_pointEnd_mul_cancel (D : IsogenyEndDatum W) (ψ : AddMonoid.End W.Poi
   rw [← hQ, map_zsmul]
   exact hkill
 
-theorem kw_dualPointEnd_unique (D : IsogenyEndDatum W) (ψ : AddMonoid.End W.Point)
+theorem dualPointEnd_unique (D : IsogenyEndDatum W) (ψ : AddMonoid.End W.Point)
     (hψ : D.pointEnd' * ψ = ((D.degree : ℤ) : AddMonoid.End W.Point)) :
-    ψ = kw_dualPointEnd D := by
-  have hzero : D.pointEnd' * (ψ - kw_dualPointEnd D) = 0 := by
-    rw [mul_sub, hψ, kw_pointEnd_mul_dualPointEnd D, sub_self]
-  exact sub_eq_zero.mp (kw_pointEnd_mul_cancel D _ hzero)
+    ψ = dualPointEnd D := by
+  have hzero : D.pointEnd' * (ψ - dualPointEnd D) = 0 := by
+    rw [mul_sub, hψ, pointEnd_mul_dualPointEnd D, sub_self]
+  exact sub_eq_zero.mp (pointEnd_mul_cancel D _ hzero)
 
-def KwDualTraceWitness (W : Affine F) [W.IsElliptic] [WeierstrassCurve.Affine.GenusOnePlaceGate W] [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred W] [WeierstrassCurve.Affine.AbelTheorem W] : Prop :=
+def DualTraceWitness (W : Affine F) [W.IsElliptic] [WeierstrassCurve.Affine.GenusOnePlaceGate W] [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred W] [WeierstrassCurve.Affine.AbelTheorem W] : Prop :=
   ∀ D : IsogenyEndDatum W, ∃ t : ℤ,
-    D.pointEnd' + kw_dualPointEnd D = ((t : ℤ) : AddMonoid.End W.Point)
+    D.pointEnd' + dualPointEnd D = ((t : ℤ) : AddMonoid.End W.Point)
 
-theorem kw_dualInSubring_of_traceWitness (htw : KwDualTraceWitness W)
+theorem dualInSubring_of_traceWitness (htw : DualTraceWitness W)
     (D : IsogenyEndDatum W) :
-    kw_dualPointEnd D ∈ isogenyEndSubring W (fun D => D.normFormulaAlong_auto) := by
+    dualPointEnd D ∈ isogenyEndSubring W (fun D => D.normFormulaAlong_auto) := by
   obtain ⟨t, htr⟩ := htw D
-  have hψ : kw_dualPointEnd D
+  have hψ : dualPointEnd D
       = ((t : ℤ) : AddMonoid.End W.Point) - D.pointEnd' :=
     eq_sub_of_add_eq' htr
   rw [hψ]
@@ -2452,7 +2457,7 @@ end
 end
 namespace WeierstrassCurve
 namespace Affine
-scoped instance kw_charZero_end_point {F : Type*} [Field F] [DecidableEq F] [IsAlgClosed F] [CharZero F]
+scoped instance charZero_end_point {F : Type*} [Field F] [DecidableEq F] [IsAlgClosed F] [CharZero F]
     {W : Affine F} [W.IsElliptic] [GenusOnePlaceGate W] [GenusOnePlaceGate.IsCentred W] [AbelTheorem W] :
     CharZero (AddMonoid.End W.Point) := by
   have key : ∀ n : ℕ, (n : AddMonoid.End W.Point) = 0 → n = 0 := by
@@ -2488,14 +2493,14 @@ section GeneralW
 variable {F : Type u} [Field F] [DecidableEq F] [IsAlgClosed F] [CharZero F]
 variable {W : Affine F} [W.IsElliptic] [WeierstrassCurve.Affine.GenusOnePlaceGate W] [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred W] [WeierstrassCurve.Affine.AbelTheorem W]
 
-def kw_dualEndData_of_traceWitness (htw : KwDualTraceWitness W)
+def dualEndData_of_traceWitness (htw : DualTraceWitness W)
     (D : IsogenyEndDatum W) : AddMonoid.End.DualEndData D.pointEnd' :=
   ModularCurve.Es1a1.es1a4_twDualEndData_of_add_of_mul
-    D.pointEnd' (kw_dualPointEnd D) (htw D).choose (D.degree : ℤ)
-    (htw D).choose_spec (kw_pointEnd_mul_dualPointEnd D)
-@[scoped simp] theorem kw_dualEndData_of_traceWitness_dual (htw : KwDualTraceWitness W)
+    D.pointEnd' (dualPointEnd D) (htw D).choose (D.degree : ℤ)
+    (htw D).choose_spec (pointEnd_mul_dualPointEnd D)
+@[scoped simp] theorem dualEndData_of_traceWitness_dual (htw : DualTraceWitness W)
     (D : IsogenyEndDatum W) :
-    (kw_dualEndData_of_traceWitness htw D).dual = kw_dualPointEnd D := rfl
+    (dualEndData_of_traceWitness htw D).dual = dualPointEnd D := rfl
 end GeneralW
 end WeierstrassCurve.Affine
 section Guards
@@ -2513,39 +2518,39 @@ section GeneralW
 variable {F : Type u} [Field F] [DecidableEq F] [IsAlgClosed F] [CharZero F]
 variable {W : Affine F} [W.IsElliptic] [WeierstrassCurve.Affine.GenusOnePlaceGate W] [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred W] [WeierstrassCurve.Affine.AbelTheorem W]
 
-theorem kw_pointEnd_ne_zero (D : IsogenyEndDatum W) : D.pointEnd' ≠ 0 := by
+theorem pointEnd_ne_zero (D : IsogenyEndDatum W) : D.pointEnd' ≠ 0 := by
   intro hzero
   have hker : Nat.card (AddMonoidHom.ker D.pointEnd') = D.degree :=
-    kw_datumKernelDegreeFace_unconditional D
+    datumKernelDegreeFace_unconditional D
   have hall : AddMonoidHom.ker D.pointEnd' = ⊤ := by
     rw [hzero]; exact AddMonoidHom.ker_zero
-  haveI : Infinite W.Point := kw_point_infinite
+  haveI : Infinite W.Point := point_infinite_charFree
   rw [hall, Nat.card_congr (AddSubgroup.topEquiv (G := W.Point)).toEquiv,
     Nat.card_eq_zero_of_infinite] at hker
   exact (ModularCurve.cmm10_deg_degree_pos D).ne' hker.symm
 
-theorem kw_degree_eq_of_pointEnd_eq {D₁ D₂ : IsogenyEndDatum W}
+theorem degree_eq_of_pointEnd_eq {D₁ D₂ : IsogenyEndDatum W}
     (h : D₁.pointEnd' = D₂.pointEnd') : D₁.degree = D₂.degree := by
-  rw [← kw_datumKernelDegreeFace_unconditional D₁,
-    ← kw_datumKernelDegreeFace_unconditional D₂, h]
+  rw [← datumKernelDegreeFace_unconditional D₁,
+    ← datumKernelDegreeFace_unconditional D₂, h]
 
-theorem kw_dualPointEnd_eq_of_pointEnd_eq {D₁ D₂ : IsogenyEndDatum W}
+theorem dualPointEnd_eq_of_pointEnd_eq {D₁ D₂ : IsogenyEndDatum W}
     (h : D₁.pointEnd' = D₂.pointEnd') :
-    kw_dualPointEnd D₁ = kw_dualPointEnd D₂ := by
-  refine kw_dualPointEnd_unique D₂ _ ?_
-  rw [← h, ← kw_degree_eq_of_pointEnd_eq h]
-  exact kw_pointEnd_mul_dualPointEnd D₁
+    dualPointEnd D₁ = dualPointEnd D₂ := by
+  refine dualPointEnd_unique D₂ _ ?_
+  rw [← h, ← degree_eq_of_pointEnd_eq h]
+  exact pointEnd_mul_dualPointEnd D₁
 
-theorem kw_dualPointEnd_idDatum :
-    kw_dualPointEnd (IsogenyEndDatum.idDatum W) = 1 := by
-  refine (kw_dualPointEnd_unique (IsogenyEndDatum.idDatum W) 1 ?_).symm
+theorem dualPointEnd_idDatum :
+    dualPointEnd (IsogenyEndDatum.idDatum W) = 1 := by
+  refine (dualPointEnd_unique (IsogenyEndDatum.idDatum W) 1 ?_).symm
   rw [IsogenyEndDatum.idDatum_pointEnd, IsogenyEndDatum.degree_idDatum, mul_one,
     Nat.cast_one, Int.cast_one]
 
-theorem kw_degree_of_pointEnd_intCast (D : IsogenyEndDatum W) (n : ℤ)
+theorem degree_of_pointEnd_intCast (D : IsogenyEndDatum W) (n : ℤ)
     (hn : D.pointEnd' = ((n : ℤ) : AddMonoid.End W.Point)) :
     (D.degree : ℤ) = n ^ 2 := by
-  have hne : n ≠ 0 := fun hz => kw_pointEnd_ne_zero D (by rw [hn, hz, Int.cast_zero])
+  have hne : n ≠ 0 := fun hz => pointEnd_ne_zero D (by rw [hn, hz, Int.cast_zero])
   have hna : 1 ≤ n.natAbs := Nat.one_le_iff_ne_zero.mpr (Int.natAbs_ne_zero.mpr hne)
   have htors : ∀ (m : ℤ) (x : W.Point),
       x ∈ AddMonoidHom.ker ((m : ℤ) : AddMonoid.End W.Point)
@@ -2562,15 +2567,15 @@ theorem kw_degree_of_pointEnd_intCast (D : IsogenyEndDatum W) (n : ℤ)
     rcases Int.natAbs_eq n with h | h
     · conv_lhs => rw [h, natCast_zsmul]
     · conv_lhs => rw [h, neg_zsmul, natCast_zsmul, neg_eq_zero]
-  rw [← kw_datumKernelDegreeFace_unconditional D, hcard,
+  rw [← datumKernelDegreeFace_unconditional D, hcard,
     ModularCurve.cmm5_dp_natCard_ker_natCast (W := W) n.natAbs hna, Nat.cast_pow,
     Int.natAbs_sq]
 
-theorem kw_dualPointEnd_of_pointEnd_intCast (D : IsogenyEndDatum W) (n : ℤ)
+theorem dualPointEnd_of_pointEnd_intCast (D : IsogenyEndDatum W) (n : ℤ)
     (hn : D.pointEnd' = ((n : ℤ) : AddMonoid.End W.Point)) :
-    kw_dualPointEnd D = ((n : ℤ) : AddMonoid.End W.Point) := by
-  refine (kw_dualPointEnd_unique D _ ?_).symm
-  rw [hn, ← Int.cast_mul, ← sq, ← kw_degree_of_pointEnd_intCast D n hn, Int.cast_natCast]
+    dualPointEnd D = ((n : ℤ) : AddMonoid.End W.Point) := by
+  refine (dualPointEnd_unique D _ ?_).symm
+  rw [hn, ← Int.cast_mul, ← sq, ← degree_of_pointEnd_intCast D n hn, Int.cast_natCast]
 end GeneralW
 end WeierstrassCurve.Affine
 section Guards
@@ -2588,27 +2593,27 @@ section GeneralW
 variable {F : Type u} [Field F] [DecidableEq F] [IsAlgClosed F] [CharZero F]
 variable {W : Affine F} [W.IsElliptic] [WeierstrassCurve.Affine.GenusOnePlaceGate W] [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred W] [WeierstrassCurve.Affine.AbelTheorem W]
 
-def KwShiftDatumSupply (W : Affine F) [W.IsElliptic] [WeierstrassCurve.Affine.GenusOnePlaceGate W] [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred W] [WeierstrassCurve.Affine.AbelTheorem W] : Prop :=
+def ShiftDatumSupply (W : Affine F) [W.IsElliptic] [WeierstrassCurve.Affine.GenusOnePlaceGate W] [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred W] [WeierstrassCurve.Affine.AbelTheorem W] : Prop :=
   ∀ D : IsogenyEndDatum W, 1 + D.pointEnd' ≠ 0 →
     ∃ D' : IsogenyEndDatum W,
       D'.pointEnd' = 1 + D.pointEnd' ∧
-      kw_dualPointEnd D' = 1 + kw_dualPointEnd D
+      dualPointEnd D' = 1 + dualPointEnd D
 
-def KwDualConormAdditivityAtOne (W : Affine F) [W.IsElliptic] [WeierstrassCurve.Affine.GenusOnePlaceGate W] [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred W] [WeierstrassCurve.Affine.AbelTheorem W] : Prop :=
+def DualConormAdditivityAtOne (W : Affine F) [W.IsElliptic] [WeierstrassCurve.Affine.GenusOnePlaceGate W] [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred W] [WeierstrassCurve.Affine.AbelTheorem W] : Prop :=
   ∀ D D' : IsogenyEndDatum W, D'.pointEnd' = 1 + D.pointEnd' →
-    kw_dualPointEnd D' = 1 + kw_dualPointEnd D
+    dualPointEnd D' = 1 + dualPointEnd D
 
-theorem kw_dualTraceWitness_of_shiftDatumSupply
-    (hsh : KwShiftDatumSupply W) : KwDualTraceWitness W := by
+theorem dualTraceWitness_of_shiftDatumSupply
+    (hsh : ShiftDatumSupply W) : DualTraceWitness W := by
   intro D
-  have h := kw_pointEnd_mul_dualPointEnd D
+  have h := pointEnd_mul_dualPointEnd D
   by_cases hzero : 1 + D.pointEnd' = 0
   ·
-    have hd : (1 + D.pointEnd') * kw_dualPointEnd D = 0 := by rw [hzero, zero_mul]
-    have hd2 : kw_dualPointEnd D + D.pointEnd' * kw_dualPointEnd D = 0 := by
+    have hd : (1 + D.pointEnd') * dualPointEnd D = 0 := by rw [hzero, zero_mul]
+    have hd2 : dualPointEnd D + D.pointEnd' * dualPointEnd D = 0 := by
       rw [← hd, add_mul, one_mul]
     rw [h] at hd2
-    have hψ : kw_dualPointEnd D
+    have hψ : dualPointEnd D
         = -(((D.degree : ℤ) : AddMonoid.End W.Point)) := by
       rw [← zero_sub, ← hd2]; abel
     have hφ : D.pointEnd' = 0 - 1 := by rw [← hzero]; abel
@@ -2617,21 +2622,21 @@ theorem kw_dualTraceWitness_of_shiftDatumSupply
     abel
   ·
     obtain ⟨D', hpt, hdual⟩ := hsh D hzero
-    have h' := kw_pointEnd_mul_dualPointEnd D'
+    have h' := pointEnd_mul_dualPointEnd D'
     rw [hpt, hdual] at h'
-    have hexp : (1 + D.pointEnd') * (1 + kw_dualPointEnd D)
-        = 1 + D.pointEnd' + (kw_dualPointEnd D
-            + D.pointEnd' * kw_dualPointEnd D) := by
+    have hexp : (1 + D.pointEnd') * (1 + dualPointEnd D)
+        = 1 + D.pointEnd' + (dualPointEnd D
+            + D.pointEnd' * dualPointEnd D) := by
       rw [mul_add, mul_one, add_mul, one_mul]
     rw [hexp, h] at h'
     refine ⟨(D'.degree : ℤ) - (D.degree : ℤ) - 1, ?_⟩
     rw [Int.cast_sub, Int.cast_sub, Int.cast_one, ← h']
     abel
 
-theorem kw_shiftDatumSupply_of_addDatumSupply_of_dualAdditivity
-    (hadd : ModularCurve.KwIsogenyEndAddDatumSupply W)
-    (hdual : KwDualConormAdditivityAtOne W) :
-    KwShiftDatumSupply W := by
+theorem shiftDatumSupply_of_addDatumSupply_of_dualAdditivity
+    (hadd : ModularCurve.IsogenyEndAddDatumSupply W)
+    (hdual : DualConormAdditivityAtOne W) :
+    ShiftDatumSupply W := by
   intro D hne
   have hne' : (IsogenyEndDatum.idDatum W).pointEnd' + D.pointEnd' ≠ 0 := by
     rwa [IsogenyEndDatum.idDatum_pointEnd]
@@ -2639,12 +2644,12 @@ theorem kw_shiftDatumSupply_of_addDatumSupply_of_dualAdditivity
   rw [IsogenyEndDatum.idDatum_pointEnd] at hD'
   exact ⟨D', hD', hdual D D' hD'⟩
 
-theorem kw_dualTraceWitness_of_addDatumSupply_of_dualAdditivity
-    (hadd : ModularCurve.KwIsogenyEndAddDatumSupply W)
-    (hdual : KwDualConormAdditivityAtOne W) :
-    KwDualTraceWitness W :=
-  kw_dualTraceWitness_of_shiftDatumSupply
-    (kw_shiftDatumSupply_of_addDatumSupply_of_dualAdditivity hadd hdual)
+theorem dualTraceWitness_of_addDatumSupply_of_dualAdditivity
+    (hadd : ModularCurve.IsogenyEndAddDatumSupply W)
+    (hdual : DualConormAdditivityAtOne W) :
+    DualTraceWitness W :=
+  dualTraceWitness_of_shiftDatumSupply
+    (shiftDatumSupply_of_addDatumSupply_of_dualAdditivity hadd hdual)
 end GeneralW
 end WeierstrassCurve.Affine
 section Guards
@@ -2664,11 +2669,11 @@ namespace Es1a1
 variable {F : Type u} [Field F] [DecidableEq F] [IsAlgClosed F] [CharZero F]
 variable (W : Affine F) [W.IsElliptic] [WeierstrassCurve.Affine.GenusOnePlaceGate W] [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred W] [WeierstrassCurve.Affine.AbelTheorem W]
 
-theorem kw_hk5f_dualTraceWitness_of_dualAdditivity
-    (hdual : KwDualConormAdditivityAtOne W) :
-    KwDualTraceWitness W :=
-  kw_dualTraceWitness_of_addDatumSupply_of_dualAdditivity
-    (kw_hk5f_addDatumSupply_proved W) hdual
+theorem dualTraceWitness_of_dualAdditivity
+    (hdual : DualConormAdditivityAtOne W) :
+    DualTraceWitness W :=
+  dualTraceWitness_of_addDatumSupply_of_dualAdditivity
+    (addDatumSupply_proved W) hdual
 end Es1a1
 end ModularCurve
 end
@@ -2685,25 +2690,25 @@ section GeneralW
 variable {F : Type u} [Field F] [DecidableEq F] [IsAlgClosed F] [CharZero F]
 variable (W : Affine F) [W.IsElliptic] [WeierstrassCurve.Affine.GenusOnePlaceGate W] [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred W] [WeierstrassCurve.Affine.AbelTheorem W]
 
-def KwDualAdditivityPhiRowGenericW : Prop :=
+def DualAdditivityPhiRowGenericW : Prop :=
   ∀ D₁ D₂ D₃ : IsogenyEndDatum W, D₃.pointEnd' = D₁.pointEnd' + D₂.pointEnd' →
-    kw_dualPointEnd D₃ = kw_dualPointEnd D₁ + kw_dualPointEnd D₂
+    dualPointEnd D₃ = dualPointEnd D₁ + dualPointEnd D₂
 
-def KwDCAOGeomMorphDualAdditivity : Prop :=
+def GeomMorphDualAdditivity : Prop :=
   ∀ D₁ D₂ D₃ : IsogenyEndDatum W,
     (∀ P : W.Point, D₃.geomMorph P = D₁.geomMorph P + D₂.geomMorph P) →
-    kw_dualPointEnd D₃ = kw_dualPointEnd D₁ + kw_dualPointEnd D₂
+    dualPointEnd D₃ = dualPointEnd D₁ + dualPointEnd D₂
 variable {W}
 
-theorem kw_dcao_of_phiRowGenericW (h : KwDualAdditivityPhiRowGenericW W) :
-    KwDualConormAdditivityAtOne W := by
+theorem of_phiRowGenericW (h : DualAdditivityPhiRowGenericW W) :
+    DualConormAdditivityAtOne W := by
   intro D D' hpt
   have hpe : D'.pointEnd' = (IsogenyEndDatum.idDatum W).pointEnd' + D.pointEnd' := by
     rw [IsogenyEndDatum.idDatum_pointEnd]; exact hpt
   have hd := h (IsogenyEndDatum.idDatum W) D D' hpe
-  rwa [kw_dualPointEnd_idDatum] at hd
+  rwa [dualPointEnd_idDatum] at hd
 
-theorem kw_dcao_pointEnd_add_of_geomMorph_add {D₁ D₂ D₃ : IsogenyEndDatum W}
+theorem pointEnd_add_of_geomMorph_add {D₁ D₂ D₃ : IsogenyEndDatum W}
     (hgm : ∀ P : W.Point, D₃.geomMorph P = D₁.geomMorph P + D₂.geomMorph P) :
     D₃.pointEnd' = D₁.pointEnd' + D₂.pointEnd' := by
   refine DFunLike.ext _ _ fun P => ?_
@@ -2713,26 +2718,26 @@ theorem kw_dcao_pointEnd_add_of_geomMorph_add {D₁ D₂ D₃ : IsogenyEndDatum 
     D₃.pointEnd_eq_geomMorph_sub_geomMorph_zero, hgm P, hgm 0]
   abel
 
-theorem kw_dcao_phiRowGenericW_of_geomMorphDualAdditivity
-    (h : KwDCAOGeomMorphDualAdditivity W) :
-    KwDualAdditivityPhiRowGenericW W := by
+theorem phiRowGenericW_of_geomMorphDualAdditivity
+    (h : GeomMorphDualAdditivity W) :
+    DualAdditivityPhiRowGenericW W := by
   intro D₁ D₂ D₃ hpe
-  have hne : D₁.pointEnd' + D₂.pointEnd' ≠ 0 := hpe ▸ kw_pointEnd_ne_zero D₃
-  obtain ⟨D₃', hgm⟩ := kw_hk5f_addGeomMorphSupply_proved W D₁ D₂ hne
+  have hne : D₁.pointEnd' + D₂.pointEnd' ≠ 0 := hpe ▸ pointEnd_ne_zero D₃
+  obtain ⟨D₃', hgm⟩ := addGeomMorphSupply_proved W D₁ D₂ hne
   have hpe' : D₃'.pointEnd' = D₃.pointEnd' :=
-    (kw_dcao_pointEnd_add_of_geomMorph_add hgm).trans hpe.symm
-  rw [kw_dualPointEnd_eq_of_pointEnd_eq hpe'.symm]
+    (pointEnd_add_of_geomMorph_add hgm).trans hpe.symm
+  rw [dualPointEnd_eq_of_pointEnd_eq hpe'.symm]
   exact h D₁ D₂ D₃' hgm
 
-theorem kw_dcao_of_geomMorphDualAdditivity
-    (h : KwDCAOGeomMorphDualAdditivity W) :
-    KwDualConormAdditivityAtOne W :=
-  kw_dcao_of_phiRowGenericW (kw_dcao_phiRowGenericW_of_geomMorphDualAdditivity h)
+theorem of_geomMorphDualAdditivity
+    (h : GeomMorphDualAdditivity W) :
+    DualConormAdditivityAtOne W :=
+  of_phiRowGenericW (phiRowGenericW_of_geomMorphDualAdditivity h)
 
-theorem kw_dcao_htw_of_geomMorphDualAdditivity
-    (h : KwDCAOGeomMorphDualAdditivity W) :
-    KwDualTraceWitness W :=
-  kw_hk5f_dualTraceWitness_of_dualAdditivity W (kw_dcao_of_geomMorphDualAdditivity h)
+theorem htw_of_geomMorphDualAdditivity
+    (h : GeomMorphDualAdditivity W) :
+    DualTraceWitness W :=
+  dualTraceWitness_of_dualAdditivity W (of_geomMorphDualAdditivity h)
 end GeneralW
 end WeierstrassCurve.Affine
 section Guards
@@ -2749,18 +2754,18 @@ namespace Affine
 section GeneralW
 variable {F : Type u} [Field F] [DecidableEq F] [IsAlgClosed F] [CharZero F]
 variable {W : Affine F} [W.IsElliptic] [WeierstrassCurve.Affine.GenusOnePlaceGate W] [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred W] [WeierstrassCurve.Affine.AbelTheorem W]
-local instance kw_dcao_instHPD : HasPrincipalDivisors F W.FunctionField :=
+local instance instHPD_dcao : HasPrincipalDivisors F W.FunctionField :=
   hasPrincipalDivisors_functionField _
 
-theorem kw_dcao_unramified_proved (D : IsogenyEndDatum W) :
-    IsogenyEndDatum.kw_ipfd_unramified D :=
-  IsogenyEndDatum.kw_iucz_unramified_of_existsUnramifiedBasePlace D
-    (kw_existsUnramifiedBasePlace_proved D)
+theorem unramified_proved (D : IsogenyEndDatum W) :
+    IsogenyEndDatum.unramified D :=
+  IsogenyEndDatum.unramified_of_existsUnramifiedBasePlace D
+    (existsUnramifiedBasePlace_proved D)
 
-theorem kw_dcao_divisorSum_pullbackAlong (D : IsogenyEndDatum W)
+theorem divisorSum_pullbackAlong (D : IsogenyEndDatum W)
     (E : AlgebraicCurve.Divisor F W.FunctionField) (hE : Divisor.degree E = 0) :
     divisorSum (Divisor.pullbackAlong D.ι D.hι E)
-      = kw_dualPointEnd D (divisorSum E) := by
+      = dualPointEnd D (divisorSum E) := by
   have hsymm : (genusOnePic0Equiv W).symm (divisorSum E)
       = Pic0.mk ⟨E, Divisor.mem_degZero.mpr hE⟩ := by
     apply (genusOnePic0Equiv W).injective
@@ -2769,7 +2774,7 @@ theorem kw_dcao_divisorSum_pullbackAlong (D : IsogenyEndDatum W)
   rw [es1a1_dualPointEnd_apply, hsymm, es1a1_conormPic0Hom_mk,
     genusOnePic0Equiv_apply, pic0ToPoint_mk, es1a1_coe_conormDegZero]
 
-theorem kw_dcao_defect_degree_zero (D₁ D₂ D₃ : IsogenyEndDatum W)
+theorem defect_degree_zero (D₁ D₂ D₃ : IsogenyEndDatum W)
     (E : AlgebraicCurve.Divisor F W.FunctionField) (hE : Divisor.degree E = 0) :
     Divisor.degree
       (Divisor.pullbackAlong D₃.ι D₃.hι E
@@ -2781,11 +2786,11 @@ theorem kw_dcao_defect_degree_zero (D₁ D₂ D₃ : IsogenyEndDatum W)
     Divisor.degree_pullbackAlong D₂.ι D₂.hι (es1a3_fi_isogenyEndDatum D₂), hE]
   ring
 
-theorem kw_dcao_defect_pullback_placeOfPoint_apply_of_unramified
+theorem defect_pullback_placeOfPoint_apply_of_unramified
     (D₁ D₂ D₃ : IsogenyEndDatum W)
-    (h1 : IsogenyEndDatum.kw_ipfd_unramified D₁)
-    (h2 : IsogenyEndDatum.kw_ipfd_unramified D₂)
-    (h3 : IsogenyEndDatum.kw_ipfd_unramified D₃)
+    (h1 : IsogenyEndDatum.unramified D₁)
+    (h2 : IsogenyEndDatum.unramified D₂)
+    (h3 : IsogenyEndDatum.unramified D₃)
     (Q P : W.Point) :
     (Divisor.pullbackAlong D₃.ι D₃.hι (Finsupp.single (placeOfPoint Q) 1)
         - Divisor.pullbackAlong D₁.ι D₁.hι (Finsupp.single (placeOfPoint Q) 1)
@@ -2795,42 +2800,42 @@ theorem kw_dcao_defect_pullback_placeOfPoint_apply_of_unramified
         - (if D₁.geomMorph P = Q then 1 else 0)
         - (if D₂.geomMorph P = Q then 1 else 0) := by
   rw [Finsupp.sub_apply, Finsupp.sub_apply,
-    IsogenyEndDatum.kw_ipfd_pullbackAlong_single_placeOfPoint_apply_of_unramified
+    IsogenyEndDatum.pullbackAlong_single_placeOfPoint_apply_of_unramified
       D₃ h3 Q P,
-    IsogenyEndDatum.kw_ipfd_pullbackAlong_single_placeOfPoint_apply_of_unramified
+    IsogenyEndDatum.pullbackAlong_single_placeOfPoint_apply_of_unramified
       D₁ h1 Q P,
-    IsogenyEndDatum.kw_ipfd_pullbackAlong_single_placeOfPoint_apply_of_unramified
+    IsogenyEndDatum.pullbackAlong_single_placeOfPoint_apply_of_unramified
       D₂ h2 Q P]
 
-theorem kw_dcao_compDatum_degree (D₁ D₂ : IsogenyEndDatum W) :
+theorem compDatum_degree (D₁ D₂ : IsogenyEndDatum W) :
     (IsogenyEndDatum.compDatum W D₁ D₂).degree = D₁.degree * D₂.degree := by
   show finrankAlong F (IsogenyEndDatum.compDatum W D₁ D₂).ι
     = finrankAlong F D₁.ι * finrankAlong F D₂.ι
   rw [IsogenyEndDatum.compDatum_ι, finrankAlong_comp]
 
-theorem kw_dcao_dual_comp (D₁ D₂ : IsogenyEndDatum W) :
-    kw_dualPointEnd (IsogenyEndDatum.compDatum W D₁ D₂)
-      = kw_dualPointEnd D₂ * kw_dualPointEnd D₁ := by
-  refine (kw_dualPointEnd_unique (IsogenyEndDatum.compDatum W D₁ D₂) _ ?_).symm
+theorem dual_comp (D₁ D₂ : IsogenyEndDatum W) :
+    dualPointEnd (IsogenyEndDatum.compDatum W D₁ D₂)
+      = dualPointEnd D₂ * dualPointEnd D₁ := by
+  refine (dualPointEnd_unique (IsogenyEndDatum.compDatum W D₁ D₂) _ ?_).symm
   rw [es1a3_compDatum_pointEnd,
     show (((IsogenyEndDatum.compDatum W D₁ D₂).degree : ℤ) : AddMonoid.End W.Point)
       = ((D₂.degree : ℤ) : AddMonoid.End W.Point)
           * ((D₁.degree : ℤ) : AddMonoid.End W.Point) by
-      rw [kw_dcao_compDatum_degree, Nat.cast_mul, Int.cast_mul]
+      rw [compDatum_degree, Nat.cast_mul, Int.cast_mul]
       exact Int.cast_comm _ _]
-  calc D₁.pointEnd' * D₂.pointEnd' * (kw_dualPointEnd D₂ * kw_dualPointEnd D₁)
-      = D₁.pointEnd' * (D₂.pointEnd' * kw_dualPointEnd D₂) * kw_dualPointEnd D₁ := by
+  calc D₁.pointEnd' * D₂.pointEnd' * (dualPointEnd D₂ * dualPointEnd D₁)
+      = D₁.pointEnd' * (D₂.pointEnd' * dualPointEnd D₂) * dualPointEnd D₁ := by
         rw [mul_assoc, mul_assoc, mul_assoc]
     _ = D₁.pointEnd' * ((D₂.degree : ℤ) : AddMonoid.End W.Point)
-          * kw_dualPointEnd D₁ := by rw [kw_pointEnd_mul_dualPointEnd D₂]
+          * dualPointEnd D₁ := by rw [pointEnd_mul_dualPointEnd D₂]
     _ = ((D₂.degree : ℤ) : AddMonoid.End W.Point)
-          * (D₁.pointEnd' * kw_dualPointEnd D₁) := by
+          * (D₁.pointEnd' * dualPointEnd D₁) := by
         rw [← Int.cast_comm, mul_assoc]
     _ = ((D₂.degree : ℤ) : AddMonoid.End W.Point)
           * ((D₁.degree : ℤ) : AddMonoid.End W.Point) := by
-        rw [kw_pointEnd_mul_dualPointEnd D₁]
+        rw [pointEnd_mul_dualPointEnd D₁]
 variable (W) in
-def KwDCAODefectPrincipalPerPoint : Prop :=
+def DefectPrincipalPerPoint : Prop :=
   ∀ D₁ D₂ D₃ : IsogenyEndDatum W,
     (∀ P, D₃.geomMorph P = D₁.geomMorph P + D₂.geomMorph P) →
       D₁.ι (polyToFunctionField W X) ≠ D₂.ι (polyToFunctionField W X) →
@@ -2842,18 +2847,18 @@ def KwDCAODefectPrincipalPerPoint : Prop :=
                 + Divisor.pullbackAlong D₂.ι D₂.hι
                   (pointDivisor L : AlgebraicCurve.Divisor F W.FunctionField)))
 
-theorem kw_dcao_ext_of_iota_eq {D₁ D₂ : IsogenyEndDatum W} (h : D₁.ι = D₂.ι) :
+theorem ext_of_iota_eq {D₁ D₂ : IsogenyEndDatum W} (h : D₁.ι = D₂.ι) :
     D₁ = D₂ := by
   cases D₁; cases D₂
   simp only [IsogenyEndDatum.mk.injEq] at h ⊢
   exact h
 
-theorem kw_dcao_geomMorphDualAdditivity_of_defectPrincipal
-    (hdef : KwDCAODefectPrincipalPerPoint W) :
-    KwDCAOGeomMorphDualAdditivity W := by
+theorem geomMorphDualAdditivity_of_defectPrincipal
+    (hdef : DefectPrincipalPerPoint W) :
+    GeomMorphDualAdditivity W := by
   intro D₁ D₂ D₃ hgm
   have hpe : D₃.pointEnd' = D₁.pointEnd' + D₂.pointEnd' :=
-    kw_dcao_pointEnd_add_of_geomMorph_add hgm
+    pointEnd_add_of_geomMorph_add hgm
   by_cases hX : D₁.ι (polyToFunctionField W X) = D₂.ι (polyToFunctionField W X)
   ·
     have heq₁ := es1a8_add_equation_cmp W D₁.ι
@@ -2864,31 +2869,31 @@ theorem kw_dcao_geomMorphDualAdditivity_of_defectPrincipal
     ·
       have hcol : es1a8_addCollapse_cmp W D₁.ι D₂.ι := ⟨hX, hneg⟩
       exact absurd (hpe.trans (es1a8_addCollapse_pointEnd_add_eq_zero_cmp D₁ D₂ hcol))
-        (kw_pointEnd_ne_zero D₃)
+        (pointEnd_ne_zero D₃)
     ·
       have hY : D₁.ι (yGen W) = D₂.ι (yGen W) := Y_eq_of_Y_ne heq₁ heq₂ hX hneg
       have hDeq : D₁ = D₂ :=
-        kw_dcao_ext_of_iota_eq (es1a8_functionField_algHom_ext_cmp hX hY)
+        ext_of_iota_eq (es1a8_functionField_algHom_ext_cmp hX hY)
       subst hDeq
       have h2cast : ((2 : ℤ) : AddMonoid.End W.Point) = 1 + 1 := by norm_num
       have h2ne : (IsogenyEndDatum.idDatum W).pointEnd'
           + (IsogenyEndDatum.idDatum W).pointEnd' ≠ 0 := by
         rw [IsogenyEndDatum.idDatum_pointEnd, one_add_one_eq_two]
-        haveI := kw_charZero_end_point (W := W)
+        haveI := charZero_end_point (W := W)
         exact two_ne_zero
-      obtain ⟨DN, hDNgm⟩ := kw_hk5f_addGeomMorphSupply_proved W
+      obtain ⟨DN, hDNgm⟩ := addGeomMorphSupply_proved W
         (IsogenyEndDatum.idDatum W) (IsogenyEndDatum.idDatum W) h2ne
       have hDN2 : DN.pointEnd' = ((2 : ℤ) : AddMonoid.End W.Point) := by
-        have h := kw_dcao_pointEnd_add_of_geomMorph_add hDNgm
+        have h := pointEnd_add_of_geomMorph_add hDNgm
         rw [IsogenyEndDatum.idDatum_pointEnd] at h
         rw [h, h2cast]
       have hCpe : (IsogenyEndDatum.compDatum W DN D₁).pointEnd' = D₃.pointEnd' := by
         rw [es1a3_compDatum_pointEnd, hDN2, hpe, h2cast, add_mul, one_mul]
-      rw [kw_dualPointEnd_eq_of_pointEnd_eq hCpe.symm, kw_dcao_dual_comp,
-        kw_dualPointEnd_of_pointEnd_intCast DN 2 hDN2, h2cast, mul_add, mul_one]
+      rw [dualPointEnd_eq_of_pointEnd_eq hCpe.symm, dual_comp,
+        dualPointEnd_of_pointEnd_intCast DN 2 hDN2, h2cast, mul_add, mul_one]
   ·
     refine DFunLike.ext _ _ fun Q => ?_
-    show kw_dualPointEnd D₃ Q = kw_dualPointEnd D₁ Q + kw_dualPointEnd D₂ Q
+    show dualPointEnd D₃ Q = dualPointEnd D₁ Q + dualPointEnd D₂ Q
     have hE : Divisor.degree
         (pointDivisor Q : AlgebraicCurve.Divisor F W.FunctionField) = 0 :=
       Divisor.mem_degZero.mp (pointDivisor Q).2
@@ -2900,17 +2905,17 @@ theorem kw_dcao_geomMorphDualAdditivity_of_defectPrincipal
               + Divisor.pullbackAlong D₂.ι D₂.hι
                 (pointDivisor Q : AlgebraicCurve.Divisor F W.FunctionField))) = 0 :=
       divisorSum_eq_zero_of_isPrincipal
-        (kw_dcao_defect_degree_zero D₁ D₂ D₃ _ hE) (hdef D₁ D₂ D₃ hgm hX Q)
-    rw [map_sub, map_add, kw_dcao_divisorSum_pullbackAlong D₃ _ hE,
-      kw_dcao_divisorSum_pullbackAlong D₁ _ hE,
-      kw_dcao_divisorSum_pullbackAlong D₂ _ hE,
+        (defect_degree_zero D₁ D₂ D₃ _ hE) (hdef D₁ D₂ D₃ hgm hX Q)
+    rw [map_sub, map_add, divisorSum_pullbackAlong D₃ _ hE,
+      divisorSum_pullbackAlong D₁ _ hE,
+      divisorSum_pullbackAlong D₂ _ hE,
       divisorSum_pointDivisor, sub_eq_zero] at h0
     exact h0
 
-theorem kw_dcao_htw_of_defectPrincipal (hdef : KwDCAODefectPrincipalPerPoint W) :
-    KwDualTraceWitness W :=
-  kw_dcao_htw_of_geomMorphDualAdditivity
-    (kw_dcao_geomMorphDualAdditivity_of_defectPrincipal hdef)
+theorem htw_of_defectPrincipal (hdef : DefectPrincipalPerPoint W) :
+    DualTraceWitness W :=
+  htw_of_geomMorphDualAdditivity
+    (geomMorphDualAdditivity_of_defectPrincipal hdef)
 end GeneralW
 end WeierstrassCurve.Affine
 section Guards
@@ -2929,86 +2934,86 @@ variable {F : Type u} [Field F] [DecidableEq F] [IsAlgClosed F] [CharZero F]
 variable {W : Affine F} [W.IsElliptic] [WeierstrassCurve.Affine.GenusOnePlaceGate W] [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred W] [WeierstrassCurve.Affine.AbelTheorem W]
 attribute [local instance] ModularCurve.Es1a1.instDecEqFunctionFieldEs1a6Add
 
-abbrev kw_dcao_lineSlope (D₁ D₂ : IsogenyEndDatum W) : W.FunctionField :=
+abbrev lineSlope (D₁ D₂ : IsogenyEndDatum W) : W.FunctionField :=
   (W.map (algebraMap F W.FunctionField)).toAffine.slope
     (D₁.ι (polyToFunctionField W X)) (D₂.ι (polyToFunctionField W X))
     (D₁.ι (yGen W)) (D₂.ι (yGen W))
 
-abbrev kw_dcao_lineIntercept (D₁ D₂ : IsogenyEndDatum W) : W.FunctionField :=
-  D₁.ι (yGen W) - kw_dcao_lineSlope D₁ D₂ * D₁.ι (polyToFunctionField W X)
+abbrev lineIntercept (D₁ D₂ : IsogenyEndDatum W) : W.FunctionField :=
+  D₁.ι (yGen W) - lineSlope D₁ D₂ * D₁.ι (polyToFunctionField W X)
 
-abbrev kw_dcao_specVert (D₁ D₂ : IsogenyEndDatum W) (a : F) : W.FunctionField :=
+abbrev specVert (D₁ D₂ : IsogenyEndDatum W) (a : F) : W.FunctionField :=
   algebraMap F W.FunctionField a - es1a6_addSumX W D₁.ι D₂.ι
 
-abbrev kw_dcao_specLine (D₁ D₂ : IsogenyEndDatum W) (a b : F) : W.FunctionField :=
+abbrev specLine (D₁ D₂ : IsogenyEndDatum W) (a b : F) : W.FunctionField :=
   algebraMap F W.FunctionField b
-    - kw_dcao_lineSlope D₁ D₂ * algebraMap F W.FunctionField a
-    - kw_dcao_lineIntercept D₁ D₂
+    - lineSlope D₁ D₂ * algebraMap F W.FunctionField a
+    - lineIntercept D₁ D₂
 
-theorem kw_dcao_addSumX_nonconst_of_hgm (D₁ D₂ D₃ : IsogenyEndDatum W)
+theorem addSumX_nonconst_of_hgm (D₁ D₂ D₃ : IsogenyEndDatum W)
     (hgm : ∀ P, D₃.geomMorph P = D₁.geomMorph P + D₂.geomMorph P) (c : F) :
     es1a6_addSumX W D₁.ι D₂.ι ≠ algebraMap F W.FunctionField c :=
-  kw_hk5f_addSumXNonConstGuardAt_proved W D₁ D₂
-    ((kw_dcao_pointEnd_add_of_geomMorph_add hgm) ▸ kw_pointEnd_ne_zero D₃) c
+  addSumXNonConstGuardAt_proved W D₁ D₂
+    ((pointEnd_add_of_geomMorph_add hgm) ▸ pointEnd_ne_zero D₃) c
 
-theorem kw_dcao_specVert_ne_zero_of_hgm (D₁ D₂ D₃ : IsogenyEndDatum W)
+theorem specVert_ne_zero_of_hgm (D₁ D₂ D₃ : IsogenyEndDatum W)
     (hgm : ∀ P, D₃.geomMorph P = D₁.geomMorph P + D₂.geomMorph P) (a : F) :
-    kw_dcao_specVert D₁ D₂ a ≠ 0 :=
-  fun hV => kw_dcao_addSumX_nonconst_of_hgm D₁ D₂ D₃ hgm a (sub_eq_zero.mp hV).symm
+    specVert D₁ D₂ a ≠ 0 :=
+  fun hV => addSumX_nonconst_of_hgm D₁ D₂ D₃ hgm a (sub_eq_zero.mp hV).symm
 
-theorem kw_dcao_sumDatum_of_hgm (D₁ D₂ D₃ : IsogenyEndDatum W)
+theorem sumDatum_of_hgm (D₁ D₂ D₃ : IsogenyEndDatum W)
     (hgm : ∀ P, D₃.geomMorph P = D₁.geomMorph P + D₂.geomMorph P)
     (hX : D₁.ι (polyToFunctionField W X) ≠ D₂.ι (polyToFunctionField W X)) :
     ∃ Ds : IsogenyEndDatum W,
       Ds.ι (polyToFunctionField W X) = es1a6_addSumX W D₁.ι D₂.ι
       ∧ ∀ P, Ds.geomMorph P = D₁.geomMorph P + D₂.geomMorph P := by
-  have hnc := kw_dcao_addSumX_nonconst_of_hgm D₁ D₂ D₃ hgm
+  have hnc := addSumX_nonconst_of_hgm D₁ D₂ D₃ hgm
   have hcol : ¬ es1a6_addCollapse W D₁.ι D₂.ι :=
     es1a6_add_not_collapse_of_X_ne W D₁.ι D₂.ι hX
   have htr : Function.Injective
       (Polynomial.aeval (R := F) (es1a6_addSumX W D₁.ι D₂.ι)) :=
     es1a6_add_aeval_sumX_injective_of_forall_ne W D₁.ι D₂.ι hnc
-  obtain ⟨hι, hfin⟩ := kw_hk5f_addIntegralFiniteDataAt_proved W D₁ D₂ hcol htr
+  obtain ⟨hι, hfin⟩ := addIntegralFiniteDataAt_proved W D₁ D₂ hcol htr
   refine ⟨⟨es1a6_addSumPullbackHom W D₁.ι D₂.ι hcol htr, hι, hfin⟩,
     es1a6_addSumPullbackHom_X W D₁.ι D₂.ι hcol htr, fun P => ?_⟩
-  have h1 := kw_coordSeamDataAt_geomMorph D₁ P
-  have h2 := kw_coordSeamDataAt_geomMorph D₂ P
-  have hsum := kw_hk5f_addSumCoordSeamDataNCAt_proved W D₁.ι D₂.ι hcol hnc
+  have h1 := coordSeamDataAt_geomMorph D₁ P
+  have h2 := coordSeamDataAt_geomMorph D₂ P
+  have hsum := addSumCoordSeamDataNCAt_proved W D₁.ι D₂.ι hcol hnc
     (placeOfPoint P) (D₁.geomMorph P) (D₂.geomMorph P) h1 h2
   have hseam := es1a6_addSumSeam_of_data D₁.ι D₂.ι hcol htr hι P
     (D₁.geomMorph P + D₂.geomMorph P) hsum
   exact placeOfPoint_injective
     (((⟨_, hι, hfin⟩ : IsogenyEndDatum W).placeOfPoint_geomMorph P).symm.trans hseam)
 
-theorem kw_dcao_ord_Dtransport (D : IsogenyEndDatum W) (f : W.FunctionField)
+theorem ord_Dtransport (D : IsogenyEndDatum W) (f : W.FunctionField)
     (P : W.Point) :
     (placeOfPoint P).ord (D.ι f) = (placeOfPoint (D.geomMorph P)).ord f := by
   rw [(placeOfPoint P).ord_restrictAlong D.ι D.hι,
-    kw_dcao_unramified_proved D P, Nat.cast_one, one_mul,
+    unramified_proved D P, Nat.cast_one, one_mul,
     D.placeOfPoint_geomMorph P]
 
-theorem kw_dcao_ord_specVert_eq_transport (D₁ D₂ D₃ : IsogenyEndDatum W)
+theorem ord_specVert_eq_transport (D₁ D₂ D₃ : IsogenyEndDatum W)
     (hgm : ∀ P, D₃.geomMorph P = D₁.geomMorph P + D₂.geomMorph P)
     (hX : D₁.ι (polyToFunctionField W X) ≠ D₂.ι (polyToFunctionField W X))
     (a : F) (P : W.Point) :
-    (placeOfPoint P).ord (kw_dcao_specVert D₁ D₂ a)
+    (placeOfPoint P).ord (specVert D₁ D₂ a)
       = (placeOfPoint (D₁.geomMorph P + D₂.geomMorph P)).ord
           (algebraMap F W.FunctionField a - polyToFunctionField W X) := by
-  obtain ⟨Ds, hXs, hgms⟩ := kw_dcao_sumDatum_of_hgm D₁ D₂ D₃ hgm hX
-  have hsp : kw_dcao_specVert D₁ D₂ a
+  obtain ⟨Ds, hXs, hgms⟩ := sumDatum_of_hgm D₁ D₂ D₃ hgm hX
+  have hsp : specVert D₁ D₂ a
       = Ds.ι (algebraMap F W.FunctionField a - polyToFunctionField W X) := by
     show algebraMap F W.FunctionField a - es1a6_addSumX W D₁.ι D₂.ι = _
     rw [map_sub, Ds.ι.commutes, hXs]
-  rw [hsp, kw_dcao_ord_Dtransport Ds, hgms P]
+  rw [hsp, ord_Dtransport Ds, hgms P]
 
-theorem kw_dcao_specLine_negY_product (D₁ D₂ : IsogenyEndDatum W)
+theorem specLine_negY_product (D₁ D₂ : IsogenyEndDatum W)
     (hX : D₁.ι (polyToFunctionField W X) ≠ D₂.ι (polyToFunctionField W X))
     {a b : F} (h : W.Nonsingular a b) :
-    kw_dcao_specLine D₁ D₂ a b
-        * kw_dcao_specLine D₁ D₂ a (W.toAffine.negY a b)
+    specLine D₁ D₂ a b
+        * specLine D₁ D₂ a (W.toAffine.negY a b)
       = -((algebraMap F W.FunctionField a - D₁.ι (polyToFunctionField W X))
           * (algebraMap F W.FunctionField a - D₂.ι (polyToFunctionField W X))
-          * kw_dcao_specVert D₁ D₂ a) := by
+          * specVert D₁ D₂ a) := by
   set x₁ := D₁.ι (polyToFunctionField W X) with hx₁
   set x₂ := D₂.ι (polyToFunctionField W X) with hx₂
   set y₁ := D₁.ι (yGen W) with hy₁
@@ -3021,8 +3026,8 @@ theorem kw_dcao_specLine_negY_product (D₁ D₂ : IsogenyEndDatum W)
     fun ⟨hx, _⟩ => hX hx
   have haps := addPolynomial_slope hE₁ hE₂ hxy
   have hcap := (W.map (algebraMap F W.FunctionField)).toAffine.C_addPolynomial
-      x₁ y₁ (kw_dcao_lineSlope D₁ D₂)
-  rw [show kw_dcao_lineSlope D₁ D₂
+      x₁ y₁ (lineSlope D₁ D₂)
+  rw [show lineSlope D₁ D₂
     = (W.map (algebraMap F W.FunctionField)).toAffine.slope x₁ x₂ y₁ y₂ from rfl,
     haps] at hcap
   have heval := congrArg
@@ -3041,15 +3046,15 @@ theorem kw_dcao_specLine_negY_product (D₁ D₂ : IsogenyEndDatum W)
     show (W.map (algebraMap F W.FunctionField)).toAffine.polynomial.evalEval
           (algebraMap F W.FunctionField a) (algebraMap F W.FunctionField b) = 0 from hEab,
     add_zero, linePolynomial, Polynomial.eval_add, Polynomial.evalEval_X] at heval
-  have hsl : kw_dcao_lineSlope D₁ D₂
+  have hsl : lineSlope D₁ D₂
       = (W.map (algebraMap F W.FunctionField)).toAffine.slope x₁ x₂ y₁ y₂ := rfl
-  have hint : kw_dcao_lineIntercept D₁ D₂ = y₁ - kw_dcao_lineSlope D₁ D₂ * x₁ := rfl
+  have hint : lineIntercept D₁ D₂ = y₁ - lineSlope D₁ D₂ * x₁ := rfl
   have hnegY : (W.map (algebraMap F W.FunctionField)).toAffine.negY
           (algebraMap F W.FunctionField a) (algebraMap F W.FunctionField b)
       = algebraMap F W.FunctionField (W.toAffine.negY a b) := by
     simp only [Affine.negY, WeierstrassCurve.map_a₁, WeierstrassCurve.map_a₃, map_sub, _root_.map_neg, map_mul]
-  show (_ - _ * _ - kw_dcao_lineIntercept D₁ D₂)
-    * (_ - _ * _ - kw_dcao_lineIntercept D₁ D₂)
+  show (_ - _ * _ - lineIntercept D₁ D₂)
+    * (_ - _ * _ - lineIntercept D₁ D₂)
     = -((_ - x₁) * (_ - x₂) * (_ - es1a6_addSumX W D₁.ι D₂.ι))
   rw [hint, hsl, show es1a6_addSumX W D₁.ι D₂.ι
     = (W.map (algebraMap F W.FunctionField)).toAffine.addX x₁ x₂
@@ -3057,52 +3062,52 @@ theorem kw_dcao_specLine_negY_product (D₁ D₂ : IsogenyEndDatum W)
     ← hnegY]
   linear_combination heval.symm
 
-theorem kw_dcao_algebraMap_sub_X_ne_zero (a : F) :
+theorem algebraMap_sub_X_ne_zero (a : F) :
     algebraMap F W.FunctionField a - polyToFunctionField W X ≠ 0 := by
   rw [sub_ne_zero, ← polyToFunctionField_C]
   exact fun hc => X_ne_C a (polyToFunctionField_injective hc).symm
 
-theorem kw_dcao_specLine_ne_zero_of_hgm (D₁ D₂ D₃ : IsogenyEndDatum W)
+theorem specLine_ne_zero_of_hgm (D₁ D₂ D₃ : IsogenyEndDatum W)
     (hgm : ∀ P, D₃.geomMorph P = D₁.geomMorph P + D₂.geomMorph P)
     (hX : D₁.ι (polyToFunctionField W X) ≠ D₂.ι (polyToFunctionField W X))
     {a b : F} (h : W.Nonsingular a b) :
-    kw_dcao_specLine D₁ D₂ a b ≠ 0 := by
+    specLine D₁ D₂ a b ≠ 0 := by
   intro hL
-  have hprod := kw_dcao_specLine_negY_product D₁ D₂ hX h
+  have hprod := specLine_negY_product D₁ D₂ hX h
   rw [hL, zero_mul, eq_comm, neg_eq_zero] at hprod
   have h1 : algebraMap F W.FunctionField a - D₁.ι (polyToFunctionField W X) ≠ 0 := by
     rw [show algebraMap F W.FunctionField a = D₁.ι (algebraMap F W.FunctionField a) from
         (D₁.ι.commutes a).symm, ← map_sub]
-    exact mmr73_cs_iota_ne_zero D₁ (kw_dcao_algebraMap_sub_X_ne_zero a)
+    exact mmr73_cs_iota_ne_zero D₁ (algebraMap_sub_X_ne_zero a)
   have h2 : algebraMap F W.FunctionField a - D₂.ι (polyToFunctionField W X) ≠ 0 := by
     rw [show algebraMap F W.FunctionField a = D₂.ι (algebraMap F W.FunctionField a) from
         (D₂.ι.commutes a).symm, ← map_sub]
-    exact mmr73_cs_iota_ne_zero D₂ (kw_dcao_algebraMap_sub_X_ne_zero a)
+    exact mmr73_cs_iota_ne_zero D₂ (algebraMap_sub_X_ne_zero a)
   exact (mul_ne_zero (mul_ne_zero h1 h2)
-    (kw_dcao_specVert_ne_zero_of_hgm D₁ D₂ D₃ hgm a)) hprod
+    (specVert_ne_zero_of_hgm D₁ D₂ D₃ hgm a)) hprod
 
-theorem kw_dcao_specLine_negY_diff (D₁ D₂ : IsogenyEndDatum W) (a b : F) :
-    kw_dcao_specLine D₁ D₂ a b - kw_dcao_specLine D₁ D₂ a (W.toAffine.negY a b)
+theorem specLine_negY_diff (D₁ D₂ : IsogenyEndDatum W) (a b : F) :
+    specLine D₁ D₂ a b - specLine D₁ D₂ a (W.toAffine.negY a b)
       = algebraMap F W.FunctionField (b - W.toAffine.negY a b) := by
   show (_ - _ - _) - (_ - _ - _) = _
   rw [map_sub]; ring
 
-theorem kw_dcao_specLine_ord_sum (D₁ D₂ D₃ : IsogenyEndDatum W)
+theorem specLine_ord_sum (D₁ D₂ D₃ : IsogenyEndDatum W)
     (hgm : ∀ P, D₃.geomMorph P = D₁.geomMorph P + D₂.geomMorph P)
     (hX : D₁.ι (polyToFunctionField W X) ≠ D₂.ι (polyToFunctionField W X))
     {a b : F} (h : W.Nonsingular a b) (P : W.Point) :
-    (placeOfPoint P).ord (kw_dcao_specLine D₁ D₂ a b)
-        + (placeOfPoint P).ord (kw_dcao_specLine D₁ D₂ a (W.toAffine.negY a b))
+    (placeOfPoint P).ord (specLine D₁ D₂ a b)
+        + (placeOfPoint P).ord (specLine D₁ D₂ a (W.toAffine.negY a b))
       = (placeOfPoint (D₁.geomMorph P)).ord
             (algebraMap F W.FunctionField a - polyToFunctionField W X)
         + (placeOfPoint (D₂.geomMorph P)).ord
             (algebraMap F W.FunctionField a - polyToFunctionField W X)
         + (placeOfPoint (D₁.geomMorph P + D₂.geomMorph P)).ord
             (algebraMap F W.FunctionField a - polyToFunctionField W X) := by
-  have hLne := kw_dcao_specLine_ne_zero_of_hgm D₁ D₂ D₃ hgm hX h
-  have hL'ne' : kw_dcao_specLine D₁ D₂ a (W.toAffine.negY a b) ≠ 0 :=
-    kw_dcao_specLine_ne_zero_of_hgm D₁ D₂ D₃ hgm hX ((Affine.nonsingular_neg a b).mpr h)
-  have hprod := kw_dcao_specLine_negY_product D₁ D₂ hX h
+  have hLne := specLine_ne_zero_of_hgm D₁ D₂ D₃ hgm hX h
+  have hL'ne' : specLine D₁ D₂ a (W.toAffine.negY a b) ≠ 0 :=
+    specLine_ne_zero_of_hgm D₁ D₂ D₃ hgm hX ((Affine.nonsingular_neg a b).mpr h)
+  have hprod := specLine_negY_product D₁ D₂ hX h
   have h1 : algebraMap F W.FunctionField a - D₁.ι (polyToFunctionField W X)
       = D₁.ι (algebraMap F W.FunctionField a - polyToFunctionField W X) := by
     rw [map_sub, D₁.ι.commutes]
@@ -3110,32 +3115,32 @@ theorem kw_dcao_specLine_ord_sum (D₁ D₂ D₃ : IsogenyEndDatum W)
       = D₂.ι (algebraMap F W.FunctionField a - polyToFunctionField W X) := by
     rw [map_sub, D₂.ι.commutes]
   have h1ne : algebraMap F W.FunctionField a - D₁.ι (polyToFunctionField W X) ≠ 0 :=
-    h1 ▸ mmr73_cs_iota_ne_zero D₁ (kw_dcao_algebraMap_sub_X_ne_zero a)
+    h1 ▸ mmr73_cs_iota_ne_zero D₁ (algebraMap_sub_X_ne_zero a)
   have h2ne : algebraMap F W.FunctionField a - D₂.ι (polyToFunctionField W X) ≠ 0 :=
-    h2 ▸ mmr73_cs_iota_ne_zero D₂ (kw_dcao_algebraMap_sub_X_ne_zero a)
-  have hVne := kw_dcao_specVert_ne_zero_of_hgm D₁ D₂ D₃ hgm a
+    h2 ▸ mmr73_cs_iota_ne_zero D₂ (algebraMap_sub_X_ne_zero a)
+  have hVne := specVert_ne_zero_of_hgm D₁ D₂ D₃ hgm a
   rw [← (placeOfPoint P).ord_mul hLne hL'ne', hprod,
     mmr73_cs_ord_neg (placeOfPoint P),
     (placeOfPoint P).ord_mul (mul_ne_zero h1ne h2ne) hVne,
     (placeOfPoint P).ord_mul h1ne h2ne, h1, h2,
-    kw_dcao_ord_Dtransport D₁, kw_dcao_ord_Dtransport D₂,
-    kw_dcao_ord_specVert_eq_transport D₁ D₂ D₃ hgm hX a P]
+    ord_Dtransport D₁, ord_Dtransport D₂,
+    ord_specVert_eq_transport D₁ D₂ D₃ hgm hX a P]
 
-theorem kw_dcao_algebraMap_XClass (a : F) :
+theorem algebraMap_XClass (a : F) :
     algebraMap W.CoordinateRing W.FunctionField (CoordinateRing.XClass W a)
       = polyToFunctionField W X - algebraMap F W.FunctionField a := by
   rw [show polyToFunctionField W X - algebraMap F W.FunctionField a
     = polyToFunctionField W (X - C a) by rw [map_sub, polyToFunctionField_C],
     polyToFunctionField_apply, CoordinateRing.XClass, algebraMap_polynomial_eq_mk_C]
 
-theorem kw_dcao_ord_XsubA_eq_one {a b : F} (h : W.Nonsingular a b)
+theorem ord_XsubA_eq_one {a b : F} (h : W.Nonsingular a b)
     (hY : W.toAffine.polynomialY.evalEval a b ≠ 0) :
     (placeOfEquation h.left).ord
       (polyToFunctionField W X - algebraMap F W.FunctionField a) = 1 := by
-  rw [← kw_dcao_algebraMap_XClass a]
+  rw [← algebraMap_XClass a]
   exact ord_placeOfEquation_XClass_self h.left hY
 
-theorem kw_dcao_ord_XsubA_eq_two {a b : F} (h : W.Nonsingular a b)
+theorem ord_XsubA_eq_two {a b : F} (h : W.Nonsingular a b)
     (hY : W.toAffine.polynomialY.evalEval a b = 0) :
     (placeOfEquation h.left).ord
       (polyToFunctionField W X - algebraMap F W.FunctionField a) = 2 := by
@@ -3221,7 +3226,7 @@ theorem kw_dcao_ord_XsubA_eq_two {a b : F} (h : W.Nonsingular a b)
     intro hc
     exact hYbne (pow_eq_zero_iff two_ne_zero |>.mp (by rw [hprod, hc, mul_zero]))
   have hXane : polyToFunctionField W X - algebraMap F W.FunctionField a ≠ 0 := by
-    rw [← neg_sub, neg_ne_zero]; exact kw_dcao_algebraMap_sub_X_ne_zero a
+    rw [← neg_sub, neg_ne_zero]; exact algebraMap_sub_X_ne_zero a
   have hord := congrArg (placeOfEquation h.left).ord hprod
   rw [show (yGen W - algebraMap F W.FunctionField b) ^ 2
       = (yGen W - algebraMap F W.FunctionField b)
@@ -3230,7 +3235,7 @@ theorem kw_dcao_ord_XsubA_eq_two {a b : F} (h : W.Nonsingular a b)
     (placeOfEquation h.left).ord_mul hXane hrne, hor, add_zero, hYb] at hord
   linarith [hord]
 
-theorem kw_dcao_ord_aSubX_formula {a b : F} (h : W.Nonsingular a b) (Q : W.Point) :
+theorem ord_aSubX_formula {a b : F} (h : W.Nonsingular a b) (Q : W.Point) :
     (placeOfPoint Q).ord (algebraMap F W.FunctionField a - polyToFunctionField W X)
       = (if Q = Point.some a b h then 1 else 0)
         + (if Q = -Point.some a b h then 1 else 0)
@@ -3264,14 +3269,14 @@ theorem kw_dcao_ord_aSubX_formula {a b : F} (h : W.Nonsingular a b) (Q : W.Point
         = polyToFunctionField W X - algebraMap F W.FunctionField a by
           rw [map_sub, polyToFunctionField_C]]
       by_cases hYs : W.toAffine.polynomialY.evalEval a s = 0
-      · rw [kw_dcao_ord_XsubA_eq_two h' hYs]
+      · rw [ord_XsubA_eq_two h' hYs]
         have hss : s = W.toAffine.negY a s := by
           rw [Affine.evalEval_polynomialY] at hYs
           unfold Affine.negY; linear_combination hYs
         rcases hsb with rfl | rfl
         · rw [if_pos rfl, if_pos hss]; rfl
         · rw [if_pos (hss.trans (Affine.negY_negY a b)), if_pos rfl]; rfl
-      · rw [kw_dcao_ord_XsubA_eq_one h' hYs]
+      · rw [ord_XsubA_eq_one h' hYs]
         have hbne : b ≠ W.toAffine.negY a b := by
           intro hbb
           apply hYs
@@ -3287,14 +3292,14 @@ theorem kw_dcao_ord_aSubX_formula {a b : F} (h : W.Nonsingular a b) (Q : W.Point
       exact (ord_polyToFunctionField_eq_zero_iff h'.left (X_sub_C_ne_zero a)).mpr
         (by simp [sub_ne_zero, hra])
 variable (W) in
-def KwDCAOSpecLineOrdMatchHgm : Prop :=
+def SpecLineOrdMatchHgm : Prop :=
   ∀ D₁ D₂ D₃ : IsogenyEndDatum W,
     (∀ P, D₃.geomMorph P = D₁.geomMorph P + D₂.geomMorph P) →
     D₁.ι (polyToFunctionField W X) ≠ D₂.ι (polyToFunctionField W X) →
       ∀ {a b : F} (h : W.Nonsingular a b),
-        kw_dcao_specLine D₁ D₂ a b ≠ 0 ∧
+        specLine D₁ D₂ a b ≠ 0 ∧
           ∀ P : W.Point,
-            (placeOfPoint P).ord (kw_dcao_specLine D₁ D₂ a b)
+            (placeOfPoint P).ord (specLine D₁ D₂ a b)
               = (placeOfPoint (D₁.geomMorph P + D₂.geomMorph P)).ord
                   (algebraMap F W.FunctionField a - polyToFunctionField W X)
                 - (((if D₁.geomMorph P + D₂.geomMorph P = Point.some a b h then 1 else 0)
@@ -3304,7 +3309,7 @@ def KwDCAOSpecLineOrdMatchHgm : Prop :=
                     - (if D₁.geomMorph P = 0 then 1 else 0)
                     - (if D₂.geomMorph P = 0 then 1 else 0)))
 variable (W) in
-def KwDCAOSpecLineOrdMatchAllAffine : Prop :=
+def SpecLineOrdMatchAllAffine : Prop :=
   ∀ D₁ D₂ D₃ : IsogenyEndDatum W,
     (∀ P, D₃.geomMorph P = D₁.geomMorph P + D₂.geomMorph P) →
     D₁.ι (polyToFunctionField W X) ≠ D₂.ι (polyToFunctionField W X) →
@@ -3313,7 +3318,7 @@ def KwDCAOSpecLineOrdMatchAllAffine : Prop :=
           ∀ P : W.Point,
             D₁.geomMorph P ≠ 0 → D₂.geomMorph P ≠ 0 →
               D₁.geomMorph P + D₂.geomMorph P ≠ 0 →
-            (placeOfPoint P).ord (kw_dcao_specLine D₁ D₂ a b)
+            (placeOfPoint P).ord (specLine D₁ D₂ a b)
               = (placeOfPoint (D₁.geomMorph P + D₂.geomMorph P)).ord
                   (algebraMap F W.FunctionField a - polyToFunctionField W X)
                 - (((if D₁.geomMorph P + D₂.geomMorph P = Point.some a b h then 1 else 0)
@@ -3323,24 +3328,24 @@ def KwDCAOSpecLineOrdMatchAllAffine : Prop :=
                     - (if D₁.geomMorph P = 0 then 1 else 0)
                     - (if D₂.geomMorph P = 0 then 1 else 0)))
 
-theorem kw_dcao_specLineOrdMatch_hgm_of_allAffine
-    (hAA : KwDCAOSpecLineOrdMatchAllAffine W) :
-    KwDCAOSpecLineOrdMatchHgm W := by
+theorem specLineOrdMatch_hgm_of_allAffine
+    (hAA : SpecLineOrdMatchAllAffine W) :
+    SpecLineOrdMatchHgm W := by
   intro D₁ D₂ D₃ hgm hX a b h
-  refine ⟨kw_dcao_specLine_ne_zero_of_hgm D₁ D₂ D₃ hgm hX h, fun P => ?_⟩
-  have hLne := kw_dcao_specLine_ne_zero_of_hgm D₁ D₂ D₃ hgm hX h
-  have hL'ne : kw_dcao_specLine D₁ D₂ a (W.toAffine.negY a b) ≠ 0 :=
-    kw_dcao_specLine_ne_zero_of_hgm D₁ D₂ D₃ hgm hX ((Affine.nonsingular_neg a b).mpr h)
-  have hSum := kw_dcao_specLine_ord_sum D₁ D₂ D₃ hgm hX h P
-  rw [kw_dcao_ord_aSubX_formula h (D₁.geomMorph P),
-    kw_dcao_ord_aSubX_formula h (D₂.geomMorph P),
-    kw_dcao_ord_aSubX_formula h (D₁.geomMorph P + D₂.geomMorph P)] at hSum
-  rw [kw_dcao_ord_aSubX_formula h (D₁.geomMorph P + D₂.geomMorph P)]
+  refine ⟨specLine_ne_zero_of_hgm D₁ D₂ D₃ hgm hX h, fun P => ?_⟩
+  have hLne := specLine_ne_zero_of_hgm D₁ D₂ D₃ hgm hX h
+  have hL'ne : specLine D₁ D₂ a (W.toAffine.negY a b) ≠ 0 :=
+    specLine_ne_zero_of_hgm D₁ D₂ D₃ hgm hX ((Affine.nonsingular_neg a b).mpr h)
+  have hSum := specLine_ord_sum D₁ D₂ D₃ hgm hX h P
+  rw [ord_aSubX_formula h (D₁.geomMorph P),
+    ord_aSubX_formula h (D₂.geomMorph P),
+    ord_aSubX_formula h (D₁.geomMorph P + D₂.geomMorph P)] at hSum
+  rw [ord_aSubX_formula h (D₁.geomMorph P + D₂.geomMorph P)]
   set Q₁ := D₁.geomMorph P with hQ1def
   set Q₂ := D₂.geomMorph P with hQ2def
   set L := Point.some a b h with hLdef
-  set u := (placeOfPoint P).ord (kw_dcao_specLine D₁ D₂ a b) with hu
-  set v := (placeOfPoint P).ord (kw_dcao_specLine D₁ D₂ a (W.toAffine.negY a b)) with hv
+  set u := (placeOfPoint P).ord (specLine D₁ D₂ a b) with hu
+  set v := (placeOfPoint P).ord (specLine D₁ D₂ a (W.toAffine.negY a b)) with hv
   set l₁ : ℤ := if Q₁ = L then 1 else 0 with hl1d
   set m₁ : ℤ := if Q₁ = -L then 1 else 0 with hm1d
   set e₁ : ℤ := if Q₁ = 0 then 1 else 0 with he1d
@@ -3367,22 +3372,22 @@ theorem kw_dcao_specLineOrdMatch_hgm_of_allAffine
       simp only [Point.some.injEq, true_and] at hc; exact hκ hc
     have hLne0 : L ≠ 0 := Point.some_ne_zero h
     have hL'ne0 : -L ≠ 0 := neg_ne_zero.mpr hLne0
-    have hdiff := kw_dcao_specLine_negY_diff D₁ D₂ a b
+    have hdiff := specLine_negY_diff D₁ D₂ a b
     have hκord : (placeOfPoint P).ord
         (algebraMap F W.FunctionField (b - W.toAffine.negY a b)) = 0 :=
       (placeOfPoint P).ord_algebraMap _
     have huv : u ≠ 0 → v = min u 0 := by
       intro hune
-      have heq : kw_dcao_specLine D₁ D₂ a (W.toAffine.negY a b)
-          = kw_dcao_specLine D₁ D₂ a b
+      have heq : specLine D₁ D₂ a (W.toAffine.negY a b)
+          = specLine D₁ D₂ a b
             + -(algebraMap F W.FunctionField (b - W.toAffine.negY a b)) := by
         rw [← hdiff]; ring
       rw [hv, heq, (placeOfPoint P).ord_add_eq_min hLne (neg_ne_zero.mpr hκne)
         (by rw [mmr73_cs_ord_neg, hκord]; exact hune), mmr73_cs_ord_neg, hκord, ← hu]
     have hvu : v ≠ 0 → u = min v 0 := by
       intro hvne
-      have heq : kw_dcao_specLine D₁ D₂ a b
-          = kw_dcao_specLine D₁ D₂ a (W.toAffine.negY a b)
+      have heq : specLine D₁ D₂ a b
+          = specLine D₁ D₂ a (W.toAffine.negY a b)
             + algebraMap F W.FunctionField (b - W.toAffine.negY a b) := by
         rw [← hdiff]; ring
       rw [hu, heq, (placeOfPoint P).ord_add_eq_min hL'ne hκne
@@ -3437,7 +3442,7 @@ theorem kw_dcao_specLineOrdMatch_hgm_of_allAffine
       omega
     have := hAA D₁ D₂ D₃ hgm hX h hκ P (hQ1def ▸ hQ1z) (hQ2def ▸ hQ2z)
       (hQ1def ▸ hQ2def ▸ hQ12z)
-    rw [kw_dcao_ord_aSubX_formula h (D₁.geomMorph P + D₂.geomMorph P)] at this
+    rw [ord_aSubX_formula h (D₁.geomMorph P + D₂.geomMorph P)] at this
     simp only [← hQ1def, ← hQ2def, ← hLdef] at this
     linarith [this]
 end GeneralW
@@ -3458,7 +3463,7 @@ variable {F : Type u} [Field F] [DecidableEq F] [IsAlgClosed F] [CharZero F]
 variable {W : Affine F} [W.IsElliptic] [WeierstrassCurve.Affine.GenusOnePlaceGate W] [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred W] [WeierstrassCurve.Affine.AbelTheorem W]
 attribute [local instance] ModularCurve.Es1a1.instDecEqFunctionFieldEs1a6Add
 
-theorem kw_dcao_sumDatum_Y_of_hgm (D₁ D₂ D₃ : IsogenyEndDatum W)
+theorem sumDatum_Y_of_hgm (D₁ D₂ D₃ : IsogenyEndDatum W)
     (hgm : ∀ P, D₃.geomMorph P = D₁.geomMorph P + D₂.geomMorph P)
     (hX : D₁.ι (polyToFunctionField W X) ≠ D₂.ι (polyToFunctionField W X)) :
     ∃ Ds : IsogenyEndDatum W,
@@ -3466,27 +3471,27 @@ theorem kw_dcao_sumDatum_Y_of_hgm (D₁ D₂ D₃ : IsogenyEndDatum W)
       ∧ Ds.ι (yGen W) = es1a6_addSumY W D₁.ι D₂.ι
       ∧ ∀ P, Ds.geomMorph P = D₁.geomMorph P + D₂.geomMorph P := by
   have _pin := Classical.em True
-  have hnc := kw_dcao_addSumX_nonconst_of_hgm D₁ D₂ D₃ hgm
+  have hnc := addSumX_nonconst_of_hgm D₁ D₂ D₃ hgm
   have hcol : ¬ es1a6_addCollapse W D₁.ι D₂.ι :=
     es1a6_add_not_collapse_of_X_ne W D₁.ι D₂.ι hX
   have htr : Function.Injective
       (Polynomial.aeval (R := F) (es1a6_addSumX W D₁.ι D₂.ι)) :=
     es1a6_add_aeval_sumX_injective_of_forall_ne W D₁.ι D₂.ι hnc
-  obtain ⟨hι, hfin⟩ := kw_hk5f_addIntegralFiniteDataAt_proved W D₁ D₂ hcol htr
+  obtain ⟨hι, hfin⟩ := addIntegralFiniteDataAt_proved W D₁ D₂ hcol htr
   refine ⟨⟨es1a6_addSumPullbackHom W D₁.ι D₂.ι hcol htr, hι, hfin⟩,
     es1a6_addSumPullbackHom_X W D₁.ι D₂.ι hcol htr,
     es1a6_addSumPullbackHom_yGen W D₁.ι D₂.ι hcol htr, fun P => ?_⟩
-  have h1 := kw_coordSeamDataAt_geomMorph D₁ P
-  have h2 := kw_coordSeamDataAt_geomMorph D₂ P
-  have hsum := kw_hk5f_addSumCoordSeamDataNCAt_proved W D₁.ι D₂.ι hcol hnc
+  have h1 := coordSeamDataAt_geomMorph D₁ P
+  have h2 := coordSeamDataAt_geomMorph D₂ P
+  have hsum := addSumCoordSeamDataNCAt_proved W D₁.ι D₂.ι hcol hnc
     (placeOfPoint P) (D₁.geomMorph P) (D₂.geomMorph P) h1 h2
   have hseam := es1a6_addSumSeam_of_data D₁.ι D₂.ι hcol htr hι P
     (D₁.geomMorph P + D₂.geomMorph P) hsum
   exact placeOfPoint_injective
     (((⟨_, hι, hfin⟩ : IsogenyEndDatum W).placeOfPoint_geomMorph P).symm.trans hseam)
 
-theorem kw_dcao_specLineOrdMatch_allAffine_proved :
-    KwDCAOSpecLineOrdMatchAllAffine W := by
+theorem specLineOrdMatch_allAffine_proved :
+    SpecLineOrdMatchAllAffine W := by
   have _pin := Classical.em True
   intro D₁ D₂ D₃ hgm hX a b h hκ P hQ1 hQ2 hQ12
   have hrat : (placeOfPoint P).IsRational :=
@@ -3495,15 +3500,15 @@ theorem kw_dcao_specLineOrdMatch_allAffine_proved :
   set x₂ := D₂.ι (polyToFunctionField W X) with hx2d
   set y₁ := D₁.ι (yGen W) with hy1d
   set y₂ := D₂.ι (yGen W) with hy2d
-  set Λ := kw_dcao_lineSlope D₁ D₂ with hΛd
+  set Λ := lineSlope D₁ D₂ with hΛd
   have hXne : x₁ ≠ x₂ := hX
   have hδne : x₁ - x₂ ≠ 0 := sub_ne_zero.mpr hXne
   set b' := W.toAffine.negY a b with hb'd
-  have hLne := kw_dcao_specLine_ne_zero_of_hgm D₁ D₂ D₃ hgm hX h
-  have hL'ne : kw_dcao_specLine D₁ D₂ a b' ≠ 0 :=
-    kw_dcao_specLine_ne_zero_of_hgm D₁ D₂ D₃ hgm hX
+  have hLne := specLine_ne_zero_of_hgm D₁ D₂ D₃ hgm hX h
+  have hL'ne : specLine D₁ D₂ a b' ≠ 0 :=
+    specLine_ne_zero_of_hgm D₁ D₂ D₃ hgm hX
       ((Affine.nonsingular_neg a b).mpr h)
-  have hVne := kw_dcao_specVert_ne_zero_of_hgm D₁ D₂ D₃ hgm a
+  have hVne := specVert_ne_zero_of_hgm D₁ D₂ D₃ hgm a
   have hmemOfD : ∀ (D : IsogenyEndDatum W) {r s hns},
       D.geomMorph P = Point.some r s hns →
       D.ι (polyToFunctionField W X) ∈ (placeOfPoint P).toValuationSubring
@@ -3515,7 +3520,7 @@ theorem kw_dcao_specLineOrdMatch_allAffine_proved :
       rcases eq_or_ne (D.ι (algebraMap _ _ g)) 0 with h0 | hne
       · exact h0 ▸ zero_mem _
       · refine (placeOfPoint P).mem_of_ord_nonneg hne ?_
-        rw [kw_dcao_ord_Dtransport D, hDeq, placeOfPoint_some]
+        rw [ord_Dtransport D, hDeq, placeOfPoint_some]
         exact ord_placeOfEquation_nonneg hns.left g
     exact ⟨by rw [polyToFunctionField_apply, algebraMap_polynomial_eq_mk_C]; exact hmem _,
       hmem _⟩
@@ -3533,7 +3538,7 @@ theorem kw_dcao_specLineOrdMatch_allAffine_proved :
   obtain ⟨hex2, hey2⟩ := mmr73_cs_geomMorph_some_coords D₂ P hQ2eq hx2m hy2m
   rw [← hx1d] at hx1m hex1; rw [← hy1d] at hy1m hey1
   rw [← hx2d] at hx2m hex2; rw [← hy2d] at hy2m hey2
-  obtain ⟨Ds, hXs, hYs, hgms⟩ := kw_dcao_sumDatum_Y_of_hgm D₁ D₂ D₃ hgm hX
+  obtain ⟨Ds, hXs, hYs, hgms⟩ := sumDatum_Y_of_hgm D₁ D₂ D₃ hgm hX
   obtain ⟨rs, ss, hnss, hQseq⟩ : ∃ r s hns, Ds.geomMorph P = Point.some r s hns := by
     rcases hQ : Ds.geomMorph P with _ | ⟨r, s, hns⟩
     · exact absurd ((hgms P).symm.trans (show Ds.geomMorph P = 0 by exact_mod_cast hQ)) hQ12
@@ -3623,19 +3628,19 @@ theorem kw_dcao_specLineOrdMatch_allAffine_proved :
           (by rw [(placeOfPoint P).ord_inv, hσord]; omega)
       rw [show Λ = ξ * σ⁻¹ by field_simp; linear_combination hΛσ]
       exact mul_mem hξm hσinv
-  set u := (placeOfPoint P).ord (kw_dcao_specLine D₁ D₂ a b) with hud
-  set v := (placeOfPoint P).ord (kw_dcao_specLine D₁ D₂ a b') with hvd
-  have hLform1 : ∀ c : F, kw_dcao_specLine D₁ D₂ a c
+  set u := (placeOfPoint P).ord (specLine D₁ D₂ a b) with hud
+  set v := (placeOfPoint P).ord (specLine D₁ D₂ a b') with hvd
+  have hLform1 : ∀ c : F, specLine D₁ D₂ a c
       = (algebraMap F W.FunctionField c - y₁)
         - Λ * (algebraMap F W.FunctionField a - x₁) := by
     intro c
     show (_ - _ - _ : W.FunctionField) = _
-    rw [show kw_dcao_lineIntercept D₁ D₂ = y₁ - Λ * x₁ from rfl]; ring
-  have hLform2 : ∀ c : F, kw_dcao_specLine D₁ D₂ a c
+    rw [show lineIntercept D₁ D₂ = y₁ - Λ * x₁ from rfl]; ring
+  have hLform2 : ∀ c : F, specLine D₁ D₂ a c
       = (algebraMap F W.FunctionField c - y₂)
         - Λ * (algebraMap F W.FunctionField a - x₂) := by
     intro c; rw [hLform1 c]; linear_combination hΛδ
-  have hLform3 : ∀ c : F, kw_dcao_specLine D₁ D₂ a c
+  have hLform3 : ∀ c : F, specLine D₁ D₂ a c
       = (es1a6_addSumY W D₁.ι D₂.ι + algebraMap F W.FunctionField (c + W.a₃)
           + algebraMap F W.FunctionField W.a₁ * es1a6_addSumX W D₁.ι D₂.ι)
         - Λ * (algebraMap F W.FunctionField a - es1a6_addSumX W D₁.ι D₂.ι) := by
@@ -3646,7 +3651,7 @@ theorem kw_dcao_specLineOrdMatch_allAffine_proved :
     ring
   have ham : algebraMap F W.FunctionField a
       ∈ (placeOfPoint P).toValuationSubring := (placeOfPoint P).algebraMap_mem' a
-  have hLmem : ∀ c : F, kw_dcao_specLine D₁ D₂ a c
+  have hLmem : ∀ c : F, specLine D₁ D₂ a c
       ∈ (placeOfPoint P).toValuationSubring := fun c => by
     rw [hLform1 c]
     exact sub_mem (sub_mem ((placeOfPoint P).algebraMap_mem' c) hy1m)
@@ -3656,14 +3661,14 @@ theorem kw_dcao_specLineOrdMatch_allAffine_proved :
   have hκne : algebraMap F W.FunctionField (b - b') ≠ 0 :=
     fun hc => hκ (sub_eq_zero.mp
       ((algebraMap F W.FunctionField).injective (by rw [hc, _root_.map_zero])))
-  have hdiff := kw_dcao_specLine_negY_diff D₁ D₂ a b
+  have hdiff := specLine_negY_diff D₁ D₂ a b
   have hκord : (placeOfPoint P).ord (algebraMap F W.FunctionField (b - b')) = 0 :=
     (placeOfPoint P).ord_algebraMap _
   have huv0 : u = 0 ∨ v = 0 := by
     by_contra hno; rw [not_or] at hno
     have hup : 0 < u := lt_of_le_of_ne hunn (Ne.symm hno.1)
-    have heq : kw_dcao_specLine D₁ D₂ a b'
-        = kw_dcao_specLine D₁ D₂ a b
+    have heq : specLine D₁ D₂ a b'
+        = specLine D₁ D₂ a b
           + -(algebraMap F W.FunctionField (b - b')) := by rw [← hdiff]; ring
     have hvcalc : v = min u 0 := by
       rw [hvd, heq, (placeOfPoint P).ord_add_eq_min hLne (neg_ne_zero.mpr hκne)
@@ -3679,10 +3684,10 @@ theorem kw_dcao_specLineOrdMatch_allAffine_proved :
       (hexj : (placeOfPoint P).evalAt xj = a)
       (c : F)
       (heyj : (placeOfPoint P).evalAt yj = c)
-      (hform : kw_dcao_specLine D₁ D₂ a c
+      (hform : specLine D₁ D₂ a c
         = (algebraMap F W.FunctionField c - yj)
           - Λ * (algebraMap F W.FunctionField a - xj)),
-      (placeOfPoint P).evalAt (kw_dcao_specLine D₁ D₂ a c) = 0 := by
+      (placeOfPoint P).evalAt (specLine D₁ D₂ a c) = 0 := by
     intro xj yj hxjm hyjm hexj c heyj hform
     rw [hform,
       (placeOfPoint P).evalAt_sub hrat
@@ -3732,7 +3737,7 @@ theorem kw_dcao_specLineOrdMatch_allAffine_proved :
   have hbb' : b + b' + W.a₁ * a + W.a₃ = 0 := by
     rw [hb'd]; unfold Affine.negY; ring
   have hforce3 : ∀ c : F, rs = a → ss + c + W.a₁ * a + W.a₃ = 0 →
-      (placeOfPoint P).evalAt (kw_dcao_specLine D₁ D₂ a c) = 0 := by
+      (placeOfPoint P).evalAt (specLine D₁ D₂ a c) = 0 := by
     intro c hrsa hssc
     rw [hLform3 c,
       (placeOfPoint P).evalAt_sub hrat
@@ -3765,13 +3770,13 @@ theorem kw_dcao_specLineOrdMatch_allAffine_proved :
       refine hopz hLne (hLmem b) (hforce3 b heq.1 ?_)
       linear_combination hbb' + heq.2
     · left; exact hne
-  have hSum := kw_dcao_specLine_ord_sum D₁ D₂ D₃ hgm hX h P
-  rw [kw_dcao_ord_aSubX_formula h (D₁.geomMorph P),
-    kw_dcao_ord_aSubX_formula h (D₂.geomMorph P),
-    kw_dcao_ord_aSubX_formula h (D₁.geomMorph P + D₂.geomMorph P)] at hSum
+  have hSum := specLine_ord_sum D₁ D₂ D₃ hgm hX h P
+  rw [ord_aSubX_formula h (D₁.geomMorph P),
+    ord_aSubX_formula h (D₂.geomMorph P),
+    ord_aSubX_formula h (D₁.geomMorph P + D₂.geomMorph P)] at hSum
   simp only [if_neg hQ1, if_neg hQ2, if_neg hQ12, mul_zero, sub_zero,
     ← hb'd] at hSum
-  rw [kw_dcao_ord_aSubX_formula h (D₁.geomMorph P + D₂.geomMorph P),
+  rw [ord_aSubX_formula h (D₁.geomMorph P + D₂.geomMorph P),
     if_neg hQ1, if_neg hQ2, if_neg hQ12]
   simp only [mul_zero, sub_zero, ← hLdef, ← hud, ← hvd] at hSum ⊢
   set l₁ : ℤ := if D₁.geomMorph P = L then 1 else 0 with hl1d
@@ -3809,13 +3814,13 @@ namespace Affine
 section GeneralW
 variable {F : Type u} [Field F] [DecidableEq F] [IsAlgClosed F] [CharZero F]
 variable {W : Affine F} [W.IsElliptic] [WeierstrassCurve.Affine.GenusOnePlaceGate W] [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred W] [WeierstrassCurve.Affine.AbelTheorem W]
-local instance kw_dcao_wire_instHPD : HasPrincipalDivisors F W.FunctionField :=
+local instance wire_instHPD : HasPrincipalDivisors F W.FunctionField :=
   hasPrincipalDivisors_functionField _
 
-abbrev kw_dcao_specExplicit (D₁ D₂ : IsogenyEndDatum W) (a b : F) : W.FunctionField :=
-  kw_dcao_specVert D₁ D₂ a * (kw_dcao_specLine D₁ D₂ a b)⁻¹
+abbrev specExplicit (D₁ D₂ : IsogenyEndDatum W) (a b : F) : W.FunctionField :=
+  specVert D₁ D₂ a * (specLine D₁ D₂ a b)⁻¹
 
-theorem kw_dcao_defect_pointDivisor_coeff (D₁ D₂ D₃ : IsogenyEndDatum W)
+theorem defect_pointDivisor_coeff (D₁ D₂ D₃ : IsogenyEndDatum W)
     (hgm : ∀ P, D₃.geomMorph P = D₁.geomMorph P + D₂.geomMorph P) (L P : W.Point) :
     (Divisor.pullbackAlong D₃.ι D₃.hι
         (pointDivisor L : Divisor F W.FunctionField)
@@ -3830,18 +3835,18 @@ theorem kw_dcao_defect_pointDivisor_coeff (D₁ D₂ D₃ : IsogenyEndDatum W)
         - ((if D₁.geomMorph P + D₂.geomMorph P = 0 then 1 else 0)
           - (if D₁.geomMorph P = 0 then 1 else 0)
           - (if D₂.geomMorph P = 0 then 1 else 0)) := by
-  have h1 := kw_dcao_unramified_proved D₁
-  have h2 := kw_dcao_unramified_proved D₂
-  have h3 := kw_dcao_unramified_proved D₃
-  have hL := kw_dcao_defect_pullback_placeOfPoint_apply_of_unramified D₁ D₂ D₃ h1 h2 h3 L P
-  have h0 := kw_dcao_defect_pullback_placeOfPoint_apply_of_unramified D₁ D₂ D₃ h1 h2 h3 0 P
+  have h1 := unramified_proved D₁
+  have h2 := unramified_proved D₂
+  have h3 := unramified_proved D₃
+  have hL := defect_pullback_placeOfPoint_apply_of_unramified D₁ D₂ D₃ h1 h2 h3 L P
+  have h0 := defect_pullback_placeOfPoint_apply_of_unramified D₁ D₂ D₃ h1 h2 h3 0 P
   rw [hgm P] at hL h0
   simp only [coe_pointDivisor, map_sub, ← sub_sub, Finsupp.sub_apply] at *
   linear_combination hL - h0
 
-theorem kw_dcao_defectPrincipalPerPoint_of_specLineOrdMatchHgm
-    (hSLO : KwDCAOSpecLineOrdMatchHgm W) :
-    KwDCAODefectPrincipalPerPoint W := by
+theorem defectPrincipalPerPoint_of_specLineOrdMatchHgm
+    (hSLO : SpecLineOrdMatchHgm W) :
+    DefectPrincipalPerPoint W := by
   intro D₁ D₂ D₃ hgm hX L
   rcases L with _ | ⟨a, b, h⟩
   ·
@@ -3852,30 +3857,30 @@ theorem kw_dcao_defectPrincipalPerPoint_of_specLineOrdMatchHgm
       h0, _root_.map_zero, _root_.map_zero, _root_.map_zero, zero_add, sub_zero]
     exact Divisor.principal.zero_mem
   ·
-    have hVne := kw_dcao_specVert_ne_zero_of_hgm D₁ D₂ D₃ hgm a
+    have hVne := specVert_ne_zero_of_hgm D₁ D₂ D₃ hgm a
     obtain ⟨hLne, hLord⟩ := hSLO D₁ D₂ D₃ hgm hX h
-    have hne : kw_dcao_specExplicit D₁ D₂ a b ≠ 0 :=
+    have hne : specExplicit D₁ D₂ a b ≠ 0 :=
       mul_ne_zero hVne (inv_ne_zero hLne)
-    refine ⟨kw_dcao_specExplicit D₁ D₂ a b, hne, fun v => ?_⟩
+    refine ⟨specExplicit D₁ D₂ a b, hne, fun v => ?_⟩
     set P := (placeOfPointEquiv W).symm v with hP
     have hv : v = placeOfPoint P := (placeOfPoint_placeOfPointEquiv_symm W v).symm
-    have hcoeff := kw_dcao_defect_pointDivisor_coeff D₁ D₂ D₃ hgm (Point.some a b h) P
+    have hcoeff := defect_pointDivisor_coeff D₁ D₂ D₃ hgm (Point.some a b h) P
     rw [hv, hcoeff,
-      show kw_dcao_specExplicit D₁ D₂ a b
-        = kw_dcao_specVert D₁ D₂ a * (kw_dcao_specLine D₁ D₂ a b)⁻¹ from rfl,
+      show specExplicit D₁ D₂ a b
+        = specVert D₁ D₂ a * (specLine D₁ D₂ a b)⁻¹ from rfl,
       (placeOfPoint P).ord_mul hVne (inv_ne_zero hLne), (placeOfPoint P).ord_inv,
-      kw_dcao_ord_specVert_eq_transport D₁ D₂ D₃ hgm hX a P, hLord P]
+      ord_specVert_eq_transport D₁ D₂ D₃ hgm hX a P, hLord P]
     ring
 
-theorem kw_dcao_htw_of_specLineOrdMatchHgm (hSLO : KwDCAOSpecLineOrdMatchHgm W) :
-    KwDualTraceWitness W :=
-  kw_dcao_htw_of_defectPrincipal
-    (kw_dcao_defectPrincipalPerPoint_of_specLineOrdMatchHgm hSLO)
+theorem htw_of_specLineOrdMatchHgm (hSLO : SpecLineOrdMatchHgm W) :
+    DualTraceWitness W :=
+  htw_of_defectPrincipal
+    (defectPrincipalPerPoint_of_specLineOrdMatchHgm hSLO)
 
-theorem kw_dcao_htw_of_allAffine (hAA : KwDCAOSpecLineOrdMatchAllAffine W) :
-    KwDualTraceWitness W :=
-  kw_dcao_htw_of_specLineOrdMatchHgm
-    (kw_dcao_specLineOrdMatch_hgm_of_allAffine hAA)
+theorem htw_of_allAffine (hAA : SpecLineOrdMatchAllAffine W) :
+    DualTraceWitness W :=
+  htw_of_specLineOrdMatchHgm
+    (specLineOrdMatch_hgm_of_allAffine hAA)
 end GeneralW
 end WeierstrassCurve.Affine
 section Guards
@@ -3893,8 +3898,8 @@ section GeneralW
 variable {F : Type u} [Field F] [DecidableEq F] [IsAlgClosed F] [CharZero F]
 variable {W : Affine F} [W.IsElliptic] [WeierstrassCurve.Affine.GenusOnePlaceGate W] [WeierstrassCurve.Affine.GenusOnePlaceGate.IsCentred W] [WeierstrassCurve.Affine.AbelTheorem W]
 
-theorem kw_dcao_htw_proved : KwDualTraceWitness W :=
-  kw_dcao_htw_of_allAffine kw_dcao_specLineOrdMatch_allAffine_proved
+theorem htw_proved : DualTraceWitness W :=
+  htw_of_allAffine specLineOrdMatch_allAffine_proved
 end GeneralW
 end WeierstrassCurve.Affine
 end
@@ -3913,10 +3918,10 @@ private theorem solution
     (hNs : ∀ D : IsogenyEndDatum W, NormFormulaAlong F D.ι D.hfin) (D : IsogenyEndDatum W) :
     ∃ DD : AddMonoid.End.DualEndData (D.pointEnd (hNs D)),
       DD.dual ∈ isogenyEndSubring W hNs ∧ DD.norm = finrankAlong F D.ι := by
-  have htw : KwDualTraceWitness W := kw_dcao_htw_proved
+  have htw : DualTraceWitness W := htw_proved
   have hfun : hNs = fun D => D.normFormulaAlong_auto := rfl
   subst hfun
-  exact ⟨kw_dualEndData_of_traceWitness htw D, kw_dualInSubring_of_traceWitness htw D, rfl⟩
+  exact ⟨dualEndData_of_traceWitness htw D, dualInSubring_of_traceWitness htw D, rfl⟩
 
 theorem WeierstrassCurve.Affine.IsogenyEndDatum.exists_dualEndData_dual_mem_and_norm_eq_finrankAlong
     {F : Type u} [Field F] [DecidableEq F] [IsAlgClosed F] [CharZero F]

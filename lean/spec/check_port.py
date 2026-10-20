@@ -59,6 +59,17 @@ Policy.  Legacy modules stay on `spec/check_flt_statements.py` and its lists
 until they are edited for another reason; a module is migrated by adding its
 `spec-pin:` lines (the old checker ignores them and keeps working).  The aim is
 that no central file needs an entry per module again.
+
+Residual `kw*`/`Kw*` names fail.  A public or private declaration of a wired
+module whose last name matches the checker's shared `KW_PREFIX_RE`, or whose
+full name contains a capital-`Kw` segment matching `KW_FAMILY_RE`, is reported
+`KW-NAME` and fails the module.  The lowercase matcher is the one `norm` erases,
+not a re-spelling of it, so a pattern the normalisation ignores is also a
+pattern the guard ignores; a `kw` inside a word, or a `kw` form `norm` does not
+strip, is not a failure.  The capital-`Kw` matcher is a name policy for the
+`Kw` family (`KwD5…`, `KwF4…`, `KwTate…`, a `Kw…` namespace); the exact `Kw`
+abbreviation (`ArchInfra`'s row-isometry subgroup) is not a family name and is
+not matched.  The pin side keeps its `kw*`/`Kw*` names; only the port is checked.
 """
 from __future__ import annotations
 
@@ -266,8 +277,26 @@ def check_module(path: Path, db, rel: str | None = None) -> dict | None:
     wire = Wire(db, files)
     wire.sources = sources
     decls = []
-    counts = {"ok": 0, "mismatch": 0, "missing": 0, "own": 0}
+    counts = {"ok": 0, "mismatch": 0, "missing": 0, "own": 0, "kw": 0}
     for line, end_line, name, _key, last, kind, priv, _anon, stmt, raw, h in rows:
+        # A residual `kw*` name in the port is a naming regression.  The
+        # matcher is the one `norm` erases (old_check_stmts.KW_PREFIX_RE), shared
+        # rather than re-spelled, so the guard and the normalisation cannot
+        # drift.  This is a name check, not a statement check: the content tier
+        # would happily match a `kw_foo` against the pin's `foo` because a
+        # declaration's own name is not in its statement.
+        m = CK.KW_PREFIX_RE.search(last) if last else None
+        mfam = CK.KW_FAMILY_RE.search(name) if name else None
+        if m or mfam:
+            counts["kw"] += 1
+            hit = m.group(0) if m else mfam.group(0)
+            how = "kw-prefix" if m else "Kw-family"
+            decls.append({"name": name, "kind": kind, "line": line,
+                          "verdict": "kw", "how": how,
+                          "note": (f"residual `{hit}`; the port name guard rejects "
+                                   f"it, so rename the declaration/namespace"),
+                          "pin": "", "port": "", "pin_sig": ""})
+            continue
         if priv:                                          # a private helper is invisible
             continue
         row = {"name": name, "last": last, "kind": kind, "stmt": stmt,
@@ -318,18 +347,18 @@ def content_sha1(path: Path) -> str:
 # ---------------------------------------------------------------------- output
 def print_module(res: dict, cached: bool, checked_at: str | None) -> None:
     c = res["counts"]
-    status = "ok" if not (c["mismatch"] or c["missing"]) else "FAIL"
+    status = "ok" if not (c["mismatch"] or c["missing"] or c.get("kw")) else "FAIL"
     tail = (f"cached, checked {checked_at}" if cached
             else f"checked now ({time.strftime('%H:%M:%S')})")
     print(f"{res['module']}  [{status}]  "
           f"{c['ok']} ok, {c['mismatch']} mismatch, {c['missing']} missing, "
-          f"{c['own']} own — {tail}")
+          f"{c['own']} own, {c.get('kw', 0)} kw — {tail}")
     for rel in res.get("unknown_sources", []):
         print(f"  UNKNOWN PIN FILE  {rel}")
     for d in res["decls"]:
         mark = {"ok": "ok     ", "own": "own    ", "mismatch": "MISMATCH",
-                "missing": "MISSING"}[d["verdict"]]
-        if d["verdict"] in ("mismatch", "missing"):
+                "missing": "MISSING", "kw": "KW-NAME"}[d["verdict"]]
+        if d["verdict"] in ("mismatch", "missing", "kw"):
             print(f"  {mark} {d['name']}  ({d['how'] or 'no match'})")
             if d.get("port"):
                 print(f"           port: {d['port'][:300]}")
@@ -406,7 +435,8 @@ def main() -> int:
         print(f"{'module':70s}  {'checked at':19s}  verdict")
         for mod, e in rows:
             c = e.get("counts", {})
-            v = "ok" if not (c.get("mismatch") or c.get("missing")) else "FAIL"
+            v = "ok" if not (c.get("mismatch") or c.get("missing")
+                             or c.get("kw")) else "FAIL"
             here = (LEAN / mod)
             now = content_sha1(here) if here.exists() else ""
             fresh = "" if now == e.get("sha1") and state_corpus_ok else "  (edited)"
@@ -473,21 +503,22 @@ def main() -> int:
                 c = res["counts"]
                 print(f"{res['module']}  [cached]  {c.get('ok', 0)} ok, "
                       f"{c.get('mismatch', 0)} mismatch, {c.get('missing', 0)} missing, "
-                      f"{c.get('own', 0)} own")
+                      f"{c.get('own', 0)} own, {c.get('kw', 0)} kw")
             else:
                 print_module(res, cached, at)
-        total = {"ok": 0, "mismatch": 0, "missing": 0, "own": 0}
+        total = {"ok": 0, "mismatch": 0, "missing": 0, "own": 0, "kw": 0}
         for res, _c, _t in results:
             for k, v in res["counts"].items():
                 total[k] = total.get(k, 0) + v
         print(f"{total['ok']} ok, {total['mismatch']} mismatch, {total['missing']} "
-              f"missing, {total['own']} own — {len(results)} module(s), "
+              f"missing, {total['own']} own, {total['kw']} kw — {len(results)} module(s), "
               f"{checked} checked, {len(results) - checked} cached"
               + (f", {exempt_count} exempt (PORT_FILES)" if exempt_count else "")
               + f"; corpus {str(stamp.get('pin_commit'))[:7]}")
 
     bad = any(r["counts"].get("mismatch") or r["counts"].get("missing")
-              or r.get("unknown_sources") for r, _c, _t in results)
+              or r["counts"].get("kw") or r.get("unknown_sources")
+              for r, _c, _t in results)
     return 1 if bad else 0
 
 

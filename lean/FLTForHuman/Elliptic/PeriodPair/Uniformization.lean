@@ -1244,7 +1244,7 @@ theorem isUniformization_toPoint (L : PeriodPair) (h : L.DiscriminantNeZero) :
 The pin's `S_WeierstrassCurve_Affine_*_baseChange_algHom` / `_exists_algHom_baseChange_*`
 files carry a second copy of the uniformization prelude in which `toPointHom` is the
 additive packaging of `toPoint` and `toPointAddEquiv` the `ℂ ⧸ Λ ≃+ E(ℂ)` isomorphism.
-The `KwD5BetweenCurvesHoloLift` seam (which set D-5 declares) and the S row both
+The `BetweenCurvesHoloLift` seam (which set D-5 declares) and the S row both
 consume them, so they are written **once** here, publicly, at the prefix-stripped pin
 name (work order P-2e §1.5; P-2 §3.2 — a promotion, verified through the checker's
 `stripped_source` fallback). -/

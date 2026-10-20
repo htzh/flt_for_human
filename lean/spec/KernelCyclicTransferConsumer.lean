@@ -13,7 +13,7 @@
   Executed zones (each a real composition, no `#check`, no `sorry`; deleting
   `KernelCyclicTransfer.lean` makes every one of them fail):
 
-  * zone 1 — the seam `ModularCurve.KwD5BetweenCurvesPMOPConjKerEquiv`, produced by the
+  * zone 1 — the seam `ModularCurve.BetweenCurvesPMOPConjKerEquiv`, produced by the
     pin's `pck_s17`, is instantiated at a pair of `PeriodPair`s: the cyclicity of the
     kernel of the conjugated endomorphism is derived from the hypothesis that `ι`'s
     kernel is cyclic.  The `PeriodPair` gate instances are hypotheses: the port has no
@@ -24,11 +24,11 @@
   * zone 2 — the headline itself, in hypothesis form, at four curves of `ℂ`: both
     conjuncts (cyclicity transfer and the kernel-cardinality equality), the second
     composed with the imported `natCard_ker_pointMapOfPushforward_eq_finrankAlong`;
-  * zone 3 — the `algEquiv` engine: `kw_surgehgf4_pck_pmop_equiv_bijective` turns the
+  * zone 3 — the `algEquiv` engine: `pmop_equiv_bijective` turns the
     conjugation pushforward into an `AddEquiv` of the two point groups, and
-    `kw_surgehgf4_pck_pmop_equiv_left_inv` is the resulting round trip;
+    `pmop_equiv_left_inv` is the resulting round trip;
   * zone 4 — the identity leg at the concrete curve `y² = x³ + 1` over `ℂ`:
-    `kw_surgehgf4_pck_pmop_id` identifies the identity pushforward with the ported
+    `pmop_id` identifies the identity pushforward with the ported
     `IsogenyEndDatum.idDatum`'s point map, which the imported `idDatum_pointEnd` then
     evaluates.
 -/
@@ -67,11 +67,11 @@ example (E E' : WeierstrassCurve.Affine ℂ) [E.IsElliptic] [E'.IsElliptic]
     (hfin : FiniteAlong ℂ ι)
     (eE : L.weierstrassCurve.toAffine.FunctionField ≃ₐ[ℂ] E.FunctionField)
     (eE' : L'.weierstrassCurve.toAffine.FunctionField ≃ₐ[ℂ] E'.FunctionField)
-    (hι'' : (ModularCurve.kw_fdn2_qephod_hend21_conjSeam eE eE' ι).toRingHom.IsIntegral)
-    (hfin'' : FiniteAlong ℂ (ModularCurve.kw_fdn2_qephod_hend21_conjSeam eE eE' ι))
+    (hι'' : (ModularCurve.conjSeam eE eE' ι).toRingHom.IsIntegral)
+    (hfin'' : FiniteAlong ℂ (ModularCurve.conjSeam eE eE' ι))
     (hcyc : IsAddCyclic (pointMapOfPushforward ι hι hfin (normFormulaAlong_of_elliptic ι hfin)).ker) :
     IsAddCyclic (AddMonoidHom.ker (pointMapOfPushforward
-        (ModularCurve.kw_fdn2_qephod_hend21_conjSeam eE eE' ι) hι'' hfin''
+        (ModularCurve.conjSeam eE eE' ι) hι'' hfin''
         (normFormulaAlong_of_elliptic _ hfin''))) :=
   pck_s17 E E' ι hι hfin L L' eE eE' hι'' hfin'' hcyc
 
@@ -84,15 +84,15 @@ example (E E' D D' : WeierstrassCurve.Affine ℂ) [E.IsElliptic] [E'.IsElliptic]
     (ι : E'.FunctionField →ₐ[ℂ] E.FunctionField) (hι : ι.toRingHom.IsIntegral)
     (hfin : FiniteAlong ℂ ι) (hN : NormFormulaAlong ℂ ι hfin)
     (eE : D.FunctionField ≃ₐ[ℂ] E.FunctionField) (eE' : D'.FunctionField ≃ₐ[ℂ] E'.FunctionField)
-    (hι'' : (ModularCurve.kw_fdn2_qephod_hend21_conjSeam eE eE' ι).toRingHom.IsIntegral)
-    (hfin'' : FiniteAlong ℂ (ModularCurve.kw_fdn2_qephod_hend21_conjSeam eE eE' ι))
-    (hN'' : NormFormulaAlong ℂ (ModularCurve.kw_fdn2_qephod_hend21_conjSeam eE eE' ι) hfin'')
+    (hι'' : (ModularCurve.conjSeam eE eE' ι).toRingHom.IsIntegral)
+    (hfin'' : FiniteAlong ℂ (ModularCurve.conjSeam eE eE' ι))
+    (hN'' : NormFormulaAlong ℂ (ModularCurve.conjSeam eE eE' ι) hfin'')
     (hcyc : IsAddCyclic (pointMapOfPushforward ι hι hfin hN).ker) :
-    IsAddCyclic (pointMapOfPushforward (ModularCurve.kw_fdn2_qephod_hend21_conjSeam eE eE' ι)
+    IsAddCyclic (pointMapOfPushforward (ModularCurve.conjSeam eE eE' ι)
         hι'' hfin'' hN'').ker ∧
-      Nat.card (pointMapOfPushforward (ModularCurve.kw_fdn2_qephod_hend21_conjSeam eE eE' ι)
+      Nat.card (pointMapOfPushforward (ModularCurve.conjSeam eE eE' ι)
         hι'' hfin'' hN'').ker = finrankAlong ℂ ι := by
-  have hconj : ∀ x, eE (ModularCurve.kw_fdn2_qephod_hend21_conjSeam eE eE' ι x) = ι (eE' x) :=
+  have hconj : ∀ x, eE (ModularCurve.conjSeam eE eE' ι x) = ι (eE' x) :=
     fun x => eE.apply_symm_apply (ι (eE' x))
   have h := WeierstrassCurve.Affine.isAddCyclic_ker_pointMapOfPushforward_of_algEquiv_conj
     E E' D D' ι hι hfin hN eE eE' _ hconj hι'' hfin'' hN'' hcyc
@@ -105,23 +105,23 @@ example (W V : WeierstrassCurve.Affine ℂ) [W.IsElliptic] [V.IsElliptic]
     (e : W.FunctionField ≃ₐ[ℂ] V.FunctionField) :
     Nonempty (W.Point ≃+ V.Point) :=
   ⟨AddEquiv.ofBijective _
-    (ModularCurve.kw_surgehgf4_pck_pmop_equiv_bijective e.symm)⟩
+    (ModularCurve.pmop_equiv_bijective e.symm)⟩
 
 example (W V : WeierstrassCurve.Affine ℂ) [W.IsElliptic] [V.IsElliptic]
     [GenusOnePlaceGate W] [GenusOnePlaceGate.IsCentred W] [AbelTheorem W]
     [GenusOnePlaceGate V] [GenusOnePlaceGate.IsCentred V] [AbelTheorem V]
     (e : W.FunctionField ≃ₐ[ℂ] V.FunctionField) (P : W.Point) :
     pointMapOfPushforward e.toAlgHom
-        (ModularCurve.kw_surgehgf4_pck_algEquiv_isIntegral e)
-        (ModularCurve.kw_surgehgf4_pck_algEquiv_finiteAlong e)
-        (normFormulaAlong_of_elliptic _ (ModularCurve.kw_surgehgf4_pck_algEquiv_finiteAlong e))
+        (ModularCurve.algEquiv_isIntegral e)
+        (ModularCurve.algEquiv_finiteAlong e)
+        (normFormulaAlong_of_elliptic _ (ModularCurve.algEquiv_finiteAlong e))
         (pointMapOfPushforward e.symm.toAlgHom
-          (ModularCurve.kw_surgehgf4_pck_algEquiv_isIntegral e.symm)
-          (ModularCurve.kw_surgehgf4_pck_algEquiv_finiteAlong e.symm)
+          (ModularCurve.algEquiv_isIntegral e.symm)
+          (ModularCurve.algEquiv_finiteAlong e.symm)
           (normFormulaAlong_of_elliptic _
-            (ModularCurve.kw_surgehgf4_pck_algEquiv_finiteAlong e.symm)) P)
+            (ModularCurve.algEquiv_finiteAlong e.symm)) P)
       = P :=
-  ModularCurve.kw_surgehgf4_pck_pmop_equiv_left_inv e P
+  ModularCurve.pmop_equiv_left_inv e P
 
 -- Zone 4: the identity leg at the concrete curve `W1` (gates as hypotheses).
 example [GenusOnePlaceGate W1.toAffine] [GenusOnePlaceGate.IsCentred W1.toAffine]
@@ -131,7 +131,7 @@ example [GenusOnePlaceGate W1.toAffine] [GenusOnePlaceGate.IsCentred W1.toAffine
     pointMapOfPushforward (AlgHom.id ℂ W1.toAffine.FunctionField) hι hfin
         (normFormulaAlong_of_elliptic _ hfin) P
       = (IsogenyEndDatum.idDatum W1.toAffine).pointEnd' P := by
-  rw [ModularCurve.kw_surgehgf4_pck_pmop_id hι hfin P,
+  rw [ModularCurve.pmop_id hι hfin P,
     IsogenyEndDatum.idDatum_pointEnd W1.toAffine]
   rfl
 

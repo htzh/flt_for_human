@@ -27,6 +27,15 @@ origin.
 
 Reference (public mirror, pinned):
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_Affine_natCard_ker_pointMapOfPushforward_eq_finrankAlong_of_separableAlong.lean>
+
+  spec-pin: Theorems/Thm_AlgebraicCurve_Place_eq_ofHeightOneSpectrum_of_XClass_mem_nonunits_of_YClass_mem_nonunits.lean
+  spec-pin: Theorems/Thm_AlgebraicCurve_Place_restrictAlong_surjective.lean
+  spec-pin: Theorems/Thm_WeierstrassCurve_Affine_FunctionField_exists_eq_valuationSubring_of_X_mem.lean
+  spec-pin: Theorems/Thm_WeierstrassCurve_Affine_natCard_ker_pointMapOfPushforward_eq_finrankAlong_of_separableAlong.lean
+  spec-pin: P2M/Sol/S_WeierstrassCurve_Affine_natCard_ker_pointMapOfPushforward_eq_finrankAlong_of_separableAlong.lean
+  spec-pin: P2M/Sol/S_WeierstrassCurve_Affine_FunctionField_exists_eq_valuationSubring_of_X_mem.lean
+  spec-pin: P2M/Sol/S_AlgebraicCurve_Place_eq_ofHeightOneSpectrum_of_XClass_mem_nonunits_of_YClass_mem_nonunits.lean
+  spec-pin: P2M/Sol/S_WeierstrassCurve_exists_veluFunctionFieldHom_restrictAlong_placeOfPoint_eq_of_isAlgClosed.lean
 -/
 import FLTForHuman.WeierstrassCurve.Isogeny.ConditionalCurrency
 import FLTForHuman.WeierstrassCurve.GenusOnePlaceGate
@@ -487,7 +496,7 @@ section GeneralW
 variable {F : Type u} [Field F] [DecidableEq F] [IsAlgClosed F]
 variable {W : Affine F} [W.IsElliptic]
 
-theorem kw_point_infinite : Infinite W.Point := by
+theorem point_infinite_charFree : Infinite W.Point := by
   have hy : ∀ x : F, ∃ y : F, W.Equation x y := by
     intro x
     set q : Polynomial F := Polynomial.C (W.a₁ * x + W.a₃) * Polynomial.X
@@ -526,7 +535,7 @@ namespace ModularCurve
 
 attribute [local instance] Classical.propDecidable
 
-def KwD5PointMapOfPushforwardKerCard : Prop :=
+def PointMapOfPushforwardKerCard : Prop :=
   ∀ (K : Type u) [Field K] [DecidableEq K] [IsAlgClosed K]
     (E E' : WeierstrassCurve.Affine K) [E.IsElliptic] [GenusOnePlaceGate E] [AbelTheorem E]
     [E'.IsElliptic] [GenusOnePlaceGate E'] [AbelTheorem E']
@@ -542,7 +551,7 @@ variable {K F F' : Type*} [Field K] [Field F] [Field F'] [Algebra K F] [Algebra 
 variable [HasPrincipalDivisors K F']
 variable (φ : F →ₐ[K] F') (hφ : φ.toRingHom.IsIntegral)
 
-theorem kw_fdn2_qephod_hend5_natCard_fiber_eq_finrank_of_unramified
+theorem hend5_natCard_fiber_eq_finrank_of_unramified
     (hfin : FiniteAlong K φ) (hsep : SeparableAlong K φ)
     (hdegF : ∀ v : Place K F, v.deg = 1) (hdegF' : ∀ w : Place K F', w.deg = 1)
     (v : Place K F)
@@ -581,7 +590,7 @@ theorem kw_fdn2_qephod_hend5_natCard_fiber_eq_finrank_of_unramified
 
 end Generic
 
-def KwD5ExistsUnramifiedBetweenCurves : Prop :=
+def ExistsUnramifiedBetweenCurves : Prop :=
   ∀ (K : Type u) [Field K] [DecidableEq K] [IsAlgClosed K]
     (E E' : WeierstrassCurve.Affine K) [E.IsElliptic] [GenusOnePlaceGate E] [AbelTheorem E]
     [E'.IsElliptic] [GenusOnePlaceGate E'] [AbelTheorem E']
@@ -595,7 +604,7 @@ def KwD5ExistsUnramifiedBetweenCurves : Prop :=
       ∀ w : Place K E.FunctionField,
         w.restrict E'.FunctionField = v → w.ramificationIndex E'.FunctionField = 1
 
-def KwD5RestrictFiberEqKerPMOP : Prop :=
+def RestrictFiberEqKerPMOP : Prop :=
   ∀ (K : Type u) [Field K] [DecidableEq K] [IsAlgClosed K]
     (E E' : WeierstrassCurve.Affine K) [E.IsElliptic] [GenusOnePlaceGate E] [AbelTheorem E]
     [E'.IsElliptic] [GenusOnePlaceGate E'] [AbelTheorem E']
@@ -606,21 +615,21 @@ def KwD5RestrictFiberEqKerPMOP : Prop :=
     Nat.card {w : Place K E.FunctionField // w.restrictAlong ι hι = v}
       = Nat.card (AddMonoidHom.ker (pointMapOfPushforward ι hι hfin hN))
 
-theorem kw_fdn2_qephod_hend5_pmopKerCard_of_twoAtoms
-    (hUnram : KwD5ExistsUnramifiedBetweenCurves.{u})
-    (hFiberKer : KwD5RestrictFiberEqKerPMOP.{u}) :
-    KwD5PointMapOfPushforwardKerCard.{u} := by
+theorem hend5_pmopKerCard_of_twoAtoms
+    (hUnram : ExistsUnramifiedBetweenCurves.{u})
+    (hFiberKer : RestrictFiberEqKerPMOP.{u}) :
+    PointMapOfPushforwardKerCard.{u} := by
   intro K _ _ _ E E' _ _ _ _ _ _ _ _ ι hι hfin hsep hN
   obtain ⟨v, hv⟩ := hUnram K E E' ι hι hfin hsep
-  have h0 := kw_fdn2_qephod_hend5_natCard_fiber_eq_finrank_of_unramified ι hι hfin hsep
+  have h0 := hend5_natCard_fiber_eq_finrank_of_unramified ι hι hfin hsep
     (fun v' => WeierstrassCurve.Affine.deg_eq_one (W := E') v')
     (fun w => WeierstrassCurve.Affine.deg_eq_one (W := E) w)
     v hv
   have h2 := hFiberKer K E E' ι hι hfin hsep hN v
   exact h2.symm.trans h0
 
-theorem kw_fdn2_qephod_hend6_existsUnramifiedBetweenCurves_proved :
-    KwD5ExistsUnramifiedBetweenCurves.{u} := by
+theorem hend6_existsUnramifiedBetweenCurves_proved :
+    ExistsUnramifiedBetweenCurves.{u} := by
   intro K _ _ _ E E' _ _ _ _ _ _ _ _ ι hι hfin hsep
   classical
 
@@ -651,7 +660,7 @@ theorem kw_fdn2_qephod_hend6_existsUnramifiedBetweenCurves_proved :
     hS₁fin.union (hS₂fin.image _)
 
   haveI : Infinite (Place K E'.FunctionField) :=
-    (placeOfPointEquiv E').symm.infinite_iff.mpr (kw_point_infinite (W := E'))
+    (placeOfPointEquiv E').symm.infinite_iff.mpr (point_infinite_charFree (W := E'))
   obtain ⟨v, hv⟩ := hSfin.infinite_compl.nonempty
   simp only [Set.mem_compl_iff, Set.mem_union, not_or] at hv
   obtain ⟨hvS₁, hvS₂⟩ := hv
@@ -687,73 +696,73 @@ variable {E E' : Affine K} [GenusOnePlaceGate E] [AbelTheorem E]
 variable (ι : E'.FunctionField →ₐ[K] E.FunctionField)
 variable (hι : ι.toRingHom.IsIntegral) (hfin : FiniteAlong K ι) (hN : NormFormulaAlong K ι hfin)
 
-def kw_fdn2_qephod_hend7_geomMorphBC : E.Point → E'.Point :=
+def hend7_geomMorphBC : E.Point → E'.Point :=
   fun P => (placeOfPointEquiv E').symm ((placeOfPoint P).restrictAlong ι hι)
 
-local notation "gBC" => kw_fdn2_qephod_hend7_geomMorphBC ι hι
+local notation "gBC" => hend7_geomMorphBC ι hι
 
-theorem kw_fdn2_qephod_hend7_placeOfPoint_geomMorphBC (P : E.Point) :
+theorem hend7_placeOfPoint_geomMorphBC (P : E.Point) :
     (placeOfPoint P).restrictAlong ι hι = placeOfPoint (gBC P) :=
   (placeOfPoint_placeOfPointEquiv_symm E' _).symm
 
-theorem kw_fdn2_qephod_hend7_pushforwardDegZero_pointDivisor_geomMorphBC (P : E.Point) :
+theorem hend7_pushforwardDegZero_pointDivisor_geomMorphBC (P : E.Point) :
     Pic0.pushforwardAlongDegZero ι hι (pointDivisor P)
       = pointDivisor (gBC P) - pointDivisor (gBC 0) := by
   refine Subtype.ext ?_
   rw [Pic0.coe_pushforwardAlongDegZero, coe_pointDivisor, map_sub,
     pushforwardAlong_single_eq' ι hι, pushforwardAlong_single_eq' ι hι,
-    kw_fdn2_qephod_hend7_placeOfPoint_geomMorphBC ι hι P,
-    kw_fdn2_qephod_hend7_placeOfPoint_geomMorphBC ι hι 0]
+    hend7_placeOfPoint_geomMorphBC ι hι P,
+    hend7_placeOfPoint_geomMorphBC ι hι 0]
   push_cast
   rw [coe_pointDivisor, coe_pointDivisor, sub_sub_sub_cancel_right]
 
 include hfin in
 
-theorem kw_fdn2_qephod_hend7_pushforwardHom_pointClass_eq_sub (P : E.Point) :
+theorem hend7_pushforwardHom_pointClass_eq_sub (P : E.Point) :
     Pic0.pushforwardAlongHom ι hι hfin hN
         (pointClass P)
       = pointClass (gBC P) - pointClass (gBC 0) := by
   show Pic0.pushforwardAlongHom ι hι hfin _ (Pic0.mk (pointDivisor P))
       = Pic0.mk (pointDivisor (gBC P)) - Pic0.mk (pointDivisor (gBC 0))
   rw [Pic0.pushforwardAlongHom_mk,
-    kw_fdn2_qephod_hend7_pushforwardDegZero_pointDivisor_geomMorphBC ι hι P]
+    hend7_pushforwardDegZero_pointDivisor_geomMorphBC ι hι P]
   rfl
 
 include hfin in
 
-theorem kw_fdn2_qephod_hend7_pmop_eq_geomMorphBC_sub (P : E.Point) :
+theorem hend7_pmop_eq_geomMorphBC_sub (P : E.Point) :
     pointMapOfPushforward ι hι hfin hN P
       = gBC P - gBC 0 := by
   rw [pointMapOfPushforward_apply',
-    kw_fdn2_qephod_hend7_pushforwardHom_pointClass_eq_sub ι hι hfin hN P, map_sub,
+    hend7_pushforwardHom_pointClass_eq_sub ι hι hfin hN P, map_sub,
     genusOnePic0Equiv_apply, genusOnePic0Equiv_apply, pic0ToPoint_pointClass,
     pic0ToPoint_pointClass]
 
-def kw_fdn2_qephod_hend7_restrictAlong_fiber_equiv_pmop_fiber
+def hend7_restrictAlong_fiber_equiv_pmop_fiber
     (v : Place K E'.FunctionField) :
     {w : Place K E.FunctionField // w.restrictAlong ι hι = v}
       ≃ {P : E.Point //
           pointMapOfPushforward ι hι hfin hN P
             = (placeOfPointEquiv E').symm v - gBC 0} where
   toFun := fun ⟨w, hw⟩ => ⟨(placeOfPointEquiv E).symm w, by
-    rw [kw_fdn2_qephod_hend7_pmop_eq_geomMorphBC_sub ι hι hfin hN, sub_left_inj]
+    rw [hend7_pmop_eq_geomMorphBC_sub ι hι hfin hN, sub_left_inj]
     refine placeOfPoint_injective ?_
-    rw [← kw_fdn2_qephod_hend7_placeOfPoint_geomMorphBC ι hι,
+    rw [← hend7_placeOfPoint_geomMorphBC ι hι,
       placeOfPoint_placeOfPointEquiv_symm, hw, placeOfPoint_placeOfPointEquiv_symm]⟩
   invFun := fun ⟨P, hP⟩ => ⟨placeOfPoint P, by
-    rw [kw_fdn2_qephod_hend7_placeOfPoint_geomMorphBC ι hι P,
+    rw [hend7_placeOfPoint_geomMorphBC ι hι P,
       ← placeOfPoint_placeOfPointEquiv_symm E' v]
     congr 1
     have h : gBC P - gBC 0
         = (placeOfPointEquiv E').symm v - gBC 0 :=
-      (kw_fdn2_qephod_hend7_pmop_eq_geomMorphBC_sub ι hι hfin hN P).symm.trans hP
+      (hend7_pmop_eq_geomMorphBC_sub ι hι hfin hN P).symm.trans hP
     exact sub_left_injective h⟩
   left_inv := fun ⟨w, _⟩ => Subtype.ext (placeOfPoint_placeOfPointEquiv_symm E w)
   right_inv := fun ⟨P, _⟩ => Subtype.ext (placeOfPointEquiv_symm_placeOfPoint E P)
 
 variable (hsep : SeparableAlong K ι)
 
-def kw_fdn2_qephod_hend7_pmop_fiber_equiv_ker (R : E'.Point) :
+def hend7_pmop_fiber_equiv_ker (R : E'.Point) :
     {P : E.Point //
         pointMapOfPushforward ι hι hfin hN P = R}
       ≃ (AddMonoidHom.ker
@@ -775,18 +784,18 @@ def kw_fdn2_qephod_hend7_pmop_fiber_equiv_ker (R : E'.Point) :
 
 end GeomMorphBC
 
-theorem kw_fdn2_qephod_hend7_restrictFiberEqKerPMOP_proved :
-    KwD5RestrictFiberEqKerPMOP.{u} := by
+theorem hend7_restrictFiberEqKerPMOP_proved :
+    RestrictFiberEqKerPMOP.{u} := by
   intro K _ _ _ E E' _ _ _ _ _ _ _ _ ι hι hfin hsep hN v
   exact Nat.card_congr
-    ((kw_fdn2_qephod_hend7_restrictAlong_fiber_equiv_pmop_fiber ι hι hfin hN v).trans
-      (kw_fdn2_qephod_hend7_pmop_fiber_equiv_ker ι hι hfin hN hsep _))
+    ((hend7_restrictAlong_fiber_equiv_pmop_fiber ι hι hfin hN v).trans
+      (hend7_pmop_fiber_equiv_ker ι hι hfin hN hsep _))
 
-theorem kw_fdn2_qephod_hend7_pmopKerCard_proved :
-    KwD5PointMapOfPushforwardKerCard.{u} :=
-  kw_fdn2_qephod_hend5_pmopKerCard_of_twoAtoms
-    kw_fdn2_qephod_hend6_existsUnramifiedBetweenCurves_proved
-    kw_fdn2_qephod_hend7_restrictFiberEqKerPMOP_proved
+theorem hend7_pmopKerCard_proved :
+    PointMapOfPushforwardKerCard.{u} :=
+  hend5_pmopKerCard_of_twoAtoms
+    hend6_existsUnramifiedBetweenCurves_proved
+    hend7_restrictFiberEqKerPMOP_proved
 
 end ModularCurve
 
@@ -801,6 +810,6 @@ theorem WeierstrassCurve.Affine.natCard_ker_pointMapOfPushforward_eq_finrankAlon
     (ι : E'.FunctionField →ₐ[F] E.FunctionField) (hι : ι.toRingHom.IsIntegral)
     (hfin : FiniteAlong F ι) (hsep : SeparableAlong F ι) (hN : NormFormulaAlong F ι hfin) :
     Nat.card (pointMapOfPushforward ι hι hfin hN).ker = finrankAlong F ι :=
-  ModularCurve.kw_fdn2_qephod_hend7_pmopKerCard_proved F E E' ι hι hfin hsep hN
+  ModularCurve.hend7_pmopKerCard_proved F E E' ι hι hfin hsep hN
 
 end

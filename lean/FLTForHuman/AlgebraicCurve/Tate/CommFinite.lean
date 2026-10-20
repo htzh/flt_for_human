@@ -3,7 +3,7 @@ Tate agreement — the finiteness half: `tateCommFinite` and its discharge chain
 FLT's `P2M/Sol/S_AlgebraicCurve_tateCommFinite.lean` (1,257 ln, 53 declarations)
 (<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_tateCommFinite.lean>).
 
-This is set 3.3a's theory module.  It proves `ModularCurve.KwF4gRRTate.KwF4gRRTateCommFinite`
+This is set 3.3a's theory module.  It proves `ModularCurve.Tate.TateCommFinite`
 (the Tate commutator is finite-dimensional over the constant field) through the pin's
 chain `clearPole → poleWindowFinite → DVRQuotPowKFinite → DVRCotangentKFinite`, and
 exposes the pin's public surface at its own names.  The shared API definitions live in
@@ -28,6 +28,9 @@ locally:
 
 The pin's local `maxHeartbeats` raises are not transcribed (the project cap is
 4,000,000); the two heavy quotient steps are the only places this could bite.
+
+  spec-pin: Theorems/Thm_AlgebraicCurve_tateCommFinite.lean
+  spec-pin: P2M/Sol/S_AlgebraicCurve_tateCommFinite.lean
 -/
 import FLTForHuman.AlgebraicCurve.Defs.TateResidueCurrency
 import Mathlib.Algebra.Group.Int.TypeTags
@@ -62,7 +65,7 @@ reached here are transcribed `private` at the pin's names.  Promotion debt. -/
 
 /-! ### The `tateProj` projection -/
 
-namespace ModularCurve.KwF4gRRTate
+namespace ModularCurve.Tate
 
 section TateProj
 
@@ -110,7 +113,7 @@ def poleWindowKSubmod (πh : u.adicCompletionIntegers) (M : ℕ) :
   smul_mem' c x hx := by
     simp only [Set.mem_ofPred_eq] at hx ⊢
     rw [Algebra.smul_def, IsScalarTower.algebraMap_apply K L u.adicCompletion, mul_left_comm]
-    exact mul_mem ((kwHgfV352_algebraMap_mem_adicCompletionIntegers_iff u _).mpr
+    exact mul_mem ((algebraMap_mem_adicCompletionIntegers_iff u _).mpr
       (u.algebraMap_mem' c)) hx
 
 theorem mem_poleWindowKSubmod_iff (πh : u.adicCompletionIntegers) (M : ℕ)
@@ -122,7 +125,7 @@ theorem adicIntegersKSubmod_le_poleWindowKSubmod (πh : u.adicCompletionIntegers
     adicIntegersKSubmod u ≤ poleWindowKSubmod u πh M :=
   fun _ hx => mul_mem (pow_mem πh.2 M) hx
 
-theorem kwF4gRRTate_clearPole (πh : u.adicCompletionIntegers) (hπh : Irreducible πh)
+theorem clearPole (πh : u.adicCompletionIntegers) (hπh : Irreducible πh)
     (fh : u.adicCompletion) :
     ∃ M : ℕ, (πh : u.adicCompletion)^M * fh ∈ u.adicCompletionIntegers := by
   obtain ⟨a, b, hb, hfh⟩ := IsFractionRing.div_surjective
@@ -153,13 +156,13 @@ theorem kwF4gRRTate_clearPole (πh : u.adicCompletionIntegers) (hπh : Irreducib
 
 variable (K L) in
 
-def KwF4gRRTateClearPole : Prop :=
+def TateClearPole : Prop :=
   ∀ (u : Place K L) (πh : u.adicCompletionIntegers) (_ : Irreducible πh)
     (fh : u.adicCompletion),
     ∃ M : ℕ, (πh : u.adicCompletion)^M * fh ∈ u.adicCompletionIntegers
 
-theorem kwF4gRRTate_clearPole_discharged : KwF4gRRTateClearPole K L :=
-  fun u πh hπh fh => kwF4gRRTate_clearPole u πh hπh fh
+theorem clearPole_discharged : TateClearPole K L :=
+  fun u πh hπh fh => clearPole u πh hπh fh
 
 theorem lmul_mem_poleWindow (πh : u.adicCompletionIntegers) (M : ℕ) (fh : u.adicCompletion)
     (hM : (πh : u.adicCompletion)^M * fh ∈ u.adicCompletionIntegers)
@@ -169,7 +172,7 @@ theorem lmul_mem_poleWindow (πh : u.adicCompletionIntegers) (M : ℕ) (fh : u.a
 
 variable (K L) in
 
-def KwF4gRRTatePoleWindowFinite : Prop :=
+def TatePoleWindowFinite : Prop :=
   ∀ (u : Place K L) [u.FiniteResidue] (πh : u.adicCompletionIntegers) (_ : Irreducible πh)
     (M : ℕ),
     FiniteDimensional K
@@ -185,7 +188,7 @@ theorem ker_tateProj_inf_integers :
   rw [Submodule.mem_bot, ← tateProj_of_mem u hint, h0]
 
 theorem finiteDimensional_ker_inf_poleWindow [u.FiniteResidue]
-    (hPW : KwF4gRRTatePoleWindowFinite K L)
+    (hPW : TatePoleWindowFinite K L)
     (πh : u.adicCompletionIntegers) (hπh : Irreducible πh) (M : ℕ) :
     FiniteDimensional K
       ((LinearMap.ker (tateProj u) ⊓ poleWindowKSubmod u πh M : Submodule K _)) := by
@@ -210,7 +213,7 @@ theorem finiteDimensional_ker_inf_poleWindow [u.FiniteResidue]
   exact Subtype.ext hx0
 
 theorem finiteDimensional_principalPart_range [u.FiniteResidue]
-    (hCP : KwF4gRRTateClearPole K L) (hPW : KwF4gRRTatePoleWindowFinite K L)
+    (hCP : TateClearPole K L) (hPW : TatePoleWindowFinite K L)
     (fh : u.adicCompletion) :
     FiniteDimensional K
       (LinearMap.range
@@ -234,10 +237,10 @@ theorem tateComm_target_le_range (pA φ ψ : u.adicCompletion →ₗ[K] u.adicCo
   refine sup_le ?_ ?_ <;>
   · rintro y ⟨x, _, rfl⟩; exact LinearMap.mem_range_self pA _
 
-theorem kwF4gRRTate_commFinite_of_clearPole_of_poleWindowFinite
+theorem commFinite_of_clearPole_of_poleWindowFinite
     [∀ u : Place K L, u.FiniteResidue]
-    (hCP : KwF4gRRTateClearPole K L) (hPW : KwF4gRRTatePoleWindowFinite K L) :
-    KwF4gRRTateCommFinite K L := by
+    (hCP : TateClearPole K L) (hPW : TatePoleWindowFinite K L) :
+    TateCommFinite K L := by
   intro u fh gh
   have hcomm : lmulK u fh ∘ₗ lmulK u gh = lmulK u gh ∘ₗ lmulK u fh := by
     ext x
@@ -272,15 +275,15 @@ theorem kwF4gRRTate_commFinite_of_clearPole_of_poleWindowFinite
   · exact ⟨(lmulK u fh) a - pA ((lmulK u fh) a), ⟨⟨a, haA⟩, rfl⟩, rfl⟩
   · exact ⟨(lmulK u gh) a - pA ((lmulK u gh) a), ⟨⟨a, haA⟩, rfl⟩, rfl⟩
 
-theorem kwF4gRRTate_commFinite_of_poleWindowFinite [∀ u : Place K L, u.FiniteResidue]
-    (hPW : KwF4gRRTatePoleWindowFinite K L) :
-    KwF4gRRTateCommFinite K L :=
-  kwF4gRRTate_commFinite_of_clearPole_of_poleWindowFinite
-    kwF4gRRTate_clearPole_discharged hPW
+theorem commFinite_of_poleWindowFinite [∀ u : Place K L, u.FiniteResidue]
+    (hPW : TatePoleWindowFinite K L) :
+    TateCommFinite K L :=
+  commFinite_of_clearPole_of_poleWindowFinite
+    clearPole_discharged hPW
 
 end PoleWindow
 
-end ModularCurve.KwF4gRRTate
+end ModularCurve.Tate
 
 /-! ### The open valuation ball -/
 
@@ -315,11 +318,10 @@ end IsDedekindDomain.HeightOneSpectrum
 
 namespace ModularCurve
 
-namespace KwF4R1V410a
 
 variable {O : Type*} [CommRing O] [IsDomain O] [IsDiscreteValuationRing O]
 
-scoped instance kwF4R1V410a_subsingletonHeightOneSpectrumDVR :
+scoped instance subsingletonHeightOneSpectrumDVR :
     Subsingleton (HeightOneSpectrum O) :=
   ⟨fun a b => IsDedekindDomain.HeightOneSpectrum.ext
     (((IsDiscreteValuationRing.iff_pid_with_one_nonzero_prime O).mp
@@ -336,7 +338,7 @@ local notation "𝔪_w" => IsLocalRing.maximalIdeal w.toValuationSubring
 local notation "O_W" => w.adicCompletionIntegers
 local notation "𝔪_W" => w.heightOneSpectrum.completionIdeal F
 
-theorem kwF4R1V410a_algebraMap_mem_completionIdeal_pow_iff (n : ℕ) (x : O_w) :
+theorem algebraMap_mem_completionIdeal_pow_iff (n : ℕ) (x : O_w) :
     algebraMap (O_w) (O_W) x ∈ (𝔪_W) ^ n ↔ x ∈ (𝔪_w) ^ n := by
   have hval : Valued.v (algebraMap (O_w) (O_W) x).val
       = w.heightOneSpectrum.intValuation x := by
@@ -347,7 +349,7 @@ theorem kwF4R1V410a_algebraMap_mem_completionIdeal_pow_iff (n : ℕ) (x : O_w) :
   rw [IsDedekindDomain.HeightOneSpectrum.adicCompletion.mem_completionIdeal_pow, hval,
     ← WithZero.exp_eq_coe_ofAdd, intValuation_le_pow_iff_mem, w.heightOneSpectrum_asIdeal]
 
-theorem kwF4R1V410a_exists_sub_mem_completionIdeal_pow (n : ℕ) (y : O_W) :
+theorem exists_sub_mem_completionIdeal_pow (n : ℕ) (y : O_W) :
     ∃ x : O_w, y - algebraMap (O_w) (O_W) x ∈ (𝔪_W) ^ n := by
 
   have hball_open : IsOpen {z : w.adicCompletion |
@@ -391,36 +393,35 @@ theorem kwF4R1V410a_exists_sub_mem_completionIdeal_pow (n : ℕ) (y : O_W) :
   rw [hsub, Valuation.map_sub_swap]
   exact hz
 
-def kwF4R1V410a_quotientEquiv (n : ℕ) :
+def quotientEquiv (n : ℕ) :
     (O_w) ⧸ (𝔪_w) ^ n ≃+* (O_W) ⧸ (𝔪_W) ^ n := by
   let hIJ : (𝔪_w) ^ n ≤ (𝔪_W ^ n).comap (algebraMap (O_w) (O_W)) :=
-    fun x hx => (kwF4R1V410a_algebraMap_mem_completionIdeal_pow_iff w n x).mpr hx
+    fun x hx => (algebraMap_mem_completionIdeal_pow_iff w n x).mpr hx
   let hJI : ((𝔪_W) ^ n).comap (algebraMap (O_w) (O_W)) ≤ (𝔪_w) ^ n :=
-    fun x hx => (kwF4R1V410a_algebraMap_mem_completionIdeal_pow_iff w n x).mp
+    fun x hx => (algebraMap_mem_completionIdeal_pow_iff w n x).mp
       (Ideal.mem_comap.mp hx)
   exact RingEquiv.ofBijective (Ideal.quotientMap _ _ hIJ)
     ⟨Ideal.quotientMap_injective' (H := hIJ) hJI,
     fun y => by
       obtain ⟨y', rfl⟩ := Ideal.Quotient.mk_surjective y
-      obtain ⟨x, hx⟩ := kwF4R1V410a_exists_sub_mem_completionIdeal_pow w n y'
+      obtain ⟨x, hx⟩ := exists_sub_mem_completionIdeal_pow w n y'
       refine ⟨Ideal.Quotient.mk _ x, ?_⟩
       simp only [Ideal.quotientMap_mk]
       exact (Ideal.Quotient.mk_eq_mk_iff_sub_mem _ _).mpr (by
         rw [← neg_sub, neg_mem_iff]; exact hx)⟩
 
-theorem kwF4R1V410a_quotientEquiv_mk (n : ℕ) (x : O_w) :
-    kwF4R1V410a_quotientEquiv w n (Ideal.Quotient.mk _ x)
+theorem quotientEquiv_mk (n : ℕ) (x : O_w) :
+    quotientEquiv w n (Ideal.Quotient.mk _ x)
       = Ideal.Quotient.mk _ (algebraMap (O_w) (O_W) x) := rfl
 
 end Bridge
 
-end KwF4R1V410a
 
 end ModularCurve
 
 /-! ### The pole-window shift -/
 
-namespace ModularCurve.KwF4gRRTate
+namespace ModularCurve.Tate
 
 section PoleWindowShift
 
@@ -499,14 +500,14 @@ theorem poleWindowShift_image_integers (πh : u.adicCompletionIntegers) (M : ℕ
 
 variable (K L) in
 
-def KwF4gRRTateDVRQuotPowKFinite : Prop :=
+def TateDVRQuotPowKFinite : Prop :=
   ∀ (u : Place K L) [u.FiniteResidue] (πh : u.adicCompletionIntegers) (_ : Irreducible πh)
     (M : ℕ),
     FiniteDimensional K (u.adicCompletionIntegers ⧸ piPowKSubmod u πh M)
 
-theorem kwF4gRRTate_poleWindowFinite_of_DVRQuotPowKFinite
-    (hDVR : KwF4gRRTateDVRQuotPowKFinite K L) :
-    KwF4gRRTatePoleWindowFinite K L := by
+theorem poleWindowFinite_of_DVRQuotPowKFinite
+    (hDVR : TateDVRQuotPowKFinite K L) :
+    TatePoleWindowFinite K L := by
   intro u _ πh hπh M
   have := hDVR u πh hπh M
 
@@ -517,11 +518,11 @@ theorem kwF4gRRTate_poleWindowFinite_of_DVRQuotPowKFinite
     (poleWindowShift_image_integers u πh M)
   exact FiniteDimensional.of_injective e'.toLinearMap e'.injective
 
-theorem kwF4gRRTate_commFinite_of_DVRQuotPowKFinite [∀ u : Place K L, u.FiniteResidue]
-    (hDVR : KwF4gRRTateDVRQuotPowKFinite K L) :
-    KwF4gRRTateCommFinite K L :=
-  kwF4gRRTate_commFinite_of_poleWindowFinite
-    (kwF4gRRTate_poleWindowFinite_of_DVRQuotPowKFinite hDVR)
+theorem commFinite_of_DVRQuotPowKFinite [∀ u : Place K L, u.FiniteResidue]
+    (hDVR : TateDVRQuotPowKFinite K L) :
+    TateCommFinite K L :=
+  commFinite_of_poleWindowFinite
+    (poleWindowFinite_of_DVRQuotPowKFinite hDVR)
 
 end PoleWindowShift
 
@@ -546,7 +547,7 @@ def quotPiPowEquivIdealQuot (πh : u.adicCompletionIntegers) (M : ℕ) :
 
 variable (K L) in
 
-def KwF4gRRTateDVRCotangentKFinite : Prop :=
+def TateDVRCotangentKFinite : Prop :=
   ∀ (u : Place K L) [u.FiniteResidue] (πh : u.adicCompletionIntegers) (_ : Irreducible πh),
     FiniteDimensional K
       (u.adicCompletionIntegers ⧸ (Ideal.span {πh} : Ideal u.adicCompletionIntegers))
@@ -560,7 +561,7 @@ theorem range_mulLeft_eq_restrictScalars_span (a : u.adicCompletionIntegers) :
   exact ⟨fun ⟨x, hx⟩ => ⟨x, hx.symm⟩, fun ⟨x, hx⟩ => ⟨x, hx.symm⟩⟩
 
 theorem finiteDimensional_restrictScalarsQuot_pow [u.FiniteResidue]
-    (hCot : KwF4gRRTateDVRCotangentKFinite K L)
+    (hCot : TateDVRCotangentKFinite K L)
     (πh : u.adicCompletionIntegers) (hπh : Irreducible πh) (M : ℕ) :
     FiniteDimensional K (u.adicCompletionIntegers ⧸
       (Ideal.span {πh^M} : Ideal u.adicCompletionIntegers).restrictScalars K) := by
@@ -626,25 +627,25 @@ theorem finiteDimensional_restrictScalarsQuot_pow [u.FiniteResidue]
     exact Module.Finite.of_submodule_quotient N
 
 theorem finiteDimensional_idealQuot_pow [u.FiniteResidue]
-    (hCot : KwF4gRRTateDVRCotangentKFinite K L)
+    (hCot : TateDVRCotangentKFinite K L)
     (πh : u.adicCompletionIntegers) (hπh : Irreducible πh) (M : ℕ) :
     FiniteDimensional K
       (u.adicCompletionIntegers ⧸ (Ideal.span {πh^M} : Ideal u.adicCompletionIntegers)) := by
   have := finiteDimensional_restrictScalarsQuot_pow u hCot πh hπh M
   exact Module.Finite.equiv (Submodule.Quotient.restrictScalarsEquiv K _)
 
-theorem kwF4gRRTate_DVRQuotPowKFinite_of_cotangent
-    (hCot : KwF4gRRTateDVRCotangentKFinite K L) :
-    KwF4gRRTateDVRQuotPowKFinite K L := by
+theorem DVRQuotPowKFinite_of_cotangent
+    (hCot : TateDVRCotangentKFinite K L) :
+    TateDVRQuotPowKFinite K L := by
   intro u _ πh hπh M
   have := finiteDimensional_idealQuot_pow u hCot πh hπh M
   exact Module.Finite.equiv (quotPiPowEquivIdealQuot u πh M).symm
 
-theorem kwF4gRRTate_commFinite_of_cotangent [∀ u : Place K L, u.FiniteResidue]
-    (hCot : KwF4gRRTateDVRCotangentKFinite K L) :
-    KwF4gRRTateCommFinite K L :=
-  kwF4gRRTate_commFinite_of_DVRQuotPowKFinite
-    (kwF4gRRTate_DVRQuotPowKFinite_of_cotangent hCot)
+theorem commFinite_of_cotangent [∀ u : Place K L, u.FiniteResidue]
+    (hCot : TateDVRCotangentKFinite K L) :
+    TateCommFinite K L :=
+  commFinite_of_DVRQuotPowKFinite
+    (DVRQuotPowKFinite_of_cotangent hCot)
 
 end DVRQuotDischarge
 
@@ -672,13 +673,13 @@ theorem span_irreducible_eq_completionIdeal_pow_one
 def quotientEquivKAlg (n : ℕ) :
     (u.toValuationSubring ⧸ (IsLocalRing.maximalIdeal u.toValuationSubring) ^ n)
       ≃ₐ[K] (u.adicCompletionIntegers ⧸ (u.heightOneSpectrum.completionIdeal L) ^ n) :=
-  { ModularCurve.KwF4R1V410a.kwF4R1V410a_quotientEquiv u n with
+  { ModularCurve.quotientEquiv u n with
     commutes' := fun k => by
-      show ModularCurve.KwF4R1V410a.kwF4R1V410a_quotientEquiv u n (algebraMap K _ k)
+      show ModularCurve.quotientEquiv u n (algebraMap K _ k)
         = algebraMap K _ k
       rw [IsScalarTower.algebraMap_apply K u.toValuationSubring
           (u.toValuationSubring ⧸ (IsLocalRing.maximalIdeal u.toValuationSubring) ^ n),
-        Ideal.Quotient.algebraMap_eq, ModularCurve.KwF4R1V410a.kwF4R1V410a_quotientEquiv_mk,
+        Ideal.Quotient.algebraMap_eq, ModularCurve.quotientEquiv_mk,
         IsScalarTower.algebraMap_apply K u.adicCompletionIntegers
           (u.adicCompletionIntegers ⧸ (u.heightOneSpectrum.completionIdeal L) ^ n),
         Ideal.Quotient.algebraMap_eq,
@@ -693,18 +694,18 @@ def quotSpanIrreducibleEquivResidueField (πh : u.adicCompletionIntegers) (hπh 
       (Ideal.quotientEquivAlgOfEq K
         (pow_one (IsLocalRing.maximalIdeal u.toValuationSubring))).toLinearEquiv)
 
-theorem kwF4gRRTate_DVRCotangentKFinite : KwF4gRRTateDVRCotangentKFinite K L := by
+theorem DVRCotangentKFinite : TateDVRCotangentKFinite K L := by
   intro u _ πh hπh
   have : Module.Finite K u.ResidueField := FiniteResidue.finite
   exact Module.Finite.equiv (quotSpanIrreducibleEquivResidueField u πh hπh).symm
 
-theorem kwF4gRRTate_commFinite [∀ u : Place K L, u.FiniteResidue] :
-    KwF4gRRTateCommFinite K L :=
-  kwF4gRRTate_commFinite_of_cotangent kwF4gRRTate_DVRCotangentKFinite
+theorem commFinite [∀ u : Place K L, u.FiniteResidue] :
+    TateCommFinite K L :=
+  commFinite_of_cotangent DVRCotangentKFinite
 
 end DVRCotangentDischarge
 
-end ModularCurve.KwF4gRRTate
+end ModularCurve.Tate
 
 /-! ### The wrapper target -/
 
@@ -712,8 +713,8 @@ namespace AlgebraicCurve
 
 theorem tateCommFinite {K L : Type*} [Field K] [Field L] [Algebra K L]
     [∀ u : AlgebraicCurve.Place K L, u.FiniteResidue] :
-    ModularCurve.KwF4gRRTate.KwF4gRRTateCommFinite K L :=
-  ModularCurve.KwF4gRRTate.kwF4gRRTate_commFinite
+    ModularCurve.Tate.TateCommFinite K L :=
+  ModularCurve.Tate.commFinite
 
 end AlgebraicCurve
 
