@@ -25,6 +25,10 @@
   `LaurentSeries.algebraMap_apply` (`Mathlib/RingTheory/LaurentSeries.lean:1069`),
   so it is imported, not transcribed (see drift below).
 
+  The pin's inner namespace `LaurentSeries.AlgClosedPort` is folded into the object's own
+  `LaurentSeries` (the three declarations are `LaurentSeries.order_*` facts; no label is left),
+  and the module is homed beside mathlib's `RingTheory/LaurentSeries.lean`.
+
   spec-pin: Theorems/Thm_LaurentSeries_eq_C_coeff_zero_of_isAlgebraic.lean
   spec-pin: P2M/Sol/S_LaurentSeries_eq_C_coeff_zero_of_isAlgebraic.lean
 -/
@@ -34,7 +38,6 @@ import Mathlib.RingTheory.Algebraic.Basic
 set_option autoImplicit false
 
 namespace LaurentSeries
-namespace AlgClosedPort
 
 open HahnSeries Polynomial
 
@@ -84,10 +87,9 @@ theorem order_eq_zero_of_isAlgebraic {x : LaurentSeries K} (hx : IsAlgebraic K x
     rw [← HahnSeries.order_mul hx0 (inv_ne_zero hx0), mul_inv_cancel₀ hx0, HahnSeries.order_one]
   omega
 
-end AlgClosedPort
 end LaurentSeries
 
-open LaurentSeries.AlgClosedPort in
+open LaurentSeries in
 theorem LaurentSeries.eq_C_coeff_zero_of_isAlgebraic {K : Type*} [Field K] {x : LaurentSeries K}
     (hx : IsAlgebraic K x) :
     x = HahnSeries.C (x.coeff 0) := by

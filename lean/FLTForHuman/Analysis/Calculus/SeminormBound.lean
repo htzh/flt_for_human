@@ -1,59 +1,35 @@
 /-
-  Two analysis estimates of the same area (uniform bounds obtained by splitting at
-  a compact set):
+  A compactly supported family of smooth functions has one compact support superset and one
+  uniform seminorm bound:
 
-  * `exists_isCompact_tsupport_subset_and_norm_pow_mul_norm_iteratedFDeriv_comp_le_of_hasCompactSupport`
-    — for a compact family `p ↦ f (c p + ℓ p ·)` of compactly supported smooth
-    functions on `E` with `ℓ p` injective, all supports lie in one compact set and
-    every seminorm `‖x‖ ^ k * ‖iteratedFDeriv ℝ n (…) x‖` is uniformly bounded;
-  * `integrableOn_Ioi_min_one_rpow_mul_max_one_rpow_mul_rpow_sub_one` — the model
-    integrability estimate `∫_{r > 0} (min 1 r) ^ p * (max 1 r) ^ (-q) * r ^ (c - 1)`
-    for `0 < p + c` and `c < q`.
+      for `p ↦ f (c p + ℓ p x)` with `ℓ p` injective and the family compactly supported, all
+      supports lie in one compact set and every seminorm `‖x‖ ^ k * ‖iteratedFDeriv ℝ n (…) x‖`
+      is uniformly bounded on the compact parameter set.
 
-  The ports of the two pin leaves (145 and 42 pin lines), together with the
-  statements of their `Theorems/` wrappers, grouped in one module as the order's
-  §5 permits for the sub-80-line entry.
+  The portable half of the former `Analysis/DecayEstimates` module (2026-10-20); the model
+  integral that shared it is a different subject and now lives in
+  `Analysis/SpecialFunctions/Pow/Decay.lean`. The pin's block namespace
+  `M4aP3B.Rows.UniformSeminorm` is a proof label and is gone: the two general lemmas are at
+  root under their own names, and the pin's `solution` wrapper (`…_impl`, an exact duplicate of
+  the headline) and its `gate_empty` case check are `private`.
 
-  The mathematics of the first: `f`'s support lies in a ball of radius `R` and
-  `ℓ p` is injective on `Q`, so `‖ℓ p x‖ ≥ m ‖x‖` with `m > 0` uniformly; hence
-  the support of `f (c p + ℓ p ·)` lies in the ball of radius `(R + ‖c p‖) / m`,
-  and away from it the iterated derivative vanishes, while on the ball the chain
-  rule `‖D^n (f ∘ (c + ℓ))‖ ≤ ‖D^n f‖ ‖ℓ‖ ^ n` bounds it.
+  The mathematics: `hsupp` gives a closed ball containing the support of `f`; the affine maps
+  `x ↦ c p + ℓ p x` with `‖ℓ p‖ ≤ Mc` and `c p` bounded take it into a fixed ball; the seminorm
+  bound follows from the chain rule on the affine composition and from compactness of the
+  parameter set.
 
-  The mathematics of the second: split `(0, ∞)` at `1`; on `(0, 1]` the integrand
-  is `r ^ (p + c - 1)` and on `(1, ∞)` it is `r ^ (c - q - 1)`, both integrable
-  under the two hypotheses.
-
-  Assumes: mathlib `v4.34.0` only — nothing from earlier modules of the port.
-
-  Mathlib-first check (2026-10-20): mathlib has neither statement — `rg -n
-  "min_one_rpow_mul_max_one_rpow"` and `rg -n "tsupport_subset.*iteratedFDeriv"`
-  over `Mathlib/` find nothing (mathlib's `SchwartzMap` seminorm API does not
-  contain this uniform-family form). Ingredients imported rather than restated:
-  `ContinuousMultilinearMap.norm_compContinuousLinearMap_le`,
-  `LinearMap.iteratedFDeriv_comp_right`, `iteratedFDeriv_comp_add_left`,
-  `Set.tsupport_iteratedFDeriv_subset`, `intervalIntegral.intervalIntegrable_rpow'`,
-  `integrableOn_Ioi_rpow_of_lt`.
-
-  Drift: the pin's inline `#print axioms` commands are verification, not port
-  content, and are not carried.
+  Assumes: mathlib `v4.34.0` only. Mathlib has no statement of this shape (`rg
+  "exists_isCompact_tsupport_subset_and_norm_pow_mul" Mathlib/` is empty, 2026-10-20).
 
   spec-pin: Theorems/Thm_exists_isCompact_tsupport_subset_and_norm_pow_mul_norm_iteratedFDeriv_comp_le_of_hasCompactSupport.lean
   spec-pin: P2M/Sol/S_exists_isCompact_tsupport_subset_and_norm_pow_mul_norm_iteratedFDeriv_comp_le_of_hasCompactSupport.lean
-  spec-pin: Theorems/Thm_integrableOn_Ioi_min_one_rpow_mul_max_one_rpow_mul_rpow_sub_one.lean
-  spec-pin: P2M/Sol/S_integrableOn_Ioi_min_one_rpow_mul_max_one_rpow_mul_rpow_sub_one.lean
 -/
 import Mathlib.Analysis.Calculus.ContDiff.Operations
 import Mathlib.Analysis.Normed.Group.Bounded
 import Mathlib.Analysis.Normed.Module.FiniteDimension
-import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
-import Mathlib.Analysis.SpecialFunctions.Integrability.Basic
+import Mathlib.Tactic
 
 set_option autoImplicit false
-
-namespace M4aP3B
-namespace Rows
-namespace UniformSeminorm
 
 open Set Metric Filter Topology
 
@@ -113,7 +89,7 @@ theorem exists_pos_forall_mul_norm_le {Q : Set P} (hQ : IsCompact Q) {ℓ : P �
       simp only at hm
       exact (mul_comm _ _).le.trans (mul_le_mul_of_nonneg_left hm (norm_nonneg x))
 
-theorem exists_isCompact_tsupport_subset_and_norm_pow_mul_norm_iteratedFDeriv_comp_le_of_hasCompactSupport_impl
+private theorem exists_isCompact_tsupport_subset_and_norm_pow_mul_norm_iteratedFDeriv_comp_le_of_hasCompactSupport_impl
     {f : E' → V} (hf : ContDiff ℝ (⊤ : ℕ∞) f) (hsupp : HasCompactSupport f)
     {Q : Set P} (hQ : IsCompact Q) {c : P → E'} {ℓ : P → E →L[ℝ] E'}
     (hc : ContinuousOn c Q) (hℓ : ContinuousOn ℓ Q) (hinj : ∀ p ∈ Q, Function.Injective (ℓ p)) :
@@ -165,7 +141,7 @@ theorem exists_isCompact_tsupport_subset_and_norm_pow_mul_norm_iteratedFDeriv_co
     rw [h0, norm_zero, mul_zero]
     exact hC0
 
-theorem gate_empty {f : E' → V} (hf : ContDiff ℝ (⊤ : ℕ∞) f) (hsupp : HasCompactSupport f)
+private theorem gate_empty {f : E' → V} (hf : ContDiff ℝ (⊤ : ℕ∞) f) (hsupp : HasCompactSupport f)
     (c : P → E') (ℓ : P → E →L[ℝ] E') :
     (∃ S : Set E, IsCompact S ∧ ∀ p ∈ (∅ : Set P), tsupport (fun x => f (c p + ℓ p x)) ⊆ S) ∧
     ∀ k n : ℕ, ∃ C : ℝ, ∀ p ∈ (∅ : Set P), ∀ x : E,
@@ -173,9 +149,6 @@ theorem gate_empty {f : E' → V} (hf : ContDiff ℝ (⊤ : ℕ∞) f) (hsupp : 
   exists_isCompact_tsupport_subset_and_norm_pow_mul_norm_iteratedFDeriv_comp_le_of_hasCompactSupport_impl hf hsupp isCompact_empty
     (continuousOn_empty _) (continuousOn_empty _) (fun _ h => h.elim)
 
-end UniformSeminorm
-end Rows
-end M4aP3B
 
 theorem exists_isCompact_tsupport_subset_and_norm_pow_mul_norm_iteratedFDeriv_comp_le_of_hasCompactSupport
     {E E' V P : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [FiniteDimensional ℝ E]
@@ -186,41 +159,5 @@ theorem exists_isCompact_tsupport_subset_and_norm_pow_mul_norm_iteratedFDeriv_co
     (∃ S : Set E, IsCompact S ∧ ∀ p ∈ Q, tsupport (fun x => f (c p + ℓ p x)) ⊆ S) ∧
     ∀ k n : ℕ, ∃ C : ℝ, ∀ p ∈ Q, ∀ x : E,
       ‖x‖ ^ k * ‖iteratedFDeriv ℝ n (fun x => f (c p + ℓ p x)) x‖ ≤ C := by
-  exact M4aP3B.Rows.UniformSeminorm.exists_isCompact_tsupport_subset_and_norm_pow_mul_norm_iteratedFDeriv_comp_le_of_hasCompactSupport_impl
+  exact exists_isCompact_tsupport_subset_and_norm_pow_mul_norm_iteratedFDeriv_comp_le_of_hasCompactSupport_impl
     hf hsupp hQ hc hℓ hinj
-
-open MeasureTheory
-
-namespace Ws50CH3
-
-theorem integrableOn_Ioc_piece (p q c : ℝ) (hpc : 0 < p + c) :
-    IntegrableOn (fun r : ℝ => (min 1 r) ^ p * (max 1 r) ^ (-q) * r ^ (c - 1)) (Set.Ioc 0 1) := by
-  have h1 : IntegrableOn (fun r : ℝ => r ^ (p + c - 1)) (Set.Ioc 0 1) :=
-    (intervalIntegrable_iff_integrableOn_Ioc_of_le zero_le_one).mp
-      (intervalIntegral.intervalIntegrable_rpow' (a := 0) (b := 1) (by linarith))
-  refine h1.congr_fun ?_ measurableSet_Ioc
-  intro r hr
-  obtain ⟨hr0, hr1⟩ := hr
-  show r ^ (p + c - 1) = (min 1 r) ^ p * (max 1 r) ^ (-q) * r ^ (c - 1)
-  rw [min_eq_right hr1, max_eq_left hr1, Real.one_rpow, mul_one, ← Real.rpow_add hr0,
-    show p + (c - 1) = p + c - 1 by ring]
-
-theorem integrableOn_Ioi_piece (p q c : ℝ) (hcq : c < q) :
-    IntegrableOn (fun r : ℝ => (min 1 r) ^ p * (max 1 r) ^ (-q) * r ^ (c - 1)) (Set.Ioi 1) := by
-  have h2 : IntegrableOn (fun r : ℝ => r ^ (c - q - 1)) (Set.Ioi 1) :=
-    integrableOn_Ioi_rpow_of_lt (by linarith) zero_lt_one
-  refine h2.congr_fun ?_ measurableSet_Ioi
-  intro r hr
-  have hr1 : (1 : ℝ) < r := hr
-  have hr0 : (0 : ℝ) < r := lt_trans zero_lt_one hr1
-  show r ^ (c - q - 1) = (min 1 r) ^ p * (max 1 r) ^ (-q) * r ^ (c - 1)
-  rw [min_eq_left hr1.le, max_eq_right hr1.le, Real.one_rpow, one_mul, ← Real.rpow_add hr0,
-    show -q + (c - 1) = c - q - 1 by ring]
-
-end Ws50CH3
-
-theorem integrableOn_Ioi_min_one_rpow_mul_max_one_rpow_mul_rpow_sub_one
-    (p q c : ℝ) (hpc : 0 < p + c) (hcq : c < q) :
-    IntegrableOn (fun r : ℝ => (min 1 r) ^ p * (max 1 r) ^ (-q) * r ^ (c - 1)) (Set.Ioi 0) := by
-  rw [← Set.Ioc_union_Ioi_eq_Ioi (zero_le_one : (0 : ℝ) ≤ 1)]
-  exact (Ws50CH3.integrableOn_Ioc_piece p q c hpc).union (Ws50CH3.integrableOn_Ioi_piece p q c hcq)

@@ -18,7 +18,7 @@
   Transcribed verbatim from the pin
   `Theorems/Thm_LinearEquiv_exists_forall_finrank_inf_map_pow_add_finrank_inf_le.lean`
   / `P2M/Sol/S_LinearEquiv_exists_forall_finrank_inf_map_pow_add_finrank_inf_le.lean`
-  (398 pin lines, pinned `aa2d8b3`). The pin's `S_` development is `namespace Ef8d`,
+  (398 pin lines, pinned `aa2d8b3`). The pin's `S_` development is `namespace FinrankStable`,
   kept verbatim with its short names; the port drops only the `P2MW.S_<stem>` prefix
   and the pin's `solution` wrapper becomes the headline.
 
@@ -89,7 +89,7 @@ set_option autoImplicit false
 noncomputable section
 open Submodule LinearMap Module
 
-namespace Ef8d
+namespace FinrankStable
 variable {k : Type*} [Field k] {W : Type*} [AddCommGroup W] [Module k W]
 
 theorem map_pow_le {ψ : W →ₗ[k] W} {S : Submodule k W} (hS : S.map ψ ≤ S) :
@@ -402,9 +402,9 @@ theorem range_Psi_superset
       rw [congrArg (P'.comap B'.subtype).mkQ hxval]
       exact (barEnd_pow_mkQ (φ.symm:W→ₗ[k]W) P' B' hP' hB' M x hx0').symm
 
-end Ef8d
+end FinrankStable
 
-open Ef8d in
+open FinrankStable in
 set_option linter.style.haveILetI false in
 theorem LinearEquiv.exists_forall_finrank_inf_map_pow_add_finrank_inf_le
     {k : Type*} [Field k] {W : Type*} [AddCommGroup W] [Module k W]

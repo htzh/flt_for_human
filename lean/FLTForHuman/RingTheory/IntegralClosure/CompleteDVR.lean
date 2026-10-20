@@ -37,8 +37,8 @@
   `IsArtinian.exists_pow_succ_smul_dvd`, `IsArtinianRing.of_finite`.
 
   Drift: the pin's `p2m_export "SolIntClosDVR" "not_isField"` (a P2M.Util macro) is
-  dropped, and the private root-named `_root_.SolIntClosDVR.not_isField` is written
-  `private theorem SolIntClosDVR.not_isField` at root (same absolute name). The
+  dropped, and the private root-named `_root_.integralClosure.not_isField` is written
+  `private theorem integralClosure.not_isField` at root (same absolute name). The
   pin's bare `import Mathlib` became the modules below.
 
   spec-pin: Theorems/Thm_integralClosure_finite_and_isDiscreteValuationRing_and_isAdicComplete_maximalIdeal.lean
@@ -58,7 +58,7 @@ set_option autoImplicit false
 open scoped TensorProduct
 
 
-namespace SolIntClosDVR
+namespace integralClosure
 open AdicCompletion IsLocalRing Polynomial
 
 universe u
@@ -240,9 +240,9 @@ theorem isArtinianRing_quotient [Module.Finite 𝒪 (integralClosure 𝒪 L')] :
 
 end Main
 
-end SolIntClosDVR
+end integralClosure
 
-open SolIntClosDVR IsLocalRing in
+open integralClosure IsLocalRing in
 theorem integralClosure.finite_and_isDiscreteValuationRing_and_isAdicComplete_maximalIdeal
     (𝒪 : Type*) [CommRing 𝒪] [IsDomain 𝒪] [IsDiscreteValuationRing 𝒪]
     [IsAdicComplete (IsLocalRing.maximalIdeal 𝒪) 𝒪]

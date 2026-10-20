@@ -24,7 +24,7 @@
   `aa2d8b3`). The pin's inner namespace `P2MKcMarksA4` is kept verbatim; only the
   `P2MW.S_<stem>` prefix is dropped. The pin's `solution` wrappers are not ported: their
   statements are the two headlines below, and the second headline's proof is
-  `P2MKcMarksA4.marks X hG hG'`, exactly the `solution` body.
+  `GroupTheory.MarksTwelve.marks X hG hG'`, exactly the `solution` body.
 
   The pin's two `scoped instance fact_prime_two'`/`fact_prime_three'` are kept verbatim
   (they are `scoped`, hence inert unless their namespace is opened); the pin's
@@ -99,7 +99,7 @@ theorem MulAction.card_mul_natCard_orbitRel_quotient_eq_of_natCard_eq_prime
   convert hB.symm using 1
   all_goals exact mul_comm _ _
 
-namespace P2MKcMarksA4
+namespace GroupTheory.MarksTwelve
 
 open MulAction Subgroup
 
@@ -874,7 +874,7 @@ theorem marks :
 
 end Marks
 
-end P2MKcMarksA4
+end GroupTheory.MarksTwelve
 
 theorem MulAction.natCard_fixedBy_of_isPretransitive_of_card_eq_twelve
     {G : Type*} [Group G] [Finite G] (hG : Nat.card G = 12)
@@ -893,4 +893,4 @@ theorem MulAction.natCard_fixedBy_of_isPretransitive_of_card_eq_twelve
       (Nat.card X = 4 → Nat.card (MulAction.fixedBy X b) = 1) ∧
       (Nat.card X = 6 → Nat.card (MulAction.fixedBy X b) = 0) ∧
       (Nat.card X = 12 → Nat.card (MulAction.fixedBy X b) = 0)) :=
-  P2MKcMarksA4.marks X hG hG'
+  GroupTheory.MarksTwelve.marks X hG hG'

@@ -30,10 +30,10 @@
 
   * `Theorems/Thm_LSeries_abscissaOfAbsConv_le_of_forall_analyticAt_ofReal_of_exp_lseries_eq.lean`
     / `P2M/Sol/S_LSeries_abscissaOfAbsConv_le_of_forall_analyticAt_ofReal_of_exp_lseries_eq.lean`
-    (218 pin lines, `namespace RS40E`), and
+    (218 pin lines, `namespace LSeries.Abscissa`), and
   * `Theorems/Thm_LSeries_exists_nonneg_hasSum_tsum_mul_cpow_eq_lseries_of_le_mul_pow.lean`
     / `P2M/Sol/S_LSeries_exists_nonneg_hasSum_tsum_mul_cpow_eq_lseries_of_le_mul_pow.lean`
-    (196 pin lines, `namespace PPSeries43`).
+    (196 pin lines, `namespace LSeries.EulerProduct`).
 
   The two nodes are unrelated (one is analytic continuation of an exponential, the
   other an Euler-product assembly) and the order prices the family as one module;
@@ -103,7 +103,7 @@ open scoped ComplexOrder
 
 noncomputable section
 
-namespace RS40E
+namespace LSeries.Abscissa
 
 open Complex Filter Topology Metric Set
 
@@ -207,9 +207,9 @@ theorem ray (Λ L : ℂ → ℂ) (y σ₁ : ℝ)
   have : (⟨σ, hσ⟩ : Ioi y) ∈ {p : Ioi y | P p.1} := by rw [huniv]; trivial
   exact this
 
-end RS40E
+end LSeries.Abscissa
 
-open RS40E Complex Filter Topology Metric Set in
+open LSeries.Abscissa Complex Filter Topology Metric Set in
 theorem LSeries.abscissaOfAbsConv_le_of_forall_analyticAt_ofReal_of_exp_lseries_eq
     (d : ℕ → ℝ) (hd : ∀ n : ℕ, 0 ≤ d n) (Λ : ℂ → ℂ) (x σ₀ : ℝ)
     (han : ∀ σ : ℝ, x < σ → AnalyticAt ℂ Λ (σ : ℂ))
@@ -310,7 +310,7 @@ theorem LSeries.abscissaOfAbsConv_le_of_forall_analyticAt_ofReal_of_exp_lseries_
     (fun s hs => hLan s (lt_of_le_of_lt hmain (by exact_mod_cast hs))) (fun s hs => (heq s hs).2)
   exact ((hray σ hσ).eq_of_nhds).symm
 
-namespace PPSeries43
+namespace LSeries.EulerProduct
 
 open Complex
 
@@ -332,7 +332,7 @@ theorem key_inj {q q' : ι × ℕ} (hq : 0 < q.2) (_hq' : 0 < q'.2) (h : N q.1 ^
   exact Prod.ext (hinj h1) hm
 
 include hN hinj in
-theorem main
+private theorem main
     (c : ι → ℕ → ℝ) (hc0 : ∀ i : ι, c i 0 = 0) (hc : ∀ (i : ι) (m : ℕ), 0 ≤ c i m)
     (B : ℝ) (hcB : ∀ (i : ι) (m : ℕ), c i m ≤ B * (N i : ℝ) ^ m) :
     ∃ d : ℕ → ℝ, (∀ n : ℕ, 0 ≤ d n) ∧
@@ -478,7 +478,7 @@ theorem main
       _ = ∑' n, (LSeries.term (fun n => (d n : ℂ)) (σ : ℂ) n).re := by simp_rw [hre]
       _ = (LSeries (fun n => (d n : ℂ)) σ).re := (Complex.re_tsum hσ).symm
 
-end PPSeries43
+end LSeries.EulerProduct
 
 theorem LSeries.exists_nonneg_hasSum_tsum_mul_cpow_eq_lseries_of_le_mul_pow
     {ι : Type*} (N : ι → ℕ) (hN : ∀ i : ι, (N i).Prime) (hinj : Function.Injective N)
@@ -495,4 +495,4 @@ theorem LSeries.exists_nonneg_hasSum_tsum_mul_cpow_eq_lseries_of_le_mul_pow
       ∀ σ : ℝ, LSeriesSummable (fun n => (d n : ℂ)) σ →
         Summable (fun i : ι => c i 1 * (N i : ℝ) ^ (-σ)) ∧
         ∑' i : ι, c i 1 * (N i : ℝ) ^ (-σ) ≤ (LSeries (fun n => (d n : ℂ)) σ).re :=
-  PPSeries43.main N hN hinj c hc0 hc B hcB
+  LSeries.EulerProduct.main N hN hinj c hc0 hc B hcB

@@ -534,7 +534,7 @@ variable {V : Type*} {G : SimpleGraph V} {a b u v w : V}
 
 variable (G a b) in
 
-private def _root_.SimpleGraph.farSide : Set V :=
+private def farSide : Set V :=
   {v | ¬ (G.deleteEdges {s(a, b)}).Reachable a v}
 
 theorem mem_farSide_iff : v ∈ G.farSide a b ↔ ¬ (G.deleteEdges {s(a, b)}).Reachable a v :=

@@ -30,7 +30,8 @@
   restated.
 
   Drift: the pin's `set_option linter.unusedSectionVars false` (namespace
-  `IBPLattice`) is replaced by the `omit`/declaration-scoped repairs below; the
+  `IBPLattice`, renamed `ZSpan` here to sit under the object of its headline) is replaced by
+  the `omit`/declaration-scoped repairs below; the
   pin's bare `import Mathlib` became the modules named here.
 
   spec-pin: Theorems/Thm_ZSpan_norm_setIntegral_fundamentalDomain_cexp_mul_le_inv_pow_mul_setIntegral_norm_of_hasDerivAt.lean
@@ -53,7 +54,7 @@ open MeasureTheory
 
 noncomputable section
 
-namespace IBPLattice
+namespace ZSpan
 
 open Set Filter Topology
 
@@ -221,9 +222,9 @@ theorem step (b : Module.Basis ι ℝ E) (μ : Measure E) [μ.IsAddHaarMeasure] 
   · exact integrableOn_fundamentalDomain b μ (((continuous_chr ℓ).mul continuous_const).mul hH)
   · exact integrableOn_fundamentalDomain b μ ((continuous_chr ℓ).mul hH')
 
-end IBPLattice
+end ZSpan
 
-open IBPLattice in
+open ZSpan in
 theorem ZSpan.norm_setIntegral_fundamentalDomain_cexp_mul_le_inv_pow_mul_setIntegral_norm_of_hasDerivAt
     {ι E : Type*} [Fintype ι] [NormedAddCommGroup E] [NormedSpace ℝ E] [FiniteDimensional ℝ E]
     [MeasurableSpace E] [BorelSpace E] (b : Module.Basis ι ℝ E) (μ : Measure E) [μ.IsAddHaarMeasure]

@@ -57,7 +57,7 @@ Recorded reading: 105 public declarations, 11 private helpers (97 lines), 143 di
   match. **Read, do not apply.**
 
 The one cross-file premise, `BrauerNesbitt.exists_linearEquiv_of_span_range_eq_top_of_trace_eq`,
-is ported in `FLTForHuman/Algebra/BrauerNesbittRepresentation.lean` — import it, do not restate.
+is ported in `FLTForHuman/RepresentationTheory/BrauerNesbitt.lean` — import it, do not restate.
 
 ## 4. Deliverable
 

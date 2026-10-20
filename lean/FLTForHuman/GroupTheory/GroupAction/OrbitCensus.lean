@@ -14,7 +14,7 @@
   Transcribed verbatim from the pin
   `Theorems/Thm_Function_orbitCensus_of_dihedralThree_relations.lean` /
   `P2M/Sol/S_Function_orbitCensus_of_dihedralThree_relations.lean` (315 pin lines,
-  pinned `aa2d8b3`). The pin's `S_` development is `namespace P2MKcOrbitCensus`, kept
+  pinned `aa2d8b3`). The pin's `S_` development is `namespace Function.OrbitCensus`, kept
   verbatim (`D₃`-orbits, the `T`- and `six`-finsets, `card_T`/`card_six` and the two
   `Finset.card_bij` bijections onto the fixed-point sets); the port drops only the
   `P2MW.S_<stem>` prefix, and the pin's `solution` wrapper is the headline below.
@@ -72,7 +72,7 @@ import Mathlib.Tactic.Ring
 
 set_option autoImplicit false
 
-namespace P2MKcOrbitCensus
+namespace Function.OrbitCensus
 
 variable {X : Type*} [Fintype X] [DecidableEq X] (a b : X → X)
   (ha : ∀ x, a (a x) = x) (hb : ∀ x, b (b (b x)) = x) (hab : ∀ x, a (b x) = b (b (a x)))
@@ -294,9 +294,9 @@ include hb hab hc in
 theorem c_eq_iff_mem_six (x y : X) : c y = c x ↔ y ∈ six a b x := by
   rw [mem_six a b hb hab, eq_comm, hc x y]
 
-end P2MKcOrbitCensus
+end Function.OrbitCensus
 
-open P2MKcOrbitCensus in
+open Function.OrbitCensus in
 /-- The census of the orbits of a `D₃`-action: every fibre of `c` has `1`, `2`, `3` or
 `6` elements, the `a`-fixed points are counted by the `1`- and `3`-fibres and the
 `b`-fixed points by `1 + 2 · (#1-fibres)`. -/

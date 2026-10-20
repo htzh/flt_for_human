@@ -27,12 +27,12 @@
   Two of the node's helpers — `Representation.range_asAlgebraHom_toLinearMap` and
   `Representation.span_range_eq_top_iff_surjective_asAlgebraHom` — are pin-private
   declarations that the port already had, `private`, in
-  `FLTForHuman/Algebra/BrauerNesbittRepresentation.lean`; they are **promoted** there and
+  `FLTForHuman/RepresentationTheory/BrauerNesbitt.lean`; they are **promoted** there and
   imported here rather than re-proved (their statements are the pin's). The node's third
   `Dictionary` helper, `trace_asAlgebraHom_eq_of_forall_trace_eq`, lives in the port at
   exactly that name and statement as a private declaration of the same module; it is not
   duplicated here because it has no consumer in this node (its consumer is the
-  Brauer–Nesbitt proof), per playbook §2.4 — shared mathematics is written once.
+  Brauer–Nesbitt proof) — shared mathematics is written once.
 
   Mathlib-first audit (one line per declaration; the pin's two remaining helpers stay
   `private`, the two promoted ones are audited where they were written):
@@ -74,7 +74,7 @@
     trace-algebra dictionary (`rg -n 'trace.*asAlgebraHom' Mathlib` finds nothing).
 
   Assumes: mathlib `v4.34.0` and the two promoted helpers of
-  `FLTForHuman/Algebra/BrauerNesbittRepresentation.lean`.
+  `FLTForHuman/RepresentationTheory/BrauerNesbitt.lean`.
 
   spec-pin: Theorems/Thm_Representation_span_range_eq_top_of_isIrreducible.lean
   spec-pin: P2M/Sol/S_Representation_span_range_eq_top_of_isIrreducible.lean
@@ -91,7 +91,7 @@ import Mathlib.LinearAlgebra.Matrix.Trace
 import Mathlib.LinearAlgebra.Trace
 import Mathlib.RepresentationTheory.Irreducible
 import Mathlib.RingTheory.SimpleModule.Basic
-import FLTForHuman.Algebra.BrauerNesbittRepresentation
+import FLTForHuman.RepresentationTheory.BrauerNesbitt
 
 set_option autoImplicit false
 

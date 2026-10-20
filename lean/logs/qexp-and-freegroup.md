@@ -77,7 +77,7 @@ objects over the same product type; none imported.
   `SpecialLinearGroupFreeProduct.lean` at the pin's statement. Recorded duplication, 5 lines.
 - **`Def_Compat_Mathlib430`** (the family's only `Definitions/` import, in the
   `MinimalPeriod` node): inert — 0 of its 44 declarations occur in the node — so it is not
-  homed and not imported. `FLTForHuman/Algebra/AddAutCompat.lean` (block D) was **not** needed:
+  homed and not imported. `FLTForHuman/Algebra/AddAut/Compat.lean` (block D) was **not** needed:
   the node's `AddAut` values use only `AddEquiv`, which `v4.34.0` provides.
 - **Scoped instances:** the pin re-activates them with `p2m_reactivate`; the port's equivalents
   are `open IrrationalPt` (which does activate `scoped instance`s — verified) and, for the

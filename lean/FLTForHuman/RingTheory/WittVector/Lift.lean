@@ -57,7 +57,7 @@ import Mathlib.Algebra.CharP.Algebra
 
 set_option autoImplicit false
 
-namespace WittLift
+namespace WittVector
 
 open WittVector IsLocalRing
 
@@ -70,9 +70,9 @@ theorem coeff_zero_natCast (m : ℕ) : ((m : WittVector p k)).coeff 0 = (m : k) 
 
 end Witt
 
-end WittLift
+end WittVector
 
-private theorem WittLift.charZero (p : ℕ) [hp : Fact p.Prime] (k : Type*) [Field k] [CharP k p]
+private theorem WittVector.charZero (p : ℕ) [hp : Fact p.Prime] (k : Type*) [Field k] [CharP k p]
     [PerfectRing k p] : CharZero (WittVector p k) := by
   have : IsDomain (WittVector p k) := inferInstance
   refine charZero_of_inj_zero fun n hn => ?_
@@ -80,7 +80,7 @@ private theorem WittLift.charZero (p : ℕ) [hp : Fact p.Prime] (k : Type*) [Fie
   obtain ⟨a, m, hm, rfl⟩ := Nat.exists_eq_pow_mul_and_not_dvd hn0 p hp.out.ne_one
   have hmunit : IsUnit ((m : ℕ) : WittVector p k) := by
     apply WittVector.isUnit_of_coeff_zero_ne_zero
-    rw [WittLift.coeff_zero_natCast]
+    rw [WittVector.coeff_zero_natCast]
     intro h0
     exact hm ((CharP.cast_eq_zero_iff k p m).mp h0)
   have hp0 : ((p : WittVector p k)) ≠ 0 := fun h => by
@@ -93,7 +93,7 @@ private theorem WittLift.charZero (p : ℕ) [hp : Fact p.Prime] (k : Type*) [Fie
   rw [Nat.cast_mul] at hn
   exact hpa ((hmunit.mul_left_eq_zero).mp hn)
 
-namespace WittLift
+namespace WittVector
 
 open WittVector IsLocalRing
 
@@ -151,7 +151,7 @@ theorem eval₂_C_X_powerSeries {R : Type*} [CommRing R] (P : Polynomial R) :
       exact Polynomial.coe_X.symm
   exact congrArg (fun φ : Polynomial R →+* PowerSeries R => φ P) h
 
-end WittLift
+end WittVector
 
 universe u
 
@@ -164,10 +164,10 @@ theorem WittVector.exists_valuationSubring_lift_with_transcendental
       ∃ (t : L) (ht : t ∈ A), (⟨t, ht⟩ : A) ∈ IsLocalRing.maximalIdeal A ∧
         ∀ P : Polynomial (WittVector p K), P ≠ 0 → P.eval₂ φ t ≠ 0 := by
   classical
-  have hW0 : CharZero (WittVector p K) := WittLift.charZero p K
+  have hW0 : CharZero (WittVector p K) := WittVector.charZero p K
   have hR'0 : CharZero (PowerSeries (WittVector p K)) :=
     charZero_of_injective_ringHom (f := PowerSeries.C (R := WittVector p K))
-      (WittLift.powerSeriesC_injective _)
+      (WittVector.powerSeriesC_injective _)
   have : CharZero (FractionRing (PowerSeries (WittVector p K))) :=
     IsFractionRing.charZero (PowerSeries (WittVector p K))
   have hL : CharZero (AlgebraicClosure (FractionRing (PowerSeries (WittVector p K)))) :=
@@ -184,16 +184,16 @@ theorem WittVector.exists_valuationSubring_lift_with_transcendental
   obtain ⟨A, hAmem, hAloc⟩ := IsLocalRing.exists_factor_valuationRing ψ
   let g : PowerSeries (WittVector p K) →+* A := ψ.codRestrict A.toSubring hAmem
   have : IsLocalHom g := hAloc
-  have := WittLift.isLocalHom_powerSeriesC (WittVector p K)
+  have := WittVector.isLocalHom_powerSeriesC (WittVector p K)
   let f : WittVector p K →+* A := g.comp (PowerSeries.C (R := WittVector p K))
   have : IsLocalHom f := RingHom.isLocalHom_comp g _
   let φ : WittVector p K →+* AlgebraicClosure (FractionRing (PowerSeries (WittVector p K))) :=
     ψ.comp (PowerSeries.C (R := WittVector p K))
   have hφ : ∀ x, φ x ∈ A := fun x => hAmem _
   refine ⟨AlgebraicClosure (FractionRing (PowerSeries (WittVector p K))), inferInstance, inferInstance, hL,
-    A, φ, hφ, WittLift.residueMap p K f, fun a => ?_, ψ PowerSeries.X, hAmem _, ?_, ?_⟩
+    A, φ, hφ, WittVector.residueMap p K f, fun a => ?_, ψ PowerSeries.X, hAmem _, ?_, ?_⟩
   ·
-    exact (WittLift.residueMap_comp_teichmuller p K f a).symm
+    exact (WittVector.residueMap_comp_teichmuller p K f a).symm
   ·
     rw [IsLocalRing.mem_maximalIdeal, mem_nonunits_iff]
     intro hu
@@ -204,5 +204,5 @@ theorem WittVector.exists_valuationSubring_lift_with_transcendental
     intro P hP h0
     apply hP
     rw [show P.eval₂ φ (ψ PowerSeries.X) = ψ (P.eval₂ (PowerSeries.C (R := WittVector p K)) PowerSeries.X)
-      from (Polynomial.hom_eval₂ P _ ψ PowerSeries.X).symm, WittLift.eval₂_C_X_powerSeries] at h0
+      from (Polynomial.hom_eval₂ P _ ψ PowerSeries.X).symm, WittVector.eval₂_C_X_powerSeries] at h0
     exact Polynomial.coe_eq_zero_iff.mp (hψ (by rw [h0, map_zero]))

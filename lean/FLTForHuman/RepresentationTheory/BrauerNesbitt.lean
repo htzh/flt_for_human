@@ -26,7 +26,7 @@
   and `BrauerNesbitt` are the port's (`p2m_export`/`p2m_open` scaffolding dropped; it
   only re-aliased mathlib's own `Module`/`Representation` vocabulary, which resolves
   directly). The pin's two `end Module.End` closers are written as two bare `end`s
-  (playbook §7: `end A.B` closes one scope for the checker's namespace tracker).
+  (the checker's namespace tracker closes one scope per `end`).
 
   Two helpers are **promoted** (2026-10-20): `Representation.range_asAlgebraHom_toLinearMap`
   and `Representation.span_range_eq_top_iff_surjective_asAlgebraHom` are also pin
@@ -332,7 +332,7 @@ section Dictionary
 
 variable {k G V : Type*} [Field k] [Monoid G] [AddCommGroup V] [Module k V]
 
-theorem _root_.Representation.range_asAlgebraHom_toLinearMap (ρ : Representation k G V) :
+theorem range_asAlgebraHom_toLinearMap (ρ : Representation k G V) :
     LinearMap.range ρ.asAlgebraHom.toLinearMap = Submodule.span k (Set.range ⇑ρ) := by
   refine le_antisymm ?_ ?_
   · rintro _ ⟨r, rfl⟩
@@ -348,7 +348,7 @@ theorem _root_.Representation.range_asAlgebraHom_toLinearMap (ρ : Representatio
     exact ⟨MonoidAlgebra.single g 1, ρ.asAlgebraHom_single_one g⟩
 
 
-theorem _root_.Representation.span_range_eq_top_iff_surjective_asAlgebraHom (ρ : Representation k G V) :
+theorem span_range_eq_top_iff_surjective_asAlgebraHom (ρ : Representation k G V) :
     Submodule.span k (Set.range ⇑ρ) = ⊤ ↔ Function.Surjective ρ.asAlgebraHom := by
   rw [← range_asAlgebraHom_toLinearMap]
   exact LinearMap.range_eq_top

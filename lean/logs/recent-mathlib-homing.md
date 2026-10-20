@@ -2,7 +2,10 @@
 
 > The durable statement of the problem, the criterion, the trade-offs and the namespace standard is
 > [../topics/TOPIC-mathlib-module-homing.md](../topics/TOPIC-mathlib-module-homing.md); this file is
-> the measured record and the list of what is not yet fixed.
+> the measured record and the list of what is not yet fixed. The residue of §3 is scheduled, module
+> by module, in [../topics/TOPIC-mathlib-module-homing.md](../topics/TOPIC-mathlib-module-homing.md)
+> §8 (landed 2026-10-20) — that section owns the target homes, the namespace map and the acceptance
+> gates; this file stays the measurement of what the first pass did.
 
 **Manager's pass, 2026-10-20.** Prompted by two visible mismatches — a `Combinatorics/SimpleGraph`
 module whose declarations were mostly `GroupTheory.GraphTransversal`, and `LinearAlgebra/Matrix`
@@ -49,27 +52,35 @@ namespace `P2mWs11Desc` renamed to `Representation.SubfieldBasisAux`).
 
 **Path wrong (fixed by moving):** the two Matrix modules above; `SubfieldBasis`.
 
-**Path right, namespace is a pin engine name (left for a later descriptive pass):**
-`P2MKcIgusaGroup` (`Algebra/AddAutTransvectionFrame`), `P2MKcOrbitCensus`
-(`Algebra/FunctionOrbitCensus`), `P2MKcMarksA4` (`Algebra/MulActionOrbitCounts`),
-`P2MKcCB`/`P2MKcADAPT` (`Algebra/TorsionByCoordinates`), `M4aP3B.Rows`/`Ws50CH3`
-(`Analysis/DecayEstimates`, `Topology/Algebra/LocallyConstantCompactSupport`), `A2HexPoisson`
-(`Analysis/Theta/HexagonalLattice`), `IBPLattice` (`Analysis/FundamentalDomainIntegration`),
+**Path right, namespace was a pin engine name (re-homed 2026-10-20; [../topics/TOPIC-mathlib-module-homing.md](../topics/TOPIC-mathlib-module-homing.md) §8):**
+`P2MKcIgusaGroup` (`Algebra/AddAut/TransvectionFrame`), `P2MKcOrbitCensus`
+(`GroupTheory/GroupAction/OrbitCensus`), `P2MKcMarksA4` (`GroupTheory/GroupAction/OrbitCounts`),
+`P2MKcCB`/`P2MKcADAPT` (`Algebra/Module/Torsion/Coordinates`), `M4aP3B.Rows`/`Ws50CH3`
+(`Analysis/Calculus/SeminormBound` + `Analysis/SpecialFunctions/Pow/Decay`, `Topology/Algebra/LocallyConstantCompactSupport`), `A2HexPoisson`
+(`Analysis/Theta/HexagonalLattice`), `IBPLattice` (`Analysis/Fourier/FundamentalDomainIntegration`),
 `AdjoinExt` (`FieldTheory/AdjoinExtension`), `TrDesc`/`TrFrob`/`TrFinal`
 (`LinearAlgebra/Matrix/SimultaneousEigenbasis`), `Ef8d`
 (`LinearAlgebra/FinrankStableInequality`), `RS40E`/`PPSeries43`
 (`NumberTheory/LSeries/AnalyticContinuation`), `K2Seam3` (`NumberTheory/SquarefreeValues`),
 `M4aP1R` (`NumberTheory/UnimodularLift`), `ChevalleyHom`
-(`NumberTheory/ValuationSubring/ChevalleyExtension`), `CardC0` (`NumberTheory/ZModPowerTsum`),
-`SolIntClosDVR` (`RingTheory/IntegralClosureCompleteDVR`), `EngineCoreSol`/`RankOneNilSol`
-(`RingTheory/LocalRingNilpotent`), `WittLift` (`RingTheory/WittVectorLift`), `P2mLogBranch`/
+(`RingTheory/Valuation/ChevalleyExtension`), `CardC0` (`NumberTheory/ZModPowerTsum`),
+`SolIntClosDVR` (`RingTheory/IntegralClosure/CompleteDVR`), `EngineCoreSol`/`RankOneNilSol`
+(`RingTheory/LocalRing/{DimensionOne,IdempotentLift}`), `WittLift` (`RingTheory/WittVector/Lift`), `P2mLogBranch`/
 `RedIntClosure` (`Analysis/Complex/LogBranchAndPrimitiveRoot`). These are FLT's names for objects
-mathlib lacks ("keep FLT's where it does not"), in paths that already are their subjects; a
-descriptive rename is a separate campaign.
+mathlib lacks ("keep FLT's where it does not"), in paths that already were their subjects. The
+rehoming pass then renamed them to the object's namespace (or to a subject aux namespace:
+`GroupTheory.MarksTwelve`, `LSeries.Abscissa`, `ZMod.BernoulliTsum`, `Matrix.TransposeMulVec`); the
+seven older ones remain a separate campaign.
 
-**Path and namespace both right (no change):** `Algebra/{IsAddCyclicSquarefree,
-FunctionSeparation,BrauerNesbittRepresentation}`, `Analysis/{CompactOperatorFiniteDimensional,
-StarSubalgebraIntegral,FourierIntegralFlip,MatrixGroup/*}`, `FieldTheory/TranscendentalAdjoin`,
+**Path and namespace both right (as surveyed; the rehoming pass later moved several to a
+subject directory — `IsAddCyclicSquarefree` → `GroupTheory/SpecificGroups/CyclicSquarefree`,
+`BrauerNesbittRepresentation` → `RepresentationTheory/BrauerNesbitt`,
+`CompactOperatorFiniteDimensional` → `Analysis/Normed/Operator/`,
+`StarSubalgebraIntegral` → `Topology/ContinuousMap/`, `FourierIntegralFlip` →
+`Analysis/Fourier/VectorIntegralFlip`, `ClassGroupSupport` → `RingTheory/ClassGroup/Support` — their
+namespaces were already right):** `Algebra/{IsAddCyclicSquarefree,FunctionSeparation,
+BrauerNesbittRepresentation}`, `Analysis/{CompactOperatorFiniteDimensional,StarSubalgebraIntegral,
+FourierIntegralFlip,MatrixGroup/*}`, `FieldTheory/TranscendentalAdjoin`,
 `GroupTheory/ExactFundamentalDomain`, `LinearAlgebra/{Dual/EvalSpan,Matrix/SL2Generation,
 Matrix/SpecialLinearGroupHermite}`, `RepresentationTheory` (post-wrapper), `RingTheory/
 DedekindDomain/ClassGroupSupport`, `Topology/…`.
@@ -137,3 +148,28 @@ python3 spec/check_port.py --force FLTForHuman/Combinatorics/SimpleGraph/Transve
 python3 spec/check_port.py --force FLTForHuman/GroupTheory/FreeGroup/KuroshRank.lean
 python3 spec/check_port.py --all
 ```
+
+## 7. The rehoming pass (2026-10-20)
+
+The residue of §3 was scheduled in
+[../topics/TOPIC-mathlib-module-homing.md](../topics/TOPIC-mathlib-module-homing.md) §8 and landed
+the same day, all five waves: the 45 supplements were re-homed and namespace-rectified
+(21 modules lost their pin labels — 302 declarations; the two that name their subject, `ChevalleyHom`
+and `A2HexPoisson`, kept theirs), three mixed-subject modules were split (`TorsionFinite`,
+`DecayEstimates`, `LocalRingNilpotent`), the dependency inversion of §3 was broken
+(`FreeProduct` no longer imports `ModularForms/Analytic/PeterssonCoset`; the pin's five-line
+`det_entries` is restated `private` there), and the module headers record where each pin namespace
+went.
+
+Measured: **845 `ok` + 7 `own`, 0 mismatch / 0 missing / 0 kw** over the 49 files that now carry the
+45 modules (872 verdicts before; the 20-verdict delta is 19 privated declarations — `main`,
+`_impl`, `gate_*`, `_proved` and `isIntegral_apply` — and one deduplicated `mul_apply'`); whole wired tree **3,486 ok / 0 / 0 /
+11 own / 0 kw over 133 modules** (3,506 over 130 before; the three extra modules are the splits).
+Dependency metric **845 modules / 1,954 edges / 434 cross-area** (842 / 1,955 / 436 before), and no
+supplement imports an FLT-domain module. The decisions taken where the plan's table moved — the
+namespace-shadowing fallbacks, the root `UnimodularLift`/`FinrankStable`, the private local
+`det_entries`, the dropped cosmetic `PoissonSummation/` split — are recorded in that note's §8.11.
+
+The seven older pin-code namespaces (`M4aS4`, `M4aLocalCFT`, `M4aHerbrand`, `P2MKcSerreTate`,
+`P2MKcCQJvc`/`P2MKcCQJbc`) and the 24-window FLT-domain ones (`HeckeCharacter/Equality`,
+`ModularForms/CohCarrier/TorsionOrbit`, …) are untouched: those modules are not supplements.

@@ -377,7 +377,7 @@ end Extend
 open IsGraph Polynomial in
 /-- Chevalley's theorem: a ring hom `R →+* Ω` with `Ω` algebraically closed extends to
 a valuation subring of `L` containing `R`, with the maximal ideal as its kernel. -/
-theorem main [IsAlgClosed Ω] (R : Subring L) (φ : R →+* Ω) :
+private theorem main [IsAlgClosed Ω] (R : Subring L) (φ : R →+* Ω) :
     ∃ (O : ValuationSubring L) (h : R ≤ O.toSubring) (ψ : O →+* Ω),
       ψ.comp (Subring.inclusion h) = φ ∧ RingHom.ker ψ = IsLocalRing.maximalIdeal O := by
   classical

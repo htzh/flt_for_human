@@ -26,7 +26,7 @@ Group A: `AlgebraicCurve/{ConstantReduction 192/14, RegularProlongation 136/7, G
 `FieldTheory/TranscendentalAdjoin 303/3`, `NumberTheory/{SquarefreeValues 406/9, UnimodularLift 140/5,
 ValuationSubring/ChevalleyExtension 525/28}`.
 Group B: `NumberTheory/ZModPowerTsum 143/7`, `ModularForms/Eisenstein/{ConstTermCubeIntegral 254/6,
-ResidueSumQExpansion 319/1}`, `Algebra/TorsionByCoordinates 715/41`,
+ResidueSumQExpansion 319/1}`, `Algebra/Module/Torsion/Coordinates 715/41`,
 `ModularForms/CohCarrier/TorsionOrbit 771/98`.
 Group C: `HeckeCharacter/{FiniteOrder 58/3, Equality 754/7}`, `ModularForms/QCoeffLevelOne 459/28`,
 `ModularCurve/{Defs/OmegaOf 125/4, Period/ThetaMul 70/1, OmegaRowT2 553/51}`.

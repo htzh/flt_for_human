@@ -63,7 +63,7 @@ transport and coefficient fixing; all subring-descent/carrier declarations (`sub
 form; `Hilbert90.aux_ne_zero` is the scalar analogue of `eq_zero_of_forall_dotProduct_glnPoincareVec`);
 `glnPoincare`, `glnTwistedNorm`, `scalarGL`, `IsConjugatorCocycle`/`Family`; the finite-field
 norm-one normalisation; and the Brauer–Nesbitt bridge (that node is imported from
-`Algebra/BrauerNesbittRepresentation.lean`).
+`RepresentationTheory/BrauerNesbitt.lean`).
 
 **No deviations, no `own:` rows, no blockers, nothing owed.** `spec/decl_markers.tsv` was not
 touched.
@@ -75,4 +75,4 @@ The `Representation` family in the D-S cone is now **complete**: six nodes, 2,35
 (`21 + 103`), 0 mismatch / 0 missing. Global checker after both landings:
 **3,010 ok / 0 mismatched / 0 missing / 11 own / 0 kw over 117 wired modules** (was
 2,884 / 109 before the family; the +126 is 21 + 103 + the 2 promoted helpers now diffed in
-`Algebra/BrauerNesbittRepresentation.lean`).
+`RepresentationTheory/BrauerNesbitt.lean`).

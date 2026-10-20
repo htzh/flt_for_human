@@ -42,10 +42,11 @@ the pin's statement authority is
 Here `heckeU k p f` is the `U_p` of [math/030](../../../math/030-petersson-adjointness-of-hecke.md) §3,
 `heckeDiagMatrix p` is `diag(p,1)`, and `starRingEnd ℂ` is complex conjugation.
 
-**Façade note.** `PeterssonHeckeTheorems.lean` exists because the checker wires modules, not
-declarations: it carries the pin wrapper's statement verbatim (+1) while the engine stays tier 3. It is a bridge, not a permanent home — when the checker gains per-declaration wiring
-([CARRY-FORWARD.md](../../CARRY-FORWARD.md), "Checker: per-declaration wiring") the headline folds
-into the engine and the façade is deleted.
+**Façade note.** `PeterssonHeckeTheorems.lean` exists because the legacy checker wires modules, not
+declarations: it carries the pin wrapper's statement verbatim (+1) while the engine stays tier 3.
+It is a bridge, not a permanent home — the current checker takes its wire from the module header
+(`spec/check_port.py`, playbook §4), so the headline can fold into the engine and the façade then
+be deleted.
 
 ## 1. Where it is homed, and why
 

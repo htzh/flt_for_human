@@ -67,7 +67,7 @@
   * the pin's `p2m_open`/`p2m_export`/`p2m_reactivate`/`p2m_alias` lines and its
     `P2MW.S_…` wrapper namespace are dropped: the declarations sit in the pin's own inner
     namespaces (`Matrix`, `DeligneSerre`), as in the port's `GaloisRep/Deformation` siblings and
-    `Algebra/BrauerNesbittRepresentation.lean`. The pin's `p2m_export "Matrix" …` list exists only
+    `RepresentationTheory/BrauerNesbitt.lean`. The pin's `p2m_export "Matrix" …` list exists only
     because its `P2M….Matrix` namespace shadowed mathlib's; there is no shadowing here, so the
     export scaffold is not transcribed;
   * `import Mathlib` / `import P2M.Util` are not carried; the import list is the file's own

@@ -67,7 +67,7 @@ by 197 pin `S_`/`Theorems` files) vendors four blocks of mathlib **4.30.0** API 
 removed:
 
 - **block D** (lines 124–340): `instance : Group (AddAut A)` plus thirteen primed lemmas
-  (`coe_mul'`, `mul_apply'`, `inv_def'`, …). **Homed** as `FLTForHuman/Algebra/AddAutCompat.lean`,
+  (`coe_mul'`, `mul_apply'`, `inv_def'`, …). **Homed** as `FLTForHuman/Algebra/AddAut/Compat.lean`,
   because v4.34 gives `AddAut` only an *additive* group and the `AddAut` node's statement
   (`(H : Subgroup (AddAut (ZMod M × ZMod M)))`) cannot elaborate without a `Group` instance. `rg` cannot
   see this need — it is a typeclass instance, not a symbol — so a "the compat import is dead" reading is
@@ -467,32 +467,17 @@ edits a frozen module.
 
 ## Open follow-ups
 
-### Checker: per-declaration wiring — retire the façade pattern
+### The `mapGL` entry lemmas have no library home
 
-`PORT_FILES` is a **module** list, so a pin `Theorems/Thm_*.lean` wrapper — one declaration, the
-statement authority — can only be wired by giving it a one-declaration port module (a "façade")
-beside its tier-3 engine, or by wiring the engine whole and diffing its internal helpers. The pin
-has **29,511** `Theorems/` files, so one façade per wired wrapper does not scale. The five pure
-façades today:
-
-- `FLTForHuman/AutomorphicForm/Adelic/Siegel/SlabCoveringTheorems.lean`
-- `FLTForHuman/AutomorphicForm/Adelic/ArchKFiniteFamilyTheorems.lean`
-- `FLTForHuman/AutomorphicForm/Adelic/UnitFactorizableTheorems.lean`
-- `FLTForHuman/ModularForms/CohCarrier/CommTriplet.lean` (three headlines)
-- `FLTForHuman/ModularForms/Analytic/PeterssonHeckeTheorems.lean`
-
-Fix: a per-declaration wired list in `spec/old_check_stmts.py`, e.g.
-
-```python
-WIRED = ["CuspForm.peterssonOn_hecke_eq_conj_mul_of_hasNebentypus", ...]
-```
-
-scanned in addition to `PORT_FILES`; a module can then stay unlisted (tier 3, registered) while the
-named declaration is diffed. The façade collapses into the engine — the headline is stated
-verbatim at the end of the engine — and the five façades above can be deleted. The `--selftest`
-must cover the new path: a mutated wired declaration has to produce exactly one `mismatched`.
-Pricing: the checker edit + selftest + moving five headlines; each façade is ~30 lines and one
-declaration. Do not add a sixth façade before this lands.
+`mapGL_apply`, `val_mapGL_eq`, `mapGL_injective` and `det_entries` live with their modular-forms
+consumers in `FLTForHuman/ModularForms/Analytic/PeterssonCoset.lean`. The group-theory module
+`GroupTheory/ModularGroup/FreeProduct` used to import that module for `det_entries` — a dependency
+inversion, broken 2026-10-20 by a private local copy (the pin restates the same five lines) — and a
+single library home, `LinearAlgebra/Matrix/SpecialLinearGroupMapGL.lean`, is the proper fix once
+the five consumers (`Analytic/NormSqPow`, `HeckePrelude`, `SturmBound`, `Analytic/PeterssonCoset`,
+and the private copies in `ModularGroup`/`Gamma1Vanishing`) are updated together. Do not move them
+piecemeal: the four are general `SL(2, ℤ)`/`mapGL` facts, but moving them changes every unqualified
+reference reached through `open CuspForm.PeterssonCoset`.
 
 ### `AlgebraicCurve.essFiniteType_of_transcendental_of_finiteDimensional`
 

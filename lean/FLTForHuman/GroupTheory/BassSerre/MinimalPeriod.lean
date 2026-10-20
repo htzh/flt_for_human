@@ -26,7 +26,7 @@
   `coe_mul` is mathlib's `Subgroup.coe_mul`) — and the port does not home it.  The
   node's `AddAut (CoprodI G →₀ ℤ)` values only use the additive `AddEquiv`
   structure, which `v4.34.0` provides, so block D
-  (`FLTForHuman/Algebra/AddAutCompat.lean`) is not needed here either.
+  (`FLTForHuman/Algebra/AddAut/Compat.lean`) is not needed here either.
   `P2M.Util` is metaprogramming only; its `p2m_open`/`p2m_reactivate` are spelled
   `open` or dropped.
 

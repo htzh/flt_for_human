@@ -8,7 +8,8 @@
 
   The port of the pin leaf `ZMod.tsum_intCast_pow_inv_eq_sum_bernoulliFun`
   (`P2M/Sol/S_ZMod_tsum_intCast_pow_inv_eq_sum_bernoulliFun.lean` — 101 pin lines;
-  the pin's `S_` development is `namespace CardC0`, kept here under the pin's own
+  the pin's `S_` development is `namespace ZMod
+namespace BernoulliTsum`, kept here under the pin's own
   namespace and its short names untouched), together with the statement of its
   `Theorems/` wrapper `Theorems/Thm_ZMod_tsum_intCast_pow_inv_eq_sum_bernoulliFun.lean`.
 
@@ -40,7 +41,8 @@ set_option autoImplicit false
 open Real Complex
 open scoped Nat
 
-namespace CardC0
+namespace ZMod
+namespace BernoulliTsum
 
 variable {N : ℕ} [NeZero N] {k : ℕ}
 
@@ -101,7 +103,7 @@ lemma indicator_eq_sum (a b : ZMod N) :
 
 /-- The `k`-th power sum over the residue class `a mod N`, as a finite sum of
 periodised Bernoulli values. -/
-theorem main (hk : 2 ≤ k) (a : ZMod N) :
+private theorem main (hk : 2 ≤ k) (a : ZMod N) :
     ∑' d : {d : ℤ // (d : ZMod N) = a}, ((d : ℂ) ^ k)⁻¹ =
       -(2 * π * I) ^ k / (k ! * N) *
         ∑ r : ZMod N, ZMod.stdAddChar (-(r * a)) * (bernoulliFun k ((r.val : ℝ) / N) : ℂ) := by
@@ -133,11 +135,12 @@ theorem main (hk : 2 ≤ k) (a : ZMod N) :
   have hN : (N : ℂ) ≠ 0 := by exact_mod_cast NeZero.ne N
   field_simp
 
-end CardC0
+end BernoulliTsum
+end ZMod
 
 theorem ZMod.tsum_intCast_pow_inv_eq_sum_bernoulliFun (N : ℕ) [NeZero N] (k : ℕ) (hk : 2 ≤ k)
     (a : ZMod N) :
     ∑' d : {d : ℤ // (d : ZMod N) = a}, ((d : ℂ) ^ k)⁻¹ =
       -(2 * π * I) ^ k / (k ! * N) *
         ∑ r : ZMod N, ZMod.stdAddChar (-(r * a)) * (bernoulliFun k ((r.val : ℝ) / N) : ℂ) :=
-  CardC0.main hk a
+  ZMod.BernoulliTsum.main hk a

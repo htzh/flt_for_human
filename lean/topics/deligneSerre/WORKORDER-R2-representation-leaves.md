@@ -61,7 +61,7 @@ hom and `Representation`.
   which mathlib area was searched and what was found (`§6`'s "mathlib-first" rule).
 
 The port already holds two of `span_range`'s helpers as **private** in
-`FLTForHuman/Algebra/BrauerNesbittRepresentation.lean` (`range_asAlgebraHom_toLinearMap` 15 lines,
+`FLTForHuman/RepresentationTheory/BrauerNesbitt.lean` (`range_asAlgebraHom_toLinearMap` 15 lines,
 `span_range_eq_top_iff_surjective_asAlgebraHom` 5). **Promote them** (they are pin declarations;
 the checker's promoted-from-pin-private fallback diffs them) and import, rather than re-prove; the
 node's two remaining helpers (`surjective_toModuleEnd_of_surjective_algebraMap_end` 35,

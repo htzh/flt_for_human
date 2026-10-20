@@ -1,78 +1,41 @@
 /-
-  Two local-ring supplements for a one-dimensional local domain:
+  Two idempotents that are congruent modulo the base maximal ideal after base change lift to
+  one common residue:
 
-  * `IsLocalRing.exists_dvd_pow_of_krullDimLE_one` — for `b ≠ 0` and `c` in the
-    maximal ideal there is `n` with `b ∣ c ^ n` (the maximal ideal is the radical
-    of `(b)`), and
-  * `IsLocalRing.exists_sub_algebraMap_mem_map_maximalIdeal_of_mul_self_sub_mem_of_smul_eq_add`
-    — two idempotents `e`, `e'` which are congruent modulo the base maximal ideal
-    after base change and satisfy a torsion hypothesis are simultaneously
-    congruent to the image of one `r : R`.
+      `IsLocalRing.exists_sub_algebraMap_mem_map_maximalIdeal_of_mul_self_sub_mem_of_smul_eq_add`.
 
-  The ports of the two pin leaves (33 and 171 pin lines), together with the
-  statements of their `Theorems/` wrappers, grouped as the order's `IsLocalRing`
-  family (one of the two is a sub-80-line entry).
+  The port of the pin leaf of that name (171 pin lines), statement from its `Theorems/`
+  wrapper and proof from the matching `P2M/Sol/S_…` file (pinned `aa2d8b3`). Split out of the
+  former `RingTheory/LocalRingNilpotent` module (2026-10-20): the dimension-one divisibility
+  fact beside it is a different subject and lives in
+  `RingTheory/LocalRing/DimensionOne.lean`. The pin's block namespace `EngineCoreSol` is a
+  proof label and is gone; its helpers keep their short names under the class's own
+  namespace, `IsLocalRing`.
 
-  The mathematics of the first: `(b).radical` is the intersection of the primes
-  over `(b)`; over a one-dimensional local ring the only prime over a nonzero
-  proper ideal is the maximal ideal, so `c ∈ (b).radical`, i.e. `c ^ n ∈ (b)`.
+  The mathematics: `P ⧸ (b)` is a local ring whose quotient by the maximal ideal has
+  nilpotent kernel, so an idempotent lifts (`exists_isIdempotentElem_eq_of_ker_isNilpotent`);
+  comparing the two lifts modulo `(b)` and dividing by `π` with the torsion hypothesis
+  produces the common residue `r`.
 
-  The mathematics of the second: `P ⧸ (b)` is a local ring whose quotient by the
-  maximal ideal has nilpotent kernel, so an idempotent lifts (`exists_isIdempotentElem_eq_of_ker_isNilpotent`);
-  comparing the two lifts modulo `(b)` and using the torsion hypothesis to divide
-  by `π` produces the common residue `r`.
-
-  Assumes: mathlib `v4.34.0` only — nothing from earlier modules of the port.
-
-  Mathlib-first check (2026-10-20): mathlib has neither statement — `rg -n
-  "exists_dvd_pow_of_krullDimLE"` and `rg -n
-  "exists_sub_algebraMap_mem_map_maximalIdeal"` over `Mathlib/` find nothing.
-  Ingredients imported rather than restated: `Ideal.radical_eq_sInf`,
-  `IsLocalRing.le_maximalIdeal`, `IsLocalRing.eq_maximalIdeal`,
-  `Ideal.IsPrime.isMaximal_of_ne_bot`, `Ideal.mem_span_singleton`,
-  `Ideal.Quotient.factor`, `exists_isIdempotentElem_eq_of_ker_isNilpotent`,
+  Assumes: mathlib `v4.34.0` only. Mathlib has no such statement (`rg -n
+  "exists_sub_algebraMap_mem_map_maximalIdeal" Mathlib/` is empty, 2026-10-20). Ingredients
+  imported rather than restated: `Ideal.Quotient.factor`,
+  `exists_isIdempotentElem_eq_of_ker_isNilpotent`,
   `eq_of_isNilpotent_sub_of_isIdempotentElem`.
 
-  Drift: the pin's two bare `import Mathlib`s became the three modules below.
-
-  spec-pin: Theorems/Thm_IsLocalRing_exists_dvd_pow_of_krullDimLE_one.lean
-  spec-pin: P2M/Sol/S_IsLocalRing_exists_dvd_pow_of_krullDimLE_one.lean
   spec-pin: Theorems/Thm_IsLocalRing_exists_sub_algebraMap_mem_map_maximalIdeal_of_mul_self_sub_mem_of_smul_eq_add.lean
   spec-pin: P2M/Sol/S_IsLocalRing_exists_sub_algebraMap_mem_map_maximalIdeal_of_mul_self_sub_mem_of_smul_eq_add.lean
 -/
-import Mathlib.RingTheory.KrullDimension.Basic
 import Mathlib.RingTheory.LocalRing.RingHom.Basic
 import Mathlib.RingTheory.Ideal.Operations
 import Mathlib.RingTheory.Idempotents
+import Mathlib.RingTheory.Nilpotent.Lemmas
 
 set_option autoImplicit false
 
 open IsLocalRing
 
-namespace RankOneNilSol
-
-theorem exists_dvd_pow {R : Type*} [CommRing R] [IsDomain R] [IsLocalRing R] [Ring.KrullDimLE 1 R]
-    {b : R} (hb : b ≠ 0) {c : R} (hc : c ∈ maximalIdeal R) : ∃ n : ℕ, b ∣ c ^ n := by
-  by_cases hu : IsUnit b
-  · exact ⟨0, hu.dvd⟩
-  · have hne : Ideal.span {b} ≠ ⊤ := by
-      rwa [Ne, Ideal.span_singleton_eq_top]
-    have hrad : (Ideal.span {b}).radical = maximalIdeal R := by
-      rw [Ideal.radical_eq_sInf]
-      refine le_antisymm (sInf_le ⟨IsLocalRing.le_maximalIdeal hne, inferInstance⟩) (le_sInf ?_)
-      rintro J ⟨hJ, hJp⟩
-      have hJ0 : J ≠ ⊥ := by
-        intro h0
-        rw [h0, Ideal.span_singleton_le_iff_mem, Ideal.mem_bot] at hJ
-        exact hb hJ
-      exact (IsLocalRing.eq_maximalIdeal (hJp.isMaximal_of_ne_bot hJ0)).ge
-    have hc' : c ∈ (Ideal.span {b}).radical := hrad ▸ hc
-    obtain ⟨n, hn⟩ := hc'
-    exact ⟨n, Ideal.mem_span_singleton.mp hn⟩
-
-end RankOneNilSol
-
-namespace EngineCoreSol
+namespace IsLocalRing
 
 variable {R : Type*} [CommRing R]
 
@@ -171,15 +134,8 @@ theorem map_mem_map_maximalIdeal [IsLocalRing R] {P P'' : Type*} [CommRing P] [C
   rw [Ideal.map_map, u.toRingHom_eq_coe, u.comp_algebraMap] at h
   exact h
 
-end EngineCoreSol
+end IsLocalRing
 
-open EngineCoreSol in
-theorem IsLocalRing.exists_dvd_pow_of_krullDimLE_one
-    {R : Type*} [CommRing R] [IsDomain R] [IsLocalRing R] [Ring.KrullDimLE 1 R]
-    {b : R} (hb : b ≠ 0) {c : R} (hc : c ∈ IsLocalRing.maximalIdeal R) : ∃ n : ℕ, b ∣ c ^ n := by
-  exact RankOneNilSol.exists_dvd_pow hb hc
-
-open EngineCoreSol in
 theorem IsLocalRing.exists_sub_algebraMap_mem_map_maximalIdeal_of_mul_self_sub_mem_of_smul_eq_add
     {R : Type*} [CommRing R] [IsLocalRing R]
     {P P' P'' : Type*} [CommRing P] [CommRing P'] [CommRing P'']

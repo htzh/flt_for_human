@@ -58,7 +58,7 @@ Landed 2026-10-20 as `FLTForHuman/Analysis/Fourier/PoissonSummationPi.lean` (613
 
 Oleans that had to be rebuilt during this session (some were absent with only `.olean.hash`/`.trace`
 left): `FLTForHuman/ModularForms/Level/Degeneracy`, `FLTForHuman/ModularForms/Eisenstein/ConstTermCubeIntegral`,
-`FLTForHuman/Algebra/TorsionByCoordinates`, `FLTForHuman/ModularForms/CohCarrier/TorsionOrbit`. In
+`FLTForHuman/Algebra/Module/Torsion/Coordinates`, `FLTForHuman/ModularForms/CohCarrier/TorsionOrbit`. In
 addition, two **mathlib** modules have no olean in this tree — `Mathlib.Tactic.Omega` and
 `Mathlib.LinearAlgebra.Quotient` — although neither import turned out to be needed (`omega` ships in the
 core toolchain; the `Quotient` API arrives transitively). Symptom: `unknown identifier` or `object file …
@@ -83,6 +83,6 @@ job. This cost one wrong diagnosis this session (a "blocked" module that was in 
 ## 6. The head of the distribution (not defects, but watch these)
 
 Measured this session at the library cap: `ResidueSumQExpansion` **36 s**, `LogBranchAndPrimitiveRoot`
-**20 s**, `HexagonalLattice` **16–18 s**, `PeriodPair/InvariantsTorsion` **14 s**, `MulActionOrbitCounts`
+**20 s**, `HexagonalLattice` **16–18 s**, `PeriodPair/InvariantsTorsion` **14 s**, `GroupTheory/GroupAction/OrbitCounts`
 9.5 s build; everything else in the ~60 new modules is **2–13 s**. No module in the wave needed more than
 200k hearts except the two in §1–§2.

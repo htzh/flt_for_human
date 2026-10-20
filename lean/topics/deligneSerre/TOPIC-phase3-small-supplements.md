@@ -16,18 +16,18 @@ were already dispatched:
 
 | node (pin lines) | landed in |
 |---|---|
-| `ClassGroup.exists_finset_forall_exists_mk0_eq_of_dvd` (18) | phase 2 D — `RingTheory/DedekindDomain/ClassGroupSupport.lean` |
-| `IsAddCyclic.of_squarefree_natCard` (14) | phase 2 D — `Algebra/IsAddCyclicSquarefree.lean` |
+| `ClassGroup.exists_finset_forall_exists_mk0_eq_of_dvd` (18) | phase 2 D — `RingTheory/ClassGroup/Support.lean` |
+| `IsAddCyclic.of_squarefree_natCard` (14) | phase 2 D — `GroupTheory/SpecificGroups/CyclicSquarefree.lean` |
 | `Subalgebra.isIntegrallyClosed_adjoin_singleton_of_transcendental` (36) | phase 1 A — `FieldTheory/TranscendentalAdjoin.lean` |
-| `integrableOn_Ioi_min_one_rpow…` (42) | phase 2 F — `Analysis/DecayEstimates.lean` |
-| `AddChar.exists_continuousLinearMap_fourierChar_eq` (45) | phase 2 F — `Analysis/FourierIntegralFlip.lean` |
-| `ValuationRing.exists_ne_zero_forall_smul_eq_zero_of_module_finite` (52) | phase 2 F — `Algebra/TorsionFinite.lean` |
+| `integrableOn_Ioi_min_one_rpow…` (42) | phase 2 F — `Analysis/SpecialFunctions/Pow/Decay.lean` |
+| `AddChar.exists_continuousLinearMap_fourierChar_eq` (45) | phase 2 F — `Analysis/Fourier/VectorIntegralFlip.lean` |
+| `ValuationRing.exists_ne_zero_forall_smul_eq_zero_of_module_finite` (52) | phase 2 F — `RingTheory/Valuation/FiniteModule.lean` |
 | `Polynomial.natDegree_le_of_aeval_mul_inv_pow_mem_adjoin_inv` (53) | phase 1 A — `FieldTheory/TranscendentalAdjoin.lean` |
 | `RingHom.finiteDimensional_adjoin_range_of_finite_of_forall_mem_range` (58) | phase 2 F — `FieldTheory/AdjoinExtension.lean` |
-| `ContinuousMap.ae_eq_zero_of_forall_mem_starSubalgebra_integral_mul_eq_zero` (68) | phase 2 F — `Analysis/StarSubalgebraIntegral.lean` |
-| `LinearMap.exists_forall_eq_zero_of_tendsto_apply_of_finiteDimensional` (77) | phase 2 F — `Analysis/CompactOperatorFiniteDimensional.lean` |
-| `LaurentSeries.eq_C_coeff_zero_of_isAlgebraic` (77) | phase 2 F — `Algebra/LaurentSeriesAlgebraic.lean` |
-| `Submodule.finite_torsionBy_pow…` / `finiteDimensional_of_isCompactOperator…` (38 + 45) | phase 2 F — `Algebra/TorsionFinite.lean`, `Analysis/CompactOperatorFiniteDimensional.lean` |
+| `ContinuousMap.ae_eq_zero_of_forall_mem_starSubalgebra_integral_mul_eq_zero` (68) | phase 2 F — `Topology/ContinuousMap/StarSubalgebraIntegral.lean` |
+| `LinearMap.exists_forall_eq_zero_of_tendsto_apply_of_finiteDimensional` (77) | phase 2 F — `Analysis/Normed/Operator/CompactFiniteDimensional.lean` |
+| `LaurentSeries.eq_C_coeff_zero_of_isAlgebraic` (77) | phase 2 F — `RingTheory/LaurentSeriesAlgebraic.lean` |
+| `Submodule.finite_torsionBy_pow…` / `finiteDimensional_of_isCompactOperator…` (38 + 45) | phase 2 F — `RingTheory/Valuation/FiniteModule.lean`, `Analysis/Normed/Operator/CompactFiniteDimensional.lean` |
 | `AbsoluteValue.exists_forall_sub_lt_of_pairwise_not_isEquiv` (91) | phase 1 C — `HeckeCharacter/Equality.lean` |
 | `Int.exists_modEq_and_modEq_and_isCoprime` (95) | phase 1 A — `NumberTheory/UnimodularLift.lean` |
 | `IsLocallyConstant` pair (95 + 62) | phase 2 F |

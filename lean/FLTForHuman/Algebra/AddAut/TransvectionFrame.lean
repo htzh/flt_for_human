@@ -11,7 +11,7 @@
   (`Theorems/Thm_AddAut_exists_mem_apply_eq_of_addOrderOf_eq_of_transvection_mem.lean`
   and `P2M/Sol/S_AddAut_exists_mem_apply_eq_of_addOrderOf_eq_of_transvection_mem.lean`,
   pinned `aa2d8b3`; 370 pin lines). The statement is the wrapper's verbatim, the proof
-  the `S_` file's `solution` body (`P2MKcIgusaGroup.main M H htrans ht v w hv hw`); the
+  the `S_` file's `solution` body (`main M H htrans ht v w hv hw`); the
   pin's `solution` wrapper is not ported and the pin's inner namespace
   `P2MKcIgusaGroup` is kept verbatim.
 
@@ -23,7 +23,7 @@
   other.
 
   Assumes: mathlib `v4.34.0`, plus the port's own gate module
-  `Algebra/AddAutCompat.lean`. The pin's statement cannot even be *stated* without a
+  `Algebra/AddAut/Compat.lean`. The pin's statement cannot even be *stated* without a
   `Group (AddAut A)` instance: `Subgroup (AddAut (ZMod M × ZMod M))` needs it, and from
   mathlib `v4.33.0` on `AddAut` carries only an **additive** group structure ("We give
   `AddAut M` the structure of an additive group rather than a multiplicative group",
@@ -31,7 +31,7 @@
   pin restores the multiplicative structure in `Definitions/Def_Compat_Mathlib430.lean`
   block D, which is why its wrapper imports that file — an `rg` over the `S_` file's
   *symbols* cannot see a typeclass instance, so the import is anything but dead. Block D
-  is homed verbatim as `FLTForHuman/Algebra/AddAutCompat.lean` (17 declarations, 17 ok
+  is homed verbatim in `Algebra/AddAut/Compat.lean` (17 declarations, 17 ok
   against the pin definition module) and is the only declaration the node consumes from
   it: the proof's three `AddAut.inv_def'` rewrites and the wrapper's `Subgroup` shape.
   The pin's blocks A–C (`Representation`/`Rep` API) and E are not needed by this node and
@@ -46,7 +46,7 @@
   spec-pin: P2M/Sol/S_AddAut_exists_mem_apply_eq_of_addOrderOf_eq_of_transvection_mem.lean
 -/
 
-import FLTForHuman.Algebra.AddAutCompat
+import FLTForHuman.Algebra.AddAut.Compat
 import Mathlib.Data.ZMod.Basic
 import Mathlib.Algebra.Ring.AddAut
 import Mathlib.GroupTheory.OrderOfElement
@@ -54,7 +54,7 @@ import Mathlib.Tactic
 
 set_option autoImplicit false
 
-namespace P2MKcIgusaGroup
+namespace AddAut
 
 variable {M : ℕ} [NeZero M]
 
@@ -79,10 +79,6 @@ theorem apply_mk (h : AddAut (ZMod M × ZMod M)) (x y : ZMod M) :
     h (x, y) = (x * (h (1, 0)).1 + y * (h (0, 1)).1, x * (h (1, 0)).2 + y * (h (0, 1)).2) := by
   rw [apply_eq]
   ext <;> simp
-omit [NeZero M] in
-
-theorem mul_apply' (f g : AddAut (ZMod M × ZMod M)) (v : ZMod M × ZMod M) :
-    (f * g) v = f (g v) := rfl
 omit [NeZero M] in
 
 theorem intCast_smul (n : ℤ) (v : ZMod M × ZMod M) : (n : ZMod M) • v = n • v :=
@@ -408,7 +404,7 @@ end Frame
 
 end Main
 
-theorem main (M : ℕ) [NeZero M] (H : Subgroup (AddAut (ZMod M × ZMod M)))
+private theorem main (M : ℕ) [NeZero M] (H : Subgroup (AddAut (ZMod M × ZMod M)))
     (htrans : ∀ v w : ZMod M × ZMod M, addOrderOf v = M → addOrderOf w = M →
       ∃ h ∈ H, ∃ n : ℤ, h v = n • w)
     (ht : ∃ t ∈ H, ∃ ε : ℤ, (ε = 1 ∨ ε = -1) ∧
@@ -418,7 +414,7 @@ theorem main (M : ℕ) [NeZero M] (H : Subgroup (AddAut (ZMod M × ZMod M)))
   obtain ⟨Fr⟩ := exists_frame htrans ht
   exact exists_of_R (Fr.R_of_addOrderOf_eq htrans hv) (Fr.R_of_addOrderOf_eq htrans hw)
 
-end P2MKcIgusaGroup
+end AddAut
 
 theorem AddAut.exists_mem_apply_eq_of_addOrderOf_eq_of_transvection_mem (M : ℕ) [NeZero M] (H : Subgroup (AddAut (ZMod M × ZMod M)))
     (htrans : ∀ v w : ZMod M × ZMod M, addOrderOf v = M → addOrderOf w = M →
@@ -427,4 +423,4 @@ theorem AddAut.exists_mem_apply_eq_of_addOrderOf_eq_of_transvection_mem (M : ℕ
       t (1, 0) = ε • ((1, 0) : ZMod M × ZMod M) ∧ t (0, 1) = ε • ((1, 1) : ZMod M × ZMod M))
     (v w : ZMod M × ZMod M) (hv : addOrderOf v = M) (hw : addOrderOf w = M) :
     ∃ h ∈ H, h v = w :=
-  P2MKcIgusaGroup.main M H htrans ht v w hv hw
+  main M H htrans ht v w hv hw

@@ -6,7 +6,7 @@ in [logs/](logs/) and some a *review* in `topics/*-retrospective.md`, indexed wi
 numbers in §10. Read a record for what an effort did; read this before starting the next one.
 
 Three conventions. **The pin is the authority and faithfulness is mechanical**: every ported
-*statement* is diffed against the pin by `spec/old_check_stmts.py`, never trusted; where
+*statement* is diffed against the pin by `spec/check_port.py`, never trusted; where
 prose and Lean differ, the Lean is right. **The port is ours**: a module is a mathematical
 role, not a source file; shared mathematics is written once and promoted; adapters stay
 `private` — while FLT's declaration *names and statements* stay, so comparison stays
@@ -29,13 +29,12 @@ mechanical. **A node is ported whole** (§2.3). Earlier records cite an older nu
    time rather than counting rounds (§0.2). Hand over a complete, self-contained brief, then
    leave the agent alone — no polling, no micromanaging — and review when it reports (§0.2,
    §3.3, §3.4).
-5. **The manager owns the checker wiring, and the wire is the surface you choose to diff, not
-   every public declaration.** Public theorems (the API) stay public; a module is listed for the
-   statements that must stay verified, and the rest of its public surface — a shared engine, a
-   family of helpers — is recorded behind a declaration-level `pin:` marker. New work keeps
-   that marker in the central `spec/decl_markers.tsv` (checker metadata, not source); the legacy
-   modules keep the grandfathered `-- pin:` comments and the old register. Never make real
-   mathematics `private`, and never add a module, to make the checker's delta smaller (§4.1, §5).
+5. **The manager owns the statement check.** A module declares its pin sources in its own
+   header (`spec-pin:`), and `spec/check_port.py` diffs every public declaration against them;
+   a declaration that is renamed or deliberately spelled differently is recorded in the central
+   `spec/decl_markers.tsv` (checker metadata, never source). Public theorems (the API) stay
+   public: never make real mathematics `private`, and never add a module, to make a diff go
+   away (§4, §5).
 6. **Enforce the build discipline: plan, then edit in waves.** Build time is the one
    unbounded cost; keep the edit-loop cap low and fix what exceeds it — almost always an
    instance-inference defect — rather than raising it (§3.5, §6).
@@ -94,7 +93,7 @@ the capstone.
 - **Leave it alone while it works** — no polling, no progress churn; it reports at the set's
   end or at a stop condition, and the manager then reviews its tree (build, checker, consumer,
   code) before writing the next order (§3.4).
-- **Integration is the manager's**: the capstone and the wire test are the review instrument.
+- **Integration is the manager's**: the capstone and the checker run are the review instrument.
 - **Ask for artifacts, not narration** — modules, measured table, friction entries.
 - **Build investigation is a separate dispatch** briefed on
   [../notes/lean-build-cost.md](../notes/lean-build-cost.md) (§0.4).
@@ -162,7 +161,8 @@ whose mathematics is already there.
 - **Reachability decides which whole nodes enter**, not which declarations inside one are
   ported (§2.3): price on-path nodes, carry off-path nodes as a counted optional tail, and
   price definition modules separately.
-- Report the **outbound interface tier** and the **duplication already visible** in the pin.
+- Report the **outbound interface** the cone must export and the **duplication already visible**
+  in the pin.
 - **Close the measurement over proof-reached targets, not just the target files** — target
   proofs reach helper *targets* outside the set (the Riemann–Roch round found four).
 - **Ship a copy-pasteable regeneration recipe** with every measurement.
@@ -244,7 +244,7 @@ the plan and give them one home before writing the first module.** Detection is 
   declaration doing the same work under another name is invisible; check the *statement*.
 - **It is also an upper bound, and its worst false positives are `def … : Prop`** — the
   checker compares a `def`'s type, which for `def foo : Prop := P` is just `Prop`; read the pin
-  body or run `--prop-bodies` on every such row.
+  body, or diff it with the legacy checker's `--prop-bodies`, on every such row.
 - **Graph-node multiplicity undercounts copies**; quantify by *duplicate lines shipped*.
 - **A large pin-`private` block re-exported by name mangling is a promotion**: write it once
   publicly at the pinned names, promoting the *union* of the duplicates. **"Which side stays"
@@ -282,11 +282,14 @@ just go/no-go (record the pre- and post-scout numbers). A scout may **kill a rou
 FLT splits by artifact kind (`Def_`/`Thm_`/`S_`); the port splits by concept: one `Def_` file
 covering four subjects becomes four modules. All binding: **reading order is dependency order**,
 each header stating the subject, the FLT source and pin, and what it assumes from earlier
-modules; **docstrings carry the mathematics** (a one-line gloss for a name that does not state
-its content, a sentence for a construction); **adopt mathlib's names where it has them, keep
-FLT's where it does not**, and say which is which; **monomorphic helpers are documentation**,
-written the moment a `rw` reports no progress (§6), not before; **no self-consumed lemmas** — the
-node boundary is not a licence to carry dead scaffolding.
+modules; **a new header does not point at the notes** — no `playbook §…`, no `logs/…`, no
+`CARRY-FORWARD.md`: the source states the mathematics, its pin source and its assumptions, and the
+plan and the records carry the cross-references (existing citations are grandfathered; strip them
+when the module is next edited); **docstrings carry the mathematics** (a one-line
+gloss for a name that does not state its content, a sentence for a construction); **adopt mathlib's
+names where it has them, keep FLT's where it does not**, and say which is which; **monomorphic
+helpers are documentation**, written the moment a `rw` reports no progress (§6), not before; **no
+self-consumed lemmas** — the node boundary is not a licence to carry dead scaffolding.
 
 ### 3.2 Directory layout: one directory per theory
 
@@ -314,14 +317,15 @@ A **topic** is the unit of work: one mathematical step, one module or a small gr
 order, stating before any code the subject, pin source, exact statements, imports, route/risk,
 verification and build bound. The template: **(1) Scope** — one paragraph plus what is
 explicitly *not* this topic, the in-scope nodes, and that each is taken whole (§2.3); **(2)
-Source** — pinned files and line ranges, the wrappers for statements, and the `pin:
-<name> (<file>:<line>)` provenance entry in `spec/decl_markers.tsv`, owed **only on public
-declarations** (§4.1); no marker comment is added to the Lean source for new work;
+Source** — pinned files and line ranges and the wrappers that carry the statements, the module's
+`spec-pin:` header lines, and a `spec/decl_markers.tsv` entry only where one is needed (`pin:`
+for a rename or a copy outside the header, `own:` for a deliberate restatement — §4);
 **(3) Deliverable** —
 module path and declaration list, public vs `private`; **(4) Route** — the mathlib map, the
 alternatives, the recorded negatives, and a **stop-early risk list with a deviation protocol**;
 **(5) Build discipline** — the bound and the ladder (§3.5), copied in; **(6) Verification** —
-checker delta, consumer zones, `#print axioms`, `grep -c` of anything dropped. Update the
+checker run (`0 mismatched / 0 missing`), consumer zones, `#print axioms`, `grep -c` of anything
+dropped. Update the
 numbers in place when reconnaissance re-prices; re-cut a topic that straddles waves **by
 mathematical object** — construction, properties, consequence — without splitting a node.
 
@@ -348,7 +352,7 @@ subagent per set, review before the next, no polling) is §0.2.
   independent work rather than re-cutting it. If a driver's cadence fits the work badly, either
   widen the cadence or take the tail in hand — the archimedean Casimir set landed that way: one
   dispatch, interrupted at the verification step, with the manager finishing the private/public
-  decision, the drift fixes and the wiring. Record it in the set's own table, not as a failure.
+  decision, the drift fixes and the statement check. Record it in the set's own table, not as a failure.
 - **Keep a per-set measured table** (rounds / declarations / lines / build / axioms / checker /
   consumer, and for an interrupted set the split between worker and manager) and the friction
   log; close with a review, a plan-vs-actual honesty section, and retire the blueprint to
@@ -481,76 +485,56 @@ builds of seconds and the only whole-tree build is the session's last (§3.5).
 
 With a pinned source, correctness is checkable rather than trusted. Four instruments:
 
-1. **The statement checker** (`spec/old_check_stmts.py`) diffs every ported *statement*
-   (signature up to the first top-level `:=`/`where`; for a `structure`, header plus ordered
-   field names) against the pin, matching names after normalising namespace qualification.
-   Proofs are ignored: the port adapts proofs, never statements. Target `0 mismatched / 0
-   missing`; the *identical* count is the progress metric, its delta reconciled against the
-   **new wired public surface**. **This checker is frozen and is no longer the registry.**
-   Its `PORT_FILES`/`SOURCES` lists are the grandfathered set: do not add an entry to either.
-   A new module is wired in its own header (`spec-pin:`, below) and checked by
-   `spec/check_port.py`; a module is handed over by adding those lines and deleting its
-   `PORT_FILES` entry in the same change. While an entry remains, the old checker owns the
-   module and the new one exempts it. **Touching a legacy module hands it over**: any edit to a
-   module still named in `PORT_FILES` — a proof change, a promotion, a new consumer — is the
-   trigger, and the handoff rides in that same change. A half-done handoff is worse than either
-   state: a stale `PORT_FILES` entry silently keeps the module exempt from the new checker, and an
-   entry left at an old path after a move stops its declarations being verified at all. **Wiring is the manager's and is not owed to every public
-   declaration**: the API is wired so it stays verified, while the rest of a module's surface is
-   marked and registered rather than either wired or hidden. **Tier 3 is not "unlisted module".** A *listed* module may carry public
-   declarations the checker does not diff: a declaration-level marker records it — a `pin:` entry
-   in `spec/decl_markers.tsv` for new work, or the grandfathered `-- pin: <name>
-   (<file>:<line>)` comment above it — and a declaration whose marker names a pin file absent
-   from `SOURCES` is counted `UNWIRED` rather than reported `MISSING IN FLT`. (The legacy register
-   `spec/UNWIRED-PUBLIC.md` is generated by `spec/unwired_register.py` and is **not committed**:
-   regenerate it with that script, never edit it by hand. New modules do not need it.) So a
-   module can be listed for the statements that must stay verified — its headlines — while its
-   shared engine stays public, importable and findable. A marker is a **fallthrough**, not a
-   suppression: when the marker names a listed file, the marker's name is the copy diffed, and
-   when any `SOURCES` file already provides the same name and statement the declaration is diffed
-   anyway, so a marker can only remove a `missing`/`mismatch` that no listed source could justify.
-   The policy is *everything wired is checked; no public statement is forced to be wired*.
+1. **The statement checker** (`spec/check_port.py`) diffs every ported *statement* (signature up
+   to the first top-level `:=`/`where`; for a `structure`, header plus ordered field names)
+   against the pin. Proofs are ignored: the port adapts proofs, never statements. Target
+   `0 mismatched / 0 missing` per module, and read a `missing` as carefully as a `mismatched`.
 
-   The marker is therefore owed on every **public** declaration and nowhere else — a `private`
-   helper is filtered out before its provenance is read, so it may carry a marker for
-   traceability but owes nothing. Decide the wire deliberately, at the module level: wire the
-   headlines, and record the rest with a marker.
+   **The module declares its own check.** The leading `/- … -/` block carries one
+   `spec-pin: <pin file>` line per pin source; the checker reads those files from the pinned
+   corpus (below) and resolves each public declaration against them by name, then by statement.
+   List the copy whose statement text the port transcribes — in practice the `Theorems/` wrapper,
+   not the `S_` file — because a copy the header names whose text differs is a `MISMATCH`, not a
+   fallback.
 
-   **Declaration markers live outside the source (2026-10-20).** New work does **not** write
-   `-- pin:` or `-- own:` above a declaration. Put the entry in the central
-   `spec/decl_markers.tsv`, keyed by `(module, full declaration name)`, with a `pin:` or `own:`
-   directive. `spec-pin:` stays in the module header: it is the module's wire, not a
-   per-declaration exception. The old in-source comments exist only in grandfathered modules and
-   are still read; do not add new ones. The table is checker metadata — editing it never changes
-   a Lean build, and a stale entry is reported by `check_port` (`--strict-markers` makes it fail)
-   rather than by the compiler. Text-shaped rules:
-   - **Never make real mathematics `private` to shrink the delta, and never add a module to please
-     the checker.** A `private` engine is one the next theory must re-derive (§5); a façade split
-     into "engine module + headline module" exists only so that the headline is the whole wire,
-     which the marker makes unnecessary. Both were tried on the archimedean Casimir set and both
-     were reverted; the landed shape is one listed module, three wired headlines and 128 public
-     declarations registered tier 3 (§5, §9).
-   - **The checker's own unit test covers its mutation sensitivity** —
-     `python3 spec/old_check_stmts.py --selftest` mutates a statement in memory and asserts
-     exactly the one `mismatched` a full run would report. It is a test of the instrument, run when
-     the checker changes, not a per-set manual mutation-and-revert. Put a declaration that is ours
-     on an exemption list *with the reason* — add an `OWN_PROOFS` entry only when the statement
-     differs or the name is shadowed.
+   **A declaration that is renamed or deliberately respelled gets a recorded exception, in the
+   table, never in the source (2026-10-20).** `spec/decl_markers.tsv` is keyed by
+   `(module, full declaration name)` and carries either `pin: <name> (<file>:<line>)` — a
+   rename, or a copy in a file the header does not list — or `own: <reason>` — a statement that is
+   ours, not the pin's. The grandfathered in-source `-- pin:` / `-- own:` comments are still read
+   and must not be added. The table is checker metadata: editing it never changes a Lean build, and
+   an entry that no longer names a declaration is reported (`--strict-markers` makes it fail).
+
+   The **frozen** `spec/old_check_stmts.py` is being retired; it still owns the modules its
+   legacy lists name, and its parser is the shared definition of "the same statement". Do not
+   add an entry to either list. One caveat remains: a legacy module that moves must have its path
+   updated there, or its declarations silently stop being verified.
+
+   Rules:
+   - **Never make real mathematics `private`, and never add a module to please the checker.** A
+     `private` engine is one the next theory must re-derive (§5); a module written only to hold a
+     headline buys a file, an import and a frozen name for no gain in verification. Both were
+     tried on the archimedean Casimir set and both were reverted; the landed shape is one module
+     — three headlines at their pin statements, the shared engine public beside them (§5, §9).
+   - **The parser has its own test** — `python3 spec/statement_db.py selftest` checks the
+     signature view, the hashes and every query path against the legacy parser, so it is run when
+     the parser or the corpus format changes, not per set. A deliberate deviation is an `own:`
+     row with its reason, never a marker invented to make a diff disappear.
    - **Keep `scoped` exactly where the pin has it** (invisible to the checker on both sides, so
-     dropping it creates a spurious `MISSING IN FLT`) and **order `SOURCES` so the interface copy
-     wins, appending new entries last**.
-   - **The diff is textual, not elaborated**: spell binders exactly as the copy the checker will
-     match — in practice the `Theorems/` wrapper, not the `S_` file — and keep a `def`'s pin binders
-     in their `variable … in` form, since section variables never appear inline and spelling them
-     out builds but reports **MISMATCH**.
+     dropping it creates a spurious `missing`).
+   - **The diff is textual, not elaborated**: spell binders exactly as the pin's copy — in
+     practice the `Theorems/` wrapper, not the `S_` file — and keep a `def`'s pin binders in their
+     `variable … in` form, since section variables never appear inline and spelling them out
+     builds but reports **MISMATCH**.
    - **The `kw_` prefix is erased on both sides, name and statement**, so a one-token drift in a
      **promoted** declaration surfaces as `missing`, not `mismatched` — read `missing` too.
-   - **`--` line comments mis-align the checker's namespace tracker**, spoiling the dotted names
-     used by `OWN_PROOFS` and `--prop-bodies`; write header prose in `/- … -/` blocks.
-   - **Ask whether the diff could be degenerate** (a truncated signature or an extracted `Prop` type
-     looks identical in the count), and remember the checker never invokes Lean: on a module not yet
-     in `PORT_FILES`, or stuck in a failing edit loop, run `raw_declarations` directly — a
-     statement-shaped problem outranks the proof problem.
+   - **Write header prose in `/- … -/` blocks**: the `spec-pin:` lines are read from the leading
+     block, and a `--` line comment mis-aligns the legacy checker's namespace tracker.
+   - **Ask whether the diff could be degenerate** — a truncated signature, or a `def … : Prop := P`
+     whose statement is the bare type `Prop`, looks clean in the count. Read those bodies
+     yourself (the legacy checker's `--prop-bodies` diffs them). The checkers never invoke Lean,
+     so a statement-shaped problem outranks a proof problem and is checkable on a module stuck in
+     a failing edit loop.
 2. **A consumer** (`spec/<X>Consumer.lean`) outside every library. Its error count is the
    deliverable metric, and each zone must contain a **real, executed cross-module composition**
    — no `#check`s, no `sorry`; deleting any one module must make it fail. Extend the zones per
@@ -574,50 +558,28 @@ signature). `show <name>` prints a signature with its `file:line` and pinned lin
 "the same statement elsewhere" an exact `rg -F`). A 7 MB `statements.idx` records
 each pin file's byte range, so a checker reads the one or two files a module names
 instead of the whole tree, and the `statements.json` stamp (pin commit, checker and
-parser digests) makes `check` catch a stale corpus. `verify` proves every `SOURCES`
-file's rows equal the checker's own parse, so it is the same text the checker would
-diff; its statement hash resolves the whole checked surface (10,767 of 10,770
-non-own declarations, 2026-10-19), which is what a successor to the checker keys on.
-The corpus is a build artifact, never a source: regenerate it, do not edit it.
-`spec/unwired_register.py` reads the same corpus (its `--rebuild` rebuilds it), so
-the tier-3 register and the statement index are one scan, not two.
+parser digests) makes `check` catch a stale corpus. `verify` proves every file the legacy lists
+name parses identically on both sides, so it is the same text both checkers diff. The corpus is
+a build artifact, never a source: regenerate it, do not edit it.
 
-**Per-module checking (the successor, migrating one module at a time).**
-`spec/check_port.py` takes the wire from the module itself: one `spec-pin: <pin
-file>` line per pin source in the leading `/- … -/` block. Declaration-level
-exceptions live in the central `spec/decl_markers.tsv` — a `pin: <name>
-(<file>:<line>)` for a rename or a source outside the header, and an `own:
-<reason>` for a tier-2 statement. A central entry takes precedence; the old
-in-source `-- pin:` / `-- own:` comments are still read when no central entry
-exists. New work should not add them. `--markers PATH` selects another table and `--strict-markers` fails
-on an entry that no longer names a declaration. The table is checker metadata:
-editing it never affects a Lean build. It hashes the
-port statement the way the corpus does and matches by exact name, promoted key,
-`kw_` strip, then content, so a faithful-but-renamed copy verifies and a
-same-name statement that differs is a `MISMATCH` (with the identical statement
-elsewhere reported as a hint). One file at a time, cache-aware:
-`python3 spec/check_port.py <module>` skips an unchanged module,
-`--changed` scans only modules whose content or corpus stamp moved, `--all`
-re-checks everything, `--timestamps` prints the per-module stamp. State is
-`tmp/check-port/state.json`; a corpus rebuild invalidates it. A module has one
-owner, and the exempt list is the frozen registry itself: every module in
-`old_check_stmts.py`'s `PORT_FILES` is a ported file that predates the protocol,
-so `--changed`/`--all` skip it **by path without opening the file** and read only
-the rest; there is no second list to maintain, and the exemption shrinks with each
-handoff. `--include-legacy` overrides, and an
-explicit path is always checked. The handoff is one change — `spec-pin:` lines in,
-`PORT_FILES` entry out — and a module edited for any other reason is handed over in that edit. The pilot, now the
-first module the new checker owns, is
-`FLTForHuman/ModularForms/CohCarrier/CommTriplet.lean` (three wrappers, three
-statements, 0 mismatched); its tier-3 engine stays unlisted, as a module without a
-`spec-pin:` line is tier 3 by definition.
+**Running the checker.** `spec/check_port.py` reads the `spec-pin:` lines out of the module, so
+it needs no registration: `python3 spec/check_port.py <module>` checks one module (and replays
+its stored verdict when nothing moved), `--changed` scans only modules whose content or corpus
+stamp moved, `--all` re-checks everything, `--force` re-checks an unchanged module, `--timestamps`
+prints the per-module stamp, `--include-legacy` reaches a module the frozen lists still own, and
+`--markers PATH` selects another marker table. State is `tmp/check-port/state.json`, which a
+corpus rebuild invalidates. It hashes the port statement the way the corpus does and matches by
+exact name, promoted key, `kw_` strip, then content, so a faithful-but-renamed copy verifies and a
+same-name statement that differs is a `MISMATCH` (with an identical statement elsewhere reported
+as a hint). A module is its own unit of check: every public declaration it makes is either diffed
+or carries a recorded exception.
 
 When the capstone is conditional, track its debt counter as each field lands (the
 `functionFieldGeneration` capstone: 7 → 0) and price the deferred cluster separately. When every
-premise is an argument or already proved, the consumer's abstract-square wire test is the
-capstone's analogue. When a public helper moves or is demoted: demotion drops it from the
-compared count by exactly the number demoted (the expected signal), and a move must update
-`PORT_FILES` at the new path or the declaration silently stops being verified.
+premise is an argument or already proved, the consumer's abstract-square test is the capstone's
+analogue. When a public helper moves or is demoted, re-key its `spec/decl_markers.tsv` entries in
+the same change (the table is keyed by the module path), and treat the demotion as a decision
+about the mathematics (§5), not as a way to change the number of statements compared.
 
 ## 5. Structure and sharing across theories
 
@@ -648,28 +610,26 @@ exporting.
 - **`private` and local instances are a first-class build tool**: prefer `haveI`/`letI` or a
   `private` instance over global instance search (cheaper, collision-free, the checker is
   text-only), reserving *public* for the pin's names, the exported API and a shared engine — which
-  is exported on purpose and registered rather than hidden (§4.1)
+  is exported on purpose, not hidden (§4)
   ([../notes/lean-build-cost.md](../notes/lean-build-cost.md) §2).
 - **Home is a build-cost decision**: promote where the needed type is available, rename at
   promotion when the pin name is taken (keeping a local alias), and prefer the leaf side of a hub
   boundary when the mathematics admits either home — but never split a genuine theory.
-- **Name a promoted helper at the prefix-stripped pin name** (`kw_g₂_ofTau` → `g₂_ofTau`; verified
-  through the checker's `stripped_source`). A transcribed declaration keeps the pin's name, `kw_`
+- **Name a promoted helper at the prefix-stripped pin name** (`kw_g₂_ofTau` → `g₂_ofTau`; the
+  checker matches it through its `kw_` strip). A transcribed declaration keeps the pin's name, `kw_`
   included; a module-local helper is `private` with a content name. Never leave one both public and
   stripped; defer a pin-public strip with external consumers.
 - **Export a topic's outbound interface so the next topic imports instead of copying**; dissolve
   "externals"/"misc" modules into subject homes; give a generic cross-theory count its own
   top-level area or a `Reserve/` library built but not diffed.
-- **One engine, public, registered — not `private`, and not a façade.** When the pin writes the
-  same development k times (the `CasCore17` triple: 2,342 raw lines of three near-identical files
-  → 1,208 net), write it once as a public engine and wire only the headlines; the register keeps
-  the wire honest without hiding the engine (§4.1). A `private` engine costs the next theory the
-  re-derivation the dedup was meant to save; a façade module costs a file, an import and a frozen
-  name for no gain in verification. The measurable check: the checker's `identical` delta equals
-  the wired headline count and its `UNWIRED` count equals the public engine.
-- **Promotion shrinks its host module; measure it**, and a tight *wire* is a deliberate cost —
-  keep named instances and wire tests `private`, but let real mathematics be public and
-  registered (§4.1).
+- **One engine, public — not `private`, and not a façade.** When the pin writes the same
+  development k times (the `CasCore17` triple: 2,342 raw lines of three near-identical files →
+  1,208 net), write it once as a public engine and put the headlines verbatim at their wrappers'
+  names in that same module (§4). A `private` engine costs the next theory the re-derivation the
+  dedup was meant to save; a façade module costs a file, an import and a frozen name for no gain
+  in verification.
+- **Promotion shrinks its host module; measure it**, and keep named instances and consumer tests
+  `private`, while real mathematics stays public (§4).
 
 ## 6. Proof engineering: the failure modes that cost rounds
 
@@ -751,7 +711,7 @@ mathlib line" into a work order.
 | `Nat.card_zmod` | no longer needs `NeZero m` — the pin's `haveI : NeZero m` is dropped, not suppressed |
 | `Isometry.antilipschitz.properSpace` | `Isometry.antilipschitzWith.properSpace` (same proof, warning-free) |
 | a "statement-identical" substitute offered by `port_advise` | check the **direction**: the port's `RealIwasawa.rot θ` is the transpose of the pin's local `rotMat θ` (= `rot (-θ)`). Substituting at `+θ` compiles and silently flips every downstream character identity; substitute at `-θ` and let the pin's statements stay verbatim |
-| a short last name (`add`, `smul`, `zero`, `sum`) on a pin-**public** declaration | it cannot be registered tier 3: the marker is a fallthrough, so a listed `SOURCES` file that carries an unrelated `add` turns the marker into a `MISMATCH`. Keep those `private` (they are structure lemmas of a local namespace) and say so in the note |
+| a short last name (`add`, `smul`, `zero`, `sum`) on a pin-**public** declaration | a pin source that carries an unrelated `add` of its own makes it a `MISMATCH`, and an `own:` row would only hide the collision: keep those `private` (they are structure lemmas of a local namespace) and say so in the note |
 | `exists_subset_nhds_of_isCompact'` with a pointwise `(hU : ∀ x ∈ ⋂ i, V i, U ∈ 𝓝 x)` | v4.34 takes set-relative `(hU : U ∈ 𝓝ˢ (⋂ i, V i))`; wrap the pin's lambda in `mem_nhdsSet_iff_forall.mpr` — the proof content is unchanged |
 | `zero_le'`, `not_lt_zero'` | `zero_le`, `not_lt_zero` (the primed forms are deprecated aliases) |
 | a literal pair passed where `AdeleRing R K` is expected, and `.1`/`.2` of it taken by `rfl` | `AdeleRing` is a plain `def` (`InfiniteAdeleRing K × FiniteAdeleRing R K`), so the pair is an adele only at *default* transparency: `rw`/`simp` fail with "not type-correct under the implicit transparency level". Bind it once — `set x : AdeleRing R K := (…) with hx` — then rewrite on `x.1`/`x.2` via `show … from by rw [hx]` (`by rw [hx]` already closes it). `erw` is a trap: it unfolds far enough to also unfold the definition under study, and the following projection rewrites then find nothing |
@@ -818,22 +778,18 @@ unpublished `tools/deps/` tree.
 | `port_advise.py` | before a port: what the port already has (substitute, by *shape* — byte-identical text and "same conclusion, same hypotheses, binder-only spelling" are two tiers, and the shape tier is the reuse answer), what the set re-proves (port once), what differs only by binders (generalise), what each public declaration drags |
 | `build_ladder.py` | the dependent cascade of an edit, the cheapest sufficient build under `flock`/`timeout`, a wave plan, and (`--audit` / `--profile`) which modules and declarations cost the time |
 
-**Instrument vs tool, when it comes to caching.** The statement checker is published and does
-its own live scan of `SOURCES` on every run: it never caches. A tool may cache its own
-reconnaissance. `unwired_register.py` is the one that must read the pin's whole `SOURCES` list, so
-it caches that scan under `build/` — the parse, ~13 MB of statements, plus a stamp of the
-`SOURCES` list and every source file's size+mtime (0.04 s to verify) — and re-reads only the port
-each run: ~7 s → 0.45 s, with `--rebuild` to rescan. Keep the boundary when adding tooling, and
-keep a tool's own decisions text-derived: the register's tier-3 predicate is the marker **plus**
-"no `SOURCES` counterpart by name and statement", which it computes from the same parse, not by
-running the checker (§4.1, §9).
+**Instrument vs tool, when it comes to caching.** `spec/check_port.py` is the instrument: it
+re-reads the module and the corpus stamp on every run and caches only its own per-module verdicts
+(`tmp/check-port/state.json`), so a verdict is never trusted past the text it was computed from. A
+tool may cache its own reconnaissance under `build/` and offer `--rebuild` to rescan, but its
+decisions stay text-derived — computed from the same parse the checker reads, not by invoking the
+checker (a subprocess couples the tool to the instrument and costs seconds per call — §4).
 
 The loop: a coverage report from the pin graph chooses the target; `port_advise.py` prices reuse
 and duplication before coding; `port_graph.py` measures the redundancy afterwards; the ladder
 and the checker are the per-wave gate. The `fltdata` object answers "who consumes this pin
-module" before scoping (`d.def_index[stem]` against `d.stmt_defs(i)` / `d.proof_defs(i)`), and the
-checker can be driven as a library — load `spec/old_check_stmts.py` with `importlib` and
-call `raw_declarations` — to diff a module not yet in `PORT_FILES`.
+module" before scoping (`d.def_index[stem]` against `d.stmt_defs(i)` / `d.proof_defs(i)`), and
+`spec/check_port.py <module>` diffs any module as soon as its header names its pin sources.
 
 ## 9. Open questions and recorded negatives
 
@@ -843,15 +799,11 @@ call `raw_declarations` — to diff a module not yet in `PORT_FILES`.
   name. Lines, declarations and named shape risks are stable. Nor is a *driver's* round a measure
   of a set: a port turn is hours of wall time, so a cadence that re-prompts sooner than that is a
   status request, not a checkpoint (§0.2, §3.4).
-- **A `private` engine to keep the checker delta small is the wrong trade**, and so is a façade
-  module added for the checker's sake. The tier-3 marker is the mechanism; measured on the
-  Casimir set, the one-module shape gives delta +3 with 128 registered declarations, where
-  `private` would have hidden real mathematics and a façade would have added a file (§4.1, §5).
-- **The register's tier-3 predicate is not "marker into an unlisted file".** The checker consults
-  a marker only as a fallthrough, so the predicate also needs "no `SOURCES` counterpart by name and
-  statement — public or pin-`private`". Guessing it from `SOURCES` membership alone over-collected
-  461 declarations across 39 modules; deriving it by running the checker instead worked but cost a
-  7 s subprocess and coupled the tool to the instrument (§8).
+- **A `private` engine to keep the checked surface small is the wrong trade**, and so is a façade
+  module added for the checker's sake. Both were tried on the Casimir set and reverted: the landed
+  shape is one module — its three headlines diffed at the pin's statements, the shared engine
+  public beside them — where `private` would have hidden real mathematics and a façade would have
+  added a file (§4, §5).
 - **Nothing is independently audited.** The "removed clutter" numbers are what each effort
   avoided writing, measured against FLT's own files, not a third-party check that the dropped
   items were dead.

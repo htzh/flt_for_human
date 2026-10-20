@@ -7,6 +7,9 @@
 
   and the companion fact that `𝓕_B f` is again the coercion of a Schwartz function.
 
+  The pin's `PiFourier` block is folded into the object's own `VectorFourier` namespace here
+  (its declarations are `VectorFourier.piFourierIntegral*`); no pin label is left.
+
   The ports of the pin leaves `VectorFourier.fourierIntegral_flip_fourierIntegral_eq`
   (235 pin lines) and `SchwartzMap.exists_coe_eq_vectorFourierIntegral` (180 pin
   lines), together with the statements of their `Theorems/` wrappers. They are one
@@ -100,7 +103,7 @@ open scoped FourierTransform InnerProductSpace SchwartzMap
 
 noncomputable section
 
-namespace PiFourier
+namespace VectorFourier
 
 variable {d : Type*} [Fintype d]
 
@@ -158,11 +161,11 @@ theorem piFourierIntegral_piFourierIntegral (h : SchwartzMap (d → ℝ) ℂ) (u
   · rw [hh', ← WithLp.toLp_neg]
   · exact SchwartzMap.integrable (𝓕 h' : SchwartzMap (EuclideanSpace ℝ d) ℂ)
 
-end PiFourier
+end VectorFourier
 
 section BFourier
 
-open PiFourier LinearMap
+open VectorFourier LinearMap
 
 variable {V : Type*} [NormedAddCommGroup V] [NormedSpace ℝ V] [FiniteDimensional ℝ V]
     [MeasurableSpace V] [BorelSpace V]
@@ -227,7 +230,7 @@ end BFourier
 
 section Flip
 
-open PiFourier LinearMap
+open VectorFourier LinearMap
 
 theorem VectorFourier.fourierIntegral_flip_fourierIntegral_eq
     {V : Type*} [NormedAddCommGroup V] [NormedSpace ℝ V] [FiniteDimensional ℝ V]

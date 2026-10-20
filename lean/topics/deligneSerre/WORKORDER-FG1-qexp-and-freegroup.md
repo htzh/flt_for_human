@@ -101,7 +101,7 @@ take the wrapper's binders, once.
 **The one pin `Definitions/` import is inert.** `Monoid.CoprodI.exists_addMonoidHom_conj_pow_minimalPeriod_eq_of_finsum_eq_zero`
 imports `Def_Compat_Mathlib430`; 0 of its 44 declarations occur in the file (the single
 `coe_mul` is mathlib's `Subgroup.coe_mul`). If elaboration wants the `AddAut` group instance,
-the port has block D at `FLTForHuman/Algebra/AddAutCompat.lean` — import it explicitly rather
+the port has block D at `FLTForHuman/Algebra/AddAut/Compat.lean` — import it explicitly rather
 than the pin module. Do not home the pin compat module.
 
 ## 4. Route and risk

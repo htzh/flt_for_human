@@ -73,7 +73,8 @@ noncomputable section
 
 open Polynomial
 
-namespace AdjoinExt
+namespace IntermediateField
+namespace AdjoinExtension
 
 variable {K L L' : Type*} [Field K] [Field L] [Algebra K L] [Field L'] [Algebra K L']
 
@@ -145,7 +146,7 @@ section Main
 
 variable (K)
 
-theorem main {L L' : Type*} [Field L] [Algebra K L] [Field L'] [Algebra K L']
+private theorem main {L L' : Type*} [Field L] [Algebra K L] [Field L'] [Algebra K L']
     (G : Set L) (h1 : (1 : L) ∈ G) (hmul : ∀ x ∈ G, ∀ y ∈ G, x * y ∈ G)
     (θ : L → L') (hθ : ∀ x ∈ G, ∀ y ∈ G, θ (x * y) = θ x * θ y)
     (hlin : ∀ c : L →₀ K, (↑c.support : Set L) ⊆ G →
@@ -304,7 +305,8 @@ theorem main {L L' : Type*} [Field L] [Algebra K L] [Field L'] [Algebra K L']
 
 end Main
 
-end AdjoinExt
+end AdjoinExtension
+end IntermediateField
 
 theorem IntermediateField.exists_algHom_adjoin_apply_eq_of_isAlgebraic_of_transcendental
     (K : Type*) {L L' : Type*} [Field K] [Field L] [Algebra K L] [Field L'] [Algebra K L']
@@ -316,11 +318,9 @@ theorem IntermediateField.exists_algHom_adjoin_apply_eq_of_isAlgebraic_of_transc
     (x₀ : F) (hx₀G : (x₀ : L) ∈ G) (hx₀ : Transcendental K (θ x₀))
     (halg : Algebra.IsAlgebraic (IntermediateField.adjoin K ({x₀} : Set F)) F) :
     ∃ Θ : F →ₐ[K] L', ∀ x : F, (x : L) ∈ G → Θ x = θ x :=
-  AdjoinExt.main K G h1 hmul θ hθ hlin F hF x₀ hx₀G hx₀ halg
+  IntermediateField.AdjoinExtension.main K G h1 hmul θ hθ hlin F hF x₀ hx₀G hx₀ halg
 
-namespace SolChiFinField
-
-theorem isIntegral_apply
+private theorem isIntegral_apply
     {R S A K : Type*} [CommRing R] [CommRing S] [Algebra R S] [Algebra.IsIntegral R S]
     [CommRing A] [CommRing K] [Algebra A K]
     (χ' : S →+* K) (h : ∀ r : R, χ' (algebraMap R S r) ∈ (algebraMap A K).range) (s : S) :
@@ -341,7 +341,6 @@ theorem isIntegral_apply
   rw [← Polynomial.eval_map, hq, Polynomial.eval_map, ← Polynomial.hom_eval₂,
     hps, map_zero]
 
-end SolChiFinField
 
 theorem RingHom.finiteDimensional_adjoin_range_of_finite_of_forall_mem_range
     {R S E K : Type*} [CommRing R] [CommRing S] [Algebra R S] [Module.Finite R S]
@@ -352,7 +351,7 @@ theorem RingHom.finiteDimensional_adjoin_range_of_finite_of_forall_mem_range
   obtain ⟨t, ht⟩ := Module.finite_def.mp (inferInstance : Module.Finite R S)
   have hint : ∀ x ∈ (χ' '' (t : Set S)), _root_.IsIntegral E x := by
     rintro _ ⟨s, -, rfl⟩
-    exact SolChiFinField.isIntegral_apply χ' h s
+    exact isIntegral_apply χ' h s
   have hsub : Set.range χ' ⊆ IntermediateField.adjoin E (χ' '' (t : Set S)) := by
     rintro _ ⟨s, rfl⟩
     have hs : s ∈ Submodule.span R (t : Set S) := by rw [ht]; exact Submodule.mem_top

@@ -72,6 +72,10 @@
   `Ideal.under_def` conversion is needed in `hker_le`. `haveI`/`letI` → `have`/`let`
   (18 sites, the linter's preference; `have`/`let` still act as local instances).
 
+  The pin `S_` files' block namespaces `P2mLogBranch` and `RedIntClosure` are not kept: their
+  single public declaration each is the pin's `solution` wrapper, a duplicate of the headline,
+  so both are `private` (`main_logBranch`, `main_primRoot`) and the headlines carry the API.
+
   spec-pin: Theorems/Thm_Complex_exists_norm_le_of_continuousOn_of_exp_eq_of_tendsto.lean
   spec-pin: P2M/Sol/S_Complex_exists_norm_le_of_continuousOn_of_exp_eq_of_tendsto.lean
   spec-pin: Theorems/Thm_Complex_exists_ringHom_integralClosure_int_apply_eq_of_isPrimitiveRoot.lean
@@ -90,11 +94,9 @@ import Mathlib.Algebra.CharP.Basic
 
 set_option autoImplicit false
 
-namespace P2mLogBranch
-
 open Filter Topology Complex
 
-theorem main {Λ ℓ : ℝ → ℂ} {a : ℝ} {c : ℂ} (hΛ : ContinuousOn Λ (Set.Ioi a))
+private theorem main_logBranch {Λ ℓ : ℝ → ℂ} {a : ℝ} {c : ℂ} (hΛ : ContinuousOn Λ (Set.Ioi a))
     (hexp : ∀ s : ℝ, a < s → Complex.exp (Λ s) = ℓ s)
     (hlim : Filter.Tendsto ℓ (nhdsWithin a (Set.Ioi a)) (nhds c)) (hc : c ≠ 0) :
     ∃ C δ : ℝ, 0 < δ ∧ ∀ s : ℝ, a < s → s < a + δ → ‖Λ s‖ ≤ C := by
@@ -237,22 +239,19 @@ theorem main {Λ ℓ : ℝ → ℂ} {a : ℝ} {c : ℂ} (hΛ : ContinuousOn Λ (
   calc ‖Λ' s + d s₀‖ ≤ ‖Λ' s‖ + ‖d s₀‖ := norm_add_le _ _
     _ ≤ 3 / 4 + ‖Complex.log c‖ + ‖d s₀‖ := by linarith [hbound' s hs hsδ]
 
-end P2mLogBranch
 
 theorem Complex.exists_norm_le_of_continuousOn_of_exp_eq_of_tendsto
     {Λ ℓ : ℝ → ℂ} {a : ℝ} {c : ℂ} (hΛ : ContinuousOn Λ (Set.Ioi a))
     (hexp : ∀ s : ℝ, a < s → Complex.exp (Λ s) = ℓ s)
     (hlim : Filter.Tendsto ℓ (nhdsWithin a (Set.Ioi a)) (nhds c)) (hc : c ≠ 0) :
     ∃ C δ : ℝ, 0 < δ ∧ ∀ s : ℝ, a < s → s < a + δ → ‖Λ s‖ ≤ C :=
-  P2mLogBranch.main hΛ hexp hlim hc
+  main_logBranch hΛ hexp hlim hc
 
 open Polynomial
 
-namespace RedIntClosure
-
 local notation "ℤ̄" => (integralClosure ℤ ℂ)
 
-theorem main (ℓ : ℕ) [Fact ℓ.Prime] (M : ℕ) [NeZero M] (hℓM : ¬ ℓ ∣ M)
+private theorem main_primRoot (ℓ : ℕ) [Fact ℓ.Prime] (M : ℕ) [NeZero M] (hℓM : ¬ ℓ ∣ M)
     (K : Type*) [Field K] [IsAlgClosed K] [CharP K ℓ]
     (ζ : K) (hζ : IsPrimitiveRoot ζ M) :
     ∃ φ : ℤ̄ →+* K, ∀ z : ℤ̄, (z : ℂ) = Complex.exp (2 * Real.pi * Complex.I / M) → φ z = ζ := by
@@ -347,7 +346,6 @@ theorem main (ℓ : ℕ) [Fact ℓ.Prime] (M : ℕ) [NeZero M] (hℓM : ¬ ℓ �
   change ι (Ideal.Quotient.mk _ ⟨z, hzA₀⟩) = ζ
   rw [hι, Ideal.Quotient.lift_mk, hφ₁z]
 
-end RedIntClosure
 
 theorem Complex.exists_ringHom_integralClosure_int_apply_eq_of_isPrimitiveRoot
     (ℓ : ℕ) [Fact ℓ.Prime] (M : ℕ) [NeZero M] (hℓM : ¬ ℓ ∣ M)
@@ -356,4 +354,4 @@ theorem Complex.exists_ringHom_integralClosure_int_apply_eq_of_isPrimitiveRoot
     ∃ φ : integralClosure ℤ ℂ →+* K,
       ∀ z : integralClosure ℤ ℂ,
         (z : ℂ) = Complex.exp (2 * Real.pi * Complex.I / M) → φ z = ζ :=
-  RedIntClosure.main ℓ M hℓM K ζ hζ
+  main_primRoot ℓ M hℓM K ζ hζ

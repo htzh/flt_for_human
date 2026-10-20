@@ -17,15 +17,15 @@
 
   The statement authority is `Theorems/Thm_ModularGroup_exists_mulEquiv_freeProduct_quotient_center.lean`.
 
-  What this module assumes from earlier port modules: one substitution, the
-  pin's 5-line `det_entries` is the port's
-  `CuspForm.PeterssonCoset.det_entries`
-  (`FLTForHuman/ModularForms/Analytic/PeterssonCoset.lean`), imported here and
-  used at the pin's call sites.  The pin's `mul_entry` is *not* taken from
-  anywhere: it is `private` in the legacy `FLTForHuman/ModularForms/ModularGroup.lean`
-  (a `PORT_FILES` module this work order must not edit), so the 5-line
-  matrix-entry computation is restated here at the pin's statement — a recorded
-  duplication, not a substitution.
+  What this module assumes from earlier port modules: nothing. The pin's 5-line
+  `det_entries` is restated here as a `private` lemma, as the pin itself restates it
+  (the pin's `mul_entry` is likewise restated, because its home in the legacy
+  `FLTForHuman/ModularForms/ModularGroup.lean` is `private`); the port's public copy
+  lives with its modular-forms consumers in
+  `FLTForHuman/ModularForms/Analytic/PeterssonCoset.lean`, and importing that module
+  from here was a dependency inversion — a group-theory module must not depend on a
+  modular-forms one (2026-10-20). A single home for the `mapGL` entry lemmas across their
+  five consumers is a separate, tree-wide job and is not attempted here.
 
   This module is the home of the shared ping-pong prelude (`IrrationalPt`,
   `moebius`, `permS`/`permU`, `pingPong`, `lift_injective`, `range_lift_eq`,
@@ -44,7 +44,6 @@
   spec-pin: P2M/Sol/S_ModularGroup_exists_mulEquiv_freeProduct_quotient_center.lean
   spec-pin: Theorems/Thm_ModularGroup_exists_mulEquiv_freeProduct_quotient_center.lean
 -/
-import FLTForHuman.ModularForms.Analytic.PeterssonCoset
 import Mathlib.GroupTheory.CoprodI
 import Mathlib.GroupTheory.GroupAction.Quotient
 import Mathlib.GroupTheory.Index
@@ -57,12 +56,15 @@ set_option autoImplicit false
 
 noncomputable section
 
-open CuspForm.PeterssonCoset
-
 set_option autoImplicit false
 
 open Matrix MatrixGroups ModularGroup
 open scoped Pointwise
+
+/-- The determinant of an `SL(2, ℤ)` element, in entries (the pin's `det_entries`). -/
+private theorem det_entries (γ : SL(2, ℤ)) : γ 0 0 * γ 1 1 - γ 0 1 * γ 1 0 = 1 := by
+  have h := γ.det_coe
+  rwa [Matrix.det_fin_two] at h
 
 namespace ModularGroup
 

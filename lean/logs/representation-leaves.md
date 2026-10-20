@@ -23,7 +23,7 @@ with `--force --strict-markers`: `21 ok, 0 mismatch, 0 missing, 0 own, 0 kw — 
 says so and carries `spec-pin:` for the pin `S_` file **and** its `Theorems/` wrapper, keeping the
 pin's `P2MW.S_…` namespace and names (the checker matches by name and by statement hash).
 
-**The one edit to an existing module.** `Algebra/BrauerNesbittRepresentation.lean` promotes
+**The one edit to an existing module.** `RepresentationTheory/BrauerNesbitt.lean` promotes
 `Representation.range_asAlgebraHom_toLinearMap` and
 `Representation.span_range_eq_top_iff_surjective_asAlgebraHom` from `private` to public (statements
 untouched); `Burnside.lean` imports them instead of re-proving 20 lines. The checker now reads that
@@ -57,7 +57,7 @@ mathlib *did* supply is used verbatim as ingredients rather than re-proved:
 
 * `lake build` green, 0 warnings (wall): `SubrepresentationExtension` 4.20 s, `InvariantPairing`
   5.35 s, `CompactGroup` 4.79 s, `Burnside` 4.05 s, `SubfieldBasis` 6.93 s;
-  `BrauerNesbittRepresentation` after the promotion 5.74 s. Edit loop at the 200k cap: 3.0–5.9 s.
+  `RepresentationTheory/BrauerNesbitt` after the promotion 5.74 s. Edit loop at the 200k cap: 3.0–5.9 s.
   The 291-line node's pin `set_option maxHeartbeats 6400000` is **not** carried and not needed.
 * axioms: four headlines `[propext, Classical.choice, Quot.sound]`; `InvariantPairing` is
   `[propext, Quot.sound]` (a subset — no `Classical` in that proof). No `sorry`, no axioms, no
@@ -68,7 +68,7 @@ mathlib *did* supply is used verbatim as ingredients rather than re-proved:
   modules in the port already carry this option; no statement is touched.
 * **one dedup decision**: the Burnside node's third helper `trace_asAlgebraHom_eq_of_forall_trace_eq`
   is *not* redeclared there — the port already has it private, with the pin's exact name and
-  statement, in `Algebra/BrauerNesbittRepresentation.lean`, where its only consumer is §2.4.
+  statement, in `RepresentationTheory/BrauerNesbitt.lean`, where its only consumer is §2.4.
 * the pin's `span_range_eq_top_of_isIrreducible` is `private` in the `S_` file and public in the
   wrapper: declared once, public, with the wrapper's binders (§7.4).
 

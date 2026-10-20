@@ -43,7 +43,6 @@ import Mathlib.Tactic.LinearCombination
 
 set_option autoImplicit false
 
-namespace M4aP1R
 namespace UnimodularLift
 
 /-- The unimodular relation `x c + y d + z n = 1` survives replacing `d` by a
@@ -110,7 +109,7 @@ theorem exists_of_ne_zero {n c d : ℤ} (hd : d ≠ 0) (h : ∃ x y z : ℤ, x *
       exact hpc this
 
 /-- The body of the node: both `c` and `d` are shifted to coprime congruent values. -/
-theorem exists_modEq_and_modEq_and_isCoprime_impl {n c d : ℤ}
+private theorem exists_modEq_and_modEq_and_isCoprime_impl {n c d : ℤ}
     (h : ∃ x y z : ℤ, x * c + y * d + z * n = 1) :
     ∃ c' d' : ℤ, c' ≡ c [ZMOD n] ∧ d' ≡ d [ZMOD n] ∧ IsCoprime c' d' := by
   by_cases hn : n = 0
@@ -126,7 +125,6 @@ theorem exists_modEq_and_modEq_and_isCoprime_impl {n c d : ℤ}
   exact ⟨c', d', hc'c, hd'd, hcop⟩
 
 end UnimodularLift
-end M4aP1R
 
 namespace Int
 
@@ -135,6 +133,6 @@ by congruent values which are coprime. -/
 theorem exists_modEq_and_modEq_and_isCoprime {n c d : ℤ}
     (h : ∃ x y z : ℤ, x * c + y * d + z * n = 1) :
     ∃ c' d' : ℤ, c' ≡ c [ZMOD n] ∧ d' ≡ d [ZMOD n] ∧ IsCoprime c' d' := by
-  exact M4aP1R.UnimodularLift.exists_modEq_and_modEq_and_isCoprime_impl h
+  exact UnimodularLift.exists_modEq_and_modEq_and_isCoprime_impl h
 
 end Int

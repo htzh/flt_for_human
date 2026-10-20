@@ -41,7 +41,7 @@ cardinality) stayed two modules.
 
 ## 2. The one gate, and the five deferrals
 
-* **Homed:** `Def_Compat_Mathlib430` **block D** only (99 pin lines) as `Algebra/AddAutCompat.lean`
+* **Homed:** `Def_Compat_Mathlib430` **block D** only (99 pin lines) as `Algebra/AddAut/Compat.lean`
   (17 of 19 declarations wired; the anonymous `instance : Group (AddAut A)` and one `@[scoped simp]` lemma
   are parser-invisible). Blocks A–C (the v4.30 `Representation`/`Rep` API) are **not** homed — recorded in
   CARRY-FORWARD with the trigger.

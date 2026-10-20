@@ -13,7 +13,7 @@
       `Int.exists_squarefree_sq_add_mul_add_mul_sq_of_sq_lt_four_mul` (22),
 
   statements from their `Theorems/` wrappers and proofs from the matching
-  `P2M/Sol/S_…` files. The pin's inner namespaces `K2Seam3.SqfreeSieve`, its
+  `P2M/Sol/S_…` files. The pin's inner namespaces `SqfreeSieve`, its
   `section Sieve`, its two `scoped` `Fact` instances and its abbreviations are
   kept verbatim; only the generated `kw_` prefixes are stripped to the port names
   (`kw_psq_dvd_of_not_dvd` → `psq_dvd_of_not_dvd`, `KwExistsSqfreeSqAdd` →
@@ -53,9 +53,9 @@
   * port:222 — `haveI := Fact.mk hp` → `have := Fact.mk hp`
     (`linter.style.haveILetI`, Lean's own suggestion; `Fact` is `Prop`-valued, so the
     instance is still found).
-  * port:371–373 — the pin's `end K2Seam3.SqfreeSieve` is written as two bare `end`s:
+  * port:371–373 — the pin's `end SqfreeSieve` is written as two bare `end`s:
     the checker's namespace tracker closes one scope per `end`, and the one-line form
-    de-nests the two headlines into `K2Seam3` (`K2Seam3.Nat.exists_squarefree_sq_add`).
+    de-nests the two headlines into `K2Seam3` (`Nat.exists_squarefree_sq_add`).
   * the pin's `set_option linter.unusedSectionVars false` was not needed and is not
     carried.
 
@@ -75,7 +75,6 @@ open Finset Nat Finset.Nat Real Filter
 
 noncomputable section
 
-namespace K2Seam3
 namespace SqfreeSieve
 
 scoped instance fact_prime_two : Fact (Nat.Prime 2) := ⟨by norm_num⟩
@@ -228,7 +227,7 @@ lemma primeDvdD_not_dvd_f {D p : ℕ} (k : ℕ) (hp : p.Prime) (hpD : p ∣ D) :
   exact one_ne_zero hZ
 
 /-- The sieve: `ExistsSqfreeSqAdd` is proved. -/
-theorem existsSqfreeSqAdd_proved : ExistsSqfreeSqAdd := by
+private theorem existsSqfreeSqAdd_proved : ExistsSqfreeSqAdd := by
   intro D hD
   set f : ℕ → ℕ := fun k => (2*D*k + D + 1)^2 + D with hf_def
   suffices h : ∃ k, Squarefree (f k) by
@@ -370,14 +369,12 @@ end Sieve
 
 end SqfreeSieve
 
-end K2Seam3
-
 namespace Nat
 
 /-- Every `D ≥ 1` is a squarefree value of `x² + D` at some `x ≥ 1`. -/
 theorem exists_squarefree_sq_add (D : ℕ) (hD : 1 ≤ D) :
     ∃ c : ℕ, 1 ≤ c ∧ Squarefree (c ^ 2 + D) :=
-  K2Seam3.SqfreeSieve.existsSqfreeSqAdd_proved D hD
+  SqfreeSieve.existsSqfreeSqAdd_proved D hD
 
 end Nat
 

@@ -46,9 +46,7 @@ set_option autoImplicit false
 
 open Filter Topology Set
 
-namespace M4aP3B
-namespace Rows
-namespace UniformLocConst
+namespace IsLocallyConstant
 
 variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] {Y : Type*} [Zero Y]
 
@@ -73,7 +71,7 @@ theorem exists_nhds_fourfold {f : G → Y} (hf : IsLocallyConstant f) (g : G) :
     hAB ⟨hu.1.1.1, hAB₂ ⟨hv.1.1.2, hAB₃ ⟨hv'.1.2, hu'.2⟩⟩⟩
   simpa using this
 
-theorem exists_nhds_one_forall_apply_mul_mul_eq_of_hasCompactSupport_impl
+private theorem exists_nhds_one_forall_apply_mul_mul_eq_of_hasCompactSupport_impl
     {f : G → Y} (hf : IsLocallyConstant f) (hsupp : HasCompactSupport f) :
     ∃ V ∈ nhds (1 : G), ∀ u ∈ V, ∀ u' ∈ V, ∀ g : G, f (u * g * u') = f g := by
   classical
@@ -119,12 +117,10 @@ theorem exists_nhds_one_forall_apply_mul_mul_eq_of_hasCompactSupport_impl
 
 omit [IsTopologicalGroup G] in
 
-theorem gate_zero : ∃ V ∈ nhds (1 : G), ∀ u ∈ V, ∀ u' ∈ V, ∀ g : G, (0 : G → Y) (u * g * u') = (0 : G → Y) g :=
+private theorem gate_zero : ∃ V ∈ nhds (1 : G), ∀ u ∈ V, ∀ u' ∈ V, ∀ g : G, (0 : G → Y) (u * g * u') = (0 : G → Y) g :=
   ⟨univ, univ_mem, fun _ _ _ _ _ => rfl⟩
 
-end UniformLocConst
-end Rows
-end M4aP3B
+end IsLocallyConstant
 
 namespace IsLocallyConstant
 
@@ -132,16 +128,14 @@ theorem exists_nhds_one_forall_apply_mul_mul_eq_of_hasCompactSupport
     {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] {Y : Type*} [Zero Y]
     {f : G → Y} (hf : IsLocallyConstant f) (hsupp : HasCompactSupport f) :
     ∃ V ∈ nhds (1 : G), ∀ u ∈ V, ∀ u' ∈ V, ∀ g : G, f (u * g * u') = f g :=
-  M4aP3B.Rows.UniformLocConst.exists_nhds_one_forall_apply_mul_mul_eq_of_hasCompactSupport_impl
+  IsLocallyConstant.exists_nhds_one_forall_apply_mul_mul_eq_of_hasCompactSupport_impl
     hf hsupp
 
 end IsLocallyConstant
 
-namespace M4aP3B
-namespace Rows
-namespace SliceLocConst
+namespace IsLocallyConstant
 
-theorem isLocallyConstant_fun_mul_apply_mul_of_hasCompactSupport_impl
+private theorem isLocallyConstant_fun_mul_apply_mul_of_hasCompactSupport_impl
     {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] {Y : Type*} [Zero Y]
     {f : G → Y} (hf : IsLocallyConstant f) (hsupp : HasCompactSupport f) {S : Type*} (n : S → G) :
     IsLocallyConstant (fun kk : G × G => fun s => f (kk.1 * n s * kk.2)) := by
@@ -161,18 +155,14 @@ theorem isLocallyConstant_fun_mul_apply_mul_of_hasCompactSupport_impl
   rw [e]
   exact hV _ h1 _ h2 _
 
-theorem gate_discrete {G : Type*} [Group G] [TopologicalSpace G] [DiscreteTopology G]
+private theorem gate_discrete {G : Type*} [Group G] [TopologicalSpace G] [DiscreteTopology G]
     {Y S : Type*} (f : G → Y) (n : S → G) :
     IsLocallyConstant (fun kk : G × G => fun s => f (kk.1 * n s * kk.2)) :=
   IsLocallyConstant.of_discrete _
 
-end SliceLocConst
-end Rows
-end M4aP3B
+end IsLocallyConstant
 
-namespace M4aP3B
-namespace Rows
-namespace SliceLocConst
+namespace IsLocallyConstant
 
 theorem finite_image_of_isCompact
     {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] {Y : Type*} [Zero Y]
@@ -186,9 +176,7 @@ theorem finite_image_of_isCompact
   simp [Set.image_eq_range] at h__af ⊢
   exact h__af
 
-end SliceLocConst
-end Rows
-end M4aP3B
+end IsLocallyConstant
 
 namespace IsLocallyConstant
 
@@ -196,7 +184,7 @@ theorem isLocallyConstant_fun_mul_apply_mul_of_hasCompactSupport
     {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] {Y : Type*} [Zero Y]
     {f : G → Y} (hf : IsLocallyConstant f) (hsupp : HasCompactSupport f) {S : Type*} (n : S → G) :
     IsLocallyConstant (fun kk : G × G => fun s => f (kk.1 * n s * kk.2)) :=
-  M4aP3B.Rows.SliceLocConst.isLocallyConstant_fun_mul_apply_mul_of_hasCompactSupport_impl
+  IsLocallyConstant.isLocallyConstant_fun_mul_apply_mul_of_hasCompactSupport_impl
     hf hsupp n
 
 end IsLocallyConstant

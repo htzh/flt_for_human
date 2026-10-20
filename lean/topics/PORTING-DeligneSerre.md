@@ -769,7 +769,7 @@ mathlib-mirrored modules
 `[propext, Classical.choice, Quot.sound]` (the `InvariantPairing` headline a subset without
 `Classical`). The mathlib-first audit recorded a negative for every declaration, with mathlib supplying
 ingredients only (`Matrix.map_injective`, Schur, Jacobson density, Haar averaging, `toMatrix`/trace
-dictionary, the `FiniteField` Frobenius/norm API); two helpers in `Algebra/BrauerNesbittRepresentation.lean`
+dictionary, the `FiniteField` Frobenius/norm API); two helpers in `RepresentationTheory/BrauerNesbitt.lean`
 were promoted for the Burnside module and now diff through the pin-private fallback (+2 ok, no `own:`).
 The family is complete: checker **2,884 → 3,010 ok, 109 → 117 wired modules**. Records:
 [logs/representation-leaves.md](../logs/representation-leaves.md),

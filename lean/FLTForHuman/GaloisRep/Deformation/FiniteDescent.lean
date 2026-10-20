@@ -12,7 +12,7 @@
   (`BrauerNesbitt.trace_matrixRepresentation'`) and the transfer of a spanning hypothesis to the
   coordinate-space representation (`span_range_matrixRepresentation_eq_top`). Feeding the equal
   traces to `BrauerNesbitt.exists_linearEquiv_of_span_range_eq_top_of_trace_eq` (imported from
-  `FLTForHuman/Algebra/BrauerNesbittRepresentation.lean`) and reading the intertwiner off as a
+  `FLTForHuman/RepresentationTheory/BrauerNesbitt.lean`) and reading the intertwiner off as a
   conjugating unit gives `exists_conj_eq_of_span_eq_top_of_charpoly_eq` and its trace form
   `exists_conj_eq_of_span_eq_top_of_trace_eq'`; `span_range_map_eq_top_of_bijective` and
   `exists_conj_eq_galoisTwist_of_span_eq_top` add the Galois-twist step (a bijective `σ` with
@@ -48,7 +48,7 @@
   `lemma613_of_subfieldDescentInputs`, `DescentConjugatorSupply`,
   `noSchurIndex_of_descentConjugatorSupply`), `Deformation/Cocycle.lean` (`IsConjugatorCocycle`,
   `exists_galFixed_conj_of_isConjugatorCocycle`, `exists_scalar_of_commute_span_top`,
-  `mapGLn`, `glnTwistedNorm`), `FLTForHuman/Algebra/BrauerNesbittRepresentation.lean`
+  `mapGLn`, `glnTwistedNorm`), `FLTForHuman/RepresentationTheory/BrauerNesbitt.lean`
   (`BrauerNesbitt.exists_linearEquiv_of_span_range_eq_top_of_trace_eq`, imported, not restated) and
   `FLTForHuman/GaloisRep/Defs/MatrixRepresentation.lean` (`Deformation.matrixRepresentation` and
   its `_apply` lemma, imported, not restated — the pin's `namespace Deformation` prelude is a copy
@@ -82,7 +82,7 @@
     `span_range_matrixRepresentation_eq_top`, `exists_conj_eq_of_span_eq_top_of_charpoly_eq`,
     `exists_conj_eq_of_span_eq_top_of_trace_eq'`, `span_range_map_eq_top_of_bijective`,
     `exists_conj_eq_galoisTwist_of_span_eq_top`) — **negative** in mathlib (it has no Brauer–Nesbitt
-    trace theorem at all, see the header of `Algebra/BrauerNesbittRepresentation.lean`); the pin's
+    trace theorem at all, see the header of `RepresentationTheory/BrauerNesbitt.lean`); the pin's
     trace form is a wrapper around the ported node plus the matrix/coordinate dictionary, so the
     node is imported and only the wrapper is restated;
   * `glnTwistedNorm_*`, `cyclicConjugatorCocycle`, `scalar_fixed_of_glnTwistedNorm_eq_scalar`,
@@ -114,7 +114,7 @@
   spec-pin: P2M/Sol/S_Representation_exists_conj_eq_map_of_charpoly_coeff_mem_range_of_finite_of_span_range_eq_top.lean
 -/
 
-import FLTForHuman.Algebra.BrauerNesbittRepresentation
+import FLTForHuman.RepresentationTheory.BrauerNesbitt
 import FLTForHuman.GaloisRep.Deformation.Cocycle
 import FLTForHuman.GaloisRep.Defs.MatrixRepresentation
 import Mathlib.FieldTheory.Finite.Basic

@@ -10,8 +10,9 @@
 
   (`P2M/Sol/S_Matrix_exists_bijective_transpose_mulVec_of_adjoin_intCast.lean`
   — 765 pin lines; the pin's `S_` development is a `namespace P2MW.S_…` wrapper only,
-  so its inner `TrFrob` / `TrDesc` / `TrFinal` namespaces are kept verbatim and the
-  wrapper prefix is dropped), together with the statement of its `Theorems/` wrapper
+  so its inner `TrFrob` / `TrDesc` / `TrFinal` namespaces are the pin's phase labels: they
+  are folded into one subject namespace here, `Matrix.TransposeMulVec`, under the object
+  the headline states for, and the wrapper prefix is dropped), together with the statement of its `Theorems/` wrapper
 
       `Theorems/Thm_Matrix_exists_bijective_transpose_mulVec_of_adjoin_intCast.lean`.
 
@@ -34,8 +35,8 @@
   bijective through `ψ_surjective` + `finrank_source_eq` (`ψ_bijective`, `descent`).
   `TrFinal` transposes: `τ` is the matrix-transpose isomorphism of the two adjoins
   (`transpose_mem_adjoin`, `image_transpose_range`). The headline composes the three:
-  `TrFrob.exists_bijective_rowMap` gives `w` for the row map of the family, `τ` turns
-  `rowMap w` into `TrDesc.ψ` of the transposed family, and `TrDesc.descent` lands in `K`.
+  `Matrix.TransposeMulVec.exists_bijective_rowMap` gives `w` for the row map of the family, `τ` turns
+  `rowMap w` into `Matrix.TransposeMulVec.ψ` of the transposed family, and `Matrix.TransposeMulVec.descent` lands in `K`.
 
   Assumes: mathlib `v4.34.0` only — nothing from earlier modules of the port. The pin
   file's `import Mathlib` is replaced by the modules the proof names (see the import
@@ -84,7 +85,8 @@ set_option autoImplicit false
 
 noncomputable section
 
-namespace TrFrob
+namespace Matrix
+namespace TransposeMulVec
 
 open Module
 
@@ -280,7 +282,7 @@ theorem mulVec_colEquiv_symm (a : 𝒜) (z : Fin n → k) :
 
 omit [IsMulCommutative ↥𝒜] in
 include hv in
-private theorem _root_.TrFrob.finrank_eq : finrank k (Fin d → 𝒜) = finrank k (Fin n → k) :=
+private theorem finrank_eq : finrank k (Fin d → 𝒜) = finrank k (Fin n → k) :=
   (colEquiv hv).finrank_eq
 
 
@@ -412,9 +414,11 @@ theorem exists_bijective_rowMap [IsAlgClosed k]
 
 end MatrixForm
 
-end TrFrob
+end TransposeMulVec
+end Matrix
 
-namespace TrDesc
+namespace Matrix
+namespace TransposeMulVec
 
 open Module Matrix
 
@@ -742,9 +746,11 @@ theorem descent
   obtain ⟨vq, hvq⟩ := exists_rat_isUnit_Φ N hn ⟨w, isUnit_Φ N hn ℂ w hspan⟩
   exact ⟨vK K vq, ψ_bijective N K hn vq hvq⟩
 
-end TrDesc
+end TransposeMulVec
+end Matrix
 
-namespace TrFinal
+namespace Matrix
+namespace TransposeMulVec
 
 open Matrix
 
@@ -797,11 +803,12 @@ theorem coe_τ_symm (K : Type*) [CommRing K]
     (((τ M K).symm b : ↥(Algebra.adjoin K (Set.range fun i => (M i).map (Int.cast : ℤ → K)))) :
       Matrix (Fin n) (Fin n) K) = (b : Matrix (Fin n) (Fin n) K)ᵀ := rfl
 
-end TrFinal
+end TransposeMulVec
+end Matrix
 
 namespace Matrix
 
-open TrFinal Matrix in
+open Matrix.TransposeMulVec Matrix in
 theorem exists_bijective_transpose_mulVec_of_adjoin_intCast
     {ι : Type*} (n d : ℕ) (M : ι → Matrix (Fin n) (Fin n) ℤ)
     (hcomm : ∀ i j, M i * M j = M j * M i)
@@ -824,18 +831,18 @@ theorem exists_bijective_transpose_mulVec_of_adjoin_intCast
     rw [← map_mul, ← map_mul, hcomm])
 
   obtain ⟨v, hv⟩ := hfree
-  have hv' : Function.Bijective (TrFrob.colMap 𝒜 v) := hv
-  obtain ⟨w, hw⟩ := TrFrob.exists_bijective_rowMap hv' hmult
+  have hv' : Function.Bijective (Matrix.TransposeMulVec.colMap 𝒜 v) := hv
+  obtain ⟨w, hw⟩ := Matrix.TransposeMulVec.exists_bijective_rowMap hv' hmult
 
   let N : ι → Matrix (Fin n) (Fin n) ℤ := fun i => (M i)ᵀ
-  have hfreeN : ∃ w : Fin d → (Fin n → ℂ), Function.Bijective (TrDesc.ψ N ℂ w) := by
+  have hfreeN : ∃ w : Fin d → (Fin n → ℂ), Function.Bijective (Matrix.TransposeMulVec.ψ N ℂ w) := by
     refine ⟨w, ?_⟩
-    let e : (Fin d → ↥(TrDesc.AK N ℂ)) ≃ (Fin d → 𝒜) :=
+    let e : (Fin d → ↥(Matrix.TransposeMulVec.AK N ℂ)) ≃ (Fin d → 𝒜) :=
       Equiv.arrowCongr (Equiv.refl _) (τ M ℂ).symm
-    have hfac : (TrDesc.ψ N ℂ w : (Fin d → TrDesc.AK N ℂ) → (Fin n → ℂ)) =
-        (TrFrob.rowMap 𝒜 w) ∘ e := by
+    have hfac : (Matrix.TransposeMulVec.ψ N ℂ w : (Fin d → Matrix.TransposeMulVec.AK N ℂ) → (Fin n → ℂ)) =
+        (Matrix.TransposeMulVec.rowMap 𝒜 w) ∘ e := by
       funext c'
-      rw [TrDesc.ψ_apply, Function.comp_apply, TrFrob.rowMap_apply]
+      rw [Matrix.TransposeMulVec.ψ_apply, Function.comp_apply, Matrix.TransposeMulVec.rowMap_apply]
       refine Finset.sum_congr rfl fun j _ => ?_
       change _ = (((τ M ℂ).symm (c' j) : 𝒜) : Matrix (Fin n) (Fin n) ℂ)ᵀ *ᵥ w j
       rw [show (((τ M ℂ).symm (c' j) : 𝒜) : Matrix (Fin n) (Fin n) ℂ) =
@@ -844,7 +851,7 @@ theorem exists_bijective_transpose_mulVec_of_adjoin_intCast
     rw [hfac]
     exact hw.comp e.bijective
 
-  obtain ⟨wK, hwK⟩ := TrDesc.descent N hfreeN K
+  obtain ⟨wK, hwK⟩ := Matrix.TransposeMulVec.descent N hfreeN K
   exact ⟨wK, hwK⟩
 
 end Matrix

@@ -16,11 +16,13 @@
       `AddCommGroup.exists_torsionBy_coords_of_dicyclic_relations` (331 pin lines),
 
   together with the statements of their `Theorems/` wrappers. The pin's `S_`
-  developments are `namespace P2MKcCB` and `namespace P2MKcADAPT`, kept here under
-  the pin's own namespaces and short names untouched. It is a faithful
-  transcription: no statement is weakened, no route is generalised, and the pin's
-  proofs are carried verbatim (`spec/check_port.py` diffs every public declaration
-  below against the four files named here).
+  developments are `namespace P2MKcCB` and `namespace P2MKcADAPT`; they are renamed
+  `Submodule.TorsionByCoords` and `Submodule.TorsionByCoords.Dicyclic` here — under the
+  object's namespace (`Submodule.torsionBy`), the two blocks told apart by the subject —
+  and the pin's short names are untouched. It is a faithful transcription: no statement
+  is weakened, no route is generalised, and the pin's proofs are carried verbatim
+  (`spec/check_port.py` diffs every public declaration below against the four files
+  named here).
 
   The mathematics is determinant/coprimality bookkeeping. The first node turns the
   question into the coprimality of `d v = v₁ (σ v)₂ - v₂ (σ v)₁`: for a prime
@@ -73,7 +75,7 @@ set_option autoImplicit false
 
 noncomputable section
 
-namespace P2MKcCB
+namespace Submodule.TorsionByCoords
 
 variable {A : Type*} [AddCommGroup A] {n : ℕ} [NeZero n]
 
@@ -370,7 +372,7 @@ theorem exists_isUnit_d
     ZMod.natCast_eq_zero_iff]
   exact hpd
 
-end P2MKcCB
+end Submodule.TorsionByCoords
 
 theorem AddCommGroup.exists_addEquiv_prod_torsionBy_apply_eq_of_forall_exists_ne_smul
     {A : Type*} [AddCommGroup A] (n : ℕ) [NeZero n]
@@ -379,11 +381,11 @@ theorem AddCommGroup.exists_addEquiv_prod_torsionBy_apply_eq_of_forall_exists_ne
     ∃ e' : ZMod n × ZMod n ≃+ Submodule.torsionBy ℤ A n,
       ((e' (0, 1) : Submodule.torsionBy ℤ A n) : A) =
         σ ((e' (1, 0) : Submodule.torsionBy ℤ A n) : A) := by
-  obtain ⟨v, hv⟩ := P2MKcCB.exists_isUnit_d e σ hns
-  exact P2MKcCB.exists_addEquiv_of_isUnit e σ v hv
+  obtain ⟨v, hv⟩ := Submodule.TorsionByCoords.exists_isUnit_d e σ hns
+  exact Submodule.TorsionByCoords.exists_addEquiv_of_isUnit e σ v hv
 
 
-namespace P2MKcADAPT
+namespace Submodule.TorsionByCoords.Dicyclic
 
 variable {M : ℕ} [NeZero M]
 
@@ -609,7 +611,7 @@ section Assembly
 
 variable {A : Type*} [AddCommGroup A]
 
-theorem main (hM : ¬ 3 ∣ M) (e : ZMod M × ZMod M ≃+ Submodule.torsionBy ℤ A M)
+private theorem main (hM : ¬ 3 ∣ M) (e : ZMod M × ZMod M ≃+ Submodule.torsionBy ℤ A M)
     (α β : A →+ A) (hα : ∀ T, α (α T) = -T) (hβ : ∀ T, β (β T) + β T + T = 0)
     (hαβ : ∀ T, α (β T) = β (β (α T))) :
     (∃ P : A, (M : ℤ) • P = 0 ∧ ∀ T : A, (M : ℤ) • T = 0 →
@@ -699,7 +701,7 @@ theorem main (hM : ¬ 3 ∣ M) (e : ZMod M × ZMod M ≃+ Submodule.torsionBy �
 
 end Assembly
 
-end P2MKcADAPT
+end Submodule.TorsionByCoords.Dicyclic
 
 theorem AddCommGroup.exists_torsionBy_coords_of_dicyclic_relations
     (M : ℕ) [NeZero M] (hM : ¬ 3 ∣ M) {A : Type*} [AddCommGroup A]
@@ -710,7 +712,7 @@ theorem AddCommGroup.exists_torsionBy_coords_of_dicyclic_relations
       ∃! c : ZMod M × ZMod M, c.1.val • P + c.2.val • β P = T) ∧
     (∃ P : A, (M : ℤ) • P = 0 ∧ ∀ T : A, (M : ℤ) • T = 0 →
       ∃! c : ZMod M × ZMod M, c.1.val • P + c.2.val • α P = T) :=
-  P2MKcADAPT.main hM e α β hα hβ hαβ
+  Submodule.TorsionByCoords.Dicyclic.main hM e α β hα hβ hαβ
 
 
 end
