@@ -12,14 +12,29 @@ perfect base `K` of characteristic `p` and `t` transcendental over `K` with
 
 The public headline is the wrapper verbatim; the pin's `PthPowerIndex` helper
 block (the subfield transport, the `p`-digit linear independence, the adjoin
-index and the unique `p`-digit expansion) is transcribed `private`.
+index and the unique `p`-digit expansion) is transcribed `private` — **except the
+three declarations a consumer states**: the subfield `frobeniusSubfield` itself,
+its index for a transcendental adjoin (`finrank_frobeniusSubfield_adjoin_transcendental`)
+and its transport across a finite extension (`finrank_frobeniusSubfield_eq`).
+They are public because consumers of the criterion elsewhere do not restate
+them: `AlgebraicCurve/Place/SeparableUniformiser.lean` proves that a
+uniformiser is a separating element (FLT's
+`S_AlgebraicCurve_Place_isSeparable_adjoin_of_ord_eq_one.lean`) by computing
+exactly these two indices.
+
+Wired by its own `spec-pin:` header (§6 of the porting notes); the module was
+handed over from the frozen registry on 2026-10-20 when the promotions landed.
 
 Mathlib search negatives (recorded): mathlib's `FieldTheory/Perfect.lean` gives
 `PerfectField`/`PerfectRing` and the perfect closure, and
 `IntermediateField.Adjoin.Basic` the simple-adjoin API, but there is no
 "Frobenius subfield index" computation; `Subfield.relfinrank`, the `comap`/`map`
 transport and Kummer's `X ^ p - C a` irreducibility are the pieces the pin
-assembles. -/
+assembles.
+
+spec-pin: Theorems/Thm_AlgebraicCurve_finrank_frobeniusSubfield_eq_of_transcendental.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_finrank_frobeniusSubfield_eq_of_transcendental.lean   -- comparable copy
+-/
 import Mathlib.FieldTheory.IntermediateField.Adjoin.Basic
 import Mathlib.FieldTheory.Perfect
 import Mathlib.FieldTheory.KummerPolynomial
@@ -40,7 +55,7 @@ namespace PthPowerIndex
 
 open IntermediateField Polynomial
 
-private def frobeniusSubfield (M : Type*) [Field M] (p : ℕ) [ExpChar M p] : Subfield M :=
+def frobeniusSubfield (M : Type*) [Field M] (p : ℕ) [ExpChar M p] : Subfield M :=
   (frobenius M p).fieldRange
 
 private theorem mem_frobeniusSubfield_iff {M : Type*} [Field M] (p : ℕ) [ExpChar M p] {a : M} :
@@ -104,7 +119,7 @@ private theorem finrank_algebraMapRange_eq :
   simp only [Cardinal.lift_id] at h
   exact congrArg Cardinal.toNat h.symm
 
-private theorem finrank_frobeniusSubfield_eq [FiniteDimensional E M]
+theorem finrank_frobeniusSubfield_eq [FiniteDimensional E M]
     [FiniteDimensional (frobeniusSubfield E p) E] :
     Module.finrank (frobeniusSubfield M p) M = Module.finrank (frobeniusSubfield E p) E := by
   set Mp : Subfield M := frobeniusSubfield M p with hMp
@@ -281,7 +296,7 @@ private theorem adjoin_genT_over_frobeniusSubfield [PerfectField K] (t : M) :
         (pow_mem (IntermediateField.mem_adjoin_simple_self _ _) _)
   exact div_mem (haeval r) (haeval s)
 
-private theorem finrank_frobeniusSubfield_adjoin_transcendental [PerfectField K]
+theorem finrank_frobeniusSubfield_adjoin_transcendental [PerfectField K]
     {t : M} (htr : Transcendental K t) :
     haveI : ExpChar (↥(IntermediateField.adjoin K ({t} : Set M))) p :=
       expChar_of_injective_algebraMap (algebraMap K _).injective p

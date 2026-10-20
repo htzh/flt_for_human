@@ -10,8 +10,8 @@ residuals. Every measurement is the pin's, read through `tools/deps`. The sectio
 stable: work orders across the column cite §3 for the workflow and §7 for the gates.
 
 The checker is **`spec/check_port.py` alone**, one module at a time, wired by the module's own
-`spec-pin:` header (§6). On 2026-10-20 it reads **1816 ok, 0 mismatched, 0 missing, 4 own, 0 kw
-over 45 wired modules** (584 `PORT_FILES` modules exempt; corpus `aa2d8b3`). `spec/old_check_stmts.py`
+`spec-pin:` header (§6). On 2026-10-20 it reads **1822 ok, 0 mismatched, 0 missing, 4 own, 0 kw
+over 47 wired modules** (583 `PORT_FILES` modules exempt; corpus `aa2d8b3`). `spec/old_check_stmts.py`
 is the grandfathered registry and is **not run as a gate**; its last reading, before the handoff,
 was 10473 identical (774 promoted, 83 renamed), 0 mismatched, 0 missing, 42 own-proof exemptions
 (10809 checked). Declaration-level exceptions live in `spec/decl_markers.tsv`, never in the Lean
@@ -220,11 +220,31 @@ imports the unported `Def_AutomorphicForm_CuspidalSpectrumCarrier`, but none of 
 slab bound's gate. Record: [logs/arch-type-span.md](../logs/arch-type-span.md); order:
 [automorphicForm/WORKORDER-ATS-arch-type-span.md](automorphicForm/WORKORDER-ATS-arch-type-span.md).
 
+The **separating-uniformiser twin** then landed as the column's first **exact-twin cut over a
+pre-ported engine**: `AlgebraicCurve.Place.isSeparable_adjoin_of_ord_eq_one` (455 pin lines, 23
+citers) and `…_of_ord_ne_zero_of_cast_natAbs_ne_zero` (460), the two pin files differing by 33 diff
+lines, as **one module, 149 lines, two headlines** —
+`AlgebraicCurve/Place/SeparableUniformiser.lean`. Two structural moves are worth the record.
+First, the pin's private `isSeparable_of_not_pow_mem_range` (and `D_pow_eq_zero`) are **not
+ported**: the port's public `Algebra.IsSeparable.of_finrank_fieldRange_frobenius_eq` is the same
+theorem up to spelling, so it is called with `frobeniusSubfield` unfolded — 93 net new lines where
+a transcription would have been ≈430. Second, the engine they rest on was already in the tree as
+**eighteen private declarations** of `AlgebraicCurve/IsCurveOver/FrobeniusSubfield.lean`; the set
+promotes the three a consumer states (`frobeniusSubfield`, its transcendental-adjoin index, its
+transport) and **hands the host over** — `spec-pin:` lines in, `PORT_FILES` entry out, the
+column's first such deletion. Checker **+6** (host 4, façade 2), **1822 ok**; tier-1 builds 2,694
+and 1,975 jobs, the dependent wave 4,329 jobs, 0 warnings from the set; axioms
+`[propext, Classical.choice, Quot.sound]`. Records:
+[logs/separating-uniformiser.md](../logs/separating-uniformiser.md); order:
+[algebraicCurve/WORKORDER-SU1-separable-uniformiser.md](algebraicCurve/WORKORDER-SU1-separable-uniformiser.md).
+
 For the landings above that wired into the frozen checker's lists, each delta is exactly its new
 public surface, 0 mismatched / 0 missing; the `localParam` landing has no such delta (§6). Since
 the 2026-10-19–20 handoff the column verifies with `spec/check_port.py` instead (§6), and a
-landing's delta is its statement-checked surface there: the arch-type-span leaf is **+1** of the
-1816. The 9542 → 9569 (+27) step is
+landing's delta is its statement-checked surface there: the arch-type-span leaf is **+1** and the
+separating-uniformiser twin **+6** (four on the handed-over host, two headlines) of the 1822. The
+host handoff is also the column's first **deletion** from `PORT_FILES` — a migration, not an
+append (§6). The 9542 → 9569 (+27) step is
 the `NumberField.AdelicHeight` definition gate, the manager's own ground for the adelic-modulus
 round
 ([numberTheory/adelicModulus/TOPIC-adelic-modulus.md](numberTheory/adelicModulus/TOPIC-adelic-modulus.md)),
@@ -325,6 +345,15 @@ Companions:
   [automorphicForm/WORKORDER-ATS-arch-type-span.md](automorphicForm/WORKORDER-ATS-arch-type-span.md),
   [logs/arch-type-span.md](../logs/arch-type-span.md). The engine's own planning note is
   [automorphicForm/TOPIC-archTestFactor-family.md](automorphicForm/TOPIC-archTestFactor-family.md).
+- The `Place` **separating-uniformiser twin** — a uniformiser (or a tame-order element) is a
+  separating element, the ready pair ported as two headlines over the promoted Frobenius-subfield
+  engine, with the criterion *called* rather than re-proved:
+  [algebraicCurve/WORKORDER-SU1-separable-uniformiser.md](algebraicCurve/WORKORDER-SU1-separable-uniformiser.md),
+  [logs/separating-uniformiser.md](../logs/separating-uniformiser.md). Its AC neighbours are
+  [algebraicCurve/TOPIC-t1-ord-interface.md](algebraicCurve/TOPIC-t1-ord-interface.md) (the `ord`
+  interface it is stated over) and
+  [algebraicCurve/TOPIC-t9-transcendence.md](algebraicCurve/TOPIC-t9-transcendence.md) (its two
+  premises).
 
 ## 1. What the port contains
 
@@ -587,7 +616,10 @@ uniqueness, the local parameter with its meromorphic-order dictionary, and the f
 rest on — so the charted-space capstone
 `Place.exists_chartedSpace_meromorphicOrderAt_evalAt_eq_ord_complex` (1,576 silo lines) now lacks
 only its own assembly, with `Place.exists_forall_ord_eq_finset` (291) ready beside it. The `--ds` ready shelf itself read
-**85 candidates** at that landing (the 67 in §7 predates four other columns' landings).
+**85 candidates** at that landing (the 67 in §7 predates four other columns' landings). The
+`Place` **separability pair** followed on 2026-10-20 (§1): a uniformiser is a separating element,
+and so is an element of nonzero tame order — one module, two headlines, over a three-declaration
+promotion in the Frobenius-subfield engine; it put the `ordDiff` rows on the ready shelf (§7).
 
 **The demand's leaves are the other shelf, and its rank-#2 row has landed.** `--ready` and `--hops`
 drop graph leaves (a leaf has `needed == 1` and can never reach `F`), so the automorphic demand's
@@ -874,6 +906,15 @@ family's third row,
 nodes / 369 lines; the seven other consumers are the `CuspidalConstituent` cut-weight and
 isotypic-cut rows of §2.
 
+The `Place` **separability pair** has landed too (§1, WORKORDER-SU1): a uniformiser at a place
+is a separating element, and so is an element of nonzero tame order
+([../logs/separating-uniformiser.md](../logs/separating-uniformiser.md)). It put four rows on the
+ready shelf — the top one is
+`AlgebraicCurve.Place.ord_diffCoeff_D_nonneg_of_isSeparable` (576 silo lines, 5 of its 6 cone nodes
+ported), then `Place.diffCoeff_smul_D_of_ord_eq_one` (28), `Place.diffCoeff_smul_D_eq_of_ord_eq_one`
+(26) and `AlgebraicCurve.isCurveOver_of_transcendental_of_isSeparable` (20) — and the first is the
+natural next cut of the differential-layer family.
+
 The **local-parameter family** is complete (§1): the finite cover
 ([logs/localParam-finite-cover.md](../logs/localParam-finite-cover.md)), the branch uniqueness,
 the local parameter with its meromorphic-order dictionary, and the four leaves those rest on
@@ -1076,6 +1117,6 @@ python3 spec/old_check_stmts.py --selftest
   [porting-playbook.md](../porting-playbook.md) §4, in this note's §3/§6/§8 and in the tooling
   (`tools/deps`, `spec/unwired_register.py`). The **older column notes and work orders still
   describe the retired "append to `PORT_FILES`/`SOURCES`" route** — they are the record of how those
-  landings were wired, not instructions; a new set follows §6. The 584 modules still owned by the
+  landings were wired, not instructions; a new set follows §6. The 583 modules still owned by the
   frozen registry are the migration backlog, and each moves when it is edited for another reason
-  (playbook §4).
+  (playbook §4) — the Frobenius-subfield host moved that way on 2026-10-20 (§1).

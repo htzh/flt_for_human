@@ -4129,7 +4129,6 @@ PORT_FILES = [
     # the Frobenius-subfield degree), the principal-divisor pair, the residue
     # field node, the `qExpFrobenius*` API and the target. Appended last.
     "FLTForHuman/Algebra/IsSeparableFrobenius.lean",
-    "FLTForHuman/AlgebraicCurve/IsCurveOver/FrobeniusSubfield.lean",
     "FLTForHuman/AlgebraicCurve/IsCurveOver/PerfectField.lean",
     "FLTForHuman/AlgebraicCurve/IsCurveOver/Transcendental.lean",
     "FLTForHuman/AlgebraicCurve/PrincipalDivisors/IsSeparable.lean",
