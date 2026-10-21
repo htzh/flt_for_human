@@ -105,7 +105,7 @@ product type), `IrrationalPt ↔ CuspForm.heckeBaseAlgebra`, `Vertex ↔ CohCarr
 
 **Payoff: it closes the four `Matrix.SpecialLinearGroup` rows outright** (686 own lines, already
 priced at 74 wired declarations in [TOPIC-matrix-family-in-cone.md](TOPIC-matrix-family-in-cone.md)),
-i.e. the `Matrix.` namespace's demand goes to zero except set MG3.
+i.e. the `Matrix.` namespace's demand goes to the GL/Serre pair alone (set MG4 in the pricing note), which is deferred.
 
 ## 4. What closing the whole pool takes
 
@@ -331,7 +331,7 @@ checker is **3496 ok over 129 modules** (from 3010), with the measured dedup pai
 the Kurosh engine). The two `Rat*` gates that phase 2 deferred
 (`Def_LanglandsTunnell_StandardLocalConstantsAt` and `Def_RatIdele_Normalizer`) were homed whole and
 both nodes ported (`NumberTheory/RatAdele/DenseRange.lean`, `NumberTheory/RatIdele/ClassCharNorm.lean`).
-The live `--ds` rows that remain of this note's subjects: `Matrix` 1 / 1,242 (set MG3 only);
+The live `--ds` rows that remain of this note's subjects: `Matrix` 1 / 1,242 (the GL row; set MG4, now landed);
 `SimpleGraph`/`Subgroup`/`ModularGroup`/`Monoid`/`RatAdele`/`RatIdele` are gone, and so is
 `UpperHalfPlane` — its last Fricke row (1 / 156) was taken on 2026-10-20 as
 `ModularForms/HeckeFrickeTrace.lean` (10 wired), clearing the namespace. The gate-blocked nodes still deferred are

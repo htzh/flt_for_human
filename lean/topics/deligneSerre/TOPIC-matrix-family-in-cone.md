@@ -4,7 +4,8 @@ Scoped 2026-10-20, after WORKORDER-MG1 landed the `U(2)`/`O(2)` right-finite sup
 ([TOPIC-matrixgroup-rightfinite.md](TOPIC-matrixgroup-rightfinite.md),
 [logs/matrixgroup-rightfinite.md](../../logs/matrixgroup-rightfinite.md), checker +96). The
 `Matrix.`-top-level namespace contributed **11 nodes / 4,519 raw `S_` lines** to the D-S demand
-before MG1; it contributes **9 / 2,969** now. This note prices the nine.
+before MG1 and **9 / 2,969** after it. All nine rows have since landed, so the namespace's D-S
+demand is now **zero**. This note prices the nine.
 
 `frontier.py --ds --include-leaves --top 0 --list`, then per-node demand via the same tool's
 `needed` on the D-S ported/avoided sets; `port_advise`/`port_plan` per cluster.
@@ -58,25 +59,38 @@ to register (all four are listed). Order:
 [WORKORDER-MG2-matrix-family.md](WORKORDER-MG2-matrix-family.md); record:
 [logs/matrix-family-four.md](../../logs/matrix-family-four.md). Measured on landing: 850 / 162 / 150 /
 118 lines, 73 wired (63 + 7 + 1 + 2), checker 2038 → **2111 ok** over 60 modules, 0 warnings. The
-`Matrix.`-namespace demand falls to **5 nodes / 1,928 lines**: MG4 below, plus the four free-group rows.
+`Matrix.`-namespace demand fell to **1 node / 1,242 lines** — the GL row below; the four free-group rows landed the same day as the free-group family (**381 wired** over the seven group and graph modules, record [../../logs/qexp-and-freegroup.md](../../logs/qexp-and-freegroup.md)), and the GL row landed as MG4 below.
 
-## Set MG4 — the GL row behind the Serre-image row: 1,632 raw → 1,611 net new, 53 wired
+## Set MG4 — the GL row behind the Serre-image row: 1,632 raw → 1,611 net new, 53 wired — **LANDED 2026-10-20**
 
 Row 5 needs row 6. Row 6 is the column's own §2 shelf row (`ModularCurve.SerreImage.contains_SL2`,
 390 pin lines): `port_advise` reads **0 substitutions**, 14 declaration groups, 369 net new
 lines, and it imports only the already-landed `Def_ModularCurve_SL2Elementary` and
-`Thm_ModularCurve_closure_elemSet_eq_top`. Row 5 is 1,242 raw lines, 42 declarations
-(3 `private main` helpers, 38 publics + `solution`), **0 substitutions**, 39 wired
-(38 silo publics + the headline). The pair is **1,611 net new / 53 wired**, and it is one
-story: `contains_SL2` is the Serre-image input that the `GL₂` count `# Fix(g) ≤ …` needs.
-Cut it as one set when it is scheduled — not this round, since it crosses into the
-`ModularCurve.SerreImage` subject.
+`Thm_ModularCurve_closure_elemSet_eq_top`. Row 5 is 1,242 raw lines, 43 declarations
+(3 `private main` helpers, 39 publics + `solution`; the corpus is the authority), **0
+substitutions**, 40 wired (39 silo publics + the headline). The pair is **1,611 net new / 53
+wired**, and it is one story: `contains_SL2` is the Serre-image input that the `GL₂` count
+`# Fix(g) ≤ …` needs, so the two were cut as one set in the `ModularCurve.SerreImage` subject
+directory.
 
-## The four free-group rows — not ready, and not this column's cut
+**Landed 2026-10-20** under [WORKORDER-MG4-matrix-gl2-count.md](WORKORDER-MG4-matrix-gl2-count.md):
+two modules in `ModularCurve/SerreImage/` (`ContainsSL2.lean` 407 lines, 13 wired;
+`SemisimpleOrderBound.lean` 1,263 lines, 40 wired), **53 ok, 0 mismatch / 0 missing / 0 own / 0 kw**,
+`--all` **3,539 ok over 135 modules**, axioms clean, both built from scratch. The count's home is the
+Serre-image subject because its proof uses the generation theorem — a `LinearAlgebra/Matrix` home
+would make a library module import a `ModularCurve` one (the namespace stays with the object,
+`Matrix.GeneralLinearGroup`; the path names the subject). Record:
+[../../logs/matrix-gl2-count.md](../../logs/matrix-gl2-count.md).
 
-Rows 7–10 are the `SL₂(ℤ)`-is-free subject: `finrank` of the `addMonoidHom` space, `kuroshRank`,
-`freeGroupBasis` on the quotient by the centre, `generators` modulo `-1`. Their own 686 lines sit
-behind six unported premises, 3,275 raw `S_` lines in all:
+## The four free-group rows — **landed** 2026-10-20 as the free-group family
+
+The premises below are now in the port — `GroupTheory/BassSerre/{CosetGraph,MinimalPeriod}`,
+`GroupTheory/ModularGroup/FreeProduct`, `GroupTheory/FreeGroup/{KuroshRank,SpecialLinearGroupGenerators}`,
+`GroupTheory/FreeDoubleCoset`, `Combinatorics/SimpleGraph/Transversal` — and rows 7–10 landed with
+them (**381 wired** over the seven group and graph modules, 0 mismatch / 0 missing; records
+[../../logs/qexp-and-freegroup.md](../../logs/qexp-and-freegroup.md),
+[../../logs/ds-leaf-families-wave2.md](../../logs/ds-leaf-families-wave2.md)). The table below is the
+pre-port pricing, kept as the measurement:
 
 | premise | lines |
 |---|---:|
@@ -87,19 +101,20 @@ behind six unported premises, 3,275 raw `S_` lines in all:
 | `SimpleGraph.exists_walkConnected_transversal_of_preconnected` | 156 |
 | `Subgroup.card_orbitRelQuotient_mul_card_eq_index` | 121 |
 
-Rows 8–10 share that premise set (their demands are 3,069 / 3,067 / 2,912 lines, i.e. the same
-union), so once the premises land they are a one-engine/three-headlines cluster; row 7 needs
-only 1,256. The subject is the Bass–Serre tree / free-product (Kurosh) machinery plus
-`SimpleGraph` walk-connectedness and a `Subgroup` orbit-counting lemma — it belongs to a
-graph/group-theory column and only *lands* in the `Matrix.` namespace. **Do not schedule it off
-this list**; it is recorded here so the `Matrix.` family's remaining demand is accounted for.
+Rows 8–10 shared that premise set (their demands were 3,069 / 3,067 / 2,912 lines, i.e. the same
+union), so with the premises in they were a one-engine/three-headlines cluster; row 7 needed only
+1,256. The subject is the Bass–Serre tree / free-product (Kurosh) machinery plus `SimpleGraph`
+walk-connectedness and a `Subgroup` orbit-counting lemma — it belongs to a graph/group-theory
+column and only *lands* in the `Matrix.` namespace. It landed 2026-10-20 as the free-group family;
+the table above is the pricing, kept as the measurement.
 
 ## Recommendation
 
 1. ~~**MG2 now**~~ — **landed 2026-10-20** (970 net new, +73, 850/162/150/118 lines, 0 warnings).
-2. **MG4 next round**, as one set: 1,611 net new, +53, and it is the column's own
+2. **MG4 landed 2026-10-20**, as its own set
+   ([WORKORDER-MG4-matrix-gl2-count.md](WORKORDER-MG4-matrix-gl2-count.md); 1,611 net new, +53;
+   record [../../logs/matrix-gl2-count.md](../../logs/matrix-gl2-count.md)); it is the column's own
    `ModularCurve.SerreImage` subject meeting the `GL₂` count.
-3. Rows 7–10 are now fully priced as the **free-group family** of
-   [TOPIC-ds-leaf-families.md](TOPIC-ds-leaf-families.md) §3 — 3,961 raw → 3,291 net
-   new (measured), one engine + four headlines, 2 modules, 506 removable duplicate lines. It is the
-   cheapest way to close the `Matrix.` namespace.
+3. ~~Rows 7–10 are fully priced as the free-group family~~ — **landed 2026-10-20** as the
+   **free-group family** of [TOPIC-ds-leaf-families.md](TOPIC-ds-leaf-families.md) §3 (381 wired,
+   0 mismatch / 0 missing). With item 2 landed, the `Matrix.` namespace's D-S demand is zero.

@@ -29,8 +29,10 @@ family's ready remainder and share the review, not because they share mathematic
 per-declaration marker.
 
 **Not this set:** `Matrix.GeneralLinearGroup.exists_natCard_le_of_isSemisimpleRepresentation_of_card_image_charpoly_le`
-and its premise `ModularCurve.SerreImage.contains_SL2` (set MG3, 1,611 net new / +53, deliberately a
-separate round — it crosses into the `ModularCurve.SerreImage` subject); the four
+and its premise `ModularCurve.SerreImage.contains_SL2` (set MG4 in the pricing note, MG3 in this
+order's numbering; 1,611 net new / +53, deliberately a separate round — it crosses into the
+`ModularCurve.SerreImage` subject; landed 2026-10-20 as a full dispatch,
+[WORKORDER-MG4-matrix-gl2-count.md](WORKORDER-MG4-matrix-gl2-count.md)); the four
 `Matrix.SpecialLinearGroup` free-group rows (behind 3,275 raw lines of `Monoid.CoprodI` /
 `ModularGraph` / `SimpleGraph` premises, another column's subject); anything under
 `FLTForHuman/Analysis/MatrixGroup/` or `LinearAlgebra/Dual/` (MG1, landed).
