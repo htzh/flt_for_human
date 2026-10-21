@@ -65,6 +65,24 @@ core toolchain; the `Quotient` API arrives transitively). Symptom: `unknown iden
 does not exist` where the source looks fine. Fix: `flock .lake/flt_build.lock timeout 300 lake build <module>`
 on the module that should own the olean.
 
+## 3b. A dependent wave is owed, deliberately unbuilt — the `EisensteinChiNegThree` refactor
+
+`FLTForHuman/ModularForms/WeightOne/EisensteinChiNegThree.lean` was edited on 2026-10-20 (two private
+blocks lifted into `NumberTheory/ModularForms/Gamma0Three.lean` and
+`ModularCurve/Numerics/NuThree.lean`, two headlines made public, its wire migrated off `PORT_FILES`;
+record: [phantom-landings.md](phantom-landings.md)). The edited module and the two new ones are green
+at tier 0/1, but its **51-module / 30,597-line** dependent cascade is stale — ≈413 s to re-elaborate
+per `build_ladder.py --edit`.
+
+It was **not** built, by the user's instruction: more old modules are expected to be refactored the
+same way (the 23 orphan phantoms in [CARRY-FORWARD.md](../CARRY-FORWARD.md)), and each such refactor
+forces the same wave, so they should share one. Nothing is red in the meantime: every removed
+declaration was `private` (file-local), and the module's interface only gained two public names, so no
+importer can be affected — only its olean is stale, which the next build of any dependent will fix.
+
+**Rule for the batch:** collect the refactors, then run one wave (`build_ladder.py --edit` per host,
+union the module sets) at the end, with the user's agreement, and record it here.
+
 ## 4. One compile at a time — the lock and the box
 
 * A single `lake build` may hold `.lake/flt_build.lock` for **40+ minutes**; a queued build waits silently,

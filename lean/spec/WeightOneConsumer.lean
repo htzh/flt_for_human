@@ -88,6 +88,31 @@ example : ∃ f : ModularForm (CongruenceSubgroup.Gamma1 3) 1,
         Complex.exp (2 * (Real.pi : ℂ) * Complex.I * (n : ℂ) * (z : ℂ)) :=
   EisensteinWeightOne.e1Chi3IsModular
 
+-- SET-6 order 2 (second headline), `ModularForms/WeightOne/EisensteinChiNegThree.lean`.
+#check EisensteinWeightOne.tsum_coeff_e1Chi3_mul_exp_eq_tsum_exp_hexagonal
+
+/-- **SET-6 order 2, second headline, executed application.** `e1Chi3`'s `q`-series is the
+`A₂` theta series at every point of the upper half-plane; the headline is elaborated into a
+term at a symbolic `σ`, not merely `#check`ed. -/
+example (σ : ℂ) (hσ : 0 < σ.im) :
+    (∑' n : ℕ, ((PowerSeries.coeff n EisensteinWeightOne.e1Chi3 : ℤ) : ℂ) *
+        Complex.exp (2 * (Real.pi : ℂ) * Complex.I * (n : ℂ) * σ)) =
+      ∑' p : ℤ × ℤ, Complex.exp (2 * (Real.pi : ℂ) * Complex.I * σ *
+        ((p.1 : ℂ) ^ 2 + (p.1 : ℂ) * (p.2 : ℂ) + (p.2 : ℂ) ^ 2)) :=
+  EisensteinWeightOne.tsum_coeff_e1Chi3_mul_exp_eq_tsum_exp_hexagonal σ hσ
+
+-- SET-6 order 2 (third headline), the same module.
+#check ModularForm.exists_weight_one_gamma1_three_slash_fricke_eq_smul
+
+/-- **SET-6 order 2, third headline, executed application.** The existential is eliminated and
+its Fricke conjunct is applied at the Fricke matrix, so the headline is elaborated into a term. -/
+example (W : GL (Fin 2) ℝ) (hW : (W : Matrix (Fin 2) (Fin 2) ℝ) = !![(0 : ℝ), -1; 3, 0]) :
+    ∃ g : ModularForm (CongruenceSubgroup.Gamma1 3 : Subgroup (GL (Fin 2) ℝ)) 1,
+      (⇑g : UpperHalfPlane → ℂ) ∣[(1 : ℤ)] W =
+        (-Complex.I / (Real.sqrt 3 : ℂ)) • (⇑g : UpperHalfPlane → ℂ) := by
+  obtain ⟨g, -, -, hg⟩ := ModularForm.exists_weight_one_gamma1_three_slash_fricke_eq_smul
+  exact ⟨g, hg W hW⟩
+
 -- SET-7 order 1, `ModularForms/WeightOne/LevelOneHauptmodul.lean` (extended).
 #check WLight.levelOne_hauptmodul_package
 #check WLight.weierstrassP_qExpansion_package

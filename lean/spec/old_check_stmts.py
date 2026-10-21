@@ -3682,9 +3682,11 @@ PORT_FILES = [
     # SET-6, order 1: the four closure-1 Hauptmodul leaves. Only the four
     # headlines are public; the pin's self-contained `S_` helpers are `private`.
     "FLTForHuman/ModularForms/WeightOne/LevelOneHauptmodul.lean",
-    # SET-6, order 2: the χ₋₃ weight-one Eisenstein series. The single headline
-    # is public; the pin's ~400 helpers are all `private` here.
-    "FLTForHuman/ModularForms/WeightOne/EisensteinChiNegThree.lean",
+    # SET-6, order 2: the χ₋₃ weight-one Eisenstein series — MIGRATED 2026-10-20 to the per-module
+    # wire (`spec-pin:` in its header, checked by `spec/check_port.py`): three headlines are public
+    # now, and the two blocks that were `private` transplants of other pin modules (the Γ₀(3)
+    # generation engine, the ν₃ numerics) have moved to their own modules. Deliberately no entry
+    # here, per the playbook's migration rule: a module moves when it is edited for another reason.
     # SET-7, order 2: the torsion ℘ q-expansion bundle. The single headline is
     # public; the pin's self-contained helpers are all `private` here. The
     # extended order-1 module above carries SET-7's other two headlines.

@@ -1,6 +1,7 @@
 # The homing of mathlib-shaped modules — how the cut was made, why it was wrong, the standard, and the rehoming pass
 
-**Status: both passes are done (2026-10-20).** This note is the durable record of the homing
+**Status: both passes are done (2026-10-20); §10 is the post-pass class that the passes could not
+see.** This note is the durable record of the homing
 problem that surfaced in the 2026-10-19/20 leaf-node campaign — porting small families of the D-S
 cone — of the refactor that fixed it (§4–§6), and of the rehoming pass that finished the residue
 (§8). It states the *problem*, the *criterion*, the *trade-offs* and the *standard* so the next
@@ -639,3 +640,54 @@ missing, the expected `ok` count) for every touched file, plus the import sweep 
 * **Ask where the user would look, then check the graph.** The user-view question decides the home
   and the module name; the dependency metric is the sanity check on the answer, not the criterion.
   A user-facing API module can add an edge and still be right — as the `SL₂` API module does.
+
+## 10. Composite pin silos, and the phantom landings they leave behind (2026-10-20)
+
+The two passes above fixed *where* ported declarations live. This section is about a class they could
+not see, because it is not about a declaration's home: it is about a ported declaration that is
+**`private` and yet satisfies the frontier**.
+
+**A pin `S_` file is not a unit of mathematics.** Its `section File_FLT_*` markers — and the
+`p2m_export`/`p2m_reactivate` blocks around them — are the pin's own *module* boundaries: the pin's
+authoring pipeline concatenated whole other modules into one `S_` file. `S_EisensteinWeightOne_e1Chi3IsModular.lean`
+is thirteen such modules plus its own subject. A port that lands "one `S_` file, one module" and then
+follows the era's *one headline public, every helper `private`* convention therefore privates **another
+module's public surface** along with the helpers.
+
+**Why it is invisible.** `frontier.py`'s `names` tier asks "is there a declaration with this name in
+`lean/FLTForHuman`?" and does not exclude `private`. A `private` declaration cannot be imported, is not
+diffed by `spec/check_port.py`, and is invisible to every consumer — but it answers the question, so the
+node leaves the demand. The port's `needed` is understated, silently, in proportion to how much of it
+was landed that way.
+
+**The four rules.**
+
+1. **`section File_*` / `File_*` markers inside an `S_` file are module boundaries.** Before transcribing
+   one, read the markers and check each embedded silo against the demand and against the port.
+2. **A pin-inner namespace that equals another pin *module's* namespace is a transplanted silo.** A block
+   under `FLT.AnalyticCore.TwoGeneratorSweep` or `FLT.AnalyticCore.LatticeSum` is that module's public
+   surface, not a helper: home it once, publicly, and let the host import it.
+3. **`private` is not "ported".** A pin-public declaration stays public unless it is scaffolding for the
+   headline it was ported for. The one legitimate private twin is the pin's own `solution`/`impl` shape
+   (`theorem H := impl`, `private theorem impl : <H's statement>`), which the port writes as a private
+   `main` under a public headline.
+4. **A hub edit is the moment to audit the rest of the file.** The wave is the same price for one move
+   and for five (playbook §4c), so lift every transplanted silo the read turns up in the same change.
+
+**The measured instance.** `ModularForms/WeightOne/EisensteinChiNegThree.lean` carried the Γ₀(3)
+generation engine (40 declarations, written into five pin `S_` files) and the `ν₃` numerics (22) as
+private blocks; two of the `ν₃` declarations — `ModularCurve.nuThree_prime`,
+`nuThree_mul_of_coprime` — were answerable by `frontier.py --target` as *"target is ported", `needed 0`*.
+Both blocks are now public modules (`NumberTheory/ModularForms/Gamma0Three.lean`,
+`ModularCurve/Numerics/NuThree.lean`), the host imports them, and the Γ₀(3) headline is stated. Record:
+[../logs/phantom-landings.md](../logs/phantom-landings.md).
+
+**The class.** Scanning all 856 port modules' private declarations against the pin's 29,512 public
+`Theorems/` statements finds 52 matches in 36 modules: **23 `orphan`** (no public declaration anywhere
+states the theorem — the defect) and **29 `twin`** (the benign `impl` shape). Sixteen of the 23 are the
+`ModularCurve` q-expansion / `PhiGen` / degree layer, and three are privated twice. The list and the
+per-node fix are in [CARRY-FORWARD.md](../CARRY-FORWARD.md); the method is reproducible from the log.
+
+**Not done, deliberately.** `frontier.py` still counts private names. Changing it would move every
+number in these notes — the 23 orphans would re-enter the demand, and any older phantom outside that
+scan's reach would too — so it belongs to its own pass, with its own before/after record.

@@ -465,6 +465,49 @@ binders `(x) (m) (s)`, while the LocalIntertwining pin spells them `(a) (s) (k)`
 declaration is not importable. Unifying them means generalising the public copy's binders, which
 edits a frozen module.
 
+### 23 orphan phantoms — pin headlines the port states only from behind `private`
+
+Found and sized 2026-10-20 ([logs/phantom-landings.md](logs/phantom-landings.md)); the instance that
+exposed them (`CongruenceSubgroup.closure_T_U_neg_one_eq_Gamma0_three`) is **landed** in
+`NumberTheory/ModularForms/Gamma0Three.lean`, as are `ModularCurve.nuThree_prime` and
+`nuThree_mul_of_coprime` in `ModularCurve/Numerics/NuThree.lean`.
+
+`frontier.py`'s `names` tier counts `private` declarations as ported, so a pin headline whose only copy
+is `private` leaves the demand while nothing can import it and no checker has diffed it. Scanning every
+port module's private declarations against the pin's public `Theorems/` statements
+(`tools/deps/phantom_scan.py`, untracked; method in the log) leaves **23, in 14 modules**:
+
+```
+Algebra/FaithfulLatticeEigenvector.lean:98             Module.exists_ne_zero_forall_smul_eq_smul_of_algHom
+AlgebraicCurve/IsCurveOver/FrobeniusSubfield.lean:386   AlgebraicCurve.existsUnique_pDigits_of_transcendental
+AlgebraicCurve/P1/DivisorAction.lean:21                AlgebraicCurve.Place.ord_add_eq_of_lt
+AlgebraicCurve/WeilExchange/Transport.lean:293         AlgebraicCurve.Place.sum_ramificationIndex_mul_inertiaDeg
+ModularCurve/Analytic/Gamma0InvariantCore.lean:116     ModularCurve.PhiGen.mem_range_coeffEmb_of_forall_coeffMap_eq
+ModularCurve/Analytic/Gamma0InvariantCore.lean:133     ModularCurve.PhiGen.exists_galoisPerm
+ModularCurve/Analytic/Gamma0InvariantCore.lean:153     ModularCurve.PhiGen.mem_range_coeffEmb_qExpand_of_mem_inter
+ModularCurve/Degree/Roof.lean:61                       ModularCurve.finrankAlong_heckeBetaBar
+ModularCurve/Degree/Roof.lean:140                      ModularCurve.finrankAlong_towerInclBar_of_eq
+ModularCurve/Degree/Roof.lean:150                      ModularCurve.finrankAlong_towerSubstBar_roof
+ModularCurve/Degree/Roof.lean:220                      ModularCurve.laurentBaseChange_adjoin_pair
+ModularCurve/ModularPolynomialStarBank.lean:82,88,93   ModularCurve.coeff_jqModC_{pow_self,pow_of_lt,neg_one}   (privated twice: also X0/FunctionFieldFull.lean:82,88,93)
+ModularCurve/PhiGenIntegrality.lean:232                ModularCurve.PhiGen.intCoeffs_jq_pow
+ModularCurve/PhiGenPoleBounds.lean:270                 ModularCurve.PhiGen.tPoleOrderLE_phiProd_conj_of_ne_zero
+ModularCurve/X1/IntegralityJqNModC.lean:89             ModularCurve.qExpansion_E6_eq_map_mk
+ModularForms/Hauptmodul.lean:342                       ModularCurve.exists_aeval_jq_sub_holomorphicAtInfty
+ModularForms/JqAnalyticModel.lean:570                  ModularCurve.hasSum_jNum_qParam
+WeierstrassCurve/IsogenyEndDatum/DualEndData.lean:63    WeierstrassCurve.finite_torsionBy_of_natCast_ne_zero
+```
+
+The fix is per node a one-line `private` → public where the statement is the module's own subject, or
+a lift into a subject module where it is not — plus the same `spec-pin:` wiring. Sixteen of the
+twenty-three are the `ModularCurve` q-expansion / `PhiGen` / degree layer, so one order can take them
+as a family. **Do not schedule them off `--ready`-style pricing:** the demand does not currently show
+them at all (that is the bug). The batched dependent wave for these refactors is owed and recorded in
+[logs/build-time-issues.md](logs/build-time-issues.md) §3b.
+
+The **29 `twin`** hits are *not* on this list: a public declaration elsewhere already states the same
+theorem under another name (the pin's `solution`/`impl` wiring, e.g. `Saturation.main`). Leave them.
+
 ## Open follow-ups
 
 ### The `mapGL` entry lemmas have no library home

@@ -1,6 +1,6 @@
 # Phase 3 — the genuinely small mathlib-shaped families (partly dispatched)
 
-**Status: recorded 2026-10-20, and its two smallest families landed the same day.** The column
+**Status: recorded 2026-10-20, and four of its seven families landed the same day.** The column
 stopped cutting this front after WORKORDER-MG3's
 phase 2 ([logs/ds-leaf-families-wave2.md](../logs/ds-leaf-families-wave2.md)), and this note is
 the re-scoped cut that phase 2 failed to be: the survivors of the four tests written in
@@ -19,6 +19,23 @@ declarations, checker **3,539 → 3,605 ok / 135 → 140 modules**, and the D-S 
 [logs/phase3-module-end-and-powerseries.md](../logs/phase3-module-end-and-powerseries.md). The
 rest of this note is the pricing as it was written; when the remaining families are cut, **recount
 each row from the frontier first** — that advice is §4's caveat and this landing is its proof.
+
+**Then `Algebra` and `CongruenceSubgroup` landed too**, and they are the note's two corrections.
+`Algebra` (5 nodes / 349 lines) went as **two** modules, not the one this note priced: the integral
+model of a function field (`RingTheory/IntegralClosure/FunctionField.lean`, 10 wired) and the
+elementary norm computations (`RingTheory/Norm/Elementary.lean`, 3) are different subjects.
+`CongruenceSubgroup` was **excluded by this note and should not have been** (§3 below): read against
+its statements it is group theory of mathlib's own congruence-subgroup API, not modular forms, and
+the row was twice the priced size — **5 nodes / 1,054 lines**, of which four landed
+(`NumberTheory/ModularForms/CongruenceSubgroupLattice.lean`, 36 wired) and the fifth is a **lift**
+of a private engine out of `EisensteinChiNegThree.lean` whose dependent wave is 51 modules / ≈413 s,
+so it is deferred to the user's exception ([CARRY-FORWARD.md](../CARRY-FORWARD.md)). Nine of the ten
+nodes took the checker **3,605 → 3,654 ok / 140 → 143 modules** and the D-S demand
+**1,248 → 1,239 nodes / 476,792 → 475,631 raw `S_` lines**; the `Algebra.` row is gone and
+`CongruenceSubgroup.` reads 1 / 242. Orders:
+[WORKORDER-PH3C-algebra-norm-and-integrality.md](WORKORDER-PH3C-algebra-norm-and-integrality.md),
+[WORKORDER-PH3D-congruence-subgroup-lattice.md](WORKORDER-PH3D-congruence-subgroup-lattice.md);
+record: [logs/phase3-algebra-and-congruence-subgroup.md](../logs/phase3-algebra-and-congruence-subgroup.md).
 
 ## 0. Where the "about 1,000 lines" tail went (it is done)
 
@@ -68,13 +85,14 @@ new lines** and **≈320 wired declarations** (283 publics + 37 wrapper headline
 | `MeasureTheory` (integration, `IsFundamentalDomain`, `Lp`) | 13 | 1,336 | 33 | 2–3 modules |
 | `ValuationSubring` (residue/degree/Krull-dim criteria) | 7 | 738 | 19 | 1–2 modules |
 | `Representation` (compact-group representations) — **landed 2026-10-20** as five mathlib-shaped modules (`RepresentationTheory/{Burnside,InvariantPairing,CompactGroup,SubrepresentationExtension}.lean`, `LinearAlgebra/Matrix/SubfieldBasis.lean`): 21 wired, 0 mismatch/0 missing, record [logs/representation-leaves.md](../../logs/representation-leaves.md) | 4 (+1 over-threshold basis node) | 659 | 21 | 5 modules |
-| `Algebra` (norms, integral closure of a simple adjoin) | 5 | 349 | 13 | 1 module |
+| `Algebra` (norms, integral closure of a simple adjoin) — **landed 2026-10-20** as **two** modules, not the one priced here: `RingTheory/IntegralClosure/FunctionField.lean` (10 wired) and `RingTheory/Norm/Elementary.lean` (3 wired); the function-field subject and the norm subject split; record [logs/phase3-algebra-and-congruence-subgroup.md](../logs/phase3-algebra-and-congruence-subgroup.md) | 5 | 349 | 13 | **2** modules |
+| `CongruenceSubgroup` (the congruence-subgroup lattice) — **excluded by §3 and wrongly so**; repriced at **5 nodes / 1,054 lines**, **all five landed** 2026-10-20: four in `NumberTheory/ModularForms/CongruenceSubgroupLattice.lean` (36 wired) and the fifth as a **lift** out of `EisensteinChiNegThree.lean`, `NumberTheory/ModularForms/Gamma0Three.lean` (+40 wired, [logs/phantom-landings.md](../logs/phantom-landings.md)) | ~~0~~ **5** | ~~0~~ **1,054** | ~~0~~ **81** | 2 modules |
 | `ContinuousLinearMap` (integral-representation of operators) | 3 | 328 | 20 | 1 module |
 | `PowerSeries` (coefficient/subring criteria) — **landed 2026-10-20**, repriced: 4 nodes / 696 lines / 15 publics, three modules `RingTheory/PowerSeries/{Saturation,GaloisDescent,CoeffMem}.lean`, +15 wired; record [logs/phase3-module-end-and-powerseries.md](../logs/phase3-module-end-and-powerseries.md) | ~~3~~ **4** | ~~265~~ **696** | ~~11~~ **15** | 3 modules |
 | `Module.End` (eigenspace/divisor-string lemmas) — **landed 2026-10-20**, repriced: 4 nodes / 1,028 lines / 51 publics, two modules `LinearAlgebra/Eigenspace/{Sl2Strings,MultiplicityOne}.lean`, +51 wired; same record | ~~2~~ **4** | ~~257~~ **1,028** | ~~5~~ **51** | 2 modules |
-| **total** | **40** | **4,843** | **302** | **~13 modules** |
+| **total** | **45** | **6,188** | **248** | **~15 modules** |
 
-The row sums never matched the old total — the seven rows summed to 3,932 against a stated 3,641, 291 lines unaccounted — so the figure above is the row sum with the two repriced rows. Striking the twelve landed nodes (`Representation` 4, `PowerSeries` 4, `Module.End` 4), **28 nodes / 2,460 lines / 215 publics of this cut remain**: `MeasureTheory` 13 / 1,336, `ValuationSubring` 7 / 738, `Algebra` 5 / 349, `ContinuousLinearMap` 3 / 328, plus the seven excluded-but-adjacent `ValuationSubring` rows of §3 (1,155).
+The row sums never matched the old total — the seven rows summed to 3,932 against a stated 3,641, 291 lines unaccounted — so the figure above is the row sum with the three repriced rows and the re-included `CongruenceSubgroup` family. Striking the **22 landed nodes** (`Representation` 5 modules, `PowerSeries` 3, `Module.End` 2, `Algebra` 2, `CongruenceSubgroup` 2 — 14 modules, **176 statement-checked declarations**), **23 nodes / 2,402 lines / 72 publics of this cut remain**: `MeasureTheory` 13 / 1,336, `ValuationSubring` 7 / 738, `ContinuousLinearMap` 3 / 328 — plus the seven excluded-but-adjacent `ValuationSubring` rows of §3 (1,155). The measured demand now reads **1,238 nodes / 475,389 raw `S_` lines**, but see the homing note §10: `frontier.py` counts `private` declarations as ported, so 23 more pin headlines that the port states only privately are *not* in that number ([CARRY-FORWARD.md](../CARRY-FORWARD.md)).
 
 ## 2. The nodes
 
@@ -121,7 +139,8 @@ The row sums never matched the old total — the seven rows summed to 3,932 agai
 | excluded | why |
 |---|---|
 | `Matrix.SpecialLinearGroup.{exists_addMonoidHom_conj_T_pow_minimalPeriod…, nonempty_freeGroupBasis_map_quotient_center…, exists_generators_free_mod_neg_one…, finrank_addMonoidHom_eq…}` (686 lines, 4 nodes) | small and clean, but **not ready**: they need the free-group family (`Monoid.CoprodI` + `ModularGroup.exists_mulEquiv_freeProduct_quotient_center` + `SimpleGraph` + `Subgroup.card_orbitRel…`, 3,275 raw lines). Priced at 3,291 net / 2 modules in the leaf-families note §3. |
-| `UpperHalfPlane.qExpansion_*`, `CongruenceSubgroup.*` (~500 lines) | modular forms — FLT-flavoured subject, test 2. |
+| `UpperHalfPlane.qExpansion_*` | modular forms — FLT-flavoured subject, test 2. |
+| ~~`CongruenceSubgroup.*` (~500 lines)~~ — **the exclusion was wrong and is reversed (2026-10-20).** Read against the statements, all five are group theory of mathlib's own congruence-subgroup API (`Gamma`, `Gamma0`, `Gamma1`, `ModularGroup.S`/`T`, `Subgroup.zpowers`, `Subgroup.relIndex`, `ZMod`) with no modular form, Hecke operator or adele in sight, so they pass test 2; the mathlib-first check is negative (`CongruenceSubgroups.lean` has none of them) and there is no definition gate. The row was also **twice** the priced size: **5 nodes / 1,054 lines**. Four landed in `NumberTheory/ModularForms/CongruenceSubgroupLattice.lean`, and the fifth is a lift ([CARRY-FORWARD.md](../CARRY-FORWARD.md)). The lesson is this note's own caveat: a namespace is not a subject, and a subject exclusion must quote the statement it read. | — |
 | `AlgebraicCurve.FunctionField.*` (187) | curve-theory vocabulary (`ratFuncAlgHom`, `placeInfty`) — FLT's own function-field layer, not mathlib's. |
 | `LocalGL2.iwasawa_decomposition` (241), `UnramifiedWhittaker.*` (412), `HaarQuotient.*` (446) | adelic/Whittaker vocabulary — FLT-flavoured despite clean imports. |
 | the other seven `ValuationSubring.*` (`exists_aeval_div_eq_aeval_div_add_inv_pow_mul_add_aeval_inv` 138, `IsFrobeniusAt.apply_eq_pow_of_pow_eq_one` 83, `ringKrullDim_le_toENat_trdeg_rat_add_one` 75, `exists_polynomial_map_residue_ne_zero_eval_mul_mem` 42, `charP_residueField_of_liesOverPrime` 37, `isAlgClosed_residueField` 30, `krullDimLE_one_of_isAlgebraic_rat` 12) | **not `needed 1`** — they want the bigger `ValuationSubring` nodes as premises. A "phase 3b" once those land, or a single order that takes the whole 1,155-line family. |

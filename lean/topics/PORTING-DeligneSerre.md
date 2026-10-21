@@ -13,9 +13,9 @@ The checker is **`spec/check_port.py` alone**, one module at a time, wired by th
 `spec-pin:` header (§6). The statement parser itself is **`spec/lean_parser.py`** (2026-10-20):
 the checker, the corpus builder and the `tools/deps` planning tools import it directly, and the
 frozen `old_check_stmts.py` imports it rather than owning it; the extraction also fixed the
-`end A.B` namespace-stack bug (FR-0035). On 2026-10-20, after this column's latest five modules
-(§1, WORKORDER-PH3A/PH3B), it reads **3605 ok, 0 mismatched, 0 missing, 11 own, 0 kw over 140
-wired modules** (582 `PORT_FILES` modules exempt; corpus `aa2d8b3`) — a whole-tree figure, so it
+`end A.B` namespace-stack bug (FR-0035). On 2026-10-20, after this column's latest eight modules
+(§1, WORKORDER-PH3A–PH3D and the phantom-landings refactor), it reads **3718 ok, 0 mismatched, 0
+missing, 11 own, 0 kw over 146 wired modules** (582 `PORT_FILES` modules exempt; corpus `aa2d8b3`) — a whole-tree figure, so it
 also carries the other columns' landings since the 3506 checkpoint. `spec/old_check_stmts.py`
 is the grandfathered registry and is **not run as a gate**; its last reading, before the handoff,
 was 10473 identical (774 promoted, 83 renamed), 0 mismatched, 0 missing, 42 own-proof exemptions
@@ -421,6 +421,48 @@ demand falls **1,256 → 1,248 nodes / 478,516 → 476,792 raw `S_` lines** and 
 orders: [deligneSerre/WORKORDER-PH3A-module-end-eigenspace.md](deligneSerre/WORKORDER-PH3A-module-end-eigenspace.md),
 [deligneSerre/WORKORDER-PH3B-powerseries-coefficients.md](deligneSerre/WORKORDER-PH3B-powerseries-coefficients.md).
 
+**The `Algebra` and `CongruenceSubgroup` rows then followed (2026-10-20).** Nine of ten nodes /
+**1,161 pin `S_` lines** became **three modules, 1,363 lines, 49 statement-checked declarations**.
+The `Algebra` row (5 / 349) split by subject into `RingTheory/IntegralClosure/FunctionField.lean`
+(10 wired — the integral closure of `k[x]` is finite in a function field, and denominators clear
+against every valuation subring) and `RingTheory/Norm/Elementary.lean` (3 — `norm (μ + nilpotent)`,
+the norm on a product algebra, the norm on a subsingleton algebra: the block a mathlib PR would
+append to `RingTheory/Norm/Basic`). The `CongruenceSubgroup` row is the phase-3 note's **wrong
+exclusion reversed**: read against the statements, its five nodes are group theory of mathlib's own
+congruence-subgroup API, not modular forms, and the row was twice the priced size (5 / 1,054, not
+"~500"); four landed in `NumberTheory/ModularForms/CongruenceSubgroupLattice.lean` (36 wired — the
+level-lowering inclusion with a lower unipotent, the `T`/`S`-adapted transversal, the first-column
+criteria, the relative-index formula), with `det_eq` and `Gamma_le_Gamma1` **imported** rather than
+re-proved. The fifth node, `closure_T_U_neg_one_eq_Gamma0_three`, is **not a port but a lift**:
+35 of its 40 declarations are already in the tree, byte-identical and `private`, as the
+`FLT.FLT.AnalyticCore.Gamma0Three` block of `ModularForms/WeightOne/EisensteinChiNegThree.lean`
+(two blocks, ~187 lines), so the landing is a move + dedup whose dependent wave is 51 modules /
+30,597 lines / ≈413 s — deferred with its price in [CARRY-FORWARD.md](../CARRY-FORWARD.md). Checker
+**3,605 → 3,654 ok / 140 → 143 modules**, 0 mismatch / 0 missing / 11 own / 0 kw; tier-1 builds
+2,194 / 2,026 / 3,581 jobs at 9.45 / 6.19 / 6.5 s, **0 warnings**; all nine headlines'
+`[propext, Classical.choice, Quot.sound]`. Both pin heartbeat bumps (9.6 M and 3.2 M) were
+precaution and are dropped. Records:
+[logs/phase3-algebra-and-congruence-subgroup.md](../logs/phase3-algebra-and-congruence-subgroup.md);
+orders: [deligneSerre/WORKORDER-PH3C-algebra-norm-and-integrality.md](deligneSerre/WORKORDER-PH3C-algebra-norm-and-integrality.md),
+[deligneSerre/WORKORDER-PH3D-congruence-subgroup-lattice.md](deligneSerre/WORKORDER-PH3D-congruence-subgroup-lattice.md).
+
+**The composite-silo correction then landed (2026-10-20) — two public modules out of a façade, no new
+proofs.** `ModularForms/WeightOne/EisensteinChiNegThree.lean` is the port of a *composite* pin `S_` file
+(thirteen `section File_FLT_*` pin modules concatenated), and it was carrying two of them `private`: the
+Γ₀(3) generation engine (40 declarations, which the pin writes into **five** `S_` files) and the `ν₃`
+numerics (22). Both are now public homes — `NumberTheory/ModularForms/Gamma0Three.lean` (40 wired, with
+the headline `CongruenceSubgroup.closure_T_U_neg_one_eq_Gamma0_three` and the pin's `@[scoped simp]` /
+`scoped instance` restored) and `ModularCurve/Numerics/NuThree.lean` (21 wired, whose
+`ModularCurve.nuThree_prime` and `nuThree_mul_of_coprime` `frontier.py` had been answering *"target is
+ported"*) — the host imports both, keeps three publics (`chiNegThree_mul` and `coeff_e1Chi3` joined the
+headline) and is **migrated off the frozen registry**. Checker **3,654 → 3,718 ok / 143 → 146 modules**,
+0 mismatch / 0 missing / 11 own / 0 kw (582 → 581 `PORT_FILES` exempt); tier-0/1 green with 0 warnings,
+the 51-module dependent wave deliberately unbuilt. The refactor also **sized the class behind it**: 23
+more pin headlines are stated only from behind `private` across 14 modules, because `frontier.py`'s
+names tier counts private declarations as ported — the demand is understated by that much, and the list
+is in [CARRY-FORWARD.md](../CARRY-FORWARD.md). Record: [logs/phantom-landings.md](../logs/phantom-landings.md);
+the class rule is [TOPIC-mathlib-module-homing.md](TOPIC-mathlib-module-homing.md) §10.
+
 For the landings above that wired into the frozen checker's lists, each delta is exactly its new
 public surface, 0 mismatched / 0 missing; the `localParam` landing has no such delta (§6). Since
 the 2026-10-19–20 handoff the column verifies with `spec/check_port.py` instead (§6), and a
@@ -559,7 +601,13 @@ Companions:
   [deligneSerre/WORKORDER-PH3B-powerseries-coefficients.md](deligneSerre/WORKORDER-PH3B-powerseries-coefficients.md),
   record [logs/phase3-module-end-and-powerseries.md](../logs/phase3-module-end-and-powerseries.md).
   The note repriced those two families from 5 nodes / 522 lines to **8 / 1,724** — the three rows it
-  had missed are 1,202 of the 1,724 lines.
+  had missed are 1,202 of the 1,724 lines. The same phase's `Algebra` and `CongruenceSubgroup`
+  families followed the same day: orders
+  [deligneSerre/WORKORDER-PH3C-algebra-norm-and-integrality.md](deligneSerre/WORKORDER-PH3C-algebra-norm-and-integrality.md),
+  [deligneSerre/WORKORDER-PH3D-congruence-subgroup-lattice.md](deligneSerre/WORKORDER-PH3D-congruence-subgroup-lattice.md),
+  record [logs/phase3-algebra-and-congruence-subgroup.md](../logs/phase3-algebra-and-congruence-subgroup.md)
+  — including the **reversal of the note's `CongruenceSubgroup` exclusion**, which had rejected
+  five mathlib-shaped nodes on a subject smell without reading their statements.
 - The **mathlib-first check for supplements, and the survey behind it** — first the habit (name /
   concept / statement `rg` over mathlib `v4.34.0`, with the three traps: trailing-name collisions, a
   more general mathlib lemma, a pin `import Mathlib` hiding the library), then the one-off study of the
@@ -897,9 +945,12 @@ landed 2026-10-20 (§1, WORKORDER-ATS); the leaf shelf drops 445 → **444** can
 moves to `HeckeIntegralSeam.exists_isHeckeCosetSystem_localRep_heckeGen` (807). The leaf's own
 successor `AutomorphicForm.finiteDimensional_span_translates_of_mem_archCutSubmodule` (184) is now
 on the `--ready` shelf — the same principle at the whole cut, and the next cut of the family. The
-standing count after the same day's later landings is **358** candidates (§1, WORKORDER-PH3A/PH3B:
-`Module.End` and `PowerSeries`, five modules, 66 declarations, which emptied those two namespace
-rows of the demand).
+standing count after the same day's later landings is **348** candidates (§1, WORKORDER-PH3A–PH3D and
+the phantom-landings refactor: `Module.End`, `PowerSeries`, `Algebra` and `CongruenceSubgroup` — ten
+modules, 155 declarations — which emptied four namespace rows of the demand). Caveat, and it is the one
+the next cut must not ignore: `frontier.py` counts `private` declarations as ported, so 23 pin headlines
+the port states only privately are missing from that shelf
+([CARRY-FORWARD.md](../CARRY-FORWARD.md), homing note §10).
 
 **The leaf shelf's next two rows were the `Matrix.` pair, and they have landed** (§1, WORKORDER-MG1):
 the shelf reads **442 → 440** and loses 1,550 raw lines, and the `Matrix.`-namespace demand goes
@@ -1306,6 +1357,19 @@ The **factorization** node (the global counterpart: `∏ᶠ` integral = Euler `�
 ([logs/eisenstein-factorization.md](../logs/eisenstein-factorization.md)); its successor
 `EisensteinGeneral.Factorization.inv_measure_adelicBox_mul_fourierIntegral_tensor_eq` (185 pin
 lines) needs two unported `NumberField` rows (420 raw `S_` lines) before it is ready.
+
+**The `Algebra` and `CongruenceSubgroup` rows left the demand at 1,239 nodes / 475,631 lines.**
+Their successors are measured with `frontier.py --target`: the `AlgebraicCurve` function-field rows
+that consume the integral-closure and denominator nodes, and the Hecke/coset rows that consume the
+congruence-subgroup ones (`ModularCurve.finrankAlong_heckeAlphaHBar_of_dvd`,
+`ModularForm.qExpansion_slash_coeff_mem_of_peaked_auxiliary`,
+`ModularCurve.SiegelUnit.exists_gamma1_peaked_auxiliary_form_twelve_dvd`, each 1,5xx–1,6xx lines of
+remaining demand at the time of the landing). The `CongruenceSubgroup` row is now **empty**: its fifth node,
+`CongruenceSubgroup.closure_T_U_neg_one_eq_Gamma0_three`, was not a port but a **lift** — 35 of its 40
+declarations were already in the tree, byte-identical and `private`, in `EisensteinChiNegThree.lean` —
+and it landed as `NumberTheory/ModularForms/Gamma0Three.lean` (40 wired) with the host importing it
+([logs/phantom-landings.md](../logs/phantom-landings.md)). The dependent wave (51 modules / ≈413 s) is
+owed and deliberately unbuilt; [logs/build-time-issues.md](../logs/build-time-issues.md) §3b.
 
 **The `Module.End` and `PowerSeries` families left four near-ready successors and emptied two
 frontier rows.** Measured with `frontier.py --target` before and after the landing (§1, WORKORDER-

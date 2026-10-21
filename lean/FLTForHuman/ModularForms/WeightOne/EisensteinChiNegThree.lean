@@ -1,21 +1,72 @@
 /-
   The `χ₋₃` weight-one Eisenstein series is modular (SET-6 order 2).
 
-  `EisensteinWeightOne.e1Chi3IsModular : EisensteinWeightOne.E1Chi3IsModular` is
-  the single headline, stated verbatim from the pinned wrapper
-  `Theorems/Thm_EisensteinWeightOne_e1Chi3IsModular.lean`. The proof is ported
-  from `P2M/Sol/S_EisensteinWeightOne_e1Chi3IsModular.lean` (3,816 lines),
-  adapted from mathlib `v4.33.0` to `v4.34.0`. Every helper is `private`; the
-  vocabulary (`chiNegThree`, `sigmaChi`, `e1Chi3`, `E1Chi3IsModular`) is
-  imported from `Defs/EisensteinChiNegThree.lean`, not redefined.
+  Five headlines are public — `EisensteinWeightOne.e1Chi3IsModular`,
+  `EisensteinWeightOne.chiNegThree_mul`, `EisensteinWeightOne.coeff_e1Chi3`,
+  `EisensteinWeightOne.tsum_coeff_e1Chi3_mul_exp_eq_tsum_exp_hexagonal` and
+  `ModularForm.exists_weight_one_gamma1_three_slash_fricke_eq_smul` — each stated verbatim
+  from its pinned `Theorems/` wrapper. The proof is ported from
+  `P2M/Sol/S_EisensteinWeightOne_e1Chi3IsModular.lean` (3,816 lines), adapted from mathlib `v4.33.0`
+  to `v4.34.0`. The vocabulary (`chiNegThree`, `sigmaChi`, `e1Chi3`, `E1Chi3IsModular`) is imported
+  from `Defs/EisensteinChiNegThree.lean`, not redefined.
+
+  **Two blocks that this module used to carry `private` have moved to their own homes** (2026-10-20,
+  homing standard `topics/TOPIC-mathlib-module-homing.md` §3). The pin's `S_` file for this module is
+  a *composite*: its `section File_FLT_*` markers are the pin's own module boundaries, and two of the
+  blocks concatenated into it are other modules' developments, not helpers of this headline.
+
+  * `FLT.AnalyticCore.Gamma0Three` (forty declarations, `File_FLT_AnalyticCore_TwoGeneratorSweep`) →
+    `FLTForHuman/NumberTheory/ModularForms/Gamma0Three.lean`, public, with the frontier headline
+    `CongruenceSubgroup.closure_T_U_neg_one_eq_Gamma0_three`. The pin writes that development into
+    five `S_` files.
+  * `ModularCurve.Numerics` (twenty-two declarations, `File_FLT_ModularCurve_Numerics_NuThree`) →
+    `FLTForHuman/ModularCurve/Numerics/NuThree.lean`, public, with the two frontier headlines
+    `ModularCurve.nuThree_prime` and `ModularCurve.nuThree_mul_of_coprime` — both of which were
+    *counted as ported* while sitting here `private`.
+
+  **A third block is imported rather than transplanted.** The `A₂` theta development of
+  `File_FLT_AnalyticCore_RankTwoPoissonSummation` (thirty-two declarations: `hexTheta`,
+  the Poisson summation `inner_poisson`/`outer_poisson`/`summable_middle`, the `cpow`
+  half-power helpers and `hexTheta_fricke`) already had a home: the port's
+  `Analysis/Theta/HexagonalLattice.lean`, transcribed from
+  `S_HexagonalLattice_summable_thetaTerm_and_tsum_neg_inv_three_mul.lean`. The copy here was
+  proof-identical modulo `private`, so it is deleted (365 lines) and the module is imported
+  and its namespace opened. `HexagonalLattice` is itself a node of the D-S cone, so this is
+  the one import that both removes a duplicate and gives that module its consumer.
+
+  Both are imported below and their scopes opened. Helpers stay `private` unless one of the other
+  homed blocks or `Reserve/ModularForms/WeightOne/ChiNegThreeDead.lean` needs them across a module
+  boundary; the ones that had to be exposed are pin declarations, so `check_port.py` now verifies
+  seventy statements of this module instead of five. **Everything unreachable from the five headlines
+  has left**: the dead set (95 declarations, 944 lines, including all the pin's sharpness witnesses and
+  superseded routes) is on the shelf `Reserve/ModularForms/WeightOne/ChiNegThreeDead.lean`, moved by
+  `tools/deps/move_dead.py`. What remains here is the live core. The headlines checked here are the ones listed in
+  `spec-pin:` below — the four `Theorems/` wrappers, and the three `S_` files the text was transcribed
+  from (their statements spell the coefficients differently from the wrappers, so both are needed for
+  the checker). The last two wrappers name no `S_` file: their statements are stated verbatim from
+  their wrappers and their proofs are derived here from this module's own material, not transcribed.
+  `ModularForm.exists_weight_one_gamma1_three_slash_fricke_eq_smul` is the residual of
+  `S_ModularForm_exists_weight_one_gamma1_three_slash_fricke_eq_smul.lean` — that `S_` file is an
+  earlier generation of the same theta/lattice-sum modules transcribed here (107 of its 112
+  statements are identical to this module's), so only its `thetaForm` packaging is new.
+
+  spec-pin: Theorems/Thm_EisensteinWeightOne_e1Chi3IsModular.lean
+  spec-pin: Theorems/Thm_EisensteinWeightOne_chiNegThree_mul.lean
+  spec-pin: Theorems/Thm_EisensteinWeightOne_coeff_e1Chi3.lean
+  spec-pin: Theorems/Thm_EisensteinWeightOne_tsum_coeff_e1Chi3_mul_exp_eq_tsum_exp_hexagonal.lean
+  spec-pin: Theorems/Thm_ModularForm_exists_weight_one_gamma1_three_slash_fricke_eq_smul.lean
+  spec-pin: P2M/Sol/S_EisensteinWeightOne_e1Chi3IsModular.lean
+  spec-pin: P2M/Sol/S_EisensteinWeightOne_chiNegThree_mul.lean
+  spec-pin: P2M/Sol/S_EisensteinWeightOne_coeff_e1Chi3.lean
 
   The development has two halves:
 
   * the analytic half (`FLT.EisensteinWeightOne` and
     `FLT.AnalyticCore`): the hexagonal theta series
-    `hexTheta σ = ∑'_{x,y} e^{2πiσ(x²+xy+y²)}`, its Poisson-summation
-    functional equation, its values at the fixed points of `T` and `U₃`, and
-    the resulting weight-one modularity on `Γ₀(3)`;
+    `hexTheta σ = ∑'_{x,y} e^{2πiσ(x²+xy+y²)}` and its Poisson-summation
+    functional equation (**imported**, see above), its values at the fixed points of
+    `T` and `U₃` (`hexThetaH` and the slash laws), and the resulting weight-one
+    modularity on `Γ₀(3)`;
   * the arithmetic half: the representation count `reprCount n` of `n` by
     `x² + xy + y²`, the ring of integers `HexInt = ℤ[ζ₃]` as a Euclidean
     domain, the splitting law for primes `p ≡ 1 (mod 3)`, and the identification
@@ -59,6 +110,9 @@ import Mathlib.RingTheory.UniqueFactorizationDomain.Basic
 import Mathlib.SetTheory.Cardinal.Finite
 import Mathlib.Tactic
 import FLTForHuman.ModularForms.Defs.EisensteinChiNegThree
+import FLTForHuman.ModularCurve.Numerics.NuThree
+import FLTForHuman.NumberTheory.ModularForms.Gamma0Three
+import FLTForHuman.Analysis.Theta.HexagonalLattice
 
 set_option autoImplicit false
 set_option linter.style.haveILetI false
@@ -66,6 +120,17 @@ set_option linter.style.haveILetI false
 noncomputable section
 
 open EisensteinWeightOne
+
+-- The `A₂` theta development is `Analysis/Theta/HexagonalLattice.lean` (public, and a D-S cone
+-- node); this file used to carry a private transplant of it. Opened for the proofs that name
+-- `hexTheta`, `hexThetaTerm`, `inner_poisson`, `hexTheta_fricke` and the `cpow` helpers.
+open A2HexPoisson
+
+-- The Γ₀(3) generation engine is `CongruenceSubgroup.Gamma0Three` (its own module); this
+-- file used to carry a private transplant of it. Opened here for the proofs that name
+-- `U₃`, `gens`, `apply_one_one_ne_zero` and the qualified `Gamma0Three.repOfLabel`.
+open CongruenceSubgroup.Gamma0Three
+open scoped CongruenceSubgroup.Gamma0Three
 
 section File_FLT_Modularity_EisensteinWeightOne
 
@@ -75,24 +140,18 @@ namespace EisensteinWeightOne
 open Finset Nat Finset.Nat ArithmeticFunction CongruenceSubgroup
 open scoped Finset Nat Finset.Nat ArithmeticFunction CongruenceSubgroup
 
-
 @[simp] private theorem chiNegThree_zero : chiNegThree 0 = 0 := rfl
 
-@[simp] private theorem chiNegThree_one : chiNegThree 1 = 1 := rfl
+@[simp] theorem chiNegThree_one : chiNegThree 1 = 1 := rfl
 
 @[simp] private theorem chiNegThree_two : chiNegThree 2 = -1 := rfl
 
-@[simp] private theorem chiNegThree_three : chiNegThree 3 = 0 := rfl
+@[simp] theorem chiNegThree_three : chiNegThree 3 = 0 := rfl
 
 private theorem chiNegThree_mod (n : ℕ) : chiNegThree (n % 3) = chiNegThree n := by
   simp only [chiNegThree, Nat.mod_mod_of_dvd n (dvd_refl 3)]
 
-private theorem chiNegThree_eq_zero_iff {n : ℕ} : chiNegThree n = 0 ↔ 3 ∣ n := by
-  simp only [chiNegThree]
-  have h3 : n % 3 = 0 ∨ n % 3 = 1 ∨ n % 3 = 2 := by omega
-  rcases h3 with h | h | h <;> simp [h] <;> omega
-
-private theorem chiNegThree_mul (m n : ℕ) : chiNegThree (m * n) = chiNegThree m * chiNegThree n := by
+theorem chiNegThree_mul (m n : ℕ) : chiNegThree (m * n) = chiNegThree m * chiNegThree n := by
   simp only [chiNegThree]
   rw [Nat.mul_mod]
   have hm : m % 3 = 0 ∨ m % 3 = 1 ∨ m % 3 = 2 := by omega
@@ -104,15 +163,14 @@ private theorem chiNegThree_pow (p j : ℕ) : chiNegThree (p ^ j) = chiNegThree 
   | zero => simp
   | succ j ih => rw [pow_succ, chiNegThree_mul, ih, pow_succ]
 
-
 @[simp] private theorem sigmaChi_zero : sigmaChi 0 = 0 := by simp [sigmaChi]
 
-private def chiNegThreeArith : ArithmeticFunction ℤ :=
+def chiNegThreeArith : ArithmeticFunction ℤ :=
   ⟨chiNegThree, chiNegThree_zero⟩
 
 @[simp] private theorem chiNegThreeArith_apply {n : ℕ} : chiNegThreeArith n = chiNegThree n := rfl
 
-private def zetaInt : ArithmeticFunction ℤ :=
+def zetaInt : ArithmeticFunction ℤ :=
   ⟨fun n => if n = 0 then 0 else 1, rfl⟩
 
 @[simp] private theorem zetaInt_apply {n : ℕ} : zetaInt n = if n = 0 then 0 else 1 := rfl
@@ -146,30 +204,14 @@ private theorem isMultiplicative_zetaInt_mul_chi :
     (zetaInt * chiNegThreeArith).IsMultiplicative :=
   isMultiplicative_zetaInt.mul isMultiplicative_chiNegThreeArith
 
-private theorem sigmaChi_mul_of_coprime (m n : ℕ) (h : Nat.Coprime m n) :
+theorem sigmaChi_mul_of_coprime (m n : ℕ) (h : Nat.Coprime m n) :
     sigmaChi (m * n) = sigmaChi m * sigmaChi n := by
   simp only [sigmaChi_eq_mul_apply]
   exact isMultiplicative_zetaInt_mul_chi.map_mul_of_coprime h
 
-private theorem sigmaChi_prime {p : ℕ} (hp : p.Prime) : sigmaChi p = 1 + chiNegThree p := by
-  rw [sigmaChi, Nat.Prime.divisors hp, Finset.sum_pair hp.one_lt.ne, chiNegThree_one]
+theorem sigmaChi_one : sigmaChi 1 = 1 := by decide
 
-private theorem sigmaChi_one : sigmaChi 1 = 1 := by decide
-
-private theorem sigmaChi_two : sigmaChi 2 = 0 := by decide
-
-private theorem sigmaChi_three : sigmaChi 3 = 1 := by decide
-
-private theorem sigmaChi_four : sigmaChi 4 = 1 := by decide
-
-private theorem sigmaChi_five : sigmaChi 5 = 0 := by decide
-
-private theorem sigmaChi_six : sigmaChi 6 = 0 := by decide
-
-private theorem sigmaChi_seven : sigmaChi 7 = 2 := by decide
-
-
-private theorem coeff_e1Chi3 (n : ℕ) :
+theorem coeff_e1Chi3 (n : ℕ) :
     PowerSeries.coeff n e1Chi3 = if n = 0 then 1 else 6 * sigmaChi n := by
   rw [e1Chi3, PowerSeries.coeff_mk]
 
@@ -177,46 +219,13 @@ private theorem coeff_e1Chi3 (n : ℕ) :
   rw [← PowerSeries.coeff_zero_eq_constantCoeff, coeff_e1Chi3]
   simp
 
-private theorem coeff_e1Chi3_of_ne_zero {n : ℕ} (hn : n ≠ 0) :
+theorem coeff_e1Chi3_of_ne_zero {n : ℕ} (hn : n ≠ 0) :
     PowerSeries.coeff n e1Chi3 = 6 * sigmaChi n := by
   rw [coeff_e1Chi3, ite_eq_right hn]
 
-private theorem coeff_one_e1Chi3 : PowerSeries.coeff 1 e1Chi3 = 6 := by
+theorem coeff_one_e1Chi3 : PowerSeries.coeff 1 e1Chi3 = 6 := by
   rw [coeff_e1Chi3]
   norm_num [sigmaChi_one]
-
-private theorem coeff_two_e1Chi3 : PowerSeries.coeff 2 e1Chi3 = 0 := by
-  rw [coeff_e1Chi3]
-  norm_num [sigmaChi_two]
-
-private theorem coeff_three_e1Chi3 : PowerSeries.coeff 3 e1Chi3 = 6 := by
-  rw [coeff_e1Chi3]
-  norm_num [sigmaChi_three]
-
-private theorem coeff_four_e1Chi3 : PowerSeries.coeff 4 e1Chi3 = 6 := by
-  rw [coeff_e1Chi3]
-  norm_num [sigmaChi_four]
-
-private theorem coeff_seven_e1Chi3 : PowerSeries.coeff 7 e1Chi3 = 12 := by
-  rw [coeff_e1Chi3]
-  norm_num [sigmaChi_seven]
-
-private theorem six_dvd_coeff_e1Chi3_of_ne_zero {n : ℕ} (hn : n ≠ 0) :
-    (6 : ℤ) ∣ PowerSeries.coeff n e1Chi3 :=
-  ⟨sigmaChi n, coeff_e1Chi3_of_ne_zero hn⟩
-
-private theorem three_dvd_coeff_e1Chi3_of_ne_zero {n : ℕ} (hn : n ≠ 0) :
-    (3 : ℤ) ∣ PowerSeries.coeff n e1Chi3 :=
-  dvd_trans (by norm_num) (six_dvd_coeff_e1Chi3_of_ne_zero hn)
-
-private theorem three_dvd_coeff_e1Chi3_sub_one (n : ℕ) :
-    (3 : ℤ) ∣ PowerSeries.coeff n (e1Chi3 - 1) := by
-  rw [map_sub, PowerSeries.coeff_one]
-  rcases eq_or_ne n 0 with rfl | hn
-  · simp [coeff_e1Chi3]
-  · rw [ite_eq_right hn, sub_zero]
-    exact three_dvd_coeff_e1Chi3_of_ne_zero hn
-
 
 end FLT.EisensteinWeightOne
 
@@ -230,16 +239,12 @@ namespace FLT
 namespace AnalyticCore
 namespace LatticeSum
 
-private def hexForm (v : ℤ × ℤ) : ℤ :=
+def hexForm (v : ℤ × ℤ) : ℤ :=
   v.1 ^ 2 + v.1 * v.2 + v.2 ^ 2
 
-@[simp] private lemma hexForm_mk (m n : ℤ) : hexForm (m, n) = m ^ 2 + m * n + n ^ 2 := rfl
+@[simp] lemma hexForm_mk (m n : ℤ) : hexForm (m, n) = m ^ 2 + m * n + n ^ 2 := rfl
 
-private lemma two_mul_hexForm (v : ℤ × ℤ) :
-    2 * hexForm v = (v.1 + v.2) ^ 2 + v.1 ^ 2 + v.2 ^ 2 := by
-  simp only [hexForm]; ring
-
-private lemma hexForm_nonneg (v : ℤ × ℤ) : 0 ≤ hexForm v := by
+lemma hexForm_nonneg (v : ℤ × ℤ) : 0 ≤ hexForm v := by
   obtain ⟨a, b⟩ := v
   simp only [hexForm_mk]
   nlinarith [sq_nonneg (a + b), sq_nonneg a, sq_nonneg b]
@@ -252,25 +257,25 @@ private lemma hexForm_eq_zero_iff (v : ℤ × ℤ) : hexForm v = 0 ↔ v = (0, 0
     constructor <;> nlinarith [sq_nonneg (a + b), sq_nonneg a, sq_nonneg b, sq_nonneg (a - b)]
   · rintro ⟨rfl, rfl⟩; ring
 
-private lemma sq_add_sq_le_two_mul_hexForm (v : ℤ × ℤ) :
+lemma sq_add_sq_le_two_mul_hexForm (v : ℤ × ℤ) :
     v.1 ^ 2 + v.2 ^ 2 ≤ 2 * hexForm v := by
   obtain ⟨a, b⟩ := v
   simp only [hexForm_mk]
   nlinarith [sq_nonneg (a + b)]
 
-private def hexFormNat (v : ℤ × ℤ) : ℕ :=
+def hexFormNat (v : ℤ × ℤ) : ℕ :=
   (hexForm v).toNat
 
 @[simp] private lemma coe_hexFormNat (v : ℤ × ℤ) : (hexFormNat v : ℤ) = hexForm v :=
   Int.toNat_of_nonneg (hexForm_nonneg v)
 
-private lemma hexFormNat_eq_iff (v : ℤ × ℤ) (n : ℕ) : hexFormNat v = n ↔ hexForm v = (n : ℤ) := by
+lemma hexFormNat_eq_iff (v : ℤ × ℤ) (n : ℕ) : hexFormNat v = n ↔ hexForm v = (n : ℤ) := by
   rw [← coe_hexFormNat, Int.natCast_inj]
 
 @[simp] private lemma hexFormNat_zero : hexFormNat (0, 0) = 0 := by
   rw [hexFormNat_eq_iff]; rfl
 
-private noncomputable def latticeTerm (τ : ℂ) (v : ℤ × ℤ) : ℂ :=
+noncomputable def latticeTerm (τ : ℂ) (v : ℤ × ℤ) : ℂ :=
   Complex.exp (2 * (π : ℂ) * Complex.I * (hexFormNat v : ℂ) * τ)
 
 private lemma norm_latticeTerm (τ : ℂ) (v : ℤ × ℤ) :
@@ -279,7 +284,7 @@ private lemma norm_latticeTerm (τ : ℂ) (v : ℤ × ℤ) :
       = ((2 * π * (hexFormNat v : ℝ) : ℝ) : ℂ) * τ * Complex.I by push_cast; ring]
   rw [Complex.norm_exp, mul_I_re, im_ofReal_mul]
 
-private lemma norm_latticeTerm_le_of_le_im {T : ℝ} (hT : 0 < T) {τ : ℂ} (hτ : T ≤ τ.im) (v : ℤ × ℤ) :
+lemma norm_latticeTerm_le_of_le_im {T : ℝ} (hT : 0 < T) {τ : ℂ} (hτ : T ≤ τ.im) (v : ℤ × ℤ) :
     ‖latticeTerm τ v‖ ≤
       Real.exp (-(π * T * (v.1 : ℝ) ^ 2)) * Real.exp (-(π * T * (v.2 : ℝ) ^ 2)) := by
   rw [norm_latticeTerm, ← Real.exp_add, Real.exp_le_exp]
@@ -301,7 +306,7 @@ private lemma summable_gaussian_int {t : ℝ} (ht : 0 < t) :
   have h := summable_pow_mul_jacobiTheta₂_term_bound 0 ht 0
   simpa only [pow_zero, one_mul, mul_zero, zero_mul, sub_zero, neg_mul, mul_assoc] using h
 
-private lemma summable_gaussian_prod {t : ℝ} (ht : 0 < t) :
+lemma summable_gaussian_prod {t : ℝ} (ht : 0 < t) :
     Summable fun v : ℤ × ℤ ↦
       Real.exp (-(π * t * (v.1 : ℝ) ^ 2)) * Real.exp (-(π * t * (v.2 : ℝ) ^ 2)) :=
   (summable_gaussian_int ht).mul_of_nonneg (summable_gaussian_int ht)
@@ -310,63 +315,18 @@ private lemma summable_gaussian_prod {t : ℝ} (ht : 0 < t) :
 private theorem summable_latticeTerm {τ : ℂ} (hτ : 0 < τ.im) : Summable (latticeTerm τ) :=
   (summable_gaussian_prod hτ).of_norm_bounded (norm_latticeTerm_le_of_le_im hτ le_rfl)
 
-private theorem not_summable_latticeTerm_zero : ¬ Summable (latticeTerm 0) := by
-  have h : latticeTerm 0 = fun _ ↦ (1 : ℂ) := by
-    funext v; simp [latticeTerm]
-  rw [h, summable_const_iff]
-  exact one_ne_zero
-
-private noncomputable def latticeSum (τ : ℂ) : ℂ :=
+noncomputable def latticeSum (τ : ℂ) : ℂ :=
   ∑' v : ℤ × ℤ, latticeTerm τ v
 
-private lemma finite_fiber_hexFormNat (n : ℕ) : (hexFormNat ⁻¹' {n}).Finite := by
-  apply Set.Finite.subset
-    ((Finset.Icc (-(2 * n : ℤ)) (2 * n) ×ˢ Finset.Icc (-(2 * n : ℤ)) (2 * n)).finite_toSet)
-  rintro ⟨a, b⟩ hv
-  simp only [Set.mem_preimage, Set.mem_singleton_iff, hexFormNat_eq_iff] at hv
-  have hbox : a ^ 2 + b ^ 2 ≤ 2 * (n : ℤ) := by
-    have := sq_add_sq_le_two_mul_hexForm (a, b)
-    simp only [hexForm_mk] at this hv
-    omega
-  have ha2 : a ^ 2 ≤ 2 * (n : ℤ) := by nlinarith [sq_nonneg b]
-  have hb2 : b ^ 2 ≤ 2 * (n : ℤ) := by nlinarith [sq_nonneg a]
-  simp only [Finset.coe_product, Set.mem_prod, Finset.mem_coe, Finset.mem_Icc]
-  refine ⟨⟨?_, ?_⟩, ?_, ?_⟩
-  · nlinarith [Int.le_self_sq (-a)]
-  · nlinarith [Int.le_self_sq a]
-  · nlinarith [Int.le_self_sq (-b)]
-  · nlinarith [Int.le_self_sq b]
-
-private noncomputable def repCount (n : ℕ) : ℕ :=
+noncomputable def repCount (n : ℕ) : ℕ :=
   (hexFormNat ⁻¹' {n}).ncard
 
-@[simp] private theorem repCount_zero : repCount 0 = 1 := by
+@[simp] theorem repCount_zero : repCount 0 = 1 := by
   have h : hexFormNat ⁻¹' {0} = {((0 : ℤ), (0 : ℤ))} := by
     ext v
     simp only [Set.mem_preimage, Set.mem_singleton_iff, hexFormNat_eq_iff, Int.natCast_zero,
       hexForm_eq_zero_iff]
   rw [repCount, h, Set.ncard_singleton]
-
-private theorem repCount_one : repCount 1 = 6 := by
-  have h : hexFormNat ⁻¹' {1} =
-      (↑({((1 : ℤ), (0 : ℤ)), (-1, 0), (0, 1), (0, -1), (1, -1), (-1, 1)} :
-        Finset (ℤ × ℤ)) : Set (ℤ × ℤ)) := by
-    ext ⟨a, b⟩
-    simp only [Set.mem_preimage, Set.mem_singleton_iff, hexFormNat_eq_iff, Int.natCast_one,
-      hexForm_mk, Finset.coe_insert, Set.mem_insert_iff, Finset.coe_singleton,
-      Set.mem_singleton_iff, Prod.mk.injEq]
-    constructor
-    · intro hab
-      have hbox : a ^ 2 + b ^ 2 ≤ 2 := by nlinarith [sq_nonneg (a + b)]
-      obtain ⟨ha1, ha2⟩ : -1 ≤ a ∧ a ≤ 1 := by
-        constructor <;> nlinarith [Int.le_self_sq (-a), Int.le_self_sq a, sq_nonneg b]
-      obtain ⟨hb1, hb2⟩ : -1 ≤ b ∧ b ≤ 1 := by
-        constructor <;> nlinarith [Int.le_self_sq (-b), Int.le_self_sq b, sq_nonneg a]
-      interval_cases a <;> interval_cases b <;> omega
-    · rintro (⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩) <;>
-        decide
-  rw [repCount, h, Set.ncard_coe_finset]
-  decide
 
 private lemma tsum_fiber_eq (τ : ℂ) (n : ℕ) :
     ∑' v : (hexFormNat ⁻¹' {n}), latticeTerm τ v
@@ -392,22 +352,12 @@ private theorem latticeSum_eq_tsum_repCount {τ : ℂ} (hτ : 0 < τ.im) :
 
 open FLT.EisensteinWeightOne in
 
-private def RepresentationCountAgrees : Prop :=
+def RepresentationCountAgrees : Prop :=
   ∀ n : ℕ, (repCount n : ℤ) = PowerSeries.coeff n e1Chi3
 
 open FLT.EisensteinWeightOne in
 
-private theorem representationCountAgrees_zero : (repCount 0 : ℤ) = PowerSeries.coeff 0 e1Chi3 := by
-  simp [repCount_zero, coeff_e1Chi3]
-
-open FLT.EisensteinWeightOne in
-
-private theorem representationCountAgrees_one : (repCount 1 : ℤ) = PowerSeries.coeff 1 e1Chi3 := by
-  rw [repCount_one, coeff_one_e1Chi3]; rfl
-
-open FLT.EisensteinWeightOne in
-
-private theorem latticeSum_eq_e1Chi3_qSeries (hW1 : RepresentationCountAgrees) (z : UpperHalfPlane) :
+theorem latticeSum_eq_e1Chi3_qSeries (hW1 : RepresentationCountAgrees) (z : UpperHalfPlane) :
     latticeSum z
       = ∑' n : ℕ, ((PowerSeries.coeff n e1Chi3 : ℤ) : ℂ) *
           Complex.exp (2 * (π : ℂ) * Complex.I * (n : ℂ) * (z : ℂ)) := by
@@ -417,16 +367,6 @@ private theorem latticeSum_eq_e1Chi3_qSeries (hW1 : RepresentationCountAgrees) (
   rw [← hW1 n]
   push_cast
   rfl
-
-private theorem repCount_zero_summand (τ : ℂ) :
-    (repCount 0 : ℂ) * Complex.exp (2 * (π : ℂ) * Complex.I * (0 : ℂ) * τ) = 1 := by
-  simp [repCount_zero]
-
-private theorem repCount_one_summand (τ : ℂ) :
-    (repCount 1 : ℂ) * Complex.exp (2 * (π : ℂ) * Complex.I * (1 : ℂ) * τ)
-      = 6 * Complex.exp (2 * (π : ℂ) * Complex.I * τ) := by
-  rw [repCount_one]
-  norm_num
 
 end FLT.AnalyticCore.LatticeSum
 
@@ -445,440 +385,10 @@ namespace AnalyticCore
 
 noncomputable section
 
-private def hexThetaTerm (σ : ℂ) (p : ℤ × ℤ) : ℂ :=
-  cexp (2 * π * I * σ * ((p.1 : ℂ) ^ 2 + (p.1 : ℂ) * (p.2 : ℂ) + (p.2 : ℂ) ^ 2))
+def frickeFixedPoint : ℂ := I / (Real.sqrt 3 : ℂ)
 
-private def hexTheta (σ : ℂ) : ℂ :=
-  ∑' p : ℤ × ℤ, hexThetaTerm σ p
-
-private lemma hexThetaTerm_swap (σ : ℂ) (x y : ℤ) :
-    hexThetaTerm σ (x, y) = hexThetaTerm σ (y, x) := by
-  unfold hexThetaTerm
-  congr 1
-  push_cast
-  ring
-
-private lemma hexThetaTerm_zero_zero (σ : ℂ) : hexThetaTerm σ (0, 0) = 1 := by
-  simp [hexThetaTerm]
-
-private lemma norm_hexThetaTerm (σ : ℂ) (p : ℤ × ℤ) :
-    ‖hexThetaTerm σ p‖ =
-      rexp (-(2 * π * σ.im) * ((p.1 : ℝ) ^ 2 + (p.1 : ℝ) * (p.2 : ℝ) + (p.2 : ℝ) ^ 2)) := by
-  rw [hexThetaTerm, Complex.norm_exp]
-  congr 1
-  rw [show (2 * (π : ℂ) * I * σ * ((p.1 : ℂ) ^ 2 + (p.1 : ℂ) * (p.2 : ℂ) + (p.2 : ℂ) ^ 2)) =
-      (((2 * π * ((p.1 : ℝ) ^ 2 + (p.1 : ℝ) * (p.2 : ℝ) + (p.2 : ℝ) ^ 2) : ℝ)) : ℂ) * (σ * I) by
-    push_cast; ring]
-  rw [Complex.re_ofReal_mul, Complex.mul_I_re]
-  ring
-
-private lemma sq_add_sq_le_two_mul_form (x y : ℝ) :
-    x ^ 2 + y ^ 2 ≤ 2 * (x ^ 2 + x * y + y ^ 2) := by
-  nlinarith [sq_nonneg (x + y)]
-
-private lemma summable_norm_cexp_neg_quadratic {a : ℂ} (ha : 0 < a.re) (b : ℂ) :
-    Summable fun n : ℤ => ‖cexp (-π * a * (n : ℂ) ^ 2 + 2 * π * b * (n : ℂ))‖ := by
-  rw [summable_norm_iff]
-  have hre : (-(π : ℂ) * a).re < 0 := by
-    rw [neg_mul, neg_re, Complex.re_ofReal_mul, neg_lt_zero]
-    exact mul_pos pi_pos ha
-  have hO : (fun x : ℝ => cexp (-(π : ℂ) * a * (x : ℂ) ^ 2 + 2 * π * b * (x : ℂ)))
-      =O[Filter.cocompact ℝ] fun x : ℝ => |x| ^ (-2 : ℝ) :=
-    (cexp_neg_quadratic_isLittleO_abs_rpow_cocompact hre (2 * π * b) (-2)).isBigO
-  have hZ := hO.comp_tendsto Int.tendsto_coe_cofinite
-  simp only [Function.comp_def, Complex.ofReal_intCast] at hZ
-  exact summable_of_isBigO (Real.summable_abs_int_rpow one_lt_two) hZ
-
-private lemma summable_cexp_neg_quadratic {a : ℂ} (ha : 0 < a.re) (b : ℂ) :
-    Summable fun n : ℤ => cexp (-π * a * (n : ℂ) ^ 2 + 2 * π * b * (n : ℂ)) :=
-  (summable_norm_cexp_neg_quadratic ha b).of_norm
-
-private lemma summable_rexp_neg_mul_int_sq {c : ℝ} (hc : 0 < c) :
-    Summable fun n : ℤ => rexp (-(c * (n : ℝ) ^ 2)) := by
-  have h0 : (0 : ℝ) < ((c / π : ℝ) : ℂ).re := by
-    rw [Complex.ofReal_re]
-    exact div_pos hc pi_pos
-  refine (summable_norm_cexp_neg_quadratic h0 0).congr fun n => ?_
-  rw [mul_zero, zero_mul, add_zero, Complex.norm_exp]
-  congr 1
-  rw [show (-(π : ℂ) * ((c / π : ℝ) : ℂ) * (n : ℂ) ^ 2) = ((-(c * (n : ℝ) ^ 2) : ℝ) : ℂ) by
-    push_cast
-    field_simp]
-  exact Complex.ofReal_re _
-
-private lemma summable_hexThetaTerm {σ : ℂ} (hσ : 0 < σ.im) : Summable (hexThetaTerm σ) := by
-  apply Summable.of_norm
-  have hbound : ∀ p : ℤ × ℤ, ‖hexThetaTerm σ p‖ ≤
-      rexp (-(π * σ.im * (p.1 : ℝ) ^ 2)) * rexp (-(π * σ.im * (p.2 : ℝ) ^ 2)) := by
-    intro p
-    rw [norm_hexThetaTerm, ← Real.exp_add, Real.exp_le_exp]
-    nlinarith [sq_add_sq_le_two_mul_form (p.1 : ℝ) (p.2 : ℝ), mul_pos pi_pos hσ]
-  exact Summable.of_nonneg_of_le (fun p => norm_nonneg _) hbound
-    (Summable.mul_of_nonneg
-      (summable_rexp_neg_mul_int_sq (mul_pos pi_pos hσ))
-      (summable_rexp_neg_mul_int_sq (mul_pos pi_pos hσ))
-      (fun n => (Real.exp_pos _).le) (fun n => (Real.exp_pos _).le))
-
-private lemma ne_zero_of_im_pos {σ : ℂ} (hσ : 0 < σ.im) : σ ≠ 0 := by
-  rintro rfl
-  simp at hσ
-
-private lemma re_neg_two_I_mul {σ : ℂ} (hσ : 0 < σ.im) : 0 < (-2 * I * σ).re := by
-  rw [show (-2 * I * σ : ℂ) = ((-2 : ℝ) : ℂ) * (σ * I) by push_cast; ring,
-    Complex.re_ofReal_mul, Complex.mul_I_re]
-  linarith
-
-private lemma re_neg_three_I_mul_div_two {σ : ℂ} (hσ : 0 < σ.im) : 0 < (-3 * I * σ / 2).re := by
-  rw [show (-3 * I * σ / 2 : ℂ) = ((-3 / 2 : ℝ) : ℂ) * (σ * I) by push_cast; ring,
-    Complex.re_ofReal_mul, Complex.mul_I_re]
-  linarith
-
-private lemma im_neg_one_div_three_mul_pos {σ : ℂ} (hσ : 0 < σ.im) : 0 < (-1 / (3 * σ)).im := by
-  have h3σ : (3 : ℂ) * σ ≠ 0 := mul_ne_zero (by norm_num) (ne_zero_of_im_pos hσ)
-  have him : ((3 : ℂ) * σ).im = 3 * σ.im := by
-    simp [Complex.mul_im]
-  rw [show (-1 / (3 * σ) : ℂ) = -((3 : ℂ) * σ)⁻¹ by rw [neg_div, one_div]]
-  rw [Complex.neg_im, Complex.inv_im, neg_div, neg_neg, him]
-  exact div_pos (by linarith) (Complex.normSq_pos.mpr h3σ)
-
-private lemma neg_pi_div_neg_two_I_mul {σ : ℂ} (hσ : σ ≠ 0) :
-    -(π : ℂ) / (-2 * I * σ) = -((π : ℂ) * I) / (2 * σ) := by
-  rw [div_eq_div_iff (mul_ne_zero (mul_ne_zero (by norm_num) Complex.I_ne_zero) hσ)
-    (mul_ne_zero (by norm_num) hσ)]
-  linear_combination (-2 * (π : ℂ) * σ) * Complex.I_sq
-
-private lemma neg_pi_div_neg_three_I_mul_div_two {σ : ℂ} (hσ : σ ≠ 0) :
-    -(π : ℂ) / (-3 * I * σ / 2) = -(2 * (π : ℂ) * I) / (3 * σ) := by
-  rw [div_eq_div_iff
-    (div_ne_zero (mul_ne_zero (mul_ne_zero (by norm_num) Complex.I_ne_zero) hσ) (by norm_num))
-    (mul_ne_zero (by norm_num) hσ)]
-  linear_combination (-3 * (π : ℂ) * σ) * Complex.I_sq
-
-private lemma I_mul_I_mul (w : ℂ) : I * (I * w) = -w := by
-  rw [← mul_assoc, Complex.I_mul_I, neg_one_mul]
-
-private lemma exponent_initial (σ : ℂ) (x y : ℤ) :
-    2 * π * I * σ * ((x : ℂ) ^ 2 + (x : ℂ) * (y : ℂ) + (y : ℂ) ^ 2) =
-      2 * π * I * σ * (x : ℂ) ^ 2 +
-        (-π * (-2 * I * σ) * (y : ℂ) ^ 2 + 2 * π * (I * σ * (x : ℂ)) * (y : ℂ)) := by
-  ring
-
-private lemma exponent_split {σ : ℂ} (hσ : σ ≠ 0) (x m : ℤ) :
-    2 * π * I * σ * (x : ℂ) ^ 2 +
-        -π / (-2 * I * σ) * ((m : ℂ) + I * (I * σ * (x : ℂ))) ^ 2 =
-      (-π * (-3 * I * σ / 2) * (x : ℂ) ^ 2 + 2 * π * (I * (m : ℂ) / 2) * (x : ℂ)) +
-        -π / (-2 * I * σ) * (m : ℂ) ^ 2 := by
-  rw [show I * (I * σ * (x : ℂ)) = -(σ * (x : ℂ)) by
-    linear_combination (σ * (x : ℂ)) * Complex.I_sq, neg_pi_div_neg_two_I_mul hσ]
-  field_simp
-  ring
-
-private lemma exponent_total {σ : ℂ} (hσ : σ ≠ 0) (m k : ℤ) :
-    -π / (-2 * I * σ) * (m : ℂ) ^ 2 +
-        -π / (-3 * I * σ / 2) * ((k : ℂ) + I * (I * (m : ℂ) / 2)) ^ 2 =
-      2 * π * I * (-1 / (3 * σ)) *
-        ((k : ℂ) ^ 2 + (k : ℂ) * (-(m : ℂ)) + (-(m : ℂ)) ^ 2) := by
-  rw [show I * (I * (m : ℂ) / 2) = -((m : ℂ) / 2) by
-    linear_combination ((m : ℂ) / 2) * Complex.I_sq, neg_pi_div_neg_two_I_mul hσ,
-    neg_pi_div_neg_three_I_mul_div_two hσ]
-  field_simp
-  ring
-
-private lemma inner_poisson {σ : ℂ} (hσ : 0 < σ.im) (x : ℤ) :
-    (∑' y : ℤ, hexThetaTerm σ (x, y)) =
-      1 / (-2 * I * σ) ^ (1 / 2 : ℂ) *
-        ∑' m : ℤ,
-          (cexp (-π * (-3 * I * σ / 2) * (x : ℂ) ^ 2 + 2 * π * (I * (m : ℂ) / 2) * (x : ℂ)) *
-            cexp (-π / (-2 * I * σ) * (m : ℂ) ^ 2)) := by
-  have ha : 0 < (-2 * I * σ).re := re_neg_two_I_mul hσ
-  have hσ0 : σ ≠ 0 := ne_zero_of_im_pos hσ
-  calc
-    (∑' y : ℤ, hexThetaTerm σ (x, y)) =
-        ∑' y : ℤ, cexp (2 * π * I * σ * (x : ℂ) ^ 2) *
-          cexp (-π * (-2 * I * σ) * (y : ℂ) ^ 2 + 2 * π * (I * σ * (x : ℂ)) * (y : ℂ)) := by
-      refine tsum_congr fun y => ?_
-      rw [hexThetaTerm, ← Complex.exp_add]
-      exact congrArg cexp (exponent_initial σ x y)
-    _ = cexp (2 * π * I * σ * (x : ℂ) ^ 2) *
-        ∑' y : ℤ, cexp (-π * (-2 * I * σ) * (y : ℂ) ^ 2 + 2 * π * (I * σ * (x : ℂ)) * (y : ℂ)) :=
-      tsum_mul_left
-    _ = cexp (2 * π * I * σ * (x : ℂ) ^ 2) *
-        (1 / (-2 * I * σ) ^ (1 / 2 : ℂ) *
-          ∑' m : ℤ, cexp (-π / (-2 * I * σ) * ((m : ℂ) + I * (I * σ * (x : ℂ))) ^ 2)) := by
-      rw [Complex.tsum_exp_neg_quadratic ha (I * σ * (x : ℂ))]
-    _ = 1 / (-2 * I * σ) ^ (1 / 2 : ℂ) *
-        ∑' m : ℤ, cexp (2 * π * I * σ * (x : ℂ) ^ 2) *
-          cexp (-π / (-2 * I * σ) * ((m : ℂ) + I * (I * σ * (x : ℂ))) ^ 2) := by
-      rw [tsum_mul_left]
-      ring
-    _ = 1 / (-2 * I * σ) ^ (1 / 2 : ℂ) *
-        ∑' m : ℤ,
-          (cexp (-π * (-3 * I * σ / 2) * (x : ℂ) ^ 2 + 2 * π * (I * (m : ℂ) / 2) * (x : ℂ)) *
-            cexp (-π / (-2 * I * σ) * (m : ℂ) ^ 2)) := by
-      congr 1
-      refine tsum_congr fun m => ?_
-      rw [← Complex.exp_add, ← Complex.exp_add]
-      exact congrArg cexp (exponent_split hσ0 x m)
-
-private lemma outer_poisson {σ : ℂ} (hσ : 0 < σ.im) (m : ℤ) :
-    (∑' x : ℤ,
-        (cexp (-π * (-3 * I * σ / 2) * (x : ℂ) ^ 2 + 2 * π * (I * (m : ℂ) / 2) * (x : ℂ)) *
-          cexp (-π / (-2 * I * σ) * (m : ℂ) ^ 2))) =
-      1 / (-3 * I * σ / 2) ^ (1 / 2 : ℂ) *
-        ∑' k : ℤ, hexThetaTerm (-1 / (3 * σ)) (k, -m) := by
-  have ha : 0 < (-3 * I * σ / 2).re := re_neg_three_I_mul_div_two hσ
-  have hσ0 : σ ≠ 0 := ne_zero_of_im_pos hσ
-  calc
-    (∑' x : ℤ,
-        (cexp (-π * (-3 * I * σ / 2) * (x : ℂ) ^ 2 + 2 * π * (I * (m : ℂ) / 2) * (x : ℂ)) *
-          cexp (-π / (-2 * I * σ) * (m : ℂ) ^ 2))) =
-        (∑' x : ℤ,
-          cexp (-π * (-3 * I * σ / 2) * (x : ℂ) ^ 2 + 2 * π * (I * (m : ℂ) / 2) * (x : ℂ))) *
-          cexp (-π / (-2 * I * σ) * (m : ℂ) ^ 2) :=
-      tsum_mul_right
-    _ = (1 / (-3 * I * σ / 2) ^ (1 / 2 : ℂ) *
-          ∑' k : ℤ, cexp (-π / (-3 * I * σ / 2) * ((k : ℂ) + I * (I * (m : ℂ) / 2)) ^ 2)) *
-          cexp (-π / (-2 * I * σ) * (m : ℂ) ^ 2) := by
-      rw [Complex.tsum_exp_neg_quadratic ha (I * (m : ℂ) / 2)]
-    _ = 1 / (-3 * I * σ / 2) ^ (1 / 2 : ℂ) *
-          ∑' k : ℤ, cexp (-π / (-2 * I * σ) * (m : ℂ) ^ 2) *
-            cexp (-π / (-3 * I * σ / 2) * ((k : ℂ) + I * (I * (m : ℂ) / 2)) ^ 2) := by
-      rw [tsum_mul_left]
-      ring
-    _ = 1 / (-3 * I * σ / 2) ^ (1 / 2 : ℂ) *
-          ∑' k : ℤ, hexThetaTerm (-1 / (3 * σ)) (k, -m) := by
-      congr 1
-      refine tsum_congr fun k => ?_
-      rw [← Complex.exp_add, hexThetaTerm]
-      refine congrArg cexp ?_
-      push_cast
-      exact exponent_total hσ0 m k
-
-private lemma summable_middle {σ : ℂ} (hσ : 0 < σ.im) :
-    Summable (Function.uncurry fun x m : ℤ =>
-      cexp (-π * (-3 * I * σ / 2) * (x : ℂ) ^ 2 + 2 * π * (I * (m : ℂ) / 2) * (x : ℂ)) *
-        cexp (-π / (-2 * I * σ) * (m : ℂ) ^ 2)) := by
-  have ha₁ : 0 < (-3 * I * σ / 2).re := re_neg_three_I_mul_div_two hσ
-  have ha₂ : 0 < ((-2 * I * σ)⁻¹).re := by
-    rw [Complex.inv_re]
-    exact div_pos (re_neg_two_I_mul hσ) (Complex.normSq_pos.mpr
-      (mul_ne_zero (mul_ne_zero (by norm_num) Complex.I_ne_zero) (ne_zero_of_im_pos hσ)))
-  apply Summable.of_norm
-  refine Summable.congr
-    (Summable.mul_of_nonneg (summable_norm_cexp_neg_quadratic ha₁ 0)
-      (summable_norm_cexp_neg_quadratic ha₂ 0)
-      (fun x => norm_nonneg _) (fun m => norm_nonneg _)) ?_
-  rintro ⟨x, m⟩
-  simp only [Function.uncurry_apply_pair, norm_mul]
-  congr 1
-  ·
-    rw [Complex.norm_exp, Complex.norm_exp]
-    congr 1
-    simp only [Complex.add_re]
-    congr 1
-    rw [show (2 * (π : ℂ) * (0 : ℂ) * (x : ℂ)) = (0 : ℂ) by ring,
-      show (2 * (π : ℂ) * (I * (m : ℂ) / 2) * (x : ℂ)) =
-        ((π * (m : ℝ) * (x : ℝ) : ℝ) : ℂ) * I by push_cast; ring]
-    rw [Complex.zero_re, Complex.re_ofReal_mul, Complex.I_re, mul_zero]
-  ·
-    refine congrArg norm (congrArg cexp ?_)
-    rw [mul_zero, zero_mul, add_zero, div_eq_mul_inv]
-
-private theorem hexTheta_eq_mul_self_neg_inv {σ : ℂ} (hσ : 0 < σ.im) :
-    hexTheta σ =
-      1 / (-2 * I * σ) ^ (1 / 2 : ℂ) * (1 / (-3 * I * σ / 2) ^ (1 / 2 : ℂ)) *
-        hexTheta (-1 / (3 * σ)) := by
-  have hσ' : 0 < (-1 / (3 * σ)).im := im_neg_one_div_three_mul_pos hσ
-  calc
-    hexTheta σ = ∑' x : ℤ, ∑' y : ℤ, hexThetaTerm σ (x, y) :=
-      (summable_hexThetaTerm hσ).tsum_prod
-    _ = ∑' x : ℤ, (1 / (-2 * I * σ) ^ (1 / 2 : ℂ) *
-          ∑' m : ℤ,
-            (cexp (-π * (-3 * I * σ / 2) * (x : ℂ) ^ 2 + 2 * π * (I * (m : ℂ) / 2) * (x : ℂ)) *
-              cexp (-π / (-2 * I * σ) * (m : ℂ) ^ 2))) :=
-      tsum_congr fun x => inner_poisson hσ x
-    _ = 1 / (-2 * I * σ) ^ (1 / 2 : ℂ) *
-          ∑' x : ℤ, ∑' m : ℤ,
-            (cexp (-π * (-3 * I * σ / 2) * (x : ℂ) ^ 2 + 2 * π * (I * (m : ℂ) / 2) * (x : ℂ)) *
-              cexp (-π / (-2 * I * σ) * (m : ℂ) ^ 2)) :=
-      tsum_mul_left
-    _ = 1 / (-2 * I * σ) ^ (1 / 2 : ℂ) *
-          ∑' m : ℤ, ∑' x : ℤ,
-            (cexp (-π * (-3 * I * σ / 2) * (x : ℂ) ^ 2 + 2 * π * (I * (m : ℂ) / 2) * (x : ℂ)) *
-              cexp (-π / (-2 * I * σ) * (m : ℂ) ^ 2)) := by
-      congr 1
-      exact ((summable_middle hσ).tsum_comm).symm
-    _ = 1 / (-2 * I * σ) ^ (1 / 2 : ℂ) *
-          ∑' m : ℤ, (1 / (-3 * I * σ / 2) ^ (1 / 2 : ℂ) *
-            ∑' k : ℤ, hexThetaTerm (-1 / (3 * σ)) (k, -m)) := by
-      congr 1
-      exact tsum_congr fun m => outer_poisson hσ m
-    _ = 1 / (-2 * I * σ) ^ (1 / 2 : ℂ) * (1 / (-3 * I * σ / 2) ^ (1 / 2 : ℂ) *
-          ∑' m : ℤ, ∑' k : ℤ, hexThetaTerm (-1 / (3 * σ)) (k, -m)) := by
-      rw [tsum_mul_left]
-    _ = 1 / (-2 * I * σ) ^ (1 / 2 : ℂ) * (1 / (-3 * I * σ / 2) ^ (1 / 2 : ℂ)) *
-          hexTheta (-1 / (3 * σ)) := by
-      have hS : (∑' m : ℤ, ∑' k : ℤ, hexThetaTerm (-1 / (3 * σ)) (k, -m)) =
-          hexTheta (-1 / (3 * σ)) :=
-        calc
-          (∑' m : ℤ, ∑' k : ℤ, hexThetaTerm (-1 / (3 * σ)) (k, -m)) =
-              ∑' m : ℤ, ∑' k : ℤ, hexThetaTerm (-1 / (3 * σ)) (-m, k) :=
-            tsum_congr fun m => tsum_congr fun k => hexThetaTerm_swap _ k (-m)
-          _ = ∑' m : ℤ, ∑' k : ℤ, hexThetaTerm (-1 / (3 * σ)) (m, k) :=
-            tsum_comp_neg fun m => ∑' k : ℤ, hexThetaTerm (-1 / (3 * σ)) (m, k)
-          _ = hexTheta (-1 / (3 * σ)) := ((summable_hexThetaTerm hσ').tsum_prod).symm
-      rw [hS]
-      ring
-
-private lemma re_cpow_half_pos {z : ℂ} (hz : 0 < z.re) : 0 < (z ^ (1 / 2 : ℂ)).re := by
-  have hz0 : z ≠ 0 := fun h => by simp [h] at hz
-  have harg : |Complex.arg z| < π / 2 := Complex.abs_arg_lt_pi_div_two_iff.mpr (Or.inl hz)
-  rw [abs_lt] at harg
-  rw [show (1 / 2 : ℂ) = ((1 / 2 : ℝ) : ℂ) by norm_num, Complex.cpow_ofReal_re]
-  exact mul_pos (Real.rpow_pos_of_pos (norm_pos_iff.mpr hz0) _)
-    (Real.cos_pos_of_mem_Ioo ⟨by linarith [harg.1, pi_pos], by linarith [harg.2, pi_pos]⟩)
-
-private lemma re_cpow_half_mul_cpow_half_pos {a b : ℂ} (ha : 0 < a.re) (hb : 0 < b.re) :
-    0 < (a ^ (1 / 2 : ℂ) * b ^ (1 / 2 : ℂ)).re := by
-  have ha0 : a ≠ 0 := fun h => by simp [h] at ha
-  have hb0 : b ≠ 0 := fun h => by simp [h] at hb
-  have harga : |Complex.arg a| < π / 2 := Complex.abs_arg_lt_pi_div_two_iff.mpr (Or.inl ha)
-  have hargb : |Complex.arg b| < π / 2 := Complex.abs_arg_lt_pi_div_two_iff.mpr (Or.inl hb)
-  rw [abs_lt] at harga hargb
-  have hcos : 0 < Real.cos (Complex.arg a * (1 / 2) + Complex.arg b * (1 / 2)) :=
-    Real.cos_pos_of_mem_Ioo
-      ⟨by linarith [harga.1, hargb.1], by linarith [harga.2, hargb.2]⟩
-  rw [Real.cos_add] at hcos
-  have hra : 0 < ‖a‖ ^ (1 / 2 : ℝ) := Real.rpow_pos_of_pos (norm_pos_iff.mpr ha0) _
-  have hrb : 0 < ‖b‖ ^ (1 / 2 : ℝ) := Real.rpow_pos_of_pos (norm_pos_iff.mpr hb0) _
-  rw [show (1 / 2 : ℂ) = ((1 / 2 : ℝ) : ℂ) by norm_num, Complex.mul_re,
-    Complex.cpow_ofReal_re, Complex.cpow_ofReal_re, Complex.cpow_ofReal_im,
-    Complex.cpow_ofReal_im]
-  nlinarith [mul_pos hra hrb, hcos]
-
-private lemma eq_of_sq_eq_sq_of_re_pos {a b : ℂ} (h : a ^ 2 = b ^ 2) (ha : 0 < a.re)
-    (hb : 0 < b.re) : a = b := by
-  rcases sq_eq_sq_iff_eq_or_eq_neg.mp h with h' | h'
-  · exact h'
-  · exfalso
-    rw [h', Complex.neg_re] at ha
-    linarith
-
-private lemma sq_cpow_half {z : ℂ} (hz : z ≠ 0) : (z ^ (1 / 2 : ℂ)) ^ 2 = z := by
-  rw [sq, ← Complex.cpow_add _ _ hz]
-  norm_num
-
-private lemma cpow_half_mul_cpow_half {σ : ℂ} (hσ : 0 < σ.im) :
-    (-2 * I * σ) ^ (1 / 2 : ℂ) * (-3 * I * σ / 2) ^ (1 / 2 : ℂ) =
-      -I * (Real.sqrt 3 : ℂ) * σ := by
-  have hσ0 : σ ≠ 0 := ne_zero_of_im_pos hσ
-  have ha : (-2 : ℂ) * I * σ ≠ 0 :=
-    mul_ne_zero (mul_ne_zero (by norm_num) Complex.I_ne_zero) hσ0
-  have hb : (-3 : ℂ) * I * σ / 2 ≠ 0 :=
-    div_ne_zero (mul_ne_zero (mul_ne_zero (by norm_num) Complex.I_ne_zero) hσ0) (by norm_num)
-  have hs3 : ((Real.sqrt 3 : ℝ) : ℂ) ^ 2 = 3 := by
-    rw [← Complex.ofReal_pow, Real.sq_sqrt (by norm_num : (0 : ℝ) ≤ 3)]
-    norm_num
-  refine eq_of_sq_eq_sq_of_re_pos ?_
-    (re_cpow_half_mul_cpow_half_pos (re_neg_two_I_mul hσ) (re_neg_three_I_mul_div_two hσ)) ?_
-  ·
-    rw [mul_pow, sq_cpow_half ha, sq_cpow_half hb,
-      show (-I * ((Real.sqrt 3 : ℝ) : ℂ) * σ) ^ 2 =
-        ((Real.sqrt 3 : ℝ) : ℂ) ^ 2 * (I ^ 2 * σ ^ 2) by ring,
-      hs3]
-    ring
-  ·
-    rw [show (-I * ((Real.sqrt 3 : ℝ) : ℂ) * σ) = ((Real.sqrt 3 : ℝ) : ℂ) * (σ * -I) by ring,
-      Complex.re_ofReal_mul, mul_neg, Complex.neg_re, Complex.mul_I_re, neg_neg]
-    exact mul_pos (Real.sqrt_pos.mpr (by norm_num)) hσ
-
-private lemma cpow_half_ne_zero {z : ℂ} (hz : z ≠ 0) : z ^ (1 / 2 : ℂ) ≠ 0 := fun h =>
-  hz ((Complex.cpow_eq_zero_iff _ _).mp h).1
-
-private theorem hexTheta_fricke {σ : ℂ} (hσ : 0 < σ.im) :
-    hexTheta (-1 / (3 * σ)) = -I * (Real.sqrt 3 : ℂ) * σ * hexTheta σ := by
-  have hσ0 : σ ≠ 0 := ne_zero_of_im_pos hσ
-  have ha : (-2 : ℂ) * I * σ ≠ 0 :=
-    mul_ne_zero (mul_ne_zero (by norm_num) Complex.I_ne_zero) hσ0
-  have hb : (-3 : ℂ) * I * σ / 2 ≠ 0 :=
-    div_ne_zero (mul_ne_zero (mul_ne_zero (by norm_num) Complex.I_ne_zero) hσ0) (by norm_num)
-  have hu : (-2 * I * σ) ^ (1 / 2 : ℂ) ≠ 0 := cpow_half_ne_zero ha
-  have hv : (-3 * I * σ / 2) ^ (1 / 2 : ℂ) ≠ 0 := cpow_half_ne_zero hb
-  have hone : (-2 * I * σ) ^ (1 / 2 : ℂ) * (-3 * I * σ / 2) ^ (1 / 2 : ℂ) *
-      (1 / (-2 * I * σ) ^ (1 / 2 : ℂ) * (1 / (-3 * I * σ / 2) ^ (1 / 2 : ℂ))) = 1 := by
-    field_simp
-  rw [hexTheta_eq_mul_self_neg_inv hσ, ← cpow_half_mul_cpow_half hσ, ← mul_assoc, hone,
-    one_mul]
-
-private lemma hexTheta_mul_I_eq_ofReal (t : ℝ) :
-    hexTheta (I * (t : ℂ)) =
-      ((∑' p : ℤ × ℤ,
-        rexp (-(2 * π * t) * ((p.1 : ℝ) ^ 2 + (p.1 : ℝ) * (p.2 : ℝ) + (p.2 : ℝ) ^ 2))) : ℝ) := by
-  rw [hexTheta, Complex.ofReal_tsum]
-  refine tsum_congr fun p => ?_
-  rw [hexThetaTerm, Complex.ofReal_exp]
-  refine congrArg cexp ?_
-  push_cast
-  linear_combination (2 * (π : ℂ) * (t : ℂ) *
-    ((p.1 : ℂ) ^ 2 + (p.1 : ℂ) * (p.2 : ℂ) + (p.2 : ℂ) ^ 2)) * Complex.I_sq
-
-private lemma hexTheta_mul_I_ne_zero {t : ℝ} (ht : 0 < t) : hexTheta (I * (t : ℂ)) ≠ 0 := by
-  have him : (I * (t : ℂ)).im = t := by simp
-  have hsum : Summable (hexThetaTerm (I * (t : ℂ))) :=
-    summable_hexThetaTerm (by rw [him]; exact ht)
-  have hsum' : Summable fun p : ℤ × ℤ =>
-      rexp (-(2 * π * t) * ((p.1 : ℝ) ^ 2 + (p.1 : ℝ) * (p.2 : ℝ) + (p.2 : ℝ) ^ 2)) := by
-    refine (summable_norm_iff.mpr hsum).congr fun p => ?_
-    rw [norm_hexThetaTerm, him]
-  rw [hexTheta_mul_I_eq_ofReal t, Ne, Complex.ofReal_eq_zero]
-  exact (hsum'.tsum_pos (fun p => (Real.exp_pos _).le) (0, 0) (Real.exp_pos _)).ne'
-
-private def frickeFixedPoint : ℂ := I / (Real.sqrt 3 : ℂ)
-
-private lemma sqrt_three_ne_zero : ((Real.sqrt 3 : ℝ) : ℂ) ≠ 0 :=
+lemma sqrt_three_ne_zero : ((Real.sqrt 3 : ℝ) : ℂ) ≠ 0 :=
   Complex.ofReal_ne_zero.mpr (Real.sqrt_pos.mpr (by norm_num)).ne'
-
-private lemma frickeFixedPoint_im_pos : 0 < frickeFixedPoint.im := by
-  rw [frickeFixedPoint, show (I / ((Real.sqrt 3 : ℝ) : ℂ)) =
-    ((((Real.sqrt 3)⁻¹ : ℝ)) : ℂ) * I by push_cast; ring, Complex.mul_I_im,
-    Complex.ofReal_re]
-  positivity
-
-private lemma three_mul_frickeFixedPoint_sq : 3 * frickeFixedPoint ^ 2 = -1 := by
-  rw [frickeFixedPoint, div_pow, Complex.I_sq,
-    show ((Real.sqrt 3 : ℝ) : ℂ) ^ 2 = 3 by
-      rw [← Complex.ofReal_pow, Real.sq_sqrt (by norm_num : (0 : ℝ) ≤ 3)]; norm_num]
-  norm_num
-
-private lemma frickeFixedPoint_fixed : -1 / (3 * frickeFixedPoint) = frickeFixedPoint := by
-  have h0 : frickeFixedPoint ≠ 0 := by
-    rw [frickeFixedPoint]
-    exact div_ne_zero Complex.I_ne_zero sqrt_three_ne_zero
-  rw [div_eq_iff (mul_ne_zero (by norm_num) h0)]
-  linear_combination -three_mul_frickeFixedPoint_sq
-
-private lemma neg_I_mul_sqrt_three_mul_frickeFixedPoint :
-    -I * (Real.sqrt 3 : ℂ) * frickeFixedPoint = 1 := by
-  rw [frickeFixedPoint, show -I * ((Real.sqrt 3 : ℝ) : ℂ) * (I / ((Real.sqrt 3 : ℝ) : ℂ)) =
-    -(I * I) * (((Real.sqrt 3 : ℝ) : ℂ) / ((Real.sqrt 3 : ℝ) : ℂ)) by ring,
-    Complex.I_mul_I, div_self sqrt_three_ne_zero]
-  norm_num
-
-private lemma I_mul_sqrt_three_mul_frickeFixedPoint :
-    I * (Real.sqrt 3 : ℂ) * frickeFixedPoint = -1 := by
-  linear_combination -neg_I_mul_sqrt_three_mul_frickeFixedPoint
-
-private lemma hexTheta_frickeFixedPoint_ne_zero : hexTheta frickeFixedPoint ≠ 0 := by
-  rw [show frickeFixedPoint = I * ((((Real.sqrt 3)⁻¹ : ℝ)) : ℂ) by
-    rw [frickeFixedPoint]; push_cast; ring]
-  exact hexTheta_mul_I_ne_zero (by positivity)
-
-private theorem not_hexTheta_eq_neg_multiplier_mul :
-    ¬ (hexTheta (-1 / (3 * frickeFixedPoint)) =
-        I * (Real.sqrt 3 : ℂ) * frickeFixedPoint * hexTheta frickeFixedPoint) := by
-  intro hcon
-  rw [frickeFixedPoint_fixed, I_mul_sqrt_three_mul_frickeFixedPoint, neg_one_mul] at hcon
-  exact hexTheta_frickeFixedPoint_ne_zero (CharZero.eq_neg_self_iff.mp hcon)
 
 end
 
@@ -896,235 +406,7 @@ open scoped MatrixGroups ModularForm Manifold Pointwise
 namespace FLT
 namespace AnalyticCore
 
-namespace Gamma0Three
-
-private instance fact_prime_three_twoGenSweep : Fact (Nat.Prime 3) := ⟨by norm_num⟩
-
-private def repOfLabel : Option (ZMod 3) → SL(2, ℤ)
-  | none => 1
-  | some k => ⟨!![0, -1; 1, (k.val : ℤ)], by simp [Matrix.det_fin_two_of]⟩
-
-@[simp] private lemma repOfLabel_none : repOfLabel none = 1 := rfl
-
-@[simp] private lemma repOfLabel_some_one_zero (k : ZMod 3) : repOfLabel (some k) 1 0 = 1 := rfl
-
-@[simp] private lemma repOfLabel_some_one_one (k : ZMod 3) :
-    repOfLabel (some k) 1 1 = (k.val : ℤ) := rfl
-
-@[simp] private lemma one_apply_one_zero : (1 : SL(2, ℤ)) 1 0 = 0 := rfl
-
-@[simp] private lemma one_apply_one_one : (1 : SL(2, ℤ)) 1 1 = 1 := rfl
-
-private def transversal : Set SL(2, ℤ) := Set.range repOfLabel
-
-private lemma one_mem_transversal : (1 : SL(2, ℤ)) ∈ transversal := ⟨none, rfl⟩
-
-private def label (g : SL(2, ℤ)) : Option (ZMod 3) :=
-  if (g 1 0 : ZMod 3) = 0 then none
-  else some ((g 1 1 : ZMod 3) / (g 1 0 : ZMod 3))
-
-private lemma intCast_val (k : ZMod 3) : (((k.val : ℕ) : ℤ) : ZMod 3) = k := by
-  exact_mod_cast ZMod.natCast_rightInverse k
-
-private lemma apply_one_one_ne_zero (g : SL(2, ℤ)) (hc : (g 1 0 : ZMod 3) = 0) :
-    (g 1 1 : ZMod 3) ≠ 0 := by
-  intro hd
-  have hdet : (g 0 0 : ℤ) * g 1 1 - g 0 1 * g 1 0 = 1 := by
-    have h2 := g.2
-    rw [Matrix.det_fin_two] at h2
-    exact h2
-  have hcast : (g 0 0 : ZMod 3) * (g 1 1 : ZMod 3)
-      - (g 0 1 : ZMod 3) * (g 1 0 : ZMod 3) = 1 := by
-    have h3 : (((g 0 0 : ℤ) * g 1 1 - g 0 1 * g 1 0 : ℤ) : ZMod 3) = ((1 : ℤ) : ZMod 3) := by
-      rw [hdet]
-    push_cast at h3
-    exact h3
-  rw [hc, hd, mul_zero, mul_zero, sub_zero] at hcast
-  exact zero_ne_one hcast
-
-private theorem mul_entry (A B : SL(2, ℤ)) (i j : Fin 2) :
-    (A * B) i j = A i 0 * B 0 j + A i 1 * B 1 j := by
-  show ((A * B : SL(2, ℤ)) : Matrix (Fin 2) (Fin 2) ℤ) i j = _
-  rw [Matrix.SpecialLinearGroup.coe_mul, Matrix.mul_apply, Fin.sum_univ_two]
-
-private theorem inv_entries (A : SL(2, ℤ)) :
-    A⁻¹ 0 0 = A 1 1 ∧ A⁻¹ 0 1 = -A 0 1 ∧ A⁻¹ 1 0 = -A 1 0 ∧ A⁻¹ 1 1 = A 0 0 := by
-  have h : ((A⁻¹ : SL(2, ℤ)) : Matrix (Fin 2) (Fin 2) ℤ) =
-      !![A 1 1, -A 0 1; -A 1 0, A 0 0] := by
-    rw [Matrix.SpecialLinearGroup.coe_inv, Matrix.adjugate_fin_two]
-  refine ⟨?_, ?_, ?_, ?_⟩ <;> simp [h]
-
-private lemma mul_inv_apply_one_zero (g h : SL(2, ℤ)) :
-    (g * h⁻¹) 1 0 = g 1 0 * h 1 1 - g 1 1 * h 1 0 := by
-  rw [mul_entry, (inv_entries h).1, (inv_entries h).2.2.1]
-  ring
-
-private theorem mul_inv_mem_iff (g h : SL(2, ℤ)) :
-    g * h⁻¹ ∈ Gamma0 3 ↔
-      (g 1 0 : ZMod 3) * (h 1 1 : ZMod 3) = (g 1 1 : ZMod 3) * (h 1 0 : ZMod 3) := by
-  rw [Gamma0_mem, mul_inv_apply_one_zero]
-  push_cast
-  exact sub_eq_zero
-
-private theorem mul_inv_repOfLabel_mem_iff (g : SL(2, ℤ)) (l : Option (ZMod 3)) :
-    g * (repOfLabel l)⁻¹ ∈ Gamma0 3 ↔ l = label g := by
-  rw [mul_inv_mem_iff]
-  unfold label
-  cases l with
-  | none =>
-    rw [repOfLabel_none, one_apply_one_one, one_apply_one_zero, Int.cast_one, mul_one,
-      Int.cast_zero, mul_zero]
-    by_cases hc : (g 1 0 : ZMod 3) = 0
-    · rw [ite_eq_left hc]
-      exact iff_of_true hc rfl
-    · rw [ite_eq_right hc]
-      exact iff_of_false hc (by simp)
-  | some k =>
-    rw [repOfLabel_some_one_one, repOfLabel_some_one_zero, Int.cast_one, mul_one,
-      intCast_val]
-    by_cases hc : (g 1 0 : ZMod 3) = 0
-    · rw [ite_eq_left hc]
-      refine iff_of_false (fun hcontra => ?_) (by simp)
-      rw [hc, zero_mul] at hcontra
-      exact apply_one_one_ne_zero g hc hcontra.symm
-    · rw [ite_eq_right hc, Option.some_inj, eq_div_iff hc]
-      constructor <;> intro h <;> linear_combination h
-
-private theorem isComplement_transversal :
-    IsComplement (Gamma0 3 : Set SL(2, ℤ)) transversal := by
-  rw [isComplement_iff_existsUnique_mul_inv_mem]
-  intro g
-  refine ⟨⟨repOfLabel (label g), ⟨label g, rfl⟩⟩, ?_, ?_⟩
-  · exact (mul_inv_repOfLabel_mem_iff g (label g)).mpr rfl
-  · rintro ⟨x, l, rfl⟩ ht
-    exact Subtype.ext (congrArg repOfLabel ((mul_inv_repOfLabel_mem_iff g l).mp ht))
-
-private lemma coe_toRightFun (g : SL(2, ℤ)) :
-    (isComplement_transversal.toRightFun g : SL(2, ℤ)) = repOfLabel (label g) := by
-  have huniq := isComplement_iff_existsUnique_mul_inv_mem.mp isComplement_transversal g
-  have h1 : g * ((isComplement_transversal.toRightFun g : SL(2, ℤ)))⁻¹
-      ∈ (Gamma0 3 : Set SL(2, ℤ)) :=
-    isComplement_transversal.mul_inv_toRightFun_mem g
-  have h2 : g * (((⟨repOfLabel (label g), ⟨label g, rfl⟩⟩ : transversal) : SL(2, ℤ)))⁻¹
-      ∈ (Gamma0 3 : Set SL(2, ℤ)) :=
-    (mul_inv_repOfLabel_mem_iff g (label g)).mpr rfl
-  exact congrArg Subtype.val (huniq.unique h1 h2)
-
-private def schreierGen (l : Option (ZMod 3)) (s : SL(2, ℤ)) : SL(2, ℤ) :=
-  repOfLabel l * s * (repOfLabel (label (repOfLabel l * s)))⁻¹
-
-private theorem schreierGen_mem (l : Option (ZMod 3)) (s : SL(2, ℤ)) :
-    schreierGen l s ∈ Gamma0 3 :=
-  (mul_inv_repOfLabel_mem_iff (repOfLabel l * s) (label (repOfLabel l * s))).mpr rfl
-
-private def schreierGens : Set SL(2, ℤ) :=
-  {x | ∃ l : Option (ZMod 3),
-    x = schreierGen l ModularGroup.S ∨ x = schreierGen l ModularGroup.T}
-
-private theorem closure_schreierGens : Subgroup.closure schreierGens = Gamma0 3 := by
-  refine le_antisymm ((Subgroup.closure_le _).mpr ?_) ?_
-  · rintro x ⟨l, rfl | rfl⟩ <;> exact schreierGen_mem _ _
-  · rw [← Subgroup.closure_mul_image_eq isComplement_transversal one_mem_transversal
-      SpecialLinearGroup.SL2Z_generators]
-    refine Subgroup.closure_mono ?_
-    rintro x ⟨g, hg, rfl⟩
-    rw [Set.mem_mul] at hg
-    obtain ⟨r, hr, s, hs, rfl⟩ := hg
-    obtain ⟨l, rfl⟩ := hr
-    simp only [coe_toRightFun]
-    simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hs
-    rcases hs with rfl | rfl
-    · exact ⟨l, Or.inl rfl⟩
-    · exact ⟨l, Or.inr rfl⟩
-
-end Gamma0Three
-
-private def U₃ : SL(2, ℤ) := ⟨!![1, 0; -3, 1], by simp [Matrix.det_fin_two_of]⟩
-
-@[simp] private lemma U₃_one_zero : U₃ 1 0 = -3 := rfl
-@[simp] private lemma U₃_one_one : U₃ 1 1 = 1 := rfl
-
-private lemma T_mem_gamma0_three : ModularGroup.T ∈ Gamma0 3 := by
-  rw [Gamma0_mem]; decide
-
-private lemma U₃_mem_gamma0_three : U₃ ∈ Gamma0 3 := by
-  rw [Gamma0_mem]; decide
-
-private lemma neg_one_mem_gamma0_three : (-1 : SL(2, ℤ)) ∈ Gamma0 3 := by
-  rw [Gamma0_mem]; decide
-
-private def gens : Set SL(2, ℤ) := {ModularGroup.T, U₃, -1}
-
-private lemma gens_subset_gamma0_three : gens ⊆ (Gamma0 3 : Subgroup SL(2, ℤ)) := by
-  rintro x (rfl | rfl | rfl)
-  · exact T_mem_gamma0_three
-  · exact U₃_mem_gamma0_three
-  · exact neg_one_mem_gamma0_three
-
-namespace Gamma0Three
-
-private lemma schreierGen_eq_one :
-    schreierGen (some 0) ModularGroup.T = 1 ∧ schreierGen (some 1) ModularGroup.T = 1 ∧
-    schreierGen none ModularGroup.S = 1 := by decide +kernel
-
-private lemma schreierGen_none_T : schreierGen none ModularGroup.T = ModularGroup.T := by
-  decide
-
-private lemma schreierGen_two_T : schreierGen (some 2) ModularGroup.T = U₃ := by decide +kernel
-
-private lemma schreierGen_zero_S : schreierGen (some 0) ModularGroup.S = -1 := by decide
-
-private lemma schreierGen_one_S :
-    schreierGen (some 1) ModularGroup.S = ModularGroup.T⁻¹ * U₃⁻¹ := by decide +kernel
-
-private lemma schreierGen_two_S :
-    schreierGen (some 2) ModularGroup.S = -1 * (U₃ * ModularGroup.T) := by decide +kernel
-
-private lemma schreierGens_subset_closure_gens :
-    schreierGens ⊆ (Subgroup.closure gens : Set SL(2, ℤ)) := by
-  have hT : ModularGroup.T ∈ Subgroup.closure gens :=
-    Subgroup.subset_closure (Or.inl rfl)
-  have hU : U₃ ∈ Subgroup.closure gens :=
-    Subgroup.subset_closure (Or.inr (Or.inl rfl))
-  have hneg : (-1 : SL(2, ℤ)) ∈ Subgroup.closure gens :=
-    Subgroup.subset_closure (Or.inr (Or.inr rfl))
-  have hcases : ∀ j : ZMod 3, j = 0 ∨ j = 1 ∨ j = 2 := by decide
-  rintro x ⟨l, rfl | rfl⟩
-  ·
-    rcases l with _ | k
-    · rw [schreierGen_eq_one.2.2]; exact one_mem _
-    · rcases hcases k with rfl | rfl | rfl
-      · rw [schreierGen_zero_S]; exact hneg
-      · rw [schreierGen_one_S]; exact mul_mem (inv_mem hT) (inv_mem hU)
-      · rw [schreierGen_two_S]; exact mul_mem hneg (mul_mem hU hT)
-  ·
-    rcases l with _ | k
-    · rw [schreierGen_none_T]; exact hT
-    · rcases hcases k with rfl | rfl | rfl
-      · rw [schreierGen_eq_one.1]; exact one_mem _
-      · rw [schreierGen_eq_one.2.1]; exact one_mem _
-      · rw [schreierGen_two_T]; exact hU
-
-end Gamma0Three
-
-private theorem closure_T_U_neg_one_eq : Subgroup.closure gens = Gamma0 3 := by
-  refine le_antisymm ((Subgroup.closure_le _).mpr gens_subset_gamma0_three) ?_
-  rw [← Gamma0Three.closure_schreierGens]
-  exact (Subgroup.closure_le _).mpr Gamma0Three.schreierGens_subset_closure_gens
-
-private theorem mem_closure_gens {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 3) : γ ∈ Subgroup.closure gens :=
-  closure_T_U_neg_one_eq ▸ hγ
-
-private theorem TU_pow_three : (ModularGroup.T * U₃) ^ 3 = 1 := by decide
-
-private theorem TU_ne_one : ModularGroup.T * U₃ ≠ 1 := by decide
-
-private theorem TU_sq_ne_one : (ModularGroup.T * U₃) ^ 2 ≠ 1 := by decide
-
-private theorem U₃_not_mem_gamma0_nine : U₃ ∉ Gamma0 9 := by
-  rw [Gamma0_mem]; decide
-
-private def chi3 (γ : SL(2, ℤ)) : ℤ :=
+def chi3 (γ : SL(2, ℤ)) : ℤ :=
   if (γ 1 1 : ZMod 3) = 1 then 1 else -1
 
 private lemma chi3_eq_one_or_neg_one (γ : SL(2, ℤ)) : chi3 γ = 1 ∨ chi3 γ = -1 := by
@@ -1141,7 +423,7 @@ private lemma chi3_mul_self (γ : SL(2, ℤ)) : chi3 γ * chi3 γ = 1 := by
 @[simp] private lemma chi3_U₃ : chi3 U₃ = 1 := by
   unfold chi3; rw [show (U₃ 1 1 : ZMod 3) = 1 by decide]; simp
 
-@[simp] private lemma chi3_neg_one : chi3 (-1 : SL(2, ℤ)) = -1 := by
+@[simp] lemma chi3_neg_one : chi3 (-1 : SL(2, ℤ)) = -1 := by
   unfold chi3; rw [show ((-1 : SL(2, ℤ)) 1 1 : ZMod 3) = 2 by decide]; decide
 
 private lemma apply_one_one_ne_zero_of_mem {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 3) :
@@ -1167,20 +449,11 @@ private theorem chi3_eq_one_of_mem_Gamma1 {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma1
   rw [((Gamma1_mem 3 γ).mp hγ).2.1]
   simp
 
-private theorem chi3_eq_chiNegThree (d : ℕ) (hd : (d : ZMod 3) ≠ 0) (γ : SL(2, ℤ))
-    (hγd : (γ 1 1 : ZMod 3) = (d : ZMod 3)) :
-    chi3 γ = _root_.EisensteinWeightOne.chiNegThree d := by
-  have key : ∀ x : ZMod 3, x ≠ 0 → x = 1 ∨ x = 2 := by decide
-  have hval : d % 3 = (d : ZMod 3).val := by rw [ZMod.val_natCast]
-  unfold chi3 _root_.EisensteinWeightOne.chiNegThree
-  rw [hγd, hval]
-  rcases key _ hd with h | h <;> rw [h] <;> decide
-
 section Sweep
 
 variable (F : ℍ → ℂ)
 
-private theorem slash_neg_one :
+theorem slash_neg_one :
     F ∣[(1 : ℤ)] (-1 : SL(2, ℤ)) = ((chi3 (-1 : SL(2, ℤ)) : ℤ) : ℂ) • F := by
   rw [chi3_neg_one]
   ext τ
@@ -1265,21 +538,9 @@ private theorem slash_eq_self_of_mem_Gamma1
 
 end Sweep
 
-private theorem eq_zero_of_slashInvariant_gamma0
-    (F : ℍ → ℂ) (h : ∀ γ ∈ Gamma0 3, F ∣[(1 : ℤ)] γ = F) : F = 0 := by
-  have h1 : ((chi3 (-1 : SL(2, ℤ)) : ℤ) : ℂ) • F = F :=
-    (slash_neg_one F).symm.trans (h (-1) neg_one_mem_gamma0_three)
-  rw [chi3_neg_one] at h1
-  ext τ
-  have h2 : ((-1 : ℤ) : ℂ) * F τ = F τ := by
-    have := congrFun h1 τ
-    simpa [Pi.smul_apply, smul_eq_mul] using this
-  have h3 : (2 : ℂ) * F τ = 0 := by push_cast at h2; linear_combination -h2
-  simpa [two_ne_zero] using mul_eq_zero.mp h3
-
 section Packaging
 
-private def slashInvariantForm_of_T_U (F : ℍ → ℂ)
+def slashInvariantForm_of_T_U (F : ℍ → ℂ)
     (hT : F ∣[(1 : ℤ)] ModularGroup.T = F) (hU : F ∣[(1 : ℤ)] U₃ = F) :
     SlashInvariantForm (Gamma1 3) 1 where
   toFun := F
@@ -1337,12 +598,12 @@ private lemma latticeTerm_eq_hexThetaTerm (τ : ℂ) (v : ℤ × ℤ) :
   rw [h]
   ring
 
-private theorem latticeSum_eq_hexTheta (τ : ℂ) : latticeSum τ = hexTheta τ :=
+theorem latticeSum_eq_hexTheta (τ : ℂ) : latticeSum τ = hexTheta τ :=
   tsum_congr fun v => latticeTerm_eq_hexThetaTerm τ v
 
-private def hexThetaH : ℍ → ℂ := fun τ => latticeSum (τ : ℂ)
+def hexThetaH : ℍ → ℂ := fun τ => latticeSum (τ : ℂ)
 
-@[simp] private lemma hexThetaH_apply (τ : ℍ) : hexThetaH τ = latticeSum (τ : ℂ) := rfl
+@[simp] lemma hexThetaH_apply (τ : ℍ) : hexThetaH τ = latticeSum (τ : ℂ) := rfl
 
 private lemma hexThetaH_eq_hexTheta (τ : ℍ) : hexThetaH τ = hexTheta (τ : ℂ) :=
   latticeSum_eq_hexTheta _
@@ -1359,7 +620,7 @@ private lemma hexThetaTerm_add_one (σ : ℂ) (v : ℤ × ℤ) :
 private theorem hexTheta_add_one (σ : ℂ) : hexTheta (σ + 1) = hexTheta σ :=
   tsum_congr fun v => hexThetaTerm_add_one σ v
 
-private theorem hexThetaH_slash_T : hexThetaH ∣[(1 : ℤ)] ModularGroup.T = hexThetaH := by
+theorem hexThetaH_slash_T : hexThetaH ∣[(1 : ℤ)] ModularGroup.T = hexThetaH := by
   funext z
   refine (slash_action_eq'_iff 1 hexThetaH ModularGroup.T z).mpr ?_
   rw [show ModularGroup.T 1 0 = 0 from rfl, show ModularGroup.T 1 1 = 1 from rfl,
@@ -1409,7 +670,7 @@ private lemma fricke_double_multiplier {z : ℂ} (hz : 0 < z.im) :
     _ = (-1) * 3 * (z - 1 / 3) := by rw [Complex.I_mul_I, sqrt_three_mul_sqrt_three, key]
     _ = (-3) * z + 1 := by ring
 
-private theorem hexTheta_U_law {z : ℂ} (hz : 0 < z.im) :
+theorem hexTheta_U_law {z : ℂ} (hz : 0 < z.im) :
     hexTheta (z / ((-3) * z + 1)) = ((-3) * z + 1) * hexTheta z := by
 
   have hσ : 0 < (-1 / (3 * z)).im := im_neg_one_div_three_mul_pos hz
@@ -1439,7 +700,7 @@ private lemma coe_U_smul (z : ℍ) : ((U₃ • z : ℍ) : ℂ) = (z : ℂ) / ((
   push_cast
   rw [one_mul, add_zero]
 
-private theorem hexThetaH_slash_U : hexThetaH ∣[(1 : ℤ)] U₃ = hexThetaH := by
+theorem hexThetaH_slash_U : hexThetaH ∣[(1 : ℤ)] U₃ = hexThetaH := by
   funext z
   refine (slash_action_eq'_iff 1 hexThetaH U₃ z).mpr ?_
   have hz : 0 < (z : ℂ).im := by rw [UpperHalfPlane.coe_im]; exact z.im_pos
@@ -1449,11 +710,8 @@ private theorem hexThetaH_slash_U : hexThetaH ∣[(1 : ℤ)] U₃ = hexThetaH :=
   show latticeSum ((U₃ • z : ℍ) : ℂ) = _ * latticeSum (z : ℂ)
   rw [coe_U_smul, latticeSum_eq_hexTheta, latticeSum_eq_hexTheta, hexTheta_U_law hz]
 
-private def thetaBound : ℝ :=
+def thetaBound : ℝ :=
   ∑' v : ℤ × ℤ, Real.exp (-(π * (v.1 : ℝ) ^ 2)) * Real.exp (-(π * (v.2 : ℝ) ^ 2))
-
-private lemma thetaBound_nonneg : 0 ≤ thetaBound :=
-  tsum_nonneg fun _ => mul_nonneg (Real.exp_pos _).le (Real.exp_pos _).le
 
 private theorem norm_latticeSum_le_of_one_le_im {τ : ℂ} (hτ : 1 ≤ τ.im) :
     ‖latticeSum τ‖ ≤ thetaBound := by
@@ -1578,7 +836,7 @@ private theorem isBoundedAtImInfty_hexThetaH_slash (γ : SL(2, ℤ)) :
           mul_le_mul norm_neg_I_div_sqrt_three_le_one hbound (norm_nonneg _) zero_le_one
       _ = thetaBound := one_mul _
 
-private theorem hexThetaH_isBoundedAt_cusp (c : OnePoint ℝ)
+theorem hexThetaH_isBoundedAt_cusp (c : OnePoint ℝ)
     (hc : IsCusp c ((Gamma1 3 : Subgroup SL(2, ℤ)) : Subgroup (GL (Fin 2) ℝ))) :
     c.IsBoundedAt hexThetaH 1 := by
   rw [Subgroup.IsArithmetic.isCusp_iff_isCusp_SL2Z] at hc
@@ -1595,30 +853,6 @@ private theorem e1Chi3IsModular_of_mdiff_of_repCount
     hholo
     (fun c hc => hexThetaH_isBoundedAt_cusp c hc)
     (fun z => latticeSum_eq_e1Chi3_qSeries hW1 z)
-
-private theorem hexThetaH_ne_zero : hexThetaH ≠ 0 := by
-  intro h
-  have hpt : hexThetaH ⟨frickeFixedPoint, frickeFixedPoint_im_pos⟩ = 0 := by rw [h]; rfl
-  rw [hexThetaH_apply, latticeSum_eq_hexTheta] at hpt
-  exact hexTheta_frickeFixedPoint_ne_zero hpt
-
-private theorem not_hexTheta_U_law_weight_zero :
-    ¬ (∀ z : ℂ, 0 < z.im → hexTheta (z / ((-3) * z + 1)) = hexTheta z) := by
-  intro hcon
-  have h0 : 0 < frickeFixedPoint.im := frickeFixedPoint_im_pos
-  have h1 := hcon frickeFixedPoint h0
-  have h2 := hexTheta_U_law h0
-  rw [h1] at h2
-
-  have h3 : (-3 : ℂ) * frickeFixedPoint * hexTheta frickeFixedPoint = 0 := by
-    linear_combination -h2
-  rcases mul_eq_zero.mp h3 with h4 | h4
-  · exact mul_ne_zero (by norm_num : (-3 : ℂ) ≠ 0) (ne_zero_of_im_pos h0) h4
-  · exact hexTheta_frickeFixedPoint_ne_zero h4
-
-private theorem hexThetaH_slash_TU :
-    hexThetaH ∣[(1 : ℤ)] (ModularGroup.T * U₃) = hexThetaH := by
-  rw [SlashAction.slash_mul, hexThetaH_slash_T, hexThetaH_slash_U]
 
 end
 
@@ -1644,29 +878,6 @@ private lemma differentiable_latticeTerm (v : ℤ × ℤ) :
   unfold latticeTerm
   fun_prop
 
-private def thetaBoundAt (T : ℝ) : ℝ :=
-  ∑' v : ℤ × ℤ, Real.exp (-(π * T * (v.1 : ℝ) ^ 2)) * Real.exp (-(π * T * (v.2 : ℝ) ^ 2))
-
-private theorem norm_latticeSum_le_of_le_im {T : ℝ} (hT : 0 < T) {τ : ℂ} (hτ : T ≤ τ.im) :
-    ‖latticeSum τ‖ ≤ thetaBoundAt T := by
-  have hdom : ∀ v : ℤ × ℤ, ‖latticeTerm τ v‖
-      ≤ Real.exp (-(π * T * (v.1 : ℝ) ^ 2)) * Real.exp (-(π * T * (v.2 : ℝ) ^ 2)) :=
-    fun v => norm_latticeTerm_le_of_le_im hT hτ v
-  have hgauss : Summable fun v : ℤ × ℤ =>
-      Real.exp (-(π * T * (v.1 : ℝ) ^ 2)) * Real.exp (-(π * T * (v.2 : ℝ) ^ 2)) :=
-    summable_gaussian_prod hT
-  have hsum_norm : Summable fun v : ℤ × ℤ => ‖latticeTerm τ v‖ :=
-    Summable.of_nonneg_of_le (fun _ => norm_nonneg _) hdom hgauss
-  calc ‖latticeSum τ‖ ≤ ∑' v : ℤ × ℤ, ‖latticeTerm τ v‖ := norm_tsum_le_tsum_norm hsum_norm
-    _ ≤ ∑' v : ℤ × ℤ, Real.exp (-(π * T * (v.1 : ℝ) ^ 2))
-          * Real.exp (-(π * T * (v.2 : ℝ) ^ 2)) :=
-        hsum_norm.tsum_le_tsum hdom hgauss
-    _ = thetaBoundAt T := rfl
-
-private theorem thetaBoundAt_one_eq : thetaBoundAt 1 = thetaBound := by
-  unfold thetaBoundAt thetaBound
-  simp only [mul_one]
-
 private lemma isOpen_lt_im (T : ℝ) : IsOpen {z : ℂ | T < z.im} :=
   isOpen_lt continuous_const Complex.continuous_im
 
@@ -1680,7 +891,7 @@ private theorem differentiableOn_latticeSum_of_lt_im {T : ℝ} (hT : 0 < T) :
     (fun v w hw => norm_latticeTerm_le_of_le_im hT (le_of_lt hw) v)
   exact h
 
-private theorem differentiableAt_latticeSum {τ : ℂ} (hτ : 0 < τ.im) :
+theorem differentiableAt_latticeSum {τ : ℂ} (hτ : 0 < τ.im) :
     DifferentiableAt ℂ latticeSum τ := by
   have hT : (0 : ℝ) < τ.im / 2 := by positivity
   have hmem : τ ∈ {z : ℂ | τ.im / 2 < z.im} := by
@@ -1693,7 +904,7 @@ private theorem differentiableOn_latticeSum :
     DifferentiableOn ℂ latticeSum {z : ℂ | 0 < z.im} :=
   fun _ hz => (differentiableAt_latticeSum hz).differentiableWithinAt
 
-private theorem mdifferentiable_hexThetaH : MDiff hexThetaH := by
+theorem mdifferentiable_hexThetaH : MDiff hexThetaH := by
   rw [UpperHalfPlane.mdifferentiable_iff]
   refine DifferentiableOn.congr (f := latticeSum) differentiableOn_latticeSum
     (fun z hz => ?_)
@@ -1702,23 +913,6 @@ private theorem mdifferentiable_hexThetaH : MDiff hexThetaH := by
 private theorem e1Chi3IsModular_of_repCount (hW1 : RepresentationCountAgrees) :
     E1Chi3IsModular :=
   e1Chi3IsModular_of_mdiff_of_repCount mdifferentiable_hexThetaH hW1
-
-private theorem differentiableAt_latticeSum_I : DifferentiableAt ℂ latticeSum Complex.I :=
-  differentiableAt_latticeSum (by simp)
-
-private theorem not_summable_gaussian_prod_zero :
-    ¬ Summable (fun v : ℤ × ℤ =>
-      Real.exp (-(π * 0 * (v.1 : ℝ) ^ 2)) * Real.exp (-(π * 0 * (v.2 : ℝ) ^ 2))) := by
-  have h : (fun v : ℤ × ℤ =>
-      Real.exp (-(π * 0 * (v.1 : ℝ) ^ 2)) * Real.exp (-(π * 0 * (v.2 : ℝ) ^ 2)))
-      = fun _ => (1 : ℝ) := by
-    funext v
-    simp
-  rw [h, summable_const_iff]
-  exact one_ne_zero
-
-private theorem continuous_hexThetaH : Continuous hexThetaH :=
-  mdifferentiable_hexThetaH.continuous
 
 end
 
@@ -1733,14 +927,13 @@ namespace AnalyticCore
 
 open Finset FLT.EisensteinWeightOne
 
-private def hexForm (x y : ℤ) : ℤ := x * x + x * y + y * y
+def hexForm (x y : ℤ) : ℤ := x * x + x * y + y * y
 
-
-private theorem four_mul_hexForm (x y : ℤ) :
+theorem four_mul_hexForm (x y : ℤ) :
     4 * hexForm x y = (2 * x + y) ^ 2 + 3 * y ^ 2 := by
   unfold hexForm; ring
 
-private theorem hexForm_nonneg (x y : ℤ) : 0 ≤ hexForm x y := by
+theorem hexForm_nonneg (x y : ℤ) : 0 ≤ hexForm x y := by
   nlinarith [four_mul_hexForm x y, sq_nonneg (2 * x + y), sq_nonneg y]
 
 private theorem hexForm_eq_zero_iff {x y : ℤ} : hexForm x y = 0 ↔ x = 0 ∧ y = 0 := by
@@ -1757,16 +950,13 @@ private theorem hexForm_eq_zero_iff {x y : ℤ} : hexForm x y = 0 ↔ x = 0 ∧ 
 private theorem hexForm_swap (x y : ℤ) : hexForm y x = hexForm x y := by
   unfold hexForm; ring
 
-private theorem hexForm_neg (x y : ℤ) : hexForm (-x) (-y) = hexForm x y := by
-  unfold hexForm; ring
-
-private noncomputable def reprBox (n : ℕ) : Finset (ℤ × ℤ) :=
+noncomputable def reprBox (n : ℕ) : Finset (ℤ × ℤ) :=
   Finset.Icc (-(n : ℤ)) (n : ℤ) ×ˢ Finset.Icc (-(n : ℤ)) (n : ℤ)
 
-private noncomputable def reprSols (n : ℕ) : Finset (ℤ × ℤ) :=
+noncomputable def reprSols (n : ℕ) : Finset (ℤ × ℤ) :=
   (reprBox n).filter fun p => hexForm p.1 p.2 = (n : ℤ)
 
-private noncomputable def reprCount (n : ℕ) : ℕ := (reprSols n).card
+noncomputable def reprCount (n : ℕ) : ℕ := (reprSols n).card
 
 private theorem snd_abs_le_of_hexForm_eq {x y : ℤ} {n : ℕ} (h : hexForm x y = (n : ℤ)) :
     -(n : ℤ) ≤ y ∧ y ≤ (n : ℤ) := by
@@ -1785,7 +975,7 @@ private theorem mem_reprBox_of_hexForm_eq {x y : ℤ} {n : ℕ} (h : hexForm x y
   simp only [reprBox, Finset.mem_product, Finset.mem_Icc]
   exact ⟨⟨hx.1, hx.2⟩, ⟨hy.1, hy.2⟩⟩
 
-private theorem mem_reprSols_iff {p : ℤ × ℤ} {n : ℕ} :
+theorem mem_reprSols_iff {p : ℤ × ℤ} {n : ℕ} :
     p ∈ reprSols n ↔ hexForm p.1 p.2 = (n : ℤ) := by
   constructor
   · intro hp
@@ -1793,451 +983,24 @@ private theorem mem_reprSols_iff {p : ℤ × ℤ} {n : ℕ} :
   · intro hp
     exact Finset.mem_filter.mpr ⟨by simpa using mem_reprBox_of_hexForm_eq hp, hp⟩
 
-private def unitRot (p : ℤ × ℤ) : ℤ × ℤ := (-p.2, p.1 + p.2)
-
-private theorem hexForm_unitRot (p : ℤ × ℤ) :
-    hexForm (unitRot p).1 (unitRot p).2 = hexForm p.1 p.2 := by
-  obtain ⟨x, y⟩ := p
-  simp only [unitRot, hexForm]
-  ring
-
-private theorem unitRot_sq (p : ℤ × ℤ) : unitRot (unitRot p) = (-p.1 - p.2, p.1) := by
-  obtain ⟨x, y⟩ := p
-  simp only [unitRot, Prod.mk.injEq]
-  exact ⟨by ring, by ring⟩
-
-private theorem unitRot_cube (p : ℤ × ℤ) :
-    unitRot (unitRot (unitRot p)) = (-p.1, -p.2) := by
-  obtain ⟨x, y⟩ := p
-  simp only [unitRot, Prod.mk.injEq]
-  exact ⟨by ring, by ring⟩
-
-private theorem unitRot_six_iterate (p : ℤ × ℤ) :
-    unitRot (unitRot (unitRot (unitRot (unitRot (unitRot p))))) = p := by
-  obtain ⟨x, y⟩ := p
-  simp only [unitRot, Prod.mk.injEq]
-  exact ⟨by ring, by ring⟩
-
-private theorem unitRot_injective : Function.Injective unitRot := by
-  intro p q h
-  obtain ⟨x, y⟩ := p
-  obtain ⟨a, b⟩ := q
-  simp only [unitRot, Prod.mk.injEq] at h
-  exact Prod.ext (by omega) (by omega)
-
-private theorem eq_zero_of_unitRot_eq_self {p : ℤ × ℤ} (h : unitRot p = p) : p = (0, 0) := by
-  obtain ⟨x, y⟩ := p
-  simp only [unitRot, Prod.mk.injEq] at h ⊢
-  omega
-
-private theorem eq_zero_of_unitRot_sq_eq_self {p : ℤ × ℤ} (h : unitRot (unitRot p) = p) :
-    p = (0, 0) := by
-  obtain ⟨x, y⟩ := p
-  rw [unitRot_sq] at h
-  simp only [Prod.mk.injEq] at h ⊢
-  omega
-
-private theorem eq_zero_of_unitRot_cube_eq_self {p : ℤ × ℤ}
-    (h : unitRot (unitRot (unitRot p)) = p) : p = (0, 0) := by
-  obtain ⟨x, y⟩ := p
-  rw [unitRot_cube] at h
-  simp only [Prod.mk.injEq] at h ⊢
-  omega
-
-private def unitRotOrbit (p : ℤ × ℤ) : Finset (ℤ × ℤ) :=
-  {p, unitRot p, unitRot (unitRot p), unitRot (unitRot (unitRot p)),
-    unitRot (unitRot (unitRot (unitRot p))),
-    unitRot (unitRot (unitRot (unitRot (unitRot p))))}
-
-private theorem mem_unitRotOrbit_self (p : ℤ × ℤ) : p ∈ unitRotOrbit p := by
-  simp [unitRotOrbit]
-
-private theorem unitRot_mem_unitRotOrbit {p q : ℤ × ℤ} (hq : q ∈ unitRotOrbit p) :
-    unitRot q ∈ unitRotOrbit p := by
-  simp only [unitRotOrbit, Finset.mem_insert, Finset.mem_singleton] at hq ⊢
-  rcases hq with rfl | rfl | rfl | rfl | rfl | rfl
-  · tauto
-  · tauto
-  · tauto
-  · tauto
-  · tauto
-  ·
-    exact Or.inl (unitRot_six_iterate p)
-
-private theorem mem_unitRotOrbit_of_unitRot_mem {p q : ℤ × ℤ} (hq : unitRot q ∈ unitRotOrbit p) :
-    q ∈ unitRotOrbit p := by
-
-  have h5 : ∀ r ∈ unitRotOrbit p,
-      unitRot (unitRot (unitRot (unitRot (unitRot r)))) ∈ unitRotOrbit p := fun r hr =>
-    unitRot_mem_unitRotOrbit (unitRot_mem_unitRotOrbit (unitRot_mem_unitRotOrbit
-      (unitRot_mem_unitRotOrbit (unitRot_mem_unitRotOrbit hr))))
-  have := h5 _ hq
-  rwa [unitRot_six_iterate] at this
-
-private theorem card_unitRotOrbit {p : ℤ × ℤ} (hp : p ≠ (0, 0)) : (unitRotOrbit p).card = 6 := by
-  obtain ⟨x, y⟩ := p
-  have hxy : ¬(x = 0 ∧ y = 0) := by
-    intro ⟨hx, hy⟩; exact hp (by simp [hx, hy])
-
-  simp only [unitRotOrbit, unitRot]
-  rw [Finset.card_insert_of_notMem, Finset.card_insert_of_notMem,
-    Finset.card_insert_of_notMem, Finset.card_insert_of_notMem,
-    Finset.card_insert_of_notMem, Finset.card_singleton]
-  all_goals try simp only [Finset.mem_insert, Finset.mem_singleton, Prod.mk.injEq, not_or]
-  all_goals omega
-
-private theorem six_dvd_card_of_unitRot_invariant :
-    ∀ s : Finset (ℤ × ℤ), ((0 : ℤ), (0 : ℤ)) ∉ s → (∀ p ∈ s, unitRot p ∈ s) →
-      6 ∣ s.card := by
-  intro s
-  induction s using Finset.strongInduction with
-  | _ s ih =>
-    intro h0 hinv
-    rcases s.eq_empty_or_nonempty with rfl | ⟨p, hp⟩
-    · simp
-    · have hpne : p ≠ (0, 0) := fun h => h0 (h ▸ hp)
-
-      have horb_sub : unitRotOrbit p ⊆ s := by
-        intro q hq
-        simp only [unitRotOrbit, Finset.mem_insert, Finset.mem_singleton] at hq
-        rcases hq with rfl | rfl | rfl | rfl | rfl | rfl
-        · exact hp
-        · exact hinv _ hp
-        · exact hinv _ (hinv _ hp)
-        · exact hinv _ (hinv _ (hinv _ hp))
-        · exact hinv _ (hinv _ (hinv _ (hinv _ hp)))
-        · exact hinv _ (hinv _ (hinv _ (hinv _ (hinv _ hp))))
-
-      have hssub : s \ unitRotOrbit p ⊂ s :=
-        Finset.sdiff_ssubset horb_sub ⟨p, mem_unitRotOrbit_self p⟩
-      have h0' : ((0 : ℤ), (0 : ℤ)) ∉ s \ unitRotOrbit p := fun h =>
-        h0 (Finset.mem_sdiff.mp h).1
-      have hinv' : ∀ q ∈ s \ unitRotOrbit p, unitRot q ∈ s \ unitRotOrbit p := by
-        intro q hq
-        rw [Finset.mem_sdiff] at hq ⊢
-        exact ⟨hinv _ hq.1, fun hmem => hq.2 (mem_unitRotOrbit_of_unitRot_mem hmem)⟩
-      have hrec := ih _ hssub h0' hinv'
-      have hcard : (s \ unitRotOrbit p).card + (unitRotOrbit p).card = s.card :=
-        Finset.card_sdiff_add_card_eq_card horb_sub
-      rw [card_unitRotOrbit hpne] at hcard
-      omega
-
-private theorem six_dvd_reprCount {n : ℕ} (hn : n ≠ 0) : 6 ∣ reprCount n := by
-  apply six_dvd_card_of_unitRot_invariant
-  ·
-    intro h
-    have := mem_reprSols_iff.mp h
-    simp only [hexForm] at this
-    omega
-  ·
-
-    intro p hp
-    have hQ : hexForm (unitRot p).1 (unitRot p).2 = (n : ℤ) := by
-      rw [hexForm_unitRot]; exact mem_reprSols_iff.mp hp
-    exact mem_reprSols_iff.mpr hQ
-
 private theorem reprCount_zero : reprCount 0 = 1 := by decide
 
-private theorem reprCount_one : reprCount 1 = 6 := by decide
+theorem reprCount_one : reprCount 1 = 6 := by decide
 
-private theorem reprCount_two : reprCount 2 = 0 := by decide
-
-private theorem reprCount_three : reprCount 3 = 6 := by decide
-
-private theorem reprCount_four : reprCount 4 = 6 := by decide
-
-private theorem reprCount_five : reprCount 5 = 0 := by decide
-
-private theorem reprCount_six : reprCount 6 = 0 := by decide
-
-private theorem reprCount_seven : reprCount 7 = 12 := by decide
-
-private theorem reprCount_thirteen : reprCount 13 = 12 := by decide
-
-private theorem reprCount_eq_coeff_e1Chi3_zero :
+theorem reprCount_eq_coeff_e1Chi3_zero :
     (reprCount 0 : ℤ) = PowerSeries.coeff 0 e1Chi3 := by
   rw [reprCount_zero, coeff_e1Chi3]; norm_num
 
-private theorem reprCount_eq_coeff_e1Chi3_one :
+theorem reprCount_eq_coeff_e1Chi3_one :
     (reprCount 1 : ℤ) = PowerSeries.coeff 1 e1Chi3 := by
   rw [reprCount_one, coeff_one_e1Chi3]; norm_num
 
-private theorem reprCount_eq_coeff_e1Chi3_two :
-    (reprCount 2 : ℤ) = PowerSeries.coeff 2 e1Chi3 := by
-  rw [reprCount_two, coeff_two_e1Chi3]; norm_num
-
-private theorem reprCount_eq_coeff_e1Chi3_three :
-    (reprCount 3 : ℤ) = PowerSeries.coeff 3 e1Chi3 := by
-  rw [reprCount_three, coeff_three_e1Chi3]; norm_num
-
-private theorem reprCount_eq_coeff_e1Chi3_four :
-    (reprCount 4 : ℤ) = PowerSeries.coeff 4 e1Chi3 := by
-  rw [reprCount_four, coeff_four_e1Chi3]; norm_num
-
-private theorem reprCount_eq_coeff_e1Chi3_seven :
-    (reprCount 7 : ℤ) = PowerSeries.coeff 7 e1Chi3 := by
-  rw [reprCount_seven, coeff_seven_e1Chi3]; norm_num
-
-private theorem reprCount_eq_coeff_e1Chi3_thirteen :
-    (reprCount 13 : ℤ) = PowerSeries.coeff 13 e1Chi3 := by
-  rw [reprCount_thirteen, coeff_e1Chi3_of_ne_zero (by norm_num)]
-  have : sigmaChi 13 = 2 := by decide
-  rw [this]; norm_num
-
-private def ReprCountEqCoeffE1Chi3 : Prop :=
+def ReprCountEqCoeffE1Chi3 : Prop :=
   ∀ n : ℕ, (reprCount n : ℤ) = PowerSeries.coeff n e1Chi3
-
-private noncomputable def thetaHexQExpansion : PowerSeries ℤ :=
-  PowerSeries.mk fun n => (reprCount n : ℤ)
-
-private theorem thetaHexQExpansion_eq_e1Chi3 (h : ReprCountEqCoeffE1Chi3) :
-    thetaHexQExpansion = e1Chi3 := by
-  ext n
-  rw [thetaHexQExpansion, PowerSeries.coeff_mk]
-  exact h n
-
-private theorem reprCountEqCoeffE1Chi3_on_table :
-    ∀ n ∈ ({0, 1, 2, 3, 4, 7, 13} : Finset ℕ),
-      (reprCount n : ℤ) = PowerSeries.coeff n e1Chi3 := by
-  intro n hn
-  fin_cases hn
-  · exact reprCount_eq_coeff_e1Chi3_zero
-  · exact reprCount_eq_coeff_e1Chi3_one
-  · exact reprCount_eq_coeff_e1Chi3_two
-  · exact reprCount_eq_coeff_e1Chi3_three
-  · exact reprCount_eq_coeff_e1Chi3_four
-  · exact reprCount_eq_coeff_e1Chi3_seven
-  · exact reprCount_eq_coeff_e1Chi3_thirteen
-
-private noncomputable def gaussianCountThree : ℕ :=
-  ((reprBox 3).filter fun p => p.1 * p.1 + p.2 * p.2 = (3 : ℤ)).card
-
-private theorem gaussianCountThree_ne : gaussianCountThree ≠ reprCount 3 := by decide
-
-private theorem multiplier_six_load_bearing : (reprCount 1 : ℤ) ≠ sigmaChi 1 := by
-  rw [reprCount_one, sigmaChi_one]; norm_num
 
 end FLT.AnalyticCore
 
 end File_FLT_AnalyticCore_RepresentationNumberIdentity
-
-section File_FLT_ModularCurve_Numerics_NuThree
-
-namespace ModularCurve
-
-private noncomputable def nuThree (N : ℕ) : ℕ := Nat.card {x : ZMod N // x ^ 2 + x + 1 = 0}
-
-private theorem not_sq_add_self_add_one_eq_zero_zmod_nine (y : ZMod 9) : y ^ 2 + y + 1 ≠ 0 := by
-  revert y
-  decide
-
-private theorem nuThree_eq_zero_of_nine_dvd {N : ℕ} (h : 9 ∣ N) : nuThree N = 0 := by
-  have hempty : IsEmpty {x : ZMod N // x ^ 2 + x + 1 = 0} := by
-    refine ⟨fun z => ?_⟩
-    obtain ⟨x, hx⟩ := z
-    refine not_sq_add_self_add_one_eq_zero_zmod_nine (ZMod.castHom h (ZMod 9) x) ?_
-    have hx9 := congrArg (ZMod.castHom h (ZMod 9)) hx
-    simpa only [map_add, map_pow, map_one, map_zero] using hx9
-  exact @Nat.card_of_isEmpty _ hempty
-
-section Prime
-
-variable {p : ℕ}
-
-private theorem sq_add_self_add_one_eq_zero_iff_orderOf_eq_three (hp : p.Prime) (hp3 : p ≠ 3)
-    (x : ZMod p) : x ^ 2 + x + 1 = 0 ↔ orderOf x = 3 := by
-  haveI : Fact p.Prime := ⟨hp⟩
-  haveI : Fact (Nat.Prime 3) := ⟨by norm_num⟩
-  constructor
-  · intro hx
-    refine orderOf_eq_prime ?_ ?_
-    ·
-      linear_combination (x - 1) * hx
-    ·
-      rintro rfl
-      have h3 : (3 : ZMod p) = 0 := by linear_combination hx
-      have hcast : ((3 : ℕ) : ZMod p) = 0 := by exact_mod_cast h3
-      have hdvd : p ∣ 3 := (CharP.cast_eq_zero_iff (ZMod p) p 3).mp hcast
-      exact hp3 ((Nat.prime_dvd_prime_iff_eq hp Nat.prime_three).mp hdvd)
-  · intro hx
-    have hx3 : x ^ 3 = 1 := by rw [← hx]; exact pow_orderOf_eq_one x
-    have hx1 : x ≠ 1 := by
-      rintro rfl
-      rw [orderOf_one] at hx
-      omega
-    have hfac : (x - 1) * (x ^ 2 + x + 1) = 0 := by linear_combination hx3
-    rcases mul_eq_zero.mp hfac with h | h
-    · exact absurd (by linear_combination h : x = 1) hx1
-    · exact h
-
-private theorem sq_add_self_add_one_eq_zero_iff_of_prime (hp : p.Prime) {ζ x : ZMod p}
-    (hζ : ζ ^ 2 + ζ + 1 = 0) : x ^ 2 + x + 1 = 0 ↔ x = ζ ∨ x = -1 - ζ := by
-  haveI : Fact p.Prime := ⟨hp⟩
-  constructor
-  · intro hx
-    have hfac : (x - ζ) * (x + ζ + 1) = 0 := by linear_combination hx - hζ
-    rcases mul_eq_zero.mp hfac with hd | hd
-    · exact Or.inl (by linear_combination hd)
-    · exact Or.inr (by linear_combination hd)
-  · rintro (rfl | rfl)
-    · exact hζ
-    · linear_combination hζ
-
-private theorem ne_neg_one_sub_of_sq_add_self_add_one_eq_zero (hp : p.Prime) (hp3 : p ≠ 3)
-    {ζ : ZMod p} (hζ : ζ ^ 2 + ζ + 1 = 0) : ζ ≠ -1 - ζ := by
-  haveI : Fact p.Prime := ⟨hp⟩
-  intro hcontra
-  have h3 : (3 : ZMod p) = 0 := by linear_combination 4 * hζ - (2 * ζ + 1) * hcontra
-  have hcast : ((3 : ℕ) : ZMod p) = 0 := by exact_mod_cast h3
-  have hdvd : p ∣ 3 := (CharP.cast_eq_zero_iff (ZMod p) p 3).mp hcast
-  exact hp3 ((Nat.prime_dvd_prime_iff_eq hp Nat.prime_three).mp hdvd)
-
-private theorem exists_orderOf_eq_three (hp : p.Prime) (h1 : p % 3 = 1) :
-    ∃ x : ZMod p, orderOf x = 3 := by
-  haveI : Fact p.Prime := ⟨hp⟩
-  haveI : Fact (Nat.Prime 3) := ⟨by norm_num⟩
-  have hdvd : 3 ∣ Fintype.card (ZMod p)ˣ := by
-    rw [ZMod.card_units p]
-    have := hp.two_le
-    omega
-  obtain ⟨u, hu⟩ := exists_prime_orderOf_dvd_card 3 hdvd
-  exact ⟨(u : ZMod p), by rw [orderOf_units]; exact hu⟩
-
-private theorem nuThree_prime (hp : p.Prime) (hp3 : p ≠ 3) :
-    nuThree p = if p % 3 = 1 then 2 else 0 := by
-  haveI : Fact p.Prime := ⟨hp⟩
-  by_cases h1 : p % 3 = 1
-  ·
-
-    rw [ite_eq_left h1]
-    obtain ⟨ζ, hζord⟩ := exists_orderOf_eq_three hp h1
-    have hζ : ζ ^ 2 + ζ + 1 = 0 :=
-      (sq_add_self_add_one_eq_zero_iff_orderOf_eq_three hp hp3 ζ).mpr hζord
-    have hζ' : (-1 - ζ) ^ 2 + (-1 - ζ) + 1 = 0 := by linear_combination hζ
-    have hne : ζ ≠ -1 - ζ := ne_neg_one_sub_of_sq_add_self_add_one_eq_zero hp hp3 hζ
-    show Nat.card {x : ZMod p // x ^ 2 + x + 1 = 0} = 2
-    rw [Nat.card_eq_two_iff]
-    refine ⟨⟨ζ, hζ⟩, ⟨-1 - ζ, hζ'⟩, ?_, ?_⟩
-    · simp only [ne_eq, Subtype.mk.injEq]
-      exact hne
-    · rw [Set.eq_univ_iff_forall]
-      rintro ⟨x, hx⟩
-      simp only [Set.mem_insert_iff, Set.mem_singleton_iff, Subtype.mk.injEq]
-      exact (sq_add_self_add_one_eq_zero_iff_of_prime hp hζ).mp hx
-  ·
-
-    rw [ite_eq_right h1]
-    have hempty : IsEmpty {x : ZMod p // x ^ 2 + x + 1 = 0} := by
-      refine ⟨fun z => ?_⟩
-      obtain ⟨x, hx⟩ := z
-      have hord : orderOf x = 3 :=
-        (sq_add_self_add_one_eq_zero_iff_orderOf_eq_three hp hp3 x).mp hx
-      have hx0 : x ≠ 0 := by
-        rintro rfl
-        exact one_ne_zero (α := ZMod p) (by linear_combination hx)
-      have hdvd : (3 : ℕ) ∣ p - 1 := by
-        rw [← hord]
-        exact ZMod.orderOf_dvd_card_sub_one hx0
-      have := hp.two_le
-      omega
-    exact @Nat.card_of_isEmpty _ hempty
-
-private theorem nuThree_eq_zero_of_mod_three_eq_two (hp : p.Prime) (h2 : p % 3 = 2) :
-    nuThree p = 0 := by
-  have hp3 : p ≠ 3 := by rintro rfl; omega
-  have hne1 : ¬p % 3 = 1 := by omega
-  rw [nuThree_prime hp hp3, ite_eq_right hne1]
-
-private theorem nuThree_eq_two_of_mod_three_eq_one (hp : p.Prime) (h1 : p % 3 = 1) :
-    nuThree p = 2 := by
-  have hp3 : p ≠ 3 := by rintro rfl; omega
-  rw [nuThree_prime hp hp3, ite_eq_left h1]
-
-end Prime
-
-private theorem nuThree_three : nuThree 3 = 1 := by
-  have hcard : nuThree 3 = Fintype.card {x : ZMod 3 // x ^ 2 + x + 1 = 0} :=
-    Nat.card_eq_fintype_card
-  rw [hcard]
-  decide
-
-section Multiplicative
-
-variable {A B : Type*} [Ring A] [Ring B]
-
-private theorem fst_sq_add_self_add_one (y : A × B) : (y ^ 2 + y + 1).1 = y.1 ^ 2 + y.1 + 1 := by
-  rw [pow_two, pow_two, Prod.fst_add, Prod.fst_add, Prod.fst_mul, Prod.fst_one]
-
-private theorem snd_sq_add_self_add_one (y : A × B) : (y ^ 2 + y + 1).2 = y.2 ^ 2 + y.2 + 1 := by
-  rw [pow_two, pow_two, Prod.snd_add, Prod.snd_add, Prod.snd_mul, Prod.snd_one]
-
-private theorem sq_add_self_add_one_eq_zero_prod_iff (y : A × B) :
-    y ^ 2 + y + 1 = 0 ↔ y.1 ^ 2 + y.1 + 1 = 0 ∧ y.2 ^ 2 + y.2 + 1 = 0 := by
-  constructor
-  · intro hy
-    refine ⟨?_, ?_⟩
-    · rw [← fst_sq_add_self_add_one, hy, Prod.fst_zero]
-    · rw [← snd_sq_add_self_add_one, hy, Prod.snd_zero]
-  · rintro ⟨h1, h2⟩
-    calc y ^ 2 + y + 1 = ((y ^ 2 + y + 1).1, (y ^ 2 + y + 1).2) := rfl
-      _ = ((0 : A), (0 : B)) := by
-          rw [fst_sq_add_self_add_one, snd_sq_add_self_add_one, h1, h2]
-      _ = (0 : A × B) := rfl
-
-private theorem sq_add_self_add_one_eq_zero_iff_map {R S : Type*} [Ring R] [Ring S] (f : R ≃+* S)
-    (x : R) : x ^ 2 + x + 1 = 0 ↔ f x ^ 2 + f x + 1 = 0 := by
-  constructor
-  · intro hx
-    have hmap := congrArg f hx
-    simpa only [map_add, map_pow, map_one, map_zero] using hmap
-  · intro hx
-    have hmap := congrArg f.symm hx
-    simpa only [map_add, map_pow, map_one, map_zero, RingEquiv.symm_apply_apply] using hmap
-
-end Multiplicative
-
-private theorem nuThree_mul_of_coprime {M N : ℕ} (h : Nat.Coprime M N) :
-    nuThree (M * N) = nuThree M * nuThree N := by
-  have key : ∀ x : ZMod (M * N),
-      x ^ 2 + x + 1 = 0 ↔
-        ((ZMod.chineseRemainder h) x).1 ^ 2 + ((ZMod.chineseRemainder h) x).1 + 1 = 0 ∧
-          ((ZMod.chineseRemainder h) x).2 ^ 2 + ((ZMod.chineseRemainder h) x).2 + 1 = 0 := by
-    intro x
-    rw [sq_add_self_add_one_eq_zero_iff_map (ZMod.chineseRemainder h) x,
-      sq_add_self_add_one_eq_zero_prod_iff]
-  have e₁ : {x : ZMod (M * N) // x ^ 2 + x + 1 = 0} ≃
-      {c : ZMod M × ZMod N // c.1 ^ 2 + c.1 + 1 = 0 ∧ c.2 ^ 2 + c.2 + 1 = 0} :=
-    Equiv.subtypeEquiv (ZMod.chineseRemainder h).toEquiv key
-  have e₂ : {c : ZMod M × ZMod N // c.1 ^ 2 + c.1 + 1 = 0 ∧ c.2 ^ 2 + c.2 + 1 = 0} ≃
-      {a : ZMod M // a ^ 2 + a + 1 = 0} × {b : ZMod N // b ^ 2 + b + 1 = 0} :=
-    Equiv.subtypeProdEquivProd
-      (p := fun a : ZMod M => a ^ 2 + a + 1 = 0)
-      (q := fun b : ZMod N => b ^ 2 + b + 1 = 0)
-  show Nat.card {x : ZMod (M * N) // x ^ 2 + x + 1 = 0} =
-    Nat.card {a : ZMod M // a ^ 2 + a + 1 = 0} * Nat.card {b : ZMod N // b ^ 2 + b + 1 = 0}
-  rw [Nat.card_congr (e₁.trans e₂), Nat.card_prod]
-
-private theorem nuThree_one : nuThree 1 = 1 := by
-  have hcard : nuThree 1 = Fintype.card {x : ZMod 1 // x ^ 2 + x + 1 = 0} :=
-    Nat.card_eq_fintype_card
-  rw [hcard]
-  decide
-
-private theorem nuThree_seven : nuThree 7 = 2 :=
-  nuThree_eq_two_of_mod_three_eq_one (by norm_num) (by norm_num)
-
-private theorem nuThree_eleven : nuThree 11 = 0 :=
-  nuThree_eq_zero_of_mod_three_eq_two (by norm_num) (by norm_num)
-
-private theorem nuThree_thirteen : nuThree 13 = 2 :=
-  nuThree_eq_two_of_mod_three_eq_one (by norm_num) (by norm_num)
-
-private theorem nuThree_nineteen : nuThree 19 = 2 :=
-  nuThree_eq_two_of_mod_three_eq_one (by norm_num) (by norm_num)
-
-end ModularCurve
-
-end File_FLT_ModularCurve_Numerics_NuThree
 
 section File_FLT_AnalyticCore_SplittingLawHalf
 
@@ -2249,8 +1012,6 @@ open Finset FLT.EisensteinWeightOne
 private theorem hexForm_mul (a b c d : ℤ) :
     hexForm a b * hexForm c d = hexForm (a * c - b * d) (a * d + b * c + b * d) := by
   simp only [hexForm]; ring
-
-private theorem hexForm_two_neg_one : hexForm 2 (-1) = 3 := by decide
 
 private theorem hexForm_smul (c x y : ℤ) : hexForm (c * x) (c * y) = c ^ 2 * hexForm x y := by
   simp only [hexForm]; ring
@@ -2292,7 +1053,7 @@ private theorem inert_dvd_of_dvd_hexForm (hp : p.Prime) (h2 : p % 3 = 2) {x y : 
   refine ⟨?_, inert_dvd_right_of_dvd_hexForm hp h2 h⟩
   exact inert_dvd_right_of_dvd_hexForm hp h2 (x := y) (y := x) (by rwa [hexForm_swap])
 
-private theorem inert_sq_dvd_of_dvd_hexForm (hp : p.Prime) (h2 : p % 3 = 2) {x y : ℤ}
+theorem inert_sq_dvd_of_dvd_hexForm (hp : p.Prime) (h2 : p % 3 = 2) {x y : ℤ}
     (h : (p : ℤ) ∣ hexForm x y) : (p : ℤ) ^ 2 ∣ hexForm x y := by
   obtain ⟨⟨x', rfl⟩, ⟨y', rfl⟩⟩ := inert_dvd_of_dvd_hexForm hp h2 h
   exact ⟨hexForm x' y', by rw [hexForm_smul]⟩
@@ -2309,37 +1070,6 @@ private theorem reprCount_eq_zero_of_inert (hp : p.Prime) (h2 : p % 3 = 2) :
   have hple : (p : ℤ) ^ 2 ≤ (p : ℤ) := Int.le_of_dvd (by exact_mod_cast hp.pos) hsq
   have hp2 : (2 : ℤ) ≤ (p : ℤ) := by exact_mod_cast hp.two_le
   nlinarith
-
-private theorem reprCount_eq_zero_of_inert_dvd_of_not_sq_dvd (hp : p.Prime) (h2 : p % 3 = 2)
-    {n : ℕ} (hdvd : p ∣ n) (hnsq : ¬p ^ 2 ∣ n) : reprCount n = 0 := by
-  rw [reprCount, Finset.card_eq_zero, Finset.eq_empty_iff_forall_notMem]
-  rintro ⟨x, y⟩ hxy
-  have hQ : hexForm x y = (n : ℤ) := mem_reprSols_iff.mp hxy
-  have hpd : (p : ℤ) ∣ hexForm x y := by rw [hQ]; exact_mod_cast hdvd
-  have hsq : (p : ℤ) ^ 2 ∣ (n : ℤ) := by
-    have h' := inert_sq_dvd_of_dvd_hexForm hp h2 hpd
-    rwa [hQ] at h'
-  refine hnsq ?_
-  have : ((p ^ 2 : ℕ) : ℤ) ∣ (n : ℤ) := by push_cast; exact hsq
-  exact_mod_cast this
-
-private theorem sigmaChi_eq_zero_of_inert_dvd_of_not_sq_dvd (hp : p.Prime) (h2 : p % 3 = 2)
-    {n : ℕ} (hdvd : p ∣ n) (hnsq : ¬p ^ 2 ∣ n) : sigmaChi n = 0 := by
-  obtain ⟨m, rfl⟩ := hdvd
-  have hpm : ¬p ∣ m := fun hm => hnsq (by obtain ⟨m', rfl⟩ := hm; exact ⟨m', by ring⟩)
-  have hcop : Nat.Coprime p m := (Nat.Prime.coprime_iff_not_dvd hp).mpr hpm
-  rw [sigmaChi_mul_of_coprime p m hcop, sigmaChi_prime hp]
-  have hchi : chiNegThree p = -1 := by
-    simp [chiNegThree, h2]
-  rw [hchi]; ring
-
-private theorem reprCount_eq_coeff_of_inert_exactly_dvd (hp : p.Prime) (h2 : p % 3 = 2)
-    {n : ℕ} (hn : n ≠ 0) (hdvd : p ∣ n) (hnsq : ¬p ^ 2 ∣ n) :
-    (reprCount n : ℤ) = PowerSeries.coeff n e1Chi3 := by
-  rw [reprCount_eq_zero_of_inert_dvd_of_not_sq_dvd hp h2 hdvd hnsq,
-    coeff_e1Chi3_of_ne_zero hn,
-    sigmaChi_eq_zero_of_inert_dvd_of_not_sq_dvd hp h2 hdvd hnsq]
-  ring
 
 private theorem reprSols_sq_mul_of_inert (hp : p.Prime) (h2 : p % 3 = 2) (m : ℕ) :
     reprSols (p ^ 2 * m)
@@ -2399,7 +1129,7 @@ private theorem reprSols_three_mul (m : ℕ) :
   · rintro ⟨u, v, hQ, rfl, rfl⟩
     rw [hexForm_ramified_ascent, hQ]; push_cast; ring
 
-private theorem reprCount_three_mul (m : ℕ) : reprCount (3 * m) = reprCount m := by
+theorem reprCount_three_mul (m : ℕ) : reprCount (3 * m) = reprCount m := by
   rw [reprCount, reprCount, reprSols_three_mul m]
   refine Finset.card_image_of_injOn fun q _ q' _ h => ?_
   simp only [Prod.mk.injEq] at h
@@ -2454,23 +1184,10 @@ private theorem reprCount_inert_pow {p : ℕ} (hp : p.Prime) (h2 : p % 3 = 2) (k
   · obtain ⟨j, hj⟩ := hk
     rw [ite_eq_right (Nat.not_even_iff_odd.mpr ⟨j, hj⟩), hj, hodd]
 
-private theorem exists_dvd_hexForm_of_split {p : ℕ} (hp : p.Prime) (h1 : p % 3 = 1) :
-    ∃ a : ℤ, (p : ℤ) ∣ hexForm a 1 := by
-  haveI : Fact p.Prime := ⟨hp⟩
-  have hp3 : p ≠ 3 := by rintro rfl; omega
-  obtain ⟨t, ht⟩ := ModularCurve.exists_orderOf_eq_three hp h1
-  have hroot : t ^ 2 + t + 1 = 0 :=
-    (ModularCurve.sq_add_self_add_one_eq_zero_iff_orderOf_eq_three hp hp3 t).mpr ht
-  obtain ⟨a, rfl⟩ := ZMod.intCast_surjective t
-  refine ⟨a, ?_⟩
-  rw [← ZMod.intCast_zmod_eq_zero_iff_dvd]
-  push_cast [hexForm]
-  linear_combination hroot
-
-private def OrbitCountMultiplicative : Prop :=
+def OrbitCountMultiplicative : Prop :=
   ∀ m n : ℕ, Nat.Coprime m n → 6 * reprCount (m * n) = reprCount m * reprCount n
 
-private def SplitPrimePowCount : Prop :=
+def SplitPrimePowCount : Prop :=
   ∀ p k : ℕ, p.Prime → p % 3 = 1 → reprCount (p ^ k) = 6 * (k + 1)
 
 private theorem sigmaChi_split_pow {p : ℕ} (hp : p.Prime) (h1 : p % 3 = 1) (k : ℕ) :
@@ -2481,7 +1198,7 @@ private theorem sigmaChi_split_pow {p : ℕ} (hp : p.Prime) (h1 : p % 3 = 1) (k 
   rw [hchi]
   simp
 
-private theorem reprCountEqCoeffE1Chi3_of_residuals
+theorem reprCountEqCoeffE1Chi3_of_residuals
     (hmul : OrbitCountMultiplicative) (hsplit : SplitPrimePowCount) :
     ReprCountEqCoeffE1Chi3 := by
   intro n
@@ -2522,34 +1239,6 @@ private theorem reprCountEqCoeffE1Chi3_of_residuals
       coeff_e1Chi3_of_ne_zero hab0, sigmaChi_mul_of_coprime a b hab]
     ring
 
-private theorem reprCount_twelve : reprCount 12 = 6 := by decide
-
-private theorem reprCount_nine : reprCount 9 = 6 := by decide
-
-private theorem reprCount_ten : reprCount 10 = 0 := by decide
-
-private theorem orbitCountMultiplicative_three_four :
-    6 * reprCount (3 * 4) = reprCount 3 * reprCount 4 := by
-  norm_num [reprCount_twelve, reprCount_three, reprCount_four]
-
-private theorem orbitCountMultiplicative_not_without_coprime :
-    ¬(∀ m n : ℕ, 6 * reprCount (m * n) = reprCount m * reprCount n) := by
-  intro h
-  have h22 := h 2 2
-  rw [reprCount_two] at h22
-  norm_num [show (2 : ℕ) * 2 = 4 from rfl, reprCount_four] at h22
-
-private theorem splitPrimePowCount_at_seven : reprCount (7 ^ 1) = 6 * (1 + 1) := by
-  norm_num [reprCount_seven]
-
-private theorem splitPrimePowCount_not_at_inert : reprCount (2 ^ 1) ≠ 6 * (1 + 1) := by
-  norm_num [reprCount_two]
-
-private theorem residuals_jointly_satisfiable_on_table :
-    (6 * reprCount (3 * 4) = reprCount 3 * reprCount 4) ∧
-      (reprCount (7 ^ 1) = 6 * (1 + 1)) :=
-  ⟨orbitCountMultiplicative_three_four, splitPrimePowCount_at_seven⟩
-
 end FLT.AnalyticCore
 
 end File_FLT_AnalyticCore_SplittingLawHalf
@@ -2562,7 +1251,7 @@ namespace AnalyticCore
 open Finset
 
 @[ext]
-private structure HexInt where
+structure HexInt where
 
   re : ℤ
 
@@ -2646,7 +1335,7 @@ private instance : Nontrivial HexInt :=
 @[simp] private theorem re_natCast (n : ℕ) : (n : HexInt).re = n := rfl
 @[simp] private theorem im_natCast (n : ℕ) : (n : HexInt).im = 0 := rfl
 
-private def conj (z : HexInt) : HexInt := ⟨z.re + z.im, -z.im⟩
+def conj (z : HexInt) : HexInt := ⟨z.re + z.im, -z.im⟩
 
 @[simp] private theorem re_conj (z : HexInt) : z.conj.re = z.re + z.im := rfl
 @[simp] private theorem im_conj (z : HexInt) : z.conj.im = -z.im := rfl
@@ -2654,8 +1343,6 @@ private def conj (z : HexInt) : HexInt := ⟨z.re + z.im, -z.im⟩
 @[simp] private theorem conj_zero : (0 : HexInt).conj = 0 := by ext <;> simp [conj]
 
 private def norm (z : HexInt) : ℤ := hexForm z.re z.im
-
-private theorem norm_def (z : HexInt) : z.norm = z.re * z.re + z.re * z.im + z.im * z.im := rfl
 
 @[simp] private theorem norm_mk (a b : ℤ) : norm ⟨a, b⟩ = hexForm a b := rfl
 
@@ -2679,7 +1366,7 @@ private def normHom : HexInt →* ℤ where
 
 @[simp] private theorem normHom_apply (z : HexInt) : normHom z = z.norm := rfl
 
-private theorem norm_nonneg (z : HexInt) : 0 ≤ z.norm := hexForm_nonneg _ _
+theorem norm_nonneg (z : HexInt) : 0 ≤ z.norm := hexForm_nonneg _ _
 
 private theorem norm_eq_zero_iff {z : HexInt} : z.norm = 0 ↔ z = 0 := by
   rw [norm, hexForm_eq_zero_iff, HexInt.ext_iff, re_zero, im_zero]
@@ -2698,7 +1385,7 @@ private theorem norm_dvd_norm {z w : HexInt} (h : z ∣ w) : z.norm ∣ w.norm :
   obtain ⟨c, rfl⟩ := h
   exact ⟨c.norm, norm_mul z c⟩
 
-private theorem isUnit_iff_norm_eq_one {z : HexInt} : IsUnit z ↔ z.norm = 1 := by
+theorem isUnit_iff_norm_eq_one {z : HexInt} : IsUnit z ↔ z.norm = 1 := by
   constructor
   · intro h
     obtain ⟨w, hw⟩ := isUnit_iff_exists_inv.mp h
@@ -2802,12 +1489,12 @@ private instance : EuclideanDomain HexInt :=
     remainder_lt := fun a _ hb => natAbs_norm_mod_lt a hb
     mul_left_not_lt := fun a _ hb => not_lt.mpr (natAbs_norm_le_natAbs_norm_mul a hb) }
 
-private def unitFinset : Finset HexInt :=
+def unitFinset : Finset HexInt :=
   {⟨1, 0⟩, ⟨0, 1⟩, ⟨-1, 1⟩, ⟨-1, 0⟩, ⟨0, -1⟩, ⟨1, -1⟩}
 
 private theorem card_unitFinset : unitFinset.card = 6 := by decide
 
-private theorem norm_eq_one_iff_mem {z : HexInt} : z.norm = 1 ↔ z ∈ unitFinset := by
+theorem norm_eq_one_iff_mem {z : HexInt} : z.norm = 1 ↔ z ∈ unitFinset := by
   constructor
   · intro h
     obtain ⟨a, b⟩ := z
@@ -2820,12 +1507,6 @@ private theorem norm_eq_one_iff_mem {z : HexInt} : z.norm = 1 ↔ z ∈ unitFins
     interval_cases a <;> interval_cases b <;> revert h <;> decide
   · intro h
     fin_cases h <;> decide
-
-private theorem isUnit_iff_mem {z : HexInt} : IsUnit z ↔ z ∈ unitFinset := by
-  rw [isUnit_iff_norm_eq_one, norm_eq_one_iff_mem]
-
-private theorem conj_mem_unitFinset {u : HexInt} (hu : u ∈ unitFinset) : u.conj ∈ unitFinset := by
-  fin_cases hu <;> decide
 
 private theorem exists_nat_prime_dvd_of_dvd_natCast {π : HexInt} (hπ : Prime π) :
     ∀ k : ℕ, k ≠ 0 → π ∣ (k : HexInt) → ∃ q : ℕ, q.Prime ∧ π ∣ (q : HexInt) := by
@@ -3119,7 +1800,7 @@ private theorem card_fiber {m n : ℕ} (hmn : Nat.Coprime m n) (hm : m ≠ 0) (_
   have h1 : toPair (u * α₀) = toPair (u' * α₀) := congrArg Prod.fst h
   exact mul_right_cancel₀ hα₀0 (toPair_injective h1)
 
-private theorem orbitCountMultiplicative_holds : OrbitCountMultiplicative := by
+theorem orbitCountMultiplicative_holds : OrbitCountMultiplicative := by
   classical
   intro m n hmn
 
@@ -3147,33 +1828,6 @@ private theorem orbitCountMultiplicative_holds : OrbitCountMultiplicative := by
 
 end HexInt
 
-open HexInt in
-
-private theorem reprCountEqCoeffE1Chi3_of_splitPrimePowCount (hsplit : SplitPrimePowCount) :
-    ReprCountEqCoeffE1Chi3 :=
-  reprCountEqCoeffE1Chi3_of_residuals orbitCountMultiplicative_holds hsplit
-
-
-private theorem reprCount_twentyone : reprCount 21 = 12 := by
-  rw [show (21 : ℕ) = 3 * 7 from rfl, reprCount_three_mul, reprCount_seven]
-
-private theorem orbitCount_at_three_seven :
-    6 * reprCount (3 * 7) = reprCount 3 * reprCount 7 :=
-  HexInt.orbitCountMultiplicative_holds 3 7 (by norm_num)
-
-private theorem orbitCount_at_three_four :
-    6 * reprCount (3 * 4) = reprCount 3 * reprCount 4 :=
-  HexInt.orbitCountMultiplicative_holds 3 4 (by norm_num)
-
-private theorem orbitCount_three_seven_consistency :
-    6 * reprCount 21 = reprCount 3 * reprCount 7 := by
-  rw [reprCount_twentyone, reprCount_three, reprCount_seven]
-
-private theorem orbitCount_coprimality_load_bearing :
-    OrbitCountMultiplicative ∧
-      ¬(∀ m n : ℕ, 6 * reprCount (m * n) = reprCount m * reprCount n) :=
-  ⟨HexInt.orbitCountMultiplicative_holds, orbitCountMultiplicative_not_without_coprime⟩
-
 end FLT.AnalyticCore
 
 end File_FLT_AnalyticCore_OrbitCountMultiplicative
@@ -3195,7 +1849,7 @@ private theorem preimage_hexFormNat_eq_coe_reprSols (n : ℕ) :
   simp only [Set.mem_preimage, Set.mem_singleton_iff, LatticeSum.hexFormNat_eq_iff,
     Finset.mem_coe, mem_reprSols_iff, latticeSum_hexForm_eq]
 
-private theorem repCount_eq_reprCount (n : ℕ) : LatticeSum.repCount n = reprCount n := by
+theorem repCount_eq_reprCount (n : ℕ) : LatticeSum.repCount n = reprCount n := by
   rw [LatticeSum.repCount, preimage_hexFormNat_eq_coe_reprSols, Set.ncard_coe_finset]
   rfl
 
@@ -3209,41 +1863,9 @@ private theorem representationCountAgrees_iff_reprCountEqCoeffE1Chi3 :
     rw [repCount_eq_reprCount]
     exact h n
 
-private theorem representationCountAgrees_of_reprCountEqCoeffE1Chi3
+theorem representationCountAgrees_of_reprCountEqCoeffE1Chi3
     (h : ReprCountEqCoeffE1Chi3) : LatticeSum.RepresentationCountAgrees :=
   representationCountAgrees_iff_reprCountEqCoeffE1Chi3.mpr h
-
-private theorem representationCountAgrees_of_splitPrimePowCount
-    (hsplit : SplitPrimePowCount) : LatticeSum.RepresentationCountAgrees :=
-  representationCountAgrees_of_reprCountEqCoeffE1Chi3
-    (reprCountEqCoeffE1Chi3_of_splitPrimePowCount hsplit)
-
-private theorem latticeSum_eq_e1Chi3_qSeries_of_reprCount
-    (h : ReprCountEqCoeffE1Chi3) (z : UpperHalfPlane) :
-    LatticeSum.latticeSum z
-      = ∑' n : ℕ, ((PowerSeries.coeff n e1Chi3 : ℤ) : ℂ) *
-          Complex.exp (2 * (Real.pi : ℂ) * Complex.I * (n : ℂ) * (z : ℂ)) :=
-  LatticeSum.latticeSum_eq_e1Chi3_qSeries
-    (representationCountAgrees_of_reprCountEqCoeffE1Chi3 h) z
-
-private theorem repCount_one_two_routes :
-    LatticeSum.repCount 1 = reprCount 1 ∧ LatticeSum.repCount 1 = 6 ∧ reprCount 1 = 6 :=
-  ⟨repCount_eq_reprCount 1, LatticeSum.repCount_one, reprCount_one⟩
-
-private theorem latticeSum_repCount_seven : LatticeSum.repCount 7 = 12 := by
-  rw [repCount_eq_reprCount]
-  exact reprCount_seven
-
-private theorem latticeSum_repCount_thirteen : LatticeSum.repCount 13 = 12 := by
-  rw [repCount_eq_reprCount]
-  exact reprCount_thirteen
-
-private theorem representationCountAgrees_on_table :
-    ∀ n ∈ ({0, 1, 2, 3, 4, 7, 13} : Finset ℕ),
-      (LatticeSum.repCount n : ℤ) = PowerSeries.coeff n e1Chi3 := by
-  intro n hn
-  rw [repCount_eq_reprCount]
-  exact reprCountEqCoeffE1Chi3_on_table n hn
 
 end FLT.AnalyticCore
 
@@ -3731,22 +2353,6 @@ private theorem reprCountEqCoeffE1Chi3 : ReprCountEqCoeffE1Chi3 :=
   reprCountEqCoeffE1Chi3_of_residuals HexInt.orbitCountMultiplicative_holds
     splitPrimePowCount
 
-private theorem reprCount_seven_of_split : reprCount 7 = 12 :=
-  reprCount_eq_twelve_of_split (by norm_num) (by norm_num)
-
-private theorem reprCount_thirteen_of_split : reprCount 13 = 12 :=
-  reprCount_eq_twelve_of_split (by norm_num) (by norm_num)
-
-private theorem hexForm_two_one : hexForm 2 1 = 7 := by decide
-
-private theorem not_exists_hexForm_eq_two : ¬∃ x y : ℤ, hexForm x y = ((2 : ℕ) : ℤ) := by
-  rintro ⟨x, y, hxy⟩
-  have hmem : ((x : ℤ), (y : ℤ)) ∈ reprSols 2 := mem_reprSols_iff.mpr hxy
-  have h2 : (reprSols 2).card = 0 := reprCount_two
-  rw [Finset.card_eq_zero] at h2
-  rw [h2] at hmem
-  exact absurd hmem (Finset.notMem_empty _)
-
 end FLT.AnalyticCore
 
 end File_FLT_AnalyticCore_SplitPrimePowCount
@@ -3762,46 +2368,74 @@ namespace AnalyticCore
 
 noncomputable section
 
-private theorem representationCountAgrees : RepresentationCountAgrees :=
+theorem representationCountAgrees : RepresentationCountAgrees :=
   representationCountAgrees_of_reprCountEqCoeffE1Chi3 reprCountEqCoeffE1Chi3
 
-private theorem e1Chi3IsModular : E1Chi3IsModular :=
+theorem e1Chi3IsModular : E1Chi3IsModular :=
   e1Chi3IsModular_of_repCount representationCountAgrees
 
-private def e1Chi3ModularForm : ModularForm (Gamma1 3) 1 :=
-  e1Chi3IsModular.choose
+/-! ### The theta form on `Γ₁(3)` and its Fricke involution
 
-private theorem e1Chi3ModularForm_apply (z : UpperHalfPlane) :
-    e1Chi3ModularForm z = ∑' n : ℕ,
-      ((PowerSeries.coeff n e1Chi3 : ℤ) : ℂ) *
-        Complex.exp (2 * (Real.pi : ℂ) * Complex.I * (n : ℂ) * (z : ℂ)) :=
-  e1Chi3IsModular.choose_spec z
+The residual of the pinned `S_ModularForm_exists_weight_one_gamma1_three_slash_fricke_eq_smul.lean`.
+Everything else in that `S_` file is the theta/lattice-sum development already here (or in
+`Analysis/Theta/HexagonalLattice.lean`), so only these declarations are new. -/
 
-private theorem e1Chi3ModularForm_eq_latticeSum (z : UpperHalfPlane) :
-    e1Chi3ModularForm z = latticeSum z := by
-  rw [e1Chi3ModularForm_apply]
-  exact (latticeSum_eq_e1Chi3_qSeries representationCountAgrees z).symm
+open Matrix Subgroup UpperHalfPlane
+open scoped MatrixGroups ModularForm
 
-private theorem e1Chi3ModularForm_ne_zero : e1Chi3ModularForm ≠ 0 := by
-  intro h
-  have hpt : e1Chi3ModularForm ⟨frickeFixedPoint, frickeFixedPoint_im_pos⟩ = 0 := by
-    rw [h]; rfl
-  rw [e1Chi3ModularForm_eq_latticeSum, latticeSum_eq_hexTheta] at hpt
-  exact hexTheta_frickeFixedPoint_ne_zero hpt
+private def thetaForm : ModularForm (Gamma1 3) 1 :=
+  { slashInvariantForm_of_T_U hexThetaH hexThetaH_slash_T hexThetaH_slash_U with
+    holo' := mdifferentiable_hexThetaH
+    bdd_at_cusps' := fun {c} hc => hexThetaH_isBoundedAt_cusp c hc }
 
-private def mulE1Chi3 (g : CuspForm (Gamma1 3) 1) : CuspForm (Gamma1 3) 2 :=
-  CuspForm.mcast (by norm_num) (g.mulModularForm e1Chi3ModularForm)
+@[simp] private lemma coe_thetaForm : (⇑thetaForm : ℍ → ℂ) = hexThetaH := rfl
 
-private theorem mulE1Chi3_apply (g : CuspForm (Gamma1 3) 1) (z : UpperHalfPlane) :
-    mulE1Chi3 g z = g z * e1Chi3ModularForm z :=
-  rfl
+private lemma one_mem_strictPeriods_Gamma1_three :
+    (1 : ℝ) ∈ ((Gamma1 3 : Subgroup SL(2, ℤ)) : Subgroup (GL (Fin 2) ℝ)).strictPeriods := by
+  rw [CongruenceSubgroup.strictPeriods_Gamma1]
+  exact AddSubgroup.mem_zmultiples _
 
-private theorem exists_cuspForm_two_mul_e1Chi3 (g : CuspForm (Gamma1 3) 1) :
-    ∃ h : CuspForm (Gamma1 3) 2, ∀ z : UpperHalfPlane,
-      h z = g z * ∑' n : ℕ,
-        ((PowerSeries.coeff n e1Chi3 : ℤ) : ℂ) *
-          Complex.exp (2 * (Real.pi : ℂ) * Complex.I * (n : ℂ) * (z : ℂ)) :=
-  ⟨mulE1Chi3 g, fun z => by rw [mulE1Chi3_apply, e1Chi3ModularForm_apply]⟩
+private lemma qExpansion_coeff_thetaForm (n : ℕ) :
+    (qExpansion 1 (⇑thetaForm : ℍ → ℂ)).coeff n = (repCount n : ℂ) := by
+  symm
+  refine ModularFormClass.qExpansion_coeff_unique (c := fun n => (repCount n : ℂ)) one_pos
+    one_mem_strictPeriods_Gamma1_three (f := thetaForm) (fun τ => ?_) n
+  have hτ : 0 < (τ : ℂ).im := by rw [UpperHalfPlane.coe_im]; exact τ.im_pos
+  have h := hasSum_repCount_qpow hτ
+  rw [coe_thetaForm, hexThetaH_apply]
+  convert h using 1
+  funext m
+  rw [smul_eq_mul, Function.Periodic.qParam, ← Complex.exp_nat_mul]
+  congr 1
+  push_cast
+  ring_nf
+
+private lemma thetaForm_slash_fricke (W : GL (Fin 2) ℝ)
+    (hW : (W : Matrix (Fin 2) (Fin 2) ℝ) = !![(0 : ℝ), -1; 3, 0]) :
+    (⇑thetaForm : ℍ → ℂ) ∣[(1 : ℤ)] W = (-Complex.I / (Real.sqrt 3 : ℂ)) • (⇑thetaForm : ℍ → ℂ) := by
+  funext τ
+  have hdet : (W.det : ℝ) = 3 := by
+    rw [Matrix.GeneralLinearGroup.val_det_apply, hW, Matrix.det_fin_two_of]
+    norm_num
+  have hdetpos : 0 < (W.det : ℝ) := by rw [hdet]; norm_num
+  have hτ : 0 < (τ : ℂ).im := by rw [UpperHalfPlane.coe_im]; exact τ.im_pos
+  have hτ0 : (τ : ℂ) ≠ 0 := ne_zero_of_im_pos hτ
+  rw [ModularForm.slash_apply, Pi.smul_apply, smul_eq_mul]
+  have hσ : σ W = ContinuousAlgEquiv.refl ℝ ℂ := by rw [σ, ite_eq_left hdetpos]
+  have hsm : ((W • τ : ℍ) : ℂ) = -1 / (3 * (τ : ℂ)) := by
+    rw [coe_smul_of_det_pos hdetpos]
+    simp [num, denom, hW]
+  have hden : denom W τ = 3 * (τ : ℂ) := by simp [denom, hW]
+  rw [hσ, ContinuousAlgEquiv.refl_apply, hdet, coe_thetaForm, hexThetaH_eq_hexTheta,
+    hexThetaH_eq_hexTheta, hsm, hexTheta_fricke hτ, hden]
+  have hs0 : ((Real.sqrt 3 : ℝ) : ℂ) ≠ 0 := sqrt_three_ne_zero
+  have hs3 : ((Real.sqrt 3 : ℝ) : ℂ) ^ 2 = 3 := by
+    rw [← Complex.ofReal_pow, Real.sq_sqrt (by norm_num)]
+    push_cast
+    rfl
+  rw [sub_self, zpow_zero, mul_one, _root_.zpow_neg, zpow_one]
+  field_simp
+  linear_combination (-hexTheta (τ : ℂ)) * hs3
 
 end
 
@@ -3809,14 +2443,47 @@ end FLT.AnalyticCore
 
 end File_FLT_AnalyticCore_E1Chi3Modular
 
-
 /-- **SET-6 order 2.** The weight-one `χ₋₃` Eisenstein series `e1Chi3` is the
 `q`-expansion of a modular form on `Γ₁(3)`. -/
 theorem EisensteinWeightOne.e1Chi3IsModular : EisensteinWeightOne.E1Chi3IsModular :=
   FLT.AnalyticCore.e1Chi3IsModular
 
+/-- **The `q`-series of `e1Chi3` is the `A₂` theta series.** Stated verbatim from
+`Theorems/Thm_EisensteinWeightOne_tsum_coeff_e1Chi3_mul_exp_eq_tsum_exp_hexagonal.lean`.
 
+No `S_` text is transcribed for this headline. `latticeSum` is already both the `e1Chi3`
+`q`-series (`latticeSum_eq_e1Chi3_qSeries`, applied at the half-plane point `⟨σ, hσ⟩`) and the
+hexagonal theta series (`latticeSum_eq_hexTheta`); the identity is those two halves composed. -/
+theorem EisensteinWeightOne.tsum_coeff_e1Chi3_mul_exp_eq_tsum_exp_hexagonal (σ : ℂ) (hσ : 0 < σ.im) :
+    (∑' n : ℕ, ((PowerSeries.coeff n EisensteinWeightOne.e1Chi3 : ℤ) : ℂ) *
+        Complex.exp (2 * (Real.pi : ℂ) * Complex.I * (n : ℂ) * σ)) =
+      ∑' p : ℤ × ℤ, Complex.exp (2 * (Real.pi : ℂ) * Complex.I * σ *
+        ((p.1 : ℂ) ^ 2 + (p.1 : ℂ) * (p.2 : ℂ) + (p.2 : ℂ) ^ 2)) := by
+  rw [← FLT.AnalyticCore.LatticeSum.latticeSum_eq_e1Chi3_qSeries
+        FLT.AnalyticCore.representationCountAgrees ⟨σ, hσ⟩,
+      FLT.AnalyticCore.latticeSum_eq_hexTheta]
+  rfl
 
+open scoped MatrixGroups ModularForm
 
-
-
+/-- **A weight-one form on `Γ₁(3)` with the Fricke involution.** Stated verbatim from
+`Theorems/Thm_ModularForm_exists_weight_one_gamma1_three_slash_fricke_eq_smul.lean`; the
+theta/lattice-sum development of that `S_` file is already in this module, so only this
+packaging is added. -/
+theorem ModularForm.exists_weight_one_gamma1_three_slash_fricke_eq_smul :
+    ∃ g : ModularForm (CongruenceSubgroup.Gamma1 3 : Subgroup (GL (Fin 2) ℝ)) 1,
+      (∀ n : ℕ, ∃ r : ℚ, (UpperHalfPlane.qExpansion 1 g).coeff n = (r : ℂ)) ∧
+      (UpperHalfPlane.qExpansion 1 g).coeff 0 = 1 ∧
+      ∀ W : GL (Fin 2) ℝ, (W : Matrix (Fin 2) (Fin 2) ℝ) = !![(0 : ℝ), -1; 3, 0] →
+        (⇑g : UpperHalfPlane → ℂ) ∣[(1 : ℤ)] W =
+          (-Complex.I / (Real.sqrt 3 : ℂ)) • (⇑g : UpperHalfPlane → ℂ) := by
+  refine ⟨FLT.AnalyticCore.thetaForm,
+    fun n => ⟨(FLT.AnalyticCore.LatticeSum.repCount n : ℚ), ?_⟩, ?_,
+    fun W hW => FLT.AnalyticCore.thetaForm_slash_fricke W hW⟩
+  · rw [FLT.AnalyticCore.qExpansion_coeff_thetaForm]
+    push_cast
+    rfl
+  · rw [FLT.AnalyticCore.qExpansion_coeff_thetaForm,
+      FLT.AnalyticCore.LatticeSum.repCount_zero]
+    push_cast
+    rfl
