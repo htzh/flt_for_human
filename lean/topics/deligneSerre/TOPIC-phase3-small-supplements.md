@@ -1,10 +1,24 @@
-# Phase 3 — the genuinely small mathlib-shaped families (recorded, **not scheduled**)
+# Phase 3 — the genuinely small mathlib-shaped families (partly dispatched)
 
-**Status: recorded 2026-10-20, not dispatched.** The column stopped cutting this front after WORKORDER-MG3's
+**Status: recorded 2026-10-20, and its two smallest families landed the same day.** The column
+stopped cutting this front after WORKORDER-MG3's
 phase 2 ([logs/ds-leaf-families-wave2.md](../logs/ds-leaf-families-wave2.md)), and this note is
 the re-scoped cut that phase 2 failed to be: the survivors of the four tests written in
 [TOPIC-ds-leaf-families.md](TOPIC-ds-leaf-families.md) §8. It exists so the next session starts
 from a cut that meets the criterion instead of rediscovering it.
+
+**Dispatched and landed 2026-10-20: `PowerSeries` and `Module.End`** — the note priced those two
+families at **5 nodes / 522 lines** and the demand actually held **8 / 1,724**: the three rows it
+missed are 1,202 of the 1,724 lines (the 466-line `sl₂`-string node, the 305-line multiplicity-one
+node and the 431-line saturated-lattice node). They landed as five modules / 66 statement-checked
+declarations, checker **3,539 → 3,605 ok / 135 → 140 modules**, and the D-S demand fell
+**1,256 → 1,248 nodes / 478,516 → 476,792 raw `S_` lines** — the frontier's `Module.` and
+`PowerSeries.` namespace rows are now empty. Orders:
+[WORKORDER-PH3A-module-end-eigenspace.md](WORKORDER-PH3A-module-end-eigenspace.md),
+[WORKORDER-PH3B-powerseries-coefficients.md](WORKORDER-PH3B-powerseries-coefficients.md); record:
+[logs/phase3-module-end-and-powerseries.md](../logs/phase3-module-end-and-powerseries.md). The
+rest of this note is the pricing as it was written; when the remaining families are cut, **recount
+each row from the frontier first** — that advice is §4's caveat and this landing is its proof.
 
 ## 0. Where the "about 1,000 lines" tail went (it is done)
 
@@ -56,9 +70,11 @@ new lines** and **≈320 wired declarations** (283 publics + 37 wrapper headline
 | `Representation` (compact-group representations) — **landed 2026-10-20** as five mathlib-shaped modules (`RepresentationTheory/{Burnside,InvariantPairing,CompactGroup,SubrepresentationExtension}.lean`, `LinearAlgebra/Matrix/SubfieldBasis.lean`): 21 wired, 0 mismatch/0 missing, record [logs/representation-leaves.md](../../logs/representation-leaves.md) | 4 (+1 over-threshold basis node) | 659 | 21 | 5 modules |
 | `Algebra` (norms, integral closure of a simple adjoin) | 5 | 349 | 13 | 1 module |
 | `ContinuousLinearMap` (integral-representation of operators) | 3 | 328 | 20 | 1 module |
-| `PowerSeries` (coefficient/subring criteria) | 3 | 265 | 11 | 1 module |
-| `Module.End` (eigenspace/divisor-string lemmas) | 2 | 257 | 5 | 1 module |
-| **total** | **37** | **3,641** | **283** | **~8–10 modules** |
+| `PowerSeries` (coefficient/subring criteria) — **landed 2026-10-20**, repriced: 4 nodes / 696 lines / 15 publics, three modules `RingTheory/PowerSeries/{Saturation,GaloisDescent,CoeffMem}.lean`, +15 wired; record [logs/phase3-module-end-and-powerseries.md](../logs/phase3-module-end-and-powerseries.md) | ~~3~~ **4** | ~~265~~ **696** | ~~11~~ **15** | 3 modules |
+| `Module.End` (eigenspace/divisor-string lemmas) — **landed 2026-10-20**, repriced: 4 nodes / 1,028 lines / 51 publics, two modules `LinearAlgebra/Eigenspace/{Sl2Strings,MultiplicityOne}.lean`, +51 wired; same record | ~~2~~ **4** | ~~257~~ **1,028** | ~~5~~ **51** | 2 modules |
+| **total** | **40** | **4,843** | **302** | **~13 modules** |
+
+The row sums never matched the old total — the seven rows summed to 3,932 against a stated 3,641, 291 lines unaccounted — so the figure above is the row sum with the two repriced rows. Striking the twelve landed nodes (`Representation` 4, `PowerSeries` 4, `Module.End` 4), **28 nodes / 2,460 lines / 215 publics of this cut remain**: `MeasureTheory` 13 / 1,336, `ValuationSubring` 7 / 738, `Algebra` 5 / 349, `ContinuousLinearMap` 3 / 328, plus the seven excluded-but-adjacent `ValuationSubring` rows of §3 (1,155).
 
 ## 2. The nodes
 

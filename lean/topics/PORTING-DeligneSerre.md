@@ -13,8 +13,10 @@ The checker is **`spec/check_port.py` alone**, one module at a time, wired by th
 `spec-pin:` header (§6). The statement parser itself is **`spec/lean_parser.py`** (2026-10-20):
 the checker, the corpus builder and the `tools/deps` planning tools import it directly, and the
 frozen `old_check_stmts.py` imports it rather than owning it; the extraction also fixed the
-`end A.B` namespace-stack bug (FR-0035). On 2026-10-20 it reads **3506 ok, 0 mismatched, 0 missing, 11 own, 0 kw
-over 129 wired modules** (582 `PORT_FILES` modules exempt; corpus `aa2d8b3`). `spec/old_check_stmts.py`
+`end A.B` namespace-stack bug (FR-0035). On 2026-10-20, after this column's latest five modules
+(§1, WORKORDER-PH3A/PH3B), it reads **3605 ok, 0 mismatched, 0 missing, 11 own, 0 kw over 140
+wired modules** (582 `PORT_FILES` modules exempt; corpus `aa2d8b3`) — a whole-tree figure, so it
+also carries the other columns' landings since the 3506 checkpoint. `spec/old_check_stmts.py`
 is the grandfathered registry and is **not run as a gate**; its last reading, before the handoff,
 was 10473 identical (774 promoted, 83 renamed), 0 mismatched, 0 missing, 42 own-proof exemptions
 (10809 checked). Declaration-level exceptions live in `spec/decl_markers.tsv`, never in the Lean
@@ -395,6 +397,30 @@ namespace and were not touched). Checker **+10** (3496 → **3506** over 130 mod
 `UpperHalfPlane` demand row is gone and the D-S demand reads **1,258 nodes / 480,148 raw `S_`
 lines**. Record: [logs/hecke-fricke-trace.md](../logs/hecke-fricke-trace.md).
 
+**The `Module.End` and `PowerSeries` leaf families then closed the two smallest rows of the
+`--ds` frontier (2026-10-20).** They are the frontier's `Module.` (4 nodes / 1,028 lines) and
+`PowerSeries.` (4 / 696) namespace rows — eight graph leaves, all `needed 1`, all importing
+mathlib plus the pin's `P2M.Util` and nothing else, so **no definition gate, no substitution, no
+shared prelude**. Ported as **five modules, 1,980 lines, 66 statement-checked declarations**:
+`LinearAlgebra/Eigenspace/Sl2Strings.lean` (22) and `…/MultiplicityOne.lean` (29), and
+`RingTheory/PowerSeries/{Saturation,GaloisDescent,CoeffMem}.lean` (7 / 6 / 2). Checker **3,539 →
+3,605 ok over 135 → 140 modules**, 0 mismatch / 0 missing / 11 own / 0 kw; tier-1 builds 2,311 /
+2,065 / 2,042 / 2,069 / 1,448 jobs at 6.5 / 8.3 / 14.1 / 8.1 / 4.9 s, **0 warnings**; all eight
+headlines' axioms `[propext, Classical.choice, Quot.sound]`. The set is the homing standard
+([TOPIC-mathlib-module-homing.md](TOPIC-mathlib-module-homing.md) §3) applied with nothing left to
+decide: every statement is about `Module.End` or `PowerSeries`, both are mathlib's object
+namespaces, and both are also the right subject paths (`LinearAlgebra/Eigenspace/` is where
+mathlib files endomorphism-eigenspace structure, `RingTheory/PowerSeries/` its power-series
+theory), so **no headline was renamed** and only the pin's inner labels (`Ws26`, `ALG`,
+`DivisorStringWs41`, `M7`, `SaturationLemma`, `A2GaloisDescentPS`) were folded into descriptive
+sub-namespaces. The four `PowerSeries` files' bare `import Mathlib` (86 s of olean loading) became
+4 / 7 / 15 named imports (5–8 s), which is the set's reusable output; forty drift sites, all
+deprecation renames, `haveI`→`have` and section-variable `omit`s, no proof re-routed. The D-S
+demand falls **1,256 → 1,248 nodes / 478,516 → 476,792 raw `S_` lines** and the leaf shelf **366 →
+358**. Records: [logs/phase3-module-end-and-powerseries.md](../logs/phase3-module-end-and-powerseries.md);
+orders: [deligneSerre/WORKORDER-PH3A-module-end-eigenspace.md](deligneSerre/WORKORDER-PH3A-module-end-eigenspace.md),
+[deligneSerre/WORKORDER-PH3B-powerseries-coefficients.md](deligneSerre/WORKORDER-PH3B-powerseries-coefficients.md).
+
 For the landings above that wired into the frozen checker's lists, each delta is exactly its new
 public surface, 0 mismatched / 0 missing; the `localParam` landing has no such delta (§6). Since
 the 2026-10-19–20 handoff the column verifies with `spec/check_port.py` instead (§6), and a
@@ -526,7 +552,14 @@ Companions:
   [logs/ds-leaf-families-wave2.md](../logs/ds-leaf-families-wave2.md). The re-scoped cut that
   the criterion actually admits — 37 nodes / 3,641 lines / 7 families, all ready and gate-free — is
   [deligneSerre/TOPIC-phase3-small-supplements.md](deligneSerre/TOPIC-phase3-small-supplements.md),
-  recorded but **not scheduled**.
+  whose two smallest families (`PowerSeries`, `Module.End`) landed 2026-10-20 as five modules and
+  66 statement-checked declarations: orders
+  [deligneSerre/WORKORDER-PH3A-module-end-eigenspace.md](deligneSerre/WORKORDER-PH3A-module-end-eigenspace.md)
+  and
+  [deligneSerre/WORKORDER-PH3B-powerseries-coefficients.md](deligneSerre/WORKORDER-PH3B-powerseries-coefficients.md),
+  record [logs/phase3-module-end-and-powerseries.md](../logs/phase3-module-end-and-powerseries.md).
+  The note repriced those two families from 5 nodes / 522 lines to **8 / 1,724** — the three rows it
+  had missed are 1,202 of the 1,724 lines.
 - The **mathlib-first check for supplements, and the survey behind it** — first the habit (name /
   concept / statement `rg` over mathlib `v4.34.0`, with the three traps: trailing-name collisions, a
   more general mathlib lemma, a pin `import Mathlib` hiding the library), then the one-off study of the
@@ -863,7 +896,10 @@ archimedean type-span leaf
 landed 2026-10-20 (§1, WORKORDER-ATS); the leaf shelf drops 445 → **444** candidates and its head
 moves to `HeckeIntegralSeam.exists_isHeckeCosetSystem_localRep_heckeGen` (807). The leaf's own
 successor `AutomorphicForm.finiteDimensional_span_translates_of_mem_archCutSubmodule` (184) is now
-on the `--ready` shelf — the same principle at the whole cut, and the next cut of the family.
+on the `--ready` shelf — the same principle at the whole cut, and the next cut of the family. The
+standing count after the same day's later landings is **358** candidates (§1, WORKORDER-PH3A/PH3B:
+`Module.End` and `PowerSeries`, five modules, 66 declarations, which emptied those two namespace
+rows of the demand).
 
 **The leaf shelf's next two rows were the `Matrix.` pair, and they have landed** (§1, WORKORDER-MG1):
 the shelf reads **442 → 440** and loses 1,550 raw lines, and the `Matrix.`-namespace demand goes
@@ -1270,6 +1306,22 @@ The **factorization** node (the global counterpart: `∏ᶠ` integral = Euler `�
 ([logs/eisenstein-factorization.md](../logs/eisenstein-factorization.md)); its successor
 `EisensteinGeneral.Factorization.inv_measure_adelicBox_mul_fourierIntegral_tensor_eq` (185 pin
 lines) needs two unported `NumberField` rows (420 raw `S_` lines) before it is ready.
+
+**The `Module.End` and `PowerSeries` families left four near-ready successors and emptied two
+frontier rows.** Measured with `frontier.py --target` before and after the landing (§1, WORKORDER-
+PH3A/PH3B): the archimedean string-basis consumer
+`AutomorphicForm.exists_su2Strings_of_finiteDimensional_of_isArchSmoothAtComplex` drops **4 nodes /
+2,530 lines → 3 / 2,064** (it now lacks three `AutomorphicForm` nodes and nothing else); the
+**Gauss regular-prolongation row**
+`ModularCurve.exists_regularProlongation_laurentBaseChange_qExpFunctionFieldC` drops **2 / 1,284 →
+1 / 853**, and its two `_residue` siblings are reached through the same node;
+`ModularCurve.exists_sum_smul_eq_of_qExpansion_coeff_mem` drops **2 / 116 → 1 / 78**;
+`ModularCurve.exists_slash_fricke_eq_sum_smul_of_ratCast_qExpansion` **5 / 2,977 → 4 / 2,791** and
+`ModularForm.qExpansion_slash_coeff_mem_of_peaked_auxiliary` **6 / 1,617 → 5 / 1,576**. The
+multiplicity-one consumer `CuspForm.nonempty_basis_fin_one_gammaH_and_finrank_eigenspace_eq_one`
+is still 51 nodes out and stays banked. The frontier's `Module.` and `PowerSeries.` namespace rows
+are gone; the leaf shelf reads **358** candidates and the demand **1,248 nodes / 476,792 raw `S_`
+lines**.
 
 **Deferred to its own order** is the C2 row
 `ModularCurve.exists_sum_smul_eq_of_isIntegralQExp_gamma1`. Its one substantive step is the
