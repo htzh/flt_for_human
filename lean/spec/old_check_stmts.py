@@ -4123,11 +4123,11 @@ PORT_FILES = [
     # Appended last so no earlier last-name match can flip.
     "FLTForHuman/AlgebraicCurve/Place/DegreeOne.lean",
     "FLTForHuman/ModularCurve/Degree/PlaceDegree.lean",
-    # --- X1's `FunctionField` vocabulary and the `jqModC` ratio ---
-    # `intSeriesC`/`intFormRatiosC`/`mem_intFormRatiosC` are the pin's
-    # `Def_ModularCurve_X1.lean` `FunctionField` block; `jqModC_mem_intFormRatiosC`
-    # is its `Them_` wrapper. Appended last so no earlier last-name match can flip.
-    "FLTForHuman/ModularCurve/JqIntegralRatios.lean",
+    # --- (removed) X1's `FunctionField` vocabulary and the `jqModC` ratio ---
+    # `FLTForHuman/ModularCurve/JqIntegralRatios.lean` used to sit here. It now
+    # carries its own `spec-pin:` lines (the `Def_ModularCurve_X1` block, the
+    # `jqModC` ratio `S_`/`Thm_` pair and the `E₄³/Δ` identity pair) and is
+    # verified by `spec/check_port.py` — `23 ok / 0 mismatch / 0 missing`.
     # The bar-embedded `j(q)`'s transcendence (a leaf module: `PhiDegree` +
     # `LaurentGlue` + `QAdicPlace`). Appended last so no earlier match can flip.
     "FLTForHuman/ModularCurve/Degree/TranscendentalCoeffEmb.lean",

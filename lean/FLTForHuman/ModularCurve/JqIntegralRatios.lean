@@ -20,6 +20,16 @@
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_jqModC_mem_intFormRatiosC.lean
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_jqModC_mem_intFormRatiosC.lean
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_X1.lean
+
+  Wired here, not in the frozen registry: this module's own `spec-pin:` lines below
+  replaced its `PORT_FILES` entry (`spec/old_check_stmts.py`), so
+  `spec/check_port.py` diffs every public declaration against the four pin files.
+
+spec-pin: Theorems/Thm_ModularCurve_jqModC_mem_intFormRatiosC.lean
+spec-pin: P2M/Sol/S_ModularCurve_jqModC_mem_intFormRatiosC.lean
+spec-pin: Theorems/Thm_ModularCurve_jqModC_eq_qExpansion_E4_cube_div_discriminant.lean
+spec-pin: P2M/Sol/S_ModularCurve_jqModC_eq_qExpansion_E4_cube_div_discriminant.lean
+spec-pin: Definitions/Def_ModularCurve_X1.lean
 -/
 import FLTForHuman.ModularForms.WeightOne.Gamma0Integral
 import FLTForHuman.ModularCurve.Defs.JqCoeff
@@ -104,32 +114,35 @@ theorem div_mem_qExpFunctionFieldC {k : ℤ} (f g : ModularForm (Γ : Subgroup (
 
 /-! ## `jqModC` as such a ratio
 
-The pin's `JqMemRatios` block. Every helper is `private` in its `S_` file, so the
-port transcribes them `private`; only the headline is public. -/
+The pin's `JqMemRatios` block. The pin keeps every helper but the headline
+`private`; the port transcribed them the same way, and they are **promoted public**
+here because the `RelIndex` set (`topics/modularCurve/TOPIC-relIndex-relrank.md`)
+is a second consumer of the same mathematics and its `LevelOne` block is the
+`ℂ`-instance of it. Promotion is an exposure, not a copy: no proof moved. -/
 
 theorem isIntegralQExp_E4 : IsIntegralQExp (E₄ : ℍ → ℂ) eisenstein4 := by
   rw [IsIntegralQExp]
   exact qExpansion_E4_eq_map_eisenstein4.symm
 
-private def e4cube : ModularForm (Γ : Subgroup (GL (Fin 2) ℝ)) 12 :=
+def e4cube : ModularForm (Γ : Subgroup (GL (Fin 2) ℝ)) 12 :=
   restrictForm (Subgroup.map_le_range _ Γ) ((E₄.pow 3).mcast (by norm_num))
 
-private def delta : ModularForm (Γ : Subgroup (GL (Fin 2) ℝ)) 12 :=
+def delta : ModularForm (Γ : Subgroup (GL (Fin 2) ℝ)) 12 :=
   restrictForm (Subgroup.map_le_range _ Γ) (CuspForm.discriminant : ModularForm 𝒮ℒ 12)
 
-private theorem isIntegralQExp_e4cube :
+theorem isIntegralQExp_e4cube :
     IsIntegralQExp (e4cube Γ : ℍ → ℂ) (eisenstein4 ^ 3) := by
   rw [IsIntegralQExp, e4cube, coe_restrictForm, map_pow, isIntegralQExp_E4,
     ModularForm.qExpansion_mcast, ModularForm.qExpansion_pow one_pos one_mem_strictPeriods_SL]
 
-private theorem coe_delta : (delta Γ : ℍ → ℂ) = ModularForm.discriminant := rfl
+theorem coe_delta : (delta Γ : ℍ → ℂ) = ModularForm.discriminant := rfl
 
-private theorem isIntegralQExp_delta :
+theorem isIntegralQExp_delta :
     IsIntegralQExp (delta Γ : ℍ → ℂ) (PowerSeries.X * dedekindEtaUnit) := by
   rw [IsIntegralQExp, coe_delta]
   exact qExpansion_discriminant_eq_map_X_mul_dedekindEtaUnit.symm
 
-private theorem intSeriesC_delta_ne_zero :
+theorem intSeriesC_delta_ne_zero :
     intSeriesC K (PowerSeries.X * dedekindEtaUnit) ≠ 0 := by
   intro h
   have h1 := congrArg (fun z : LaurentSeries K => z.coeff 1) h
@@ -143,7 +156,7 @@ private theorem intSeriesC_delta_ne_zero :
   rw [h2] at h1
   exact one_ne_zero h1
 
-private theorem jqModC_mul_delta :
+theorem jqModC_mul_delta :
     jqModC K * intSeriesC K (PowerSeries.X * dedekindEtaUnit) = intSeriesC K (eisenstein4 ^ 3) := by
   rw [jqModC, intSeriesC, intSeriesC, jNum, mul_assoc, ← map_mul, ← map_mul,
     show eisenstein4 ^ 3 * dedekindEtaUnitInv * (PowerSeries.X * dedekindEtaUnit) =
@@ -154,7 +167,7 @@ private theorem jqModC_mul_delta :
     HahnSeries.single_mul_single]
   simp
 
-private theorem jqModC_eq_div :
+theorem jqModC_eq_div :
     jqModC K = intSeriesC K (eisenstein4 ^ 3) / intSeriesC K (PowerSeries.X * dedekindEtaUnit) := by
   rw [eq_div_iff (intSeriesC_delta_ne_zero K), jqModC_mul_delta]
 

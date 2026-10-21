@@ -492,6 +492,36 @@ against the whole port) shows **one** twin added: a two-line `coe_Eaux`, because
 [TOPIC-dedup-refactoring.md](TOPIC-dedup-refactoring.md); the order and reuse map are
 [deligneSerre/WORKORDER-FR1-fricke-reciprocity.md](deligneSerre/WORKORDER-FR1-fricke-reciprocity.md).
 
+**The degeneracy-cover degree then landed as the column's first set whose ground is bigger than
+its bodies (2026-10-21).** The two nodes `ModularCurve.relIndex_gamma0_le_relrank_adjoin_insert_jqNModC`
+(1,214 pin lines, the enough-conjugates side) and `ModularCurve.relrank_adjoin_qExpansion_div_le_relIndex`
+(545, the norm side) are the two halves of
+`[A(Γ∩Γ₀(N)) : A(Γ)] = [Γ : Γ∩Γ₀(N)]`, and they share about a third of their lines, so they were
+taken as one set: **four tier-3 ground modules** — `Analytic/AnalyticAtCusp.lean` (the pin's
+`Nice`/`An1` predicate, 10 declarations), `RelIndex/Hermite.lean` (the Hermite normal form of
+`dMul N γ`, 26), `RelIndex/LevelRaise.lean` (the general `raise`/`twist`/`expU` engine and the
+`hP` block, 26) and `RelIndex/RatioField.lean` (the ℂ ratio field, `common_denominator`, `qC`
+transport, 24) — 848 lines and 86 declarations written and frozen before either body, plus **eight
+promotions** in `JqIntegralRatios.lean` (its `jqModC = E₄³/Δ` block was `private` and *is* the
+`RelIndex` body's `LevelOne`). The bodies are façade modules: `RelIndex/LeRelrank.lean` (690 lines,
+68 declarations, one public headline) and `RelIndex/LeRelIndex.lean` (445, 34, one public). Checker
+**3,805 → 3,830 ok over 148 → 151 modules**, 0 mismatched / 0 missing / 11 own / 0 kw, 580
+`PORT_FILES` exempt (581 before): the +25 is the two headlines (+1 each) and **+23** for
+`JqIntegralRatios`, which in the same round **left `PORT_FILES` and gained its own five
+`spec-pin:` lines** — the column's second registry handoff and the first whose whole public surface
+(including the promotions) is statement-diffed. Two dedup verdicts are worth the record: the port's
+`DiamondLift.IsRatio` is the same ratio-field predicate but carries `[Γ.FiniteIndex]`, which
+neither pin theorem has, so the definition is stated once without instances and `qC` alone is
+imported; and the pin's two spellings (`S`/`SField` in one file, `ratioSet`/`ratioField` in the
+other) are collapsed to one. No wave build was run for any of it — the statement hash is the
+evidence, not a build ([TOPIC-dedup-refactoring.md](TOPIC-dedup-refactoring.md) §4). The receipts
+(name the twins a landing adds) show **6** and **5** same-shape twins, all against node modules
+(`XH/Relrank.lean`, `X1/FunctionField.lean`) rather than subject homes: homing this family's prelude
+means opening one of those modules, so it is recorded, not opened. Records:
+[logs/relindex-relrank.md](../logs/relindex-relrank.md); topic and order:
+[modularCurve/TOPIC-relIndex-relrank.md](modularCurve/TOPIC-relIndex-relrank.md),
+[modularCurve/WORKORDER-RI1-relindex-relrank-pair.md](modularCurve/WORKORDER-RI1-relindex-relrank-pair.md).
+
 For the landings above that wired into the frozen checker's lists, each delta is exactly its new
 public surface, 0 mismatched / 0 missing; the `localParam` landing has no such delta (§6). Since
 the 2026-10-19–20 handoff the column verifies with `spec/check_port.py` instead (§6), and a
@@ -502,9 +532,12 @@ gate + leaf **+94**, the coset-sum append **+15** (14 from the handed-over coset
 1942; the **matrix-group right-finite supplement of §1 is +96** (1942 → 2038 over 56 modules), the
 column's largest wired delta, the **four ready `Matrix.` rows of §1 are +73** (2038 → 2111 over 60
 modules), the **nine small-family pairs of §1 are +323** (2111 → 2434 over 78 modules), **phase 2 of
-the same order is +417** (2434 → **2851** over 107 modules), and **the FR1 set of §1 is +20**
-(18 + 1 + 1; the tree reads 3,805 over 148). The host handoff is also the column's first **deletion** from
-`PORT_FILES` — a migration, not an append (§6). The 9542 → 9569 (+27) step is
+the same order is +417** (2434 → **2851** over 107 modules), **the FR1 set of §1 is +20**
+(18 + 1 + 1; the tree read 3,805 over 148), and **the degeneracy-cover pair of §1 is +25**
+(1 + 1 + 23 — the third module being `JqIntegralRatios`'s new wire; the tree reads **3,830 over
+151**, 580 `PORT_FILES` exempt). The host handoff is also the column's first **deletion** from
+`PORT_FILES` — a migration, not an append (§6) — and the `JqIntegralRatios` handoff is the second,
+the first whose promotions are themselves statement-diffed. The 9542 → 9569 (+27) step is
 the `NumberField.AdelicHeight` definition gate, the manager's own ground for the adelic-modulus
 round
 ([numberTheory/adelicModulus/TOPIC-adelic-modulus.md](numberTheory/adelicModulus/TOPIC-adelic-modulus.md)),

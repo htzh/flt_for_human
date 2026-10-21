@@ -166,6 +166,16 @@ The dedup decision is a **writing** decision, and the reason is the checker's st
    from inside the Fricke module. `own:` is tier 2 and is not diffed — use it for a statement of
    ours, never to silence a promotion.
 
+**A promotion is verified by the hash, not by a build** (user's ruling, 2026-10-21). Removing a
+`private` changes no statement and no proof term, so there is nothing for a build to discover about
+it: the pin declares the same declaration at the same statement, and `spec/check_port.py` matches
+it — the checker reads the pin *including* `private` declarations, which is how the eight promoted
+declarations of `JqIntegralRatios.lean` read `ok` in the same round they were exposed. The wave
+that consumes the promoted module is therefore **not** part of the justification, and building it
+"to be safe" is a habit to drop: statement byte-exactness is the evidence, and a wave costs minutes
+for no information. Build what you are editing; a wave is a session-end milestone, agreed with the
+user.
+
 The corollary, and the column's working rule since 2026-10-20: **the dependent-cascade price is not
 an input to a dedup decision.** The port does not run tree builds; the checker is byte-exact, which
 is where integrity comes from, and a stale unused `.olean` does not weaken a statement diff. The
