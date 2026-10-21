@@ -10,6 +10,17 @@ Deferred API that has been ported and verified is in `Reserve/`, not here.
 
 ## Deferred API
 
+### `Eaux_apply` — a pin-public unfolding lemma with no consumer, deferred from FR1
+
+`Eaux_apply (a b : ℕ) (τ : ℍ) : Eaux a b τ = E₄ τ ^ a * E₆ τ ^ b` is pin-public at
+`S_ModularCurve_exists_qExpansion_slash_fricke_eq_and_conj_eq_slash_gamma0.lean:605`. It is used
+**nowhere** in the pin — a `grep -c` over the whole tree finds the declaration line only — and the
+FR1 module does not need it, so [deligneSerre/WORKORDER-FR1-fricke-reciprocity.md](deligneSerre/WORKORDER-FR1-fricke-reciprocity.md)
+deferred it rather than open `WeightOne/Gamma0Integral.lean` to append one line. If a consumer ever
+appears its home is beside the public `Eaux` in that module (`:1628`), appended at the pin's
+signature with a `pin:` row — the treatment `frickeConj` got. Nothing any pin file uses is missing;
+the entry is here so that a later reader does not mistake the omission for an oversight.
+
 ### `Def_AutomorphicForm_CuspidalSpectrumCarrier` — the carrier definition module behind the deferred centre-cut slab bound
 
 Deferred 2026-10-18 while porting the centre-cut fundamental-domain trio
@@ -509,6 +520,59 @@ The **29 `twin`** hits are *not* on this list: a public declaration elsewhere al
 theorem under another name (the pin's `solution`/`impl` wiring, e.g. `Saturation.main`). Leave them.
 
 ## Open follow-ups
+
+### The `Γ₁` slash/level toolkit has a home; the copies it replaces are still in place
+
+`FLTForHuman/ModularForms/Level/Gamma1Slash.lean` landed 2026-10-20 as the home of the block the
+pin carries as `section Level` of
+`S_ModularCurve_exists_qExpansion_slash_fricke_eq_and_conj_eq_slash_gamma0.lean`: `ΓGL`,
+`restrictF`/`coe_restrictF`, `resLevel`/`coe_resLevel`, `resSL`/`coe_resSL`, `le_conj_of_SL`,
+`slashForm`/`coe_slashForm`, the four property transfers `periodic_slash`,
+`mdifferentiable_slash`, `bdd_slash`, `analyticAt_slash`, and the `Γ₁` facts `T_mem_Gamma1`,
+`one_mem_strictPeriods`, `L_mem_strictPeriods_Gamma`, `Gamma_le_Gamma1` (18 declarations, wired to
+the pin file, checker 18 ok). It is **not** a consolidation: the copies below were left in place,
+because each sits inside a silo that the port transcribed whole and folding them in is a wave of
+its own, to be taken when one of those modules is opened for another reason.
+
+- `restrictF` (`restrictForm` elsewhere): **public** at `ModularCurve/JqIntegralRatios.lean:43`
+  (+ `coe_restrictForm`, `restrictForm_apply`); `private restrictForm` at
+  `WeightOne/Gamma0Integral.lean:1342`; `private restrictMF` at `Level/Degeneracy.lean:44`.
+  Three homes for the same six-line `ModularForm` constructor.
+- `T_mem_Gamma1`: public at `WeightOne/Defs/GammaRational.lean:262`,
+  `Elliptic/PeriodPair/InvariantsTorsion.lean:1119`,
+  `ModularCurve/X1/AtkinLehnerExchange.lean:1241`,
+  `ModularForms/Eisenstein/WeightOneMultiplier.lean:645`; private at
+  `ModularCurve/X1/Inputs.lean:154`, `HeckeEigenNebentypus.lean:120`,
+  `Gamma0Integral.lean:1411`.
+- `one_mem_strictPeriods`: 15 copies, 8 public (`Analytic/NormSqPow.lean:597`,
+  `X1/FunctionField.lean:361`, `XH/DiamondLiftPrelude.lean:79`, `XH/HeckeInputs.lean:179`,
+  `XH/Relrank.lean:205`, `WeightOne/Gamma1Basis.lean:3218` and `:3552`,
+  `PeriodPair/InvariantsTorsion.lean:1123`) and 7 private. Its public home is an L²
+  norm-square module, which is the wrong subject — this is the item most worth folding into
+  the new home.
+- `Gamma_le_Gamma1`: public at `Analytic/NormSqPow.lean:121` and `Defs/GammaRational.lean:272`;
+  private at `Gamma0Integral.lean:1956` and `Gamma1IntegralBasis.lean:120`.
+- `mul_inv_mem_Gamma1`: private at `X1/DiamondAut.lean:122` (the `γ 0 0` variant) and
+  `Gamma0Integral.lean:1457` (the `γ 1 1` variant — the one the pin states).
+- `slash_of_neg_mem`: private at `Gamma0Integral.lean:1747`.
+- `coe_Eaux`: `Gamma0Integral.lean`'s copy is `private`, so `ModularForms/FrickeReciprocity.lean`
+  writes its own two-line copy. That is the FR1 set's **single added twin** in the shape index
+  (`shapes.py` on the landed module: 59 theorem/lemmas, one port twin, `coe_Eaux`); promote the
+  host's copy in the wave that folds this block.
+- `frickeConj`: now public at `ModularForms/HeckeFrickeTrace.lean`
+  (`ALTraceIdentity.frickeConj`, appended 2026-10-20 at the pin's `[NeZero L]` signature, with a
+  `pin:` row in `spec/decl_markers.tsv`). Two private spellings remain —
+  `HeckeFricke.lean:274` (`(p) (g) (hg)`) and `HeckeNebentypusFricke.lean:80` (`(γ) (hγ)` under a
+  section variable). They are the same conjugation in three spellings; unifying them means
+  rewriting `HeckeFricke`'s call sites, which is not worth it for ten lines. Note when folding:
+  the pin's `diagGL (t : ℝ) (ht : 0 < t)` is `Defs/HeckeOperator.heckeDiagMatrix` at a real
+  parameter — if a second consumer ever needs the real form, generalise that hub rather than
+  copy the pin's version again.
+
+The same file also carries **two different `IsRat`s**: public at `Gamma0Integral.lean:1353`
+(`∀ n, ∃ r : ℚ, q.coeff n = (r : ℂ)`, the pin's) and private at `:352`
+(`∃ p : PowerSeries ℚ, p.map (algebraMap ℚ ℂ) = φ`). They are equivalent but not defeq, and a
+consumer that opens the wrong namespace proves against the wrong predicate.
 
 ### The `mapGL` entry lemmas have no library home
 

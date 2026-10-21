@@ -20,3 +20,4 @@ FLTForHuman/Analysis/Fourier/PoissonSummationPi.lean	PiPoissonSummation.periodiz
 FLTForHuman/Analysis/Fourier/PoissonSummationPi.lean	PiPoissonSummation.periodizeLiftFun_toUnitAddTorus	own: binder type named LocSum (defeq); the pin's inline spelling needs >1M hearts in the statement
 FLTForHuman/Analysis/Fourier/PoissonSummationPi.lean	PiPoissonSummation.periodizeLift	own: binder type named LocSum (defeq); the pin's inline spelling needs >1M hearts in the statement
 FLTForHuman/Analysis/Fourier/PoissonSummationPi.lean	PiPoissonSummation.periodizeLift_toUnitAddTorus	own: binder type named LocSum (defeq); the pin's inline spelling needs >1M hearts in the statement
+FLTForHuman/ModularForms/HeckeFrickeTrace.lean	ALTraceIdentity.frickeConj	pin: frickeConj (P2M/Sol/S_ModularCurve_exists_qExpansion_slash_fricke_eq_and_conj_eq_slash_gamma0.lean:108)

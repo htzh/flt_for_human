@@ -30,6 +30,7 @@ import FLTForHuman.ModularForms.Defs.HeckeOperator
 import Mathlib.Analysis.Complex.UpperHalfPlane.Manifold
 import Mathlib.NumberTheory.ModularForms.SlashActions
 import Mathlib.LinearAlgebra.Matrix.SpecialLinearGroup
+import Mathlib.Tactic.LinearCombination
 
 set_option autoImplicit false
 
@@ -59,6 +60,20 @@ theorem coe_frickeGL_smul (M : ℕ) (hM : M ≠ 0) (τ : ℍ) :
     Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.cons_val_fin_one,
     Complex.ofReal_zero, zero_mul, zero_add, Complex.ofReal_neg, Complex.ofReal_one,
     Complex.ofReal_natCast, add_zero]
+
+/-- The Fricke conjugation `γ ↦ F γ F⁻¹` on `SL(2, ℤ)`, landed back in `SL(2, ℤ)` for a
+`γ` whose lower-left entry is divisible by the level.  This is the companion of `frickeGL`
+(the same `F`), and the conjugation the module's `sum_slash_S_mul_T_zpow_mul_S_inv` argument
+conjugates by. -/
+def frickeConj (L : ℕ) [NeZero L] (γ : SL(2, ℤ)) (h : (L : ℤ) ∣ γ 1 0) : SL(2, ℤ) :=
+  ⟨!![γ 1 1, -(γ 1 0 / L); -(L * γ 0 1), γ 0 0], by
+    obtain ⟨c, hc⟩ := h
+    have hc' : (γ 1 0 : ℤ) / L = c := by
+      rw [hc, Int.mul_ediv_cancel_left _ (by exact_mod_cast NeZero.ne L)]
+    rw [Matrix.det_fin_two_of, hc']
+    have := γ.det_coe
+    rw [Matrix.det_fin_two, hc] at this
+    linear_combination this⟩
 
 theorem coe_beta (m : ℤ) :
     ((ModularGroup.S * ModularGroup.T ^ m * ModularGroup.S⁻¹ : SL(2, ℤ)) :

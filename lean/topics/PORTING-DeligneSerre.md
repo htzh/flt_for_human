@@ -13,10 +13,11 @@ The checker is **`spec/check_port.py` alone**, one module at a time, wired by th
 `spec-pin:` header (§6). The statement parser itself is **`spec/lean_parser.py`** (2026-10-20):
 the checker, the corpus builder and the `tools/deps` planning tools import it directly, and the
 frozen `old_check_stmts.py` imports it rather than owning it; the extraction also fixed the
-`end A.B` namespace-stack bug (FR-0035). On 2026-10-20, after this column's latest eight modules
-(§1, WORKORDER-PH3A–PH3D and the phantom-landings refactor), it reads **3718 ok, 0 mismatched, 0
-missing, 11 own, 0 kw over 146 wired modules** (582 `PORT_FILES` modules exempt; corpus `aa2d8b3`) — a whole-tree figure, so it
-also carries the other columns' landings since the 3506 checkpoint. `spec/old_check_stmts.py`
+`end A.B` namespace-stack bug (FR-0035). On 2026-10-20, after the FR1 set (§1), it reads **3805 ok,
+0 mismatched, 0 missing, 11 own, 0 kw over 148 wired modules** (581 `PORT_FILES` modules exempt;
+corpus `aa2d8b3`) — a whole-tree figure, so it also carries the other columns' landings: the FR1 set
+contributes +20 over two new modules (18 + 1 + 1), and everything between that and the previous
+3718-over-146 checkpoint is theirs. `spec/old_check_stmts.py`
 is the grandfathered registry and is **not run as a gate**; its last reading, before the handoff,
 was 10473 identical (774 promoted, 83 renamed), 0 mismatched, 0 missing, 42 own-proof exemptions
 (10809 checked). Declaration-level exceptions live in `spec/decl_markers.tsv`, never in the Lean
@@ -463,6 +464,34 @@ names tier counts private declarations as ported — the demand is understated b
 is in [CARRY-FORWARD.md](../CARRY-FORWARD.md). Record: [logs/phantom-landings.md](../logs/phantom-landings.md);
 the class rule is [TOPIC-mathlib-module-homing.md](TOPIC-mathlib-module-homing.md) §10.
 
+**The Fricke reciprocity of the `q`-expansion then landed as the D-S leaf shelf's `UpperHalfPlane` row
+(WORKORDER-FR1, 2026-10-20), and it is the column's first cut whose subject was a *dedup refactor*,
+not a transcription.** `ModularCurve.exists_qExpansion_slash_fricke_eq_and_conj_eq_slash_gamma0`
+(1,307 pin lines, 94 declarations) is one file of four subjects: the Fricke matrix and its
+level-scaling companions, a `q`-expansion width change, the `Γ₁` slash/level toolkit, and the
+reciprocity proper. The manager took the shared ground first, on the reading that the pin's
+`section Level` is a block of mathematics that the port had already copied `private` into seven
+modules but never homed: `ModularForms/Level/Gamma1Slash.lean` (18 declarations — `ΓGL`,
+`restrictF`, `resLevel`, `resSL`, `le_conj_of_SL`, `slashForm` and the four slash-property transfers
+— at the pin's signatures, checker **18 ok**), and `ALTraceIdentity.frickeConj` appended public to
+the port's Fricke module `ModularForms/HeckeFrickeTrace.lean` at the pin's signature with a `pin:`
+row in `spec/decl_markers.tsv` (**11 ok**, +1). The body followed as one module,
+`ModularForms/FrickeReciprocity.lean` (1,202 lines, 62 `private` declarations and one public
+headline), checker **1 ok / 0 mismatch / 0 missing**, `lake build` 4,136 jobs in 10 s with 0
+warnings, axioms `[propext, Classical.choice, Quot.sound]`. The set's whole wired delta is
+**+20** (18 + 1 + 1) and the tree reads 3,805 ok / 148 modules; the frontier's `--ds` reading of the
+node goes `needed 1 / 1,307` → **`needed 0`, "target is ported"**.
+`port_advise` had reported 17 statement substitutions (12 public, 5 port-`private`), 9
+binder-skeleton relatives and 11 generalise rows; all of the public ones were imported, and two of
+the "new" declarations turned out to be *content* the port already states more generally — the pin's
+34-line `qExpansion_coeff_mul_width` is a one-line application of the port's, and the pin's 123-line
+`Fourier` prelude is that lemma's re-derivation. The receipt (the shape index on the landed module
+against the whole port) shows **one** twin added: a two-line `coe_Eaux`, because the host's copy is
+`private`. One declaration is deferred — `Eaux_apply`, unused anywhere in the pin — and the six
+`Γ₁` copy sites are recorded, not opened. The refactor's standard is
+[TOPIC-dedup-refactoring.md](TOPIC-dedup-refactoring.md); the order and reuse map are
+[deligneSerre/WORKORDER-FR1-fricke-reciprocity.md](deligneSerre/WORKORDER-FR1-fricke-reciprocity.md).
+
 For the landings above that wired into the frozen checker's lists, each delta is exactly its new
 public surface, 0 mismatched / 0 missing; the `localParam` landing has no such delta (§6). Since
 the 2026-10-19–20 handoff the column verifies with `spec/check_port.py` instead (§6), and a
@@ -472,8 +501,9 @@ gate + leaf **+94**, the coset-sum append **+15** (14 from the handed-over coset
 1 headline) and the `_principalLevel` sibling **+11** (the engine imported, not re-proved) of the
 1942; the **matrix-group right-finite supplement of §1 is +96** (1942 → 2038 over 56 modules), the
 column's largest wired delta, the **four ready `Matrix.` rows of §1 are +73** (2038 → 2111 over 60
-modules), the **nine small-family pairs of §1 are +323** (2111 → 2434 over 78 modules), and **phase 2 of
-the same order is +417** (2434 → **2851** over 107 modules). The host handoff is also the column's first **deletion** from
+modules), the **nine small-family pairs of §1 are +323** (2111 → 2434 over 78 modules), **phase 2 of
+the same order is +417** (2434 → **2851** over 107 modules), and **the FR1 set of §1 is +20**
+(18 + 1 + 1; the tree reads 3,805 over 148). The host handoff is also the column's first **deletion** from
 `PORT_FILES` — a migration, not an append (§6). The 9542 → 9569 (+27) step is
 the `NumberField.AdelicHeight` definition gate, the manager's own ground for the adelic-modulus
 round
@@ -489,6 +519,9 @@ Companions:
   — the effort measurement, the subject clusters and the two gates.
 - [porting-playbook.md](../porting-playbook.md) — the rules; §2.1–§2.6 (planning),
   §3.1–§3.7 (execution, sets, the build ladder), §4 (faithfulness), §5 (sharing).
+- [TOPIC-dedup-refactoring.md](TOPIC-dedup-refactoring.md) — the dedup phase of a new cut: what to
+  import, promote, append or write locally against the port that already exists, why copy counts are
+  not the criterion, what the checker's direction makes free, and the FR1 worked example.
 - The q-expansion layer's planning records:
   [functionFieldGeneration/TOPIC-qexp-rationality-degree-head.md](functionFieldGeneration/TOPIC-qexp-rationality-degree-head.md)
   and its successors
@@ -947,7 +980,9 @@ successor `AutomorphicForm.finiteDimensional_span_translates_of_mem_archCutSubmo
 on the `--ready` shelf — the same principle at the whole cut, and the next cut of the family. The
 standing count after the same day's later landings is **348** candidates (§1, WORKORDER-PH3A–PH3D and
 the phantom-landings refactor: `Module.End`, `PowerSeries`, `Algebra` and `CongruenceSubgroup` — ten
-modules, 155 declarations — which emptied four namespace rows of the demand). Caveat, and it is the one
+modules, 155 declarations — which emptied four namespace rows of the demand), and the FR1 set (§1)
+takes the `UpperHalfPlane` Fricke row off it: `frontier.py --ds --target` reads `needed 0 / 0 lines`
+and *"target is ported"*, so one leaf and its 1,307 raw `S_` lines are gone. Caveat, and it is the one
 the next cut must not ignore: `frontier.py` counts `private` declarations as ported, so 23 pin headlines
 the port states only privately are missing from that shelf
 ([CARRY-FORWARD.md](../CARRY-FORWARD.md), homing note §10).
