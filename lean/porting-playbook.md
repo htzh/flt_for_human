@@ -774,8 +774,9 @@ mathlib line" into a work order.
 | old / expected | `v4.34.0` |
 |---|---|
 | `if_pos h`, `if_neg h` | `ite_eq_left h`, `ite_eq_right h` |
-| `dif_neg h` | `dite_eq_right h` |
+| `dif_neg h`, `dif_pos h` | `dite_eq_right h`, `dite_eq_left h` (the four are `@[deprecated]` since 2026-07-21; 14 sites in `RegularProlongationFinrank`) |
 | `Polynomial.finite_setOf_isRoot` | `Polynomial.finite_setOfPred_isRoot` |
+| `Polynomial.finset_sum_coeff` | `Polynomial.finsetSum_coeff` (v4.34 rename; the old name is a `@[deprecated]` alias — `DeuringNormResidue:193`) |
 | `Set.mem_setOf_eq` | `Set.mem_ofPred_eq` |
 | `Affine.Nonsingular x y` | `W.toAffine.Nonsingular x y` (curve explicit) |
 | `Submodule.card_bot` | does not exist — `AddSubgroup.card_bot` |
@@ -812,7 +813,7 @@ mathlib line" into a work order.
 | `⟨dConjMat ℓ γ, ⋯⟩` as an `SL(2, ℤ)` element inside a `Subgroup` membership goal | `Matrix.SpecialLinearGroup` is a semireducible `def` (a `Subtype`) in v4.34, so the anonymous constructor elaborates at `{A // A.det = 1}` and the following `rw [Gamma_mem]` fails with "target expression is not type-correct under the implicit transparency level". Bind it first — `let x : SL(2, ℤ) := ⟨…, h⟩` — then `rw [Gamma_mem]` (or `mem_Lam0`) and `show` the entrywise conjunction; it also removes the pin's `simp only [Matrix.SpecialLinearGroup.coe_mk, …]` blocks |
 | `TensorProduct.induction_on` (with a `| zero =>` branch) | `TensorProduct.inductionOn`, and it has **no `zero` case** — drop the branch (that case is the internal `tmul 0 0`), so the pin's case split loses an arm, not only a name |
 | a `def` structure value whose projections must reduce inside `change`/`rw` (a prolongation built by `⟨…⟩`, then `(gaussProlongation hT A).integers`) | a plain `def` does **not** reduce at `implicit` transparency ("target expression is not type-correct under the implicit transparency level"): declare it an `abbrev`. The `AdeleRing` and `SpecialLinearGroup` rows above are the same class with the other cure — there the value is bound once, here the definition itself must unfold |
-
+| `rw [← hα]` where `hα : IsLocalRing.residue A α = κ` and the term sits under `Algebra.smul` (`RegularProlongationFinrank.mem_of_mem_span`) | `ResidueField A` is a `def` (an `Ideal.Quotient`), so the rewrite installs the *quotient* spelling of the scalar, and `SMul (A ⧸ maximalIdeal A) Fbar` only resolves at default transparency → "target expression is not type-correct under the implicit transparency level". Keep the scalar syntactic: `have hα' : IsLocalRing.residue A α = κ := hα`, then `rw […, hα', Algebra.smul_def]` |
 | `Submodule.linearProjOfIsCompl` (+ `_apply_left`/`_apply_right`/`_range`, `IsCompl.projection*`) | `@[deprecated (since := "2026-05-04")]` aliases of `Submodule.projectionOnto` / `projection` / `projection_apply_left` / `projection_range` — use the new family; the substitution is proof-side only, the pin's statements stay verbatim (`ArchCutProjector.projCA*`) |
 
 The recurring *shapes*, beyond a rename:
