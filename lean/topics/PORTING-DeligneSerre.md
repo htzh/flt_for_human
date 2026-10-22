@@ -552,6 +552,59 @@ reading until a consumer failed to import it). Records:
 [modularCurve/TOPIC-hecke-compositum.md](modularCurve/TOPIC-hecke-compositum.md),
 [modularCurve/WORKORDER-RI2-hecke-compositum.md](modularCurve/WORKORDER-RI2-hecke-compositum.md).
 
+**The q-expansion definition layer was then re-homed, before the next set was cut (2026-10-21) — a
+refactor, no new mathematics.** Three placement defects, all one story: the pin's
+`Definitions/Def_ModularCurve_X1.lean` (218 lines, 35 declarations) was never homed whole, so
+`ModularCurve.IsIntegralQExp` — three lines over mathlib's `UpperHalfPlane.qExpansion` — sat at the
+head of the 2,245-line analytic `WeightOne/Gamma0Integral.lean`, and the pin's `Restrict` +
+`FunctionField` blocks (`restrictForm`, `intSeriesC`, `intFormRatiosC`, `qExpFunctionFieldC`,
+`div_mem_qExpFunctionFieldC`) sat inside the *node* module `JqIntegralRatios.lean`, forcing
+`X1/Defs.lean` to import a node to reach its own definition layer. The predicate moved to its pin
+block at `ModularCurve/X1/Integral.lean` (now mathlib-only), the blocks moved into
+`ModularCurve/X1/Defs.lean` (26 of the pin module's 35 declarations; the 3 `JOne.torsionGaloisRep`
+ones stay deferred on the unported `Pic0` torsion action), and `JqIntegralRatios` is now what its
+name and wire say. Measured on `port_graph.json`: **63 → 40** modules reach the weight-one blob —
+23 lightened, the whole lower q-expansion layer. `X1/FunctionField.lean` was the one consumer that
+broke, on two **mathlib** `LevelOne` facts it had been inheriting through that edge; it now imports
+them. Four modules left the frozen registry for their own `spec-pin:` wires (`X1/Defs` 26 ok,
+`X1/Integral` 6, `Gamma0Integral` 19, `X1/FunctionField` 78, the last with three `pin:` rows), the
+tree reads **4,023 ok / 0 mismatched / 0 missing / 11 own / 0 kw over 159 modules, 573 `PORT_FILES`
+exempt** (577 before), the frozen registry reads 8,684 identical with 0 mismatched / 0 missing, the
+23-module wave builds green, and no statement moved. The same round settled
+`one_mem_strictPeriods`: the fact is mathlib's (`strictPeriods_eq_zmultiples_one_of_T_mem`, and
+`@[simp] strictPeriods_Gamma0`/`strictPeriods_Gamma1`), so it is a `simp` at the call site, never a
+port lemma — `Gamma0Integral`'s private copy became `by simp` and its `T_mem_Gamma1` helper died with
+it; the 37 remaining copies are 95 proof lines of mostly one-liners, taken when their modules are
+next opened. Record: [logs/qexp-definition-layer-homes.md](../logs/qexp-definition-layer-homes.md).
+
+**The Gauss regular prolongation then landed on that ground (WORKORDER-RP1, 2026-10-21).** The three
+ready nodes — `ModularCurve.exists_regularProlongation_laurentBaseChange_qExpFunctionFieldC` (853
+`S_` lines) and its `_residue_div` / `_residue_mul_eq` siblings (875 each; the pin writes one
+development three times, byte-identical through line 815) — are **one module, 739 lines, 3 public
+headlines and 50 `private` engine declarations**, +3 statements: the Deuring/Gauss regular
+prolongation of the valuation of `laurentBaseChange L (qExpFunctionFieldC ℚ Γ)` at `q = 0`, with the
+two residue-multiplicativity conjuncts in both binder shapes. The port's whole `Coeff` and `Gauss`
+blocks are imported from `QExpDeuring` (stated for an arbitrary `Γ`, strictly stronger than the pin's
+`hT`-copies), `QExpDeuring.exists_resHom_eq` replaces the pin's `resRange` / `qExpFunctionFieldC_le_resRange`
+/ `resF_surjective` block (~55 lines, not ported), and the ported
+`PowerSeries.exists_eq_C_mul_map_of_mem_span_of_saturated` is called. What is new is the graded
+`Lam`/`homSpan`/`IsFrac` layer (~300 lines) — and it is **not** dedup-able: the pin's fourth conjunct
+of `exists_frac_form` is consumed only by `resHom_mem`, the one declaration with no ported
+counterpart, and the port's `gensZ` route cannot yield it (its primitive form is unconstrained on the
+residue side). Two build-time findings, both recorded: a `≤`-lemma applied to a membership inside a
+large statement blows the 200k diagnostic in one `isDefEq` and is cured by an element-form wrapper
+(no raise, nothing weakened), and `gaussProlongation` must be an `abbrev` for the sibling assemblies'
+`change`/`rw` to typecheck at `implicit` transparency. The edit loop is clean at 200k, the build is
+4,179 jobs / 24 s / **0 warnings**, axioms `[propext, Classical.choice, Quot.sound]`, and the new
+module's 177-module import closure contains **no `WeightOne` module** — which is what the re-homing
+above bought. Checker **4,026 ok / 160 modules**, 0 mismatch / 0 missing; the demand's priced row for
+the family (1 node / 853 — the two sibling files were never separate rows, which is why the triplet
+was cut together) is gone and all three nodes read *"target is ported"*; the ready shelf reads 110,
+and the predicted successor `ModularCurve.FullLevel.exists_regularProlongation_fieldBar_integers_eq`
+drops **2 / 888 → 1 / 35** and is the next cut. Record:
+[logs/qexp-regular-prolongation.md](../logs/qexp-regular-prolongation.md); order:
+[modularCurve/WORKORDER-RP1-qexp-regular-prolongation.md](modularCurve/WORKORDER-RP1-qexp-regular-prolongation.md).
+
 For the landings above that wired into the frozen checker's lists, each delta is exactly its new
 public surface, 0 mismatched / 0 missing; the `localParam` landing has no such delta (§6). Since
 the 2026-10-19–20 handoff the column verifies with `spec/check_port.py` instead (§6), and a
@@ -1645,9 +1698,10 @@ python3 spec/old_check_stmts.py --selftest
   [porting-playbook.md](../porting-playbook.md) §4, in this note's §3/§6/§8 and in the tooling
   (`tools/deps`, `spec/unwired_register.py`). The **older column notes and work orders still
   describe the retired "append to `PORT_FILES`/`SOURCES`" route** — they are the record of how those
-  landings were wired, not instructions; a new set follows §6. The 583 modules still owned by the
+  landings were wired, not instructions; a new set follows §6. The **573** modules still owned by the
   frozen registry are the migration backlog, and each moves when it is edited for another reason
-  (playbook §4) — the Frobenius-subfield host moved that way on 2026-10-20 (§1).
+  (playbook §4) — the Frobenius-subfield host moved that way on 2026-10-20, and the four q-expansion
+  definition-layer modules on 2026-10-21 (§1).
 * **The `of_dvd` seam sibling is scoped and deferred.** `HeckeIntegralSeam.exists_isHeckeCosetSystem_localRepSome_heckeGen_of_dvd`
   (957 pin lines, 55 declarations) is the family's last large row and sits outside the cone. It
   drags in **no modules** (every dependency is inside `HeckeCosetSeam`'s closure; its five extra

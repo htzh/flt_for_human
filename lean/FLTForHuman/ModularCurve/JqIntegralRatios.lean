@@ -1,40 +1,48 @@
 /-
-  X1's `intSeriesC`/`intFormRatiosC` and the pin's `jqModC_mem_intFormRatiosC`:
-  `jqModC = q⁻¹ · j(q) = E₄³ / Δ` exhibits `jqModC` as a ratio of two integral
-  `q`-expansions.
+The pin node `ModularCurve.jqModC_mem_intFormRatiosC`: `jqModC = q⁻¹ · j(q) = E₄³ / Δ`
+exhibits `jqModC` as a ratio of two integral `q`-expansions — and its analytic
+companion `jqModC_eq_qExpansion_E4_cube_div_discriminant`.
 
-  The two definitions are the pin's `Def_ModularCurve_X1.lean` `FunctionField`
-  block (lines 66–99), transcribed verbatim; `intSeriesC_one`/`_zero`/`_mul` are
-  the block's three arithmetic lemmas. `restrictForm`/`coe_restrictForm` are the
-  pin's `Restrict` block (lines 18–27), made **public** in place, with the pin's
-  `restrictForm_apply` (line 29) added; `intFormRatiosC_mono` (X₁'s `Defs.lean`)
-  consumes them and the port forbids a second private copy.
+This is a **node** module.  The definition-layer content it used to carry — the
+pin's `Restrict` block (`restrictForm` and its two lemmas) and the whole
+`FunctionField` block (`intSeriesC` + `_one`/`_zero`/`_mul`, `intFormRatiosC`,
+`mem_intFormRatiosC`, `qExpFunctionFieldC`, `intFormRatiosC_subset`,
+`div_mem_qExpFunctionFieldC`) — is the pin's
+`Definitions/Def_ModularCurve_X1.lean` and now lives at its own home,
+`FLTForHuman/ModularCurve/X1/Defs.lean`, which this module imports.  Before the
+move, every consumer of the `q`-expansion function field imported this node to
+reach its definition layer.
 
-  The proof of the headline is the pin's
-  `P2M/Sol/S_ModularCurve_jqModC_mem_intFormRatiosC.lean`, with the first helper
-  collapsed: the pin re-derives `IsIntegralQExp E₄ eisenstein4` coefficient-wise,
-  while the port already publishes `qExpansion_E4_eq_map_eisenstein4`
-  (`ModularForms/JqAnalyticModel.lean`), of which it is the `.symm`.
+The proof of the headline is the pin's
+`P2M/Sol/S_ModularCurve_jqModC_mem_intFormRatiosC.lean`, with the first helper
+collapsed: the pin re-derives `IsIntegralQExp E₄ eisenstein4` coefficient-wise,
+while the port already publishes `qExpansion_E4_eq_map_eisenstein4`
+(`ModularForms/JqAnalyticModel.lean`), of which it is the `.symm`.
 
-  FLT provenance, pinned `aa2d8b3`:
-  https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_jqModC_mem_intFormRatiosC.lean
-  https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_jqModC_mem_intFormRatiosC.lean
-  https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_X1.lean
+The pin keeps every helper but the headline `private`; the port transcribed them
+the same way, and they are **promoted public** here because the `RelIndex` set
+(`topics/modularCurve/TOPIC-relIndex-relrank.md`) is a second consumer of the same
+mathematics and its `LevelOne` block is the `ℂ`-instance of it.  Promotion is an
+exposure, not a copy: no proof moved.
 
-  Wired here, not in the frozen registry: this module's own `spec-pin:` lines below
-  replaced its `PORT_FILES` entry (`spec/old_check_stmts.py`), so
-  `spec/check_port.py` diffs every public declaration against the four pin files.
+FLT provenance, pinned `aa2d8b3`:
+https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_jqModC_mem_intFormRatiosC.lean
+https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_jqModC_mem_intFormRatiosC.lean
+
+Wired here, not in the frozen registry: this module's own `spec-pin:` lines below
+replaced its `PORT_FILES` entry (`spec/old_check_stmts.py`), so
+`spec/check_port.py` diffs every public declaration against the pin files named.
 
 spec-pin: Theorems/Thm_ModularCurve_jqModC_mem_intFormRatiosC.lean
 spec-pin: P2M/Sol/S_ModularCurve_jqModC_mem_intFormRatiosC.lean
 spec-pin: Theorems/Thm_ModularCurve_jqModC_eq_qExpansion_E4_cube_div_discriminant.lean
 spec-pin: P2M/Sol/S_ModularCurve_jqModC_eq_qExpansion_E4_cube_div_discriminant.lean
-spec-pin: Definitions/Def_ModularCurve_X1.lean
 spec-pin: P2M/Sol/S_ModularCurve_relfinrank_x1HeckeCompositum_eq_mul.lean
 spec-pin: P2M/Sol/S_ModularCurve_relfinrank_xHHeckeCompositum_eq_mul.lean
 -/
-import FLTForHuman.ModularForms.WeightOne.Gamma0Integral
+import FLTForHuman.ModularCurve.X1.Defs
 import FLTForHuman.ModularCurve.Defs.JqCoeff
+import FLTForHuman.ModularForms.JqAnalyticModel
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false
@@ -46,81 +54,11 @@ open scoped MatrixGroups ModularForm
 
 namespace ModularCurve
 
-/-! ## X1's `FunctionField` vocabulary -/
-
-section Restrict
-
-variable {Γ Γ' : Subgroup (GL (Fin 2) ℝ)} {k : ℤ}
-
-def restrictForm (h : Γ' ≤ Γ) (f : ModularForm Γ k) : ModularForm Γ' k where
-  toFun := f
-  slash_action_eq' A hA := f.slash_action_eq' A (h hA)
-  holo' := f.holo'
-  bdd_at_cusps' hc := f.bdd_at_cusps' (hc.mono h)
-
-@[simp] theorem coe_restrictForm (h : Γ' ≤ Γ) (f : ModularForm Γ k) :
-    (⇑(restrictForm h f) : ℍ → ℂ) = f := rfl
-
-theorem restrictForm_apply (h : Γ' ≤ Γ) (f : ModularForm Γ k) (τ : ℍ) :
-    restrictForm h f τ = f τ := rfl
-
-end Restrict
-
 variable (K : Type*) [Field K]
-
-/-- The integral `q`-expansion `p` as a Laurent series over `K`. -/
-def intSeriesC (p : PowerSeries ℤ) : LaurentSeries K :=
-  HahnSeries.ofPowerSeries ℤ K (p.map (Int.castRingHom K))
-
-@[simp] theorem intSeriesC_one : intSeriesC K 1 = 1 := by
-  simp [intSeriesC]
-
-@[simp] theorem intSeriesC_zero : intSeriesC K 0 = 0 := by
-  simp [intSeriesC]
-
-theorem intSeriesC_mul (p p' : PowerSeries ℤ) :
-    intSeriesC K (p * p') = intSeriesC K p * intSeriesC K p' := by
-  simp [intSeriesC]
 
 variable (Γ : Subgroup (Matrix.SpecialLinearGroup (Fin 2) ℤ))
 
-/-- The set of ratios `intSeriesC K pf / intSeriesC K pg` of integral
-`q`-expansions of modular forms of a common weight for `Γ`. -/
-def intFormRatiosC : Set (LaurentSeries K) :=
-  {x | ∃ (k : ℤ) (f g : ModularForm (Γ : Subgroup (GL (Fin 2) ℝ)) k) (pf pg : PowerSeries ℤ),
-      IsIntegralQExp f pf ∧ IsIntegralQExp g pg ∧ intSeriesC K pg ≠ 0 ∧
-        x = intSeriesC K pf / intSeriesC K pg}
-
-variable {K Γ} in
-theorem mem_intFormRatiosC {k : ℤ} (f g : ModularForm (Γ : Subgroup (GL (Fin 2) ℝ)) k)
-    {pf pg : PowerSeries ℤ} (hf : IsIntegralQExp f pf) (hg : IsIntegralQExp g pg)
-    (hg0 : intSeriesC K pg ≠ 0) :
-    intSeriesC K pf / intSeriesC K pg ∈ intFormRatiosC K Γ :=
-  ⟨k, f, g, pf, pg, hf, hg, hg0, rfl⟩
-
-/-- The `q`-expansion function field: the `K`-subfield of `LaurentSeries K`
-generated by the ratios of integral `q`-expansions of modular forms for `Γ`.
-Verbatim from `Definitions/Def_ModularCurve_X1.lean:101`. -/
-def qExpFunctionFieldC : IntermediateField K (LaurentSeries K) :=
-  IntermediateField.adjoin K (intFormRatiosC K Γ)
-
-theorem intFormRatiosC_subset : intFormRatiosC K Γ ⊆ (qExpFunctionFieldC K Γ : Set (LaurentSeries K)) :=
-  IntermediateField.subset_adjoin K _
-
-variable {K Γ} in
-theorem div_mem_qExpFunctionFieldC {k : ℤ} (f g : ModularForm (Γ : Subgroup (GL (Fin 2) ℝ)) k)
-    {pf pg : PowerSeries ℤ} (hf : IsIntegralQExp f pf) (hg : IsIntegralQExp g pg)
-    (hg0 : intSeriesC K pg ≠ 0) :
-    intSeriesC K pf / intSeriesC K pg ∈ qExpFunctionFieldC K Γ :=
-  intFormRatiosC_subset K Γ (mem_intFormRatiosC f g hf hg hg0)
-
-/-! ## `jqModC` as such a ratio
-
-The pin's `JqMemRatios` block. The pin keeps every helper but the headline
-`private`; the port transcribed them the same way, and they are **promoted public**
-here because the `RelIndex` set (`topics/modularCurve/TOPIC-relIndex-relrank.md`)
-is a second consumer of the same mathematics and its `LevelOne` block is the
-`ℂ`-instance of it. Promotion is an exposure, not a copy: no proof moved. -/
+/-! ## `jqModC` as such a ratio -/
 
 theorem isIntegralQExp_E4 : IsIntegralQExp (E₄ : ℍ → ℂ) eisenstein4 := by
   rw [IsIntegralQExp]

@@ -78,7 +78,13 @@ around: *would a second theory state this?*
 * **Spelling** — local, `private`, no guilt, no home. `natCast_pos'` is `Nat.cast_pos.mpr
   (NeZero.pos L)`. `mapGL_eq_coe` is `rfl`. `coe_mulPt`/`im_mulPt`/`diagGL_smul` are one-line
   restatements of the `•` action that `UpperHalfPlane.coe_smul_of_det_pos` already gives.
-  `mulPt t ht τ` **is** `diagGL t ht • τ`.
+  `mulPt t ht τ` **is** `diagGL t ht • τ`. `one_mem_strictPeriods` is the class's clearest case:
+  the fact is mathlib's (`Subgroup.strictPeriods_eq_zmultiples_one_of_T_mem` for `T ∈ Γ`,
+  `@[simp] strictPeriods_Gamma0`/`strictPeriods_Gamma1` for the level instances), so a consumer
+  writes `by simp` and the 37 copies in the tree are spelling, not a block with a missing home
+  ([logs/qexp-definition-layer-homes.md](../logs/qexp-definition-layer-homes.md) §3). **Run the
+  mathlib check before deciding a home is owed** — this family was twice diagnosed as a home
+  accident when the right answer was that no port lemma should exist.
 
 The grey zone is a definition that is a *parameterisation* of an existing hub definition. The pin's
 `diagGL (t : ℝ) (ht : 0 < t)` is `!![t,0;0,1]`; the port's `ModularForm.heckeDiagMatrix` is the same
@@ -91,15 +97,12 @@ near-copy after a hub has been generalised.
 
 A matching declaration is only reusable if its host's subject is the consumer's subject. When it is
 not, the correct move is not to import the wrong host — it is to put the content where it belongs,
-or to keep a local spelling. Three real instances from this cone:
+or to keep a local spelling. The rule's two live consequences in this cone (both were home accidents
+whose repair is recorded in [logs/qexp-definition-layer-homes.md](../logs/qexp-definition-layer-homes.md)):
+a definition layer must not import a node module to reach its own content, and a node module must not
+carry one — the pin's `Restrict`/`FunctionField` blocks belong to `X1/Defs.lean`, not to the
+`jqModC = E₄³/Δ` node that first needed them.
 
-* `CuspForm.LiNormSq.one_mem_strictPeriods` lives in `ModularForms/Analytic/NormSqPow.lean`, whose
-  subject is the `L²` norm-square engine. It is the only *public* copy of `(1 : ℝ) ∈ Γ.strictPeriods`
-  for `Γ₁`, so every consumer that wants the fact imports an analytic module. That is a home
-  accident, not a home.
-* `ModularCurve.JqIntegralRatios.restrictForm` is a public six-line `ModularForm` constructor inside
-  a module about `J`/`q` ratios — and it sits **above** `WeightOne/Gamma0Integral`, so a
-  `ModularForms/WeightOne` node that wants it imports a `ModularCurve` node for six lines.
 * `ModularCurve.surjective_specialLinearGroup_map_zmod` (group theory: `SL₂(ℤ) → SL₂(ℤ/N)`
   is surjective) is homed in `WeightOne/LevelOneHauptmodul.lean`. It is a **premise** of the FR1
   node, not a helper, so it is imported and the misplacement is recorded rather than fixed in this
@@ -290,9 +293,10 @@ The round the manager runs before dispatching a set:
    costs it, the reader pays for it, and `port_advise` will report it as a substitution on the next
    cut.
 * **Do not import a host for a helper.** If the only reason for the edge is the helper, write the
-   helper (§3.1/§3.2). A `one_mem_strictPeriods` import of an `L²` module is the canonical error.
+   helper (§3.1/§3.2) — or, when mathlib already has the fact, call mathlib and write nothing.
 * **Do not promote into a host whose subject is different**, even when the cut imports it. That is
-  how a silo is born: `restrictForm` public inside a `J`/`q`-ratio module is exactly this.
+  how a silo is born — a definition-layer block public inside a consumer's node module is exactly
+  this ([logs/qexp-definition-layer-homes.md](../logs/qexp-definition-layer-homes.md)).
 * **Do not consolidate a many-copy prelude inside a new cut.** "The wave is the same price for one
   move and five" ([PORTING-DeligneSerre.md](PORTING-DeligneSerre.md) §4(c)) is true of a file you are
   already editing; it is not a licence to

@@ -39,6 +39,18 @@ is registered in [../../CARRY-FORWARD.md](../../CARRY-FORWARD.md) under "A row c
 again as a fresh silo". This set lands what the node's *demand* actually needs without
 porting its silo.
 
+**Build-time correction (2026-10-21, after a bisection).** Two claims in the paragraph above are
+superseded. The module no longer takes 4 m 49 s: the cost was **not** `gateDescent_of_descent` but
+`descentBCIota_compat`, whose four local `let`s made every `show` differ from the goal only by zeta, so
+`isDefEq` unfolded `FunctionField = FractionRing (CoordinateRing ·)`. Its proof now states the explicit
+terms and rewrites with the projection lemmas; the module elaborates under `timeout 120` at the plain
+project cap, and the two overrides transcribed from the pin (`set_option maxHeartbeats 48000000`,
+`set_option synthInstance.maxHeartbeats 8000000`) are **gone** — they were masking that defect, so the
+"fidelity fix, not a cap exception" reading does not hold. Statements are untouched; the module also
+left `PORT_FILES` for its own `spec-pin:` wire (7 ok, 1 `own:` row: `ModularCurve.exists_twoCurveDescent`
+is the port's packaging — the pin states only the headline). Diagnosis and counters:
+[../../logs/build-time-issues.md](../../logs/build-time-issues.md) §7.
+
 ## 1. Scope
 
 Land the **two-curve countable descent** and, on top of it, the headline

@@ -534,27 +534,32 @@ the pin file, checker 18 ok). It is **not** a consolidation: the copies below we
 because each sits inside a silo that the port transcribed whole and folding them in is a wave of
 its own, to be taken when one of those modules is opened for another reason.
 
-- `restrictF` (`restrictForm` elsewhere): **public** at `ModularCurve/JqIntegralRatios.lean:43`
-  (+ `coe_restrictForm`, `restrictForm_apply`); `private restrictForm` at
-  `WeightOne/Gamma0Integral.lean:1342`; `private restrictMF` at `Level/Degeneracy.lean:44`.
-  Three homes for the same six-line `ModularForm` constructor.
+- `restrictF` (`restrictForm` elsewhere): **public at its pin home**,
+  `ModularCurve/X1/Defs.lean:53` (+ `coe_restrictForm`, `restrictForm_apply`) — the pin's
+  `Restrict` block of `Definitions/Def_ModularCurve_X1.lean`, where it belongs; `private restrictForm`
+  at `WeightOne/Gamma0Integral.lean:1349`; `private restrictMF` at `Level/Degeneracy.lean:44`.
+  Two private copies of a six-line `ModularForm` constructor remain.
 - `T_mem_Gamma1`: public at `WeightOne/Defs/GammaRational.lean:262`,
   `Elliptic/PeriodPair/InvariantsTorsion.lean:1119`,
   `ModularCurve/X1/AtkinLehnerExchange.lean:1241`,
   `ModularForms/Eisenstein/WeightOneMultiplier.lean:645`; private at
-  `ModularCurve/X1/Inputs.lean:154`, `HeckeEigenNebentypus.lean:120`,
-  `Gamma0Integral.lean:1411`.
-- `one_mem_strictPeriods`: 15 copies, 8 public (`Analytic/NormSqPow.lean:597`,
-  `X1/FunctionField.lean:361`, `XH/DiamondLiftPrelude.lean:79`, `XH/HeckeInputs.lean:179`,
-  `XH/Relrank.lean:205`, `WeightOne/Gamma1Basis.lean:3218` and `:3552`,
-  `PeriodPair/InvariantsTorsion.lean:1123`) and 7 private. Its public home is an L²
-  norm-square module, which is the wrong subject — this is the item most worth folding into
-  the new home.
+  `ModularCurve/X1/Inputs.lean:154`, `HeckeEigenNebentypus.lean:120`.
+- `one_mem_strictPeriods`: **the fact is mathlib's** — `Subgroup.strictPeriods_eq_zmultiples_one_of_T_mem`
+  for `T ∈ Γ`, and `@[simp] CongruenceSubgroup.strictPeriods_Gamma0`/`strictPeriods_Gamma1` for the
+  level instances — so no home and no promotion is wanted: it is a `simp` at the call site
+  ([logs/qexp-definition-layer-homes.md](logs/qexp-definition-layer-homes.md) §3). 37 copies remain
+  (95 proof lines; 34 of them 1–2-line `simp`/`rw` spellings, the one real re-derivation being
+  `ModularCurve/X1/FunctionField.lean:361`). A copy never earns a *promotion*; what it may keep is
+  its `by simp` body. The working rule, refined: a single site writes `by simp` and no lemma; a
+  `private` one-liner used twice or more in one file may stay (one elaboration in the olean instead
+  of N `simp` calls, one point of repair, readable call sites) provided the body is `by simp`; a
+  public copy stays only where a pin file states it, and a consumer that needs the fact should write
+  `by simp` rather than import the module for it.
 - `Gamma_le_Gamma1`: public at `Analytic/NormSqPow.lean:121` and `Defs/GammaRational.lean:272`;
-  private at `Gamma0Integral.lean:1956` and `Gamma1IntegralBasis.lean:120`.
+  private at `Gamma0Integral.lean:1959` and `Gamma1IntegralBasis.lean:120`.
 - `mul_inv_mem_Gamma1`: private at `X1/DiamondAut.lean:122` (the `γ 0 0` variant) and
-  `Gamma0Integral.lean:1457` (the `γ 1 1` variant — the one the pin states).
-- `slash_of_neg_mem`: private at `Gamma0Integral.lean:1747`.
+  `Gamma0Integral.lean:1460` (the `γ 1 1` variant — the one the pin states).
+- `slash_of_neg_mem`: private at `Gamma0Integral.lean:1750`.
 - `coe_Eaux`: `Gamma0Integral.lean`'s copy is `private`, so `ModularForms/FrickeReciprocity.lean`
   writes its own two-line copy. That is the FR1 set's **single added twin** in the shape index
   (`shapes.py` on the landed module: 59 theorem/lemmas, one port twin, `coe_Eaux`); promote the
@@ -569,10 +574,29 @@ its own, to be taken when one of those modules is opened for another reason.
   parameter — if a second consumer ever needs the real form, generalise that hub rather than
   copy the pin's version again.
 
-The same file also carries **two different `IsRat`s**: public at `Gamma0Integral.lean:1353`
-(`∀ n, ∃ r : ℚ, q.coeff n = (r : ℂ)`, the pin's) and private at `:352`
+The same file also carries **two different `IsRat`s**: public at `Gamma0Integral.lean:1360`
+(`∀ n, ∃ r : ℚ, q.coeff n = (r : ℂ)`, the pin's) and private at `:359`
 (`∃ p : PowerSeries ℚ, p.map (algebraMap ℚ ℂ) = φ`). They are equivalent but not defeq, and a
 consumer that opens the wrong namespace proves against the wrong predicate.
+
+### Two promotion candidates the Gauss-prolongation set left closed
+
+Both are in `X1/FunctionFieldResidue.lean`'s reach but not in its surface, so the set that needed them
+re-derived them `private` ([logs/qexp-regular-prolongation.md](logs/qexp-regular-prolongation.md)):
+
+* `ModularCurve.laurentBaseChange_le` — `laurentBaseChange L (qExpFunctionFieldC ℚ Γ) ≤
+  qExpFunctionFieldC L Γ`, the pin's own 17-line lemma (`S_:301–320`), re-derived `private` in
+  `X1/QExpRegularProlongation.lean`. Its home is beside `laurentBaseChange_le_adjoin_gensZ`
+  (`FunctionFieldResidue.lean:264`), which is only the *`gensZ`* strengthening; the
+  `intFormRatiosC`-target inclusion exists nowhere in that closure (`Degree/LaurentGlue.lean:221`
+  proves the stronger equality but is not in the closure). Every future consumer of the pin's
+  `exists_frac_form` re-derives it until it is promoted.
+* The seven Gauss-block helpers the engine dropped and the new module carries `private`:
+  `coe_LamSub` (pin:188), `resHom_apply` (:550), `ι_mem_gaussRing` (:556), `resHom_ι` (:559),
+  `ker_resHom` (:594), `coe_smul'` (:636), `exists_smul_mem_gaussRing` (:640). Promote into
+  `QExpDeuring` in one pass, with the usual price — they are one block, and the wave is the same
+  price for one move or seven. Note when promoting: `gaussProlongation` must stay an `abbrev` (a
+  plain `def` breaks the sibling assemblies' `change`/`rw` at `implicit` transparency).
 
 ### The `mapGL` entry lemmas have no library home
 

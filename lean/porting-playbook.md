@@ -287,7 +287,13 @@ modules; **a new header does not point at the notes** — no `playbook §…`, n
 plan and the records carry the cross-references (existing citations are grandfathered; strip them
 when the module is next edited); **docstrings carry the mathematics** (a one-line
 gloss for a name that does not state its content, a sentence for a construction); **adopt mathlib's
-names where it has them, keep FLT's where it does not**, and say which is which; **monomorphic
+names where it has them, keep FLT's where it does not**, and say which is which; **generated name
+tokens are rectified, not carried** — the pin's proof-search labels (`F4CutWords`, `PartB8`, `FarmE26`),
+its compressed defs (`Ecf`, `ρc`, `Qc`, `cutc`, `CA`, `CB`) and its `kw_*` prefixes are artefacts of how
+the pin was written, so the port's engine carries descriptive names and its section structure is by
+subject, never by the pin's grouping (`check_port.py` already rejects `kw*` names outright); only a
+*pin-public statement* keeps the pin's name, and a rectified public declaration gets a `pin:` row in
+`spec/decl_markers.tsv`; **monomorphic
 helpers are documentation**, written the moment a `rw` reports no progress (§6), not before; **no
 self-consumed lemmas** — the node boundary is not a licence to carry dead scaffolding.
 
@@ -374,8 +380,27 @@ diagnose, not a bound to raise: a build-time blow-up is instance inference — a
 blocks unification, a search that unfolds a coercion, an instance diamond — and the low cap
 finds it (`set_option trace.Meta.synthInstance true` / `diagnostics true` on that one
 declaration). Fix the inference and re-run; a genuinely long proof is restructured, not
-exempted. `lake build`'s higher cap is not a target, and no module carries a
-`set_option maxHeartbeats`.
+exempted. `lake build`'s higher cap is not a target, and **no module carries a
+`set_option maxHeartbeats`** — including one transcribed from the pin.
+
+**A cap override inside a file is a defect marker, not a budget.** It is there because something in
+that file does not fit, and it hides that thing from every later reader. Remove it and re-bound the
+file at the project cap: if the file stops fitting, you have found the bug you were looking for. The
+cautionary case is `WeierstrassCurve/Isogeny/TwoCurveDescent.lean`: a 12× override
+(`maxHeartbeats 48000000`, `synthInstance.maxHeartbeats 8000000`, transcribed from the pin) sat in
+`section GateDescent`, the record attributed the module's multi-minute elaboration to the declaration
+that carried the bump, and the real cost was a zeta-blind `isDefEq` in a *different* declaration
+([../notes/instance-friction-case-study.md](../notes/instance-friction-case-study.md)). Bisect before
+trusting any attribution, including an old one.
+
+**Bound, do not measure.** The only question a build command ever answers is *"does it finish inside
+`timeout N`?"*. Never `time`, never chase a duration, never compare 33 s with 40 s: a number you do not
+need costs a turn, and one threshold decides pass or fail. Profile **once** per module when the
+attribution is unknown, keep the trace file, and work from it afterwards — a second profiling run
+buys nothing. Any compile that can plausibly run a minute is a **background job with its own
+`timeout` and its full output redirected to a log file**; read the log, never a `tail`/`grep` of the
+live stream, because a foreground turn is killed at its shell cap mid-elaboration — which loses the
+turn and can leave an orphan holding the build lock.
 
 **Diagnosing a blow-up: the probe ladder.** A timeout is a probe first and a diagnosis second. Every
 step is a `lake env lean` turn of seconds, none re-elaborates the module at the library cap, and
@@ -388,13 +413,21 @@ minute-long elaboration into a one-second abort. Worked example: the `ZLattice` 
    loop. The body is skipped but the statement still elaborates: if the timeout survives, the cost
    is in the *type* and no tactic change can move it — and `trace.Meta.synthInstance` will show
    nothing, because no search runs.
+   Before bisecting at all, run that probe on the **whole module** — every theorem proof `sorry`,
+   statements, `def`s and instances verbatim — which gives the module's *floor* in one run. If the
+   floor is over the bound, no proof-side edit can reach it: the cost is in the frozen types, and the
+   levers are deleting the section variables no statement uses (§6) or naming the types (a statement
+   change, and for a wired module an `own:` decision — not an agent's call).
 2. **Isolate the declaration.** With no `.olean` of the module, `import` is not available: build a
    scratch file from the module's imports plus the definitions the declaration needs. Replace the
    *proofs* of the declarations before the target with `sorry` — keep their statements, the target
    needs the names and types — keep the target's own statement, and put one `example` per candidate
    behind a `-- PROBE <label>` comment. One run then reports every offender at once, and the labels
    give the attribution. Stubbing the *prelude's proofs* is what makes the probe cheap; truncating
-   the file at a prefix line and appending `end`s does not, and usually does not parse either.
+   the file at a prefix line and appending `end`s does not, and usually does not parse either. When
+   the module's own `.olean` exists there is a cheaper pair: `one:<line>` (only the target's proof
+   kept, every earlier proof stubbed) and `keepafter:<line>` (only the target's proof stubbed, the
+   rest kept). Bound each, and the attribution is settled without profiling anything.
 3. **Shrink the statement, not the file.** The same application can be free in a `have` or a `def`
    body and expensive in a declaration's *type*; bisect the statement's terms, not the module's.
 4. **Read the counters.** `set_option diagnostics true` on the one declaration prints the reduction
@@ -405,8 +438,13 @@ minute-long elaboration into a one-second abort. Worked example: the `ZLattice` 
    Instance *terms* compared by an argument check (`isDefEq`/`whnf` timeouts, no search goal, a big
    instance such as `Norm C(α,E) = dist x 0` unfolding `sInf`/`Finset.sum`) → give the type one
    syntactic form: name it once and use the name where it is **bound**; the statement text then
-   deviates, so it is a registered `own:` deviation (§4), not a bump. Arithmetic defeq → the pin's
-   bump rule (§6). A genuine proof cost → restructure.
+   deviates, so it is a registered `own:` deviation (§4), not a bump. Its mirror image: when the
+   comparison differs from its goal only by **zeta** — a local `let` in the working context — nothing
+   needs a name, and naming more makes it worse: *remove* the `let`s, state the intermediates at the
+   explicit terms, and `rw` with the `rfl`-level projection lemmas (§6). A `≤`/`⊆`-lemma whose
+   *result* is a membership, applied inside a statement that is itself large, is the same class:
+   state the element form once (`SetLike.le_def.mp`) and apply that at the site. Arithmetic defeq →
+   the pin's bump rule (§6). A genuine proof cost → restructure.
 
 A probe that cannot finish inside a minute is the *probe's* fault, not the file's: it is still
 elaborating what it should have stubbed.
@@ -448,9 +486,10 @@ and keep heavy modules at the leaves and shared hubs small and cheap.
 > `lake build`**. A whole-tree build happens once, at the session's end, only after
 > the user agrees to it, and never on the agent's own initiative.
 
-Two traps: **a stale `.olean` reads as a missing declaration** (after a `private` → public
-promotion, `lake build <defining module>` before the consumer), and **importing a huge
-`.olean` is an edit-loop cost of its own**.
+Three traps: **a stale `.olean` reads as a missing declaration** (after a `private` → public
+promotion, `lake build <defining module>` before the consumer); **importing a huge `.olean` is an
+edit-loop cost of its own**; and **a `set_option` in a file is a defect marker** — see the paragraph
+above, and remove it before you believe anything the module's cost is telling you.
 
 ### 3.6 Keep the friction log while you hit friction
 
@@ -647,9 +686,23 @@ longer write-ups are in the records, and the instance-shaped ones, with re-runna
 - **`FunLike` at a bare function type** (`ℍ → ℂ`) — pass the bundled form.
 - **A kernel `Subtype.val` defeq between concrete `adjoin` carriers** — prove a generic coercion
   once at abstract carriers.
-- **A slow module is usually cumulative** — bisect by milestone, do not hunt one blow-up; but run
-  the ladder's first probe (§3.5: statement vs proof) on the worst declaration first, because one
-  statement can be the whole cost.
+- **A slow module is usually cumulative, but not always** — bisect by milestone, and run the
+  ladder's isolation probes (§3.5) before accepting *any* attribution, including one in an old
+  record: `TwoCurveDescent`'s cost was a single declaration, and the record named another one.
+- **A `show`/`exact` that differs from its goal only by zeta** (a local `let ψ := …` in the working
+  context) — `isDefEq` abandons the syntactic path and unfolds the tower (`FunctionField =
+  FractionRing (CoordinateRing ·)`; the reduction table shows `CoordinateRing ↦ 592`,
+  `inferInstance ↦ 120`). The cure removes names rather than adding them: drop the `let`s, state the
+  intermediates at the explicit terms, and `rw` with the `rfl`-level projection lemmas
+  (`AlgHom.comp_apply`, `AlgHom.restrictScalars_apply`, `IsScalarTower.toAlgHom_apply`,
+  `Algebra.TensorProduct.includeLeft_apply`). Worked twice — `KernelBaseChange`'s `bcIota₁_compat` and
+  `TwoCurveDescent`'s `descentBCIota_compat`
+  ([../notes/instance-friction-case-study.md](../notes/instance-friction-case-study.md)).
+- **A `≤`-shaped lemma applied to a membership inside a large statement** — `f : F`, `h : F ≤ G`,
+  `h f` unfolds `SetLike.le`, and inside a four-conjunct statement that can cost the whole edit-loop
+  budget in one `isDefEq` while the statement itself elaborates in a second. Prove the element form
+  once (`SetLike.le_def.mp`) and apply that at the site
+  ([logs/qexp-regular-prolongation.md](../logs/qexp-regular-prolongation.md) §3).
 - **A statement that will not elaborate at any proof budget** — a hypothesis whose instance *terms*
   `isDefEq` must compare (`hf : ∀ K : Compacts α, Summable fun n => ‖(f.comp …).restrict K‖`, with
   `Norm C(↥K, ℂ) = dist x 0` unfolding `BoundedContinuousFunction`/`sInf`/`Finset.sum`). Naming the
@@ -658,6 +711,25 @@ longer write-ups are in the records, and the instance-shaped ones, with re-runna
   [logs/poisson-summation-statements.md](../logs/poisson-summation-statements.md).
 - **Instance timeout** — supply the instance explicitly (`Algebra.IsIntegral.of_finite`), sometimes
   naming the element too (`private abbrev` **and** the instance).
+- **A type alias that unifies two spellings of one object breaks instance search.** The same curve is
+  `W⁄A` (`baseChange`) in the engine and `W.map f` in a `K₀ ≤ K` section; aliasing both into one
+  `private abbrev` makes the alias a *semireducible* wrapper that `.instances` transparency cannot unfold
+  (`failed to synthesize Algebra (CoordinateRing …)`), and rewrites over the alias fail too. Alias only
+  the types whose spelling already agrees with the file's own uses; unifying two spellings is a sweep,
+  not an alias.
+- **A `show` that strips a double coercion is not a zeta artefact — keep it.** `(↑↑(f)).toFun …` (a
+  `RingHom`-valued function coerced twice, into `FunLike`) has no `rw`-reachable goal shape, so the
+  `show` is the only way to present `commutes'`; deleting it in the "spell the terms" style breaks the
+  goal rather than cheapening it. Check whether the `show` is a zeta step (removable) or a coercion step
+  (load-bearing) before removing it.
+- **A module whose *types* are the floor** — Lean keeps section variables as syntax and re-elaborates
+  their types for every command in scope, so a few expensive hypotheses (an `IsDomain (F ⊗ K)` over a
+  `FractionRing` tower, an `AlgHom` between function fields) are paid once per command. Cheapest cure
+  first: a variable that no *statement* mentions belongs inside the proof that needs it (`haveI`), not
+  in the section — that is statement-neutral and it removes the cost from every command; then
+  `private abbrev` type aliases for the private declarations; then accept the floor. `TwoCurveDescent`
+  is the worked case: with all 48 theorem proofs stubbed it still failed a 20 s bound and passed 40 s,
+  so the floor was the statements, not the proofs.
 - **Two `Algebra`-like instances in one context** — a hard type error, not a cost; keep exactly one.
 - **An instance keyed on a semireducible `def`** (mathlib's `(W.map f).IsElliptic` against a goal
   written `E⁄R`) — invisible to search, and no budget helps: state it in the goal's spelling and
@@ -716,6 +788,8 @@ mathlib line" into a work order.
 | `zero_le'`, `not_lt_zero'` | `zero_le`, `not_lt_zero` (the primed forms are deprecated aliases) |
 | a literal pair passed where `AdeleRing R K` is expected, and `.1`/`.2` of it taken by `rfl` | `AdeleRing` is a plain `def` (`InfiniteAdeleRing K × FiniteAdeleRing R K`), so the pair is an adele only at *default* transparency: `rw`/`simp` fail with "not type-correct under the implicit transparency level". Bind it once — `set x : AdeleRing R K := (…) with hx` — then rewrite on `x.1`/`x.2` via `show … from by rw [hx]` (`by rw [hx]` already closes it). `erw` is a trap: it unfolds far enough to also unfold the definition under study, and the following projection rewrites then find nothing |
 | `⟨dConjMat ℓ γ, ⋯⟩` as an `SL(2, ℤ)` element inside a `Subgroup` membership goal | `Matrix.SpecialLinearGroup` is a semireducible `def` (a `Subtype`) in v4.34, so the anonymous constructor elaborates at `{A // A.det = 1}` and the following `rw [Gamma_mem]` fails with "target expression is not type-correct under the implicit transparency level". Bind it first — `let x : SL(2, ℤ) := ⟨…, h⟩` — then `rw [Gamma_mem]` (or `mem_Lam0`) and `show` the entrywise conjunction; it also removes the pin's `simp only [Matrix.SpecialLinearGroup.coe_mk, …]` blocks |
+| `TensorProduct.induction_on` (with a `| zero =>` branch) | `TensorProduct.inductionOn`, and it has **no `zero` case** — drop the branch (that case is the internal `tmul 0 0`), so the pin's case split loses an arm, not only a name |
+| a `def` structure value whose projections must reduce inside `change`/`rw` (a prolongation built by `⟨…⟩`, then `(gaussProlongation hT A).integers`) | a plain `def` does **not** reduce at `implicit` transparency ("target expression is not type-correct under the implicit transparency level"): declare it an `abbrev`. The `AdeleRing` and `SpecialLinearGroup` rows above are the same class with the other cure — there the value is bound once, here the definition itself must unfold |
 
 The recurring *shapes*, beyond a rename:
 

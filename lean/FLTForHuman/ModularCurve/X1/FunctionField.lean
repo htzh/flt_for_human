@@ -35,6 +35,17 @@ Dedup applied at dispatch (set order §Dedup):
 FLT provenance, pinned `aa2d8b3`:
 https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_JOneES_exists_transcendental_finiteDimensional_qExpFunctionFieldC.lean
 https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_JOneES_exists_transcendental_finiteDimensional_qExpFunctionFieldC.lean
+
+Wired here, not in the frozen registry: this module's own `spec-pin:` lines below
+replaced its `PORT_FILES` entry (`spec/old_check_stmts.py`, 2026-10-21), in the round
+that moved the pin's `FunctionField`/`Restrict` blocks out of
+`JqIntegralRatios.lean` into `X1/Defs.lean`.  The module names two mathlib
+`LevelOne` facts directly (`discriminant_eq_E₄_cube_sub_E₆_sq`,
+`ModularForm.qExpansion_eq_qExpansion_discriminant_mul`); it used to reach them
+through the weight-one leg of a transitive import.
+
+spec-pin: Theorems/Thm_ModularCurve_JOneES_exists_transcendental_finiteDimensional_qExpFunctionFieldC.lean
+spec-pin: P2M/Sol/S_ModularCurve_JOneES_exists_transcendental_finiteDimensional_qExpFunctionFieldC.lean
 -/
 import FLTForHuman.ModularCurve.X1.Defs
 import FLTForHuman.ModularCurve.X1.Integral
@@ -42,6 +53,8 @@ import FLTForHuman.ModularForms.JqAnalyticModel
 import Mathlib.NumberTheory.ModularForms.NormTrace
 import Mathlib.NumberTheory.ModularForms.Cusps
 import Mathlib.NumberTheory.ModularForms.EisensteinSeries.QExpansion
+import Mathlib.NumberTheory.ModularForms.LevelOne.GradedRing
+import Mathlib.NumberTheory.ModularForms.LevelOne.DimensionFormula
 import Mathlib.LinearAlgebra.Lagrange
 import Mathlib.Algebra.Polynomial.Homogenize
 import Mathlib.RingTheory.LaurentSeries

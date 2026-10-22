@@ -3718,10 +3718,9 @@ PORT_FILES = [
     # `private` inside the pin's own `FrickeIntegral`/`FrickeToInfinity`/
     # `X1DiamondRational`/`GammaNDescent` namespaces (nested in `WLightS10.*`).
     "FLTForHuman/ModularForms/WeightOne/Gamma0Rationality.lean",
-    # SET-10, order 2: the three bounded-denominator headlines plus the public
-    # `ModularCurve.IsIntegralQExp` definition the third statement names; all
-    # other pin helpers `private`. Imports order 1.
-    "FLTForHuman/ModularForms/WeightOne/Gamma0Integral.lean",
+    # SET-10, order 2: the three bounded-denominator headlines. This module used to
+    # be listed here; it now carries its own `spec-pin:` header (2026-10-21), and
+    # `ModularCurve.IsIntegralQExp` moved to `X1/Integral.lean` (also wired).
     # SET-11, order 1: the six Γ₁-basis headlines. Each pin `S_` file's helpers
     # are `private` in the pin's own inner namespace (`WeightLoweringCriterion` /
     # `Gamma1Eisenstein` / `FrickeCuspTransport` / `FrickeSpan` /
@@ -4189,7 +4188,9 @@ PORT_FILES = [
     # `diamondOneBar{,_apply}` are deliberately absent (`SET-X1-A` boundary: the
     # `Pic0` action/torsion prerequisite is unported); the checker iterates
     # `PORT_FILES`, so they cannot report `missing`. Appended last.
-    "FLTForHuman/ModularCurve/X1/Defs.lean",
+    # `X1/Defs.lean` used to sit here; it is now wired by its own `spec-pin:`
+    # header (2026-10-21), whose single pin source `Definitions/Def_ModularCurve_X1.lean`
+    # covers the module's whole public surface.
     "FLTForHuman/ModularCurve/X1/HeckeOperator.lean",
     "FLTForHuman/ModularCurve/X1/Diamond.lean",
     "FLTForHuman/ModularCurve/X1/HeckeModule.lean",
@@ -4197,8 +4198,11 @@ PORT_FILES = [
     # nodes. Every helper in the two `JOneES` modules is `private`, so the only
     # diffed declarations are the five `Integral` lemmas and the two headlines.
     # Appended last.
-    "FLTForHuman/ModularCurve/X1/Integral.lean",
-    "FLTForHuman/ModularCurve/X1/FunctionField.lean",
+    # `X1/Integral.lean` used to sit here; it is now wired by its own `spec-pin:`
+    # header (2026-10-21) and holds the pin's whole `Integral` block, `def` included.
+    # `X1/FunctionField.lean` used to sit here; wired by its own `spec-pin:` header
+    # (2026-10-21), with three `pin:` rows in `spec/decl_markers.tsv` for the pin
+    # prelude it shares with two sibling `S_` files.
     "FLTForHuman/ModularCurve/X1/FunctionFieldBaseChange.lean",
     # --- SET-X1-C: the Hecke/diamond face. Every helper is `private`; the four
     # headlines are the only diffed declarations. Appended last.
@@ -4441,7 +4445,9 @@ PORT_FILES = [
     # the headline (matched against its wrapper in `SOURCES`). Everything else — the
     # gate-free `NoAC` base-change engine and the descent helpers — is `private` with a
     # content name. Appended last so no earlier last-name match can flip.
-    "FLTForHuman/WeierstrassCurve/Isogeny/TwoCurveDescent.lean",
+    # `WeierstrassCurve/Isogeny/TwoCurveDescent.lean` used to sit here; wired by its own
+    # `spec-pin:` header (2026-10-21) in the build-time round that removed the two
+    # `set_option maxHeartbeats` overrides it had been hiding behind.
     # --- S-1: the `ℂ`-analytic seam (`topics/velu/WORKORDER-S1-analytic-seam.md`). Public
     # surface: the four pin-public chain `Prop`s, the nine `kw_surgehgf4_hH2*` chain lemmas
     # at their pin names, the three `kw_surgehgf4_hH2f_geomMorphBC*` atoms, the two

@@ -51,6 +51,24 @@ content names.
 
 Reference (public mirror, pinned):
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_Affine_exists_intermediateField_countable_map_eq_of_isAddCyclic_ker_pointMapOfPushforward.lean>
+
+Build time (2026-10-21).  The module used to exceed the two-minute bound; the cost was one
+declaration, `descentBCIota_compat`, not the one carrying the pin's heartbeat bump.  Its
+four local `let`s (`ψE`/`ψE'`/`χE`/`χE'`) made every `show` differ from the goal only by zeta,
+so `isDefEq` unfolded `FunctionField = FractionRing (CoordinateRing ·)` instead of matching
+syntactically.  Stating the intermediates at the explicit terms and replacing the `show …; rfl`
+steps by `rw` projection lemmas, and giving the base-changed tensor/function-field spelling three
+`private abbrev`s, took the module's floor (every theorem proof stubbed) under twenty seconds and the
+whole file under a minute.  The two heartbeat overrides this section used to carry — 48,000,000 hearts
+and 8,000,000 `synthInstance` hearts, transcribed from the pin — are gone: a 12× cap inside a file
+masks exactly this kind of defect.  Record: `logs/build-time-issues.md` §7–§8.
+
+Wired here, not in the frozen registry: this module's own `spec-pin:` lines below replaced its
+`PORT_FILES` entry (`spec/old_check_stmts.py`, 2026-10-21); the wrapper is the statement authority
+for the headline and the `S_` file is the source for the promoted `kw_iotaDescent*` family.
+
+spec-pin: Theorems/Thm_WeierstrassCurve_Affine_exists_intermediateField_countable_map_eq_of_isAddCyclic_ker_pointMapOfPushforward.lean
+spec-pin: P2M/Sol/S_WeierstrassCurve_Affine_exists_intermediateField_countable_map_eq_of_isAddCyclic_ker_pointMapOfPushforward.lean
 -/
 import FLTForHuman.WeierstrassCurve.Isogeny.IntermediateField
 import FLTForHuman.WeierstrassCurve.Isogeny.KernelBaseChange
@@ -70,6 +88,33 @@ open scoped Polynomial.Bivariate WeierstrassCurve TensorProduct IntermediateFiel
 universe u uK
 
 namespace ModularCurve
+
+/-! ## `private` aliases for the engine's type spelling
+
+These are `private`, so `spec/check_port.py` never diffs them, and an `abbrev` is definitionally
+transparent, so the eight public declarations below keep the pin's spelling byte for byte.  They
+exist for cost, not for style: Lean re-elaborates every in-scope section `variable`'s *type* for
+every command that uses it, and the pin's spelling of these types is a full
+`AlgHom`/`TensorProduct`/`FractionRing`/`Localization` tower (the `ι : (E₀'.map (algebraMap K₀ K))
+.toAffine.FunctionField →ₐ[K] …` variable alone is re-elaborated for ~20 commands). -/
+
+/-- The function field of `W` base-changed to the algebra `A`: `(W⁄A).FunctionField`. -/
+private abbrev ffBC {R : Type uK} [CommRing R] (A : Type uK) [CommRing A] [Algebra R A]
+    (W : WeierstrassCurve R) : Type uK :=
+  (W⁄A).toAffine.FunctionField
+
+
+
+/-- `(W⁄A).FunctionField ⊗[A] B`. -/
+private abbrev tensorBC {R : Type uK} [CommRing R] (A : Type uK) [Field A] [Algebra R A]
+    (W : WeierstrassCurve R) (B : Type uK) [Field B] [Algebra A B] : Type uK :=
+  ffBC A W ⊗[A] B
+
+/-- `FractionRing ((W⁄A).FunctionField ⊗[A] B)`. -/
+private abbrev fracTensorBC {R : Type uK} [CommRing R] (A : Type uK) [Field A] [Algebra R A]
+    (W : WeierstrassCurve R) (B : Type uK) [Field B] [Algebra A B] : Type uK :=
+  FractionRing (tensorBC A W B)
+
 
 /-! ## The descent family of the pin's `kw_iotaDescent*`
 
@@ -146,12 +191,12 @@ variable (F' : Type uK) [Field F'] [Algebra R₀ F'] [DecidableEq F'] [CharZero 
 variable [Algebra F F'] [IsScalarTower R₀ F F']
 variable [(E₀⁄F).IsElliptic] [(E₀'⁄F).IsElliptic]
 variable [(E₀⁄F').IsElliptic] [(E₀'⁄F').IsElliptic]
-variable [IsDomain ((E₀⁄F).toAffine.FunctionField ⊗[F] F')]
-variable [IsDomain ((E₀'⁄F).toAffine.FunctionField ⊗[F] F')]
+variable [IsDomain (tensorBC F E₀ F')]
+variable [IsDomain (tensorBC F E₀' F')]
 variable (ι' : (E₀'⁄F).toAffine.FunctionField →ₐ[F] (E₀⁄F).toAffine.FunctionField)
 
 private def descentBCTensorIota :
-    (E₀'⁄F).toAffine.FunctionField ⊗[F] F' →ₐ[F] (E₀⁄F).toAffine.FunctionField ⊗[F] F' :=
+    tensorBC F E₀' F' →ₐ[F] tensorBC F E₀ F' :=
   Algebra.TensorProduct.map ι' (AlgHom.id F F')
 
 private theorem descentBCTensorIota_tmul (a : (E₀'⁄F).toAffine.FunctionField) (c : F') :
@@ -163,21 +208,21 @@ private theorem descentBCTensorIota_injective :
   Module.Flat.rTensor_preserves_injective_linearMap (M := F') ι'.toLinearMap ι'.injective
 
 private def descentBCTensorFracIota :
-    FractionRing ((E₀'⁄F).toAffine.FunctionField ⊗[F] F')
-      →+* FractionRing ((E₀⁄F).toAffine.FunctionField ⊗[F] F') :=
-  IsFractionRing.map (K := FractionRing ((E₀'⁄F).toAffine.FunctionField ⊗[F] F'))
-    (L := FractionRing ((E₀⁄F).toAffine.FunctionField ⊗[F] F'))
+    fracTensorBC F E₀' F'
+      →+* fracTensorBC F E₀ F' :=
+  IsFractionRing.map (K := fracTensorBC F E₀' F')
+    (L := fracTensorBC F E₀ F')
     (descentBCTensorIota_injective E₀ E₀' F F' ι')
 
 private theorem descentBCTensorFracIota_algebraMap
-    (t : (E₀'⁄F).toAffine.FunctionField ⊗[F] F') :
+    (t : tensorBC F E₀' F') :
     descentBCTensorFracIota E₀ E₀' F F' ι'
-        (algebraMap ((E₀'⁄F).toAffine.FunctionField ⊗[F] F') _ t)
-      = algebraMap ((E₀⁄F).toAffine.FunctionField ⊗[F] F') _
+        (algebraMap (tensorBC F E₀' F') _ t)
+      = algebraMap (tensorBC F E₀ F') _
           (descentBCTensorIota E₀ E₀' F F' ι' t) := by
   unfold descentBCTensorFracIota IsFractionRing.map
   exact IsLocalization.map_eq
-    (T := nonZeroDivisors ((E₀⁄F).toAffine.FunctionField ⊗[F] F')) _ t
+    (T := nonZeroDivisors (tensorBC F E₀ F')) _ t
 
 private theorem descentBCTensorIota_finite (hfin' : FiniteAlong F ι') :
     (descentBCTensorIota E₀ E₀' F F' ι').toRingHom.Finite :=
@@ -185,19 +230,19 @@ private theorem descentBCTensorIota_finite (hfin' : FiniteAlong F ι') :
     (RingHom.Finite.id F')
 
 private def descentBCTensorFracIotaAlg :
-    FractionRing ((E₀'⁄F).toAffine.FunctionField ⊗[F] F')
-      →ₐ[F'] FractionRing ((E₀⁄F).toAffine.FunctionField ⊗[F] F') :=
+    fracTensorBC F E₀' F'
+      →ₐ[F'] fracTensorBC F E₀ F' :=
   { descentBCTensorFracIota E₀ E₀' F F' ι' with
     commutes' := fun c => by
       show descentBCTensorFracIota E₀ E₀' F F' ι' (algebraMap F' _ c)
           = algebraMap F' _ c
-      rw [IsScalarTower.algebraMap_apply F' ((E₀'⁄F).toAffine.FunctionField ⊗[F] F')
-          (FractionRing ((E₀'⁄F).toAffine.FunctionField ⊗[F] F')),
+      rw [IsScalarTower.algebraMap_apply F' (tensorBC F E₀' F')
+          (fracTensorBC F E₀' F'),
         Algebra.TensorProduct.right_algebraMap_apply,
         descentBCTensorFracIota_algebraMap E₀ E₀' F F' ι',
         descentBCTensorIota_tmul, map_one,
-        IsScalarTower.algebraMap_apply F' ((E₀⁄F).toAffine.FunctionField ⊗[F] F')
-          (FractionRing ((E₀⁄F).toAffine.FunctionField ⊗[F] F')),
+        IsScalarTower.algebraMap_apply F' (tensorBC F E₀ F')
+          (fracTensorBC F E₀ F'),
         Algebra.TensorProduct.right_algebraMap_apply] }
 
 /-- The `F'`-base change of an isogeny of function fields, `NoAC` spelling: the pin's
@@ -205,24 +250,23 @@ private def descentBCTensorFracIotaAlg :
 proof requires `[IsAlgClosed F]` and cannot be instantiated at the subfield `K₀`. -/
 private def descentBCIota :
     (E₀'⁄F').toAffine.FunctionField →ₐ[F'] (E₀⁄F').toAffine.FunctionField :=
-  let ψE := functionFieldTensorFracEquivGeneralNoAC E₀ F F'
-  let ψE' := functionFieldTensorFracEquivGeneralNoAC E₀' F F'
-  (ψE.symm.toAlgHom.comp (descentBCTensorFracIotaAlg E₀ E₀' F F' ι')).comp
-    ψE'.toAlgHom
+  ((functionFieldTensorFracEquivGeneralNoAC E₀ F F').symm.toAlgHom.comp
+      (descentBCTensorFracIotaAlg E₀ E₀' F F' ι')).comp
+    (functionFieldTensorFracEquivGeneralNoAC E₀' F F').toAlgHom
 
 private theorem descentBCTensorFracIotaSeam (hfin' : FiniteAlong F ι') :
     (descentBCTensorFracIota E₀ E₀' F F' ι').Finite ∧
     (letI := (descentBCTensorFracIota E₀ E₀' F F' ι').toAlgebra
-     @Module.finrank (FractionRing ((E₀'⁄F).toAffine.FunctionField ⊗[F] F'))
-       (FractionRing ((E₀⁄F).toAffine.FunctionField ⊗[F] F')) _ _ Algebra.toModule)
+     @Module.finrank (fracTensorBC F E₀' F')
+       (fracTensorBC F E₀ F') _ _ Algebra.toModule)
       = finrankAlong F ι' := by
   classical
   let FF := (E₀⁄F).toAffine.FunctionField
   let FF' := (E₀'⁄F).toAffine.FunctionField
-  let T := (E₀⁄F).toAffine.FunctionField ⊗[F] F'
-  let T' := (E₀'⁄F).toAffine.FunctionField ⊗[F] F'
-  let FrT := FractionRing ((E₀⁄F).toAffine.FunctionField ⊗[F] F')
-  let FrT' := FractionRing ((E₀'⁄F).toAffine.FunctionField ⊗[F] F')
+  let T := tensorBC F E₀ F'
+  let T' := tensorBC F E₀' F'
+  let FrT := fracTensorBC F E₀ F'
+  let FrT' := fracTensorBC F E₀' F'
   let ιT : T' →+* T := (descentBCTensorIota E₀ E₀' F F' ι').toRingHom
   let ιFr : FrT' →+* FrT := descentBCTensorFracIota E₀ E₀' F F' ι'
   have hιT_inj : Function.Injective ιT :=
@@ -244,8 +288,7 @@ private theorem descentBCTensorFracIotaSeam (hfin' : FiniteAlong F ι') :
   let bFr : Fin D → FrT := fun i => algebraMap T FrT (e i)
   have hspanT : ∀ t : T, ∃ c : Fin D → T', t = ∑ i, ιT (c i) * e i := by
     intro t
-    induction t using TensorProduct.induction_on with
-    | zero => exact ⟨0, by simp⟩
+    induction t using TensorProduct.inductionOn with
     | add x y hx hy =>
       obtain ⟨cx, hx⟩ := hx; obtain ⟨cy, hy⟩ := hy
       exact ⟨cx + cy, by simp only [Pi.add_apply, map_add, add_mul,
@@ -278,8 +321,7 @@ private theorem descentBCTensorFracIotaSeam (hfin' : FiniteAlong F ι') :
     have hEj_key : ∀ (a : T') (i : Fin D),
         Ej (ιT a * e i) = if i = j then a else 0 := by
       intro a i
-      induction a using TensorProduct.induction_on with
-      | zero => simp
+      induction a using TensorProduct.inductionOn with
       | add x y hx hy =>
         simp only [map_add, add_mul, hx, hy]; split_ifs <;> simp
       | tmul x c' =>
@@ -295,7 +337,7 @@ private theorem descentBCTensorFracIotaSeam (hfin' : FiniteAlong F ι') :
           rw [hrepr_mul, b.repr_self, Finsupp.single_apply]
           split_ifs with h <;> simp [h]
     have hc' : Ej (∑ i, ιT (c i) * e i) = 0 := by rw [hc, _root_.map_zero]
-    simpa only [map_sum, hEj_key, Finset.sum_ite_eq', Finset.mem_univ, if_true] using hc'
+    simpa only [map_sum, hEj_key, Finset.sum_ite_eq', Finset.mem_univ, ite_true] using hc'
   have hint : ∀ s : T, s ≠ 0 → ∃ (u : T) (s₀ : T'), s₀ ≠ 0 ∧ s * u = ιT s₀ := by
     intro s hs
     obtain ⟨p, hp_monic, hp_eval⟩ : ιT.IsIntegralElem s := hιT_fin.to_isIntegral s
@@ -403,8 +445,8 @@ private theorem descentBCIota_finrankAlong (hfin' : FiniteAlong F ι') :
     exact (ψE.apply_symm_apply _).symm
   calc finrankAlong F' (descentBCIota E₀ E₀' F F' ι')
       = (letI := ιFr.toAlgebra
-         @Module.finrank (FractionRing ((E₀'⁄F).toAffine.FunctionField ⊗[F] F'))
-           (FractionRing ((E₀⁄F).toAffine.FunctionField ⊗[F] F')) _ _ Algebra.toModule) :=
+         @Module.finrank (fracTensorBC F E₀' F')
+           (fracTensorBC F E₀ F') _ _ Algebra.toModule) :=
         @Algebra.finrank_eq_of_equiv_equiv
           (E₀'⁄F').toAffine.FunctionField (E₀⁄F').toAffine.FunctionField _ _
           (algebraAlong (descentBCIota E₀ E₀' F F' ι'))
@@ -414,46 +456,66 @@ private theorem descentBCIota_finrankAlong (hfin' : FiniteAlong F ι') :
 private theorem descentBCIota_compat (a : (E₀'⁄F).toAffine.FunctionField) :
     descentBCIota E₀ E₀' F F' ι' (functionFieldMapAlongGeneralNoAC E₀' F F' a)
       = functionFieldMapAlongGeneralNoAC E₀ F F' (ι' a) := by
-  let ψE := functionFieldTensorFracEquivGeneralNoAC E₀ F F'
-  let ψE' := functionFieldTensorFracEquivGeneralNoAC E₀' F F'
-  let χE := functionFieldMapAlongGeneralNoAC E₀ F F'
-  let χE' := functionFieldMapAlongGeneralNoAC E₀' F F'
-  have hκE' : ψE' (χE' a)
-      = algebraMap ((E₀'⁄F).toAffine.FunctionField ⊗[F] F') _ (a ⊗ₜ[F] (1 : F')) := by
-    have hκ : ((functionFieldTensorFracHomGeneralNoAC E₀' F F').restrictScalars F).comp χE'
-        = (IsScalarTower.toAlgHom F ((E₀'⁄F).toAffine.FunctionField ⊗[F] F')
-            (FractionRing ((E₀'⁄F).toAffine.FunctionField ⊗[F] F'))).comp
+  -- Every step below is stated at the *explicit* terms rather than through the pin's local
+  -- `let ψE / ψE' / χE / χE'` abbreviations: a `show`/`exact` whose two sides differ only by
+  -- zeta of those `let`s makes `isDefEq` fall back to unfolding the whole
+  -- `FunctionField = FractionRing (CoordinateRing _)` tower (measured: 855 `CoordinateRing`
+  -- and 644 `inferInstance` unfoldings per reduction, `whnf` timeouts).  With the terms
+  -- spelled out, the same steps are `rfl`-lemmas applied by `rw`, i.e. syntactic matches.
+  have hκE' : (functionFieldTensorFracEquivGeneralNoAC E₀' F F')
+      (functionFieldMapAlongGeneralNoAC E₀' F F' a)
+      = algebraMap (tensorBC F E₀' F')
+          (fracTensorBC F E₀' F') (a ⊗ₜ[F] (1 : F')) := by
+    have hκ : ((functionFieldTensorFracHomGeneralNoAC E₀' F F').restrictScalars F).comp
+          (functionFieldMapAlongGeneralNoAC E₀' F F')
+        = (IsScalarTower.toAlgHom F (tensorBC F E₀' F')
+            (fracTensorBC F E₀' F')).comp
             (Algebra.TensorProduct.includeLeft (R := F)) := by
       refine functionField_algHom_ext ?_ ?_
-      · show functionFieldTensorFracHomGeneralNoAC E₀' F F' (χE' _) = _
-        rw [functionFieldMapAlongGeneralNoAC_polyToFunctionField_X,
-          functionFieldTensorFracHomGeneralNoAC_X]; rfl
-      · show functionFieldTensorFracHomGeneralNoAC E₀' F F' (χE' _) = _
-        rw [functionFieldMapAlongGeneralNoAC_yGen,
-          functionFieldTensorFracHomGeneralNoAC_yGen]; rfl
-    exact DFunLike.congr_fun hκ a
-  have hκE : ∀ b, ψE.symm (algebraMap ((E₀⁄F).toAffine.FunctionField ⊗[F] F') _
-      (b ⊗ₜ[F] (1 : F'))) = χE b := by
+      · rw [AlgHom.comp_apply, AlgHom.restrictScalars_apply, AlgHom.comp_apply,
+          IsScalarTower.toAlgHom_apply, Algebra.TensorProduct.includeLeft_apply,
+          functionFieldMapAlongGeneralNoAC_polyToFunctionField_X,
+          functionFieldTensorFracHomGeneralNoAC_X]
+      · rw [AlgHom.comp_apply, AlgHom.restrictScalars_apply, AlgHom.comp_apply,
+          IsScalarTower.toAlgHom_apply, Algebra.TensorProduct.includeLeft_apply,
+          functionFieldMapAlongGeneralNoAC_yGen, functionFieldTensorFracHomGeneralNoAC_yGen]
+    simpa only [functionFieldTensorFracEquivGeneralNoAC, AlgEquiv.ofBijective_apply,
+      AlgHom.comp_apply, AlgHom.restrictScalars_apply, IsScalarTower.toAlgHom_apply,
+      Algebra.TensorProduct.includeLeft_apply] using DFunLike.congr_fun hκ a
+  have hκE : ∀ b, (functionFieldTensorFracEquivGeneralNoAC E₀ F F').symm
+      (algebraMap (tensorBC F E₀ F')
+        (fracTensorBC F E₀ F') (b ⊗ₜ[F] (1 : F')))
+      = functionFieldMapAlongGeneralNoAC E₀ F F' b := by
     intro b
-    refine ψE.injective ?_
+    refine (functionFieldTensorFracEquivGeneralNoAC E₀ F F').injective ?_
     rw [AlgEquiv.apply_symm_apply]
-    have hκ : ((functionFieldTensorFracHomGeneralNoAC E₀ F F').restrictScalars F).comp χE
-        = (IsScalarTower.toAlgHom F ((E₀⁄F).toAffine.FunctionField ⊗[F] F')
-            (FractionRing ((E₀⁄F).toAffine.FunctionField ⊗[F] F'))).comp
+    have hκ : ((functionFieldTensorFracHomGeneralNoAC E₀ F F').restrictScalars F).comp
+          (functionFieldMapAlongGeneralNoAC E₀ F F')
+        = (IsScalarTower.toAlgHom F (tensorBC F E₀ F')
+            (fracTensorBC F E₀ F')).comp
             (Algebra.TensorProduct.includeLeft (R := F)) := by
       refine functionField_algHom_ext ?_ ?_
-      · show functionFieldTensorFracHomGeneralNoAC E₀ F F' (χE _) = _
-        rw [functionFieldMapAlongGeneralNoAC_polyToFunctionField_X,
-          functionFieldTensorFracHomGeneralNoAC_X]; rfl
-      · show functionFieldTensorFracHomGeneralNoAC E₀ F F' (χE _) = _
-        rw [functionFieldMapAlongGeneralNoAC_yGen,
-          functionFieldTensorFracHomGeneralNoAC_yGen]; rfl
-    exact (DFunLike.congr_fun hκ b).symm
-  show ψE.symm (descentBCTensorFracIotaAlg E₀ E₀' F F' ι' (ψE' (χE' a))) = χE (ι' a)
+      · rw [AlgHom.comp_apply, AlgHom.restrictScalars_apply, AlgHom.comp_apply,
+          IsScalarTower.toAlgHom_apply, Algebra.TensorProduct.includeLeft_apply,
+          functionFieldMapAlongGeneralNoAC_polyToFunctionField_X,
+          functionFieldTensorFracHomGeneralNoAC_X]
+      · rw [AlgHom.comp_apply, AlgHom.restrictScalars_apply, AlgHom.comp_apply,
+          IsScalarTower.toAlgHom_apply, Algebra.TensorProduct.includeLeft_apply,
+          functionFieldMapAlongGeneralNoAC_yGen, functionFieldTensorFracHomGeneralNoAC_yGen]
+    simpa only [functionFieldTensorFracEquivGeneralNoAC, AlgEquiv.ofBijective_apply,
+      AlgHom.comp_apply, AlgHom.restrictScalars_apply, IsScalarTower.toAlgHom_apply,
+      Algebra.TensorProduct.includeLeft_apply] using (DFunLike.congr_fun hκ b).symm
+  show (functionFieldTensorFracEquivGeneralNoAC E₀ F F').symm
+      (descentBCTensorFracIotaAlg E₀ E₀' F F' ι'
+        ((functionFieldTensorFracEquivGeneralNoAC E₀' F F')
+          (functionFieldMapAlongGeneralNoAC E₀' F F' a)))
+    = functionFieldMapAlongGeneralNoAC E₀ F F' (ι' a)
   rw [hκE',
     show descentBCTensorFracIotaAlg E₀ E₀' F F' ι'
-        (algebraMap ((E₀'⁄F).toAffine.FunctionField ⊗[F] F') _ (a ⊗ₜ[F] (1 : F')))
-      = algebraMap ((E₀⁄F).toAffine.FunctionField ⊗[F] F') _ ((ι' a) ⊗ₜ[F] (1 : F')) from by
+        (algebraMap (tensorBC F E₀' F')
+          (fracTensorBC F E₀' F') (a ⊗ₜ[F] (1 : F')))
+      = algebraMap (tensorBC F E₀ F')
+          (fracTensorBC F E₀ F') ((ι' a) ⊗ₜ[F] (1 : F')) from by
         show descentBCTensorFracIota E₀ E₀' F F' ι' _ = _
         rw [descentBCTensorFracIota_algebraMap, descentBCTensorIota_tmul],
     hκE (ι' a)]
@@ -833,29 +895,40 @@ variable (ι : (E₀'.map (algebraMap K₀ K)).toAffine.FunctionField
 variable (hcoeffs : twoCurveCoeffsHyp E₀ E₀' ι)
 variable [DecidableEq (↥K₀)]
 variable [CharZero (↥K₀)]
-variable [IsDomain ((E₀⁄(↥K₀)).toAffine.FunctionField ⊗[↥K₀] K)]
-variable [IsDomain ((E₀'⁄(↥K₀)).toAffine.FunctionField ⊗[↥K₀] K)]
+-- `[IsDomain ((E₀⁄↥K₀).toAffine.FunctionField ⊗[↥K₀] K)]` and its `E₀'` twin are **not** section
+-- variables: no statement below mentions them, only the two proofs do, and an in-scope section
+-- variable is re-elaborated (whole tensor/fraction-field tower included) for every command of the
+-- section.  Each of the two proofs supplies them with `haveI` from D-1's gate-free producer.
 
 /- The pin's `scoped instance kw_surgehgf4_cfe_instE₀'K₀` / `…_instE₀'K` bridges
 (`S_:3566–3568`) and their `E₀` twins, which this port dropped. `WeierstrassCurve.baseChange`
 is a semireducible `def`, so instance search cannot unfold `E₀⁄(↥K₀)` to
 `E₀.map (algebraMap (↥K₀) (↥K₀))` and therefore cannot reach mathlib's `(W.map f).IsElliptic`
-instance: `inferInstance : (E⁄R).IsElliptic` fails outright. `inferInstanceAs` names the `map`
-spelling, where the search succeeds. Without these the engine calls at `F = ↥K₀` spin, which is
-what the `:842`/`:850`/`:853` `whnf`/`tactic execution` timeouts are. -/
+instance: `inferInstance : (E⁄R).IsElliptic` fails outright. Without these the engine calls at
+`F = ↥K₀` spin, which is what the `:842`/`:850`/`:853` `whnf`/`tactic execution` timeouts are.
+
+The instances are named explicitly (`WeierstrassCurve.instIsEllipticMap`) instead of found by
+`inferInstanceAs ((E₀.map f).IsElliptic)`: the search for the `map` spelling was the single most
+expensive item of the module (~half of its elaboration) — a `whnf` spin, not a reduction of the
+result. Naming the instance term removes the search entirely; the declaration's type (frozen) is
+then matched by the one-`δ` `baseChange ↦ map` unfolding. -/
 private instance twoCurveBcE₀K₀_isElliptic : (E₀⁄(↥K₀)).IsElliptic :=
-  inferInstanceAs ((E₀.map (algebraMap (↥K₀) (↥K₀))).IsElliptic)
+  WeierstrassCurve.instIsEllipticMap (W := E₀) (f := algebraMap (↥K₀) (↥K₀))
 private instance twoCurveBcE₀'K₀_isElliptic : (E₀'⁄(↥K₀)).IsElliptic :=
-  inferInstanceAs ((E₀'.map (algebraMap (↥K₀) (↥K₀))).IsElliptic)
+  WeierstrassCurve.instIsEllipticMap (W := E₀') (f := algebraMap (↥K₀) (↥K₀))
 private instance twoCurveBcE₀K_isElliptic : (E₀⁄K).IsElliptic :=
-  inferInstanceAs ((E₀.map (algebraMap (↥K₀) K)).IsElliptic)
+  WeierstrassCurve.instIsEllipticMap (W := E₀) (f := algebraMap (↥K₀) K)
 private instance twoCurveBcE₀'K_isElliptic : (E₀'⁄K).IsElliptic :=
-  inferInstanceAs ((E₀'.map (algebraMap (↥K₀) K)).IsElliptic)
+  WeierstrassCurve.instIsEllipticMap (W := E₀') (f := algebraMap (↥K₀) K)
 
 /-- The base change of the descended isogeny is the isogeny it descends: the pin's
 `kw_surgehgf4_cfe_bcIota₁NoAC_eq_ι`. -/
 private theorem twoCurve_bcIota_eq_ι :
     descentBCIota E₀ E₀' (↥K₀) K (twoCurve_ι' E₀ E₀' ι hcoeffs) = ι := by
+  haveI hdom : IsDomain (tensorBC (↥K₀) E₀ K) :=
+    functionFieldTensorIsDomain_dischargeGeneralNoAC E₀ (↥K₀) K
+  haveI hdom' : IsDomain (tensorBC (↥K₀) E₀' K) :=
+    functionFieldTensorIsDomain_dischargeGeneralNoAC E₀' (↥K₀) K
   set ι' := twoCurve_ι' E₀ E₀' ι hcoeffs with hι'_def
   -- Restatements at `F = ↥K₀` in the plain spelling: the `⁄`-collapse then happens once, at
   -- *default* transparency, instead of at every `erw` (which matches at reducible transparency
@@ -889,6 +962,10 @@ private theorem twoCurve_bcIota_eq_ι :
 
 private theorem twoCurve_finrankEq :
     finrankAlong K₀ (twoCurve_ι' E₀ E₀' ι hcoeffs) = finrankAlong K ι := by
+  haveI hdom : IsDomain (tensorBC (↥K₀) E₀ K) :=
+    functionFieldTensorIsDomain_dischargeGeneralNoAC E₀ (↥K₀) K
+  haveI hdom' : IsDomain (tensorBC (↥K₀) E₀' K) :=
+    functionFieldTensorIsDomain_dischargeGeneralNoAC E₀' (↥K₀) K
   have hfin' : FiniteAlong (↥K₀) (twoCurve_ι' E₀ E₀' ι hcoeffs) :=
     twoCurve_finiteAlong E₀ E₀' ι hcoeffs
   have hD2 := descentBCIota_finrankAlong E₀ E₀' (↥K₀) K
@@ -953,8 +1030,7 @@ development below is stated in the models' `map` spelling. -/
 private theorem twoCurveDescentInstance {K₀ : IntermediateField ℚ K}
     (E₀ E₀' : WeierstrassCurve K₀) [E₀.IsElliptic] [E₀'.IsElliptic]
     [DecidableEq (↥K₀)] [CharZero (↥K₀)]
-    [IsDomain ((E₀⁄(↥K₀)).toAffine.FunctionField ⊗[↥K₀] K)]
-    [IsDomain ((E₀'⁄(↥K₀)).toAffine.FunctionField ⊗[↥K₀] K)]
+    [IsDomain (tensorBC (↥K₀) E₀ K)] [IsDomain (tensorBC (↥K₀) E₀' K)]
     {W W' : WeierstrassCurve K} [W.IsElliptic] [W'.IsElliptic]
     (heq : E₀.map (algebraMap K₀ K) = W) (heq' : E₀'.map (algebraMap K₀ K) = W')
     (ι : W'.toAffine.FunctionField →ₐ[K] W.toAffine.FunctionField)
@@ -1012,9 +1088,9 @@ theorem exists_twoCurveDescent
   haveI : E₀'.IsElliptic := twoCurveE₀'_isElliptic E E' ι
   have hmap : E₀.map (algebraMap K₀ K) = E := twoCurveE₀_map E E' ι
   have hmap' : E₀'.map (algebraMap K₀ K) = E' := twoCurveE₀'_map E E' ι
-  haveI hdom : IsDomain ((E₀⁄(↥K₀)).toAffine.FunctionField ⊗[↥K₀] K) :=
+  haveI hdom : IsDomain (tensorBC (↥K₀) E₀ K) :=
     functionFieldTensorIsDomain_dischargeGeneralNoAC E₀ (↥K₀) K
-  haveI hdom' : IsDomain ((E₀'⁄(↥K₀)).toAffine.FunctionField ⊗[↥K₀] K) :=
+  haveI hdom' : IsDomain (tensorBC (↥K₀) E₀' K) :=
     functionFieldTensorIsDomain_dischargeGeneralNoAC E₀' (↥K₀) K
   have hcoeffs : twoCurveCoeffsHyp E₀ E₀' (twoCurve_ιMpr E₀ E₀' hmap hmap' ι) :=
     twoCurve_coeffsHyp_cast E₀ E₀' hmap hmap' ι
@@ -1071,9 +1147,6 @@ end TwoCurveChiCompChiEqPhi
 section GateDescent
 
 variable {K : Type uK} [Field K] [DecidableEq K] [IsAlgClosed K] [CharZero K]
-
-set_option maxHeartbeats 48000000
-set_option synthInstance.maxHeartbeats 8000000
 
 /-- The pin's `kw_surgehgf4_hfgkd_hKD_of_kerTransport`, with the pin's `s13GlobalGate` lines
 removed: the gate instances at the two models over the algebraic closure, and at `E`/`E'`

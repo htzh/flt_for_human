@@ -9,9 +9,11 @@
   proofs transcribed from the matching `P2M/Sol/S_*` files (1,362 + 597 + 488
   lines) and adapted to mathlib `v4.34.0`.  Order 1's headlines are imported.
 
-  `ModularCurve.IsIntegralQExp` is the pin's definition from
-  `Definitions/Def_ModularCurve_X1.lean`, transcribed verbatim because the third
-  headline's statement names it; the remaining proof-only X1 helper (`restrictForm`) is
+  `ModularCurve.IsIntegralQExp` — the statement of the third headline names it — is
+  **imported** from its own home `FLTForHuman/ModularCurve/X1/Integral.lean` (the pin's
+  `Integral` block of `Definitions/Def_ModularCurve_X1.lean`), not restated here: a
+  `ModularCurve` definition layer does not belong inside an analytic weight-one module.
+  The remaining proof-only X1 helper (`restrictForm`) is
   carried `private` inside each package that needs it (`Gamma1_le_of_dvd` now comes from
   the shared home `CongruenceSubgroup.Gamma1_le_of_dvd` in
   `NumberTheory/ModularForms/CongruenceSubgroupOrder.lean`),
@@ -28,6 +30,19 @@
 
   The pin's `set_option maxHeartbeats` bumps are **not** transcribed (the
   project's global `maxHeartbeats` cap is 4,000,000).
+
+  Wired here, not in the frozen registry: this module's own `spec-pin:` lines below
+  replaced its `PORT_FILES` entry (`spec/old_check_stmts.py`, 2026-10-21).  The
+  `IsRat`/`Eaux` block the first package shares with its siblings is diffed against
+  the `ratCast_qExpansion_slash` `S_` file, which declares it; the `IsIntegralQExp`
+  definition this module used to supply lives at `X1/Integral.lean` and is imported.
+
+spec-pin: Theorems/Thm_ModularCurve_exists_ne_zero_forall_intCast_mul_qExpansion_coeff_of_gamma_invariant.lean
+spec-pin: P2M/Sol/S_ModularCurve_exists_ne_zero_forall_intCast_mul_qExpansion_coeff_of_gamma_invariant.lean
+spec-pin: Theorems/Thm_ModularCurve_exists_ratCast_qExpansion_slash_of_mem_Gamma0.lean
+spec-pin: P2M/Sol/S_ModularCurve_exists_ratCast_qExpansion_slash_of_mem_Gamma0.lean
+spec-pin: Theorems/Thm_ModularCurve_exists_isIntegralQExp_smul_of_ratCast_qExpansion.lean
+spec-pin: P2M/Sol/S_ModularCurve_exists_isIntegralQExp_smul_of_ratCast_qExpansion.lean
 -/
 
 import FLTForHuman.ModularForms.WeightOne.Basic
@@ -41,6 +56,7 @@ import FLTForHuman.ModularForms.WeightOne.EisensteinChiNegThree
 import FLTForHuman.ModularForms.WeightOne.Gamma0Rationality
 import FLTForHuman.ModularForms.JqAnalyticModel
 import FLTForHuman.ModularCurve.Defs.Jq
+import FLTForHuman.ModularCurve.X1.Integral
 import Mathlib.Algebra.Algebra.Hom.Rat
 import Mathlib.Analysis.Analytic.IsolatedZeros
 import Mathlib.Analysis.Analytic.Order
@@ -93,15 +109,6 @@ noncomputable section
 
 open Complex Real UpperHalfPlane ModularForm CongruenceSubgroup
 open scoped Real Manifold MatrixGroups ModularForm Topology UpperHalfPlane
-
-namespace ModularCurve
-
-/-- The pin's `Def_ModularCurve_X1.IsIntegralQExp`: integrality of a `q`-expansion
-against an integral power series. -/
-def IsIntegralQExp (f : ℍ → ℂ) (p : PowerSeries ℤ) : Prop :=
-  p.map (Int.castRingHom ℂ) = qExpansion 1 f
-
-end ModularCurve
 
 namespace WLightS10.S_ModularCurve_exists_ne_zero_forall_intCast_mul_qExpansion_coeff_of_gamma_invariant
 
@@ -1408,12 +1415,8 @@ section Level
 
 variable {M : ℕ} {k : ℤ}
 
-private theorem T_mem_Gamma1 (N : ℕ) : ModularGroup.T ∈ Gamma1 N := by
-  simp
-
 private theorem one_mem_strictPeriods (M : ℕ) : (1 : ℝ) ∈ (Γ₁(M)).strictPeriods := by
-  rw [Subgroup.strictPeriods_eq_zmultiples_one_of_T_mem (T_mem_Gamma1 M)]
-  exact AddSubgroup.mem_zmultiples 1
+  simp
 
 theorem conj_mem_Gamma1 {γ A : SL(2, ℤ)} (hγ : γ ∈ Gamma0 M) (hA : A ∈ Gamma1 M) :
     γ * A * γ⁻¹ ∈ Gamma1 M := ModularForm.Level.conj_mem_Gamma1 hγ hA

@@ -618,6 +618,54 @@ Standing state: both failures from the 500k tree build are cleared. That tree
 build was killed at 1 h around `[5266/5394]`, so ~130 modules past the kill
 point remain unverified until the next tree build.
 
+## A fourth unit: `TwoCurveDescent` — one declaration over the bound, and the override that hid it
+
+Found 2026-10-21, by accident: the module was a stale *dependency* of an unrelated refactor's wave, and
+it did not finish inside `timeout 120`. The P-3 record said it took 4 m 49 s and that the cost was
+`gateDescent_of_descent` — *the declaration that carries the pin's transcribed
+`set_option maxHeartbeats 48000000` / `synthInstance.maxHeartbeats 8000000`*. Both halves of that were
+wrong, and the second is the lesson: the overrides were hiding a defect in a **different** declaration,
+so every later reader had a plausible and false explanation to hand.
+
+The ladder — every step bounded, none timed:
+
+| probe | holds | verdict |
+|---|---|---|
+| whole module, all 48 theorem proofs `sorry` | statements only | **under** — not a type cost |
+| prefix bisection (`through:<line>`, full proofs before the cut) | growing prefix | over only past one declaration |
+| `one:<line>` (only the target's proof kept, earlier proofs stubbed) | one proof | **over** |
+| `keepafter:<line>` (whole module, only that proof stubbed) | everything else | under — one declaration, no cascade |
+| per-step probes inside it | `have` statements, `refine` | under |
+| the same, on the offending `show` | one comparison | **over** |
+
+Counters on that one declaration: abort at `whnf`, typeclass search negligible (max 31 uses of any
+instance), reduction table `CoordinateRing ↦ 592` (855 at `threshold 1`), `inferInstance ↦ 120` (644),
+`FunctionField ↦ 143`, `FractionRing`/`Localization ↦ 137`.
+
+Mechanism: the pin's four local `let`s (`ψE`, `ψE'`, `χE`, `χE'`). Each `show` differs from its goal
+only by zeta, so `isDefEq` abandons the syntactic path and unfolds
+`FunctionField = FractionRing (CoordinateRing ·)`. The fix is the one the 768 block above already
+found: state the intermediates at the explicit terms and `rw` with the `rfl`-level projection lemmas
+(`AlgHom.comp_apply`, `AlgHom.restrictScalars_apply`, `IsScalarTower.toAlgHom_apply`,
+`Algebra.TensorProduct.includeLeft_apply`), closing with `simpa only`. **Nothing was named** — this is
+the naming cure from the other side, and the distinction matters: naming helps when a *type* is
+unfolded over and over; here the names themselves were what blocked the match.
+
+Gain, with the overrides removed (they are gone from the file, and the module is green at the plain
+project cap): **over `timeout 120` → inside it, silently.** The one sanctioned profiled run, kept at
+`tools/deps/build/trace_FLTForHuman_WeierstrassCurve_Isogeny_TwoCurveDescent.txt`, reads 65 s of
+elaboration over 91 commands — three times the band the rest of the tree lives in. The follow-up round
+took the two statement-neutral levers (the proof-only `IsDomain (… ⊗ K)` variables into `haveI`s; three
+`private abbrev`s for the base-changed spelling) and moved the module's *floor* — every proof
+`sorry`-stubbed — from over `timeout 20` to under it. The whole file then passes `timeout 60` and fails
+`timeout 30`; what is left is the tail of ~90 proof terms with no single lever, and the public statements
+are frozen, so it was accepted at 60 s rather than re-pinned. Two negatives are recorded in
+`logs/build-time-issues.md` §7: the `AlgHom` alias is *impossible* while the file spells the curve both
+`W.map f` and `W⁄A` (instance search cannot unfold the semireducible `baseChange`), and the
+`descentBCTensorFracIotaAlg` `show` cannot be `rw`-replaced because it strips a *double* coercion. Two facts from the round are in the playbook instead: the `bound, do
+not measure` policy and the `a cap override in a file is a defect marker` rule (§3.5), and the
+`TensorProduct.inductionOn` drift, whose eliminator has **no `zero` case** (§7).
+
 ## Per-declaration cost, and the one-run call-site list
 
 A note on per-declaration cost: Lean `v4.34` has no "seconds per theorem" table.

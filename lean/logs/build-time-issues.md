@@ -104,3 +104,103 @@ Measured this session at the library cap: `ResidueSumQExpansion` **36 s**, `LogB
 **20 s**, `HexagonalLattice` **16–18 s**, `PeriodPair/InvariantsTorsion` **14 s**, `GroupTheory/GroupAction/OrbitCounts`
 9.5 s build; everything else in the ~60 new modules is **2–13 s**. No module in the wave needed more than
 200k hearts except the two in §1–§2.
+
+## 7. Resolved — `TwoCurveDescent`: one zeta-blind `isDefEq`, behind two hidden overrides
+
+Found 2026-10-21 while building the wave of [logs/qexp-definition-layer-homes.md](qexp-definition-layer-homes.md)
+(the module was a stale *dependency* of `ModularCurve.ModularPolynomialEvalJ`), bisected and fixed the
+same day; it is not part of that refactor's cascade.
+
+**The culprit was not the declaration carrying the pin's heartbeat bump.** It was
+`private theorem descentBCIota_compat`, and the probe ladder was: (1) the whole module with all 48
+theorem proofs `sorry`-stubbed elaborates fine — the *statements* are cheap; (2) prefix bisection put
+the cost between two declarations; (3) `one:<line>` with every earlier proof stubbed reproduced the
+overrun, and `keepafter:` (whole module minus that one proof) cleared it — so one declaration, no
+cascade; (4) `diagnostics` on that declaration aborted **at `whnf`** with typeclass search negligible
+(max 31 instance uses) and reduction heavy — `CoordinateRing ↦ 592` (855 at `threshold 1`),
+`inferInstance ↦ 120` (644), `FunctionField ↦ 143`, `FractionRing`/`Localization ↦ 137` — so a
+defeq-class defect, not an instance-search one.
+
+**Mechanism.** The pin's four local `let`s (`ψE`, `ψE'`, `χE`, `χE'`) make every `show`/`exact` in
+that proof differ from the goal *only by zeta*, so `isDefEq` abandons the cheap path and unfolds
+`FunctionField = FractionRing (CoordinateRing ·)` (through `Affine.baseChange`/`Localization`/
+`AdjoinRoot`) instead of matching syntactically.
+
+**Fix (proof-only; the statement is byte-identical).** State every intermediate at the explicit terms
+and replace the four `show …; rfl` steps by `rw` with the `rfl`-level projection lemmas
+(`AlgHom.comp_apply`, `AlgHom.restrictScalars_apply`, `IsScalarTower.toAlgHom_apply`,
+`Algebra.TensorProduct.includeLeft_apply`) plus the generator lemmas already in use, closing with
+`simpa only [functionFieldTensorFracEquivGeneralNoAC, AlgEquiv.ofBijective_apply, …]`. Nothing had to
+be *named* — this is §8's cure in the opposite direction: there a complex type is named once, here
+the names (`let`s) that block syntactic matching are removed.
+
+**The two overrides were the reason this survived.** `section GateDescent` carried
+`set_option maxHeartbeats 48000000` and `set_option synthInstance.maxHeartbeats 8000000`, transcribed
+from the pin, and the P-3 record read them as "a fidelity fix, not a cap exception" and attributed
+the module's multi-minute elaboration to the declaration that carries them. Both were masking a
+different declaration's zeta defect. They are **removed**: the module now elaborates under
+`timeout 120` at the project cap, silently, `lake build` 55 s, a dependent 6.5 s. The three
+deprecations in it were fixed in the same pass (`TensorProduct.induction_on` → `inductionOn`, whose
+`zero` branches disappear with the old eliminator; `if_true` → `ite_true`). The module left
+`PORT_FILES` for its own `spec-pin:` wire in the same round (7 ok, 1 `own:` — the port's
+`exists_twoCurveDescent`, which the pin does not state).
+
+Rules this case adds: a `show`/`exact` that differs from its goal only by zeta is a defeq trap —
+spell the terms; a cap override inside a file is a **bug report, not a budget**, and a large one (12×)
+must be treated as evidence that something in that file is wrong; and before trusting "the time goes
+into the declaration that carries the bump", bisect.
+
+**The floor, measured: the statements, not the proofs.** A whole-module probe (every theorem proof
+`sorry`, statements, `def`s and instances verbatim) fails a 20 s bound and passes 40 s, so no proof
+edit can get the module under 20 s. The cause is the section variables: Lean re-elaborates a variable's
+*frozen type* for every command in scope, and here two `IsDomain ((E₀⁄↥K₀).toAffine.FunctionField ⊗[↥K₀] K)`
+hypotheses cost ~1.25 s each per command although no statement mentions them. The ruling that follows:
+the module **meets the project bound** (silent at `timeout 120`), and **`timeout 30` is accepted for it**
+if the statement-neutral work does not go further. The statement-neutral levers, in order, are: those
+two variables moved into the two proofs that use them, then the five expensive `private def` bodies in
+the `rw`-with-projection-lemmas style; the remaining lever — re-pinning the statements with type
+aliases — is a **wire decision**, not an agent's (it changes public statement text and needs `own:` rows
+and a spec re-pin), so it stays unopened. A 20 s gate was the stretch and is **withdrawn**: it is not a
+requirement of this register, and a module at 30 s is not an open build-time issue.
+
+**Final state (accepted, 2026-10-21).** With the statement-neutral levers taken, the module's *floor*
+(all 48 theorem proofs `sorry`-stubbed) is now **under `timeout 20`** — it was over `timeout 10` before —
+and the whole file passes **`timeout 60`**, fails `timeout 30`. Everything above the floor is the ~90
+proof terms (top items ~2.1 s `twoCurveDescentInstance`, ~1.7 s `gateDescent_of_descent`, ~1.66/1.64 s
+`twoCurve_bcIota_eq_ι` / `twoCurve_finrankEq`, then a flat ~0.1–0.2 s tail), i.e. no single lever; the
+public statements are frozen, so the only remaining moves are proof-by-proof or a statement re-pin (a
+wire decision). Two levers were taken and one was *impossible*: (i) the two proof-only `IsDomain (… ⊗ K)`
+section variables became `haveI` in the two theorems that use them; (ii) three `private abbrev` aliases
+(`ffBC`, `tensorBC`, `fracTensorBC`) replaced the 36 private occurrences of the base-changed
+function-field/tensor spelling; (iii) *not* done — aliasing the `ι`/`ι'` `AlgHom` types, because the
+`K₀ ≤ K` sections spell the curve `W.map f` while the engine spells it `W⁄A`, and instance search at
+`.instances` transparency cannot unfold the semireducible `baseChange`, so the alias *breaks* synthesis
+(`failed to synthesize Algebra (CoordinateRing …)`) and rewrites. The module is accepted at the 60 s
+bound: under the project bound, silent, 0 warnings, public surface byte-identical
+(`7 ok / 0 mismatch / 0 missing / 1 own`).
+
+The worked write-up, with the probe table, the counters and the gain, is
+"a fourth unit" in [../../notes/instance-friction-case-study.md](../../notes/instance-friction-case-study.md);
+the policy it changed is [porting-playbook.md](../porting-playbook.md) §3.5 (bound, do not measure; a
+cap override is a defect marker) and §6 (the zeta cure, beside the naming cure).
+
+## 8. Resolved — a `≤`-lemma applied inside a large statement: one `isDefEq`, over the bound
+
+Found and cured 2026-10-21 in the Gauss-prolongation set
+([logs/qexp-regular-prolongation.md](qexp-regular-prolongation.md) §3a). The line
+
+```lean
+have hfF : (f : LaurentSeries L) ∈ qExpFunctionFieldC L Γ := laurentBaseChange_le Γ f.2
+```
+
+timed out deterministically at the 200k cap, **in the application, not the statement** (stubbing the
+proof showed the statement elaborates in a second): applying a `FF ≤ qExpFunctionFieldC L Γ` proof to
+an element makes `isDefEq` unfold `SetLike.le`, and inside a four-conjunct statement that costs more
+than the whole edit-loop budget. The cure: state the element form once (`mem_qExp_of_mem_FF`, proved
+by `SetLike.le_def.mp`) and apply that at the site — the declaration then closes in about a second.
+Same class as §2's `LocSum`: name the shape, and the elaborator stops unfolding it; no heartbeat, no
+statement change. The general lesson for orders: a `≤`/`⊆`-shaped lemma whose *result* is a
+membership should be applied in element form inside any declaration whose statement is large.
+
+§7 is the same family with the opposite cure: there the fix is to *name* a complex type once; here it
+is to *remove* the `let`s that stop `rw` from matching syntactically.
