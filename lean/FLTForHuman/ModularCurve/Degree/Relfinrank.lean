@@ -15,6 +15,17 @@
 
   FLT provenance, pinned `aa2d8b3`:
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_relfinrank_laurentBaseChange.lean
+
+  Wired here, not in the frozen registry: the module left `PORT_FILES`
+  (`spec/old_check_stmts.py`) and carries its own `spec-pin:` lines below. The
+  `RelFinrankKit` section is the `X1LDField`/`XHLDField` block of the two
+  `HeckeCompositum` pin files (byte-identical in the two), and
+  `relfinrank_laurentBaseChange_eq` is the `X1LDLaurent`/`XHLDLaurent` one.
+
+spec-pin: P2M/Sol/S_ModularCurve_relfinrank_laurentBaseChange.lean
+spec-pin: P2M/Sol/S_ModularCurve_relfinrank_qExpand_full.lean
+spec-pin: P2M/Sol/S_ModularCurve_relfinrank_x1HeckeCompositum_eq_mul.lean
+spec-pin: P2M/Sol/S_ModularCurve_relfinrank_xHHeckeCompositum_eq_mul.lean
 -/
 import FLTForHuman.ModularCurve.Defs.Laurent
 import FLTForHuman.ModularCurve.Defs.GeometricBaseChange
@@ -748,6 +759,156 @@ theorem relfinrank_qExpand_full (N ℓ : ℕ) [NeZero N] [hl : Fact (Nat.Prime �
       (fun hin => hd (hiff.mp hin))
 
 end RelfinrankQExpandFull
+
+/-! ## The relative-degree toolkit
+
+The pin's `X1LDField`/`XHLDField` block
+(`P2M/Sol/S_ModularCurve_relfinrank_{x1,xH}HeckeCompositum_eq_mul.lean:269-382` and
+`:-494`, byte-identical in the two files): the ten `IntermediateField.relfinrank`
+lemmas the Hecke-compositum proofs stand on. Generic — no modular form, no
+`q`-expansion. `relrank_adjoin_insert_eq` is the one that matters most: it turns a
+`relrank (adjoin F S) (adjoin F (insert x S))` (the shape
+`ModularCurve.relIndex_gamma0_le_relrank_adjoin_insert_jqNModC` concludes in) into a
+`Module.finrank`, which is what `relfinrank` is stated over. -/
+
+namespace RelFinrankKit
+
+open IntermediateField Polynomial Cardinal
+
+variable {F E : Type*} [Field F] [Field E] [Algebra F E]
+
+theorem finite_extendScalars_of_relfinrank_ne_zero {A B : IntermediateField F E} (h : A ≤ B)
+    (hAB : relfinrank A B ≠ 0) : FiniteDimensional A (extendScalars h) := by
+  rw [relfinrank_eq_finrank_of_le h] at hAB
+  exact Module.finite_of_finrank_pos (Nat.pos_of_ne_zero hAB)
+
+theorem relfinrank_sup_le {Q A B : IntermediateField F E} (hA : Q ≤ A) (hB : Q ≤ B)
+    (ha : relfinrank Q A ≠ 0) (hb : relfinrank Q B ≠ 0) :
+    relfinrank Q (A ⊔ B) ≤ relfinrank Q A * relfinrank Q B ∧ relfinrank Q (A ⊔ B) ≠ 0 := by
+  have := finite_extendScalars_of_relfinrank_ne_zero hA ha
+  have := finite_extendScalars_of_relfinrank_ne_zero hB hb
+  have hsup : extendScalars (le_sup_of_le_left hA : Q ≤ A ⊔ B) =
+      extendScalars hA ⊔ extendScalars hB := (extendScalars_sup hA hB).symm
+  rw [relfinrank_eq_finrank_of_le hA, relfinrank_eq_finrank_of_le hB,
+    relfinrank_eq_finrank_of_le (le_sup_of_le_left hA), hsup]
+  refine ⟨IntermediateField.finrank_sup_le _ _, ?_⟩
+  have := IntermediateField.finiteDimensional_sup (extendScalars hA) (extendScalars hB)
+  exact Module.finrank_pos.ne'
+
+theorem isIntegral_and_natDegree_minpoly_le {X' X : IntermediateField F E} (h : X' ≤ X) {x : E}
+    (hx : IsIntegral X' x) :
+    IsIntegral X x ∧ (minpoly X x).natDegree ≤ (minpoly X' x).natDegree := by
+  set P := minpoly X' x with hP
+  let i : X' →+* X := (IntermediateField.inclusion h).toRingHom
+  have hcomp : (algebraMap X E).comp i = algebraMap X' E := by
+    ext y; rfl
+  have hmonic : (P.map i).Monic := (minpoly.monic hx).map i
+  have heval : Polynomial.aeval x (P.map i) = 0 := by
+    rw [Polynomial.aeval_def, Polynomial.eval₂_map, hcomp]
+    exact minpoly.aeval X' x
+  have hint : IsIntegral X x := ⟨P.map i, hmonic, by rwa [Polynomial.aeval_def] at heval⟩
+  refine ⟨hint, ?_⟩
+  calc (minpoly X x).natDegree ≤ (P.map i).natDegree :=
+        Polynomial.natDegree_le_natDegree (minpoly.min X x hmonic heval)
+    _ = P.natDegree := Polynomial.natDegree_map _
+
+theorem finrank_adjoin_simple_le_of_le {X' X : IntermediateField F E} (h : X' ≤ X) {x : E}
+    (hx : IsIntegral X' x) :
+    Module.finrank X X⟮x⟯ ≤ Module.finrank X' X'⟮x⟯ := by
+  obtain ⟨hint, hdeg⟩ := isIntegral_and_natDegree_minpoly_le h hx
+  rw [IntermediateField.adjoin.finrank hint, IntermediateField.adjoin.finrank hx]
+  exact hdeg
+
+theorem relrank_adjoin_insert_eq {S : Set E} {x : E} (hx : IsIntegral (adjoin F S) x) :
+    relrank (adjoin F S) (adjoin F (insert x S)) =
+      (Module.finrank (adjoin F S) (adjoin F S)⟮x⟯ : Cardinal) := by
+  have hres : adjoin F (insert x S) = IntermediateField.restrictScalars F (adjoin F S)⟮x⟯ := by
+    rw [adjoin_adjoin_left, Set.union_singleton]
+  have hle : adjoin F S ≤ IntermediateField.restrictScalars F (adjoin F S)⟮x⟯ := by
+    intro y hy
+    exact (adjoin F S)⟮x⟯.algebraMap_mem ⟨y, hy⟩
+  have hext : extendScalars hle = (adjoin F S)⟮x⟯ := by
+    apply IntermediateField.restrictScalars_injective F
+    rw [extendScalars_restrictScalars]
+  rw [hres, relrank_eq_rank_of_le hle, hext]
+  have := IntermediateField.adjoin.finiteDimensional hx
+  exact (Module.finrank_eq_rank _ _).symm
+
+theorem isIntegral_and_finrank_adjoin_le_relfinrank {X Y : IntermediateField F E} (h : X ≤ Y)
+    (hXY : relfinrank X Y ≠ 0) {x : E} (hx : x ∈ Y) :
+    IsIntegral X x ∧ Module.finrank X X⟮x⟯ ≤ relfinrank X Y := by
+  have := finite_extendScalars_of_relfinrank_ne_zero h hXY
+  set Y' : IntermediateField X E := extendScalars h with hY'
+  have hxY' : x ∈ Y' := hx
+  have hint : IsIntegral X x := by
+    have h1 : IsIntegral X (⟨x, hxY'⟩ : Y') := IsIntegral.of_finite X _
+    have h2 := h1.map (IsScalarTower.toAlgHom X Y' E)
+    exact h2
+  refine ⟨hint, ?_⟩
+  have hle : X⟮x⟯ ≤ Y' := adjoin_simple_le_iff.mpr hxY'
+  rw [relfinrank_eq_finrank_of_le h]
+  exact LinearMap.finrank_le_finrank_of_injective
+    (f := (IntermediateField.inclusion hle).toLinearMap) (IntermediateField.inclusion_injective hle)
+
+theorem relfinrank_le_of_relrank_le {A B C : IntermediateField F E} (hAB : A ≤ B) (hBC : B ≤ C)
+    {n : ℕ} (hn : relrank A C ≤ (n : Cardinal)) : relfinrank A B ≤ n := by
+  have hmul := relrank_mul_relrank hAB hBC
+  have hpos : 1 ≤ relrank B C := by
+    rw [relrank_eq_rank_of_le hBC]
+    exact Cardinal.one_le_iff_ne_zero.mpr (rank_pos.ne')
+  have hle : relrank A B ≤ relrank A C := by
+    calc relrank A B = relrank A B * 1 := (mul_one _).symm
+      _ ≤ relrank A B * relrank B C := by gcongr
+      _ = relrank A C := hmul
+  rw [relfinrank_eq_toNat_relrank]
+  have := Cardinal.toNat_le_toNat (hle.trans hn) (Cardinal.natCast_lt_aleph0)
+  rwa [Cardinal.toNat_natCast] at this
+
+theorem relfinrank_adjoin_simple_eq_finrank (F' : IntermediateField F E) (x : F') :
+    relfinrank (adjoin F {(x : E)}) F' = Module.finrank (adjoin F {x}) F' := by
+  have h1 := relfinrank_comap (adjoin F {(x : E)}) F'.val (⊤ : IntermediateField F F')
+  have hmap : IntermediateField.map F'.val ⊤ = F' := by
+    rw [← AlgHom.fieldRange_eq_map, fieldRange_val]
+  have hcomap : IntermediateField.comap F'.val (adjoin F {(x : E)}) = adjoin F {x} := by
+    have : adjoin F {(x : E)} = IntermediateField.map F'.val (adjoin F {x}) := by
+      rw [adjoin_map, Set.image_singleton]; rfl
+    rw [this, comap_map]
+  rw [hmap, hcomap, relfinrank_top_right] at h1
+  exact h1.symm
+
+theorem transcendental_map {E' : Type*} [Field E'] [Algebra F E'] (f : E →ₐ[F] E')
+    {x : E} (hx : Transcendental F x) : Transcendental F (f x) := fun h =>
+  hx ((isAlgebraic_algHom_iff f f.injective).mp h)
+
+theorem transcendental_coe {F' : IntermediateField F E} {x : F'} (hx : Transcendental F x) :
+    Transcendental F (x : E) :=
+  (transcendental_algebraMap_iff (R := F) (S := F') (A := E)
+    (FaithfulSMul.algebraMap_injective F' E)).mpr hx
+
+end RelFinrankKit
+
+section RelfinrankEq
+
+variable (L : Type*) [Field L] [Algebra ℚ L]
+
+/-- Relative degree is preserved by a `ℚ`-base change along `ℚ → L`, given a
+transcendental generator. `L` is a section variable, as in the pin. -/
+theorem relfinrank_laurentBaseChange_eq
+    {X Y : IntermediateField ℚ (LaurentSeries ℚ)} (hXY : X ≤ Y)
+    {t : LaurentSeries ℚ} (ht : t ∈ X) (htr : Transcendental ℚ t)
+    (hR : relfinrank (adjoin ℚ {t}) X ≠ 0) :
+    relfinrank (laurentBaseChange L X) (laurentBaseChange L Y) = relfinrank X Y := by
+  have hX := relfinrank_laurentBaseChange L X t ht htr
+  have hY := relfinrank_laurentBaseChange L Y t (hXY ht) htr
+  have h1 : adjoin ℚ {t} ≤ X := adjoin_simple_le_iff.mpr ht
+  have h1L : adjoin L {coeffEmb L t} ≤ laurentBaseChange L X :=
+    adjoin_simple_le_iff.mpr (coeffEmb_mem_laurentBaseChange L ht)
+  have htower := relfinrank_mul_relfinrank h1 hXY
+  have htowerL := relfinrank_mul_relfinrank h1L (laurentBaseChange_mono L hXY)
+  rw [hX, hY, ← htower] at htowerL
+  exact mul_left_cancel₀ hR htowerL
+
+end RelfinrankEq
 
 end ModularCurve
 

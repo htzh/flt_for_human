@@ -522,6 +522,36 @@ means opening one of those modules, so it is recorded, not opened. Records:
 [modularCurve/TOPIC-relIndex-relrank.md](modularCurve/TOPIC-relIndex-relrank.md),
 [modularCurve/WORKORDER-RI1-relindex-relrank-pair.md](modularCurve/WORKORDER-RI1-relindex-relrank-pair.md).
 
+**The Hecke-compositum degree then landed as one module with two headlines, and closed the set the
+`RelIndex` pair was ported for (2026-10-21).** The pin states the degeneracy-cover degree of the
+Hecke compositum twice — over `X_H(M)`
+(`S_ModularCurve_relfinrank_xHHeckeCompositum_eq_mul.lean`, 994 lines) and over `X₁(M)` (884) — and
+the two files differ only by the group: every one of the `x1` file's 61 theorem/lemmas has a
+same-shape twin in the `xH` file, and the section-by-section line counts are equal everywhere but
+`Groups`. The port held the bridge all along — `CohCarrier.GammaH_bot : CohCarrier.GammaH M ⊥ =
+Gamma1 M` — so the `x1` statement **is** the `xH` statement at `H := ⊥` and the 884-line file is
+not ported at all: `ModularCurve/HeckeCompositum.lean` (840 lines, 47 declarations) carries both
+headlines, `relfinrank_xHHeckeCompositum_eq_mul` and `relfinrank_x1HeckeCompositum_eq_mul`, with
+the engine `private` in `XHHeckeSol`. Its `main_C` calls **both** headlines of the previous set,
+which is the point: the `RelIndex` ground pays for itself one node later. The shared ground went
+into four existing modules — `Defs/Laurent.lean`, `JqIntegralRatios.lean`,
+`Degree/LaurentGlue.lean` and `Degree/Relfinrank.lean` (the `RelFinrankKit` toolkit,
+`relrank_adjoin_insert_eq` being the lemma that turns the `relIndex` bound's `relrank (adjoin …)`
+form into a `finrank`) — and all four were **moved off the frozen registry onto their own
+`spec-pin:` wires** in the same round: `PORT_FILES` entries out, 580 → 577 exempt, checker readings
+45 / 27 / 11 / 14, all 0 mismatch. Checker **3,830 → 3,906 ok over 151 → 155 modules**, 0
+mismatched / 0 missing / 11 own / 0 kw; axioms `[propext, Classical.choice, Quot.sound]` on both
+headlines; receipts show **2** same-shape twins (`T_mem_Gamma1`, `T_zpow_mem_Gamma1`, the pin's own
+three-line local copies). Two placement rulings came out of it, both recorded: a derived statement
+does not get a module of its own (the corollary was first a six-line `X1/HeckeCompositum.lean`, then
+an append to `X1/FunctionFieldDegree.lean` whose import edge perturbs an unrelated proof) — it
+belongs with the development it derives from; and a handoff is verified by `lake env lean` *and* the
+checker, because the checker parses and does not compile (a broken header survived a `45 ok`
+reading until a consumer failed to import it). Records:
+[logs/hecke-compositum.md](../logs/hecke-compositum.md); topic and order:
+[modularCurve/TOPIC-hecke-compositum.md](modularCurve/TOPIC-hecke-compositum.md),
+[modularCurve/WORKORDER-RI2-hecke-compositum.md](modularCurve/WORKORDER-RI2-hecke-compositum.md).
+
 For the landings above that wired into the frozen checker's lists, each delta is exactly its new
 public surface, 0 mismatched / 0 missing; the `localParam` landing has no such delta (§6). Since
 the 2026-10-19–20 handoff the column verifies with `spec/check_port.py` instead (§6), and a
@@ -535,7 +565,9 @@ modules), the **nine small-family pairs of §1 are +323** (2111 → 2434 over 78
 the same order is +417** (2434 → **2851** over 107 modules), **the FR1 set of §1 is +20**
 (18 + 1 + 1; the tree read 3,805 over 148), and **the degeneracy-cover pair of §1 is +25**
 (1 + 1 + 23 — the third module being `JqIntegralRatios`'s new wire; the tree reads **3,830 over
-151**, 580 `PORT_FILES` exempt). The host handoff is also the column's first **deletion** from
+151**, 580 `PORT_FILES` exempt), and **the Hecke-compositum set of §1 is +76** (2 headlines + the
+four handed-over modules' 45 + 27 + 11 + 14, less `JqIntegralRatios`'s 23 already counted; the tree
+reads **3,906 over 155**, 577 exempt). The host handoff is also the column's first **deletion** from
 `PORT_FILES` — a migration, not an append (§6) — and the `JqIntegralRatios` handoff is the second,
 the first whose promotions are themselves statement-diffed. The 9542 → 9569 (+27) step is
 the `NumberField.AdelicHeight` definition gate, the manager's own ground for the adelic-modulus

@@ -22,9 +22,26 @@
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_laurentBaseChange_modularFunctionField.lean
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_laurentBaseChange_modularFunctionFieldFull.lean
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_transcendental_jqN.lean
+
+  Wired here, not in the frozen registry: the module left `PORT_FILES`
+  (`spec/old_check_stmts.py`) and carries its own `spec-pin:` lines below. The
+  `BaseChangeTransport` section is the `laurentBaseChange` half of the two
+  `HeckeCompositum` pin files, homed next to `laurentBaseChange_adjoin` that it
+  rewrites with.
+
+spec-pin: P2M/Sol/S_ModularCurve_laurentBaseChange_adjoin.lean
+spec-pin: P2M/Sol/S_ModularCurve_coeffEmb_jq.lean
+spec-pin: P2M/Sol/S_ModularCurve_order_qExpand.lean
+spec-pin: P2M/Sol/S_ModularCurve_laurentBaseChange_modularFunctionField.lean
+spec-pin: P2M/Sol/S_ModularCurve_laurentBaseChange_modularFunctionFieldFull.lean
+spec-pin: P2M/Sol/S_ModularCurve_transcendental_jqN.lean
+spec-pin: P2M/Sol/S_ModularCurve_isInftySide_cuspInftyBar.lean
+spec-pin: P2M/Sol/S_ModularCurve_relfinrank_x1HeckeCompositum_eq_mul.lean
+spec-pin: P2M/Sol/S_ModularCurve_relfinrank_xHHeckeCompositum_eq_mul.lean
 -/
 import FLTForHuman.ModularCurve.Defs.Laurent
 import FLTForHuman.ModularCurve.Defs.JqCoeff
+import FLTForHuman.ModularCurve.JqIntegralRatios
 import Mathlib.RingTheory.LaurentSeries
 
 set_option autoImplicit false
@@ -170,6 +187,42 @@ theorem transcendental_jqN (N : ℕ) [NeZero N] : Transcendental ℚ (jqN N) := 
     _ = Polynomial.aeval (qExpandₐ N jq) p := (Polynomial.aeval_algHom_apply _ _ _).symm
     _ = Polynomial.aeval (jqN N) p := rfl
     _ = 0 := hp
+
+/-! ## The base-change transport of `qExpAlg` and of `qExpFunctionFieldC`
+
+The `laurentBaseChange` half of the pin's `X1LDLaurent`/`XHLDLaurent` block
+(`P2M/Sol/S_ModularCurve_relfinrank_{x1,xH}HeckeCompositum_eq_mul.lean:486-519`
+and `:599-632`, byte-identical in the two files), homed here because it rewrites
+with `laurentBaseChange_adjoin` above. -/
+
+section BaseChangeTransport
+
+open scoped MatrixGroups
+
+variable (L : Type*) [Field L] [Algebra ℚ L]
+
+theorem laurentBaseChange_map (ℓ : ℕ) [NeZero ℓ]
+    (X : IntermediateField ℚ (LaurentSeries ℚ)) :
+    laurentBaseChange L (X.map (qExpAlg ℚ ℓ)) = (laurentBaseChange L X).map (qExpAlg L ℓ) := by
+  rw [← adjoin_qExpand_image, laurentBaseChange_adjoin, laurentBaseChange, adjoin_map,
+    Set.image_image, Set.image_image]
+  congr 1
+  ext y
+  simp only [Set.mem_image, qExpAlg_apply, coeffEmb_qExpand]
+
+theorem laurentBaseChange_sup (X Y : IntermediateField ℚ (LaurentSeries ℚ)) :
+    laurentBaseChange L (X ⊔ Y) = laurentBaseChange L X ⊔ laurentBaseChange L Y := by
+  have hXY : X ⊔ Y = IntermediateField.adjoin ℚ ((X : Set (LaurentSeries ℚ)) ∪ Y) := by
+    rw [adjoin_union, adjoin_self, adjoin_self]
+  rw [hXY, laurentBaseChange_adjoin, Set.image_union, adjoin_union]
+  rfl
+
+theorem laurentBaseChange_qExpFunctionFieldC (Γ : Subgroup SL(2, ℤ)) :
+    laurentBaseChange L (qExpFunctionFieldC ℚ Γ) = qExpFunctionFieldC L Γ := by
+  rw [qExpFunctionFieldC, laurentBaseChange_adjoin, coeffEmb_image_intFormRatiosC]
+  rfl
+
+end BaseChangeTransport
 
 end ModularCurve
 

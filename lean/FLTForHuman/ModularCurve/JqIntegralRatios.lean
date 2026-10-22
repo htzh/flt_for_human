@@ -30,6 +30,8 @@ spec-pin: P2M/Sol/S_ModularCurve_jqModC_mem_intFormRatiosC.lean
 spec-pin: Theorems/Thm_ModularCurve_jqModC_eq_qExpansion_E4_cube_div_discriminant.lean
 spec-pin: P2M/Sol/S_ModularCurve_jqModC_eq_qExpansion_E4_cube_div_discriminant.lean
 spec-pin: Definitions/Def_ModularCurve_X1.lean
+spec-pin: P2M/Sol/S_ModularCurve_relfinrank_x1HeckeCompositum_eq_mul.lean
+spec-pin: P2M/Sol/S_ModularCurve_relfinrank_xHHeckeCompositum_eq_mul.lean
 -/
 import FLTForHuman.ModularForms.WeightOne.Gamma0Integral
 import FLTForHuman.ModularCurve.Defs.JqCoeff
@@ -205,6 +207,71 @@ theorem jqModC_eq_qExpansion_E4_cube_div_discriminant :
   have hpow : intSeriesC ℂ (eisenstein4 ^ 3) = (intSeriesC ℂ eisenstein4) ^ 3 := by
     simp only [intSeriesC, map_pow]
   rw [jqModC_eq_div, hpow, hE, hD]
+
+/-! ## `coeffEmb` and the integral series
+
+The `intSeriesC`-facing half of the pin's `X1LDLaurent`/`XHLDLaurent` block
+(`P2M/Sol/S_ModularCurve_relfinrank_{x1,xH}HeckeCompositum_eq_mul.lean:417-478`
+and `:530-589`, byte-identical in the two files). The `qExpAlg`/`laurentBaseChange`
+half of the same block is in `ModularCurve/Defs/Laurent.lean` (the ring maps) and
+`ModularCurve/Degree/LaurentGlue.lean` (`laurentBaseChange_map`/`_sup`, next to
+`laurentBaseChange_adjoin`). -/
+
+section CoeffEmbIntSeries
+
+variable (L : Type*) [Field L] [Algebra ℚ L]
+
+theorem map_ofPowerSeries {R S : Type*} [CommRing R] [CommRing S] (f : R →+* S)
+    (p : PowerSeries R) :
+    (HahnSeries.ofPowerSeries ℤ R p).map f = HahnSeries.ofPowerSeries ℤ S (p.map f) := by
+  ext k
+  rw [HahnSeries.map_coeff]
+  rcases le_or_gt 0 k with hk | hk
+  · lift k to ℕ using hk
+    rw [HahnSeries.ofPowerSeries_apply_coeff, HahnSeries.ofPowerSeries_apply_coeff,
+      PowerSeries.coeff_map]
+  · rw [ofPowerSeries_coeff_of_neg _ hk, ofPowerSeries_coeff_of_neg _ hk, map_zero]
+
+theorem coeffEmb_intSeriesC (p : PowerSeries ℤ) :
+    coeffEmb L (intSeriesC ℚ p) = intSeriesC L p := by
+  rw [coeffEmb_apply, intSeriesC, intSeriesC, map_ofPowerSeries, powerSeries_map_map,
+    RingHom.ext_int ((algebraMap ℚ L).comp (Int.castRingHom ℚ)) (Int.castRingHom L)]
+
+theorem intSeriesC_eq_zero_iff (K : Type*) [Field K] [CharZero K] (p : PowerSeries ℤ) :
+    intSeriesC K p = 0 ↔ p = 0 := by
+  constructor
+  · intro h
+    rw [intSeriesC] at h
+    have h1 : p.map (Int.castRingHom K) = 0 := by
+      have : HahnSeries.ofPowerSeries ℤ K (p.map (Int.castRingHom K)) =
+          HahnSeries.ofPowerSeries ℤ K 0 := by
+        rw [h, map_zero]
+      exact HahnSeries.ofPowerSeries_injective this
+    ext n
+    have := congrArg (PowerSeries.coeff n) h1
+    simp only [PowerSeries.coeff_map, map_zero, eq_intCast, Int.cast_eq_zero] at this
+    simpa using this
+  · rintro rfl; simp
+
+theorem coeffEmb_image_intFormRatiosC (Γ : Subgroup SL(2, ℤ)) :
+    coeffEmb L '' intFormRatiosC ℚ Γ = intFormRatiosC L Γ := by
+  have := charZero_of_algebraRat L
+  ext x
+  constructor
+  · rintro ⟨y, ⟨k, f, g, pf, pg, hf, hg, hg0, rfl⟩, rfl⟩
+    have hg0' : intSeriesC L pg ≠ 0 := by
+      rw [Ne, intSeriesC_eq_zero_iff]
+      exact fun h => hg0 (by rw [h]; simp)
+    refine ⟨k, f, g, pf, pg, hf, hg, hg0', ?_⟩
+    rw [map_div₀, coeffEmb_intSeriesC, coeffEmb_intSeriesC]
+  · rintro ⟨k, f, g, pf, pg, hf, hg, hg0, rfl⟩
+    have hg0' : intSeriesC ℚ pg ≠ 0 := by
+      rw [Ne, intSeriesC_eq_zero_iff]
+      exact fun h => hg0 (by rw [h]; simp)
+    refine ⟨intSeriesC ℚ pf / intSeriesC ℚ pg, ⟨k, f, g, pf, pg, hf, hg, hg0', rfl⟩, ?_⟩
+    rw [map_div₀, coeffEmb_intSeriesC, coeffEmb_intSeriesC]
+
+end CoeffEmbIntSeries
 
 end ModularCurve
 

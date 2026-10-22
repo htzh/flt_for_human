@@ -3481,7 +3481,9 @@ SOURCES = [
 
 PORT_FILES = [
     "FLTForHuman/FieldTheory/CommonRoot.lean",
-    "FLTForHuman/ModularCurve/Defs/Laurent.lean",
+    # (removed) `FLTForHuman/ModularCurve/Defs/Laurent.lean` — now wired by its own
+    # `spec-pin:` lines (`Def_ModularCurve_X0`, `Def_ModularCurve_LaurentCoeff`, the four
+    # outbound `Thm_` wrappers and the two `HeckeCompositum` files).
     "FLTForHuman/ModularCurve/Defs/Twist.lean",
     "FLTForHuman/ModularCurve/Defs/Jq.lean",
     # The pin-namespaced spelling of the Dedekind `ψ` function. The mathematics
@@ -3625,9 +3627,11 @@ PORT_FILES = [
     # `logs/mc-port.md` §Friction.
     "FLTForHuman/ModularCurve/Analytic/CuspDichotomy.lean",
     # SET-M3 m7: the Laurent/`coeffEmb` glue (the eight short M4 nodes).
-    "FLTForHuman/ModularCurve/Degree/LaurentGlue.lean",
+    # (removed) `FLTForHuman/ModularCurve/Degree/LaurentGlue.lean` — now wired by its own
+    # `spec-pin:` lines (`laurentBaseChange_adjoin` and the two `HeckeCompositum` files).
     # SET-M3 m7: `relfinrank_laurentBaseChange` (the pin's `TransportDev` block).
-    "FLTForHuman/ModularCurve/Degree/Relfinrank.lean",
+    # (removed) `FLTForHuman/ModularCurve/Degree/Relfinrank.lean` — now wired by its own
+    # `spec-pin:` lines (`relfinrank_laurentBaseChange` and the two `HeckeCompositum` files).
     # SET-M3 m9: the roof generation and the diagonal degree. The three generic
     # `AlgebraicCurve.finrankAlong` helpers were promoted (post-effort) to
     # `AlgebraicCurve/Defs/Correspondence.lean`; only the roof nodes live here.

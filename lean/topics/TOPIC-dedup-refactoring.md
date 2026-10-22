@@ -155,6 +155,16 @@ The dedup decision is a **writing** decision, and the reason is the checker's st
    import" are **equally free** at the checker. Neither is priced. So the choice between them is
    made entirely by §3 — which is the point: the checker cannot be used to justify a structural
    decision, and it must not be.
+3c. **The checker parses, it does not compile.** A module can read `45 ok / 0 mismatch` while being
+   a Lean syntax error: `spec/check_port.py` matches statement *text*, so a broken header — a
+   `spec-pin:` block inserted before the closing `-/`, leaving the old header's tail loose — is
+   invisible to it. A handoff or an append is therefore verified by **two** things, and neither
+   substitutes for the other: `lake env lean <module>` for "it elaborates, with zero warnings" and
+   the checker for "every public statement is the pin's". The 2026-10-21 `LaurentGlue.lean` break was
+   found by a subagent that tried to *import* the module, not by either gate run on the module
+   itself — so the operational rule: after a handoff, re-elaborate the file you last edited, or
+   build one consumer.
+
 4. **A declaration added to a wired host must be the pin's, byte-exact after `norm`.** The matcher's
    `pick` requires `nhash` equality: a promoted or appended declaration whose signature differs —
    an instance binder `[NeZero L]` where the pin has one, a section variable where the pin has an

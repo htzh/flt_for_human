@@ -32,6 +32,25 @@
   public. See `logs/ffg-port.md` §2e.
 
   Assumes nothing from earlier 0a modules; this is the first one.
+
+  Wired here, not in the frozen registry: the module left `PORT_FILES`
+  (`spec/old_check_stmts.py`) and carries its own `spec-pin:` lines below, so
+  `spec/check_port.py` diffs every public declaration. The `qExpAlg` section is
+  the `X1LDLaurent`/`XHLDLaurent` block of the two `HeckeCompositum` pin files,
+  which write it twice byte-identically.
+
+spec-pin: Definitions/Def_ModularCurve_X0.lean
+spec-pin: Definitions/Def_ModularCurve_LaurentCoeff.lean
+spec-pin: Theorems/Thm_ModularCurve_coeffMap_qExpand.lean
+spec-pin: Theorems/Thm_ModularCurve_coeffEmb_qExpand.lean
+spec-pin: Theorems/Thm_ModularCurve_coeffMap_injective.lean
+spec-pin: Theorems/Thm_ModularCurve_coeffEmb_injective.lean
+spec-pin: P2M/Sol/S_ModularCurve_relfinrank_x1HeckeCompositum_eq_mul.lean
+spec-pin: P2M/Sol/S_ModularCurve_relfinrank_xHHeckeCompositum_eq_mul.lean
+spec-pin: P2M/Sol/S_ModularCurve_qExpand_mem_laurentBaseChange.lean
+spec-pin: P2M/Sol/S_ModularCurve_FullLevel_laurentBaseChange_gamma0_le_fieldBar.lean
+spec-pin: P2M/Sol/S_ModularCurve_finrank_adjoin_jqN_pow_succ_of_not_mem.lean
+spec-pin: P2M/Sol/S_ModularCurve_PhiGen_splits_of_prime.lean
 -/
 import Mathlib.RingTheory.LaurentSeries
 import Mathlib.FieldTheory.IntermediateField.Adjoin.Basic
@@ -440,6 +459,63 @@ theorem qExpand_mem_laurentBaseChange {L : Type*} [Field L] [Algebra ℚ L]
   | mul x y _ _ hx hy => simpa using mul_mem hx hy
 
 end BaseChangeSupply
+
+/-! ## The `q ↦ q ^ ℓ` substitution as an algebra map
+
+The pin's `X1LDLaurent`/`XHLDLaurent` block
+(`P2M/Sol/S_ModularCurve_relfinrank_{x1,xH}HeckeCompositum_eq_mul.lean:385-405`,
+byte-identical in the two files): the `q`-stretch `qExpand` is a `K`-algebra map,
+and adjoining a stretched image is the stretch of the adjoin. The `intSeriesC`
+facing half of the same block lives in `ModularCurve/JqIntegralRatios.lean`
+(which owns `intSeriesC`/`intFormRatiosC`), and `laurentBaseChange_map`/`_sup`
+live in `ModularCurve/Degree/LaurentGlue.lean`, next to `laurentBaseChange_adjoin`
+that they rewrite with. -/
+
+section QExpAlg
+
+variable (K : Type*) [Field K]
+
+/-- The `q ↦ q ^ ℓ` substitution as a `K`-algebra endomorphism of `LaurentSeries K`. -/
+def qExpAlg (ℓ : ℕ) [NeZero ℓ] : LaurentSeries K →ₐ[K] LaurentSeries K where
+  __ := qExpand K ℓ
+  commutes' c := by
+    show qExpand K ℓ (algebraMap K (LaurentSeries K) c) = algebraMap K (LaurentSeries K) c
+    rw [algebraMap_laurentSeries_eq_single, qExpand_single, mul_zero]
+
+@[scoped simp]
+theorem qExpAlg_apply (ℓ : ℕ) [NeZero ℓ] (f : LaurentSeries K) :
+    qExpAlg K ℓ f = qExpand K ℓ f := rfl
+
+theorem coe_qExpAlg (ℓ : ℕ) [NeZero ℓ] :
+    (⇑(qExpAlg K ℓ) : LaurentSeries K → LaurentSeries K) = qExpand K ℓ := rfl
+
+theorem adjoin_qExpand_image (ℓ : ℕ) [NeZero ℓ] (X : IntermediateField K (LaurentSeries K)) :
+    adjoin K (qExpand K ℓ '' (X : Set (LaurentSeries K))) = X.map (qExpAlg K ℓ) := by
+  conv_rhs => rw [← adjoin_self K X]
+  rw [adjoin_map]
+  rfl
+
+end QExpAlg
+
+section AlgebraRat
+
+/-! ## The `ℚ`-algebra coefficient lemmas the base-change transport needs -/
+
+variable (L : Type*) [Field L] [Algebra ℚ L]
+
+theorem charZero_of_algebraRat : CharZero L :=
+  charZero_of_injective_algebraMap (algebraMap ℚ L).injective
+
+/-- `coeffEmb` is the coefficientwise extension of `algebraMap ℚ L`. -/
+theorem coeffEmb_apply (x : LaurentSeries ℚ) :
+    coeffEmb L x = x.map (algebraMap ℚ L) := rfl
+
+theorem powerSeries_map_map {R S T : Type*} [CommRing R] [CommRing S] [CommRing T]
+    (f : R →+* S) (g : S →+* T) (p : PowerSeries R) :
+    (p.map f).map g = p.map (g.comp f) :=
+  (congrFun (congrArg DFunLike.coe (PowerSeries.map_comp f g)) p).symm
+
+end AlgebraRat
 
 end ModularCurve
 
