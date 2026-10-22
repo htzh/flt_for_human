@@ -52,7 +52,8 @@ recorded negative for every failed search (§2.2); **find the duplication** and 
 home (§2.4); **write the blueprint** — scope, cone, dedup table, layout, topics, risk
 register, verification (§2.1, §2.5, §2.6); **scout the one genuinely new piece** in a
 gitignored `Scratch.lean` (§2.6). While coding: module = role, directory = theory
-(§3.1–§3.2); one topic at a time with a work order (§3.3); each in-scope node whole (§2.3);
+(§3.1–§3.2); one topic at a time with a work order (§3.3), its format copied from the most recent
+landed order rather than an older one (§3.3); each in-scope node whole (§2.3);
 faithfulness from the first declaration (§4); friction logged as it is hit (§3.6); nothing
 dropped by inspection — `grep -c` or `diff` (§2.4). At the end: checker `0 mismatched / 0
 missing`, consumer exit 0, `#print axioms` clean, no `sorry`, coverage `0 / 0 / 0` where a
@@ -334,6 +335,18 @@ checker run (`0 mismatched / 0 missing`), consumer zones, `#print axioms`, `grep
 dropped. Update the
 numbers in place when reconnaissance re-prices; re-cut a topic that straddles waves **by
 mathematical object** — construction, properties, consequence — without splitting a node.
+
+**Copy the format from the most recent files, never from a convenient old one.** The workflow has
+changed several times, and the topic files and work orders of earlier eras still carry instructions
+that were later retired (in-source `-- pin:` markers instead of the module's `spec-pin:` wire, the
+`unwired` register, an engine split by wire rather than by subject). A new order is written from the
+**most recently landed** order in the same subject area — its status line, its gate block and its
+statement of what `public`/`private` means are the current shape — and this playbook's §4 is the
+authority when the two disagree. An older order that prescribes a different mechanism is the record
+of what was done then, not a template: if a reader could be misled by it, say so in the new order's
+header (as `WORKORDER-RP1` now does for its §1 provenance comments and its §6 register gate). A
+landed order is read for its *mathematics and its measured numbers*; its *workflow* is only current
+if it is recent.
 
 ### 3.4 Sets dispatched to agents, with review gates
 
@@ -661,12 +674,15 @@ exporting.
 - **Export a topic's outbound interface so the next topic imports instead of copying**; dissolve
   "externals"/"misc" modules into subject homes; give a generic cross-theory count its own
   top-level area or a `Reserve/` library built but not diffed.
-- **One engine, public — not `private`, and not a façade.** When the pin writes the same
+- **One engine, public — not `private`, and no shell module.** When the pin writes the same
   development k times (the `CasCore17` triple: 2,342 raw lines of three near-identical files →
   1,208 net), write it once as a public engine and put the headlines verbatim at their wrappers'
   names in that same module (§4). A `private` engine costs the next theory the re-derivation the
-  dedup was meant to save; a façade module costs a file, an import and a frozen name for no gain
-  in verification.
+  dedup was meant to save. A second module is a *subject* decision, never a verification one: a module
+  that states mathematics the engine does not — another object, another cut — is a module in its own
+  right, and the engine stays headline-free for its other consumers. What is not a module is a shell
+  that only restates the engine's headlines: it costs a file, an import and a frozen name for nothing,
+  because `spec-pin:` already diffs whatever the module states.
 - **Promotion shrinks its host module; measure it**, and keep named instances and consumer tests
   `private`, while real mathematics stays public (§4).
 
@@ -738,6 +754,12 @@ longer write-ups are in the records, and the instance-shaped ones, with re-runna
   the narrowest scope that hits it; `letI` when the instance carries instance arguments; guard a
   data-valued class with `example : (<brick> : <class> <args>) = <captured term> := rfl`.
 - **Unused section variables are auto-omitted** — transcribe verbatim, do not "restore" them.
+- **A `_` inside an `@`-application is not free.** `@Submodule.projectionOnto … _ _ h`, with `_` for
+  `[AddCommGroup]`/`[Module]` on a `MonoidAlgebra` carrier, leaves a metavariable that `isDefEq`
+  discharges by unfolding the algebra: >200k hearts, no search goal, so `trace.Meta.synthInstance`
+  shows nothing. Write the pin's own `inferInstance` and the cost is zero
+  (`ArchCutProjector.projCA_apply_left`/`_right`). Same class as the defeq rows below: the fix is one
+  syntactic form, and the statement does not move.
 - **`private` is not dot-accessible across namespaces** — write the qualified name.
 - **"Ported prelude" is a claim to `grep -c`** — re-derive the ones that are `private`.
 - **A `scoped notation` can shadow a binder name** — open the scope per declaration.
@@ -790,6 +812,8 @@ mathlib line" into a work order.
 | `⟨dConjMat ℓ γ, ⋯⟩` as an `SL(2, ℤ)` element inside a `Subgroup` membership goal | `Matrix.SpecialLinearGroup` is a semireducible `def` (a `Subtype`) in v4.34, so the anonymous constructor elaborates at `{A // A.det = 1}` and the following `rw [Gamma_mem]` fails with "target expression is not type-correct under the implicit transparency level". Bind it first — `let x : SL(2, ℤ) := ⟨…, h⟩` — then `rw [Gamma_mem]` (or `mem_Lam0`) and `show` the entrywise conjunction; it also removes the pin's `simp only [Matrix.SpecialLinearGroup.coe_mk, …]` blocks |
 | `TensorProduct.induction_on` (with a `| zero =>` branch) | `TensorProduct.inductionOn`, and it has **no `zero` case** — drop the branch (that case is the internal `tmul 0 0`), so the pin's case split loses an arm, not only a name |
 | a `def` structure value whose projections must reduce inside `change`/`rw` (a prolongation built by `⟨…⟩`, then `(gaussProlongation hT A).integers`) | a plain `def` does **not** reduce at `implicit` transparency ("target expression is not type-correct under the implicit transparency level"): declare it an `abbrev`. The `AdeleRing` and `SpecialLinearGroup` rows above are the same class with the other cure — there the value is bound once, here the definition itself must unfold |
+
+| `Submodule.linearProjOfIsCompl` (+ `_apply_left`/`_apply_right`/`_range`, `IsCompl.projection*`) | `@[deprecated (since := "2026-05-04")]` aliases of `Submodule.projectionOnto` / `projection` / `projection_apply_left` / `projection_range` — use the new family; the substitution is proof-side only, the pin's statements stay verbatim (`ArchCutProjector.projCA*`) |
 
 The recurring *shapes*, beyond a rename:
 
@@ -873,11 +897,14 @@ module" before scoping (`d.def_index[stem]` against `d.stmt_defs(i)` / `d.proof_
   name. Lines, declarations and named shape risks are stable. Nor is a *driver's* round a measure
   of a set: a port turn is hours of wall time, so a cadence that re-prompts sooner than that is a
   status request, not a checkpoint (§0.2, §3.4).
-- **A `private` engine to keep the checked surface small is the wrong trade**, and so is a façade
+- **A `private` engine to keep the checked surface small is the wrong trade**, and so is a shell
   module added for the checker's sake. Both were tried on the Casimir set and reverted: the landed
   shape is one module — its three headlines diffed at the pin's statements, the shared engine
-  public beside them — where `private` would have hidden real mathematics and a façade would have
-  added a file (§4, §5).
+  public beside them — where `private` would have hidden real mathematics and a shell would have
+  added a file (§4, §5). The two questions are separate and both are about consumers: *is this
+  declaration used outside its module?* decides `public`/`private`, and *does this module state
+  mathematics the engine does not?* decides whether it is a module at all. Neither is a way to shape
+  a diff — a `private` declaration is simply not diffed.
 - **Nothing is independently audited.** The "removed clutter" numbers are what each effort
   avoided writing, measured against FLT's own files, not a third-party check that the dropped
   items were dead.
@@ -892,7 +919,8 @@ module" before scoping (`d.def_index[stem]` against `d.stmt_defs(i)` / `d.proof_
 Each landed effort has a measured *record* in [logs/](logs/) and some a closing *review* in
 `topics/*-retrospective.md`; the column plans are `topics/PORTING-*.md` (retired blueprints), and
 the mathematics each port targets is in `../math/` and `../base/`. The per-effort numbers stay
-with the effort they describe — read the record, not a table here.
+with the effort they describe — read the record, not a table here. Read an old record for its
+numbers and its mathematics; its *workflow* is only current if the file is recent (§3.3).
 
 ## Appendix: section map from earlier revisions
 

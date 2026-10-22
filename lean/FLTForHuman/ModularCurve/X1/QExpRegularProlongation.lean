@@ -25,15 +25,10 @@
   `400000` bumps on its wrappers).  The file must close at the project's default diagnostic
   bound.
 
-  Provenance comments.  `-- pin S_:<line>` cites the shared block of the three files
-
-      P2M/Sol/S_ModularCurve_exists_regularProlongation_laurentBaseChange_qExpFunctionFieldC.lean
-      P2M/Sol/S_ModularCurve_exists_regularProlongation_laurentBaseChange_qExpFunctionFieldC_residue_div.lean
-      P2M/Sol/S_ModularCurve_exists_regularProlongation_laurentBaseChange_qExpFunctionFieldC_residue_mul_eq.lean
-
-  which is byte-identical through line 815 (`diff` shows only the `namespace` lines and the
-  assembly tail); the line numbers are the target file's.  `-- pin S_:816` with the two tail names
-  cites the two different tails (they both start at 816).
+  The three files are one development: their shared block is byte-identical through line 815
+  (`diff` shows only the `namespace` lines and the assembly tail), and the two siblings' tails both
+  start at 816.  The port transcribes that block once, in the target file's line numbering, so a
+  declaration near the end comes from either tail.
 
   FLT provenance, pinned `aa2d8b3`:
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_exists_regularProlongation_laurentBaseChange_qExpFunctionFieldC.lean
@@ -72,25 +67,20 @@ namespace QExpDeuring
 
 section Forms
 
--- pin S_:138
 private def Lam (Γ : Subgroup SL(2, ℤ)) (κ : ℤ) : Set (PowerSeries ℤ) :=
   {p | ∃ f : ModularForm (Γ : Subgroup (GL (Fin 2) ℝ)) κ, IsIntegralQExp f p}
 
--- pin S_:141
 private theorem zero_mem_Lam (Γ : Subgroup SL(2, ℤ)) (κ : ℤ) : (0 : PowerSeries ℤ) ∈ Lam Γ κ :=
   ⟨0, by rw [FunLike.coe_zero]; exact isIntegralQExp_zero⟩
 
--- pin S_:144
 private theorem one_mem_Lam (Γ : Subgroup SL(2, ℤ)) : (1 : PowerSeries ℤ) ∈ Lam Γ 0 :=
   ⟨1, by rw [ModularForm.one_coe_eq_one]; exact isIntegralQExp_one⟩
 
--- pin S_:131 (`one_mem_strictPeriods`; the fact is mathlib's, kept `private` here)
 private theorem one_mem_strictPeriods {Γ : Subgroup SL(2, ℤ)} (hT : ModularGroup.T ∈ Γ) :
     (1 : ℝ) ∈ (Γ : Subgroup (GL (Fin 2) ℝ)).strictPeriods := by
   rw [Subgroup.strictPeriods_eq_zmultiples_one_of_T_mem hT]
   exact AddSubgroup.mem_zmultiples 1
 
--- pin S_:151
 private theorem add_mem_Lam {Γ : Subgroup SL(2, ℤ)} (hT : ModularGroup.T ∈ Γ) {κ : ℤ}
     {p p' : PowerSeries ℤ} (hp : p ∈ Lam Γ κ) (hp' : p' ∈ Lam Γ κ) : p + p' ∈ Lam Γ κ := by
   obtain ⟨f, hf⟩ := hp
@@ -99,7 +89,6 @@ private theorem add_mem_Lam {Γ : Subgroup SL(2, ℤ)} (hT : ModularGroup.T ∈ 
   rw [IsIntegralQExp, map_add, hf, hg, FunLike.coe_add,
     ModularForm.qExpansion_add one_pos (one_mem_strictPeriods hT)]
 
--- pin S_:159
 private theorem neg_mem_Lam {Γ : Subgroup SL(2, ℤ)} (hT : ModularGroup.T ∈ Γ) {κ : ℤ}
     {p : PowerSeries ℤ} (hp : p ∈ Lam Γ κ) : -p ∈ Lam Γ κ := by
   obtain ⟨f, hf⟩ := hp
@@ -107,7 +96,6 @@ private theorem neg_mem_Lam {Γ : Subgroup SL(2, ℤ)} (hT : ModularGroup.T ∈ 
   rw [IsIntegralQExp, map_neg, hf, FunLike.coe_neg]
   exact (ModularForm.qExpansion_neg one_pos (one_mem_strictPeriods hT) f).symm
 
--- pin S_:165
 private theorem mul_mem_Lam {Γ : Subgroup SL(2, ℤ)} (hT : ModularGroup.T ∈ Γ) {κ μ : ℤ}
     {p p' : PowerSeries ℤ} (hp : p ∈ Lam Γ κ) (hp' : p' ∈ Lam Γ μ) :
     p * p' ∈ Lam Γ (κ + μ) := by
@@ -117,7 +105,6 @@ private theorem mul_mem_Lam {Γ : Subgroup SL(2, ℤ)} (hT : ModularGroup.T ∈ 
   rw [IsIntegralQExp, map_mul, hf, hg, ModularForm.coe_mul]
   exact (ModularForm.qExpansion_mul_coe one_pos (one_mem_strictPeriods hT) f g).symm
 
--- pin S_:173
 private theorem Lam_saturated {Γ : Subgroup SL(2, ℤ)} (hT : ModularGroup.T ∈ Γ) {κ : ℤ} (n : ℤ)
     (p : PowerSeries ℤ) (hn : n ≠ 0) (h : n • p ∈ Lam Γ κ) : p ∈ Lam Γ κ := by
   obtain ⟨f, hf⟩ := h
@@ -127,7 +114,6 @@ private theorem Lam_saturated {Γ : Subgroup SL(2, ℤ)} (hT : ModularGroup.T �
     ModularForm.qExpansion_smul one_pos (one_mem_strictPeriods hT), ← hf, map_zsmul,
     ← Int.cast_smul_eq_zsmul ℂ n, smul_smul, inv_mul_cancel₀ hn', one_smul]
 
--- pin S_:182
 private def LamSub {Γ : Subgroup SL(2, ℤ)} (hT : ModularGroup.T ∈ Γ) (κ : ℤ) :
     AddSubgroup (PowerSeries ℤ) where
   carrier := Lam Γ κ
@@ -135,17 +121,14 @@ private def LamSub {Γ : Subgroup SL(2, ℤ)} (hT : ModularGroup.T ∈ Γ) (κ :
   add_mem' := fun hp hp' => add_mem_Lam hT hp hp'
   neg_mem' := fun hp => neg_mem_Lam hT hp
 
--- pin S_:192
 private def homSpan (Γ : Subgroup SL(2, ℤ)) (K : Type*) [Field K] (κ : ℤ) :
     Submodule K (LaurentSeries K) :=
   Submodule.span K (intSeriesC K '' Lam Γ κ)
 
--- pin S_:196
 private theorem intSeriesC_mem_homSpan (Γ : Subgroup SL(2, ℤ)) (K : Type*) [Field K] {κ : ℤ}
     {p : PowerSeries ℤ} (hp : p ∈ Lam Γ κ) : intSeriesC K p ∈ homSpan Γ K κ :=
   Submodule.subset_span ⟨p, hp, rfl⟩
 
--- pin S_:200
 private theorem mul_intSeriesC_mem_homSpan {Γ : Subgroup SL(2, ℤ)} (hT : ModularGroup.T ∈ Γ)
     {K : Type*} [Field K] {κ μ : ℤ}
     {U : LaurentSeries K} (hU : U ∈ homSpan Γ K κ) {n : PowerSeries ℤ} (hn : n ∈ Lam Γ μ) :
@@ -161,7 +144,6 @@ private theorem mul_intSeriesC_mem_homSpan {Γ : Subgroup SL(2, ℤ)} (hT : Modu
     rw [← HahnSeries.C_mul_eq_smul, mul_assoc, HahnSeries.C_mul_eq_smul]
     exact Submodule.smul_mem _ _ hx
 
--- pin S_:214
 private theorem mul_mem_homSpan {Γ : Subgroup SL(2, ℤ)} (hT : ModularGroup.T ∈ Γ)
     {K : Type*} [Field K] {κ μ : ℤ}
     {U V : LaurentSeries K} (hU : U ∈ homSpan Γ K κ) (hV : V ∈ homSpan Γ K μ) :
@@ -176,7 +158,6 @@ private theorem mul_mem_homSpan {Γ : Subgroup SL(2, ℤ)} (hT : ModularGroup.T 
     rw [← HahnSeries.C_mul_eq_smul, mul_left_comm, HahnSeries.C_mul_eq_smul]
     exact Submodule.smul_mem _ _ hx
 
--- pin S_:228
 private theorem algebraMap_mem_homSpan (Γ : Subgroup SL(2, ℤ)) (K : Type*) [Field K] (c : K) :
     algebraMap K (LaurentSeries K) c ∈ homSpan Γ K 0 := by
   have h1 : algebraMap K (LaurentSeries K) c = c • intSeriesC K 1 := by
@@ -185,25 +166,21 @@ private theorem algebraMap_mem_homSpan (Γ : Subgroup SL(2, ℤ)) (K : Type*) [F
   rw [h1]
   exact Submodule.smul_mem _ _ (intSeriesC_mem_homSpan Γ K (one_mem_Lam Γ))
 
--- pin S_:238
 private def IsFrac (Γ : Subgroup SL(2, ℤ)) (K : Type*) [Field K] (x : LaurentSeries K) : Prop :=
   ∃ (κ : ℤ) (U : LaurentSeries K) (n : PowerSeries ℤ), U ∈ homSpan Γ K κ ∧ n ∈ Lam Γ κ ∧
     intSeriesC K n ≠ 0 ∧ x * intSeriesC K n = U
 
--- pin S_:243
 private theorem isFrac_of_mem_intFormRatiosC (Γ : Subgroup SL(2, ℤ)) (K : Type*) [Field K]
     {x : LaurentSeries K} (hx : x ∈ intFormRatiosC K Γ) : IsFrac Γ K x := by
   obtain ⟨κ, f, g, pf, pg, hf, hg, hg0, rfl⟩ := hx
   exact ⟨κ, intSeriesC K pf, pg, intSeriesC_mem_homSpan Γ K ⟨f, hf⟩, ⟨g, hg⟩, hg0,
     div_mul_cancel₀ _ hg0⟩
 
--- pin S_:250
 private theorem isFrac_algebraMap (Γ : Subgroup SL(2, ℤ)) (K : Type*) [Field K] (c : K) :
     IsFrac Γ K (algebraMap K (LaurentSeries K) c) :=
   ⟨0, algebraMap K (LaurentSeries K) c, 1, algebraMap_mem_homSpan Γ K c, one_mem_Lam Γ,
     by rw [intSeriesC_one]; exact one_ne_zero, by rw [intSeriesC_one, mul_one]⟩
 
--- pin S_:255
 private theorem IsFrac.add {Γ : Subgroup SL(2, ℤ)} (hT : ModularGroup.T ∈ Γ) (K : Type*) [Field K]
     {x y : LaurentSeries K} (hx : IsFrac Γ K x) (hy : IsFrac Γ K y) :
     IsFrac Γ K (x + y) := by
@@ -217,7 +194,6 @@ private theorem IsFrac.add {Γ : Subgroup SL(2, ℤ)} (hT : ModularGroup.T ∈ �
   · rw [intSeriesC_mul]; exact mul_ne_zero hn0 hn0'
   · rw [intSeriesC_mul, add_mul, ← hxU, ← hyU]; ring
 
--- pin S_:266
 private theorem IsFrac.mul {Γ : Subgroup SL(2, ℤ)} (hT : ModularGroup.T ∈ Γ) (K : Type*) [Field K]
     {x y : LaurentSeries K} (hx : IsFrac Γ K x) (hy : IsFrac Γ K y) :
     IsFrac Γ K (x * y) := by
@@ -227,7 +203,6 @@ private theorem IsFrac.mul {Γ : Subgroup SL(2, ℤ)} (hT : ModularGroup.T ∈ �
   · rw [intSeriesC_mul]; exact mul_ne_zero hn0 hn0'
   · rw [intSeriesC_mul, ← hxU, ← hyU]; ring
 
--- pin S_:274
 private theorem isFrac_of_mem_adjoin {Γ : Subgroup SL(2, ℤ)} (hT : ModularGroup.T ∈ Γ)
     (K : Type*) [Field K] {x : LaurentSeries K}
     (hx : x ∈ Algebra.adjoin K (intFormRatiosC K Γ)) : IsFrac Γ K x := by
@@ -247,7 +222,6 @@ variable {L : Type*} [Field L] [Algebra ℚ L] (Γ : Subgroup SL(2, ℤ))
 
 local notation "FF" => laurentBaseChange L (qExpFunctionFieldC ℚ Γ)
 
--- pin S_:301
 private theorem laurentBaseChange_le : FF ≤ qExpFunctionFieldC L Γ := by
   change adjoin L _ ≤ adjoin L _
   rw [adjoin_le_iff]
@@ -276,8 +250,6 @@ private theorem laurentBaseChange_le : FF ≤ qExpFunctionFieldC L Γ := by
     rw [hcoe]
     exact IntermediateField.subset_adjoin L _ ⟨κ, f, g, pf, pg, hf, hg, hgL, rfl⟩
 
--- pin S_:301, element form (the `≤` form above is unusable inside the pin's
--- four-conjunct statement: the `SetLike.le` defeq check alone exceeds the bound there)
 private theorem mem_qExp_of_mem_FF {x : LaurentSeries L} (hx : x ∈ FF) :
     x ∈ qExpFunctionFieldC L Γ :=
   (SetLike.le_def.mp (laurentBaseChange_le Γ)) hx
@@ -294,7 +266,6 @@ variable {L : Type*} [Field L] [Algebra ℚ L] (A : ValuationSubring L)
 local notation "FF" => laurentBaseChange L (qExpFunctionFieldC ℚ Γ)
 local notation "kk" => IsLocalRing.ResidueField A
 
--- pin S_:332
 private def ofPS (K : Type*) [Field K] : PowerSeries K →ₗ[K] LaurentSeries K where
   toFun := HahnSeries.ofPowerSeries ℤ K
   map_add' := map_add _
@@ -302,16 +273,13 @@ private def ofPS (K : Type*) [Field K] : PowerSeries K →ₗ[K] LaurentSeries K
     rw [PowerSeries.smul_eq_C_mul, map_mul, HahnSeries.ofPowerSeries_C, HahnSeries.C_mul_eq_smul,
       RingHom.id_apply]
 
--- pin S_:339
 private theorem ofPS_apply (K : Type*) [Field K] (x : PowerSeries K) :
     ofPS K x = HahnSeries.ofPowerSeries ℤ K x :=
   rfl
 
--- pin S_:342
 private theorem intSeriesC_eq_ofPS (K : Type*) [Field K] (p : PowerSeries ℤ) :
     intSeriesC K p = ofPS K (p.map (Int.castRingHom K)) := rfl
 
--- pin S_:347
 private theorem homSpan_eq_map (Γ : Subgroup SL(2, ℤ)) (K : Type*) [Field K] (κ : ℤ) :
     homSpan Γ K κ =
       (Submodule.span K ((fun p : PowerSeries ℤ => p.map (Int.castRingHom K)) '' Lam Γ κ)).map
@@ -319,7 +287,6 @@ private theorem homSpan_eq_map (Γ : Subgroup SL(2, ℤ)) (K : Type*) [Field K] 
   rw [homSpan, Submodule.map_span, ← Set.image_comp]
   rfl
 
--- pin S_:353
 private theorem div_mem_qExpFunctionFieldC_of_mem_span (Γ : Subgroup SL(2, ℤ)) (K : Type*) [Field K]
     {μ : ℤ} {X Y : PowerSeries K}
     (hX : X ∈ Submodule.span K ((fun p : PowerSeries ℤ => p.map (Int.castRingHom K)) '' Lam Γ μ))
@@ -361,7 +328,6 @@ private theorem div_mem_qExpFunctionFieldC_of_mem_span (Γ : Subgroup SL(2, ℤ)
   rw [hXY]
   exact IntermediateField.div_mem _ (key X hX) (key Y hY)
 
--- pin S_:401
 private theorem exists_primitive_of_mem_homSpan (hT : ModularGroup.T ∈ Γ)
     {μ : ℤ} {V : LaurentSeries L} (hV : V ∈ homSpan Γ L μ) (hV0 : V ≠ 0) :
     ∃ (c : L) (u₀ : LaurentSeries A), c ≠ 0 ∧ V = algebraMap L (LaurentSeries L) c * ι A u₀ ∧
@@ -382,8 +348,6 @@ private theorem exists_primitive_of_mem_homSpan (hT : ModularGroup.T ∈ Γ)
     exact fun h => hu0 (HahnSeries.ofPowerSeries_injective (by rw [h, map_zero]))
   · rw [coeffMap_ofPowerSeries]; rfl
 
--- pin S_:420 (the pin's four-conjunct form; the engine's `exists_frac_form` is the
--- three-conjunct one, its fourth conjunct proved here)
 private theorem exists_frac_form_mem (hT : ModularGroup.T ∈ Γ)
     (f : FF) (hf : f ≠ 0) :
     ∃ c : L, c ≠ 0 ∧ ∃ u₀ w₀ : LaurentSeries A, ϖ A u₀ ≠ 0 ∧ ϖ A w₀ ≠ 0 ∧
@@ -432,20 +396,16 @@ variable {L : Type*} [Field L] [Algebra ℚ L] (A : ValuationSubring L)
 local notation "FF" => laurentBaseChange L (qExpFunctionFieldC ℚ Γ)
 local notation "kk" => IsLocalRing.ResidueField A
 
--- pin S_:550
 private theorem resHom_apply (f : gaussRing A Γ) : resHom A Γ f = resL A Γ f := rfl
 
--- pin S_:556
 private theorem ι_mem_gaussRing {y : LaurentSeries A} (hyF : ι A y ∈ FF) :
     (⟨ι A y, hyF⟩ : FF) ∈ gaussRing A Γ :=
   ⟨y, 1, by simp, by simp⟩
 
--- pin S_:559
 private theorem resHom_ι {y : LaurentSeries A} (hyF : ι A y ∈ FF) :
     resHom A Γ ⟨⟨ι A y, hyF⟩, ι_mem_gaussRing A hyF⟩ = ϖ A y := by
   rw [resHom_eq A Γ (x := y) (y := 1) (by simp) (by simp)]; simp
 
--- pin S_:563
 private theorem inv_mem_gaussRing_of_resHom_ne_zero (f : gaussRing A Γ)
     (h0 : resHom A Γ f ≠ 0) : ((f : FF)⁻¹ : FF) ∈ gaussRing A Γ := by
   obtain ⟨hy, h⟩ := wit_spec A Γ f
@@ -455,17 +415,14 @@ private theorem inv_mem_gaussRing_of_resHom_ne_zero (f : gaussRing A Γ)
   rw [IntermediateField.coe_inv]
   exact IsInt.inv_of (A := A) hx h
 
--- pin S_:594
 private theorem ker_resHom : RingHom.ker (resHom A Γ) = IsLocalRing.maximalIdeal (gaussRing A Γ) := by
   ext f
   rw [RingHom.mem_ker, resHom_eq_zero_iff]
 
--- pin S_:636
 private theorem coe_smul' (c : L) (f : FF) :
     ((c • f : FF) : LaurentSeries L) = algebraMap L (LaurentSeries L) c * (f : LaurentSeries L) := by
   rw [IntermediateField.coe_smul, Algebra.smul_def]
 
--- pin S_:640
 private theorem exists_smul_mem_gaussRing (hT : ModularGroup.T ∈ Γ)
     (f : FF) (hf : f ≠ 0) :
     ∃ c : L, ∃ h : c • f ∈ gaussRing A Γ, resHom A Γ ⟨c • f, h⟩ ≠ 0 := by
@@ -477,7 +434,6 @@ private theorem exists_smul_mem_gaussRing (hT : ModularGroup.T ∈ Γ)
   rw [Ne, resHom_eq A Γ (f := ⟨_, hmem⟩) hy₀ key]
   exact div_ne_zero hx₀ hy₀
 
--- pin S_:650 (the crux)
 private theorem resHom_mem (hT : ModularGroup.T ∈ Γ)
     (f : gaussRing A Γ) : resHom A Γ f ∈ qExpFunctionFieldC kk Γ := by
   by_cases hf : (f : FF) = 0
@@ -527,43 +483,35 @@ private theorem resHom_mem (hT : ModularGroup.T ∈ Γ)
       rw [map_mul, hzero, zero_mul, map_mul] at hred
       exact mul_ne_zero hu₀ hy hred.symm
 
--- pin S_:698
 private def resF (hT : ModularGroup.T ∈ Γ) :
     gaussRing A Γ →+* qExpFunctionFieldC kk Γ :=
   (resHom A Γ).codRestrict (qExpFunctionFieldC kk Γ).toSubring fun f => resHom_mem A hT f
 
--- pin S_:701
 private theorem coe_resF (hT : ModularGroup.T ∈ Γ) (f : gaussRing A Γ) :
     ((resF A hT f : qExpFunctionFieldC kk Γ) : LaurentSeries kk) = resHom A Γ f :=
   rfl
 
--- pin S_:704
 private theorem resF_ne_zero_iff (hT : ModularGroup.T ∈ Γ)
     (f : gaussRing A Γ) : resF A hT f ≠ 0 ↔ resHom A Γ f ≠ 0 := by
   rw [Ne, Ne, ← coe_resF A hT, ZeroMemClass.coe_eq_zero]
 
--- pin S_:707
 private theorem ker_resF (hT : ModularGroup.T ∈ Γ) :
     RingHom.ker (resF A hT) = IsLocalRing.maximalIdeal (gaussRing A Γ) := by
   ext f
   rw [RingHom.mem_ker, ← resHom_eq_zero_iff, ← coe_resF A hT, ZeroMemClass.coe_eq_zero]
 
--- pin S_:768 (the pin's `resRange`/`qExpFunctionFieldC_le_resRange` route is not
--- ported: `QExpDeuring.exists_resHom_eq` is the same `Subfield.closure_le` argument)
 private theorem resF_surjective (hT : ModularGroup.T ∈ Γ) :
     Function.Surjective (resF A hT) := by
   intro z
   obtain ⟨f, hf⟩ := exists_resHom_eq A Γ z.2
   exact ⟨f, Subtype.ext hf⟩
 
--- pin S_:773
 private theorem resF_algebraMap (hT : ModularGroup.T ∈ Γ) (a : A)
     (h : algebraMap L FF a ∈ gaussRing A Γ) :
     resF A hT ⟨algebraMap L FF a, h⟩ =
       algebraMap kk (qExpFunctionFieldC kk Γ) (IsLocalRing.residue A a) :=
   Subtype.ext (by rw [coe_resF A hT, resHom_algebraMap]; rfl)
 
--- pin S_:777
 private theorem exists_smul_mem_resF (hT : ModularGroup.T ∈ Γ)
     (f : FF) (hf : f ≠ 0) :
     ∃ c : L, ∃ h : c • f ∈ gaussRing A Γ, resF A hT ⟨c • f, h⟩ ≠ 0 := by
@@ -582,7 +530,6 @@ variable {L : Type*} [Field L] [Algebra ℚ L] (A : ValuationSubring L)
 local notation "FF" => laurentBaseChange L (qExpFunctionFieldC ℚ Γ)
 local notation "kk" => IsLocalRing.ResidueField A
 
--- pin S_:792
 private abbrev gaussProlongation :
     AlgebraicCurve.RegularProlongation A FF (qExpFunctionFieldC kk Γ) where
   integers := gaussRing A Γ
@@ -593,14 +540,12 @@ private abbrev gaussProlongation :
   residue_algebraMap a := resF_algebraMap A hT a _
   exists_smul_mem := exists_smul_mem_resF A hT
 
--- pin S_:801
 private theorem mem_integers_gaussProlongation_iff (f : FF) :
     f ∈ (gaussProlongation hT A).integers ↔
       ∃ x y : LaurentSeries A, coeffMap (IsLocalRing.residue A) y ≠ 0 ∧
         (f : LaurentSeries L) * coeffMap A.subtype y = coeffMap A.subtype x :=
   Iff.rfl
 
--- pin S_:807
 private theorem residue_gaussProlongation (y : LaurentSeries A) (hy : coeffMap A.subtype y ∈ FF) :
     ∃ hO : (⟨coeffMap A.subtype y, hy⟩ : FF) ∈ (gaussProlongation hT A).integers,
       (((gaussProlongation hT A).residue ⟨_, hO⟩ : qExpFunctionFieldC kk Γ) : LaurentSeries kk) =
@@ -610,7 +555,6 @@ private theorem residue_gaussProlongation (y : LaurentSeries A) (hy : coeffMap A
     rw [coe_resF]
     exact resHom_ι A hy⟩
 
--- pin S_:816 (`_residue_div`'s tail)
 private theorem residue_gaussProlongation_mul (f : (gaussProlongation hT A).integers)
     (x y : LaurentSeries A) (hy : coeffMap (IsLocalRing.residue A) y ≠ 0)
     (h : ((f : FF) : LaurentSeries L) * coeffMap A.subtype y = coeffMap A.subtype x) :
@@ -619,7 +563,6 @@ private theorem residue_gaussProlongation_mul (f : (gaussProlongation hT A).inte
   change ((resF A hT f : qExpFunctionFieldC kk Γ) : LaurentSeries kk) * ϖ A y = ϖ A x
   rw [coe_resF, resHom_eq A Γ (f := f) hy h, div_mul_cancel₀ _ hy]
 
--- pin S_:816 (`_residue_mul_eq`'s tail)
 private theorem residue_gaussProlongation_mul_eq (f : FF)
     (hf : f ∈ (gaussProlongation hT A).integers) (x y : LaurentSeries A)
     (hy : coeffMap (IsLocalRing.residue A) y ≠ 0)
@@ -630,7 +573,6 @@ private theorem residue_gaussProlongation_mul_eq (f : FF)
   rw [coe_resF, resHom_eq A Γ (f := ⟨f, hf⟩) (x := x) (y := y) hy h]
   exact div_mul_cancel₀ _ hy
 
--- pin S_:817
 include hT in
 private theorem main :
     ∃ R : AlgebraicCurve.RegularProlongation A FF (qExpFunctionFieldC kk Γ),

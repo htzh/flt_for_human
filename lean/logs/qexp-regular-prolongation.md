@@ -91,6 +91,10 @@ python3 spec/check_port.py --changed
 python3 spec/unwired_register.py --check       # register is current
 ```
 
+That last gate is retired (2026-10-22): the module's own `spec-pin:` wire plus `spec/decl_markers.tsv`
+replace the register, and the per-declaration `-- pin` provenance comments it was reading have been
+stripped from the module. The measurement above is kept as it was taken.
+
 * edit loop at `-DmaxHeartbeats=200000`: exit 0, **empty output** — the pin's
   `synthInstance.maxHeartbeats 400000` (wrappers) and `1600000` (`S_` file) are not inherited and are
   not needed.

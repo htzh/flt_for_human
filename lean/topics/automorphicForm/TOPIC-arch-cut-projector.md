@@ -61,7 +61,7 @@ a **different silo**, so no statement hash matches.
 | `isIrreducible_dual` (866), `coann` (851, private) | `BiIsotypic.isIrreducible_dual` (:412) — already verbatim in the port (`port_advise`'s pool duplicate); `coann` is its `dualCoannihilator` step | **import** |
 | `isSemisimpleModule_ρc` (368), `isSemisimpleModule_*`, `isCompl_biSup_isotypicComponents` (430), `map_mem_of_mem_isotypicComponents` (965), `exists_add_eq_of_isCompl_biSup_isotypicComponents` (983), `exists_eq_span_singleton_of_isSimpleModule` (1004) | mathlib `RingTheory/SimpleModule/Isotypic.lean` + `BiIsotypic.isSemisimpleModule_hull` / `_asSubmodule` / `isIsotypicOfType_asSubmodule` (:487/:536/:547) | **import** |
 | `exists_stable_compl`, `exists_invt_compl` (prelude) | instantiations of the two **ported** premises: `Representation.exists_isCompl_forall_mem_of_compactSpace_of_continuous` (`RepresentationTheory/CompactGroup.lean`) and `exists_extend_forall_apply_mul_of_injective` (`SubrepresentationExtension.lean`) | **instantiate** |
-| `isCompact_rowIsometrySubgroup₀`, `secondCountable…`, `archHaarK` prelude | `Q09AIarch` in `AutomorphicForm/Adelic/ArchApproxIdentity/ArchInfra.lean` (tier 3, registered) — same names, different binder skeleton | **import and adapt**, do not re-prove |
+| `isCompact_rowIsometrySubgroup₀`, `secondCountable…`, `archHaarK` prelude | `Q09AIarch` in `AutomorphicForm/Adelic/ArchApproxIdentity/ArchInfra.lean` — same names, different binder skeleton | **import and adapt**, do not re-prove |
 
 **No definition gate**: the pin's three `Definitions/` imports are all homed —
 `Def_AutomorphicForm_CuspidalConstituent` (`AutomorphicForm/Adelic/Cusp/Constituent.lean`, with the
@@ -78,9 +78,14 @@ assembly. The prelude is worth homing **once** because `rightConv` carries it by
 
 ## 4. Name rectification (the pin's tokens are not mathematics)
 
-The pin's labels and compressed defs are artefacts of how it was written; the port states the subject.
-Engine declarations are rectified; a **pin-public** statement keeps the pin's name (the checker keys on
-it) and a rectified public declaration takes a `pin:` row.
+The pin's labels and compressed defs are artefacts of how it was written; the port states the subject
+in its module headers and namespaces, and the names should follow. The landing ships the pin's
+spellings for one reason only — `check_port` compares statement *text*, so a rename rewrites every
+statement that mentions it and each reads `MISSING` — which is a checker limitation to fix (apply the
+module's `pin:` map to both sides before hashing), not a judgement about names. So the table below is
+the target spelling for the rename pass, recorded as debt in CARRY-FORWARD; `Ecf`, `ρc`, `QM`, `Qc`,
+`CA`, `CB`, `cutc`, `cutM`, `underSub`, `goodComponents` are not findable by subject and should not
+survive as API.
 
 | pin token | port name |
 |---|---|
@@ -96,16 +101,28 @@ it) and a rectified public declaration takes a `pin:` row.
 
 ## 5. The proposed set
 
-* **E1** (tier 3 engine, registered, `-- pin:` provenance): `AutomorphicForm/Adelic/ArchCompactOrbit.lean`
-  — the archimedean product compact group, `archRightRegular`, the `ContinuousFdOrbit` carrier with
-  `fdOrbitRep`, the orbit-span instantiations, and the two `Representation`-premise instantiations.
-  Shared by this node and by `rightConv`. **Homing settled** in the order's §1: the four candidate hosts
+Two new modules, one subject each — neither is a wrapper over the other.
+
+* **E1** (the engine): `AutomorphicForm/Adelic/ArchCompactOrbit.lean` — the archimedean product
+  compact group, `archRightRegular`, the `ContinuousFdOrbit` carrier with `fdOrbitRep`, the orbit-span
+  instantiations, and the two `Representation`-premise instantiations. Shared by this node and by
+  `rightConv`. **Homing settled** in the order's §1: the four candidate hosts
   (`RepTheory/BiIsotypic.lean`, `RightConvComm/SliceCentrality.lean`, `IsotypicCuspSpace.lean`,
   `ArchApproxIdentity/*`) are all *imported and called*, none is the home — the subject here is the
-  archimedean compact group's action and its finite-orbit carrier, which no existing module names.
-* **F1** (listed, `spec-pin:` wired): `AutomorphicForm/Adelic/ArchCutProjector.lean` — the type-witness
-  set, the component split with its `IsCompl`, the projector, and the headline at the wrapper's
-  statement (**+1**), engine `private`. Order: [WORKORDER-AC3-arch-cut-projector.md](WORKORDER-AC3-arch-cut-projector.md).
+  archimedean compact group's action and its finite-orbit carrier, which no existing module names. It
+  states no headline: that is a fact about the mathematics, not about wiring.
+* **E2** (the headline module): `AutomorphicForm/Adelic/ArchCutProjector.lean` — the type-witness set,
+  the component split with its `IsCompl`, the projector, and the headline at the wrapper's statement.
+  Its subject is the K-finite archimedean cut and the type projector on it, which E1 does not state, so
+  it is a module in its own right — not a restatement shell around the engine. Order:
+  [WORKORDER-AC3-arch-cut-projector.md](WORKORDER-AC3-arch-cut-projector.md).
+* Both carry a `spec-pin:` header naming the pin's `Theorems/` wrapper and `P2M/Sol/S_` file, and
+  `spec/check_port.py` diffs **every public declaration** of each against them — so there is no
+  per-declaration marker to write for a statement to be checked. `spec/decl_markers.tsv` (read by
+  `spec/decl_markers.py`) is only for genuine exceptions: a `pin:` rename the wire files do not carry,
+  or an `own:` reason. Visibility is the consumer question — `shapes.py --module <file> --port-only`,
+  which reports whether a declaration's statement shape occurs in another port module — never a way to
+  shape the diff, since a `private` declaration is simply not diffed.
 * No existing module is edited; all reuse is by import. A `BiIsotypic` promotion, if one turns out to be
   needed, is a stop-and-report (with `build_ladder.py --edit`'s price).
 
@@ -120,7 +137,7 @@ it) and a rectified public declaration takes a `pin:` row.
 3. **`rightConv` compatibility**: its copy of the prelude is byte-identical, so the engine's shapes
    should stay as generic as the pin's concrete proofs allow, or that node inherits an adapter too.
 4. `Ecf`'s `FiniteDimensional`/`Continuous` carrier is where a slow declaration will hide; the engine
-   and the façade must both close at the project cap (0 warnings, no `set_option`).
+   and the headline module must both close at the project cap (0 warnings, no `set_option`).
 
 ## 7. Successors when this lands
 

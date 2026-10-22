@@ -521,6 +521,45 @@ theorem under another name (the pin's `solution`/`impl` wiring, e.g. `Saturation
 
 ## Open follow-ups
 
+### The AC3 engine carries the pin's engine tokens — a checker change, then one rename pass
+
+`AutomorphicForm/Adelic/ArchCompactOrbit.lean` + `ArchCutProjector.lean` (landed 2026-10-22) ship the
+public surface under the pin's spellings: `Ecf`, `ρc`, `QM`, `Qc`, `CA`, `CB`, `projCA`,
+`goodComponents`, `cutc`, `cutM`, `underSub`, `archRep`, `ArchIsometryProd`, `ℂK`. None of these is
+findable by subject — `Ecf` is a three-letter artefact, `ρc` is not a searchable word, `CA`/`CB` hide
+the complement relation the proof turns on, `goodComponents` is a value judgement — and the target
+spelling is [WORKORDER-AC3](automorphicForm/WORKORDER-AC3-arch-cut-projector.md) §3. They were kept
+because `check_port` compares statement *text*: renaming a declaration rewrites every statement that
+mentions it, those statements then have no counterpart in the wire, and a `pin:` row flips `MISSING`
+into `MISMATCH` rather than fixing it. **The fix belongs in the checker, not in the names.** Every
+rename is already declared by the module's `pin:` rows, so `check_decl` can build the map
+`pin name → port name` for the module and apply it to the pin side of the comparison before hashing —
+the corpus keeps the pin's normalised statement text beside `nhash`
+(`tmp/flt-statements/statements.tsv`), so this is one word-boundary regex pass per declaration at query
+time, no corpus rebuild. Price: ~20 lines in `spec/check_port.py` plus a substitution helper, and a
+`--selftest` case with a renamed type inside a statement (the case that fails today). Then: rename the
+fourteen names above in one pass (79 statements move, no mathematics), re-point the `pin:` rows,
+re-check, and update the two module headers, which currently explain the token list as forced. Do it
+in the same pass that opens these modules for another reason — both sibling consumers
+(`exists_linearMap_archCutProjector`, `exists_rightConv_eq_of_archCutProjector`) are unstarted, so the
+churn is at its minimum now and grows with the first import. Same class, smaller: `BiIsotypic`'s own
+`rightRep`/`typeSpan` are readable, so this is the last engine carrying compressed tokens.
+
+### `typeSubmodule_eq_typeSpan` is one codomain short — a generic bridge at arbitrary `G`
+
+`AutomorphicForm/Adelic/RightConvComm/SliceCentrality.lean:76` states the type-submodule ↔ type-span
+dictionary for `e : H →* GL (Fin 2) (InfiniteAdeleRing F)`, but the archimedean cut lives on
+`AdelicGL2 (𝓞 F) F`, so it does not apply there. `AutomorphicForm/Adelic/ArchCutProjector.lean`
+(landed 2026-10-22, [WORKORDER-AC3](automorphicForm/WORKORDER-AC3-arch-cut-projector.md) §9) carries a
+`private` twelve-line adapter, `typeSubmodule_eq_typeSpanOf`, at arbitrary `G` — the same proof with the
+codomain generalized. The generic form (`e : H →* G`, both groups arbitrary) belongs beside
+`typeSpan`/`rightRep` in `RepTheory/BiIsotypic.lean`, where the port's generic representation theory
+lives; the adapter then goes. Price: an edit to an existing module, so a manager's call with
+`tools/deps/build_ladder.py --edit` (twelve lines plus its wire) — **no statement of an existing module
+changes**, so the checker is unaffected. Take it when a second cut consumer appears, or when
+`BiIsotypic` is opened for another reason. Known not to be needed yet: `exists_rightConv_eq_of_archCutProjector`'s
+pin file carries no `Qc`/`projCA`/`cutc`, so that sibling imports `ArchCompactOrbit` and not this bridge.
+
 ### The `Γ₁` slash/level toolkit has a home; the copies it replaces are still in place
 
 `FLTForHuman/ModularForms/Level/Gamma1Slash.lean` landed 2026-10-20 as the home of the block the

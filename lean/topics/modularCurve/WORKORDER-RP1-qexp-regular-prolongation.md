@@ -1,7 +1,20 @@
 # WORKORDER-RP1 — the Gauss regular prolongation of the q-expansion valuation
 
-**Status: ready to dispatch (2026-10-21).** Manager's ground is frozen (§2); no existing module may be
-edited. This set is pure addition: one new module, three headlines.
+**Status: landed** in commit `72eef9f` (2026-10-22; dispatched 2026-10-21); record in
+[logs/qexp-regular-prolongation.md](../../logs/qexp-regular-prolongation.md). Manager's ground is
+frozen (§2); no existing module may be edited. This set is pure addition: one new module, three
+headlines.
+
+*Cleanup note (2026-10-22).* Two instructions below were carried out but are **superseded** and must
+not be copied into a new order: the per-declaration `-- pin` provenance comment (§1) and the register
+gate (§6). A module declares its `spec-pin:` sources and `check_port` diffs every public declaration
+against them, so no per-declaration marker is needed for a statement to be checked; `public`/`private`
+is a consumer question (does anything outside the module use the declaration?), not a way to shape the
+diff; exceptions live in `spec/decl_markers.tsv`, read by `spec/decl_markers.py`. The module's
+provenance comments were stripped on 2026-10-22 — its header keeps the shared-block account (three
+files, byte-identical through line 815, tails from 816) — and it needs no marker row of its own; the
+four rows the landing added belong to the two refactored modules (`X1/FunctionField.lean`'s three
+`pin:` renames, `Isogeny/TwoCurveDescent.lean`'s one `own:`).
 
 ## 0. The set
 
@@ -36,13 +49,18 @@ anything outside `ModularCurve/X1/`.
 **One new module** `FLTForHuman/ModularCurve/X1/QExpRegularProlongation.lean`.
 
 * Engine `private`, inside `namespace ModularCurve.QExpDeuring` (so the sibling's names are in scope
-  without an `open`), each declaration with a `-- pin <file>:<line>` provenance comment;
+  without an `open`). The landing wrote a `-- pin <file>:<line>` provenance comment on every
+  declaration — **superseded, do not repeat** (see the status note); the comments were stripped, and
+  the pin's line numbering is no longer tracked per declaration;
 * the **three headlines public** at `ModularCurve.` top level, after `end QExpDeuring` and
   `open QExpDeuring in` — the exact shape `FunctionFieldResidue.lean:996–998` already uses;
-* **no other public declaration.** Everything else (`resHom_mem`, `resF`, `coe_resF`,
+* **the rest `private`**, because nothing outside the module uses it: `resHom_mem`, `resF`, `coe_resF`,
   `resF_ne_zero_iff`, `ker_resF`, `resF_surjective`, `resF_algebraMap`, `exists_smul_mem_resF`,
   `gaussProlongation`, `mem_integers_gaussProlongation_iff`, `residue_gaussProlongation`,
-  `residue_gaussProlongation_mul`, `residue_gaussProlongation_mul_eq`, `main`) is `private`.
+  `residue_gaussProlongation_mul`, `residue_gaussProlongation_mul_eq`, `main`. That is the landed
+  reading, not a rule: under the current policy a declaration is public when a consumer outside the
+  module needs it, checked with `python3 tools/deps/shapes.py --module <file> --port-only`, and a
+  `private` declaration is simply not diffed.
 
 The three public statements are the `Theorems/` wrappers **verbatim** (binders included — they carry
 `(L : Type*) [Field L] [Algebra ℚ L] (A : ValuationSubring L) (Γ : Subgroup (SpecialLinearGroup
@@ -171,9 +189,11 @@ value.
 cd lean
 timeout 115 python3 spec/check_port.py --force FLTForHuman/ModularCurve/X1/QExpRegularProlongation.lean
 # expected: 3 ok, 0 mismatch, 0 missing, 0 own, 0 kw
-timeout 115 python3 spec/check_port.py --changed      # tree still green
-timeout 115 python3 spec/unwired_register.py --check   # register is current
+timeout 115 python3 spec/check_port.py --changed --strict-markers   # tree still green, no stale row
 ```
+
+(A `spec/unwired_register.py --check` gate stood here at dispatch; it is retired — the register it
+maintains is superseded by the module's own `spec-pin:` wire and `spec/decl_markers.tsv`.)
 
 Plus: the module elaborates clean at 200k; `lake build` green with **0 warnings**; `#print axioms` on
 each of the three headlines shows `[propext, Classical.choice, Quot.sound]`; `git status` shows this
@@ -195,7 +215,7 @@ Stop and report — do not improvise — if:
 ## 8. Report shape
 
 Return: (i) the module's line count and declaration count with the public/private split; (ii) the
-three checker readings (§6) and the build's job count/warnings; (iii) `#print axioms` for the three
+checker readings (§6) and the build's job count/warnings; (iii) `#print axioms` for the three
 headlines; (iv) every deviation from the pin (there should be none in statements; list each proof
 drift with its site); (v) which route (`B` or the `A` probe's outcome) was taken and what it cost;
 (vi) anything that belongs in [CARRY-FORWARD.md](../../CARRY-FORWARD.md); (vii) `git status`.

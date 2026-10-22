@@ -379,3 +379,92 @@ Records: [deligneSerre/WORKORDER-FR1-fricke-reciprocity.md](deligneSerre/WORKORD
 (the order, the frozen ground, the reuse map), [PORTING-DeligneSerre.md](PORTING-DeligneSerre.md) §1
 (the landing), [porting-playbook.md](../porting-playbook.md) §3.3–§3.4 (the order and the sets),
 §3.5 (the build ladder and the probe ladder, §4.1), §4, §5 (the workflow this round sits in).
+
+## 9. Random namespace tokens — tracked, cleared when a module is touched
+
+**Policy (2026-10-22).** A namespace segment that exists only to avoid a collision, or to mirror the
+pin's file name, is a defect. It is **renamed when the module that declares it is opened for another
+reason**, in that wave — never as a campaign of its own, for the reason §8 gives: the touch is what
+pays for the read. An unimaginative but meaningful label may stay: `CasCore17` (the Casimir core's
+17th block), `DeligneSerre271`/`DeligneSerre72` (the paper's own numbering), `LocalGL2`, `P1Tower`,
+`Pic0`, `X1`, `WLight` itself. What may not stay is a token that tells a reader nothing
+(`Es1a1`, `Mmr46`, `N5IDAux1`, `Velu5Generic`, `A2K1A`, `ANb`, `PsiSol`, `JTPEngine`, `P6B`) and, the
+clearest case of all, **the pin's `S_<stem>` file name used as a namespace segment**
+(`namespace WLightS10.S_ModularCurve_exists_ratCast_qExpansion_slash_of_mem_Gamma0.X1DiamondRationalForms`):
+a file name is not a name for mathematics, and [TOPIC-mathlib-module-homing.md](TOPIC-mathlib-module-homing.md)
+rule 3 already says the pin's `S_` wrapper is not an API namespace. Those 915 declarations under
+`WLightS9/10/11.S_…` are, in the pin, `WLightS<k>` with a filename spliced in; the rename is
+`WLightS<k>.<subject>` or just the subject.
+
+**Measured residue (2026-10-22).** 2,859 of 23,439 declarations in `FLTForHuman/` (12.2%) sit under a
+token segment — 68 token heads, 60 declaring files. Measured by a stack walk over `namespace`/`end`
+with the checker's `DECL_RE`, so a file that interleaves `section` and `namespace` ends can be off by
+a few.
+
+| family | decls | files |
+|---|---:|---:|
+| `WLightS9/10/11` (each namespace is `WLightS<k>.S_<pin stem>`) | 915 | 6 |
+| the remaining single tokens (list below) | 860 | 32 |
+| `M4a*` / `P2M*` (`P2MKcLEVEL`, `P2MKcXHCount`, `P2MKcSerreTate`, `P2MKcCQJvc`, `P2MKcCQJbc`, `P2mS26B6b`) | 326 | 9 |
+| `Es1a1` + `Mmr*` + `Mp72a*` + `MilneAvAg*` + `Lg37` + `GF24a*` | 238 | 6 |
+| `Q09`, `Q09AIarch`, `Q09AIarchC`, `Q09AIarchG`, `Q09RowIso` | 199 | 5 |
+| `N5ID*` + `Velu5Generic` + `S13Bridge` | 193 | 2 |
+| `CasCore17`, `CasLR17`, `CommAway17`, `Elem17LR`, `OsAlg17` | 128 | 1 |
+
+The full head list, largest first: `WLightS11` (413), `WLightS10` (281), `A2K1A` (233), `WLightS9`
+(221), `Es1a1` (191), `N5IDAux1` (116), `Q09` (111), `P6B` (85), `R8b` (65), `P2MKcXHCount` (64),
+`CasCore17` (63), `M4aLocalCFT` (55), `ANb` (49), `N5IDAux4` (47), `P2MKcSerreTate` (45),
+`GL2StrongApproxW8M` (45), `Aux4SevenTN` (44), `EIS2K1` (39), `WPGamma1` (39), `OsAlg17` (38),
+`A2ALInt` (38), `Q09AIarch` (37), `M4aS4` (36), `G2Proof` (36), `Q09AIarchG` (33), `P2MKcLEVEL` (32),
+`M4aHerbrand` (32), `P2MKcCQJvc` (31), `P2MKcCQJbc` (27), `W4Bdev` (26), `W4B` (20), `G1Discharge`
+(19), `N5IDChar2` (18), `Ws13S7` (18), `IharaSlashB2a` (16), `JTPEngine` (14), `CasLR17` (14),
+`B2bCL1` (14), `Mp72a102T3` (13), `Q09AIarchC` (13), `Aux4SevenTNPrincipal` (10), `N5IDC2Aux4` (9),
+`FltWs24` (9), `PsiSol` (8), `GF24a9RRDx` (8), `Mmr62` (8), `Mmr73` (7), `CommAway17` (7),
+`ArchModS44` (7), `Mp72a102T1` (6), `Elem17LR` (6), `Q09RowIso` (5), `WL12Pen` (4), `P2mS26B6b` (4),
+`Mp72a103T2` (4), `Lg37` (4), `MilneAvAg9bRd15…` (4), `Cotpk43T3` (3), `F10d` (3), `S13Bridge` (3),
+`Mp72a102T2` (2), `MilneAvAg9bRd13…` (1), `MilneAvAg9bRd14…` (1), `Mmr46` (1), `Mmr48` (1),
+`Mmr72` (1), `B2bCL2` (1), `S06W2` (1).
+
+**The `open` statements that name them — the issue to fix with the rename.** 109 `open` lines name a
+token namespace. 85 of them are a file reopening a namespace it declares itself, after an `end`
+(`open _root_.WLight`, `open CasCore17`, `open ModularCurve.Lg37`), so they cost nothing beyond the
+file. **24 cross a module boundary**, in 18 files, and those must move in the same wave:
+
+| site | namespace(s) opened |
+|---|---|
+| `ModularForms/FrickeReciprocity.lean:55`, `ModularCurve/X1/IsIntegralAtkinLehner.lean:59` | `WLightS10.S_ModularCurve_exists_ratCast_qExpansion_slash_of_mem_Gamma0.X1DiamondRationalForms` |
+| `ModularForms/WeightOne/LevelFraction.lean:73`, `WeightOne/LevelN.lean:80` | `WLight.WLightFriIntBC.R8b` |
+| `WeierstrassCurve/IsogenyEndDatum/TranslationAlgEquiv.lean:61` | `ModularCurve.Es1a1` |
+| `Elliptic/PeriodPair/HoloLift.lean:271` | `ModularCurve.Mmr73` |
+| `Analysis/Fourier/PoissonSummationZLattice.lean:70` | `P2MW.S_SchwartzMap_tsum_eq_tsum_fourier_euclideanSpace.PiPoissonSummation` |
+| `AutomorphicForm/Adelic/HeckeCosetSeamPrincipal.lean:49` | `Aux4SevenTN` |
+| `AutomorphicForm/Adelic/Cusp/ArchTypeSpan.lean:42` | `Q09` |
+| `AutomorphicForm/Adelic/ArchApproxIdentity/Instantiate.lean:35` | `Q09AIarch` (scoped) |
+| `AutomorphicForm/Adelic/WeylIntegrable/Assembly.lean:22`, `LatticeEstimates.lean:29`, `UniformBound.lean:21` | `M4aS4` |
+| `NumberTheory/AdelicHaar/ArchModulus.lean:38` | `M4aS4` |
+| `NumberTheory/NumberField/TateGlobalCompactness.lean:31` | `M4aHerbrand` |
+| `NumberTheory/NumberField/TateGlobal/FujisakiCompact.lean:317,382,397,402,407,739,868` | `M4aHerbrand`, `M4aLocalCFT` |
+| `NumberTheory/NumberField/TateGlobal/IndicatorEulerFactors.lean:54` | `NumberField.TateGlobal.G2Proof` |
+| `ModularCurve/X1/AtkinLehnerExchange.lean:70` | `A2ALInt` |
+
+Two more namespaces are spelled with a pin stem *inside* the namespace declaration rather than in an
+`open` — the same defect, and part of the same rename: `ModularForms/WeightOne/Gamma0Rationality.lean`
+declares `namespace WLightS10.S_<stem>` at :102, :754, :1064, :1302. Nine files declare a
+`…S_<stem>` segment at all (`WeightOne/{Gamma0Integral,Gamma0Rationality,Gamma1Basis,
+Gamma1IntegralBasis,LevelFraction,LevelN}.lean`, plus `LinearAlgebra/Matrix/SimultaneousEigenbasis.lean`
+and `NumberTheory/Rat{Adele/Idele}/{DenseRange,ClassCharNorm}.lean`).
+
+**Mechanics when the module is touched.** Rename the `namespace`/`end` lines and every `open` that
+names them — absolute `_root_.` opens included; a relative `open` inside the renamed namespace
+survives. Then `rg` the old spelling in `FLTForHuman/`, `topics/`, `logs/`: the records quote these
+tokens (`Q09AIarch.isCompact_rowIsometrySubgroup₀` is cited by the AC3 order and topic). Re-key any
+`spec/decl_markers.tsv` row whose declaration sits in the renamed namespace — the table is keyed by
+full name (none of these tokens has a row today). The checker does not resist: the namespace is not
+part of the statement and matching is by last name (2026-10-20, 302 declarations re-namespaced,
+`0 mismatch`).
+
+**Already clean.** `AutomorphicForm/Adelic/ArchCompactOrbit.lean` and `ArchCutProjector.lean`
+(2026-10-22) declare only subject namespaces (`…ArchCompactOrbit`, `…ArchCutProjector`) and state the
+headline at `AutomorphicForm.`; the pin's `F4CutWords`/`PartB*`/`FarmE*`/`PartTQE` sections survive
+only as citations in their headers. `A2HexPoisson` and `ChevalleyHom` stay deliberately — they name
+their subject and mathlib has no counterpart (homing note §8.1).
