@@ -276,3 +276,54 @@ carries its pin statement text. That is the same conclusion `ArchCasimir`/`ArchC
 reached, where the complex engine went to its own namespace (`AutomorphicForm.ArchCxGL`) instead of
 being generalised. A future refactor that wants the dedup should do it as a *third* generic engine
 behind both mirrors, leaving the two mirrored surfaces as the diffs — not by rewriting the mirrors.
+
+**Visibility and names — corrected 2026-10-23.** The landing published the pin's 84 helpers in both
+modules. That was wrong, and it began in this order: §1 said "the pin's declarations public at the
+pin's last names", assuming a pin-public silo like RPF1's. In fact the pin marks **all 84 `private`**
+in both copies — only its `solution` is public — so the port put 168 pin-private chart/lift/flow
+declarations on its API, under names like `e8l5_archEntries_mul`. The checker still read `85 ok`
+because the corpus indexes pin-private declarations too, which is why nothing flagged it.
+
+Fixed in one pass over both modules (`lean/tmp/rename_ftf1.py`, `lean/tmp/demote_ftf1.py`):
+
+* every helper is `private`, matching the pin; the headline is the only public declaration;
+* the pin's compressed tokens are gone from the code — `E8Ent`→`ArchEntry`, `e8DetSet`→`nonsingEntries`,
+  `e8Inv`→`invEntries`, `e8tc_*`→`chart_*` (`tcInv`→`invEntries`, `detSet`→`nonsingEntries`),
+  `e8l5*`→`lift*` (`e8l5Phi'`→`liftPhi'`, `e8l5cD`→`liftCD`, `e8l5single`→`liftSingle`),
+  `e8r5*`→`flow*` (`e8r5_main`→`flow_main`), `e8leftDeriv`→`leftDerivFactor` — and the twin
+  `solution`→`main`; the complex module's engine section is now `Chart`. Both module headers carry
+  the mapping, so a pin name stays traceable;
+* renaming was free here for the reason the AC3 order records: the helpers are `private` (not
+  diffed) and no public statement mentions them.
+
+Readings after the fix: `check_port --force` **1 ok per module** (the headline), 0 mismatch /
+0 missing / 0 own / 0 kw; `--changed --strict-markers` **4175 ok** — 168 fewer than the 4343 of the
+landing, exactly the two demoted sets, 0 stale markers; both `lake build`s green, 0 warnings; both
+headlines still `[propext, Classical.choice, Quot.sound]`; the 200k edit loop empty for both.
+
+Consequence to keep in view: the 84 statements per module are **no longer diffed**. They were
+pin-private, so nothing was owed on them, but they are now the only unchecked text in these two
+files — an edit there is caught by Lean alone, not by the statement check.
+
+**Dedup and dead-code pass, 2026-10-23.** `tools/deps/dedup.py --within --tier shape` and a reachability
+check over the two modules, run after the rename:
+
+* **duplicates — one, and it was the twin.** Two clusters of 24 lines: in each module the private
+  `main` repeated the public headline's statement verbatim (11 + 14 lines), and its body was the
+  single application `flow_main hw α hα`. Inlined into the headline, so `main` is gone and
+  `dedup.py --within` now reports **0 clusters**. The headline still states the wrapper's text.
+* **dead code — the pin's own.** Declarations never referenced anywhere in their module:
+  real `lift_archFlowAt_inv`, `lift_continuous_cD`, `lift_glFin_archFlowAt`,
+  `lift_isFactorizableTestFn_leftDeriv`; complex `lift_exists_compact_support`, `lift_continuous_cD`,
+  `lift_continuous_LD`, `lift_isFactorizableTestFn_leftDeriv`, `lift_leftDeriv_tensor`. Cut, with the
+  blank-line discipline (§ above): real 758 lines, complex 725.
+* **a chain remains, and it is not cut.** Removing those makes their premises unreachable in turn:
+  real `liftCD` (1 more); complex **20 more** — `chart_invEntries_mem`, `lift_continuous_mulR`,
+  `lift_continuous_M`, `liftCD`, `liftLD`, `lift_contDiff_Phi'`, `lift_leftDeriv_eq`,
+  `lift_hasCompactSupport_Phi'`, then `lift_continuous_archEntries`, `liftMulRL`, `lift_factor_lift_mul`,
+  `leftDerivFactor`, `liftM`, `lift_hasDerivAt_Phi_curve`, `lift_fa_lift_mul`, `lift_archEntries_lift_mul`,
+  `lift_hasDerivAt_curve_neg`, `liftPhi'`, `liftMulR_apply`, `liftDir` — i.e. most of the copy's
+  left-derivative layer is unreachable from its headline. Fully closed the complex module would be
+  590 lines. Left in place for a decision: cut (the module then differs from the pin's text by 25
+  unused declarations, and the two mirrors stop being line-for-line twins) or keep (the pin's own
+  text). The real module's closure is a single declaration.
