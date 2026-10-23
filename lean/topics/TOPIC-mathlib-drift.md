@@ -53,6 +53,7 @@ API drift is the recurring real cost. **The pin is not on this line**:
 | a `def` structure value whose projections must reduce inside `change`/`rw` (a prolongation built by `⟨…⟩`, then `(gaussProlongation hT A).integers`) | a plain `def` does **not** reduce at `implicit` transparency ("target expression is not type-correct under the implicit transparency level"): declare it an `abbrev`. The `AdeleRing` and `SpecialLinearGroup` rows above are the same class with the other cure — there the value is bound once, here the definition itself must unfold |
 | `rw [← hα]` where `hα : IsLocalRing.residue A α = κ` and the term sits under `Algebra.smul` (`RegularProlongationFinrank.mem_of_mem_span`) | `ResidueField A` is a `def` (an `Ideal.Quotient`), so the rewrite installs the *quotient* spelling of the scalar, and `SMul (A ⧸ maximalIdeal A) Fbar` only resolves at default transparency → "target expression is not type-correct under the implicit transparency level". Keep the scalar syntactic: `have hα' : IsLocalRing.residue A α = κ := hα`, then `rw […, hα', Algebra.smul_def]` |
 | `Submodule.linearProjOfIsCompl` (+ `_apply_left`/`_apply_right`/`_range`, `IsCompl.projection*`) | `@[deprecated (since := "2026-05-04")]` aliases of `Submodule.projectionOnto` / `projection` / `projection_apply_left` / `projection_range` — use the new family; the substitution is proof-side only, the pin's statements stay verbatim (`ArchCutProjector.projCA*`) |
+| a `simp only [ …, Matrix.of_apply, … ]` (or `change`) that must reduce the `Matrix.of` entries of an `AdeleRing`-valued component | the entries are projections of the product `def`, so keyed `rw`/`simp` matching at `implicit` transparency cannot see through `x.1`/`x.2` and the goal silently does not change — same class as the `AdeleRing` pair row above, with the other cure: **restate the goal at default transparency instead of hunting for a lemma**, `rw [show ∑ k : Fin 2, … = ∑ k : Fin 2, ka … from rfl]`, or a function `show …` before the `rw`. Five sites in `IwasawaWeylUnipotent` (four branches of `kMat_mul_kMatInv`/`kMatInv_mul_kMat`, one in `glArch_kappa_eq`); the pin's own `rw […]` / `split_ifs <;> rfl` tails then transcribe unchanged |
 
 The recurring *shapes*, beyond a rename:
 
@@ -71,7 +72,8 @@ The recurring *shapes*, beyond a rename:
   it. Renaming the binder is the one thing not to do: the checker diffs the statement text.
 - **An unused variable is a warning, not a defect**: a pin lemma that does not use
   `[NumberField F]` (e.g. a `rfl`-shaped identity) needs `omit [NumberField F] in` above it, not a
-  weaker signature; and a lambda whose binder is unreferenced (`fun v => rfl` in a `∀ v, …` slot)
+  weaker signature (19 such sites in `IwasawaWeylUnipotent`, all still diff `ok` — the prefix is not
+  statement text); and a lambda whose binder is unreferenced (`fun v => rfl` in a `∀ v, …` slot)
   becomes `fun _ => rfl`. Both are `linter.unusedVariables` in v4.34.0 and neither touches the
   statement.
 - **Tactics and terms change shape silently**: `convert h2 using 1` reorders goals (use
