@@ -55,6 +55,22 @@
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CuspForm_moduleFinite_heckeAlgebra_two.lean
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CuspForm_fg_toSubmodule_heckeAlgebra.lean
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CuspForm_finrank_span_heckeAlgebra_eq_finrank.lean
+
+  spec-pin: Theorems/Thm_CuspForm_HasIntegralStructure_eq_zero_of_forall_mem_intLattice.lean
+  spec-pin: Theorems/Thm_CuspForm_HasIntegralStructure_moduleFinite_heckeAlgebra.lean
+  spec-pin: Theorems/Thm_CuspForm_HasIntegralStructure_moduleFree_heckeAlgebra.lean
+  spec-pin: Theorems/Thm_CuspForm_moduleFinite_heckeAlgebra.lean
+  spec-pin: Theorems/Thm_CuspForm_moduleFinite_heckeAlgebra_two.lean
+  spec-pin: Theorems/Thm_CuspForm_fg_toSubmodule_heckeAlgebra.lean
+  spec-pin: Theorems/Thm_CuspForm_finrank_span_heckeAlgebra_eq_finrank.lean
+  spec-pin: P2M/Sol/S_CuspForm_HasIntegralStructure_eq_zero_of_forall_mem_intLattice.lean
+  spec-pin: P2M/Sol/S_CuspForm_HasIntegralStructure_moduleFinite_heckeAlgebra.lean
+  spec-pin: P2M/Sol/S_CuspForm_HasIntegralStructure_moduleFree_heckeAlgebra.lean
+  spec-pin: P2M/Sol/S_CuspForm_moduleFinite_heckeAlgebra.lean
+  spec-pin: P2M/Sol/S_CuspForm_moduleFinite_heckeAlgebra_two.lean
+  spec-pin: P2M/Sol/S_CuspForm_fg_toSubmodule_heckeAlgebra.lean
+  spec-pin: P2M/Sol/S_CuspForm_finrank_span_heckeAlgebra_eq_finrank.lean
+
 -/
 import FLTForHuman.ModularForms.HeckeLattice
 import FLTForHuman.ModularForms.HeckeEigenform
@@ -318,19 +334,19 @@ private theorem eq_zero_of_mem_formKer (N : ℕ) [NeZero N] {f : S2 N} (hf : f �
   rw [qCoeff_eq_zero_of_mem_formKer N n f hf]
   simp [ModularFormClass.qCoeff, FunLike.coe_zero, UpperHalfPlane.qExpansion_zero]
 
+/-- The concrete-spelling copy of `ModularFormClass.qCoeff_add'` (`HeckeQCoeff`). -/
 private theorem qCoeff_add' (N : ℕ) [NeZero N] (f g : S2 N) (n : ℕ) :
     qCoeff (⇑(f + g)) n = qCoeff (⇑f) n + qCoeff (⇑g) n := by
-  simp only [qCoeff, FunLike.coe_add]
-  rw [ModularForm.qExpansion_add one_pos
-    (by rw [CongruenceSubgroup.strictPeriods_Gamma0]; exact AddSubgroup.mem_zmultiples 1) f g, map_add]
+  simpa only [qCoeff, FunLike.coe_add] using
+    ModularFormClass.qCoeff_add' (k := 2) (Γ := CongruenceSubgroup.Gamma0 N)
+      (by rw [CongruenceSubgroup.strictPeriods_Gamma0]; exact AddSubgroup.mem_zmultiples 1) f g n
 
+/-- The concrete-spelling copy of `ModularFormClass.qCoeff_const_smul'` (`HeckeQCoeff`). -/
 private theorem qCoeff_smul' (N : ℕ) [NeZero N] (c : ℂ) (f : S2 N) (n : ℕ) :
     qCoeff (⇑(c • f)) n = c * qCoeff (⇑f) n := by
-  simp only [qCoeff]
-  have hcoe : ⇑(c • f) = c • ⇑f := rfl
-  rw [hcoe, ModularForm.qExpansion_smul one_pos
-    (by rw [CongruenceSubgroup.strictPeriods_Gamma0]; exact AddSubgroup.mem_zmultiples 1) c f,
-    map_smul, smul_eq_mul]
+  simpa only [qCoeff, FunLike.coe_smul] using
+    ModularFormClass.qCoeff_const_smul' (k := 2) (Γ := CongruenceSubgroup.Gamma0 N)
+      (by rw [CongruenceSubgroup.strictPeriods_Gamma0]; exact AddSubgroup.mem_zmultiples 1) f c n
 
 private def a1Pairing (N : ℕ) [NeZero N] : fullC N →ₗ[ℂ] S2 N →ₗ[ℂ] ℂ :=
   LinearMap.mk₂ ℂ (fun T f => qCoeff (⇑((T : Module.End ℂ (S2 N)) f)) 1)

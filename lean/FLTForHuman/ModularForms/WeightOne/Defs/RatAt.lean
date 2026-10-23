@@ -4,8 +4,17 @@
   that the Γ-rationality arguments share. Lifted out of `Defs/GammaRational` so that
   `LevelN` (which `Defs/GammaRational` imports, and therefore cannot import it) can
   use the same structure instead of re-declaring it.
+
+  spec-pin: P2M/Sol/S_ModularCurve_exists_ratCast_qExpansion_comp_smul_of_mem_Gamma0.lean
+  spec-pin: P2M/Sol/S_ModularCurve_exists_ratCast_qExpansion_slash_of_mem_Gamma0.lean
+  spec-pin: P2M/Sol/S_ModularCurve_exists_ratCast_qExpansion_comp_smul_of_mem_Gamma0_of_dvd.lean
+  spec-pin: P2M/Sol/S_ModularCurve_exists_qExpansion_S_smul_eq_and_conj_eq_of_ratCast_qExpansion.lean
+  spec-pin: P2M/Sol/S_ModularForm_span_frickeRational_E4_pow_E6_pow_eq_top.lean
+  spec-pin: P2M/Sol/S_CuspForm_span_frickeRational_E4_pow_E6_pow_eq_top.lean
+
 -/
 import FLTForHuman.ModularForms.DiscPow
+import FLTForHuman.ModularForms.HeckeAnalytic
 import FLTForHuman.ModularForms.QExpansionCoeff
 import Mathlib.Algebra.Algebra.Hom.Rat
 import Mathlib.Analysis.Analytic.IsolatedZeros
@@ -80,9 +89,9 @@ theorem periodic_pow {g : ℍ → ℂ} {c : ℂ} (h : Periodic (g ∘ ofComplex)
   | zero => intro z; simp
   | succ m ih => rw [pow_succ]; exact periodic_mul ih h
 
-theorem periodic_smul {g : ℍ → ℂ} {c : ℂ} (h : Periodic (g ∘ ofComplex) c) (a : ℂ) :
-    Periodic ((a • g) ∘ ofComplex) c := by
-  intro z; have h1 := h z; simp only [comp_apply, Pi.smul_apply] at h1 ⊢; rw [h1]
+/- `periodic_smul` (general period) has its one home in `UpperHalfPlane.periodic_smul`
+(`HeckeAnalytic`); the pin's `X1DiamondRational` copy is the same statement and verifies
+there, so this module does not restate it. -/
 
 /- H2 reconciliation of the specialised-vs-general clash: the pin's unit-period
 copy of `periodic_smul`, derived from the general lemma above. It lives in a
@@ -92,17 +101,12 @@ namespace PeriodOne
 /-- The pin's unit-period `periodic_smul`. -/
 theorem periodic_smul {G : ℍ → ℂ} (hG : Periodic (G ∘ ofComplex) 1) (c : ℂ) :
     Periodic ((c • G) ∘ ofComplex) 1 :=
-  X1DiamondRational.periodic_smul hG c
+  UpperHalfPlane.periodic_smul hG c
 
 end PeriodOne
 
-theorem periodic_add {g g' : ℍ → ℂ} {c : ℂ} (h : Periodic (g ∘ ofComplex) c)
-    (h' : Periodic (g' ∘ ofComplex) c) : Periodic ((g + g') ∘ ofComplex) c := by
-  intro z
-  have h1 := h z
-  have h2 := h' z
-  simp only [comp_apply, Pi.add_apply] at h1 h2 ⊢
-  rw [h1, h2]
+/- `periodic_add` lives in its one public home, `UpperHalfPlane.periodic_add`
+(`HeckeAnalytic`); the copies in this theory are gone. -/
 
 variable (N : ℕ) [NeZero N]
 

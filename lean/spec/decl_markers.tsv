@@ -25,3 +25,14 @@ FLTForHuman/ModularCurve/X1/FunctionField.lean	ModularCurve.JOneES.JOneESRat.isI
 FLTForHuman/ModularCurve/X1/FunctionField.lean	ModularCurve.JOneES.JOneESRat.isIntegralQExp_A12	pin: isIntegralQExp_A12 (P2M/Sol/S_ModularCurve_finrank_adjoin_jqModC_laurentBaseChange_qExpFunctionFieldC_le_index.lean:558)
 FLTForHuman/ModularCurve/X1/FunctionField.lean	ModularCurve.JOneES.JOneESRat.intSeriesC_E4_cube_ne_zero	pin: intSeriesC_E4_cube_ne_zero (P2M/Sol/S_ModularCurve_finrank_adjoin_jqModC_laurentBaseChange_qExpFunctionFieldC_le_index.lean:585)
 FLTForHuman/WeierstrassCurve/Isogeny/TwoCurveDescent.lean	ModularCurve.exists_twoCurveDescent	own: the port's packaging of the two-curve descent as one lemma; the pin stages it through its four `KwD5*` `Prop`s (`s13_*`) and states only the headline, so this statement is ours (proved from the pin's `kw_iotaDescent*` family)
+FLTForHuman/ModularForms/HeckeAnalytic.lean	ModularForm.HeckeGamma1.mdifferentiable_heckeU	pin: mdifferentiable_heckeU (P2M/Sol/S_ModularForm_mdifferentiable_heckeU.lean:45)
+FLTForHuman/ModularForms/HeckeAnalytic.lean	UpperHalfPlane.periodic_add	pin: periodic_add (P2M/Sol/S_ModularCurve_exists_ratCast_qExpansion_comp_smul_of_mem_Gamma0.lean:186)
+FLTForHuman/ModularForms/HeckeAnalytic.lean	UpperHalfPlane.periodic_sub	pin: periodic_sub (P2M/Sol/S_ModularCurve_exists_qExpansion_S_smul_eq_and_conj_eq_of_ratCast_qExpansion.lean:157)
+FLTForHuman/ModularForms/HeckeAnalytic.lean	UpperHalfPlane.periodic_smul	pin: periodic_smul (P2M/Sol/S_ModularCurve_exists_ratCast_qExpansion_comp_smul_of_mem_Gamma0.lean:182)
+FLTForHuman/ModularForms/HeckeQCoeff.lean	ModularFormClass.qCoeff_add	pin: qCoeff_add (P2M/Sol/S_CuspForm_IsEigenformWith_heckeU_add_smul_slash_heckeDiagMatrix_degeneracy_eq_qCoeff_smul.lean:36)
+FLTForHuman/ModularForms/HeckeQCoeff.lean	ModularFormClass.qCoeff_sub	pin: qCoeff_sub (P2M/Sol/S_CuspForm_IsEigenformWith_heckeU_add_smul_slash_heckeDiagMatrix_degeneracy_eq_qCoeff_smul.lean:44)
+FLTForHuman/ModularForms/HeckeQCoeff.lean	ModularFormClass.qCoeff_const_smul	pin: qCoeff_const_smul (P2M/Sol/S_CuspForm_IsEigenformWith_heckeU_add_smul_slash_heckeDiagMatrix_degeneracy_eq_qCoeff_smul.lean:30)
+FLTForHuman/ModularForms/HeckeQCoeff.lean	ModularFormClass.qCoeff_add'	own: general ModularFormClass spelling of the pin's concrete qCoeff_add copies; the concrete ones are instances of it
+FLTForHuman/ModularForms/HeckeQCoeff.lean	ModularFormClass.qCoeff_sub'	own: general ModularFormClass spelling of the pin's concrete qCoeff_sub copies; the concrete ones are instances of it
+FLTForHuman/ModularForms/HeckeQCoeff.lean	ModularFormClass.qCoeff_const_smul'	own: general ModularFormClass spelling of the pin's concrete qCoeff_smul copies; the concrete ones are instances of it
+FLTForHuman/ModularForms/WeightOne/Defs/RatAt.lean	X1DiamondRational.PeriodOne.periodic_smul	pin: periodic_smul (P2M/Sol/S_CuspForm_qCoeff_heckeTLinOne.lean:98)

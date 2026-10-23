@@ -16,6 +16,12 @@
 
   This module sits in `ModularForms/WeightOne/` because both headlines consume
   the WLight `Thm_*` wrapper cluster.
+
+  spec-pin: Theorems/Thm_ModularCurve_exists_ratCast_qExpansion_comp_smul_of_mem_Gamma0_of_dvd.lean
+  spec-pin: Theorems/Thm_ModularCurve_exists_qExpansion_S_smul_eq_and_conj_eq_of_ratCast_qExpansion.lean
+  spec-pin: P2M/Sol/S_ModularCurve_exists_ratCast_qExpansion_comp_smul_of_mem_Gamma0_of_dvd.lean
+  spec-pin: P2M/Sol/S_ModularCurve_exists_qExpansion_S_smul_eq_and_conj_eq_of_ratCast_qExpansion.lean
+
 -/
 import FLTForHuman.ModularForms.WeightOne.Defs.GammaRational
 import FLTForHuman.ModularForms.WeightOne.Gamma0Rationality
@@ -62,11 +68,6 @@ private theorem disc_ne_zero (τ : ℍ) : Δ τ ≠ 0 := discriminant_ne_zero τ
 
 private theorem periodic_disc (N : ℕ) : Periodic ((Δ : ℍ → ℂ) ∘ ofComplex) N :=
   periodic_ofComplex_natCast periodic_disc_one N
-
-private theorem periodic_sub {g g' : ℍ → ℂ} {c : ℂ} (h : Periodic (g ∘ ofComplex) c)
-    (h' : Periodic (g' ∘ ofComplex) c) : Periodic ((g - g') ∘ ofComplex) c := by
-  intro z; have h1 := h z; have h2 := h' z
-  simp only [comp_apply, Pi.sub_apply] at h1 h2 ⊢; rw [h1, h2]
 
 private theorem bdd_pow {f : ℍ → ℂ} (hf : IsBoundedAtImInfty f) (n : ℕ) : IsBoundedAtImInfty (f ^ n) := by
   induction n with

@@ -20,6 +20,10 @@
   `FLTForHuman/Algebra/FaithfulLatticeEigenvector.lean` (S4, node 5); the S3
   private transcription `exists_eigenvector_minimalPrimes_aux` was deleted in the
   refactor round (`logs/deligne-serre-friction.md`, "Refactor round").
+
+  spec-pin: Theorems/Thm_DeligneSerre_exists_hecke_eigen_reduction_eq_of_qCoeff_hecke_congr.lean
+  spec-pin: P2M/Sol/S_DeligneSerre_exists_hecke_eigen_reduction_eq_of_qCoeff_hecke_congr.lean
+
 -/
 import FLTForHuman.ModularForms.Defs.PrimitiveFormGamma1
 import FLTForHuman.ModularForms.HeckeQCoeff
@@ -57,27 +61,36 @@ private noncomputable def qCoeffLin (N : ℕ) (k : ℤ) (n : ℕ) : CuspForm (Ga
   map_add' f g := by
     show qCoeff (⇑(f + g)) n = _
     unfold ModularFormClass.qCoeff
-    rw [CuspForm.coe_add, ModularForm.qExpansion_add one_pos (one_mem_strictPeriods N) f g, map_add]
+    rw [FunLike.coe_add, ModularForm.qExpansion_add one_pos (one_mem_strictPeriods N) f g, map_add]
   map_smul' c f := by
     show qCoeff (⇑(c • f)) n = _
     unfold ModularFormClass.qCoeff
-    rw [CuspForm.IsGLPos.coe_smul, ModularForm.qExpansion_smul one_pos (one_mem_strictPeriods N),
+    rw [FunLike.coe_smul, ModularForm.qExpansion_smul one_pos (one_mem_strictPeriods N),
       _root_.map_smul]
     rfl
 
 private theorem qCoeffLin_apply (n : ℕ) (f : CuspForm (Gamma1 N) k) : qCoeffLin N k n f = qCoeff f n := rfl
 
+/-- The concrete-spelling copy of `ModularFormClass.qCoeff_add'` (`HeckeQCoeff`). -/
 private theorem qCoeff_add' (f g : CuspForm (Gamma1 N) k) (n : ℕ) :
     qCoeff (⇑(f + g)) n = qCoeff f n + qCoeff g n := by
-  rw [← qCoeffLin_apply, map_add, qCoeffLin_apply, qCoeffLin_apply]
+  simpa only [qCoeff, FunLike.coe_add] using
+    ModularFormClass.qCoeff_add' (Γ := CongruenceSubgroup.Gamma1 N)
+      (one_mem_strictPeriods N) f g n
 
+/-- The concrete-spelling copy of `ModularFormClass.qCoeff_const_smul'` (`HeckeQCoeff`). -/
 private theorem qCoeff_smul' (c : ℂ) (f : CuspForm (Gamma1 N) k) (n : ℕ) :
     qCoeff (⇑(c • f)) n = c * qCoeff f n := by
-  rw [← qCoeffLin_apply, map_smul, qCoeffLin_apply, smul_eq_mul]
+  simpa only [qCoeff, FunLike.coe_smul] using
+    ModularFormClass.qCoeff_const_smul' (Γ := CongruenceSubgroup.Gamma1 N)
+      (one_mem_strictPeriods N) f c n
 
+/-- The concrete-spelling copy of `ModularFormClass.qCoeff_sub'` (`HeckeQCoeff`). -/
 private theorem qCoeff_sub' (f g : CuspForm (Gamma1 N) k) (n : ℕ) :
     qCoeff (⇑(f - g)) n = qCoeff f n - qCoeff g n := by
-  rw [← qCoeffLin_apply, map_sub, qCoeffLin_apply, qCoeffLin_apply]
+  simpa only [qCoeff, FunLike.coe_sub] using
+    ModularFormClass.qCoeff_sub' (Γ := CongruenceSubgroup.Gamma1 N)
+      (one_mem_strictPeriods N) f g n
 
 private theorem qCoeff_zero' (n : ℕ) : qCoeff (⇑(0 : CuspForm (Gamma1 N) k)) n = 0 := by
   rw [← qCoeffLin_apply (N := N) (k := k), map_zero]
@@ -94,7 +107,7 @@ private theorem eq_zero_of_weight_zero [NeZero N] (hk : k = 0) (f : CuspForm (Ga
       bdd_at_cusps' := fun hc γ hγ => (f.zero_at_cusps' hc γ hγ).boundedAtFilter }
   obtain ⟨c, hc⟩ := ModularForm.eq_const_of_weight_zero F
   have hF : (⇑F : ℍ → ℂ) = ⇑f := rfl
-  haveI : Fact (IsCusp OnePoint.infty ((Gamma1 N : Subgroup SL(2, ℤ)) : Subgroup (GL (Fin 2) ℝ))) :=
+  have : Fact (IsCusp OnePoint.infty ((Gamma1 N : Subgroup SL(2, ℤ)) : Subgroup (GL (Fin 2) ℝ))) :=
     ⟨Subgroup.isCusp_of_mem_strictPeriods one_pos (one_mem_strictPeriods N)⟩
   have h0 : IsZeroAtImInfty (⇑f) := CuspFormClass.zero_at_infty f
   rw [← hF, hc] at h0
@@ -151,15 +164,15 @@ private noncomputable def nebSubmodule (N : ℕ) (k : ℤ) (ε : DirichletCharac
   add_mem' {f g} hf hg := by
     rw [Set.mem_ofPred_eq, hasNebentypus_iff_slash] at hf hg ⊢
     intro γ hγ
-    rw [CuspForm.coe_add, SlashAction.add_slash, hf γ hγ, hg γ hγ, smul_add]
+    rw [FunLike.coe_add, SlashAction.add_slash, hf γ hγ, hg γ hγ, smul_add]
   zero_mem' := by
     rw [Set.mem_ofPred_eq, hasNebentypus_iff_slash]
     intro γ hγ
-    rw [CuspForm.coe_zero, SlashAction.zero_slash, smul_zero]
+    rw [FunLike.coe_zero, SlashAction.zero_slash, smul_zero]
   smul_mem' c f hf := by
     rw [Set.mem_ofPred_eq, hasNebentypus_iff_slash] at hf ⊢
     intro γ hγ
-    rw [CuspForm.IsGLPos.coe_smul, SL_smul_slash', hf γ hγ, smul_comm]
+    rw [FunLike.coe_smul, SL_smul_slash', hf γ hγ, smul_comm]
 
 private theorem mem_nebSubmodule {ε : DirichletCharacter ℂ N} {f : CuspForm (Gamma1 N) k} :
     f ∈ nebSubmodule N k ε ↔ CuspForm.HasNebentypus ε f := Iff.rfl
@@ -172,13 +185,13 @@ private theorem hasNebentypus_heckeTLinOne {ε : DirichletCharacter ℂ N} {f : 
   have h1 : CuspForm.slashOfMemGamma0 N k hγ f = ε ((γ 1 1 : ℤ) : ZMod N) • f := by
     refine DFunLike.ext' ?_
     show ⇑(CuspForm.slashOfMemGamma0 N k hγ f) = ⇑(ε ((γ 1 1 : ℤ) : ZMod N) • f)
-    rw [ModularForm.Level.coe_slashOfMemGamma0, CuspForm.IsGLPos.coe_smul]; exact hf γ hγ
+    rw [ModularForm.Level.coe_slashOfMemGamma0, FunLike.coe_smul]; exact hf γ hγ
   have h2 := CuspForm.heckeTLinOne_slashOfMemGamma0 k hp hpN hγ f
   rw [h1, map_smul] at h2
   have h3 : ⇑(CuspForm.slashOfMemGamma0 N k hγ (CuspForm.heckeTLinOne k hp hpN f))
       = ⇑(ε ((γ 1 1 : ℤ) : ZMod N) • CuspForm.heckeTLinOne k hp hpN f) := by
     rw [h2]
-  rw [ModularForm.Level.coe_slashOfMemGamma0, CuspForm.IsGLPos.coe_smul] at h3
+  rw [ModularForm.Level.coe_slashOfMemGamma0, FunLike.coe_smul] at h3
   exact h3
 
 private noncomputable def heckeTNeb (ε : DirichletCharacter ℂ N) (k : ℤ) {p : ℕ} (hp : p.Prime)
@@ -226,17 +239,17 @@ private theorem heckeT_comm_of_hasNebentypus {ε : DirichletCharacter ℂ N} {f 
     have e2 : p * n / q = p * (n / q) := Nat.mul_div_assoc p hqn
     have e3 : q * n / p = q * (n / p) := Nat.mul_div_assoc q hpn
     have e4 : n / p / q = n / q / p := by rw [Nat.div_div_eq_div_mul, Nat.div_div_eq_div_mul, mul_comm]
-    simp only [hpn, hqn, h3, h4, e2, e3, e4, if_true]
+    simp only [hpn, hqn, h3, h4, e2, e3, e4, ite_true]
     split_ifs <;> ring
   · have h3 : ¬ q ∣ n / p := fun h => hqn (h.trans (Nat.div_dvd_of_dvd hpn))
     have e3 : q * n / p = q * (n / p) := Nat.mul_div_assoc q hpn
-    simp only [hpn, hqn, h3, e3, if_true, if_false]
+    simp only [hpn, hqn, h3, e3, ite_true, ite_false]
     ring
   · have h4 : ¬ p ∣ n / q := fun h => hpn (h.trans (Nat.div_dvd_of_dvd hqn))
     have e2 : p * n / q = p * (n / q) := Nat.mul_div_assoc p hqn
-    simp only [hpn, hqn, h4, e2, if_true, if_false]
+    simp only [hpn, hqn, h4, e2, ite_true, ite_false]
     ring
-  · simp only [hpn, hqn, if_false]
+  · simp only [hpn, hqn, ite_false]
     ring
 
 private theorem heckeTNeb_comm (ε : DirichletCharacter ℂ N) {p q : ℕ} (hp : p.Prime) (hpN : ¬ p ∣ N)
@@ -534,12 +547,12 @@ private theorem exists_eigenvector_lift {N : ℕ} {w : ℕ} (hw : 1 ≤ w) {ε :
     show resChar R φ h hh hne (Subring.inclusion hTA ⟨_, memT_hecke p hp hpN hpk⟩) = φ (α p)
     exact resChar_eq (hne := hne) _ (eig p hp hpN hpk)
 
-  letI iCR : CommRing T :=
+  let iCR : CommRing T :=
     { (inferInstance : Ring T) with
       mul_comm := (Subring.isMulCommutative_closure
         (fun x hx y hy _ => hcomm x hx y hy)).is_comm.comm }
-  letI iSMul : SMul T (nebSubmodule N w ε) := ⟨fun t v => t.1 v⟩
-  letI iMod : Module T (nebSubmodule N w ε) :=
+  let iSMul : SMul T (nebSubmodule N w ε) := ⟨fun t v => t.1 v⟩
+  let iMod : Module T (nebSubmodule N w ε) :=
     { smul := fun t v => t.1 v
       one_smul := fun v => rfl
       mul_smul := fun a b v => rfl
@@ -550,7 +563,7 @@ private theorem exists_eigenvector_lift {N : ℕ} {w : ℕ} (hw : 1 ≤ w) {ε :
   have iSCC : SMulCommClass T ℂ (nebSubmodule N w ε) := ⟨fun t c v => map_smul t.1 c v⟩
   have iFS : FaithfulSMul T (nebSubmodule N w ε) :=
     ⟨fun {t₁ t₂} h12 => Subtype.ext (LinearMap.ext fun v => h12 v)⟩
-  haveI : (RingHom.ker χ).IsPrime := RingHom.ker_isPrime χ
+  have : (RingHom.ker χ).IsPrime := RingHom.ker_isPrime χ
   obtain ⟨𝔭, h𝔭, h𝔭le⟩ :=
     Ideal.exists_minimalPrimes_le (I := (⊥ : Ideal T)) (J := RingHom.ker χ) bot_le
   obtain ⟨lam, hlam, x, hx0, -, -, hxeig⟩ :=
@@ -586,7 +599,7 @@ private theorem exists_eigenvector_lift {N : ℕ} {w : ℕ} (hw : 1 ≤ w) {ε :
         heckeTNeb ε w hℓ hℓN y = μ • y := by
     by_cases hex : ∃ ℓ : ℕ, ℓ.Prime ∧ ¬ ℓ ∣ N ∧ (ℓ : κ) = 0
     · obtain ⟨ℓ, hℓ, hℓN, hℓ0⟩ := hex
-      haveI : Nontrivial W := ⟨⟨⟨x, hxW⟩, 0, fun h0 => hx0 (congrArg Subtype.val h0)⟩⟩
+      have : Nontrivial W := ⟨⟨⟨x, hxW⟩, 0, fun h0 => hx0 (congrArg Subtype.val h0)⟩⟩
       let Tl : Module.End ℂ W := (heckeTNeb ε w hℓ hℓN).restrict (hWstab hℓ hℓN)
       obtain ⟨μ, hμ⟩ := Module.End.exists_eigenvalue Tl
       obtain ⟨z, hz⟩ := hμ.exists_hasEigenvector
@@ -681,7 +694,7 @@ theorem exists_hecke_eigen_reduction_eq_of_qCoeff_hecke_congr
       rw [h0]; exact qCoeff_zero' n)
     rw [this, map_zero]
 
-  haveI : FiniteDimensional ℂ (CuspForm (Gamma1 N) w) :=
+  have : FiniteDimensional ℂ (CuspForm (Gamma1 N) w) :=
     CuspForm.finiteDimensional_of_isArithmetic _ _
   let hV : nebSubmodule N w ε := ⟨h, hεh⟩
   have hhI : IsInt R hV := hR

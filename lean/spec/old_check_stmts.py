@@ -3509,11 +3509,9 @@ PORT_FILES = [
     "FLTForHuman/ModularForms/Defs/HeckeRepresentatives.lean",
     "FLTForHuman/ModularForms/HeckeInvariance.lean",
     "FLTForHuman/ModularForms/HeckeFricke.lean",
-    "FLTForHuman/ModularForms/HeckeAnalytic.lean",
     "FLTForHuman/ModularForms/HeckeCusps.lean",
     # SET-3 T5: the formal `PowerSeries` operators and the shared `q`-coefficient tail.
     "FLTForHuman/ModularForms/Defs/FormalHeckeOperators.lean",
-    "FLTForHuman/ModularForms/HeckeQCoeff.lean",
     # SET-3 T6: the bundled `heckeTLin`/`heckeULin` and the three thin wrappers.
     "FLTForHuman/ModularForms/HeckeOperatorForms.lean",
     # SET-3 T7: the formal-series operators, the commutations and the algebra.
@@ -3522,17 +3520,14 @@ PORT_FILES = [
     "FLTForHuman/ModularForms/HeckeAlgebra.lean",
     # SET-4 T8: the normalized-eigenform structure and its operator dictionary.
     "FLTForHuman/ModularForms/Defs/Eigenform.lean",
-    "FLTForHuman/ModularForms/HeckeEigenform.lean",
     # SET-4 T9: the integral-lattice definitions and the lattice action.
     "FLTForHuman/ModularForms/Defs/IntegralStructure.lean",
-    "FLTForHuman/ModularForms/HeckeLattice.lean",
     # SET-4 T10 definitions survived; T10's theorem half is complete with route
     # C′/the Sturm bound — the finiteness family lives in `HeckeFiniteAlgebra.lean`
     # and the lattice facts in `HeckeLattice.lean`. The eigenbasis-span family is
     # still absent (see the `SOURCES` note and `logs/hecke-port.md` §T10).
     "FLTForHuman/ModularForms/Defs/EisensteinChiNegThree.lean",
     "FLTForHuman/ModularForms/Defs/IntegralLattice.lean",
-    "FLTForHuman/ModularForms/HeckeFiniteAlgebra.lean",
     "FLTForHuman/ModularForms/HeckeQExpansion.lean",
     "FLTForHuman/ModularForms/PhiGenDescends.lean",
     "FLTForHuman/ModularCurve/PhiGenIntegrality.lean",
@@ -3726,7 +3721,6 @@ PORT_FILES = [
     # `Gamma1Eisenstein` / `FrickeCuspTransport` / `FrickeSpan` /
     # `GammaOneGaloisEven` / `GammaOneGaloisAllWeights`, nested in
     # `WLightS11.*`), so the checker sees only the six headlines.
-    "FLTForHuman/ModularForms/WeightOne/Gamma1Basis.lean",
     # SET-11, order 2: the four integral-slash Γ₁-basis headlines; imports
     # order 1. The four pin inner namespaces are `GammaOneCyclotomicEven` /
     # `GammaOneCyclotomic` / `GammaOneRationalStructure` / `DeligneSerre271`.
@@ -3747,7 +3741,6 @@ PORT_FILES = [
     # The `RatAt`/width vocabulary, split out of `Defs/GammaRational` so `LevelN`
     # can share it (the γ-rationality home imports LevelN). Its declarations come
     # from the same Γ-package pin sources already in SOURCES.
-    "FLTForHuman/ModularForms/WeightOne/Defs/RatAt.lean",
     "FLTForHuman/ModularForms/WeightOne/Fricke.lean",
     # The two homes created by the rectification's later waves. Their declarations
     # were lifted verbatim from pin-private regions of
@@ -3821,7 +3814,6 @@ PORT_FILES = [
     "FLTForHuman/Algebra/FaithfulLatticeEigenvector.lean",
     "FLTForHuman/ModularForms/Level/Degeneracy.lean",
     "FLTForHuman/ModularForms/EigenformLevel.lean",
-    "FLTForHuman/ModularForms/EigenformExtraction.lean",
     # T12, SET 3: the conditional capstone. The `R ≅ T` assembly at its natural
     # subject home (beside `WeierstrassCurve/Defs/Modularity.lean`); its single
     # public declaration is own-proof, and the verbatim pinned statement is left
@@ -3885,22 +3877,18 @@ PORT_FILES = [
     # --- S2 (Deligne–Serre Hecke / Γ₁ vanishing and nebentypus set) ---
     # Five modules, in dependency order (the Ihara module is independent and the
     # `HeckeEigenNebentypus` module imports `Gamma1Vanishing`). Appended last.
-    "FLTForHuman/ModularForms/HeckeTLinOneQCoeff.lean",
     "FLTForHuman/ModularForms/HeckeNebentypus.lean",
     "FLTForHuman/ModularForms/Gamma1Vanishing.lean",
-    "FLTForHuman/ModularForms/HeckeEigenNebentypus.lean",
     "FLTForHuman/ModularCurve/IharaSurjective.lean",
     # --- S3 (Deligne–Serre relèvement and weight-one → weight-two lifting) ---
     # The weight-generic relèvement first, then the weight-one instance that
     # imports it. Appended last.
-    "FLTForHuman/DeligneSerre/Relevement.lean",
     "FLTForHuman/DeligneSerre/Lifting.lean",
     # --- S4 (Deligne–Serre coefficient ring and Galois conjugation) ---
     # The two new modules. `FLTForHuman/Algebra/IntegralExtensionCharacters.lean`
     # and `FLTForHuman/Algebra/FaithfulLatticeEigenvector.lean`, extended by S4,
     # are already listed above. Appended last.
     "FLTForHuman/Algebra/LatticeEigenvalues.lean",
-    "FLTForHuman/DeligneSerre/CoefficientRing.lean",
     # --- S5 (Deligne–Serre semisimple descent of a reducible residual
     # representation) ---
     # The single new module, under `GaloisRep` (its only import home). It carries
@@ -4557,7 +4545,6 @@ PORT_FILES = [
     # Gamma0-rationality pair's shared engine written once, plus the two
     # headlines, which are matched against their `Theorems/` wrappers appended to
     # `SOURCES` last. Appended last so no earlier last-name match can flip.
-    "FLTForHuman/ModularForms/WeightOne/RationalityDvd.lean",
     # --- SET-R-B (`topics/functionFieldGeneration/SET-R-B.md`): the `X_H`
     # relative-degree headline and its engine, matched against the `S_` file and
     # `Theorems/` wrapper appended to `SOURCES` last. Appended last so no earlier
@@ -4757,8 +4744,6 @@ PORT_FILES = [
     # WORKORDER-S8: the Γ₁/Nebentypus pair. The promoted `dd`/Γ₁ API lives in
     # `HeckeEigenNebentypus.lean` (already listed); each of these two modules exposes
     # exactly its one wrapper headline, so the delta is +2.
-    "FLTForHuman/ModularForms/HeckeNebentypusExistence.lean",
-    "FLTForHuman/ModularForms/HeckeNebentypusFricke.lean",
     # --- PORTING-AutomorphicForm D0 (`topics/PORTING-AutomorphicForm.md`): the
     # mathlib-only leaves. `Adelic/Basic` and `Adelic/LsXi` split the pin's
     # `Def_AutomorphicForm_AdelicLsXi`. Appended last.

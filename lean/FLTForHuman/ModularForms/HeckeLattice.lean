@@ -25,6 +25,14 @@
   (`Defs/IntegralStructure.lean`), the three `S_` files
   `S_CuspForm_mem_intLattice_of_{coe_eq_heckeT,coe_eq_heckeU,mem_heckeAlgebra}`
   and `S_CuspForm_intLattice_{fg,free_and_finite}.lean`.
+
+  spec-pin: Theorems/Thm_CuspForm_mem_intLattice_iff.lean
+  spec-pin: Theorems/Thm_CuspForm_mem_intLattice_of_mem_heckeAlgebra.lean
+  spec-pin: Theorems/Thm_CuspForm_mem_intLattice_of_coe_eq_heckeT.lean
+  spec-pin: Theorems/Thm_CuspForm_mem_intLattice_of_coe_eq_heckeU.lean
+  spec-pin: Theorems/Thm_CuspForm_intLattice_fg.lean
+  spec-pin: Theorems/Thm_CuspForm_intLattice_free_and_finite.lean
+
 -/
 import FLTForHuman.ModularForms.Defs.IntegralStructure
 import FLTForHuman.ModularForms.HeckeAlgebra
@@ -51,10 +59,12 @@ private theorem one_mem_strictPeriods_Gamma0 (N : ℕ) :
 
 /-! ## The defining set is a submodule (private) -/
 
+/-- The concrete-spelling copy of `ModularFormClass.qCoeff_add'` (`HeckeQCoeff`) at
+`Γ₀(N)`; the addition is unfolded along the coercion, nothing is re-proved. -/
 private theorem qCoeff_add (f g : CuspForm (CongruenceSubgroup.Gamma0 N) k) (n : ℕ) :
     qCoeff ⇑(f + g) n = qCoeff ⇑f n + qCoeff ⇑g n := by
-  simp only [qCoeff, FunLike.coe_add]
-  rw [ModularForm.qExpansion_add one_pos (one_mem_strictPeriods_Gamma0 N) f g, map_add]
+  simpa only [qCoeff, FunLike.coe_add] using
+    ModularFormClass.qCoeff_add' (one_mem_strictPeriods_Gamma0 N) f g n
 
 private theorem qCoeff_zero' (n : ℕ) :
     qCoeff ⇑(0 : CuspForm (CongruenceSubgroup.Gamma0 N) k) n = 0 := by

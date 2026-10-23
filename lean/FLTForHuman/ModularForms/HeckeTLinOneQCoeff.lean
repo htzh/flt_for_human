@@ -12,7 +12,8 @@
 
   All block helpers are `private`: the pin's `T_pow_mem_Gamma1` (the port's public
   copy lives in the heavy `WeightOne` cone, which this module must not import),
-  its witness `cusp_slash_T_pow`, the `periodic_smul` used for the dilation, and
+  its witness `cusp_slash_T_pow`, the periodicity of the dilation (`periodic_smul`,
+  imported from `HeckeAnalytic`), and
   the coefficient identity `qCoeff_heckeU_add_slash`. The remaining vocabulary is
   the shared prelude (`ModularForm.periodic_of_slash_T`,
   `ModularForm.heckeDiagMatrix_mul_T`, `ModularForm.slash_heckeDiagMatrix_slash_T`,
@@ -24,6 +25,12 @@
   `ModularForm.coeffHeckeU_apply`, `ModularForm.slash_heckeDiagMatrix_apply` and
   the mathlib `UpperHalfPlane.analyticAt_cuspFunction_zero`/`qExpansion_smul`/
   `qExpansion_add`).
+
+  spec-pin: Theorems/Thm_CuspForm_qCoeff_heckeTLinOne.lean
+  spec-pin: Theorems/Thm_CuspForm_heckeTLinOne_slashOfMemGamma0.lean
+  spec-pin: P2M/Sol/S_CuspForm_qCoeff_heckeTLinOne.lean
+  spec-pin: P2M/Sol/S_CuspForm_heckeTLinOne_slashOfMemGamma0.lean
+
 -/
 import FLTForHuman.ModularForms.HeckePrelude
 import FLTForHuman.ModularForms.HeckeAnalytic
@@ -55,14 +62,6 @@ private theorem T_pow_mem_Gamma1 (N n : ℕ) : ModularGroup.T ^ n ∈ Gamma1 N :
 private theorem cusp_slash_T_pow (F : CuspForm (CongruenceSubgroup.Gamma1 M) k) (n : ℕ) :
     (⇑F : ℍ → ℂ) ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ (ModularGroup.T ^ n)) = ⇑F :=
   SlashInvariantFormClass.slash_action_eq F _ (Subgroup.mem_map_of_mem _ (T_pow_mem_Gamma1 M n))
-
-/-- A scalar multiple of a `1`-periodic function is `1`-periodic. -/
-private theorem periodic_smul {G : ℍ → ℂ} (hG : Periodic (G ∘ ofComplex) 1) (c : ℂ) :
-    Periodic ((c • G) ∘ ofComplex) 1 := by
-  intro w
-  have h2 := hG w
-  simp only [comp_apply, Pi.smul_apply, smul_eq_mul] at h2 ⊢
-  rw [h2]
 
 variable (F : CuspForm (CongruenceSubgroup.Gamma1 M) k)
 
@@ -102,7 +101,7 @@ private theorem qCoeff_heckeU_add_slash (hp : p ≠ 0)
     rw [hDG, smul_smul, inv_mul_cancel₀ hpk, one_smul]
   have hanG : AnalyticAt ℂ (cuspFunction 1 G') 0 := by
     rw [hGD]
-    exact analyticAt_cuspFunction_zero one_pos (periodic_smul hDper _)
+    exact analyticAt_cuspFunction_zero one_pos (UpperHalfPlane.periodic_smul hDper _)
       (MDifferentiable.const_smul _ hDhol) (BoundedAtFilter.smul _ hDbdd)
   have hqD : qCoeff D n = (p : ℂ) ^ (k - 1) * (if p ∣ n then qCoeff (⇑G) (n / p) else 0) := by
     rw [qCoeff, hDG, qExpansion_smul hanG, map_smul, smul_eq_mul]

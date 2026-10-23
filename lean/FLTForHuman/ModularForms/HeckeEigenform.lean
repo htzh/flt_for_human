@@ -25,6 +25,22 @@
 
   FLT provenance: `Definitions/Def_FLTPrelim_Modularity.lean` (the structure,
   `Defs/Eigenform.lean`) and the `P2M/Sol/S_*` files named per declaration.
+
+  spec-pin: Theorems/Thm_ModularFormClass_heckeT_eq_smul_iff.lean
+  spec-pin: Theorems/Thm_ModularFormClass_heckeU_eq_smul_iff.lean
+  spec-pin: Theorems/Thm_CuspForm_heckeTLin_apply_eq_smul_iff.lean
+  spec-pin: Theorems/Thm_CuspForm_heckeULin_apply_eq_smul_iff.lean
+  spec-pin: Theorems/Thm_CuspForm_isNormalizedEigenform_iff_coeffHecke.lean
+  spec-pin: Theorems/Thm_CuspForm_isNormalizedEigenform_iff_heckeT.lean
+  spec-pin: Theorems/Thm_CuspForm_isNormalizedEigenform_iff_heckeTLin.lean
+  spec-pin: Theorems/Thm_CuspForm_qCoeff_zero.lean
+  spec-pin: Theorems/Thm_CuspForm_IsNormalizedEigenform_heckeTLin_apply_eq_qCoeff_smul.lean
+  spec-pin: Theorems/Thm_CuspForm_IsNormalizedEigenform_heckeULin_apply_eq_qCoeff_smul.lean
+  spec-pin: Theorems/Thm_ModularForm_coeffHecke_eigenvalue_eq_apply_of_apply_one_eq_one.lean
+  spec-pin: Theorems/Thm_ModularForm_eq_zero_of_coeffHecke_eigen_of_apply_one_eq_zero.lean
+  spec-pin: Theorems/Thm_PowerSeries_coeff_heckeT_pow_sub_mem_span.lean
+  spec-pin: Theorems/Thm_LaurentSeries_eq_zero_of_heckeT_eq_smul_of_heckeU_eq_smul_of_coeff_one_eq_zero.lean
+
 -/
 import FLTForHuman.ModularForms.Defs.Eigenform
 import FLTForHuman.ModularForms.HeckeCommute
@@ -250,16 +266,9 @@ open ModularForm
 
 namespace ModularFormClass
 
-/-- The analytic core of `heckeT_eq_smul_iff`. -/
-private theorem qCoeff_const_smul {f : ℍ → ℂ} (hper : Periodic (f ∘ ofComplex) 1) (hhol : MDiff f)
-    (hbdd : IsBoundedAtImInfty f) (c : ℂ) (n : ℕ) : qCoeff (c • f) n = c * qCoeff f n := by
-  simp only [qCoeff]
-  rw [UpperHalfPlane.qExpansion_smul (analyticAt_cuspFunction_zero one_pos hper hhol hbdd)]
-  simp
-
-private theorem periodic_const_smul {f : ℍ → ℂ} (hper : Periodic (f ∘ ofComplex) 1) (c : ℂ) :
-    Periodic ((c • f) ∘ ofComplex) 1 := fun z => by
-  simpa using congrArg (c * ·) (hper z)
+/- The analytic core of `heckeT_eq_smul_iff` is `ModularFormClass.qCoeff_const_smul`
+of `HeckeQCoeff.lean` and the periodicity is `UpperHalfPlane.periodic_smul` of
+`HeckeAnalytic.lean`; both are imported, not re-proved. -/
 
 private theorem mf_periodic {F : Type*} [FunLike F UpperHalfPlane ℂ]
     {Γ : Subgroup (Matrix.GeneralLinearGroup (Fin 2) ℝ)} {k : ℤ} [ModularFormClass F Γ k]
@@ -281,13 +290,13 @@ private theorem heckeT_eq_smul_iff_bare {f : ℍ → ℂ} (hper : Periodic (f �
   constructor
   · intro h n
     rw [← UpperHalfPlane.qCoeff_heckeT hper hhol hbdd k hp n, h,
-      qCoeff_const_smul hper hhol hbdd]
+      ModularFormClass.qCoeff_const_smul hper hhol hbdd]
   · intro h
     refine UpperHalfPlane.eq_of_forall_qCoeff_eq (periodic_heckeT_comp_ofComplex hper k p)
       (mdifferentiable_heckeT hhol k p) (isBoundedAtImInfty_heckeT hbdd k p)
-      (periodic_const_smul hper c) (hhol.const_smul c) (hbdd.const_smul_left c) fun n => ?_
+      (UpperHalfPlane.periodic_smul hper c) (hhol.const_smul c) (hbdd.const_smul_left c) fun n => ?_
     rw [UpperHalfPlane.qCoeff_heckeT hper hhol hbdd k hp n, h n,
-      qCoeff_const_smul hper hhol hbdd]
+      ModularFormClass.qCoeff_const_smul hper hhol hbdd]
 
 private theorem heckeU_eq_smul_iff_bare {f : ℍ → ℂ} (hper : Periodic (f ∘ ofComplex) 1)
     (hhol : MDiff f) (hbdd : IsBoundedAtImInfty f) (k : ℤ) {p : ℕ} (hp : p ≠ 0) (c : ℂ) :
@@ -296,13 +305,13 @@ private theorem heckeU_eq_smul_iff_bare {f : ℍ → ℂ} (hper : Periodic (f �
   constructor
   · intro h n
     rw [← UpperHalfPlane.qCoeff_heckeU hper hhol hbdd k hp n, h,
-      qCoeff_const_smul hper hhol hbdd]
+      ModularFormClass.qCoeff_const_smul hper hhol hbdd]
   · intro h
     refine UpperHalfPlane.eq_of_forall_qCoeff_eq (periodic_heckeU_comp_ofComplex hper k p)
       (mdifferentiable_heckeU hhol k p) (isBoundedAtImInfty_heckeU hbdd k p)
-      (periodic_const_smul hper c) (hhol.const_smul c) (hbdd.const_smul_left c) fun n => ?_
+      (UpperHalfPlane.periodic_smul hper c) (hhol.const_smul c) (hbdd.const_smul_left c) fun n => ?_
     rw [UpperHalfPlane.qCoeff_heckeU hper hhol hbdd k hp n, h n,
-      qCoeff_const_smul hper hhol hbdd]
+      ModularFormClass.qCoeff_const_smul hper hhol hbdd]
 
 /-- `T_p f = c f` iff the coefficients satisfy the eigenvalue equation. Stated
 verbatim from `Theorems/Thm_ModularFormClass_heckeT_eq_smul_iff.lean`. -/

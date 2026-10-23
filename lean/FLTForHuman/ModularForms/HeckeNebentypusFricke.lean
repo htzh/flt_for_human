@@ -15,6 +15,10 @@
   FLT provenance, pinned `aa2d8b3`:
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_CuspForm_hasNebentypus_inv_and_qCoeff_hecke_eigen_of_fricke.lean
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CuspForm_hasNebentypus_inv_and_qCoeff_hecke_eigen_of_fricke.lean
+
+  spec-pin: Theorems/Thm_CuspForm_hasNebentypus_inv_and_qCoeff_hecke_eigen_of_fricke.lean
+  spec-pin: P2M/Sol/S_CuspForm_hasNebentypus_inv_and_qCoeff_hecke_eigen_of_fricke.lean
+
 -/
 import FLTForHuman.ModularForms.Gamma1Vanishing
 import FLTForHuman.ModularForms.HeckePrelude
@@ -129,14 +133,6 @@ private theorem isBoundedAtImInfty_heckeU (hp : p ≠ 0) {F : ℍ → ℂ} (hF :
   | insert j s hj ih =>
     rw [Finset.sum_insert hj]
     exact (isBoundedAtImInfty_slash_heckeMatrix hp j hF).add ih
-
-private theorem periodic_add_smul {F G : ℍ → ℂ} (hF : Periodic (F ∘ ofComplex) 1)
-    (hG : Periodic (G ∘ ofComplex) 1) (c : ℂ) : Periodic ((F + c • G) ∘ ofComplex) 1 := by
-  intro w
-  have h1 := hF w
-  have h2 := hG w
-  simp only [comp_apply, Pi.add_apply, Pi.smul_apply, smul_eq_mul] at h1 h2 ⊢
-  rw [h1, h2]
 
 end Toolkit
 
@@ -267,12 +263,12 @@ private theorem phi_props (hp : p ≠ 0) (c : ℂ) :
   have hUbdd : IsBoundedAtImInfty U := isBoundedAtImInfty_heckeU hp hFbdd
   have hDbdd : IsBoundedAtImInfty D := isBoundedAtImInfty_slash_heckeDiagMatrix hp hFbdd
   have hφ : phi k p c ⇑F = U + c • D := rfl
-  refine ⟨hφ ▸ periodic_add_smul hUper hDper c, hφ ▸ hUhol.add (hDhol.const_smul c),
+  refine ⟨hφ ▸ UpperHalfPlane.periodic_add hUper (UpperHalfPlane.periodic_smul hDper c), hφ ▸ hUhol.add (hDhol.const_smul c),
     hφ ▸ hUbdd.add (hDbdd.smul c), fun n => ?_⟩
 
   have hanU := analyticAt_cuspFunction_zero one_pos hUper hUhol hUbdd
   have hancD : AnalyticAt ℂ (cuspFunction 1 (c • D)) 0 :=
-    analyticAt_cuspFunction_zero one_pos (periodic_smul hDper c) (hDhol.const_smul c) (hDbdd.smul c)
+    analyticAt_cuspFunction_zero one_pos (UpperHalfPlane.periodic_smul hDper c) (hDhol.const_smul c) (hDbdd.smul c)
   have hanD := analyticAt_cuspFunction_zero one_pos hDper hDhol hDbdd
   set G : ℍ → ℂ := fun τ => F (heckeDiagMatrix p • τ) with hG
   have hDG : D = ((p : ℂ) ^ (k - 1)) • G := by
@@ -283,7 +279,7 @@ private theorem phi_props (hp : p ≠ 0) (c : ℂ) :
     rw [hDG, smul_smul, inv_mul_cancel₀ hpk, one_smul]
   have hanG : AnalyticAt ℂ (cuspFunction 1 G) 0 := by
     rw [hGD]
-    exact analyticAt_cuspFunction_zero one_pos (periodic_smul hDper _) (hDhol.const_smul _)
+    exact analyticAt_cuspFunction_zero one_pos (UpperHalfPlane.periodic_smul hDper _) (hDhol.const_smul _)
       (hDbdd.smul _)
   have hqD : qCoeff D n = (p : ℂ) ^ (k - 1) * (if p ∣ n then qCoeff (⇑F) (n / p) else 0) := by
     rw [qCoeff, hDG, qExpansion_smul hanG, map_smul, smul_eq_mul]
@@ -306,7 +302,7 @@ private theorem phi_eq_smul_of_qCoeff (hp : p ≠ 0) (c lam : ℂ)
   have hFhol : MDifferentiable (modelWithCornersSelf ℂ ℂ) (modelWithCornersSelf ℂ ℂ) (⇑F) := F.holo'
   have hFbdd := cusp_bdd F
   have hang := analyticAt_cuspFunction_zero one_pos hFper hFhol hFbdd
-  refine UpperHalfPlane.eq_of_forall_qCoeff_eq hper hhol hbdd (periodic_smul hFper lam)
+  refine UpperHalfPlane.eq_of_forall_qCoeff_eq hper hhol hbdd (UpperHalfPlane.periodic_smul hFper lam)
     (hFhol.const_smul lam) (hFbdd.smul lam) (fun n => ?_)
   rw [hq n, hrel n, qCoeff, qCoeff, qExpansion_smul hang, map_smul, smul_eq_mul]
 

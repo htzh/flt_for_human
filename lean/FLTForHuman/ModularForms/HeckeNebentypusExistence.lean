@@ -19,6 +19,10 @@
   FLT provenance, pinned `aa2d8b3`:
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_CuspForm_exists_hasNebentypus_of_qCoeff_hecke_eigen.lean
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_CuspForm_exists_hasNebentypus_of_qCoeff_hecke_eigen.lean
+
+  spec-pin: Theorems/Thm_CuspForm_exists_hasNebentypus_of_qCoeff_hecke_eigen.lean
+  spec-pin: P2M/Sol/S_CuspForm_exists_hasNebentypus_of_qCoeff_hecke_eigen.lean
+
 -/
 import FLTForHuman.ModularForms.Gamma1Vanishing
 import FLTForHuman.ModularForms.HeckePrelude
@@ -74,14 +78,6 @@ section Prime
 
 variable [NeZero M] {k : ℤ}
 
-private theorem periodic_add_smul {F G : ℍ → ℂ} (hF : Periodic (F ∘ ofComplex) 1)
-    (hG : Periodic (G ∘ ofComplex) 1) (c : ℂ) : Periodic ((F + c • G) ∘ ofComplex) 1 := by
-  intro w
-  have h1 := hF w
-  have h2 := hG w
-  simp only [comp_apply, Pi.add_apply, Pi.smul_apply, smul_eq_mul] at h1 h2 ⊢
-  rw [h1, h2]
-
 private theorem slash_eq_smul_prime (g : CuspForm Γ₁(M) k) (c : ℂ)
     {p : ℕ} (hp : p.Prime) (hpM : ¬ p ∣ M)
     (heig : ∃ lam : ℂ, ∀ n : ℕ,
@@ -134,14 +130,14 @@ private theorem slash_eq_smul_prime (g : CuspForm Γ₁(M) k) (c : ℂ)
   have hDbdd : IsBoundedAtImInfty D := isBoundedAtImInfty_slash_heckeDiagMatrix hp0 hgbdd
 
   set φ : ℍ → ℂ := U + c • D with hφ
-  have hφper : Periodic (φ ∘ ofComplex) 1 := periodic_add_smul hUper hDper c
+  have hφper : Periodic (φ ∘ ofComplex) 1 := UpperHalfPlane.periodic_add hUper (UpperHalfPlane.periodic_smul hDper c)
   have hφhol : MDifferentiable (modelWithCornersSelf ℂ ℂ) (modelWithCornersSelf ℂ ℂ) φ :=
     hUhol.add (hDhol.const_smul c)
   have hφbdd : IsBoundedAtImInfty φ := hUbdd.add (hDbdd.smul c)
 
   have hanU := analyticAt_cuspFunction_zero one_pos hUper hUhol hUbdd
   have hancD : AnalyticAt ℂ (cuspFunction 1 (c • D)) 0 :=
-    analyticAt_cuspFunction_zero one_pos (periodic_smul hDper c) (hDhol.const_smul c) (hDbdd.smul c)
+    analyticAt_cuspFunction_zero one_pos (UpperHalfPlane.periodic_smul hDper c) (hDhol.const_smul c) (hDbdd.smul c)
   have hanD := analyticAt_cuspFunction_zero one_pos hDper hDhol hDbdd
   have hang := analyticAt_cuspFunction_zero one_pos hgper hghol hgbdd
 
@@ -154,7 +150,7 @@ private theorem slash_eq_smul_prime (g : CuspForm Γ₁(M) k) (c : ℂ)
     rw [hDG, smul_smul, inv_mul_cancel₀ hpk, one_smul]
   have hanG : AnalyticAt ℂ (cuspFunction 1 G) 0 := by
     rw [hGD]
-    exact analyticAt_cuspFunction_zero one_pos (periodic_smul hDper _) (hDhol.const_smul _)
+    exact analyticAt_cuspFunction_zero one_pos (UpperHalfPlane.periodic_smul hDper _) (hDhol.const_smul _)
       (hDbdd.smul _)
   have hqD : ∀ n, ModularFormClass.qCoeff D n
       = (p : ℂ) ^ (k - 1) * (if p ∣ n then ModularFormClass.qCoeff (⇑g) (n / p) else 0) := by
@@ -177,7 +173,7 @@ private theorem slash_eq_smul_prime (g : CuspForm Γ₁(M) k) (c : ℂ)
     rw [h1, h2, ← h3, mul_assoc]
 
   have hφeq : φ = lam • (⇑g : ℍ → ℂ) :=
-    UpperHalfPlane.eq_of_forall_qCoeff_eq hφper hφhol hφbdd (periodic_smul hgper lam)
+    UpperHalfPlane.eq_of_forall_qCoeff_eq hφper hφhol hφbdd (UpperHalfPlane.periodic_smul hgper lam)
       (hghol.const_smul lam) (hgbdd.smul lam) hqφ
 
   set hf : ℍ → ℂ := gσ - c • (⇑g : ℍ → ℂ) with hhf

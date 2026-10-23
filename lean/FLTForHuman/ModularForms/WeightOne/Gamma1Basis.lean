@@ -31,6 +31,20 @@
 
   The pin's `set_option maxHeartbeats` bumps are **not** transcribed (the
   project's global `maxHeartbeats` cap is 4,000,000).
+
+  spec-pin: Theorems/Thm_CuspForm_exists_mul_E4_pow_mul_E6_pow_eq_iff.lean
+  spec-pin: Theorems/Thm_ModularCurve_exists_gamma1_eisenstein_isIntegralQExp_and_slash_eq.lean
+  spec-pin: Theorems/Thm_CuspForm_exists_gamma1_frickeRational_sigmaTransport.lean
+  spec-pin: Theorems/Thm_CuspForm_span_frickeRational_E4_pow_E6_pow_eq_top.lean
+  spec-pin: Theorems/Thm_CuspForm_exists_gamma1_qCoeff_eq_algEquiv_apply_of_even.lean
+  spec-pin: Theorems/Thm_CuspForm_exists_gamma1_qCoeff_eq_algEquiv_apply.lean
+  spec-pin: P2M/Sol/S_CuspForm_exists_mul_E4_pow_mul_E6_pow_eq_iff.lean
+  spec-pin: P2M/Sol/S_ModularCurve_exists_gamma1_eisenstein_isIntegralQExp_and_slash_eq.lean
+  spec-pin: P2M/Sol/S_CuspForm_exists_gamma1_frickeRational_sigmaTransport.lean
+  spec-pin: P2M/Sol/S_CuspForm_span_frickeRational_E4_pow_E6_pow_eq_top.lean
+  spec-pin: P2M/Sol/S_CuspForm_exists_gamma1_qCoeff_eq_algEquiv_apply_of_even.lean
+  spec-pin: P2M/Sol/S_CuspForm_exists_gamma1_qCoeff_eq_algEquiv_apply.lean
+
 -/
 
 import Mathlib.Algebra.Algebra.Hom.Rat
@@ -875,11 +889,6 @@ private theorem disc_ne_zero (τ : ℍ) : Δ τ ≠ 0 := discriminant_ne_zero τ
 
 
 private theorem periodic_disc (N : ℕ) : Periodic ((Δ : ℍ → ℂ) ∘ ofComplex) N := periodic_ofComplex_natCast periodic_disc_one N
-
-private theorem periodic_sub {g g' : ℍ → ℂ} {c : ℂ} (h : Periodic (g ∘ ofComplex) c)
-    (h' : Periodic (g' ∘ ofComplex) c) : Periodic ((g - g') ∘ ofComplex) c := by
-  intro z; have h1 := h z; have h2 := h' z
-  simp only [comp_apply, Pi.sub_apply] at h1 h2 ⊢; rw [h1, h2]
 
 private theorem periodic_div_disc_pow {N : ℕ} {g : ℍ → ℂ} (h : Periodic (g ∘ ofComplex) N) (e : ℕ) :
     Periodic ((fun τ => g τ / Δ τ ^ e) ∘ ofComplex) N := by
@@ -2079,12 +2088,12 @@ private theorem Nice.of_le {m m' : ℕ} (hm : m ≤ m') {g : ℍ → ℂ} (h : N
 
 private theorem Nice.add {m : ℕ} {g g' : ℍ → ℂ} (h : Nice N m g) (h' : Nice N m g') : Nice N m (g + g') where
   mdiff := h.mdiff.add h'.mdiff
-  periodic := by rw [add_mul]; exact periodic_add h.periodic h'.periodic
+  periodic := by rw [add_mul]; exact UpperHalfPlane.periodic_add h.periodic h'.periodic
   bdd := by rw [add_mul]; exact h.bdd.add h'.bdd
 
 private theorem Nice.smul {m : ℕ} {g : ℍ → ℂ} (h : Nice N m g) (c : ℂ) : Nice N m (c • g) where
   mdiff := h.mdiff.const_smul c
-  periodic := by rw [smul_mul_assoc]; exact periodic_smul h.periodic c
+  periodic := by rw [smul_mul_assoc]; exact UpperHalfPlane.periodic_smul h.periodic c
   bdd := by
     rw [smul_mul_assoc]
     have := h.bdd.const_mul_left c

@@ -31,6 +31,14 @@
   `qCoeff_zero'` is `CuspForm.qCoeff_zero`, and
   `qCoeff_hecke{T,U}Lin_one` are kept `private` here (their only consumer is
   `C2_7a`).
+
+  spec-pin: Theorems/Thm_CuspForm_linearIndependent_of_mem_intLattice.lean
+  spec-pin: Theorems/Thm_CuspForm_HasIntegralStructure_exists_ne_zero_forall_apply_eq_smul.lean
+  spec-pin: Theorems/Thm_CuspForm_HasIntegralStructure_exists_isNormalizedEigenform_qCoeff_eq.lean
+  spec-pin: P2M/Sol/S_CuspForm_linearIndependent_of_mem_intLattice.lean
+  spec-pin: P2M/Sol/S_CuspForm_HasIntegralStructure_exists_ne_zero_forall_apply_eq_smul.lean
+  spec-pin: P2M/Sol/S_CuspForm_HasIntegralStructure_exists_isNormalizedEigenform_qCoeff_eq.lean
+
 -/
 import FLTForHuman.ModularForms.HeckeFiniteAlgebra
 import FLTForHuman.ModularForms.SturmBound
@@ -154,12 +162,12 @@ private theorem qCoeff_zero' (n : ℕ) :
   simp only [qCoeff, FunLike.coe_zero]
   rw [UpperHalfPlane.qExpansion_zero, map_zero]
 
+/-- The concrete-spelling copy of `ModularFormClass.qCoeff_const_smul'` (`HeckeQCoeff`). -/
 private theorem qCoeff_smul (c : ℂ) (f : CuspForm (CongruenceSubgroup.Gamma0 N) k) (n : ℕ) :
     qCoeff ⇑(c • f) n = c * qCoeff ⇑f n := by
-  have h1 : ⇑(c • f) = c • ⇑f := by ext z; simp
-  simp only [qCoeff, h1]
-  rw [ModularForm.qExpansion_smul one_pos (CongruenceSubgroup.one_mem_strictPeriods_Gamma0 N) c f]
-  simp
+  simpa only [qCoeff, FunLike.coe_smul] using
+    ModularFormClass.qCoeff_const_smul' (Γ := CongruenceSubgroup.Gamma0 N)
+      (CongruenceSubgroup.one_mem_strictPeriods_Gamma0 N) f c n
 
 private theorem qCoeff_heckeTLin_one {N : ℕ} {ℓ : ℕ} (hℓ : ℓ.Prime) (hℓN : ¬ ℓ ∣ N)
     (f : CuspForm (CongruenceSubgroup.Gamma0 N) 2) (c : ℂ)

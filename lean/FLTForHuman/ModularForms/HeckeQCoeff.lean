@@ -44,6 +44,26 @@
   `S_ModularFormClass_qExpansion_hecke{U,T}_eq_hecke{T,U}.lean`,
   `S_UpperHalfPlane_eq_of_forall_qCoeff_eq.lean`, the five coefficient-algebra
   files and `S_ModularForm_qExpansion_heckeDiagMatrix_smul_eq_qExpand_of_levelOne.lean`.
+
+  spec-pin: Theorems/Thm_UpperHalfPlane_qCoeff_heckeU.lean
+  spec-pin: Theorems/Thm_UpperHalfPlane_qCoeff_heckeT.lean
+  spec-pin: Theorems/Thm_UpperHalfPlane_qCoeff_comp_heckeDiagMatrix_smul.lean
+  spec-pin: Theorems/Thm_UpperHalfPlane_eq_of_forall_qCoeff_eq.lean
+  spec-pin: Theorems/Thm_ModularFormClass_qCoeff_heckeU.lean
+  spec-pin: Theorems/Thm_ModularFormClass_qCoeff_heckeT.lean
+  spec-pin: Theorems/Thm_ModularFormClass_qCoeff_comp_heckeDiagMatrix_smul.lean
+  spec-pin: Theorems/Thm_ModularFormClass_eq_of_forall_qCoeff_eq.lean
+  spec-pin: Theorems/Thm_ModularFormClass_qExpansion_heckeU_eq_heckeU.lean
+  spec-pin: Theorems/Thm_ModularFormClass_qExpansion_heckeT_eq_heckeT.lean
+  spec-pin: Theorems/Thm_ModularForm_qExpansion_heckeDiagMatrix_smul_eq_qExpand_of_levelOne.lean
+  spec-pin: Theorems/Thm_ModularForm_coeffHeckeU_comm.lean
+  spec-pin: Theorems/Thm_ModularForm_coeffHeckeU_int.lean
+  spec-pin: Theorems/Thm_ModularForm_coeffHeckeT_comm.lean
+  spec-pin: Theorems/Thm_ModularForm_coeffHeckeT_coeffHeckeU_comm.lean
+  spec-pin: Theorems/Thm_ModularForm_coeffHeckeT_int.lean
+  spec-pin: P2M/Sol/S_UpperHalfPlane_qCoeff_heckeU.lean
+  spec-pin: Definitions/Def_FLTPrelim_Modularity.lean
+
 -/
 import Mathlib.NumberTheory.ModularForms.QExpansion
 import Mathlib.NumberTheory.ModularForms.BoundedAtCusp
@@ -387,6 +407,76 @@ theorem UpperHalfPlane.eq_of_forall_qCoeff_eq {f g : UpperHalfPlane → ℂ} (hf
   have hg := hasSum_qCoeff hgper hghol hgbdd τ
   simp only [h] at hf
   exact hf.unique hg
+
+/-! ### The `q`-coefficient algebra
+
+`qCoeff` is additive and `ℂ`-linear on the periodic-holomorphic-bounded
+functions.  The pin re-proves these three `private` in every `S_` file that
+manipulates coefficients (the oldform pair's `M4bOld`, `Relevement`'s `CoefficientRing`
+prelude, the `T`-side `FrobChareqC2` block, ...), and the port had grown eight
+copies over six modules.  They are stated once here, at the pin's binders; the
+proof is mathlib's `qExpansion_add`/`qExpansion_sub`/`qExpansion_smul` with the
+cusp-function analyticity supplied by `analyticAt_cuspFunction_zero`. -/
+
+/-- `qCoeff` is additive. -/
+theorem ModularFormClass.qCoeff_add {f g : ℍ → ℂ} (hfper : Periodic (f ∘ ofComplex) 1)
+    (hfhol : MDiff f) (hfbdd : IsBoundedAtImInfty f) (hgper : Periodic (g ∘ ofComplex) 1)
+    (hghol : MDiff g) (hgbdd : IsBoundedAtImInfty g) (n : ℕ) :
+    qCoeff (f + g) n = qCoeff f n + qCoeff g n := by
+  simp only [qCoeff]
+  rw [qExpansion_add (analyticAt_cuspFunction_zero one_pos hfper hfhol hfbdd)
+    (analyticAt_cuspFunction_zero one_pos hgper hghol hgbdd)]
+  simp
+
+/-- `qCoeff` is subtractive. -/
+theorem ModularFormClass.qCoeff_sub {f g : ℍ → ℂ} (hfper : Periodic (f ∘ ofComplex) 1)
+    (hfhol : MDiff f) (hfbdd : IsBoundedAtImInfty f) (hgper : Periodic (g ∘ ofComplex) 1)
+    (hghol : MDiff g) (hgbdd : IsBoundedAtImInfty g) (n : ℕ) :
+    qCoeff (f - g) n = qCoeff f n - qCoeff g n := by
+  simp only [qCoeff]
+  rw [qExpansion_sub (analyticAt_cuspFunction_zero one_pos hfper hfhol hfbdd)
+    (analyticAt_cuspFunction_zero one_pos hgper hghol hgbdd)]
+  simp
+
+/-- `qCoeff` is `ℂ`-linear. -/
+theorem ModularFormClass.qCoeff_const_smul {f : ℍ → ℂ} (hper : Periodic (f ∘ ofComplex) 1)
+    (hhol : MDiff f) (hbdd : IsBoundedAtImInfty f) (c : ℂ) (n : ℕ) :
+    qCoeff (c • f) n = c * qCoeff f n := by
+  simp only [qCoeff]
+  rw [qExpansion_smul (analyticAt_cuspFunction_zero one_pos hper hhol hbdd)]
+  simp
+
+/-! The bundled spellings, over any `ModularFormClass` — the pin's `CuspForm (Gamma0 N) k`,
+`CuspForm (Gamma1 N) k`, `S2 N` and `Γ₁ℝ N` copies all instantiate these.  Like mathlib's
+protected `ModularForm.qExpansion_{add,sub,smul}`, the addition is written at the function
+type: that is what `qCoeff` consumes, and it needs no `Add`/`Sub`/`SMul` on the form type. -/
+
+/-- `qCoeff` is additive, for any `ModularFormClass`. -/
+theorem ModularFormClass.qCoeff_add' {F : Type*} [FunLike F UpperHalfPlane ℂ]
+    {Γ : Subgroup (Matrix.GeneralLinearGroup (Fin 2) ℝ)} {k : ℤ} [ModularFormClass F Γ k]
+    (hΓ : (1 : ℝ) ∈ Γ.strictPeriods) (f g : F) (n : ℕ) :
+    qCoeff (⇑f + ⇑g) n = qCoeff ⇑f n + qCoeff ⇑g n := by
+  simp only [qCoeff]
+  rw [ModularForm.qExpansion_add one_pos hΓ f g]
+  simp
+
+/-- `qCoeff` is subtractive, for any `ModularFormClass`. -/
+theorem ModularFormClass.qCoeff_sub' {F : Type*} [FunLike F UpperHalfPlane ℂ]
+    {Γ : Subgroup (Matrix.GeneralLinearGroup (Fin 2) ℝ)} {k : ℤ} [ModularFormClass F Γ k]
+    (hΓ : (1 : ℝ) ∈ Γ.strictPeriods) (f g : F) (n : ℕ) :
+    qCoeff (⇑f - ⇑g) n = qCoeff ⇑f n - qCoeff ⇑g n := by
+  simp only [qCoeff]
+  rw [ModularForm.qExpansion_sub one_pos hΓ f g]
+  simp
+
+/-- `qCoeff` is `ℂ`-linear, for any `ModularFormClass`. -/
+theorem ModularFormClass.qCoeff_const_smul' {F : Type*} [FunLike F UpperHalfPlane ℂ]
+    {Γ : Subgroup (Matrix.GeneralLinearGroup (Fin 2) ℝ)} {k : ℤ} [ModularFormClass F Γ k]
+    (hΓ : (1 : ℝ) ∈ Γ.strictPeriods) (f : F) (c : ℂ) (n : ℕ) :
+    qCoeff (c • ⇑f) n = c * qCoeff ⇑f n := by
+  simp only [qCoeff]
+  rw [ModularForm.qExpansion_smul one_pos hΓ c f]
+  simp
 
 /-- The bundled form of `UpperHalfPlane.eq_of_forall_qCoeff_eq`. Stated verbatim
 from `Theorems/Thm_ModularFormClass_eq_of_forall_qCoeff_eq.lean`. -/

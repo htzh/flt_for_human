@@ -19,6 +19,10 @@
   `private`; the module's public surface is the single target statement. The three
   generic nodes it glues together are imported from
   `FLTForHuman.Algebra.LatticeEigenvalues`.
+
+  spec-pin: Theorems/Thm_DeligneSerre_exists_subalgebra_qCoeff_mem_forall_ringHom_exists_qCoeff_eq_of_weightOne_hecke_eigen.lean
+  spec-pin: P2M/Sol/S_DeligneSerre_exists_subalgebra_qCoeff_mem_forall_ringHom_exists_qCoeff_eq_of_weightOne_hecke_eigen.lean
+
 -/
 import FLTForHuman.Algebra.LatticeEigenvalues
 import FLTForHuman.ModularForms.HeckePrelude
@@ -51,15 +55,20 @@ private theorem cusp_analytic (F : CuspForm (Γ₁ℝ N) 1) :
   analyticAt_cuspFunction_zero one_pos (CuspForm.cusp_periodic F) (CuspForm.cusp_holo F)
     (CuspForm.cusp_bdd F)
 
+/-- The concrete-spelling copy of `ModularFormClass.qCoeff_add` (`HeckeQCoeff`). -/
 private theorem qCoeff_add (F G : CuspForm (Γ₁ℝ N) 1) (n : ℕ) :
     qCoeff (⇑(F + G)) n = qCoeff (⇑F) n + qCoeff (⇑G) n := by
-  rw [qCoeff, qCoeff, qCoeff, FunLike.coe_add,
-    qExpansion_add (cusp_analytic F) (cusp_analytic G), map_add]
+  simpa only [qCoeff, FunLike.coe_add] using
+    ModularFormClass.qCoeff_add (CuspForm.cusp_periodic F) (CuspForm.cusp_holo F)
+      (CuspForm.cusp_bdd F) (CuspForm.cusp_periodic G) (CuspForm.cusp_holo G)
+      (CuspForm.cusp_bdd G) n
 
+/-- The concrete-spelling copy of `ModularFormClass.qCoeff_const_smul` (`HeckeQCoeff`). -/
 private theorem qCoeff_smul (c : ℂ) (F : CuspForm (Γ₁ℝ N) 1) (n : ℕ) :
     qCoeff (⇑(c • F)) n = c * qCoeff (⇑F) n := by
-  rw [qCoeff, qCoeff, FunLike.coe_smul,
-    qExpansion_smul (cusp_analytic F), map_smul, smul_eq_mul]
+  simpa only [qCoeff, FunLike.coe_smul] using
+    ModularFormClass.qCoeff_const_smul (CuspForm.cusp_periodic F) (CuspForm.cusp_holo F)
+      (CuspForm.cusp_bdd F) c n
 
 private def qcLin (N : ℕ) (n : ℕ) : CuspForm (Γ₁ℝ N) 1 →ₗ[ℂ] ℂ where
   toFun F := qCoeff (⇑F) n
