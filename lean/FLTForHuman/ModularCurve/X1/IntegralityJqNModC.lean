@@ -58,6 +58,16 @@
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_isIntegral_jqNModC_of_modularPolynomialData.lean
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_exists_gamma0_qExpansion_div_eq_jqNModC.lean
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_eisenstein4_cube_sub_mk_sq.lean
+
+  spec-pin: Theorems/Thm_ModularCurve_eisenstein4_cube_sub_mk_sq.lean
+  spec-pin: Theorems/Thm_ModularCurve_exists_gamma0_qExpansion_div_eq_jqNModC.lean
+  spec-pin: Theorems/Thm_ModularCurve_exists_sum_smul_eq_of_isIntegralQExp_gamma1.lean
+  spec-pin: Theorems/Thm_ModularCurve_isIntegral_jqNModC_of_modularPolynomialData.lean
+  spec-pin: P2M/Sol/S_ModularCurve_eisenstein4_cube_sub_mk_sq.lean
+  spec-pin: P2M/Sol/S_ModularCurve_exists_gamma0_qExpansion_div_eq_jqNModC.lean
+  spec-pin: P2M/Sol/S_ModularCurve_exists_sum_smul_eq_of_isIntegralQExp_gamma1.lean
+  spec-pin: P2M/Sol/S_ModularCurve_isIntegral_jqNModC_of_modularPolynomialData.lean
+
 -/
 import FLTForHuman.ModularCurve.Defs.Jq
 import FLTForHuman.ModularCurve.Defs.JqCoeff
@@ -232,26 +242,18 @@ section Rel
 
 variable {N : ℕ} [NeZero N] (data : ModularPolynomialData N)
 
-/-- The pin's `coeffMap_jqModC`, i.e. `map_jqModC` read through `coeffMap`. The port's
-copy is `private` in `FLTForHuman/ModularCurve/X1/FunctionFieldResidue.lean`. -/
-private theorem coeffMap_jqModC {R S : Type*} [CommRing R] [CommRing S] (f : R →+* S) :
-    coeffMap f (jqModC R) = jqModC S :=
-  map_jqModC f
-
-private theorem coeffMap_jqNModC {R S : Type*} [CommRing R] [CommRing S] (f : R →+* S)
-    (N : ℕ) [NeZero N] : coeffMap f (jqNModC R N) = jqNModC S N := by
-  rw [jqNModC, coeffMap_qExpand, coeffMap_jqModC, jqNModC]
+/- `coeffMap_jqModC` and `map_jqNModC` live in `Defs/JqCoeff.lean`. -/
 
 private theorem ev_jq_int : ev data.Φ (jqModC ℤ) (jqNModC ℤ N) = 0 := by
   apply coeffMap_injective (f := Int.castRingHom ℚ) Int.cast_injective
-  rw [map_ev, coeffMap_jqModC, coeffMap_jqNModC, map_zero, jqModC_rat, jqNModC, jqModC_rat]
+  rw [map_ev, coeffMap_jqModC, map_jqNModC, map_zero, jqModC_rat, jqNModC, jqModC_rat]
   have h0 := data.eval_eq_zero
   rw [evalAtJ_def, aeval_toRingHom_eq] at h0
   exact h0
 
 private theorem ev_jq (A : Type*) [CommRing A] : ev data.Φ (jqModC A) (jqNModC A N) = 0 := by
   have h := congrArg (coeffMap (Int.castRingHom A)) (ev_jq_int data)
-  rwa [map_ev, coeffMap_jqModC, coeffMap_jqNModC, map_zero] at h
+  rwa [map_ev, coeffMap_jqModC, map_jqNModC, map_zero] at h
 
 end Rel
 

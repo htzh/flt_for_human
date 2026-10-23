@@ -3590,7 +3590,6 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/Defs/ArithmeticGalois.lean",
     "FLTForHuman/ModularCurve/Defs/HeckeModule.lean",
     # SET-M1 m2: the geometric/cusp/q-adic/modular-unit vocabulary.
-    "FLTForHuman/ModularCurve/Defs/JqCoeff.lean",
     "FLTForHuman/ModularCurve/Defs/GeometricBaseChange.lean",
     "FLTForHuman/ModularCurve/Defs/QAdicPlace.lean",
     "FLTForHuman/ModularCurve/Defs/ModularUnit.lean",
@@ -3608,7 +3607,6 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/Analytic/FrickeInvariance.lean",
     # SET-M2 m6: the Φ datum family (the biresultant, the jqNModC evaluation
     # and integrality tails, the prime generation facts) and its degree tail.
-    "FLTForHuman/ModularCurve/Degree/PhiData.lean",
     "FLTForHuman/ModularCurve/Degree/PhiDegree.lean",
     # SET-M2 m5 (first half): the cusp bookkeeping and the Fricke automorphisms.
     # The remaining m5 module (`Analytic/CuspDichotomy.lean`) is re-scoped to
@@ -4559,7 +4557,6 @@ PORT_FILES = [
     # residue-field model, matched against target 5's `S_` file and `Theorems/`
     # wrapper appended to `SOURCES` last. Appended last so no earlier last-name
     # match can flip.
-    "FLTForHuman/ModularCurve/X1/FunctionFieldResidue.lean",
     # --- SET-R-D order 1 (`topics/functionFieldGeneration/SET-R-D.md`): Deuring's
     # degree inequality over a valuation subring, matched against its `Theorems/`
     # wrapper appended to `SOURCES` last. The engine stays `private`, so the
@@ -4570,7 +4567,6 @@ PORT_FILES = [
     # of the `q`-expansion function field over `K(j)` for algebraically closed `K`,
     # matched against target's `S_` file and `Theorems/` wrapper appended to
     # `SOURCES` last. Appended last so no earlier last-name match can flip.
-    "FLTForHuman/ModularCurve/X1/FunctionFieldIsAlgClosed.lean",
     # --- SET-R-D order 3 (`topics/functionFieldGeneration/SET-R-D.md`): the
     # Atkin–Lehner / diamond slash integrality; its pin `S_` file is already in
     # `SOURCES`, and the headline is matched against its `Theorems/` wrapper
@@ -4689,16 +4685,13 @@ PORT_FILES = [
     "FLTForHuman/AlgebraicCurve/Differential/PushPull.lean",
     "FLTForHuman/ModularCurve/Defs/SL2Elementary.lean",
     "FLTForHuman/ModularCurve/Defs/HeckeDifferential.lean",
-    "FLTForHuman/ModularCurve/X0/FunctionFieldFull.lean",
     # --- WORKORDER-C2 phase 2: the ten landed leaf headlines. Only the headline(s) of each
     # module are public; the `S_`-local helpers are transcribed `private` and so are skipped by
     # the checker. `IntegralityJqNModC.lean` carries 3 of the 4 rows of its group (the 4th,
     # `exists_sum_smul_eq_of_isIntegralQExp_gamma1`, is the deferred node documented in `SOURCES`
     # above and in that module's docstring). Appended last so no earlier last-name match can flip.
     "FLTForHuman/ModularCurve/X1/QExpansionDiv.lean",
-    "FLTForHuman/ModularCurve/X1/IntegralityJqNModC.lean",
     "FLTForHuman/ModularCurve/X1/Structure.lean",
-    "FLTForHuman/ModularCurve/X1/FunctionFieldInclusion.lean",
     # --- WORKORDER-B1: the modular polynomial `Φ_N` (subject B's five ready rows). One module
     # per story: the leading coefficient, the uniqueness/irreducibility/symmetry trio, and the
     # star action. Only the headline(s) of each are public; the pin's helpers are re-derived

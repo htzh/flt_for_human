@@ -23,6 +23,9 @@ ported them early because its `qExp` carrier needs them):
 
 Statements are transcribed verbatim; the pin's `import Mathlib` is replaced by the
 specific imports below.
+
+  spec-pin: Definitions/Def_ModularCurve_X0ModL.lean
+
 -/
 import FLTForHuman.ModularCurve.Defs.JqCoeff
 import FLTForHuman.ModularCurve.Frobenius.Defs
@@ -42,18 +45,9 @@ variable (R : Type*) [CommRing R]
 
 theorem jqNModC_rat (N : ℕ) [NeZero N] : jqNModC ℚ N = jqN N := rfl
 
-variable {R} in
-
-theorem coeffMap_jqModC {S : Type*} [CommRing S] (f : R →+* S) : coeffMap f (jqModC R) = jqModC S := by
-  rw [jqModC, map_mul, coeffMap_single, map_one, coeffMap_ofPowerSeries,
-    ← RingHom.comp_apply (PowerSeries.map f) (PowerSeries.map (Int.castRingHom R)),
-    ← PowerSeries.map_comp, RingHom.ext_int (f.comp (Int.castRingHom R)) (Int.castRingHom S)]
-  rfl
-
-variable {R} in
-theorem coeffMap_jqNModC {S : Type*} [CommRing S] (f : R →+* S) (N : ℕ) [NeZero N] :
-    coeffMap f (jqNModC R N) = jqNModC S N := by
-  rw [jqNModC, coeffMap_qExpand, coeffMap_jqModC, jqNModC]
+/- `coeffMap_jqModC` / `map_jqNModC` live in their one public home,
+`Defs/JqCoeff.lean`; the copies here (and in `Degree/PhiData`, `X1/IntegralityJqNModC`,
+`X1/FunctionFieldIsAlgClosed`, `X1/FunctionFieldResidue`) are gone. -/
 
 variable {R} in
 

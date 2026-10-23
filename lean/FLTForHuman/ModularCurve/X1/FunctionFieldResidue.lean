@@ -20,6 +20,10 @@
   FLT provenance, pinned `aa2d8b3`:
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_exists_transcendental_finiteDimensional_qExpFunctionFieldC_residueField.lean
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_exists_transcendental_finiteDimensional_qExpFunctionFieldC_residueField.lean
+
+  spec-pin: Theorems/Thm_ModularCurve_exists_transcendental_finiteDimensional_qExpFunctionFieldC_residueField.lean
+  spec-pin: P2M/Sol/S_ModularCurve_exists_transcendental_finiteDimensional_qExpFunctionFieldC_residueField.lean
+
 -/
 import FLTForHuman.ModularCurve.X1.FunctionFieldBaseChange
 import FLTForHuman.ModularCurve.JqIntegralRatios
@@ -39,11 +43,7 @@ open IntermediateField ModularCurve Polynomial
 
 namespace ModularCurve
 
-/-- The pin's `coeffMap_jqModC` (`Def_ModularCurve_X0ModL.lean`), re-derived
-`private` here because that definition module is not ported. -/
-private theorem coeffMap_jqModC {R S : Type*} [CommRing R] [CommRing S] (f : R →+* S) :
-    coeffMap f (jqModC R) = jqModC S := by
-  rw [show coeffMap f (jqModC R) = (jqModC R).map f from rfl, map_jqModC]
+/- `coeffMap_jqModC` lives in `Defs/JqCoeff.lean`. -/
 
 namespace QExpDeuring
 

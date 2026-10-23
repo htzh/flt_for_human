@@ -44,6 +44,12 @@ from `X1/Defs.lean`; and `qExpand_image_intFormRatiosC_subset` from
 `X1/QExpandStretch.lean`. The pin's `import Mathlib` is replaced by the
 specific imports below, plus the `linear_combination` tactic module for the
 `hΓ'` determinant identity.
+
+  spec-pin: Theorems/Thm_ModularCurve_modularFunctionFieldC_eq_modularFunctionFieldFullC_of_charZero.lean
+  spec-pin: Theorems/Thm_ModularCurve_modularFunctionFieldFullC_le_qExpFunctionFieldC_gamma0.lean
+  spec-pin: P2M/Sol/S_ModularCurve_modularFunctionFieldC_eq_modularFunctionFieldFullC_of_charZero.lean
+  spec-pin: P2M/Sol/S_ModularCurve_modularFunctionFieldFullC_le_qExpFunctionFieldC_gamma0.lean
+
 -/
 import FLTForHuman.ModularCurve.X0.FunctionFieldFull
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Capstone

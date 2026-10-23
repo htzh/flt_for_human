@@ -9,6 +9,12 @@
 
   `Defs/Jq.lean` already has `jq`, `jqN`, `jNum`; the pin states these over a
   general `CommRing K` via `PowerSeries.map`, with `jqModC_rat` a `rfl`.
+
+  spec-pin: Definitions/Def_ModularCurve_JqCoeff.lean
+  spec-pin: Definitions/Def_ModularCurve_CoeffSemilinearAut.lean
+  spec-pin: Theorems/Thm_ModularCurve_map_jqNModC.lean
+  spec-pin: P2M/Sol/S_ModularCurve_map_jqNModC.lean
+
 -/
 import FLTForHuman.ModularCurve.Defs.Jq
 import FLTForHuman.ModularCurve.Defs.Fields
@@ -64,6 +70,31 @@ theorem map_jqModC {K' : Type*} [CommRing K'] (f : K →+* K') :
 
 theorem jqModC_eq_map_intCast : jqModC K = (jqModC ℤ).map (Int.castRingHom K) :=
   (map_jqModC (Int.castRingHom K)).symm
+
+section CoeffMap
+
+variable {R S : Type*} [CommRing R] [CommRing S]
+
+/-- The pin's `coeffMap_jqModC`: `map_jqModC` read through `coeffMap`
+(`Definitions/Def_ModularCurve_CoeffSemilinearAut.lean`'s general binder form; the
+`X0ModL` section-`R` spelling is the same statement and is not restated). The four
+`coeffMap`-form copies the port had grown — one public in `X0/FunctionFieldFull.lean`,
+three `private` in `X1/` — are its instances and are gone. -/
+theorem coeffMap_jqModC (f : R →+* S) : coeffMap f (jqModC R) = jqModC S :=
+  map_jqModC f
+
+end CoeffMap
+
+/-- Coefficientwise maps commute with the `q`-substitution on `jqNModC`: naturality in
+the coefficient ring of the `q`-expansion of `j(q^N)`.  This is the pin's
+`map_jqNModC` (`Theorems/Thm_ModularCurve_map_jqNModC.lean`); the two `coeffMap`-form
+copies that had grown in `X0/FunctionFieldFull.lean` (public) and in
+`Degree/PhiData.lean` / `X1/IntegralityJqNModC.lean` (private) are its instances and
+are gone. -/
+theorem map_jqNModC {R S : Type*} [CommRing R] [CommRing S] (φ : R →+* S) (N : ℕ) [NeZero N] :
+    coeffMap φ (jqNModC R N) = jqNModC S N := by
+  rw [jqNModC, jqNModC, coeffMap_qExpand]
+  exact congrArg (qExpand S N) (map_jqModC φ)
 
 end JExpansion
 

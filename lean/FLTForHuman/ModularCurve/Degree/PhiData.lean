@@ -14,6 +14,20 @@
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_nonempty_modularPolynomialData_of_squarefree.lean
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_ModularPolynomialData_eval_jqNModC_mul_eq_zero.lean
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_isIntegral_jqNModC_all_of_modularPolynomialFamily.lean
+
+  spec-pin: P2M/Sol/S_ModularCurve_ModularPolynomialData_eval_jqNModC_mul_eq_zero.lean
+  spec-pin: P2M/Sol/S_ModularCurve_isIntegral_jqNModC_all_of_modularPolynomialFamily.lean
+  spec-pin: P2M/Sol/S_ModularCurve_nonempty_modularPolynomialData_of_squarefree.lean
+
+
+  spec-pin: Theorems/Thm_ModularCurve_exists_modularPolynomialData_evalSymm.lean
+  spec-pin: Theorems/Thm_ModularCurve_modularPolynomialFamily.lean
+  spec-pin: Theorems/Thm_ModularCurve_functionFieldGeneration_of_prime.lean
+  spec-pin: Theorems/Thm_ModularCurve_full_eq_of_prime.lean
+  spec-pin: Theorems/Thm_ModularCurve_ModularPolynomialData_isIntegral_jqN.lean
+  spec-pin: Theorems/Thm_ModularCurve_ModularPolynomialData_eval_jqNModC_of_mul_eq_zero.lean
+  spec-pin: Theorems/Thm_ModularCurve_isIntegral_jqNModC_mul.lean
+
 -/
 import FLTForHuman.ModularCurve.Defs.FibrePoly
 import FLTForHuman.ModularCurve.Defs.JqCoeff
@@ -63,20 +77,14 @@ end ModularPolynomialData
 
 section EvalJqNModC
 
-private theorem coeffMap_jqNModC {R S : Type*} [CommRing R] [CommRing S] (f : R →+* S) (n : ℕ)
-    [NeZero n] : coeffMap f (jqNModC R n) = jqNModC S n := by
-  unfold jqNModC
-  rw [coeffMap_qExpand]
-  exact congrArg (qExpand S n) (map_jqModC f)
-
 private theorem coeffMap_eval₂_jqNModC {R S : Type*} [CommRing R] [CommRing S] (f : R →+* S)
     (Φ : Polynomial (Polynomial ℤ)) (d e : ℕ) [NeZero d] [NeZero e] :
     coeffMap f (Φ.eval₂ (aeval (R := ℤ) (jqNModC R d)).toRingHom (jqNModC R e))
       = Φ.eval₂ (aeval (R := ℤ) (jqNModC S d)).toRingHom (jqNModC S e) := by
-  rw [Polynomial.hom_eval₂, coeffMap_jqNModC]
+  rw [Polynomial.hom_eval₂, map_jqNModC]
   congr 1
   refine Polynomial.ringHom_ext' (RingHom.ext_int _ _) ?_
-  simp [coeffMap_jqNModC]
+  simp [map_jqNModC]
 
 private theorem eval₂_rat_of_data {ℓ : ℕ} [NeZero ℓ] (data : ModularPolynomialData ℓ) (d : ℕ)
     [NeZero d] : data.Φ.eval₂ (aeval (R := ℤ) (jqNModC ℚ d)).toRingHom (jqNModC ℚ (d * ℓ)) = 0 := by

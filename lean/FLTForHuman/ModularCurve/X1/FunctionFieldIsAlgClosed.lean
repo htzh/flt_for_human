@@ -33,6 +33,11 @@
   FLT provenance, pinned `aa2d8b3`:
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_exists_transcendental_finiteDimensional_qExpFunctionFieldC_of_isAlgClosed.lean
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_exists_transcendental_finiteDimensional_qExpFunctionFieldC_of_isAlgClosed.lean
+
+  spec-pin: Theorems/Thm_ModularCurve_exists_transcendental_finiteDimensional_qExpFunctionFieldC_of_isAlgClosed.lean
+  spec-pin: P2M/Sol/S_ModularCurve_exists_transcendental_finiteDimensional_qExpFunctionFieldC_of_isAlgClosed.lean
+  spec-pin: Definitions/Def_ModularCurve_X0ModL.lean
+
 -/
 import FLTForHuman.ModularCurve.JqIntegralRatios
 import FLTForHuman.ModularCurve.Defs.JqCoeff
@@ -85,11 +90,7 @@ theorem Φ_injective : Function.Injective (Φ φ) := by
 theorem Φ_ne_zero_iff (x : LaurentSeries κ) : Φ φ x ≠ 0 ↔ x ≠ 0 := by
   rw [Ne, ← map_zero (Φ φ), (Φ_injective φ).eq_iff]
 
-/-! The pin's `coeffMap_jqModC` (`Def_ModularCurve_X0ModL.lean`), re-derived
-`private` here because that definition module is not ported. -/
-private theorem coeffMap_jqModC {R S : Type*} [CommRing R] [CommRing S] (f : R →+* S) :
-    coeffMap f (jqModC R) = jqModC S := by
-  rw [show coeffMap f (jqModC R) = (jqModC R).map f from rfl, map_jqModC]
+/- `coeffMap_jqModC` lives in `Defs/JqCoeff.lean`. -/
 
 theorem Φ_intSeriesC (p : PowerSeries ℤ) : Φ φ (intSeriesC κ p) = intSeriesC k p := by
   rw [intSeriesC, intSeriesC, coeffMap_ofPowerSeries]
