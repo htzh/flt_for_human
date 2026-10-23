@@ -542,7 +542,7 @@ is the post-move state.
   through `periodMap`; builds clean, 0 errors/warnings.
 * `#print axioms HeckeEis.periodMap_injective`:
   `[propext, Classical.choice, Quot.sound]`.
-* `python3 tools/check_math_delimiters.py` / `check_math_escaping.py` on the
+* `python3 tools/check_github_math.py` on the
   topic: clean.
 
 **Dedup realised.** The pin's 123-line `EichlerIntegralAux` block

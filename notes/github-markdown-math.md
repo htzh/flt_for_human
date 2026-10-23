@@ -86,7 +86,7 @@ against both engines locally; single observations are flagged as such.
   (bold) and `… $`x`$ *spaced*` are fine. Confirmed live at three sites, first in `base/001` §4, in
   `*over $`\mathbb{Q}`$*`, and fixed by dropping the emphasis; the sibling prose
   italics in `base/004` and `math/008` were de-emphasised for the same reason.
-  `tools/check_math_escaping.py` now flags the pattern.
+  `tools/check_github_math.py` now flags the pattern.
 
 ### 1.3 Evidence ledger
 
@@ -102,7 +102,7 @@ against both engines locally; single observations are flagged as such.
   (`Misplaced &`).
 - A lint over `base/` and `math/` (§2.2) found **78 math spans containing a raw
   `<`, `>` or `&`**, mostly inline `pmatrix`; after the sweep they are 0, and
-  `tools/check_math_escaping.py` keeps them there. Triage matters:
+  `tools/check_github_math.py` keeps them there. Triage matters:
   the inline hits are live defects — a red box for `<`/`>` outside an alignment
   environment, silent junk for `&` inside one — while the top-level display hits
   render correctly today and are only the uniform rule's outstanding debt.
@@ -119,7 +119,7 @@ against both engines locally; single observations are flagged as such.
   client-side (KaTeX)". That sentence is wrong for GitHub (it describes the
   GUI); the checker itself is about delimiters and is unaffected.
 - **The star guard had a dead branch** (found and fixed 2026-10-09). `STAR_TOUCH`
-  in `tools/check_math_escaping.py` was written to catch both sides of the rule
+  in `tools/check_github_math.py` was written to catch both sides of the rule
   above, but its closing-delimiter alternative tested `(?!\*)` — the next character
   is *not* a star — and then required `\*`, a star, at the same position: a
   contradiction, so that half of the guard could never fire, and only the opening
@@ -280,12 +280,29 @@ around it is reported, because GitHub then serves it as `js-inline-math` (the
 is unfaithful about escaping).
 
 The escaping side of the rules above is checked by
-`python3 tools/check_math_escaping.py` (over `math/`, `base/`, `studies/` and
-`notes/` by default; `--diff` prints the proposed changes and `--fix` applies
-them). It flags a bare `<`/`>` or `&` in the backtick-inline form, an inline
-`\begin{pmatrix}…&…\\…\end{pmatrix}` (rewritten as `[[a,b],[c,d]]`), and a
-display-matrix row separator written `\\` instead of `\\\\`. This note is in
-its `EXEMPT` set, since it quotes the offending forms deliberately.
+`python3 tools/check_github_math.py` (over every tracked markdown file by
+default; `--diff` prints the proposed changes and `--fix` applies them). It
+flags a bare `<`/`>` or `&` in the backtick-inline form, an inline
+`\begin{pmatrix}…&…\\…\end{pmatrix}` (rewritten as `[[a,b],[c,d]]`), a
+display-matrix row separator written `\\` instead of `\\\\`, a punctuation macro
+single in display math or doubled in the inline form, and an `\operatorname`
+GitHub refuses. This note is in its `EXEMPT` set, since it quotes the offending
+forms deliberately.
+
+**One command for both.** That script imports the delimiter checker and runs it
+over the same files, so
+
+```
+python3 tools/check_github_math.py <file>                 # both families
+python3 tools/check_github_math.py --no-delimiters <file> # escaping only
+python3 tools/check_math_delimiters.py <file>             # delimiter rules only
+```
+
+is the workflow after editing a note: the escaping family is clean across the
+tracked tree, the delimiter family has a pre-existing backlog (displays glued to
+their paragraph, concentrated in `math/` and `lean/`), and the two are counted
+separately so the backlog is not mistaken for a regression. `--fix` repairs the
+escaping family only; the delimiter rules are structural and are reported.
 
 ### 2.3 Wrong turns taken here (don't repeat)
 

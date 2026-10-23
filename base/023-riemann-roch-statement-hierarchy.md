@@ -43,8 +43,8 @@ spaces attached to one divisor $`D`$.
 
 ### 2.1 Functions with a pole bound: $`\ell(D)`$
 
-$$L(D) \;=\; \{\, f \in F \;:\; \mathrm{ord}_v(f) + D(v) \ge 0 \ \text{for every place } v \,\},
-  \qquad \ell(D) \;=\; \dim_K L(D).$$
+$$L(D) \\;=\\; \\{\\, f \in F \\;:\\; \mathrm{ord}_v(f) + D(v) \ge 0 \ \text{for every place } v \\,\\},
+  \qquad \ell(D) \\;=\\; \dim_K L(D).$$
 
 This is 009 §3's space. It is a $`K`$-subspace of the field $`F`$ cut out by
 local conditions: at each place, $`f`$ may have a pole only as far as $`D`$ allows.
@@ -55,7 +55,7 @@ ladder leans on, so the statements below carry the finiteness where they need it
 There is a second way to say the same thing, and it is the one the code is built
 on. Let
 
-$$A_F \;=\; \bigcup_{D} A_F(D), \qquad A_F(D) \;=\; \prod_v \{\, \alpha_v \in F \;:\; \mathrm{ord}_v(\alpha_v) \ge -D(v) \,\}$$
+$$A_F \\;=\\; \bigcup_{D} A_F(D), \qquad A_F(D) \\;=\\; \prod_v \\{\\, \alpha_v \in F \\;:\\; \mathrm{ord}_v(\alpha_v) \ge -D(v) \\,\\}$$
 
 be the **bounded adeles** at $`D`$, and $`A_F`$ their union over all $`D`$ — the
 **adeles**, a restricted product in which every element is bounded below at all
@@ -63,11 +63,11 @@ but finitely many places. The diagonal embedding
 $`F \hookrightarrow \prod_v F`$ has image $`A^0`$, the principal adeles. Then
 evaluation of the diagonal at the places is an isomorphism
 
-$$L(D) \;\cong\; A_F(D) \cap A^0,$$
+$$L(D) \\;\cong\\; A_F(D) \cap A^0,$$
 
 so that
 
-$$\ell(D) \;=\; \dim_K \bigl( A_F(D) \cap A^0 \bigr).$$
+$$\ell(D) \\;=\\; \dim_K \bigl( A_F(D) \cap A^0 \bigr).$$
 
 Read that again, because it is the bridge the whole hierarchy crosses: $`\ell`$ is
 the dimension of a *subspace of the adele space* — an intersection of a local
@@ -78,7 +78,7 @@ except through the places.
 
 The complementary space is not another space of functions; it is a quotient.
 
-$$i(D) \;=\; \dim_K \frac{A_F}{A_F(D) + A^0}, \qquad g_{\mathrm{FF}} \;=\; i(0).$$
+$$i(D) \\;=\\; \dim_K \frac{A_F}{A_F(D) + A^0}, \qquad g_{\mathrm{FF}} \\;=\\; i(0).$$
 
 This is the **index of speciality**. $`i(0)`$ is by definition the genus that the
 adelic construction measures, and it is the genus that appears in the
@@ -93,7 +93,7 @@ hierarchy:
 - $`i(D) = \dim H^1(D)`$ for the curve's coherent cohomology, i.e. $`i`$ is the
   $`H^1`$-side of the Euler characteristic. So
 
-$$\ell(D) - i(D) \;=\; \chi(D) \;=\; \deg D + 1 - g$$
+$$\ell(D) - i(D) \\;=\\; \chi(D) \\;=\\; \deg D + 1 - g$$
 
 is Riemann–Roch written with the Euler characteristic in the middle — the form
 the statement ladder below starts from.
@@ -103,13 +103,13 @@ the statement ladder below starts from.
 The third space is the differentials bounded by $`D`$, and it is defined by
 annihilation rather than by a local condition:
 
-$$\Omega(D) \;=\; \{\, \varphi \in A_F^{\vee} \;:\; \varphi \text{ vanishes on } A_F(D) + A^0 \,\},
-  \qquad \dim_K \Omega(D) \;=\; i(D).$$
+$$\Omega(D) \\;=\\; \\{\\, \varphi \in A_F^{\vee} \\;:\\; \varphi \text{ vanishes on } A_F(D) + A^0 \\,\\},
+  \qquad \dim_K \Omega(D) \\;=\\; i(D).$$
 
 The equality of dimensions is not a theorem about differentials; it is the
 first-isomorphism-theorem duality
 
-$$\Omega(D) \;\cong\; \Bigl( \frac{A_F}{A_F(D)+A^0} \Bigr)^{\vee},$$
+$$\Omega(D) \\;\cong\\; \Bigl( \frac{A_F}{A_F(D)+A^0} \Bigr)^{\vee},$$
 
 i.e. the annihilator of a subspace is the dual of the quotient. So **the
 $`H^1`$ quotient and the space of bounded differentials are the same object seen
@@ -130,8 +130,8 @@ $`g`$ with $`(g) + W - D \ge 0`$ to a differential $`g\omega`$ whose poles are
 bounded by $`D`$; summing the local residues of $`g\omega`$ produces a functional
 on the adeles, hence an element of $`\Omega(D)`$:
 
-$$\mathrm{res} \colon L(W - D) \;\longrightarrow\; \Omega(D), \qquad
-  g \;\longmapsto\; \bigl( \alpha \mapsto \textstyle\sum_v \mathrm{Res}_v(\alpha_v\, g\, \omega) \bigr).$$
+$$\mathrm{res} \colon L(W - D) \\;\longrightarrow\\; \Omega(D), \qquad
+  g \\;\longmapsto\\; \bigl( \alpha \mapsto \textstyle\sum_v \mathrm{Res}_v(\alpha_v\\, g\\, \omega) \bigr).$$
 
 **Serre duality** is the statement that this is an isomorphism. Its content is
 one rank-one condition: the Weil differentials — the functionals on the adeles
@@ -141,7 +141,7 @@ functional attached to $`\omega`$. Given that, $`\mathrm{res}`$ is injective
 trace pairing at a place is nondegenerate) and surjective (a functional of the
 right shape is $`g\omega`$ for a unique $`g`$), so
 
-$$\ell(W - D) \;=\; \dim_K \Omega(D) \;=\; i(D).$$
+$$\ell(W - D) \\;=\\; \dim_K \Omega(D) \\;=\\; i(D).$$
 
 That identity, substituted into the Euler characteristic, *is* Riemann–Roch.
 Everything in the next section is a way of saying how much of this one needs to
@@ -167,9 +167,9 @@ Two numbers follow, and they are the reason the genus is not an extra input:
 The genus itself can be introduced in either of the two ways the dimensions
 suggest, and the port keeps both:
 
-$$g_{\mathrm{can}} \;=\; \Bigl\lfloor \frac{\deg(\omega_0) + 2}{2} \Bigr\rfloor
+$$g_{\mathrm{can}} \\;=\\; \Bigl\lfloor \frac{\deg(\omega_0) + 2}{2} \Bigr\rfloor
   \quad\text{(from a chosen differential)},\qquad
-  g_{\mathrm{FF}} \;=\; i(0) \;=\; \dim H^1(0)\ \text{(from the adeles)}.$$
+  g_{\mathrm{FF}} \\;=\\; i(0) \\;=\\; \dim H^1(0)\ \text{(from the adeles)}.$$
 
 That these agree, $`g_{\mathrm{can}} = g_{\mathrm{FF}}`$, is a theorem, not a
 definition — and a theorem with real content, since one is read off a single
@@ -209,7 +209,7 @@ from the adelic description of $`L(D)`$ and an index count.
 
 **Rung 2 — the index formula.**
 
-$$i(D) \;=\; \ell(D) - (\deg D + 1 - g) \qquad \text{for all } D.$$
+$$i(D) \\;=\\; \ell(D) - (\deg D + 1 - g) \qquad \text{for all } D.$$
 
 This is Riemann–Roch with $`i(D)`$ left as the quotient dimension: the honest
 form, because it names what the second term is.
@@ -276,7 +276,7 @@ nonzero function has a zero or a pole somewhere and the pairing sees it, surject
 because a functional with a larger pole divisor than allowed would contradict
 maximality — so
 
-$$\dim \Omega(D) \;=\; \ell((\omega) - D),$$
+$$\dim \Omega(D) \\;=\\; \ell((\omega) - D),$$
 
 and the index formula follows by annihilator duality. That is the whole analytic
 content of the ladder: everything else is rearrangement.
@@ -284,7 +284,7 @@ content of the ladder: everything else is rearrangement.
 The residue theorem here is the statement that for $`f \in F`$ and
 $`\omega \ne 0`$,
 
-$$\sum_v \mathrm{Res}_v(f\omega) \;=\; 0,$$
+$$\sum_v \mathrm{Res}_v(f\omega) \\;=\\; 0,$$
 
 the sum of local residues of a global differential over all places. It is the one
 analytic input; everything else on the ladder is algebra. Two models of the
