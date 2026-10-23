@@ -10,6 +10,26 @@ Deferred API that has been ported and verified is in `Reserve/`, not here.
 
 ## Deferred API
 
+### The FTF1 left half's nine pre-cut declarations — in the pin only
+
+On 2026-10-23 the FTF1 left halves moved to
+`Reserve/AutomorphicForm/Adelic/FactorizableTestFnArchSmooth{,Complex}Dead.lean`, but an earlier
+pass had already cut nine declarations of that half from the live modules, so they have no home in
+the port at all:
+
+* real, `S_AutomorphicForm_IsFactorizableTestFn_isArchSmoothAt_and_archDerivAt_eq_tensor.lean`:
+  `e8l5_archFlowAt_inv` :392, `e8l5_continuous_cD` :427, `e8l5_glFin_archFlowAt` :486,
+  `e8l5_isFactorizableTestFn_leftDeriv` :541;
+* complex, `S_…_isArchSmoothAtComplex_and_archDerivAtComplex_eq_tensor.lean`:
+  `e8l5_exists_compact_support` :363, `e8l5_continuous_cD` :429, `e8l5_continuous_LD` :433,
+  `e8l5_isFactorizableTestFn_leftDeriv` :543, `e8l5_leftDeriv_tensor` :550.
+
+Nothing in the port needs them — the headline and the pin's own `solution` reach only the right
+half — so this is deferred API, not a gap in a proof. It matters only if the left action is taken
+up: the shelves then lack these nine (and are ragged against each other, see their headers), and
+the fix is to port them from the pin under the rename map the shelf headers carry. Prices: 3–19
+lines each, all `private`.
+
 ### `Eaux_apply` — a pin-public unfolding lemma with no consumer, deferred from FR1
 
 `Eaux_apply (a b : ℕ) (τ : ℍ) : Eaux a b τ = E₄ τ ^ a * E₆ τ ^ b` is pin-public at

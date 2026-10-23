@@ -256,6 +256,10 @@ the plan and give them one home before writing the first module.** Detection is 
   closes, and keep a list of **deliberately not cut** items with their counts.
 - **Do not merge a helper when sharing would invert the import graph**, and strengthen a
   statement from the pin, never from the port's own weakened copy.
+- **This is the whole pre-code pass, and it is about duplicates, not about the unused.** Whether a
+  declaration is *reachable* is not a porting question: the pin's unreachable mathematics is
+  transcribed with everything else and shelved afterwards (§3.8), so the only thing to measure
+  before coding is how much text the pin copies twice.
 
 ### 2.5 Risk register and budget
 
@@ -296,7 +300,9 @@ subject, never by the pin's grouping (`check_port.py` already rejects `kw*` name
 *pin-public statement* keeps the pin's name, and a rectified public declaration gets a `pin:` row in
 `spec/decl_markers.tsv`; **monomorphic
 helpers are documentation**, written the moment a `rw` reports no progress (§6), not before; **no
-self-consumed lemmas** — the node boundary is not a licence to carry dead scaffolding.
+self-consumed lemmas** — the node boundary is not a licence to carry dead scaffolding the port
+itself invents (the pin's *unreachable* mathematics is a different thing: it is ported with the
+rest and shelved later, §3.8).
 
 ### 3.2 Directory layout: one directory per theory
 
@@ -532,6 +538,80 @@ reaching an unported prerequisite **stops at the boundary and reports** rather t
 closed file or weakening a statement. **The order is a build-cost decision**: with a
 forward-import DAG a worker's module is usually already built, so sets close on per-module
 builds of seconds and the only whole-tree build is the session's last (§3.5).
+
+### 3.8 Dead code: port the mathematics, shelve it later, bin the plumbing
+
+Two different things get called dead, and only one of them is a porting-time question.
+
+- **The pin's unreachable mathematics** — the mirror half of a symmetric construction, a lemma
+  behind an abandoned route, a strengthened form nobody restates. **Port it.** It is the pin's
+  text, it transcribes at the same cost as everything else, and *finding* it is a reachability
+  analysis over a module whose text is not final yet. So the porting-time pass is **dedup only**
+  (§2.4); unused declarations are not searched for, and a pin statement is never restated to
+  avoid one.
+- **The port's own dead plumbing** — `P2MW.S_` staging, dropped wrappers, shims, self-consumed
+  lemmas, an unused section variable, a `private` twin of a headline. **Prune it any time, no
+  shelf**: the port wrote it and it is not the pin's mathematics (§3.1's "no self-consumed
+  lemmas" is about exactly this, not about the pin's unreachable content).
+
+**The shelf rule is for the *specialized* mathematics, not for the general.** A shelf earns its
+file when the content is expensive *because it is far from mathlib* (§1) and exists nowhere else —
+the project's own objects and the lemmas about them (`IsFactorizableTestFn`, `AdelicGL2`, the arch
+chart `archDerivAt`, `ArchEntry`). Where mathlib already owns the subject — `Matrix` inverses and
+adjugates, `ContDiff` of a determinant, a `Fin 2` identity — a dead theorem is **general**, and
+there it is judgement on **subject area and general applicability**, which the tool cannot supply:
+
+- **keep it in place** if it rounds out a general API and buys completeness — they are what a
+  reader of the module is glad to find, they cost lines and nothing else, and they are recoverable
+  if ever cut, so a shelf would only preserve the cheap;
+- **prune it** if mathlib already states it or it is one `simp` from something mathlib has — that
+  is a §2.4 duplicate, not dead content, and the answer there is deletion, not a shelf.
+
+Record the general lemmas kept on purpose, with the reason, in the effort's order — otherwise the
+next dead-code scan reopens them (§2.4's "deliberately not cut" list is the same idea).
+
+**The sweep, when it happens, is one tool run, and unreachable *specialized* mathematics goes to a
+shelf, not to the bin.** Triage the reported set before `--apply`: `--select names` over the
+specialized part is the shelf, and a general lemma is either kept in place (and recorded) or
+deleted by hand.
+
+```
+python3 tools/deps/move_dead.py --source lean/FLTForHuman/…/A.lean \
+    --target lean/Reserve/<Area>/<Module>Dead.lean --select dead --copy \
+    --header-file lean/tmp/header.txt --apply
+```
+
+`--copy` is the shape this needs, because a dead tail's premises are usually `private` helpers the
+live headline also uses: the source loses only the dead set, the shelf receives that set **closed
+under its premises**, cut out of a copy of the source so sections and `variable` lines travel, and
+the shelf imports the port's public API — never the module it came from. The alternatives are each
+worse: `--expose` puts a private engine on the public API for a shelf's sake, a hand copy
+reconstructs the section context the tool preserves, and deleting throws away specialized
+mathematics the pin has and the port already paid to transcribe. The duplicated premises are the
+accepted price (FTF1: 43 per shelf, 528 lines, which `dedup.py --cross` reports as 43 clusters by
+design).
+
+**What a shelf looks like.** `Reserve/<Area>/<Module>Dead.lean`, mirroring the port's own paths; the
+declarations `private` as in the pin, at the pin's statements; a header carrying the provenance (pin
+file, pinned sha, which half of the development, the rename map) and why it is off the critical
+path; **no `spec-pin:` wire**, so `check_port.py` does not diff it — built (Reserve is a default
+build target, so it stays green) but unwired, its statements unchecked text, which is the accepted
+trade because they are the pin's and Lean still elaborates them; a row in
+[Reserve/README.md](Reserve/README.md), with the pass's counts in the effort's order (its landed
+section, §10); and for a declaration the pass left with no home at all, an
+entry in [CARRY-FORWARD.md](CARRY-FORWARD.md) rather than a quiet deletion.
+
+**Measure reachability, not "unreferenced".** A `grep` for a name counts the module header that
+mentions it and misses a declaration referenced only by another dead one; FTF1's order recorded 1
+real and 20 complex dead declarations, and the reachability pass found 25 and 24. Two corollaries:
+a dead set is closed under its dead referrers, so cut the cluster and not a leaf (a partial cut
+leaves the survivors unreachable in turn); and the two mirrors of a symmetric development are
+swept in the same run, or they stop being mirrors — FTF1's earlier partial cut had already made the
+pair carry different subsets before the shelf existed.
+
+**What the sweep does not decide** is whether that mathematics should have a *public* home. A shelf
+is a reading copy whose declarations are `private`; promoting one (or copying it back) is the
+one-line edit a consumer makes, and that promotion is §5's decision, not this one's.
 
 ## 4. Faithfulness, made mechanical
 
@@ -790,6 +870,7 @@ unpublished `tools/deps/` tree.
 | `port_graph.py` | our port's graph: blobs, duplicated private proofs grouped into blocks, promotion candidates, closures |
 | `port_advise.py` | before a port: what the port already has (substitute, by *shape* — byte-identical text and "same conclusion, same hypotheses, binder-only spelling" are two tiers, and the shape tier is the reuse answer), what the set re-proves (port once), what differs only by binders (generalise), what each public declaration drags |
 | `build_ladder.py` | the dependent cascade of an edit, the cheapest sufficient build under `flock`/`timeout`, a wave plan, and (`--audit` / `--profile`) which modules and declarations cost the time |
+| `dedup.py`, `move_dead.py` | whether a declaration duplicates another (by identity, within or across modules), and — for the sweep of §3.8 — which declarations a module's public API cannot reach, moved to a `Reserve/` shelf and cut from the source in one run (`--copy`) |
 
 **Instrument vs tool, when it comes to caching.** `spec/check_port.py` is the instrument: it
 re-reads the module and the corpus stamp on every run and caches only its own per-module verdicts
@@ -848,3 +929,7 @@ are §3.5 and §3.6, and "§3.11" also points at
 [../notes/lean-build-cost.md](../notes/lean-build-cost.md). The old "§7.x" definitions-layer
 experience is §3.1, §3.2, §3.5 and §4. Top level: old "§1" is §1, "§2" §2.4, "§4" §7, "§5" §0.1,
 "§6" §9, "§8" §3.2, "§9" §5.
+
+**The number "§3.8" was retired and is now in use again**: an old citation to it means §2.2
+(mathlib's API as the interface), and the current §3.8 is the dead-code entry, which postdates
+every one of those citations.

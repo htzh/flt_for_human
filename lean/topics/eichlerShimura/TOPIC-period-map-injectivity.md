@@ -174,7 +174,7 @@ dependency edges in the Appendix.
 ### Tier 1 — the definitions (442 lines)
 
 Bottom-up: `BinaryForm.lean` → `CoeffCohomology.lean` → `EichlerIntegral.lean`.
-Adopt mathlib types as the interface from the first declaration (playbook §3.8):
+Adopt mathlib types as the interface from the first declaration (playbook §2.2):
 `MvPolynomial.homogeneousSubmodule`, `Representation`, `Submodule.Quotient`,
 `UpperHalfPlane`, `ModularForm`/`CuspForm`, `Matrix.SpecialLinearGroup`.
 

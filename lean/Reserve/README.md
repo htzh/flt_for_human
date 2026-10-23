@@ -1,8 +1,11 @@
 # Reserve
 
-Verified modules kept out of the critical-path port — superseded routes and
-deferred API. They may import `FLTForHuman`; `FLTForHuman` must never import
-them. Built by default (`lake build`), so they stay green and checked.
+Verified modules kept out of the critical-path port — superseded routes,
+deferred API, and the halves of a ported development that nothing reaches. They
+may import `FLTForHuman`; `FLTForHuman` must never import them. Built by default
+(`lake build`), so they stay green; a module that declares no `spec-pin:` wire is
+built but not statement-checked (`spec/check_port.py` walks `Reserve` and diffs
+only wired modules).
 
 ## What is here
 
@@ -11,6 +14,15 @@ them. Built by default (`lake build`), so they stay green and checked.
 | `Reserve/ModularForms/CuspFormNorm.lean` | the norm of a cusp form — the pre-Sturm route to cusp-form vanishing, kept as an alternative |
 | `Reserve/ModularForms/LevelTwoCuspVanishing.lean` | the norm route to $`S_2(\Gamma_0(2)) = 0`$ and the level-one analogue |
 | `Reserve/ModularCurve/Analytic/LevelTauBridge.lean` | the bridge from the analytic $`\tau`$-model to the torsion/level data |
+| `Reserve/AutomorphicForm/Adelic/FactorizableTestFnArchSmoothDead.lean` | the real-place factorizable-test-function chart's **left**-derivative half — the FTF1 headline's unreachable 25 declarations plus the 43 private premises they need, copied out so the port's module holds only the proof |
+| `Reserve/AutomorphicForm/Adelic/FactorizableTestFnArchSmoothComplexDead.lean` | its complex mirror (24 declarations + 43 premises) |
+
+The two `…Dead.lean` shelves are the first `--copy` outcome of
+`tools/deps/move_dead.py`: written in one run from the live modules, they import
+only the port's public API and never the module they came from, and their
+declarations stay `private` as in the pin. How a module gets here — and what
+belongs in the bin instead — is [porting-playbook.md](../porting-playbook.md)
+§3.8.
 
 ## Candidates (not yet ported)
 

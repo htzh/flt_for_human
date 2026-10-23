@@ -179,7 +179,7 @@ adaptation Tier 0 recorded for this name).
 
 | FLT construct | `v4.34.0` interface adopted | how |
 |---|---|---|
-| `BinaryForm K n` | `MvPolynomial.homogeneousSubmodule (Fin 2) K n` | `abbrev`; the port's type from the first declaration (playbook §3.8) |
+| `BinaryForm K n` | `MvPolynomial.homogeneousSubmodule (Fin 2) K n` | `abbrev`; the port's type from the first declaration (playbook §2.2) |
 | `binarySubst` | `MvPolynomial.aeval` + `C`/`X` | verbatim |
 | `binaryFormRepSL` | `Representation K SL(2, ℤ) (BinaryForm K n)` | `.toLinearMap.restrict` of the substitution, verbatim |
 | `coeffH1par` | `↥Z¹_par ⧸ (B¹).comap Z¹_par.subtype` | `Submodule.Quotient`, `Submodule.comap`, `Submodule.mkQ`; the pin's quotient spelled directly |

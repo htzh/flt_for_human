@@ -326,4 +326,65 @@ check over the two modules, run after the rename:
   left-derivative layer is unreachable from its headline. Fully closed the complex module would be
   590 lines. Left in place for a decision: cut (the module then differs from the pin's text by 25
   unused declarations, and the two mirrors stop being line-for-line twins) or keep (the pin's own
-  text). The real module's closure is a single declaration.
+  text). The real module's closure is a single declaration. **Resolved 2026-10-23, see the next
+  section — and the numbers above are wrong: the real closure is 25 declarations, not 1.**
+
+**The pin's left half leaves, and the tool that moves it, 2026-10-23.** Decision: the unreachable
+declarations are *copied* into a shelf and *cut* from the ported modules, in one tool run, with no
+coupling either way. `tools/deps/move_dead.py --copy` now does both sides at once: the source loses
+the dead set, the shelf receives that set **closed under its premises** — including `private` ones
+the live headline uses — cut out of a copy of the source so sections and `variable` lines travel,
+with the source's own imports and never `import <source>`.
+
+Why not the two obvious alternatives. A plain *move* needs `--expose`: the 43 live premises would
+go public, which is the §9 demotion reverted for three quarters of each module. A plain *cut*
+throws away the pin's readable mirror half, which this repo keeps for comprehension. `--copy` pays
+neither price: it duplicates 43 premises as text, and nothing is promoted.
+
+**The earlier numbers did not reproduce.** `move_dead.py --select dead` (reachability from the
+public API, comments excluded) finds **25** dead declarations / 216 lines in the real module and
+**24** / 188 in the complex one — not "1 more" and "20 more". The earlier scan asked "referenced
+anywhere", which (i) misses a declaration referenced only by another dead one and (ii) counts the
+module header's own docstring, which names `lift_isFactorizableTestFn_archRealGLAt_mul`,
+`lift_exists_compact_support`, `lift_leftDeriv_tensor`, `lift_continuous_LD`. Also, the pin's left
+half is 29 declarations per mirror (25 + the 4 already cut, 24 + the 5 already cut), so the earlier
+pass had already made the two mirrors carry *different* subsets.
+
+| | lines | decls | public | dead |
+|---|---:|---:|---:|---:|
+| `FLTForHuman/…/FactorizableTestFnArchSmooth.lean` | 758 → **552** | 81 → 56 | 1 (headline) | 25 → **0** |
+| `FLTForHuman/…/FactorizableTestFnArchSmoothComplex.lean` | 725 → **531** | 80 → 56 | 1 (headline) | 24 → **0** |
+| `Reserve/AutomorphicForm/Adelic/FactorizableTestFnArchSmoothDead.lean` | **571** | 68 | 0 | — |
+| `Reserve/AutomorphicForm/Adelic/FactorizableTestFnArchSmoothComplexDead.lean` | **545** | 67 | 0 | — |
+
+Each shelf is its dead set plus 43 copied premises (the intersection with its live module is
+exactly those 43 names), all `private` as in the pin, in the same namespaces, with no `spec-pin:`
+wire — built and green, diffed by nothing, importing `ArchDerivCasimir`(`Complex`)/`API`,
+`FactorizableTestFn`, `Projections` and the same eight narrow `Mathlib.*` modules. The tool dropped
+`RightDerivFactor` from each shelf (its `flow*` are not premises of the left half) and left
+`LeftDerivFactor` in the live modules, which turns out to hold two live chart lemmas
+(`lift_curve_det`, `liftMulR_eq_mulL`), not the left layer. After the cut the two live modules are
+exactly symmetric: 52 shared last names, three twin pairs (`lift_coe_archRealGLAt`/`…Complex…`,
+`lift_archFlowAt_eq_lift`/`…Complex…`, `flow_archDerivAt_eq`/`flow_archDerivAtComplex_eq`) and the
+two headlines. Both headers were rewritten to say so (and their stale "84 helpers plus the
+headline" wiring claim — the checker reads one declaration — with it).
+
+Gates after the pass: `check_port --force` **1 ok** per live module, 0 mismatch / 0 missing / 0 own
+/ 0 kw; `--changed --strict-markers` 4175 ok, 0 mismatch, 0 missing, 12 own (pre-existing), 0 kw,
+167 modules, 0 stale markers, exit 0; `lake build` of all four modules green, 3540 jobs, **0
+warnings**, 7.5–8.0 s each; `#print axioms` on both headlines
+`[propext, Classical.choice, Quot.sound]`; both live modules and both shelves elaborate at
+`-DmaxHeartbeats=200000` in one pass with an empty log; `move_dead.py --select dead` on the pruned
+modules reports **0 declarations**; `dedup.py --within --tier shape` over the four modules **0
+clusters**. `dedup.py --cross --tier shape` reports exactly **43 clusters / 528 lines** — one per
+copied premise, which is the price of the no-coupling design and is visible to any later scan; the
+alternative was 43 `private` declarations promoted to public API. `git status`: two modified
+modules, two new shelves, `Reserve/README.md`, `CARRY-FORWARD.md` (the nine declarations the
+earlier pass had already cut, which therefore have no home in the port), this file. (`tools/deps/`
+is untracked in this repo, so the tool change is not part of the published diff.)
+
+The tool change is generic and self-tested: `--copy`, `--keep-source`, `--header-file`,
+`--drop-empty-sections` (default on), `prune_text` (cut a copy by line range, keeping structure),
+`section_spans` (a dotted `end A.B` closes both openers), and a `--selftest` fixture with this
+shape (live premise shared by the headline and the dead tail, a section that empties, a trailing
+`open` only the headline uses).
