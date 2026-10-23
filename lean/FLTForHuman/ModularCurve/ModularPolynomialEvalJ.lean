@@ -25,8 +25,8 @@
   leaves (`Elliptic/PeriodPair/VariableChange.lean`,
   `FieldTheory/NonemptyRingHomComplex.lean`), S-2's
   `PeriodPair.exists_scale_lattice_subset_and_sublatticeIndex_eq_and_isAddCyclic_sublatticeQuotient`,
-  S-3's `PeriodPair.jLattice_scale` (pin-`private`, re-derived `private` here because a
-  `private` port prelude name does not survive a module boundary), and S-4's
+  S-3's `PeriodPair.jLattice_scale` (public in `Lattice.lean` since
+  WORKORDER-V6), and S-4's
   `ModularCurve.ModularPolynomialData.eval_jLattice_eq_zero_of_isAddCyclic`.  The new
   lines are the `conjSeam` packaging, the char-`0` separability/norm-formula bridges, and
   the `IsAlgClosed.lift`/base-change wiring.
@@ -41,8 +41,8 @@
 
   **What is imported, not re-proved.**  The pin's inlined `PeriodPair` scale / `G_scale` /
   `discriminant_scale` / `jLattice_scale` prelude (`:45–129`) is the port's
-  `Elliptic/PeriodPair/{Lattice,PrimCosetReps}.lean`; only `jLattice_scale` needs
-  re-deriving here, because the port keeps it `private` in S-3's module.  The three row
+  `Elliptic/PeriodPair/{Lattice,PrimCosetReps}.lean`, all of it public there since WORKORDER-V6
+  (which also deleted this module's private re-derivation of `jLattice_scale`).  The three row
   modules and the two SC leaves are imported.
 
   **Collision note.**  This module holds the gate producer
@@ -55,6 +55,13 @@
   **Not transcribed.**  The pin's `p2m_*` scaffolding, its `attribute [-instance]` /
   `attribute [-simp]` blocks, and its heartbeat bumps (`synthInstance.maxHeartbeats
   1600000`, `maxHeartbeats 16000000` — the port's frozen cap is 4,000,000).
+
+  **Wiring.** Transcribed from the pin copies below, so `spec/check_port.py` diffs every
+  public declaration this module makes; the port's renames match the pin's `kw_` names by
+  statement, which is the checker's content tier.
+
+  spec-pin: Theorems/Thm_WeierstrassCurve_Affine_eval_modularPolynomial_map_j_eq_zero_of_isAddCyclic_ker_pointMapOfPushforward.lean
+  spec-pin: P2M/Sol/S_WeierstrassCurve_Affine_eval_modularPolynomial_map_j_eq_zero_of_isAddCyclic_ker_pointMapOfPushforward.lean
 -/
 import FLTForHuman.Elliptic.PeriodPair.LatticeIndex
 import FLTForHuman.Elliptic.PeriodPair.PrimCosetReps
@@ -80,22 +87,6 @@ noncomputable section
 
 open WeierstrassCurve WeierstrassCurve.Affine AlgebraicCurve
 open scoped WeierstrassCurve.Affine
-
-namespace PeriodPair
-
-/-- Pin `PeriodPair.jLattice_scale` (private): `jLattice` is scale-invariant.  S-3's
-`PrimCosetReps.lean` carries the same lemma `private`, and a `private` declaration is not
-reachable across a module boundary, so the capstone re-derives it here from the ported
-`PeriodPair.g₂_scale` and `PeriodPair.discriminant_scale`. -/
-private theorem jLattice_scale (L : PeriodPair) (α : ℂˣ) :
-    (L.scale α).jLattice = L.jLattice := by
-  have hα : ((α : ℂ) ^ 12)⁻¹ ≠ 0 := inv_ne_zero (pow_ne_zero _ α.ne_zero)
-  have hg₂ : (L.scale α).g₂ ^ 3 = ((α : ℂ) ^ 12)⁻¹ * L.g₂ ^ 3 := by
-    rw [PeriodPair.g₂_scale, mul_pow, inv_pow, ← pow_mul]
-  unfold PeriodPair.jLattice
-  rw [PeriodPair.discriminant_scale, hg₂, mul_left_comm (1728 : ℂ), mul_div_mul_left _ _ hα]
-
-end PeriodPair
 
 namespace WeierstrassCurve.Affine
 

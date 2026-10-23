@@ -15,10 +15,12 @@ the kernel-to-range node
 `WeierstrassCurve.Affine.IsogenyHomDatum.exists_pointHom_comp_eq_of_ker_le_of_isCentred`
 (the latter consumes the V3 translation headline
 `exists_algEquiv_restrictAlong_placeOfPoint_eq_add`, hence the
-`TranslationAlgEquiv` import below).  The one H5 vocabulary node still **not**
-here is `IsogenyEndDatum.aeval_j_diag_eq_zero_of_finrankAlong_eq`, blocked on
-unported `Theorems/` nodes outside this cone (see the module report).  Statements
-are transcribed verbatim; only proof bodies are adapted to mathlib `v4.34.0`.
+`TranslationAlgEquiv` import below).  The last H5 vocabulary node,
+`IsogenyEndDatum.aeval_j_diag_eq_zero_of_finrankAlong_eq`, is no longer blocked:
+its `PeriodPair` uniformization gate closed and it landed as an assembly module in
+`IsogenyEndDatum/DiagonalPhi.lean` (WORKORDER-V6, 2026-10-23), which imports this
+one.  Statements are transcribed verbatim; only proof bodies are adapted to mathlib
+`v4.34.0`.
 
 Reference (public mirror, pinned):
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_Affine_natCard_ker_pointMapOfPushforward_eq_finrankAlong.lean>

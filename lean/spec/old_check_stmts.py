@@ -4376,9 +4376,10 @@ PORT_FILES = [
     # `S_WLight_frickeFunction_modularity_package` files carry every moved name), so
     # `SOURCES` is unchanged.
     "FLTForHuman/Elliptic/PeriodPair/Basic.lean",
-    "FLTForHuman/Elliptic/PeriodPair/Lattice.lean",
-    "FLTForHuman/Elliptic/PeriodPair/Discriminant.lean",
-    "FLTForHuman/Elliptic/PeriodPair/Uniformization.lean",
+    # `Lattice.lean`, `Discriminant.lean` and `Uniformization.lean` migrated to the
+    # `spec-pin:` protocol on 2026-10-23 (WORKORDER-V6's promotion pass): each now carries a
+    # header wire and `spec/check_port.py` owns it, so none of the three is exempt here.
+    # `Basic.lean` is still on the frozen checker.
     # --- P-SET-2: the `PeriodPair` `j`-line. Two modules. `ModularForms/JInvariant.lean`
     # is the neutral home of the generic level-one `j`-invariant and its surjectivity
     # (`ModularForm.j` / `ModularForm.j_surjective`), promoted out of the weight-one
@@ -4514,7 +4515,8 @@ PORT_FILES = [
     # last so no earlier last-name match can flip.
     "FLTForHuman/Elliptic/PeriodPair/VariableChange.lean",
     "FLTForHuman/FieldTheory/NonemptyRingHomComplex.lean",
-    "FLTForHuman/ModularCurve/ModularPolynomialEvalJ.lean",
+    # `ModularPolynomialEvalJ.lean` migrated to the `spec-pin:` protocol on 2026-10-23
+    # (WORKORDER-V6 follow-up): it carries a header wire and the new checker owns it.
     # --- ds-head (`topics/riemannRoch/WORKORDER-ds-head.md`): the three new leaf
     # modules. `Differential/Hurwitz.lean` writes the pin's duplicated pair once
     # (engine + both headlines); `Differential/Generation.lean` and `Genus/RatFunc.lean`

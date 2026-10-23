@@ -48,6 +48,14 @@
 
   Assumes `FLTForHuman.Elliptic.PeriodPair.Lattice` (the dictionary plus the
   shared scale/lattice prelude) and the ported modular-forms discriminant identity.
+
+  **Wiring.** Transcribed from the two pin copies below, so `spec/check_port.py` diffs every
+  public declaration this module makes (the stripped promotions `G_ofTau_eq`, `riemannZeta_six`,
+  `g₂_ofTau`, `g₃_ofTau` match the pin's `kw_` names by statement, and the headline matches the
+  wrapper):
+
+  spec-pin: Theorems/Thm_PeriodPair_discriminant_ne_zero.lean
+  spec-pin: P2M/Sol/S_PeriodPair_discriminant_ne_zero.lean
 -/
 import FLTForHuman.Elliptic.PeriodPair.Lattice
 import FLTForHuman.ModularForms.DiscPow
@@ -158,7 +166,7 @@ section Homogeneity
 
 variable (α : ℂˣ)
 
-private theorem discriminantNeZero_scale_iff :
+theorem discriminantNeZero_scale_iff :
     (L.scale α).DiscriminantNeZero ↔ L.DiscriminantNeZero := by
   unfold DiscriminantNeZero
   rw [discriminant_scale]
@@ -187,7 +195,7 @@ private theorem discriminantNeZero_of_lattice_eq {L L' : PeriodPair}
   unfold DiscriminantNeZero
   rw [g₂_eq_of_lattice_eq h, g₃_eq_of_lattice_eq h]
 
-private theorem im_div_ne_zero (L : PeriodPair) : (L.ω₁ / L.ω₂).im ≠ 0 := by
+theorem im_div_ne_zero (L : PeriodPair) : (L.ω₁ / L.ω₂).im ≠ 0 := by
   have hω₂ : L.ω₂ ≠ 0 := by
     have := L.indep.ne_zero 1; simpa using this
   intro him
@@ -200,7 +208,7 @@ private theorem im_div_ne_zero (L : PeriodPair) : (L.ω₁ / L.ω₂).im ≠ 0 :
     rw [one_smul, _root_.neg_smul, Complex.real_smul, ← hreal, add_neg_cancel]
   exact one_ne_zero (LinearIndependent.pair_iff.mp L.indep 1 (-(L.ω₁ / L.ω₂).re) key).1
 
-private theorem span_neg_fst (a b : ℂ) :
+theorem span_neg_fst (a b : ℂ) :
     Submodule.span ℤ ({-a, b} : Set ℂ) = Submodule.span ℤ ({a, b} : Set ℂ) := by
   have hna : (-a : ℂ) ∈ Submodule.span ℤ ({a, b} : Set ℂ) :=
     neg_mem (Submodule.subset_span (Set.mem_insert _ _))

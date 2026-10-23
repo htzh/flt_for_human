@@ -95,13 +95,6 @@ work; it is `Metric.mem_nhds_iff` + `IsPreconnected.constant_of_mapsTo` over a b
 namespace PeriodPair
 
 variable (L : PeriodPair)
-
-private theorem countable_lattice : (L.lattice : Set ℂ).Countable := by
-  refine (Set.countable_range fun p : ℤ × ℤ => (p.1 : ℂ) * L.ω₁ + (p.2 : ℂ) * L.ω₂).mono ?_
-  intro z hz
-  obtain ⟨m, n, h⟩ := mem_lattice.mp hz
-  exact ⟨(m, n), h⟩
-
 private theorem isDiscrete_lattice : IsDiscrete (L.lattice.toAddSubgroup : Set ℂ) := by
   rw [Submodule.coe_toAddSubgroup, isDiscrete_iff_discreteTopology]
   exact inferInstanceAs (DiscreteTopology L.lattice)

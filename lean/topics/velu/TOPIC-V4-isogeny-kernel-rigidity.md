@@ -398,14 +398,17 @@ stubs and `…_finite_ord_ne_zero` supplies the instance from
 `hasPrincipalDivisors_functionField`; `Set.mem_setOf_eq` is deprecated on v4.34.0
 and became `Set.mem_ofPred_eq`, so both files are warning-free.
 
-**Phase D after V4.** The H5 vocabulary tail is closed: both nodes
-`TOPIC-H5-engine.md` §7 stopped are now landed, and the only Phase D item left is
-`IsogenyEndDatum.aeval_j_diag_eq_zero_of_finrankAlong_eq`, still gated on the
-`PeriodPair` uniformization ladder. That item is scoped, and it is **not a tail**:
-[TOPIC-V5-periodpair-uniformization.md](TOPIC-V5-periodpair-uniformization.md) measures
-its unported closure at 17 nodes / 15,179 pin lines, with the two classical theorems
-(complex uniformization, surjectivity of `j`) on the path, and recommends a math scout
-before any work order. A pre-existing duplicate — not a collision —
+**Phase D after V4 — closed 2026-10-23.** The H5 vocabulary tail is closed: both nodes
+`TOPIC-H5-engine.md` §7 stopped are landed, and the Phase D item
+`IsogenyEndDatum.aeval_j_diag_eq_zero_of_finrankAlong_eq` landed with them.  It used to be
+gated on the `PeriodPair` uniformization ladder — which
+[TOPIC-V5-periodpair-uniformization.md](TOPIC-V5-periodpair-uniformization.md) measured at 17
+nodes / 15,179 pin lines — and that ladder has since landed, so the node turned out to be a
+*assembly*: 37 of its 55 pin declarations were already in the port (`port_advise`'s substitution
+table), and WORKORDER-V6 ported the remaining 18 on top, promoting 21 `private` twins into
+`Elliptic/PeriodPair/{Lattice,Uniformization,Discriminant}.lean` and wiring those three modules to
+the `spec-pin:` protocol in the same pass.  Its home is
+`WeierstrassCurve/IsogenyEndDatum/DiagonalPhi.lean`. A pre-existing duplicate — not a collision —
 was found and registered: `isRational_of_deg_eq_one` is public at the same FQN in
 `AlgebraicCurve/P1/Dictionary.lean:59` and `WeierstrassCurve/Velu/Discharge.lean:38`;
 the two copies are byte-identical, so the co-import succeeds silently and the two

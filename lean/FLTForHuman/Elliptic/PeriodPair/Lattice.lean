@@ -49,6 +49,17 @@
 
   `weierstrassP_of_lattice_eq` has no `Scale`-spelled counterpart, so it is
   promoted here (public) and `FrickeFunction.lean`'s private copy is deleted.
+
+  **Wiring.** Transcribed from the pin copies below, so `spec/check_port.py` diffs every
+  public declaration this module makes; the port's renames match the pin's `kw_` names by
+  statement, which is the checker's content tier.
+
+  spec-pin: P2M/Sol/S_PeriodPair_discriminant_ne_zero.lean
+  spec-pin: P2M/Sol/S_WLight_frickeFunction_modularity_package.lean
+  spec-pin: P2M/Sol/S_ModularForm_weierstrassP_torsion_qExpansion_package.lean
+  spec-pin: P2M/Sol/S_WLight_levelN_structure_package.lean
+  spec-pin: P2M/Sol/S_PeriodPair_exists_scale_lattice_subset_and_sublatticeIndex_eq_and_isAddCyclic_sublatticeQuotient.lean
+  spec-pin: P2M/Sol/S_PeriodPair_exists_mem_primCosetReps_and_jLattice_eq_of_isAddCyclic.lean
 -/
 import FLTForHuman.Elliptic.PeriodPair.Basic
 
@@ -63,17 +74,17 @@ section Scale
 variable (L : PeriodPair)
 variable (α : ℂˣ)
 
-private def mulLeftR (a : ℂ) : ℂ →ₗ[ℝ] ℂ := Algebra.lmul ℝ ℂ a
+def mulLeftR (a : ℂ) : ℂ →ₗ[ℝ] ℂ := Algebra.lmul ℝ ℂ a
 
-@[scoped simp] private theorem mulLeftR_apply (a z : ℂ) : mulLeftR a z = a * z := rfl
+@[scoped simp] theorem mulLeftR_apply (a z : ℂ) : mulLeftR a z = a * z := rfl
 
-private theorem mulLeftR_injective {a : ℂ} (ha : a ≠ 0) :
+theorem mulLeftR_injective {a : ℂ} (ha : a ≠ 0) :
     Function.Injective (mulLeftR a) := fun _ _ h => by
   simpa using mul_left_cancel₀ ha h
 
-private def mulLeftZ (a : ℂ) : ℂ →ₗ[ℤ] ℂ := (mulLeftR a).restrictScalars ℤ
+def mulLeftZ (a : ℂ) : ℂ →ₗ[ℤ] ℂ := (mulLeftR a).restrictScalars ℤ
 
-@[scoped simp] private theorem mulLeftZ_apply (a z : ℂ) : mulLeftZ a z = a * z := rfl
+@[scoped simp] theorem mulLeftZ_apply (a z : ℂ) : mulLeftZ a z = a * z := rfl
 
 /-- The lattice of `L.scale α` is the image of `L.lattice` under multiplication by `α`. -/
 theorem scale_lattice : (L.scale α).lattice = Submodule.map (mulLeftZ (α : ℂ)) L.lattice := by
@@ -88,13 +99,23 @@ theorem scale_lattice : (L.scale α).lattice = Submodule.map (mulLeftZ (α : ℂ
     · exact ⟨L.ω₂, Or.inr rfl, rfl⟩
   · rintro ⟨w, hw | hw, rfl⟩ <;> simp [hw]
 
+/-- Membership in the rescaled lattice, read off `PeriodPair.scale_lattice`.
+Pin `mem_scale_lattice_iff` (`private` in the pin's two target files).  Homed here because it is a
+statement about `L.scale`, next to `scale_lattice` itself. -/
+theorem mem_scale_lattice_iff {z : ℂ} :
+    z ∈ (L.scale α).lattice ↔ ∃ l ∈ L.lattice, z = (α : ℂ) * l := by
+  rw [scale_lattice, Submodule.mem_map]
+  constructor
+  · rintro ⟨l, hl, h⟩; exact ⟨l, hl, h.symm⟩
+  · rintro ⟨l, hl, h⟩; exact ⟨l, hl, h.symm⟩
+
 /-- Rescaling identifies the two period lattices, linearly over `ℤ`. -/
 noncomputable def scaleLatticeEquiv : L.lattice ≃ₗ[ℤ] (L.scale α).lattice :=
   (Submodule.equivMapOfInjective (mulLeftZ (α : ℂ))
     (fun _ _ h => mul_left_cancel₀ α.ne_zero (by simpa using h)) L.lattice).trans
     (LinearEquiv.ofEq _ _ (scale_lattice L α).symm)
 
-@[scoped simp] private theorem scaleLatticeEquiv_apply (l : L.lattice) :
+@[scoped simp] theorem scaleLatticeEquiv_apply (l : L.lattice) :
     ((L.scaleLatticeEquiv α l : (L.scale α).lattice) : ℂ) = (α : ℂ) * (l : ℂ) := rfl
 
 /-- The Eisenstein sums are homogeneous of degree `-n` under rescaling. -/
@@ -116,6 +137,19 @@ theorem discriminant_scale :
       = ((α : ℂ) ^ 12)⁻¹ * (L.g₂ ^ 3 - 27 * L.g₃ ^ 2) := by
   rw [g₂_scale, g₃_scale]; ring
 
+/-- Pin `g₂_cubed_scale`: the cube of `g₂` rescales by `α⁻¹²`, the companion of `g₂_scale`
+needed for `jLattice`. -/
+theorem g₂_cubed_scale : (L.scale α).g₂ ^ 3 = ((α : ℂ) ^ 12)⁻¹ * L.g₂ ^ 3 := by
+  rw [g₂_scale, mul_pow, inv_pow, ← pow_mul]
+
+/-- `j` is invariant under rescaling the lattice (pin `PeriodPair.jLattice_scale`, `private`
+there).  Public here because it is the subject home of the scale laws; the three former
+re-derivations — `PrimCosetReps`, `ModularCurve/ModularPolynomialEvalJ.lean` and
+`IsogenyEndDatum/DiagonalPhi.lean` — now import this one. -/
+theorem jLattice_scale : (L.scale α).jLattice = L.jLattice := by
+  have hα : ((α : ℂ) ^ 12)⁻¹ ≠ 0 := inv_ne_zero (pow_ne_zero _ α.ne_zero)
+  unfold jLattice
+  rw [discriminant_scale, g₂_cubed_scale, mul_left_comm (1728 : ℂ), mul_div_mul_left _ _ hα]
 end Scale
 
 section Smul
@@ -192,7 +226,7 @@ section LatticeDependence
 
 variable {L L' : PeriodPair}
 
-private def latticeEquivOfEq (h : L.lattice = L'.lattice) : L.lattice ≃ L'.lattice where
+def latticeEquivOfEq (h : L.lattice = L'.lattice) : L.lattice ≃ L'.lattice where
   toFun l := ⟨(l : ℂ), h ▸ l.2⟩
   invFun l := ⟨(l : ℂ), h.symm ▸ l.2⟩
   left_inv _ := rfl

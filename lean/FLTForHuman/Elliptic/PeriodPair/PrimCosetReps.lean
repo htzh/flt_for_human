@@ -79,38 +79,11 @@ open ModularCurve
 
 namespace PeriodPair
 
-/-! ## The prelude lemmas this set needs that the port did not carry -/
+/-! ## The prelude lemmas this set still needs locally
 
-section Scale
-
-variable (L : PeriodPair) (α : ℂˣ)
-
-/-- Membership in the rescaled lattice, read off the ported `PeriodPair.scale_lattice`.
-Pin `mem_scale_lattice_iff` (private in both target files). -/
-private theorem mem_scale_lattice_iff {z : ℂ} :
-    z ∈ (L.scale α).lattice ↔ ∃ l ∈ L.lattice, z = (α : ℂ) * l := by
-  rw [scale_lattice, Submodule.mem_map]
-  constructor
-  · rintro ⟨l, hl, h⟩; exact ⟨l, hl, h.symm⟩
-  · rintro ⟨l, hl, h⟩; exact ⟨l, hl, h.symm⟩
-
-end Scale
-
-section Homogeneity
-
-variable (L : PeriodPair) (α : ℂˣ)
-
-/-- Pin `g₂_cubed_scale` (private): the cube of `g₂` is homogeneous of degree `-12`. -/
-private theorem g₂_cubed_scale : (L.scale α).g₂ ^ 3 = ((α : ℂ) ^ 12)⁻¹ * L.g₂ ^ 3 := by
-  rw [g₂_scale, mul_pow, inv_pow, ← pow_mul]
-
-/-- Pin `PeriodPair.jLattice_scale` (private): `jLattice` is scale-invariant. -/
-private theorem jLattice_scale : (L.scale α).jLattice = L.jLattice := by
-  have hα : ((α : ℂ) ^ 12)⁻¹ ≠ 0 := inv_ne_zero (pow_ne_zero _ α.ne_zero)
-  unfold jLattice
-  rw [discriminant_scale, g₂_cubed_scale, mul_left_comm (1728 : ℂ), mul_div_mul_left _ _ hα]
-
-end Homogeneity
+The scale and lattice laws that
+used to be re-derived here now live publicly in `Elliptic/PeriodPair/Lattice.lean`; what stays is
+what only this file uses. -/
 
 section LatticeDependence
 
@@ -120,41 +93,11 @@ variable {L L' : PeriodPair}
 theorem jLattice_eq_of_lattice_eq (h : L.lattice = L'.lattice) :
     L.jLattice = L'.jLattice := by
   unfold jLattice; rw [g₂_eq_of_lattice_eq h, g₃_eq_of_lattice_eq h]
-
 end LatticeDependence
 
 section RecoverTau
 
 variable (L : PeriodPair)
-
-/-- Pin `im_div_ne_zero` (private in `Discriminant.lean`): `ω₁ / ω₂` is not real. -/
-private theorem im_div_ne_zero (L : PeriodPair) : (L.ω₁ / L.ω₂).im ≠ 0 := by
-  have hω₂ : L.ω₂ ≠ 0 := by
-    have := L.indep.ne_zero 1; simpa using this
-  intro him
-
-  have hdiv : (L.ω₁ / L.ω₂ : ℂ) = ((L.ω₁ / L.ω₂).re : ℂ) :=
-    Complex.ext (by simp) (by simp [him])
-  have hreal : L.ω₁ = ((L.ω₁ / L.ω₂).re : ℂ) * L.ω₂ := by
-    rw [← hdiv, div_mul_cancel₀ _ hω₂]
-  have key : (1 : ℝ) • L.ω₁ + (-(L.ω₁ / L.ω₂).re) • L.ω₂ = 0 := by
-    rw [one_smul, _root_.neg_smul, Complex.real_smul, ← hreal, add_neg_cancel]
-  exact one_ne_zero (LinearIndependent.pair_iff.mp L.indep 1 (-(L.ω₁ / L.ω₂).re) key).1
-
-/-- Pin `span_neg_fst` (private in `Discriminant.lean`): negating the first generator
-does not change the `ℤ`-span. -/
-private theorem span_neg_fst (a b : ℂ) :
-    Submodule.span ℤ ({-a, b} : Set ℂ) = Submodule.span ℤ ({a, b} : Set ℂ) := by
-  have hna : (-a : ℂ) ∈ Submodule.span ℤ ({a, b} : Set ℂ) :=
-    neg_mem (Submodule.subset_span (Set.mem_insert _ _))
-  have ha : (a : ℂ) ∈ Submodule.span ℤ ({-a, b} : Set ℂ) := by
-    have hneg : (-(-a) : ℂ) ∈ Submodule.span ℤ ({-a, b} : Set ℂ) :=
-      neg_mem (Submodule.subset_span (Set.mem_insert _ _))
-    simpa using hneg
-  apply le_antisymm <;> rw [Submodule.span_le, Set.insert_subset_iff] <;>
-    exact ⟨by assumption,
-      Set.singleton_subset_iff.mpr (Submodule.subset_span (Set.mem_insert_of_mem _ rfl))⟩
-
 end RecoverTau
 
 end PeriodPair

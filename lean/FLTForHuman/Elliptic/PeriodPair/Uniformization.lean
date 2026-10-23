@@ -65,6 +65,14 @@
   Assumes `FLTForHuman.Elliptic.PeriodPair.Basic` (the dictionary) and, by the
   module DAG, `FLTForHuman.Elliptic.PeriodPair.Discriminant` (imported; the headline
   is proved from `h : L.DiscriminantNeZero` directly and does **not** cite it).
+
+  **Wiring.** Transcribed from the pin copies below, so `spec/check_port.py` diffs every
+  public declaration this module makes; the port's renames match the pin's `kw_` names by
+  statement, which is the checker's content tier.
+
+  spec-pin: Theorems/Thm_PeriodPair_isUniformization_toPoint.lean
+  spec-pin: P2M/Sol/S_PeriodPair_isUniformization_toPoint.lean
+  spec-pin: P2M/Sol/S_PeriodPair_exists_differentiable_toPoint_comp_eq_pointMapOfPushforward_toPoint.lean
 -/
 import FLTForHuman.Elliptic.PeriodPair.Basic
 import FLTForHuman.Elliptic.PeriodPair.Discriminant
@@ -98,7 +106,7 @@ variable (L : PeriodPair)
 
 section Topology
 
-private theorem countable_lattice : (L.lattice : Set ℂ).Countable := by
+theorem countable_lattice : (L.lattice : Set ℂ).Countable := by
   refine (Set.countable_range fun p : ℤ × ℤ => (p.1 : ℂ) * L.ω₁ + (p.2 : ℂ) * L.ω₂).mono ?_
   intro z hz
   obtain ⟨m, n, h⟩ := mem_lattice.mp hz
@@ -156,13 +164,13 @@ end Topology
 
 section Liouville
 
-private theorem sub_fract_mem_lattice (z : ℂ) : z - ZSpan.fract L.basis z ∈ L.lattice := by
+theorem sub_fract_mem_lattice (z : ℂ) : z - ZSpan.fract L.basis z ∈ L.lattice := by
   rw [L.lattice_eq_span_range_basis]
   have h := (ZSpan.fract_eq_fract L.basis (ZSpan.fract L.basis z) z).mp
     (by rw [ZSpan.fract_eq_self.mpr (ZSpan.fract_mem_fundamentalDomain L.basis z)])
   simpa [neg_add_eq_sub] using h
 
-private theorem apply_eq_apply_of_differentiable_of_forall_periodic {f : ℂ → ℂ}
+theorem apply_eq_apply_of_differentiable_of_forall_periodic {f : ℂ → ℂ}
     (hf : Differentiable ℂ f) (hper : ∀ l ∈ L.lattice, ∀ z, f (z + l) = f z) (z w : ℂ) :
     f z = f w := by
   apply hf.apply_eq_apply_of_bounded
@@ -179,11 +187,79 @@ private theorem apply_eq_apply_of_differentiable_of_forall_periodic {f : ℂ →
   exact Metric.isCompact_of_isClosed_isBounded isClosed_closure
     (ZSpan.fundamentalDomain_isBounded L.basis).closure
 
+/-- Pin `apply_eq_apply_of_continuous_of_mapsTo_lattice` (`private`): a continuous map into
+the discrete lattice is constant. -/
+private theorem apply_eq_apply_of_continuous_of_mapsTo_lattice {f : ℂ → ℂ} (hf : Continuous f)
+    (hmem : ∀ z, f z ∈ L.lattice) (z w : ℂ) : f z = f w := by
+  refine IsPreconnected.constant_of_mapsTo (isPreconnected_univ) ?_
+    hf.continuousOn (fun u _ => hmem u) (Set.mem_univ z) (Set.mem_univ w)
+  rw [isDiscrete_iff_discreteTopology]
+  exact inferInstanceAs (DiscreteTopology L.lattice)
+
+/-- Pin `exists_smul_mem_and_apply_eq_of_forall_sub_mem` (≈69 lines): a differentiable map
+whose lattice-translates stay in `L'` is affine.  Homed with the Liouville layer it belongs
+to; `LatticeIndex` imports it from here. -/
+theorem exists_smul_mem_and_apply_eq_of_forall_sub_mem (L' : PeriodPair) {F : ℂ → ℂ}
+    (hF : Differentiable ℂ F)
+    (hper : ∀ l ∈ L.lattice, ∀ z, F (z + l) - F z ∈ L'.lattice) :
+    ∃ α : ℂ, (∀ l ∈ L.lattice, α * l ∈ L'.lattice) ∧ ∀ z, F z = F 0 + α * z := by
+  have hFc : Continuous F := hF.continuous
+  have hconst : ∀ l ∈ L.lattice, ∀ z, F (z + l) - F z = F l - F 0 := by
+    intro l hl z
+    have h := apply_eq_apply_of_continuous_of_mapsTo_lattice (L := L')
+      (f := fun u => F (u + l) - F u)
+      ((hFc.comp (continuous_id.add continuous_const)).sub hFc) (hper l hl) z 0
+    simpa using h
+  have hadd : ∀ z w, F (z + w) = F z + F w - F 0 := by
+    intro z w
+    have hper' : ∀ l ∈ L.lattice, ∀ u,
+        (fun u => F (u + w) - F u) (u + l) = (fun u => F (u + w) - F u) u := by
+      intro l hl u
+      have h1 := hconst l hl (u + w)
+      have h2 := hconst l hl u
+      rw [show u + w + l = u + l + w by ring] at h1
+      simp only
+      linear_combination h1 - h2
+    have h := apply_eq_apply_of_differentiable_of_forall_periodic (L := L)
+      (f := fun u => F (u + w) - F u)
+      ((hF.comp (differentiable_id.add_const w)).sub hF) hper' z 0
+    simp only [zero_add] at h
+    linear_combination h
+  set α : ℂ := deriv F 0 with hα
+  have hderiv : ∀ z, deriv F z = α := by
+    intro z
+    have hfun : (fun w => F (z + w)) = fun w => F w + (F z - F 0) := by
+      funext w
+      rw [hadd z w]; ring
+    have h1 : deriv (fun w => F (z + w)) 0 = deriv F z := by
+      rw [deriv_comp_const_add]
+      simp
+    have h2 : deriv (fun w => F w + (F z - F 0)) 0 = deriv F 0 := by
+      rw [deriv_add_const]
+    rw [← h1, hfun, h2]
+  have haffine : ∀ z, F z = F 0 + α * z := by
+    have hG : Differentiable ℂ fun z => F z - α * z :=
+      hF.sub (differentiable_id.const_mul α)
+    have hG' : ∀ z, deriv (fun z => F z - α * z) z = 0 := by
+      intro z
+      have hd : HasDerivAt (fun z => F z - α * z) (deriv F z - α * 1) z :=
+        (hF z).hasDerivAt.sub ((hasDerivAt_id z).const_mul α)
+      rw [hd.deriv, hderiv z]
+      ring
+    intro z
+    have h := is_const_of_deriv_eq_zero hG hG' z 0
+    simp only [mul_zero, sub_zero] at h
+    linear_combination h
+  refine ⟨α, fun l hl => ?_, haffine⟩
+  have h := hper l hl 0
+  rw [zero_add, haffine l] at h
+  simpa using h
+
 end Liouville
 
 section ToPoint
 
-private theorem toPoint_add_mem (h : L.DiscriminantNeZero) (z : ℂ) {l : ℂ} (hl : l ∈ L.lattice) :
+theorem toPoint_add_mem (h : L.DiscriminantNeZero) (z : ℂ) {l : ℂ} (hl : l ∈ L.lattice) :
     L.toPoint h (z + l) = L.toPoint h z := by
   by_cases hz : z ∈ L.lattice
   · rw [L.toPoint_of_mem h hz, L.toPoint_of_mem h (add_mem hz hl)]
@@ -194,7 +270,7 @@ private theorem toPoint_add_mem (h : L.DiscriminantNeZero) (z : ℂ) {l : ℂ} (
     simp only [WeierstrassCurve.Affine.Point.some.injEq]
     exact ⟨hP, by rw [hP']⟩
 
-private theorem toPoint_neg (h : L.DiscriminantNeZero) (z : ℂ) :
+theorem toPoint_neg (h : L.DiscriminantNeZero) (z : ℂ) :
     L.toPoint h (-z) = -L.toPoint h z := by
   by_cases hz : z ∈ L.lattice
   · rw [L.toPoint_of_mem h hz, L.toPoint_of_mem h (neg_mem hz)]; rfl
@@ -361,13 +437,13 @@ private theorem weierstrassP_surjective (x₀ : ℂ) : ∃ z, z ∉ L.lattice �
   rw [h0, hω]
   exact inv_ne_zero (hne _ L.ω₁_div_two_notMem_lattice)
 
-private theorem toPoint_eq_zero_iff (h : L.DiscriminantNeZero) (z : ℂ) :
+theorem toPoint_eq_zero_iff (h : L.DiscriminantNeZero) (z : ℂ) :
     L.toPoint h z = 0 ↔ z ∈ L.lattice := by
   refine ⟨fun hz => by_contra fun hnz => ?_, L.toPoint_of_mem h⟩
   rw [L.toPoint_of_notMem h hnz] at hz
   exact WeierstrassCurve.Affine.Point.some_ne_zero _ hz
 
-private theorem toPoint_surjective (h : L.DiscriminantNeZero) :
+theorem toPoint_surjective (h : L.DiscriminantNeZero) :
     Function.Surjective (L.toPoint h) := by
   intro P
   rcases P with _ | ⟨x₀, y₀, hP⟩
@@ -1205,7 +1281,7 @@ private theorem exists_generic_perturbation (w z : ℂ) :
   exact ⟨u, h1, h2, h3, h4, h5, h6, h7 h1, h8 h4, Ne.symm (h9 h1), Ne.symm (h10 h1),
     Ne.symm (h11 h1), Ne.symm (h12 h4)⟩
 
-private theorem toPoint_add (hD : L.DiscriminantNeZero) (z w : ℂ) :
+theorem toPoint_add (hD : L.DiscriminantNeZero) (z w : ℂ) :
     L.toPoint hD (z + w) = L.toPoint hD z + L.toPoint hD w := by
 
   by_cases hz : z ∈ L.lattice

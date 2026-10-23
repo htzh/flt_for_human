@@ -90,16 +90,6 @@ namespace PeriodPair
 section Scale
 
 variable (L : PeriodPair) (α : ℂˣ)
-
-/-- Membership in the rescaled lattice, read off the ported `PeriodPair.scale_lattice`.
-Pin `mem_scale_lattice_iff` (private in both target files). -/
-private theorem mem_scale_lattice_iff {z : ℂ} :
-    z ∈ (L.scale α).lattice ↔ ∃ l ∈ L.lattice, z = (α : ℂ) * l := by
-  rw [scale_lattice, Submodule.mem_map]
-  constructor
-  · rintro ⟨l, hl, h⟩; exact ⟨l, hl, h.symm⟩
-  · rintro ⟨l, hl, h⟩; exact ⟨l, hl, h.symm⟩
-
 end Scale
 
 section Gates
@@ -121,99 +111,6 @@ end Gates
 section Liouville
 
 variable (L : PeriodPair)
-
-/-- Pin `sub_fract_mem_lattice` (private). -/
-private theorem sub_fract_mem_lattice (z : ℂ) : z - ZSpan.fract L.basis z ∈ L.lattice := by
-  rw [L.lattice_eq_span_range_basis]
-  have h := (ZSpan.fract_eq_fract L.basis (ZSpan.fract L.basis z) z).mp
-    (by rw [ZSpan.fract_eq_self.mpr (ZSpan.fract_mem_fundamentalDomain L.basis z)])
-  simpa [neg_add_eq_sub] using h
-
-/-- Pin `apply_eq_apply_of_differentiable_of_forall_periodic` (private): a differentiable
-lattice-periodic function on `ℂ` is constant. -/
-private theorem apply_eq_apply_of_differentiable_of_forall_periodic {f : ℂ → ℂ}
-    (hf : Differentiable ℂ f) (hper : ∀ l ∈ L.lattice, ∀ z, f (z + l) = f z) (z w : ℂ) :
-    f z = f w := by
-  apply hf.apply_eq_apply_of_bounded
-  have hrange : Set.range f ⊆ f '' closure (ZSpan.fundamentalDomain L.basis) := by
-    rintro - ⟨u, rfl⟩
-    refine ⟨ZSpan.fract L.basis u, subset_closure (ZSpan.fract_mem_fundamentalDomain _ u), ?_⟩
-    have h := hper _ (sub_fract_mem_lattice L u) (ZSpan.fract L.basis u)
-    rw [add_sub_cancel] at h
-    exact h.symm
-  refine Bornology.IsBounded.subset ?_ hrange
-  refine (IsCompact.image ?_ hf.continuous).isBounded
-  exact Metric.isCompact_of_isClosed_isBounded isClosed_closure
-    (ZSpan.fundamentalDomain_isBounded L.basis).closure
-
-/-- Pin `apply_eq_apply_of_continuous_of_mapsTo_lattice` (private): a continuous map into
-the discrete lattice is constant. -/
-private theorem apply_eq_apply_of_continuous_of_mapsTo_lattice {f : ℂ → ℂ} (hf : Continuous f)
-    (hmem : ∀ z, f z ∈ L.lattice) (z w : ℂ) : f z = f w := by
-  refine IsPreconnected.constant_of_mapsTo (isPreconnected_univ) ?_
-    hf.continuousOn (fun u _ => hmem u) (Set.mem_univ z) (Set.mem_univ w)
-  rw [isDiscrete_iff_discreteTopology]
-  exact inferInstanceAs (DiscreteTopology L.lattice)
-
-/-- Pin `exists_smul_mem_and_apply_eq_of_forall_sub_mem` (private, ≈69 lines): a
-differentiable function whose lattice-translates stay in `L'` is affine.  `port_advise`
-reports this as the one genuinely new drag of the 2,021 file. -/
-private theorem exists_smul_mem_and_apply_eq_of_forall_sub_mem (L' : PeriodPair) {F : ℂ → ℂ}
-    (hF : Differentiable ℂ F)
-    (hper : ∀ l ∈ L.lattice, ∀ z, F (z + l) - F z ∈ L'.lattice) :
-    ∃ α : ℂ, (∀ l ∈ L.lattice, α * l ∈ L'.lattice) ∧ ∀ z, F z = F 0 + α * z := by
-  have hFc : Continuous F := hF.continuous
-  have hconst : ∀ l ∈ L.lattice, ∀ z, F (z + l) - F z = F l - F 0 := by
-    intro l hl z
-    have h := apply_eq_apply_of_continuous_of_mapsTo_lattice (L := L')
-      (f := fun u => F (u + l) - F u)
-      ((hFc.comp (continuous_id.add continuous_const)).sub hFc) (hper l hl) z 0
-    simpa using h
-  have hadd : ∀ z w, F (z + w) = F z + F w - F 0 := by
-    intro z w
-    have hper' : ∀ l ∈ L.lattice, ∀ u,
-        (fun u => F (u + w) - F u) (u + l) = (fun u => F (u + w) - F u) u := by
-      intro l hl u
-      have h1 := hconst l hl (u + w)
-      have h2 := hconst l hl u
-      rw [show u + w + l = u + l + w by ring] at h1
-      simp only
-      linear_combination h1 - h2
-    have h := apply_eq_apply_of_differentiable_of_forall_periodic (L := L)
-      (f := fun u => F (u + w) - F u)
-      ((hF.comp (differentiable_id.add_const w)).sub hF) hper' z 0
-    simp only [zero_add] at h
-    linear_combination h
-  set α : ℂ := deriv F 0 with hα
-  have hderiv : ∀ z, deriv F z = α := by
-    intro z
-    have hfun : (fun w => F (z + w)) = fun w => F w + (F z - F 0) := by
-      funext w
-      rw [hadd z w]; ring
-    have h1 : deriv (fun w => F (z + w)) 0 = deriv F z := by
-      rw [deriv_comp_const_add]
-      simp
-    have h2 : deriv (fun w => F w + (F z - F 0)) 0 = deriv F 0 := by
-      rw [deriv_add_const]
-    rw [← h1, hfun, h2]
-  have haffine : ∀ z, F z = F 0 + α * z := by
-    have hG : Differentiable ℂ fun z => F z - α * z :=
-      hF.sub (differentiable_id.const_mul α)
-    have hG' : ∀ z, deriv (fun z => F z - α * z) z = 0 := by
-      intro z
-      have hd : HasDerivAt (fun z => F z - α * z) (deriv F z - α * 1) z :=
-        (hF z).hasDerivAt.sub ((hasDerivAt_id z).const_mul α)
-      rw [hd.deriv, hderiv z]
-      ring
-    intro z
-    have h := is_const_of_deriv_eq_zero hG hG' z 0
-    simp only [mul_zero, sub_zero] at h
-    linear_combination h
-  refine ⟨α, fun l hl => ?_, haffine⟩
-  have h := hper l hl 0
-  rw [zero_add, haffine l] at h
-  simpa using h
-
 /-- The point group of a complex elliptic curve is infinite (pin
 `kw_infinite_quotientLattice`/`kw_infinite_point`, private). -/
 private theorem infinite_point (L : PeriodPair) : Infinite L.weierstrassCurve.toAffine.Point := by
@@ -232,20 +129,6 @@ private theorem infinite_point (L : PeriodPair) : Infinite L.weierstrassCurve.to
     haveI : Uncountable ℂ := Complex.ofReal_injective.uncountable
     exact absurd hCc not_countable
   exact L.toPointAddEquiv.toEquiv.infinite_iff.mp hquot
-
-/-- Pin `toPoint_add_mem` (public in the pin, `private` in the port's `Uniformization.lean`):
-`toPoint` is invariant under lattice translation. -/
-private theorem toPoint_add_mem (L : PeriodPair) (h : L.DiscriminantNeZero) (z : ℂ) {l : ℂ}
-    (hl : l ∈ L.lattice) : L.toPoint h (z + l) = L.toPoint h z := by
-  by_cases hz : z ∈ L.lattice
-  · rw [L.toPoint_of_mem h hz, L.toPoint_of_mem h (add_mem hz hl)]
-  · have hzl : z + l ∉ L.lattice := fun hmem => hz (by simpa using sub_mem hmem hl)
-    rw [L.toPoint_of_notMem h hz, L.toPoint_of_notMem h hzl]
-    have hP : ℘[L] (z + l) = ℘[L] z := L.weierstrassP_add_coe z ⟨l, hl⟩
-    have hP' : ℘'[L] (z + l) = ℘'[L] z := L.derivWeierstrassP_add_coe z ⟨l, hl⟩
-    simp only [WeierstrassCurve.Affine.Point.some.injEq]
-    exact ⟨hP, by rw [hP']⟩
-
 end Liouville
 
 end PeriodPair
