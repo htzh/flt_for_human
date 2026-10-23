@@ -276,3 +276,16 @@ notation, spending their space on the subject at hand.
   and exactly which hypotheses make it Haar; the projective quotient Haar measure; what
   mathlib does and does not formalize; and one Lean section (§10) with the mathlib API,
   the port files and the `IsHaarMeasure`-is-left-only encoding trap.
+- [023 — The Riemann–Roch statement hierarchy](023-riemann-roch-statement-hierarchy.md):
+  the shape of the statements rather than the proofs: the three dimensions the symbol
+  $`\dim`$ can mean (functions with a pole bound, the adelic index of speciality, and the
+  differentials, which are the dual of that quotient, so $`i(D) = \dim \Omega(D)`$ by the
+  annihilator isomorphism), and the pairing by a differential that turns those two into
+  Serre duality; the canonical divisor from the divisor of a differential, the two genera
+  ($`\lfloor(\deg \omega_0 + 2)/2\rfloor`$ and $`\dim H^1(0)`$) and why they agree; then the
+  ladder — Riemann's inequality → the index formula → the three duality forms →
+  Riemann–Roch — the two genuine directions between its analytic bottom (the residue
+  theorem, in its abstract and K-local models) and its arithmetic top, the genus-existence
+  axis that runs beside it, and the four wrapper layers that weaken the hypotheses from the
+  curve package down to a single transcendental generator. One Lean section at the end:
+  module homes, checked-statement counts, axioms, and the pin-part-label naming convention.
