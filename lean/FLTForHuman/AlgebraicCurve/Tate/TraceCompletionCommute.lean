@@ -44,7 +44,10 @@ import FLTForHuman.AlgebraicCurve.P1.DivPow
 set_option autoImplicit false
 set_option linter.unusedSectionVars false
 set_option linter.unusedVariables false
-set_option linter.style.haveILetI false
+-- `overlappingInstances`: the redundant instance binder in the headline below is part of the
+-- pin-verbatim statement and `spec/check_port.py` diffs it, so the binder stays; the linter is
+-- off for the module, not the binder removed.
+set_option linter.overlappingInstances false
 
 open LinearMap Submodule
 open AlgebraicCurve AlgebraicCurve.Place
@@ -81,18 +84,18 @@ theorem RTCC_of_tate
   rw [← localResidueCompletion_algebraMap w
     (g * w.differentialCoeff (kaehlerPullback K F E v.dCoord))]
 
-  haveI := hfinF w (algebraMap F w.adicCompletion
+  have := hfinF w (algebraMap F w.adicCompletion
     (g * w.differentialCoeff (kaehlerPullback K F E v.dCoord)))
     (algebraMap F w.adicCompletion w.uniformizer)
   rw [← hAF w (algebraMap F w.adicCompletion
     (g * w.differentialCoeff (kaehlerPullback K F E v.dCoord)))]
 
   rw [map_mul]
-  haveI := hfinF w (algebraMap F w.adicCompletion g)
+  have := hfinF w (algebraMap F w.adicCompletion g)
     (algebraMap F w.adicCompletion (algebraMap E F v.uniformizer))
   rw [← hC v w hw (algebraMap F w.adicCompletion g)]
 
-  haveI := hfinE v (completionTraceAt v w hw g)
+  have := hfinE v (completionTraceAt v w hw g)
     (algebraMap E v.adicCompletion v.uniformizer)
   rw [hT v w hw g]
 

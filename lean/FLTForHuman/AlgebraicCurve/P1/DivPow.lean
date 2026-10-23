@@ -31,10 +31,20 @@ open AlgebraicCurve
 
 namespace AlgebraicCurve
 
-open RationalFunctionField
+open _root_.AlgebraicCurve.RationalFunctionField
 
 set_option autoImplicit false
 set_option synthInstance.maxSize 4096
+-- The pin's statement binders are transcribed verbatim, including ones its proofs do
+-- not use; the style linters flag the pin, not the port.
+set_option linter.unusedVariables false
+set_option linter.style.haveILetI false
+set_option linter.overlappingInstances false
+-- `unusedSectionVars`: the pin's `variable` block is shared by all of its declarations, so a
+-- transcription carries section variables some one statement does not mention. The binder is
+-- part of the pin-verbatim signature and `spec/check_port.py` diffs it, so the linter is off
+-- for the module rather than the statement narrowed (as in `ModularCurve/Defs/Laurent.lean`).
+set_option linter.unusedSectionVars false
 
 namespace P1Tower
 
@@ -182,7 +192,7 @@ theorem separable_minP (hsep : p.Separable) : (minP K p).Separable := by
   rw [Polynomial.Separable, Polynomial.isCoprime_iff_aeval_ne_zero_of_isAlgClosed (RatFunc K) L]
   intro β
   by_contra h
-  push_neg at h
+  push Not at h
   obtain ⟨hP, hP'⟩ := h
   have hd0 : derivative p ≠ 0 := by
     intro h0
@@ -295,8 +305,8 @@ theorem ord_finitePlace_subst_algebraMap (hirr : Irreducible p) {q : K[X]} (hq :
     exact hXu (by simpa using (Polynomial.dvd_iff_isRoot).mpr h)
   have hcomp : q.comp p = p ^ k * u.comp p := by
     conv_lhs => rw [hqu]
-    simp only [Polynomial.mul_comp, Polynomial.pow_comp, Polynomial.sub_comp, Polynomial.X_comp,
-      Polynomial.C_comp, map_zero, sub_zero]
+    simp only [Polynomial.mul_comp, Polynomial.pow_comp, Polynomial.X_comp, map_zero,
+      sub_zero]
   have hinj := IsFractionRing.injective K[X] (RatFunc K)
   have hp0 : p ≠ 0 := by rintro rfl; simp at hp
   have hup0 : u.comp p ≠ 0 := fun h => by
@@ -348,7 +358,7 @@ theorem restrict_finitePlace (hirr : Irreducible p)
   rw [Place.mem_iff_ord_nonneg _ hsf, Place.mem_iff_ord_nonneg _ hf,
     ord_finitePlace_subst K p hp hirr]
   constructor
-  · intro h; by_contra hneg; push_neg at hneg
+  · intro h; by_contra hneg; push Not at hneg
     have : (placeOfPoint K 0).ord f * (finitePlace K hirr).ord (algebraMap K[X] (RatFunc K) p)
         < 0 :=
       mul_neg_of_neg_of_pos hneg hpos
@@ -400,7 +410,7 @@ theorem fiber_placeOfPoint_zero (hirr : Irreducible p) [DecidableEq (RatFunc K)]
       classical
       rw [← RatFunc.algebraMap_X, ord_placeOfPoint_algebraMap 0 Polynomial.X_ne_zero]
       have h := (Polynomial.rootMultiplicity_X_sub_C : Polynomial.rootMultiplicity (0 : K) (X - C 0) = _)
-      rw [map_zero, sub_zero, if_pos rfl] at h
+      rw [map_zero, sub_zero, ite_eq_left rfl] at h
       exact_mod_cast h
     have hord : w'.ord (algebraMap (RatFunc K) (Kx K p hp) RatFunc.X)
         = (Place.ramificationIndex (F := RatFunc K) w' : ℤ) * 1 := by
@@ -512,7 +522,7 @@ theorem linearIndependent_pow_gen [DecidableEq (RatFunc K)] :
     rw [← map_sum] at hg
     exact (map_eq_zero_iff _ (toKx K p hp).injective).mp hg
   by_contra hne
-  push_neg at hne
+  push Not at hne
   obtain ⟨i0, hi0⟩ := hne
   let S : Finset (Fin p.natDegree) := Finset.univ.filter (fun i => g i ≠ 0)
   have hS : S.Nonempty := ⟨i0, by simp [S, hi0]⟩

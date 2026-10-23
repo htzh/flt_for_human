@@ -5,7 +5,13 @@
 trace-completion commutation) COMPLETE; row 3.6 (the K ending) COMPLETE; row 3.7
 (the RR assembly against the K ending) COMPLETE, together with the K-route general
 `ResidueTheorem` over algebraically closed fields; only row 3.5 (the perfect-field
-ending) remains of phase 3 (2026-09-30).** The seven work-item rows of §3 are executed as phases 3.1–3.7, one
+ending) remains of phase 3 (2026-09-30). The family's last member, the bare-hypothesis
+wrapper `functionFieldRiemannRoch_of_isAlgClosed_of_transcendental` (RR from a
+transcendental generator alone, the curve package derived), landed 2026-10-23 in
+`ResidueTheorem/RRAssembly.lean` beside the two curve-package wrappers it sits over; it
+is the interface the pin's sixteen `_of_transcendental`-style consumers state against.
+`RRAssembly.lean` is handed over to `spec/check_port.py` in the same change (42 ok /
+0 mismatch / 0 missing) and unlisted from `old_check_stmts.py`.** The seven work-item rows of §3 are executed as phases 3.1–3.7, one
 dispatch and review gate each; the operative plan is
 [riemannRoch/PLAN-P3-1.md](riemannRoch/PLAN-P3-1.md) and phase 3.1 was specified by
 [riemannRoch/WORKORDER-P3-1-residue-instance.md](riemannRoch/WORKORDER-P3-1-residue-instance.md).
@@ -241,11 +247,19 @@ Homes and discipline:
 - `ResidueTheorem` / `ResidueTheoremK` stay the pin's definitions, exactly as phase 1
   already has them; `ResidueTheorem` remains a hypothesis only where phase 1's
   `exists_linearEquiv_regularDifferentials_omegaSpace_zero` already takes it;
-- add the small unconditional `constantsAreBase_of_isAlgClosed` (the pin's
-  `p0n20_rr_constantsAreBase_of_isAlgClosed`, ≈40 lines) if the D-S application does
+- add the small unconditional `constantsAreBase_of_isAlgClosed` (the pin's internal
+  RR-route copy of the same statement, ≈40 lines) if the D-S application does
   not already supply `ConstantsAreBase`;
 - the `_v2` names are dropped: the port keeps **one name per piece** — see the name
   policy below.
+
+**Names drop the pin's part labels (2026-10-23).** The pin prefixes the declarations of
+its auto-generated `S_` files with machine-generated part tags; those never appear in a
+port declaration name. What remains of a label (`rr_`, `rtk_`, `cpf_`, `wkc_`) is the
+pin's own subject tag. Nothing is lost: `spec/decl_markers.tsv` records each pin original
+by name and line, and the checker diffs every renamed declaration through those rows.
+The pin's names still appear, quoted, in this topic's audits and workorders — they are
+records of the pin, not of the port.
 
 **API surface and name policy.** The block's public API — what downstream (outside the
 D-S cone) actually calls — is small. Already in the port: the Props `ResidueTheorem`

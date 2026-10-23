@@ -701,9 +701,11 @@ stamp moved, `--all` re-checks everything, `--force` re-checks an unchanged modu
 prints the per-module stamp, `--include-legacy` reaches a module the frozen lists still own, and
 `--markers PATH` selects another marker table. State is `tmp/check-port/state.json`, which a
 corpus rebuild invalidates. It hashes the port statement the way the corpus does and matches by
-exact name, promoted key, `kw_` strip, then content, so a faithful-but-renamed copy verifies and a
-same-name statement that differs is a `MISMATCH` (with an identical statement elsewhere reported
-as a hint). A module is its own unit of check: every public declaration it makes is either diffed
+exact name, the pin's part label dropped (`p0n25_wkc_foo` → `wkc_foo`), promoted key, `kw_`
+strip, then content, so a faithful-but-renamed copy verifies and a same-name statement that
+differs is a `MISMATCH` (with an identical statement elsewhere reported as a hint). A rename
+the port's own naming policy makes — dropping the pin's machine-generated part label —
+therefore needs no marker row; a marker is for a rename that policy does not predict. A module is its own unit of check: every public declaration it makes is either diffed
 or carries a recorded exception.
 
 When the capstone is conditional, track its debt counter as each field lands (the
@@ -730,6 +732,10 @@ exporting.
   `[NeZero]` position become one lemma (the checker sees the text, the elaborator the binders, so
   fix both, §4), and a `def … : Prop` declared twice under one name with different unused instance
   binders becomes the more general copy once.
+  **`dedup.py --tier shape` ignores instance arguments**, so of two declarations that differ
+  only by the instance hypothesis their section supplies it reports one cluster and no
+  difference; verify at the call sites before deleting one (`[PerfectField K]` vs
+  `[IsAlgClosed K]` twins in the curve cone are the worked case).
 - **Namespace policy is decided before the wave.** When a pin chapter wraps sub-theories
   (`M4aLocalCFT.X`), rename the chapter to the theory's namespace and **keep `X` as a
   sub-namespace** (two can carry the same name with different statements, so merging collides),

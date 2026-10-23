@@ -4003,13 +4003,16 @@ PORT_FILES = [
     # --- P3.2b–e (the ℙ¹ residue core), split by the R1 definitions round into the
     # `P1/` module family (see `topics/riemannRoch/PLAN-RECTIFY-DEFS.md`). The
     # declarations and their order are unchanged; building `P1/Core` builds the
-    # whole chain. Appended last so no earlier last-name match can flip.
+    # whole chain. `P1/Core.lean` has since been handed over to `spec/check_port.py`
+    # (its `spec-pin:` wire checks 42 ok / 0 / 0); the earlier slices below stay
+    # listed. Appended last so no earlier last-name match can flip.
     "FLTForHuman/AlgebraicCurve/P1/EnginePrelude.lean",
     "FLTForHuman/AlgebraicCurve/P1/Differential.lean",
     "FLTForHuman/AlgebraicCurve/P1/UnitNormalForm.lean",
     "FLTForHuman/AlgebraicCurve/P1/DXCoeff.lean",
     "FLTForHuman/AlgebraicCurve/P1/DivisorAction.lean",
-    "FLTForHuman/AlgebraicCurve/P1/UnitFinite.lean",
+    # --- `FLTForHuman/AlgebraicCurve/P1/UnitFinite.lean` is handed over to `spec/check_port.py`: its `spec-pin:` wire
+    # checks 15 ok / 0 mismatch / 0 missing. Do not re-list it here.
     "FLTForHuman/AlgebraicCurve/P1/FinitePlaceResidue.lean",
     "FLTForHuman/AlgebraicCurve/P1/TraceEngine.lean",
     "FLTForHuman/AlgebraicCurve/P1/Separating.lean",
@@ -4018,13 +4021,12 @@ PORT_FILES = [
     "FLTForHuman/AlgebraicCurve/P1/KaehlerIntegral.lean",
     "FLTForHuman/AlgebraicCurve/P1/PerfectField.lean",
     "FLTForHuman/AlgebraicCurve/P1/PerfectResidue.lean",
-    "FLTForHuman/AlgebraicCurve/P1/Core.lean",
-    # --- P3.2d′ (the generic local residue calculus): the `p0n22_cpf_*` family
-    # plus the headline, homed before engine chunk 3 so the ℙ¹ core imports it
-    # instead of re-transcribing. Appended last so no earlier last-name match can
-    # flip. `Defs/PushPull.lean`'s `ord_nonneg_of_mem`/`mem_of_ord_nonneg`/
-    # `mem_iff_ord_nonneg` are imported, not re-proved.
-    "FLTForHuman/AlgebraicCurve/LocalResidue/Calculus.lean",
+    # --- P3.2d′ (the generic local residue calculus): the char-free toolkit plus the
+    # headline, homed before engine chunk 3 so the ℙ¹ core imports it instead of
+    # re-transcribing. `Defs/PushPull.lean`'s `ord_nonneg_of_mem`/`mem_of_ord_nonneg`/
+    # `mem_iff_ord_nonneg` are imported, not re-proved. `LocalResidue/Calculus.lean` has
+    # since been handed over to `spec/check_port.py` (its `spec-pin:` wire checks
+    # 32 ok / 0 / 0). Do not re-list it here.
     # --- P3.2f: the atom-2 two-place cancellation tail (see the `SOURCES` note
     # above). Appended last so no earlier last-name match can flip.
     "FLTForHuman/AlgebraicCurve/P1/TwoPlace.lean",
@@ -4070,7 +4072,8 @@ PORT_FILES = [
     # `kwHgfV352_localResidueCompletion_{spec,algebraMap}₀` bridges restate the
     # DivPow copies about the public `Defs/TateResidueCurrency.lean` def. Appended
     # last so no earlier last-name match can flip.
-    "FLTForHuman/AlgebraicCurve/P1/DivPowEnding.lean",
+    # --- `FLTForHuman/AlgebraicCurve/P1/DivPowEnding.lean` is handed over to `spec/check_port.py`: its `spec-pin:` wire
+    # checks 2 ok / 0 mismatch / 0 missing. Do not re-list it here.
     # --- P3.2f/P3.2g: the perfect-field base case `residueTheorem_ratFunc_of_perfectField`.
     # The pin's 38-declaration tail (the `K →ₗ[K] K` residue functional, the
     # kernel/subrow assembly, the `MOne`/`MGeTwo` reduction and the perfect-field
@@ -4090,14 +4093,16 @@ PORT_FILES = [
     # engine (`KCotrace.lean`) and the residue-theorem assembly + public headline
     # (`KFamily.lean`). Statements are the pin's; the wrapper headlines are verbatim
     # from their `Thm_` files. Appended last so no earlier last-name match can flip.
-    "FLTForHuman/AlgebraicCurve/ResidueTheorem/KRatFunc.lean",
+    # --- `FLTForHuman/AlgebraicCurve/ResidueTheorem/KRatFunc.lean` is handed over to `spec/check_port.py`: its `spec-pin:` wire
+    # checks 1 ok / 0 mismatch / 0 missing. Do not re-list it here.
     # --- P3.7 (row 3.7, the RR assembly against the K ending) ---
-    # The K-route chain over the phase-1 engine (`Genus/Index.lean`,
-    # `Genus/Stichtenoth.lean`, `RiemannRoch/Assembly.lean`) plus the
-    # `ModularCurve.p0n20_*`/`p0n25_wkc_*` assembly and the public headline.
-    # Statements are the pin's, transcribed against the port's phase-1 names.
-    # Appended last so no earlier last-name match can flip.
-    "FLTForHuman/AlgebraicCurve/ResidueTheorem/RRAssembly.lean",
+    # `ResidueTheorem/RRAssembly.lean` (the K-route chain over the phase-1 engine
+    # `Genus/Index.lean`/`Genus/Stichtenoth.lean`/`RiemannRoch/Assembly.lean`, the
+    # `ModularCurve.p0n20_*`/`p0n25_wkc_*` assembly, the public headline, and the
+    # bare-hypothesis wrapper `functionFieldRiemannRoch_of_isAlgClosed_of_transcendental`
+    # landed 2026-10-23) has been handed over to `spec/check_port.py`: its seven pin
+    # sources are named by `spec-pin:` lines in the module itself, and it checks
+    # 42 ok / 0 mismatch / 0 missing / 0 own. Do not re-list it here.
     # --- P3.7b (the K-route general `ResidueTheorem`) ---
     # `ResidueTheorem/GeneralFromK.lean`: the bridge `residueTheorem_of_residueTheoremK`
     # and the algebraically-closed general headline `residueTheorem_of_isAlgClosed`.
@@ -4509,7 +4514,8 @@ PORT_FILES = [
     # no earlier last-name match can flip.
     "FLTForHuman/AlgebraicCurve/Differential/Hurwitz.lean",
     "FLTForHuman/AlgebraicCurve/Differential/Generation.lean",
-    "FLTForHuman/AlgebraicCurve/Genus/RatFunc.lean",
+    # --- `FLTForHuman/AlgebraicCurve/Genus/RatFunc.lean` is handed over to `spec/check_port.py`: its `spec-pin:` wire
+    # checks 7 ok / 0 mismatch / 0 missing. Do not re-list it here.
     # --- SET-H-A (`topics/hecke/TOPIC-xH-hecke-diamond-inputs.md`): the `X_H(M)`
     # definition layer. The pin's `Groups` block is the ported `CohCarrier` Γ_H
     # vocabulary; these three modules are the `FunctionField`/`Bar` block, the

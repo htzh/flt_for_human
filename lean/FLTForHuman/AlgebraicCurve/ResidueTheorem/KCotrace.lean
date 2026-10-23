@@ -28,6 +28,9 @@ import FLTForHuman.AlgebraicCurve.LocalResidue.Instance
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false
+-- The pin's `haveI` instance walls are transcribed verbatim; the style linter
+-- flags the pin, not the port.
+set_option linter.style.haveILetI false
 
 open KaehlerDifferential LinearMap Submodule
 open WithZero
@@ -313,7 +316,11 @@ theorem surjective_mapBaseChange_of_formallyUnramified [Algebra.FormallyUnramifi
   rw [← LinearMap.range_eq_top, KaehlerDifferential.range_mapBaseChange]
   exact LinearMap.ker_eq_top.mpr (Subsingleton.elim _ _)
 
-/-- (pin 4804) Formally unramified gives a nonvanishing cotrace witness. -/
+set_option linter.deprecated false in
+/-- (pin 4804) Formally unramified gives a nonvanishing cotrace witness.  The `t`-induction
+uses mathlib's `TensorProduct.induction_on`, deprecated in favour of
+`TensorProduct.inductionOn`, whose alternative names (`zero`/`tmul`/`add`) the pin's proof
+relies on; the migration is deferred and scoped here so a new deprecation still surfaces. -/
 theorem exists_kaehlerCotrace_ne_zero_of_formallyUnramified
     [Algebra.FormallyUnramified E F] [Nontrivial Ω[F⁄K]] :
     ∃ ωE : Ω[E⁄K], kaehlerCotrace K E F ωE ≠ 0 := by

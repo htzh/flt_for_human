@@ -18,6 +18,8 @@ first is dropped (PORTING-RR §3 name policy).
 `P1/DivPow.lean` about the public `localResidueCompletion` of
 `Defs/TateResidueCurrency.lean`; the P3.2f/3.3 `private` `…_spec₀`/`…_algebraMap₀`
 re-landings were deleted in the P3.2 refactor round (R5).
+
+  spec-pin: P2M/Sol/S_AlgebraicCurve_RationalFunctionField_trace_localResidue_finitePlace_div_pow_eq_zero.lean
 -/
 import FLTForHuman.AlgebraicCurve.P1.DivPow
 import FLTForHuman.AlgebraicCurve.Tate.TraceCompletionCommute
@@ -32,10 +34,13 @@ open AlgebraicCurve
 
 namespace AlgebraicCurve
 
-open RationalFunctionField
+open _root_.AlgebraicCurve.RationalFunctionField
 
 set_option autoImplicit false
 set_option synthInstance.maxSize 4096
+-- The pin's `haveI` instance walls are transcribed verbatim; the style linter
+-- flags the pin, not the port.
+set_option linter.style.haveILetI false
 
 
 section SurjectiveResidueField
@@ -177,7 +182,7 @@ theorem trace_localResidue_finitePlace_div_pow_eq_zero
   have htord : v0.ord t = 1 := by
     rw [hv0, ht, ← RatFunc.algebraMap_X, ord_placeOfPoint_algebraMap 0 Polynomial.X_ne_zero]
     have h := (Polynomial.rootMultiplicity_X_sub_C : Polynomial.rootMultiplicity (0 : K) (X - C 0) = _)
-    rw [map_zero, sub_zero, if_pos rfl] at h
+    rw [map_zero, sub_zero, ite_eq_left rfl] at h
     exact_mod_cast h
   obtain ⟨n, rfl⟩ : ∃ n, m = n + 1 := ⟨m - 1, by omega⟩
   have hC1 := AlgebraicCurve.Place.CanonicalLocalResidueDataK.res_differentialCoeff_D_mul_pow_inv_eq_zero_of_surjective_algebraMap

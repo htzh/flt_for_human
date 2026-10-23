@@ -7,8 +7,8 @@ The Riemann–Roch assembly against the K ending, after FLT's
 The public headline is `AlgebraicCurve.functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed`,
 spelled verbatim from its `Theorems/` wrapper; `hRTK : ResidueTheoremK K F` stays a
 hypothesis (row 6's `AlgebraicCurve.residueTheoremK_of_isAlgClosed` is the producer).
-The proof is the pin's `solution`, reaching `ModularCurve.p0n20_rr_constantsAreBase_of_isAlgClosed`
-(pin 5931) and the `p0n25_wkc_*` `MirrorAssembly` block (pin 5971–6257).
+The proof is the pin's `solution`, reaching `AlgebraicCurve.constantsAreBase_of_isAlgClosed`
+(pin 5931) and the `wkc_*` `MirrorAssembly` block (pin 5971–6257).
 
 The mathematics is the phase-1 Riemann–Roch engine under its phase-1 names
 (`Defs/RiemannRochRows.lean` predicates and bridges, `Genus/Index.lean`,
@@ -17,8 +17,35 @@ Weil-differential layer already public in `Defs/LocalResidue.lean`. The K-route 
 this file adds is adapter-shaped over those; the audit is
 `topics/riemannRoch/AUDIT-mathlib-p3-7.md`.
 
+The pin's auto-generated part numbers are dropped from the port's declaration names:
+what remains of the label (`rr_`, `wkc_`) is the pin's own subject tag. No source of
+truth is lost to the rename — `spec/decl_markers.tsv` records every pin original by name
+and line, and the checker diffs these declarations through those rows.
+
+The bare-hypothesis wrapper
+`AlgebraicCurve.functionFieldRiemannRoch_of_isAlgClosed_of_transcendental` is landed last,
+directly after the curve-package form it applies. It is Riemann–Roch for a one-variable
+function field given only by a transcendental generator — the curve package
+(`IsCurveOver`, the canonical divisor, `DCoordGenerates`, the `RatFunc` tower) derived
+rather than assumed. Sixteen pin consumers state against exactly this interface (each
+carries `hfg : ∃ x, Transcendental K x ∧ FiniteDimensional (K⟮x⟯) F`), so it is the
+deduplication that keeps them from each re-deriving the same instance plumbing, not new
+mathematics: the proof is the pin's `solution` body over premises already public here
+and in `IsCurveOver/{Transcendental,EssFiniteType}.lean`, and the statement is the
+wrapper's verbatim. Axioms `[propext, Classical.choice, Quot.sound]`.
+
 Promotion debt: the pin-private `Place.exists_trace_residue_ne_zero` (pin 4863) lives
 `private` in the frozen `Defs/WeilOfKaehler.lean`; re-provisioned `private` here.
+
+  spec-pin: Theorems/Thm_AlgebraicCurve_functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed.lean
+  spec-pin: Theorems/Thm_AlgebraicCurve_constantsAreBase_of_isAlgClosed.lean
+  spec-pin: Theorems/Thm_AlgebraicCurve_ell_canonicalDivisor_eq_genus_of_riemannRoch.lean
+  spec-pin: Theorems/Thm_AlgebraicCurve_genus_eq_genusFF.lean
+  spec-pin: Theorems/Thm_AlgebraicCurve_functionFieldRiemannRoch_of_isAlgClosed.lean
+  spec-pin: Theorems/Thm_AlgebraicCurve_functionFieldRiemannRoch_of_isAlgClosed_of_isCurveOver.lean
+  spec-pin: Theorems/Thm_AlgebraicCurve_functionFieldRiemannRoch_of_isAlgClosed_of_transcendental.lean
+  spec-pin: P2M/Sol/S_AlgebraicCurve_functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed.lean
+  spec-pin: P2M/Sol/S_AlgebraicCurve_functionFieldRiemannRoch_of_isAlgClosed_of_transcendental.lean
 -/
 import FLTForHuman.AlgebraicCurve.Defs.WeilOfKaehler
 import FLTForHuman.AlgebraicCurve.Defs.PushPull
@@ -28,11 +55,20 @@ import FLTForHuman.AlgebraicCurve.Defs.PoleDivisorPackage
 import FLTForHuman.AlgebraicCurve.Genus.Index
 import FLTForHuman.AlgebraicCurve.Genus.Stichtenoth
 import FLTForHuman.AlgebraicCurve.RiemannRoch.Assembly
+import FLTForHuman.AlgebraicCurve.IsCurveOver.EssFiniteType
+import FLTForHuman.AlgebraicCurve.IsCurveOver.Transcendental
 import FLTForHuman.AlgebraicCurve.LocalResidue.Instance
 import FLTForHuman.AlgebraicCurve.ResidueTheorem.KFamily
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false
+-- Pin-shaped instance binders: `functionFieldRiemannRoch_of_isAlgClosed*` and
+-- `residuePairingSurjective_of_riemannIndexFormula` list their instances out, and those
+-- binders are part of the statement `spec/check_port.py` diffs — dropping a redundant one
+-- would be a `MISMATCH` against the pin, not a cleanup. Measured: removing this line
+-- brings back exactly four warnings and changes nothing else.
+set_option linter.overlappingInstances false
+
 
 noncomputable section
 
@@ -157,7 +193,7 @@ theorem riemannIndexFormula_of_genusReached
     RiemannIndexFormula K F := by
   intro _ _ D
   obtain ⟨hne, hL0, D₀, hD₀⟩ := hg
-  haveI := hne; haveI := hL0
+  have := hne; have := hL0
   exact (indexOfSpecialty_eq_of_genusReached hD₀ D).2
 
 /-- The pin's `AlgebraicCurve.degree_add_one_sub_genus_le_ell_of_riemannIndexFormula`
@@ -181,7 +217,7 @@ theorem omegaSpace_finite_of_riemannIndexFormula
     have hi := hRI D
     have h0' : (0 : ℤ) < (indexOfSpecialty D : ℤ) := by linarith
     exact_mod_cast h0'
-  haveI : Module.Finite K (adeleSpace K F ⧸ adeleBddPrincipal K F D) :=
+  have : Module.Finite K (adeleSpace K F ⧸ adeleBddPrincipal K F D) :=
     FiniteDimensional.of_finrank_pos h0
   exact Module.Finite.equiv (omegaSpaceEquivIndexDual D).symm
 
@@ -233,8 +269,8 @@ theorem exists_weilSmul_eq_of_riemannIndexFormula
     rw [hellD, hdegD]; push_cast; nlinarith
   have hellWDpos : 0 < Divisor.degree (W - D) + 1 - (genus K F : ℤ) := by
     rw [hdegWD]; nlinarith
-  haveI := omegaSpace_finite_of_riemannIndexFormula hRI hiDpos
-  haveI := lSpace_finite_of_riemannIndexFormula hRI hellWDpos
+  have := omegaSpace_finite_of_riemannIndexFormula hRI hiDpos
+  have := lSpace_finite_of_riemannIndexFormula hRI hellWDpos
   have hdbl : (2 * ell (W - D) : ℤ) ≤ (indexOfSpecialty D : ℤ) := by
     exact_mod_cast two_mul_ell_le_indexOfSpecialty W D hφ hμ hφ0 hcon
   rw [hiD] at hdbl
@@ -280,7 +316,7 @@ theorem genus_eq_degree_div :
       genus K F = (Divisor.degree (canonicalDivisorOf hω₀) + 2).toNat / 2 := by
   have hne : ∃ ω : Ω[F⁄K], ω ≠ 0 := exists_ne 0
   refine ⟨hne.choose, hne.choose_spec, ?_⟩
-  rw [genus, dif_pos hne]
+  rw [genus, dite_eq_left hne]
 
 end GenusDegreeDiv
 
@@ -377,41 +413,45 @@ end Place
 
 end AlgebraicCurve
 
+open AlgebraicCurve
+
+/-! ## The constant-field statement
+
+The pin states `ConstantsAreBase` for an algebraically closed constant field twice: as the
+RR route's internal copy and as this public wrapper. The port keeps one, this copy — the
+stronger statement, since the internal one carries a `HasCanonicalLocalResidueKStar`
+hypothesis its proof never uses. Declared here because the `ModularCurve` assembly below
+consumes it; `dedup.py --tier shape` reported the pair before the merge. -/
+
+/-- Constants are the base field over an algebraically closed constant field (pin 5931). -/
+theorem AlgebraicCurve.constantsAreBase_of_isAlgClosed (K F : Type*) [Field K] [Field F] [Algebra K F]
+    [DecidableEq (RatFunc K)] [Algebra (RatFunc K) F] [IsScalarTower K (RatFunc K) F]
+    [FiniteDimensional (RatFunc K) F] [Algebra.IsSeparable (RatFunc K) F]
+    [IsAlgClosed K] [IsCurveOver K F] :
+    ConstantsAreBase K F := by
+  obtain ⟨v⟩ := RationalFunctionField.nonempty_place_of_ratFunc_tower K F
+  exact constantsAreBase_of_deg_eq_one v (IsCurveOver.deg_eq_one_of_isAlgClosed v)
+
 /-! ## The `ModularCurve` assembly (pin 5931 and 5971–6257) -/
 
 namespace ModularCurve
 
 open AlgebraicCurve
 
-section AlgClosedEngine
-
-variable (K F : Type*) [Field K] [Field F] [Algebra K F] [HasCanonicalLocalResidueKStar K F]
-variable [DecidableEq (RatFunc K)]
-variable [Algebra (RatFunc K) F] [IsScalarTower K (RatFunc K) F]
-variable [FiniteDimensional (RatFunc K) F] [Algebra.IsSeparable (RatFunc K) F]
-variable [IsAlgClosed K] [IsCurveOver K F]
-
-/-- The pin's `ModularCurve.p0n20_rr_constantsAreBase_of_isAlgClosed` (pin 5931). -/
-theorem p0n20_rr_constantsAreBase_of_isAlgClosed : ConstantsAreBase K F := by
-  obtain ⟨v⟩ := RationalFunctionField.nonempty_place_of_ratFunc_tower K F
-  exact constantsAreBase_of_deg_eq_one v (IsCurveOver.deg_eq_one_of_isAlgClosed v)
-
-end AlgClosedEngine
-
 section CanonicalProbe
 
 variable {K F : Type*} [Field K] [Field F] [Algebra K F] [HasCanonicalLocalResidueKStar K F]
 
-/-- The pin's `p0n25_wkc_kaehlerResidueTermKFam_single_of_ne` (pin 5971). -/
-theorem p0n25_wkc_kaehlerResidueTermKFam_single_of_ne
+/-- A single-place Kähler residue term vanishes away from its place (pin 5971). -/
+theorem wkc_kaehlerResidueTermKFam_single_of_ne
     (Rfam : ∀ v : Place K F, v.CanonicalLocalResidueDataK) (ω : Ω[F⁄K])
     {v : Place K F} (g : F) {w : Place K F} (hw : w ≠ v) :
     kaehlerResidueTermKFam Rfam ω (Pi.single v g) w = 0 := by
   rw [kaehlerResidueTermKFam_apply, Pi.single_eq_of_ne hw, zero_mul, _root_.map_zero,
     _root_.map_zero]
 
-/-- The pin's `p0n25_wkc_localResidueData_res_mul_uniformizer_inv` (pin 5977). -/
-theorem p0n25_wkc_localResidueData_res_mul_uniformizer_inv
+/-- The residue of `c * uniformizer⁻¹` is the residue of `c` (pin 5977). -/
+theorem wkc_localResidueData_res_mul_uniformizer_inv
     {v : Place K F} (R : v.LocalResidueData) (c : v.toValuationSubring) :
     R.res ((c : F) * v.uniformizer⁻¹) = IsLocalRing.residue _ c := by
   have hmul : v.uniformizer * ((c : F) * v.uniformizer⁻¹) = (c : F) := by
@@ -424,27 +464,27 @@ theorem p0n25_wkc_localResidueData_res_mul_uniformizer_inv
 
 variable [HasCanonicalDivisor (K := K) (F := F)] [∀ v : Place K F, v.DCoordGenerates]
 
-/-- The pin's `p0n25_wkc_weilOfKaehlerK_single` (pin 5992). -/
-theorem p0n25_wkc_weilOfKaehlerK_single
+/-- The Weil–Kähler functional on one adele: the trace of its local residue (pin 5992). -/
+theorem wkc_weilOfKaehlerK_single
     (Rfam : ∀ v : Place K F, v.CanonicalLocalResidueDataK)
     {ω : Ω[F⁄K]} (hω : ω ≠ 0) (v : Place K F) (g : F) :
     weilOfKaehlerK Rfam hω (adeleSingle v g)
       = Algebra.trace K v.ResidueField ((Rfam v).res (g * v.differentialCoeff ω)) := by
   rw [weilOfKaehlerK_apply, adeleSingle_coe]
   refine (finsum_eq_single _ v
-    fun w hw => p0n25_wkc_kaehlerResidueTermKFam_single_of_ne Rfam ω g hw).trans ?_
+    fun w hw => wkc_kaehlerResidueTermKFam_single_of_ne Rfam ω g hw).trans ?_
   rw [kaehlerResidueTermKFam_apply, Pi.single_eq_same]
 
-/-- The pin's `p0n25_wkc_weilOfKaehlerK_simplePoleProbe` (pin 6002). -/
-theorem p0n25_wkc_weilOfKaehlerK_simplePoleProbe
+/-- The simple-pole probe pairs to the trace of the residue class (pin 6002). -/
+theorem wkc_weilOfKaehlerK_simplePoleProbe
     (Rfam : ∀ v : Place K F, v.CanonicalLocalResidueDataK)
     {ω : Ω[F⁄K]} (hω : ω ≠ 0) (v : Place K F) (c : v.toValuationSubring) :
     weilOfKaehlerK Rfam hω (simplePoleProbe hω v c)
       = Algebra.trace K v.ResidueField (IsLocalRing.residue _ c) := by
   unfold simplePoleProbe
-  rw [p0n25_wkc_weilOfKaehlerK_single Rfam hω,
+  rw [wkc_weilOfKaehlerK_single Rfam hω,
     mul_assoc, inv_mul_cancel₀ (v.differentialCoeff_ne_zero hω), mul_one,
-    p0n25_wkc_localResidueData_res_mul_uniformizer_inv (Rfam v).toLocalResidueData c]
+    wkc_localResidueData_res_mul_uniformizer_inv (Rfam v).toLocalResidueData c]
 
 end CanonicalProbe
 
@@ -454,18 +494,18 @@ variable {K F : Type*} [Field K] [Field F] [Algebra K F] [HasCanonicalLocalResid
 variable [HasCanonicalDivisor (K := K) (F := F)] [∀ v : Place K F, v.DCoordGenerates]
 variable [Nontrivial Ω[F⁄K]]
 
-/-- The pin's `p0n25_wkc_weilOfKaehlerK_ne_zero` (pin 6020). -/
-theorem p0n25_wkc_weilOfKaehlerK_ne_zero [HasSeparableResidue K F] [Nonempty (Place K F)]
+/-- The Weil–Kähler functional is nonzero (pin 6020). -/
+theorem wkc_weilOfKaehlerK_ne_zero [HasSeparableResidue K F] [Nonempty (Place K F)]
     (Rfam : ∀ v : Place K F, v.CanonicalLocalResidueDataK)
     {ω : Ω[F⁄K]} (hω : ω ≠ 0) : weilOfKaehlerK Rfam hω ≠ 0 := by
   obtain ⟨v⟩ := ‹Nonempty (Place K F)›
   obtain ⟨c, hc⟩ := v.exists_trace_residue_ne_zero
   intro h
   apply hc
-  rw [← p0n25_wkc_weilOfKaehlerK_simplePoleProbe Rfam hω v c, h, LinearMap.zero_apply]
+  rw [← wkc_weilOfKaehlerK_simplePoleProbe Rfam hω v c, h, LinearMap.zero_apply]
 
-/-- The pin's `p0n25_wkc_trace_eq_zero_of_weilOfKaehlerK_mem` (pin 6029). -/
-theorem p0n25_wkc_trace_eq_zero_of_weilOfKaehlerK_mem
+/-- The trace form vanishes at a place where `D` lies below the pole divisor (pin 6029). -/
+theorem wkc_trace_eq_zero_of_weilOfKaehlerK_mem
     (Rfam : ∀ v : Place K F, v.CanonicalLocalResidueDataK)
     {ω : Ω[F⁄K]} (hω : ω ≠ 0) {D : Divisor K F}
     (hD : weilOfKaehlerK Rfam hω ∈ omegaSpace D)
@@ -473,11 +513,11 @@ theorem p0n25_wkc_trace_eq_zero_of_weilOfKaehlerK_mem
     (Algebra.trace K v.ResidueField : _ →ₗ[K] K) = 0 := by
   ext x
   obtain ⟨c, rfl⟩ := IsLocalRing.residue_surjective x
-  rw [LinearMap.zero_apply, ← p0n25_wkc_weilOfKaehlerK_simplePoleProbe Rfam hω v c]
+  rw [LinearMap.zero_apply, ← wkc_weilOfKaehlerK_simplePoleProbe Rfam hω v c]
   exact omegaSpace_vanishBdd hD (simplePoleProbe_mem_adeleBdd hω v c hDv)
 
-/-- The pin's `p0n25_wkc_weilOfKaehlerK_omegaSpace_le_canonical` (pin 6040). -/
-theorem p0n25_wkc_weilOfKaehlerK_omegaSpace_le_canonical [HasSeparableResidue K F]
+/-- A nonzero functional of `Ω(D)` forces `D ≤ (ω)` (pin 6040). -/
+theorem wkc_weilOfKaehlerK_omegaSpace_le_canonical [HasSeparableResidue K F]
     (Rfam : ∀ v : Place K F, v.CanonicalLocalResidueDataK)
     {ω : Ω[F⁄K]} (hω : ω ≠ 0) {D : Divisor K F}
     (hD : weilOfKaehlerK Rfam hω ∈ omegaSpace D) :
@@ -485,7 +525,7 @@ theorem p0n25_wkc_weilOfKaehlerK_omegaSpace_le_canonical [HasSeparableResidue K 
   intro v
   rcases le_or_gt (D v) (canonicalDivisorOf hω v) with h | h
   · exact h
-  · exact absurd (p0n25_wkc_trace_eq_zero_of_weilOfKaehlerK_mem Rfam hω hD h)
+  · exact absurd (wkc_trace_eq_zero_of_weilOfKaehlerK_mem Rfam hω hD h)
       (HasSeparableResidue.trace_ne_zero v)
 
 end CanonicalNonvanishingMaximality
@@ -496,17 +536,17 @@ variable {K F : Type*} [Field K] [Field F] [Algebra K F] [HasCanonicalLocalResid
 variable [HasCanonicalDivisor (K := K) (F := F)] [∀ v : Place K F, v.DCoordGenerates]
 variable [Nontrivial Ω[F⁄K]]
 
-/-- The pin's `p0n25_wkc_exists_weilMax_of_residueTheoremK` (pin 6059). -/
-theorem p0n25_wkc_exists_weilMax_of_residueTheoremK
+/-- Weil maximality of the canonical divisor, from the K residue theorem (pin 6059). -/
+theorem wkc_exists_weilMax_of_residueTheoremK
     [HasSeparableResidue K F] [Nonempty (Place K F)] [HasPrincipalDivisors K F]
     (hRTK : ResidueTheoremK K F) {ω : Ω[F⁄K]} (hω : ω ≠ 0) :
     ∃ φ : Module.Dual K (adeleSpace K F), φ ≠ 0 ∧
       φ ∈ omegaSpace (canonicalDivisorOf hω) ∧
       ∀ D : Divisor K F, φ ∈ omegaSpace D → D ≤ canonicalDivisorOf hω :=
   ⟨weilOfKaehlerK (fun v => v.canonicalLocalResidueDataKOfExtend) hω,
-    p0n25_wkc_weilOfKaehlerK_ne_zero _ hω,
+    wkc_weilOfKaehlerK_ne_zero _ hω,
     weilOfKaehlerK_mem_omegaSpace_of_residueTheoremK hRTK _ hω,
-    fun _ hD => p0n25_wkc_weilOfKaehlerK_omegaSpace_le_canonical _ hω hD⟩
+    fun _ hD => wkc_weilOfKaehlerK_omegaSpace_le_canonical _ hω hD⟩
 
 end CanonicalSupply
 
@@ -517,9 +557,8 @@ variable [IsCurveOver K F] [HasCanonicalDivisor (K := K) (F := F)]
 variable [∀ v : Place K F, v.DCoordGenerates]
 variable [Nonempty (Place K F)] [FiniteDimensional K (LSpace (0 : Divisor K F))]
 
-/-- The pin's `p0n25_wkc_finrank_omegaSpace_eq_ell_of_genusReached_of_weilMax`
-(pin 6080). -/
-theorem p0n25_wkc_finrank_omegaSpace_eq_ell_of_genusReached_of_weilMax
+/-- `dim Ω(D) = ℓ((ω) - D)` from a maximal functional and a reached genus (pin 6080). -/
+theorem wkc_finrank_omegaSpace_eq_ell_of_genusReached_of_weilMax
     {γ : ℤ} {D₀ : Divisor K F} (h : RiemannGenusReachedAt γ D₀)
     {ω : Ω[F⁄K]} (hω : ω ≠ 0)
     {φ : Module.Dual K (adeleSpace K F)} (hne : φ ≠ 0)
@@ -532,8 +571,8 @@ theorem p0n25_wkc_finrank_omegaSpace_eq_ell_of_genusReached_of_weilMax
     (weilDifferentialRankOne_of_genusReached h) hmem hne hmax D
   exact (LinearEquiv.ofBijective _ ⟨hinj, hsurj⟩).finrank_eq.symm
 
-/-- The pin's `p0n25_wkc_ell_canonicalDivisor_eq_gamma_of_weilMax` (pin 6093). -/
-theorem p0n25_wkc_ell_canonicalDivisor_eq_gamma_of_weilMax
+/-- `ℓ((ω)) = γ` from the maximal-functional hypothesis (pin 6093). -/
+theorem wkc_ell_canonicalDivisor_eq_gamma_of_weilMax
     {γ : ℤ} {D₀ : Divisor K F} (h : RiemannGenusReachedAt γ D₀)
     (hsup : ∀ {ω : Ω[F⁄K]} (hω : ω ≠ 0), ∃ φ : Module.Dual K (adeleSpace K F),
       φ ≠ 0 ∧ φ ∈ omegaSpace (canonicalDivisorOf hω) ∧
@@ -541,7 +580,7 @@ theorem p0n25_wkc_ell_canonicalDivisor_eq_gamma_of_weilMax
     (hC : ConstantsAreBase K F) {ω : Ω[F⁄K]} (hω : ω ≠ 0) :
     (ell (canonicalDivisorOf hω) : ℤ) = γ := by
   obtain ⟨φ, hne, hmem, hmax⟩ := hsup hω
-  have hΩ0 := p0n25_wkc_finrank_omegaSpace_eq_ell_of_genusReached_of_weilMax
+  have hΩ0 := wkc_finrank_omegaSpace_eq_ell_of_genusReached_of_weilMax
     h hω hne hmem hmax 0
   rw [sub_zero] at hΩ0
   have hi0 := (indexOfSpecialty_eq_of_genusReached h 0).2
@@ -550,8 +589,8 @@ theorem p0n25_wkc_ell_canonicalDivisor_eq_gamma_of_weilMax
   push_cast at hi0
   linarith
 
-/-- The pin's `p0n25_wkc_degree_canonicalDivisor_eq_of_weilMax` (pin 6110). -/
-theorem p0n25_wkc_degree_canonicalDivisor_eq_of_weilMax
+/-- `deg((ω)) = 2γ - 2` from the same hypothesis (pin 6110). -/
+theorem wkc_degree_canonicalDivisor_eq_of_weilMax
     {γ : ℤ} {D₀ : Divisor K F} (h : RiemannGenusReachedAt γ D₀)
     (hsup : ∀ {ω : Ω[F⁄K]} (hω : ω ≠ 0), ∃ φ : Module.Dual K (adeleSpace K F),
       φ ≠ 0 ∧ φ ∈ omegaSpace (canonicalDivisorOf hω) ∧
@@ -559,18 +598,18 @@ theorem p0n25_wkc_degree_canonicalDivisor_eq_of_weilMax
     (hC : ConstantsAreBase K F) {ω : Ω[F⁄K]} (hω : ω ≠ 0) :
     Divisor.degree (canonicalDivisorOf hω) = 2 * γ - 2 := by
   obtain ⟨φ, hne, hmem, hmax⟩ := hsup hω
-  have hΩW := p0n25_wkc_finrank_omegaSpace_eq_ell_of_genusReached_of_weilMax
+  have hΩW := wkc_finrank_omegaSpace_eq_ell_of_genusReached_of_weilMax
     h hω hne hmem hmax (canonicalDivisorOf hω)
   rw [sub_self] at hΩW
   have hiW := (indexOfSpecialty_eq_of_genusReached h (canonicalDivisorOf hω)).2
   rw [← finrank_omegaSpace_eq_indexOfSpecialty, hΩW,
     ell_zero_eq_one_of_constantsAreBase hC] at hiW
-  have hℓW := p0n25_wkc_ell_canonicalDivisor_eq_gamma_of_weilMax h hsup hC hω
+  have hℓW := wkc_ell_canonicalDivisor_eq_gamma_of_weilMax h hsup hC hω
   push_cast at hiW
   linarith
 
-/-- The pin's `p0n25_wkc_stichtenothGenus_eq_genus_of_weilMax` (pin 6128). -/
-theorem p0n25_wkc_stichtenothGenus_eq_genus_of_weilMax
+/-- The Stichtenoth genus `γ` is `genus` (pin 6128). -/
+theorem wkc_stichtenothGenus_eq_genus_of_weilMax
     {γ : ℤ} {D₀ : Divisor K F} (h : RiemannGenusReachedAt γ D₀)
     (hsup : ∀ {ω : Ω[F⁄K]} (hω : ω ≠ 0), ∃ φ : Module.Dual K (adeleSpace K F),
       φ ≠ 0 ∧ φ ∈ omegaSpace (canonicalDivisorOf hω) ∧
@@ -578,7 +617,7 @@ theorem p0n25_wkc_stichtenothGenus_eq_genus_of_weilMax
     (hC : ConstantsAreBase K F) :
     γ = (genus K F : ℤ) := by
   obtain ⟨ω₀, hω₀, hgen⟩ := genus_eq_degree_div (K := K) (F := F)
-  have hdeg := p0n25_wkc_degree_canonicalDivisor_eq_of_weilMax h hsup hC hω₀
+  have hdeg := wkc_degree_canonicalDivisor_eq_of_weilMax h hsup hC hω₀
   have hγ0 := stichtenothGenus_nonneg h hC
   rw [hgen, hdeg]
   have h2 : (2 * γ - 2 + 2).toNat / 2 = γ.toNat := by omega
@@ -596,21 +635,21 @@ variable [FiniteDimensional (RatFunc K) F] [Algebra.IsSeparable (RatFunc K) F]
 variable [IsCurveOver K F] [HasCanonicalDivisor (K := K) (F := F)]
 variable [∀ v : Place K F, v.DCoordGenerates]
 
-/-- The pin's `p0n25_wkc_riemannGenusReached_of_weilMax` (pin 6155). -/
-theorem p0n25_wkc_riemannGenusReached_of_weilMax
+/-- `RiemannGenusReachedAt` at `genus`, from the maximal-functional hypothesis (pin 6155). -/
+theorem wkc_riemannGenusReached_of_weilMax
     (hsup : ∀ {ω : Ω[F⁄K]} (hω : ω ≠ 0), ∃ φ : Module.Dual K (adeleSpace K F),
       φ ≠ 0 ∧ φ ∈ omegaSpace (canonicalDivisorOf hω) ∧
       ∀ D : Divisor K F, φ ∈ omegaSpace D → D ≤ canonicalDivisorOf hω)
     (hC : ConstantsAreBase K F) :
     RiemannGenusReached K F (genus K F) := by
   obtain ⟨hne, hL0, γ, D₀, hD₀⟩ := RationalFunctionField.stichtenothGenusExists K F hC
-  haveI := hne
-  haveI := hL0
-  have hγeq := p0n25_wkc_stichtenothGenus_eq_genus_of_weilMax hD₀ hsup hC
+  have := hne
+  have := hL0
+  have hγeq := wkc_stichtenothGenus_eq_genus_of_weilMax hD₀ hsup hC
   exact ⟨hne, hL0, D₀, hγeq ▸ hD₀⟩
 
-/-- The pin's `p0n25_wkc_riemannIndexFormula_of_weilMax` (pin 6167). -/
-theorem p0n25_wkc_riemannIndexFormula_of_weilMax
+/-- The Riemann index formula from the maximal-functional hypothesis (pin 6167). -/
+theorem wkc_riemannIndexFormula_of_weilMax
     (hsup : ∀ {ω : Ω[F⁄K]} (hω : ω ≠ 0), ∃ φ : Module.Dual K (adeleSpace K F),
       φ ≠ 0 ∧ φ ∈ omegaSpace (canonicalDivisorOf hω) ∧
       ∀ D : Divisor K F, φ ∈ omegaSpace D → D ≤ canonicalDivisorOf hω)
@@ -618,10 +657,10 @@ theorem p0n25_wkc_riemannIndexFormula_of_weilMax
     RiemannIndexFormula K F := by
   refine riemannIndexFormula_of_genusReached ?_
   intro _ _
-  exact p0n25_wkc_riemannGenusReached_of_weilMax K F hsup hC
+  exact wkc_riemannGenusReached_of_weilMax K F hsup hC
 
-/-- The pin's `p0n25_wkc_weilOmegaEllAgrees_of_weilMax` (pin 6177). -/
-theorem p0n25_wkc_weilOmegaEllAgrees_of_weilMax [Nonempty (Place K F)]
+/-- `Ω(D)` and `ℓ` agree on the canonical side (pin 6177). -/
+theorem wkc_weilOmegaEllAgrees_of_weilMax [Nonempty (Place K F)]
     (hRI : RiemannIndexFormula K F)
     (hsup : ∀ {ω : Ω[F⁄K]} (hω : ω ≠ 0), ∃ φ : Module.Dual K (adeleSpace K F),
       φ ≠ 0 ∧ φ ∈ omegaSpace (canonicalDivisorOf hω) ∧
@@ -636,33 +675,32 @@ theorem p0n25_wkc_weilOmegaEllAgrees_of_weilMax [Nonempty (Place K F)]
   exact_mod_cast (LinearEquiv.ofBijective
     (residuePairing K F (canonicalDivisorOf hω) D hmem) ⟨hinj, hsurj⟩).finrank_eq.symm
 
-/-- The pin's `p0n25_wkc_functionFieldRiemannRoch_of_weilMax_of_constantsAreBase`
-(pin 6192). -/
-theorem p0n25_wkc_functionFieldRiemannRoch_of_weilMax_of_constantsAreBase
+/-- Riemann–Roch from Weil maximality and `ConstantsAreBase` (pin 6192). -/
+theorem wkc_functionFieldRiemannRoch_of_weilMax_of_constantsAreBase
     (hsup : ∀ {ω : Ω[F⁄K]} (hω : ω ≠ 0), ∃ φ : Module.Dual K (adeleSpace K F),
       φ ≠ 0 ∧ φ ∈ omegaSpace (canonicalDivisorOf hω) ∧
       ∀ D : Divisor K F, φ ∈ omegaSpace D → D ≤ canonicalDivisorOf hω)
     (hC : ConstantsAreBase K F) :
     FunctionFieldRiemannRoch K F := by
   have hRI : RiemannIndexFormula K F :=
-    p0n25_wkc_riemannIndexFormula_of_weilMax K F hsup hC
-  haveI := RationalFunctionField.nonempty_place_of_ratFunc_tower K F
+    wkc_riemannIndexFormula_of_weilMax K F hsup hC
+  have := RationalFunctionField.nonempty_place_of_ratFunc_tower K F
   have hΩℓ : WeilOmegaEllAgrees K F :=
-    p0n25_wkc_weilOmegaEllAgrees_of_weilMax K F hRI hsup
+    wkc_weilOmegaEllAgrees_of_weilMax K F hRI hsup
   have hWDA : WeilDualityAdelic K F := weilDualityAdelic_of_residueRows K F hΩℓ
   have hWD : WeilDuality K F := weilDuality_of_riemannIndex_of_adelic K F hRI hWDA
   intro _ _ _ ω hω D
   exact functionFieldRiemannRoch_of_riemann_and_duality K F hWD hω D
 
-/-- The pin's `p0n25_wkc_functionFieldRiemannRoch_of_residueTheoremK` (pin 6208). -/
-theorem p0n25_wkc_functionFieldRiemannRoch_of_residueTheoremK
+/-- Riemann–Roch from the K residue theorem and `ConstantsAreBase` (pin 6208). -/
+theorem wkc_functionFieldRiemannRoch_of_residueTheoremK
     [HasSeparableResidue K F]
     (hRTK : ResidueTheoremK K F) (hC : ConstantsAreBase K F) :
     FunctionFieldRiemannRoch K F := by
-  haveI := RationalFunctionField.nonempty_place_of_ratFunc_tower K F
+  have := RationalFunctionField.nonempty_place_of_ratFunc_tower K F
   intro _ _ _ ω hω D
-  exact p0n25_wkc_functionFieldRiemannRoch_of_weilMax_of_constantsAreBase K F
-    (fun {ω'} hω' => p0n25_wkc_exists_weilMax_of_residueTheoremK hRTK hω') hC hω D
+  exact wkc_functionFieldRiemannRoch_of_weilMax_of_constantsAreBase K F
+    (fun {ω'} hω' => wkc_exists_weilMax_of_residueTheoremK hRTK hω') hC hω D
 
 end MirrorAssembly
 
@@ -689,8 +727,8 @@ theorem AlgebraicCurve.functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClose
     (hRTK : AlgebraicCurve.ResidueTheoremK K F) :
     AlgebraicCurve.FunctionFieldRiemannRoch K F := by
   intro _ _ _
-  exact ModularCurve.p0n25_wkc_functionFieldRiemannRoch_of_residueTheoremK K F
-    (hRTK := hRTK) (hC := ModularCurve.p0n20_rr_constantsAreBase_of_isAlgClosed K F)
+  exact ModularCurve.wkc_functionFieldRiemannRoch_of_residueTheoremK K F
+    (hRTK := hRTK) (hC := AlgebraicCurve.constantsAreBase_of_isAlgClosed K F)
 
 /-! ## The `ℙ¹` `genusFF` closure (ds-head rider)
 
@@ -719,7 +757,7 @@ theorem AlgebraicCurve.genus_eq_genusFF
     (hRR : FunctionFieldRiemannRoch K F) (hWDA : WeilDualityAdelic K F)
     (hC : ConstantsAreBase K F) :
     genus K F = genusFF K F := by
-  haveI : HasPrincipalDivisors K F := IsCurveOver.hasPrincipalDivisors
+  have : HasPrincipalDivisors K F := IsCurveOver.hasPrincipalDivisors
   obtain ⟨ω, hω⟩ := exists_ne (0 : Ω[F⁄K])
   have h1 : (indexOfSpecialty (0 : Divisor K F) : ℤ) = (ell (canonicalDivisorOf hω - 0) : ℤ) :=
     hWDA hω 0
@@ -733,13 +771,6 @@ theorem AlgebraicCurve.genus_eq_genusFF
   have : (genus K F : ℤ) = (genusFF K F : ℤ) := by
     rw [← h4, h1, h2]
   exact_mod_cast this
-
-theorem AlgebraicCurve.constantsAreBase_of_isAlgClosed (K F : Type*) [Field K] [Field F] [Algebra K F]
-    [DecidableEq (RatFunc K)] [Algebra (RatFunc K) F] [IsScalarTower K (RatFunc K) F]
-    [FiniteDimensional (RatFunc K) F] [Algebra.IsSeparable (RatFunc K) F]
-    [IsAlgClosed K] [IsCurveOver K F] :
-    ConstantsAreBase K F :=
-  ModularCurve.p0n20_rr_constantsAreBase_of_isAlgClosed K F
 
 theorem AlgebraicCurve.functionFieldRiemannRoch_of_isAlgClosed
     {K F : Type*} [Field K] [IsAlgClosed K] [DecidableEq (RatFunc K)]
@@ -773,9 +804,81 @@ theorem AlgebraicCurve.functionFieldRiemannRoch_of_isAlgClosed_of_isCurveOver
     [Nontrivial Ω[(RatFunc K)⁄K]] [∀ v : Place K (RatFunc K), v.DCoordGenerates]
     [FiniteDimensional (RatFunc K) F] :
     FunctionFieldRiemannRoch K F := by
-  haveI : HasCanonicalLocalResidueKStar K F := instHasCanonicalLocalResidueKStar
-  haveI : HasSeparableResidue K F := HasSeparableResidue.of_perfectField_of_isCurveOver
+  have : HasCanonicalLocalResidueKStar K F := instHasCanonicalLocalResidueKStar
+  have : HasSeparableResidue K F := HasSeparableResidue.of_perfectField_of_isCurveOver
   intro _ _ _ ω hω D
   exact functionFieldRiemannRoch_of_isAlgClosed (K := K) (F := F) hω D
+
+/-! ## The bare-hypothesis wrapper
+
+Riemann–Roch from a transcendental generator alone, the curve package derived. This is
+the interface sixteen pin consumers state against (`hfg : ∃ x, Transcendental K x ∧
+FiniteDimensional (K⟮x⟯) F`), so it is the adapter between
+`functionFieldRiemannRoch_of_isAlgClosed_of_isCurveOver` above and their hypotheses.
+The proof is the pin's `solution` verbatim: a separating `t` over the algebraically
+closed base, the curve package from it, then the `RatFunc`-tower transport of
+`IsCurveOver/Transcendental.lean`'s pattern (`hsq`, `IsScalarTower.of_algebraMap_eq`,
+`Module.Finite.of_equiv_equiv`, `Algebra.IsSeparable.of_equiv_equiv`). -/
+
+/-- **Riemann–Roch over an algebraically closed constant field, from a transcendental
+generator.**  Verbatim from
+`Theorems/Thm_AlgebraicCurve_functionFieldRiemannRoch_of_isAlgClosed_of_transcendental.lean`;
+the proof is `S_AlgebraicCurve_functionFieldRiemannRoch_of_isAlgClosed_of_transcendental.solution`. -/
+theorem AlgebraicCurve.functionFieldRiemannRoch_of_isAlgClosed_of_transcendental
+    {K F : Type*} [Field K] [IsAlgClosed K] [Field F] [Algebra K F]
+    {x : F} (htr : Transcendental K x)
+    (hfd : FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F) :
+    AlgebraicCurve.FunctionFieldRiemannRoch K F := by
+  classical
+  have : PerfectField K := IsAlgClosed.perfectField K
+  obtain ⟨t, ht, htfd, htsep⟩ :=
+    exists_separating_transcendental_of_perfectField htr hfd
+  have := htfd
+  have := htsep
+  have : IsCurveOver K F := isCurveOver_of_transcendental ht htfd htsep
+  have : Algebra.EssFiniteType K F :=
+    essFiniteType_of_transcendental_of_finiteDimensional ht htfd
+  have : HasCanonicalDivisor (K := K) (F := F) := hasCanonicalDivisor_of_isCurveOver
+  have : ∀ w : Place K F, w.DCoordGenerates := dCoordGenerates_of_isCurveOver
+  set e : RatFunc K ≃ₐ[K] IntermediateField.adjoin K ({t} : Set F) :=
+    RatFunc.algEquivOfTranscendental t ht with he
+  let : Algebra (RatFunc K) F :=
+    ((algebraMap (IntermediateField.adjoin K ({t} : Set F)) F).comp
+      e.toAlgHom.toRingHom).toAlgebra
+  have hsq : RingHom.comp (algebraMap (RatFunc K) F)
+        (e.symm.toRingEquiv : IntermediateField.adjoin K ({t} : Set F) →+* RatFunc K)
+      = RingHom.comp (RingEquiv.refl F : F →+* F)
+          (algebraMap (IntermediateField.adjoin K ({t} : Set F)) F) := by
+    refine RingHom.ext fun a => ?_
+    show algebraMap (IntermediateField.adjoin K ({t} : Set F)) F (e (e.symm a)) =
+      algebraMap (IntermediateField.adjoin K ({t} : Set F)) F a
+    rw [e.apply_symm_apply]
+  have : IsScalarTower K (RatFunc K) F :=
+    IsScalarTower.of_algebraMap_eq fun a => by
+      show algebraMap K F a =
+        algebraMap (IntermediateField.adjoin K ({t} : Set F)) F
+          (e (algebraMap K (RatFunc K) a))
+      rw [e.commutes, ← IsScalarTower.algebraMap_apply]
+  have : FiniteDimensional (RatFunc K) F :=
+    Module.Finite.of_equiv_equiv e.symm.toRingEquiv (RingEquiv.refl F) hsq
+  have : Algebra.IsSeparable (RatFunc K) F :=
+    Algebra.IsSeparable.of_equiv_equiv e.symm.toRingEquiv (RingEquiv.refl F) hsq
+  have : Algebra.IsIntegral (RatFunc K) F := Algebra.IsIntegral.of_finite (RatFunc K) F
+  have : IsCurveOver K (RatFunc K) := instIsCurveOverRatFunc K
+  have : FiniteDimensional (IntermediateField.adjoin K ({RatFunc.X} : Set (RatFunc K)))
+      (RatFunc K) := by
+    refine Module.Finite.of_surjective
+      (Algebra.linearMap (IntermediateField.adjoin K ({RatFunc.X} : Set (RatFunc K)))
+        (RatFunc K)) fun y => ?_
+    refine ⟨⟨y, ?_⟩, rfl⟩
+    rw [RatFunc.adjoin_X]
+    exact IntermediateField.mem_top
+  have : Algebra.EssFiniteType K (RatFunc K) :=
+    essFiniteType_of_transcendental_of_finiteDimensional
+      (RatFunc.transcendental_X (K := K)) inferInstance
+  have : ∀ v : Place K (RatFunc K), v.DCoordGenerates := dCoordGenerates_of_isCurveOver
+  unfold AlgebraicCurve.FunctionFieldRiemannRoch
+  intro _ _ _ ω hω D
+  exact functionFieldRiemannRoch_of_isAlgClosed_of_isCurveOver (K := K) (F := F) hω D
 
 end

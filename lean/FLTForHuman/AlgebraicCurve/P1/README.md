@@ -110,7 +110,7 @@ values, and the second run of the Euler/simple-pole computation under the
 partial-fraction generators and shown to vanish (`kaehlerResidueFunctionalK_dX_eq_zero`),
 the kernel/per-generator engine assembles it, and the char-free and
 algebraically-closed routes (`EngineCharFree`, `AlgClosedAnyChar`) meet in the
-`ringChar` split `p0n22_cpf_residueTheoremK_ratFunc_of_isAlgClosed_main`. The file
+`ringChar` split `cpf_residueTheoremK_ratFunc_of_isAlgClosed_main`. The file
 closes with `placeInfty_eq_p1PlaceInfty` and the published headline
 `trace_localResidue_placeInfty_X_pow_eq_zero`.
 

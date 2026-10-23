@@ -48,6 +48,14 @@ import FLTForHuman.AlgebraicCurve.Place.Completion
 import FLTForHuman.AlgebraicCurve.Tate.TraceCompat
 import FLTForHuman.AlgebraicCurve.Defs.PushPull
 import FLTForHuman.AlgebraicCurve.WeilExchange.FiberOverCount
+import Mathlib.LinearAlgebra.Dimension.DivisionRing
+import Mathlib.NumberTheory.RamificationInertia.Inertia
+import Mathlib.NumberTheory.RamificationInertia.Ramification
+import Mathlib.RingTheory.Ideal.Norm.AbsNorm
+import Mathlib.RingTheory.SimpleModule.Basic
+-- The `NumberTheory` module is deprecated in favour of the `RingTheory` parts imported
+-- above, but it stays: `Ideal.ramificationIdx_mul_inertiaDeg_of_isLocalRing` (used in
+-- `finrankCompletionEF`) is declared only there and has no successor in mathlib `v4.34.0`.
 import Mathlib.NumberTheory.RamificationInertia.Basic
 
 set_option autoImplicit false

@@ -1,5 +1,5 @@
 /-
-The generic local-residue calculus: the `p0n22_cpf_*` family and the headline
+The generic local-residue calculus: the `cpf_*` family and the headline
 `CanonicalLocalResidueDataK.res_differentialCoeff_D_mul_pow_inv_eq_zero_of_surjective_algebraMap`,
 after FLT's
 `P2M/Sol/S_AlgebraicCurve_Place_CanonicalLocalResidueDataK_res_differentialCoeff_D_mul_pow_inv_eq_zero_of_surjective_algebraMap.lean`
@@ -9,9 +9,9 @@ after FLT's
 Set 3.2d′ of phase 3 (row 2 of `topics/PORTING-RR.md` §3). For a
 `CanonicalLocalResidueDataK` `R` at a place `v`, the residue of
 `differentialCoeff (D t) * (t ^ (n + 1))⁻¹` vanishes when `v.ord t = 1` and the
-base map to the residue field is surjective. The `p0n22_cpf_*` family is the
+base map to the residue field is surjective. The `cpf_*` family is the
 char-free toolkit plus the char-`p` Cartier engine, and the headline splits on
-`ringChar K` (prime → `p0n22_cpf_res_differentialCoeff_D_mul_pow_inv_of_surj`,
+`ringChar K` (prime → `cpf_res_differentialCoeff_D_mul_pow_inv_of_surj`,
 zero → `ModularCurve.MilneAvAg9bRd13T2CoordIndepChar3.ag9b13t_…`).
 
 Statements are verbatim from the pin and its `Theorems/` wrapper. Already-ported
@@ -31,6 +31,9 @@ chain imports, and the `P1` re-landings were deleted in the P3.2 refactor round
 `Place.differentialCoeff_add''` is public here — it is the generic home the
 `P1/` chain imports; the `P1` re-landing was deleted in the R1 definitions round
 (PLAN-RECTIFY-DEFS §5.1).
+
+  spec-pin: Theorems/Thm_AlgebraicCurve_Place_CanonicalLocalResidueDataK_res_differentialCoeff_D_mul_pow_inv_eq_zero_of_surjective_algebraMap.lean
+  spec-pin: P2M/Sol/S_AlgebraicCurve_Place_CanonicalLocalResidueDataK_res_differentialCoeff_D_mul_pow_inv_eq_zero_of_surjective_algebraMap.lean
 -/
 import FLTForHuman.AlgebraicCurve.Defs.PushPull
 import FLTForHuman.AlgebraicCurve.Defs.CanonicalDivisor
@@ -397,7 +400,7 @@ section CharFreeToolkit
 
 variable {K F : Type*} [Field K] [Field F] [Algebra K F]
 
-theorem p0n22_cpf_uniformizer_pow_mul_mem_cases
+theorem cpf_uniformizer_pow_mul_mem_cases
     (v : Place K F)
     {σ : F} (hσ : σ ∈ v.toValuationSubring) {k : ℕ} (hk : 1 ≤ k) :
     v.uniformizer ^ k * σ = 0 ∨ 1 ≤ v.ord (v.uniformizer ^ k * σ) := by
@@ -408,7 +411,7 @@ theorem p0n22_cpf_uniformizer_pow_mul_mem_cases
     have := v.ord_nonneg_of_mem hσ
     omega
 
-theorem p0n22_cpf_one_add_ne_zero
+theorem cpf_one_add_ne_zero
     (v : Place K F)
     {g : F} (hg : g = 0 ∨ 1 ≤ v.ord g) :
     (1 : F) + g ≠ 0 := by
@@ -424,7 +427,7 @@ theorem p0n22_cpf_one_add_ne_zero
       omega
     omega
 
-theorem p0n22_cpf_ord_one_add_eq_zero
+theorem cpf_ord_one_add_eq_zero
     (v : Place K F)
     {g : F} (hg : g = 0 ∨ 1 ≤ v.ord g) :
     v.ord ((1 : F) + g) = 0 := by
@@ -439,14 +442,14 @@ theorem p0n22_cpf_ord_one_add_eq_zero
     rw [v.ord_one] at h1
     omega
 
-theorem p0n22_cpf_one_add_inv_mem
+theorem cpf_one_add_inv_mem
     (v : Place K F)
     {g : F} (hg : g = 0 ∨ 1 ≤ v.ord g) :
     ((1 : F) + g)⁻¹ ∈ v.toValuationSubring := by
-  refine v.mem_of_ord_nonneg (inv_ne_zero (p0n22_cpf_one_add_ne_zero v hg)) ?_
-  rw [v.ord_inv, p0n22_cpf_ord_one_add_eq_zero v hg, _root_.neg_zero]
+  refine v.mem_of_ord_nonneg (inv_ne_zero (cpf_one_add_ne_zero v hg)) ?_
+  rw [v.ord_inv, cpf_ord_one_add_eq_zero v hg, _root_.neg_zero]
 
-theorem p0n22_cpf_logDeriv_mul
+theorem cpf_logDeriv_mul
     (v : Place K F) [v.DCoordGenerates]
     [Nontrivial Ω[F⁄K]]
     {w₁ w₂ : F} (h1 : w₁ ≠ 0) (h2 : w₂ ≠ 0) :
@@ -465,7 +468,7 @@ theorem p0n22_cpf_logDeriv_mul
     + (v.differentialCoeff (KaehlerDifferential.D K F w₁) * w₁⁻¹)
       * hc2
 
-theorem p0n22_cpf_logDeriv_mem
+theorem cpf_logDeriv_mem
     (v : Place K F) [v.DCoordGenerates]
     [Nontrivial Ω[F⁄K]]
     (hint : ∀ h : F, h ∈ v.toValuationSubring →
@@ -479,7 +482,7 @@ theorem p0n22_cpf_logDeriv_mem
     rw [v.ord_inv, hword, _root_.neg_zero]
   exact mul_mem (hint _ hwmem) hwinv
 
-theorem p0n22_cpf_differentialCoeff_D_one_add_algebraMap_mul_pow
+theorem cpf_differentialCoeff_D_one_add_algebraMap_mul_pow
     (v : Place K F) [v.DCoordGenerates]
     [Nontrivial Ω[F⁄K]] (a : K) (k : ℕ) :
     v.differentialCoeff (KaehlerDifferential.D K F
@@ -494,7 +497,7 @@ theorem p0n22_cpf_differentialCoeff_D_one_add_algebraMap_mul_pow
       rfl,
     ← Nat.cast_smul_eq_nsmul F k, smul_smul, smul_smul, mul_assoc]
 
-theorem p0n22_cpf_differentialCoeff_D_one_add_pow_mul
+theorem cpf_differentialCoeff_D_one_add_pow_mul
     (v : Place K F) [v.DCoordGenerates]
     [Nontrivial Ω[F⁄K]] (σ : F) (k : ℕ) :
     v.differentialCoeff (KaehlerDifferential.D K F
@@ -513,7 +516,7 @@ theorem p0n22_cpf_differentialCoeff_D_one_add_pow_mul
     smul_smul, smul_smul, smul_smul, ← add_smul]
   exact congrArg (· • v.dCoord) (by ring)
 
-theorem p0n22_cpf_exists_residue_lift_decomp
+theorem cpf_exists_residue_lift_decomp
     (v : Place K F)
     (hsurj : Function.Surjective (algebraMap K v.ResidueField))
     {r : F} (hr : r ∈ v.toValuationSubring) :
@@ -550,7 +553,7 @@ theorem p0n22_cpf_exists_residue_lift_decomp
     · rw [← mul_assoc, mul_inv_cancel₀ v.uniformizer_ne_zero, one_mul]
       ring
 
-theorem p0n22_cpf_exists_elementary_peel
+theorem cpf_exists_elementary_peel
     (v : Place K F)
     (hsurj : Function.Surjective (algebraMap K v.ResidueField))
     {k : ℕ} (hk : 1 ≤ k) {σ : F} (hσ : σ ∈ v.toValuationSubring) :
@@ -559,18 +562,18 @@ theorem p0n22_cpf_exists_elementary_peel
         = ((1 : F)
               + algebraMap K F a * v.uniformizer ^ k)
           * ((1 : F) + v.uniformizer ^ (k + 1) * τ) := by
-  obtain ⟨a, σ', hσ', hdec⟩ := p0n22_cpf_exists_residue_lift_decomp v hsurj hσ
+  obtain ⟨a, σ', hσ', hdec⟩ := cpf_exists_residue_lift_decomp v hsurj hσ
   have hgcase : algebraMap K F a * v.uniformizer ^ k = 0
       ∨ 1 ≤ v.ord (algebraMap K F a * v.uniformizer ^ k) := by
     rw [mul_comm]
-    exact p0n22_cpf_uniformizer_pow_mul_mem_cases v (v.algebraMap_mem' a) hk
+    exact cpf_uniformizer_pow_mul_mem_cases v (v.algebraMap_mem' a) hk
   have he0 : (1 : F)
       + algebraMap K F a * v.uniformizer ^ k ≠ 0 :=
-    p0n22_cpf_one_add_ne_zero v hgcase
+    cpf_one_add_ne_zero v hgcase
   have heinv : ((1 : F)
       + algebraMap K F a * v.uniformizer ^ k)⁻¹
       ∈ v.toValuationSubring :=
-    p0n22_cpf_one_add_inv_mem v hgcase
+    cpf_one_add_inv_mem v hgcase
   refine ⟨a, σ' * ((1 : F)
     + algebraMap K F a * v.uniformizer ^ k)⁻¹,
     mul_mem hσ' heinv, ?_⟩
@@ -582,7 +585,7 @@ theorem p0n22_cpf_exists_elementary_peel
   rw [hdec]
   linear_combination (-(v.uniformizer ^ (k + 1) * σ')) * hce
 
-theorem p0n22_cpf_exists_laurent_expansion_one
+theorem cpf_exists_laurent_expansion_one
     (v : Place K F)
     (hsurj : Function.Surjective (algebraMap K v.ResidueField))
     (f : F) :
@@ -593,7 +596,7 @@ theorem p0n22_cpf_exists_laurent_expansion_one
   obtain ⟨c0, hc0⟩ :=
     _root_.ModularCurve.MilneAvAg9bRd15UnitNormalFormLaurentSeed.ag9b15u_exists_K_truncation_of_mem_poleSubmodule
       v hsurj N hN
-  obtain ⟨d, r, hr, hdec⟩ := p0n22_cpf_exists_residue_lift_decomp v hsurj hc0
+  obtain ⟨d, r, hr, hdec⟩ := cpf_exists_residue_lift_decomp v hsurj hc0
   refine ⟨insert (0 : ℤ) ((Finset.range N).image fun j : ℕ => -((j : ℤ) + 1)),
     fun t => if t = 0 then d else c0 (-(t + 1)).toNat, r, hr, ?_⟩
   have h0not : (0 : ℤ) ∉ (Finset.range N).image (fun j : ℕ => -((j : ℤ) + 1)) := by
@@ -617,7 +620,7 @@ theorem p0n22_cpf_exists_laurent_expansion_one
     zpow_zero, Algebra.smul_def, mul_one]
   linear_combination hdec
 
-theorem p0n22_cpf_res_geom_core
+theorem cpf_res_geom_core
     (v : Place K F) (R : v.CanonicalLocalResidueDataK)
     (a : K) {k q : ℕ} (hk : 1 ≤ k) (hq : 1 ≤ q) :
     R.res (algebraMap K F a * v.uniformizer ^ (k - 1)
@@ -631,14 +634,14 @@ theorem p0n22_cpf_res_geom_core
   have hgcase : algebraMap K F a * v.uniformizer ^ k = 0
       ∨ 1 ≤ v.ord (algebraMap K F a * v.uniformizer ^ k) := by
     rw [mul_comm]
-    exact p0n22_cpf_uniformizer_pow_mul_mem_cases v (v.algebraMap_mem' a) hk
+    exact cpf_uniformizer_pow_mul_mem_cases v (v.algebraMap_mem' a) hk
   have hu0 : (1 : F)
       + algebraMap K F a * v.uniformizer ^ k ≠ 0 :=
-    p0n22_cpf_one_add_ne_zero v hgcase
+    cpf_one_add_ne_zero v hgcase
   have huinv : ((1 : F)
       + algebraMap K F a * v.uniformizer ^ k)⁻¹
       ∈ v.toValuationSubring :=
-    p0n22_cpf_one_add_inv_mem v hgcase
+    cpf_one_add_inv_mem v hgcase
   have hgeom : ((1 : F)
       + algebraMap K F a * v.uniformizer ^ k)⁻¹
       = (∑ t ∈ Finset.range q,
@@ -757,7 +760,7 @@ theorem p0n22_cpf_res_geom_core
     rw [_root_.ModularCurve.MilneAvAg9bRd14CubeRowCartierSliceStart.ag9b14c_res_uniformizer_zpow_eq_zero_of_ne_neg_one
       v R hne, smul_zero]
 
-theorem p0n22_cpf_res_logDeriv_elementary
+theorem cpf_res_logDeriv_elementary
     (v : Place K F) [v.DCoordGenerates]
     [Nontrivial Ω[F⁄K]]
     (R : v.CanonicalLocalResidueDataK) (a : K) {k q : ℕ} (hk : 1 ≤ k) (hq : 1 ≤ q) :
@@ -770,7 +773,7 @@ theorem p0n22_cpf_res_logDeriv_elementary
       = ((k : ℕ) : K) • (if k ∣ q
           then algebraMap K v.ResidueField (a * (-a) ^ (q / k - 1))
           else 0) := by
-  rw [p0n22_cpf_differentialCoeff_D_one_add_algebraMap_mul_pow v a k]
+  rw [cpf_differentialCoeff_D_one_add_algebraMap_mul_pow v a k]
   have hsplit : algebraMap K F a
         * (((k : ℕ) : F) * v.uniformizer ^ (k - 1))
         * ((1 : F)
@@ -783,9 +786,9 @@ theorem p0n22_cpf_res_logDeriv_elementary
           * (v.uniformizer ^ q)⁻¹) := by
     rw [Algebra.smul_def, map_natCast]
     ring
-  rw [hsplit, map_smul, p0n22_cpf_res_geom_core v R a hk hq]
+  rw [hsplit, map_smul, cpf_res_geom_core v R a hk hq]
 
-theorem p0n22_cpf_res_logDeriv_highLevel_vanish
+theorem cpf_res_logDeriv_highLevel_vanish
     (v : Place K F) [v.DCoordGenerates]
     [Nontrivial Ω[F⁄K]]
     (hint : ∀ h : F, h ∈ v.toValuationSubring →
@@ -798,9 +801,9 @@ theorem p0n22_cpf_res_logDeriv_highLevel_vanish
         * ((1 : F) + v.uniformizer ^ k * σ)⁻¹
         * (v.uniformizer ^ q)⁻¹) = 0 := by
   have hπ0 : (v.uniformizer : F) ≠ 0 := v.uniformizer_ne_zero
-  have hgcase := p0n22_cpf_uniformizer_pow_mul_mem_cases v hσ
+  have hgcase := cpf_uniformizer_pow_mul_mem_cases v hσ
     (show 1 ≤ k by omega)
-  have huinv := p0n22_cpf_one_add_inv_mem v hgcase
+  have huinv := cpf_one_add_inv_mem v hgcase
   have hσ' : v.differentialCoeff (KaehlerDifferential.D K F σ)
       ∈ v.toValuationSubring :=
     hint _ hσ
@@ -809,7 +812,7 @@ theorem p0n22_cpf_res_logDeriv_highLevel_vanish
     exact v.algebraMap_mem' _
   obtain ⟨e, rfl⟩ : ∃ e, k = q + 1 + e := ⟨k - (q + 1), by omega⟩
   apply R.res_of_mem
-  rw [p0n22_cpf_differentialCoeff_D_one_add_pow_mul v σ (q + 1 + e)]
+  rw [cpf_differentialCoeff_D_one_add_pow_mul v σ (q + 1 + e)]
   have hcc : (v.uniformizer : F) ^ q
       * ((v.uniformizer : F) ^ q)⁻¹ = 1 :=
     mul_inv_cancel₀ (pow_ne_zero _ hπ0)
@@ -831,7 +834,7 @@ theorem p0n22_cpf_res_logDeriv_highLevel_vanish
   exact mul_mem (add_mem (mul_mem (pow_mem v.uniformizer_mem _) hσ')
     (mul_mem hσ (mul_mem hkF (pow_mem v.uniformizer_mem _)))) huinv
 
-theorem p0n22_cpf_row_integrand_eq_pow_mul_dlog
+theorem cpf_row_integrand_eq_pow_mul_dlog
     (v : Place K F) [v.DCoordGenerates]
     [Nontrivial Ω[F⁄K]]
     {w : F} (hw0 : w ≠ 0) (k : ℕ) :
@@ -859,7 +862,7 @@ section CharPCartier
 variable {p : ℕ} [hp : Fact p.Prime]
 variable {K F : Type*} [Field K] [Field F] [Algebra K F] [hKp : CharP K p]
 
-theorem p0n22_cpf_res_logDeriv_elementary_cartier
+theorem cpf_res_logDeriv_elementary_cartier
     (v : Place K F) [v.DCoordGenerates]
     [Nontrivial Ω[F⁄K]]
     (R : v.CanonicalLocalResidueDataK) (a : K) {k n : ℕ} (hk : 1 ≤ k) (hn : 1 ≤ n) :
@@ -877,8 +880,8 @@ theorem p0n22_cpf_res_logDeriv_elementary_cartier
         * (v.uniformizer ^ n)⁻¹)) ^ p := by
   haveI : CharP v.ResidueField p :=
     charP_of_injective_ringHom (algebraMap K v.ResidueField).injective p
-  rw [p0n22_cpf_res_logDeriv_elementary v R a hk (Nat.mul_pos hp.out.pos hn),
-    p0n22_cpf_res_logDeriv_elementary v R a hk hn]
+  rw [cpf_res_logDeriv_elementary v R a hk (Nat.mul_pos hp.out.pos hn),
+    cpf_res_logDeriv_elementary v R a hk hn]
   by_cases hdn : k ∣ n
   · rw [ite_eq_left (hdn.mul_left p), ite_eq_left hdn]
     obtain ⟨e, rfl⟩ := hdn
@@ -911,7 +914,7 @@ theorem p0n22_cpf_res_logDeriv_elementary_cartier
       rw [hk0, zero_smul, zero_smul, zero_pow hp.out.ne_zero]
     · rw [ite_eq_right hdp, ite_eq_right hdn, smul_zero, zero_pow hp.out.ne_zero]
 
-theorem p0n22_cpf_res_logDeriv_principalUnit_cartier_aux
+theorem cpf_res_logDeriv_principalUnit_cartier_aux
     (v : Place K F) [v.DCoordGenerates]
     [Nontrivial Ω[F⁄K]]
     (hint : ∀ h : F, h ∈ v.toValuationSubring →
@@ -935,28 +938,28 @@ theorem p0n22_cpf_res_logDeriv_principalUnit_cartier_aux
   | zero =>
     intro k hk hbound σ hσ
     have hnp : n ≤ p * n := Nat.le_mul_of_pos_left n hp.out.pos
-    rw [p0n22_cpf_res_logDeriv_highLevel_vanish v hint R hσ (show p * n + 1 ≤ k by omega),
-      p0n22_cpf_res_logDeriv_highLevel_vanish v hint R hσ (show n + 1 ≤ k by omega),
+    rw [cpf_res_logDeriv_highLevel_vanish v hint R hσ (show p * n + 1 ≤ k by omega),
+      cpf_res_logDeriv_highLevel_vanish v hint R hσ (show n + 1 ≤ k by omega),
       zero_pow hp.out.ne_zero]
   | succ d ihd =>
     intro k hk hbound σ hσ
-    obtain ⟨a, τ, hτ, hfac⟩ := p0n22_cpf_exists_elementary_peel v hsurj hk hσ
+    obtain ⟨a, τ, hτ, hfac⟩ := cpf_exists_elementary_peel v hsurj hk hσ
     have hgcase1 : algebraMap K F a * v.uniformizer ^ k = 0
         ∨ 1 ≤ v.ord (algebraMap K F a * v.uniformizer ^ k) := by
       rw [mul_comm]
-      exact p0n22_cpf_uniformizer_pow_mul_mem_cases v (v.algebraMap_mem' a) hk
+      exact cpf_uniformizer_pow_mul_mem_cases v (v.algebraMap_mem' a) hk
     have h1 : (1 : F)
         + algebraMap K F a * v.uniformizer ^ k ≠ 0 :=
-      p0n22_cpf_one_add_ne_zero v hgcase1
-    have hgcase2 := p0n22_cpf_uniformizer_pow_mul_mem_cases v hτ
+      cpf_one_add_ne_zero v hgcase1
+    have hgcase2 := cpf_uniformizer_pow_mul_mem_cases v hτ
       (show 1 ≤ k + 1 by omega)
     have h2 : (1 : F) + v.uniformizer ^ (k + 1) * τ ≠ 0 :=
-      p0n22_cpf_one_add_ne_zero v hgcase2
-    rw [hfac, p0n22_cpf_logDeriv_mul v h1 h2, add_mul, add_mul, LinearMap.map_add,
-      LinearMap.map_add, p0n22_cpf_res_logDeriv_elementary_cartier v R a hk hn,
+      cpf_one_add_ne_zero v hgcase2
+    rw [hfac, cpf_logDeriv_mul v h1 h2, add_mul, add_mul, LinearMap.map_add,
+      LinearMap.map_add, cpf_res_logDeriv_elementary_cartier v R a hk hn,
       ihd (k + 1) (by omega) (by omega) τ hτ, ← add_pow_char]
 
-theorem p0n22_cpf_res_zpow_mul_logDeriv_cartier
+theorem cpf_res_zpow_mul_logDeriv_cartier
     (v : Place K F) [v.DCoordGenerates]
     [Nontrivial Ω[F⁄K]]
     (hint : ∀ h : F, h ∈ v.toValuationSubring →
@@ -971,7 +974,7 @@ theorem p0n22_cpf_res_zpow_mul_logDeriv_cartier
         * (v.differentialCoeff (KaehlerDifferential.D K F w)
             * w⁻¹))) ^ p := by
   have hπ0 : (v.uniformizer : F) ≠ 0 := v.uniformizer_ne_zero
-  have hL := p0n22_cpf_logDeriv_mem v hint hw0 hword
+  have hL := cpf_logDeriv_mem v hint hw0 hword
   rcases le_or_gt 0 j with hj | hj
   · have hmem : ∀ i : ℤ, 0 ≤ i → v.uniformizer ^ i
         * (v.differentialCoeff (KaehlerDifferential.D K F w)
@@ -996,7 +999,7 @@ theorem p0n22_cpf_res_zpow_mul_logDeriv_cartier
         * w⁻¹
         = v.differentialCoeff (KaehlerDifferential.D K F
             ((1 : F) + s)) * ((1 : F) + s)⁻¹ := by
-      rw [hwfac, p0n22_cpf_logDeriv_mul v hcF h1s, Derivation.map_algebraMap,
+      rw [hwfac, cpf_logDeriv_mul v hcF h1s, Derivation.map_algebraMap,
         v.differentialCoeff_zero, zero_mul, zero_add]
     rcases hs with rfl | hsord
     · rw [hLw, add_zero, Derivation.map_one_eq_zero, v.differentialCoeff_zero, zero_mul,
@@ -1017,10 +1020,10 @@ theorem p0n22_cpf_res_zpow_mul_logDeriv_cartier
           rw [pow_one, ← mul_assoc, mul_inv_cancel₀ hπ0, one_mul],
         mul_comm ((v.uniformizer ^ (p * n') : F)⁻¹) _,
         mul_comm ((v.uniformizer ^ n' : F)⁻¹) _]
-      exact p0n22_cpf_res_logDeriv_principalUnit_cartier_aux v hint hsurj R hn1 (p * n') 1
+      exact cpf_res_logDeriv_principalUnit_cartier_aux v hint hsurj R hn1 (p * n') 1
         le_rfl (by omega) _ hσmem
 
-theorem p0n22_cpf_res_pow_mul_dlog_unit
+theorem cpf_res_pow_mul_dlog_unit
     (v : Place K F) [v.DCoordGenerates]
     [Nontrivial Ω[F⁄K]]
     (hint : ∀ h : F, h ∈ v.toValuationSubring →
@@ -1039,8 +1042,8 @@ theorem p0n22_cpf_res_pow_mul_dlog_unit
   haveI : CharP v.ResidueField p :=
     charP_of_injective_ringHom (algebraMap K v.ResidueField).injective p
   have hπ0 : (v.uniformizer : F) ≠ 0 := v.uniformizer_ne_zero
-  have hL := p0n22_cpf_logDeriv_mem v hint hw0 hword
-  obtain ⟨s, c, r, hr, hf⟩ := p0n22_cpf_exists_laurent_expansion_one v hsurj f
+  have hL := cpf_logDeriv_mem v hint hw0 hword
+  obtain ⟨s, c, r, hr, hf⟩ := cpf_exists_laurent_expansion_one v hsurj f
   have hππ : (v.uniformizer : F) * (v.uniformizer)⁻¹ = 1 :=
     mul_inv_cancel₀ hπ0
   have hLHS : f ^ p * ((v.uniformizer)⁻¹
@@ -1128,12 +1131,12 @@ theorem p0n22_cpf_res_pow_mul_dlog_unit
     rw [hPp, Finset.sum_mul, Finset.sum_mul, map_sum, map_sum, sum_pow_char]
     refine Finset.sum_congr rfl fun j _ => ?_
     rw [smul_mul_assoc, smul_mul_assoc, map_smul, map_smul,
-      p0n22_cpf_res_zpow_mul_logDeriv_cartier v hint hsurj R hw0 hword j,
+      cpf_res_zpow_mul_logDeriv_cartier v hint hsurj R hw0 hword j,
       Algebra.smul_def, Algebra.smul_def, mul_pow, map_pow]
 
 include hp hKp in
 
-theorem p0n22_cpf_res_row_at_unit_mul_uniformizer
+theorem cpf_res_row_at_unit_mul_uniformizer
     (v : Place K F) [v.DCoordGenerates]
     [Nontrivial Ω[F⁄K]]
     (hint : ∀ h : F, h ∈ v.toValuationSubring →
@@ -1164,13 +1167,13 @@ theorem p0n22_cpf_res_row_at_unit_mul_uniformizer
           = (R.res (v.differentialCoeff (KaehlerDifferential.D K F
               (w * v.uniformizer))
             * ((w * v.uniformizer) ^ (m + 1))⁻¹)) ^ p := by
-        rw [p0n22_cpf_row_integrand_eq_pow_mul_dlog v hw0 (p * m),
-          p0n22_cpf_row_integrand_eq_pow_mul_dlog v hw0 m]
+        rw [cpf_row_integrand_eq_pow_mul_dlog v hw0 (p * m),
+          cpf_row_integrand_eq_pow_mul_dlog v hw0 m]
         have hfp : ((w ^ m * v.uniformizer ^ m : F)⁻¹) ^ p
             = (w ^ (p * m) * v.uniformizer ^ (p * m))⁻¹ := by
           rw [inv_pow, mul_pow, ← pow_mul, ← pow_mul, mul_comm m p]
         rw [← hfp]
-        exact p0n22_cpf_res_pow_mul_dlog_unit v hint hsurj R hw0 hword
+        exact cpf_res_pow_mul_dlog_unit v hint hsurj R hw0 hword
           ((w ^ m * v.uniformizer ^ m)⁻¹)
       rw [hstep, ih m hmlt hm1, zero_pow hp.out.ne_zero]
     · have hnK : ((n : ℕ) : K) ≠ 0 := fun h =>
@@ -1182,7 +1185,7 @@ theorem p0n22_cpf_res_row_at_unit_mul_uniformizer
 
 include hp hKp in
 
-theorem p0n22_cpf_res_differentialCoeff_D_mul_pow_inv_of_surj
+theorem cpf_res_differentialCoeff_D_mul_pow_inv_of_surj
     (v : Place K F) [v.DCoordGenerates]
     [Nontrivial Ω[F⁄K]]
     (hint : ∀ h : F, h ∈ v.toValuationSubring →
@@ -1204,7 +1207,7 @@ theorem p0n22_cpf_res_differentialCoeff_D_mul_pow_inv_of_surj
     omega
   have hrec : π' * (v.uniformizer)⁻¹ * v.uniformizer = π' := by
     rw [mul_assoc, inv_mul_cancel₀ v.uniformizer_ne_zero, mul_one]
-  have h := p0n22_cpf_res_row_at_unit_mul_uniformizer v hint hsurj R hw0 hword n hn
+  have h := cpf_res_row_at_unit_mul_uniformizer v hint hsurj R hw0 hword n hn
   rw [← hrec]
   exact h
 
@@ -1222,7 +1225,7 @@ theorem AlgebraicCurve.Place.CanonicalLocalResidueDataK.res_differentialCoeff_D_
     R.res (v.differentialCoeff (KaehlerDifferential.D K F t) * (t ^ (n + 1))⁻¹) = 0 := by
   rcases CharP.char_is_prime_or_zero K (ringChar K) with hprime | hzero
   · haveI : Fact (ringChar K).Prime := ⟨hprime⟩
-    exact AlgebraicCurve.p0n22_cpf_res_differentialCoeff_D_mul_pow_inv_of_surj
+    exact AlgebraicCurve.cpf_res_differentialCoeff_D_mul_pow_inv_of_surj
       (p := ringChar K) v hint hsurj t ht R hn
   · haveI : CharP K 0 := hzero ▸ ringChar.charP K
     haveI : CharZero K := CharP.charP_to_charZero K

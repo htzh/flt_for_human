@@ -2,6 +2,14 @@
 Core — part of the ℙ¹ residue core, split from
 `Defs/P1ResidueCore.lean` (R1 of `topics/riemannRoch/PLAN-RECTIFY-DEFS.md`).
 The original declaration order is preserved; import the preceding slice.
+
+Every public declaration here is one of the pin's statements verbatim: the module is the
+tail of the pin's ℙ¹ residue core, whose declarations the docs-site generator files under a
+handful of `S_` files, so the statements resolve against those copies by content
+(`spec/check_port.py` hashes the statement, then matches).
+
+  spec-pin: Theorems/Thm_AlgebraicCurve_RationalFunctionField_trace_localResidue_placeInfty_X_pow_eq_zero.lean
+  spec-pin: P2M/Sol/S_AlgebraicCurve_RationalFunctionField_trace_localResidue_placeInfty_X_pow_eq_zero.lean
 -/
 import FLTForHuman.AlgebraicCurve.P1.PerfectResidue
 
@@ -484,7 +492,7 @@ open RationalFunctionField
 
 section MOnePerfect
 
-theorem p0n21_rtk_p1MOneSimplePoleCancel_dX_of_perfectField
+theorem rtk_p1MOneSimplePoleCancel_dX_of_perfectField
     (K : Type*) [Field K] [PerfectField K] [DecidableEq (RatFunc K)] :
     P1PrincipalPartMOneSimplePoleCancel K (dX_ne_zero K) :=
   ag9b12c_p1MOneSimplePoleCancel_dX_of_inftyEulerValue_of_perfectField K
@@ -497,7 +505,7 @@ section PerGenerator
 variable {K : Type*} [Field K] [PerfectField K] [DecidableEq (RatFunc K)]
 variable [HasPrincipalDivisors K (RatFunc K)]
 
-theorem p0n21_rtk_kaehlerResidueFunctionalK_dX_X_pow
+theorem rtk_kaehlerResidueFunctionalK_dX_X_pow
     (Rfam : ∀ v : Place K (RatFunc K), v.CanonicalLocalResidueDataK)
     (hwd : OrdDifferentialWellDefined K (RatFunc K))
     (hcoord : CanonicalLocalResidueKDifferentialCoordIndep K (RatFunc K)) (n : ℕ) :
@@ -516,7 +524,7 @@ theorem p0n21_rtk_kaehlerResidueFunctionalK_dX_X_pow
     exact canonicalLocalResidueDataK_kaehlerResidueTerm_X_pow_of_coordIndep K hwd hcoord
       (Rfam (p1PlaceInfty K)) n
 
-theorem p0n21_rtk_kaehlerResidueTermKFam_atom_eq_zero_of_ne_of_ne
+theorem rtk_kaehlerResidueTermKFam_atom_eq_zero_of_ne_of_ne
     (Rfam : ∀ v : Place K (RatFunc K), v.CanonicalLocalResidueDataK)
     {p : K[X]} (hpirr : Irreducible p) (c : K[X]) (m : ℕ) {v : Place K (RatFunc K)}
     (hvp : v ≠ finitePlace K hpirr) (hvinf : v ≠ p1PlaceInfty K) :
@@ -528,7 +536,7 @@ theorem p0n21_rtk_kaehlerResidueTermKFam_atom_eq_zero_of_ne_of_ne
     (mul_mem (p1PrincipalPartAtom_mem_of_ne_finitePlace K hpirr c m hvp hvinf)
       (p1DifferentialCoeffRegularFinite_dX_of_perfectField K v hvinf)))
 
-theorem p0n21_rtk_kaehlerResidueTermKFam_atom_placeInfty_eq_zero_of_two_le
+theorem rtk_kaehlerResidueTermKFam_atom_placeInfty_eq_zero_of_two_le
     (Rfam : ∀ v : Place K (RatFunc K), v.CanonicalLocalResidueDataK)
     (hwd : OrdDifferentialWellDefined K (RatFunc K))
     {p : K[X]} (hpirr : Irreducible p) (c : K[X]) {m : ℕ}
@@ -554,7 +562,7 @@ theorem p0n21_rtk_kaehlerResidueTermKFam_atom_placeInfty_eq_zero_of_two_le
       ordDifferential_placeInfty_D_ratFuncX K hwd
     omega
 
-theorem p0n21_rtk_kaehlerResidueTermKFam_atom_finitePlace_eq_zero_of_two_le
+theorem rtk_kaehlerResidueTermKFam_atom_finitePlace_eq_zero_of_two_le
     (Rfam : ∀ v : Place K (RatFunc K), v.CanonicalLocalResidueDataK)
     (hcoord : CanonicalLocalResidueKDifferentialCoordIndep K (RatFunc K))
     (hHigh5 : P1FinitePlaceCanonicalResidueAtomMGeTwoTraceHigherDeg K)
@@ -566,7 +574,7 @@ theorem p0n21_rtk_kaehlerResidueTermKFam_atom_finitePlace_eq_zero_of_two_le
   exact p1FinitePlaceCanonicalResidueAtomMGeTwoTrace_of_coordIndep_higherDeg K hcoord hHigh5
     p c m hpmon hpirr hdeg hm (Rfam (finitePlace K hpirr))
 
-theorem p0n21_rtk_kaehlerResidueTermKFam_atom_mOne_two_place_sum
+theorem rtk_kaehlerResidueTermKFam_atom_mOne_two_place_sum
     (Rfam : ∀ v : Place K (RatFunc K), v.CanonicalLocalResidueDataK)
     (hwd : OrdDifferentialWellDefined K (RatFunc K))
     {p c : K[X]} (hpmon : p.Monic) (hpirr : Irreducible p) (hdeg : c.degree < p.degree) :
@@ -580,9 +588,9 @@ theorem p0n21_rtk_kaehlerResidueTermKFam_atom_mOne_two_place_sum
     (dX_ne_zero K) (ordDifferential_placeInfty_D_ratFuncX K hwd) hpirr c hdeg
   rw [kaehlerResidueTermKFam_eq_of_mem_simplePoleSubmodule Rfam hfmem,
     kaehlerResidueTermKFam_eq_of_mem_simplePoleSubmodule Rfam himem]
-  exact p0n21_rtk_p1MOneSimplePoleCancel_dX_of_perfectField K p c hpmon hpirr hdeg hfmem himem
+  exact rtk_p1MOneSimplePoleCancel_dX_of_perfectField K p c hpmon hpirr hdeg hfmem himem
 
-theorem p0n21_rtk_kaehlerResidueFunctionalK_dX_atom
+theorem rtk_kaehlerResidueFunctionalK_dX_atom
     (Rfam : ∀ v : Place K (RatFunc K), v.CanonicalLocalResidueDataK)
     (hwd : OrdDifferentialWellDefined K (RatFunc K))
     (hcoord : CanonicalLocalResidueKDifferentialCoordIndep K (RatFunc K))
@@ -592,17 +600,17 @@ theorem p0n21_rtk_kaehlerResidueFunctionalK_dX_atom
     kaehlerResidueFunctionalK Rfam (dX_ne_zero K) (p1PrincipalPartAtom K p c m) = 0 := by
   refine kaehlerResidueFunctionalK_eq_zero_of_pair Rfam (dX_ne_zero K)
     (finitePlace_ne_placeInfty hpirr)
-    (fun v hvp hvinf => p0n21_rtk_kaehlerResidueTermKFam_atom_eq_zero_of_ne_of_ne Rfam hpirr
+    (fun v hvp hvinf => rtk_kaehlerResidueTermKFam_atom_eq_zero_of_ne_of_ne Rfam hpirr
       c m hvp hvinf) ?_
   rcases eq_or_lt_of_le hm with rfl | hm2
-  · exact p0n21_rtk_kaehlerResidueTermKFam_atom_mOne_two_place_sum Rfam hwd hpmon hpirr hdeg
-  · rw [p0n21_rtk_kaehlerResidueTermKFam_atom_finitePlace_eq_zero_of_two_le Rfam hcoord hHigh5
+  · exact rtk_kaehlerResidueTermKFam_atom_mOne_two_place_sum Rfam hwd hpmon hpirr hdeg
+  · rw [rtk_kaehlerResidueTermKFam_atom_finitePlace_eq_zero_of_two_le Rfam hcoord hHigh5
         hpmon hpirr hdeg hm2,
-      p0n21_rtk_kaehlerResidueTermKFam_atom_placeInfty_eq_zero_of_two_le Rfam hwd hpirr c
+      rtk_kaehlerResidueTermKFam_atom_placeInfty_eq_zero_of_two_le Rfam hwd hpirr c
         hdeg hm2,
       add_zero]
 
-theorem p0n21_rtk_kaehlerResidueFunctionalK_dX_eq_zero
+theorem rtk_kaehlerResidueFunctionalK_dX_eq_zero
     (Rfam : ∀ v : Place K (RatFunc K), v.CanonicalLocalResidueDataK)
     (hwd : OrdDifferentialWellDefined K (RatFunc K))
     (hcoord : CanonicalLocalResidueKDifferentialCoordIndep K (RatFunc K))
@@ -616,9 +624,9 @@ theorem p0n21_rtk_kaehlerResidueFunctionalK_dX_eq_zero
     rw [SetLike.mem_coe, LinearMap.mem_ker]
     rcases hs with hpoly | hatom
     · obtain ⟨n, rfl⟩ := hpoly
-      exact p0n21_rtk_kaehlerResidueFunctionalK_dX_X_pow Rfam hwd hcoord n
+      exact rtk_kaehlerResidueFunctionalK_dX_X_pow Rfam hwd hcoord n
     · obtain ⟨p, c, m, hpmon, hpirr, hdeg, hm, rfl⟩ := hatom
-      exact p0n21_rtk_kaehlerResidueFunctionalK_dX_atom Rfam hwd hcoord hHigh5 hpmon hpirr
+      exact rtk_kaehlerResidueFunctionalK_dX_atom Rfam hwd hcoord hHigh5 hpmon hpirr
         hdeg hm
   have hh : h ∈ LinearMap.ker (kaehlerResidueFunctionalK Rfam (dX_ne_zero K)) := by
     apply hker
@@ -632,7 +640,7 @@ section EngineCharFree
 
 variable {K : Type*} [Field K] [PerfectField K] [DecidableEq (RatFunc K)]
 
-theorem p0n21_rtk_residueTheoremK_ratFunc_of_subrows_charFree
+theorem rtk_residueTheoremK_ratFunc_of_subrows_charFree
     (hwd : OrdDifferentialWellDefined K (RatFunc K))
     (hcoord : CanonicalLocalResidueKDifferentialCoordIndep K (RatFunc K))
     (hHigh5 : P1FinitePlaceCanonicalResidueAtomMGeTwoTraceHigherDeg K) :
@@ -644,24 +652,24 @@ theorem p0n21_rtk_residueTheoremK_ratFunc_of_subrows_charFree
       = weilOfKaehlerK Rfam (dX_ne_zero K)
           ⟨diagonalHom K (RatFunc K) (g * f), diagonal_mem_adeleSpace (g * f)⟩ :=
         weilOfKaehlerK_smul_diagonal Rfam (dX_ne_zero K) hω f
-    _ = 0 := p0n21_rtk_kaehlerResidueFunctionalK_dX_eq_zero Rfam hwd hcoord hHigh5 (g * f)
+    _ = 0 := rtk_kaehlerResidueFunctionalK_dX_eq_zero Rfam hwd hcoord hHigh5 (g * f)
 
-theorem p0n21_rtk_residueTheoremK_ratFunc_of_coordIndep_higherDeg_of_perfectField
+theorem rtk_residueTheoremK_ratFunc_of_coordIndep_higherDeg_of_perfectField
     (hcoord : CanonicalLocalResidueKDifferentialCoordIndep K (RatFunc K))
     (hHigh5 : P1FinitePlaceCanonicalResidueAtomMGeTwoTraceHigherDeg K) :
     ResidueTheoremK K (RatFunc K) :=
-  p0n21_rtk_residueTheoremK_ratFunc_of_subrows_charFree
+  rtk_residueTheoremK_ratFunc_of_subrows_charFree
     (ordDifferentialWellDefined_ratFunc_of_perfectField K) hcoord hHigh5
 
 end EngineCharFree
 
 section AlgClosedAnyChar
 
-theorem p0n21_rtk_residueTheoremK_ratFunc_of_isAlgClosed_of_coordIndep
+theorem rtk_residueTheoremK_ratFunc_of_isAlgClosed_of_coordIndep
     (K : Type*) [Field K] [IsAlgClosed K] [DecidableEq (RatFunc K)]
     (hcoord : CanonicalLocalResidueKDifferentialCoordIndep K (RatFunc K)) :
     ResidueTheoremK K (RatFunc K) :=
-  p0n21_rtk_residueTheoremK_ratFunc_of_coordIndep_higherDeg_of_perfectField hcoord
+  rtk_residueTheoremK_ratFunc_of_coordIndep_higherDeg_of_perfectField hcoord
     (p1FinitePlaceCanonicalResidueAtomMGeTwoTraceHigherDeg_of_algClosed K)
 
 end AlgClosedAnyChar
@@ -674,7 +682,7 @@ end Bc2Carrier
 
 section ResidualLocation
 
-theorem p0n21_rtk_surjective_algebraMap_residueField_of_deg_eq_one
+theorem rtk_surjective_algebraMap_residueField_of_deg_eq_one
     {K F : Type*} [Field K] [Field F] [Algebra K F]
     (v : Place K F) (hdeg : v.deg = 1) :
     Function.Surjective (algebraMap K v.ResidueField) := by
@@ -683,13 +691,13 @@ theorem p0n21_rtk_surjective_algebraMap_residueField_of_deg_eq_one
     (show Module.finrank K v.ResidueField = 1 from hdeg) z
   exact ⟨c, by rw [Algebra.algebraMap_eq_smul_one]; exact hc⟩
 
-theorem p0n21_rtk_surjective_algebraMap_residueField_ratFunc_of_isAlgClosed
+theorem rtk_surjective_algebraMap_residueField_ratFunc_of_isAlgClosed
     (K : Type*) [Field K] [IsAlgClosed K] (v : Place K (RatFunc K)) :
     Function.Surjective (algebraMap K v.ResidueField) := by
   classical
   rcases eq_ofHeightOneSpectrum_or_eq_placeInfty v with ⟨w, rfl⟩ | rfl
   · obtain ⟨p, hp, hwp⟩ := exists_irreducible_span K w
-    refine p0n21_rtk_surjective_algebraMap_residueField_of_deg_eq_one _ ?_
+    refine rtk_surjective_algebraMap_residueField_of_deg_eq_one _ ?_
     rw [deg_ofHeightOneSpectrum K hwp]
     have h := IsAlgClosed.degree_eq_one_of_irreducible K hp
     rw [degree_eq_natDegree hp.ne_zero] at h
@@ -734,30 +742,30 @@ variable {p : ℕ} [hp : Fact p.Prime]
 variable {K : Type*} [Field K] [PerfectField K] [hKp : CharP K p]
 end CharPCartier
 section Headlines
-theorem p0n22_cpf_canonicalLocalResidueKDifferentialCoordIndep_ratFunc_of_isAlgClosed
+theorem cpf_canonicalLocalResidueKDifferentialCoordIndep_ratFunc_of_isAlgClosed
     (K : Type*) [Field K] [IsAlgClosed K] (p : ℕ) [Fact p.Prime] [CharP K p] :
     CanonicalLocalResidueKDifferentialCoordIndep K (RatFunc K) :=
   fun v π' hπ' R _ hn =>
-    p0n22_cpf_res_differentialCoeff_D_mul_pow_inv_of_surj (p := p) v
+    cpf_res_differentialCoeff_D_mul_pow_inv_of_surj (p := p) v
       (fun _ hh => ag9b13e_differentialCoeff_D_mem_of_mem_of_perfectField v hh)
-      (p0n21_rtk_surjective_algebraMap_residueField_ratFunc_of_isAlgClosed K v)
+      (rtk_surjective_algebraMap_residueField_ratFunc_of_isAlgClosed K v)
       π' hπ' R hn
 
-theorem p0n22_cpf_residueTheoremK_ratFunc_of_isAlgClosed_of_charP
+theorem cpf_residueTheoremK_ratFunc_of_isAlgClosed_of_charP
     (K : Type*) [Field K] [IsAlgClosed K] (p : ℕ) [Fact p.Prime] [CharP K p]
     [DecidableEq (RatFunc K)] :
     ResidueTheoremK K (RatFunc K) :=
-  p0n21_rtk_residueTheoremK_ratFunc_of_isAlgClosed_of_coordIndep K
-    (p0n22_cpf_canonicalLocalResidueKDifferentialCoordIndep_ratFunc_of_isAlgClosed K p)
+  rtk_residueTheoremK_ratFunc_of_isAlgClosed_of_coordIndep K
+    (cpf_canonicalLocalResidueKDifferentialCoordIndep_ratFunc_of_isAlgClosed K p)
 
-theorem p0n22_cpf_residueTheoremK_ratFunc_of_isAlgClosed_main
+theorem cpf_residueTheoremK_ratFunc_of_isAlgClosed_main
     (K : Type*) [Field K] [IsAlgClosed K] [DecidableEq (RatFunc K)] :
     ResidueTheoremK K (RatFunc K) := by
   rcases CharP.char_is_prime_or_zero K (ringChar K) with hprime | hzero
-  · haveI : Fact (ringChar K).Prime := ⟨hprime⟩
-    exact p0n22_cpf_residueTheoremK_ratFunc_of_isAlgClosed_of_charP K (ringChar K)
-  · haveI : CharP K 0 := hzero ▸ ringChar.charP K
-    haveI : CharZero K := CharP.charP_to_charZero K
+  · have : Fact (ringChar K).Prime := ⟨hprime⟩
+    exact cpf_residueTheoremK_ratFunc_of_isAlgClosed_of_charP K (ringChar K)
+  · have : CharP K 0 := hzero ▸ ringChar.charP K
+    have : CharZero K := CharP.charP_to_charZero K
     exact residueTheoremK_ratFunc_of_isAlgClosed_main K
 
 end Headlines

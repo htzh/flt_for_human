@@ -2,6 +2,8 @@
 UnitFinite — part of the ℙ¹ residue core, split from
 `Defs/P1ResidueCore.lean` (R1 of `topics/riemannRoch/PLAN-RECTIFY-DEFS.md`).
 The original declaration order is preserved; import the preceding slice.
+
+  spec-pin: P2M/Sol/S_AlgebraicCurve_RationalFunctionField_trace_localResidue_placeInfty_X_pow_eq_zero.lean
 -/
 import FLTForHuman.AlgebraicCurve.P1.DivisorAction
 
@@ -9,6 +11,12 @@ noncomputable section
 
 open Polynomial IsDedekindDomain WithZero IsLocalRing UniqueFactorizationMonoid
 open Module
+
+-- `unusedSectionVars`: the pin's `variable` block is shared by all of its declarations, so a
+-- transcription carries section variables some one statement does not mention. The binder is
+-- part of the pin-verbatim signature and `spec/check_port.py` diffs it, so the linter is off
+-- for the module rather than the statement narrowed (as in `ModularCurve/X1/FunctionFieldDegree.lean`).
+set_option linter.unusedSectionVars false
 
 namespace AlgebraicCurve
 
@@ -67,6 +75,12 @@ variable {K F F' : Type*} [Field K] [Field F] [Field F']
   [Algebra K F] [Algebra K F'] [Algebra F F'] [IsScalarTower K F F']
   [FiniteDimensional F F'] [Algebra.IsSeparable F F']
 
+set_option linter.deprecated false in
+/-- (pin 1178) The fiber sum of ramification index times inertia degree, over `v`'s
+primes.  The `rw` chain keeps mathlib's `Ideal.inertiaDeg'_eq_inertiaDeg` (deprecated
+since 2026-08-14 for `inertiaDeg_eq_of_isMaximal`, which states the identity against
+`Module.finrank (R ⧸ p) (S ⧸ q)` rather than against `inertiaDeg`, so the chain would
+have to be restructured, not renamed). Scoped here so a new deprecation still surfaces. -/
 theorem sum_ramificationIndex_mul_inertiaDeg_of_forall_mem_iff
     (v : Place K F) (s : Finset (Place K F'))
     (hs : ∀ w : Place K F', w ∈ s ↔ w.restrict F = v) :

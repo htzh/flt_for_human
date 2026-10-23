@@ -28,6 +28,11 @@ import FLTForHuman.AlgebraicCurve.Tate.TraceCompletionCommute
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false
+-- The pin's `haveI` instance walls and statement-level instance lists are
+-- transcribed verbatim (as in `RRAssembly.lean` and `P1/Core.lean`): these two
+-- linters flag the pin's style, not the port's.
+set_option linter.style.haveILetI false
+set_option linter.overlappingInstances false
 
 open KaehlerDifferential LinearMap Submodule
 open WithZero IsDedekindDomain IsLocalRing
@@ -47,8 +52,14 @@ variable {K F F' : Type*} [Field K] [Field F] [Field F']
 
 variable (v : Place K F)
 
+set_option linter.deprecated false in
 /-- (pin 1178) The sum of ramification index times inertia degree over the fiber is
-the degree of the extension. -/
+the degree of the extension.  The key step is mathlib's `Ideal.sum_ramification_inertia`,
+deprecated since 2026-07-01 in favour of the `RingTheory.RamificationInertia` API
+(`sum_ramification_inertia_eq_finrank`); that replacement states the identity over
+`p.primesOver S` in terms of `ramificationIdx`/`inertiaDeg` and `Module.finrank R S`,
+while this statement is phrased over `v.fiber F'`, so the migration is deferred.
+Scoped here rather than file-wide so a new deprecation still surfaces. -/
 theorem sum_ramificationIndex_mul_inertiaDeg [HasPrincipalDivisors K F'] :
     ∑ w ∈ v.fiber F', (w.ramificationIndex F : ℤ) * (w.inertiaDeg F : ℤ)
       = (Module.finrank F F' : ℤ) := by
@@ -262,14 +273,12 @@ variable [Algebra (RatFunc K) F] [IsScalarTower K (RatFunc K) F]
 variable [Algebra.IsIntegral (RatFunc K) F]
 variable [∀ v : Place K (RatFunc K), v.DCoordGenerates]
 
-/-- (pin 5533) The `RatFunc` headline, at the pin's row-6 name. -/
-theorem p0n22_cpf_residueTheoremK_ratFunc_of_isAlgClosed
-    (K : Type*) [Field K] [IsAlgClosed K] [DecidableEq (RatFunc K)]
-    [AlgebraicCurve.HasCanonicalLocalResidueKStar K (RatFunc K)]
-    [AlgebraicCurve.HasCanonicalDivisor (K := K) (F := RatFunc K)]
-    [∀ v : AlgebraicCurve.Place K (RatFunc K), v.DCoordGenerates] :
-    AlgebraicCurve.ResidueTheoremK K (RatFunc K) :=
-  AlgebraicCurve.residueTheoremK_ratFunc_of_isAlgClosed K
+-- The pin states the `RatFunc` residue theorem twice: as its row-6 headline
+-- (`AlgebraicCurve.residueTheoremK_ratFunc_of_isAlgClosed`, the graph node, landed at its
+-- `Theorems/` statement in `KRatFunc.lean`) and again, under a machine-generated part
+-- label, inside the K-route `S_` file. Only the headline is landed here or anywhere: the
+-- second copy differs from it only by section variables its statement never uses, so it is
+-- the same statement and `dedup.py --tier shape` reports the pair.
 
 /-- (pin 5666) The descent step: the ℙ¹ residue theorem plus the fiber-localized
 cotrace identity gives the residue theorem for `F`. -/
@@ -279,7 +288,7 @@ theorem residueTheoremK_of_cotraceResidueIdentityK_ratFunc_isAlgClosed
     (hIdentK : FiberKaehlerCotraceResidueIdentityK K F (RatFunc K)) :
     ResidueTheoremK K F :=
   residueTheoremK_of_cotraceResidueIdentityK
-    (p0n22_cpf_residueTheoremK_ratFunc_of_isAlgClosed K)
+    (AlgebraicCurve.residueTheoremK_ratFunc_of_isAlgClosed K)
     (dX_ne_zero K) hgen hIdentK
 
 end RatFuncFloorSupply

@@ -16,6 +16,11 @@ instance once and only the degree half here; the 3 same-file drags
 The only new public statement besides the headline is the uniqueness form
 `canonicalDivisorOf_eq_of_forall`; the headline's statement is its `Theorems/`
 wrapper.
+
+  spec-pin: Theorems/Thm_AlgebraicCurve_isCurveOver_ratFunc.lean
+  spec-pin: Theorems/Thm_AlgebraicCurve_genus_ratFunc_eq_zero.lean
+  spec-pin: Theorems/Thm_AlgebraicCurve_genusFF_ratFunc_eq_zero_of_isAlgClosed.lean
+  spec-pin: P2M/Sol/S_AlgebraicCurve_instHasCanonicalDivisorRatFuncPerfectField.lean
 -/
 import FLTForHuman.AlgebraicCurve.Defs.RatFuncPlaces
 import FLTForHuman.AlgebraicCurve.P1.Dictionary
@@ -26,6 +31,10 @@ import FLTForHuman.AlgebraicCurve.Genus.Stichtenoth
 import FLTForHuman.AlgebraicCurve.ResidueTheorem.RRAssembly
 
 set_option autoImplicit false
+set_option linter.unusedSectionVars false
+-- The pin's `haveI` instance walls are transcribed verbatim; the style linter
+-- flags the pin, not the port.
+set_option linter.style.haveILetI false
 
 noncomputable section
 
@@ -73,7 +82,7 @@ private theorem genus_eq_degree_div_of_ratFunc :
       genus K (RatFunc K) = (Divisor.degree (canonicalDivisorOf hω₀) + 2).toNat / 2 := by
   have hne : ∃ ω : Ω[(RatFunc K)⁄K], ω ≠ 0 := exists_ne 0
   refine ⟨hne.choose, hne.choose_spec, ?_⟩
-  rw [genus, dif_pos hne]
+  rw [genus, dite_eq_left hne]
 
 theorem genus_ratFunc_eq_zero_of_perfectField_s17 : genus K (RatFunc K) = 0 := by
   obtain ⟨ω₀, hω₀, hgen⟩ := genus_eq_degree_div_of_ratFunc (K := K)
