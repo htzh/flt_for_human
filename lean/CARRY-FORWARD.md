@@ -521,29 +521,45 @@ theorem under another name (the pin's `solution`/`impl` wiring, e.g. `Saturation
 
 ## Open follow-ups
 
-### The AC3 engine carries the pin's engine tokens — a checker change, then one rename pass
+### `lean_parser.ENCLOSE_RE` swallows a bare `end` followed by `end Name` — full names key one frame too deep
 
-`AutomorphicForm/Adelic/ArchCompactOrbit.lean` + `ArchCutProjector.lean` (landed 2026-10-22) ship the
-public surface under the pin's spellings: `Ecf`, `ρc`, `QM`, `Qc`, `CA`, `CB`, `projCA`,
-`goodComponents`, `cutc`, `cutM`, `underSub`, `archRep`, `ArchIsometryProd`, `ℂK`. None of these is
-findable by subject — `Ecf` is a three-letter artefact, `ρc` is not a searchable word, `CA`/`CB` hide
-the complement relation the proof turns on, `goodComponents` is a value judgement — and the target
-spelling is [WORKORDER-AC3](automorphicForm/WORKORDER-AC3-arch-cut-projector.md) §3. They were kept
-because `check_port` compares statement *text*: renaming a declaration rewrites every statement that
-mentions it, those statements then have no counterpart in the wire, and a `pin:` row flips `MISSING`
-into `MISMATCH` rather than fixing it. **The fix belongs in the checker, not in the names.** Every
-rename is already declared by the module's `pin:` rows, so `check_decl` can build the map
-`pin name → port name` for the module and apply it to the pin side of the comparison before hashing —
-the corpus keeps the pin's normalised statement text beside `nhash`
-(`tmp/flt-statements/statements.tsv`), so this is one word-boundary regex pass per declaration at query
-time, no corpus rebuild. Price: ~20 lines in `spec/check_port.py` plus a substitution helper, and a
-`--selftest` case with a renamed type inside a statement (the case that fails today). Then: rename the
-fourteen names above in one pass (79 statements move, no mathematics), re-point the `pin:` rows,
-re-check, and update the two module headers, which currently explain the token list as forced. Do it
-in the same pass that opens these modules for another reason — both sibling consumers
-(`exists_linearMap_archCutProjector`, `exists_rightConv_eq_of_archCutProjector`) are unstarted, so the
-churn is at its minimum now and grows with the first import. Same class, smaller: `BiIsotypic`'s own
-`rightRep`/`typeSpan` are readable, so this is the last engine carrying compressed tokens.
+**Open.** `spec/lean_parser.ENCLOSE_RE` matches an `end` and then, optionally, `\s+` plus its name; the
+`\s+` crosses newlines, so
+
+```lean
+end          -- closes a section
+end Foo      -- closes a namespace
+```
+
+is read as one event whose endname is the word `end`, and the `end Foo` is swallowed. Every
+declaration after it is keyed one frame too deep — observed in
+`AutomorphicForm/Adelic/FactorizableTestFnArchSmoothComplex.lean`, where the private twin first came
+out as `…IsFactorizableTestFn.Complex.AutomorphicForm.IsFactorizableTestFn.solution`, which is why that
+module's engine section is *named* (`section E8Engine`). Matching is by last name and content hash, so
+no verdict is wrong today; the damage is confined to full-name keys — `spec/decl_markers.tsv` rows, the
+corpus's name column, and any tool that resolves a full name. Exposure, measured 2026-10-23:
+**82 adjacencies in 62 port files**, 1,662 in 1,211 pin files.
+
+**Fix.** `\s+` → `[ \t]+` in the two name groups of `ENCLOSE_RE` (and `(?P<indent>\s*)` → `[ \t]*`).
+Then rebuild the corpus — `python3 spec/statement_db.py build`; the stamp carries the parser digest, so
+every cached verdict invalidates — and re-run `check_port --all` plus `--strict-markers`, expecting
+0 mismatch / 0 missing / 0 stale. **Workaround until then**: name every `section` (`section Foo` /
+`end Foo`), which makes both `end`s explicit.
+
+### The AC3 engine carries the pin's engine tokens — a checker rename map, then one rename pass
+
+**Open.** `AutomorphicForm/Adelic/ArchCompactOrbit.lean` and `ArchCutProjector.lean` (landed
+2026-10-22) ship their public surface under the pin's spellings: `Ecf`, `ρc`, `QM`, `Qc`, `CA`, `CB`,
+`projCA`, `goodComponents`, `cutc`, `cutM`, `underSub`, `archRep`, `ArchIsometryProd`, `ℂK`. The target
+spelling is [WORKORDER-AC3](automorphicForm/WORKORDER-AC3-arch-cut-projector.md) §3; why they were
+kept, and the mechanism that unblocks a rename (a `pin:`-driven rename map applied to the pin side of
+the comparison before hashing), are in that order's §3 and §9. **Price**: ~20 lines in
+`spec/check_port.py` plus a `--selftest` case with a renamed type inside a statement; then the
+fourteen names move in one pass (79 statements, no mathematics), the `pin:` rows are re-pointed and
+the two module headers updated. **Trigger**: the pass that opens these modules for another reason —
+both sibling consumers (`exists_linearMap_archCutProjector`,
+`exists_rightConv_eq_of_archCutProjector`) are unstarted, so the churn is at its minimum today and
+grows with the first import.
 
 ### `typeSubmodule_eq_typeSpan` is one codomain short — a generic bridge at arbitrary `G`
 
