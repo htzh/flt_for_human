@@ -4,17 +4,20 @@ FLT's `Definitions/Def_ModularCurve_X0ModL.lean` (156 ln)
 (<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_X0ModL.lean>).
 
 The pin generalises `Def_ModularCurve_X0.lean`'s `ℚ`-valued theory: `jqModC` in place of
-`jq`, `qExpandAlgHomC` in place of `qExpandₐ`, and `divisorExpansionsC` /
+`jq`, `qExpandAlg` in place of `qExpandₐ`, and `divisorExpansionsC` /
 `modularFunctionFieldFullC` in place of `divisorExpansions` /
 `modularFunctionFieldFull`. `modularFunctionFieldFullC_rat` is the `rfl` bridge back to
 the ported `modularFunctionFieldFull`.
 
-Two dedups against the port, both recorded in `Frobenius/Defs.lean`'s own header (it
-ported them early because its `qExp` carrier needs them):
+Two dedups against the port, both already homed elsewhere because the `qExp`
+carrier needs them:
 
-* `coeffMap_ofPowerSeries` and `qExpandAlgHomC`/`qExpandAlgHomC_apply` are **not**
-  restated here — they are imported from `ModularCurve/Frobenius/Defs.lean`, which
-  already documents them as taken from this pin module;
+* `coeffMap_ofPowerSeries` is **not** restated here — it is imported from
+  `ModularCurve/Frobenius/Defs.lean`, whose header records it as taken from this
+  pin module; `qExpandAlg`/`qExpandAlg_apply` are **not** restated here either —
+  they are `ModularCurve.qExpandAlg`/`qExpandAlg_apply`, whose one home is
+  `ModularCurve/Defs/Laurent.lean`, beside `qExpand` itself (this pin file declares
+  that general map too, under its `HomC`-suffixed name);
 * the pin's three imported
   `Theorems/Thm_ModularCurve_coeff_jqModC_{pow_self,pow_of_lt,neg_one}.lean`
   declarations exist in the port only `private` inside
@@ -141,13 +144,13 @@ theorem full_degeneracyC_le {N M : ℕ} [NeZero N] [NeZero M] (h : N ∣ M) :
 omit [NeZero N] in
 
 theorem full_degeneracyC_map_le (ℓ : ℕ) [NeZero ℓ] :
-    (modularFunctionFieldFullC K N).map (qExpandAlgHomC K ℓ) ≤ modularFunctionFieldFullC K (N * ℓ) := by
+    (modularFunctionFieldFullC K N).map (qExpandAlg K ℓ) ≤ modularFunctionFieldFullC K (N * ℓ) := by
   rw [modularFunctionFieldFullC, adjoin_map, adjoin_le_iff]
   rintro x ⟨y, ⟨d, hne, hdvd, rfl⟩, rfl⟩
   have := hne
   have : NeZero (ℓ * d) := ⟨Nat.mul_ne_zero (NeZero.ne ℓ) (NeZero.ne d)⟩
-  show qExpandAlgHomC K ℓ (qExpand K d (jqModC K)) ∈ _
-  rw [qExpandAlgHomC_apply, qExpand_qExpand]
+  show qExpandAlg K ℓ (qExpand K d (jqModC K)) ∈ _
+  rw [qExpandAlg_apply, qExpand_qExpand]
   exact jqModCd_mem_full K (N * ℓ) ((mul_dvd_mul_left ℓ hdvd).trans (dvd_of_eq (mul_comm ℓ N)))
 
 end FunctionField

@@ -4135,7 +4135,6 @@ PORT_FILES = [
     "FLTForHuman/AlgebraicCurve/IsCurveOver/Transcendental.lean",
     "FLTForHuman/AlgebraicCurve/PrincipalDivisors/IsSeparable.lean",
     "FLTForHuman/AlgebraicCurve/Place/FiniteResidue.lean",
-    "FLTForHuman/ModularCurve/Frobenius/Defs.lean",
     "FLTForHuman/ModularCurve/Frobenius/QExpModL.lean",
     # --- Factorisable test functions on GL₂(𝔸_K) (AutomorphicForm) ---
     # The adele-ring topology/Haar layer (the former `AdelicHaar/Topology.lean` stub is

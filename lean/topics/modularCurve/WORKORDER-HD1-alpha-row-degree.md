@@ -237,3 +237,12 @@ The engine is now also the home of the `roof`/`KL` base-changed field that the n
 modules need — `port_advise` already resolves the `heckeOperator{OneBar,HAlong}_comm` pair's `roof`
 abbreviation to `ModularCurve.HeckeDegree.KL` (3 pin copies), which is exactly what this order was
 for.
+
+## 9. The rest of the degree layer
+
+The α/β `finrankAlong` layer is eleven nodes; HD1 landed two. The three that are ready next —
+`finrankAlong_heckeBetaOneBar` (334, the shelf head), `finrankAlong_heckeAlphaHBar_of_dvd` (418) and
+`finrankAlong_heckeBetaHBar` (349) — are `WORKORDER-HD1b`, which extends the two modules this order
+created (twenty declarations of each of their pin files are already public here). The mod-ℓ/charP
+tail (`finrankAlong_hecke{Alpha,Beta}ModLH`, `finrankAlong_heckeAlphaC_residueField_eq_add_one`,
+`finrankAlong_heckeAlphaHBar_pos_and_le_relIndex`) is a separate subject and gets its own order.

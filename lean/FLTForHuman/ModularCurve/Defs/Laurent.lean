@@ -16,6 +16,11 @@
     `qExpand`, its coefficient lemmas, `qExpandₐ`, `qExpandₐ_apply`;
     and line 340 for `qExpandₐ_comp`.
     https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_X0.lean
+  * `Definitions/Def_ModularCurve_X0ModL.lean` line 77 — `qExpandAlg`, the general
+    `K`-algebra form of `qExpand`; the pin's own name there carries a `HomC` suffix,
+    dropped here because that same map is `qExpandAlg` in its `S_` files.  `qExpandₐ`
+    is its `ℚ` specialisation: one map, one proof.
+    https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_X0ModL.lean
   * `Definitions/Def_ModularCurve_LaurentCoeff.lean` lines 16–123 —
     `coeffMap`, `coeffEmb`, `laurentBaseChange` and their lemmas.
     https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_LaurentCoeff.lean
@@ -40,6 +45,7 @@
   which write it twice byte-identically.
 
 spec-pin: Definitions/Def_ModularCurve_X0.lean
+spec-pin: Definitions/Def_ModularCurve_X0ModL.lean
 spec-pin: Definitions/Def_ModularCurve_LaurentCoeff.lean
 spec-pin: Theorems/Thm_ModularCurve_coeffMap_qExpand.lean
 spec-pin: Theorems/Thm_ModularCurve_coeffEmb_qExpand.lean
@@ -137,8 +143,6 @@ end QExpand
 
 section RatAlgebra
 
-variable (N : ℕ) [NeZero N]
-
 /-- The rational constant `c` is the Laurent series `c q ^ 0`. -/
 theorem algebraMap_apply_eq_single (c : ℚ) :
     algebraMap ℚ (LaurentSeries ℚ) c = HahnSeries.single 0 c := by
@@ -146,24 +150,6 @@ theorem algebraMap_apply_eq_single (c : ℚ) :
     simp
   rw [HahnSeries.algebraMap_apply', h1, HahnSeries.ofPowerSeries_C]
   rfl
-
-/-- `qExpand` as a `ℚ`-algebra map, so that it can act on `IntermediateField`s.
-It is `qExpand ℚ N` with the same underlying function. -/
-def qExpandₐ : LaurentSeries ℚ →ₐ[ℚ] LaurentSeries ℚ where
-  __ := qExpand ℚ N
-  commutes' r := by
-    show qExpand ℚ N (algebraMap ℚ (LaurentSeries ℚ) r) = algebraMap ℚ (LaurentSeries ℚ) r
-    rw [algebraMap_apply_eq_single, qExpand_single, mul_zero]
-
-@[simp]
-theorem qExpandₐ_apply (f : LaurentSeries ℚ) : qExpandₐ N f = qExpand ℚ N f := rfl
-
-/-- `qExpandₐ` is a substitution: expanding by `ℓ` after `ℓ'` is expanding by `ℓ * ℓ'`. -/
-theorem qExpandₐ_comp (ℓ ℓ' : ℕ) [NeZero ℓ] [NeZero ℓ'] :
-    (qExpandₐ ℓ).comp (qExpandₐ ℓ') = qExpandₐ (ℓ * ℓ') := by
-  refine AlgHom.ext fun f => ?_
-  simp only [AlgHom.comp_apply, qExpandₐ_apply]
-  exact qExpand_qExpand ℓ' ℓ f
 
 end RatAlgebra
 
@@ -232,6 +218,42 @@ theorem algebraMap_laurentSeries_eq_single (c : L) :
     simp
   rw [HahnSeries.algebraMap_apply', h1, HahnSeries.ofPowerSeries_C]
   rfl
+
+section QExpandAlg
+
+variable (K : Type*) [CommRing K] (N : ℕ) [NeZero N]
+
+/-- `qExpand` bundled as a `K`-algebra endomorphism.  It needs no hypothesis on
+`K` beyond `CommRing`: `qExpand` fixes the constants, and the `commutes'` step is
+that fact (`qExpand_C`) read after `algebraMap K (LaurentSeries K) c` is
+identified with the monomial `c q ^ 0`. -/
+noncomputable def qExpandAlg : LaurentSeries K →ₐ[K] LaurentSeries K where
+  __ := qExpand K N
+  commutes' c := by
+    show qExpand K N (algebraMap K (LaurentSeries K) c) = algebraMap K (LaurentSeries K) c
+    rw [HahnSeries.algebraMap_apply',
+      show algebraMap K (PowerSeries K) c = PowerSeries.C c from by simp,
+      HahnSeries.ofPowerSeries_C, qExpand_C]
+
+@[simp]
+theorem qExpandAlg_apply (f : LaurentSeries K) : qExpandAlg K N f = qExpand K N f := rfl
+
+/-- `qExpand` as a `ℚ`-algebra map, so that it can act on `IntermediateField`s.
+It is the `ℚ` specialisation `qExpandAlg ℚ N` of the general map, with the same
+underlying function. -/
+def qExpandₐ : LaurentSeries ℚ →ₐ[ℚ] LaurentSeries ℚ := qExpandAlg ℚ N
+
+@[simp]
+theorem qExpandₐ_apply (f : LaurentSeries ℚ) : qExpandₐ N f = qExpand ℚ N f := rfl
+
+/-- `qExpandₐ` is a substitution: expanding by `ℓ` after `ℓ'` is expanding by `ℓ * ℓ'`. -/
+theorem qExpandₐ_comp (ℓ ℓ' : ℕ) [NeZero ℓ] [NeZero ℓ'] :
+    (qExpandₐ ℓ).comp (qExpandₐ ℓ') = qExpandₐ (ℓ * ℓ') := by
+  refine AlgHom.ext fun f => ?_
+  simp only [AlgHom.comp_apply, qExpandₐ_apply]
+  exact qExpand_qExpand ℓ' ℓ f
+
+end QExpandAlg
 
 variable {L} in
 
@@ -475,12 +497,10 @@ section QExpAlg
 
 variable (K : Type*) [Field K]
 
-/-- The `q ↦ q ^ ℓ` substitution as a `K`-algebra endomorphism of `LaurentSeries K`. -/
-def qExpAlg (ℓ : ℕ) [NeZero ℓ] : LaurentSeries K →ₐ[K] LaurentSeries K where
-  __ := qExpand K ℓ
-  commutes' c := by
-    show qExpand K ℓ (algebraMap K (LaurentSeries K) c) = algebraMap K (LaurentSeries K) c
-    rw [algebraMap_laurentSeries_eq_single, qExpand_single, mul_zero]
+/-- The pin's `qExpAlg`: the `q ↦ q ^ ℓ` substitution as a `K`-algebra endomorphism of
+`LaurentSeries K` — the same map as `qExpandAlg`, at the same type.  It keeps the pin's
+name (its `S_` blocks state it and seventeen sites use it) but not a second proof. -/
+abbrev qExpAlg (ℓ : ℕ) [NeZero ℓ] : LaurentSeries K →ₐ[K] LaurentSeries K := qExpandAlg K ℓ
 
 @[scoped simp]
 theorem qExpAlg_apply (ℓ : ℕ) [NeZero ℓ] (f : LaurentSeries K) :

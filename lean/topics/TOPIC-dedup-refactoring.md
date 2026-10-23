@@ -468,3 +468,62 @@ part of the statement and matching is by last name (2026-10-20, 302 declarations
 headline at `AutomorphicForm.`; the pin's `F4CutWords`/`PartB*`/`FarmE*`/`PartTQE` sections survive
 only as citations in their headers. `A2HexPoisson` and `ChevalleyHom` stay deliberately — they name
 their subject and mathlib has no counterpart (homing note §8.1).
+
+## 10. The port's duplicate families — 2026-10-23 survey
+
+The instrument's whole-port reading (24,564 declarations, 884 modules) is **895 duplicate clusters /
+9,856 removable lines**, of which 1,818 are inside one module:
+
+| tier | clusters | removable lines |
+|---|---:|---:|
+| `name` | 391 | 4,241 |
+| `shape` | 300 | 4,633 |
+| `body` | 204 | 982 |
+
+Two corrections to the headline number. The `shape` normal form can degenerate — five clusters key on
+a bare `⊢ letI` / `⊢ True` (428 lines, including sixteen `axiomAnchor_*` declarations that are
+literally `True`), so ≈9,400 is the honest figure. And most of the `name` tier is the *generalise*
+class (same name, different statement), which costs nothing to leave in place.
+
+**The class the instrument cannot see is the one this note keeps meeting.** A definition that is
+another definition's **specialisation** under a second name is invisible to all three tiers: `name`
+needs the same last name, `shape` keys statements and not `def`s, and `body` normalises currying,
+projections and arithmetic spellings but not "`f K := … K …` read at `K = ℚ`" (nor an `abbrev` alias,
+nor a body spelled through a different but defeq name). The worked instance: `qExpandAlgHomC`
+(general field) and `qExpandₐ` (ℚ) are one construction with one proof term, and the pin carries the
+same map under four names (`qExpandAlg`, `qExpandAlgHomC`, `qExpandAlgC`, `qExpandₐ`). The port had
+reproduced two of them, and the family was found by a checker `MISMATCH` in a *promoted statement* —
+not by the instrument.
+
+The families, with the counts measured in that survey:
+
+* **C1 specialisation** — **closed** (HD1d, 2026-10-23): one `qExpandAlg` at `[CommRing K]` in
+  `ModularCurve/Defs/Laurent.lean`, `qExpandₐ = qExpandAlg ℚ`, `qExpAlg` an abbrev of it, and
+  `qExpandAlgHomC` deleted (50 sites over 5 modules). The pass also produced the sharpest instance of
+  the instrument gap: `qExpandAlg` and `qExpAlg` sat in one file with the same type and construction,
+  and `dedup.py` read that module as clean — different names, `def`s not keyed by shape, and proof
+  terms that differ (one closes through a `[Field L]`-only lemma). **Closed** (HD1d,
+  2026-10-23): `Defs/Laurent.lean` now holds the one `qExpandAlg` (general `[CommRing K]`), `qExpandₐ`
+  is its `ℚ` specialisation, `qExpandAlgHomC`/`_apply` are gone, and the whole-port re-run after the
+  pass reads the same 895 clusters / 9,856 lines as the survey above — the pass added no cluster.
+* **C2 pin-name variants of one statement** — `map_jqNModC`/`coeffMap_jqNModC`,
+  `coeffMap_jqModC` ×4, `qCoeff_*` ×8, `periodic_*` ×9 — all closed in this session.
+* **C3 per-module field abbreviations** — `FF/FF'/BB/KK/KT/QQ/roof/KL/EL/RR`, `An`, `Gam/Gam'`:
+  about twenty today, and the whole one-line-alias class is 498 declarations, mostly pin notation
+  (`Idx`, `jK`, `genSet`) that costs one line and no proof.
+* **C4 prelude blocks** — the pin's `TS`/`jqModC` prelude in 41 + 11 files; the port's remaining
+  `T_mem_Gamma1` ×8, `T_pow_mem_Gamma1` ×4, `isBoundedAtImInfty_heckeU` ×3,
+  `one_mem_strictPeriods_Gamma0` ×2.
+* **C5 equivalent predicates under one name** — the two `IsRat`s.
+* **C6 cross-module body duplicates** — `liftMulRLin` ×4, `liftMulLLin` ×4, `slFnAction` ×3,
+  `cwAlgHom` ×3.
+
+**The pass shape is §5's, unchanged**, with one addition: one public home per *object*, not per
+statement — the L3 promotions (`qCoeff_*`, `periodic_*`), the `map_jqNModC` completion, and the HD1c
+β-tower promotion are the three worked examples, each gated by "build green, `check_port` 0
+mismatch / 0 missing, `dedup.py` on the touched area reads 0 clusters". The live ledger, including the
+per-wave numbers and the refactor order (C1 first, C3 riding the next twin transcription, C4's
+pin-public promotions, C6 by strongest pair), is kept with the dedup tooling itself; the instrument gap
+— a fourth tier for specialisation / definition identity — is recorded there too, because closing it
+is what would make C1 and C3 measurable instead of found by accident.
+

@@ -25,10 +25,22 @@ from the generic module, so the port writes **only** the `qExp` copy; the generi
 ≈342 + 156 lines plus its two wrappers).  The three generic Frobenius-identity
 lemmas whose *proofs* the `qExp` copy genuinely consumes
 (`intCast_pow_char_eq`, the `pow_char_eq_coeffMap_frobenius_qExpand` chain and
-`charP_laurentSeriesC`) plus `qExpandAlgHomC`/`coeffMap_ofPowerSeries` are ported
-here from `Def_ModularCurve_FrobeniusModL.lean` / `Def_ModularCurve_X0ModL.lean`.
+`charP_laurentSeriesC`) plus `coeffMap_ofPowerSeries` are ported here from
+`Def_ModularCurve_FrobeniusModL.lean` / `Def_ModularCurve_X0ModL.lean`.
 
-The public statements are the pin's verbatim. -/
+The general `K`-algebra form of `qExpand` that `qExpFrobeniusModL_map_le` acts
+with is **not** declared here: it is ported once, beside `qExpand` itself, as
+`ModularCurve.qExpandAlg` in `ModularCurve/Defs/Laurent.lean` (the C1 dedup,
+HD1d).  The pin carries the same map in `Def_ModularCurve_X0ModL.lean:77` under a
+`HomC`-suffixed name — its `S_` files, and now the port, call it `qExpandAlg` —
+and `qExpandₐ` is its `ℚ` specialisation.
+
+The public statements are the pin's verbatim.
+
+  spec-pin: Definitions/Def_ModularCurve_QExpFrobeniusModL.lean
+  spec-pin: Definitions/Def_ModularCurve_FrobeniusModL.lean
+  spec-pin: Definitions/Def_ModularCurve_X0ModL.lean
+-/
 import FLTForHuman.ModularCurve.JqIntegralRatios
 import FLTForHuman.AlgebraicCurve.WeilExchange.Transport
 import Mathlib.RingTheory.LaurentSeries
@@ -65,23 +77,6 @@ theorem coeffMap_ofPowerSeries (f : R →+* S) (p : PowerSeries R) :
   · rw [ofPowerSeries_coeff_of_neg _ hk, ofPowerSeries_coeff_of_neg _ hk, map_zero]
 
 end CoeffMapSupply
-
-section QExpandAlg
-
-variable (K : Type*) [Field K] (N : ℕ) [NeZero N]
-
-/-- `qExpand` bundled as a `K`-algebra endomorphism.  From
-`Definitions/Def_ModularCurve_X0ModL.lean`. -/
-def qExpandAlgHomC : LaurentSeries K →ₐ[K] LaurentSeries K where
-  __ := qExpand K N
-  commutes' c := by
-    show qExpand K N (algebraMap K (LaurentSeries K) c) = algebraMap K (LaurentSeries K) c
-    rw [algebraMap_laurentSeries_eq_single, qExpand_single, mul_zero]
-
-@[simp]
-theorem qExpandAlgHomC_apply (f : LaurentSeries K) : qExpandAlgHomC K N f = qExpand K N f := rfl
-
-end QExpandAlg
 
 section ExpandSeam
 
@@ -215,11 +210,11 @@ variable (K : Type*) [Field K] (Γ : Subgroup (Matrix.SpecialLinearGroup (Fin 2)
 variable (ℓ : ℕ) [Fact ℓ.Prime] [CharP K ℓ]
 
 theorem qExpFrobeniusModL_map_le :
-    (qExpFunctionFieldC K Γ).map (qExpandAlgHomC K ℓ) ≤ qExpFunctionFieldC K Γ := by
+    (qExpFunctionFieldC K Γ).map (qExpandAlg K ℓ) ≤ qExpFunctionFieldC K Γ := by
   rw [qExpFunctionFieldC, adjoin_map, adjoin_le_iff]
   rintro x ⟨y, ⟨k, f, g, pf, pg, hf, hg, hg0, rfl⟩, rfl⟩
-  show qExpandAlgHomC K ℓ (intSeriesC K pf / intSeriesC K pg) ∈ qExpFunctionFieldC K Γ
-  rw [qExpandAlgHomC_apply, map_div₀, qExpand_intSeriesC_eq_pow, qExpand_intSeriesC_eq_pow, ← div_pow]
+  show qExpandAlg K ℓ (intSeriesC K pf / intSeriesC K pg) ∈ qExpFunctionFieldC K Γ
+  rw [qExpandAlg_apply, map_div₀, qExpand_intSeriesC_eq_pow, qExpand_intSeriesC_eq_pow, ← div_pow]
   exact pow_mem (div_mem_qExpFunctionFieldC f g hf hg hg0) ℓ
 
 variable {K Γ ℓ} in
