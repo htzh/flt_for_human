@@ -3981,7 +3981,6 @@ PORT_FILES = [
     "FLTForHuman/AlgebraicCurve/Defs/LocalResidue.lean",
     "FLTForHuman/AlgebraicCurve/Defs/WeilOfKaehler.lean",
     "FLTForHuman/AlgebraicCurve/Defs/RegularDifferentials.lean",
-    "FLTForHuman/AlgebraicCurve/Canonical/WeilDifferential.lean",
     # --- P2 (the canonical divisor and its two Kähler prerequisites), the modules
     # that consume the D/H3 layer. KaehlerTranscendental first (the two headlines
     # the HasCanonicalDivisor chain applies), then the construction. Appended last

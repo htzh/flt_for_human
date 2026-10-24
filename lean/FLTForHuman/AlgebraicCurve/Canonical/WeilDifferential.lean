@@ -30,17 +30,50 @@ therefore re-provisioned them `private` here, per PLAN-P1.md §2.  **The refacto
 has promoted them**: both now live publicly in `Defs/WeilOfKaehler.lean` (with the
 pin-public support lemmas and the pin-`private` helpers), and this module imports
 them.  No statement changed.
+
+## The regular-differentials dictionary, reused
+
+The pin proves this S_ file's `canonicalDivisorOf_nonneg_of_mem_regularDifferentials` /
+`mem_regularDifferentials_of_canonicalDivisorOf_nonneg` by hand, from the valuation
+dictionary.  They are the `h = 1` case of the pole-bound dictionary's per-place engine
+`Place.isRegularAt_smul_iff_ord` (`Defs/PolarDifferentials.lean`, which is the pin's
+`isRegularAt_smul_iff` without its unused `IsCurveOver` binder), and this module states
+them that way; no statement changed.  The pin-private `ord_nonneg_of_mem_vs` /
+`mem_vs_of_ord_nonneg` are kept (they are this S_ file's `p2m_export`ed spelling and
+`Canonical/HasCanonicalDivisor.lean` calls them) but no longer carry their own proof of
+the valuation dictionary: they go through `Place.ord_nonneg_of_mem` /
+`Place.mem_of_ord_nonneg` (`Defs/PushPull.lean`), of which the second is the more general
+form here.
+
+## Wiring
+
+This module was on the legacy checker's frozen lists; it now carries its own `spec-pin:`
+wire and is checked by `spec/check_port.py` (the pin-private promotions and the pin's
+`'`-suffixed spellings are accounted for in `spec/decl_markers.tsv`).  It is no longer
+listed in `spec/old_check_stmts.py`'s `PORT_FILES`.
+
+  spec-pin: Theorems/Thm_AlgebraicCurve_exists_linearEquiv_regularDifferentials_omegaSpace_zero.lean
+  spec-pin: P2M/Sol/S_AlgebraicCurve_exists_linearEquiv_regularDifferentials_omegaSpace_zero.lean
+  Drift against `v4.34.0`: proof-only; the statements are the pin's.  The pin's
+  `p2m_*` staging, `attribute` walls and the `_root_.` escapes are dropped, and the two
+  membership lemmas are proved as the `h = 1` case of the pole-bound dictionary.
 -/
 import FLTForHuman.AlgebraicCurve.Defs.CanonicalDivisorUniformizer
 import FLTForHuman.AlgebraicCurve.Defs.LocalResidue
 import FLTForHuman.AlgebraicCurve.Defs.WeilOfKaehler
 import FLTForHuman.AlgebraicCurve.Defs.RegularDifferentials
+import FLTForHuman.AlgebraicCurve.Defs.PushPull
+import FLTForHuman.AlgebraicCurve.Defs.PolarDifferentials
 import FLTForHuman.AlgebraicCurve.Genus.Index
 import FLTForHuman.AlgebraicCurve.Genus.Stichtenoth
 import FLTForHuman.AlgebraicCurve.RiemannRoch.Assembly
 import Mathlib.RingTheory.Trace.Basic
 
 set_option autoImplicit false
+-- The pin's `Generic` section carries four instances at once and each lemma uses a subset; the
+-- statements' binder lists are the pin's verbatim, so the unused ones are kept rather than omitted
+-- (7 declarations, all in that section).  Measured: disabling it here silences exactly those.
+set_option linter.unusedSectionVars false
 
 noncomputable section
 
@@ -54,26 +87,15 @@ namespace Place
 
 variable (v : Place K F)
 
-theorem ord_nonneg_of_mem_vs {f : F} (hf : f ∈ v.toValuationSubring) : 0 ≤ v.ord f := by
-  rcases eq_or_ne f 0 with rfl | hf0
-  · rw [v.ord_zero]
-  · have hle : v.adicValuation f ≤ 1 := by
-      rw [show f = ((⟨f, hf⟩ : v.toValuationSubring) : F) from rfl, v.adicValuation_coe]
-      exact IsDedekindDomain.HeightOneSpectrum.intValuation_le_one _ _
-    have hlog : WithZero.log (v.adicValuation f) ≤ 0 := by
-      rw [← WithZero.exp_zero] at hle
-      exact (WithZero.log_le_iff_le_exp (v.adicValuation_ne_zero hf0)).mpr hle
-    unfold Place.ord
-    omega
+theorem ord_nonneg_of_mem_vs {f : F} (hf : f ∈ v.toValuationSubring) : 0 ≤ v.ord f :=
+  v.ord_nonneg_of_mem hf
 
+/-- The general form of `Place.mem_of_ord_nonneg`: no non-zero hypothesis, since `0` is
+integral.  `Place.mem_of_ord_nonneg` is its `f ≠ 0` specialization. -/
 theorem mem_vs_of_ord_nonneg {f : F} (h : 0 ≤ v.ord f) : f ∈ v.toValuationSubring := by
   rcases eq_or_ne f 0 with rfl | hf
   · exact zero_mem _
-  obtain ⟨π, hπ⟩ := IsDiscreteValuationRing.exists_irreducible v.toValuationSubring
-  obtain ⟨u, hu⟩ := v.exists_unit_mul_zpow hf hπ
-  rw [hu, show v.ord f = (((v.ord f).toNat : ℕ) : ℤ) from (Int.toNat_of_nonneg h).symm,
-    zpow_natCast]
-  exact mul_mem (u : v.toValuationSubring).2 (pow_mem (π : v.toValuationSubring).2 _)
+  · exact v.mem_of_ord_nonneg hf h
 
 variable [v.DCoordGenerates] [Nontrivial Ω[F⁄K]]
 
@@ -121,20 +143,22 @@ variable [HasCanonicalLocalResidueKStar K F] [HasCanonicalDivisor (K := K) (F :=
 theorem canonicalDivisorOf_nonneg_of_mem_regularDifferentials {ω : Ω[F⁄K]} (hω0 : ω ≠ 0)
     (hω : ω ∈ regularDifferentials K F) : 0 ≤ canonicalDivisorOf hω0 := by
   refine Finsupp.le_def.mpr fun v => ?_
-  rw [Finsupp.coe_zero, Pi.zero_apply, canonicalDivisorOf_apply]
-  obtain ⟨g, hg, hωg⟩ := hω v
-  show 0 ≤ v.ord (v.differentialCoeff ω)
-  rw [v.differentialCoeff_unique hωg]
-  exact v.ord_nonneg_of_mem_vs hg
+  rw [Finsupp.coe_zero, Pi.zero_apply]
+  have hreg : v.IsRegularAt ((1 : F) • ω) := by
+    rw [one_smul]; exact hω v
+  have h := (v.isRegularAt_smul_iff_ord (h := (1 : F)) hω0 one_ne_zero).mp hreg
+  simpa [v.ord_one] using h
 
 theorem mem_regularDifferentials_of_canonicalDivisorOf_nonneg {ω : Ω[F⁄K]} (hω0 : ω ≠ 0)
     (h : 0 ≤ canonicalDivisorOf hω0) : ω ∈ regularDifferentials K F := by
   intro v
-  refine ⟨v.differentialCoeff ω, ?_, (v.differentialCoeff_smul_dCoord ω).symm⟩
-  apply v.mem_vs_of_ord_nonneg
-  have hv := Finsupp.le_def.mp h v
-  rw [Finsupp.coe_zero, Pi.zero_apply, canonicalDivisorOf_apply] at hv
-  exact hv
+  have hv : 0 ≤ v.ord (1 : F) + canonicalDivisorOf hω0 v := by
+    have := Finsupp.le_def.mp h v
+    simpa [Finsupp.coe_zero, Pi.zero_apply] using this
+  have hreg : v.IsRegularAt ((1 : F) • ω) :=
+    (v.isRegularAt_smul_iff_ord (h := (1 : F)) hω0 one_ne_zero).mpr hv
+  rw [one_smul] at hreg
+  exact hreg
 
 theorem kaehlerResidueTerm_add_left_s2 (ω η : Ω[F⁄K]) (α : Place K F → F) (v : Place K F) :
     kaehlerResidueTerm (ω + η) α v = kaehlerResidueTerm ω α v + kaehlerResidueTerm η α v := by

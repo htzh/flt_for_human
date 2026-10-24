@@ -22,6 +22,8 @@ mechanical. **A node is ported whole** (§2.3). Earlier records cite an older nu
    deferred surface registered.
 2. **Home by subject, and let mathematical clarity decide.** A module is a mathematical
    role, a directory is a theory; the tree should make the mathematics visible (§3.1–§3.2).
+   Build time is not a homing consideration: never move, split or fold a result to shorten
+   a build cascade.
 3. **The manager scopes, ports the definition layer, and settles every promotion and
    hub-edit question.** A subagent never opens one; it reports and stops (§3.4).
 4. **Proof bodies go to subagents under a written work order**, sized at roughly **1,500
@@ -492,8 +494,7 @@ Five rules:
    you read a stale result. Run it once, when nothing further will be edited, and only with the
    user's explicit agreement — a "just to verify" run counts.
 
-If a build still misbehaves, hand it to a subagent briefed on the build-cost note (§0.2, §0.4),
-and keep heavy modules at the leaves and shared hubs small and cheap.
+If a build still misbehaves, hand it to a subagent briefed on the build-cost note (§0.2, §0.4).
 
 > **Build discipline (copy into each work order).** Edit loop
 > `timeout 120 lake env lean -DautoImplicit=false -DmaxHeartbeats=200000 <file>` —
@@ -750,9 +751,11 @@ exporting.
   text-only), reserving *public* for the pin's names, the exported API and a shared engine — which
   is exported on purpose, not hidden (§4)
   ([../notes/lean-build-cost.md](../notes/lean-build-cost.md) §2).
-- **Home is a build-cost decision**: promote where the needed type is available, rename at
-  promotion when the pin name is taken (keeping a local alias), and prefer the leaf side of a hub
-  boundary when the mathematics admits either home — but never split a genuine theory.
+- **Home is a mathematical decision**: put a result in the module whose subject it is, promote
+  where the needed type is available, and rename at promotion when the pin name is taken (keeping
+  a local alias). Where two homes are both faithful to the mathematics, choose the one a reader
+  would look in. Never split a genuine theory, and never let build time choose the module: a
+  cascade is a scheduling fact, not an argument about where mathematics belongs (§0.1.2, §3.2).
 - **Name a promoted helper at the prefix-stripped pin name** (`kw_g₂_ofTau` → `g₂_ofTau`; the
   checker matches it through its `kw_` strip). A transcribed declaration keeps the pin's name, `kw_`
   included; a module-local helper is `private` with a content name. Never leave one both public and

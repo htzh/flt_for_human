@@ -34,6 +34,16 @@ mathematics: the proof is the pin's `solution` body over premises already public
 and in `IsCurveOver/{Transcendental,EssFiniteType}.lean`, and the statement is the
 wrapper's verbatim. Axioms `[propext, Classical.choice, Quot.sound]`.
 
+The pin's `riemannRoch_and_constantsAreBase`
+(`S_AlgebraicCurve_finite_and_finrank_regularDifferentials_eq_genus.lean:143`, stated identically at
+`S_AlgebraicCurve_finite_and_finrank_polarDifferentials_eq.lean:261`) is the pair
+(`FunctionFieldRiemannRoch`, `ConstantsAreBase`) from the curve axioms, and it is the prelude that
+both of the pin's differentials-dimension nodes inline. It is written once here: its
+`RatFunc`-tower body was lifted out of the wrapper above, which now reads its first projection, and
+`Canonical/{PolarDifferentials,RegularDifferentialsFinrank}.lean` consume it. Neither pin original
+is in this module's `spec-pin:` wire, so `spec/decl_markers.tsv` carries the `pin:` row that adds the
+file for that one declaration.
+
 Promotion debt: the pin-private `Place.exists_trace_residue_ne_zero` (pin 4863) lives
 `private` in the frozen `Defs/WeilOfKaehler.lean`; re-provisioned `private` here.
 
@@ -809,37 +819,31 @@ theorem AlgebraicCurve.functionFieldRiemannRoch_of_isAlgClosed_of_isCurveOver
   intro _ _ _ ω hω D
   exact functionFieldRiemannRoch_of_isAlgClosed (K := K) (F := F) hω D
 
-/-! ## The bare-hypothesis wrapper
+/-! ## The pin's `riemannRoch_and_constantsAreBase`
 
-Riemann–Roch from a transcendental generator alone, the curve package derived. This is
-the interface sixteen pin consumers state against (`hfg : ∃ x, Transcendental K x ∧
-FiniteDimensional (K⟮x⟯) F`), so it is the adapter between
-`functionFieldRiemannRoch_of_isAlgClosed_of_isCurveOver` above and their hypotheses.
-The proof is the pin's `solution` verbatim: a separating `t` over the algebraically
-closed base, the curve package from it, then the `RatFunc`-tower transport of
-`IsCurveOver/Transcendental.lean`'s pattern (`hsq`, `IsScalarTower.of_algebraMap_eq`,
-`Module.Finite.of_equiv_equiv`, `Algebra.IsSeparable.of_equiv_equiv`). -/
+The pin states "Riemann–Roch and the constants are the base field" twice, identically, as the
+prelude of its two differentials-dimension nodes
+(`S_AlgebraicCurve_finite_and_finrank_regularDifferentials_eq_genus.lean:143`,
+`S_AlgebraicCurve_finite_and_finrank_polarDifferentials_eq.lean:261`), and both inline the same
+`RatFunc`-tower transport.  It is the curve-axioms producer behind the sixteen
+`_of_transcendental`-style consumers, so it is written once here, next to the wrappers it feeds. -/
 
-/-- **Riemann–Roch over an algebraically closed constant field, from a transcendental
-generator.**  Verbatim from
-`Theorems/Thm_AlgebraicCurve_functionFieldRiemannRoch_of_isAlgClosed_of_transcendental.lean`;
-the proof is `S_AlgebraicCurve_functionFieldRiemannRoch_of_isAlgClosed_of_transcendental.solution`. -/
-theorem AlgebraicCurve.functionFieldRiemannRoch_of_isAlgClosed_of_transcendental
-    {K F : Type*} [Field K] [IsAlgClosed K] [Field F] [Algebra K F]
-    {x : F} (htr : Transcendental K x)
-    (hfd : FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F) :
-    AlgebraicCurve.FunctionFieldRiemannRoch K F := by
+section RiemannRochConstants
+
+variable {K F : Type*} [Field K] [Field F] [Algebra K F]
+
+/-- **Riemann–Roch and `ConstantsAreBase` from the curve axioms** (the pin's statement, with the
+section variables of the pin's `S_` file). -/
+theorem AlgebraicCurve.riemannRoch_and_constantsAreBase
+    [IsAlgClosed K] [Algebra.EssFiniteType K F]
+    [IsCurveOver K F] [HasCanonicalDivisor (K := K) (F := F)]
+    [∀ v : Place K F, v.DCoordGenerates] :
+    FunctionFieldRiemannRoch K F ∧ ConstantsAreBase K F := by
   classical
   have : PerfectField K := IsAlgClosed.perfectField K
-  obtain ⟨t, ht, htfd, htsep⟩ :=
-    exists_separating_transcendental_of_perfectField htr hfd
+  obtain ⟨t, ht, htfd, htsep⟩ := IsCurveOver.exists_separating_transcendental (K := K) (F := F)
   have := htfd
   have := htsep
-  have : IsCurveOver K F := isCurveOver_of_transcendental ht htfd htsep
-  have : Algebra.EssFiniteType K F :=
-    essFiniteType_of_transcendental_of_finiteDimensional ht htfd
-  have : HasCanonicalDivisor (K := K) (F := F) := hasCanonicalDivisor_of_isCurveOver
-  have : ∀ w : Place K F, w.DCoordGenerates := dCoordGenerates_of_isCurveOver
   set e : RatFunc K ≃ₐ[K] IntermediateField.adjoin K ({t} : Set F) :=
     RatFunc.algEquivOfTranscendental t ht with he
   let : Algebra (RatFunc K) F :=
@@ -877,8 +881,42 @@ theorem AlgebraicCurve.functionFieldRiemannRoch_of_isAlgClosed_of_transcendental
     essFiniteType_of_transcendental_of_finiteDimensional
       (RatFunc.transcendental_X (K := K)) inferInstance
   have : ∀ v : Place K (RatFunc K), v.DCoordGenerates := dCoordGenerates_of_isCurveOver
-  unfold AlgebraicCurve.FunctionFieldRiemannRoch
+  refine ⟨?_, constantsAreBase_of_isAlgClosed K F⟩
+  unfold FunctionFieldRiemannRoch
   intro _ _ _ ω hω D
   exact functionFieldRiemannRoch_of_isAlgClosed_of_isCurveOver (K := K) (F := F) hω D
+
+end RiemannRochConstants
+
+/-! ## The bare-hypothesis wrapper
+
+Riemann–Roch from a transcendental generator alone, the curve package derived. This is
+the interface sixteen pin consumers state against (`hfg : ∃ x, Transcendental K x ∧
+FiniteDimensional (K⟮x⟯) F`), so it is the adapter between
+`functionFieldRiemannRoch_of_isAlgClosed_of_isCurveOver` above and their hypotheses.
+The tower transport itself is `riemannRoch_and_constantsAreBase` above; this wrapper derives the
+curve package from `(htr, hfd)` and takes that theorem's first projection. -/
+
+/-- **Riemann–Roch over an algebraically closed constant field, from a transcendental
+generator.**  Verbatim from
+`Theorems/Thm_AlgebraicCurve_functionFieldRiemannRoch_of_isAlgClosed_of_transcendental.lean`;
+the proof is `S_AlgebraicCurve_functionFieldRiemannRoch_of_isAlgClosed_of_transcendental.solution`. -/
+theorem AlgebraicCurve.functionFieldRiemannRoch_of_isAlgClosed_of_transcendental
+    {K F : Type*} [Field K] [IsAlgClosed K] [Field F] [Algebra K F]
+    {x : F} (htr : Transcendental K x)
+    (hfd : FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F) :
+    AlgebraicCurve.FunctionFieldRiemannRoch K F := by
+  classical
+  have : PerfectField K := IsAlgClosed.perfectField K
+  obtain ⟨t, ht, htfd, htsep⟩ :=
+    exists_separating_transcendental_of_perfectField htr hfd
+  have : IsCurveOver K F := isCurveOver_of_transcendental ht htfd htsep
+  have : Algebra.EssFiniteType K F :=
+    essFiniteType_of_transcendental_of_finiteDimensional ht htfd
+  have : HasCanonicalDivisor (K := K) (F := F) := hasCanonicalDivisor_of_isCurveOver
+  have : ∀ w : Place K F, w.DCoordGenerates := dCoordGenerates_of_isCurveOver
+  unfold AlgebraicCurve.FunctionFieldRiemannRoch
+  intro _ _ _ ω hω D
+  exact (AlgebraicCurve.riemannRoch_and_constantsAreBase (K := K) (F := F)).1 hω D
 
 end
