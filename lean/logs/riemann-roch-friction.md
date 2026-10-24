@@ -372,6 +372,18 @@ set**; schedule it separately and expect it may surface pre-existing mismatches.
   carries the same mathematics, so the proof bodies were rewritten and a private
   dichotomy rebuilt, statements untouched. That is a recorded reuse win, not a
   boundary stop.
+- **The `gate_*` family is left in place — decision 2026-10-23.** The module's 18
+  public `gate_*` lemmas (191 lines) are the pin's — and the project's — scout/
+  verification gates, checking that each interface of the tower is instantiable
+  along the real hypotheses. A consumer audit (`grep` over `FLTForHuman`, `Reserve`
+  and `spec/`) found no consumer outside the module; inside it, 16 occur only on
+  their own declaration line and the other two only in each other's proof
+  (`gate_stichtenothGenus_le_of_poleDivisorPackage` and
+  `gate_x_transcendental_of_poleDivisorPackage`), so they are not load-bearing.
+  `dedup.py` reports 0 duplicate clusters, and `move_dead.py --select dead` reports
+  0 by construction (every public declaration is a live root). They are kept public
+  by decision — the project's gate idiom, public in the pin — not demoted and not
+  shelved.
 
 
 ## Set H2 — assembly, the Weil canonical divisor, and the `H¹` identification (`WORKORDER-H2-assembly.md`)

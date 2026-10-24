@@ -16,8 +16,9 @@ only wired modules).
 | `Reserve/ModularCurve/Analytic/LevelTauBridge.lean` | the bridge from the analytic $`\tau`$-model to the torsion/level data |
 | `Reserve/AutomorphicForm/Adelic/FactorizableTestFnArchSmoothDead.lean` | the real-place factorizable-test-function chart's **left**-derivative half — the FTF1 headline's unreachable 25 declarations plus the 43 private premises they need, copied out so the port's module holds only the proof |
 | `Reserve/AutomorphicForm/Adelic/FactorizableTestFnArchSmoothComplexDead.lean` | its complex mirror (24 declarations + 43 premises) |
+| `Reserve/AlgebraicCurve/Place/ApproximationDead.lean` | one unreachable helper of the weak-approximation node — the order at `w` of a unit of `v`'s valuation subring (`Place.ord_coe_unit_eq_zero_of_le`); its only pin consumer is the `S_` file's own separation lemma, which the port carries publicly in `Place/OrdCalculus.lean` with a different proof |
 
-The two `…Dead.lean` shelves are the first `--copy` outcome of
+The `…Dead.lean` shelves are the first `--copy` outcome of
 `tools/deps/move_dead.py`: written in one run from the live modules, they import
 only the port's public API and never the module they came from, and their
 declarations stay `private` as in the pin. How a module gets here — and what
