@@ -4339,7 +4339,6 @@ PORT_FILES = [
     "FLTForHuman/AlgebraicCurve/PrincipalDivisors/SeparableRatFunc.lean",
     "FLTForHuman/WeierstrassCurve/PrincipalDivisorsSeparable.lean",
     "FLTForHuman/WeierstrassCurve/Isogeny/PointMapSurjective.lean",
-    "FLTForHuman/WeierstrassCurve/Velu/PointMapOddOrder.lean",
     # --- V3: the translation automorphism of `W.FunctionField` by a point and its
     # action on the places. The two headlines are the only public declarations, so
     # only they are diffed; every helper (the taylor block, the single
@@ -4700,7 +4699,9 @@ PORT_FILES = [
     # per story: the leading coefficient, the uniqueness/irreducibility/symmetry trio, and the
     # star action. Only the headline(s) of each are public; the pin's helpers are re-derived
     # `private`, so the checker sees exactly five new declarations. Appended last.
-    "FLTForHuman/ModularCurve/ModularPolynomialLeadingCoeff.lean",
+    # `ModularPolynomialLeadingCoeff.lean` is **handed over (2026-10-23)**: it carries
+    # `spec-pin:` for its wrapper and `spec/check_port.py` owns it, so it is no longer
+    # listed here.
     "FLTForHuman/ModularCurve/ModularPolynomialUniquenessIrreducible.lean",
     "FLTForHuman/ModularCurve/ModularPolynomialStarBank.lean",
     # --- Manager wave of 2026-10-09: the definition layer of subject A and subject B2.
@@ -4709,10 +4710,12 @@ PORT_FILES = [
     # lemmas); `Defs/ClassicalModularPolynomials.lean` is `phiTwo`/`phiThree`/`intFibre`;
     # `Defs/FibrePoly.lean` is `fibrePoly` — which was `private` in `Degree/PhiData.lean`
     # and is now public at the pin's name there, with `PhiData` importing it (dedup) —
-    # together with its three theorems and the `ReduceModBivar` block. Appended last.
+    # together with its three theorems and the `ReduceModBivar` block. It is **handed
+    # over (2026-10-23)**: it now carries `spec-pin:` for the pin definition file, the
+    # `ReduceModBivar` block and the three promoted `*_fibrePoly` theorem wrappers, and
+    # `spec/check_port.py` owns it, so it is no longer listed here.
     "FLTForHuman/ModularCurve/LevelN/FunctionField.lean",
     "FLTForHuman/ModularCurve/Defs/ClassicalModularPolynomials.lean",
-    "FLTForHuman/ModularCurve/Defs/FibrePoly.lean",
     # --- WORKORDER-B2: the `N = 2` fibre row of subject B. One public headline
     # (`ModularCurve.fibrePoly_phiTwo_j_eq_prod_veluQuotient2_j`); the pin silo's other six
     # declarations are `S_`-local and re-derived `private`, so the checker sees exactly one new

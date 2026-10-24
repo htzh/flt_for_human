@@ -6,7 +6,7 @@ Statement transcribed verbatim from the pinned FLT `aa2d8b3` wrapper
 `Theorems/Thm_WeierstrassCurve_zmultiples_eq_of_veluQuotient_j_eq_of_forall_isogenyEndDatum_exists_int.lean`
 (28 lines); the proof follows
 `P2M/Sol/S_WeierstrassCurve_zmultiples_eq_of_veluQuotient_j_eq_of_forall_isogenyEndDatum_exists_int.lean`
-(525 lines; `cmm5_dp_natCard_ker_comp` at 39, `normFormulaAlong_of_elliptic` at 106,
+(525 lines; `natCard_ker_comp` at 39, `normFormulaAlong_of_elliptic` at 106,
 `charZero_addMonoidEnd_point` at 127, `intCast_addMonoidEnd_point_injective` at 155,
 `point_infinite` at 162, `nat_card_ker_of_zsmul` at 190, `eq_zero_of_zsmul_eq_zero`
 at 211, `Pic0_pushforwardAlongHom_comp` at 230, `pointMapOfPushforward_comp` at 248,
@@ -44,7 +44,16 @@ References (public mirror, pinned):
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_WeierstrassCurve_zmultiples_eq_of_veluQuotient_j_eq_of_forall_isogenyEndDatum_exists_int.lean>
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_zmultiples_eq_of_veluQuotient_j_eq_of_forall_isogenyEndDatum_exists_int.lean>
 
+**The transcendental variant.**  `zmultiples_eq_of_veluQuotient_j_eq_of_transcendental` is the
+same statement with the `hEnd` hypothesis *discharged*: over `𝕂 = HahnSeries ℚ (AlgebraicClosure ℚ)`
+the pin's `S_` file derives `CharZero`/`IsAlgClosed`/the two place gates and feeds
+`hEnd D := IsogenyEndDatum.exists_forall_pointEnd_eq_zsmul_of_transcendental_j W hNs ht' D` from
+`IsogenyEndDatum/TranscendentalRigidity.lean`, which turns a transcendental `j` into
+`End(W) = ℤ`.  The `CharZero` step is spelled `charZero_of_injective_ringHom
+(HahnSeries.C_injective (R := AlgebraicClosure ℚ) (Γ := ℚ))`.
+
   spec-pin: Theorems/Thm_WeierstrassCurve_zmultiples_eq_of_veluQuotient_j_eq_of_forall_isogenyEndDatum_exists_int.lean
+  spec-pin: Theorems/Thm_WeierstrassCurve_zmultiples_eq_of_veluQuotient_j_eq_of_transcendental.lean
 -/
 import FLTForHuman.AlgebraicCurve.WeilExchange.Transport
 import FLTForHuman.WeierstrassCurve.Isogeny.ConditionalCurrency
@@ -59,6 +68,8 @@ import FLTForHuman.WeierstrassCurve.GenusOnePlaceGateCentred
 import FLTForHuman.WeierstrassCurve.PrincipalDivisors
 import FLTForHuman.WeierstrassCurve.Velu.PointMapOddOrder
 import FLTForHuman.WeierstrassCurve.Velu.MapEquation
+import FLTForHuman.RingTheory.HahnSeries.IsAlgClosed
+import FLTForHuman.WeierstrassCurve.IsogenyEndDatum.TranscendentalRigidity
 import Mathlib.AlgebraicGeometry.EllipticCurve.IsomOfJ
 import Mathlib.RingTheory.HahnSeries.Summable
 import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
@@ -76,7 +87,7 @@ namespace WeierstrassCurve
 
 /-! ### The kernel cardinality of a composite (pin 39–85) -/
 
-private theorem cmm5_dp_natCard_ker_comp {A B C : Type*} [AddCommGroup A] [AddCommGroup B]
+private theorem natCard_ker_comp {A B C : Type*} [AddCommGroup A] [AddCommGroup B]
     [AddCommGroup C] (f : A →+ B) (g : B →+ C) (hf : Function.Surjective f) :
     Nat.card (AddMonoidHom.ker (g.comp f))
       = Nat.card (AddMonoidHom.ker g) * Nat.card (AddMonoidHom.ker f) := by
@@ -399,12 +410,12 @@ private theorem veluOddQuotientJInjOnCyclic_of_isogenyEndInt
         (N := (2 * n + 1 : ℤ)) (by omega) (fun P => hdual₁ P)
       have habs : (2 * (n : ℤ) + 1).natAbs = 2 * n + 1 := by omega
       rw [habs] at h; exact h
-    have hsplit := cmm5_dp_natCard_ker_comp φ' ψ' hφ's
+    have hsplit := natCard_ker_comp φ' ψ' hφ's
     rw [hcomp, hkerφ', hcardQ', sq] at hsplit
     exact (Nat.eq_of_mul_eq_mul_right (by omega) hsplit).symm
 
   have hkerθ : Nat.card θ.ker = (2 * n + 1) ^ 2 := by
-    have hsplit := cmm5_dp_natCard_ker_comp β ψ' hβs
+    have hsplit := natCard_ker_comp β ψ' hβs
     rw [hkerβ, hcardQ, hkerψ'] at hsplit
     rw [hsplit]; ring
   have hmne : m ≠ 0 := by
@@ -466,6 +477,46 @@ theorem zmultiples_eq_of_veluQuotient_j_eq_of_forall_isogenyEndDatum_exists_int
       (W.veluQuotient (W.oddOrderSummingSet Q n)).j = (W.veluQuotient (W.oddOrderSummingSet Q' n)).j) :
     AddSubgroup.zmultiples Q = AddSubgroup.zmultiples Q' :=
   veluOddQuotientJInjOnCyclic_of_isogenyEndInt W hNs hEnd n Q Q' hQ hQ' hΔ hΔ' hj
+
+/-! ### The transcendental headline -/
+
+set_option linter.style.haveILetI false in
+/-- **Equal Vélu-quotient `j`-invariants force equal cyclic subgroups, with no
+endomorphism hypothesis.**  Over `𝕂 = HahnSeries ℚ (AlgebraicClosure ℚ)`, a
+transcendental `j(W)` makes every `IsogenyEndDatum` endomorphism of `W` an integer
+multiple, so the `hEnd` hypothesis of the previous theorem is automatic.  Verbatim from
+`Theorems/Thm_WeierstrassCurve_zmultiples_eq_of_veluQuotient_j_eq_of_transcendental.lean`. -/
+theorem zmultiples_eq_of_veluQuotient_j_eq_of_transcendental
+    [DecidableEq (HahnSeries ℚ (AlgebraicClosure ℚ))]
+    (W : WeierstrassCurve (HahnSeries ℚ (AlgebraicClosure ℚ))) [W.IsElliptic]
+    (ht : Transcendental ℚ W.j) (n : ℕ) (Q Q' : W.toAffine.Point)
+    (hQ : addOrderOf Q = 2 * n + 1) (hQ' : addOrderOf Q' = 2 * n + 1)
+    (hΔ : (W.veluQuotient (W.oddOrderSummingSet Q n)).Δ ≠ 0)
+    (hΔ' : (W.veluQuotient (W.oddOrderSummingSet Q' n)).Δ ≠ 0)
+    (hj : haveI : (W.veluQuotient (W.oddOrderSummingSet Q n)).IsElliptic := ⟨isUnit_iff_ne_zero.mpr hΔ⟩
+      haveI : (W.veluQuotient (W.oddOrderSummingSet Q' n)).IsElliptic := ⟨isUnit_iff_ne_zero.mpr hΔ'⟩
+      (W.veluQuotient (W.oddOrderSummingSet Q n)).j = (W.veluQuotient (W.oddOrderSummingSet Q' n)).j) :
+    AddSubgroup.zmultiples Q = AddSubgroup.zmultiples Q' := by
+  haveI : CharZero (HahnSeries ℚ (AlgebraicClosure ℚ)) :=
+    charZero_of_injective_ringHom (HahnSeries.C_injective (R := AlgebraicClosure ℚ) (Γ := ℚ))
+  haveI : IsAlgClosed (HahnSeries ℚ (AlgebraicClosure ℚ)) := HahnSeries.isAlgClosed_rat
+  haveI : IsDedekindDomain W.toAffine.CoordinateRing := CoordinateRing.isDedekindDomain W
+  haveI : HasPrincipalDivisors (HahnSeries ℚ (AlgebraicClosure ℚ)) W.toAffine.FunctionField :=
+    hasPrincipalDivisors_functionField W.toAffine
+  obtain ⟨g, hc, ha⟩ := exists_genusOnePlaceGate_isCentred_and_abelTheorem (W := W.toAffine)
+  letI : GenusOnePlaceGate W.toAffine := g
+  haveI : GenusOnePlaceGate.IsCentred W.toAffine := hc
+  haveI : AbelTheorem W.toAffine := ha
+  have hNs : ∀ D : IsogenyEndDatum W.toAffine,
+      NormFormulaAlong (HahnSeries ℚ (AlgebraicClosure ℚ)) D.ι D.hfin :=
+    fun D => normFormulaAlong_of_elliptic D.ι D.hfin
+
+  have ht' : @Transcendental ℚ (HahnSeries ℚ (AlgebraicClosure ℚ)) _ _ DivisionRing.toRatAlgebra W.j := by
+    convert ht using 2
+    all_goals first | rfl | exact Subsingleton.elim _ _
+  exact zmultiples_eq_of_veluQuotient_j_eq_of_forall_isogenyEndDatum_exists_int W hNs
+    (fun D => IsogenyEndDatum.exists_forall_pointEnd_eq_zsmul_of_transcendental_j W hNs ht' D)
+    n Q Q' hQ hQ' hΔ hΔ' hj
 
 end WeierstrassCurve
 

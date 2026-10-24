@@ -41,6 +41,8 @@ genus-one gate construction consumes).
 
 Reference (public mirror, pinned):
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_WeierstrassCurve_exists_veluPointHom_oddOrderSummingSet_of_isAlgClosed.lean>
+  spec-pin: Theorems/Thm_WeierstrassCurve_exists_veluFunctionFieldHom_pointMapOfPushforward_ker_eq_zmultiples.lean
+  spec-pin: Theorems/Thm_WeierstrassCurve_exists_veluPointHom_oddOrderSummingSet_of_isAlgClosed.lean
 -/
 import FLTForHuman.WeierstrassCurve.Velu.RestrictAlong
 import FLTForHuman.WeierstrassCurve.GenusOnePlaceGateCentred
@@ -172,10 +174,10 @@ theorem exists_veluPointHom_oddOrderSummingSet_of_isAlgClosed
     | zero => exact hzero _ (AddSubgroup.zero_mem _)
     | some a b hab =>
         by_cases hm : (Point.some a b hab : W.toAffine.Point) ∈ AddSubgroup.zmultiples Q
-        · have : g (.some a b hab) = 0 := by simp only [g, dif_pos hm]
+        · have : g (.some a b hab) = 0 := by simp only [g, dite_eq_left hm]
           rw [this]; exact hzero _ hm
         · have : g (.some a b hab) = .some _ _ (Classical.choose (haff a b hab hm)) := by
-            simp only [g, dif_neg hm]
+            simp only [g, dite_eq_right hm]
           rw [this]; exact Classical.choose_spec (haff a b hab hm)
 
   refine ⟨pointMapOfPushforward ι hι hfin hN, ?_, ?_⟩
@@ -185,14 +187,14 @@ theorem exists_veluPointHom_oddOrderSummingSet_of_isAlgClosed
     | zero => exact ⟨fun _ => AddSubgroup.zero_mem _, fun _ => rfl⟩
     | some a b hab =>
         by_cases hm : (Point.some a b hab : W.toAffine.Point) ∈ AddSubgroup.zmultiples Q
-        · simp only [g, dif_pos hm]; exact ⟨fun _ => hm, fun _ => trivial⟩
-        · simp only [g, dif_neg hm]
+        · simp only [g, dite_eq_left hm]; exact ⟨fun _ => hm, fun _ => trivial⟩
+        · simp only [g, dite_eq_right hm]
           exact ⟨fun h0 => (Point.some_ne_zero _ h0).elim, fun h0 => absurd h0 hm⟩
   · intro x y h hP
     obtain ⟨h', _⟩ := haff x y h hP
     refine ⟨h', ?_⟩
     rw [pointMapOfPushforward_eq_of_seam_cf ι hι hfin hN g hg0 hgseam (.some x y h)]
-    simp only [g, dif_neg hP]
+    simp only [g, dite_eq_right hP]
     rfl
 
 end WeierstrassCurve

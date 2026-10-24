@@ -20,10 +20,22 @@
   `Definitions/Def_ModularCurve_KroneckerTransport.lean` lines 113–127, statements and bodies
   verbatim.
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_FibrePoly.lean
+
+  This module also carries the pin's three public `fibrePoly` facts
+  (`monic_fibrePoly`, `natDegree_fibrePoly`, `card_roots_fibrePoly_of_monic`),
+  promoted here from the `private` copies that used to live in
+  `ModularCurve/Degree/PhiData.lean` (`Theorems/Thm_ModularCurve_*_fibrePoly.lean`).
+
+  spec-pin: Definitions/Def_ModularCurve_FibrePoly.lean
+  spec-pin: Definitions/Def_ModularCurve_KroneckerTransport.lean
+  spec-pin: Theorems/Thm_ModularCurve_monic_fibrePoly.lean
+  spec-pin: Theorems/Thm_ModularCurve_natDegree_fibrePoly.lean
+  spec-pin: Theorems/Thm_ModularCurve_card_roots_fibrePoly_of_monic.lean
 -/
 import Mathlib.Algebra.CharP.Lemmas
 import Mathlib.Algebra.Polynomial.Eval.Defs
 import Mathlib.Data.ZMod.Basic
+import Mathlib.FieldTheory.IsAlgClosed.Basic
 import Mathlib.FieldTheory.Perfect
 
 set_option autoImplicit false
@@ -56,6 +68,24 @@ variable {k : Type*} [Field k]
 /-- The fibre of `Φ` at `a`: its first variable evaluated at `a`. -/
 def fibrePoly (Φ : Polynomial (Polynomial ℤ)) (a : k) : Polynomial k :=
   Φ.map (Polynomial.eval₂RingHom (Int.castRingHom k) a)
+
+/-- The fibre of a monic `Φ` at `a` is monic. -/
+theorem monic_fibrePoly {K : Type*} [Field K] {Φ : Polynomial (Polynomial ℤ)} (hΦ : Φ.Monic)
+    (a : K) : (fibrePoly Φ a).Monic :=
+  hΦ.map _
+
+/-- The fibre of a monic `Φ` at `a` has the same degree as `Φ`. -/
+theorem natDegree_fibrePoly {K : Type*} [Field K] {Φ : Polynomial (Polynomial ℤ)}
+    (hΦ : Φ.Monic) (a : K) : (fibrePoly Φ a).natDegree = Φ.natDegree :=
+  hΦ.natDegree_map _
+
+/-- Over an algebraically closed field the fibre of a monic `Φ` has exactly
+`deg Φ` roots, counted with multiplicity. -/
+theorem card_roots_fibrePoly_of_monic {K : Type*} [Field K] [IsAlgClosed K]
+    {Φ : Polynomial (Polynomial ℤ)} (hΦ : Φ.Monic) (a : K) :
+    Multiset.card (fibrePoly Φ a).roots = Φ.natDegree := by
+  rw [← (IsAlgClosed.splits (fibrePoly Φ a)).natDegree_eq_card_roots]
+  exact natDegree_fibrePoly hΦ a
 
 variable {ℓ : ℕ} [CharP k ℓ]
 

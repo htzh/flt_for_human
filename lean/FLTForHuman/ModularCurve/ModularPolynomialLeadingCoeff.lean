@@ -10,8 +10,8 @@
   `K = ℚ(ζ_N)`, where `minpoly_jqN_map_eq_prod_slots` factors
   `Φ.map (coeffEmb ∘ qExpand ℚ N)` into the `N.divisors`-indexed product over the
   slot family. Every slot factor `TS K N 1 - TS K (a*a) (ζ ^ (b*a))` is nonzero
-  with leading coefficient in the `2N`-torsion of `Kˣ` (`w1_slot_factor`), and both
-  properties survive the product (`w1_prod_ne_zero_leadingCoeff`), so the leading
+  with leading coefficient in the `2N`-torsion of `Kˣ` (`slot_factor`), and both
+  properties survive the product (`prod_ne_zero_leadingCoeff`), so the leading
   coefficient of `f W` — where `f = coeffEmb K ∘ qExpand ℚ N` and
   `W = evalAtJ D` — is a `2N`-th root of unity in `K`. Injectivity of `ℚ → K`
   pulls the `ℚ`-statement back, and `exact_mod_cast` clears the denominators.
@@ -34,12 +34,13 @@
   ## Local `private` re-derivations
 
   The pin's ten new `W1` helpers, all `private` at the pin too (so no promotion is
-  available or authorised): `w1_order_eq`, `w1_order_TS`,
-  `w1_order_sub_left`/`w1_order_sub_right`, `w1_prod_ne_zero_leadingCoeff`,
-  `w1_slot_factor`, `w1_natDegree_toAdjoin`, `w1_toAdjoin_eq_minpoly`,
-  `w1_diag_lc_pow`, and the headline's pin-`private` body. The pin's private
-  `w1_evalAtJGen_injective` is dropped — it has no consumer anywhere (the public
+  available or authorised): `order_eq`, `order_TS`,
+  `order_sub_left`/`order_sub_right`, `prod_ne_zero_leadingCoeff`,
+  `slot_factor`, `natDegree_toAdjoin`, `toAdjoin_eq_minpoly`,
+  `diag_lc_pow`, and the headline's pin-`private` body. The pin's private
+  `evalAtJGen_injective` is dropped — it has no consumer anywhere (the public
   `evalAtJGen_injective` is imported from `ModularPolynomialIrreducible.lean`).
+  spec-pin: Theorems/Thm_ModularCurve_ModularPolynomialData_isUnit_leadingCoeff_diag_of_not_isSquare.lean
 -/
 import FLTForHuman.ModularCurve.ModularPolynomialIrreducible
 import FLTForHuman.ModularCurve.Defs.PhiAtSlot
@@ -61,7 +62,7 @@ namespace ModularCurve
 /-! ## The U2 kit: Hahn-series order and the slot factor -/
 
 /-- `order`/`leadingCoeff` of a series from its lowest nonzero coefficient. -/
-private theorem w1_order_eq {K : Type*} [Field K] {x : LaurentSeries K} {a : ℤ}
+private theorem order_eq {K : Type*} [Field K] {x : LaurentSeries K} {a : ℤ}
     (hne : x.coeff a ≠ 0) (hlow : ∀ k, k < a → x.coeff k = 0) :
     x.order = a ∧ x.leadingCoeff = x.coeff a := by
   have hx0 : x ≠ 0 := fun h0 => hne (by simp [h0])
@@ -71,34 +72,34 @@ private theorem w1_order_eq {K : Type*} [Field K] {x : LaurentSeries K} {a : ℤ
   exact ⟨h1, by rw [HahnSeries.leadingCoeff_eq, h1]⟩
 
 /-- `TS K e u` has order `-e` and leading coefficient `u⁻¹`. -/
-private theorem w1_order_TS {K : Type*} [Field K] [Algebra ℚ K] (e : ℕ) [NeZero e] (u : Kˣ) :
+private theorem order_TS {K : Type*} [Field K] [Algebra ℚ K] (e : ℕ) [NeZero e] (u : Kˣ) :
     (TS K e u).order = -(e : ℤ) ∧ (TS K e u).leadingCoeff = ((u⁻¹ : Kˣ) : K) := by
-  have h := w1_order_eq (x := TS K e u) (a := -(e : ℤ))
+  have h := order_eq (x := TS K e u) (a := -(e : ℤ))
     (by rw [TS_coeff_neg]; exact Units.ne_zero _) (fun k hk => TS_coeff_of_lt (K := K) e u hk)
   exact ⟨h.1, by rw [h.2, TS_coeff_neg]⟩
 
 /-- Subtracting a series of strictly larger order leaves the leading term. -/
-private theorem w1_order_sub_right {K : Type*} [Field K] {x y : LaurentSeries K}
+private theorem order_sub_right {K : Type*} [Field K] {x y : LaurentSeries K}
     (h : y.order < x.order) (hy : y ≠ 0) :
     (x - y).order = y.order ∧ (x - y).leadingCoeff = -y.leadingCoeff := by
   have hat : (x - y).coeff y.order = -y.leadingCoeff := by
     rw [HahnSeries.coeff_sub, HahnSeries.coeff_eq_zero_of_lt_order h, zero_sub,
       HahnSeries.leadingCoeff_eq]
-  have h' := w1_order_eq (x := x - y) (a := y.order)
+  have h' := order_eq (x := x - y) (a := y.order)
     (by rw [hat, neg_ne_zero]; exact fun h0 => hy (HahnSeries.leadingCoeff_eq_zero.mp h0))
     (fun k hk => by
       rw [HahnSeries.coeff_sub, HahnSeries.coeff_eq_zero_of_lt_order (hk.trans h),
         HahnSeries.coeff_eq_zero_of_lt_order hk, sub_zero])
   exact ⟨h'.1, by rw [h'.2, hat]⟩
 
-/-- The mirror of `w1_order_sub_right`: subtracting a strictly smaller order. -/
-private theorem w1_order_sub_left {K : Type*} [Field K] {x y : LaurentSeries K}
+/-- The mirror of `order_sub_right`: subtracting a strictly smaller order. -/
+private theorem order_sub_left {K : Type*} [Field K] {x y : LaurentSeries K}
     (h : x.order < y.order) (hx : x ≠ 0) :
     (x - y).order = x.order ∧ (x - y).leadingCoeff = x.leadingCoeff := by
   have hat : (x - y).coeff x.order = x.leadingCoeff := by
     rw [HahnSeries.coeff_sub, HahnSeries.coeff_eq_zero_of_lt_order h, sub_zero,
       HahnSeries.leadingCoeff_eq]
-  have h' := w1_order_eq (x := x - y) (a := x.order)
+  have h' := order_eq (x := x - y) (a := x.order)
     (by rw [hat]; exact fun h0 => hx (HahnSeries.leadingCoeff_eq_zero.mp h0))
     (fun k hk => by
       rw [HahnSeries.coeff_sub, HahnSeries.coeff_eq_zero_of_lt_order hk,
@@ -107,7 +108,7 @@ private theorem w1_order_sub_left {K : Type*} [Field K] {x y : LaurentSeries K}
 
 /-- A product of nonzero series over a finset is nonzero, and its leading
 coefficient is the product of the leading coefficients. -/
-private theorem w1_prod_ne_zero_leadingCoeff {K : Type*} [Field K] {α : Type*} (s : Finset α)
+private theorem prod_ne_zero_leadingCoeff {K : Type*} [Field K] {α : Type*} (s : Finset α)
     (F : α → LaurentSeries K) (h : ∀ i ∈ s, F i ≠ 0) :
     (∏ i ∈ s, F i) ≠ 0 ∧ (∏ i ∈ s, F i).leadingCoeff = ∏ i ∈ s, (F i).leadingCoeff := by
   classical
@@ -125,32 +126,32 @@ private theorem w1_prod_ne_zero_leadingCoeff {K : Type*} [Field K] {α : Type*} 
 
 /-- The slot factor is nonzero and its leading coefficient is a `2N`-th root of
 unity. This is the arithmetic heart of the row. -/
-private theorem w1_slot_factor {K : Type*} [Field K] [Algebra ℚ K] (N a b : ℕ) [NeZero N]
+private theorem slot_factor {K : Type*} [Field K] [Algebra ℚ K] (N a b : ℕ) [NeZero N]
     [NeZero a] (hN : ¬ IsSquare N) (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) N) :
     (TS K N 1 - TS K (a * a) (ζ ^ (b * a))) ≠ 0 ∧
       (TS K N 1 - TS K (a * a) (ζ ^ (b * a))).leadingCoeff ^ (2 * N) = 1 := by
   have hne : a * a ≠ N := fun h => hN ⟨a, h.symm⟩
   rcases Nat.lt_or_gt_of_ne hne with hlt | hgt
   ·
-    obtain ⟨hoN, hlN⟩ := w1_order_TS (K := K) N 1
-    obtain ⟨hoa, _⟩ := w1_order_TS (K := K) (a * a) (ζ ^ (b * a))
+    obtain ⟨hoN, hlN⟩ := order_TS (K := K) N 1
+    obtain ⟨hoa, _⟩ := order_TS (K := K) (a * a) (ζ ^ (b * a))
     have hord : (TS K N 1).order < (TS K (a * a) (ζ ^ (b * a))).order := by
       rw [hoN, hoa]
       push_cast
       omega
-    obtain ⟨_, hlc⟩ := w1_order_sub_left hord (TS_ne_zero (K := K) N 1)
+    obtain ⟨_, hlc⟩ := order_sub_left hord (TS_ne_zero (K := K) N 1)
     have hlc1 : (TS K N 1 - TS K (a * a) (ζ ^ (b * a))).leadingCoeff = 1 := by
       rw [hlc, hlN, inv_one, Units.val_one]
     refine ⟨fun h0 => one_ne_zero (α := K) ?_, by rw [hlc1, one_pow]⟩
     rw [← hlc1, h0, HahnSeries.leadingCoeff_eq_zero.mpr rfl]
   ·
-    obtain ⟨hoN, _⟩ := w1_order_TS (K := K) N 1
-    obtain ⟨hoa, hla⟩ := w1_order_TS (K := K) (a * a) (ζ ^ (b * a))
+    obtain ⟨hoN, _⟩ := order_TS (K := K) N 1
+    obtain ⟨hoa, hla⟩ := order_TS (K := K) (a * a) (ζ ^ (b * a))
     have hord : (TS K (a * a) (ζ ^ (b * a))).order < (TS K N 1).order := by
       rw [hoN, hoa]
       push_cast
       omega
-    obtain ⟨_, hlc⟩ := w1_order_sub_right hord (TS_ne_zero (K := K) (a * a) (ζ ^ (b * a)))
+    obtain ⟨_, hlc⟩ := order_sub_right hord (TS_ne_zero (K := K) (a * a) (ζ ^ (b * a)))
     have hlcv : (TS K N 1 - TS K (a * a) (ζ ^ (b * a))).leadingCoeff =
         -((ζ : K) ^ (b * a))⁻¹ := by
       rw [hlc, hla, Units.val_inv_eq_inv_val, Units.val_pow_eq_pow_val]
@@ -168,12 +169,12 @@ private theorem w1_slot_factor {K : Type*} [Field K] [Algebra ℚ K] (N a b : �
 /-! ## Transporting the datum to the cyclotomic field -/
 
 /-- The `Y`-degree of the transported datum is `ψ(N)`. -/
-private theorem w1_natDegree_toAdjoin {N : ℕ} [NeZero N] (data : ModularPolynomialData N) :
+private theorem natDegree_toAdjoin {N : ℕ} [NeZero N] (data : ModularPolynomialData N) :
     data.toAdjoin.natDegree = dedekindPsi N := by
   rw [ModularPolynomialData.toAdjoin, data.monic.natDegree_map, data.natDegree_eq]
 
 /-- `data.toAdjoin` is the minimal polynomial of `j(q ^ N)`. -/
-private theorem w1_toAdjoin_eq_minpoly (N : ℕ) [NeZero N] (data : ModularPolynomialData N) :
+private theorem toAdjoin_eq_minpoly (N : ℕ) [NeZero N] (data : ModularPolynomialData N) :
     data.toAdjoin = minpoly ℚ⟮jq⟯ (jqN N) := by
   have hint : IsIntegral ℚ⟮jq⟯ (jqN N) := ⟨data.toAdjoin, data.toAdjoin_monic, by
     simpa [Polynomial.aeval_def] using aeval_jqN_toAdjoin data⟩
@@ -182,12 +183,12 @@ private theorem w1_toAdjoin_eq_minpoly (N : ℕ) [NeZero N] (data : ModularPolyn
     exact finrank_adjoin_jqN_eq_dedekindPsi N
   refine Polynomial.eq_of_monic_of_dvd_of_natDegree_le (minpoly.monic hint) data.toAdjoin_monic
     (minpoly.dvd _ _ (aeval_jqN_toAdjoin data)) ?_
-  rw [hdeg, w1_natDegree_toAdjoin]
+  rw [hdeg, natDegree_toAdjoin]
 
 /-- The `2N`-th power of the `Y`-leading coefficient of `Φ(j, Y)` is `1`: push the
 datum to `ℚ(ζ_N)`, factor it into its nonzero slot factors, and read the leading
-coefficient of the product off `w1_slot_factor`. -/
-private theorem w1_diag_lc_pow (N : ℕ) [NeZero N] (hN : ¬ IsSquare N)
+coefficient of the product off `slot_factor`. -/
+private theorem diag_lc_pow (N : ℕ) [NeZero N] (hN : ¬ IsSquare N)
     (data : ModularPolynomialData N) :
     (data.Φ.eval₂ (RingHom.id (Polynomial ℤ)) Polynomial.X).leadingCoeff ^ (2 * N) = 1 := by
   classical
@@ -209,7 +210,7 @@ private theorem w1_diag_lc_pow (N : ℕ) [NeZero N] (hN : ¬ IsSquare N)
         (fun b => Nat.gcd (Nat.gcd a b) (N / a) = 1),
         (Polynomial.X - Polynomial.C (if h : a = 0 then 0 else
           letI : NeZero a := ⟨h⟩; qExpand K (a * a) (qTwist (ζ ^ (b * a)) (coeffEmb K jq)))) := by
-    rw [← hcensus, ← w1_toAdjoin_eq_minpoly N data, ModularPolynomialData.toAdjoin,
+    rw [← hcensus, ← toAdjoin_eq_minpoly N data, ModularPolynomialData.toAdjoin,
       Polynomial.map_map, hhom]
 
   have hfjq : f jq = TS K N 1 := iota_jq N
@@ -241,15 +242,15 @@ private theorem w1_diag_lc_pow (N : ℕ) [NeZero N] (hN : ¬ IsSquare N)
         letI : NeZero a := ⟨h⟩; qExpand K (a * a) (qTwist (ζ ^ (b * a)) (coeffEmb K jq))) =
         TS K (a * a) (ζ ^ (b * a)) := fun b => by rw [dite_eq_right ha0]; rfl
     simp only [hdval]
-    obtain ⟨hne, hlc⟩ := w1_prod_ne_zero_leadingCoeff (K := K)
+    obtain ⟨hne, hlc⟩ := prod_ne_zero_leadingCoeff (K := K)
       ((Finset.range (N / a)).filter (fun b => Nat.gcd (Nat.gcd a b) (N / a) = 1))
       (fun b => TS K N 1 - TS K (a * a) (ζ ^ (b * a)))
-      (fun b _ => (w1_slot_factor N a b hN ζ hζ).1)
+      (fun b _ => (slot_factor N a b hN ζ hζ).1)
     refine ⟨hne, ?_⟩
     rw [hlc, ← Finset.prod_pow]
-    exact Finset.prod_eq_one fun b _ => (w1_slot_factor N a b hN ζ hζ).2
+    exact Finset.prod_eq_one fun b _ => (slot_factor N a b hN ζ hζ).2
 
-  obtain ⟨houter_ne, houter_lc⟩ := w1_prod_ne_zero_leadingCoeff (K := K) N.divisors _
+  obtain ⟨houter_ne, houter_lc⟩ := prod_ne_zero_leadingCoeff (K := K) N.divisors _
     (fun a ha => (hinner a ha).1)
   have hfW_ne : f W ≠ 0 := by rw [hfact]; exact houter_ne
   have hfW_pow : (f W).leadingCoeff ^ (2 * N) = 1 := by
@@ -313,7 +314,7 @@ private theorem w1_diag_lc_pow (N : ℕ) [NeZero N] (hN : ¬ IsSquare N)
         have hNpos : (0 : ℤ) < N := by exact_mod_cast Nat.pos_of_ne_zero (NeZero.ne N)
         rw [hlow m (lt_of_mul_lt_mul_left hk hNpos.le), map_zero]
       · exact hPnd _ hdvd
-    obtain ⟨_, hlc_eq⟩ := w1_order_eq hne_at hbelow
+    obtain ⟨_, hlc_eq⟩ := order_eq hne_at hbelow
     rw [hlc_eq, hcoeff_at]
 
   have hQpow : ((D.leadingCoeff : ℚ)) ^ (2 * N) = 1 := by
@@ -330,7 +331,7 @@ namespace ModularPolynomialData
 theorem isUnit_leadingCoeff_diag_of_not_isSquare (N : ℕ) [NeZero N] (hN : ¬ IsSquare N)
     (data : ModularCurve.ModularPolynomialData N) :
     IsUnit (data.Φ.eval₂ (RingHom.id (Polynomial ℤ)) Polynomial.X).leadingCoeff := by
-  have h := w1_diag_lc_pow N hN data
+  have h := diag_lc_pow N hN data
   have h1 : (data.Φ.eval₂ (RingHom.id (Polynomial ℤ)) Polynomial.X).leadingCoeff.natAbs
       ^ (2 * N) = 1 := by
     have h' := congrArg Int.natAbs h
@@ -348,4 +349,3 @@ end ModularCurve
 
 end
 
-#print axioms ModularCurve.ModularPolynomialData.isUnit_leadingCoeff_diag_of_not_isSquare

@@ -216,22 +216,10 @@ section FibrePoly
 
 variable {K : Type*} [Field K]
 
--- `fibrePoly` was `private` here; the pin exposes it publicly and this column's `N = 2`
--- fibre row names it in its statement, so it now lives at its public pin name in
--- `FLTForHuman/ModularCurve/Defs/FibrePoly.lean` and is imported (dedup, no second copy).
-private theorem monic_fibrePoly {Φ : Polynomial (Polynomial ℤ)} (hΦ : Φ.Monic) (a : K) :
-    (fibrePoly Φ a).Monic :=
-  hΦ.map _
-
-private theorem natDegree_fibrePoly {Φ : Polynomial (Polynomial ℤ)} (hΦ : Φ.Monic) (a : K) :
-    (fibrePoly Φ a).natDegree = Φ.natDegree :=
-  hΦ.natDegree_map _
-
-private theorem card_roots_fibrePoly_of_monic [IsAlgClosed K]
-    {Φ : Polynomial (Polynomial ℤ)} (hΦ : Φ.Monic) (a : K) :
-    Multiset.card (fibrePoly Φ a).roots = Φ.natDegree := by
-  rw [← (IsAlgClosed.splits (fibrePoly Φ a)).natDegree_eq_card_roots]
-  exact natDegree_fibrePoly hΦ a
+-- `monic_fibrePoly`, `natDegree_fibrePoly` and `card_roots_fibrePoly_of_monic`
+-- are the pin's public facts and live at their pin names in
+-- `FLTForHuman/ModularCurve/Defs/FibrePoly.lean` (imported above; dedup, no
+-- second copy here).
 
 private def compositeFibrePoly (Φ Φ' : Polynomial (Polynomial ℤ)) (a : K) : Polynomial K :=
   ((fibrePoly Φ a).roots.map fun b => fibrePoly Φ' b).prod
@@ -589,11 +577,6 @@ private def biResultantPacket {m n : ℕ} [NeZero m] [NeZero n]
   eval_eq_zero := data.eval₂_biResultant_eq_zero data'
 
 end ModularPolynomialData
-
-private theorem nonempty_modularPolynomialData_mul_of_coprime {m n : ℕ} [NeZero m] [NeZero n]
-    (data : ModularPolynomialData m) (data' : ModularPolynomialData n)
-    (hmn : Nat.Coprime m n) : Nonempty (ModularPolynomialData (m * n)) :=
-  ⟨data.biResultantPacket data' hmn⟩
 
 private def castModularPolynomialData {M N : ℕ} [NeZero M] [NeZero N] (h : M = N)
     (d : ModularPolynomialData M) : ModularPolynomialData N where
