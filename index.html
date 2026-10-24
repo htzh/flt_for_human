@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FLT for human</title>
+<style>
+  :root {
+    --ink:#1b1f24; --muted:#5b6672; --line:#d9dee5; --bg:#f6f7f9; --card:#fff;
+    --accent:#2f5d8a; --accent-soft:#eef4fa; --new:#a5501a; --newbg:#fdf0e4;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  header { background:linear-gradient(135deg,#23384f,#3d2a52); color:#fff; padding:36px 20px 30px; }
+  header .wrap, main, footer { max-width:920px; margin:0 auto; }
+  header h1 { margin:0 0 8px; font-size:1.8rem; }
+  header p { margin:4px 0; color:#d7dce6; max-width:720px; }
+  header a { color:#cfe0ff; }
+  .links { margin-top:16px; display:flex; flex-wrap:wrap; gap:8px; }
+  .btn { display:inline-block; padding:7px 14px; border-radius:7px; text-decoration:none;
+         background:#fff; color:#23384f; font-size:.92rem; font-weight:600; }
+  .btn.ghost { background:rgba(255,255,255,.12); color:#e8eefc; border:1px solid rgba(255,255,255,.35); }
+  .btn:hover { filter:brightness(1.05); }
+  main { padding:22px 20px 40px; }
+  section { background:var(--card); border:1px solid var(--line); border-radius:10px;
+            padding:18px 20px; margin:16px 0; }
+  h2 { font-size:1.15rem; margin:0 0 10px; color:var(--accent); }
+  ul { margin:6px 0; padding-left:20px; }
+  li { margin:5px 0; }
+  .muted { color:var(--muted); }
+  code { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:.92em; }
+  .app { display:inline-block; margin-top:6px; padding:8px 16px; border-radius:7px;
+         background:var(--accent); color:#fff; text-decoration:none; }
+
+  /* --- featured Lean porting card --- */
+  .feature { border-left:5px solid var(--accent); background:linear-gradient(180deg,#f4f8fc,#fff); }
+  .feature h2 { margin-bottom:6px; }
+  .stats { list-style:none; padding:0; margin:12px 0; display:flex; flex-wrap:wrap; gap:10px; }
+  .stats li { margin:0; background:var(--accent-soft); border:1px solid #d5e3f1;
+              border-radius:7px; padding:7px 12px; font-size:.88rem; }
+  .stats strong { color:var(--accent); }
+  .links-list { list-style:none; padding:0; margin:10px 0 0; }
+  .links-list li { margin:7px 0; }
+
+  /* --- cascading note series --- */
+  .series { background:var(--card); border:1px solid var(--line); border-radius:10px;
+            margin:16px 0; padding:0; overflow:hidden; }
+  .series > summary { display:flex; flex-wrap:wrap; align-items:baseline; gap:8px;
+                      cursor:pointer; list-style:none; padding:16px 20px;
+                      background:var(--card); }
+  .series > summary:hover { background:#fafbfd; }
+  summary::-webkit-details-marker { display:none; }
+  summary::marker { content:""; }
+  .series > summary .chev { color:var(--muted); font-size:.75em; }
+  .series[open] > summary .chev { transform:rotate(90deg); }
+  .series-title { font-size:1.15rem; font-weight:700; color:var(--accent); }
+  .series-sub { flex-basis:100%; color:var(--muted); font-size:.9rem; font-weight:400; }
+  .count { font-size:.78rem; color:var(--accent); background:var(--accent-soft);
+           border:1px solid #d5e3f1; border-radius:999px; padding:1px 9px; font-weight:600; }
+  .revised { padding:0 20px; margin:0 0 6px; font-size:.9rem; }
+  .series-body { padding:0 20px 16px; }
+
+  .group { border-top:1px solid var(--line); }
+  .group > summary { display:flex; flex-wrap:wrap; align-items:baseline; gap:8px;
+                     cursor:pointer; list-style:none; padding:12px 4px; }
+  .group > summary:hover { color:var(--accent); }
+  .group > summary .chev { color:var(--muted); font-size:.7em; transition:transform .15s ease; }
+  .group[open] > summary .chev { transform:rotate(90deg); }
+  .group-title { font-weight:600; }
+  .range { font-size:.78rem; color:var(--muted); font-family:ui-monospace,Menlo,Consolas,monospace; }
+  .notes { list-style:none; padding:0 0 6px; margin:0; }
+  .notes li { margin:7px 0; padding-left:12px; border-left:2px solid #edf0f4; }
+  .notes a { font-weight:500; }
+  .new { display:inline-block; margin-left:4px; font-size:.68rem; font-weight:700;
+         text-transform:uppercase; letter-spacing:.04em; color:var(--new);
+         background:var(--newbg); border:1px solid #f2d9c2; border-radius:999px; padding:0 7px; }
+  footer { padding:0 20px 60px; color:var(--muted); font-size:.88rem; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>FLT for human</h1>
+    <p>Math notes and tools for reading the
+       <a href="https://github.com/anthropics/fermats-last-theorem">formalised proof of Fermat's Last Theorem</a>
+       as a human. The notes are grounded in the Lean sources, with every line-number
+       citation pinned to a fixed commit.</p>
+    <p>Source of this project: <a href="https://github.com/htzh/flt_for_human">github.com/htzh/flt_for_human</a></p>
+    <nav class="links">
+      <a class="btn" href="https://github.com/htzh/flt_for_human">Project source on GitHub ↗</a>
+      <a class="btn ghost" href="play/index.html">Play worksheets</a>
+      <a class="btn ghost" href="https://htzh.github.io/flt_for_human/play/index.html">Play (published) ↗</a>
+      <a class="btn ghost" href="#lean">Lean porting</a>
+      <a class="btn ghost" href="#math">Math notes</a>
+      <a class="btn ghost" href="#base">Base notes</a>
+    </nav>
+  </div>
+</header>
+<main>
+
+  <section>
+    <h2>Interactive apps</h2>
+    <ul>
+      <li><strong>Play — the worksheet reader</strong> <span class="new">new</span> — the
+          <code>lean/play/</code> worksheets in the browser, without an IDE or a Lean install:
+          zones and prose, and a card for every checked declaration with its <em>sugared
+          source</em>, docstring, module and one layer of references. Replaces the
+          <code>#check</code> / <code>#print</code> / go-to-definition loop for reading.<br>
+          <a class="app" href="play/index.html">Open Play →</a>
+          <br><span class="muted">Published copy:
+          <a href="https://htzh.github.io/flt_for_human/play/index.html">htzh.github.io/flt_for_human/play</a>;
+          in a clone, build it first.</span></li>
+      <li><strong>Modularity, computed</strong> — a Weierstrass-equation workbench: minimal
+          model, discriminant, conductor, traces of Frobenius by point counting, and the
+          weight-2 eigenform <code>q</code>-expansion reconstructed from the Hecke
+          recursions. Companion to note 007.<br>
+          <a class="app" href="apps/modular/index.html">Open the app →</a></li>
+    </ul>
+  </section>
+
+  <section class="feature" id="lean">
+    <h2>Lean porting effort</h2>
+    <p>Alongside the prose, this project re-runs selected pieces of the FLT formalisation as
+       <strong>our own Lean code</strong>. A claim that matters can then be checked rather than
+       taken on faith, and a proof can be restated in a form we find easier to read.</p>
+    <ul class="stats">
+      <li><strong>621</strong> Lean modules under <code>lean/FLTForHuman/</code></li>
+      <li>Lean <strong>v4.34.0</strong> · mathlib <strong>v4.34.0</strong></li>
+      <li><strong>Fragments only</strong> — mathlib is the sole import</li>
+      <li>Every module cites its FLT origin pinned at <code>aa2d8b3</code></li>
+    </ul>
+    <p class="muted">The ground rules: copy small, self-contained definitions and lemmas out of
+       FLT and adapt them — never <code>import</code> the FLT project (one import can pull in a
+       dependency cone and a build measured in hours); adapt rather than mirror, since FLT stays
+       the source of truth for correctness; cite the origin file and commit in each module header;
+       and leave no silent gaps — a module either compiles or carries an explicit, commented
+       <code>sorry</code>.</p>
+    <ul class="links-list">
+      <li><a href="https://github.com/htzh/flt_for_human/blob/main/lean/README.md"><strong>lean/README.md</strong></a>
+          — how the port is organised, pinned, and built.</li>
+      <li><a href="https://github.com/htzh/flt_for_human/blob/main/lean/porting-playbook.md"><strong>Porting playbook</strong></a>
+          — the reusable method for porting a node, not tied to any one effort.</li>
+      <li><a href="https://github.com/htzh/flt_for_human/tree/main/lean/FLTForHuman"><strong>FLTForHuman/</strong></a>
+          — the verified tree: the ported fragments, by subject.</li>
+      <li><a href="https://github.com/htzh/flt_for_human/tree/main/lean/topics"><strong>topics/</strong></a>
+          — work orders and executed plans (<code>PORTING-*.md</code>) for each effort, with what
+          it cost and what it taught.</li>
+      <li><a href="https://github.com/htzh/flt_for_human/tree/main/lean/spec"><strong>spec/</strong></a>
+          — the deliverable measures: consumer modules, the statement checker, and
+          <a href="https://github.com/htzh/flt_for_human/blob/main/lean/spec/unwired_register.py">the
+          register of the unwired public surface</a> (generated locally; not committed).</li>
+      <li><a href="https://github.com/htzh/flt_for_human/blob/main/lean/CARRY-FORWARD.md"><strong>Carry-forward register</strong></a>
+          — API deliberately left unported, and the open follow-ups.</li>
+      <li><a href="https://github.com/htzh/flt_for_human/tree/main/lean/logs"><strong>logs/</strong></a>
+          — the linear record of what happened, in order.</li>
+    </ul>
+  </section>
+
+  <details class="series" id="math" open>
+    <summary>
+      <span class="chev">▶</span>
+      <span class="series-title">Math notes</span>
+      <span class="count">27</span>
+      <span class="series-sub">one step of the FLT proof, opened up · newest first · click a
+      group to expand</span>
+    </summary>
+    <p class="muted revised">This revision adds notes 013, 015–022 and 024–027.
+      <a href="https://github.com/htzh/flt_for_human/tree/main/math">Browse <code>math/</code> on GitHub ↗</a></p>
+    <div class="series-body">
+
+      <details class="group" open>
+        <summary><span class="chev">▶</span>
+          <span class="group-title">Frontier: level structure and the adelic turn</span>
+          <span class="range">024–027</span></summary>
+        <ul class="notes">
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/027-the-continuity-of-the-idele-norm.md">027 — The continuity of the idele norm</a>
+              <span class="new">new</span><br>
+              <span class="muted">the idele norm, and the norm of the determinant on <code>GL₂</code> over the adeles, are continuous in the restricted-product topology — the two most heavily depended-on theorems of the pin's <code>NumberField.TateGlobal</code> layer</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/026-weierstrass-p-division-values-and-level-n.md">026 — ℘-division values and the level-N modular curve</a>
+              <span class="new">new</span><br>
+              <span class="muted">Fricke functions turn torsion values of ℘ into weight-zero modular functions: SL₂(ℤ) permutes them, the tuple is fixed exactly by ±Γ(N), ℂ(X(N)) = ℂ(j, f_v) is Galois of degree the index, and Shimura's reciprocity law acts on the q-expansions of Δf_v</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/025-elliptic-nets-division-polynomials-and-the-invariant.md">025 — Elliptic nets, division polynomials, and the invariant of a sequence</a>
+              <span class="new">new</span><br>
+              <span class="muted">the classical [n]P formula assembled from three layers — ψ_n as the canonical normalised elliptic divisibility sequence, the elliptic-net relation behind every ψ identity, the complement that avoids ψ₂ₙ/ψ_n, and the invariant 6X²+b₂X+b₄ that removes the division by y, so the construction survives every characteristic</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/024-uniformization-versus-modular-functions.md">024 — Uniformization and the modular function field: two routes to the j-line</a>
+              <span class="new">new</span><br>
+              <span class="muted">the ℚ(j(q), j(qᴺ)) function field and the analytic ℂ/Λ ≅ E(ℂ) theory are complementary, not interchangeable — two independent inputs to the same step of Mazur's irreducibility argument, and the uniformization's surjectivity of j is itself proved by modular forms</span></li>
+        </ul>
+      </details>
+
+      <details class="group">
+        <summary><span class="chev">▶</span>
+          <span class="group-title">Residues, Deligne–Serre, and the T side of R = T</span>
+          <span class="range">018–023</span></summary>
+        <ul class="notes">
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/023-velu-isogenies-and-endomorphism-ring.md">023 — Vélu isogenies, the quotient j-invariant, and the endomorphism ring</a><br>
+              <span class="muted">isogenies as function-field extensions: Vélu's explicit formulas and the quotient j, the modular polynomial Φ_N as the cyclic-quotient correspondence, dual/trace/norm of the endomorphism ring, the CM dichotomy, and the two chains by which all of it reaches <code>fermat_last_theorem</code></span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/022-global-residue-theorem.md">022 — The global residue theorem over an algebraically closed field</a><br>
+              <span class="muted"><code>residueTheoremK_of_isAlgClosed</code>: the residues of a meromorphic differential over an arbitrary algebraically closed field sum to zero — the algebraic replacement for the analytic theorem, built on the Tate residue of 021</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/021-tate-residue.md">021 — The Tate residue, and the agreement theorem</a><br>
+              <span class="muted">Tate's commutator definition of the residue over a field that is not ℂ, and <code>tateAgreement</code> identifying its trace with the trace of the classical local residue</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/020-frobenius-density-and-artin.md">020 — Frobenius elements, Chebotarev density, and finite-image Galois representations</a><br>
+              <span class="muted">the Frobenius-at-a-place vocabulary, the density theorem governing it, and the two representation-theoretic consequences the Deligne–Serre argument needs</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/019-deligne-serre-weight-one.md">019 — Deligne–Serre for weight one: odd Artin representations</a><br>
+              <span class="muted">the weight-one correspondence and where it sits among the modularity theorems the FLT development uses</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/018-t-side-definitions.md">018 — The T side of R = T: the definition layer</a><br>
+              <span class="muted">the mathematics of the T-side definitions, in the order the Lean import closure forces</span></li>
+        </ul>
+      </details>
+
+      <details class="group">
+        <summary><span class="chev">▶</span>
+          <span class="group-title">Hecke, Eichler–Shimura, and the integral structure</span>
+          <span class="range">013–017</span></summary>
+        <ul class="notes">
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/017-eichler-shimura-isomorphism.md">017 — The Eichler–Shimura isomorphism</a><br>
+              <span class="muted">the classical isomorphism and the constructions it rests on; the Lean inventory and the port plan live in the scout and topic files</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/016-mod-p-weight-filtration.md">016 — The mod-p weight filtration, and the gap in the Eichler–Shimura cohomology-packaging bypass</a><br>
+              <span class="muted">the open “gap” that decides whether the analytic Eichler–Shimura period map can be dropped from the endgame — its mathematics, and the routes around it</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/015-weight-two-hecke-periods.md">015 — Finiteness of the weight-two Hecke algebra from periods</a><br>
+              <span class="muted">why the weight-two Hecke algebra is finite, proved on its own from periods in the pin's 4,308-line route-B file — the counterpart of the integral-structure route</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/014-chi-minus-3-eisenstein.md">014 — The χ₋₃ weight-one Eisenstein series and the hexagonal lattice</a><br>
+              <span class="muted">r(n) = 6σ_χ(n): the hexagonal form as the norm of ℤ[ζ₆], the six units, the ramified/split/inert laws, Poisson summation and the Fricke equation, and why the mod-3 congruence powers the weight-two lift</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/013-integral-structure-gamma1-basis.md">013 — The integral structure of cusp forms from an integral Γ₁-basis</a><br>
+              <span class="muted">the ℤ-span of the cusp forms with integral q-expansion is full-rank in S_k(Γ₀(N)) — an integral ℂ-basis exists</span></li>
+        </ul>
+      </details>
+
+      <details class="group">
+        <summary><span class="chev">▶</span>
+          <span class="group-title">Modularity, the Tate module, and the level theory</span>
+          <span class="range">009–012</span></summary>
+        <ul class="notes">
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/012-sturm-bound.md">012 — The Sturm bound</a><br>
+              <span class="muted">a modular form is determined by ≈ k/12 · [SL₂(ℤ):Γ] coefficients; level one from the dimension formula, arithmetic level by the norm, and how the bound makes the integral lattice finitely generated</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/011-tate-module.md">011 — The Tate module and the attached Galois representations</a><br>
+              <span class="muted">T_pE = lim E[pⁿ] and its rank two, the Galois action and its adic continuity, det ρ = χ, Frobenius and point counts, stable lines as isogenies, and the Eichler–Shimura side: T_pJ₀(N), Hecke eigenforms and ρ_f</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/010-function-field-generation.md">010 — Function field generation for X₀(N)</a><br>
+              <span class="muted">the modular equation Φₚ and its root slots, descent by one prime, the prime-power degree steps, and the strong induction proving ℚ(j, j(qᴺ)) = ℚ(j(qᵈ) : d | N)</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/009-hecke-jacobian-commute.md">009 — The Hecke action on the Jacobian, and why it commutes</a><br>
+              <span class="muted">X₀(N) as a function field inside ℚ((q)), J₀(N) = Pic⁰, T_ℓ = α_*∘β^*, the exchange square, the modular equation</span></li>
+        </ul>
+      </details>
+
+      <details class="group">
+        <summary><span class="chev">▶</span>
+          <span class="group-title">The Frey route</span>
+          <span class="range">001–008</span></summary>
+        <ul class="notes">
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/008-ribet-level-lowering.md">008 — Ribet's level lowering in the FLT proof</a><br>
+              <span class="muted">squarefree conductor, v_q(Δ) = 2p, stripping one prime at a time, dim S₂(Γ₀(2)) = 0</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/007-modularity-and-computation.md">007 — Modularity and computation</a><br>
+              <span class="muted">the modularity theorem, computed; companion to the app</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/006-fixed-or-cofixed-and-inertia.md">006 — Fixed or cofixed, and inertia</a><br>
+              <span class="muted">how the Frey curve's semistability splits every stable line, and why inertia decides</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/005-card-torsion-p-squared.md">005 — #E[n](K) = n² over an algebraically closed field</a><br>
+              <span class="muted">the fibre count of multiplication by n — the foundation of the GL₂ picture</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/004-irreducible-and-cofixed-line.md">004 — Irreducibility and the cofixed line</a><br>
+              <span class="muted">how the mod-p representation is excluded without ever being named</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/003-galois-rep-irreducible-in-english.md">003 — <code>GaloisRepIsIrreducible</code>, in English</a><br>
+              <span class="muted">and why the general <code>Affine R</code> accepts the Frey curve</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/002-frey-curve-model-and-discriminant.md">002 — The Frey curve: the E_p model vs. the original form</a><br>
+              <span class="muted">where the discriminant is computed</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/math/001-frey-package-wlog.md">001 — The Frey package and WLOG normalisation</a><br>
+              <span class="muted">why a Frey package is enough, WLOG, for every prime exponent p ≥ 5</span></li>
+        </ul>
+      </details>
+
+    </div>
+  </details>
+
+  <details class="series" id="base" open>
+    <summary>
+      <span class="chev">▶</span>
+      <span class="series-title">Base notes</span>
+      <span class="count">22</span>
+      <span class="series-sub">the mathlib layers the proof is written against · grouped by subject,
+      so order is not a path · click a group to expand</span>
+    </summary>
+    <p class="muted revised">This revision adds notes 008–022.
+      <a href="https://github.com/htzh/flt_for_human/tree/main/base">Browse <code>base/</code> on GitHub ↗</a>
+      · reading order and background: <a href="https://github.com/htzh/flt_for_human/blob/main/base/README.md"><code>base/README.md</code></a></p>
+    <div class="series-body">
+
+      <details class="group" open>
+        <summary><span class="chev">▶</span>
+          <span class="group-title">Latest additions</span>
+          <span class="range">019–022</span></summary>
+        <ul class="notes">
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/base/022-haar-measure.md">022 — Haar measure: invariance, unimodularity, and convolution on the adeles</a>
+              <span class="new">new</span><br>
+              <span class="muted">left- versus right-invariance, Haar existence and uniqueness, the modular character, the stable-range proof that GL₂(𝔸_F) is unimodular, convolution as invariance plus Fubini, and the pushed-forward measure the automorphic right-convolution topic is written against</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/base/021-uniformization-c-over-lambda.md">021 — Uniformization: ℂ/Λ ≅ E(ℂ)</a>
+              <span class="new">new</span><br>
+              <span class="muted">the purely complex-analytic proof that z ↦ (℘(z), ℘′(z)/2) is a surjective homomorphism with kernel Λ — the Weierstrass differential equation, Liouville, and the two addition laws</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/base/020-the-index-of-gamma0.md">020 — The index of Γ₀(N), and the two functions that count it</a>
+              <span class="new">new</span><br>
+              <span class="muted">[SL₂(ℤ):Γ₀(N)] = ψ(N) through the coset bijection with ℙ¹ over ℤ/N, and #primCosetReps(N) = ψ(N) through an independent explicit count; Euler's φ beside Dedekind's ψ, and what is mathlib's and what is ours</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/base/019-stichtenoth-genus-and-the-adelic-index.md">019 — Stichtenoth's genus and the adelic index</a>
+              <span class="new">new</span><br>
+              <span class="muted">the adelic engine that manufactures the genus and Riemann–Roch without analysis or differentials — bounded adeles, the index of speciality, the bounded defect, Stichtenoth's pole-divisor bound, and Weil differentials; the fourteen declarations of the phase-1 RR port</span></li>
+        </ul>
+      </details>
+
+      <details class="group">
+        <summary><span class="chev">▶</span>
+          <span class="group-title">Curves: divisors, places, and Riemann–Roch</span>
+          <span class="range">008–010 · 015–017</span></summary>
+        <ul class="notes">
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/base/017-rational-function-field-and-principal-divisors.md">017 — The rational function field and principal divisors</a><br>
+              <span class="muted">deg div(f) = 0 proved on K(t) by unique factorization and transferred to a general function field by the norm and pushforward</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/base/016-correspondences-and-exchange.md">016 — Correspondences and the exchange lemma</a><br>
+              <span class="muted">pull–push as ψ_*∘φ^*, the fibre-square exchange identity, its reduction to a single place and the finite bifibre count (Galois orbit argument, then normal closure), and the norm formula that makes pushforward preserve principal divisors</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/base/015-places-and-extensions.md">015 — Places and their extensions</a><br>
+              <span class="muted">ramification index and inertia degree, the fundamental identity [F′:F] = Σ e f, the divisor calculus it enables, Galois transitivity and constancy, and multiplicativity in towers</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/base/010-finite-fields-frobenius-and-point-counts.md">010 — Finite fields, Frobenius, and point counts</a><br>
+              <span class="muted">rational points as fixed points of the q-power map, the characteristic polynomial T² − a_q T + q and Hasse's bound, the counts over every extension, the rank-2g Tate module with its p-torsion caveat, and the bridge <code>ResidualGaloisRep.IsAttachedTo</code></span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/base/009-differentials-residues-riemann-roch.md">009 — Differentials, residues, and Riemann–Roch</a><br>
+              <span class="muted">differentials, their orders and divisors, the canonical class and genus, local residues and the residue theorem (so a nonzero function has as many zeros as poles), the Riemann inequality and Riemann–Roch, and the genera-0-to-4 computation in <code>pymath</code></span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/base/008-divisors-and-pic0.md">008 — Divisors, linear equivalence, and Pic⁰</a><br>
+              <span class="muted">points as discrete valuation rings, divisors, degree, principal divisors and the residue theorem, Pic/Pic⁰ and the Jacobian of X₀(N) with its Hecke and Galois actions, plus ramification, pullback/pushforward, and the correspondence that becomes T_ℓ</span></li>
+        </ul>
+      </details>
+
+      <details class="group">
+        <summary><span class="chev">▶</span>
+          <span class="group-title">Modular curves, level structure, and uniformization</span>
+          <span class="range">013 · 018</span></summary>
+        <ul class="notes">
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/base/018-congruence-subgroups-and-invariance.md">018 — Congruence subgroups, level structures, and invariance</a><br>
+              <span class="muted">which group acts on which moduli problem (E, ⟨C⟩, P, (P,Q)) and why “invariance” is a congruence; multiplication over ℤ versus reduction mod N, the diamond lift, and the τ ↔ torsion bridge to ±Γ(N)</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/base/013-riemann-existence-and-the-q-expansion-principle.md">013 — Riemann existence for modular curves, and the level-one q-expansion principle</a><br>
+              <span class="muted">the Riemann existence theorem in function-field form, the compact X₀(N) and the degree-ψ(N) cover, and the separation of the level-one input the proof keeps (Liouville on X(1)) from the level-N connectedness it reconstructs</span></li>
+        </ul>
+      </details>
+
+      <details class="group">
+        <summary><span class="chev">▶</span>
+          <span class="group-title">Automorphic, adelic, and Hecke layers</span>
+          <span class="range">011 · 012 · 014</span></summary>
+        <ul class="notes">
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/base/014-hecke-operators.md">014 — Hecke operators: cosets, q-expansions, and the two matrices</a><br>
+              <span class="muted">a Hecke operator as an average of slash actions over the ℓ+1 double-coset representatives; the two matrices the port defines and why they are the whole operator; the q-coefficient rules; and the Hecke-coset polynomial of the PhiGen segment</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/base/012-adeles-and-automorphic-representations.md">012 — Adeles, automorphic representations, and the adelic dictionary</a><br>
+              <span class="muted">adeles and ideles as restricted products, GL₂(𝔸_F) and K₀(N), automorphic representations and their local factors, the classical↔adelic dictionary, Hecke characters, newvectors and conductor — with the unformalised restricted tensor product flagged</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/base/011-deformations-hecke-algebras-and-r-equals-t.md">011 — Deformations, Hecke algebras, and R = T</a><br>
+              <span class="muted">deformations and the universal deformation ring, the Hecke algebra as a ring, the map R → T built from Eichler–Shimura, and what R = T asserts (the numerical criterion plus Taylor–Wiles patching)</span></li>
+        </ul>
+      </details>
+
+      <details class="group">
+        <summary><span class="chev">▶</span>
+          <span class="group-title">The primer and level one</span>
+          <span class="range">001–007</span></summary>
+        <ul class="notes">
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/base/007-weil-pairing.md">007 — The Weil pairing</a><br>
+              <span class="muted">the six laws and FLT's <code>IsWeilPairing</code>, det ρ = cyclotomic ⇒ oddness, the divisorial definition and Miller's algorithm, the characteristic-zero formula on ℂ/Λ, Frobenius, and the FLT uses</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/base/006-the-modular-equation.md">006 — The modular equation: integrality and splitting</a><br>
+              <span class="muted">Φ_N and its zero locus, integral coefficients by Galois descent, the prime-level splitting and coset slots, and a p = 3 example</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/base/005-cyclic-isogenies-and-level.md">005 — Cyclic isogenies, congruence level, and the j-invariant</a><br>
+              <span class="muted">tori as lattices, the moduli reading of j, cyclic isogenies and the p+1 quotient curves, the Dedekind count ψ(N), and Γ₀(N)</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/base/004-the-j-invariant.md">004 — The j-invariant: its q-expansion and first properties</a><br>
+              <span class="muted">where E₄ and Δ/q come from, the computation of q⁻¹ + 744 + 196884q + ⋯, integrality, and the first properties</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/base/003-no-level-2-weight-2-cusp-forms.md">003 — No level-2 weight-2 cusp forms</a><br>
+              <span class="muted">the index [SL₂(ℤ) : Γ₀(2)] = 3, the norm, and the level-one vanishing down to maximum modulus</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/base/002-modular-forms-basics.md">002 — Modular forms at the mathlib level</a><br>
+              <span class="muted">the <code>SlashInvariantForm</code>/<code>ModularForm</code>/<code>CuspForm</code> chain, q-expansions, the inventory of what mathlib lacks, and the Hecke algebra FLT builds instead</span></li>
+          <li><a href="https://github.com/htzh/flt_for_human/blob/main/base/001-field-extensions-and-galois-basics.md">001 — Field extensions and Galois basics</a><br>
+              <span class="muted">the field and Galois theory every later note assumes, and the Lean encoding of <code>Algebra</code> towers, <code>K ≃ₐ[S] K</code>, and the Galois action on modules</span></li>
+        </ul>
+      </details>
+
+    </div>
+  </details>
+
+  <section>
+    <h2>Reading the FLT proof</h2>
+    <ul>
+      <li><a href="https://github.com/anthropics/fermats-last-theorem">anthropics/fermats-last-theorem</a> — the formalisation.
+          Citations throughout these notes are pinned to the commit
+          <a href="https://github.com/anthropics/fermats-last-theorem/tree/aa2d8b3"><code>aa2d8b3</code></a>,
+          because <code>/main</code> moves.</li>
+      <li><a href="https://tianyipeng.github.io/fermats-last-theorem/">Annotated docs</a> — the author's rendered static site
+          (GitHub's 1000-file directory cap breaks browsing <code>html/def/</code>).</li>
+      <li><a href="https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/PROOF-PATH.md">PROOF-PATH.md</a> — the route through the pin;
+          where this prose and the Lean differ, the Lean is right.</li>
+    </ul>
+  </section>
+
+</main>
+<footer>
+  <p>Notes and app are works in progress. The app performs its own arithmetic in the
+  browser; it is an illustration, not a proof. Everything here is published from
+  <a href="https://github.com/htzh/flt_for_human">github.com/htzh/flt_for_human</a>.</p>
+</footer>
+</body>
+</html>

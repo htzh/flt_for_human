@@ -1,0 +1,96 @@
+window.PLAY_MODULES = window.PLAY_MODULES || {};
+window.PLAY_MODULES["FLTForHuman.AlgebraicCurve.Defs.Repartitions"] = {
+  "module": "FLTForHuman.AlgebraicCurve.Defs.Repartitions",
+  "cards": {
+    "AlgebraicCurve.H1": {
+      "refs": [{"where":"type","name":"AlgebraicCurve.Divisor","module":"FLTForHuman.AlgebraicCurve.Defs.Divisor","kind":"abbrev"},{"where":"type","name":"Algebra","module":"Mathlib.Algebra.Algebra.Defs","kind":"inductive"},{"where":"type","name":"Field","module":"Mathlib.Algebra.Field.Defs","kind":"inductive"},{"where":"body","name":"AlgebraicCurve.Place","module":"FLTForHuman.AlgebraicCurve.Defs.Place","kind":"inductive"},{"where":"body","name":"AlgebraicCurve.principalRepartitions","module":"FLTForHuman.AlgebraicCurve.Defs.Repartitions","kind":"def"},{"where":"body","name":"AlgebraicCurve.repartitions","module":"FLTForHuman.AlgebraicCurve.Defs.Repartitions","kind":"def"},{"where":"body","name":"AlgebraicCurve.repartitionsOf","module":"FLTForHuman.AlgebraicCurve.Defs.Repartitions","kind":"def"},{"where":"body","name":"Algebra.id","module":"Mathlib.Algebra.Algebra.Defs","kind":"def"},{"where":"body","name":"Function.algebra","module":"Mathlib.Algebra.Algebra.Pi","kind":"def"},{"where":"body","name":"HasQuotient.Quotient","module":"Mathlib.Algebra.Quotient","kind":"abbrev"},{"where":"body","name":"Pi.addCommMonoid","module":"Mathlib.Algebra.Group.Pi.Basic","kind":"def"},{"where":"body","name":"Subalgebra","module":"Mathlib.Algebra.Algebra.Subalgebra.Basic","kind":"inductive"},{"where":"body","name":"Subalgebra.algebra'","module":"Mathlib.Algebra.Algebra.Subalgebra.Basic","kind":"def"},{"where":"body","name":"Submodule","module":"Mathlib.Algebra.Module.Submodule.Defs","kind":"inductive"},{"where":"body","name":"Submodule.hasQuotient","module":"Mathlib.LinearAlgebra.Quotient.Defs","kind":"def"},{"where":"body","name":"Submodule.idemSemiring","module":"Mathlib.Algebra.Algebra.Operations","kind":"def"},{"where":"body","name":"Max.max","module":"Init.Prelude","kind":"abbrev"}],
+      "range": {"start":{"line":148,"column":0},"end":{"line":149,"column":70}},
+      "name": "AlgebraicCurve.H1",
+      "module": "FLTForHuman.AlgebraicCurve.Defs.Repartitions",
+      "kind": "abbrev",
+      "elaborated_type": "{K : Type u_1} →\n  {F : Type u_2} →\n    [inst : Field K] → [inst_1 : Field F] → [inst_2 : Algebra K F] → AlgebraicCurve.Divisor K F → Type u_2",
+      "doc": "",
+      "short": "H1",
+      "signature_source": "abbrev H1 (D : Divisor K F) : Type _ :=",
+      "body_source": "↥(repartitions K F) ⧸ (repartitionsOf D ⊔ principalRepartitions K F)",
+      "source_file": "lean/FLTForHuman/AlgebraicCurve/Defs/Repartitions.lean",
+      "has_source": true,
+      "has_refs": true
+    },
+    "AlgebraicCurve.genusFF": {
+      "refs": [{"where":"type","name":"Algebra","module":"Mathlib.Algebra.Algebra.Defs","kind":"inductive"},{"where":"type","name":"Field","module":"Mathlib.Algebra.Field.Defs","kind":"inductive"},{"where":"type","name":"Nat","module":"Init.Prelude","kind":"inductive"},{"where":"body","name":"AlgebraicCurve.Divisor","module":"FLTForHuman.AlgebraicCurve.Defs.Divisor","kind":"abbrev"},{"where":"body","name":"AlgebraicCurve.H1","module":"FLTForHuman.AlgebraicCurve.Defs.Repartitions","kind":"abbrev"},{"where":"body","name":"AlgebraicCurve.Place","module":"FLTForHuman.AlgebraicCurve.Defs.Place","kind":"inductive"},{"where":"body","name":"AlgebraicCurve.principalRepartitions","module":"FLTForHuman.AlgebraicCurve.Defs.Repartitions","kind":"def"},{"where":"body","name":"AlgebraicCurve.repartitions","module":"FLTForHuman.AlgebraicCurve.Defs.Repartitions","kind":"def"},{"where":"body","name":"AlgebraicCurve.repartitionsOf","module":"FLTForHuman.AlgebraicCurve.Defs.Repartitions","kind":"def"},{"where":"body","name":"Algebra.id","module":"Mathlib.Algebra.Algebra.Defs","kind":"def"},{"where":"body","name":"Function.algebra","module":"Mathlib.Algebra.Algebra.Pi","kind":"def"},{"where":"body","name":"Module.finrank","module":"Mathlib.LinearAlgebra.Dimension.Finrank","kind":"def"},{"where":"body","name":"Pi.addCommMonoid","module":"Mathlib.Algebra.Group.Pi.Basic","kind":"def"},{"where":"body","name":"Subalgebra","module":"Mathlib.Algebra.Algebra.Subalgebra.Basic","kind":"inductive"},{"where":"body","name":"Subalgebra.algebra'","module":"Mathlib.Algebra.Algebra.Subalgebra.Basic","kind":"def"},{"where":"body","name":"Submodule","module":"Mathlib.Algebra.Module.Submodule.Defs","kind":"inductive"},{"where":"body","name":"Submodule.Quotient.addCommMonoid","module":"Mathlib.LinearAlgebra.Quotient.Defs","kind":"def"},{"where":"body","name":"Submodule.Quotient.module","module":"Mathlib.LinearAlgebra.Quotient.Defs","kind":"def"},{"where":"body","name":"Submodule.idemSemiring","module":"Mathlib.Algebra.Algebra.Operations","kind":"def"},{"where":"body","name":"Int","module":"Init.Data.Int.Basic","kind":"inductive"},{"where":"body","name":"Max.max","module":"Init.Prelude","kind":"abbrev"}],
+      "range": {"start":{"line":153,"column":0},"end":{"line":153,"column":58}},
+      "name": "AlgebraicCurve.genusFF",
+      "module": "FLTForHuman.AlgebraicCurve.Defs.Repartitions",
+      "kind": "def",
+      "elaborated_type": "(K : Type u_1) → (F : Type u_2) → [inst : Field K] → [inst_1 : Field F] → [Algebra K F] → ℕ",
+      "doc": "",
+      "short": "genusFF",
+      "signature_source": "def genusFF : ℕ :=",
+      "body_source": "Module.finrank K (H1 (0 : Divisor K F))",
+      "source_file": "lean/FLTForHuman/AlgebraicCurve/Defs/Repartitions.lean",
+      "has_source": true,
+      "has_refs": true
+    },
+    "AlgebraicCurve.principalRepartitions": {
+      "refs": [{"where":"type","name":"AlgebraicCurve.Place","module":"FLTForHuman.AlgebraicCurve.Defs.Place","kind":"inductive"},{"where":"type","name":"AlgebraicCurve.repartitions","module":"FLTForHuman.AlgebraicCurve.Defs.Repartitions","kind":"def"},{"where":"type","name":"Algebra","module":"Mathlib.Algebra.Algebra.Defs","kind":"inductive"},{"where":"type","name":"Algebra.id","module":"Mathlib.Algebra.Algebra.Defs","kind":"def"},{"where":"type","name":"Field","module":"Mathlib.Algebra.Field.Defs","kind":"inductive"},{"where":"type","name":"Function.algebra","module":"Mathlib.Algebra.Algebra.Pi","kind":"def"},{"where":"type","name":"IsScalarTower.right","module":"Mathlib.Algebra.Algebra.Defs","kind":"theorem"},{"where":"type","name":"Pi.addCommMonoid","module":"Mathlib.Algebra.Group.Pi.Basic","kind":"def"},{"where":"type","name":"Pi.isScalarTower","module":"Mathlib.Algebra.Group.Action.Pi","kind":"theorem"},{"where":"type","name":"Pi.nonAssocSemiring","module":"Mathlib.Algebra.Ring.Pi","kind":"def"},{"where":"type","name":"Subalgebra","module":"Mathlib.Algebra.Algebra.Subalgebra.Basic","kind":"inductive"},{"where":"type","name":"Subalgebra.algebra'","module":"Mathlib.Algebra.Algebra.Subalgebra.Basic","kind":"def"},{"where":"type","name":"Submodule","module":"Mathlib.Algebra.Module.Submodule.Defs","kind":"inductive"},{"where":"body","name":"Algebra.linearMap","module":"Mathlib.Algebra.Algebra.Defs","kind":"def"},{"where":"body","name":"LinearMap.range","module":"Mathlib.Algebra.Module.Submodule.Range","kind":"def"},{"where":"body","name":"RingHom.id","module":"Mathlib.Algebra.Ring.Hom.Defs","kind":"def"},{"where":"body","name":"Subalgebra.algebra","module":"Mathlib.Algebra.Algebra.Subalgebra.Basic","kind":"def"},{"where":"body","name":"Submodule.restrictScalars","module":"Mathlib.Algebra.Module.Submodule.RestrictScalars","kind":"def"}],
+      "range": {"start":{"line":134,"column":0},"end":{"line":135,"column":79}},
+      "name": "AlgebraicCurve.principalRepartitions",
+      "module": "FLTForHuman.AlgebraicCurve.Defs.Repartitions",
+      "kind": "def",
+      "elaborated_type": "(K : Type u_1) →\n  (F : Type u_2) →\n    [inst : Field K] → [inst_1 : Field F] → [inst_2 : Algebra K F] → Submodule K ↥(AlgebraicCurve.repartitions K F)",
+      "doc": "",
+      "short": "principalRepartitions",
+      "signature_source": "def principalRepartitions : Submodule K ↥(repartitions K F) :=",
+      "body_source": "(LinearMap.range (Algebra.linearMap F ↥(repartitions K F))).restrictScalars K",
+      "source_file": "lean/FLTForHuman/AlgebraicCurve/Defs/Repartitions.lean",
+      "has_source": true,
+      "has_refs": true
+    },
+    "AlgebraicCurve.repartitions": {
+      "refs": [{"where":"type","name":"AlgebraicCurve.Place","module":"FLTForHuman.AlgebraicCurve.Defs.Place","kind":"inductive"},{"where":"type","name":"Algebra","module":"Mathlib.Algebra.Algebra.Defs","kind":"inductive"},{"where":"type","name":"Algebra.id","module":"Mathlib.Algebra.Algebra.Defs","kind":"def"},{"where":"type","name":"Field","module":"Mathlib.Algebra.Field.Defs","kind":"inductive"},{"where":"type","name":"Function.algebra","module":"Mathlib.Algebra.Algebra.Pi","kind":"def"},{"where":"type","name":"Subalgebra","module":"Mathlib.Algebra.Algebra.Subalgebra.Basic","kind":"inductive"},{"where":"body","name":"AlgebraicCurve.Place.adicValuation","module":"FLTForHuman.AlgebraicCurve.Defs.Place","kind":"def"},{"where":"body","name":"Algebra.adjoin","module":"Mathlib.Algebra.Algebra.Subalgebra.Lattice","kind":"def"},{"where":"body","name":"Multiplicative","module":"Mathlib.Algebra.Group.TypeTags.Basic","kind":"def"},{"where":"body","name":"Multiplicative.commMonoid","module":"Mathlib.Algebra.Group.TypeTags.Basic","kind":"def"},{"where":"body","name":"Multiplicative.linearOrder","module":"Mathlib.Algebra.Order.Monoid.Unbundled.TypeTags","kind":"def"},{"where":"body","name":"Multiplicative.preorder","module":"Mathlib.Algebra.Order.Monoid.Unbundled.TypeTags","kind":"def"},{"where":"body","name":"Set.Finite","module":"Mathlib.Basic.Finite.Defs","kind":"def"},{"where":"body","name":"Set.ofPred","module":"Mathlib.Data.Set.Defs","kind":"def"},{"where":"body","name":"Valuation","module":"Mathlib.RingTheory.Valuation.Basic","kind":"inductive"},{"where":"body","name":"WithZero","module":"Mathlib.Algebra.Group.WithOne.Defs","kind":"def"},{"where":"body","name":"WithZero.one","module":"Mathlib.Algebra.GroupWithZero.WithZero","kind":"def"},{"where":"body","name":"Int","module":"Init.Data.Int.Basic","kind":"inductive"}],
+      "range": {"start":{"line":59,"column":0},"end":{"line":61,"column":77}},
+      "name": "AlgebraicCurve.repartitions",
+      "module": "FLTForHuman.AlgebraicCurve.Defs.Repartitions",
+      "kind": "def",
+      "elaborated_type": "(K : Type u_1) →\n  (F : Type u_2) →\n    [inst : Field K] → [inst_1 : Field F] → [inst_2 : Algebra K F] → Subalgebra F (AlgebraicCurve.Place K F → F)",
+      "doc": "",
+      "short": "repartitions",
+      "signature_source": "def repartitions : Subalgebra F (Place K F → F) :=",
+      "body_source": "Algebra.adjoin F\n    {α : Place K F → F | {v : Place K F | ¬v.adicValuation (α v) ≤ 1}.Finite}",
+      "source_file": "lean/FLTForHuman/AlgebraicCurve/Defs/Repartitions.lean",
+      "has_source": true,
+      "has_refs": true
+    },
+    "AlgebraicCurve.repartitionsOf": {
+      "refs": [{"where":"type","name":"AlgebraicCurve.Divisor","module":"FLTForHuman.AlgebraicCurve.Defs.Divisor","kind":"abbrev"},{"where":"type","name":"AlgebraicCurve.Place","module":"FLTForHuman.AlgebraicCurve.Defs.Place","kind":"inductive"},{"where":"type","name":"AlgebraicCurve.repartitions","module":"FLTForHuman.AlgebraicCurve.Defs.Repartitions","kind":"def"},{"where":"type","name":"Algebra","module":"Mathlib.Algebra.Algebra.Defs","kind":"inductive"},{"where":"type","name":"Algebra.id","module":"Mathlib.Algebra.Algebra.Defs","kind":"def"},{"where":"type","name":"Field","module":"Mathlib.Algebra.Field.Defs","kind":"inductive"},{"where":"type","name":"Function.algebra","module":"Mathlib.Algebra.Algebra.Pi","kind":"def"},{"where":"type","name":"IsScalarTower.right","module":"Mathlib.Algebra.Algebra.Defs","kind":"theorem"},{"where":"type","name":"Pi.addCommMonoid","module":"Mathlib.Algebra.Group.Pi.Basic","kind":"def"},{"where":"type","name":"Pi.isScalarTower","module":"Mathlib.Algebra.Group.Action.Pi","kind":"theorem"},{"where":"type","name":"Pi.nonAssocSemiring","module":"Mathlib.Algebra.Ring.Pi","kind":"def"},{"where":"type","name":"Subalgebra","module":"Mathlib.Algebra.Algebra.Subalgebra.Basic","kind":"inductive"},{"where":"type","name":"Subalgebra.algebra'","module":"Mathlib.Algebra.Algebra.Subalgebra.Basic","kind":"def"},{"where":"type","name":"Submodule","module":"Mathlib.Algebra.Module.Submodule.Defs","kind":"inductive"},{"where":"body","name":"AlgebraicCurve.Place.adicValuation","module":"FLTForHuman.AlgebraicCurve.Defs.Place","kind":"def"},{"where":"body","name":"Multiplicative","module":"Mathlib.Algebra.Group.TypeTags.Basic","kind":"def"},{"where":"body","name":"Multiplicative.commMonoid","module":"Mathlib.Algebra.Group.TypeTags.Basic","kind":"def"},{"where":"body","name":"Multiplicative.linearOrder","module":"Mathlib.Algebra.Order.Monoid.Unbundled.TypeTags","kind":"def"},{"where":"body","name":"Multiplicative.preorder","module":"Mathlib.Algebra.Order.Monoid.Unbundled.TypeTags","kind":"def"},{"where":"body","name":"Set.ofPred","module":"Mathlib.Data.Set.Defs","kind":"def"},{"where":"body","name":"Valuation","module":"Mathlib.RingTheory.Valuation.Basic","kind":"inductive"},{"where":"body","name":"WithZero","module":"Mathlib.Algebra.Group.WithOne.Defs","kind":"def"},{"where":"body","name":"WithZero.exp","module":"Mathlib.Algebra.GroupWithZero.WithZero","kind":"def"},{"where":"body","name":"Int","module":"Init.Data.Int.Basic","kind":"inductive"}],
+      "range": {"start":{"line":86,"column":0},"end":{"line":100,"column":85}},
+      "name": "AlgebraicCurve.repartitionsOf",
+      "module": "FLTForHuman.AlgebraicCurve.Defs.Repartitions",
+      "kind": "def",
+      "elaborated_type": "{K : Type u_1} →\n  {F : Type u_2} →\n    [inst : Field K] →\n      [inst_1 : Field F] →\n        [inst_2 : Algebra K F] → AlgebraicCurve.Divisor K F → Submodule K ↥(AlgebraicCurve.repartitions K F)",
+      "doc": "",
+      "short": "repartitionsOf",
+      "signature_source": "def repartitionsOf (D : Divisor K F) : Submodule K ↥(repartitions K F) where\n  carrier :=\n    {α | ∀ v : Place K F, v.adicValuation ((α : Place K F → F) v) ≤ exp (D v)}\n  zero_mem' := by\n    intro v\n    show v.adicValuation (0 : F) ≤ exp (D v)\n    simp\n  add_mem' := by\n    intro α β hα hβ v\n    exact (Valuation.map_add _ _ _).trans (max_le (hα v) (hβ v))\n  smul_mem' := by\n    intro c α hα v\n    show v.adicValuation (c • (α : Place K F → F) v) ≤ exp (D v)\n    rw [Algebra.smul_def, map_mul]\n    exact (mul_le_of_le_one_left' (v.adicValuation_algebraMap_le_one c)).trans (hα v)",
+      "body_source": "",
+      "source_file": "lean/FLTForHuman/AlgebraicCurve/Defs/Repartitions.lean",
+      "has_source": true,
+      "has_refs": true
+    },
+    "AlgebraicCurve.riemannRochSpace": {
+      "refs": [{"where":"type","name":"AlgebraicCurve.Divisor","module":"FLTForHuman.AlgebraicCurve.Defs.Divisor","kind":"abbrev"},{"where":"type","name":"Algebra","module":"Mathlib.Algebra.Algebra.Defs","kind":"inductive"},{"where":"type","name":"Field","module":"Mathlib.Algebra.Field.Defs","kind":"inductive"},{"where":"type","name":"Submodule","module":"Mathlib.Algebra.Module.Submodule.Defs","kind":"inductive"},{"where":"body","name":"AlgebraicCurve.Place","module":"FLTForHuman.AlgebraicCurve.Defs.Place","kind":"inductive"},{"where":"body","name":"AlgebraicCurve.Place.adicValuation","module":"FLTForHuman.AlgebraicCurve.Defs.Place","kind":"def"},{"where":"body","name":"Multiplicative","module":"Mathlib.Algebra.Group.TypeTags.Basic","kind":"def"},{"where":"body","name":"Multiplicative.commMonoid","module":"Mathlib.Algebra.Group.TypeTags.Basic","kind":"def"},{"where":"body","name":"Multiplicative.linearOrder","module":"Mathlib.Algebra.Order.Monoid.Unbundled.TypeTags","kind":"def"},{"where":"body","name":"Multiplicative.preorder","module":"Mathlib.Algebra.Order.Monoid.Unbundled.TypeTags","kind":"def"},{"where":"body","name":"Set.ofPred","module":"Mathlib.Data.Set.Defs","kind":"def"},{"where":"body","name":"Valuation","module":"Mathlib.RingTheory.Valuation.Basic","kind":"inductive"},{"where":"body","name":"WithZero","module":"Mathlib.Algebra.Group.WithOne.Defs","kind":"def"},{"where":"body","name":"WithZero.exp","module":"Mathlib.Algebra.GroupWithZero.WithZero","kind":"def"},{"where":"body","name":"Int","module":"Init.Data.Int.Basic","kind":"inductive"}],
+      "range": {"start":{"line":113,"column":0},"end":{"line":125,"column":85}},
+      "name": "AlgebraicCurve.riemannRochSpace",
+      "module": "FLTForHuman.AlgebraicCurve.Defs.Repartitions",
+      "kind": "def",
+      "elaborated_type": "{K : Type u_1} →\n  {F : Type u_2} →\n    [inst : Field K] → [inst_1 : Field F] → [inst_2 : Algebra K F] → AlgebraicCurve.Divisor K F → Submodule K F",
+      "doc": "",
+      "short": "riemannRochSpace",
+      "signature_source": "def riemannRochSpace (D : Divisor K F) : Submodule K F where\n  carrier := {f | ∀ v : Place K F, v.adicValuation f ≤ exp (D v)}\n  zero_mem' := by\n    intro v\n    simp\n  add_mem' := by\n    intro f g hf hg v\n    exact (Valuation.map_add _ _ _).trans (max_le (hf v) (hg v))\n  smul_mem' := by\n    intro c f hf v\n    show v.adicValuation (c • f) ≤ exp (D v)\n    rw [Algebra.smul_def, map_mul]\n    exact (mul_le_of_le_one_left' (v.adicValuation_algebraMap_le_one c)).trans (hf v)",
+      "body_source": "",
+      "source_file": "lean/FLTForHuman/AlgebraicCurve/Defs/Repartitions.lean",
+      "has_source": true,
+      "has_refs": true
+    }
+  }
+};
