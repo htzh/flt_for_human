@@ -142,9 +142,17 @@ culminating in `StarBank.hassePolyDescent`. **Scout it before dispatching** (one
 `JOneES.exists_transcendental_finiteDimensional_laurentBaseChange` and
 `…_qExpFunctionFieldC`, plus the `socket` group (§3). Once Set A has settled
 `PhiGen.splits_prime_at_slot_of_isPrimitiveRoot`, most of this should be a `C`-layer
-transcription over the ported `exists_phiIrreducible` route. Check whether
-`package_of_socket` is needed at all or the ported route can back the `C` layer
-directly — that is the single largest possible saving (up to ~2,700 raw).
+transcription over the ported `exists_phiIrreducible` route.
+
+**The socket question is settled (§10.3): the socket is not a second route, it is the
+assembly layer over the ported one**, and it is the only producer of the `hall` hypothesis
+in this cone — so it cannot be skipped, only priced down. Measured 2026-10-25: of the
+group's 2,696 raw lines, 1,175 (`relfinrank_fullC_mul_prime_pow`) landed in CL2, and both
+socket files are ported *entirely* below pin line 781 (74 of 82 declarations) and pin
+line 277 (38 of 55): the new content is 223 + 242 = **465 raw lines**, not 2,700. The
+socket's input is the prime step, so its order is
+[WORKORDER-CL4](../modularCurve/WORKORDER-CL4-socket-assembly.md), after or alongside
+[WORKORDER-JQ2](../modularCurve/WORKORDER-JQ2-mffc-mul-prime.md).
 
 ### Set D — the bridge and capstone (128 lines + consumer)
 
@@ -163,8 +171,14 @@ here.
 | **content to write** | **≈ 8,300 … 9,700** |
 | × written ÷ content (1.1–1.3, playbook §2.5) | **≈ 9k … 13k written lines** |
 
-Rounds/sets: **4**, one per §4 set, with the Set-A measurement deciding whether Set C
-is a transcription or a re-derivation. The line budget unit that has actually been
+*Correction (2026-10-25, after CL1–CL3 landed).* Two rows above have moved: the `C`-variant
+re-runs (3,914 raw) are landed at 2,277 net new, and `relfinrank_fullC_mul_prime_pow` (1,175)
+is landed. The socket row prices at **465 new raw, not 2,696** (§10.3), because both its files
+are ported below pin line 781 / 277. The table is left as the bound it was, not turned into a
+ledger.
+
+Rounds/sets: **4**, one per §4 set. Set C's fork is settled (§10.3): it is a transcription of 465
+new lines into an existing home, not a re-derivation. The line budget unit that has actually been
 predictive in this effort is the *number of `C`-substitutions*, not rounds: expect
 ~15 of them, cheap individually.
 
@@ -181,9 +195,10 @@ predictive in this effort is the *number of `C`-substitutions*, not rounds: expe
 3. **`C`-layer drift.** ~15 API renames (`jq` → `jqModC`, `modularFunctionFieldFull`
    → `…FullC`, `ModularPolynomialData` lemmas). Per playbook §7 this is the recurring
    real cost; keep the list in the log, and do not re-cut the cone over it.
-4. **The socket route may be unnecessary.** Budget assumes it is written. If the
-   ported `exists_phiIrreducible` route can back the `C` layer, Set C shrinks by
-   ~2,700 raw; check at the end of Set A, before writing any of it.
+4. **The socket must not be transcribed.** Its two files are ~80 % already in the port, so
+   copying them writes ~1,150 lines to deliver ~465 (§10.3). The risk is the transcription,
+   not the mathematics: the assembly belongs in `PrimePowerStepAnyField.lean`, where
+   `fullC`, `eFull`, `divSet` and `relfinrank_fullC_step` already live.
 
 ## 7. Definition of done
 
@@ -200,8 +215,10 @@ in the library. At the end:
       **uses** the equality: a test that fails if the target or any Set-B/C module is
       deleted.
 - [ ] `frontier.py --target …` reports `needed 0`.
-- [ ] A short record: measured written lines vs this bound, whether the four-set cut
-      held, and whether the socket route was needed.
+- [ ] A short record: measured written lines vs this bound, and whether the four-set cut
+      held. The two questions this bound asked are already answered above — §10.1 for
+      `PhiGen.splits_prime_at_slot_of_isPrimitiveRoot`, §10.3 for the socket — so the
+      record only needs to say whether the answers held in the writing.
 
 ## 8. Verification recipe
 
@@ -232,9 +249,7 @@ The bound's two open questions are wanted in the report, whatever their answer:
 1. **Was `PhiGen.splits_prime_at_slot_of_isPrimitiveRoot` a corollary** of the ported
    `splits_prime_at_slot`, or a re-proof? It calibrates how much of the `C` layer is
    substitution.
-2. **Was the socket route needed?** If the ported `exists_phiIrreducible` route backs
-   the `C` layer directly, the ~2,700-line socket group is not written, and the bound
-   in §5 is an over-estimate by that much.
+2. **Was the socket route needed?** Yes — and it is not a "route". Answered in §10.3.
 
 ### 10.1 Answers measured before the wave (2026-10-25)
 
@@ -284,3 +299,97 @@ headlines, one module) and [WORKORDER-CL2](../modularCurve/WORKORDER-CL2-fullc-p
 Record: [logs/c-layer-slot-product-and-primestep.md](../../logs/c-layer-slot-product-and-primestep.md)
 — including the two findings worth carrying (the consumer had drifted off 0 errors, and the 200k
 edit loop is too tight for this proof in this tree).
+
+### 10.3 The socket question is answered: it is the assembly layer, not a route (2026-10-25)
+
+Set C's open question ("check whether `package_of_socket` is needed at all") is now measured
+against pin `aa2d8b3`. Three findings, in order of importance.
+
+**1. The socket is downstream of the prime step, not an alternative to it.** `pkg_of_socket`
+([S_:894](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_package_of_socket.lean#L894-L975))
+takes the prime step as a *hypothesis*,
+
+```
+hKG1 : ∀ (M) [NeZero M] (q) [Fact q.Prime] (ξ : Kˣ), IsPrimitiveRoot (ξ : K) (M*q) →
+         Pkg K M → jqNModC K M ∈ modularFunctionFieldC K (M*q)
+```
+
+and the wrapper at
+[S_:975](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_package_of_socket.lean#L975-L991)
+fills it with `ModularCurve.jqNModC_mem_modularFunctionFieldC_mul_prime`. So the socket is the
+induction over divisors that turns the prime step into `hall` for every `d ∣ M`, and it is the
+**only producer of `hall` in this cone** — every `C`-layer engine the port already holds
+(`minpoly_jqNModC_map_eq_prod_slots`, `jqNModC_prime_not_mem_fullC`) takes `hall` as a
+hypothesis. Nothing in the port produces it. Skipping the socket therefore does not remove the
+need for the prime step; it leaves `hall` unproven.
+
+**2. The ported `exists_phiIrreducible` route gives only the ≤ half.** It yields
+`natDegree (minpoly …) ≤ dedekindPsi d` ([S_:507](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_package_of_socket.lean#L507-L548),
+`S_:515`). Equality — what `hall` asserts — needs the tower `relfinrank_fullC_prime_pow_tower`
+= (p+1)·p^a together with `dedekindPsi_prime_pow` and `dedekindPsi_mul_of_coprime`, glued by
+`tight_iff_relfinrank_fullC`. That **is** the socket, so "the ported route backs the `C` layer
+directly" is two thirds of the socket with the third missing, not a third option.
+
+**3. The ported ℚ-twin cannot be transported up.** The port owns the ℚ degree formula
+(`ModularPolynomialUniqueness.lean`), but the pin's only transport,
+`finrank_adjoin_jqNModC_eq_of_map σ`
+([S_:403](https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_finrank_adjoin_jqNModC_eq_dedekindPsi_of_socket.lean#L403-L432)),
+runs *downward*: statement over `K'` implies statement over `K` for `σ : K →+* K'`. For
+`[CharZero K]` that would need `K →+* ℚ`, which does not exist — and the proof needs a bigger
+field precisely because the socket needs a primitive `d`-th root of unity `ζ`.
+
+**The price, after dedup.** Both socket files are a ported prefix plus a short new tail:
+
+| node | raw | already in the port | new |
+|---|---:|---|---:|
+| `relfinrank_fullC_mul_prime_pow` | 1,175 | landed (CL2) | 0 |
+| `package_of_socket` | 1,003 | 74 of 82 declarations, `S_:39–780`; `port_advise` reads 56 of 85 statements substituting byte-identically (≈657 lines) | **223** |
+| `finrank_adjoin_jqNModC_eq_dedekindPsi_of_socket` (and its byte-level twin `…_of_charZero`, 32 differing lines of namespace plumbing) | 518 | 38 of 55 declarations, `S_:1–276` | **242** |
+| `map_intCast_pow_char_eq_qExpand` + `qExpand_jqModC_eq_pow_unconditional` | 281 | not measured (char-`p` Frobenius facts, independent of the socket) | ≈281 |
+
+The new 223 in `package_of_socket` are `Pkg` (a two-line `abbrev`), `mffC_congr`,
+`fullC_congr'`, `adjoin_jqModC_le_fullC`, `fullC_one`, `tight_iff_relfinrank_fullC`,
+`mffC_eq_fullC_of_steps` (33), `relfinrank_fullC_prime_pow_tower` (44), `pkg_of_socket` (81)
+and the two wrappers. The two remaining frontier readings, so the numbers can be re-derived:
+`--target ModularCurve.finrank_adjoin_jqNModC_eq_dedekindPsi_of_charZero` is **5 needed nodes /
+2,346 raw** (itself 518, `package_of_socket` 1,003, `jqNModC_mem_modularFunctionFieldC_mul_prime`
+544, the two Frobenius nodes 281); `--also` on any of them removes exactly its own lines, so
+none of these is a gate on the others.
+
+**Consequence.** Two orders, not one: [WORKORDER-JQ2](../modularCurve/WORKORDER-JQ2-mffc-mul-prime.md)
+(the prime step, 231 net new) and [WORKORDER-CL4](../modularCurve/WORKORDER-CL4-socket-assembly.md)
+(the assembly, 465 net new, homed in `PrimePowerStepAnyField.lean` rather than transcribed).
+Either may land first: the socket's `hKG1` is a parameter, so it compiles against the JQ2
+statement as soon as that statement exists.
+
+**Ground laid 2026-10-25.** `ModularCurve.Pkg` is in the tree (`Defs/JqCoeff.lean:253`, statement
+verbatim the pin's `S_:781`, wired to that pin file and reading `ok`); the four `private` `hall`
+hypotheses of `SlotProductAnyField` now take `Pkg K M`, while its two *public* headlines keep the
+pin's spelled-out text (the checker hashes statement text and does not unfold abbreviations);
+`prod_form_ne_zero` stays `private` by design, its public home being the `ℚ` spelling in
+`PhiSlotRoots`; and CL4's two char-`p` nodes were measured at **22 + ≈100** new lines rather than
+an unmeasured 281. Readings and the reasoning:
+[logs/socket-ground.md](../../logs/socket-ground.md).
+
+**Both orders landed 2026-10-25, and the estimates held.** One new module
+(`FunctionFieldGeneration/MffCMulPrime.lean`, 251 lines) and one appended block
+(`PrimePowerStepAnyField.lean`, +269) close the prime step; `Degree/FinrankAdjoinJqNModC.lean`
+(367) and `Defs/QExpandCharP.lean` (125) close the assembly and its transport. Written 1,012 lines
+for 818 net new content — 231 for JQ2, then 223 + 242 + 122 against the 465 + ≈122 bound — a ratio of
+1.24, inside the playbook's band. Every prediction of this section survived: `Pkg` was enough to
+make `pkg_of_socket` diff as written (no second copy of the `hall` block in new code), the socket is
+the induction over divisors, and the ported ℚ twin stayed unusable for the upward direction.
+
+Readings, all re-taken on the final tree: `check_port` **0 mismatch / 0 missing** on the four
+touched modules and **5,482 ok / 31 own / 0 kw tree-wide** (247 modules, exit 0); `dedup` 0 clusters;
+`move_dead` 0 in every new module; `lake env lean spec/DsHeadConsumer.lean` exit 0 with its new
+`[socket]` zone; all five socket nodes `needed 0`; and the D-S column at **1,184 nodes / 446,334
+raw** — down 5 nodes and 2,346 lines, exactly the socket chain, which takes this cone from 19
+nodes / 5,664 raw to **14 / 3,318**. Records:
+[logs/jq2-mffc-mul-prime.md](../../logs/jq2-mffc-mul-prime.md),
+[logs/cl4-socket-assembly.md](../../logs/cl4-socket-assembly.md), and §7 of each order.
+
+The residual cost this section could not remove is the three spelled-out `hall` sites
+(`SlotProductAnyField` ×2, `MffCMulPrime` ×1): they are pinned public statements, and the checker
+hashes statement text without unfolding abbreviations, so `Pkg` cannot replace them. That is a
+property of the checker, not of the port's arrangement.

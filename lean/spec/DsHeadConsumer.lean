@@ -35,9 +35,13 @@
     [ratfunc]      the `ℙ¹` genus headline and its degree half at the same place
                    `placeInfty K`, consuming `Hurwitz`'s `KaehlerDifferential.map`
                    API in the headline's type.
+    [socket]       the `C`-layer socket assembly `package_of_socket` (at `M = 1` and
+                   at a general level over `ℚ`) and the transport's two degree
+                   headlines; see that zone's own note.
 -/
 
 import FLTForHuman.AlgebraicCurve.Differential.Hurwitz
+import FLTForHuman.ModularCurve.Degree.FinrankAdjoinJqNModC
 import FLTForHuman.AlgebraicCurve.Differential.Coefficient
 import FLTForHuman.AlgebraicCurve.Genus.RatFunc
 import FLTForHuman.AlgebraicCurve.Defs.KaehlerTranscendental
@@ -209,5 +213,57 @@ example (K : Type*) [Field K] [IsAlgClosed K] : genusFF K (RatFunc K) = 0 :=
 
 example : genusFF ℂ (RatFunc ℂ) = 0 :=
   genusFF_ratFunc_eq_zero_of_isAlgClosed ℂ
+
+/-! ## Zone `[socket]` — the `C`-layer assembly and its transport, at `K = ℚ`
+
+`FunctionFieldGeneration/PrimePowerStepAnyField.lean` carries the socket assembly
+`package_of_socket` (its prime-step parameter `hKG1` filled by JQ2's
+`jqNModC_mem_modularFunctionFieldC_mul_prime`), and
+`Degree/FinrankAdjoinJqNModC.lean` the descent's two headlines. Every example below
+*is* one of those declarations applied, so deleting or renaming either headline makes
+this zone fail to elaborate.
+
+Over `ℚ` the socket's `hbase` is not an assumption but the landed
+`jqNModC_prime_not_mem_adjoin_of_charZero`, so the assembly runs at any level: the
+first example is the trivial level `M = 1` with `ζ = 1`, the second a general level.
+The last two read the degree half off the two headlines — the char-zero twin at
+`d = 4`, and the `_of_socket` headline at its own `hbase` binder. -/
+
+open ModularCurve HahnSeries in
+example : ∀ d : ℕ, d ∣ 1 → ∀ [NeZero d],
+    (Module.finrank (IntermediateField.adjoin ℚ ({jqModC ℚ} : Set (LaurentSeries ℚ)))
+        (IntermediateField.adjoin (IntermediateField.adjoin ℚ ({jqModC ℚ} : Set (LaurentSeries ℚ)))
+          ({jqNModC ℚ d} : Set (LaurentSeries ℚ))) = ModularCurve.dedekindPsi d)
+      ∧ modularFunctionFieldC ℚ d = IntermediateField.adjoin ℚ
+          {x : LaurentSeries ℚ | ∃ (d' : ℕ) (_ : NeZero d'), d' ∣ d ∧ x = jqNModC ℚ d'} :=
+  package_of_socket 1 (1 : ℚˣ) (by simp)
+    fun (p : ℕ) [Fact (Nat.Prime p)] hp =>
+      absurd (Nat.dvd_one.mp hp) (Fact.out : Nat.Prime p).ne_one
+
+open ModularCurve HahnSeries in
+example (M : ℕ) [NeZero M] (ζ : ℚˣ) (hζ : IsPrimitiveRoot (ζ : ℚ) M) :
+    ∀ d : ℕ, d ∣ M → ∀ [NeZero d],
+      (Module.finrank (IntermediateField.adjoin ℚ ({jqModC ℚ} : Set (LaurentSeries ℚ)))
+          (IntermediateField.adjoin (IntermediateField.adjoin ℚ ({jqModC ℚ} : Set (LaurentSeries ℚ)))
+            ({jqNModC ℚ d} : Set (LaurentSeries ℚ))) = ModularCurve.dedekindPsi d)
+        ∧ modularFunctionFieldC ℚ d = IntermediateField.adjoin ℚ
+            {x : LaurentSeries ℚ | ∃ (d' : ℕ) (_ : NeZero d'), d' ∣ d ∧ x = jqNModC ℚ d'} :=
+  package_of_socket M ζ hζ fun (p : ℕ) [Fact (Nat.Prime p)] _ =>
+    jqNModC_prime_not_mem_adjoin_of_charZero p
+
+open ModularCurve HahnSeries in
+example : Module.finrank (IntermediateField.adjoin ℚ ({jqModC ℚ} : Set (LaurentSeries ℚ)))
+    (IntermediateField.adjoin (IntermediateField.adjoin ℚ ({jqModC ℚ} : Set (LaurentSeries ℚ)))
+      ({jqNModC ℚ 4} : Set (LaurentSeries ℚ))) = ModularCurve.dedekindPsi 4 :=
+  finrank_adjoin_jqNModC_eq_dedekindPsi_of_charZero 4
+
+open ModularCurve HahnSeries in
+example (d : ℕ) [NeZero d]
+    (hbase : ∀ (p : ℕ) [Fact (Nat.Prime p)], p ∣ d →
+      jqNModC ℚ p ∉ IntermediateField.adjoin ℚ ({jqModC ℚ} : Set (LaurentSeries ℚ))) :
+    Module.finrank (IntermediateField.adjoin ℚ ({jqModC ℚ} : Set (LaurentSeries ℚ)))
+        (IntermediateField.adjoin (IntermediateField.adjoin ℚ ({jqModC ℚ} : Set (LaurentSeries ℚ)))
+          ({jqNModC ℚ d} : Set (LaurentSeries ℚ))) = ModularCurve.dedekindPsi d :=
+  finrank_adjoin_jqNModC_eq_dedekindPsi_of_socket d hbase
 
 end

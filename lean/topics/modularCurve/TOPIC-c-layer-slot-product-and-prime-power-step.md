@@ -355,3 +355,42 @@ Wanted in the result note, whatever the answer:
 3. Whether `card_slotFilter_eq_dedekindPsi` could carry the cardinality step (§9.3) — this
    calibrates the "public counting export" decision for the rest of the `C` layer.
 4. The frontier reading per node, and the parent cone's new figure.
+
+## 13. Next wave: the socket assembly is priced, and it is a transcription (2026-10-25)
+
+The two socket nodes of §11's first bullet have been measured against pin `aa2d8b3`, and the
+answer changes their shape: **`package_of_socket` is the assembly layer over exactly the vocabulary
+this wave homed, not a new development.** 74 of its 82 declarations are already in the port (the
+whole `TS`/`roots` prelude and the `divSet`/`fullC`/`eFull`/prime-step block this wave landed);
+`port_advise` reads 56 of 85 statements substituting byte-identically. So the new content is
+**223 lines**, and `finrank_adjoin_jqNModC_eq_dedekindPsi_of_socket` (and its `…_of_charZero` twin,
+32 differing lines of plumbing) adds **242** — 465 together, against the 1,521 raw of the two files.
+
+Two consequences for this topic:
+
+- **`pkg_of_socket` takes the prime step as a parameter** (`hKG1`), and the pin fills it with
+  `ModularCurve.jqNModC_mem_modularFunctionFieldC_mul_prime` — a node this wave's cone touches but
+  did not port. So the socket is *downstream* of that step, and it is the only producer of `hall`
+  in the `C` layer: the engines this wave landed take `hall`, they do not make it.
+- The assembly belongs in `PrimePowerStepAnyField.lean` (where `fullC`, `eFull`, `divSet` and
+  `relfinrank_fullC_step` live), with `Pkg` as the one `abbrev` for the `hall` block — not as a
+  1,003-line transcription.
+
+Orders: [WORKORDER-JQ2](WORKORDER-JQ2-mffc-mul-prime.md) (the prime step, 231 net new) and
+[WORKORDER-CL4](WORKORDER-CL4-socket-assembly.md) (the assembly, 465 net new). Either may land
+first. `finrank_adjoin_jqNModC_modularFunctionFieldFullC_eq_dedekindPsi` (238) is still unscoped,
+and the argument, measurements and the two frontier readings are in the parent topic
+[§10.3](../functionFieldGeneration/TOPIC-qexp-function-field-c.md).
+
+**Both landed 2026-10-25, and the vocabulary homed by this wave carried them.**
+`FunctionFieldGeneration/MffCMulPrime.lean` (251 lines, the prime step) and the nine-declaration
+assembly appended to `PrimePowerStepAnyField.lean` (+269) close `package_of_socket`;
+`Degree/FinrankAdjoinJqNModC.lean` (367) closes the transport and both degree headlines (the twin
+pair, ported once); `Defs/QExpandCharP.lean` (125) the two char-`p` premises. Written 1,012 lines
+for 818 net new content. The assembly imported every one of this wave's `fullC`/`eFull`/`divSet`/
+`relfinrank_*` declarations and re-proved none of them — 74 of the pin file's 82 declarations were
+already in the tree — so the ~2,700-line "socket group" cost 465, as measured in §13's opening
+paragraph. All five nodes read `needed 0`, and the D-S column fell to 1,184 nodes / 446,334 raw,
+taking this cone from 19 nodes / 5,664 raw to **14 / 3,318**. Records:
+[logs/cl4-socket-assembly.md](../../logs/cl4-socket-assembly.md) and the parent topic §10.3.
+`finrank_adjoin_jqNModC_modularFunctionFieldFullC_eq_dedekindPsi` (238) remains unscoped.

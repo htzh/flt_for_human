@@ -4,7 +4,7 @@
 
 ## Target Scoping
 
-Use `frontier --ds` to see outstanding nodes for D-S. Use targets to fine tune.
+Use `frontier --ds` to see outstanding nodes for D-S. Use targets to fine tune. Use `rg` for fast grepping.
 
 ## Porting Structure
 

@@ -2,7 +2,8 @@
  The prime-power step of the divisor-generated function field, over an arbitrary
  field `K`.
 
- One headline, the `C`-layer twin of `FunctionFieldGeneration/DegreeStep.lean`:
+ Two headlines, the `C`-layer twins of `DegreeStep.lean` and of the socket's
+ assembly layer:
 
  * `relfinrank_fullC_mul_prime_pow` — for `p ∤ M`,
    `[F^fullC_{M p ^ (a+1)} : F^fullC_{M p ^ a}] = p + 1` when `a = 0` and `p`
@@ -14,6 +15,11 @@
    bounds come respectively from an irreducibility count (`Φ_p` at the slot,
    transported through the `qTwist`-conjugates) and from `Φ_p`'s degree minus the
    one root it already has in the base field.
+ * `package_of_socket` — the same degree, at *every* divisor `d` of a level `M`,
+   as the `hall` package `Pkg`: `[K⟮j(q)⟯⟮j(q ^ d)⟯ : K⟮j(q)⟯] = ψ(d)` together
+   with `modularFunctionFieldC K d = K⟮j(q ^ d') ∣ d' ∣ d⟯`. This is the induction
+   over the divisors, consuming the prime step `hKG1` and the `(p + 1) · p ^ a`
+   tower above (§7).
 
  ## Source
 
@@ -113,8 +119,28 @@
  Nothing else is dropped: every `divSet`/`eFull`-layer declaration has a
  consumer inside the module.
 
+ ## 7. The socket assembly (CL4)
+
+The module's second headline, `package_of_socket`, is the pin's
+`S_ModularCurve_package_of_socket.lean` tail (its lines 781–1003): `Pkg`, the
+induction over the divisors of a level, and the public wrapper. `Pkg` itself is
+**not** declared here — it is `ModularCurve.Pkg`, an `abbrev` beside the level
+fields it is about (`Defs/JqCoeff.lean`), and its reducibility is what lets the
+induction apply `Pkg`-typed data as the conjunction it is. The section's new
+input is the *prime step* `jqNModC_mem_modularFunctionFieldC_mul_prime` (JQ2),
+which `pkg_of_socket` takes as the hypothesis `hKG1` and `package_of_socket`
+fills; the rest is the tower arithmetic already in §6 plus
+`dedekindPsi_prime_pow`/`dedekindPsi_mul_of_coprime`.
+
+So the module now carries the whole `C`-layer degree story: the prime-power
+step of the divisor field (§6) and the assembly that turns the prime step into
+`hall` for every divisor (§7). Its two `Theorems/` statements are
+`relfinrank_fullC_mul_prime_pow` and `package_of_socket`.
+
   spec-pin: P2M/Sol/S_ModularCurve_relfinrank_fullC_mul_prime_pow.lean
   spec-pin: Theorems/Thm_ModularCurve_relfinrank_fullC_mul_prime_pow.lean
+  spec-pin: P2M/Sol/S_ModularCurve_package_of_socket.lean
+  spec-pin: Theorems/Thm_ModularCurve_package_of_socket.lean
 -/
 import FLTForHuman.FieldTheory.CommonRoot
 import FLTForHuman.ModularCurve.Defs.Cyclotomic
@@ -126,6 +152,7 @@ import FLTForHuman.ModularCurve.Defs.PhiAtSlot
 import FLTForHuman.ModularCurve.Defs.TS
 import FLTForHuman.ModularCurve.Defs.Twist
 import FLTForHuman.ModularCurve.Degree.JqCyclotomicConjugates
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.MffCMulPrime
 import FLTForHuman.ModularCurve.ModularPolynomialProperties
 import FLTForHuman.ModularCurve.PhiGenSplitsAnyField
 import FLTForHuman.ModularCurve.X0.FunctionFieldFull
@@ -1289,6 +1316,248 @@ theorem relfinrank_fullC_mul_prime_pow {K : Type*} [Field K] (M : ℕ) [NeZero M
         d' ∣ M * p ^ (a + 1) ∧ x = jqNModC K d'})
     = if a = 0 then p + 1 else p :=
   relfinrank_fullC_step M p a hpM ζ hζ hprev hnm
+
+/-! ## 7. The socket assembly
+
+The pin's `S_ModularCurve_package_of_socket.lean` proves `Pkg K M` — the `hall`
+statement of the `C`-layer engines — by strong induction over the divisors of
+`M`. The induction peels a prime `q = m.minFac` off a divisor `d = e * q`, gets
+`jqNModC K (e * q') ∈ modularFunctionFieldC K d` from the prime step `hKG1`
+(applied at the smaller level `e * q'`), rewrites the level-`e q'` field as the
+divisor field `fullC` by the induction hypothesis, and finishes with the
+`fullC_mono` inclusion.
+
+The degree half then reads `tight_iff_relfinrank_fullC` backwards: at `d = 1`
+it is `dedekindPsi_one`; at `d = M * p ^ (a + 1)` it is the product of the
+induction hypothesis, the `(p + 1) · p ^ a` tower of §6, and `ψ`'s multiplicativity
+across coprime factors.
+
+`Pkg` itself is `Defs/JqCoeff.lean`'s `abbrev`, not a local definition: the
+`abbrev` is what lets the induction hand `Pkg`-typed data to `hKG1` and still
+apply it as the conjunction it is. The four `congr`/`containment` helpers below
+are `private` in the pin and stay so here. -/
+
+/-- Level-index congruence for `modularFunctionFieldC`. -/
+private theorem mffC_congr {n m : ℕ} [NeZero n] [NeZero m] (h : n = m) :
+    modularFunctionFieldC K n = modularFunctionFieldC K m := by
+  subst h; rfl
+
+/-- Level-index congruence for `fullC`. -/
+private theorem fullC_congr' {n m : ℕ} (h : n = m) : fullC K n = fullC K m := by
+  subst h; rfl
+
+/-- The base field `K⟮j(q)⟯` sits in every divisor field. -/
+private theorem adjoin_jqModC_le_fullC (M : ℕ) :
+    IntermediateField.adjoin K ({jqModC K} : Set (LaurentSeries K)) ≤ fullC K M :=
+  IntermediateField.adjoin_le_iff.mpr (Set.singleton_subset_iff.mpr (jqModC_mem_fullC M))
+
+/-- At the level `1` the divisor field is the base field (the only divisor of `1`
+is `1`, and `j(q ^ 1) = j(q)`). -/
+private theorem fullC_one : fullC K 1 = IntermediateField.adjoin K ({jqModC K} : Set (LaurentSeries K)) := by
+  refine le_antisymm ?_ (adjoin_jqModC_le_fullC 1)
+  rw [fullC_le_iff]
+  intro e _ he
+  rw [Nat.dvd_one] at he
+  subst he
+  rw [jqNModC_one]
+  exact IntermediateField.subset_adjoin K _ rfl
+
+/-- **The degree half of `Pkg` agrees with the relative degree of `fullC`**, when
+the level field is the divisor field. The statement `Pkg` carries is the
+`Module.finrank` of the one-generator extension over `K⟮j(q)⟯`; this is the same
+number read as a `relfinrank` of `fullC K m`. -/
+theorem tight_iff_relfinrank_fullC (m : ℕ) [NeZero m] (hgen : modularFunctionFieldC K m = fullC K m) :
+    (Module.finrank (IntermediateField.adjoin K ({jqModC K} : Set (LaurentSeries K)))
+        (IntermediateField.adjoin (IntermediateField.adjoin K ({jqModC K} : Set (LaurentSeries K)))
+          ({jqNModC K m} : Set (LaurentSeries K))) = dedekindPsi m)
+      ↔ IntermediateField.relfinrank (IntermediateField.adjoin K ({jqModC K} : Set (LaurentSeries K))) (fullC K m)
+          = dedekindPsi m := by
+  rw [← hgen, modularFunctionFieldC, Set.pair_comm, relfinrank_adjoin_insert]
+
+/-- **The level field is the divisor field, one prime at a time.** If adding any
+prime `q` with `M q = d` keeps `j(q ^ M)` inside the level-`d` field (`hstep`),
+and every proper divisor's level field is its divisor field (`hgen'`), then the
+level-`d` field is the divisor field. The two hypotheses are the induction's
+interface: `hstep` is what the prime-step engine supplies, `hgen'` the induction
+hypothesis at the smaller level `e * q'`. -/
+theorem mffC_eq_fullC_of_steps (d : ℕ) [NeZero d]
+    (hstep : ∀ (M : ℕ) [NeZero M] (q : ℕ), q.Prime → M * q = d → jqNModC K M ∈ modularFunctionFieldC K d)
+    (hgen' : ∀ (M : ℕ) [NeZero M] (q : ℕ), q.Prime → M * q = d → modularFunctionFieldC K M = fullC K M) :
+    modularFunctionFieldC K d = fullC K d := by
+  refine le_antisymm ?_ ?_
+  · rw [modularFunctionFieldC, IntermediateField.adjoin_le_iff]
+    rintro _ (rfl | rfl)
+    · exact jqModC_mem_fullC d
+    · exact jqNModC_mem_fullC dvd_rfl
+  · rw [fullC_le_iff]
+    intro e _ heD
+    rcases eq_or_ne e d with rfl | hne
+    · exact jqNModC_mem K _
+    · obtain ⟨m, hm⟩ := heD
+      have hm1 : m ≠ 1 := fun h1 => hne (by rw [hm, h1, Nat.mul_one])
+      have hm0 : m ≠ 0 := fun h0 => NeZero.ne d (by rw [hm, h0, Nat.mul_zero])
+      have hq : m.minFac.Prime := Nat.minFac_prime hm1
+      obtain ⟨m', hm'⟩ := (Nat.minFac_dvd m : m.minFac ∣ m)
+      have hm'0 : m' ≠ 0 := fun h0 => hm0 (by rw [hm', h0, Nat.mul_zero])
+      haveI : NeZero (e * m') := ⟨Nat.mul_ne_zero (NeZero.ne e) hm'0⟩
+      have hprod : e * m' * m.minFac = d := by
+        rw [Nat.mul_assoc, Nat.mul_comm m' m.minFac, ← hm', ← hm]
+      have hmemM : jqNModC K (e * m') ∈ modularFunctionFieldC K d := hstep (e * m') m.minFac hq hprod
+      have hfull : modularFunctionFieldC K (e * m') = fullC K (e * m') := hgen' (e * m') m.minFac hq hprod
+      have hle : modularFunctionFieldC K (e * m') ≤ modularFunctionFieldC K d := by
+        rw [modularFunctionFieldC, IntermediateField.adjoin_le_iff]
+        rintro _ (rfl | rfl)
+        · exact jqModC_mem K d
+        · exact hmemM
+      refine hle ?_
+      rw [hfull]
+      exact jqNModC_mem_fullC (dvd_mul_right e m')
+
+/-- **The `(p + 1) · p ^ a` tower**: for `p ∤ M` and a primitive `M p ^ (a+1)`-th
+root `ξ`, the relative degree of `fullC K (M p ^ (a+1))` over `fullC K M` is
+`(p + 1) * p ^ a`, given that `j(q ^ p)` is still outside `fullC K M`. The proof
+multiplies the step function `[F_{i+1} : F_i]` (`p + 1` at `i = 0`, `p`
+afterwards, §6) over the `a + 1` steps by `relfinrank_mul_relfinrank`. -/
+theorem relfinrank_fullC_prime_pow_tower (M : ℕ) [NeZero M] (p : ℕ) [hp : Fact (Nat.Prime p)] (a : ℕ) (hpM : ¬ p ∣ M)
+    (ξ : Kˣ) (hξ : IsPrimitiveRoot (ξ : K) (M * p ^ (a + 1))) (hnm : jqNModC K p ∉ fullC K M) :
+    IntermediateField.relfinrank (fullC K M) (fullC K (M * p ^ (a + 1))) = (p + 1) * p ^ a := by
+  have hstep : ∀ i, i ≤ a →
+      IntermediateField.relfinrank (fullC K (M * p ^ i)) (fullC K (M * p ^ (i + 1))) = if i = 0 then p + 1 else p := by
+    intro i
+    induction i with
+    | zero =>
+      intro _
+      have hξ0 : IsPrimitiveRoot ((ξ ^ (M * p ^ (a + 1) / (M * p ^ (0 + 1))) : Kˣ) : K) (M * p ^ (0 + 1)) :=
+        isPrimitiveRoot_pow_div hξ (mul_dvd_mul_left M (pow_dvd_pow p (by omega)))
+      have h := ModularCurve.relfinrank_fullC_mul_prime_pow M p 0 hpM _ hξ0
+        (fun b hb => absurd hb (Nat.succ_ne_zero b).symm) (fun _ => hnm)
+      exact h
+    | succ i ihi =>
+      intro hi
+      have hξi : IsPrimitiveRoot ((ξ ^ (M * p ^ (a + 1) / (M * p ^ (i + 1 + 1))) : Kˣ) : K) (M * p ^ (i + 1 + 1)) :=
+        isPrimitiveRoot_pow_div hξ (mul_dvd_mul_left M (pow_dvd_pow p (by omega)))
+      have h := ModularCurve.relfinrank_fullC_mul_prime_pow M p (i + 1) hpM _ hξi
+        (fun b hb => by
+          obtain rfl : b = i := by omega
+          exact ihi (by omega))
+        (fun h0 => absurd h0 (Nat.succ_ne_zero i))
+      exact h
+  have hprod : ∀ i, i ≤ a →
+      IntermediateField.relfinrank (fullC K M) (fullC K (M * p ^ (i + 1))) = (p + 1) * p ^ i := by
+    intro i
+    induction i with
+    | zero =>
+      intro _
+      have h0 := hstep 0 (Nat.zero_le a)
+      rw [ite_eq_left rfl, fullC_congr' (show M * p ^ 0 = M by rw [pow_zero, Nat.mul_one])] at h0
+      rw [h0, pow_zero, Nat.mul_one]
+    | succ i ihi =>
+      intro hi
+      have h1 := hstep (i + 1) hi
+      rw [ite_eq_right (Nat.succ_ne_zero i)] at h1
+      have hle1 : fullC K M ≤ fullC K (M * p ^ (i + 1)) := fullC_mono (Dvd.intro _ rfl)
+      have hle2 : fullC K (M * p ^ (i + 1)) ≤ fullC K (M * p ^ (i + 1 + 1)) :=
+        fullC_mono (mul_dvd_mul_left M (pow_dvd_pow p (Nat.le_succ _)))
+      rw [← IntermediateField.relfinrank_mul_relfinrank hle1 hle2, ihi (Nat.le_of_succ_le hi), h1, pow_succ,
+        Nat.mul_assoc]
+  exact hprod a le_rfl
+
+/-- **The socket**: `Pkg K L` follows from the prime step. `hbase` says no prime
+`p ∣ L` already has `j(q ^ p)` in the base field `K⟮j(q)⟯`; `hKG1` is the prime
+step (JQ2), stated for an arbitrary `Pkg`-carrying level. The proof is the strong
+induction over the divisors, with `hKG1` at `e * q'` and the `(p + 1) · p ^ a`
+tower for the degree. -/
+theorem pkg_of_socket (L : ℕ) [NeZero L] (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) L)
+    (hbase : ∀ (p : ℕ) [Fact (Nat.Prime p)], p ∣ L →
+      jqNModC K p ∉ IntermediateField.adjoin K ({jqModC K} : Set (LaurentSeries K)))
+    (hKG1 : ∀ (M : ℕ) [NeZero M] (q : ℕ) [Fact (Nat.Prime q)] (ξ : Kˣ), IsPrimitiveRoot (ξ : K) (M * q) → Pkg K M →
+      jqNModC K M ∈ modularFunctionFieldC K (M * q)) :
+    Pkg K L := by
+  intro d
+  induction d using Nat.strong_induction_on with
+  | _ d ih =>
+    intro hdL hd0
+    have hLpos : 0 < L := Nat.pos_of_ne_zero (NeZero.ne L)
+
+    have pkg_lt : ∀ m : ℕ, m < d → m ∣ L → Pkg K m := fun m hm hmL e he _ =>
+      ih e (lt_of_le_of_lt (Nat.le_of_dvd (Nat.pos_of_dvd_of_pos hmL hLpos) he) hm) (he.trans hmL)
+    have hζd : IsPrimitiveRoot ((ζ ^ (L / d) : Kˣ) : K) d := isPrimitiveRoot_pow_div hζ hdL
+
+    have hgen : modularFunctionFieldC K d = fullC K d := by
+      refine mffC_eq_fullC_of_steps d ?_ ?_
+      · intro M _ q hq hMq
+        haveI : Fact (Nat.Prime q) := ⟨hq⟩
+        have hMd : M < d := by
+          rw [← hMq]
+          exact lt_mul_of_one_lt_right (Nat.pos_of_ne_zero (NeZero.ne M)) hq.one_lt
+        have hML : M ∣ L := (Dvd.intro q hMq).trans hdL
+        have hξ : IsPrimitiveRoot ((ζ ^ (L / d) : Kˣ) : K) (M * q) := by
+          rw [hMq]
+          exact hζd
+        have h := hKG1 M q _ hξ (pkg_lt M hMd hML)
+        rwa [mffC_congr hMq] at h
+      · intro M _ q hq hMq
+        have hMd : M < d := by
+          rw [← hMq]
+          exact lt_mul_of_one_lt_right (Nat.pos_of_ne_zero (NeZero.ne M)) hq.one_lt
+        have hML : M ∣ L := (Dvd.intro q hMq).trans hdL
+        exact (pkg_lt M hMd hML M dvd_rfl).2
+
+    refine ⟨?_, hgen⟩
+    rw [tight_iff_relfinrank_fullC d hgen]
+    rcases eq_or_ne d 1 with rfl | hd1
+    · rw [fullC_one, IntermediateField.relfinrank_self, dedekindPsi_one]
+    · obtain ⟨p, hp, hpd⟩ : ∃ p : ℕ, p.Prime ∧ p ∣ d := ⟨d.minFac, Nat.minFac_prime hd1, Nat.minFac_dvd d⟩
+      haveI : Fact (Nat.Prime p) := ⟨hp⟩
+      obtain ⟨e, M, hpM, hdeM⟩ := Nat.exists_eq_pow_mul_and_not_dvd (NeZero.ne d) p hp.ne_one
+      have hM0 : M ≠ 0 := fun h0 => NeZero.ne d (by rw [hdeM, h0, Nat.mul_zero])
+      haveI : NeZero M := ⟨hM0⟩
+      obtain ⟨a, rfl⟩ : ∃ a, e = a + 1 := by
+        rcases e with _ | a
+        · exfalso
+          rw [pow_zero, one_mul] at hdeM
+          exact hpM (hdeM ▸ hpd)
+        · exact ⟨a, rfl⟩
+      have hd' : d = M * p ^ (a + 1) := by rw [hdeM, Nat.mul_comm]
+      subst hd'
+      have hMd : M < M * p ^ (a + 1) :=
+        lt_mul_of_one_lt_right (Nat.pos_of_ne_zero hM0) (Nat.one_lt_pow (Nat.succ_ne_zero a) hp.one_lt)
+      have hML : M ∣ L := (Dvd.intro (p ^ (a + 1)) rfl).trans hdL
+      have pkgM : Pkg K M := pkg_lt M hMd hML
+      obtain ⟨htM, hgM⟩ := pkgM M dvd_rfl
+      have hpL : p ∣ L := hpd.trans hdL
+      have hξp : IsPrimitiveRoot (((ζ ^ (L / (M * p ^ (a + 1)))) ^ (M * p ^ (a + 1) / (M * p)) : Kˣ) : K) (M * p) :=
+        isPrimitiveRoot_pow_div hζd (mul_dvd_mul_left M (dvd_pow_self p (Nat.succ_ne_zero a)))
+      have hnm : jqNModC K p ∉ fullC K M :=
+        ModularCurve.jqNModC_prime_not_mem_fullC M p hpM _ hξp pkgM (hbase p hpL)
+      have htower := relfinrank_fullC_prime_pow_tower M p a hpM _ hζd hnm
+      have hM : IntermediateField.relfinrank (IntermediateField.adjoin K ({jqModC K} : Set (LaurentSeries K))) (fullC K M)
+          = dedekindPsi M :=
+        (tight_iff_relfinrank_fullC M hgM).mp htM
+      have hcop : Nat.Coprime M (p ^ (a + 1)) := hp.coprime_pow_of_not_dvd hpM
+      rw [← IntermediateField.relfinrank_mul_relfinrank (adjoin_jqModC_le_fullC M) (fullC_mono (Dvd.intro (p ^ (a + 1)) rfl)), htower,
+        hM, ModularCurve.dedekindPsi_mul_of_coprime M (p ^ (a + 1)) hcop,
+        ModularCurve.dedekindPsi_prime_pow p (a + 1) hp (Nat.succ_ne_zero a), Nat.add_sub_cancel]
+      ring
+
+/-- **The socket headline**: for a level `M` with a primitive `M`-th root `ζ` and
+no prime `p ∣ M` already at the base field, the whole `hall` package holds at
+`M`. The prime step `hKG1` of `pkg_of_socket` is discharged here by JQ2's
+`jqNModC_mem_modularFunctionFieldC_mul_prime`, so the statement has no
+hypothesis beyond the level data. Verbatim from
+`Theorems/Thm_ModularCurve_package_of_socket.lean:9` (the pin's own copy at
+`S_:975` is `private` and byte-identical; ported once). -/
+theorem package_of_socket {K : Type*} [Field K] (M : ℕ) [NeZero M] (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) M)
+    (hbase : ∀ (p : ℕ) [Fact (Nat.Prime p)], p ∣ M →
+      jqNModC K p ∉ IntermediateField.adjoin K ({jqModC K} : Set (LaurentSeries K))) :
+    ∀ d : ℕ, d ∣ M → ∀ [NeZero d],
+      Module.finrank (IntermediateField.adjoin K ({jqModC K} : Set (LaurentSeries K)))
+          (IntermediateField.adjoin (IntermediateField.adjoin K ({jqModC K} : Set (LaurentSeries K)))
+            ({jqNModC K d} : Set (LaurentSeries K))) = dedekindPsi d
+        ∧ modularFunctionFieldC K d = IntermediateField.adjoin K
+            {x : LaurentSeries K | ∃ (d' : ℕ) (_ : NeZero d'), d' ∣ d ∧ x = jqNModC K d'} :=
+  pkg_of_socket M ζ hζ hbase fun (M' : ℕ) [NeZero M'] (q : ℕ) [Fact (Nat.Prime q)] (ξ : Kˣ) hξ hall =>
+    ModularCurve.jqNModC_mem_modularFunctionFieldC_mul_prime M' q ξ hξ hall
 
 end ModularCurve
 

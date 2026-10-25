@@ -569,12 +569,7 @@ private theorem sv_ne_image_of_dvd {M a b d'' p m : ℕ} [NeZero M] [NeZero a] [
     (hψcomp : ψ.comp (algebraMap K⟮jqModC K⟯ K⟮jqModC K⟯⟮jqNModC K (a * d'')⟯)
       = (qExpand K M).comp (algebraMap K⟮jqModC K⟯ (LaurentSeries K)))
     (IH : ∀ (n : ℕ), n < M → ∀ [NeZero n] (ζ : Kˣ), SlotProductAt n K ζ)
-    (hall : ∀ d : ℕ, d ∣ M → ∀ [NeZero d],
-      Module.finrank K⟮jqModC K⟯
-          (IntermediateField.adjoin K⟮jqModC K⟯
-            ({jqNModC K d} : Set (LaurentSeries K))) = dedekindPsi d
-        ∧ modularFunctionFieldC K d = IntermediateField.adjoin K
-            {x : LaurentSeries K | ∃ (d' : ℕ) (_ : NeZero d'), d' ∣ d ∧ x = jqNModC K d'}) :
+    (hall : Pkg K M) :
     sv K ζ a b ≠ ψ ⟨jqNModC K m, hmem⟩ := by
   intro hcon
   have hroot'' : ((minpoly K⟮jqModC K⟯ (jqNModC K m)).map ((qExpand K M).comp
@@ -829,12 +824,7 @@ a conjugate `ψ` of `jqNModC K M` over `K⟮jqModC K⟯⟮jqNModC K (a * d'')⟯
 `sv K ζ a b` is then read off the `Φ_p`-factorisation at that conjugate. -/
 private theorem isRoot_map_minpoly_sv_of_descent {M : ℕ} [NeZero M] (ζ : Kˣ)
     (hζ : IsPrimitiveRoot ((ζ : Kˣ) : K) M)
-    (hall : ∀ d : ℕ, d ∣ M → ∀ [NeZero d],
-      Module.finrank K⟮jqModC K⟯
-          (IntermediateField.adjoin K⟮jqModC K⟯
-            ({jqNModC K d} : Set (LaurentSeries K))) = dedekindPsi d
-        ∧ modularFunctionFieldC K d = IntermediateField.adjoin K
-            {x : LaurentSeries K | ∃ (d' : ℕ) (_ : NeZero d'), d' ∣ d ∧ x = jqNModC K d'})
+    (hall : Pkg K M)
     (IH : ∀ (n : ℕ), n < M → ∀ [NeZero n] (ζ : Kˣ), SlotProductAt n K ζ)
     {a b : ℕ} (haM : a ∣ M) (ha0 : a ≠ 0) (hd1 : M / a ≠ 1) (hbr : b < M / a)
     (hbc : Nat.gcd (Nat.gcd a b) (M / a) = 1) :
@@ -962,12 +952,7 @@ private theorem isRoot_map_minpoly_sv_of_descent {M : ℕ} [NeZero M] (ζ : Kˣ)
 descends along the least prime of `M / a` to the level `a * d''`. -/
 private theorem isRoot_map_minpoly_sv {M : ℕ} [NeZero M] (ζ : Kˣ)
     (hζ : IsPrimitiveRoot ((ζ : Kˣ) : K) M)
-    (hall : ∀ d : ℕ, d ∣ M → ∀ [NeZero d],
-      Module.finrank K⟮jqModC K⟯
-          (IntermediateField.adjoin K⟮jqModC K⟯
-            ({jqNModC K d} : Set (LaurentSeries K))) = dedekindPsi d
-        ∧ modularFunctionFieldC K d = IntermediateField.adjoin K
-            {x : LaurentSeries K | ∃ (d' : ℕ) (_ : NeZero d'), d' ∣ d ∧ x = jqNModC K d'})
+    (hall : Pkg K M)
     (IH : ∀ (n : ℕ), n < M → ∀ [NeZero n] (ζ : Kˣ), SlotProductAt n K ζ)
     {a b : ℕ} (ha : a ∈ M.divisors)
     (hb : b ∈ (Finset.range (M / a)).filter
@@ -1235,12 +1220,7 @@ root `ζ` of order `M * p`, if `jqNModC K p` is not in the base field then it is
 private theorem jqNModC_prime_not_mem_adjoin (M : ℕ) [NeZero M] (p : ℕ)
     [hp : Fact (Nat.Prime p)] (hpM : ¬ p ∣ M) (ζ : Kˣ)
     (hζ : IsPrimitiveRoot ((ζ : Kˣ) : K) (M * p))
-    (hall : ∀ d : ℕ, d ∣ M → ∀ [NeZero d],
-      Module.finrank K⟮jqModC K⟯
-          (IntermediateField.adjoin K⟮jqModC K⟯
-            ({jqNModC K d} : Set (LaurentSeries K))) = dedekindPsi d
-        ∧ modularFunctionFieldC K d = IntermediateField.adjoin K
-            {x : LaurentSeries K | ∃ (d' : ℕ) (_ : NeZero d'), d' ∣ d ∧ x = jqNModC K d'})
+    (hall : Pkg K M)
     (hbase : jqNModC K p ∉ K⟮jqModC K⟯) :
     jqNModC K p ∉ IntermediateField.adjoin K⟮jqModC K⟯
       ({jqNModC K M} : Set (LaurentSeries K)) := by
