@@ -702,10 +702,13 @@ stamp moved, `--all` re-checks everything, `--force` re-checks an unchanged modu
 prints the per-module stamp, `--include-legacy` reaches a module the frozen lists still own, and
 `--markers PATH` selects another marker table. State is `tmp/check-port/state.json`, which a
 corpus rebuild invalidates. It hashes the port statement the way the corpus does and matches by
-exact name, the pin's part label dropped (`p0n25_wkc_foo` → `wkc_foo`), promoted key, `kw_`
-strip, then content, so a faithful-but-renamed copy verifies and a same-name statement that
-differs is a `MISMATCH` (with an identical statement elsewhere reported as a hint). A rename
-the port's own naming policy makes — dropping the pin's machine-generated part label —
+exact name, the pin's part label dropped (`p0n25_wkc_foo` → `wkc_foo`), the pin's stage label
+dropped (`exists_mem_D_eq_smul_dCoord_s12` → `exists_mem_D_eq_smul_dCoord`; the `S_` files
+suffix `_s0` … `_s19`), promoted key, `kw_` strip, then content, so a faithful-but-renamed copy
+verifies and a same-name statement that differs is a `MISMATCH` (with an identical statement
+elsewhere reported as a hint). Every tier after the exact name is hash-gated, so a label tier
+can only attribute a copy more precisely — it cannot accept a drifted statement. A rename the
+port's own naming policy makes — dropping the pin's machine-generated part or stage label —
 therefore needs no marker row; a marker is for a rename that policy does not predict. A module is its own unit of check: every public declaration it makes is either diffed
 or carries a recorded exception.
 

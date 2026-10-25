@@ -16,29 +16,6 @@ namespace IntermediateField
 
 variable {K F : Type*} [Field K] [Field F] [Algebra K F]
 
-theorem adjoin_simple_inv (t : F) : K⟮t⁻¹⟯ = K⟮t⟯ := adjoin_simple_inv_s12 t
-
-theorem algebraMap_comp_equivOfEq {S T : IntermediateField K F} (h : S = T) :
-    (algebraMap T F).comp ((IntermediateField.equivOfEq h).toRingEquiv : S →+* T)
-      = ((RingEquiv.refl F : F ≃+* F) : F →+* F).comp (algebraMap S F) :=
-  algebraMap_comp_equivOfEq_s12 h
-
-theorem finiteDimensional_of_eq {S T : IntermediateField K F} (h : S = T)
-    [FiniteDimensional ↥S F] : FiniteDimensional ↥T F :=
-  finiteDimensional_of_eq_s12 h
-
-theorem isSeparable_of_eq {S T : IntermediateField K F} (h : S = T)
-    [Algebra.IsSeparable ↥S F] : Algebra.IsSeparable ↥T F :=
-  isSeparable_of_eq_s12 h
-
-theorem finiteDimensional_adjoin_inv (t : F) [FiniteDimensional K⟮t⟯ F] :
-    FiniteDimensional K⟮t⁻¹⟯ F :=
-  finiteDimensional_adjoin_inv_s12 t
-
-theorem isSeparable_adjoin_inv (t : F) [Algebra.IsSeparable K⟮t⟯ F] :
-    Algebra.IsSeparable K⟮t⁻¹⟯ F :=
-  isSeparable_adjoin_inv_s12 t
-
 end IntermediateField
 
 namespace AlgebraicCurve

@@ -1,36 +1,47 @@
 /-
 Ω is one-dimensional over `F` at a place: `dπ` generates it, every differential has a
 coordinate in that generator, and for a separating uniformiser the coordinate of an
-integral element is integral. After FLT's
+integral element is integral — and over a perfect `K` for any uniformiser, since there
+`ord t = 1` already separates. The coefficient here is the general one, against an
+arbitrary uniformiser `t`; the canonical `Place.differentialCoeff` of
+`Defs/CanonicalDivisor.lean` is its `dCoord` case, and
+`diffCoeff_uniformizer_eq_differentialCoeff` relates the two, so the tree carries one
+coefficient API. After FLT's
 `P2M/Sol/S_AlgebraicCurve_exists_mem_D_eq_smul_D_of_isCurveOver.lean` (1,422 ln) and
 the coefficient layer
 `P2M/Sol/S_AlgebraicCurve_Place_diffCoeff_smul_D_of_ord_eq_one.lean` (28 ln),
-`P2M/Sol/S_AlgebraicCurve_Place_diffCoeff_smul_D_eq_of_ord_eq_one.lean` (26 ln) and
-`P2M/Sol/S_AlgebraicCurve_Place_ord_diffCoeff_D_nonneg_of_isSeparable.lean` (576 ln),
+`P2M/Sol/S_AlgebraicCurve_Place_diffCoeff_smul_D_eq_of_ord_eq_one.lean` (26 ln),
+`P2M/Sol/S_AlgebraicCurve_Place_ord_diffCoeff_D_nonneg_of_isSeparable.lean` (576 ln)
+and its perfect-field corollary
+`P2M/Sol/S_AlgebraicCurve_Place_ord_diffCoeff_D_nonneg_of_perfectField.lean` (17 ln),
 pinned at `aa2d8b3`:
 
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_exists_mem_D_eq_smul_D_of_isCurveOver.lean>,
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_Place_diffCoeff_smul_D_of_ord_eq_one.lean>,
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_Place_diffCoeff_smul_D_eq_of_ord_eq_one.lean>,
-<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_Place_ord_diffCoeff_D_nonneg_of_isSeparable.lean>.
+<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_Place_ord_diffCoeff_D_nonneg_of_isSeparable.lean>,
+<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_Place_ord_diffCoeff_D_nonneg_of_perfectField.lean>.
 
 The first file inlines its whole `s12` prelude (61 private helpers, ≈670 lines);
 every one already has a public home in the port's
 `AlgebraicCurve/Canonical/HasCanonicalDivisor.lean` (`ValSubringKaehlerSpanTop`,
-`valSubringKaehlerSpanTop_of_isCurveOver_of_perfectField_s12`,
+`valSubringKaehlerSpanTop_of_isCurveOver_of_perfectField`,
 `Place.dCoordGenerates_of_valSubringKaehlerSpanTop`,
-`Place.exists_mem_D_eq_smul_dCoord_s12`,
-`Place.exists_unit_D_eq_smul_dCoord_s12`,
+`Place.exists_mem_D_eq_smul_dCoord`,
+`Place.exists_unit_D_eq_smul_dCoord`,
 `isLocalization_centerIdeal_of_isDedekindDomain`, …). This module imports that
 home rather than re-proving it and lands the headline at its `Theorems/` wrapper
 statement.
 
-The last three files are the pin's coefficient layer, absorbed here because they are
+The last four files are the pin's coefficient layer, absorbed here because they are
 the same subject: `Place.diffCoeff t ω` is the `g` with `g • dt = ω` (and `0` when
 there is none), so the three theorems are the three faces of `Ω` being free of rank
 one where `Dt ≠ 0` — existence (`Dt` spans `Ω`), uniqueness (`Dt ≠ 0`), and
 integrality: `d/dt` maps the valuation ring into itself, i.e. the local different is
-effective. The pin proves the last one by hand in a `RatFunc` tower (its private
+effective. The fourth is that integrality with the separability hypothesis
+discharged: over a perfect `K`, `ord t = 1` is already separating
+(`Place.isSeparable_adjoin_of_ord_eq_one`), so the instance is free. The pin proves
+that integrality row by hand in a `RatFunc` tower (its private
 `engine`, ≈250 lines, over the `Dict` block that is public here as
 `Defs/PlaceDictionary.lean`); in the port that engine is
 `exists_mem_D_eq_smul_D_of_isCurveOver` plus the `IsCurveOver` supply
@@ -50,6 +61,8 @@ spec-pin: Theorems/Thm_AlgebraicCurve_Place_diffCoeff_smul_D_eq_of_ord_eq_one.le
 spec-pin: P2M/Sol/S_AlgebraicCurve_Place_diffCoeff_smul_D_eq_of_ord_eq_one.lean   -- comparable copy
 spec-pin: Theorems/Thm_AlgebraicCurve_Place_ord_diffCoeff_D_nonneg_of_isSeparable.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_Place_ord_diffCoeff_D_nonneg_of_isSeparable.lean   -- comparable copy
+spec-pin: Theorems/Thm_AlgebraicCurve_Place_ord_diffCoeff_D_nonneg_of_perfectField.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Place_ord_diffCoeff_D_nonneg_of_perfectField.lean   -- comparable copy
 -/
 import FLTForHuman.AlgebraicCurve.Place.SeparableUniformiser
 import FLTForHuman.AlgebraicCurve.IsCurveOver.EssFiniteType
@@ -76,8 +89,18 @@ theorem exists_mem_D_eq_smul_D_of_isCurveOver
     {K F : Type*} [Field K] [Field F] [Algebra K F]
     [PerfectField K] [Algebra.EssFiniteType K F] [AlgebraicCurve.IsCurveOver K F]
     (v : AlgebraicCurve.Place K F) {π : F} (hπ : v.ord π = 1) {x : F} (hx : x ∈ v.toValuationSubring) :
-    ∃ c : F, c ∈ v.toValuationSubring ∧ KaehlerDifferential.D K F x = c • KaehlerDifferential.D K F π :=
-  exists_mem_D_eq_smul_D_of_isCurveOver_s12 v hπ hx
+    ∃ c : F, c ∈ v.toValuationSubring ∧ KaehlerDifferential.D K F x = c • KaehlerDifferential.D K F π := by
+  have hspan := valSubringKaehlerSpanTop_of_isCurveOver_of_perfectField (K := K) (F := F)
+  haveI : v.DCoordGenerates := Place.dCoordGenerates_of_valSubringKaehlerSpanTop hspan v
+  obtain ⟨c, hc, hDx⟩ := v.exists_mem_D_eq_smul_dCoord hspan hx
+  obtain ⟨w, hw0, hw, hDπ⟩ := v.exists_unit_D_eq_smul_dCoord hspan hπ
+  refine ⟨c / w, ?_, ?_⟩
+  · rcases eq_or_ne c 0 with rfl | hc0
+    · rw [zero_div]; exact zero_mem _
+    · exact v.mem_vs_of_ord_nonneg (by
+        rw [div_eq_mul_inv, v.ord_mul hc0 (inv_ne_zero hw0), v.ord_inv, hw, neg_zero, add_zero]
+        exact v.ord_nonneg_of_mem_vs hc)
+  · rw [hDx, hDπ, smul_smul, div_mul_cancel₀ _ hw0]
 
 namespace Place
 
@@ -106,12 +129,12 @@ theorem diffCoeff_of_not_exists {t : F} {ω : Ω[F⁄K]} (h : ¬ ∃ g : F, ω =
 
 /-- The canonical coefficient `v.differentialCoeff` (the `dCoord` case) is this one
 at `t = v.uniformizer`; the bridge that keeps the port on a single coefficient.
-Port glue, not a pin statement. -/
+The two are not two definitions related by a factor: `v.dCoord` is
+`D K F v.uniformizer` by definition, so the two spellings are the same term and the
+statement holds by `rfl`. Port glue, not a pin statement. -/
 theorem diffCoeff_uniformizer_eq_differentialCoeff (v : Place K F) [v.DCoordGenerates]
-    [Nontrivial Ω[F⁄K]] (ω : Ω[F⁄K]) : diffCoeff v.uniformizer ω = v.differentialCoeff ω := by
-  obtain ⟨g, hg⟩ := v.exists_eq_smul_dCoord ω
-  exact (v.differentialCoeff_unique
-    (diffCoeff_smul_D (t := v.uniformizer) (ω := ω) ⟨g, hg⟩).symm).symm
+    [Nontrivial Ω[F⁄K]] (ω : Ω[F⁄K]) : diffCoeff v.uniformizer ω = v.differentialCoeff ω :=
+  rfl
 
 end Place
 
@@ -160,7 +183,12 @@ theorem AlgebraicCurve.Place.diffCoeff_smul_D_eq_of_ord_eq_one {K F : Type*} [Fi
 unifomiser is effective. The pin proves this by hand in a `RatFunc` tower (its
 private `engine`); here it is `exists_mem_D_eq_smul_D_of_isCurveOver` plus the
 `IsCurveOver` supply, with the two uniformisers compared by
-`exists_ord_eq_zero_D_eq_smul_D_of_isCurveOver_s12`. -/
+`exists_ord_eq_zero_D_eq_smul_D_of_isCurveOver`.
+
+The second declaration is the same statement with the separability hypothesis
+discharged: `ord t = 1` already separates (`Place.isSeparable_adjoin_of_ord_eq_one`),
+so the instance is derived from the pin's own hypotheses. It is the form the
+`ordDiff` consumers state, so it belongs here, next to the theorem it instantiates. -/
 
 theorem AlgebraicCurve.Place.ord_diffCoeff_D_nonneg_of_isSeparable {K F : Type*} [Field K] [Field F] [Algebra K F] [PerfectField K] (x : F)
     [FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F] (v : AlgebraicCurve.Place K F) {t : F}
@@ -179,12 +207,12 @@ theorem AlgebraicCurve.Place.ord_diffCoeff_D_nonneg_of_isSeparable {K F : Type*}
     AlgebraicCurve.essFiniteType_of_transcendental_of_finiteDimensional htr hfd
   haveI : v.DCoordGenerates :=
     AlgebraicCurve.Place.dCoordGenerates_of_valSubringKaehlerSpanTop
-      (AlgebraicCurve.valSubringKaehlerSpanTop_of_isCurveOver_of_perfectField_s12) v
+      (AlgebraicCurve.valSubringKaehlerSpanTop_of_isCurveOver_of_perfectField) v
   obtain ⟨c, hc, hDf⟩ :=
     AlgebraicCurve.exists_mem_D_eq_smul_D_of_isCurveOver v (π := v.uniformizer)
       v.ord_uniformizer (v.mem_vs_of_ord_nonneg hf)
   obtain ⟨u, hu0, hDtu⟩ :=
-    AlgebraicCurve.exists_ord_eq_zero_D_eq_smul_D_of_isCurveOver_s12
+    AlgebraicCurve.exists_ord_eq_zero_D_eq_smul_D_of_isCurveOver
       v v.uniformizer t v.ord_uniformizer ht
   have hu : u ≠ 0 := by
     rintro rfl
@@ -200,3 +228,16 @@ theorem AlgebraicCurve.Place.ord_diffCoeff_D_nonneg_of_isSeparable {K F : Type*}
   · simp [zero_div, v.ord_zero]
   · rw [div_eq_mul_inv, v.ord_mul hc0 (inv_ne_zero hu), v.ord_inv, hu0, neg_zero, add_zero]
     exact v.ord_nonneg_of_mem hc
+
+/-- **The same integrality without the separability hypothesis.** Over a perfect `K`
+a uniformiser is separating (`Place.isSeparable_adjoin_of_ord_eq_one`), so the
+instance of `ord_diffCoeff_D_nonneg_of_isSeparable` follows from the pin's own
+hypotheses. Verbatim from
+`Theorems/Thm_AlgebraicCurve_Place_ord_diffCoeff_D_nonneg_of_perfectField.lean`. -/
+theorem AlgebraicCurve.Place.ord_diffCoeff_D_nonneg_of_perfectField {K F : Type*} [Field K] [Field F] [Algebra K F] [PerfectField K] (x : F)
+    [FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F] (v : AlgebraicCurve.Place K F) {t : F}
+    (ht : v.ord t = 1) {f : F} (hf : 0 ≤ v.ord f) :
+    0 ≤ v.ord (AlgebraicCurve.Place.diffCoeff t (KaehlerDifferential.D K F f)) := by
+  haveI : Algebra.IsAlgebraic (IntermediateField.adjoin K ({x} : Set F)) F := Algebra.IsAlgebraic.of_finite _ _
+  haveI := AlgebraicCurve.Place.isSeparable_adjoin_of_ord_eq_one x v ht
+  exact AlgebraicCurve.Place.ord_diffCoeff_D_nonneg_of_isSeparable x v ht hf

@@ -3952,7 +3952,9 @@ PORT_FILES = [
     # SOURCES) lives in `Defs/Divisor.lean` beside `Pic0`; the refactor round moved
     # it there from `CanonicalDivisor`, where the earlier AC effort had left it.
     # Appended last so no earlier last-name match can flip.
-    "FLTForHuman/AlgebraicCurve/Defs/CanonicalDivisor.lean",
+    # --- `FLTForHuman/AlgebraicCurve/Defs/CanonicalDivisor.lean` is handed over to
+    # `spec/check_port.py` (2026-10-25): its `spec-pin:` wire checks 21 ok / 0 mismatch
+    # / 0 missing / 1 own. Do not re-list it here.
     "FLTForHuman/AlgebraicCurve/Defs/Repartitions.lean",
     "FLTForHuman/AlgebraicCurve/Defs/AdelicIndex.lean",
     "FLTForHuman/AlgebraicCurve/Defs/IsCurveOver.lean",
@@ -3986,7 +3988,12 @@ PORT_FILES = [
     # the HasCanonicalDivisor chain applies), then the construction. Appended last
     # so no earlier last-name match can flip.
     "FLTForHuman/AlgebraicCurve/Defs/KaehlerTranscendental.lean",
-    "FLTForHuman/AlgebraicCurve/Canonical/HasCanonicalDivisor.lean",
+    # --- the canonical-divisor layer is handed over to `spec/check_port.py`
+    # (2026-10-25) and split by subject: `Canonical/ValSubringKaehler.lean` (50 ok /
+    # 7 own), `Canonical/AffineChart.lean` (37 ok / 0 own),
+    # `Canonical/DCoordGenerates.lean` (10 ok / 0 own) and
+    # `Canonical/HasCanonicalDivisor.lean` (11 ok / 2 own); every wire is 0 mismatch /
+    # 0 missing. Do not re-list any of them here.
     # --- P3.1a (the adic-completion layer the `HasCanonicalLocalResidueKStar`
     # producer of P3.1b runs over). Appended last so no earlier last-name match can
     # flip.
@@ -4511,10 +4518,12 @@ PORT_FILES = [
     # are thin wrappers over the already-ported `s12`/`ℙ¹` surface. Appended last so
     # no earlier last-name match can flip.
     "FLTForHuman/AlgebraicCurve/Differential/Hurwitz.lean",
-    # --- `FLTForHuman/AlgebraicCurve/Differential/Generation.lean` is handed over to
-    # `spec/check_port.py` (2026-10-24, when the `diffCoeff` layer was absorbed into it):
-    # its `spec-pin:` wire checks 7 ok / 0 mismatch / 0 missing / 1 own. Do not re-list
-    # it here. The absorption is `topics/algebraicCurve/TOPIC-diffCoeff-integrality.md`.
+    # --- `FLTForHuman/AlgebraicCurve/Differential/Coefficient.lean` (until
+    # 2026-10-25 `Differential/Generation.lean`) is handed over to
+    # `spec/check_port.py` (2026-10-24, when the `diffCoeff` layer was absorbed into
+    # it): its `spec-pin:` wire checks 8 ok / 0 mismatch / 0 missing / 1 own. Do not
+    # re-list it here. The absorption and the rename are
+    # `topics/algebraicCurve/TOPIC-diffCoeff-integrality.md` §10.
     # --- `FLTForHuman/AlgebraicCurve/Genus/RatFunc.lean` is handed over to `spec/check_port.py`: its `spec-pin:` wire
     # checks 7 ok / 0 mismatch / 0 missing. Do not re-list it here.
     # --- SET-H-A (`topics/hecke/TOPIC-xH-hecke-diamond-inputs.md`): the `X_H(M)`

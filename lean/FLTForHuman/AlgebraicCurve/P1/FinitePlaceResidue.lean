@@ -16,18 +16,6 @@ namespace ValuationSubring
 variable {F : Type*} [Field F]
 
 
-theorem eq_top_of_idealOfLE_eq_bot {R S : ValuationSubring F} (h : R ≤ S)
-    (hbot : idealOfLE R S h = ⊥) : S = ⊤ :=
-  eq_top_of_idealOfLE_eq_bot_s12 h hbot
-
-theorem idealOfLE_ne_bot_of_ne_top {R S : ValuationSubring F} (h : R ≤ S)
-    (hS : S ≠ ⊤) : idealOfLE R S h ≠ ⊥ :=
-  idealOfLE_ne_bot_of_ne_top_s12 h hS
-
-theorem eq_of_isDiscreteValuationRing_of_le {R S : ValuationSubring F}
-    [IsDiscreteValuationRing R] (h : R ≤ S) (hS : S ≠ ⊤) : R = S :=
-  eq_of_isDiscreteValuationRing_of_le_s12 h hS
-
 end ValuationSubring
 
 namespace AlgebraicCurve

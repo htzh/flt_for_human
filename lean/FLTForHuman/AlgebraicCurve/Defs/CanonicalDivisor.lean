@@ -1,21 +1,32 @@
 /-
-Canonical divisors and the Kähler differential coefficient, after FLT's
-`Definitions/Def_ModularCurve_CanonicalDivisor.lean` (97 ln) and
-`Definitions/Def_AlgebraicCurve_CanonicalDivisor.lean` (42 ln)
+Canonical divisors and the Kähler differential coefficient: a uniformizer at a place,
+the coefficient of a differential against `v.dCoord`, the order of a differential, and
+the canonical divisor, class and genus built on them.
+
+After FLT's `Definitions/Def_ModularCurve_CanonicalDivisor.lean` (97 ln),
+`Definitions/Def_AlgebraicCurve_CanonicalDivisor.lean` (42 ln) and
+`Definitions/Def_ModularCurve_CanonicalDivisorUniformizer.lean` (35 ln)
 (<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_CanonicalDivisor.lean>,
-<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_CanonicalDivisor.lean>).
+<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_CanonicalDivisor.lean>,
+<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_CanonicalDivisorUniformizer.lean>).
 
 The pin splits this by artifact kind (`ModularCurve` = the `Place.dCoord` block,
-`AlgebraicCurve` = `HasCanonicalDivisor`/`genus`); in the port's tree both are
-`AlgebraicCurve.Place`/`AlgebraicCurve` vocabulary, so they merge here.
+`AlgebraicCurve` = `HasCanonicalDivisor`/`genus`) and keeps `uniformizer` and its two
+order lemmas `private` in the first file, re-exposing them publicly in the third. The
+port's tree is `AlgebraicCurve.Place`/`AlgebraicCurve` vocabulary throughout, so the
+three files merge here; `uniformizer`, `ord_uniformizer` and `uniformizer_ne_zero` are
+diffed against the re-export file, which states them publicly.
 
-The pin keeps `uniformizer` (and its two order lemmas) `private` in this file and
-re-exposes them publicly in
-`Definitions/Def_ModularCurve_CanonicalDivisorUniformizer.lean:18–27`.  Set D
-transcribed the `private` copies; the refactor round promotes them here (their
-pin-public home is that re-export file, already in `SOURCES`) and leaves
-`Defs/CanonicalDivisorUniformizer.lean` only `dCoord_eq`, so the port has a single
-`Place.uniformizer`.  `Pic` now lives in `Defs/Divisor.lean` beside `Pic0`.
+`Place.uniformizerSubring` is that element and the single home of the `Classical.choose`;
+the pin states it in `Def_AlgebraicCurve_CanonicalLocalResidueInstanceV2.lean`, whose
+later declarations (the residue instance) are homed in `LocalResidue/Instance.lean`, which
+therefore reads this definition rather than restating it. `Pic` lives in
+`Defs/Divisor.lean` beside `Pic0`.
+
+spec-pin: Definitions/Def_ModularCurve_CanonicalDivisor.lean
+spec-pin: Definitions/Def_AlgebraicCurve_CanonicalDivisor.lean
+spec-pin: Definitions/Def_ModularCurve_CanonicalDivisorUniformizer.lean
+spec-pin: Definitions/Def_AlgebraicCurve_CanonicalLocalResidueInstanceV2.lean
 -/
 import FLTForHuman.AlgebraicCurve.Defs.Divisor
 import Mathlib.RingTheory.Valuation.Discrete.IsDiscreteValuationRing
@@ -39,11 +50,12 @@ variable (v : Place K F)
 def uniformizer : F :=
   ((IsDiscreteValuationRing.exists_irreducible v.toValuationSubring).choose : F)
 
-/-- The same uniformizer as an element of the valuation subring; the single home
-for the `Classical.choose`, shared by the canonical-divisor layer and the
-phase-3.1 residue-instance layer (moved here from
-`Canonical/HasCanonicalDivisor.lean` by the 2026-09-30 refactor). -/
-noncomputable def uniformizerSubring' : v.toValuationSubring :=
+/-- The uniformizer as an element of the valuation subring: the single home of the
+`Classical.choose`, whose coercion to `F` is `Place.uniformizer`. Everything that needs
+the uniformizer *inside* the valuation subring reads it from here — the cotangent and
+residue engines of `Canonical/HasCanonicalDivisor.lean` and the residue-instance layer
+alike. -/
+noncomputable def uniformizerSubring : v.toValuationSubring :=
   (IsDiscreteValuationRing.exists_irreducible v.toValuationSubring).choose
 
 theorem ord_uniformizer : v.ord v.uniformizer = 1 := by

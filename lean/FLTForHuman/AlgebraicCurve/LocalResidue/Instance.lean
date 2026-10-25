@@ -32,11 +32,11 @@ three pin-private ord helpers (pin 208/223/231) are the public port
 `Place.ord_nonneg_of_mem`/`mem_of_ord_nonneg`/`mem_iff_ord_nonneg`; and
 `gate_hasLocalResidue_uniformizer_inv` (pin 308) is the port's
 `Place.gate_localResidue_uniformizer_inv` (`Defs/LocalResidue.lean`).  Because
-`uniformizerSubring_mem_maximalIdeal`, `uniformizer_mem` and the two
+`uniformizerSubring_mem_maximalIdeal`, `uniformizer_mem` and the
 `uniformizerSubring` facts are stated by the pin in terms of
-`v.uniformizerSubring`, that name is kept as a one-line `def` whose body is the
-port's `Place.uniformizerSubring'` (the same `Classical.choose`), so the pin
-statements land verbatim for the checker without re-proving anything.
+`v.uniformizerSubring`, that name is the definition layer's
+`Place.uniformizerSubring` (`Defs/CanonicalDivisor.lean`), so the pin statements
+land verbatim for the checker without a restatement.
 
 The pin's empty `section PerfectDischarge` and the three empty sections under
 `ModularCurve.Ldgr37Ch` (pin 29–93) contain no declarations and are omitted; the
@@ -93,12 +93,6 @@ theorem finiteResidue_of_deg_pos (h : 0 < v.deg) : v.FiniteResidue :=
 end DegPos
 
 variable (v : Place K F)
-
-/-- The pin's `uniformizerSubring`; its body is the port's
-`Place.uniformizerSubring'` (the same `Classical.choose`), kept at the pin name
-because the pin statements below spell it. -/
-def uniformizerSubring : v.toValuationSubring :=
-  v.uniformizerSubring'
 
 @[simp]
 theorem coe_uniformizerSubring : (v.uniformizerSubring : F) = v.uniformizer := rfl

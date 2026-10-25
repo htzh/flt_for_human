@@ -45,14 +45,21 @@ row carries `nhash`, the hash of the checker-normalised statement.  A port
 declaration is hashed the same way (`statement_db.nhash(checker.norm(…))`), so
 the comparison is on the statement, not on the name.  In order:
 
-    marker name (if any) → exact last name → part label dropped → promoted key
-                        → `kw_` strip → content hash anywhere in the wire
-                        → mismatch / missing
+    marker name (if any) → exact last name → part label dropped → stage label
+                        dropped → promoted key → `kw_` strip → content hash
+                        anywhere in the wire → mismatch / missing
 
 The **part-label** tier is the pin's half of the port's naming policy: its `S_` files tag
 declarations with the section they were generated from (`p0n20_rr_*`, `p0n21_rtk_*`,
 `p0n22_cpf_*`, `p0n25_wkc_*`) and the port drops that label from the name.  The checker
-drops it on the pin side, so the rename needs no `spec/decl_markers.tsv` row.
+drops it on the pin side, so the rename needs no `spec/decl_markers.tsv` row.  The
+**stage-label** tier is the same treatment for the *suffix* the `S_` files append for the
+proof-search stage a declaration came from (`_s0`, `_s2`, …, `_s12`, `_s17` — 2,600 names
+in the corpus): `exists_ord_eq_zero_D_eq_smul_D_s12` is indexed as
+`exists_ord_eq_zero_D_eq_smul_D`, so the port may spell either.  Both label tiers are
+hash-gated exactly like the name tiers they follow — a stripped-name candidate is accepted
+only when its statement hash equals the port declaration's — so neither can turn a drifted
+statement into an `ok`, and neither fires for a port name that carries the label itself.
 
 The hash tier is what a name-based checker cannot do: a statement that is
 faithful but renamed verifies, and a same-name statement that differs is still a
@@ -127,6 +134,27 @@ def strip_part_label(name: str) -> str | None:
     if m and m.end() < len(name):
         return name[m.end():]
     return None
+
+
+# The same files also append the proof-search *stage* a declaration came from, as a
+# suffix: `exists_mem_D_eq_smul_dCoord_s12`, `hasCanonicalDivisor_of_isCurveOver_s12`.
+# The corpus uses `_s0` .. `_s19` (2,146 `_s17`, 319 `_s12`); the port spells the
+# declaration without it, so the pin side is indexed under the suffix-stripped name too.
+STAGE_LABEL = re.compile(r"_s\d+$")
+
+
+def strip_stage_label(name: str) -> str | None:
+    """The name with the pin's stage label removed, or `None` when it carries none.
+
+    `exists_mem_D_eq_smul_dCoord_s12` -> `exists_mem_D_eq_smul_dCoord`; a name the pin
+    wrote without a stage label, or one that is nothing but a label, gives `None`.
+    """
+    m = STAGE_LABEL.search(name)
+    if m and m.start() > 0:
+        return name[:m.start()]
+    return None
+
+
 PIN_MARK = re.compile(
     r"--\s*pin:\s*`?([\w.'\u2080-\u209c]+)`?(?:\s*\(([^):\s]+)(?::(\d+))?\))?")
 OWN_MARK = re.compile(r"--\s*own:\s*(.+?)\s*$")
@@ -197,6 +225,7 @@ class Wire:
         self.by_key: dict[str, list[dict]] = defaultdict(list)
         self.by_strip: dict[str, list[dict]] = defaultdict(list)
         self.by_part: dict[str, list[dict]] = defaultdict(list)
+        self.by_stage: dict[str, list[dict]] = defaultdict(list)
         self.by_hash: dict[str, list[dict]] = defaultdict(list)
         self.by_file_last: dict[tuple[str, str], list[dict]] = defaultdict(list)
         for r in self.rows:
@@ -212,6 +241,9 @@ class Wire:
             part = strip_part_label(last)
             if part:
                 self.by_part[part].append(r)
+            stage = strip_stage_label(last)
+            if stage:
+                self.by_stage[stage].append(r)
             self.by_hash[r["nhash"]].append(r)
             self.by_file_last[(r["rel"], last)].append(r)
 
@@ -267,6 +299,10 @@ def check_decl(row: dict, wire: Wire, db, marker, effective: list[str]) -> dict:
         c = pick(wire.by_part.get(last), kind, h)
         if c:
             return hit(c, "part label dropped")
+    if strip_stage_label(last) is None:
+        c = pick(wire.by_stage.get(last), kind, h)
+        if c:
+            return hit(c, "stage label dropped")
     c = pick(wire.by_key.get(P.promoted_key(name)), kind, h)
     if c:
         return hit(c, "promoted key")

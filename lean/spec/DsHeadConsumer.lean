@@ -17,7 +17,7 @@
   --------------
   One zone per module/claim. Every zone is a real, executed application, so
   deleting any one of `Differential/Hurwitz.lean`,
-  `Differential/Generation.lean` or `Genus/RatFunc.lean` makes this file fail to
+  `Differential/Coefficient.lean` or `Genus/RatFunc.lean` makes this file fail to
   elaborate:
 
     [hurwitz]      the two headlines of the duplicated pin pair, composed with each
@@ -28,15 +28,17 @@
                    `placeInfty K`.
     [diffcoeff]    the coefficient layer the same module carries: the pin's
                    `diffCoeff` against a uniformiser (existence, uniqueness,
-                   integrality) under the headlines' own hypotheses, and the bridge
-                   to the canonical `differentialCoeff` at `placeInfty K`.
+                   integrality) under the headlines' own hypotheses, that
+                   integrality again with the separability instance discharged
+                   from `ord t = 1`, and the bridge to the canonical
+                   `differentialCoeff` at `placeInfty K`.
     [ratfunc]      the `ℙ¹` genus headline and its degree half at the same place
                    `placeInfty K`, consuming `Hurwitz`'s `KaehlerDifferential.map`
                    API in the headline's type.
 -/
 
 import FLTForHuman.AlgebraicCurve.Differential.Hurwitz
-import FLTForHuman.AlgebraicCurve.Differential.Generation
+import FLTForHuman.AlgebraicCurve.Differential.Coefficient
 import FLTForHuman.AlgebraicCurve.Genus.RatFunc
 import FLTForHuman.AlgebraicCurve.Defs.KaehlerTranscendental
 
@@ -133,6 +135,14 @@ example {K F : Type*} [Field K] [Field F] [Algebra K F] [PerfectField K] (x : F)
     (hf : 0 ≤ v.ord f) :
     0 ≤ v.ord (AlgebraicCurve.Place.diffCoeff t (KaehlerDifferential.D K F f)) :=
   AlgebraicCurve.Place.ord_diffCoeff_D_nonneg_of_isSeparable x v ht hf
+
+-- ... and the perfect-field form, where `ord t = 1` supplies the instance above.
+example {K F : Type*} [Field K] [Field F] [Algebra K F] [PerfectField K] (x : F)
+    [FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F]
+    (v : AlgebraicCurve.Place K F) {t : F} (ht : v.ord t = 1) {f : F}
+    (hf : 0 ≤ v.ord f) :
+    0 ≤ v.ord (AlgebraicCurve.Place.diffCoeff t (KaehlerDifferential.D K F f)) :=
+  AlgebraicCurve.Place.ord_diffCoeff_D_nonneg_of_perfectField x v ht hf
 
 -- the concrete place carries the instance the bridge needs ...
 example (K : Type*) [Field K] [PerfectField K] [DecidableEq (RatFunc K)]
