@@ -145,7 +145,9 @@ byte-identical to each other except the final `solution`, over `jqModC`,
 cone's headline does not import them, and `jqModC` is not ported at all; they
 belong to the Characteristic-`p` model effort, not this cone. Their distinctive
 content is roughly 550–600 lines plus the `jqModC` interface files, so they are
-a separate future topic, not T13.
+a separate future topic, not T13. (Read "not ported at all"/"separate future topic"
+as of 2026-09-22: §2.3 re-prices them against the tree of 2026-10-25 — one 607-line
+file, ≈397 net new lines, both nodes in the D-S `--ds` demand.)
 
 ### 2.1 The shared prelude, mapped — and how much of it is dead
 
@@ -185,6 +187,71 @@ Verbatim from their wrappers: `finrank_adjoin_jqN_eq_of_prime` and
 `eq_of_prime` (above), `splits_of_prime` (above), and `splits_prime_at_slot`
 (above). All four are wrapper-backed; the shared prelude declarations are hidden
 and stay `private` in the port.
+
+### 2.3 The char-`p` twins, priced (2026-10-25)
+
+The pair the exclusion above lists is one story, not two, and it is a **wanted** D-S
+node pair: `frontier.py --ds --list` carries both
+`PhiGen.splits_prime_at_slot_of_isPrimitiveRoot` (cited by 9) and
+`PhiGen.splits_prime_of_isPrimitiveRoot` (cited by 2), 607 raw lines each. The two
+`S_` files are byte-identical except for the 15 lines that spell their own name and
+the final `solution`, and that single file proves **both** headlines from one engine:
+`splits_prime_of_isPrimitiveRoot` (`private`, 496) and
+`splits_prime_at_slot_of_isPrimitiveRoot` (`private`, 501), each a two-line call into
+`phiAtSeed_qExpand_prime_eq` / `phiAtSeed_slot_prime_eq`. The prime one *is* the
+`e = u = 1` instance of the at-slot one (`qTwist_one_apply`, `qExpand_one_apply`,
+`Nat.mul_one`, `qExpand_congr`), which is exactly the relation `PhiGenSplits.lean`
+already homes for the char-0 pair — so this pair gets **one module with two
+headlines and the engine `private`**, and its 1,214 raw lines are priced as 607.
+
+They are **not** duplicates of the ported pair: they drop `[Algebra ℚ K]` for
+`[Field K]` and read the slot as `jqModC K` instead of `coeffEmb K jq`, so neither is
+an instance of `splits_of_prime`/`splits_prime_at_slot`. The pin's own graph makes
+`PhiGen.splits_of_prime` a direct premise of both, and the proof does call it
+(`ksplit_integral`, 393). `twin_scan` reads both nodes as `new` with `prelude 24/61`:
+the headline is new mathematics, 24 of the 61 declarations the file carries are
+already in the port.
+
+Priced with `port_advise` + `port_plan` on the pair (both files as one set): 1,214 raw
+→ 1,150 declaration lines → 579 removable duplicate copies → 571 once-cost → 174
+already in the port → **397 net new**, 61 distinct declaration groups, 44 trusted
+substitutions (+2 suspect `def` matches). The new mathematics is one transport engine
+(`ksplit*`, 267–486, ≈220 pin lines): the ported theorem at `CyclotomicField p ℚ` is
+pulled back along the injective `AdjoinRoot (cyclotomic p ℤ) → CyclotomicField p ℚ`
+and pushed forward along `AdjoinRoot.lift (Int.castRingHom K) ζ` to an arbitrary
+field. Neither headline nor any `ksplit` step mentions `TS`.
+
+Everything else has a home already: `phiAtSeed` + 7 in `Defs/PhiAtSlot.lean`, the
+cyclotomic helpers in `Defs/Cyclotomic.lean`, `coeffMap_qTwist` in `Defs/Twist.lean`,
+`ksplit_root_pow`/`ksplitZeta` = `Defs/KatzLevelPCusps.lean`'s `cyclRing_root_pow`/
+`cyclZeta` at `R₀ := ℤ`, `ksplit_coeffEmb_jq` = `Degree/LaurentGlue.lean`'s
+`coeffEmb_jq` (statement-checked against `S_ModularCurve_coeffEmb_jq.lean`), and the
+`jqModC` API in `Defs/JqCoeff.lean` — which also **retires the "`jqModC` is not
+ported at all" reason** this section used to give.
+
+One piece is a real duplicate: the at-slot roots API (504–592, 6 declarations, ≈90
+lines: `prod_form_ne_zero`, `roots_prime_at_slot{,_nodup,_roots_nodup}`,
+`isRoot_prime_at_slot_iff`, `roots_phiAtSeed_TS`) is `PhiSlotRoots.lean`'s five
+declarations with `coeffEmb K jq` replaced by `jqModC K`; the proofs are identical.
+Its consumers are the `C`-layer files
+([TOPIC-qexp-function-field-c.md](../functionFieldGeneration/TOPIC-qexp-function-field-c.md),
+Set A item 3), and it is the one part that needs the pin's general-field `TS`
+(`roots_prime_at_slot_nodup` calls `TS_injective`).
+
+**Settled 2026-10-25, in the ground rather than deferred.** `Defs/TS.lean` was
+generalised to the pin's char-`p` text (`TS K e u := qExpand K e (qTwist u
+(jqModC K))` over `[Field K]`, `TS_coeff_mul`'s RHS `(jqModC K).coeff n`), wired
+(`spec-pin:` in, `PORT_FILES` out, **15 ok / 0 own**), and `coeffEmb L jq =
+jqModC L` moved down to `Defs/JqCoeff.lean` — so the pin's whole `TS` block
+(lines 33–192) is an import and the two `own:` rows it had forced are gone. The
+at-slot roots API is ported at the pin's char-`p` text in the new module — not
+deferred — and both headlines landed on 2026-10-25 in
+`PhiGenSplitsAnyField.lean` (489 lines, 9 public declarations, checker 9 ok,
+demand −2 nodes / −1,214 raw lines). The four at-slot declarations carry an
+`_of_isPrimitiveRoot` suffix because the pin's char-0 twin in `PhiSlotRoots.lean`
+holds the plain names and Lean refuses the import of two modules declaring one
+name. Records: [logs/ts-general-field.md](../../logs/ts-general-field.md),
+[logs/phigen-splits-any-field.md](../../logs/phigen-splits-any-field.md).
 
 ## 3. The mathlib-first audit and redundancy removal
 

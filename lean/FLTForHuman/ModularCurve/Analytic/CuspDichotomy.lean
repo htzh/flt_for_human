@@ -11,7 +11,9 @@
   consumer (m9 does not use it).
 
   Two M4-glue helpers (`coeffEmb_jq`, `laurentBaseChange_modularFunctionField`,
-  both m7 wrapper targets) are restated `private` here.
+  both m7 wrapper targets) were restated `private` here; `coeffEmb_jq` now has its
+  one home in the definition layer (`Defs/JqCoeff.lean`) and is imported, and the
+  `jqN` form stays `private` (it has no other home).
 
   FLT provenance, pinned `aa2d8b3`:
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_eq_cuspInftyBar_or_eq_cuspZeroBar.lean
@@ -39,14 +41,12 @@ open scoped Polynomial
 namespace ModularCurve
 
 
-private theorem coeffEmb_jq_local (L : Type*) [Field L] [Algebra ℚ L] :
-    coeffEmb L jq = jqModC L := by
-  rw [← jqModC_rat]
-  exact map_jqModC (algebraMap ℚ L)
-
+/-- `coeffEmb L jq = jqModC L` is imported (`Defs/JqCoeff.lean`'s
+`coeffEmb_jq`, its one home since 2026-10-25; this file carried a `private` twin).
+The `jqN` form below has no such home and stays. -/
 private theorem coeffEmb_jqN_local (L : Type*) [Field L] [Algebra ℚ L] (N : ℕ) [NeZero N] :
     coeffEmb L (jqN N) = jqNModC L N := by
-  rw [jqN, jqNModC, coeffEmb_qExpand, coeffEmb_jq_local]
+  rw [jqN, jqNModC, coeffEmb_qExpand, coeffEmb_jq]
 
 private theorem laurentBaseChange_modularFunctionField_local (L : Type*) [Field L] [Algebra ℚ L]
     (N : ℕ) [NeZero N] : laurentBaseChange L (modularFunctionField N) = modularFunctionFieldC L N := by
@@ -59,7 +59,7 @@ private theorem laurentBaseChange_modularFunctionField_local (L : Type*) [Field 
     induction hx using IntermediateField.adjoin_induction with
     | mem x hx =>
         rcases hx with rfl | rfl
-        · rw [coeffEmb_jq_local]; exact jqModC_mem L N
+        · rw [coeffEmb_jq]; exact jqModC_mem L N
         · rw [show qExpand ℚ N jq = jqN N from rfl, coeffEmb_jqN_local]; exact jqNModC_mem L N
     | algebraMap c =>
         have h : (coeffEmb L).comp (algebraMap ℚ (LaurentSeries ℚ))
@@ -75,7 +75,7 @@ private theorem laurentBaseChange_modularFunctionField_local (L : Type*) [Field 
       ≤ IntermediateField.adjoin L (⇑(coeffEmb L) '' (modularFunctionField N : Set (LaurentSeries ℚ)))
     apply IntermediateField.adjoin.mono
     rintro _ (rfl | rfl)
-    · exact ⟨jq, jq_mem N, coeffEmb_jq_local L⟩
+    · exact ⟨jq, jq_mem N, coeffEmb_jq L⟩
     · exact ⟨qExpand ℚ N jq, jqN_mem N, coeffEmb_jqN_local L N⟩
 
 namespace TwoCuspAux
@@ -95,7 +95,7 @@ theorem dedekindPsi_prime : dedekindPsi ℓ = ℓ + 1 :=
 
 def jb : modularFunctionFieldBar ℓ := ⟨coeffEmb 𝕂 jq, coeffEmb_mem_laurentBaseChange 𝕂 (jq_mem_full ℓ)⟩
 
-theorem coe_jb : (jb ℓ : LaurentSeries 𝕂) = jqModC 𝕂 := coeffEmb_jq_local 𝕂
+theorem coe_jb : (jb ℓ : LaurentSeries 𝕂) = jqModC 𝕂 := coeffEmb_jq 𝕂
 
 theorem bar_eq_restrictScalars :
     modularFunctionFieldBar ℓ = (𝕂⟮jqModC 𝕂⟯⟮jqNModC 𝕂 ℓ⟯).restrictScalars 𝕂 := by

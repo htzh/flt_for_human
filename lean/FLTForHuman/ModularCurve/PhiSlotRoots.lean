@@ -17,6 +17,14 @@
   and promoted here (the port writes the prelude once), so the statement checker
   reports it through its dotted-name fallback.
 
+  ## The any-field twin
+
+  These five statements are read off T13's `splits_prime_at_slot`, so they carry its
+  `ℚ`-algebra binder and its general level `N`. The pin states the same root description a
+  second time over an arbitrary field at level `N = p` (`jqModC K`, `ζ ^ b`) in the char-`p`
+  splitting file; that copy — needed by the `C`-layer files, which have no `Algebra ℚ K` —
+  is ported in `PhiGenSplitsAnyField.lean` rather than restated here (WORKORDER-GS1).
+
   ## Layering
 
   `Defs/PhiAtSlot.lean` is upstream of the cone and stays so; this module is the
@@ -94,6 +102,7 @@ theorem roots_prime_at_slot_nodup (N : ℕ) [NeZero N] (ζ : Kˣ) (hζ : IsPrimi
   ·
     intro hmem
     obtain ⟨b, hb, heq⟩ := Multiset.mem_map.mp hmem
+    rw [coeffEmb_jq] at heq
     have h := (TS_injective (K := K) (e := e) (e' := p * (p * e))
       (u := u * ζ ^ (b * (N / p))) (u' := u ^ (p * p)) heq).1
     have hp2 : 2 ≤ p := hp.out.two_le
@@ -105,6 +114,7 @@ theorem roots_prime_at_slot_nodup (N : ℕ) [NeZero N] (ζ : Kˣ) (hζ : IsPrimi
     refine Multiset.Nodup.map_on ?_ (Multiset.nodup_range p)
     intro b hb b' hb' heq
     rw [Multiset.mem_range] at hb hb'
+    rw [coeffEmb_jq] at heq
     have h := (TS_injective (K := K) (e := e) (e' := e)
       (u := u * ζ ^ (b * (N / p))) (u' := u * ζ ^ (b' * (N / p))) heq).2
     have h2 : ζ ^ (b * (N / p)) = ζ ^ (b' * (N / p)) := mul_left_cancel h

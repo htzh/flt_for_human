@@ -72,17 +72,17 @@ variable {K : Type*} [Field K] [Algebra ℚ K]
 T13's private copy; the pin also has it public in
 `S_ModularCurve_functionFieldGeneration.lean`. -/
 theorem iota_jq (N : ℕ) [NeZero N] : coeffEmb K (qExpand ℚ N jq) = TS K N 1 := by
-  rw [coeffEmb_qExpand, TS, qTwist_one_apply]
+  rw [coeffEmb_qExpand, coeffEmb_jq, TS, qTwist_one_apply]
 
 /-- The extra conjugate is `j(q ^ (p * p))`. -/
 theorem conj_zero_eq (p : ℕ) [Fact p.Prime] (ζ : Kˣ) :
     conj p ζ (0 : Fin (p + 1)) = TS K (p * p) 1 := by
-  rw [conj_zero, TS, qTwist_one_apply]
+  rw [conj_zero, coeffEmb_jq, TS, qTwist_one_apply]
 
 /-- The `b`-th finite conjugate is `j(ζ ^ b q)`. -/
 theorem conj_succ_eq (p : ℕ) [Fact p.Prime] (ζ : Kˣ) (b : Fin p) :
     conj p ζ b.succ = TS K 1 (ζ ^ (b : ℕ)) := by
-  rw [conj_succ, TS, qExpand_one_apply]
+  rw [conj_succ, coeffEmb_jq, TS, qExpand_one_apply]
 
 /-! ## The conjugate product -/
 
@@ -115,9 +115,15 @@ theorem roots_phiProd_conj (p : ℕ) [Fact p.Prime] (ζ : Kˣ) :
     rw [Multiset.map_map]; rfl
   rw [hm, Polynomial.roots_multiset_prod_X_sub_C, Multiset.singleton_add]
 
+omit [Algebra ℚ K] in
 /-- Those `p + 1` roots are distinct when `ζ` is primitive: both the extra
 conjugate (at level `p²`) and the finite ones (by `IsPrimitiveRoot.pow_inj`) are
-separated. -/
+separated.
+
+The statement mentions neither `conj` nor `coeffEmb`, only `TS` — which is general
+in the field since 2026-10-25 — so its elaboration does not consume the section's
+`Algebra ℚ K`; `omit` keeps the build silent (the checker normalises instance
+arguments, so this is still the pin's statement). -/
 theorem roots_phiProd_conj_nodup (p : ℕ) [hp : Fact p.Prime] (ζ : Kˣ)
     (hζ : IsPrimitiveRoot (ζ : K) p) :
     (TS K (p * p) 1 ::ₘ (Multiset.range p).map (fun b => TS K 1 (ζ ^ b))).Nodup := by

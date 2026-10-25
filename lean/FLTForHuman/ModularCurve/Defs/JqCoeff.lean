@@ -40,6 +40,8 @@
   spec-pin: P2M/Sol/S_ModularCurve_coeff_jqModC_pow_self.lean
   spec-pin: Theorems/Thm_ModularCurve_order_jqModC.lean
   spec-pin: P2M/Sol/S_ModularCurve_order_jqModC.lean
+  spec-pin: Theorems/Thm_ModularCurve_coeffEmb_jq.lean
+  spec-pin: P2M/Sol/S_ModularCurve_coeffEmb_jq.lean
 
 -/
 import FLTForHuman.ModularCurve.Defs.Jq
@@ -110,6 +112,27 @@ theorem coeffMap_jqModC (f : R →+* S) : coeffMap f (jqModC R) = jqModC S :=
   map_jqModC f
 
 end CoeffMap
+
+section CoeffEmb
+
+/-- The two spellings of the `j`-expansion over a `ℚ`-algebra field agree:
+`coeffEmb L jq` (base change of `jq` along `ℚ → L`) is `jqModC L` (base change of
+the integer power series along `ℤ → L`).
+
+**One home, in the definition layer.** Everything stated over a `ℚ`-algebra `K`
+with `coeffEmb K jq` (the `TS` API, the `conj` bridges, `PhiSlotRoots`) and
+everything stated over an arbitrary field with `jqModC K` (the char-`p` splitting
+and its roots API) meets here. The copies this replaces: `Degrees/LaurentGlue.lean`
+had the public statement (moved here, same name), `Analytic/CuspDichotomy.lean` and
+`Degree/JqCyclotomicConjugates.lean` had `private` twins, and
+`X1/FunctionFieldDegree.lean`'s `FIdxBC.coeffEmb_jqModC` is the `jqModC ℚ` spelling
+of it. -/
+theorem coeffEmb_jq (L : Type*) [Field L] [Algebra ℚ L] :
+    coeffEmb L jq = jqModC L := by
+  rw [← jqModC_rat]
+  exact map_jqModC (algebraMap ℚ L)
+
+end CoeffEmb
 
 /-- Coefficientwise maps commute with the `q`-substitution on `jqNModC`: naturality in
 the coefficient ring of the `q`-expansion of `j(q^N)`.  This is the pin's

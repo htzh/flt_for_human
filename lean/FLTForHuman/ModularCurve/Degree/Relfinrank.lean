@@ -647,6 +647,7 @@ private theorem finrank_adjoin_jq_of_subset_range_qExpand_of_mem
       ↑(Finset.range ℓ) := by
     intro a ha b hb h
     rw [Finset.coe_range, Set.mem_Iio] at ha hb
+    rw [coeffEmb_jq] at h
     have hTS : TS (CyclotomicField ℓ ℚ) 1 (cycUnit ℓ ^ a)
         = TS (CyclotomicField ℓ ℚ) 1 (cycUnit ℓ ^ b) :=
       congrArg (qExpand (CyclotomicField ℓ ℚ) 1) h

@@ -241,9 +241,11 @@ private theorem sv_eq (ζ : Kˣ) (a b : ℕ) [NeZero a] :
   rw [dite_eq_right (NeZero.ne a)]
 
 private theorem sv_eq_TS (ζ : Kˣ) (a b : ℕ) [NeZero a] :
-    sv K ζ a b = TS K (a * a) (ζ ^ (b * a)) :=
-  sv_eq ζ a b
+    sv K ζ a b = TS K (a * a) (ζ ^ (b * a)) := by
+  rw [sv_eq, coeffEmb_jq]
+  rfl
 
+omit [Algebra ℚ K] in
 private theorem TS_congr' {e e' : ℕ} [NeZero e] [NeZero e'] {u u' : Kˣ} (he : e = e')
     (hu : u = u') : TS K e u = TS K e' u' := by
   subst he
@@ -532,7 +534,7 @@ private theorem rval_aux : ∀ (M : ℕ) [NeZero M] {K : Type*} [Field K] [Algeb
 
       have hseed : qExpand K p (sv K (ζ ^ p) a (b % d''))
           = qExpand K (p * (a * a)) (qTwist ((ζ ^ (b % d'' * a)) ^ p) (coeffEmb K jq)) := by
-        rw [sv_eq_TS, qExpand_TS]
+        rw [sv_eq_TS, qExpand_TS, coeffEmb_jq]
         show TS K (p * (a * a)) ((ζ ^ p) ^ (b % d'' * a))
           = TS K (p * (a * a)) ((ζ ^ (b % d'' * a)) ^ p)
         exact TS_congr' rfl (by rw [← pow_mul, ← pow_mul, Nat.mul_comm])
@@ -550,7 +552,7 @@ private theorem rval_aux : ∀ (M : ℕ) [NeZero M] {K : Type*} [Field K] [Algeb
         exact Nat.mul_div_cancel _ hpp.pos
       have htarget : qExpand K (a * a) (qTwist (ζ ^ (b % d'' * a) * ζ ^ (b / d'' * (M / p)))
           (coeffEmb K jq)) = sv K ζ a b := by
-        rw [sv_eq]
+        rw [sv_eq, coeffEmb_jq]
         show TS K (a * a) (ζ ^ (b % d'' * a) * ζ ^ (b / d'' * (M / p)))
           = TS K (a * a) (ζ ^ (b * a))
         refine TS_congr' rfl ?_
@@ -879,7 +881,7 @@ private theorem rval_aux : ∀ (M : ℕ) [NeZero M] {K : Type*} [Field K] [Algeb
       rw [sv_eq_TS]
       have h3 : TS K (1 * 1) (ζ ^ (0 * 1)) = TS K 1 1 :=
         TS_congr' (Nat.mul_one 1) (by rw [Nat.zero_mul, pow_zero])
-      rw [h3, TS, qTwist_one_apply, qExpand_one_apply]
+      rw [h3, TS, qTwist_one_apply, qExpand_one_apply, coeffEmb_jq]
     rw [h2]
   · obtain ⟨htM, -⟩ := hall M dvd_rfl
     haveI hfd : FiniteDimensional ℚ⟮jq⟯

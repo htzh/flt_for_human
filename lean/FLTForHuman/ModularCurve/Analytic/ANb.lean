@@ -235,9 +235,8 @@ theorem ψ𝔡_ne_zero : ψ 𝔡 ≠ 0 := by
     exact this
   exact ModularForm.discriminant_ne_zero _ this
 
-theorem coeffEmb_jq : coeffEmb ℂ jq = jqModC ℂ := by
-  change (jqModC ℚ).map (algebraMap ℚ ℂ) = jqModC ℂ
-  exact map_jqModC _
+theorem coeffEmb_jq : coeffEmb ℂ jq = jqModC ℂ :=
+  _root_.ModularCurve.coeffEmb_jq ℂ
 
 theorem J_mul_D : coeffEmb ℂ jq * ψ 𝔡 = ψ 𝔞 ^ 3 := by
   rw [coeffEmb_jq, ModularCurve.jqModC_eq_qExpansion_E4_cube_div_discriminant, ← ψ𝔞, ← ψ𝔡,

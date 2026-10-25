@@ -252,9 +252,8 @@ private theorem root_shape (h : Inputs) (M : ℕ) [NeZero M] (p : ℕ) [hp : Fac
   have : NeZero a := ⟨ha0⟩
   refine ⟨a, ⟨ha0⟩, Nat.dvd_of_mem_divisors ha, b, (Finset.mem_range.mp (Finset.mem_filter.mp hb).1),
     ?_⟩
-  rw [hy]
-  change qExpand K p (TS K (a * a) (ζ ^ (b * a))) = _
-  rw [qExpand_TS]
+  rw [hy, coeffEmb_jq]
+  exact qExpand_TS p (a * a) (ζ ^ (b * a))
 
 private theorem htw_of (h : Inputs) (M : ℕ) [NeZero M] (p : ℕ) [hp : Fact (Nat.Prime p)] (ζ : Kˣ)
     (hζ : IsPrimitiveRoot (ζ : K) M) (hallM : Hall M) (y : LaurentSeries K)
@@ -262,6 +261,7 @@ private theorem htw_of (h : Inputs) (M : ℕ) [NeZero M] (p : ℕ) [hp : Fact (N
       (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))) = 0)
     (w : Kˣ) (hw : y = qExpand K (M * p * M) (qTwist w (coeffEmb K jq))) : w = 1 := by
   obtain ⟨a, _, haM, b, hb, rfl⟩ := root_shape h M p ζ hζ hallM y hy
+  rw [coeffEmb_jq] at hw
   change TS K (p * (a * a)) (ζ ^ (b * a)) = TS K (M * p * M) w at hw
   obtain ⟨he, hu⟩ := TS_injective hw
   have haM' : a = M := by

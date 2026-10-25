@@ -226,7 +226,9 @@ private theorem diag_lc_pow (N : ℕ) [NeZero N] (hN : ¬ IsSquare N)
     have haNe : NeZero a := ⟨ha0⟩
     have hdval : ∀ b : ℕ, (if h : a = 0 then (0 : LaurentSeries K) else
         letI : NeZero a := ⟨h⟩; qExpand K (a * a) (qTwist (ζ ^ (b * a)) (coeffEmb K jq))) =
-        TS K (a * a) (ζ ^ (b * a)) := fun b => by rw [dite_eq_right ha0]; rfl
+        TS K (a * a) (ζ ^ (b * a)) := fun b => by
+      rw [dite_eq_right ha0, coeffEmb_jq]
+      rfl
     simp only [hdval]
     obtain ⟨hne, hlc⟩ := prod_ne_zero_leadingCoeff (K := K)
       ((Finset.range (N / a)).filter (fun b => Nat.gcd (Nat.gcd a b) (N / a) = 1))

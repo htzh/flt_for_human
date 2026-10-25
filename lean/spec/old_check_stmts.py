@@ -3497,7 +3497,6 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/Defs/Polynomial.lean",
     "FLTForHuman/ModularCurve/Defs/Fields.lean",
     "FLTForHuman/ModularCurve/Defs/PhiGen.lean",
-    "FLTForHuman/ModularCurve/Defs/TS.lean",
     "FLTForHuman/ModularCurve/FunctionFieldGeneration/Collapse.lean",
     "FLTForHuman/ModularCurve/JqCoefficients.lean",
     "FLTForHuman/ModularCurve/FunctionFieldGeneration/Spine.lean",

@@ -151,9 +151,11 @@ private def rUnit (e : ℕ) [NeZero e] {p : ℕ} (ζ : Kˣ) (g : (ZMod p)ˣ) (i 
     LaurentSeries K :=
   TS K e (ζ ^ ((g ^ i : (ZMod p)ˣ) : ZMod p).val)
 
+omit [Algebra ℚ K] in
 /-- Re-index the `p` roots `TS K e (ζ ^ b)` by the powers of a generator `g` of
 `(ZMod p)ˣ`: the `b = 0` root is `TS K e 1` and the remaining `p - 1` are the
-`rUnit e ζ g i`. Pure multiset re-indexing, transcribed from the pin. -/
+`rUnit e ζ g i`. Pure multiset re-indexing, transcribed from the pin; the statement
+uses `TS` only, so the section's `Algebra ℚ K` is omitted. -/
 private theorem range_map_eq_rUnit (p : ℕ) [hp : Fact (Nat.Prime p)] (e : ℕ) [NeZero e]
     (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) p) (g : (ZMod p)ˣ)
     (hg : ∀ x : (ZMod p)ˣ, x ∈ Subgroup.zpowers g) :
@@ -307,6 +309,7 @@ theorem finrank_adjoin_jqN_pow_succ_of_not_mem (F : IntermediateField ℚ (Laure
 
   have hseed : coeffEmb K (qExpand ℚ p (jqN (p ^ (k + 1))))
       = qExpand K (p * p ^ (k + 1)) (qTwist ((1 : Kˣ) ^ p) (coeffEmb K jq)) := by
+    rw [coeffEmb_jq]
     have h2 : TS K (p * p ^ (k + 1)) 1 = TS K (p * p ^ (k + 1)) ((1 : Kˣ) ^ p) := by
       rw [one_pow]
     exact (iota_jqN p (p ^ (k + 1))).trans h2
@@ -317,7 +320,8 @@ theorem finrank_adjoin_jqN_pow_succ_of_not_mem (F : IntermediateField ℚ (Laure
   have hQroots : (Q.map (algebraMap F (LaurentSeries K))).roots
       = TS K (p * (p * p ^ (k + 1))) 1
         ::ₘ (Multiset.range p).map (fun b => TS K (p ^ (k + 1)) (ζ ^ b)) := by
-    rw [hQmapL, phiAtSeed, roots_prime_at_slot p ζ hζK p (dvd_refl p) data (p ^ (k + 1)) 1]
+    rw [hQmapL, phiAtSeed, roots_prime_at_slot p ζ hζK p (dvd_refl p) data (p ^ (k + 1)) 1,
+      coeffEmb_jq]
     congr 1
     · show TS K (p * (p * p ^ (k + 1))) ((1 : Kˣ) ^ (p * p))
         = TS K (p * (p * p ^ (k + 1))) 1

@@ -119,6 +119,8 @@ Port, in this order, re-measuring the frontier after each group:
 3. `PhiGen.splits_prime_at_slot_of_isPrimitiveRoot` (607) — **check this first**: the
    port has `PhiGen.splits_prime_at_slot` and the whole `C`-layer degree group depends
    on this node, so if it is a corollary the Set-C price drops by its share;
+   **done 2026-10-25**: it is not a corollary but the ported theorem plus a transport
+   engine, now landed at `ModularCurve/PhiGenSplitsAnyField.lean` — read §10.1;
 4. `isIntegral_jqNModC_of_modularPolynomialData` (262) — the port has
    `isIntegral_jqNModC_all_of_modularPolynomialFamily` and `exists_phiIrreducible`;
 5. `qExpand_image_intFormRatiosC_subset` (198);
@@ -233,3 +235,31 @@ The bound's two open questions are wanted in the report, whatever their answer:
 2. **Was the socket route needed?** If the ported `exists_phiIrreducible` route backs
    the `C` layer directly, the ~2,700-line socket group is not written, and the bound
    in §5 is an over-estimate by that much.
+
+### 10.1 Answers measured before the wave (2026-10-25)
+
+Question 1 is settled — neither a corollary nor a re-proof, but the cheap third case:
+the ported theorem **plus a transport engine**. `splits_prime_at_slot_of_isPrimitiveRoot`
+drops `[Algebra ℚ K]` for `[Field K]` and reads the slot as `jqModC K`, so the ported
+`splits_prime_at_slot` is not applicable; the pin's `ksplit*` block (≈220 lines) pulls
+the ported theorem back along `AdjoinRoot (cyclotomic p ℤ) → CyclotomicField p ℚ` and
+pushes it forward along `AdjoinRoot.lift (Int.castRingHom K) ζ`. So the `C` layer is a
+substitution *over one 3-declaration transport engine*, not over a re-derivation.
+`port_advise` + `port_plan` price the node whole (with its near-twin
+`splits_prime_of_isPrimitiveRoot`, whose 607-line file is byte-identical): 1,214 raw →
+**397 net new**, 174 of 571 once-cost lines already in the port, 44 trusted
+substitutions. The two headlines themselves need no `TS`; the file's at-slot roots API
+(`roots_prime_at_slot*`, `isRoot_prime_at_slot_iff`, …) is the `jqModC` respelling of
+`PhiSlotRoots.lean` and *does* need the pin's general-field `TS` — which the manager
+supplied before dispatch (2026-10-25): `Defs/TS.lean` is now general in the field and
+statement-checked, and the roots API is written at the pin's char-`p` text in the new
+`PhiGenSplitsAnyField.lean` ([logs/ts-general-field.md](../../logs/ts-general-field.md)).
+
+**Set A item 3 is done (2026-10-25).** Import `ModularCurve/PhiGenSplitsAnyField.lean` and call
+its four at-slot declarations by their ported names — `roots_prime_at_slot_of_isPrimitiveRoot`,
+`roots_prime_at_slot_nodup_of_isPrimitiveRoot`, `roots_prime_at_slot_roots_nodup_of_isPrimitiveRoot`,
+`isRoot_prime_at_slot_iff_of_isPrimitiveRoot` — plus `roots_phiAtSeed_TS` (which keeps the pin's
+name). The `_of_isPrimitiveRoot` suffix is the pin's own disambiguator, forced because the char-0
+twin in `PhiSlotRoots.lean` holds the plain names and Lean refuses the import of two modules that
+declare one name. Record: [logs/phigen-splits-any-field.md](../../logs/phigen-splits-any-field.md).
+Full measurement: [phiGenSplitting/TOPIC-splitting.md](../phiGenSplitting/TOPIC-splitting.md) §2.3.

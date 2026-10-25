@@ -9,625 +9,19 @@ manager's own work, §5 the build economy, §6 verification, §7 what remains, �
 residuals. Every measurement is the pin's, read through `tools/deps`. The section numbers are
 stable: work orders across the column cite §3 for the workflow and §7 for the gates.
 
+**This note is not a landing log.** The dated record of a landing — the checker and build readings,
+the per-module tables, what it moved and what it deferred — lives in [../logs/](../logs/) under that
+landing's own name, and in the work order and topic that produced it. §1 names module homes and
+points at those records; it does not copy their numbers. A reading copied into this note goes stale
+the moment another column lands (§6), and a work order measures on the tree it leaves.
+
+**Status.** The column's unconditional slice is complete, together with the definition and
+infrastructure ground listed in §1. What remains is the two automorphic gates of §7, which sit
+behind a fixed interface and can be ported without reworking what is there.
+
 The checker is **`spec/check_port.py` alone**, one module at a time, wired by the module's own
-`spec-pin:` header (§6). The statement parser itself is **`spec/lean_parser.py`** (2026-10-20):
-the checker, the corpus builder and the `tools/deps` planning tools import it directly, and the
-frozen `old_check_stmts.py` imports it rather than owning it; the extraction also fixed the
-`end A.B` namespace-stack bug (FR-0035). On 2026-10-20, after the FR1 set (§1), it reads **3805 ok,
-0 mismatched, 0 missing, 11 own, 0 kw over 148 wired modules** (581 `PORT_FILES` modules exempt;
-corpus `aa2d8b3`) — a whole-tree figure, so it also carries the other columns' landings: the FR1 set
-contributes +20 over two new modules (18 + 1 + 1), and everything between that and the previous
-3718-over-146 checkpoint is theirs. `spec/old_check_stmts.py`
-is the grandfathered registry and is **not run as a gate**; its last reading, before the handoff,
-was 10473 identical (774 promoted, 83 renamed), 0 mismatched, 0 missing, 42 own-proof exemptions
-(10809 checked). Declaration-level exceptions live in `spec/decl_markers.tsv`, never in the Lean
-source. This column's recent landings: the
-`TateFormal`/`TateSlots` definition layer, 9241 → 9304; the weight-4 Tate-slot engine and headline
-façade (WORKORDER-F1), 9304 → 9318; the six `tateCurve`/Katz definition modules of WORKORDER-F2,
-9318 → 9535 (+217); the `BridgeX` twin/triplet engine and headline façade (WORKORDER-F2),
-9535 → 9540 (+5); and the `CohCarrier` Hecke–diamond definition layer
-([deligneSerre/TOPIC-cohcarrier-comm-triplet.md](deligneSerre/TOPIC-cohcarrier-comm-triplet.md) §4–§6),
-`CohCarrierLevel.lean` + `CohCarrierLower.lean`, 9786 → 9854 (+68) with both modules green,
-then its Hecke–diamond commutation triplet engine + three-headline façade (WORKORDER-CT1),
-9854 → **9857 (+3)**; and the D-S cone's `HahnSeries.isAlgClosed_rat` leaf, ported as a
-**tier-3** mathlib supplement (`RingTheory/HahnSeries/IsAlgClosed.lean`, the generalized
-Newton–Puiseux theorem, 67 public declarations, all registered in
-[spec/UNWIRED-PUBLIC.md](../spec/UNWIRED-PUBLIC.md); record:
-[logs/hahn-series-alg-closed.md](../logs/hahn-series-alg-closed.md)) — no checker delta, since
-the module is unlisted; and the Petersson adjointness of `T_p` on the nebentypus component,
-`CuspForm.peterssonOn_hecke_eq_conj_mul_of_hasNebentypus` (1,230 pin lines, the leaf above the
-nebentypus eigenbasis), 9857 → **9877 (+20)**: `peterssonOn` (+3), the fundamental-domain
-ground (+16), the tier-1 headline (+1), with its 100-declaration engine tier-3 and registered
-(record: [deligneSerre/TOPIC-petersson-hecke-adjointness.md](deligneSerre/TOPIC-petersson-hecke-adjointness.md)); and
-the archimedean Casimir **definition layer**, the ground for the arch-derivative subject the
-`--include-leaves` shelf shows 78 needed nodes of (33,726 raw `S_` lines): the pin's
-`Def_LanglandsTunnell_ArchParam` (33 declarations) and `Def_AutomorphicForm_ArchDerivCasimir` (58,
-the whole `archDerivAt`/`archCasimirAt`/`IsArchSmoothAt`/`ArchDir` API, which the port did not have
-at all) homed whole at `LanglandsTunnell/ArchParam.lean` and
-`AutomorphicForm/Adelic/ArchDerivCasimir.lean`, 9877 → **10104 (+91)** — measured against the tree
-as found, which the note's 9877 had already left at 10013 by other columns' landings — and then its
-first proof set, the real-place `CasCore` trio
-([automorphicForm/WORKORDER-AC2-cascore-trio.md](automorphicForm/WORKORDER-AC2-cascore-trio.md)):
-one listed module, `AutomorphicForm/Adelic/ArchCasimir.lean`, whose wire is exactly three headlines,
-10104 → **10107 (+3)**, with the 128-declaration shared engine public and registered tier 3
-([automorphicForm/TOPIC-arch-casimir.md](automorphicForm/TOPIC-arch-casimir.md),
-[automorphicForm/WORKORDER-AC1-defs.md](automorphicForm/WORKORDER-AC1-defs.md)). The **centre-cut
-pair** — the vanishing leaf
-`AutomorphicForm.eq_zero_of_isAutomorphicFnAt_of_continuous_of_nonpos_of_lt_of_coversModCentre`
-(902 pin lines) and its sibling
-`AutomorphicForm.not_isArithGenuineCuspRealizable_of_nonpos_of_lt_of_coversModCentre`
-(892 pin lines) — landed together with the checker at **10239 identical**, one headline each (+1
-per leaf). The two pin files share a 645-line block, ported once and public as the tier-3 engine
-`AutomorphicForm/Adelic/Cusp/CentreCutEngine.lean` (964 lines, 49 declarations, registered); the
-façades are `CentreCutVanishing.lean` (64 lines) and `CuspUnrealizable.lean` (59 lines). Records:
-[logs/centre-cut-vanishing.md](../logs/centre-cut-vanishing.md),
-[logs/centre-cut-sibling.md](../logs/centre-cut-sibling.md); orders:
-[automorphicForm/WORKORDER-CMV-centre-cut-vanishing.md](automorphicForm/WORKORDER-CMV-centre-cut-vanishing.md),
-[automorphicForm/WORKORDER-CCS-centre-cut-sibling.md](automorphicForm/WORKORDER-CCS-centre-cut-sibling.md).
-The **centre-cut fundamental-domain trio** then landed on the shared slab prelude promoted public in
-`PeterssonSlabPairing.lean`: the automorphy-transfer node
-`AutomorphicForm.isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre`
-(325 pin lines, `Adelic/DetNormSlab.lean`) and the two measurable-fundamental-domain twins
-`exists_measurableSet_isFundamentalDomain_subset_iUnion_{integralWindowed,centreCut}SiegelSet_of_coversModCentre`
-(267/266, one module `Adelic/MeasurableFundamentalDomainCover.lean`); checker **10263 identical**
-(+3 headlines, +21 promoted prelude declarations the checker can diff). The fourth `--ready` row,
-the 234-line slab-integral bound, is deferred on the missing
-`Def_AutomorphicForm_CuspidalSpectrumCarrier.lean` (carry-forward). Record:
-[logs/centre-cut-fundamental-domain-trio.md](../logs/centre-cut-fundamental-domain-trio.md); order:
-[automorphicForm/WORKORDER-CCF-centre-cut-fundamental-domain.md](automorphicForm/WORKORDER-CCF-centre-cut-fundamental-domain.md).
-The **complex archimedean Casimir layer** then landed as Set B wave 0: the missing 196-line
-`ArchDerivCasimirComplex` and 381-line `ArchDerivCasimirComplexAPI` definition pair (checker +78),
-the 857-line complex engine `AutomorphicForm/Adelic/ArchCasimirComplex.lean` (96 declarations public
-tier 3), and its first headline
-`AutomorphicForm.archCasimirAtComplex_rightTranslate_archComplexGLAt` (+1); checker **10342
-identical**, 294 registered-unwired exempted. `port_advise` found 0 substitutions and only 43
-binder-spelling variants against the real `ArchCasimir.lean`; the two engines are architectural
-mirrors (normalized similarity ≈0.38) because the complex half adds `archDelAt`/`archDelBarAt`,
-`Del1`/`Del2`, the conjugate transport and `archCasimirBarAtComplex`, so the complex engine was
-ported once as a separate tier-3 engine. Record:
-[logs/arch-casimir-complex.md](../logs/arch-casimir-complex.md); order:
-[automorphicForm/WORKORDER-ACC-arch-casimir-complex.md](automorphicForm/WORKORDER-ACC-arch-casimir-complex.md).
-The **continuous norm section** then landed as the first `NumberField.TateGlobal` cut after the
-`continuous_ideleNorm` hub: `NumberField.TateGlobal.exists_continuous_monoidHom_ideleNorm_apply_eq`
-— a continuous monoid hom `ℝ≥0ˣ →* (AdeleRing (𝓞 F) F)ˣ` splitting the idèle norm, with trivial
-finite part — as the 239-line tier-3 engine `NumberField/TateGlobal/NormSection.lean` (25 public
-declarations, at the pin's `FujisakiC3` names; the same block is re-proved in nine sibling `S_`
-files) plus the 44-line listed façade `NumberField/TateGlobalNormSection.lean` (one headline,
-checker **+1**, **10343 identical**), again with no existing module edited. The node is a graph
-leaf with 57 whole-project dependents and lies on the shortest citation path to
-`fermatLastTheorem`. Record: [logs/norm-section.md](../logs/norm-section.md); topic and order:
-[numberTheory/tateGlobal/TOPIC-norm-section.md](numberTheory/tateGlobal/TOPIC-norm-section.md),
-[numberTheory/tateGlobal/WORKORDER-T4-norm-section.md](numberTheory/tateGlobal/WORKORDER-T4-norm-section.md).
-**GL₂ strong approximation over ℚ** then landed as the first *theorem* over the `AdelicLevel`
-definition layer: `NumberField.AdelicLevel.exists_globalPoints_mul_mem_finiteIntegralGL2_rat` —
-every finite idèle class has a rational representative modulo the integral level — as a
-five-module tier-3 engine `NumberField/AdelicLevel/StrongApprox/{Elementary,Membership,Conjugation,Gauss,Approximation}.lean`
-(45 public declarations, 1,136 lines) plus the 49-line listed façade
-`NumberField/AdelicLevel/StrongApproxRat.lean`. This is the column's first **pure
-transcription**: `port_advise` reports **0 substitutions**, so 874 of the 898 pin lines are new
-mathematics, and none of the 45 names is re-proved anywhere else in the pin. Checker **+1**,
-**10344 identical**; no existing module edited. Record:
-[logs/gl2-strong-approximation.md](../logs/gl2-strong-approximation.md); topic and order:
-[numberTheory/adelicLevel/TOPIC-gl2-strong-approximation.md](numberTheory/adelicLevel/TOPIC-gl2-strong-approximation.md),
-[numberTheory/adelicLevel/WORKORDER-T5-gl2-strong-approximation.md](numberTheory/adelicLevel/WORKORDER-T5-gl2-strong-approximation.md).
-The **`EisensteinGeneral` local twisted integral** then landed as the column's first
-`EisensteinGeneral` cut: the five ready shelf rows of that namespace are one story — the local
-integral of a twisted smooth function at one place — 2,134 raw `S_` lines of which 673 are
-duplicate copies. The set opened with its **definition gate**,
-`LanglandsTunnell/TateLocalConstantsAt.lean` (the pin's `Def_LanglandsTunnell_TateLocalConstantsAt`
-whole, 21 declarations, +21; the five statements all quantify over `higherUnitsAt`), three
-promotions out of `private` in `TateGlobal/WeylSmooth.lean` and `WeylShell.lean` (+3), and the
-dedup that the gate forced — `WeylSmooth.lean` carried a second `higherUnitsAt` and now imports
-the gate (−1). Then **Set A** (the ramified trio): two tier-3 engines
-`EisensteinGeneral/LocalTwisted.lean` (527 lines, 25 declarations — the 486-line prelude the pin
-writes twice, so 972 → 527 lines) and `LocalRamShells.lean` (265, 9), plus the 354-line listed
-façade `LocalRam.lean` with three headlines (**+3**); and **Set B** (the unramified pair): the
-single listed module `EisensteinGeneral/LocalUnr.lean` (408 lines, 18 declarations, **+18**),
-listed whole with its two `S_` files because its machinery has no other consumer — the first set
-in the column where most of the checker delta comes through the promoted-from-pin-private
-fallback (702 → 718). Checker **10388 identical**, 0 mismatched / 0 missing. Records:
-[logs/eisenstein-local-twisted-ram.md](../logs/eisenstein-local-twisted-ram.md),
-[logs/eisenstein-local-twisted-unr.md](../logs/eisenstein-local-twisted-unr.md); topic and
-orders: [numberTheory/eisensteinGeneral/TOPIC-local-twisted-integral.md](numberTheory/eisensteinGeneral/TOPIC-local-twisted-integral.md),
-[numberTheory/eisensteinGeneral/WORKORDER-E1-local-twisted-ram.md](numberTheory/eisensteinGeneral/WORKORDER-E1-local-twisted-ram.md),
-[numberTheory/eisensteinGeneral/WORKORDER-E2-local-twisted-unr.md](numberTheory/eisensteinGeneral/WORKORDER-E2-local-twisted-unr.md).
-The **finite-adelic integral as an Euler product** then landed as the column's largest
-`EisensteinGeneral` cut: `EisensteinGeneral.Factorization.integrable_finprod_and_inv_measure_mul_integral_eq_tprod`
-(864 pin lines, 58 declarations, 839 net new) — the integral of `∏ᶠ v, h v (x v)` over the finite
-adèles equals the Euler product of the normalized local integrals, given summable deviations from
-`1`. It is homed as five engines (`EisensteinGeneral/Factorization/{ProductMeasure,Stratum,Measure,Integrability,Tprod}.lean`,
-1,035 lines, 56 declarations) plus a 145-line listed façade, and — unlike every other engine in the
-column — **all six modules are listed** with the pin `S_` file in `SOURCES`, so all **57**
-declarations are statement-checked (**+57**, the column's biggest single wired delta; the
-promoted-from-pin-private count moves 718 → 774). The only non-new declaration is a one-line alias
-of `TateGlobal.ShellSupport.integralOff`. Checker **10445 identical**, 0 mismatched / 0 missing.
-Record: [logs/eisenstein-factorization.md](../logs/eisenstein-factorization.md); topic and order:
-[numberTheory/eisensteinGeneral/TOPIC-factorization.md](numberTheory/eisensteinGeneral/TOPIC-factorization.md),
-[numberTheory/eisensteinGeneral/WORKORDER-E3-factorization.md](numberTheory/eisensteinGeneral/WORKORDER-E3-factorization.md).
-The **nebentypus Hecke bound** `CuspForm.norm_sq_lt_of_hasNebentypus_qCoeff_hecke_eigen`
-(`‖a‖² < (p+1)² p^{k-2}` for `p ∤ M`) then landed as **P3** of the coset/Petersson set — and it
-is the column's clearest dedup case: the pin's two `norm_sq` silos share their prelude, so **24
-of the silo's 57 declarations were already in the tree** (in `ModularForms/Analytic/NormSqPow.lean`,
-namespace `CuspForm.LiNormSq`), and two more (the `p`/`ℓ` variants of `geom_sum_root` and
-`qParam_heckeDiag_smul`) are subsumed by the ported copies at the consumers — so the landing is
-**≈614 net new lines / 30 declarations**, not 893. One listed module, `ModularForms/Analytic/NormSqLt.lean` (732 lines, namespace
-`CuspForm.HeckeBoundGamma1`, importing the sibling's silo and `open`ing it so the pin's proofs
-transcribe), checker **+31**, **10476 identical**. Record: [logs/normsq-lt.md](../logs/normsq-lt.md);
-order and results:
-[deligneSerre/WORKORDER-P3-normsq-lt.md](deligneSerre/WORKORDER-P3-normsq-lt.md); the set's topic
-(now complete: P1/P2/P3) is
-[deligneSerre/TOPIC-petersson-coset-and-level-prime-eigenvalue.md](deligneSerre/TOPIC-petersson-coset-and-level-prime-eigenvalue.md).
-The **local-parameter finite cover** then landed as the cone's first `AlgebraicCurve` cut
-after the `normsq-lt` set, and the column's first landing under the **new per-module statement
-protocol** (§6): the 857-line leaf `AlgebraicCurve.Place.exists_finset_forall_exists_localParam_eq_complex`
-("finitely many parameter discs cover every place" — the compactness of the Riemann surface of a
-complex function field) as **two modules, 30 statement-checked declarations, one headline**. The
-manager's pre-round `AlgebraicCurve/Place/OrdCalculus.lean` (218 lines, 13 declarations) homes the
-generic place calculus the pin writes into the prelim section of all three `localParam` `S_` files —
-five of the thirteen appear verbatim in both siblings and two more in one, and eleven are re-proved
-in 3–40 pin files each, so this is a real dedup, not a convenience; the silo itself is
-`AlgebraicCurve/Place/FiniteCover.lean` (654 lines, 17 declarations: `sum_support_eq_zero`, the two
-local-analysis lemmas, `structure Fam` and its eleven lemmas, `Fam.exists_finset_cover`, and the
-headline at the wrapper's name). Both modules carry `spec-pin:` lines and **no** `PORT_FILES`
-entry: `spec/check_port.py` verifies **30 ok / 0 mismatch / 0 missing** against the pin, the frozen
-checker is unchanged at **10473**, the tier-1 build is 3,295 jobs with 0 warnings, and every
-headline's axioms are `[propext, Classical.choice, Quot.sound]`. Records:
-[logs/localParam-finite-cover.md](../logs/localParam-finite-cover.md); topic and order:
-[algebraicCurve/TOPIC-localParam-finite-cover.md](algebraicCurve/TOPIC-localParam-finite-cover.md),
-[algebraicCurve/WORKORDER-LP1-localParam-finite-cover.md](algebraicCurve/WORKORDER-LP1-localParam-finite-cover.md).
-
-The **rest of the `localParam` family** then landed in six modules, 2,653 lines and **167
-statement-checked declarations** — the largest wired surface of the column, all of it under the
-new checker: the branch-uniqueness leaf (`Place/BranchUniqueness.lean`, 37 ok), the third leaf as a
-60-declaration `MeroRealize` engine plus a 40-declaration `LocalParam.Datum` layer
-(`Place/MeroRealize.lean`, `Place/LocalParamDatum.lean`), and its four premise leaves
-(`Place/LaurentSeriesModel.lean` 1, `Place/TranscendentalOfOrdNeZero.lean` 2,
-`IsCurveOver/FinitenessTransfer.lean` 3, `Analysis/PowerSeries/EisensteinAlgSeries.lean` 24 — the
-column's first `Analysis/` module). Tier-1 builds 0 warnings throughout, axioms
-`[propext, Classical.choice, Quot.sound]`, the frozen checker unchanged at **10473** (nothing was
-wired the old way), and the frontier's demand fell by exactly the six nodes. Record:
-[logs/localParam-family.md](../logs/localParam-family.md); orders:
-[algebraicCurve/WORKORDER-LP2-branch-uniqueness.md](algebraicCurve/WORKORDER-LP2-branch-uniqueness.md),
-[algebraicCurve/WORKORDER-LP3a-laurent-and-generator-transfers.md](algebraicCurve/WORKORDER-LP3a-laurent-and-generator-transfers.md),
-[algebraicCurve/WORKORDER-LP3b-power-series-growth.md](algebraicCurve/WORKORDER-LP3b-power-series-growth.md),
-[algebraicCurve/WORKORDER-LP4-meromorphic-order-dictionary.md](algebraicCurve/WORKORDER-LP4-meromorphic-order-dictionary.md).
-
-The **correspondence-regular leaf** of the `AlgebraicCurve` `Differential` layer then landed as
-one module, `AlgebraicCurve/Differential/CorrespondenceRegular.lean` (653 lines,
-**19 statement-checked declarations**, one headline): a correspondence — pull back along `φ`,
-trace down along `ψ` — preserves regular differentials. It is the column's first set where the
-byte tier of `port_advise` fires hard (7 of 26 pin rows already in the tree, 219 lines imported,
-581 net new), and it takes two homing decisions worth recording: `Place.exists_restrict_eq` is
-the `M := F'` instance of the general theorem in `WeilExchange/Bifibre.lean` and is *called*, not
-restated; and the byte tier's suggested home for `ord_nonneg_of_mem'`
-(`Canonical/WeilDifferential.lean`, above the Riemann–Roch assembly) was declined for
-`Defs/PushPull.lean`'s copy of the same lemma, which keeps the module in the `Defs/` layer (build
-2,775 → 2,740 jobs, and the 7 `WeilDifferential` warnings leave the log). The pin's local
-`maxHeartbeats` raises are not inherited — the transcription fits the 200,000 cap. Record:
-[logs/differential-correspondence-regular.md](../logs/differential-correspondence-regular.md);
-order:
-[algebraicCurve/WORKORDER-DC1-correspondence-regular.md](algebraicCurve/WORKORDER-DC1-correspondence-regular.md).
-
-The **archimedean type-span leaf** then landed as the automorphic demand's rank-#2 high-impact
-leaf: `AutomorphicForm.CuspidalConstituent.finiteDimensional_span_rightTranslate_of_mem_iSup_archTypeSubmoduleAt`
-(813 pin lines) — the `ℂ`-span of the row-isometry right translates of a vector in finitely many
-archimedean types is finite-dimensional, stable and still in the same supremum — as **one module,
-125 lines, one statement-checked declaration**, `AutomorphicForm/Adelic/Cusp/ArchTypeSpan.lean`.
-It is the column's clearest **cross-silo reuse**: 31 of the pin's 39 declarations (696 of 786
-declaration lines) are byte-identical to the shared `Q09` engine in
-`RepTheory/TypeReproducer.lean` (tier 3, registered), which was homed from the *archTestFactor*
-silo's pin file — the pin writes that engine twice and the port wrote it once, so this leaf
-**imports** it and adds only the pin's 59-line instantiation plus the headline (90 net new lines,
-31 trusted / 0 suspect substitutions, no host edit, no promotion, no registration). Checker **+1**,
-**1816 ok / 0 mismatched / 0 missing** over 45 modules; tier-1 build 3,838 jobs, 0 warnings;
-axioms `[propext, Classical.choice, Quot.sound]`. The definition walk found no gate owed: the pin
-imports the unported `Def_AutomorphicForm_CuspidalSpectrumCarrier`, but none of its declarations
-(and none of `FactorizableTestFn`'s) occurs in the proof, so it stays where it was — the centre-cut
-slab bound's gate. Record: [logs/arch-type-span.md](../logs/arch-type-span.md); order:
-[automorphicForm/WORKORDER-ATS-arch-type-span.md](automorphicForm/WORKORDER-ATS-arch-type-span.md).
-
-The **separating-uniformiser twin** then landed as the column's first **exact-twin cut over a
-pre-ported engine**: `AlgebraicCurve.Place.isSeparable_adjoin_of_ord_eq_one` (455 pin lines, 23
-citers) and `…_of_ord_ne_zero_of_cast_natAbs_ne_zero` (460), the two pin files differing by 33 diff
-lines, as **one module, 149 lines, two headlines** —
-`AlgebraicCurve/Place/SeparableUniformiser.lean`. Two structural moves are worth the record.
-First, the pin's private `isSeparable_of_not_pow_mem_range` (and `D_pow_eq_zero`) are **not
-ported**: the port's public `Algebra.IsSeparable.of_finrank_fieldRange_frobenius_eq` is the same
-theorem up to spelling, so it is called with `frobeniusSubfield` unfolded — 93 net new lines where
-a transcription would have been ≈430. Second, the engine they rest on was already in the tree as
-**eighteen private declarations** of `AlgebraicCurve/IsCurveOver/FrobeniusSubfield.lean`; the set
-promotes the three a consumer states (`frobeniusSubfield`, its transcendental-adjoin index, its
-transport) and **hands the host over** — `spec-pin:` lines in, `PORT_FILES` entry out, the
-column's first such deletion. Checker **+6** (host 4, façade 2), **1822 ok**; tier-1 builds 2,694
-and 1,975 jobs, the dependent wave 4,329 jobs, 0 warnings from the set; axioms
-`[propext, Classical.choice, Quot.sound]`. Records:
-[logs/separating-uniformiser.md](../logs/separating-uniformiser.md); order:
-[algebraicCurve/WORKORDER-SU1-separable-uniformiser.md](algebraicCurve/WORKORDER-SU1-separable-uniformiser.md).
-
-The **Hecke coset seam** then landed as the column's largest set so far — a leaf whose whole cost
-was its definition gate: `HeckeIntegralSeam.exists_isHeckeCosetSystem_localRep_heckeGen` (807 pin
-lines, `cites 0`, cited by **40** theorems), the explicit `q_v + 1`-coset decomposition of the Hecke
-double coset at a finite place, as an engine module `AutomorphicForm/Adelic/HeckeCosetSeam.lean`
-(49 statement-checked declarations, the pin's 48 `private` ones made **public** because the
-`_principalLevel` sibling imports them) plus the **gate** the statement forced —
-`RepTheory/LocalLanglands/{IntegralSubgroup,IntegralSubgroupOpen,HeckeCosetLocal}.lean`, the three
-pin `Definitions/` modules the port had never homed (45 declarations, verbatim). `port_advise` read
-**0 substitutions** on the leaf and the gate's five "type-only `def` matches" are wrong (recorded);
-the transcription is mechanical except one real drift — mathlib `v4.34.0`'s `adicCompletion` is a
-one-field structure, so `ext` on an `adicCompletion`-valued matrix now compares `.toCompletion`
-images (three proof steps adapted, the pin's `attribute [-ext] adicCompletion.ext` not restored).
-Checker **+94**, **1916 ok / 0 mismatched / 0 missing** over 51 modules; tier-1 builds 1,795 / 2,164
-/ 2,247 (gate) and 3,625 (leaf) jobs, 0 warnings; axioms
-`[propext, Classical.choice, Quot.sound]`. Records:
-[logs/hecke-coset-seam.md](../logs/hecke-coset-seam.md); order:
-[automorphicForm/WORKORDER-HS1-hecke-coset-seam.md](automorphicForm/WORKORDER-HS1-hecke-coset-seam.md).
-
-The seam's last in-demand row then followed as an **append, not a module**:
-`HeckeIntegralSeam.heckeCosetSum_eq_of_isHeckeCosetSystem` (39 pin lines, `cites 0`, 33 project
-citers) is the *well-definedness* half of the coset-system structure — the coset sum does not depend
-on the representatives — so it belongs in the module that already homes `IsHeckeCosetSystem`,
-`RepTheory/LocalLanglands/HeckeCosetSystem.lean`. The append was priced as the hub edit it is
-(**34 dependent modules / 16,230 lines**, because `SmoothRealization` and `HeckeCosetSeam` import
-it), built once as one wave, and it doubles as that module's **handoff** — `spec-pin:` in,
-`PORT_FILES` out, so its 14 existing declarations become verified too. Checker **+15**,
-**1931 ok**; the `HeckeIntegralSeam.` namespace leaves the D-S demand entirely (`needed`
-1,363 → 1,362 nodes, −39 lines). Work-order addendum §9. The family's **`_principalLevel` near
-twin** (908 pin lines, 171 diff lines from the leaf) then landed too, although it is outside the
-cone: with the engine public it is **11 restated declarations** (the Weyl-conjugacy block, the
-`prinU`-flavoured docked statement and the headline) and **45 imported**, including the twin's
-`l1U`-spelled membership lemmas — the parent's `(productionPinsGeneral F).U` versions, the same
-group by definition. Checker **+11**, **1942 ok** over 53 modules. Work-order addendum §10.
-
-The **matrix-group right-finite supplement** then landed as the column's largest single wired delta
-and its cleanest supplement case: the two pin leaves
-`Matrix.UnitaryGroup.exists_polynomial_eq_of_continuous_of_rightFinite` (802 pin lines) and
-`Matrix.OrthogonalGroup.…` (748) — the D-S leaf shelf's ranks #2 and #5 of 442 — are **one
-development the pin writes twice**, since mathlib's `Matrix.orthogonalGroup` *is* the `abbrev` for
-`unitaryGroup` and the `ℝ` proof text is the `ℂ` one without conjugation (≈80 % identical at the
-base field: 170 changed lines, 37 hunks). It is a Fejér-kernel argument on a compact matrix group
-("a continuous right-finite function on `U(2)`/`O(2)` is a polynomial in the entries"), it names
-only mathlib objects, and both pin files import mathlib plus the pin's tactic macros and nothing
-else — **no definition gate**. Ported faithfully and *not* strengthened (the generic `[RCLike 𝕜]`
-and general-`n` routes are recorded as declined, with reasons) as the shared prelude
-`LinearAlgebra/Dual/EvalSpan.lean` (68 lines, 1 declaration — the evaluation-combination lemma the
-two files duplicate byte-identically) plus `Analysis/MatrixGroup/{Unitary,Orthogonal}RightFinite.lean`
-(816 / 760 lines, 49 / 46 wired declarations), 1,434 net new lines. Checker **+96**, **2038
-identical** over 56 modules, 0 mismatched / 0 missing; tier-1 builds 2,051 / 2,639 / 2,639 jobs with
-0 warnings; a pre-dispatch scout compiled both pin files unchanged on `v4.34.0` (0 proof drift,
-axioms `[propext, Classical.choice, Quot.sound]`), so the set's whole diff is eight warning fixes.
-The landing removes 2 nodes / 1,550 raw `S_` lines from the demand. Records:
-[logs/matrixgroup-rightfinite.md](../logs/matrixgroup-rightfinite.md); topic and order:
-[deligneSerre/TOPIC-matrixgroup-rightfinite.md](deligneSerre/TOPIC-matrixgroup-rightfinite.md),
-[deligneSerre/WORKORDER-MG1-right-finite-supplement.md](deligneSerre/WORKORDER-MG1-right-finite-supplement.md).
-The rest of the `Matrix.`-namespace demand — nine nodes / 2,969 raw lines after the landing — is
-priced together in
-[deligneSerre/TOPIC-matrix-family-in-cone.md](deligneSerre/TOPIC-matrix-family-in-cone.md): four
-ready leaves (1,041 → 970 net new, +73, WORKORDER-MG2), the
-`GeneralLinearGroup.exists_natCard_le_…` row behind its own `ModularCurve.SerreImage.contains_SL2`
-premise (1,632 → 1,611 net new, +53, set MG4 in the pricing note; landed 2026-10-20), and four
-`SpecialLinearGroup` free-group rows that landed 2026-10-20 as the free-group family.
-
-**The four ready `Matrix.` rows then landed** (WORKORDER-MG2) as four more mathlib supplements, one
-module each: `LinearAlgebra/Matrix/SimultaneousEigenbasis.lean` (850 lines — simultaneous-eigenbasis
-descent from ℂ to any characteristic-zero field, 63 wired), `Analysis/MatrixGroup/SpecialUnitary2.lean`
-(162 — the `SU(2)` Euler decomposition, 7), `LinearAlgebra/Matrix/SL2Generation.lean` (150 — `SL₂(K)`
-is generated by diagonal, unipotent and Weyl; its whole proof is private, so 1 wired) and
-`LinearAlgebra/Matrix/SpecialLinearGroupHermite.lean` (118 — the Hermite-type coset representative, 2).
-970 net new lines, **checker +73** (2038 → **2111 ok over 60 modules**), 0 warnings, axioms
-`[propext, Classical.choice, Quot.sound]`; rows 2 and 4 are drift-free, row 3 has the set's one real
-drift (a `convert` between two `Membership.mem` props now yields an `Iff`), and row 1's pin `import
-Mathlib` became 33 named imports. The `Matrix.`-namespace demand fell to 5 nodes / 1,928 lines: set MG3 and the four free-group
-rows, all since landed. Record: [logs/matrix-family-four.md](../logs/matrix-family-four.md).
-
-**The nine small-family pairs of the leaf-families survey then landed** (WORKORDER-MG3, phase 1) — the
-wave's first large dedup batch: **18 modules, 6,291 port lines, 323 statement-checked declarations**,
-**28 of its 31 priced nodes** plus the bonus `ModularCurve.theta_mul` (185 pin lines, the one declaration
-`omegaRow_T2`'s proof lacked). Checker **2111 → 2434 ok over 78 modules**, 0 mismatched / 0 missing,
-0 warnings, axioms `[propext, Classical.choice, Quot.sound]`. Along the way it homed **four pin
-definition modules whole** — `Def_AlgebraicCurve_ConstantReduction` (127 lines, a hub with 1,944
-importers) and `Def_AlgebraicCurve_RegularProlongation` (84, with its 3-declaration
-`toRegularProlongation` bridge), `Def_HeckeCharacter_FiniteOrder` (30), `Def_ModularCurve_OmegaOf` (94) —
-and deferred one (`Def_ModularCurve_EigenformIdeal`, whose three declarations need the port-blocked
-`Def_HeckeGalois_EichlerShimura`; `omegaRow_T2` references none of them; recorded with its trigger in
-[CARRY-FORWARD.md](../CARRY-FORWARD.md)). Two items came out of it as standing policy: the 200k
-edit-loop cap is a **diagnostic, not the build budget** (§5), and the `ZLattice` pair — drafted but not
-landable, because its 563-line `SchwartzMap` module needs >4 minutes at ~110 % CPU — is deferred with its
-drafts parked at `lean/tmp/` and its two hotspots diagnosed (§5 of the record). Record:
-[logs/ds-leaf-families-wave1.md](../logs/ds-leaf-families-wave1.md); order:
-[deligneSerre/WORKORDER-MG3-ds-leaf-families.md](deligneSerre/WORKORDER-MG3-ds-leaf-families.md).
-**Phase 2 of that same order then landed and closed the front** (2026-10-20): three groups, **29 modules,
-9,874 port lines, 417 statement-checked declarations**, **44 of 49 dispatched nodes** (8,504 pin lines
-including the 99-line `Def_Compat_Mathlib430` block-D gate that v4.34's deletion of `Group (AddAut A)`
-forced), checker **2434 → 2851 ok over 107 modules**, 0 warnings, axioms
-`[propext, Classical.choice, Quot.sound]`, and **no `set_option maxHeartbeats` in any module** — five of the
-pins' large bumps turned out to be precaution and were dropped, the two real ones being instance-inference
-shape problems. Five nodes are deferred on missing definition gates (`LocalNewvector` 864 lines,
-`HeckeEis` 304, `RatAdele` 144 with 799 importers, `RatIdele`'s `Def_RatIdele_Normalizer`), all recorded in
-[CARRY-FORWARD.md](../CARRY-FORWARD.md). The frontier over the session: **1,360 → 1,285 nodes / 505,110 →
-489,200 raw `S_` lines**. Record: [logs/ds-leaf-families-wave2.md](../logs/ds-leaf-families-wave2.md).
-The front's scope criterion (§8 of the leaf-families note) and the re-scoped **phase 3** cut it admits — 37
-nodes / 3,641 lines / 7 families, recorded and **not scheduled** — are in
-[deligneSerre/TOPIC-phase3-small-supplements.md](deligneSerre/TOPIC-phase3-small-supplements.md); phase 2
-overshot that criterion and the note says how.
-
-**The two `Rat*` definition gates and their two proof nodes then landed (2026-10-20).** The gates
-phase 2 deferred were homed whole and verbatim: `LanglandsTunnell/StandardLocalConstantsAt.lean`
-(the pin's `Def_LanglandsTunnell_StandardLocalConstantsAt`, 144 lines, 799 importers, 21
-declarations) and `NumberTheory/RatIdele/Normalizer.lean` (the pin's `Def_RatIdele_Normalizer`,
-391 lines, 63 declarations), checker **+84** (3010 → 3094 over 119 modules); the only proof drift
-is the v4.34 namespacing of `FiniteAdeleRing.ext` and the `Set.mem_setOf_eq` deprecation. Their
-two proof nodes followed in one set: `NumberTheory/RatAdele/DenseRange.lean` (372 lines, 21
-declarations, 20 `private`) and `NumberTheory/RatIdele/ClassCharNorm.lean` (376 lines, 49
-declarations), checker **+2** (3094 → 3096 over 121 modules), axioms
-`[propext, Classical.choice, Quot.sound]`; the pin's `attribute [-instance]` block was dropped
-whole and never needed, and the `distribHaarChar` premise's statement is identical. Records:
-[logs/rat-def-gates.md](../logs/rat-def-gates.md), [logs/rat-nodes.md](../logs/rat-nodes.md);
-order: [deligneSerre/WORKORDER-RN1-rat-nodes.md](deligneSerre/WORKORDER-RN1-rat-nodes.md).
-
-**The `q`-expansion trio and the free-group family then landed (WORKORDER-FG1).** Thirteen nodes /
-4,342 pin lines → **eight modules**, ~3,730 body lines, **checker +400** (3096 →
-**3496 ok over 129 modules**), 0 mismatch / 0 missing / 0 own / 0 kw, 0 warnings, every headline's
-axioms `[propext, Classical.choice, Quot.sound]`. The trio is one module,
-`NumberTheory/ModularForms/QExpansionCoeff.lean` (19 wired). The free-group family was re-homed by
-subject rather than kept as one engine file — the first cut's single 3,079-line module was split —
-into `Combinatorics/SimpleGraph/Transversal.lean` (21: the prelude plus the eleven graph
-declarations the engine used to carry), `GroupTheory/FreeDoubleCoset.lean` (12),
-`GroupTheory/BassSerre/CosetGraph.lean` (49), `GroupTheory/ModularGroup/FreeProduct.lean` (68),
-`GroupTheory/BassSerre/MinimalPeriod.lean` (75), `GroupTheory/FreeGroup/KuroshRank.lean`
-(104, the Kurosh engine) and `GroupTheory/FreeGroup/SpecialLinearGroupGenerators.lean` (52, the
-four `Matrix.SpecialLinearGroup` headlines — a user-facing API module over the engine, kept for the
-user's import path, not as a checker façade). The set paid
-the measured dedup — 52 copies deleted (39 in the Kurosh engine: 29 Bass–Serre + 10 graph
-transversal; 10 in the façade prelude including `mem_center_iff_eq` 4→1), the one real
-substitution (`det_entries`), `mul_entry` restated because the legacy module's copy is private,
-and the three parser type-only matches declined. It closes the free-group family, the four
-`Matrix.SpecialLinearGroup` rows and the `UpperHalfPlane` q-expansion rows; the frontier falls
-**1,276 → 1,259 nodes / 485,836 → 480,304 raw `S_` lines** (the 15 nodes plus the two
-`NumberField.`-qualified aliases of the `Rat*` rows). Records:
-[logs/qexp-and-freegroup.md](../logs/qexp-and-freegroup.md); order:
-[deligneSerre/WORKORDER-FG1-qexp-and-freegroup.md](deligneSerre/WORKORDER-FG1-qexp-and-freegroup.md).
-
-**The last `UpperHalfPlane` row then followed (2026-10-20).** The Fricke conjugate of `U_q`
-(`UpperHalfPlane.sum_slash_S_mul_T_zpow_mul_S_inv_apply_eq_of_fricke_heckeU`, 156 lines) had
-been excluded by the six-family audit on the *shape* test — FLT's Hecke/Fricke layer, not a
-mathlib supplement — although it was never blocked (`Def_ModularForm_HeckeOperator` is homed
-whole). It was taken as `ModularForms/HeckeFrickeTrace.lean` (10 wired, build 3,011 jobs /
-4.4 s, axioms `[propext, Classical.choice, Quot.sound]`, the pin's `ALTraceIdentity` namespace
-kept; the private `frickeGL` copies in the legacy `HeckeNebentypusFricke.lean` are a different
-namespace and were not touched). Checker **+10** (3496 → **3506** over 130 modules); the
-`UpperHalfPlane` demand row is gone and the D-S demand reads **1,258 nodes / 480,148 raw `S_`
-lines**. Record: [logs/hecke-fricke-trace.md](../logs/hecke-fricke-trace.md).
-
-**The `Module.End` and `PowerSeries` leaf families then closed the two smallest rows of the
-`--ds` frontier (2026-10-20).** They are the frontier's `Module.` (4 nodes / 1,028 lines) and
-`PowerSeries.` (4 / 696) namespace rows — eight graph leaves, all `needed 1`, all importing
-mathlib plus the pin's `P2M.Util` and nothing else, so **no definition gate, no substitution, no
-shared prelude**. Ported as **five modules, 1,980 lines, 66 statement-checked declarations**:
-`LinearAlgebra/Eigenspace/Sl2Strings.lean` (22) and `…/MultiplicityOne.lean` (29), and
-`RingTheory/PowerSeries/{Saturation,GaloisDescent,CoeffMem}.lean` (7 / 6 / 2). Checker **3,539 →
-3,605 ok over 135 → 140 modules**, 0 mismatch / 0 missing / 11 own / 0 kw; tier-1 builds 2,311 /
-2,065 / 2,042 / 2,069 / 1,448 jobs at 6.5 / 8.3 / 14.1 / 8.1 / 4.9 s, **0 warnings**; all eight
-headlines' axioms `[propext, Classical.choice, Quot.sound]`. The set is the homing standard
-([TOPIC-mathlib-module-homing.md](TOPIC-mathlib-module-homing.md) §3) applied with nothing left to
-decide: every statement is about `Module.End` or `PowerSeries`, both are mathlib's object
-namespaces, and both are also the right subject paths (`LinearAlgebra/Eigenspace/` is where
-mathlib files endomorphism-eigenspace structure, `RingTheory/PowerSeries/` its power-series
-theory), so **no headline was renamed** and only the pin's inner labels (`Ws26`, `ALG`,
-`DivisorStringWs41`, `M7`, `SaturationLemma`, `A2GaloisDescentPS`) were folded into descriptive
-sub-namespaces. The four `PowerSeries` files' bare `import Mathlib` (86 s of olean loading) became
-4 / 7 / 15 named imports (5–8 s), which is the set's reusable output; forty drift sites, all
-deprecation renames, `haveI`→`have` and section-variable `omit`s, no proof re-routed. The D-S
-demand falls **1,256 → 1,248 nodes / 478,516 → 476,792 raw `S_` lines** and the leaf shelf **366 →
-358**. Records: [logs/phase3-module-end-and-powerseries.md](../logs/phase3-module-end-and-powerseries.md);
-orders: [deligneSerre/WORKORDER-PH3A-module-end-eigenspace.md](deligneSerre/WORKORDER-PH3A-module-end-eigenspace.md),
-[deligneSerre/WORKORDER-PH3B-powerseries-coefficients.md](deligneSerre/WORKORDER-PH3B-powerseries-coefficients.md).
-
-**The `Algebra` and `CongruenceSubgroup` rows then followed (2026-10-20).** Nine of ten nodes /
-**1,161 pin `S_` lines** became **three modules, 1,363 lines, 49 statement-checked declarations**.
-The `Algebra` row (5 / 349) split by subject into `RingTheory/IntegralClosure/FunctionField.lean`
-(10 wired — the integral closure of `k[x]` is finite in a function field, and denominators clear
-against every valuation subring) and `RingTheory/Norm/Elementary.lean` (3 — `norm (μ + nilpotent)`,
-the norm on a product algebra, the norm on a subsingleton algebra: the block a mathlib PR would
-append to `RingTheory/Norm/Basic`). The `CongruenceSubgroup` row is the phase-3 note's **wrong
-exclusion reversed**: read against the statements, its five nodes are group theory of mathlib's own
-congruence-subgroup API, not modular forms, and the row was twice the priced size (5 / 1,054, not
-"~500"); four landed in `NumberTheory/ModularForms/CongruenceSubgroupLattice.lean` (36 wired — the
-level-lowering inclusion with a lower unipotent, the `T`/`S`-adapted transversal, the first-column
-criteria, the relative-index formula), with `det_eq` and `Gamma_le_Gamma1` **imported** rather than
-re-proved. The fifth node, `closure_T_U_neg_one_eq_Gamma0_three`, is **not a port but a lift**:
-35 of its 40 declarations are already in the tree, byte-identical and `private`, as the
-`FLT.FLT.AnalyticCore.Gamma0Three` block of `ModularForms/WeightOne/EisensteinChiNegThree.lean`
-(two blocks, ~187 lines), so the landing is a move + dedup whose dependent wave is 51 modules /
-30,597 lines / ≈413 s — deferred with its price in [CARRY-FORWARD.md](../CARRY-FORWARD.md). Checker
-**3,605 → 3,654 ok / 140 → 143 modules**, 0 mismatch / 0 missing / 11 own / 0 kw; tier-1 builds
-2,194 / 2,026 / 3,581 jobs at 9.45 / 6.19 / 6.5 s, **0 warnings**; all nine headlines'
-`[propext, Classical.choice, Quot.sound]`. Both pin heartbeat bumps (9.6 M and 3.2 M) were
-precaution and are dropped. Records:
-[logs/phase3-algebra-and-congruence-subgroup.md](../logs/phase3-algebra-and-congruence-subgroup.md);
-orders: [deligneSerre/WORKORDER-PH3C-algebra-norm-and-integrality.md](deligneSerre/WORKORDER-PH3C-algebra-norm-and-integrality.md),
-[deligneSerre/WORKORDER-PH3D-congruence-subgroup-lattice.md](deligneSerre/WORKORDER-PH3D-congruence-subgroup-lattice.md).
-
-**The composite-silo correction then landed (2026-10-20) — two public modules out of a façade, no new
-proofs.** `ModularForms/WeightOne/EisensteinChiNegThree.lean` is the port of a *composite* pin `S_` file
-(thirteen `section File_FLT_*` pin modules concatenated), and it was carrying two of them `private`: the
-Γ₀(3) generation engine (40 declarations, which the pin writes into **five** `S_` files) and the `ν₃`
-numerics (22). Both are now public homes — `NumberTheory/ModularForms/Gamma0Three.lean` (40 wired, with
-the headline `CongruenceSubgroup.closure_T_U_neg_one_eq_Gamma0_three` and the pin's `@[scoped simp]` /
-`scoped instance` restored) and `ModularCurve/Numerics/NuThree.lean` (21 wired, whose
-`ModularCurve.nuThree_prime` and `nuThree_mul_of_coprime` `frontier.py` had been answering *"target is
-ported"*) — the host imports both, keeps three publics (`chiNegThree_mul` and `coeff_e1Chi3` joined the
-headline) and is **migrated off the frozen registry**. Checker **3,654 → 3,718 ok / 143 → 146 modules**,
-0 mismatch / 0 missing / 11 own / 0 kw (582 → 581 `PORT_FILES` exempt); tier-0/1 green with 0 warnings,
-the 51-module dependent wave deliberately unbuilt. The refactor also **sized the class behind it**: 23
-more pin headlines are stated only from behind `private` across 14 modules, because `frontier.py`'s
-names tier counts private declarations as ported — the demand is understated by that much, and the list
-is in [CARRY-FORWARD.md](../CARRY-FORWARD.md). Record: [logs/phantom-landings.md](../logs/phantom-landings.md);
-the class rule is [TOPIC-mathlib-module-homing.md](TOPIC-mathlib-module-homing.md) §10.
-
-**The Fricke reciprocity of the `q`-expansion then landed as the D-S leaf shelf's `UpperHalfPlane` row
-(WORKORDER-FR1, 2026-10-20), and it is the column's first cut whose subject was a *dedup refactor*,
-not a transcription.** `ModularCurve.exists_qExpansion_slash_fricke_eq_and_conj_eq_slash_gamma0`
-(1,307 pin lines, 94 declarations) is one file of four subjects: the Fricke matrix and its
-level-scaling companions, a `q`-expansion width change, the `Γ₁` slash/level toolkit, and the
-reciprocity proper. The manager took the shared ground first, on the reading that the pin's
-`section Level` is a block of mathematics that the port had already copied `private` into seven
-modules but never homed: `ModularForms/Level/Gamma1Slash.lean` (18 declarations — `ΓGL`,
-`restrictF`, `resLevel`, `resSL`, `le_conj_of_SL`, `slashForm` and the four slash-property transfers
-— at the pin's signatures, checker **18 ok**), and `ALTraceIdentity.frickeConj` appended public to
-the port's Fricke module `ModularForms/HeckeFrickeTrace.lean` at the pin's signature with a `pin:`
-row in `spec/decl_markers.tsv` (**11 ok**, +1). The body followed as one module,
-`ModularForms/FrickeReciprocity.lean` (1,202 lines, 62 `private` declarations and one public
-headline), checker **1 ok / 0 mismatch / 0 missing**, `lake build` 4,136 jobs in 10 s with 0
-warnings, axioms `[propext, Classical.choice, Quot.sound]`. The set's whole wired delta is
-**+20** (18 + 1 + 1) and the tree reads 3,805 ok / 148 modules; the frontier's `--ds` reading of the
-node goes `needed 1 / 1,307` → **`needed 0`, "target is ported"**.
-`port_advise` had reported 17 statement substitutions (12 public, 5 port-`private`), 9
-binder-skeleton relatives and 11 generalise rows; all of the public ones were imported, and two of
-the "new" declarations turned out to be *content* the port already states more generally — the pin's
-34-line `qExpansion_coeff_mul_width` is a one-line application of the port's, and the pin's 123-line
-`Fourier` prelude is that lemma's re-derivation. The receipt (the shape index on the landed module
-against the whole port) shows **one** twin added: a two-line `coe_Eaux`, because the host's copy is
-`private`. One declaration is deferred — `Eaux_apply`, unused anywhere in the pin — and the six
-`Γ₁` copy sites are recorded, not opened. The refactor's standard is
-[TOPIC-dedup-refactoring.md](TOPIC-dedup-refactoring.md); the order and reuse map are
-[deligneSerre/WORKORDER-FR1-fricke-reciprocity.md](deligneSerre/WORKORDER-FR1-fricke-reciprocity.md).
-
-**The degeneracy-cover degree then landed as the column's first set whose ground is bigger than
-its bodies (2026-10-21).** The two nodes `ModularCurve.relIndex_gamma0_le_relrank_adjoin_insert_jqNModC`
-(1,214 pin lines, the enough-conjugates side) and `ModularCurve.relrank_adjoin_qExpansion_div_le_relIndex`
-(545, the norm side) are the two halves of
-`[A(Γ∩Γ₀(N)) : A(Γ)] = [Γ : Γ∩Γ₀(N)]`, and they share about a third of their lines, so they were
-taken as one set: **four tier-3 ground modules** — `Analytic/AnalyticAtCusp.lean` (the pin's
-`Nice`/`An1` predicate, 10 declarations), `RelIndex/Hermite.lean` (the Hermite normal form of
-`dMul N γ`, 26), `RelIndex/LevelRaise.lean` (the general `raise`/`twist`/`expU` engine and the
-`hP` block, 26) and `RelIndex/RatioField.lean` (the ℂ ratio field, `common_denominator`, `qC`
-transport, 24) — 848 lines and 86 declarations written and frozen before either body, plus **eight
-promotions** in `JqIntegralRatios.lean` (its `jqModC = E₄³/Δ` block was `private` and *is* the
-`RelIndex` body's `LevelOne`). The bodies are façade modules: `RelIndex/LeRelrank.lean` (690 lines,
-68 declarations, one public headline) and `RelIndex/LeRelIndex.lean` (445, 34, one public). Checker
-**3,805 → 3,830 ok over 148 → 151 modules**, 0 mismatched / 0 missing / 11 own / 0 kw, 580
-`PORT_FILES` exempt (581 before): the +25 is the two headlines (+1 each) and **+23** for
-`JqIntegralRatios`, which in the same round **left `PORT_FILES` and gained its own five
-`spec-pin:` lines** — the column's second registry handoff and the first whose whole public surface
-(including the promotions) is statement-diffed. Two dedup verdicts are worth the record: the port's
-`DiamondLift.IsRatio` is the same ratio-field predicate but carries `[Γ.FiniteIndex]`, which
-neither pin theorem has, so the definition is stated once without instances and `qC` alone is
-imported; and the pin's two spellings (`S`/`SField` in one file, `ratioSet`/`ratioField` in the
-other) are collapsed to one. No wave build was run for any of it — the statement hash is the
-evidence, not a build ([TOPIC-dedup-refactoring.md](TOPIC-dedup-refactoring.md) §4). The receipts
-(name the twins a landing adds) show **6** and **5** same-shape twins, all against node modules
-(`XH/Relrank.lean`, `X1/FunctionField.lean`) rather than subject homes: homing this family's prelude
-means opening one of those modules, so it is recorded, not opened. Records:
-[logs/relindex-relrank.md](../logs/relindex-relrank.md); topic and order:
-[modularCurve/TOPIC-relIndex-relrank.md](modularCurve/TOPIC-relIndex-relrank.md),
-[modularCurve/WORKORDER-RI1-relindex-relrank-pair.md](modularCurve/WORKORDER-RI1-relindex-relrank-pair.md).
-
-**The Hecke-compositum degree then landed as one module with two headlines, and closed the set the
-`RelIndex` pair was ported for (2026-10-21).** The pin states the degeneracy-cover degree of the
-Hecke compositum twice — over `X_H(M)`
-(`S_ModularCurve_relfinrank_xHHeckeCompositum_eq_mul.lean`, 994 lines) and over `X₁(M)` (884) — and
-the two files differ only by the group: every one of the `x1` file's 61 theorem/lemmas has a
-same-shape twin in the `xH` file, and the section-by-section line counts are equal everywhere but
-`Groups`. The port held the bridge all along — `CohCarrier.GammaH_bot : CohCarrier.GammaH M ⊥ =
-Gamma1 M` — so the `x1` statement **is** the `xH` statement at `H := ⊥` and the 884-line file is
-not ported at all: `ModularCurve/HeckeCompositum.lean` (840 lines, 47 declarations) carries both
-headlines, `relfinrank_xHHeckeCompositum_eq_mul` and `relfinrank_x1HeckeCompositum_eq_mul`, with
-the engine `private` in `XHHeckeSol`. Its `main_C` calls **both** headlines of the previous set,
-which is the point: the `RelIndex` ground pays for itself one node later. The shared ground went
-into four existing modules — `Defs/Laurent.lean`, `JqIntegralRatios.lean`,
-`Degree/LaurentGlue.lean` and `Degree/Relfinrank.lean` (the `RelFinrankKit` toolkit,
-`relrank_adjoin_insert_eq` being the lemma that turns the `relIndex` bound's `relrank (adjoin …)`
-form into a `finrank`) — and all four were **moved off the frozen registry onto their own
-`spec-pin:` wires** in the same round: `PORT_FILES` entries out, 580 → 577 exempt, checker readings
-45 / 27 / 11 / 14, all 0 mismatch. Checker **3,830 → 3,906 ok over 151 → 155 modules**, 0
-mismatched / 0 missing / 11 own / 0 kw; axioms `[propext, Classical.choice, Quot.sound]` on both
-headlines; receipts show **2** same-shape twins (`T_mem_Gamma1`, `T_zpow_mem_Gamma1`, the pin's own
-three-line local copies). Two placement rulings came out of it, both recorded: a derived statement
-does not get a module of its own (the corollary was first a six-line `X1/HeckeCompositum.lean`, then
-an append to `X1/FunctionFieldDegree.lean` whose import edge perturbs an unrelated proof) — it
-belongs with the development it derives from; and a handoff is verified by `lake env lean` *and* the
-checker, because the checker parses and does not compile (a broken header survived a `45 ok`
-reading until a consumer failed to import it). Records:
-[logs/hecke-compositum.md](../logs/hecke-compositum.md); topic and order:
-[modularCurve/TOPIC-hecke-compositum.md](modularCurve/TOPIC-hecke-compositum.md),
-[modularCurve/WORKORDER-RI2-hecke-compositum.md](modularCurve/WORKORDER-RI2-hecke-compositum.md).
-
-**The q-expansion definition layer was then re-homed, before the next set was cut (2026-10-21) — a
-refactor, no new mathematics.** Three placement defects, all one story: the pin's
-`Definitions/Def_ModularCurve_X1.lean` (218 lines, 35 declarations) was never homed whole, so
-`ModularCurve.IsIntegralQExp` — three lines over mathlib's `UpperHalfPlane.qExpansion` — sat at the
-head of the 2,245-line analytic `WeightOne/Gamma0Integral.lean`, and the pin's `Restrict` +
-`FunctionField` blocks (`restrictForm`, `intSeriesC`, `intFormRatiosC`, `qExpFunctionFieldC`,
-`div_mem_qExpFunctionFieldC`) sat inside the *node* module `JqIntegralRatios.lean`, forcing
-`X1/Defs.lean` to import a node to reach its own definition layer. The predicate moved to its pin
-block at `ModularCurve/X1/Integral.lean` (now mathlib-only), the blocks moved into
-`ModularCurve/X1/Defs.lean` (26 of the pin module's 35 declarations; the 3 `JOne.torsionGaloisRep`
-ones stay deferred on the unported `Pic0` torsion action), and `JqIntegralRatios` is now what its
-name and wire say. Measured on `port_graph.json`: **63 → 40** modules reach the weight-one blob —
-23 lightened, the whole lower q-expansion layer. `X1/FunctionField.lean` was the one consumer that
-broke, on two **mathlib** `LevelOne` facts it had been inheriting through that edge; it now imports
-them. Four modules left the frozen registry for their own `spec-pin:` wires (`X1/Defs` 26 ok,
-`X1/Integral` 6, `Gamma0Integral` 19, `X1/FunctionField` 78, the last with three `pin:` rows), the
-tree reads **4,023 ok / 0 mismatched / 0 missing / 11 own / 0 kw over 159 modules, 573 `PORT_FILES`
-exempt** (577 before), the frozen registry reads 8,684 identical with 0 mismatched / 0 missing, the
-23-module wave builds green, and no statement moved. The same round settled
-`one_mem_strictPeriods`: the fact is mathlib's (`strictPeriods_eq_zmultiples_one_of_T_mem`, and
-`@[simp] strictPeriods_Gamma0`/`strictPeriods_Gamma1`), so it is a `simp` at the call site, never a
-port lemma — `Gamma0Integral`'s private copy became `by simp` and its `T_mem_Gamma1` helper died with
-it; the 37 remaining copies are 95 proof lines of mostly one-liners, taken when their modules are
-next opened. Record: [logs/qexp-definition-layer-homes.md](../logs/qexp-definition-layer-homes.md).
-
-**The Gauss regular prolongation then landed on that ground (WORKORDER-RP1, 2026-10-21).** The three
-ready nodes — `ModularCurve.exists_regularProlongation_laurentBaseChange_qExpFunctionFieldC` (853
-`S_` lines) and its `_residue_div` / `_residue_mul_eq` siblings (875 each; the pin writes one
-development three times, byte-identical through line 815) — are **one module, 739 lines, 3 public
-headlines and 50 `private` engine declarations**, +3 statements: the Deuring/Gauss regular
-prolongation of the valuation of `laurentBaseChange L (qExpFunctionFieldC ℚ Γ)` at `q = 0`, with the
-two residue-multiplicativity conjuncts in both binder shapes. The port's whole `Coeff` and `Gauss`
-blocks are imported from `QExpDeuring` (stated for an arbitrary `Γ`, strictly stronger than the pin's
-`hT`-copies), `QExpDeuring.exists_resHom_eq` replaces the pin's `resRange` / `qExpFunctionFieldC_le_resRange`
-/ `resF_surjective` block (~55 lines, not ported), and the ported
-`PowerSeries.exists_eq_C_mul_map_of_mem_span_of_saturated` is called. What is new is the graded
-`Lam`/`homSpan`/`IsFrac` layer (~300 lines) — and it is **not** dedup-able: the pin's fourth conjunct
-of `exists_frac_form` is consumed only by `resHom_mem`, the one declaration with no ported
-counterpart, and the port's `gensZ` route cannot yield it (its primitive form is unconstrained on the
-residue side). Two build-time findings, both recorded: a `≤`-lemma applied to a membership inside a
-large statement blows the 200k diagnostic in one `isDefEq` and is cured by an element-form wrapper
-(no raise, nothing weakened), and `gaussProlongation` must be an `abbrev` for the sibling assemblies'
-`change`/`rw` to typecheck at `implicit` transparency. The edit loop is clean at 200k, the build is
-4,179 jobs / 24 s / **0 warnings**, axioms `[propext, Classical.choice, Quot.sound]`, and the new
-module's 177-module import closure contains **no `WeightOne` module** — which is what the re-homing
-above bought. Checker **4,026 ok / 160 modules**, 0 mismatch / 0 missing; the demand's priced row for
-the family (1 node / 853 — the two sibling files were never separate rows, which is why the triplet
-was cut together) is gone and all three nodes read *"target is ported"*; the ready shelf reads 110,
-and the predicted successor `ModularCurve.FullLevel.exists_regularProlongation_fieldBar_integers_eq`
-drops **2 / 888 → 1 / 35** and is the next cut. Record:
-[logs/qexp-regular-prolongation.md](../logs/qexp-regular-prolongation.md); order:
-[modularCurve/WORKORDER-RP1-qexp-regular-prolongation.md](modularCurve/WORKORDER-RP1-qexp-regular-prolongation.md).
-
-For the landings above that wired into the frozen checker's lists, each delta is exactly its new
-public surface, 0 mismatched / 0 missing; the `localParam` landing has no such delta (§6). Since
-the 2026-10-19–20 handoff the column verifies with `spec/check_port.py` instead (§6), and a
-landing's delta is its statement-checked surface there: the arch-type-span leaf is **+1**, the
-separating-uniformiser twin **+6** (four on the handed-over host, two headlines), the Hecke-seam
-gate + leaf **+94**, the coset-sum append **+15** (14 from the handed-over coset-system module,
-1 headline) and the `_principalLevel` sibling **+11** (the engine imported, not re-proved) of the
-1942; the **matrix-group right-finite supplement of §1 is +96** (1942 → 2038 over 56 modules), the
-column's largest wired delta, the **four ready `Matrix.` rows of §1 are +73** (2038 → 2111 over 60
-modules), the **nine small-family pairs of §1 are +323** (2111 → 2434 over 78 modules), **phase 2 of
-the same order is +417** (2434 → **2851** over 107 modules), **the FR1 set of §1 is +20**
-(18 + 1 + 1; the tree read 3,805 over 148), and **the degeneracy-cover pair of §1 is +25**
-(1 + 1 + 23 — the third module being `JqIntegralRatios`'s new wire; the tree reads **3,830 over
-151**, 580 `PORT_FILES` exempt), and **the Hecke-compositum set of §1 is +76** (2 headlines + the
-four handed-over modules' 45 + 27 + 11 + 14, less `JqIntegralRatios`'s 23 already counted; the tree
-reads **3,906 over 155**, 577 exempt). The host handoff is also the column's first **deletion** from
-`PORT_FILES` — a migration, not an append (§6) — and the `JqIntegralRatios` handoff is the second,
-the first whose promotions are themselves statement-diffed. The 9542 → 9569 (+27) step is
-the `NumberField.AdelicHeight` definition gate, the manager's own ground for the adelic-modulus
-round
-([numberTheory/adelicModulus/TOPIC-adelic-modulus.md](numberTheory/adelicModulus/TOPIC-adelic-modulus.md)),
-not this column's; the remaining growth since the note's earlier figures (9569 → 9786) is other
-columns' landings; the column's own history lives in `../logs/` and the work orders.
+`spec-pin:` header over the shared statement parser **`spec/lean_parser.py`** (§6). Declaration-level
+exceptions live in `spec/decl_markers.tsv`, never in the Lean source.
 
 Companions:
 
@@ -695,6 +89,17 @@ Companions:
   [modularCurve/WORKORDER-D1-petersson.md](modularCurve/WORKORDER-D1-petersson.md),
   [modularCurve/WORKORDER-D2-period-map.md](modularCurve/WORKORDER-D2-period-map.md),
   [modularCurve/WORKORDER-E-levelN-qexp-bridge.md](modularCurve/WORKORDER-E-levelN-qexp-bridge.md).
+- The any-field `Φ_p` splitting and the at-slot roots it exposes — the two char-`p` nodes
+  `PhiGen.splits_prime{,_at_slot}_of_isPrimitiveRoot`, one pin development shipped in two
+  byte-identical 607-line files, homed once at
+  `ModularCurve/PhiGenSplitsAnyField.lean` (489 lines, 9 public declarations) as the any-field twin
+  of `PhiGenSplits.lean`/`PhiSlotRoots.lean`, whose statements it is not an instance of (they spend
+  `Algebra ℚ K`; its proof *calls* `splits_of_prime` through the integral cyclotomic order
+  `ℤ[ζ_p]`). Its ground was a definition-layer refactor: `Defs/TS.lean` generalised to the pin's
+  `jqModC` spelling at `[Field K]` and wired, `coeffEmb L jq = jqModC L` moved down to
+  `Defs/JqCoeff.lean`. Records: [logs/ts-general-field.md](../logs/ts-general-field.md),
+  [logs/phigen-splits-any-field.md](../logs/phigen-splits-any-field.md); order:
+  [modularCurve/WORKORDER-GS1-phigen-splits-any-field.md](modularCurve/WORKORDER-GS1-phigen-splits-any-field.md).
 - The weight-4 Tate-slot group the frontier's `--include-leaves` view once showed as fourteen
   `ModularCurve` leaves at ~1650 lines: its mathematics, dedup and port structure are
   [modularCurve/TOPIC-tate-slots-weight-four.md](modularCurve/TOPIC-tate-slots-weight-four.md), and
@@ -788,37 +193,36 @@ Companions:
 
 The port holds the column's unconditional half, the `ModularCurve` q-expansion, function-field and
 Frobenius layers, the analytic and period layer, the Tate-slots definition and weight-4 layers, and
-the definition and hub ground the rest builds on. The dated records are in `../logs/` and, for the
-`ModularCurve` sets, in the work order that produced them.
+the definition and hub ground the rest builds on. Each subject below names its module homes and its
+record; the readings that go with the landing are in the record.
 
 **The unconditional slice.** Everything that does not depend on the two automorphic gates — the
-weight-one mod-`ℓ` lifting half and the assembly half. It takes the residual family as a
-hypothesis, so it is stated without the ray-class input and without the automorphic layer; the
-two gates attach to a fixed interface and can be ported later without reworking it. The consumer
-wire test is `spec/DeligneSerreConsumer.lean`; the record is
-[../logs/deligne-serre-port.md](../logs/deligne-serre-port.md) and the friction/promotion ledger
-is [../logs/deligne-serre-friction.md](../logs/deligne-serre-friction.md).
+weight-one mod-`ℓ` lifting half and the assembly half. It takes the residual family as a hypothesis,
+so it is stated without the ray-class input and without the automorphic layer; the two gates attach
+to a fixed interface and can be ported later without reworking it. The consumer wire test is
+`spec/DeligneSerreConsumer.lean`; the record is
+[../logs/deligne-serre-port.md](../logs/deligne-serre-port.md) and the friction/promotion ledger is
+[../logs/deligne-serre-friction.md](../logs/deligne-serre-friction.md).
 
 **The coset-space Petersson layer, and the level-prime eigenvalue.** The definition layer
-`ModularForms/Analytic/PeterssonCoset.lean` — `Nice`, the raw pairing `pair`, the slash
-transfer and the relative-index machinery, 56 declarations, checker +56 — and the silo
-`ModularForms/Analytic/NormSqPow.lean`, the level-prime bound `‖a‖² = ℓ^(k-1)` for a form new at
-`ℓ`, 72 declarations, checker +72; the 18 statement-identical declarations the pin wrote twice
-were moved out of the `PeterssonHecke` engine into the definition layer. Record:
+`ModularForms/Analytic/PeterssonCoset.lean` — `Nice`, the raw pairing `pair`, the slash transfer and
+the relative-index machinery, 56 declarations — and the silo `ModularForms/Analytic/NormSqPow.lean`,
+the level-prime bound `‖a‖² = ℓ^(k-1)` for a form new at `ℓ`, 72 declarations; the 18
+statement-identical declarations the pin wrote twice were moved out of the `PeterssonHecke` engine
+into the definition layer. Topic and order:
 [deligneSerre/TOPIC-petersson-coset-and-level-prime-eigenvalue.md](deligneSerre/TOPIC-petersson-coset-and-level-prime-eigenvalue.md),
-order: [deligneSerre/WORKORDER-P2-normsq.md](deligneSerre/WORKORDER-P2-normsq.md).
+[deligneSerre/WORKORDER-P2-normsq.md](deligneSerre/WORKORDER-P2-normsq.md).
 
-**The `ModularCurve` q-expansion layer.** The Γ₀-rationality pair, the `X_H` relative-degree
-bound, the JOneES finrank/index and residue-field rows, the Deuring-reduction /
-constant-extension / Atkin–Lehner successors, and the `isAlgClosed` finrank bound, in
-`functionFieldGeneration/SET-R-*`, `X1/*`, `XH/*` and `WeightOne/*`. The planning records are the
-`TOPIC-qexp-*` notes.
+**The `ModularCurve` q-expansion layer.** The Γ₀-rationality pair, the `X_H` relative-degree bound,
+the JOneES finrank/index and residue-field rows, the Deuring-reduction / constant-extension /
+Atkin–Lehner successors, and the `isAlgClosed` finrank bound, in `functionFieldGeneration/SET-R-*`,
+`X1/*`, `XH/*` and `WeightOne/*`. The planning records are the `TOPIC-qexp-*` notes.
 
 **The `X_H`/`X₁` function field and Frobenius.** The `q`-expansion Frobenius inputs headline
 `qExpFrobeniusInputsModL_and_finrankAlong_of_transcendental`, appended to
 `ModularCurve/Frobenius/QExpModL.lean` — the module already held its private machinery and its
-`Fr* Fr_* = ℓ` sibling, so the append needed no new file and no promotion. The ten landed leaf
-rows (`qExpansion_div_mem_laurentBaseChange_xHFunctionField`,
+`Fr* Fr_* = ℓ` sibling, so the append needed no new file and no promotion. The ten landed leaf rows
+(`qExpansion_div_mem_laurentBaseChange_xHFunctionField`,
 `isIntegral_jqNModC_of_modularPolynomialData`, `exists_gamma0_qExpansion_div_eq_jqNModC`,
 `eisenstein4_cube_sub_mk_sq`, `diffQExp_x1FunctionFieldBar_injective`,
 `modularFunctionFieldC_eq_modularFunctionFieldFullC_of_charZero`,
@@ -827,7 +231,7 @@ rows (`qExpansion_div_mem_laurentBaseChange_xHFunctionField`,
 `ModularCurve/X1/{QExpansionDiv,IntegralityJqNModC,Structure,FunctionFieldInclusion}.lean`, on the
 definition modules `ModularCurve/Defs/{HeckeDifferential,SL2Elementary}.lean`,
 `ModularCurve/X0/FunctionFieldFull.lean` and `AlgebraicCurve/Differential/PushPull.lean`, each
-ported whole. The eleventh row is deferred (§7). Record:
+ported whole. The eleventh row is deferred (§7). Order:
 [modularCurve/WORKORDER-C2-x1-function-field.md](modularCurve/WORKORDER-C2-x1-function-field.md).
 
 **The analytic and period layer.** The pin's four `Def_AutomorphicForm_*` modules whole —
@@ -837,7 +241,7 @@ hyperbolic measure, fundamental-domain volume, the Siegel set cover and the Γ�
 perfect. The period map of a finite-index subgroup is
 `ModularCurve/Period/{PeriodLatticeSpan,PeriodLatticeBoundary,ParabolicHoms,QExpansionDerivative}.lean`,
 and the pin's `Def_ModularCurve_QExpansionDiff.lean` node is whole across
-`Period/QExpansionDiff.lean` and `AlgebraicCurve/Differential/TraceDiff.lean`. Records:
+`Period/QExpansionDiff.lean` and `AlgebraicCurve/Differential/TraceDiff.lean`. Orders:
 [modularCurve/WORKORDER-D1-petersson.md](modularCurve/WORKORDER-D1-petersson.md),
 [modularCurve/WORKORDER-D2-period-map.md](modularCurve/WORKORDER-D2-period-map.md).
 
@@ -852,7 +256,7 @@ six `Φ_N` rows sit in
 `ModularCurve/ModularPolynomial{LeadingCoeff,UniquenessIrreducible,StarBank,FibreTwo}.lean`, on the
 wave's `Defs/{ClassicalModularPolynomials,FibrePoly}.lean` (`phiTwo`/`phiThree`/`intFibre`, the
 public `fibrePoly`, the `ReduceModBivar` block), and the level-`N` `q`-expansion bridge is the
-deduped twin development in `ModularCurve/LevelN/QExpBridge.lean`. Records:
+deduped twin development in `ModularCurve/LevelN/QExpBridge.lean`. Orders:
 [modularCurve/WORKORDER-A-levelN-field.md](modularCurve/WORKORDER-A-levelN-field.md),
 [modularCurve/WORKORDER-B1-phi-rows.md](modularCurve/WORKORDER-B1-phi-rows.md),
 [modularCurve/WORKORDER-B2-fibre-two.md](modularCurve/WORKORDER-B2-fibre-two.md),
@@ -876,22 +280,20 @@ downstream consumers (`Def_ModularCurve_TatePoint`, `…_TateVeluRing`, `…_Tat
 `…_ShimuraGenerator`, `Theorems/Thm_ModularCurve_Delta_tatePowerSeries`) name the same
 declarations, so the whole node is homed rather than only the block the `S_` files reach. Neither
 pin module has a `Theorems/` wrapper, so both verify by name against their `Definitions/` files;
-neither has a `private` declaration, so no promotion is owed. Both are appended last to
-`SOURCES` / `PORT_FILES`.
+neither has a `private` declaration, so no promotion is owed.
 
 **The weight-4 Tate-slot engine and headline façade.** The fourteen `S_ModularCurve_*` leaves the
 frontier's `--include-leaves` view showed at ~1650 lines are one 1,671-net-line development written
 fourteen times (23,094 raw lines, 112 shared names, ≈20,810 removable); it is ported once as the
 tier-3 engine `ModularCurve/TateSlots/{Convergence,SlotCoeff}.lean` (537 + 1,293 lines, 38 + 81
 public declarations, declaration parity exact, no build-time blow-up) and the fourteen public
-headlines in the tier-1 façade `ModularCurve/TateSlots/CoefficientFormulas.lean`. The engine's fourteeen
-kernels are public as `ModularCurve.TateSlots.<name>` with the pin `Theorems/` wrapper binders;
-the façade states the wrappers verbatim. The engine stays tier 3 and is recorded in
-[spec/UNWIRED-PUBLIC.md](../spec/UNWIRED-PUBLIC.md); the façade is the checker wire (delta +14).
-No existing module was edited. Mathematics, measurement and structure:
+headlines in the tier-1 façade `ModularCurve/TateSlots/CoefficientFormulas.lean`. The engine's
+fourteeen kernels are public as `ModularCurve.TateSlots.<name>` with the pin `Theorems/` wrapper
+binders; the façade states the wrappers verbatim. The engine stays tier 3 and is recorded in
+[spec/UNWIRED-PUBLIC.md](../spec/UNWIRED-PUBLIC.md); the façade is the checker wire. No existing
+module was edited. Mathematics, measurement and structure:
 [modularCurve/TOPIC-tate-slots-weight-four.md](modularCurve/TOPIC-tate-slots-weight-four.md); the
-order and its results:
-[modularCurve/WORKORDER-F1-tate-slots-engine.md](modularCurve/WORKORDER-F1-tate-slots-engine.md).
+order: [modularCurve/WORKORDER-F1-tate-slots-engine.md](modularCurve/WORKORDER-F1-tate-slots-engine.md).
 
 **The `tateCurve` `BridgeX` layer and its definition chain.** The three `tateCurve` rows F1's
 step-6 re-read put on the shelf are a **twin pair and a triplet** — five near-identical pin `S_`
@@ -902,10 +304,9 @@ build-time blow-up), with the five public headlines in the tier-1 façade
 `ModularCurve/TateCurve/QPow.lean`. Its six unported `Definitions/` modules are homed whole at
 `Algebra/LaurentSeriesXAdic.lean`, `TateCurve/{QSeries,PointSeries}.lean`,
 `ModularForms/KatzLevelOne.lean` and `ModularCurve/Defs/{KatzLevelP,KatzLevelPCusps}.lean` (217
-declarations, checker +217). The engine stays tier 3 and is recorded in
+declarations). The engine stays tier 3 and is recorded in
 [spec/UNWIRED-PUBLIC.md](../spec/UNWIRED-PUBLIC.md). Mathematics and structure:
-[modularCurve/TOPIC-tate-curve-twins.md](modularCurve/TOPIC-tate-curve-twins.md); the order and its
-results:
+[modularCurve/TOPIC-tate-curve-twins.md](modularCurve/TOPIC-tate-curve-twins.md); order:
 [modularCurve/WORKORDER-F2-tate-curve-twins.md](modularCurve/WORKORDER-F2-tate-curve-twins.md).
 
 **The archimedean Iwasawa analytic core.** The two gates of §7 take their input at the infinite
@@ -915,9 +316,8 @@ the pin `Def_AutomorphicForm_ComplexIwasawa` (4 declarations) and the shared gen
 (`M4aP3B.FourierDecay`, 2 declarations) homed as the definition layer, seven tier-3 engines
 (`AutomorphicForm/Iwasawa/{Complex,Real}/{Core,Decay,UniformDecay,Continuation}.lean`, 5,818 lines)
 holding the deduped development (10,378 raw `S_` lines → 5,256 net), and the two subject façades
-`AutomorphicForm/Iwasawa/{Complex,Real}/Estimates.lean` (13 headlines) as the checker wire. Checker
-9654 → 9673, 0 mismatched / 0 missing; the cone's `needed` falls 1,617 → 1,604 nodes and no Iwasawa
-row remains in the demand. Topic, mathematics and orders: the companion bullet above.
+`AutomorphicForm/Iwasawa/{Complex,Real}/Estimates.lean` (13 headlines) as the checker wire. No
+Iwasawa row remains in the demand. Topic, mathematics and orders: the companion bullets above.
 
 **The centre-cut pair.** The vanishing leaf
 `AutomorphicForm.eq_zero_of_isAutomorphicFnAt_of_continuous_of_nonpos_of_lt_of_coversModCentre`
@@ -931,8 +331,7 @@ arithmetic genuine cuspidal realization on the same cover. The two pin `S_` file
 `-- pin:` provenance), and the two façades `CentreCutVanishing.lean` (64 lines) and
 `CuspUnrealizable.lean` (59 lines) hold one headline each. The first pass's 902-line module was
 reduced when the sibling was cut; the engine's general `no_function_of_ne_zero` serves both
-headlines, so the sibling's pin-specific `no_realization_of_ne_zero` is not ported. Checker
-**10239 identical** (one headline each, +1 per leaf). Records:
+headlines, so the sibling's pin-specific `no_realization_of_ne_zero` is not ported. Records:
 [logs/centre-cut-vanishing.md](../logs/centre-cut-vanishing.md),
 [logs/centre-cut-sibling.md](../logs/centre-cut-sibling.md); orders:
 [automorphicForm/WORKORDER-CMV-centre-cut-vanishing.md](automorphicForm/WORKORDER-CMV-centre-cut-vanishing.md),
@@ -946,68 +345,119 @@ headlines, so the sibling's pin-specific `no_realization_of_ne_zero` is not port
 already carried `private`; the prelude was promoted once there (20 declarations, plus the 107-line
 `exists_measurableSet_isFundamentalDomain_subset` and the 36/23-line `setLIntegral_fd_le_sum_mul` /
 `cover_of_forall`), and the façades `Adelic/DetNormSlab.lean` and
-`Adelic/MeasurableFundamentalDomainCover.lean` hold the three headlines. Checker **10263
-identical** (+3 headlines, +21 promoted prelude declarations). The fourth `--ready` row, the
-234-line `CuspidalSpectrum.exists_forall_setLIntegral_le_mul_setLIntegral_…_ample`, is **not
-actually ready**: it needs the unported 288-line
-`Def_AutomorphicForm_CuspidalSpectrumCarrier.lean`, recorded in
-[CARRY-FORWARD.md](../CARRY-FORWARD.md). Record:
+`Adelic/MeasurableFundamentalDomainCover.lean` hold the three headlines. The fourth `--ready` row,
+the 234-line `CuspidalSpectrum.exists_forall_setLIntegral_le_mul_setLIntegral_…_ample`, is **not
+actually ready**: it needs the unported 288-line `Def_AutomorphicForm_CuspidalSpectrumCarrier.lean`,
+recorded in [CARRY-FORWARD.md](../CARRY-FORWARD.md). Record:
 [logs/centre-cut-fundamental-domain-trio.md](../logs/centre-cut-fundamental-domain-trio.md); order:
 [automorphicForm/WORKORDER-CCF-centre-cut-fundamental-domain.md](automorphicForm/WORKORDER-CCF-centre-cut-fundamental-domain.md).
 
 **The complex archimedean Casimir layer.** Set B of the arch-Casimir subject was blocked on two
 unported pin `Definitions/` modules: `Def_AutomorphicForm_ArchDerivCasimirComplex` (196 lines / 32
 declarations) and `…ComplexAPI` (381 / 46). Both were homed whole at
-`AutomorphicForm/Adelic/ArchDerivCasimirComplex.lean` and `…ComplexAPI.lean` (checker +78), and the
-first complex headline
-`AutomorphicForm.archCasimirAtComplex_rightTranslate_archComplexGLAt` was ported as the 857-line
-engine `AutomorphicForm/Adelic/ArchCasimirComplex.lean` (96 public declarations, tier 3,
-registered; +1 headline). The engine is the complex mirror of the real `ArchCasimir.lean`: the
-types are `ℂ` rather than `ℝ`, and the complex half adds the holomorphic/anti-holomorphic Del
-operators, the conjugate transport and the second Casimir. `port_advise` reports 0 substitutions
-and 43 binder-spelling variants; a normalized comparison is only ≈0.38 similar, so the
-architectural duplication did not justify a generic `RCLike` rewrite of the landed real engine.
-The remaining complex headlines are `leftCasimirComplex_eq_archCasimirAtComplex_of_isArchSmoothAtComplex`
-(1,227) and `archCasimirAtComplex_rightTranslate_rowIsometryInclAt_of_ne` (133), then the 35-file
-complex fan. Records:
-[logs/arch-casimir-complex.md](../logs/arch-casimir-complex.md); order:
+`AutomorphicForm/Adelic/ArchDerivCasimirComplex.lean` and `…ComplexAPI.lean`, and the first complex
+headline `AutomorphicForm.archCasimirAtComplex_rightTranslate_archComplexGLAt` was ported as the
+857-line engine `AutomorphicForm/Adelic/ArchCasimirComplex.lean` (96 public declarations, tier 3,
+registered). The engine is the complex mirror of the real `ArchCasimir.lean`: the types are `ℂ`
+rather than `ℝ`, and the complex half adds the holomorphic/anti-holomorphic Del operators, the
+conjugate transport and the second Casimir. `port_advise` reports 0 substitutions and 43
+binder-spelling variants; a normalized comparison is only ≈0.38 similar, so the architectural
+duplication did not justify a generic `RCLike` rewrite of the landed real engine. The remaining
+complex headlines are `leftCasimirComplex_eq_archCasimirAtComplex_of_isArchSmoothAtComplex` (1,227)
+and `archCasimirAtComplex_rightTranslate_rowIsometryInclAt_of_ne` (133), then the 35-file complex
+fan. Record: [logs/arch-casimir-complex.md](../logs/arch-casimir-complex.md); order:
 [automorphicForm/WORKORDER-ACC-arch-casimir-complex.md](automorphicForm/WORKORDER-ACC-arch-casimir-complex.md).
 
-**The Poisson-summation pair then closed the `ZLattice` deferral** (§9's last parked item): the
-563-line `SchwartzMap.tsum_eq_tsum_fourier_euclideanSpace` and the two `ZLattice` headlines (229 +
-221 pin lines) as `FLTForHuman/Analysis/Fourier/PoissonSummationPi.lean` (613 lines, **31 wired + 7
-`own:`**) and `PoissonSummationZLattice.lean` (293 lines, **2 wired**). The 429 s the pair was
-deferred on was exactly three declarations blowing the diagnostic **in their statements**: a locally
-bound `hf` — "every lattice translate is summable in sup-norm on every compact", written inline in
-all six `PeriodizeLift` declarations — made `isDefEq` unfold the norm on a restricted
-`ContinuousMap` (`ContinuousMap.instNorm = dist x 0`, `sInf`, `Finset.sum`); naming that type
-`LocSum` removed the unfolding, and the module now builds in **5.5 s** (3,189 jobs), 0 warnings, the
-sibling in 5.4 s (3,202 jobs). This is the column's first **registered deviation set**: 7 `own:`
-rows in `spec/decl_markers.tsv` (the six binders and `LocSum`; the statements stay defeq to the
-pin's). Checker **2,851 → 2,884 ok, 107 → 109 wired modules, 4 → 11 own**, 0 mismatched / 0
-missing; both headlines' axioms are `[propext, Classical.choice, Quot.sound]`. The second module had
-never been elaborated and carried two hard name errors (a bare `open PiPoissonSummation`, the engine
-lives under `P2MW.S_….PiPoissonSummation`, and one qualified helper use) — fixed; its head is a
-proof just over 20k. Record:
+**The Poisson-summation pair closed the `ZLattice` deferral** (§9's last parked item): the 563-line
+`SchwartzMap.tsum_eq_tsum_fourier_euclideanSpace` and the two `ZLattice` headlines (229 + 221 pin
+lines) as `Analysis/Fourier/PoissonSummationPi.lean` (613 lines, 31 wired + 7 `own:`) and
+`PoissonSummationZLattice.lean` (293 lines, 2 wired). The deferral was not a slow proof: three
+declarations blew the diagnostic **in their statements**. A locally bound `hf` — "every lattice
+translate is summable in sup-norm on every compact", written inline in all six `PeriodizeLift`
+declarations — made `isDefEq` unfold the norm on a restricted `ContinuousMap`
+(`ContinuousMap.instNorm = dist x 0`, `sInf`, `Finset.sum`); naming that type `LocSum` removed the
+unfolding and put both modules back in the low single-digit seconds (§5). The set is the column's
+first **registered deviation set**: 7 `own:` rows in `spec/decl_markers.tsv` (the six binders and
+`LocSum`; the statements stay defeq to the pin's). Record:
 [logs/poisson-summation-statements.md](../logs/poisson-summation-statements.md).
 
-**The `Representation` family then closed whole** — six ready nodes / 2,351 raw pin lines, cut by size
+**The `Representation` family closed whole** — six ready nodes / 2,351 raw pin lines, cut by size
 and subject as the family note's §7.5 priced it. The five small mathlib-shaped leaves landed as five
 mathlib-mirrored modules
 (`RepresentationTheory/{Burnside,InvariantPairing,CompactGroup,SubrepresentationExtension}.lean`,
-`LinearAlgebra/Matrix/SubfieldBasis.lean`; 21 wired), and the 1,692-line descent development as three
-`GaloisRep/Deformation/` modules (`Charpoly`, `Cocycle`, `FiniteDescent`; 103 wired) — **eight modules,
-2,893 port lines, 124 checked declarations**, 0 mismatch / 0 missing / 0 own, 0 warnings, axioms
-`[propext, Classical.choice, Quot.sound]` (the `InvariantPairing` headline a subset without
-`Classical`). The mathlib-first audit recorded a negative for every declaration, with mathlib supplying
-ingredients only (`Matrix.map_injective`, Schur, Jacobson density, Haar averaging, `toMatrix`/trace
-dictionary, the `FiniteField` Frobenius/norm API); two helpers in `RepresentationTheory/BrauerNesbitt.lean`
-were promoted for the Burnside module and now diff through the pin-private fallback (+2 ok, no `own:`).
-The family is complete: checker **2,884 → 3,010 ok, 109 → 117 wired modules**. Records:
+`LinearAlgebra/Matrix/SubfieldBasis.lean`; 21 wired), and the 1,692-line descent development as
+three `GaloisRep/Deformation/` modules (`Charpoly`, `Cocycle`, `FiniteDescent`; 103 wired) — eight
+modules, 2,893 port lines, 124 checked declarations. The mathlib-first audit recorded a negative for
+every declaration, with mathlib supplying ingredients only (`Matrix.map_injective`, Schur, Jacobson
+density, Haar averaging, `toMatrix`/trace dictionary, the `FiniteField` Frobenius/norm API); two
+helpers in `RepresentationTheory/BrauerNesbitt.lean` were promoted for the Burnside module and now
+diff through the pin-private fallback. The family is complete. Records:
 [logs/representation-leaves.md](../logs/representation-leaves.md),
 [logs/descent-charpoly.md](../logs/descent-charpoly.md); orders:
 [WORKORDER-R2-representation-leaves.md](deligneSerre/WORKORDER-R2-representation-leaves.md),
 [WORKORDER-R1-descent-charpoly.md](deligneSerre/WORKORDER-R1-descent-charpoly.md).
+
+**The remaining surface, by module home.** One line per set, no numbers — the module is the entry
+point, the record is where the landing is described:
+
+- the **`localParam` family** — `Place/FiniteCover.lean` (the `Fam` engine) with `Place/OrdCalculus.lean`
+  beneath it, then `Place/{BranchUniqueness,MeroRealize,LocalParamDatum}.lean` and the four premise
+  leaves `Place/{LaurentSeriesModel,TranscendentalOfOrdNeZero}.lean`,
+  `IsCurveOver/FinitenessTransfer.lean`, `Analysis/PowerSeries/EisensteinAlgSeries.lean`
+  ([logs/localParam-family.md](../logs/localParam-family.md));
+- the **`Place` separability pair** — `Place/SeparableUniformiser.lean`, two headlines over the
+  promoted Frobenius-subfield engine ([logs/separating-uniformiser.md](../logs/separating-uniformiser.md));
+- the **`HeckeIntegralSeam` coset seam** — the engine `Adelic/HeckeCosetSeam.lean`, its gate
+  `RepTheory/LocalLanglands/{IntegralSubgroup,IntegralSubgroupOpen,HeckeCosetLocal}.lean`, the
+  coset-sum append to `HeckeCosetSystem.lean`, and the `_principalLevel` near twin
+  ([logs/hecke-coset-seam.md](../logs/hecke-coset-seam.md));
+- the **matrix-group right-finite supplement** — `Analysis/MatrixGroup/{Unitary,Orthogonal}RightFinite.lean`
+  over the shared `LinearAlgebra/Dual/EvalSpan.lean`
+  ([logs/matrixgroup-rightfinite.md](../logs/matrixgroup-rightfinite.md));
+- the **four ready `Matrix.` rows** — `LinearAlgebra/Matrix/{SimultaneousEigenbasis,SL2Generation,SpecialLinearGroupHermite}.lean`
+  and `Analysis/MatrixGroup/SpecialUnitary2.lean` ([logs/matrix-family-four.md](../logs/matrix-family-four.md));
+- the **mathlib-like leaf families** — wave 1's eighteen modules (which also homed
+  `Def_AlgebraicCurve_ConstantReduction`, `Def_AlgebraicCurve_RegularProlongation`,
+  `Def_HeckeCharacter_FiniteOrder` and `Def_ModularCurve_OmegaOf` whole) and its phase 2's
+  twenty-nine, including the `Def_Compat_Mathlib430` block-D gate
+  ([logs/ds-leaf-families-wave1.md](../logs/ds-leaf-families-wave1.md),
+  [logs/ds-leaf-families-wave2.md](../logs/ds-leaf-families-wave2.md)); phase 3's four families are
+  `LinearAlgebra/Eigenspace/{Sl2Strings,MultiplicityOne}.lean`,
+  `RingTheory/PowerSeries/{Saturation,GaloisDescent,CoeffMem}.lean`,
+  `RingTheory/IntegralClosure/FunctionField.lean`, `RingTheory/Norm/Elementary.lean` and
+  `NumberTheory/ModularForms/CongruenceSubgroupLattice.lean`
+  ([logs/phase3-module-end-and-powerseries.md](../logs/phase3-module-end-and-powerseries.md),
+  [logs/phase3-algebra-and-congruence-subgroup.md](../logs/phase3-algebra-and-congruence-subgroup.md));
+- the **`Rat*` definition gates and their two nodes** — `LanglandsTunnell/StandardLocalConstantsAt.lean`
+  and `NumberTheory/RatIdele/Normalizer.lean` as gates, `NumberTheory/RatAdele/DenseRange.lean` and
+  `NumberTheory/RatIdele/ClassCharNorm.lean` as nodes
+  ([logs/rat-def-gates.md](../logs/rat-def-gates.md), [logs/rat-nodes.md](../logs/rat-nodes.md));
+- the **`q`-expansion trio and the free-group family** — `NumberTheory/ModularForms/QExpansionCoeff.lean`
+  plus `Combinatorics/SimpleGraph/Transversal.lean`,
+  `GroupTheory/{FreeDoubleCoset,FreeGroup/KuroshRank,FreeGroup/SpecialLinearGroupGenerators}.lean` and
+  the three `BassSerre`/`ModularGroup` modules ([logs/qexp-and-freegroup.md](../logs/qexp-and-freegroup.md));
+- the **Fricke trace** `ModularForms/HeckeFrickeTrace.lean`, the **Fricke reciprocity** of the
+  `q`-expansion as `ModularForms/Level/Gamma1Slash.lean` + `ModularForms/FrickeReciprocity.lean`
+  ([logs/hecke-fricke-trace.md](../logs/hecke-fricke-trace.md),
+  [deligneSerre/WORKORDER-FR1-fricke-reciprocity.md](deligneSerre/WORKORDER-FR1-fricke-reciprocity.md)),
+  and the **Gauss regular prolongation** of the `q`-expansion valuation
+  ([logs/qexp-regular-prolongation.md](../logs/qexp-regular-prolongation.md));
+- the **degeneracy-cover degree and the Hecke compositum** — the `RelIndex` ground
+  (`Analytic/AnalyticAtCusp.lean`, `RelIndex/{Hermite,LevelRaise,RatioField}.lean`) under the two
+  façades `RelIndex/{LeRelrank,LeRelIndex}.lean`, then `ModularCurve/HeckeCompositum.lean` with both
+  headlines ([logs/relindex-relrank.md](../logs/relindex-relrank.md),
+  [logs/hecke-compositum.md](../logs/hecke-compositum.md));
+- the **`q`-expansion definition-layer re-homing** — the pin `Def_ModularCurve_X1` predicate at
+  `ModularCurve/X1/Integral.lean` and its blocks in `ModularCurve/X1/Defs.lean`
+  ([logs/qexp-definition-layer-homes.md](../logs/qexp-definition-layer-homes.md));
+- the **archimedean type-span leaf** — `AutomorphicForm/Adelic/Cusp/ArchTypeSpan.lean`, a façade over
+  the shared `Q09` engine `RepTheory/TypeReproducer.lean`
+  ([logs/arch-type-span.md](../logs/arch-type-span.md));
+- the **composite-silo correction** — `NumberTheory/ModularForms/Gamma0Three.lean` and
+  `ModularCurve/Numerics/NuThree.lean` made public out of the composite host
+  `ModularForms/WeightOne/EisensteinChiNegThree.lean` ([logs/phantom-landings.md](../logs/phantom-landings.md));
+- the **`GeneralLinearGroup` card bound** (set MG4) and the four `Matrix.SpecialLinearGroup` free-group
+  rows ([logs/matrix-gl2-count.md](../logs/matrix-gl2-count.md)).
 
 **The shared ground that edits existing modules.** The `ValuationSubring` residue block in
 `NumberTheory/ValuationAtPlace.lean`; the `Gamma0Integral` promotion and its duplicate-block
@@ -1018,153 +468,59 @@ one; and the wave that homed the shelf's definition layer, which also deduped `f
 `Degree/PhiData.lean` into `Defs/FibrePoly.lean` at its public pin name. Registered in
 [CARRY-FORWARD.md](../CARRY-FORWARD.md).
 
-**The pole-at-the-cusp promotion then landed as a placement pass with no new mathematics
-(2026-10-25).** The three pin headlines `ModularCurve.coeff_jqModC_pow_self` /
-`coeff_jqModC_pow_of_lt` / `coeff_jqModC_neg_one` (`j(q) = q⁻¹·u`, `u(0) = 1`, hence
-`ord j = -1` and `j` transcendental — the valuation input to every degree and pole count in the
-q-expansion layer) were stated in the port **only `private`**, twice over, and were three of the
-register's orphan phantoms ([CARRY-FORWARD](../CARRY-FORWARD.md); its scan now reads 17 in 12
-modules). They now have their one home —
-`ModularCurve/Defs/JqCoeff.lean`'s *The pole at the cusp*, beside the `jqModC` they are about,
-along with the `jqModC_pow` pole/unit factorisation they read off (public: it was public in
-`X0/FunctionFieldFull.lean`, whose copy moved) and the pin-private `constantCoeff_jNum_map`
-(stays private, no consumer). The four copies that listing named — two `private` in
-`ModularPolynomialStarBank.lean`, two in `X0/FunctionFieldFull.lean`, plus a fourth of
-`coeff_jqModC_neg_one` in `RelIndex/LeRelrank.lean` that the row did not list — are deleted and
-all four modules import the home instead. The trio is stated at its `Theorems/` **wrappers'
-binders** (the wrapper is the checker's statement authority; the pin's `S_` text spells them
-with section variables, which the checker's hash does not equate — the first draft, at the `S_`
-spelling, read 2 `MISMATCH` and the wrappers' binders fixed it). Reading: the home **17 ok**
-(the trio resolves against its three wrappers), `ModularPolynomialStarBank` **1 ok**,
-`Degree/PhiDegree` **3 ok**, `X0/FunctionFieldFull` **13 ok + 1 own** (its pre-existing C1
-`own:` marker), `RelIndex/LeRelrank` **1 ok** — **35 ok / 0 mismatched / 0 missing / 1 own /
-0 kw over the five modules**. All five were also brought to standard in the same round: the two
-legacy modules left `old_check_stmts.py`'s `PORT_FILES` for their own `spec-pin:` wires
-(`StarBank` 2 sources, `PhiDegree` 6 — three headlines and their `S_` files; measured
-`len(old_check_stmts.PORT_FILES)` 526 → 524), 0 warnings on every touched module
-(the tier-1 builds are 4,166 / 4,262 jobs), `dedup.py` **0 clusters** and
-`move_dead.py --select dead` **0 declarations** over all five (the pass pruned LeRelrank's
-pre-existing dead level-one tail `coe_DF`/`XA_ne_zero`/`jC_ne_zero`, 12 lines, recorded in that
-module's header), and the token labels were retired from the headers and names it touched
-(`m2`/`m6`/`T21` dropped; `algebraMap_laurentSeries_eq_single_cr` → `…_commRing`, which stays
-private because the public `Defs/Laurent.lean` copy is stated over a `Field` and
-`aeval_jqModC_eq_zero` needs `CommRing`). No statement moved, no proof re-routed, `press`'s
-axioms still `[propext, Classical.choice, Quot.sound]`. The dependent wave's 21 direct importers
-were built: twenty are green (4,405 jobs) and `X1/FunctionFieldDegree.lean` fails at `:493`
-(`simp` made no progress) — **pre-existing**, since reverting the five modules to `HEAD` and
-rebuilding reproduces it identically; it is recorded in [CARRY-FORWARD.md](../CARRY-FORWARD.md),
-where it had been invisible because that module has neither a `spec-pin:` wire nor a
-`PORT_FILES` entry.
+**The pole at the cusp, and the prime non-adjoin twin.** These two sets were placement and
+transcription passes, not new mathematics, and they are the column's clearest cases of a statement
+authority other than the `S_` text. The three `j`-pole headlines
+`ModularCurve.coeff_jqModC_pow_self` / `coeff_jqModC_pow_of_lt` / `coeff_jqModC_neg_one` (`j(q) =
+q⁻¹·u`, `u(0) = 1`, hence `ord j = -1` and `j` transcendental — the valuation input to every degree
+and pole count in the q-expansion layer) were stated in the port **only `private`**, twice over, and
+were three of the register's orphan phantoms. They now have their one home, *The pole at the cusp*
+in `ModularCurve/Defs/JqCoeff.lean`, beside the `jqModC` they are about, together with the
+`jqModC_pow` pole/unit factorisation they read off; the four copies the listing named are deleted
+and their modules import the home. The trio is stated at its `Theorems/` **wrappers' binders**,
+because the wrapper is the checker's statement authority: the pin's `S_` text spells them with
+section variables, which the checker's hash does not equate.
 
-**The prime non-adjoin twin, and the `p`-torsion prelude it shares (2026-10-25).** The two
-`jqNModC` headlines — `jqNModC_prime_not_mem_adjoin_of_forall_aeval_ne` and
+The two `jqNModC` headlines — `jqNModC_prime_not_mem_adjoin_of_forall_aeval_ne` and
 `jqNModC_prime_not_mem_adjoin_of_charZero`, "`j(q^p)` is not in `K(j(q))`" — are one development
-written twice in the pin: the two `S_` files are 593 lines each and 574 byte-identical (17
-namespace lines plus the two lines of the final `solution`). It is ported once. The engine is
-`jqNModC_not_mem_adjoin_of_forall_aeval_ne`: `j(q)` is transcendental
-(`Degree/PhiDegree.lean`), so `K[j(q)]` is a polynomial ring and integrally closed, while the monic
-modular relation `Φ_p(j(q), j(q^p)) = 0` makes `j(q^p)` integral over it — so an element of the
-fraction field that is integral **is** a polynomial, and no polynomial in `j(q)` takes the value
-`j(q^p)` by the `q^-p`-coefficient obstruction. The shared conjugates module is
-`ModularCurve/Degree/JqCyclotomicConjugates.lean` (new, **519** lines — the cyclotomic conjugates of
-`j(q)`): the pole/degree forcing of
-`aeval (jqModC K) P = jqNModC K p`, the `qTwist` transfer of the equation to its `p` conjugates,
-the Vieta sum over them, and the coefficient obstruction, 24 declarations at the pin's names
-(`jqNModC_congr` and `coeff_algebraMap_mul` promoted to their public home here, 21 public and 3
-`private`). The node itself is `ModularCurve/Degree/PrimeNonAdjoin.lean` (new, **166** lines):
-the engine plus the two headlines stated at their `Theorems/` wrappers' binders (the wrappers are
-the statement authority; the pin's `S_` text spells them with section variables and the hashes
-differ) plus the pin's `private` characteristic-zero discharge.
-`ModularCurve/Defs/JqCoeff.lean` gains the pole's exact order, `order_jqModC`
-(`(jqModC K).order = -1`, **222** lines), and `ModularCurve/ModularPolynomialStarBank.lean` drops
-its fourteen `private` prelude copies for the import (**266 → 123** lines, `press`'s proof
-byte-identical to `HEAD`, its axioms still `[propext, Classical.choice, Quot.sound]`).
-
-Reading: `JqCoeff` **18 ok**, `JqCyclotomicConjugates` **21 ok + 2 own**, `PrimeNonAdjoin` **3 ok**,
-`ModularPolynomialStarBank` **1 ok** — **43 ok / 0 mismatched / 0 missing / 2 own / 0 kw over the
-four modules**. The two `own:` rows are `phiAtSeed_TS_eval` and `phiAtSeed_TS_eval_symm`, and the
-reason is the one unavoidable drift of the set: the port's `TS` (`Defs/TS.lean`) is the
-`ℚ`-model spelling `qExpand K e (qTwist u (coeffEmb K jq))` and carries an `Algebra ℚ K` binder,
-while the pin's per-file `W1.TS` is `qExpand K e (qTwist u (jqModC K))` over an arbitrary field;
-the two statements mention `TS` itself, `Algebra ℚ K` is not synthesizable from `[Field K]`, and
-no pin copy of them exists at a `ℚ`-algebra binder, so they are stated one hypothesis stronger
-(the two `TS` spellings agree by `coeffEmb K jq = jqModC K`) and registered in
-`spec/decl_markers.tsv`. The block's other `TS`-proved declarations
-(`coeff_jqNModC_self`, `coeff_jqNModC_of_lt`, `qTwist_pow_jqModC_injective`) are stated at the
-pin's binders and proved through `qExpand`'s coefficient API instead. The pin's
-`attribute [-simp]` block (its line 22) is not ported and nothing needed it — the four modules
-never mention `ModularForm`, so no `simp`/`simpa` had to name one of those projections.
-Tier-1 builds (single-module, `flock`-serialized, logs in `tmp/`): 3,132 / 4,022 / 4,027 / 4,023
-jobs, all `Build completed successfully`, **0 warnings**; `#print axioms` on the two headlines and
-on `ModularCurve.StarBank.press` is exactly
-`[propext, Classical.choice, Quot.sound]`; `dedup.py` over the four modules **0 clusters** (51
-declarations) and `move_dead.py --select dead` **0 declarations** each; no
-`set_option maxHeartbeats`. The residue is recorded, not open: `jqNModC_congr` and
-`coeff_algebraMap_mul` keep their `private` copies in `Degree/PhiData.lean`, `Degree/Roof.lean`
-and `Defs/QExpValuationReduction.lean` (frozen-registry modules), and
-`coeffMap_qTwist`'s five-argument port form is not restated at the pin's three-argument spelling
-— this block does not call it at all. The frontier rows for both headlines now read
-**needed 0**, "target is ported"; the order is
+written twice in the pin (the two `S_` files are 593 lines each, 574 byte-identical), and it is
+ported once: the cyclotomic-conjugate engine `ModularCurve/Degree/JqCyclotomicConjugates.lean`
+(519 lines, 24 declarations at the pin's names) and the node `ModularCurve/Degree/PrimeNonAdjoin.lean`
+(166 lines, the engine plus the two headlines at their wrappers' binders). The mathematics: `j(q)`
+is transcendental, so `K[j(q)]` is a polynomial ring and integrally closed, while the monic modular
+relation `Φ_p(j(q), j(q^p)) = 0` makes `j(q^p)` integral over it — so an element of the fraction
+field that is integral **is** a polynomial, and no polynomial in `j(q)` takes the value `j(q^p)` by
+the `q^-p`-coefficient obstruction. `Defs/JqCoeff.lean` gains the pole's exact order,
+`order_jqModC` (222 lines), and `ModularPolynomialStarBank.lean` drops its fourteen `private`
+prelude copies for the import (266 → 123 lines). The set's one unavoidable drift is registered as
+two `own:` rows, `phiAtSeed_TS_eval` and `phiAtSeed_TS_eval_symm`: the port's `TS` (`Defs/TS.lean`)
+is the `ℚ`-model spelling and carries an `Algebra ℚ K` binder, while the pin's per-file `W1.TS` is
+over an arbitrary field — `Algebra ℚ K` is not synthesizable from `[Field K]`, so the two are
+stated one hypothesis stronger, and the two `TS` spellings agree by `coeffEmb K jq = jqModC K`. The
+frontier rows for both headlines read **needed 0**, "target is ported"; the order is
 [modularCurve/WORKORDER-JQ1-prime-non-adjoin.md](modularCurve/WORKORDER-JQ1-prime-non-adjoin.md).
 
-**The SET-R-C order 1 module then came back green and onto its own wire (2026-10-25).**
-`ModularCurve/X1/FunctionFieldDegree.lean` (the `JOneES` finrank/index bound,
-`finrank_adjoin_jqModC_laurentBaseChange_qExpFunctionFieldC_le_index`) **did** build when it landed
-(2026-10-08, `3ec369e`) and stopped building on **2026-10-21** (`a57f777`, the Hecke-compositum
-landing), which added a *general* `ModularCurve.coeffEmb_intSeriesC`
-(`coeffEmb L (intSeriesC ℚ p) = intSeriesC L p`) to `JqIntegralRatios.lean`. The proof's step is
-the pin's own text — `simp only [map_pow, h4, hD, hf', hg']` + `rfl` — written against a
-`.map`-spelled copy of the lemma, and it is **unqualified-name resolution**, not a statement
-change, that broke:
-
-* the `.map` copy is `ModularCurve.JOneES.JOneESAlg.JOneESLevelOne.JOneESNorm.JOneESRat.coeffEmb_intSeriesC`
-  (`X1/FunctionField.lean:865`, the pin's `S_`:782 verbatim, unchanged since `3ec369e`);
-* `X1/FunctionFieldDegree.lean` sits in `namespace ModularCurve` and does
-  `open JOneES.JOneESRat`, so its bare `coeffEmb_intSeriesC` used to reach that copy **through the
-  `open`**;
-* an unqualified name resolves to a declaration of the *enclosing namespace* before an `open`ed
-  one, so once `ModularCurve.coeffEmb_intSeriesC` existed the bare name silently became the
-  general lemma: the goal keeps `intSeriesC ℂ PΔ / intSeriesC ℂ (eisenstein4 ^ 3)` unexpanded, the
-  four coefficient rewrites find no `p.map`, and `simp` reports "made no progress". (Two full names
-  never collided; what collided was the last component, and namespace precedence decided it. Not a
-  deleted section variable, either.)
-
-The repair is one token: `intSeriesC` joins the `simp only` list, which exposes the
-`p.map (Int.castRingHom ℂ)` subterm under either spelling, and `rfl` closes against the local
-`Wh`/`QF`/`QG` definitions. Nothing else moved — no statement, no hypothesis, no heartbeat cap.
-Nobody saw it because neither checker compiles — the frozen registry and `check_port` both diff
-text — and the module's only importer (`X1/FunctionFieldFinrankIsAlgClosed.lean`, same week) was
-never rebuilt either.
-
-**A first attempt at a "dedup" of the pair was wrong and was reverted; the wave build caught it.**
-The two lemma spellings were taken for a duplicate declaration, so the `.map` copy was deleted and
-`X1/FunctionField.lean` was made to import `JqIntegralRatios`. The next wave build failed on
-`X1/QExpansionDiv.lean:461`, whose `rw` names `JOneES.JOneESRat.coeffEmb_intSeriesC` **qualified**:
-the deletion removed a declaration that has a consumer, and the two copies are not a duplicate but
-the pin's two spellings of the fact (`coeffEmb_intSeriesC` general and the `S_`:782 `.map` form),
-each faithful to its own `S_` file, each checked in its own module. The copy is restored, the
-import edge removed, and `X1/QExpansionDiv` builds again (4,153 jobs). The real defect was never
-duplication: it was the unqualified use of a name whose last component exists twice, one of them in
-the enclosing namespace. **Rule for future transcriptions**: when a proof's unqualified name has a
-same-named declaration in the module's own namespace, qualify it or state the form the step needs
-explicitly; a `simp made no progress` in a module that sits in a busy namespace is the symptom.
-
-**`X1/FunctionField.lean` was still legacy in the linter sense and was standardised.** It was
-already wired (3 `spec-pin:` lines, 78 ok), but carried three **file-wide** suppressions
-(`style.haveILetI`, `unusedSectionVars`, `unusedVariables`). They are gone: six `haveI` → `have`,
-four `omit` insertions (three `omit [Γ.FiniteIndex] in`, and `omit hT` on
-`JOneESRat.inv_mem_intFormRatiosC` **refused** — the module's other proofs pass `hT` positionally —
-so that one is narrowed instead), plus the `hk` statement binder of
-`JOneESLevelOne.qExpansion_mem_monomialSpan` narrowed because renaming it would change the
-statement the checker diffs. Readings: builds **0 warnings** (4,153 jobs for `X1/QExpansionDiv`,
-the wave of 23 dependents green except for the failure above, then green after the revert);
-`X1/FunctionField` **78 ok**, `JqIntegralRatios` **15 ok**, `X1/FunctionFieldDegree` **36 ok** —
-**129 ok / 0 mismatch / 0 missing / 0 own / 0 kw**; `move_dead --select dead` **0 declarations** on
-all three; `dedup.py` over the touched pair reads **2 clusters / 7 lines**
-(`isIntegralQExp_E4`, `e4cube`/`A12` — pin names in different namespaces, kept), and the wider
-engine survey reads **11 clusters / 176 lines in 8 modules** (`X1/FunctionFieldDegree` re-derives
-the 76-line `monomialSpan` induction, `X1/FunctionFieldBaseChange` its `private` valuation block),
-recorded as an open item in [CARRY-FORWARD.md](../CARRY-FORWARD.md).
+**Two transcription lessons from the SET-R-C repair, both worth carrying into any work order.** The
+`JOneES` finrank/index module `ModularCurve/X1/FunctionFieldDegree.lean` silently stopped
+elaborating when an unrelated landing added a *general* `ModularCurve.coeffEmb_intSeriesC` to
+`JqIntegralRatios.lean`: the proof's `simp only [...]` names the lemma unqualified while the module
+`open`s a namespace that holds a `.map`-spelled copy, and an unqualified name resolves to the
+enclosing namespace **before** an `open`ed one — so the bare name became the general lemma, the goal
+kept `intSeriesC ℂ …` unexpanded, and `simp` reported "made no progress". The repair is one token
+(`intSeriesC` joins the `simp only` list); nothing else moved. The rule: **when a proof's unqualified
+name has a same-named declaration in the module's own namespace, qualify it or state the form the
+step needs**, and read a `simp made no progress` in a busy namespace as this symptom, not as a
+deleted hypothesis. That is also why the two `coeffEmb_intSeriesC` spellings are two declarations,
+not a duplicate: a "dedup" of the pair was tried, and the next wave build caught it, because the
+`S_`:782 `.map` copy has a consumer that names it qualified — each copy is faithful to its own `S_`
+file. And the same module came up to standard in the same pass: three **file-wide** linter
+suppressions removed, six `haveI` → `have`, four `omit` insertions, and one statement binder
+narrowed rather than renamed (renaming it would change the statement the checker diffs). Neither
+checker compiles — the frozen registry and `check_port` both diff text — so a statement-reading
+gate cannot see a broken proof; only a build can. The other duplicates in that area — the
+`monomialSpan` induction re-derived in `X1/FunctionFieldDegree.lean`, and
+`X1/FunctionFieldBaseChange.lean`'s `private` valuation block — are an open item in
+[CARRY-FORWARD.md](../CARRY-FORWARD.md).
 
 ## 2. The frontier
 
@@ -1270,13 +626,12 @@ only difference is the final `solution` — `… = (nonToricPoint F p c j).1 := 
 against `… = (nonToricPoint F p c j).2 := BridgeX.pointY_slot …`. The 69 other declarations
 (1,311 lines) are byte-identical at the same line numbers. `port_plan` reads 2,686 raw → **1,325
 net new** / 72 groups, 0 substitutions. The order is the WORKORDER-E shape: write the shared
-development once (`private`) and derive both public headlines from the two `BridgeX` conjuncts;
-the checker delta is exactly +2.
+development once (`private`) and derive both public headlines from the two `BridgeX` conjuncts.
 
 **The readings differ, and the conservative one is the one to plan from.** The table above is the
 default `union` name scan. `--frontier sources` (no name scan) gives `F` 837 nodes / 519,647, a
-`needed` of 1,438 nodes / 542,136, and 85 ready candidates (2026-10-19; the 756 / 1,704 / 61 this
-note carried predate four columns' landings). Both readings now count a module wired by its own
+`needed` of 1,438 nodes / 542,136, and 85 ready candidates (2026-10-19). Both readings now count a
+module wired by its own
 `spec-pin:` header as ported — `frontier.py` reads those headers into the `sources` tier — so the
 new wire's handoff does not drop a landing out of the conservative reading. The gap is the last-name blindness of
 §9: a pin node whose last name matches a ported declaration of another namespace is priced as
@@ -1628,7 +983,7 @@ prelim blocks are *not* reproduced: the port imports one copy of each, at its th
 The **Γ₁/Nebentypus pair** the shelf once showed at its head — the two `CuspForm` rows — is the
 **lifting column's**, not this column's, and has landed there as
 [deligneSerre/WORKORDER-S8-nebentypus.md](deligneSerre/WORKORDER-S8-nebentypus.md)
-(`ModularForms/HeckeNebentypus{Existence,Fricke}.lean`, checker +2, deduped onto the promoted
+(`ModularForms/HeckeNebentypus{Existence,Fricke}.lean`, deduped onto the promoted
 `CuspForm.HeckeEigenNebentypus` API).
 
 The **continuous norm section** has landed ([../logs/norm-section.md](../logs/norm-section.md)):
@@ -1813,9 +1168,9 @@ python3 spec/old_check_stmts.py --selftest
   ×2 including the `Gamma0` one, `WeightOne/IntegralWeightOneForm.lean`,
   `WeightOne/Gamma0Integral.lean`) and turned the three checker-listed copies into one-line wrappers
   at their pin binders (`ModularCurve/X1/Defs.lean`, `Analytic/NormSqLt.lean`,
-  `WeightOne/RationalityDvd.lean` as `Gamma1_le_of_dvd'`). The checker is unchanged at 10,476 / 0 / 0;
-  the wave also cleared `Lifting.lean`'s 18 `haveILetI` warnings by taking Lean's own
-  `haveI`→`have` suggestion at every site. The next tenant of the same home is `Gamma_le_Gamma1`
+  `WeightOne/RationalityDvd.lean` as `Gamma1_le_of_dvd'`). The same wave cleared
+  `Lifting.lean`'s `haveILetI` warnings by taking Lean's own `haveI`→`have` suggestion at every
+  site. The next tenant of the same home is `Gamma_le_Gamma1`
   (public in `CuspForm.LiNormSq` — that copy must stay, it is the pin's — and `private` in
   `WeightOne/Gamma1IntegralBasis.lean` and `…/Gamma0Integral.lean`).
 * The `Gamma0Integral.lean` prelude still exists `private` in its two sibling namespaces
@@ -1835,9 +1190,8 @@ python3 spec/old_check_stmts.py --selftest
 * **The frontier and the new wire.** `frontier.py`'s `sources` tier reads the frozen checker's
   `SOURCES` *and* the `spec-pin:` headers of the port tree (2026-10-19), so a module handed over from
   `PORT_FILES` is ported in both readings; the `names` tier had always seen it (it scans
-  `lean/FLTForHuman`). Measured on this landing: `union` `needed` 511,586 → 510,729 and `F` 991 →
-  992, `sources` `needed` 542,993 → 542,136 and `F` 836 → 837, each exactly the 857 silo lines.
-  Neither reading has any per-declaration "ported" flag: the unit is the pin *node*, so the pin's
+  `lean/FLTForHuman`). Neither reading has any per-declaration "ported" flag: the unit is the pin
+  *node*, so the pin's
   hundreds of copies of one lemma (263 for `mem_of_ord_nonneg`) stay in the demand as nodes of their
   own even when the port homes the lemma once — the landing only makes each of them cheaper.
 * `frontier.py --ready` resolves names by last name, so a pin node that shares a last name with a

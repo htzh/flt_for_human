@@ -74,13 +74,17 @@
   ## Drift from the pin
 
   `coeff_jqNModC_self`, `coeff_jqNModC_of_lt` and
-  `qTwist_pow_jqModC_injective` are stated at the pin's binders but proved
-  through `qExpand`'s coefficient API rather than through `TS`: the port's `TS`
-  (`Defs/TS.lean`) is defined as `qExpand K e (qTwist u (coeffEmb K jq))` and so
-  carries an `[Algebra ℚ K]` binder the pin's per-file `TS` does not. The two
-  `phiAtSeed_TS_eval*` statements mention `TS` itself and therefore cannot be
-  stated at the pin's `[Field K]` binders at all; they are stated over
-  `[Algebra ℚ K]` and recorded as `own:` rows in `spec/decl_markers.tsv`.
+  `qTwist_pow_jqModC_injective` are proved through `qExpand`'s coefficient API
+  rather than through `TS`, as they were landed. That was forced when the port's
+  `TS` was `qExpand K e (qTwist u (coeffEmb K jq))` and carried an `[Algebra ℚ K]`
+  binder the pin's per-file `TS` does not; since 2026-10-25 `Defs/TS.lean` states
+  `TS K e u = qExpand K e (qTwist u (jqModC K))` over `[Field K]`, so the `TS` route
+  is now available and these proofs may take it on the next touch — they are not
+  re-proved now, because nothing about their statements changes.
+
+  The two `phiAtSeed_TS_eval*` statements *did* change: they are now at the pin's
+  general `[Field K]` binders and pinned against the char-`p` source (the two
+  `own:` rows they used are gone).
 
   ## Residue (recorded, not open)
 
@@ -94,6 +98,7 @@
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_jqNModC_prime_not_mem_adjoin_of_forall_aeval_ne.lean#L267-L503
 
   spec-pin: P2M/Sol/S_ModularCurve_jqNModC_prime_not_mem_adjoin_of_charZero.lean
+  spec-pin: P2M/Sol/S_ModularCurve_PhiGen_splits_prime_of_isPrimitiveRoot.lean
   spec-pin: P2M/Sol/S_ModularCurve_jqNModC_prime_not_mem_adjoin_of_forall_aeval_ne.lean
 -/
 import FLTForHuman.ModularCurve.Defs.JqCoeff
@@ -326,40 +331,26 @@ the port's `TS` (`Defs/TS.lean`); they are recorded as `own:` rows in
 
 section PhiAtSeedTS
 
-variable {K : Type*} [Field K] [Algebra ℚ K]
-
-/-- `coeffEmb` sends `j` to `jqModC`. Shared by the two `TS` evaluations below;
-the public home of this statement is `Degree/LaurentGlue.lean`'s `coeffEmb_jq`. -/
-private theorem coeffEmb_jq_eq_jqModC : coeffEmb K jq = jqModC K := by
-  rw [← jqModC_rat]
-  exact map_jqModC (algebraMap ℚ K)
-
-/-- `TS K e 1` is the `e`-dilated `jqModC`: the `qExpand` spelling of the pin's
-`TS` at a trivial twist. -/
-private theorem TS_one_eq_qExpand (e : ℕ) [NeZero e] :
-    TS K e 1 = qExpand K e (jqModC K) := by
-  rw [TS, qTwist_one_apply, coeffEmb_jq_eq_jqModC]
-
 /-- `phiAtSeed` vanishes at the `A`-dilated slot `(j(q^d), j(q^(d n)))`. -/
-theorem phiAtSeed_TS_eval {K : Type*} [Field K] [Algebra ℚ K] (A : ℕ) [NeZero A]
+theorem phiAtSeed_TS_eval {K : Type*} [Field K] (A : ℕ) [NeZero A]
     (n : ℕ) [NeZero n] (data : ModularPolynomialData n) (d : ℕ) [NeZero d] :
     (phiAtSeed data (TS K (A * d) 1)).eval (TS K (A * (d * n)) 1) = 0 := by
   have h1 : TS K (A * d) 1 = qExpand K A (jqNModC K d) := by
-    rw [TS_one_eq_qExpand, jqNModC, qExpand_qExpand]
+    rw [TS, qTwist_one_apply, jqNModC, qExpand_qExpand]
   have h2 : TS K (A * (d * n)) 1 = qExpand K A (jqNModC K (d * n)) := by
-    rw [TS_one_eq_qExpand, jqNModC, qExpand_qExpand]
+    rw [TS, qTwist_one_apply, jqNModC, qExpand_qExpand]
   rw [h1, h2]
   exact phiAtSeed_eval_map data _ _ (qExpand K A) (phiAtSeed_jqNModC_eval (R := K) n data d)
 
 /-- The symmetric direction at the dilated slot. -/
-theorem phiAtSeed_TS_eval_symm {K : Type*} [Field K] [Algebra ℚ K] (A : ℕ) [NeZero A]
+theorem phiAtSeed_TS_eval_symm {K : Type*} [Field K] (A : ℕ) [NeZero A]
     (n : ℕ) [NeZero n] (data : ModularPolynomialData n) (hsymm : EvalSymm data.Φ)
     (d : ℕ) [NeZero d] :
     (phiAtSeed data (TS K (A * (d * n)) 1)).eval (TS K (A * d) 1) = 0 := by
   have h1 : TS K (A * (d * n)) 1 = qExpand K A (jqNModC K (d * n)) := by
-    rw [TS_one_eq_qExpand, jqNModC, qExpand_qExpand]
+    rw [TS, qTwist_one_apply, jqNModC, qExpand_qExpand]
   have h2 : TS K (A * d) 1 = qExpand K A (jqNModC K d) := by
-    rw [TS_one_eq_qExpand, jqNModC, qExpand_qExpand]
+    rw [TS, qTwist_one_apply, jqNModC, qExpand_qExpand]
   rw [h1, h2]
   exact phiAtSeed_eval_map data _ _ (qExpand K A)
     (phiAtSeed_jqNModC_eval_symm (R := K) n data hsymm d)

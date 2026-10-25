@@ -392,7 +392,7 @@ private theorem chain_endgame (M p : ℕ) [NeZero M] [hp : Fact (Nat.Prime p)] (
         (algebraMap (chainField M p 0) (LaurentSeries ℚ)), 0, ?_, ?_⟩
       · show coeffEmb K (qExpand ℚ (M * p ^ (a + 2)) (jqN (p ^ 0))) = _
         rw [show jqN (p ^ 0) = jq from (jqN_congr (pow_zero p)).trans jqN_one, iota_jq,
-          zero_mul, pow_zero]
+          zero_mul, pow_zero, coeffEmb_jq]
         show TS K (M * p ^ (a + 2)) 1 = TS K (M * p ^ (a + 2 - 0)) 1
         exact TS_congr (by rw [Nat.sub_zero]) 1
       · intro y
@@ -414,7 +414,7 @@ private theorem chain_endgame (M p : ℕ) [NeZero M] [hp : Fact (Nat.Prime p)] (
         have h1 : ζ ^ (t * (M * p ^ (a + 2 - i)))
             = ζ ^ (t * (p * (M * p ^ (a + 2 - (i + 1))))) := by
           rw [hpow_step]
-        rw [h1]
+        rw [h1, coeffEmb_jq]
         show TS K (M * p ^ (a + 2 - i)) _ = TS K (p * (M * p ^ (a + 2 - (i + 1)))) _
         exact TS_congr hpow_step _
       have hζ' : IsPrimitiveRoot (ζ : K) (p * (M * p ^ (a + 2 - (i + 1))) * p ^ i) := by
@@ -452,7 +452,7 @@ private theorem chain_endgame (M p : ℕ) [NeZero M] [hp : Fact (Nat.Prime p)] (
     rw [hatop]
     have h1 : ζ ^ (ta * (M * p ^ (a + 2 - a))) = ζ ^ (ta * (p * (M * p))) := by
       rw [hpow_top]
-    rw [h1]
+    rw [h1, coeffEmb_jq]
     show TS K (M * p ^ (a + 2 - a)) _ = TS K (p * (M * p)) _
     exact TS_congr hpow_top _
   have harange' : ∀ y : chainField M p a, σa y ∈ (qExpand K (p * (M * p))).range := by
@@ -527,7 +527,7 @@ private theorem chain_endgame (M p : ℕ) [NeZero M] [hp : Fact (Nat.Prime p)] (
       rw [← pow_mul]
       congr 1
       ring
-    rw [h1]
+    rw [h1, coeffEmb_jq]
     show TS K (M * p) _ = TS K (p * M) _
     exact TS_congr (Nat.mul_comm M p) _
   have hroots_top : ∀ y : LaurentSeries K,
@@ -567,6 +567,7 @@ private theorem chain_endgame (M p : ℕ) [NeZero M] [hp : Fact (Nat.Prime p)] (
     · exact h
     · exfalso
       have h1 := hz_dn_form.symm.trans h
+      rw [coeffEmb_jq] at h1
       have h2 := (TS_injective (K := K) (e := p * (M * p)) (e' := M)
         (u := ζ ^ (ta * (p * (M * p))))
         (u' := ζ ^ (tt * M) * ζ ^ (c * (M * p ^ (a + 1)))) h1).1
@@ -660,7 +661,7 @@ private theorem step_contradiction (p r : ℕ) [hpp : Fact (Nat.Prime p)] [hrr :
       = data_p.Φ.map (Polynomial.eval₂RingHom (Int.castRingHom (LaurentSeries K))
           (qExpand K (p * r) (qTwist ((1 : Kˣ) ^ p) (coeffEmb K jq)))) := by
     rw [← hmin_eq, halg, ← Polynomial.map_map, phiAtSeed_map, hjq_coe, phiAtSeed_map,
-      RingHom.comp_apply, iota_jq, one_pow, phiAtSeed, TS]
+      RingHom.comp_apply, iota_jq, one_pow, phiAtSeed, TS, coeffEmb_jq]
   have hpdvd : p ∣ p * r := dvd_mul_right p r
   have hroots : (minpoly F (jqN p)).aroots (LaurentSeries K)
       = qExpand K (p * (p * r)) (qTwist ((1 : Kˣ) ^ (p * p)) (coeffEmb K jq)) ::ₘ
@@ -710,10 +711,10 @@ private theorem step_contradiction (p r : ℕ) [hpp : Fact (Nat.Prime p)] [hrr :
     have hseed : coeffEmb K (qExpand ℚ (p * r) jq)
         = qExpand K (r * p) (qTwist ((1 : Kˣ) ^ r) (coeffEmb K jq)) := by
       rw [one_pow, iota_jq, show TS K (p * r) (1 : Kˣ) = TS K (r * p) 1 from
-        TS_congr (Nat.mul_comm p r) 1, TS]
+        TS_congr (Nat.mul_comm p r) 1, TS, coeffEmb_jq]
     rw [phiAtSeed, hseed] at hy
     rcases (isRoot_prime_at_slot_iff (p * r) ζ hζ r hrdvd data_r p 1 y).mp hy with h | ⟨c, hc, h⟩
-    · rw [h, one_pow, iota_jqN]
+    · rw [h, one_pow, iota_jqN, coeffEmb_jq]
       show TS K (r * (r * p)) 1 = TS K (p * r * r) 1
       exact TS_congr (by ring) 1
     · exfalso

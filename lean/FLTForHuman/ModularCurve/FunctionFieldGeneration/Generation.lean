@@ -125,12 +125,14 @@ private theorem jqN_mem_of_div_primes {K : Type*} [Field K] [Algebra ℚ K]
 
   have hseed_p : coeffEmb K (qExpand ℚ N (jqN (d / p)))
       = qExpand K (p * (N / p * (d / p))) (qTwist ((1 : Kˣ) ^ p) (coeffEmb K jq)) := by
+    rw [coeffEmb_jq]
     have h2 : TS K (N * (d / p)) 1 = TS K (p * (N / p * (d / p))) ((1 : Kˣ) ^ p) := by
       rw [one_pow]
       exact TS_congr hpe.symm 1
     exact (iota_jqN N (d / p)).trans h2
   have hseed_q : coeffEmb K (qExpand ℚ N (jqN (d / q)))
       = qExpand K (q * (N / q * (d / q))) (qTwist ((1 : Kˣ) ^ q) (coeffEmb K jq)) := by
+    rw [coeffEmb_jq]
     have h2 : TS K (N * (d / q)) 1 = TS K (q * (N / q * (d / q))) ((1 : Kˣ) ^ q) := by
       rw [one_pow]
       exact TS_congr hqe.symm 1
@@ -138,12 +140,14 @@ private theorem jqN_mem_of_div_primes {K : Type*} [Field K] [Algebra ℚ K]
 
   have hdist_p : coeffEmb K (qExpand ℚ N (jqN d))
       = qExpand K (p * (p * (N / p * (d / p)))) (qTwist ((1 : Kˣ) ^ (p * p)) (coeffEmb K jq)) := by
+    rw [coeffEmb_jq]
     have h2 : TS K (N * d) 1 = TS K (p * (p * (N / p * (d / p)))) ((1 : Kˣ) ^ (p * p)) := by
       rw [one_pow]
       exact TS_congr hpe2.symm 1
     exact (iota_jqN N d).trans h2
   have hdist_q : coeffEmb K (qExpand ℚ N (jqN d))
       = qExpand K (q * (q * (N / q * (d / q)))) (qTwist ((1 : Kˣ) ^ (q * q)) (coeffEmb K jq)) := by
+    rw [coeffEmb_jq]
     have h2 : TS K (N * d) 1 = TS K (q * (q * (N / q * (d / q)))) ((1 : Kˣ) ^ (q * q)) := by
       rw [one_pow]
       exact TS_congr hqe2.symm 1
@@ -192,6 +196,7 @@ private theorem jqN_mem_of_div_primes {K : Type*} [Field K] [Algebra ℚ K]
     · rcases (hrootB y).mp hyB with hy2 | ⟨c, hc, hy2⟩
       · exact hy2.trans hdist_q.symm
       · exfalso
+        rw [coeffEmb_jq] at hy1 hy2
         have hTS : TS K (N / p * (d / p)) (1 * ζ ^ (b * (N / p)))
             = TS K (N / q * (d / q)) (1 * ζ ^ (c * (N / q))) := hy1.symm.trans hy2
         have he : N / p * (d / p) = N / q * (d / q) := (TS_injective hTS).1

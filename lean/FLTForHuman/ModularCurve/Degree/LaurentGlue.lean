@@ -23,6 +23,10 @@
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_laurentBaseChange_modularFunctionFieldFull.lean
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_transcendental_jqN.lean
 
+  `coeffEmb_jq` itself was moved to `Defs/JqCoeff.lean` on 2026-10-25 (the
+  definition layer, where `TS`/`conj`/the char-`p` roots API can reach it); this
+  module keeps its `jqN` form and its `order_*`/`adjoin` nodes.
+
   Wired here, not in the frozen registry: the module left `PORT_FILES`
   (`spec/old_check_stmts.py`) and carries its own `spec-pin:` lines below. The
   `BaseChangeTransport` section is the `laurentBaseChange` half of the two
@@ -30,7 +34,7 @@
   rewrites with.
 
 spec-pin: P2M/Sol/S_ModularCurve_laurentBaseChange_adjoin.lean
-spec-pin: P2M/Sol/S_ModularCurve_coeffEmb_jq.lean
+spec-pin: P2M/Sol/S_ModularCurve_coeffEmb_jqN.lean
 spec-pin: P2M/Sol/S_ModularCurve_order_qExpand.lean
 spec-pin: P2M/Sol/S_ModularCurve_laurentBaseChange_modularFunctionField.lean
 spec-pin: P2M/Sol/S_ModularCurve_laurentBaseChange_modularFunctionFieldFull.lean
@@ -52,12 +56,12 @@ open HahnSeries IntermediateField Polynomial
 
 namespace ModularCurve
 
-/-! ## The `coeffEmb` bridges -/
+/-! ## The `coeffEmb` bridges
 
-theorem coeffEmb_jq (L : Type*) [Field L] [Algebra ℚ L] :
-    coeffEmb L jq = jqModC L := by
-  rw [← jqModC_rat]
-  exact map_jqModC (algebraMap ℚ L)
+`coeffEmb L jq = jqModC L` is *not* stated here since 2026-10-25: it is the
+definition-layer bridge every `TS`/`conj` consumer needs, so it lives at
+`Defs/JqCoeff.lean`'s `coeffEmb_jq` (the same statement, the same `spec-pin`
+source; imported above). Only the `jqN` form is this module's. -/
 
 theorem coeffEmb_jqN (L : Type*) [Field L] [Algebra ℚ L] (N : ℕ) [NeZero N] :
     coeffEmb L (jqN N) = jqNModC L N := by

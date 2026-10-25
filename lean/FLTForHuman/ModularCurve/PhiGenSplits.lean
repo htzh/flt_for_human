@@ -34,6 +34,15 @@
   exist for the char-`p` `*_of_isPrimitiveRoot` variants, which are outside the
   44-node cone and are not ported here.
 
+  ## The any-field twin
+
+  These two theorems are stated over a `ℚ`-algebra `K` because the cone's argument runs
+  through `eq_of_prime`/`evalAtI` over `ℚ`. The same two statements over an *arbitrary*
+  field — the pin's char-`p` text, `jqModC K` in place of `coeffEmb K jq` — are the separate
+  module `PhiGenSplitsAnyField.lean`, which obtains them by transporting `splits_of_prime`
+  through the integral cyclotomic order `ℤ[ζ_p]` (WORKORDER-GS1). They are not instances of
+  these: the char-`p` proof *calls* `splits_of_prime`.
+
   ## Assumptions
 
   `Defs/TS`, `Defs/Laurent` (`coeffEmb_qExpand`), `Defs/Twist`, `Defs/Jq`,
@@ -185,12 +194,13 @@ theorem splits_prime_at_slot {K : Type*} [Field K] [Algebra ℚ K] (N : ℕ) [Ne
       = ((qExpand K e).comp (qTwist u)).comp (((coeffEmb K).comp (qExpand ℚ p)).comp evalAtJ) := by
     refine Polynomial.ringHom_ext' (Subsingleton.elim _ _) ?_
     simp only [Polynomial.coe_eval₂RingHom, Polynomial.eval₂_X, RingHom.comp_apply, evalAtJ_X]
-    rw [iota_jq, qExpand_qTwist_TS, mul_one, zpow_natCast]
+    rw [iota_jq, qExpand_qTwist_TS, mul_one, zpow_natCast, coeffEmb_jq]
     exact (TS_congr (Nat.mul_comm e p) (u ^ p)).symm
 
   have h₀ : ((qExpand K e).comp (qTwist u)) (conj p (ζ ^ (N / p)) (0 : Fin (p + 1)))
       = qExpand K (p * (p * e)) (qTwist (u ^ (p * p)) (coeffEmb K jq)) := by
-    rw [RingHom.comp_apply, conj_zero_eq, qExpand_qTwist_TS, mul_one, zpow_natCast]
+    rw [RingHom.comp_apply, conj_zero_eq, qExpand_qTwist_TS, mul_one, zpow_natCast,
+      coeffEmb_jq]
     exact TS_congr (by ring) (u ^ (p * p))
 
   have h₁ : ∀ b : Fin p,
@@ -198,7 +208,7 @@ theorem splits_prime_at_slot {K : Type*} [Field K] [Algebra ℚ K] (N : ℕ) [Ne
       = qExpand K e (qTwist (u * ζ ^ ((b : ℕ) * (N / p))) (coeffEmb K jq)) := by
     intro b
     rw [RingHom.comp_apply, conj_succ_eq, qExpand_qTwist_TS,
-      Nat.cast_one, zpow_one, ← pow_mul, Nat.mul_comm (N / p) (b : ℕ)]
+      Nat.cast_one, zpow_one, ← pow_mul, Nat.mul_comm (N / p) (b : ℕ), coeffEmb_jq]
     exact TS_congr (mul_one e) (u * ζ ^ ((b : ℕ) * (N / p)))
 
   rw [hhom, ← Polynomial.map_map, h0,

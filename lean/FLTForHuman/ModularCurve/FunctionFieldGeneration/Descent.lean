@@ -116,17 +116,20 @@ theorem jqN_div_mem_modularFunctionField (M : ℕ) [NeZero M] (p : ℕ)
     phiAtSeed_map data _ _
   have hseed : coeffEmb K (qExpand ℚ (M * p) (jqN (M * p)))
       = qExpand K (p * (M * p * M)) (qTwist ((1 : Kˣ) ^ p) (coeffEmb K jq)) := by
+    rw [coeffEmb_jq]
     have h2 : TS K ((M * p) * (M * p)) 1 = TS K (p * (M * p * M)) ((1 : Kˣ) ^ p) := by
       rw [one_pow]
       exact TS_congr (by ring) 1
     exact (iota_jqN (M * p) (M * p)).trans h2
   have hdist : coeffEmb K (qExpand ℚ (M * p) (jqN M))
       = qExpand K (M * p * M) (qTwist (1 * ζ ^ (0 * (M * p / p))) (coeffEmb K jq)) := by
+    rw [coeffEmb_jq]
     have h2 : TS K ((M * p) * M) 1 = TS K (M * p * M) (1 * ζ ^ (0 * (M * p / p))) := by
       rw [Nat.zero_mul, pow_zero, mul_one]
     exact (iota_jqN (M * p) M).trans h2
   have hspread : coeffEmb K (qExpand ℚ (M * p) (jqN (M * p * p)))
       = qExpand K (p * (p * (M * p * M))) (qTwist ((1 : Kˣ) ^ (p * p)) (coeffEmb K jq)) := by
+    rw [coeffEmb_jq]
     have h2 : TS K ((M * p) * (M * p * p)) 1
         = TS K (p * (p * (M * p * M))) ((1 : Kˣ) ^ (p * p)) := by
       rw [one_pow]

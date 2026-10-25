@@ -633,7 +633,7 @@ theorem coeffEmb_eq_map (z : LaurentSeries ℚ) : coeffEmb L z = HahnSeries.map 
   ext n; rw [coeffEmb_coeff]; rfl
 
 theorem coeffEmb_jqModC : coeffEmb L (jqModC ℚ) = jqModC L := by
-  rw [coeffEmb_eq_map, map_jqModC]
+  simpa only [jqModC_rat] using ModularCurve.coeffEmb_jq L
 
 theorem adjoin_wq_eq :
     IntermediateField.adjoin ℚ ({FIdxRat.wq} : Set (LaurentSeries ℚ)) =
