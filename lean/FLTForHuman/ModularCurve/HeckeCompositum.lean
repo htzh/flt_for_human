@@ -122,9 +122,6 @@ private theorem T_zpow_mem_Gamma1 (M : ℕ) (j : ℤ) : ModularGroup.T ^ j ∈ G
 private theorem T_zpow_mem_Gamma0 (n : ℕ) (j : ℤ) : ModularGroup.T ^ j ∈ Gamma0 n :=
   Subgroup.zpow_mem _ (T_mem_Gamma0 n) j
 
-private theorem T_mem_inf (M t : ℕ) : ModularGroup.T ∈ Gamma1 M ⊓ Gamma0 t :=
-  Subgroup.mem_inf.mpr ⟨T_mem_Gamma1 M, T_mem_Gamma0 t⟩
-
 private theorem Gamma0_mul_inf_Gamma0_mul (M ℓ ℓ' : ℕ) (h : Nat.Coprime ℓ ℓ') :
     Gamma0 (M * ℓ) ⊓ Gamma0 (M * ℓ') = Gamma0 (M * ℓ * ℓ') := by
   ext A
@@ -298,32 +295,6 @@ private theorem exists_mul_eq_of_mem_Gamma1 (M ℓ ℓ' : ℕ) [NeZero ℓ'] (hc
           rw [mul_assoc, ← _root_.zpow_add, add_neg_cancel, zpow_zero, mul_one]
     _ = a * (b₀ * ModularGroup.T ^ (-j)) := by rw [hgT, mul_assoc]
 
-private theorem relIndex_le_relIndex_inf (M ℓ ℓ' : ℕ) [NeZero M] [NeZero ℓ']
-    (hcop : Nat.Coprime ℓ ℓ') :
-    (Gamma1 M ⊓ Gamma0 (M * ℓ')).relIndex (Gamma1 M) ≤
-      (Gamma1 M ⊓ Gamma0 (M * ℓ')).relIndex (Gamma1 M ⊓ Gamma0 (M * ℓ)) := by
-  classical
-  set B := Gamma1 M ⊓ Gamma0 (M * ℓ') with hB
-  set A := Gamma1 M ⊓ Gamma0 (M * ℓ) with hA
-  have hle : A ≤ Gamma1 M := inf_le_left
-  let e := Subgroup.quotientSubgroupOfEmbeddingOfLE B hle
-  have hsurj : Function.Surjective e := by
-    intro q
-    induction q using QuotientGroup.induction_on with
-    | H g =>
-      obtain ⟨a, ha, b, hb, hgab⟩ := exists_mul_eq_of_mem_Gamma1 M ℓ ℓ' hcop g.2
-      refine ⟨QuotientGroup.mk ⟨a, ha⟩, ?_⟩
-      rw [Subgroup.quotientSubgroupOfEmbeddingOfLE_apply_mk]
-      apply QuotientGroup.eq.mpr
-      rw [Subgroup.mem_subgroupOf]
-      simp only [Subgroup.coe_mul, Subgroup.coe_inv, Subgroup.coe_inclusion]
-      rw [hgab, ← mul_assoc, inv_mul_cancel, one_mul]
-      exact hb
-  have hcard : Nat.card (↥A ⧸ B.subgroupOf A) = Nat.card (↥(Gamma1 M) ⧸ B.subgroupOf (Gamma1 M)) :=
-    Nat.card_eq_of_bijective e ⟨e.injective, hsurj⟩
-  show (B.subgroupOf (Gamma1 M)).index ≤ (B.subgroupOf A).index
-  rw [Subgroup.index, Subgroup.index, hcard]
-
 private theorem T_mem_GammaH (M : ℕ) (H : Subgroup (ZMod M)ˣ) :
     ModularGroup.T ∈ CohCarrier.GammaH M H :=
   CohCarrier.translation_mem_GammaH M H
@@ -449,10 +420,10 @@ private theorem relIndex_le_relIndex_infH (M : ℕ) (H : Subgroup (ZMod M)ˣ) (�
 and `F(Γ) = qExpFunctionFieldC` (the pin's `FF`).  `AA_GammaH_eq` identifies the two at
 `Γ_H(M)`: this is where the analytic input enters. -/
 
-private abbrev AA (Γ : Subgroup SL(2, ℤ)) : IntermediateField ℂ (LaurentSeries ℂ) :=
+abbrev AA (Γ : Subgroup SL(2, ℤ)) : IntermediateField ℂ (LaurentSeries ℂ) :=
   adjoin ℂ (RelIndex.ratioSet Γ)
 
-private abbrev FF (K : Type*) [Field K] (Γ : Subgroup SL(2, ℤ)) :
+abbrev FF (K : Type*) [Field K] (Γ : Subgroup SL(2, ℤ)) :
     IntermediateField K (LaurentSeries K) :=
   qExpFunctionFieldC K Γ
 
@@ -536,29 +507,29 @@ section Fields
 variable (K : Type*) [Field K] (M : ℕ) (H : Subgroup (ZMod M)ˣ) (ℓ ℓ' : ℕ) [NeZero M] [NeZero ℓ]
   [NeZero ℓ']
 
-private abbrev GA : Subgroup SL(2, ℤ) := CohCarrier.GammaH M H ⊓ Gamma0 (M * ℓ)
+abbrev GA : Subgroup SL(2, ℤ) := CohCarrier.GammaH M H ⊓ Gamma0 (M * ℓ)
 
-private abbrev GB : Subgroup SL(2, ℤ) := CohCarrier.GammaH M H ⊓ Gamma0 (M * ℓ')
+abbrev GB : Subgroup SL(2, ℤ) := CohCarrier.GammaH M H ⊓ Gamma0 (M * ℓ')
 
-private abbrev QQ : IntermediateField K (LaurentSeries K) :=
+abbrev QQ : IntermediateField K (LaurentSeries K) :=
   (FF K (CohCarrier.GammaH M H)).map (qExpAlg K ℓ)
 
-private abbrev BP : IntermediateField K (LaurentSeries K) := (FF K (GB M H ℓ')).map (qExpAlg K ℓ)
+abbrev BP : IntermediateField K (LaurentSeries K) := (FF K (GB M H ℓ')).map (qExpAlg K ℓ)
 
-private abbrev roof : IntermediateField K (LaurentSeries K) := FF K (GA M H ℓ) ⊔ BP K M H ℓ ℓ'
+abbrev roof : IntermediateField K (LaurentSeries K) := FF K (GA M H ℓ) ⊔ BP K M H ℓ ℓ'
 
 omit [NeZero M] [NeZero ℓ] [NeZero ℓ'] in
 private theorem FF1_le_FFB : FF K (CohCarrier.GammaH M H) ≤ FF K (GB M H ℓ') :=
   qExpFunctionFieldC_mono K inf_le_left
 
 omit [NeZero ℓ'] in
-private theorem QQ_le_FFA : QQ K M H ℓ ≤ FF K (GA M H ℓ) := map_FF_GammaH_le K M H ℓ
+theorem QQ_le_FFA : QQ K M H ℓ ≤ FF K (GA M H ℓ) := map_FF_GammaH_le K M H ℓ
 
 omit [NeZero M] [NeZero ℓ'] in
-private theorem QQ_le_BP : QQ K M H ℓ ≤ BP K M H ℓ ℓ' := IntermediateField.map_mono _ (FF1_le_FFB K M H ℓ')
+theorem QQ_le_BP : QQ K M H ℓ ≤ BP K M H ℓ ℓ' := IntermediateField.map_mono _ (FF1_le_FFB K M H ℓ')
 
 omit [NeZero ℓ'] in
-private theorem QQ_le_roof : QQ K M H ℓ ≤ roof K M H ℓ ℓ' := (QQ_le_FFA K M H ℓ).trans le_sup_left
+theorem QQ_le_roof : QQ K M H ℓ ≤ roof K M H ℓ ℓ' := (QQ_le_FFA K M H ℓ).trans le_sup_left
 
 end Fields
 

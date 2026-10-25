@@ -15,11 +15,18 @@
   `AlgebraicCurve.separableAlong_of_charZero`
   (`AlgebraicCurve/WeilExchange/Transport.lean:268`) replaces the pin's local copy;
   the two `Along` facts come from the same ported module. `finiteAlong_of_transcendental`
-  and `isIntegral_of_finiteAlong` are new and stay `private`, as does the whole
-  `X1HDIGeneric`/`X1HDIInputs` prelude, so the module's only public surface is the
-  headline. Written by the manager as the effort's final wire test
+  and `isIntegral_of_finiteAlong` are **public** (they are generic
+  `FiniteAlong`/`IsIntegral` facts, not `X₁` machinery, and the pin states them in both
+  Hecke-row `S_` files: they were promoted out of `private` on 2026-10-25 so the
+  Hecke-row commutativity modules import them instead of re-proving them); the rest of
+  the `X1HDIGeneric`/`X1HDIInputs` prelude stays `private`, so the module's public
+  surface is the headline plus those two lemmas. Written by the manager as the
+  effort's final wire test
   ([TOPIC-x1-hecke-diamond-inputs.md](../../topics/hecke/TOPIC-x1-hecke-diamond-inputs.md)
   §5 SET-X1-C).
+
+  spec-pin: Theorems/Thm_ModularCurve_heckeDiamondInputsAll.lean
+  spec-pin: P2M/Sol/S_ModularCurve_JOne_degeneracyPullbackInputs.lean
 
   FLT provenance, pinned `aa2d8b3`:
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_heckeDiamondInputsAll.lean
@@ -102,7 +109,7 @@ private theorem finiteDimensional_adjoin_of_transcendental {x : F} (_hx : Transc
 /-- **`FiniteAlong` follows from one transcendental presentation.** If `F` is
 finite over `L⟮x₀⟯` and `F'` is finite over `L⟮x₁⟯`, then any `L`-morphism
 `φ : F →ₐ[L] F'` is finite along. Verbatim from the pin's `X1HDIGeneric`. -/
-private theorem finiteAlong_of_transcendental (φ : F →ₐ[L] F') {x₀ : F}
+theorem finiteAlong_of_transcendental (φ : F →ₐ[L] F') {x₀ : F}
     (hx₀ : Transcendental L x₀) {x₁ : F'} (hx₁ : Transcendental L x₁)
     [FiniteDimensional L⟮x₁⟯ F'] : FiniteAlong L φ := by
   letI := AlgebraicCurve.algebraAlong φ
@@ -136,7 +143,7 @@ private theorem finiteAlong_of_transcendental (φ : F →ₐ[L] F') {x₀ : F}
   exact Module.Finite.of_restrictScalars_finite E₀ F F'
 
 /-- **A finite map's ring hom is integral.** Verbatim from the pin's `X1HDIGeneric`. -/
-private theorem isIntegral_of_finiteAlong (φ : F →ₐ[L] F') (h : FiniteAlong L φ) :
+theorem isIntegral_of_finiteAlong (φ : F →ₐ[L] F') (h : FiniteAlong L φ) :
     φ.toRingHom.IsIntegral := by
   letI := AlgebraicCurve.algebraAlong φ
   haveI : Module.Finite F F' := h
@@ -192,9 +199,6 @@ end Groups
 section Inputs
 
 variable (L : Type*) [Field L] [Algebra ℚ L] (M ℓ : ℕ) [NeZero M] [NeZero ℓ]
-
-private theorem charZero_of_algebraRat : CharZero L :=
-  charZero_of_injective_algebraMap (algebraMap ℚ L).injective
 
 private theorem heckeBetaOneDefined : HeckeBetaOneDefined M ℓ := by
   intro y hy

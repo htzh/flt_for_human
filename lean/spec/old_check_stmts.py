@@ -4189,7 +4189,6 @@ PORT_FILES = [
     # covers the module's whole public surface.
     "FLTForHuman/ModularCurve/X1/HeckeOperator.lean",
     "FLTForHuman/ModularCurve/X1/Diamond.lean",
-    "FLTForHuman/ModularCurve/X1/HeckeModule.lean",
     # --- SET-X1-B: the pin's `Integral` block and the two `JOneES` function-field
     # nodes. Every helper in the two `JOneES` modules is `private`, so the only
     # diffed declarations are the five `Integral` lemmas and the two headlines.
@@ -4208,7 +4207,6 @@ PORT_FILES = [
     # --- SET-X1-C capstone (manager): the `X1HDIGeneric`/`X1HDIInputs` prelude is
     # entirely `private`; `ModularCurve.heckeDiamondInputsAll` is the sole public
     # declaration. Appended last.
-    "FLTForHuman/ModularCurve/X1/Inputs.lean",
     # --- SET-1 (the Vélu port). The general `Place` calculus, the Weierstrass
     # place dictionary, the Vélu vocabulary and the explicit-Vélu formulas.
     # Appended last so no earlier last-name match can flip.
@@ -4535,8 +4533,6 @@ PORT_FILES = [
     # `diamondHBar`) are deliberately absent; the checker iterates `PORT_FILES`,
     # so they cannot report `missing`. Appended last so no earlier last-name match
     # can flip.
-    "FLTForHuman/ModularCurve/XH/FunctionField.lean",
-    "FLTForHuman/ModularCurve/XH/HeckeOperator.lean",
     "FLTForHuman/ModularCurve/XH/Operators.lean",
     # --- SET-H-B (`topics/hecke/SET-H-B.md`): the diamond-lift pair, written once.
     # The general-`Γ` engine shared by the two headlines, then the two level

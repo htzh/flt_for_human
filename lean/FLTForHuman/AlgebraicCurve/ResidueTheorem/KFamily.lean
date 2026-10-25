@@ -20,11 +20,14 @@ debt, pin `S_` 269/282/288).
 
   spec-pin: Theorems/Thm_AlgebraicCurve_residueTheoremK_of_isAlgClosed.lean
   spec-pin: P2M/Sol/S_AlgebraicCurve_residueTheoremK_of_isAlgClosed.lean
+  spec-pin: Theorems/Thm_AlgebraicCurve_Place_sum_ramificationIndexAlong_mul_inertiaDegAlong.lean
+  spec-pin: P2M/Sol/S_AlgebraicCurve_Place_sum_ramificationIndexAlong_mul_inertiaDegAlong.lean
 -/
 import FLTForHuman.AlgebraicCurve.ResidueTheorem.KCotrace
 import FLTForHuman.AlgebraicCurve.ResidueTheorem.KRatFunc
 import FLTForHuman.AlgebraicCurve.Tate.CompletionTraceSum
 import FLTForHuman.AlgebraicCurve.Tate.TraceCompletionCommute
+import FLTForHuman.AlgebraicCurve.Defs.Correspondence
 
 set_option autoImplicit false
 set_option linter.unusedSectionVars false
@@ -101,6 +104,30 @@ theorem sum_ramificationIndex_mul_inertiaDeg [HasPrincipalDivisors K F'] :
       inertiaDeg_eq_inertiaDeg_fiberCenter (Place.mem_fiber.mp hw)]
 
 end SumRamificationInertia
+
+section SumRamificationInertiaAlong
+
+/-- **The degree of a place fibre, read through the `Along` vocabulary.**  The same
+identity as `sum_ramificationIndex_mul_inertiaDeg` above, stated for an integral
+separable extension morphism `φ : F →ₐ[K] F'` with principal divisors on the top
+field: the ramification-index-times-inertia-degree sum over the fibre of `φ` is the
+relative degree `finrankAlong`.  The proof is the six line instance pack plus the
+sibling lemma.  Pin `S_AlgebraicCurve_Place_sum_ramificationIndexAlong_mul_inertiaDegAlong.lean:14`. -/
+theorem sum_ramificationIndexAlong_mul_inertiaDegAlong {K F F' : Type*} [Field K] [Field F]
+    [Field F'] [Algebra K F] [Algebra K F'] (φ : F →ₐ[K] F')
+    (hφ : φ.toRingHom.IsIntegral) [HasPrincipalDivisors K F'] (hfin : FiniteAlong K φ)
+    (hsep : SeparableAlong K φ) (v : Place K F) :
+    ∑ w ∈ Place.fiberAlong φ hφ v,
+        (w.ramificationIndexAlong φ : ℤ) * (w.inertiaDegAlong φ hφ : ℤ) =
+      (finrankAlong K φ : ℤ) := by
+  letI := algebraAlong φ
+  haveI := isScalarTower_along φ
+  haveI := isIntegral_along φ hφ
+  haveI : Module.Finite F F' := hfin
+  haveI : Algebra.IsSeparable F F' := hsep
+  exact Place.sum_ramificationIndex_mul_inertiaDeg v
+
+end SumRamificationInertiaAlong
 
 section SubsingletonCriterion
 

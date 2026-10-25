@@ -7,9 +7,10 @@ The pin's `Groups` block (lines 20–68) is **not** transcribed: its four lemmas
 `translation_mem_GammaH`, `Gamma1_le_GammaH`, `GammaH_bot`, `GammaH_mono` are the
 `CohCarrier` copies already public in `ModularForms/Defs/GammaH.lean`, where they
 have their one home. This module lands the pin's `FunctionField` block (72–117)
-plus the `xHFunctionFieldBar` abbreviation (123–126); the pin's `Jacobian` block
-(`JH`/`torsionGaloisRep`/`tateGaloisRep`/`JHC`, lines 127–175) is off this cone and
-deferred to the successor Jacobian topics.
+plus the `xHFunctionFieldBar` abbreviation (123–126) and the Jacobian abbreviation
+`JH` (127) that the `X_H` Hecke-row statements quantify over; the rest of the pin's
+`Jacobian` block (`JH.torsionGaloisRep`, `tateGaloisRep`, `JHC`, lines 127–175) is
+off this cone and deferred to the successor Jacobian topics.
 
 The mathematics is thin over the ported vocabulary: `xHFunctionFieldC K M H` is
 `qExpFunctionFieldC K (CohCarrier.GammaH M H)`, and `qExpFunctionFieldC`
@@ -18,6 +19,8 @@ and `x1FunctionFieldC` (`ModularCurve/X1/Defs.lean`), `CohCarrier.GammaH` and it
 top/bottom specialization (`ModularForms/Defs/GammaH.lean`) and `laurentBaseChange`
 (`ModularCurve/Defs/Laurent.lean`) are all ported. `xHFunctionFieldBar` stays an
 `abbrev` as in the pin, so the `rfl` bridges unfold.
+
+  spec-pin: Definitions/Def_ModularCurve_XH.lean
 
 FLT provenance, pinned `aa2d8b3`:
 https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_XH.lean
@@ -98,6 +101,10 @@ variable (M : ℕ) (H : Subgroup (ZMod M)ˣ)
 abbrev xHFunctionFieldBar :
     IntermediateField (AlgebraicClosure ℚ) (LaurentSeries (AlgebraicClosure ℚ)) :=
   laurentBaseChange (AlgebraicClosure ℚ) (xHFunctionField M H)
+
+/-- The Jacobian `J_H(M) = Pic⁰` of `X_H(M)` over `ℚ̄`. -/
+abbrev JH : Type _ :=
+  Pic0 (AlgebraicClosure ℚ) (xHFunctionFieldBar M H)
 
 end Bar
 
