@@ -26,6 +26,10 @@
                    concrete `ℙ¹` differential `dX K`.
     [generation]   the Ω-generation headline at the concrete `P1` place
                    `placeInfty K`.
+    [diffcoeff]    the coefficient layer the same module carries: the pin's
+                   `diffCoeff` against a uniformiser (existence, uniqueness,
+                   integrality) under the headlines' own hypotheses, and the bridge
+                   to the canonical `differentialCoeff` at `placeInfty K`.
     [ratfunc]      the `ℙ¹` genus headline and its degree half at the same place
                    `placeInfty K`, consuming `Hurwitz`'s `KaehlerDifferential.map`
                    API in the headline's type.
@@ -101,6 +105,48 @@ example (K : Type*) [Field K] [PerfectField K] [DecidableEq (RatFunc K)]
       KaehlerDifferential.D K (RatFunc K) x
         = c • KaehlerDifferential.D K (RatFunc K) π :=
   exists_mem_D_eq_smul_D_of_isCurveOver (placeInfty K) hπ hx
+
+/-! ## Zone `[diffcoeff]` — the coefficient against a uniformiser
+
+The same module's coefficient layer, applied with the headlines' own binder walls
+(these are how a consumer states them: the hypotheses are the function-field ones,
+not `IsCurveOver`), and then at the concrete `ℙ¹` place, where the general
+coefficient is the canonical `differentialCoeff` of `Defs/CanonicalDivisor.lean` —
+the bridge that keeps the tree on one coefficient API. -/
+
+example {K F : Type*} [Field K] [Field F] [Algebra K F] [PerfectField K] (x : F)
+    [Algebra.IsAlgebraic (IntermediateField.adjoin K ({x} : Set F)) F]
+    (v : AlgebraicCurve.Place K F) {t : F} (ht : v.ord t = 1) (ω : KaehlerDifferential K F) :
+    AlgebraicCurve.Place.diffCoeff t ω • KaehlerDifferential.D K F t = ω :=
+  AlgebraicCurve.Place.diffCoeff_smul_D_of_ord_eq_one x v ht ω
+
+example {K F : Type*} [Field K] [Field F] [Algebra K F] [PerfectField K] (x : F)
+    [Algebra.IsAlgebraic (IntermediateField.adjoin K ({x} : Set F)) F]
+    (v : AlgebraicCurve.Place K F) {t : F} (ht : v.ord t = 1) (g : F) :
+    AlgebraicCurve.Place.diffCoeff t (g • KaehlerDifferential.D K F t) = g :=
+  AlgebraicCurve.Place.diffCoeff_smul_D_eq_of_ord_eq_one x v ht g
+
+example {K F : Type*} [Field K] [Field F] [Algebra K F] [PerfectField K] (x : F)
+    [FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F]
+    (v : AlgebraicCurve.Place K F) {t : F} (ht : v.ord t = 1)
+    [Algebra.IsSeparable (IntermediateField.adjoin K ({t} : Set F)) F] {f : F}
+    (hf : 0 ≤ v.ord f) :
+    0 ≤ v.ord (AlgebraicCurve.Place.diffCoeff t (KaehlerDifferential.D K F f)) :=
+  AlgebraicCurve.Place.ord_diffCoeff_D_nonneg_of_isSeparable x v ht hf
+
+-- the concrete place carries the instance the bridge needs ...
+example (K : Type*) [Field K] [PerfectField K] [DecidableEq (RatFunc K)]
+    [Algebra.EssFiniteType K (RatFunc K)] [IsCurveOver K (RatFunc K)] :
+    ∀ v : AlgebraicCurve.Place K (RatFunc K), v.DCoordGenerates :=
+  AlgebraicCurve.dCoordGenerates_of_isCurveOver
+
+-- ... and with it the general coefficient is the canonical one at `placeInfty K`.
+example (K : Type*) [Field K] [PerfectField K] [DecidableEq (RatFunc K)]
+    [Algebra.EssFiniteType K (RatFunc K)] [IsCurveOver K (RatFunc K)]
+    [(placeInfty K).DCoordGenerates] (ω : KaehlerDifferential K (RatFunc K)) :
+    AlgebraicCurve.Place.diffCoeff (placeInfty K).uniformizer ω
+      = (placeInfty K).differentialCoeff ω :=
+  AlgebraicCurve.Place.diffCoeff_uniformizer_eq_differentialCoeff _ ω
 
 /-! ## Zone `[ratfunc]` — the `ℙ¹` genus headline
 

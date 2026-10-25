@@ -1455,8 +1455,14 @@ is a separating element, and so is an element of nonzero tame order
 ready shelf — the top one is
 `AlgebraicCurve.Place.ord_diffCoeff_D_nonneg_of_isSeparable` (576 silo lines, 5 of its 6 cone nodes
 ported), then `Place.diffCoeff_smul_D_of_ord_eq_one` (28), `Place.diffCoeff_smul_D_eq_of_ord_eq_one`
-(26) and `AlgebraicCurve.isCurveOver_of_transcendental_of_isSeparable` (20) — and the first is the
-natural next cut of the differential-layer family.
+(26) and `AlgebraicCurve.isCurveOver_of_transcendental_of_isSeparable` (20). The first three were
+one development — the coefficient against a uniformiser and its integrality — and have landed
+(2026-10-24) as an absorption into the already-ported
+`AlgebraicCurve/Differential/Generation.lean`, which was handed over to the new checker in the same
+edit; record: [algebraicCurve/TOPIC-diffCoeff-integrality.md](algebraicCurve/TOPIC-diffCoeff-integrality.md).
+`frontier.py --ds --ready` reads 1,206 → 1,203 needed nodes, and the next row of the family is
+`Place.ord_diffCoeff_D_nonneg_of_perfectField` (17 ln). `isCurveOver_of_transcendental_of_isSeparable`
+(20) is still on the shelf and is not a premise of the three.
 
 The **local-parameter family** is complete (§1): the finite cover
 ([logs/localParam-finite-cover.md](../logs/localParam-finite-cover.md)), the branch uniqueness,

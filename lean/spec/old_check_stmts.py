@@ -4511,7 +4511,10 @@ PORT_FILES = [
     # are thin wrappers over the already-ported `s12`/`ℙ¹` surface. Appended last so
     # no earlier last-name match can flip.
     "FLTForHuman/AlgebraicCurve/Differential/Hurwitz.lean",
-    "FLTForHuman/AlgebraicCurve/Differential/Generation.lean",
+    # --- `FLTForHuman/AlgebraicCurve/Differential/Generation.lean` is handed over to
+    # `spec/check_port.py` (2026-10-24, when the `diffCoeff` layer was absorbed into it):
+    # its `spec-pin:` wire checks 7 ok / 0 mismatch / 0 missing / 1 own. Do not re-list
+    # it here. The absorption is `topics/algebraicCurve/TOPIC-diffCoeff-integrality.md`.
     # --- `FLTForHuman/AlgebraicCurve/Genus/RatFunc.lean` is handed over to `spec/check_port.py`: its `spec-pin:` wire
     # checks 7 ok / 0 mismatch / 0 missing. Do not re-list it here.
     # --- SET-H-A (`topics/hecke/TOPIC-xH-hecke-diamond-inputs.md`): the `X_H(M)`
