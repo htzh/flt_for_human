@@ -111,6 +111,10 @@ import FLTForHuman.ModularCurve.Degree.TranscendentalCoeffEmb
 import FLTForHuman.ModularForms.WeightOne.IntegralWeightOneForm
 -- charLFrobenius: the `q`-expansion `Fr* Fr_* = ℓ` relation (Zone W).
 import FLTForHuman.ModularCurve.Frobenius.QExpModL
+-- The `C` layer over an arbitrary field: the slot product, the non-membership and the
+-- prime-power step (Zone X).
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.SlotProductAnyField
+import FLTForHuman.ModularCurve.FunctionFieldGeneration.PrimePowerStepAnyField
 -- The cyclotomic instances for the end-to-end wire tests of Zones I, J and K.
 import Mathlib.NumberTheory.Cyclotomic.Basic
 
@@ -252,11 +256,13 @@ example : jq.coeff 1 = 196884 := coeff_jq_one
 -- math/010's `TS K e u`, the series of math/010 §1, is introduced in the
 -- *solution* file, not in `Definitions/`. It was held out of Layer 0a and
 -- decided in by Layer 0b; `Defs/TS.lean` now provides it, and the decision is
--- recorded in `logs/ffg-port.md` §4. This `[0b]` item is therefore bound, and
--- the identity below is the definition itself.
-#check TS   -- (K) [Field K] [Algebra ℚ K] (e : ℕ) [NeZero e] (u : Kˣ) : LaurentSeries K
+-- recorded in `logs/ffg-port.md` §4. This `[0b]` item is therefore bound. Since the
+-- `[Field K]` generalization of `TS` (`logs/ts-general-field.md`) the identity is its
+-- definition plus `coeffEmb_jq` (`coeffEmb K jq = jqModC K`), not `rfl`.
+#check TS   -- (K) [Field K] (e : ℕ) [NeZero e] (u : Kˣ) : LaurentSeries K
 example {K : Type*} [Field K] [Algebra ℚ K] (e : ℕ) [NeZero e] (u : Kˣ) :
-    TS K e u = qExpand K e (qTwist u (coeffEmb (L := K) jq)) := rfl
+    TS K e u = qExpand K e (qTwist u (coeffEmb (L := K) jq)) := by
+  rw [TS, coeffEmb_jq]
 
 /-! ## Zone D — [T6] the R1 analytic model of `jq`
 
@@ -656,7 +662,7 @@ round-trip (against a concrete `f = coeffEmb ℂ jq`, so it also touches
 -- distinct, via the primitive square root `IsPrimitiveRoot.neg_one`.
 example : (ModularCurve.TS ℂ (2 * 2) 1 ::ₘ
     (Multiset.range 2).map (fun b => ModularCurve.TS ℂ 1 ((-1 : ℂˣ) ^ b))).Nodup :=
-  @ModularCurve.roots_phiProd_conj_nodup ℂ _ _ 2 ⟨Nat.prime_two⟩ (-1) (by
+  @ModularCurve.roots_phiProd_conj_nodup ℂ _ 2 ⟨Nat.prime_two⟩ (-1) (by
     show IsPrimitiveRoot (((-1 : ℂˣ) : ℂ)) 2
     rw [Units.val_neg, Units.val_one]
     exact IsPrimitiveRoot.neg_one 0 two_ne_zero.symm)
@@ -906,7 +912,7 @@ example (N : ℕ) [NeZero N] : ∃ data : ModularPolynomialData N, PhiIrreducibl
 example (N : ℕ) [NeZero N] : Nonempty (ModularPolynomialData N) :=
   ModularCurve.nonempty_modularPolynomialData N
 example (N : ℕ) [NeZero N] :
-    ∃ Φ : Polynomial (Polynomial ℤ), Φ.Monic ∧ Φ.natDegree = dedekindPsi N ∧
+    ∃ Φ : Polynomial (Polynomial ℤ), Φ.Monic ∧ Φ.natDegree = _root_.dedekindPsi N ∧
       Φ.eval₂ evalAtJ (jqN N) = 0 := by
   obtain ⟨data⟩ := ModularCurve.nonempty_modularPolynomialData N
   exact ⟨data.Φ, data.monic, data.natDegree_eq, data.eval_eq_zero⟩
@@ -1041,6 +1047,72 @@ example (K : Type*) [Field K] [IsAlgClosed K] {ℓ : ℕ} [Fact ℓ.Prime] [Char
           (0 : AlgebraicCurve.Pic0 K (ModularCurve.qExpFunctionFieldC K Γ))) = 0 := by
   rw [ModularCurve.qExpFrobeniusPullbackModL_qExpFrobeniusPushforwardModL_of_transcendental
     K Γ hF 0, nsmul_zero]
+
+/-! ## Zone X — [C-layer] the slot product, the non-membership and the prime-power step over an arbitrary field
+
+The `ℚ` layer of `functionFieldGeneration` is ported (Zones P and Q). The `C` layer is the same
+theory over an arbitrary `[Field K]`, with `jqModC`/`jqNModC` in place of `jq`/`jqN` and
+`qExpand K M` in place of the `coeffEmb` composition — it is what the `q`-expansion field of
+`Γ₀(M)` is eventually read in, so it is the layer the D-S cone needs.
+
+Three modules carry it, all three `needed 0` in `frontier.py --ds`:
+
+* `FunctionFieldGeneration/SlotProductAnyField.lean` — the arbitrary-field twin of Zone Q's
+  `SlotProduct`: `minpoly_jqNModC_map_eq_prod_slots` (the pin's `rval_aux`, the slot list) and
+  `jqNModC_prime_not_mem_fullC` (the non-membership of `jqNModC K p` in the level-`M` field);
+* `FunctionFieldGeneration/PrimePowerStepAnyField.lean` — the arbitrary-field twin of T16's
+  `DegreeStep.relfinrank_full_eq_mul`: the prime-power step of the tower `fullC K (M * p ^ a)`,
+  with the `eFull` vocabulary (`eFull`, `eFull_eq_map`, `eFull_le_fullC`, …) that the next
+  `C`-layer node, `package_of_socket`, imports;
+* the ground they share, `X0/FunctionFieldFull.lean`, now stated at a general index
+  (`divisorExpansionsC`, `modularFunctionFieldFullC` carry no `[NeZero N]`), which is what lets
+  both state their lemmas at `M * p ^ a` and `L₀ * p`.
+
+The wire test: the four names are bound, and the two headlines apply at their wrappers' binders.
+Deleting either module breaks this zone. -/
+
+#check @ModularCurve.minpoly_jqNModC_map_eq_prod_slots
+#check @ModularCurve.jqNModC_prime_not_mem_fullC
+#check @ModularCurve.relfinrank_fullC_mul_prime_pow
+#check @ModularCurve.eFull
+#check @ModularCurve.divSet
+#check @ModularCurve.fullC
+
+-- The slot product, applied: the minimal polynomial of `jqNModC K M` over `K⟮jqModC K⟯` is the
+-- explicit slot list (`M = 1` is the degenerate case, where the product has one factor).
+example {K : Type*} [Field K] (M : ℕ) [NeZero M] (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) M)
+    (hall : ∀ d : ℕ, d ∣ M → ∀ [NeZero d],
+      Module.finrank (IntermediateField.adjoin K ({jqModC K} : Set (LaurentSeries K)))
+          (IntermediateField.adjoin (IntermediateField.adjoin K ({jqModC K} : Set (LaurentSeries K)))
+            ({jqNModC K d} : Set (LaurentSeries K))) = ModularCurve.dedekindPsi d
+        ∧ modularFunctionFieldC K d = IntermediateField.adjoin K
+            {x : LaurentSeries K | ∃ (d' : ℕ) (_ : NeZero d'), d' ∣ d ∧ x = jqNModC K d'}) :
+    (minpoly (IntermediateField.adjoin K ({jqModC K} : Set (LaurentSeries K)))
+        (jqNModC K M)).map
+        ((qExpand K M).comp
+          (algebraMap (IntermediateField.adjoin K ({jqModC K} : Set (LaurentSeries K)))
+            (LaurentSeries K)))
+      = ∏ a ∈ M.divisors, ∏ b ∈ (Finset.range (M / a)).filter
+          (fun b => Nat.gcd (Nat.gcd a b) (M / a) = 1),
+          (Polynomial.X - Polynomial.C (if h : a = 0 then 0 else
+            letI : NeZero a := ⟨h⟩
+            qExpand K (a * a) (qTwist (ζ ^ (b * a)) (jqModC K)))) :=
+  ModularCurve.minpoly_jqNModC_map_eq_prod_slots M ζ hζ hall
+
+-- The prime-power step, applied at `a = 0`: the first step of the tower adds `p + 1`, and the
+-- `hprev` hypothesis is vacuous there (`a = b + 1` has no solution).
+example {K : Type*} [Field K] (M : ℕ) [NeZero M] (p : ℕ) [hp : Fact (Nat.Prime p)]
+    (hpM : ¬ p ∣ M) (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) (M * p ^ 1))
+    (hnm : jqNModC K p ∉ IntermediateField.adjoin K
+      {x : LaurentSeries K | ∃ (d' : ℕ) (_ : NeZero d'), d' ∣ M ∧ x = jqNModC K d'}) :
+    IntermediateField.relfinrank
+      (IntermediateField.adjoin K {x : LaurentSeries K | ∃ (d' : ℕ) (_ : NeZero d'),
+        d' ∣ M ∧ x = jqNModC K d'})
+      (IntermediateField.adjoin K {x : LaurentSeries K | ∃ (d' : ℕ) (_ : NeZero d'),
+        d' ∣ M * p ^ 1 ∧ x = jqNModC K d'}) = p + 1 := by
+  have h := ModularCurve.relfinrank_fullC_mul_prime_pow M p 0 hpM ζ hζ
+    (fun b hb => absurd hb.symm (Nat.succ_ne_zero b)) (fun _ => hnm)
+  simpa using h
 
 /-! ## The measure
 

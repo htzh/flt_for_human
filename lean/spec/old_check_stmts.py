@@ -3551,8 +3551,6 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/FunctionFieldGeneration/Nonmembership.lean",
     # Topic 18, one new generator per prime power.
     "FLTForHuman/ModularCurve/FunctionFieldGeneration/Generation.lean",
-    # Topic 19, the slot product and the prime non-membership.
-    "FLTForHuman/ModularCurve/FunctionFieldGeneration/SlotProduct.lean",
     # Topic 20, the unconditional capstone.
     "FLTForHuman/ModularCurve/FunctionFieldGeneration/Capstone.lean",
     # SET 1 (AC0 + T1), the generic curve vocabulary and the ord interface.

@@ -263,3 +263,24 @@ name). The `_of_isPrimitiveRoot` suffix is the pin's own disambiguator, forced b
 twin in `PhiSlotRoots.lean` holds the plain names and Lean refuses the import of two modules that
 declare one name. Record: [logs/phigen-splits-any-field.md](../../logs/phigen-splits-any-field.md).
 Full measurement: [phiGenSplitting/TOPIC-splitting.md](../phiGenSplitting/TOPIC-splitting.md) §2.3.
+
+### 10.2 The three largest `C`-layer leaves are scoped (2026-10-25)
+
+The cone is down to **22 needed nodes / 10,662 raw** after the `TS` ground, `PhiGenSplitsAnyField`
+and the JQ1 conjugates set. Its three largest ready nodes are the `C`-variant re-runs and the socket
+group's step, all `needed 1` (every premise ported): `minpoly_jqNModC_map_eq_prod_slots` (1,914),
+`jqNModC_prime_not_mem_fullC` (1,909), `relfinrank_fullC_mul_prime_pow` (1,175) — 2,277 net new
+lines priced together, cut into two dispatches and landed against the same homes as this topic
+prescribes (§3). Landing them takes the cone to **19 nodes / 5,664 raw** and the D-S demand from
+1,192 to 1,189 nodes.
+Scope: [modularCurve/TOPIC-c-layer-slot-product-and-prime-power-step.md](../modularCurve/TOPIC-c-layer-slot-product-and-prime-power-step.md);
+orders: [WORKORDER-CL1](../modularCurve/WORKORDER-CL1-slot-product-any-field.md) (the two twin
+headlines, one module) and [WORKORDER-CL2](../modularCurve/WORKORDER-CL2-fullc-prime-power-step.md)
+(the prime-power step; `package_of_socket` is its consumer and is *not* in this wave).
+
+**All three landed 2026-10-25** — module `SlotProductAnyField.lean` (1,283 lines) and
+`PrimePowerStepAnyField.lean` (1,108 lines), both checker-clean with 0 `own:` rows, both
+`needed 0`; the cone reads **19 nodes / 5,664 raw** and the D-S demand 1,189 nodes / 448,680.
+Record: [logs/c-layer-slot-product-and-primestep.md](../../logs/c-layer-slot-product-and-primestep.md)
+— including the two findings worth carrying (the consumer had drifted off 0 errors, and the 200k
+edit loop is too tight for this proof in this tree).

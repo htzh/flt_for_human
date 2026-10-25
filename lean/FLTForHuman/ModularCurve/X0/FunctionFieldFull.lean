@@ -28,6 +28,16 @@ carrier needs them:
 Statements are transcribed verbatim; the pin's `import Mathlib` is replaced by the
 specific imports below.
 
+**The index is general.** `divisorExpansionsC` and `modularFunctionFieldFullC` carry no
+`NeZero N`: the pin's `S_` files that consume them
+(`P2M/Sol/S_ModularCurve_relfinrank_fullC_mul_prime_pow.lean` 354–1145,
+`P2M/Sol/S_ModularCurve_package_of_socket.lean` 365–475) state their lemmas at `L`, `L * n` and
+`M * p ^ a` with no nonzeroness hypothesis on the index, and `[NeZero (L * n)]` is not synthesizable
+from theirs. The binder was vestigial here (neither body uses it, and five of the section's lemmas
+already `omit`ted it); the two lemmas whose statement does consume it,
+`modularFunctionFieldC_le_full` and `full_degeneracyC_le`, carry it explicitly, the first through a
+nested `variable [NeZero N]` section so that its printed statement keeps the pin's text.
+
   spec-pin: Definitions/Def_ModularCurve_X0ModL.lean
 
 -/
@@ -76,12 +86,11 @@ end JExpansion
 
 section FunctionField
 
-variable (K : Type*) [Field K] (N : ℕ) [NeZero N]
+variable (K : Type*) [Field K] (N : ℕ)
 
 def divisorExpansionsC : Set (LaurentSeries K) :=
   {x | ∃ (d : ℕ) (_ : NeZero d), d ∣ N ∧ x = qExpand K d (jqModC K)}
 
-omit [NeZero N] in
 theorem mem_divisorExpansionsC {d : ℕ} [NeZero d] (hd : d ∣ N) :
     qExpand K d (jqModC K) ∈ divisorExpansionsC K N :=
   ⟨d, ‹_›, hd, rfl⟩
@@ -89,19 +98,19 @@ theorem mem_divisorExpansionsC {d : ℕ} [NeZero d] (hd : d ∣ N) :
 def modularFunctionFieldFullC : IntermediateField K (LaurentSeries K) :=
   IntermediateField.adjoin K (divisorExpansionsC K N)
 
-omit [NeZero N] in
-
 theorem modularFunctionFieldFullC_rat : modularFunctionFieldFullC ℚ N = modularFunctionFieldFull N :=
   rfl
 
-omit [NeZero N] in
 theorem jqModCd_mem_full {d : ℕ} [NeZero d] (hd : d ∣ N) :
     qExpand K d (jqModC K) ∈ modularFunctionFieldFullC K N :=
   subset_adjoin K _ (mem_divisorExpansionsC K N hd)
 
-omit [NeZero N] in
 theorem jqModC_mem_full : jqModC K ∈ modularFunctionFieldFullC K N := by
   simpa [qExpand_one_apply] using jqModCd_mem_full K N (one_dvd N)
+
+section
+
+variable [NeZero N]
 
 theorem modularFunctionFieldC_le_full : modularFunctionFieldC K N ≤ modularFunctionFieldFullC K N := by
   rw [modularFunctionFieldC, adjoin_le_iff]
@@ -109,14 +118,14 @@ theorem modularFunctionFieldC_le_full : modularFunctionFieldC K N ≤ modularFun
   · exact jqModC_mem_full K N
   · exact jqModCd_mem_full K N dvd_rfl
 
+end
+
 theorem full_degeneracyC_le {N M : ℕ} [NeZero N] [NeZero M] (h : N ∣ M) :
     modularFunctionFieldFullC K N ≤ modularFunctionFieldFullC K M := by
   rw [modularFunctionFieldFullC, adjoin_le_iff]
   rintro x ⟨d, hne, hdvd, rfl⟩
   have := hne
   exact jqModCd_mem_full K M (hdvd.trans h)
-
-omit [NeZero N] in
 
 theorem full_degeneracyC_map_le (ℓ : ℕ) [NeZero ℓ] :
     (modularFunctionFieldFullC K N).map (qExpandAlg K ℓ) ≤ modularFunctionFieldFullC K (N * ℓ) := by
@@ -132,7 +141,7 @@ end FunctionField
 
 section Jacobian
 
-variable (K : Type*) [Field K] (N : ℕ) [NeZero N]
+variable (K : Type*) [Field K] (N : ℕ)
 
 abbrev JZeroC : Type _ := Pic0 K (modularFunctionFieldFullC K N)
 
