@@ -76,6 +76,9 @@ import FLTForHuman.Topology.Algebra.RestrictedProduct.Equiv
 import FLTForHuman.Topology.Algebra.RestrictedProduct.TopologicalSpace
 import Mathlib.Topology.Algebra.Group.Units
 import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
+import FLTForHuman.RepresentationTheory.SubrepresentationRestriction
+import FLTForHuman.RepTheory.TypeInvariance
+import FLTForHuman.AutomorphicForm.Adelic.ArchDualCut
 
 set_option autoImplicit false
 
@@ -899,6 +902,153 @@ example (F : Type) [Field F] [NumberField F] (μ ν : (AdeleRing (𝓞 F) F)ˣ �
       (adelicAddHaar (𝓞 F) F) :=
   weylIntertwiningIntegrand_integrable_of_re_gt_half F hα μ ν hμ hν s hs
     (0 : AdelicGL2 (𝓞 F) F → ℂ) (isInducedSection_zero _ _) continuous_zero g
+
+-- Zone DC1 (WORKORDER-DC1): the archimedean dual cut. The three modules it executes are
+-- `SubrepresentationRestriction`, `TypeInvariance` and `ArchDualCut`; deleting any one of
+-- them (or the consumer's import of it) breaks this zone.
+
+open AutomorphicForm.CuspidalConstituent AutomorphicForm.ArchCompactOrbit AutomorphicForm.ArchDualCut
+
+/-- The one-dimensional trivial representation of the trivial group — the DC1 probe's datum. -/
+abbrev dc1OneDim : Representation ℂ PUnit (Fin 1 → ℂ) :=
+  Representation.trivial ℂ PUnit (Fin 1 → ℂ)
+
+-- (1)
+example (F : Type) [Field F] [NumberField F] (tys : ArchTypeFamily F)
+    {y f : AdelicGL2 (𝓞 F) F → ℂ} (hyc : Continuous y) (hy : y ∈ archCutSubmodule F tys)
+    (hfc : Continuous f) (hfs : HasCompactSupport f)
+    (hfK : FiniteDimensional ℂ (Submodule.span ℂ
+      {ψ : AdelicGL2 (𝓞 F) F → ℂ | ∃ k ∈ (⨆ w : InfinitePlace F, (rowIsometryInclAt₀ F w).range),
+        ψ = rightTranslate F k f})) :
+    ∃ f' ∈ Submodule.span ℂ
+        {ψ : AdelicGL2 (𝓞 F) F → ℂ | ∃ k ∈ (⨆ w : InfinitePlace F, (rowIsometryInclAt₀ F w).range),
+          ψ = rightTranslate F k f},
+      (∀ w : InfinitePlace F, f' ∈ ⨆ i : Fin (tys.card w), archDualTypeSubmoduleAt F w (tys.rep w i)) ∧
+        rightConv F y f' = rightConv F y f := by
+  obtain ⟨f', hf'⟩ :=
+    AutomorphicForm.exists_mem_span_rightTranslate_mem_archDualCutSubmodule_and_rightConv_eq F tys hyc hy hfc hfs hfK
+  exact ⟨f', hf'.1, (mem_archDualCutSubmodule_iff F tys f').mp hf'.2.1, hf'.2.2⟩
+
+-- (2a) premise 1 at the trivial datum
+example :
+    (⊤ : Submodule ℂ (PUnit → ℂ)) ≤
+      ⨆ _i : Fin 1, typeSubmodule (1 : PUnit →* PUnit) dc1OneDim := by
+  refine AutomorphicForm.le_iSup_typeSubmodule_of_surjective_of_le_iSup_typeSubmodule
+    (1 : PUnit →* PUnit) (fun a b _ => Subsingleton.elim a b) (fun _ : Fin 1 => Fin 1 → ℂ)
+    (fun _ => dc1OneDim) ⊤ ⊤ (fun _ _ _ => trivial) (fun _ _ _ => trivial) LinearMap.id
+    (fun y => ⟨y, rfl⟩) (fun _ _ => rfl) ?_
+  intro f _
+  refine Submodule.mem_iSup_of_mem (0 : Fin 1) ?_
+  let T : (Fin 1 → ℂ) →ₗ[ℂ] (PUnit → ℂ) :=
+    { toFun := fun v => fun _ => v 0
+      map_add' := fun a b => by funext x; rfl
+      map_smul' := fun c a => by funext x; rfl }
+  have hT : IsRightEquivariant (1 : PUnit →* PUnit) dc1OneDim T := by
+    intro k v x
+    rfl
+  have hfT : f = T (fun _ : Fin 1 => f PUnit.unit) := by
+    funext x
+    show f x = (fun _ : Fin 1 => f PUnit.unit) 0
+    exact congrArg f (Subsingleton.elim x PUnit.unit)
+  rw [hfT]
+  exact mem_typeSubmodule_of_isRightEquivariant hT _
+
+-- (2b) premise 2 in hypothesis form at the same datum
+example :
+    (⊤ : Submodule ℂ (PUnit → ℂ)) ≤
+      ⨆ _i : Fin 1, typeSubmodule (1 : PUnit →* PUnit) dc1OneDim.dual := by
+  let β : (⊤ : Submodule ℂ (PUnit → ℂ)) →ₗ[ℂ] ((⊤ : Submodule ℂ (PUnit → ℂ)) →ₗ[ℂ] ℂ) :=
+    LinearMap.mk₂ ℂ (fun s t => (s : PUnit → ℂ) PUnit.unit * (t : PUnit → ℂ) PUnit.unit)
+      (fun a b c => by
+        show ((a : PUnit → ℂ) PUnit.unit + (b : PUnit → ℂ) PUnit.unit) *
+            (c : PUnit → ℂ) PUnit.unit
+          = (a : PUnit → ℂ) PUnit.unit * (c : PUnit → ℂ) PUnit.unit
+            + (b : PUnit → ℂ) PUnit.unit * (c : PUnit → ℂ) PUnit.unit
+        ring)
+      (fun c a b => by
+        show c * (a : PUnit → ℂ) PUnit.unit * (b : PUnit → ℂ) PUnit.unit
+          = c * ((a : PUnit → ℂ) PUnit.unit * (b : PUnit → ℂ) PUnit.unit)
+        ring)
+      (fun a b c => by
+        show (a : PUnit → ℂ) PUnit.unit *
+            ((b : PUnit → ℂ) PUnit.unit + (c : PUnit → ℂ) PUnit.unit)
+          = (a : PUnit → ℂ) PUnit.unit * (b : PUnit → ℂ) PUnit.unit
+            + (a : PUnit → ℂ) PUnit.unit * (c : PUnit → ℂ) PUnit.unit
+        ring)
+      (fun c a b => by
+        show (a : PUnit → ℂ) PUnit.unit * (c * (b : PUnit → ℂ) PUnit.unit)
+          = c * ((a : PUnit → ℂ) PUnit.unit * (b : PUnit → ℂ) PUnit.unit)
+        ring)
+  refine AutomorphicForm.le_iSup_typeSubmodule_dual_of_invariant_pairing (1 : PUnit →* PUnit)
+    (fun a b _ => Subsingleton.elim a b) (fun _ : Fin 1 => Fin 1 → ℂ) (fun _ => dc1OneDim) ⊤ ⊤
+    (fun _ _ _ => trivial) (fun _ _ _ => trivial) β ?_ ?_ ?_
+  · intro k s t
+    have hs : (⟨fun x => (s : PUnit → ℂ) (x * (1 : PUnit →* PUnit) k), trivial⟩ :
+        (⊤ : Submodule ℂ (PUnit → ℂ))) = s := by
+      apply Subtype.ext
+      funext x
+      exact congrArg (fun u => (s : PUnit → ℂ) u)
+        (Subsingleton.elim (x * (1 : PUnit →* PUnit) k) x)
+    have ht : (⟨fun x => (t : PUnit → ℂ) (x * (1 : PUnit →* PUnit) k), trivial⟩ :
+        (⊤ : Submodule ℂ (PUnit → ℂ))) = t := by
+      apply Subtype.ext
+      funext x
+      exact congrArg (fun u => (t : PUnit → ℂ) u)
+        (Subsingleton.elim (x * (1 : PUnit →* PUnit) k) x)
+    rw [hs, ht]
+  · intro t ht
+    have h0 : (t : PUnit → ℂ) PUnit.unit * (t : PUnit → ℂ) PUnit.unit = 0 := by
+      simpa [β] using ht t
+    have h1 : (t : PUnit → ℂ) PUnit.unit = 0 := mul_self_eq_zero.mp h0
+    apply Subtype.ext
+    funext x
+    rw [Subsingleton.elim x PUnit.unit]
+    simpa using h1
+  · intro f _
+    refine Submodule.mem_iSup_of_mem (0 : Fin 1) ?_
+    let T : (Fin 1 → ℂ) →ₗ[ℂ] (PUnit → ℂ) :=
+      { toFun := fun v => fun _ => v 0
+        map_add' := fun a b => by funext x; rfl
+        map_smul' := fun c a => by funext x; rfl }
+    have hT : IsRightEquivariant (1 : PUnit →* PUnit) dc1OneDim T := by
+      intro k v x
+      rfl
+    have hfT : f = T (fun _ : Fin 1 => f PUnit.unit) := by
+      funext x
+      show f x = (fun _ : Fin 1 => f PUnit.unit) 0
+      exact congrArg f (Subsingleton.elim x PUnit.unit)
+    rw [hfT]
+    exact mem_typeSubmodule_of_isRightEquivariant hT _
+
+-- (3a) the dual-cut dictionary
+example (F : Type) [Field F] [NumberField F] (tys : ArchTypeFamily F)
+    (x : (ρc F).asModule) :
+    (x ∈ cutDM F tys ↔
+      (((ρc F).asModuleEquiv x : Ecf F) : AdelicGL2 (𝓞 F) F → ℂ) ∈
+        archDualCutSubmodule F tys) ∧
+      CAD F tys ⊓ CBD F tys = ⊥ :=
+  ⟨mem_cutDM_iff F tys x,
+    (isCompl_CAD_CBD F tys).inf_eq_bot⟩
+
+-- (3b) `restrictRep` + `isIrreducible_of_isSimpleModule` on the one-dimensional
+-- trivial representation
+set_option linter.style.haveILetI false in
+example :
+    Representation.IsIrreducible
+      (Representation.restrictRep dc1OneDim
+        (((⊤ : Submodule (MonoidAlgebra ℂ PUnit) dc1OneDim.asModule).restrictScalars ℂ).map
+          dc1OneDim.asModuleEquiv.toLinearMap)
+        (fun _ _ _ => by simp)) := by
+  haveI : IsSimpleModule (MonoidAlgebra ℂ PUnit) dc1OneDim.asModule :=
+    { __ := is_simple_module_of_finrank_eq_one (K := ℂ) (A := MonoidAlgebra ℂ PUnit)
+        (V := dc1OneDim.asModule)
+        (by show Module.finrank ℂ (Fin 1 → ℂ) = 1
+            exact Module.finrank_fin_fun ℂ) }
+  haveI : IsSimpleModule (MonoidAlgebra ℂ PUnit)
+      (⊤ : Submodule (MonoidAlgebra ℂ PUnit) dc1OneDim.asModule) :=
+    IsSimpleModule.congr (Submodule.topEquiv)
+  exact Representation.isIrreducible_of_isSimpleModule dc1OneDim
+    (⊤ : Submodule (MonoidAlgebra ℂ PUnit) dc1OneDim.asModule) (fun _ _ _ => by simp)
 
 end AutomorphicFormConsumer
 

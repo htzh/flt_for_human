@@ -10,6 +10,39 @@ Deferred API that has been ported and verified is in `Reserve/`, not here.
 
 ## Deferred API
 
+### The DC1 wave's homing debt — `rightConv` laws and `orbitSpan` support in `ArchDualCut`
+
+Landed 2026-10-25 ([automorphicForm/WORKORDER-DC1-arch-dual-cut.md](automorphicForm/WORKORDER-DC1-arch-dual-cut.md)).
+Two public results of the dual-cut node are not about the dual cut, and they sit in
+`AutomorphicForm/Adelic/ArchDualCut.lean` only because their natural owners were frozen for the
+wave:
+
+* `hasCompactSupport_of_mem_orbitSpan` (pin `S_ …archDualCutSubmodule_and_rightConv_eq.lean:788`) —
+  a property of the orbit span; its home is `AutomorphicForm/Adelic/ArchCompactOrbit.lean`, beside
+  `orbitSpan`'s membership API. The cut-side sibling's pin file carries the same lemma and will
+  want it too;
+* `rightConv_rightTranslate_rightTranslate'` (:800) — invariance of `rightConv` under simultaneous
+  right translation; its home is the `Operators` section of
+  `AutomorphicForm/Adelic/IsotypicCuspSpace.lean`, beside `rightConv_add_left`, with it the four
+  private `rightConv` laws of `ArchDualCut` (`integrable_mul_rightConv`, `rightConv_add_right`,
+  `rightConv_smul_right`, `rightConv_smul_left`), which are the second-argument bilinearity of
+  `rightConv` and will be re-proved by any other right-convolution consumer that needs them.
+
+Price: additions to two existing modules (~12 + ~12 lines plus four ~8-line lemmas and their
+docstrings), no statement of an existing module changes, so the checker is unaffected; take it
+when one of those modules is opened for another reason. Until then the two results are public and
+checked where they are.
+
+### Two dead prelude lemmas of the dual-cut node — dropped, not ported
+
+`orbitSpan_le_Ecf` (pin `S_ …archDualCutSubmodule_and_rightConv_eq.lean:268`) and
+`placeOrbitSpan_mono_of_mem` (:460) are declared in that `S_` file and used **nowhere** in it or in
+any ported consumer: the only other occurrences in the pin are copies inside sibling `S_` files,
+and the landed cut module (`ArchCutProjector`, which carries the same prelude block) does not have
+them either. They were therefore dropped as dead prelude rather than transcribed. If a future node
+needs them, its own file carries a copy: port them there at the pin's statement. Prices: 2–6 lines
+each.
+
 ### The FTF1 left half's nine pre-cut declarations — in the pin only
 
 On 2026-10-23 the FTF1 left halves moved to
