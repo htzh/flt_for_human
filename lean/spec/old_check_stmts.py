@@ -4714,7 +4714,10 @@ PORT_FILES = [
     # `ModularPolynomialLeadingCoeff.lean` is **handed over (2026-10-23)**: it carries
     # `spec-pin:` for its wrapper and `spec/check_port.py` owns it, so it is no longer
     # listed here.
-    "FLTForHuman/ModularCurve/ModularPolynomialUniquenessIrreducible.lean",
+    # --- `FLTForHuman/ModularCurve/ModularPolynomialUniquenessIrreducible.lean` is handed
+    # over to `spec/check_port.py` (2026-10-25, when `phiIrreducible_all` landed and the
+    # engine `toAdjoin_eq_minpoly_all` was promoted): its `spec-pin:` wire checks 5 ok / 0
+    # mismatch / 0 missing / 0 own. Do not re-list it here.
     "FLTForHuman/ModularCurve/ModularPolynomialStarBank.lean",
     # --- Manager wave of 2026-10-09: the definition layer of subject A and subject B2.
     # `LevelN/FunctionField.lean` is the pin's `Def_ModularCurve_LevelNFunctionField.lean`

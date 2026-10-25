@@ -36,13 +36,18 @@
   The pin's ten new `W1` helpers, all `private` at the pin too (so no promotion is
   available or authorised): `order_eq`, `order_TS`,
   `order_sub_left`/`order_sub_right`, `prod_ne_zero_leadingCoeff`,
-  `slot_factor`, `natDegree_toAdjoin`, `toAdjoin_eq_minpoly`,
-  `diag_lc_pow`, and the headline's pin-`private` body. The pin's private
+  `slot_factor`, `diag_lc_pow`, and the headline's pin-`private` body.
+  The pin's `natDegree_toAdjoin`/`toAdjoin_eq_minpoly` are **not** restated here: the
+  port holds the identity once, public, as
+  `ModularCurve.toAdjoin_eq_minpoly_all` in
+  `ModularPolynomialUniquenessIrreducible.lean` (its pin home is
+  `S_ModularCurve_ModularPolynomialData_eq_all.lean:37`), and this module imports it. The pin's private
   `evalAtJGen_injective` is dropped — it has no consumer anywhere (the public
   `evalAtJGen_injective` is imported from `ModularPolynomialIrreducible.lean`).
   spec-pin: Theorems/Thm_ModularCurve_ModularPolynomialData_isUnit_leadingCoeff_diag_of_not_isSquare.lean
 -/
 import FLTForHuman.ModularCurve.ModularPolynomialIrreducible
+import FLTForHuman.ModularCurve.ModularPolynomialUniquenessIrreducible
 import FLTForHuman.ModularCurve.Defs.PhiAtSlot
 import FLTForHuman.ModularCurve.Defs.Cyclotomic
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.SlotProduct
@@ -168,22 +173,6 @@ private theorem slot_factor {K : Type*} [Field K] [Algebra ℚ K] (N a b : ℕ) 
 
 /-! ## Transporting the datum to the cyclotomic field -/
 
-/-- The `Y`-degree of the transported datum is `ψ(N)`. -/
-private theorem natDegree_toAdjoin {N : ℕ} [NeZero N] (data : ModularPolynomialData N) :
-    data.toAdjoin.natDegree = dedekindPsi N := by
-  rw [ModularPolynomialData.toAdjoin, data.monic.natDegree_map, data.natDegree_eq]
-
-/-- `data.toAdjoin` is the minimal polynomial of `j(q ^ N)`. -/
-private theorem toAdjoin_eq_minpoly (N : ℕ) [NeZero N] (data : ModularPolynomialData N) :
-    data.toAdjoin = minpoly ℚ⟮jq⟯ (jqN N) := by
-  have hint : IsIntegral ℚ⟮jq⟯ (jqN N) := ⟨data.toAdjoin, data.toAdjoin_monic, by
-    simpa [Polynomial.aeval_def] using aeval_jqN_toAdjoin data⟩
-  have hdeg : (minpoly ℚ⟮jq⟯ (jqN N)).natDegree = dedekindPsi N := by
-    rw [← IntermediateField.adjoin.finrank hint]
-    exact finrank_adjoin_jqN_eq_dedekindPsi N
-  refine Polynomial.eq_of_monic_of_dvd_of_natDegree_le (minpoly.monic hint) data.toAdjoin_monic
-    (minpoly.dvd _ _ (aeval_jqN_toAdjoin data)) ?_
-  rw [hdeg, natDegree_toAdjoin]
 
 /-- The `2N`-th power of the `Y`-leading coefficient of `Φ(j, Y)` is `1`: push the
 datum to `ℚ(ζ_N)`, factor it into its nonzero slot factors, and read the leading
@@ -210,7 +199,7 @@ private theorem diag_lc_pow (N : ℕ) [NeZero N] (hN : ¬ IsSquare N)
         (fun b => Nat.gcd (Nat.gcd a b) (N / a) = 1),
         (Polynomial.X - Polynomial.C (if h : a = 0 then 0 else
           letI : NeZero a := ⟨h⟩; qExpand K (a * a) (qTwist (ζ ^ (b * a)) (coeffEmb K jq)))) := by
-    rw [← hcensus, ← toAdjoin_eq_minpoly N data, ModularPolynomialData.toAdjoin,
+    rw [← hcensus, ← toAdjoin_eq_minpoly_all N data, ModularPolynomialData.toAdjoin,
       Polynomial.map_map, hhom]
 
   have hfjq : f jq = TS K N 1 := iota_jq N

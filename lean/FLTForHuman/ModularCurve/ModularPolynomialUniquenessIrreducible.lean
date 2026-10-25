@@ -9,7 +9,9 @@
     (the `N`-arbitrary form of T13's `eq_of_prime`);
   * `phiIrreducible_of_prime` — the datum is irreducible at a prime `p`;
   * `ModularPolynomialData.evalSymm_of_prime` — the datum is symmetric at a
-    prime `p`.
+    prime `p`;
+  * `phiIrreducible_all` — the datum is irreducible at *every* level `N`, the
+    all-`N` form of `phiIrreducible_of_prime` and the pin's `phiIrreducible_all`.
 
   The last two are one-line transports: the ported `exists_phiIrreducible_evalSymm`
   (resp. `exists_modularPolynomialData_evalSymm`) produces *some* datum with the
@@ -19,9 +21,12 @@
 
   FLT `anthropics/fermats-last-theorem@aa2d8b3`:
   `P2M/Sol/S_ModularCurve_ModularPolynomialData_eq_all.lean` (75 lines),
-  `P2M/Sol/S_ModularCurve_phiIrreducible_of_prime.lean` (73 lines) and
-  `P2M/Sol/S_ModularCurve_ModularPolynomialData_evalSymm_of_prime.lean` (14 lines).
-  The three public statements are the `Theorems/` wrappers verbatim.
+  `P2M/Sol/S_ModularCurve_phiIrreducible_of_prime.lean` (73 lines),
+  `P2M/Sol/S_ModularCurve_ModularPolynomialData_evalSymm_of_prime.lean` (14 lines)
+  and `P2M/Sol/S_ModularCurve_phiIrreducible_all.lean` (434 lines, of which 41
+  declarations are already ported elsewhere and the mathematical content is the
+  private `toAdjoin_eq_minpoly_all` below). The four public statements are the
+  `Theorems/` wrappers verbatim.
 
   ## Reuse
 
@@ -41,6 +46,13 @@
   `ModularPolynomialUniqueness`'s `eq_of_prime`/`finrank_adjoin_jqN_eq_of_prime`;
   `ModularPolynomialProperties`'s `exists_phiIrreducible_evalSymm`;
   `Degree/PhiData`'s `exists_modularPolynomialData_evalSymm`.
+
+spec-pin: Theorems/Thm_ModularCurve_ModularPolynomialData_eq_all.lean
+spec-pin: Theorems/Thm_ModularCurve_phiIrreducible_of_prime.lean
+spec-pin: Theorems/Thm_ModularCurve_ModularPolynomialData_evalSymm_of_prime.lean
+spec-pin: Theorems/Thm_ModularCurve_phiIrreducible_all.lean
+spec-pin: P2M/Sol/S_ModularCurve_ModularPolynomialData_eq_all.lean   -- comparable copy: homes `toAdjoin_eq_minpoly_all`
+spec-pin: P2M/Sol/S_ModularCurve_phiIrreducible_all.lean   -- comparable copy
 -/
 import FLTForHuman.ModularCurve.ModularPolynomialUniqueness
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.Capstone
@@ -64,10 +76,9 @@ private theorem natDegree_toAdjoin {N : ℕ} [NeZero N] (data : ModularPolynomia
 
 /-- Every datum at level `N` has `toAdjoin` equal to the minimal polynomial of
 `j(q ^ N)`: it is monic, it annihilates `j(q ^ N)`, and its degree is the
-minimal one, `ψ(N)`. This is the pin's `toAdjoin_eq_minpoly_all`, re-derived
-`private` (the prime-indexed sibling in `ModularPolynomialUniqueness.lean` is
-`private` too). -/
-private theorem toAdjoin_eq_minpoly_all (N : ℕ) [NeZero N] (data : ModularPolynomialData N) :
+minimal one, `ψ(N)`. This is the pin's `toAdjoin_eq_minpoly_all`, the datum's
+uniqueness fact, and the statement is the pin's `toAdjoin_eq_minpoly_all`. -/
+theorem toAdjoin_eq_minpoly_all (N : ℕ) [NeZero N] (data : ModularPolynomialData N) :
     data.toAdjoin = minpoly ℚ⟮jq⟯ (jqN N) := by
   have hint : IsIntegral ℚ⟮jq⟯ (jqN N) :=
     ⟨data.toAdjoin, data.toAdjoin_monic, by
@@ -112,10 +123,25 @@ theorem phiIrreducible_of_prime (p : ℕ) [hp : Fact (Nat.Prime p)]
   obtain ⟨d₀, h, -⟩ := exists_phiIrreducible_evalSymm p
   rwa [ModularPolynomialData.eq_of_prime p data d₀]
 
+/-- At every level `N` the datum is irreducible: `toAdjoin` is the minimal polynomial
+of `j(q ^ N)`, and a minimal polynomial is irreducible. Verbatim from the pin wrapper
+`Theorems/Thm_ModularCurve_phiIrreducible_all.lean`; the pin's 434-line `S_` file
+reduces to this, because 41 of its 45 declarations are ported elsewhere and its own
+engine is `toAdjoin_eq_minpoly_all` above. -/
+theorem phiIrreducible_all (N : ℕ) [NeZero N] (data : ModularPolynomialData N) :
+    PhiIrreducible data := by
+  have hint : IsIntegral ℚ⟮jq⟯ (jqN N) :=
+    ⟨data.toAdjoin, data.toAdjoin_monic, by
+      simpa [Polynomial.aeval_def] using aeval_jqN_toAdjoin data⟩
+  show Irreducible data.toAdjoin
+  rw [toAdjoin_eq_minpoly_all N data]
+  exact minpoly.irreducible hint
+
 end ModularCurve
 
 end
 
 #print axioms ModularCurve.ModularPolynomialData.eq_all
 #print axioms ModularCurve.phiIrreducible_of_prime
+#print axioms ModularCurve.phiIrreducible_all
 #print axioms ModularCurve.ModularPolynomialData.evalSymm_of_prime

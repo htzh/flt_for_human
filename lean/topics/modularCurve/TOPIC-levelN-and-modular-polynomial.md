@@ -257,3 +257,60 @@ python3 port_plan.py --json build/mc_ab_advise.json
   definition chain. D2 also exposed that `Def_ModularCurve_QExpansionDiff.lean` was only half
   ported; it is now complete — its `QExpansionDiff` and `TraceDiff` halves are in
   `ModularCurve/Period/QExpansionDiff.lean` and `AlgebraicCurve/Differential/TraceDiff.lean`.
+
+
+## 5. `phiIrreducible_all`: 434 pin lines, six port lines (2026-10-25)
+
+`ModularCurve.phiIrreducible_all` (`used_by` 11, silo 434) read as redundant, and it is:
+`twin_scan --node` reports `prelude 41/45` — 41 of the pin file's 45 declarations already
+have public port homes — and `port_advise` agrees: **39 statements substitutable** (36
+byte-identical, ≈372 of the 434 lines), plus `prod_form_ne_zero` already in the port.
+
+The pin's *mathematical* content is one `private` 20-line theorem at
+`S_…phiIrreducible_all.lean:397`, and the port already had it: the argument "monic, it
+annihilates `j(q ^ N)`, and its degree is `ψ(N)`, hence it *is* the minimal polynomial" is
+`ModularPolynomialUniquenessIrreducible.lean`'s private `toAdjoin_eq_minpoly_all`. So the
+node landed as six lines: promote that engine (its pin home is
+`S_…ModularPolynomialData_eq_all.lean:37`, so the promotion is *pinned*, not `own:`) and
+apply `minpoly.irreducible`.
+
+Landed in `ModularCurve/ModularPolynomialUniquenessIrreducible.lean` — the module that
+already homes `eq_all`, `phiIrreducible_of_prime` and `evalSymm_of_prime`, i.e. the
+uniqueness/irreducibility subject. It is now wired
+(`Theorems/Thm_ModularCurve_{ModularPolynomialData_eq_all, phiIrreducible_of_prime,
+ModularPolynomialData_evalSymm_of_prime, phiIrreducible_all}` plus the two `S_` comparable
+copies) and out of `PORT_FILES`: **5 ok / 0 mismatch / 0 missing / 0 own**, tier-1 build
+green with no warning, `#print axioms` `[propext, Classical.choice, Quot.sound]`.
+
+Measured: `frontier.py --ds` **1,202 → 1,201** needed nodes and **459,006 → 458,572** raw
+`S_` lines (−434, the whole silo), for ~20 lines of module text including the header.
+
+**The duplication this exposed, and the reduction to one all-`N` copy.**
+
+`data.toAdjoin = minpoly ℚ⟮jq⟯ (jqN N)` had three copies; it now has two, and the second is
+not a copy of it:
+
+| copy | lines | module | status |
+|---|---:|---|---|
+| `toAdjoin_eq_minpoly_all` (public) | 18 | `ModularPolynomialUniquenessIrreducible.lean:81` | **the** all-`N` statement; `eq_all`, `phiIrreducible_all` and `ModularPolynomialLeadingCoeff` all read it |
+| `toAdjoin_eq_minpoly` (private, prime `p`) | 18 | `ModularPolynomialUniqueness.lean:97` | the prime-indexed *instance*, upstream; proves `eq_of_prime` |
+
+`ModularPolynomialLeadingCoeff`'s byte-identical private copy and its
+`natDegree_toAdjoin` are deleted; the module imports the public statement. `dedup.py` now
+reports a 2-copy cluster, together with the same pattern one level up
+(`ModularPolynomialUniqueness.eq_of_prime` against `…UniquenessIrreducible.eq_all`) — both
+are *instance* pairs, not removable duplicates, and the shape tier groups them only because
+it normalises `[Fact p.Prime]`/`[NeZero N]` away.
+
+**Why one copy of the prime statement is impossible.** The all-`N` proof needs
+`finrank_adjoin_jqN_eq_dedekindPsi`, which is `FunctionFieldGeneration/Capstone.lean:80` — a
+consequence of `functionFieldGeneration`. The prime copy and its consumer `eq_of_prime` live
+in `ModularPolynomialUniqueness`, and that module is *upstream* of Capstone: it is imported
+by `PhiGenSplits`, which is imported by `Generation`, `SlotProduct`, `DegreeStep`, `Descent`
+and `Nonmembership`, all of which Capstone imports. So the upstream copy cannot see the
+degree fact (it would need the FFG theorem, which is downstream), and the downstream
+statement cannot be pushed up into it. Moving `eq_of_prime` down instead would make
+`PhiGenSplits` — upstream of Capstone — import a downstream module. The floor is therefore
+2, and both surviving declarations are *statements* the pin asks for (the prime one proves
+the pinned `eq_of_prime`), not duplications of a proof.
+
