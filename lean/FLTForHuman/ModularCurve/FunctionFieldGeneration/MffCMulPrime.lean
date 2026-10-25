@@ -247,5 +247,3 @@ theorem jqNModC_mem_modularFunctionFieldC_mul_prime {K : Type*} [Field K]
       (isPrimitiveRoot_pow_div hζ (dvd_mul_right M p)) hall)
 
 end ModularCurve
-
-#print axioms ModularCurve.jqNModC_mem_modularFunctionFieldC_mul_prime

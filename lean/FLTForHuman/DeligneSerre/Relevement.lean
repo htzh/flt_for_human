@@ -23,6 +23,7 @@
 
   spec-pin: Theorems/Thm_DeligneSerre_exists_hecke_eigen_reduction_eq_of_qCoeff_hecke_congr.lean
   spec-pin: P2M/Sol/S_DeligneSerre_exists_hecke_eigen_reduction_eq_of_qCoeff_hecke_congr.lean
+  spec-pin: P2M/Sol/S_CuspForm_norm_qCoeff_sq_eq_pow_of_isPrimitiveForm_of_not_sq_dvd.lean
 
 -/
 import FLTForHuman.ModularForms.Defs.PrimitiveFormGamma1
@@ -122,7 +123,7 @@ private theorem denom_eq (γ : SL(2, ℤ)) (τ : ℍ) :
       = ((γ 1 0 : ℤ) : ℂ) * (τ : ℂ) + ((γ 1 1 : ℤ) : ℂ) :=
   ModularGroup.denom_apply γ τ
 
-private theorem denom_ne_zero' (γ : SL(2, ℤ)) (τ : ℍ) :
+theorem denom_ne_zero' (γ : SL(2, ℤ)) (τ : ℍ) :
     ((γ 1 0 : ℤ) : ℂ) * (τ : ℂ) + ((γ 1 1 : ℤ) : ℂ) ≠ 0 := by
   rw [← denom_eq]; exact denom_ne_zero _ τ
 

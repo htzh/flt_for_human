@@ -20,6 +20,7 @@
 
   spec-pin: Theorems/Thm_CuspForm_slash_eq_dirichlet_smul_of_qCoeff_hecke_eigen.lean
   spec-pin: P2M/Sol/S_CuspForm_slash_eq_dirichlet_smul_of_qCoeff_hecke_eigen.lean
+  spec-pin: P2M/Sol/S_CuspForm_norm_qCoeff_sq_eq_pow_of_isPrimitiveForm_of_not_sq_dvd.lean
 
 -/
 import FLTForHuman.ModularForms.Gamma1Vanishing
@@ -121,7 +122,7 @@ private theorem T_pow_mem_Gamma1 (N n : ℕ) : ModularGroup.T ^ n ∈ Gamma1 N :
   rw [Gamma1_mem, ModularGroup.coe_T_zpow]
   simp
 
-private theorem T_mem_Gamma1 (N : ℕ) : ModularGroup.T ∈ Gamma1 N := by
+theorem T_mem_Gamma1 (N : ℕ) : ModularGroup.T ∈ Gamma1 N := by
   simp
 
 end Slash

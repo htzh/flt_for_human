@@ -18,6 +18,7 @@
 
   spec-pin: Theorems/Thm_CuspForm_hasNebentypus_inv_and_qCoeff_hecke_eigen_of_fricke.lean
   spec-pin: P2M/Sol/S_CuspForm_hasNebentypus_inv_and_qCoeff_hecke_eigen_of_fricke.lean
+  spec-pin: P2M/Sol/S_CuspForm_norm_qCoeff_sq_eq_pow_of_isPrimitiveForm_of_not_sq_dvd.lean
 
 -/
 import FLTForHuman.ModularForms.Gamma1Vanishing
@@ -125,7 +126,7 @@ section Toolkit
 
 variable {M : ℕ} {k : ℤ} {p : ℕ}
 
-private theorem isBoundedAtImInfty_heckeU (hp : p ≠ 0) {F : ℍ → ℂ} (hF : IsBoundedAtImInfty F) :
+theorem isBoundedAtImInfty_heckeU (hp : p ≠ 0) {F : ℍ → ℂ} (hF : IsBoundedAtImInfty F) :
     IsBoundedAtImInfty (heckeU k p F) := by
   rw [heckeU_def]
   induction (Finset.range p) using Finset.induction_on with
@@ -226,7 +227,7 @@ section Phi
 
 variable {M : ℕ} {k : ℤ} {p : ℕ}
 
-private def phi (k : ℤ) (p : ℕ) (c : ℂ) (F : ℍ → ℂ) : ℍ → ℂ :=
+def phi (k : ℤ) (p : ℕ) (c : ℂ) (F : ℍ → ℂ) : ℍ → ℂ :=
   heckeU k p F + c • (F ∣[k] heckeDiagMatrix p)
 
 private theorem phi_apply (hp : p ≠ 0) (c : ℂ) (F : ℍ → ℂ) (τ : ℍ) :
@@ -237,11 +238,11 @@ private theorem phi_apply (hp : p ≠ 0) (c : ℂ) (F : ℍ → ℂ) (τ : ℍ) 
 
 variable (F : CuspForm (Γ₁ℝ M) k)
 
-private theorem cusp_slash_T_pow (n : ℕ) :
+theorem cusp_slash_T_pow (n : ℕ) :
     (⇑F : ℍ → ℂ) ∣[k] (Matrix.SpecialLinearGroup.mapGL ℝ (ModularGroup.T ^ n)) = ⇑F :=
   SlashInvariantFormClass.slash_action_eq F _ (Subgroup.mem_map_of_mem _ (T_pow_mem_Gamma1 M n))
 
-private theorem phi_props (hp : p ≠ 0) (c : ℂ) :
+theorem phi_props (hp : p ≠ 0) (c : ℂ) :
     Periodic (phi k p c ⇑F ∘ ofComplex) 1 ∧
     MDifferentiable (modelWithCornersSelf ℂ ℂ) (modelWithCornersSelf ℂ ℂ) (phi k p c ⇑F) ∧
     IsBoundedAtImInfty (phi k p c ⇑F) ∧
@@ -293,7 +294,7 @@ private theorem phi_props (hp : p ≠ 0) (c : ℂ) :
   simp only [qCoeff] at h1 h2 ⊢
   rw [h1, h2, mul_assoc]
 
-private theorem phi_eq_smul_of_qCoeff (hp : p ≠ 0) (c lam : ℂ)
+theorem phi_eq_smul_of_qCoeff (hp : p ≠ 0) (c lam : ℂ)
     (hrel : ∀ n : ℕ, qCoeff (⇑F) (p * n) + c * (p : ℂ) ^ (k - 1) *
         (if p ∣ n then qCoeff (⇑F) (n / p) else 0) = lam * qCoeff (⇑F) n) :
     phi k p c ⇑F = lam • (⇑F : ℍ → ℂ) := by

@@ -155,7 +155,8 @@ list, and each must read `ok` against the pin's `S_:781–1003`.
 
 1. `lake env lean` then single-module `lake build` for each touched module — **never a tree
    build**; each call inside the project's 2-minute rule, output logged to `lean/tmp/`.
-   0 warnings; `#print axioms` on both headlines reads `[propext, Classical.choice, Quot.sound]`.
+   0 warnings, builds silent. Axioms are checked in a scratch file (`lean/tmp/axioms.lean`), not by a
+   `#print axioms` line in the module — a top-level print runs on every build.
 2. `cd lean && python3 spec/check_port.py <three modules>` → **0 mismatch, 0 missing**; the new
    readings for `PrimePowerStepAnyField` and the two new modules are the order's numbers.
 3. `python3 tools/deps/frontier.py --target` on each of `ModularCurve.package_of_socket`,

@@ -22,7 +22,7 @@ list transitively).
 | gate | reading |
 |---|---|
 | `lake build FLTForHuman.ModularCurve.FunctionFieldGeneration.MffCMulPrime` | green, 4,033 jobs, 15 s for the module on top of replayed deps, **0 warnings**, no `sorry` |
-| `#print axioms ModularCurve.jqNModC_mem_modularFunctionFieldC_mul_prime` | `[propext, Classical.choice, Quot.sound]` |
+| axioms of the headline (scratch file `lean/tmp/axioms.lean`) | `[propext, Classical.choice, Quot.sound]` |
 | `spec/check_port.py --force` on the module | **2 ok, 0 mismatch, 0 missing, 0 own, 0 kw**, corpus `aa2d8b3` |
 | `dedup.py --module '*MffCMulPrime*'` | 2 declarations, **0 duplicate clusters**, 0 removable lines |
 | `move_dead.py --select dead` on the module | **0 declarations, 0 lines** |

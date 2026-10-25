@@ -104,14 +104,17 @@ four statement variants already in the pool — call the nearest one, do not add
    20-line `attribute [-simp]` block, and the `set_option autoImplicit false` line (the project's
    `lakefile` already sets `autoImplicit := false`).
 5. **`S_:533`'s `solution` and `#print axioms`** are the wrapper's content; in the port the
-   headline *is* the wrapper, so add only the `#print axioms` line the JQ1 modules carry.
+   headline *is* the wrapper. Do **not** put a `#print axioms` line in the module: a top-level
+   print runs on every build and the standard is a silent build. Verify in a throwaway file
+   (`lean/tmp/axioms.lean`, `import` the module then `#print axioms …`) and quote its output.
 
 ## 5. Gates (all green, and report the readings)
 
 1. `lake env lean FLTForHuman/ModularCurve/FunctionFieldGeneration/MffCMulPrime.lean`, then
    `lake build FLTForHuman.ModularCurve.FunctionFieldGeneration.MffCMulPrime` — **single-module
    builds only, never a tree build**, each call bounded (the project allows 2 minutes per call;
-   log to `lean/tmp/`). 0 warnings, `#print axioms` reads `[propext, Classical.choice, Quot.sound]`.
+   log to `lean/tmp/`). 0 warnings, and the build output silent. Axioms are checked in a scratch
+   file, not in the module: `[propext, Classical.choice, Quot.sound]`.
 2. `cd lean && python3 spec/check_port.py <the module>` with the two `spec-pin:` header lines
    (`P2M/Sol/S_…`, `Theorems/Thm_…`): expect **2 ok / 0 mismatch / 0 missing / 0 own**, and — once
    CL4 lands — the same for the socket module that consumes it.

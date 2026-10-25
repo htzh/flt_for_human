@@ -45,6 +45,8 @@ import FLTForHuman.ModularCurve.Degree.FinrankAdjoinJqNModC
 import FLTForHuman.AlgebraicCurve.Differential.Coefficient
 import FLTForHuman.AlgebraicCurve.Genus.RatFunc
 import FLTForHuman.AlgebraicCurve.Defs.KaehlerTranscendental
+import FLTForHuman.ModularForms.AtkinLehnerSlash
+import FLTForHuman.ModularForms.WeightOne.NebentypusQCoeffSq
 
 open AlgebraicCurve
 open AlgebraicCurve.RationalFunctionField
@@ -265,5 +267,47 @@ example (d : ℕ) [NeZero d]
         (IntermediateField.adjoin (IntermediateField.adjoin ℚ ({jqModC ℚ} : Set (LaurentSeries ℚ)))
           ({jqNModC ℚ d} : Set (LaurentSeries ℚ))) = ModularCurve.dedekindPsi d :=
   finrank_adjoin_jqNModC_eq_dedekindPsi_of_socket d hbase
+
+
+/-! ## Zone `[nb1]` — the Atkin–Lehner `alSlash` pair and the twin `CuspForm` headlines
+
+`ModularForms/AtkinLehnerSlash.lean` states both premise headlines (`isZeroAt_alSlash`,
+`mdifferentiable_alSlash`) and `WeightOne/PrimitiveQCoeffNorm.lean` /
+`WeightOne/NebentypusQCoeffSq.lean` state the two `CuspForm` headlines over one shared block.
+The application below pins every headline at `M = 2`, `k = 0`, `ℓ = p = 2`, where `2 / 2 = 1`,
+so `ε'` is a character at level `1`; `IsPrimitiveForm` / `HasNebentypus` are the ported level
+vocabulary (`Defs/PrimitiveFormGamma1.lean`). Deleting any one of the four headlines makes this
+zone fail to elaborate. -/
+
+open CuspForm in
+example (h2 : 2 ∣ 2) (g : CuspForm (CongruenceSubgroup.Gamma1 2) (0 : ℤ))
+    (ε' : DirichletCharacter ℂ (2 / 2))
+    (hg : CuspForm.IsPrimitiveForm
+      (DirichletCharacter.changeLevel (Nat.div_dvd_of_dvd h2) ε') g) :
+    ‖ModularFormClass.qCoeff g 2‖ ^ 2 = (2 : ℝ) ^ ((0 : ℤ) - 2) :=
+  CuspForm.norm_qCoeff_sq_eq_pow_of_isPrimitiveForm_of_not_sq_dvd 2 0 Nat.prime_two h2
+    (by norm_num) ε' g hg
+
+open CuspForm in
+example (h2 : 2 ∣ 2) (f : CuspForm (CongruenceSubgroup.Gamma1 2) (0 : ℤ)) (hf0 : f ≠ 0)
+    (ε' : DirichletCharacter ℂ (2 / 2))
+    (hε : CuspForm.HasNebentypus (DirichletCharacter.changeLevel (Nat.div_dvd_of_dvd h2) ε') f)
+    (hU : ∀ n : ℕ, ModularFormClass.qCoeff f (2 * n) =
+      ModularFormClass.qCoeff f 2 * ModularFormClass.qCoeff f n)
+    (hT : ∀ ℓ : ℕ, ℓ.Prime → ¬ ℓ ∣ 2 → ∀ n : ℕ,
+        ModularFormClass.qCoeff f (ℓ * n) +
+            ε' (ℓ : ZMod (2 / 2)) * (ℓ : ℂ) ^ ((0 : ℤ) - 1) *
+              (if ℓ ∣ n then ModularFormClass.qCoeff f (n / ℓ) else 0) =
+          ModularFormClass.qCoeff f ℓ * ModularFormClass.qCoeff f n) :
+    ModularFormClass.qCoeff f 2 ^ 2 = ε' (2 : ZMod (2 / 2)) * (2 : ℂ) ^ ((0 : ℤ) - 2) ∨
+      ∃ g : CuspForm (CongruenceSubgroup.Gamma1 (2 / 2)) (0 : ℤ), g ≠ 0 ∧
+        CuspForm.HasNebentypus ε' g ∧
+        ∀ ℓ : ℕ, ℓ.Prime → ¬ ℓ ∣ 2 → ∀ n : ℕ,
+          ModularFormClass.qCoeff g (ℓ * n) +
+              ε' (ℓ : ZMod (2 / 2)) * (ℓ : ℂ) ^ ((0 : ℤ) - 1) *
+                (if ℓ ∣ n then ModularFormClass.qCoeff g (n / ℓ) else 0) =
+            ModularFormClass.qCoeff f ℓ * ModularFormClass.qCoeff g n :=
+  CuspForm.qCoeff_sq_eq_mul_zpow_or_exists_hasNebentypus_qCoeff_hecke_eigen_of_dvd_of_not_sq_dvd
+    2 0 Nat.prime_two h2 (by norm_num) ε' f hf0 hε hU hT
 
 end

@@ -54,6 +54,19 @@ The set contents are listed in the appendix. S1–S3 are the *lifting* half
 (weight one in, weight two out); S4–S8 are the *assembly* half (residual family in,
 complex representation out); S4–S8 do not depend on S1–S3.
 
+**Landed 2026-10-25: the NB1 cluster (4 nodes).** `ModularForm.isZeroAt_alSlash` and
+`ModularForm.mdifferentiable_alSlash` are the twin premise pair and are ported once, as the
+`alSlash` calculus in `ModularForms/AtkinLehnerSlash.lean` (both headlines, 360 lines). The two
+consuming `CuspForm` headlines — `CuspForm.norm_qCoeff_sq_eq_pow_of_isPrimitiveForm_of_not_sq_dvd`
+and its twin `CuspForm.qCoeff_sq_eq_mul_zpow_or_exists_hasNebentypus_qCoeff_hecke_eigen_of_dvd_of_not_sq_dvd`
+— are ported as **one** 1,189-line shared block in `ModularForms/WeightOne/PrimitiveQCoeffNorm.lean`
+(the pin's `ℓ` spelling, with A's headline) plus B's own 138-line head in
+`ModularForms/WeightOne/NebentypusQCoeffSq.lean`, which re-declares none of the block. All four
+build green with `#print axioms` clean and read `needed 0`; the three modules check
+`21 / 70 / 1 ok`, 0 mismatch, 0 missing, and `dedup` reports 0 clusters. The canonical
+`frontier --ds` reading moves to **1,180 nodes / 443,088 raw `S_` lines** (was 1,184 / 446,334).
+Record: [logs/nb1-alSlash.md](../../logs/nb1-alSlash.md).
+
 ## 1. Set-by-set work order
 
 Each set closes with its own review gate (statements checked, `#print axioms`,
