@@ -20,9 +20,10 @@ carrier needs them:
   that general map too, under its `HomC`-suffixed name);
 * the pin's three imported
   `Theorems/Thm_ModularCurve_coeff_jqModC_{pow_self,pow_of_lt,neg_one}.lean`
-  declarations exist in the port only `private` inside
-  `ModularCurve/Degree/PhiDegree.lean`, so they are re-derived locally `private` here
-  (no promotions); they are listed in the C2 completion report.
+  declarations are pin headlines; their one home is `Defs/JqCoeff.lean` (the pole at
+  the cusp, together with the `jqModC_pow` factorisation they read off), imported
+  below. The `private` copies that had been re-derived here — and the fourth copy of
+  `coeff_jqModC_neg_one` in `RelIndex/LeRelrank.lean` — are gone.
 
 Statements are transcribed verbatim; the pin's `import Mathlib` is replaced by the
 specific imports below.
@@ -58,38 +59,12 @@ theorem coeff_jqModC_eq_intCast (k : ℤ) : (jqModC R).coeff k = (((jqModC ℤ).
   conv_lhs => rw [← coeffMap_jqModC (Int.castRingHom R)]
   rfl
 
-theorem jqModC_pow (n : ℕ) :
-    jqModC R ^ n = HahnSeries.single (-(n : ℤ)) 1 *
-      HahnSeries.ofPowerSeries ℤ R ((jNum.map (Int.castRingHom R)) ^ n) := by
-  have h : n • (-1 : ℤ) = -(n : ℤ) := by simp
-  rw [jqModC, mul_pow, HahnSeries.single_pow, one_pow, h, ← map_pow]
-
-/-! ### Local `private` re-derivations of the pin-imported `coeff_jqModC_*` trio
+/-! ### The `coeff_jqModC_*` trio
 
 The pin imports these three from `Theorems/Thm_ModularCurve_coeff_jqModC_{pow_self,
-pow_of_lt,neg_one}.lean`; in the port they exist only `private` in
-`ModularCurve/Degree/PhiDegree.lean`, so §3/§5 of the work order has them re-derived
-here (no promotion, no hub edit). -/
-
-private theorem constantCoeff_jNum_map (K : Type*) [CommRing K] :
-    PowerSeries.constantCoeff (jNum.map (Int.castRingHom K)) = 1 := by
-  rw [← PowerSeries.coeff_zero_eq_constantCoeff, PowerSeries.coeff_map,
-    PowerSeries.coeff_zero_eq_constantCoeff, constantCoeff_jNum, map_one]
-
-private theorem coeff_jqModC_pow_self (K : Type*) [CommRing K] (b : ℕ) :
-    ((jqModC K) ^ b).coeff (-(b : ℤ)) = 1 := by
-  rw [jqModC_pow, HahnSeries.coeff_single_mul, one_mul, sub_neg_eq_add, neg_add_cancel,
-    show (0 : ℤ) = ((0 : ℕ) : ℤ) from rfl, HahnSeries.ofPowerSeries_apply_coeff,
-    PowerSeries.coeff_zero_eq_constantCoeff, map_pow, constantCoeff_jNum_map, one_pow]
-
-private theorem coeff_jqModC_pow_of_lt (K : Type*) [CommRing K] {b : ℕ} {m : ℤ}
-    (hm : m < -(b : ℤ)) : ((jqModC K) ^ b).coeff m = 0 := by
-  rw [jqModC_pow, HahnSeries.coeff_single_mul, one_mul]
-  exact ofPowerSeries_coeff_of_neg _ (by omega)
-
-private theorem coeff_jqModC_neg_one (K : Type*) [CommRing K] :
-    (jqModC K).coeff (-1 : ℤ) = 1 := by
-  simpa using coeff_jqModC_pow_self K 1
+pow_of_lt,neg_one}.lean`; their one public home — with the pole/unit factorisation
+`jqModC_pow` they read off — is `Defs/JqCoeff.lean` (the pole at the cusp), imported
+above. The `private` re-derivations that used to live here are gone. -/
 
 theorem coeff_jqModC_of_lt {k : ℤ} (hk : k < -1) : (jqModC R).coeff k = 0 := by
   simpa using coeff_jqModC_pow_of_lt R (b := 1) (m := k) (by simpa using hk)

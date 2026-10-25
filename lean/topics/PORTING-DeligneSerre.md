@@ -1018,6 +1018,154 @@ one; and the wave that homed the shelf's definition layer, which also deduped `f
 `Degree/PhiData.lean` into `Defs/FibrePoly.lean` at its public pin name. Registered in
 [CARRY-FORWARD.md](../CARRY-FORWARD.md).
 
+**The pole-at-the-cusp promotion then landed as a placement pass with no new mathematics
+(2026-10-25).** The three pin headlines `ModularCurve.coeff_jqModC_pow_self` /
+`coeff_jqModC_pow_of_lt` / `coeff_jqModC_neg_one` (`j(q) = q⁻¹·u`, `u(0) = 1`, hence
+`ord j = -1` and `j` transcendental — the valuation input to every degree and pole count in the
+q-expansion layer) were stated in the port **only `private`**, twice over, and were three of the
+register's orphan phantoms ([CARRY-FORWARD](../CARRY-FORWARD.md); its scan now reads 17 in 12
+modules). They now have their one home —
+`ModularCurve/Defs/JqCoeff.lean`'s *The pole at the cusp*, beside the `jqModC` they are about,
+along with the `jqModC_pow` pole/unit factorisation they read off (public: it was public in
+`X0/FunctionFieldFull.lean`, whose copy moved) and the pin-private `constantCoeff_jNum_map`
+(stays private, no consumer). The four copies that listing named — two `private` in
+`ModularPolynomialStarBank.lean`, two in `X0/FunctionFieldFull.lean`, plus a fourth of
+`coeff_jqModC_neg_one` in `RelIndex/LeRelrank.lean` that the row did not list — are deleted and
+all four modules import the home instead. The trio is stated at its `Theorems/` **wrappers'
+binders** (the wrapper is the checker's statement authority; the pin's `S_` text spells them
+with section variables, which the checker's hash does not equate — the first draft, at the `S_`
+spelling, read 2 `MISMATCH` and the wrappers' binders fixed it). Reading: the home **17 ok**
+(the trio resolves against its three wrappers), `ModularPolynomialStarBank` **1 ok**,
+`Degree/PhiDegree` **3 ok**, `X0/FunctionFieldFull` **13 ok + 1 own** (its pre-existing C1
+`own:` marker), `RelIndex/LeRelrank` **1 ok** — **35 ok / 0 mismatched / 0 missing / 1 own /
+0 kw over the five modules**. All five were also brought to standard in the same round: the two
+legacy modules left `old_check_stmts.py`'s `PORT_FILES` for their own `spec-pin:` wires
+(`StarBank` 2 sources, `PhiDegree` 6 — three headlines and their `S_` files; measured
+`len(old_check_stmts.PORT_FILES)` 526 → 524), 0 warnings on every touched module
+(the tier-1 builds are 4,166 / 4,262 jobs), `dedup.py` **0 clusters** and
+`move_dead.py --select dead` **0 declarations** over all five (the pass pruned LeRelrank's
+pre-existing dead level-one tail `coe_DF`/`XA_ne_zero`/`jC_ne_zero`, 12 lines, recorded in that
+module's header), and the token labels were retired from the headers and names it touched
+(`m2`/`m6`/`T21` dropped; `algebraMap_laurentSeries_eq_single_cr` → `…_commRing`, which stays
+private because the public `Defs/Laurent.lean` copy is stated over a `Field` and
+`aeval_jqModC_eq_zero` needs `CommRing`). No statement moved, no proof re-routed, `press`'s
+axioms still `[propext, Classical.choice, Quot.sound]`. The dependent wave's 21 direct importers
+were built: twenty are green (4,405 jobs) and `X1/FunctionFieldDegree.lean` fails at `:493`
+(`simp` made no progress) — **pre-existing**, since reverting the five modules to `HEAD` and
+rebuilding reproduces it identically; it is recorded in [CARRY-FORWARD.md](../CARRY-FORWARD.md),
+where it had been invisible because that module has neither a `spec-pin:` wire nor a
+`PORT_FILES` entry.
+
+**The prime non-adjoin twin, and the `p`-torsion prelude it shares (2026-10-25).** The two
+`jqNModC` headlines — `jqNModC_prime_not_mem_adjoin_of_forall_aeval_ne` and
+`jqNModC_prime_not_mem_adjoin_of_charZero`, "`j(q^p)` is not in `K(j(q))`" — are one development
+written twice in the pin: the two `S_` files are 593 lines each and 574 byte-identical (17
+namespace lines plus the two lines of the final `solution`). It is ported once. The engine is
+`jqNModC_not_mem_adjoin_of_forall_aeval_ne`: `j(q)` is transcendental
+(`Degree/PhiDegree.lean`), so `K[j(q)]` is a polynomial ring and integrally closed, while the monic
+modular relation `Φ_p(j(q), j(q^p)) = 0` makes `j(q^p)` integral over it — so an element of the
+fraction field that is integral **is** a polynomial, and no polynomial in `j(q)` takes the value
+`j(q^p)` by the `q^-p`-coefficient obstruction. The shared conjugates module is
+`ModularCurve/Degree/JqCyclotomicConjugates.lean` (new, **519** lines — the cyclotomic conjugates of
+`j(q)`): the pole/degree forcing of
+`aeval (jqModC K) P = jqNModC K p`, the `qTwist` transfer of the equation to its `p` conjugates,
+the Vieta sum over them, and the coefficient obstruction, 24 declarations at the pin's names
+(`jqNModC_congr` and `coeff_algebraMap_mul` promoted to their public home here, 21 public and 3
+`private`). The node itself is `ModularCurve/Degree/PrimeNonAdjoin.lean` (new, **166** lines):
+the engine plus the two headlines stated at their `Theorems/` wrappers' binders (the wrappers are
+the statement authority; the pin's `S_` text spells them with section variables and the hashes
+differ) plus the pin's `private` characteristic-zero discharge.
+`ModularCurve/Defs/JqCoeff.lean` gains the pole's exact order, `order_jqModC`
+(`(jqModC K).order = -1`, **222** lines), and `ModularCurve/ModularPolynomialStarBank.lean` drops
+its fourteen `private` prelude copies for the import (**266 → 123** lines, `press`'s proof
+byte-identical to `HEAD`, its axioms still `[propext, Classical.choice, Quot.sound]`).
+
+Reading: `JqCoeff` **18 ok**, `JqCyclotomicConjugates` **21 ok + 2 own**, `PrimeNonAdjoin` **3 ok**,
+`ModularPolynomialStarBank` **1 ok** — **43 ok / 0 mismatched / 0 missing / 2 own / 0 kw over the
+four modules**. The two `own:` rows are `phiAtSeed_TS_eval` and `phiAtSeed_TS_eval_symm`, and the
+reason is the one unavoidable drift of the set: the port's `TS` (`Defs/TS.lean`) is the
+`ℚ`-model spelling `qExpand K e (qTwist u (coeffEmb K jq))` and carries an `Algebra ℚ K` binder,
+while the pin's per-file `W1.TS` is `qExpand K e (qTwist u (jqModC K))` over an arbitrary field;
+the two statements mention `TS` itself, `Algebra ℚ K` is not synthesizable from `[Field K]`, and
+no pin copy of them exists at a `ℚ`-algebra binder, so they are stated one hypothesis stronger
+(the two `TS` spellings agree by `coeffEmb K jq = jqModC K`) and registered in
+`spec/decl_markers.tsv`. The block's other `TS`-proved declarations
+(`coeff_jqNModC_self`, `coeff_jqNModC_of_lt`, `qTwist_pow_jqModC_injective`) are stated at the
+pin's binders and proved through `qExpand`'s coefficient API instead. The pin's
+`attribute [-simp]` block (its line 22) is not ported and nothing needed it — the four modules
+never mention `ModularForm`, so no `simp`/`simpa` had to name one of those projections.
+Tier-1 builds (single-module, `flock`-serialized, logs in `tmp/`): 3,132 / 4,022 / 4,027 / 4,023
+jobs, all `Build completed successfully`, **0 warnings**; `#print axioms` on the two headlines and
+on `ModularCurve.StarBank.press` is exactly
+`[propext, Classical.choice, Quot.sound]`; `dedup.py` over the four modules **0 clusters** (51
+declarations) and `move_dead.py --select dead` **0 declarations** each; no
+`set_option maxHeartbeats`. The residue is recorded, not open: `jqNModC_congr` and
+`coeff_algebraMap_mul` keep their `private` copies in `Degree/PhiData.lean`, `Degree/Roof.lean`
+and `Defs/QExpValuationReduction.lean` (frozen-registry modules), and
+`coeffMap_qTwist`'s five-argument port form is not restated at the pin's three-argument spelling
+— this block does not call it at all. The frontier rows for both headlines now read
+**needed 0**, "target is ported"; the order is
+[modularCurve/WORKORDER-JQ1-prime-non-adjoin.md](modularCurve/WORKORDER-JQ1-prime-non-adjoin.md).
+
+**The SET-R-C order 1 module then came back green and onto its own wire (2026-10-25).**
+`ModularCurve/X1/FunctionFieldDegree.lean` (the `JOneES` finrank/index bound,
+`finrank_adjoin_jqModC_laurentBaseChange_qExpFunctionFieldC_le_index`) **did** build when it landed
+(2026-10-08, `3ec369e`) and stopped building on **2026-10-21** (`a57f777`, the Hecke-compositum
+landing), which added a *general* `ModularCurve.coeffEmb_intSeriesC`
+(`coeffEmb L (intSeriesC ℚ p) = intSeriesC L p`) to `JqIntegralRatios.lean`. The proof's step is
+the pin's own text — `simp only [map_pow, h4, hD, hf', hg']` + `rfl` — written against a
+`.map`-spelled copy of the lemma, and it is **unqualified-name resolution**, not a statement
+change, that broke:
+
+* the `.map` copy is `ModularCurve.JOneES.JOneESAlg.JOneESLevelOne.JOneESNorm.JOneESRat.coeffEmb_intSeriesC`
+  (`X1/FunctionField.lean:865`, the pin's `S_`:782 verbatim, unchanged since `3ec369e`);
+* `X1/FunctionFieldDegree.lean` sits in `namespace ModularCurve` and does
+  `open JOneES.JOneESRat`, so its bare `coeffEmb_intSeriesC` used to reach that copy **through the
+  `open`**;
+* an unqualified name resolves to a declaration of the *enclosing namespace* before an `open`ed
+  one, so once `ModularCurve.coeffEmb_intSeriesC` existed the bare name silently became the
+  general lemma: the goal keeps `intSeriesC ℂ PΔ / intSeriesC ℂ (eisenstein4 ^ 3)` unexpanded, the
+  four coefficient rewrites find no `p.map`, and `simp` reports "made no progress". (Two full names
+  never collided; what collided was the last component, and namespace precedence decided it. Not a
+  deleted section variable, either.)
+
+The repair is one token: `intSeriesC` joins the `simp only` list, which exposes the
+`p.map (Int.castRingHom ℂ)` subterm under either spelling, and `rfl` closes against the local
+`Wh`/`QF`/`QG` definitions. Nothing else moved — no statement, no hypothesis, no heartbeat cap.
+Nobody saw it because neither checker compiles — the frozen registry and `check_port` both diff
+text — and the module's only importer (`X1/FunctionFieldFinrankIsAlgClosed.lean`, same week) was
+never rebuilt either.
+
+**A first attempt at a "dedup" of the pair was wrong and was reverted; the wave build caught it.**
+The two lemma spellings were taken for a duplicate declaration, so the `.map` copy was deleted and
+`X1/FunctionField.lean` was made to import `JqIntegralRatios`. The next wave build failed on
+`X1/QExpansionDiv.lean:461`, whose `rw` names `JOneES.JOneESRat.coeffEmb_intSeriesC` **qualified**:
+the deletion removed a declaration that has a consumer, and the two copies are not a duplicate but
+the pin's two spellings of the fact (`coeffEmb_intSeriesC` general and the `S_`:782 `.map` form),
+each faithful to its own `S_` file, each checked in its own module. The copy is restored, the
+import edge removed, and `X1/QExpansionDiv` builds again (4,153 jobs). The real defect was never
+duplication: it was the unqualified use of a name whose last component exists twice, one of them in
+the enclosing namespace. **Rule for future transcriptions**: when a proof's unqualified name has a
+same-named declaration in the module's own namespace, qualify it or state the form the step needs
+explicitly; a `simp made no progress` in a module that sits in a busy namespace is the symptom.
+
+**`X1/FunctionField.lean` was still legacy in the linter sense and was standardised.** It was
+already wired (3 `spec-pin:` lines, 78 ok), but carried three **file-wide** suppressions
+(`style.haveILetI`, `unusedSectionVars`, `unusedVariables`). They are gone: six `haveI` → `have`,
+four `omit` insertions (three `omit [Γ.FiniteIndex] in`, and `omit hT` on
+`JOneESRat.inv_mem_intFormRatiosC` **refused** — the module's other proofs pass `hT` positionally —
+so that one is narrowed instead), plus the `hk` statement binder of
+`JOneESLevelOne.qExpansion_mem_monomialSpan` narrowed because renaming it would change the
+statement the checker diffs. Readings: builds **0 warnings** (4,153 jobs for `X1/QExpansionDiv`,
+the wave of 23 dependents green except for the failure above, then green after the revert);
+`X1/FunctionField` **78 ok**, `JqIntegralRatios` **15 ok**, `X1/FunctionFieldDegree` **36 ok** —
+**129 ok / 0 mismatch / 0 missing / 0 own / 0 kw**; `move_dead --select dead` **0 declarations** on
+all three; `dedup.py` over the touched pair reads **2 clusters / 7 lines**
+(`isIntegralQExp_E4`, `e4cube`/`A12` — pin names in different namespaces, kept), and the wider
+engine survey reads **11 clusters / 176 lines in 8 modules** (`X1/FunctionFieldDegree` re-derives
+the 76-line `monomialSpan` induction, `X1/FunctionFieldBaseChange` its `private` valuation block),
+recorded as an open item in [CARRY-FORWARD.md](../CARRY-FORWARD.md).
+
 ## 2. The frontier
 
 ```bash

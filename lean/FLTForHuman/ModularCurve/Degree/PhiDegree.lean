@@ -1,14 +1,26 @@
 /-
-  m6 — the Φ degree tail: `transcendental_jqModC`, the finiteness of
-  `jqNModC` over `K(jqModC)`, and the `dedekindPsi` degree bound.
+  The Φ degree tail: `transcendental_jqModC`, the finiteness of `jqNModC` over
+  `K(jqModC)`, and the `dedekindPsi` degree bound.
 
   `transcendental_jqModC` is the `jqModC` analogue of the ported `Defs/Jq.lean`
   `transcendental_jq`; the `phiAt`/`phiOver` block of `finrank_adjoin_jqNModC_le`
   is written once here and the finiteness is its immediate corollary.
 
+  Reuse. The leading-coefficient argument (`aeval_jqModC_eq_zero`) reads the pole
+  of `j` at the cusp off the port's one home for it — `Defs/JqCoeff.lean`'s
+  `coeff_jqModC_pow_self` / `coeff_jqModC_pow_of_lt` — which this module imports;
+  the `private` copies that used to be re-derived here are gone.
+
   FLT provenance, pinned `aa2d8b3`:
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_transcendental_jqModC.lean
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_finrank_adjoin_jqNModC_le.lean
+
+  spec-pin: Theorems/Thm_ModularCurve_transcendental_jqModC.lean
+  spec-pin: P2M/Sol/S_ModularCurve_transcendental_jqModC.lean
+  spec-pin: Theorems/Thm_ModularCurve_finrank_adjoin_jqNModC_le.lean
+  spec-pin: P2M/Sol/S_ModularCurve_finrank_adjoin_jqNModC_le.lean
+  spec-pin: Theorems/Thm_ModularCurve_finiteDimensional_adjoin_jqNModC.lean
+  spec-pin: P2M/Sol/S_ModularCurve_finiteDimensional_adjoin_jqNModC.lean
 -/
 import FLTForHuman.ModularCurve.Degree.PhiData
 import FLTForHuman.ModularCurve.Analytic.ModularUnitQExpansion
@@ -30,30 +42,10 @@ section Transcendental
 
 variable (K : Type*) [CommRing K]
 
-private theorem jqModC_pow (n : ℕ) :
-    (jqModC K) ^ n = HahnSeries.single (-(n : ℤ)) 1 *
-      HahnSeries.ofPowerSeries ℤ K ((jNum.map (Int.castRingHom K)) ^ n) := by
-  have h : n • (-1 : ℤ) = -(n : ℤ) := by simp
-  rw [jqModC, mul_pow, HahnSeries.single_pow, one_pow, h, ← map_pow]
-
-private theorem constantCoeff_jNum_map : PowerSeries.constantCoeff (jNum.map (Int.castRingHom K)) = 1 := by
-  rw [← PowerSeries.coeff_zero_eq_constantCoeff, PowerSeries.coeff_map,
-    PowerSeries.coeff_zero_eq_constantCoeff, constantCoeff_jNum, map_one]
-
-private theorem coeff_jqModC_pow_self (n : ℕ) : ((jqModC K) ^ n).coeff (-(n : ℤ)) = 1 := by
-  rw [jqModC_pow, HahnSeries.coeff_single_mul, one_mul, sub_neg_eq_add, neg_add_cancel,
-    show (0 : ℤ) = ((0 : ℕ) : ℤ) from rfl, HahnSeries.ofPowerSeries_apply_coeff,
-    PowerSeries.coeff_zero_eq_constantCoeff, map_pow, constantCoeff_jNum_map, one_pow]
-
-private theorem coeff_jqModC_pow_of_lt {n : ℕ} {m : ℤ} (hm : m < -(n : ℤ)) :
-    ((jqModC K) ^ n).coeff m = 0 := by
-  rw [jqModC_pow, HahnSeries.coeff_single_mul, one_mul]
-  exact ofPowerSeries_coeff_of_neg _ (by omega)
-
-private theorem coeff_jqModC_neg_one : (jqModC K).coeff (-1 : ℤ) = 1 := by
-  simpa using coeff_jqModC_pow_self K 1
-
-private theorem algebraMap_laurentSeries_eq_single_cr (c : K) :
+/-- Constants are single-term Laurent series. The public
+`Defs/Laurent.lean` `algebraMap_laurentSeries_eq_single` is stated over a `Field`;
+`aeval_jqModC_eq_zero` below needs it over a `CommRing`, so it is kept here. -/
+private theorem algebraMap_laurentSeries_eq_single_commRing (c : K) :
     algebraMap K (LaurentSeries K) c = HahnSeries.single 0 c := by
   have h1 : algebraMap K (PowerSeries K) c = PowerSeries.C c := by simp
   rw [HahnSeries.algebraMap_apply', h1, HahnSeries.ofPowerSeries_C]
@@ -66,11 +58,11 @@ private theorem aeval_jqModC_eq_zero {p : Polynomial K}
   have hcoeff : (Polynomial.aeval (jqModC K) p).coeff (-(n : ℤ)) = p.coeff n := by
     rw [Polynomial.aeval_def, Polynomial.eval₂_eq_sum_range, HahnSeries.coeff_sum,
       Finset.sum_eq_single n]
-    · rw [algebraMap_laurentSeries_eq_single_cr, HahnSeries.coeff_single_zero_mul,
+    · rw [algebraMap_laurentSeries_eq_single_commRing, HahnSeries.coeff_single_zero_mul,
         coeff_jqModC_pow_self, mul_one]
     · intro i hi hin
       have hilt : i < n := lt_of_le_of_ne (Nat.lt_succ_iff.mp (Finset.mem_range.mp hi)) hin
-      rw [algebraMap_laurentSeries_eq_single_cr, HahnSeries.coeff_single_zero_mul,
+      rw [algebraMap_laurentSeries_eq_single_commRing, HahnSeries.coeff_single_zero_mul,
         coeff_jqModC_pow_of_lt, mul_zero]
       omega
     · intro hn'

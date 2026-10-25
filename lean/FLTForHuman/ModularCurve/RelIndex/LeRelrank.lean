@@ -43,6 +43,18 @@
   `NeZero.ne N`, and its `dvd_of_mem_Gamma0` is that module's `dvd_of_mem_Gamma0_mul` at
   `M := 1` (`Gamma0 (1 * N)`, bridged by `Nat.one_mul`).
 
+  Dead code, pruned (`tools/deps/move_dead.py --select dead`). The pin's level-one pair
+  `XA_ne_zero`/`jC_ne_zero` (`S_` lines 103, 110) and its `coe_DF` (line 56, `rfl` in the
+  pin) are transcribed *public* in the `S_` file but the headline does not reach the port's
+  copies; they were `private` here, so nothing could import them, and each is at most seven
+  lines from the public API the module already has (`coe_delta`, `XD_ne_zero`,
+  `jqModC_eq_jC` + `coeff_jqModC_neg_one`). Pruned rather than shelved — a shelf would
+  duplicate the five live premises `XA`/`XD`/`DF`/`jC`/`jqModC_eq_jC` for twelve lines
+  (playbook §3.8's bin rule).
+
+  `coeff_jqModC_neg_one` is imported, not re-proved: its one home is `Defs/JqCoeff.lean`
+  (the pole at the cusp), which replaces the local copy this module used to carry.
+
   FLT provenance, pinned `aa2d8b3`:
   spec-pin: Theorems/Thm_ModularCurve_relIndex_gamma0_le_relrank_adjoin_insert_jqNModC.lean
   spec-pin: P2M/Sol/S_ModularCurve_relIndex_gamma0_le_relrank_adjoin_insert_jqNModC.lean
@@ -90,9 +102,6 @@ private abbrev DF : ModularForm SLtop 12 := delta ⊤
 private theorem isIntegralQExp_AF : IsIntegralQExp (AF : ℍ → ℂ) (eisenstein4 ^ 3) :=
   isIntegralQExp_e4cube ⊤
 
-private theorem coe_DF : (DF : ℍ → ℂ) = ModularForm.discriminant :=
-  coe_delta ⊤
-
 private theorem isIntegralQExp_DF :
     IsIntegralQExp (DF : ℍ → ℂ) (PowerSeries.X * dedekindEtaUnit) :=
   isIntegralQExp_delta ⊤
@@ -119,23 +128,9 @@ private theorem jqModC_eq_jC : jqModC ℂ = jC := by
   rw [jC, ← hXA, ← hXD]
   exact (eq_div_iff (intSeriesC_delta_ne_zero ℂ)).mpr (jqModC_mul_delta (K := ℂ))
 
-private theorem coeff_jqModC_neg_one : (jqModC ℂ).coeff (-1) = 1 := by
-  rw [jqModC, HahnSeries.coeff_single_mul, one_mul, sub_neg_eq_add, neg_add_cancel,
-    show (0 : ℤ) = ((0 : ℕ) : ℤ) from rfl, HahnSeries.ofPowerSeries_apply_coeff,
-    PowerSeries.coeff_map, PowerSeries.coeff_zero_eq_constantCoeff, constantCoeff_jNum, map_one]
-
-private theorem XA_ne_zero : XA ≠ 0 := by
-  intro h
-  have h0 : jqModC ℂ = 0 := by rw [jqModC_eq_jC, jC, h, zero_div]
-  have h1 := coeff_jqModC_neg_one
-  rw [h0, HahnSeries.coeff_zero] at h1
-  exact zero_ne_one h1
-
-private theorem jC_ne_zero : jC ≠ 0 := div_ne_zero XA_ne_zero XD_ne_zero
-
 private theorem jC_coeff_neg_one : jC.coeff (-1) = 1 := by
   rw [← jqModC_eq_jC]
-  exact coeff_jqModC_neg_one
+  exact coeff_jqModC_neg_one (K := ℂ)
 
 private theorem jC_coeff_of_lt {m : ℤ} (hm : m < -1) : jC.coeff m = 0 := by
   rw [← jqModC_eq_jC, jqModC, HahnSeries.coeff_single_mul, one_mul]

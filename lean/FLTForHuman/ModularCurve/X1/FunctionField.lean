@@ -61,9 +61,6 @@ import Mathlib.RingTheory.LaurentSeries
 import Mathlib.FieldTheory.PrimitiveElement
 
 set_option autoImplicit false
-set_option linter.style.haveILetI false
-set_option linter.unusedSectionVars false
-set_option linter.unusedVariables false
 
 noncomputable section
 
@@ -161,7 +158,7 @@ theorem linearIndependent_map {ι : Type*} {v : ι → LaurentSeries K}
   intro s c hsum i hi
 
   let W : Submodule K L := Submodule.span K (Set.range fun j : s => c j)
-  haveI : Module.Finite K W := Module.Finite.span_of_finite K (Set.finite_range _)
+  have : Module.Finite K W := Module.Finite.span_of_finite K (Set.finite_range _)
   let b := Module.finBasis K W
 
   have hcW : ∀ j : s, c j ∈ W := fun j => Submodule.subset_span ⟨j, rfl⟩
@@ -214,14 +211,14 @@ variable {K F : Type*} [Field K] [Field F] [Algebra K F]
 theorem finiteDimensional_of_forall_aeval_eq_zero [PerfectField K] (D : ℕ)
     (h : ∀ y : F, ∃ p : K[X], p ≠ 0 ∧ p.natDegree ≤ D ∧ aeval y p = 0) :
     FiniteDimensional K F := by
-  haveI : Algebra.IsAlgebraic K F := ⟨fun y => by
+  have : Algebra.IsAlgebraic K F := ⟨fun y => by
     obtain ⟨p, hp0, -, hpy⟩ := h y
     exact ⟨p, hp0, hpy⟩⟩
-  haveI : Algebra.IsSeparable K F := Algebra.IsAlgebraic.isSeparable_of_perfectField
+  have : Algebra.IsSeparable K F := Algebra.IsAlgebraic.isSeparable_of_perfectField
   by_contra hinf
   obtain ⟨L, hLfd, hlt⟩ := IntermediateField.exists_lt_finrank_of_infinite_dimensional hinf D
-  haveI := hLfd
-  haveI : Algebra.IsSeparable K L := Algebra.isSeparable_tower_bot_of_isSeparable K L F
+  have := hLfd
+  have : Algebra.IsSeparable K L := Algebra.isSeparable_tower_bot_of_isSeparable K L F
   obtain ⟨α, hα⟩ := Field.exists_primitive_element K L
   have hdeg : (minpoly K α).natDegree = Module.finrank K L :=
     (Field.primitive_element_iff_minpoly_natDegree_eq K α).mp hα
@@ -277,6 +274,9 @@ theorem qExpansion_discriminant :
   simp only [A, B, ModularForm.qExpansion_mcast,
     ModularForm.qExpansion_pow one_pos one_mem_strictPeriods_SL]
 
+-- The `hk` binder is the pin's (`S_` states the weight inside the statement); renaming it
+-- would change the statement text the checker diffs, so the linter is narrowed here.
+set_option linter.unusedVariables false in
 theorem qExpansion_mem_monomialSpan (m : ℕ) :
     ∀ (k : ℤ) (hk : k = 12 * (m : ℤ)) (h : ModularForm 𝒮ℒ k),
       qExpansion 1 (h : ℍ → ℂ) ∈ monomialSpan m := by
@@ -391,6 +391,7 @@ section Linear
 
 variable (f g : ModularForm (Γ : Subgroup (GL (Fin 2) ℝ)) k)
 
+omit [Γ.FiniteIndex] in
 theorem quotientFunc_smul_sub (c : ℂ) (q : (Cos Γ)) :
     quotientFunc (c • g - f) q = c • quotientFunc g q - quotientFunc f q := by
   induction q using Quotient.inductionOn with
@@ -582,6 +583,7 @@ theorem qExpansion_sum' {ι : Type*} (s : Finset ι) {F : ι → ℍ → ℂ}
 variable (hT : ModularGroup.T ∈ Γ)
 include hT
 
+omit [Γ.FiniteIndex] in
 theorem nice_of_modularForm {k' : ℤ} (h : ModularForm (Γ : Subgroup (GL (Fin 2) ℝ)) k') :
     Nice (h : ℍ → ℂ) :=
   ModularFormClass.analyticAt_cuspFunction_zero _ one_pos (one_mem_strictPeriods hT)
@@ -790,6 +792,9 @@ theorem neg_mem_intFormRatiosC {a : LaurentSeries ℚ} (ha : a ∈ intFormRatios
     exact (ModularForm.qExpansion_neg one_pos (hper hT) f).symm
   · rw [intSeriesC_neg', neg_div]
 
+-- `hT` is unused here, but it is in the pin's auto-included binder block and this module's
+-- other proofs pass it positionally, so the linter is narrowed instead of omitting it.
+set_option linter.unusedSectionVars false in
 omit [Γ.FiniteIndex] in
 
 theorem inv_mem_intFormRatiosC {a : LaurentSeries ℚ} (ha : a ∈ intFormRatiosC ℚ Γ) :
@@ -837,6 +842,7 @@ theorem algebraMap_mem_intFormRatiosC (c : ℚ) :
     push_cast
     exact Rat.mul_den_eq_num c
 
+omit [Γ.FiniteIndex] in
 theorem mem_qExpFunctionFieldC_iff {y : LaurentSeries ℚ} :
     y ∈ qExpFunctionFieldC ℚ Γ ↔ y ∈ intFormRatiosC ℚ Γ := by
 
@@ -1064,7 +1070,7 @@ theorem exists_transcendental_finiteDimensional (hT : ModularGroup.T ∈ Γ) :
       ((φ.comp (algebraMap K₀ F)).comp (algebraMap ℚ K₀)) (algebraMap ℚ (LaurentSeries ℚ))) e
     rw [← h]
     rfl
-  haveI : PerfectField K₀ := PerfectField.ofCharZero
+  have : PerfectField K₀ := PerfectField.ofCharZero
   refine JOneESAlg.finiteDimensional_of_forall_aeval_eq_zero (Nat.card (JOneESNorm.Cos Γ)) ?_
   intro Y
   obtain ⟨k, f, g, pf, pg, hf, hg, hg0, hY⟩ := (mem_qExpFunctionFieldC_iff hT).mp Y.2

@@ -1,5 +1,5 @@
 /-
-  T21 — the star action on the `j`-series: `StarBank.press`.
+  The star action on the `j`-series: `StarBank.press`.
 
   The diamond/star action of the `p`-th cyclotomic twist on `j(q)`: if a
   polynomial `R` over a field `K` satisfies `aeval (jqModC K) R = jqNModC K p`,
@@ -27,27 +27,30 @@
 
   ## Reuse
 
-  `qTwist`/`qExpand`/`jqModC`/`jqNModC` and their coefficient lemmas are public in
-  the port (`Defs/Twist.lean`, `Defs/Laurent.lean`, `Defs/JqCoeff.lean`) and
-  imported; the pin's prelude of thirteen `W1` helpers is re-derived `private`
-  here. They are `W1`-local in the pin as well: the pin repeats them under the
-  same names as separate `private` copies in other solution files, so there is no
-  pin-public interface to preserve and no promotion to make. The pin-imported
-  `coeff_jqModC_*` trio is likewise public in the pin's `Theorems/` wrappers but
-  only `private` in the port (`Degree/PhiDegree.lean`,
-  `X0/FunctionFieldFull.lean`), so no promotion is available — and none is
-  authorised by the work order — and it too is re-derived `private` here.
+  `press` reads only `Degree/JqCyclotomicConjugates.lean`, the one home for the
+  conjugates' structure: `monic_of_aeval_eq`, `natDegree_eq_of_aeval_eq`,
+  `qTwist_pow_jqModC_injective` and `aeval_qTwist_jqModC_eq_of_aeval_eq` are
+  public there at the pin's names and binders, together with the whole
+  `coeff_jqNModC_*` / `qTwist_*` forcing block the pin re-derives `private` in
+  every solution file that uses it. The fourteen `private` copies that used to
+  live in this module are gone; `qTwist_qExpand_of_pow_eq_one` is public in
+  `Defs/KatzLevelPCusps.lean`, which that module imports. The pin-imported
+  `coeff_jqModC_*` trio is three pin headlines and lives, public, in
+  `Defs/JqCoeff.lean` (the pole at the cusp), also reached through it.
 
   ## Assumptions
 
   `Defs/Jq`'s `jNum`/`constantCoeff_jNum`/`ofPowerSeries_coeff_of_neg`;
-  `Defs/JqCoeff`'s `jqModC`/`jqNModC`; `Defs/Laurent`'s `qExpand`/`qExpand_coeff_mul`/
-  `qExpand_coeff_of_not_dvd`/`algebraMap_laurentSeries_eq_single`;
+  `Defs/JqCoeff`'s `jqModC`/`jqNModC`/`jqModC_pow`/`coeff_jqModC_pow_self`/
+  `coeff_jqModC_pow_of_lt`/`coeff_jqModC_neg_one`; `Defs/Laurent`'s `qExpand`/
+  `qExpand_coeff_mul`/`qExpand_coeff_of_not_dvd`/`algebraMap_laurentSeries_eq_single`;
   `Defs/Twist`'s `qTwist`/`qTwist_coeff`/`qTwist_single`/`qTwist_one_apply`/
   `qTwist_qExpand`; mathlib's `Polynomial.eq_of_natDegree_lt_card_of_eval_eq`.
+
+  spec-pin: P2M/Sol/S_ModularCurve_StarBank_press.lean
+  spec-pin: Theorems/Thm_ModularCurve_StarBank_press.lean
 -/
-import FLTForHuman.ModularCurve.Defs.JqCoeff
-import FLTForHuman.ModularCurve.Defs.Twist
+import FLTForHuman.ModularCurve.Degree.JqCyclotomicConjugates
 import Mathlib.Algebra.BigOperators.Fin
 import Mathlib.Algebra.Polynomial.AlgebraMap
 import Mathlib.Algebra.Polynomial.Roots
@@ -60,178 +63,6 @@ noncomputable section
 open Polynomial HahnSeries Finset
 
 namespace ModularCurve
-
-/-! ## The local `coeff_jqModC_*` trio
-
-The pin imports these three from `Theorems/Thm_ModularCurve_coeff_jqModC_*.lean`;
-the port writes them only `private` (in `Degree/PhiDegree.lean` and again in
-`X0/FunctionFieldFull.lean`), so they are re-derived `private` here from
-`jqModC_pow` — exactly as `X0/FunctionFieldFull.lean` §3 already does. -/
-
-private theorem jqModC_pow (K : Type*) [CommRing K] (n : ℕ) :
-    jqModC K ^ n = HahnSeries.single (-(n : ℤ)) 1 *
-      HahnSeries.ofPowerSeries ℤ K (jNum.map (Int.castRingHom K) ^ n) := by
-  have h : n • (-1 : ℤ) = -(n : ℤ) := by simp
-  rw [jqModC, mul_pow, HahnSeries.single_pow, one_pow, h, ← map_pow]
-
-private theorem constantCoeff_jNum_map (K : Type*) [CommRing K] :
-    PowerSeries.constantCoeff (jNum.map (Int.castRingHom K)) = 1 := by
-  rw [← PowerSeries.coeff_zero_eq_constantCoeff, PowerSeries.coeff_map,
-    PowerSeries.coeff_zero_eq_constantCoeff, constantCoeff_jNum, map_one]
-
-private theorem coeff_jqModC_pow_self (K : Type*) [CommRing K] (b : ℕ) :
-    ((jqModC K) ^ b).coeff (-(b : ℤ)) = 1 := by
-  rw [jqModC_pow, HahnSeries.coeff_single_mul, one_mul, sub_neg_eq_add, neg_add_cancel,
-    show (0 : ℤ) = ((0 : ℕ) : ℤ) from rfl, HahnSeries.ofPowerSeries_apply_coeff,
-    PowerSeries.coeff_zero_eq_constantCoeff, map_pow, constantCoeff_jNum_map, one_pow]
-
-private theorem coeff_jqModC_pow_of_lt (K : Type*) [CommRing K] {b : ℕ} {m : ℤ}
-    (hm : m < -(b : ℤ)) : ((jqModC K) ^ b).coeff m = 0 := by
-  rw [jqModC_pow, HahnSeries.coeff_single_mul, one_mul]
-  exact ofPowerSeries_coeff_of_neg _ (by omega)
-
-private theorem coeff_jqModC_neg_one (K : Type*) [CommRing K] :
-    (jqModC K).coeff (-1 : ℤ) = 1 := by
-  simpa using coeff_jqModC_pow_self K 1
-
-/-! ## The `W1` prelude -/
-
-section PressPrelude
-
-variable {K : Type*} [Field K]
-
-/-- Multiplication by a constant is the `q ^ 0` single-term product. -/
-private theorem coeff_algebraMap_mul (c : K) (x : LaurentSeries K) (k : ℤ) :
-    (algebraMap K (LaurentSeries K) c * x).coeff k = c * x.coeff k := by
-  rw [algebraMap_laurentSeries_eq_single, HahnSeries.coeff_single_zero_mul]
-
-/-- `aeval (jqModC K) P` has no coefficients below `-natDegree P`. -/
-private theorem coeff_aeval_jqModC_of_lt (P : Polynomial K) {m : ℤ}
-    (hm : m < -(P.natDegree : ℤ)) :
-    (Polynomial.aeval (jqModC K) P).coeff m = 0 := by
-  rw [Polynomial.aeval_def, Polynomial.eval₂_eq_sum_range, HahnSeries.coeff_sum]
-  refine Finset.sum_eq_zero fun i hi => ?_
-  have hi' : i ≤ P.natDegree := Nat.lt_succ_iff.mp (Finset.mem_range.mp hi)
-  rw [coeff_algebraMap_mul, coeff_jqModC_pow_of_lt K (b := i) (m := m) (by omega),
-    mul_zero]
-
-/-- The leading coefficient of `aeval (jqModC K) P` is `P`'s. -/
-private theorem coeff_aeval_jqModC_neg_natDegree (P : Polynomial K) :
-    (Polynomial.aeval (jqModC K) P).coeff (-(P.natDegree : ℤ)) = P.coeff P.natDegree := by
-  rw [Polynomial.aeval_def, Polynomial.eval₂_eq_sum_range, HahnSeries.coeff_sum,
-    Finset.sum_eq_single P.natDegree]
-  · rw [coeff_algebraMap_mul, coeff_jqModC_pow_self K P.natDegree, mul_one]
-  · intro i hi hin
-    have hilt : i < P.natDegree := lt_of_le_of_ne (Nat.lt_succ_iff.mp (Finset.mem_range.mp hi)) hin
-    rw [coeff_algebraMap_mul,
-      coeff_jqModC_pow_of_lt K (b := i) (m := -(P.natDegree : ℤ)) (by omega),
-      mul_zero]
-  · intro hn
-    exact absurd (Finset.self_mem_range_succ P.natDegree) hn
-
-variable (p : ℕ) [hp : Fact (Nat.Prime p)]
-
-/-- The `q ^ (-p)` coefficient of `jqNModC K p` is `1`. -/
-private theorem coeff_jqNModC_self : (jqNModC K p).coeff (-(p : ℤ)) = 1 := by
-  have h : ((p : ℤ) * (-1) : ℤ) = -(p : ℤ) := by ring
-  rw [jqNModC, ← h, qExpand_coeff_mul, coeff_jqModC_neg_one]
-
-/-- `jqNModC K p` has no coefficients below `q ^ (-p)`. -/
-private theorem coeff_jqNModC_of_lt {m : ℤ} (hm : m < -(p : ℤ)) : (jqNModC K p).coeff m = 0 := by
-  by_cases hd : (p : ℤ) ∣ m
-  · obtain ⟨n, rfl⟩ := hd
-    rw [jqNModC, qExpand_coeff_mul]
-    have hn : n < -1 := by
-      have hp0 : (0 : ℤ) < (p : ℤ) := by exact_mod_cast hp.out.pos
-      nlinarith
-    have h := coeff_jqModC_pow_of_lt K (b := 1) (m := n) (by simpa using hn)
-    simpa using h
-  · exact qExpand_coeff_of_not_dvd (R := K) (N := p) _ hd
-
-variable {p} {R : Polynomial K}
-
-/-- A polynomial whose `aeval` at `jqModC K` is `jqNModC K p` is nonzero. -/
-private theorem ne_zero_of_aeval_eq (h : Polynomial.aeval (jqModC K) R = jqNModC K p) : R ≠ 0 := by
-  rintro rfl
-  rw [map_zero] at h
-  have h1 := coeff_jqNModC_self (K := K) p
-  rw [← h, HahnSeries.coeff_zero] at h1
-  exact zero_ne_one h1
-
-/-- Such a polynomial has degree `p`. -/
-private theorem natDegree_eq_of_aeval_eq (h : Polynomial.aeval (jqModC K) R = jqNModC K p) :
-    R.natDegree = p := by
-  have hR0 : R ≠ 0 := ne_zero_of_aeval_eq h
-  by_contra hne
-  rcases lt_or_gt_of_ne hne with hlt | hgt
-  · have h1 : (Polynomial.aeval (jqModC K) R).coeff (-(p : ℤ)) = 0 :=
-      coeff_aeval_jqModC_of_lt R (by omega)
-    rw [h, coeff_jqNModC_self] at h1
-    exact one_ne_zero h1
-  · have h1 := coeff_aeval_jqModC_neg_natDegree R
-    rw [h, coeff_jqNModC_of_lt p (m := -(R.natDegree : ℤ)) (by omega)] at h1
-    exact hR0 (Polynomial.leadingCoeff_eq_zero.mp h1.symm)
-
-/-- Such a polynomial is monic. -/
-private theorem monic_of_aeval_eq (h : Polynomial.aeval (jqModC K) R = jqNModC K p) : R.Monic := by
-  have hd := natDegree_eq_of_aeval_eq h
-  have h1 := coeff_aeval_jqModC_neg_natDegree R
-  rw [h, hd, coeff_jqNModC_self] at h1
-  show R.coeff R.natDegree = 1
-  rw [hd]; exact h1.symm
-
-/-- `qTwist` fixes a `qExpand` whose twisting unit has order dividing the index. -/
-private theorem qTwist_qExpand_of_pow_eq_one (A : ℕ) [NeZero A] (v : Kˣ) (hv : v ^ A = 1)
-    (x : LaurentSeries K) : qTwist v (qExpand K A x) = qExpand K A x := by
-  rw [qTwist_qExpand]
-  have : v ^ (A : ℤ) = 1 := by exact_mod_cast hv
-  rw [this, qTwist_one_apply]
-
-/-- A unit that is a primitive `N`-th root has `ζ ^ N = 1`. -/
-private theorem units_pow_eq_one_of_isPrimitiveRoot {N : ℕ} {ζ : Kˣ}
-    (hζ : IsPrimitiveRoot (ζ : K) N) : ζ ^ N = 1 :=
-  Units.ext (by rw [Units.val_pow_eq_pow_val, hζ.pow_eq_one, Units.val_one])
-
-/-- `qTwist` fixes the constants. -/
-private theorem qTwist_algebraMap (v : Kˣ) (c : K) :
-    qTwist v (algebraMap K (LaurentSeries K) c) = algebraMap K (LaurentSeries K) c := by
-  rw [algebraMap_laurentSeries_eq_single, qTwist_single, zpow_zero, Units.val_one, one_mul]
-
-/-- The ring-hom form of `qTwist_algebraMap`. -/
-private theorem qTwist_comp_algebraMap (v : Kˣ) :
-    (qTwist v).comp (algebraMap K (LaurentSeries K)) = algebraMap K (LaurentSeries K) :=
-  RingHom.ext fun c => qTwist_algebraMap v c
-
-variable {ζ : Kˣ}
-
-/-- The `b`-th twist of `jqModC K` is again a root of `R`. -/
-private theorem aeval_qTwist_jqModC_eq_of_aeval_eq (hζ : IsPrimitiveRoot (ζ : K) p)
-    (h : Polynomial.aeval (jqModC K) R = jqNModC K p) (b : ℕ) :
-    Polynomial.aeval (qTwist (ζ ^ b) (jqModC K)) R = jqNModC K p := by
-  have hζp : ζ ^ p = 1 := units_pow_eq_one_of_isPrimitiveRoot hζ
-  have hvb : (ζ ^ b) ^ p = 1 := by rw [← pow_mul, Nat.mul_comm, pow_mul, hζp, one_pow]
-  have h2 := congrArg (qTwist (ζ ^ b)) h
-  rw [Polynomial.aeval_def, Polynomial.hom_eval₂, qTwist_comp_algebraMap, jqNModC,
-    qTwist_qExpand_of_pow_eq_one p (ζ ^ b) hvb] at h2
-  rw [Polynomial.aeval_def]
-  exact h2
-
-omit hp in
-/-- The `p` twists are distinct, by their `q ^ (-1)` coefficients. -/
-private theorem qTwist_pow_jqModC_injective (hζ : IsPrimitiveRoot (ζ : K) p) :
-    Function.Injective (fun b : Fin p => qTwist (ζ ^ (b : ℕ)) (jqModC K)) := by
-  intro b b' h
-  have hcoeff : ∀ v : Kˣ, (qTwist v (jqModC K)).coeff (-1 : ℤ) = ((v⁻¹ : Kˣ) : K) := by
-    intro v
-    rw [qTwist_coeff, coeff_jqModC_neg_one, mul_one, zpow_neg_one]
-  have h1 := congrArg (fun x => x.coeff (-1 : ℤ)) h
-  simp only [hcoeff] at h1
-  have h2 : ζ ^ (b : ℕ) = ζ ^ (b' : ℕ) := inv_injective (Units.val_injective h1)
-  have h3 : ((ζ : Kˣ) : K) ^ (b : ℕ) = ((ζ : Kˣ) : K) ^ (b' : ℕ) := by
-    rw [← Units.val_pow_eq_pow_val, ← Units.val_pow_eq_pow_val, h2]
-  exact Fin.ext (hζ.pow_inj b.isLt b'.isLt h3)
-
-end PressPrelude
 
 namespace StarBank
 

@@ -3607,7 +3607,10 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/Analytic/FrickeInvariance.lean",
     # SET-M2 m6: the Φ datum family (the biresultant, the jqNModC evaluation
     # and integrality tails, the prime generation facts) and its degree tail.
-    "FLTForHuman/ModularCurve/Degree/PhiDegree.lean",
+    # --- `FLTForHuman/ModularCurve/Degree/PhiDegree.lean` is handed over to
+    # `spec/check_port.py` (2026-10-25, when the `coeff_jqModC_*` trio was promoted
+    # into its home `Defs/JqCoeff.lean` and this module took a `spec-pin:` wire):
+    # it checks 3 ok / 0 mismatch / 0 missing. Do not re-list it here.
     # SET-M2 m5 (first half): the cusp bookkeeping and the Fricke automorphisms.
     # The remaining m5 module (`Analytic/CuspDichotomy.lean`) is re-scoped to
     # `m5b`; see `logs/mc-port.md` §Friction.
@@ -4563,7 +4566,15 @@ PORT_FILES = [
     # `JOneES` finrank/index bound over the promoted `X1/FunctionField.lean`
     # engine, matched against the `S_` file and the `Theorems/` wrapper appended
     # to `SOURCES` last. Appended last so no earlier last-name match can flip.
-    "FLTForHuman/ModularCurve/X1/FunctionFieldDegree.lean",
+    # --- `FLTForHuman/ModularCurve/X1/FunctionFieldDegree.lean` is handed over to
+    # `spec/check_port.py` (2026-10-25, when its `hvmap` `simp only` was repaired and its
+    # three file-wide linter suppressions were narrowed): its own `spec-pin:` wire checks
+    # 36 ok / 0 mismatch / 0 missing. The proof broke on 2026-10-21 when a57f777 added the
+    # general `ModularCurve.coeffEmb_intSeriesC` to `JqIntegralRatios.lean`: the proof's
+    # *unqualified* name had been reaching the `open`ed `.map` copy in `X1/FunctionField.lean`
+    # and began resolving to the enclosing namespace's general lemma instead (repaired
+    # 2026-10-25 by unfolding `intSeriesC`; the `.map` copy is kept — it has a consumer).
+    # Do not re-list it here.
     # --- SET-R-C order 2 (`topics/functionFieldGeneration/SET-R-C.md`): the
     # residue-field model, matched against target 5's `S_` file and `Theorems/`
     # wrapper appended to `SOURCES` last. Appended last so no earlier last-name
@@ -4714,7 +4725,10 @@ PORT_FILES = [
     # over to `spec/check_port.py` (2026-10-25, when `phiIrreducible_all` landed and the
     # engine `toAdjoin_eq_minpoly_all` was promoted): its `spec-pin:` wire checks 5 ok / 0
     # mismatch / 0 missing / 0 own. Do not re-list it here.
-    "FLTForHuman/ModularCurve/ModularPolynomialStarBank.lean",
+    # --- `FLTForHuman/ModularCurve/ModularPolynomialStarBank.lean` is handed over to
+    # `spec/check_port.py` (2026-10-25, same round: it took a `spec-pin:` wire for its
+    # wrapper and `S_` file and lost its `private` copies of the `coeff_jqModC_*` trio):
+    # it checks 1 ok / 0 mismatch / 0 missing. Do not re-list it here.
     # --- Manager wave of 2026-10-09: the definition layer of subject A and subject B2.
     # `LevelN/FunctionField.lean` is the pin's `Def_ModularCurve_LevelNFunctionField.lean`
     # whole (`wp`, `fricke`, `jAnalytic`, `generators`, `ring`, `jGen` and the membership

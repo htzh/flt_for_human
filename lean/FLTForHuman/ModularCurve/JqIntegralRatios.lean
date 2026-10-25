@@ -170,6 +170,15 @@ theorem map_ofPowerSeries {R S : Type*} [CommRing R] [CommRing S] (f : R →+* S
       PowerSeries.coeff_map]
   · rw [ofPowerSeries_coeff_of_neg _ hk, ofPowerSeries_coeff_of_neg _ hk, map_zero]
 
+/-- Base change of an integral `q`-expansion: `coeffEmb` is `intSeriesC` at the target field.
+This is the general spelling of the fact (the pin's `coeffEmb_intSeriesC'`); the ℂ-specific
+`.map` spelling (`= HahnSeries.ofPowerSeries ℤ ℂ (p.map (Int.castRingHom ℂ))`) is the pin's
+`S_:782` text and lives, faithfully, as
+`JOneES.JOneESAlg.JOneESLevelOne.JOneESNorm.JOneESRat.coeffEmb_intSeriesC` in
+`X1/FunctionField.lean` — both are kept, each checked in its own module. Because this one sits in
+`namespace ModularCurve`, the *unqualified* name in any module of that namespace resolves to it
+first, ahead of an `open`ed copy; that is why `X1/FunctionFieldDegree.lean`'s pin-transcribed step
+needs `intSeriesC` unfolded (see the comment there). -/
 theorem coeffEmb_intSeriesC (p : PowerSeries ℤ) :
     coeffEmb L (intSeriesC ℚ p) = intSeriesC L p := by
   rw [coeffEmb_apply, intSeriesC, intSeriesC, map_ofPowerSeries, powerSeries_map_map,

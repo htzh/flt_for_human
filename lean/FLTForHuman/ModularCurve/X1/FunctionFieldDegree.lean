@@ -27,6 +27,9 @@
   FLT provenance, pinned `aa2d8b3`:
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_finrank_adjoin_jqModC_laurentBaseChange_qExpFunctionFieldC_le_index.lean
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_finrank_adjoin_jqModC_laurentBaseChange_qExpFunctionFieldC_le_index.lean
+
+  spec-pin: Theorems/Thm_ModularCurve_finrank_adjoin_jqModC_laurentBaseChange_qExpFunctionFieldC_le_index.lean
+  spec-pin: P2M/Sol/S_ModularCurve_finrank_adjoin_jqModC_laurentBaseChange_qExpFunctionFieldC_le_index.lean
 -/
 import FLTForHuman.ModularCurve.X1.FunctionField
 import FLTForHuman.ModularCurve.JqIntegralRatios
@@ -35,9 +38,6 @@ import FLTForHuman.ModularCurve.Degree.PhiDegree
 import FLTForHuman.ModularCurve.Degree.Relfinrank
 
 set_option autoImplicit false
-set_option linter.unusedSectionVars false
-set_option linter.unusedVariables false
-set_option linter.style.haveILetI false
 
 -- The pin's own scaffolding: without this, instance search picks the global
 -- `DivisionRing.toRatAlgebra` for `Algebra ℚ ↥(qExpFunctionFieldC ℚ Γ)` while
@@ -64,10 +64,10 @@ variable {K F : Type*} [Field K] [Field F] [Algebra K F]
 theorem finrank_le_of_forall_aeval_eq_zero [PerfectField K] (D : ℕ)
     (h : ∀ y : F, ∃ p : K[X], p ≠ 0 ∧ p.natDegree ≤ D ∧ aeval y p = 0) :
     Module.finrank K F ≤ D := by
-  haveI : FiniteDimensional K F :=
+  have : FiniteDimensional K F :=
     JOneES.JOneESAlg.finiteDimensional_of_forall_aeval_eq_zero D h
-  haveI : Algebra.IsAlgebraic K F := Algebra.IsAlgebraic.of_finite K F
-  haveI : Algebra.IsSeparable K F := Algebra.IsAlgebraic.isSeparable_of_perfectField
+  have : Algebra.IsAlgebraic K F := Algebra.IsAlgebraic.of_finite K F
+  have : Algebra.IsSeparable K F := Algebra.IsAlgebraic.isSeparable_of_perfectField
   obtain ⟨α, hα⟩ := Field.exists_primitive_element K F
   have hdeg : (minpoly K α).natDegree = Module.finrank K F :=
     (Field.primitive_element_iff_minpoly_natDegree_eq K α).mp hα
@@ -122,6 +122,9 @@ theorem monomial_mem (m : ℕ) (b : ℕ) (hb : b ≤ m) :
 
 theorem q4_coeff_zero : PowerSeries.coeff 0 q4 = 1 := JOneES.JOneESLevelOne.q4_coeff_zero
 
+-- The `hk` binder is the pin's: its statement names the weight, and renaming it would
+-- change the statement text the checker diffs. Narrowed rather than file-wide.
+set_option linter.unusedVariables false in
 theorem qExpansion_mem_monomialSpan (m : ℕ) :
     ∀ (k : ℤ) (hk : k = 12 * (m : ℤ)) (h : ModularForm 𝒮ℒ k),
       qExpansion 1 (h : ℍ → ℂ) ∈ monomialSpan m := by
@@ -204,6 +207,7 @@ noncomputable scoped instance : Fintype (Cos Γ) := Fintype.ofFinite _
 
 open scoped ModularCurve.FIdxNorm
 
+omit [Γ.FiniteIndex] in
 theorem card_cos_eq_index : Nat.card (Cos Γ) = Γ.index := by
   rw [← Subgroup.index, ← Subgroup.relIndex, MonoidHom.range_eq_map,
     show ((Γ : Subgroup (GL (Fin 2) ℝ))) = Γ.map (Matrix.SpecialLinearGroup.mapGL ℝ) from rfl,
@@ -253,7 +257,7 @@ noncomputable def liftEven (hΓ' : Γ ≤ Γ') (hneg : ∀ γ ∈ Γ', γ ∈ Γ
       exact h'
   holo' := f.holo'
   bdd_at_cusps' {c} hc := by
-    haveI : Γ'.FiniteIndex := Subgroup.finiteIndex_of_le hΓ'
+    have : Γ'.FiniteIndex := Subgroup.finiteIndex_of_le hΓ'
     have hc' : IsCusp c (Γ : Subgroup (GL (Fin 2) ℝ)) := by
       rw [Subgroup.IsArithmetic.isCusp_iff_isCusp_SL2Z] at hc ⊢
       exact hc
@@ -490,7 +494,12 @@ theorem exists_rat_relation {k : ℤ} (f g : ModularForm (Γ : Subgroup (GL (Fin
     have hD : PΔ.map (Int.castRingHom ℂ) = FIdxLevelOne.qΔ := isIntegralQExp_Delta
     have hf' : pf.map (Int.castRingHom ℂ) = qExpansion 1 (f : ℍ → ℂ) := hf
     have hg' : pg.map (Int.castRingHom ℂ) = qExpansion 1 (g : ℍ → ℂ) := hg
-    simp only [map_pow, h4, hD, hf', hg']
+    -- The pin's step assumes the `.map`-spelled `coeffEmb_intSeriesC`, which this module used to
+    -- reach through `open JOneES.JOneESRat`. Since `ModularCurve.coeffEmb_intSeriesC` (the
+    -- general lemma, `JqIntegralRatios.lean`) exists, the *unqualified* name resolves to it
+    -- first — enclosing namespace before `open` — whose conclusion keeps `intSeriesC`
+    -- unexpanded. Unfold it so the rewrites above see the `p.map` subterm.
+    simp only [intSeriesC, map_pow, h4, hD, hf', hg']
     rfl
   have hdep : ¬ LinearIndependent ℂ (fun ib => HahnSeries.map (v ib) (algebraMap ℚ ℂ)) := by
     rw [Fintype.not_linearIndependent_iff]
@@ -542,7 +551,7 @@ theorem finrank_adjoin_wq_le :
       ((φ.comp (algebraMap K₀ F)).comp (algebraMap ℚ K₀)) (algebraMap ℚ (LaurentSeries ℚ))) e
     rw [← h]
     rfl
-  haveI : PerfectField K₀ := PerfectField.ofCharZero
+  have : PerfectField K₀ := PerfectField.ofCharZero
   refine FIdxAlg.finrank_le_of_forall_aeval_eq_zero (Nat.card (FIdxNorm.Cos Γ')) ?_
   intro Y
   obtain ⟨k, f, g, pf, pg, hf, hg, hg0, hY⟩ := (JOneES.JOneESRat.mem_qExpFunctionFieldC_iff hT).mp Y.2
@@ -644,7 +653,7 @@ theorem finrank_le (Γ : Subgroup SL(2, ℤ)) [Γ.FiniteIndex] (hT : ModularGrou
     Module.finrank
         (IntermediateField.adjoin L ({y} : Set (laurentBaseChange L (qExpFunctionFieldC ℚ Γ))))
         (laurentBaseChange L (qExpFunctionFieldC ℚ Γ)) ≤ Γ'.index := by
-  haveI : Γ'.FiniteIndex := Subgroup.finiteIndex_of_le hΓ'
+  have : Γ'.FiniteIndex := Subgroup.finiteIndex_of_le hΓ'
 
   have hQ := FIdxRat.finrank_adjoin_wq_le (Γ := Γ) hT hΓ' hneg
   rw [FIdxNorm.card_cos_eq_index] at hQ

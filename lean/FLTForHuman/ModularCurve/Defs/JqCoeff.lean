@@ -1,7 +1,7 @@
 /-
-  m2 — the `j`-constants over a general field: `jqModC`/`jqNModC`, the field
-  `modularFunctionFieldC`, and the base-change facts `map_jqModC` /
-  `jqModC_eq_map_intCast`.
+  The `j`-constants over a general field: `jqModC`/`jqNModC`, the coefficient
+  API at the cusp, the field `modularFunctionFieldC`, and the base-change facts
+  `map_jqModC` / `jqModC_eq_map_intCast`.
 
   FLT provenance, pinned `aa2d8b3`:
   `Definitions/Def_ModularCurve_JqCoeff.lean` (83 lines).
@@ -10,10 +10,36 @@
   `Defs/Jq.lean` already has `jq`, `jqN`, `jNum`; the pin states these over a
   general `CommRing K` via `PowerSeries.map`, with `jqModC_rat` a `rfl`.
 
+  ## The pole at the cusp (`jqModC_pow` and the `coeff_jqModC_*` trio)
+
+  `j(q) = q⁻¹·u` with `u` a power series of constant coefficient `1`: the three
+  pin headlines `coeff_jqModC_pow_self` / `coeff_jqModC_pow_of_lt` /
+  `coeff_jqModC_neg_one` say exactly that (leading coefficient `1` at `q⁻ᵇ`, no
+  coefficients below it, hence `j = q⁻¹ + …`), and `jqModC_pow` is the single
+  structural form they read off. This is the valuation input to
+  `Degree/PhiDegree.lean`'s `transcendental_jqModC` (the leading-coefficient
+  argument) and to every degree/pole count downstream.
+
+  **This is the trio's one home.** The three are pin headlines
+  (`Theorems/Thm_ModularCurve_coeff_jqModC_{pow_self,pow_of_lt,neg_one}.lean`)
+  and were previously only `private`, twice over, in
+  `ModularPolynomialStarBank.lean` and `X0/FunctionFieldFull.lean`, with a fourth
+  copy of `coeff_jqModC_neg_one` in `RelIndex/LeRelrank.lean` — the
+  `CARRY-FORWARD.md` orphan-phantom row. They are now stated once here, beside
+  the `jqModC` they are about, and the four modules import them. `jqModC_pow` was
+  public in `X0/FunctionFieldFull.lean` and keeps its public name here;
+  `constantCoeff_jNum_map` is pin-private, has no consumer, and stays `private`.
+
   spec-pin: Definitions/Def_ModularCurve_JqCoeff.lean
   spec-pin: Definitions/Def_ModularCurve_CoeffSemilinearAut.lean
   spec-pin: Theorems/Thm_ModularCurve_map_jqNModC.lean
   spec-pin: P2M/Sol/S_ModularCurve_map_jqNModC.lean
+  spec-pin: Theorems/Thm_ModularCurve_coeff_jqModC_pow_self.lean
+  spec-pin: Theorems/Thm_ModularCurve_coeff_jqModC_pow_of_lt.lean
+  spec-pin: Theorems/Thm_ModularCurve_coeff_jqModC_neg_one.lean
+  spec-pin: P2M/Sol/S_ModularCurve_coeff_jqModC_pow_self.lean
+  spec-pin: Theorems/Thm_ModularCurve_order_jqModC.lean
+  spec-pin: P2M/Sol/S_ModularCurve_order_jqModC.lean
 
 -/
 import FLTForHuman.ModularCurve.Defs.Jq
@@ -97,6 +123,75 @@ theorem map_jqNModC {R S : Type*} [CommRing R] [CommRing S] (φ : R →+* S) (N 
   exact congrArg (qExpand S N) (map_jqModC φ)
 
 end JExpansion
+
+/-! ## The pole at the cusp
+
+`j(q) = q⁻¹ · u` with `u ∈ K[[q]]` of constant coefficient `1`. The structural
+form is `jqModC_pow` — stated at the pin `S_` file's section-variable binders, as
+that is the module the port transcribes it from — and the three coefficient facts
+are the pin headlines, stated at their `Theorems/` wrappers' binders (the
+wrapper is the checker's statement authority). `coeff_jqModC_neg_one` is the case
+`b = 1`. -/
+
+section PoleAtCusp
+
+variable (K : Type*) [CommRing K]
+
+/-- `j(q)^b` is the `q^(-b)` single term times a power series — the pole/unit
+factorisation every coefficient fact below reads off. -/
+theorem jqModC_pow (n : ℕ) :
+    (jqModC K) ^ n = HahnSeries.single (-(n : ℤ)) 1 *
+      HahnSeries.ofPowerSeries ℤ K ((jNum.map (Int.castRingHom K)) ^ n) := by
+  have h : n • (-1 : ℤ) = -(n : ℤ) := by simp
+  rw [jqModC, mul_pow, HahnSeries.single_pow, one_pow, h, ← map_pow]
+
+/-- The unit part `jNum` of `j` has constant coefficient `1` over any `K`. -/
+private theorem constantCoeff_jNum_map :
+    PowerSeries.constantCoeff (jNum.map (Int.castRingHom K)) = 1 := by
+  rw [← PowerSeries.coeff_zero_eq_constantCoeff, PowerSeries.coeff_map,
+    PowerSeries.coeff_zero_eq_constantCoeff, constantCoeff_jNum, map_one]
+
+end PoleAtCusp
+
+section PoleAtCuspCoefficients
+
+/-- The leading coefficient of `j(q)^b` at `q^(-b)` is `1`. -/
+theorem coeff_jqModC_pow_self (K : Type*) [CommRing K] (b : ℕ) :
+    ((jqModC K) ^ b).coeff (-(b : ℤ)) = 1 := by
+  rw [jqModC_pow, HahnSeries.coeff_single_mul, one_mul, sub_neg_eq_add, neg_add_cancel,
+    show (0 : ℤ) = ((0 : ℕ) : ℤ) from rfl, HahnSeries.ofPowerSeries_apply_coeff,
+    PowerSeries.coeff_zero_eq_constantCoeff, map_pow, constantCoeff_jNum_map, one_pow]
+
+/-- `j(q)^b` has no coefficient below `q^(-b)`: its order is exactly `-b`. -/
+theorem coeff_jqModC_pow_of_lt (K : Type*) [CommRing K] {b : ℕ} {m : ℤ}
+    (hm : m < -(b : ℤ)) : ((jqModC K) ^ b).coeff m = 0 := by
+  rw [jqModC_pow, HahnSeries.coeff_single_mul, one_mul]
+  exact ofPowerSeries_coeff_of_neg _ (by omega)
+
+/-- The `q⁻¹` coefficient of `j` is `1`: `j(q) = q⁻¹ + 196884 q + …`. -/
+theorem coeff_jqModC_neg_one (K : Type*) [CommRing K] : (jqModC K).coeff (-1 : ℤ) = 1 := by
+  simpa using coeff_jqModC_pow_self K 1
+
+/-- `j` is nonzero over a nontrivial ring: its `q⁻¹` coefficient is `1`. -/
+private theorem jqModC_ne_zero (K : Type*) [CommRing K] [Nontrivial K] : jqModC K ≠ 0 := by
+  intro h
+  have h1 : (jqModC K).coeff (-1 : ℤ) = 1 := coeff_jqModC_neg_one K
+  rw [h, HahnSeries.coeff_zero] at h1
+  exact zero_ne_one h1
+
+/-- The order of `j` at the cusp is exactly `-1`: the pole is simple, and `j`
+has no coefficient below `q⁻¹`. -/
+theorem order_jqModC (K : Type*) [CommRing K] [Nontrivial K] : (jqModC K).order = -1 := by
+  refine le_antisymm (HahnSeries.order_le_of_coeff_ne_zero ?_) ?_
+  · rw [coeff_jqModC_neg_one]
+    exact one_ne_zero
+  · by_contra hlt
+    rw [not_le] at hlt
+    refine HahnSeries.coeff_order_eq_zero.not.mpr (jqModC_ne_zero K) ?_
+    have h := coeff_jqModC_pow_of_lt K (b := 1) (m := (jqModC K).order) (by simpa using hlt)
+    simpa using h
+
+end PoleAtCuspCoefficients
 
 section FunctionField
 
