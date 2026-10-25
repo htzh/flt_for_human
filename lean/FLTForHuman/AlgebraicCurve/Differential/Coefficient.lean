@@ -1,20 +1,27 @@
 /-
-Ω is one-dimensional over `F` at a place: `dπ` generates it, every differential has a
-coordinate in that generator, and for a separating uniformiser the coordinate of an
-integral element is integral — and over a perfect `K` for any uniformiser, since there
-`ord t = 1` already separates. The coefficient here is the general one, against an
-arbitrary uniformiser `t`; the canonical `Place.differentialCoeff` of
-`Defs/CanonicalDivisor.lean` is its `dCoord` case, and
-`diffCoeff_uniformizer_eq_differentialCoeff` relates the two, so the tree carries one
-coefficient API. After FLT's
-`P2M/Sol/S_AlgebraicCurve_exists_mem_D_eq_smul_D_of_isCurveOver.lean` (1,422 ln) and
-the coefficient layer
-`P2M/Sol/S_AlgebraicCurve_Place_diffCoeff_smul_D_of_ord_eq_one.lean` (28 ln),
-`P2M/Sol/S_AlgebraicCurve_Place_diffCoeff_smul_D_eq_of_ord_eq_one.lean` (26 ln),
-`P2M/Sol/S_AlgebraicCurve_Place_ord_diffCoeff_D_nonneg_of_isSeparable.lean` (576 ln)
-and its perfect-field corollary
-`P2M/Sol/S_AlgebraicCurve_Place_ord_diffCoeff_D_nonneg_of_perfectField.lean` (17 ln),
-pinned at `aa2d8b3`:
+The coefficient of a differential against a chosen local generator at a place.
+
+`Ω[F⁄K]` is one-dimensional over `F` at a place `v`, so a uniformiser `t` turns every
+differential into a unique coefficient `diffCoeff t ω` with `diffCoeff t ω • Dt = ω` (`0`
+when no such coefficient exists). The three faces of that freeness of rank one are here:
+existence (`Dt` spans `Ω`, so a coordinate exists: `diffCoeff_smul_D_of_ord_eq_one`),
+uniqueness (`Dt ≠ 0`, so `diffCoeff t` is the two-sided inverse of `ω ↦ ω • Dt`:
+`diffCoeff_smul_D_eq_of_ord_eq_one`), and integrality — for a separating uniformiser the
+coefficient of an integral element is integral (`ord_diffCoeff_D_nonneg_of_isSeparable`),
+i.e. the local different at `v` is effective; over a perfect `K` the separability
+hypothesis is free (`ord_diffCoeff_D_nonneg_of_perfectField`), because `ord t = 1` already
+separates (`Place.isSeparable_adjoin_of_ord_eq_one`).
+
+The coefficient is the general one, against an arbitrary uniformiser `t`; the canonical
+`Place.differentialCoeff` of `Defs/CanonicalDivisor.lean` is its `dCoord` case, and
+`diffCoeff_uniformizer_eq_differentialCoeff` relates the two — the two spellings are the
+same term, so the tree carries one coefficient API. What the existence half rests on is
+`exists_mem_D_eq_smul_D_of_isCurveOver`, i.e. `dπ` spans `Ω` at a place, which
+`Canonical/ValSubringKaehler.lean` supplies through
+`Place.dCoordGenerates_of_valSubringKaehlerSpanTop`.
+
+After FLT's `Definitions/Def_AlgebraicCurve_Differentials.lean` (lines 27–37, the
+coefficient vocabulary) and the five `S_` files below, pinned at `aa2d8b3`:
 
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_exists_mem_D_eq_smul_D_of_isCurveOver.lean>,
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_Place_diffCoeff_smul_D_of_ord_eq_one.lean>,
@@ -22,35 +29,11 @@ pinned at `aa2d8b3`:
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_Place_ord_diffCoeff_D_nonneg_of_isSeparable.lean>,
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_Place_ord_diffCoeff_D_nonneg_of_perfectField.lean>.
 
-The first file inlines its whole `s12` prelude (61 private helpers, ≈670 lines);
-every one already has a public home in the port's
-`AlgebraicCurve/Canonical/HasCanonicalDivisor.lean` (`ValSubringKaehlerSpanTop`,
-`valSubringKaehlerSpanTop_of_isCurveOver_of_perfectField`,
-`Place.dCoordGenerates_of_valSubringKaehlerSpanTop`,
-`Place.exists_mem_D_eq_smul_dCoord`,
-`Place.exists_unit_D_eq_smul_dCoord`,
-`isLocalization_centerIdeal_of_isDedekindDomain`, …). This module imports that
-home rather than re-proving it and lands the headline at its `Theorems/` wrapper
-statement.
-
-The last four files are the pin's coefficient layer, absorbed here because they are
-the same subject: `Place.diffCoeff t ω` is the `g` with `g • dt = ω` (and `0` when
-there is none), so the three theorems are the three faces of `Ω` being free of rank
-one where `Dt ≠ 0` — existence (`Dt` spans `Ω`), uniqueness (`Dt ≠ 0`), and
-integrality: `d/dt` maps the valuation ring into itself, i.e. the local different is
-effective. The fourth is that integrality with the separability hypothesis
-discharged: over a perfect `K`, `ord t = 1` is already separating
-(`Place.isSeparable_adjoin_of_ord_eq_one`), so the instance is free. The pin proves
-that integrality row by hand in a `RatFunc` tower (its private
-`engine`, ≈250 lines, over the `Dict` block that is public here as
-`Defs/PlaceDictionary.lean`); in the port that engine is
-`exists_mem_D_eq_smul_D_of_isCurveOver` plus the `IsCurveOver` supply
-(`finiteDimensional_adjoin_of_transcendental`, `isCurveOver_of_transcendental`), and
-the `RatFunc` transport disappears — the headline's own hypotheses already give `t`
-as a separating generator. Only the coefficient vocabulary (lines 27–37) is
-transcribed from `Definitions/Def_AlgebraicCurve_Differentials.lean`; that file's
-other halves are homed under their own pin files (`regularDifferentials`,
-`IsRegularAt`, `pullbackAlong`).
+Assumes `Defs/CanonicalDivisor.lean` (`uniformizer`, `dCoord`, `differentialCoeff`),
+`Defs/KaehlerTranscendental.lean` (`span_D_eq_top_of_transcendental`,
+`D_ne_zero_of_transcendental`), `Place/SeparableUniformiser.lean` (separability of a
+uniformiser) and `Canonical/ValSubringKaehler.lean` with `Canonical/DCoordGenerates.lean`
+(generation at a place).
 
 spec-pin: Definitions/Def_AlgebraicCurve_Differentials.lean
 spec-pin: Theorems/Thm_AlgebraicCurve_exists_mem_D_eq_smul_D_of_isCurveOver.lean

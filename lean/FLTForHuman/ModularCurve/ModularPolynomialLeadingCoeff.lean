@@ -33,17 +33,14 @@
 
   ## Local `private` re-derivations
 
-  The pin's ten new `W1` helpers, all `private` at the pin too (so no promotion is
-  available or authorised): `order_eq`, `order_TS`,
-  `order_sub_left`/`order_sub_right`, `prod_ne_zero_leadingCoeff`,
-  `slot_factor`, `diag_lc_pow`, and the headline's pin-`private` body.
-  The pin's `natDegree_toAdjoin`/`toAdjoin_eq_minpoly` are **not** restated here: the
-  port holds the identity once, public, as
-  `ModularCurve.toAdjoin_eq_minpoly_all` in
-  `ModularPolynomialUniquenessIrreducible.lean` (its pin home is
-  `S_ModularCurve_ModularPolynomialData_eq_all.lean:37`), and this module imports it. The pin's private
-  `evalAtJGen_injective` is dropped — it has no consumer anywhere (the public
-  `evalAtJGen_injective` is imported from `ModularPolynomialIrreducible.lean`).
+  The pin's `W1` helpers are `private` there too: `order_eq`, `order_TS`,
+  `order_sub_left`/`order_sub_right`, `prod_ne_zero_leadingCoeff`, `slot_factor`,
+  `diag_lc_pow` are transcribed here, and the headline carries the pin's own body. The
+  datum identity the pin also drags — `natDegree_toAdjoin` with `toAdjoin_eq_minpoly` — is
+  not restated: the port holds it once, public, as
+  `ModularCurve.toAdjoin_eq_minpoly_all` in `ModularPolynomialUniquenessIrreducible.lean`,
+  which this module imports. The pin's private `evalAtJGen_injective` copy is dropped (the
+  public one is imported from `ModularPolynomialIrreducible.lean`).
   spec-pin: Theorems/Thm_ModularCurve_ModularPolynomialData_isUnit_leadingCoeff_diag_of_not_isSquare.lean
 -/
 import FLTForHuman.ModularCurve.ModularPolynomialIrreducible

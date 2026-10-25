@@ -1,51 +1,29 @@
 /-
-  The uniqueness, irreducibility and symmetry of the modular polynomial `Φ_N`.
+The uniqueness, irreducibility and symmetry of the modular polynomial `Φ_N`.
 
-  Three classical facts about the already-ported `Φ` machinery, stated on the
-  `ModularPolynomialData` structure and proved from the ported `Φ_p` cone:
+Four facts about the datum `data : ModularPolynomialData N`, which is a monic `Φ ∈
+ℤ[X][Y]` of `Y`-degree `ψ(N)` vanishing at `(j(q), j(q ^ N))`:
 
-  * `ModularPolynomialData.eq_all` — any two data at the same level `N` are
-    equal, because each `toAdjoin` is the minimal polynomial of `j(q ^ N)`
-    (the `N`-arbitrary form of T13's `eq_of_prime`);
-  * `phiIrreducible_of_prime` — the datum is irreducible at a prime `p`;
-  * `ModularPolynomialData.evalSymm_of_prime` — the datum is symmetric at a
-    prime `p`;
-  * `phiIrreducible_all` — the datum is irreducible at *every* level `N`, the
-    all-`N` form of `phiIrreducible_of_prime` and the pin's `phiIrreducible_all`.
+* `ModularPolynomialData.eq_all` — any two data at the same level are equal. Each
+  `toAdjoin` is the minimal polynomial of `j(q ^ N)` (`toAdjoin_eq_minpoly_all`: it is
+  monic, it annihilates `j(q ^ N)` because `Φ` does, and its degree is that of the field
+  extension), and the coefficient map is injective;
+* `phiIrreducible_all` — the datum is irreducible, since `toAdjoin` is a minimal
+  polynomial;
+* `phiIrreducible_of_prime`, `ModularPolynomialData.evalSymm_of_prime` — at a prime `p`,
+  irreducible and symmetric: `exists_phiIrreducible_evalSymm` (resp.
+  `exists_modularPolynomialData_evalSymm`) produces such a datum, and the prime-level
+  uniqueness `eq_of_prime` identifies the caller's with it.
 
-  The last two are one-line transports: the ported `exists_phiIrreducible_evalSymm`
-  (resp. `exists_modularPolynomialData_evalSymm`) produces *some* datum with the
-  property, and `eq_of_prime` identifies the caller's datum with it.
+`toAdjoin_eq_minpoly_all` is the engine and is public: it is what the uniqueness, the
+irreducibility and `ModularPolynomialLeadingCoeff`'s leading-coefficient computation all
+read. It needs `aeval_jqN_toAdjoin` and `finrank_adjoin_jqN_eq_dedekindPsi`, both imported.
 
-  ## Source
-
-  FLT `anthropics/fermats-last-theorem@aa2d8b3`:
-  `P2M/Sol/S_ModularCurve_ModularPolynomialData_eq_all.lean` (75 lines),
-  `P2M/Sol/S_ModularCurve_phiIrreducible_of_prime.lean` (73 lines),
-  `P2M/Sol/S_ModularCurve_ModularPolynomialData_evalSymm_of_prime.lean` (14 lines)
-  and `P2M/Sol/S_ModularCurve_phiIrreducible_all.lean` (434 lines, of which 41
-  declarations are already ported elsewhere and the mathematical content is the
-  private `toAdjoin_eq_minpoly_all` below). The four public statements are the
-  `Theorems/` wrappers verbatim.
-
-  ## Reuse
-
-  `evalAtJGen_injective`, `aeval_jqN_toAdjoin`, `finrank_adjoin_jqN_eq_dedekindPsi`
-  and `ModularPolynomialData.eq_of_prime` are public in the port and imported.
-  The pin's `toAdjoin_eq_minpoly_all` drags a `natDegree_toAdjoin`; the port holds
-  both only `private` (`ModularPolynomialUniqueness.lean`), so this module
-  re-derives them `private` — no promotion, and the pin's dead
-  `evalAtJGen_injective` copy (no consumer in the pin file) is dropped (`--`
-  free header, so the statement checker's namespace tracker stays aligned).
-
-  ## Assumptions
-
-  `Defs/PhiGen`'s `ModularPolynomialData`/`PhiIrreducible`/`EvalSymm`;
-  `Defs/Fields`'s `toAdjoin`/`evalAtJGen`/`algebraMap_comp_evalAtJGen`;
-  `ModularPolynomialIrreducible`'s `evalAtJGen_injective`/`aeval_jqN_toAdjoin`;
-  `ModularPolynomialUniqueness`'s `eq_of_prime`/`finrank_adjoin_jqN_eq_of_prime`;
-  `ModularPolynomialProperties`'s `exists_phiIrreducible_evalSymm`;
-  `Degree/PhiData`'s `exists_modularPolynomialData_evalSymm`.
+After FLT's `S_ModularCurve_ModularPolynomialData_eq_all.lean`,
+`S_ModularCurve_phiIrreducible_of_prime.lean`,
+`S_ModularCurve_ModularPolynomialData_evalSymm_of_prime.lean` and
+`S_ModularCurve_phiIrreducible_all.lean`, pinned at `aa2d8b3`:
+<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_phiIrreducible_all.lean>.
 
 spec-pin: Theorems/Thm_ModularCurve_ModularPolynomialData_eq_all.lean
 spec-pin: Theorems/Thm_ModularCurve_phiIrreducible_of_prime.lean
@@ -124,10 +102,8 @@ theorem phiIrreducible_of_prime (p : ℕ) [hp : Fact (Nat.Prime p)]
   rwa [ModularPolynomialData.eq_of_prime p data d₀]
 
 /-- At every level `N` the datum is irreducible: `toAdjoin` is the minimal polynomial
-of `j(q ^ N)`, and a minimal polynomial is irreducible. Verbatim from the pin wrapper
-`Theorems/Thm_ModularCurve_phiIrreducible_all.lean`; the pin's 434-line `S_` file
-reduces to this, because 41 of its 45 declarations are ported elsewhere and its own
-engine is `toAdjoin_eq_minpoly_all` above. -/
+of `j(q ^ N)`, and a minimal polynomial is irreducible. Verbatim from
+`Theorems/Thm_ModularCurve_phiIrreducible_all.lean`. -/
 theorem phiIrreducible_all (N : ℕ) [NeZero N] (data : ModularPolynomialData N) :
     PhiIrreducible data := by
   have hint : IsIntegral ℚ⟮jq⟯ (jqN N) :=
