@@ -179,8 +179,8 @@ valuable because the arithmetic hub (`abelJacobiCard_genus`, 12 consumers) and t
 trio sit on the other side of it.
 
 **Recommendation, given that the subject stands on its own.** Its own roadmap is **P1 then B**
-(P2 in full): A is the smaller body and it is the route that turns the modular Jacobian into an
-explicit torus — the period lattice of `Γ_H`, the Hecke-equivariant uniformization, the Tate module
+(P2 in full): A has the cheaper analysis (2.6k against 10.1k, §10) and is the route that turns the
+modular Jacobian into an explicit torus — the period lattice of `Γ_H`, the Hecke-equivariant uniformization, the Tate module
 identified with the lattice; B is the general Riemann-surface route, which is where the Abel–Jacobi
 theorem proper lives, with `abelJacobiCard_genus` (fan-in 12) and the Drinfeld consumer as its
 arithmetic output. P3 alone is the choice only if the general-curve/Drinfeld mathematics is the
@@ -230,14 +230,25 @@ with `Period/`; the landed `RadialRegion` modules stay where they are under `Res
   surface, or a cell decomposition of a surface. Both halves are therefore built, not adopted.
 * The pin's route is the cheap one *for the pin's own development*: B builds a **combinatorial**
   cell dissection and reduces the analysis to one-dimensional integrals along arcs (the
-  `CellDissection` cluster is 12.8k lines for exactly this reason). A needs **no cell
-  dissection at all**: its integrals are one-dimensional, along geodesics and a fundamental set in
-  the upper half plane, and its surface theory is just the place dictionary
-  (`ComplexPlaceDictionary{,Of}`). That is why A is the smaller of the two bodies for the
-  uniformization it proves, and why P1 is recommended over P3 for a D-S-adjacent port — but note
-  that A does need the dictionary of complex places, which is 12.6k of its 52k lines, and that it is
-  not analysis-free either: 2,313 of its closure's lines are its own `dbar`/Stokes theory on the
-  modular fundamental domain (§9).
+  `CellDissection` cluster is 12.8k lines for exactly this reason). A needs **no cell dissection**:
+  its integrals are one-dimensional, along geodesics and a fundamental set in the upper half plane,
+  and the surface theory of its curve is the place dictionary (`ComplexPlaceDictionary{,Of}`, 12.6k
+  of its 52k lines). A's *analysis* is the smaller of the two for the uniformization it proves
+  (2.6k against B's 10.1k, §10), although its *body* is the larger — 57k unported against B's 44k —
+  and it is on the D-S critical path; that is why P1 is recommended over P3 for a D-S-adjacent port.
+  **A is not analysis-free, though**: its
+  closure carries 9 `Complex.*` nodes / 2,624 lines, **2,313 of them A's own** Stokes/`dbar` theory on
+  the modular fundamental domain — `integral_modularFundamentalDomain_eq_boundary_of_hasFDerivAt` 639,
+  `integral_logDeriv_wedge_add_finsum_eq_integral_dbarLogDeriv` 643,
+  `integral_inv_sub_mul_dbar_eq_neg_pi_mul` 463,
+  `integral_mul_dbar_eq_neg_pi_mul_finsum_residue` 306,
+  `integral_mul_logDeriv_mul_dbar_eq_neg_pi_mul_finsum` 98,
+  `integral_mul_dbar_eq_zero_of_differentiableOn` 90, `locallyIntegrableOn_of_simplePoles` 74 —
+  consumed by the Petersson/side-pairing and the winding-pairing lemmas. It dissects no surface, but
+  it does integrate a `dbar` over a domain with a boundary: the same *kind* of work as B0, in a
+  different setting. **The one genuine cross-route factoring in the whole subject is therefore a
+  shared "Stokes on a bounded domain" API**, of which A's `dbar` family and B0's circle-integral
+  family are two hand-rolled copies (2,313 + 2,080 unported lines).
 * The pin's files carry long `attribute [-instance]` walls (charted-space instances) in every `S_`
   file of this subject; the port drops them and must not add them back — they are the place the
   build will misbehave if it does.
@@ -284,8 +295,7 @@ conditional assembly; a coverage report for the payout (`0 / 0 / 0` on the porte
 Asked directly, and answered from the two mouths' premise closures on the pin (`frontier.Frontier`,
 the `union` frontier, 1,212 ported nodes). The answer is **no supplanting and no net
 simplification**, but the reason is sharper than "different theorems" and it locates one real
-opening — and two corrections to §1 and §5 — so it is recorded here rather than left as an
-impression.
+opening, so it is recorded here rather than left as an impression.
 
 ### 9.1 A's needs, against B's supply
 
@@ -304,7 +314,7 @@ Enumerated from the two nodes the D-S column and the Tate chain rest on
 | `TateModule p (JH M H) ≃ ℤ_[p] ⊗ periodLatticeOf`, Hecke-equivariantly | `Module.Finite ∧ Module.Free (TateModule …)` 327, obtained *through* the cardinality | finiteness only; no identification, no Hecke |
 | the H/Γ dictionary (`ComplexPlaceDictionary{,Of}`), 45 nodes / 16,867 lines | `Place.exists_chartedSpace_…_complex` 482 + `connectedSpace_of_chartedSpace_…` 369 | no: A's dictionary is the explicit `realize`/`pt`/ramification/Hecke-correspondence content; the abstract charted space gives none of it, and A's closure does not contain either node |
 
-### 9.2 The measured interface, and the two corrections
+### 9.2 The measured interface
 
 Closures: A's two top nodes, 529 nodes / 216,100 lines (189 unported / 63,186); B's mouth, 212 /
 129,246 (91 unported / 47,861); B's hub, 298 / 163,214 (149 unported / 66,381). Their intersection is
@@ -316,30 +326,16 @@ The analytic part of it is exactly two nodes, cited by A's
 `Complex.hasDerivAt_circleIntegral_mul_deriv_div_sub` (169). So porting either half first donates
 ≈1.1k lines of prelude to the other, and that is the entire supply.
 
-1. **A is not analysis-free.** §5 says A needs no cell dissection "at all" and that its surface
-   theory "is just the place dictionary". Its closure carries **9 `Complex.*` nodes / 2,624 lines**,
-   of which **2,313 are A's own** Stokes/`dbar` theory on the modular fundamental domain —
-   `integral_modularFundamentalDomain_eq_boundary_of_hasFDerivAt` 639,
-   `integral_logDeriv_wedge_add_finsum_eq_integral_dbarLogDeriv` 643,
-   `integral_inv_sub_mul_dbar_eq_neg_pi_mul` 463,
-   `integral_mul_dbar_eq_neg_pi_mul_finsum_residue` 306,
-   `integral_mul_logDeriv_mul_dbar_eq_neg_pi_mul_finsum` 98,
-   `integral_mul_dbar_eq_zero_of_differentiableOn` 90,
-   `locallyIntegrableOn_of_simplePoles` 74 — consumed by the Petersson/side-pairing and
-   winding-pairing lemmas. A dissects no surface, but it does integrate a `dbar` over a domain with a
-   boundary: the same *kind* of work as B0, in a different setting. **The one genuine cross-route
-   factoring available in the whole subject is a shared "Stokes on a bounded domain" API**, of which
-   A's `dbar` family and B0's circle-integral family are two hand-rolled copies (2,313 + 2,080
-   unported lines).
-2. **A is not self-contained either.** `ModularCurve.finrank_periodLattice_eq_two_mul_genusFF` (80) —
-   the Γ₀(N) rank fact — is a **two-route count**: A's
-   `natCard_torsion_jZero_eq_pow_finrank_periodLattice` (81, cardinality of the torus) against
-   `AlgebraicCurve.Pic0.natCard_torsion_prime_eq_pow_two_mul_genusFF_of_forall_pow_eq_self` (144,
-   the *algebraic* route through `…abelJacobiCard_genusFF_of_frobenius_of_isAlgebraic`, not B's
-   analytic one). It is the one node found whose proof takes a premise from each side, and it
-   is the pin's only check that A's lattice has the right rank. So A's rank is *borrowed*, and both
-   analytic routes hang off the same algebraic cardinality — which is why the D-S prune keeps that
-   hub and why P4's spine needs a rank premise it cannot get from A alone.
+**A's rank fact is a coupling.** `ModularCurve.finrank_periodLattice_eq_two_mul_genusFF` (80) — the
+Γ₀(N) rank fact — takes a premise from each side: A's
+`natCard_torsion_jZero_eq_pow_finrank_periodLattice` (81, cardinality of the torus) and
+`AlgebraicCurve.Pic0.natCard_torsion_prime_eq_pow_two_mul_genusFF_of_forall_pow_eq_self` (144, the
+*algebraic* route through `…abelJacobiCard_genusFF_of_frobenius_of_isAlgebraic`, not B's analytic
+one). It is the one node found whose proof takes a premise from each side, so as written it keeps both
+the torus and the algebraic cardinality alive. A port need not keep it: §12.1 chain 1 is an RR route
+to `dim S₂ = g`, and `2g` follows from the basis theorem — but that route has to be *written*, the pin
+does not contain it. Until it is, A's rank is borrowed, which is why the D-S prune keeps the hub and
+why P4's spine needs a rank premise it cannot get from A alone.
 
 ### 9.3 The one real opening, and why it still does not pay
 
@@ -386,14 +382,12 @@ pair, the Hecke divisor correspondence, the Galois/`ofAlgAut` point actions, the
 no analogue in B, so the 563 lines B would replace do not come out of the 16.9k cleanly. Net: the
 bridge costs about what it saves, and only a port committed to P2 has any reason to build it.
 
-**What B is worth to A is a shared definition, not a second proof.** (An earlier reading of this note
-said "verification, not supply": once both land, the modular torsion cardinality has two independent
-proofs, `natCard_torsion_jZero_eq_pow_finrank_periodLattice` + rank against
-`natCard_torsion_pic0_xHFunctionFieldBar_eq_pow_two_mul_genusFF`. That is retracted in §10.4 — in a
-formalization a second proof is a cost, not a check.) What survives is the definitional half:
-`periodAlongOf` and `pathIntegral` are two definitions of one notion, §10.2 says which to keep, and the
-ordering argument follows from that — B comes after A because B's *analytic layer* should be written
-on A's definition.
+**What B is worth to A is a shared definition, not a second proof.** The modular torsion cardinality
+would gain a second proof (`natCard_torsion_jZero_eq_pow_finrank_periodLattice` + rank against
+`natCard_torsion_pic0_xHFunctionFieldBar_eq_pow_two_mul_genusFF`), and by §10.4 that is a cost, not a
+check. What does pay is definitional: `periodAlongOf` and `pathIntegral` are two definitions of one
+notion, §10.2 says which to keep, and the ordering follows from that — B comes after A because B's
+*analytic layer* should be written on A's definition.
 
 **Consequence.** §3's recommendation is unchanged — P1 then B, no restructuring of A around B, no
 dependency either way — with one line added to any future B module plan: state
@@ -591,12 +585,11 @@ after.
 
 ### 10.4 The criterion is simplicity, not verification
 
-The sections above repeatedly reached for a bad argument: that a second, independent proof of the same
-statement is worth something. In a formalization it is not. The checker is the check; a second proof
-costs a second definition layer, a second maintenance surface, and a coupling — a node that consumes
-both sides keeps both sides alive. So the objective is **simplicity**: one definition per object, one
-proof per statement, the fewest boundaries between developments. The measurements already taken then
-read as a list of things to delete rather than to acquire:
+In a formalization the checker is the check, so a second independent proof of a statement is not
+evidence: it costs a second definition layer, a second maintenance surface, and a coupling — a node
+that consumes both sides keeps both sides alive. The objective is therefore **simplicity**: one
+definition per object, one proof per statement, the fewest boundaries between developments. Measured
+against it, the subject's duplications are a list of deletions rather than of acquisitions:
 
 1. **Two definitions of the path integral.** `periodAlongOf` (an interval integral of the form along a
    geodesic) and `pathIntegral` (`if ∃ g, IsPrimitiveAlong ω γ g then g 1 − g 0 else 0`). §10.2 prices
@@ -613,10 +606,8 @@ read as a list of things to delete rather than to acquire:
    one statement with a general form and a modular instance, so it should be written once, in the
    general form, and instantiated — B slightly cheaper is then also the right home.
 4. **One `IsCurveOver`/RR layer, instantiated rather than re-derived.** 17–28 lines per field, and it
-   is what removes the last reason A's rank should be borrowed from the arithmetic cardinality
-   (§9.2, §12.1 chain 1). The `finrank_periodLattice_eq_two_mul_genusFF` two-route count is, under
-   this criterion, a **coupling, not a check**: it takes a premise from each side and so forces both.
-   A port should derive the rank once (from RR) and not port the counting argument.
+   gives the dimension half of the rank fact without the arithmetic detour (§9.2, §12.1 chain 1). A
+   port derives the rank once and does not port the counting argument.
 
 Two things that are *not* duplications, and so are not candidates for deletion however similar they
 look. The order-level dictionary (`realizeOf`, `mem_pt_iff`, `meromorphicOrderAt_realizeOf`) and B0's
@@ -787,9 +778,11 @@ A *does* instantiate RR on its curve, and it uses it three times. Measured on th
 
 So RR is not B's foundation that A happens to share: it is load-bearing in A at the dimension, the
 place-separation and the descent, i.e. at exactly the three points where the modular construction
-needs the *curve* rather than the *series*. That is also the honest answer to §9.5's rank gate: A's
-`2g` is not borrowed only from the algebraic cardinality (§9.2) — the index computation of chain 1 is
-an RR route to `dim S₂ = g` as well, and the two-route count is between those two.
+needs the *curve* rather than the *series*. That is also the state of §9.5's rank gate: chain 1 gives
+one inequality of `dim S₂ = g` from RR (167, with `dimFormula ≤ finrank` alongside it); the other
+inequality comes from the differential side, and the pin's actual rank node (80) does not take this
+route at all — it pairs A's torus cardinality with the algebraic one. So the rank fact stays a
+coupling until someone writes the equality this way.
 
 ### 12.2 Why A can use RR without the curve–function-field connection
 
