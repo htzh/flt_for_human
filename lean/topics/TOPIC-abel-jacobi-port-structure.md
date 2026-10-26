@@ -61,6 +61,13 @@ is `…exists_injective_…_jH_quotient_periodLatticeOf` (302 lines, 5 premises)
 Tate module ≅ period lattice ⊗ ℤ_[p] identification, `ModularCurve.finite_torsion_jOne`
 (`Finite (Pic0.torsion … n)`, 80 lines, all premises in A), and a rational-Hecke independence lemma.
 
+The weight in `CuspForm Γ 2` is part of the statement, not a convention: at weight `k` the invariant
+object is `f (dτ)^(k/2)`, so only `k = 2` gives a 1-form to integrate over a 1-cycle, and only at `k = 2`
+does a primitive satisfy `F ∘ γ = F + c(γ)` — which is what makes `periodOf` additive and
+`periodLatticeOf` the image of `Γ` rather than a set of unrelated integrals. A's route therefore exists
+at weight 2 only, and `V ≅ S₂(Γ)` is the one weight at which its carrier and B's `H⁰(Ω¹)` are the same
+space ([aj/TOPIC-translation-a-b.md](aj/TOPIC-translation-a-b.md) §2).
+
 **The conclusions are not the same theorem, and generality is not comparable.**
 
 B says: `∃ L : Submodule ℤ (Fin g → ℂ), Module.Free ℤ L ∧ Module.Finite ℤ L ∧
@@ -465,11 +472,20 @@ question the other way round from §9: can B's statements be *derived* from A's?
 in place, and only the fourth and fifth are lattice-theoretic — the two that such a plan would name
 first are neither first nor, in one case, needed at all:
 
-1. **Scope: an obstruction, not a gate.** A's statements are about one curve family
-   (`xHFunctionField M H` at `GammaH M H`), and the pin's `CuspForm` ↔ `regularDifferentials`
-   transport is at `Gamma0 N`. B's are about an arbitrary curve over `ℂ` with a charted-space
-   structure. So the derivation can deliver B *at* `X_H` only. B in general needs the uniformization
-   of a compact Riemann surface by a Fuchsian group, in neither the pin nor mathlib (§5).
+1. **Scope: an obstruction, and a sharper one than "special curves".** A's statements are about one
+   curve family (`xHFunctionField M H` at `GammaH M H`), and the pin's `CuspForm` ↔
+   `regularDifferentials` transport is at `Gamma0 N`. B's are about an arbitrary curve over `ℂ` with a
+   charted-space structure. Granting the uniformization theorem does not close that gap: it produces a
+   discrete `Γ ≤ PSL(2, ℝ)`, whereas A's development is uniform in `Γ : Subgroup SL(2, ℤ)` — `periodOf`,
+   `periodLatticeOf`, `CuspForm` all take that group — i.e. over the finite-index subgroups of
+   `SL(2, ℤ)`, the modular tower, a proper subclass of curves; and A's curve side (`xHFunctionField`,
+   `pt`, the 16.9k dictionary) is constructed at a fixed level, not as a function of an arbitrary `Γ`.
+   So "A with `Γ` a variable" is a generalisation of A's ambient group, not a re-reading of it, and the
+   derivation can deliver B *at* `X_H` only. B in general needs the uniformization of a compact
+   Riemann surface by a Fuchsian group, in neither the pin nor mathlib (§5) — and since that theorem is
+   deeper than either analytic body, a plan willing to grant it should grant B's mouths directly
+   instead (§3's P4). Neither mouth implies the other: `A ⊬ B` for this reason, `B ⊬ A` by §9.3 and
+   §11, so what a merged theory has is a common statement with two instances, not a bridge.
 2. **The differential identification.** A's lattice lives in `Dual ℂ (CuspForm Γ 2)`, B's in
    `Fin n → ℂ` against a `Module.Basis` of `regularDifferentials`; "the lattices are equal" is not
    even a statement until these spaces are identified. The pin has
@@ -502,7 +518,13 @@ presuppose an integral reconciliation the pin does not have. Genus → rank: onl
 Abel's theorem, and its numeric form is the one borrowed node. So the derivation is a *deletion*
 artefact at best — it would let the port keep one period lattice instead of two at `Γ₀(N)` — and not a
 port strategy: it costs more than the 563 lines of A it would explain, and it says nothing at a curve
-that is not a modular curve.
+that is not a modular curve. What it would delete is duplications 3 and 4 of §10.4 and the two-route
+count of §9.2, and explicitly **not** Abel's theorem: that stays two fillings of one field, 563 lines on
+A's side against 1,115 on B's, and they are not the same statement (§9.4 item 3). The merged theory's
+formal content is therefore a biconditional at one modular curve, not an implication between the two
+developments — [aj/TOPIC-translation-a-b.md](aj/TOPIC-translation-a-b.md) §5 (the structure must be split
+into a neutral core and a modular refinement, with Abel as a field) and §9 ("what the combination is
+not").
 
 ## 10. Where the duplication actually is — the 2026-10-26 second read
 
