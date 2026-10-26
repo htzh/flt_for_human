@@ -14,6 +14,22 @@
   section of the same file (the Petersson inner product,
   `peterssonIntegrandOf`/`peterssonOf`) is **not** ported: none of the 28
   consumers of `ModularCurve.exists_hasEquivariantPrimitiveOf` reaches it.
+
+  This module also hosts the pin's cross-file prelude (`hasDerivAt_affine`,
+  `segmentPoint_eq_of_mem`, `periodAlongOf_eq_sub`, moved here from
+  `ModularCurve/Period/PeriodLatticeSpan.lean` where they were first ported) and
+  the headline `periodOf_apply_eq_sub_of_hasEquivariantPrimitiveOf`.
+
+  The sibling headline `periodMapOf_apply_eq_periodOf` is **not** here, although
+  the plan homes it here: its only proof is
+  `ModularCurve.exists_hasEquivariantPrimitiveOf`, which lives in
+  `EichlerShimura/ExistsEquivariantPrimitive.lean` — a module that imports this
+  one, so proving it here would close an import cycle. It is stated in that
+  module instead (see its header), with the pin's statement unchanged.
+
+  spec-pin: Theorems/Thm_ModularCurve_periodOf_apply_eq_sub_of_hasEquivariantPrimitiveOf.lean
+  spec-pin: P2M/Sol/S_ModularCurve_periodOf_apply_eq_sub_of_hasEquivariantPrimitiveOf.lean   -- comparable copy
+  spec-pin: Definitions/Def_ModularCurve_PeriodOf.lean
 -/
 import FLTForHuman.ModularForms.EichlerShimura.PeriodPrimitive
 import FLTForHuman.ModularForms.EichlerShimura.PeriodIntegral
@@ -78,6 +94,79 @@ theorem periodOf_apply (γ : Γ) (f : CuspForm Γ 2) :
         ((((γ : SL(2, ℤ)) • UpperHalfPlane.I : ℍ) : ℂ) - (UpperHalfPlane.I : ℂ)) :=
   rfl
 
+/-! ### The shared prelude: the fundamental theorem of calculus along a segment
+
+The three lemmas below are the pin's cross-file prelude (`hasDerivAt_affine`,
+`segmentPoint_eq_of_mem`, `periodAlongOf_eq_sub`). They are declared **once,
+public**, here — the module that defines `periodAlongOf` — rather than in
+`ModularCurve/Period/PeriodLatticeSpan.lean`, which also carries them in its
+`spec-pin:` wire; that module and `PeriodLatticeBoundary.lean` see them through
+the `ExistsEquivariantPrimitive.lean` import chain. -/
+
+theorem hasDerivAt_affine (a b : ℂ) (t : ℝ) :
+    HasDerivAt (fun s : ℝ => (1 - (s : ℂ)) * a + (s : ℂ) * b) (b - a) t := by
+  have h1 : HasDerivAt (fun s : ℝ => (s : ℂ)) 1 t := Complex.ofRealCLM.hasDerivAt
+  have h2 : HasDerivAt (fun s : ℝ => (1 - (s : ℂ)) * a) (-(1 : ℂ) * a) t := by
+    simpa using ((hasDerivAt_const t (1 : ℂ)).sub h1).mul_const a
+  have h3 : HasDerivAt (fun s : ℝ => (s : ℂ) * b) (1 * b) t := h1.mul_const b
+  have := h2.add h3
+  convert this using 1; first | rfl | ring
+
+theorem segmentPoint_eq_of_mem {τ₀ τ₁ : ℍ} {t : ℝ} (ht : t ∈ Set.Icc (0 : ℝ) 1) :
+    ModularCurve.segmentPoint τ₀ τ₁ t = (1 - (t : ℂ)) * (τ₀ : ℂ) + (t : ℂ) * (τ₁ : ℂ) := by
+  simp only [ModularCurve.segmentPoint, ModularCurve.clamp01_of_mem ht, Complex.real_smul,
+    Complex.ofReal_sub, Complex.ofReal_one]
+
+theorem periodAlongOf_eq_sub (Γ : Subgroup SL(2, ℤ)) (f : CuspForm Γ 2)
+    {F : ℍ → ℂ} (hF : ∀ τ : ℍ, HasDerivAt (F ∘ ofComplex) (f τ) ↑τ) (τ₀ τ₁ : ℍ) :
+    ModularCurve.periodAlongOf Γ τ₀ τ₁ f = F τ₁ - F τ₀ := by
+  rw [ModularCurve.periodAlongOf_apply]
+  set g : ℝ → ℂ := fun t => F (ModularCurve.segmentPath τ₀ τ₁ t) with hg
+  have hgF : ∀ t, g t = (F ∘ ofComplex) (ModularCurve.segmentPoint τ₀ τ₁ t) := by
+    intro t
+    simp only [hg, Function.comp]
+    congr 1
+    rw [← ModularCurve.coe_segmentPath, ofComplex_apply]
+  have hg0 : g 0 = F τ₀ := by
+    rw [hgF]
+    have : ModularCurve.segmentPoint τ₀ τ₁ 0 = (τ₀ : ℂ) := by
+      rw [segmentPoint_eq_of_mem ⟨le_rfl, zero_le_one⟩]; push_cast; ring
+    simp only [Function.comp, this, ofComplex_apply]
+  have hg1 : g 1 = F τ₁ := by
+    rw [hgF]
+    have : ModularCurve.segmentPoint τ₀ τ₁ 1 = (τ₁ : ℂ) := by
+      rw [segmentPoint_eq_of_mem ⟨zero_le_one, le_rfl⟩]; push_cast; ring
+    simp only [Function.comp, this, ofComplex_apply]
+  have hFcont : ∀ τ : ℍ, ContinuousAt (F ∘ ofComplex) (τ : ℂ) := fun τ => (hF τ).continuousAt
+  have hgcont : Continuous g := by
+    have : g = (F ∘ ofComplex) ∘ ModularCurve.segmentPoint τ₀ τ₁ := funext hgF
+    rw [this]
+    refine continuous_iff_continuousAt.mpr fun t => ?_
+    refine ContinuousAt.comp ?_ (ModularCurve.continuous_segmentPoint τ₀ τ₁).continuousAt
+    have := hFcont (ModularCurve.segmentPath τ₀ τ₁ t)
+    rwa [ModularCurve.coe_segmentPath] at this
+  have hderiv : ∀ t ∈ Set.Ioo (0 : ℝ) 1,
+      HasDerivAt g (f (ModularCurve.segmentPath τ₀ τ₁ t) * ((τ₁ : ℂ) - τ₀)) t := by
+    intro t ht
+    have hpath : HasDerivAt (ModularCurve.segmentPoint τ₀ τ₁) ((τ₁ : ℂ) - τ₀) t := by
+      refine (hasDerivAt_affine (τ₀ : ℂ) (τ₁ : ℂ) t).congr_of_eventuallyEq ?_
+      filter_upwards [Ioo_mem_nhds ht.1 ht.2] with s hs
+      exact segmentPoint_eq_of_mem (Set.Ioo_subset_Icc_self hs)
+    have hFat : HasDerivAt (F ∘ ofComplex) (f (ModularCurve.segmentPath τ₀ τ₁ t))
+        (ModularCurve.segmentPoint τ₀ τ₁ t) := by
+      have := hF (ModularCurve.segmentPath τ₀ τ₁ t)
+      rwa [ModularCurve.coe_segmentPath] at this
+    have hcomp := hFat.comp t hpath
+    have : g = (F ∘ ofComplex) ∘ ModularCurve.segmentPoint τ₀ τ₁ := funext hgF
+    rw [this]
+    exact hcomp
+  have hint : IntervalIntegrable
+      (fun t => f (ModularCurve.segmentPath τ₀ τ₁ t) * ((τ₁ : ℂ) - τ₀)) MeasureTheory.volume 0 1 :=
+    ModularCurve.intervalIntegrable_periodIntegrandOf Γ τ₀ τ₁ f 0 1
+  have key := intervalIntegral.integral_eq_sub_of_hasDerivAt_of_le zero_le_one
+    hgcont.continuousOn hderiv hint
+  rw [key, hg0, hg1]
+
 def periodLatticeOf : Submodule ℤ (Module.Dual ℂ (CuspForm Γ 2)) :=
   Submodule.span ℤ (Set.range (periodOf Γ))
 
@@ -100,6 +189,15 @@ theorem periodMapOf_def (f : CuspForm Γ 2) {F : ℍ → ℂ} (hF : HasEquivaria
   classical
   have h : ∃ F : ℍ → ℂ, HasEquivariantPrimitiveOf Γ f F := ⟨F, hF⟩
   exact ⟨h.choose, h.choose_spec, dite_eq_left h⟩
+
+/-- The value of `periodMapOf` on `γ` is `periodOf γ`: the bridge from the period
+homomorphism to the period lattice. -/
+theorem periodOf_apply_eq_sub_of_hasEquivariantPrimitiveOf (Γ : Subgroup SL(2, ℤ))
+    (f : CuspForm Γ 2) {F : UpperHalfPlane → ℂ}
+    (hF : ModularCurve.HasEquivariantPrimitiveOf Γ f F) (γ : Γ) :
+    ModularCurve.periodOf Γ γ f =
+      F ((γ : SL(2, ℤ)) • UpperHalfPlane.I) - F UpperHalfPlane.I :=
+  periodAlongOf_eq_sub Γ f hF.1 _ _
 
 theorem periodAlongOf_gamma0 (N : ℕ) (τ₀ τ₁ : ℍ) :
     periodAlongOf (CongruenceSubgroup.Gamma0 N) τ₀ τ₁ = periodAlong N τ₀ τ₁ := rfl

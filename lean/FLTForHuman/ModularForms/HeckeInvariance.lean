@@ -24,11 +24,31 @@
   `P2M/Sol/S_ModularForm_heckeU_slash_eq_self_of_mem_Gamma0.lean`,
   `…_Gamma0_div.lean`. Statements verbatim from the wrappers; proofs adapted to
   mathlib `v4.34.0` where the pin's `P2M` prelude differs — proof-only.
+
+  W3b adds the `Γ_H(M)` case of the same subject: the two headlines
+  `heckeU_slash_eq_self_of_mem_GammaH` and
+  `heckeU_add_slash_slash_eq_self_of_mem_GammaH`, whose 480-line pin proofs are
+  the shared coset computation written once in
+  `ModularForms/HeckeCosetDecomposition.lean`. The two headlines are now
+  ~9-line `rw` wrappers around `sum_slash_beta_eq_heckeU` /
+  `sum_slash_beta_eq_heckeU_add` and `sum_slash_beta_slash_eq`.
+
+  spec-pin: Theorems/Thm_ModularForm_heckeU_slash_eq_self_of_mem_Gamma0.lean
+  spec-pin: P2M/Sol/S_ModularForm_heckeU_slash_eq_self_of_mem_Gamma0.lean   -- comparable copy
+  spec-pin: Theorems/Thm_ModularForm_heckeT_slash_eq_self_of_mem_Gamma0.lean
+  spec-pin: P2M/Sol/S_ModularForm_heckeT_slash_eq_self_of_mem_Gamma0.lean   -- comparable copy
+  spec-pin: Theorems/Thm_ModularForm_heckeU_slash_eq_self_of_mem_Gamma0_div.lean
+  spec-pin: P2M/Sol/S_ModularForm_heckeU_slash_eq_self_of_mem_Gamma0_div.lean   -- comparable copy
+  spec-pin: Theorems/Thm_ModularForm_heckeU_slash_eq_self_of_mem_GammaH.lean
+  spec-pin: P2M/Sol/S_ModularForm_heckeU_slash_eq_self_of_mem_GammaH.lean   -- comparable copy
+  spec-pin: Theorems/Thm_ModularForm_heckeU_add_slash_slash_eq_self_of_mem_GammaH.lean
+  spec-pin: P2M/Sol/S_ModularForm_heckeU_add_slash_slash_eq_self_of_mem_GammaH.lean   -- comparable copy
 -/
 import Mathlib.NumberTheory.ModularForms.CongruenceSubgroups
 import Mathlib.Algebra.Field.ZMod
 import FLTForHuman.ModularForms.Defs.HeckeRepresentatives
 import FLTForHuman.ModularForms.HeckeFricke
+import FLTForHuman.ModularForms.HeckeCosetDecomposition
 
 set_option autoImplicit false
 
@@ -41,6 +61,8 @@ open Matrix.SpecialLinearGroup UpperHalfPlane
 open scoped MatrixGroups ModularForm
 
 open ModularForm.HeckeRepresentatives
+
+open CohCarrier HeckeCoset
 
 namespace ModularForm
 
@@ -104,6 +126,41 @@ theorem heckeU_slash_eq_self_of_mem_Gamma0_div {N : ℕ} (k : ℤ) {p : ℕ} (hp
   haveI : NeZero p := ⟨hp.ne'⟩
   obtain ⟨g, hg, rfl⟩ := hγ
   exact heckeU_slash_mapGL_of_sq_dvd k hp2N f hf g hg
+
+/-- `U_q` preserves `Γ_H(M)`-invariance when `q ∣ M`. Stated verbatim from
+`Theorems/Thm_ModularForm_heckeU_slash_eq_self_of_mem_GammaH.lean`. -/
+theorem heckeU_slash_eq_self_of_mem_GammaH
+    (M : ℕ) [NeZero M] (H : Subgroup (ZMod M)ˣ) (k : ℤ) {q : ℕ} (hq : q.Prime) (hqM : q ∣ M)
+    {f : UpperHalfPlane → ℂ}
+    (hf : ∀ γ ∈ (CohCarrier.GammaH M H : Subgroup (GL (Fin 2) ℝ)), f ∣[k] γ = f)
+    (γ : GL (Fin 2) ℝ) (hγ : γ ∈ (CohCarrier.GammaH M H : Subgroup (GL (Fin 2) ℝ))) :
+    (ModularForm.heckeU k q f) ∣[k] γ = ModularForm.heckeU k q f := by
+  haveI : NeZero q := ⟨hq.ne_zero⟩
+  letI := (CohCarrier.GammaHUpper M H q).fintypeQuotientOfFiniteIndex
+  rw [← HeckeCoset.sum_slash_beta_eq_heckeU M H q hqM k hf]
+  exact HeckeCoset.sum_slash_beta_slash_eq M H q k hf γ hγ
+
+/-- `U_ℓ + (·) ∣ (ρ · diag ℓ)` preserves `Γ_H(M)`-invariance when `ℓ` is prime and
+`ℓ ∤ M`. Stated verbatim from
+`Theorems/Thm_ModularForm_heckeU_add_slash_slash_eq_self_of_mem_GammaH.lean`. -/
+theorem heckeU_add_slash_slash_eq_self_of_mem_GammaH
+    (M : ℕ) [NeZero M] (H : Subgroup (ZMod M)ˣ) (k : ℤ) {ℓ : ℕ} (hℓ : ℓ.Prime) (hℓM : ¬ ℓ ∣ M)
+    (ρ : CongruenceSubgroup.Gamma0 M)
+    (hρ : (((ρ : SL(2, ℤ)) 1 1 : ℤ) : ZMod M) = ℓ)
+    {f : UpperHalfPlane → ℂ}
+    (hf : ∀ γ ∈ (CohCarrier.GammaH M H : Subgroup (GL (Fin 2) ℝ)), f ∣[k] γ = f)
+    (γ : GL (Fin 2) ℝ) (hγ : γ ∈ (CohCarrier.GammaH M H : Subgroup (GL (Fin 2) ℝ))) :
+    (ModularForm.heckeU k ℓ f +
+        (f ∣[k] ((Matrix.SpecialLinearGroup.mapGL ℝ (ρ : SL(2, ℤ)) : GL (Fin 2) ℝ) *
+          ModularForm.heckeDiagMatrix ℓ))) ∣[k] γ =
+      ModularForm.heckeU k ℓ f +
+        (f ∣[k] ((Matrix.SpecialLinearGroup.mapGL ℝ (ρ : SL(2, ℤ)) : GL (Fin 2) ℝ) *
+          ModularForm.heckeDiagMatrix ℓ)) := by
+  haveI : Fact ℓ.Prime := ⟨hℓ⟩
+  obtain ⟨B⟩ := HeckeCoset.exists_bezoutData M ℓ hℓM
+  letI := (CohCarrier.GammaHUpper M H ℓ).fintypeQuotientOfFiniteIndex
+  rw [← HeckeCoset.sum_slash_beta_eq_heckeU_add H B ρ hρ k hf]
+  exact HeckeCoset.sum_slash_beta_slash_eq M H ℓ k hf γ hγ
 
 end ModularForm
 

@@ -735,18 +735,47 @@ That fixes the order, and it is not "A first, then B". The subject's waves follo
 3. then the consumers, in whichever order they are wanted: A's dictionary, Abel, Hecke and Tate; B's
    combinatorics; the cardinality packaging. Nothing among them is written twice as long as A's row-2
    (item 3) is written **after** W3, A's `ComplexPlaceDictionary` and the `Γ_H` cusp-form ↔
-   regular-differential identification — the reconciliation of parent §9.5 item 3.
+   regular-differential identification — the reconciliation of parent §9.5 item 3. **That constraint is
+   conditional on taking item 3 at all**: with the merged theory deferred (below) there is no rewrite,
+   so A's row-2 is transcribed once and in place.
 
 So "P1 then B" survives as a *scope* statement (A is the half the D-S column needs) and dies as an
 *order* for the two pieces in items 1 and 3. My earlier reading — "the bridge is pre-B, not pre-A,
 because A's cone contains no `pathIntegral`" — is withdrawn: a definition's priority is a fact about
 what gets written against it, not about citation edges.
 
-Wave order as it now stands: W1 (landed) → W2 (landed) → **W3, the honest integral**, with **W3b, the
-Hecke-equivariance layer** ([aj/PLAN-W3b-hecke-equivariance.md](aj/PLAN-W3b-hecke-equivariance.md)) as
-its parallel no-regret set — the largest premise-ready block that no outcome of these decisions can
-invalidate. The smoothed-fundamental cluster that W2 §7 named as the natural third wave is re-cut by
-W3 §7: its analysis half is W4a, and its row-2 fifth is held until the reconciliation exists.
+Wave order as it now stands: W1 (landed) → W2 (landed) → **W3b (landed)** — the Hecke-equivariance
+layer, [aj/PLAN-W3b-hecke-equivariance.md](aj/PLAN-W3b-hecke-equivariance.md), 12 nodes of pin but
+**1,586 written lines against 2,366** (0.67×) because its coset decomposition went in once instead of
+four times. It took the mouth's unported direct premises from nine to **two**, and `needed(653)` to
+**156 nodes / 55,470 lines**. Those two silos are now the whole of A's remaining distance: the
+injectivity / Abel–Jacobi block (302, 522 nodes, sub 161 / 55,688) and the rank / basis block (267, 174
+nodes, sub 24 / 6,218). **The next wave is the rank silo**, not the smoothed cluster: it is 6.2k against
+55.7k, and it is §9.2's borrowed-rank coupling — the smoothed/winding cluster (13 nodes / 6,308) is a
+sub-block of the *other* silo and can wait. **W3 is shelved, not withdrawn**: it is built and green in
+`Reserve/`, imported by nothing, because its only consumers are items 1 and 3 of §10.4, and
+[aj/TOPIC-translation-a-b.md](aj/TOPIC-translation-a-b.md) §9 settles that neither is worth taking first.
+The merged theory is a dictionary rather than a bridge, so the honest integral is *B's* survivor and B is
+deferred; W3b is A's own layer and was on A's critical path.
+
+**Two measurements from W3b to carry into the next pricing.** (i) A dedup-first wave prices at ≈0.67× pin,
+not W1's 1.07× over content: `PLAN-W3`'s 2,600–3,000 estimate was right about the transcription and wrong
+about the prelude, which was ~460 pin lines once rather than ≈900. (ii) `check_port` compares declarations
+by **unqualified name**, so a namespace error passes it — W3b's three predicates were first homed in
+`CohCarrier` and checked at 28 ok while the pin has them at `CuspForm`. Namespace fidelity is a manual
+reading of the pin, and a statement mutation test per headline is the only thing that tests the wire.
+
+**What deferring the merged theory costs, and why it is nothing in lines.** Its own budget is a wash:
+≈3k for the differential dictionary against the ≈3.4k it would save by rewriting A's row-2 as
+instantiations of B's reciprocity (translation note §9). Trading that ≈0.4k removes the subject's one
+ordering trap: with no rewire planned, A's row-2 (≈4,025) is transcribed once from the pin against
+nothing that later changes, so the constraint above — "A's row-2 only after W3 and the reconciliation" —
+lapses with the reconciliation itself, and the row-2 fifth of the smoothed-fundamental cluster stops
+being a *held* wave (W4b) and becomes an ordinary transcription. Its analysis half is W4a and is
+unaffected by any of this: it survives every decision, and §9 of the W3b plan measures it at 13 nodes /
+6,308 lines with 25 outbound citers. The cost of the decision is therefore that the A-only port carries
+A's row-2 at its pin size instead of at the ≈1k a B-shaped reciprocity would reduce it to — which is
+exactly the ≈3.4k the merged theory was for, spent later only if B is ever scheduled.
 
 **What the measure does not move.** B1's dissection (`exists_pairedCellFamily` 4,730,
 `exists_dissectionScaleData` 2,429, `exists_cellDissection` 779, `exists_tree_cotree` 883,
@@ -1021,22 +1050,26 @@ along it.
 * **the second wave — the parabolic-hom / period-map layer (6 nodes, 2,433 lines; landed):**
   [aj/PLAN-W2-parabolic-homs.md](aj/PLAN-W2-parabolic-homs.md),
   [aj/WORKORDER-W2-parabolic-homs.md](aj/WORKORDER-W2-parabolic-homs.md)
-* **the third wave — the honest integral on a charted surface**, i.e. survivor 1's general form and the
-  transport that makes `pathIntegral` a theorem about it:
-  [aj/PLAN-W3-honest-integral.md](aj/PLAN-W3-honest-integral.md). ≈400–800 written for a gate on ≈12.9k
-  of deletion (§10.4's items 1 and 3). mathlib already has the curve integral
-  (`MeasureTheory/Integral/CurveIntegral/`), which the port does not yet use, so this is adoption plus
+* **the third wave — the Hecke-equivariance layer of the period map (12 nodes, 2,366 lines; landed,
+  1,586 written, 0.67×):** [aj/PLAN-W3b-hecke-equivariance.md](aj/PLAN-W3b-hecke-equivariance.md) and its
+  execution contract [aj/WORKORDER-W3b-hecke-equivariance.md](aj/WORKORDER-W3b-hecke-equivariance.md).
+  A's own last definitional layer, decision-neutral, four new modules plus four appended headlines; it
+  took `…tateModule_jH_padicInt_tensor_periodLatticeOf` (653) from nine unported direct premises to
+  **two** (302 and 267) and `needed(653)` from 168 nodes / 57,836 lines to 156 / 55,470. Verification:
+  nine wired modules at 90 ok / 0 mismatch, twelve headlines at
+  `[propext, Classical.choice, Quot.sound]`, `dedup.py` and `move_dead.py` at zero. Next: the
+  rank/basis silo (not yet planned), then the injectivity silo.
+* **the honest integral on a charted surface — shelved in `Reserve/`**: survivor 1's general form and the
+  transport that makes `pathIntegral` a theorem about it,
+  [aj/PLAN-W3-honest-integral.md](aj/PLAN-W3-honest-integral.md). Built and green (two modules, 5927 ok /
+  0 mismatch / 0 missing), imported by nothing: it is a gate on ≈12.9k of deletion (§10.4's items 1 and
+  3), and both of those items are deferred with the merged theory, so the wave is re-opened only if B is
+  scheduled. mathlib already has the curve integral
+  (`MeasureTheory/Integral/CurveIntegral/`), which the port does not yet use, so it stays adoption plus
   chart glue — scouted first (§2.6), because the one open question is whether the primitive transport
   needs a path-regularity hypothesis that B's pinned statements do not carry (plan §3, D1). It also
-  re-cuts the smoothed-fundamental cluster (plan §7): its analysis half is W4a, its row-2 fifth is
-  held.
-* **W3b — the Hecke-equivariance layer of the period map (12 nodes, 2,366 lines + ~75 of definition
-  tails):** [aj/PLAN-W3b-hecke-equivariance.md](aj/PLAN-W3b-hecke-equivariance.md). The third wave's
-  parallel set and the largest premise-ready block no survivor decision can invalidate, so it is
-  dispatched beside W3's scout rather than after it. It also happens to be the third block of the
-  mouth's unported premises: after it `…tateModule_jH_padicInt_tensor_periodLatticeOf` (653) has **two**
-  unported direct premises (302 and 267) instead of nine, and `needed(653)` drops from 168 nodes /
-  57,836 lines to 156 / 55,470.
+  re-cuts the smoothed-fundamental cluster (plan §7): its analysis half is W4a, and its row-2 fifth is a
+  transcription rather than a held rewire while the reconciliation is deferred.
 * why A and not B: the FLT cone reaches A's Tate identification (653) through
   `CuspForm.exists_padicGaloisModule_…` (859) and nothing else proves it; `needed(653)` was 174 unported
   nodes / 60,220 lines, of which 66 nodes / 12,778 were ready when W1 landed (§10.4)

@@ -3,7 +3,8 @@
 Third wave of the aj subject, 2026-10-26. Parent note:
 [../TOPIC-abel-jacobi-port-structure.md](../TOPIC-abel-jacobi-port-structure.md) (§10.2, §10.4, §12.2, §13).
 Predecessors: [PLAN-W1-stokes.md](PLAN-W1-stokes.md) (landed), [PLAN-W2-parabolic-homs.md](PLAN-W2-parabolic-homs.md)
-(landed). Companion, dispatchable in parallel: [PLAN-W3b-hecke-equivariance.md](PLAN-W3b-hecke-equivariance.md).
+(landed). Companion, and now the wave the port runs first while this one stays shelved:
+[PLAN-W3b-hecke-equivariance.md](PLAN-W3b-hecke-equivariance.md).
 Pin `anthropics/fermats-last-theorem@aa2d8b3`; port mathlib `v4.34.0`.
 
 **Decision.** W3 is a *definitional* wave, and it is chosen by the criterion the subject actually runs on:
@@ -28,6 +29,13 @@ integral depends on the open question of §4b–§4c, `FLTForHuman` imports neit
 be checked in without the port carrying a speculation. `Reserve` is a default build target and walks by
 `submodules`, so both stay green and the register lists them; the mathematics is preserved, which is the
 point of the shelf rather than a deletion.
+
+**The shelving is now the decision, not a pause.** The port is ordered A-only (parent §10.4's wave order),
+so B is deferred, the merged theory is deferred with it, and this wave's survivor has no consumer in the
+tree — the reason the merged theory is a dictionary rather than a bridge is
+[TOPIC-translation-a-b.md](TOPIC-translation-a-b.md) §9. It is re-opened only if B is scheduled, and then
+the two `Reserve/` modules are the starting point rather than a re-derivation. Nothing in W3b or W4a
+depends on it (§4b–§4c of this plan and §7 below).
 
 | module (in `Reserve/`) | what it contains |
 |---|---|

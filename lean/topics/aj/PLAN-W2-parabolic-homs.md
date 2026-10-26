@@ -105,19 +105,16 @@ ordering that was wrong, not the count.
   the `qExpansion`/`coeMap` family, `realizeOf_eq_div` 57;
 * **`Place`/`PeriodPair` leaves** (≈900): the RR-prelude and Weierstrass-period leaves.
 
-**Not W3 either — corrected a second time the same day.** The paragraph above still reads the order off
-the target's premise list, and that is the criterion the subject does not run on. §10.4's criterion is
-**simplicity**: survivor definitions first, consumers after. On that criterion the third wave is
-[PLAN-W3-honest-integral.md](PLAN-W3-honest-integral.md) — the honest line integral of a 1-form on a
-charted complex surface, i.e. §10.4 item 1's *survivor* in its general form, which is the gate on
-≈12.9k of deletion and which mathlib already half-supplies (`MeasureTheory/Integral/CurveIntegral/`,
-unused by the port). The Hecke block is its parallel **no-regret** set,
-[PLAN-W3b-hecke-equivariance.md](PLAN-W3b-hecke-equivariance.md): the largest premise-ready block whose
-content no survivor decision can invalidate, and the reason it was a good find in the first place — it
-is 7 of the 9 unported direct premises of the mouth (653) and takes the mouth to two. The smoothed
-cluster is still W4, and W3 §7 re-cuts it: its analysis half is a wave, its row-2 fifth (A's ≈4,025) is
-held until the reconciliation exists, because those proofs are exactly what the honest integral
-rewrites.
+**Not W3 either — corrected twice the same day, and then again by scope.** The paragraph above reads the
+order off the target's premise list, and that is the criterion the subject does not run on. §10.4's
+criterion is **simplicity**: survivor definitions first, consumers after. With the port ordered A-only
+(parent §10.4's wave order), the merged theory is deferred, and with it the honest integral — item 1's
+survivor, which is B's — built and green but shelved in `Reserve/`. So the third wave is the Hecke block,
+[PLAN-W3b-hecke-equivariance.md](PLAN-W3b-hecke-equivariance.md): A's own last definitional layer, the
+largest premise-ready block whose content no survivor decision can invalidate, and 7 of the 9 unported
+direct premises of the mouth (653), which it takes to two. The smoothed cluster is still W4, and W3 §7
+re-cuts it: its analysis half is W4a, and its row-2 fifth (A's ≈4,025) is no longer *held* — with the
+reconciliation deferred there is no rewire, so it is transcribed at its pin size after W4a.
 
 This section's one durable observation survives the correction: the smoothed cluster is where W1's ∂̄
 layer is consumed, and the homing question it raises (`ModularCurve/Analytic/` versus the existing

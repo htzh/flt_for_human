@@ -18,20 +18,28 @@
   * `Definitions/Def_CuspForm_HeckeOperatorFormsGammaH.lean:18–70` —
     `Gamma_le_GammaH`, `GammaH_finiteIndex`, `gammaLift`, `gamma0Units_gammaLift`,
     `unitOfPrimeNotDvd`, `gammaLift_apply_11`, `mul_inv_mem_GammaH_of_gamma0Units_eq`,
-    `slash_mapGL_eq_of_gamma0Units_eq`.
+    `slash_mapGL_eq_of_gamma0Units_eq`; and `:72–105` — `StableD`, `StableU`,
+    `StableT`, the Hecke-stability predicates appended below in §"Hecke stability".
 
   Statements are transcribed verbatim from the pin's `Definitions/` files;
   proofs are adapted only for mathlib `v4.34.0` (`if_pos`/`if_neg` →
   `ite_eq_left`/`ite_eq_right` and similar). The one placement divergence is
   deliberate: the pin spreads these across four modules and re-inlines them into
   every consumer; here they have one home.
+
+  spec-pin: Definitions/Def_CohCarrier_Level.lean
+  spec-pin: Definitions/Def_CohCarrier_Inst.lean
+  spec-pin: Definitions/Def_ModularCurve_XH.lean
+  spec-pin: Definitions/Def_CuspForm_HeckeOperatorFormsGammaH.lean
 -/
 import Mathlib.NumberTheory.ModularForms.CongruenceSubgroups
 import Mathlib.NumberTheory.ModularForms.SlashActions
+import Mathlib.NumberTheory.ModularForms.Basic
 import Mathlib.Algebra.Field.ZMod
 import Mathlib.Data.ZMod.Units
 import Mathlib.GroupTheory.Index
 import Mathlib.Tactic.Group
+import FLTForHuman.ModularForms.Defs.HeckeOperator
 
 set_option autoImplicit false
 
@@ -295,5 +303,58 @@ def diamondRaw (σ : Gamma0 M) : H1 M H A →+ H1 M H A where
 end Operators
 
 end CohCarrier
+
+open scoped MatrixGroups ModularForm
+
+namespace CuspForm
+
+/-! ## Hecke stability
+
+`StableD`/`StableU`/`StableT` are the hypotheses under which the diamond action, `U_q`
+and the `T_ℓ` combination `U_ℓ f + f ∣ (ρ · diag ℓ)` again land in `Γ_H`-cusp forms.
+They are the tail of the pin's `Def_CuspForm_HeckeOperatorFormsGammaH.lean`, whose
+lines 18–70 this file already hosts; the statements are the pin's verbatim. -/
+
+/-- Slashing by a `Γ₀(M)`-matrix preserves cuspidality for `Γ_H`-cusp forms of
+weight `k`. -/
+def StableD (M : ℕ) [NeZero M] (H : Subgroup (ZMod M)ˣ) (k : ℤ) : Prop :=
+  ∀ (σ : Gamma0 M) (f : CuspForm (CohCarrier.GammaH M H) k) (c : OnePoint ℝ),
+    IsCusp c (CohCarrier.GammaH M H : Subgroup (GL (Fin 2) ℝ)) →
+      OnePoint.IsZeroAt c
+        (⇑f ∣[k] ((Matrix.SpecialLinearGroup.mapGL ℝ (σ : SL(2, ℤ)) : GL (Fin 2) ℝ))) k
+
+/-- `U_q f` is again a `Γ_H`-invariant, holomorphic, cuspidal function of weight `k`. -/
+def StableU (M : ℕ) [NeZero M] (H : Subgroup (ZMod M)ˣ) (k : ℤ) (q : ℕ) : Prop :=
+  ∀ f : CuspForm (CohCarrier.GammaH M H) k,
+    (∀ γ ∈ (CohCarrier.GammaH M H : Subgroup (GL (Fin 2) ℝ)),
+      (ModularForm.heckeU k q ⇑f) ∣[k] γ = ModularForm.heckeU k q ⇑f) ∧
+    MDifferentiable (modelWithCornersSelf ℂ ℂ) (modelWithCornersSelf ℂ ℂ)
+      (ModularForm.heckeU k q ⇑f) ∧
+    ∀ c : OnePoint ℝ, IsCusp c (CohCarrier.GammaH M H : Subgroup (GL (Fin 2) ℝ)) →
+      OnePoint.IsZeroAt c (ModularForm.heckeU k q ⇑f) k
+
+/-- The `T_ℓ` combination `U_ℓ f + f ∣ (ρ · diag ℓ)`, for `ρ ∈ Γ₀(M)` with
+`ρ₁₁ ≡ ℓ (mod M)`, is again `Γ_H`-invariant, holomorphic and cuspidal. -/
+def StableT (M : ℕ) [NeZero M] (H : Subgroup (ZMod M)ˣ) (k : ℤ) (ℓ : ℕ) : Prop :=
+  ∀ (ρ : Gamma0 M), (((ρ : SL(2, ℤ)) 1 1 : ℤ) : ZMod M) = ℓ →
+    ∀ f : CuspForm (CohCarrier.GammaH M H) k,
+      (∀ γ ∈ (CohCarrier.GammaH M H : Subgroup (GL (Fin 2) ℝ)),
+        (ModularForm.heckeU k ℓ ⇑f +
+          (⇑f ∣[k] ((Matrix.SpecialLinearGroup.mapGL ℝ (ρ : SL(2, ℤ)) : GL (Fin 2) ℝ) *
+            ModularForm.heckeDiagMatrix ℓ))) ∣[k] γ =
+        ModularForm.heckeU k ℓ ⇑f +
+          (⇑f ∣[k] ((Matrix.SpecialLinearGroup.mapGL ℝ (ρ : SL(2, ℤ)) : GL (Fin 2) ℝ) *
+            ModularForm.heckeDiagMatrix ℓ))) ∧
+      MDifferentiable (modelWithCornersSelf ℂ ℂ) (modelWithCornersSelf ℂ ℂ)
+        (ModularForm.heckeU k ℓ ⇑f +
+          (⇑f ∣[k] ((Matrix.SpecialLinearGroup.mapGL ℝ (ρ : SL(2, ℤ)) : GL (Fin 2) ℝ) *
+            ModularForm.heckeDiagMatrix ℓ))) ∧
+      ∀ c : OnePoint ℝ, IsCusp c (CohCarrier.GammaH M H : Subgroup (GL (Fin 2) ℝ)) →
+        OnePoint.IsZeroAt c
+          (ModularForm.heckeU k ℓ ⇑f +
+            (⇑f ∣[k] ((Matrix.SpecialLinearGroup.mapGL ℝ (ρ : SL(2, ℤ)) : GL (Fin 2) ℝ) *
+              ModularForm.heckeDiagMatrix ℓ))) k
+
+end CuspForm
 
 end

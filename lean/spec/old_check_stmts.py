@@ -3504,7 +3504,6 @@ PORT_FILES = [
     "FLTForHuman/ModularForms/Hauptmodul.lean",
     "FLTForHuman/ModularForms/Defs/HeckeOperator.lean",
     "FLTForHuman/ModularForms/Defs/HeckeRepresentatives.lean",
-    "FLTForHuman/ModularForms/HeckeInvariance.lean",
     "FLTForHuman/ModularForms/HeckeFricke.lean",
     "FLTForHuman/ModularForms/HeckeCusps.lean",
     # SET-3 T5: the formal `PowerSeries` operators and the shared `q`-coefficient tail.
@@ -3747,7 +3746,6 @@ PORT_FILES = [
     "FLTForHuman/ModularForms/WeightOne/CuspBound.lean",
     # SET-1 (PORTING-Level.md): the Γ_H vocabulary. Definition-module port with no
     # `Theorems/` wrappers; verified by name against the four pin sources above.
-    "FLTForHuman/ModularForms/Defs/GammaH.lean",
     # SET-2 (PORTING-Level.md, l2): the Γ₁ / diamond vocabulary. Definition-module
     # port with no `Theorems/` wrappers; verified by name against
     # `Definitions/Def_CuspForm_Gamma1HeckeOperators.lean` above.
@@ -4172,10 +4170,7 @@ PORT_FILES = [
     # Vocabulary, the `Γ₀` period integral/lattice (`PeriodIntegral.lean`, only
     # the pin's `Period` section), the general `periodOf`/`periodMapOf` layer,
     # and the headline construction (pin helpers `private`). Appended last.
-    "FLTForHuman/ModularForms/EichlerShimura/PeriodPrimitive.lean",
     "FLTForHuman/ModularForms/EichlerShimura/PeriodIntegral.lean",
-    "FLTForHuman/ModularForms/EichlerShimura/PeriodOf.lean",
-    "FLTForHuman/ModularForms/EichlerShimura/ExistsEquivariantPrimitive.lean",
     # --- SET-X1-A: the X₁ function-field/Jacobian vocabulary, the Hecke operator,
     # the diamond vocabulary and the `HeckeDiamondInputsAll` predicate. The pin's
     # `JOne.torsionGaloisRep{,_apply}`/`coe_torsionGaloisRep_apply` and
@@ -4683,7 +4678,6 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/Analytic/PeterssonPairing.lean",
     # --- WORKORDER-D2 (`topics/modularCurve/WORKORDER-D2-period-map.md`): the period-map
     # modules, matched against their `Theorems/` wrappers appended to `SOURCES` above.
-    "FLTForHuman/ModularCurve/Period/PeriodLatticeSpan.lean",
     "FLTForHuman/ModularCurve/Period/PeriodLatticeBoundary.lean",
     "FLTForHuman/ModularCurve/Period/QExpansionDerivative.lean",
     # --- WORKORDER-D2, node completion (whole-node rule, playbook §2.3): the remainder of

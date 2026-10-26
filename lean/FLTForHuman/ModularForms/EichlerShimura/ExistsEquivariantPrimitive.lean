@@ -19,6 +19,16 @@
   `qParam`, `dslope`, `isExactOn_ball`/`with_val_at`, `hasStrictDerivAt_smul`,
   `periodic_comp_ofComplex`, `CuspFormClass.holo`/`zero_at_infty_slash`) are
   already available in the port or mathlib.
+
+  It also hosts `periodMapOf_apply_eq_periodOf`, which the plan homes in
+  `PeriodOf.lean`: that module cannot prove it, because the only proof is
+  `exists_hasEquivariantPrimitiveOf` below and `PeriodOf.lean` is imported by
+  this one. The statement is the pin's, unchanged.
+
+  spec-pin: Theorems/Thm_ModularCurve_exists_hasEquivariantPrimitiveOf.lean
+  spec-pin: P2M/Sol/S_ModularCurve_exists_hasEquivariantPrimitiveOf.lean   -- comparable copy
+  spec-pin: Theorems/Thm_ModularCurve_periodMapOf_apply_eq_periodOf.lean
+  spec-pin: P2M/Sol/S_ModularCurve_periodMapOf_apply_eq_periodOf.lean   -- comparable copy
 -/
 import FLTForHuman.ModularForms.EichlerShimura.PeriodOf
 import FLTForHuman.ModularForms.Analytic.CuspBoundedness
@@ -251,6 +261,17 @@ theorem exists_hasEquivariantPrimitiveOf (Γ : Subgroup SL(2, ℤ)) [Γ.FiniteIn
     (f : CuspForm Γ 2) :
     ∃ F : UpperHalfPlane → ℂ, ModularCurve.HasEquivariantPrimitiveOf Γ f F :=
   PrimitiveConstructionOf.main Γ f
+
+/-- The period map's value on `γ` is `periodOf γ f` — the bridge from the period
+homomorphism to the period lattice. -/
+theorem periodMapOf_apply_eq_periodOf (Γ : Subgroup SL(2, ℤ)) [Γ.FiniteIndex]
+    (f : CuspForm Γ 2) (γ : Γ) :
+    ModularCurve.periodMapOf Γ f (Additive.ofMul γ) = ModularCurve.periodOf Γ γ f := by
+  obtain ⟨F, hF⟩ := exists_hasEquivariantPrimitiveOf Γ f
+  obtain ⟨F₀, h₀, hp⟩ := ModularCurve.periodMapOf_def Γ f hF
+  rw [hp, ModularCurve.Period.IsEquivariantPrimitive.periodHom_apply,
+    ModularCurve.periodOf_apply_eq_sub_of_hasEquivariantPrimitiveOf Γ f h₀ γ]
+  rfl
 
 end ModularCurve
 

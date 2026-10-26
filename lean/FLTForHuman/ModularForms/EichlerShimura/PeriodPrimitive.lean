@@ -16,12 +16,28 @@
   This is the vocabulary the pin's `ModularCurve.Period` API is built on; the
   `periodOf`/`periodLatticeOf`/`periodMapOf` layer is `PeriodOf.lean`, and the
   path-integral `period`/`periodLattice` on `Γ₀(N)` is `PeriodIntegral.lean`.
+
+  spec-pin: Theorems/Thm_ModularCurve_Period_IsEquivariantPrimitive_periodHom_eq_of_hasDerivAt.lean
+  spec-pin: P2M/Sol/S_ModularCurve_Period_IsEquivariantPrimitive_periodHom_eq_of_hasDerivAt.lean   -- comparable copy
+  spec-pin: Definitions/Def_ModularCurve_PeriodMap.lean
+  spec-pin: Definitions/Def_ModularCurve_PeriodMapBundled.lean
+
+  The headline here is `periodHom_eq_of_hasDerivAt`: two equivariant primitives
+  with the same derivative have the same period homomorphism. Its proof rides on
+  `UpperHalfPlane.apply_eq_apply_of_hasDerivAt_zero`
+  (`ModularForms/Analytic/CuspBoundedness.lean`), so the `private` helper
+  `sub_eq_const_of_forall_hasDerivAt` is re-proved here over that public lemma
+  instead of being imported: the pin's own copy lives in
+  `EichlerShimura/ExistsEquivariantPrimitive.lean`, which imports `PeriodOf.lean`
+  and therefore this module, so importing it back would close a cycle.
 -/
 import Mathlib.Analysis.Complex.UpperHalfPlane.MoebiusAction
 import Mathlib.Algebra.Module.Hom
 import Mathlib.Analysis.Complex.UpperHalfPlane.FunctionsBoundedAtInfty
 import Mathlib.NumberTheory.ModularForms.Basic
 import Mathlib.NumberTheory.ModularForms.CongruenceSubgroups
+import Mathlib.Tactic.LinearCombination
+import FLTForHuman.ModularForms.Analytic.CuspBoundedness
 
 set_option autoImplicit false
 
@@ -82,6 +98,36 @@ noncomputable def periodHom (hF : IsEquivariantPrimitive Γ F) : Additive Γ →
 theorem periodHom_apply (hF : IsEquivariantPrimitive Γ F) (γ : Γ) :
     hF.periodHom (Additive.ofMul γ) = hF.period γ :=
   rfl
+
+/-! #### A period hom is determined by its primitive -/
+
+private theorem sub_eq_const_of_forall_hasDerivAt {F G : ℂ → ℂ} {f : ℍ → ℂ}
+    (hF : ∀ τ : ℍ, HasDerivAt F (f τ) ↑τ) (hG : ∀ τ : ℍ, HasDerivAt G (f τ) ↑τ) :
+    ∃ c : ℂ, ∀ τ : ℍ, F ↑τ - G ↑τ = c := by
+  refine ⟨F ↑UpperHalfPlane.I - G ↑UpperHalfPlane.I, fun τ => ?_⟩
+  exact UpperHalfPlane.apply_eq_apply_of_hasDerivAt_zero
+    (D := fun z => F z - G z)
+    (fun σ => ((hF σ).fun_sub (hG σ)).congr_deriv (sub_self _)) τ UpperHalfPlane.I
+
+private theorem period_congr {F' : ℍ → ℂ} (hF : IsEquivariantPrimitive Γ F)
+    (hF' : IsEquivariantPrimitive Γ F') (c : ℂ) (h : ∀ z, F z - F' z = c) (γ : Γ) :
+    hF.period γ = hF'.period γ := by
+  rw [← hF.sub_eq_period γ UpperHalfPlane.I, ← hF'.sub_eq_period γ UpperHalfPlane.I]
+  have h1 := h ((γ : SL(2, ℤ)) • UpperHalfPlane.I)
+  have h2 := h UpperHalfPlane.I
+  linear_combination h1 - h2
+
+theorem periodHom_eq_of_hasDerivAt {Γ : Subgroup SL(2, ℤ)}
+    {F G : UpperHalfPlane → ℂ} {f : UpperHalfPlane → ℂ}
+    (hF : ModularCurve.Period.IsEquivariantPrimitive Γ F)
+    (hG : ModularCurve.Period.IsEquivariantPrimitive Γ G)
+    (hFf : ∀ τ : UpperHalfPlane, HasDerivAt (F ∘ UpperHalfPlane.ofComplex) (f τ) ↑τ)
+    (hGf : ∀ τ : UpperHalfPlane, HasDerivAt (G ∘ UpperHalfPlane.ofComplex) (f τ) ↑τ) :
+    hF.periodHom = hG.periodHom := by
+  obtain ⟨c, hc⟩ := sub_eq_const_of_forall_hasDerivAt hFf hGf
+  refine DFunLike.ext _ _ fun γ => ?_
+  show hF.period (Additive.toMul γ) = hG.period (Additive.toMul γ)
+  exact period_congr hF hG c (fun z => by simpa [ofComplex_apply] using hc z) _
 
 end IsEquivariantPrimitive
 

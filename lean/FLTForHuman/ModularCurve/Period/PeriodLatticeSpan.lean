@@ -21,16 +21,23 @@
   span argument) is `private` here, so the statement checker diffs only the
   headline and the three shared prelude declarations at the top.
 
-  The pin's `hasDerivAt_affine`, `segmentPoint_eq_of_mem` and
-  `periodAlongOf_eq_sub` are declared **once, public**, here, because
-  `PeriodLatticeBoundary.lean` (order 2 of the same set) reuses all three
-  verbatim; everything else in the pin's file stays `private`. This is the same
-  convention as `WeierstrassCurve/Automorphism/Basic.lean` (WORKORDER-W1): a
-  cross-module shared prelude is written once, public, at the pin's names.
+  The pin's shared prelude `hasDerivAt_affine`, `segmentPoint_eq_of_mem` and
+  `periodAlongOf_eq_sub` is written **once, public**, but not here: it moved down
+  to `ModularForms/EichlerShimura/PeriodOf.lean` (W3b), the module that defines
+  `periodAlongOf`, because the pin's `S_…periodOf_apply_eq_sub_…` file carries
+  the same three and a later wave needs them from there. `PeriodLatticeBoundary`
+  (order 2 of the same set) and this module both see them transitively through
+  `ExistsEquivariantPrimitive.lean`; there is one copy in the port, at the pin's
+  names, so this module's `spec-pin:` wire keeps its three rows and the checker
+  simply finds no port declaration for them here. Everything else in the pin's
+  file stays `private`.
 
   References (public mirror, pinned):
   <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_addSubgroupClosure_range_periodAlongOf_eq_top.lean>,
   <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_addSubgroupClosure_range_periodAlongOf_eq_top.lean>
+
+  spec-pin: Theorems/Thm_ModularCurve_addSubgroupClosure_range_periodAlongOf_eq_top.lean
+  spec-pin: P2M/Sol/S_ModularCurve_addSubgroupClosure_range_periodAlongOf_eq_top.lean   -- comparable copy
 -/
 import FLTForHuman.ModularForms.EichlerShimura.ExistsEquivariantPrimitive
 import FLTForHuman.ModularForms.WeightOne.Basic
@@ -56,71 +63,13 @@ open UpperHalfPlane
 
 namespace ModularCurve
 
-/-! ### The shared prelude (orders 1 and 2 of the set) -/
+/-! ### The shared prelude (orders 1 and 2 of the set), imported from `PeriodOf.lean` -/
 
-theorem hasDerivAt_affine (a b : ℂ) (t : ℝ) :
-    HasDerivAt (fun s : ℝ => (1 - (s : ℂ)) * a + (s : ℂ) * b) (b - a) t := by
-  have h1 : HasDerivAt (fun s : ℝ => (s : ℂ)) 1 t := Complex.ofRealCLM.hasDerivAt
-  have h2 : HasDerivAt (fun s : ℝ => (1 - (s : ℂ)) * a) (-(1 : ℂ) * a) t := by
-    simpa using ((hasDerivAt_const t (1 : ℂ)).sub h1).mul_const a
-  have h3 : HasDerivAt (fun s : ℝ => (s : ℂ) * b) (1 * b) t := h1.mul_const b
-  have := h2.add h3
-  convert this using 1; first | rfl | ring
-
-theorem segmentPoint_eq_of_mem {τ₀ τ₁ : ℍ} {t : ℝ} (ht : t ∈ Set.Icc (0 : ℝ) 1) :
-    ModularCurve.segmentPoint τ₀ τ₁ t = (1 - (t : ℂ)) * (τ₀ : ℂ) + (t : ℂ) * (τ₁ : ℂ) := by
-  simp only [ModularCurve.segmentPoint, ModularCurve.clamp01_of_mem ht, Complex.real_smul,
-    Complex.ofReal_sub, Complex.ofReal_one]
-
-theorem periodAlongOf_eq_sub (Γ : Subgroup SL(2, ℤ)) (f : CuspForm Γ 2)
-    {F : ℍ → ℂ} (hF : ∀ τ : ℍ, HasDerivAt (F ∘ ofComplex) (f τ) ↑τ) (τ₀ τ₁ : ℍ) :
-    ModularCurve.periodAlongOf Γ τ₀ τ₁ f = F τ₁ - F τ₀ := by
-  rw [ModularCurve.periodAlongOf_apply]
-  set g : ℝ → ℂ := fun t => F (ModularCurve.segmentPath τ₀ τ₁ t) with hg
-  have hgF : ∀ t, g t = (F ∘ ofComplex) (ModularCurve.segmentPoint τ₀ τ₁ t) := by
-    intro t
-    simp only [hg, Function.comp]
-    congr 1
-    rw [← ModularCurve.coe_segmentPath, ofComplex_apply]
-  have hg0 : g 0 = F τ₀ := by
-    rw [hgF]
-    have : ModularCurve.segmentPoint τ₀ τ₁ 0 = (τ₀ : ℂ) := by
-      rw [segmentPoint_eq_of_mem ⟨le_rfl, zero_le_one⟩]; push_cast; ring
-    simp only [Function.comp, this, ofComplex_apply]
-  have hg1 : g 1 = F τ₁ := by
-    rw [hgF]
-    have : ModularCurve.segmentPoint τ₀ τ₁ 1 = (τ₁ : ℂ) := by
-      rw [segmentPoint_eq_of_mem ⟨zero_le_one, le_rfl⟩]; push_cast; ring
-    simp only [Function.comp, this, ofComplex_apply]
-  have hFcont : ∀ τ : ℍ, ContinuousAt (F ∘ ofComplex) (τ : ℂ) := fun τ => (hF τ).continuousAt
-  have hgcont : Continuous g := by
-    have : g = (F ∘ ofComplex) ∘ ModularCurve.segmentPoint τ₀ τ₁ := funext hgF
-    rw [this]
-    refine continuous_iff_continuousAt.mpr fun t => ?_
-    refine ContinuousAt.comp ?_ (ModularCurve.continuous_segmentPoint τ₀ τ₁).continuousAt
-    have := hFcont (ModularCurve.segmentPath τ₀ τ₁ t)
-    rwa [ModularCurve.coe_segmentPath] at this
-  have hderiv : ∀ t ∈ Set.Ioo (0 : ℝ) 1,
-      HasDerivAt g (f (ModularCurve.segmentPath τ₀ τ₁ t) * ((τ₁ : ℂ) - τ₀)) t := by
-    intro t ht
-    have hpath : HasDerivAt (ModularCurve.segmentPoint τ₀ τ₁) ((τ₁ : ℂ) - τ₀) t := by
-      refine (hasDerivAt_affine (τ₀ : ℂ) (τ₁ : ℂ) t).congr_of_eventuallyEq ?_
-      filter_upwards [Ioo_mem_nhds ht.1 ht.2] with s hs
-      exact segmentPoint_eq_of_mem (Set.Ioo_subset_Icc_self hs)
-    have hFat : HasDerivAt (F ∘ ofComplex) (f (ModularCurve.segmentPath τ₀ τ₁ t))
-        (ModularCurve.segmentPoint τ₀ τ₁ t) := by
-      have := hF (ModularCurve.segmentPath τ₀ τ₁ t)
-      rwa [ModularCurve.coe_segmentPath] at this
-    have hcomp := hFat.comp t hpath
-    have : g = (F ∘ ofComplex) ∘ ModularCurve.segmentPoint τ₀ τ₁ := funext hgF
-    rw [this]
-    exact hcomp
-  have hint : IntervalIntegrable
-      (fun t => f (ModularCurve.segmentPath τ₀ τ₁ t) * ((τ₁ : ℂ) - τ₀)) MeasureTheory.volume 0 1 :=
-    ModularCurve.intervalIntegrable_periodIntegrandOf Γ τ₀ τ₁ f 0 1
-  have key := intervalIntegral.integral_eq_sub_of_hasDerivAt_of_le zero_le_one
-    hgcont.continuousOn hderiv hint
-  rw [key, hg0, hg1]
+-- The shared prelude that used to sit here (`hasDerivAt_affine`,
+-- `segmentPoint_eq_of_mem`, `periodAlongOf_eq_sub`) now lives in
+-- `ModularForms/EichlerShimura/PeriodOf.lean`, the module that defines
+-- `periodAlongOf`; it arrives here transitively through
+-- `ExistsEquivariantPrimitive.lean`. Same public names, one copy.
 
 namespace JacobiInversionEngineOf
 
