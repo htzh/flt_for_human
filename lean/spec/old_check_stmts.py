@@ -3561,7 +3561,6 @@ PORT_FILES = [
     "FLTForHuman/AlgebraicCurve/Defs/IntegralAdjoin.lean",
     # T2 (the promoted fibre dictionary and the bifibre count).
     "FLTForHuman/AlgebraicCurve/Defs/PlaceDictionary.lean",
-    "FLTForHuman/AlgebraicCurve/WeilExchange/FiberOverCount.lean",
     # T3 (Galois ramification/inertia).
     "FLTForHuman/AlgebraicCurve/WeilExchange/GaloisRamification.lean",
     # T4 (along-map transport + `Pic0` descent, and the shared prelude).
@@ -3615,7 +3614,6 @@ PORT_FILES = [
     # Fricke-automorphism consumers. `jTr` is built through the private generic
     # `ifRE` so the kernel never normalises `mem_bar_iff`'s heavy proof; see
     # `logs/mc-port.md` §Friction.
-    "FLTForHuman/ModularCurve/Analytic/CuspDichotomy.lean",
     # SET-M3 m7: the Laurent/`coeffEmb` glue (the eight short M4 nodes).
     # (removed) `FLTForHuman/ModularCurve/Degree/LaurentGlue.lean` — now wired by its own
     # `spec-pin:` lines (`laurentBaseChange_adjoin` and the two `HeckeCompositum` files).
@@ -3769,7 +3767,6 @@ PORT_FILES = [
     "FLTForHuman/ModularForms/ModularGroup.lean",
     "FLTForHuman/ModularForms/EichlerShimura/BinaryForm.lean",
     "FLTForHuman/ModularForms/EichlerShimura/CoeffCohomology.lean",
-    "FLTForHuman/ModularForms/EichlerShimura/EichlerIntegral.lean",
     "FLTForHuman/ModularForms/EichlerShimura/PeriodMap.lean",
     # Topic 11, the T-side definition layer (SET A/B/C). Every definition module
     # is transcribed verbatim (structures in the pin's field order); the three
@@ -4141,7 +4138,6 @@ PORT_FILES = [
     "FLTForHuman/AlgebraicCurve/IsCurveOver/PerfectField.lean",
     "FLTForHuman/AlgebraicCurve/IsCurveOver/Transcendental.lean",
     "FLTForHuman/AlgebraicCurve/PrincipalDivisors/IsSeparable.lean",
-    "FLTForHuman/AlgebraicCurve/Place/FiniteResidue.lean",
     "FLTForHuman/ModularCurve/Frobenius/QExpModL.lean",
     # --- Factorisable test functions on GL₂(𝔸_K) (AutomorphicForm) ---
     # The adele-ring topology/Haar layer (the former `AdelicHaar/Topology.lean` stub is
@@ -4741,8 +4737,6 @@ PORT_FILES = [
     # headlines each, with their `S_`-local helpers `private`. Appended last so no
     # earlier last-name match can flip.
     "FLTForHuman/ModularCurve/LevelN/Prelude.lean",
-    "FLTForHuman/ModularCurve/LevelN/FieldGalois.lean",
-    "FLTForHuman/ModularCurve/LevelN/Places.lean",
     # The Weil-pairing entry points: the needed `Def_EllipticCurve_FunctionFieldPullback`
     # slice (`PointPlace`), the `weilPairing0` construction, and the six-law
     # `IsWeilPairing` interface.

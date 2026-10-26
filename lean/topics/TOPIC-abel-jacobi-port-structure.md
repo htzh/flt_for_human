@@ -304,6 +304,32 @@ zones in `spec/` gain one zone per mouth (B: `Pic0 ≃ ℂ^g/L` at a concrete cu
 lattice of `Γ_H` and `finite_torsion_jOne`); `#print axioms` clean on both mouths and on the spine's
 conditional assembly; a coverage report for the payout (`0 / 0 / 0` on the ported subset).
 
+**Every wave is advised before it is priced, and the two tools answer different questions.** `frontier`
+prices the demand — nodes and raw `S_` lines from the ported frontier — and it does **not** dedup: it counts
+citation nodes, so a general form and its instance are two nodes and a lemma written four ways is four.
+`tools/deps/port_advise.py` is the dedup instrument, and every wave plan runs it over its own `S_` file set
+and reports its three counts before §6's budget: **substitutions** (statements already in the port, split
+byte-identical / binder-spelling, and importable-public / port-`private` → promote), **port once** (names
+proved in two or more of the wave's files), **generalise** (names sharing a conclusion with different
+binders). W4's run found 40 / 13 / 8 over 36 files and 495 declarations, and the numbers moved its budget
+by ≈440 lines ([aj/PLAN-W4-rank-basis.md](aj/PLAN-W4-rank-basis.md) §1b). One caution on the substitution
+tier: it normalises **instance arguments** by design, so an added or removed typeclass hypothesis is
+invisible to it — W4's `Place.inertiaDeg_pos` was reported as a binder-spelling match while the port's lemma
+carries an extra `[Algebra.IsSeparable F F']` and is strictly weaker than the pin's. Read both texts before
+banking a substitution. A wave priced off `frontier`
+alone is priced high and, worse, is priced to re-write what the port already holds.
+
+**And `--ds` is not a scoping instrument.** The prune is known to be too broad — §10.4's amendment records
+it matching A's own `abelJacobi_mem_periodLattice*` lemmas, and PRUNABLE §7 records 19 dictionary lemmas /
+5,981 lines cut with 86 nodes / 41,714 behind them — so a wave's price is taken on the plain reading. The
+one diagnostic that *looks* prune-specific is not: `frontier`'s "N needed nodes cannot reach F without R"
+fires from `unreachable = [i for i in need if i not in hops]` and prints the same count with `--ds` off, where
+`R` is empty. The hop distance is `1 + min` over a node's **FLT** premises, so what the line actually reports
+is a **root of the pin's own citation graph** — a node whose proof cites no other FLT node and stands on
+mathlib and `Definitions/` alone. That is the cheapest kind of demand, not a defect: W4's four are 169, 8, 90
+and 16 lines, and two of them are already in the port under other names
+([aj/PLAN-W4-rank-basis.md](aj/PLAN-W4-rank-basis.md) §5 D6).
+
 ## 8. First moves
 
 1. **P1 set 1.** `ModularCurve/Period/Basic.lean` from `Def_ModularCurve_PeriodOf.lean` (the
@@ -1058,7 +1084,9 @@ along it.
   **two** (302 and 267) and `needed(653)` from 168 nodes / 57,836 lines to 156 / 55,470. Verification:
   nine wired modules at 90 ok / 0 mismatch, twelve headlines at
   `[propext, Classical.choice, Quot.sound]`, `dedup.py` and `move_dead.py` at zero. Next: the
-  rank/basis silo (not yet planned), then the injectivity silo.
+  rank/freeness premise — [aj/PLAN-W4-rank-basis.md](aj/PLAN-W4-rank-basis.md), 22 nodes / 6,106 lines,
+  of which 5,839 is the tower the injectivity premise also cites — then the injectivity silo (one
+  premise left after W4).
 * **the honest integral on a charted surface — shelved in `Reserve/`**: survivor 1's general form and the
   transport that makes `pathIntegral` a theorem about it,
   [aj/PLAN-W3-honest-integral.md](aj/PLAN-W3-honest-integral.md). Built and green (two modules, 5927 ok /

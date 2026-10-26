@@ -18,6 +18,13 @@
   FLT provenance, pinned `aa2d8b3`:
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_eq_cuspInftyBar_or_eq_cuspZeroBar.lean
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_finrank_adjoin_jqNModC_eq_of_prime.lean
+
+  spec-pin: Theorems/Thm_ModularCurve_eq_cuspInftyBar_or_eq_cuspZeroBar.lean
+  spec-pin: P2M/Sol/S_ModularCurve_eq_cuspInftyBar_or_eq_cuspZeroBar.lean   -- comparable copy
+  spec-pin: Theorems/Thm_ModularCurve_finrank_adjoin_jqNModC_eq_of_prime.lean
+  spec-pin: P2M/Sol/S_ModularCurve_finrank_adjoin_jqNModC_eq_of_prime.lean   -- comparable copy
+  spec-pin: Theorems/Thm_ModularCurve_modularFunctionFieldBar_eq_restrictScalars.lean
+  spec-pin: P2M/Sol/S_ModularCurve_modularFunctionFieldBar_eq_restrictScalars.lean   -- comparable copy
 -/
 import FLTForHuman.ModularCurve.Analytic.CuspBookkeeping
 import FLTForHuman.ModularCurve.Analytic.FrickeAut
@@ -275,11 +282,11 @@ theorem eq_cuspInftyBar_or_eq_cuspZeroBar (hw : IsFrickeAutFull ℓ (frickeInvol
   have ew : (1 : ℤ) ≤ w.ramificationIndex (RatFunc 𝕂) := by
     exact_mod_cast w.ramificationIndex_pos (F := RatFunc 𝕂)
   have f1 : (1 : ℤ) ≤ (cuspInftyBar ℓ).inertiaDeg (RatFunc 𝕂) := by
-    exact_mod_cast Place.inertiaDeg_pos (F := RatFunc 𝕂) (cuspInftyBar ℓ)
+    exact_mod_cast Place.inertiaDeg_pos_of_finiteDimensional (F := RatFunc 𝕂) (cuspInftyBar ℓ)
   have f0 : (1 : ℤ) ≤ (cuspZeroBar ℓ).inertiaDeg (RatFunc 𝕂) := by
-    exact_mod_cast Place.inertiaDeg_pos (F := RatFunc 𝕂) (cuspZeroBar ℓ)
+    exact_mod_cast Place.inertiaDeg_pos_of_finiteDimensional (F := RatFunc 𝕂) (cuspZeroBar ℓ)
   have fw : (1 : ℤ) ≤ w.inertiaDeg (RatFunc 𝕂) := by
-    exact_mod_cast Place.inertiaDeg_pos (F := RatFunc 𝕂) w
+    exact_mod_cast Place.inertiaDeg_pos_of_finiteDimensional (F := RatFunc 𝕂) w
   have p0 : (ℓ : ℤ) ≤ ((cuspZeroBar ℓ).ramificationIndex (RatFunc 𝕂) : ℤ) *
       ((cuspZeroBar ℓ).inertiaDeg (RatFunc 𝕂) : ℤ) := by
     rw [e0]; nlinarith
@@ -307,9 +314,9 @@ theorem le_finrank : ℓ + 1 ≤ Module.finrank (RatFunc 𝕂) (modularFunctionF
   have e1 := (e_infty ℓ).1
   have e0 := e_zero ℓ hw
   have f1 : (1 : ℤ) ≤ (cuspInftyBar ℓ).inertiaDeg (RatFunc 𝕂) := by
-    exact_mod_cast Place.inertiaDeg_pos (F := RatFunc 𝕂) (cuspInftyBar ℓ)
+    exact_mod_cast Place.inertiaDeg_pos_of_finiteDimensional (F := RatFunc 𝕂) (cuspInftyBar ℓ)
   have f0 : (1 : ℤ) ≤ (cuspZeroBar ℓ).inertiaDeg (RatFunc 𝕂) := by
-    exact_mod_cast Place.inertiaDeg_pos (F := RatFunc 𝕂) (cuspZeroBar ℓ)
+    exact_mod_cast Place.inertiaDeg_pos_of_finiteDimensional (F := RatFunc 𝕂) (cuspZeroBar ℓ)
   have p0 : (ℓ : ℤ) ≤ ((cuspZeroBar ℓ).ramificationIndex (RatFunc 𝕂) : ℤ) *
       ((cuspZeroBar ℓ).inertiaDeg (RatFunc 𝕂) : ℤ) := by
     rw [e0]; nlinarith

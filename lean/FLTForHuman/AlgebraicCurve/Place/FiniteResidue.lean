@@ -12,6 +12,9 @@ independence of the same elements, bounding the residue degree by `[F' : F]`.
 The public headline is the wrapper verbatim; the pin's `S09G2F` helpers are
 transcribed `private`.
 
+  spec-pin: Theorems/Thm_AlgebraicCurve_Place_finite_residueField_of_finiteDimensional.lean
+  spec-pin: P2M/Sol/S_AlgebraicCurve_Place_finite_residueField_of_finiteDimensional.lean   -- comparable copy
+
 Mathlib search negatives (recorded): mathlib has no statement bounding the
 residue-field extension of a place by the degree of the field extension; the
 argument (a lift of a residue-basis through the valuation subring, then

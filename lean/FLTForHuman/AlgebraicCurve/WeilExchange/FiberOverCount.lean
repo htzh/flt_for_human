@@ -1,8 +1,12 @@
 /-
 The bifibre count: the sum of ramification index times inertia degree over a
-fibre equals the degree, plus the `≤` form and `inertiaDeg_pos`, after FLT's
-`P2M/Sol/S_AlgebraicCurve_Place_sum_ramificationIndex_mul_inertiaDeg_{fiberOver,le_finrank}.lean`
-and `P2M/Sol/S_AlgebraicCurve_Place_inertiaDeg_pos.lean`
+fibre equals the degree, plus the `≤` form, after FLT's
+`P2M/Sol/S_AlgebraicCurve_Place_sum_ramificationIndex_mul_inertiaDeg_{fiberOver,le_finrank}.lean`;
+and the *strong* form of `inertiaDeg_pos_of_finiteDimensional`
+(`P2M/Sol/S_AlgebraicCurve_Place_inertiaDeg_pos_of_finiteDimensional.lean`), which needs only
+`[FiniteDimensional F F']`. The pin's weaker `inertiaDeg_pos` node
+(`S_AlgebraicCurve_Place_inertiaDeg_pos.lean`, with `[Algebra.IsSeparable F F']`) is deliberately not
+reproduced: it is a consequence of the strong form in three lines, and its five call sites take that name.
 (<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_Place_sum_ramificationIndex_mul_inertiaDeg_fiberOver.lean>).
 
 The pin ships the 45-line Assembly twice (byte-identical); the port writes it
@@ -10,8 +14,16 @@ once, here, as the proof of the public `_fiberOver` node. The two v4.34 bridges
 against the new `Ideal.sum_ramification_inertia_eq_finrank` are
 `IsDedekindDomain.coe_primesOverFinset` + `Finset.sum_coe_sort` and
 `IsFractionRing.finrank_eq` (`TOPIC-t2-fibre-dictionary.md` §3, SET-1 §3.1).
+
+  spec-pin: Theorems/Thm_AlgebraicCurve_Place_sum_ramificationIndex_mul_inertiaDeg_fiberOver.lean
+  spec-pin: P2M/Sol/S_AlgebraicCurve_Place_sum_ramificationIndex_mul_inertiaDeg_fiberOver.lean   -- comparable copy
+  spec-pin: Theorems/Thm_AlgebraicCurve_Place_sum_ramificationIndex_mul_inertiaDeg_le_finrank.lean
+  spec-pin: P2M/Sol/S_AlgebraicCurve_Place_sum_ramificationIndex_mul_inertiaDeg_le_finrank.lean   -- comparable copy
+  spec-pin: Theorems/Thm_AlgebraicCurve_Place_inertiaDeg_pos_of_finiteDimensional.lean
+  spec-pin: P2M/Sol/S_AlgebraicCurve_Place_inertiaDeg_pos_of_finiteDimensional.lean   -- comparable copy
 -/
 import FLTForHuman.AlgebraicCurve.Defs.PlaceDictionary
+import FLTForHuman.AlgebraicCurve.Place.FiniteResidue
 import Mathlib.LinearAlgebra.Dimension.Localization
 
 set_option autoImplicit false
@@ -109,13 +121,17 @@ theorem sum_ramificationIndex_mul_inertiaDeg_le_finrank {K F F' : Type*} [Field 
       (fun _ _ _ => mul_nonneg (Int.natCast_nonneg _) (Int.natCast_nonneg _)))
     (sum_ramificationIndex_mul_inertiaDeg_fiberOver v)
 
-theorem inertiaDeg_pos {K F F' : Type*} [Field K] [Field F] [Field F'] [Algebra K F]
-    [Algebra K F'] [Algebra F F'] [IsScalarTower K F F'] [FiniteDimensional F F']
-    [Algebra.IsSeparable F F'] (w : Place K F') : 0 < w.inertiaDeg F := by
-  haveI := fiberCenter_liesOver (F' := F') (v := w.restrict F) (w := w) rfl
-  rw [inertiaDeg_eq_inertiaDeg_fiberCenter (F' := F') (v := w.restrict F) (w := w) rfl,
-    Ideal.inertiaDeg'_eq_inertiaDeg]
-  exact Ideal.inertiaDeg_pos _ _
+/-- The inertia degree of a place is positive — the pin's stronger form, which assumes only
+`[FiniteDimensional F F']` and not `[Algebra.IsSeparable F F']`: the residue-field extension is finite
+(`finite_residueField_of_finiteDimensional`), so its `ℕ`-valued `inertiaDeg` is a positive `finrank`.
+
+The pin carries the weaker `inertiaDeg_pos` (with separability) as a separate node; the port proves this
+form and drops that one, whose five call sites take this name. -/
+theorem inertiaDeg_pos_of_finiteDimensional {K F F' : Type*} [Field K] [Field F] [Field F']
+    [Algebra K F] [Algebra K F'] [Algebra F F'] [IsScalarTower K F F'] [FiniteDimensional F F']
+    (w : Place K F') : 0 < w.inertiaDeg F := by
+  haveI := finite_residueField_of_finiteDimensional (F := F) w
+  exact Module.finrank_pos
 
 end Place
 

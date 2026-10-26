@@ -252,7 +252,7 @@ private theorem coeff_binaryFormRepSL_eq_sum {K : Type*} [CommRing K] {n : ℕ}
       rw [smul_monomial, smul_eq_mul, mul_one],
     map_smul, coeff_smul, smul_eq_mul]
 
-private theorem hasDerivAt_smul_ofComplex (γ : SL(2, ℤ)) (τ : ℍ) :
+theorem hasDerivAt_smul_ofComplex (γ : SL(2, ℤ)) (τ : ℍ) :
     HasDerivAt (fun z : ℂ => ((γ • ofComplex z : ℍ) : ℂ))
       (denom (Matrix.SpecialLinearGroup.mapGL ℝ γ) ↑τ ^ (-2 : ℤ)) ↑τ := by
   set G : GL (Fin 2) ℝ := Matrix.SpecialLinearGroup.mapGL ℝ γ with hG
@@ -272,7 +272,7 @@ private theorem hasDerivAt_smul_ofComplex (γ : SL(2, ℤ)) (τ : ℍ) :
   rw [zpow_neg, one_div]
   norm_cast
 
-private theorem hasDerivAt_comp_smul {G : ℍ → ℂ} {g : ℍ → ℂ}
+theorem hasDerivAt_comp_smul {G : ℍ → ℂ} {g : ℍ → ℂ}
     (hG : ∀ τ : ℍ, HasDerivAt (G ∘ ofComplex) (g τ) ↑τ) (γ : SL(2, ℤ)) (τ : ℍ) :
     HasDerivAt (fun z : ℂ => G (γ • ofComplex z))
       (g (γ • τ) * denom (Matrix.SpecialLinearGroup.mapGL ℝ γ) ↑τ ^ (-2 : ℤ)) ↑τ := by

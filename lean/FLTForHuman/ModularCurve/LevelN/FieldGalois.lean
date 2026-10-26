@@ -17,6 +17,15 @@
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_LevelN_exists_monoidHom_algEquiv_fixedField_eq_adjoin.lean
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_LevelN_exists_algHom_laurentSeries_qExpansion.lean
 
+  spec-pin: Theorems/Thm_ModularCurve_LevelN_isDomain_ring.lean
+  spec-pin: P2M/Sol/S_ModularCurve_LevelN_isDomain_ring.lean   -- comparable copy
+  spec-pin: Theorems/Thm_ModularCurve_LevelN_slash_eq_self_of_mem_Gamma_of_mul_eq.lean
+  spec-pin: P2M/Sol/S_ModularCurve_LevelN_slash_eq_self_of_mem_Gamma_of_mul_eq.lean   -- comparable copy
+  spec-pin: Theorems/Thm_ModularCurve_LevelN_exists_monoidHom_algEquiv_fixedField_eq_adjoin.lean
+  spec-pin: P2M/Sol/S_ModularCurve_LevelN_exists_monoidHom_algEquiv_fixedField_eq_adjoin.lean   -- comparable copy
+  spec-pin: Theorems/Thm_ModularCurve_LevelN_exists_algHom_laurentSeries_qExpansion.lean
+  spec-pin: P2M/Sol/S_ModularCurve_LevelN_exists_algHom_laurentSeries_qExpansion.lean   -- comparable copy
+
   Drift: `Pi.algHom` (used inside the prelude's `precomp`) and
   `AlgEquiv.coe_algHom_injective` / `Set.mem_setOf_eq` are deprecated aliases in
   `v4.34.0`.  The pin's `set_option linter.unusedSectionVars false` /
@@ -77,7 +86,7 @@ variable (N : ℕ) [NeZero N]
 
 
 
-private theorem apply_smul_of_mem {γ : SL(2, ℤ)} (hγ : γ ∈ CongruenceSubgroup.Gamma N) {F : ℍ → ℂ}
+theorem apply_smul_of_mem {γ : SL(2, ℤ)} (hγ : γ ∈ CongruenceSubgroup.Gamma N) {F : ℍ → ℂ}
     (hF : F ∈ ring N) (τ : ℍ) : F (γ • τ) = F τ := by
   have hle : ring N ≤ AlgHom.equalizer (precomp γ) (AlgHom.id ℂ (ℍ → ℂ)) := by
     rw [ring, Algebra.adjoin_le_iff]
@@ -91,11 +100,11 @@ private theorem apply_smul_of_mem {γ : SL(2, ℤ)} (hγ : γ ∈ CongruenceSubg
   have := hle hF
   rw [AlgHom.mem_equalizer, AlgHom.id_apply] at this
   exact congrFun this τ
-private def 𝕌 : Set ℂ := {z : ℂ | 0 < z.im}
-private theorem isOpen_𝕌 : IsOpen 𝕌 := isOpen_upperHalfPlaneSet
-private theorem isPreconnected_𝕌 : IsPreconnected 𝕌 := (convex_halfSpace_im_gt 0).isPreconnected
+def 𝕌 : Set ℂ := {z : ℂ | 0 < z.im}
+theorem isOpen_𝕌 : IsOpen 𝕌 := isOpen_upperHalfPlaneSet
+theorem isPreconnected_𝕌 : IsPreconnected 𝕌 := (convex_halfSpace_im_gt 0).isPreconnected
 private theorem coe_mem_𝕌 (τ : ℍ) : (τ : ℂ) ∈ 𝕌 := τ.im_pos
-private def up (F : ℍ → ℂ) : ℂ → ℂ := F ∘ ofComplex
+def up (F : ℍ → ℂ) : ℂ → ℂ := F ∘ ofComplex
 private theorem up_apply_coe (F : ℍ → ℂ) (τ : ℍ) : up F τ = F τ := by
   simp [up, ofComplex_apply]
 private theorem analyticOnNhd_up_of_mdifferentiable {F : ℍ → ℂ} (hF : MDifferentiable 𝓘(ℂ) 𝓘(ℂ) F) :
@@ -103,12 +112,12 @@ private theorem analyticOnNhd_up_of_mdifferentiable {F : ℍ → ℂ} (hF : MDif
   intro z hz
   have hd : DifferentiableOn ℂ (up F) 𝕌 := UpperHalfPlane.mdifferentiable_iff.mp hF
   exact hd.analyticAt (isOpen_𝕌.mem_nhds hz)
-private theorem analyticOnNhd_up {F : ℍ → ℂ} (hF : F ∈ ring N) : AnalyticOnNhd ℂ (up F) 𝕌 :=
+theorem analyticOnNhd_up {F : ℍ → ℂ} (hF : F ∈ ring N) : AnalyticOnNhd ℂ (up F) 𝕌 :=
   analyticOnNhd_up_of_mdifferentiable (mdifferentiable_of_mem N hF)
-private theorem differentiableAt_up {F : ℍ → ℂ} (hF : F ∈ ring N) (τ : ℍ) :
+theorem differentiableAt_up {F : ℍ → ℂ} (hF : F ∈ ring N) (τ : ℍ) :
     DifferentiableAt ℂ (up F) τ :=
   (analyticOnNhd_up N hF τ (coe_mem_𝕌 τ)).differentiableAt
-private theorem up_eq_zero_iff (F : ℍ → ℂ) : (∀ z ∈ 𝕌, up F z = 0) ↔ F = 0 := by
+theorem up_eq_zero_iff (F : ℍ → ℂ) : (∀ z ∈ 𝕌, up F z = 0) ↔ F = 0 := by
   constructor
   · intro h
     funext τ
@@ -179,7 +188,7 @@ private theorem deriv_up_smul {γ : SL(2, ℤ)} (hγ : γ ∈ CongruenceSubgroup
   rw [hinv] at h1
   rw [← moeb_coe]
   exact h1.deriv.symm
-private theorem slash_two_apply (f : ℍ → ℂ) (γ : SL(2, ℤ)) (τ : ℍ) :
+theorem slash_two_apply (f : ℍ → ℂ) (γ : SL(2, ℤ)) (τ : ℍ) :
     (f ∣[(2 : ℤ)] γ) τ =
       f (γ • τ) * denom (Matrix.SpecialLinearGroup.mapGL ℝ γ) ↑τ ^ (-2 : ℤ) :=
   ModularForm.SL_slash_apply f γ τ
@@ -250,20 +259,20 @@ namespace GaloisStructure
 
 variable (N : ℕ)
 
-private abbrev Gpm : Subgroup SL(2, ℤ) := CongruenceSubgroup.Gamma N ⊔ Subgroup.zpowers (-1 : SL(2, ℤ))
+abbrev Gpm : Subgroup SL(2, ℤ) := CongruenceSubgroup.Gamma N ⊔ Subgroup.zpowers (-1 : SL(2, ℤ))
 scoped instance zpowers_neg_one_normal : (Subgroup.zpowers (-1 : SL(2, ℤ))).Normal :=
   ⟨fun n hn g => by
     obtain ⟨k, rfl⟩ := Subgroup.mem_zpowers_iff.mp hn
     have hc : Commute g ((-1 : SL(2, ℤ)) ^ k) := (Commute.neg_one_right g).zpow_right k
     rw [hc.eq, mul_inv_cancel_right]
     exact Subgroup.zpow_mem _ (Subgroup.mem_zpowers _) k⟩
-private theorem neg_one_mem_Gpm : (-1 : SL(2, ℤ)) ∈ Gpm N :=
+theorem neg_one_mem_Gpm : (-1 : SL(2, ℤ)) ∈ Gpm N :=
   Subgroup.mem_sup_right (Subgroup.mem_zpowers _)
-private theorem mem_Gpm_of_mem {g : SL(2, ℤ)} (hg : g ∈ CongruenceSubgroup.Gamma N) : g ∈ Gpm N :=
+theorem mem_Gpm_of_mem {g : SL(2, ℤ)} (hg : g ∈ CongruenceSubgroup.Gamma N) : g ∈ Gpm N :=
   Subgroup.mem_sup_left hg
-private theorem neg_mem_Gpm {g : SL(2, ℤ)} (hg : g ∈ Gpm N) : -g ∈ Gpm N := by
+theorem neg_mem_Gpm {g : SL(2, ℤ)} (hg : g ∈ Gpm N) : -g ∈ Gpm N := by
   rw [← neg_one_mul]; exact (Gpm N).mul_mem (neg_one_mem_Gpm N) hg
-private theorem exists_of_mem_Gpm {g : SL(2, ℤ)} (hg : g ∈ Gpm N) :
+theorem exists_of_mem_Gpm {g : SL(2, ℤ)} (hg : g ∈ Gpm N) :
     ∃ γ : SL(2, ℤ), γ ∈ CongruenceSubgroup.Gamma N ∧ (g = γ ∨ g = -γ) := by
   obtain ⟨y, hy, z, hz, rfl⟩ := Subgroup.mem_sup_of_normal_right.mp hg
   obtain ⟨k, rfl⟩ := Subgroup.mem_zpowers_iff.mp hz
@@ -318,7 +327,7 @@ private theorem fricke_smul (v : Fin 2 → ZMod N) (γ : SL(2, ℤ)) (τ : ℍ) 
 
 omit [NeZero N] in
 
-private theorem vecMul_ne_zero {v : Fin 2 → ZMod N} (hv : v ≠ 0) (γ : SL(2, ℤ)) :
+theorem vecMul_ne_zero {v : Fin 2 → ZMod N} (hv : v ≠ 0) (γ : SL(2, ℤ)) :
     Matrix.vecMul v (redMat N γ) ≠ 0 := by
   intro h
   apply hv
@@ -335,7 +344,7 @@ private theorem vecMul_ne_zero {v : Fin 2 → ZMod N} (hv : v ≠ 0) (γ : SL(2,
 
 
 
-private theorem precomp_mem (g : SL(2, ℤ)) {F : ℍ → ℂ} (hF : F ∈ ring N) : precomp g F ∈ ring N := by
+theorem precomp_mem (g : SL(2, ℤ)) {F : ℍ → ℂ} (hF : F ∈ ring N) : precomp g F ∈ ring N := by
   have hle : (ring N).map (precomp g) ≤ ring N := by
     rw [ring, AlgHom.map_adjoin, Algebra.adjoin_le_iff]
     rintro _ ⟨G, hG, rfl⟩
@@ -646,11 +655,6 @@ variable (N : ℕ) [NeZero N]
 
 
 
-private theorem PB.add_right {F : ℍ → ℂ} {m : ℕ} (hm : PB F m) (k : ℕ) : PB F (m + k) := by
-  unfold PB at hm ⊢
-  rw [pow_add, ← mul_assoc]
-  exact hm.mul ((good_discriminant 1).pow k).bdd
-
 open Classical in
 
 private def poleOrder (F : ring N) : ℕ := Nat.find (exists_isBoundedAtImInfty_mul_pow N F.2)
@@ -730,7 +734,6 @@ private def qexpA : ring N →+* LaurentSeries ℂ where
       ← qexpFun_mul_pow N G hG] at h
     apply mul_right_cancel₀ (pow_ne_zero m hΔ0)
     rw [h]; ring
-private theorem qexpA_apply (F : ring N) : qexpA N F = qexpFun N F := rfl
 private theorem qexpA_mul_pow (F : ℍ → ℂ) (hF : F ∈ ring N) {m : ℕ} (hm : IsBoundedAtImInfty (F * (Δ : ℍ → ℂ) ^ m)) :
     qexpA N ⟨F, hF⟩ * Q N (Δ : ℍ → ℂ) ^ m = Q N (F * (Δ : ℍ → ℂ) ^ m) :=
   qexpFun_mul_pow N ⟨F, hF⟩ hm

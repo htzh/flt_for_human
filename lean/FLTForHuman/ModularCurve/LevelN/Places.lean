@@ -7,7 +7,17 @@
   shared blocks (`Good`, `Q`, the `ring N` action lemmas, `PB`, `qParam_pow_mul`,
   `Q_natCast_eq_qExpand`) are imported from `LevelN/Prelude.lean`; every other
   declaration the pin carries is re-derived `private` in the pin's own sub-namespace,
-  so this module's public surface is exactly the four headlines.
+  so this module's public surface is the four headlines plus `moeb` and
+  `hasDerivAt_moeb`, promoted by W4's prep.
+
+  spec-pin: Theorems/Thm_ModularCurve_LevelN_exists_place_ord_neg_forall_smul_eq.lean
+  spec-pin: P2M/Sol/S_ModularCurve_LevelN_exists_place_ord_neg_forall_smul_eq.lean   -- comparable copy
+  spec-pin: Theorems/Thm_ModularCurve_LevelN_exists_place_ord_sub_pos_forall_smul_eq.lean
+  spec-pin: P2M/Sol/S_ModularCurve_LevelN_exists_place_ord_sub_pos_forall_smul_eq.lean   -- comparable copy
+  spec-pin: Theorems/Thm_ModularCurve_LevelN_exists_place_analyticOrderAt_eq_mul_ord.lean
+  spec-pin: P2M/Sol/S_ModularCurve_LevelN_exists_place_analyticOrderAt_eq_mul_ord.lean   -- comparable copy
+  spec-pin: Theorems/Thm_ModularCurve_LevelN_valuation_apply_smul_le_one_of_tendsto_div_smul.lean
+  spec-pin: P2M/Sol/S_ModularCurve_LevelN_valuation_apply_smul_le_one_of_tendsto_div_smul.lean   -- comparable copy
 
   FLT provenance, pinned `aa2d8b3`:
   * `S_ModularCurve_LevelN_exists_place_ord_neg_forall_smul_eq.lean:224-866`
@@ -193,11 +203,6 @@ local notation "Δ" => ModularForm.discriminant
 
 
 
-private theorem discriminant_ne_zero' : (Δ : ℍ → ℂ) ≠ 0 := by
-  intro h0
-  have := congrFun h0 UpperHalfPlane.I
-  exact ModularForm.discriminant_ne_zero _ this
-
 
 private theorem cuspFunction_discriminant_zero (N : ℕ) [NeZero N] :
     cuspFunction N Δ 0 = 0 := by
@@ -249,22 +254,6 @@ section OrdInf
 local notation "Δ" => ModularForm.discriminant
 
 variable (N : ℕ) [NeZero N]
-
-private theorem castN_pos : (0 : ℝ) < N := Nat.cast_pos.mpr (NeZero.pos N)
-private def PB (F : ℍ → ℂ) (m : ℕ) : Prop := IsBoundedAtImInfty (F * (Δ : ℍ → ℂ) ^ m)
-omit [NeZero N] in
-private theorem PB.add_right {F : ℍ → ℂ} {m : ℕ} (hm : PB F m) (k : ℕ) : PB F (m + k) := by
-  unfold PB at hm ⊢
-  rw [pow_add, ← mul_assoc]
-  exact hm.mul ((good_discriminant 1).pow k).bdd
-private theorem good_of_PB {F : ℍ → ℂ} (hF : F ∈ ring N) {m : ℕ} (hm : PB F m) :
-    Good N (F * (Δ : ℍ → ℂ) ^ m) where
-  periodic := by
-    have : (F * (Δ : ℍ → ℂ) ^ m) ∘ ofComplex = (F ∘ ofComplex) * (((Δ : ℍ → ℂ) ^ m) ∘ ofComplex) := rfl
-    rw [this]
-    exact (periodic_of_mem N hF).mul ((good_discriminant N).pow m).periodic
-  mdiff := (mdifferentiable_of_mem N hF).mul ((good_discriminant N).pow m).mdiff
-  bdd := hm
 private def ordAux (F : ℍ → ℂ) (m : ℕ) : ℤ :=
   (ordB N (F * (Δ : ℍ → ℂ) ^ m) : ℤ) - m * (ordB N (Δ : ℍ → ℂ) : ℤ)
 private theorem ordB_one : ordB N (1 : ℍ → ℂ) = 0 :=
@@ -910,25 +899,18 @@ private theorem jSub_mem_nonunits (τ₀ : ℍ) :
     algebraMap (ring N) K (jSub N τ₀) ∈ (analyticPlace N K τ₀).toValuationSubring.nonunits := by
   rw [ValuationSubring.mem_nonunits_iff_or]
   exact Or.inr (inv_jSub_notMem N K τ₀)
-private theorem algebraMap_mem_analyticPlace (τ₀ : ℍ) (F : ring N) :
-    algebraMap (ring N) K F ∈ (analyticPlace N K τ₀).toValuationSubring := by
-  rw [mem_analyticPlace_iff, ordValuationK_algebraMap]
-  by_cases hF : (F : ℍ → ℂ) = 0
-  · rw [ordFun_zero' N τ₀ hF]; exact zero_le
-  · rw [ordFun_of_ne_zero N τ₀ hF, ← WithZero.exp_zero, WithZero.exp_le_exp]
-    omega
 
 end FractionField
 omit [NeZero N] in
 
-private def moeb (δ : SL(2, ℤ)) (z : ℂ) : ℂ :=
+def moeb (δ : SL(2, ℤ)) (z : ℂ) : ℂ :=
   (((δ 0 0 : ℤ) : ℂ) * z + ((δ 0 1 : ℤ) : ℂ)) / (((δ 1 0 : ℤ) : ℂ) * z + ((δ 1 1 : ℤ) : ℂ))
 omit [NeZero N] in
 private theorem coe_smul_eq_moeb (δ : SL(2, ℤ)) (τ : ℍ) : ((δ • τ : ℍ) : ℂ) = moeb δ τ := by
   rw [UpperHalfPlane.specialLinearGroup_apply]
   simp [moeb]
 omit [NeZero N] in
-private theorem moeb_denom_ne_zero (δ : SL(2, ℤ)) (τ : ℍ) :
+theorem moeb_denom_ne_zero (δ : SL(2, ℤ)) (τ : ℍ) :
     ((δ 1 0 : ℤ) : ℂ) * (τ : ℂ) + ((δ 1 1 : ℤ) : ℂ) ≠ 0 := by
   intro h
   have him := congrArg Complex.im h
@@ -952,7 +934,7 @@ private theorem analyticAt_moeb (δ : SL(2, ℤ)) (τ : ℍ) : AnalyticAt ℂ (m
   exact ((analyticAt_const.mul analyticAt_id).add analyticAt_const).div
     ((analyticAt_const.mul analyticAt_id).add analyticAt_const) (moeb_denom_ne_zero δ τ)
 omit [NeZero N] in
-private theorem hasDerivAt_moeb (δ : SL(2, ℤ)) (τ : ℍ) :
+theorem hasDerivAt_moeb (δ : SL(2, ℤ)) (τ : ℍ) :
     HasDerivAt (moeb δ) ((((δ 1 0 : ℤ) : ℂ) * (τ : ℂ) + ((δ 1 1 : ℤ) : ℂ)) ^ 2)⁻¹ τ := by
   have hden := moeb_denom_ne_zero δ τ
   have hnum : HasDerivAt (fun z : ℂ => ((δ 0 0 : ℤ) : ℂ) * z + ((δ 0 1 : ℤ) : ℂ))
