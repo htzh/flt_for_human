@@ -669,6 +669,63 @@ and the `circleIntegral` pair: 2,624 pin lines whose union demand is *exactly th
 is closed and can be scheduled first regardless of P1/P2. Plan:
 [aj/PLAN-W1-stokes.md](aj/PLAN-W1-stokes.md).
 
+**Amendment, 2026-10-26 — the wave order follows the survivors, not the cone.** The four deletions
+above are decisions about *definitions*, and the port's order has to be decided the same way, or the
+deletions arrive too late to be deletions. Two things measured against `needed(653)` (`frontier
+--target …`, the plain A cone, 529 nodes):
+
+* **Items 2 and 4 are off A's cone and already the port's shape.** B's `pathPeriodLattice`, B's mouth and
+  hub, and the two-route count's three nodes (80, 81, 144) are all `needed = False`; survivors 2 and 4 are
+  `periodLatticeOf` and the RR route 267. Neither needs a porting decision.
+* **Item 1 is not a duplication, and its 8.9k is not cashable.** The W3 scouts
+  ([aj/PLAN-W3-honest-integral.md](aj/PLAN-W3-honest-integral.md) §4b–§4c) show that `pathIntegral`
+  (total, chart-free, a choice over primitives) and an honest charted integral are **different objects**,
+  not two spellings of one: they agree on regular paths carrying a primitive and differ elsewhere, and the
+  pin already has honest integrals where it needs them (`CellDissection.edgeInt`, one fixed chart per
+  cell). Replacing `pathIntegral` inside B's proofs would need a chart-change law for `readDifferential`
+  that exists in neither the pin nor the port — a Kähler chart-expansion dictionary, unbounded — and it
+  would change what B's statements say. So item 1 survives as *one object per side*, and the subject has
+  **three** duplications, not four. Consequence for the arithmetic: P2 re-prices from ≈61k to
+  **≈70k** (74k − 4.0k (3) − 0.3k (4) + the item-3 bridge), and the honest integral stays a supplement.
+* **Item 3 does survive, and its bridge is now cheaper than this note thought.** Its bridge is "2's
+  bridge plus 'A's `periodOf γ` is B's loop period'", and the second conjunct does *not* need the honest
+  integral: both sides' integrals are chart-free, so the comparison is the **pointwise derivative
+  dictionary** at `pt τ` ([aj/TOPIC-translation-a-b.md](aj/TOPIC-translation-a-b.md) §3), not a
+  chart-invariance theorem. So item 3 is the best deletion left in the subject, and the honest-integral
+  question does not gate it.
+* **Item 3 names the only survivor inside A's cone**, and A's five row-2 nodes (810, 1052, 596, 874,
+  693 ≈ 4,025) are all `needed = True`. So the decision "keep B's general form, instantiate A's" cannot
+  be taken late: A's row-2 *proofs* are exactly what the bridge rewrites, and writing them first means
+  writing 4,025 lines twice.
+
+That fixes the order, and it is not "A first, then B". The subject's waves follow the
+**definitional spine** — survivor definitions first, consumers after:
+
+1. the analysis both halves stand on — **W1, landed** (the ∂̄/Stokes layer; survivor 1's analysis);
+2. the survivor definitions themselves — survivor 1's general form is the one still missing: an honest
+   line integral of a 1-form on a charted complex surface, plus the transport that makes `pathIntegral`
+   a theorem about it. That is **W3**,
+   [aj/PLAN-W3-honest-integral.md](aj/PLAN-W3-honest-integral.md), and it is cheap because mathlib
+   `v4.34.0` already has `curveIntegral` with concatenation additivity and the closed-form cancellation
+   (`MeasureTheory/Integral/CurveIntegral/`), which the port does not yet use — scratch-verified, along
+   with `lebesgue_number_lemma_of_emetric` and `Path.map'`, and with the negative that mathlib has no
+   exact-form value theorem, so that one lemma is the wave's own (`PLAN-W3` §2–§3);
+3. then the consumers, in whichever order they are wanted: A's dictionary, Abel, Hecke and Tate; B's
+   combinatorics; the cardinality packaging. Nothing among them is written twice as long as A's row-2
+   (item 3) is written **after** W3, A's `ComplexPlaceDictionary` and the `Γ_H` cusp-form ↔
+   regular-differential identification — the reconciliation of parent §9.5 item 3.
+
+So "P1 then B" survives as a *scope* statement (A is the half the D-S column needs) and dies as an
+*order* for the two pieces in items 1 and 3. My earlier reading — "the bridge is pre-B, not pre-A,
+because A's cone contains no `pathIntegral`" — is withdrawn: a definition's priority is a fact about
+what gets written against it, not about citation edges.
+
+Wave order as it now stands: W1 (landed) → W2 (landed) → **W3, the honest integral**, with **W3b, the
+Hecke-equivariance layer** ([aj/PLAN-W3b-hecke-equivariance.md](aj/PLAN-W3b-hecke-equivariance.md)) as
+its parallel no-regret set — the largest premise-ready block that no outcome of these decisions can
+invalidate. The smoothed-fundamental cluster that W2 §7 named as the natural third wave is re-cut by
+W3 §7: its analysis half is W4a, and its row-2 fifth is held until the reconciliation exists.
+
 **What the measure does not move.** B1's dissection (`exists_pairedCellFamily` 4,730,
 `exists_dissectionScaleData` 2,429, `exists_cellDissection` 779, `exists_tree_cotree` 883,
 `exists_polygonWord` 882, `euler_count_grid` 55, and the ported `RadialRegion`), A's
@@ -939,12 +996,33 @@ along it.
 * **the first wave — the shared ∂̄/Stokes layer as a mathlib supplement (9 `Complex.*` nodes, 2,624
   lines; landed, 2,768 written):** [aj/PLAN-W1-stokes.md](aj/PLAN-W1-stokes.md),
   [aj/WORKORDER-W1-stokes.md](aj/WORKORDER-W1-stokes.md)
-* **the second wave — the parabolic-hom / period-map layer (6 nodes, 2,433 lines; dispatched):**
+* **the second wave — the parabolic-hom / period-map layer (6 nodes, 2,433 lines; landed):**
   [aj/PLAN-W2-parabolic-homs.md](aj/PLAN-W2-parabolic-homs.md),
   [aj/WORKORDER-W2-parabolic-homs.md](aj/WORKORDER-W2-parabolic-homs.md)
+* **the third wave — the honest integral on a charted surface**, i.e. survivor 1's general form and the
+  transport that makes `pathIntegral` a theorem about it:
+  [aj/PLAN-W3-honest-integral.md](aj/PLAN-W3-honest-integral.md). ≈400–800 written for a gate on ≈12.9k
+  of deletion (§10.4's items 1 and 3). mathlib already has the curve integral
+  (`MeasureTheory/Integral/CurveIntegral/`), which the port does not yet use, so this is adoption plus
+  chart glue — scouted first (§2.6), because the one open question is whether the primitive transport
+  needs a path-regularity hypothesis that B's pinned statements do not carry (plan §3, D1). It also
+  re-cuts the smoothed-fundamental cluster (plan §7): its analysis half is W4a, its row-2 fifth is
+  held.
+* **W3b — the Hecke-equivariance layer of the period map (12 nodes, 2,366 lines + ~75 of definition
+  tails):** [aj/PLAN-W3b-hecke-equivariance.md](aj/PLAN-W3b-hecke-equivariance.md). The third wave's
+  parallel set and the largest premise-ready block no survivor decision can invalidate, so it is
+  dispatched beside W3's scout rather than after it. It also happens to be the third block of the
+  mouth's unported premises: after it `…tateModule_jH_padicInt_tensor_periodLatticeOf` (653) has **two**
+  unported direct premises (302 and 267) instead of nine, and `needed(653)` drops from 168 nodes /
+  57,836 lines to 156 / 55,470.
 * why A and not B: the FLT cone reaches A's Tate identification (653) through
-  `CuspForm.exists_padicGaloisModule_…` (859) and nothing else proves it; `needed(653)` = 174 unported
+  `CuspForm.exists_padicGaloisModule_…` (859) and nothing else proves it; `needed(653)` was 174 unported
   nodes / 60,220 lines, of which 66 nodes / 12,778 were ready when W1 landed (§10.4)
+* **the translation layer — what a merged A–B theory has to identify:** the seven identifications
+  (curve, charts, cusp forms ↔ differentials, geodesics ↔ paths, integrals, lattices, divisors) with their
+  status, and the finding that the translation is *pointwise* — a derivative dictionary at `pt τ` — so it
+  needs neither the honest-integral decision nor the chart-change cocycle:
+  [aj/TOPIC-translation-a-b.md](aj/TOPIC-translation-a-b.md)
 * the prune, its narrowing and the residual: [deligneSerre/PRUNABLE-complex-analytic.md](deligneSerre/PRUNABLE-complex-analytic.md) §7
 * the cell-dissection / radial-region plan: [algebraicCurve/TOPIC-cell-dissection.md](algebraicCurve/TOPIC-cell-dissection.md)
 * the pair that surfaced this: [modularCurve/TOPIC-padic-tate-module.md](modularCurve/TOPIC-padic-tate-module.md)

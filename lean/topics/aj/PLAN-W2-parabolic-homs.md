@@ -84,7 +84,15 @@ is by subject, not by upstreamability).
 
 ## 7. The rest of the ready shelf (W3 and later)
 
-60 nodes / 10,345 lines remain ready after this wave, in four clusters:
+**Corrected 2026-10-26 (see §8).** This section originally named the smoothed-fundamental-set cluster
+as the natural W3 and left the choice there. Measured on the frontier after this wave landed, that
+priority is wrong: the third wave is the **Hecke-equivariance layer** — 12 nodes / 2,366 lines, 7 of
+the 9 unported direct premises of A's mouth — and the smoothed cluster is deferred one wave, to W4.
+The shelf figures below are still right (measured now: **62 nodes / 11,330 lines** premise-ready, of
+which 17 / 2,858 are `--ready` in the strict sense that they also reach the frontier); it is the
+ordering that was wrong, not the count.
+
+62 nodes / 11,330 lines are premise-ready after this wave, in four clusters:
 
 * **smoothed fundamental set / UHP analysis** (4,419 lines): `contDiff_and_finsum_smoothedFundamental_eq_one` 509,
   `UpperHalfPlane.exists_localModel_pair_integral_mul_dbarLogDeriv_eq` 410,
@@ -97,6 +105,54 @@ is by subject, not by upstreamability).
   the `qExpansion`/`coeMap` family, `realizeOf_eq_div` 57;
 * **`Place`/`PeriodPair` leaves** (≈900): the RR-prelude and Weierstrass-period leaves.
 
-The smoothed-fundamental-set cluster is the natural W3: it is where the ∂̄/Stokes layer landed in W1 is
-consumed, and its homing question (analysis under `ModularCurve/Analytic/` versus a mathlib-shaped
-`UpperHalfPlane` directory) is the one thing to settle before that wave starts.
+**Not W3 either — corrected a second time the same day.** The paragraph above still reads the order off
+the target's premise list, and that is the criterion the subject does not run on. §10.4's criterion is
+**simplicity**: survivor definitions first, consumers after. On that criterion the third wave is
+[PLAN-W3-honest-integral.md](PLAN-W3-honest-integral.md) — the honest line integral of a 1-form on a
+charted complex surface, i.e. §10.4 item 1's *survivor* in its general form, which is the gate on
+≈12.9k of deletion and which mathlib already half-supplies (`MeasureTheory/Integral/CurveIntegral/`,
+unused by the port). The Hecke block is its parallel **no-regret** set,
+[PLAN-W3b-hecke-equivariance.md](PLAN-W3b-hecke-equivariance.md): the largest premise-ready block whose
+content no survivor decision can invalidate, and the reason it was a good find in the first place — it
+is 7 of the 9 unported direct premises of the mouth (653) and takes the mouth to two. The smoothed
+cluster is still W4, and W3 §7 re-cuts it: its analysis half is a wave, its row-2 fifth (A's ≈4,025) is
+held until the reconciliation exists, because those proofs are exactly what the honest integral
+rewrites.
+
+This section's one durable observation survives the correction: the smoothed cluster is where W1's ∂̄
+layer is consumed, and the homing question it raises (`ModularCurve/Analytic/` versus the existing
+`AutomorphicForm/UpperHalfPlane/` — which already holds `Gamma0FundamentalSet.lean`,
+`ModularFundamentalDomain.lean`, `HyperbolicMeasure.lean`) is the first thing W4's own plan must
+settle, since W1's node 7 sits in `ModularForms/FundamentalDomainStokes.lean` for the same reason.
+
+## 8. Was W2 the right wave? — the 2026-10-26 retrospective
+
+Asked after W3 was scoped, and answerable now with the numbers. **Yes: W2 was correctly chosen, and
+better-placed than its own §1 argued.** Three measurements:
+
+1. **Zero waste.** All six headlines are in `needed(653)`; the frontier moved by exactly them
+   (174 → 168 nodes, 60,220 → 57,836 lines). Nothing ported here is outside the mouth's cone.
+2. **It sits one layer *under a surviving mouth premise*.** All six have a cone citer, and four land
+   in the 267 block (`exists_basis_periodLatticeOf_linearIndependent_real_span_eq_top_of_isCongruenceSubgroup`,
+   the rank/discreteness half of the mouth): node 1's cone citers are 495, 548, **267 itself** and 416;
+   nodes 2, 3 and 4 all feed `six_mul_level_mul_finrank_parabolicHoms_Gamma_add_eq` (552), which 134 —
+   in 267's sub-closure — consumes. The other two build *both* downstream blocks: node 5 (886) feeds
+   384, whose own citer 604 is the multiplier/`exp` chain, and node 6
+   (`exists_exp_eq_of_invariant_ne_zero_isParabolicHom`, 410) feeds **874**, the winding-pairing node
+   that W4's cluster is built on. So W2 was support for W3's and W4's subject at once — a better
+   placement than §1 claimed for it, which argued only from A's Tate identification.
+3. **The gain test passes too.** Node 1 has **19** citers outside A's cone and node 2 **14** — the
+   `parabolicHoms` basis API is used well beyond this subject, which is what an early wave should
+   optimise for.
+
+One qualification, added after the criterion correction: the three reasons above are about *value*, and
+they remain the right answer to "was the work worth doing". They are not the reason the wave was
+*correctly placed*, because the plan now orders waves by definitions rather than by the mouth. The
+property W2 actually has under that criterion is that `parabolicHoms` sits on the **survivor** side of
+every §10.4 decision — it is the codomain of A's period map, on A's honest integral, and B has no
+analogue of it at all (`§9.1`'s table) — so nothing W2 wrote is a spelling a later decision rewrites.
+
+The two non-line returns W2 recorded also stand: the `isParabolicHom_periodHom` gap node (read as
+satisfied because it existed only as `private`, a frontier defect now fixed) and the homed
+crossed-hom prelude. What was wrong was not the wave but the sentence after it — §7's "natural W3" —
+and that is corrected above.
