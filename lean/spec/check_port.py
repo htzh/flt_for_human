@@ -372,14 +372,16 @@ def check_module(path: Path, db, rel: str | None = None,
         # declaration's own name is not in its statement.
         m = P.KW_PREFIX_RE.search(last) if last else None
         mfam = P.KW_FAMILY_RE.search(name) if name else None
-        if m or mfam:
+        mq = P.Q09_FAMILY_RE.search(name) if name else None
+        if m or mfam or mq:
             counts["kw"] += 1
-            hit = m.group(0) if m else mfam.group(0)
-            how = "kw-prefix" if m else "Kw-family"
+            hit = m.group(0) if m else (mfam.group(0) if mfam else mq.group(0))
+            how = "kw-prefix" if m else ("Kw-family" if mfam else "Q09-family")
             decls.append({"name": name, "kind": kind, "line": line,
                           "verdict": "kw", "how": how,
                           "note": (f"residual `{hit}`; the port name guard rejects "
-                                   f"it, so rename the declaration/namespace"),
+                                   f"it — a generated pin label, not a name; give the "
+                                   f"declaration/namespace its subject's name"),
                           "pin": "", "port": "", "pin_sig": ""})
             continue
         if priv:                                          # a private helper is invisible

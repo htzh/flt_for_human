@@ -30,12 +30,15 @@
   than `s ∩ ⋂ i, t i = ∅` (adapted through `Set.disjoint_iff_inter_eq_empty` and
   `Set.disjoint_left`). The pin's
   `norm_entry_le_one` is kept in its local (unit / `IsRowIsometry`) form: the port's
-  `Q09AIarch.norm_entry_le_one` is stated for the *matrix* `rowIsoSet`, whose
+  `ArchInfra.norm_entry_le_one` is stated for the *matrix* `rowIsoSet`, whose
   `m.det = 1` conjunct is not implied by `IsRowIsometry`'s `‖m.det‖ = 1`; the
-  bridge through `Q09AIarch.mem_rowIsoSet_iff` therefore does not typecheck, and the
+  bridge through `ArchInfra.mem_rowIsoSet_iff` therefore does not typecheck, and the
   pair is a reported near-duplicate. The pin's `box` is transcribed privately and is
-  **not** the port's `Q09AIarchG.detLocus` (a bare-type-only `port_advise` false
+  **not** the port's `ArchEntryBall.detLocus` (a bare-type-only `port_advise` false
   match: `box = {m | ∀ i j w, ‖m i j w‖ ≤ 1}` against `detLocus = {m | ∀ w, m.det w ≠ 0}`).
+
+  spec-pin: Theorems/Thm_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean
 -/
 import FLTForHuman.RepTheory.TranslateSpan
 import FLTForHuman.AutomorphicForm.Adelic.ArchKFinite
@@ -66,7 +69,6 @@ namespace ArchKFiniteFamily
 
 namespace ArchimedeanIsometryGroup
 
--- pin: norm_entry_le_one (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:494)
 private theorem norm_entry_le_one {K : Type*} [NormedField K] {k : GL (Fin 2) K} (hk : IsRowIsometry k)
     (i j : Fin 2) : ‖(k : Matrix (Fin 2) (Fin 2) K) i j‖ ≤ 1 := by
   obtain ⟨-, hrow⟩ := hk
@@ -79,7 +81,6 @@ private theorem norm_entry_le_one {K : Type*} [NormedField K] {k : GL (Fin 2) K}
   have n11 := norm_nonneg ((k : Matrix (Fin 2) (Fin 2) K) 1 1)
   fin_cases i <;> fin_cases j <;> simp only [Fin.zero_eta, Fin.mk_one, Fin.isValue] <;> nlinarith
 
--- pin: isClosed_setOf_isRowIsometry (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:507)
 private theorem isClosed_setOf_isRowIsometry {K : Type*} [NormedField K] :
     IsClosed {k : GL (Fin 2) K | IsRowIsometry k} := by
   have hc : ∀ i j : Fin 2, Continuous fun k : GL (Fin 2) K => (k : Matrix (Fin 2) (Fin 2) K) i j :=
@@ -98,7 +99,6 @@ private theorem isClosed_setOf_isRowIsometry {K : Type*} [NormedField K] :
   exact (((continuous_const.mul (hc 0 0)).add (continuous_const.mul (hc 1 0))).norm.pow 2).add
     (((continuous_const.mul (hc 0 1)).add (continuous_const.mul (hc 1 1))).norm.pow 2)
 
--- pin: isClosed_range_embedProduct (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:525)
 private theorem isClosed_range_embedProduct {M : Type*} [Monoid M] [TopologicalSpace M] [ContinuousMul M]
     [T2Space M] : IsClosed (Set.range (Units.embedProduct M)) := by
   have hr : Set.range (Units.embedProduct M)
@@ -117,20 +117,17 @@ private theorem isClosed_range_embedProduct {M : Type*} [Monoid M] [TopologicalS
 
 variable (F : Type) [Field F]
 
--- pin: Kinf (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:543)
 private noncomputable def Kinf : Subgroup (GL (Fin 2) (InfiniteAdeleRing F)) :=
   ⨅ w : InfinitePlace F, (rowIsometrySubgroup w.Completion).comap (archComponent F w)
 
 variable {F}
 
--- pin: mem_Kinf_iff (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:548)
 private theorem mem_Kinf_iff (k : GL (Fin 2) (InfiniteAdeleRing F)) :
     k ∈ Kinf F ↔ ∀ w : InfinitePlace F, IsRowIsometry (archComponent F w k) := by
   simp only [Kinf, Subgroup.mem_iInf, Subgroup.mem_comap, mem_rowIsometrySubgroup_iff]
 
 variable (F)
 
--- pin: isClosed_Kinf (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:554)
 private theorem isClosed_Kinf : IsClosed (Kinf F : Set (GL (Fin 2) (InfiniteAdeleRing F))) := by
   have hset : (Kinf F : Set (GL (Fin 2) (InfiniteAdeleRing F)))
       = ⋂ w : InfinitePlace F, archComponent F w ⁻¹' {k | IsRowIsometry k} := by
@@ -139,15 +136,12 @@ private theorem isClosed_Kinf : IsClosed (Kinf F : Set (GL (Fin 2) (InfiniteAdel
   rw [hset]
   exact isClosed_iInter fun w => isClosed_setOf_isRowIsometry.preimage (continuous_archComponent F w)
 
--- pin: box (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:562)
 private def box : Set (Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F)) :=
   {m | ∀ (i j : Fin 2) (w : InfinitePlace F), ‖m i j w‖ ≤ 1}
 
--- pin: properSpace_completion_w (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:565)
 private theorem properSpace_completion_w (w : InfinitePlace F) : ProperSpace w.Completion :=
   NumberField.AdelicBox.properSpace_completion F w
 
--- pin: isCompact_box (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:568)
 private theorem isCompact_box : IsCompact (box F) := by
   haveI : ∀ w : InfinitePlace F, ProperSpace w.Completion := properSpace_completion_w F
   have hset : box F = Set.pi Set.univ (fun _ : Fin 2 => Set.pi Set.univ (fun _ : Fin 2 =>
@@ -161,12 +155,10 @@ private theorem isCompact_box : IsCompact (box F) := by
   rw [hset]
   exact isCompact_univ_pi fun _ => isCompact_univ_pi fun _ => isCompact_univ_pi fun w => isCompact_closedBall _ _
 
--- pin: coe_mem_box (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:581)
 private theorem coe_mem_box {k : GL (Fin 2) (InfiniteAdeleRing F)} (hk : k ∈ Kinf F) :
     (k : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F)) ∈ box F :=
   fun i j w => norm_entry_le_one ((mem_Kinf_iff k).1 hk w) i j
 
--- pin: isCompact_Kinf (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:585)
 private theorem isCompact_Kinf : IsCompact (Kinf F : Set (GL (Fin 2) (InfiniteAdeleRing F))) := by
   rw [Units.isInducing_embedProduct.isCompact_iff]
   refine ((isCompact_box F).prod ((isCompact_box F).image MulOpposite.continuous_op)).of_isClosed_subset ?_ ?_
@@ -183,7 +175,6 @@ private noncomputable scoped instance instMeasurableSpaceKinf : MeasurableSpace 
 
 private scoped instance instBorelSpaceKinf : BorelSpace (Kinf F) := ⟨rfl⟩
 
--- pin: haarProb (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:601)
 private noncomputable def haarProb : Measure (Kinf F) :=
   Measure.haarMeasure (⊤ : TopologicalSpace.PositiveCompacts (Kinf F))
 
@@ -202,25 +193,21 @@ namespace ArchimedeanIsometryGroup
 
 variable (F : Type) [Field F] [NumberField F]
 
--- pin: incl (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:620)
 private noncomputable def incl : Kinf F →* AdelicGL2 (𝓞 F) F :=
   (adelicArchGLIncl F).comp (Kinf F).subtype
 
--- pin: translatesFinite_archRowIsometrySubgroup (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:623)
 private theorem translatesFinite_archRowIsometrySubgroup (w : InfinitePlace F) (φ : AdelicGL2 (𝓞 F) F → ℂ)
     (hφ : IsArchKFiniteAt F w φ) :
     UniformRank.TranslatesFinite (archRowIsometrySubgroup F w : Set (AdelicGL2 (𝓞 F) F)) φ := by
   obtain ⟨s, hs⟩ := hφ
   exact Exists.intro s fun k hk => hs k hk
 
--- pin: eq_of_forall_archComponent_eq (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:629)
 private theorem eq_of_forall_archComponent_eq {k k' : GL (Fin 2) (InfiniteAdeleRing F)}
     (h : ∀ w : InfinitePlace F, archComponent F w k = archComponent F w k') : k = k' := by
   have _ := ‹NumberField F›
   refine Units.ext ((archMatrixPiEquiv F).injective (funext fun w => Matrix.ext fun i j => ?_))
   exact congrArg (fun m : GL (Fin 2) w.Completion => (m : Matrix (Fin 2) (Fin 2) w.Completion) i j) (h w)
 
--- pin: adelicArchGLInclAt_mul_comm (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:635)
 private theorem adelicArchGLInclAt_mul_comm {v w : InfinitePlace F} (hvw : v ≠ w) (a : GL (Fin 2) v.Completion)
     (b : GL (Fin 2) w.Completion) :
     adelicArchGLInclAt F v a * adelicArchGLInclAt F w b = adelicArchGLInclAt F w b * adelicArchGLInclAt F v a := by
@@ -239,7 +226,6 @@ private theorem adelicArchGLInclAt_mul_comm {v w : InfinitePlace F} (hvw : v ≠
     adelicArchGLIncl F (archGLIncl F w b) * adelicArchGLIncl F (archGLIncl F v a)
   rw [← map_mul, ← map_mul, hcomm]
 
--- pin: exists_mem_Kinf_eq_archGLIncl_mul (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:653)
 private theorem exists_mem_Kinf_eq_archGLIncl_mul (w : InfinitePlace F) {k : GL (Fin 2) (InfiniteAdeleRing F)}
     (hk : k ∈ Kinf F) :
     ∃ k' ∈ Kinf F, archComponent F w k' = 1 ∧ (∀ v : InfinitePlace F, v ≠ w → archComponent F v k' = archComponent F v k) ∧
@@ -261,7 +247,6 @@ private theorem exists_mem_Kinf_eq_archGLIncl_mul (w : InfinitePlace F) {k : GL 
   · intro v hvw
     rw [map_mul, map_inv, archComponent_archGLIncl_of_ne F hvw, inv_one, one_mul]
 
--- pin: translatesFinite_range_incl (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:674)
 private theorem translatesFinite_range_incl (φ : AdelicGL2 (𝓞 F) F → ℂ) (hφ : IsArchKFinite F φ) :
     UniformRank.TranslatesFinite (Set.range (incl F)) φ := by
   classical
@@ -326,7 +311,6 @@ private theorem translatesFinite_range_incl (φ : AdelicGL2 (𝓞 F) F → ℂ) 
     exact ⟨k, hk, fun v hv => (hv (Finset.mem_univ v)).elim, rfl⟩
   exact hmono hrange (hP Finset.univ)
 
--- pin: continuous_incl (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:738)
 private theorem continuous_incl : Continuous (incl F) :=
   Units.continuous_iff.mpr
     ⟨continuous_matrix fun i j => by
@@ -341,7 +325,6 @@ private theorem continuous_incl : Continuous (incl F) :=
             (1 : Matrix (Fin 2) (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F)) i j⟩ : AdeleRing (𝓞 F) F))
         exact ((Units.continuous_coe_inv.comp continuous_subtype_val).matrix_elem i j).prodMk continuous_const⟩
 
--- pin: incl_mul_comm_of_glArch_eq_one (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:752)
 private theorem incl_mul_comm_of_glArch_eq_one (q : Kinf F) (c : AdelicGL2 (𝓞 F) F)
     (hc : glArch (𝓞 F) F c = 1) : incl F q * c = c * incl F q := by
   have hA : glArch (𝓞 F) F (incl F q * c) = glArch (𝓞 F) F (c * incl F q) := by
@@ -359,7 +342,6 @@ private theorem incl_mul_comm_of_glArch_eq_one (q : Kinf F) (c : AdelicGL2 (𝓞
   ext i j
   exact Prod.ext (congrFun (congrFun hA' i) j) (congrFun (congrFun hF' i) j)
 
--- pin: exists_exists_mem_exists_mem_eq_incl_mul_mul (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:769)
 private theorem exists_exists_mem_exists_mem_eq_incl_mul_mul (T : Finset (AdelicGL2 (𝓞 F) F))
     (H : Set (AdelicGL2 (𝓞 F) F))
     (hT : ∀ k : AdelicGL2 (𝓞 F) F, glArch (𝓞 F) F k = 1 → glFin (𝓞 F) F k ∈ finiteIntegralGL2 (𝓞 F) F →
@@ -386,11 +368,9 @@ namespace LevelInvariance
 
 variable {G : Type*} [Mul G]
 
--- pin: RightInvariantOn (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:1088)
 private def RightInvariantOn (S : Set G) (f : G → ℂ) : Prop :=
   ∀ g : G, ∀ k ∈ S, f (g * k) = f g
 
--- pin: exists_isOpen_subset_exists_forall_rightInvariantOn (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:1091)
 private theorem exists_isOpen_subset_exists_forall_rightInvariantOn (S : ℕ → Set G) (u : ℂ → G → ℂ)
     (hc : ∀ g, Continuous fun s => u s g) (hfix : ∀ s, ∃ n, RightInvariantOn (S n) (u s))
     (U₀ : Set ℂ) (hU₀ : IsOpen U₀) (hne : U₀.Nonempty) :
@@ -426,7 +406,6 @@ private theorem exists_isOpen_subset_exists_forall_rightInvariantOn (S : ℕ →
 
 variable (F : Type) [Field F] [NumberField F]
 
--- pin: congrSet (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:1126)
 private def congrSet (n : ℕ) : Set (AdelicGL2 (𝓞 F) F) :=
   {u | glArch (𝓞 F) F u = 1 ∧ ∀ i j : Fin 2,
     (glFin (𝓞 F) F u : Matrix (Fin 2) (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F)) i j -
@@ -437,12 +416,10 @@ private def congrSet (n : ℕ) : Set (AdelicGL2 (𝓞 F) F) :=
         (1 : Matrix (Fin 2) (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F)) i j ∈
       idealBall (𝓞 F) F (Ideal.span {((n + 1 : ℕ) : 𝓞 F)})}
 
--- pin: idealBound_span_singleton (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:1136)
 private theorem idealBound_span_singleton {r : 𝓞 F} (hr : r ≠ 0) (v : IsDedekindDomain.HeightOneSpectrum (𝓞 F)) :
     idealBound (𝓞 F) (Ideal.span {r}) v = v.intValuation r := by
   rw [idealBound_of_ne_bot (by rwa [Ne, Ideal.span_singleton_eq_bot]) v, v.intValuation_if_neg hr]
 
--- pin: idealBall_span_mul_subset (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:1140)
 private theorem idealBall_span_mul_subset {a b : 𝓞 F} (ha : a ≠ 0) (hb : b ≠ 0) :
     idealBall (𝓞 F) F (Ideal.span {a * b}) ⊆ idealBall (𝓞 F) F (Ideal.span {a}) := by
   intro x hx v
@@ -453,7 +430,6 @@ private theorem idealBall_span_mul_subset {a b : 𝓞 F} (ha : a ≠ 0) (hb : b 
   rw [map_mul]
   exact mul_le_of_le_one_right' (v.intValuation_le_one b)
 
--- pin: eq_zero_of_forall_mem_idealBall (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:1150)
 private theorem eq_zero_of_forall_mem_idealBall (x : IsDedekindDomain.FiniteAdeleRing (𝓞 F) F)
     (hx : ∀ m : ℕ, m ≠ 0 → x ∈ idealBall (𝓞 F) F (Ideal.span {(m : 𝓞 F)})) : x = 0 := by
   refine IsDedekindDomain.FiniteAdeleRing.ext F fun v => ?_
@@ -477,7 +453,6 @@ private theorem eq_zero_of_forall_mem_idealBall (x : IsDedekindDomain.FiniteAdel
   rw [WithZero.exp_le_exp] at h3
   omega
 
--- pin: exists_idealBall_subset (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:1173)
 private theorem exists_idealBall_subset {O : Set (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F)} (hO : IsOpen O)
     (h0 : (0 : IsDedekindDomain.FiniteAdeleRing (𝓞 F) F) ∈ O) :
     ∃ m : ℕ, m ≠ 0 ∧ idealBall (𝓞 F) F (Ideal.span {(m : 𝓞 F)}) ⊆ O := by
@@ -508,12 +483,10 @@ private theorem exists_idealBall_subset {O : Set (IsDedekindDomain.FiniteAdeleRi
       (Nat.cast_ne_zero.mpr (Finset.prod_ne_zero_iff.mpr fun i _ => Nat.succ_ne_zero i)) hx
   exact (Set.disjoint_left.mp hu hxall.1) hxall.2
 
--- pin: liftFin (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:1203)
 private noncomputable def liftFin (X : Matrix (Fin 2) (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F)) :
     Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 F) F) :=
   Matrix.of fun i j => ((1 : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F)) i j, X i j)
 
--- pin: one_apply_eq (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:1207)
 private theorem one_apply_eq (i j : Fin 2) :
     (1 : Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 F) F)) i j =
       ((1 : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F)) i j,
@@ -521,7 +494,6 @@ private theorem one_apply_eq (i j : Fin 2) :
   rw [Matrix.one_apply, Matrix.one_apply, Matrix.one_apply]
   split_ifs <;> rfl
 
--- pin: coe_eq_liftFin (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:1214)
 private theorem coe_eq_liftFin {u : AdelicGL2 (𝓞 F) F} (hu : glArch (𝓞 F) F u = 1) :
     (u : Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 F) F)) =
       liftFin F (glFin (𝓞 F) F u : Matrix (Fin 2) (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F)) := by
@@ -531,7 +503,6 @@ private theorem coe_eq_liftFin {u : AdelicGL2 (𝓞 F) F} (hu : glArch (𝓞 F) 
     rw [← glArch_apply, hu, Units.val_one]
   · rfl
 
--- pin: exists_forall_liftFin_mem (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:1223)
 private theorem exists_forall_liftFin_mem {W : Set (Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 F) F))}
     (hW : IsOpen W) (h1 : (1 : Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 F) F)) ∈ W) :
     ∃ m : ℕ, m ≠ 0 ∧ ∀ X : Matrix (Fin 2) (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F),
@@ -568,7 +539,6 @@ private theorem exists_forall_liftFin_mem {W : Set (Matrix (Fin 2) (Fin 2) (Adel
       (X i j - (1 : Matrix (Fin 2) (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F)) i j) ∈ B i j := h
   rwa [add_sub_cancel] at h'
 
--- pin: exists_congrSet_subset (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:1259)
 private theorem exists_congrSet_subset {V : Set (AdelicGL2 (𝓞 F) F)} (hV : IsOpen V)
     (h1 : (1 : AdelicGL2 (𝓞 F) F) ∈ V) : ∃ n : ℕ, congrSet F n ⊆ V := by
   obtain ⟨O, hO, hOV⟩ := Units.isInducing_embedProduct.isOpen_iff.mp hV
@@ -599,7 +569,6 @@ private theorem exists_congrSet_subset {V : Set (AdelicGL2 (𝓞 F) F)} (hV : Is
   rw [← hOV, Set.mem_preimage, Units.embedProduct_apply]
   exact hprod (Set.mk_mem_prod hval hinv)
 
--- pin: exists_rightInvariantOn_congrSet_of_isKfSmooth (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:1289)
 private theorem exists_rightInvariantOn_congrSet_of_isKfSmooth (f : AdelicGL2 (𝓞 F) F → ℂ)
     (hf : IsKfSmooth F f) : ∃ n : ℕ, RightInvariantOn (congrSet F n) f := by
   have hopen : IsOpen ((MulAction.stabilizer (↥(finiteAdelicGL2Subgroup F))
@@ -623,7 +592,6 @@ private theorem exists_rightInvariantOn_congrSet_of_isKfSmooth (f : AdelicGL2 (�
   have heq := MulAction.mem_stabilizer_iff.mp (SetLike.mem_coe.mp hst)
   exact congrArg (fun φ => FLT.SmoothVectors.RightTranslationFn.toFun φ g) heq
 
--- pin: finIncl (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:1312)
 private noncomputable def finIncl (x : GL (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F)) : AdelicGL2 (𝓞 F) F where
   val := Matrix.of fun i j =>
     ((1 : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F)) i j,
@@ -666,32 +634,27 @@ private noncomputable def finIncl (x : GL (Fin 2) (IsDedekindDomain.FiniteAdeleR
     rw [h1, h2]
     exact Prod.ext (one_mul _) (Units.inv_mul x)
 
--- pin: continuous_finIncl (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:1354)
 private theorem continuous_finIncl : Continuous (finIncl F) :=
   Units.continuous_iff.mpr
     ⟨continuous_matrix fun i j => continuous_const.prodMk (Units.continuous_val.matrix_elem i j),
       continuous_matrix fun i j => continuous_const.prodMk (Units.continuous_coe_inv.matrix_elem i j)⟩
 
--- pin: glArch_finIncl (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:1359)
 private theorem glArch_finIncl (x : GL (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F)) :
     glArch (𝓞 F) F (finIncl F x) = 1 := by
   ext i j
   rfl
 
--- pin: glFin_finIncl (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:1364)
 private theorem glFin_finIncl (x : GL (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F)) :
     glFin (𝓞 F) F (finIncl F x) = x := by
   ext i j
   rfl
 
--- pin: eq_finIncl_glFin (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:1369)
 private theorem eq_finIncl_glFin (k : AdelicGL2 (𝓞 F) F) (hk : glArch (𝓞 F) F k = 1) :
     k = finIncl F (glFin (𝓞 F) F k) := by
   refine Units.ext (Matrix.ext fun i j => Prod.ext ?_ rfl)
   exact congrArg (fun m : GL (Fin 2) (InfiniteAdeleRing F) =>
     (m : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F)) i j) hk
 
--- pin: entryBall (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:1375)
 private def entryBall (n : ℕ) : Set (AdelicGL2 (𝓞 F) F) :=
   ⋂ i : Fin 2, ⋂ j : Fin 2,
     ((fun u : AdelicGL2 (𝓞 F) F =>
@@ -704,7 +667,6 @@ private def entryBall (n : ℕ) : Set (AdelicGL2 (𝓞 F) F) :=
           (1 : Matrix (Fin 2) (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F)) i j) ⁻¹'
         idealBall (𝓞 F) F (Ideal.span {((n + 1 : ℕ) : 𝓞 F)}))
 
--- pin: isOpen_entryBall (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:1387)
 private theorem isOpen_entryBall (n : ℕ) : IsOpen (entryBall F n) := by
   have hN : (Ideal.span {((n + 1 : ℕ) : 𝓞 F)} : Ideal (𝓞 F)) ≠ ⊥ :=
     Ideal.span_singleton_eq_bot.not.mpr (Nat.cast_ne_zero.mpr (Nat.succ_ne_zero n))
@@ -714,7 +676,6 @@ private theorem isOpen_entryBall (n : ℕ) : IsOpen (entryBall F n) := by
   · exact (isOpen_idealBall (𝓞 F) F hN).preimage
       (((Units.continuous_coe_inv.comp (continuous_glFin (𝓞 F) F)).matrix_elem i j).sub continuous_const)
 
--- pin: one_mem_entryBall (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:1396)
 private theorem one_mem_entryBall (n : ℕ) : (1 : AdelicGL2 (𝓞 F) F) ∈ entryBall F n := by
   refine Set.mem_iInter₂.mpr fun i j => ⟨?_, ?_⟩
   · rw [Set.mem_preimage, map_one, Units.val_one, sub_self]
@@ -722,12 +683,10 @@ private theorem one_mem_entryBall (n : ℕ) : (1 : AdelicGL2 (𝓞 F) F) ∈ ent
   · rw [Set.mem_preimage, map_one, inv_one, Units.val_one, sub_self]
     exact zero_mem_idealBall _
 
--- pin: mem_congrSet_of_mem_entryBall (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:1403)
 private theorem mem_congrSet_of_mem_entryBall {n : ℕ} {u : AdelicGL2 (𝓞 F) F}
     (harch : glArch (𝓞 F) F u = 1) (hu : u ∈ entryBall F n) : u ∈ congrSet F n :=
   ⟨harch, fun i j => Set.mem_iInter₂.mp hu i j⟩
 
--- pin: exists_finset_eq_mul_mem_closure_congrSet (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:1407)
 private theorem exists_finset_eq_mul_mem_closure_congrSet (n : ℕ) :
     ∃ T : Finset (AdelicGL2 (𝓞 F) F),
       (∀ g ∈ T, glArch (𝓞 F) F g = 1 ∧ glFin (𝓞 F) F g ∈ finiteIntegralGL2 (𝓞 F) F) ∧
@@ -757,7 +716,6 @@ private theorem exists_finset_eq_mul_mem_closure_congrSet (n : ℕ) :
     (mul_inv_cancel_left g k).symm⟩
   rw [map_mul, map_inv, (hT g hgT).1, harch, inv_one, one_mul]
 
--- pin: forall_mem_closure_congrSet_apply_mul_eq (S_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:1436)
 private theorem forall_mem_closure_congrSet_apply_mul_eq (n : ℕ) (f : AdelicGL2 (𝓞 F) F → ℂ)
     (hf : RightInvariantOn (congrSet F n) f) :
     ∀ g : AdelicGL2 (𝓞 F) F, ∀ h ∈ Subgroup.closure (congrSet F n), f (g * h) = f g := by
@@ -776,7 +734,6 @@ end LevelInvariance
 namespace Engine
 
 open ArchimedeanIsometryGroup in
--- pin: exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous (Theorems/Thm_AutomorphicForm_exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous.lean:10)
 theorem exists_isOpen_forall_exists_apply_eq_sum_of_isArchKFinite_of_continuous
     (F : Type) [Field F] [NumberField F]
     (φ : ℂ → AdelicGL2 (𝓞 F) F → ℂ)

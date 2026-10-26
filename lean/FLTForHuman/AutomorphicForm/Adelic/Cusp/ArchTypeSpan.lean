@@ -22,7 +22,7 @@
   `P2M/Sol/S_AutomorphicForm_CuspidalConstituent_finiteDimensional_span_rightTranslate_of_mem_iSup_archTypeSubmoduleAt.lean`
   (pinned `aa2d8b3`, 813 lines, 39 declarations); the statement is the `Theorems/`
   wrapper verbatim. **31 of the 39 declarations — 696 of the 786 declaration lines — are
-  byte-identical to the port's shared `Q09` engine** in `RepTheory/TypeReproducer.lean`
+  byte-identical to the port's shared `ArchApproxIdentity` engine** in `RepTheory/TypeReproducer.lean`
   (tier 3, registered in `spec/UNWIRED-PUBLIC.md`; it was homed from the archTestFactor
   silo, whose `TypePiece`…`MultiPlace` sections are the same text), so this module
   imports them instead of re-proving them. New here: the 59-line instantiation
@@ -39,7 +39,7 @@ set_option autoImplicit false
 noncomputable section
 
 open IsDedekindDomain NumberField
-open Q09
+open ArchApproxIdentity
 
 namespace AutomorphicForm
 

@@ -2,7 +2,7 @@
   The unit-factorizable trio: one shared engine for the three `rightConv`
   approximate identities.
 
-  This is the tier-3 engine module behind the three pin headlines
+  This is the shared engine of the three pin headlines
 
   * `AutomorphicForm.exists_isUnitFactorizableAboveOfType_tendsto_rightConv_of_mem_archCutSubmodule`
   * `AutomorphicForm.exists_finTestFactor_isUnitFactorizableAboveOfType_tendsto_rightConv_of_mem_archCutSubmodule`
@@ -34,14 +34,21 @@
 
   `continuous_adelicArchGLIncl` is the port's public
   `AutomorphicForm.TestFnNearIdentity.continuous_adelicArchGLIncl`;
-  `isHaarMeasure_archHaarK` is `Q09.isHaarMeasure_archHaarK` and
-  `locallyCompactSpace_archGL` is `Q09AIarchC.locallyCompactSpace_archGL`, both from
+  `isHaarMeasure_archHaarK` is `ArchApproxIdentity.isHaarMeasure_archHaarK` and
+  `locallyCompactSpace_archGL` is `ArchInfraTopology.locallyCompactSpace_archGL`, both from
   `Adelic/ArchApproxIdentity/ArchInfra.lean`; `mem_map_conj_iff` is the port's public
   `AutomorphicForm.TestFnPrincipalLevel.mem_map_conj_iff` (aliased).  The pin-private
   `continuous_archEntries` and `continuous_of_isArchTestFactor` (private in
   `Adelic/TestFnTop.lean`) are re-derived locally below.  `Set.mem_setOf_eq` is
   `Set.mem_ofPred_eq` in `v4.34.0`.  Tactic `haveI`/`letI` on a `Prop` goal is
   spelled `have`/`let` (which also register local instances).
+
+  spec-pin: Theorems/Thm_AutomorphicForm_exists_isUnitFactorizableAboveOfType_tendsto_rightConv_of_mem_archCutSubmodule.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_exists_isUnitFactorizableAboveOfType_tendsto_rightConv_of_mem_archCutSubmodule.lean
+  spec-pin: Theorems/Thm_AutomorphicForm_exists_finTestFactor_isUnitFactorizableAboveOfType_tendsto_rightConv_of_mem_archCutSubmodule.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_exists_finTestFactor_isUnitFactorizableAboveOfType_tendsto_rightConv_of_mem_archCutSubmodule.lean
+  spec-pin: Theorems/Thm_AutomorphicForm_exists_isUnitFactorizableAboveOfType_principalLevel_tendsto_rightConv_of_mem_archCutSubmodule.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_exists_isUnitFactorizableAboveOfType_principalLevel_tendsto_rightConv_of_mem_archCutSubmodule.lean
 -/
 import FLTForHuman.AutomorphicForm.Adelic.ArchApproxIdentity
 import FLTForHuman.AutomorphicForm.Adelic.RightConvNeZeroPrincipal
@@ -885,8 +892,8 @@ private theorem exists_forall_rightConv_eq_smul_integral
   let : MeasurableSpace (GL (Fin 2) (InfiniteAdeleRing F)) := glBorelOf (InfiniteAdeleRing F)
   have := borelSpace_glBorelOf (InfiniteAdeleRing F)
   have := t2Space_archGL F
-  have := Q09AIarchC.locallyCompactSpace_archGL F
-  have := Q09.isHaarMeasure_archHaarK F
+  have := ArchInfraTopology.locallyCompactSpace_archGL F
+  have := ArchApproxIdentity.isHaarMeasure_archHaarK F
   have hS : MeasurableSet (glFin (𝓞 F) F ⁻¹' U) :=
     (hUo.preimage (continuous_glFin (𝓞 F) F)).measurableSet
   have hglArch : Measurable (glArch (𝓞 F) F) := (continuous_glArch (𝓞 F) F).measurable
@@ -1278,7 +1285,6 @@ private theorem exists_finTestFactor_isUnitFactorizableAboveOfType_tendsto_right
 
 /-! ## 10. Public kernels at `AutomorphicForm.UnitFactorizable.Engine.<wrapper name>` -/
 
--- pin: solution (S_AutomorphicForm_exists_isUnitFactorizableAboveOfType_tendsto_rightConv_of_mem_archCutSubmodule.lean:805)
 theorem exists_isUnitFactorizableAboveOfType_tendsto_rightConv_of_mem_archCutSubmodule
     (K L : Type) [Field K] [NumberField K] [Field L] [NumberField L] [Algebra K L]
     (NK : Ideal (𝓞 K)) (SK : Finset (HeightOneSpectrum (𝓞 K)))
@@ -1296,7 +1302,6 @@ theorem exists_isUnitFactorizableAboveOfType_tendsto_rightConv_of_mem_archCutSub
     (AutomorphicForm.exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule
       L tys f hf harch)
 
--- pin: solution (S_AutomorphicForm_exists_finTestFactor_isUnitFactorizableAboveOfType_tendsto_rightConv_of_mem_archCutSubmodule.lean:828)
 theorem exists_finTestFactor_isUnitFactorizableAboveOfType_tendsto_rightConv_of_mem_archCutSubmodule
     (K L : Type) [Field K] [NumberField K] [Field L] [NumberField L] [Algebra K L]
     (NK : Ideal (𝓞 K)) (SK : Finset (HeightOneSpectrum (𝓞 K)))
@@ -1323,7 +1328,6 @@ theorem exists_finTestFactor_isUnitFactorizableAboveOfType_tendsto_rightConv_of_
     (AutomorphicForm.exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule
       L tys f hf harch)
 
--- pin: solution (S_AutomorphicForm_exists_isUnitFactorizableAboveOfType_principalLevel_tendsto_rightConv_of_mem_archCutSubmodule.lean:955)
 theorem exists_isUnitFactorizableAboveOfType_principalLevel_tendsto_rightConv_of_mem_archCutSubmodule
     (K L : Type) [Field K] [NumberField K] [Field L] [NumberField L] [Algebra K L]
     (NK : Ideal (𝓞 K)) (SK : Finset (HeightOneSpectrum (𝓞 K)))

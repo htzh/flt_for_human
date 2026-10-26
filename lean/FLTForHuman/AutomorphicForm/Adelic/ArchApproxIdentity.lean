@@ -3,14 +3,17 @@
 
   This façade carries exactly one declaration — the consumed headline
   `AutomorphicForm.exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule`,
-  stated from its pin wrapper and proved by `Q09.main`
-  (`AutomorphicForm/Adelic/ArchApproxIdentity/Instantiate.lean`). The development of
-  the four supporting movements stays tier 3: `RepTheory/TypeReproducer.lean` (Q3),
-  `RepTheory/ConvolutionLimit.lean` (Q4), `ArchApproxIdentity/Instantiate.lean` (Q5a),
-  preceded by the landed adèlic half `ArchApproxIdentity/ArchInfra.lean` and
-  `…/EntryBall.lean` and the definition gate `AutomorphicForm/Adelic/ArchHaar.lean`.
-  Nothing else is declared here: the checker iterates every public declaration of a
-  listed module, so anything extra would inflate the `identical` delta.
+  stated from its pin wrapper and proved by `ArchApproxIdentity.exists_tendsto_integral_of_mem_archCutSubmodule`
+  (`AutomorphicForm/Adelic/ArchApproxIdentity/Instantiate.lean`). The four supporting
+  movements are modules of their own and each carries its own wire:
+  `RepTheory/TypeReproducer.lean`, `RepTheory/ConvolutionLimit.lean`,
+  `ArchApproxIdentity/Instantiate.lean`, on the adèlic half
+  `ArchApproxIdentity/{ArchInfra,EntryBall}.lean` and the definition gate
+  `AutomorphicForm/Adelic/ArchHaar.lean`. Nothing else is declared here: every public
+  declaration of this module is diffed against the wrapper below and the `S_` copy.
+
+  spec-pin: Theorems/Thm_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean
 -/
 import FLTForHuman.AutomorphicForm.Adelic.ArchApproxIdentity.Instantiate
 
@@ -20,7 +23,6 @@ open NumberField AutomorphicForm
 
 namespace AutomorphicForm
 
--- pin: solution (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:3142)
 theorem exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule
     (L : Type) [Field L] [NumberField L] (tys : ArchTypeFamily L)
     (f : AdelicGL2 (𝓞 L) L → ℂ) (hf : Continuous f) (harch : f ∈ archCutSubmodule L tys) :
@@ -30,6 +32,6 @@ theorem exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_arc
         (fun n => letI := glBorelOf (InfiniteAdeleRing L)
           ∫ y, f (g * adelicArchGLIncl L y) * fa n y ∂(archHaarK L))
         Filter.atTop (nhds (f g)) :=
-  Q09.main L tys f hf harch
+  ArchApproxIdentity.exists_tendsto_integral_of_mem_archCutSubmodule L tys f hf harch
 
 end AutomorphicForm

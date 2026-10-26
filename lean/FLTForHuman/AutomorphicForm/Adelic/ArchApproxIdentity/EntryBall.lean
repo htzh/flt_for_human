@@ -9,17 +9,20 @@
   `piInv` and the partial inverse `toGL`, the bump `exists_bump` built from a
   `ContDiffBump` on the mixed space, the approximate identity `exists_approxIdentity`
   supported in a shrinking neighbourhood of `1`, and its smoothing limit
-  `tendsto_integral_mul_approxIdentity`. The closing section `Q09RowIso` records the
+  `tendsto_integral_mul_approxIdentity`. The closing section records the
   archimedean row-isometry component and injectivity.
 
   Transcribed from
   `P2M/Sol/S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:520–923`
   (pinned `aa2d8b3`), the adèlic half `Q2`. As in `ArchInfra`, the pin's declarations
-  are `private` and land here public as the shared engine, keeping the pin's
-  sub-namespaces `Q09AIarchG`/`Q09RowIso`. The one local re-derivation is the
+  are `private` and land here public as the shared engine, in `ArchEntryBall` (the pin's
+  `Q09AIarchG` block together with its closing `Q09RowIso` one — the archimedean row-isometry
+  component, which is this module's subject too). The one local re-derivation is the
   pin-`private` proof helper `continuous_archEntries` (its port twin
   `AutomorphicForm.TestFnTop.continuous_archEntries` is `private` and a promotion is
   the manager's call), which keeps its pin name and stays `private`.
+
+  spec-pin: P2M/Sol/S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean
 -/
 import FLTForHuman.AutomorphicForm.Adelic.ArchApproxIdentity.ArchInfra
 import Mathlib.Analysis.Calculus.BumpFunction.FiniteDimension
@@ -35,37 +38,32 @@ open NumberField NumberField.AdelicLevel AutomorphicForm IsDedekindDomain Matrix
 
 noncomputable section
 
-namespace Q09AIarchG
+namespace ArchEntryBall
 
-attribute [local instance] Q09AIarchC.t2Space_archMatrix' Q09AIarchC.locallyCompactSpace_archMatrix
-  Q09AIarchC.locallyCompactSpace_archGL Q09AIarchC.isTopologicalGroup_archGL
-  Q09AIarchC.secondCountableTopology_archGL Q09AIarchC.secondCountableTopology_piRowIsometrySubgroup₀
+attribute [local instance] ArchInfraTopology.t2Space_archMatrix' ArchInfraTopology.locallyCompactSpace_archMatrix
+  ArchInfraTopology.locallyCompactSpace_archGL ArchInfraTopology.isTopologicalGroup_archGL
+  ArchInfraTopology.secondCountableTopology_archGL ArchInfraTopology.secondCountableTopology_piRowIsometrySubgroup₀
 
 section Gamma
 
 variable (F : Type) [Field F] [NumberField F]
 
--- pin: t2Space_archMatrix (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:540)
 omit [NumberField F] in
 theorem t2Space_archMatrix : T2Space (Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F)) :=
   inferInstanceAs (T2Space (Fin 2 → Fin 2 → InfiniteAdeleRing F))
 
 attribute [local instance] t2Space_archMatrix
 
--- pin: EntrySpace (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:545)
 abbrev EntrySpace : Type := Fin 2 → Fin 2 → mixedEmbedding.mixedSpace F
 
--- pin: matrixEntries (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:547)
 def matrixEntries (m : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F)) : EntrySpace F :=
   fun i j => InfiniteAdeleRing.ringEquiv_mixedSpace F (m i j)
 
--- pin: archEntries_eq (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:551)
 omit [NumberField F] in
 theorem archEntries_eq (g : GL (Fin 2) (InfiniteAdeleRing F)) :
     archEntries F g = matrixEntries F (g : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F)) :=
   rfl
 
--- pin: ringEquiv_mixedSpace_eq (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:556)
 omit [NumberField F] in
 theorem ringEquiv_mixedSpace_eq :
     ⇑(InfiniteAdeleRing.ringEquiv_mixedSpace F) = fun x : InfiniteAdeleRing F =>
@@ -75,13 +73,11 @@ theorem ringEquiv_mixedSpace_eq :
           InfinitePlace.Completion.extensionEmbedding v.1 (x v))) :=
   funext fun x => InfiniteAdeleRing.ringEquiv_mixedSpace_apply F x
 
--- pin: continuous_matrixEntries (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:565)
 omit [NumberField F] in
 theorem continuous_matrixEntries : Continuous (matrixEntries F) :=
   continuous_pi fun i => continuous_pi fun j =>
     (NumberField.AdelicBox.continuous_ringEquiv_mixedSpace F).comp (continuous_id.matrix_elem i j)
 
--- pin: continuous_archEntries (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:570)
 omit [NumberField F] in
 private theorem continuous_archEntries : Continuous (archEntries F) :=
   (continuous_matrixEntries F).comp Units.continuous_val
@@ -90,7 +86,6 @@ section EntryBalls
 
 open scoped Classical
 
--- pin: dist_apply_le_dist_ringEquiv (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:577)
 theorem dist_apply_le_dist_ringEquiv (x y : InfiniteAdeleRing F) (w : InfinitePlace F) :
     dist (x w) (y w) ≤
       dist (InfiniteAdeleRing.ringEquiv_mixedSpace F x) (InfiniteAdeleRing.ringEquiv_mixedSpace F y) := by
@@ -109,7 +104,6 @@ theorem dist_apply_le_dist_ringEquiv (x y : InfiniteAdeleRing F) (w : InfinitePl
       (fun v : {w : InfinitePlace F // w.IsComplex} => InfinitePlace.Completion.extensionEmbedding v.1 (y v))
       ⟨w, hw⟩
 
--- pin: dist_entry_le (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:595)
 theorem dist_entry_le (m n : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F)) (i j : Fin 2)
     (w : InfinitePlace F) :
     dist (m i j w) (n i j w) ≤ dist (matrixEntries F m) (matrixEntries F n) :=
@@ -117,27 +111,22 @@ theorem dist_entry_le (m n : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F)) (i j 
     ((dist_le_pi_dist (matrixEntries F m i) (matrixEntries F n i) j).trans
       (dist_le_pi_dist (matrixEntries F m) (matrixEntries F n) i))
 
--- pin: entryBall (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:602)
 def entryBall (r : ℝ) : Set (Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F)) :=
   {m | dist (matrixEntries F m) (matrixEntries F 1) ≤ r}
 
--- pin: one_mem_entryBall (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:605)
 theorem one_mem_entryBall {r : ℝ} (hr : 0 ≤ r) :
     (1 : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F)) ∈ entryBall F r := by
   show dist _ _ ≤ r
   rw [dist_self]
   exact hr
 
--- pin: entryBall_mono (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:611)
 theorem entryBall_mono {r s : ℝ} (h : r ≤ s) : entryBall F r ⊆ entryBall F s := fun m hm =>
   show dist (matrixEntries F m) (matrixEntries F 1) ≤ s from
     le_trans (show dist (matrixEntries F m) (matrixEntries F 1) ≤ r from hm) h
 
--- pin: isClosed_entryBall (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:615)
 theorem isClosed_entryBall (r : ℝ) : IsClosed (entryBall F r) :=
   isClosed_le ((continuous_matrixEntries F).dist continuous_const) continuous_const
 
--- pin: isCompact_entryBall (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:618)
 theorem isCompact_entryBall (r : ℝ) : IsCompact (entryBall F r) := by
   haveI : ∀ w : InfinitePlace F, ProperSpace w.Completion :=
     fun w => NumberField.AdelicBox.properSpace_completion (K := F) w
@@ -151,7 +140,6 @@ theorem isCompact_entryBall (r : ℝ) : IsCompact (entryBall F r) := by
   exact Set.mem_univ_pi.mpr fun i => Set.mem_univ_pi.mpr fun j => Set.mem_univ_pi.mpr fun w =>
     Metric.mem_closedBall.mpr ((dist_entry_le F m 1 i j w).trans hm')
 
--- pin: exists_entryBall_subset (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:631)
 theorem exists_entryBall_subset {N : Set (Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F))}
     (hN : N ∈ 𝓝 (1 : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F))) : ∃ r > 0, entryBall F r ⊆ N := by
 
@@ -171,11 +159,9 @@ theorem exists_entryBall_subset {N : Set (Matrix (Fin 2) (Fin 2) (InfiniteAdeleR
 
 end EntryBalls
 
--- pin: detLocus (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:651)
 def detLocus : Set (Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F)) :=
   {m | ∀ w : InfinitePlace F, m.det w ≠ 0}
 
--- pin: continuous_det_apply (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:655)
 omit [NumberField F] in
 theorem continuous_det_apply (w : InfinitePlace F) :
     Continuous fun m : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F) => m.det w := by
@@ -183,7 +169,6 @@ theorem continuous_det_apply (w : InfinitePlace F) :
     continuous_id.matrix_det
   exact (continuous_apply w : Continuous fun a : (∀ w : InfinitePlace F, w.Completion) => a w).comp hdet
 
--- pin: isOpen_detLocus (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:661)
 theorem isOpen_detLocus : IsOpen (detLocus F) := by
   have h : detLocus F = ⋂ w : InfinitePlace F,
       (fun m : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F) => m.det w) ⁻¹' {0}ᶜ := by
@@ -192,38 +177,31 @@ theorem isOpen_detLocus : IsOpen (detLocus F) := by
   rw [h]
   exact isOpen_iInter_of_finite fun w => isOpen_compl_singleton.preimage (continuous_det_apply F w)
 
--- pin: one_mem_detLocus (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:670)
 omit [NumberField F] in
 theorem one_mem_detLocus : (1 : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F)) ∈ detLocus F := fun w => by
   rw [Matrix.det_one]
   exact one_ne_zero
 
--- pin: piInv (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:674)
 def piInv (x : InfiniteAdeleRing F) : InfiniteAdeleRing F := fun w => (x w)⁻¹
 
--- pin: mul_piInv (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:677)
 omit [NumberField F] in
 theorem mul_piInv {x : InfiniteAdeleRing F} (hx : ∀ w, x w ≠ 0) : x * piInv F x = 1 :=
   funext fun w => mul_inv_cancel₀ (hx w)
 
--- pin: piInv_mul (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:681)
 omit [NumberField F] in
 theorem piInv_mul {x : InfiniteAdeleRing F} (hx : ∀ w, x w ≠ 0) : piInv F x * x = 1 :=
   funext fun w => inv_mul_cancel₀ (hx w)
 
--- pin: isUnit_of_forall_ne_zero (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:685)
 omit [NumberField F] in
 theorem isUnit_of_forall_ne_zero {x : InfiniteAdeleRing F} (hx : ∀ w, x w ≠ 0) : IsUnit x :=
   ⟨⟨x, piInv F x, mul_piInv F hx, piInv_mul F hx⟩, rfl⟩
 
--- pin: ringInverse_eq (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:689)
 omit [NumberField F] in
 theorem ringInverse_eq {x : InfiniteAdeleRing F} (hx : ∀ w, x w ≠ 0) : Ring.inverse x = piInv F x :=
   Ring.inverse_unit ⟨x, piInv F x, mul_piInv F hx, piInv_mul F hx⟩
 
 variable {F}
 
--- pin: toGL (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:694)
 def toGL {r₀ : ℝ} (h₀ : entryBall F r₀ ⊆ detLocus F) (m : entryBall F r₀) :
     GL (Fin 2) (InfiniteAdeleRing F) where
   val := m.1
@@ -231,12 +209,10 @@ def toGL {r₀ : ℝ} (h₀ : entryBall F r₀ ⊆ detLocus F) (m : entryBall F 
   val_inv := Matrix.mul_nonsing_inv _ (isUnit_of_forall_ne_zero F (h₀ m.2))
   inv_val := Matrix.nonsing_inv_mul _ (isUnit_of_forall_ne_zero F (h₀ m.2))
 
--- pin: toGL_eq (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:701)
 theorem toGL_eq {r₀ : ℝ} (h₀ : entryBall F r₀ ⊆ detLocus F) (g : GL (Fin 2) (InfiniteAdeleRing F))
     (hg : (g : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F)) ∈ entryBall F r₀) : toGL h₀ ⟨g, hg⟩ = g :=
   Units.ext rfl
 
--- pin: continuous_toGL (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:705)
 theorem continuous_toGL {r₀ : ℝ} (h₀ : entryBall F r₀ ⊆ detLocus F) : Continuous (toGL h₀) := by
   have hdet : Continuous fun m : entryBall F r₀ => Ring.inverse (m.1.det) := by
     have heq : (fun m : entryBall F r₀ => Ring.inverse (m.1.det)) = fun m => piInv F m.1.det :=
@@ -253,20 +229,17 @@ theorem continuous_toGL {r₀ : ℝ} (h₀ : entryBall F r₀ ⊆ detLocus F) : 
 
 variable (F)
 
--- pin: archGLMeasurableSpace (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:721)
 abbrev archGLMeasurableSpace : MeasurableSpace (GL (Fin 2) (InfiniteAdeleRing F)) :=
   glBorelOf (InfiniteAdeleRing F)
 
 attribute [local instance] archGLMeasurableSpace
 
--- pin: archGLBorelSpace (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:727)
 omit [NumberField F] in
 theorem archGLBorelSpace : BorelSpace (GL (Fin 2) (InfiniteAdeleRing F)) :=
   borelSpace_glBorelOf (InfiniteAdeleRing F)
 
 attribute [local instance] archGLBorelSpace
 
--- pin: exists_bump (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:733)
 open scoped Classical in
 theorem exists_bump [(archHaarK F).IsHaarMeasure] {r₀ : ℝ} (h₀ : entryBall F r₀ ⊆ detLocus F) {ρ : ℝ}
     (hρ : 0 < ρ) (hρ₀ : ρ ≤ r₀) :
@@ -318,7 +291,6 @@ theorem exists_bump [(archHaarK F).IsHaarMeasure] {r₀ : ℝ} (h₀ : entryBall
     rw [h, zero_div]
   · exact (integral_div I f₀).trans (div_self hI.ne')
 
--- pin: exists_approxIdentity (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:783)
 theorem exists_approxIdentity [(archHaarK F).IsHaarMeasure] :
     ∃ ψ : ℕ → GL (Fin 2) (InfiniteAdeleRing F) → ℝ,
       (∀ n, IsArchTestFactor F (fun g => (ψ n g : ℂ)) ∧ Continuous (ψ n) ∧ HasCompactSupport (ψ n) ∧
@@ -348,7 +320,6 @@ theorem exists_approxIdentity [(archHaarK F).IsHaarMeasure] :
   have hgU := hNU hgN
   rwa [Set.mem_preimage, toGL_eq h₀ g hg₀] at hgU
 
--- pin: tendsto_integral_mul_approxIdentity (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:812)
 theorem tendsto_integral_mul_approxIdentity [(archHaarK F).IsHaarMeasure]
     {ψ : ℕ → GL (Fin 2) (InfiniteAdeleRing F) → ℝ} (hcont : ∀ n, Continuous (ψ n))
     (hcs : ∀ n, HasCompactSupport (ψ n)) (hnn : ∀ n g, 0 ≤ ψ n g)
@@ -404,19 +375,17 @@ theorem tendsto_integral_mul_approxIdentity [(archHaarK F).IsHaarMeasure]
 
 end Gamma
 
-end Q09AIarchG
+end ArchEntryBall
 
-namespace Q09RowIso
+namespace ArchEntryBall
 
 variable (F : Type) [Field F]
 
--- pin: archComponent_archRowIsometryInclAt₀ (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:885)
 theorem archComponent_archRowIsometryInclAt₀ (w : InfinitePlace F)
     (k : rowIsometrySubgroup₀ w.Completion) :
     archComponent F w (archRowIsometryInclAt₀ F w k) = (k : GL (Fin 2) w.Completion) :=
   archComponent_archGLIncl_self F w (k : GL (Fin 2) w.Completion)
 
--- pin: archRowIsometryInclAt₀_injective (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:890)
 theorem archRowIsometryInclAt₀_injective (w : InfinitePlace F) :
     Function.Injective (archRowIsometryInclAt₀ F w) := fun a b h => by
   have ha := archComponent_archRowIsometryInclAt₀ F w a
@@ -426,7 +395,6 @@ theorem archRowIsometryInclAt₀_injective (w : InfinitePlace F) :
 
 variable [NumberField F]
 
--- pin: archComponent_glArch_rowIsometryInclAt₀ (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:899)
 theorem archComponent_glArch_rowIsometryInclAt₀ (w : InfinitePlace F)
     (k : rowIsometrySubgroup₀ w.Completion) :
     archComponent F w (AdelicLevel.glArch (𝓞 F) F (rowIsometryInclAt₀ F w k))
@@ -434,7 +402,6 @@ theorem archComponent_glArch_rowIsometryInclAt₀ (w : InfinitePlace F)
   rw [glArch_rowIsometryInclAt₀]
   exact archComponent_archRowIsometryInclAt₀ F w k
 
--- pin: rowIsometryInclAt₀_injective (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:906)
 theorem rowIsometryInclAt₀_injective (w : InfinitePlace F) :
     Function.Injective (rowIsometryInclAt₀ F w) := fun a b h => by
   have ha := archComponent_glArch_rowIsometryInclAt₀ F w a
@@ -442,11 +409,10 @@ theorem rowIsometryInclAt₀_injective (w : InfinitePlace F) :
   rw [h] at ha
   exact Subtype.ext (ha.symm.trans hb)
 
--- pin: forall_rowIsometryInclAt₀_injective (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:913)
 theorem forall_rowIsometryInclAt₀_injective :
     ∀ w : InfinitePlace F, Function.Injective (rowIsometryInclAt₀ F w) :=
   rowIsometryInclAt₀_injective F
 
-end Q09RowIso
+end ArchEntryBall
 
 end

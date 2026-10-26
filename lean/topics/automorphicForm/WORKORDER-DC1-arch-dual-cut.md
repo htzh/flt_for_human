@@ -158,6 +158,11 @@ byte-identical to the 2026-10-22 landing, and the public name rectification is d
 
 ## 5. Names and the wire — settled, do not change
 
+**2026-10-25, after landing:** the generated *namespace* family of the modules this node imports
+(`Q09`, `Q09AIarch`, `Q09AIarchC`, `Q09AIarchG`, `Q09RowIso`) was stripped in a separate sweep and
+those modules were wired — see [logs/q09-rectification.md](../../logs/q09-rectification.md). It is
+a different family from the engine tokens below, which stay the pin's.
+
 **The rule for this wave: public names are the pin's, the parser is not touched.** The checker
 diffs statement *text*, and every engine name here (`cutDc`, `cutDM`, `CAD`, `CBD`,
 `goodComponentsD`, `Ecf`, `ρc`, `ℂK`, `underSub`) occurs *inside* statements. Renaming one

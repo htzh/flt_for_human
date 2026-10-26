@@ -47,7 +47,7 @@
   * the two ported `Representation` premises, `exists_isCompl_forall_mem_of_compactSpace_of_continuous`
     and `exists_extend_forall_apply_mul_of_injective`, in place of the pin's
     `exists_stable_compl`/`exists_equivariant_extend` restatements (not ported);
-  * `Q09AIarch.isCompact_rowIsometrySubgroup₀` in place of the pin's 33-line compactness proof.
+  * `ArchInfra.isCompact_rowIsometrySubgroup₀` in place of the pin's 33-line compactness proof.
 
   `IsotypicCuspSpace`'s definition layer is imported for the `rowIsometrySubgroup₀`/
   `rowIsometryInclAt₀`/`adelicArchGLInclAt` vocabulary; `RightConvComm/SliceCentrality`'s
@@ -130,10 +130,10 @@ section Compactness
 variable (K : Type*) [Field K] [NumberField K]
 
 /-- The local row-isometry subgroup of `GL₂(K_w)` is compact, hence a `CompactSpace`; the pin
-proves the compactness in 33 lines, and the port's `Q09AIarch` already has it. -/
+proves the compactness in 33 lines, and the port's `ArchInfra` already has it. -/
 scoped instance compactSpace_rowIsometrySubgroup₀ (w : InfinitePlace K) :
     CompactSpace (rowIsometrySubgroup₀ w.Completion) :=
-  isCompact_iff_compactSpace.mp (@Q09AIarch.isCompact_rowIsometrySubgroup₀ w.Completion _
+  isCompact_iff_compactSpace.mp (@ArchInfra.isCompact_rowIsometrySubgroup₀ w.Completion _
     (NumberField.AdelicBox.properSpace_completion (K := K) w))
 
 end Compactness

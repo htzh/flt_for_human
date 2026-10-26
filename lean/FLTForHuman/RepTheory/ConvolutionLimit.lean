@@ -19,6 +19,8 @@
   public, so the statements are verbatim. The pin's `set_option maxHeartbeats 4000000 in`
   above `contDiffNat_parametricIntegral_postcompCLM` is not transcribed — the port runs at
   the low cap. The pin's `p2m_reactivate` lines are not transcribed.
+
+  spec-pin: P2M/Sol/S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean
 -/
 import FLTForHuman.RepTheory.TypeReproducer
 import Mathlib.Analysis.Calculus.ParametricIntegral
@@ -33,18 +35,16 @@ noncomputable section
 
 open MeasureTheory AutomorphicForm
 
-namespace Q09
+namespace ArchApproxIdentity
 
 section ZetaB
 
--- pin: contSubmodule (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2220)
 def contSubmodule (X : Type*) [TopologicalSpace X] : Submodule ℂ (X → ℂ) where
   carrier := {u | Continuous u}
   add_mem' hu hv := hu.add hv
   zero_mem' := continuous_const
   smul_mem' c _ hu := hu.const_smul c
 
--- pin: mem_contSubmodule (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2226)
 theorem mem_contSubmodule {X : Type*} [TopologicalSpace X] {u : X → ℂ} : u ∈ contSubmodule X ↔ Continuous u :=
   Iff.rfl
 
@@ -53,11 +53,9 @@ variable [Group Kc] [TopologicalSpace Kc] [IsTopologicalGroup Kc] [CompactSpace 
   [MeasurableSpace Kc] [BorelSpace Kc]
 variable (μ : Measure Kc) [IsFiniteMeasure μ] (a : Kc →* H)
 
--- pin: dconvWith (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2234)
 def dconvWith (e₁ e₂ : Kc → ℂ) (ψ : H → ℂ) (y : H) : ℂ :=
   ∫ p : Kc × Kc, e₁ p.1 * e₂ p.2 * ψ ((a p.1)⁻¹ * y * (a p.2)⁻¹) ∂(μ.prod μ)
 
--- pin: continuous_dconvIntegrand (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2238)
 omit [IsTopologicalGroup Kc] [CompactSpace Kc] [SecondCountableTopology Kc] [MeasurableSpace Kc] [BorelSpace Kc] in
 theorem continuous_dconvIntegrand {e₁ e₂ : Kc → ℂ} (he₁ : Continuous e₁) (he₂ : Continuous e₂) {ψ : H → ℂ}
     (hψ : Continuous ψ) (ha : Continuous a) (y : H) :
@@ -65,7 +63,6 @@ theorem continuous_dconvIntegrand {e₁ e₂ : Kc → ℂ} (he₁ : Continuous e
   ((he₁.comp continuous_fst).mul (he₂.comp continuous_snd)).mul
     (hψ.comp ((((ha.comp continuous_fst).inv).mul continuous_const).mul (ha.comp continuous_snd).inv))
 
--- pin: integrable_of_continuous_prod (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2245)
 omit [Group Kc] [IsTopologicalGroup Kc] in
 theorem integrable_of_continuous_prod {F : Kc × Kc → ℂ} (hF : Continuous F) : Integrable F (μ.prod μ) :=
   hF.integrable_of_hasCompactSupport
@@ -76,7 +73,6 @@ section Linear
 variable {μ a}
 variable {e₁ e₂ u v : Kc → ℂ} {ψ : H → ℂ}
 
--- pin: dconvWith_add_right (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2255)
 omit [IsTopologicalGroup Kc] in
 theorem dconvWith_add_right (he₁ : Continuous e₁) (hu : Continuous u) (hv : Continuous v) (hψ : Continuous ψ)
     (ha : Continuous a) (y : H) :
@@ -90,7 +86,6 @@ theorem dconvWith_add_right (he₁ : Continuous e₁) (hu : Continuous u) (hv : 
 
 omit [TopologicalSpace H] [IsTopologicalGroup H] [TopologicalSpace Kc] [IsTopologicalGroup Kc] [CompactSpace Kc]
   [SecondCountableTopology Kc] [BorelSpace Kc] [IsFiniteMeasure μ] in
--- pin: dconvWith_smul_right (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2267)
 theorem dconvWith_smul_right (c : ℂ) (y : H) : dconvWith μ a e₁ (c • u) ψ y = c * dconvWith μ a e₁ u ψ y := by
   unfold dconvWith
   rw [show (fun p : Kc × Kc => e₁ p.1 * (c • u) p.2 * ψ ((a p.1)⁻¹ * y * (a p.2)⁻¹)) =
@@ -98,7 +93,6 @@ theorem dconvWith_smul_right (c : ℂ) (y : H) : dconvWith μ a e₁ (c • u) �
     funext fun p => by simp only [Pi.smul_apply, smul_eq_mul]; ring]
   exact integral_const_mul c _
 
--- pin: dconvWith_add_left (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2275)
 omit [IsTopologicalGroup Kc] in
 theorem dconvWith_add_left (hu : Continuous u) (hv : Continuous v) (he₂ : Continuous e₂) (hψ : Continuous ψ)
     (ha : Continuous a) (y : H) :
@@ -112,7 +106,6 @@ theorem dconvWith_add_left (hu : Continuous u) (hv : Continuous v) (he₂ : Cont
 
 omit [TopologicalSpace H] [IsTopologicalGroup H] [TopologicalSpace Kc] [IsTopologicalGroup Kc] [CompactSpace Kc]
   [SecondCountableTopology Kc] [BorelSpace Kc] [IsFiniteMeasure μ] in
--- pin: dconvWith_smul_left (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2287)
 theorem dconvWith_smul_left (c : ℂ) (y : H) : dconvWith μ a (c • u) e₂ ψ y = c * dconvWith μ a u e₂ ψ y := by
   unfold dconvWith
   rw [show (fun p : Kc × Kc => (c • u) p.1 * e₂ p.2 * ψ ((a p.1)⁻¹ * y * (a p.2)⁻¹)) =
@@ -129,7 +122,6 @@ variable [μ.IsMulLeftInvariant] [μ.IsMulRightInvariant]
 variable {Kw : Type*} [Group Kw] {j : Kw →* Kc} {ι' : Kw →* H} (haj : ∀ k, a (j k) = ι' k)
 variable (e₁ e₂ : Kc → ℂ) (ψ : H → ℂ)
 
--- pin: dconvWith_rt_right (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2306)
 omit [TopologicalSpace H] [IsTopologicalGroup H] [CompactSpace Kc] [μ.IsMulLeftInvariant] in
 include haj in
 theorem dconvWith_rt_right (k : Kw) (y : H) :
@@ -143,7 +135,6 @@ theorem dconvWith_rt_right (k : Kw) (y : H) :
   rw [mul_one, map_mul, haj, mul_inv_rev,
     show (a p.1)⁻¹ * (y * ι' k) * ((ι' k)⁻¹ * (a p.2)⁻¹) = (a p.1)⁻¹ * y * (a p.2)⁻¹ by group]
 
--- pin: dconvWith_rt_left (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2319)
 omit [TopologicalSpace H] [IsTopologicalGroup H] [CompactSpace Kc] [μ.IsMulRightInvariant] in
 include haj in
 theorem dconvWith_rt_left (u : Kc → ℂ) (k : Kw) (y : H) :
@@ -174,7 +165,6 @@ variable {J : Type*} {W : J → Type*} [∀ i, AddCommGroup (W i)] [∀ i, Modul
   (ρ : ∀ i, Representation ℂ Kw (W i))
 variable {e : Kc → ℂ} (he : Continuous e) {ψ : H → ℂ} (hψ : Continuous ψ) (ha : Continuous a)
 
--- pin: convOpR (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2349)
 variable (μ a) in
 def convOpR : contSubmodule Kc →ₗ[ℂ] (H → ℂ) where
   toFun u y := dconvWith μ a e u ψ y
@@ -184,7 +174,6 @@ def convOpR : contSubmodule Kc →ₗ[ℂ] (H → ℂ) where
     show dconvWith μ a e (c • (u : Kc → ℂ)) ψ y = c * dconvWith μ a e u ψ y
     exact dconvWith_smul_right c y
 
--- pin: convOpL (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2358)
 variable (μ a) in
 def convOpL : contSubmodule Kc →ₗ[ℂ] (H → ℂ) where
   toFun u y := dconvWith μ a (fun κ => (u : Kc → ℂ) κ⁻¹) e ψ y⁻¹
@@ -196,7 +185,6 @@ def convOpL : contSubmodule Kc →ₗ[ℂ] (H → ℂ) where
       c * dconvWith μ a (fun κ => (u : Kc → ℂ) κ⁻¹) e ψ y⁻¹
     exact dconvWith_smul_left c y⁻¹
 
--- pin: dconvWith_mem_iSup_dual (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2370)
 omit [μ.IsMulLeftInvariant] in
 include hι' haj he hψ ha in
 theorem dconvWith_mem_iSup_dual (hed : e ∈ ⨆ i, typeSubmodule j (ρ i).dual) :
@@ -210,7 +198,6 @@ theorem dconvWith_mem_iSup_dual (hed : e ∈ ⨆ i, typeSubmodule j (ρ i).dual)
   exact mem_iSup_typeSubmodule_of_intertwines j hι' (fun i => (ρ i).dual) (contSubmodule Kc) hP₀
     (convOpR μ a he hψ ha) hA ⟨e, he⟩ hed
 
--- pin: dconvWith_inv_mem_iSup (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2383)
 omit [μ.IsMulRightInvariant] in
 include hι' haj he hψ ha in
 theorem dconvWith_inv_mem_iSup (hel : (fun κ => e κ⁻¹) ∈ ⨆ i, typeSubmodule j (ρ i)) :
@@ -238,7 +225,6 @@ section Support
 variable {μ a}
 variable {e : Kc → ℂ} {ψ : H → ℂ}
 
--- pin: hasCompactSupport_dconvWith (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2410)
 omit [IsTopologicalGroup Kc] [SecondCountableTopology Kc] [BorelSpace Kc] [IsFiniteMeasure μ] in
 theorem hasCompactSupport_dconvWith (ha : Continuous a) (hψ : HasCompactSupport ψ) :
     HasCompactSupport (dconvWith μ a e e ψ) := by
@@ -273,7 +259,6 @@ variable (ν : Measure H) [SFinite ν] [IsFiniteMeasureOnCompacts ν] [ν.IsMulL
 
 omit [IsTopologicalGroup Kc] [SecondCountableTopology Kc] [MeasurableSpace Kc] [BorelSpace Kc] [MeasurableSpace H]
   [BorelSpace H] [SecondCountableTopology H] [LocallyCompactSpace H] in
--- pin: isCompact_image_mul_mul (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2444)
 theorem isCompact_image_mul_mul (ha : Continuous a) {T : Set H} (hT : IsCompact T) :
     IsCompact ((fun q : (Kc × H) × Kc => a q.1.1 * q.1.2 * a q.2) '' ((Set.univ ×ˢ T) ×ˢ Set.univ)) :=
   ((isCompact_univ.prod hT).prod isCompact_univ).image
@@ -283,7 +268,6 @@ theorem isCompact_image_mul_mul (ha : Continuous a) {T : Set H} (hT : IsCompact 
 omit [TopologicalSpace H] [IsTopologicalGroup H] [TopologicalSpace Kc] [IsTopologicalGroup Kc] [CompactSpace Kc]
   [SecondCountableTopology Kc] [MeasurableSpace Kc] [BorelSpace Kc] [MeasurableSpace H] [BorelSpace H]
   [SecondCountableTopology H] [LocallyCompactSpace H] in
--- pin: mem_image_mul_mul_of_ne (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2453)
 theorem mem_image_mul_mul_of_ne {T : Set H} {ψ : H → ℂ} (hψT : ∀ z, ψ z ≠ 0 → z ∈ T) {y : H} {p : Kc × Kc}
     (h : ψ ((a p.1)⁻¹ * y * (a p.2)⁻¹) ≠ 0) :
     y ∈ (fun q : (Kc × H) × Kc => a q.1.1 * q.1.2 * a q.2) '' ((Set.univ ×ˢ T) ×ˢ Set.univ) :=
@@ -295,7 +279,6 @@ variable {ιA ν}
 
 omit [TopologicalSpace Kc] [IsTopologicalGroup Kc] [CompactSpace Kc] [SecondCountableTopology Kc] [MeasurableSpace Kc]
   [BorelSpace Kc] [SecondCountableTopology H] [LocallyCompactSpace H] [SFinite ν] [IsFiniteMeasureOnCompacts ν] in
--- pin: integral_mul_shift (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2464)
 theorem integral_mul_shift (hνR : ∀ (κ : Kc) (h : H → ℂ), Continuous h → HasCompactSupport h →
       ∫ y, h (y * a κ) ∂ν = ∫ y, h y ∂ν)
     {φ : H → ℂ} (hφ : Continuous φ) {ψ : H → ℂ} (hψ : Continuous ψ) (hψs : HasCompactSupport ψ) (κ₁ κ₂ : Kc) :
@@ -316,7 +299,6 @@ theorem integral_mul_shift (hνR : ∀ (κ : Kc) (h : H → ℂ), Continuous h �
   show φ (a κ₁ * (y * a κ₂)) * ψ (y * a κ₂ * (a κ₂)⁻¹) = φ (a κ₁ * y * a κ₂) * ψ y
   rw [mul_inv_cancel_right, mul_assoc]
 
--- pin: tendsto_integral_mul_dconvWith (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2484)
 theorem tendsto_integral_mul_dconvWith (ha : Continuous a) {e : Kc → ℂ} (he : Continuous e) (f : G → ℂ)
     (hfc : ∀ x : G, Continuous fun y : H => f (x * ιA y))
     (hrep : ∀ x : G, ∫ κ, e κ * f (x * ιA (a κ)) ∂μ = f x)
@@ -448,7 +430,7 @@ end Limit
 
 end ZetaB
 
-end Q09
+end ArchApproxIdentity
 
 end
 
@@ -459,7 +441,7 @@ noncomputable section
 open Set Filter Function MeasureTheory Matrix
 open scoped ENNReal NNReal BigOperators Classical ContDiff
 
-namespace Q09
+namespace ArchApproxIdentity
 
 section DominatedDUIEngine
 
@@ -467,7 +449,6 @@ variable {α : Type*} [MeasurableSpace α] {μ : Measure α}
 variable {P E : Type} [NormedAddCommGroup P] [NormedSpace ℝ P]
   [NormedAddCommGroup E] [NormedSpace ℝ E] [ProperSpace E]
 
--- pin: archDUI_apply_mem_closedBall (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2642)
 omit [ProperSpace E] in
 theorem archDUI_apply_mem_closedBall {Φw : P →L[ℝ] E} {C : ℝ} (hΦ : ‖Φw‖ ≤ C)
     {x₀ x : P} (hx : x ∈ Metric.ball x₀ 1) :
@@ -481,7 +462,6 @@ theorem archDUI_apply_mem_closedBall {Φw : P →L[ℝ] E} {C : ℝ} (hΦ : ‖�
   calc ‖Φw x‖ ≤ ‖Φw‖ * ‖x‖ := Φw.le_opNorm x
     _ ≤ C * (‖x₀‖ + 1) := mul_le_mul hΦ hxn (norm_nonneg _) hC0
 
--- pin: contDiffNat_parametricIntegral_postcompCLM (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2655)
 theorem contDiffNat_parametricIntegral_postcompCLM [IsFiniteMeasure μ]
     (Φ : α → P →L[ℝ] E) (hΦm : AEStronglyMeasurable Φ μ)
     {C : ℝ} (hC : 0 ≤ C) (hΦb : ∀ᵐ w ∂μ, ‖Φ w‖ ≤ C) (n : ℕ) :
@@ -626,7 +606,6 @@ theorem contDiffNat_parametricIntegral_postcompCLM [IsFiniteMeasure μ]
       exact IH (E →L[ℝ] E₁) (P →L[ℝ] E₂) (fderiv ℝ G) hG' T' hT'meas (D * C)
         (mul_nonneg hD hC) hT'bd
 
--- pin: contDiff_parametricIntegral_clm_comp (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2799)
 theorem contDiff_parametricIntegral_clm_comp [IsFiniteMeasure μ]
     (Φ : α → P →L[ℝ] E) (hΦm : AEStronglyMeasurable Φ μ)
     {C : ℝ} (hΦb : ∀ᵐ w ∂μ, ‖Φ w‖ ≤ C)
@@ -650,7 +629,6 @@ variable {α : Type*} [MeasurableSpace α] {μ : Measure α}
 variable {P E : Type} [NormedAddCommGroup P] [NormedSpace ℝ P]
   [NormedAddCommGroup E] [NormedSpace ℝ E] [ProperSpace E]
 
--- pin: contDiff_parametricIntegral_mul (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2823)
 theorem contDiff_parametricIntegral_mul [IsFiniteMeasure μ]
     (Φ : α → P →L[ℝ] E) (hΦm : AEStronglyMeasurable Φ μ)
     {C : ℝ} (hΦb : ∀ᵐ w ∂μ, ‖Φ w‖ ≤ C)
@@ -677,6 +655,6 @@ theorem contDiff_parametricIntegral_mul [IsFiniteMeasure μ]
 
 end ScalarWeighted
 
-end Q09
+end ArchApproxIdentity
 
 end

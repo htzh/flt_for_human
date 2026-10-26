@@ -19,6 +19,8 @@
   declares the whole engine `private`; here it is the shared engine and is public,
   so the statements are verbatim and every declaration lands as a promotion. The
   pin's `p2m_reactivate` lines are not transcribed.
+
+  spec-pin: P2M/Sol/S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean
 -/
 import FLTForHuman.AutomorphicForm.Adelic.IsotypicCuspSpace
 import Mathlib.Analysis.Calculus.ParametricIntegral
@@ -33,7 +35,7 @@ set_option autoImplicit false
 
 noncomputable section
 
-namespace Q09
+namespace ArchApproxIdentity
 
 open AutomorphicForm
 
@@ -42,28 +44,23 @@ section TypePiece
 variable {H G : Type*} [Group H] [Group G]
 variable {W : Type*} [AddCommGroup W] [Module ℂ W]
 
--- pin: exists_out_mul_eq (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:939)
 theorem exists_out_mul_eq (ι : H →* G) (x : G) :
     ∃ k : H, (QuotientGroup.mk x : G ⧸ ι.range).out * ι k = x := by
   obtain ⟨h, hh⟩ := QuotientGroup.mk_out_eq_mul ι.range x
   obtain ⟨k, hk⟩ := h.2
   exact ⟨k⁻¹, by rw [map_inv, hh, ← hk, mul_inv_cancel_right]⟩
 
--- pin: cosetCoord (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:945)
 noncomputable def cosetCoord (ι : H →* G) (x : G) : H :=
   (exists_out_mul_eq ι x).choose
 
--- pin: out_mul_cosetCoord (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:948)
 theorem out_mul_cosetCoord (ι : H →* G) (x : G) :
     (QuotientGroup.mk x : G ⧸ ι.range).out * ι (cosetCoord ι x) = x :=
   (exists_out_mul_eq ι x).choose_spec
 
--- pin: cosetCoord_unique (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:952)
 theorem cosetCoord_unique {ι : H →* G} (hι : Function.Injective ι) {x : G} {k : H}
     (hk : (QuotientGroup.mk x : G ⧸ ι.range).out * ι k = x) : k = cosetCoord ι x :=
   hι (mul_left_cancel (hk.trans (out_mul_cosetCoord ι x).symm))
 
--- pin: cosetCoord_mul (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:956)
 theorem cosetCoord_mul {ι : H →* G} (hι : Function.Injective ι) (x : G) (k : H) :
     cosetCoord ι (x * ι k) = cosetCoord ι x * k := by
   symm
@@ -73,7 +70,6 @@ theorem cosetCoord_mul {ι : H →* G} (hι : Function.Injective ι) (x : G) (k 
     exact ⟨k⁻¹, by rw [map_inv, mul_inv_rev, inv_mul_cancel_right]⟩
   rw [hmk, map_mul, ← mul_assoc, out_mul_cosetCoord]
 
--- pin: mem_typeSubmodule_of_isRightEquivariantOn (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:965)
 theorem mem_typeSubmodule_of_isRightEquivariantOn {ι : H →* G} (hι : Function.Injective ι)
     (ρ : Representation ℂ H W) (P : Submodule ℂ W) (hP : ∀ (k : H), ∀ v ∈ P, ρ k v ∈ P)
     (S : P →ₗ[ℂ] (G → ℂ))
@@ -122,7 +118,6 @@ section PiRep
 variable {H : Type*} [Group H]
 variable {A : Type*} {W : A → Type*} [∀ a, AddCommGroup (W a)] [∀ a, Module ℂ (W a)]
 
--- pin: piRep (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1014)
 def piRep (ρ : ∀ a, Representation ℂ H (W a)) : Representation ℂ H (∀ a, W a) where
   toFun k := LinearMap.pi fun a => (ρ a k).comp (LinearMap.proj a)
   map_one' := by
@@ -132,12 +127,10 @@ def piRep (ρ : ∀ a, Representation ℂ H (W a)) : Representation ℂ H (∀ a
     ext v a
     simp
 
--- pin: piRep_apply (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1023)
 theorem piRep_apply (ρ : ∀ a, Representation ℂ H (W a)) (k : H) (v : ∀ a, W a) (a : A) :
     piRep ρ k v a = ρ a k (v a) :=
   rfl
 
--- pin: piRep_single (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1027)
 theorem piRep_single [DecidableEq A] (ρ : ∀ a, Representation ℂ H (W a)) (k : H) (a : A)
     (v : W a) : piRep ρ k (Pi.single a v) = Pi.single a (ρ a k v) := by
   funext b
@@ -153,7 +146,6 @@ section Transport
 
 variable {H G : Type*} [Group H] [Group G]
 
--- pin: typeSubmodule_piRep_le (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1043)
 theorem typeSubmodule_piRep_le {A : Type*} [Fintype A] [DecidableEq A] {W : A → Type*}
     [∀ a, AddCommGroup (W a)] [∀ a, Module ℂ (W a)] (ι : H →* G)
     (ρ : ∀ a, Representation ℂ H (W a)) :
@@ -170,7 +162,6 @@ theorem typeSubmodule_piRep_le {A : Type*} [Fintype A] [DecidableEq A] {W : A �
     exact hT k (Pi.single a w) x
   exact mem_typeSubmodule_of_isRightEquivariant hTa (v a)
 
--- pin: mem_iSup_typeSubmodule_of_isRightEquivariantOn_pi (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1059)
 theorem mem_iSup_typeSubmodule_of_isRightEquivariantOn_pi {A : Type*} [Fintype A] [DecidableEq A]
     {W : A → Type*} [∀ a, AddCommGroup (W a)] [∀ a, Module ℂ (W a)] {ι : H →* G}
     (hι : Function.Injective ι) (ρ : ∀ a, Representation ℂ H (W a)) (Q : Submodule ℂ (∀ a, W a))
@@ -179,7 +170,6 @@ theorem mem_iSup_typeSubmodule_of_isRightEquivariantOn_pi {A : Type*} [Fintype A
     S v ∈ ⨆ a, typeSubmodule ι (ρ a) :=
   typeSubmodule_piRep_le ι ρ (mem_typeSubmodule_of_isRightEquivariantOn hι (piRep ρ) Q hQ S hS v)
 
--- pin: exists_isRightEquivariant_mem_range_of_mem_iSup_typeSubmodule (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1067)
 theorem exists_isRightEquivariant_mem_range_of_mem_iSup_typeSubmodule {J : Type*} {W : J → Type*}
     [∀ j, AddCommGroup (W j)] [∀ j, Module ℂ (W j)] (ι : H →* G)
     (ρ : ∀ j, Representation ℂ H (W j)) {θ : G → ℂ} (hθ : θ ∈ ⨆ j, typeSubmodule ι (ρ j)) :
@@ -218,7 +208,6 @@ theorem exists_isRightEquivariant_mem_range_of_mem_iSup_typeSubmodule {J : Type*
     · intro h
       exact absurd (Finset.mem_univ _) h
 
--- pin: mem_iSup_typeSubmodule_of_intertwines (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1105)
 theorem mem_iSup_typeSubmodule_of_intertwines {G' : Type*} [Group G'] {J : Type*} {W : J → Type*}
     [∀ j, AddCommGroup (W j)] [∀ j, Module ℂ (W j)] (ι : H →* G) {ι' : H →* G'}
     (hι' : Function.Injective ι') (ρ : ∀ j, Representation ℂ H (W j)) (P₀ : Submodule ℂ (G → ℂ))
@@ -271,18 +260,15 @@ section Coeff
 variable {Kc : Type*} [Group Kc]
 variable {E : Type*} [AddCommGroup E] [Module ℂ E]
 
--- pin: coeffFun (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1158)
 def coeffFun (π : Representation ℂ Kc E) (lam : Module.Dual ℂ E) : E →ₗ[ℂ] (Kc → ℂ) where
   toFun v κ := lam (π κ v)
   map_add' v w := funext fun κ => by simp only [map_add, Pi.add_apply]
   map_smul' a v := funext fun κ => by simp only [map_smul, smul_eq_mul, Pi.smul_apply, RingHom.id_apply]
 
--- pin: coeffFun_apply (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1163)
 theorem coeffFun_apply (π : Representation ℂ Kc E) (lam : Module.Dual ℂ E) (v : E) (κ : Kc) :
     coeffFun π lam v κ = lam (π κ v) :=
   rfl
 
--- pin: isRightEquivariant_coeffFun (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1167)
 theorem isRightEquivariant_coeffFun (π : Representation ℂ Kc E) (lam : Module.Dual ℂ E) :
     IsRightEquivariant (MonoidHom.id Kc) π (coeffFun π lam) := by
   intro k v κ
@@ -290,19 +276,16 @@ theorem isRightEquivariant_coeffFun (π : Representation ℂ Kc E) (lam : Module
   rw [map_mul]
   rfl
 
--- pin: dualCoeffFun (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1174)
 def dualCoeffFun (π : Representation ℂ Kc E) (v : E) : Module.Dual ℂ E →ₗ[ℂ] (Kc → ℂ) where
   toFun lam κ := lam (π κ⁻¹ v)
   map_add' l m := funext fun κ => by simp only [LinearMap.add_apply, Pi.add_apply]
   map_smul' a l := funext fun κ => by
     simp only [LinearMap.smul_apply, smul_eq_mul, Pi.smul_apply, RingHom.id_apply]
 
--- pin: dualCoeffFun_apply (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1180)
 theorem dualCoeffFun_apply (π : Representation ℂ Kc E) (v : E) (lam : Module.Dual ℂ E) (κ : Kc) :
     dualCoeffFun π v lam κ = lam (π κ⁻¹ v) :=
   rfl
 
--- pin: isRightEquivariant_dualCoeffFun (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1184)
 theorem isRightEquivariant_dualCoeffFun (π : Representation ℂ Kc E) (v : E) :
     IsRightEquivariant (MonoidHom.id Kc) π.dual (dualCoeffFun π v) := by
   intro k lam κ
@@ -316,7 +299,6 @@ section LeftTypes
 
 variable {Kw Kc G : Type*} [Group Kw] [Group Kc] [Group G]
 
--- pin: transRep (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1198)
 def transRep (ι : Kc →* G) (E : Submodule ℂ (G → ℂ))
     (hE : ∀ (κ : Kc), ∀ v ∈ E, (fun x => v (x * ι κ)) ∈ E) : Representation ℂ Kc E where
   toFun κ :=
@@ -332,13 +314,11 @@ def transRep (ι : Kc →* G) (E : Submodule ℂ (G → ℂ))
     show (v : G → ℂ) (x * ι (κ * κ')) = (v : G → ℂ) (x * ι κ * ι κ')
     rw [map_mul, mul_assoc]
 
--- pin: transRep_apply (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1213)
 theorem transRep_apply (ι : Kc →* G) (E : Submodule ℂ (G → ℂ))
     (hE : ∀ (κ : Kc), ∀ v ∈ E, (fun x => v (x * ι κ)) ∈ E) (κ : Kc) (v : E) (x : G) :
     ((transRep ι E hE κ v : E) : G → ℂ) x = (v : G → ℂ) (x * ι κ) :=
   rfl
 
--- pin: coeffFun_transRep_mem_iSup (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1218)
 theorem coeffFun_transRep_mem_iSup {J : Type*} {W : J → Type*} [∀ j, AddCommGroup (W j)]
     [∀ j, Module ℂ (W j)] {incl : Kw →* Kc} (hincl : Function.Injective incl) (ι : Kc →* G)
     (ρ : ∀ j, Representation ℂ Kw (W j)) (E : Submodule ℂ (G → ℂ))
@@ -387,7 +367,6 @@ section DualTypes
 
 variable {Kw Kc G : Type*} [Group Kw] [Group Kc] [Group G]
 
--- pin: exists_isRightEquivariant_le_range_of_le_iSup_typeSubmodule (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1267)
 theorem exists_isRightEquivariant_le_range_of_le_iSup_typeSubmodule {H : Type*} [Group H] {J : Type*}
     {W : J → Type*} [∀ j, AddCommGroup (W j)] [∀ j, Module ℂ (W j)] (ι : H →* G)
     (ρ : ∀ j, Representation ℂ H (W j)) (P : Submodule ℂ (G → ℂ)) [FiniteDimensional ℂ P]
@@ -441,7 +420,6 @@ theorem exists_isRightEquivariant_le_range_of_le_iSup_typeSubmodule {H : Type*} 
       Finset.mem_coe.mpr (Finset.mem_biUnion.mpr ⟨⟨f, hf⟩, Finset.mem_univ _, hg⟩)
     exact Submodule.span_mono hsub (hftf ⟨f, hf⟩)
 
--- pin: dualCoeffFun_transRep_mem_iSup (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1320)
 theorem dualCoeffFun_transRep_mem_iSup {J : Type*} {W : J → Type*} [∀ j, AddCommGroup (W j)]
     [∀ j, Module ℂ (W j)] {incl : Kw →* Kc} (hincl : Function.Injective incl) (ι : Kc →* G)
     (ρ : ∀ j, Representation ℂ Kw (W j)) (E : Submodule ℂ (G → ℂ)) [FiniteDimensional ℂ E]
@@ -585,27 +563,21 @@ section SpanTranslates
 
 variable {H G : Type*} [Group H] [Group G]
 
--- pin: rt (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1464)
 def rt (x₀ : G) (v : G → ℂ) : G → ℂ := fun x => v (x * x₀)
 
--- pin: rt_apply (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1466)
 theorem rt_apply (x₀ : G) (v : G → ℂ) (x : G) : rt x₀ v x = v (x * x₀) := rfl
 
--- pin: rtLinear (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1468)
 def rtLinear (x₀ : G) : (G → ℂ) →ₗ[ℂ] (G → ℂ) where
   toFun := rt x₀
   map_add' _ _ := rfl
   map_smul' _ _ := rfl
 
--- pin: rtLinear_apply (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1473)
 theorem rtLinear_apply (x₀ : G) (v : G → ℂ) : rtLinear x₀ v = rt x₀ v := rfl
 
--- pin: rt_mul (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1475)
 theorem rt_mul (x₀ x₁ : G) (v : G → ℂ) : rt (x₀ * x₁) v = rt x₀ (rt x₁ v) := by
   funext x
   simp only [rt_apply, mul_assoc]
 
--- pin: rt_mem_typeSubmodule_of_commute (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1479)
 theorem rt_mem_typeSubmodule_of_commute {W : Type*} [AddCommGroup W] [Module ℂ W] {ι : H →* G}
     {ρ : Representation ℂ H W} {x₀ : G} (hx₀ : ∀ k : H, x₀ * ι k = ι k * x₀) {v : G → ℂ}
     (hv : v ∈ typeSubmodule ι ρ) : rt x₀ v ∈ typeSubmodule ι ρ := by
@@ -628,7 +600,6 @@ theorem rt_mem_typeSubmodule_of_commute {W : Type*} [AddCommGroup W] [Module ℂ
       exact Submodule.smul_mem _ c hf
   exact hmap v hv
 
--- pin: rt_mem_typeSubmodule_self (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1501)
 theorem rt_mem_typeSubmodule_self {W : Type*} [AddCommGroup W] [Module ℂ W] {ι : H →* G}
     {ρ : Representation ℂ H W} (k : H) {v : G → ℂ} (hv : v ∈ typeSubmodule ι ρ) :
     rt (ι k) v ∈ typeSubmodule ι ρ := by
@@ -649,23 +620,19 @@ theorem rt_mem_typeSubmodule_self {W : Type*} [AddCommGroup W] [Module ℂ W] {�
       exact Submodule.smul_mem _ c hf
   exact hmap v hv
 
--- pin: spanTranslates (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1521)
 def spanTranslates (ι : H →* G) (V : Submodule ℂ (G → ℂ)) : Submodule ℂ (G → ℂ) :=
   Submodule.span ℂ {g | ∃ k : H, ∃ v ∈ V, g = rt (ι k) v}
 
--- pin: le_spanTranslates (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1524)
 theorem le_spanTranslates (ι : H →* G) (V : Submodule ℂ (G → ℂ)) : V ≤ spanTranslates ι V := by
   intro v hv
   refine Submodule.subset_span ⟨1, v, hv, ?_⟩
   funext x
   simp only [rt_apply, map_one, mul_one]
 
--- pin: rt_mem_spanTranslates (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1530)
 theorem rt_mem_spanTranslates (ι : H →* G) (V : Submodule ℂ (G → ℂ)) (k : H) {v : G → ℂ} (hv : v ∈ V) :
     rt (ι k) v ∈ spanTranslates ι V :=
   Submodule.subset_span ⟨k, v, hv, rfl⟩
 
--- pin: rt_mem_spanTranslates_of_mem (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1534)
 theorem rt_mem_spanTranslates_of_mem (ι : H →* G) (V : Submodule ℂ (G → ℂ)) (k : H) {g : G → ℂ}
     (hg : g ∈ spanTranslates ι V) : rt (ι k) g ∈ spanTranslates ι V := by
   have hmap : ∀ f ∈ spanTranslates ι V, rtLinear (ι k) f ∈ spanTranslates ι V := by
@@ -685,7 +652,6 @@ theorem rt_mem_spanTranslates_of_mem (ι : H →* G) (V : Submodule ℂ (G → �
       exact Submodule.smul_mem _ c hf
   exact hmap g hg
 
--- pin: finiteDimensional_spanTranslates (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1553)
 -- The pin's load-bearing `haveI` registers a Prop-valued instance; the linter's `have` would drop it.
 set_option linter.style.haveILetI false in
 theorem finiteDimensional_spanTranslates {J : Type*} {W : J → Type*} [∀ j, AddCommGroup (W j)]
@@ -711,7 +677,6 @@ section MultiPlace
 variable {G : Type*} [Group G]
 variable {Pl : Type*} [Fintype Pl] [DecidableEq Pl] {K : Pl → Type*} [∀ w, Group (K w)]
 
--- pin: exists_finiteDimensional_stable (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1577)
 -- The pin's load-bearing `haveI`s register Prop-valued instances; the linter's `have` would drop them.
 set_option linter.style.haveILetI false in
 theorem exists_finiteDimensional_stable {J : Pl → Type*} {W : ∀ w, J w → Type*}
@@ -783,7 +748,7 @@ theorem exists_finiteDimensional_stable {J : Pl → Type*} {W : ∀ w, J w → T
 
 end MultiPlace
 
-end Q09
+end ArchApproxIdentity
 
 end
 
@@ -791,7 +756,7 @@ noncomputable section
 
 open MeasureTheory Matrix
 
-namespace Q09
+namespace ArchApproxIdentity
 
 section Delta
 
@@ -803,24 +768,20 @@ variable (μ : Measure Kc) [IsFiniteMeasure μ] [μ.IsOpenPosMeasure] [μ.IsMulL
 variable (ι : Kc →* G) (E : Submodule ℂ (G → ℂ))
 variable (hE : ∀ (κ : Kc), ∀ v ∈ E, (fun x => v (x * ι κ)) ∈ E)
 
--- pin: piE (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1669)
 def piE (κ : Kc) : E →ₗ[ℂ] E where
   toFun v := ⟨fun x => (v : G → ℂ) (x * ι κ), hE κ v v.2⟩
   map_add' v w := by ext x; rfl
   map_smul' c v := by ext x; rfl
 
--- pin: piE_apply (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1675)
 omit [TopologicalSpace Kc] [IsTopologicalGroup Kc] [CompactSpace Kc] [MeasurableSpace Kc] [BorelSpace Kc] in
 theorem piE_apply (κ : Kc) (v : E) (x : G) : (piE ι E hE κ v : G → ℂ) x = (v : G → ℂ) (x * ι κ) := rfl
 
--- pin: piE_one (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1678)
 omit [TopologicalSpace Kc] [IsTopologicalGroup Kc] [CompactSpace Kc] [MeasurableSpace Kc] [BorelSpace Kc] in
 theorem piE_one : piE ι E hE 1 = LinearMap.id := by
   ext v x
   show (v : G → ℂ) (x * ι 1) = (v : G → ℂ) x
   rw [map_one, mul_one]
 
--- pin: piE_mul (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1684)
 omit [TopologicalSpace Kc] [IsTopologicalGroup Kc] [CompactSpace Kc] [MeasurableSpace Kc] [BorelSpace Kc] in
 theorem piE_mul (κ κ' : Kc) : piE ι E hE (κ * κ') = piE ι E hE κ ∘ₗ piE ι E hE κ' := by
   ext v x
@@ -829,32 +790,26 @@ theorem piE_mul (κ κ' : Kc) : piE ι E hE (κ * κ') = piE ι E hE κ ∘ₗ p
 
 variable [FiniteDimensional ℂ E]
 
--- pin: Pm (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1691)
 def Pm (κ : Kc) : Matrix (Fin (Module.finrank ℂ E)) (Fin (Module.finrank ℂ E)) ℂ :=
   LinearMap.toMatrix (Module.finBasis ℂ E) (Module.finBasis ℂ E) (piE ι E hE κ)
 
--- pin: Pm_one (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1695)
 omit [TopologicalSpace Kc] [IsTopologicalGroup Kc] [CompactSpace Kc] [MeasurableSpace Kc] [BorelSpace Kc] in
 theorem Pm_one : Pm ι E hE 1 = 1 := by
   rw [Pm, piE_one, LinearMap.toMatrix_id]
 
--- pin: Pm_mul (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1699)
 omit [TopologicalSpace Kc] [IsTopologicalGroup Kc] [CompactSpace Kc] [MeasurableSpace Kc] [BorelSpace Kc] in
 theorem Pm_mul (κ κ' : Kc) : Pm ι E hE (κ * κ') = Pm ι E hE κ * Pm ι E hE κ' := by
   rw [Pm, piE_mul, LinearMap.toMatrix_comp (Module.finBasis ℂ E) (Module.finBasis ℂ E)]
   rfl
 
--- pin: Pm_inv_mul (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1704)
 omit [TopologicalSpace Kc] [IsTopologicalGroup Kc] [CompactSpace Kc] [MeasurableSpace Kc] [BorelSpace Kc] in
 theorem Pm_inv_mul (κ : Kc) : Pm ι E hE κ⁻¹ * Pm ι E hE κ = 1 := by
   rw [← Pm_mul, inv_mul_cancel, Pm_one]
 
--- pin: Pm_mul_inv (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1708)
 omit [TopologicalSpace Kc] [IsTopologicalGroup Kc] [CompactSpace Kc] [MeasurableSpace Kc] [BorelSpace Kc] in
 theorem Pm_mul_inv (κ : Kc) : Pm ι E hE κ * Pm ι E hE κ⁻¹ = 1 := by
   rw [← Pm_mul, mul_inv_cancel, Pm_one]
 
--- pin: continuous_Pm_apply (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1712)
 omit [IsTopologicalGroup Kc] [CompactSpace Kc] [MeasurableSpace Kc] [BorelSpace Kc] in
 theorem continuous_Pm_apply (hcont : ∀ v ∈ E, ∀ x : G, Continuous fun κ : Kc => v (x * ι κ))
     (i j : Fin (Module.finrank ℂ E)) : Continuous fun κ => Pm ι E hE κ i j := by
@@ -871,7 +826,6 @@ theorem continuous_Pm_apply (hcont : ∀ v ∈ E, ∀ x : G, Continuous fun κ :
   rw [h3]
   exact h2.comp h1
 
--- pin: continuous_Pm (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1728)
 omit [IsTopologicalGroup Kc] [CompactSpace Kc] [MeasurableSpace Kc] [BorelSpace Kc] in
 theorem continuous_Pm (hcont : ∀ v ∈ E, ∀ x : G, Continuous fun κ : Kc => v (x * ι κ)) :
     Continuous fun κ => Pm ι E hE κ :=
@@ -881,35 +835,29 @@ section Mint
 
 variable {m : Type*} [Fintype m] [DecidableEq m]
 
--- pin: Mint (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1736)
 def Mint (Φ : Kc → Matrix m m ℂ) : Matrix m m ℂ := Matrix.of fun i j => ∫ κ, Φ κ i j ∂μ
 
 omit [Group Kc] [TopologicalSpace Kc] [IsTopologicalGroup Kc] [CompactSpace Kc] [BorelSpace Kc] [IsFiniteMeasure μ]
   [μ.IsOpenPosMeasure] [μ.IsMulLeftInvariant] [μ.IsMulRightInvariant] [Fintype m] [DecidableEq m] in
--- pin: Mint_apply (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1740)
 theorem Mint_apply (Φ : Kc → Matrix m m ℂ) (i j : m) : Mint μ Φ i j = ∫ κ, Φ κ i j ∂μ := rfl
 
--- pin: hasCompactSupport_of_compactSpace (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1743)
 omit [Group Kc] [IsTopologicalGroup Kc] [MeasurableSpace Kc] [BorelSpace Kc] in
 theorem hasCompactSupport_of_compactSpace {α : Type*} [Zero α] [TopologicalSpace α] (h : Kc → α) :
     HasCompactSupport h :=
   IsCompact.of_isClosed_subset isCompact_univ (isClosed_tsupport h) (Set.subset_univ _)
 
--- pin: integrable_of_continuous (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1748)
 omit [IsTopologicalGroup Kc] [μ.IsOpenPosMeasure] [μ.IsMulLeftInvariant] [μ.IsMulRightInvariant] [Group Kc] in
 theorem integrable_of_continuous {h : Kc → ℂ} (hh : Continuous h) : Integrable h μ :=
   hh.integrable_of_hasCompactSupport (hasCompactSupport_of_compactSpace h)
 
 omit [Group Kc] [IsTopologicalGroup Kc] [CompactSpace Kc] [MeasurableSpace Kc] [BorelSpace Kc] [IsFiniteMeasure μ]
   [μ.IsOpenPosMeasure] [μ.IsMulLeftInvariant] [μ.IsMulRightInvariant] [Fintype m] [DecidableEq m] in
--- pin: continuous_apply_apply_of_continuous (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1753)
 theorem continuous_apply_apply_of_continuous {Φ : Kc → Matrix m m ℂ} (hΦ : Continuous Φ) (i j : m) :
     Continuous fun κ => Φ κ i j :=
   (continuous_apply j).comp ((continuous_apply i).comp hΦ)
 
 omit [IsTopologicalGroup Kc] [μ.IsOpenPosMeasure] [μ.IsMulLeftInvariant] [μ.IsMulRightInvariant] [DecidableEq m]
   [Group Kc] in
--- pin: Mint_const_mul (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1759)
 theorem Mint_const_mul (A : Matrix m m ℂ) {Φ : Kc → Matrix m m ℂ} (hΦ : Continuous Φ) :
     Mint μ (fun κ => A * Φ κ) = A * Mint μ Φ := by
   ext i j
@@ -922,7 +870,6 @@ theorem Mint_const_mul (A : Matrix m m ℂ) {Φ : Kc → Matrix m m ℂ} (hΦ : 
 
 omit [IsTopologicalGroup Kc] [μ.IsOpenPosMeasure] [μ.IsMulLeftInvariant] [μ.IsMulRightInvariant] [DecidableEq m]
   [Group Kc] in
--- pin: Mint_mul_const (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1771)
 theorem Mint_mul_const (A : Matrix m m ℂ) {Φ : Kc → Matrix m m ℂ} (hΦ : Continuous Φ) :
     Mint μ (fun κ => Φ κ * A) = Mint μ Φ * A := by
   ext i j
@@ -935,7 +882,6 @@ theorem Mint_mul_const (A : Matrix m m ℂ) {Φ : Kc → Matrix m m ℂ} (hΦ : 
 
 omit [IsTopologicalGroup Kc] [CompactSpace Kc] [BorelSpace Kc] [IsFiniteMeasure μ] [μ.IsOpenPosMeasure]
   [μ.IsMulLeftInvariant] [μ.IsMulRightInvariant] [Group Kc] [TopologicalSpace Kc] [Fintype m] [DecidableEq m] in
--- pin: Mint_conjTranspose (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1783)
 theorem Mint_conjTranspose (Φ : Kc → Matrix m m ℂ) :
     (Mint μ Φ)ᴴ = Mint μ (fun κ => (Φ κ)ᴴ) := by
   ext i j
@@ -943,7 +889,6 @@ theorem Mint_conjTranspose (Φ : Kc → Matrix m m ℂ) :
   simp_rw [Matrix.conjTranspose_apply]
   exact integral_conj.symm
 
--- pin: Mint_mul_right (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1791)
 omit [CompactSpace Kc] [IsFiniteMeasure μ] [μ.IsOpenPosMeasure] [μ.IsMulLeftInvariant] [Fintype m] [DecidableEq m] in
 theorem Mint_mul_right (Φ : Kc → Matrix m m ℂ) (k : Kc) :
     Mint μ (fun κ => Φ (κ * k)) = Mint μ Φ := by
@@ -951,7 +896,6 @@ theorem Mint_mul_right (Φ : Kc → Matrix m m ℂ) (k : Kc) :
   rw [Mint_apply, Mint_apply]
   exact integral_mul_right_eq_self (fun κ => Φ κ i j) k
 
--- pin: apply_Mint (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1798)
 omit [IsTopologicalGroup Kc] [μ.IsOpenPosMeasure] [μ.IsMulLeftInvariant] [μ.IsMulRightInvariant] [Group Kc] in
 theorem apply_Mint (θ : Matrix m m ℂ →ₗ[ℂ] ℂ) {Φ : Kc → Matrix m m ℂ} (hΦ : Continuous Φ) :
     θ (Mint μ Φ) = ∫ κ, θ (Φ κ) ∂μ := by
@@ -977,7 +921,6 @@ theorem apply_Mint (θ : Matrix m m ℂ →ₗ[ℂ] ℂ) {Φ : Kc → Matrix m m
 
 omit [IsTopologicalGroup Kc] [μ.IsOpenPosMeasure] [μ.IsMulLeftInvariant] [μ.IsMulRightInvariant] [DecidableEq m]
   [Group Kc] in
--- pin: dotProduct_Mint_mulVec (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1822)
 theorem dotProduct_Mint_mulVec (x y : m → ℂ) {Φ : Kc → Matrix m m ℂ} (hΦ : Continuous Φ) :
     x ⬝ᵥ (Mint μ Φ *ᵥ y) = ∫ κ, x ⬝ᵥ (Φ κ *ᵥ y) ∂μ := by
   have hI : ∀ i j, Integrable (fun κ => Φ κ i j) μ := fun i j =>
@@ -996,17 +939,14 @@ end Mint
 
 variable (hcont : ∀ v ∈ E, ∀ x : G, Continuous fun κ : Kc => v (x * ι κ))
 
--- pin: Hm (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1841)
 def Hm : Matrix (Fin (Module.finrank ℂ E)) (Fin (Module.finrank ℂ E)) ℂ :=
   Mint μ fun κ => (Pm ι E hE κ)ᴴ * Pm ι E hE κ
 
--- pin: continuous_PHP (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1846)
 include hcont in
 omit [IsTopologicalGroup Kc] [CompactSpace Kc] [MeasurableSpace Kc] [BorelSpace Kc] in
 theorem continuous_PHP : Continuous fun κ => (Pm ι E hE κ)ᴴ * Pm ι E hE κ :=
   ((continuous_Pm ι E hE hcont).matrix_conjTranspose).mul (continuous_Pm ι E hE hcont)
 
--- pin: conjTranspose_mul_Hm_mul (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1851)
 omit [μ.IsOpenPosMeasure] [μ.IsMulLeftInvariant] in
 include hcont in
 theorem conjTranspose_mul_Hm_mul (k : Kc) :
@@ -1024,7 +964,6 @@ theorem conjTranspose_mul_Hm_mul (k : Kc) :
     simp only [Matrix.mul_assoc]
   rw [e1, e2, e3, Mint_mul_right μ (fun κ => (Pm ι E hE κ)ᴴ * Pm ι E hE κ) k, Hm]
 
--- pin: star_dotProduct_conjTranspose_mul_mulVec (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1866)
 theorem star_dotProduct_conjTranspose_mul_mulVec {m : Type*} [Fintype m] (A : Matrix m m ℂ) (x : m → ℂ) :
     star x ⬝ᵥ ((Aᴴ * A) *ᵥ x) = ∑ i, (Complex.normSq ((A *ᵥ x) i) : ℂ) := by
   rw [← Matrix.mulVec_mulVec, Matrix.dotProduct_mulVec, Matrix.vecMul_conjTranspose, star_star]
@@ -1032,7 +971,6 @@ theorem star_dotProduct_conjTranspose_mul_mulVec {m : Type*} [Fintype m] (A : Ma
   refine Finset.sum_congr rfl fun i _ => ?_
   rw [Pi.star_apply, Complex.star_def, Complex.normSq_eq_conj_mul_self]
 
--- pin: Hm_mulVec_injective (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1875)
 omit [μ.IsMulLeftInvariant] [μ.IsMulRightInvariant] [IsTopologicalGroup Kc] in
 include hcont in
 theorem Hm_mulVec_injective : Function.Injective (Hm μ ι E hE).mulVec := by
@@ -1072,14 +1010,12 @@ theorem Hm_mulVec_injective : Function.Injective (Hm μ ι E hE).mulVec := by
   have : (∫ κ, q κ ∂μ) = 0 := by exact_mod_cast hform.symm
   exact (lt_irrefl _) (this ▸ hpos)
 
--- pin: isUnit_Hm_det (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1914)
 include hcont in
 omit [μ.IsMulLeftInvariant] [μ.IsMulRightInvariant] [IsTopologicalGroup Kc] in
 theorem isUnit_Hm_det : IsUnit (Hm μ ι E hE).det := by
   rw [← Matrix.isUnit_iff_isUnit_det]
   exact Matrix.mulVec_injective_iff_isUnit.mp (Hm_mulVec_injective μ ι E hE hcont)
 
--- pin: conjTranspose_Pm (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1920)
 omit [μ.IsMulLeftInvariant] in
 include hcont in
 theorem conjTranspose_Pm (k : Kc) :
@@ -1092,17 +1028,14 @@ theorem conjTranspose_Pm (k : Kc) :
       _ = Hm μ ι E hE * Pm ι E hE k⁻¹ := by rw [← Matrix.mul_assoc, h]
   rw [← h1, Matrix.mul_assoc, Matrix.mul_nonsing_inv _ (isUnit_Hm_det μ ι E hE hcont), Matrix.mul_one]
 
--- pin: Dm (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1930)
 def Dm (i j : Fin (Module.finrank ℂ E)) : Matrix (Fin (Module.finrank ℂ E)) (Fin (Module.finrank ℂ E)) ℂ :=
   Mint μ fun κ => Pm ι E hE κ⁻¹ j i • Pm ι E hE κ
 
--- pin: continuous_Pm_inv (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1935)
 include hcont in
 omit [CompactSpace Kc] [MeasurableSpace Kc] [BorelSpace Kc] in
 theorem continuous_Pm_inv : Continuous fun κ : Kc => Pm ι E hE κ⁻¹ :=
   (continuous_Pm ι E hE hcont).comp continuous_inv
 
--- pin: one_mem_span_Dm (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:1940)
 omit [μ.IsMulLeftInvariant] in
 include hcont in
 theorem one_mem_span_Dm :
@@ -1204,7 +1137,6 @@ theorem one_mem_span_Dm :
   have : (∫ κ, Complex.normSq (s κ) ∂μ) = 0 := by exact_mod_cast hzero
   exact (lt_irrefl _) (this ▸ hpos)
 
--- pin: exists_reproducer (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2040)
 omit [μ.IsMulLeftInvariant] in
 include hcont in
 theorem exists_reproducer :
@@ -1297,7 +1229,7 @@ theorem exists_reproducer :
 
 end Delta
 
-end Q09
+end ArchApproxIdentity
 
 end
 
@@ -1305,7 +1237,7 @@ noncomputable section
 
 open AutomorphicForm
 
-namespace Q09
+namespace ArchApproxIdentity
 
 section ZetaB0
 
@@ -1313,14 +1245,12 @@ variable {G : Type*} [Group G] {Kw Kc : Type*} [Group Kw] [Group Kc]
 variable (ι : Kc →* G) (E : Submodule ℂ (G → ℂ))
 variable (hE : ∀ (κ : Kc), ∀ v ∈ E, (fun x => v (x * ι κ)) ∈ E) [FiniteDimensional ℂ E]
 
--- pin: Pm_apply_eq_coeffFun (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2149)
 theorem Pm_apply_eq_coeffFun (κ : Kc) (i j : Fin (Module.finrank ℂ E)) :
     Pm ι E hE κ i j =
       coeffFun (transRep ι E hE) ((Module.finBasis ℂ E).coord i) ((Module.finBasis ℂ E) j) κ := by
   rw [Pm, LinearMap.toMatrix_apply]
   rfl
 
--- pin: Pm_inv_apply_eq_dualCoeffFun (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2155)
 theorem Pm_inv_apply_eq_dualCoeffFun (κ : Kc) (i j : Fin (Module.finrank ℂ E)) :
     Pm ι E hE κ⁻¹ i j =
       dualCoeffFun (transRep ι E hE) ((Module.finBasis ℂ E) j) ((Module.finBasis ℂ E).coord i) κ := by
@@ -1331,7 +1261,6 @@ variable {J : Type*} {W : J → Type*} [∀ j, AddCommGroup (W j)] [∀ j, Modul
 variable {incl : Kw →* Kc} (hincl : Function.Injective incl) (ρ : ∀ j, Representation ℂ Kw (W j))
 variable (hEcut : ∀ v ∈ E, v ∈ ⨆ j, typeSubmodule (ι.comp incl) (ρ j))
 
--- pin: Pm_entry_mem_iSup (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2166)
 include hincl hEcut in
 theorem Pm_entry_mem_iSup (i j : Fin (Module.finrank ℂ E)) :
     (fun κ => Pm ι E hE κ i j) ∈ ⨆ j', typeSubmodule incl (ρ j') := by
@@ -1341,7 +1270,6 @@ theorem Pm_entry_mem_iSup (i j : Fin (Module.finrank ℂ E)) :
   rw [h]
   exact coeffFun_transRep_mem_iSup hincl ι ρ E hE hEcut _ _
 
--- pin: Pm_inv_entry_mem_iSup (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2175)
 include hincl hEcut in
 theorem Pm_inv_entry_mem_iSup (i j : Fin (Module.finrank ℂ E)) :
     (fun κ => Pm ι E hE κ⁻¹ i j) ∈ ⨆ j', typeSubmodule incl (ρ j').dual := by
@@ -1351,7 +1279,6 @@ theorem Pm_inv_entry_mem_iSup (i j : Fin (Module.finrank ℂ E)) :
   rw [h]
   exact dualCoeffFun_transRep_mem_iSup hincl ι ρ E hE hEcut _ _
 
--- pin: reproducer_mem_iSup_dual (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2184)
 include hincl hEcut in
 theorem reproducer_mem_iSup_dual (c : Fin (Module.finrank ℂ E) × Fin (Module.finrank ℂ E) → ℂ) :
     (fun κ => ∑ p, c p * Pm ι E hE κ⁻¹ p.2 p.1) ∈ ⨆ j', typeSubmodule incl (ρ j').dual := by
@@ -1363,7 +1290,6 @@ theorem reproducer_mem_iSup_dual (c : Fin (Module.finrank ℂ E) × Fin (Module.
   exact Submodule.sum_mem _ fun p _ =>
     Submodule.smul_mem _ _ (Pm_inv_entry_mem_iSup ι E hE hincl ρ hEcut p.2 p.1)
 
--- pin: reproducer_inv_mem_iSup (S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2195)
 include hincl hEcut in
 theorem reproducer_inv_mem_iSup (c : Fin (Module.finrank ℂ E) × Fin (Module.finrank ℂ E) → ℂ) :
     (fun κ => ∑ p, c p * Pm ι E hE κ p.2 p.1) ∈ ⨆ j', typeSubmodule incl (ρ j') := by
@@ -1375,6 +1301,6 @@ theorem reproducer_inv_mem_iSup (c : Fin (Module.finrank ℂ E) × Fin (Module.f
 
 end ZetaB0
 
-end Q09
+end ArchApproxIdentity
 
 end

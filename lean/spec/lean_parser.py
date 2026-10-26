@@ -236,6 +236,13 @@ KW_GENERATED_RE = re.compile(
 # The generic capital prefix, for the names that keep their suffix
 # (`KwIsogenyEndDatum…` → `IsogenyEndDatum…`, `KwVelu…` → `Velu…`).
 KW_FAMILY_PREFIX_RE = re.compile(r"(?<![\w'])Kw(?=[A-Z0-9])")
+# The pin's informal-question / workspace labels: `Q09`, `Q09AIarch`, `Q09AIarchC`,
+# `Q09AIarchG`, `Q09RowIso`.  They name the pin's proof scaffold — the question it answers and
+# the workspace it was written in — not mathematics, and the sub-tokens (`AI`, `C`, `G`,
+# `RowIso`, `Dock`) carry no meaning of their own.  The port states the subject
+# (`ArchApproxIdentity`, `ArchInfra`, `ArchInfraTopology`, `ArchEntryBall`); `check_port`'s
+# name guard rejects a residual family name, exactly as it does for `kw*`/`Kw*`.
+Q09_FAMILY_RE = re.compile(r"(?:(?<![\w'ₐ-ₜ])|(?<=_))Q09[A-Za-z0-9_']*")
 # A few names are renamed past their `norm` image because the mechanical target
 # is ambiguous (`charFree` ×7, `proved` ×4, `map_eq` ×2, `axiomAnchor` ×3,
 # `zero`/`some_of_mem`/`some_of_ne`, the `HZZ` family and the embedded `kwVelu…`
@@ -243,6 +250,13 @@ KW_FAMILY_PREFIX_RE = re.compile(r"(?<![\w'])Kw(?=[A-Z0-9])")
 # before the hash is taken; it is the checker's rename exemption, not a
 # declaration marker.  Keys are applied longest-first on word boundaries.
 CANONICAL_NAMES = {
+    # The Q09 sweep (2026-10-25).  `Q09`, `Q09AIarch`, `Q09AIarchC`, `Q09AIarchG` and `Q09RowIso`
+    # are the pin's informal-question and workspace labels, not mathematics: the port states the
+    # subject (`ArchApproxIdentity`, `ArchInfra`, `ArchEntryBall`).  Only `ArchInfra` occurs inside
+    # a statement today (`exists_contDiff_dconvWith`), so only it needs a map entry; a statement
+    # that ever mentions the merged `…C`/`…G`/`RowIso` blocks needs its own entry, and the failure
+    # is a loud `MISMATCH`, never a silent match.
+    'ArchInfra': 'Q09AIarch',
     'adicValuation_algebraMap_ramificationIndex': 'adicValuation_algebraMap',
     'axiomAnchor_hBC': 'axiomAnchor',
     'axiomAnchor_hfgkd_ktd': 'axiomAnchor',

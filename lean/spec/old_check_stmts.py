@@ -4890,18 +4890,12 @@ PORT_FILES = [
     # `…/IndicatorEulerFactors.lean`). The twenty development modules of the topic stay
     # unlisted (tier 3). Appended last so no earlier last-name match can flip.
     "FLTForHuman/NumberTheory/NumberField/TateGlobal.lean",
-    # --- WORKORDER-Q turn 2 (`topics/automorphicForm/WORKORDER-Q-archTestFactor.md`):
-    # the archimedean approximate-identity façade, the topic's only checked module. It
-    # declares exactly one declaration — the consumed headline
-    # `AutomorphicForm.exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule`,
-    # stated from the pin wrapper and proved by `Q09.main`
-    # (`…/ArchApproxIdentity/Instantiate.lean`). Its four development modules
-    # (`RepTheory/TypeReproducer.lean`, `RepTheory/ConvolutionLimit.lean`,
-    # `…/ArchApproxIdentity/Instantiate.lean`, and the landed
-    # `…/ArchApproxIdentity/{ArchInfra,EntryBall}.lean`) plus the definition gate
-    # `…/ArchHaar.lean` stay unlisted (tier 3). Appended last so no earlier last-name
-    # match can flip.
-    "FLTForHuman/AutomorphicForm/Adelic/ArchApproxIdentity.lean",
+    # --- WORKORDER-Q turn 2: MIGRATED 2026-10-25. The archimedean approximate-identity
+    # façade and its four development modules now carry their own `spec-pin:` wires
+    # (`AutomorphicForm/Adelic/ArchApproxIdentity.lean`,
+    # `…/ArchApproxIdentity/{Instantiate,ArchInfra,EntryBall}.lean`,
+    # `RepTheory/{TypeReproducer,ConvolutionLimit}.lean`), so the frozen checker gives up
+    # the façade and the new checker owns the lot. Nothing from this topic is listed here.
     # --- WORKORDER-R turn 2 (`topics/automorphicForm/WORKORDER-R-bruhat-transversal.md`):
     # the Bruhat-transversal / Weyl-integrand façade, the topic's only checked module. It
     # declares exactly the three headlines

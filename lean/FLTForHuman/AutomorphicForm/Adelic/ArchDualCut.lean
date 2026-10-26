@@ -48,7 +48,7 @@
   `exists_add_eq_of_isCompl_biSup_isotypicComponents`, `exists_eq_span_singleton_of_isSimpleModule`,
   `le_biSup_isotypicComponents_of_forall_linearEquiv_le`), `RepTheory/TypeInvariance.lean` (the two
   type-invariance theorems), `RepresentationTheory/SubrepresentationRestriction.lean`, and
-  `Q09RowIso.rowIsometryInclAt₀_injective` from `ArchApproxIdentity/EntryBall`.
+  `ArchEntryBall.rowIsometryInclAt₀_injective` from `ArchApproxIdentity/EntryBall`.
 
   Transcribed from
   `P2M/Sol/S_AutomorphicForm_exists_mem_span_rightTranslate_mem_archDualCutSubmodule_and_rightConv_eq.lean:726–1325,1353–1373`
@@ -268,7 +268,7 @@ theorem cutDM_le_CAD (tys : ArchTypeFamily F) :
   show (((ρc F).asModuleEquiv x : Ecf F) : AdelicGL2 (𝓞 F) F → ℂ) ∈
     ⨆ i : Fin (tys.card w), typeSubmodule (rowIsometryInclAt₀ F w) (tys.rep w i).ρ.dual
   refine AutomorphicForm.le_iSup_typeSubmodule_of_surjective_of_le_iSup_typeSubmodule (rowIsometryInclAt₀ F w)
-    (Q09RowIso.rowIsometryInclAt₀_injective F w)
+    (ArchEntryBall.rowIsometryInclAt₀_injective F w)
     (fun i : Fin (tys.card w) => Module.Dual ℂ (Fin (tys.rep w i).n → ℂ))
     (fun i => (tys.rep w i).ρ.dual) Sf Sf'
     (rightTranslate_mem_map_subtype_of_forall F (underSub F m') hS' w)
@@ -453,7 +453,7 @@ theorem rightConv_eq_zero_of_isIrreducible_of_le_CBD (tys : ArchTypeFamily F) (y
   have hTf_le : ∀ w : InfinitePlace F, Tf ≤ ⨆ i : Fin (tys.card w), archDualTypeSubmoduleAt F w (tys.rep w i) := by
     intro w
     exact AutomorphicForm.le_iSup_typeSubmodule_dual_of_invariant_pairing (rowIsometryInclAt₀ F w)
-      (Q09RowIso.rowIsometryInclAt₀_injective F w)
+      (ArchEntryBall.rowIsometryInclAt₀_injective F w)
       (fun i : Fin (tys.card w) => Fin (tys.rep w i).n → ℂ) (fun i => (tys.rep w i).ρ) Sf Tf
       (rightTranslate_mem_map_subtype_of_forall F (orbitSpanc F y) hSc w)
       (rightTranslate_mem_map_subtype_of_forall F (underSub F T) hTc w) βf
