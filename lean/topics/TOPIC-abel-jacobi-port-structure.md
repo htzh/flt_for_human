@@ -34,7 +34,9 @@ consumers.
 | other (leaf utilities cited from within the payout) | 9 / 5,130 | ≈ 3,600 |
 
 A and B touch each other only through the shared prelude (B0 and the modular-form vocabulary):
-their interfaces are disjoint.
+their interfaces are disjoint. Measured on the two mouths' closures, that prelude is **19 unported
+nodes / 1,118 lines**, of which the whole analytic part is the 311-line circle-integral residue pair;
+§9 is the audit of the question the reader will ask next — whether B could carry A anyway.
 
 ## 1. The two uniformizations
 
@@ -59,11 +61,84 @@ is `…exists_injective_…_jH_quotient_periodLatticeOf` (302 lines, 5 premises)
 Tate module ≅ period lattice ⊗ ℤ_[p] identification, `ModularCurve.finite_torsion_jOne`
 (`Finite (Pic0.torsion … n)`, 80 lines, all premises in A), and a rational-Hecke independence lemma.
 
-So A is not a variant of B: it is the **modular** uniformization, and it is the route the D-S
-column actually takes at its Tate-module step. B is the general-curve uniformization, and its
-consumers are the arithmetic cardinality `abelJacobiCard_genus` (fan-in 12) and, outside D-S, the
-Drinfeld-curve cardinality `DrinfeldCurve.abelJacobiCard_drinfeldFunctionField` (288 lines, 3
-citers). The two supplies meet only at the arithmetic facts they both prove.
+**The conclusions are not the same theorem, and generality is not comparable.**
+
+B says: `∃ L : Submodule ℤ (Fin g → ℂ), Module.Free ℤ L ∧ Module.Finite ℤ L ∧
+Module.finrank ℤ L = 2 * g ∧ Nonempty (Pic0 ℂ F ≃+ (Fin g → ℂ) ⧸ L)` — an *abstract* lattice in a
+coordinate space and a plain additive isomorphism. It names no cusp form, no Hecke operator, no Tate
+module, and its hypothesis (`∃ x, Transcendental …`) admits any curve over an algebraically closed
+characteristic-zero field.
+
+A says, at its usable top:
+`∃ u : JH M H →+ Module.Dual ℂ (CuspForm (GammaH M H) 2) ⧸ periodLatticeOf (GammaH M H)`,
+injective, containing all torsion (`∀ y, IsOfFinAddOrder y → y ∈ u.range`), and **equivariant** for
+`heckeTLinH`, `heckeULinH` and `diamondLinH` (the Hecke-T, Hecke-U and diamond operators acting on
+the dual of cusp forms); and above it
+`∃ e : TateModule p (JH M H) ≃ₗ[ℤ_[p]] ℤ_[p] ⊗[ℤ] periodLatticeOf (CohCarrier.GammaH M H)` with the
+Hecke/diamond action transported through it (`χ' (e x) = χ (e (tateGenOpH … x))`).
+
+So B is more general **in the curve** and far weaker **in the conclusion**: A identifies the lattice
+with the periods of cusp forms, carries the Hecke action across, and identifies the Tate module with
+that lattice. To get A's *statement* from B one would need three comparisons that exist nowhere in
+the pin — (i) B's `L` equals `periodLatticeOf` (the periods of the Abel–Jacobi map are the integrals
+of the holomorphic differentials, i.e. the cusp forms), (ii) the Hecke action on `periodLatticeOf`
+(H¹ of the curve = cusp forms, Hecke-equivariantly), (iii) `TateModule ≅ periodLatticeOf ⊗ ℤ_[p]`.
+A develops exactly those three as its content; B develops none of them. That is why the two are
+separate projects rather than one project with a special case.
+
+**A is heavily consumed, and not by this subject.** The Tate-module identification has five citers,
+all of them weight: `CuspForm.exists_padicGaloisModule_heckeRingH_two_frobenius_relation` (859
+lines — the p-adic Galois module the D-S construction is built on),
+`ModularCurve.exists_heckeEquivariant_parabolicHoms_to_dual_tateModule_jH`,
+`…exists_map_eq_charpoly_heckeTLinOne_and_charpoly_tateHeckeRepOne_jOne_eq_map_sq` (the
+characteristic-polynomial comparison between Hecke on cusp forms and Hecke on the Tate module),
+`…exists_monic_aeval_tateGenOpH_T_eq_zero_forall_norm_root_lt`, and
+`…exists_ringHom_moduleEnd_twoCuspForms_apply_eq_twoCuspGenMod`. A is the Eichler–Shimura bridge of
+the Galois-representation development. B's consumers are the arithmetic cardinality hub
+`abelJacobiCard_genus` (fan-in 12) and, outside the D-S column,
+`DrinfeldCurve.abelJacobiCard_drinfeldFunctionField` (288 lines, 3 citers). The two meet only in the
+arithmetic facts they both prove — which is exactly the overlap that lets a D-S read price the
+column's torsion finiteness without B.
+
+**Weights, for scheduling.** A is the bigger body and B the more intrinsic theorem, and that
+asymmetry is what makes the two projects feel different in kind:
+
+| | A (modular / Eichler–Shimura) | B (Abel–Jacobi for any curve) |
+|---|---:|---:|
+| nodes / lines in the Fermat cone | 145 / 61,519 | 44,000 lines unported (cell 19,946 + divisor/vector 13,866 + prelude ~10,300) |
+| unported | 57,000 (52,374 + 4,853 support) | 44,000 |
+| D-S dependency | yes — 15 nodes / 5,301 visible, and **86 nodes / 41,714 hidden** behind the 19 pruned `abelJacobi_mem_periodLattice*` lemmas | none: 0 of its nodes are needed by the column; its only touch point is the pair's proof, which A replaces |
+| its own consumers | the p-adic Galois module (859 l), the char-poly comparison, parabolic-homs duality, the Igusa chain | `abelJacobiCard_genus` (fan-in 12), the Drinfeld curve |
+
+So B is scheduled on its own merits with no D-S timing dependency at all, while A is a real
+dependency whose true price is its whole 61.5k family, not the 5.3k the pruned column shows. That
+asymmetry is a property of the two *conclusions*, not of the two *bodies*: §10 finds the shared
+complex analysis formalized twice, at 2.3k lines in A and 10.1k in B, and it is B that is carrying
+the avoidable weight.
+
+**And the two closures are disjoint where it matters.** Taking premise closures on the pin's graph:
+`exists_heckeEquivariant_linearEquiv_tateModule_jH_padicInt_tensor_periodLatticeOf` (528 nodes),
+`exists_injective_heckeEquivariant_addMonoidHom_jH_quotient_periodLatticeOf` (521) and
+`finite_torsion_jOne` (528) each contain **neither** B's mouth **nor** `abelJacobiCard_genus`. So B is
+not an ingredient of A: A is an independent proof, not a consumer of the abstract theory.
+
+That settles what the D-S column needs. Both routes are in its closure, and the pinned chain cites
+both — but the *needs* are met by A alone:
+
+* finiteness/freeness of `TateModule p (JH M H)`: A gives it by transferring it across
+  `TateModule ≅ ℤ_[p] ⊗ periodLatticeOf` from the lattice's own finite-free-rank-`2g` facts (`…is a
+  ℤ-lattice of rank 2g`, the `periodLatticeOf_gammaH_heckeDiamondStable`/basis family), and
+  numerically through `finite_torsion_jOne`; B gives the same fact only as the arithmetic
+  cardinality behind the pair;
+* the Hecke-equivariant identification and the char-poly comparison: **only A** gives those.
+
+So **B is not needed for D-S** — it is needed for its own consumers (the general uniformization, the
+arithmetic hub's fan-out at fan-in 12, the Drinfeld curve). A faithful port of the pinned chain still
+meets the pair's proof citing B's hub; taking A instead means deriving one node (the pair) from the
+period-lattice identification rather than from the Abel–Jacobi cardinality, a recorded rewiring, and
+the `--ds` prune already prices the column that way. What the prune does *not* justify is cutting A's
+own Abel–Jacobi dictionary lemmas (three of them, PRUNABLE §7): those are A's, and A is the route
+D-S needs.
 
 ## 2. The graph shape that this implies
 
@@ -160,7 +235,9 @@ with `Period/`; the landed `RadialRegion` modules stay where they are under `Res
   the upper half plane, and its surface theory is just the place dictionary
   (`ComplexPlaceDictionary{,Of}`). That is why A is the smaller of the two bodies for the
   uniformization it proves, and why P1 is recommended over P3 for a D-S-adjacent port — but note
-  that A does need the dictionary of complex places, which is 12.6k of its 52k lines.
+  that A does need the dictionary of complex places, which is 12.6k of its 52k lines, and that it is
+  not analysis-free either: 2,313 of its closure's lines are its own `dbar`/Stokes theory on the
+  modular fundamental domain (§9).
 * The pin's files carry long `attribute [-instance]` walls (charted-space instances) in every `S_`
   file of this subject; the port drops them and must not add them back — they are the place the
   build will misbehave if it does.
@@ -202,7 +279,612 @@ conditional assembly; a coverage report for the payout (`0 / 0 / 0` on the porte
 4. **P4 only on request** from the arithmetic side, as the interface contract, not as a shortcut
    for this subject.
 
-## 9. Links
+## 9. Could B carry A? — the 2026-10-26 audit
+
+Asked directly, and answered from the two mouths' premise closures on the pin (`frontier.Frontier`,
+the `union` frontier, 1,212 ported nodes). The answer is **no supplanting and no net
+simplification**, but the reason is sharper than "different theorems" and it locates one real
+opening — and two corrections to §1 and §5 — so it is recorded here rather than left as an
+impression.
+
+### 9.1 A's needs, against B's supply
+
+Enumerated from the two nodes the D-S column and the Tate chain rest on
+(`…exists_injective_…_jH_quotient_periodLatticeOf` 302,
+`…exists_heckeEquivariant_linearEquiv_tateModule_jH_padicInt_tensor_periodLatticeOf` 653) plus
+`finite_torsion_jOne` 80:
+
+| what A needs | what the pin's B side has | verdict |
+|---|---|---|
+| freeness + finiteness of `periodLatticeOf` (the 267-line basis theorem) | discreteness of *its own* lattice, `discreteTopology_pathPeriodLattice_and_span_eq_top` 106 | two lattices in two ambient spaces; no transfer |
+| `Module.finrank ℤ (periodLattice N) = 2 * genusFF` | `Module.finrank ℤ L = 2 * genus` in B's mouth | **not from B**: A's rank is counted against the algebraic `p^(2g)` (§9.2) |
+| injectivity of the uniformization | only after B is re-stated (§9.3) | the pin states it existentially |
+| "every torsion class is an Abel–Jacobi value" | needs `L = periodLatticeOf`, not just `⊆` | no: a proper inclusion leaves a finite kernel the comparison cannot see into (§9.3) |
+| Hecke-T/U/diamond stability of the lattice, and the period map's Hecke compatibility (464 + 591 + 357 + 158) | nothing — no Hecke action on any lattice anywhere in B | no |
+| `TateModule p (JH M H) ≃ ℤ_[p] ⊗ periodLatticeOf`, Hecke-equivariantly | `Module.Finite ∧ Module.Free (TateModule …)` 327, obtained *through* the cardinality | finiteness only; no identification, no Hecke |
+| the H/Γ dictionary (`ComplexPlaceDictionary{,Of}`), 45 nodes / 16,867 lines | `Place.exists_chartedSpace_…_complex` 482 + `connectedSpace_of_chartedSpace_…` 369 | no: A's dictionary is the explicit `realize`/`pt`/ramification/Hecke-correspondence content; the abstract charted space gives none of it, and A's closure does not contain either node |
+
+### 9.2 The measured interface, and the two corrections
+
+Closures: A's two top nodes, 529 nodes / 216,100 lines (189 unported / 63,186); B's mouth, 212 /
+129,246 (91 unported / 47,861); B's hub, 298 / 163,214 (149 unported / 66,381). Their intersection is
+**113 nodes but only 19 unported / 1,118 lines**, and none of it is B's subject — it is the
+`Place`/`Divisor`/`RationalFunctionField` prelude both halves stand on, already ported in the large.
+The analytic part of it is exactly two nodes, cited by A's
+`ModularCurve.eventually_abelFibreSumOf_sub_mem_periodLatticeOf` and by B0:
+`Complex.circleIntegral_eq_sum_residue_of_simplePole` (142) and
+`Complex.hasDerivAt_circleIntegral_mul_deriv_div_sub` (169). So porting either half first donates
+≈1.1k lines of prelude to the other, and that is the entire supply.
+
+1. **A is not analysis-free.** §5 says A needs no cell dissection "at all" and that its surface
+   theory "is just the place dictionary". Its closure carries **9 `Complex.*` nodes / 2,624 lines**,
+   of which **2,313 are A's own** Stokes/`dbar` theory on the modular fundamental domain —
+   `integral_modularFundamentalDomain_eq_boundary_of_hasFDerivAt` 639,
+   `integral_logDeriv_wedge_add_finsum_eq_integral_dbarLogDeriv` 643,
+   `integral_inv_sub_mul_dbar_eq_neg_pi_mul` 463,
+   `integral_mul_dbar_eq_neg_pi_mul_finsum_residue` 306,
+   `integral_mul_logDeriv_mul_dbar_eq_neg_pi_mul_finsum` 98,
+   `integral_mul_dbar_eq_zero_of_differentiableOn` 90,
+   `locallyIntegrableOn_of_simplePoles` 74 — consumed by the Petersson/side-pairing and
+   winding-pairing lemmas. A dissects no surface, but it does integrate a `dbar` over a domain with a
+   boundary: the same *kind* of work as B0, in a different setting. **The one genuine cross-route
+   factoring available in the whole subject is a shared "Stokes on a bounded domain" API**, of which
+   A's `dbar` family and B0's circle-integral family are two hand-rolled copies (2,313 + 2,080
+   unported lines).
+2. **A is not self-contained either.** `ModularCurve.finrank_periodLattice_eq_two_mul_genusFF` (80) —
+   the Γ₀(N) rank fact — is a **two-route count**: A's
+   `natCard_torsion_jZero_eq_pow_finrank_periodLattice` (81, cardinality of the torus) against
+   `AlgebraicCurve.Pic0.natCard_torsion_prime_eq_pow_two_mul_genusFF_of_forall_pow_eq_self` (144,
+   the *algebraic* route through `…abelJacobiCard_genusFF_of_frobenius_of_isAlgebraic`, not B's
+   analytic one). It is the one node found whose proof takes a premise from each side, and it
+   is the pin's only check that A's lattice has the right rank. So A's rank is *borrowed*, and both
+   analytic routes hang off the same algebraic cardinality — which is why the D-S prune keeps that
+   hub and why P4's spine needs a rank premise it cannot get from A alone.
+
+### 9.3 The one real opening, and why it still does not pay
+
+B's mouth is 33 lines of existential packaging over a **parametric** theorem that B's own proof
+establishes and then throws away. `S_AlgebraicCurve_Pic0_exists_addEquiv_quotient_submodule_of_chartedSpace_complex`
+builds, for an arbitrary `b : Fin n → Ω[F⁄ℂ]` and base point `P₀` (no basis, no discreteness),
+
+```
+ajDegZero b P₀ : Divisor.degZero →+ (Fin n → ℂ) ⧸ pathPeriodLattice b
+ajPic0     b P₀ : Pic0 ℂ F        →+ (Fin n → ℂ) ⧸ pathPeriodLattice b
+ajPic0_injective, ajPic0_surjective          -- i.e. an AddEquiv, parametrically
+```
+
+from the three hypotheses B's Abel theorems supply (`habel`, `hconv` from
+`Divisor.isPrincipal_of_abelJacobiDiv_mem_pathPeriodLattice`, `hjac` from
+`exists_degree_eq_zero_and_abelJacobiDiv_sub_mem_pathPeriodLattice`). Only at the last line is it
+instantiated at a genus-basis and existentially packaged. **A port that states the parametric form —
+the natural strengthening, no new mathematics — is the only version of B that could ever serve a
+second uniformization**, and it would give A the injectivity half of its mouth: `u = π ∘ φ` is
+injective whenever `φ` is bijective and `ι(L_A) ⊆ L_B` makes `π` well defined. The needed comparison
+is then only the loop-period **inclusion**, which is cheap in principle: each `periodOf γ` is the
+integral around the loop the geodesic from `I` to `γ·I` closes up to.
+
+What it does not give is the torsion-containment clause of A's mouth
+(`∀ y, IsOfFinAddOrder y → y ∈ u.range`): with `ι(L_A) ⊆ L_B` proper, `ker π = L_B/ι(L_A)` is a
+nonzero finite group inside which B's bijection sees nothing, so that clause needs
+`L_A = L_B` — exactly comparison (i) of §1. And no restatement of B reaches (ii) Hecke or (iii) the
+Tate module. So the parametric port buys one clause of one node, at the price of the cusp-forms ↔
+`regularDifferentials` transport plus a reconciliation of the two integral *definitions*:
+`periodAlongOf` is an explicit interval integral, `pathIntegral` is
+`if ∃ g, IsPrimitiveAlong ω γ g then … else 0` — a choice-form definition that A cannot compute with
+and would have to be proved primitive along every path it uses.
+
+Statement-for-statement, A's Abel lemmas *are* the modular instances of B's —
+`ComplexPlaceDictionaryOf.abelJacobi_mem_periodLatticeOf_gammaH_of_isPrincipal` (313) /
+`…isPrincipal_of_abelJacobi_mem_periodLatticeOf_gammaH` (133) /
+`…exists_meromorphic_meromorphicOrderAt_eq_of_abelJacobi_mem_periodLatticeOf_gammaH` (117) against
+`abelJacobiDiv_mem_pathPeriodLattice_of_isPrincipal` (193) /
+`Divisor.isPrincipal_of_abelJacobiDiv_mem_pathPeriodLattice` (193) /
+`exists_regular_pathIntegral_sub_eq_of_abelJacobiDiv_mem_pathPeriodLattice` (677) — and
+`abelFibreSumOf` is the same construction as `abelJacobiDiv`. But they live inside the 45-node,
+16,867-line dictionary whose remaining content (the ramification `two_mul_ramification_eq_card_stabilizer`
+pair, the Hecke divisor correspondence, the Galois/`ofAlgAut` point actions, the residue lemmas) has
+no analogue in B, so the 563 lines B would replace do not come out of the 16.9k cleanly. Net: the
+bridge costs about what it saves, and only a port committed to P2 has any reason to build it.
+
+**What B is worth to A is a shared definition, not a second proof.** (An earlier reading of this note
+said "verification, not supply": once both land, the modular torsion cardinality has two independent
+proofs, `natCard_torsion_jZero_eq_pow_finrank_periodLattice` + rank against
+`natCard_torsion_pic0_xHFunctionFieldBar_eq_pow_two_mul_genusFF`. That is retracted in §10.4 — in a
+formalization a second proof is a cost, not a check.) What survives is the definitional half:
+`periodAlongOf` and `pathIntegral` are two definitions of one notion, §10.2 says which to keep, and the
+ordering argument follows from that — B comes after A because B's *analytic layer* should be written
+on A's definition.
+
+**Consequence.** §3's recommendation is unchanged — P1 then B, no restructuring of A around B, no
+dependency either way — with one line added to any future B module plan: state
+`AbelJacobi/Uniformization.lean`'s theorem parametrically in `b` and `P₀` *before* packaging it
+existentially. That is free at porting time, and it is the only form of B that is reusable by
+anything else.
+
+### 9.4 The two Abel theorems, statement for statement
+
+§9.3 said "A's Abel lemmas *are* the modular instances of B's". Reading the six statements off the pin
+(`statement_db show`, pin `aa2d8b3`) qualifies that: the shape is identical, the objects in it are not.
+
+Both halves state `principal ⟺ AJ ∈ L`, and both do it in the same three-statement arrangement — a
+forward implication, a converse, and a third statement that is the *engine* of the converse and is
+cited by nothing else (A's 117 is cited only by A's 133; B's 677 only by B's 193). Every object inside
+is different:
+
+| | A, at `Γ_H` / `xHFunctionField M H` with `D : ComplexPlaceDictionaryOf Γ_H _` | B, at an arbitrary curve `F / ℂ` |
+|---|---|---|
+| `L` | `periodLatticeOf Γ : Submodule ℤ (Module.Dual ℂ (CuspForm Γ 2))`, spanned by `periodOf γ = periodAlongOf Γ I (γ • I)` for `γ ∈ Γ` — **no basis, no `n`, no genus**; `CuspForm` is mathlib's | `pathPeriodLattice b : Submodule ℤ (Fin n → ℂ)`, spanned by `fun i => pathIntegral (b i) γ` over *all* loops at *all* base points; `b : Fin n → Ω[F⁄ℂ]` (a `Module.Basis` in the converse) |
+| the summand | `periodAlongOf Γ τ₀ τ₁ f = ∫₀¹ f (segmentPath τ₀ τ₁ t) · (τ₁ − τ₀)` — an interval integral; evaluation is `rfl` | `pathIntegral ω γ = if ∃ g, IsPrimitiveAlong ω γ g then g 1 − g 0 else 0` — a choice over an existence |
+| AJ | `∑_τ c τ • periodAlongOf Γ I τ`, a functional; `c : ℍ →₀ ℤ` is **upstairs** | `abelJacobiDiv b P₀ D = ∑_v (D v) • (fun i => pathIntegral (b i) (some path P₀ → v))`, coordinates; `D : Divisor ℂ F` is **downstairs** |
+| forward (313 / 245) | `hc : IsPrincipal (Finsupp.mapDomain D.pt c)`, `hdeg`, `⊢ ∑_τ c τ • periodAlongOf Γ I τ ∈ periodLatticeOf Γ` | `hc : IsPrincipal D`, `⊢ abelJacobiDiv b P₀ D ∈ pathPeriodLattice b` — no degree hypothesis, no basis |
+| converse (133 / 193) | `hdeg`, `hΛ`, `⊢ IsPrincipal (Finsupp.mapDomain D.pt c)` | `b` a basis, `hD0`, `hD`, `⊢ IsPrincipal D` |
+| engine (117 / 677) | names the witness `F : ℍ → ℂ`: meromorphic, `F (γ • τ) = F τ`, bounded at every cusp, and `meromorphicOrderAt F τ = ramification τ * (mapDomain D.pt c) (D.pt τ)` — a *strengthening* of the converse, same hypotheses | constructs `ζ ∈ regularDifferentials` with `pathIntegral (η − ζ) γ = 2π i m` for every loop off the support of `D` — the third-kind-differential form, an *engine*, not a strengthening |
+
+Four differences a bridge has to pay, in the order they bite:
+
+1. **Ambient space.** A's `L` is a lattice of functionals on mathlib's `CuspForm Γ 2`; B's is a
+   coordinate lattice in `Fin n → ℂ` against a chosen basis of the pin's `regularDifferentials`.
+   This is comparison (i) of §1, and it is where A's basis-free statements (and its borrowed rank
+   fact, §9.2) come from: A never needs `n`, so it never needs the genus.
+2. **Upstairs versus downstairs divisor.** A quantifies over `c : ℍ →₀ ℤ` and pushes it down with
+   `pt`; the orders it prescribes are the *pullback* orders `ramification τ * …`, so the statement is
+   orbifold-weighted, and `hdeg` is a hypothesis on the pushed divisor in *both* directions. B
+   quantifies over `Divisor ℂ F` and needs `degree = 0` only in the converse.
+3. **The third statements are not the same theorem.** A's strengthens its converse with a modular
+   function; B's is the device that proves its converse. Instantiating B's 677 at `X_H` therefore
+   does not give A's 117 — it gives a third-kind differential, which is not what the Hecke
+   dictionary consumes. §9.3's "modular instances" is true of the first two pairs, and there only up
+   to (1) and (2).
+4. **The weights run opposite ways, and for the same reason as §10.2.** A: 313 + 133 + 117 = 563, of
+   which the expensive statement is the forward one — the winding-pairing computation that proves an
+   explicit sum of `periodAlongOf`s is a ℤ-combination of loop periods. B: 245 + 193 + 677 = 1,115,
+   of which the expensive statement is the engine. A's converse is 133 lines precisely because its
+   summand is an honest integral and its `L` is generated by `periodOf γ`; B has to buy the same
+   implication with 677 lines of third-kind bookkeeping. That is the statement-level shadow of
+   §10.2, and it says the cheap side of the bridge is *B borrowing A's definition*, not the
+   statements.
+
+### 9.5 What deriving B's statements from A's would take
+
+§9.4 makes the two Abel theorems look like one theorem in two vocabularies, which invites the
+question the other way round from §9: can B's statements be *derived* from A's? Six things have to be
+in place, and only the fourth and fifth are lattice-theoretic — the two that such a plan would name
+first are neither first nor, in one case, needed at all:
+
+1. **Scope: an obstruction, not a gate.** A's statements are about one curve family
+   (`xHFunctionField M H` at `GammaH M H`), and the pin's `CuspForm` ↔ `regularDifferentials`
+   transport is at `Gamma0 N`. B's are about an arbitrary curve over `ℂ` with a charted-space
+   structure. So the derivation can deliver B *at* `X_H` only. B in general needs the uniformization
+   of a compact Riemann surface by a Fuchsian group, in neither the pin nor mathlib (§5).
+2. **The differential identification.** A's lattice lives in `Dual ℂ (CuspForm Γ 2)`, B's in
+   `Fin n → ℂ` against a `Module.Basis` of `regularDifferentials`; "the lattices are equal" is not
+   even a statement until these spaces are identified. The pin has
+   `exists_linearEquiv_tensor_regularDifferentialsBar_cuspForm` (323),
+   `ℂ ⊗[AlgebraicClosure ℚ] regularDifferentialsBar N ≃ₗ[ℂ] CuspForm (Gamma0 N) 2` — at `Γ₀(N)`,
+   through the arithmetic model, not for `Γ_H`.
+3. **The integral identification — the gate with no node in the pin.** A's summand is an honest
+   interval integral `∫₀¹ f (segmentPath I (γ • I) t) · (γ • I − I)` anchored at `I`; B's is a
+   primitive difference along the *image* loop at `pt I` (closed by the dictionary's `pt_smul`); B also
+   anchors at an arbitrary `P₀`, which is only bookkeeping once the base point is set to `pt I`.
+   Agreeing the two is exactly the "honest integral" redesign §10.2 prices at ≈1–1.5k, and it is
+   needed for *both* inclusions — so it is prior to lattice equality, not a corollary of it.
+4. **A ⊆ B is then free**: `pt_smul` closes the geodesic and the two identifications transport the
+   integral. This is §9.3's "only the loop-period inclusion", and it is as cheap as §9.3 says.
+5. **B ⊆ A is where genus enters, and its content is spanning, not the number.** Every loop's period
+   must be a `ℤ`-combination of the `2g` periods `periodOf γᵢ`: A's row-2 machinery (810 + 1,052 +
+   596 + 874 + 693 ≈ 4,025, §10.1) plus the 267-line basis theorem. The *number*
+   `finrank ℤ periodLatticeOf = 2 * genusFF` is a separate 80-line node and the pin's only
+   two-route count (§9.2), so a derivation that also wants B's rank conclusion is where circularity
+   would enter.
+6. **None of the six Abel statements needs a rank.** B's converse quantifies over any
+   `b : Module.Basis (Fin n) ℂ regularDifferentials`, so the instantiation `n = g` is discharged by
+   the ported `finite_and_finrank_regularDifferentials_eq_genus` (220). Rank is wanted only for B's
+   *mouth*, which asserts `finrank ℤ L = 2 * g`. Divisor transport is the one cheap item: `hdeg`
+   follows from `degree D = 0` because places over an algebraically closed field have degree one
+   (`Place.deg_eq_one_of_isAlgClosed`, 13, ported).
+
+**Verdict.** Lattice equivalence: yes, but it splits into a free half and a ≈4k half, and both
+presuppose an integral reconciliation the pin does not have. Genus → rank: only for B's mouth, not for
+Abel's theorem, and its numeric form is the one borrowed node. So the derivation is a *deletion*
+artefact at best — it would let the port keep one period lattice instead of two at `Γ₀(N)` — and not a
+port strategy: it costs more than the 563 lines of A it would explain, and it says nothing at a curve
+that is not a modular curve.
+
+## 10. Where the duplication actually is — the 2026-10-26 second read
+
+§9 asked the question in the wrong direction. "Can B supply A" is about *theorems*; the question
+that decides whether two bodies are one body is where the same mathematics is formalized twice, and
+on which side it is formalized better. Measured, it is formalized twice in exactly one place — the
+complex analysis of periods and residues — and **A's formalization is four times cheaper**. So the
+duplication is real, it is worth about 10k lines, and it is B that pays it.
+
+### 10.1 The four lemmas both halves prove
+
+Both routes need the same four statements about a compact Riemann surface, and both prove them from
+scratch:
+
+| the lemma | A's proof | B's proof |
+|---|---|---|
+| residue / Stokes on a domain: the integral of a meromorphic form over a domain with boundary is its periods plus its residues | `Complex.integral_mul_dbar_eq_neg_pi_mul_finsum_residue` 306 (simple poles) + `integral_mul_logDeriv_mul_dbar_eq_neg_pi_mul_finsum` 98 and `integral_logDeriv_wedge_add_finsum_eq_integral_dbarLogDeriv` 643 (arbitrary order, via `logDeriv`) + `integral_modularFundamentalDomain_eq_boundary_of_hasFDerivAt` 639 (the FD boundary) + 3 supporting lemmas (463 + 90 + 74). **7 nodes / 2,313 lines** | `CellDissection.exists_int_pathIntegral_eq_sum_periods_add_sum_residues` 3,374 + `two_pi_I_mul_sum_residue_mul_primitive_eq_sum_jump_mul_edgeInt` 1,209 + `exists_int_pathIntegral_sub_primitive_eq_sum_jump` 912 + `exists_primitives_jump_eq_zero_of_dualTree` 1,395 + `jump_kirchhoff_and_wordFormula_of_primitives` 1,314 + `kirchhoff_and_jump_formula_of_arc_values` 665 + `exists_loop_pathIntegral_eq_sum_cycle_mul_edgeInt` 1,240. **7 nodes / 10,109 lines** |
+| every loop's period is a ℤ-combination of 2g base periods (H₁ side pairing / reciprocity) | `exists_mem_periodLatticeOf_eq_sum_intCast_mul_edgeIntegral_of_isParabolicHom` 810, `exists_isParabolicHom_sum_intCast_mul_edgeIntegral_eq_periodOf` 1,052, `sum_periodOf_mul_edgeIntegral_eq_zero` 596, `exists_mem_periodLatticeOf_tendsto_windingPairing_smoothedFundamental` 874, `integral_petersson_gammaFundamentalSet_eq_sum_conj_periodOf_mul_edgeIntegral` 693 ≈ 4,025 | `exists_loops_pathIntegral_reciprocity_raw` 2,388 + `exists_loop_pathIntegral_eq_sum_cycle_mul_edgeInt` 1,240 ≈ 3,628 |
+| the Abel–Jacobi map is well defined modulo the lattice, and locally injective | `eventually_abelFibreSumOf_sub_mem_periodLatticeOf` 1,547 + the winding pairing | `exists_ball_abelJacobiDiv_*` / `exists_abelJacobiDiv_sub_mem_pathPeriodLattice_and_image_mem_nhds` |
+| Abel's theorem: principal ⟺ AJ value in the lattice | `abelJacobi_mem_periodLattice*` (313/256) + `isPrincipal_of_abelJacobi_mem_periodLattice*` (133/103) + `exists_meromorphic_meromorphicOrderAt_eq_*` (117/114) plus the multiplier/cusp-form witness chain | `abelJacobiDiv_mem_pathPeriodLattice_of_isPrincipal` 193 + `Divisor.isPrincipal_of_abelJacobiDiv_mem_pathPeriodLattice` 193 + `exists_regular_pathIntegral_sub_eq_of_abelJacobiDiv_mem_pathPeriodLattice` 677 |
+
+Rows 2–4 are a fair trade (A ≈ B, or B slightly cheaper); row 1 is not. A's row-1 lemma is also
+*more general than B's*: `integral_mul_dbar_eq_neg_pi_mul_finsum_residue` is stated for an arbitrary
+open `U ⊆ ℂ`, an arbitrary `C¹` compactly supported test function `h`, and any `F` locally equal to
+`c a / (z - a) + analytic` — no curve, no place, no chart, no dissection. Its statement is
+
+```
+∫ z, F z * ((fderiv ℝ h z 1 + I * fderiv ℝ h z I) / 2) = -π * ∑ᶠ a, c a * h a
+```
+
+i.e. the ∂̄-Pompeiu identity, from which the domain-with-boundary residue theorem follows by taking
+`h` a bump adapted to each cell: for `F` holomorphic the left side vanishes, and `∂̄h` localized at
+the boundary turns the identity into "boundary integral = Σ residues". B's 3,374-line version is that
+same identity, restated in the cell complex's normalization, with the cell/edge/vertex bookkeeping as
+the hypotheses (`hvert`, `𝒯`/`𝒯s` cotree, the Kirchhoff condition `hZ`, the `ZMod m` word datum
+`hWD`, …).
+
+### 10.2 Why B is 44k and not 34k: one definitional choice
+
+`CellDissection.edgeInt` is already an **honest interval integral**
+(`∫ s in (…φs …)..(…φs …), bdryIntegrand θ s`, `Def_AlgebraicCurve_CellDissection.lean:145`) — A's
+style exactly. It is `pathIntegral` that is not: it is
+`if ∃ g, IsPrimitiveAlong ω γ g then g 1 - g 0 else 0`, a choice-form definition over *arbitrary*
+paths between arbitrary places, introduced in the 101-line
+`Def_AlgebraicCurve_ComplexLineIntegral.lean` before any dissection exists. Without an honest line
+integral of a 1-form on a charted surface, the only way to have a path integral is "a primitive
+exists", and then every computation needs the primitive's bookkeeping: primitives on cells, their
+jumps across edges, the cotree that makes the jumps vanish, Kirchhoff's law on the word. That is
+**5,495 of the 10,109** lines (`exists_primitives_jump_eq_zero_of_dualTree`,
+`jump_kirchhoff_and_wordFormula_of_primitives`, `kirchhoff_and_jump_formula_of_arc_values`,
+`exists_int_pathIntegral_sub_primitive_eq_sum_jump`), and the residue theorem's own 3,374 lines are
+written in that language.
+
+So the avoidable weight in B is: replace the primitive-based `pathIntegral` by A-style honest
+integrals subdivided over charts (B already has `Place.chartRead`/`readDifferential` in that same
+101-line file, and B already proves every regular differential primitive-able,
+`exists_isPrimitiveAlong_of_mem_regularDifferentials`), then prove "path integral = sum of edge
+integrals" and the residue theorem by A's Pompeiu identity applied cell-wise, the interior edges
+cancelling in pairs. What survives is the genuine combinatorics — the dissection's existence
+(`exists_pairedCellFamily` 4,730, `exists_dissectionScaleData` 2,429, `exists_cellDissection` 779),
+`exists_tree_cotree` 883, `exists_polygonWord` 882, `euler_count_grid` 55, and the already-ported
+`RadialRegion` 9,652 — plus about 1k to build the charted-surface Stokes lemma and the honest
+integral once.
+
+Net: **≈ 8.9k unported lines off B's 47.9k** (B1 in B's mouth closure is 23 nodes / 30,377, of which
+20,725 unported), for a one-off ≈ 1–1.5k of new general analysis. It is not free: it is a redesign of
+B's analytic layer, not a port of it, and the chart subdivision / Lebesgue-number argument is exactly
+the kind of thing that grows. But it is the only move in the subject that removes weight rather than
+relocating it, and it is worth about a quarter of B's cell-dissection block.
+
+### 10.3 So the bridge runs A → B, and B → A is upside down
+
+* **Into A: no.** The parts of A that are the same mathematics as B are the parts A does better; the
+  part a bridge would actually delete (A's own proofs of rows 3–4 plus its lattice-freeness lemma,
+  ≈ 3–4k of the 63k unported, of which the Abel statements are entangled with the Hecke dictionary
+  and may not come out cleanly) is no bigger than the bridge (the `CuspForm ↔ regularDifferentials`
+  transport exists only for Γ₀(N), `exists_linearEquiv_tensor_regularDifferentialsBar_cuspForm` 329,
+  so Γ_H would need its own; plus the two integral definitions reconciled; plus B's charted-space
+  hypotheses instantiated for X_Γ). Importing B to delete A would import a heavier proof of the same
+  lemmas.
+* **Into B: yes, ≈ 8.9k.** And it needs A's analysis to exist first — 2.3k lines of it are in A's
+  closure already, are mathlib-adjacent (the §4 homing note puts them in `Complex/`), and are the one
+  thing in the whole subject A can hand to B.
+* **The other asymmetry runs the other way and is unusable.** B0's general place dictionary is 851
+  lines (`exists_chartedSpace_meromorphicOrderAt_evalAt_eq_ord_complex` 482 +
+  `connectedSpace_of_chartedSpace_…` 369) against A's 16,867-line `ComplexPlaceDictionary{,Of}` — B
+  is 20× cheaper there. A cannot borrow it: A's dictionary is not "a complex structure on the places"
+  but the *explicit* H/Γ parametrization (`realize`/`pt`, the orbifold ramification
+  `two_mul_ramification_eq_card_stabilizer`, the Hecke and Galois point actions) that the Hecke
+  equivariance and the Tate identification are stated against. So the exchange is one-way on both
+  counts: A lends analysis to B, B lends A nothing.
+
+**Consequence for the plan.** A is not the bloated half per unit of mathematics; B1 is the subject's
+main avoidable cost. If P2 is real, the port order should be: A's general residue/Stokes layer (2.3k,
+`Complex/`), then A, then B with its analytic layer restructured — at §3's own written ÷ content
+ratio (74,000 for 101k unported ≈ 0.73) the 8.9k is ≈ 6.5k of content, so P3's 31,000 becomes
+≈ 24,500 and P2's 74,000 ≈ 67,500. If P3 alone is ever scheduled, the 8.9k restructure is the single
+biggest lever available in this subject and should be priced before the first module is written, not
+after.
+
+### 10.4 The criterion is simplicity, not verification
+
+The sections above repeatedly reached for a bad argument: that a second, independent proof of the same
+statement is worth something. In a formalization it is not. The checker is the check; a second proof
+costs a second definition layer, a second maintenance surface, and a coupling — a node that consumes
+both sides keeps both sides alive. So the objective is **simplicity**: one definition per object, one
+proof per statement, the fewest boundaries between developments. The measurements already taken then
+read as a list of things to delete rather than to acquire:
+
+1. **Two definitions of the path integral.** `periodAlongOf` (an interval integral of the form along a
+   geodesic) and `pathIntegral` (`if ∃ g, IsPrimitiveAlong ω γ g then g 1 − g 0 else 0`). §10.2 prices
+   the consequence: 5,495 lines of primitive/jump/cotree/Kirchhoff bookkeeping plus a 3,374-line
+   residue theorem written in that language, less ≈1–1.5k of new general analysis. This is the single
+   largest deletion in the subject.
+2. **Two spellings of one period lattice.** `periodLatticeOf Γ : Submodule ℤ (Dual ℂ (CuspForm Γ 2))`
+   and `pathPeriodLattice b : Submodule ℤ (Fin n → ℂ)`. Not two objects: coordinates against a basis
+   versus the basis-free functional. Simplicity says one lives and the other is its presentation —
+   and the basis-free one is the smaller statement (§9.4), while the coordinate one is what a *computed*
+   lattice is used through.
+3. **Two copies of the reciprocity / H₁ generation family.** A's ≈4,025 against B's ≈3,628 (§10.1
+   row 2). §10.1 called that "a fair trade" and judged which *proof* is cheaper; as mathematics it is
+   one statement with a general form and a modular instance, so it should be written once, in the
+   general form, and instantiated — B slightly cheaper is then also the right home.
+4. **One `IsCurveOver`/RR layer, instantiated rather than re-derived.** 17–28 lines per field, and it
+   is what removes the last reason A's rank should be borrowed from the arithmetic cardinality
+   (§9.2, §12.1 chain 1). The `finrank_periodLattice_eq_two_mul_genusFF` two-route count is, under
+   this criterion, a **coupling, not a check**: it takes a premise from each side and so forces both.
+   A port should derive the rank once (from RR) and not port the counting argument.
+
+Two things that are *not* duplications, and so are not candidates for deletion however similar they
+look. The order-level dictionary (`realizeOf`, `mem_pt_iff`, `meromorphicOrderAt_realizeOf`) and B0's
+manifold-level `∃ ChartedSpace …` answer different questions — orders versus integrals (§12.2) — and
+the `jq` column's ψ(N)/relative-index/Φ_N-irreducibility machinery has no RR route at all (§12.3). And
+neither of those is a *subject* duplication either: the first is one construction on each side of a
+definitional divide, the second is a different theory of the same curve.
+
+**Consequence for the plan.** The measure of a node changes from "does it give a check?" to "does it
+delete a definition?". On that measure P2's headline is not the 74,000 → 67,500 of §10.3 but this:
+the subject contains four duplications, and three of them disappear by writing B (and the second half
+of A's own machinery) onto A's definitions.
+
+### 10.5 Provenance: the duplications are an artefact of how the pin was written
+
+§10.4's list is not a list of mistakes. The pin is the output of a distributed strategy — many workers,
+each closing its own consumers — so every redundancy in it is a boundary where two workers met and did
+not merge. The signature is measurable, and it is what the earlier sections kept running into:
+
+* **duplicated definitions rather than duplicated claims** — two path integrals, two lattices, two
+  copies of the reciprocity family, three foundations for one curve (RR, `jq`, uniformization);
+* **silos** — a file's own lines against its premise cone: `minpoly_jqN_map_eq_prod_slots` is 2,002
+  lines over a 60-node cone, and the `tateCurve` twin pair is 1,343 lines each with a normalized
+  difference of 2 lines (a worker re-running a sibling's file);
+* **identifications that are absent although every ingredient exists** — the `jq` column and RR
+  (§12.3), and the pin's own cusp-form ↔ `regularDifferentials` transport sitting in neither Jacobian's
+  closure (§12);
+* **two-route counts**, which are the trace of two workers each needing the same fact
+  (`finrank_periodLattice_eq_two_mul_genusFF`, §9.2).
+
+The consequence is a division of what the port inherits. **The pin is a good specification of
+statements and a bad architecture.** Its mouths are narrow because each worker exported only what its
+own consumer needed — B's 33 lines, A's 302 and 653 — so statement-level fidelity (the `spec-pin:`
+wire, `check_port` at 0 / 0) stays exactly as §7 requires, while module- and lemma-level fidelity must
+*not* be inherited: the interior is not evidence of anything but the order in which the workers ran.
+
+Two practical corollaries. First, the dedup of §10.4 cannot be done per node or per wave, the way
+[porting-playbook.md](../porting-playbook.md) §2.4 does it for a single cut: these duplications span
+silos whose own consumers never force them to meet, so the decision has to be taken at the subject's
+level and *before* the first module — which is why the analytic layer of §10.2 (2.3k, `Complex/`) is not
+a P2 luxury but a P1 prerequisite if B is ever coming. Second, the same provenance explains why the
+conditional-capstone device (§3, P4) works so well here: with the interior untrusted, the pin's mouths
+*are* the specification, and a port may design the middle freely as long as the two mouth statements
+are reproduced verbatim.
+
+## 11. Where the sharing ends — the 2026-10-26 graph read
+
+§9 and §10 measured the *floor* of the sharing (the prelude both halves stand on). Neither says where
+the sharing *stops*, which is what a plan that lets A supplant B needs: if the two bodies meet again
+above, the supplanting is a rewiring up there, at a particular node. Measured on the same graph
+(`frontier.Frontier`, union frontier, 1,212 ported nodes; A's two mouths 302 + 653, B's mouth 33):
+
+* **Floor.** A's two mouths close over 529 nodes / 216,100 lines (189 unported / 63,186), B's mouth
+  over 212 / 129,246 (91 unported / 47,861); the intersection is 113 nodes, 19 of them unported,
+  1,118 lines (§9.2). Its **top** — the shared statements that no *other* shared statement cites —
+  is **19 nodes**: the `Place`/`Divisor`/`RiemannRoch`/`regularDifferentials` tops, 10 of them already
+  ported, plus the 311-line `Complex.circleIntegral*` pair among the nine that are not (694 of the
+  1,118 lines are the tops themselves). So the floor is not a leaf: port those 19 nodes and
+  *everything* A and B have in common is in the port.
+* **Middle.** The intersection is *entirely* prelude. No node of A's own development appears in B's
+  closure and none of B's in A's (§9.2), so between the floor and the endpoint the two are separate
+  bodies, and either can be ported, or dropped, without touching the other's interface.
+* **Endpoint — one node.** They meet again, as *supplies*, at exactly one node of the pin:
+  `CuspForm.exists_padicGaloisModule_heckeRingH_two_frobenius_relation` (859) has **both** A's
+  `…exists_heckeEquivariant_linearEquiv_tateModule_jH_padicInt_tensor_periodLatticeOf` (653) and
+  `ModularCurve.moduleFinite_and_free_padicInt_tateModule_jH` (327) as *direct* premises — and it is
+  the only node that has both: the 653's other four consumers (`…exists_heckeEquivariant_parabolicHoms_to_dual_tateModule_jH`
+  390, `…exists_map_eq_charpoly_heckeTLinOne_and_charpoly_tateHeckeRepOne_jOne_eq_map_sq` 705,
+  `…exists_monic_aeval_tateGenOpH_T_eq_zero_forall_norm_root_lt` 650,
+  `…exists_ringHom_moduleEnd_twoCuspForms_apply_eq_twoCuspGenMod` 634) never see the 327, and the 327's other
+  twenty consumers never see the 653. Above the 859 the column is one chain; the two routes are
+  alternatives, not partners, and this is §2's rewiring located.
+* **Two doors below it.** The 327-line node is where B arrives: four premises, three already ported,
+  and the fourth is B's hub `AlgebraicCurve.Pic0.abelJacobiCard_genus` — 113 lines standing for 298
+  nodes / 163,214 lines (149 unported / 66,381), and containing B's entire 212-node body. That is the
+  *arithmetic* door. The *analytic* door is a node the notes had not named: the 126-line
+  `AlgebraicCurve.Place.exists_natCast_dvd_ord_sub_single_sub_single_complex` reaches
+  `Divisor.isPrincipal_of_abelJacobiDiv_mem_pathPeriodLattice` (193) and so the reciprocity and
+  dissection chain down to `exists_pairedCellFamily` (4,730). Measured on the 859's own demand
+  (546 nodes / 211,511 lines): closing the arithmetic door leaves 527 / 204,775 with 75 B nodes /
+  43,259 lines still demanded; closing both leaves 469 / 162,886 with 18 nodes / 1,496 lines. **So
+  the two doors carry 77 nodes / 48,625 lines and there is no third one.**
+
+What that fixes. (a) B's cost to the column is not one edge: the hub premise is the visible door, but
+the 126-line `Place.*_complex` node alone pulls the whole dissection, and the pin has no A-side
+restatement of it — a port that takes A *instead of* B must swap the 327 for the 653 at its 21 consumers
+(statement-compatible, since both give `Module.Finite ∧ Module.Free` of the Tate module) **and**
+re-prove that one `Place` statement against `periodLatticeOf`, which is P2-only work (§9.3). (b) The
+`--ds` prune closes both doors by name — `abelJacobi` matches A's own `abelJacobi_mem_periodLattice*`
+lemmas as well, which is *why* it has to: they are the A-side half of the same door. (c) §3's P1 is
+unaffected and gets a sharper contract: enter at the 653; the first node of the column it satisfies on
+its own is the 859, and the only B it then inherits is the 126-line door, not the hub.
+
+## 12. The stratification by foundation — RR, jq, uniformization
+
+The subject's two halves do not differ at the foundations; the *pin* does. It builds the same curve
+three times over, from three foundations that share no theorems:
+
+* **RR**, the abstract function-field theory (`AlgebraicCurve.{Place,Divisor,RationalFunctionField,
+  RiemannRoch,WeilExchange}`): `lSpace`, the canonical divisor, `indexOfSpecialty`, adelic Weil
+  duality, `residueTheoremK` — 76 nodes / 75,135 lines by name;
+* **jq**, the `q`-expansion / modular-polynomial theory (`qExpFunctionFieldC`, `xHFunctionField`,
+  `modularFunctionFieldFull`, `jqN`, `Φ_N`): the function field is generated by `j` and `jqN`, and its
+  degrees are computed by Dedekind's `ψ` and relative indices, never by RR;
+* **uniformization**, the period/torus theory (`Pic0.exists_torusPoints_uniformization_of_periodDatum`,
+  the Mumford/equivariant uniformization): periods and lattices, again not divisors.
+
+Measured on premise cones (pin `aa2d8b3`):
+
+| development | cone | RR nodes in it |
+|---|---:|---|
+| `minpoly_jqN_map_eq_prod_slots`, the jq/FFG slot product | 60 / 15,816 | **0** |
+| `…exists_torusPoints_uniformization_of_periodDatum…` | 147 / 42,842 | **0** |
+| `…exists_equivariantUniformization_of_mumfordQuotient…` | 248 / 67,304 | 4 / 3,823 |
+| **A**, both mouths | 529 / 216,100 | 14 / 32,733 |
+| **B**, the mouth | 212 / 129,246 | 14 / 30,211 |
+
+So the two halves of *this* subject are not the strange pair: their RR cones overlap in **twelve of
+fourteen nodes** — `residueTheoremK_ratFunc_of_isAlgClosed` (13,170),
+`residueTheoremK_of_isAlgClosed` (8,121),
+`functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed` (6,257), its three `of_…` instances,
+`finiteDimensional_lSpace` (1,092), `indexOfSpecialty_{eq_of_genusReached,eq_finrank_H1}`,
+`weilDualityAdelic_…`, `ell_canonicalDivisor_eq_genus_of_riemannRoch`,
+`degree_canonicalDivisor_eq_of_riemannRoch` — and the two differences are unrelated to the subject
+(A adds `lSpace_eq_bot_of_degree_neg` and `RationalFunctionField.finiteDimensional_lSpace_zero_of_constantsAreBase`;
+B adds `degree_canonicalDivisor_eq_of_isAlgClosed` and
+`exists_indexOfSpecialty_nsmul_single_eq_zero_of_genusReached`). RR is not B's private foundation; it
+is the floor of both, and that floor is most of the 113 nodes the two closures share (§9.2).
+
+The strange pair is **jq and uniformization against RR**, and the zeroes above are structural, not
+accidental: the `jq` column asks for *degrees of a covering* (`j(q^p) ∉ K(j(q))`, `finrank = ψ(N)`,
+relative index and relative rank) and the uniformization column asks for *periods of a torus*. **The
+`jq` column never states "this curve is an abstract function field, so RR applies to it"**, though it
+works with exactly the field `xHFunctionField M H` on which the statement is available
+(`isCurveOver_of_transcendental` 21, `hasCanonicalDivisor_of_isCurveOver` 1,723) and though the
+arithmetic column states it for its own curve (`isCurveOver_modularFunctionFieldFullC` inside
+`ell_eq_degree_add_one_sub_genusFF_modularFunctionFieldFullC`, 506, with fifteen consumers in the
+height/dimension-formula column). It re-derives degrees inside its own foundation instead. Transporting
+along a change of foundation is a theorem, and the pin only wrote such theorems where a consumer needed
+one; every consumer of the `jq` and uniformization columns lives inside one foundation, so none was
+written.
+
+### 12.1 How A uses RR — three chains
+
+A *does* instantiate RR on its curve, and it uses it three times. Measured on the cones:
+
+1. **Dimension bookkeeping, inside Abel's theorem itself.** The mouth (302) → 817 → the converse (133)
+   → the witness (117) → `exists_cuspForm_mul_exp_periodOf_eq_one_of_abelJacobi_mem_periodLatticeOf_gammaH`
+   (495) → `finrank_parabolicHoms_le_two_mul_finrank_cuspForm_of_isCongruenceSubgroup` (40) →
+   `finrank_parabolicHoms_Gamma_le_two_mul_finrank_cuspForm` (134) →
+   `twelve_mul_add_mul_index_le_finrank_cuspForm_Gamma` (167) → `LevelN.twelve_mul_add_mul_index_le_genusFF`
+   (597) → `regularDifferentials ↪ CuspForm` (101, 813, 870) + `sum_ord_sub_one_le_two_mul_genusFF_of_isSeparable`
+   (76) / `sum_ordDiff_D_le_two_mul_genusFF_of_isSeparable` (418) + `functionFieldRiemannRoch_of_isAlgClosed_of_isCurveOver`
+   (39) + `ell_canonicalDivisor_eq_genus_of_riemannRoch` (13). The bound
+   `finrank ℤ (parabolicHoms ℤ Γ ℤ) ≤ 2 · finrank ℂ (CuspForm Γ 2)`, which the witness needs, *is* the classical
+   `12 · index` computation, and the pin gets it from RR.
+2. **Separation of places.** `exists_slashInvariant_residue_ne_zero_of_pt_ne_gammaH` (419) cites
+   `functionFieldRiemannRoch_of_isAlgClosed_of_transcendental` (77) *directly*: it produces a
+   weight-2 slash-invariant with a simple pole of prescribed residue at `pt τ₁` and none elsewhere —
+   RR's existence of a function with a prescribed pole, which is the one place A treats its curve as
+   an abstract function field for a function-theoretic purpose.
+3. **Vanishing, and principality by descent.** The injectivity half of the mouth,
+   `exists_injective_heckeEquivariant_addMonoidHom_jH_pic0_complex` (670), cites
+   `AlgebraicCurve.Divisor.exists_torsion_descent_of_constantFieldExtension` (878), whose proof is RR:
+   `lSpace_eq_bot_of_degree_neg` (89), `finiteDimensional_lSpace` (1,092),
+   `RationalFunctionField.finiteDimensional_lSpace_zero_of_constantsAreBase` (2,545). "Zero period
+   vector ⇒ principal" is decided over `ℚ̄` and descended — with RR's vanishing doing the deciding.
+
+So RR is not B's foundation that A happens to share: it is load-bearing in A at the dimension, the
+place-separation and the descent, i.e. at exactly the three points where the modular construction
+needs the *curve* rather than the *series*. That is also the honest answer to §9.5's rank gate: A's
+`2g` is not borrowed only from the algebraic cardinality (§9.2) — the index computation of chain 1 is
+an RR route to `dim S₂ = g` as well, and the two-route count is between those two.
+
+### 12.2 Why A can use RR without the curve–function-field connection
+
+Because in this pin the "curve" RR speaks about *is* the function field. `Place K F` is a
+valuation-theoretic object — `toValuationSubring : ValuationSubring F`, `≠ ⊤`, `IsPrincipalIdealRing`
+— `ord` is that valuation, `Divisor` is the free abelian group on such places, and `IsCurveOver` adds
+only the finiteness hypotheses. Applying RR at `F = laurentBaseChange ℂ (xHFunctionField M H)`
+therefore needs `IsCurveOver ℂ F` and nothing else, which `isCurveOver_of_transcendental` (21) supplies
+from a transcendental generator; `hasCanonicalDivisor_of_isCurveOver` (1,723) then hands over the
+canonical divisor. There is no manifold anywhere in A's use of RR: A's 529-node cone contains **zero**
+nodes mentioning `ChartedSpace`, `extChartAt`, `IsPrimitiveAlong` or `pathIntegral`, against B's three
+charted-space nodes / 1,010 lines, two `extChartAt` / 761 and ten `pathIntegral` / 11,340.
+
+What A proves instead is an *order-faithful series realization*, and it pays for it in two structure
+fields rather than in theorems:
+
+* `realizeOf Γ x τ` is defined by **substitution**: write `x` as `f / g` with `f`, `g` modular forms
+  whose `qExpansion`s give `x`, and evaluate `f τ / g τ` (the `if ∃ … then … else 0` of
+  `Def_ModularCurve_ComplexPlaceDictionaryOf.lean:15`);
+* `mem_pt_iff` then says `x ∈ (pt τ).toValuationSubring` iff `‖realizeOf Γ x‖` is bounded in a
+  punctured neighbourhood of `τ` — the place is *defined* by analytic boundedness of the series, never
+  by a chart;
+* `meromorphicOrderAt_realizeOf` reads off `meromorphicOrderAt (realizeOf Γ x) τ = ramification τ * (pt τ).ord x`.
+
+So "the curve is its function field" is replaced by "the `q`-expansion realization is order-faithful",
+a statement about series, absorbed into the dictionary's construction. That is enough for all three RR
+uses of §12.1 — the dimension computation (pure function field), place separation (a function-field
+existence statement transported to `ℍ` through the same realization, 419), and vanishing/descent (pure
+function field, 878).
+
+It is *not* enough for B, and that is the gap: B's `MeromorphicAt` and `pathIntegral` are computed on
+`Place ℂ F` *as a complex manifold*, whose existence and order-compatibility is B0's
+`exists_chartedSpace_meromorphicOrderAt_evalAt_eq_ord_complex` (482) plus
+`connectedSpace_of_chartedSpace_…` (369). So "connect a curve to its function field" has two strengths
+here: the **order-level** one, which A has as a structure field and which costs nothing beyond
+`qExpansion`; and the **manifold-level** one, which only B needs and which A never states. A hands over
+an order dictionary; B needs a complex structure.
+
+### 12.3 Could the same device have carried RR into the rest of the `jq`-based curve theory?
+
+Yes, and the pin already has the parts — scattered across three columns, none of them the `jq` one:
+
+| statement | lines |
+|---|---:|
+| `isCurveOver_qExpFunctionFieldC_of_isAlgClosed` | 22 |
+| `isCurveOver_modularFunctionFieldC_of_good` | 17 |
+| `isCurveOver_modularFunctionFieldC_of_isSeparable_jqNModC` | 28 |
+| `isCurveOver_modularFunctionFieldC_of_perfectField` | 390 |
+| `isCurveOver_modularFunctionFieldBar` | 162 |
+| `genusFF_qExpFunctionFieldC_eq_of_ringHom` | 265 |
+| `genusFF_modularFunctionFieldFullC_eq_genusFF_modularFunctionFieldBar` | 686 |
+| `ell_eq_degree_add_one_sub_genusFF_modularFunctionFieldFullC` | 506 |
+| `abelJacobiCard_genusFF_qExpFunctionFieldC` | 478 |
+
+The `jq`/FFG cone (60 nodes) cites **none** of them: zero nodes mentioning `IsCurveOver`, `genusFF`,
+`Divisor`, `lSpace` or `RiemannRoch`. Note what the last two rows mean — RR *is* applied to the modular
+function field (`ell = deg + 1 − genusFF`, 506, inside the height/dimension-formula column) and the
+Abel–Jacobi **cardinality** is stated for the `q`-expansion field itself (478, for
+`qExpFunctionFieldC K Γ` over any algebraically closed `K`), with a single consumer in the char-`p`
+Frobenius-degeneracy column. So the theory of §12.2 is not confined to A's curve: it is `IsCurveOver`
+plus a function field, and every field in the `jq` family admits it for 17–28 lines.
+
+**What it would and would not replace.** RR delivers genus, `lSpace` dimensions, `deg K = 2g − 2` and
+vanishing. The `jq` column's outputs are different statements: exact covering degrees
+(`finrank = ψ(N)`, relative index and relative rank) and irreducibility of `Φ_N` (`minpoly` = the slot
+product). RR produces neither — an exact cover degree needs Hurwitz, which is not in the pin, and
+irreducibility needs the Galois theory the column already uses. So the device buys no **second route**
+to genus or to the dimensions of form spaces — by §10.4 that would be a cost — it buys nothing unless a
+dimension is wanted once and RR is the cheapest place to get it, which is the case for A (§12.1) and
+not for the `jq` column. And it buys nothing at all for B, because the `q`-series device transports
+orders while `pathIntegral` needs charts (§12.2).
+
+**What that means for a port.** (a) The RR pillar is *shared*, so porting it is not porting B: A's
+cone and B's cone use twelve of the same fourteen nodes, and `AlgebraicCurve/{Genus,Differential,
+RiemannRoch,WeilExchange}` in `FLTForHuman` is the common floor. (b) The `jq` column is genuinely
+independent: in the port, `FunctionFieldGeneration` (13 modules) and `Jq*`/`ModularPolynomial*`/
+`PhiGen*` (21) import **nothing** from the 82 ported `AlgebraicCurve/{RiemannRoch,Genus,Differential,
+Canonical,WeilExchange,ResidueTheorem,P1,IsCurveOver,Place,PrincipalDivisors,Tate}` modules — 0
+imports — which is why it could land as a silo. The only port modules that do import that pillar are
+`ModularCurve/XH|X1|LevelN` (12) and `ModularCurve/Analytic/CuspDichotomy` (5, into
+`PrincipalDivisors`/`WeilExchange`). (c) The three arrows that would join the foundations are the
+same three comparisons §1 lists (periods = integrals of holomorphic differentials, Hecke
+equivariance, Tate ≅ lattice ⊗ ℤ_[p]) — so the foundation-level comparison is not cheaper than the
+statement-level one, and *this* is why the subject looks like two developments: the pin never had to
+write the identification, and the port inherits the gap rather than causing it.
+
+The one concrete mechanic in that gap is worth keeping: where the pin *does* cross a foundation
+boundary, it crosses by a `q`-series substitution (`qExpansion` → `LaurentSeries`, `laurentBaseChange`,
+`realizeOf Γ x` at `q = e^{2πiz}`), which transports **orders** — the complex place dictionary's own
+field is `meromorphicOrderAt (realizeOf Γ x) τ = ramification τ * (pt τ).ord x`. That is why A's cone
+carries 82 `jq`/`qExp` nodes / 26,850 lines while B's carries none with any modular vocabulary at all,
+and why an order-level interface is the one kind a port can build cheaply. Periods do not transport
+along it.
+
+## 13. Links
 
 * the prune, its narrowing and the residual: [deligneSerre/PRUNABLE-complex-analytic.md](deligneSerre/PRUNABLE-complex-analytic.md) §7
 * the cell-dissection / radial-region plan: [algebraicCurve/TOPIC-cell-dissection.md](algebraicCurve/TOPIC-cell-dissection.md)

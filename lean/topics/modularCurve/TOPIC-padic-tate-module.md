@@ -35,14 +35,22 @@ prunable set is pattern-matched on the pin's names and the substring `abelJacobi
 `AlgebraicCurve.Pic0.abelJacobiCard_genus`, the node the pair's proof takes its `p^n`-torsion
 cardinality from.
 
-That reading is a **rewiring assumption**, and it is the right one for a D-S read: the column has a
-second, modular supply for the same fact — `ModularCurve.finite_torsion_jOne` (80 pin lines) proves
-`Finite (Pic0.torsion … n)` for the modular curve from `periodLatticeOf`/`periodAlongOf` with no
-pruned premise, and `exists_heckeEquivariant_linearEquiv_tateModule_jH_padicInt_tensor_periodLatticeOf`
-identifies the Tate module with the period lattice ⊗ ℤ_[p]. The pinned chain cites both routes. A
-one-day narrowing of the prune (which would have made the column pay this pair's Abel–Jacobi route,
-71 nodes / 20,526 lines) was reverted on 2026-10-25: the breadth is the subject's, not a naming bug —
-see [../deligneSerre/PRUNABLE-complex-analytic.md](../deligneSerre/PRUNABLE-complex-analytic.md) §7.
+That reading is a **rewiring assumption**: the column also has a modular supply for the same fact —
+`ModularCurve.finite_torsion_jOne` (80 pin lines) proves `Finite (Pic0.torsion … n)` for the modular
+curve from `periodLatticeOf`/`periodAlongOf`, and
+`exists_heckeEquivariant_linearEquiv_tateModule_jH_padicInt_tensor_periodLatticeOf` identifies the
+Tate module with the period lattice ⊗ ℤ_[p] (five citers, among them the p-adic Galois module
+itself). The pinned chain cites both routes, and *both* are cut by the prune at their Abel–Jacobi
+core — the modular route too, through `ComplexPlaceDictionaryOf.abelJacobi_mem_periodLatticeOf_*`
+([../deligneSerre/PRUNABLE-complex-analytic.md](../deligneSerre/PRUNABLE-complex-analytic.md) §7). A
+one-day narrowing of the prune was reverted on 2026-10-25: the breadth is the subject's, not a
+naming bug.
+
+A's premise closure contains neither `abelJacobiCard_genus` nor B's mouth, so the modular route does
+not consume the abstract theory — and since the Tate module's finiteness/freeness follows from
+`TateModule ≅ ℤ_[p] ⊗ periodLatticeOf` plus the lattice's freeness, the pair's *statement* can be
+derived on the modular route. **B is therefore not needed for the D-S column**; a faithful port of
+the pinned pair, however, cites B's hub, so taking A means recording that one-node rewiring.
 
 So: the pair's own price is the unpruned one (145 nodes / 66,603 lines for its cone), the D-S column
 does not have to pay it, and which route the port takes — this pair's Abel–Jacobi route or the

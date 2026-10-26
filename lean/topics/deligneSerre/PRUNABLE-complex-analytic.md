@@ -179,6 +179,29 @@ bought and cost, measured:
    from here — its structure and four porting options are in
    [../TOPIC-abel-jacobi-port-structure.md](../TOPIC-abel-jacobi-port-structure.md).
 
+**The restored set's own holes, measured.** Under the 2026-10-14 definition the D-S column has
+**9** needed nodes whose premise is pruned, and they are not all on one route:
+
+| hole | of which route |
+|---|---|
+| `moduleFinite[_and_free]_padicInt_tateModule_j{One,jH}` → `abelJacobiCard_genus` | the Abel–Jacobi (B) route's arithmetic hub |
+| `finite_torsion_of_isAlgClosed_of_charZero` → `natCard_torsion_prime_eq_pow_genus_complex` | B |
+| `freeAlgebra_lift_correspondence_eq_zero_…_complex` → two `abelJacobiDiv`/`pathPeriodLattice` lemmas | B |
+| `Place.exists_natCast_dvd_ord_sub_single_sub_single_complex` → the same two | B |
+| `…exists_bijective_heckeEquivariant_addMonoidHom_pic0_complex_xH_quotient_periodLatticeOf` → `ComplexPlaceDictionaryOf.abelJacobi_mem_periodLatticeOf_gammaH_of_isPrincipal`, `…isPrincipal_of_abelJacobi_mem_periodLatticeOf_gammaH`, `…exists_mapDomain_eq_heckeDivHBar_abelJacobi_sub_mem_periodLatticeOf` | the **modular** (A) route's Abel–Jacobi dictionary |
+
+**And on the A side the cut is deep**: 19 of the pruned nodes are `ModularCurve.ComplexPlaceDictionary*`
+/ `abelJacobi_mem_periodLattice*` lemmas (5,981 lines) — the modular Abel–Jacobi map — and **86 A-family
+nodes / 41,714 lines are only reachable through them**. The D-S column's visible A cost is therefore
+15 nodes / 5,301 lines (the interfaces above the cut) against an A family of 145 nodes / 61,519 lines
+in the cone: the prune hides about two thirds of the weight of the route the column actually takes.
+
+So the prune is a coherent but strong statement — *the D-S column does not use the Abel–Jacobi map,
+general or modular* — and both routes are cut at it: the modular uniformization A also reads with
+three pruned premises, and most of A's body disappears with them. That is why the prune's breadth is not a pricing convention to be narrowed
+away but a route assumption to be honoured or retired as a whole; and it is why the subject is now
+treated in its own right rather than as a D-S dependency.
+
 What survives from the experiment as a permanent finding: the subject's outbound interface
 is one statement with **fan-in one**, its arithmetic hub `abelJacobiCard_genus` has
 **fan-in twelve**, and both halves are wide bodies with narrow mouths — recorded with the
