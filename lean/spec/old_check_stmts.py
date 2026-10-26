@@ -2664,8 +2664,6 @@ SOURCES = [
     "P2M/Sol/S_ModularCurve_addSubgroupClosure_range_periodAlongOf_eq_top.lean",
     "Theorems/Thm_ModularCurve_sum_periodAlongOf_mem_periodLatticeOf_of_boundary_eq_zero.lean",
     "P2M/Sol/S_ModularCurve_sum_periodAlongOf_mem_periodLatticeOf_of_boundary_eq_zero.lean",
-    "Theorems/Thm_ModularCurve_periodMapOf_mem_parabolicHoms.lean",
-    "P2M/Sol/S_ModularCurve_periodMapOf_mem_parabolicHoms.lean",
     "Theorems/Thm_ModularCurve_coe_qExpansion_normalizedDerivOfComplex.lean",
     "P2M/Sol/S_ModularCurve_coe_qExpansion_normalizedDerivOfComplex.lean",
     "Definitions/Def_ModularCurve_QExpansionDiff.lean",
@@ -4687,7 +4685,6 @@ PORT_FILES = [
     # modules, matched against their `Theorems/` wrappers appended to `SOURCES` above.
     "FLTForHuman/ModularCurve/Period/PeriodLatticeSpan.lean",
     "FLTForHuman/ModularCurve/Period/PeriodLatticeBoundary.lean",
-    "FLTForHuman/ModularCurve/Period/ParabolicHoms.lean",
     "FLTForHuman/ModularCurve/Period/QExpansionDerivative.lean",
     # --- WORKORDER-D2, node completion (whole-node rule, playbook §2.3): the remainder of
     # `Def_ModularCurve_QExpansionDiff.lean` — its `QExpansionDiff` and `TraceDiff` halves —

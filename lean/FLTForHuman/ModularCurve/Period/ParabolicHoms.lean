@@ -14,6 +14,9 @@
   91 lines); the statement is the `Theorems/` wrapper's. Every helper is
   `private`, so the checker diffs only the headline.
 
+  spec-pin: Theorems/Thm_ModularCurve_periodMapOf_mem_parabolicHoms.lean   -- comparable copy: the headline
+  spec-pin: P2M/Sol/S_ModularCurve_periodMapOf_mem_parabolicHoms.lean
+
   References (public mirror, pinned):
   <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_periodMapOf_mem_parabolicHoms.lean>,
   <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_periodMapOf_mem_parabolicHoms.lean>
@@ -35,19 +38,19 @@ namespace PeriodMapParabolicOf
 
 open ModularCurve.Period
 
-private theorem tendsto_vadd_atImInfty (x : ℝ) :
+theorem tendsto_vadd_atImInfty (x : ℝ) :
     Tendsto (fun z : ℍ => x +ᵥ z) atImInfty atImInfty := by
   simp only [atImInfty, tendsto_comap_iff, Function.comp_def]
   exact tendsto_comap.congr fun z => (vadd_im x z).symm
 
-private theorem const_eq_zero_of_tendsto_sub {α : Type*} {l : Filter α} [l.NeBot]
+theorem const_eq_zero_of_tendsto_sub {α : Type*} {l : Filter α} [l.NeBot]
     {g h : α → ℂ} {L c : ℂ} (hg : Tendsto g l (𝓝 L)) (hh : Tendsto h l (𝓝 L))
     (hc : ∀ a, g a - h a = c) : c = 0 := by
   have hsub : Tendsto (fun a => g a - h a) l (𝓝 (L - L)) := hg.sub hh
   rw [sub_self] at hsub
   exact tendsto_nhds_unique (tendsto_const_nhds.congr fun a => (hc a).symm) hsub
 
-private theorem period_eq_zero {Γ : Subgroup SL(2, ℤ)} {F : ℍ → ℂ}
+theorem period_eq_zero {Γ : Subgroup SL(2, ℤ)} {F : ℍ → ℂ}
     (hF : IsEquivariantPrimitive Γ F) (δ : SL(2, ℤ)) {L : ℂ}
     (hlim : Tendsto (fun w : ℍ => F (δ • w)) atImInfty (𝓝 L)) (n : ℤ) (ε : SL(2, ℤ))
     (hε : ε = 1 ∨ ε = -1) (hγ : ε * (δ * ModularGroup.T ^ n * δ⁻¹) ∈ Γ) :

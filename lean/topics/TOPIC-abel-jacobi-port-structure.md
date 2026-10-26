@@ -157,11 +157,31 @@ structural consequences:
 
 1. **Either half can be ported for its own sake without a consumer existing.** The contract is one
    statement per half, so the work is well-bounded even though the bodies are 40k+ lines.
-2. **The same arithmetic conclusion has two proofs.** `Finite (Pic0.torsion …)` for the modular
-   curve is `finite_torsion_jOne` on A; `Module.Finite ∧ Module.Free (TateModule p (JH M H))` is
-   `moduleFinite_and_free_padicInt_tateModule_jH` on B. The D-S column's pinned chain cites both, so
-   `frontier --ds` (which prunes B) is a **rewiring assumption**, not a fact about the target: it
-   prices the route that uses A. That is now recorded where the switch lives.
+2. **The same arithmetic conclusion has two proofs, and the prune currently cuts both.** `Finite
+   (Pic0.torsion …)` for the modular curve is `finite_torsion_jOne` on A;
+   `Module.Finite ∧ Module.Free (TateModule p (JH M H))` is
+   `moduleFinite_and_free_padicInt_tateModule_jH`, whose proof reaches B. Inside the D-S cone
+   `frontier --ds` removes 44 nodes / 30,570 lines, and they decompose as **29 nodes / 24,391 lines of
+   B** (`exists_int_pathIntegral_eq_sum_periods_add_sum_residues` 3,374,
+   `exists_loops_pathIntegral_reciprocity_raw` 2,388, the cotree/Kirchhoff quartet),
+   **9 nodes / 3,228 lines of A's own Abel theorem and its witnesses**
+   (`abelJacobi_mem_periodLatticeOf_gammaH_of_isPrincipal` 313, `isPrincipal_…` 133,
+   `exists_meromorphic_…` 117, `exists_cuspForm_mul_exp_periodOf_eq_one_…` 495,
+   `exists_norm_multiplier_eq_one_and_abelJacobi_add_petersson_…` 548,
+   `exists_mapDomain_eq_heckeDivHBar_abelJacobi_sub_mem_periodLatticeOf` 684, and three multiplier
+   lemmas), and **6 nodes / 2,951 lines of the hub and the `abelJacobiDiv` correspondence**
+   (`abelJacobiCard_genus` 113, `natCard_torsion_prime_eq_pow_genus_complex` 61, three
+   `abelJacobiDiv_correspondence_*` / `exists_ball_*`, 2,454). So `--ds` is not "A instead of B": the
+   `abelJacobi` pattern cannot tell the two Abel theorems apart. What the scoping establishes is
+   stronger: the column's needs (torsion finiteness, the Hecke-equivariant identification, the Tate
+   module ≅ lattice ⊗ ℤ_[p]) are met by A *as a whole*, and **520 of A's 529 nodes are untouched by the
+   prune** — what survives of A is the dictionary, the period lattice and the Tate identification, i.e.
+   exactly the part the column needs. So the route to price is A complete, and the defect is in the
+   pattern set rather than in the reading: `abelJacobi` has to be split into the analytic spellings the
+   prune means and the algebraic cardinality it does not, otherwise A's Abel theorem keeps being cut.
+   PRUNABLE §7 records the same cut on a wider count (19 dictionary lemmas / 5,981 lines over the
+   subject's own cone, 86 nodes / 41,714 lines behind them); the 9 / 3,228 above is the slice of it
+   that lies inside the D-S cone itself.
 
 ## 3. Four port structures, and what each buys
 
@@ -616,10 +636,47 @@ the `jq` column's ψ(N)/relative-index/Φ_N-irreducibility machinery has no RR r
 neither of those is a *subject* duplication either: the first is one construction on each side of a
 definitional divide, the second is a different theory of the same curve.
 
-**Consequence for the plan.** The measure of a node changes from "does it give a check?" to "does it
-delete a definition?". On that measure P2's headline is not the 74,000 → 67,500 of §10.3 but this:
-the subject contains four duplications, and three of them disappear by writing B (and the second half
-of A's own machinery) onto A's definitions.
+**Consequence for the plan: what the measure prices.** "Does it delete a definition?" has an
+operational answer. Deleting a duplicated definition is worth its own lines plus every consumer that
+had to be written against the losing spelling, and it costs the **bridge**: a translation lemma
+between the survivor and the loser, plus the re-statement of the consumers. A node's value is
+therefore `duplicated lines − bridge`, which is a sharper question than a line count. The subject's
+four duplications, with survivor, deletion and bridge:
+
+| # | one notion, two definitions | survivor | gone | bridge |
+|---|---|---|---|---|
+| 1 | the path integral: `periodAlongOf` (interval integral) vs `pathIntegral` (`if ∃ primitive …`) | A's | B's 5,495 primitive/jump/cotree/Kirchhoff lines and the 3,374-line residue theorem re-expressed through them — the ≈8.9k of §10.2 | ≈1–1.5k: Stokes on a bounded charted domain, plus "path integral = sum of chart integrals" |
+| 2 | the period lattice: `periodLatticeOf` (submodule of `Dual ℂ (CuspForm Γ 2)`) vs `pathPeriodLattice` (submodule of `Fin n → ℂ`) | A's — the basis-free statement is the smaller one (§9.4), and the coordinate form is a *presentation* of it, not a second lattice | B's lattice as an object, and the `Fin n → ℂ`-shaped statements it forced | `CuspForm Γ 2 ≅ regularDifferentials` (the pin has it only at `Γ₀(N)`, 323 + 329) plus the coordinate map |
+| 3 | the reciprocity / H₁ generation: A's ≈4,025 (winding pairing, Petersson) vs B's ≈3,628 (loops, cycle decomposition) | B's — the general form, slightly cheaper by §10.1 | A's ≈4,025, instantiated instead | 2's bridge, plus "A's `periodOf γ` is B's loop period" |
+| 4 | the genus: the rank node (80), A's torus cardinality against the algebraic cardinality | RR, via `IsCurveOver` (17–28 lines per field) | the counting argument (81 + 144) and the coupling that keeps both routes alive (§9.2) | `dim S₂ = g` written once — one inequality from RR (167), the other from the differential side (§12.1) |
+
+**Three of the four share one bridge**, which is why they fall together: duplications 1–3 all need the
+honest chart integral (§10.2's ≈1–1.5k) and the `Γ_H` form of the cusp-form ↔ regular-differential
+identification. Build those two and three definitions go; the fourth is independent and needs only a
+short derivation.
+
+**Restated, P2 is ≈ 61k rather than 74k, and B is the half that moves.** At §3's written ÷ content
+ratio: 74,000 − 8.9k (1) − 4.0k (3) − 0.3k (4) + 1.5k (bridge) ≈ **61,000**, so B's half falls from
+44k to ≈31k and P3's 31,000 becomes ≈21,000, against the 24,500 of §10.3, which priced only
+duplication 1. The same arithmetic fixes P1's contents: P1 is A **plus** the two general lemmas the
+three deletions depend on — the `Complex/` Stokes layer (§10.2) and the `Γ_H` cusp-form ↔
+regular-differential identification — because a definition transcribed against cannot be deleted later
+(§10.5). Leave either to P2 and the deletions stop being deletions and become re-work.
+
+**The first wave is that bridge.** Its scope is the nine `Complex.*` nodes the two mouths reach — the
+∂̄-Pompeiu identity, its simple-pole and log-derivative residue forms, the modular-region Green theorem
+and the `circleIntegral` pair: 2,624 pin lines whose union demand is *exactly themselves*, so the wave
+is closed and can be scheduled first regardless of P1/P2. Plan:
+[aj/PLAN-W1-stokes.md](aj/PLAN-W1-stokes.md).
+
+**What the measure does not move.** B1's dissection (`exists_pairedCellFamily` 4,730,
+`exists_dissectionScaleData` 2,429, `exists_cellDissection` 779, `exists_tree_cotree` 883,
+`exists_polygonWord` 882, `euler_count_grid` 55, and the ported `RadialRegion`), A's
+`ComplexPlaceDictionary` (16.9k, §9.1) and the `jq` column's ψ(N)/irreducibility (§12.3) are not
+duplications of anything: they are the three things only one side has. They put P2's floor near 61k.
+One caveat decides how much of the rest is real: the bridge is *estimated*, and §10.2 warns the
+chart-subdivision argument is the kind that grows. At 3k instead of 1.5k, duplications 2 and 3 stop
+paying (§9.5's verdict on the lattice comparison) and only duplication 1 survives the test.
 
 ### 10.5 Provenance: the duplications are an artefact of how the pin was written
 
@@ -879,6 +936,15 @@ along it.
 
 ## 13. Links
 
+* **the first wave — the shared ∂̄/Stokes layer as a mathlib supplement (9 `Complex.*` nodes, 2,624
+  lines; landed, 2,768 written):** [aj/PLAN-W1-stokes.md](aj/PLAN-W1-stokes.md),
+  [aj/WORKORDER-W1-stokes.md](aj/WORKORDER-W1-stokes.md)
+* **the second wave — the parabolic-hom / period-map layer (6 nodes, 2,433 lines; dispatched):**
+  [aj/PLAN-W2-parabolic-homs.md](aj/PLAN-W2-parabolic-homs.md),
+  [aj/WORKORDER-W2-parabolic-homs.md](aj/WORKORDER-W2-parabolic-homs.md)
+* why A and not B: the FLT cone reaches A's Tate identification (653) through
+  `CuspForm.exists_padicGaloisModule_…` (859) and nothing else proves it; `needed(653)` = 174 unported
+  nodes / 60,220 lines, of which 66 nodes / 12,778 were ready when W1 landed (§10.4)
 * the prune, its narrowing and the residual: [deligneSerre/PRUNABLE-complex-analytic.md](deligneSerre/PRUNABLE-complex-analytic.md) §7
 * the cell-dissection / radial-region plan: [algebraicCurve/TOPIC-cell-dissection.md](algebraicCurve/TOPIC-cell-dissection.md)
 * the pair that surfaced this: [modularCurve/TOPIC-padic-tate-module.md](modularCurve/TOPIC-padic-tate-module.md)
