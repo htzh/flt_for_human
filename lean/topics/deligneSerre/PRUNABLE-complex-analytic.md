@@ -33,7 +33,8 @@ AlgebraicCurve.Pic0.freeAlgebra_lift_correspondence_eq_zero_of_lift_differential
 AlgebraicCurve.Pic0.natCard_torsion_prime_eq_pow_genus_complex
 ```
 
-Measured 2026-10-14: **44 nodes / 30,570 lines** (all still unported):
+Measured 2026-10-25 (the 2026-10-14 set, unchanged): **44 nodes / 30,570 lines** (all
+still unported):
 
 | family | nodes |
 |---|---:|
@@ -43,17 +44,21 @@ Measured 2026-10-14: **44 nodes / 30,570 lines** (all still unported):
 | `Pic0.*complex` | 4 |
 | `pathPeriodLattice` | 3 |
 
-Membership is defined by the name patterns, not by a frozen list: as the port grows
-the set's *unported* part shrinks, but the exclusion stays correct.
+Membership is defined by the name patterns, not by a frozen list: as the port grows the
+set's *unported* part shrinks, but the exclusion stays correct. A one-day attempt to
+narrow the `abelJacobi` substring (2026-10-25) was reverted — see §7, which records what
+it found and why the breadth is kept.
 
 ## 2. Payout
 
 `prunable(R_DS) = closure(root) \ closure(root with R_DS deleted)` — the nodes only
 reachable through the subject — is **205 nodes / 107,257 lines** (port-independent; it
-agrees with `deligne-serre-weight-one-scout.md` §4.2). On the 2026-10-14 tree the
-prune moves the D-S forward target from **1,588 / 623,825** unpruned to
-**1,402 / 532,720** pruned — a saving of **186 nodes / 91,105 lines**. (The scout read
-201 / 103,660 on its own, smaller, tree; only the `prunable` figure is stable.)
+agrees with `deligne-serre-weight-one-scout.md` §4.2). On the 2026-10-25 tree the prune
+moves the D-S forward target from **1359 / 530,935** unpruned to **1177 / 441,332**
+pruned — a saving of **182 nodes / 89,603 lines**; `AlgebraicCurve.` falls 251 / 95,728
+to 184 / 48,515. (The 2026-10-14 tree read 1,588 / 623,825 to 1,402 / 532,720 — a saving
+of 186 / 91,105; the scout read 201 / 103,660 on its own, smaller, tree. Only the
+`prunable` figure is stable across trees.)
 
 ## 3. Why it is prunable
 
@@ -133,3 +138,48 @@ PY
 * the route/mechanism: [deligne-serre-weight-one-scout.md](../../studies/deligne-serre-weight-one-scout.md) §4.2
 * the prune machinery: `tools/deps/prune.py`, `tools/deps/frontier.py` (`--remove`, `--also`, `--scenario`)
 * the D-S frontier, both readings: [PORTING-DeligneSerre.md](../PORTING-DeligneSerre.md) §2
+
+## 7. The 2026-10-25 trial — narrowed for a day, reverted
+
+A D-S read of `ModularCurve.moduleFinite_and_free_padicInt_tateModule_jH` surfaced the
+ambiguity: `abelJacobi` names both the complex-analytic **supply** (the divisor/vector with
+path periods, the period lattices) and an **algebraic** family
+(`AlgebraicCurve.Pic0.abelJacobiCard_genus` and its `…FF_of_frobenius` cousins) stating
+`Nat.card (Pic0.torsion K F p) = p ^ (2 * genus K F)`. A bare substring caught both, so
+`--ds` priced that pair at **1 node / 327 lines** — its only numerical premise avoided.
+
+The set was narrowed for a day to the analytic spellings with `EXTRA` emptied. What that
+bought and cost, measured:
+
+| read | restored (2026-10-14 set) | narrowed |
+|---|---:|---:|
+| avoided R, D-S cone | 44 / 30,570 | 39 / 29,881 |
+| avoided R, Fermat cone | 140 / 74,620 | 49 / 32,634 |
+| D-S forward target | 1177 / 441,332 | 1184 / 442,175 |
+| `AlgebraicCurve.` demand | 184 / 48,515 | 190 / 49,249 |
+| the pair under `--ds` | 1 / 327 | 71 / 20,526 |
+
+**What the experiment found — the reason the narrowing was reverted, and kept here.**
+
+1. **The subject has two independent halves.** The Riemann-surface route (cell dissection,
+   path integrals, Abel–Jacobi divisor/vector, the complex uniformization
+   `Pic0 ℂ F ≃+ (Fin g → ℂ) ⧸ L`) and the **modular period route**
+   (`periodAlongOf`/`periodLatticeOf`, `ComplexPlaceDictionary{,Of}`, the Hecke-equivariant
+   quotient) each prove the same uniformization, for different classes of curves, and their
+   interfaces are disjoint.
+2. **The D-S column has both proofs of the torsion finiteness.** The pair
+   (`moduleFinite[_and_free]_padicInt_tateModule_j{One,jH}`) is the first;
+   `ModularCurve.finite_torsion_jOne` (80 lines, from `periodLatticeOf`/`periodAlongOf`, no
+   pruned premise) is the second. So the prune is a **rewiring assumption** — it prices the
+   D-S column along the modular supply — and the pinned chain cites both.
+3. **Therefore the breadth is not the bug.** Narrowing it does not repair anything: it
+   makes the D-S column pay the redundant route (+7 nodes / +843 lines) while the released
+   nodes' own premises are still the pruned analytic supply (11 such citations). The set is
+   restored to the 2026-10-14 definition, and the subject is treated **in its own right**
+   from here — its structure and four porting options are in
+   [../TOPIC-abel-jacobi-port-structure.md](../TOPIC-abel-jacobi-port-structure.md).
+
+What survives from the experiment as a permanent finding: the subject's outbound interface
+is one statement with **fan-in one**, its arithmetic hub `abelJacobiCard_genus` has
+**fan-in twelve**, and both halves are wide bodies with narrow mouths — recorded with the
+numbers in the structure note.

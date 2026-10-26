@@ -197,6 +197,34 @@ intervalIntegral_bdryIntegrand_neg_eq_neg_edgeInt ─┴─► exists_int_pathIn
 `exists_window_perimeter` at layer 1; the `CellDissection` nodes are almost all
 self-contained against the definition layer and the external premises.
 
+**The outbound interface is one node, and its fan-in is one.**  Measured 2026-10-25 on the
+pin (`frontier.py`/`fltdata` citers): the whole subject leaves the graph through
+`AlgebraicCurve.Pic0.exists_addEquiv_quotient_submodule_complex` — 33 pin lines, and its two
+premises (`…_of_chartedSpace_complex`, 159, and `Place.exists_chartedSpace_meromorphicOrderAt_evalAt_eq_ord_complex`,
+482) are the charted-space form of the uniformization and the chart read of the order — the
+statement being the **Abel–Jacobi theorem itself**: there is a free ℤ-lattice `L` of rank `2g` in
+`Fin g → ℂ` with `Pic0 ℂ F ≃+ (Fin g → ℂ) ⧸ L`. That node has exactly **one** direct citer,
+`AlgebraicCurve.Pic0.natCard_torsion_prime_eq_pow_genus_complex` (61 lines; its other
+input is `Pic0.finite_torsion_of_isAlgClosed_of_charZero`).  From there the chain is
+one-node-wide twice more — `Pic0.natCard_torsion_prime_eq_pow_genus` (45 lines) and then
+`Pic0.abelJacobiCard_genus` (113 lines) — and only at that third step does it fan out:
+`abelJacobiCard_genus` has **12 direct citers** (`moduleFinite[_and_free]_padicInt_tateModule_j{One,jH,jZero}`,
+`JZero.cardinalityAJ_genusFF`, `JH`/`JZero.exists_finiteDimensional_smul_eq_self_of_torsion`,
+`finrank_rationalTateModule_jZero_eq_two_mul_finrank_regularDiffs`, and the two
+`perfectPairing`/`pairing_nsmul` families), i.e. 515 nodes / 276,088 lines downstream, 659 /
+333,137 downstream of the interface node itself.
+
+Port consequence: the subject is a **wide development with a narrow mouth**.  What a port
+must export is that one quotient statement (plus the torsion-cardinality corollary that
+consumes it); everything else is internal.  It is therefore well-bounded as a project, and
+its *value* is transitive rather than direct — which is also why a frontier read can prune
+it without the shelf showing a hole. The asymmetry between the mouth (fan-in 1) and the
+arithmetic hub (fan-in 12) is the structural fact worth remembering: a D-S read that prices
+a consumer of the hub as one node is assuming the *modular* period route to the same fact,
+not an omission. Both are recorded in
+[../TOPIC-abel-jacobi-port-structure.md](../TOPIC-abel-jacobi-port-structure.md), and the
+subject is treated there in its own right.
+
 `exists_rect_sixArcs` itself (1,839 raw, 1 public headline, 2 consumers) is the
 `K`-and-six-arc description of a rectangle, and is the node the DeligneSerre column
 deferred in [WORKORDER-P1](WORKORDER-P1-isPrimeOverValuationSubring.md) §2 for exactly
