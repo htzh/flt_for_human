@@ -2,6 +2,12 @@
 EnginePrelude — part of the ℙ¹ residue core, split from
 `Defs/P1ResidueCore.lean` (R1 of `topics/riemannRoch/PLAN-RECTIFY-DEFS.md`).
 The original declaration order is preserved; import the preceding slice.
+Every public declaration here is one of the pin's statements verbatim, so the wire below
+diffs them by content against the one `S_` file the docs-site generator files the ℙ¹ residue
+core under (`spec/check_port.py` hashes the statement, then matches).
+
+  spec-pin: Theorems/Thm_AlgebraicCurve_RationalFunctionField_trace_localResidue_placeInfty_X_pow_eq_zero.lean
+  spec-pin: P2M/Sol/S_AlgebraicCurve_RationalFunctionField_trace_localResidue_placeInfty_X_pow_eq_zero.lean
 -/
 import FLTForHuman.AlgebraicCurve.P1.Dictionary
 import FLTForHuman.AlgebraicCurve.LocalResidue.Instance
@@ -193,29 +199,6 @@ theorem isPrincipalIdealRing_comap :
   exact hgn
 
 end RestrictPrelude
-
-section Ultrametric
-
-variable {K F : Type*} [Field K] [Field F] [Algebra K F] (v : Place K F)
-
-private theorem ord_add_eq_left {f g : F} (hf : f ≠ 0) (hg : g ≠ 0) (h : v.ord f < v.ord g) :
-    v.ord (f + g) = v.ord f := by
-
-  have hfv := v.adicValuation_ne_zero hf
-  have hgv := v.adicValuation_ne_zero hg
-  have hlt : v.adicValuation g < v.adicValuation f := by
-    rw [← exp_log hfv, ← exp_log hgv]
-    have hlog : log (v.adicValuation g) < log (v.adicValuation f) := by
-      simp only [ord] at h
-      omega
-    exact lt_of_le_of_ne (exp_le_exp.mpr hlog.le)
-      fun hcon => hlog.ne (exp_injective hcon)
-  have h1 : v.adicValuation (f + g) = max (v.adicValuation f) (v.adicValuation g) :=
-    Valuation.map_add_of_distinct_val _ (ne_of_lt hlt).symm
-  rw [max_eq_left hlt.le] at h1
-  simp only [ord, h1]
-
-end Ultrametric
 
 end Place
 
@@ -613,33 +596,6 @@ private theorem exists_coeff_ord_ne_zero {f : F'} (hf : f ≠ 0) (hford : w.ord 
   omega
 
 end SupportTransfer
-
-section Chart
-
-variable {K F : Type*} [Field K] [Field F] [Algebra K F]
-variable {R : Type*} [CommRing R] [IsDedekindDomain R] [Algebra R F] [IsFractionRing R F]
-variable (w : Place K F)
-
-private def chartHom (hw : ∀ r : R, algebraMap R F r ∈ w.toValuationSubring) :
-    R →+* w.toValuationSubring :=
-  (algebraMap R F).codRestrict w.toValuationSubring.toSubring hw
-
-omit [IsDedekindDomain R] [IsFractionRing R F] in
-
-private theorem inv_algebraMap_mem (hw : ∀ r : R, algebraMap R F r ∈ w.toValuationSubring)
-    {s : R} (hs : IsUnit (chartHom w hw s)) :
-    (algebraMap R F s)⁻¹ ∈ w.toValuationSubring := by
-  obtain ⟨u, hu⟩ := hs
-  have hcoe : ((u : w.toValuationSubring) : F) = algebraMap R F s := by rw [hu]; rfl
-  have h1 : (((u⁻¹ : w.toValuationSubringˣ) : w.toValuationSubring) : F)
-      * algebraMap R F s = 1 := by
-    have hmul := congrArg (fun a : w.toValuationSubring => (a : F)) u.inv_mul
-    push_cast at hmul
-    rwa [hcoe] at hmul
-  rw [← eq_inv_of_mul_eq_one_left h1]
-  exact SetLike.coe_mem _
-
-end Chart
 
 end Place
 

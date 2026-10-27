@@ -4014,11 +4014,13 @@ PORT_FILES = [
     # whole chain. `P1/Core.lean` has since been handed over to `spec/check_port.py`
     # (its `spec-pin:` wire checks 42 ok / 0 / 0); the earlier slices below stay
     # listed. Appended last so no earlier last-name match can flip.
-    "FLTForHuman/AlgebraicCurve/P1/EnginePrelude.lean",
+    # --- `P1/EnginePrelude.lean` and `P1/DivisorAction.lean` are handed over to
+    # `spec/check_port.py` (2026-10-27, when the `ord_add_eq_of_lt` duplicate was
+    # retired for the public node in `Place/OrdCalculus.lean`): their `spec-pin:`
+    # wires check 40 ok and 19 ok, both 0 mismatch / 0 missing. Do not re-list.
     "FLTForHuman/AlgebraicCurve/P1/Differential.lean",
     "FLTForHuman/AlgebraicCurve/P1/UnitNormalForm.lean",
     "FLTForHuman/AlgebraicCurve/P1/DXCoeff.lean",
-    "FLTForHuman/AlgebraicCurve/P1/DivisorAction.lean",
     # --- `FLTForHuman/AlgebraicCurve/P1/UnitFinite.lean` is handed over to `spec/check_port.py`: its `spec-pin:` wire
     # checks 15 ok / 0 mismatch / 0 missing. Do not re-list it here.
     "FLTForHuman/AlgebraicCurve/P1/FinitePlaceResidue.lean",

@@ -2,8 +2,15 @@
 DivisorAction — part of the ℙ¹ residue core, split from
 `Defs/P1ResidueCore.lean` (R1 of `topics/riemannRoch/PLAN-RECTIFY-DEFS.md`).
 The original declaration order is preserved; import the preceding slice.
+Every public declaration here is one of the pin's statements verbatim, so the wire below
+diffs them by content against the one `S_` file the docs-site generator files the ℙ¹ residue
+core under (`spec/check_port.py` hashes the statement, then matches).
+
+  spec-pin: Theorems/Thm_AlgebraicCurve_RationalFunctionField_trace_localResidue_placeInfty_X_pow_eq_zero.lean
+  spec-pin: P2M/Sol/S_AlgebraicCurve_RationalFunctionField_trace_localResidue_placeInfty_X_pow_eq_zero.lean
 -/
 import FLTForHuman.AlgebraicCurve.P1.DXCoeff
+import FLTForHuman.AlgebraicCurve.Place.OrdCalculus
 
 noncomputable section
 
@@ -13,29 +20,6 @@ open scoped Polynomial
 namespace AlgebraicCurve
 
 open RationalFunctionField
-
-namespace Place
-
-/-- Local copy of the pin `private Place.ord_add_eq_left` (pin line 829); the
-chunk-1 copy is `private` in this same module and not reachable by name. -/
-private theorem ord_add_eq_left' {K F : Type*} [Field K] [Field F] [Algebra K F]
-    (v : Place K F) {f g : F} (hf : f ≠ 0) (hg : g ≠ 0) (h : v.ord f < v.ord g) :
-    v.ord (f + g) = v.ord f := by
-  have hfv := v.adicValuation_ne_zero hf
-  have hgv := v.adicValuation_ne_zero hg
-  have hlt : v.adicValuation g < v.adicValuation f := by
-    rw [← exp_log hfv, ← exp_log hgv]
-    have hlog : log (v.adicValuation g) < log (v.adicValuation f) := by
-      simp only [ord] at h
-      omega
-    exact lt_of_le_of_ne (exp_le_exp.mpr hlog.le)
-      fun hcon => hlog.ne (exp_injective hcon)
-  have h1 : v.adicValuation (f + g) = max (v.adicValuation f) (v.adicValuation g) :=
-    Valuation.map_add_of_distinct_val _ (ne_of_lt hlt).symm
-  rw [max_eq_left hlt.le] at h1
-  simp only [ord, h1]
-
-end Place
 
 section WronskianBound
 
@@ -306,7 +290,7 @@ theorem exists_unit_dXCoeff_of_ord_placeInfty_eq_neg_one {h : RatFunc K}
         linear_combination hsum
       rw [hXe_eq, (p1PlaceInfty K).ord_neg] at hlt
       exact lt_irrefl _ hlt
-    · rw [(p1PlaceInfty K).ord_add_eq_left' hg0 hXe0 hlt]
+    · rw [Place.ord_add_eq_of_lt (p1PlaceInfty K) hg0 hXe0 hlt]
       exact hordg
 
 theorem exists_dXCoeff_ord_two_of_ord_placeInfty_eq_one {f : RatFunc K}

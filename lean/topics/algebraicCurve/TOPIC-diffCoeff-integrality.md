@@ -890,3 +890,425 @@ the statement, not in the declaration name, so §14's tier does not apply to the
 `P1/Separating.lean` and `P1/FinitePlaceResidue.lean` keep three pre-existing
 `linter.unusedSectionVars` warnings about theorems unrelated to this change; they are on
 the frozen checker and were not brought up to date here.
+
+## 16. Sequel (2026-10-27): the nonzero-order family — six nodes, one text
+
+### 16.1 The measurement, and why the frontier overcounts
+
+`frontier.py --ds --include-leaves --ready` priced five nodes at 79 raw lines each —
+`AlgebraicCurve.Place.diffCoeff_smul_D_eq`, `…diffCoeff_smul_D_of_ord_ne_zero`,
+`…D_ne_zero_of_ord_ne_zero`, `…exists_eq_smul_D_of_ord_ne_zero`, `…ordDiff_zero` — all
+`silo 79 / needed 1 / hops 1`, i.e. all ready with every premise already ported. Read
+with `diff`, the five `S_` files are **one text**: any pair differs only in the
+`namespace P2MW.…` line and the three-line `solution` tail. So 5 × 79 = 395 raw lines are
+a 76-line body plus five 3-line wrappers, and the frontier was counting the same file
+five times.
+
+`port_advise.py --nodes` on the five said so directly: **0 substitutions**, 8 names
+proved in ≥2 target files (≈200 removable lines), strongest factoring unit 50 lines / 8
+proofs shared by *every* pair. `port_plan.py` then priced the set: raw 395 → declaration
+270 → minus 200 duplicates → **once-cost 70 → net new mathematics 70**.
+
+Why this family and not its neighbours: the `_of_ord_eq_one` siblings of the same two
+coefficient headlines are 19–31-line files with no prelude, which is why the port already
+had them. The `_of_ord_ne_zero` files each embed the whole eight-declaration prelude
+(`isSeparable_adjoin`, `D_ne_zero_of_ord_ne_zero`, `exists_eq_smul_D_of_ord_ne_zero`,
+`diffCoeff_smul_D_of_ord_ne_zero`, `diffCoeff_smul_of_ord_ne_zero`,
+`ordDiff_smul_D_uniformizer`, `ordDiff_zero`, `ordDiff_D_uniformizer`), so a per-node
+price is five times the per-file price. A sixth node of the same headline,
+`…ordDiff_zero_of_perfectField` (31 lines, `needed 1`), was ready alongside them; it is
+the characteristic-`p` flavour of the same statement and came in the same wave.
+
+### 16.2 The mathematics is zero — it is a transcription
+
+Every ingredient was already in the port: `diffCoeff`, `diffCoeff_smul_D`, `Place.ordDiff`
++ `ordDiff_def`, `Place.uniformizer_alt` + `ord_uniformizer_alt` (this module),
+`span_D_eq_top_of_transcendental`, `D_ne_zero_of_transcendental`
+(`Defs/KaehlerTranscendental.lean`), `transcendental_of_ord_ne_zero`,
+`isAlgebraic_adjoin_of_transcendental`, and `smul_left_injective` from mathlib. The one
+non-obvious saving: the pin's private `isSeparable_adjoin` gets separability from
+`[CharZero K]` alone — `charZero_of_injective_algebraMap` then `infer_instance` — so the
+455-line separable-uniformiser engine (`Place/SeparableUniformiser.lean`) is **not on this
+path**, and the `p`-th-power machinery of the uniformiser case is not replayed.
+
+### 16.3 Incomparable, not redundant
+
+The two hypothesis sets are `[PerfectField K]` with `ord t = 1` and `[CharZero K]` with
+`ord t ≠ 0`. Neither implies the other — a finite field is perfect of characteristic `p` —
+so both are pinned statements and the port keeps both. `dedup.py` reports exactly two
+`shape` clusters in the module, `ordDiff_zero` / `ordDiff_zero_of_perfectField` and the
+pre-existing `ord_diffCoeff_D_nonneg_of_isSeparable` / `…_of_perfectField`; in both, the
+copies differ in their hypotheses, so nothing is removable.
+
+### 16.4 What landed
+
+`FLTForHuman/AlgebraicCurve/Differential/Coefficient.lean`, +147 lines: ten declarations
+totalling 65 lines, the rest documentation, two small `variable` sections and the
+`spec-pin:` wire. No new module, no new import.
+
+The declarations are split 7 nodes + 3 helpers:
+
+| declaration | pin |
+|---|---|
+| `Place.D_ne_zero_of_ord_ne_zero` | `Theorems/Thm_…_D_ne_zero_of_ord_ne_zero.lean` |
+| `Place.exists_eq_smul_D_of_ord_ne_zero` | `Theorems/Thm_…_exists_eq_smul_D_of_ord_ne_zero.lean` |
+| `Place.diffCoeff_smul_D_of_ord_ne_zero` | `Theorems/Thm_…_diffCoeff_smul_D_of_ord_ne_zero.lean` |
+| `Place.diffCoeff_smul_D_eq` (the pin's `diffCoeff_smul_of_ord_ne_zero`) | `Theorems/Thm_…_diffCoeff_smul_D_eq.lean` |
+| `Place.ordDiff_zero` | `Theorems/Thm_…_ordDiff_zero.lean` |
+| `Place.ordDiff_zero_of_perfectField` | `Theorems/Thm_…_ordDiff_zero_of_perfectField.lean` |
+| `Place.isSeparable_adjoin_of_ord_ne_zero` (promoted private) | `S_…_D_ne_zero_of_ord_ne_zero.lean:26` |
+| `Place.ordDiff_smul_D_uniformizer` | `S_…_D_ne_zero_of_ord_ne_zero.lean:59` |
+| `Place.ordDiff_D_uniformizer` | `S_…_D_ne_zero_of_ord_ne_zero.lean:69` |
+| `Place.ordDiff_smul_D_uniformizer_of_perfectField` (the perfect-field private copy of the same) | `S_…_ordDiff_zero_of_perfectField.lean:14` |
+
+`ordDiff_smul_D_uniformizer` is written publicly although the pin keeps it as prelude: it
+is the computation of `v.ordDiff` on the generator, `ordDiff_zero` and
+`ordDiff_D_uniformizer` are its `g = 0` / `g = 1` cases, and the pin's next node in this
+ring (`Place.ordDiff_smul`) is its generalisation, so hiding it would only make the next
+wave re-derive it.
+
+### 16.5 The one round lost: the diff is textual
+
+Three of these declarations come from the pin's *section* (`variable` block plus
+`include x in`), and the pin's prelude text reads `D`, not `KaehlerDifferential.D`. Both
+points are load-bearing for `check_port.py`, whose comparison is textual:
+
+* spelling the section's variables inline **builds** but reports `MISMATCH` (§4 of the
+  playbook, stated there for `def`s — it is equally true of a prelude theorem);
+  `isSeparable_adjoin_of_ord_ne_zero` and the two `ordDiff` generator lemmas are therefore
+  written in two small sections (`SeparableAdjoin`, `OrdDiffGenerator`), which reproduce
+  the pin's binder block exactly;
+* `KaehlerDifferential.D` in place of the pin's opened `D` also reports `MISMATCH`, even
+  though the two terms are the same at this file's `open KaehlerDifferential`. The port
+  keeps the pin's spelling in those two declarations only; everywhere else the file writes
+  the qualified form, as its `Theorems/`-derived neighbours do.
+
+### 16.6 Verification
+
+* build: `lake build FLTForHuman.AlgebraicCurve.Differential.Coefficient` — green,
+  2,869 jobs, 4.0 s, **no warning** (`lean/tmp/build-coefficient.log`).
+* `check_port --force` — **22 ok / 0 mismatch / 0 missing / 1 own / 0 kw**, the single
+  `own` being the pre-existing `diffCoeff_uniformizer_eq_differentialCoeff`. **No
+  `spec/decl_markers.tsv` rows were needed**: the promoted separable lemma and both
+  `ordDiff` prelude lemmas resolve through the content tier against the pin's *private*
+  copies (`[pin name …]`), which is the behaviour the private-copy tier was built for.
+* `#print axioms` on all ten: `[propext, Classical.choice, Quot.sound]`, no `sorryAx`.
+* `dedup.py --module …`: two `shape` clusters, both the deliberate flavour pairs (§16.3).
+* `move_dead.py` was **not** applied. The module is a mathlib-like API layer, exempt under
+  `topics/instructions.md`, and every new declaration is a pin node or its prelude: their
+  consumers (`Place.ordDiff_smul`, `ordDiff_D_eq_ord_sub_one`, `ordDiff_eq_ordDifferential`,
+  `ordDiff_D_nonneg`, `AlgebraicCurve.mem_regularDiffs_iff`, and the `ModularCurve.coeffMap`
+  pair) are unported, so they have 0 references elsewhere in the port today.
+
+### 16.7 Effect on the cone, and the next wave
+
+`frontier.py --ds --include-leaves` after the wave: F 1,283 → 1,289 nodes, `needed
+[F terminal]` 1,120 → 1,114 nodes and 424,617 → **424,191** lines — a 426-line drop for 65
+written declaration lines, i.e. the frontier's exact six silo prices, and none of the five
+rows remains on the ready shelf. Two nodes of the same ring became ready:
+`AlgebraicCurve.Place.ordDiff_smul` (44 lines) and `…ordDiff_smul_of_perfectField` (40),
+the two-flavour shape again. They are the natural next wave: after them
+`ordDiff_D_eq_ord_sub_one`, `ordDiff_D_nonneg` and `mem_regularDiffs_iff` come into view,
+and those are the nodes the `ModularCurve` genus route actually cites.
+
+## 17. Sequel (2026-10-27): the multiplication law, and the 508-line engine that is one line
+
+### 17.1 The measurement
+
+After §16 the D-S shelf held three ready nodes of this corner. `port_advise.py --nodes`
+on them (`ord_diffCoeff_D_nonneg`, `ordDiff_smul`, `ordDiff_smul_of_perfectField`) — 6
+target files, 18 declarations — reported **10 declarations whose statement the port
+already has** (≈175 lines not to re-prove), 7 of them importable public and **3 only as a
+port-private declaration**: `H1_impl` and the two `solution`s, "private in
+`FLTForHuman/AlgebraicCurve/Differential/Different.lean`". That is the instrument naming
+the job: the perfect-field node was already proved, as a private helper of the different's
+effectivity bound.
+
+### 17.2 `ord_diffCoeff_D_nonneg`: 508 pin lines, one port line
+
+The pin's file is 508 lines — `polyMem`, `isLocalization_valuationSubring`,
+`isAlgebraic_residue`, the fibre-centre dictionary, a `RatFunc` tower and an
+`Algebra.Unramified`/`FormallyUnramified` chain — all to conclude an integrality bound
+that the port obtained, in an earlier wave, from
+`exists_mem_D_eq_smul_D_of_isCurveOver` plus the `IsCurveOver` supply. Its 508 lines have
+**no content the port needs**: the headline is
+
+```
+ord_diffCoeff_D_nonneg_of_perfectField x v ht hf
+```
+
+because a field of characteristic zero is perfect (`PerfectField.ofCharZero`,
+`Mathlib/FieldTheory/Perfect.lean:306`), and the pin's node is the perfect-field statement
+with `[CharZero K]` in place of `[PerfectField K]` and nothing else changed. This is the
+second time this corner's hand-built engine has been replaced rather than transcribed; the
+first is §10's, recorded in the module's own header.
+
+### 17.3 `ordDiff_smul_of_perfectField`: a promotion, not a port
+
+The pin states `H1_impl` privately in one file and publicly in another (the node); the
+port had transcribed it as `private theorem ordDiff_smul_impl` inside
+`Differential/Different.lean`, where it is a helper of the different's bound. Promoting it
+is the §2.4 case — "a pin-`private` block re-exported by name mangling is a promotion: ...
+'which side stays' is the pin-public wrapper" — so the copy moved to the coefficient layer
+at the pin's node name and statement, and `Different.lean` now imports it and keeps no
+second copy. `dedup.py` over the two modules reports **0 across-module clusters** (it
+reported the pair before).
+
+### 17.4 What landed
+
+`Differential/Coefficient.lean`, +217 lines: three declarations totalling 41 lines (15, 21
+and 5, the last a one-liner with its docstring), a section header, three pin URLs and six
+`spec-pin:` lines. `Differential/Different.lean`, −28/+10: the private theorem deleted, its
+single use retargeted, three comment references brought up to date.
+
+| declaration | pin | cost |
+|---|---|---|
+| `Place.ordDiff_smul` | `Theorems/Thm_…_ordDiff_smul.lean` (44-line file) | 15 lines, pin's proof |
+| `Place.ordDiff_smul_of_perfectField` | `Theorems/Thm_…_ordDiff_smul_of_perfectField.lean` (40) | 21 lines, promoted from `Different.lean` |
+| `Place.ord_diffCoeff_D_nonneg` | `Theorems/Thm_…_ord_diffCoeff_D_nonneg.lean` (508) | 5 lines, `_of_perfectField` + `ofCharZero` |
+
+### 17.5 Verification
+
+* `lake build FLTForHuman.AlgebraicCurve.Differential.Different` (which rebuilds
+  `Coefficient`) — green, 2,873 jobs, no warning in either module.
+* `check_port --force`: `Coefficient` **25 ok / 0 mismatch / 0 missing / 1 own** (was 22
+  ok: the three new nodes), `Different` **5 ok / 0 / 0 / 0** (unchanged — its private
+  declaration was never on the wire).
+* `#print axioms` on the three, and on `ord_sub_one_le_ordDiff_D_of_perfectField` whose
+  proof changed: `[propext, Classical.choice, Quot.sound]`.
+* `dedup.py` over both modules: 5 `shape` clusters, all deliberate flavour pairs (the
+  `ord_diffCoeff_D_nonneg` triple, the `ordDiff_smul` pair, `ordDiff_zero`'s pair, and two
+  pre-existing ones inside `Different.lean`); none across modules.
+* `unwired_register.py --check`: current.
+
+### 17.6 Effect on the cone
+
+`needed [F terminal]` 1,114 → 1,111 nodes and 424,191 → **423,599** lines — a 592-line
+drop, exactly the three silo prices (508 + 44 + 40), for 41 written declaration lines and
+one deleted duplicate. `AlgebraicCurve.mem_regularDiffs_iff` is now **ready** (`needed 1`,
+93 lines) — it cites three of §16's six nodes; `ordDiff_D_eq_ord_sub_one` and
+`ordDiff_eq_ord_diffCoeff` are at `needed 2` with their silos collapsed from 713 to 205,
+which is the measure of how much of their price was this family rather than their own
+files.
+
+### 17.7 Recorded negative
+
+`ord_diffCoeff_D_nonneg`'s engine is not ported, and should not be: nothing in the port's
+route to the D-S head needs a `RatFunc`-tower proof of integrality, because
+`IsCurveOver`/`exists_mem_D_eq_smul_D_of_isCurveOver` already supplies it at every place.
+The 508 lines are the third-worst overcount measured in this corner, after §16's five-fold
+copy of one file.
+
+## 18. Sequel (2026-10-27): the regular differentials are a subspace
+
+### 18.1 The measurement
+
+`AlgebraicCurve.mem_regularDiffs_iff` was the first node of the previous ring that the
+frontier called ready (`needed 1`, 93 lines, `used_by cone 1`). `port_advise.py --nodes`
+said **0 substitutions** and no name proved twice: nothing of it existed anywhere in the
+port.
+
+### 18.2 The definition layer had not landed
+
+The node's statement names `regularDiffs K F` and `IsRegularDiff K F`, which the pin
+defines in `Definitions/Def_AlgebraicCurve_Differentials.lean:46-64` — the same definition
+module §3 absorbed into `Differential/Coefficient.lean`. The port had taken that module's
+coefficient and `ordDiff` vocabulary (lines 1-44) and stopped; the five declarations of its
+second half were missing. They are now in `Coefficient.lean`, at the pin's own position
+(after `Place.ordDiff_def`, before the section that uses the vocabulary):
+
+| declaration | pin |
+|---|---|
+| `IsRegularDiff` | `Definitions/Def_AlgebraicCurve_Differentials.lean:48` |
+| `isRegularDiff_iff` | `:51` |
+| `regularDiffs` | `:56` |
+| `mem_regularDiffs_of_isRegularDiff` | `:59` |
+| `regularDiffs_eq_span` | `:63` |
+
+No new `spec-pin:` line was needed — the definition file is already the module's first pin,
+and the checker diffs the five by name. `Coefficient` is now **30 ok / 0 mismatch / 0
+missing / 1 own**.
+
+### 18.3 The node, and its prelude as its own home
+
+`Differential/RegularDiffs.lean` (113 lines, 6 declarations) carries the pin's five
+prelude lemmas and the headline. The prelude is the mathematics and is not private in the
+pin: `diffCoeff_add` (the coefficient is additive in the differential at nonzero order),
+`min_ordDiff_le_ordDiff_add` (the ultrametric inequality for `ordDiff`, through `ord` of
+the coefficient) and the three closure cases `isRegularDiff_zero/add/smul`. Every
+ingredient had already been ported for its own sake — §16's `diffCoeff_smul_D_of_ord_ne_zero`
+and `diffCoeff_smul_D_eq`, `ordDiff_zero`, §17's `ordDiff_smul`, and
+`Place.min_ord_le_ord_add` — which is why the proofs are transcriptions.
+
+The module's role is one statement: **membership in `regularDiffs` is the pointwise
+condition**, so the span adds nothing and "regular" is a `Submodule` membership. Its header
+also records the pin's *other* spelling of regularity (`regularDifferentials`: locally a
+multiple of `dCoord` by an integral element) so the two are not mistaken for one another
+when the comparison node comes.
+
+Two mechanical points paid for before:
+
+* the prelude is written in the pin's **section** (its signature text is `(v : Place K F)`,
+  with `K F x` invisible); §16.5's finding applies unchanged, and the checker resolves all
+  five against the `S_` copy;
+* the headline is written at the **`Theorems/` wrapper's** shape, which is what the checker
+  matched (`-> Theorems/Thm_AlgebraicCurve_mem_regularDiffs_iff.lean:7`).
+
+One proof adaptation: the pin's `Place.min_ord_le_ord_add` requires the two nonzero facts
+of the summands, the port's ported node only the nonzero fact of the sum, so the call drops
+two arguments. Nothing else in the file differs from the pin.
+
+### 18.4 Verification
+
+* `lake build FLTForHuman.AlgebraicCurve.Differential.Coefficient` and `…RegularDiffs` —
+  green, no warning in either module.
+* `check_port --force`: `Coefficient` 30 ok / 0 / 0 / 1 own, `RegularDiffs` **6 ok / 0
+  mismatch / 0 missing / 0 own**.
+* `#print axioms` on the headline and on `diffCoeff_add`, `min_ordDiff_le_ordDiff_add`,
+  `isRegularDiff_smul`: `[propext, Classical.choice, Quot.sound]`.
+* `dedup.py` over the two modules: 3 `shape` clusters, all the deliberate flavour pairs of
+  §16 and §17; nothing from the new module. `unwired_register.py --check`: current.
+
+### 18.5 Effect on the cone
+
+`needed [F terminal]` 1,111 → 1,110 nodes and 423,599 → **423,506** lines (the node's own
+93). The next ring did not move, and the reason is one small node rather than a block:
+`ordDiff_D_eq_ord_sub_one` and `ordDiff_eq_ord_diffCoeff` are both at `needed 2` with
+silos of 205 and 178 lines each, and every premise they cite except one is ported —
+`Place.ord_add_eq_of_lt`, ready, **27 lines**, `used_by cone 5`. Porting it makes both
+ready; they are the two nodes the `ModularCurve` genus route cites through
+`ordDiff_D_eq_ord_sub_one`.
+
+## 19. Sequel (2026-10-27): the order of `D f`, and a two-file cluster again
+
+### 19.1 The measurement
+
+The three nodes of the previous ring were `ord_add_eq_of_lt` (27 lines, ready) and the two
+headlines `ordDiff_D_eq_ord_sub_one` / `ordDiff_eq_ord_diffCoeff` (178 lines each,
+`needed 2`, silos 205). `port_advise.py --nodes` on them reported two things at once:
+
+* `ord_add_eq_of_lt` **already exists in the port** — as `private theorem
+  ord_add_eq_left'` in `P1/DivisorAction.lean:21` and as `private theorem ord_add_eq_left`
+  in `P1/EnginePrelude.lean:201`, both transcribed from the pin's *private* `ord_add_eq_left`
+  of the ℙ¹ chunk. The node's statement is the same statement;
+* the two 178-line files are **one text**: `diff` differs only in the `namespace` line and
+  the last `solution`, and 7 declarations are shared between them (≈144 removable lines).
+
+So 27 + 178 + 178 = 383 frontier lines are one 27-line node already present privately, and
+one 175-line body written twice.
+
+### 19.2 What landed
+
+`Place/OrdCalculus.lean`, +1 declaration: `Place.ord_add_eq_of_lt`, at the pin's node
+statement, with its two `spec-pin:` lines. This is the place-calculus home; the two ℙ¹
+private copies were **not** touched — `P1/EnginePrelude.lean` and `P1/DivisorAction.lean`
+are on the frozen checker's list and carry no `spec-pin` wire, so editing them is the
+"legacy module brought up to standard" job (§ Legacy Modules, `topics/instructions.md`) and
+not part of this wave. They are recorded here as deliberate residue: after that job, two
+private copies disappear and two call sites change (`DivisorAction.lean:309` and the copy in
+`EnginePrelude.lean`).
+
+`Differential/Coefficient.lean`, +6 declarations: the shared body of the two 178-line files,
+written once, at the end of the module (it needs the integrality headline above it):
+
+| declaration | pin | node |
+|---|---|---|
+| `ord_diffCoeff_D_eq_zero` | `S_…_ordDiff_D_nonneg.lean:49` | prelude |
+| `ordDiff_eq_ord_diffCoeff` | `S_…_ordDiff_D_nonneg.lean:70` | **node** |
+| `ordDiff_D_nonneg` | `S_…_ordDiff_D_nonneg.lean:89` | **node** (came along) |
+| `ordDiff_D_of_ord_pos` | `S_…_ordDiff_D_nonneg.lean:96` | prelude |
+| `ordDiff_D_eq_ord_sub_one` | `S_…_ordDiff_D_nonneg.lean:142` | **node** |
+| `ordDiff_D_eq_ord_sub_algebraMap_sub_one` | `S_…_ordDiff_D_nonneg.lean:162` | prelude |
+
+`ordDiff_D_nonneg` is a node with its own `Theorems/` wrapper and was not in the approved
+set; it is inside the shared body, so it lands too. The cluster's `ordDiff_smul` — the two
+files' first declaration — is **not** copied: it is §17's public node, imported.
+
+Mathematically this is the sharp form of what `Differential/Different.lean` proves as an
+inequality over a perfect base field: over a field of characteristic zero,
+`ord (D f) = ord f - 1` at every place where `f` has nonzero order, with the `f = u π ^ n`
+expansion and the strict ultrametric equality `ord_add_eq_of_lt` doing the work.
+
+### 19.3 The one round lost, again the same two causes
+
+Both mismatches on the first check were textual, and both are the §16.5 lesson in a new
+guise: the pin's prelude writes `Place.diffCoeff` **qualified** (the port, inside `namespace
+Place`, writes the bare `diffCoeff`), so `ord_diffCoeff_D_eq_zero` and
+`ordDiff_eq_ord_diffCoeff` reported `MISMATCH` until the qualification was restored. Two
+declarations, two lines. No marker rows, no section reshaping.
+
+One proof adaptation: the port has no public `Place.ord_natCast` (only the private copies in
+`Hurwitz.lean` and `Genus/ConstantFieldExtension.lean`), so the single use in
+`ordDiff_D_of_ord_pos` is an inline
+`rw [← map_natCast (algebraMap K F) n]; exact v.ord_algebraMap (n : K)`. Promoting that
+lemma publicly is a follow-up of the same kind as §17's; it is not on this wave's path.
+
+### 19.4 Verification
+
+* `lake build FLTForHuman.AlgebraicCurve.Differential.Coefficient` (which rebuilds
+  `OrdCalculus`) — green, no warning in either module.
+* `check_port --force`: `OrdCalculus` **21 ok / 0 / 0 / 0**,
+  `Coefficient` **36 ok / 0 mismatch / 0 missing / 1 own** (was 30).
+* `#print axioms` on all seven new declarations: `[propext, Classical.choice, Quot.sound]`.
+* `dedup.py` over the two modules: 3 clusters, all the deliberate flavour pairs; nothing
+  from this wave. `unwired_register.py --check`: current.
+
+### 19.5 Effect on the cone
+
+`needed [F terminal]` 1,110 → 1,107 nodes and 423,506 → **423,123** lines — 383 lines, exactly
+the three approved silo prices; F grew by 4 nodes (the bonus `ordDiff_D_nonneg`).
+`AlgebraicCurve.exists_constantFieldExtension` dropped from `needed 2` to **`needed 1`**
+(silo 314, `used_by cone 5`): the constant-field-extension route through
+`ordDiff_D_eq_ord_sub_one`. The rest of the ready shelf in this namespace is now small
+pieces — `localUnitDerivativeRegular_of_isCurveOver` (79), `Place.ord_nonneg_of_isIntegral_adjoin_of_ord_nonneg`
+(31), `exists_poleDivisor_of_transcendental` (26), and three `Divisor.evalFun_*` lemmas of
+12–15 lines — so the differential corner of the D-S cone is essentially closed above this
+line.
+
+## 20. The `ord_add_eq_of_lt` duplicate retired (2026-10-27)
+
+§19.2 left the two private copies in place because `P1/EnginePrelude.lean` and
+`P1/DivisorAction.lean` were on the frozen checker's list with no `spec-pin` wire. That
+residue is now discharged, and with it the two modules are brought up to the standard
+`topics/instructions.md` sets for a touched legacy module.
+
+**The duplicate.** `private theorem ord_add_eq_left` in `P1/EnginePrelude.lean` and
+`private theorem ord_add_eq_left'` in `P1/DivisorAction.lean` were both the pin's private
+`ord_add_eq_left`, i.e. the statement of the node `Place.ord_add_eq_of_lt` ported in §19.
+The `DivisorAction` one was used once (its Wronskian-bound consumer, now
+`rw [Place.ord_add_eq_of_lt (p1PlaceInfty K) hg0 hXe0 hlt]`); the `EnginePrelude` one had
+**no consumer at all**. Both are gone: 20 lines and 24 lines.
+
+**Dead plumbing, binned.** `move_dead.py --select dead` then reported 2 declarations in 21
+lines inside `EnginePrelude` — `section Chart`'s `chartHom` and `inv_algebraMap_mem`, a
+local copy of the private helpers `Defs/PlacesOverDVR.lean` keeps *where they are consumed*.
+Unreachable here, and `--apply` refuses a block that is not unique in the tree, so the §3.8
+answer applies: the plumbing is deleted (`section Chart`, 26 lines with its variables), not
+shelved. `move_dead.py` now reports 0 declarations / 0 lines for both modules.
+
+**The upgrade, item by item** (`topics/instructions.md`, "Legacy Modules"):
+
+| item | state |
+|---|---|
+| `spec_pin` | both modules carry the two `spec-pin:` lines of the ℙ¹ residue core (`Theorems/` + `P2M/Sol/`), and their headers say what the wire does |
+| deletion from old checker | both removed from `PORT_FILES` in `spec/old_check_stmts.py`, with the handover recorded inline |
+| silent build | green, no warning in either module |
+| no build time blow up | `EnginePrelude` 5.2 s, `DivisorAction` 4.3 s; the one new import is `Place/OrdCalculus` (a `Defs`-only module, 3.1 s) |
+| no random tokens in names | checked: no `_s<n>`, `kw_`, `_impl`, or prime-suffixed declaration names in either module (the primes are on bound variables, as in the pin) |
+| `dedup.py` | 0 duplicate clusters over the two modules (67 declarations), 0 removable lines |
+| `move_dead.py` | 0 dead declarations |
+
+**Measured.**
+`spec/check_port.py --force`: `P1/EnginePrelude` **40 ok / 0 mismatch / 0 missing / 0 own**,
+`P1/DivisorAction` **19 ok / 0 / 0 / 0** — the statements were transcribed verbatim from the
+same `S_` file, so the wire closed on the first run. The frozen checker over the whole tree:
+**0 mismatched, 0 missing** (7,523 identical statements, 35 own-proof and 294
+registered-unwired exemptions), i.e. dropping the two modules from `PORT_FILES` created no
+coverage hole. `unwired_register.py --check`: current.
+
+**Recorded, not done.** Two things in this neighbourhood stay as they are, deliberately:
+`ord_add_eq_min` (the pin keeps it *private*, there is no node and no `Theorems/` wrapper, so
+promoting it would be a port decision without a pin name to land at), and
+`Place.ord_natCast` (§19.3's inline step: it is a node, but a small one on no current path).
+The dated audits under `topics/riemannRoch/` still describe the pre-cleanup state — they are
+records of their date and were not rewritten.

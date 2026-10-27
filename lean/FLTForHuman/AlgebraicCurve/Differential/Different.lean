@@ -11,7 +11,9 @@ cone: existence, uniqueness and integrality against a uniformiser are
 `diffCoeff_smul_D_of_ord_eq_one`, `diffCoeff_smul_D_eq_of_ord_eq_one` and
 `ord_diffCoeff_D_nonneg_of_perfectField`; `v.ordDiff` is the pin's `ordDiff`, whose order
 laws are imported rather than re-proved.  The private helpers are the pin's
-(`ordDiff_smul_impl`, `H2_pos`, `H2_impl`), renamed for their content.
+(`H2_pos`, `H2_impl`), renamed for their content — and its private multiplication law
+`ordDiff_smul_impl` is the pinned public node `Place.ordDiff_smul_of_perfectField`, which
+this module imports instead of holding a second copy.
 
 The module's second subject is the **wild refinement** of the same bound, after FLT's
 `P2M/Sol/S_AlgebraicCurve_Place_sub_one_add_pow_sub_one_le_ordDiff_D_of_isGalois.lean`
@@ -62,35 +64,14 @@ namespace AlgebraicCurve
 After FLT's
 `P2M/Sol/S_AlgebraicCurve_Place_ord_sub_one_le_ordDiff_D_of_perfectField.lean` (181 ln,
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_Place_ord_sub_one_le_ordDiff_D_of_perfectField.lean>).
-The private helpers are the pin's (`ordDiff_smul_impl`, `H2_pos`, `H2_impl`), renamed
-for their content; the three imported `diffCoeff` theorems are not re-proved. -/
+The private helpers are the pin's (`H2_pos`, `H2_impl`), renamed for their content; the
+three imported `diffCoeff` theorems, and the multiplication law
+`Place.ordDiff_smul_of_perfectField` (the pin's private `ordDiff_smul_impl`, which it also
+states as a node), are imported and not re-proved. -/
 
 namespace Place
 
 variable {K F : Type*} [Field K] [Field F] [Algebra K F]
-
-/-- Multiplying a differential by `g` adds `ord g` to its order (the pin's private
-`ordDiff_smul_impl`). -/
-private theorem ordDiff_smul_impl [PerfectField K] (x : F)
-    [Algebra.IsAlgebraic (IntermediateField.adjoin K ({x} : Set F)) F] (v : AlgebraicCurve.Place K F)
-    {g : F} (hg : g ≠ 0) {ω : Ω[F⁄K]} (hω : ω ≠ 0) :
-    v.ordDiff (g • ω) = v.ord g + v.ordDiff ω := by
-  have ht : v.ord v.uniformizer_alt = 1 :=
-    v.ord_uniformizer_alt ⟨v.uniformizer, v.ord_uniformizer⟩
-  have hrep : diffCoeff v.uniformizer_alt ω • KaehlerDifferential.D K F v.uniformizer_alt = ω :=
-    v.diffCoeff_smul_D_of_ord_eq_one x ht ω
-  have hgo : g • ω =
-      (g * diffCoeff v.uniformizer_alt ω) • KaehlerDifferential.D K F v.uniformizer_alt := by
-    conv_lhs => rw [← hrep]
-    rw [smul_smul]
-  have hco : diffCoeff v.uniformizer_alt (g • ω) = g * diffCoeff v.uniformizer_alt ω := by
-    rw [hgo]
-    exact v.diffCoeff_smul_D_eq_of_ord_eq_one x ht _
-  have hc0 : diffCoeff v.uniformizer_alt ω ≠ 0 := by
-    intro h0
-    apply hω
-    rw [← hrep, h0, zero_smul]
-  rw [ordDiff_def, ordDiff_def, hco, v.ord_mul hg hc0]
 
 /-- The case `0 ≤ ord f`: write `f = u t^m` at the uniformiser `t` and read the order of
 the coefficient of `df` off its two summands (the pin's private `H2_pos`). -/
@@ -181,7 +162,8 @@ private theorem ord_sub_one_le_ordDiff_D_of_ord_nonneg [PerfectField K] (x : F)
       omega
 
 /-- The case `ord f < 0`: apply the previous case to `f⁻¹`, whose differential is
-`-f⁻¹ ^ 2 • df`, and use `ordDiff_smul_impl` (the pin's private `H2_impl`). -/
+`-f⁻¹ ^ 2 • df`, and use `Place.ordDiff_smul_of_perfectField` (the pin's private
+`ordDiff_smul_impl`). -/
 private theorem ord_sub_one_le_ordDiff_D_aux [PerfectField K] (x : F)
     [FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F] (v : AlgebraicCurve.Place K F)
     {f : F} (hD : KaehlerDifferential.D K F f ≠ 0) :
@@ -208,7 +190,7 @@ private theorem ord_sub_one_le_ordDiff_D_aux [PerfectField K] (x : F)
     have hsmul : v.ordDiff (KaehlerDifferential.D K F f⁻¹) =
         v.ord (-f⁻¹ ^ 2) + v.ordDiff (KaehlerDifferential.D K F f) := by
       rw [hleib]
-      exact v.ordDiff_smul_impl x (by simpa using hf0) hD
+      exact AlgebraicCurve.Place.ordDiff_smul_of_perfectField x v (by simpa using hf0) hD
     have hordneg : v.ord (-f⁻¹ ^ 2 : F) = -2 * v.ord f := by
       have hneg1 : (-f⁻¹ ^ 2 : F) = algebraMap K F (-1) * f⁻¹ ^ 2 := by
         rw [map_neg, map_one]

@@ -41,6 +41,8 @@ spec-pin: P2M/Sol/S_AlgebraicCurve_Place_exists_finset_forall_exists_localParam_
 spec-pin: P2M/Sol/S_AlgebraicCurve_Place_localParam_eventually_eq_comp_evalAt_complex.lean   -- comparable copy
 spec-pin: Theorems/Thm_AlgebraicCurve_Place_exists_ord_eq_one.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_Place_exists_ord_eq_one.lean   -- comparable copy
+spec-pin: Theorems/Thm_AlgebraicCurve_Place_ord_add_eq_of_lt.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Place_ord_add_eq_of_lt.lean   -- comparable copy
 -/
 import FLTForHuman.AlgebraicCurve.Defs.IsCurveOver
 import FLTForHuman.AlgebraicCurve.Defs.Place
@@ -271,6 +273,21 @@ theorem eq_of_forall_ord_eq {v w : Place K F} (h : ∀ f : F, f ≠ 0 → v.ord 
   · subst hf; simp
   exact ⟨fun hm => mem_of_ord_nonneg w hf (h f hf ▸ ord_nonneg_of_mem v hm),
     fun hm => mem_of_ord_nonneg v hf ((h f hf).symm ▸ ord_nonneg_of_mem w hm)⟩
+
+/-- **Strict ultrametric equality**: the larger order wins, `ord (f + g) = ord f` when
+`ord f < ord g`. Pin `Place.ord_add_eq_of_lt`
+(`Theorems/Thm_AlgebraicCurve_Place_ord_add_eq_of_lt.lean`), which the ℙ¹ residue core
+still carries privately in two places. -/
+theorem ord_add_eq_of_lt (v : Place K F) {f g : F} (hf : f ≠ 0) (hg : g ≠ 0)
+    (h : v.ord f < v.ord g) : v.ord (f + g) = v.ord f := by
+  have hval : v.adicValuation g < v.adicValuation f := by
+    have hf' := v.adicValuation_ne_zero hf
+    have hg' := v.adicValuation_ne_zero hg
+    rw [← WithZero.log_lt_log hg' hf']
+    unfold Place.ord at h
+    omega
+  unfold Place.ord
+  rw [Valuation.map_add_eq_of_lt_left _ hval]
 
 /-- A place's order function takes the value `1`: a place's valuation ring is a discrete
 valuation ring, so it has an irreducible `π`, and `ord π = 1` for it. -/
