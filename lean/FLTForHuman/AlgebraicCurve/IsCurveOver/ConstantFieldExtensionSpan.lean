@@ -29,7 +29,7 @@ PLAN-W5 §3's fallback; the legacy module is untouched.
 
 The pin's 60-line private prelude of `ord`/maximal-ideal rewrites is not repeated
 here: it is imported (workorder §3/§2b) as `Place.ord_nonneg_of_mem_vs`,
-`Place.mem_vs_of_ord_nonneg`, `W7XUnram.ord_eq_zero_of_mem_of_inv_mem`,
+`Place.mem_vs_of_ord_nonneg`, `ConstantFieldPlaceLift.ord_eq_zero_of_mem_of_inv_mem`,
 `Place.ord_algebraMap_base`, `Place.LocalDerivation.isUnit_add_of_mem_maximalIdeal`,
 `Place.mem_maximalIdeal_of_ord_pos` and `Place.exists_sub_algebraMap_mem_maximalIdeal`;
 only the `w`-local aliases the pin's later proofs call by name are kept.  The
@@ -97,7 +97,7 @@ private theorem not_mem_of_ord_neg {f : L} (hf : w.ord f < 0) : f ∉ w.toValuat
 
 private theorem ord_eq_zero_of_mem_of_inv_mem {f : L} (hf : f ∈ w.toValuationSubring)
     (hfi : f⁻¹ ∈ w.toValuationSubring) : w.ord f = 0 :=
-  W7XUnram.ord_eq_zero_of_mem_of_inv_mem w hf hfi
+  ConstantFieldPlaceLift.ord_eq_zero_of_mem_of_inv_mem w hf hfi
 
 private theorem ord_algebraMap (a : k) : w.ord (algebraMap k L a) = 0 :=
   Place.ord_algebraMap_base (v := w) a

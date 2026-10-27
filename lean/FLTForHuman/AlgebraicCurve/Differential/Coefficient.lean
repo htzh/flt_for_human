@@ -111,6 +111,8 @@ spec-pin: Theorems/Thm_AlgebraicCurve_Place_ordDiff_eq_ord_diffCoeff.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_Place_ordDiff_eq_ord_diffCoeff.lean   -- comparable copy
 spec-pin: Theorems/Thm_AlgebraicCurve_Place_ordDiff_D_eq_ord_sub_one.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_Place_ordDiff_D_eq_ord_sub_one.lean   -- comparable copy
+spec-pin: Theorems/Thm_AlgebraicCurve_localUnitDerivativeRegular_of_isCurveOver.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_localUnitDerivativeRegular_of_isCurveOver.lean   -- comparable copy
 -/
 import FLTForHuman.AlgebraicCurve.Place.OrdCalculus
 import FLTForHuman.AlgebraicCurve.Place.SeparableUniformiser
@@ -714,5 +716,28 @@ theorem ordDiff_D_eq_ord_sub_algebraMap_sub_one (v : Place K F) {f : F} {c : K}
   rw [this, ordDiff_D_eq_ord_sub_one x v hfc]
 
 end Place
+
+/-- **The derivative of a unit is regular.**  Verbatim from
+`Theorems/Thm_AlgebraicCurve_localUnitDerivativeRegular_of_isCurveOver.lean`: the pin's
+`S_` proof is transcribed, the coefficient of `D u` against the uniformiser being
+integral by `exists_mem_D_eq_smul_D_of_isCurveOver`. -/
+theorem localUnitDerivativeRegular_of_isCurveOver {K : Type*} {F' : Type*} [Field K] [Field F']
+    [Algebra K F'] [PerfectField K] [Algebra.EssFiniteType K F'] [IsCurveOver K F']
+    [∀ w : Place K F', w.DCoordGenerates] :
+    ∀ (w : Place K F') (u : F'), u ≠ 0 → w.ord u = 0 →
+      w.differentialCoeff (KaehlerDifferential.D K F' u) = 0
+        ∨ 0 ≤ w.ord (w.differentialCoeff (KaehlerDifferential.D K F' u)) := by
+  intro w u hu h0
+  haveI : Nontrivial Ω[F'⁄K] :=
+    Module.nontrivial_of_finrank_eq_succ (IsCurveOver.kaehler_free_rank_one (K := K) (F := F')).2
+  have hu_mem : u ∈ w.toValuationSubring := w.mem_of_ord_nonneg hu (by rw [h0])
+  obtain ⟨c, hc, hcu⟩ :=
+    exists_mem_D_eq_smul_D_of_isCurveOver (K := K) w (π := w.uniformizer) w.ord_uniformizer hu_mem
+  have hcoeff : w.differentialCoeff (KaehlerDifferential.D K F' u) = c :=
+    w.differentialCoeff_unique (by rw [hcu]; rfl)
+  rw [hcoeff]
+  rcases eq_or_ne c 0 with rfl | hc0
+  · exact Or.inl rfl
+  · exact Or.inr (w.ord_nonneg_of_mem hc)
 
 end AlgebraicCurve

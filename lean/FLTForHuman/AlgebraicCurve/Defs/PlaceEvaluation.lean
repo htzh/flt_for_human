@@ -13,6 +13,18 @@ eventually discharges.
 The pin's `import Mathlib` is replaced by specific imports; the pin's names and
 statements are kept verbatim, and its proofs are transcribed (the only adaptation
 is `dif_pos` → `dite_eq_left`, the v4.34.0 spelling).
+
+spec-pin: Definitions/Def_AlgebraicCurve_PlaceEvaluation.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Place_evalAt_congr.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Place_evalAt_ne_zero.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Place_evalAt_inv.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Place_evalAt_zpow.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Place_isRational_iff_deg_eq_one.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Annulus_abv_evalAt_le_max_of_isAttached_both_ends.lean   -- comparable copy
+spec-pin: Theorems/Thm_AlgebraicCurve_Divisor_evalFun_mul.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Divisor_evalFun_mul.lean   -- comparable copy
+spec-pin: Theorems/Thm_AlgebraicCurve_Divisor_evalFun_zpow_left.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Divisor_evalFun_zpow_left.lean   -- comparable copy
 -/
 import FLTForHuman.AlgebraicCurve.Defs.Place
 import FLTForHuman.AlgebraicCurve.Defs.Divisor
@@ -209,6 +221,30 @@ theorem evalFun_zero (f : F) : evalFun f (0 : Divisor K F) = 1 :=
 theorem evalFun_single (f : F) (v : Place K F) (n : ℤ) :
     evalFun f (Finsupp.single v n) = v.evalAt f ^ n :=
   Finsupp.prod_single_index (zpow_zero _)
+
+/-- **`evalFun` is multiplicative.**  Verbatim from
+`Theorems/Thm_AlgebraicCurve_Divisor_evalFun_mul.lean`; the pin's `S_` proof is
+transcribed (per-place `Place.evalAt_mul`, then `Finsupp.prod_mul`). -/
+theorem evalFun_mul {K F : Type*} [Field K] [Field F] [Algebra K F] {f g : F} {D : Divisor K F}
+    (hrat : ∀ v ∈ D.support, Place.IsRational v) (hf : ∀ v ∈ D.support, f ∈ v.toValuationSubring)
+    (hg : ∀ v ∈ D.support, g ∈ v.toValuationSubring) :
+    Divisor.evalFun (f * g) D = Divisor.evalFun f D * Divisor.evalFun g D := by
+  rw [show Divisor.evalFun (f * g) D = D.prod fun v n => v.evalAt f ^ n * v.evalAt g ^ n from
+    Finsupp.prod_congr fun v hv => by
+      rw [AlgebraicCurve.Place.evalAt_mul v (hrat v hv) (hf v hv) (hg v hv), mul_zpow]]
+  exact Finsupp.prod_mul
+
+/-- **`evalFun` of an integral power of a `D`-unit.**  Verbatim from
+`Theorems/Thm_AlgebraicCurve_Divisor_evalFun_zpow_left.lean`; the pin's `S_` proof is
+transcribed (per-place `Place.evalAt_zpow`, then `Finset.prod_zpow`). -/
+theorem evalFun_zpow_left {K F : Type*} [Field K] [Field F] [Algebra K F] {f : F} (hf : f ≠ 0)
+    {D : Divisor K F} (n : ℤ) (hrat : ∀ v ∈ D.support, Place.IsRational v)
+    (hord : ∀ v ∈ D.support, Place.ord v f = 0) :
+    Divisor.evalFun (f ^ n) D = Divisor.evalFun f D ^ n := by
+  rw [evalFun_def, evalFun_def, ← Finset.prod_zpow]
+  refine Finset.prod_congr rfl fun v hv => ?_
+  rw [AlgebraicCurve.Place.evalAt_zpow v (hrat v hv) hf (hord v hv) n, ← zpow_mul, ← zpow_mul,
+    mul_comm]
 
 end Divisor
 

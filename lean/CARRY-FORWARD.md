@@ -10,6 +10,50 @@ Deferred API that has been ported and verified is in `Reserve/`, not here.
 
 ## Deferred API
 
+### The two `exists_digit`s — one general, one pinned, to be fused when `Place/ConstantFieldExtension.lean` is next opened
+
+`Place/ConstantFieldExtension.lean`'s `ConstantFieldPlaceLift.exists_digit` is a **pin
+declaration** (pin `S_…Place_exists_comap_algebraMap_eq_of_constantFieldExtension.lean:241`,
+checked `ok`): `[IsAlgClosed K] [IsCurveOver K F]` and the conclusion
+`∃ a o', o = algebraMap … a + π * o' ∧ (o = 0 → o' = 0)`. SET 3's BC4 needed the same digit
+decomposition under weaker hypotheses — only `[Module.Finite K v.ResidueField]` and no
+`IsCurveOver`, which its frozen ramification statement does not provide — so it states the
+general form publicly at `AlgebraicCurve.Place.exists_digit` in
+`Place/ConstantFieldExtensionRamification.lean`, without the `(o = 0 → o' = 0)` conjunct.
+
+The two are the same argument. The clean end-state is **one** public lemma with the stronger
+conclusion at the weaker hypotheses, with the pinned statement a three-line wrapper on top —
+which is an edit to a hub module in the direction *opposite* to the current import edge
+(`ConstantFieldExtensionRamification` already imports the place dictionary, and
+`Place/ConstantFieldExtension.lean` must not import it back). So the fusion waits for the next
+refactor round of that module, not for a consumer.
+
+Price: ~10 lines moved plus one wrapper, no statement change; the checker is unaffected.
+
+### Four dropped declarations of the ported `Defs/` modules (SET 3 audit, 2026-10-27)
+
+The SET 3 ground audit of the twelve pin `Def_*` modules in the next AlgebraicCurve cluster's
+closure found their ported surface complete **for that cluster**, with four recorded drops.
+Two of them have live pin consumers and will be wanted by another column's node:
+
+* `Place.fiber_eq_fiberOver` (`Definitions/Def_AlgebraicCurve_PlacesOverDVR.lean`, 2 lines) is
+  the `fiber = fiberOver` identification; **five** pin `S_` files use it (`S_…Place_hasValue_norm_along_of_separableAlong`,
+  `S_…ModularCurve_JZero_exists_pointHt_le_absLogHeight_jCoord` and three more), while the port
+  inlines `ext w; rw [mem_fiber, mem_fiberOver]` at each site (e.g. `WeilExchange/Transport.lean`).
+  Home: `Defs/PlacesOverDVR.lean`, wired 36 ok / 0 / 0.
+* `Place.finite_setOf_forall_mem_and_ord_pos` (same pin file, ~20 lines) — the finiteness of the
+  places centred in a DVR with positive order at `r₀`; four pin `S_` files use it, including the
+  `pushforwardNormFormula` pair. Home: the same module.
+
+The other two are pin-dead and should stay dropped: `Divisor.mapRestrict`/`mapRestrict_single`
+(used only inside their own pin `Def_` file — `grep -c` over the pin tree gives 1) and
+`Divisor.card_fiberOver_eq` (same). `AbelJacobiCard` (`Def_AlgebraicCurve_DivisorClassGroup.lean`)
+is the statement of an unported Abel–Jacobi node, not definition surface: it belongs to the
+pruned complex-analytic subject.
+
+Price: two declarations, no statement changes, no checker movement on any existing module; take
+them when `Defs/PlacesOverDVR.lean` is next opened.
+
 ### The DC1 wave's homing debt — `rightConv` laws and `orbitSpan` support in `ArchDualCut`
 
 Landed 2026-10-25 ([automorphicForm/WORKORDER-DC1-arch-dual-cut.md](automorphicForm/WORKORDER-DC1-arch-dual-cut.md)).

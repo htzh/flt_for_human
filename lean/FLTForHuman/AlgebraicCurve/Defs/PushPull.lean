@@ -14,7 +14,14 @@ genuinely internal helpers (`algebraMap_ne_zero`, `isUnit_mk_comap_iff`,
 `ramificationIndex_set_nonempty`.
 
 `Divisor.mapRestrict`/`mapRestrict_single` are dropped: the along-layer never
-restricts a divisor (`TOPIC-ac0-vocabulary.md` §2.3).
+restricts a divisor, and nothing else in the pin cites them.
+
+spec-pin: Definitions/Def_AlgebraicCurve_DivisorPushPull.lean
+spec-pin: Definitions/Def_AlgebraicCurve_PlaceCompletion.lean   -- the two `ord`-bound helpers
+spec-pin: P2M/Sol/S_AlgebraicCurve_Place_mem_iff_ord_nonneg.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Place_exists_ord_pos.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Place_comap_algebraMap_ne_top.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Place_mem_comap_iff_ord_nonneg.lean
 -/
 import FLTForHuman.AlgebraicCurve.Defs.Place
 import FLTForHuman.AlgebraicCurve.Defs.Divisor

@@ -330,11 +330,11 @@ end AlgebraicCurve
 
 `AlgebraicCurve.Place.exists_comap_algebraMap_eq_of_constantFieldExtension` (the
 pin's 615-line file): a place of `F` lifts uniquely to a place of `F' = K'·F` whose
-comap is it and whose order agrees on `F`.  The engine is the `W7XUnram` block the
-pin keeps in that file (tensor-product digit expansion, linear disjointness of the
-`K'`-span of `F` from `1`). -/
+comap is it and whose order agrees on `F`.  The engine is the `ConstantFieldPlaceLift`
+block below: tensor-product digit expansion of `F'` over `K'`, and the linear
+disjointness of the `K'`-span of `F` from `1`. -/
 
-namespace W7XUnram
+namespace ConstantFieldPlaceLift
 
 section Basic
 
@@ -704,9 +704,9 @@ theorem sum_ne_of_not_mem_span
 
 end LinDisj
 
-end W7XUnram
+end ConstantFieldPlaceLift
 
-open W7XUnram in
+open ConstantFieldPlaceLift in
 theorem AlgebraicCurve.Place.exists_comap_algebraMap_eq_of_constantFieldExtension (K F K' F' : Type*)
     [Field K] [Field F] [Field K'] [Field F'] [Algebra K F] [Algebra K' F']
     [Algebra K K'] [Algebra F F'] [Algebra K F'] [IsScalarTower K K' F'] [IsScalarTower K F F']

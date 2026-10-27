@@ -11,6 +11,8 @@ only as far as `center` needs it — `chartHom`, `inv_algebraMap_mem` and
 `finite_setOf_forall_mem_and_ord_pos` are not written — and the two `fiberEquiv`
 consumers `card_fiberOver_eq`/`fiber_eq_fiberOver` are not written (they are not
 among the 65 corpus nodes; T5 may re-add them).
+
+spec-pin: Definitions/Def_AlgebraicCurve_PlacesOverDVR.lean
 -/
 import FLTForHuman.AlgebraicCurve.Defs.PushPull
 import Mathlib.RingTheory.DedekindDomain.IntegralClosure

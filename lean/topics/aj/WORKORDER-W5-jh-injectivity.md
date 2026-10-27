@@ -137,9 +137,8 @@ is the wave's saving. The 192 is cited by P5, so it is **public** in P4.
 
 `FLTForHuman/GaloisRep/Defs/ComplexConjugation.lean` is written (the pin's 62-line
 `Def_GaloisRep_ComplexConjugation`: `complexEmbedding`, `complexConjAlgEquiv`, `complexConjugation`,
-the `ExtCitation` archimedean block). It is a `Def_*` module, so it carries no `spec-pin:` statement
-wire. P6's statement is written against `complexEmbedding`; if the build is not yet green when P6
-starts, report it, do not redefine it.
+the `ExtCitation` archimedean block). P6's statement is written against `complexEmbedding`; if the
+build is not yet green when P6 starts, report it, do not redefine it.
 
 ## 6. Build discipline
 

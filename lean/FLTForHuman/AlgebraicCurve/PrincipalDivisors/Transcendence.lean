@@ -32,6 +32,20 @@ module-level `linter.deprecated false`, exactly as `PlaceDictionary.lean`.
 FLT provenance, pinned `aa2d8b3`:
 https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_hasPrincipalDivisors_of_transcendental.lean
 https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_hasPrincipalDivisors_adjoin_of_transcendental.lean
+
+`Place.ord_norm_eq_sum_fiberOver` is promoted from the pin's `private` engine of the
+norm block: the order of a norm is the fibre sum of the orders, which is the one
+piece of that block another theory states and reuses. The rest of the block (the
+ideal-norm chain) stays `private`.
+
+spec-pin: P2M/Sol/S_AlgebraicCurve_hasPrincipalDivisors_of_transcendental.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_hasPrincipalDivisors_adjoin_of_transcendental.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Divisor_pushforwardNormFormula_of_finiteDimensional.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Divisor_pushforwardNormFormula.lean   -- the wrapper's binders
+spec-pin: Theorems/Thm_AlgebraicCurve_Place_count_normalizedFactors_span_singleton.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Place_count_normalizedFactors_span_singleton.lean   -- comparable copy
+spec-pin: Theorems/Thm_AlgebraicCurve_Divisor_pushforward_div.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Divisor_pushforward_div.lean   -- comparable copy
 -/
 import FLTForHuman.AlgebraicCurve.Defs.PlaceDictionary
 import FLTForHuman.AlgebraicCurve.PrincipalDivisors.RatFuncDegree
@@ -183,7 +197,7 @@ private theorem relNorm_fiberCenter (hw : w.restrict F = v) :
 
 omit [CharZero F] in
 
-private theorem count_normalizedFactors_span_singleton
+theorem count_normalizedFactors_span_singleton
     (hw : w.restrict F = v) {c : integralClosureAt F' v} (hc : c ≠ 0) :
     (normalizedFactors (Ideal.span {c})).count (fiberCenter F' v hw).asIdeal
       = (w.ord (algebraMap (integralClosureAt F' v) F' c)).toNat := by
@@ -306,7 +320,7 @@ private theorem ord_norm_algebraMap_integralClosureAt
   rw [Int.toNat_of_nonneg
     (w.ord_nonneg_of_mem (forall_mem_of_restrict_eq ((mem_fiberOver v).mp hw) c))]
 
-private theorem ord_norm_eq_sum_fiberOver {f : F'} (hf : f ≠ 0) :
+theorem ord_norm_eq_sum_fiberOver {f : F'} (hf : f ≠ 0) :
     v.ord (Algebra.norm F f) = ∑ w ∈ v.fiberOver F', (w.inertiaDeg F : ℤ) * w.ord f := by
 
   obtain ⟨⟨c, s⟩, hcs⟩ := IsLocalization.surj
@@ -373,6 +387,15 @@ theorem pushforwardNormFormula {K F F' : Type*} [Field K] [Field F] [Field F']
     [FiniteDimensional F F'] [Algebra.IsSeparable F F'] [CharZero F]
     [HasPrincipalDivisors K F'] : Divisor.PushforwardNormFormula K F F' :=
   pushforwardNormFormula_of_finiteDimensional
+
+/-- The divisor-level form: the pushforward of a principal divisor is the divisor of
+the norm.  The pin states it from the formula above, which is why it lives here rather
+than beside `Divisor.pushforward` (that module is below this one). -/
+theorem pushforward_div [HasPrincipalDivisors K F'] {f : F'} (hf : f ≠ 0)
+    {D : Divisor K F'} (hD : ∀ w, D w = w.ord f) {E : Divisor K F}
+    (hE : ∀ v, E v = v.ord (Algebra.norm F f)) : pushforward F D = E :=
+  Divisor.pushforward_eq_of_normFormula
+    (pushforwardNormFormula (K := K) (F := F) (F' := F')) hf hD hE
 
 end Divisor
 

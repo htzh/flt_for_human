@@ -36,12 +36,19 @@ and the transport lemmas (`IsScalarTower.of_algebraMap_eq`,
   spec-pin: P2M/Sol/S_AlgebraicCurve_isCurveOver_of_transcendental_of_isSeparable.lean   -- comparable copy
   spec-pin: Theorems/Thm_AlgebraicCurve_isCurveOver_of_isAlgClosed_of_transcendental.lean
   spec-pin: P2M/Sol/S_AlgebraicCurve_isCurveOver_of_isAlgClosed_of_transcendental.lean   -- comparable copy
+
+spec-pin: P2M/Sol/S_AlgebraicCurve_isCurveOver_of_transcendental.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_isCurveOver_of_transcendental_of_perfectField.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_isCurveOver_of_transcendental_of_isSeparable.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_isCurveOver_iff_exists_transcendental_finiteDimensional.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_isCurveOver_iff_exists_transcendental_finiteDimensional.lean   -- comparable copy
 -/
 import FLTForHuman.AlgebraicCurve.Defs.IsCurveOver
 import FLTForHuman.AlgebraicCurve.Defs.KaehlerTranscendental
 import FLTForHuman.AlgebraicCurve.PrincipalDivisors.IsSeparable
 import FLTForHuman.AlgebraicCurve.Place.FiniteResidue
 import FLTForHuman.AlgebraicCurve.IsCurveOver.PerfectField
+import FLTForHuman.AlgebraicCurve.IsCurveOver.SeparatingTranscendental
 import FLTForHuman.AlgebraicCurve.P1.UnitFinite
 import Mathlib.FieldTheory.IntermediateField.Adjoin.Basic
 
@@ -128,6 +135,21 @@ theorem isCurveOver_of_isAlgClosed_of_transcendental {K F : Type*} [Field K] [Is
     [FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F] :
     IsCurveOver K F :=
   isCurveOver_of_transcendental_of_perfectField hx inferInstance
+
+/-- **The pointwise dictionary, `IsCurveOver` form.**  Verbatim from
+`Theorems/Thm_AlgebraicCurve_isCurveOver_iff_exists_transcendental_finiteDimensional.lean`;
+the forward direction is the separating-generator theorem
+(`IsCurveOver/SeparatingTranscendental.lean`), the backward one
+`isCurveOver_of_transcendental` above. -/
+theorem isCurveOver_iff_exists_transcendental_finiteDimensional {K : Type*} {F : Type*}
+    [Field K] [Field F] [Algebra K F] [PerfectField K] [Algebra.EssFiniteType K F] :
+    IsCurveOver K F ↔ ∃ t : F, Transcendental K t ∧ FiniteDimensional K⟮t⟯ F ∧
+      Algebra.IsSeparable K⟮t⟯ F := by
+  constructor
+  · intro h
+    exact IsCurveOver.exists_separating_transcendental
+  · rintro ⟨t, htr, hfd, hsep⟩
+    exact isCurveOver_of_transcendental htr hfd hsep
 
 end AlgebraicCurve
 

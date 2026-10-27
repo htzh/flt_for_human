@@ -15,6 +15,13 @@
 
   FLT provenance, pinned `aa2d8b3`:
   https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_GaloisRep_ComplexConjugation.lean
+
+  The pin file is a `Definitions/Def_*` module, but its declarations are in the
+  statement corpus like any other: the `spec-pin:` below names the whole file, and
+  `spec/check_port.py` diffs all 13 public declarations (13 ok / 0 mismatch /
+  0 missing / 0 own at the time of wiring, 2026-10-27).
+
+  spec-pin: Definitions/Def_GaloisRep_ComplexConjugation.lean
 -/
 import Mathlib.FieldTheory.AbsoluteGaloisGroup
 import Mathlib.Analysis.Complex.Basic

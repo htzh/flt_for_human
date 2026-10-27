@@ -178,6 +178,13 @@ the edit is **47 ok, 0 mismatch, 0 missing**; its own two `private` siblings
 `algebraMap_mem_of_centred` is *not* added to that hub: it is unused there, and the new
 module is its only consumer (§4.4).
 
+The same touch also rectifies the module's one machine token: the pin's `W7XUnram` namespace
+(the engine for the constant-field place lift) is renamed `ConstantFieldPlaceLift`, with its
+two consumers updated (`IsCurveOver/ConstantFieldExtensionSpan.lean`,
+`ModularCurve/XH/JHDescent.lean`). Math clarity is the priority here: the pin's token is a
+proof-search label, the mathematics is the lift. All three modules re-check green after the
+rename; §8.1 records the full standard audit.
+
 ## 6. Route, alternatives, risks
 
 **Route.** The statement layer was transcribed first, verbatim, and passed
@@ -233,18 +240,42 @@ python3 spec/check_port.py --force FLTForHuman/AlgebraicCurve/IsCurveOver/BaseCh
 | module | `FLTForHuman/AlgebraicCurve/IsCurveOver/BaseChangeCorrespondence.lean`, **703 lines** |
 | declarations | 18 public: the pin's 22 − 4 promoted (§5) − `essFiniteType_of_fg` (imported); the pin's `solution` is the headline, at the wrapper's name |
 | statement check, before any proof | **18 ok, 0 mismatch, 0 missing** (`--force`, module alone) — the skeleton was written with statements only and checked first |
-| hub edit | 4 × `private` removed in `Place/ConstantFieldExtension.lean`; that module re-checks **47 ok / 0 / 0** and builds in 14 s |
+| hub edit | 4 × `private` removed in `Place/ConstantFieldExtension.lean`; that module re-checks **47 ok / 0 / 0** |
 | proofs | 7 by the manager (the definition layer: `liftMap`, `liftMap_tmul`, `liftMap_injective`, the three valuation-transport lemmas, `algebraMap_mem_of_centred`), **11 by one subagent** under WORKORDER-BC1 |
 | build | `lake build FLTForHuman.AlgebraicCurve.IsCurveOver.BaseChangeCorrespondence` → **8.3 s, 0 warnings, 0 sorries** |
 | checker, after the proofs | **18 ok, 0 mismatch, 0 missing, 0 own, 0 kw** |
 | axioms | 6 probes (`headline`, `fibre_centred`, `correspondence_single_apply_centred`, `exists_extension`, `finite_extension`, `liftMap_injective`), all `[propext, Classical.choice, Quot.sound]` |
-| mutation | `W.ramificationIndexAlong χE = 1` → `1 = …` in `fibre_centred`'s first conjunct: **1 mismatched**; reverted to 18 / 0 / 0 |
-| tier-2 wave build | `lake build FLTForHuman.ModularCurve.XH.JHDescent …BaseChangeCorrespondence` → 4,313 jobs, exit 0 (JHDescent 60 s; no warning names either edited file) |
-| `dedup.py` | 0 duplicate clusters over the 18 declarations |
-| `move_dead.py` | 0 dead declarations (all 18 are reachable from the public API) |
+| tier-2 wave build | `lake build FLTForHuman.ModularCurve.XH.JHDescent …BaseChangeCorrespondence` → 4,313 jobs, exit 0 (JHDescent 54 s; no warning names any edited file) |
+| `dedup.py` | new module: 0 clusters over 18 declarations. The touched hub: 2 `shape` clusters, **both deliberately not cut** — they are wrapper-over-engine pairs (the public pin statements `exists_ord_algebraMap_eq_mul_ord` and `exists_comap_eq_toValuationSubring` are one-line wrappers over `rowMain` and `exists_comap_eq_toValuationSubring_core`), and the shape tier normalises away the engine's extra binders |
+| `move_dead.py` | new module 0 dead declarations (all 18 reachable from the public API); touched hub 0 (§8 note) |
 | consumer | `spec/BaseChangeCorrespondenceConsumer.lean` — **0 errors**: zone A unpacks the headline's `∃` and feeds its `FundamentalIdentityAlong`/`FiniteAlong`/`NormFormulaAlong` fields to `Pic0.correspondence` (so "the base-changed correspondence acts on `Pic⁰`" is executed, not `#check`ed), zone B composes `fibre_centred` with `Divisor.pullbackAlong_single` to get the unramified pullback of a centred place |
 | wiring | two `spec-pin:` lines in the module; no `spec/decl_markers.tsv` row (every statement matched by last name); no promotion of a module-local helper; no `OWN_PROOFS` entry |
 | hub edits | exactly one, the four-declaration promotion of §5; nothing else outside the module was touched |
+
+### 8.1 The touched module brought to standard
+
+`Place/ConstantFieldExtension.lean` is **not** a legacy node — it is not in
+`spec/old_check_stmts.py`'s `PORT_FILES`/`SOURCES`, it carries its own `spec-pin:` wire and is
+already tier 1 — so the edit owes no migration off the frozen checker. It does owe the rest of
+the standard, which it now meets after the touch:
+
+| standard | state after the edit |
+|---|---|
+| `spec_pin` | its `spec-pin:` block already existed; unchanged by this wave |
+| out of the frozen checker | not listed in either legacy list; nothing to delete |
+| silent build | `lake build FLTForHuman.AlgebraicCurve.Place.ConstantFieldExtension` → 14 s, **0 warnings** from the module |
+| no build-time blow-up | 14 s for 1,775 lines (measured after the edit); the four promotions add no elaboration and the rename is a name change, so the edit buys no new cost — the *pre-edit* time was not measured, so this is a bound, not a delta |
+| no random tokens in names | **one rectified**: the pin's machine namespace `W7XUnram` (the block's own docstring calls the mathematics "the constant-field place lift") is now `ConstantFieldPlaceLift`. Two port modules referenced it, both tier 1 and both re-checked green: `IsCurveOver/ConstantFieldExtensionSpan.lean` (**5 ok / 0 / 0**) and `ModularCurve/XH/JHDescent.lean` (**68 ok / 0 / 0**); the tier-2 build covers the three, exit 0, no warning from any |
+| `dedup.py` | 2 `shape` clusters, both wrapper-over-engine (`rowMain`, `exists_comap_eq_toValuationSubring_core`): **deliberately not cut**, with the reason in the table above — the public statements are the pin's and their consumers call them by name |
+| `move_dead.py` | **0** dead declarations: every declaration of the module is reachable from its public API |
+
+The remaining pin token in the module's namespaces is `PointPlaceDictionary`, which names its
+subject (`Place` ↔ point dictionary); `CentredPlaceRigidity` likewise. Neither is a
+proof-search artefact.
+
+One legacy module is *imported* by this wave and untouched:
+`IsCurveOver/ConstantFieldExtension.lean` is in `PORT_FILES` (line 4872). It is a premise, not
+an edit — no standard is owed, and migrating it is its own small wave.
 
 **Proof-level deviations from the pin** (statements untouched; the checker is the
 authority on that): `if_neg` → `ite_eq_right` (`v4.34` deprecation) in

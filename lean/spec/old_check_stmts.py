@@ -3556,8 +3556,12 @@ PORT_FILES = [
     # `spec-pin:` block over `Def_AlgebraicCurve_DivisorClassGroup.lean` and
     # `S_AlgebraicCurve_Divisor_degree_eq_sum.lean` (18 ok / 0 mismatch / 0 missing).
     # Handed over: do not re-list it here.
-    "FLTForHuman/AlgebraicCurve/Defs/PushPull.lean",
-    "FLTForHuman/AlgebraicCurve/Defs/PlacesOverDVR.lean",
+    # MIGRATED 2026-10-27 (SET 3 ground prep): both now carry their own `spec-pin:`
+    # wire and are owned by `spec/check_port.py` — `PushPull` 63 ok / 0 mismatch /
+    # 0 missing (its pin Def module plus the five `S_` files the promoted ord
+    # helpers come from), `PlacesOverDVR` 36 ok / 0 / 0. Their `SOURCES` entries
+    # stay, since other listed modules still match against them. Do not re-list
+    # either module here.
     "FLTForHuman/AlgebraicCurve/Defs/Correspondence.lean",
     # `SemilinearAut.lean` is now wired to `spec/check_port.py` (2026-10-27) by its own
     # `spec-pin:` block, over `Def_AlgebraicCurve_BaseChangeGalois.lean` and
@@ -3581,7 +3585,11 @@ PORT_FILES = [
     # T8 (the `P¹` places and degree).
     "FLTForHuman/AlgebraicCurve/PrincipalDivisors/RatFuncDegree.lean",
     # T9 (`HasPrincipalDivisors` via transcendence).
-    "FLTForHuman/AlgebraicCurve/PrincipalDivisors/Transcendence.lean",
+    # MIGRATED 2026-10-27 (SET 3 ground prep): the module carries its own `spec-pin:`
+    # wire (the two T9 `S_` files, the norm block's two, and the wrapper whose binders
+    # the public `pushforwardNormFormula` transcribes) and checks 6 ok / 0 mismatch /
+    # 0 missing, the promoted `Place.ord_norm_eq_sum_fiberOver` included. Do not
+    # re-list it here.
     # T7, the divisor-exchange capstone (reserved for the human reviewer).
     "FLTForHuman/AlgebraicCurve/WeilExchange/DivisorExchange.lean",
     # SET-M1 m1: the Hecke correspondence vocabulary.
@@ -3962,7 +3970,9 @@ PORT_FILES = [
     "FLTForHuman/AlgebraicCurve/Defs/AdelicIndex.lean",
     "FLTForHuman/AlgebraicCurve/Defs/IsCurveOver.lean",
     "FLTForHuman/AlgebraicCurve/Defs/RiemannRochRows.lean",
-    "FLTForHuman/AlgebraicCurve/Defs/PoleDivisorPackage.lean",
+    # MIGRATED 2026-10-27 (SET 3 ground prep): `Defs/PoleDivisorPackage.lean` carries
+    # its own `spec-pin:` wire over `Definitions/Def_AlgebraicCurve_PoleDivisorPackage.lean`
+    # and checks 10 ok / 0 mismatch / 0 missing. Do not re-list it here.
     # --- H1a (the adelic-index / `ell` prelude and the index targets): handed over to
     # `spec/check_port.py` (2026-10-26) by its own `spec-pin:` wire — 72 ok / 0 mismatch /
     # 0 missing / 0 own. Do not re-list it here.
@@ -4005,7 +4015,11 @@ PORT_FILES = [
     # --- P3.2a (the ℙ¹ place/ord dictionary): the generic place-evaluation
     # interface, the `Divisor.evalFun_*` algebra it consumes, and the ℙ¹
     # dictionary itself. Appended last so no earlier last-name match can flip.
-    "FLTForHuman/AlgebraicCurve/Defs/PlaceEvaluation.lean",
+    # MIGRATED 2026-10-27: `Defs/PlaceEvaluation.lean` now carries its own
+    # `spec-pin:` wire — the pin Def module plus the six `S_` files holding its
+    # `evalAt`/`isRational` algebra — and `spec/check_port.py` owns it
+    # (21 ok / 0 mismatch / 0 missing). The module's `SOURCES` entries stay,
+    # since other listed modules still match against them.
     "FLTForHuman/AlgebraicCurve/Defs/PlaceEvaluationAlgebra.lean",
     "FLTForHuman/AlgebraicCurve/P1/Dictionary.lean",
     # --- P3.2b–e (the ℙ¹ residue core), split by the R1 definitions round into the

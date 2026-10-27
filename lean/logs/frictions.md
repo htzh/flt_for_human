@@ -598,3 +598,23 @@ round promotes what generalizes.
   **a work order states the pin's text and the *gate* (0 warnings), not a guessed
   modernization** — the worker has the mathlib tree and checks the deprecation there.
 - **seen**: 2026-10-27.
+
+## FR-0037 [method] [tooling] — a work order's *home* was below the pin declarations the proof needs, so three nodes stopped at the import graph
+
+- **where**: `WORKORDER-BC5` (SET 3, the pointwise dictionary), three of ten nodes.
+- **symptom**: the worker stopped and reported, correctly, instead of working around it:
+  `Divisor.pushforward_div` needs `Divisor.pushforwardNormFormula` (public only *above*
+  `Defs/PushPull.lean`); `Place.exists_integralClosureAt_of_ord_fiber_nonneg` needs the norm
+  block and the fibre dictionary (above `Defs/PlacesOverDVR.lean`);
+  `exists_poleDivisor_of_transcendental`'s pin proof opens with
+  `isCurveOver_of_isAlgClosed_of_transcendental` (above `Defs/PoleDivisorPackage.lean`).
+- **cause**: the order homed each node by *subject* ("`integralClosureAt` lives in
+  `PlacesOverDVR`") without checking that the module sits above the pin declarations the proof
+  consumes. `port_advise` reports the imports of a *node*, not the dependency direction of the
+  *module* a home implies; nothing in the tool chain checks a proposed home against the graph.
+- **fix**: two new modules above the norm block (`Place/IntegralClosureAtFiber.lean`,
+  `PrincipalDivisors/PoleDivisor.lean`) and three lines beside the formula for the third; the
+  manager stubs them at the pin's statement spelling and dispatches only the proofs. Check the
+  home against `fltdata`'s edges (`d.cites(node)` vs the module's own imports) when writing the
+  order — the cost of a wrong home is a full worker round.
+- **seen**: 2026-10-27.

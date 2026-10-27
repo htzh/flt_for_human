@@ -29,7 +29,7 @@ Hecke block (`phi_heckeAlphaHBar`, `phi_heckeBetaHBar`, `conorm_heckeDivHBar`,
   `coeffMap_sigma_coeffEmb` in one line.
 * The pin's `PlaceHelpers` block: `AlgebraicCurve.Place.mem_iff_ord_nonneg_vs`
   (`AlgebraicCurve/Place/ConstantFieldExtension.lean:125`) for `ord_nonneg_of_mem`,
-  `AlgebraicCurve.W7XUnram.ord_eq_zero_of_mem_of_inv_mem` (same file, `:340`) for
+  `AlgebraicCurve.ConstantFieldPlaceLift.ord_eq_zero_of_mem_of_inv_mem` (same file, `:340`) for
   `ord_eq_zero_of_mem_of_inv_mem`, `AlgebraicCurve.Place.exists_ord_eq_one`
   (`Place/OrdCalculus.lean`) for `exists_ord_eq_one`, and
   `AlgebraicCurve.W7XH.degree_eq_sum` (`IsCurveOver/ConstantFieldExtensionSpan.lean`)
@@ -334,7 +334,7 @@ theorem ord_phi_of_forall_ne {w' : Place ℂ (FC F₀)} (hoff : ∀ v, w' ≠ li
     exact hoff v hv
   rcases eq_or_ne f 0 with rfl | hf
   · simp
-  exact W7XUnram.ord_eq_zero_of_mem_of_inv_mem w' (hall f) (by rw [← map_inv₀]; exact hall f⁻¹)
+  exact ConstantFieldPlaceLift.ord_eq_zero_of_mem_of_inv_mem w' (hall f) (by rw [← map_inv₀]; exact hall f⁻¹)
 
 theorem forall_ne_liftPlace_of_comap_ne {w' : Place ℂ (FC F₀)}
     (h : ∀ v : Place Qb (FQ F₀),

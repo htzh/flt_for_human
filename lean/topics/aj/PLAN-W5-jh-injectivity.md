@@ -306,8 +306,7 @@ The W4 wire, unchanged:
 * `spec-pin:` in each new or touched module naming the pin's `S_` file and the `Theorems/` wrapper;
 * `python3 spec/check_port.py <module> --force` → `0 mismatch / 0 missing / 0 own`. No legacy module is
   touched: `IsCurveOver/Transcendental.lean` is already wired and gains the `isAlgClosed` node's two
-  pin sources, and the new P1/P2/P3span/P4/P5/P6 modules are wired for the first time. P0 is a `Def_*`
-  module, so it goes on the definition side of the checker, not on a `spec-pin:` statement wire;
+  pin sources, and the new P1/P2/P3span/P4/P5/P6 modules are wired for the first time;
 * `#print axioms` = `[propext, Classical.choice, Quot.sound]` on all eighteen headlines, from one
   scratch module;
 * one module at a time, `timeout 110 lake build <Module>`, logs in `lean/tmp`, no tree build, no

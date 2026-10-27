@@ -23,10 +23,13 @@
   (`ModularForms/HeckeInvariance.lean`) use the `sum_slash_beta_*` half, nodes 1 and
   2 (`ModularCurve/Period/PeriodMapHecke.lean`) the `GammaHUpper` half.
 
-  It is unwired on purpose: the block has no pin statement, so there is no
-  `spec-pin:` to carry, and the pin-line provenance below is its record. Seven
-  helpers carry `omit [NeZero M] in` because the pin's `variable` block passes an
-  unused instance; the statements are otherwise the pin's.
+  The block has no dedicated pin *node*, but its statements are in the pin: they are
+  the first 468 lines of four `S_` silos, and the `spec-pin:` below wires this module
+  to the one those lines open. `spec/check_port.py` diffs all 17 public declarations
+  (17 ok / 0 mismatch / 0 missing / 0 own at the time of wiring, 2026-10-27); the
+  pin-line provenance below is the record of the range. Seven helpers carry
+  `omit [NeZero M] in` because the pin's `variable` block passes an unused instance;
+  the statements are otherwise the pin's.
 
   Provenance: `P2M/Sol/S_ModularForm_heckeU_slash_eq_self_of_mem_GammaH.lean`
   lines 14–468, pinned `aa2d8b3`, which is byte-identical to the same range of
@@ -55,6 +58,8 @@
   (GammaHUpper …).fintypeQuotientOfFiniteIndex` walls are kept literal: `letI`
   inlines its value, which is what makes the coset sum definitionally the Hecke
   operator in the two `sum_slash_beta_*` lemmas.
+
+  spec-pin: P2M/Sol/S_ModularForm_heckeU_slash_eq_self_of_mem_GammaH.lean
 -/
 import Mathlib.GroupTheory.Transfer
 import Mathlib.FieldTheory.Finite.Basic

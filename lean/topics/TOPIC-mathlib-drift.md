@@ -54,6 +54,7 @@ API drift is the recurring real cost. **The pin is not on this line**:
 | `rw [← hα]` where `hα : IsLocalRing.residue A α = κ` and the term sits under `Algebra.smul` (`RegularProlongationFinrank.mem_of_mem_span`) | `ResidueField A` is a `def` (an `Ideal.Quotient`), so the rewrite installs the *quotient* spelling of the scalar, and `SMul (A ⧸ maximalIdeal A) Fbar` only resolves at default transparency → "target expression is not type-correct under the implicit transparency level". Keep the scalar syntactic: `have hα' : IsLocalRing.residue A α = κ := hα`, then `rw […, hα', Algebra.smul_def]` |
 | `Submodule.linearProjOfIsCompl` (+ `_apply_left`/`_apply_right`/`_range`, `IsCompl.projection*`) | `@[deprecated (since := "2026-05-04")]` aliases of `Submodule.projectionOnto` / `projection` / `projection_apply_left` / `projection_range` — use the new family; the substitution is proof-side only, the pin's statements stay verbatim (`ArchCutProjector.projCA*`) |
 | `push_neg at h` | `push Not at h` in `v4.34.0` — `push_neg` is the deprecated alias and warns, so a pin that already writes `push Not` (the v4.33 spelling of the same tactic) transcribes **unchanged**. Check the pin's spelling before "adapting" it: `BaseChangeCorrespondence` needed no change here |
+| the pin's `set x … with hx` (a named local, equation lemma unused) | v4.34 has **three** binding forms with different defeq behaviour, and the wrong one is a `whnf` blow-up: a `have`-bound value is *not* zeta-transparent (`have a : ℕ := 5; rfl : a = 5` fails), `set` additionally **abstracts every occurrence in the goal** — with the whole `∃`-pack abstracted, the correspondence-descent headline ran past 200k heartbeats — and `let` is both transparent and cheap. Use `let` when the pin's named local must reduce (`S_…constantFieldDescent_correspondence`) |
 | the pin's `beta_reduce` in a `Finset.sum_bij` block | `v4.34.0` presents that goal already beta-reduced, so `beta_reduce` trips `linter.unusedTactic`; delete it — a no-op step, not a missing normalization |
 | a `simp only [ …, Matrix.of_apply, … ]` (or `change`) that must reduce the `Matrix.of` entries of an `AdeleRing`-valued component | the entries are projections of the product `def`, so keyed `rw`/`simp` matching at `implicit` transparency cannot see through `x.1`/`x.2` and the goal silently does not change — same class as the `AdeleRing` pair row above, with the other cure: **restate the goal at default transparency instead of hunting for a lemma**, `rw [show ∑ k : Fin 2, … = ∑ k : Fin 2, ka … from rfl]`, or a function `show …` before the `rw`. Five sites in `IwasawaWeylUnipotent` (four branches of `kMat_mul_kMatInv`/`kMatInv_mul_kMat`, one in `glArch_kappa_eq`); the pin's own `rw […]` / `split_ifs <;> rfl` tails then transcribe unchanged |
 
@@ -96,7 +97,13 @@ The recurring *shapes*, beyond a rename:
   already sufficed, at 429 s), no inference fix moves it, and the fix is a named hypothesis type
   plus registered `own:` rows (§3.5, [../logs/poisson-summation-statements.md](../logs/poisson-summation-statements.md)). A library theorem can
   be cheap while its *concrete-instance* use is not: keep a `spec/` capstone zone hypothesis-form
-  and put concreteness in the ground field.
+  and put concreteness in the ground field. Two more confirmations from the descent wave: the
+  pin's `maxHeartbeats 6400000` **and** `synthInstance.maxHeartbeats 1600000` on
+  `exists_constantFieldDescent_correspondence` both go, the proof meeting the defaults once the
+  two `hfin₀` models are `haveI`-registered and `Algebra.IsAlgebraic.of_finite` is supplied
+  explicitly at each level (the `Algebra.IsAlgebraic ↥K₀⟮x₀⟯ ↥K₀⟮x,y⟯` search does exceed the
+  default 20000 — so this one bump was a real search cost, met by the explicit instance rather
+  than a budget).
 - **`time` under-reports `lake env lean`** (the forked grandchild's CPU is not charged).
 - **`end A.B` closes *both* nested scopes**, silently de-nesting every later declaration; write
   two bare `end`s, since the symptom appears downstream. (Naming every `section` is the safer

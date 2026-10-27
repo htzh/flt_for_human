@@ -5,6 +5,8 @@ Pole-divisor packages and transcendence towers, after FLT's
 
 Statements are transcribed textually; the pin's imports are replaced by the
 port's `Defs` modules.
+
+spec-pin: Definitions/Def_AlgebraicCurve_PoleDivisorPackage.lean
 -/
 import FLTForHuman.AlgebraicCurve.Defs.PushPull
 import FLTForHuman.AlgebraicCurve.Defs.AdelicIndex
