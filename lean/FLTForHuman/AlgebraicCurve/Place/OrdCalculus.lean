@@ -31,11 +31,16 @@ need them and neither names a theory the other does not. `Place.sum_support_eq_z
 the one lemma of the block that is about divisors rather than places, is not here: it
 is a lemma of the fibre argument and is homed with it in `Place/FiniteCover.lean`.
 
+`Place.exists_ord_eq_one` is the wave's second pin-side root: a place's order function
+takes the value `1`, because the valuation ring is a discrete valuation ring.
+
 Wire: `spec/check_port.py` diffs every public declaration of this module against the
 pin `S_` files named by the `spec-pin:` lines below.
 
-spec-pin: P2M/Sol/S_AlgebraicCurve_Place_exists_finset_forall_exists_localParam_eq_complex.lean
-spec-pin: P2M/Sol/S_AlgebraicCurve_Place_localParam_eventually_eq_comp_evalAt_complex.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Place_exists_finset_forall_exists_localParam_eq_complex.lean   -- comparable copy
+spec-pin: P2M/Sol/S_AlgebraicCurve_Place_localParam_eventually_eq_comp_evalAt_complex.lean   -- comparable copy
+spec-pin: Theorems/Thm_AlgebraicCurve_Place_exists_ord_eq_one.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Place_exists_ord_eq_one.lean   -- comparable copy
 -/
 import FLTForHuman.AlgebraicCurve.Defs.IsCurveOver
 import FLTForHuman.AlgebraicCurve.Defs.Place
@@ -266,6 +271,13 @@ theorem eq_of_forall_ord_eq {v w : Place K F} (h : ∀ f : F, f ≠ 0 → v.ord 
   · subst hf; simp
   exact ⟨fun hm => mem_of_ord_nonneg w hf (h f hf ▸ ord_nonneg_of_mem v hm),
     fun hm => mem_of_ord_nonneg v hf ((h f hf).symm ▸ ord_nonneg_of_mem w hm)⟩
+
+/-- A place's order function takes the value `1`: a place's valuation ring is a discrete
+valuation ring, so it has an irreducible `π`, and `ord π = 1` for it. -/
+theorem exists_ord_eq_one {K F : Type*} [Field K] [Field F] [Algebra K F] (v : Place K F) :
+    ∃ t : F, v.ord t = 1 :=
+  let ⟨π, hπ⟩ := IsDiscreteValuationRing.exists_irreducible v.toValuationSubring
+  ⟨π, v.ord_coe_irreducible hπ⟩
 
 end Place
 

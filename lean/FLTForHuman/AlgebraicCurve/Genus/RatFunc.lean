@@ -21,6 +21,8 @@ wrapper.
   spec-pin: Theorems/Thm_AlgebraicCurve_genus_ratFunc_eq_zero.lean
   spec-pin: Theorems/Thm_AlgebraicCurve_genusFF_ratFunc_eq_zero_of_isAlgClosed.lean
   spec-pin: P2M/Sol/S_AlgebraicCurve_instHasCanonicalDivisorRatFuncPerfectField.lean
+  spec-pin: Theorems/Thm_AlgebraicCurve_RationalFunctionField_deg_ne_zero.lean
+  spec-pin: P2M/Sol/S_AlgebraicCurve_RationalFunctionField_deg_ne_zero.lean   -- comparable copy
 -/
 import FLTForHuman.AlgebraicCurve.Defs.RatFuncPlaces
 import FLTForHuman.AlgebraicCurve.P1.Dictionary
@@ -144,5 +146,39 @@ theorem genusFF_ratFunc_eq_zero_of_isAlgClosed (K : Type*) [Field K] [IsAlgClose
   exact genus_ratFunc_eq_zero_of_perfectField K
 
 end GenusFF
+
+section RationalFunctionFieldDegree
+
+open Polynomial
+
+/-- Every place of the projective line has nonzero degree (the pin
+`AlgebraicCurve.RationalFunctionField.deg_ne_zero`; statement from its
+`Theorems/` wrapper).  Either the place is the one at infinity, of degree one,
+or it is a finite place cut out by an irreducible polynomial. -/
+theorem RationalFunctionField.deg_ne_zero {K : Type*} [Field K]
+    (v : Place K (RatFunc K)) : v.deg ≠ 0 := by
+  by_cases h : ∀ w : IsDedekindDomain.HeightOneSpectrum (Polynomial K),
+      v ≠ Place.ofHeightOneSpectrum w
+  · rw [RationalFunctionField.deg_eq_one_of_forall_ne_ofHeightOneSpectrum v h]
+    exact one_ne_zero
+  · obtain ⟨w, hw⟩ : ∃ w : IsDedekindDomain.HeightOneSpectrum (Polynomial K),
+        v = Place.ofHeightOneSpectrum w := by
+      simpa using h
+    subst hw
+    obtain ⟨p, hp⟩ := Submodule.IsPrincipal.principal w.asIdeal
+    rw [RationalFunctionField.deg_ofHeightOneSpectrum K hp]
+    have hp0 : p ≠ 0 := by
+      intro h0
+      apply w.ne_bot
+      rw [hp, h0]
+      exact Ideal.span_singleton_eq_bot.mpr rfl
+    have hprime : Prime p := by
+      have hpr := w.isPrime
+      rw [hp] at hpr
+      exact (Ideal.span_singleton_prime hp0).mp hpr
+    exact (natDegree_pos_iff_degree_pos.mpr
+      (degree_pos_of_irreducible hprime.irreducible)).ne'
+
+end RationalFunctionFieldDegree
 
 end AlgebraicCurve

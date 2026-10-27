@@ -6,13 +6,17 @@ the double-fibration orbit–stabiliser count, after FLT's
 
 This is the assembly the pin calls `BifibreDev`, minus the shared prelude (already
 public in `WeilExchange/Transport.lean` and imported, never restated; SET-2 §0) and
-minus the fibre dictionary (T2's `Defs/PlaceDictionary.lean`). The three public
+minus the fibre dictionary (T2's `Defs/PlaceDictionary.lean`). The four public
 nodes are:
 
 * `Place.card_fiberOver_mul_ramificationIndex_mul_inertiaDeg` — for a Galois
   `F' ⊆ M`, the weighted fibre over `w` is `finrank F' M` concentrated at `W`;
 * `Place.exists_restrict_eq` — restriction of places is surjective along a finite
   separable extension;
+* `Place.restrictAlong_surjective` — the same surjectivity in the port's
+  `φ : F →ₐ[K] F'` spelling of an integral extension (the pin's standalone
+  `Thm_…_restrictAlong_surjective.lean`, `S_` 23 lines), homed here because its proof
+  is `Place.exists_restrict_eq`;
 * `Place.sum_ramificationIndex_mul_inertiaDeg_bifiber` — the `F`-weighted sum over
   the bifibre `T` of `w₁` and `w₂` is the product
   `(e₁f₁)(e₂f₂)`, by the generic orbit–intersection count
@@ -20,7 +24,16 @@ nodes are:
   `Gal(M/F)`-orbit of a lift `P₁`.
 
 T6's local exchange and the human's T7 divisor exchange consume the first two and
-the count (`TOPIC-t6-local-exchange.md` §2, `TOPIC-t7-divisor-exchange.md`).
+the count (`TOPIC-t6-local-exchange.md` §2, `TOPIC-t7-divisor-exchange.md`);
+`placeOrdRestrictAlong`'s Galois dictionary, `Period/ParabolicHomsBasis`'s rank
+bounds and the `WeilExchange` tower all consume `restrictAlong_surjective`.
+
+spec-pin: Theorems/Thm_AlgebraicCurve_Place_card_fiberOver_mul_ramificationIndex_mul_inertiaDeg.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Place_card_fiberOver_mul_ramificationIndex_mul_inertiaDeg.lean   -- comparable copy
+spec-pin: P2M/Sol/S_AlgebraicCurve_Place_exists_restrict_eq.lean   -- comparable copy
+spec-pin: Theorems/Thm_AlgebraicCurve_Place_restrictAlong_surjective.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Place_restrictAlong_surjective.lean   -- comparable copy
+spec-pin: P2M/Sol/S_AlgebraicCurve_Place_sum_ramificationIndex_mul_inertiaDeg_bifiber.lean   -- comparable copy
 -/
 import FLTForHuman.AlgebraicCurve.Defs.PlacesOverDVR
 import FLTForHuman.AlgebraicCurve.WeilExchange.Transport
@@ -73,6 +86,22 @@ theorem Place.exists_restrict_eq {K F' M : Type*} [Field K] [Field F'] [Field M]
   rw [hempty, Finset.sum_empty] at hsum
   have hpos : 0 < Module.finrank F' M := Module.finrank_pos
   omega
+
+/-- **Surjectivity of restriction along an integral separator.** The pin's
+`Place.restrictAlong_surjective`, in the port's `φ : F →ₐ[K] F'` spelling: for a
+finite separable extension `φ`, every place of `F'` restricts from a place of `F`. -/
+theorem Place.restrictAlong_surjective
+    {K F F' : Type*} [Field K] [Field F] [Field F'] [Algebra K F] [Algebra K F']
+    (φ : F →ₐ[K] F') (hφ : φ.toRingHom.IsIntegral)
+    (hfin : AlgebraicCurve.FiniteAlong K φ) (hsep : AlgebraicCurve.SeparableAlong K φ) :
+    Function.Surjective (fun w : AlgebraicCurve.Place K F' => w.restrictAlong φ hφ) := by
+  intro v
+  letI := algebraAlong φ
+  haveI := isScalarTower_along φ
+  haveI : Module.Finite F F' := hfin
+  haveI : Algebra.IsSeparable F F' := hsep
+  obtain ⟨W, hW⟩ := AlgebraicCurve.Place.exists_restrict_eq (K := K) (F' := F) (M := F') v
+  exact ⟨W, hW⟩
 
 /-! ## The `Gal(M/F)`-action packaging -/
 

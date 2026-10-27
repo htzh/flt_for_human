@@ -1,23 +1,40 @@
 /-
 `IsCurveOver` from a single transcendental generator, after FLT's
-`P2M/Sol/S_AlgebraicCurve_isCurveOver_of_transcendental.lean` (57 ln) and
+`P2M/Sol/S_AlgebraicCurve_isCurveOver_of_transcendental.lean` (57 ln),
 `P2M/Sol/S_AlgebraicCurve_isCurveOver_of_transcendental_of_perfectField.lean`
-(19 ln)
+(19 ln) and
+`P2M/Sol/S_AlgebraicCurve_isCurveOver_of_transcendental_of_isSeparable.lean`
+(20 ln)
 (<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_isCurveOver_of_transcendental.lean>,
-<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_isCurveOver_of_transcendental_of_perfectField.lean>).
+<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_isCurveOver_of_transcendental_of_perfectField.lean>,
+<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_isCurveOver_of_transcendental_of_isSeparable.lean>).
 
-The two public headlines are their wrappers verbatim.  The first assembles the
+The three public headlines are their wrappers verbatim.  The first assembles the
 three curve axioms from the prerequisites — principal divisors
 (`PrincipalDivisors/IsSeparable.lean`), the Kähler rank
 (`Defs/KaehlerTranscendental.lean`) and the finite residue-field extension
 (`Place/FiniteResidue.lean`) — after transporting the `K(x)`-tower to the
 `RatFunc K`-tower.  The second is the perfect-field corollary: the ported
 `exists_separating_transcendental_of_perfectField` supplies a separating `t`.
+The third is the pin's `_of_isSeparable` alias of the first: the pin states it
+with explicit `(x : F)`, `(hx : …)` binders over the same hypothesis list, and its
+`S_` proof is the one-line application of `isCurveOver_of_transcendental`.  Both
+statements are kept — the wire diffs statement text, and the pin publishes both
+names.  (`IsCurveOver/SeparatingTranscendental.lean` cannot host it: it is a
+`Defs`-only leaf below the principal-divisor machinery this file builds on.)
 
 Mathlib search negatives (recorded): `IsCurveOver` is FLT's class, so there is no
 mathlib `instance`; the only reusable inputs are `RatFunc.algEquivOfTranscendental`
 and the transport lemmas (`IsScalarTower.of_algebraMap_eq`,
-`Module.Finite.of_equiv_equiv`, `Algebra.IsSeparable.of_equiv_equiv`). -/
+`Module.Finite.of_equiv_equiv`, `Algebra.IsSeparable.of_equiv_equiv`).
+
+  spec-pin: Theorems/Thm_AlgebraicCurve_isCurveOver_of_transcendental.lean
+  spec-pin: P2M/Sol/S_AlgebraicCurve_isCurveOver_of_transcendental.lean   -- comparable copy
+  spec-pin: Theorems/Thm_AlgebraicCurve_isCurveOver_of_transcendental_of_perfectField.lean
+  spec-pin: P2M/Sol/S_AlgebraicCurve_isCurveOver_of_transcendental_of_perfectField.lean   -- comparable copy
+  spec-pin: Theorems/Thm_AlgebraicCurve_isCurveOver_of_transcendental_of_isSeparable.lean
+  spec-pin: P2M/Sol/S_AlgebraicCurve_isCurveOver_of_transcendental_of_isSeparable.lean   -- comparable copy
+-/
 import FLTForHuman.AlgebraicCurve.Defs.IsCurveOver
 import FLTForHuman.AlgebraicCurve.Defs.KaehlerTranscendental
 import FLTForHuman.AlgebraicCurve.PrincipalDivisors.IsSeparable
@@ -75,6 +92,17 @@ theorem isCurveOver_of_transcendental {K F : Type*} [Field K] [Field F] [Algebra
       (AlgebraicCurve.instIsCurveOverRatFunc K).finiteResidue _
     exact Module.Finite.trans (v.restrict (RatFunc K)).ResidueField v.ResidueField
   exact { toHasPrincipalDivisors := hprin, finiteResidue := hfin, kaehler_free_rank_one := hkae }
+
+/-- **`IsCurveOver` from a separating transcendental generator.**  Statement from
+`Theorems/Thm_AlgebraicCurve_isCurveOver_of_transcendental_of_isSeparable.lean`,
+which spells the binders explicitly (`(x : F)`, `(hx : …)`); the pin's `S_` file
+proves it by the one-line application below. -/
+theorem isCurveOver_of_transcendental_of_isSeparable (K F : Type*) [Field K] [Field F]
+    [Algebra K F] (x : F) (hx : Transcendental K x)
+    (hfin : FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F)
+    (hsep : Algebra.IsSeparable (IntermediateField.adjoin K ({x} : Set F)) F) :
+    IsCurveOver K F :=
+  isCurveOver_of_transcendental hx hfin hsep
 
 /-- **`IsCurveOver` from a transcendental generator over a perfect field.**
 Verbatim from

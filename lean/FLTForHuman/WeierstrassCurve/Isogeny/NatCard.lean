@@ -11,14 +11,16 @@ with the proof transcribed and adapted from
 * `P2M/Sol/S_WeierstrassCurve_Affine_natCard_ker_pointMapOfPushforward_eq_finrankAlong_of_separableAlong.lean`
   (601 lines).
 
-The three helper wrappers it rests on are ported here as well:
+The two helper wrappers it rests on are ported here as well:
 
-* `AlgebraicCurve.Place.restrictAlong_surjective` (`Thm_…_restrictAlong_surjective.lean`,
-  `S_…_restrictAlong_surjective.lean` 23 lines);
 * `AlgebraicCurve.Place.eq_ofHeightOneSpectrum_of_XClass_mem_nonunits_of_YClass_mem_nonunits`
   (`Thm_…_eq_ofHeightOneSpectrum_….lean`, `S_` 70 lines);
 * `WeierstrassCurve.Affine.FunctionField.exists_eq_valuationSubring_of_X_mem`
   (`Thm_…_exists_eq_valuationSubring_of_X_mem.lean`, `S_` 120 lines).
+
+`AlgebraicCurve.Place.restrictAlong_surjective` is no longer homed here: it belongs
+beside `Place.exists_restrict_eq` in `AlgebraicCurve/WeilExchange/Bifibre.lean` (its
+pin `Thm_`/`S_` pair is wired there), and this file imports it.
 
 Whatever else the pin's `solution` body needs and the port does not already carry
 is transcribed verbatim in the delimited `section Prerequisites` blocks below
@@ -29,7 +31,6 @@ Reference (public mirror, pinned):
 <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_WeierstrassCurve_Affine_natCard_ker_pointMapOfPushforward_eq_finrankAlong_of_separableAlong.lean>
 
   spec-pin: Theorems/Thm_AlgebraicCurve_Place_eq_ofHeightOneSpectrum_of_XClass_mem_nonunits_of_YClass_mem_nonunits.lean
-  spec-pin: Theorems/Thm_AlgebraicCurve_Place_restrictAlong_surjective.lean
   spec-pin: Theorems/Thm_WeierstrassCurve_Affine_FunctionField_exists_eq_valuationSubring_of_X_mem.lean
   spec-pin: Theorems/Thm_WeierstrassCurve_Affine_natCard_ker_pointMapOfPushforward_eq_finrankAlong_of_separableAlong.lean
   spec-pin: P2M/Sol/S_WeierstrassCurve_Affine_natCard_ker_pointMapOfPushforward_eq_finrankAlong_of_separableAlong.lean
@@ -172,7 +173,7 @@ theorem ord_deriv_pos_of_ramificationIndex_ne_one
       rw [Ideal.ramificationIdx'_eq_ramificationIdx
         (p := (fiberCenter F' v hw).asIdeal.under v.toValuationSubring)
         (q := (fiberCenter F' v hw).asIdeal)
-        (fun h => (fiberCenter F' v hw).ne_bot (Ideal.eq_bot_of_comap_eq_bot h))]
+        (fun h => (fiberCenter F' v hw).ne_bot (Ideal.eq_bot_of_under_eq_bot h))]
       exact Ideal.ramificationIdx_eq_one_of_isUnramifiedAt
     exact hram <| by
       rw [ramificationIndex_eq_ramificationIdx_fiberCenter (v := v) hw,
@@ -318,27 +319,9 @@ theorem exists_eq_valuationSubring_of_X_mem {K : Type*} [Field K] (W : Weierstra
 
 end WeierstrassCurve.Affine.FunctionField
 
-/-! ### `AlgebraicCurve.Place.restrictAlong_surjective`
-(wrapper statement, pin `S_` proof) -/
-
-namespace AlgebraicCurve.Place
-
-open Polynomial IsDedekindDomain
-
-theorem restrictAlong_surjective
-    {K F F' : Type*} [Field K] [Field F] [Field F'] [Algebra K F] [Algebra K F']
-    (φ : F →ₐ[K] F') (hφ : φ.toRingHom.IsIntegral)
-    (hfin : AlgebraicCurve.FiniteAlong K φ) (hsep : AlgebraicCurve.SeparableAlong K φ) :
-    Function.Surjective (fun w : AlgebraicCurve.Place K F' => w.restrictAlong φ hφ) := by
-  intro v
-  letI := algebraAlong φ
-  haveI := isScalarTower_along φ
-  haveI : Module.Finite F F' := hfin
-  haveI : Algebra.IsSeparable F F' := hsep
-  obtain ⟨W, hW⟩ := AlgebraicCurve.Place.exists_restrict_eq (K := K) (F' := F) (M := F') v
-  exact ⟨W, hW⟩
-
-end AlgebraicCurve.Place
+/-! `AlgebraicCurve.Place.restrictAlong_surjective` now lives in
+`AlgebraicCurve/WeilExchange/Bifibre.lean`, beside `Place.exists_restrict_eq` that it
+applies; this file imports it. -/
 
 /-! ### The `S13Bridge` helpers of
 `eq_ofHeightOneSpectrum_of_XClass_mem_nonunits_of_YClass_mem_nonunits`

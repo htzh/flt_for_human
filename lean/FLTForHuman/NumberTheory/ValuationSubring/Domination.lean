@@ -684,14 +684,14 @@ theorem isDedekindDomain_adjoin_singleton (hj : Transcendental K j) :
   inferInstance
 
 -- pin: isDedekindDomain_integralClosure_adjoin (S_AlgebraicCurve_Place_exists_of_isPrime_over_valuationSubring.lean:1295)
-theorem isDedekindDomain_integralClosure_adjoin (hj : Transcendental K j)
+theorem isDedekindDomain_integralClosure_adjoin_of_transcendental (hj : Transcendental K j)
     [FiniteDimensional K⟮j⟯ F] [Algebra.IsSeparable K⟮j⟯ F] :
     IsDedekindDomain (integralClosure (Algebra.adjoin K ({j} : Set F)) F) :=
   haveI := isDedekindDomain_adjoin_singleton hj
   integralClosure.isDedekindDomain (Algebra.adjoin K ({j} : Set F)) K⟮j⟯ F
 
 -- pin: isFractionRing_integralClosure_adjoin (S_AlgebraicCurve_Place_exists_of_isPrime_over_valuationSubring.lean:1301)
-theorem isFractionRing_integralClosure_adjoin (hj : Transcendental K j)
+theorem isFractionRing_integralClosure_adjoin_of_transcendental (hj : Transcendental K j)
     [FiniteDimensional K⟮j⟯ F] :
     IsFractionRing (integralClosure (Algebra.adjoin K ({j} : Set F)) F) F :=
   haveI := isDedekindDomain_adjoin_singleton hj

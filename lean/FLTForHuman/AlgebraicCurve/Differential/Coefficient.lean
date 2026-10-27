@@ -119,6 +119,38 @@ theorem diffCoeff_uniformizer_eq_differentialCoeff (v : Place K F) [v.DCoordGene
     [Nontrivial Ω[F⁄K]] (ω : Ω[F⁄K]) : diffCoeff v.uniformizer ω = v.differentialCoeff ω :=
   rfl
 
+/-! ### The order of a differential
+
+The pin's `Place.ordDiff` is the order of the coefficient of `ω` against a
+uniformiser. The port keeps one uniformiser (`Place.uniformizer`, the single home of the
+`Classical.choose` in `Defs/CanonicalDivisor.lean`), so the pin's
+`uniformizer_alt` is that element and `ordDiff` reads the coefficient at it: the two
+pin declarations are the port's spellings of `uniformizer` and `diffCoeff`, not new
+objects. Because `Place.differentialCoeff` is `diffCoeff v.uniformizer` definitionally
+(`diffCoeff_uniformizer_eq_differentialCoeff`), `v.ordDiff ω` is `v.ordDifferential ω` —
+the bridge the pin proves in
+`S_AlgebraicCurve_sum_ordDiff_D_le_two_mul_genusFF_of_isSeparable.lean:185`
+(`ordDiff_eq_ordDifferential`) is `rfl` here. -/
+
+variable (v : Place K F)
+
+/-- The pin's `Place.uniformizer_alt` (`Definitions/Def_AlgebraicCurve_Differentials.lean:18`):
+a uniformiser, which the port already has once. -/
+def uniformizer_alt : F := v.uniformizer
+
+/-- Pin `Place.ord_uniformizer_alt`
+(`Definitions/Def_AlgebraicCurve_Differentials.lean:21`). -/
+theorem ord_uniformizer_alt (h : ∃ t : F, v.ord t = 1) : v.ord v.uniformizer_alt = 1 := by
+  obtain ⟨_, _⟩ := h
+  exact v.ord_uniformizer
+
+/-- Pin `Place.ordDiff` (`Definitions/Def_AlgebraicCurve_Differentials.lean:39`): the order
+of a differential at `v`, read through the coefficient against the uniformiser. -/
+def ordDiff (ω : Ω[F⁄K]) : ℤ := v.ord (diffCoeff v.uniformizer_alt ω)
+
+/-- Pin `Place.ordDiff_def` (`Definitions/Def_AlgebraicCurve_Differentials.lean:42`). -/
+theorem ordDiff_def (ω : Ω[F⁄K]) : v.ordDiff ω = v.ord (diffCoeff v.uniformizer_alt ω) := rfl
+
 end Place
 
 end AlgebraicCurve

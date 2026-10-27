@@ -32,7 +32,9 @@ which is a declaration of the *regular* member of this pair and is stated there;
 two-line rank-one argument is repeated here rather than exported twice.
 
   spec-pin: Theorems/Thm_AlgebraicCurve_finite_and_finrank_polarDifferentials_eq.lean
-  spec-pin: P2M/Sol/S_AlgebraicCurve_finite_and_finrank_polarDifferentials_eq.lean
+  spec-pin: P2M/Sol/S_AlgebraicCurve_finite_and_finrank_polarDifferentials_eq.lean   -- comparable copy
+  spec-pin: Theorems/Thm_AlgebraicCurve_degree_canonicalDivisor_eq_of_riemannRoch.lean
+  spec-pin: P2M/Sol/S_AlgebraicCurve_degree_canonicalDivisor_eq_of_riemannRoch.lean   -- comparable copy
   Drift against `v4.34.0`: none — the pin's duplicated prelude is not restated (its `ord_nonneg_of_mem_valuationSubring` / `mem_valuationSubring_of_ord_nonneg` / `differentialCoeff_ne_zero` are the port's `Place.ord_nonneg_of_mem` / `Place.mem_of_ord_nonneg` / `Place.differentialCoeff_ne_zero`, its `riemannRoch_and_constantsAreBase` is `ResidueTheorem/RRAssembly.lean`, and its ℤ-form `ell_canonical_eq_genus` is `ell_canonicalDivisor_eq_genus_of_riemannRoch`), and no statement differs from the pin's.
 -/
 import FLTForHuman.AlgebraicCurve.Defs.AdelicIndex
@@ -249,6 +251,17 @@ theorem finite_and_finrank_polarDifferentials_eq
   refine ⟨Module.Finite.equiv e, ?_⟩
   rw [← e.finrank_eq]
   exact PolarFinrank.ell_canonical_add_polarDivisor hRR hC hω₀ S hS
+
+/-- **The degree of the canonical divisor** is `2g - 2`, from Riemann–Roch at `0` and at
+`W` together with `ℓ(0) = 1`.  The statement is the pin's
+(`Theorems/Thm_AlgebraicCurve_degree_canonicalDivisor_eq_of_riemannRoch.lean`); the port
+already has it as `PolarFinrank.degree_canonical_eq` above, so this declaration is a
+restatement of that one under the pinned name. -/
+theorem degree_canonicalDivisor_eq_of_riemannRoch {K F : Type*} [Field K] [Field F] [Algebra K F]
+    [IsCurveOver K F] [HasCanonicalDivisor (K := K) (F := F)] [∀ v : Place K F, v.DCoordGenerates]
+    (hRR : FunctionFieldRiemannRoch K F) (hC : ConstantsAreBase K F) {ω : Ω[F⁄K]} (hω : ω ≠ 0) :
+    Divisor.degree (canonicalDivisorOf hω) = 2 * (genus K F : ℤ) - 2 :=
+  PolarFinrank.degree_canonical_eq hRR hC hω
 
 end AlgebraicCurve
 

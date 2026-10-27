@@ -3567,7 +3567,9 @@ PORT_FILES = [
     "FLTForHuman/AlgebraicCurve/WeilExchange/Transport.lean",
     # T5 (the generic orbit/index engine + the bifibre count).
     "FLTForHuman/FieldTheory/FiniteGroupAction.lean",
-    "FLTForHuman/AlgebraicCurve/WeilExchange/Bifibre.lean",
+    # `Bifibre.lean` is now wired to `spec/check_port.py` (2026-10-26) by its own
+    # `spec-pin:` block — the bifibre count, the fibre/cardinality bridge,
+    # `Place.exists_restrict_eq` and `Place.restrictAlong_surjective`. Do not re-list it.
     # T6 (the local exchange + the normal closure).
     "FLTForHuman/AlgebraicCurve/WeilExchange/LocalExchange.lean",
     # T8 (the `P¹` places and degree).
@@ -3953,10 +3955,9 @@ PORT_FILES = [
     "FLTForHuman/AlgebraicCurve/Defs/IsCurveOver.lean",
     "FLTForHuman/AlgebraicCurve/Defs/RiemannRochRows.lean",
     "FLTForHuman/AlgebraicCurve/Defs/PoleDivisorPackage.lean",
-    # --- H1a (the adelic-index / `ell` prelude and the index targets), the
-    # module that consumes the D layer. Appended last so no earlier last-name
-    # match can flip.
-    "FLTForHuman/AlgebraicCurve/Genus/Index.lean",
+    # --- H1a (the adelic-index / `ell` prelude and the index targets): handed over to
+    # `spec/check_port.py` (2026-10-26) by its own `spec-pin:` wire — 72 ok / 0 mismatch /
+    # 0 missing / 0 own. Do not re-list it here.
     # --- H1b (the Stichtenoth genus-existence tower), the module that consumes H1a.
     # Appended last so no earlier last-name match can flip.
     "FLTForHuman/AlgebraicCurve/Genus/Stichtenoth.lean",
@@ -4136,7 +4137,8 @@ PORT_FILES = [
     # field node, the `qExpFrobenius*` API and the target. Appended last.
     "FLTForHuman/Algebra/IsSeparableFrobenius.lean",
     "FLTForHuman/AlgebraicCurve/IsCurveOver/PerfectField.lean",
-    "FLTForHuman/AlgebraicCurve/IsCurveOver/Transcendental.lean",
+    # `IsCurveOver/Transcendental.lean` is now wired to `spec/check_port.py`
+    # (three `spec-pin` pairs, W4 checkpoint A1), so it is released from this list.
     "FLTForHuman/AlgebraicCurve/PrincipalDivisors/IsSeparable.lean",
     "FLTForHuman/ModularCurve/Frobenius/QExpModL.lean",
     # --- Factorisable test functions on GL₂(𝔸_K) (AutomorphicForm) ---

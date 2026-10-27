@@ -8,7 +8,7 @@ Use `frontier --ds` to see outstanding nodes for D-S. Use targets to fine tune. 
 
 ## Porting Structure
 
-Math and clarity are top priority. Home subjects naturally. Refactor existing modules if necessary. Dedup real math content. `port_advise` and `port_plan` before porting; `dedup` and `move_dead` afterwards. No random tokens in names. Write a topic file math is substantial or multiple waves are anticipated. Manager must do defs and refactor. Write a workorder whe using a subagent to port proof bodies: clearly scope the work with instructions on build discipline and early feedback for blockers. Don't poll the subagent.
+Math and clarity are top priority. Home subjects naturally. Refactor existing modules if necessary. Dedup real math content. `port_advise` and `port_plan` before porting; `dedup` and `move_dead` afterwards. No random tokens in names. Write a topic file math is substantial or multiple waves are anticipated. Manager must do `Def_*` nodes and refactor. Write a workorder whe using a subagent to port proof bodies: clearly scope the work with instructions on build discipline and early feedback for blockers. Don't poll the subagent.
 
 Mathlib like modules are exempt froms strict `move_dead` and can host theorems without consumers for completeness.
 

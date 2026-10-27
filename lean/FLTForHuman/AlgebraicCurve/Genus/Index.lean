@@ -15,6 +15,28 @@ own declaration order.  Definitions come from Set D (`Defs/`); the `_port` dupli
 and the assembly `solution` are not re-stated here.  The pin's own `import Mathlib`
 and `Definitions/` imports are replaced by the port's `Defs` modules plus specific
 mathlib modules.
+
+The second subject is the degree of a place: `Place.deg v` is `[κ(v) : K]`, and it is
+positive whenever the residue field is finite over `K`.  The pin's
+`Place.deg_ne_zero_of_finiteDimensional_adjoin` (53 ln,
+<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_Place_deg_ne_zero_of_finiteDimensional_adjoin.lean>)
+restricts the place to `RatFunc K` and splits `deg` over the restriction; the port
+proves the same statement from `IsCurveOver K (RatFunc K)`:
+`Place.finite_residueField_of_finiteDimensional` makes `κ(v)` finite over
+`κ(v|K(x))`, the curve structure makes that one finite over `K`, and `v.deg` is the
+positive `finrank` of `κ(v)` (`Module.Finite.trans`, `Module.finrank_pos`).
+
+spec-pin: Definitions/Def_AlgebraicCurve_AdelicIndex.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_indexOfSpecialty_eq_of_genusReached.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_indexOfSpecialty_eq_zero_of_genusReached.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_RiemannGenusReachedAt_eq_of_ge.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_omegaSpace_finite_of_genusReached.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_exists_genus_riemannIndex_of_stichtenothGenusExists.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_exists_genus_riemannIndex_of_stichtenothGenusExists.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_exists_indexOfSpecialty_nsmul_single_eq_zero_of_genusReached.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_exists_indexOfSpecialty_nsmul_single_eq_zero_of_genusReached.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_Place_deg_ne_zero_of_finiteDimensional_adjoin.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Place_deg_ne_zero_of_finiteDimensional_adjoin.lean   -- comparable copy
 -/
 import FLTForHuman.AlgebraicCurve.Defs.AdelicIndex
 import FLTForHuman.AlgebraicCurve.Defs.Repartitions
@@ -22,6 +44,9 @@ import FLTForHuman.AlgebraicCurve.Defs.PoleDivisorPackage
 import FLTForHuman.AlgebraicCurve.Defs.CanonicalDivisor
 import FLTForHuman.AlgebraicCurve.Defs.IsCurveOver
 import FLTForHuman.AlgebraicCurve.Defs.PushPull
+import FLTForHuman.AlgebraicCurve.Defs.RatFuncPlaces
+import FLTForHuman.AlgebraicCurve.PrincipalDivisors.RatFuncDegree
+import FLTForHuman.AlgebraicCurve.WeilExchange.FiberOverCount
 import Mathlib.LinearAlgebra.Dimension.RankNullity
 import Mathlib.LinearAlgebra.Dimension.Constructions
 import Mathlib.LinearAlgebra.Dimension.Finrank
@@ -1578,5 +1603,89 @@ theorem exists_indexOfSpecialty_nsmul_single_eq_zero_of_genusReached
   rw [hdeg] at hmax
 
   linarith
+
+end AlgebraicCurve
+
+noncomputable section
+
+/-! ### The degree of a place is positive
+
+`Place.deg v` is `[κ(v) : K]`, and it is nonzero because `v` splits over the place
+`v|K(x)` below it: `deg` is multiplicative in the extension (`deg_restrict_mul_inertiaDeg`)
+and both factors are positive. The lower factor is the rational function field's: a
+place of `K(X)` is a finite place, whose residue field is `K[X]/(p)` for a nonzero prime
+`p` (`RationalFunctionField.deg_ofHeightOneSpectrum`), or the place at infinity, whose
+residue field is `K` (`RationalFunctionField.deg_eq_one_of_forall_ne_ofHeightOneSpectrum`).
+That argument is the wave's `RationalFunctionField.deg_ne_zero` node, carried privately
+here: its home `Genus/RatFunc.lean` sits *above* this module in the import graph, so
+this module cannot import it. -/
+
+namespace AlgebraicCurve
+
+namespace Place
+
+open Classical in
+/-- A place of `K(X)` has nonzero degree: its residue field is `K[X]/(p)` for the
+irreducible `p` of a finite place, or `K` at the place at infinity.
+
+The pin's node of the same statement (`RationalFunctionField.deg_ne_zero`) is public in
+`Genus/RatFunc.lean`, but that module imports `Genus/Stichtenoth` → `Genus/Index`, so it
+cannot be imported here. The proof is kept once, as a private line-identical copy of the
+pin's `S_…_deg_ne_zero.lean` `solution`; do not re-home the public node to remove it. -/
+private theorem deg_ne_zero_ratFunc {K : Type*} [Field K] (v : Place K (RatFunc K)) :
+    v.deg ≠ 0 := by
+  by_cases h : ∀ w : HeightOneSpectrum (Polynomial K), v ≠ Place.ofHeightOneSpectrum w
+  · rw [RationalFunctionField.deg_eq_one_of_forall_ne_ofHeightOneSpectrum v h]
+    exact one_ne_zero
+  · obtain ⟨w, hw⟩ : ∃ w : HeightOneSpectrum (Polynomial K), v = Place.ofHeightOneSpectrum w := by
+      simpa using h
+    subst hw
+    obtain ⟨p, hp⟩ := Submodule.IsPrincipal.principal w.asIdeal
+    rw [RationalFunctionField.deg_ofHeightOneSpectrum K hp]
+    have hp0 : p ≠ 0 := by
+      intro h0
+      apply w.ne_bot
+      rw [hp, h0]
+      exact Ideal.span_singleton_eq_bot.mpr rfl
+    have hprime : Prime p := by
+      have hpr := w.isPrime
+      rw [hp] at hpr
+      exact (Ideal.span_singleton_prime hp0).mp hpr
+    exact (Polynomial.natDegree_pos_iff_degree_pos.mpr
+      (Polynomial.degree_pos_of_irreducible hprime.irreducible)).ne'
+
+/-- **The degree of a place is nonzero.**  Verbatim from
+`Theorems/Thm_AlgebraicCurve_Place_deg_ne_zero_of_finiteDimensional_adjoin.lean`; the
+proof is the pin's — split `deg` over the restriction to `K(x)`, transported to
+`RatFunc K` — with the rational-function-field factor proved just above. -/
+theorem deg_ne_zero_of_finiteDimensional_adjoin {K F : Type*} [Field K] [Field F] [Algebra K F]
+    (x : F) (hx : Transcendental K x) [FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F]
+    (v : AlgebraicCurve.Place K F) : v.deg ≠ 0 := by
+  classical
+  -- Re-base the `K(x)`-tower on `RatFunc K`, as in `isCurveOver_of_transcendental`.
+  have e : RatFunc K ≃ₐ[K] ↥(IntermediateField.adjoin K ({x} : Set F)) :=
+    RatFunc.algEquivOfTranscendental x hx
+  letI : Algebra (RatFunc K) F :=
+    ((algebraMap (IntermediateField.adjoin K ({x} : Set F)) F).comp e.toAlgHom.toRingHom).toAlgebra
+  have hsq : RingHom.comp (algebraMap (RatFunc K) F) ↑(e.symm.toRingEquiv)
+      = RingHom.comp (RingEquiv.refl F : F →+* F)
+        (algebraMap (IntermediateField.adjoin K ({x} : Set F)) F) := by
+    refine RingHom.ext fun a => ?_
+    show algebraMap (IntermediateField.adjoin K ({x} : Set F)) F (e (e.symm a))
+      = algebraMap (IntermediateField.adjoin K ({x} : Set F)) F a
+    rw [e.apply_symm_apply]
+  haveI : IsScalarTower K (RatFunc K) F :=
+    IsScalarTower.of_algebraMap_eq fun a => by
+      show algebraMap K F a
+        = algebraMap (IntermediateField.adjoin K ({x} : Set F)) F (e (algebraMap K (RatFunc K) a))
+      rw [e.commutes, ← IsScalarTower.algebraMap_apply]
+  haveI : FiniteDimensional (RatFunc K) F :=
+    Module.Finite.of_equiv_equiv e.symm.toRingEquiv (RingEquiv.refl F) hsq
+  have h1 : (v.restrict (RatFunc K)).deg ≠ 0 := deg_ne_zero_ratFunc _
+  have h2 := inertiaDeg_pos_of_finiteDimensional (F := RatFunc K) v
+  rw [← v.deg_restrict_mul_inertiaDeg (F := RatFunc K)]
+  exact mul_ne_zero h1 h2.ne'
+
+end Place
 
 end AlgebraicCurve
