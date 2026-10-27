@@ -3572,7 +3572,10 @@ PORT_FILES = [
     # T2 (the promoted fibre dictionary and the bifibre count).
     "FLTForHuman/AlgebraicCurve/Defs/PlaceDictionary.lean",
     # T3 (Galois ramification/inertia).
-    "FLTForHuman/AlgebraicCurve/WeilExchange/GaloisRamification.lean",
+    # MIGRATED 2026-10-27 (SET 4 ground prep): the module carries its own `spec-pin:`
+    # wire (the seven T3 wrappers) and checks 7 ok / 0 mismatch / 0 missing. The
+    # `SOURCES` entries above stay — appended last so the dotted fallback still reads
+    # the pin-private originals other listed modules match. Do not re-list it here.
     # T4 (along-map transport + `Pic0` descent, and the shared prelude).
     "FLTForHuman/AlgebraicCurve/WeilExchange/Transport.lean",
     # T5 (the generic orbit/index engine + the bifibre count).
@@ -4883,7 +4886,12 @@ PORT_FILES = [
     "FLTForHuman/AutomorphicForm/Adelic/RightConvComm/Compact.lean",
     "FLTForHuman/AutomorphicForm/Adelic/RightConvComm/Level.lean",
     "FLTForHuman/AutomorphicForm/Adelic/RightConvComm/Principal.lean",
-    "FLTForHuman/AlgebraicCurve/IsCurveOver/ConstantFieldExtension.lean",
+    # MIGRATED 2026-10-27 (SET 4 homing): the linear-independence pair now carries its own
+    # `spec-pin:` wire (both `Theorems/` wrappers, both `S_` copies, and the separable-adjoin
+    # node, which moved here from `IsCurveOver/Transcendental.lean` because the constant field
+    # extension is this module's subject). `spec/check_port.py` owns it at 26 ok / 0 mismatch /
+    # 0 missing. Its `SOURCES` entries stay: other listed modules still match against the two
+    # linear-independence `S_` files. Do not re-list it here.
     # --- WORKORDER Z1: the completed Dedekind zeta façade, the topic's only checked
     # module. It declares exactly one declaration — the consumed headline
     # `NumberField.exists_completedDedekindZeta_package`, stated from the pin wrapper

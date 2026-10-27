@@ -151,6 +151,7 @@ theorem isCurveOver_iff_exists_transcendental_finiteDimensional {K : Type*} {F :
   · rintro ⟨t, htr, hfd, hsep⟩
     exact isCurveOver_of_transcendental htr hfd hsep
 
+
 end AlgebraicCurve
 
 end

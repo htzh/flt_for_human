@@ -48,6 +48,10 @@ spec-pin: Theorems/Thm_AlgebraicCurve_Divisor_isPrincipal_of_constantFieldExtens
 spec-pin: P2M/Sol/S_AlgebraicCurve_Divisor_isPrincipal_of_constantFieldExtension.lean   -- comparable copy
 spec-pin: Theorems/Thm_AlgebraicCurve_Divisor_exists_torsion_descent_of_constantFieldExtension.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_Divisor_exists_torsion_descent_of_constantFieldExtension.lean   -- comparable copy
+spec-pin: Theorems/Thm_AlgebraicCurve_Pic0_natCard_torsion_eq_of_constantFieldExtension.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Pic0_natCard_torsion_eq_of_constantFieldExtension.lean   -- comparable copy
+spec-pin: Theorems/Thm_AlgebraicCurve_exists_indexOfSpecialty_mapDomain_eq_zero_of_constantFieldExtension_of_isAlgClosed.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_exists_indexOfSpecialty_mapDomain_eq_zero_of_constantFieldExtension_of_isAlgClosed.lean   -- comparable copy
 -/
 import FLTForHuman.AlgebraicCurve.Differential.ConstantFieldExtension
 import FLTForHuman.AlgebraicCurve.Genus.Index
@@ -1028,5 +1032,604 @@ theorem Divisor.exists_torsion_descent_of_constantFieldExtension
         (∀ v : Place K F, v'.toValuationSubring.comap (algebraMap F F') ≠ v.toValuationSubring) →
           D' v' = v'.ord h') :=
   TorsionDescentDeriv.main (K := K) (F := F) (K' := K') (F' := F') hfg hfg' hgen n hn D' hD'
+
+/-! ## The index of specialty of a lifted divisor
+
+`AlgebraicCurve.exists_indexOfSpecialty_mapDomain_eq_zero_of_constantFieldExtension_of_isAlgClosed`,
+after `P2M/Sol/S_AlgebraicCurve_exists_indexOfSpecialty_mapDomain_eq_zero_of_constantFieldExtension_of_isAlgClosed.lean`
+(99 ln) and its `Theorems/` wrapper.  The pin's engine `W7XChildE.constantsAreBase` is the
+same `ConstantsAreBase` statement this module already proves privately for `isAlgClosed` at
+`TorsionDescentDeriv.constantsAreBase_of_isAlgClosed`; rather than repeat the block, the
+node below re-derives the pin's `hfg`-shaped binder from that same-file helper. -/
+
+namespace W7XChildE
+
+set_option linter.style.haveILetI false in
+private theorem constantsAreBase {K F : Type*} [Field K] [Field F] [Algebra K F]
+    [IsAlgClosed K] [IsCurveOver K F]
+    (hfg : ∃ x : F, Transcendental K x ∧
+      FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F) :
+    ConstantsAreBase K F := by
+  obtain ⟨x, hx, hxfin⟩ := hfg
+  haveI := hxfin
+  exact TorsionDescentDeriv.constantsAreBase_of_isAlgClosed (K := K) (F := F) x hx
+
+end W7XChildE
+
+set_option linter.unusedVariables false in
+set_option linter.style.haveILetI false in
+/-- **The index of specialty of a lifted divisor vanishes.**  Verbatim from
+`Theorems/Thm_AlgebraicCurve_exists_indexOfSpecialty_mapDomain_eq_zero_of_constantFieldExtension_of_isAlgClosed.lean`:
+over algebraically closed `K, K'`, some divisor of `F`, pushed to `F'` along an
+order-preserving injective `lift`, has index of specialty zero. -/
+theorem exists_indexOfSpecialty_mapDomain_eq_zero_of_constantFieldExtension_of_isAlgClosed
+    (K F K' F' : Type*)
+    [Field K] [Field F] [Field K'] [Field F'] [Algebra K F] [Algebra K' F']
+    [Algebra K K'] [Algebra F F'] [Algebra K F'] [IsScalarTower K K' F'] [IsScalarTower K F F']
+    [IsAlgClosed K] [IsAlgClosed K']
+    (hfg : ∃ x : F, Transcendental K x ∧ FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F)
+    (hfg' : ∃ x : F', Transcendental K' x ∧
+      FiniteDimensional (IntermediateField.adjoin K' ({x} : Set F')) F')
+    [IsCurveOver K F] [IsCurveOver K' F']
+    (hgen : IntermediateField.adjoin K' (Set.range (algebraMap F F')) = ⊤)
+    (lift : Place K F → Place K' F')
+    (hlift_ord : ∀ (P : Place K F) (f : F), (lift P).ord (algebraMap F F' f) = P.ord f)
+    (hlift_inj : Function.Injective lift) :
+    ∃ D : Divisor K F, indexOfSpecialty (K := K') (Finsupp.mapDomain lift D) = 0 := by
+  classical
+
+  obtain ⟨x, hxt, hxfd⟩ := id hfg
+  obtain ⟨x', hxt', hxfd'⟩ := id hfg'
+  haveI : Algebra.EssFiniteType K F :=
+    essFiniteType_of_transcendental_of_finiteDimensional hxt hxfd
+  haveI : Algebra.EssFiniteType K' F' :=
+    essFiniteType_of_transcendental_of_finiteDimensional hxt' hxfd'
+  have hCAB : ConstantsAreBase K F := W7XChildE.constantsAreBase hfg
+  have hCAB' : ConstantsAreBase K' F' := W7XChildE.constantsAreBase hfg'
+
+  obtain ⟨hne, hfd0, γ, D₀, hD₀⟩ := stichtenothGenusExists_of_isCurveOver (K := K) (F := F) hCAB
+  obtain ⟨hne', hfd0', γ', D₀', hD₀'⟩ :=
+    stichtenothGenusExists_of_isCurveOver (K := K') (F := F') hCAB'
+  haveI := hne; haveI := hfd0; haveI := hne'; haveI := hfd0'
+
+  obtain ⟨P₀⟩ := hne
+
+  obtain ⟨n, hRGA⟩ :=
+    exists_riemannGenusReachedAt_nsmul_single_of_stichtenothGenusExists hD₀' (lift P₀)
+
+  refine ⟨Finsupp.single P₀ (n : ℤ), ?_⟩
+  have hmap : (Finsupp.mapDomain lift (Finsupp.single P₀ (n : ℤ)) : Divisor K' F')
+      = (n : ℤ) • Finsupp.single (lift P₀) (1 : ℤ) := by
+    rw [Finsupp.mapDomain_single, Finsupp.smul_single, smul_eq_mul, mul_one]
+  rw [hmap]
+  exact indexOfSpecialty_eq_zero_of_genusReached hRGA
+
+/-! ## The order of the torsion of `Pic⁰`
+
+`AlgebraicCurve.Pic0.natCard_torsion_eq_of_constantFieldExtension`, after
+`P2M/Sol/S_AlgebraicCurve_Pic0_natCard_torsion_eq_of_constantFieldExtension.lean` (541 ln)
+and its `Theorems/` wrapper: a constant-field extension `K ⊆ K'` preserves the order of
+the `n`-torsion of `Pic⁰`, `#Pic⁰[n](K'·F) = #Pic⁰[n](F)` (the `p^{2g}` statement).
+
+The pin's engine `W7XL2` is private here; the port takes its `ord` prelude
+(`ord_eq_zero_of_mem_of_inv_mem`, `ord_algebraMap_base`) and
+`linearIndependent_pow_of_transcendental` from the already-ported blocks
+`Place/ConstantFieldExtension.lean`, `P1/EnginePrelude.lean` and
+`IsCurveOver/ConstantFieldExtensionSpan.lean` instead of repeating them, as the pin's
+`S_` files do. -/
+
+set_option linter.unusedVariables false
+set_option linter.style.haveILetI false
+
+open Polynomial
+
+open scoped IntermediateField
+
+namespace W7XL2
+
+private theorem linearIndependent_adjoin_simple_of_pow_mul {K' L : Type*} [Field K'] [Field L]
+    [Algebra K' L] (x : L) {ι : Type*} (u : ι → L)
+    (h : LinearIndependent K' fun p : ℕ × ι => x ^ p.1 * u p.2) :
+    LinearIndependent (IntermediateField.adjoin K' ({x} : Set L)) u := by
+  classical
+  -- Clear denominators over `K'⟮x⟯`: every element of `K'⟮x⟯` is `p(x) / q(x)`.
+  have key : ∀ l : K'⟮x⟯, ∃ p q : K'[X], aeval x q ≠ 0 ∧ (l : L) * aeval x q = aeval x p := by
+    intro l
+    obtain ⟨r, s, hrs⟩ := (IntermediateField.mem_adjoin_simple_iff K' (l : L)).mp l.2
+    by_cases hs : aeval x s = 0
+    · exact ⟨0, 1, by simp, by rw [hrs, hs, div_zero, zero_mul, map_zero]⟩
+    · exact ⟨r, s, hs, by rw [hrs, div_mul_cancel₀ _ hs]⟩
+  rw [linearIndependent_iff'] at h ⊢
+  intro s g hg i hi
+  choose p q hq hpq using fun j => key (g j)
+  set Q : K'[X] := ∏ j ∈ s, q j with hQ
+  have hQ0 : aeval x Q ≠ 0 := by
+    rw [hQ, map_prod]
+    exact Finset.prod_ne_zero_iff.mpr fun j hj => hq j
+  let P : ι → K'[X] := fun j => p j * ∏ k ∈ s.erase j, q k
+  have hP : ∀ j ∈ s, ((g j : K'⟮x⟯) : L) * aeval x Q = aeval x (P j) := by
+    intro j hj
+    rw [hQ, ← Finset.mul_prod_erase s q hj, map_mul, ← mul_assoc, hpq j, ← map_mul]
+  have hrelL : ∑ j ∈ s, ((g j : K'⟮x⟯) : L) * u j = 0 := by
+    have := hg
+    simpa [IntermediateField.smul_def, smul_eq_mul] using this
+  have hrelQ : ∑ j ∈ s, aeval x (P j) * u j = 0 := by
+    have := congrArg (fun z : L => z * aeval x Q) hrelL
+    simp only [zero_mul, Finset.sum_mul] at this
+    rw [← this]
+    refine Finset.sum_congr rfl fun j hj => ?_
+    rw [← hP j hj]; ring
+  set N : ℕ := (s.sup fun j => (P j).natDegree) + 1 with hN
+  have hdeg : ∀ j ∈ s, (P j).natDegree < N := fun j hj =>
+    Nat.lt_succ_of_le (Finset.le_sup (f := fun j => (P j).natDegree) hj)
+  have hkey := h (Finset.range N ×ˢ s) (fun q => (P q.2).coeff q.1) ?_
+  swap
+  · rw [← hrelQ, Finset.sum_product_right]
+    refine Finset.sum_congr rfl fun j hj => ?_
+    rw [aeval_eq_sum_range' (hdeg j hj), Finset.sum_mul]
+    refine Finset.sum_congr rfl fun k _ => ?_
+    simp only [smul_mul_assoc]
+  have hPi : P i = 0 := by
+    ext k
+    by_cases hk : k < N
+    · simpa using hkey (k, i) (Finset.mk_mem_product (Finset.mem_range.mpr hk) hi)
+    · rw [coeff_zero]
+      exact coeff_eq_zero_of_natDegree_lt (lt_of_lt_of_le (hdeg i hi) (not_lt.mp hk))
+  have h1 := hP i hi
+  rw [hPi, map_zero, mul_eq_zero] at h1
+  rcases h1 with h2 | h2
+  · exact Subtype.ext h2
+  · exact absurd h2 hQ0
+
+private theorem algebraMap_mem_adjoin_simple {K A K' B : Type*} [Field K] [Field A] [Field K'] [Field B]
+    [Algebra K A] [Algebra A B] [Algebra K B] [IsScalarTower K A B]
+    [Algebra K' B] [Algebra K K'] [IsScalarTower K K' B] (x : A)
+    {e : A} (he : e ∈ IntermediateField.adjoin K ({x} : Set A)) :
+    algebraMap A B e ∈ IntermediateField.adjoin K' ({algebraMap A B x} : Set B) := by
+  have hle : (IntermediateField.adjoin K ({x} : Set A)).map (IsScalarTower.toAlgHom K A B) ≤
+      (IntermediateField.adjoin K' ({algebraMap A B x} : Set B)).restrictScalars K := by
+    rw [IntermediateField.adjoin_map, IntermediateField.adjoin_le_iff]
+    rintro _ ⟨a, ha, rfl⟩
+    rw [Set.mem_singleton_iff] at ha
+    rw [ha]
+    exact IntermediateField.mem_adjoin_simple_self K' (algebraMap A B x)
+  exact hle ⟨e, he, rfl⟩
+
+private theorem finiteDimensional_adjoin_simple_algebraMap {K A B : Type*} [Field K] [Field A] [Field B]
+    [Algebra K A] [Algebra A B] [Algebra K B] [IsScalarTower K A B] [FiniteDimensional A B]
+    (x : A) [FiniteDimensional (IntermediateField.adjoin K ({x} : Set A)) A] :
+    FiniteDimensional (IntermediateField.adjoin K ({algebraMap A B x} : Set B)) B := by
+  set E := IntermediateField.adjoin K ({x} : Set A) with hE
+  set E' := IntermediateField.adjoin K ({algebraMap A B x} : Set B) with hE'
+  have hmap : ∀ e : E, algebraMap A B (e : A) ∈ E' := fun e =>
+    algebraMap_mem_adjoin_simple (K' := K) x e.2
+  let φ : E →+* E' := ((algebraMap A B).comp (algebraMap E A)).codRestrict E' hmap
+  letI : Algebra E E' := φ.toAlgebra
+  haveI : IsScalarTower E E' B := IsScalarTower.of_algebraMap_eq (fun e => rfl)
+  haveI : Module.Finite E B := Module.Finite.trans A B
+  exact Module.Finite.of_restrictScalars_finite E E' B
+
+section KL
+
+variable {K F K' F' : Type*} [Field K] [Field F] [Field K'] [Field F']
+    [Algebra K F] [Algebra K' F']
+    [Algebra K K'] [Algebra F F'] [Algebra K F'] [IsScalarTower K K' F'] [IsScalarTower K F F']
+
+private theorem mem_range_of_pow_eq_algebraMap [IsAlgClosed K] [CharZero K]
+    (hfg : ∃ x : F, Transcendental K x ∧
+      FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F)
+    (hfg' : ∃ x : F', Transcendental K' x ∧
+      FiniteDimensional (IntermediateField.adjoin K' ({x} : Set F')) F')
+    (hgen : IntermediateField.adjoin K' (Set.range (algebraMap F F')) = ⊤)
+    {n : ℕ} (hn : n ≠ 0) {y : F'} {g : F} (hy : y ^ n = algebraMap F F' g) :
+    y ∈ (algebraMap F F').range := by
+  classical
+  obtain ⟨x, hx, hfin⟩ := hfg
+  haveI := hfin
+  set E : IntermediateField K F := IntermediateField.adjoin K ({x} : Set F) with hE
+  have hyint : IsIntegral F y :=
+    IsIntegral.of_pow (Nat.pos_of_ne_zero hn) (by rw [hy]; exact isIntegral_algebraMap)
+  set S : IntermediateField F F' := IntermediateField.adjoin F ({y} : Set F') with hS
+  haveI : FiniteDimensional F S := IntermediateField.adjoin.finiteDimensional hyint
+  set x' : F' := algebraMap F F' x with hx'
+  set E' : IntermediateField K' F' := IntermediateField.adjoin K' ({x'} : Set F') with hE'
+  set m := Module.finrank E F with hm_def
+  set d := Module.finrank F S with hd_def
+  let bF := Module.finBasis E F
+  let bS := Module.finBasis F S
+  have hm : 0 < m := Module.finrank_pos
+  haveI i2 : IsScalarTower K S F' := IsScalarTower.of_algebraMap_eq (fun k => rfl)
+
+  let xE : E := ⟨x, IntermediateField.mem_adjoin_simple_self K x⟩
+  have hxEt : Transcendental K xE := by
+    have : Function.Injective (algebraMap E F) := (algebraMap E F).injective
+    rw [← transcendental_algebraMap_iff this]
+    exact hx
+  have hpow : LinearIndependent K fun k : ℕ => xE ^ k := W7XH.linearIndependent_pow_of_transcendental hxEt
+  have h1 : LinearIndependent K fun q : ℕ × Fin m => (xE ^ q.1 • bF q.2 : F) :=
+    linearIndependent_smul hpow bF.linearIndependent
+  have h2 : LinearIndependent F fun j : Fin d => ((bS j : S) : F') :=
+    bS.linearIndependent.map' S.val.toLinearMap (LinearMap.ker_eq_bot.mpr Subtype.val_injective)
+  have hfam' : LinearIndependent K fun q : (ℕ × Fin m) × Fin d =>
+      (xE ^ q.1.1 • bF q.1.2 : F) • ((bS q.2 : S) : F') := by
+    exact linearIndependent_smul (R := K) (S := F) (A := F') (ι := ℕ × Fin m) (ι' := Fin d)
+      (b := fun q : ℕ × Fin m => (xE ^ q.1 • bF q.2 : F)) (c := fun j => ((bS j : S) : F')) h1 h2
+  have hmem : ∀ q : (ℕ × Fin m) × Fin d,
+      (xE ^ q.1.1 • bF q.1.2 : F) • ((bS q.2 : S) : F') ∈ S := fun q => by
+    rw [Algebra.smul_def]
+    exact S.mul_mem (S.algebraMap_mem _) (bS q.2).2
+  let v : (ℕ × Fin m) × Fin d → S := fun q => ⟨_, hmem q⟩
+  have hfam : LinearIndependent K v :=
+    LinearIndependent.of_comp (IsScalarTower.toAlgHom K S F').toLinearMap hfam'
+
+  have hfgS : ∃ z : S, Transcendental K z ∧
+      FiniteDimensional (IntermediateField.adjoin K ({z} : Set S)) S :=
+    ⟨algebraMap F S x, (transcendental_algebraMap_iff (algebraMap F S).injective).mpr hx,
+      finiteDimensional_adjoin_simple_algebraMap x⟩
+  have hgenS : IntermediateField.adjoin K' (Set.range (algebraMap S F')) = ⊤ := by
+    rw [eq_top_iff, ← hgen, IntermediateField.adjoin_le_iff]
+    rintro _ ⟨f, rfl⟩
+    exact IntermediateField.subset_adjoin K' _
+      ⟨algebraMap F S f, (IsScalarTower.algebraMap_apply F S F' f).symm⟩
+  have hW := AlgebraicCurve.linearIndependent_of_constantFieldExtension K S K' F' hfgS hfg' hgenS
+    hfam
+  have hW' : LinearIndependent K' fun p : ℕ × (Fin m × Fin d) =>
+      x' ^ p.1 * (algebraMap F F' (bF p.2.1) * (bS p.2.2 : F')) := by
+    have := hW.comp _ (Equiv.prodAssoc ℕ (Fin m) (Fin d)).symm.injective
+    convert this using 1
+    funext p
+    simp only [Function.comp_apply, Equiv.prodAssoc_symm_apply, hx',
+      IntermediateField.algebraMap_apply, Algebra.smul_def, map_mul, map_pow, v]
+    ring
+
+  set u : Fin m × Fin d → F' := fun p => algebraMap F F' (bF p.1) * (bS p.2 : F') with hu_def
+  have hu : LinearIndependent E' u := linearIndependent_adjoin_simple_of_pow_mul x' u hW'
+
+  set b' : Fin m → F' := fun i => algebraMap F F' (bF i) with hb'
+  set V : Submodule E' F' := Submodule.span E' (Set.range b') with hV_def
+  have hEE' : ∀ e : E, algebraMap F F' (e : F) ∈ E' := fun e =>
+    algebraMap_mem_adjoin_simple (K' := K') x e.2
+  have hFV : ∀ f : F, algebraMap F F' f ∈ V := by
+    intro f
+    rw [← bF.sum_repr f, map_sum]
+    refine Submodule.sum_mem _ fun i _ => ?_
+    have : algebraMap F F' (bF.repr f i • bF i) =
+        (⟨algebraMap F F' (bF.repr f i : F), hEE' _⟩ : E') • b' i := by
+      rw [IntermediateField.smul_def, IntermediateField.smul_def, smul_eq_mul, map_mul,
+        smul_eq_mul]
+    rw [this]
+    exact V.smul_mem _ (Submodule.subset_span ⟨i, rfl⟩)
+  have hVV : V * V ≤ V := by
+    rw [hV_def, Submodule.span_mul_span, Submodule.span_le]
+    rintro _ ⟨_, ⟨i, rfl⟩, _, ⟨j, rfl⟩, rfl⟩
+    show b' i * b' j ∈ V
+    rw [hb']; dsimp only; rw [← map_mul]; exact hFV _
+  have h1V : (1 : F') ∈ V := by simpa using hFV 1
+  let A : Subalgebra E' F' :=
+    { carrier := V
+      mul_mem' := fun ha hb => hVV (Submodule.mul_mem_mul ha hb)
+      one_mem' := h1V
+      add_mem' := fun ha hb => V.add_mem ha hb
+      zero_mem' := V.zero_mem
+      algebraMap_mem' := fun e' => by
+        rw [Algebra.algebraMap_eq_smul_one]
+        exact V.smul_mem _ h1V }
+  have hAfg : (Subalgebra.toSubmodule A).FG := Submodule.fg_span (Set.finite_range b')
+  have hinv : ∀ z ∈ A, z⁻¹ ∈ A := fun z hz =>
+    A.inv_mem_of_algebraic (x := ⟨z, hz⟩) (IsIntegral.of_mem_of_fg A hAfg z hz).isAlgebraic
+  let IF : IntermediateField K' F' := (A.restrictScalars K').toIntermediateField hinv
+  have hIF : IF = ⊤ := by
+    rw [eq_top_iff, ← hgen, IntermediateField.adjoin_le_iff]
+    rintro _ ⟨f, rfl⟩
+    exact hFV f
+  have hVtop : V = ⊤ := by
+    rw [eq_top_iff]
+    intro z _
+    have hz : z ∈ IF := hIF ▸ IntermediateField.mem_top
+    exact hz
+  haveI : Module.Finite E' F' := ⟨hVtop ▸ Submodule.fg_span (Set.finite_range b')⟩
+  have hle : Module.finrank E' F' ≤ m := by
+    have := finrank_range_le_card (R := E') b'
+    unfold Set.finrank at this
+    rw [← hV_def, hVtop, finrank_top, Fintype.card_fin] at this
+    exact this
+
+  have hcard := hu.fintype_card_le_finrank
+  simp only [Fintype.card_prod, Fintype.card_fin] at hcard
+  have hd1 : d = 1 := by
+    have h3 : 0 < d := Module.finrank_pos
+    have h1 : m * d ≤ m * 1 := by rw [mul_one]; exact hcard.trans hle
+    have h2 : d ≤ 1 := Nat.le_of_mul_le_mul_left h1 hm
+    omega
+  have hyb : y ∈ (⊥ : IntermediateField F F') :=
+    IntermediateField.finrank_adjoin_simple_eq_one_iff.mp hd1
+  rw [IntermediateField.mem_bot] at hyb
+  obtain ⟨f, hf⟩ := hyb
+  exact ⟨f, hf⟩
+
+end KL
+
+section Transfer
+
+variable {K F K' F' : Type*} [Field K] [Field F] [Field K'] [Field F']
+    [Algebra K F] [Algebra K' F']
+    [Algebra K K'] [Algebra F F'] [Algebra K F'] [IsScalarTower K K' F'] [IsScalarTower K F F']
+
+private theorem degree_eq_zero_of_forall_eq_ord {k L : Type*} [Field k] [Field L] [Algebra k L]
+    [HasPrincipalDivisors k L] {f : L} (hf : f ≠ 0) {D : Divisor k L}
+    (hD : ∀ v, D v = v.ord f) : Divisor.degree D = 0 := by
+  obtain ⟨E, hE, hdeg⟩ := HasPrincipalDivisors.exists_divisor (K := k) f hf
+  have : D = E := Finsupp.ext fun v => by rw [hD, hE]
+  rw [this]
+  exact hdeg
+
+private theorem mk_zsmul' {k L : Type*} [Field k] [Field L] [Algebra k L] (n : ℤ)
+    (D : Divisor.degZero (K := k) (F := L)) : Pic0.mk (n • D) = n • Pic0.mk D :=
+  QuotientAddGroup.mk_zsmul _ D n
+
+private theorem mk_eq_zero_iff' {k L : Type*} [Field k] [Field L] [Algebra k L]
+    (D : Divisor.degZero (K := k) (F := L)) :
+    Pic0.mk D = 0 ↔ (D : Divisor k L) ∈ (Divisor.principal : AddSubgroup (Divisor k L)) := by
+  unfold Pic0.mk
+  rw [QuotientAddGroup.eq_zero_iff, AddSubgroup.mem_addSubgroupOf]
+
+private theorem mk_eq_mk_iff' {k L : Type*} [Field k] [Field L] [Algebra k L]
+    (D E : Divisor.degZero (K := k) (F := L)) :
+    Pic0.mk D = Pic0.mk E ↔
+      -(D : Divisor k L) + E ∈ (Divisor.principal : AddSubgroup (Divisor k L)) := by
+  unfold Pic0.mk
+  rw [QuotientAddGroup.eq, AddSubgroup.mem_addSubgroupOf]
+  exact Iff.rfl
+
+private theorem natCast_mul_apply_eq_of_zsmul_mem_principal {k L : Type*} [Field k] [Field L]
+    [Algebra k L] {n : ℕ} {D : Divisor.degZero (K := k) (F := L)}
+    (h : ((n : ℤ) • D : Divisor.degZero (K := k) (F := L)) ∈
+      (Divisor.principal : AddSubgroup (Divisor k L)).addSubgroupOf Divisor.degZero) :
+    ∃ g : L, g ≠ 0 ∧ ∀ v : Place k L, (n : ℤ) * (D : Divisor k L) v = v.ord g := by
+  rw [AddSubgroup.mem_addSubgroupOf] at h
+  obtain ⟨g, hg, hDg⟩ := h
+  refine ⟨g, hg, fun v => ?_⟩
+  rw [← hDg v, AddSubgroupClass.coe_zsmul, Finsupp.smul_apply, smul_eq_mul]
+
+section Lift
+
+variable [IsAlgClosed K] [CharZero K] [IsCurveOver K F]
+  (hfg : ∃ x : F, Transcendental K x ∧
+    FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F)
+  (hfg' : ∃ x : F', Transcendental K' x ∧
+    FiniteDimensional (IntermediateField.adjoin K' ({x} : Set F')) F')
+  (hgen : IntermediateField.adjoin K' (Set.range (algebraMap F F')) = ⊤)
+
+private noncomputable def liftPlace (P : Place K F) : Place K' F' :=
+  Classical.choose
+    (AlgebraicCurve.Place.exists_comap_algebraMap_eq_of_constantFieldExtension
+      K F K' F' hfg hfg' hgen P)
+
+private theorem liftPlace_spec (P : Place K F) :
+    (liftPlace hfg hfg' hgen P).toValuationSubring.comap (algebraMap F F') =
+        P.toValuationSubring ∧
+      (∀ f : F, (liftPlace hfg hfg' hgen P).ord (algebraMap F F' f) = P.ord f) ∧
+      ∀ Q' : Place K' F', Q'.toValuationSubring.comap (algebraMap F F') = P.toValuationSubring →
+        Q' = liftPlace hfg hfg' hgen P :=
+  Classical.choose_spec
+    (AlgebraicCurve.Place.exists_comap_algebraMap_eq_of_constantFieldExtension
+      K F K' F' hfg hfg' hgen P)
+
+private theorem liftPlace_comap (P : Place K F) :
+    (liftPlace hfg hfg' hgen P).toValuationSubring.comap (algebraMap F F') =
+      P.toValuationSubring :=
+  (liftPlace_spec hfg hfg' hgen P).1
+
+private theorem ord_liftPlace (P : Place K F) (f : F) :
+    (liftPlace hfg hfg' hgen P).ord (algebraMap F F' f) = P.ord f :=
+  (liftPlace_spec hfg hfg' hgen P).2.1 f
+
+private theorem eq_liftPlace {P : Place K F} {Q' : Place K' F'}
+    (h : Q'.toValuationSubring.comap (algebraMap F F') = P.toValuationSubring) :
+    Q' = liftPlace hfg hfg' hgen P :=
+  (liftPlace_spec hfg hfg' hgen P).2.2 Q' h
+
+private theorem liftPlace_injective :
+    Function.Injective (liftPlace (K := K) (F := F) (K' := K') (F' := F') hfg hfg' hgen) := by
+  intro P Q h
+  apply Place.ext
+  rw [← liftPlace_comap hfg hfg' hgen P, h, liftPlace_comap]
+
+private theorem ord_algebraMap_eq_zero_of_forall_ne (w : Place K' F')
+    (hw : ∀ P : Place K F, w ≠ liftPlace hfg hfg' hgen P) (f : F) :
+    w.ord (algebraMap F F' f) = 0 := by
+  by_contra hne
+  obtain ⟨x, hx, hfin⟩ := id hfg
+  haveI := hfin
+  have hwK : ∀ a : K, algebraMap F F' (algebraMap K F a) ∈ w.toValuationSubring := fun a => by
+    rw [← IsScalarTower.algebraMap_apply, IsScalarTower.algebraMap_apply K K' F']
+    exact w.algebraMap_mem' _
+  have hwx : ∃ y : F, algebraMap F F' y ∉ w.toValuationSubring := by
+    by_contra hall
+    push Not at hall
+    exact hne (ConstantFieldPlaceLift.ord_eq_zero_of_mem_of_inv_mem w (hall f)
+      (by rw [← map_inv₀]; exact hall _))
+  obtain ⟨v, hv⟩ := AlgebraicCurve.Place.exists_toValuationSubring_eq_comap_ringHom
+    (K := K) x (algebraMap F F') w.toValuationSubring hwK hwx
+  exact hw v (eq_liftPlace hfg hfg' hgen hv.symm)
+
+private noncomputable def conormDiv : Divisor K F →+ Divisor K' F' :=
+  Finsupp.mapDomain.addMonoidHom (liftPlace hfg hfg' hgen)
+
+private theorem conormDiv_apply_liftPlace (D : Divisor K F) (P : Place K F) :
+    conormDiv hfg hfg' hgen D (liftPlace hfg hfg' hgen P) = D P :=
+  Finsupp.mapDomain_apply_of_injective (liftPlace_injective hfg hfg' hgen) D P
+
+private theorem conormDiv_apply_of_forall_ne (D : Divisor K F) (w : Place K' F')
+    (hw : ∀ P : Place K F, w ≠ liftPlace hfg hfg' hgen P) : conormDiv hfg hfg' hgen D w = 0 :=
+  Finsupp.mapDomain_of_notMem_range D w (by rintro ⟨P, rfl⟩; exact hw P rfl)
+
+private theorem conormDiv_single (P : Place K F) (m : ℤ) :
+    conormDiv hfg hfg' hgen (Finsupp.single P m) = Finsupp.single (liftPlace hfg hfg' hgen P) m :=
+  Finsupp.mapDomain_single
+
+private theorem conormDiv_mem_principal {D : Divisor K F}
+    (hD : D ∈ (Divisor.principal : AddSubgroup (Divisor K F))) :
+    conormDiv hfg hfg' hgen D ∈ (Divisor.principal : AddSubgroup (Divisor K' F')) := by
+  obtain ⟨f, hf, hDf⟩ := hD
+  refine ⟨algebraMap F F' f, (map_ne_zero (algebraMap F F')).mpr hf, fun w => ?_⟩
+  by_cases hw : ∃ P, w = liftPlace hfg hfg' hgen P
+  · obtain ⟨P, rfl⟩ := hw
+    rw [conormDiv_apply_liftPlace, ord_liftPlace, hDf]
+  · push Not at hw
+    rw [conormDiv_apply_of_forall_ne hfg hfg' hgen D w hw,
+      ord_algebraMap_eq_zero_of_forall_ne hfg hfg' hgen w hw]
+
+variable [IsAlgClosed K'] [IsCurveOver K' F']
+
+private theorem degree_conormDiv (D : Divisor K F) :
+    Divisor.degree (conormDiv hfg hfg' hgen D) = Divisor.degree D := by
+  refine Finsupp.induction D (by simp) fun P m D _ _ ih => ?_
+  rw [map_add, map_add, map_add, ih, conormDiv_single, Divisor.degree_single,
+    Divisor.degree_single, IsCurveOver.deg_eq_one_of_isAlgClosed,
+    IsCurveOver.deg_eq_one_of_isAlgClosed]
+
+private noncomputable def conormDegZero :
+    Divisor.degZero (K := K) (F := F) →+ Divisor.degZero (K := K') (F := F') :=
+  ((conormDiv hfg hfg' hgen).domRestrict (Divisor.degZero (K := K) (F := F))).codRestrict _
+    (fun D => show Divisor.degree (conormDiv hfg hfg' hgen (D : Divisor K F)) = 0 by
+      rw [degree_conormDiv]; exact D.2)
+
+private theorem coe_conormDegZero (D : Divisor.degZero (K := K) (F := F)) :
+    (conormDegZero hfg hfg' hgen D : Divisor K' F') = conormDiv hfg hfg' hgen D := rfl
+
+private noncomputable def Con : Pic0 K F →+ Pic0 K' F' :=
+  QuotientAddGroup.map _ _ (conormDegZero hfg hfg' hgen) (by
+    rintro ⟨D, hD0⟩ hD
+    simp only [AddSubgroup.mem_comap, AddSubgroup.mem_addSubgroupOf] at hD ⊢
+    exact conormDiv_mem_principal hfg hfg' hgen hD)
+
+private theorem Con_mk (D : Divisor.degZero (K := K) (F := F)) :
+    Con hfg hfg' hgen (Pic0.mk D) = Pic0.mk (conormDegZero hfg hfg' hgen D) := rfl
+
+private theorem Con_eq_zero_imp {n : ℕ} (hn : n ≠ 0) {c : Pic0 K F}
+    (hc : c ∈ Pic0.torsion K F n) (h0 : Con hfg hfg' hgen c = 0) : c = 0 := by
+  obtain ⟨D, rfl⟩ := Pic0.mk_surjective c
+  rw [Con_mk, mk_eq_zero_iff', coe_conormDegZero] at h0
+  obtain ⟨f', hf', hDf'⟩ := h0
+  rw [Pic0.mem_torsion, ← mk_zsmul', mk_eq_zero_iff', ← AddSubgroup.mem_addSubgroupOf] at hc
+  obtain ⟨g, hg, hDg⟩ := natCast_mul_apply_eq_of_zsmul_mem_principal hc
+  have hg' : algebraMap F F' g ≠ 0 := (map_ne_zero (algebraMap F F')).mpr hg
+
+  set z : F' := f' ^ n * (algebraMap F F' g)⁻¹ with hz
+  have hz0 : z ≠ 0 := mul_ne_zero (pow_ne_zero _ hf') (inv_ne_zero hg')
+  have hzord : ∀ w : Place K' F', w.ord z = 0 := by
+    intro w
+    rw [hz, w.ord_mul (pow_ne_zero _ hf') (inv_ne_zero hg'), Place.ord_inv, ← zpow_natCast,
+      Place.ord_zpow]
+    by_cases hw : ∃ P, w = liftPlace hfg hfg' hgen P
+    · obtain ⟨P, rfl⟩ := hw
+      rw [ord_liftPlace, ← hDg P, ← hDf', conormDiv_apply_liftPlace]
+      ring
+    · push Not at hw
+      rw [← hDf', conormDiv_apply_of_forall_ne hfg hfg' hgen _ w hw,
+        ord_algebraMap_eq_zero_of_forall_ne hfg hfg' hgen w hw]
+      ring
+  obtain ⟨x', hx', hfin'⟩ := id hfg'
+  haveI := hfin'
+  obtain ⟨c, hc⟩ :=
+    AlgebraicCurve.Place.mem_range_algebraMap_of_forall_ord_eq_zero_of_isAlgClosed
+      (K := K') x' hx' hzord
+  have hc0 : c ≠ 0 := by rintro rfl; exact hz0 (by rw [← hc, map_zero])
+
+  obtain ⟨d, hd⟩ := IsAlgClosed.exists_pow_nat_eq c (Nat.pos_of_ne_zero hn)
+  have hd0 : d ≠ 0 := by rintro rfl; exact hc0 (by rw [← hd, zero_pow hn])
+  have hd0' : algebraMap K' F' d ≠ 0 := (map_ne_zero (algebraMap K' F')).mpr hd0
+
+  set y : F' := f' * (algebraMap K' F' d)⁻¹ with hy_def
+  have hy : y ^ n = algebraMap F F' g := by
+    rw [hy_def, mul_pow, inv_pow, ← map_pow, hd, hc, hz, mul_inv, inv_inv, ← mul_assoc,
+      mul_inv_cancel₀ (pow_ne_zero _ hf'), one_mul]
+  obtain ⟨f, hf⟩ := mem_range_of_pow_eq_algebraMap hfg hfg' hgen hn hy
+  have hfy : f' = algebraMap F F' f * algebraMap K' F' d := by
+    rw [hf, hy_def, inv_mul_cancel_right₀ hd0']
+  have hf0 : f ≠ 0 := by
+    rintro rfl
+    rw [map_zero, zero_mul] at hfy
+    exact hf' hfy
+
+  refine (mk_eq_zero_iff' D).mpr ⟨f, hf0, fun P => ?_⟩
+  rw [← ord_liftPlace hfg hfg' hgen P f, ← conormDiv_apply_liftPlace hfg hfg' hgen (D : Divisor K F) P,
+    hDf', hfy, (liftPlace hfg hfg' hgen P).ord_mul ((map_ne_zero (algebraMap F F')).mpr hf0) hd0',
+    Place.ord_algebraMap_base, add_zero]
+
+private theorem exists_Con_eq {n : ℕ} (hn : n ≠ 0) {c' : Pic0 K' F'}
+    (hc' : c' ∈ Pic0.torsion K' F' n) :
+    ∃ c ∈ Pic0.torsion K F n, Con hfg hfg' hgen c = c' := by
+  obtain ⟨D', rfl⟩ := Pic0.mk_surjective c'
+  have hc'' := hc'
+  rw [Pic0.mem_torsion, ← mk_zsmul', mk_eq_zero_iff', ← AddSubgroup.mem_addSubgroupOf] at hc''
+  obtain ⟨g', hg', hDg'⟩ := natCast_mul_apply_eq_of_zsmul_mem_principal hc''
+  obtain ⟨D, h', hh', ⟨g, hg, hDg⟩, hover, hoff⟩ :=
+    AlgebraicCurve.Divisor.exists_torsion_descent_of_constantFieldExtension K F K' F' hfg hfg'
+      hgen n hn (D' : Divisor K' F') ⟨g', hg', hDg'⟩
+  have hDdeg : Divisor.degree D = 0 := by
+    have h1 : Divisor.degree ((n : ℤ) • D) = 0 :=
+      degree_eq_zero_of_forall_eq_ord hg fun v => by rw [Finsupp.smul_apply, smul_eq_mul, hDg]
+    rw [map_zsmul, smul_eq_mul, mul_eq_zero] at h1
+    exact h1.resolve_left (Int.natCast_ne_zero.mpr hn)
+  refine ⟨Pic0.mk ⟨D, Divisor.mem_degZero.mpr hDdeg⟩, ?_, ?_⟩
+  · rw [Pic0.mem_torsion, ← mk_zsmul', mk_eq_zero_iff']
+    exact ⟨g, hg, fun v => by
+      rw [AddSubgroupClass.coe_zsmul, Finsupp.smul_apply, smul_eq_mul]; exact hDg v⟩
+  · rw [Con_mk, mk_eq_mk_iff', coe_conormDegZero]
+    refine ⟨h', hh', fun w => ?_⟩
+    rw [Finsupp.add_apply, Finsupp.neg_apply]
+    by_cases hw : ∃ P, w = liftPlace hfg hfg' hgen P
+    · obtain ⟨P, rfl⟩ := hw
+      rw [conormDiv_apply_liftPlace, hover P _ (liftPlace_comap hfg hfg' hgen P)]
+      ring
+    · push Not at hw
+      have hoffw := hoff w fun P hP => hw P (eq_liftPlace hfg hfg' hgen hP)
+      rw [conormDiv_apply_of_forall_ne hfg hfg' hgen _ w hw, hoffw]
+      ring
+
+include hfg hfg' hgen in
+
+private theorem natCard_torsion_eq {n : ℕ} (hn : n ≠ 0) :
+    Nat.card (Pic0.torsion K' F' n) = Nat.card (Pic0.torsion K F n) := by
+  let t : Pic0.torsion K F n → Pic0.torsion K' F' n := fun c =>
+    ⟨Con hfg hfg' hgen c, by
+      rw [Pic0.mem_torsion, ← map_zsmul (Con hfg hfg' hgen), Pic0.mem_torsion.mp c.2, map_zero]⟩
+  have hinj : Function.Injective t := by
+    rintro ⟨a, ha⟩ ⟨b, hb⟩ h
+    have h' : Con hfg hfg' hgen a = Con hfg hfg' hgen b := congrArg Subtype.val h
+    have hab : a - b ∈ Pic0.torsion K F n := (Pic0.torsion K F n).sub_mem ha hb
+    have := Con_eq_zero_imp hfg hfg' hgen hn hab (by rw [map_sub, h', sub_self])
+    exact Subtype.ext (sub_eq_zero.mp this)
+  have hsurj : Function.Surjective t := by
+    rintro ⟨c', hc'⟩
+    obtain ⟨c, hc, hcc'⟩ := exists_Con_eq hfg hfg' hgen hn hc'
+    exact ⟨⟨c, hc⟩, Subtype.ext hcc'⟩
+  exact (Nat.card_congr (Equiv.ofBijective t ⟨hinj, hsurj⟩)).symm
+
+end Lift
+
+end Transfer
+
+end W7XL2
+
+set_option linter.style.haveILetI false in
+/-- **The order of the `n`-torsion of `Pic⁰` is a constant-field-extension invariant.**
+Verbatim from
+`Theorems/Thm_AlgebraicCurve_Pic0_natCard_torsion_eq_of_constantFieldExtension.lean`; the
+pin's `p^{2g}` statement `#Pic⁰[n](K'·F) = #Pic⁰[n](F)`. -/
+theorem Pic0.natCard_torsion_eq_of_constantFieldExtension (K F K' F' : Type*)
+    [Field K] [Field F] [Field K'] [Field F'] [Algebra K F] [Algebra K' F']
+    [Algebra K K'] [Algebra F F'] [Algebra K F'] [IsScalarTower K K' F'] [IsScalarTower K F F']
+    [IsAlgClosed K] [CharZero K] [IsAlgClosed K']
+    (hfg : ∃ x : F, Transcendental K x ∧ FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F)
+    (hfg' : ∃ x : F', Transcendental K' x ∧
+      FiniteDimensional (IntermediateField.adjoin K' ({x} : Set F')) F')
+    [IsCurveOver K F] [IsCurveOver K' F']
+    (hgen : IntermediateField.adjoin K' (Set.range (algebraMap F F')) = ⊤)
+    (n : ℕ) (hn : n ≠ 0) :
+    Nat.card (Pic0.torsion K' F' n) = Nat.card (Pic0.torsion K F n) :=
+  W7XL2.natCard_torsion_eq hfg hfg' hgen hn
 
 end AlgebraicCurve

@@ -47,6 +47,10 @@ spec-pin: P2M/Sol/S_AlgebraicCurve_mem_span_range_algebraMap_of_constantFieldExt
 # `degree_eq_sum` (public here for P5, which needs it in its own descent proof) is also declared in
 # the pin's P5 `isPrincipal` file; that is its second pin source.
 spec-pin: P2M/Sol/S_AlgebraicCurve_Divisor_isPrincipal_of_constantFieldExtension.lean   -- comparable copy
+spec-pin: Theorems/Thm_AlgebraicCurve_finrankAlong_eq_and_trace_eq_of_constantFieldExtension.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_finrankAlong_eq_and_trace_eq_of_constantFieldExtension.lean   -- comparable copy
+spec-pin: Theorems/Thm_AlgebraicCurve_finrank_le_and_natCard_places_le_of_constantFieldExtension_adjoin.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_finrank_le_and_natCard_places_le_of_constantFieldExtension_adjoin.lean   -- comparable copy
 -/
 import FLTForHuman.AlgebraicCurve.IsCurveOver.ConstantFieldExtension
 import FLTForHuman.AlgebraicCurve.Place.ConstantFieldExtension
@@ -864,5 +868,761 @@ theorem mem_span_range_algebraMap_of_constantFieldExtension
         z ∈ v'.toValuationSubring) :
     z ∈ Submodule.span K' (Set.range (algebraMap F F')) :=
   W7XH.mem_span_range_algebraMap_of_constantFieldExtension K F K' F' hfg hfg' hgen z hz
+
+/-! ## `finrankAlong` and the trace under a constant-field extension
+
+`AlgebraicCurve.finrankAlong_eq_and_trace_eq_of_constantFieldExtension`, after
+`P2M/Sol/S_AlgebraicCurve_finrankAlong_eq_and_trace_eq_of_constantFieldExtension.lean`
+(407 ln) and its `Theorems/` wrapper.  A constant-field extension preserves
+`finrankAlong` and commutes the trace with the algebra map. -/
+
+namespace TraceBaseChangeProof
+
+section Finite
+
+variable {K F F' : Type*} [Field K] [Field F] [Field F'] [Algebra K F] [Algebra K F']
+
+set_option linter.style.haveILetI false in
+private theorem exists_finset_adjoin_eq_top
+    (hfg : ∃ x : F', Transcendental K x ∧
+      FiniteDimensional (IntermediateField.adjoin K ({x} : Set F')) F') :
+    ∃ G : Finset F', IntermediateField.adjoin K (G : Set F') = ⊤ := by
+  classical
+  obtain ⟨x, -, hxfin⟩ := hfg
+  set Kx := IntermediateField.adjoin K ({x} : Set F')
+  haveI := hxfin
+  let b := Module.finBasis Kx F'
+  refine ⟨insert x (Finset.univ.image b), ?_⟩
+  have hset : ((insert x (Finset.univ.image b) : Finset F') : Set F') = {x} ∪ Set.range b := by
+    ext y
+    simp only [Finset.coe_insert, Finset.coe_image, Finset.coe_univ, Set.image_univ,
+      Set.mem_insert_iff, Set.mem_range, Set.singleton_union]
+  rw [hset, ← IntermediateField.adjoin_adjoin_left]
+  have htop : IntermediateField.adjoin Kx (Set.range b) = ⊤ := by
+    rw [eq_top_iff]
+    intro f _
+    have hspan : f ∈ Submodule.span Kx (Set.range b) := by
+      rw [b.span_eq]; trivial
+    have hle : Submodule.span Kx (Set.range b) ≤
+        (IntermediateField.adjoin Kx (Set.range b)).toSubalgebra.toSubmodule :=
+      Submodule.span_le.2 (fun y hy => IntermediateField.subset_adjoin Kx _ hy)
+    exact hle hspan
+  rw [htop]
+  rfl
+
+set_option linter.style.haveILetI false in
+private theorem finiteAlong_of_isIntegral_of_adjoin_eq_top (φ : F →ₐ[K] F')
+    (hφ : φ.toRingHom.IsIntegral) (T : Finset F')
+    (hT : IntermediateField.adjoin K (T : Set F') = ⊤) : FiniteAlong K φ := by
+  letI : Algebra F F' := algebraAlong φ
+  haveI := isScalarTower_along φ
+  have hT' : IntermediateField.adjoin F (T : Set F') = ⊤ := by
+    rw [eq_top_iff]
+    intro y _
+    have hle : IntermediateField.adjoin K (T : Set F') ≤
+        (IntermediateField.adjoin F (T : Set F')).restrictScalars K :=
+      IntermediateField.adjoin_le_iff.2 (IntermediateField.subset_adjoin F _)
+    have hy : y ∈ IntermediateField.adjoin K (T : Set F') := by rw [hT]; trivial
+    exact hle hy
+  haveI : FiniteDimensional F (IntermediateField.adjoin F (T : Set F')) :=
+    IntermediateField.finiteDimensional_adjoin (fun t _ => hφ t)
+  have e : (IntermediateField.adjoin F (T : Set F')) ≃ₗ[F] F' :=
+    ((IntermediateField.equivOfEq hT').trans IntermediateField.topEquiv).toLinearEquiv
+  exact Module.Finite.equiv e
+
+private theorem finiteAlong_of_hfg (φ : F →ₐ[K] F') (hφ : φ.toRingHom.IsIntegral)
+    (hfg : ∃ x : F', Transcendental K x ∧
+      FiniteDimensional (IntermediateField.adjoin K ({x} : Set F')) F') : FiniteAlong K φ := by
+  obtain ⟨T, hT⟩ := exists_finset_adjoin_eq_top (K := K) (F' := F') hfg
+  exact finiteAlong_of_isIntegral_of_adjoin_eq_top φ hφ T hT
+
+end Finite
+
+section Span
+
+variable {K F E FE : Type*} [Field K] [Field F] [Field E] [Field FE]
+  [Algebra K F] [Algebra K E] [Algebra E FE] [Algebra F FE] [Algebra K FE]
+  [IsScalarTower K E FE] [IsScalarTower K F FE]
+
+variable (E F FE) in
+
+private def spanEF : Submodule E FE := Submodule.span E (Set.range (algebraMap F FE))
+
+private theorem mul_mem_spanEF {a b : FE} (ha : a ∈ spanEF F E FE) (hb : b ∈ spanEF F E FE) :
+    a * b ∈ spanEF F E FE := by
+  unfold spanEF at *
+  induction ha using Submodule.span_induction generalizing b with
+  | mem x hx =>
+      obtain ⟨f, rfl⟩ := hx
+      induction hb using Submodule.span_induction with
+      | mem y hy =>
+          obtain ⟨g, rfl⟩ := hy
+          rw [← map_mul]
+          exact Submodule.subset_span ⟨f * g, rfl⟩
+      | zero => rw [mul_zero]; exact Submodule.zero_mem _
+      | add y z _ _ hy hz => rw [mul_add]; exact Submodule.add_mem _ hy hz
+      | smul e y _ hy => rw [mul_smul_comm]; exact Submodule.smul_mem _ e hy
+  | zero => rw [zero_mul]; exact Submodule.zero_mem _
+  | add x y _ _ hx hy => rw [add_mul]; exact Submodule.add_mem _ (hx hb) (hy hb)
+  | smul e x _ hx => rw [smul_mul_assoc]; exact Submodule.smul_mem _ e (hx hb)
+
+private theorem one_mem_spanEF : (1 : FE) ∈ spanEF F E FE :=
+  Submodule.subset_span ⟨1, map_one _⟩
+
+private theorem algebraMap_E_mem_spanEF (e : E) : algebraMap E FE e ∈ spanEF F E FE := by
+  rw [Algebra.algebraMap_eq_smul_one]
+  exact Submodule.smul_mem _ e one_mem_spanEF
+
+private theorem prod_mem_spanEF {ι : Type*} (s : Finset ι) (q : ι → FE)
+    (hq : ∀ i ∈ s, q i ∈ spanEF F E FE) :
+    ∏ i ∈ s, q i ∈ spanEF F E FE := by
+  classical
+  induction s using Finset.induction_on with
+  | empty => rw [Finset.prod_empty]; exact one_mem_spanEF
+  | insert a s ha ih =>
+      rw [Finset.prod_insert ha]
+      exact mul_mem_spanEF (hq a (Finset.mem_insert_self a s))
+        (ih fun i hi => hq i (Finset.mem_insert_of_mem hi))
+
+private def spanEFRing : Subring FE where
+  carrier := spanEF F E FE
+  mul_mem' ha hb := mul_mem_spanEF ha hb
+  one_mem' := one_mem_spanEF
+  add_mem' ha hb := Submodule.add_mem _ ha hb
+  zero_mem' := Submodule.zero_mem _
+  neg_mem' ha := Submodule.neg_mem _ ha
+
+private theorem exists_div_of_adjoin_eq_top
+    (hgen : IntermediateField.adjoin E (Set.range (algebraMap F FE)) = ⊤) (z : FE) :
+    ∃ p q : FE, p ∈ spanEF F E FE ∧ q ∈ spanEF F E FE ∧ q ≠ 0 ∧ z = p / q := by
+  have hz : z ∈ IntermediateField.adjoin E (Set.range (algebraMap F FE)) := by rw [hgen]; trivial
+  have hz' : z ∈ Subfield.closure (Set.range (algebraMap E FE) ∪ Set.range (algebraMap F FE)) := hz
+  rw [Subfield.mem_closure_iff] at hz'
+  obtain ⟨y, hy, w, hw, hyw⟩ := hz'
+  have hsub : Subring.closure (Set.range (algebraMap E FE) ∪ Set.range (algebraMap F FE)) ≤
+      (spanEFRing (E := E) (F := F) (FE := FE)) := by
+    rw [Subring.closure_le]
+    rintro a (⟨e, rfl⟩ | ⟨f, rfl⟩)
+    · exact algebraMap_E_mem_spanEF e
+    · exact Submodule.subset_span ⟨f, rfl⟩
+  have hy' : y ∈ spanEF F E FE := hsub hy
+  have hw' : w ∈ spanEF F E FE := hsub hw
+  by_cases hw0 : w = 0
+  · refine ⟨0, 1, Submodule.zero_mem _, one_mem_spanEF, one_ne_zero, ?_⟩
+    rw [← hyw, hw0, div_zero, zero_div]
+  · exact ⟨y, w, hy', hw', hw0, hyw.symm⟩
+
+set_option linter.style.haveILetI false in
+private theorem exists_linearIndependent_repr {d : ℕ} (c : Fin d → FE)
+    (hc : ∀ j, c j ∈ spanEF F E FE) :
+    ∃ (r : ℕ) (u : Fin r → F), LinearIndependent K u ∧
+      ∀ j, ∃ e : Fin r → E, c j = ∑ m, e m • algebraMap F FE (u m) := by
+  classical
+
+  have hfin : ∀ j, ∃ S : Finset F, c j ∈
+      Submodule.span E ((S.image (algebraMap F FE) : Finset FE) : Set FE) := by
+    intro j
+    obtain ⟨T, hT, hcT⟩ := Submodule.mem_span_finite_of_mem_span (hc j)
+    obtain ⟨S, -, hS⟩ := Finset.subset_set_image_iff.1
+      (show (T : Set FE) ⊆ algebraMap F FE '' Set.univ by rwa [Set.image_univ])
+    exact ⟨S, by rwa [hS]⟩
+  choose S hS using hfin
+  set Sall : Finset F := Finset.univ.biUnion S with hSall
+
+  set V : Submodule K F := Submodule.span K (Sall : Set F) with hV
+  haveI : FiniteDimensional K V := FiniteDimensional.span_of_finite K Sall.finite_toSet
+  set bV := Module.finBasis K V
+  refine ⟨Module.finrank K V, fun m => (bV m : F), ?_, fun j => ?_⟩
+  · exact bV.linearIndependent.map' V.subtype (Submodule.ker_subtype V)
+  ·
+    have hmem : ∀ f ∈ Sall, algebraMap F FE f ∈
+        Submodule.span E (Set.range fun m => algebraMap F FE (bV m : F)) := by
+      intro f hf
+      have hfV : f ∈ V := Submodule.subset_span hf
+      have hrepr := bV.sum_repr ⟨f, hfV⟩
+      have hf' : f = ∑ m, bV.repr ⟨f, hfV⟩ m • (bV m : F) := by
+        have := congrArg Subtype.val hrepr
+        simpa only [Submodule.coe_sum, Submodule.coe_smul] using this.symm
+      rw [hf', map_sum]
+      refine Submodule.sum_mem _ fun m _ => ?_
+      rw [Algebra.smul_def, map_mul, ← IsScalarTower.algebraMap_apply,
+        IsScalarTower.algebraMap_apply K E FE, ← Algebra.smul_def]
+      exact Submodule.smul_mem _ _ (Submodule.subset_span ⟨m, rfl⟩)
+    have hle : Submodule.span E ((S j).image (algebraMap F FE) : Set FE) ≤
+        Submodule.span E (Set.range fun m => algebraMap F FE (bV m : F)) := by
+      rw [Submodule.span_le]
+      intro a ha
+      rw [Finset.coe_image] at ha
+      obtain ⟨f, hf, rfl⟩ := ha
+      exact hmem f (Finset.mem_biUnion.2 ⟨j, Finset.mem_univ j, hf⟩)
+    have := hle (hS j)
+    rw [Submodule.mem_span_range_iff_exists_fun] at this
+    obtain ⟨e, he⟩ := this
+    exact ⟨e, he.symm⟩
+
+end Span
+
+section Independence
+
+variable {K F F' E FE F'E : Type*} [Field K] [Field F] [Field F'] [Field E] [Field FE] [Field F'E]
+  [Algebra K F] [Algebra K F'] [Algebra K E]
+  [Algebra E FE] [Algebra F FE] [Algebra K FE] [IsScalarTower K E FE] [IsScalarTower K F FE]
+  [Algebra E F'E] [Algebra F' F'E] [Algebra K F'E] [IsScalarTower K E F'E] [IsScalarTower K F' F'E]
+
+omit [Algebra K F'E] [IsScalarTower K E F'E] [IsScalarTower K F' F'E] in
+set_option linter.style.haveILetI false in
+private theorem linearIndependent_along_baseChange
+    (φ : F →ₐ[K] F') (φE : FE →ₐ[E] F'E)
+    (hφcomm : ∀ f : F, φE (algebraMap F FE f) = algebraMap F' F'E (φ f))
+    (hgen : IntermediateField.adjoin E (Set.range (algebraMap F FE)) = ⊤)
+    (hli : ∀ {ι : Type} [Fintype ι] (g : ι → F'), LinearIndependent K g →
+      LinearIndependent E (fun i => algebraMap F' F'E (g i)))
+    {d : ℕ} (b : Fin d → F') (hb : letI := algebraAlong φ; LinearIndependent F b) :
+    letI := algebraAlong φE
+    LinearIndependent FE (fun j => algebraMap F' F'E (b j)) := by
+  classical
+  letI : Algebra F F' := algebraAlong φ
+  letI : Algebra FE F'E := algebraAlong φE
+  have hsmulF : ∀ (s : F) (y : F'), s • y = φ s * y := fun s y => rfl
+  have hsmulFE : ∀ (s : FE) (y : F'E), s • y = φE s * y := fun s y => rfl
+
+  have hcore : ∀ c : Fin d → FE, (∀ j, c j ∈ spanEF F E FE) →
+      ∑ j, c j • algebraMap F' F'E (b j) = 0 → ∀ j, c j = 0 := by
+    intro c hc hrel
+    obtain ⟨r, u, hu, he⟩ := exists_linearIndependent_repr (K := K) c hc
+    choose e he using he
+
+    have hG : LinearIndependent K (fun mj : Fin r × Fin d => φ (u mj.1) * b mj.2) := by
+      rw [Fintype.linearIndependent_iff]
+      intro a ha
+      have hsum : ∑ j, (∑ m, a (m, j) • u m) • b j = 0 := by
+        have : ∑ mj : Fin r × Fin d, a mj • (φ (u mj.1) * b mj.2) =
+            ∑ j, (∑ m, a (m, j) • u m) • b j := by
+          rw [Fintype.sum_prod_type, Finset.sum_comm]
+          refine Finset.sum_congr rfl fun j _ => ?_
+          rw [hsmulF, map_sum, Finset.sum_mul]
+          refine Finset.sum_congr rfl fun m _ => ?_
+          rw [map_smul, Algebra.smul_def, Algebra.smul_def, mul_assoc]
+        rw [← this]; exact ha
+      have h1 := Fintype.linearIndependent_iff.1 hb (fun j => ∑ m, a (m, j) • u m) hsum
+      intro mj
+      have h2 := Fintype.linearIndependent_iff.1 hu (fun m => a (m, mj.2)) (h1 mj.2) mj.1
+      exact h2
+    have hG' := hli _ hG
+
+    have hrel' : ∑ mj : Fin r × Fin d,
+        e mj.2 mj.1 • algebraMap F' F'E (φ (u mj.1) * b mj.2) = 0 := by
+      have : ∑ mj : Fin r × Fin d, e mj.2 mj.1 • algebraMap F' F'E (φ (u mj.1) * b mj.2) =
+          ∑ j, c j • algebraMap F' F'E (b j) := by
+        rw [Fintype.sum_prod_type, Finset.sum_comm]
+        refine Finset.sum_congr rfl fun j _ => ?_
+        rw [hsmulFE, he j, map_sum, Finset.sum_mul]
+        refine Finset.sum_congr rfl fun m _ => ?_
+        rw [map_smul, hφcomm, map_mul, Algebra.smul_def, Algebra.smul_def, mul_assoc]
+      rw [this]; exact hrel
+    have h0 := Fintype.linearIndependent_iff.1 hG' (fun mj => e mj.2 mj.1) hrel'
+    intro j
+    rw [he j]
+    refine Finset.sum_eq_zero fun m _ => ?_
+    have h0' : e j m = 0 := h0 (m, j)
+    rw [h0', zero_smul]
+
+  rw [Fintype.linearIndependent_iff]
+  intro c hrel
+  choose p q hp hq hq0 hcpq using fun j => exists_div_of_adjoin_eq_top hgen (c j)
+  set Q : FE := ∏ j, q j with hQ
+  have hQ0 : Q ≠ 0 := Finset.prod_ne_zero_iff.2 fun j _ => hq0 j
+  have hc' : ∀ j, c j * Q ∈ spanEF F E FE := by
+    intro j
+    have : c j * Q = p j * ∏ k ∈ Finset.univ.erase j, q k := by
+      have hqj : q j ≠ 0 := hq0 j
+      rw [hcpq j, hQ, ← Finset.prod_erase_mul Finset.univ q (Finset.mem_univ j)]
+      field_simp
+    rw [this]
+    exact mul_mem_spanEF (hp j) (prod_mem_spanEF _ q fun k _ => hq k)
+  have hrel' : ∑ j, (c j * Q) • algebraMap F' F'E (b j) = 0 := by
+    have : ∑ j, (c j * Q) • algebraMap F' F'E (b j) =
+        φE Q * ∑ j, c j • algebraMap F' F'E (b j) := by
+      rw [Finset.mul_sum]
+      refine Finset.sum_congr rfl fun j _ => ?_
+      rw [hsmulFE, hsmulFE, map_mul]; ring
+    rw [this, hrel, mul_zero]
+  intro j
+  have := hcore (fun j => c j * Q) hc' hrel' j
+  exact (mul_eq_zero.1 this).resolve_right hQ0
+
+end Independence
+
+end TraceBaseChangeProof
+
+set_option linter.unusedVariables false in
+set_option linter.style.haveILetI false in
+open TraceBaseChangeProof in
+/-- **A constant-field extension preserves `finrankAlong` and commutes the trace.**
+Verbatim from
+`Theorems/Thm_AlgebraicCurve_finrankAlong_eq_and_trace_eq_of_constantFieldExtension.lean`;
+the pin's proof transports a `F`-basis of `F'` to an `FE`-basis of `F'E` by the
+`E`-linear independence of `F'` over `F`. -/
+theorem finrankAlong_eq_and_trace_eq_of_constantFieldExtension
+    (K F : Type*) [Field K] [Field F] [Algebra K F] [IsAlgClosed K] [CharZero K] [IsCurveOver K F]
+    (hfg : ∃ x : F, Transcendental K x ∧
+      FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F)
+    (F' : Type*) [Field F'] [Algebra K F'] [IsCurveOver K F']
+    (hfg' : ∃ x' : F', Transcendental K x' ∧
+      FiniteDimensional (IntermediateField.adjoin K ({x'} : Set F')) F')
+    (φ : F →ₐ[K] F') (hφ : φ.toRingHom.IsIntegral)
+    (E FE : Type*) [Field E] [Field FE] [Algebra K E] [Algebra E FE] [Algebra F FE] [Algebra K FE]
+    [IsScalarTower K E FE] [IsScalarTower K F FE] [IsAlgClosed E] [IsCurveOver E FE]
+    (hfgE : ∃ x : FE, Transcendental E x ∧
+      FiniteDimensional (IntermediateField.adjoin E ({x} : Set FE)) FE)
+    (hgen : IntermediateField.adjoin E (Set.range (algebraMap F FE)) = ⊤)
+    (F'E : Type*) [Field F'E] [Algebra E F'E] [Algebra F' F'E] [Algebra K F'E]
+    [IsScalarTower K E F'E] [IsScalarTower K F' F'E] [IsCurveOver E F'E]
+    (hfgE' : ∃ x' : F'E, Transcendental E x' ∧
+      FiniteDimensional (IntermediateField.adjoin E ({x'} : Set F'E)) F'E)
+    (hgen' : IntermediateField.adjoin E (Set.range (algebraMap F' F'E)) = ⊤)
+    (φE : FE →ₐ[E] F'E)
+    (hφcomm : ∀ f : F, φE (algebraMap F FE f) = algebraMap F' F'E (φ f))
+    (hφE : φE.toRingHom.IsIntegral) :
+    FiniteAlong K φ ∧ FiniteAlong E φE ∧ finrankAlong E φE = finrankAlong K φ ∧
+    ∀ u : F',
+      (letI := algebraAlong φE; Algebra.trace FE F'E (algebraMap F' F'E u)) =
+        algebraMap F FE (letI := algebraAlong φ; Algebra.trace F F' u) := by
+  classical
+
+  have hfinφ : FiniteAlong K φ := finiteAlong_of_hfg φ hφ hfg'
+  have hfinφE : FiniteAlong E φE := finiteAlong_of_hfg φE hφE hfgE'
+  letI : Algebra F F' := algebraAlong φ
+  haveI : IsScalarTower K F F' := isScalarTower_along φ
+  haveI : Module.Finite F F' := hfinφ
+  letI : Algebra FE F'E := algebraAlong φE
+  haveI : IsScalarTower E FE F'E := isScalarTower_along φE
+  haveI : Module.Finite FE F'E := hfinφE
+  have hsmulFE : ∀ (s : FE) (y : F'E), s • y = φE s * y := fun s y => rfl
+
+  set b := Module.finBasis F F' with hb
+  set d := Module.finrank F F' with hd
+
+  have hli : LinearIndependent FE (fun j => algebraMap F' F'E (b j)) := by
+    refine linearIndependent_along_baseChange (K := K) φ φE hφcomm hgen ?_ b b.linearIndependent
+    intro ι _ g hg
+    exact AlgebraicCurve.linearIndependent_of_constantFieldExtension K F' E F'E hfg' hfgE' hgen' hg
+
+  have hspan : ⊤ ≤ Submodule.span FE (Set.range fun j => algebraMap F' F'E (b j)) := by
+
+    have hF' : ∀ u : F', algebraMap F' F'E u ∈
+        Submodule.span FE (Set.range fun j => algebraMap F' F'E (b j)) := by
+      intro u
+      have hu : u = ∑ j, b.repr u j • b j := (b.sum_repr u).symm
+      rw [hu, map_sum]
+      refine Submodule.sum_mem _ fun j _ => ?_
+      have : algebraMap F' F'E (b.repr u j • b j) =
+          (algebraMap F FE (b.repr u j)) • algebraMap F' F'E (b j) := by
+        rw [hsmulFE, hφcomm, Algebra.smul_def, map_mul]; rfl
+      rw [this]
+      exact Submodule.smul_mem _ _ (Submodule.subset_span ⟨j, rfl⟩)
+
+    haveI : Algebra.IsIntegral FE F'E := ⟨fun z => hφE z⟩
+    haveI : Algebra.IsAlgebraic FE F'E := Algebra.IsIntegral.isAlgebraic
+    set A : Subalgebra FE F'E := Algebra.adjoin FE (Set.range (algebraMap F' F'E)) with hA
+    have hAfield : IsField A := Subalgebra.isField_of_algebraic A
+    have hAinv : ∀ z ∈ A, z⁻¹ ∈ A := by
+      intro z hz
+      by_cases hz0 : z = 0
+      · rw [hz0, inv_zero]; exact A.zero_mem
+      · obtain ⟨w, hw⟩ := hAfield.mul_inv_cancel (a := ⟨z, hz⟩) (fun h => hz0 (congrArg Subtype.val h))
+        have hw' : z * (w : F'E) = 1 := congrArg Subtype.val hw
+        have : (w : F'E) = z⁻¹ :=
+          (mul_eq_one_iff_eq_inv₀ hz0).1 (by rw [mul_comm]; exact hw')
+        rw [← this]; exact w.2
+    set A' : IntermediateField E F'E := (A.restrictScalars E).toIntermediateField
+      (fun z hz => hAinv z hz) with hA'
+    have hA'top : (⊤ : IntermediateField E F'E) ≤ A' := by
+      rw [← hgen', IntermediateField.adjoin_le_iff]
+      rintro _ ⟨u, rfl⟩
+      show algebraMap F' F'E u ∈ A
+      exact Algebra.subset_adjoin ⟨u, rfl⟩
+    have hAtop : ∀ z : F'E, z ∈ A := fun z => hA'top (IntermediateField.mem_top (x := z))
+
+    intro z _
+    have hz : z ∈ Subalgebra.toSubmodule A := hAtop z
+    rw [hA, Algebra.adjoin_eq_span] at hz
+    have hclos : (Submonoid.closure (Set.range (algebraMap F' F'E)) : Set F'E) ⊆
+        Set.range (algebraMap F' F'E) := by
+      intro y hy
+      have hle : Submonoid.closure (Set.range (algebraMap F' F'E)) ≤
+          MonoidHom.mrange ((algebraMap F' F'E : F' →+* F'E) : F' →* F'E) :=
+        Submonoid.closure_le.2 (by rintro _ ⟨u, rfl⟩; exact ⟨u, rfl⟩)
+      obtain ⟨u, hu⟩ := hle hy
+      exact ⟨u, hu⟩
+    refine (Submodule.span_le.2 ?_) (Submodule.span_mono hclos hz)
+    rintro _ ⟨u, rfl⟩
+    exact hF' u
+  set bE : Module.Basis (Fin d) FE F'E := Module.Basis.mk hli hspan with hbE
+  have hbE_apply : ∀ j, bE j = algebraMap F' F'E (b j) := fun j => by
+    rw [hbE, Module.Basis.mk_apply]
+
+  have hdeg : finrankAlong E φE = finrankAlong K φ := by
+    show Module.finrank FE F'E = Module.finrank F F'
+    rw [Module.finrank_eq_card_basis bE, Fintype.card_fin]
+  refine ⟨hfinφ, hfinφE, hdeg, fun u => ?_⟩
+
+  show Algebra.trace FE F'E (algebraMap F' F'E u) = algebraMap F FE (Algebra.trace F F' u)
+  rw [Algebra.trace_eq_matrix_trace bE, Algebra.trace_eq_matrix_trace b, Matrix.trace, Matrix.trace,
+    map_sum]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  rw [Matrix.diag_apply, Matrix.diag_apply, Algebra.leftMulMatrix_eq_repr_mul,
+    Algebra.leftMulMatrix_eq_repr_mul]
+
+  have hexp : algebraMap F' F'E u * bE i =
+      ∑ k, algebraMap F FE (b.repr (u * b i) k) • bE k := by
+    rw [hbE_apply, ← map_mul]
+    conv_lhs => rw [← b.sum_repr (u * b i)]
+    rw [map_sum]
+    refine Finset.sum_congr rfl fun k _ => ?_
+    rw [hbE_apply, hsmulFE, hφcomm, Algebra.smul_def, map_mul]
+    rfl
+  rw [hexp, Module.Basis.repr_sum_self]
+
+/-! ## The `finrank` and the number of places of an `adjoin`
+
+`AlgebraicCurve.finrank_le_and_natCard_places_le_of_constantFieldExtension_adjoin`, after
+`P2M/Sol/S_AlgebraicCurve_finrank_le_and_natCard_places_le_of_constantFieldExtension_adjoin.lean`
+(348 ln) and its `Theorems/` wrapper: over an algebraically closed base, the finrank of
+`k(y) ⊆ F` is at most that of `K'(t) ⊆ E`, and the poles and zeros of a nonzero `u ∈ F` do
+not multiply along `F → E`. -/
+
+set_option linter.unusedSectionVars false
+set_option linter.style.haveILetI false
+
+open scoped IntermediateField
+
+namespace ConstantFieldAdjoin
+
+section Main
+
+private theorem linearIndependent_pow_of_transcendental {k A : Type*} [Field k] [Ring A] [Algebra k A]
+    {Y : A} (hY : Transcendental k Y) (N : ℕ) :
+    LinearIndependent k (fun n : Fin N => Y ^ (n : ℕ)) := by
+  classical
+  rw [Fintype.linearIndependent_iff]
+  intro a ha m
+  have hinj := transcendental_iff_injective.mp hY
+  have hpoly : Polynomial.aeval Y (∑ n : Fin N, Polynomial.monomial (n : ℕ) (a n)) = 0 := by
+    rw [map_sum]
+    simpa [Polynomial.aeval_monomial, Algebra.smul_def] using ha
+  have hzero : (∑ n : Fin N, Polynomial.monomial (n : ℕ) (a n)) = 0 :=
+    hinj (by rw [hpoly, map_zero])
+  have hcoeff := congrArg (fun p : Polynomial k => p.coeff (m : ℕ)) hzero
+  simp only [Polynomial.finsetSum_coeff, Polynomial.coeff_monomial, Polynomial.coeff_zero] at hcoeff
+  rw [Finset.sum_eq_single m (fun n _ hn => ite_eq_right (fun h => hn (Fin.ext h))) (by simp)] at hcoeff
+  simpa using hcoeff
+
+variable {k : Type*} [Field k] [IsAlgClosed k] [CharZero k]
+variable {F : Type*} [Field F] [Algebra k F]
+variable {K' : Type*} [Field K'] [Algebra k K']
+variable {L : Type*} [Field L] [Algebra K' L] (t : L) (E : IntermediateField K'⟮t⟯ L)
+variable [Algebra F E] [Algebra k E] [IsScalarTower k K' E] [IsScalarTower k F E]
+
+private theorem exists_mul_aeval_eq (l : K'⟮t⟯) :
+    ∃ p q : Polynomial K', Polynomial.aeval t q ≠ 0 ∧ (l : L) * Polynomial.aeval t q = Polynomial.aeval t p := by
+  obtain ⟨r, s, hrs⟩ := (IntermediateField.mem_adjoin_simple_iff K' (l : L)).mp l.2
+  by_cases hs : Polynomial.aeval t s = 0
+  · refine ⟨0, 1, by simp, ?_⟩
+    rw [hrs, hs, div_zero, zero_mul, map_zero]
+  · refine ⟨r, s, hs, ?_⟩
+    rw [hrs, div_mul_cancel₀ _ hs]
+
+private theorem finrank_le_finrank (y : F) (hy : Transcendental k y) [FiniteDimensional k⟮y⟯ F]
+    (hyt : (algebraMap F E y : L) = t)
+    (hfg' : ∃ x : E, Transcendental K' x ∧ FiniteDimensional K'⟮x⟯ E)
+    (hgen : IntermediateField.adjoin K' (Set.range (algebraMap F E)) = ⊤)
+    [FiniteDimensional K'⟮t⟯ E] :
+    Module.finrank k⟮y⟯ F ≤ Module.finrank K'⟮t⟯ E := by
+  classical
+  set d := Module.finrank k⟮y⟯ F with hd
+  let b := Module.finBasisOfFinrankEq k⟮y⟯ F hd.symm
+
+  suffices hli : LinearIndependent K'⟮t⟯ (fun i : Fin d => algebraMap F E (b i)) by
+    simpa using hli.fintype_card_le_finrank
+  rw [Fintype.linearIndependent_iff]
+  intro l hl
+
+  have hpq : ∀ i, ∃ p q : Polynomial K', Polynomial.aeval t q ≠ 0 ∧
+      ((l i : K'⟮t⟯) : L) * Polynomial.aeval t q = Polynomial.aeval t p := fun i => exists_mul_aeval_eq t (l i)
+  choose p q hq hpq using hpq
+  set Q : Polynomial K' := ∏ i, q i with hQ
+  have hQ0 : Polynomial.aeval t Q ≠ 0 := by
+    rw [hQ, map_prod]
+    exact Finset.prod_ne_zero_iff.mpr fun i _ => hq i
+  let P : Fin d → Polynomial K' := fun i => p i * ∏ j ∈ Finset.univ.erase i, q j
+  have hP : ∀ i, ((l i : K'⟮t⟯) : L) * Polynomial.aeval t Q = Polynomial.aeval t (P i) := by
+    intro i
+    rw [hQ, ← Finset.mul_prod_erase Finset.univ q (Finset.mem_univ i), map_mul, ← mul_assoc, hpq i,
+      ← map_mul]
+
+  have hrelL : ∑ i, ((l i : K'⟮t⟯) : L) * (algebraMap F E (b i) : L) = 0 := by
+    have := congrArg (fun e : E => (e : L)) hl
+    simpa [IntermediateField.smul_def, smul_eq_mul] using this
+  have hrelQ : ∑ i, Polynomial.aeval t (P i) * (algebraMap F E (b i) : L) = 0 := by
+    have := congrArg (fun z : L => Polynomial.aeval t Q * z) hrelL
+    simp only [mul_zero, Finset.mul_sum] at this
+    rw [← this]
+    refine Finset.sum_congr rfl fun i _ => ?_
+    rw [← hP i]; ring
+
+  set N : ℕ := (Finset.univ.sup fun i => (P i).natDegree) + 1 with hN
+  have hdeg : ∀ i, (P i).natDegree < N := fun i =>
+    Nat.lt_succ_of_le (Finset.le_sup (f := fun i => (P i).natDegree) (Finset.mem_univ i))
+
+  have htn : ∀ n : ℕ, ((algebraMap F E (y ^ n) : E) : L) = t ^ n := by
+    intro n
+    rw [map_pow]
+    push_cast
+    rw [hyt]
+  have hrel2 : ∑ pr : Fin N × Fin d,
+      (P pr.2).coeff (pr.1 : ℕ) • ((algebraMap F E (y ^ (pr.1 : ℕ) * b pr.2) : E) : L) = 0 := by
+    rw [← hrelQ, Fintype.sum_prod_type, Finset.sum_comm]
+    refine Finset.sum_congr rfl fun i _ => ?_
+    rw [Polynomial.aeval_eq_sum_range' (hdeg i), Finset.sum_mul, ← Fin.sum_univ_eq_sum_range]
+    refine Finset.sum_congr rfl fun n _ => ?_
+    rw [map_mul, MulMemClass.coe_mul, htn, smul_mul_assoc]
+
+  let Y : k⟮y⟯ := ⟨y, IntermediateField.mem_adjoin_simple_self k y⟩
+  have hYt : Transcendental k Y := by
+    have hinj : Function.Injective (algebraMap k⟮y⟯ F) := (algebraMap k⟮y⟯ F).injective
+    rw [← transcendental_algebraMap_iff hinj]
+    exact hy
+  have hli1 : LinearIndependent k (fun pr : Fin N × Fin d => (Y ^ (pr.1 : ℕ)) • b pr.2) :=
+    linearIndependent_smul (linearIndependent_pow_of_transcendental hYt N) b.linearIndependent
+  have hfam : (fun pr : Fin N × Fin d => y ^ (pr.1 : ℕ) * b pr.2) =
+      (fun pr : Fin N × Fin d => (Y ^ (pr.1 : ℕ)) • b pr.2) := by
+    funext pr
+    rw [IntermediateField.smul_def]
+    rfl
+  have hLD := AlgebraicCurve.linearIndependent_of_constantFieldExtension k F K' E
+    ⟨y, hy, inferInstance⟩ hfg' hgen (b := fun pr : Fin N × Fin d => y ^ (pr.1 : ℕ) * b pr.2)
+    (by rw [hfam]; exact hli1)
+  have hLD' : LinearIndependent K'
+      (fun pr : Fin N × Fin d => ((algebraMap F E (y ^ (pr.1 : ℕ) * b pr.2) : E) : L)) :=
+    hLD.map' ((E.val.restrictScalars K').toLinearMap)
+      (LinearMap.ker_eq_bot.mpr fun a b h => Subtype.ext h)
+  have hcoeff : ∀ pr : Fin N × Fin d, (P pr.2).coeff (pr.1 : ℕ) = 0 :=
+    Fintype.linearIndependent_iff.mp hLD' _ hrel2
+
+  intro i
+  have hPi : P i = 0 := by
+    ext n
+    rw [Polynomial.coeff_zero]
+    rcases lt_or_ge n N with hn | hn
+    · exact hcoeff (⟨n, hn⟩, i)
+    · exact Polynomial.coeff_eq_zero_of_natDegree_lt (lt_of_lt_of_le (hdeg i) hn)
+  have := hP i
+  rw [hPi, map_zero, mul_eq_zero] at this
+  rcases this with h | h
+  · exact_mod_cast h
+  · exact absurd h hQ0
+
+private theorem natCard_places_le (y : F) (hy : Transcendental k y) [FiniteDimensional k⟮y⟯ F]
+    [AlgebraicCurve.IsCurveOver k F]
+    (hfg' : ∃ x : E, Transcendental K' x ∧ FiniteDimensional K'⟮x⟯ E)
+    (hgen : IntermediateField.adjoin K' (Set.range (algebraMap F E)) = ⊤)
+    (u : F) (hu : u ≠ 0) :
+    (Finite {P : AlgebraicCurve.Place K' E // 0 < P.ord (algebraMap F E u)} ∧
+      Nat.card {P : AlgebraicCurve.Place K' E // 0 < P.ord (algebraMap F E u)} ≤
+        Nat.card {P : AlgebraicCurve.Place k F // 0 < P.ord u}) ∧
+      (Finite {P : AlgebraicCurve.Place K' E // P.ord (algebraMap F E u) < 0} ∧
+      Nat.card {P : AlgebraicCurve.Place K' E // P.ord (algebraMap F E u) < 0} ≤
+        Nat.card {P : AlgebraicCurve.Place k F // P.ord u < 0}) := by
+  classical
+  have hu' : algebraMap F E u ≠ 0 := (map_ne_zero (algebraMap F E)).mpr hu
+
+  have hcomap : ∀ P : AlgebraicCurve.Place K' E, P.ord (algebraMap F E u) ≠ 0 →
+      ∃ v : AlgebraicCurve.Place k F,
+        v.toValuationSubring = P.toValuationSubring.comap (algebraMap F E) := by
+    intro P hP
+    refine AlgebraicCurve.Place.exists_toValuationSubring_eq_comap_ringHom (K := k) y (algebraMap F E)
+      P.toValuationSubring (fun a => ?_) ?_
+    · rw [← IsScalarTower.algebraMap_apply, IsScalarTower.algebraMap_apply k K' E]
+      exact P.algebraMap_mem' _
+    · rcases lt_or_gt_of_ne hP with h | h
+      · exact ⟨u, fun hmem => by
+          have := (AlgebraicCurve.Place.mem_iff_ord_nonneg_vs (v := P) (algebraMap F E u)).mp hmem; omega⟩
+      · refine ⟨u⁻¹, fun hmem => ?_⟩
+        rw [map_inv₀] at hmem
+        have := (AlgebraicCurve.Place.mem_iff_ord_nonneg_vs (v := P) ((algebraMap F E u)⁻¹)).mp hmem
+        rw [AlgebraicCurve.Place.ord_inv] at this
+        omega
+
+  have huniq : ∀ (v : AlgebraicCurve.Place k F) (P₁ P₂ : AlgebraicCurve.Place K' E),
+      P₁.toValuationSubring.comap (algebraMap F E) = v.toValuationSubring →
+      P₂.toValuationSubring.comap (algebraMap F E) = v.toValuationSubring → P₁ = P₂ := by
+    intro v P₁ P₂ h₁ h₂
+    obtain ⟨P', -, -, hP'⟩ :=
+      AlgebraicCurve.Place.exists_comap_algebraMap_eq_of_constantFieldExtension k F K' E
+        ⟨y, hy, inferInstance⟩ hfg' hgen v
+    rw [hP' P₁ h₁, hP' P₂ h₂]
+
+  have hsign_pos : ∀ (P : AlgebraicCurve.Place K' E) (v : AlgebraicCurve.Place k F),
+      v.toValuationSubring = P.toValuationSubring.comap (algebraMap F E) →
+      (0 < P.ord (algebraMap F E u) ↔ 0 < v.ord u) := by
+    intro P v hv
+    have h1 : algebraMap F E u ∈ P.toValuationSubring ↔ u ∈ v.toValuationSubring := by
+      rw [hv, ValuationSubring.mem_comap]
+    have h2 : (algebraMap F E u)⁻¹ ∈ P.toValuationSubring ↔ u⁻¹ ∈ v.toValuationSubring := by
+      rw [hv, ValuationSubring.mem_comap, map_inv₀]
+    rw [AlgebraicCurve.Place.mem_iff_ord_nonneg_vs (v := P) (algebraMap F E u),
+      AlgebraicCurve.Place.mem_iff_ord_nonneg_vs (v := v) u] at h1
+    rw [AlgebraicCurve.Place.mem_iff_ord_nonneg_vs (v := P) ((algebraMap F E u)⁻¹),
+      AlgebraicCurve.Place.mem_iff_ord_nonneg_vs (v := v) u⁻¹,
+      AlgebraicCurve.Place.ord_inv, AlgebraicCurve.Place.ord_inv] at h2
+    constructor
+    · intro h; by_contra h'; have := h2.mpr (by omega); omega
+    · intro h; by_contra h'; have := h2.mp (by omega); omega
+  have hsign_neg : ∀ (P : AlgebraicCurve.Place K' E) (v : AlgebraicCurve.Place k F),
+      v.toValuationSubring = P.toValuationSubring.comap (algebraMap F E) →
+      (P.ord (algebraMap F E u) < 0 ↔ v.ord u < 0) := by
+    intro P v hv
+    have h1 : algebraMap F E u ∈ P.toValuationSubring ↔ u ∈ v.toValuationSubring := by
+      rw [hv, ValuationSubring.mem_comap]
+    rw [AlgebraicCurve.Place.mem_iff_ord_nonneg_vs (v := P) (algebraMap F E u),
+      AlgebraicCurve.Place.mem_iff_ord_nonneg_vs (v := v) u] at h1
+    constructor
+    · intro h; by_contra h'; have := h1.mpr (by omega); omega
+    · intro h; by_contra h'; have := h1.mp (by omega); omega
+
+  obtain ⟨D, hD, -⟩ := AlgebraicCurve.HasPrincipalDivisors.exists_divisor (K := k) u hu
+  have hfin_pos : Finite {P : AlgebraicCurve.Place k F // 0 < P.ord u} := by
+    apply Finite.of_injective (fun P => (⟨P.1, by
+      rw [Finsupp.mem_support_iff, hD]; exact P.2.ne'⟩ : D.support))
+    intro P₁ P₂ h; exact Subtype.ext (congrArg (fun z : D.support => (z : AlgebraicCurve.Place k F)) h)
+  have hfin_neg : Finite {P : AlgebraicCurve.Place k F // P.ord u < 0} := by
+    apply Finite.of_injective (fun P => (⟨P.1, by
+      rw [Finsupp.mem_support_iff, hD]; exact P.2.ne⟩ : D.support))
+    intro P₁ P₂ h; exact Subtype.ext (congrArg (fun z : D.support => (z : AlgebraicCurve.Place k F)) h)
+  constructor
+  · let f : {P : AlgebraicCurve.Place K' E // 0 < P.ord (algebraMap F E u)} →
+        {P : AlgebraicCurve.Place k F // 0 < P.ord u} := fun P =>
+      ⟨(hcomap P.1 P.2.ne').choose,
+        (hsign_pos P.1 _ (hcomap P.1 P.2.ne').choose_spec).mp P.2⟩
+    suffices hf : Function.Injective f from
+      ⟨Finite.of_injective f hf, Nat.card_le_card_of_injective f hf⟩
+    intro P₁ P₂ h
+    apply Subtype.ext
+    have h' := congrArg (fun z : {P : AlgebraicCurve.Place k F // 0 < P.ord u} => z.1) h
+    exact huniq _ P₁.1 P₂.1 (hcomap P₁.1 P₁.2.ne').choose_spec.symm
+      (by rw [show (hcomap P₁.1 P₁.2.ne').choose = (hcomap P₂.1 P₂.2.ne').choose from h']
+          exact (hcomap P₂.1 P₂.2.ne').choose_spec.symm)
+  · let f : {P : AlgebraicCurve.Place K' E // P.ord (algebraMap F E u) < 0} →
+        {P : AlgebraicCurve.Place k F // P.ord u < 0} := fun P =>
+      ⟨(hcomap P.1 P.2.ne).choose,
+        (hsign_neg P.1 _ (hcomap P.1 P.2.ne).choose_spec).mp P.2⟩
+    suffices hf : Function.Injective f from
+      ⟨Finite.of_injective f hf, Nat.card_le_card_of_injective f hf⟩
+    intro P₁ P₂ h
+    apply Subtype.ext
+    have h' := congrArg (fun z : {P : AlgebraicCurve.Place k F // P.ord u < 0} => z.1) h
+    exact huniq _ P₁.1 P₂.1 (hcomap P₁.1 P₁.2.ne).choose_spec.symm
+      (by rw [show (hcomap P₁.1 P₁.2.ne).choose = (hcomap P₂.1 P₂.2.ne).choose from h']
+          exact (hcomap P₂.1 P₂.2.ne).choose_spec.symm)
+
+omit [IsAlgClosed k] [CharZero k] in
+
+private theorem finiteDimensional_adjoin_of_coe_eq [FiniteDimensional K'⟮t⟯ E] (x : E) (hx : (x : L) = t) :
+    FiniteDimensional K'⟮x⟯ E := by
+  let f : E →ₐ[K'] L := E.val.restrictScalars K'
+  have hmap : (K'⟮x⟯).map f = K'⟮t⟯ := by
+    rw [IntermediateField.adjoin_map, Set.image_singleton]
+    congr 1
+    rw [Set.singleton_eq_singleton_iff]
+    exact hx
+  let e : K'⟮x⟯ ≃ₐ[K'] K'⟮t⟯ := (IntermediateField.equivMap K'⟮x⟯ f).trans (IntermediateField.equivOfEq hmap)
+  have he : ∀ z : K'⟮x⟯, ((e z : K'⟮t⟯) : L) = ((z : E) : L) := fun z => rfl
+  refine Module.Finite.of_equiv_equiv (A₁ := K'⟮t⟯) (B₁ := E) (A₂ := K'⟮x⟯) (B₂ := E)
+    e.symm.toRingEquiv (RingEquiv.refl E) ?_
+  refine RingHom.ext fun l => Subtype.ext ?_
+  change (((e.symm l : K'⟮x⟯) : E) : L) = ((algebraMap K'⟮t⟯ E l : E) : L)
+  rw [← he (e.symm l), AlgEquiv.apply_symm_apply]
+  rfl
+
+omit [IsAlgClosed k] [CharZero k] in
+
+private theorem adjoin_adjoin_subset {K' : Type*} [Field K'] {L : Type*} [Field L] [Algebra K' L] (S : Set L) (t : L)
+    (ht : t ∈ IntermediateField.adjoin K' S) :
+    ((IntermediateField.adjoin K'⟮t⟯ S : IntermediateField K'⟮t⟯ L) : Set L) ⊆
+      ((IntermediateField.adjoin K' S : IntermediateField K' L) : Set L) := by
+  have h1 : ((IntermediateField.adjoin K'⟮t⟯ S : IntermediateField K'⟮t⟯ L) : Set L) =
+      (IntermediateField.restrictScalars K' (IntermediateField.adjoin K'⟮t⟯ S) : Set L) := rfl
+  rw [h1, IntermediateField.restrictScalars_adjoin]
+  have hle : IntermediateField.adjoin K' ((K'⟮t⟯ : Set L) ∪ S) ≤ IntermediateField.adjoin K' S := by
+    rw [IntermediateField.adjoin_le_iff]
+    apply Set.union_subset
+    · have : K'⟮t⟯ ≤ IntermediateField.adjoin K' S := IntermediateField.adjoin_simple_le_iff.mpr ht
+      exact SetLike.coe_subset_coe.mpr this
+    · exact IntermediateField.subset_adjoin K' _
+  exact SetLike.coe_subset_coe.mpr hle
+
+omit [IsAlgClosed k] [CharZero k] in
+
+private theorem adjoin_range_eq_top
+    (hEle : (E : Set L) ⊆
+      ((IntermediateField.adjoin K' (Set.range fun u : F => (algebraMap F E u : L)) :
+        IntermediateField K' L) : Set L)) :
+    IntermediateField.adjoin K' (Set.range (algebraMap F E)) = ⊤ := by
+  let f : E →ₐ[K'] L := E.val.restrictScalars K'
+  set A := IntermediateField.adjoin K' (Set.range (algebraMap F E)) with hA
+  have hmapA : A.map f = IntermediateField.adjoin K' (Set.range fun u : F => (algebraMap F E u : L)) := by
+    rw [hA, IntermediateField.adjoin_map, ← Set.range_comp]
+    rfl
+  rw [eq_top_iff]
+  intro e _
+  have he : (e : L) ∈ A.map f := by
+    rw [hmapA]; exact hEle e.2
+  obtain ⟨a, ha, hae⟩ := (IntermediateField.mem_map A).mp he
+  have : a = e := Subtype.ext hae
+  rw [← this]; exact ha
+
+end Main
+
+end ConstantFieldAdjoin
+
+open scoped IntermediateField in
+/-- **The finrank and the number of places of an `adjoin`.**  Verbatim from
+`Theorems/Thm_AlgebraicCurve_finrank_le_and_natCard_places_le_of_constantFieldExtension_adjoin.lean`;
+the pin's proof bounds `finrank k⟮y⟯ F` by the `K'⟮t⟯`-independence of the image of a
+`k⟮y⟯`-basis, and counts the poles and zeros through the unique lift of a place. -/
+theorem finrank_le_and_natCard_places_le_of_constantFieldExtension_adjoin
+    {k : Type*} [Field k] [IsAlgClosed k] [CharZero k]
+    {F : Type*} [Field F] [Algebra k F] [AlgebraicCurve.IsCurveOver k F]
+    (y : F) (hy : Transcendental k y)
+    [FiniteDimensional (IntermediateField.adjoin k ({y} : Set F)) F]
+    {K' : Type*} [Field K'] [Algebra k K']
+    {L : Type*} [Field L] [Algebra K' L] (t : L) (ht : Transcendental K' t)
+    (E : IntermediateField (IntermediateField.adjoin K' ({t} : Set L)) L)
+    [FiniteDimensional (IntermediateField.adjoin K' ({t} : Set L)) E]
+    [Algebra F E] [Algebra k E] [IsScalarTower k K' E] [IsScalarTower k F E]
+    (hyt : (algebraMap F E y : L) = t)
+    (hgen : IntermediateField.adjoin K' (Set.range (algebraMap F E)) = ⊤) :
+    Module.finrank (IntermediateField.adjoin k ({y} : Set F)) F ≤
+        Module.finrank (IntermediateField.adjoin K' ({t} : Set L)) E ∧
+      ∀ u : F, u ≠ 0 →
+        (Finite {P : AlgebraicCurve.Place K' E // 0 < P.ord (algebraMap F E u)} ∧
+          Nat.card {P : AlgebraicCurve.Place K' E // 0 < P.ord (algebraMap F E u)} ≤
+            Nat.card {P : AlgebraicCurve.Place k F // 0 < P.ord u}) ∧
+        (Finite {P : AlgebraicCurve.Place K' E // P.ord (algebraMap F E u) < 0} ∧
+          Nat.card {P : AlgebraicCurve.Place K' E // P.ord (algebraMap F E u) < 0} ≤
+            Nat.card {P : AlgebraicCurve.Place k F // P.ord u < 0}) := by
+
+  have hx : Transcendental K' (algebraMap F E y) := by
+    haveI : IsScalarTower K' E L := IsScalarTower.of_algebraMap_eq (fun _ => rfl)
+    rw [← transcendental_algebraMap_iff (R := K') (A := L) (algebraMap E L).injective]
+    change Transcendental K' ((algebraMap F E y : E) : L)
+    rw [hyt]
+    exact ht
+  have hfg' : ∃ x : E, Transcendental K' x ∧ FiniteDimensional K'⟮x⟯ E :=
+    ⟨algebraMap F E y, hx,
+      ConstantFieldAdjoin.finiteDimensional_adjoin_of_coe_eq t E _ hyt⟩
+  exact ⟨ConstantFieldAdjoin.finrank_le_finrank t E y hy hyt hfg' hgen,
+    fun u hu => ConstantFieldAdjoin.natCard_places_le t E y hy hfg' hgen u hu⟩
 
 end AlgebraicCurve

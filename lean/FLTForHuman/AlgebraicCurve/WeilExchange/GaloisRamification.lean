@@ -7,7 +7,27 @@ restriction, ramification index and inertia degree, after FLT's seven
 `Place.restrict_ofAlgAut_smul` is written once (the pin has a `private` copy of
 the same proof inside the first node's file); `restrictSmulValuationSubringEquiv`,
 `coe_restrictSmulValuationSubringEquiv_apply`, `ord_smul_eq` and
-`intertwinesAlong_one_ofAlgAut` stay `private` (`TOPIC-t3-galois-ramification.md` §1).
+`intertwinesAlong_one_ofAlgAut` stay `private`. The public headlines are their
+`Theorems/` wrappers verbatim (explicit binders, so they verify by last-name lookup).
+
+The last two carry the action on divisors: `SemilinearAut.restrict_smul` records that
+restriction of places is equivariant for a pair of intertwined semilinear
+automorphisms `g`, `g'`, and `SemilinearAut.pushforward_smul` that `Divisor.pushforward`
+is, so that pushing forward a transported divisor transports its pushforward.  They are
+stated over the same tower as the ramification-index and inertia-degree laws, whose
+proof of `inertiaDeg_smul` they consume.
+
+spec-pin: Theorems/Thm_AlgebraicCurve_Place_exists_algEquiv_smul_eq_of_restrict_eq.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_Place_restrict_ofAlgAut_smul.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_SemilinearAut_ramificationIndex_smul.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_SemilinearAut_inertiaDeg_smul.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_SemilinearAut_ord_algebraMap_smul.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_Place_ramificationIndex_eq_of_restrict_eq.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_Place_inertiaDeg_eq_of_restrict_eq.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_SemilinearAut_restrict_smul.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_SemilinearAut_restrict_smul.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_SemilinearAut_pushforward_smul.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_SemilinearAut_pushforward_smul.lean
 -/
 import FLTForHuman.AlgebraicCurve.Defs.PlaceDictionary
 import FLTForHuman.AlgebraicCurve.Defs.Correspondence
@@ -169,6 +189,36 @@ theorem inertiaDeg_smul {K F F' : Type*} [Field K] [Field F] [Field F'] [Algebra
   refine congrArg _ (Subtype.ext ?_)
   show algebraMap F F' (g • (a : F)) = g' • (algebraMap F F' (a : F))
   exact (hgg' (a : F)).symm
+
+/-- A place and its transport along an intertwined pair of semilinear automorphisms
+restrict to places that are again transported into each other. -/
+theorem restrict_smul {K F F' : Type*} [Field K] [Field F] [Field F'] [Algebra K F]
+    [Algebra K F'] [Algebra F F'] [IsScalarTower K F F'] [Algebra.IsIntegral F F']
+    {g : SemilinearAut K F} {g' : SemilinearAut K F'}
+    (hgg' : IntertwinesAlong (algebraMap F F') g g') (w : Place K F') :
+    (g' • w).restrict F = g • (w.restrict F) := by
+  apply Place.toValuationSubring_injective
+  rw [Place.restrict_toValuationSubring, smul_toValuationSubring, smul_toValuationSubring,
+    Place.restrict_toValuationSubring]
+  ext x
+  rw [ValuationSubring.mem_comap, ValuationSubring.mem_pointwise_smul_iff_inv_smul_mem,
+    ValuationSubring.mem_pointwise_smul_iff_inv_smul_mem, ValuationSubring.mem_comap,
+    hgg'.inv x]
+
+/-- `Divisor.pushforward` is equivariant for the semilinear action, along an
+intertwined pair: pushing a transported divisor forward transports the pushforward. -/
+theorem pushforward_smul {K F F' : Type*} [Field K] [Field F] [Field F'] [Algebra K F]
+    [Algebra K F'] [Algebra F F'] [IsScalarTower K F F'] [Algebra.IsIntegral F F']
+    {g : SemilinearAut K F} {g' : SemilinearAut K F'}
+    (hgg' : IntertwinesAlong (algebraMap F F') g g') (D : Divisor K F') :
+    Divisor.pushforward F (g' • D) = g • Divisor.pushforward F D := by
+  induction D using Finsupp.induction with
+  | zero => rw [smul_zero, map_zero, smul_zero]
+  | single_add w n D _ _ ih =>
+    rw [smul_add, map_add, map_add, smul_add, ih]
+    congr 1
+    rw [smul_single, Divisor.pushforward_single, Divisor.pushforward_single, smul_single,
+      restrict_smul hgg' w, inertiaDeg_smul hgg' w]
 
 end SemilinearAut
 

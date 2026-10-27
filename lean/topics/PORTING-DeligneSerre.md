@@ -693,7 +693,9 @@ ready; they must not be scheduled off a ready shelf.
 ## 3. The workflow
 
 This is the loop the column runs. Steps 1–4 are the manager's; step 5 is the subagents'; step 6
-closes.
+closes. The step-by-step recipe — the exact commands, what each figure means, the homing rule and
+the instrument failures the last two passes hit — is
+[deligneSerre/TOPIC-scoping-a-ds-set.md](deligneSerre/TOPIC-scoping-a-ds-set.md).
 
 **1. Read the frontier.** The canonical command above is `--ds --include-leaves` (`--ds` excludes
 the prunable complex-analytic subject, `--include-leaves` surfaces the demand's graph leaves);

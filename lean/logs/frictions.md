@@ -535,6 +535,13 @@ round promotes what generalizes.
   import, or `lake build` the module (flock'd) and re-check. All eight final modules' imports are
   present and built.
 - **seen**: 2026-10-20.
+- **the port-side twin, seen 2026-10-27 (SET 4)**: a *port* module can be in the same state, and
+  lake hides it — the build log says `Replayed FLTForHuman.…P1.PerfectResidue` while
+  `.lake/build/lib/lean/FLTForHuman/…/PerfectResidue.olean` is **absent**, because the replay
+  consults the log, not the file. Any `lake env lean` probe of an importing file then dies with
+  `object file … does not exist`, which reads like a broken import rather than a missing build.
+  Cure: `flock … lake build <that module>` explicitly, then re-probe. A `Replayed` line is not
+  evidence that the olean exists.
 
 ## FR-0034 [lean] [tooling] — `alias` does not accept a `def`, so deduping a `generalise` definition needs a `private abbrev`
 
@@ -617,4 +624,47 @@ round promotes what generalizes.
   manager stubs them at the pin's statement spelling and dispatches only the proofs. Check the
   home against `fltdata`'s edges (`d.cites(node)` vs the module's own imports) when writing the
   order — the cost of a wrong home is a full worker round.
+- **seen**: 2026-10-27.
+
+## FR-0038 [tooling] [method] — the premise→port-module mapping is statement-anchored, and that misses exactly the premises a *home* decision turns on
+
+- **where**: SET 4's homing pass (`Lean/tmp/set4_homes*.py`), which tried to compute, for each
+  ready node, the port modules above all of its pin premises.
+- **symptom**: three failure modes, the first of which sent a node to a home that closed an import
+  cycle (`Pic0.exists_mk_eq_forall_notMem_support` → `Defs/Divisor.lean`, caught by the worker):
+  1. **binder spelling** — a pin wrapper that writes its binders inline has a different statement
+     text from its own `S_` file (section variables), and the port transcribes the `S_` copy, so
+     the hash lookup misses the premise and the node looks premise-free;
+  2. **absent or private premises** — a premise the port does not have yet
+     (`SemilinearAut.restrict_smul`) or holds as `private` maps to nothing;
+  3. **a cached index** — `twin_scan.build_index` caches, so a run made before a wave landed maps
+     against the previous tree and reports "no home above", which is what a *new module* looks
+     like.
+  Falling back to last-name matching over the wrapper and `S_` files over-corrects: common last
+  names (`degree_eq_sum`) then match dozens of modules.
+- **fix**: treat the machine table as a first cut and confirm each home against the pin proof's
+  actual uses; when the worker's diagnosis and the table disagree, the diagnosis wins. Rebuild the
+  index (`rebuild=True`) after every landed wave. The durable fix — a `port_advise` mode that
+  answers "which port module may host node X" from the *pin edges* rather than from statement
+  identity — is not built.
+- **seen**: 2026-10-27.
+
+## FR-0039 [build] [lean] — a wave's own declarations can each fit the low cap while one helper needs 1.6M: the pin's bump was *not* precautionary
+
+- **where**: `IsCurveOver/ConstantFieldExtensionSpan.lean`, the `finrank_le_finrank` helper of the
+  348-line `finrank_le_and_natCard_places_le_of_constantFieldExtension_adjoin` node (SET 4, BC7).
+- **symptom**: the pin wraps the proof in `set_option maxHeartbeats 1600000 in`; dropping it as the
+  rule requires (no `set_option maxHeartbeats` in a module) leaves a declaration that elaborates
+  under the library's global 4M but not under the 200k edit-loop cap, while every other declaration
+  in the wave checks clean at 200k.
+- **cause**: not established — either a genuine instance-inference cost (the `Algebra ↥(Algebra.adjoin
+  K' {x}) ↥(IntermediateField.adjoin K' {x})` shape that also forced the torsion node to clear
+  denominators by hand) or a proof shape that a named intermediate would cheapen. The drift note's
+  standing claim — "every pin bump met the low cap once the inference was found" — has this
+  exception; record it rather than repeat it as a law.
+- **fix**: accepted for now: the module build under the lakefile's 4M is the gate and it passes, and
+  no cap is raised in source. The diagnosis is a build-cost pass of its own
+  (`build_ladder.py --profile`, [../notes/lean-build-cost.md](../notes/lean-build-cost.md)), with the
+  two probes that usually settle it: stub the module's proofs and see whether the floor is the
+  *type*, then bisect the one declaration.
 - **seen**: 2026-10-27.

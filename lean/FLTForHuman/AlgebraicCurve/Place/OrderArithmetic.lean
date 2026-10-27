@@ -1,9 +1,10 @@
 /-
 The arithmetic of the order function at a place: prescribing orders at finitely many
-places, the ramification index of a prime-degree Kummer cover at a place whose order
-is divisible by the degree, and the order of the norm of a unit above a place.
+places, the moving lemma for degree-zero divisor classes, the ramification index of a
+prime-degree Kummer cover at a place whose order is divisible by the degree, and the
+order of the norm of a unit above a place.
 
-Three statements, each transcribed from its `Theorems/` wrapper (the statement
+Four statements, each transcribed from its `Theorems/` wrapper (the statement
 authority) and proved after the corresponding `P2M/Sol/S_` file of the pinned FLT
 (`anthropics/fermats-last-theorem`, `aa2d8b3`).
 
@@ -18,6 +19,13 @@ uniformisers scaled by `(1 + (t v)^P)⁻¹`, whose order at `v` is exactly `n v`
 which is dominated by the `v`-th term at every other place (`ord_finsetSum_gt`).
 Two elementary lemmas carry the estimates: `add_ne_zero_of_ord_lt` and the port's
 `Place.ord_add_eq_of_lt`, the strict ultrametric equality.
+
+**The moving lemma.** Every degree-zero divisor class has a representative whose
+support avoids a prescribed finite set `S` of places. Given a representative `D₀` of
+the class, prescribed-order approximation at `S` produces `g ≠ 0` with
+`v.ord g = D₀ v` for `v ∈ S`; the divisor `div g` has degree zero, so `D₀ - div g` is
+again of degree zero, lies in the class of `D₀`, and vanishes on `S`. This is the leaf
+that lets a class be represented away from any finite set of places.
 
 **Kummer covers.** Let `p` be prime, `α ^ p = f` with `f` not a `p`-th power in `F`
 and `F⟮α⟯ = ⊤`, and suppose `p` divides `v.ord f` at every place. Then the cover is
@@ -45,6 +53,8 @@ spec-pin: Theorems/Thm_AlgebraicCurve_Place_ramificationIndex_eq_one_of_forall_d
 spec-pin: P2M/Sol/S_AlgebraicCurve_Place_ramificationIndex_eq_one_of_forall_dvd_ord.lean   -- comparable copy
 spec-pin: Theorems/Thm_AlgebraicCurve_Place_ord_norm_eq_zero_of_forall_fiber.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_Place_ord_norm_eq_zero_of_forall_fiber.lean   -- comparable copy
+spec-pin: Theorems/Thm_AlgebraicCurve_Pic0_exists_mk_eq_forall_notMem_support.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Pic0_exists_mk_eq_forall_notMem_support.lean
 -/
 import FLTForHuman.AlgebraicCurve.Defs.Place
 import FLTForHuman.AlgebraicCurve.Defs.PlaceCalculus
@@ -718,5 +728,44 @@ theorem ord_norm_eq_zero_of_forall_fiber {K F F' : Type*} [Field K] [Field F] [F
   rw [h w hw', mul_zero]
 
 end Place
+
+/-! ## The moving lemma for degree-zero divisor classes -/
+
+namespace Pic0
+
+/-- **The moving lemma**: every degree-zero divisor class has a representative whose
+support avoids a prescribed finite set of places. Statement from
+`Theorems/Thm_AlgebraicCurve_Pic0_exists_mk_eq_forall_notMem_support.lean`; proof
+after the pin's `S_` file. -/
+theorem exists_mk_eq_forall_notMem_support {K F : Type*} [Field K] [Field F] [Algebra K F]
+    [HasPrincipalDivisors K F] (x : Pic0 K F) (S : Finset (Place K F)) :
+    ∃ D : Divisor.degZero (K := K) (F := F),
+      Pic0.mk D = x ∧ ∀ v ∈ (D : Divisor K F).support, v ∉ S := by
+  classical
+
+  obtain ⟨D₀, hD₀⟩ := Pic0.mk_surjective x
+
+  obtain ⟨g, hg0, hgord⟩ := Place.exists_forall_ord_eq_finset (K := K) S
+    (fun v => (D₀ : Divisor K F) v)
+
+  obtain ⟨E, hEord, hEdeg⟩ := HasPrincipalDivisors.exists_divisor (K := K) (F := F) g hg0
+  set E' : Divisor.degZero (K := K) (F := F) := ⟨E, Divisor.mem_degZero.mpr hEdeg⟩ with hE'
+  have hEprin : E' ∈ (Divisor.principal (K := K) (F := F)).addSubgroupOf
+      (Divisor.degZero (K := K) (F := F)) := by
+    rw [AddSubgroup.mem_addSubgroupOf]
+    exact Divisor.mem_principal.mpr ⟨g, hg0, fun v => hEord v⟩
+
+  refine ⟨D₀ - E', ?_, ?_⟩
+  · have hmkE : Pic0.mk E' = 0 := (QuotientAddGroup.eq_zero_iff E').mpr hEprin
+    show QuotientAddGroup.mk (D₀ - E') = x
+    rw [QuotientAddGroup.mk_sub, ← hD₀]
+    show Pic0.mk D₀ - Pic0.mk E' = Pic0.mk D₀
+    rw [hmkE, sub_zero]
+  · intro v hv hvS
+    refine (Finsupp.mem_support_iff.mp hv) ?_
+    show (D₀ : Divisor K F) v - E v = 0
+    rw [hEord v, hgord v hvS, sub_self]
+
+end Pic0
 
 end AlgebraicCurve
