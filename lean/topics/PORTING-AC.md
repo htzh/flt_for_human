@@ -685,7 +685,8 @@ the port can trim, and both trims are measured. From
 `Def_AlgebraicCurve_BaseChangeGalois` (355 lines) the cone needs `SemilinearAut`,
 its `Place` action, and `ord_smul`/`deg_smul`; the whole `Divisor`/`Pic0`
 action-and-torsion section (lines 203–355, including `torsionRep`) is for other
-consumers. From `Def_AlgebraicCurve_RatFuncPlaces` (397 lines) the cone needs the
+consumers. *(Landed 2026-10-27 under port-whole: the module is the whole pin file,
+and `Pic0.torsion`/`mem_torsion` are in `Defs/Divisor.lean`.)* From `Def_AlgebraicCurve_RatFuncPlaces` (397 lines) the cone needs the
 adic-valuation bridge, `isEquiv_adicValuation_ofHeightOneSpectrum`,
 `ord_ofHeightOneSpectrum_ne_zero_iff`, `heightOneSpectrumOfIrreducible`,
 `placeInfty`/`inftyValuation`, and one copy of the residue-field equivalence plus

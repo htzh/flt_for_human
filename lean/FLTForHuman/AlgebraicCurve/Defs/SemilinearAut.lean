@@ -1,17 +1,60 @@
 /-
-The `K`-semilinear automorphism group `SemilinearAut K F` and its action on
-places, after FLT's `Definitions/Def_AlgebraicCurve_BaseChangeGalois.lean` lines
-15–206
-(<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_BaseChangeGalois.lean>).
+The `K`-semilinear automorphism group `SemilinearAut K F`, its action on places, and
+the induced action on divisors and `Pic⁰`, after FLT's
+`Definitions/Def_AlgebraicCurve_BaseChangeGalois.lean` (lines 15–355, the whole file)
+and the
+`F ≃ₐ[K] F`-action of `Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean`
+(lines 285–400).
 
-The Divisor/`Pic0` action (lines 206–290) is ported here as of the W5 jH-descent
-wave, whose headline *states* `g • x` for `x : Pic0`; the `F ≃ₐ[K] F`-action on
-`Place K F` is also restored here, since the Fricke vocabulary needs it
-(mc-retrospective §8 item 3). The torsion/`ZMod`-module/`torsionRep` part of the
-same pin section (lines 290–356) **remains deferred to this module**, consumed by
-`ModularCurve/Defs/ArithmeticGalois.lean`: it is API for the modular
-Hecke/Galois-representation layer, not for the exchange cone
-(`TOPIC-ac0-vocabulary.md` §2.6), and the port does not need it yet.
+## The three blocks, in the pin's order
+
+* **lines 15–195** — `SemilinearAut K F` as the subgroup of `RingAut F × RingAut K`
+  whose two components agree on the constants, its projections `toRingAut`/`baseAut`,
+  the `MulSemiringAction` on `F`, the monoid embedding
+  `ofAlgAut : (F ≃ₐ[K] F) →* SemilinearAut K F`, and the action on `Place K F` with
+  `ord_smul`, the residue-field isomorphism `smulResidueRingEquiv` and `deg_smul`.
+* **lines 197–289** — the `DistribMulAction` on `Divisor K F` (by
+  `Finsupp.comapDistribMulAction`), its order and degree laws, `smul_mem_principal`,
+  `degZeroSMulHom`, and the induced `SMul`/`DistribMulAction` on `Pic0 K F`.
+* **lines 291–355** — the torsion half: `smul_zsmul`, `smul_mem_torsion`, the
+  `SMul`/`DistribMulAction` on `Pic0.torsion K F n`, `Module (ZMod n)` for the
+  torsion, `SMulCommClass` with `ZMod n`, and `torsionRep : SemilinearAut K F →*
+  Module.End (ZMod n) (Pic0.torsion K F n)`.
+
+## The `F ≃ₐ[K] F` action
+
+Pin `Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean` lines 285–351 and
+353–400 are ported here beside the `SemilinearAut` action: the pin declares both, and
+the `F ≃ₐ[K] F` spelling is what the Fricke vocabulary uses.  `ord_smul` and
+`deg_smul` are routed through their `SemilinearAut` counterparts by `ofAlgAut`; the
+`Divisor` block is kept whole, since its statements are written at that scalar type.
+The `Pic0` action at `F ≃ₐ[K] F` (pin lines 402–447) is **not** ported — nothing in the
+port consumes it.
+
+## Deviations, recorded
+
+* `degZeroSMulHom` is written as an explicit `→+` (`toFun`/`map_zero'`/`map_add'`) rather than
+  with the pin's `domRestrict`/`codRestrict`; the function and its statement are the same.
+* `Place.ord_smul` and `Place.deg_smul` at `F ≃ₐ[K] F` are one-line transports through
+  `SemilinearAut.ofAlgAut`; the pin reproves the `ord` argument again at that scalar type.
+* `divisor_smul_apply_smul` uses mathlib's `Finsupp.mapDomain_apply_of_injective` (the pin's
+  `mapDomain_apply` under its own name); proof only, not a statement.
+
+## Checker note
+
+The three instances of the `Divisor`/`Pic0` block are written **anonymous**, as the pin
+writes them: a named instance is visible to the checker on the port side only, where the
+pin's anonymous one is not, and would be reported `missing`.  The four torsion instances
+are the other way round — the pin names them (`instSMulTorsion`,
+`instDistribMulActionTorsion`, `instModuleZModTorsion`, `instSMulCommClassZModTorsion`) —
+so they are named here too.
+
+FLT provenance, pinned `aa2d8b3`:
+https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_BaseChangeGalois.lean
+https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean
+
+spec-pin: Definitions/Def_AlgebraicCurve_BaseChangeGalois.lean
+spec-pin: Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean
 -/
 import FLTForHuman.AlgebraicCurve.Defs.Place
 import FLTForHuman.AlgebraicCurve.Defs.Divisor
@@ -167,11 +210,8 @@ instance : MulAction (SemilinearAut K F) (Place K F) where
 /-- The `F ≃ₐ[K] F`-action on `Place K F`, through `ofAlgAut`. The pin states it
 directly on the pointwise smul of the valuation subring
 (`Def_AlgebraicCurve_DivisorClassGroup.lean:285`); this is the same action routed
-through the ported `ofAlgAut`, and it is the only place-smul the Fricke
-vocabulary needs. It lived in `ModularCurve/Defs/AtkinLehner.lean` until
-mc-retrospective §8 item 3 moved it to its AC home. Promoted from a `private`
-`SMul`/`MulAction` pair in `P1/DXCoeff.lean` to this single public home in the P3.2
-refactor round (R3), together with the `Divisor` action below. -/
+through the ported `ofAlgAut`, and it is the only place-smul the Fricke vocabulary
+needs. -/
 instance : MulAction (F ≃ₐ[K] F) (Place K F) where
   smul σ v := ofAlgAut σ • v
   one_smul v := by
@@ -236,8 +276,7 @@ namespace Place
 variable (σ : F ≃ₐ[K] F) (v : Place K F)
 
 /-- Pin `Place.ord_smul` (`Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean:314`),
-at the `F ≃ₐ[K] F` level through `ofAlgAut`. Promoted from `P1/DXCoeff.lean` in the
-P3.2 refactor round (R3). -/
+at the `F ≃ₐ[K] F` level through `ofAlgAut`. -/
 theorem ord_smul (f : F) : (σ • v).ord (σ f) = v.ord f := by
   change (SemilinearAut.ofAlgAut σ • v).ord (SemilinearAut.ofAlgAut σ • f) = v.ord f
   exact SemilinearAut.ord_smul (SemilinearAut.ofAlgAut σ) v f
@@ -295,16 +334,14 @@ namespace SemilinearAut
 
 /-! ## The `SemilinearAut` action on divisors and `Pic⁰`
 
-The pin's `Definitions/Def_AlgebraicCurve_BaseChangeGalois.lean` lines 206–290: the
+The pin's `Definitions/Def_AlgebraicCurve_BaseChangeGalois.lean` lines 197–289: the
 `DistribMulAction` on `Divisor K F` (by `Finsupp.comapDistribMulAction`), its order and
-degree laws, and the induced `SMul`/`DistribMulAction` on `Pic0 K F`.  Ported when the W5
-jH-descent headline needed `g • x` in its statement (`g : SemilinearAut`, `x : Pic0`);
-the torsion/`ZMod`-module/`torsionRep` part of the same pin section is still deferred to
-this module. -/
+degree laws, and the induced `SMul`/`DistribMulAction` on `Pic0 K F`, through
+`degZeroSMulHom`. -/
 
 variable {K F : Type*} [Field K] [Field F] [Algebra K F]
 
-instance divisorDistribMulAction : DistribMulAction (SemilinearAut K F) (Divisor K F) :=
+instance : DistribMulAction (SemilinearAut K F) (Divisor K F) :=
   Finsupp.comapDistribMulAction
 
 theorem divisor_smul_def (g : SemilinearAut K F) (D : Divisor K F) :
@@ -365,7 +402,7 @@ theorem coe_degZeroSMulHom (g : SemilinearAut K F)
     (D : Divisor.degZero (K := K) (F := F)) :
     (degZeroSMulHom g D : Divisor K F) = g • (D : Divisor K F) := rfl
 
-instance pic0SMul : SMul (SemilinearAut K F) (Pic0 K F) where
+instance : SMul (SemilinearAut K F) (Pic0 K F) where
   smul g := QuotientAddGroup.map _ _ (degZeroSMulHom g) (by
     rintro ⟨D, hD0⟩ hD
     simp only [AddSubgroup.mem_addSubgroupOf] at hD ⊢
@@ -375,7 +412,7 @@ theorem pic0_smul_mk (g : SemilinearAut K F)
     (D : Divisor.degZero (K := K) (F := F)) :
     g • (Pic0.mk D) = Pic0.mk (degZeroSMulHom g D) := rfl
 
-instance pic0DistribMulAction : DistribMulAction (SemilinearAut K F) (Pic0 K F) where
+instance : DistribMulAction (SemilinearAut K F) (Pic0 K F) where
   one_smul x := by
     obtain ⟨D, rfl⟩ := Pic0.mk_surjective x
     rw [pic0_smul_mk]
@@ -394,6 +431,80 @@ instance pic0DistribMulAction : DistribMulAction (SemilinearAut K F) (Pic0 K F) 
     show g • Pic0.mk (D + E) = Pic0.mk (degZeroSMulHom g D) + Pic0.mk (degZeroSMulHom g E)
     rw [pic0_smul_mk]
     exact congrArg Pic0.mk (map_add _ _ _)
+
+end SemilinearAut
+
+namespace SemilinearAut
+
+/-! ## The `SemilinearAut` action on the torsion of `Pic⁰`
+
+The pin's `Definitions/Def_AlgebraicCurve_BaseChangeGalois.lean` lines 291–355.  The
+action is `ℤ`-linear on `Pic0` (`smul_zsmul`), hence preserves `Pic0.torsion K F n`;
+that gives an `SMul` and a `DistribMulAction` on the torsion subgroup, the `ZMod n`-
+module structure on it, the `SMulCommClass` between the two scalar actions, and the
+monoid hom `torsionRep` into `Module.End (ZMod n)`.  The pin names all four instances;
+they keep those names here.
+-/
+
+variable {K F : Type*} [Field K] [Field F] [Algebra K F]
+
+theorem smul_zsmul (g : SemilinearAut K F) (m : ℤ) (x : Pic0 K F) :
+    g • (m • x) = m • (g • x) :=
+  map_zsmul (DistribSMul.toAddMonoidHom (Pic0 K F) g) m x
+
+theorem smul_mem_torsion (g : SemilinearAut K F) {n : ℕ} {x : Pic0 K F}
+    (hx : x ∈ Pic0.torsion K F n) : g • x ∈ Pic0.torsion K F n := by
+  rw [Pic0.mem_torsion] at hx ⊢
+  rw [← smul_zsmul, hx]
+  exact smul_zero (A := Pic0 K F) g
+
+instance instSMulTorsion (n : ℕ) : SMul (SemilinearAut K F) (Pic0.torsion K F n) :=
+  ⟨fun g x => ⟨g • (x : Pic0 K F), smul_mem_torsion g x.property⟩⟩
+
+@[simp]
+theorem coe_torsion_smul {n : ℕ} (g : SemilinearAut K F) (x : Pic0.torsion K F n) :
+    ((g • x : Pic0.torsion K F n) : Pic0 K F) = g • (x : Pic0 K F) := rfl
+
+instance instDistribMulActionTorsion (n : ℕ) :
+    DistribMulAction (SemilinearAut K F) (Pic0.torsion K F n) where
+  one_smul x := Subtype.ext <| one_smul _ (x : Pic0 K F)
+  mul_smul g h x := Subtype.ext <| mul_smul g h (x : Pic0 K F)
+  smul_zero g := Subtype.ext <| smul_zero (A := Pic0 K F) g
+  smul_add g x y := Subtype.ext <| smul_add g (x : Pic0 K F) (y : Pic0 K F)
+
+end SemilinearAut
+
+namespace Pic0
+
+variable {K F : Type*} [Field K] [Field F] [Algebra K F]
+
+/-- Pin `Pic0.instModuleZModTorsion` (`Def_AlgebraicCurve_BaseChangeGalois.lean:307`). -/
+instance instModuleZModTorsion (n : ℕ) : Module (ZMod n) (torsion K F n) :=
+  AddCommGroup.zmodModule fun x => by
+    apply Subtype.ext
+    change ((n • x : torsion K F n) : Pic0 K F) = 0
+    rw [AddSubgroupClass.coe_nsmul, ← Nat.cast_smul_eq_nsmul ℤ n (x : Pic0 K F)]
+    exact mem_torsion.mp x.property
+
+end Pic0
+
+namespace SemilinearAut
+
+variable {K F : Type*} [Field K] [Field F] [Algebra K F]
+
+instance instSMulCommClassZModTorsion (n : ℕ) :
+    SMulCommClass (SemilinearAut K F) (ZMod n) (Pic0.torsion K F n) where
+  smul_comm g c x :=
+    ZMod.map_smul (DistribSMul.toAddMonoidHom (Pic0.torsion K F n) g) c x
+
+variable (K F) in
+
+def torsionRep (n : ℕ) : SemilinearAut K F →* Module.End (ZMod n) (Pic0.torsion K F n) :=
+  DistribMulAction.toModuleEnd (ZMod n) (Pic0.torsion K F n)
+
+@[simp]
+theorem torsionRep_apply {n : ℕ} (g : SemilinearAut K F) (x : Pic0.torsion K F n) :
+    torsionRep K F n g x = g • x := rfl
 
 end SemilinearAut
 

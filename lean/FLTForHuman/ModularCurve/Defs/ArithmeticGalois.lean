@@ -4,19 +4,16 @@
   `arithmeticGalois`, and the two `bar` abbreviations `modularFunctionFieldBar` and
   `JZero`.
 
-  The pin's `PicAction` section (the `SMul`/`DistribMulAction` of `L ≃ₐ[ℚ] L` on
-  `Pic0`) and `JZero.torsionGaloisRep` (+ its two lemmas) are **deferred**. The
-  decided home is two layers: the generic `SMul (SemilinearAut K F) (Pic0 K F)`
-  and `SemilinearAut.torsionRep` in `AlgebraicCurve/Defs/SemilinearAut.lean`,
-  and the modular `PicAction`/`torsionGaloisRep` wrappers here. They are out of
-  the exchange cone (zero occurrences in the 82-node cone's proofs), so the
-  restoration waits for the modular Hecke/Galois-rep layer
-  (mc-retrospective §8 item 3).
+  The pin's three sections are all ported.  `PicAction` is the `SMul`/`DistribMulAction`
+  of `L ≃ₐ[ℚ] L` on `Pic0 L (laurentBaseChange L F₀)` through `arithmeticGalois`;
+  `ModularInstance` adds the two `bar` abbreviations and the Galois representation
+  `JZero.torsionGaloisRep` on the `n`-torsion of `J₀(N) = Pic⁰`, with its two lemmas,
+  built from the generic action on `Pic0` and from `SemilinearAut.torsionRep`.
 
   FLT provenance, pinned `aa2d8b3`:
-  `Definitions/Def_ModularCurve_ArithmeticGalois.lean` (140 lines), sections
-  `ArithmeticGalois` and `ModularInstance`.
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_ArithmeticGalois.lean
+
+spec-pin: Definitions/Def_ModularCurve_ArithmeticGalois.lean
 -/
 import FLTForHuman.ModularCurve.Defs.Laurent
 import FLTForHuman.ModularCurve.Defs.Fields
@@ -103,9 +100,31 @@ theorem coe_arithmeticGalois_smul (σ : L ≃ₐ[ℚ] L) (x : laurentBaseChange 
 
 end ArithmeticGalois
 
+section PicAction
+
+variable {L : Type*} [Field L] [Algebra ℚ L]
+variable (F₀ : IntermediateField ℚ (LaurentSeries ℚ))
+
+instance : SMul (L ≃ₐ[ℚ] L) (Pic0 L (laurentBaseChange L F₀)) where
+  smul σ x := arithmeticGalois F₀ σ • x
+
+theorem galois_smul_pic0_def (σ : L ≃ₐ[ℚ] L) (x : Pic0 L (laurentBaseChange L F₀)) :
+    σ • x = arithmeticGalois F₀ σ • x :=
+  rfl
+
+instance : DistribMulAction (L ≃ₐ[ℚ] L) (Pic0 L (laurentBaseChange L F₀)) where
+  one_smul x := by rw [galois_smul_pic0_def, map_one, one_smul]
+  mul_smul σ τ x := by
+    rw [galois_smul_pic0_def, galois_smul_pic0_def, galois_smul_pic0_def, map_mul, mul_smul]
+  smul_zero σ := by rw [galois_smul_pic0_def, smul_zero]
+  smul_add σ x y := by
+    rw [galois_smul_pic0_def, galois_smul_pic0_def, galois_smul_pic0_def, smul_add]
+
+end PicAction
+
 section ModularInstance
 
-variable (N : ℕ) [NeZero N]
+variable (N : ℕ)
 
 abbrev modularFunctionFieldBar : IntermediateField (AlgebraicClosure ℚ)
     (LaurentSeries (AlgebraicClosure ℚ)) :=
@@ -113,6 +132,30 @@ abbrev modularFunctionFieldBar : IntermediateField (AlgebraicClosure ℚ)
 
 abbrev JZero : Type _ :=
   Pic0 (AlgebraicClosure ℚ) (modularFunctionFieldBar N)
+
+example : DistribMulAction (AlgebraicClosure ℚ ≃ₐ[ℚ] AlgebraicClosure ℚ) (JZero N) :=
+  inferInstance
+
+/-- Pin `JZero.torsionGaloisRep` (`Def_ModularCurve_ArithmeticGalois.lean:121`): the
+Galois action on the `n`-torsion of `J₀(N) = Pic⁰`, through `torsionRep`. -/
+def JZero.torsionGaloisRep (n : ℕ) :
+    (AlgebraicClosure ℚ ≃ₐ[ℚ] AlgebraicClosure ℚ) →*
+      Module.End (ZMod n) (Pic0.torsion (AlgebraicClosure ℚ) (modularFunctionFieldBar N) n) :=
+  (SemilinearAut.torsionRep _ _ n).comp (arithmeticGalois (modularFunctionFieldFull N))
+
+@[simp]
+theorem JZero.torsionGaloisRep_apply {n : ℕ} (σ : AlgebraicClosure ℚ ≃ₐ[ℚ] AlgebraicClosure ℚ)
+    (x : Pic0.torsion (AlgebraicClosure ℚ) (modularFunctionFieldBar N) n) :
+    JZero.torsionGaloisRep N n σ x = arithmeticGalois (modularFunctionFieldFull N) σ • x :=
+  rfl
+
+theorem JZero.coe_torsionGaloisRep_apply {n : ℕ}
+    (σ : AlgebraicClosure ℚ ≃ₐ[ℚ] AlgebraicClosure ℚ)
+    (x : Pic0.torsion (AlgebraicClosure ℚ) (modularFunctionFieldBar N) n) :
+    ((JZero.torsionGaloisRep N n σ x :
+        Pic0.torsion (AlgebraicClosure ℚ) (modularFunctionFieldBar N) n) :
+        JZero N) = σ • (x : JZero N) :=
+  rfl
 
 end ModularInstance
 

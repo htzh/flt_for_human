@@ -12,6 +12,8 @@ Math and clarity are top priority. Home subjects naturally. Refactor existing mo
 
 Mathlib like modules are exempt froms strict `move_dead` and can host theorems without consumers for completeness.
 
+Do NOT cross ref docs or ported modules in headers or comments. Updating stale links can cause gratuitous rebuilds.
+
 ## Build Discipline
 
 No tree build. Bound build time. Log output in `lean/tmp`. Address build time promptly (one can use a subagent but first review `porting-playbook.md` so you can give clear instructions). Fix warnings.

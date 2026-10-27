@@ -3552,11 +3552,17 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/FunctionFieldGeneration/Capstone.lean",
     # SET 1 (AC0 + T1), the generic curve vocabulary and the ord interface.
     "FLTForHuman/AlgebraicCurve/Defs/Place.lean",
-    "FLTForHuman/AlgebraicCurve/Defs/Divisor.lean",
+    # `Divisor.lean` is now wired to `spec/check_port.py` (2026-10-27) by its own
+    # `spec-pin:` block over `Def_AlgebraicCurve_DivisorClassGroup.lean` and
+    # `S_AlgebraicCurve_Divisor_degree_eq_sum.lean` (18 ok / 0 mismatch / 0 missing).
+    # Handed over: do not re-list it here.
     "FLTForHuman/AlgebraicCurve/Defs/PushPull.lean",
     "FLTForHuman/AlgebraicCurve/Defs/PlacesOverDVR.lean",
     "FLTForHuman/AlgebraicCurve/Defs/Correspondence.lean",
-    "FLTForHuman/AlgebraicCurve/Defs/SemilinearAut.lean",
+    # `SemilinearAut.lean` is now wired to `spec/check_port.py` (2026-10-27) by its own
+    # `spec-pin:` block, over `Def_AlgebraicCurve_BaseChangeGalois.lean` and
+    # `Def_AlgebraicCurve_DivisorClassGroup.lean` (43 ok / 0 mismatch / 0 missing / 0 own).
+    # Handed over: do not re-list it here.
     "FLTForHuman/AlgebraicCurve/Defs/RatFuncPlaces.lean",
     "FLTForHuman/AlgebraicCurve/Defs/IntegralAdjoin.lean",
     # T2 (the promoted fibre dictionary and the bifibre count).
@@ -3582,7 +3588,9 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/Defs/HeckeOperator.lean",
     "FLTForHuman/ModularCurve/Defs/DegeneracyTower.lean",
     "FLTForHuman/ModularCurve/Defs/HeckeTotal.lean",
-    "FLTForHuman/ModularCurve/Defs/ArithmeticGalois.lean",
+    # `ArithmeticGalois.lean` is now wired to `spec/check_port.py` (2026-10-27) by its own
+    # `spec-pin:` block over `Def_ModularCurve_ArithmeticGalois.lean` (13 ok / 0 mismatch /
+    # 0 missing). Handed over: do not re-list it here.
     "FLTForHuman/ModularCurve/Defs/HeckeModule.lean",
     # SET-M1 m2: the geometric/cusp/q-adic/modular-unit vocabulary.
     "FLTForHuman/ModularCurve/Defs/GeometricBaseChange.lean",
@@ -4172,14 +4180,13 @@ PORT_FILES = [
     # --- SET-X1-A: the X₁ function-field/Jacobian vocabulary, the Hecke operator,
     # the diamond vocabulary and the `HeckeDiamondInputsAll` predicate. The pin's
     # `JOne.torsionGaloisRep{,_apply}`/`coe_torsionGaloisRep_apply` and
-    # `diamondOneBar{,_apply}` are deliberately absent (`SET-X1-A` boundary: the
-    # `Pic0` action/torsion prerequisite is unported); the checker iterates
-    # `PORT_FILES`, so they cannot report `missing`. Appended last.
+    # `X1/Diamond.lean` is now wired to `spec/check_port.py` (2026-10-27) by its own
+    # `spec-pin:` block over `Def_ModularCurve_X1Diamond.lean`, `diamondOneBar{,_apply}`
+    # included (14 ok / 0 mismatch / 0 missing). Handed over: do not re-list it.
     # `X1/Defs.lean` used to sit here; it is now wired by its own `spec-pin:`
     # header (2026-10-21), whose single pin source `Definitions/Def_ModularCurve_X1.lean`
     # covers the module's whole public surface.
     "FLTForHuman/ModularCurve/X1/HeckeOperator.lean",
-    "FLTForHuman/ModularCurve/X1/Diamond.lean",
     # --- SET-X1-B: the pin's `Integral` block and the two `JOneES` function-field
     # nodes. Every helper in the two `JOneES` modules is `private`, so the only
     # diffed declarations are the five `Integral` lemmas and the two headlines.

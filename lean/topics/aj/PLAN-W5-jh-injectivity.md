@@ -396,6 +396,64 @@ public declarations, the pin's names, `phi`, `liftPlace`, `conorm`, `iota` and t
    as its own and had deferred it), public at the pin's names, with the `DistribMulAction` on `Pic0`
    added so the API is complete; the torsion/`ZMod`/`torsionRep` half of the same pin section stays
    deferred there. `dedup`/`move_dead` 0 on that module too.
+
+   **Review of the re-home.** The ten named statements are transcribed exactly, but the frozen
+   checker (`spec/old_check_stmts.py`, which owns this module through its transcribed-definition
+   list) read the port's three *named* instances `divisorDistribMulAction`/`pic0SMul`/
+   `pic0DistribMulAction` as `MISSING IN FLT`: the pin's instances are anonymous, `DECL_RE` sees no
+   unnamed instance on either side, so a port-side name is visible exactly where the pin's is not.
+   That is the same mechanism as the 670's `scoped` instances above (item 2), and it is now fixed
+   the same way — the three are anonymous, as the pin writes them. The module reads **43 ok / 0
+   mismatch / 0 missing / 0 own**, `dedup`/`move_dead` still 0, and the header records the rule. The
+   header's block ranges were also off the pin's real boundaries and are now exact: 15–195,
+   197–289, 291–355 (for 15–206, 206–290, 290–356). One honest caveat on the `dedup` 0: the module
+   now carries the pin's two spellings of the Divisor action side by side (the `F ≃ₐ[K] F` block
+   from `Def_AlgebraicCurve_DivisorClassGroup.lean` and the new `SemilinearAut` block, five laws
+   each). Their statements differ by the scalar type, so they are not interchangeable and `dedup`
+   reports them as a `generalise` row of cost 0 — the pin's own duplication, kept.
+
+   **Handed over (same day).** Since the module had to be touched, it was brought to the current
+   protocol rather than left on the frozen registry: its header now carries `spec-pin:` lines for
+   `Def_AlgebraicCurve_BaseChangeGalois.lean` and `Def_AlgebraicCurve_DivisorClassGroup.lean`, and
+   `check_port.py --force` diffs all 43 declarations with **no marker row in
+   `spec/decl_markers.tsv`**. The `PORT_FILES` entry is replaced by a handover comment (the file is
+   frozen; handing a module over is the documented removal, and the corpus went 299 → 300 modules,
+   504 → 503 exempt). The header prose was rewritten in the current shape and carries no
+   doc/module cross-references, and `spec/AlgebraicCurveConsumer.lean` gained **zone M**, which
+   *executes* the block — order along the moved place, degree, principal invariance, `Pic0`
+   additivity and the `degZero` descent — instead of only diffing it. That consumer was one error
+   short of the gate before this: its zone C still `#check`ed `Place.inertiaDeg_pos`, the weak node
+   the T2 wave deliberately did not port in favour of
+   `Place.inertiaDeg_pos_of_finiteDimensional`; the line now names the ported one and the consumer
+   is back at 0 errors.
+
+   **The tail is landed too (port-whole).** Two declarations outside the module had recorded the
+   missing action as their blocker — `ModularCurve/X1/Diamond.lean`'s `diamondOneBar` pair and the
+   `PicAction` section of `ModularCurve/Defs/ArithmeticGalois.lean` — but the tail was three links
+   deep, not one: `JZero.torsionGaloisRep` in the same `ArithmeticGalois` section needs
+   `SemilinearAut.torsionRep`, which is the pin's torsion half (lines 291–355), which needs
+   `Pic0.torsion` — a declaration the port never had. "Deferred on scope" is not a reason under
+   port-whole, so the whole chain is landed in pin order:
+
+   * `Defs/Divisor.lean`: `Pic0.torsion` and `Pic0.mem_torsion` (pin 244–247), **18 ok**;
+   * `Defs/SemilinearAut.lean`: the torsion half, nine declarations with the pin's four instance
+     names, so the module is the whole pin file 15–355, **52 ok**;
+   * `ModularCurve/Defs/ArithmeticGalois.lean`: `PicAction` (the `L ≃ₐ[ℚ] L` action on `Pic0`
+     through `arithmeticGalois`) and `JZero.torsionGaloisRep` with its two lemmas, **13 ok**;
+   * `ModularCurve/X1/Diamond.lean`: `diamondOneBar` and `diamondOneBar_apply`, so the file is
+     verbatim, **14 ok**.
+
+   All four are handed over (`spec-pin:` lines, removal from `PORT_FILES`), `dedup`/`move_dead`
+   0 on each, and the corpus is **6,631 ok / 0 mismatch / 0 missing / 32 own, 303 modules,
+   500 exempt** — the 54 added statements are exactly 18 + 9 + 13 + 14. One API point: the port's
+   `ModularInstance` section carried a `[NeZero N]` that neither the pin's section nor
+   `modularFunctionFieldFull` needs, which surfaced as an unused-section-variable warning on the
+   two new lemmas. It is dropped from the `variable` line rather than `omit`ted per declaration —
+   that reproduces the pin's API exactly (`#check` shows no instance on any of the three) and
+   changes nothing that was in the committed surface, since the two abbrevs never took it either.
+   The consumers are extended: `AlgebraicCurveConsumer`'s zone M gains the torsion action, and
+   `ModularCurveConsumer` gains zone Y over the two modular modules; both are at 0 errors.
+
 2. **The two layer-0 roots were not public.** This workorder's own first draft told the implementer to
    write them as "private engines of the P2 files", which is wrong: each has its own `S_`/`Theorems/`
    pair and is a public node. They were added as one-line headlines over the shared `rowMain` engine
@@ -409,6 +467,13 @@ public declarations, the pin's names, `phi`, `liftPlace`, `conorm`, `iota` and t
 all 32 `own` are pre-existing port-authored or renamed statements, none from this wave. `#print
 axioms` on all eighteen headlines from one scratch module: exactly
 `[propext, Classical.choice, Quot.sound]`, no exceptions.
+
+**Corpus after the P6 handover.** Re-run the same day: **6,631 ok / 0 mismatch / 0 missing / 32 own,
+303 modules, 500 exempt** — the handovers add `Defs/SemilinearAut.lean`, `Defs/Divisor.lean`,
+`ModularCurve/Defs/ArithmeticGalois.lean` and `ModularCurve/X1/Diamond.lean` to the wired set with
+their 43 + 9 + 13 + 14 declarations, and the consumer gate is 0 errors again. The counts are the
+instrument's; the module
+is on the wire from now on, not on the frozen list.
 
 **Re-measure, and it is exact.** `needed(302)` = **114 nodes / 42,213 lines** and `needed(653)` =
 **115 nodes / 42,866**, i.e. §1's projection to the node and to the line (132 − 18, 48,469 − 6,256;

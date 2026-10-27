@@ -150,7 +150,7 @@ example (K : Type*) [Field K] [DecidableEq (RatFunc K)] (n : ℤ) :
 #check @Place.inertiaDeg_eq_inertiaDeg_fiberCenter
 #check @Place.sum_ramificationIndex_mul_inertiaDeg_fiberOver
 #check @Place.sum_ramificationIndex_mul_inertiaDeg_le_finrank
-#check @Place.inertiaDeg_pos
+#check @Place.inertiaDeg_pos_of_finiteDimensional
 
 example {K F F' : Type*} [Field K] [Field F] [Field F'] [Algebra K F] [Algebra K F']
     [Algebra F F'] [IsScalarTower K F F'] [FiniteDimensional F F'] [Algebra.IsSeparable F F']
@@ -499,3 +499,59 @@ example {K F : Type*} [Field K] [Field F] [Algebra K F]
     (hfd : FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F) :
     Algebra.EssFiniteType K F :=
   AlgebraicCurve.essFiniteType_of_transcendental_of_finiteDimensional htr hfd
+
+/-! ## Zone M — `[semilinear]` the `SemilinearAut` action on divisors and `Pic⁰`
+
+`AlgebraicCurve/Defs/SemilinearAut.lean`'s `Divisor`/`Pic0` block (the pin's
+`Def_AlgebraicCurve_BaseChangeGalois.lean` lines 197–289): the action moves a place's
+order with it, preserves degree and principal divisors, and descends to `Pic0`, where it
+is additive and keeps the `degZero` summand. The last example is the shape a base-change
+compatibility needs: `g` moves a `degZero` divisor and its class together. -/
+
+example {K F : Type*} [Field K] [Field F] [Algebra K F]
+    (g : SemilinearAut K F) (v : Place K F) (f : F) :
+    (g • v).ord (g • f) = v.ord f :=
+  SemilinearAut.ord_smul g v f
+
+example {K F : Type*} [Field K] [Field F] [Algebra K F]
+    (g : SemilinearAut K F) (v : Place K F) : (g • v).deg = v.deg :=
+  SemilinearAut.deg_smul g v
+
+example {K F : Type*} [Field K] [Field F] [Algebra K F]
+    (g : SemilinearAut K F) (D : Divisor K F) :
+    Divisor.degree (g • D) = Divisor.degree D :=
+  SemilinearAut.degree_smul g D
+
+example {K F : Type*} [Field K] [Field F] [Algebra K F]
+    (g : SemilinearAut K F) {D : Divisor K F}
+    (hD : D ∈ Divisor.principal (K := K) (F := F)) :
+    g • D ∈ Divisor.principal (K := K) (F := F) :=
+  SemilinearAut.smul_mem_principal g hD
+
+example {K F : Type*} [Field K] [Field F] [Algebra K F]
+    (g : SemilinearAut K F) (x y : Pic0 K F) : g • (x + y) = g • x + g • y :=
+  smul_add g x y
+
+example {K F : Type*} [Field K] [Field F] [Algebra K F]
+    (g : SemilinearAut K F) (D : Divisor.degZero (K := K) (F := F)) :
+    g • Pic0.mk D = Pic0.mk (SemilinearAut.degZeroSMulHom g D) :=
+  SemilinearAut.pic0_smul_mk g D
+
+example {K F : Type*} [Field K] [Field F] [Algebra K F]
+    (g : SemilinearAut K F) (m : ℤ) (x : Pic0 K F) : g • (m • x) = m • (g • x) :=
+  SemilinearAut.smul_zsmul g m x
+
+example {K F : Type*} [Field K] [Field F] [Algebra K F]
+    (g : SemilinearAut K F) {n : ℕ} {x : Pic0 K F} (hx : x ∈ Pic0.torsion K F n) :
+    g • x ∈ Pic0.torsion K F n :=
+  SemilinearAut.smul_mem_torsion g hx
+
+example {K F : Type*} [Field K] [Field F] [Algebra K F]
+    (n : ℕ) (g : SemilinearAut K F) (x : Pic0.torsion K F n) :
+    ((g • x : Pic0.torsion K F n) : Pic0 K F) = g • (x : Pic0 K F) :=
+  SemilinearAut.coe_torsion_smul g x
+
+example {K F : Type*} [Field K] [Field F] [Algebra K F]
+    (n : ℕ) (g : SemilinearAut K F) (x : Pic0.torsion K F n) :
+    SemilinearAut.torsionRep K F n g x = g • x :=
+  SemilinearAut.torsionRep_apply g x

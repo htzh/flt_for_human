@@ -129,8 +129,8 @@ the reason the effort was tractable.
 - **The deferred `PicAction`/`JZero.torsionGaloisRep`** (0 cone occurrences). The
   decided home is two layers: the generic `SMul (SemilinearAut K F) (Pic0 K F)`
   and `SemilinearAut.torsionRep` in `AlgebraicCurve/Defs/SemilinearAut.lean`, and
-  the modular wrappers in `Defs/ArithmeticGalois.lean`; they wait for the modular
-  Hecke/Galois-rep layer. The anonymous `SMul (F ≃ₐ[K] F) (Place K F)` moved to
+  the modular wrappers in `Defs/ArithmeticGalois.lean`. *(Landed 2026-10-27 under
+  port-whole, both layers, with the torsion half of the pin block.)* The anonymous `SMul (F ≃ₐ[K] F) (Place K F)` moved to
   its AC home, `SemilinearAut.lean` (§8).
 - **The three generic AC `finrankAlong` helpers** — promoted (post-effort) to
   `AlgebraicCurve/Defs/Correspondence.lean`, beside `finrankAlong` (§8).
@@ -208,8 +208,9 @@ worth recording:
   generic `SMul (SemilinearAut K F) (Pic0 K F)` and `SemilinearAut.torsionRep`
   belong in `AlgebraicCurve/Defs/SemilinearAut.lean`; the modular
   `PicAction`/`torsionGaloisRep` wrappers belong in
-  `Defs/ArithmeticGalois.lean`. Both stay deferred (0 cone occurrences) until
-  the modular Hecke/Galois-rep layer. The restored anonymous
+  `Defs/ArithmeticGalois.lean`. *(Landed 2026-10-27 under port-whole: both layers,
+  with the generic `Pic0` action, `Pic0.torsion`, the torsion half and
+  `torsionRep`.)* The restored anonymous
   `SMul (F ≃ₐ[K] F) (Place K F)` moved from `AtkinLehner.lean` to its AC home,
   `SemilinearAut.lean`, beside `ofAlgAut`.
 - **The two generic supply lemmas moved** from `Defs/HeckeOperator.lean` to

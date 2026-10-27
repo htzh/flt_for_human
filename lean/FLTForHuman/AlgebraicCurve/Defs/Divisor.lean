@@ -3,12 +3,18 @@ Divisors, principal divisors and `Pic0`, after FLT's
 `Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean` lines 179–247
 (<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean>).
 
-The `torsion`/`AbelJacobiCard` block is deliberately not ported: it is API for the
-modular Hecke/Galois-representation layer, not for the exchange cone
-(`TOPIC-ac0-vocabulary.md` §2.2).  `Pic` (the pin's line 221) is a general curve
-object and lives here beside `Pic0`; the refactor round moved it from
-`Defs/CanonicalDivisor.lean`, where Set D had transcribed it to state
-`canonicalClass`.
+`Pic0.torsion` and `Pic0.mem_torsion` are ported (pin lines 244–247): the
+`SemilinearAut` action on the torsion of `Pic0`, and the `ZMod n`-module and
+`torsionRep` built on it, are stated over them.  The pin's `AbelJacobiCard`
+statement (line 252) is not ported — it is the statement of the unported Abel–Jacobi
+card node, not a definition this module owns.  `Pic` (the pin's line 221) is a general
+curve object and lives here beside `Pic0`.
+
+FLT provenance, pinned `aa2d8b3`:
+https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean
+
+spec-pin: Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Divisor_degree_eq_sum.lean
 -/
 import FLTForHuman.AlgebraicCurve.Defs.Place
 
@@ -89,6 +95,17 @@ theorem mk_add (D E : Divisor.degZero (K := K) (F := F)) : mk (D + E) = mk D + m
 
 @[simp]
 theorem mk_zero : mk (0 : Divisor.degZero (K := K) (F := F)) = 0 := rfl
+
+variable (K F) in
+
+/-- Pin `Pic0.torsion` (`Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean:244`):
+the `n`-torsion subgroup of `Pic0`, the kernel of multiplication by `n`. -/
+def torsion (n : ℕ) : AddSubgroup (Pic0 K F) :=
+  (Submodule.torsionBy ℤ (Pic0 K F) (n : ℤ)).toAddSubgroup
+
+/-- Pin `Pic0.mem_torsion` (`Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean:247`). -/
+theorem mem_torsion {n : ℕ} {x : Pic0 K F} : x ∈ torsion K F n ↔ (n : ℤ) • x = 0 :=
+  Submodule.mem_torsionBy_iff _ _
 
 end Pic0
 

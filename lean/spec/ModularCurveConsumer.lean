@@ -115,6 +115,10 @@ import FLTForHuman.ModularCurve.Frobenius.QExpModL
 -- prime-power step (Zone X).
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.SlotProductAnyField
 import FLTForHuman.ModularCurve.FunctionFieldGeneration.PrimePowerStepAnyField
+-- The modular Galois layer: the `Pic0` action, the diamond operator and the torsion
+-- representation (Zone Y).
+import FLTForHuman.ModularCurve.Defs.ArithmeticGalois
+import FLTForHuman.ModularCurve.X1.Diamond
 -- The cyclotomic instances for the end-to-end wire tests of Zones I, J and K.
 import Mathlib.NumberTheory.Cyclotomic.Basic
 
@@ -1516,3 +1520,48 @@ audit's closed form with `Nat.Coprime.divisors_mul`; the `ψ` facts are the publ
 The `sorry`s are not errors and do not count: their job is to keep the
 *statements* checkable while the proofs are out of scope.
 -/
+
+/-! ## Zone Y — [modular Galois] the `Pic⁰` action, the diamond operator and the torsion representation
+
+The modular layer of the Galois action, three modules' worth of statements that all rest on the
+generic `SemilinearAut` action on `Pic⁰`:
+
+* `ModularCurve/Defs/ArithmeticGalois.lean` — `arithmeticGalois` and its `PicAction`
+  (`SMul`/`DistribMulAction` of `L ≃ₐ[ℚ] L` on `AlgebraicCurve.Pic0 L (laurentBaseChange L F₀)` through
+  `arithmeticGalois`), and the Galois representation `JZero.torsionGaloisRep` on the
+  `n`-torsion of `J₀(N) = Pic⁰`;
+* `ModularCurve/X1/Diamond.lean` — `diamondAutBar` and the induced `ℤ`-linear endomorphism
+  `diamondOneBar` of `J₁(M) = Pic⁰`.
+
+The wire test exercises both ends: the `Pic0` action's defining equation, the diamond operator's
+additivity (so it really is a `Module.End ℤ`), and the torsion representation composed with the
+coercion back to `Pic0`. Deleting either module breaks this zone. -/
+
+example (M d : ℕ) (x : JOne M) :
+    diamondOneBar M d x = AlgebraicCurve.SemilinearAut.ofAlgAut (diamondAutBar M d) • x :=
+  rfl
+
+example (M d : ℕ) (x y : JOne M) :
+    diamondOneBar M d (x + y) = diamondOneBar M d x + diamondOneBar M d y :=
+  map_add _ x y
+
+section PicActionWire
+
+variable {L : Type*} [Field L] [Algebra ℚ L]
+variable (F₀ : IntermediateField ℚ (LaurentSeries ℚ))
+
+example (σ : L ≃ₐ[ℚ] L) (x : AlgebraicCurve.Pic0 L (laurentBaseChange L F₀)) :
+    σ • x = arithmeticGalois F₀ σ • x :=
+  galois_smul_pic0_def F₀ σ x
+
+example (σ : L ≃ₐ[ℚ] L) (x y : AlgebraicCurve.Pic0 L (laurentBaseChange L F₀)) :
+    σ • (x + y) = σ • x + σ • y :=
+  smul_add σ x y
+
+end PicActionWire
+
+example (N n : ℕ) (σ : AlgebraicClosure ℚ ≃ₐ[ℚ] AlgebraicClosure ℚ)
+    (x : AlgebraicCurve.Pic0.torsion (AlgebraicClosure ℚ) (modularFunctionFieldBar N) n) :
+    ((JZero.torsionGaloisRep N n σ x : AlgebraicCurve.Pic0.torsion (AlgebraicClosure ℚ)
+        (modularFunctionFieldBar N) n) : JZero N) = σ • (x : JZero N) :=
+  JZero.coe_torsionGaloisRep_apply N σ x

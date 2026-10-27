@@ -1,20 +1,18 @@
 /-
 X₁'s diamond operators, after FLT's `Definitions/Def_ModularCurve_X1Diamond.lean`
 (<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_X1Diamond.lean>),
-verbatim except for the two `diamondOneBar` declarations.
-
-`diamondOneBar`/`diamondOneBar_apply` (pin lines 98–103) are **deferred with
-`SET-X1-A`'s boundary** (recorded by the manager): they need the unported
-`DistribSMul (SemilinearAut K F) (Pic0 K F)` action block
-(`Def_AlgebraicCurve_BaseChangeGalois.lean:206–356`), whose decided home is
-`AlgebraicCurve/Defs/SemilinearAut.lean`. They belong to the successor targets
-(`heckeDiamondCommuteBar`), not to the `heckeDiamondInputsAll` cone.
+verbatim: the diamond automorphism `diamondAut M d` of `X₁(M)`, its base change
+`diamondAutBar` to `ℚ̄`, and the induced `ℤ`-linear endomorphism `diamondOneBar` of
+`J₁(M) = Pic⁰` with its pointwise form.
 
 FLT provenance, pinned `aa2d8b3`:
 https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_ModularCurve_X1Diamond.lean
+
+spec-pin: Definitions/Def_ModularCurve_X1Diamond.lean
 -/
 import FLTForHuman.ModularCurve.X1.Defs
 import FLTForHuman.ModularCurve.Defs.Laurent
+import FLTForHuman.AlgebraicCurve.Defs.SemilinearAut
 
 set_option autoImplicit false
 
@@ -119,6 +117,16 @@ variable (M : ℕ)
 def diamondAutBar (d : ℕ) :
     x1FunctionFieldBar M ≃ₐ[AlgebraicClosure ℚ] x1FunctionFieldBar M :=
   baseChangeAut (AlgebraicClosure ℚ) (diamondAut M d)
+
+/-- Pin `diamondOneBar` (`Definitions/Def_ModularCurve_X1Diamond.lean:98`): the diamond
+operator `diamondAutBar M d` as a `ℤ`-linear endomorphism of `J₁(M) = Pic⁰`. -/
+def diamondOneBar (d : ℕ) : Module.End ℤ (JOne M) :=
+  (DistribSMul.toAddMonoidHom (JOne M)
+    (SemilinearAut.ofAlgAut (diamondAutBar M d))).toIntLinearMap
+
+theorem diamondOneBar_apply (d : ℕ) (x : JOne M) :
+    diamondOneBar M d x = SemilinearAut.ofAlgAut (diamondAutBar M d) • x :=
+  rfl
 
 end DiamondBar
 
