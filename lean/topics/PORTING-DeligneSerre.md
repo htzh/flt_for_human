@@ -590,6 +590,40 @@ only its own assembly, with `Place.exists_forall_ord_eq_finset` (291) ready besi
 and so is an element of nonzero tame order — one module, two headlines, over a three-declaration
 promotion in the Frobenius-subfield engine; it put the `ordDiff` rows on the ready shelf (§7).
 
+**The different's homes (2026-10-27).** `Genus/DegreeIdentity.lean` had grown to 2,048 lines
+holding four subjects. It is now four modules, each on the wire and each with its own
+`spec-pin:` block: `Genus/DegreeIdentity.lean` (3 ok — the degree identity),
+`Differential/Different.lean` (1 ok — the different is effective),
+`Place/OrbitCardinality.lean` (8 ok — the Galois orbit/stabiliser dictionary, whose
+seven-declaration prelude `toSemilinear`/`placeAction`/`smul_place_def`/
+`mem_fiberOver_iff_mem_orbit`/`card_stabilizer_*`/`inertiaDeg_eq_one_of_deg_eq_one` is
+public as the pin declares it, since the wild bound consumes it), and
+`Genus/HurwitzBound.lean` (2 ok — the two Hurwitz line bounds). Corpus after the split:
+**6,638 ok / 0 mismatch / 0 missing / 32 own, 306 modules, 500 exempt**; `dedup` 0 on all
+four (`Differential/Different.lean` reports only its engine-plus-headline pair, 10 lines, the
+pin's own two-declaration structure and kept), `move_dead` 0 except one recorded false positive
+(below). The only in-tree importer
+of the old module, `ModularCurve/LevelN/GenusFF.lean`, now imports the two homes it uses.
+
+The slice is scoped in
+[deligneSerre/TOPIC-different-wild-bound.md](deligneSerre/TOPIC-different-wild-bound.md): Wave A
+is the six algebraic-curve nodes (the wild bound at `needed == 1`, the equality chain at
+`needed == 6`), Wave B the three modular consequences (138 and 54 nodes of modular demand), and
+the price of Wave A is ≈1,640 net new lines over 108 declarations.
+
+The ready `ordDiff` rows now have a home with no promotion left to pay:
+`Differential/Different.lean` takes `Place.ordDiff_D_eq_ord_sub_one` (178 ln, 8
+declarations, nothing to reuse) and `Place.sub_one_add_pow_sub_one_le_ordDiff_D_of_isGalois`
+(899 ln, 62 declarations, 793 net new lines; its seven-declaration prelude is the orbit
+module's public block). `port_advise` finds 65 lines already in the port and no duplicate
+copies inside the slice.
+
+**Instrument note.** `move_dead` reads the orbit module's `embAction` (12 lines) as dead.
+It is not: the `MulAction` instance is found by instance search inside `MulAction.orbit` /
+`MulAction.stabilizer` on `Emb`, so the name-based liveness test cannot see its use —
+deleting it breaks the build. The same caution as `dedup`'s shape tier applies in reverse:
+check the call sites before acting.
+
 **The demand's leaves are the other shelf, and its rank-#2 row has landed.** `--ready` and `--hops`
 drop graph leaves (a leaf has `needed == 1` and can never reach `F`), so the automorphic demand's
 biggest self-contained rows appear only under `--include-leaves` or in a direct query. The

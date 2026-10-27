@@ -51,7 +51,8 @@
 -/
 import FLTForHuman.ModularCurve.LevelN.FieldGalois
 import FLTForHuman.ModularCurve.LevelN.Places
-import FLTForHuman.AlgebraicCurve.Genus.DegreeIdentity
+import FLTForHuman.AlgebraicCurve.Genus.HurwitzBound
+import FLTForHuman.AlgebraicCurve.Place.OrbitCardinality
 import FLTForHuman.AlgebraicCurve.Defs.PlaceCalculus
 import FLTForHuman.AlgebraicCurve.Defs.Place
 import FLTForHuman.AlgebraicCurve.Genus.RatFunc
