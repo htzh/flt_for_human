@@ -1236,7 +1236,11 @@ theorem AlgebraicCurve.Place.mem_range_algebraMap_of_forall_ord_eq_zero_of_isAlg
 (the pin's 429-line file) and
 `AlgebraicCurve.Place.existsUnique_valuation_sub_lt_one_of_constantFieldExtension`
 (the pin's 205-line file), with the tensor-product/centring block the two share
-written once here (`mulMap`, `evalMap`, `mulMap_injective`, `exists_centred`). -/
+written once here (`mulMap`, `evalMap`, `mulMap_injective`, `exists_centred`).
+The general place and span lemmas of that block are public, at the pin's own
+names (`mem_of_valuation_lt_one`, `eq_zero_of_valuation_algebraMap_lt_one`,
+`centre_unique`, `span_eq_top_of_adjoin_eq_top`), which the pin states publicly
+in both files; the tensor-product engine stays `private`. -/
 
 namespace AlgebraicCurve.CentredPlaceRigidity
 
@@ -1244,7 +1248,7 @@ section General
 
 variable {E FE : Type*} [Field E] [Field FE] [Algebra E FE]
 
-private theorem mem_of_valuation_lt_one (P : Place E FE) {y : FE}
+theorem mem_of_valuation_lt_one (P : Place E FE) {y : FE}
     (hy : P.toValuationSubring.valuation y < 1) : y ∈ P.toValuationSubring :=
   (ValuationSubring.valuation_le_one_iff _ _).mp hy.le
 
@@ -1259,7 +1263,7 @@ private theorem ord_ne_zero_of_valuation_lt_one (P : Place E FE) {y : FE} (hy0 :
   (adicValuation_lt_one_of_valuation_lt_one P hy).ne
     ((P.ord_eq_zero_iff_adicValuation_eq_one hy0).mp h)
 
-private theorem eq_zero_of_valuation_algebraMap_lt_one (P : Place E FE) {c : E}
+theorem eq_zero_of_valuation_algebraMap_lt_one (P : Place E FE) {c : E}
     (hc : P.toValuationSubring.valuation (algebraMap E FE c) < 1) : c = 0 := by
   by_contra h
   have hu : IsUnit (algebraMap E P.toValuationSubring c) := (IsUnit.mk0 c h).map _
@@ -1269,7 +1273,7 @@ private theorem eq_zero_of_valuation_algebraMap_lt_one (P : Place E FE) {c : E}
 
 variable {K F : Type*} [Field K] [Field F] [Algebra K F] [Algebra K E] [Algebra F FE]
 
-private theorem centre_unique (P : Place E FE) {σ τ : F →ₐ[K] E}
+theorem centre_unique (P : Place E FE) {σ τ : F →ₐ[K] E}
     (hσ : ∀ f : F, P.toValuationSubring.valuation (algebraMap F FE f - algebraMap E FE (σ f)) < 1)
     (hτ : ∀ f : F, P.toValuationSubring.valuation (algebraMap F FE f - algebraMap E FE (τ f)) < 1) :
     σ = τ := by
@@ -1285,7 +1289,7 @@ end General
 
 section Span
 
-private theorem span_eq_top_of_adjoin_eq_top {E L M : Type*} [Field E] [Field L] [Field M]
+theorem span_eq_top_of_adjoin_eq_top {E L M : Type*} [Field E] [Field L] [Field M]
     [Algebra E L] [Algebra L M] [Algebra E M] [IsScalarTower E L M] {ι : Type*} [Finite ι]
     (b : ι → M)
     (hmul : ∀ i j, b i * b j ∈ Submodule.span L (Set.range b))

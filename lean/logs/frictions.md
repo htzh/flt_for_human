@@ -581,3 +581,20 @@ round promotes what generalizes.
   corrected pop); `port_advise` now prints the single `GroupTheory.` prefix for the
   Kurosh file and sees the ten graph-transversal duplicates it used to miss.
 - **seen**: 2026-10-20.
+
+## FR-0036 [lean] [method] — a drift guess copied into a work order was *inverted*: `push_neg` is the deprecated spelling in v4.34, so the pin's `push Not` transcribes unchanged
+
+- **where**: `WORKORDER-BC1` trap 4 (`AlgebraicCurve/IsCurveOver/BaseChangeCorrespondence.lean`,
+  `fibre_centred` and the headline).
+- **symptom**: the order told the worker to spell the pin's `push Not at hcon` as
+  `push_neg at hcon`. The worker kept the pin's text and reported that `push_neg` is the
+  `@[deprecated]` alias in `v4.34.0` (it emits "Prefer using `push Not`"), so the pin's
+  spelling is both the literal transcription and the warning-free one.
+- **cause**: a drift row written from memory rather than from the tree. A deprecation has a
+  *direction*, and a rename that went one way in `v4.31` can be reversed by `v4.34`; a work
+  order is not the place to assert it.
+- **fix**: the row now lives in the drift table (`topics/TOPIC-mathlib-drift.md`) with the
+  direction stated, and the work-order text was corrected in the record. The general rule:
+  **a work order states the pin's text and the *gate* (0 warnings), not a guessed
+  modernization** — the worker has the mathlib tree and checks the deprecation there.
+- **seen**: 2026-10-27.
