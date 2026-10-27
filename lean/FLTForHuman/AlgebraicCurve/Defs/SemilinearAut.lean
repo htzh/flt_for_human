@@ -4,14 +4,14 @@ places, after FLT's `Definitions/Def_AlgebraicCurve_BaseChangeGalois.lean` lines
 15–206
 (<https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_AlgebraicCurve_BaseChangeGalois.lean>).
 
-The Divisor/`Pic0` action-and-torsion section (lines 206–356) is **deferred, with
-this module as its decided home**: the `SMul (SemilinearAut K F) (Pic0 K F)`
-instance and `SemilinearAut.torsionRep` belong here, consumed by
-`ModularCurve/Defs/ArithmeticGalois.lean`. It is API for the modular
+The Divisor/`Pic0` action (lines 206–290) is ported here as of the W5 jH-descent
+wave, whose headline *states* `g • x` for `x : Pic0`; the `F ≃ₐ[K] F`-action on
+`Place K F` is also restored here, since the Fricke vocabulary needs it
+(mc-retrospective §8 item 3). The torsion/`ZMod`-module/`torsionRep` part of the
+same pin section (lines 290–356) **remains deferred to this module**, consumed by
+`ModularCurve/Defs/ArithmeticGalois.lean`: it is API for the modular
 Hecke/Galois-representation layer, not for the exchange cone
-(`TOPIC-ac0-vocabulary.md` §2.6); the port does not need it yet. The
-`F ≃ₐ[K] F`-action on `Place K F` **is** restored here, since the Fricke
-vocabulary needs it (mc-retrospective §8 item 3).
+(`TOPIC-ac0-vocabulary.md` §2.6), and the port does not need it yet.
 -/
 import FLTForHuman.AlgebraicCurve.Defs.Place
 import FLTForHuman.AlgebraicCurve.Defs.Divisor
@@ -289,5 +289,112 @@ theorem degree_smul (σ : F ≃ₐ[K] F) (D : Divisor K F) : degree (σ • D) =
 end Divisor
 
 end AlgEquivDivisorAction
+
+
+namespace SemilinearAut
+
+/-! ## The `SemilinearAut` action on divisors and `Pic⁰`
+
+The pin's `Definitions/Def_AlgebraicCurve_BaseChangeGalois.lean` lines 206–290: the
+`DistribMulAction` on `Divisor K F` (by `Finsupp.comapDistribMulAction`), its order and
+degree laws, and the induced `SMul`/`DistribMulAction` on `Pic0 K F`.  Ported when the W5
+jH-descent headline needed `g • x` in its statement (`g : SemilinearAut`, `x : Pic0`);
+the torsion/`ZMod`-module/`torsionRep` part of the same pin section is still deferred to
+this module. -/
+
+variable {K F : Type*} [Field K] [Field F] [Algebra K F]
+
+instance divisorDistribMulAction : DistribMulAction (SemilinearAut K F) (Divisor K F) :=
+  Finsupp.comapDistribMulAction
+
+theorem divisor_smul_def (g : SemilinearAut K F) (D : Divisor K F) :
+    g • D = Finsupp.mapDomain (g • ·) D := rfl
+
+@[simp]
+theorem smul_single (g : SemilinearAut K F) (v : Place K F) (n : ℤ) :
+    g • Finsupp.single v n = Finsupp.single (g • v) n := by
+  rw [divisor_smul_def, Finsupp.mapDomain_single]
+
+theorem divisor_smul_apply_smul (g : SemilinearAut K F) (D : Divisor K F)
+    (v : Place K F) : (g • D) (g • v) = D v := by
+  rw [divisor_smul_def]
+  exact Finsupp.mapDomain_apply_of_injective (MulAction.injective g) D v
+
+theorem divisor_smul_apply (g : SemilinearAut K F) (D : Divisor K F)
+    (w : Place K F) : (g • D) w = D (g⁻¹ • w) := by
+  have h := divisor_smul_apply_smul g D (g⁻¹ • w)
+  rwa [smul_inv_smul] at h
+
+@[simp]
+theorem degree_smul (g : SemilinearAut K F) (D : Divisor K F) :
+    Divisor.degree (g • D) = Divisor.degree D := by
+  induction D using Finsupp.induction with
+  | zero => simp
+  | single_add v n D _ _ ih =>
+      rw [smul_add, map_add, map_add, ih, smul_single, Divisor.degree_single,
+        Divisor.degree_single, deg_smul]
+
+theorem smul_mem_degZero (g : SemilinearAut K F) {D : Divisor K F}
+    (hD : D ∈ Divisor.degZero (K := K) (F := F)) :
+    g • D ∈ Divisor.degZero (K := K) (F := F) := by
+  rw [Divisor.mem_degZero] at hD ⊢
+  rw [degree_smul, hD]
+
+theorem smul_mem_principal (g : SemilinearAut K F) {D : Divisor K F}
+    (hD : D ∈ Divisor.principal (K := K) (F := F)) :
+    g • D ∈ Divisor.principal (K := K) (F := F) := by
+  obtain ⟨f, hf, hD⟩ := hD
+  refine ⟨g • f, ?_, fun w => ?_⟩
+  · intro h
+    refine hf ?_
+    have h' := congrArg (g⁻¹ • ·) h
+    simpa using h'
+  · rw [divisor_smul_apply, hD (g⁻¹ • w)]
+    have h := ord_smul g (g⁻¹ • w) f
+    rw [smul_inv_smul] at h
+    exact h.symm
+
+def degZeroSMulHom (g : SemilinearAut K F) :
+    Divisor.degZero (K := K) (F := F) →+ Divisor.degZero (K := K) (F := F) where
+  toFun D := ⟨g • (D : Divisor K F), smul_mem_degZero g D.2⟩
+  map_zero' := Subtype.ext (by simp)
+  map_add' D E := Subtype.ext (by simp [smul_add])
+
+@[simp]
+theorem coe_degZeroSMulHom (g : SemilinearAut K F)
+    (D : Divisor.degZero (K := K) (F := F)) :
+    (degZeroSMulHom g D : Divisor K F) = g • (D : Divisor K F) := rfl
+
+instance pic0SMul : SMul (SemilinearAut K F) (Pic0 K F) where
+  smul g := QuotientAddGroup.map _ _ (degZeroSMulHom g) (by
+    rintro ⟨D, hD0⟩ hD
+    simp only [AddSubgroup.mem_addSubgroupOf] at hD ⊢
+    exact smul_mem_principal g hD)
+
+theorem pic0_smul_mk (g : SemilinearAut K F)
+    (D : Divisor.degZero (K := K) (F := F)) :
+    g • (Pic0.mk D) = Pic0.mk (degZeroSMulHom g D) := rfl
+
+instance pic0DistribMulAction : DistribMulAction (SemilinearAut K F) (Pic0 K F) where
+  one_smul x := by
+    obtain ⟨D, rfl⟩ := Pic0.mk_surjective x
+    rw [pic0_smul_mk]
+    exact congrArg Pic0.mk (Subtype.ext (by rw [coe_degZeroSMulHom, one_smul]))
+  mul_smul g h x := by
+    obtain ⟨D, rfl⟩ := Pic0.mk_surjective x
+    rw [pic0_smul_mk, pic0_smul_mk, pic0_smul_mk]
+    exact congrArg Pic0.mk (Subtype.ext (by simp only [coe_degZeroSMulHom]; rw [mul_smul]))
+  smul_zero g := by
+    show g • Pic0.mk 0 = Pic0.mk 0
+    rw [pic0_smul_mk]
+    exact congrArg Pic0.mk (map_zero _)
+  smul_add g x y := by
+    obtain ⟨D, rfl⟩ := Pic0.mk_surjective x
+    obtain ⟨E, rfl⟩ := Pic0.mk_surjective y
+    show g • Pic0.mk (D + E) = Pic0.mk (degZeroSMulHom g D) + Pic0.mk (degZeroSMulHom g E)
+    rw [pic0_smul_mk]
+    exact congrArg Pic0.mk (map_add _ _ _)
+
+end SemilinearAut
 
 end AlgebraicCurve

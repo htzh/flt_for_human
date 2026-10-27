@@ -34,6 +34,8 @@ and the transport lemmas (`IsScalarTower.of_algebraMap_eq`,
   spec-pin: P2M/Sol/S_AlgebraicCurve_isCurveOver_of_transcendental_of_perfectField.lean   -- comparable copy
   spec-pin: Theorems/Thm_AlgebraicCurve_isCurveOver_of_transcendental_of_isSeparable.lean
   spec-pin: P2M/Sol/S_AlgebraicCurve_isCurveOver_of_transcendental_of_isSeparable.lean   -- comparable copy
+  spec-pin: Theorems/Thm_AlgebraicCurve_isCurveOver_of_isAlgClosed_of_transcendental.lean
+  spec-pin: P2M/Sol/S_AlgebraicCurve_isCurveOver_of_isAlgClosed_of_transcendental.lean   -- comparable copy
 -/
 import FLTForHuman.AlgebraicCurve.Defs.IsCurveOver
 import FLTForHuman.AlgebraicCurve.Defs.KaehlerTranscendental
@@ -114,6 +116,18 @@ theorem isCurveOver_of_transcendental_of_perfectField {K F : Type*} [Field K] [F
   obtain ⟨t, ht, htfd, htsep⟩ :=
     AlgebraicCurve.exists_separating_transcendental_of_perfectField htr hfd
   exact isCurveOver_of_transcendental ht htfd htsep
+
+/-- **`IsCurveOver` from a transcendental generator over an algebraically closed
+field.**  Verbatim from
+`Theorems/Thm_AlgebraicCurve_isCurveOver_of_isAlgClosed_of_transcendental.lean`,
+whose `S_` file proves it by the one-line application below from the
+perfect-field corollary (`IsAlgClosed` is `PerfectField`, mathlib's
+`IsAlgClosed.perfectField`). -/
+theorem isCurveOver_of_isAlgClosed_of_transcendental {K F : Type*} [Field K] [IsAlgClosed K]
+    [Field F] [Algebra K F] (x : F) (hx : Transcendental K x)
+    [FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F] :
+    IsCurveOver K F :=
+  isCurveOver_of_transcendental_of_perfectField hx inferInstance
 
 end AlgebraicCurve
 

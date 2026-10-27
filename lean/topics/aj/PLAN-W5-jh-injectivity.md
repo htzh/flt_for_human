@@ -221,16 +221,15 @@ Checkpoints, each a green module:
    (401), `eq_of_forall_valuation_sub_lt_one` (429), `existsUnique_valuation_sub_lt_one` (205),
    `exists_ord_neg_of_transcendental` (80), `deg_eq_one_iff_surjective_algebraMap_residueField` (28),
    `sum_ramificationIndex_eq_finrank` (17), `inertiaDeg_eq_one_of_isRational` (13).
-3. **P3 `AlgebraicCurve/IsCurveOver/ConstantFieldExtension.lean`** (+
+3. **P3 `AlgebraicCurve/IsCurveOver/ConstantFieldExtensionSpan.lean`** (new;
    `isCurveOver_of_isAlgClosed_of_transcendental` 21 appended to `IsCurveOver/Transcendental.lean`) —
    `mem_span_range_algebraMap_of_constantFieldExtension` (859) and its 165-line block.
-   **`ConstantFieldExtension.lean` is legacy** (still in `old_check_stmts.py`'s `PORT_FILES` with its
-   four pin sources), so appending to it means bringing it up to standard in the same checkpoint: a
-   `spec-pin:` block for the two `S_…linearIndependent_of_constantFieldExtension{,_of_isAlgClosed}.lean`
-   files and their wrappers, removal from the old checker, a silent build and `dedup`/`move_dead`. It
-   is a one-for-one port of those two files, so expect `0 mismatch`; if its surface does not match, wire
-   it with declaration markers rather than restate, and if that grows past a handful, fall back to a
-   sibling `IsCurveOver/ConstantFieldExtensionSpan.lean` and leave the legacy module alone.
+   **Not appended to the legacy `IsCurveOver/ConstantFieldExtension.lean`** (the fallback this plan
+   allowed): that module sits *below* `Place/ConstantFieldExtension.lean`, because the P2 place-descent
+   nodes consume its `linearIndependent_of_constantFieldExtension`, while the 859 file needs the P2
+   place lemmas — an append would be an import cycle. The legacy module therefore stays byte-identical
+   and unwired; the new span module sits above both and is wired. (Measured on landing: it was a
+   one-for-one port, so the cycle is the only reason.)
 4. **P4 `AlgebraicCurve/Differential/ConstantFieldExtension.lean`** —
    `exists_derivation_constantFieldExtension_map_mem` (994) and the shared 192-line engine
    (`ord_sum_le`, `exists_linearIndependent_repr`, …), which is public here because P5 imports it.
@@ -251,7 +250,7 @@ P5 and P6 stall with it (the torsion descent cites the derivation), so P4 is the
 | P1 (valuation-subring ↔ place) | `AlgebraicCurve/Place/FromValuationSubring.lean` (new) | `Place/` already hosts `IsPrimeOverValuationSubring`, `ValueDictionary`, `DegreeOne`; `ValueDictionary` is the value/residue dictionary and does not own this converse direction |
 | P2 (place descent under the constant extension) | `AlgebraicCurve/Place/ConstantFieldExtension.lean` (new) | the nodes are all `Place`/`ord` statements over `F ⊆ F' = K'·F`; `IsCurveOver/` already imports `Place/FiniteResidue`, so the direction is established |
 | `isCurveOver_of_isAlgClosed_of_transcendental` (21) | append to `AlgebraicCurve/IsCurveOver/Transcendental.lean` | beside the two headlines already there; it is the `[IsAlgClosed K]` specialization of the same constructor |
-| P3 (spanning over the constant extension) | append to `AlgebraicCurve/IsCurveOver/ConstantFieldExtension.lean` | the module already owns `linearIndependent_of_constantFieldExtension`; `mem_span_range` is its spanning counterpart, and its 165 block is the same linear algebra |
+| P3 (spanning over the constant extension) | `AlgebraicCurve/IsCurveOver/ConstantFieldExtensionSpan.lean` (new) | `mem_span_range` is the spanning counterpart of the legacy module's linear independence, but it needs the P2 place lemmas and the legacy module is below them, so it cannot be appended; the new module imports both and is the only home that closes |
 | P4 (derivation extension) | `AlgebraicCurve/Differential/ConstantFieldExtension.lean` (new) | Kähler/derivation content, beside `Coefficient`, `TraceDiff`, `Hurwitz`; `Genus/` imports `Differential/`, so P5 can take the 192 block from here |
 | P5 (principality and torsion descent) | `AlgebraicCurve/Genus/ConstantFieldExtension.lean` (new) | the RR-level descent of §12.1 chain 3; `Genus/` is the RR home (`Stichtenoth`, `DegreeIdentity`, `Index`) |
 | P6 (the jH headline + `K1HBC`) | `ModularCurve/XH/JHDescent.lean` (new) | `XH/` owns the xH function field, its Hecke inputs and operators; the node is the ℚ̄ → ℂ base change of that field, not period-lattice content |
@@ -298,18 +297,17 @@ P3 ≈750, P4 ≈850, P5 ≈1,050, P6 ≈600.
 
 Upside risk is P4's 994-line derivation (the only node that mixes `Derivation` with `IsCurveOver` and
 place valuations) and P3's 859-line span. Downside: the six shared blocks are net savings, not costs;
-the plan does not subtract them twice. The manager layer adds no math but two wires: the `spec-pin` block of `IsCurveOver/ConstantFieldExtension.lean` (a legacy module being brought to standard in P3) and the new P1/P2/P4/P5/P6 modules' own blocks.
+the plan does not subtract them twice. The manager layer adds no math but the wires: the new P1/P2/P3span/P4/P5/P6 modules' `spec-pin` blocks and the two extra pins of `IsCurveOver/Transcendental.lean`.
 
 ## 7. Verification
 
 The W4 wire, unchanged:
 
 * `spec-pin:` in each new or touched module naming the pin's `S_` file and the `Theorems/` wrapper;
-* `python3 spec/check_port.py <module> --force` → `0 mismatch / 0 missing / 0 own`, and the module
-  removed from `spec/old_check_stmts.py` if it is listed there. The only legacy module this wave
-  touches is `IsCurveOver/ConstantFieldExtension.lean` (P3); `IsCurveOver/Transcendental.lean` is already
-  wired, and the six new modules are wired for the first time. P0 is a `Def_*` module, so it goes on the
-  definition side of the checker, not on a `spec-pin:` statement wire;
+* `python3 spec/check_port.py <module> --force` → `0 mismatch / 0 missing / 0 own`. No legacy module is
+  touched: `IsCurveOver/Transcendental.lean` is already wired and gains the `isAlgClosed` node's two
+  pin sources, and the new P1/P2/P3span/P4/P5/P6 modules are wired for the first time. P0 is a `Def_*`
+  module, so it goes on the definition side of the checker, not on a `spec-pin:` statement wire;
 * `#print axioms` = `[propext, Classical.choice, Quot.sound]` on all eighteen headlines, from one
   scratch module;
 * one module at a time, `timeout 110 lake build <Module>`, logs in `lean/tmp`, no tree build, no
@@ -345,7 +343,74 @@ The W4 wire, unchanged:
 ## 9. Execution
 
 One implementer for the proof bodies, manager for definitions, homes, wiring and the final
-`dedup`/`move_dead`; the execution contract is to be written as
-`WORKORDER-W5-jh-injectivity.md`, scoped to the eighteen nodes with the layer order of §3, the build
-discipline of `porting-playbook.md` (one module at a time, `timeout 110`, log in `lean/tmp`, no tree
-build), and an early blocker report for P4. No polling: the implementer reports at each checkpoint.
+`dedup`/`move_dead`; the execution contract is
+[WORKORDER-W5-jh-injectivity.md](WORKORDER-W5-jh-injectivity.md), scoped to the eighteen nodes with the
+layer order of §3, the build discipline of `porting-playbook.md` (one module at a time, `timeout 110`,
+log in `lean/tmp`, no tree build), and an early blocker report for P4. No polling: the implementer
+reports at each checkpoint.
+
+**Manager layer, landed 2026-10-27.** P0 is in
+`FLTForHuman/GaloisRep/Defs/ComplexConjugation.lean` (the pin's 62-line module, three mathlib imports
+rather than the pin's `import Mathlib`, silent green build); the workorder is written; P0–P2 are green
+and wired (P1 2 ok, P2 41 ok, `Transcendental` 4 ok), and the place prelude's four shared pieces were
+re-spelled to the pin's section-variable binder shape rather than excused with markers. P3's 859 node
+moved to `IsCurveOver/ConstantFieldExtensionSpan.lean` on the import-cycle finding above.
+
+**P3 closed.** The span module is 862 lines and wired at **29 ok / 0 mismatch / 0 missing / 0 own**;
+`move_dead` 0; `dedup` reports one 19-line `name`-tier cluster — the public headline
+`AlgebraicCurve.mem_span_range_algebraMap_of_constantFieldExtension` and its engine
+`W7XH.mem_span_range_algebraMap_of_constantFieldExtension` — and that is the pin's own
+engine-plus-wrapper structure, a false positive of the kind W4's §1b recorded, not a removable
+duplication. The engine is `private` here, so only the headline is on the wire; the 165-line block
+(`W7XH.exists_basis`, `…linearIndependent_pow_of_transcendental`, `…aeval_mem`) stays public and
+matched — the pin declares those three publicly in its `S_` file, and no other module of the wave
+consumes them, so this is the pin's surface kept, not a helper exposed.
+
+**P4 closed.** `Differential/ConstantFieldExtension.lean` is 921 lines and wired at **5 ok / 0 mismatch /
+0 missing / 0 own** (the 994 headline, the public 192-line block minus the imported pair, and the
+pin-shaped `ord_pos_of_mem_maximalIdeal` adapter; the P5 `isPrincipal` `S_` file is its second wire
+source because the block is declared there too). `move_dead` 0 after deleting one 3-line unused private
+alias; `dedup`'s one 20-line `shape` cluster is again the engine-plus-headline pair — the pin's own
+structure, not removable duplication. One manager-level promotion was made for P5: the alg-closed
+`degree_eq_sum` (4 lines, the pin repeats it in its `isPrincipal` file) is now public as
+`AlgebraicCurve.W7XH.degree_eq_sum` in the span module, with the `isPrincipal` `S_` file added to that
+module's wire.
+
+**P5 closed.** `Genus/ConstantFieldExtension.lean` is 1,027 lines and wired at **2 ok / 0 mismatch /
+0 missing / 0 own** (the two headlines only — every `W7XK1a`/`TorsionDescentDeriv` engine is `private`,
+which is what P6 needs). `move_dead` 0 (the pin's four declared-and-unused helpers were omitted, as the
+pin itself never calls them). `dedup` reports two `shape` clusters, 38 and 23 lines, each an engine
+(`isPrincipal_of_constantFieldExtension` 94 lines, `TorsionDescentDeriv.main` 239) against its public
+one-line application — the same engine-plus-headline false positive as P3/P4, not removable. The
+torsion-descent proof is where §12.1 chain 3 actually lands: RR's vanishing is decided over the
+algebraically closed base and descended, on the ported `Genus/Index` + `Genus/Stichtenoth` facts.
+
+**P6 closed, and the wave with it.** `ModularCurve/XH/JHDescent.lean` is 849 lines and wired at
+**68 ok / 0 mismatch / 0 missing / 0 own** — the 670 headline and the whole `K1HBC` construction (63
+public declarations, the pin's names, `phi`, `liftPlace`, `conorm`, `iota` and the six compatibilities).
+`dedup` 0, `move_dead` 0. Two manager interventions were needed and both are findings:
+
+1. **The `SemilinearAut` action on `Divisor`/`Pic0` was unported**, and the 670's *statement* needs
+   `g • x`: the implementer wrote it privately at the head of the module and flagged it. It was
+   re-homed to its decided home, `AlgebraicCurve/Defs/SemilinearAut.lean` (whose header names this block
+   as its own and had deferred it), public at the pin's names, with the `DistribMulAction` on `Pic0`
+   added so the API is complete; the torsion/`ZMod`/`torsionRep` half of the same pin section stays
+   deferred there. `dedup`/`move_dead` 0 on that module too.
+2. **The two layer-0 roots were not public.** This workorder's own first draft told the implementer to
+   write them as "private engines of the P2 files", which is wrong: each has its own `S_`/`Theorems/`
+   pair and is a public node. They were added as one-line headlines over the shared `rowMain` engine
+   (`Place.exists_ord_algebraMap_eq_mul_ord`, `Place.exists_comap_eq_toValuationSubring`) and wired;
+   P2 is 43 ok. The `Fact` instances of the 670 file were kept `scoped` as the pin writes them, with
+   `open scoped K1HBC` replacing the pin's `p2m_reactivate` — that is also what makes them
+   checker-invisible, so no marker was needed (an `own:`/`pin:` marker cannot reach a `scoped
+   instance`).
+
+**Wave close (P7).** Corpus: **6,532 ok / 0 mismatch / 0 missing / 32 own, 299 modules, 504 exempt** —
+all 32 `own` are pre-existing port-authored or renamed statements, none from this wave. `#print
+axioms` on all eighteen headlines from one scratch module: exactly
+`[propext, Classical.choice, Quot.sound]`, no exceptions.
+
+**Re-measure, and it is exact.** `needed(302)` = **114 nodes / 42,213 lines** and `needed(653)` =
+**115 nodes / 42,866**, i.e. §1's projection to the node and to the line (132 − 18, 48,469 − 6,256;
+133 − 18, 49,122 − 6,256). The 113-node / 41,863-line xH body is now the only unported premise under
+A's mouth, and §8's next step is untouched by this wave.
