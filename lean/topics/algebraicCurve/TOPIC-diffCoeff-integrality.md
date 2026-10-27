@@ -1312,3 +1312,129 @@ promoting it would be a port decision without a pin name to land at), and
 `Place.ord_natCast` (§19.3's inline step: it is a node, but a small one on no current path).
 The dated audits under `topics/riemannRoch/` still describe the pre-cleanup state — they are
 records of their date and were not rewritten.
+
+## 21. Sequel (2026-10-27): the discriminant shape, and the pullback formula
+
+The two ready nodes of this wave are the last two leaves of the differential corner that the
+`ModularCurve` layer cites. They are unrelated in subject but share a home question, and one of
+them needed a missing definition first.
+
+### 21.1 The definition the pullback node needed
+
+`ordDiff_pullbackDiff_of_natCast_ramificationIndexAlong_ne_zero` states its conclusion with
+`pullbackDiff`, which the pin defines in `Definitions/Def_AlgebraicCurve_Differentials.lean:70`
+— the definition module §3 absorbed into `Differential/Coefficient.lean` and §18 finished for
+its regular-differentials half. The pullback section (lines 66–79: `pullbackDiff`,
+`pullbackDiff_D`) was still untaken, so it is now in `Coefficient.lean` at the pin's own place,
+body verbatim: **38 ok / 0 mismatch / 0 missing / 1 own**.
+
+The pin defines the same map a second time in a *different* definition module as
+`pullbackAlong` (which the port already carries, with `traceAlong`/`correspondence` on top).
+Both are kept, because the pin's statements name both spellings; the module docstring says so.
+`dedup.py` does not flag the pair (their `def` bodies differ in shape), and it should not be
+merged without a pin statement to land at.
+
+### 21.2 `ordDiff_smul_D_nonneg_of_ord_pow_six_…` — the discriminant shape
+
+113 pin lines, homed in `Differential/Different.lean` because it *is* the different's
+effectivity bound applied to one element shape: for `g J : F` and
+`0 ≤ ord (g ^ 6 * J ^ 4 * (J - 1728) ^ 3)` (a discriminant-shaped product, `1728` the
+degenerate `j`-value) the differential `g • D J` is regular. The proof is the pin's case
+analysis on `ord J` against `0`, and it is the first consumer of §20's public
+`Place.ord_add_eq_of_lt`. Two adaptations: the pin's private `ord_pow_of_ne_zero` is the port's
+public `v.ord_pow`, and its `ordDiff_D_nonneg_pf_bridge` is inlined (the port's
+`ordDiff_D_nonneg` is the `[CharZero K]` node, which is not available under `[PerfectField K]`).
+One import added: `Place/OrdCalculus` (for `ord_add_eq_of_lt` and `exists_ord_eq_one`).
+`Different.lean`: **6 ok / 0 mismatch / 0 missing**.
+
+### 21.3 `ordDiff_pullbackDiff_of_natCast_…` — the ramification bookkeeping
+
+283 pin lines, the largest node of this corner. New module
+`Differential/PullbackOrd.lean` (288 lines): the pin's twelve private helpers transcribed
+`private`, plus the headline at its `Theorems/` wrapper. The mathematics is
+`ordDiff (pullbackDiff φ ω) = e * ordDiff (restrictAlong w' ω) + (e - 1)` with
+`e = ramificationIndexAlong φ w'`, under tameness (`((e : ℕ) : K) ≠ 0`) — the ramification index
+times the order, plus one different exponent.
+
+`port_advise` had already said what was reusable (`ramificationIndexAlong_pos` is public in
+`Defs/RestrictAlongAPI.lean`, and is *not* re-proved here), and the port body was dispatched to
+a subagent under `topics/algebraicCurve/WORKORDER-ordDiff-pullbackDiff.md` — the prelude is
+twelve helpers of real proof work, which is the case §0.2 of the playbook reserves for a
+workorder. Adaptations, both mechanical: `ramificationIndexAlong_pos` imported rather than
+copied, and the pin's `FtameBuild.hadd w' x` call reproduced without the `φ hφ` arguments Lean
+drops from that binder block. Verified here, not taken on the report: build
+`lake build …PullbackOrd` green in 7.3 s with **no warning** from the module,
+`check_port --force` **1 ok / 0 mismatch / 0 missing / 0 own**, `#print axioms`
+`[propext, Classical.choice, Quot.sound]`, `dedup.py` 0 clusters, no `sorry`.
+
+### 21.4 Effect on the cone
+
+`needed [F terminal]` 1,107 → **1,105** nodes and 423,123 → **422,727** lines: 396 lines, exactly
+the two silo prices (113 + 283). The ready shelf went 109 → 107, i.e. these two leaves were the
+whole shelf movement: neither consumer came free. Both are large:
+`ModularCurve.mem_regularDifferentials_x1FunctionFieldBar_of_coeffMap_diffQExp_eq_qExpansion`
+now needs 14 nodes (was 15; 163 lines, silo 3,125), and
+`ModularCurve.two_mul_index_le_sum_ordDiff_D_add_natCard_doubleCoset_of_lt_five` needs 134
+(was 135; 789 lines, silo 47,865). So the differential corner above the `ordDiff` vocabulary is
+now empty of cheap leaves: what is left of it is ModularCurve's own theorems, and the
+`AlgebraicCurve` shelf holds only the small divisors/`evalFun` pieces and the 314-line
+constant-field-extension node.
+
+### 21.5 Found on the way: a pre-existing build break in `ResidueTheorem/RRAssembly.lean`
+
+Building the one downstream consumer of `Differential/Different.lean`
+(`Genus/HurwitzBound.lean`) failed in a module this wave never touched:
+
+```
+error: FLTForHuman/AlgebraicCurve/ResidueTheorem/RRAssembly.lean:100:16:
+  a non-private declaration `AlgebraicCurve.Place.ord_sub_evalAt_pos` has already been declared
+```
+
+Root cause, and it is the §20 pattern again: `Defs/PlaceCalculus.lean:209` declares the
+**public** `AlgebraicCurve.Place.ord_sub_evalAt_pos` (since `18c24b7`, 2026-10-04), and
+`ResidueTheorem/RRAssembly.lean:100` declares a **`private`** theorem of the same name in the
+same namespace (since `26aeae0`, 2026-10-23), with the same statement and the same proof. Lean
+refuses a `private` declaration whose name is already a public constant, so `RRAssembly.lean`
+has not elaborated since 2026-10-23 — the tree simply has not built that target.
+
+It is **not** caused by this wave: a probe that imports only `RRAssembly`'s own import list
+(none of this wave's modules) and then declares `private theorem ord_sub_evalAt_pos` reproduces
+the error verbatim. The fix is the §20 one — delete the private copy and point its uses at the
+public lemma — and it requires the same legacy-module upgrade of `RRAssembly.lean`
+(`spec-pin`, deletion from `PORT_FILES`), so it is recorded here and not done in this wave.
+
+## 22. The `RRAssembly` break, fixed (2026-10-27)
+
+§21.5 recorded a pre-existing compile error and left it; it is now fixed, because it was the
+same defect as §20's and it blocked the tree.
+
+**The defect.** `ResidueTheorem/RRAssembly.lean:100` declared a `private theorem
+ord_sub_evalAt_pos` inside `namespace AlgebraicCurve.Place`, shadowing the public
+`AlgebraicCurve.Place.ord_sub_evalAt_pos` that `Defs/PlaceCalculus.lean:209` has carried since
+2026-10-04. Lean refuses that — a private declaration may not take a name that is already a
+public constant — so the module had not elaborated since 2026-10-23, when the private copy was
+written (`26aeae0`). Nothing caught it: the module's statement wire is `spec/check_port.py`'s,
+which reads text and never invokes Lean, so it kept reporting its cached
+42 ok / 0 mismatch / 0 missing over a module that no longer compiled.
+
+**The fix.** The private copy is deleted (28 lines, including its docstring) and its single use
+keeps its spelling: `v₀.ord_sub_evalAt_pos hrat hg₀ htne` now resolves to the public lemma,
+whose explicit arguments are the same modulo the section variable. The now-empty `namespace
+Place … end Place` went with it, and the module header records why the pin's private helper
+(pin 1973) is not copied here.
+
+**Legacy-module standard.** This module had already been handed over (nine `spec-pin:` lines,
+absent from `PORT_FILES`), so only the remaining items applied: silent build ✓ (8.8 s, no
+warning), no build-time blow-up ✓, no machine tokens in declaration names ✓ (the pin's own
+`rr_`/`wkc_` subject tags stay, as the header explains), `dedup.py` 0 clusters over 43
+declarations ✓, `move_dead.py` 0 dead declarations ✓, no `sorry` ✓,
+`check_port --force` **42 ok / 0 mismatch / 0 missing / 0 own** ✓.
+
+**Verified downstream, which is how it was found.** `Genus/HurwitzBound.lean` — the module whose
+build surfaced the error — now builds (3.8 s), and so do `RRAssembly`'s two importers
+(`Canonical/PolarDifferentials.lean`, `Genus/RatFunc.lean`).
+
+**Recorded negative.** The private copy's proof was byte-for-byte the public lemma's, so no
+mathematics was lost; and the clash was invisible to the statement checker by construction, which
+is the one hole in the "checked, not trusted" story: a module can pass the text wire and still not
+compile. Only a build of the module (or of a target above it) closes that hole.

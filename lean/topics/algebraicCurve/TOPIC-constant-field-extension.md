@@ -613,3 +613,72 @@ Not done here, deliberately: the genus node (`…genus_eq_of_constantFieldExtens
 #12–#15 from this module; the four cone consumers of the general headline and the
 sixteen of the twin are each their own node; no `spec/` consumer zone was added,
 because nothing in the port consumes these headlines yet (§10).
+
+## 14. Sequel (2026-10-27): the existence of the constant-field extension
+
+The family's missing node: §1 lists the linear-independence pair and the genus node, all of which
+**assume** the extension `K' ⊆ F'` already exists. `AlgebraicCurve.exists_constantFieldExtension`
+(`Theorems/Thm_AlgebraicCurve_exists_constantFieldExtension.lean`, pin `S_` file 314 lines,
+26 declarations) is the construction that produces it.
+
+### 14.1 The mathematics
+
+Given a curve `F₀/K₀` with a separating transcendental `x`, an extension `K' ⊇ K₀`, and a prime `P`
+of `K' ⊗[K₀] F₀` avoiding the non-zero-divisors of `K'[x]` (existential by a maximal-ideal
+argument), `F' = Frac ((K' ⊗[K₀] F₀) ⧸ P)` is a field containing both `K'` and `F₀`. The `Abstract`
+block transports the transcendence data along `τ` — `incl τ x` transcendental over `K'` when `τ` is
+injective on `K'[x]` — plus integrality and finiteness of `K'⟮incl τ x⟯` over `F'`, and the
+`Concrete` block transfers the two curve structures: `IsCurveOver` from essential finite type plus
+the transported data, `HasCanonicalDivisor` from `hasCanonicalDivisor_of_charZero`.
+
+This is the first node of the corner whose proofs are *not* transcriptions of the port's existing
+vocabulary: 26 declarations, none of which existed in the port or in mathlib (`port_advise`: 0
+substitutions; the four generic prelude names — `aeval_ofFinsupp_eq`,
+`transcendental_iff_linearIndependent_pow`, `transcendental_one_tmul`, `essFiniteType_of_fg` —
+are new). It also has the corner's first tensor product and its only `∃`-packed nine-instance
+conclusion.
+
+### 14.2 Landing record
+
+| item | value |
+|---|---|
+| module | `FLTForHuman/AlgebraicCurve/IsCurveOver/ConstantFieldExtensionExists.lean`, 334 lines |
+| transcribed whole | the pin's 26 public declarations at their own statements, plus four `scoped instance`s on `CFExt` |
+| derived | nothing: no declaration is re-derived from a sibling (unlike §13's twin) |
+| imports | the port's `Canonical/HasCanonicalDivisor` and `IsCurveOver/Transcendental` plus 18 narrow Mathlib modules (never `import Mathlib`) |
+| checker, module alone | **26 ok, 0 mismatch, 0 missing, 0 own** (`inclₐ`, `inclₐ_apply` included; the four `scoped instance`s are outside the checker's declaration surface, as in the pin) |
+| build | green, 7.3 s, **0 warnings** (`lake env lean` on the file is silent) |
+| axioms | headline, `exists_constantFieldExtension_core`, `hasCanonicalDivisor_of_charZero`: `[propext, Classical.choice, Quot.sound]` |
+| `dedup.py` | 0 clusters over 30 declarations |
+| `move_dead.py` | 0 dead declarations |
+| wiring | the two `spec-pin:` lines; no `decl_markers.tsv` row, no promotion, no exemption |
+
+Adaptations, all proof-side and each forced by `v4.34.0` (`linter.unusedSimpArgs`,
+`linter.unusedTactic`, the `TensorProduct.induction_on` deprecation): five lines in total. Kept
+faithfully: the file-level `universe u v w`, the nine-instance `∃` binder block, the four
+`scoped instance`s, and the pin's `omit`/`include`/`letI`/`haveI` walls.
+
+**The one option not inherited: `synthInstance.maxHeartbeats`.** The pin wraps each of the four
+`scoped instance`s in `set_option synthInstance.maxHeartbeats 1600000 in`. That raise is dropped,
+by the port's rule that a default is not raised without a reason — a raised cap buys search
+length, and leaving the default in place is what turns a future blow-up in this search into a
+visible build failure instead of a slow build. Measured before dropping it: the search runs
+through three derived carriers (`TensorProduct` → `Ideal.Quotient` → `FractionRing`) against the
+whole `Algebra` pool (~150 candidates per layer, traced), and the two heaviest of the four cost
+**~3–3.5k heartbeats** against the **20,000** default — the module elaborates with the cap set to
+3,500 and fails at 3,000, so the default has a 6× margin and the pin's 1.6M is ~470× the real
+cost. Removing it changed nothing else: same 26 declarations, same statements, same build time
+(7.3 s → 7.2 s), `check_port` still 26 ok / 0 / 0 / 0.
+
+### 14.3 Effect on the cone, and why it matters
+
+`needed [F terminal]` 1,105 → **1,104** nodes and 422,727 → **422,413** lines (the node's own 314).
+It is a **hub**: nine pin consumers, none of which comes free — `Pic0.natCard_torsion_prime_eq_pow_genus`
+(the `p^{2g}` torsion order), `Pic0.finite_torsion_of_isAlgClosed_of_charZero` (needs 5),
+`exists_baseChange_correspondence_of_constantFieldExtension` (2),
+`Pic0.freeAlgebra_lift_*` (22 each), `exists_constantFieldExtension_place_of_isAlgClosed`, and the
+Čerednik–Drinfeld uniformisation node. Each drops by one node; the corner's remaining work is
+therefore ModularCurve/Pic⁰-shaped rather than coefficient-shaped.
+
+Note the route: this node became ready only because §19's `ordDiff_D_eq_ord_sub_one` landed
+(`needed 2 → 1`), so the differential corner and the curve-package corner meet here.

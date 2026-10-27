@@ -258,6 +258,34 @@ theorem mem_regularDiffs_of_isRegularDiff {ω : Ω[F⁄K]} (h : IsRegularDiff K 
 theorem regularDiffs_eq_span :
     regularDiffs K F = Submodule.span K {ω : Ω[F⁄K] | IsRegularDiff K F ω} := rfl
 
+section Pullback
+
+/-! ### Pushing a differential forward
+
+The pin's last section of the same definition module: `pullbackDiff φ` is `KaehlerDifferential.map`
+along `φ`, restricted to scalars over `K`. The pin defines the same map a second time in a later
+definition module, as `pullbackAlong` (with `pullbackAlong_D`, `traceAlong` and
+`correspondence` built on it); the two definitions are the same term, and both are kept because
+the pin's statements name both — this section is the earlier spelling, which the
+`ordDiff`-of-a-pullback nodes state. -/
+
+variable {F' : Type*} [Field F'] [Algebra K F']
+
+/-- Pin `pullbackDiff` (`Definitions/Def_AlgebraicCurve_Differentials.lean:70`), body verbatim. -/
+def pullbackDiff (φ : F →ₐ[K] F') : Ω[F⁄K] →ₗ[K] Ω[F'⁄K] :=
+  letI : Algebra F F' := φ.toRingHom.toAlgebra
+  haveI : IsScalarTower K F F' := IsScalarTower.of_algebraMap_eq fun k => (φ.commutes k).symm
+  (KaehlerDifferential.map K K F F').restrictScalars K
+
+/-- Pin `pullbackDiff_D` (`Definitions/Def_AlgebraicCurve_Differentials.lean:75`). -/
+theorem pullbackDiff_D (φ : F →ₐ[K] F') (x : F) :
+    pullbackDiff φ (D K F x) = D K F' (φ x) := by
+  letI : Algebra F F' := φ.toRingHom.toAlgebra
+  haveI : IsScalarTower K F F' := IsScalarTower.of_algebraMap_eq fun k => (φ.commutes k).symm
+  exact KaehlerDifferential.map_D K K F F' x
+
+end Pullback
+
 end AlgebraicCurve
 
 /-! ### The coefficient exists and is unique

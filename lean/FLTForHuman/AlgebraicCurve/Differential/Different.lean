@@ -37,12 +37,15 @@ https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_Algebr
 
 spec-pin: Theorems/Thm_AlgebraicCurve_Place_ord_sub_one_le_ordDiff_D_of_perfectField.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_Place_ord_sub_one_le_ordDiff_D_of_perfectField.lean   -- comparable copy
+spec-pin: Theorems/Thm_AlgebraicCurve_Place_ordDiff_smul_D_nonneg_of_ord_pow_six_mul_pow_four_mul_sub_1728_pow_three_nonneg.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Place_ordDiff_smul_D_nonneg_of_ord_pow_six_mul_pow_four_mul_sub_1728_pow_three_nonneg.lean   -- comparable copy
 spec-pin: Theorems/Thm_AlgebraicCurve_Place_sub_one_add_pow_sub_one_le_ordDiff_D_of_isGalois.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_Place_sub_one_add_pow_sub_one_le_ordDiff_D_of_isGalois.lean   -- comparable copy
 -/
 import FLTForHuman.AlgebraicCurve.Defs.PlaceCalculus
 import FLTForHuman.AlgebraicCurve.Differential.Coefficient
 import FLTForHuman.AlgebraicCurve.Place.OrbitCardinality
+import FLTForHuman.AlgebraicCurve.Place.OrdCalculus
 
 set_option autoImplicit false
 
@@ -214,6 +217,74 @@ theorem ord_sub_one_le_ordDiff_D_of_perfectField {K F : Type*} [Field K] [Field 
     (hD : KaehlerDifferential.D K F f ≠ 0) :
     v.ord f - 1 ≤ v.ordDiff (KaehlerDifferential.D K F f) :=
   v.ord_sub_one_le_ordDiff_D_aux x hD
+
+/-! ### The different at the discriminant shape
+
+The elliptic-curve consequence the `ModularCurve` layer consumes: for `g J : F` and a place
+with `0 ≤ ord (g ^ 6 * J ^ 4 * (J - 1728) ^ 3)` — the order of a discriminant-shaped product,
+`1728` being the constant where the `j`-invariant degenerates — the differential `g • D J` is
+regular. The proof is the pin's case analysis on `ord J` against `0`, using the effective
+bound above and the strict ultrametric equality. -/
+
+theorem ordDiff_smul_D_nonneg_of_ord_pow_six_mul_pow_four_mul_sub_1728_pow_three_nonneg {K F : Type*} [Field K] [Field F]
+    [Algebra K F] (v : AlgebraicCurve.Place K F) [PerfectField K] (x : F)
+    [FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F]
+    (g J : F) (h1728 : (1728 : K) ≠ 0)
+    (hu : 0 ≤ v.ord (g ^ 6 * J ^ 4 * (J - algebraMap K F 1728) ^ 3)) :
+    0 ≤ v.ordDiff (g • KaehlerDifferential.D K F J) := by
+  haveI : Algebra.IsAlgebraic (IntermediateField.adjoin K ({x} : Set F)) F :=
+    Algebra.IsAlgebraic.of_finite _ _
+  by_cases hg : g = 0
+  · subst hg; rw [zero_smul]; exact (v.ordDiff_zero_of_perfectField x).ge
+  by_cases hD : KaehlerDifferential.D K F J = 0
+  · rw [hD, smul_zero]; exact (v.ordDiff_zero_of_perfectField x).ge
+
+  set c : F := algebraMap K F 1728 with hc_def
+  have hc : c ≠ 0 := fun h => h1728 ((map_eq_zero_iff _ (algebraMap K F).injective).mp h)
+  have hJ0 : J ≠ 0 := by rintro rfl; exact hD (map_zero _)
+  have hDc : KaehlerDifferential.D K F (J - c) = KaehlerDifferential.D K F J := by
+    rw [map_sub, hc_def, (KaehlerDifferential.D K F).map_algebraMap, sub_zero]
+  have hJc : J - c ≠ 0 := by
+    intro h0
+    apply hD
+    rw [← hDc, h0, map_zero]
+
+  have hexp : 0 ≤ 6 * v.ord g + 4 * v.ord J + 3 * v.ord (J - c) := by
+    have h := hu
+    rw [v.ord_mul (mul_ne_zero (pow_ne_zero _ hg) (pow_ne_zero _ hJ0)) (pow_ne_zero _ hJc),
+      v.ord_mul (pow_ne_zero _ hg) (pow_ne_zero _ hJ0), v.ord_pow g 6, v.ord_pow J 4,
+      v.ord_pow (J - c) 3] at h
+    push_cast at h
+    linarith
+  rw [v.ordDiff_smul_of_perfectField x hg hD]
+  have hc0 : v.ord c = 0 := v.ord_algebraMap 1728
+  have hnc0 : v.ord (-c) = 0 := by rw [v.ord_neg, hc0]
+
+  have hA5 : v.ord J - 1 ≤ v.ordDiff (KaehlerDifferential.D K F J) :=
+    v.ord_sub_one_le_ordDiff_D_of_perfectField x hD
+  have hA5c : v.ord (J - c) - 1 ≤ v.ordDiff (KaehlerDifferential.D K F J) := by
+    have h := v.ord_sub_one_le_ordDiff_D_of_perfectField x (f := J - c) (by rw [hDc]; exact hD)
+    rwa [hDc] at h
+  rcases lt_trichotomy (v.ord J) 0 with hneg | hzero | hpos
+  · have h2 : v.ord (J - c) = v.ord J := by
+      rw [sub_eq_add_neg,
+        v.ord_add_eq_of_lt hJ0 (neg_ne_zero.mpr hc) (by rw [hnc0]; exact hneg)]
+    omega
+  · have hA4 : 0 ≤ v.ordDiff (KaehlerDifferential.D K F J) := by
+      rw [AlgebraicCurve.Place.ordDiff_def]
+      exact v.ord_diffCoeff_D_nonneg_of_perfectField x
+        (v.ord_uniformizer_alt v.exists_ord_eq_one) hzero.ge
+    rcases lt_or_ge (v.ord (J - c)) 0 with hneg' | hnn'
+    · exfalso
+      have h3 : v.ord (J - c + c) = v.ord (J - c) :=
+        v.ord_add_eq_of_lt hJc hc (by rw [hc0]; exact hneg')
+      rw [sub_add_cancel] at h3
+      omega
+    · omega
+  · have h2 : v.ord (J - c) = 0 := by
+      rw [sub_eq_add_neg, add_comm,
+        v.ord_add_eq_of_lt (neg_ne_zero.mpr hc) hJ0 (by rw [hnc0]; exact hpos), hnc0]
+    omega
 
 /-! ### The wild lower bound for the different
 

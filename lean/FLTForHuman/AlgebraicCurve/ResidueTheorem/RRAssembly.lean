@@ -47,6 +47,11 @@ file for that one declaration.
 Promotion debt: the pin-private `Place.exists_trace_residue_ne_zero` (pin 4863) lives
 `private` in the frozen `Defs/WeilOfKaehler.lean`; re-provisioned `private` here.
 
+The pin's other private helper here, `Place.ord_sub_evalAt_pos` (pin 1973), is **not** copied:
+it is the port's public `Place.ord_sub_evalAt_pos`, and re-declaring it `private` under that
+name is a Lean error (a private declaration may not shadow a public constant), which is what
+this module tripped over between 2026-10-23 and this fix.
+
   spec-pin: Theorems/Thm_AlgebraicCurve_functionFieldRiemannRoch_of_residueTheoremK_of_isAlgClosed.lean
   spec-pin: Theorems/Thm_AlgebraicCurve_constantsAreBase_of_isAlgClosed.lean
   spec-pin: Theorems/Thm_AlgebraicCurve_ell_canonicalDivisor_eq_genus_of_riemannRoch.lean
@@ -91,38 +96,6 @@ namespace AlgebraicCurve
 variable {K F : Type*} [Field K] [Field F] [Algebra K F]
 
 /-! ## The K-route chain over the phase-1 engine -/
-
-namespace Place
-
-/-- The pin's `private` helper `_root_.AlgebraicCurve.Place.ord_sub_evalAt_pos`
-(pin 1973): a nonzero element of the valuation subring differs from its residue
-value by something of positive order. -/
-private theorem ord_sub_evalAt_pos (v : Place K F) (hrat : v.IsRational) {f : F}
-    (hf : f ∈ v.toValuationSubring)
-    (hne : f - algebraMap K F (v.evalAt f) ≠ 0) :
-    0 < v.ord (f - algebraMap K F (v.evalAt f)) := by
-  have hmem : f - algebraMap K F (v.evalAt f) ∈ v.toValuationSubring :=
-    sub_mem hf (v.algebraMap_mem' _)
-  rcases eq_or_ne (v.ord (f - algebraMap K F (v.evalAt f))) 0 with h0 | h0
-  · exfalso
-    refine v.evalAt_ne_zero hrat hne h0 ?_
-    have hres : algebraMap K v.ResidueField
-        (v.evalAt (f - algebraMap K F (v.evalAt f))) = 0 := by
-      rw [v.algebraMap_evalAt hrat hmem]
-      have hcoe : (⟨f - algebraMap K F (v.evalAt f), hmem⟩ : v.toValuationSubring)
-          = ⟨f, hf⟩ - algebraMap K v.toValuationSubring (v.evalAt f) := by
-        refine Subtype.ext ?_
-        show f - algebraMap K F (v.evalAt f)
-          = f - (algebraMap K v.toValuationSubring (v.evalAt f) : F)
-        rw [Place.coe_algebraMap]
-      rw [hcoe, map_sub, sub_eq_zero, ← v.algebraMap_evalAt hrat hf,
-        IsScalarTower.algebraMap_apply K v.toValuationSubring v.ResidueField,
-        IsLocalRing.ResidueField.algebraMap_eq]
-    exact (map_eq_zero_iff _ (algebraMap K v.ResidueField).injective).mp hres
-  · have hnonneg := v.ord_nonneg_of_mem hmem
-    omega
-
-end Place
 
 section ConstantsAreBase
 
