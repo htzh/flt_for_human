@@ -535,6 +535,29 @@ the Abel–Jacobi programme. The shelf is *growing* as the recent waves' success
 13 → 26 since the column plan), so the programme is a running one, not a one-off cut: the
 successors of the first wave are where the next brief starts.
 
+**The first wave landed (2026-10-27): MC-1, MC-2, MC-3 — the ready block's first ten rows.**
+One read over the three sets: instrument `needed` 1,016 / 402,071 → **1,004 / 398,972** (corrected
+1,018 / 402,432 → **1,006 / 399,333**); ready 83 / 17,475 → **75 / 15,689**; the `ModularCurve`
+shelf 23 / 5,949 → **15 / 4,163** (corrected 22 / 5,913 → 14 / 4,127); MC demand 182 / 79,025 →
+**170 / 75,926**; frontier +16 nodes / +3,637 lines (ten cut headlines plus six further pin
+declarations the wave made ported, MC-2b's four `tatePowerSeries` nodes among them); leaves
+296 / 72,205 → **294 / 71,671**.  **Two rows became ready out of the leaves block** —
+`c4_mul_toricPoint_fst_div_c6_mem_qExpFunctionFieldC_gamma1` and
+`meromorphicOrderAt_E4_cube_div_discriminant_sub_eq_card_stabilizer_div_two` — and they are M3's
+next cut.  Six new or edited modules: `AlgebraicCurve/Differential/AutTrace.lean` (97),
+`ModularCurve/Defs/QExpReductionModL.lean` (365), `X1/GaussResidue.lean` (533),
+`X1/DiamondCorrespondence.lean` (778), `X1/HeckeCorrespondence.lean` (738),
+`ConstantReductionQExp.lean` (274), plus the wave's insertions into
+`ModularPolynomialVelu.lean` (959), `ModularPolynomialUniquenessIrreducible.lean` (332),
+`TateSlots/CoefficientFormulas.lean` (322), `Degree/FinrankAdjoinJqNModC.lean` (531),
+`TateSlots/Invariants.lean` (938), `X1/FunctionFieldIsAlgClosed.lean` (772),
+`X1/Structure.lean` (212), `ModularPolynomialStarBank.lean` (399), and the single-copy shrink of
+`X1/QExpRegularProlongation.lean` (681 → 228).  Two legacy migrations were paid
+(`TateSlots/CoefficientFormulas.lean`, `X1/Structure.lean`) and one pre-existing tree defect fixed
+(FR-0055).  The sets' records are [SET-MC1.md](SET-MC1.md), [SET-MC2.md](SET-MC2.md),
+[SET-MC3.md](SET-MC3.md); the rectification audit is
+[WORKORDER-MC7d-rectify-engine-homes.md](WORKORDER-MC7d-rectify-engine-homes.md).
+
 **The successor read (2026-10-27, SET MC-7 §0).** After MD-001's wire close, measured on this
 tree: `--selfcheck` **PASS**; instrument `needed` **1,019 / 404,826**, MC **26 / 8,704** (the 80
 row leaves as a false ready, the 36 row enters); corrected (two markers: the 261 shadow and

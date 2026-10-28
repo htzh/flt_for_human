@@ -1041,3 +1041,30 @@ round promotes what generalizes.
     referencing it (FR-0050's idiom).
 - **seen**: 2026-10-27, SET MC-7's review.  Net effect: none of the set's six modules carries a
   linter or heartbeat option except the port-wide `linter.unusedVariables`-free state — i.e. zero.
+
+## FR-0055 [tree] [promotion] — a stale `private` copy of a promoted lemma breaks the build the moment its olean is invalidated
+
+- **where**: `FLTForHuman/WeierstrassCurve/Velu/RestrictAlong.lean` (committed, untouched by SET
+  MC-1) carried `private theorem count_normalizedFactors_span_singleton` and
+  `private theorem ord_norm_eq_sum_fiberOver`; the public promoted copies live in
+  `AlgebraicCurve/PrincipalDivisors/Transcendence.lean:200/323` (SET 3/4's promotions), which is in
+  `RestrictAlong`'s import closure.
+- **symptom**: on this toolchain a **private** declaration whose name collides with an imported
+  non-private one is rejected (`a non-private declaration … has already been declared`), so the
+  module fails to elaborate — but only once its `.olean` is rebuilt.  The stale olean hid the
+  defect until a concurrent wave's rebuild cascade deleted it, and then every consumer of
+  `RestrictAlong.olean` (MC-1a's module among them) died at import time with
+  `object file … does not exist`.  Two gates looked like worker failures and were not.
+- **the fix applied and resolved as is** (2026-10-27): the two local copies are renamed
+  `…_restrict` with their two call sites, and the module header records the *decision*.  Deleting
+  them was tried first and is **not** the end state: the file then fails at the
+  `Place.ord_norm_eq_sum_fiberOver v hf` call site, because the public promoted form is stated
+  under `omit [CharZero F]` and the local one is not — the two are *not* interchangeable as drop-in
+  replacements, so the deletion needs the call sites adapted (an instance-synthesis fix), not a
+  mechanical one.  So the copies stay under the suffix — a decided exception, not an open issue.
+- **rule for the next wave**: when a set promotes a lemma, **the promoting set decides the private
+  copies in the same touch** — delete-and-adapt if the statements are interchangeable, rename-and-
+  record if they are not (as here).  Either way the decision is made at promotion time: a
+  `spec-pin`-wired module carrying an un-decided private duplicate is a time bomb keyed on olean
+  invalidation, and it goes off in whichever later wave rebuilds it.
+- **seen**: 2026-10-27, SET MC-1a's gates (blocked for ~20 minutes; unblocked by the rename).

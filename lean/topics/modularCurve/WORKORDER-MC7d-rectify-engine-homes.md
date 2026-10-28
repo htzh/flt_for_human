@@ -1,7 +1,15 @@
 # WORKORDER-MC7d — rectifying the shared-engine homes (scheduled)
 
-Status: **scheduled**, opened 2026-10-27 with [SET-MC7](SET-MC7.md); runs **after** MC-7a/b/c
-have landed. Owner: the manager (no worker dispatch unless D4's audit says otherwise).
+Status: **resolved 2026-10-27** — every item below is either done or decided, none is open.
+Owner: the manager.
+
+| item | outcome |
+|---|---|
+| D1 | **done** — `X1/GaussResidue.lean` is the only copy of the `resF` assembly; `QExpRegularProlongation` (681 → 228) imports it; the four `own:` rows are in `spec/decl_markers.tsv` |
+| D2 | **decided as is** — the `Forms`/`FracForm` chain lives in `GaussResidue` (private) because `resHom_mem` needs the pin's fourth `exists_frac_form` conjunct and `exists_resHom_eq` proves the opposite containment; no other module consumes it |
+| D3 | **done** — `AutTrace.lean` is wired to the 934 row's `S_` file now that the row is ported: `5 ok / 0 / 0`, and `frontier.py --selfcheck` still PASSes |
+| D4 | **decided as is** — `D12top`/`N12top` stay as one-line aliases of `RelrankSol.AF`/`BF` (packaging: the pin's statements name the forms, and the alias carries no proof); the two public `P4`/`P6` spellings (`RelrankSol`, `JOneESRat`) stay, because each is the home of a different pin file's statements and MC-1b/2c import one of them — renaming either would migrate a landed module for no mathematical gain.  `dedup.py --cross` reports no cluster on the pair |
+| D5 | **done for the wave** — the measured numbers are in `SET-MC1/2/3` §after-landing and in `TOPIC-ready-shelf.md`; the three row orders' statuses are updated.  The rows' consumer-zone compositions are **decided as is**: the definition wave's zone (`spec/ModularCurveMC7DefConsumer.lean`) is the set's zone and the rows are checker/axioms-gated; the rows' cross-composition belongs to the set that reads their successors (§7's two new ready rows) |
 
 This order exists because of the set's standing rule: **we do not duplicate mathematics.**
 Duplication for packaging (a re-export, an `open`, a notation) is fine; a second copy of a proof

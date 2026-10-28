@@ -4730,7 +4730,8 @@ PORT_FILES = [
     # `exists_sum_smul_eq_of_isIntegralQExp_gamma1`, is the deferred node documented in `SOURCES`
     # above and in that module's docstring). Appended last so no earlier last-name match can flip.
     "FLTForHuman/ModularCurve/X1/QExpansionDiv.lean",
-    "FLTForHuman/ModularCurve/X1/Structure.lean",
+    # `X1/Structure.lean` is handed over to `spec/check_port.py` (2026-10-27, SET MC-3):
+    # its four `spec-pin:` wires check 4 ok / 0 / 0. Do not re-list it here.
     # --- WORKORDER-B1: the modular polynomial `Φ_N` (subject B's five ready rows). One module
     # per story: the leading coefficient, the uniqueness/irreducibility/symmetry trio, and the
     # star action. Only the headline(s) of each are public; the pin's helpers are re-derived
@@ -4937,8 +4938,9 @@ PORT_FILES = [
     # --- WORKORDER-F1: the weight-4 Tate-slot tier-1 façade. The engine modules
     # (`TateSlots/Convergence.lean`, `TateSlots/SlotCoeff.lean`) stay tier 3 and
     # are recorded in spec/UNWIRED-PUBLIC.md; only the façade
-    # (`TateSlots/CoefficientFormulas.lean`) is diffed.
-    "FLTForHuman/ModularCurve/TateSlots/CoefficientFormulas.lean",
+    # (`TateSlots/CoefficientFormulas.lean`) was diffed; it is handed over to
+    # `spec/check_port.py` (2026-10-27, SET MC-2): its fourteen `spec-pin:` wires check
+    # 14 ok / 0 / 0. Do not re-list it here.
     # --- WORKORDER-F2: the `tateCurve` twins/triplet definition layer (see SOURCES).
     # Six new leaf modules; no existing module was edited, so no hub wave is owed.
     "FLTForHuman/Algebra/LaurentSeriesXAdic.lean",

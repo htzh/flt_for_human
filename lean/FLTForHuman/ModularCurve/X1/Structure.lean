@@ -1,6 +1,6 @@
 /-
-  Four headlines of the `X₁` structure layer, from FLT's
-  `P2M/Sol/S_ModularCurve_{isCurveOver,essFiniteType,diffQExp}_x1FunctionFieldBar*.lean`
+  Five headlines of the `X₁` structure layer, from FLT's
+  `P2M/Sol/S_ModularCurve_{isCurveOver,essFiniteType,diffQExp,hasCanonicalDivisor}_x1FunctionFieldBar*.lean`
   and `P2M/Sol/S_ModularCurve_closure_elemSet_eq_top.lean` (pin `aa2d8b3`); each
   statement is verbatim from the matching `Theorems/Thm_ModularCurve_*.lean` wrapper.
 
@@ -21,6 +21,14 @@
     already generate `SL(2, ZMod N)`, by pushing mathlib's generators `{S, T}` of
     `SL(2, ℤ)` through the surjective reduction map of
     `ModularForms/WeightOne/LevelOneHauptmodul.lean`.
+  * `ModularCurve.hasCanonicalDivisor_x1FunctionFieldBar`: X₁'s base-changed function
+    field has a canonical divisor.  `HasCanonicalDivisor` is an `AlgebraicCurve` *class*,
+    so the headline is the instance itself: the two `IsCurveOver` / `EssFiniteType`
+    instances above are exactly its hypotheses, and it is discharged by
+    `AlgebraicCurve.hasCanonicalDivisor_of_isCurveOver`
+    (`AlgebraicCurve/Canonical/HasCanonicalDivisor.lean`), which is imported rather than
+    re-proved.  The pin's two `haveI`s are spelled `have` for the reason recorded below
+    (the goal is a proposition; `have` registers the same local instances).
 
   Dedup / adaptation notes.  The pin's `Γ₁(M)` finite-index input
   (`by rw [CongruenceSubgroup.Gamma1_mem]; simp [ModularGroup.T]`), the
@@ -34,17 +42,34 @@
   effect on a proof of a `Prop`.  The wrappers' `attribute [-instance]` /
   `attribute [-simp]` preambles name declarations of unported modules and are not
   transcribed; nor is the pin's `set_option synthInstance.maxHeartbeats 1600000`
-  (the tier-0 build is clean without it).
+  (the tier-0 build is clean without it).  The `hasCanonicalDivisor` `S_` file's two long
+  `attribute [-instance]` / `[-simp]` lists name declarations of unported modules, so
+  they are not transcribed either; its wrapper's `hiding
+  hasCanonicalDivisor_of_isCurveOver` only keeps the pin's own copy of the statement
+  name out of scope, which this module (where the statement name is
+  `ModularCurve.hasCanonicalDivisor_x1FunctionFieldBar`) does not need.
 
   FLT provenance, pinned `aa2d8b3`:
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_isCurveOver_x1FunctionFieldBar.lean
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_essFiniteType_x1FunctionFieldBar.lean
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_diffQExp_x1FunctionFieldBar_injective.lean
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_closure_elemSet_eq_top.lean
+  https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_hasCanonicalDivisor_x1FunctionFieldBar.lean
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_isCurveOver_x1FunctionFieldBar.lean
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_essFiniteType_x1FunctionFieldBar.lean
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_diffQExp_x1FunctionFieldBar_injective.lean
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_closure_elemSet_eq_top.lean
+  https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_hasCanonicalDivisor_x1FunctionFieldBar.lean
+spec-pin: Theorems/Thm_ModularCurve_isCurveOver_x1FunctionFieldBar.lean
+spec-pin: Theorems/Thm_ModularCurve_essFiniteType_x1FunctionFieldBar.lean
+spec-pin: Theorems/Thm_ModularCurve_diffQExp_x1FunctionFieldBar_injective.lean
+spec-pin: Theorems/Thm_ModularCurve_closure_elemSet_eq_top.lean
+spec-pin: Theorems/Thm_ModularCurve_hasCanonicalDivisor_x1FunctionFieldBar.lean
+spec-pin: P2M/Sol/S_ModularCurve_isCurveOver_x1FunctionFieldBar.lean
+spec-pin: P2M/Sol/S_ModularCurve_essFiniteType_x1FunctionFieldBar.lean
+spec-pin: P2M/Sol/S_ModularCurve_diffQExp_x1FunctionFieldBar_injective.lean
+spec-pin: P2M/Sol/S_ModularCurve_closure_elemSet_eq_top.lean
+spec-pin: P2M/Sol/S_ModularCurve_hasCanonicalDivisor_x1FunctionFieldBar.lean
 -/
 import FLTForHuman.ModularCurve.X1.Defs
 import FLTForHuman.ModularCurve.X1.FunctionFieldBaseChange
@@ -53,6 +78,7 @@ import FLTForHuman.ModularCurve.Defs.SL2Elementary
 import FLTForHuman.AlgebraicCurve.IsCurveOver.Transcendental
 import FLTForHuman.AlgebraicCurve.IsCurveOver.EssFiniteType
 import FLTForHuman.AlgebraicCurve.Defs.KaehlerTranscendental
+import FLTForHuman.AlgebraicCurve.Canonical.HasCanonicalDivisor
 import FLTForHuman.ModularForms.WeightOne.LevelOneHauptmodul
 import Mathlib.RingTheory.HahnSeries.Basic
 import Mathlib.NumberTheory.Modular
@@ -170,5 +196,17 @@ theorem ModularCurve.closure_elemSet_eq_top (N : ℕ) [NeZero N] :
       (lowerElem_mem_closure_elemSet _)) (upperElem_mem_closure_elemSet _)
   · rw [hT]
     exact upperElem_mem_closure_elemSet _
+
+/-! ## The canonical divisor of X₁'s function field -/
+
+/-- **X₁'s function field has a canonical divisor.**  Verbatim from
+`Theorems/Thm_ModularCurve_hasCanonicalDivisor_x1FunctionFieldBar.lean`. -/
+theorem ModularCurve.hasCanonicalDivisor_x1FunctionFieldBar (M : ℕ) [NeZero M] :
+    HasCanonicalDivisor (K := AlgebraicClosure ℚ) (F := ↥(ModularCurve.x1FunctionFieldBar M)) := by
+  have hcurve : IsCurveOver (AlgebraicClosure ℚ) ↥(ModularCurve.x1FunctionFieldBar M) :=
+    ModularCurve.isCurveOver_x1FunctionFieldBar M
+  have heft : Algebra.EssFiniteType (AlgebraicClosure ℚ) ↥(ModularCurve.x1FunctionFieldBar M) :=
+    ModularCurve.essFiniteType_x1FunctionFieldBar M
+  exact AlgebraicCurve.hasCanonicalDivisor_of_isCurveOver
 
 end

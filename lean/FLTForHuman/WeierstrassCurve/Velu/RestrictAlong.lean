@@ -1595,7 +1595,15 @@ private theorem relNorm_fiberCenter (hw : w.restrict F = v) :
     inertiaDeg_eq_inertiaDeg_fiberCenter hw]
 
 
-private theorem count_normalizedFactors_span_singleton
+-- The public promoted `Place.count_normalizedFactors_span_singleton` / `Place.ord_norm_eq_sum_fiberOver`
+-- live in `AlgebraicCurve/PrincipalDivisors/Transcendence.lean`; these two local copies predate the
+-- promotion and are kept under a suffix until their call sites are adapted to the public forms
+-- (the public `ord_norm_eq_sum_fiberOver` omits `[CharZero F]`, so the two are not interchangeable).
+-- This is a resolved decision, not a debt (FR-0055): the two statements are not interchangeable —
+-- the public `count_normalizedFactors_span_singleton` is stated under `omit [CharZero F]` and the
+-- public `ord_norm_eq_sum_fiberOver` is used at a call site whose instance synthesis depends on this
+-- file's section variables, so neither is a drop-in replacement for its local copy.
+private theorem count_normalizedFactors_span_singleton_restrict
     (hw : w.restrict F = v) {c : integralClosureAt F' v} (hc : c ≠ 0) :
     (normalizedFactors (Ideal.span {c})).count (fiberCenter F' v hw).asIdeal
       = (w.ord (algebraMap (integralClosureAt F' v) F' c)).toNat := by
@@ -1686,7 +1694,7 @@ private theorem relNorm_span_singleton {c : integralClosureAt F' v}
                   * (w'.1.ord (algebraMap (integralClosureAt F' v) F' c)).toNat) := by
                   refine Finset.sum_congr rfl fun w' _ => ?_
                   rw [← inertiaDeg_eq_inertiaDeg_fiberCenter ((mem_fiberOver v).mp w'.2),
-                    count_normalizedFactors_span_singleton ((mem_fiberOver v).mp w'.2) hc]
+                    count_normalizedFactors_span_singleton_restrict ((mem_fiberOver v).mp w'.2) hc]
             _ = ∑ w ∈ v.fiberOver F',
                   w.inertiaDeg F
                     * (w.ord (algebraMap (integralClosureAt F' v) F' c)).toNat :=
@@ -1718,7 +1726,7 @@ private theorem ord_norm_algebraMap_integralClosureAt
   rw [Int.toNat_of_nonneg
     (w.ord_nonneg_of_mem (forall_mem_of_restrict_eq ((mem_fiberOver v).mp hw) c))]
 
-private theorem ord_norm_eq_sum_fiberOver {f : F'} (hf : f ≠ 0) :
+private theorem ord_norm_eq_sum_fiberOver_restrict {f : F'} (hf : f ≠ 0) :
     v.ord (Algebra.norm F f) = ∑ w ∈ v.fiberOver F', (w.inertiaDeg F : ℤ) * w.ord f := by
 
   obtain ⟨⟨c, s⟩, hcs⟩ := IsLocalization.surj
@@ -1758,7 +1766,7 @@ private theorem pushforwardNormFormula_of_finiteDimensional :
     Divisor.PushforwardNormFormula K F F' := by
   intro f hf D hD v
   classical
-  rw [Divisor.pushforward_apply, Place.ord_norm_eq_sum_fiberOver v hf]
+  rw [Divisor.pushforward_apply, Place.ord_norm_eq_sum_fiberOver_restrict v hf]
   calc
     ∑ w ∈ D.support, (if w.restrict F = v then D w * (w.inertiaDeg F : ℤ) else 0)
         = ∑ w ∈ D.support ∪ v.fiberOver F',

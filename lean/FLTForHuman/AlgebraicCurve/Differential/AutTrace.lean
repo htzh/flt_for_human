@@ -20,8 +20,13 @@ statements below are the pin's text verbatim; the rectification order
 (`WORKORDER-MC7d-rectify-engine-homes.md`) re-wires this module to the `S_` file once both rows
 have landed, at which point the source claim is true.
 
+Wired (2026-10-27, MC-7d D3) to the `S_` file of the 934 row now that the row is ported, so the
+five statements are diffed instead of hand-read.  Not wired: the row's `Them_` wrapper — that
+headline is MC-7b's declaration, not this module's.
+
 FLT provenance, pinned `aa2d8b3`:
 https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_coeffMap_diffQExp_correspondence_diamondAutBar_eq_qExpansion_diamondLinOne.lean
+spec-pin: P2M/Sol/S_ModularCurve_coeffMap_diffQExp_correspondence_diamondAutBar_eq_qExpansion_diamondLinOne.lean
 -/
 import FLTForHuman.AlgebraicCurve.Differential.PushPull
 import FLTForHuman.AlgebraicCurve.Defs.Correspondence
