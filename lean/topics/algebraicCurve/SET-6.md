@@ -1,13 +1,16 @@
 # SET 6 — the `AlgebraicCurve` shelf after SET 5: twelve rows, four stories, and the two rows the `--ds` read cannot see
 
-**Status: a planning brief (2026-10-27). Nothing dispatched.** This is the scoping pass for the
-next ready-to-port set in the family, cut from the D–S ready shelf with the recipe in
-[../deligneSerre/TOPIC-scoping-a-ds-set.md](../deligneSerre/TOPIC-scoping-a-ds-set.md). §0 the
-read and the delta; §0.1 the instrument failure that takes two of the fourteen rows out of the
+**Status (2026-10-27): landed and green.** All five lanes are in: 12 rows consumed, 11 modules
+created or edited, every module `0 mismatch / 0 missing` and silent at the 200k cap, every
+headline axiom-clean, the consumer zone at 0 errors, and the shelf re-read (§1.2 and §8 carry the
+numbers). The two rows of §0.1 stay deferred, as decided (call 1). The note began as the run brief
+for the set — cut from the D–S ready shelf with the recipe in
+[../deligneSerre/TOPIC-scoping-a-ds-set.md](../deligneSerre/TOPIC-scoping-a-ds-set.md) — and now
+records the landing as well. §0 the read and the delta; §0.1 the instrument failure that takes two of the fourteen rows out of the
 set; §0.2 the definition layer (none this time); §0.3 what the pricing instruments say; §1 the
 cut; §2 the rows; §3 the homes, checked against the import direction; §4 the manager's ground
 prep; §5 per-order traps; §6 the gates; §7 the calls this brief asks the reviewer to settle;
-§8 reproduce, and the forecast of what the landing will make ready; §9 what the set does not do.
+§8 reproduce, the measured numbers and the forecast; §9 what the set does not do.
 
 No tree build was run for this pass (the AGENTS rule); the read is `frontier.py`'s cached graph
 (5.9 s), the pricing is `port_advise`/`port_plan` (text only, no Lean), and the two migration
@@ -162,10 +165,10 @@ tiers, in opposite directions, and both corrections decide the cut:
 | lane | story | rows | silo | net new | homes | gate |
 |---|---|---:|---:|---:|---|---|
 | **M** | the ground: the char-free place lift, the constants promotion, the shared `WeilDatum` block, and the `P1/Dictionary` migration | 2 | 668 | ≈50 + 205 moved | `Place/ConstantFieldExtension.lean`, `Genus/ConstantFieldExtension.lean`, `Defs/WeilDatum.lean`, `P1/Dictionary.lean` | 4 wire touches, 2 registry deletions, 1 generalisation, 1 promotion, 1 migration |
-| **WR** | the Weil reciprocity theorem on ℙ¹ and the Weil pairing's laws | 4 | 1,857 | **512** | insert `P1/Dictionary.lean`; insert `Defs/WeilDatum.lean`; **new** `Pic0/WeilPairing.lean` | — |
-| **TS** | the trace sum: `∑_P ord(g) • y_P^* ω = 0` for a regular `ω` over a finite cover | 1 | 629 | **423** | **new** `ResidueTheorem/TraceSum.lean` | — |
-| **CFE** | the correspondence on regular differentials under a constant field extension | 1 | 309 | **252** | **new** `Differential/CorrespondenceRegularCFE.lean` | — |
-| **TL** | the tails: the Laurent-series realisation, `ell` growth, the `evalFun` pushforward law, the correspondence's semilinearity | 4 | 316 | **221** | insert `Place/LaurentSeriesModel.lean`, `Defs/AdelicIndex.lean`, `Place/EvalAtNorm.lean`, `WeilExchange/GaloisRamification.lean` | — |
+| **WR** ([order](WORKORDER-WR1-weil-reciprocity.md)) | the Weil reciprocity theorem on ℙ¹ and the Weil pairing's laws | 4 | 1,857 | **512** | insert `P1/Dictionary.lean`; insert `Defs/WeilDatum.lean`; **new** `Pic0/WeilPairing.lean` | — |
+| **TS** ([order](WORKORDER-TS1-trace-sum.md)) | the trace sum: `∑_P ord(g) • y_P^* ω = 0` for a regular `ω` over a finite cover | 1 | 629 | **423** | **new** `ResidueTheorem/TraceSum.lean` | — |
+| **CFE** ([order](WORKORDER-CR1-correspondence-cfe.md)) | the correspondence on regular differentials under a constant field extension | 1 | 309 | **252** | **new** `Differential/CorrespondenceRegularCFE.lean` | — |
+| **TL** ([order](WORKORDER-TL2-tails.md)) | the tails: the Laurent-series realisation, `ell` growth, the `evalFun` pushforward law, the correspondence's semilinearity | 4 | 316 | **221** | insert `Place/LaurentSeriesModel.lean`, `Defs/AdelicIndex.lean`, `Place/EvalAtNorm.lean`, `WeilExchange/GaloisRamification.lean` | — |
 
 Totals: **12 rows / 3,779 silo / 1,419 net new** after call 5. The instrument's per-lane reads
 were 512 (WR) / 423 (TS) / 263 (CFE3) / 251 (TL2) = **1,449**, with the M lane's two rows (the
@@ -186,6 +189,70 @@ order edit is additive. The one non-additive edit is M's: the char-0 theorem's p
 `Place/ConstantFieldExtension.lean`, which three orders import, so M runs before dispatch, and
 no order changes an existing statement or proof body. That is the criterion SET 4/5 dispatched
 on; two orders editing *one* module would still have to be serialised, and there is none.
+
+### 1.1 The manager lane, as landed (2026-10-27)
+
+| item | module | measured |
+|---|---|---|
+| the char-free place lift (§4.1) | `Place/ConstantFieldExtension.lean` | the char-0 theorem's 204-line proof is now the char-free statement `Place.exists_comap_algebraMap_eq_of_constantFieldExtension_of_isAlgClosed`; the char-0 headline is a 6-line corollary of it; the shared linear-disjointness lemma `ConstantFieldPlaceLift.sum_ne_of_not_mem_span` is generalised (engine swapped, `[CharZero K]` dropped) — **48 ok / 0 mismatch / 0 missing**, builds silent, both headlines axioms-clean |
+| the constants promotion (§4.2) | `Genus/ConstantFieldExtension.lean` | public at `AlgebraicCurve.constantsAreBase_of_isAlgClosed_of_transcendental`, 4 lines over the private engine — **18 ok / 0 / 0**, builds |
+| the `WeilDatum` support block (§4.3) | `Defs/WeilDatum.lean` | the 8 lemmas + `import Defs.PlaceEvaluationAlgebra` + the `Def_…Divisorial` wire — **13 ok / 0 / 0**, builds |
+| the `P1/Dictionary` migration (§4.4) | `P1/Dictionary.lean` | 26 `spec-pin:` lines, `PORT_FILES` row deleted, `SOURCES` rows kept — **69 ok / 0 / 0** before the capstone (the probe's prediction exactly) |
+| the stale registry row (§4.5) | `Defs/AdelicIndex.lean` | `PORT_FILES` row deleted (it was already wired: 69 ok / 0 / 0) |
+
+One finding from the generalisation: the port's char-0 proof did **not** use the
+`linearIndependent_of_constantFieldExtension` engine at all (its prelude's linear-disjointness
+lemma did, at one call, and its final step used the char-0 valuation-subring dictionary). The
+char-free statement therefore swaps **two** things, not the pin's one: the engine in
+`sum_ne_of_not_mem_span`, and the final `exists_toValuationSubring_eq_comap_ringHom` →
+`_of_isSeparable` at a `K'`-separable transcendental. Both are the pin's own isAlgClosed file's
+route; the pin's "three-line diff" is true of the prelude only.
+
+### 1.2 The landing record, and the set's numbers
+
+| lane | modules | added | checker before → after | build | axioms |
+|---|---|---|---:|---|---|
+| WR | `Defs/WeilDatum.lean` (+85), `P1/Dictionary.lean` (+53), **new** `Pic0/WeilPairing.lean` (432) | 2 + 1 + 24 (10 public / 14 private) | 13 → **15**; 69 → **70**; 0 → **10**, all / 0 / 0 | silent | four headlines clean |
+| TS | **new** `ResidueTheorem/TraceSum.lean` (509) | 16 public | 0 → **16 ok** / 0 / 0 | silent | clean |
+| CFE | **new** `Differential/CorrespondenceRegularCFE.lean` (359) | 4 public | 0 → **4 ok** / 0 / 0 | silent | clean |
+| TL | `Place/LaurentSeriesModel.lean` (+163), `Defs/AdelicIndex.lean` (+101), `Place/EvalAtNorm.lean` (+72), `WeilExchange/GaloisRamification.lean` (+22) | 7 + 1 + 2 + 1 | 6 → **8**; 69 → **70**; 27 → **28**; 10 → **11**, all / 0 / 0 | silent | four headlines clean |
+
+The tree carries **+1,861 lines** over 8 edited modules and 3 new ones (1,300 of them in the new
+modules; the rest headers, docstrings, wires and the manager's block), against the 1,419 net new
+the instrument priced for the declarations. The consumer zone is
+[../../spec/AlgebraicCurveSet6Consumer.lean](../../spec/AlgebraicCurveSet6Consumer.lean) — four
+zones, **0 errors**: the ℙ¹ capstone feeding the pairing theorem, the trace sum at a
+correspondence, the lifted correspondence of a regular differential, and a Laurent embedding's
+positive-order elements landing in a valuation ring.
+
+**The surface experiment, run at review on `Pic0/WeilPairing.lean`.** Dropping `private` from its
+14 private declarations and re-running `check_port` gives **24 ok / 0 mismatch / 0 missing** — every
+one is a pin-faithful statement. They nevertheless stay `private`: the pin itself states them
+`private` (they are its `_i`-suffixed local copies), so this is the one module of the set where the
+surface gate's "promote every `ok`" does not apply — the rule is about declarations the pin states
+*public* that a worker buried. The two other new modules have no private declarations; of the two
+insertions, `Defs/WeilDatum.lean`'s block is public by the pin's own `Def_` file, and
+`Place/LaurentSeriesModel.lean`'s private headline is private in the pin.
+
+**Deviations held for review** (none changes a statement; every `check_port` hash matched):
+
+- WR's `P1/Dictionary.lean` states the capstone at `_root_.AlgebraicCurve.RationalFunctionField.weilReciprocity`
+  inside the namespace: the wrapper's fully-qualified name, spelled once (a bare
+  `theorem AlgebraicCurve.…` there doubles the prefix). The checker *prints* the `_root_.` segment
+  and matches the statement at the wrapper.
+- WR's `Pic0/WeilPairing.lean` carries one private helper the order's list omitted,
+  `prod_zpow_eq_zpow_sum_i` (needed by `evalFun_algebraMap_of_degree_eq_zero_i`); it is private in
+  the pin too.
+- TS imports `coeffLin_apply`/`coeffDer_apply` from `Differential/RegularDiffs.lean` instead of
+  restating them (16 new declarations, not 18), and transcribes the pin's 46-line
+  `residueTheorem_of_curve` because `ResidueTheorem/GeneralFromK.lean`'s headline needs an instance
+  block (`Algebra (RatFunc E) FE`, `IsSeparable`, `DCoordGenerates` …) that is not in scope at the
+  row's binders — the 46 lines *are* that block's construction.
+- CFE uses the char-0 comap theorem (not the `_of_isAlgClosed`) and drops the pin's
+  `attribute` walls; its two linter-only options are the cone's convention.
+- TL drops `cd2_control` (call 5) and `liftToHahn_apply` (outside the six-declaration list; its `rfl`
+  step is inlined), and pins `attribute [local instance 2000] HahnSeries.instAlgebra` for the
+  `HahnSeries` algebra diamond (**FR-0045**).
 
 ## 2. The rows
 
@@ -391,7 +458,7 @@ K F'` is a hypothesis of the statement, not an import.
 | 5. the pin's `cd2_control` | **drop it**, recorded — it is a downstream control against the modular curve and would invert the import direction; `check_port` does not require pin declarations to be ported | −30 lines from TL |
 | 6. the cut and its dispatch | **four worker orders + one manager lane, one wave, no merge** — the edits are file-disjoint and additive, so the wave is safe on SET 4/5's criterion; M first. The two "small" stories (TS 629, CFE 309) carry the most mathematics per line in the set | §1 as written; the set's net is 1,419 rather than the instrument's 1,449 |
 
-## 8. Reproduce, and what the landing should move
+## 8. Reproduce, what the landing moved, and the name-shadow artifact
 
 ```bash
 cd tools/deps
@@ -406,6 +473,38 @@ priced separately); `port_plan`'s "raw `S_` lines (47-node slice)" line counts t
 of the lane, so the four lanes' silos sum to 3,111 and the M lane's to 668 — 3,779 with no
 overlap. The whole-set read was 417 substitutions / ≈4,425 in-port lines / 1,611 net for 14 rows;
 the twelve carry 1,449 (1,419 after §7 call 5).
+
+**The three measured numbers.**
+
+1. **What the set consumed**: 12 rows / 3,779 silo (the two of §0.1 stay deferred); the tree
+   figure is §1.2's +1,861 lines.
+2. **The new `needed [F terminal]`**: the instrument reads 1,040 / 410,470 → **1,026 / 406,533**,
+   and the true figure is **1,028 nodes / 406,691 lines** (−12 nodes / −3,779 lines) — see the
+   artifact below. `AlgebraicCurve` demand 75 / 26,044 → 61 / 22,107 recorded (true: 63 / 22,265);
+   ready candidates 96 → 90; leaves 296 → 296; the frontier 1,368 / 715,962 → 1,381 / 719,841
+   (12 declarations' worth of new surface).
+3. **Which rows became ready**: the six of the forecast below, 1,469 silo, and nothing else —
+   *with one of them invisible and one spurious*, for the reason in the artifact.
+
+**The name-shadow artifact (FR-0047), and why figures (2) and (3) need the correction.** The
+port's new capstone is `AlgebraicCurve.RationalFunctionField.weilReciprocity`, and the frontier
+counts portedness by **last name**. The pin has *two* nodes with that last name — the ℙ¹ one
+(ours) and the general function-field one, `AlgebraicCurve.weilReciprocity` (100 silo, which needs
+`weilReciprocity_algebraMap`, 58) — so the general one is now read as "ported":
+
+- `weilReciprocity_algebraMap` (58) has **no unported premise** and is ready, but it is not in
+  `need` any more (its only consumer is read as ported) → it does not appear on the shelf;
+- `weilReciprocity` (100) and its two consumers (`DivisorialWeilPairingData.toHom_injective_of_divisible`,
+  496, and `Pic0.exists_antisymmWeilPairing`, 656) lose their place in `needed`; the 496 row
+  *appears* on the shelf as ready although its `weilReciprocity` premise is not ported — a spurious
+  ready;
+- so the instrument's fall is 2 nodes / 158 lines deeper than the truth, and the shelf shows
+  6 new rows where 5 are real and 1 (`toHom_injective_of_divisible`) is not.
+
+Nothing is wrong with the port: the two pin nodes are the two rows of the next wave
+(`weilReciprocity_algebraMap` 58 → `weilReciprocity` 100 → the 496/656 pair), and landing them makes
+the shadow true. Until then, the next scoping pass must not read the instrument's `weilReciprocity`
+as ported.
 
 **The forecast (read off the same graph, not a promise).** After the landing, six rows whose
 only unported premises are this set's become ready — 1,469 silo:
@@ -428,7 +527,9 @@ is the 12 rows' 3,779 silo against SET 5's measured 3,656 — a similar wave.
 ## 9. What this set does not do
 
 - **The two deferred rows** (§0.1): `Place.exists_natCast_dvd_ord_sub_single_sub_single_complex`
-  (126) and `Pic0.finite_torsion_of_isAlgClosed_of_charZero` (95). They are consumers of the
+  (126) and `Pic0.finite_torsion_of_isAlgClosed_of_charZero` (95). They are still on the shelf
+  after the landing, unchanged (the re-read shows them at the same silo), still waiting on the
+  prunable interface. They are consumers of the
   prunable complex-analytic interface (`abelJacobiDiv`/`pathPeriodLattice`, and the ℂ torsion
   count `Pic0.natCard_torsion_prime_eq_pow_genus_complex`), and the interface is **not** in the
   port — SET 5's predecessor waves ported `Defs/ComplexLineIntegral.lean` but not these two

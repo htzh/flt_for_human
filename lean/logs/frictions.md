@@ -780,3 +780,81 @@ round promotes what generalizes.
   subject's work (the RR column's phase 3), not D–S work, however ready it looks; defer it and
   say so in the brief (recipe §0's rule for naming every row a set does not cut).
 - **seen**: 2026-10-27; found on the SET 6 read, on the four rows above.
+
+## FR-0045 [lean] [mathlib] — `Algebra K (HahnSeries Γ K)` has two instances, and which one an `F →ₐ[K] LaurentSeries K` elaborates with depends on the import order
+
+- **where**: SET 6's TL2 order, the Laurent block appended to
+  `AlgebraicCurve/Place/LaurentSeriesModel.lean` (the `exists_ord_mul_eq_order_of_algHom_laurentSeries`
+  row); met again by the reviewer when writing `spec/AlgebraicCurveSet6Consumer.lean`.
+- **symptom**: the `AlgHom` type of `ι : F →ₐ[K] LaurentSeries K` is printed with
+  `HahnSeries.powerSeriesAlgebra ℤ K` in one file and with `HahnSeries.instAlgebra` in another, and
+  a term of one does not typecheck against a theorem stating the other:
+  `Application type mismatch: … has type @AlgHom K F (LaurentSeries K) … (HahnSeries.powerSeriesAlgebra ℤ K)
+  but is expected to have type … HahnSeries.instAlgebra`. The `∃ x, (ι x).order ≠ 0` hypothesis
+  then fails to elaborate against the theorem's `ι`, so the failure surfaces as a *metavariable*
+  in the application (`… K ?m.48 ?m.49`), not as an instance error — easy to misread as a binder
+  problem.
+- **cause**: mathlib installs both `HahnSeries.instAlgebra` (through `HahnSeries.C`) and
+  `HahnSeries.powerSeriesAlgebra` (through `HahnSeries.ofPowerSeries`, for `Γ = ℤ`) on
+  `HahnSeries Γ K`; instance priority is equal, so the choice is the local instance set, which the
+  import closure and the file's own `open`/`variable` order change. `Place/ValueDictionary.lean`
+  (the `exists_ord_mul_eq_order_of_hasRamBound` hub) is stored with `HahnSeries.instAlgebra`.
+- **fix**: pin the intended one locally in any file that composes with that hub —
+  `attribute [local instance 2000] HahnSeries.instAlgebra` (the attribute is `local`, so it does
+  not leak: verified with an importing probe) — and state the `C`-lemmas through
+  `HahnSeries.C_eq_algebraMap` rather than the S_ file's `algebraMap_apply'` +
+  `PowerSeries.algebraMap_apply`. If the two instances ever diverge in an unavoidable way, the
+  honest cure is a port-level `abbrev`/`local notation` fixing the algebra structure, not a
+  restatement of the theorem in the other instance.
+- **seen**: 2026-10-27, SET 6 (TL2 and the review).
+
+## FR-0046 [build] [method] — concurrent workers sharing one tree invalidate each other's oleans; `lake env lean` then fails with "object file … does not exist" in modules the worker did not edit
+
+- **where**: SET 6's four-order wave (WR, TS, CR, TL2 dispatched in parallel on one tree).
+- **symptom**: three of the four workers hit, at least twice each, `object file
+  '…/.lake/build/lib/lean/FLTForHuman/…/X.olean' does not exist` (or a stale-olean elaboration
+  error) for modules *they had not edited* — `Place/DegreeOne`, `P1/Dictionary`, `P1/DXCoeff`,
+  `Tate/Agreement`, `LocalResidue/Instance`, `IsCovreOver/ConstantFieldExtensionSpan`,
+  `ResidueTheorem/KFamily` — and one worker's `lake build` was killed by its own 110 s cap while
+  rebuilding another order's dependency closure.
+- **cause**: `lake build` rewrites the `.olean` files of the edited module *and of every module it
+  rebuilds*, and `lake env lean <file>` elaborates against `oleans` without taking the build lock.
+  So worker A's elaboration can read the tree while worker B's build is between removing and
+  rewriting an olean, and the *edits* are file-disjoint only at the source level: the `.olean`
+  layer is one shared, mutable interface.
+- **fix**: (i) each worker elaborates its own file with `lake env lean` and only then takes the
+  build lock; (ii) appends are made to compile *before* moving to the next file, so the tree is
+  never left with a broken source that another worker's build would rebuild; (iii) a foreign
+  "object file does not exist" is retried once after ~60 s, never treated as a failure of the
+  order — and reported, because it is a scheduling signal; (iv) `flock -w 45` rather than a bare
+  `flock` when several builds are queued, so the lock wait is visible as a wait and not as a
+  module timeout. If a wave needs the dependency closure rebuilt first (as SET 6's manager lane
+  did after editing `P1/Dictionary.lean`), run that one build before dispatch and say so.
+- **seen**: 2026-10-27, SET 6.
+
+## FR-0047 [method] [tooling] — a landed row whose last name another pin node shares makes that node read "ported", and the shelf under-reports (and mis-reports) what the set made ready
+
+- **where**: SET 6's landing. Its ℙ¹ capstone is `AlgebraicCurve.RationalFunctionField.weilReciprocity`
+  (`P1/Dictionary.lean`); the pin also has `AlgebraicCurve.weilReciprocity`
+  (`Theorems/Thm_AlgebraicCurve_weilReciprocity.lean`), the **general function-field** reciprocity
+  — a different statement, same last name.
+- **symptom**: after the landing the re-read (`frontier.py --ds --ready --include-leaves`) reports
+  `needed` falling by 14 nodes / 3,937 lines where the set consumed 12 rows / 3,779 lines; the
+  shelf shows six new ready rows, one of which (`DivisorialWeilPairingData.toHom_injective_of_divisible`,
+  496 silo) is built on the *general* `weilReciprocity` that is not ported; and
+  `weilReciprocity_algebraMap` (58 silo), which has **no** unported premise, does not appear at
+  all. `frontier.py`'s `ported` set is the set of **last-name components** of port declarations
+  (`scan_port_decls`: `m.group("name").rsplit(".", 1)[-1]`), so the capstone's name satisfies the
+  general node.
+- **cause**: the same name-anchored reading that FR-0041 records in the *pricing* tools applies to
+  the *readiness* test, which is what the recipe's §0/§7 numbers come from. It bites hardest after
+  a landing, when the new declarations enter the port and start shadowing.
+- **fix**: after a landing, do not take the three numbers from the instrument alone. Diff the shelf
+  (rows that left, rows that entered) and, for every **vanished** row and every **entered** row,
+  check the premise list against the frontier *and* against the pin's qualified name: a row that
+  vanished because a same-last-name sibling landed is still needed; a row that entered on such a
+  premise is spurious. Two lines of `pay.cites` per row. Report both the instrument's and the
+  corrected figures (SET-6.md §8 does). A qualified-name-first tier in `Frontier.frontier` would
+  fix it at the source, but it changes readiness everywhere and needs its own validation pass;
+  until then, the correction is a scoping-time audit, not a tool change to be smuggled in.
+- **seen**: 2026-10-27, SET 6's landing.

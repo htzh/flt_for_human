@@ -28,6 +28,39 @@ port's copy in `Defs/Place.lean` is a differently-named `private` helper.
 The `Divisor.evalFun_*` laws the reciprocity proofs consume live in
 `Defs/PlaceEvaluationAlgebra.lean` (the pin's `Def_AlgebraicCurve_PlaceEvaluationAlgebra`
 plus the `evalFun_single_sub_single` wrapper), outside this set's measured files.
+SET 6's migration (the recipe's legacy rule): this module was registered in the frozen
+checker's `PORT_FILES` over the sources below; it now carries its own wire, and its
+`PORT_FILES` row is deleted (its `SOURCES` rows stay, because other listed modules still
+match against them). The wire was measured on a copy of the module before the migration
+landed: 69 ok / 0 mismatch / 0 missing (70 once the `weilReciprocity` capstone is appended
+by the WR order).
+
+spec-pin: Definitions/Def_AlgebraicCurve_PlaceEvaluation.lean
+spec-pin: Definitions/Def_AlgebraicCurve_RatFuncPlaces.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_Place_evalAt_algebraMap.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_Place_evalAt_congr.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_Place_evalAt_inv.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_Place_evalAt_mul.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_Place_evalAt_ne_zero.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_Place_evalAt_zpow.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_Place_isRational_iff_deg_eq_one.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_RationalFunctionField_deg_placeInfty.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_RationalFunctionField_ord_placeInfty.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_RationalFunctionField_ord_placeInfty_algebraMap.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_RationalFunctionField_ord_placeOfPoint_algebraMap.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Place_evalAt_algebraMap.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Place_evalAt_congr.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Place_evalAt_inv.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Place_evalAt_mul.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Place_evalAt_ne_zero.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Place_evalAt_zpow.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Place_isRational_iff_deg_eq_one.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_RationalFunctionField_deg_placeInfty.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_RationalFunctionField_ord_placeInfty.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_RationalFunctionField_ord_placeInfty_algebraMap.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_RationalFunctionField_ord_placeOfPoint_algebraMap.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_RationalFunctionField_weilReciprocity.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_RationalFunctionField_weilReciprocity.lean
 -/
 import FLTForHuman.AlgebraicCurve.Defs.PlaceEvaluation
 import FLTForHuman.AlgebraicCurve.Defs.PlaceEvaluationAlgebra
@@ -1222,6 +1255,26 @@ theorem reciprocity_of_ord_placeInfty_eq_zero :
       _ = Divisor.evalFun g (principalDivisor hf) := by rw [← hgeq]
 
 end Reciprocity
+
+/-- **Weil reciprocity on ℙ¹.**  The capstone of the dictionary, verbatim from
+`Theorems/Thm_AlgebraicCurve_RationalFunctionField_weilReciprocity.lean`; the proof is the
+pin's `solution` (the last nine lines of its `S_` file): the two divisor hypotheses turn
+`Df`, `Dg` into `principalDivisor`s, and the two cases of `hdisj (placeInfty K)` are
+`reciprocity_of_ord_placeInfty_eq_zero` with the roles of `f` and `g` swapped, the card
+bound being `Finset.card_erase_le`. -/
+theorem _root_.AlgebraicCurve.RationalFunctionField.weilReciprocity (K : Type*) [Field K]
+    [IsAlgClosed K] : WeilReciprocity K (RatFunc K) := by
+  classical
+  intro f g Df Dg hf hg hDf hDg hdisj _ _
+  have hDf' : Df = principalDivisor hf := Finsupp.ext fun v => hDf v
+  have hDg' : Dg = principalDivisor hg := Finsupp.ext fun v => hDg v
+  rw [hDf', hDg']
+  rcases hdisj (placeInfty K) with h | h
+  · exact reciprocity_of_ord_placeInfty_eq_zero
+      (principalDivisor hg).support.card f g hf hg h hdisj Finset.card_erase_le
+  · exact (reciprocity_of_ord_placeInfty_eq_zero
+      (principalDivisor hf).support.card g f hg hf h
+      (fun v => (hdisj v).symm) Finset.card_erase_le).symm
 
 end RationalFunctionField
 

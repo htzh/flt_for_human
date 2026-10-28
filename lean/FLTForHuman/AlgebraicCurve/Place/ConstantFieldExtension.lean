@@ -41,6 +41,8 @@ port's `haveILetI` linter. No statement changes.
 
 spec-pin: Theorems/Thm_AlgebraicCurve_Place_exists_comap_algebraMap_eq_of_constantFieldExtension.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_Place_exists_comap_algebraMap_eq_of_constantFieldExtension.lean   -- comparable copy
+spec-pin: Theorems/Thm_AlgebraicCurve_Place_exists_comap_algebraMap_eq_of_constantFieldExtension_of_isAlgClosed.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Place_exists_comap_algebraMap_eq_of_constantFieldExtension_of_isAlgClosed.lean   -- comparable copy
 spec-pin: Theorems/Thm_AlgebraicCurve_Place_mem_range_algebraMap_of_forall_ord_eq_zero_of_isAlgClosed.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_Place_mem_range_algebraMap_of_forall_ord_eq_zero_of_isAlgClosed.lean   -- comparable copy
 spec-pin: Theorems/Thm_AlgebraicCurve_Place_exists_ord_neg_of_transcendental.lean
@@ -637,10 +639,13 @@ section LinDisj
 
 variable {K F K' F' : Type*} [Field K] [Field F] [Field K'] [Field F']
   [Algebra K F] [Algebra K' F'] [Algebra K K'] [Algebra F F'] [Algebra K F']
-  [IsScalarTower K K' F'] [IsScalarTower K F F'] [IsAlgClosed K] [CharZero K]
+  [IsScalarTower K K' F'] [IsScalarTower K F F'] [IsAlgClosed K]
 
 /-- Linear disjointness of the `K'`-span from `1` over an algebraically closed
-`K`: the pin's private linear-algebra engine. -/
+`K`: the pin's private linear-algebra engine. Character-free since SET 6: the engine is
+`linearIndependent_of_constantFieldExtension_of_isAlgClosed`, which the port's
+`IsCurveOver/ConstantFieldExtension.lean` already states and from which it derives the char-0
+form. -/
 theorem sum_ne_of_not_mem_span
     (hfg : ∃ x : F, Transcendental K x ∧
       FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F)
@@ -662,8 +667,8 @@ theorem sum_ne_of_not_mem_span
     rw [Set.range_comp, Submodule.span_image, bM.span_eq, Submodule.map_top,
       Submodule.range_subtype]
   have hyv : y ∉ Submodule.span K (Set.range v) := by rwa [hspan]
-  have hLI := AlgebraicCurve.linearIndependent_of_constantFieldExtension K F K' F' hfg hfg'
-    hgen (hv.option hyv)
+  have hLI := AlgebraicCurve.linearIndependent_of_constantFieldExtension_of_isAlgClosed K F K'
+    F' hfg hfg' hgen (hv.option hyv)
   have ho : ∀ j, o j ∈ M := fun j => Submodule.subset_span ⟨j, rfl⟩
   let R : ι → (Module.Basis.ofVectorSpaceIndex K M →₀ K) := fun j => bM.repr ⟨o j, ho j⟩
   have hR : ∀ j, ∀ T : Finset (Module.Basis.ofVectorSpaceIndex K M), (R j).support ⊆ T →
@@ -706,11 +711,20 @@ end LinDisj
 
 end ConstantFieldPlaceLift
 
+set_option linter.style.haveILetI false in
 open ConstantFieldPlaceLift in
-theorem AlgebraicCurve.Place.exists_comap_algebraMap_eq_of_constantFieldExtension (K F K' F' : Type*)
+/-- The pin's `S_AlgebraicCurve_Place_exists_comap_algebraMap_eq_of_constantFieldExtension_of_isAlgClosed`
+row: the char-free place lift. The pin's file is its char-0 twin with `[CharZero K]` dropped; the
+port's char-0 proof (below) used the char-0 valuation-subring dictionary at the end, so this version
+uses the pin's own separable route there — a `K'`-separable transcendental from
+`exists_finiteDimensional_isSeparable_adjoin_of_constantFieldExtension_of_isAlgClosed` and
+`exists_toValuationSubring_eq_comap_ringHom_of_isSeparable` — and is otherwise the same 204-line
+`ConstantFieldPlaceLift` argument. The char-0 headline is derived from this one. -/
+theorem AlgebraicCurve.Place.exists_comap_algebraMap_eq_of_constantFieldExtension_of_isAlgClosed
+    (K F K' F' : Type*)
     [Field K] [Field F] [Field K'] [Field F'] [Algebra K F] [Algebra K' F']
     [Algebra K K'] [Algebra F F'] [Algebra K F'] [IsScalarTower K K' F'] [IsScalarTower K F F']
-    [IsAlgClosed K] [CharZero K]
+    [IsAlgClosed K]
     (hfg : ∃ x : F, Transcendental K x ∧ FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F)
     (hfg' : ∃ x : F', Transcendental K' x ∧
       FiniteDimensional (IntermediateField.adjoin K' ({x} : Set F')) F')
@@ -875,12 +889,15 @@ theorem AlgebraicCurve.Place.exists_comap_algebraMap_eq_of_constantFieldExtensio
       (by rw [inv_inv]; exact hnu)
     exact this.resolve_left (inv_ne_zero ((_root_.map_ne_zero _).2 hπ0))
 
-  have : CharZero K' := charZero_of_injective_algebraMap (algebraMap K K').injective
-  obtain ⟨x', -, hfin'⟩ := hfg'
-  have := hfin'
-  obtain ⟨P', hP'⟩ := AlgebraicCurve.Place.exists_toValuationSubring_eq_comap_ringHom
-    (K := K') x' (RingHom.id F') V (fun a => hAV' _ (algebraMap_mem_rangePsi F' B P a))
-    ⟨_, hπVinv⟩
+  obtain ⟨t', hfin', hsep'⟩ :=
+    AlgebraicCurve.exists_finiteDimensional_isSeparable_adjoin_of_constantFieldExtension_of_isAlgClosed
+      K F K' F' hfg hfg' hgen
+  haveI := hfin'
+  haveI := hsep'
+  obtain ⟨P', hP'⟩ :=
+    AlgebraicCurve.Place.exists_toValuationSubring_eq_comap_ringHom_of_isSeparable
+      (K := K') t' (RingHom.id F') V (fun a => hAV' _ (algebraMap_mem_rangePsi F' B P a))
+      ⟨_, hπVinv⟩
   have hmemP' : ∀ z, z ∈ P'.toValuationSubring ↔ z ∈ V := fun z => by
     rw [hP', ValuationSubring.mem_comap, RingHom.id_apply]
 
@@ -910,6 +927,29 @@ theorem AlgebraicCurve.Place.exists_comap_algebraMap_eq_of_constantFieldExtensio
     rw [← map_inv₀, key, map_mul, map_mul, map_pow]
     exact mul_mem (mul_mem (hAV' _ (algebraMap_coe_mem_rangePsi F' B P _)) hfV) (pow_mem hπV _)
   exact ⟨P', hover, ordEq P' hover, fun Q' hQ' => uniq Q' P' hQ' hover⟩
+
+
+open ConstantFieldPlaceLift in
+/-- The char-0 form of the place lift (the pin's
+`S_AlgebraicCurve_Place_exists_comap_algebraMap_eq_of_constantFieldExtension`, the 615-line file).
+It is a corollary of the char-free statement above; its own 204-line proof is that statement's. -/
+theorem AlgebraicCurve.Place.exists_comap_algebraMap_eq_of_constantFieldExtension (K F K' F' : Type*)
+    [Field K] [Field F] [Field K'] [Field F'] [Algebra K F] [Algebra K' F']
+    [Algebra K K'] [Algebra F F'] [Algebra K F'] [IsScalarTower K K' F'] [IsScalarTower K F F']
+    [IsAlgClosed K] [CharZero K]
+    (hfg : ∃ x : F, Transcendental K x ∧ FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F)
+    (hfg' : ∃ x : F', Transcendental K' x ∧
+      FiniteDimensional (IntermediateField.adjoin K' ({x} : Set F')) F')
+    [IsCurveOver K F]
+    (hgen : IntermediateField.adjoin K' (Set.range (algebraMap F F')) = ⊤)
+    (P : AlgebraicCurve.Place K F) :
+    ∃ P' : AlgebraicCurve.Place K' F',
+      P'.toValuationSubring.comap (algebraMap F F') = P.toValuationSubring ∧
+      (∀ f : F, P'.ord (algebraMap F F' f) = P.ord f) ∧
+      ∀ Q' : AlgebraicCurve.Place K' F',
+        Q'.toValuationSubring.comap (algebraMap F F') = P.toValuationSubring → Q' = P' :=
+  AlgebraicCurve.Place.exists_comap_algebraMap_eq_of_constantFieldExtension_of_isAlgClosed
+    K F K' F' hfg hfg' hgen P
 
 /-! ## Constants are base over an algebraically closed field
 

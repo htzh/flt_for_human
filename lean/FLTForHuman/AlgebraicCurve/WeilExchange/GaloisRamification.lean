@@ -15,7 +15,9 @@ restriction of places is equivariant for a pair of intertwined semilinear
 automorphisms `g`, `g'`, and `SemilinearAut.pushforward_smul` that `Divisor.pushforward`
 is, so that pushing forward a transported divisor transports its pushforward.  They are
 stated over the same tower as the ramification-index and inertia-degree laws, whose
-proof of `inertiaDeg_smul` they consume.
+proof of `inertiaDeg_smul` they consume.  The last headline,
+`SemilinearAut.correspondence_smul`, combines the two along-laws: the correspondence
+`ψ_* φ^*` commutes with the semilinear action, at a single intertwined pair.
 
 spec-pin: Theorems/Thm_AlgebraicCurve_Place_exists_algEquiv_smul_eq_of_restrict_eq.lean
 spec-pin: Theorems/Thm_AlgebraicCurve_Place_restrict_ofAlgAut_smul.lean
@@ -30,6 +32,8 @@ spec-pin: Theorems/Thm_AlgebraicCurve_SemilinearAut_pushforward_smul.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_SemilinearAut_pushforward_smul.lean
 spec-pin: Theorems/Thm_AlgebraicCurve_SemilinearAut_pushforwardAlong_smul.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_SemilinearAut_pushforwardAlong_smul.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_SemilinearAut_correspondence_smul.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_SemilinearAut_correspondence_smul.lean   -- comparable copy
 -/
 import FLTForHuman.AlgebraicCurve.Defs.PlaceDictionary
 import FLTForHuman.AlgebraicCurve.Defs.Correspondence
@@ -236,6 +240,22 @@ theorem pushforwardAlong_smul {K F F' : Type*} [Field K] [Field F] [Field F']
   haveI := isScalarTower_along φ
   haveI := isIntegral_along φ hφ
   exact pushforward_smul hgg' D
+
+/-- **The `ψ_* φ^*` correspondence commutes with the semilinear action**: for a pair of
+maps `φ`, `ψ` and an intertwined pair of semilinear automorphisms `g`, `g'`, the
+transported divisor has the transported correspondence.  Statement from
+`Theorems/Thm_AlgebraicCurve_SemilinearAut_correspondence_smul.lean`; proof after the
+pin's `S_` file — unfold the correspondence (`correspondence_apply` is `rfl`) and apply
+the pullback and pushforward along-laws. -/
+theorem correspondence_smul {K F F' : Type*} [Field K] [Field F] [Field F']
+    [Algebra K F] [Algebra K F'] {g : SemilinearAut K F} {g' : SemilinearAut K F'}
+    [HasPrincipalDivisors K F'] (φ ψ : F →ₐ[K] F')
+    (hφ : φ.toRingHom.IsIntegral) (hψ : ψ.toRingHom.IsIntegral)
+    (hgφ : IntertwinesAlong φ.toRingHom g g') (hgψ : IntertwinesAlong ψ.toRingHom g g')
+    (D : Divisor K F) :
+    Divisor.correspondence φ ψ hφ hψ (g • D) = g • Divisor.correspondence φ ψ hφ hψ D := by
+  rw [Divisor.correspondence_apply, Divisor.correspondence_apply,
+    Divisor.pullbackAlong_smul hφ hφ hgφ, pushforwardAlong_smul ψ hψ hgψ]
 
 end SemilinearAut
 

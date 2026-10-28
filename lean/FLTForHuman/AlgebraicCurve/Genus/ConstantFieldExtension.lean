@@ -54,6 +54,8 @@ spec-pin: Theorems/Thm_AlgebraicCurve_exists_indexOfSpecialty_mapDomain_eq_zero_
 spec-pin: P2M/Sol/S_AlgebraicCurve_exists_indexOfSpecialty_mapDomain_eq_zero_of_constantFieldExtension_of_isAlgClosed.lean   -- comparable copy
 spec-pin: Theorems/Thm_AlgebraicCurve_genus_eq_of_constantFieldExtension_of_isAlgClosed.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_genus_eq_of_constantFieldExtension_of_isAlgClosed.lean   -- comparable copy
+spec-pin: Theorems/Thm_AlgebraicCurve_constantsAreBase_of_isAlgClosed_of_transcendental.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_constantsAreBase_of_isAlgClosed_of_transcendental.lean   -- comparable copy
 -/
 import FLTForHuman.AlgebraicCurve.Differential.ConstantFieldExtension
 import FLTForHuman.AlgebraicCurve.Differential.Coefficient
@@ -62,6 +64,7 @@ import FLTForHuman.AlgebraicCurve.Genus.Index
 import FLTForHuman.AlgebraicCurve.Genus.Stichtenoth
 import FLTForHuman.AlgebraicCurve.RiemannRoch.Assembly
 import FLTForHuman.AlgebraicCurve.IsCurveOver.EssFiniteType
+import FLTForHuman.AlgebraicCurve.IsCurveOver.Transcendental
 import Mathlib.RingTheory.Kaehler.Basic
 import Mathlib.RingTheory.Etale.Field
 import Mathlib.RingTheory.AlgebraicIndependent.TranscendenceBasis
@@ -1872,5 +1875,21 @@ theorem genus_eq_of_constantFieldExtension_of_isAlgClosed (K F K' F' : Type*)
   rw [Finsupp.liftAddHom_apply, Finsupp.liftAddHom_apply, Finsupp.sum_mapDomain_index_inj hPinj]
   refine Finsupp.sum_congr fun v _ => ?_
   simp only [AddMonoidHom.coe_mulRight, IsCurveOver.deg_eq_one_of_isAlgClosed]
+
+/-! ### The constants are the base, from an algebraically closed base
+
+SET 6's first promotion: the pin's row
+`AlgebraicCurve.constantsAreBase_of_isAlgClosed_of_transcendental`, stated at the wrapper's binders
+over the module's own `TorsionDescentDeriv.constantsAreBase_of_isAlgClosed` engine. The engine
+carries `[IsCurveOver K F]`; the pin's statement derives it from `[IsAlgClosed K]` and the
+transcendental, which is what the row's proof does. -/
+
+set_option linter.style.haveILetI false in
+theorem constantsAreBase_of_isAlgClosed_of_transcendental {K F : Type*} [Field K] [IsAlgClosed K]
+    [Field F] [Algebra K F] (x : F) (hx : Transcendental K x)
+    [FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F] :
+    ConstantsAreBase K F := by
+  haveI : IsCurveOver K F := isCurveOver_of_isAlgClosed_of_transcendental x hx
+  exact TorsionDescentDeriv.constantsAreBase_of_isAlgClosed x hx
 
 end AlgebraicCurve

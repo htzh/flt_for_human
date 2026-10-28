@@ -14,15 +14,35 @@
   mathlib `v4.34.0`. All 27 of the pin's `private` declarations stay `private` — the
   engine `resEquiv`/`resCoeff`/`remSeq`/`expCoeff`/`expPS` with its lemmas, and the
   pin's own private statement of the headline, which the public theorem re-exports
-  (the pin's `solution`). The public surface is one headline.
+  (the pin's `solution`).
 
-  Role: tier 1. One public headline,
-  `AlgebraicCurve.Place.exists_algHom_laurentSeries_of_deg_eq_one`.
+  Role: tier 1. Two public headlines,
+  `AlgebraicCurve.Place.exists_algHom_laurentSeries_of_deg_eq_one` and
+  `AlgebraicCurve.Place.exists_ord_mul_eq_order_of_algHom_laurentSeries`.
+
+  The second headline is the converse direction of the model, stated over the ramified
+  Puiseux embedding: a `K`-algebra map `F →ₐ[K] LaurentSeries K` that is not order-trivial
+  is, after rescaling by a positive integer `γ`, the order map of a place of `F`.  Its
+  proof is the pin's `CD` block of `S_AlgebraicCurve_Place_exists_ord_mul_eq_order_of_algHom_laurentSeries`:
+  the transport lemmas `hasRamBound_puiseuxRamEmb`/`order_puiseuxRamEmb`, the constant
+  computations `laurentAlgebraMap_eq_C`/`hahnQAlgebraMap_eq_C`, the lift `liftToHahn`
+  into `HahnSeries ℚ K` with its order law `order_liftToHahn`, and then
+  `Place.exists_ord_mul_eq_order_of_hasRamBound` (`Place/ValueDictionary.lean`) applied to
+  that lift.  The pin's downstream control `cd2_control` (which computes against
+  `ModularCurve/XH`'s `laurentBaseChange`/`coeffEmb` and would invert the import
+  direction) is deliberately not ported.  The pin's private statement of this headline
+  stays `private`, in `LaurentSeriesModel` — Lean 4 refuses a public declaration that
+  reuses the name of a private one in the same module, and the block's other private
+  declarations already live there.
 
   spec-pin: Theorems/Thm_AlgebraicCurve_Place_exists_algHom_laurentSeries_of_deg_eq_one.lean
   spec-pin: P2M/Sol/S_AlgebraicCurve_Place_exists_algHom_laurentSeries_of_deg_eq_one.lean
+  spec-pin: Theorems/Thm_AlgebraicCurve_Place_exists_ord_mul_eq_order_of_algHom_laurentSeries.lean
+  spec-pin: P2M/Sol/S_AlgebraicCurve_Place_exists_ord_mul_eq_order_of_algHom_laurentSeries.lean   -- comparable copy
 -/
+import FLTForHuman.AlgebraicCurve.Defs.HahnSeriesRamificationBound
 import FLTForHuman.AlgebraicCurve.Defs.Place
+import FLTForHuman.AlgebraicCurve.Place.ValueDictionary
 import FLTForHuman.ModularCurve.Defs.Laurent
 import Mathlib.RingTheory.PowerSeries.Trunc
 
@@ -540,5 +560,140 @@ theorem Place.exists_algHom_laurentSeries_of_deg_eq_one {K F : Type*} [Field K] 
     ∃ φ : F →ₐ[K] LaurentSeries K,
       φ t = HahnSeries.single (1 : ℤ) (1 : K) ∧ ∀ x : F, (φ x).order = w.ord x :=
   Place.LaurentSeriesModel.exists_algHom_laurentSeries_of_deg_eq_one w hw t ht
+
+end AlgebraicCurve
+
+/- The `K`-algebra structure on `HahnSeries ℚ K` is a diamond in `Mathlib`: both
+`HahnSeries.instAlgebra` (`C` of the base constants) and `HahnSeries.powerSeriesAlgebra`
+(through `PowerSeries`) apply, and which of them instance resolution picks depends on the
+module's import order. `Place.exists_ord_mul_eq_order_of_hasRamBound`
+(`Place/ValueDictionary.lean`) is stated with `HahnSeries.instAlgebra`, so the block below
+pins that instance locally; this also makes the two constant lemmas below the
+`instAlgebra` form of `HahnSeries.C_eq_algebraMap`. The attribute is `local`, so it ends
+with this file and no importer sees it. -/
+attribute [local instance 2000] HahnSeries.instAlgebra
+
+namespace AlgebraicCurve
+
+namespace Place
+
+namespace LaurentSeriesModel
+
+section Transport
+
+variable {K : Type*} [Field K]
+
+/-- The Puiseux embedding of a Laurent series over `ℤ` into `HahnSeries ℚ K` lands in
+the series ramified of denominator `e`: every support point of the image is `k / e`. -/
+theorem hasRamBound_puiseuxRamEmb {e : ℕ} (he : 0 < e) (x : LaurentSeries K) :
+    HahnSeries.HasRamBound e (HahnSeries.puiseuxRamEmb he x) := by
+  intro q hq
+  have hq' : q ∈ ⇑(HahnSeries.ramScale e) '' x.support := by
+    simpa [HahnSeries.puiseuxRamEmb, HahnSeries.embDomainRingHom] using
+      HahnSeries.support_embDomain_subset hq
+  obtain ⟨k, -, rfl⟩ := hq'
+  exact ⟨k, rfl⟩
+
+/-- The order of a Puiseux-embedded Laurent series is the rescaled order of the
+series: the exponents are divided by `e`. -/
+theorem order_puiseuxRamEmb {e : ℕ} (he : 0 < e) (x : LaurentSeries K) :
+    (HahnSeries.puiseuxRamEmb he x).order = HahnSeries.ramScale e x.order := by
+  rcases eq_or_ne x 0 with rfl | hx
+  · simp
+  · have hx' : HahnSeries.puiseuxRamEmb (K := K) he x ≠ 0 := by
+      intro h0
+      exact hx ((HahnSeries.puiseuxRamEmb (K := K) he).injective (by rw [h0, map_zero]))
+    have h2 : (HahnSeries.puiseuxRamEmb (K := K) he x).orderTop
+        = WithTop.map (⇑(HahnSeries.ramScale e)) x.orderTop :=
+      HahnSeries.orderTop_embDomain
+    have h1 := HahnSeries.order_eq_orderTop_of_ne_zero hx'
+    rw [h2, ← HahnSeries.order_eq_orderTop_of_ne_zero hx, WithTop.map_coe] at h1
+    exact_mod_cast h1
+
+/-- The constants of `LaurentSeries K` are the constant Hahn series. -/
+theorem laurentAlgebraMap_eq_C (c : K) :
+    algebraMap K (LaurentSeries K) c = HahnSeries.C c := by
+  rw [HahnSeries.C_eq_algebraMap]
+
+/-- The constants of `HahnSeries ℚ K` are the constant Hahn series. -/
+theorem hahnQAlgebraMap_eq_C (c : K) :
+    algebraMap K (HahnSeries ℚ K) c = HahnSeries.C c := by
+  rw [HahnSeries.C_eq_algebraMap]
+
+end Transport
+
+section Lift
+
+variable {K : Type*} [Field K] {F : Type*} [Field F] [Algebra K F]
+
+/-- Transporting a `K`-algebra map into `LaurentSeries K` along the Puiseux embedding
+gives a `K`-algebra map into `HahnSeries ℚ K`; its values are ramified of denominator
+`1` and its order is the order of the original map. -/
+def liftToHahn (ι : F →ₐ[K] LaurentSeries K) : F →ₐ[K] HahnSeries ℚ K where
+  toRingHom := (HahnSeries.puiseuxRamEmb one_pos).comp ι.toRingHom
+  commutes' := by
+    intro c
+    show HahnSeries.puiseuxRamEmb one_pos (ι (algebraMap K F c))
+        = algebraMap K (HahnSeries ℚ K) c
+    rw [ι.commutes c, laurentAlgebraMap_eq_C, hahnQAlgebraMap_eq_C]
+    exact HahnSeries.embDomainRingHom_C
+
+/-- The order of a lifted map is the order of the original map, the ramification
+denominator being `1`. -/
+theorem order_liftToHahn (ι : F →ₐ[K] LaurentSeries K) (x : F) :
+    (liftToHahn ι x).order = ((ι x).order : ℚ) := by
+  rw [show liftToHahn ι x = HahnSeries.puiseuxRamEmb one_pos (ι x) from rfl,
+    order_puiseuxRamEmb one_pos, HahnSeries.ramScale_apply]
+  simp
+
+end Lift
+
+/-- **A non-trivial `K`-algebra map into `LaurentSeries K` is a rescaled order map.**
+The pin's private form of the headline: if `ι : F →ₐ[K] LaurentSeries K` is not
+order-trivial, there are a place `w` of `F` and a positive integer `γ` with
+`w.ord x * γ = (ι x).order` for all `x`.  The lift `liftToHahn ι` into `HahnSeries ℚ K`
+is ramified of denominator `1` and has the same order, so
+`Place.exists_ord_mul_eq_order_of_hasRamBound` applies to it; the scaling `γ` is the
+order of `ι` at a uniformiser. -/
+private theorem exists_ord_mul_eq_order_of_algHom_laurentSeries
+    (K : Type*) [Field K] {F : Type*} [Field F] [Algebra K F]
+    (ι : F →ₐ[K] LaurentSeries K) (h : ∃ x : F, (ι x).order ≠ 0) :
+    ∃ (w : Place K F) (γ : ℕ), 0 < γ ∧ ∀ x : F, w.ord x * (γ : ℤ) = (ι x).order := by
+  obtain ⟨x₀, hx₀⟩ := h
+  have hnt : ∃ x : F, ((liftToHahn ι) x).order ≠ 0 :=
+    ⟨x₀, by rw [order_liftToHahn]; exact_mod_cast hx₀⟩
+  have hRB : ∀ x : F, HahnSeries.HasRamBound 1 ((liftToHahn ι) x) :=
+    fun x => hasRamBound_puiseuxRamEmb one_pos (ι x)
+  obtain ⟨w, g, hg, hgw⟩ :=
+    Place.exists_ord_mul_eq_order_of_hasRamBound (liftToHahn ι) one_pos hRB hnt
+  obtain ⟨π, hπ⟩ := IsDiscreteValuationRing.exists_irreducible w.toValuationSubring
+  have hordπ : w.ord (π : F) = 1 := w.ord_coe_irreducible hπ
+  have hgval : g = ((ι (π : F)).order : ℚ) := by
+    have h1 := hgw (π : F)
+    rw [hordπ, order_liftToHahn] at h1
+    simpa using h1
+  have hpos : 0 < (ι (π : F)).order := by
+    rw [hgval] at hg
+    exact_mod_cast hg
+  refine ⟨w, ((ι (π : F)).order).toNat, by omega, fun x => ?_⟩
+  have h1 := hgw x
+  rw [hgval, order_liftToHahn] at h1
+  have h2 : w.ord x * (ι (π : F)).order = (ι x).order := by exact_mod_cast h1
+  rw [Int.toNat_of_nonneg hpos.le]
+  exact h2
+
+end LaurentSeriesModel
+
+/-- **A non-trivial `K`-algebra map into `LaurentSeries K` is a rescaled order map.**
+Statement from
+`Theorems/Thm_AlgebraicCurve_Place_exists_ord_mul_eq_order_of_algHom_laurentSeries.lean`;
+the public wrapper of the pin's `solution`, around the private form above. -/
+theorem exists_ord_mul_eq_order_of_algHom_laurentSeries (K : Type*) [Field K] {F : Type*}
+    [Field F] [Algebra K F] (ι : F →ₐ[K] LaurentSeries K)
+    (h : ∃ x : F, (ι x).order ≠ 0) :
+    ∃ (w : Place K F) (γ : ℕ), 0 < γ ∧ ∀ x : F, w.ord x * (γ : ℤ) = (ι x).order :=
+  LaurentSeriesModel.exists_ord_mul_eq_order_of_algHom_laurentSeries (F := F) K ι h
+
+end Place
 
 end AlgebraicCurve

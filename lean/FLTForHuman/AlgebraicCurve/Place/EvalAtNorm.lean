@@ -39,10 +39,17 @@ pinned FLT (`anthropics/fermats-last-theorem`, `aa2d8b3`).  The pin's `S_` files
 a private engine (`conductorIdeal`, the fibre ideals and their norms); it stays
 private here, exactly as the pin keeps it below its headline.
 
+The third statement, `Divisor.evalFun_algebraMap_pushforward`, is a separate bookkeeping
+identity of the same dictionary: the `evalFun` of a base-changed function on a divisor of
+the extension is the `evalFun` of the function on the pushed-forward divisor, one fibre at
+a time.  Its only helper is the exponent bookkeeping `zpow_finset_sum'`.
+
 spec-pin: Theorems/Thm_AlgebraicCurve_Place_evalAt_norm_eq_prod_fiber.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_Place_evalAt_norm_eq_prod_fiber.lean   -- comparable copy
 spec-pin: Theorems/Thm_AlgebraicCurve_mem_riemannRochSpace_of_sum_basis_smul_algebraMap_mem_mapDomain.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_mem_riemannRochSpace_of_sum_basis_smul_algebraMap_mem_mapDomain.lean   -- comparable copy
+spec-pin: Theorems/Thm_AlgebraicCurve_Divisor_evalFun_algebraMap_pushforward.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Divisor_evalFun_algebraMap_pushforward.lean   -- comparable copy
 -/
 import FLTForHuman.AlgebraicCurve.Defs.PushPull
 import FLTForHuman.AlgebraicCurve.Place.ConstantFieldExtension
@@ -722,5 +729,70 @@ theorem evalAt_norm_eq_prod_fiber {K F F' : Type*} [Field K] [Field F] [Field F'
   exact Finset.prod_congr rfl fun w hw => (map_pow _ _ _).symm
 
 end Place
+
+namespace Divisor
+
+private theorem zpow_finset_sum' {K : Type*} [Field K] {c : K} (hc : c ≠ 0) {ι : Type*}
+    (s : Finset ι) (n : ι → ℤ) : ∏ i ∈ s, c ^ n i = c ^ (∑ i ∈ s, n i) := by
+  classical
+  induction s using Finset.cons_induction with
+  | empty => simp
+  | cons a s ha ih => rw [Finset.prod_cons, Finset.sum_cons, zpow_add₀ hc, ih]
+
+/-- **The `evalFun` of a base extension is the `evalFun` of the pushforward.**  For a
+finite integral extension `F → F'`, a divisor `D` of `F'` supported on rational places
+whose restrictions to `F` are rational, and a function `g` of `F` that is a unit at all
+of them, evaluating the base-changed `g` on `D` is evaluating `g` on the pushed-forward
+divisor.  Statement from
+`Theorems/Thm_AlgebraicCurve_Divisor_evalFun_algebraMap_pushforward.lean`; proof after
+the pin's `S_` file — `evalFun` is a product over the support, so both sides are
+fiberwise products over the restriction map, and each fibre contributes
+`evalAt g ^ (D w · inertiaDeg)`, the inertia degree being `1` since every place
+involved is rational. -/
+theorem evalFun_algebraMap_pushforward {K F F' : Type*} [Field K] [Field F] [Field F']
+    [Algebra K F] [Algebra K F'] [Algebra F F'] [IsScalarTower K F F']
+    [Algebra.IsIntegral F F'] {g : F} (hg : g ≠ 0) (D : Divisor K F')
+    (hratw : ∀ w ∈ D.support, Place.IsRational w)
+    (hratv : ∀ w ∈ D.support, (w.restrict F).IsRational)
+    (hord : ∀ w ∈ D.support, (w.restrict F).ord g = 0) :
+    Divisor.evalFun (algebraMap F F' g) D = Divisor.evalFun g (Divisor.pushforward F D) := by
+  classical
+  have hstep1 : evalFun (algebraMap F F' g) D
+      = ∏ w ∈ D.support, (w.restrict F).evalAt g ^ D w := by
+    rw [evalFun_def]
+    refine Finset.prod_congr rfl fun w hw => ?_
+    rw [w.evalAt_algebraMap_eq_evalAt_restrict (hratv w hw)
+      ((w.restrict F).mem_of_ord_nonneg hg (hord w hw).ge)]
+  have hne : ∀ w ∈ D.support, (w.restrict F).evalAt g ≠ 0 := fun w hw =>
+    (w.restrict F).evalAt_ne_zero (hratv w hw) hg (hord w hw)
+  have hstep2 : ∏ w ∈ D.support, (w.restrict F).evalAt g ^ D w
+      = ∏ v ∈ D.support.image (fun w => w.restrict F),
+          ∏ w ∈ D.support with w.restrict F = v, (w.restrict F).evalAt g ^ D w :=
+    (Finset.prod_fiberwise_of_maps_to
+      (fun w hw => Finset.mem_image.mpr ⟨w, hw, rfl⟩) _).symm
+  have hstep3 : ∀ v ∈ D.support.image (fun w => w.restrict F),
+      (∏ w ∈ D.support with w.restrict F = v, (w.restrict F).evalAt g ^ D w)
+        = v.evalAt g ^ (pushforward F D v) := by
+    intro v hv
+    obtain ⟨w₀, hw₀, rfl⟩ := Finset.mem_image.mp hv
+    calc
+      ∏ w ∈ D.support with w.restrict F = w₀.restrict F, (w.restrict F).evalAt g ^ D w
+          = ∏ w ∈ D.support with w.restrict F = w₀.restrict F,
+              (w₀.restrict F).evalAt g ^ (D w * (w.inertiaDeg F : ℤ)) := by
+            refine Finset.prod_congr rfl fun w hw => ?_
+            obtain ⟨hwD, hwv⟩ := Finset.mem_filter.mp hw
+            rw [hwv, w.inertiaDeg_eq_one_of_isRational (hratw w hwD) (hratv w hwD),
+              Nat.cast_one, mul_one]
+      _ = (w₀.restrict F).evalAt g
+            ^ (∑ w ∈ D.support with w.restrict F = w₀.restrict F,
+                D w * (w.inertiaDeg F : ℤ)) :=
+            zpow_finset_sum' (hne w₀ hw₀) _ _
+      _ = (w₀.restrict F).evalAt g ^ (pushforward F D (w₀.restrict F)) := by
+            rw [pushforward_apply, Finset.sum_filter]
+  rw [hstep1, hstep2, Finset.prod_congr rfl hstep3]
+  exact (Finsupp.prod_of_support_subset _ (support_pushforward_subset D)
+    (fun v n => v.evalAt g ^ n) fun v _ => zpow_zero _).symm
+
+end Divisor
 
 end AlgebraicCurve

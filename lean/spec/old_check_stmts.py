@@ -3970,7 +3970,9 @@ PORT_FILES = [
     # `spec/check_port.py` (2026-10-25): its `spec-pin:` wire checks 21 ok / 0 mismatch
     # / 0 missing / 1 own. Do not re-list it here.
     "FLTForHuman/AlgebraicCurve/Defs/Repartitions.lean",
-    "FLTForHuman/AlgebraicCurve/Defs/AdelicIndex.lean",
+    # (removed) `Defs/AdelicIndex.lean` — SET 6 deleted this stale row: the module has
+    # carried its own `spec-pin:` wire since 2026-10-26 (H1a; 69 ok / 0 / 0) and was being
+    # checked twice. Its `SOURCES` rows stay.
     "FLTForHuman/AlgebraicCurve/Defs/IsCurveOver.lean",
     "FLTForHuman/AlgebraicCurve/Defs/RiemannRochRows.lean",
     # MIGRATED 2026-10-27 (SET 3 ground prep): `Defs/PoleDivisorPackage.lean` carries
@@ -4024,7 +4026,10 @@ PORT_FILES = [
     # (21 ok / 0 mismatch / 0 missing). The module's `SOURCES` entries stay,
     # since other listed modules still match against them.
     "FLTForHuman/AlgebraicCurve/Defs/PlaceEvaluationAlgebra.lean",
-    "FLTForHuman/AlgebraicCurve/P1/Dictionary.lean",
+    # (removed) `P1/Dictionary.lean` — SET 6 migrated it: the module now carries its own
+    # 26-line `spec-pin:` wire (the two `Def_` files, the eleven wrappers, the eleven `S_`
+    # files and the `weilReciprocity` pair) and checks 69 ok / 0 mismatch / 0 missing
+    # before the capstone, 70 after. Its `SOURCES` rows stay.
     # --- P3.2b–e (the ℙ¹ residue core), split by the R1 definitions round into the
     # `P1/` module family (see `topics/riemannRoch/PLAN-RECTIFY-DEFS.md`). The
     # declarations and their order are unchanged; building `P1/Core` builds the
