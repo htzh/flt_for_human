@@ -57,6 +57,22 @@ The things about this command, each learned the hard way.
   module's declarations against the wire, not the wire against the module). The live ones
   are registered in [spec/METADATA-ISSUES.md](../../spec/METADATA-ISSUES.md); SET 7's read
   had three, plus the `weilReciprocity` name shadow the check cannot see.
+- **Read the shelf twice: the instrument's and the corrected one.** The corrected read removes
+  the false ported markers from `F` — the source claims above and the last-name shadows — and
+  is now one command: `--unport NAME` (repeatable) on the same read. On SET 8's scoping read the
+  correction was two nodes (`ModularCurve.exists_sum_smul_eq_of_isIntegralQExp_gamma1`, the
+  MD-001 wire, and `AlgebraicCurve.weilReciprocity`, the FR-0047 shadow), and it moved
+  `needed` from 1,021 / 405,122 to 1,024 / 405,316 while swapping a 496-silo spurious shelf row
+  for the hidden 58. Quote both figures and say which marker set produced the corrected one;
+  the delta between two passes means one thing only on the same marker set (SET 8's §0 uses
+  SET 7's two-marker baseline).
+- **`needed = 1` is a premise claim, not a statement claim.** The readiness test reads the
+  graph premises of the row's `S_` file; the **statement's own vocabulary** (a structure from a
+  `Definitions/Def_*.lean` module the wrapper imports) is not a graph node and is not read. A
+  row whose statement needs an unported structure therefore reads ready and cannot be written.
+  Before believing a shelf head, read the wrapper's `import Definitions.…` lines and run
+  `twin_scan --node`; the worked case is FR-0049's 496 row (the `DivisorialWeilPairingData`
+  carrier, the definition gate of SET 9).
 - **Read the delta, not the absolute.** The port grows between two reads: after SET 3 landed,
   `needed [F terminal]` moved **1,103 nodes / 421,670 lines → 1,090 / 419,020**, and twelve rows
   left the ready list while five entered (see §7 on new arrivals). A shelf figure quoted in a

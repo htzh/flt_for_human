@@ -897,3 +897,64 @@ round promotes what generalizes.
   `trace.Meta.synthInstance` at a tiny cap); do not raise the cap and do not attribute the cost
   to the set's edits.
 - **seen**: 2026-10-27, SET 7's landing gate.
+
+## FR-0049 [tooling] [method] — readiness is premise-based, so a row whose *statement* needs an unported structure reads ready
+
+- **where**: SET 8's scoping read, the row
+  `AlgebraicCurve.DivisorialWeilPairingData.toHom_injective_of_divisible` (496).  It is the
+  FR-0047 shadow's consumer: after the general `weilReciprocity` (100) lands it becomes a graph
+  premise-complete row.  Adding the set's four rows and the 100 to `ported` in an API read
+  (`frontier.analyze` on the corrected baseline) puts the 496 on the ready shelf with
+  `needed = 1`, `premises_unported = 0`, while the port declares **no**
+  `DivisorialWeilPairingData` structure at all — only that `Def_` module's support block, homed
+  in `AlgebraicCurve/Defs/WeilDatum.lean`.  The row's statement is
+  `(e : DivisorialWeilPairingData K F n) : Function.Injective e.toHom`, so it cannot be written.
+- **symptom**: `frontier.py --ready` will carry a row that is not portable; `--selfcheck` is
+  silent, `twin_scan --node` says `new` (it hashes the statement, which mentions the missing
+  structure but does not resolve it), and `port_advise` prices it as new lines (496) as if the
+  vocabulary existed.
+- **cause**: readiness is computed over the **graph premises** of the row's `S_` file only.  A
+  statement's own type dependencies come from the `Definitions/Def_*.lean` modules the
+  *wrapper* imports, which are module-level and not graph nodes (`fltdata.py`'s graph is the
+  theorem graph; the README's "Definition dependencies are module-level" note).  `needed` never
+  reads the statement.  This is the statement-side analogue of FR-0041's pricing blind spot and
+  of FR-0047's name shadow, and the third mechanism producing a *false ready* (FR-0044 was the
+  prune-set one).
+- **fix (scoping time)**: before believing `needed = 1` on a row whose statement names a
+  structure or class, read the wrapper's `import Definitions.…` lines and check each against the
+  port's wired `Def_` modules; `spec/statement_db.py show <name>` gives the statement text.
+  For the 496 the gate is the carrier block of
+  `Def_AlgebraicCurve_FunctionFieldWeilPairingDivisorial`: the structure, `toChar`, `toHom`,
+  `toHom_apply_apply` and the two pairing laws those consume (`pair_zero_right`,
+  `pair_add_right`) — ≈250 lines, the definition gate of SET 9, not SET 8.
+- **fix (tool, next ask)**: a statement-vocabulary check in `--ready` (resolve each candidate
+  wrapper's `Definitions/` imports through the port's `defs` wire) would close it; it needs its
+  own validation pass like FR-0047's qualified-name tier, so it is recorded, not smuggled in.
+  What *was* implemented while preparing SET 8 is the marker correction: `frontier.py
+  --unport NAME` (repeatable, SET 7's call 7) removes a false ported marker from `F`, so the
+  corrected shelf of a brief is now a command instead of an API script; the default read is
+  untouched and the selftest covers the subtraction.
+- **seen**: 2026-10-27, SET 8's scoping read (computed after-read; the row is not on the current
+  shelf, it is one row behind the 100).
+
+## FR-0050 [checker] [method] — a pin hypothesis unused in its proof cannot be renamed to `_h`, because the statement hash keeps binder names
+
+- **where**: SET 8's SPAN row,
+  `AlgebraicCurve.lSpace_mapDomain_subset_span_image_lSpace_of_constantFieldExtension_of_isAlgClosed`
+  (`IsCurveOver/ConstantFieldExtensionSpan.lean`).  The pin wrapper carries `hlift_new` (the
+  "new places" hypothesis), and the pin's own proof never uses it — it is there for the row's
+  consumer, the `ell_mapDomain_eq_…` (151) node.
+- **symptom**: at the project cap the module is green but warns
+  `Variable name hlift_new is not explicitly referenced`, so the set's zero-warning gate fails.
+  The obvious fix — rename the binder to `_hlift_new` — makes `check_port` report a **MISMATCH**
+  on the row, with the two signatures textually identical except for the underscore.
+- **cause**: `check_port`'s `norm` (`spec/lean_parser.py`) strips namespace qualifiers and
+  `kw*` labels but **not binder names**, so a declaration is matched to the pin by its statement
+  text, and a renamed hypothesis is a different statement.  (The exact-last-name tier does not
+  save it: the name tier is hash-gated and falls through to a mismatch.)
+- **fix**: keep the pin's binder name and reference it with the tree's idiom for carried
+  hypotheses — `have _ := hlift_new` at the top of the proof (used elsewhere in
+  `ConstantReductionCorrespondence`, `RadicalRegion/Engine/Reparam`), with a one-line comment
+  saying it is carried for the consumer.  Do **not** rename binders to silence the linter unless
+  the pin's own name is free to change; `own:` markers are for whole declarations, not binders.
+- **seen**: 2026-10-27, SET 8's landing.

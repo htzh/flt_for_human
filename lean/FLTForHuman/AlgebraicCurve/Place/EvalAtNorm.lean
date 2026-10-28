@@ -44,6 +44,15 @@ identity of the same dictionary: the `evalFun` of a base-changed function on a d
 the extension is the `evalFun` of the function on the pushed-forward divisor, one fibre at
 a time.  Its only helper is the exponent bookkeeping `zpow_finset_sum'`.
 
+The fourth statement, `weilReciprocity_algebraMap`, is the same dictionary at the level of
+the reciprocity law: for a finite separable constant extension `F' / F` with principal
+divisors on both sides, Weil reciprocity for `F` transports the `evalFun` identity to `F'`.
+Its statement takes `WeilReciprocity K F` as a **hypothesis** — the row is the
+compatibility used to prove the general law, not the law itself — and its proof is the
+chain pullback (`evalFun_pullback`), norm-vanishing on fibres
+(`Place.ord_norm_eq_zero_of_forall_fiber`), pushforward (`Divisor.pushforward_div`) and the
+base reciprocity.
+
 spec-pin: Theorems/Thm_AlgebraicCurve_Place_evalAt_norm_eq_prod_fiber.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_Place_evalAt_norm_eq_prod_fiber.lean   -- comparable copy
 spec-pin: Theorems/Thm_AlgebraicCurve_mem_riemannRochSpace_of_sum_basis_smul_algebraMap_mem_mapDomain.lean
@@ -52,11 +61,14 @@ spec-pin: Theorems/Thm_AlgebraicCurve_Divisor_evalFun_algebraMap_pushforward.lea
 spec-pin: P2M/Sol/S_AlgebraicCurve_Divisor_evalFun_algebraMap_pushforward.lean   -- comparable copy
 spec-pin: Theorems/Thm_AlgebraicCurve_Divisor_evalFun_pullback.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_Divisor_evalFun_pullback.lean   -- comparable copy
+spec-pin: Theorems/Thm_AlgebraicCurve_weilReciprocity_algebraMap.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_weilReciprocity_algebraMap.lean   -- comparable copy
 -/
 import FLTForHuman.AlgebraicCurve.Defs.PushPull
 import FLTForHuman.AlgebraicCurve.Place.ConstantFieldExtension
 import FLTForHuman.AlgebraicCurve.Place.IntegralClosureAtFiber
 import FLTForHuman.AlgebraicCurve.Place.ConstantFieldExtensionRamification
+import FLTForHuman.AlgebraicCurve.Place.OrderArithmetic
 import FLTForHuman.RingTheory.Norm.Elementary
 
 set_option autoImplicit false
@@ -830,5 +842,67 @@ theorem evalFun_pullback {K F F' : Type*} [Field K] [Field F] [Field F']
           rw [Place.evalAt_norm_eq_prod_fiber v f hf (hrat v hv) (hratw v hv) (hord v hv)]
 
 end Divisor
+
+/-- **Weil reciprocity is compatible with a constant extension.**  Statement from
+`Theorems/Thm_AlgebraicCurve_weilReciprocity_algebraMap.lean`; proof after the pin's `S_`
+file: `Dg` is the pullback of `Eg` (`Divisor.pullback_apply_eq_ord`), the pullback identity
+`evalFun_pullback` turns the left side into the norm's `evalFun`, the base reciprocity
+`hbase` and the pushforward identity `Divisor.pushforward_div` identify that with the right
+side, and `evalFun_algebraMap_pushforward` closes. -/
+theorem weilReciprocity_algebraMap {K F F' : Type*} [Field K] [Field F] [Field F']
+    [Algebra K F] [Algebra K F'] [Algebra F F'] [IsScalarTower K F F']
+    [FiniteDimensional F F'] [Algebra.IsSeparable F F'] [CharZero F]
+    [HasPrincipalDivisors K F] [HasPrincipalDivisors K F']
+    (hbase : WeilReciprocity K F) {f : F'} {g : F} (hf : f ≠ 0) (hg : g ≠ 0)
+    (Df Dg : Divisor K F') (hDf : ∀ w : Place K F', Df w = w.ord f)
+    (hDg : ∀ w : Place K F', Dg w = w.ord (algebraMap F F' g))
+    (hdisj : ∀ w : Place K F', w.ord f = 0 ∨ w.ord (algebraMap F F' g) = 0)
+    (hratf : ∀ w ∈ Df.support, Place.IsRational w)
+    (hratF : ∀ v : Place K F, v.IsRational)
+    (hratfib : ∀ v : Place K F, v.ord g ≠ 0 → ∀ w ∈ v.fiber F', Place.IsRational w) :
+    Divisor.evalFun f Dg = Divisor.evalFun (algebraMap F F' g) Df := by
+  classical
+  have hNf : Algebra.norm F f ≠ 0 := Algebra.norm_ne_zero_iff.mpr hf
+  obtain ⟨Eg, hEg, -⟩ := HasPrincipalDivisors.exists_divisor (K := K) g hg
+  obtain ⟨EN, hEN, -⟩ := HasPrincipalDivisors.exists_divisor (K := K) (Algebra.norm F f) hNf
+  have hfib : ∀ v : Place K F, v.ord g ≠ 0 → ∀ w ∈ v.fiber F', w.ord f = 0 := by
+    intro v hv w hw
+    refine (hdisj w).resolve_right ?_
+    rw [w.ord_restrict (F := F) g, Place.mem_fiber.mp hw]
+    have hepos := w.ramificationIndex_pos (F := F)
+    exact mul_ne_zero (by exact_mod_cast hepos.ne') hv
+  have hres : ∀ w : Place K F', w.ord f ≠ 0 → (w.restrict F).ord g = 0 := by
+    intro w hw
+    have hzero := (hdisj w).resolve_left hw
+    rw [w.ord_restrict (F := F) g] at hzero
+    have hepos := w.ramificationIndex_pos (F := F)
+    rcases mul_eq_zero.mp hzero with h | h
+    · exact absurd h (by exact_mod_cast hepos.ne')
+    · exact h
+  have hdisjF : ∀ v : Place K F, v.ord (Algebra.norm F f) = 0 ∨ v.ord g = 0 := by
+    intro v
+    rcases eq_or_ne (v.ord g) 0 with h | h
+    · exact Or.inr h
+    · exact Or.inl (Place.ord_norm_eq_zero_of_forall_fiber hf v (hfib v h))
+  have hstep1 : Dg = Divisor.pullback F' Eg := by
+    ext w
+    rw [hDg w, Divisor.pullback_apply_eq_ord (fun u => hEg u)]
+  have hstep4 : Divisor.pushforward F Df = EN :=
+    Divisor.pushforward_div hf hDf hEN
+  have hstep2 : Divisor.evalFun f (Divisor.pullback F' Eg)
+      = Divisor.evalFun (Algebra.norm F f) Eg := by
+    refine Divisor.evalFun_pullback hf Eg (fun v _ => hratF v) (fun v hv w hw => ?_)
+      (fun v hv w hw => ?_)
+    · exact hratfib v (by rw [← hEg v]; exact Finsupp.mem_support_iff.mp hv) w hw
+    · exact hfib v (by rw [← hEg v]; exact Finsupp.mem_support_iff.mp hv) w hw
+  have hstep3 : Divisor.evalFun (Algebra.norm F f) Eg = Divisor.evalFun g EN :=
+    hbase (Algebra.norm F f) g EN Eg hNf hg hEN hEg hdisjF
+      (fun v _ => hratF v) (fun v _ => hratF v)
+  have hstep5 : Divisor.evalFun (algebraMap F F' g) Df
+      = Divisor.evalFun g (Divisor.pushforward F Df) := by
+    refine Divisor.evalFun_algebraMap_pushforward hg Df (fun w hw => hratf w hw)
+      (fun w _ => hratF _) (fun w hw => ?_)
+    exact hres w (by rw [← hDf w]; exact Finsupp.mem_support_iff.mp hw)
+  rw [hstep1, hstep2, hstep3, ← hstep4, ← hstep5]
 
 end AlgebraicCurve
