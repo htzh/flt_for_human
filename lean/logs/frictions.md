@@ -1068,3 +1068,101 @@ round promotes what generalizes.
   `spec-pin`-wired module carrying an un-decided private duplicate is a time bomb keyed on olean
   invalidation, and it goes off in whichever later wave rebuilds it.
 - **seen**: 2026-10-27, SET MC-1a's gates (blocked for ~20 minutes; unblocked by the rename).
+
+## FR-0056 [checker] — a statement whose *type* carries an instance binding is diffed only up to that `:=`
+
+- **where**: `spec/statement_db.py`'s statement parse (via `lean_parser.top_level_cut`), met on
+  `CuspForm.coe_heckeTLinH_apply` / `coe_heckeTLinH_eq` in `ModularForms/Defs/GammaH.lean`, whose
+  types state `haveI : NeZero ℓ := ⟨hℓ.ne_zero⟩` before the conclusion.
+- **symptom**: both come back `ok`, and would have come back `ok` even if the rest of the statement
+  had drifted: the normaliser cuts the statement at the first top-level `:=`, and for these two
+  declarations that `:=` is inside the *type* (it is the `haveI`'s value), not the proof's start.
+  So only the binder prefix is hashed, and the `gammaLift`/`heckeDiagMatrix` part of the type is
+  outside the comparison.
+- **cause**: `top_level_cut` is a text heuristic for "where the statement ends and the proof
+  begins"; a `haveI … := …` in the type is a `:=` at column 0's nesting level, so it wins.
+- **fix**: none applied — the declarations are transcribed from the pin and the *left* part is
+  checked. The rule for the reviewer: a row whose statement carries a `haveI`/`letI` binding in its
+  type is **under-checked**, so read it against the pin by eye (MC-4's D1 declarations were read
+  that way). Teaching the checker to skip `haveI`/`letI`/`let` binders before the cut changes the
+  global checked surface, so it is its own pass with `--selftest`, not a rider on a set.
+- **seen**: 2026-10-27, the MC definition wave (D1).
+
+## FR-0057 [checker] — an `inductive` declaration is invisible to the statement parser
+
+- **where**: `spec/lean_parser.py`'s `DECL_RE`, met on `CohCarrier.Gen`
+  (`ModularForms/CohCarrier/Inst.lean`), the generator type of the `X_H`/`X₁` Hecke operators.
+- **symptom**: the module reports 5 checked declarations for 6 public ones, and `Gen` never appears
+  in a `check_port` row — neither the pin corpus nor the port parse indexes it, so a transpcription
+  error in its constructors (`T`/`U`/`dia`, their binders and hypotheses) would not be caught.
+- **cause**: `DECL_RE` admits `def|theorem|lemma|abbrev|structure|class|instance` only. The same
+  gap is recorded in `../CARRY-FORWARD.md` for `scoped instance`; `inductive` is the second
+  declaration kind it hides, and it is not a corner: `CohCarrier.Gen` is the *type* of
+  `genOpH`/`opFamily`, i.e. part of two rows' statements.
+- **fix**: none applied. Widen the regex and rebuild the corpus is a checker pass of its own (every
+  corpus hash changes); record the gap and read the inductive by eye against the pin (here: the
+  three constructors and their binder shapes are the pin's, verified line by line).
+- **seen**: 2026-10-27, the MC definition wave (D4).
+
+## FR-0058 [checker] — a verbatim pin statement reads as `MISMATCH` when the port homes its names in another namespace
+
+- **where**: `ModularForms/Defs/GammaH.lean`, the `CuspForm` operators block (D1 of the MC
+  definition wave). The pin writes `gammaLift M d` in `coe_diamondLinH_apply`'s type; this port
+  homes `gammaLift` (with `unitOfPrimeNotDvd`, `StableD`/`StableU`/`StableT` and the
+  `slash_mapGL_eq_of_gamma0Units_eq` prelude) in `CohCarrier`, for the good reason that the pin
+  spreads the same prelude across four `Def_` modules and re-inlines it into every consumer.
+- **symptom**: writing the faithful statement `⇑f ∣[k] (mapGL ℝ (CohCarrier.gammaLift M d) …)` gets
+  `MISMATCH (direct name)`, and the diff is exactly the qualifier — the mathematics is identical.
+- **cause**: the checker compares statement *text* after normalisation. It resolves nothing, so a
+  namespace qualification is a spelling difference, and the only sanctioned spellings are the
+  marker table's (`own:`), which would stop diffing a declaration that *is* the pin's.
+- **fix applied**: a section-scoped `open CohCarrier` in the operators section, so the statement is
+  written with the pin's unqualified text and diffed normally (`42 ok / 0 mismatch`). The rule:
+  when the port's home for a pin name differs from the pin's namespace, `open` the home in the
+  section that transcribes the pin's statements — do not qualify, and do not spend an `own:` row on
+  a namespace. (An `own:` row stays right for a genuinely different home *object*, e.g. a restated
+  `Inputs` bundle.)
+- **seen**: 2026-10-27, the MC definition wave (D1); found by the worker's first `check_port` run.
+
+## FR-0059 [homes] [import] — a pin `Def_` module holding both an engine and its consumer becomes a cycle when the port splits it
+
+- **where**: MC-4d, the 27-line `ModularCurve.heckeOperatorHAlong_diamondHBar_comm`
+  (`topics/modularCurve/SET-MC4.md` §2.1). The pin keeps `diamondHBar`/`genOpH` **and**
+  `exists_algEquiv_intertwinesAlong_diamondAutHBar` in one `Definitions/Def_ModularCurve_XH.lean`, so
+  the pin never faces the question of which is below which. The port split them into
+  `XH/Operators.lean` (the operator vocabulary, the def wave's D3) and `XH/DiamondLift.lean` (the
+  lift, SET-H-B) — and `XH/DiamondLift.lean` **imports** `XH/Operators.lean`.
+- **symptom**: the row's proof needs `exists_algEquiv_intertwinesAlong_diamondAutHBar` (only in
+  `XH/DiamondLift`, nowhere else in the port) *and* `diamondHBar`/`diamondHBar_apply` (only in
+  `XH/Operators`). The brief had picked `XH/Operators` as the home by subject; that is the cycle
+  `Operators → DiamondLift → Operators`. The worker caught it before writing a line; the shelf's
+  acyclicity table (a first cut, recipe §4) had the edge backwards.
+- **cause**: "the home is the module of the subject" is necessary but not sufficient. Where the pin
+  had one module and the port has two, the home of a row that consumes *both* is the one that
+  imports the other — the subject does not decide it, the import graph does.
+- **fix applied**: the row lands in `XH/DiamondLift.lean` (which imports `Operators`), the analogue
+  of MC-4e's X₁ row in `X1/DiamondLift.lean`; that module was migrated off `PORT_FILES` by the
+  manager in the same wave (16 ok / 0 / 0 before the row, 17 after). The no-facade rule forbids the
+  other route (re-declaring pin-shaped `diamondHBar` in the lift module).
+- **rule for the next brief**: when the pin's `Def_` module is split, the row's home is the
+  *highest* of the split modules, not the one whose name matches the subject; check the edge
+  direction with `grep '^import'` on both candidates before writing the order.
+- **seen**: 2026-10-27, SET MC-4d (caught in the worker's first pass, before any Lean was written).
+
+## FR-0060 [tooling] [build] — `lake build` under `flock` is killed by the executor's cap while merely queueing
+
+- **where**: every worker order of the MC-4 wave that builds one module under
+  `flock /tmp/lean-build.lock lake build …`; hit by MC-4d (and MC-4a/4c report the same shape).
+- **symptom**: a foreground `flock … lake build <module>` dies with no Lean output — no error, no
+  `Replayed`, just a kill — when another wave's build holds the lock: the command spends its whole
+  executor budget (60 s in the workers' harness) *waiting for the lock*, and the build itself never
+  starts.
+- **cause**: `flock` blocks before `lake` runs, so the wall time is queueing + build; with four
+  waves building concurrently the queue alone can exceed the per-call cap.
+- **fix applied**: run the build as a background job (`run_in_background: true`) and collect it, or
+  keep the `flock` but give the call a longer `timeoutMs`. Both were used; the same command that was
+  killed at 60 s finished in 27.5 s once it got the lock.
+- **rule for the next wave**: on a busy tree, a module build belongs in the background channel; a
+  foreground `flock`+`lake build` is only safe when the lock is known free. The `lake env lean`
+  probe (no olean write) is the cheap foreground gate.
+- **seen**: 2026-10-27, SET MC-4's worker orders.

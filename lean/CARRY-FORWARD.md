@@ -926,6 +926,17 @@ cluster is next active, keeping every last name so the checker's dotted fallback
   module were wired. The three are present, public and pinned. Teaching the tracked checker to see
   `scoped` changes the global checked surface and needs its own pass with `--selftest`; record in
   `logs/ac-port.md` §13.
+- **`inductive` is invisible to the statement parser.** `DECL_RE` admits
+  `def|theorem|lemma|abbrev|structure|class|instance` only, so a pin `inductive` is in neither the
+  corpus nor a port module's parse: `CohCarrier.Gen` (`ModularForms/CohCarrier/Inst.lean`) is
+  checked by nothing, although it is the *type* of two rows' `genOpH`/`opFamily`. Same fixing rule
+  as the `scoped instance` above (a checker pass with `--selftest`, not a rider); read such a
+  declaration by eye against the pin. FR-0057.
+- **A `haveI`/`letI` binding in a statement's *type* truncates the diff.** `top_level_cut` looks for
+  the first top-level `:=` to find where the proof starts, and an instance binding's value is such a
+  `:=`: `CuspForm.coe_heckeTLinH_apply`/`coe_heckeTLinH_eq` (`ModularForms/Defs/GammaH.lean`) are
+  therefore only diffed on their binder prefix. Read them by eye; a fix is the same kind of checker
+  pass. FR-0056.
 - The checker's `strip_comments` removes only block comments (`/- … -/`), not `--` line
   comments, while `top_level_cut` finds no `:=` in an equation-style `def` — so a `-- pin:`
   line above the *next* declaration is absorbed into an equation-style def's statement. Harmless

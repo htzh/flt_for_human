@@ -4550,19 +4550,37 @@ PORT_FILES = [
     # definition layer. The pin's `Groups` block is the ported `CohCarrier` Γ_H
     # vocabulary; these three modules are the `FunctionField`/`Bar` block, the
     # `α`/`β` Hecke degeneracy maps with `HeckeInputsHAlong`, and the diamond
-    # predicate `IsDiamondAutHBar` with `HeckeDiamondInputsHAll`. The pin's
-    # off-cone Jacobian blocks (`JH`, `heckeOperatorHAlong`, `genOpH`,
-    # `diamondHBar`) are deliberately absent; the checker iterates `PORT_FILES`,
-    # so they cannot report `missing`. Appended last so no earlier last-name match
-    # can flip.
-    "FLTForHuman/ModularCurve/XH/Operators.lean",
+    # predicate `IsDiamondAutHBar` with `HeckeDiamondInputsHAll`.
+    # MIGRATED 2026-10-27 (the MC definition wave,
+    # `topics/modularCurve/WORKORDER-MCDEF-definition-wave.md`): the module now
+    # carries its own `spec-pin:` wire for the pin's
+    # `Definitions/Def_ModularCurve_XHOperators.lean` and `spec/check_port.py` owns
+    # it (14 ok / 0 mismatch / 0 missing). The wave also landed the pin's
+    # `diamondHBar` block and its `GenOp` block up to the Tate layer (`genOpH`,
+    # `genOpH_T`/`_U`/`_dia`); only `tateGenOpH`/`tateGenOpH_apply_coe` stay absent,
+    # because the `TateModule` definition layer they are typed through is the T1 plan
+    # of `topics/modularCurve/TOPIC-padic-tate-module.md` and is not in the port.
+    # Its `SOURCES` rows stay, since other listed modules still match against them.
+    # Do not re-list it here.
     # --- SET-H-B (`topics/hecke/SET-H-B.md`): the diamond-lift pair, written once.
     # The general-`Γ` engine shared by the two headlines, then the two level
     # specialisations with their headlines. Appended last so no earlier last-name
     # match can flip.
     "FLTForHuman/ModularCurve/XH/DiamondLiftPrelude.lean",
-    "FLTForHuman/ModularCurve/XH/DiamondLift.lean",
-    "FLTForHuman/ModularCurve/X1/DiamondLift.lean",
+    # MIGRATED 2026-10-27 (the MC-4 manager lane, `topics/modularCurve/SET-MC4.md` §2.1):
+    # `XH/DiamondLift.lean` now carries its own `spec-pin:` wire — its `Thm_` wrapper and the
+    # comparable `S_` copy — and `spec/check_port.py` owns it (16 ok / 0 mismatch / 0 missing).
+    # MC-4d's 27-line `heckeOperatorHAlong_diamondHBar_comm` homes here (not in `XH/Operators`, which
+    # this module imports: the row consumes the diamond lift, so the import direction forbids it) and
+    # adds two more `spec-pin:` lines. Its `SOURCES` rows stay, since other listed modules still
+    # match against them. Do not re-list it here.
+    # MIGRATED 2026-10-27 (the MC-4 manager lane,
+    # `topics/modularCurve/SET-MC4.md` §0.2): `X1/DiamondLift.lean` now carries its own
+    # `spec-pin:` wire — its `Thm_` wrapper and the comparable `S_` copy — and
+    # `spec/check_port.py` owns it (17 ok / 0 mismatch / 0 missing, MC-4e's row included). The
+    # migration is paid here, ahead of the row, because the wave's home decision needs the module wired
+    # before a worker adds to it. Its `SOURCES` rows stay, since other listed modules still
+    # match against them. Do not re-list it here.
     # --- SET-H-C (`topics/hecke/SET-H-C.md`): the seven inputs
     # `ModularCurve.heckeInputsHAlong`, the public `S_` file transcribed at its own
     # names plus the wrapper's headline. Appended last so no earlier last-name

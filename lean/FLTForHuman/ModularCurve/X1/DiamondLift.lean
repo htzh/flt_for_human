@@ -11,12 +11,19 @@ the base change `ℚ̄`. Its sibling `XH/DiamondLift.lean` is the `Γ_H(M)` case
 
 https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_exists_algEquiv_intertwinesAlong_diamondAutBar.lean
 https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_exists_algEquiv_intertwinesAlong_diamondAutBar.lean
+
+spec-pin: Theorems/Thm_ModularCurve_exists_algEquiv_intertwinesAlong_diamondAutBar.lean
+spec-pin: P2M/Sol/S_ModularCurve_exists_algEquiv_intertwinesAlong_diamondAutBar.lean   -- comparable copy
+spec-pin: Theorems/Thm_ModularCurve_heckeOperatorOneBar_comm_diamondOneBar.lean
+spec-pin: P2M/Sol/S_ModularCurve_heckeOperatorOneBar_comm_diamondOneBar.lean
 -/
 import FLTForHuman.ModularCurve.XH.DiamondLiftPrelude
 import FLTForHuman.ModularCurve.X1.HeckeOperator
 import FLTForHuman.ModularCurve.X1.Diamond
 import FLTForHuman.ModularCurve.X1.DiamondAut
 import FLTForHuman.ModularCurve.X1.BaseChangeCover
+import FLTForHuman.ModularCurve.X1.HeckeModule
+import FLTForHuman.AlgebraicCurve.WeilExchange.GaloisRamification
 import FLTForHuman.ModularForms.Level.Diamond
 
 set_option autoImplicit false
@@ -383,6 +390,26 @@ theorem exists_algEquiv_intertwinesAlong_diamondAutBar (M : ℕ) [NeZero M] (ℓ
           (SemilinearAut.ofAlgAut (diamondAutBar M d))
           (SemilinearAut.ofAlgAut τ) :=
   DiamondLift.X1.main M ℓ d
+
+/-- The `X₁` Hecke operator and the diamond operator commute on `J₁(M)` — the MC-4e row: the
+`ℓ`-Hecke correspondence commutes with the diamond action, through the `Γ₁`-level diamond lift
+`exists_algEquiv_intertwinesAlong_diamondAutBar` and the `Pic⁰` correspondence law. -/
+theorem heckeOperatorOneBar_comm_diamondOneBar (M : ℕ) [NeZero M] (ℓ : Nat.Primes) (d : ℕ) :
+    heckeOperatorOneBar M ℓ * diamondOneBar M d =
+      diamondOneBar M d * heckeOperatorOneBar M ℓ := by
+  haveI hℓ : NeZero (ℓ : ℕ) := ⟨ℓ.2.ne_zero⟩
+  apply LinearMap.ext
+  intro x
+  simp only [Module.End.mul_apply, heckeOperatorOneBar_apply, diamondOneBar_apply]
+  by_cases h : HeckeInputsOneAlong (AlgebraicClosure ℚ) M ℓ
+  · obtain ⟨h0, hα, hβ, hP, hfin, hFI, hN⟩ := h
+    haveI := hP
+    rw [heckeOperatorOneAlong_eq h0 hα hβ hFI hfin hN]
+    obtain ⟨τ, hτα, hτβ⟩ := exists_algEquiv_intertwinesAlong_diamondAutBar M (ℓ : ℕ) d
+    exact SemilinearAut.pic0_correspondence_smul (heckeBetaOneBar (AlgebraicClosure ℚ) M ℓ)
+      (heckeAlphaOneBar (AlgebraicClosure ℚ) M ℓ) hβ hα hFI hfin hN hτβ hτα x
+  · rw [heckeOperatorOneAlong_of_not h]
+    simp
 
 end ModularCurve
 

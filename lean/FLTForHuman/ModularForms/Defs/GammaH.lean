@@ -19,7 +19,10 @@
     `Gamma_le_GammaH`, `GammaH_finiteIndex`, `gammaLift`, `gamma0Units_gammaLift`,
     `unitOfPrimeNotDvd`, `gammaLift_apply_11`, `mul_inv_mem_GammaH_of_gamma0Units_eq`,
     `slash_mapGL_eq_of_gamma0Units_eq`; and `:72–105` — `StableD`, `StableU`,
-    `StableT`, the Hecke-stability predicates appended below in §"Hecke stability".
+    `StableT`, the Hecke-stability predicates appended below in §"Hecke stability";
+    and `:105–262` — the three operators `diamondLinH`, `heckeULinH`, `heckeTLinH`,
+    their `…Of` totalisations and their `_eq` / `coe_*` lemmas, hosted in the
+    "Hecke operators" section appended below.
 
   Statements are transcribed verbatim from the pin's `Definitions/` files;
   proofs are adapted only for mathlib `v4.34.0` (`if_pos`/`if_neg` →
@@ -354,6 +357,174 @@ def StableT (M : ℕ) [NeZero M] (H : Subgroup (ZMod M)ˣ) (k : ℤ) (ℓ : ℕ)
           (ModularForm.heckeU k ℓ ⇑f +
             (⇑f ∣[k] ((Matrix.SpecialLinearGroup.mapGL ℝ (ρ : SL(2, ℤ)) : GL (Fin 2) ℝ) *
               ModularForm.heckeDiagMatrix ℓ))) k
+
+/-! ## Hecke operators
+
+The three `Γ_H`-linear operators `diamondLinH`, `heckeULinH` and `heckeTLinH`:
+each is defined by a totalisation `…Of` that consumes the corresponding
+stability hypothesis, then a `Classical`-choice wrapper that falls back to the
+zero operator when the hypothesis fails, plus the `_eq` and `coe_*` lemmas that
+unfold the wrapper once the hypothesis is in hand. -/
+
+section HeckeOperators
+
+open CohCarrier
+
+variable {M : ℕ} [NeZero M] {H : Subgroup (ZMod M)ˣ}
+
+def diamondLinHOf (k : ℤ) (hD : StableD M H k) (d : (ZMod M)ˣ) :
+    CuspForm (CohCarrier.GammaH M H) k →ₗ[ℂ] CuspForm (CohCarrier.GammaH M H) k where
+  toFun f :=
+    { toFun := ⇑f ∣[k] ((Matrix.SpecialLinearGroup.mapGL ℝ (gammaLift M d : SL(2, ℤ)) : GL (Fin 2) ℝ))
+      slash_action_eq' := fun γ hγ => by
+        obtain ⟨g, hg, rfl⟩ := Subgroup.mem_map.mp hγ
+        rw [← SlashAction.slash_mul, ← map_mul,
+          show (gammaLift M d : SL(2, ℤ)) * g = ((gammaLift M d : SL(2, ℤ)) * g * (gammaLift M d : SL(2, ℤ))⁻¹) *
+            (gammaLift M d : SL(2, ℤ)) by rw [inv_mul_cancel_right],
+          map_mul, SlashAction.slash_mul,
+          SlashInvariantFormClass.slash_action_eq f _
+            (Subgroup.mem_map_of_mem _ (CohCarrier.conj_mem_GammaH M H (gammaLift M d) ⟨g, hg⟩))]
+      holo' := (CuspFormClass.holo f).slash k _
+      zero_at_cusps' := fun hc => hD (gammaLift M d) f _ hc }
+  map_add' f g := DFunLike.coe_injective <| by
+    show (⇑(f + g)) ∣[k] ((Matrix.SpecialLinearGroup.mapGL ℝ (gammaLift M d : SL(2, ℤ)) : GL (Fin 2) ℝ)) =
+      (⇑f ∣[k] ((Matrix.SpecialLinearGroup.mapGL ℝ (gammaLift M d : SL(2, ℤ)) : GL (Fin 2) ℝ))) +
+      (⇑g ∣[k] ((Matrix.SpecialLinearGroup.mapGL ℝ (gammaLift M d : SL(2, ℤ)) : GL (Fin 2) ℝ)))
+    rw [FunLike.coe_add, SlashAction.add_slash]
+  map_smul' c f := DFunLike.coe_injective <| by
+    show (⇑(c • f)) ∣[k] ((Matrix.SpecialLinearGroup.mapGL ℝ (gammaLift M d : SL(2, ℤ)) : GL (Fin 2) ℝ)) =
+      c • (⇑f ∣[k] ((Matrix.SpecialLinearGroup.mapGL ℝ (gammaLift M d : SL(2, ℤ)) : GL (Fin 2) ℝ)))
+    rw [FunLike.coe_smul]
+    exact ModularForm.SL_smul_slash k (gammaLift M d : SL(2, ℤ)) ⇑f c
+
+open Classical in
+
+def diamondLinH (k : ℤ) (d : (ZMod M)ˣ) :
+    CuspForm (CohCarrier.GammaH M H) k →ₗ[ℂ] CuspForm (CohCarrier.GammaH M H) k :=
+  if hD : StableD M H k then diamondLinHOf k hD d else 0
+
+theorem diamondLinH_eq (k : ℤ) (hD : StableD M H k) (d : (ZMod M)ˣ) :
+    (diamondLinH k d : CuspForm (CohCarrier.GammaH M H) k →ₗ[ℂ] _) = diamondLinHOf k hD d := by
+  rw [diamondLinH, dite_eq_left hD]
+
+theorem coe_diamondLinH_apply (k : ℤ) (hD : StableD M H k) (d : (ZMod M)ˣ)
+    (f : CuspForm (CohCarrier.GammaH M H) k) :
+    ⇑(diamondLinH k d f) =
+      ⇑f ∣[k] ((Matrix.SpecialLinearGroup.mapGL ℝ (gammaLift M d : SL(2, ℤ)) : GL (Fin 2) ℝ)) := by
+  rw [diamondLinH_eq k hD]; rfl
+
+theorem coe_diamondLinH_eq_slash (k : ℤ) (hD : StableD M H k) (d : (ZMod M)ˣ) (σ : Gamma0 M)
+    (hσ : CohCarrier.gamma0Units M σ = d) (f : CuspForm (CohCarrier.GammaH M H) k) :
+    ⇑(diamondLinH k d f) = ⇑f ∣[k] ((Matrix.SpecialLinearGroup.mapGL ℝ (σ : SL(2, ℤ)) : GL (Fin 2) ℝ)) := by
+  rw [coe_diamondLinH_apply k hD]
+  have := slash_mapGL_eq_of_gamma0Units_eq (H := H) k
+    (fun γ hγ => SlashInvariantFormClass.slash_action_eq f γ hγ) (gammaLift M d) σ
+    ((gamma0Units_gammaLift d).trans hσ.symm) 1
+  rwa [mul_one, mul_one] at this
+
+def heckeULinHOf (k : ℤ) {q : ℕ} (hU : StableU M H k q) :
+    CuspForm (CohCarrier.GammaH M H) k →ₗ[ℂ] CuspForm (CohCarrier.GammaH M H) k where
+  toFun f :=
+    { toFun := ModularForm.heckeU k q ⇑f
+      slash_action_eq' := fun γ hγ => (hU f).1 γ hγ
+      holo' := (hU f).2.1
+      zero_at_cusps' := fun hc => (hU f).2.2 _ hc }
+  map_add' f g := DFunLike.coe_injective <|
+    show ModularForm.heckeU k q ⇑(f + g) = ModularForm.heckeU k q ⇑f + ModularForm.heckeU k q ⇑g by
+      rw [FunLike.coe_add, ModularForm.heckeU_add]
+  map_smul' c f := DFunLike.coe_injective <|
+    show ModularForm.heckeU k q ⇑(c • f) = c • ModularForm.heckeU k q ⇑f by
+      rw [FunLike.coe_smul, ModularForm.heckeU_smul]
+
+open Classical in
+
+def heckeULinH (k : ℤ) (q : ℕ) :
+    CuspForm (CohCarrier.GammaH M H) k →ₗ[ℂ] CuspForm (CohCarrier.GammaH M H) k :=
+  if hU : StableU M H k q then heckeULinHOf k hU else 0
+
+theorem heckeULinH_eq (k : ℤ) {q : ℕ} (hU : StableU M H k q) :
+    (heckeULinH k q : CuspForm (CohCarrier.GammaH M H) k →ₗ[ℂ] _) = heckeULinHOf k hU := by
+  rw [heckeULinH, dite_eq_left hU]
+
+theorem coe_heckeULinH_apply (k : ℤ) {q : ℕ} (hU : StableU M H k q)
+    (f : CuspForm (CohCarrier.GammaH M H) k) : ⇑(heckeULinH k q f) = ModularForm.heckeU k q ⇑f := by
+  rw [heckeULinH_eq k hU]; rfl
+
+def heckeTLinHOf (k : ℤ) {ℓ : ℕ} (hℓ : ℓ.Prime) (hℓM : ¬ ℓ ∣ M) (hT : StableT M H k ℓ) :
+    CuspForm (CohCarrier.GammaH M H) k →ₗ[ℂ] CuspForm (CohCarrier.GammaH M H) k :=
+  haveI : NeZero ℓ := ⟨hℓ.ne_zero⟩
+  { toFun := fun f =>
+      { toFun := ModularForm.heckeU k ℓ ⇑f +
+          (⇑f ∣[k] ((Matrix.SpecialLinearGroup.mapGL ℝ
+            (gammaLift M (unitOfPrimeNotDvd hℓ hℓM) : SL(2, ℤ)) : GL (Fin 2) ℝ) *
+              ModularForm.heckeDiagMatrix ℓ))
+        slash_action_eq' := fun γ hγ => (hT _ (gammaLift_apply_11 hℓ hℓM) f).1 γ hγ
+        holo' := (hT _ (gammaLift_apply_11 hℓ hℓM) f).2.1
+        zero_at_cusps' := fun hc => (hT _ (gammaLift_apply_11 hℓ hℓM) f).2.2 _ hc }
+    map_add' := fun f g => DFunLike.coe_injective <| by
+      show ModularForm.heckeU k ℓ ⇑(f + g) + (⇑(f + g)) ∣[k]
+          ((Matrix.SpecialLinearGroup.mapGL ℝ (gammaLift M (unitOfPrimeNotDvd hℓ hℓM) : SL(2, ℤ)) : GL (Fin 2) ℝ) *
+            ModularForm.heckeDiagMatrix ℓ) =
+        (ModularForm.heckeU k ℓ ⇑f + ⇑f ∣[k]
+          ((Matrix.SpecialLinearGroup.mapGL ℝ (gammaLift M (unitOfPrimeNotDvd hℓ hℓM) : SL(2, ℤ)) : GL (Fin 2) ℝ) *
+            ModularForm.heckeDiagMatrix ℓ)) +
+        (ModularForm.heckeU k ℓ ⇑g + ⇑g ∣[k]
+          ((Matrix.SpecialLinearGroup.mapGL ℝ (gammaLift M (unitOfPrimeNotDvd hℓ hℓM) : SL(2, ℤ)) : GL (Fin 2) ℝ) *
+            ModularForm.heckeDiagMatrix ℓ))
+      rw [FunLike.coe_add, ModularForm.heckeU_add, SlashAction.add_slash]
+      abel
+    map_smul' := fun c f => DFunLike.coe_injective <| by
+      show ModularForm.heckeU k ℓ ⇑(c • f) + (⇑(c • f)) ∣[k]
+          ((Matrix.SpecialLinearGroup.mapGL ℝ (gammaLift M (unitOfPrimeNotDvd hℓ hℓM) : SL(2, ℤ)) : GL (Fin 2) ℝ) *
+            ModularForm.heckeDiagMatrix ℓ) =
+        c • (ModularForm.heckeU k ℓ ⇑f + ⇑f ∣[k]
+          ((Matrix.SpecialLinearGroup.mapGL ℝ (gammaLift M (unitOfPrimeNotDvd hℓ hℓM) : SL(2, ℤ)) : GL (Fin 2) ℝ) *
+            ModularForm.heckeDiagMatrix ℓ))
+      rw [FunLike.coe_smul, ModularForm.heckeU_smul, SlashAction.slash_mul, SlashAction.slash_mul, smul_add]
+      congr 1
+      rw [show (c • ⇑f) ∣[k] ((Matrix.SpecialLinearGroup.mapGL ℝ
+          (gammaLift M (unitOfPrimeNotDvd hℓ hℓM) : SL(2, ℤ)) : GL (Fin 2) ℝ)) =
+        c • (⇑f ∣[k] ((Matrix.SpecialLinearGroup.mapGL ℝ
+          (gammaLift M (unitOfPrimeNotDvd hℓ hℓM) : SL(2, ℤ)) : GL (Fin 2) ℝ))) from
+        ModularForm.SL_smul_slash k _ ⇑f c]
+      simp only [ModularForm.smul_slash, ModularForm.σ_heckeDiagMatrix, ContinuousAlgEquiv.refl_apply] }
+
+open Classical in
+
+def heckeTLinH (k : ℤ) {ℓ : ℕ} (hℓ : ℓ.Prime) (hℓM : ¬ ℓ ∣ M) :
+    CuspForm (CohCarrier.GammaH M H) k →ₗ[ℂ] CuspForm (CohCarrier.GammaH M H) k :=
+  if hT : StableT M H k ℓ then heckeTLinHOf k hℓ hℓM hT else 0
+
+theorem heckeTLinH_eq (k : ℤ) {ℓ : ℕ} (hℓ : ℓ.Prime) (hℓM : ¬ ℓ ∣ M) (hT : StableT M H k ℓ) :
+    (heckeTLinH k hℓ hℓM : CuspForm (CohCarrier.GammaH M H) k →ₗ[ℂ] _) = heckeTLinHOf k hℓ hℓM hT := by
+  rw [heckeTLinH, dite_eq_left hT]
+
+theorem coe_heckeTLinH_apply (k : ℤ) {ℓ : ℕ} (hℓ : ℓ.Prime) (hℓM : ¬ ℓ ∣ M) (hT : StableT M H k ℓ)
+    (f : CuspForm (CohCarrier.GammaH M H) k) :
+    haveI : NeZero ℓ := ⟨hℓ.ne_zero⟩
+    ⇑(heckeTLinH k hℓ hℓM f) = ModularForm.heckeU k ℓ ⇑f +
+      (⇑f ∣[k] ((Matrix.SpecialLinearGroup.mapGL ℝ
+        (gammaLift M (unitOfPrimeNotDvd hℓ hℓM) : SL(2, ℤ)) : GL (Fin 2) ℝ) *
+          ModularForm.heckeDiagMatrix ℓ)) := by
+  rw [heckeTLinH_eq k hℓ hℓM hT]; rfl
+
+theorem coe_heckeTLinH_eq (k : ℤ) {ℓ : ℕ} (hℓ : ℓ.Prime) (hℓM : ¬ ℓ ∣ M) (hT : StableT M H k ℓ) (ρ : Gamma0 M)
+    (hρ : (((ρ : SL(2, ℤ)) 1 1 : ℤ) : ZMod M) = ℓ) (f : CuspForm (CohCarrier.GammaH M H) k) :
+    haveI : NeZero ℓ := ⟨hℓ.ne_zero⟩
+    ⇑(heckeTLinH k hℓ hℓM f) = ModularForm.heckeU k ℓ ⇑f +
+      (⇑f ∣[k] ((Matrix.SpecialLinearGroup.mapGL ℝ (ρ : SL(2, ℤ)) : GL (Fin 2) ℝ) *
+        ModularForm.heckeDiagMatrix ℓ)) := by
+  rw [coe_heckeTLinH_apply k hℓ hℓM hT]
+  congr 1
+  refine slash_mapGL_eq_of_gamma0Units_eq (H := H) k
+    (fun γ hγ => SlashInvariantFormClass.slash_action_eq f γ hγ) _ ρ ?_ _
+  ext
+  rw [CohCarrier.val_gamma0Units, CohCarrier.val_gamma0Units]
+  show ((((gammaLift M (unitOfPrimeNotDvd hℓ hℓM) : Gamma0 M) : SL(2, ℤ)) 1 1 : ℤ) : ZMod M) =
+    ((((ρ : SL(2, ℤ)) 1 1 : ℤ)) : ZMod M)
+  rw [gammaLift_apply_11, hρ]
+
+end HeckeOperators
 
 end CuspForm
 

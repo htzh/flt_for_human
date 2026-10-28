@@ -496,6 +496,41 @@ As in the recipe §6, per order:
 | 7. the withheld pair | **defer** to `abelJacobiCard_genus`'s programme (144 nodes / 66k) + the `TateModule` definition layer (69 decls); the T1/T2 plan of `TOPIC-padic-tate-module.md` | not a row of this shelf |
 | 8. the in-flight records | **close WORKORDER-JQ2/CL4's status lines** — their declarations are in the tree | bookkeeping only; no Lean |
 
+**The waves after MC-4, scoped at declaration level (2026-10-27).** MC-5 and MC-6 are opened as
+their turns come (one wave at a time); this is the scoping that fixes their rows, gates and homes
+now, so that the def wave's decisions are carried forward and no re-pricing is needed when the turn
+arrives. Every premise named below was checked by name on this tree; every definition they name is
+in the port (the def wave's D3/D5/D6/D7).
+
+| wave | rows | defs in place | premises (all ported) | homes | orders | net |
+|---|---|---|---:|---|---:|---:|
+| **MC-5** (M4) | 390, 224 | D6 `siegelFun` | `jacobiTheta_two_eq_tprod` (`JacobiThetaTripleProduct`) | **new** `ModularCurve/SiegelUnit/Basic.lean` — the two `siegelFun` rows plus the ≈143-line jtp engine (`jtp_term`, `theta_eq`), 0 in port | 1 | ≈634 (story, de-duplicated; per row 358 + 190) |
+| **MC-5** (M4) | 220 | — | `EisensteinSeries`' three (`EisensteinSeries`, `Eisenstein/ConstTermCubeIntegral`) | insert `EisensteinSeries`-adjacent home (`ModularForms/EisensteinSeries.lean` or a new `ModularCurve/SiegelUnit/Eisenstein.lean`) | 1 | 188 |
+| **MC-5** (M7) | 403 | D7 `IsResidualRealization`, `CyclotomicDeterminant` | `RepresentationTheory/SubfieldBasis`, `Burnside`, `GaloisRep/Deformation/FiniteDescent` | **new** `ModularCurve/ResidualRealization.lean` | 1 | 363 |
+| **MC-6** (M9) | 322 | D5 `frickeMat`…`frickeH1L` | `FrickeReciprocity`, `PowerSeries/GaloisDescent`, `WeightOne/Gamma0Integral` | **new** `XH/FrickeSlash.lean` (+ the pin `S_` file's `frickeGL`/`frickeForm`, 0 in port) | 1 | 261 |
+| **MC-6** (M9) | 384 | D3 `diamondHBar`/`genOpH`, D5 | `X1/AtkinLehnerExchange`, `XH/HeckeDegree` | **new** `XH/QExpandNorm.lean` | 1 | 216 (108 lines now read in port — D3/D5's gift) |
+
+Its row list is the four MC rows of the block (403, 390, 224, 220) — **not**
+`rep_tateModule_jOne_comm`, which entered the shelf with MC-4 and is a false ready (its statement
+names `TateModule`; see §7). So MC-5 is three orders (≈1,185 net with the jtp engine counted once) and MC-6 two (477), and
+neither has a manager lane left: no promotion, no migration (all four homes are new modules, and none
+is on `PORT_FILES`), and the definition gate is landed. The one thing MC-5 owns that the def wave
+did **not** land is the Jacobi-triple-product engine (`jtp_term`, `theta_eq`, the q-product
+convergence) — the shelf's §0.3 calls it the rows' shared prelude (143 lines, 0 in port); it is the
+first thing MC-5a writes, `private` to the new module. The deferred definitions come back with the
+**leaves** programme, not with these two waves: `PeriodOf`'s petersson block with the `L-other`
+period rows, `CohCarrier.HeckeData` with the leaves' `pair_*` rows, `ModularCurve_XH`'s torsion trio
+with the M9 successors.
+
+**Call 3 is discharged (2026-10-27)** — but not at this table's price, and the difference is
+recorded: the definition wave for MC-4/5/6 landed as **7 modules / 539 pin declaration lines (84 declarations) /
+121 checked declarations**, not the 774-line remainder of the 1,118 (MC-7's 338 landed first).
+The audit behind the change is declaration-level rather than module-level: see
+[WORKORDER-MCDEF-definition-wave.md](WORKORDER-MCDEF-definition-wave.md) §0.1, whose
+`spec/gate_scan.py` is the instrument. Two of the twelve modules in this table's §0.2 are not any
+ready row's (`PeriodOf`'s petersson block, `ModularCurve_XH`'s torsion/Tate block) and are
+deferred there with their reasons; three ready rows (`350`, `220`, `384`) never had a gate.
+
 ## 7. Reproduce, and the forecast
 
 ```bash
@@ -565,6 +600,41 @@ row leaves as a false ready, the 36 row enters); corrected (two markers: the 261
 **25 / 8,668** (unchanged), MC demand **185 / 81,780**, frontier **1,387 / 721,245**.  The
 corrected `needed` line quoted in the table above (1,020 / 404,926) does **not** reproduce from
 the documented command; SET MC-7 §0.1 and FR-0051 record the delta (the 261 node's own lines).
+
+**The definition wave landed (2026-10-27): the gates of MC-4, MC-5 and MC-6.** Seven modules —
+`ModularForms/Defs/GammaH.lean` (inserted: the three `Γ_H` operators), `ModularCurve/X1/HeckeModule.lean`
+(inserted: `HeckeAlgOne` and its module structure), `ModularCurve/XH/Operators.lean` (inserted:
+`diamondHBar`, `genOpH`; the legacy module migrated off `PORT_FILES`), and the four new
+`ModularForms/CohCarrier/{Inst,Fricke}.lean` and `ModularCurve/Defs/{SiegelFunction,ResidualRealization}.lean`
+— **84 declarations added, 121 `ok`, 0 mismatch, 0 missing, 0 own**, axioms clean, zero warnings, no option,
+`dedup.py` 0 clusters, and a six-zone `spec/ModularCurveDefWaveConsumer.lean` at 0 errors. The
+wave moves no shelf figure (a definition layer is not a premise; `needed` stays **1,004 / 398,972**,
+MC ready **15 / 4,163**, leaves 294 / 71,671, frontier 1,408 / 727,998 — the read in
+[WORKORDER-MCDEF-definition-wave.md](WORKORDER-MCDEF-definition-wave.md) §0). What it changes is
+statability: MC-4 (`464`, `350`, `272`, `265`, and the two 27-line commutations), MC-5 (`390`, `224`,
+`220`, `403`) and MC-6 (`322`, `384`) are writable, with 350/220/384 needing nothing new. Deferred
+with their absent premises named: the pin's `TateModule` sections of `X1HeckeModule`, `XHOperators`
+and `XH`; `CohCarrier_Inst`'s `hdata`/`MLAt` (and the unlisted `Def_CohCarrier_HeckeData`), and
+`PeriodOf`'s petersson block. Three checker gaps were met and recorded (FR-0056/0057/0058).
+
+**MC-4 landed (2026-10-27): M6 + M5, six rows.** Measured: `needed` **1,004 / 398,972 → 998 /
+397,567** (−6 / −1,405 = exactly the six rows' silo); ready 75 / 15,689 → **70 / 14,308**; MC ready
+15 / 4,163 → **10 / 2,782**; frontier 1,408 / 727,998 → **1,415 / 729,584**; leaves unchanged; the
+six modules edited (no new module) came out **84 checked declarations `ok` / 0 mismatch / 0 missing /
+1 pre-existing `own`**, axioms clean, zero warnings, no `set_option` added, 0 dedup clusters, and
+`spec/ModularCurveMC4Consumer.lean` at 0 errors. The set paid **two legacy migrations** in the same
+touch (`X1/DiamondLift.lean` and `XH/DiamondLift.lean`, which also corrected the brief's
+import-direction error, FR-0059) and needed no promotion. The record is
+[SET-MC4.md](SET-MC4.md); four of the five orders' briefs were corrected by worker findings
+(SET-MC4 §5.1).
+
+**One row became ready because of the set, and it is a false ready.**
+`ModularCurve.rep_tateModule_jOne_comm` (24) entered the shelf: its *premises* are ported (one of
+them MC-4c's) but its *statement* is `TateModule.rep …`, i.e. it names the absent
+`Def_EllipticCurve_TateModule` and D2's deferred `rationalHeckeRepOne`/`RationalTateModule`. It is
+the padic-Tate-module topic's row and the withheld pair's neighbourhood; **MC-5 must not cut it**.
+That is the def-wave audit's FR-0049 shape, met again — the readiness test cannot see it, the
+statement audit can.
 
 ## 8. What this programme does not do
 

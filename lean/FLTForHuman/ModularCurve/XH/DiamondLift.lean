@@ -9,8 +9,22 @@ for `Γ_H(M) ⊓ Γ₀(Mℓ)`, the `Genuine` block (`genH`/`witness`/`coeffEmb_i
 `tau0_incl_generator`/`tau0_qExpand_generator`) and `main` over the base change
 `ℚ̄`. Its sibling `X1/DiamondLift.lean` is the `Γ₁(M)` case.
 
+The module also hosts the MC-4d `X_H` row **`heckeOperatorHAlong_diamondHBar_comm`**:
+the `ℓ`-Hecke operator commutes with the diamond operator on `J_H(M) = Pic⁰`, proved
+from the lift `exists_algEquiv_intertwinesAlong_diamondAutHBar` above and
+`SemilinearAut.pic0_correspondence_smul`. It lives here rather than beside its
+`genOpH` sibling `galois_smul_genOpH_comm` in `XH/Operators.lean` because the lift is
+*above* `XH/Operators` (this module imports it), the exact position MC-4e's `Γ₁` twin
+`heckeOperatorOneBar_comm_diamondOneBar` occupies in `X1/DiamondLift.lean`.
+
 https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_exists_algEquiv_intertwinesAlong_diamondAutHBar.lean
 https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_exists_algEquiv_intertwinesAlong_diamondAutHBar.lean
+https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_heckeOperatorHAlong_diamondHBar_comm.lean
+
+spec-pin: Theorems/Thm_ModularCurve_exists_algEquiv_intertwinesAlong_diamondAutHBar.lean
+spec-pin: P2M/Sol/S_ModularCurve_exists_algEquiv_intertwinesAlong_diamondAutHBar.lean   -- comparable copy
+spec-pin: Theorems/Thm_ModularCurve_heckeOperatorHAlong_diamondHBar_comm.lean
+spec-pin: P2M/Sol/S_ModularCurve_heckeOperatorHAlong_diamondHBar_comm.lean   -- comparable copy
 -/
 import FLTForHuman.ModularCurve.XH.DiamondLiftPrelude
 import FLTForHuman.ModularCurve.XH.Operators
@@ -380,6 +394,28 @@ theorem exists_algEquiv_intertwinesAlong_diamondAutHBar (M : ℕ) [NeZero M]
           (SemilinearAut.ofAlgAut (diamondAutHBar M H d))
           (SemilinearAut.ofAlgAut τ) :=
   DiamondLift.XH.main M ℓ H d
+
+/-- **The `X_H(M)` Hecke operator commutes with the diamond operator**: at a prime `ℓ`, the
+`ℓ`-Hecke correspondence commutes with the diamond action on `J_H(M) = Pic⁰`, through the
+`Γ_H(M)`-level diamond lift `exists_algEquiv_intertwinesAlong_diamondAutHBar` and the `Pic⁰`
+correspondence law `pic0_correspondence_smul`. Statement verbatim from
+`Theorems/Thm_ModularCurve_heckeOperatorHAlong_diamondHBar_comm.lean`; proof after the pin's
+`S_` file. -/
+theorem heckeOperatorHAlong_diamondHBar_comm (M : ℕ) [NeZero M]
+    (H : Subgroup (ZMod M)ˣ) (ℓ : ℕ) [Fact ℓ.Prime] (d : (ZMod M)ˣ) (P : ModularCurve.JH M H) :
+    ModularCurve.heckeOperatorHAlong (AlgebraicClosure ℚ) M H ℓ (ModularCurve.diamondHBar M H d P) =
+      ModularCurve.diamondHBar M H d
+        (ModularCurve.heckeOperatorHAlong (AlgebraicClosure ℚ) M H ℓ P) := by
+  haveI : NeZero ℓ := ⟨(Fact.out : ℓ.Prime).ne_zero⟩
+  rw [diamondHBar_apply, diamondHBar_apply]
+  by_cases h : HeckeInputsHAlong (AlgebraicClosure ℚ) M H ℓ
+  · obtain ⟨h0, hα, hβ, hP, hfin, hFI, hN⟩ := h
+    rw [heckeOperatorHAlong_eq h0 hα hβ hFI hfin hN]
+    obtain ⟨τ, hτα, hτβ⟩ := exists_algEquiv_intertwinesAlong_diamondAutHBar M H ℓ d
+    exact SemilinearAut.pic0_correspondence_smul (heckeBetaHBar (AlgebraicClosure ℚ) M H ℓ)
+      (heckeAlphaHBar (AlgebraicClosure ℚ) M H ℓ) hβ hα hFI hfin hN hτβ hτα P
+  · rw [heckeOperatorHAlong_of_not h]
+    simp
 
 end ModularCurve
 
