@@ -44,6 +44,8 @@ the closure of a set, not for a range.
 
 spec-pin: Theorems/Thm_AlgebraicCurve_mem_span_range_algebraMap_of_constantFieldExtension.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_mem_span_range_algebraMap_of_constantFieldExtension.lean   -- comparable copy
+spec-pin: Theorems/Thm_AlgebraicCurve_mem_span_range_algebraMap_of_constantFieldExtension_of_isAlgClosed.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_mem_span_range_algebraMap_of_constantFieldExtension_of_isAlgClosed.lean   -- comparable copy
 # `degree_eq_sum` (public here for P5, which needs it in its own descent proof) is also declared in
 # the pin's P5 `isPrincipal` file; that is its second pin source.
 spec-pin: P2M/Sol/S_AlgebraicCurve_Divisor_isPrincipal_of_constantFieldExtension.lean   -- comparable copy
@@ -89,36 +91,36 @@ section Basic
 
 variable {k L : Type*} [Field k] [Field L] [Algebra k L] (w : Place k L)
 
-private theorem ord_nonneg_of_mem {f : L} (hf : f ∈ w.toValuationSubring) : 0 ≤ w.ord f :=
+theorem ord_nonneg_of_mem {f : L} (hf : f ∈ w.toValuationSubring) : 0 ≤ w.ord f :=
   w.ord_nonneg_of_mem_vs hf
 
-private theorem mem_of_ord_nonneg {f : L} (hf : 0 ≤ w.ord f) : f ∈ w.toValuationSubring :=
+theorem mem_of_ord_nonneg {f : L} (hf : 0 ≤ w.ord f) : f ∈ w.toValuationSubring :=
   w.mem_vs_of_ord_nonneg hf
 
-private theorem not_mem_of_ord_neg {f : L} (hf : w.ord f < 0) : f ∉ w.toValuationSubring := fun h => by
+theorem not_mem_of_ord_neg {f : L} (hf : w.ord f < 0) : f ∉ w.toValuationSubring := fun h => by
   have := ord_nonneg_of_mem w h
   omega
 
-private theorem ord_eq_zero_of_mem_of_inv_mem {f : L} (hf : f ∈ w.toValuationSubring)
+theorem ord_eq_zero_of_mem_of_inv_mem {f : L} (hf : f ∈ w.toValuationSubring)
     (hfi : f⁻¹ ∈ w.toValuationSubring) : w.ord f = 0 :=
   ConstantFieldPlaceLift.ord_eq_zero_of_mem_of_inv_mem w hf hfi
 
-private theorem ord_algebraMap (a : k) : w.ord (algebraMap k L a) = 0 :=
+theorem ord_algebraMap (a : k) : w.ord (algebraMap k L a) = 0 :=
   Place.ord_algebraMap_base (v := w) a
 
-private theorem irreducible_coe_ne_zero {π : w.toValuationSubring} (hπ : Irreducible π) : (π : L) ≠ 0 := by
+theorem irreducible_coe_ne_zero {π : w.toValuationSubring} (hπ : Irreducible π) : (π : L) ≠ 0 := by
   intro h
   exact hπ.ne_zero (by exact_mod_cast h)
 
-private theorem ord_coe_isUnit {X : w.toValuationSubring} (h : IsUnit X) : w.ord (X : L) = 0 := by
+theorem ord_coe_isUnit {X : w.toValuationSubring} (h : IsUnit X) : w.ord (X : L) = 0 := by
   obtain ⟨u, rfl⟩ := h
   exact w.ord_coe_unit u
 
-private theorem isUnit_add_of_mem_maximalIdeal {X Y : w.toValuationSubring} (hX : IsUnit X)
+theorem isUnit_add_of_mem_maximalIdeal {X Y : w.toValuationSubring} (hX : IsUnit X)
     (hY : Y ∈ IsLocalRing.maximalIdeal w.toValuationSubring) : IsUnit (X + Y) :=
   Place.LocalDerivation.isUnit_add_of_mem_maximalIdeal hX hY
 
-private theorem ord_algebraMap_add_eq_zero {a : k} (ha : a ≠ 0) {f : L} (hf : 0 < w.ord f) :
+theorem ord_algebraMap_add_eq_zero {a : k} (ha : a ≠ 0) {f : L} (hf : 0 < w.ord f) :
     w.ord (algebraMap k L a + f) = 0 := by
   have hfmem : f ∈ w.toValuationSubring := mem_of_ord_nonneg w hf.le
   have hX : IsUnit (algebraMap k w.toValuationSubring a) := (IsUnit.mk0 a ha).map _
@@ -127,13 +129,13 @@ private theorem ord_algebraMap_add_eq_zero {a : k} (ha : a ≠ 0) {f : L} (hf : 
   have h := ord_coe_isUnit w (isUnit_add_of_mem_maximalIdeal w hX hY)
   simpa using h
 
-private theorem ord_mul_of_ord_eq_zero {f g : L} (hf : w.ord f = 0) (hf0 : f ≠ 0) :
+theorem ord_mul_of_ord_eq_zero {f g : L} (hf : w.ord f = 0) (hf0 : f ≠ 0) :
     w.ord (f * g) = w.ord g := by
   rcases eq_or_ne g 0 with rfl | hg
   · simp
   rw [w.ord_mul hf0 hg, hf, zero_add]
 
-private theorem exists_ord_sub_algebraMap_pos [IsAlgClosed k] [IsCurveOver k L] {f : L}
+theorem exists_ord_sub_algebraMap_pos [IsAlgClosed k] [IsCurveOver k L] {f : L}
     (hf : f ∈ w.toValuationSubring) :
     ∃ a : k, f = algebraMap k L a ∨ 0 < w.ord (f - algebraMap k L a) := by
   obtain ⟨a, ha⟩ := Place.exists_sub_algebraMap_mem_maximalIdeal (w := w) ⟨f, hf⟩
@@ -191,7 +193,7 @@ theorem linearIndependent_pow_of_transcendental {R A : Type*} [CommRing R] [Ring
   have h1 : (Polynomial.ofFinsupp (.ofCoeff l) : R[X]) = 0 := hinj (by rw [h0, map_zero])
   exact AddMonoidAlgebra.ofCoeff_eq_zero.mp (Polynomial.ofFinsupp_eq_zero.mp h1)
 
-private theorem isIntegral_of_forall_mem_valuationSubring {R L : Type*} [CommRing R] [Field L]
+theorem isIntegral_of_forall_mem_valuationSubring {R L : Type*} [CommRing R] [Field L]
     [Algebra R L] (w : L)
     (h : ∀ B : ValuationSubring L, (∀ r : R, algebraMap R L r ∈ B) → w ∈ B) :
     IsIntegral R w := by
@@ -280,7 +282,7 @@ theorem degree_eq_sum [IsAlgClosed K] [IsCurveOver K F] (E : Divisor K F) :
     E.degree = E.sum fun _ n => n := by
   simp [Divisor.degree, Finsupp.liftAddHom_apply, IsCurveOver.deg_eq_one_of_isAlgClosed]
 
-private theorem algebraMap_mem_adjoin_simple {x a : F}
+theorem algebraMap_mem_adjoin_simple {x a : F}
     (ha : a ∈ IntermediateField.adjoin K ({x} : Set F)) :
     algebraMap F F' a ∈ IntermediateField.adjoin K' ({algebraMap F F' x} : Set F') := by
   rw [IntermediateField.mem_adjoin_simple_iff] at ha ⊢
@@ -289,28 +291,44 @@ private theorem algebraMap_mem_adjoin_simple {x a : F}
   rw [aeval_map_algebraMap, aeval_map_algebraMap, map_div₀, aeval_algebraMap_apply,
     aeval_algebraMap_apply]
 
-private theorem mem_range_of_isAlgebraic [IsAlgClosed K'] {t : F'} (ht : IsAlgebraic K' t) :
+theorem mem_range_of_isAlgebraic [IsAlgClosed K'] {t : F'} (ht : IsAlgebraic K' t) :
     t ∈ (algebraMap K' F').range := by
   have hint : IsIntegral K' t := ht.isIntegral
   exact minpoly.mem_range_of_degree_eq_one K' _
     (IsAlgClosed.degree_eq_one_of_irreducible K' (minpoly.irreducible hint))
 
-/-- The pin's own `transcendental_algebraMap`, in the pin's binder shape, from the
-port's stronger `ConstantFieldExtension.transcendental_algebraMap`. -/
-private theorem transcendental_algebraMap [IsAlgClosed K] [CharZero K] [IsAlgClosed K']
-    (_hfg : ∃ x : F, Transcendental K x ∧
+set_option linter.style.haveILetI false in
+/-- The pin's `transcendental_algebraMap`: the image of a transcendental element stays
+transcendental under a constant-field extension.  The char-free form (the pin's 872-line
+`_of_isAlgClosed` file): the proof reads a place where `x` has nonzero order, lifts it by
+`exists_comap_algebraMap_eq_of_constantFieldExtension_of_isAlgClosed`, and evaluates. -/
+theorem transcendental_algebraMap [IsAlgClosed K] [IsAlgClosed K']
+    (hfg : ∃ x : F, Transcendental K x ∧
       FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F)
     (hfg' : ∃ x : F', Transcendental K' x ∧
       FiniteDimensional (IntermediateField.adjoin K' ({x} : Set F')) F')
     [IsCurveOver K F]
     (hgen : IntermediateField.adjoin K' (Set.range (algebraMap F F')) = ⊤)
-    {x : F} (_hx : Transcendental K x)
-    [FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F] :
-    Transcendental K' (algebraMap F F' x) :=
-  ConstantFieldExtension.transcendental_algebraMap (K := K) (x := x) hfg' hgen
+    {x : F} (hx : Transcendental K x) :
+    Transcendental K' (algebraMap F F' x) := by
+  obtain ⟨j, hj, hfin⟩ := id hfg
+  haveI := hfin
+  obtain ⟨v, hv⟩ : ∃ v : Place K F, v.ord x ≠ 0 := by
+    by_contra h
+    push Not at h
+    obtain ⟨a, ha⟩ := Place.mem_range_algebraMap_of_forall_ord_eq_zero_of_isAlgClosed j hj h
+    exact hx (ha ▸ isAlgebraic_algebraMap a)
+  obtain ⟨P', -, hord, -⟩ :=
+    Place.exists_comap_algebraMap_eq_of_constantFieldExtension_of_isAlgClosed K F K' F' hfg hfg' hgen v
+  intro halg
+  obtain ⟨a, ha⟩ := mem_range_of_isAlgebraic halg
+  have h1 := hord x
+  rw [← ha, ord_algebraMap] at h1
+  exact hv h1.symm
 
-private theorem algebraMap_mem_of_new [CharZero K] (x : F)
+theorem algebraMap_mem_of_new (x : F)
     [FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F]
+    [Algebra.IsSeparable (IntermediateField.adjoin K ({x} : Set F)) F]
     (W : Place K' F')
     (hW : ∀ v : Place K F, W.toValuationSubring.comap (algebraMap F F') ≠ v.toValuationSubring)
     (f : F) : algebraMap F F' f ∈ W.toValuationSubring := by
@@ -325,11 +343,15 @@ private theorem algebraMap_mem_of_new [CharZero K] (x : F)
     apply hf
     have : f ∈ A := h ▸ Subring.mem_top f
     exact (ValuationSubring.mem_comap).1 this
-  obtain ⟨v, hv⟩ := Place.exists_of_valuationSubring (K := K) x A hAK hAtop
+  have hfA : f ∉ A := fun h => hf ((ValuationSubring.mem_comap).mp (hA ▸ h))
+  obtain ⟨v, hv₀⟩ := Place.exists_toValuationSubring_eq_comap_ringHom_of_isSeparable
+      (K := K) x (RingHom.id F) A hAK ⟨f, hfA⟩
+  have hv : v.toValuationSubring = A := by
+    rw [hv₀]; ext g; simp [ValuationSubring.mem_comap]
   exact hW v hv.symm
 
 set_option linter.style.haveILetI false in
-private theorem exists_ord_sub_pos [IsAlgClosed K'] [IsCurveOver K' F']
+theorem exists_ord_sub_pos [IsAlgClosed K'] [IsCurveOver K' F']
     (hfg' : ∃ x : F', Transcendental K' x ∧
       FiniteDimensional (IntermediateField.adjoin K' ({x} : Set F')) F')
     {x' : F'} (hx' : Transcendental K' x') (c : K') :
@@ -359,7 +381,7 @@ private theorem exists_ord_sub_pos [IsAlgClosed K'] [IsCurveOver K' F']
   exact hv₀ (by rw [← hD]; exact hall v₀ hv₀mem)
 
 set_option linter.style.haveILetI false in
-private theorem trace_mem [IsAlgClosed K] [CharZero K'] [IsCurveOver K F]
+theorem trace_mem [IsAlgClosed K] [IsAlgClosed K'] [IsCurveOver K F] [IsCurveOver K' F']
     {x : F} (hx : Transcendental K x)
     (hfg' : ∃ j : F', Transcendental K' j ∧
       FiniteDimensional (IntermediateField.adjoin K' ({j} : Set F')) F')
@@ -426,9 +448,15 @@ private theorem trace_mem [IsAlgClosed K] [CharZero K'] [IsCurveOver K F]
     have hBtop : B ≠ ⊤ := fun h => hwB (h ▸ Subring.mem_top w)
     have hBK : ∀ a : K', algebraMap K' F' a ∈ B := fun a =>
       hB' _ (kx'.algebraMap_mem a) (v'.algebraMap_mem' a)
-    obtain ⟨j, hj, hfin⟩ := id hfg'
-    haveI := hfin
-    obtain ⟨W, hW⟩ := Place.exists_of_valuationSubring (K := K') j B hBK hBtop
+    obtain ⟨j₀, hj₀, hfin₀⟩ := id hfg'
+    obtain ⟨j, _hj, hfin, hsep_j⟩ :=
+      AlgebraicCurve.exists_separating_transcendental_of_perfectField hj₀ hfin₀
+    haveI := hfin; haveI := hsep_j
+    obtain ⟨W, hW₀⟩ :=
+      Place.exists_toValuationSubring_eq_comap_ringHom_of_isSeparable
+        (K := K') j (RingHom.id F') B (by simpa using hBK) ⟨w, by simpa using hwB⟩
+    have hW : W.toValuationSubring = B := by
+      rw [hW₀]; ext g; simp [ValuationSubring.mem_comap]
     have hWnew := hnew W (fun g hg1 hg2 => by rw [hW]; exact hB' g hg1 hg2)
     exact hwB (hW ▸ hw W hWnew)
   have htr : IsIntegral R (Algebra.trace kx' F' w) := Algebra.isIntegral_trace hint
@@ -446,7 +474,7 @@ variable {K F K' F' : Type*} [Field K] [Field F] [Field K'] [Field F'] [Algebra 
 
 variable (F F') in
 
-private theorem span_range_eq_adjoin (R : Type*) [CommSemiring R] [Algebra R F'] :
+theorem span_range_eq_adjoin (R : Type*) [CommSemiring R] [Algebra R F'] :
     Subalgebra.toSubmodule (Algebra.adjoin R (Set.range (algebraMap F F'))) =
       Submodule.span R (Set.range (algebraMap F F')) := by
   rw [Algebra.adjoin_eq_span]
@@ -454,7 +482,7 @@ private theorem span_range_eq_adjoin (R : Type*) [CommSemiring R] [Algebra R F']
     ext y; simp
   rw [this, Submonoid.closure_eq]
 
-private theorem mem_span_of_regular [IsAlgClosed K'] [IsCurveOver K' F']
+theorem mem_span_of_regular [IsAlgClosed K'] [IsCurveOver K' F']
     (hfg' : ∃ j : F', Transcendental K' j ∧
       FiniteDimensional (IntermediateField.adjoin K' ({j} : Set F')) F')
     {x : F} (hx' : Transcendental K' (algebraMap F F' x))
@@ -595,7 +623,7 @@ variable {K F K' F' : Type*} [Field K] [Field F] [Field K'] [Field F'] [Algebra 
 
 variable (K K' F') in
 
-private def iota (x : F) :
+def iota (x : F) :
     IntermediateField.adjoin K ({x} : Set F) →+*
       IntermediateField.adjoin K' ({algebraMap F F' x} : Set F') where
   toFun a := ⟨algebraMap F F' a, algebraMap_mem_adjoin_simple a.2⟩
@@ -604,17 +632,17 @@ private def iota (x : F) :
   map_zero' := Subtype.ext (by simp)
   map_add' a b := Subtype.ext (by simp)
 
-private theorem coe_iota (x : F) (a : IntermediateField.adjoin K ({x} : Set F)) :
+theorem coe_iota (x : F) (a : IntermediateField.adjoin K ({x} : Set F)) :
     ((iota K K' F' x a : IntermediateField.adjoin K' ({algebraMap F F' x} : Set F')) : F') =
       algebraMap F F' a := rfl
 
-private theorem algebraMap_smul (x : F) (a : IntermediateField.adjoin K ({x} : Set F)) (f : F) :
+theorem algebraMap_smul (x : F) (a : IntermediateField.adjoin K ({x} : Set F)) (f : F) :
     algebraMap F F' (a • f) = iota K K' F' x a • algebraMap F F' f := by
   rw [Algebra.smul_def, Algebra.smul_def, map_mul]
   rfl
 
 set_option linter.style.haveILetI false in
-theorem exists_basis [IsAlgClosed K] [CharZero K] [IsAlgClosed K']
+theorem exists_basis [IsAlgClosed K] [IsAlgClosed K']
     (hfg : ∃ x : F, Transcendental K x ∧
       FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F)
     (hfg' : ∃ x : F', Transcendental K' x ∧
@@ -682,8 +710,8 @@ theorem exists_basis [IsAlgClosed K] [CharZero K] [IsAlgClosed K']
       have h1 := linearIndependent_pow_of_transcendental hxk
       have h2 := linearIndependent_smul h1 y.linearIndependent
       convert h2 using 1
-    have hK'ind := AlgebraicCurve.linearIndependent_of_constantFieldExtension K F K' F'
-      hfg hfg' hgen hKind
+    have hK'ind := AlgebraicCurve.linearIndependent_of_constantFieldExtension_of_isAlgClosed
+      K F K' F' hfg hfg' hgen hKind
     have hrel' : ∑ p ∈ Finset.range N ×ˢ s,
         (Q p.2).coeff p.1 • algebraMap F F' (x ^ p.1 * y p.2) = 0 := by
       simpa only [Algebra.smul_def] using hrel
@@ -741,7 +769,7 @@ theorem exists_basis [IsAlgClosed K] [CharZero K] [IsAlgClosed K']
     exact hφ f
   exact ⟨Module.Basis.mk hli hsp, fun i => by rw [Module.Basis.mk_apply]⟩
 
-private theorem trace_algebraMap {x : F} {n : ℕ}
+theorem trace_algebraMap {x : F} {n : ℕ}
     (y : Module.Basis (Fin n) (IntermediateField.adjoin K ({x} : Set F)) F)
     (y' : Module.Basis (Fin n) (IntermediateField.adjoin K' ({algebraMap F F' x} : Set F')) F')
     (hy : ∀ i, y' i = algebraMap F F' (y i)) (f : F) :
@@ -762,7 +790,7 @@ private theorem trace_algebraMap {x : F} {n : ℕ}
   rw [Algebra.leftMulMatrix_eq_repr_mul, Algebra.leftMulMatrix_eq_repr_mul, hy, ← map_mul,
     hrepr]
 
-private theorem eq_sum_trace_mul {x : F} {n : ℕ}
+theorem eq_sum_trace_mul {x : F} {n : ℕ}
     [FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F]
     [Algebra.IsSeparable (IntermediateField.adjoin K ({x} : Set F)) F]
     (y : Module.Basis (Fin n) (IntermediateField.adjoin K ({x} : Set F)) F)
@@ -802,11 +830,11 @@ end BaseChange
 section Main
 
 set_option linter.style.haveILetI false in
-private theorem mem_span_range_algebraMap_of_constantFieldExtension
+theorem mem_span_range_algebraMap_of_constantFieldExtension
     (K F K' F' : Type*)
     [Field K] [Field F] [Field K'] [Field F'] [Algebra K F] [Algebra K' F']
     [Algebra K K'] [Algebra F F'] [Algebra K F'] [IsScalarTower K K' F'] [IsScalarTower K F F']
-    [IsAlgClosed K] [CharZero K] [IsAlgClosed K']
+    [IsAlgClosed K] [IsAlgClosed K']
     (hfg : ∃ x : F, Transcendental K x ∧ FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F)
     (hfg' : ∃ x : F', Transcendental K' x ∧
       FiniteDimensional (IntermediateField.adjoin K' ({x} : Set F')) F')
@@ -818,14 +846,15 @@ private theorem mem_span_range_algebraMap_of_constantFieldExtension
         z ∈ v'.toValuationSubring) :
     z ∈ Submodule.span K' (Set.range (algebraMap F F')) := by
   classical
-  obtain ⟨x, hx, hfin⟩ := id hfg
+
+  obtain ⟨x₀, hx₀, hfin₀⟩ := id hfg
+  obtain ⟨x, hx, hfin, hsep_kx⟩ :=
+    AlgebraicCurve.exists_separating_transcendental_of_perfectField hx₀ hfin₀
   haveI := hfin
   set kx : IntermediateField K F := IntermediateField.adjoin K ({x} : Set F) with hkx
   set x' := algebraMap F F' x with hx'def
   set kx' : IntermediateField K' F' := IntermediateField.adjoin K' ({x'} : Set F') with hkx'
-  haveI : CharZero K' := charZero_of_injective_algebraMap (algebraMap K K').injective
-  haveI : CharZero kx := charZero_of_injective_algebraMap (algebraMap K kx).injective
-  haveI : Algebra.IsSeparable kx F := Algebra.IsAlgebraic.isSeparable_of_perfectField
+  haveI : Algebra.IsSeparable kx F := hsep_kx
   have hx' : Transcendental K' x' := transcendental_algebraMap hfg hfg' hgen hx
   let y : Module.Basis (Fin (Module.finrank kx F)) kx F := Module.finBasis kx F
   obtain ⟨y', hy⟩ := exists_basis hfg hfg' hgen hx y
@@ -856,7 +885,27 @@ theorem mem_span_range_algebraMap_of_constantFieldExtension
     (K F K' F' : Type*)
     [Field K] [Field F] [Field K'] [Field F'] [Algebra K F] [Algebra K' F']
     [Algebra K K'] [Algebra F F'] [Algebra K F'] [IsScalarTower K K' F'] [IsScalarTower K F F']
-    [IsAlgClosed K] [CharZero K] [IsAlgClosed K']
+    [IsAlgClosed K] [IsAlgClosed K']
+    (hfg : ∃ x : F, Transcendental K x ∧ FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F)
+    (hfg' : ∃ x : F', Transcendental K' x ∧
+      FiniteDimensional (IntermediateField.adjoin K' ({x} : Set F')) F')
+    [IsCurveOver K F] [IsCurveOver K' F']
+    (hgen : IntermediateField.adjoin K' (Set.range (algebraMap F F')) = ⊤)
+    (z : F')
+    (hz : ∀ v' : Place K' F',
+      (∀ v : Place K F, v'.toValuationSubring.comap (algebraMap F F') ≠ v.toValuationSubring) →
+        z ∈ v'.toValuationSubring) :
+    z ∈ Submodule.span K' (Set.range (algebraMap F F')) :=
+  W7XH.mem_span_range_algebraMap_of_constantFieldExtension K F K' F' hfg hfg' hgen z hz
+
+/-- **The char-free spanning theorem.**  The pin's 872-line `_of_isAlgClosed` file: the same
+spanning statement as the char-0 theorem above, without `[CharZero K]`.  The general
+statement is proved once in `W7XH`; the char-0 theorem is the corollary. -/
+theorem mem_span_range_algebraMap_of_constantFieldExtension_of_isAlgClosed
+    (K F K' F' : Type*)
+    [Field K] [Field F] [Field K'] [Field F'] [Algebra K F] [Algebra K' F']
+    [Algebra K K'] [Algebra F F'] [Algebra K F'] [IsScalarTower K K' F'] [IsScalarTower K F F']
+    [IsAlgClosed K] [IsAlgClosed K']
     (hfg : ∃ x : F, Transcendental K x ∧ FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F)
     (hfg' : ∃ x : F', Transcendental K' x ∧
       FiniteDimensional (IntermediateField.adjoin K' ({x} : Set F')) F')
@@ -1301,7 +1350,7 @@ namespace ConstantFieldAdjoin
 
 section Main
 
-private theorem linearIndependent_pow_of_transcendental {k A : Type*} [Field k] [Ring A] [Algebra k A]
+theorem linearIndependent_pow_of_transcendental {k A : Type*} [Field k] [Ring A] [Algebra k A]
     {Y : A} (hY : Transcendental k Y) (N : ℕ) :
     LinearIndependent k (fun n : Fin N => Y ^ (n : ℕ)) := by
   classical

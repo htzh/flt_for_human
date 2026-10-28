@@ -50,6 +50,8 @@ spec-pin: Theorems/Thm_AlgebraicCurve_mem_riemannRochSpace_of_sum_basis_smul_alg
 spec-pin: P2M/Sol/S_AlgebraicCurve_mem_riemannRochSpace_of_sum_basis_smul_algebraMap_mem_mapDomain.lean   -- comparable copy
 spec-pin: Theorems/Thm_AlgebraicCurve_Divisor_evalFun_algebraMap_pushforward.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_Divisor_evalFun_algebraMap_pushforward.lean   -- comparable copy
+spec-pin: Theorems/Thm_AlgebraicCurve_Divisor_evalFun_pullback.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Divisor_evalFun_pullback.lean   -- comparable copy
 -/
 import FLTForHuman.AlgebraicCurve.Defs.PushPull
 import FLTForHuman.AlgebraicCurve.Place.ConstantFieldExtension
@@ -792,6 +794,40 @@ theorem evalFun_algebraMap_pushforward {K F F' : Type*} [Field K] [Field F] [Fie
   rw [hstep1, hstep2, Finset.prod_congr rfl hstep3]
   exact (Finsupp.prod_of_support_subset _ (support_pushforward_subset D)
     (fun v n => v.evalAt g ^ n) fun v _ => zpow_zero _).symm
+
+/-- **The `evalFun` of a pullback is the `evalFun` of the norm.**  Statement from
+`Theorems/Thm_AlgebraicCurve_Divisor_evalFun_pullback.lean`; proof after the pin's `S_`
+file: `evalFun` is a product over the support, `pullback` multiplies the exponent at
+each fibre place by its ramification index, and `Place.evalAt_norm_eq_prod_fiber`
+turns the fibre product of the values into the value of the norm. -/
+theorem evalFun_pullback {K F F' : Type*} [Field K] [Field F] [Field F']
+    [Algebra K F] [Algebra K F'] [Algebra F F'] [IsScalarTower K F F']
+    [FiniteDimensional F F'] [Algebra.IsSeparable F F'] [HasPrincipalDivisors K F']
+    {f : F'} (hf : f ≠ 0) (E : Divisor K F)
+    (hrat : ∀ v ∈ E.support, Place.IsRational v)
+    (hratw : ∀ v ∈ E.support, ∀ w ∈ v.fiber F', Place.IsRational w)
+    (hord : ∀ v ∈ E.support, ∀ w ∈ v.fiber F', w.ord f = 0) :
+    Divisor.evalFun f (Divisor.pullback F' E) = Divisor.evalFun (Algebra.norm F f) E := by
+  classical
+  rw [show evalFun f (pullback F' E)
+      = ∏ w ∈ E.support.biUnion (fun v => v.fiber F'), w.evalAt f ^ (pullback F' E) w from
+    Finsupp.prod_of_support_subset _ (support_pullback_subset E)
+      (fun w n => w.evalAt f ^ n) fun w _ => zpow_zero _,
+    Finset.prod_biUnion (Place.pairwiseDisjoint_fiber E.support), evalFun_def]
+  refine Finset.prod_congr rfl fun v hv => ?_
+  calc
+    ∏ w ∈ v.fiber F', w.evalAt f ^ (pullback F' E) w
+        = ∏ w ∈ v.fiber F', (w.evalAt f ^ (w.ramificationIndex F : ℤ)) ^ E v := by
+          refine Finset.prod_congr rfl fun w hw => ?_
+          rw [pullback_apply, Place.mem_fiber.mp hw, ← zpow_mul]
+    _ = (∏ w ∈ v.fiber F', w.evalAt f ^ (w.ramificationIndex F : ℤ)) ^ E v :=
+          Finset.prod_zpow (fun w => w.evalAt f ^ (w.ramificationIndex F : ℤ))
+            (v.fiber F') (E v)
+    _ = (∏ w ∈ v.fiber F', w.evalAt f ^ (w.ramificationIndex F)) ^ E v := by
+          refine congrArg (· ^ E v) (Finset.prod_congr rfl fun w _ => ?_)
+          rw [zpow_natCast]
+    _ = v.evalAt (Algebra.norm F f) ^ E v := by
+          rw [Place.evalAt_norm_eq_prod_fiber v f hf (hrat v hv) (hratw v hv) (hord v hv)]
 
 end Divisor
 

@@ -18,7 +18,7 @@ cd tools/deps
 python3 frontier.py --ds --ready --include-leaves --rank-by silo --top 0 --json > build/shelf.json
 ```
 
-Four things about this command, each learned the hard way.
+The things about this command, each learned the hard way.
 
 - **`--ds` is a subtraction, not a target.** It targets
   `DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen` and *avoids* the complex-analytic
@@ -37,17 +37,26 @@ Four things about this command, each learned the hard way.
   2,491 silo of leaf rows neither cut nor deferred. SET 5 then opened on 29 AC rows, 24 of which
   were that block. So a brief's shelf table quotes **both** block counts and their silo sums, and
   names or defers every row it does not cut (FR-0040).
-- **`--ready` is blind to a premise inside the pruned set.** The readiness test and
-  `premises_unported` are computed on the *non-avoided* demand (`frontier.py:842-845`: the masks
-  are keyed by `need`, which `--ds` has already stripped of R), so a row that cites an unported R
-  node is printed with `premises_unported = 0` and `needed = 1` and looks ready, while its own
-  proof has to traverse the pruned subject. SET 6's read had **four such rows out of 96, 831
-  silo** (two `AlgebraicCurve` rows — the `_complex` prescribed-divisor engine and the
-  `Pic0` torsion finiteness — and two `ModularCurve` Tate-module rows); the leaves block had
-  none. The audit is cheap and belongs to every scoping pass: take each row's pin `S_`
-  `import Theorems.Thm_*` lines and test each premise for frontier membership *and* for
-  `ds_prunable` membership, rather than trusting the report's zero. A row with such a premise is
-  the prunable subject's work, not this column's; name it and defer it (FR-0044).
+- **`--ready` used to be blind to a premise inside the pruned set; it now withholds such
+  rows.** The readiness test is computed on the *non-avoided* demand (the masks are keyed by
+  `need`, which `--ds` has already stripped of R), so before FR-0044's fix a row that cites an
+  unported R node was printed as `needed = 1` and looked ready, while its own proof had to
+  traverse the pruned subject. SET 6's read had **four such rows out of 96, 831 silo** (two
+  `AlgebraicCurve` rows — the `_complex` prescribed-divisor engine and the `Pic0` torsion
+  finiteness — and two `ModularCurve` Tate-module rows); the leaves block had none.
+  `frontier.py` now applies that audit itself: a candidate whose own proof directly cites an
+  unported R premise is withheld from `ready_rank` and printed in its `withheld` block with the
+  blocking premises (JSON `ready_rank.withheld`, per-row `premises_pruned`), so the shelf no
+  longer shows them and the count is the one to quote. A row with such a premise is the
+  prunable subject's work, not this column's; name it in the brief and defer it (FR-0044).
+  Quote the withheld block next to the shelf — those are rows the shelf would otherwise have
+  carried.
+- **Run `--selfcheck` with the read.** It prints the nodes a `Thm_` source claims and no
+  port declaration covers — **false ported markers**. They are not visible in `--ready`
+  (each one hides a row from the demand) and `check_port` does not flag them (it checks the
+  module's declarations against the wire, not the wire against the module). The live ones
+  are registered in [spec/METADATA-ISSUES.md](../../spec/METADATA-ISSUES.md); SET 7's read
+  had three, plus the `weilReciprocity` name shadow the check cannot see.
 - **Read the delta, not the absolute.** The port grows between two reads: after SET 3 landed,
   `needed [F terminal]` moved **1,103 nodes / 421,670 lines → 1,090 / 419,020**, and twelve rows
   left the ready list while five entered (see §7 on new arrivals). A shelf figure quoted in a
@@ -62,10 +71,11 @@ re-derive them per set, and do not silently port something from inside `R` becau
 ## 1. Reading the rows
 
 Each `ready_rank` row carries `silo_lines` (the pin's `S_` lines for the node's whole demand — the
-rank key), `premises` (pin citations; a proxy for glue risk), `premises_unported` (zero by
-definition in a ready set — which is why §0's audit, not this column, decides whether an avoided
-premise is really there), `leverage` / `leverage_project` (outbound demand inside the cone and
-across the project), and `leaf`.
+rank key), `premises` (pin citations; a proxy for glue risk), `premises_unported` (the direct
+premises not yet ported — zero on a plain ready row, since the readiness guard leaves none),
+`premises_pruned` (of those, how many lie in the pruned set R; a positive value keeps a candidate
+off the plain ready shelf, §0), `leverage` / `leverage_project` (outbound demand inside the cone
+and across the project), and `leaf`.
 
 - **Rank by silo, but never drop the leaves.** Demand is inverted relative to size on this shelf:
   a 60-line leaf carried 8 project consumers and a 26-line leaf 33, while 500-line nodes carried

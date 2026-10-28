@@ -17,7 +17,9 @@ is, so that pushing forward a transported divisor transports its pushforward.  T
 stated over the same tower as the ramification-index and inertia-degree laws, whose
 proof of `inertiaDeg_smul` they consume.  The last headline,
 `SemilinearAut.correspondence_smul`, combines the two along-laws: the correspondence
-`ψ_* φ^*` commutes with the semilinear action, at a single intertwined pair.
+`ψ_* φ^*` commutes with the semilinear action, at a single intertwined pair.  SET 7 adds
+the `Pic0`-level wrapper `SemilinearAut.pic0_correspondence_smul`, the class-level form of
+the same law.
 
 spec-pin: Theorems/Thm_AlgebraicCurve_Place_exists_algEquiv_smul_eq_of_restrict_eq.lean
 spec-pin: Theorems/Thm_AlgebraicCurve_Place_restrict_ofAlgAut_smul.lean
@@ -34,6 +36,8 @@ spec-pin: Theorems/Thm_AlgebraicCurve_SemilinearAut_pushforwardAlong_smul.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_SemilinearAut_pushforwardAlong_smul.lean
 spec-pin: Theorems/Thm_AlgebraicCurve_SemilinearAut_correspondence_smul.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_SemilinearAut_correspondence_smul.lean   -- comparable copy
+spec-pin: Theorems/Thm_AlgebraicCurve_SemilinearAut_pic0_correspondence_smul.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_SemilinearAut_pic0_correspondence_smul.lean   -- comparable copy
 -/
 import FLTForHuman.AlgebraicCurve.Defs.PlaceDictionary
 import FLTForHuman.AlgebraicCurve.Defs.Correspondence
@@ -256,6 +260,29 @@ theorem correspondence_smul {K F F' : Type*} [Field K] [Field F] [Field F']
     Divisor.correspondence φ ψ hφ hψ (g • D) = g • Divisor.correspondence φ ψ hφ hψ D := by
   rw [Divisor.correspondence_apply, Divisor.correspondence_apply,
     Divisor.pullbackAlong_smul hφ hφ hgφ, pushforwardAlong_smul ψ hψ hgψ]
+
+/-- **The `Pic0` correspondence commutes with the semilinear action.**  The `Pic0`-level
+wrapper of `correspondence_smul`: both sides are the class of the corresponding divisor,
+and the divisor statement is the previous theorem.  Statement from
+`Theorems/Thm_AlgebraicCurve_SemilinearAut_pic0_correspondence_smul.lean`; proof after the
+pin's `S_` file. -/
+theorem pic0_correspondence_smul {K F F' : Type*} [Field K] [Field F] [Field F']
+    [Algebra K F] [Algebra K F'] {g : SemilinearAut K F} {g' : SemilinearAut K F'}
+    [HasPrincipalDivisors K F'] (φ ψ : F →ₐ[K] F')
+    (hφ : φ.toRingHom.IsIntegral) (hψ : ψ.toRingHom.IsIntegral)
+    (hFI : FundamentalIdentityAlong K φ hφ) (hfin : FiniteAlong K ψ)
+    (hN : NormFormulaAlong K ψ hfin)
+    (hgφ : IntertwinesAlong φ.toRingHom g g') (hgψ : IntertwinesAlong ψ.toRingHom g g')
+    (c : Pic0 K F) :
+    Pic0.correspondence φ ψ hφ hψ hFI hfin hN (g • c)
+      = g • Pic0.correspondence φ ψ hφ hψ hFI hfin hN c := by
+  obtain ⟨D, rfl⟩ := Pic0.mk_surjective c
+  rw [pic0_smul_mk, Pic0.correspondence_mk, Pic0.correspondence_mk, pic0_smul_mk]
+  congr 1
+  apply Subtype.ext
+  rw [Pic0.coe_degZeroCorrespondence, coe_degZeroSMulHom, coe_degZeroSMulHom,
+    Pic0.coe_degZeroCorrespondence]
+  exact correspondence_smul φ ψ hφ hψ hgφ hgψ (D : Divisor K F)
 
 end SemilinearAut
 

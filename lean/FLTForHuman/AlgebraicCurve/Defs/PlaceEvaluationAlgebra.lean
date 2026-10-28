@@ -10,7 +10,10 @@ the `Definitions/` file itself, while the six `Divisor.evalFun_*` statements the
 `Theorems/Thm_AlgebraicCurve_Divisor_evalFun_*` wrappers. This module carries the
 `Definitions/` layer verbatim at its pin names (minus the `deg_eq_one_of_isRational`
 copy, already landed in `P1Dictionary.lean` from the ℙ¹ `S_` file), plus
-`evalFun_single_sub_single`, whose statement is the wrapper's.
+`evalFun_single_sub_single`, whose statement is the wrapper's.  The
+`evalFun_pullback` wrapper is **not** carried here: its proof needs
+`Place.evalAt_norm_eq_prod_fiber` from `Place/EvalAtNorm.lean`, which a `Defs/` module
+must not import, so the statement lives there (SET 7).
 
 The pin's proofs are transcribed; the only adaptations are the v4.34.0 prod-lemma
 spellings (`Finset.prod_zpow` takes explicit arguments).
@@ -22,7 +25,6 @@ spec-pin: P2M/Sol/S_AlgebraicCurve_Divisor_evalFun_add.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_Divisor_evalFun_zsmul.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_Divisor_evalFun_ne_zero.lean
 spec-pin: Theorems/Thm_AlgebraicCurve_Divisor_evalFun_mul.lean
-spec-pin: Theorems/Thm_AlgebraicCurve_Divisor_evalFun_pullback.lean
 spec-pin: Theorems/Thm_AlgebraicCurve_Divisor_evalFun_single_sub_single.lean
 -/
 import FLTForHuman.AlgebraicCurve.Defs.PlaceEvaluation

@@ -101,6 +101,18 @@ set is cut on 12 rows / 3,779 silo.
 This is FR-0044. The other 12 rows pass the audit with no unported premise at all, avoided or
 not, and no premise held only `private` in the port.
 
+**The audit is now in the tool (2026-10-27).** `frontier.py --ready` applies it: a candidate
+whose own proof directly cites an unported premise in the avoided set is withheld from the
+shelf, reported in the ready block's `withheld` list with the premises that block it (JSON
+`ready_rank.withheld`, per-row `premises_pruned`). On the tree as it stands the same read is
+**86 rows**, with the four above (831 silo) in `withheld` under exactly the premises tabled
+here; the 96-row figures in this section are the read as it stood when the set was cut, when
+the audit was manual. One correction to the record: `premises_unported` was never zero for these four
+(the read shows 2 / 1 / 1 / 1) — the field already counted an avoided direct premise, but the
+readiness test ignored it and the text shelf does not print it. The fix is the guard, not a
+count. [../deligneSerre/TOPIC-scoping-a-ds-set.md](../deligneSerre/TOPIC-scoping-a-ds-set.md)
+now tells the next pass to quote the withheld block next to the shelf.
+
 ### 0.2 The definition layer — no gate this time
 
 `port_advise --with-defs` puts 13 pin `Definitions/Def_*.lean` modules in the closure of the 14
@@ -257,8 +269,9 @@ insertions, `Defs/WeilDatum.lean`'s block is public by the pin's own `Def_` file
 ## 2. The rows
 
 `silo` is the pin `S_` file's line count (the rank key); `prem` the pin's `import Theorems.Thm_*`
-premise count; `lev` cone / project consumers. All 14 carry `premises_unported = 0` — §0.1 is why
-two of them are nevertheless deferred.
+premise count; `lev` cone / project consumers. All 14 were priced with `needed = 1`; the two
+deferred rows are the ones whose `premises_unported` is not zero (2 and 1 — §0.1, and the fix
+recorded there).
 
 | lane | node (`AlgebraicCurve.` dropped) | silo | prem | lev | note |
 |---|---|---:|---:|---:|---|

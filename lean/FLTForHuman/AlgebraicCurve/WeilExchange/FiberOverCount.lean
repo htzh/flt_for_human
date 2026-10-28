@@ -21,6 +21,8 @@ against the new `Ideal.sum_ramification_inertia_eq_finrank` are
   spec-pin: P2M/Sol/S_AlgebraicCurve_Place_sum_ramificationIndex_mul_inertiaDeg_le_finrank.lean   -- comparable copy
   spec-pin: Theorems/Thm_AlgebraicCurve_Place_inertiaDeg_pos_of_finiteDimensional.lean
   spec-pin: P2M/Sol/S_AlgebraicCurve_Place_inertiaDeg_pos_of_finiteDimensional.lean   -- comparable copy
+  spec-pin: Theorems/Thm_AlgebraicCurve_Place_inertiaDeg_pos.lean
+  spec-pin: P2M/Sol/S_AlgebraicCurve_Place_inertiaDeg_pos.lean   -- comparable copy
 -/
 import FLTForHuman.AlgebraicCurve.Defs.PlaceDictionary
 import FLTForHuman.AlgebraicCurve.Place.FiniteResidue
@@ -132,6 +134,15 @@ theorem inertiaDeg_pos_of_finiteDimensional {K F F' : Type*} [Field K] [Field F]
     (w : Place K F') : 0 < w.inertiaDeg F := by
   haveI := finite_residueField_of_finiteDimensional (F := F) w
   exact Module.finrank_pos
+
+/-- The pin's weaker `Place.inertiaDeg_pos` node: a one-line consequence of the strong
+form above, with the pin's `[Algebra.IsSeparable F F']` binder kept (it is unused).  SET 7
+states it so the pin node is ported and the `SOURCES` claim true (MD-003). -/
+theorem inertiaDeg_pos {K F F' : Type*} [Field K] [Field F] [Field F']
+    [Algebra K F] [Algebra K F'] [Algebra F F'] [IsScalarTower K F F']
+    [FiniteDimensional F F'] [Algebra.IsSeparable F F'] (w : Place K F') :
+    0 < w.inertiaDeg F :=
+  inertiaDeg_pos_of_finiteDimensional w
 
 end Place
 

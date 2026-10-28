@@ -780,6 +780,21 @@ round promotes what generalizes.
   subject's work (the RR column's phase 3), not D–S work, however ready it looks; defer it and
   say so in the brief (recipe §0's rule for naming every row a set does not cut).
 - **seen**: 2026-10-27; found on the SET 6 read, on the four rows above.
+- **fixed (2026-10-27)**: `frontier.py --ready` now guards on a new
+  `pruned_premise_counts` (`premises_pruned` per JSON row): a candidate whose own proof
+  directly cites an unported premise in `R` is withheld from `ready_rank`, and the ready
+  block carries a `withheld` list naming each row and the blocking premises; the text report
+  prints them under the shelf. `--selftest` gained the synthetic case (3 avoided, `needed`
+  cuts `1 -> 3`, both consumers read `needed == 1`; the guard empties the shelf). Re-read of
+  the SET 6 tree: **90 -> 86 ready**, the four rows above now in `withheld` with exactly
+  their recorded premises (`abelJacobiCard_genus` ×2, the two `abelJacobiDiv` engines,
+  `natCard_torsion_prime_eq_pow_genus_complex`). The recipe and the tool README record the
+  new reading. **Correction to this entry's symptom/cause**: `premises_unported` was *not*
+  zero for those rows — the field counted the avoided direct premise (2 / 1 / 1 / 1 on the
+  four), because `premise_counts`'s `universe` only selects the output keys and its
+  `exclude` is the frontier, not `R`. The failure was that nothing used the column: the
+  readiness test alone decided the shelf, and the text report does not print it. The fix
+  therefore had to add the R-aware count rather than repair an existing one.
 
 ## FR-0045 [lean] [mathlib] — `Algebra K (HahnSeries Γ K)` has two instances, and which one an `F →ₐ[K] LaurentSeries K` elaborates with depends on the import order
 
@@ -858,3 +873,27 @@ round promotes what generalizes.
   fix it at the source, but it changes readiness everywhere and needs its own validation pass;
   until then, the correction is a scoping-time audit, not a tool change to be smuggled in.
 - **seen**: 2026-10-27, SET 6's landing.
+
+## FR-0048 [build] [method] — a pre-existing declaration in an edited module times out at the 200k edit-loop cap, so the cap cannot gate that module
+
+- **where**: SET 7's manager lane, `AlgebraicCurve/IsCurveOver/ConstantFieldExtensionSpan.lean`.
+  The edit loop `timeout 120 lake env lean -DautoImplicit=false -DmaxHeartbeats=200000` aborts
+  at `private theorem finrank_le_finrank` (the `ConstantFieldAdjoin` block, unchanged by the
+  set) with `(deterministic) timeout at whnf, maximum number of heartbeats (200000) has been
+  reached`; a later `#print` in the same file then reports a kernel `unknown constant` for the
+  aborted declaration.  The module builds at the project's lakefile cap (`maxHeartbeats`
+  4,000,000) in ~21 s.
+- **not a regression**: the same abort reproduces on the file as it stands at `HEAD` (checked
+  by typechecking `git show HEAD:…` from a `tmp/` copy): the declaration was already over 200k
+  before SET 7, and the set's edits are all earlier in the file.
+- **cause**: not diagnosed.  The declaration is the instance-heavy `finrank_le_finrank` of the
+  `ConstantFieldAdjoin` engine, which the port's later `finrankAlong` rows use; it is not one
+  of SET 7's rows.  The low cap is the instance-inference detector, and here it has found a
+  pre-existing instance cost that the project cap has been hiding.
+- **fix (for the set)**: use the module build at the lakefile cap as the gate for this module,
+  and record that its 200k silence is not a claim the set can make; the edit loop still gates
+  every declaration *before* the offender (SET 7's additions are all before it and pass).  The
+  real fix is the §3.5 probe ladder on `finrank_le_finrank` (statement/proof stub, then
+  `trace.Meta.synthInstance` at a tiny cap); do not raise the cap and do not attribute the cost
+  to the set's edits.
+- **seen**: 2026-10-27, SET 7's landing gate.

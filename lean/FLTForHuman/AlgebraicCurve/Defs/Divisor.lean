@@ -17,6 +17,7 @@ spec-pin: Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_Divisor_degree_eq_sum.lean
 -/
 import FLTForHuman.AlgebraicCurve.Defs.Place
+import Mathlib.Algebra.Group.AddChar
 
 set_option autoImplicit false
 
@@ -110,5 +111,10 @@ theorem mem_torsion {n : ℕ} {x : Pic0 K F} : x ∈ torsion K F n ↔ (n : ℤ)
 end Pic0
 
 abbrev Pic : Type _ := Divisor K F ⧸ Divisor.principal (K := K) (F := F)
+
+/-- Pin `HomPic0Gm` (`Definitions/Def_AlgebraicCurve_JacobianH1Autoduality.lean:119`):
+the `K`-valued additive characters of the `n`-torsion of `Pic0` — the target of the
+Weil pairing's hom. -/
+abbrev HomPic0Gm (n : ℕ) : Type _ := AddChar (Pic0.torsion K F n) K
 
 end AlgebraicCurve
