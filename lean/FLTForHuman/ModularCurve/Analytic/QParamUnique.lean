@@ -10,7 +10,13 @@
   FLT provenance, pinned `aa2d8b3`:
   * `P2M/Sol/S_ModularCurve_qParam_coeff_unique.lean` (158 lines)
   * `P2M/Sol/S_ModularCurve_laurent_qParam_coeff_unique.lean` (71 lines)
+  * `Theorems/Thm_ModularCurve_tendsto_atImInfty_of_hasSum_qParam.lean` and its
+    `S_` copy (LV-6)
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_qParam_coeff_unique.lean
+spec-pin: P2M/Sol/S_ModularCurve_qParam_coeff_unique.lean
+spec-pin: P2M/Sol/S_ModularCurve_laurent_qParam_coeff_unique.lean
+spec-pin: Theorems/Thm_ModularCurve_tendsto_atImInfty_of_hasSum_qParam.lean
+spec-pin: P2M/Sol/S_ModularCurve_tendsto_atImInfty_of_hasSum_qParam.lean   -- comparable copy
 -/
 import Mathlib.NumberTheory.ModularForms.QExpansion
 import Mathlib.Analysis.Complex.UpperHalfPlane.Exp
@@ -163,6 +169,16 @@ private theorem coeff_unique {d : ℕ → ℂ} (hh : 0 < h)
   simpa using congr_arg (FormalMultilinearSeries.coeff · m) heq
 
 end Realized
+
+/-- **The `atImInfty` limit of a `qParam` expansion.** If `F` has a `HasSum`
+expansion in the parameter `qParam h` (`0 < h`) with coefficients `c`, then
+`F τ → c 0` as `τ` tends to the cusp: the public headline over this module's
+`Realized.tendsto_atImInfty` engine, which stays `private`. -/
+theorem tendsto_atImInfty_of_hasSum_qParam (h : ℝ) (hh : 0 < h) (F : UpperHalfPlane → ℂ)
+    (c : ℕ → ℂ)
+    (hc : ∀ τ : UpperHalfPlane, HasSum (fun m : ℕ => c m * Function.Periodic.qParam h (τ : ℂ) ^ m) (F τ)) :
+    Filter.Tendsto F UpperHalfPlane.atImInfty (nhds (c 0)) :=
+  Realized.tendsto_atImInfty hh hc
 
 theorem qParam_coeff_unique (h : ℝ) (hh : 0 < h) (F : UpperHalfPlane → ℂ) (c d : ℕ → ℂ)
     (hc : ∀ τ : UpperHalfPlane, HasSum (fun m : ℕ => c m * Function.Periodic.qParam h (τ : ℂ) ^ m) (F τ))

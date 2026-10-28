@@ -1200,3 +1200,123 @@ round promotes what generalizes.
   modules, one level down.
 - **seen**: 2026-10-27, SET MC-5c; the same "partially built mathlib" cost MC-6a two dependency
   rebuilds (`HeckeFrickeTrace`, `QExpansionCoeff`).
+
+## FR-0063 [lean] [definitions] — projecting `opAlgHom`/`toMLₒ` off a `hdata`-built `HeckeData` exceeds 200k heartbeats, while the construction is cheap
+
+- **where**: `spec/ModularCurveLeavesDefConsumer.lean`'s first draft (the leaves' definition wave,
+  SET-LEAVESDEF), on `CohCarrier.HeckeData` (`ModularForms/CohCarrier/HeckeData.lean`, the pin's
+  `Def_CohCarrier_HeckeData.lean`) applied to `V = CohCarrier.H1 M H 𝒪`.
+- **symptom**: `example (θbar) : CohCarrier.HeckeData 𝒪 (CohCarrier.H1 M H 𝒪) k :=
+  CohCarrier.hdata M H S 𝒪 k hcomm θbar` elaborates in a few seconds, but the moment a statement
+  *projects* a field off a `hdata`-defined datum —
+  `(D hcomm θbar).opAlgHom (MvPolynomial.X g) = (D hcomm θbar).op g`, even with `D` a `noncomputable
+  def` rather than an inline literal — elaboration spins in `whnf`/`isDefEq` past 200k heartbeats
+  (the spec file ran >4 minutes at the 4M cap before being killed; the culprit is the `FreeAlg`
+  field: `MvPolynomial D.Gen 𝒪` has to be unfolded through the structure literal *and* the `Gen`/`opFamily`
+  arguments).
+- **cause**: `D.Gen`/`D.FreeAlg` are structure *fields*, so any statement mentioning `D.FreeAlg`
+  reduces `D` to its construction; `hdata`'s construction mentions `opFamily M H S 𝒪`, whose
+  `Module.End 𝒪 (H1 M H 𝒪)` type is a large function type, and the definitional unfolding is not
+  cached across the two sides of the equation.
+- **fix applied**: the consumer states the `HeckeData` API over an **abstract** datum
+  (`variable (D : CohCarrier.HeckeData 𝒪 (H1 M H 𝒪) k)`) — projections on a variable are cheap — and
+  keeps the `hdata` construction as its own `example`. The same rule applies to the leaves' `pair_*`
+  rows: bind the datum once and work with its lemmas, or pass the fields (`D.op`, `D.Gen`) as
+  explicit arguments; do not write `(hdata …).<field>` inside a statement.
+- **seen**: 2026-10-27, the leaves' definition wave (the consumer zone cost ~5 minutes before the
+  restructure; 7 s after).
+
+## FR-0064 [mathlib] [lean] — `if_pos`/`if_neg` are deprecated in v4.34; the replacements are `ite_eq_left`/`ite_eq_right`
+
+- **where**: the leaves' row wave (SET-LEAVES), LV-2's `StarBank.deltaNorm`/`closure` and LV-3's
+  `StarBank.starK`/`count`; six proof sites in total.
+- **symptom**: `rw [if_pos h]` is a deprecation warning, which fails the zero-warning gate.
+- **fix**: `ite_eq_left`/`ite_eq_right` (same statement, the `dite`/`ite` lemma family's v4.34
+  spelling). Proof-neutral.
+- **seen**: 2026-10-27, SET-LEAVES wave A.
+
+## FR-0065 [lean] [build] — `linter.style.haveILetI` fires on `haveI : NeZero M` / `letI : TopologicalSpace K := ⊥` in proofs of `Prop`s
+
+- **where**: LV-1's `BernoulliWeight.lean` (three sites) and LV-2's `etaNorm_powerSeries` (one site).
+- **symptom**: the style linter reports "the `haveI`/`letI` binding is used only for its instance"
+  and the zero-warning gate fails. The bindings are *load-bearing* (`NeZero`/`Fact` instances the
+  goal needs, `DiscreteTopology` for a `tprod`).
+- **fix**: write them as `have`/`let` instead — Lean 4 registers the instance from a `have`/`let`
+  of an instance type exactly as it does from `haveI`/`letI`, so the proof is unchanged and the
+  linter is silent. Do not add a suppression.
+- **seen**: 2026-10-27, SET-LEAVES wave A.
+
+## FR-0066 [mathlib] [lean] — `LinearMap.restrict_apply`, `convert … using 1`, `Nat.choose_symm` and `HahnSeries.algebraMap_apply'` all drifted under the pin
+
+- **where**: four independent sites in SET-LEAVES wave A: LV-1's `TE_surjective`/`mem_span_iff_even`
+  and `hasSum_cos_wt`; LV-3's `count` and `starK`.
+- **symptom** (each its own): (i) `LinearMap.restrict_apply` is restated at the subtype
+  (`(f.restrict hf) x = ⟨f ↑x, ⋯⟩`), so the pin's `simp only [TE, LinearMap.restrict_apply]` is an
+  *unused simp argument*; (ii) `convert h using 1` now discharges the function side and leaves one
+  goal, so the pin's following `· rfl` bullet hits "no goals"; (iii) `Nat.choose_symm` is
+  `n.choose (n - k) = n.choose k` in v4.34, the opposite orientation to the pin's use — the port
+  needed `Nat.choose_symm_of_eq_add` for `p.choose (p - 1) = p`; (iv)
+  `HahnSeries.algebraMap_apply'` carries an explicit `Γ` binder, so it must be applied as
+  `… ℤ` rather than positionally.
+- **fix**: (i) a defeq `congrArg Subtype.val`; (ii) hoist the arithmetic `have` above the
+  `convert`; (iii)–(iv) the v4.34 spellings above. All four are proof-neutral.
+- **seen**: 2026-10-27, SET-LEAVES wave A.
+
+## FR-0067 [mathlib] [lean] [build] — four more v4.34 drift sites, and a pin cap of 3.2M heartbeats that the port does not need
+
+- **where**: SET-LEAVES LV-4 (`ModularPolynomialCoset.lean`, `JqCoefficients.lean`).
+- **symptom/fix** (each proof-only, statements verbatim): (i) `Finset.prod_le_prod` no longer
+  discharges the nonneg side itself — v4.34 has `Finset.prod_le_prod₀` which takes the nonneg
+  hypothesis at ℝ; (ii) `AdjoinRoot.Minpoly.toAdjoin` / `coe_toAdjoin_mk_X` moved under the
+  `AdjoinRoot` namespace; (iii) `dif_pos`/`dif_neg` → `dite_eq_left`/`dite_eq_right` (the same
+  spelling change FR-0064 records for `ite`); (iv) `Polynomial.natDegree_prod_of_monic` keeps its
+  three explicit arguments, so the pin's implicit application fails.
+- **cap**: the pin's `S_ModularCurve_hasSum_coeff_etaProd_pow` carries
+  `set_option maxHeartbeats 3200000` around the domination/convergence engine; the whole
+  `EtaQSeries` engine (`tendsto_tsum_of_dominated_convergence`, the `Maj` majorant, the `Cong`
+  congruence layer) elaborates at the port's **200,000** edit-loop cap. Do not copy such a cap
+  before measuring: this is the third pin cap (with 504's 800,000 and `c4_tateLaurent`'s
+  `synthInstance` 400,000) that the port has not needed.
+- **seen**: 2026-10-27, SET-LEAVES wave B.
+
+## FR-0068 [mathlib] [lean] — on `LaurentSeries`, `SMul` now resolves to the pointwise `HahnSeries` instance, so `Algebra.toSMul` proofs fail on byte-identical goals
+
+- **where**: SET-LEAVES LV-5 (`X1/CoeffMap.lean`, rows 314/468) and LV-6 (the `Pic0` transport).
+- **symptom**: goals that print identically (`c • ↑y = c • ↑y`) fail `rw`/`rfl`; every
+  `IntermediateField` coercion lemma and `Algebra.smul_def` speaks `Algebra.toSMul`, while the
+  default search picks `HahnSeries.instSMul`.
+- **fix**: transcribe the pin's own `attribute [local instance 2000] Algebra.toSMul Algebra.toModule`
+  at the top of the module section. It is a *local* attribute, not a `set_option` and not one of the
+  forbidden `attribute [-simp]` lines; the pin carried it for exactly this reason. A second, related
+  one: `Module.rank_lt_aleph0_iff` now demands a `Module.Free` instance that is not synthesized at
+  the 20,000 default — supply `Module.Free.of_divisionRing` explicitly instead of the pin's
+  `synthInstance.maxHeartbeats 1600000`.
+- **seen**: 2026-10-27, SET-LEAVES wave B.
+
+## FR-0069 [checker] [tooling] — a shape-tier "already in the port" match across carriers is not an import
+
+- **where**: SET-LEAVES LV-6's pricing: `port_advise` credited 345 in-port lines to the rows of
+  `ModularCurve.diamondOneBar_comm` (468) and `pic0Congr_jOne_jH_bot_compat` (536), matching pin
+  declarations to `X1/DiamondCorrespondence.lean`/`AtkinLehnerExchange.lean` lemmas.
+- **symptom**: the worker found only ~6 of the 468 engine's 22 declarations and ~1/3 of 536's
+  `ES1Sol` engine in the port; the rest were new (~700 lines). The shape tier had matched, e.g.,
+  the pin's `mem_intFormRatiosC_of_mem` (over `intFormRatiosC`) to the port's `mem_Sb_of_mem` (a
+  different carrier's spelling).
+- **rule**: read the two statements before accepting a shape-tier row on a *large* declaration, and
+  do not price a leaf row's engine as a free prelude when the engine is a *sibling node*'s — a leaf
+  that re-proves its sibling's engine is new work. The aggregate budget (dedup + boilerplate
+  allowances) can absorb the gap, so the miss is invisible in the total and visible only per order.
+- **seen**: 2026-10-27, SET-LEAVES LV-6.
+
+## FR-0070 [tooling] — `move_dead.py` reads only proof bodies, so an `abbrev` used in a *type* and a token used by an `example` both look dead
+
+- **where**: SET-LEAVES' close: `Pic0Correspondence.lean` reported 2 dead declarations (`Γ1`,
+  `coeffEmb_algebraMap`) and `StarBank/Hasse.lean` 1 (`Kbar2`).
+- **symptom**: `Γ1` is an `abbrev` used in the *types* of a dozen declarations (`ModularForm (Γ1 M) k`,
+  `γ ∈ Gamma0 M` side conditions) and by `slashForm`'s signature; `Kbar2` is used by the module's two
+  `example` probes, which are not declarations. The dry-run's shelf contains them, so `--apply`
+  would have broken both modules.
+- **rule**: never `--apply` move_dead on a report you have not read; grep the flagged names for
+  *type-level* uses (a `def`/`abbrev`'s name in a binder type) and for `example` bodies before
+  cutting. `grep -c <name>` over the module is the cheap test — the tool counts only bodies.
+- **seen**: 2026-10-27, SET-LEAVES close; no declaration was cut.

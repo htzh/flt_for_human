@@ -7,10 +7,22 @@ The pin's `Groups` block (lines 20–68) is **not** transcribed: its four lemmas
 `translation_mem_GammaH`, `Gamma1_le_GammaH`, `GammaH_bot`, `GammaH_mono` are the
 `CohCarrier` copies already public in `ModularForms/Defs/GammaH.lean`, where they
 have their one home. This module lands the pin's `FunctionField` block (72–117)
-plus the `xHFunctionFieldBar` abbreviation (123–126) and the Jacobian abbreviation
-`JH` (127) that the `X_H` Hecke-row statements quantify over; the rest of the pin's
-`Jacobian` block (`JH.torsionGaloisRep`, `tateGaloisRep`, `JHC`, lines 127–175) is
-off this cone and deferred to the successor Jacobian topics.
+plus the `xHFunctionFieldBar` abbreviation (123–126), the Jacobian abbreviation
+`JH` (127) that the `X_H` Hecke-row statements quantify over, and the torsion trio
+`JH.torsionGaloisRep` / `JH.torsionGaloisRep_apply` /
+`JH.coe_torsionGaloisRep_apply` (pin 135–150) that the M9 successors quantify over.
+Of the rest of the pin's `Jacobian` block only the Tate pair — `tateGaloisRep`,
+`tateEnd` and their two `_apply_coe` (152–167) — and `JHC` (169–174) stay deferred:
+they are typed through the pin's `TateModule` (`Def_EllipticCurve_TateModule`, 883
+lines), which the port does not carry. That is the padic-Tate-module topic
+(SET-LEAVESDEF §0/§3), not a leaf gate. The trio itself is thin over ported
+vocabulary: `JH.torsionGaloisRep n` is
+`(SemilinearAut.torsionRep _ _ n).comp (arithmeticGalois (xHFunctionField M H))`,
+i.e. `AlgebraicCurve.SemilinearAut.torsionRep`
+(`AlgebraicCurve/Defs/SemilinearAut.lean`) composed with
+`ModularCurve.arithmeticGalois` (`ModularCurve/Defs/ArithmeticGalois.lean`), whose
+`PicAction` `SMul`/`DistribMulAction` on `Pic0 _ (laurentBaseChange _ F₀)` is what
+the two `rfl` laws read; hence the two imports below.
 
 The mathematics is thin over the ported vocabulary: `xHFunctionFieldC K M H` is
 `qExpFunctionFieldC K (CohCarrier.GammaH M H)`, and `qExpFunctionFieldC`
@@ -28,6 +40,8 @@ https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_
 import FLTForHuman.ModularCurve.JqIntegralRatios
 import FLTForHuman.ModularCurve.X1.Defs
 import FLTForHuman.ModularCurve.Defs.Laurent
+import FLTForHuman.ModularCurve.Defs.ArithmeticGalois
+import FLTForHuman.AlgebraicCurve.Defs.SemilinearAut
 import FLTForHuman.ModularForms.Defs.GammaH
 import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
 
@@ -105,6 +119,25 @@ abbrev xHFunctionFieldBar :
 /-- The Jacobian `J_H(M) = Pic⁰` of `X_H(M)` over `ℚ̄`. -/
 abbrev JH : Type _ :=
   Pic0 (AlgebraicClosure ℚ) (xHFunctionFieldBar M H)
+
+/-- The Galois action on the `n`-torsion of `J_H(M)`, through
+`SemilinearAut.torsionRep` and the arithmetic automorphism of the function field. -/
+def JH.torsionGaloisRep (n : ℕ) :
+    (AlgebraicClosure ℚ ≃ₐ[ℚ] AlgebraicClosure ℚ) →*
+      Module.End (ZMod n) (Pic0.torsion (AlgebraicClosure ℚ) (xHFunctionFieldBar M H) n) :=
+  (SemilinearAut.torsionRep _ _ n).comp (arithmeticGalois (xHFunctionField M H))
+
+@[simp]
+theorem JH.torsionGaloisRep_apply {n : ℕ} (σ : AlgebraicClosure ℚ ≃ₐ[ℚ] AlgebraicClosure ℚ)
+    (x : Pic0.torsion (AlgebraicClosure ℚ) (xHFunctionFieldBar M H) n) :
+    JH.torsionGaloisRep M H n σ x = arithmeticGalois (xHFunctionField M H) σ • x :=
+  rfl
+
+theorem JH.coe_torsionGaloisRep_apply {n : ℕ} (σ : AlgebraicClosure ℚ ≃ₐ[ℚ] AlgebraicClosure ℚ)
+    (x : Pic0.torsion (AlgebraicClosure ℚ) (xHFunctionFieldBar M H) n) :
+    ((JH.torsionGaloisRep M H n σ x : Pic0.torsion (AlgebraicClosure ℚ) (xHFunctionFieldBar M H) n) :
+        JH M H) = σ • (x : JH M H) :=
+  rfl
 
 end Bar
 

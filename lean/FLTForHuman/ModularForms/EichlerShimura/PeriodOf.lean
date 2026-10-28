@@ -12,8 +12,11 @@
   Transcribed verbatim from `Definitions/Def_ModularCurve_PeriodOf.lean` (pinned
   `aa2d8b3`, 132 lines), the pin's `Period` section. The pin's `CuspForm`
   section of the same file (the Petersson inner product,
-  `peterssonIntegrandOf`/`peterssonOf`) is **not** ported: none of the 28
-  consumers of `ModularCurve.exists_hasEquivariantPrimitiveOf` reaches it.
+  `peterssonIntegrandOf`/`peterssonOf`) is **not** in this module: none of the 28
+  consumers of `ModularCurve.exists_hasEquivariantPrimitiveOf` reaches it. The
+  leaves' definition wave hosts it, with the pin's `Def_CuspForm_Petersson`, in
+  `ModularForms/EichlerShimura/Petersson.lean` (`topics/modularCurve/SET-LEAVESDEF.md`
+  LD2) — its `_gamma0` `rfl` lemmas are the leaves' entry point.
 
   This module also hosts the pin's cross-file prelude (`hasDerivAt_affine`,
   `segmentPoint_eq_of_mem`, `periodAlongOf_eq_sub`, moved here from
@@ -29,6 +32,8 @@
 
   spec-pin: Theorems/Thm_ModularCurve_periodOf_apply_eq_sub_of_hasEquivariantPrimitiveOf.lean
   spec-pin: P2M/Sol/S_ModularCurve_periodOf_apply_eq_sub_of_hasEquivariantPrimitiveOf.lean   -- comparable copy
+  spec-pin: Theorems/Thm_ModularCurve_periodAlongOf_eq_neg_conj_periodAlongOf_J_smul.lean
+  spec-pin: P2M/Sol/S_ModularCurve_periodAlongOf_eq_neg_conj_periodAlongOf_J_smul.lean   -- comparable copy
   spec-pin: Definitions/Def_ModularCurve_PeriodOf.lean
 -/
 import FLTForHuman.ModularForms.EichlerShimura.PeriodPrimitive
@@ -84,6 +89,53 @@ def periodAlongOf (τ₀ τ₁ : ℍ) : Module.Dual ℂ (CuspForm Γ 2) where
 theorem periodAlongOf_apply (τ₀ τ₁ : ℍ) (f : CuspForm Γ 2) :
     periodAlongOf Γ τ₀ τ₁ f = ∫ t in (0 : ℝ)..1, f (segmentPath τ₀ τ₁ t) * ((τ₁ : ℂ) - τ₀) :=
   rfl
+
+/-! ### The `J`-conjugation law of the period
+
+`J • τ = -conj τ` sends the geodesic segment `τ₀ → τ₁` to the segment
+`J • τ₀ → J • τ₁`, and `periodAlongOf` of a form related by `f ↦ conj (f ∘ J)`
+is the negative conjugate.  This is the leaf row
+`ModularCurve.periodAlongOf_eq_neg_conj_periodAlongOf_J_smul` (LV-6); its two
+helpers are the `S_` copy's `PeriodConj.J_smul_segmentPath`/`periodAlongOf_eq`. -/
+
+private theorem J_smul_segmentPath (τ₀ τ₁ : ℍ) (t : ℝ) :
+    UpperHalfPlane.J • segmentPath τ₀ τ₁ t =
+      segmentPath (UpperHalfPlane.J • τ₀) (UpperHalfPlane.J • τ₁) t := by
+  apply UpperHalfPlane.ext
+  rw [UpperHalfPlane.coe_J_smul, ModularCurve.coe_segmentPath, ModularCurve.coe_segmentPath,
+    ModularCurve.segmentPoint, ModularCurve.segmentPoint, UpperHalfPlane.coe_J_smul,
+    UpperHalfPlane.coe_J_smul]
+  simp only [Complex.ext_iff, Complex.add_re, Complex.add_im, Complex.neg_re, Complex.neg_im,
+    Complex.real_smul, Complex.mul_re, Complex.mul_im, Complex.ofReal_re, Complex.ofReal_im,
+    Complex.conj_re, Complex.conj_im, zero_mul, sub_zero, add_zero]
+  constructor <;> ring
+
+private theorem periodAlongOf_eq (Γ : Subgroup SL(2, ℤ)) (f g : CuspForm Γ 2)
+    (hg : ∀ τ : ℍ, g τ = (starRingEnd ℂ) (f (UpperHalfPlane.J • τ))) (τ₀ τ₁ : ℍ) :
+    periodAlongOf Γ τ₀ τ₁ g =
+      -(starRingEnd ℂ) (periodAlongOf Γ (UpperHalfPlane.J • τ₀) (UpperHalfPlane.J • τ₁) f) := by
+  rw [periodAlongOf_apply, periodAlongOf_apply]
+  have hint : ∀ t : ℝ, g (segmentPath τ₀ τ₁ t) * ((τ₁ : ℂ) - τ₀) =
+      -(starRingEnd ℂ) (f (segmentPath (UpperHalfPlane.J • τ₀) (UpperHalfPlane.J • τ₁) t) *
+        (((UpperHalfPlane.J • τ₁ : ℍ) : ℂ) - ((UpperHalfPlane.J • τ₀ : ℍ) : ℂ))) := by
+    intro t
+    rw [hg, J_smul_segmentPath, map_mul, UpperHalfPlane.coe_J_smul, UpperHalfPlane.coe_J_smul,
+      map_sub, map_neg, map_neg, Complex.conj_conj, Complex.conj_conj]
+    ring
+  simp_rw [hint]
+  rw [intervalIntegral.integral_neg]
+  simp only [intervalIntegral, integral_conj, map_sub]
+
+/-- **The `J`-conjugation law.** For cusp forms `f`, `g` of weight `2` with
+`g = conj ∘ f ∘ J`, the period of `g` along `τ₀ → τ₁` is minus the conjugate of
+the period of `f` along `J • τ₀ → J • τ₁`. -/
+theorem periodAlongOf_eq_neg_conj_periodAlongOf_J_smul
+    (Γ : Subgroup SL(2, ℤ)) (f g : CuspForm Γ 2)
+    (hg : ∀ τ : UpperHalfPlane, g τ = (starRingEnd ℂ) (f (UpperHalfPlane.J • τ)))
+    (τ₀ τ₁ : UpperHalfPlane) :
+    ModularCurve.periodAlongOf Γ τ₀ τ₁ g =
+      -(starRingEnd ℂ) (ModularCurve.periodAlongOf Γ (UpperHalfPlane.J • τ₀) (UpperHalfPlane.J • τ₁) f) :=
+  periodAlongOf_eq Γ f g hg τ₀ τ₁
 
 def periodOf (γ : Γ) : Module.Dual ℂ (CuspForm Γ 2) :=
   periodAlongOf Γ UpperHalfPlane.I ((γ : SL(2, ℤ)) • UpperHalfPlane.I)

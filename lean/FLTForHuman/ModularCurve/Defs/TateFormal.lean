@@ -20,6 +20,23 @@
   Names are FLT's verbatim; `PowerSeries`, `HahnSeries`, `WeierstrassCurve`,
   `LaurentSeries` are mathlib's. No pin declaration in this module is `private`,
   so no promotion is owed here.
+
+  ## The `c₄` of the formal Tate curve (`c4_tateLaurent`)
+
+  `tateLaurent K = tatePowerSeries.map (laurentOfInt K)`, `c₄` is natural under a
+  change of coefficient ring (`WeierstrassCurve.map_c₄`) and
+  `tatePowerSeries.c₄ = 1 - 48 · tateA4 = eisenstein4` on the nose, so the
+  Laurent formal Tate curve's `c₄` is the integral `q`-expansion `eisenstein4`
+  pushed along `Int.castRingHom K`. The two ingredients are proven `have`
+  locally: they have no consumer outside this headline.
+
+  FLT provenance, pinned `aa2d8b3`:
+  `Theorems/Thm_ModularCurve_c4_tateLaurent.lean` and
+  `P2M/Sol/S_ModularCurve_c4_tateLaurent.lean`.
+
+  spec-pin: Definitions/Def_ModularCurve_TateFormal.lean
+  spec-pin: Theorems/Thm_ModularCurve_c4_tateLaurent.lean
+  spec-pin: P2M/Sol/S_ModularCurve_c4_tateLaurent.lean
 -/
 import FLTForHuman.ModularCurve.Defs.JqCoeff
 import Mathlib.AlgebraicGeometry.EllipticCurve.Weierstrass
@@ -177,6 +194,24 @@ instance instIsElliptic_tateLaurent (K : Type*) [CommRing K] : (tateLaurent K).I
   rw [hX]
   exact ⟨⟨HahnSeries.single (1 : ℤ) 1, HahnSeries.single (-1 : ℤ) 1,
     by simp [HahnSeries.single_mul_single], by simp [HahnSeries.single_mul_single]⟩, rfl⟩
+
+theorem c4_tateLaurent (K : Type*) [CommRing K] :
+    (tateLaurent K).c₄ = HahnSeries.ofPowerSeries ℤ K (PowerSeries.map (Int.castRingHom K) eisenstein4) := by
+  have hc4 : tatePowerSeries.c₄ = 1 - 48 * tateA4 := by
+    rw [WeierstrassCurve.c₄, WeierstrassCurve.b₂, WeierstrassCurve.b₄, tatePowerSeries_a₁,
+      tatePowerSeries_a₂, tatePowerSeries_a₃, tatePowerSeries_a₄]
+    ring
+  have hone : (1 - 48 * tateA4 : PowerSeries ℤ) = eisenstein4 := by
+    ext n
+    have h48 : (48 : PowerSeries ℤ) * tateA4 = (48 : ℕ) • tateA4 := by
+      rw [nsmul_eq_mul, Nat.cast_ofNat]
+    rw [map_sub, PowerSeries.coeff_one, eisenstein4, PowerSeries.coeff_mk, h48, map_nsmul,
+      coeff_tateA4, nsmul_eq_mul, Nat.cast_ofNat]
+    split_ifs with h
+    · subst h; simp
+    · simp only [zero_sub, mul_neg, neg_neg, Finset.mul_sum]
+      exact Finset.sum_congr rfl fun d _ => by ring
+  rw [tateLaurent, WeierstrassCurve.map_c₄, hc4, hone, laurentOfInt_apply]
 
 end ModularCurve
 

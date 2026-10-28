@@ -39,8 +39,14 @@ FLT provenance, pinned `aa2d8b3`:
 https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_coeffMap_diffQExp_correspondence_diamondAutBar_eq_qExpansion_diamondLinOne.lean
 https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_coeffMap_diffQExp_correspondence_diamondAutBar_eq_qExpansion_diamondLinOne.lean
 
+  The leaf row `ModularCurve.diamondOneBar_comm` (LV-6) is inserted at the end of
+  this module, over an engine ported from its `S_` copy (`X1DiaComm`); its wrapper
+  and `S_` copy are the last two `spec-pin:` lines.
+
 spec-pin: Theorems/Thm_ModularCurve_coeffMap_diffQExp_correspondence_diamondAutBar_eq_qExpansion_diamondLinOne.lean
 spec-pin: P2M/Sol/S_ModularCurve_coeffMap_diffQExp_correspondence_diamondAutBar_eq_qExpansion_diamondLinOne.lean
+spec-pin: Theorems/Thm_ModularCurve_diamondOneBar_comm.lean
+spec-pin: P2M/Sol/S_ModularCurve_diamondOneBar_comm.lean
 -/
 import FLTForHuman.ModularCurve.X1.FunctionFieldBaseChange
 import FLTForHuman.ModularCurve.X1.DiamondAut
@@ -770,7 +776,271 @@ theorem coeffMap_diffQExp_correspondence_diamondAutBar_eq_qExpansion_diamondLinO
         (UpperHalfPlane.qExpansion 1 ⇑(CuspForm.diamondLinOne M 2 d f)) :=
   main hσ hσ' ι₀ ω f hω
 
+
+section DiamondComm
+
+open CongruenceSubgroup UpperHalfPlane ModularForm
+
+local notation "Γ₁ℝ(" M ")" => ((Gamma1 M : Subgroup SL(2, ℤ)) : Subgroup (GL (Fin 2) ℝ))
+
+variable {M : ℕ}
+
+/-! ### The diamond operators commute
+
+The leaf row `ModularCurve.diamondOneBar_comm` (LV-6), over the `S_` copy's
+`X1DiaComm` engine.  The engine is transcribed with the port's spellings for the
+q-expansion bookkeeping (`QQ`, `eq_of_QQ_eq`, `slashQExpC_eq`) and the port's
+`mem_ratios_of_mem`; the diamond-side statements are the pin's. -/
+
+theorem exists_gamma0 {M d : ℕ} (h : Nat.Coprime d M) :
+    ∃ γ : SL(2, ℤ), γ ∈ Gamma0 M ∧ ((γ 0 0 : ℤ) : ZMod M) = (d : ZMod M) := by
+  obtain ⟨u, v, huv⟩ := (Nat.isCoprime_iff_coprime.mpr h : IsCoprime (d : ℤ) (M : ℤ))
+  refine ⟨?_, Gamma0_mem.mpr ?_, ?_⟩
+  · exact ⟨!![(d : ℤ), -v; (M : ℤ), u], by
+      rw [Matrix.det_fin_two_of]; linear_combination huv⟩
+  · simp
+  · simp
+
+theorem entry_inv_mul {M : ℕ} {γ₁ γ : SL(2, ℤ)} (h₁ : γ₁ ∈ Gamma0 M) (h : γ ∈ Gamma0 M)
+    {a b : ZMod M} (ha : ((γ₁ 0 0 : ℤ) : ZMod M) = a) (hab : ((γ 0 0 : ℤ) : ZMod M) = a * b) :
+    (((γ₁⁻¹ * γ) 0 0 : ℤ) : ZMod M) = b := by
+  have hdet : (γ₁ 0 0 : ℤ) * γ₁ 1 1 - γ₁ 0 1 * γ₁ 1 0 = 1 := by
+    have := Matrix.SpecialLinearGroup.det_coe γ₁
+    rwa [Matrix.det_fin_two] at this
+  have hdet' : ((γ₁ 0 0 : ℤ) : ZMod M) * ((γ₁ 1 1 : ℤ) : ZMod M)
+      - ((γ₁ 0 1 : ℤ) : ZMod M) * ((γ₁ 1 0 : ℤ) : ZMod M) = 1 := by
+    exact_mod_cast congrArg (Int.cast : ℤ → ZMod M) hdet
+  have hC : ((γ₁ 1 0 : ℤ) : ZMod M) = 0 := Gamma0_mem.mp h₁
+  have hg : ((γ 1 0 : ℤ) : ZMod M) = 0 := Gamma0_mem.mp h
+  have hentry : ((γ₁⁻¹ * γ) 0 0 : ℤ) = γ₁ 1 1 * γ 0 0 + (-γ₁ 0 1) * γ 1 0 := by
+    rw [Matrix.SpecialLinearGroup.coe_mul, Matrix.SpecialLinearGroup.SL2_inv_expl,
+      Matrix.mul_apply]
+    simp [Fin.sum_univ_two, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one]
+  rw [hentry]
+  push_cast
+  linear_combination ((γ₁ 1 1 : ℤ) : ZMod M) * hab + (-((γ₁ 0 1 : ℤ) : ZMod M)) * hg
+    + (-(b * ((γ₁ 1 1 : ℤ) : ZMod M))) * ha + b * hdet' + (b * ((γ₁ 0 1 : ℤ) : ZMod M)) * hC
+
+theorem qexp_mul {a b : ℤ} (F : ModularForm Γ₁ℝ(M) a) (G : ModularForm Γ₁ℝ(M) b) :
+    qExpansion 1 (⇑F * ⇑G) = qExpansion 1 F * qExpansion 1 G :=
+  ModularForm.qExpansion_mul_coe one_pos (one_mem_strictPeriods M) F G
+
+theorem eq_of_qexp_eq {k : ℤ} {F G : ModularForm Γ₁ℝ(M) k}
+    (h : qExpansion 1 (⇑F) = qExpansion 1 (⇑G)) : (⇑F : ℍ → ℂ) = ⇑G :=
+  eq_of_QQ_eq (show QQ ⇑F = QQ ⇑G from congrArg (ofPowerSeries ℤ ℂ) h)
+
+theorem slashQExpC_ne_zero {k : ℤ} {g : ModularForm Γ₁ℝ(M) k} {pg : PowerSeries ℤ}
+    (hg : IsIntegralQExp g pg) (hg0 : intSeriesC ℚ pg ≠ 0) {γ : SL(2, ℤ)} (hγ : γ ∈ Gamma0 M) :
+    slashQExpC k g γ ≠ 0 := by
+  rw [slashQExpC_eq γ hγ]
+  refine (map_ne_zero_iff _ ofPowerSeries_injective).mpr ?_
+  rw [Ne, ModularForm.qExpansion_eq_zero_iff one_pos (one_mem_strictPeriods M)]
+  exact conjForm_ne_zero γ hγ (ne_zero_of_isIntegralQExp hg hg0)
+
+theorem ofPowerSeries_qexp_ne_zero {k : ℤ} {g : ModularForm Γ₁ℝ(M) k} {pg : PowerSeries ℤ}
+    (hg : IsIntegralQExp g pg) (hg0 : intSeriesC ℚ pg ≠ 0) :
+    ofPowerSeries ℤ ℂ (qExpansion 1 (⇑g)) ≠ 0 := by
+  change QQ ⇑g ≠ 0
+  rw [show QQ ⇑g = intSeriesC ℂ pg from (intSeriesC_eq_of_isIntegralQExp hg).symm, Ne,
+    intSeriesC_eq_zero_iff]
+  exact fun h => hg0 (by rw [h, intSeriesC_zero])
+
+theorem mem_intFormRatiosC_of_mem {y : LaurentSeries ℚ} (hy : y ∈ x1FunctionField M) :
+    y ∈ intFormRatiosC ℚ (Gamma1 M) :=
+  A2K1A.mem_ratios_of_mem (one_mem_strictPeriods M) hy
+
+theorem isDiamondAut_apply {d : ℕ} {σ : x1FunctionField M ≃ₐ[ℚ] x1FunctionField M}
+    (h : IsDiamondAut M d σ) (k : ℤ) (f g : ModularForm Γ₁ℝ(M) k) (pf pg : PowerSeries ℤ)
+    (hf : IsIntegralQExp f pf) (hg : IsIntegralQExp g pg) (hg0 : intSeriesC ℚ pg ≠ 0)
+    (γ : SL(2, ℤ)) (hγ : γ ∈ Gamma0 M) (hγd : ((γ 0 0 : ℤ) : ZMod M) = (d : ZMod M))
+    (hx : intSeriesC ℚ pf / intSeriesC ℚ pg ∈ x1FunctionField M) :
+    coeffMap (algebraMap ℚ ℂ)
+        ((σ ⟨intSeriesC ℚ pf / intSeriesC ℚ pg, hx⟩ : x1FunctionField M) : LaurentSeries ℚ)
+      * slashQExpC k g γ = slashQExpC k f γ :=
+  h.2 k f g pf pg hf hg hg0 γ hγ hγd
+
+theorem algEquiv_ext_of_ratios {σ σ' : x1FunctionField M ≃ₐ[ℚ] x1FunctionField M}
+    (h : ∀ (x : LaurentSeries ℚ) (hx : x ∈ intFormRatiosC ℚ (Gamma1 M)),
+      σ ⟨x, intFormRatiosC_subset ℚ _ hx⟩ = σ' ⟨x, intFormRatiosC_subset ℚ _ hx⟩) : σ = σ' := by
+  apply AlgEquiv.ext
+  rintro ⟨y, hy⟩
+  have hy' : y ∈ IntermediateField.adjoin ℚ (intFormRatiosC ℚ (Gamma1 M)) := hy
+  induction hy' using IntermediateField.adjoin_induction with
+  | mem x hx => exact h x hx
+  | algebraMap r =>
+      have e : (⟨algebraMap ℚ (LaurentSeries ℚ) r, IntermediateField.algebraMap_mem _ r⟩ :
+          x1FunctionField M) = (r : x1FunctionField M) := by
+        apply Subtype.ext
+        rw [SubfieldClass.coe_ratCast]
+        exact eq_ratCast _ r
+      rw [e, map_ratCast, map_ratCast]
+  | add x x' hx hx' ihx ihx' =>
+      have e : (⟨x + x', add_mem hx hx'⟩ : x1FunctionField M) = ⟨x, hx⟩ + ⟨x', hx'⟩ := rfl
+      rw [e, map_add, map_add, ihx hx, ihx' hx']
+  | inv x hx ihx =>
+      have e : (⟨x⁻¹, inv_mem hx⟩ : x1FunctionField M) = ⟨x, hx⟩⁻¹ := rfl
+      rw [e, map_inv₀, map_inv₀, ihx hx]
+  | mul x x' hx hx' ihx ihx' =>
+      have e : (⟨x * x', mul_mem hx hx'⟩ : x1FunctionField M) = ⟨x, hx⟩ * ⟨x', hx'⟩ := rfl
+      rw [e, map_mul, map_mul, ihx hx, ihx' hx']
+
+theorem isDiamondAut_unique {d : ℕ} {σ σ' : x1FunctionField M ≃ₐ[ℚ] x1FunctionField M}
+    (hσ : IsDiamondAut M d σ) (hσ' : IsDiamondAut M d σ') : σ = σ' := by
+  obtain ⟨γ, hγ, hγd⟩ := exists_gamma0 hσ.1
+  refine algEquiv_ext_of_ratios fun x hx => ?_
+  obtain ⟨k, f, g, pf, pg, hf, hg, hg0, rfl⟩ := hx
+  apply Subtype.ext
+  apply coeffMap_injective (algebraMap ℚ ℂ).injective
+  apply mul_right_cancel₀ (slashQExpC_ne_zero hg hg0 hγ)
+  exact (isDiamondAut_apply hσ k f g pf pg hf hg hg0 γ hγ hγd _).trans
+    (isDiamondAut_apply hσ' k f g pf pg hf hg hg0 γ hγ hγd _).symm
+
+theorem isDiamondAut_trans {d e : ℕ} {σ τ : x1FunctionField M ≃ₐ[ℚ] x1FunctionField M}
+    (hσ : IsDiamondAut M d σ) (hτ : IsDiamondAut M e τ) :
+    IsDiamondAut M (d * e) (σ.trans τ) := by
+  refine ⟨Nat.Coprime.mul_left hσ.1 hτ.1, fun k f g pf pg hf hg hg0 γ hγ hγde => ?_⟩
+  obtain ⟨γd, hγd, hγdd⟩ := exists_gamma0 hσ.1
+  set γe : SL(2, ℤ) := γd⁻¹ * γ with hγe_def
+  have hγe : γe ∈ Gamma0 M := (Gamma0 M).mul_mem ((Gamma0 M).inv_mem hγd) hγ
+  have hγee : ((γe 0 0 : ℤ) : ZMod M) = (e : ZMod M) :=
+    entry_inv_mul hγd hγ hγdd (by rw [hγde, Nat.cast_mul])
+  have hγfac : (γd : GL (Fin 2) ℝ) * (γe : GL (Fin 2) ℝ) = (γ : GL (Fin 2) ℝ) := by
+    rw [← coeGL_mul, hγe_def, mul_inv_cancel_left]
+
+  set y : x1FunctionField M :=
+    σ ⟨intSeriesC ℚ pf / intSeriesC ℚ pg, div_mem_qExpFunctionFieldC f g hf hg hg0⟩ with hy_def
+  have H1 := isDiamondAut_apply hσ k f g pf pg hf hg hg0 γd hγd hγdd
+    (div_mem_qExpFunctionFieldC f g hf hg hg0)
+  rw [← hy_def] at H1
+  obtain ⟨k', f', g', pf', pg', hf', hg', hg0', hyv⟩ := mem_intFormRatiosC_of_mem y.2
+  have hy : y = ⟨intSeriesC ℚ pf' / intSeriesC ℚ pg', div_mem_qExpFunctionFieldC f' g' hf' hg' hg0'⟩ :=
+    Subtype.ext hyv
+  have H2 := isDiamondAut_apply hτ k' f' g' pf' pg' hf' hg' hg0' γe hγe hγee
+    (div_mem_qExpFunctionFieldC f' g' hf' hg' hg0')
+  rw [AlgEquiv.trans_apply, ← hy_def, hy]
+
+  set Fd := conjForm γd hγd f
+  set Gd := conjForm γd hγd g
+  set F'e := conjForm γe hγe f'
+  set G'e := conjForm γe hγe g'
+  set Fγ := conjForm γ hγ f
+  set Gγ := conjForm γ hγ g
+
+  have hyC : coeffMap (algebraMap ℚ ℂ) (y : LaurentSeries ℚ) =
+      ofPowerSeries ℤ ℂ (qExpansion 1 (⇑f')) / ofPowerSeries ℤ ℂ (qExpansion 1 (⇑g')) := by
+    rw [hyv, map_div₀, coeffMap_intSeriesC, coeffMap_intSeriesC, intSeriesC_eq_of_isIntegralQExp hf',
+      intSeriesC_eq_of_isIntegralQExp hg']
+  have hg'C := ofPowerSeries_qexp_ne_zero hg' hg0'
+  rw [hyC, slashQExpC_eq γd hγd, slashQExpC_eq γd hγd,
+    div_mul_eq_mul_div, div_eq_iff hg'C, ← map_mul, ← map_mul] at H1
+  have H1' : qExpansion 1 (⇑f' * ⇑Gd) = qExpansion 1 (⇑g' * ⇑Fd) := by
+    rw [qexp_mul, qexp_mul, mul_comm (qExpansion 1 (⇑g'))]
+    exact ofPowerSeries_injective H1
+
+  have E1 : (⇑f' : ℍ → ℂ) * ⇑Gd = ⇑g' * ⇑Fd := by
+    have := eq_of_qexp_eq (F := f'.mul Gd) (G := g'.mul Fd)
+      (by rw [ModularForm.coe_mul, ModularForm.coe_mul]; exact H1')
+    rwa [ModularForm.coe_mul, ModularForm.coe_mul] at this
+  have E2 : (⇑F'e : ℍ → ℂ) * ⇑Gγ = ⇑G'e * ⇑Fγ := by
+    have := congrArg (fun F : ℍ → ℂ => F ∣[k' + k] γe) E1
+    rw [ModularForm.mul_slash_SL2, ModularForm.mul_slash_SL2] at this
+    simp only [ModularForm.SL_slash] at this
+    simp only [Fd, Gd, coe_conjForm, ← SlashAction.slash_mul, hγfac] at this
+    simpa only [F'e, G'e, Fγ, Gγ, coe_conjForm] using this
+
+  have E3 : slashQExpC k' f' γe * slashQExpC k g γ = slashQExpC k' g' γe * slashQExpC k f γ := by
+    rw [slashQExpC_eq γe hγe, slashQExpC_eq γe hγe, slashQExpC_eq γ hγ,
+      slashQExpC_eq γ hγ, ← map_mul, ← map_mul, ← qexp_mul, ← qexp_mul]
+    exact congrArg _ (congrArg _ E2)
+
+  apply mul_right_cancel₀ (slashQExpC_ne_zero hg' hg0' hγe)
+  linear_combination (slashQExpC k g γ) * H2 + E3
+
+theorem diamondAut_comm (M d e : ℕ) :
+    (diamondAut M d).trans (diamondAut M e) = (diamondAut M e).trans (diamondAut M d) := by
+  rcases Classical.em (∃ σ : x1FunctionField M ≃ₐ[ℚ] x1FunctionField M, IsDiamondAut M d σ)
+    with hd | hd
+  · rcases Classical.em (∃ σ : x1FunctionField M ≃ₐ[ℚ] x1FunctionField M, IsDiamondAut M e σ)
+      with he | he
+    · have h1 := isDiamondAut_trans (isDiamondAut_diamondAut hd) (isDiamondAut_diamondAut he)
+      have h2 := isDiamondAut_trans (isDiamondAut_diamondAut he) (isDiamondAut_diamondAut hd)
+      rw [Nat.mul_comm] at h2
+      exact isDiamondAut_unique h1 h2
+    · rw [diamondAut_of_not he]
+      ext x
+      rfl
+  · rw [diamondAut_of_not hd]
+    ext x
+    rfl
+
+section BaseChange
+
+variable {L : Type*} [Field L] [Algebra ℚ L] {F₀ : IntermediateField ℚ (LaurentSeries ℚ)}
+
+theorem isBaseChangeAutOf_unique {σ₀ : F₀ ≃ₐ[ℚ] F₀}
+    {τ τ' : laurentBaseChange L F₀ ≃ₐ[L] laurentBaseChange L F₀}
+    (h : IsBaseChangeAutOf L σ₀ τ) (h' : IsBaseChangeAutOf L σ₀ τ') : τ = τ' := by
+  apply AlgEquiv.coe_toAlgHom_injective
+  refine IntermediateField.algHom_ext_of_eq_adjoin (F := L)
+    (s := ⇑(coeffEmb L) '' (F₀ : Set (LaurentSeries ℚ))) rfl ?_
+  rintro x ⟨y, hy, rfl⟩
+  apply Subtype.ext
+  exact (h ⟨y, hy⟩).trans (h' ⟨y, hy⟩).symm
+
+theorem isBaseChangeAutOf_trans {σ₀ σ₁ : F₀ ≃ₐ[ℚ] F₀}
+    {τ τ' : laurentBaseChange L F₀ ≃ₐ[L] laurentBaseChange L F₀}
+    (h : IsBaseChangeAutOf L σ₀ τ) (h' : IsBaseChangeAutOf L σ₁ τ') :
+    IsBaseChangeAutOf L (σ₀.trans σ₁) (τ.trans τ') := by
+  intro y
+  rw [AlgEquiv.trans_apply, AlgEquiv.trans_apply]
+  have e : τ ⟨coeffEmb L (y : LaurentSeries ℚ), coeffEmb_mem_laurentBaseChange L y.2⟩ =
+      ⟨coeffEmb L ((σ₀ y : F₀) : LaurentSeries ℚ), coeffEmb_mem_laurentBaseChange L (σ₀ y).2⟩ :=
+    Subtype.ext (h y)
+  rw [e]
+  exact h' (σ₀ y)
+
+theorem baseChangeAut_refl :
+    baseChangeAut L (AlgEquiv.refl : F₀ ≃ₐ[ℚ] F₀) = AlgEquiv.refl := by
+  have h0 : IsBaseChangeAutOf L (AlgEquiv.refl : F₀ ≃ₐ[ℚ] F₀) AlgEquiv.refl := fun _ => rfl
+  exact isBaseChangeAutOf_unique (isBaseChangeAutOf_baseChangeAut ⟨_, h0⟩) h0
+
+end BaseChange
+
+theorem diamondAutBar_comm (M d e : ℕ) :
+    (diamondAutBar M d).trans (diamondAutBar M e) = (diamondAutBar M e).trans (diamondAutBar M d) := by
+  have hcomm := diamondAut_comm M d e
+  rcases Classical.em (∃ τ : x1FunctionFieldBar M ≃ₐ[AlgebraicClosure ℚ] x1FunctionFieldBar M,
+      IsBaseChangeAutOf (AlgebraicClosure ℚ) (diamondAut M d) τ) with hd | hd
+  · rcases Classical.em (∃ τ : x1FunctionFieldBar M ≃ₐ[AlgebraicClosure ℚ] x1FunctionFieldBar M,
+        IsBaseChangeAutOf (AlgebraicClosure ℚ) (diamondAut M e) τ) with he | he
+    · have h1 := isBaseChangeAutOf_trans (isBaseChangeAutOf_baseChangeAut hd)
+        (isBaseChangeAutOf_baseChangeAut he)
+      have h2 := isBaseChangeAutOf_trans (isBaseChangeAutOf_baseChangeAut he)
+        (isBaseChangeAutOf_baseChangeAut hd)
+      rw [← hcomm] at h2
+      exact isBaseChangeAutOf_unique h1 h2
+    · rw [diamondAutBar, diamondAutBar, baseChangeAut_of_not he]
+      ext x
+      rfl
+  · rw [diamondAutBar, diamondAutBar, baseChangeAut_of_not hd]
+    ext x
+    rfl
+
+end DiamondComm
+
 end DiamondCorrespondence
+
+/-- **The diamond operators commute.** The endomorphisms `diamondOneBar M d` of
+`J₁(M)` (the `diamondAutBar` action) commute. -/
+theorem diamondOneBar_comm (M d e : ℕ) :
+    diamondOneBar M d * diamondOneBar M e =
+      diamondOneBar M e * diamondOneBar M d := by
+  have h : diamondAutBar M d * diamondAutBar M e = diamondAutBar M e * diamondAutBar M d :=
+    (DiamondCorrespondence.diamondAutBar_comm M d e).symm
+  apply LinearMap.ext
+  intro x
+  simp only [Module.End.mul_apply, diamondOneBar_apply]
+  rw [← mul_smul, ← mul_smul, ← map_mul, ← map_mul, h]
 
 end ModularCurve
 

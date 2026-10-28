@@ -653,6 +653,22 @@ the M9 successor and became ready with MC-6's private Fricke material; the other
 row (495, the M7 descent's successor, outside the `ModularCurve` namespace). With the 611/168/36
 first-wave successors and the false ready (24), the MC ready shelf is **5 / 2,015**.
 
+**The leaves' definition layer landed (2026-10-27).** The deferred Defs are in:
+ten modules (six new), **96 declarations, 147 checked `ok` / 0 mismatch / 0 missing / 1 own**
+(the one `own` pre-dates the wave), axioms clean, no `set_option` added, and
+`spec/ModularCurveLeavesDefConsumer.lean` at **0 errors** — `CohCarrier.HeckeData` +
+`hdata`/`MLAt`, the Petersson inner product (both levels), `PeriodHomPair`,
+`Place.congr`/`Pic0Congr`, the complex-place dictionary and its `Γ`-general form, `X0ModL`'s three,
+and `JH.torsionGaloisRep`'s trio. As designed it moves **no** shelf figure: `needed` **992 /
+395,624**, frontier 1,421 / 731,527, no row entered or left. Two corrections came out of it — the
+shelf's 391-line four-module gate was really **96 declarations over eight pin modules** (two of them
+unlisted), and `Def_AlgebraicCurve_Pic0Congr` has 15 declarations, not 14 (a last-name collision in
+the audit). One module was migrated (`AlgebraicCurve/Defs/RatFuncPlaces.lean`, which had *deliberately
+dropped* the pin's `Place.Congr` section — it now hosts it, 31 ok). The record is
+[SET-LEAVESDEF.md](SET-LEAVESDEF.md); what it deliberately does **not** do is
+`Def_EllipticCurve_TateModule` (883 lines / 69 declarations) and the four `Def_ModularCurve_XH`
+declarations typed through it.
+
 **The programme's state.** The ready block's seven orders are all landed: MC-1/2/3 (first wave),
 MC-4, MC-7 (separately), MC-5 and MC-6. What remains in the column is (i) the **leaves programme**
 (32 rows / 6,797 in `ModularCurve`, ≈5,870 net, with its own definition gates `PeriodHomPair`,
@@ -677,3 +693,22 @@ torsion/Tate trio with the M9 successors and the Tate-module programme.
 - **No surface promotion, no whole-tree build.** The definition wave is new surface, not a
   promotion; every module is gated on its own build at the project cap; a tree build waits for a
   milestone and the user's agreement.
+**The leaves block landed (2026-10-27): all 32 rows, the block is empty.** The definition layer
+([SET-LEAVESDEF.md](SET-LEAVESDEF.md)) and then the rows ([SET-LEAVES.md](SET-LEAVES.md)) closed in
+two waves of three orders: **32 rows / 6,797 silo / 5,093 net new math lines**, ≈5,700 written,
+**459 checked declarations `ok`** across fourteen modules (six new: `SiegelUnit/BernoulliWeight`,
+`StarBank/{Norm,Hasse}`, `ModularPolynomialCoset`, `X1/{CoeffMap,Pic0Correspondence}`; eight
+inserted into: `SiegelUnit/Basic`, `Defs/TateFormal`, `JqCoefficients`, `X1/DiamondCorrespondence`,
+`ComplexPlaceDictionaryOf`, `ModularForms/EichlerShimura/PeriodOf`, `Period/QExpansionDiff`,
+`Analytic/QParamUnique`), 0 mismatch / 0 missing, axioms clean, zero warnings, 0 dedup clusters, and
+an eleven-zone `spec/ModularCurveLeavesConsumer.lean` at 0 errors. Four legacy modules were
+migrated off `PORT_FILES` on the way (`Defs/TateFormal`, `Period/QExpansionDiff`,
+`Analytic/QParamUnique`, `JqCoefficients`); no promotion was owed. Measured: `needed`
+**980 / 392,711 → 960 / 388,827** across the two waves (exactly the block's silo), the `ModularCurve`
+leaves **20 / 3,884 → 0 / 0**, the `ModularCurve` ready block **8 / 2,952 → 20 / 8,178**, leaves
+294 / 71,671 → **262 / 64,874**, `--selfcheck` **PASS**, frontier to **1,455 / 738,539**. The
+column's remaining work is now (i) the **successor shelf** (20 rows / 8,178: the 1,176 M9 row, 611,
+373 ×2, 191, 168, and the twelve rows the wave's declarations made ready, `qExpansionDiffAlong_val_eq_diffQExp`
+and `exists_isIntegral_hasSum_siegelFun` among them), (ii) the **withheld pair** (610 silo) on the
+Abel–Jacobi programme and `Def_EllipticCurve_TateModule` (883 lines / 69 declarations), and (iii) the
+false ready `rep_tateModule_jOne_comm` (24), which is the same Tate-module programme.

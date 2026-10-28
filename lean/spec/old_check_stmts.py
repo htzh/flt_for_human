@@ -3496,7 +3496,10 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/Defs/Fields.lean",
     "FLTForHuman/ModularCurve/Defs/PhiGen.lean",
     "FLTForHuman/ModularCurve/FunctionFieldGeneration/Collapse.lean",
-    "FLTForHuman/ModularCurve/JqCoefficients.lean",
+    # MIGRATED 2026-10-27 (the leaves' row wave): `JqCoefficients.lean` now carries its own
+    # `spec-pin:` block for the three leaves rows it gained (52 ok / 0 mismatch / 0 missing /
+    # 2 own, the two `own:` rows recorded in `spec/decl_markers.tsv`) and is owned by
+    # `spec/check_port.py`. Its `SOURCES` entries stay. Do not re-list it.
     "FLTForHuman/ModularCurve/FunctionFieldGeneration/Spine.lean",
     "FLTForHuman/ModularCurve/Defs/Cyclotomic.lean",
     "FLTForHuman/ModularForms/QExpansionPrinciple.lean",
@@ -3567,7 +3570,14 @@ PORT_FILES = [
     # `spec-pin:` block, over `Def_AlgebraicCurve_BaseChangeGalois.lean` and
     # `Def_AlgebraicCurve_DivisorClassGroup.lean` (43 ok / 0 mismatch / 0 missing / 0 own).
     # Handed over: do not re-list it here.
-    "FLTForHuman/AlgebraicCurve/Defs/RatFuncPlaces.lean",
+    # MIGRATED 2026-10-27 (the leaves' definition wave, `topics/modularCurve/SET-LEAVESDEF.md`
+    # LD45): `RatFuncPlaces.lean` now carries its own `spec-pin:` block — the two pin `Def_`
+    # modules it transcribes plus the two comparable `S_` copies its
+    # `isEquiv_adicValuation_ofHeightOneSpectrum` / `ord_ofHeightOneSpectrum_ne_zero_iff` were
+    # read against — and `spec/check_port.py` owns it (20 ok / 0 mismatch / 0 missing / 0 own).
+    # The wave also lands the pin's `Place.Congr` section (274–398), which this module had
+    # deliberately dropped, because it is `Pic0Congr`'s gate. Its `SOURCES` rows stay. Do not
+    # re-list it here.
     "FLTForHuman/AlgebraicCurve/Defs/IntegralAdjoin.lean",
     # T2 (the promoted fibre dictionary and the bifibre count).
     "FLTForHuman/AlgebraicCurve/Defs/PlaceDictionary.lean",
@@ -3610,7 +3620,10 @@ PORT_FILES = [
     "FLTForHuman/ModularCurve/Defs/AtkinLehner.lean",
     "FLTForHuman/ModularCurve/Defs/CuspidalClass.lean",
     # SET-M1 m3: the analytic modular-unit q-expansion core.
-    "FLTForHuman/ModularCurve/Analytic/QParamUnique.lean",
+    # MIGRATED 2026-10-27 (the leaves' row wave, ground prep): `QParamUnique.lean` carries its own
+    # `spec-pin:` block over the two `qParam_coeff_unique` silos it transcribes (2 ok / 0 mismatch /
+    # 0 missing / 0 own) and is owned by `spec/check_port.py`. Its `SOURCES` rows stay. Do not
+    # re-list it.
     "FLTForHuman/ModularCurve/Analytic/Gamma0Cosets.lean",
     "FLTForHuman/ModularCurve/Analytic/ModularUnitQExpansion.lean",
     # SET-M2 m4: the shared Γ₀-invariant prelude, written once, and the first
@@ -4730,7 +4743,10 @@ PORT_FILES = [
     # --- WORKORDER-D2, node completion (whole-node rule, playbook §2.3): the remainder of
     # `Def_ModularCurve_QExpansionDiff.lean` — its `QExpansionDiff` and `TraceDiff` halves —
     # in their own subject modules. The pin definition file is in `SOURCES` above.
-    "FLTForHuman/ModularCurve/Period/QExpansionDiff.lean",
+    # MIGRATED 2026-10-27 (the leaves' row wave, ground prep): `QExpansionDiff.lean` carries its
+    # own `spec-pin:` line over `Def_ModularCurve_QExpansionDiff.lean` (2 ok / 0 mismatch /
+    # 0 missing / 0 own) and is owned by `spec/check_port.py`. Its `SOURCES` rows stay. Do not
+    # re-list it here.
     "FLTForHuman/AlgebraicCurve/Differential/TraceDiff.lean",
     # --- WORKORDER-C2 phase 1: the pin definition layer ported whole, matched against the pin
     # definition files appended to `SOURCES` above. `PushPull.lean` is the manager-authorised
@@ -4951,7 +4967,9 @@ PORT_FILES = [
     "FLTForHuman/AutomorphicForm/Adelic/WeylIntegrable.lean",
     # --- The ModularCurve weight-4 Tate-slot cluster, definition layer (see SOURCES).
     # Two new leaf modules; no existing module was edited, so no hub wave is owed.
-    "FLTForHuman/ModularCurve/Defs/TateFormal.lean",
+    # MIGRATED 2026-10-27 (the leaves' row wave, ground prep): `Defs/TateFormal.lean` carries its
+    # own `spec-pin:` line over `Def_ModularCurve_TateFormal.lean` (26 ok / 0 mismatch / 0 missing
+    # / 0 own) and is owned by `spec/check_port.py`. Its `SOURCES` rows stay. Do not re-list it.
     "FLTForHuman/ModularCurve/Defs/TateSlots.lean",
     # --- WORKORDER-F1: the weight-4 Tate-slot tier-1 façade. The engine modules
     # (`TateSlots/Convergence.lean`, `TateSlots/SlotCoeff.lean`) stay tier 3 and

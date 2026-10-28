@@ -16,8 +16,12 @@ carrier needs them:
   `ModularCurve/Frobenius/Defs.lean`, whose header records it as taken from this
   pin module; `qExpandAlg`/`qExpandAlg_apply` are **not** restated here either —
   they are `ModularCurve.qExpandAlg`/`qExpandAlg_apply`, whose one home is
-  `ModularCurve/Defs/Laurent.lean`, beside `qExpand` itself (this pin file declares
-  that general map too, under its `HomC`-suffixed name);
+  `ModularCurve/Defs/Laurent.lean`, beside `qExpand` itself. This pin file declares
+  that same general map too, under its `HomC`-suffixed name: `qExpandAlgHomC` is
+  kept here as an `abbrev` of `qExpandAlg` — the port's C1 dedup decision is that
+  this one map is written once, in `Defs/Laurent.lean`, and a second `def` here
+  would be a duplicate of it; the `abbrev` is statement-identical to the pin's
+  `def`, with the pin's `rfl` `qExpandAlgHomC_apply` beside it;
 * the pin's three imported
   `Theorems/Thm_ModularCurve_coeff_jqModC_{pow_self,pow_of_lt,neg_one}.lean`
   declarations are pin headlines; their one home is `Defs/JqCoeff.lean` (the pole at
@@ -27,6 +31,13 @@ carrier needs them:
 
 Statements are transcribed verbatim; the pin's `import Mathlib` is replaced by the
 specific imports below.
+
+**The `check_port` verdict** (`--force`, corpus `aa2d8b3`): 16 ok, 0 mismatch,
+0 missing, 1 own. The `own` is `full_degeneracyC_map_le`, whose statement is the
+pin's up to the `qExpandAlg`/`qExpandAlgHomC` rename and so cannot reach the hash
+tier. The other three of the pin's 20 declarations have their one home elsewhere:
+`coeffMap_ofPowerSeries` (`ModularCurve/Frobenius/Defs.lean`), `coeffMap_jqModC` and
+`jqModC_pow` (`Defs/JqCoeff.lean`).
 
 **The index is general.** `divisorExpansionsC` and `modularFunctionFieldFullC` carry no
 `NeZero N`: the pin's `S_` files that consume them
@@ -65,6 +76,12 @@ theorem jqNModC_rat (N : ℕ) [NeZero N] : jqNModC ℚ N = jqN N := rfl
 
 variable {R} in
 
+theorem coeffMap_jqNModC {S : Type*} [CommRing S] (f : R →+* S) (N : ℕ) [NeZero N] :
+    coeffMap f (jqNModC R N) = jqNModC S N := by
+  rw [jqNModC, coeffMap_qExpand, coeffMap_jqModC, jqNModC]
+
+variable {R} in
+
 theorem coeff_jqModC_eq_intCast (k : ℤ) : (jqModC R).coeff k = (((jqModC ℤ).coeff k : ℤ) : R) := by
   conv_lhs => rw [← coeffMap_jqModC (Int.castRingHom R)]
   rfl
@@ -83,6 +100,21 @@ theorem jqModC_ne_zero_of_nontrivial [Nontrivial R] : jqModC R ≠ 0 := fun h =>
   simpa [h] using coeff_jqModC_neg_one R
 
 end JExpansion
+
+section QExpandAlg
+
+variable (K : Type*) [Field K] (N : ℕ) [NeZero N]
+
+/-- The pin's `qExpandAlgHomC`: `qExpand` bundled as a `K`-algebra endomorphism.  This is
+the pin's name for the map the port publishes as `qExpandAlg` (`Defs/Laurent.lean`, its one
+proof, stated there for `[CommRing K]`); the alias is kept so that a `#check` against the
+pinned source is mechanical. -/
+abbrev qExpandAlgHomC : LaurentSeries K →ₐ[K] LaurentSeries K := qExpandAlg K N
+
+@[simp]
+theorem qExpandAlgHomC_apply (f : LaurentSeries K) : qExpandAlgHomC K N f = qExpand K N f := rfl
+
+end QExpandAlg
 
 section FunctionField
 

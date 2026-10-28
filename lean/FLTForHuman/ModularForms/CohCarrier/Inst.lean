@@ -13,26 +13,31 @@
   * `:23–34` — `heckeTL`; `:36–37` — `heckeTL_apply`.
   * `:55–58` — `diamondL`; `:60–89` — `diamondL_eq_diamondRaw`.
   * `:91–94` — `opFamily`.
+  * `:96–103` — `hdata`; `:105–109` — `MLAt`; `:111–112` — its `example` probe.
 
   Deliberately not transcribed, and why:
   * `gamma0Units_surjective` (`:39–53`) — already ported in
     `ModularForms/Defs/GammaH.lean` (this module reaches it through
     `Defs/CohCarrierLevel.lean` and does use it, in `diamondL` and
     `diamondL_eq_diamondRaw`, but does not restate it).
-  * `hdata` (`:96–103`) and `MLAt` (`:105–109`) — both are stated over
-    `CohCarrier.HeckeData`, the pin's `Definitions/Def_CohCarrier_HeckeData.lean`,
-    which is not in the port; deferred until that module is ported.
-  * the pin's trailing `example` (`:111–112`) — an `inferInstance` probe on
-    `MLAt`, i.e. on a deferral, so there is nothing to restate yet.
+
+  `hdata` and `MLAt` sit on `CohCarrier.HeckeData` (the `HeckeData` structure
+  and its free-algebra tower), homed here in the port's
+  `ModularForms/CohCarrier/HeckeData.lean` — the pin's
+  `Definitions/Def_CohCarrier_HeckeData.lean`, which the pin imports at line 2
+  and this module imports too. `hdata` packages `opFamily` as a `HeckeData`; the
+  commuting hypothesis `hcomm` is carried as a hypothesis (the pin's
+  `heckeT_diamondRaw_comm`-style leaves supply it), and `MLAt` is the
+  `HeckeData.ML` localization of `H1 M H 𝒪` at the prime ideal cut out by the
+  eigenvalues `θbar`.
 
   Statements are transcribed verbatim (same names, binders and spelling); the
   proofs are the pin's, adapted only where mathlib `v4.34.0` moved an API.
-  The pin imports `Definitions.Def_CohCarrier_HeckeData` as well; the port's
-  single import covers everything the transcribed declarations use.
 
   spec-pin: Definitions/Def_CohCarrier_Inst.lean
 -/
 import FLTForHuman.ModularForms.Defs.CohCarrierLevel
+import FLTForHuman.ModularForms.CohCarrier.HeckeData
 
 set_option autoImplicit false
 
@@ -122,6 +127,31 @@ def opFamily [NeZero M] : Gen M S → Module.End 𝒪 (H1 M H 𝒪)
   | .T ℓ hℓ _ _ => haveI : NeZero ℓ := ⟨hℓ.ne_zero⟩; heckeTL M H 𝒪 ℓ
   | .U q hq _ => haveI : NeZero q := ⟨hq.ne_zero⟩; heckeTL M H 𝒪 q
   | .dia d => diamondL M H 𝒪 d
+
+/-- The Hecke data of the carrier `H1 M H 𝒪` at level `Γ_H(M)`: the generator
+type `Gen M S` acting through `opFamily`, with the eigenvalues `θbar` in the
+`𝒪`-algebra `k`. The commutativity of the operators is a hypothesis `hcomm`,
+discharged by the leaves that compute it (the diamond/`T_ℓ`/`U_q` commutations). -/
+def hdata [NeZero M]
+    (hcomm : ∀ g h : Gen M S, opFamily M H S 𝒪 g * opFamily M H S 𝒪 h =
+      opFamily M H S 𝒪 h * opFamily M H S 𝒪 g)
+    (θbar : Gen M S → k) : HeckeData 𝒪 (H1 M H 𝒪) k where
+  Gen := Gen M S
+  op := opFamily M H S 𝒪
+  comm := hcomm
+  θbar := θbar
+
+/-- The Hecke localization of the carrier at level `Γ_H(M)`: `H1 M H 𝒪`
+localized at the prime complement of the ideal `mTheta` of the Hecke data cut out
+by the eigenvalues `θbar`. -/
+abbrev MLAt [NeZero M]
+    (hcomm : ∀ g h : Gen M S, opFamily M H S 𝒪 g * opFamily M H S 𝒪 h =
+      opFamily M H S 𝒪 h * opFamily M H S 𝒪 g)
+    (θbar : Gen M S → k) : Type :=
+  (hdata M H S 𝒪 k hcomm θbar).ML
+
+example [NeZero M] (hcomm) (θbar : Gen M S → k) : Module 𝒪 (MLAt M H S 𝒪 k hcomm θbar) :=
+  inferInstance
 
 end Inst
 

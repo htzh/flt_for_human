@@ -68,3 +68,5 @@ FLTForHuman/ModularCurve/ConstantReductionQExp.lean	ModularCurve.ConstantReducti
 FLTForHuman/ModularCurve/ConstantReductionQExp.lean	ModularCurve.ConstantReductionQExp.resF_inv	own: the pin's `hT : ModularGroup.T ∈ Γ` is an unused parameter of its definition; the port states the weaker `gaussRing A Γ`/`resHom A Γ` form (SET MC-7)
 FLTForHuman/ModularCurve/ConstantReductionQExp.lean	ModularCurve.ConstantReductionQExp.exists_unit_of_mem_closure	own: the pin's `hT : ModularGroup.T ∈ Γ` is an unused parameter of its definition; the port states the weaker `gaussRing A Γ`/`resHom A Γ` form (SET MC-7)
 FLTForHuman/ModularCurve/ConstantReductionQExp.lean	ModularCurve.ConstantReductionQExp.mapDomain_placeMap	own: the pin's `hT : ModularGroup.T ∈ Γ` is an unused parameter of its definition; the port states the weaker `gaussRing A Γ`/`resHom A Γ` form (SET MC-7)
+FLTForHuman/ModularCurve/JqCoefficients.lean	ModularCurve.coeff_jq_zero	own: the port's own low coefficient of jq (the pin has no declaration for this fact)
+FLTForHuman/ModularCurve/JqCoefficients.lean	ModularCurve.coeff_jq_one	own: the port's own low coefficient of jq (the pin has no declaration for this fact)
