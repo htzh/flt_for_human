@@ -496,17 +496,17 @@ As in the recipe §6, per order:
 | 7. the withheld pair | **defer** to `abelJacobiCard_genus`'s programme (144 nodes / 66k) + the `TateModule` definition layer (69 decls); the T1/T2 plan of `TOPIC-padic-tate-module.md` | not a row of this shelf |
 | 8. the in-flight records | **close WORKORDER-JQ2/CL4's status lines** — their declarations are in the tree | bookkeeping only; no Lean |
 
-**The waves after MC-4, scoped at declaration level (2026-10-27).** MC-5 and MC-6 are opened as
-their turns come (one wave at a time); this is the scoping that fixes their rows, gates and homes
-now, so that the def wave's decisions are carried forward and no re-pricing is needed when the turn
-arrives. Every premise named below was checked by name on this tree; every definition they name is
+**The waves after MC-4, scoped at declaration level (2026-10-27).** MC-5 and MC-6 are both opened
+(the user's "finish the rest"); this is the scoping that fixes their rows, gates and homes, so that
+the def wave's decisions are carried forward with no re-pricing. Their briefs are
+[SET-MC5.md](SET-MC5.md) and [SET-MC6.md](SET-MC6.md). Every premise named below was checked by name on this tree; every definition they name is
 in the port (the def wave's D3/D5/D6/D7).
 
 | wave | rows | defs in place | premises (all ported) | homes | orders | net |
 |---|---|---|---:|---|---:|---:|
 | **MC-5** (M4) | 390, 224 | D6 `siegelFun` | `jacobiTheta_two_eq_tprod` (`JacobiThetaTripleProduct`) | **new** `ModularCurve/SiegelUnit/Basic.lean` — the two `siegelFun` rows plus the ≈143-line jtp engine (`jtp_term`, `theta_eq`), 0 in port | 1 | ≈634 (story, de-duplicated; per row 358 + 190) |
-| **MC-5** (M4) | 220 | — | `EisensteinSeries`' three (`EisensteinSeries`, `Eisenstein/ConstTermCubeIntegral`) | insert `EisensteinSeries`-adjacent home (`ModularForms/EisensteinSeries.lean` or a new `ModularCurve/SiegelUnit/Eisenstein.lean`) | 1 | 188 |
-| **MC-5** (M7) | 403 | D7 `IsResidualRealization`, `CyclotomicDeterminant` | `RepresentationTheory/SubfieldBasis`, `Burnside`, `GaloisRep/Deformation/FiniteDescent` | **new** `ModularCurve/ResidualRealization.lean` | 1 | 363 |
+| **MC-5** (M4) | 220 | — | `EisensteinSeries`' three (`EisensteinSeries`, `Eisenstein/ConstTermCubeIntegral`) | **new** `ModularCurve/SiegelUnit/Eisenstein.lean` | 1 | 188 |
+| **MC-5** (M7) | 403 | D7 `IsResidualRealization`, `CyclotomicDeterminant` | `RepresentationTheory/SubfieldBasis`, `Burnside`, `GaloisRep/Deformation/FiniteDescent` | **new** `ModularCurve/ResidualDescent.lean` (not `ResidualRealization`, to stay distinct from the def module) | 1 | 363 |
 | **MC-6** (M9) | 322 | D5 `frickeMat`…`frickeH1L` | `FrickeReciprocity`, `PowerSeries/GaloisDescent`, `WeightOne/Gamma0Integral` | **new** `XH/FrickeSlash.lean` (+ the pin `S_` file's `frickeGL`/`frickeForm`, 0 in port) | 1 | 261 |
 | **MC-6** (M9) | 384 | D3 `diamondHBar`/`genOpH`, D5 | `X1/AtkinLehnerExchange`, `XH/HeckeDegree` | **new** `XH/QExpandNorm.lean` | 1 | 216 (108 lines now read in port — D3/D5's gift) |
 
@@ -635,6 +635,33 @@ them MC-4c's) but its *statement* is `TateModule.rep …`, i.e. it names the abs
 the padic-Tate-module topic's row and the withheld pair's neighbourhood; **MC-5 must not cut it**.
 That is the def-wave audit's FR-0049 shape, met again — the readiness test cannot see it, the
 statement audit can.
+
+**MC-5 and MC-6 landed (2026-10-27): the ready block's seven orders are closed.** Read together with
+MC-4's state: `needed` **998 / 397,567 → 992 / 395,624** (−6 / −1,943 = the six rows of the two
+sets: 390 + 224 + 220 + 403 + 322 + 384); frontier **1,415 / 729,584 → 1,421 / 731,527** (+6 /
++1,943, no extra declaration); ready 70 / 14,308 → **66 / 14,036** (six rows left, two entered);
+MC ready **10 / 2,782 → 5 / 2,015**; leaves unchanged; `--selfcheck` **PASS**. Five new modules —
+`ModularCurve/SiegelUnit/{Basic,Eisenstein}.lean`, `ModularCurve/ResidualDescent.lean`,
+`ModularCurve/XH/{FrickeSlash,QExpandNorm}.lean` — **6 checked declarations `ok`, 0 mismatch, 0
+missing, 0 own**, axioms clean, no `set_option` added, 0 new dedup clusters beyond the recorded
+pin-inherited one, two consumer zones at 0 errors. No promotion, no migration, no marker. Records:
+[SET-MC5.md](SET-MC5.md), [SET-MC6.md](SET-MC6.md).
+
+**Two successors entered, and one of them is the largest row of this family.**
+`ModularCurve.exists_algEquiv_xHFunctionFieldBar_slash_fricke_and_galois_smul` (**1,176** silo) is
+the M9 successor and became ready with MC-6's private Fricke material; the other is a `GaloisRep`
+row (495, the M7 descent's successor, outside the `ModularCurve` namespace). With the 611/168/36
+first-wave successors and the false ready (24), the MC ready shelf is **5 / 2,015**.
+
+**The programme's state.** The ready block's seven orders are all landed: MC-1/2/3 (first wave),
+MC-4, MC-7 (separately), MC-5 and MC-6. What remains in the column is (i) the **leaves programme**
+(32 rows / 6,797 in `ModularCurve`, ≈5,870 net, with its own definition gates `PeriodHomPair`,
+`Pic0Congr`, `ComplexPlaceDictionaryOf`, `X0ModL`), (ii) the **successors** — the 1,176 M9 row
+above, the 611/168/36 rows, and the false ready's Tate-module programme — and (iii) the
+**withheld pair** (610 silo, `abelJacobiCard_genus` + `TateModule`). The deferred Defs of the def
+wave come back with (i) and (ii), as the user's instruction anticipated: `PeriodOf`'s petersson block
+with the `L-other` leaves, `CohCarrier.HeckeData` with the leaves' `pair_*` rows, `ModularCurve_XH`'s
+torsion/Tate trio with the M9 successors and the Tate-module programme.
 
 ## 8. What this programme does not do
 

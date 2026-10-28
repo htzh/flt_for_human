@@ -1166,3 +1166,37 @@ round promotes what generalizes.
   foreground `flock`+`lake build` is only safe when the lock is known free. The `lake env lean`
   probe (no olean write) is the cheap foreground gate.
 - **seen**: 2026-10-27, SET MC-4's worker orders.
+
+## FR-0061 [lean] [linter] — `haveI`/`letI` in a `Prop` goal: `have`/`let` register the instance, so no suppression is needed
+
+- **where**: every MC-5/MC-6 order (MC-5b's `NeZero`/`Fact`, MC-5c's 7 sites, MC-6b's
+  `finiteDimensional_alpha`, MC-6a's `haveI := hKfin`); met as `linter.style.haveILetI`, which is
+  default-on in v4.34 and fires whenever `haveI`/`letI` binds a *proposition* (every typeclass that
+  is `Prop`-valued, e.g. `Module.Finite`, `FiniteIndex`, `NeZero`, `Fact`).
+- **symptom**: the pin's literal `haveI : NeZero N := …` warns, and a worker may not add the
+  linter option (the wave's gate forbids suppressions).
+- **cause / fact**: in Lean 4 `have x : T := v` and `let x : T := v` **do** register a local
+  instance when `T` is a class, exactly as `haveI`/`letI` do — the difference is only the linter's
+  opinion. So the unsuppressed spelling is `have`/`let`, or, where a term is wanted, the term-mode
+  `exact haveI : T := v` (MC-4c used that; it does not trip the linter because it is not the tactic).
+- **consequence for the port**: where an older module carries `set_option linter.style.haveILetI
+  false` (`X1/DiamondLift.lean`, `XH/DiamondLift.lean`, the three MC-7-era modules), that option is
+  now **redundant** for new code — do not extend it to new declarations, and delete it when the
+  module is next touched for another reason. The three older modules are left as they are
+  (grandfathered) so their checked surface does not move in a wave that is not theirs.
+- **seen**: 2026-10-27, SET MC-5 and MC-6.
+
+## FR-0062 [mathlib] [build] — `Mathlib.Tactic.Omega` does not exist in v4.34.0, and an unbuilt mathlib module fails the edit loop outright
+
+- **where**: MC-5c's imports; and generally any new module whose proof uses `omega`.
+- **symptom**: `import Mathlib.Tactic.Omega` fails — there is no such module in mathlib v4.34.0.
+  `omega` now rides on `Mathlib.Tactic.Order` (`public meta import Lean.Elab.Tactic.Omega` inside
+  it). Separately, because the port's mathlib is only *partially* built (164 oleans under
+  `Mathlib/Tactic/` at the time of writing), importing an unbuilt mathlib module fails the edit loop
+  with `object file … does not exist` instead of rebuilding it.
+- **fix**: import `Mathlib.Tactic.Order` (or the umbrella `Mathlib`); and when the "object file"
+  error names a mathlib module, build that module explicitly under `flock`
+  (`lake build Mathlib.<path>`) before re-running the edit loop — the same cure as FR-0033 for port
+  modules, one level down.
+- **seen**: 2026-10-27, SET MC-5c; the same "partially built mathlib" cost MC-6a two dependency
+  rebuilds (`HeckeFrickeTrace`, `QExpansionCoeff`).
