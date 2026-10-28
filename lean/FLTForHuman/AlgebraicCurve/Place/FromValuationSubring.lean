@@ -12,9 +12,12 @@ everything, there is a place `v` of `F` over `K` whose valuation subring is `A`;
 and the comap of a valuation subring along a ring hom with the same two
 properties is again a place's valuation subring.
 
-The pin carries the same ten-helper prelude verbatim in both `S_` files; it is
-written once here, and the second headline is the pin's one-line application of
-the first. The headline statements are the pin's `theorem solution`s (which the
+The pin carries the same private prelude verbatim in all three `S_` files; it is
+written once here, under the pin's separable hypothesis, and every headline is
+an application of the same trichotomy. The two `[CharZero K]` headlines derive
+the separability instance from integrality, so their statements are unchanged;
+the `_of_isSeparable` headline is the pin's separable form, strictly more
+general. The headline statements are the pin's `theorem solution`s (which the
 `Theorems/` wrappers restate verbatim) and are spelled with the pin's qualified
 names.
 
@@ -29,11 +32,15 @@ https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_Algebr
 https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_Place_exists_toValuationSubring_eq_comap_ringHom.lean
 https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_AlgebraicCurve_Place_exists_of_valuationSubring.lean
 https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_AlgebraicCurve_Place_exists_toValuationSubring_eq_comap_ringHom.lean
+https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_AlgebraicCurve_Place_exists_toValuationSubring_eq_comap_ringHom_of_isSeparable.lean
+https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_Place_exists_toValuationSubring_eq_comap_ringHom_of_isSeparable.lean
 
 spec-pin: Theorems/Thm_AlgebraicCurve_Place_exists_of_valuationSubring.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_Place_exists_of_valuationSubring.lean   -- comparable copy
 spec-pin: Theorems/Thm_AlgebraicCurve_Place_exists_toValuationSubring_eq_comap_ringHom.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_Place_exists_toValuationSubring_eq_comap_ringHom.lean   -- comparable copy
+spec-pin: Theorems/Thm_AlgebraicCurve_Place_exists_toValuationSubring_eq_comap_ringHom_of_isSeparable.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Place_exists_toValuationSubring_eq_comap_ringHom_of_isSeparable.lean   -- comparable copy
 -/
 
 import FLTForHuman.AlgebraicCurve.Defs.Place
@@ -81,12 +88,11 @@ private theorem isDedekindDomain_Kx {K F : Type*} [Field K] [Field F] [Algebra K
 
 /-- The integral closure of `K[x]` in the finite extension `F` is a Dedekind domain. -/
 private theorem isDedekindDomain_integralClosure {K F : Type*} [Field K] [Field F]
-    [Algebra K F] [CharZero K] (x : F) (hx : Transcendental K x)
-    [FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F] :
+    [Algebra K F] (x : F) (hx : Transcendental K x)
+    [FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F]
+    [Algebra.IsSeparable (IntermediateField.adjoin K ({x} : Set F)) F] :
     IsDedekindDomain (integralClosure (Algebra.adjoin K ({x} : Set F)) F) := by
   have := isDedekindDomain_Kx x hx
-  have : Algebra.IsSeparable (IntermediateField.adjoin K ({x} : Set F)) F :=
-    Algebra.IsSeparable.of_integral _ _
   exact integralClosure.isDedekindDomain (Algebra.adjoin K ({x} : Set F))
     (IntermediateField.adjoin K ({x} : Set F)) F
 
@@ -193,7 +199,8 @@ private theorem place_of_idealOfA_le {K F : Type*} [Field K] [Field F] [Algebra 
 /-- The valuation-subring ↔ place dictionary: a valuation subring containing the
 constants of a one-variable function field is a place's valuation subring. -/
 private theorem exists_place_of_mem {K F : Type*} [Field K] [Field F] [Algebra K F]
-    [CharZero K] (x : F) [FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F]
+    (x : F) [FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F]
+    [Algebra.IsSeparable (IntermediateField.adjoin K ({x} : Set F)) F]
     (A : ValuationSubring F) (hAK : ∀ a : K, algebraMap K F a ∈ A) (hA : A ≠ ⊤)
     (hx : Transcendental K x) (hxA : x ∈ A) :
     ∃ v : Place K F, v.toValuationSubring = A := by
@@ -210,10 +217,12 @@ private theorem exists_place_of_mem {K F : Type*} [Field K] [Field F] [Algebra K
 
 end Crux
 
-/-! ## The headlines -/
-
-theorem exists_of_valuationSubring {K F : Type*} [Field K] [Field F] [Algebra K F]
-    [CharZero K] (x : F) [FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F]
+/-- The trichotomy behind the dictionary, under the pin's separable hypothesis:
+either a height-one prime of the Dedekind domain `K[x]` cuts out the maximal
+ideal of `A`, or `F/K` is finite and `A` contains every element of `F`. -/
+private theorem exists_of_valuationSubring_of_isSeparable {K F : Type*} [Field K] [Field F]
+    [Algebra K F] (x : F) [FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F]
+    [Algebra.IsSeparable (IntermediateField.adjoin K ({x} : Set F)) F]
     (A : ValuationSubring F) (hAK : ∀ a : K, algebraMap K F a ∈ A) (hA : A ≠ ⊤) :
     ∃ v : AlgebraicCurve.Place K F, v.toValuationSubring = A := by
   by_cases hx : Transcendental K x
@@ -235,6 +244,8 @@ theorem exists_of_valuationSubring {K F : Type*} [Field K] [Field F] [Algebra K 
           rwa [inv_inv] at h
       have : FiniteDimensional (IntermediateField.adjoin K ({x⁻¹} : Set F)) F := by
         rw [hadj]; infer_instance
+      have : Algebra.IsSeparable (IntermediateField.adjoin K ({x⁻¹} : Set F)) F := by
+        rw [hadj]; infer_instance
       exact exists_place_of_mem x⁻¹ A hAK hA hxinv hxiA
   · rw [Transcendental, not_not] at hx
     refine absurd ?_ hA
@@ -254,15 +265,35 @@ theorem exists_of_valuationSubring {K F : Type*} [Field K] [Field F] [Algebra K 
     obtain ⟨z, hz⟩ := (isIntegrallyClosed_iff (R := A.toSubring) F).mp inferInstance hyA
     exact hz ▸ z.2
 
+/-! ## The headlines -/
+
+theorem exists_of_valuationSubring {K F : Type*} [Field K] [Field F] [Algebra K F]
+    [CharZero K] (x : F) [FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F]
+    (A : ValuationSubring F) (hAK : ∀ a : K, algebraMap K F a ∈ A) (hA : A ≠ ⊤) :
+    ∃ v : AlgebraicCurve.Place K F, v.toValuationSubring = A := by
+  have : Algebra.IsSeparable (IntermediateField.adjoin K ({x} : Set F)) F :=
+    Algebra.IsSeparable.of_integral _ _
+  exact exists_of_valuationSubring_of_isSeparable x A hAK hA
+
+theorem exists_toValuationSubring_eq_comap_ringHom_of_isSeparable {K F F' : Type*} [Field K] [Field F] [Field F']
+    [Algebra K F] (x : F) [FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F]
+    [Algebra.IsSeparable (IntermediateField.adjoin K ({x} : Set F)) F]
+    (φ : F →+* F') (w : ValuationSubring F')
+    (hwK : ∀ a : K, φ (algebraMap K F a) ∈ w) (hwx : ∃ y : F, φ y ∉ w) :
+    ∃ v : AlgebraicCurve.Place K F, v.toValuationSubring = w.comap φ := by
+  refine exists_of_valuationSubring_of_isSeparable x (w.comap φ) (fun a => hwK a) ?_
+  intro h
+  obtain ⟨y, hy⟩ := hwx
+  exact hy (h ▸ ValuationSubring.mem_top y : y ∈ w.comap φ)
+
 theorem exists_toValuationSubring_eq_comap_ringHom {K F F' : Type*} [Field K] [Field F]
     [Field F'] [Algebra K F] [CharZero K] (x : F)
     [FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F] (φ : F →+* F')
     (w : ValuationSubring F') (hwK : ∀ a : K, φ (algebraMap K F a) ∈ w)
     (hwx : ∃ y : F, φ y ∉ w) :
     ∃ v : AlgebraicCurve.Place K F, v.toValuationSubring = w.comap φ := by
-  refine exists_of_valuationSubring x (w.comap φ) (fun a => hwK a) ?_
-  intro h
-  obtain ⟨y, hy⟩ := hwx
-  exact hy (h ▸ ValuationSubring.mem_top y : y ∈ w.comap φ)
+  have : Algebra.IsSeparable (IntermediateField.adjoin K ({x} : Set F)) F :=
+    Algebra.IsSeparable.of_integral _ _
+  exact exists_toValuationSubring_eq_comap_ringHom_of_isSeparable x φ w hwK hwx
 
 end AlgebraicCurve.Place

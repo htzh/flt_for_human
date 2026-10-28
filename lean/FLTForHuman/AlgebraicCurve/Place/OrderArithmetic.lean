@@ -55,6 +55,8 @@ spec-pin: Theorems/Thm_AlgebraicCurve_Place_ord_norm_eq_zero_of_forall_fiber.lea
 spec-pin: P2M/Sol/S_AlgebraicCurve_Place_ord_norm_eq_zero_of_forall_fiber.lean   -- comparable copy
 spec-pin: Theorems/Thm_AlgebraicCurve_Pic0_exists_mk_eq_forall_notMem_support.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_Pic0_exists_mk_eq_forall_notMem_support.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_Pic0_torsion_move_of_forall_isRational.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Pic0_torsion_move_of_forall_isRational.lean
 -/
 import FLTForHuman.AlgebraicCurve.Defs.Place
 import FLTForHuman.AlgebraicCurve.Defs.PlaceCalculus
@@ -765,6 +767,21 @@ theorem exists_mk_eq_forall_notMem_support {K F : Type*} [Field K] [Field F] [Al
     refine (Finsupp.mem_support_iff.mp hv) ?_
     show (D₀ : Divisor K F) v - E v = 0
     rw [hEord v, hgord v hvS, sub_self]
+
+/-- **The moving lemma, with the rationality clause**: when every place is rational, a
+torsion class of `Pic0` has a representative whose support is rational and avoids a
+prescribed finite set of places. Statement from
+`Theorems/Thm_AlgebraicCurve_Pic0_torsion_move_of_forall_isRational.lean`; proof after
+the pin's `S_` file, the rationality clause read off `hrat` support-wise. -/
+theorem torsion.move_of_forall_isRational {K F : Type*} [Field K] [Field F] [Algebra K F]
+    [HasPrincipalDivisors K F] (hrat : ∀ v : Place K F, v.IsRational) (n : ℕ)
+    (x : Pic0.torsion K F n) (S : Finset (Place K F)) :
+    ∃ D : Divisor.degZero (K := K) (F := F),
+      Pic0.mk D = (x : Pic0 K F) ∧
+      (∀ v ∈ (D : Divisor K F).support, Place.IsRational v) ∧
+      (∀ v ∈ (D : Divisor K F).support, v ∉ S) := by
+  obtain ⟨D, hD, hS⟩ := Pic0.exists_mk_eq_forall_notMem_support (x : Pic0 K F) S
+  exact ⟨D, hD, fun v _ => hrat v, hS⟩
 
 end Pic0
 

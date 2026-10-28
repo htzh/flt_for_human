@@ -14,6 +14,16 @@ copy, already landed in `P1Dictionary.lean` from the ℙ¹ `S_` file), plus
 
 The pin's proofs are transcribed; the only adaptations are the v4.34.0 prod-lemma
 spellings (`Finset.prod_zpow` takes explicit arguments).
+spec-pin: Definitions/Def_AlgebraicCurve_PlaceEvaluationAlgebra.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_Divisor_evalFun_add.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_Divisor_evalFun_zsmul.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_Divisor_evalFun_ne_zero.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Divisor_evalFun_add.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Divisor_evalFun_zsmul.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Divisor_evalFun_ne_zero.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_Divisor_evalFun_mul.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_Divisor_evalFun_pullback.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_Divisor_evalFun_single_sub_single.lean
 -/
 import FLTForHuman.AlgebraicCurve.Defs.PlaceEvaluation
 
@@ -155,6 +165,27 @@ theorem evalFun_single_sub_single {K F : Type*} [Field K] [Field F] [Algebra K F
     exact hw
   rw [evalFun_add_of_forall_ne_zero f (hsupp v₁ 1 h₁) (hsupp v₂ (-1) h₂),
     Divisor.evalFun_single, Divisor.evalFun_single, zpow_one, zpow_neg_one, div_eq_mul_inv]
+
+/-! ## The wrapper-named surface of the three `evalFun` laws
+
+The pin publishes these three statements only through its
+`Theorems/Thm_AlgebraicCurve_Divisor_evalFun_*` wrappers, whose declarations are
+the `Definitions/`-layer laws above under the wrapper names. The port keeps both
+spellings: the `…_of_forall_ne_zero`/`…_divisor` names are the `Definitions/` layer's,
+and these are one-line aliases at the pin's public names. -/
+
+theorem evalFun_add {K F : Type*} [Field K] [Field F] [Algebra K F] (f : F) {D E : Divisor K F}
+    (hD : ∀ v ∈ D.support, Place.evalAt v f ≠ 0) (hE : ∀ v ∈ E.support, Place.evalAt v f ≠ 0) :
+    Divisor.evalFun f (D + E) = Divisor.evalFun f D * Divisor.evalFun f E :=
+  evalFun_add_of_forall_ne_zero f hD hE
+
+theorem evalFun_zsmul {K F : Type*} [Field K] [Field F] [Algebra K F] (f : F) (D : Divisor K F)
+    (n : ℤ) : Divisor.evalFun f (n • D) = Divisor.evalFun f D ^ n :=
+  evalFun_zsmul_divisor f D n
+
+theorem evalFun_ne_zero {K F : Type*} [Field K] [Field F] [Algebra K F] {f : F} {D : Divisor K F}
+    (h : ∀ v ∈ D.support, Place.evalAt v f ≠ 0) : Divisor.evalFun f D ≠ 0 :=
+  evalFun_ne_zero_of_forall_ne_zero h
 
 end Divisor
 

@@ -15,22 +15,32 @@ subring node, and each carries a `-- pin:` comment naming its line there. The mo
 closes with `exists_of_orderMap`, the realisation core the rest of the wave stands on:
 an abstract order map `μ : F → WithTop ℤ` that is multiplicative, nonarchimedean,
 trivial on the constants and non-trivial somewhere is `e` times the order function of a
-place, and that place's valuation ring is `{x | 0 ≤ μ x}`. The wire below diffs every
-public declaration of this module against those two pin files.
+place, and that place's valuation ring is `{x | 0 ≤ μ x}`.
+
+After it the module carries the rational-valued form of the same realisation,
+`exists_of_orderMap_rat` (the port's own statement: the pin has no rational-valued
+engine), followed by the ramified Hahn-series case it generalises,
+`Place.exists_ord_mul_eq_order_of_hasRamBound`, whose pin construction is replaced by the
+common-denominator reduction to the engine. The wire below diffs every public
+declaration of this module against those pin files.
 
   spec-pin: Theorems/Thm_AlgebraicCurve_Place_exists_of_isPrime_over_valuationSubring.lean
   spec-pin: P2M/Sol/S_AlgebraicCurve_Place_exists_of_isPrime_over_valuationSubring.lean   -- comparable copy
   spec-pin: Theorems/Thm_AlgebraicCurve_Place_exists_of_orderMap.lean
   spec-pin: P2M/Sol/S_AlgebraicCurve_Place_exists_of_orderMap.lean   -- comparable copy
+  spec-pin: Theorems/Thm_AlgebraicCurve_Place_exists_ord_mul_eq_order_of_hasRamBound.lean
+  spec-pin: P2M/Sol/S_AlgebraicCurve_Place_exists_ord_mul_eq_order_of_hasRamBound.lean   -- comparable copy
 
 FLT provenance, pinned `aa2d8b3`:
 https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_Place_exists_of_isPrime_over_valuationSubring.lean
 https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_Place_exists_of_orderMap.lean
+https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_AlgebraicCurve_Place_exists_ord_mul_eq_order_of_hasRamBound.lean
 -/
 
 import FLTForHuman.NumberTheory.ValuationSubring.Domination
 import FLTForHuman.AlgebraicCurve.Defs.Place
 import FLTForHuman.AlgebraicCurve.Defs.PlacesOverDVR
+import FLTForHuman.AlgebraicCurve.Defs.HahnSeriesRamificationBound
 
 set_option autoImplicit false
 
@@ -1172,6 +1182,288 @@ theorem exists_of_orderMap {K F : Type*} [Field K] [Field F] [Algebra K F]
   rw [hfin, Int.toNat_of_nonneg hϖpos.le, mul_comm]
 
 end OrderMapRealisation
+
+section RationalOrderMap
+
+/-- **Realising a rational-valued order map by a place.**  The common-denominator form of
+`exists_of_orderMap`: a `⊤`-killing multiplicative, nonarchimedean and constant-trivial
+order function `μ : F → WithTop ℚ` that is non-trivial somewhere and whose finite values
+all lie in `(1/d)ℤ` is `g` times the order function of a place, for a positive rational
+`g`; that place's valuation ring is exactly `{x | 0 ≤ μ x}`.  The proof rescales `μ` to the
+`ℤ`-valued order map `x ↦ d * μ x` — well defined by the common denominator `d` — and
+applies `exists_of_orderMap`.
+
+The statement is the port's own: the pin has no rational-valued engine, and states only
+the ramified Hahn-series case `Place.exists_ord_mul_eq_order_of_hasRamBound`, which is
+derived from this one below. -/
+theorem exists_of_orderMap_rat {K F : Type*} [Field K] [Field F] [Algebra K F]
+    (μ : F → WithTop ℚ) (h_top : ∀ x, μ x = ⊤ ↔ x = 0)
+    (h_mul : ∀ x y, μ (x * y) = μ x + μ y) (h_add : ∀ x y, min (μ x) (μ y) ≤ μ (x + y))
+    (h_const : ∀ c : K, c ≠ 0 → μ (algebraMap K F c) = 0)
+    (h_nontriv : ∃ x, 0 < μ x ∧ μ x ≠ ⊤)
+    (d : ℕ) (hd : 0 < d)
+    (h_den : ∀ x, μ x ≠ ⊤ → ∃ k : ℤ, μ x = ((k : ℚ) / (d : ℚ) : ℚ)) :
+    ∃ (P : Place K F) (g : ℚ), 0 < g ∧
+      (∀ x, x ∈ P.toValuationSubring ↔ 0 ≤ μ x) ∧
+      ∀ x, x ≠ 0 → μ x = g * (P.ord x : ℚ) := by
+  classical
+  have hdQ : (0 : ℚ) < (d : ℚ) := Nat.cast_pos.mpr hd
+  have hdne : (d : ℚ) ≠ 0 := hdQ.ne'
+  -- the integer `k x` with `μ x = k x / d`, chosen once for each finite value
+  let kf : F → ℤ := fun x => if h : μ x = ⊤ then 0 else (h_den x h).choose
+  have hkf : ∀ (x : F) (h : μ x ≠ ⊤), μ x = ((kf x : ℚ) / (d : ℚ) : ℚ) := by
+    intro x h
+    have hk : kf x = (h_den x h).choose := by simp only [kf, dite_eq_right h]
+    rw [hk]
+    exact (h_den x h).choose_spec
+  -- the rescaled `ℤ`-valued order map `ν = d * μ`, which is `⊤` exactly at `0`
+  let ν : F → WithTop ℤ := fun x => if x = 0 then ⊤ else (kf x : WithTop ℤ)
+  have hν0 : ν 0 = ⊤ := by simp only [ν, ite_eq_left rfl]
+  have hνne : ∀ x, x ≠ 0 → ν x = (kf x : WithTop ℤ) := by
+    intro x hx
+    simp only [ν, ite_eq_right hx]
+  have hμne : ∀ x, x ≠ 0 → μ x ≠ ⊤ := fun x hx h => hx ((h_top x).mp h)
+  have ν_top : ∀ x, ν x = ⊤ ↔ x = 0 := by
+    refine fun x => ⟨fun h => ?_, fun hx => hx ▸ hν0⟩
+    by_contra hx
+    rw [hνne x hx] at h
+    exact WithTop.coe_ne_top h
+  have key : ∀ a b : F,
+      ((↑((kf a : ℚ) / (d : ℚ)) : WithTop ℚ) ≤ ↑((kf b : ℚ) / (d : ℚ)) ↔
+        (kf a : WithTop ℤ) ≤ (kf b : WithTop ℤ)) := by
+    intro a b
+    rw [WithTop.coe_le_coe, div_le_div_iff_of_pos_right hdQ, Int.cast_le, ← WithTop.coe_le_coe]
+  have ν_mul : ∀ x y, ν (x * y) = ν x + ν y := by
+    intro x y
+    by_cases hx : x = 0
+    · subst hx
+      rw [zero_mul, hν0, top_add]
+    by_cases hy : y = 0
+    · subst hy
+      rw [mul_zero, hν0, add_top]
+    have hxy : x * y ≠ 0 := mul_ne_zero hx hy
+    have hxμ : μ x ≠ ⊤ := hμne x hx
+    have hyμ : μ y ≠ ⊤ := hμne y hy
+    have hxyμ : μ (x * y) ≠ ⊤ := by
+      rw [h_mul x y, hkf x hxμ, hkf y hyμ, ← WithTop.coe_add]
+      exact WithTop.coe_ne_top
+    have h1 : ((kf (x * y) : ℚ) / (d : ℚ)) =
+        ((kf x : ℚ) / (d : ℚ)) + ((kf y : ℚ) / (d : ℚ)) := by
+      have h := h_mul x y
+      rw [hkf (x * y) hxyμ, hkf x hxμ, hkf y hyμ, ← WithTop.coe_add, WithTop.coe_eq_coe] at h
+      exact h
+    have h2 : (kf (x * y) : ℚ) = (kf x : ℚ) + (kf y : ℚ) := by
+      have h3 := congrArg (fun t : ℚ => t * (d : ℚ)) h1
+      rw [div_mul_cancel₀ _ hdne, add_mul, div_mul_cancel₀ _ hdne, div_mul_cancel₀ _ hdne] at h3
+      exact h3
+    have h2' : kf (x * y) = kf x + kf y := by exact_mod_cast h2
+    rw [hνne _ hxy, hνne x hx, hνne y hy, h2', WithTop.coe_add]
+  have ν_add : ∀ x y, min (ν x) (ν y) ≤ ν (x + y) := by
+    intro x y
+    by_cases hxy : x + y = 0
+    · rw [hxy, hν0]; exact le_top
+    by_cases hx : x = 0
+    · subst hx
+      rw [zero_add, hν0, min_top_left]
+    by_cases hy : y = 0
+    · subst hy
+      rw [add_zero, hν0, min_top_right]
+    have hxμ : μ x ≠ ⊤ := hμne x hx
+    have hyμ : μ y ≠ ⊤ := hμne y hy
+    have hxyμ : μ (x + y) ≠ ⊤ := hμne _ hxy
+    have hmin : min (μ x) (μ y) ≤ μ (x + y) := h_add x y
+    rw [hkf x hxμ, hkf y hyμ, hkf (x + y) hxyμ] at hmin
+    rw [hνne _ hxy, hνne x hx, hνne y hy]
+    rcases min_le_iff.mp hmin with hle | hle
+    · exact min_le_iff.mpr (Or.inl ((key x (x + y)).mp hle))
+    · exact min_le_iff.mpr (Or.inr ((key y (x + y)).mp hle))
+  have ν_const : ∀ c : K, c ≠ 0 → ν (algebraMap K F c) = 0 := by
+    intro c hc
+    have hcF : algebraMap K F c ≠ 0 :=
+      fun h => hc (RingHom.injective (algebraMap K F) (by rw [h, map_zero]))
+    have hcμ : μ (algebraMap K F c) = 0 := h_const c hc
+    have hcμne : μ (algebraMap K F c) ≠ ⊤ := by rw [hcμ]; exact WithTop.coe_ne_top
+    have hk0 : kf (algebraMap K F c) = 0 := by
+      have h := hkf (algebraMap K F c) hcμne
+      rw [hcμ, ← WithTop.coe_zero] at h
+      have hq : ((kf (algebraMap K F c) : ℚ) / (d : ℚ)) = 0 :=
+        (WithTop.coe_eq_coe.mp h).symm
+      have h4 := congrArg (fun t : ℚ => t * (d : ℚ)) hq
+      rw [div_mul_cancel₀ _ hdne, zero_mul] at h4
+      exact_mod_cast h4
+    rw [hνne _ hcF, hk0]
+    exact WithTop.coe_zero
+  have ν_nontriv : ∃ x, 0 < ν x ∧ ν x ≠ ⊤ := by
+    obtain ⟨x, hxpos, hxne⟩ := h_nontriv
+    have hx0 : x ≠ 0 := fun h => hxne (h ▸ (h_top 0).mpr rfl)
+    have hkx : (0 : ℚ) < (kf x : ℚ) := by
+      have h : (0 : ℚ) < ((kf x : ℚ) / (d : ℚ)) := by
+        have h' : (0 : WithTop ℚ) < μ x := hxpos
+        rwa [hkf x hxne, ← WithTop.coe_zero, WithTop.coe_lt_coe] at h'
+      rcases div_pos_iff.mp h with ⟨h1, -⟩ | ⟨h1, h2⟩
+      · exact h1
+      · exact absurd h2 (not_lt.mpr hdQ.le)
+    refine ⟨x, ?_, ?_⟩
+    · rw [hνne x hx0, ← WithTop.coe_zero, WithTop.coe_lt_coe]
+      exact_mod_cast hkx
+    · rw [hνne x hx0]
+      exact WithTop.coe_ne_top
+  obtain ⟨P, e, he, hmem, hval⟩ := exists_of_orderMap ν ν_top ν_mul ν_add ν_const ν_nontriv
+  refine ⟨P, (e : ℚ) / (d : ℚ), ?_, ?_, ?_⟩
+  · exact div_pos (by exact_mod_cast he) hdQ
+  · intro x
+    rw [hmem x]
+    refine ⟨fun h => ?_, fun h => ?_⟩
+    · by_cases hx : x = 0
+      · rw [hx, show μ 0 = ⊤ from (h_top 0).mpr rfl]
+        exact le_top
+      · rw [hνne x hx, ← WithTop.coe_zero, WithTop.coe_le_coe] at h
+        have h0 : (0 : ℚ) ≤ (kf x : ℚ) := by exact_mod_cast h
+        rw [hkf x (hμne x hx)]
+        exact WithTop.coe_le_coe.mpr (div_nonneg h0 hdQ.le)
+    · by_cases hx : x = 0
+      · rw [hx, hν0]
+        exact le_top
+      · have hμx := hμne x hx
+        rw [hνne x hx, ← WithTop.coe_zero, WithTop.coe_le_coe]
+        have h' : (0 : WithTop ℚ) ≤ ((kf x : ℚ) / (d : ℚ) : ℚ) := by
+          rw [← hkf x hμx]
+          exact h
+        rw [← WithTop.coe_zero, WithTop.coe_le_coe] at h'
+        rcases div_nonneg_iff.mp h' with ⟨h1, -⟩ | ⟨h1, h2⟩
+        · exact_mod_cast h1
+        · exact absurd h2 (not_le.mpr hdQ)
+  · intro x hx
+    have hxμ : μ x ≠ ⊤ := hμne x hx
+    have h := hval x hx
+    rw [hνne x hx] at h
+    have hk : kf x = (e : ℤ) * P.ord x := WithTop.coe_eq_coe.mp h
+    have hq : ((kf x : ℚ) / (d : ℚ) : ℚ) = (e : ℚ) / (d : ℚ) * (P.ord x : ℚ) := by
+      rw [hk]
+      push_cast
+      ring
+    rw [hkf x hxμ]
+    exact WithTop.coe_eq_coe.mpr hq
+
+end RationalOrderMap
+
+section RamificationBound
+
+/-- **A place from a ramified Hahn-series embedding.**  A `K`-algebra map
+`φ : F →ₐ[K] HahnSeries ℚ L` whose values are ramified of bounded denominator
+(`HahnSeries.HasRamBound d`: every support point lies in `(1/d)ℤ`) and which is not
+order-trivial comes from a place `w` of `F`, with a positive rational `g` such that
+`(w.ord x : ℚ) * g = (φ x).order` for every `x`.
+
+The pin proves this from scratch — its own valuation subring, a generator of the value
+group and its irreducibility.  Here it is the common-denominator reduction to
+`exists_of_orderMap_rat`: `HasRamBound d` puts every `(φ x).order` in `(1/d)ℤ`, so
+`x ↦ if φ x = 0 then ⊤ else (φ x).order` is a `ℚ`-valued order map with denominator `d`,
+and the engine supplies the place and `g`. -/
+theorem exists_ord_mul_eq_order_of_hasRamBound
+    {K L F : Type*} [Field K] [Field L] [Algebra K L] [Field F] [Algebra K F]
+    (φ : F →ₐ[K] HahnSeries ℚ L) {d : ℕ} (hd : 0 < d)
+    (hφ : ∀ x : F, HahnSeries.HasRamBound d (φ x))
+    (hnt : ∃ x : F, (φ x).order ≠ 0) :
+    ∃ (w : AlgebraicCurve.Place K F) (g : ℚ), 0 < g ∧
+      ∀ x : F, (w.ord x : ℚ) * g = (φ x).order := by
+  classical
+  have φnz : ∀ x : F, x ≠ 0 → φ x ≠ 0 := by
+    intro x hx h
+    exact hx (RingHom.injective φ.toRingHom (by simpa using h))
+  -- the order map, made `⊤` at `0` so that it kills exactly the zero series
+  let μ : F → WithTop ℚ := fun x => if φ x = 0 then ⊤ else ((φ x).order : ℚ)
+  have hμ0 : μ 0 = ⊤ := by simp [μ]
+  have hμne : ∀ x, x ≠ 0 → μ x = ((φ x).order : WithTop ℚ) := by
+    intro x hx
+    simp only [μ, ite_eq_right (φnz x hx)]
+  have μ_top : ∀ x, μ x = ⊤ ↔ x = 0 := by
+    intro x
+    rcases eq_or_ne x 0 with rfl | hx
+    · exact ⟨fun _ => rfl, fun _ => hμ0⟩
+    · rw [hμne x hx]
+      exact ⟨fun h => absurd h WithTop.coe_ne_top, fun h => absurd h hx⟩
+  have μ_mul : ∀ x y, μ (x * y) = μ x + μ y := by
+    intro x y
+    by_cases hx : x = 0
+    · subst hx
+      rw [zero_mul, hμ0, top_add]
+    by_cases hy : y = 0
+    · subst hy
+      rw [mul_zero, hμ0, add_top]
+    have hxy : x * y ≠ 0 := mul_ne_zero hx hy
+    rw [hμne _ hxy, hμne x hx, hμne y hy, map_mul,
+      HahnSeries.order_mul (φnz x hx) (φnz y hy), WithTop.coe_add]
+  have μ_add : ∀ x y, min (μ x) (μ y) ≤ μ (x + y) := by
+    intro x y
+    by_cases hxy : x + y = 0
+    · rw [hxy, hμ0]; exact le_top
+    by_cases hx : x = 0
+    · subst hx
+      rw [zero_add, hμ0, min_top_left]
+    by_cases hy : y = 0
+    · subst hy
+      rw [add_zero, hμ0, min_top_right]
+    have hmin : min ((φ x).order) ((φ y).order) ≤ (φ (x + y)).order := by
+      have hne : φ (x + y) ≠ 0 := φnz _ hxy
+      rw [map_add] at hne ⊢
+      exact HahnSeries.min_order_le_order_add hne
+    rw [hμne x hx, hμne y hy, hμne _ hxy]
+    rcases min_le_iff.mp hmin with hle | hle
+    · exact min_le_iff.mpr (Or.inl (WithTop.coe_le_coe.mpr hle))
+    · exact min_le_iff.mpr (Or.inr (WithTop.coe_le_coe.mpr hle))
+  have μ_const : ∀ c : K, c ≠ 0 → μ (algebraMap K F c) = 0 := by
+    intro c hc
+    have hcF : algebraMap K F c ≠ 0 :=
+      fun h => hc (RingHom.injective (algebraMap K F) (by rw [h, map_zero]))
+    have horder : (φ (algebraMap K F c)).order = 0 := by
+      rw [φ.commutes, HahnSeries.algebraMap_apply, HahnSeries.order_C]
+    rw [hμne _ hcF, horder]
+    exact WithTop.coe_zero
+  have μ_nontriv : ∃ x, 0 < μ x ∧ μ x ≠ ⊤ := by
+    obtain ⟨x, hx⟩ := hnt
+    have hx0 : x ≠ 0 := fun h => hx (by rw [h, map_zero, HahnSeries.order_zero])
+    have hinv : ∀ y : F, y ≠ 0 → (φ y⁻¹).order = -(φ y).order := by
+      intro y hy
+      have h := HahnSeries.order_mul (φnz y hy) (φnz y⁻¹ (inv_ne_zero hy))
+      rw [← map_mul, mul_inv_cancel₀ hy, map_one, HahnSeries.order_one] at h
+      linarith
+    rcases lt_or_gt_of_ne hx with h | h
+    · refine ⟨x⁻¹, ?_, ?_⟩
+      · rw [hμne _ (inv_ne_zero hx0), hinv x hx0, ← WithTop.coe_zero, WithTop.coe_lt_coe]
+        linarith
+      · rw [hμne _ (inv_ne_zero hx0)]
+        exact WithTop.coe_ne_top
+    · refine ⟨x, ?_, ?_⟩
+      · rw [hμne x hx0, ← WithTop.coe_zero, WithTop.coe_lt_coe]
+        exact h
+      · rw [hμne x hx0]
+        exact WithTop.coe_ne_top
+  -- `HasRamBound d` is exactly the denominator condition
+  have μ_den : ∀ x, μ x ≠ ⊤ → ∃ k : ℤ, μ x = ((k : ℚ) / (d : ℚ) : ℚ) := by
+    intro x hxne
+    have hx0 : x ≠ 0 := fun h => hxne (h ▸ hμ0)
+    have hφx : φ x ≠ 0 := φnz x hx0
+    have hmem : (φ x).order ∈ (φ x).support := by
+      rw [HahnSeries.mem_support]
+      exact fun h => hφx (HahnSeries.coeff_order_eq_zero.mp h)
+    obtain ⟨k, hk⟩ := hφ x hmem
+    exact ⟨k, by rw [hμne x hx0, ← hk]⟩
+  obtain ⟨w, g, hg, -, hval⟩ :=
+    exists_of_orderMap_rat μ μ_top μ_mul μ_add μ_const μ_nontriv d hd μ_den
+  refine ⟨w, g, hg, ?_⟩
+  intro x
+  rcases eq_or_ne x 0 with rfl | hx
+  · rw [Place.ord_zero, Int.cast_zero, map_zero, HahnSeries.order_zero, zero_mul]
+  · have h := hval x hx
+    rw [hμne x hx] at h
+    have h2 : ((φ x).order : WithTop ℚ) = ↑(g * (w.ord x : ℚ)) := by
+      rw [WithTop.coe_mul]
+      exact h
+    have h3 : (φ x).order = g * (w.ord x : ℚ) := WithTop.coe_eq_coe.mp h2
+    rw [h3, mul_comm]
+
+end RamificationBound
 
 end Place
 

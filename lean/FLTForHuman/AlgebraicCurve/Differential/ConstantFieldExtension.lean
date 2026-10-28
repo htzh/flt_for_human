@@ -93,7 +93,7 @@ set_option linter.style.haveILetI false in
 shape, from the port's stronger
 `AlgebraicCurve.finiteDimensional_adjoin_of_transcendental`
 (`IsCurveOver/FinitenessTransfer.lean`). -/
-private theorem finiteDimensional_adjoin_of_transcendental {L F : Type*} [Field L] [Field F] [Algebra L F]
+theorem finiteDimensional_adjoin_of_transcendental {L F : Type*} [Field L] [Field F] [Algebra L F]
     (hF : ∃ x : F, Transcendental L x ∧
       FiniteDimensional (IntermediateField.adjoin L ({x} : Set F)) F)
     {f : F} (hf : Transcendental L f) :
@@ -104,19 +104,19 @@ private theorem finiteDimensional_adjoin_of_transcendental {L F : Type*} [Field 
 
 variable (K : Type*) [Field K]
 
-private noncomputable def polyBasis : Module.Basis (Fin 1) K[X] Ω[K[X]⁄K] :=
+noncomputable def polyBasis : Module.Basis (Fin 1) K[X] Ω[K[X]⁄K] :=
   (Module.Basis.singleton (Fin 1) K[X]).map (KaehlerDifferential.polynomialEquiv K).symm
 
-private theorem polyBasis_zero : polyBasis K 0 = D K K[X] Polynomial.X := by
+theorem polyBasis_zero : polyBasis K 0 = D K K[X] Polynomial.X := by
   simp [polyBasis]
 
-private noncomputable def ratFuncBasis : Module.Basis (Fin 1) (RatFunc K) Ω[(RatFunc K)⁄K] :=
+noncomputable def ratFuncBasis : Module.Basis (Fin 1) (RatFunc K) Ω[(RatFunc K)⁄K] :=
   haveI : Algebra.FormallyEtale K[X] (RatFunc K) :=
     Algebra.FormallyEtale.of_isLocalization (Rₘ := RatFunc K) (nonZeroDivisors K[X])
   ((polyBasis K).baseChange (RatFunc K)).map
     (KaehlerDifferential.tensorKaehlerEquivOfFormallyEtale K K[X] (RatFunc K))
 
-private theorem ratFuncBasis_zero : ratFuncBasis K 0 = D K (RatFunc K) RatFunc.X := by
+theorem ratFuncBasis_zero : ratFuncBasis K 0 = D K (RatFunc K) RatFunc.X := by
   simp only [ratFuncBasis, Module.Basis.map_apply, Module.Basis.baseChange_apply, polyBasis_zero,
     KaehlerDifferential.tensorKaehlerEquivOfFormallyEtale_apply,
     KaehlerDifferential.mapBaseChange_tmul, one_smul, KaehlerDifferential.map_D,
@@ -124,13 +124,13 @@ private theorem ratFuncBasis_zero : ratFuncBasis K 0 = D K (RatFunc K) RatFunc.X
 
 variable {F : Type*} [Field F] [Algebra K F]
 
-private noncomputable def towerBasis [Algebra (RatFunc K) F] [IsScalarTower K (RatFunc K) F]
+noncomputable def towerBasis [Algebra (RatFunc K) F] [IsScalarTower K (RatFunc K) F]
     [Algebra.IsSeparable (RatFunc K) F] : Module.Basis (Fin 1) F Ω[F⁄K] :=
   haveI : Algebra.FormallyEtale (RatFunc K) F := Algebra.FormallyEtale.of_isSeparable _ _
   ((ratFuncBasis K).baseChange F).map
     (KaehlerDifferential.tensorKaehlerEquivOfFormallyEtale K (RatFunc K) F)
 
-private theorem towerBasis_zero [Algebra (RatFunc K) F] [IsScalarTower K (RatFunc K) F]
+theorem towerBasis_zero [Algebra (RatFunc K) F] [IsScalarTower K (RatFunc K) F]
     [Algebra.IsSeparable (RatFunc K) F] :
     towerBasis K (F := F) 0 = D K F (algebraMap (RatFunc K) F RatFunc.X) := by
   simp only [towerBasis, Module.Basis.map_apply, Module.Basis.baseChange_apply, ratFuncBasis_zero,
@@ -138,7 +138,7 @@ private theorem towerBasis_zero [Algebra (RatFunc K) F] [IsScalarTower K (RatFun
     KaehlerDifferential.mapBaseChange_tmul, one_smul, KaehlerDifferential.map_D]
 
 set_option linter.style.haveILetI false in
-private theorem exists_basis_D (F : Type*) [Field F] [Algebra K F] [CharZero K]
+theorem exists_basis_D (F : Type*) [Field F] [Algebra K F] [CharZero K]
     (hfg : ∃ x : F, Transcendental K x ∧
       FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F)
     {t : F} (ht : Transcendental K t) :

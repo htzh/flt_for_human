@@ -1,9 +1,10 @@
 # Scoping the next ready set in the D–S cone
 
 **Status: a recipe, not a plan (2026-10-27).** Read this before cutting the next set out of the
-Deligne–Serre ready shelf. It records only what the last two scoping passes actually did — SET 3
-([algebraicCurve/SET-3.md](../algebraicCurve/SET-3.md)) and SET 4
-([algebraicCurve/SET-4.md](../algebraicCurve/SET-4.md)) — with the figures each step produced, the
+Deligne–Serre ready shelf. It records only what the last three scoping passes actually did — SET 3
+([algebraicCurve/SET-3.md](../algebraicCurve/SET-3.md)), SET 4
+([algebraicCurve/SET-4.md](../algebraicCurve/SET-4.md)) and SET 5
+([algebraicCurve/SET-5.md](../algebraicCurve/SET-5.md)) — with the figures each step produced, the
 instrument failures found on the way, and the rules that the failures forced. The column plan is
 [../PORTING-DeligneSerre.md](../PORTING-DeligneSerre.md) §2; the worked instance this note
 generalises is [TOPIC-weierstrass-ready-shelf.md](TOPIC-weierstrass-ready-shelf.md). What it does
@@ -17,7 +18,7 @@ cd tools/deps
 python3 frontier.py --ds --ready --include-leaves --rank-by silo --top 0 --json > build/shelf.json
 ```
 
-Three things about this command, each learned the hard way.
+Four things about this command, each learned the hard way.
 
 - **`--ds` is a subtraction, not a target.** It targets
   `DeligneSerre.exists_galoisRep_of_weightOne_qCoeff_hecke_eigen` and *avoids* the complex-analytic
@@ -30,6 +31,23 @@ Three things about this command, each learned the hard way.
   shelf that hid **five `AlgebraicCurve` rows, ≈1,100 silo lines**, including a 925-line node
   (`Divisor.mapDomain_placeReduction_correspondence`). SET 3 cut the shelf on `--ready` alone and
   missed them; SET 4 found them. The tool's own help says to pair the two flags.
+- **…and the leaves are a second block of the *report*, not just of the read.** The flag fixes the
+  read; it does not fix the table. SET 4's read returned 38 `AlgebraicCurve` rows — 14 in
+  `ready_rank`, 24 in `leaves_rank`, 6,901 silo — and its brief priced 14 / 4,410, silently leaving
+  2,491 silo of leaf rows neither cut nor deferred. SET 5 then opened on 29 AC rows, 24 of which
+  were that block. So a brief's shelf table quotes **both** block counts and their silo sums, and
+  names or defers every row it does not cut (FR-0040).
+- **`--ready` is blind to a premise inside the pruned set.** The readiness test and
+  `premises_unported` are computed on the *non-avoided* demand (`frontier.py:842-845`: the masks
+  are keyed by `need`, which `--ds` has already stripped of R), so a row that cites an unported R
+  node is printed with `premises_unported = 0` and `needed = 1` and looks ready, while its own
+  proof has to traverse the pruned subject. SET 6's read had **four such rows out of 96, 831
+  silo** (two `AlgebraicCurve` rows — the `_complex` prescribed-divisor engine and the
+  `Pic0` torsion finiteness — and two `ModularCurve` Tate-module rows); the leaves block had
+  none. The audit is cheap and belongs to every scoping pass: take each row's pin `S_`
+  `import Theorems.Thm_*` lines and test each premise for frontier membership *and* for
+  `ds_prunable` membership, rather than trusting the report's zero. A row with such a premise is
+  the prunable subject's work, not this column's; name it and defer it (FR-0044).
 - **Read the delta, not the absolute.** The port grows between two reads: after SET 3 landed,
   `needed [F terminal]` moved **1,103 nodes / 421,670 lines → 1,090 / 419,020**, and twelve rows
   left the ready list while five entered (see §7 on new arrivals). A shelf figure quoted in a
@@ -45,7 +63,8 @@ re-derive them per set, and do not silently port something from inside `R` becau
 
 Each `ready_rank` row carries `silo_lines` (the pin's `S_` lines for the node's whole demand — the
 rank key), `premises` (pin citations; a proxy for glue risk), `premises_unported` (zero by
-definition in a ready set), `leverage` / `leverage_project` (outbound demand inside the cone and
+definition in a ready set — which is why §0's audit, not this column, decides whether an avoided
+premise is really there), `leverage` / `leverage_project` (outbound demand inside the cone and
 across the project), and `leaf`.
 
 - **Rank by silo, but never drop the leaves.** Demand is inverted relative to size on this shelf:
@@ -93,10 +112,14 @@ Four sections, four decisions:
 | *generalise* | same conclusion, different binders; or same name, different statement | wrapper's binders; for the same-name pair, a namespace split |
 | *drags* | what each public declaration's proof needs | a `0 helpers` row means the pin file is a flat public surface — expect no private prelude |
 
-Two false negatives to carry: `port_advise` is **name-anchored**, so a port copy under another name
+Three false negatives to carry: `port_advise` is **name-anchored**, so a port copy under another name
 reads as "new" (the pin's `nonempty_ringHom_complex` sat in the port as
-`Field.nonempty_ringHom_complex_of_countable`, and the tool said `prelude 0/23`), and it does not
-read mathlib at all. `--with-defs` adds the pin `Definitions/Def_*.lean` closure — worth running
+`Field.nonempty_ringHom_complex_of_countable`, and the tool said `prelude 0/23`); it does not read
+mathlib at all; and it is **statement**-anchored, so a port theorem whose hypotheses are *weaker*
+than the pin node's is invisible — which is precisely the theorem that decides whether a row is a
+transcription or a generalisation of something the port has (SET 5's 340-line ramification-bound row
+against `Place.exists_of_orderMap`: `port_advise` priced all 318 net lines as new, FR-0041). Read the
+pin proof's first lines for a named engine before accepting an order's net-new figure. `--with-defs` adds the pin `Definitions/Def_*.lean` closure — worth running
 once per set: in SET 3 all twelve of those modules were already ported (2,555 lines of surface
 matched), which is the answer that lets a set skip the definition layer entirely. Four recorded
 omissions in them (`Place.fiber_eq_fiberOver`, `Place.finite_setOf_forall_mem_and_ord_pos`,

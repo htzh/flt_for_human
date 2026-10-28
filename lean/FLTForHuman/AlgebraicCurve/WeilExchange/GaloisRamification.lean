@@ -28,6 +28,8 @@ spec-pin: Theorems/Thm_AlgebraicCurve_SemilinearAut_restrict_smul.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_SemilinearAut_restrict_smul.lean
 spec-pin: Theorems/Thm_AlgebraicCurve_SemilinearAut_pushforward_smul.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_SemilinearAut_pushforward_smul.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_SemilinearAut_pushforwardAlong_smul.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_SemilinearAut_pushforwardAlong_smul.lean
 -/
 import FLTForHuman.AlgebraicCurve.Defs.PlaceDictionary
 import FLTForHuman.AlgebraicCurve.Defs.Correspondence
@@ -219,6 +221,21 @@ theorem pushforward_smul {K F F' : Type*} [Field K] [Field F] [Field F'] [Algebr
     congr 1
     rw [smul_single, Divisor.pushforward_single, Divisor.pushforward_single, smul_single,
       restrict_smul hgg' w, inertiaDeg_smul hgg' w]
+
+/-- **The along-version of `pushforward_smul`**: along an integral `φ : F →ₐ[K] F'`,
+`Divisor.pushforwardAlong` is equivariant for a pair of semilinear automorphisms
+intertwined through `φ`. Statement from
+`Theorems/Thm_AlgebraicCurve_SemilinearAut_pushforwardAlong_smul.lean`; proof after the
+pin's `S_` file — the along-instances turn it into the `F`-algebra form above. -/
+theorem pushforwardAlong_smul {K F F' : Type*} [Field K] [Field F] [Field F']
+    [Algebra K F] [Algebra K F'] {g : SemilinearAut K F} {g' : SemilinearAut K F'}
+    (φ : F →ₐ[K] F') (hφ : φ.toRingHom.IsIntegral)
+    (hgg' : IntertwinesAlong φ.toRingHom g g') (D : Divisor K F') :
+    Divisor.pushforwardAlong φ hφ (g' • D) = g • Divisor.pushforwardAlong φ hφ D := by
+  letI := algebraAlong φ
+  haveI := isScalarTower_along φ
+  haveI := isIntegral_along φ hφ
+  exact pushforward_smul hgg' D
 
 end SemilinearAut
 

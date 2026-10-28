@@ -22,6 +22,12 @@ spec-pin: P2M/Sol/S_AlgebraicCurve_Place_mem_iff_ord_nonneg.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_Place_exists_ord_pos.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_Place_comap_algebraMap_ne_top.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_Place_mem_comap_iff_ord_nonneg.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_Divisor_support_pushforward_subset.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_Divisor_support_pullback_subset.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_Place_pairwiseDisjoint_fiber.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Divisor_support_pushforward_subset.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Divisor_support_pullback_subset.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_Place_pairwiseDisjoint_fiber.lean
 -/
 import FLTForHuman.AlgebraicCurve.Defs.Place
 import FLTForHuman.AlgebraicCurve.Defs.Divisor
@@ -77,6 +83,22 @@ theorem mem_iff_ord_nonneg {K F : Type*} [Field K] [Field F] [Algebra K F] (v : 
     {f : F} (hf : f ≠ 0) :
     f ∈ v.toValuationSubring ↔ 0 ≤ v.ord f :=
   ⟨v.ord_nonneg_of_mem, v.mem_of_ord_nonneg hf⟩
+
+section OrdNeg
+
+variable {K F : Type*} [Field K] [Field F] [Algebra K F]
+
+/-- An element outside the valuation subring has negative order: the negative side of the
+`ord`/membership dictionary whose positive side is `ord_nonneg_of_mem`. The pin repeats this
+lemma in 34 `S_` files; it is written once here, with `v` in the binder as the pin's copies spell
+it (the checker extracts the statement without a section-variable prefix). -/
+theorem ord_neg_of_not_mem (v : Place K F) {f : F} (hf : f ∉ v.toValuationSubring) :
+    v.ord f < 0 := by
+  have hf0 : f ≠ 0 := fun h => hf (h ▸ v.toValuationSubring.zero_mem)
+  by_contra h
+  exact hf (mem_of_ord_nonneg v hf0 (not_lt.mp h))
+
+end OrdNeg
 
 theorem exists_ord_pos {K F : Type*} [Field K] [Field F] [Algebra K F] (v : Place K F) :
     ∃ f : F, f ≠ 0 ∧ 0 < v.ord f := by
@@ -759,5 +781,49 @@ theorem pushforwardHom_mk [Module.Finite F F'] (H : Divisor.PushforwardNormFormu
     pushforwardHom K F F' H (mk D) = mk (pushforwardDegZeroHom F D) := rfl
 
 end Pic0
+
+/-! ## Support and fibre-disjointness of `pushforward` / `pullback`
+
+The three leaves the wrappers publish: the support of a pushforward lands in the
+image of the support under `restrict`, the support of a pullback in the union of
+the fibres, and the fibres over a finite set of places are pairwise disjoint. -/
+
+namespace Place
+
+theorem pairwiseDisjoint_fiber {K F F' : Type*} [Field K] [Field F] [Field F']
+    [Algebra K F] [Algebra K F'] [Algebra F F'] [IsScalarTower K F F']
+    [Algebra.IsIntegral F F'] [HasPrincipalDivisors K F'] (s : Finset (Place K F)) :
+    Set.PairwiseDisjoint (s : Set (Place K F)) (fun v : Place K F => v.fiber F') := by
+  intro v₁ _ v₂ _ hne
+  refine Finset.disjoint_left.mpr fun w hw₁ hw₂ => ?_
+  exact hne ((Place.mem_fiber.mp hw₁).symm.trans (Place.mem_fiber.mp hw₂))
+
+end Place
+
+namespace Divisor
+
+theorem support_pushforward_subset {K F F' : Type*} [Field K] [Field F] [Field F']
+    [Algebra K F] [Algebra K F'] [Algebra F F'] [IsScalarTower K F F']
+    [Algebra.IsIntegral F F'] [DecidableEq (Place K F)] (D : Divisor K F') :
+    (Divisor.pushforward F D).support ⊆ D.support.image (fun w => w.restrict F) := by
+  classical
+  intro v hv
+  rw [Finsupp.mem_support_iff, pushforward_apply] at hv
+  obtain ⟨w, hw, hne⟩ := Finset.exists_ne_zero_of_sum_ne_zero hv
+  refine Finset.mem_image.mpr ⟨w, hw, ?_⟩
+  by_contra h
+  exact hne (ite_eq_right h)
+
+theorem support_pullback_subset {K F F' : Type*} [Field K] [Field F] [Field F']
+    [Algebra K F] [Algebra K F'] [Algebra F F'] [IsScalarTower K F F']
+    [Algebra.IsIntegral F F'] [HasPrincipalDivisors K F'] [DecidableEq (Place K F')]
+    (E : Divisor K F) :
+    (Divisor.pullback F' E).support ⊆ E.support.biUnion (fun v => v.fiber F') := by
+  classical
+  intro w hw
+  exact Finset.mem_biUnion.mpr ⟨w.restrict F,
+    restrict_mem_support_of_mem_support_pullback hw, w.restrict_mem_fiber⟩
+
+end Divisor
 
 end AlgebraicCurve

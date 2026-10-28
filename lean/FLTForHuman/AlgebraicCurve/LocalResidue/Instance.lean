@@ -50,6 +50,8 @@ unconditional `instHasCanonicalLocalResidueKStar`, together with its mathlib
 imports.
 
   spec-pin: Definitions/Def_AlgebraicCurve_CanonicalLocalResidueInstanceV2.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_hasCanonicalLocalResidueK.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_hasCanonicalLocalResidueK.lean
 -/
 import FLTForHuman.AlgebraicCurve.Defs.LocalResidue
 import FLTForHuman.AlgebraicCurve.Defs.IsCurveOver
@@ -1684,6 +1686,16 @@ theorem localResidue_eq_resStarₗ [IsCurveOver K F] [PerfectField K] (v : Place
     (S : Lg37CompletionSection v) :
     v.localResidue = resStarₗ v S :=
   LinearMap.ext (localResidue_eq_resStar v S)
+
+/-! ## The wrapper-named surface of the canonical local residue instance
+
+The pin publishes the unconditional `instHasCanonicalLocalResidueK` above through
+`Theorems/Thm_AlgebraicCurve_hasCanonicalLocalResidueK.lean`, whose declaration is
+this one-liner: the pin's whole proof is `inferInstance`. -/
+
+theorem hasCanonicalLocalResidueK (K F : Type*) [Field K] [Field F] [Algebra K F] :
+    AlgebraicCurve.HasCanonicalLocalResidueK K F :=
+  inferInstance
 
 end AlgebraicCurve
 

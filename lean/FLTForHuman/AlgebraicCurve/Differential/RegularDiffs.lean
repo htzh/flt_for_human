@@ -30,6 +30,8 @@ spec-pin: Theorems/Thm_AlgebraicCurve_Place_ordDiff_eq_ordDifferential.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_Place_ordDiff_eq_ordDifferential.lean   -- comparable copy
 spec-pin: Theorems/Thm_AlgebraicCurve_Place_ordDifferential_D_eq_zero_of_constantFieldExtension_of_forall_mem.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_Place_ordDifferential_D_eq_zero_of_constantFieldExtension_of_forall_mem.lean   -- comparable copy
+spec-pin: Theorems/Thm_AlgebraicCurve_regularDiffs_eq_regularDifferentials.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_regularDiffs_eq_regularDifferentials.lean   -- comparable copy
 -/
 import FLTForHuman.AlgebraicCurve.Defs.PlaceCalculus
 import FLTForHuman.AlgebraicCurve.Differential.Coefficient
@@ -237,7 +239,7 @@ open KaehlerDifferential
 
 variable {K F : Type*} [Field K] [Field F] [Algebra K F]
 
-private noncomputable def coeffLin (w : Place K F) [w.DCoordGenerates] [Nontrivial Ω[F⁄K]] :
+noncomputable def coeffLin (w : Place K F) [w.DCoordGenerates] [Nontrivial Ω[F⁄K]] :
     Ω[F⁄K] →ₗ[F] F where
   toFun := w.differentialCoeff
   map_add' ω₁ ω₂ := w.differentialCoeff_unique
@@ -249,7 +251,7 @@ private noncomputable def coeffLin (w : Place K F) [w.DCoordGenerates] [Nontrivi
 theorem coeffLin_apply (w : Place K F) [w.DCoordGenerates] [Nontrivial Ω[F⁄K]]
     (ω : Ω[F⁄K]) : coeffLin w ω = w.differentialCoeff ω := rfl
 
-private noncomputable def coeffDer (w : Place K F) [w.DCoordGenerates] [Nontrivial Ω[F⁄K]] :
+noncomputable def coeffDer (w : Place K F) [w.DCoordGenerates] [Nontrivial Ω[F⁄K]] :
     Derivation K F F :=
   (coeffLin w).compDer (D K F)
 
@@ -373,17 +375,23 @@ private theorem exists_basis_D (K : Type*) (F : Type*) [Field K] [Field F] [Alge
     simpa using span_D_eq_top_of_transcendental K t ht
   exact ⟨Module.Basis.mk hli hsp.ge, Module.Basis.mk_apply hli hsp.ge 0⟩
 
+section DneZero
+
+variable (K : Type*) [Field K]
+
 /-- The pin's `D_ne_zero_of_transcendental`: `D t ≠ 0` for transcendental `t`, with the
 finiteness hypothesis passed as an existential (the port's public form takes it as an
-instance for the same `t`). -/
-private theorem D_ne_zero_of_transcendental' (K : Type*) (F : Type*) [Field K] [Field F]
-    [Algebra K F] [CharZero K]
+instance for the same `t`). `K` is a file-level `variable` here because that is how the pin
+writes it, and the checker extracts the statement without the prefix. -/
+theorem D_ne_zero_of_transcendental (F : Type*) [Field F] [Algebra K F] [CharZero K]
     (hfg : ∃ x : F, Transcendental K x ∧
       FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F)
     {t : F} (ht : Transcendental K t) : D K F t ≠ 0 := by
   obtain ⟨b, hb⟩ := exists_basis_D K F hfg ht
   rw [← hb]
   exact b.ne_zero 0
+
+end DneZero
 
 end BasisD
 
@@ -423,7 +431,7 @@ theorem Place.ordDifferential_D_eq_zero_of_constantFieldExtension_of_forall_mem
   set x' := algebraMap F F' x with hx'_def
   set c := w.differentialCoeff (D K' F' x') with hc_def
   have hcδ : coeffDer w x' = c := rfl
-  have hDx' : D K' F' x' ≠ 0 := D_ne_zero_of_transcendental' K' F' hfg' hx
+  have hDx' : D K' F' x' ≠ 0 := D_ne_zero_of_transcendental K' F' hfg' hx
   have hc0 : c ≠ 0 := by
     intro h
     apply hDx'
@@ -515,5 +523,59 @@ theorem Place.ordDifferential_D_eq_zero_of_constantFieldExtension_of_forall_mem
   omega
 
 end MainTheorem
+
+/-! ## CFE2: the regular differentials are the span of the regular-diff forms
+
+The pin's `S_AlgebraicCurve_regularDiffs_eq_regularDifferentials` (68 ln): with `K`
+perfect, `F/K` essentially of finite type and a curve, the two spellings agree.  The
+pin's 25-line engine `regularDiffs_eq` is transcribed in its own namespace; its three
+`ord` helpers are the port's public `Place.mem_of_ord_nonneg` /
+`Place.ord_nonneg_of_mem`, so they are not restated. -/
+
+namespace S12R
+
+variable {K F : Type*} [Field K] [Field F] [Algebra K F]
+
+set_option linter.style.haveILetI false in
+/-- The pin's `regularDiffs_eq`: pointwise nonnegativity of `ordDiff` is the same as
+lying in the span of the regular-diff forms. -/
+theorem regularDiffs_eq [CharZero K] [Algebra.EssFiniteType K F] [IsCurveOver K F] :
+    regularDiffs K F = regularDifferentials K F := by
+  haveI : PerfectField K := inferInstance
+  haveI hgen : ∀ v : Place K F, v.DCoordGenerates :=
+    AlgebraicCurve.dCoordGenerates_of_isCurveOver
+
+  have key : ∀ (ω : Ω[F⁄K]) (v : Place K F),
+      0 ≤ v.ordDiff ω ↔ ∃ f ∈ v.toValuationSubring, ω = f • v.dCoord := by
+    intro ω v
+    rw [AlgebraicCurve.Place.ordDiff_eq_ordDifferential v ω]
+    constructor
+    · intro h
+      refine ⟨v.differentialCoeff ω, ?_, (v.differentialCoeff_smul_dCoord ω).symm⟩
+      rcases eq_or_ne (v.differentialCoeff ω) 0 with h0 | h0
+      · rw [h0]; exact zero_mem _
+      · exact Place.mem_of_ord_nonneg v h0 h
+    · rintro ⟨f, hf, rfl⟩
+      show 0 ≤ v.ord (v.differentialCoeff (f • v.dCoord))
+      rw [v.differentialCoeff_unique (rfl : f • v.dCoord = f • v.dCoord)]
+      exact Place.ord_nonneg_of_mem v hf
+  apply le_antisymm
+  · rw [regularDiffs_eq_span]
+    refine Submodule.span_le.mpr (fun ω hω => ?_)
+    rw [SetLike.mem_coe, mem_regularDifferentials_iff]
+    exact fun v => (key ω v).mp (hω v)
+  · intro ω hω
+    rw [mem_regularDifferentials_iff] at hω
+    exact mem_regularDiffs_of_isRegularDiff (fun v => (key ω v).mpr (hω v))
+
+end S12R
+
+/-- **The regular differentials are the span of the regular-diff forms.** Statement from
+`Theorems/Thm_AlgebraicCurve_regularDiffs_eq_regularDifferentials.lean`; proof after the
+pin's `S_` file. -/
+theorem regularDiffs_eq_regularDifferentials {K F : Type*} [Field K] [Field F] [Algebra K F]
+    [CharZero K] [Algebra.EssFiniteType K F] [AlgebraicCurve.IsCurveOver K F] :
+    AlgebraicCurve.regularDiffs K F = AlgebraicCurve.regularDifferentials K F :=
+  S12R.regularDiffs_eq
 
 end AlgebraicCurve

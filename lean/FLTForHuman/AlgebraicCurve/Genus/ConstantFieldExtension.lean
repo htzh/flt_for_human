@@ -52,8 +52,12 @@ spec-pin: Theorems/Thm_AlgebraicCurve_Pic0_natCard_torsion_eq_of_constantFieldEx
 spec-pin: P2M/Sol/S_AlgebraicCurve_Pic0_natCard_torsion_eq_of_constantFieldExtension.lean   -- comparable copy
 spec-pin: Theorems/Thm_AlgebraicCurve_exists_indexOfSpecialty_mapDomain_eq_zero_of_constantFieldExtension_of_isAlgClosed.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_exists_indexOfSpecialty_mapDomain_eq_zero_of_constantFieldExtension_of_isAlgClosed.lean   -- comparable copy
+spec-pin: Theorems/Thm_AlgebraicCurve_genus_eq_of_constantFieldExtension_of_isAlgClosed.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_genus_eq_of_constantFieldExtension_of_isAlgClosed.lean   -- comparable copy
 -/
 import FLTForHuman.AlgebraicCurve.Differential.ConstantFieldExtension
+import FLTForHuman.AlgebraicCurve.Differential.Coefficient
+import FLTForHuman.AlgebraicCurve.Differential.RegularDiffs
 import FLTForHuman.AlgebraicCurve.Genus.Index
 import FLTForHuman.AlgebraicCurve.Genus.Stichtenoth
 import FLTForHuman.AlgebraicCurve.RiemannRoch.Assembly
@@ -1631,5 +1635,242 @@ theorem Pic0.natCard_torsion_eq_of_constantFieldExtension (K F K' F' : Type*)
     (n : ℕ) (hn : n ≠ 0) :
     Nat.card (Pic0.torsion K' F' n) = Nat.card (Pic0.torsion K F n) :=
   W7XL2.natCard_torsion_eq hfg hfg' hgen hn
+
+/-! ## The genus under a constant field extension
+
+The pin's `S_AlgebraicCurve_genus_eq_of_constantFieldExtension_of_isAlgClosed` (539 ln):
+for algebraically closed `K ⊆ K'` and `F' = K'·F` with `F/K` of transcendence degree
+one, `genus K' F' = genus K F`.  The pin's engine is imported, not restated: the
+promoted `Differential/ConstantFieldExtension.lean` (BasisD) and
+`Differential/RegularDiffs.lean` block (`D_ne_zero_of_transcendental`, `coeffDer` and
+the coefficient laws, `differentialCoeff_D_mem`), the public `ord` API of
+`Place/ConstantFieldExtension.lean` and `Defs/PushPull.lean`, and — in the headline —
+the extension helpers `algebraMap_mem_adjoin`, `exists_ringHom_adjoin`,
+`isIntegral_algebraMap`, `transcendental_algebraMap` of
+`IsCurveOver/ConstantFieldExtension.lean`.  Only the pin's declarations with no public
+port copy are transcribed below, at the pin's statements. -/
+
+namespace W7XGenusExt
+
+section Toolkit
+
+variable {K F : Type*} [Field K] [Field F] [Algebra K F] (v : Place K F)
+
+/-- The pin's `irreducible_unifElt`; `Place.uniformizer` is its coercion to `F`. -/
+theorem irreducible_unifElt :
+    Irreducible (IsDiscreteValuationRing.exists_irreducible v.toValuationSubring).choose :=
+  (IsDiscreteValuationRing.exists_irreducible v.toValuationSubring).choose_spec
+
+theorem coe_unifElt :
+    ((IsDiscreteValuationRing.exists_irreducible v.toValuationSubring).choose : F)
+      = v.uniformizer := rfl
+
+theorem uniformizer_mem : v.uniformizer ∈ v.toValuationSubring :=
+  (IsDiscreteValuationRing.exists_irreducible v.toValuationSubring).choose.2
+
+theorem ord_eq_zero_of_isUnit {a : v.toValuationSubring} (ha : IsUnit a) : v.ord (a : F) = 0 := by
+  obtain ⟨u, rfl⟩ := ha
+  exact v.ord_coe_unit u
+
+theorem mem_maximalIdeal_of_not_isUnit {a : v.toValuationSubring} (ha : ¬IsUnit a) :
+    a ∈ IsLocalRing.maximalIdeal v.toValuationSubring := by
+  rwa [IsLocalRing.mem_maximalIdeal, mem_nonunits_iff]
+
+theorem not_isUnit_of_mem_maximalIdeal {a : v.toValuationSubring}
+    (ha : a ∈ IsLocalRing.maximalIdeal v.toValuationSubring) : ¬IsUnit a := by
+  rwa [IsLocalRing.mem_maximalIdeal, mem_nonunits_iff] at ha
+
+theorem mul_uniformizer_mem_maximalIdeal {d : F} (hd : d ∈ v.toValuationSubring) :
+    (⟨d * v.uniformizer, mul_mem hd (uniformizer_mem v)⟩ : v.toValuationSubring)
+      ∈ IsLocalRing.maximalIdeal v.toValuationSubring := by
+  rw [(irreducible_unifElt v).maximalIdeal_eq, Ideal.mem_span_singleton']
+  exact ⟨⟨d, hd⟩, Subtype.ext rfl⟩
+
+end Toolkit
+
+section Genus
+
+open KaehlerDifferential
+
+variable {K F : Type*} [Field K] [Field F] [Algebra K F] [IsCurveOver K F]
+
+omit [IsCurveOver K F] in
+theorem differentialCoeff_ne_zero (v : Place K F) [v.DCoordGenerates] {ω : Ω[F⁄K]} (hω : ω ≠ 0) :
+    v.differentialCoeff ω ≠ 0 := by
+  intro h
+  apply hω
+  rw [← v.differentialCoeff_smul_dCoord ω, h, zero_smul]
+
+theorem exists_smul_eq {ω₁ ω₂ : Ω[F⁄K]} (h₂ : ω₂ ≠ 0) : ∃ c : F, c • ω₂ = ω₁ :=
+  (finrank_eq_one_iff_of_nonzero' ω₂ h₂).1 IsCurveOver.finrank_kaehler ω₁
+
+variable [HasCanonicalDivisor (K := K) (F := F)] [∀ v : Place K F, v.DCoordGenerates]
+
+theorem degree_canonicalDivisorOf_eq {ω₁ ω₂ : Ω[F⁄K]} (h₁ : ω₁ ≠ 0) (h₂ : ω₂ ≠ 0) :
+    Divisor.degree (canonicalDivisorOf h₁) = Divisor.degree (canonicalDivisorOf h₂) := by
+  obtain ⟨c, hc⟩ := exists_smul_eq (ω₁ := ω₁) h₂
+  have hc0 : c ≠ 0 := by
+    rintro rfl
+    exact h₁ (by rw [← hc, zero_smul])
+  obtain ⟨Dc, hDc, hdeg⟩ := HasPrincipalDivisors.exists_divisor (K := K) (F := F) c hc0
+  have hsum : canonicalDivisorOf h₁ = Dc + canonicalDivisorOf h₂ := by
+    ext v
+    rw [Finsupp.add_apply, canonicalDivisorOf_apply, canonicalDivisorOf_apply, hDc]
+    conv_lhs => rw [← hc]
+    exact v.ordDifferential_smul hc0 (differentialCoeff_ne_zero v h₂)
+  rw [hsum, map_add, hdeg, zero_add]
+
+theorem genus_eq {ω : Ω[F⁄K]} (hω : ω ≠ 0) :
+    genus K F = (Divisor.degree (canonicalDivisorOf hω) + 2).toNat / 2 := by
+  have hex : ∃ ω : Ω[F⁄K], ω ≠ 0 := ⟨ω, hω⟩
+  unfold genus
+  rw [dite_eq_left hex, degree_canonicalDivisorOf_eq hex.choose_spec hω]
+
+end Genus
+
+section Extension
+
+open KaehlerDifferential IntermediateField
+
+variable {K F K' F' : Type*} [Field K] [Field F] [Field K'] [Field F'] [Algebra K F]
+  [Algebra K' F'] [Algebra K K'] [Algebra F F'] [Algebra K F'] [IsScalarTower K K' F']
+  [IsScalarTower K F F']
+
+theorem ordDifferential_map_eq
+    [IsCurveOver K F] [∀ v : Place K F, v.DCoordGenerates]
+    [PerfectField K'] [Algebra.EssFiniteType K' F'] [IsCurveOver K' F']
+    [∀ w : Place K' F', w.DCoordGenerates]
+    (v : Place K F) (w : Place K' F')
+    (hord : ∀ f : F, w.ord (algebraMap F F' f) = v.ord f)
+    {ω : Ω[F⁄K]} (hω : ω ≠ 0) :
+    w.ordDifferential (KaehlerDifferential.map K K' F F' ω) = v.ordDifferential ω := by
+  set π := v.uniformizer with hπ_def
+  have hπ1 : w.ord (algebraMap F F' π) = 1 := by rw [hord, v.ord_uniformizer]
+  have hπ0 : algebraMap F F' π ≠ 0 := by
+    intro h
+    rw [h, Place.ord_zero] at hπ1
+    exact zero_ne_one hπ1
+  obtain ⟨u, hu⟩ := w.exists_unit_mul_zpow hπ0 (irreducible_unifElt w)
+  rw [hπ1, zpow_one, coe_unifElt] at hu
+
+  set a := w.differentialCoeff (D K' F' (algebraMap F F' π)) with ha_def
+  have hδ : a = coeffDer w ((u : w.toValuationSubring) : F') * w.uniformizer
+      + ((u : w.toValuationSubring) : F') := by
+    rw [ha_def, ← coeffDer_apply, hu, Derivation.leibniz, coeffDer_uniformizer, smul_eq_mul,
+      smul_eq_mul, mul_one]
+    ring
+  have hδu_mem : coeffDer w ((u : w.toValuationSubring) : F') ∈ w.toValuationSubring :=
+    differentialCoeff_D_mem w (u : w.toValuationSubring).2
+  have ha_mem : a ∈ w.toValuationSubring := by
+    rw [hδ]
+    exact add_mem (mul_mem hδu_mem (uniformizer_mem w)) (u : w.toValuationSubring).2
+  have ha_unit : IsUnit (⟨a, ha_mem⟩ : w.toValuationSubring) := by
+    by_contra hna
+    have hmax := mem_maximalIdeal_of_not_isUnit w hna
+    have hprod := mul_uniformizer_mem_maximalIdeal w hδu_mem
+    have hu_eq : (u : w.toValuationSubring) = ⟨a, ha_mem⟩
+        - ⟨coeffDer w ((u : w.toValuationSubring) : F') * w.uniformizer,
+            mul_mem hδu_mem (uniformizer_mem w)⟩ := by
+      apply Subtype.ext
+      simp only [AddSubgroupClass.coe_sub, hδ]
+      ring
+    have hu_max : (u : w.toValuationSubring) ∈ IsLocalRing.maximalIdeal w.toValuationSubring := by
+      rw [hu_eq]
+      exact sub_mem hmax hprod
+    exact not_isUnit_of_mem_maximalIdeal w hu_max u.isUnit
+  have ha_ord : w.ord a = 0 := ord_eq_zero_of_isUnit w ha_unit
+  have ha0 : a ≠ 0 := by
+    intro h
+    apply ha_unit.ne_zero
+    exact Subtype.ext h
+
+  set g := v.differentialCoeff ω with hg_def
+  have hg0 : g ≠ 0 := differentialCoeff_ne_zero v hω
+  have hωeq : ω = g • D K F π := by
+    rw [hπ_def, ← Place.dCoord_eq]
+    exact (v.differentialCoeff_smul_dCoord ω).symm
+  have hDπ' : D K' F' (algebraMap F F' π) = a • w.dCoord :=
+    (w.differentialCoeff_smul_dCoord _).symm
+  have hmap : KaehlerDifferential.map K K' F F' ω = (algebraMap F F' g * a) • w.dCoord := by
+    rw [hωeq, map_smul, KaehlerDifferential.map_D, algebra_compatible_smul F' g, hDπ', smul_smul]
+  rw [Place.ordDifferential, w.differentialCoeff_unique hmap, Place.ordDifferential,
+    w.ord_mul ((map_ne_zero (algebraMap F F')).2 hg0) ha0, ha_ord, add_zero, hord]
+
+end Extension
+
+end W7XGenusExt
+
+/-! ### The headline -/
+
+set_option linter.style.haveILetI false in
+theorem genus_eq_of_constantFieldExtension_of_isAlgClosed (K F K' F' : Type*)
+    [Field K] [Field F] [Field K'] [Field F'] [Algebra K F] [Algebra K' F']
+    [Algebra K K'] [Algebra F F'] [Algebra K F'] [IsScalarTower K K' F'] [IsScalarTower K F F']
+    [IsAlgClosed K] [CharZero K] [IsAlgClosed K']
+    (hfg : ∃ x : F, Transcendental K x ∧ FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F)
+    (hfg' : ∃ x : F', Transcendental K' x ∧
+      FiniteDimensional (IntermediateField.adjoin K' ({x} : Set F')) F')
+    [IsCurveOver K F] [HasCanonicalDivisor (K := K) (F := F)]
+    [IsCurveOver K' F'] [HasCanonicalDivisor (K := K') (F := F')]
+    (hgen : IntermediateField.adjoin K' (Set.range (algebraMap F F')) = ⊤) :
+    genus K' F' = genus K F := by
+  classical
+  obtain ⟨x, hxK, hxfin⟩ := id hfg
+  haveI := hxfin
+  haveI : CharZero K' := charZero_of_injective_algebraMap (algebraMap K K').injective
+  haveI : Algebra.EssFiniteType K F :=
+    essFiniteType_of_transcendental_of_finiteDimensional hxK hxfin
+  haveI : Algebra.EssFiniteType K' F' := by
+    obtain ⟨y, hy, hyfin⟩ := hfg'
+    exact essFiniteType_of_transcendental_of_finiteDimensional hy hyfin
+  haveI hDC : ∀ v : Place K F, v.DCoordGenerates := dCoordGenerates_of_isCurveOver
+  haveI hDC' : ∀ w : Place K' F', w.DCoordGenerates := dCoordGenerates_of_isCurveOver
+
+  have hx' : Transcendental K' (algebraMap F F' x) :=
+    ConstantFieldExtension.transcendental_algebraMap (K := K) hfg' hgen
+  have hDx : KaehlerDifferential.D K F x ≠ 0 := D_ne_zero_of_transcendental K F hfg hxK
+  have hDx' : KaehlerDifferential.D K' F' (algebraMap F F' x) ≠ 0 := D_ne_zero_of_transcendental K' F' hfg' hx'
+  rw [W7XGenusExt.genus_eq hDx', W7XGenusExt.genus_eq hDx]
+  suffices h : Divisor.degree (canonicalDivisorOf hDx') = Divisor.degree (canonicalDivisorOf hDx) by
+    rw [h]
+
+  choose P hPcomap hPord hPuniq using fun v : Place K F =>
+    AlgebraicCurve.Place.exists_comap_algebraMap_eq_of_constantFieldExtension K F K' F'
+      hfg hfg' hgen v
+  have hPinj : Function.Injective P := fun v₁ v₂ h =>
+    Place.ext (by rw [← hPcomap v₁, ← hPcomap v₂, h])
+
+  have hold : ∀ v, canonicalDivisorOf hDx' (P v) = canonicalDivisorOf hDx v := by
+    intro v
+    rw [canonicalDivisorOf_apply, canonicalDivisorOf_apply, ← KaehlerDifferential.map_D K K' F F' x]
+    exact W7XGenusExt.ordDifferential_map_eq v (P v) (hPord v) hDx
+
+  have hnew : ∀ w, w ∉ Set.range P → canonicalDivisorOf hDx' w = 0 := by
+    intro w hw
+    have hwF : ∀ f : F, algebraMap F F' f ∈ w.toValuationSubring := by
+      by_contra hcon
+      push Not at hcon
+      have hwK : ∀ a : K, algebraMap F F' (algebraMap K F a) ∈ w.toValuationSubring := by
+        intro a
+        rw [← IsScalarTower.algebraMap_apply, IsScalarTower.algebraMap_apply K K' F']
+        exact w.algebraMap_mem' _
+      obtain ⟨v, hv⟩ := AlgebraicCurve.Place.exists_toValuationSubring_eq_comap_ringHom x
+        (algebraMap F F') w.toValuationSubring hwK hcon
+      exact hw ⟨v, (hPuniq v w hv.symm).symm⟩
+    rw [canonicalDivisorOf_apply]
+    exact (AlgebraicCurve.Place.ordDifferential_D_eq_zero_of_constantFieldExtension_of_forall_mem
+      K F K' F' hfg hfg' hgen w hwF hx').2
+
+  have hmapD : canonicalDivisorOf hDx' = Finsupp.mapDomain P (canonicalDivisorOf hDx) := by
+    ext w
+    by_cases hw : w ∈ Set.range P
+    · obtain ⟨v, rfl⟩ := hw
+      rw [Finsupp.mapDomain_apply_of_injective hPinj, hold]
+    · rw [Finsupp.mapDomain_of_notMem_range _ _ hw, hnew w hw]
+  rw [hmapD]
+  unfold Divisor.degree
+  rw [Finsupp.liftAddHom_apply, Finsupp.liftAddHom_apply, Finsupp.sum_mapDomain_index_inj hPinj]
+  refine Finsupp.sum_congr fun v _ => ?_
+  simp only [AddMonoidHom.coe_mulRight, IsCurveOver.deg_eq_one_of_isAlgClosed]
 
 end AlgebraicCurve

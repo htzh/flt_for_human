@@ -668,3 +668,115 @@ round promotes what generalizes.
   two probes that usually settle it: stub the module's proofs and see whether the floor is the
   *type*, then bisect the one declaration.
 - **seen**: 2026-10-27.
+
+## FR-0040 [tooling] [method] — a shelf *read* can carry the leaves block while the *brief* prices only the ready block
+
+- **where**: SET 4's scoping read and its brief (`topics/algebraicCurve/SET-4.md` §0 against the read
+  that produced it).
+- **symptom**: the read was the canonical one — `frontier.py --ds --ready --include-leaves --rank-by
+  silo --top 0` — and it reported `AlgebraicCurve` in two blocks: **14** rows / 4,410 silo in
+  `ready_rank` and **24** rows / 2,491 silo in `leaves_rank`. The brief's shelf table says
+  "`AlgebraicCurve` rows **14**, their silo lines **4,410**" and names only the fourteen. The
+  twenty-four leaf rows were therefore neither cut nor recorded as deferred, and the next scoping
+  pass (SET 5) opens on 29 AC rows, of which 24 are that unmentioned block and five are rows
+  SET 4's own landing made ready.
+- **cause**: the two blocks are separate keys of the same JSON (`ready_rank`, `leaves_rank`), and a
+  brief written from the `ready_rank` table alone silently drops the other. TOPIC-scoping-a-ds-set
+  §0 warns about the *read* (`--ready` without `--include-leaves`); this is the same loss one step
+  later, after the flag is correct.
+- **fix**: a brief's shelf table quotes **both** block counts and their silo sums, and every row it
+  does not cut is either named or explicitly deferred with a reason. Verify by re-reading the JSON:
+  `len(ready_rank.rows) + len(leaves_rank.rows)` for the namespace must equal the row count the
+  brief claims.
+- **seen**: 2026-10-27; found on the SET 5 read, which diffed the SET 4 shelf against the current
+  one and saw 38 → 29 rows with 14 consumed and 5 new.
+
+## FR-0041 [method] [tooling] — a row's engine can be a port theorem with a *more general* statement, and then `port_advise` prices the whole row as new
+
+- **where**: SET 5's pricing of `AlgebraicCurve.Place.exists_ord_mul_eq_order_of_hasRamBound` (340
+  silo, 23 declarations; `port_advise` reports 0 in-port lines, 318 net new).
+- **symptom**: the row is priced as a from-scratch construction. It *is* one — but the port's
+  `Place.exists_of_orderMap` (`Place/ValueDictionary.lean:1013`) already realises **any**
+  `WithTop ℤ`-valued order map (multiplicative, nonarchimedean, trivial on constants, nontrivial)
+  as `e` times a place's order. The pin's row is the `WithTop ℚ` + common-denominator `d` version
+  (its `ramScale`/`HasRamBound`), i.e. `exists_of_orderMap` at `d = 1`.
+- **cause**: `port_advise`'s substitution and drags tiers are statement-anchored (hash / shape
+  after binder normalisation). A port theorem with *weaker hypotheses* than the pin's is not a
+  shape match, so it is invisible — and it is exactly the theorem that decides whether a row is a
+  transcription or a generalisation.
+- **fix**: before accepting an order's "net new" figure, read the pin proof's first lines for a
+  named engine and grep the port for the *idea*, not the name (`exists_of_orderMap`,
+  `exists_forall_ord_eq`, `regularDiffs_eq_span` were all found this way in this pass). When the
+  port's engine is the special case, decide the route explicitly — transcribe now, or generalise
+  the engine and derive both — and record the call in the brief, because the two routes have
+  different owners (worker vs manager).
+- **seen**: 2026-10-27.
+
+## FR-0042 [mathlib] [build] — a `Subfield` of `HahnSeries` does not elaborate without `HahnSeries/Summable`: the `Field` instance lives there, and the pin's `import Mathlib` hid it
+
+- **where**: SET 5's `Defs/HahnSeriesRamificationBound.lean`, transcribing
+  `Definitions/Def_HahnSeries_RamificationBound.lean` (which is `import Mathlib` only).
+- **symptom**: with the obvious specific imports (`HahnSeries.Basic`, `HahnSeries.Multiplication`)
+  the file fails with `failed to synthesize instance of type class DivisionRing K⟦ℚ⟧` at
+  `RingHom.fieldRange`, and a knock-on `Application type mismatch` one line below, because
+  `puiseuxRamSubfield : Subfield (HahnSeries ℚ K)` needs the codomain to be a division ring.
+- **cause**: mathlib v4.34's `instance instField : Field R⟦Γ⟧` is in
+  `Mathlib/RingTheory/HahnSeries/Summable.lean` (it is proved with `SummableFamily.powers`), not
+  beside `order_mul` in `Multiplication.lean`. A pin file with `import Mathlib` never states this
+  dependency, and grep for `HahnSeries.*Field` in `Multiplication.lean` finds nothing.
+- **fix**: add `import Mathlib.RingTheory.HahnSeries.Summable` to any module that needs a ring
+  structure on Hahn series (the `Field`/`DivisionRing`/`Subfield` family). Grep the *instance*
+  name (`instField`, `instDivisionRing`) when a structure instance is missing rather than the
+  structure's own name.
+- **seen**: 2026-10-27.
+
+## FR-0043 [tooling] — `move_dead.py --source` reports `0 declarations, 0 lines` on a module with 50
+
+- **where**: SET 5's review of `AlgebraicCurve/RegularProlongationFinrank.lean` (51 declarations,
+  1,586 lines after the wave); the docstring's invocation is
+  `python3 move_dead.py --source lean/FLTForHuman/…/A.lean --target lean/Reserve/…/Dead.lean`.
+- **symptom**: from the project root with `lean/`-prefixed paths, and from `lean/` with
+  `FLTForHuman/`-prefixed paths, the same file gives `RegularProlongationFinrank.lean:
+  0 declarations, 0 lines` and `live private helpers needed: 0` — a silent "nothing to move".
+- **cause**: not diagnosed. Either the path resolution inside the tool wants a module name rather
+  than a path, or its declaration scanner rejects this file's shape (the module opens with a
+  `/- … -/` block whose `spec-pin:` lines are at column 0, then `namespace`s and `section`s).
+  `dedup.py --module … --within` on the same module works and reports the expected single
+  pre-existing cluster, so the module itself is fine.
+- **fix**: do not read the `0 declarations` line as "clean". Cross-check with
+  `dedup.py --module <module> --within` (it reports the clusters) and, until the scanner is fixed,
+  treat `move_dead` as unavailable for modules of this shape.
+- **seen**: 2026-10-27.
+
+## FR-0044 [tooling] [method] — under `--ds`, `--ready` cannot see a premise that sits in the pruned set: a row reads ready while an unported, avoided premise is missing
+
+- **where**: the SET 6 scoping read (`frontier.py --ds --ready --include-leaves --rank-by silo`,
+  `needed` 1,040 / 410,470; 96 ready rows). Four of the 96 ready rows cite a direct premise that
+  lies in the D–S prunable set and is **not** in the port: the two `AlgebraicCurve` rows
+  `Place.exists_natCast_dvd_ord_sub_single_sub_single_complex` (126 silo; its
+  `Divisor.isPrincipal_of_abelJacobiDiv_mem_pathPeriodLattice` 193 and
+  `exists_degree_eq_zero_and_abelJacobiDiv_sub_mem_pathPeriodLattice` 871) and
+  `Pic0.finite_torsion_of_isAlgClosed_of_charZero` (95; its
+  `Pic0.natCard_torsion_prime_eq_pow_genus_complex` 61, which `ds_prunable.EXTRA` lists), plus
+  `ModularCurve.moduleFinite_and_free_padicInt_tateModule_jH` (327) and
+  `ModularCurve.moduleFinite_padicInt_tateModule_jOne` (283). Together 4 rows / 831 silo. The
+  leaves block is clean (0 of 296).
+- **symptom**: each of those rows is printed with `premises_unported = 0` and `needed = 1`, i.e.
+  as a row every premise of which is ported — the opposite of the truth. The recipe's §1 gloss,
+  "`premises_unported` (zero by definition in a ready set)", is exactly the trap: zero by the
+  definition the tool implements, not by the pin's demand.
+- **cause**: `frontier.py` computes `need` with the avoided set removed
+  (`needed(cites, target, ported=ported, avoided=avoided, …)`, `masks`/`counts` keyed by that
+  `need`), and `premises_unported = premise_counts(cites, counts, exclude=ported)`
+  (`frontier.py:842-845`) counts only premises that are *keys* of `counts`. An avoided premise is
+  not a key, so it is silently dropped from both the readiness test and the premise count. The
+  row is needed by the D–S target through a path that does not traverse R, so it stays on the
+  shelf; its own proof, however, does traverse R.
+- **fix**: audit the rows you intend to cut, not just the shelf. For each row take the pin `S_`
+  file's `import Theorems.Thm_*` lines and test every premise for (i) membership of the frontier
+  (the port) and (ii) membership of `ds_prunable`'s patterns/`EXTRA`; a premise that is in R and
+  not in the port is a blocker the report cannot show. Two lines of `prune`/`frontier` API do it
+  (`fr.frontier()`, `pay.cites(pay.pid(node))`). A row with such a premise is the prunable
+  subject's work (the RR column's phase 3), not D–S work, however ready it looks; defer it and
+  say so in the brief (recipe §0's rule for naming every row a set does not cut).
+- **seen**: 2026-10-27; found on the SET 6 read, on the four rows above.

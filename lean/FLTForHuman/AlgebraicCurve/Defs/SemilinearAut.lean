@@ -55,6 +55,8 @@ https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Definitions/Def_
 
 spec-pin: Definitions/Def_AlgebraicCurve_BaseChangeGalois.lean
 spec-pin: Definitions/Def_AlgebraicCurve_DivisorClassGroup.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_SemilinearAut_ofAlgAut_smul_place.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_SemilinearAut_ofAlgAut_smul_place.lean
 -/
 import FLTForHuman.AlgebraicCurve.Defs.Place
 import FLTForHuman.AlgebraicCurve.Defs.Divisor
@@ -220,6 +222,15 @@ instance : MulAction (F ≃ₐ[K] F) (Place K F) where
   mul_smul σ τ v := by
     show ofAlgAut (σ * τ) • v = ofAlgAut σ • (ofAlgAut τ • v)
     rw [map_mul, mul_smul]
+
+/-- **The `AlgEquiv`-action on places is the semilinear one**: acting on a place by an
+`F ≃ₐ[K] F` is acting by the same automorphism through `ofAlgAut`. Statement from
+`Theorems/Thm_AlgebraicCurve_SemilinearAut_ofAlgAut_smul_place.lean`; the port routes the
+`F ≃ₐ[K] F`-action on `Place K F` through `ofAlgAut` (the instance above), so the equality
+is definitional, while the pin — which states the action directly on the valuation
+subring — proves it by injectivity of `toValuationSubring`. -/
+theorem ofAlgAut_smul_place {K F : Type*} [Field K] [Field F] [Algebra K F]
+    (σ : F ≃ₐ[K] F) (v : Place K F) : ofAlgAut σ • v = σ • v := rfl
 
 theorem ord_smul (f : F) : (g • v).ord (g • f) = v.ord f := by
   rcases eq_or_ne f 0 with rfl | hf
