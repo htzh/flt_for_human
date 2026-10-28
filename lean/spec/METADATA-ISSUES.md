@@ -29,7 +29,8 @@ MD-002 for the measurement).
 `frontier.py --selfcheck` prints `source node not covered by the name scan` for every
 node the source tier claims (a `Thm_` source in `SOURCES` or a `spec-pin:` line) that no
 port declaration carries by last name.  On 2026-10-27 the inventory was MD-001..003 below;
-SET 7 fixed MD-002 and MD-003, so the live inventory is **MD-001 alone**.  It cannot see a node
+SET 7 fixed MD-002 and MD-003, and SET MC-7 fixed MD-001, so the live inventory is **empty**
+(`--selfcheck` PASSes).  It cannot see a node
 that a *different* pin node's last name
 shadows (the FR-0047 name-shadow artifact; `weilReciprocity` is the known case — that is a
 tool limitation, not tree metadata, and is not listed here).  `twin_scan.py --node <qual>`
@@ -91,8 +92,18 @@ for the next edit of their module.
     → still **3 ok / 0 / 0** (no declaration changes);
   * `python3 spec/unwired_register.py --check` → unchanged (the deferred declaration is
     not declared in the module at all).
-- **status**: **open** — wait for the next edit of `IntegralityJqNModC.lean` (ModularCurve
-  side; not in SET 7).  Found 2026-10-27 while auditing the FR-0044 rows.
+- **status**: **resolved 2026-10-27** (SET MC-7, `lean/topics/modularCurve/SET-MC7.md` §0).
+  The two `spec-pin:` lines (64, 68) are deleted; the prose block and the pin citations stay
+  as the deferral record, plus a two-line note saying why the wire was closed.  Measured on
+  the same tree: `--selfcheck` goes from one live source claim to **PASS**; the frontier drops
+  the node (1,390 → 1,389 nodes, 721,642 → 721,606 raw); `needed [F terminal]` moves
+  1,018 / 404,790 → **1,019 / 404,826**; the instrument's MC shelf becomes 26 / 8,704 (the 80
+  row leaves as a false ready, the 36 row enters as a plain ready row) while the corrected MC
+  shelf is unchanged at 25 / 8,668; `check_port --force` on the module is still **3 ok / 0 / 0**.
+  The 36's own premise, the 261-line `ModularForm` basis shadow, is *not* fixed by this — it is
+  the C2 §9 subject and the remaining MC-neighbourhood marker (see SET-MC7 §0.1, which also
+  records that the shelf's corrected `needed` line 1,020 / 404,926 does not reproduce: the
+  documented three-`--unport` command gives 1,021 / 405,187).
 
 ## MD-002 — `PlaceEvaluationAlgebra.lean` wires `Divisor.evalFun_pullback`, which it does not declare and cannot host
 

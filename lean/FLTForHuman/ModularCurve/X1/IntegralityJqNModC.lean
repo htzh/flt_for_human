@@ -61,11 +61,9 @@
 
   spec-pin: Theorems/Thm_ModularCurve_eisenstein4_cube_sub_mk_sq.lean
   spec-pin: Theorems/Thm_ModularCurve_exists_gamma0_qExpansion_div_eq_jqNModC.lean
-  spec-pin: Theorems/Thm_ModularCurve_exists_sum_smul_eq_of_isIntegralQExp_gamma1.lean
   spec-pin: Theorems/Thm_ModularCurve_isIntegral_jqNModC_of_modularPolynomialData.lean
   spec-pin: P2M/Sol/S_ModularCurve_eisenstein4_cube_sub_mk_sq.lean
   spec-pin: P2M/Sol/S_ModularCurve_exists_gamma0_qExpansion_div_eq_jqNModC.lean
-  spec-pin: P2M/Sol/S_ModularCurve_exists_sum_smul_eq_of_isIntegralQExp_gamma1.lean
   spec-pin: P2M/Sol/S_ModularCurve_isIntegral_jqNModC_of_modularPolynomialData.lean
 
 -/

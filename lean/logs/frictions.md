@@ -958,3 +958,86 @@ round promotes what generalizes.
   saying it is carried for the consumer.  Do **not** rename binders to silence the linter unless
   the pin's own name is free to change; `own:` markers are for whole declarations, not binders.
 - **seen**: 2026-10-27, SET 8's landing.
+
+## FR-0051 [instrument] [read] — the shelf's *corrected* `needed` figure does not reproduce, and the delta is the shadow node itself
+
+- **where**: `lean/topics/modularCurve/TOPIC-ready-shelf.md` §0/§7, the corrected read's
+  `needed [F terminal]` = 1,020 / 404,926.  Reproduced 2026-10-27 for SET MC-7.
+- **symptom**: the documented three-`--unport` command
+  (`…_exists_sum_smul_eq_of_isIntegralQExp_gamma1`, `…_exists_basis_gamma1_qCoeff_mem_range_ratCast`,
+  `AlgebraicCurve.weilReciprocity`) on the same tree gives **1,021 / 405,187**, and so does the
+  two-`--unport` form once MD-001's wire is closed.  Restoring the MD-001 wire and rerunning
+  reproduces the same 1,021 / 405,187, so the tree is not the cause.
+- **cause**: the 261-line `ModularForm.exists_basis_gamma1_qCoeff_mem_range_ratCast` node is in
+  `F` through the `CuspForm` twin's last name, so `--unport` on it adds 261 lines to `needed`.
+  The shelf's figure counts that addition as already made; it was not.
+- **fix**: quote the read produced by the command actually run, and say which markers it used.
+  SET MC-7 §0.1 records both readings; every other shelf line (ready 86, leaves 296 / 72,205,
+  MC 25 / 8,668, MC demand 185 / 81,780, frontier 1,387 / 721,245) reproduces exactly, so only
+  the `needed` line was mis-quoted.  A corrected read's delta must be measured on the same
+  marker set (the recipe's own warning, now with a case).
+- **seen**: 2026-10-27, SET MC-7's scoping read.
+
+## FR-0052 [audit] [definitions] — a priced definition gate can be already landed under an H2 name, and the audit cannot see it
+
+- **where**: `TOPIC-ready-shelf.md` §0.2 prices `CuspForm_Gamma1HeckeOperators` as
+  "4 missing declarations / 32 lines" and SET MC-7's gate as 295 + 32 = 327.
+- **symptom**: all four are present and public in the port —
+  `ModularForm.HeckeGamma1.mdifferentiable_heckeU` (`ModularForms/HeckeAnalytic.lean`),
+  `ModularForm.HeckeRepresentatives.mapGL_apply`, `ModularForm.Level.isUnit_wt`,
+  `ModularForm.Level.det_mod` — the H2 reconciliation
+  (`Gamma1HeckeOperators.lean`'s header names the phase).  `isUnit_wt` is *weaker* than the pin's
+  (drops `hp : p.Prime`), which is also why the statement-anchored audit cannot recover it.
+- **cause**: the audit compares the pin `Def_` module's declarations against the port *module*
+  (`ModularForms/Defs/Gamma1HeckeOperators.lean`), not against the port tree; a declaration
+  reconciled into another namespace/module reads as missing.
+- **fix**: before pricing a definition gate, `grep -rn "theorem <last name>"` over the tree and
+  `twin_scan --node` the pin declaration — as SET MC-7 did for the four.  A gate that is already
+  landed under an H2 name is not a gate; the four are recorded in the brief's §0.2 table.
+- **seen**: 2026-10-27, SET MC-7's definition audit.
+
+## FR-0053 [surface] [engine] — a private engine written for one file's own use is not promotable: its binders are the *port's*, not the pin's
+
+- **where**: `ModularCurve/X1/QExpRegularProlongation.lean` (47 `private` declarations — the
+  `Lam`/`homSpan`/`IsFrac`/`resF` engine), whose pin block is byte-identical to the 953 row's
+  `S_` lines 131–786 (`diff` = 0).
+- **symptom**: the recipe's surface gate (drop `private`, `check_port --force`) gives
+  **13 ok / 37 mismatch**.  Every one of the 37 is `gaussRing A Γ` (port) against
+  `gaussRing A hT` (pin): `hT : ModularGroup.T ∈ Γ` is an *unused explicit parameter of the
+  definition* in the pin, so the term differs while the mathematics does not.
+- **cause**: the block was ported for the module's own proofs (stated for an arbitrary `Γ`, per
+  the `QExpDeuring` engine it reuses), not as a public transcription of the pin's text.
+- **fix**: keep it private, and let the consumer module that *needs the pin's shape* carry a thin
+  facade at the pin's binders over the public `Γ`-shaped engine (`def gaussRing (hT) :=
+  QExpDeuring.gaussRing A Γ`, …).  That is SET MC-7's MC-7a order; the facade turns a 953-line
+  row into ≈150 lines of new proof plus delegations.  Do not "promote" by rewriting the engine's
+  binders in a landed hub.
+- **seen**: 2026-10-27, SET MC-7's engine audit.
+
+## FR-0054 [style] [linter] — the three suppressions a worker reaches for are all fixable, and one of them hid a redundant case
+
+- **where**: SET MC-7's three row modules and the definition wave (`X1/DiamondCorrespondence.lean`,
+  `X1/HeckeCorrespondence.lean`, `X1/GaussResidue.lean`, `ConstantReductionQExp.lean`,
+  `AlgebraicCurve/Differential/AutTrace.lean`, `Defs/QExpReductionModL.lean`).
+- **symptom**: every module came back "silent" with a `set_option linter.style.haveILetI false` (or
+  `linter.deprecated`) in it, plus the port's habitual `unusedSectionVars`/`unusedVariables`
+  suppressions.  Removing them exposes **3 + 10 + 1 = 14** warnings, not hundreds.
+- **the fixes** (all mechanical, no statement touched):
+  * `haveI := h` → `have := h` when the binding's class is `Prop`-valued: Lean 4 *does* use a local
+    hypothesis of class type for instance search, so the ten `haveI := finiteDimensional_beta …`,
+    `haveI : Algebra.IsSeparable …`, `haveI : NeZero …` in `HeckeCorrespondence` become `have` and
+    the file is warning-free (same for three in `DiamondCorrespondence`, one in
+    `ConstantReductionQExp`).
+  * `TensorProduct.induction_on` (deprecated) → `inductionOn`: the deprecated eliminator's `zero`
+    case is **redundant**, because `inductionOn` derives `motive 0` from `tmul 0 0` (its own
+    proof does `simpa using! tmul 0 0`).  So the pin's `| zero => …` branch can go and the module
+    needs no `set_option linter.deprecated`.
+  * an `unusedSectionVars` warning on a single `private` theorem (GaussResidue's
+    `exists_primitive_of_mem_homSpan`, unused `[Algebra ℚ L]`) → the linter's own `omit [… ] in`,
+    safe because the declaration is private and called only in its own file.  **Never** `omit` on a
+    public declaration to silence this: `omit` changes the auto-bound signature, so it is only
+    consumer-safe when it removes a requirement nobody supplies *or* when the declaration is
+    private (the rule used here); on a public declaration, prefer keeping the variable and
+    referencing it (FR-0050's idiom).
+- **seen**: 2026-10-27, SET MC-7's review.  Net effect: none of the set's six modules carries a
+  linter or heartbeat option except the port-wide `linter.unusedVariables`-free state — i.e. zero.
