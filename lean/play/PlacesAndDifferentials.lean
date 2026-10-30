@@ -84,7 +84,7 @@ valuation ring, which is what the port attaches to: -/
 /- The uniformiser: the `Classical.choose` of an irreducible of the valuation
 subring, and all every later statement knows about it is `ord = 1`. -/
 #check @AlgebraicCurve.Place.uniformizer
-#check @AlgebraicCurve.Place.uniformizerSubring'
+#check @AlgebraicCurve.Place.uniformizerSubring
 #check @AlgebraicCurve.Place.ord_uniformizer
 #check @AlgebraicCurve.Place.uniformizer_ne_zero
 
@@ -93,8 +93,12 @@ example (v : AlgebraicCurve.Place K F) : v.ord v.uniformizer = 1 :=
 
 /-- The chosen irreducible, as an element of the valuation subring — the same
 choice `uniformizer` takes, in the place where `Irreducible` makes sense. -/
-example (v : AlgebraicCurve.Place K F) : Irreducible v.uniformizerSubring' :=
+example (v : AlgebraicCurve.Place K F) : Irreducible v.uniformizerSubring :=
   (IsDiscreteValuationRing.exists_irreducible v.toValuationSubring).choose_spec
+
+/- Its `F`-side order is the `ord = 1` of `ord_uniformizer`; the subring-side
+spelling lives with the canonical-divisor layer. -/
+#check @AlgebraicCurve.Place.ord_uniformizerSubring
 
 /- The order is a valuation: additive on products, anti on inverses, and it does
 not see units or constants at all. -/
@@ -117,7 +121,7 @@ differential will fail to respect. -/
 
 example (v : AlgebraicCurve.Place K F) {f : F} (hf : f ≠ 0) :
     ∃ u : v.toValuationSubringˣ,
-      f = ((u : v.toValuationSubring) : F) * (v.uniformizerSubring' : F) ^ (v.ord f) :=
+      f = ((u : v.toValuationSubring) : F) * (v.uniformizerSubring : F) ^ (v.ord f) :=
   v.exists_unit_mul_zpow hf (IsDiscreteValuationRing.exists_irreducible _).choose_spec
 
 /- The residue data is local too, and *here* the place is already not enough: a

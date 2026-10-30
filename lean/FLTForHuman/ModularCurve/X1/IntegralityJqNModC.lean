@@ -15,6 +15,17 @@
   * `ModularCurve.exists_gamma0_qExpansion_div_eq_jqNModC` —
     `Theorems/Thm_ModularCurve_exists_gamma0_qExpansion_div_eq_jqNModC.lean`
     (`P2M/Sol/S_…`, 141 lines), the pin's `SolJJLAux` block kept `private`.
+  * `ModularCurve.qExpansion_E6_eq_map_mk` —
+    `Theorems/Thm_ModularCurve_qExpansion_E6_eq_map_mk.lean`
+    (`P2M/Sol/S_ModularCurve_qExpansion_E6_eq_map_mk.lean`, 34 lines, a leaf),
+    the pin's `q`-expansion of `E₆` against its explicit `mk` series.  It was
+    `private` inside `ModularCurve.EisensteinCube` as the local helper of
+    `eisenstein4_cube_sub_mk_sq_aux`; it is promoted here (WORKORDER MSDEF) to
+    the pin's public name `ModularCurve.qExpansion_E6_eq_map_mk`, because the
+    pin's node has 2 cone and 10 project consumers and the port's copy was not
+    importable.  The proof needs none of the pin `S_` copy's three `bernoulli`
+    helpers: `bernoulli 6 = 1 / 42` is decided by `decide +kernel` instead, so
+    the `S_` line below is wired for the statement only.
   * `ModularCurve.eisenstein4_cube_sub_mk_sq` —
     `Theorems/Thm_ModularCurve_eisenstein4_cube_sub_mk_sq.lean`
     (`P2M/Sol/S_…`, 121 lines); the pin's `example`s and its `eisenstein6` /
@@ -58,13 +69,17 @@
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_isIntegral_jqNModC_of_modularPolynomialData.lean
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_exists_gamma0_qExpansion_div_eq_jqNModC.lean
   https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_eisenstein4_cube_sub_mk_sq.lean
+  https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/Theorems/Thm_ModularCurve_qExpansion_E6_eq_map_mk.lean
+  https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_qExpansion_E6_eq_map_mk.lean
 
   spec-pin: Theorems/Thm_ModularCurve_eisenstein4_cube_sub_mk_sq.lean
   spec-pin: Theorems/Thm_ModularCurve_exists_gamma0_qExpansion_div_eq_jqNModC.lean
   spec-pin: Theorems/Thm_ModularCurve_isIntegral_jqNModC_of_modularPolynomialData.lean
+  spec-pin: Theorems/Thm_ModularCurve_qExpansion_E6_eq_map_mk.lean
   spec-pin: P2M/Sol/S_ModularCurve_eisenstein4_cube_sub_mk_sq.lean
   spec-pin: P2M/Sol/S_ModularCurve_exists_gamma0_qExpansion_div_eq_jqNModC.lean
   spec-pin: P2M/Sol/S_ModularCurve_isIntegral_jqNModC_of_modularPolynomialData.lean
+  spec-pin: P2M/Sol/S_ModularCurve_qExpansion_E6_eq_map_mk.lean
 
 -/
 import FLTForHuman.ModularCurve.Defs.Jq
@@ -87,14 +102,12 @@ open scoped MatrixGroups
 
 namespace ModularCurve
 
-/-! ## `eisenstein4 ^ 3 - (eisenstein6) ^ 2 = 1728 * (X * dedekindEtaUnit)` -/
-
-namespace EisensteinCube
-
 /-- The `q`-expansion of `E₆` against the pin's explicit `mk` series — the pin's
 spelling of the `σ₅` sum (`∑ d ∈ n.divisors, d ^ 5`, as it appears in the
-headline) rather than the port's `ArithmeticFunction.sigma`-shaped `P6`. -/
-private theorem qExpansion_E6_eq_map_mk :
+headline) rather than the port's `ArithmeticFunction.sigma`-shaped `P6`.
+Public at the pin's name `ModularCurve.qExpansion_E6_eq_map_mk` (it was
+`private` in `ModularCurve.EisensteinCube`); see the header. -/
+theorem qExpansion_E6_eq_map_mk :
     UpperHalfPlane.qExpansion 1 ⇑ModularForm.E₆ =
       PowerSeries.map (Int.castRingHom ℂ)
         (PowerSeries.mk fun n => if n = 0 then 1 else -504 * ∑ d ∈ n.divisors, (d : ℤ) ^ 5) := by
@@ -109,6 +122,10 @@ private theorem qExpansion_E6_eq_map_mk :
     simp only [map_mul, map_neg, map_sum, map_pow, map_natCast, map_ofNat]
     push_cast
     ring
+
+/-! ## `eisenstein4 ^ 3 - (eisenstein6) ^ 2 = 1728 * (X * dedekindEtaUnit)` -/
+
+namespace EisensteinCube
 
 /-- `q(E₄) ^ 3 - q(E₆) ^ 2 = 1728 * q(Δ)`, from mathlib's pointwise
 `discriminant_eq_E₄_cube_sub_E₆_sq`. -/

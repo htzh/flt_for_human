@@ -712,3 +712,10 @@ column's remaining work is now (i) the **successor shelf** (20 rows / 8,178: the
 and `exists_isIntegral_hasSum_siegelFun` among them), (ii) the **withheld pair** (610 silo) on the
 Abel–Jacobi programme and `Def_EllipticCurve_TateModule` (883 lines / 69 declarations), and (iii) the
 false ready `rep_tateModule_jOne_comm` (24), which is the same Tate-module programme.
+
+**The successor shelf is scoped (2026-10-28):** [TOPIC-ready-shelf-1.md](TOPIC-ready-shelf-1.md)
+re-reads the (i) block above and cuts it — **18 rows / 8,118 silo** once the 261 chain's 36 row and
+the Tate-module 24 row are removed, **≈6,432 net new math lines**, one 37-line definition gate
+(`Def_ModularCurve_XHDiamondModL`) plus one promotion (`qExpansion_E6_eq_map_mk`, which the port
+holds `private`), seven orders in three waves whose first is three orders / 2,431 silo / 2,060 net,
+eight new modules and six insertions, no migration. Its figures supersede the (i) line.

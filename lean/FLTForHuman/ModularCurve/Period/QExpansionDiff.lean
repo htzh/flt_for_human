@@ -11,8 +11,11 @@ References (public mirror, pinned):
 spec-pin: Definitions/Def_ModularCurve_QExpansionDiff.lean
 spec-pin: Theorems/Thm_ModularCurve_eq_qExpansionDiffAlong_of_isQExpansionDiffAlong.lean
 spec-pin: P2M/Sol/S_ModularCurve_eq_qExpansionDiffAlong_of_isQExpansionDiffAlong.lean   -- comparable copy
+spec-pin: Theorems/Thm_ModularCurve_qExpansionDiffAlong_val_eq_diffQExp.lean
+spec-pin: P2M/Sol/S_ModularCurve_qExpansionDiffAlong_val_eq_diffQExp.lean
 -/
 import FLTForHuman.ModularCurve.Period.QExpansionDerivative
+import FLTForHuman.ModularCurve.Defs.HeckeDifferential
 import FLTForHuman.ModularCurve.Period.ThetaMul
 import Mathlib.RingTheory.Kaehler.Basic
 import Mathlib.RingTheory.Etale.Field
@@ -48,18 +51,18 @@ Leibniz rule is *uniquely* determined: the `S_` copy's
 
 /-- `θ = q d/dq` is a derivation on `LaurentSeries L`.  The `S_` copy's
 `thetaL_mul`, read off the port's `ModularCurve.theta_mul`. -/
-private theorem thetaL_mul {L : Type*} [Field L] (f g : LaurentSeries L) :
+theorem thetaL_mul {L : Type*} [Field L] (f g : LaurentSeries L) :
     thetaL L (f * g) = thetaL L f * g + f * thetaL L g := by
   rw [thetaL_apply, thetaL_apply, thetaL_apply, theta_mul]
   ring
 
-private theorem algebraMap_laurentSeries_mul {K L : Type*} [Field K] [Field L] [Algebra K L]
+theorem algebraMap_laurentSeries_mul {K L : Type*} [Field K] [Field L] [Algebra K L]
     (k : K) (x : LaurentSeries L) :
     algebraMap K (LaurentSeries L) k * x = k • x := by
   rw [HahnSeries.algebraMap_apply', PowerSeries.algebraMap_apply, HahnSeries.ofPowerSeries_C,
     HahnSeries.C_mul_eq_smul, algebraMap_smul]
 
-private theorem exists_isQExpansionDiffAlong {K F L : Type*} [Field K] [Field F] [Algebra K F]
+theorem exists_isQExpansionDiffAlong {K F L : Type*} [Field K] [Field F] [Algebra K F]
     [Field L] [Algebra K L] (σ : F →ₐ[K] LaurentSeries L) :
     ∃ φ : Ω[F⁄K] →ₗ[K] LaurentSeries L, IsQExpansionDiffAlong σ φ := by
   let instF : Module F (LaurentSeries L) :=
@@ -90,14 +93,14 @@ private theorem exists_isQExpansionDiffAlong {K F L : Type*} [Field K] [Field F]
     rw [map_smul]
     rfl
 
-private theorem isQExpansionDiffAlong_qExpansionDiffAlong {K F L : Type*} [Field K] [Field F]
+theorem isQExpansionDiffAlong_qExpansionDiffAlong {K F L : Type*} [Field K] [Field F]
     [Algebra K F] [Field L] [Algebra K L] (σ : F →ₐ[K] LaurentSeries L) :
     IsQExpansionDiffAlong σ (qExpansionDiffAlong σ) := by
   unfold qExpansionDiffAlong
   rw [dite_eq_left (exists_isQExpansionDiffAlong σ)]
   exact (exists_isQExpansionDiffAlong σ).choose_spec
 
-private theorem isQExpansionDiffAlong_unique {K F L : Type*} [Field K] [Field F] [Algebra K F]
+theorem isQExpansionDiffAlong_unique {K F L : Type*} [Field K] [Field F] [Algebra K F]
     [Field L] [Algebra K L] (σ : F →ₐ[K] LaurentSeries L)
     {φ ψ : Ω[F⁄K] →ₗ[K] LaurentSeries L} (hφ : IsQExpansionDiffAlong σ φ)
     (hψ : IsQExpansionDiffAlong σ ψ) : φ = ψ := by
@@ -123,5 +126,44 @@ theorem eq_qExpansionDiffAlong_of_isQExpansionDiffAlong {K F L : Type*} [Field K
   isQExpansionDiffAlong_unique σ hφ (isQExpansionDiffAlong_qExpansionDiffAlong σ)
 
 end QExpansionDiff
+
+/-! ### The `q`-expansion differential along a place extension
+
+The pin's `S_` copy
+(`https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_qExpansionDiffAlong_val_eq_diffQExp.lean`,
+62 ln) is the *uniqueness* half of this file's leaf row: `diffQExp F`, read as an
+`L`-linear map by restricting its scalars along `L → F`, satisfies
+`IsQExpansionDiffAlong F.val`, so the pin's `eq_qExpansionDiffAlong_of_isQExpansionDiffAlong`
+identifies it with the `Classical.choose` `qExpansionDiffAlong F.val`.
+
+The `S_` file states the engine's two lemmas as `private`; they stay `private` here.  Its
+two `…Bar` specialisations (`qExpansionDiffAlong_val_eq_diffQExpBar`,
+`restrictScalars_diffQExpBar_eq_qExpansionDiffAlong`) are `private` and have no consumer
+in the port — the bar-level `diffQExpBar` already carries the same content as an
+`abbrev` — so they are not transcribed. -/
+
+/-- `θ = q d/dq` as a derivation is the pin's `qEuler`. -/
+theorem qEuler_eq_thetaL {L : Type*} [Field L] (f : LaurentSeries L) :
+    qEuler L f = thetaL L f := by
+  ext n
+  rw [qEuler_coeff, thetaL_apply, theta_coeff, zsmul_eq_mul]
+
+/-- `diffQExp F`, its scalars restricted along `L → F`, is the pin's comparison map. -/
+theorem isQExpansionDiffAlong_restrictScalars {L : Type*} [Field L]
+    (F : IntermediateField L (LaurentSeries L)) :
+    IsQExpansionDiffAlong F.val ((diffQExp F).restrictScalars L) := by
+  refine ⟨fun x => ?_, fun f ω => ?_⟩
+  · show diffQExp F (KaehlerDifferential.D L F x) = thetaL L (F.val x)
+    rw [diffQExp_D, qEuler_eq_thetaL]
+    rfl
+  · exact (diffQExp F).map_smul f ω
+
+/-- **The `q`-expansion differential along `F.val` is `diffQExp`.** -/
+theorem qExpansionDiffAlong_val_eq_diffQExp {L : Type*} [Field L]
+    (F : IntermediateField L (LaurentSeries L)) (ω : Ω[F⁄L]) :
+    qExpansionDiffAlong F.val ω = diffQExp F ω := by
+  have h := eq_qExpansionDiffAlong_of_isQExpansionDiffAlong F.val
+    (isQExpansionDiffAlong_restrictScalars F)
+  exact (DFunLike.congr_fun h ω).symm
 
 end ModularCurve

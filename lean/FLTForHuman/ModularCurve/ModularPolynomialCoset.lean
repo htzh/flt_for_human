@@ -48,12 +48,15 @@
   spec-pin: P2M/Sol/S_ModularCurve_separable_cosetTwoVarPoly.lean
   spec-pin: Theorems/Thm_ModularCurve_hasSum_cosetSubst_coeff_mul_qParam_pow.lean
   spec-pin: P2M/Sol/S_ModularCurve_hasSum_cosetSubst_coeff_mul_qParam_pow.lean
+  spec-pin: Theorems/Thm_ModularCurve_qExpansion_cosetTranslate_eq_cosetSubst.lean
+  spec-pin: P2M/Sol/S_ModularCurve_qExpansion_cosetTranslate_eq_cosetSubst.lean
 -/
 import Mathlib.RingTheory.Polynomial.Cyclotomic.Roots
 import Mathlib.Analysis.Complex.Periodic
 import FLTForHuman.ModularCurve.Defs.PrimCosetReps
 import FLTForHuman.ModularCurve.Defs.Polynomial
 import FLTForHuman.ModularCurve.Defs.JqCoeff
+import FLTForHuman.ModularCurve.Analytic.QParamUnique
 
 set_option autoImplicit false
 
@@ -396,6 +399,152 @@ theorem hasSum_cosetSubst_coeff_mul_qParam_pow {N a b d : ℕ} (hN : N ≠ 0) (h
       ring
     rw [hcomp]
     exact h
+
+/-! ## The coset translate of a `q`-expansion
+
+The pin's `S_` copy
+(`https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_qExpansion_cosetTranslate_eq_cosetSubst.lean`,
+144 ln): if `G τ = F ((a τ + b) / d)` with `a d = N`, then `G`'s level-`N` `q`-expansion
+is the `cosetSubst ζ a b` image of `F`'s level-`1` one.  Three of the four clauses
+(`Periodic`, `MDifferentiable`, `IsBoundedAtImInfty`) transport along the coset map; the
+last is the coefficient identity, which follows from the two `HasSum` forms
+(`hasSum_laurent` at level `N` and the ported
+`hasSum_cosetSubst_coeff_mul_qParam_pow` at level `1`) and the canonicity
+`laurent_qParam_coeff_unique`.
+
+The pin's `CosetTranslateAux` engine is `private` here: the pin's `S_` file states it in
+its own namespace, but it is scaffolding for the row, not part of the port's API. -/
+
+open UpperHalfPlane
+
+namespace CosetTranslate
+
+/-- `τ ↦ (a τ + b) / d` as a point of `ℍ`, for `a`, `d > 0`. -/
+def cosetPt (a b d : ℕ) (ha : 0 < a) (hd : 0 < d) (τ : ℍ) : ℍ :=
+  ⟨((a : ℂ) * τ + b) / d, by
+    rw [Complex.div_natCast_im]
+    apply div_pos _ (by exact_mod_cast hd)
+    simpa [Complex.add_im, Complex.mul_im] using mul_pos (by exact_mod_cast ha : (0:ℝ) < a) τ.im_pos⟩
+
+theorem coe_cosetPt (a b d : ℕ) (ha : 0 < a) (hd : 0 < d) (τ : ℍ) :
+    ((cosetPt a b d ha hd τ : ℍ) : ℂ) = ((a : ℂ) * τ + b) / d := rfl
+
+theorem cosetPt_im (a b d : ℕ) (ha : 0 < a) (hd : 0 < d) (τ : ℍ) :
+    (cosetPt a b d ha hd τ).im = a * τ.im / d := by
+  rw [← UpperHalfPlane.coe_im, coe_cosetPt, Complex.div_natCast_im]
+  simp [Complex.add_im, Complex.mul_im]
+
+/-- The pin's `hasSum_laurent`: the level-`h` `q`-expansion of `F`, read in
+`LaurentSeries ℂ`, sums to `F τ`. -/
+private theorem hasSum_laurent {h : ℝ} (hh : 0 < h) {F : ℍ → ℂ}
+    (hper : Function.Periodic (F ∘ ofComplex) h)
+    (hhol : MDifferentiable (modelWithCornersSelf ℂ ℂ) (modelWithCornersSelf ℂ ℂ) F)
+    (hbd : UpperHalfPlane.IsBoundedAtImInfty F) (τ : ℍ) :
+    HasSum (fun m : ℤ => ((qExpansion h F : PowerSeries ℂ) : LaurentSeries ℂ).coeff m *
+      Function.Periodic.qParam h (τ : ℂ) ^ m) (F τ) := by
+  have h0 := UpperHalfPlane.hasSum_qExpansion hh hper hhol hbd τ
+  refine (Function.Injective.hasSum_iff Nat.cast_injective ?_).mp ?_
+  · intro m hm
+    rcases m with n | n
+    · exact absurd ⟨n, rfl⟩ hm
+    · rw [ModularCurve.ofPowerSeries_coeff_of_neg _ (Int.negSucc_lt_zero n), zero_mul]
+  · have hcomp : ((fun m : ℤ => ((qExpansion h F : PowerSeries ℂ) : LaurentSeries ℂ).coeff m *
+          Function.Periodic.qParam h (τ : ℂ) ^ m) ∘ (Nat.cast : ℕ → ℤ)) =
+        fun n : ℕ => (qExpansion h F).coeff n • Function.Periodic.qParam h (τ : ℂ) ^ n := by
+      funext n
+      simp only [Function.comp_apply, smul_eq_mul, zpow_natCast, LaurentSeries.coeff_coe_powerSeries]
+    rw [hcomp]
+    exact h0
+
+end CosetTranslate
+
+open CosetTranslate
+
+/-- **The coset translate of a `q`-expansion is the `cosetSubst` image.** -/
+theorem qExpansion_cosetTranslate_eq_cosetSubst {N a b d : ℕ} (hN : N ≠ 0)
+    (had : a * d = N) [NeZero a] (ζ : ℂˣ)
+    (hζ : (ζ : ℂ) = Complex.exp (2 * Real.pi * Complex.I / N))
+    (F G : ℍ → ℂ) (hFper : Function.Periodic (F ∘ UpperHalfPlane.ofComplex) 1)
+    (hFhol : MDifferentiable (modelWithCornersSelf ℂ ℂ) (modelWithCornersSelf ℂ ℂ) F)
+    (hFbd : UpperHalfPlane.IsBoundedAtImInfty F)
+    (hG : ∀ τ τ' : ℍ, ((τ' : ℂ) = ((a : ℂ) * τ + b) / d) → G τ = F τ') :
+    Function.Periodic (G ∘ UpperHalfPlane.ofComplex) N ∧
+      MDifferentiable (modelWithCornersSelf ℂ ℂ) (modelWithCornersSelf ℂ ℂ) G ∧
+      UpperHalfPlane.IsBoundedAtImInfty G ∧
+      ((qExpansion N G : PowerSeries ℂ) : LaurentSeries ℂ)
+        = ModularCurve.cosetSubst ζ a b ((qExpansion 1 F : PowerSeries ℂ) : LaurentSeries ℂ) := by
+  have ha : 0 < a := Nat.pos_of_ne_zero (NeZero.ne a)
+  have hd : 0 < d := Nat.pos_of_ne_zero (by rintro rfl; exact hN (by simpa using had.symm))
+  have hNpos : (0 : ℝ) < N := by exact_mod_cast Nat.pos_of_ne_zero hN
+  have hGpt : ∀ τ : ℍ, G τ = F (cosetPt a b d ha hd τ) := fun τ => hG τ _ (coe_cosetPt a b d ha hd τ)
+
+  have hGof : ∀ z : ℂ, 0 < z.im → (G ∘ ofComplex) z = (F ∘ ofComplex) (((a : ℂ) * z + b) / d) := by
+    intro z hz
+    have hz' : 0 < ((((a : ℂ) * z + b) / d)).im := by
+      rw [Complex.div_natCast_im]
+      apply div_pos _ (by exact_mod_cast hd)
+      simpa [Complex.add_im, Complex.mul_im] using mul_pos (by exact_mod_cast ha : (0:ℝ) < a) hz
+    simp only [Function.comp_apply]
+    rw [UpperHalfPlane.ofComplex_apply_of_im_pos hz, UpperHalfPlane.ofComplex_apply_of_im_pos hz', hGpt]
+    rfl
+
+  have hper : Function.Periodic (G ∘ UpperHalfPlane.ofComplex) N := by
+    intro z
+    by_cases hz : 0 < z.im
+    · have hzN : 0 < (z + N).im := by simpa using hz
+      rw [hGof z hz, hGof (z + N) hzN]
+      have : ((a : ℂ) * (z + N) + b) / d = ((a : ℂ) * z + b) / d + ((a * a : ℕ) : ℕ) * (1 : ℝ) := by
+        have hd0 : (d : ℂ) ≠ 0 := by exact_mod_cast hd.ne'
+        have hNad : (N : ℂ) = a * d := by exact_mod_cast had.symm
+        push_cast
+        rw [hNad]
+        field_simp
+        ring
+      rw [this]
+      exact hFper.nat_mul (a * a) _
+    · push Not at hz
+      have hzN : (z + N).im ≤ 0 := by simpa using hz
+      simp only [Function.comp_apply]
+      rw [UpperHalfPlane.ofComplex_apply_of_im_nonpos hz, UpperHalfPlane.ofComplex_apply_of_im_nonpos hzN]
+
+  have hhol : MDifferentiable (modelWithCornersSelf ℂ ℂ) (modelWithCornersSelf ℂ ℂ) G := by
+    rw [UpperHalfPlane.mdifferentiable_iff] at hFhol ⊢
+    have haff : DifferentiableOn ℂ (fun z : ℂ => ((a : ℂ) * z + b) / d) {z : ℂ | 0 < z.im} :=
+      ((differentiable_id.const_mul _).add_const _).div_const _ |>.differentiableOn
+    have hmaps : Set.MapsTo (fun z : ℂ => ((a : ℂ) * z + b) / d) {z : ℂ | 0 < z.im} {z : ℂ | 0 < z.im} := by
+      intro z hz
+      simp only [Set.mem_ofPred_eq] at hz ⊢
+      rw [Complex.div_natCast_im]
+      apply div_pos _ (by exact_mod_cast hd)
+      simpa [Complex.add_im, Complex.mul_im] using mul_pos (by exact_mod_cast ha : (0:ℝ) < a) hz
+    refine (hFhol.comp haff hmaps).congr ?_
+    intro z hz
+    exact hGof z hz
+
+  have hbd : UpperHalfPlane.IsBoundedAtImInfty G := by
+    rw [UpperHalfPlane.isBoundedAtImInfty_iff] at hFbd ⊢
+    obtain ⟨M, A, hM⟩ := hFbd
+    refine ⟨M, max A 0 * d, fun τ hτ => ?_⟩
+    rw [hGpt]
+    apply hM
+    rw [cosetPt_im]
+    have hd' : (0 : ℝ) < d := by exact_mod_cast hd
+    have ha' : (1 : ℝ) ≤ a := by exact_mod_cast ha
+    rw [le_div_iff₀ hd']
+    calc A * d ≤ max A 0 * d := by gcongr; exact le_max_left _ _
+      _ ≤ τ.im := hτ
+      _ = 1 * τ.im := (one_mul _).symm
+      _ ≤ a * τ.im := by gcongr
+  refine ⟨hper, hhol, hbd, ?_⟩
+
+  refine ModularCurve.laurent_qParam_coeff_unique N hNpos G _ _ (hasSum_laurent hNpos hper hhol hbd) ?_
+  intro τ
+  rw [hGpt]
+  have h1 := hasSum_laurent one_pos hFper hFhol hFbd (cosetPt a b d ha hd τ)
+  rw [coe_cosetPt] at h1
+  have := ModularCurve.hasSum_cosetSubst_coeff_mul_qParam_pow hN had ζ hζ _ (τ : ℂ) _
+    (by simpa using h1)
+  simpa using this
 
 end ModularCurve
 

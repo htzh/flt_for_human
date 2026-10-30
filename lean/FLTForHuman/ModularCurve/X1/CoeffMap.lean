@@ -14,6 +14,8 @@ Seven headlines, one theory: the base-change dictionary for
   exactly the set of ratios.
 * `exists_modularForm_mul_qExpansion_eq_of_mem_laurentBaseChange_qExpFunctionFieldC_of_T_mem`
   (211): every element of the base-changed field is a ratio of two modular forms.
+* `exists_modularForm_mul_qExpansion_eq_of_mem_laurentBaseChange_qExpFunctionFieldC` (166):
+  the same ratio dictionary with the pin's `GL (Fin 2) ℝ` coercion and `[Γ.FiniteIndex]`.
 * `finiteDimensional_and_finrank_adjoin_le_of_eq_coeffMap` (314) and
   `existsUnique_algEquiv_qExpFunctionFieldC_coe_apply_eq_coeffMap` (468): the
   algEquiv dictionary and its finrank inequality.
@@ -34,6 +36,7 @@ FLT provenance, pinned `aa2d8b3`:
 https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_existsUnique_algEquiv_qExpFunctionFieldC_coe_apply_eq_coeffMap.lean
 https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_finiteDimensional_and_finrank_adjoin_le_of_eq_coeffMap.lean
 https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_exists_modularForm_mul_qExpansion_eq_of_mem_laurentBaseChange_qExpFunctionFieldC_of_T_mem.lean
+https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_exists_modularForm_mul_qExpansion_eq_of_mem_laurentBaseChange_qExpFunctionFieldC.lean
 https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_mem_qExpFunctionFieldC_rat_iff_mem_intFormRatiosC.lean
 https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_isIntegral_adjoin_of_isIntegral_adjoin_coeffMap.lean
 https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_laurentBaseChange_qExpFunctionFieldC_eq.lean
@@ -45,6 +48,8 @@ spec-pin: Theorems/Thm_ModularCurve_finiteDimensional_and_finrank_adjoin_le_of_e
 spec-pin: P2M/Sol/S_ModularCurve_finiteDimensional_and_finrank_adjoin_le_of_eq_coeffMap.lean
 spec-pin: Theorems/Thm_ModularCurve_exists_modularForm_mul_qExpansion_eq_of_mem_laurentBaseChange_qExpFunctionFieldC_of_T_mem.lean
 spec-pin: P2M/Sol/S_ModularCurve_exists_modularForm_mul_qExpansion_eq_of_mem_laurentBaseChange_qExpFunctionFieldC_of_T_mem.lean
+spec-pin: Theorems/Thm_ModularCurve_exists_modularForm_mul_qExpansion_eq_of_mem_laurentBaseChange_qExpFunctionFieldC.lean
+spec-pin: P2M/Sol/S_ModularCurve_exists_modularForm_mul_qExpansion_eq_of_mem_laurentBaseChange_qExpFunctionFieldC.lean
 spec-pin: Theorems/Thm_ModularCurve_mem_qExpFunctionFieldC_rat_iff_mem_intFormRatiosC.lean
 spec-pin: P2M/Sol/S_ModularCurve_mem_qExpFunctionFieldC_rat_iff_mem_intFormRatiosC.lean
 spec-pin: Theorems/Thm_ModularCurve_isIntegral_adjoin_of_isIntegral_adjoin_coeffMap.lean
@@ -1199,6 +1204,25 @@ theorem existsUnique_algEquiv_qExpFunctionFieldC_coe_apply_eq_coeffMap
     apply Subtype.ext
     rw [hτ y _ rfl, QExpAutBaseChange.sigma_iota]
     rfl
+
+/-! ## Row 166 — the ratio dictionary with the `GL (Fin 2) ℝ`-coerced forms
+
+The row-211 twin above states `ModularForm Γ k` for `Γ : Subgroup SL(2, ℤ)`; this row is the
+pin's spelling of the same theorem with the coercion `(Γ : Subgroup (GL (Fin 2) ℝ))` written
+out and the pin's `[Γ.FiniteIndex]` carried.  The two are kept side by side — the instance is
+part of the statement, and the coercion is what a caller outside `MatrixGroups` scope sees.
+The proof is the `RatioFieldOfGroup` dictionary's `isRatio_of_mem`; the coercion is the one
+`ModularForm Γ k` already inserts, so the two spellings are the same type. -/
+
+open UpperHalfPlane in
+theorem exists_modularForm_mul_qExpansion_eq_of_mem_laurentBaseChange_qExpFunctionFieldC
+    (Γ : Subgroup (Matrix.SpecialLinearGroup (Fin 2) ℤ)) [Γ.FiniteIndex]
+    (hT : ModularGroup.T ∈ Γ) (x : LaurentSeries ℂ)
+    (hx : x ∈ laurentBaseChange ℂ (qExpFunctionFieldC ℚ Γ)) :
+    ∃ (k : ℤ) (g h : ModularForm (Γ : Subgroup (GL (Fin 2) ℝ)) k), h ≠ 0 ∧
+      x * ((qExpansion 1 (h : ℍ → ℂ) : PowerSeries ℂ) : LaurentSeries ℂ) =
+        ((qExpansion 1 (g : ℍ → ℂ) : PowerSeries ℂ) : LaurentSeries ℂ) :=
+  RatioFieldOfGroup.isRatio_of_mem hT hx
 
 
 end ModularCurve

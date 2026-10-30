@@ -1320,3 +1320,92 @@ round promotes what generalizes.
   *type-level* uses (a `def`/`abbrev`'s name in a binder type) and for `example` bodies before
   cutting. `grep -c <name>` over the module is the cheap test — the tool counts only bodies.
 - **seen**: 2026-10-27, SET-LEAVES close; no declaration was cut.
+
+## FR-0071 [tooling] — the name tier counts a *private* transcription as ported, so a public pin node can hide behind its own private twin
+
+- **where**: `ModularCurve.qExpansion_E6_eq_map_mk` (`X1/IntegralityJqNModC.lean:97`, `private`,
+  inside `namespace EisensteinCube`) and `AlgebraicCurve.Divisor.pushforwardNormFormula_of_finiteDimensional`
+  (`AlgebraicCurve/PrincipalDivisors/Transcendence.lean:359`, `private`, with a `spec-pin:` of its own
+  at line 43).
+- **symptom**: both nodes are public in the pin (each has a `Thm_`/`S_` pair) and both are read
+  *ported* by `frontier.py`'s name tier, which scans private port declarations by design
+  (`Frontier.tiers()`'s documented limit). Neither is importable, so a shelf row citing one can be
+  read ready and cannot be transcribed. `--port-public-only` shows the second exactly: the 650-line
+  `AlgebraicCurve` row appears on the ready shelf, where the instrument had it ported.
+  In the MC family the cost is two rows / 541 silo of the successor shelf; in `AlgebraicCurve` it is
+  650 silo of hidden demand.
+- **rule**: treat `twin_scan --node <premise>` → `twin-private` as a **manager item**, not as a
+  ported premise: promote the statement (public, at the pin's name, out of any inner namespace, its
+  own wire) or, if it is genuinely a local spelling, keep it private and stop claiming it. `--unport
+  <name>` is the local instrument that prices the gap (the shelf drops the rows that lean on it);
+  `--port-public-only` is the global one and is *not* a drop-in corrected read (it also changes the
+  frontier tier, so its `needed`/`frontier` deltas are not comparable with the instrument's).
+- **seen**: 2026-10-28, the `ModularCurve` successor-shelf scoping
+  ([../topics/modularCurve/TOPIC-ready-shelf-1.md](../topics/modularCurve/TOPIC-ready-shelf-1.md) §0.2);
+  the promotion and the 650-line instance are both open.
+
+## FR-0072 [tooling] [build] — the playbook's `/tmp` build lock is a no-op under the harness, and a foreground `timeout 90` never fires
+
+- **where**: the four concurrent worker agents of the `ModularCurve` wave 1 (MS-1, MS-2, MS-3, the
+  manager-lane MSDEF), each following the playbook's build discipline
+  (`flock /tmp/lean-build.lock timeout 90 lake build <module>`).
+- **symptom**: `/tmp` is **not** shared between tool calls — every `bash` call runs in its own
+  namespace with a fresh `--tmpfs /tmp` (verified: write a file in one call, it is absent in the
+  next). Three consequences: (i) the lock file is recreated per call, so `flock
+  /tmp/lean-build.lock` *serializes nothing* between agents and the tree has no build lock at all;
+  (ii) a background build's log in `/tmp` is gone by the time it is read, so the log must live in
+  the (persistent, git-ignored) repo `tmp/`; (iii) the harness kills a foreground call at 60 s, so
+  a `timeout 90` never fires — the effective cap is the harness's, and any build that can plausibly
+  exceed it must be a background job.
+- **effect measured**: MS-2's first build replayed and rebuilt its whole 4,505-job dependency
+  closure (`X1/HeckeCommute` and others read as stale) because two other agents were writing and
+  building in the same tree at the same moment. Nothing was corrupted, but the wave paid a full
+  cascade it had budgeted as a per-module build (`Build completed successfully (4505 jobs)`,
+  the module's own compile 7.6 s).
+- **rule**: put the lock where the *workspace* is, not in `/tmp` — `flock tmp/lean-build.lock
+  timeout 90 lake build <module>` (or `--timeout`-less: launch it as a background job and read
+  `tmp/<order>/build.log`); treat 60 s, not the `timeout` value, as the foreground budget; and when
+  several agents share a tree, serialize the *first* build of each (the cold closure), not only the
+  module's own.
+- **seen**: 2026-10-28, the `ModularCurve` ready shelf 1 wave 1
+  ([../topics/modularCurve/TOPIC-ready-shelf-1.md](../topics/modularCurve/TOPIC-ready-shelf-1.md) §1.1).
+
+## FR-0073 [tooling] — `move_dead.py`'s tokeniser drops non-ASCII identifiers, so `Δ_smul` reads dead
+
+- **where**: `ModularCurve/TateSlots/Invariants.lean` (MS-3's U9 insertion), the declaration
+  `ModularCurve.JMultiplicity.Δ_smul`.
+- **symptom**: `move_dead.py --select dead --dry-run` reports
+  `Invariants.lean: 1 declarations, 6 lines` naming `Δ_smul`, which is in fact cited twice (at the
+  module's lines 980 and 1244). The tokeniser's identifier class does not cover `Δ` (and by the
+  same mechanism `Γ`, `ζ`, `μ`, `Φ`-named declarations), so every token of a `Δ`-named declaration
+  reads as absent from the bodies that use it.
+- **rule**: never `--apply` a `move_dead` report on a module whose declarations use non-ASCII names
+  without grepping each flagged name (`grep -c 'Δ_smul'` is the cheap test); the tool reports
+  *token* occurrences, and a name outside `[A-Za-z0-9_']` is invisible to it. This is the second
+  class of false positive in the same tool (FR-0070 is the `abbrev`-in-a-type one).
+- **seen**: 2026-10-28, MS-3 of the `ModularCurve` ready shelf 1 wave 1.
+
+## FR-0074 [lean] [build] — a pin `maxHeartbeats` cap localised to one 20-line transport; the fix is a `RingEquiv` detour, not a bigger cap
+
+- **where**: `ModularCurve/X1/FunctionFieldIndex.lean` (MS-6 of ready shelf 1), declaration
+  `transfer_finrank`; the pin's `P2M/Sol/S_…_qExpFunctionFieldC_le_index.lean` carries
+  `maxHeartbeats 6400000` + `synthInstance.maxHeartbeats 1600000` on exactly this declaration.
+- **symptom**: the module is correct and builds (checker 3 ok, axioms clean, zero warnings at 250k),
+  but the port's 200k **edit-loop** discipline is not met: ≈240k are needed (0 errors at 240k/250k,
+  fails at 230k/200k). `sorry`-cut probes put the whole overrun in the final ~20 lines —
+  `let e₂ : N₁ ≃+* Fk := RingEquiv.refl Fk`, the `hcomm` coherence, and
+  `Module.Finite.of_equiv_equiv` / `Algebra.finrank_eq_of_equiv_equiv` — not in the 250-line body
+  (which fits 200k in 9 s).
+- **diagnosis**: the instance trace (taken in a `tmp/` probe, never in the module) shows recurring
+  base-change searches over `IntermediateField` subtypes: `Module ↥K₁ ↥S` ≈3,300 lines ×5,
+  `Module ↥K₁ ↥(N₁.toSubalgebra)` ≈3,700, `Algebra k ↥K₀` ≈1,100 ×3, and a *failing*
+  `Nonempty (Fin n)` search ≈2,900. Local `haveI` bricks give a real 2.5× speed-up but change the
+  instance *identity*, and the kernel's defeq check then rejects `Module.Finite.span_of_finite` and
+  `hcomm`'s `change`.
+- **rule**: when a pin cap localises to a short transport block, the cure is to remove the transport
+  (`RingEquiv.refl` + `of_equiv_equiv` where the two carriers are definitionally the same
+  `IntermediateField`), not to add instances and not to copy the cap. Next move for this one:
+  prove `FiniteDimensional K₀ Fk ∧ finrank K₀ Fk ≤ n` from `hrankN` by `IntermediateField`-level
+  rewriting (`N₁` and `Fk` share their carrier; `K₀.map val = K₁`).
+- **seen**: 2026-10-28, MS-6 of ready shelf 1; recorded as the order's one unmet gate in
+  [../topics/modularCurve/SET-MS6.md](../topics/modularCurve/SET-MS6.md) §2.

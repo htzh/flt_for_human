@@ -16,7 +16,12 @@
   `jacobiTheta_two_eq_tprod`), the eta rewrite `eta_eq` for `P`, and the `S`/`T` laws. The pin
   carries this prelude twice, verbatim, in its two `S_` files (`SiegelSL2` in the first,
   `E97cSHol` in the second); here it is `private`, so the module's public surface is exactly the
-  two headlines.
+  headline pair. **Update (surface gate, 2026-10-28):** the §5 experiment read 59 ok / 14 mismatch,
+  so the shared engine is now **public** — the module's checker surface is **59 ok / 0 mismatch / 0
+  missing** — and the 14 `SiegelTransport` adapters (v4.34 re-spellings of the pin's binders) stay
+  `private`. The two headlines (`siegelFun_specialLinearGroup_smul`, from MC-5a, and
+  `prod_siegelFun_pow_specialLinearGroup_smul`, the 191 row) are the wire; the engine's
+  declarations are the pin's public surface and now public here too.
 
   Transcribed from the pin's
   `P2M/Sol/S_ModularCurve_siegelFun_specialLinearGroup_smul.lean` (pinned `aa2d8b3`, 390 lines)
@@ -45,6 +50,8 @@
   spec-pin: P2M/Sol/S_ModularCurve_SiegelUnit_differentiableOn_siegelFun.lean   -- comparable copy
   spec-pin: Theorems/Thm_ModularCurve_SiegelUnit_siegelFun_add_level.lean
   spec-pin: P2M/Sol/S_ModularCurve_SiegelUnit_siegelFun_add_level.lean   -- comparable copy
+  spec-pin: Theorems/Thm_ModularCurve_SiegelUnit_prod_siegelFun_pow_specialLinearGroup_smul.lean
+  spec-pin: P2M/Sol/S_ModularCurve_SiegelUnit_prod_siegelFun_pow_specialLinearGroup_smul.lean   -- comparable copy
 -/
 import FLTForHuman.ModularCurve.Defs.SiegelFunction
 import FLTForHuman.ModularForms.JacobiThetaTripleProduct
@@ -79,36 +86,36 @@ the two pin namespace wrappers are unified. -/
 
 namespace SiegelUnitEngine
 
-private def qq (τ : ℂ) : ℂ := cexp (2 * π * I * τ)
+def qq (τ : ℂ) : ℂ := cexp (2 * π * I * τ)
 
-private def qa (N : ℕ) (r s : ℤ) (τ : ℂ) : ℂ := cexp (2 * π * I * ((r : ℂ) * τ + (s : ℂ)) / (N : ℂ))
+def qa (N : ℕ) (r s : ℤ) (τ : ℂ) : ℂ := cexp (2 * π * I * ((r : ℂ) * τ + (s : ℂ)) / (N : ℂ))
 
-private def pref (N : ℕ) (r s : ℤ) (τ : ℂ) : ℂ :=
+def pref (N : ℕ) (r s : ℤ) (τ : ℂ) : ℂ :=
   -cexp (π * I * (s : ℂ) * ((r : ℂ) - (N : ℂ)) / (N : ℂ) ^ 2) *
     cexp (π * I * (((r : ℂ) / (N : ℂ)) ^ 2 - (r : ℂ) / (N : ℂ) + 1 / 6) * τ)
 
-private def sprod (N : ℕ) (r s : ℤ) (τ : ℂ) : ℂ :=
+def sprod (N : ℕ) (r s : ℤ) (τ : ℂ) : ℂ :=
   (1 - qa N r s τ) * ∏' n : ℕ, ((1 - qq τ ^ (n + 1) * qa N r s τ) *
     (1 - qq τ ^ (n + 1) * (qa N r s τ)⁻¹))
 
-private theorem siegelFun_eq (N : ℕ) (r s : ℤ) (τ : ℂ) :
+theorem siegelFun_eq (N : ℕ) (r s : ℤ) (τ : ℂ) :
     ModularCurve.siegelFun N r s τ = pref N r s τ * sprod N r s τ := by
   unfold ModularCurve.siegelFun pref sprod qq qa; simp only [mul_assoc]
 
-private theorem siegelFun_level_zero (r s : ℤ) (τ : ℂ) : ModularCurve.siegelFun 0 r s τ = 0 := by
+theorem siegelFun_level_zero (r s : ℤ) (τ : ℂ) : ModularCurve.siegelFun 0 r s τ = 0 := by
   simp [ModularCurve.siegelFun]
 
-private theorem qq_add_one (τ : ℂ) : qq (τ + 1) = qq τ := by
+theorem qq_add_one (τ : ℂ) : qq (τ + 1) = qq τ := by
   unfold qq
   rw [show 2 * π * I * (τ + 1) = 2 * π * I * τ + 2 * π * I by ring, Complex.exp_add,
     Complex.exp_two_pi_mul_I, mul_one]
 
-private theorem qa_add_one (N : ℕ) (r s : ℤ) (τ : ℂ) : qa N r s (τ + 1) = qa N r (r + s) τ := by
+theorem qa_add_one (N : ℕ) (r s : ℤ) (τ : ℂ) : qa N r s (τ + 1) = qa N r (r + s) τ := by
   unfold qa
   push_cast
   ring_nf
 
-private theorem pref_add_one (N : ℕ) (hN : N ≠ 0) (r s : ℤ) (τ : ℂ) :
+theorem pref_add_one (N : ℕ) (hN : N ≠ 0) (r s : ℤ) (τ : ℂ) :
     pref N r s (τ + 1) = cexp (π * I / 6) * pref N r (r + s) τ := by
   unfold pref
   have hN' : (N : ℂ) ≠ 0 := Nat.cast_ne_zero.mpr hN
@@ -119,17 +126,17 @@ private theorem pref_add_one (N : ℕ) (hN : N ≠ 0) (r s : ℤ) (τ : ℂ) :
   field_simp
   ring
 
-private theorem sprod_add_one (N : ℕ) (r s : ℤ) (τ : ℂ) : sprod N r s (τ + 1) = sprod N r (r + s) τ := by
+theorem sprod_add_one (N : ℕ) (r s : ℤ) (τ : ℂ) : sprod N r s (τ + 1) = sprod N r (r + s) τ := by
   unfold sprod
   rw [qq_add_one, qa_add_one]
 
-private theorem siegelFun_add_one (N : ℕ) (r s : ℤ) (τ : ℂ) :
+theorem siegelFun_add_one (N : ℕ) (r s : ℤ) (τ : ℂ) :
     ModularCurve.siegelFun N r s (τ + 1) = cexp (π * I / 6) * ModularCurve.siegelFun N r (r + s) τ := by
   rcases eq_or_ne N 0 with rfl | hN
   · simp [siegelFun_level_zero]
   rw [siegelFun_eq, siegelFun_eq, pref_add_one N hN, sprod_add_one, mul_assoc]
 
-private theorem norm_qq_lt_one {τ : ℂ} (hτ : 0 < τ.im) : ‖qq τ‖ < 1 := by
+theorem norm_qq_lt_one {τ : ℂ} (hτ : 0 < τ.im) : ‖qq τ‖ < 1 := by
   unfold qq
   rw [Complex.norm_exp]
   have : (2 * π * I * τ).re = -(2 * π * τ.im) := by
@@ -138,14 +145,14 @@ private theorem norm_qq_lt_one {τ : ℂ} (hτ : 0 < τ.im) : ‖qq τ‖ < 1 :=
   have := Real.pi_pos
   nlinarith
 
-private theorem qa_ne_zero (N : ℕ) (r s : ℤ) (τ : ℂ) : qa N r s τ ≠ 0 := Complex.exp_ne_zero _
+theorem qa_ne_zero (N : ℕ) (r s : ℤ) (τ : ℂ) : qa N r s τ ≠ 0 := Complex.exp_ne_zero _
 
-private def P (τ : ℂ) : ℂ := ∏' n : ℕ, (1 - qq τ ^ (n + 1))
+def P (τ : ℂ) : ℂ := ∏' n : ℕ, (1 - qq τ ^ (n + 1))
 
-private theorem multipliable_P {τ : ℂ} (hτ : 0 < τ.im) : Multipliable fun n : ℕ => 1 - qq τ ^ (n + 1) :=
+theorem multipliable_P {τ : ℂ} (hτ : 0 < τ.im) : Multipliable fun n : ℕ => 1 - qq τ ^ (n + 1) :=
   ModularForm.multipliable_one_sub_pow (norm_qq_lt_one hτ)
 
-private theorem multipliable_one_sub_pow_mul {q : ℂ} (hq : ‖q‖ < 1) (c : ℂ) (k : ℕ) :
+theorem multipliable_one_sub_pow_mul {q : ℂ} (hq : ‖q‖ < 1) (c : ℂ) (k : ℕ) :
     Multipliable fun n : ℕ => 1 - q ^ (n + k) * c := by
   have hs : Summable fun n : ℕ => ‖-(q ^ (n + k) * c)‖ := by
     simp only [norm_neg, norm_mul, norm_pow, pow_add]
@@ -154,21 +161,21 @@ private theorem multipliable_one_sub_pow_mul {q : ℂ} (hq : ‖q‖ < 1) (c : �
     ring
   simpa [sub_eq_add_neg] using multipliable_one_add_of_summable hs
 
-private theorem multipliable_b {τ : ℂ} (hτ : 0 < τ.im) (N : ℕ) (r s : ℤ) :
+theorem multipliable_b {τ : ℂ} (hτ : 0 < τ.im) (N : ℕ) (r s : ℤ) :
     Multipliable fun n : ℕ => 1 - qq τ ^ n * qa N r s τ := by
   simpa using multipliable_one_sub_pow_mul (norm_qq_lt_one hτ) (qa N r s τ) 0
 
-private theorem multipliable_b_succ {τ : ℂ} (hτ : 0 < τ.im) (N : ℕ) (r s : ℤ) :
+theorem multipliable_b_succ {τ : ℂ} (hτ : 0 < τ.im) (N : ℕ) (r s : ℤ) :
     Multipliable fun n : ℕ => 1 - qq τ ^ (n + 1) * qa N r s τ :=
   multipliable_one_sub_pow_mul (norm_qq_lt_one hτ) (qa N r s τ) 1
 
-private theorem multipliable_c {τ : ℂ} (hτ : 0 < τ.im) (N : ℕ) (r s : ℤ) :
+theorem multipliable_c {τ : ℂ} (hτ : 0 < τ.im) (N : ℕ) (r s : ℤ) :
     Multipliable fun n : ℕ => 1 - qq τ ^ (n + 1) * (qa N r s τ)⁻¹ :=
   multipliable_one_sub_pow_mul (norm_qq_lt_one hτ) (qa N r s τ)⁻¹ 1
 
-private def w (N : ℕ) (r s : ℤ) (τ : ℂ) : ℂ := ((r : ℂ) * τ + (s : ℂ)) / (N : ℂ) + (1 - τ) / 2
+def w (N : ℕ) (r s : ℤ) (τ : ℂ) : ℂ := ((r : ℂ) * τ + (s : ℂ)) / (N : ℂ) + (1 - τ) / 2
 
-private theorem jtp_term (N : ℕ) (hN : N ≠ 0) (r s : ℤ) (τ : ℂ) (n : ℕ) :
+theorem jtp_term (N : ℕ) (hN : N ≠ 0) (r s : ℤ) (τ : ℂ) (n : ℕ) :
     (1 - cexp (2 * π * I * (n + 1) * τ)) *
       (1 + cexp (π * I * (2 * n + 1) * τ + 2 * π * I * w N r s τ)) *
       (1 + cexp (π * I * (2 * n + 1) * τ - 2 * π * I * w N r s τ)) =
@@ -195,7 +202,7 @@ private theorem jtp_term (N : ℕ) (hN : N ≠ 0) (r s : ℤ) (τ : ℂ) (n : �
     ring
   rw [e1, e2, e3]; ring
 
-private theorem theta_eq (N : ℕ) (hN : N ≠ 0) (r s : ℤ) {τ : ℂ} (hτ : 0 < τ.im) :
+theorem theta_eq (N : ℕ) (hN : N ≠ 0) (r s : ℤ) {τ : ℂ} (hτ : 0 < τ.im) :
     jacobiTheta₂ (w N r s τ) τ = P τ * sprod N r s τ := by
   rw [jacobiTheta_two_eq_tprod _ _ hτ, tprod_congr (jtp_term N hN r s τ)]
   have hP := multipliable_P hτ
@@ -210,29 +217,29 @@ private theorem theta_eq (N : ℕ) (hN : N ≠ 0) (r s : ℤ) {τ : ℂ} (hτ : 
   rw [hP.tprod_mul hbc, hb.tprod_mul hc, h3, pow_zero, one_mul, mul_assoc, ← hb1.tprod_mul hc]
   simp only [P, sprod]
 
-private theorem qParam_24 (τ : ℂ) : Function.Periodic.qParam 24 τ = cexp (π * I * τ / 12) := by
+theorem qParam_24 (τ : ℂ) : Function.Periodic.qParam 24 τ = cexp (π * I * τ / 12) := by
   unfold Function.Periodic.qParam
   congr 1
   push_cast
   ring
 
-private theorem one_sub_eta_q (n : ℕ) (τ : ℂ) : 1 - ModularForm.eta_q n τ = 1 - qq τ ^ (n + 1) := by
+theorem one_sub_eta_q (n : ℕ) (τ : ℂ) : 1 - ModularForm.eta_q n τ = 1 - qq τ ^ (n + 1) := by
   simp only [ModularForm.eta_q, Function.Periodic.qParam, qq]
   congr 3
   push_cast
   ring
 
-private theorem eta_eq (τ : ℂ) : ModularForm.eta τ = cexp (π * I * τ / 12) * P τ := by
+theorem eta_eq (τ : ℂ) : ModularForm.eta τ = cexp (π * I * τ / 12) * P τ := by
   unfold ModularForm.eta P
   rw [qParam_24, tprod_congr (fun n => one_sub_eta_q n τ)]
 
-private theorem P_ne_zero {τ : ℂ} (hτ : 0 < τ.im) : P τ ≠ 0 := by
+theorem P_ne_zero {τ : ℂ} (hτ : 0 < τ.im) : P τ ≠ 0 := by
   have h := ModularForm.eta_tprod_ne_zero (z := τ) hτ
   rwa [tprod_congr (fun n => one_sub_eta_q n τ)] at h
 
 /-! ### The `S`-law of the q-product, and the `SL(2, ℤ)`-multiplier -/
 
-private theorem sqrt_bridge {τ : ℂ} (hτ : 0 < τ.im) :
+theorem sqrt_bridge {τ : ℂ} (hτ : 0 < τ.im) :
     (Complex.sqrt I)⁻¹ * Complex.sqrt τ = (-I * τ) ^ (1 / 2 : ℂ) := by
   have hτ0 : τ ≠ 0 := fun h => by simp [h] at hτ
   have hI : (-I : ℂ) ≠ 0 := by simp
@@ -257,13 +264,13 @@ private theorem sqrt_bridge {τ : ℂ} (hτ : 0 < τ.im) :
       _ = 1 := by rw [hc, Complex.I_sq]; norm_num
   rw [hcpow, inv_eq_of_mul_eq_one_right hprod]
 
-private theorem eta_S (τ : ℍ) :
+theorem eta_S (τ : ℍ) :
     ModularForm.eta (-1 / (τ : ℂ)) = (-I * τ) ^ (1 / 2 : ℂ) * ModularForm.eta τ := by
   have h := ModularForm.eta_comp_eq_csqrt_I_inv τ.2
   simp only [Function.comp_apply, Pi.smul_apply, Pi.mul_apply, smul_eq_mul] at h
   rw [h, ← mul_assoc, sqrt_bridge τ.2]
 
-private theorem P_S (τ : ℍ) :
+theorem P_S (τ : ℍ) :
     P (-1 / (τ : ℂ)) = (-I * τ) ^ (1 / 2 : ℂ) * cexp (-(π * I * (-1 / (τ : ℂ)) / 12)) *
       cexp (π * I * τ / 12) * P τ := by
   have h := eta_S τ
@@ -275,11 +282,11 @@ private theorem P_S (τ : ℍ) :
           rw [← mul_assoc, he, one_mul]
     _ = _ := by rw [h]; ring
 
-private theorem cpow_half_ne_zero (τ : ℍ) : (-I * (τ : ℂ)) ^ (1 / 2 : ℂ) ≠ 0 := by
+theorem cpow_half_ne_zero (τ : ℍ) : (-I * (τ : ℂ)) ^ (1 / 2 : ℂ) ≠ 0 := by
   rw [Ne, Complex.cpow_eq_zero_iff, not_and_or]
   exact Or.inl (mul_ne_zero (by simp) τ.ne_zero)
 
-private theorem theta_S (N : ℕ) (hN : N ≠ 0) (r s : ℤ) (τ : ℍ) :
+theorem theta_S (N : ℕ) (hN : N ≠ 0) (r s : ℤ) (τ : ℍ) :
     jacobiTheta₂ (w N r s (-1 / (τ : ℂ))) (-1 / (τ : ℂ)) =
       (-I * τ) ^ (1 / 2 : ℂ) * cexp (π * I * (w N s (-r) τ + τ) ^ 2 / τ) *
         cexp (-π * I * (τ + 2 * w N s (-r) τ)) * jacobiTheta₂ (w N s (-r) τ) τ := by
@@ -311,7 +318,7 @@ private theorem theta_S (N : ℕ) (hN : N ≠ 0) (r s : ℤ) (τ : ℍ) :
             _ = _ := by rw [he, mul_one_div_cancel hA, one_mul, one_mul]
     _ = _ := by rw [hz]
 
-private theorem sprod_S (N : ℕ) (hN : N ≠ 0) (r s : ℤ) (τ : ℍ) :
+theorem sprod_S (N : ℕ) (hN : N ≠ 0) (r s : ℤ) (τ : ℍ) :
     sprod N r s (-1 / (τ : ℂ)) =
       cexp (π * I * (w N s (-r) τ + τ) ^ 2 / τ + -π * I * (τ + 2 * w N s (-r) τ) -
         -(π * I * (-1 / (τ : ℂ)) / 12) - π * I * τ / 12) * sprod N s (-r) τ := by
@@ -342,7 +349,7 @@ private theorem sprod_S (N : ℕ) (hN : N ≠ 0) (r s : ℤ) (τ : ℍ) :
             cexp (-π * I * (τ + 2 * w N s (-r) τ))) * P τ * sprod N s (-r) τ := by ring
     _ = _ := by rw [← he]; ring
 
-private theorem pref_S (N : ℕ) (hN : N ≠ 0) (r s : ℤ) (τ : ℍ) :
+theorem pref_S (N : ℕ) (hN : N ≠ 0) (r s : ℤ) (τ : ℍ) :
     pref N r s (-1 / (τ : ℂ)) *
       cexp (π * I * (w N s (-r) τ + τ) ^ 2 / τ + -π * I * (τ + 2 * w N s (-r) τ) -
         -(π * I * (-1 / (τ : ℂ)) / 12) - π * I * τ / 12) = -I * pref N s (-r) τ := by
@@ -359,23 +366,23 @@ private theorem pref_S (N : ℕ) (hN : N ≠ 0) (r s : ℤ) (τ : ℍ) :
   field_simp
   ring
 
-private theorem siegelFun_S (N : ℕ) (r s : ℤ) (τ : ℍ) :
+theorem siegelFun_S (N : ℕ) (r s : ℤ) (τ : ℍ) :
     ModularCurve.siegelFun N r s (-1 / (τ : ℂ)) = -I * ModularCurve.siegelFun N s (-r) τ := by
   rcases eq_or_ne N 0 with rfl | hN
   · simp [siegelFun_level_zero]
   rw [siegelFun_eq, siegelFun_eq, sprod_S N hN, ← mul_assoc, pref_S N hN, mul_assoc]
 
-private def Law (N : ℕ) (α : Matrix.SpecialLinearGroup (Fin 2) ℤ) : Prop :=
+def Law (N : ℕ) (α : Matrix.SpecialLinearGroup (Fin 2) ℤ) : Prop :=
   ∃ μ : ℂ, μ ^ 12 = 1 ∧ ∀ (r s : ℤ) (τ : UpperHalfPlane),
     ModularCurve.siegelFun N r s ((α • τ : UpperHalfPlane) : ℂ) =
       μ * ModularCurve.siegelFun N
         (r * (α : Matrix (Fin 2) (Fin 2) ℤ) 0 0 + s * (α : Matrix (Fin 2) (Fin 2) ℤ) 1 0)
         (r * (α : Matrix (Fin 2) (Fin 2) ℤ) 0 1 + s * (α : Matrix (Fin 2) (Fin 2) ℤ) 1 1) (τ : ℂ)
 
-private theorem law_one (N : ℕ) : Law N 1 :=
+theorem law_one (N : ℕ) : Law N 1 :=
   ⟨1, one_pow _, fun r s τ => by simp⟩
 
-private theorem law_T (N : ℕ) : Law N ModularGroup.T := by
+theorem law_T (N : ℕ) : Law N ModularGroup.T := by
   refine ⟨cexp (π * I / 6), ?_, fun r s τ => ?_⟩
   · rw [← Complex.exp_nat_mul]
     convert Complex.exp_two_pi_mul_I using 2
@@ -387,7 +394,7 @@ private theorem law_T (N : ℕ) : Law N ModularGroup.T := by
     rw [add_comm (1 : ℂ), siegelFun_add_one]
     congr 2 <;> ring
 
-private theorem law_S (N : ℕ) : Law N ModularGroup.S := by
+theorem law_S (N : ℕ) : Law N ModularGroup.S := by
   refine ⟨-I, by rw [neg_pow, show (12 : ℕ) = 2 * 6 by rfl, pow_mul, pow_mul, Complex.I_sq]; norm_num,
     fun r s τ => ?_⟩
   rw [UpperHalfPlane.modular_S_smul, UpperHalfPlane.coe_mk]
@@ -396,7 +403,7 @@ private theorem law_S (N : ℕ) : Law N ModularGroup.S := by
   rw [show (-(τ : ℂ))⁻¹ = -1 / (τ : ℂ) by rw [inv_neg, neg_div, one_div], siegelFun_S]
   congr 2 <;> ring
 
-private theorem law_mul {N : ℕ} {α β : Matrix.SpecialLinearGroup (Fin 2) ℤ} (hα : Law N α) (hβ : Law N β) :
+theorem law_mul {N : ℕ} {α β : Matrix.SpecialLinearGroup (Fin 2) ℤ} (hα : Law N α) (hβ : Law N β) :
     Law N (α * β) := by
   obtain ⟨μ, hμ, hα⟩ := hα
   obtain ⟨ν, hν, hβ⟩ := hβ
@@ -405,7 +412,7 @@ private theorem law_mul {N : ℕ} {α β : Matrix.SpecialLinearGroup (Fin 2) ℤ
   simp only [Matrix.SpecialLinearGroup.coe_mul, Matrix.mul_apply, Fin.sum_univ_two]
   congr 3 <;> ring
 
-private theorem law_inv {N : ℕ} {α : Matrix.SpecialLinearGroup (Fin 2) ℤ} (hα : Law N α) : Law N α⁻¹ := by
+theorem law_inv {N : ℕ} {α : Matrix.SpecialLinearGroup (Fin 2) ℤ} (hα : Law N α) : Law N α⁻¹ := by
   obtain ⟨μ, hμ, hα⟩ := hα
   have hμ0 : μ ≠ 0 := by
     rintro rfl
@@ -434,7 +441,7 @@ private theorem law_inv {N : ℕ} {α : Matrix.SpecialLinearGroup (Fin 2) ℤ} (
   rw [h1, h2] at h
   rw [h, ← mul_assoc, inv_mul_cancel₀ hμ0, one_mul]
 
-private theorem law_all (N : ℕ) (α : Matrix.SpecialLinearGroup (Fin 2) ℤ) : Law N α := by
+theorem law_all (N : ℕ) (α : Matrix.SpecialLinearGroup (Fin 2) ℤ) : Law N α := by
   have hmem : α ∈ Subgroup.closure ({ModularGroup.S, ModularGroup.T} :
       Set (Matrix.SpecialLinearGroup (Fin 2) ℤ)) := by
     rw [SpecialLinearGroup.SL2Z_generators]; trivial
@@ -451,7 +458,7 @@ six identities beside the engine; `qa`/`pref`/`sprod` are the engine's factors, 
 their pin names, their pin statements and their pin proofs here, and the headline
 `SiegelUnit.siegelFun_add_level` is the pair of level-shifts. -/
 
-private theorem qq_ne_zero (τ : ℂ) : qq τ ≠ 0 := Complex.exp_ne_zero _
+theorem qq_ne_zero (τ : ℂ) : qq τ ≠ 0 := Complex.exp_ne_zero _
 
 theorem qa_add_level (N : ℕ) (hN : N ≠ 0) (r s : ℤ) (z : ℂ) :
     qa N r (s + N) z = qa N r s z := by
@@ -533,13 +540,13 @@ theorem sprod_add_level_left (N : ℕ) (hN : N ≠ 0) (r s : ℤ) {τ : ℂ} (h�
 
 /-! ### Differentiability of the q-product -/
 
-private theorem differentiable_w (N : ℕ) (r s : ℤ) : Differentiable ℂ (w N r s) := by
+theorem differentiable_w (N : ℕ) (r s : ℤ) : Differentiable ℂ (w N r s) := by
   unfold w; fun_prop
 
-private theorem differentiable_pref (N : ℕ) (r s : ℤ) : Differentiable ℂ (pref N r s) := by
+theorem differentiable_pref (N : ℕ) (r s : ℤ) : Differentiable ℂ (pref N r s) := by
   unfold pref; fun_prop
 
-private theorem differentiableAt_theta_w (N : ℕ) (r s : ℤ) {τ : ℂ} (hτ : 0 < τ.im) :
+theorem differentiableAt_theta_w (N : ℕ) (r s : ℤ) {τ : ℂ} (hτ : 0 < τ.im) :
     DifferentiableAt ℂ (fun z => jacobiTheta₂ (w N r s z) z) τ := by
   have h1 : DifferentiableAt ℂ (fun p : ℂ × ℂ => jacobiTheta₂ p.1 p.2) (w N r s τ, τ) :=
     (hasFDerivAt_jacobiTheta₂ (w N r s τ) hτ).differentiableAt
@@ -549,18 +556,18 @@ private theorem differentiableAt_theta_w (N : ℕ) (r s : ℤ) {τ : ℂ} (hτ :
     DifferentiableAt.comp (g := fun p : ℂ × ℂ => jacobiTheta₂ p.1 p.2) (f := fun z => (w N r s z, z)) τ h1 h2
   exact h3
 
-private theorem differentiableAt_P {τ : ℂ} (hτ : 0 < τ.im) : DifferentiableAt ℂ P τ := by
+theorem differentiableAt_P {τ : ℂ} (hτ : 0 < τ.im) : DifferentiableAt ℂ P τ := by
   have h := ModularForm.differentiableAt_eta_tprod (z := τ) hτ
   have hfun : (fun x => ∏' n, (1 - ModularForm.eta_q n x)) = P := by
     funext x
     exact tprod_congr (fun n => one_sub_eta_q n x)
   rwa [hfun] at h
 
-private theorem siegelFun_eq_theta (N : ℕ) (hN : N ≠ 0) (r s : ℤ) {τ : ℂ} (hτ : 0 < τ.im) :
+theorem siegelFun_eq_theta (N : ℕ) (hN : N ≠ 0) (r s : ℤ) {τ : ℂ} (hτ : 0 < τ.im) :
     ModularCurve.siegelFun N r s τ = pref N r s τ * (jacobiTheta₂ (w N r s τ) τ / P τ) := by
   rw [siegelFun_eq, theta_eq N hN r s hτ, mul_div_cancel_left₀ _ (P_ne_zero hτ)]
 
-private theorem differentiableOn_siegelFun (N : ℕ) (r s : ℤ) :
+theorem differentiableOn_siegelFun (N : ℕ) (r s : ℤ) :
     DifferentiableOn ℂ (fun z : ℂ => ModularCurve.siegelFun N r s z) {z : ℂ | 0 < z.im} := by
   rcases eq_or_ne N 0 with rfl | hN
   · simp only [siegelFun_level_zero]
@@ -570,7 +577,7 @@ private theorem differentiableOn_siegelFun (N : ℕ) (r s : ℤ) :
         ((differentiableAt_theta_w N r s hz).div (differentiableAt_P hz) (P_ne_zero hz))).differentiableWithinAt
     exact h.congr fun z hz => siegelFun_eq_theta N hN r s hz
 
-private theorem mdifferentiable_siegelFun (N : ℕ) (r s : ℤ) :
+theorem mdifferentiable_siegelFun (N : ℕ) (r s : ℤ) :
     MDifferentiable 𝓘(ℂ) 𝓘(ℂ) (fun τ : ℍ => ModularCurve.siegelFun N r s (τ : ℂ)) := by
   intro τ
   rw [UpperHalfPlane.mdifferentiableAt_iff]
@@ -617,6 +624,193 @@ theorem siegelFun_add_level (N : ℕ) (r s : ℤ) :
       SiegelUnitEngine.pref_add_level_left N hN, SiegelUnitEngine.sprod_add_level_left N hN r s τ.2]
     have hw : SiegelUnitEngine.qa N r s (τ : ℂ) ≠ 0 := SiegelUnitEngine.qa_ne_zero N r s τ
     field_simp
+
+/-! ### The double product under `SL(2, ℤ)` -/
+
+namespace SiegelTransport
+
+open Complex
+
+private theorem natCast_ne_zero (N : ℕ) [NeZero N] : (N : ℂ) ≠ 0 := by exact_mod_cast NeZero.ne N
+
+private noncomputable def dS (N : ℕ) (r : ℤ) : ℂ :=
+  Complex.exp (Real.pi * Complex.I * ((r : ℂ) - (N : ℂ)) / (N : ℂ))
+
+private noncomputable def dR (N : ℕ) (s : ℤ) : ℂ :=
+  -Complex.exp (-(Real.pi * Complex.I * (s : ℂ) / (N : ℂ)))
+
+private theorem dS_ne_zero (N : ℕ) (r : ℤ) : dS N r ≠ 0 := Complex.exp_ne_zero _
+
+private theorem dR_ne_zero (N : ℕ) (s : ℤ) : dR N s ≠ 0 := neg_ne_zero.mpr (Complex.exp_ne_zero _)
+
+private theorem dS_pow (N : ℕ) [NeZero N] (r : ℤ) : dS N r ^ (2 * N) = 1 := by
+  rw [dS, ← Complex.exp_nat_mul]
+  have h : ((2 * N : ℕ) : ℂ) * (Real.pi * Complex.I * ((r : ℂ) - (N : ℂ)) / (N : ℂ)) =
+      ((r - N : ℤ) : ℂ) * (2 * Real.pi * Complex.I) := by
+    have hN := natCast_ne_zero N
+    push_cast
+    field_simp
+  rw [h]
+  exact Complex.exp_int_mul_two_pi_mul_I _
+
+private theorem dR_pow (N : ℕ) [NeZero N] (s : ℤ) : dR N s ^ (2 * N) = 1 := by
+  rw [dR, neg_pow, show (-1 : ℂ) ^ (2 * N) = 1 from (even_two_mul N).neg_one_pow, one_mul, ← Complex.exp_nat_mul]
+  have h : ((2 * N : ℕ) : ℂ) * (-(Real.pi * Complex.I * (s : ℂ) / (N : ℂ))) = ((-s : ℤ) : ℂ) * (2 * Real.pi * Complex.I) := by
+    have hN := natCast_ne_zero N
+    push_cast
+    field_simp
+  rw [h]
+  exact Complex.exp_int_mul_two_pi_mul_I _
+
+private theorem siegelFun_add_nat_mul_snd (N : ℕ) (r s : ℤ) (z : ℂ) :
+    ∀ k : ℕ, siegelFun N r (s + k * N) z = dS N r ^ k * siegelFun N r s z
+  | 0 => by simp
+  | k + 1 => by
+      have h := (ModularCurve.SiegelUnit.siegelFun_add_level N r (s + k * N)).1 z
+      rw [show s + ((k + 1 : ℕ) : ℤ) * N = s + k * N + N by push_cast; ring, h,
+        siegelFun_add_nat_mul_snd N r s z k, pow_succ, dS]
+      ring
+
+private theorem siegelFun_add_int_mul_snd (N : ℕ) (r s : ℤ) (z : ℂ) (k : ℤ) :
+    siegelFun N r (s + k * N) z = dS N r ^ k * siegelFun N r s z := by
+  obtain ⟨n, rfl | rfl⟩ := Int.eq_nat_or_neg k
+  · rw [zpow_natCast]; exact siegelFun_add_nat_mul_snd N r s z n
+  · have h := siegelFun_add_nat_mul_snd N r (s + -(n : ℤ) * N) z n
+    rw [show s + -(n : ℤ) * N + (n : ℤ) * N = s by ring] at h
+    rw [zpow_neg, zpow_natCast, h, ← mul_assoc, inv_mul_cancel₀ (pow_ne_zero _ (dS_ne_zero N r)), one_mul]
+
+private theorem siegelFun_add_nat_mul_fst (N : ℕ) (r s : ℤ) (τ : UpperHalfPlane) :
+    ∀ k : ℕ, siegelFun N (r + k * N) s (τ : ℂ) = dR N s ^ k * siegelFun N r s (τ : ℂ)
+  | 0 => by simp
+  | k + 1 => by
+      have h := (ModularCurve.SiegelUnit.siegelFun_add_level N (r + k * N) s).2 τ
+      rw [show r + ((k + 1 : ℕ) : ℤ) * N = r + k * N + N by push_cast; ring, h,
+        siegelFun_add_nat_mul_fst N r s τ k, pow_succ, dR]
+      ring
+
+private theorem siegelFun_add_int_mul_fst (N : ℕ) (r s : ℤ) (τ : UpperHalfPlane) (k : ℤ) :
+    siegelFun N (r + k * N) s (τ : ℂ) = dR N s ^ k * siegelFun N r s (τ : ℂ) := by
+  obtain ⟨n, rfl | rfl⟩ := Int.eq_nat_or_neg k
+  · rw [zpow_natCast]; exact siegelFun_add_nat_mul_fst N r s τ n
+  · have h := siegelFun_add_nat_mul_fst N (r + -(n : ℤ) * N) s τ n
+    rw [show r + -(n : ℤ) * N + (n : ℤ) * N = r by ring] at h
+    rw [zpow_neg, zpow_natCast, h, ← mul_assoc, inv_mul_cancel₀ (pow_ne_zero _ (dR_ne_zero N s)), one_mul]
+
+private theorem intCast_zmod_val (N : ℕ) [NeZero N] (a : ℤ) :
+    (((a : ZMod N).val : ℕ) : ℤ) = a % N := ZMod.val_intCast a
+
+private theorem exists_siegelFun_eq_mul_reduced (N : ℕ) [NeZero N] (a b : ℤ) (τ : UpperHalfPlane) :
+    ∃ ζ : ℂ, ζ ^ (2 * N) = 1 ∧
+      siegelFun N a b (τ : ℂ) =
+        ζ * siegelFun N (((a : ZMod N).val : ℕ) : ℤ) (((b : ZMod N).val : ℕ) : ℤ) (τ : ℂ) := by
+  set a' : ℤ := (((a : ZMod N).val : ℕ) : ℤ) with ha'
+  set b' : ℤ := (((b : ZMod N).val : ℕ) : ℤ) with hb'
+  have ha : a = a' + (a / N) * N := by
+    rw [ha', intCast_zmod_val, mul_comm]; exact (Int.emod_add_mul_ediv a N).symm
+  have hb : b = b' + (b / N) * N := by
+    rw [hb', intCast_zmod_val, mul_comm]; exact (Int.emod_add_mul_ediv b N).symm
+  have h1 : siegelFun N a b (τ : ℂ) = dS N a ^ (b / N) * siegelFun N a b' (τ : ℂ) := by
+    conv_lhs => rw [hb]
+    exact siegelFun_add_int_mul_snd N a b' (τ : ℂ) (b / N)
+  have h2 : siegelFun N a b' (τ : ℂ) = dR N b' ^ (a / N) * siegelFun N a' b' (τ : ℂ) := by
+    conv_lhs => rw [ha]
+    exact siegelFun_add_int_mul_fst N a' b' τ (a / N)
+  refine ⟨dS N a ^ (b / N) * dR N b' ^ (a / N), ?_, ?_⟩
+  · rw [mul_pow, ← zpow_natCast, ← zpow_natCast (dR N b' ^ (a / N)), ← zpow_mul, ← zpow_mul,
+      mul_comm (b / N), mul_comm (a / N), zpow_mul, zpow_mul, zpow_natCast, zpow_natCast, dS_pow,
+      dR_pow, one_zpow, one_zpow, mul_one]
+  · rw [h1, h2]
+    ring
+
+private theorem pow_twelve_mul_eq_one (N : ℕ) {μ ζ : ℂ} (hμ : μ ^ 12 = 1) (hζ : ζ ^ (2 * N) = 1)
+    (m : ℕ) : (μ * ζ) ^ (12 * N * m) = 1 := by
+  rw [mul_pow, show 12 * N * m = 12 * (N * m) by ring, pow_mul, hμ, one_pow, one_mul,
+    show 12 * (N * m) = (2 * N) * (6 * m) by ring, pow_mul, hζ, one_pow]
+
+end SiegelTransport
+
+open SiegelTransport in
+theorem prod_siegelFun_pow_specialLinearGroup_smul (N : ℕ) [NeZero N]
+    (e : ZMod N → ZMod N → ℕ) :
+    (∀ (β : Matrix.SpecialLinearGroup (Fin 2) ℤ) (τ : UpperHalfPlane),
+      (∏ r : ZMod N, ∏ s : ZMod N,
+          siegelFun N (r.val : ℤ) (s.val : ℤ) ((β • τ : UpperHalfPlane) : ℂ) ^ (12 * N * e r s)) =
+        ∏ r : ZMod N, ∏ s : ZMod N,
+          siegelFun N
+              ((((r.val : ℤ) * (β : Matrix (Fin 2) (Fin 2) ℤ) 0 0 +
+                  (s.val : ℤ) * (β : Matrix (Fin 2) (Fin 2) ℤ) 1 0 : ℤ) : ZMod N).val : ℤ)
+              ((((r.val : ℤ) * (β : Matrix (Fin 2) (Fin 2) ℤ) 0 1 +
+                  (s.val : ℤ) * (β : Matrix (Fin 2) (Fin 2) ℤ) 1 1 : ℤ) : ZMod N).val : ℤ)
+              (τ : ℂ) ^ (12 * N * e r s)) ∧
+    ((∀ r s : ZMod N, e r (s + r) = e r s) →
+      ∀ γ : Matrix.SpecialLinearGroup (Fin 2) ℤ, γ ∈ CongruenceSubgroup.Gamma1 N →
+        ∀ τ : UpperHalfPlane,
+          (∏ r : ZMod N, ∏ s : ZMod N,
+              siegelFun N (r.val : ℤ) (s.val : ℤ) ((γ • τ : UpperHalfPlane) : ℂ) ^ (12 * N * e r s)) =
+            ∏ r : ZMod N, ∏ s : ZMod N,
+              siegelFun N (r.val : ℤ) (s.val : ℤ) (τ : ℂ) ^ (12 * N * e r s)) := by
+  classical
+
+  have h1 : ∀ (β : Matrix.SpecialLinearGroup (Fin 2) ℤ) (τ : UpperHalfPlane),
+      (∏ r : ZMod N, ∏ s : ZMod N,
+          siegelFun N (r.val : ℤ) (s.val : ℤ) ((β • τ : UpperHalfPlane) : ℂ) ^ (12 * N * e r s)) =
+        ∏ r : ZMod N, ∏ s : ZMod N,
+          siegelFun N
+              ((((r.val : ℤ) * (β : Matrix (Fin 2) (Fin 2) ℤ) 0 0 +
+                  (s.val : ℤ) * (β : Matrix (Fin 2) (Fin 2) ℤ) 1 0 : ℤ) : ZMod N).val : ℤ)
+              ((((r.val : ℤ) * (β : Matrix (Fin 2) (Fin 2) ℤ) 0 1 +
+                  (s.val : ℤ) * (β : Matrix (Fin 2) (Fin 2) ℤ) 1 1 : ℤ) : ZMod N).val : ℤ)
+              (τ : ℂ) ^ (12 * N * e r s) := by
+    intro β τ
+    obtain ⟨μ, hμ, hK⟩ := ModularCurve.siegelFun_specialLinearGroup_smul N β
+    refine Finset.prod_congr rfl fun r _ => Finset.prod_congr rfl fun s _ => ?_
+    obtain ⟨ζ, hζ, hred⟩ := exists_siegelFun_eq_mul_reduced N
+      ((r.val : ℤ) * (β : Matrix (Fin 2) (Fin 2) ℤ) 0 0 + (s.val : ℤ) * (β : Matrix (Fin 2) (Fin 2) ℤ) 1 0)
+      ((r.val : ℤ) * (β : Matrix (Fin 2) (Fin 2) ℤ) 0 1 + (s.val : ℤ) * (β : Matrix (Fin 2) (Fin 2) ℤ) 1 1) τ
+    rw [hK, hred, ← mul_assoc, mul_pow, pow_twelve_mul_eq_one N hμ hζ, one_mul]
+  refine ⟨h1, ?_⟩
+
+  intro he γ hγ τ
+  rw [h1 γ τ]
+  rw [CongruenceSubgroup.Gamma1_mem] at hγ
+  obtain ⟨h00, h11, h10⟩ := hγ
+  set b : ZMod N := ((γ : Matrix (Fin 2) (Fin 2) ℤ) 0 1 : ZMod N) with hb
+
+  have he' : ∀ (r s : ZMod N) (k : ℕ), e r (s + k • r) = e r s := by
+    intro r s k
+    induction k with
+    | zero => rw [zero_smul, add_zero]
+    | succ k ih => rw [succ_nsmul, ← add_assoc, he, ih]
+  have heb : ∀ r s : ZMod N, e r (s + r * b) = e r s := by
+    intro r s
+    rw [show r * b = b.val • r by rw [nsmul_eq_mul, ZMod.natCast_zmod_val, mul_comm]]
+    exact he' r s b.val
+  refine Finset.prod_congr rfl fun r _ => ?_
+
+  have hidx1 : ∀ s : ZMod N,
+      ((((r.val : ℤ) * (γ : Matrix (Fin 2) (Fin 2) ℤ) 0 0 +
+          (s.val : ℤ) * (γ : Matrix (Fin 2) (Fin 2) ℤ) 1 0 : ℤ) : ZMod N)) = r := by
+    intro s
+    push_cast
+    rw [h00, h10, ZMod.natCast_zmod_val, ZMod.natCast_zmod_val, mul_one, mul_zero, add_zero]
+  have hidx2 : ∀ s : ZMod N,
+      ((((r.val : ℤ) * (γ : Matrix (Fin 2) (Fin 2) ℤ) 0 1 +
+          (s.val : ℤ) * (γ : Matrix (Fin 2) (Fin 2) ℤ) 1 1 : ℤ) : ZMod N)) = s + r * b := by
+    intro s
+    push_cast
+    rw [h11, ZMod.natCast_zmod_val, ZMod.natCast_zmod_val, mul_one, hb, add_comm]
+  have hterm : ∀ s : ZMod N,
+      siegelFun N
+          ((((r.val : ℤ) * (γ : Matrix (Fin 2) (Fin 2) ℤ) 0 0 +
+              (s.val : ℤ) * (γ : Matrix (Fin 2) (Fin 2) ℤ) 1 0 : ℤ) : ZMod N).val : ℤ)
+          ((((r.val : ℤ) * (γ : Matrix (Fin 2) (Fin 2) ℤ) 0 1 +
+              (s.val : ℤ) * (γ : Matrix (Fin 2) (Fin 2) ℤ) 1 1 : ℤ) : ZMod N).val : ℤ)
+          (τ : ℂ) ^ (12 * N * e r s) =
+        siegelFun N (r.val : ℤ) ((s + r * b).val : ℤ) (τ : ℂ) ^ (12 * N * e r (s + r * b)) := by
+    intro s
+    rw [hidx1 s, hidx2 s, heb r s]
+  rw [Finset.prod_congr rfl (fun s _ => hterm s)]
+  exact Fintype.prod_equiv (Equiv.addRight (r * b)) _ _ (fun s => rfl)
 
 end SiegelUnit
 
