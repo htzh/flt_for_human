@@ -1,0 +1,21 @@
+window.PLAY_MODULES = window.PLAY_MODULES || {};
+window.PLAY_MODULES["Mathlib.SetTheory.Cardinal.Finite"] = {
+  "module": "Mathlib.SetTheory.Cardinal.Finite",
+  "cards": {
+    "Nat.card": {
+      "refs": [{"where":"type","name":"Nat","module":"Init.Prelude","kind":"inductive"},{"where":"body","name":"Cardinal","module":"Mathlib.SetTheory.Cardinal.Defs","kind":"def"},{"where":"body","name":"Cardinal.mk","module":"Mathlib.SetTheory.Cardinal.Defs","kind":"def"},{"where":"body","name":"MonoidWithZeroHom","module":"Mathlib.Algebra.GroupWithZero.Hom","kind":"inductive"},{"where":"body","name":"MonoidWithZeroHom.funLike","module":"Mathlib.Algebra.GroupWithZero.Hom","kind":"def"}],
+      "range": {"start":{"line":39,"column":0},"end":{"line":42,"column":14}},
+      "name": "Nat.card",
+      "module": "Mathlib.SetTheory.Cardinal.Finite",
+      "kind": "def",
+      "elaborated_type": "Type u_3 → ℕ",
+      "doc": "`Nat.card α` is the cardinality of `α` as a natural number.\nIf `α` is infinite, `Nat.card α = 0`. ",
+      "short": "card",
+      "signature_source": "protected def card (α : Type*) : ℕ :=",
+      "body_source": "toNat (mk α)",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/SetTheory/Cardinal/Finite.lean",
+      "has_source": true,
+      "has_refs": true
+    }
+  }
+};

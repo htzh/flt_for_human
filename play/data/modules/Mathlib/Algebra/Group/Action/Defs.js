@@ -1,0 +1,96 @@
+window.PLAY_MODULES = window.PLAY_MODULES || {};
+window.PLAY_MODULES["Mathlib.Algebra.Group.Action.Defs"] = {
+  "module": "Mathlib.Algebra.Group.Action.Defs",
+  "cards": {
+    "IsScalarTower": {
+      "refs": [{"where":"type","name":"SMul","module":"Init.Prelude","kind":"inductive"}],
+      "range": {"start":{"line":207,"column":0},"end":{"line":213,"column":65}},
+      "name": "IsScalarTower",
+      "module": "Mathlib.Algebra.Group.Action.Defs",
+      "kind": "inductive",
+      "elaborated_type": "(M : Type u_9) → (N : Type u_10) → (α : Type u_11) → [SMul M N] → [SMul N α] → [SMul M α] → Prop",
+      "doc": "An instance of `IsScalarTower M N α` states that the multiplicative\naction of `M` on `α` is determined by the multiplicative actions of `M` on `N`\nand `N` on `α`. ",
+      "short": "IsScalarTower",
+      "signature_source": "@[to_additive]\nclass IsScalarTower (M N α : Type*) [SMul M N] [SMul N α] [SMul M α] : Prop where\n  /-- Associativity of `•` -/\n  smul_assoc : ∀ (x : M) (y : N) (z : α), (x • y) • z = x • y • z",
+      "body_source": "",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/Algebra/Group/Action/Defs.lean",
+      "has_source": true,
+      "has_refs": true
+    },
+    "IsScalarTower.left": {
+      "refs": [{"where":"type","name":"IsScalarTower","module":"Mathlib.Algebra.Group.Action.Defs","kind":"inductive"},{"where":"type","name":"Monoid","module":"Mathlib.Algebra.Group.Monoid","kind":"inductive"},{"where":"type","name":"MulAction","module":"Mathlib.Algebra.Group.Action.Defs","kind":"inductive"}],
+      "range": {"start":{"line":475,"column":0},"end":{"line":477,"column":36}},
+      "name": "IsScalarTower.left",
+      "module": "Mathlib.Algebra.Group.Action.Defs",
+      "kind": "theorem",
+      "elaborated_type": "∀ (M : Type u_1) {α : Type u_5} [inst : Monoid M] [inst_1 : MulAction M α], IsScalarTower M M α",
+      "doc": "",
+      "short": "left",
+      "signature_source": "@[to_additive]\ninstance IsScalarTower.left : IsScalarTower M M α where\n  smul_assoc x y z := mul_smul x y z",
+      "body_source": "",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/Algebra/Group/Action/Defs.lean",
+      "has_source": true,
+      "has_refs": true
+    },
+    "MulAction": {
+      "refs": [{"where":"type","name":"Monoid","module":"Mathlib.Algebra.Group.Monoid","kind":"inductive"}],
+      "range": {"start":{"line":124,"column":0},"end":{"line":138,"column":47}},
+      "name": "MulAction",
+      "module": "Mathlib.Algebra.Group.Action.Defs",
+      "kind": "inductive",
+      "elaborated_type": "(α : Type u_9) → Type u_10 → [Monoid α] → Type (max u_10 u_9)",
+      "doc": "Type class for monoid actions on types, with notation `g • p`.\n\nThe `MulAction G P` typeclass says that the monoid `G` acts multiplicatively on a type `P`.\nMore precisely this means that the action satisfies the two axioms `1 • p = p` and\n`(g₁ * g₂) • p = g₁ • (g₂ • p)`. A mathematician might simply say that the monoid `G`\nacts on `P`.\n\nFor example, if `G` is a group and `X` is a type, if a mathematician says\nsay \"let `G` act on the set `X`\" they will probably mean `[MulAction G X]`.\n\n\n[Wikidata Q288465](https://www.wikidata.org/wiki/Q288465)",
+      "short": "MulAction",
+      "signature_source": "@[to_additive (attr := ext, wikidata Q288465)]\nclass MulAction (α : Type*) (β : Type*) [Monoid α] extends SemigroupAction α β where\n  /-- One is the neutral element for `•` -/\n  protected one_smul : ∀ b : β, (1 : α) • b = b",
+      "body_source": "",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/Algebra/Group/Action/Defs.lean",
+      "has_source": true,
+      "has_refs": true
+    },
+    "SMulCommClass": {
+      "refs": [{"where":"type","name":"SMul","module":"Init.Prelude","kind":"inductive"}],
+      "range": {"start":{"line":147,"column":0},"end":{"line":151,"column":62}},
+      "name": "SMulCommClass",
+      "module": "Mathlib.Algebra.Group.Action.Defs",
+      "kind": "inductive",
+      "elaborated_type": "(M : Type u_9) → (N : Type u_10) → (α : Type u_11) → [SMul M α] → [SMul N α] → Prop",
+      "doc": "A typeclass mixin saying that two multiplicative actions on the same space commute. ",
+      "short": "SMulCommClass",
+      "signature_source": "@[to_additive]\nclass SMulCommClass (M N α : Type*) [SMul M α] [SMul N α] : Prop where\n  /-- `•` is left commutative -/\n  smul_comm : ∀ (m : M) (n : N) (a : α), m • n • a = n • m • a",
+      "body_source": "",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/Algebra/Group/Action/Defs.lean",
+      "has_source": true,
+      "has_refs": true
+    },
+    "one_smul": {
+      "refs": [{"where":"type","name":"Monoid","module":"Mathlib.Algebra.Group.Monoid","kind":"inductive"},{"where":"type","name":"MulAction","module":"Mathlib.Algebra.Group.Action.Defs","kind":"inductive"},{"where":"type","name":"HSMul.hSMul","module":"Init.Prelude","kind":"abbrev"}],
+      "range": {"start":{"line":418,"column":0},"end":{"line":419,"column":64}},
+      "name": "one_smul",
+      "module": "Mathlib.Algebra.Group.Action.Defs",
+      "kind": "theorem",
+      "elaborated_type": "∀ (M : Type u_1) {α : Type u_5} [inst : Monoid M] [inst_1 : MulAction M α] (b : α), 1 • b = b",
+      "doc": "",
+      "short": "one_smul",
+      "signature_source": "@[to_additive (attr := simp)]\nlemma one_smul (b : α) : (1 : M) • b = b :=",
+      "body_source": "MulAction.one_smul _",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/Algebra/Group/Action/Defs.lean",
+      "has_source": true,
+      "has_refs": true
+    },
+    "smulCommClass_self": {
+      "refs": [{"where":"type","name":"CommMonoid","module":"Mathlib.Algebra.Group.Monoid","kind":"inductive"},{"where":"type","name":"MulAction","module":"Mathlib.Algebra.Group.Action.Defs","kind":"inductive"},{"where":"type","name":"SMulCommClass","module":"Mathlib.Algebra.Group.Action.Defs","kind":"inductive"}],
+      "range": {"start":{"line":197,"column":0},"end":{"line":199,"column":60}},
+      "name": "smulCommClass_self",
+      "module": "Mathlib.Algebra.Group.Action.Defs",
+      "kind": "theorem",
+      "elaborated_type": "∀ (M : Type u_9) (α : Type u_10) [inst : CommMonoid M] [inst_1 : MulAction M α], SMulCommClass M M α",
+      "doc": "",
+      "short": "smulCommClass_self",
+      "signature_source": "@[to_additive]\ninstance smulCommClass_self (M α : Type*) [CommMonoid M] [MulAction M α] : SMulCommClass M M α where\n  smul_comm a a' b := by rw [← mul_smul, mul_comm, mul_smul]",
+      "body_source": "",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/Algebra/Group/Action/Defs.lean",
+      "has_source": true,
+      "has_refs": true
+    }
+  }
+};

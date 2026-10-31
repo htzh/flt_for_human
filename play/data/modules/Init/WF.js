@@ -1,0 +1,21 @@
+window.PLAY_MODULES = window.PLAY_MODULES || {};
+window.PLAY_MODULES["Init.WF"] = {
+  "module": "Init.WF",
+  "cards": {
+    "WellFounded.Nat.fix": {
+      "refs": [{"where":"type","name":"InvImage","module":"Init.Core","kind":"def"},{"where":"type","name":"Nat","module":"Init.Prelude","kind":"inductive"},{"where":"body","name":"WellFounded.Nat.eager","module":"Init.WF","kind":"def"},{"where":"body","name":"WellFounded.Nat.fix.go","module":"Init.WF","kind":"def"}],
+      "range": {"start":{"line":484,"column":0},"end":{"line":499,"column":73}},
+      "name": "WellFounded.Nat.fix",
+      "module": "Init.WF",
+      "kind": "def",
+      "elaborated_type": "{α : Sort u} →\n  {motive : α → Sort v} →\n    (h : α → ℕ) →\n      ((x : α) → ((y : α) → InvImage (fun x1 x2 => x1 < x2) h y x → motive y) → motive x) → (x : α) → motive x",
+      "doc": "A well-founded fixpoint operator specialized for `Nat`-valued measures. Given a measure `h`, it expects\nits higher order function argument `F` to invoke its argument only on values `y` that are smaller\nthan `x` with regard to `h`.\n\nIn contrast to `WellFounded.fix`, this fixpoint operator reduces on closed terms. (More precisely:\nwhen `h x` evaluates to a ground value)\n\n",
+      "short": "fix",
+      "signature_source": "@[implicit_reducible]\ndef Nat.fix : (x : α) → motive x :=",
+      "body_source": "let rec go : ∀ (fuel : Nat) (x : α), (h x < fuel) → motive x :=\n    Nat.rec\n      (fun _ hfuel => (Nat.not_succ_le_zero _ hfuel).elim)\n      (fun _ ih x hfuel => F x (fun y hy => ih y (by exact Nat.lt_of_lt_of_le hy (Nat.le_of_lt_add_one hfuel))))\n  fun x => go (Nat.eager (h x + 1)) x (Nat.eager_eq _ ▸ Nat.lt_add_one _)",
+      "source_file": "~/.elan/toolchains/leanprover--lean4---v4.34.0/src/lean/Init/WF.lean",
+      "has_source": true,
+      "has_refs": true
+    }
+  }
+};

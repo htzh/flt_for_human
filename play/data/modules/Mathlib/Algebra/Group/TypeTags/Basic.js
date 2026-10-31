@@ -1,0 +1,96 @@
+window.PLAY_MODULES = window.PLAY_MODULES || {};
+window.PLAY_MODULES["Mathlib.Algebra.Group.TypeTags.Basic"] = {
+  "module": "Mathlib.Algebra.Group.TypeTags.Basic",
+  "cards": {
+    "Multiplicative": {
+      "refs": [],
+      "range": {"start":{"line":44,"column":0},"end":{"line":46,"column":35}},
+      "name": "Multiplicative",
+      "module": "Mathlib.Algebra.Group.TypeTags.Basic",
+      "kind": "def",
+      "elaborated_type": "Type u_1 → Type u_1",
+      "doc": "If `α` carries some additive structure, then `Multiplicative α` carries the corresponding\nmultiplicative structure. ",
+      "short": "Multiplicative",
+      "signature_source": "def Multiplicative (α : Type*) :=",
+      "body_source": "α",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/Algebra/Group/TypeTags/Basic.lean",
+      "has_source": true,
+      "has_refs": false
+    },
+    "Multiplicative.commMonoid": {
+      "refs": [{"where":"type","name":"AddCommMonoid","module":"Mathlib.Algebra.Group.Monoid","kind":"inductive"},{"where":"type","name":"CommMonoid","module":"Mathlib.Algebra.Group.Monoid","kind":"inductive"},{"where":"type","name":"Multiplicative","module":"Mathlib.Algebra.Group.TypeTags.Basic","kind":"def"},{"where":"body","name":"CommSemigroup","module":"Mathlib.Algebra.Group.Semigroup","kind":"inductive"},{"where":"body","name":"Monoid","module":"Mathlib.Algebra.Group.Monoid","kind":"inductive"},{"where":"body","name":"Multiplicative.commSemigroup","module":"Mathlib.Algebra.Group.TypeTags.Basic","kind":"def"},{"where":"body","name":"Multiplicative.monoid","module":"Mathlib.Algebra.Group.TypeTags.Basic","kind":"def"}],
+      "range": {"start":{"line":361,"column":0},"end":{"line":362,"column":62}},
+      "name": "Multiplicative.commMonoid",
+      "module": "Mathlib.Algebra.Group.TypeTags.Basic",
+      "kind": "def",
+      "elaborated_type": "{α : Type u} → [AddCommMonoid α] → CommMonoid (Multiplicative α)",
+      "doc": "",
+      "short": "commMonoid",
+      "signature_source": "instance Multiplicative.commMonoid [AddCommMonoid α] : CommMonoid (Multiplicative α) :=",
+      "body_source": "{ Multiplicative.monoid, Multiplicative.commSemigroup with }",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/Algebra/Group/TypeTags/Basic.lean",
+      "has_source": true,
+      "has_refs": true
+    },
+    "Multiplicative.group": {
+      "refs": [{"where":"type","name":"AddGroup","module":"Mathlib.Algebra.Group.Defs","kind":"inductive"},{"where":"type","name":"Group","module":"Mathlib.Algebra.Group.Defs","kind":"inductive"},{"where":"type","name":"Multiplicative","module":"Mathlib.Algebra.Group.TypeTags.Basic","kind":"def"},{"where":"body","name":"DivInvMonoid","module":"Mathlib.Algebra.Group.DivInvMonoid","kind":"inductive"},{"where":"body","name":"Multiplicative.divInvMonoid","module":"Mathlib.Algebra.Group.TypeTags.Basic","kind":"def"},{"where":"body","name":"neg_add_cancel","module":"Mathlib.Algebra.Group.Defs","kind":"theorem"}],
+      "range": {"start":{"line":471,"column":0},"end":{"line":472,"column":76}},
+      "name": "Multiplicative.group",
+      "module": "Mathlib.Algebra.Group.TypeTags.Basic",
+      "kind": "def",
+      "elaborated_type": "{α : Type u} → [AddGroup α] → Group (Multiplicative α)",
+      "doc": "",
+      "short": "group",
+      "signature_source": "instance Multiplicative.group [AddGroup α] : Group (Multiplicative α) :=",
+      "body_source": "{ Multiplicative.divInvMonoid with inv_mul_cancel := @neg_add_cancel α _ }",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/Algebra/Group/TypeTags/Basic.lean",
+      "has_source": true,
+      "has_refs": true
+    },
+    "Multiplicative.monoid": {
+      "refs": [{"where":"type","name":"AddMonoid","module":"Mathlib.Algebra.Group.Monoid","kind":"inductive"},{"where":"type","name":"Monoid","module":"Mathlib.Algebra.Group.Monoid","kind":"inductive"},{"where":"type","name":"Multiplicative","module":"Mathlib.Algebra.Group.TypeTags.Basic","kind":"def"},{"where":"body","name":"AddMonoid.nsmul_succ","module":"Mathlib.Algebra.Group.Monoid","kind":"theorem"},{"where":"body","name":"AddMonoid.nsmul_zero","module":"Mathlib.Algebra.Group.Monoid","kind":"theorem"},{"where":"body","name":"Equiv","module":"Mathlib.Logic.Equiv.Defs","kind":"inductive"},{"where":"body","name":"Multiplicative.mul","module":"Mathlib.Algebra.Group.TypeTags.Basic","kind":"def"},{"where":"body","name":"Multiplicative.ofAdd","module":"Mathlib.Algebra.Group.TypeTags.Basic","kind":"def"},{"where":"body","name":"HSMul.hSMul","module":"Init.Prelude","kind":"abbrev"},{"where":"body","name":"Nat","module":"Init.Prelude","kind":"inductive"}],
+      "range": {"start":{"line":273,"column":0},"end":{"line":276,"column":27}},
+      "name": "Multiplicative.monoid",
+      "module": "Mathlib.Algebra.Group.TypeTags.Basic",
+      "kind": "def",
+      "elaborated_type": "{α : Type u} → [h : AddMonoid α] → Monoid (Multiplicative α)",
+      "doc": "",
+      "short": "monoid",
+      "signature_source": "instance Multiplicative.monoid [h : AddMonoid α] : Monoid (Multiplicative α) where\n  npow n a := ofAdd (n • a.toAdd)\n  npow_zero := h.nsmul_zero\n  npow_succ := h.nsmul_succ",
+      "body_source": "",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/Algebra/Group/TypeTags/Basic.lean",
+      "has_source": true,
+      "has_refs": true
+    },
+    "Multiplicative.mul": {
+      "refs": [{"where":"type","name":"Multiplicative","module":"Mathlib.Algebra.Group.TypeTags.Basic","kind":"def"},{"where":"type","name":"Add","module":"Init.Prelude","kind":"inductive"},{"where":"type","name":"Mul","module":"Init.Prelude","kind":"inductive"},{"where":"body","name":"Equiv","module":"Mathlib.Logic.Equiv.Defs","kind":"inductive"},{"where":"body","name":"Multiplicative.ofAdd","module":"Mathlib.Algebra.Group.TypeTags.Basic","kind":"def"}],
+      "range": {"start":{"line":160,"column":0},"end":{"line":161,"column":38}},
+      "name": "Multiplicative.mul",
+      "module": "Mathlib.Algebra.Group.TypeTags.Basic",
+      "kind": "def",
+      "elaborated_type": "{α : Type u} → [Add α] → Mul (Multiplicative α)",
+      "doc": "",
+      "short": "mul",
+      "signature_source": "instance Multiplicative.mul [Add α] : Mul (Multiplicative α) where\n  mul x y := ofAdd (x.toAdd + y.toAdd)",
+      "body_source": "",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/Algebra/Group/TypeTags/Basic.lean",
+      "has_source": true,
+      "has_refs": true
+    },
+    "Multiplicative.ofAdd": {
+      "refs": [{"where":"type","name":"Equiv","module":"Mathlib.Logic.Equiv.Defs","kind":"inductive"},{"where":"type","name":"Multiplicative","module":"Mathlib.Algebra.Group.TypeTags.Basic","kind":"def"}],
+      "range": {"start":{"line":84,"column":0},"end":{"line":87,"column":54}},
+      "name": "Multiplicative.ofAdd",
+      "module": "Mathlib.Algebra.Group.TypeTags.Basic",
+      "kind": "def",
+      "elaborated_type": "{α : Type u} → α ≃ Multiplicative α",
+      "doc": "Reinterpret `x : α` as an element of `Multiplicative α`. ",
+      "short": "ofAdd",
+      "signature_source": "@[implicit_reducible]\ndef ofAdd : α ≃ Multiplicative α :=",
+      "body_source": "⟨fun x => x, fun x => x, fun _ => rfl, fun _ => rfl⟩",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/Algebra/Group/TypeTags/Basic.lean",
+      "has_source": true,
+      "has_refs": true
+    }
+  }
+};

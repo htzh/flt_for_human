@@ -1,0 +1,96 @@
+window.PLAY_MODULES = window.PLAY_MODULES || {};
+window.PLAY_MODULES["Mathlib.LinearAlgebra.Quotient.Defs"] = {
+  "module": "Mathlib.LinearAlgebra.Quotient.Defs",
+  "cards": {
+    "Submodule.Quotient.addCommMonoid": {
+      "refs": [{"where":"type","name":"AddCommGroup","module":"Mathlib.Algebra.Group.Defs","kind":"inductive"},{"where":"type","name":"AddCommMonoid","module":"Mathlib.Algebra.Group.Monoid","kind":"inductive"},{"where":"type","name":"HasQuotient.Quotient","module":"Mathlib.Algebra.Quotient","kind":"abbrev"},{"where":"type","name":"Module","module":"Mathlib.Algebra.Module.Defs","kind":"inductive"},{"where":"type","name":"Ring","module":"Mathlib.Algebra.Ring.Defs","kind":"inductive"},{"where":"type","name":"Submodule","module":"Mathlib.Algebra.Module.Submodule.Defs","kind":"inductive"},{"where":"type","name":"Submodule.hasQuotient","module":"Mathlib.LinearAlgebra.Quotient.Defs","kind":"def"},{"where":"body","name":"Submodule.Quotient.addMonoid","module":"Mathlib.LinearAlgebra.Quotient.Defs","kind":"def"}],
+      "range": {"start":{"line":134,"column":0},"end":{"line":135,"column":56}},
+      "name": "Submodule.Quotient.addCommMonoid",
+      "module": "Mathlib.LinearAlgebra.Quotient.Defs",
+      "kind": "def",
+      "elaborated_type": "{R : Type u_1} →\n  {M : Type u_2} →\n    [inst : Ring R] →\n      [inst_1 : AddCommGroup M] → [inst_2 : _root_.Module R M] → (p : Submodule R M) → AddCommMonoid (M ⧸ p)",
+      "doc": "",
+      "short": "addCommMonoid",
+      "signature_source": "instance addCommMonoid : AddCommMonoid (M ⧸ p) :=",
+      "body_source": "inferInstanceAs <| AddCommMonoid (M ⧸ p.toAddSubgroup)",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/LinearAlgebra/Quotient/Defs.lean",
+      "has_source": true,
+      "has_refs": true
+    },
+    "Submodule.Quotient.mk": {
+      "refs": [{"where":"type","name":"AddCommGroup","module":"Mathlib.Algebra.Group.Defs","kind":"inductive"},{"where":"type","name":"HasQuotient.Quotient","module":"Mathlib.Algebra.Quotient","kind":"abbrev"},{"where":"type","name":"Module","module":"Mathlib.Algebra.Module.Defs","kind":"inductive"},{"where":"type","name":"Ring","module":"Mathlib.Algebra.Ring.Defs","kind":"inductive"},{"where":"type","name":"Submodule","module":"Mathlib.Algebra.Module.Submodule.Defs","kind":"inductive"},{"where":"type","name":"Submodule.hasQuotient","module":"Mathlib.LinearAlgebra.Quotient.Defs","kind":"def"},{"where":"body","name":"Quotient.mk''","module":"Mathlib.Data.Quot","kind":"abbrev"},{"where":"body","name":"Submodule.quotientRel","module":"Mathlib.LinearAlgebra.Quotient.Defs","kind":"def"}],
+      "range": {"start":{"line":59,"column":0},"end":{"line":62,"column":15}},
+      "name": "Submodule.Quotient.mk",
+      "module": "Mathlib.LinearAlgebra.Quotient.Defs",
+      "kind": "def",
+      "elaborated_type": "{R : Type u_1} →\n  {M : Type u_2} →\n    [inst : Ring R] → [inst_1 : AddCommGroup M] → [inst_2 : _root_.Module R M] → {p : Submodule R M} → M → M ⧸ p",
+      "doc": "Map associating to an element of `M` the corresponding element of `M/p`,\nwhen `p` is a submodule of `M`. ",
+      "short": "mk",
+      "signature_source": "def mk {p : Submodule R M} : M → M ⧸ p :=",
+      "body_source": "Quotient.mk''",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/LinearAlgebra/Quotient/Defs.lean",
+      "has_source": true,
+      "has_refs": true
+    },
+    "Submodule.Quotient.module": {
+      "refs": [{"where":"type","name":"AddCommGroup","module":"Mathlib.Algebra.Group.Defs","kind":"inductive"},{"where":"type","name":"HasQuotient.Quotient","module":"Mathlib.Algebra.Quotient","kind":"abbrev"},{"where":"type","name":"Module","module":"Mathlib.Algebra.Module.Defs","kind":"inductive"},{"where":"type","name":"Ring","module":"Mathlib.Algebra.Ring.Defs","kind":"inductive"},{"where":"type","name":"Submodule","module":"Mathlib.Algebra.Module.Submodule.Defs","kind":"inductive"},{"where":"type","name":"Submodule.Quotient.addCommMonoid","module":"Mathlib.LinearAlgebra.Quotient.Defs","kind":"def"},{"where":"type","name":"Submodule.hasQuotient","module":"Mathlib.LinearAlgebra.Quotient.Defs","kind":"def"},{"where":"body","name":"Submodule.Quotient.module'","module":"Mathlib.LinearAlgebra.Quotient.Defs","kind":"def"}],
+      "range": {"start":{"line":198,"column":0},"end":{"line":199,"column":20}},
+      "name": "Submodule.Quotient.module",
+      "module": "Mathlib.LinearAlgebra.Quotient.Defs",
+      "kind": "def",
+      "elaborated_type": "{R : Type u_1} →\n  {M : Type u_2} →\n    [inst : Ring R] →\n      [inst_1 : AddCommGroup M] → [inst_2 : _root_.Module R M] → (P : Submodule R M) → _root_.Module R (M ⧸ P)",
+      "doc": "",
+      "short": "module",
+      "signature_source": "instance module (P : Submodule R M) : Module R (M ⧸ P) :=",
+      "body_source": "Quotient.module' P",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/LinearAlgebra/Quotient/Defs.lean",
+      "has_source": true,
+      "has_refs": true
+    },
+    "Submodule.Quotient.module'": {
+      "refs": [{"where":"type","name":"AddCommGroup","module":"Mathlib.Algebra.Group.Defs","kind":"inductive"},{"where":"type","name":"HasQuotient.Quotient","module":"Mathlib.Algebra.Quotient","kind":"abbrev"},{"where":"type","name":"IsScalarTower","module":"Mathlib.Algebra.Group.Action.Defs","kind":"inductive"},{"where":"type","name":"Module","module":"Mathlib.Algebra.Module.Defs","kind":"inductive"},{"where":"type","name":"Ring","module":"Mathlib.Algebra.Ring.Defs","kind":"inductive"},{"where":"type","name":"Semiring","module":"Mathlib.Algebra.Ring.Defs","kind":"inductive"},{"where":"type","name":"Submodule","module":"Mathlib.Algebra.Module.Submodule.Defs","kind":"inductive"},{"where":"type","name":"Submodule.Quotient.addCommMonoid","module":"Mathlib.LinearAlgebra.Quotient.Defs","kind":"def"},{"where":"type","name":"Submodule.hasQuotient","module":"Mathlib.LinearAlgebra.Quotient.Defs","kind":"def"},{"where":"type","name":"SMul","module":"Init.Prelude","kind":"inductive"},{"where":"body","name":"Submodule.Quotient.distribMulAction'","module":"Mathlib.LinearAlgebra.Quotient.Defs","kind":"def"}],
+      "range": {"start":{"line":193,"column":0},"end":{"line":196,"column":53}},
+      "name": "Submodule.Quotient.module'",
+      "module": "Mathlib.LinearAlgebra.Quotient.Defs",
+      "kind": "def",
+      "elaborated_type": "{R : Type u_1} →\n  {M : Type u_2} →\n    [inst : Ring R] →\n      [inst_1 : AddCommGroup M] →\n        [inst_2 : _root_.Module R M] →\n          {S : Type u_3} →\n            [inst_3 : Semiring S] →\n              [inst_4 : SMul S R] →\n                [inst_5 : _root_.Module S M] → [IsScalarTower S R M] → (P : Submodule R M) → _root_.Module S (M ⧸ P)",
+      "doc": "",
+      "short": "module'",
+      "signature_source": "instance module' [Semiring S] [SMul S R] [Module S M] [IsScalarTower S R M] (P : Submodule R M) :\n    Module S (M ⧸ P) :=",
+      "body_source": "fast_instance%\n  Function.Surjective.module _ { toFun := mk, map_zero' := by rfl, map_add' := fun _ _ => by rfl }\n    Quot.mk_surjective (Submodule.Quotient.mk_smul P)",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/LinearAlgebra/Quotient/Defs.lean",
+      "has_source": true,
+      "has_refs": true
+    },
+    "Submodule.hasQuotient": {
+      "refs": [{"where":"type","name":"AddCommGroup","module":"Mathlib.Algebra.Group.Defs","kind":"inductive"},{"where":"type","name":"HasQuotient","module":"Mathlib.Algebra.Quotient","kind":"inductive"},{"where":"type","name":"Module","module":"Mathlib.Algebra.Module.Defs","kind":"inductive"},{"where":"type","name":"Ring","module":"Mathlib.Algebra.Ring.Defs","kind":"inductive"},{"where":"type","name":"Submodule","module":"Mathlib.Algebra.Module.Submodule.Defs","kind":"inductive"},{"where":"body","name":"Submodule.quotientRel","module":"Mathlib.LinearAlgebra.Quotient.Defs","kind":"def"},{"where":"body","name":"Quotient","module":"Init.Core","kind":"def"}],
+      "range": {"start":{"line":54,"column":0},"end":{"line":56,"column":37}},
+      "name": "Submodule.hasQuotient",
+      "module": "Mathlib.LinearAlgebra.Quotient.Defs",
+      "kind": "def",
+      "elaborated_type": "{R : Type u_1} →\n  {M : Type u_2} →\n    [inst : Ring R] → [inst_1 : AddCommGroup M] → [inst_2 : _root_.Module R M] → HasQuotient M (Submodule R M)",
+      "doc": "The quotient of a module `M` by a submodule `p ⊆ M`. ",
+      "short": "hasQuotient",
+      "signature_source": "instance hasQuotient : HasQuotient M (Submodule R M) :=",
+      "body_source": "⟨fun p => Quotient (quotientRel p)⟩",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/LinearAlgebra/Quotient/Defs.lean",
+      "has_source": true,
+      "has_refs": true
+    },
+    "Submodule.mkQ": {
+      "refs": [{"where":"type","name":"AddCommGroup","module":"Mathlib.Algebra.Group.Defs","kind":"inductive"},{"where":"type","name":"HasQuotient.Quotient","module":"Mathlib.Algebra.Quotient","kind":"abbrev"},{"where":"type","name":"LinearMap","module":"Mathlib.Algebra.Module.LinearMap.Defs","kind":"inductive"},{"where":"type","name":"Module","module":"Mathlib.Algebra.Module.Defs","kind":"inductive"},{"where":"type","name":"Ring","module":"Mathlib.Algebra.Ring.Defs","kind":"inductive"},{"where":"type","name":"RingHom.id","module":"Mathlib.Algebra.Ring.Hom.Defs","kind":"def"},{"where":"type","name":"Submodule","module":"Mathlib.Algebra.Module.Submodule.Defs","kind":"inductive"},{"where":"type","name":"Submodule.Quotient.addCommMonoid","module":"Mathlib.LinearAlgebra.Quotient.Defs","kind":"def"},{"where":"type","name":"Submodule.Quotient.module","module":"Mathlib.LinearAlgebra.Quotient.Defs","kind":"def"},{"where":"type","name":"Submodule.hasQuotient","module":"Mathlib.LinearAlgebra.Quotient.Defs","kind":"def"},{"where":"body","name":"Submodule.Quotient.mk","module":"Mathlib.LinearAlgebra.Quotient.Defs","kind":"def"}],
+      "range": {"start":{"line":226,"column":0},"end":{"line":230,"column":22}},
+      "name": "Submodule.mkQ",
+      "module": "Mathlib.LinearAlgebra.Quotient.Defs",
+      "kind": "def",
+      "elaborated_type": "{R : Type u_1} →\n  {M : Type u_2} →\n    [inst : Ring R] → [inst_1 : AddCommGroup M] → [inst_2 : _root_.Module R M] → (p : Submodule R M) → M →ₗ[R] M ⧸ p",
+      "doc": "The map from a module `M` to the quotient of `M` by a submodule `p` as a linear map. ",
+      "short": "mkQ",
+      "signature_source": "def mkQ : M →ₗ[R] M ⧸ p where\n  toFun := Quotient.mk\n  map_add' := by simp\n  map_smul' := by simp",
+      "body_source": "",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/LinearAlgebra/Quotient/Defs.lean",
+      "has_source": true,
+      "has_refs": true
+    }
+  }
+};

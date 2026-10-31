@@ -1,0 +1,96 @@
+window.PLAY_MODULES = window.PLAY_MODULES || {};
+window.PLAY_MODULES["Mathlib.Algebra.Ring.Defs"] = {
+  "module": "Mathlib.Algebra.Ring.Defs",
+  "cards": {
+    "CommRing": {
+      "refs": [],
+      "range": {"start":{"line":412,"column":0},"end":{"line":414,"column":56}},
+      "name": "CommRing",
+      "module": "Mathlib.Algebra.Ring.Defs",
+      "kind": "inductive",
+      "elaborated_type": "Type u → Type u",
+      "doc": "A commutative ring is a ring with commutative multiplication. ",
+      "short": "CommRing",
+      "signature_source": "@[wikidata Q858656]\nclass CommRing (α : Type u) extends Ring α, CommMonoid α",
+      "body_source": "",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/Algebra/Ring/Defs.lean",
+      "has_source": true,
+      "has_refs": false
+    },
+    "CommSemiring": {
+      "refs": [],
+      "range": {"start":{"line":228,"column":0},"end":{"line":229,"column":64}},
+      "name": "CommSemiring",
+      "module": "Mathlib.Algebra.Ring.Defs",
+      "kind": "inductive",
+      "elaborated_type": "Type u → Type u",
+      "doc": "A commutative semiring is a semiring with commutative multiplication. ",
+      "short": "CommSemiring",
+      "signature_source": "class CommSemiring (R : Type u) extends Semiring R, CommMonoid R",
+      "body_source": "",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/Algebra/Ring/Defs.lean",
+      "has_source": true,
+      "has_refs": false
+    },
+    "IsDomain": {
+      "refs": [{"where":"type","name":"Semiring","module":"Mathlib.Algebra.Ring.Defs","kind":"inductive"}],
+      "range": {"start":{"line":430,"column":0},"end":{"line":438,"column":87}},
+      "name": "IsDomain",
+      "module": "Mathlib.Algebra.Ring.Defs",
+      "kind": "inductive",
+      "elaborated_type": "(α : Type u) → [Semiring α] → Prop",
+      "doc": "A domain is a nontrivial semiring such that multiplication by a nonzero element\nis cancellative on both sides. In other words, a nontrivial semiring `R` satisfying\n`∀ {a b c : R}, a ≠ 0 → a * b = a * c → b = c` and\n`∀ {a b c : R}, b ≠ 0 → a * b = c * b → a = c`.\n\nThis is implemented as a mixin for `Semiring α`.\nTo obtain an integral domain use `[CommRing α] [IsDomain α]`. ",
+      "short": "IsDomain",
+      "signature_source": "@[stacks 09FE]\nclass IsDomain (α : Type u) [Semiring α] : Prop extends IsCancelMulZero α, Nontrivial α",
+      "body_source": "",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/Algebra/Ring/Defs.lean",
+      "has_source": true,
+      "has_refs": true
+    },
+    "NonUnitalNonAssocSemiring": {
+      "refs": [],
+      "range": {"start":{"line":117,"column":0},"end":{"line":120,"column":95}},
+      "name": "NonUnitalNonAssocSemiring",
+      "module": "Mathlib.Algebra.Ring.Defs",
+      "kind": "inductive",
+      "elaborated_type": "Type u → Type u",
+      "doc": "A not-necessarily-unital, not-necessarily-associative semiring. See `CommutatorRing` and the\ndocumentation thereof in case you need a `NonUnitalNonAssocSemiring` instance on a Lie ring\nor a Lie algebra. ",
+      "short": "NonUnitalNonAssocSemiring",
+      "signature_source": "class NonUnitalNonAssocSemiring (α : Type u) extends AddCommMonoid α, Distrib α, MulZeroClass α",
+      "body_source": "",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/Algebra/Ring/Defs.lean",
+      "has_source": true,
+      "has_refs": false
+    },
+    "Ring": {
+      "refs": [],
+      "range": {"start":{"line":145,"column":0},"end":{"line":147,"column":77}},
+      "name": "Ring",
+      "module": "Mathlib.Algebra.Ring.Defs",
+      "kind": "inductive",
+      "elaborated_type": "Type u → Type u",
+      "doc": "A `Ring` is a `Semiring` with negation making it an additive group. ",
+      "short": "Ring",
+      "signature_source": "@[wikidata Q161172]\nclass Ring (R : Type u) extends Semiring R, AddCommGroup R, AddGroupWithOne R",
+      "body_source": "",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/Algebra/Ring/Defs.lean",
+      "has_source": true,
+      "has_refs": false
+    },
+    "Semiring": {
+      "refs": [],
+      "range": {"start":{"line":139,"column":0},"end":{"line":143,"column":20}},
+      "name": "Semiring",
+      "module": "Mathlib.Algebra.Ring.Defs",
+      "kind": "inductive",
+      "elaborated_type": "Type u → Type u",
+      "doc": "A `Semiring` is a type with addition, multiplication, a `0` and a `1` where addition is\ncommutative and associative, multiplication is associative and left and right distributive over\naddition, and `0` and `1` are additive and multiplicative identities. ",
+      "short": "Semiring",
+      "signature_source": "class Semiring (α : Type u) extends AddCommMonoid α, MonoidWithZero α, NonUnitalSemiring α,\n  NonAssocSemiring α",
+      "body_source": "",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/Algebra/Ring/Defs.lean",
+      "has_source": true,
+      "has_refs": false
+    }
+  }
+};
