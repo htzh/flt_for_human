@@ -203,11 +203,63 @@ body[data-page="index"] .card-panel { position: fixed; right: 20px; top: 74px; w
 
 /* ---------- responsive ---------- */
 @media (max-width: 1180px) {
+  /* One column. The outline column used to be hidden but its 220px grid track
+     stayed, which squeezed the article into a 220px strip on phones. */
+  .layout,
   body.card-open .layout,
-  body.outline-hidden.card-open .layout { grid-template-columns: 1fr; }
-  .outline, #zones-toggle { display: none; }
-  .card-panel, body[data-page="index"] .card-panel {
-    position: fixed; inset: auto 0 0 0; width: auto; max-height: 62vh; top: auto;
-    border-radius: 14px 14px 0 0; z-index: 40;
+  body.outline-hidden .layout,
+  body.outline-hidden.card-open .layout { grid-template-columns: minmax(0, 1fr); }
+  /* Zones become a wrapping chip row above the article; "Hide zones" still works. */
+  .outline {
+    position: static; max-height: none; overflow: visible;
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px 12px;
   }
+  .outline h3 { margin-bottom: 6px; }
+  .outline a {
+    display: inline-block; margin: 2px 4px 2px 0; padding: 5px 10px;
+    border: 1px solid var(--line); border-radius: 999px; background: var(--soft);
+  }
+  .outline a:hover { border-left-color: var(--line); }
+  /* The card becomes a bottom sheet; leave room so the article can scroll above it. */
+  .card-panel, body[data-page="index"] .card-panel {
+    position: fixed; inset: auto 0 0 0; width: auto; max-height: 70vh; top: auto;
+    border-radius: 14px 14px 0 0; z-index: 40;
+    box-shadow: 0 -8px 30px rgba(20,30,40,.22);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  body.card-open .layout, body.card-open .index-layout { padding-bottom: 72vh; }
+  .card-head { position: sticky; top: 0; background: var(--card); z-index: 1; }
+}
+
+@media (max-width: 640px) {
+  .top { padding: 10px 12px; }
+  .top .wrap { flex-wrap: wrap; gap: 8px 12px; }
+  .searchbox { order: 3; flex: 1 1 100%; max-width: none; }
+  /* 16px stops iOS Safari zooming the page when the search box is focused */
+  .searchbox input { font-size: 16px; padding: 9px 12px; }
+  #zones-toggle { margin-left: auto; padding: 6px 12px; }
+  .search-results { max-height: 70vh; }
+  .search-results .row { padding: 11px 12px; }
+  .layout { padding: 12px 10px 60px; gap: 12px; }
+  .index-layout { padding: 16px 12px 60px; }
+  .sheet-grid { grid-template-columns: minmax(0, 1fr); }
+  .ws-head { padding: 14px; }
+  .ws-head h1 { font-size: 1.3rem; }
+  .ws-meta { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .ws-meta .k { margin-top: 6px; }
+  .ws-meta .v { overflow-wrap: anywhere; }
+  .zone { padding: 4px 12px 14px; }
+  .zone h2 { font-size: 1.05rem; }
+  .md pre { font-size: .8rem; padding: 10px; }
+  .md, .md code, a.decl { overflow-wrap: anywhere; }
+  .check-inline { padding: 8px; }
+  .check-inline .open { padding: 6px 12px; font-size: .82rem; }
+  .card-close { width: 44px; height: 44px; right: 4px; top: 4px; font-size: 1.6rem; }
+  .card-head { padding: 14px 48px 10px 14px; }
+  .card-body { padding: 10px 14px 20px; }
+  .tabs button { padding: 10px 12px; }
+  .refs li { flex-wrap: wrap; padding: 8px 0; }
+  .refs .name, .refs a { overflow-wrap: anywhere; }
+  .card-meta > * { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
 }
