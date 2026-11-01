@@ -18,6 +18,17 @@
   of `J` are pairwise distinct once `J` has a simple pole at `q = 0` with no lower
   terms), written once here.
 
+  The module's second subject is the **separability of `Φ_N` over `K(X)`**
+  (`ModularPolynomialData.separable_map_ratFunc_of_natCast_ne_zero`): for a field
+  `K` with `(N : K) ≠ 0`, `Φ_N` with its coefficients cast to `K` and then mapped
+  into the rational function field `K(X)` is separable. The `IgusaSepAux` block at
+  the end of the module proves the general transfer
+  (`separable_map_ratFunc_of_transcendental`: separability descends along a
+  transcendental generator), the `ℤ`-coefficient compatibility
+  (`map_aeval_comp_mapRingHom_intCast`) and the transcendence of
+  `qExpand L M (jqModC L)`; the headline then reads the hypothesis off the
+  coset-root engine above at the algebraic closure of `K`.
+
   FLT provenance, pinned `aa2d8b3` — the `Theorems/` wrapper (the statement
   authority) and the `P2M/Sol/S_*.lean` proof source of each row:
   `Theorems/Thm_ModularCurve_ModularPolynomialData_forall_isRoot_cosetConj_jqModC_of_complex.lean`,
@@ -63,6 +74,8 @@
   spec-pin: P2M/Sol/S_ModularCurve_qExpansion_cosetTranslate_eq_cosetSubst.lean
   spec-pin: Theorems/Thm_ModularCurve_ModularPolynomialData_exists_isPrimitiveRoot_forall_isRoot_cosetConj_complex.lean
   spec-pin: P2M/Sol/S_ModularCurve_ModularPolynomialData_exists_isPrimitiveRoot_forall_isRoot_cosetConj_complex.lean
+  spec-pin: Theorems/Thm_ModularCurve_ModularPolynomialData_separable_map_ratFunc_of_natCast_ne_zero.lean
+  spec-pin: P2M/Sol/S_ModularCurve_ModularPolynomialData_separable_map_ratFunc_of_natCast_ne_zero.lean   -- comparable copy
 -/
 import Mathlib.RingTheory.Polynomial.Cyclotomic.Roots
 import Mathlib.Analysis.Complex.Periodic
@@ -71,6 +84,9 @@ import FLTForHuman.ModularCurve.Defs.Polynomial
 import FLTForHuman.ModularCurve.Defs.JqCoeff
 import FLTForHuman.ModularCurve.Analytic.QParamUnique
 import FLTForHuman.ModularCurve.ModularPolynomialE4Cube
+import FLTForHuman.ModularCurve.Degree.PhiDegree
+import Mathlib.FieldTheory.RatFunc.Basic
+import Mathlib.RingTheory.RootsOfUnity.AlgebraicallyClosed
 
 set_option autoImplicit false
 
@@ -865,6 +881,111 @@ theorem ModularPolynomialData.exists_isPrimitiveRoot_forall_isRoot_cosetConj_com
   simp only [hc, eq_intCast]
   rw [← map_intCast (HahnSeries.C : ℂ →+* LaurentSeries ℂ)]
   try ring
+
+/-! ## Separability of `Φ_N` over `K(X)`
+
+The two-variable modular polynomial `Φ_N` is separable after casting its
+coefficients to a field `K` in which `N` is invertible: `Φ_N` evaluated at
+`X = jqModC` has separable `X`-polynomial, and separability descends along the
+transcendental generator `qExpand K N (jqModC K)` of `K(X)`. The transfer
+`separable_map_ratFunc_of_transcendental` is the general statement; the coset-root
+engine above (`eq_cosetTwoVarPoly_of_forall_isRoot`, `separable_cosetTwoVarPoly`)
+supplies its hypothesis over the algebraic closure. -/
+
+namespace IgusaSepAux
+
+/-- Separability descends along a transcendental generator: if `P` evaluated at `x`
+is separable over a field `E` containing `F(x)` transcendentally, then `P` is
+separable over the rational function field `F(X)`. -/
+private theorem separable_map_ratFunc_of_transcendental {F E : Type*} [Field F] [Field E]
+    [Algebra F E] (x : E) (hx : Transcendental F x) (P : Polynomial (Polynomial F))
+    (h : (P.map (Polynomial.aeval x).toRingHom).Separable) :
+    (P.map (algebraMap (Polynomial F) (RatFunc F))).Separable := by
+  have hinj : Function.Injective (Polynomial.aeval (R := F) x).toRingHom :=
+    fun a b hab => (transcendental_iff_injective.mp hx) hab
+  let θ : RatFunc F →+* E := IsFractionRing.lift hinj
+  have hθ : θ.comp (algebraMap (Polynomial F) (RatFunc F)) = (Polynomial.aeval x).toRingHom :=
+    RingHom.ext fun p => IsFractionRing.lift_algebraMap hinj p
+  rw [← Polynomial.separable_map θ, Polynomial.map_map, hθ]
+  exact h
+
+/-- The two evaluations of `Φ` agree: casting the inner coefficients from `ℤ` to `K`
+and then evaluating at `x : E` is evaluating the `ℤ`-coefficients in `E` at `x`. -/
+private theorem map_aeval_comp_mapRingHom_intCast {K E : Type*} [Field K] [CommRing E] [Algebra K E]
+    (x : E) (Φ : Polynomial (Polynomial ℤ)) :
+    (Φ.map (mapRingHom (Int.castRingHom K))).map (Polynomial.aeval x).toRingHom
+      = Φ.map (eval₂RingHom (Int.castRingHom E) x) := by
+  rw [Polynomial.map_map]
+  refine congrArg (fun f : Polynomial ℤ →+* E => Φ.map f) ?_
+  exact Polynomial.ringHom_ext' (RingHom.ext_int _ _) (by simp)
+
+/-- The `q`-coefficients of `jqModC` below `q⁻¹` vanish (the pole is simple). -/
+private theorem coeff_jqModC_of_lt (R : Type*) [CommRing R] {m : ℤ} (hm : m < -1) :
+    (jqModC R).coeff m = 0 := by
+  simpa using coeff_jqModC_pow_of_lt R (b := 1) (m := m) (by simpa using hm)
+
+/-- `qExpand` preserves transcendence of `jqModC`. -/
+private theorem transcendental_qExpand_jqModC (L : Type*) [Field L] (M : ℕ) [NeZero M] :
+    Transcendental L (qExpand L M (jqModC L)) := by
+  intro halg
+  obtain ⟨p, hp0, hp⟩ := halg
+  apply transcendental_jqModC L
+  refine ⟨p, hp0, ?_⟩
+  have h := Polynomial.aeval_algHom_apply (qExpandAlg L M) (jqModC L) p
+  have h' : (qExpandAlg L M) (jqModC L) = qExpand L M (jqModC L) := rfl
+  rw [h'] at h
+  rw [h] at hp
+  exact qExpand_injective M (by rw [map_zero]; exact hp)
+
+end IgusaSepAux
+
+open ModularCurve.IgusaSepAux in
+/-- **Separability of `Φ_N` over `K(X)`.**  For a field `K` with `(N : K) ≠ 0`, the
+modular polynomial `Φ_N`, with its coefficients cast to `K` and then into the
+rational function field `K(X)`, is separable. -/
+theorem ModularPolynomialData.separable_map_ratFunc_of_natCast_ne_zero (K : Type*) [Field K]
+    (N : ℕ) [NeZero N] (data : ModularCurve.ModularPolynomialData N) (hNK : (N : K) ≠ 0) :
+    ((data.Φ.map (Polynomial.mapRingHom (Int.castRingHom K))).map
+      (algebraMap (Polynomial K) (RatFunc K))).Separable := by
+  classical
+  have hN0 : N ≠ 0 := NeZero.ne N
+  let L := AlgebraicClosure K
+  let E := LaurentSeries L
+  let : Algebra K E := ((algebraMap L E).comp (algebraMap K L)).toAlgebra
+  have : NeZero ((N : ℕ) : K) := ⟨hNK⟩
+  obtain ⟨z, hz⟩ := HasEnoughRootsOfUnity.prim (M := L) (n := N)
+  set ζ : Lˣ := (hz.isUnit hN0).unit with hζdef
+  have hζ : IsPrimitiveRoot ζ N := by
+    rw [← IsPrimitiveRoot.coe_units_iff]
+    simpa [hζdef] using hz
+  set x : E := qExpand L N (jqModC L) with hx
+  set P : Polynomial E := data.Φ.map (Polynomial.eval₂RingHom (Int.castRingHom E) x) with hP
+  have hroots : ∀ t ∈ primCosetReps N, P.IsRoot (cosetConj ζ (jqModC L) t) :=
+    ModularCurve.ModularPolynomialData.forall_isRoot_cosetConj_jqModC_of_complex N data
+      (ModularCurve.ModularPolynomialData.exists_isPrimitiveRoot_forall_isRoot_cosetConj_complex N data)
+      L ζ hζ
+  have hmonic : P.Monic := data.monic.map _
+  have hdeg : P.natDegree = (primCosetReps N).card := by
+    rw [hP, (data.monic).natDegree_map, data.natDegree_eq,
+      ModularCurve.card_primCosetReps_eq_dedekindPsi N hN0]
+  have hPeq : P = cosetTwoVarPoly ζ N (jqModC L) :=
+    ModularCurve.eq_cosetTwoVarPoly_of_forall_isRoot L N hN0 ζ hζ (jqModC L)
+      (by rw [coeff_jqModC_neg_one]; exact one_ne_zero) (fun m hm => coeff_jqModC_of_lt L hm)
+      P hmonic hdeg hroots
+  have hPsep : P.Separable := by
+    rw [hPeq]
+    exact ModularCurve.separable_cosetTwoVarPoly L N hN0 ζ hζ (jqModC L)
+      (by rw [coeff_jqModC_neg_one]; exact one_ne_zero) (fun m hm => coeff_jqModC_of_lt L hm)
+  have hxK : Transcendental K x := by
+    rintro ⟨p, hp0, hp⟩
+    apply transcendental_qExpand_jqModC L N
+    refine ⟨p.map (algebraMap K L), (Polynomial.map_ne_zero_iff (algebraMap K L).injective).mpr hp0, ?_⟩
+    rw [Polynomial.aeval_def, Polynomial.eval₂_map]
+    rw [Polynomial.aeval_def] at hp
+    convert hp using 2
+  apply separable_map_ratFunc_of_transcendental x hxK
+  rw [map_aeval_comp_mapRingHom_intCast]
+  exact hPsep
 
 end ModularCurve
 

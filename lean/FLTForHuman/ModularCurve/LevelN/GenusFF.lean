@@ -1,7 +1,8 @@
 /-
-  The head of the dimension tower: the index/genus inequality for `X(N)`.
+  The head of the dimension tower: two subjects on `X(N)` — the index/genus inequality, and the
+  special-fibre bounds for `j`.
 
-  The subject is the pin's
+  The first subject is the pin's
   `ModularCurve.LevelN.twelve_mul_add_mul_index_le_genusFF`
 
   `12 * N + N * [SL(2, ℤ) : Γ(N) ⊔ ±1] ≤ 12 * N * genusFF ℂ K + 6 * [SL(2, ℤ) : Γ(N) ⊔ ±1]`
@@ -44,10 +45,40 @@
   `private abbrev` — the pin's shape, and it lets the proof read as the pin's does. The pin's
   `Cusp` / `instFintypeCusp` / `width` do not occur in this file at all.
 
+  #### The second subject: the special-fibre bounds for `j` on `X(N)`
+
+  The pin's `ModularCurve.natCard_doubleCoset_le_card_fibres_of_finrank_eq_index`
+  (`S_ModularCurve_natCard_doubleCoset_le_card_fibres_of_finrank_eq_index.lean`, its whole
+  `ModularCurve.SpecialFibresLB` section plus `solution`): three inequalities bounding the
+  double-coset count of `Γ` by the number of places of `X(N)` over `ℚ̄` where `j` vanishes, equals
+  `1728`, or has a pole. The proof is the Galois orbit/stabiliser dictionary at the three special
+  places (`ρ` for `0`, `i` for `1728`, the cusp for `i∞`), the constant-field extension theorem
+  `finrank_le_and_natCard_places_le_of_constantFieldExtension_adjoin` at the model
+  `E = ℚ̄⟮y⟯` of the function field inside `K = FractionRing (ring M)`, and the monodromy
+  `σ' : SL(2,ℤ) →* Gal(K/ℚ̄⟮j⟯)` whose kernel is `Γ(N) ⊔ ±1`.
+
+  The pin's own prelude (`ρ`, `Gpm`, `dvd_of_{T,S,ST}_pow_mem`, `apply_eq_self_of_mem_adjoin`,
+  `isIntegral_of_apply_eq`, `adjoin_inv_eq`, `liftE`, `liftHom` and their laws) is the
+  `GenusBound` block above, so it is **reused from this file** by qualified name, not copied and
+  not promoted. Two substitutions are not imports: the pin's `isDomain_ring` (its line 846, whose
+  12-line proof only uses the pin package's no-zero-divisors clause) is one application of
+  `ModularCurve.LevelN.isDomain_ring M` (`LevelN/FieldGalois.lean:61`, used at this file's line
+  750), and the pin's local `T_pow_mem_Gamma` (its line 170) is the public
+  `ModularCurve.LevelN.T_pow_mem_Gamma` (`LevelN/Prelude.lean:287`).
+
+  Not transcribed: the pin's two attribute walls, `autoImplicit false`, and its two heartbeat
+  caps (`synthInstance.maxHeartbeats 1600000` at its line 26, `maxHeartbeats 6400000` on
+  `main_K` at its line 895). The `synthInstance` cap was replaced by
+  `finiteDimensional_of_finrank_pos_intermediate`, the same fact stated at a *variable*
+  intermediate field, where the instance search that costs at the concrete `ℚ̄⟮y⟯` is free; with
+  that, `main_K` needs no split and no cap (it elaborates inside the 200k edit loop).
+
   spec-pin: Theorems/Thm_ModularCurve_LevelN_twelve_mul_add_mul_index_le_genusFF.lean
   spec-pin: P2M/Sol/S_ModularCurve_LevelN_twelve_mul_add_mul_index_le_genusFF.lean   -- comparable copy
   spec-pin: Theorems/Thm_ModularCurve_twelve_mul_add_mul_index_le_finrank_cuspForm_Gamma.lean
   spec-pin: P2M/Sol/S_ModularCurve_twelve_mul_add_mul_index_le_finrank_cuspForm_Gamma.lean   -- comparable copy
+  spec-pin: Theorems/Thm_ModularCurve_natCard_doubleCoset_le_card_fibres_of_finrank_eq_index.lean
+  spec-pin: P2M/Sol/S_ModularCurve_natCard_doubleCoset_le_card_fibres_of_finrank_eq_index.lean   -- comparable copy
 -/
 import FLTForHuman.ModularCurve.LevelN.FieldGalois
 import FLTForHuman.ModularCurve.LevelN.Places
@@ -58,6 +89,12 @@ import FLTForHuman.AlgebraicCurve.Defs.Place
 import FLTForHuman.AlgebraicCurve.Genus.RatFunc
 import FLTForHuman.AlgebraicCurve.Canonical.RegularDifferentialsFinrank
 import FLTForHuman.ModularCurve.LevelN.Differentials
+import FLTForHuman.ModularCurve.LevelN.QExpBridge
+import FLTForHuman.ModularCurve.LevelN.SpecialRamification
+import FLTForHuman.AlgebraicCurve.IsCurveOver.ConstantFieldExtensionSpan
+import FLTForHuman.ModularCurve.Degree.PhiDegree
+import Mathlib.GroupTheory.DoubleCoset
+import Mathlib.LinearAlgebra.Basis.VectorSpace
 
 set_option autoImplicit false
 
@@ -782,3 +819,942 @@ theorem ModularCurve.twelve_mul_add_mul_index_le_finrank_cuspForm_Gamma (N : ℕ
       12 * N * Module.finrank ℂ (CuspForm (CongruenceSubgroup.Gamma N) 2) +
         6 * (CongruenceSubgroup.Gamma N ⊔ Subgroup.zpowers (-1 : SL(2, ℤ))).index :=
   ModularCurve.GenusBoundAssembly.main N hN
+
+/-! ### The special-fibre bounds for `j` on `X(N)`
+
+Pin `ModularCurve.natCard_doubleCoset_le_card_fibres_of_finrank_eq_index`
+(`S_ModularCurve_natCard_doubleCoset_le_card_fibres_of_finrank_eq_index.lean`, the whole
+`ModularCurve.SpecialFibresLB` section plus its `solution`).  The three special places of `j`
+(`0`, `1728`, `i∞`) carry the three elliptic elements `S * T`, `S` and `T`; the Galois
+orbit/stabiliser dictionary turns each place into a double-coset count, and the constant-field
+extension theorem bounds the place counts on `X(N)` by those on `X(N)` over `ℚ̄`.  The pin's
+prelude (`rho`, `Gpm`, `dvd_of_*_pow_mem`, `liftE`, `liftHom`, `apply_eq_self_of_mem_adjoin`,
+`isIntegral_of_apply_eq`, `adjoin_inv_eq`) is `GenusBound`'s, above; this section refers to it by
+qualified name and adds nothing of it.  Its two `set_option`s (its line 26
+`synthInstance.maxHeartbeats`, and `maxHeartbeats 6400000` on `main_K` at its line 895) are not
+transcribed: the one slow instance search is replaced by `finiteDimensional_of_finrank_pos_intermediate`
+below — the same fact stated at a variable intermediate field, where the search is free — and
+`main_K` then elaborates inside the 200k edit loop unsplit. -/
+
+namespace ModularCurve
+
+namespace SpecialFibresLB
+
+/-! #### The level-one group facts -/
+
+private theorem Gamma_le_Gamma1 (M : ℕ) :
+    CongruenceSubgroup.Gamma M ≤ CongruenceSubgroup.Gamma1 M := by
+  intro g hg
+  rw [CongruenceSubgroup.Gamma_mem] at hg
+  rw [CongruenceSubgroup.Gamma1_mem]
+  exact ⟨hg.1, hg.2.2.2, hg.2.2.1⟩
+
+private theorem mem_Gpm_of (N : ℕ) {g : SL(2, ℤ)}
+    (hg : g ∈ CongruenceSubgroup.Gamma N ∨ -g ∈ CongruenceSubgroup.Gamma N) :
+    g ∈ LevelN.GenusBound.Gpm N := by
+  rcases hg with h | h
+  · exact Subgroup.mem_sup_left h
+  · have : g = -g * (-1) := by simp
+    rw [this]
+    exact Subgroup.mul_mem _ (Subgroup.mem_sup_left h)
+      (Subgroup.mem_sup_right (Subgroup.mem_zpowers _))
+
+private theorem S_sq : (ModularGroup.S : SL(2, ℤ)) ^ 2 = -1 := by
+  ext i j
+  fin_cases i <;> fin_cases j <;>
+    simp [pow_two, ModularGroup.coe_S, Matrix.mul_apply, Fin.sum_univ_two]
+
+private theorem coe_ST :
+    ((ModularGroup.S * ModularGroup.T : SL(2, ℤ)) : Matrix (Fin 2) (Fin 2) ℤ) = !![0, -1; 1, 1] := by
+  rw [Matrix.SpecialLinearGroup.coe_mul, ModularGroup.coe_S, ModularGroup.coe_T]
+  ext i j
+  fin_cases i <;> fin_cases j <;> simp [Matrix.mul_apply, Fin.sum_univ_two]
+
+private theorem ST_cube : (ModularGroup.S * ModularGroup.T : SL(2, ℤ)) ^ 3 = -1 := by
+  ext i j
+  rw [Matrix.SpecialLinearGroup.coe_pow, coe_ST]
+  fin_cases i <;> fin_cases j <;>
+    simp [pow_succ, Matrix.mul_apply, Fin.sum_univ_two]
+
+private theorem neg_one_mem_zpowers_ST :
+    (-1 : SL(2, ℤ)) ∈ Subgroup.zpowers (ModularGroup.S * ModularGroup.T) := by
+  rw [← ST_cube]; exact Subgroup.pow_mem _ (Subgroup.mem_zpowers _) _
+
+private theorem neg_one_mem_zpowers_S :
+    (-1 : SL(2, ℤ)) ∈ Subgroup.zpowers ModularGroup.S := by
+  rw [← S_sq]; exact Subgroup.pow_mem _ (Subgroup.mem_zpowers _) _
+
+private theorem neg_one_mem_zpowers_T_sup :
+    (-1 : SL(2, ℤ)) ∈ Subgroup.zpowers ModularGroup.T ⊔ Subgroup.zpowers (-1 : SL(2, ℤ)) :=
+  Subgroup.mem_sup_right (Subgroup.mem_zpowers _)
+
+private theorem T_mem_Gamma1 (M : ℕ) : ModularGroup.T ∈ CongruenceSubgroup.Gamma1 M := by
+  rw [CongruenceSubgroup.Gamma1_mem]
+  refine ⟨?_, ?_, ?_⟩ <;> simp [ModularGroup.coe_T]
+
+private theorem neg_one_mem_center :
+    (-1 : SL(2, ℤ)) ∈ Subgroup.center SL(2, ℤ) := by
+  rw [Subgroup.mem_center_iff]
+  intro g
+  rw [mul_neg_one, neg_one_mul]
+
+/-! #### The Galois orbit/stabiliser dictionary at a special place -/
+
+private theorem algHom_apply_algebraMap {L : Type*} [Field L] [Algebra ℂ L]
+    (t : L) (E : IntermediateField ℂ⟮t⟯ L) (x : E) (hx : (x : L) = t)
+    (ψ : E →ₐ[ℂ] L) (hψ : ψ x = t) (l : ℂ⟮t⟯) : ψ (algebraMap ℂ⟮t⟯ E l) = l := by
+  let θ : ℂ⟮t⟯ →ₐ[ℂ] L := ψ.comp (IsScalarTower.toAlgHom ℂ ℂ⟮t⟯ E)
+  have hgen : ∀ (z : L) (hz : z ∈ ({t} : Set L)),
+      θ ⟨z, IntermediateField.subset_adjoin ℂ _ hz⟩ =
+        (IntermediateField.val ℂ⟮t⟯) ⟨z, IntermediateField.subset_adjoin ℂ _ hz⟩ := by
+    intro z hz
+    rw [Set.mem_singleton_iff] at hz
+    have hz' : (⟨z, IntermediateField.subset_adjoin ℂ _ (by rw [hz]; rfl)⟩ : ℂ⟮t⟯) =
+        ⟨t, IntermediateField.mem_adjoin_simple_self ℂ t⟩ := Subtype.ext hz
+    rw [hz']
+    change ψ (algebraMap ℂ⟮t⟯ E ⟨t, _⟩) = t
+    have : algebraMap ℂ⟮t⟯ E ⟨t, IntermediateField.mem_adjoin_simple_self ℂ t⟩ = x := by
+      apply Subtype.ext
+      rw [hx]
+      rfl
+    rw [this, hψ]
+  have hθ : θ = IntermediateField.val ℂ⟮t⟯ := IntermediateField.adjoin_algHom_ext ℂ hgen
+  exact congrArg (fun φ : ℂ⟮t⟯ →ₐ[ℂ] L => φ l) hθ
+
+private theorem isIntegral_of_apply_eq_sub {L : Type*} [Field L] [Algebra ℂ L]
+    (t : L) [FiniteDimensional ℂ⟮t⟯ L]
+    (E : IntermediateField ℂ⟮t⟯ L) (x : E) (hx : (x : L) = t)
+    (ψ : E →ₐ[ℂ] L) (hψ : ψ x = t) : ψ.toRingHom.IsIntegral := by
+  intro y
+  have hy : IsIntegral ℂ⟮t⟯ y := IsIntegral.of_finite ℂ⟮t⟯ y
+  refine ⟨(minpoly ℂ⟮t⟯ y).map (algebraMap ℂ⟮t⟯ E), (minpoly.monic hy).map _, ?_⟩
+  rw [Polynomial.eval₂_map]
+  have hcomp : ψ.toRingHom.comp (algebraMap ℂ⟮t⟯ E) = algebraMap ℂ⟮t⟯ L := by
+    ext e
+    exact algHom_apply_algebraMap t E x hx ψ hψ e
+  rw [hcomp]
+  exact minpoly.aeval ℂ⟮t⟯ y
+
+private theorem ord_sub_eq_ord_sub {L : Type*} [Field L] [Algebra ℂ L]
+    (t : L) (L₀ : IntermediateField ℂ L) (hL₀ : L₀ = ℂ⟮t⟯)
+    [FiniteDimensional L₀ L] [IsGalois L₀ L]
+    (W w : AlgebraicCurve.Place ℂ L) (c : ℂ)
+    (hW : 0 < W.ord (t - algebraMap ℂ L c)) (hw : 0 < w.ord (t - algebraMap ℂ L c)) :
+    w.ord (t - algebraMap ℂ L c) = W.ord (t - algebraMap ℂ L c) := by
+  subst hL₀
+  have hint : ∀ ψ : L →ₐ[ℂ] L, ψ t = t → ψ.toRingHom.IsIntegral :=
+    fun ψ hψ => LevelN.GenusBound.isIntegral_of_apply_eq t ψ hψ
+
+  have key : ∀ (W₁ W₂ : AlgebraicCurve.Place ℂ L), 0 < W₁.ord (t - algebraMap ℂ L c) →
+      0 < W₂.ord (t - algebraMap ℂ L c) →
+      W₂.ord (t - algebraMap ℂ L c) ≤ W₁.ord (t - algebraMap ℂ L c) := by
+    intro W₁ W₂ h₁ h₂
+    obtain ⟨ψ, hψ, hres⟩ :=
+      (AlgebraicCurve.Place.ord_restrictAlong_eq_natCard_algHom_of_isGalois ℂ t t c
+        (AlgHom.id ℂ L) rfl inferInstance inferInstance hint W₁ h₁).2.2.1 W₂ h₂
+    have hord := AlgebraicCurve.Place.ord_restrictAlong ψ (hint ψ hψ) W₁ (t - algebraMap ℂ L c)
+    rw [hres, map_sub, hψ, AlgHom.commutes] at hord
+    set e := (AlgebraicCurve.Place.ramificationIndexAlong ψ W₁ : ℤ) with he
+    have he0 : (0 : ℤ) ≤ e := by rw [he]; exact_mod_cast Nat.zero_le _
+    have he1 : 1 ≤ e := by
+      by_contra hlt
+      have : e = 0 := by omega
+      rw [this, zero_mul] at hord
+      omega
+    nlinarith
+  exact le_antisymm (key W w hW hw) (key w W hw hW)
+
+private def stab {L : Type*} [Field L] [Algebra ℂ L] (L₀ : IntermediateField ℂ L)
+    (W : AlgebraicCurve.Place ℂ L) : Subgroup (L ≃ₐ[L₀] L) where
+  carrier := {g | AlgebraicCurve.SemilinearAut.ofAlgAut (g.restrictScalars ℂ) • W = W}
+  one_mem' := by
+    change AlgebraicCurve.SemilinearAut.ofAlgAut _ • W = W
+    have : ((1 : L ≃ₐ[L₀] L).restrictScalars ℂ) = 1 := AlgEquiv.ext fun _ => rfl
+    rw [this, map_one, one_smul]
+  mul_mem' {a b} ha hb := by
+    change AlgebraicCurve.SemilinearAut.ofAlgAut _ • W = W at ha hb ⊢
+    have : ((a * b).restrictScalars ℂ) = a.restrictScalars ℂ * b.restrictScalars ℂ :=
+      AlgEquiv.ext fun _ => rfl
+    rw [this, map_mul, mul_smul, hb, ha]
+  inv_mem' {a} ha := by
+    change AlgebraicCurve.SemilinearAut.ofAlgAut _ • W = W at ha ⊢
+    have : (a⁻¹.restrictScalars ℂ) = (a.restrictScalars ℂ)⁻¹ := AlgEquiv.ext fun _ => rfl
+    rw [this, map_inv, inv_smul_eq_iff, ha]
+
+private theorem mem_stab_iff {L : Type*} [Field L] [Algebra ℂ L]
+    (L₀ : IntermediateField ℂ L) (W : AlgebraicCurve.Place ℂ L) (g : L ≃ₐ[L₀] L) :
+    g ∈ stab L₀ W ↔ AlgebraicCurve.SemilinearAut.ofAlgAut (g.restrictScalars ℂ) • W = W :=
+  Iff.rfl
+
+private theorem natCard_stab_eq_ord {L : Type*} [Field L] [Algebra ℂ L]
+    (t : L) (L₀ : IntermediateField ℂ L) (hL₀ : L₀ = ℂ⟮t⟯)
+    [FiniteDimensional L₀ L] [IsGalois L₀ L]
+    (W : AlgebraicCurve.Place ℂ L) (c : ℂ) (hW : 0 < W.ord (t - algebraMap ℂ L c)) :
+    (Nat.card (stab L₀ W) : ℤ) = W.ord (t - algebraMap ℂ L c) := by
+  subst hL₀
+  rw [(AlgebraicCurve.Place.ord_restrictAlong_eq_natCard_algHom_of_isGalois ℂ t t c
+    (AlgHom.id ℂ L) rfl inferInstance inferInstance
+    (fun ψ hψ => LevelN.GenusBound.isIntegral_of_apply_eq t ψ hψ) W hW).1]
+  rfl
+
+private theorem stab_eq_zpowers {L : Type*} [Field L] [Algebra ℂ L]
+    (t : L) (L₀ : IntermediateField ℂ L) (hL₀ : L₀ = ℂ⟮t⟯)
+    [FiniteDimensional L₀ L] [IsGalois L₀ L]
+    (W : AlgebraicCurve.Place ℂ L) (c : ℂ) (hW : 0 < W.ord (t - algebraMap ℂ L c))
+    (g : L ≃ₐ[L₀] L) (hg : g ∈ stab L₀ W)
+    (hle : W.ord (t - algebraMap ℂ L c) ≤ orderOf g) :
+    stab L₀ W = Subgroup.zpowers g := by
+  symm
+  apply Subgroup.eq_of_le_of_card_ge
+  · rw [Subgroup.zpowers_le]; exact hg
+  · rw [Nat.card_zpowers]
+    have := natCard_stab_eq_ord t L₀ hL₀ W c hW
+    omega
+
+private theorem natCard_doubleCoset_le {L : Type*} [Field L] [Algebra ℂ L]
+    (t : L) (L₀ : IntermediateField ℂ L) (hL₀ : L₀ = ℂ⟮t⟯)
+    [FiniteDimensional L₀ L] [IsGalois L₀ L]
+    {Γ₀ : Type*} [Group Γ₀] (σ : Γ₀ →* (L ≃ₐ[L₀] L)) (Γ Kst : Subgroup Γ₀)
+    (E : IntermediateField L₀ L)
+    (hE : ∀ g₀ : Γ₀, (∀ e : E, σ g₀ e = e) →
+      ∃ a ∈ Γ, ∃ z ∈ Kst, z ∈ Subgroup.center Γ₀ ∧ g₀ = a * z)
+    (W : AlgebraicCurve.Place ℂ L) (c : ℂ) (hW : 0 < W.ord (t - algebraMap ℂ L c))
+    (hD : ∀ g : L ≃ₐ[L₀] L, g ∈ stab L₀ W → ∃ k ∈ Kst, σ k = g)
+    (x : E) (hx : (x : L) = t)
+    [Finite {P : AlgebraicCurve.Place ℂ E // 0 < P.ord (x - algebraMap ℂ E c)}] :
+    Nat.card (DoubleCoset.Quotient (Γ : Set Γ₀) (Kst : Set Γ₀)) ≤
+      Nat.card {P : AlgebraicCurve.Place ℂ E // 0 < P.ord (x - algebraMap ℂ E c)} := by
+  subst hL₀
+  classical
+  have hint : ∀ ψ : E →ₐ[ℂ] L, ψ x = t → ψ.toRingHom.IsIntegral :=
+    fun ψ hψ => isIntegral_of_apply_eq_sub t E x hx ψ hψ
+  have hDH := AlgebraicCurve.Place.ord_restrictAlong_eq_natCard_algHom_of_isGalois ℂ x t c
+    (E.val.restrictScalars ℂ) hx inferInstance inferInstance hint W hW
+
+  let ψ : Γ₀ → (E →ₐ[ℂ] L) := fun γ =>
+    (((σ γ⁻¹).restrictScalars ℂ : L →ₐ[ℂ] L).comp (E.val.restrictScalars ℂ))
+  have hψapply : ∀ (γ : Γ₀) (e : E), ψ γ e = σ γ⁻¹ e := fun _ _ => rfl
+  have hψ : ∀ γ, ψ γ x = t := by
+    intro γ
+    rw [hψapply]
+    have : (x : L) = ((⟨t, IntermediateField.mem_adjoin_simple_self ℂ t⟩ : ℂ⟮t⟯) : L) := hx
+    rw [this]
+    exact (σ γ⁻¹).commutes (⟨t, IntermediateField.mem_adjoin_simple_self ℂ t⟩ : ℂ⟮t⟯)
+  let T := {P : AlgebraicCurve.Place ℂ E // 0 < P.ord (x - algebraMap ℂ E c)}
+  let f : Γ₀ → T := fun γ => ⟨W.restrictAlong (ψ γ) (hint _ (hψ γ)), hDH.2.1 (ψ γ) (hψ γ)⟩
+
+  have key : ∀ γ γ' : Γ₀, f γ = f γ' → ∃ a ∈ Γ, ∃ b ∈ Kst, γ' = a * γ * b := by
+    intro γ γ' hff
+    have hres : W.restrictAlong (ψ γ) (hint _ (hψ γ)) =
+        W.restrictAlong (ψ γ') (hint _ (hψ γ')) := congrArg Subtype.val hff
+    obtain ⟨d, hdW, hd⟩ := (hDH.2.2.2.1 (ψ γ) (ψ γ') (hψ γ) (hψ γ')).mp hres
+    obtain ⟨k, hk, hkd⟩ := hD d hdW
+
+    have hfixE : ∀ e : E, σ (γ * k⁻¹ * γ'⁻¹) e = e := by
+      intro e
+      have h1 : ψ γ' e = d (ψ γ e) := by rw [hd]; rfl
+      rw [hψapply, hψapply, ← hkd] at h1
+      rw [map_mul, map_mul, AlgEquiv.mul_apply, AlgEquiv.mul_apply, h1, map_inv, AlgEquiv.aut_inv,
+        AlgEquiv.symm_apply_apply, map_inv, AlgEquiv.aut_inv, AlgEquiv.apply_symm_apply]
+    obtain ⟨a, ha, z, hz, hzc, heq⟩ := hE _ hfixE
+    refine ⟨a⁻¹, Γ.inv_mem ha, k⁻¹ * z⁻¹, Kst.mul_mem (Kst.inv_mem hk) (Kst.inv_mem hz), ?_⟩
+    have hzc' : ∀ g : Γ₀, g * z = z * g := fun g => (Subgroup.mem_center_iff.mp hzc g)
+    have h2 : γ' = z⁻¹ * a⁻¹ * γ * k⁻¹ := by
+      have h3 : γ'⁻¹ = k * γ⁻¹ * (a * z) := by
+        rw [← heq]; group
+      have h4 : γ' = (k * γ⁻¹ * (a * z))⁻¹ := by rw [← h3, inv_inv]
+      rw [h4]; group
+    rw [h2]
+    have h5 : z⁻¹ * a⁻¹ * γ * k⁻¹ = a⁻¹ * γ * k⁻¹ * z⁻¹ := by
+      have := hzc' (a⁻¹ * γ * k⁻¹)
+      calc z⁻¹ * a⁻¹ * γ * k⁻¹ = z⁻¹ * ((a⁻¹ * γ * k⁻¹) * z) * z⁻¹ := by group
+        _ = z⁻¹ * (z * (a⁻¹ * γ * k⁻¹)) * z⁻¹ := by rw [this]
+        _ = a⁻¹ * γ * k⁻¹ * z⁻¹ := by group
+    rw [h5]; group
+
+  have : Finite (Set.range f) := inferInstance
+  let π : Set.range f → DoubleCoset.Quotient (Γ : Set Γ₀) (Kst : Set Γ₀) :=
+    fun p => DoubleCoset.mk Γ Kst p.2.choose
+  have hπ : Function.Surjective π := by
+    intro r
+    obtain ⟨γ, rfl⟩ : ∃ γ, DoubleCoset.mk Γ Kst γ = r := ⟨r.out, DoubleCoset.out_eq' (H := Γ) (K := Kst) r⟩
+    refine ⟨⟨f γ, γ, rfl⟩, ?_⟩
+    change DoubleCoset.mk _ _ _ = _
+    have hch : f (Exists.choose (⟨γ, rfl⟩ : ∃ y, f y = f γ)) = f γ :=
+      Exists.choose_spec (⟨γ, rfl⟩ : ∃ y, f y = f γ)
+    obtain ⟨a, ha, b, hb, hab⟩ := key _ _ hch
+    rw [DoubleCoset.eq]
+    exact ⟨a, ha, b, hb, hab⟩
+  calc Nat.card (DoubleCoset.Quotient (Γ : Set Γ₀) (Kst : Set Γ₀))
+        ≤ Nat.card (Set.range f) := Nat.card_le_card_of_surjective π hπ
+    _ ≤ Nat.card T := Nat.card_le_card_of_injective (fun p : Set.range f => (p : T))
+        Subtype.val_injective
+
+/-! #### The Galois package of `X(N)`, and the monodromy `σ'` -/
+
+private theorem galoisPackage (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℂ K]
+    [Algebra (LevelN.ring M) K] [IsScalarTower ℂ (LevelN.ring M) K]
+    [IsFractionRing (LevelN.ring M) K] :
+    ∃ (hst : ∀ γ : SL(2, ℤ), ∀ F ∈ LevelN.ring M,
+        (fun τ : UpperHalfPlane => F (γ • τ)) ∈ LevelN.ring M)
+      (σ : SL(2, ℤ) →* (K ≃ₐ[ℂ] K)),
+      (∀ (γ : SL(2, ℤ)) (F : UpperHalfPlane → ℂ) (hF : F ∈ LevelN.ring M),
+          σ γ (algebraMap (LevelN.ring M) K ⟨F, hF⟩) =
+            algebraMap (LevelN.ring M) K
+              ⟨fun τ : UpperHalfPlane => F (γ⁻¹ • τ), hst γ⁻¹ F hF⟩) ∧
+      σ.ker = CongruenceSubgroup.Gamma M ⊔ Subgroup.zpowers (-1 : SL(2, ℤ)) ∧
+      IntermediateField.fixedField σ.range =
+        IntermediateField.adjoin ℂ
+          ({algebraMap (LevelN.ring M) K (LevelN.jGen M)} : Set K) ∧
+      Transcendental ℂ (algebraMap (LevelN.ring M) K (LevelN.jGen M)) ∧
+      FiniteDimensional
+          (IntermediateField.adjoin ℂ
+            ({algebraMap (LevelN.ring M) K (LevelN.jGen M)} : Set K)) K ∧
+      Module.finrank
+          (IntermediateField.adjoin ℂ
+            ({algebraMap (LevelN.ring M) K (LevelN.jGen M)} : Set K)) K =
+        (CongruenceSubgroup.Gamma M ⊔ Subgroup.zpowers (-1 : SL(2, ℤ))).index ∧
+      IsGalois
+          (IntermediateField.adjoin ℂ
+            ({algebraMap (LevelN.ring M) K (LevelN.jGen M)} : Set K)) K :=
+  LevelN.exists_monoidHom_algEquiv_fixedField_eq_adjoin M K
+
+private theorem comp_smul_mem (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℂ K]
+    [Algebra (LevelN.ring M) K] [IsScalarTower ℂ (LevelN.ring M) K]
+    [IsFractionRing (LevelN.ring M) K]
+    (γ : SL(2, ℤ)) (F : ℍ → ℂ) (hF : F ∈ LevelN.ring M) :
+    (fun τ : ℍ => F (γ • τ)) ∈ LevelN.ring M :=
+  (galoisPackage M K).choose γ F hF
+
+private def σK (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℂ K]
+    [Algebra (LevelN.ring M) K] [IsScalarTower ℂ (LevelN.ring M) K]
+    [IsFractionRing (LevelN.ring M) K] : SL(2, ℤ) →* (K ≃ₐ[ℂ] K) :=
+  (galoisPackage M K).choose_spec.choose
+
+private abbrev jK (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℂ K]
+    [Algebra (LevelN.ring M) K] [IsScalarTower ℂ (LevelN.ring M) K]
+    [IsFractionRing (LevelN.ring M) K] : K :=
+  algebraMap (LevelN.ring M) K (LevelN.jGen M)
+
+private theorem σK_algebraMap (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℂ K]
+    [Algebra (LevelN.ring M) K] [IsScalarTower ℂ (LevelN.ring M) K]
+    [IsFractionRing (LevelN.ring M) K]
+    (γ : SL(2, ℤ)) (F : ℍ → ℂ) (hF : F ∈ LevelN.ring M) :
+    σK M K γ (algebraMap (LevelN.ring M) K ⟨F, hF⟩) =
+      algebraMap (LevelN.ring M) K
+        ⟨fun τ : ℍ => F (γ⁻¹ • τ), comp_smul_mem M K γ⁻¹ F hF⟩ :=
+  (galoisPackage M K).choose_spec.choose_spec.1 γ F hF
+
+private theorem σK_ker (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℂ K]
+    [Algebra (LevelN.ring M) K] [IsScalarTower ℂ (LevelN.ring M) K]
+    [IsFractionRing (LevelN.ring M) K] :
+    (σK M K).ker = LevelN.GenusBound.Gpm M :=
+  (galoisPackage M K).choose_spec.choose_spec.2.1
+
+private theorem fixedField_σK (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℂ K]
+    [Algebra (LevelN.ring M) K] [IsScalarTower ℂ (LevelN.ring M) K]
+    [IsFractionRing (LevelN.ring M) K] :
+    IntermediateField.fixedField (σK M K).range = ℂ⟮jK M K⟯ :=
+  (galoisPackage M K).choose_spec.choose_spec.2.2.1
+
+private theorem transcendental_jK (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℂ K]
+    [Algebra (LevelN.ring M) K] [IsScalarTower ℂ (LevelN.ring M) K]
+    [IsFractionRing (LevelN.ring M) K] : Transcendental ℂ (jK M K) :=
+  (galoisPackage M K).choose_spec.choose_spec.2.2.2.1
+
+private theorem finiteDimensional_jK (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℂ K]
+    [Algebra (LevelN.ring M) K] [IsScalarTower ℂ (LevelN.ring M) K]
+    [IsFractionRing (LevelN.ring M) K] : FiniteDimensional ℂ⟮jK M K⟯ K :=
+  (galoisPackage M K).choose_spec.choose_spec.2.2.2.2.1
+
+private theorem finrank_jK (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℂ K]
+    [Algebra (LevelN.ring M) K] [IsScalarTower ℂ (LevelN.ring M) K]
+    [IsFractionRing (LevelN.ring M) K] :
+    Module.finrank ℂ⟮jK M K⟯ K = (LevelN.GenusBound.Gpm M).index :=
+  (galoisPackage M K).choose_spec.choose_spec.2.2.2.2.2.1
+
+private theorem isGalois_jK (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℂ K]
+    [Algebra (LevelN.ring M) K] [IsScalarTower ℂ (LevelN.ring M) K]
+    [IsFractionRing (LevelN.ring M) K] : IsGalois ℂ⟮jK M K⟯ K :=
+  (galoisPackage M K).choose_spec.choose_spec.2.2.2.2.2.2
+
+private theorem σK_fix (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℂ K]
+    [Algebra (LevelN.ring M) K] [IsScalarTower ℂ (LevelN.ring M) K]
+    [IsFractionRing (LevelN.ring M) K] (γ : SL(2, ℤ)) :
+    ∀ x ∈ ℂ⟮jK M K⟯, σK M K γ x = x := fun x hx => by
+  rw [← fixedField_σK] at hx
+  exact (IntermediateField.mem_fixedField_iff (σK M K).range x).mp hx (σK M K γ) ⟨γ, rfl⟩
+
+private def σ' (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℂ K]
+    [Algebra (LevelN.ring M) K] [IsScalarTower ℂ (LevelN.ring M) K]
+    [IsFractionRing (LevelN.ring M) K] : SL(2, ℤ) →* (K ≃ₐ[ℂ⟮jK M K⟯] K) :=
+  LevelN.GenusBound.liftHom ℂ⟮jK M K⟯ (σK M K) (σK_fix M K)
+
+private theorem restrictScalars_σ' (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℂ K]
+    [Algebra (LevelN.ring M) K] [IsScalarTower ℂ (LevelN.ring M) K]
+    [IsFractionRing (LevelN.ring M) K] (γ : SL(2, ℤ)) :
+    (σ' M K γ).restrictScalars ℂ = σK M K γ :=
+  LevelN.GenusBound.restrictScalars_liftHom ℂ⟮jK M K⟯ (σK M K) (σK_fix M K) γ
+
+private theorem σ'_apply (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℂ K]
+    [Algebra (LevelN.ring M) K] [IsScalarTower ℂ (LevelN.ring M) K]
+    [IsFractionRing (LevelN.ring M) K] (γ : SL(2, ℤ)) (x : K) : σ' M K γ x = σK M K γ x := rfl
+
+private theorem σ'_eq_one_iff (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℂ K]
+    [Algebra (LevelN.ring M) K] [IsScalarTower ℂ (LevelN.ring M) K]
+    [IsFractionRing (LevelN.ring M) K] (γ : SL(2, ℤ)) :
+    σ' M K γ = 1 ↔ γ ∈ LevelN.GenusBound.Gpm M := by
+  show (LevelN.GenusBound.liftHom ℂ⟮jK M K⟯ (σK M K) (σK_fix M K)) γ = 1 ↔
+    γ ∈ LevelN.GenusBound.Gpm M
+  have h := LevelN.GenusBound.liftHom_pow_eq_one_iff ℂ⟮jK M K⟯ (σK M K) (σK_fix M K) γ 1
+  rw [pow_one, pow_one] at h
+  rw [h, σK_ker]
+
+private theorem σ'_ker (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℂ K]
+    [Algebra (LevelN.ring M) K] [IsScalarTower ℂ (LevelN.ring M) K]
+    [IsFractionRing (LevelN.ring M) K] :
+    (σ' M K).ker = LevelN.GenusBound.Gpm M := by
+  ext γ
+  rw [MonoidHom.mem_ker, σ'_eq_one_iff]
+
+private theorem σ'_pow_eq_one_iff (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℂ K]
+    [Algebra (LevelN.ring M) K] [IsScalarTower ℂ (LevelN.ring M) K]
+    [IsFractionRing (LevelN.ring M) K] (γ : SL(2, ℤ)) (n : ℕ) :
+    σ' M K γ ^ n = 1 ↔ γ ^ n ∈ LevelN.GenusBound.Gpm M := by
+  rw [← map_pow, σ'_eq_one_iff]
+
+private theorem mem_stab_σ'_iff (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℂ K]
+    [Algebra (LevelN.ring M) K] [IsScalarTower ℂ (LevelN.ring M) K]
+    [IsFractionRing (LevelN.ring M) K]
+    (W : AlgebraicCurve.Place ℂ K) (γ : SL(2, ℤ)) :
+    σ' M K γ ∈ stab ℂ⟮jK M K⟯ W ↔
+      AlgebraicCurve.SemilinearAut.ofAlgAut (σK M K γ) • W = W := by
+  rw [mem_stab_iff, restrictScalars_σ']
+
+private theorem σ'_surjective (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℂ K]
+    [Algebra (LevelN.ring M) K] [IsScalarTower ℂ (LevelN.ring M) K]
+    [IsFractionRing (LevelN.ring M) K] : Function.Surjective (σ' M K) := by
+  have := finiteDimensional_jK M K
+  have := isGalois_jK M K
+  rw [← MonoidHom.range_eq_top]
+  apply Subgroup.eq_top_of_card_eq
+  rw [← Subgroup.index_ker, σ'_ker, ← finrank_jK M K, IsGalois.card_aut_eq_finrank]
+
+/-! #### The three special places of `X(N)` -/
+
+private theorem orderOf_σ'_S (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℂ K]
+    [Algebra (LevelN.ring M) K] [IsScalarTower ℂ (LevelN.ring M) K]
+    [IsFractionRing (LevelN.ring M) K] (hM : 2 ≤ M) : orderOf (σ' M K ModularGroup.S) = 2 := by
+  have : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  apply orderOf_eq_prime
+  · rw [σ'_pow_eq_one_iff, S_sq]
+    exact mem_Gpm_of M (Or.inr (by rw [neg_neg]; exact one_mem _))
+  · rw [ne_eq, σ'_eq_one_iff]
+    intro h
+    have := LevelN.GenusBound.dvd_of_S_pow_mem hM (n := 1) (by rwa [pow_one])
+    omega
+
+private theorem orderOf_σ'_ST (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℂ K]
+    [Algebra (LevelN.ring M) K] [IsScalarTower ℂ (LevelN.ring M) K]
+    [IsFractionRing (LevelN.ring M) K] (hM : 2 ≤ M) :
+    orderOf (σ' M K (ModularGroup.S * ModularGroup.T)) = 3 := by
+  have : Fact (Nat.Prime 3) := ⟨Nat.prime_three⟩
+  apply orderOf_eq_prime
+  · rw [σ'_pow_eq_one_iff, ST_cube]
+    exact mem_Gpm_of M (Or.inr (by rw [neg_neg]; exact one_mem _))
+  · rw [ne_eq, σ'_eq_one_iff]
+    intro h
+    have := LevelN.GenusBound.dvd_of_ST_pow_mem hM (n := 1) (by rwa [pow_one])
+    omega
+
+private theorem orderOf_σ'_T (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℂ K]
+    [Algebra (LevelN.ring M) K] [IsScalarTower ℂ (LevelN.ring M) K]
+    [IsFractionRing (LevelN.ring M) K] : orderOf (σ' M K ModularGroup.T) = M := by
+  apply Nat.dvd_antisymm
+  · apply orderOf_dvd_of_pow_eq_one
+    rw [σ'_pow_eq_one_iff]
+    exact Subgroup.mem_sup_left (LevelN.T_pow_mem_Gamma M)
+  · have h := pow_orderOf_eq_one (σ' M K ModularGroup.T)
+    rw [σ'_pow_eq_one_iff] at h
+    exact LevelN.GenusBound.dvd_of_T_pow_mem M h
+
+private theorem subsingleton_gal_of_lt_two (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℂ K]
+    [Algebra (LevelN.ring M) K] [IsScalarTower ℂ (LevelN.ring M) K]
+    [IsFractionRing (LevelN.ring M) K] (hM : M < 2) :
+    Subsingleton (K ≃ₐ[ℂ⟮jK M K⟯] K) := by
+  have := finiteDimensional_jK M K
+  have := isGalois_jK M K
+  have hM1 : M = 1 := by have := NeZero.ne M; omega
+  have hcard : Nat.card (K ≃ₐ[ℂ⟮jK M K⟯] K) = 1 := by
+    rw [IsGalois.card_aut_eq_finrank, finrank_jK]
+    subst hM1
+    have : LevelN.GenusBound.Gpm 1 = ⊤ := by
+      show CongruenceSubgroup.Gamma 1 ⊔ Subgroup.zpowers (-1 : SL(2, ℤ)) = ⊤
+      rw [CongruenceSubgroup.Gamma_one_top, top_sup_eq]
+    rw [this, Subgroup.index_top]
+  exact (Nat.card_eq_one_iff_unique.mp hcard).1
+
+private theorem exists_place_1728 (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℂ K]
+    [Algebra (LevelN.ring M) K] [IsScalarTower ℂ (LevelN.ring M) K]
+    [IsFractionRing (LevelN.ring M) K] :
+    ∃ W : AlgebraicCurve.Place ℂ K, 0 < W.ord (jK M K - algebraMap ℂ K 1728) ∧
+      ∀ g ∈ stab ℂ⟮jK M K⟯ W,
+        ∃ k ∈ Subgroup.zpowers (ModularGroup.S : SL(2, ℤ)), σ' M K k = g := by
+  have := finiteDimensional_jK M K
+  have := isGalois_jK M K
+  obtain ⟨W, hW, hWfix⟩ :=
+    LevelN.exists_place_ord_sub_pos_forall_smul_eq M K UpperHalfPlane.I
+  rw [LevelN.GenusBound.jAnalytic_I] at hW
+  refine ⟨W, hW, ?_⟩
+  have hS : σ' M K ModularGroup.S ∈ stab ℂ⟮jK M K⟯ W := by
+    rw [mem_stab_σ'_iff]
+    exact hWfix ModularGroup.S LevelN.GenusBound.S_smul_I (comp_smul_mem M K _) (σK M K _)
+      (σK_algebraMap M K _)
+  rcases Nat.lt_or_ge M 2 with hM | hM
+  · intro g hg
+    have := subsingleton_gal_of_lt_two M K hM
+    exact ⟨1, one_mem _, Subsingleton.elim _ _⟩
+  · obtain ⟨⟨W', hW'pos, hW'le⟩, -, -⟩ :=
+      LevelN.exists_place_ord_jGen_le_two_three_level M K
+    rw [← map_ofNat (algebraMap ℂ K) 1728] at hW'pos hW'le
+    have hle : W.ord (jK M K - algebraMap ℂ K 1728) ≤ 2 := by
+      rw [← ord_sub_eq_ord_sub (jK M K) ℂ⟮jK M K⟯ rfl W W' 1728 hW hW'pos]
+      exact hW'le
+    have hstab := stab_eq_zpowers (jK M K) ℂ⟮jK M K⟯ rfl W 1728 hW (σ' M K ModularGroup.S) hS
+      (by rw [orderOf_σ'_S M K hM]; exact hle)
+    intro g hg
+    rw [hstab, Subgroup.mem_zpowers_iff] at hg
+    obtain ⟨i, rfl⟩ := hg
+    exact ⟨ModularGroup.S ^ i, ⟨i, rfl⟩, map_zpow _ _ _⟩
+
+private theorem exists_place_zero (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℂ K]
+    [Algebra (LevelN.ring M) K] [IsScalarTower ℂ (LevelN.ring M) K]
+    [IsFractionRing (LevelN.ring M) K] :
+    ∃ W : AlgebraicCurve.Place ℂ K, 0 < W.ord (jK M K - algebraMap ℂ K 0) ∧
+      ∀ g ∈ stab ℂ⟮jK M K⟯ W,
+        ∃ k ∈ Subgroup.zpowers (ModularGroup.S * ModularGroup.T : SL(2, ℤ)), σ' M K k = g := by
+  have := finiteDimensional_jK M K
+  have := isGalois_jK M K
+  obtain ⟨W, hW, hWfix⟩ :=
+    LevelN.exists_place_ord_sub_pos_forall_smul_eq M K LevelN.GenusBound.rho
+  rw [LevelN.GenusBound.jAnalytic_rho] at hW
+  refine ⟨W, hW, ?_⟩
+  have hS : σ' M K (ModularGroup.S * ModularGroup.T) ∈ stab ℂ⟮jK M K⟯ W := by
+    rw [mem_stab_σ'_iff]
+    exact hWfix _ LevelN.GenusBound.ST_smul_rho (comp_smul_mem M K _) (σK M K _)
+      (σK_algebraMap M K _)
+  rcases Nat.lt_or_ge M 2 with hM | hM
+  · intro g hg
+    have := subsingleton_gal_of_lt_two M K hM
+    exact ⟨1, one_mem _, Subsingleton.elim _ _⟩
+  · obtain ⟨-, ⟨W', hW'pos, hW'le⟩, -⟩ :=
+      LevelN.exists_place_ord_jGen_le_two_three_level M K
+    rw [← sub_zero (algebraMap (LevelN.ring M) K (LevelN.jGen M)), ← map_zero (algebraMap ℂ K)]
+      at hW'pos hW'le
+    have hle : W.ord (jK M K - algebraMap ℂ K 0) ≤ 3 := by
+      rw [← ord_sub_eq_ord_sub (jK M K) ℂ⟮jK M K⟯ rfl W W' 0 hW hW'pos]
+      exact hW'le
+    have hstab := stab_eq_zpowers (jK M K) ℂ⟮jK M K⟯ rfl W 0 hW
+      (σ' M K (ModularGroup.S * ModularGroup.T)) hS (by rw [orderOf_σ'_ST M K hM]; exact hle)
+    intro g hg
+    rw [hstab, Subgroup.mem_zpowers_iff] at hg
+    obtain ⟨i, rfl⟩ := hg
+    exact ⟨(ModularGroup.S * ModularGroup.T) ^ i, ⟨i, rfl⟩, map_zpow _ _ _⟩
+
+private theorem exists_place_infty (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℂ K]
+    [Algebra (LevelN.ring M) K] [IsScalarTower ℂ (LevelN.ring M) K]
+    [IsFractionRing (LevelN.ring M) K] :
+    ∃ W : AlgebraicCurve.Place ℂ K, 0 < W.ord ((jK M K)⁻¹ - algebraMap ℂ K 0) ∧
+      ∀ g ∈ stab ℂ⟮jK M K⟯ W,
+        ∃ k ∈ Subgroup.zpowers (ModularGroup.T : SL(2, ℤ)) ⊔ Subgroup.zpowers (-1 : SL(2, ℤ)),
+          σ' M K k = g := by
+  have := finiteDimensional_jK M K
+  have := isGalois_jK M K
+  obtain ⟨W, hW, hWfix⟩ :=
+    LevelN.exists_place_ord_neg_forall_smul_eq M K (comp_smul_mem M K ModularGroup.T⁻¹)
+  change W.ord (jK M K) < 0 at hW
+  have hjK0 : jK M K ≠ 0 := by
+    intro h; rw [h, AlgebraicCurve.Place.ord_zero] at hW; exact lt_irrefl _ hW
+  have hW' : 0 < W.ord ((jK M K)⁻¹ - algebraMap ℂ K 0) := by
+    rw [map_zero, sub_zero, AlgebraicCurve.Place.ord_inv]; omega
+  refine ⟨W, hW', ?_⟩
+  have hT : σ' M K ModularGroup.T ∈ stab ℂ⟮jK M K⟯ W := by
+    rw [mem_stab_σ'_iff]
+    exact hWfix (σK M K _) (σK_algebraMap M K _)
+  rcases Nat.lt_or_ge M 2 with hM | hM
+  · intro g hg
+    have := subsingleton_gal_of_lt_two M K hM
+    exact ⟨1, one_mem _, Subsingleton.elim _ _⟩
+  · obtain ⟨-, -, ⟨W₁, hW₁neg, hW₁ge⟩⟩ :=
+      LevelN.exists_place_ord_jGen_le_two_three_level M K
+    change W₁.ord (jK M K) < 0 at hW₁neg
+    change -(M : ℤ) ≤ W₁.ord (jK M K) at hW₁ge
+    have hW₁ : 0 < W₁.ord ((jK M K)⁻¹ - algebraMap ℂ K 0) := by
+      rw [map_zero, sub_zero, AlgebraicCurve.Place.ord_inv]; omega
+    have hle : W.ord ((jK M K)⁻¹ - algebraMap ℂ K 0) ≤ M := by
+      rw [← ord_sub_eq_ord_sub (jK M K)⁻¹ ℂ⟮jK M K⟯ (LevelN.GenusBound.adjoin_inv_eq _).symm W W₁ 0
+        hW' hW₁, map_zero, sub_zero, AlgebraicCurve.Place.ord_inv]
+      omega
+    have hstab := stab_eq_zpowers (jK M K)⁻¹ ℂ⟮jK M K⟯ (LevelN.GenusBound.adjoin_inv_eq _).symm W 0 hW'
+      (σ' M K ModularGroup.T) hT (by rw [orderOf_σ'_T M K]; exact hle)
+    intro g hg
+    rw [hstab, Subgroup.mem_zpowers_iff] at hg
+    obtain ⟨i, rfl⟩ := hg
+    exact ⟨ModularGroup.T ^ i, Subgroup.mem_sup_left ⟨i, rfl⟩, map_zpow _ _ _⟩
+
+/-! #### The constant-field extension step -/
+
+private theorem adjoin_adjoin_subset {L : Type*} [Field L] [Algebra ℂ L] (S : Set L) (t : L)
+    (ht : t ∈ IntermediateField.adjoin ℂ S) :
+    ((IntermediateField.adjoin ℂ⟮t⟯ S : IntermediateField ℂ⟮t⟯ L) : Set L) ⊆
+      ((IntermediateField.adjoin ℂ S : IntermediateField ℂ L) : Set L) := by
+  have h1 : ((IntermediateField.adjoin ℂ⟮t⟯ S : IntermediateField ℂ⟮t⟯ L) : Set L) =
+      (IntermediateField.restrictScalars ℂ (IntermediateField.adjoin ℂ⟮t⟯ S) : Set L) := rfl
+  rw [h1, IntermediateField.restrictScalars_adjoin]
+  have hle : IntermediateField.adjoin ℂ ((ℂ⟮t⟯ : Set L) ∪ S) ≤ IntermediateField.adjoin ℂ S := by
+    rw [IntermediateField.adjoin_le_iff]
+    apply Set.union_subset
+    · have : ℂ⟮t⟯ ≤ IntermediateField.adjoin ℂ S :=
+        IntermediateField.adjoin_simple_le_iff.mpr ht
+      exact SetLike.coe_subset_coe.mpr this
+    · exact IntermediateField.subset_adjoin _ _
+  exact SetLike.coe_subset_coe.mpr hle
+
+private theorem adjoin_range_eq_top {F : Type*} [Field F] {L : Type*} [Field L] [Algebra ℂ L]
+    (t : L) (E : IntermediateField ℂ⟮t⟯ L) [Algebra F E]
+    (hEle : (E : Set L) ⊆
+      ((IntermediateField.adjoin ℂ (Set.range fun u : F => (algebraMap F E u : L)) :
+        IntermediateField ℂ L) : Set L)) :
+    IntermediateField.adjoin ℂ (Set.range (algebraMap F E)) = ⊤ := by
+  let f : E →ₐ[ℂ] L := E.val.restrictScalars ℂ
+  set A := IntermediateField.adjoin ℂ (Set.range (algebraMap F E)) with hA
+  have hmapA : A.map f = IntermediateField.adjoin ℂ (Set.range fun u : F => (algebraMap F E u : L)) := by
+    rw [hA, IntermediateField.adjoin_map, ← Set.range_comp]
+    rfl
+  rw [eq_top_iff]
+  intro e _
+  have he : (e : L) ∈ A.map f := by
+    rw [hmapA]; exact hEle e.2
+  obtain ⟨a, ha, hae⟩ := (IntermediateField.mem_map (S := A) (f := f)).mp he
+  have : a = e := Subtype.ext hae
+  rw [← this]; exact ha
+
+/-! #### The index of the fixed field of the image of `Γ` -/
+
+private theorem finrank_fixedField_map (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℂ K]
+    [Algebra (LevelN.ring M) K] [IsScalarTower ℂ (LevelN.ring M) K]
+    [IsFractionRing (LevelN.ring M) K] (hfd : FiniteDimensional ℂ⟮jK M K⟯ K)
+    (Γ : Subgroup SL(2, ℤ)) (hΓ : CongruenceSubgroup.Gamma M ≤ Γ) :
+    Module.finrank ℂ⟮jK M K⟯ (IntermediateField.fixedField (Γ.map (σ' M K))) =
+      (Γ ⊔ Subgroup.zpowers (-1 : SL(2, ℤ))).index := by
+  have := hfd
+  have := isGalois_jK M K
+  set H := Γ.map (σ' M K) with hH
+  have h1 : Module.finrank (IntermediateField.fixedField H) K = Nat.card H :=
+    IntermediateField.finrank_fixedField_eq_card H
+  have h2 := Module.finrank_mul_finrank ℂ⟮jK M K⟯ (IntermediateField.fixedField H) K
+  have h3 : Module.finrank ℂ⟮jK M K⟯ K = Nat.card (K ≃ₐ[ℂ⟮jK M K⟯] K) :=
+    (IsGalois.card_aut_eq_finrank _ _).symm
+  have h4 := Subgroup.card_mul_index H
+  have hidx : H.index = (Γ ⊔ Subgroup.zpowers (-1 : SL(2, ℤ))).index := by
+    rw [hH, Subgroup.index_map, σ'_ker, MonoidHom.range_eq_top.mpr (σ'_surjective M K),
+      Subgroup.index_top, mul_one]
+    congr 1
+    apply le_antisymm
+    · exact sup_le le_sup_left (sup_le (hΓ.trans le_sup_left) le_sup_right)
+    · exact sup_le le_sup_left (le_sup_right.trans le_sup_right)
+  have hcard : 0 < Nat.card H := by
+    rw [← h1]; exact Module.finrank_pos
+  rw [h1, h3, ← h4] at h2
+  rw [← hidx]
+  have : Module.finrank ℂ⟮jK M K⟯ (IntermediateField.fixedField H) * Nat.card H =
+      H.index * Nat.card H := by
+    rw [h2, mul_comm]
+  exact Nat.eq_of_mul_eq_mul_right hcard this
+
+/-! #### The main estimate -/
+
+/-- `Module.finite_of_finrank_pos` at a *variable* intermediate field: at the concrete
+`ℚ̄⟮y⟯` the same instance search needs the pin's `synthInstance.maxHeartbeats` cap (the
+`Algebra ↥(adjoin …) FF` unification is what costs), while at a variable `E` it is free.  So the
+fact is stated here once and applied, per the work order's "supply the instance explicitly". -/
+private theorem finiteDimensional_of_finrank_pos_intermediate {L M : Type*} [Field L] [Field M]
+    [Algebra L M] (E : IntermediateField L M) (h : 0 < Module.finrank E M) :
+    FiniteDimensional E M := by
+  apply Module.finite_of_finrank_pos
+  exact h
+
+private theorem main_K (M : ℕ) [NeZero M] (K : Type*) [Field K] [Algebra ℂ K]
+    [Algebra (LevelN.ring M) K] [IsScalarTower ℂ (LevelN.ring M) K]
+    [IsFractionRing (LevelN.ring M) K]
+    (Γ : Subgroup SL(2, ℤ)) (hΓ : CongruenceSubgroup.Gamma1 M ≤ Γ)
+    (ι : AlgebraicClosure ℚ →+* ℂ)
+    (y : laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ))
+    (hy : (y : LaurentSeries (AlgebraicClosure ℚ)) = jqModC (AlgebraicClosure ℚ))
+    (hfull : Module.finrank
+          (IntermediateField.adjoin (AlgebraicClosure ℚ)
+            ({y} : Set (laurentBaseChange (AlgebraicClosure ℚ)
+              (qExpFunctionFieldC ℚ Γ))))
+          (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) =
+        (Γ ⊔ Subgroup.zpowers (-1)).index) :
+    Nat.card (DoubleCoset.Quotient (Γ : Set SL(2, ℤ))
+        (Subgroup.zpowers (ModularGroup.S * ModularGroup.T) : Set SL(2, ℤ))) ≤
+        Nat.card {P : AlgebraicCurve.Place (AlgebraicClosure ℚ)
+          (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) //
+            0 < P.ord y} ∧
+      Nat.card (DoubleCoset.Quotient (Γ : Set SL(2, ℤ))
+          (Subgroup.zpowers ModularGroup.S : Set SL(2, ℤ))) ≤
+        Nat.card {P : AlgebraicCurve.Place (AlgebraicClosure ℚ)
+          (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) //
+            0 < P.ord (y - 1728)} ∧
+      Nat.card (DoubleCoset.Quotient (Γ : Set SL(2, ℤ))
+          ((Subgroup.zpowers ModularGroup.T ⊔ Subgroup.zpowers (-1) : Subgroup SL(2, ℤ)) :
+            Set SL(2, ℤ))) ≤
+        Nat.card {P : AlgebraicCurve.Place (AlgebraicClosure ℚ)
+          (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) //
+            P.ord y < 0} := by
+  classical
+  have hfd := finiteDimensional_jK M K
+  have hgal := isGalois_jK M K
+  have hΓM : CongruenceSubgroup.Gamma M ≤ Γ := (Gamma_le_Gamma1 M).trans hΓ
+  have hT : ModularGroup.T ∈ Γ := hΓ (T_mem_Gamma1 M)
+
+  obtain ⟨Φ, hΦc, hΦy, hΦfix⟩ :=
+    exists_ringHom_laurentBaseChange_qExpFunctionFieldC_levelN M Γ hΓM hT ι K
+  set L₀ : IntermediateField ℂ K := ℂ⟮jK M K⟯ with hL₀
+  let E : IntermediateField L₀ K := IntermediateField.adjoin L₀ (Set.range Φ)
+  have hΦE : ∀ u, Φ u ∈ E := fun u => IntermediateField.subset_adjoin _ _ ⟨u, rfl⟩
+  let ΦE : laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ) →+* E :=
+    Φ.codRestrict E hΦE
+
+  let : Algebra (AlgebraicClosure ℚ) ℂ := ι.toAlgebra
+  let : Algebra (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) E := ΦE.toAlgebra
+  let : Algebra (AlgebraicClosure ℚ) E := ((algebraMap ℂ E).comp ι).toAlgebra
+  have : IsScalarTower (AlgebraicClosure ℚ) ℂ E := IsScalarTower.of_algebraMap_eq (fun _ => rfl)
+  have : IsScalarTower (AlgebraicClosure ℚ)
+      (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) E :=
+    IsScalarTower.of_algebraMap_eq (fun c => by
+      apply Subtype.ext
+      change algebraMap ℂ K (ι c) = Φ (algebraMap (AlgebraicClosure ℚ)
+        (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) c)
+      rw [hΦc])
+
+  have hyT : Transcendental (AlgebraicClosure ℚ) y := by
+    have h := transcendental_jqModC (AlgebraicClosure ℚ)
+    rw [← hy] at h
+    exact (transcendental_algebraMap_iff (R := AlgebraicClosure ℚ)
+      (A := LaurentSeries (AlgebraicClosure ℚ))
+      (algebraMap (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ))
+        (LaurentSeries (AlgebraicClosure ℚ))).injective).mp h
+  have hΓfi : (Γ ⊔ Subgroup.zpowers (-1 : SL(2, ℤ))).FiniteIndex :=
+    Subgroup.finiteIndex_of_le (hΓ.trans le_sup_left)
+  have hfin : FiniteDimensional ((AlgebraicClosure ℚ)⟮y⟯)
+      (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) :=
+    finiteDimensional_of_finrank_pos_intermediate _ (by
+      rw [hfull]
+      exact Nat.pos_of_ne_zero Subgroup.FiniteIndex.index_ne_zero)
+  have hcur : AlgebraicCurve.IsCurveOver (AlgebraicClosure ℚ)
+      (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) :=
+    AlgebraicCurve.isCurveOver_of_transcendental_of_perfectField hyT hfin
+
+  have hjE : jK M K ∈ E := E.algebraMap_mem (⟨jK M K, IntermediateField.mem_adjoin_simple_self ℂ _⟩ : L₀)
+  let xE : E := ⟨jK M K, hjE⟩
+  have hyt : ((algebraMap (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) E y : E) :
+      K) = jK M K := hΦy y hy
+  have hΦEy : algebraMap (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) E y = xE :=
+    Subtype.ext hyt
+  have hEfd : FiniteDimensional L₀ E := IntermediateField.finiteDimensional_left E
+  have hgen : IntermediateField.adjoin ℂ
+      (Set.range (algebraMap (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) E)) = ⊤ := by
+    apply adjoin_range_eq_top (jK M K) E
+    change ((IntermediateField.adjoin L₀ (Set.range Φ) : IntermediateField L₀ K) : Set K) ⊆
+      ((IntermediateField.adjoin ℂ (Set.range fun u => Φ u) : IntermediateField ℂ K) : Set K)
+    apply adjoin_adjoin_subset
+    exact IntermediateField.subset_adjoin _ _ ⟨y, hΦy y hy⟩
+
+  have hσE : ∀ γ ∈ Γ, ∀ e ∈ E, σ' M K γ e = e := by
+    intro γ hγ e he
+    have hle : E ≤ IntermediateField.fixedField (Subgroup.zpowers (σ' M K γ)) := by
+      apply IntermediateField.adjoin_le_iff.mpr
+      rintro _ ⟨u, rfl⟩
+      rw [SetLike.mem_coe, IntermediateField.mem_fixedField_iff]
+      intro g hg
+      have hst : σ' M K γ ∈ MulAction.stabilizer (K ≃ₐ[L₀] K) (Φ u) := by
+        rw [MulAction.mem_stabilizer_iff, AlgEquiv.smul_def, σ'_apply]
+        exact hΦfix γ hγ (comp_smul_mem M K γ⁻¹) (σK M K γ) (σK_algebraMap M K γ) u
+      have := (Subgroup.zpowers_le.mpr hst) hg
+      rwa [MulAction.mem_stabilizer_iff, AlgEquiv.smul_def] at this
+    exact (IntermediateField.mem_fixedField_iff _ e).mp (hle he) _ (Subgroup.mem_zpowers _)
+
+  set H := Γ.map (σ' M K) with hH
+  have hEle : E ≤ IntermediateField.fixedField H := by
+    rw [IntermediateField.le_iff_le]
+    rintro _ ⟨γ, hγ, rfl⟩
+    rw [IntermediateField.mem_fixingSubgroup_iff]
+    intro e he
+    exact hσE γ hγ e he
+
+  obtain ⟨hdeg, hplaces⟩ :=
+    AlgebraicCurve.finrank_le_and_natCard_places_le_of_constantFieldExtension_adjoin y hyT
+      (jK M K) (transcendental_jK M K) E hyt hgen
+  have hEeq : E = IntermediateField.fixedField H := by
+    apply IntermediateField.eq_of_le_of_finrank_le hEle
+    rw [finrank_fixedField_map M K hfd Γ hΓM, ← hfull]
+    exact hdeg
+  have hfixers : ∀ (Kst : Subgroup SL(2, ℤ)), (-1 : SL(2, ℤ)) ∈ Kst →
+      ∀ g₀ : SL(2, ℤ), (∀ e : E, σ' M K g₀ e = e) →
+        ∃ a ∈ Γ, ∃ z ∈ Kst, z ∈ Subgroup.center SL(2, ℤ) ∧ g₀ = a * z := by
+    intro Kst hKst g₀ hg₀
+    have hmem : σ' M K g₀ ∈ E.fixingSubgroup := by
+      rw [IntermediateField.mem_fixingSubgroup_iff]
+      intro e he
+      exact hg₀ ⟨e, he⟩
+    rw [hEeq, IntermediateField.fixingSubgroup_fixedField, hH] at hmem
+    obtain ⟨a, ha, hag⟩ := Subgroup.mem_map.mp hmem
+    have hker : a⁻¹ * g₀ ∈ LevelN.GenusBound.Gpm M := by
+      rw [← σ'_ker M K, MonoidHom.mem_ker, map_mul, map_inv, hag, inv_mul_cancel]
+    rcases LevelN.GenusBound.mem_Gpm_imp M hker with h | h
+    · refine ⟨a * (a⁻¹ * g₀), Γ.mul_mem ha (hΓM h), 1, one_mem _, Subgroup.one_mem _, by group⟩
+    · refine ⟨a * -(a⁻¹ * g₀), Γ.mul_mem ha (hΓM h), -1, hKst, neg_one_mem_center, ?_⟩
+      simp
+
+  have hy0 : y ≠ 0 := fun h => by
+    rw [h] at hyT; exact hyT isAlgebraic_zero
+  have hy1728 : y - 1728 ≠ 0 := fun h => by
+    rw [sub_eq_zero] at h
+    rw [h] at hyT
+    refine hyT ?_
+    rw [show (1728 : laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) =
+      algebraMap (AlgebraicClosure ℚ) (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) 1728 from (map_ofNat (algebraMap (AlgebraicClosure ℚ) (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ))) 1728).symm]
+    exact isAlgebraic_algebraMap _
+  have hposE : ∀ u : laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ), u ≠ 0 →
+      Finite {P : AlgebraicCurve.Place ℂ E // 0 < P.ord (algebraMap (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) E u)} ∧
+        Nat.card {P : AlgebraicCurve.Place ℂ E // 0 < P.ord (algebraMap (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) E u)} ≤
+          Nat.card {P : AlgebraicCurve.Place (AlgebraicClosure ℚ)
+            (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) //
+              0 < P.ord u} := fun u hu => (hplaces u hu).1
+  have hnegE : ∀ u : laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ), u ≠ 0 →
+      Finite {P : AlgebraicCurve.Place ℂ E // P.ord (algebraMap (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) E u) < 0} ∧
+        Nat.card {P : AlgebraicCurve.Place ℂ E // P.ord (algebraMap (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) E u) < 0} ≤
+          Nat.card {P : AlgebraicCurve.Place (AlgebraicClosure ℚ)
+            (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) //
+              P.ord u < 0} := fun u hu => (hplaces u hu).2
+  refine ⟨?_, ?_, ?_⟩
+  ·
+    obtain ⟨W, hW, hD⟩ := exists_place_zero M K
+    obtain ⟨hfinE, hle⟩ := hposE y hy0
+    have hset : algebraMap (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) E y = xE - algebraMap ℂ E 0 := by rw [map_zero, sub_zero, hΦEy]
+    rw [hset] at hfinE hle
+    have := hfinE
+    exact (natCard_doubleCoset_le (jK M K) L₀ rfl (σ' M K) Γ
+      (Subgroup.zpowers (ModularGroup.S * ModularGroup.T)) E (hfixers _ neg_one_mem_zpowers_ST)
+      W 0 hW hD xE rfl).trans hle
+  ·
+    obtain ⟨W, hW, hD⟩ := exists_place_1728 M K
+    obtain ⟨hfinE, hle⟩ := hposE (y - 1728) hy1728
+    have hset : algebraMap (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) E (y - 1728) = xE - algebraMap ℂ E 1728 := by
+      rw [map_sub, hΦEy, map_ofNat, map_ofNat]
+    rw [hset] at hfinE hle
+    have := hfinE
+    exact (natCard_doubleCoset_le (jK M K) L₀ rfl (σ' M K) Γ
+      (Subgroup.zpowers ModularGroup.S) E (hfixers _ neg_one_mem_zpowers_S)
+      W 1728 hW hD xE rfl).trans hle
+  ·
+    obtain ⟨W, hW, hD⟩ := exists_place_infty M K
+    obtain ⟨hfinE, hle⟩ := hnegE y hy0
+    have hxE0 : xE ≠ 0 := by
+      intro h
+      have := congrArg (fun e : E => (e : K)) h
+      change jK M K = 0 at this
+      exact (transcendental_jK M K) (this ▸ isAlgebraic_zero)
+    have hiff : ∀ P : AlgebraicCurve.Place ℂ E,
+        0 < P.ord (xE⁻¹ - algebraMap ℂ E 0) ↔ P.ord (algebraMap (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) E y) < 0 := by
+      intro P
+      rw [map_zero, sub_zero, AlgebraicCurve.Place.ord_inv, hΦEy]
+      omega
+    let eqv : {P : AlgebraicCurve.Place ℂ E // 0 < P.ord (xE⁻¹ - algebraMap ℂ E 0)} ≃
+        {P : AlgebraicCurve.Place ℂ E // P.ord (algebraMap (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) E y) < 0} :=
+      Equiv.subtypeEquivRight hiff
+    have : Finite {P : AlgebraicCurve.Place ℂ E // 0 < P.ord (xE⁻¹ - algebraMap ℂ E 0)} :=
+      Finite.of_equiv _ eqv.symm
+    have h1 := natCard_doubleCoset_le (jK M K)⁻¹ L₀ (LevelN.GenusBound.adjoin_inv_eq _).symm
+      (σ' M K) Γ
+      (Subgroup.zpowers ModularGroup.T ⊔ Subgroup.zpowers (-1 : SL(2, ℤ))) E
+      (hfixers _ neg_one_mem_zpowers_T_sup) W 0 hW hD xE⁻¹ rfl
+    rw [Nat.card_congr eqv] at h1
+    exact h1.trans hle
+
+/-! #### The estimate at the function field of `X(N)` -/
+
+private theorem main (M : ℕ) [NeZero M] (Γ : Subgroup (Matrix.SpecialLinearGroup (Fin 2) ℤ))
+    (hΓ : CongruenceSubgroup.Gamma1 M ≤ Γ)
+    (y : laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ))
+    (hy : (y : LaurentSeries (AlgebraicClosure ℚ)) = jqModC (AlgebraicClosure ℚ))
+    (hfull : Module.finrank
+          (IntermediateField.adjoin (AlgebraicClosure ℚ)
+            ({y} : Set (laurentBaseChange (AlgebraicClosure ℚ)
+              (qExpFunctionFieldC ℚ Γ))))
+          (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) =
+        (Γ ⊔ Subgroup.zpowers (-1)).index) :
+    Nat.card (DoubleCoset.Quotient (Γ : Set (Matrix.SpecialLinearGroup (Fin 2) ℤ))
+        (Subgroup.zpowers (ModularGroup.S * ModularGroup.T) :
+          Set (Matrix.SpecialLinearGroup (Fin 2) ℤ))) ≤
+        Nat.card {P : AlgebraicCurve.Place (AlgebraicClosure ℚ)
+          (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) //
+            0 < P.ord y} ∧
+      Nat.card (DoubleCoset.Quotient (Γ : Set (Matrix.SpecialLinearGroup (Fin 2) ℤ))
+          (Subgroup.zpowers ModularGroup.S : Set (Matrix.SpecialLinearGroup (Fin 2) ℤ))) ≤
+        Nat.card {P : AlgebraicCurve.Place (AlgebraicClosure ℚ)
+          (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) //
+            0 < P.ord (y - 1728)} ∧
+      Nat.card (DoubleCoset.Quotient (Γ : Set (Matrix.SpecialLinearGroup (Fin 2) ℤ))
+          ((Subgroup.zpowers ModularGroup.T ⊔ Subgroup.zpowers (-1) :
+              Subgroup (Matrix.SpecialLinearGroup (Fin 2) ℤ)) :
+            Set (Matrix.SpecialLinearGroup (Fin 2) ℤ))) ≤
+        Nat.card {P : AlgebraicCurve.Place (AlgebraicClosure ℚ)
+          (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) //
+            P.ord y < 0} := by
+  have : IsDomain (LevelN.ring M) := LevelN.isDomain_ring M
+  have : Algebra.IsAlgebraic ℚ (AlgebraicClosure ℚ) := AlgebraicClosure.isAlgebraic ℚ
+  let ι : AlgebraicClosure ℚ →+* ℂ :=
+    (IsAlgClosed.lift (R := ℚ) (M := ℂ) (S := AlgebraicClosure ℚ)).toRingHom
+  exact main_K M (FractionRing (LevelN.ring M)) Γ hΓ ι y hy hfull
+
+end SpecialFibresLB
+
+/-- Pin `ModularCurve.natCard_doubleCoset_le_card_fibres_of_finrank_eq_index`
+(`S_ModularCurve_natCard_doubleCoset_le_card_fibres_of_finrank_eq_index.lean:1094`, its
+`solution`, at the wrapper's statement): the double-coset count of `Γ ⊆ SL(2, ℤ)` by the
+number of places of `X(N)` over `ℚ̄` where `j` vanishes, equals `1728`, or has a pole. -/
+theorem natCard_doubleCoset_le_card_fibres_of_finrank_eq_index
+    (M : ℕ) [NeZero M] (Γ : Subgroup (Matrix.SpecialLinearGroup (Fin 2) ℤ))
+    (hΓ : CongruenceSubgroup.Gamma1 M ≤ Γ)
+    (y : laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ))
+    (hy : (y : LaurentSeries (AlgebraicClosure ℚ)) = jqModC (AlgebraicClosure ℚ))
+    (hfull : Module.finrank
+          (IntermediateField.adjoin (AlgebraicClosure ℚ)
+            ({y} : Set (laurentBaseChange (AlgebraicClosure ℚ)
+              (qExpFunctionFieldC ℚ Γ))))
+          (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) =
+        (Γ ⊔ Subgroup.zpowers (-1)).index) :
+    Nat.card (DoubleCoset.Quotient (Γ : Set (Matrix.SpecialLinearGroup (Fin 2) ℤ))
+        (Subgroup.zpowers (ModularGroup.S * ModularGroup.T) :
+          Set (Matrix.SpecialLinearGroup (Fin 2) ℤ))) ≤
+        Nat.card {P : AlgebraicCurve.Place (AlgebraicClosure ℚ)
+          (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) //
+            0 < P.ord y} ∧
+      Nat.card (DoubleCoset.Quotient (Γ : Set (Matrix.SpecialLinearGroup (Fin 2) ℤ))
+          (Subgroup.zpowers ModularGroup.S : Set (Matrix.SpecialLinearGroup (Fin 2) ℤ))) ≤
+        Nat.card {P : AlgebraicCurve.Place (AlgebraicClosure ℚ)
+          (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) //
+            0 < P.ord (y - 1728)} ∧
+      Nat.card (DoubleCoset.Quotient (Γ : Set (Matrix.SpecialLinearGroup (Fin 2) ℤ))
+          ((Subgroup.zpowers ModularGroup.T ⊔ Subgroup.zpowers (-1) :
+              Subgroup (Matrix.SpecialLinearGroup (Fin 2) ℤ)) :
+            Set (Matrix.SpecialLinearGroup (Fin 2) ℤ))) ≤
+        Nat.card {P : AlgebraicCurve.Place (AlgebraicClosure ℚ)
+          (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) //
+            P.ord y < 0} :=
+  SpecialFibresLB.main M Γ hΓ y hy hfull
+
+end ModularCurve

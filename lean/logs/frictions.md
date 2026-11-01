@@ -1567,3 +1567,237 @@ round promotes what generalizes.
   statements are unaffected. The pin files' `attribute`/`p2m_*` walls are still not transcribed.
 - **seen**: 2026-10-31, RS2 order A (the four renames were the order's only statement-preserving
   deviation; the block then compiles silently at a 20k heartbeat cap).
+
+## FR-0081 [lean] [port] — the A4 helper table's *namespaces* and *binders* both drift: `T_mem_Gamma1`/`Gamma_le_Gamma1` are `ModularForm.Level`, `qParam_one_eq_pow` is `X1DiamondRational` (and ℂ-valued vs ℍ-valued)
+
+- **where**: `FLTForHuman/ModularCurve/SiegelUnit/ProductForm.lean`, order A's `IntZero` block,
+  transcribed from `P2M/Sol/S_…_isIntegral_qExpansion_slash_S_coeff_of_coe_eq_prod_siegelFun_pow_mul_discriminant_pow.lean`
+  (`Group`/`Forms`/`Delta` sections), and the same in the 457 `INTINF` block; met porting orders A
+  of [../topics/modularCurve/WORKORDER-RS3-ready-shelf3.md](../topics/modularCurve/WORKORDER-RS3-ready-shelf3.md)
+  §A4.
+- **symptom**: the order's A4 table gives the pin's spellings (`CongruenceSubgroup.T_mem_Gamma1`,
+  `CongruenceSubgroup.Gamma_le_Gamma1`, `ModularCurve.qParam_one_eq_pow`, `ModularCurve.natCast_pos`)
+  with the *file* they live in. In the port the first two are `ModularForm.Level.T_mem_Gamma1`
+  (`ModularForms/Level/Gamma1Slash.lean:65`) and `ModularForm.Level.Gamma_le_Gamma1` (`:77`); the
+  other two are `X1DiamondRational.qParam_one_eq_pow` / `X1DiamondRational.natCast_pos`
+  (`ModularForms/WeightOne/Defs/RatAt.lean:113,115`). `#check @CongruenceSubgroup.T_mem_Gamma1`
+  and the three siblings are `unknownIdentifier`.
+- **second drift, the one that costs lines**: the port's `qParam_one_eq_pow` is
+  `(N : ℕ) [NeZero N] (τ : ℍ) : Periodic.qParam 1 τ = Periodic.qParam N τ ^ N`, while the pin's
+  469-layer copy is `(N : ℕ) (hN : 0 < N) (z : ℂ) : Periodic.qParam 1 z = Periodic.qParam N z ^ N`.
+  They are not interchangeable at a call site whose `N` only has `0 < N` (the `Delta` section) and
+  whose argument is a `ℂ`, so the ℂ-valued form is re-spelled in the module (6 lines) and the
+  457 layer's `INTINF.qParam_one_eq_pow` is a one-line alias of the port's.
+- **rule**: read the A4 table's *file* column, not its *name* column, for a helper it marks
+  "import"; and when the pin has two copies of one fact at different binders (ℂ-valued and
+  ℍ-valued), the port's single public copy serves whichever call site matches its binder and the
+  other one is re-spelled privately. `natCast_pos` is the same story with a one-line body, so it was
+  written in-module to keep the pin's implicit-`N` binder.
+- **seen**: 2026-11-01, RS3 order A (all three headlines green, module silent at the 200k loop).
+
+## FR-0082 [lean] [port] — `coeff_jqModC_of_lt` is *not* in `Defs/JqCoeff.lean`: the port's public copy sits in the `X0` cone, so order C re-spells it in one line
+
+- **where**: order C's `IgusaSepAux` block in
+  `FLTForHuman/ModularCurve/ModularPolynomialCoset.lean`, transcribed from
+  `P2M/Sol/S_…_separable_map_ratFunc_of_natCast_ne_zero.lean`; met porting order C of
+  [../topics/modularCurve/WORKORDER-RS3-ready-shelf3.md](../topics/modularCurve/WORKORDER-RS3-ready-shelf3.md) §3.
+- **symptom**: the order's "use, do not restate" list names `coeff_jqModC_neg_one` **and**
+  `coeff_jqModC_of_lt` as public in `Defs/JqCoeff.lean:196`. That line is `coeff_jqModC_neg_one`;
+  `Defs/JqCoeff.lean` carries `coeff_jqModC_pow_self` and `coeff_jqModC_pow_of_lt` but **no**
+  `coeff_jqModC_of_lt`. The port's only public `coeff_jqModC_of_lt` is
+  `FLTForHuman/ModularCurve/X0/FunctionFieldFull.lean:96` — a module the 0-importer host does not
+  have and whose cone is the `X0`/function-field tower.
+- **rule**: for a one-line consequence of a declaration the host already imports, re-spell it
+  privately rather than pull the cone: `simpa using coeff_jqModC_pow_of_lt R (b := 1) (m := m)
+  (by simpa using hm)`. This is the same call the A4 table makes for `T_pow_mem_Gamma` (write the
+  5 lines, do not import 38 modules), and it is worth applying to the *premise audit* rows too —
+  a row that names a declaration's `file:line` should be re-resolved, not trusted, when the line is
+  the neighbouring declaration.
+- **seen**: 2026-11-01, RS3 order C (checker 35 ok / 0 / 0, module silent).
+
+## FR-0083 [lean] [port] — five v4.34 deprecation renames in the 457 block (`if_pos`/`if_neg`/`if_false`/`ModularForm.coe_sub`)
+
+- **where**: `FLTForHuman/ModularCurve/SiegelUnit/ProductForm.lean`'s `DeltaQExpInt`/`INTINF`/`solution`
+  blocks, transcribed from `P2M/Sol/S_…_qExpansion_one_coeff_of_coe_eq_prod_siegelFun_pow_mul_discriminant_pow.lean`.
+- **symptom**: the zero-warning gate fails on deprecations alone: `if_pos` → `ite_eq_left` (4
+  occurrences), `if_neg` → `ite_eq_right` (2), `if_false` → `ite_false` (1),
+  `ModularForm.coe_sub` → `FunLike.coe_sub` (2). Same family as FR-0080 (`if_neg`/`if_pos`/
+  `tendsto_finset_prod` in `SiegelUnit/Integrality.lean`), now with the `if_false` and the
+  `FunLike.coe_*` renames added.
+- **rule**: transcribe the renames mechanically — the argument shapes are compatible
+  (`ite_eq_left (h := …)`, `ite_eq_right (h := …)`), and `FunLike.coe_sub` replaces the
+  `ModularForm.coe_sub` spelling everywhere (the `Pi`/`DFunLike` coercion lemmas have moved to
+  `FunLike`). The 249 layer needed none of these; the 457 layer needed all five.
+- **seen**: 2026-11-01, RS3 order A (the 457 block then compiles silently at the 200k loop).
+
+## FR-0084 [lean] [gate] — `linter.style.haveILetI` vs the pin's `haveI`/`letI` idiom: `have`/`let` do register the instance, and the defeq check still succeeds
+
+- **where**: order C's `solution` in `FLTForHuman/ModularCurve/ModularPolynomialCoset.lean`: the pin
+  writes `letI : Algebra K E := ((algebraMap L E).comp (algebraMap K L)).toAlgebra` and
+  `haveI : NeZero ((N : ℕ) : K) := ⟨hNK⟩`; the port may not (a `haveI`/`letI` in a proof of a
+  proposition is a `linter.style.haveILetI` warning, and the gate is zero warnings).
+- **symptom**: the `letI` is *load-bearing*: without it `algebraMap K E` elaborates at
+  `HahnSeries.powerSeriesAlgebra` and is not definitionally the composite
+  `(algebraMap L E).comp (algebraMap K L)`, so the pin's last step
+  (`convert hp using 2 <;> first | with_reducible_and_instances rfl | rfl`) fails with "Tactic `rfl`
+  failed: The left-hand side … is not definitionally equal to the right-hand side `algebraMap K E`".
+  This is the same seam as FR-0079's `HahnSeries` algebra diamond.
+- **fix that works**: write the pin's `letI` as a plain `let` (`let : Algebra K E := …`) and its
+  `haveI` as a plain `have`. Lean 4's `have`/`let` register local instances themselves, and a
+  `let`-bound instance is zeta-reducible for both typeclass search and `isDefEq`, so the composite
+  *is* defeq to `algebraMap K E` and the pin's `convert hp using 2` then closes the goal with no
+  residual `rfl` goals at all (the trailing `<;> first | … | rfl` became dead and was removed once
+  — before the `let` was in place it was still needed, which is how the two states are told apart:
+  the `let` version emits `linter.unusedTactic`/`linter.unreachableTactic` on that tail).
+- **also in this pass, same cause (a pin idiom that a port linter refuses)**: the pin's
+  `variable {N} [NeZero N]` block with an unused instance makes `linter.unusedSectionVars` fire on
+  `Forms`' `coe_Thetaform` (fixed: give the two declarations explicit `{N} [NeZero N]` binders); the
+  pin's `convert … <;> try …` makes `linter.unnecessarySeqFocus` fire (fixed: `(convert …; try …)`);
+  and the pin's `simpa [h] using (hasSum_zero …)` makes `linter.unnecessarySimpa` fire (fixed:
+  `simp [h]`).
+- **seen**: 2026-11-01, RS3 orders A and C. The `have`/`let` half is instance-shaped: see
+  [../instance-friction.md](../instance-friction.md)'s `IF` note on this row.
+
+## FR-0085 [lean] [port] — order C needs two mathlib imports the order did not list (`RatFunc.Basic`, `RootsOfUnity.AlgebraicallyClosed`)
+
+- **where**: `FLTForHuman/ModularCurve/ModularPolynomialCoset.lean`'s new import block, order C of
+  [../topics/modularCurve/WORKORDER-RS3-ready-shelf3.md](../topics/modularCurve/WORKORDER-RS3-ready-shelf3.md) §3
+  ("New import: `FLTForHuman.ModularCurve.Degree.PhiDegree` only").
+- **symptom**: the pin imports `Mathlib`, so its 128 lines use `RatFunc`, `IsFractionRing.lift`,
+  `algebraMap (Polynomial F) (RatFunc F)` and `HasEnoughRootsOfUnity.prim (M := AlgebraicClosure K)`
+  without naming a module. `PhiDegree`'s cone supplies `RatFunc`'s *type* through
+  `IntermediateField`/`AlgebraicClosure` imports but not `Mathlib.FieldTheory.RatFunc.Basic`'s
+  API or the `HasEnoughRootsOfUnity` instance at `AlgebraicClosure`; `#check @RatFunc` resolves,
+  `#check @HasEnoughRootsOfUnity.prim` does not.
+- **rule**: for an order whose pin file is `import Mathlib`-only, price *two* import lines, not one:
+  the subject module plus whichever mathlib module carries the `IsFractionRing`/`RatFunc` API
+  (`Mathlib.FieldTheory.RatFunc.Basic`) and whichever carries the roots-of-unity existence instance
+  (`Mathlib.RingTheory.RootsOfUnity.AlgebraicallyClosed`). Both are acyclic and the resulting
+  module is still a 0-importer host.
+- **seen**: 2026-11-01, RS3 order C (checker 35 ok / 0 / 0; consumer zone green).
+
+## FR-0086 [tool] — `move_dead.py` reads a `private`-heavy module as 3 declarations, so "0 dead" is not evidence
+
+- **where**: `tools/deps/move_dead.py` run on the two touched modules of RS3 orders A and C.
+- **symptom**: `--source lean/FLTForHuman/ModularCurve/SiegelUnit/ProductForm.lean` reports
+  "3 declarations, 11 lines" for a 1,216-line module with 3 public headlines and 96 `private`
+  declarations, and `ModularPolynomialCoset.lean` (992 lines) as "0 declarations, 0 lines". The
+  parser does not see `private def`/`private theorem` at column 0, so it cannot compute liveness
+  for them and reports nothing to move. `dedup.py` on the same two modules reads 99 and 40
+  declarations and reports **0 duplicate clusters** at `name,shape,body` tiers (also at
+  `--min-cost 0`), which is the number to quote.
+- **rule**: quote `dedup.py`'s cluster count as the dedup evidence on a `private`-heavy module and
+  read `move_dead.py`'s output as "no *public* declaration is dead" rather than "nothing is dead".
+  The two declarations this pass knows to be pin-fidelity-only and unreferenced are
+  `coe_restrictMF` (required by the order's errata, 3 lines) and
+  `exists_int_discriminant_qExpansion_coeff` (one of the pin `S_` file's 45 declarations, kept so
+  the transcription is the file); both stay.
+- **seen**: 2026-11-01, RS3 orders A and C.
+
+## FR-0087 [lean] [port] — order B's *statement* needs `Mathlib.GroupTheory.DoubleCoset`, which the module's closure does not have
+
+- **where**: `FLTForHuman/ModularCurve/LevelN/GenusFF.lean`'s new import block, order B of
+  [../topics/modularCurve/WORKORDER-RS3-ready-shelf3.md](../topics/modularCurve/WORKORDER-RS3-ready-shelf3.md) §2
+  ("Imports to add: `LevelN.QExpBridge`, `LevelN.SpecialRamification`,
+  `IsCurveOver.ConstantFieldExtensionSpan`, `Degree.PhiDegree`").
+- **symptom**: the wrapper's statement is built from
+  `Nat.card (DoubleCoset.Quotient (Γ : Set SL(2,ℤ)) (Subgroup.zpowers … : Set SL(2,ℤ)))`, and
+  `DoubleCoset` is unknown in the four-import closure (`unknown identifier 'DoubleCoset.Quotient'`
+  on all nine occurrences). `Mathlib.GroupTheory.DoubleCoset` is a leaf mathlib module
+  (`Coset.Basic` + `Subgroup.Pointwise`), acyclic and cheap; it was added as a fifth import line.
+- **rule**: a pin `import Mathlib` file may use a mathlib module the *premises'* closure does not
+  reach. The order's import list is priced from the premises; a name in the **statement** is a
+  separate line. Read the wrapper first and `#check` every non-prelude identifier in it.
+- **seen**: 2026-11-01, RS3 order B (checker 3 ok / 0 / 0; module build green).
+
+## FR-0088 [lean] [instance] — the pin's `synthInstance.maxHeartbeats 1600000` wall is one `Module.Free` search at the concrete `ℚ̄⟮y⟯`, and it is *not* fixable by supplying the instance by hand
+
+- **where**: `LevelN/GenusFF.lean`'s `main_K`, the pin's line 26 option and its line 895
+  `maxHeartbeats 6400000` (work order §B0.1), at `FiniteDimensional ℚ̄⟮y⟯ FF`.
+- **symptom**: `apply Module.finite_of_finrank_pos` at the concrete
+  `((AlgebraicClosure ℚ)⟮y⟯)` dies with "failed to synthesize `Module.Free ↥(adjoin …) FF` /
+  (deterministic) timeout at typeclass, maximum 20000 heartbeats" — the `-DmaxHeartbeats=200000`
+  edit loop does **not** raise `synthInstance.maxHeartbeats`, which is the 20000 in the message.
+  Two separate causes, measured:
+  1. `Module.Free` over a division ring is `Module.Free.of_divisionRing`
+     (`Mathlib/LinearAlgebra/Basis/VectorSpace.lean`), which is **not in this module's closure**;
+     without it the search *fails* (after exhausting every other `Module.Free` instance), with it
+     the search merely runs past 20000. So the import is the first half of the fix (see FR-0089's
+     sibling note in this file: mathlib imports of a `import Mathlib` pin).
+  2. supplying it by hand does not work: `Module.Free.of_divisionRing _ _` is rejected with a
+     `Semiring`-path mismatch — the goal's `Module.Free` is keyed on
+     `(SubsemiringClass.toCommSemiring …).toSemiring` while the constructor's is
+     `DivisionRing.toRing.toSemiring`. Same failure for a hand-written
+     `StrongRankCondition`/`DivisionRing` chain: instance *paths* are data, not propositions.
+- **fix that works**: state the fact at a **variable** intermediate field —
+  `finiteDimensional_of_finrank_pos_intermediate (E : IntermediateField L M) (h : 0 < finrank E M)`
+  — where the search is instant (measured: silent at the default 20000), then apply it at
+  `E := ℚ̄⟮y⟯`. With that, `main_K` elaborates whole inside the 200k edit loop: **no split and no
+  cap is needed**, and the pin's 6.4M on `main_K` disappears with the 1.6M on the module.
+- **seen**: 2026-11-01, RS3 order B. Instance-shaped detail + the diagnosis recipe:
+  [../instance-friction.md](../instance-friction.md) `IF-005`.
+
+## FR-0089 [lean] [port] — mathlib v4.34 arity/API drift across 1,123 transcribed lines: six shapes, all mechanical
+
+- **where**: the order-B transcription of
+  `P2M/Sol/S_ModularCurve_natCard_doubleCoset_le_card_fibres_of_finrank_eq_index.lean` into
+  `LevelN/GenusFF.lean`. Each of these compiled in the pin and does not here (or vice versa):
+  | pin text | v4.34 |
+  |---|---|
+  | `IntermediateField.adjoin_algHom_ext ℂ hgen` | unchanged — `F` is still **explicit** (`#check` it; guessing it implicit costs a run) |
+  | `(IntermediateField.mem_map).mp he` | `(IntermediateField.mem_map (S := A) (f := f)).mp he` — `S` became explicit |
+  | `DoubleCoset.out_eq' Γ Kst r` | `DoubleCoset.out_eq' (H := Γ) (K := Kst) r` — `H K` became implicit |
+  | `rw [CongruenceSubgroup.Gamma1_mem]` | works, but its signature is `(N) (A)` explicit (rewrite still unifies) |
+  | `have hcard : 0 < Nat.card H := Nat.card_pos` | `Nat.card_pos` now needs `[Finite α]`; use `rw [← h1]; exact Module.finrank_pos` from `finrank (fixedField H) K = Nat.card H` |
+  | `rw [h, σK_ker]` where `h : liftHom … γ = 1` and the goal is `σ' M K γ = 1` | `σ'` is a `def`, so it does not `rw`-unfold *under application*; open with `show (liftHom …) γ = 1 ↔ …` |
+- **two more, not arity**: the pin's `@[scoped simp]` on `liftE_apply`/`liftHom_apply`/`σ'_apply`
+  is dropped (the two `_apply` aliases are unused here; `σ'_apply` is used by name in `hσE`), and
+  `Subgroup.index_map` is `(H ⊔ f.ker).index * f.range.index` — the pin's `finrank_fixedField_map`
+  chain (`… σ'_ker, index_top, mul_one`, then `congr 1` + `le_antisymm` on `Γ ⊔ (Γ(N) ⊔ ±1)`) works
+  as written, which is worth knowing before rewriting it.
+- **rule**: `#check @` every identifier whose call shape you are about to transcribe from a
+  1,000-line pin proof, not just the ones the order named; on this row the arity drift was six
+  lines, but each cost an edit-loop cycle when it surfaced as a downstream error.
+- **seen**: 2026-11-01, RS3 order B (all fixed mechanically; module silent, checker 3 ok / 0 / 0).
+
+## FR-0090 [lean] [port] — FR-0085's "price two import lines for an `import Mathlib` pin" is an upper bound, not a rule: the 252-line peaked-auxiliary row needed **no** mathlib import
+
+- **where**: `FLTForHuman/ModularCurve/SiegelUnit/PeakedAuxiliary.lean` (new), transcribed from
+  `P2M/Sol/S_ModularCurve_SiegelUnit_exists_gamma1_peaked_auxiliary_form_twelve_dvd.lean` (252
+  lines, `import Mathlib` plus three `Theorems/` wrappers), after the RS3 wave
+  ([../topics/modularCurve/TOPIC-ready-shelf-3.md](../topics/modularCurve/TOPIC-ready-shelf-3.md) §12).
+- **symptom**: none — which is the datum. Order C's pin (FR-0085) was `import Mathlib`-only too and
+  needed two mathlib modules (`RatFunc.Basic`, `RootsOfUnity.AlgebraicallyClosed`) that its host's
+  closure lacked; this row's pin is `import Mathlib`-only and needed **zero** mathlib imports beyond
+  the three FLT modules it names. Everything it uses — `Asymptotics.IsBigO.of_bound`,
+  `Real.abs_exp`/`exp_le_exp`, `ZMod.addOrderOf_coe`, `Nat.card_zmultiples`,
+  `QuotientAddGroup.eq`, `Finset.sum_fiberwise`, `Int.emod_add_mul_ediv`,
+  `AddSubgroup.mem_zmultiples_iff` — is already in `SiegelUnit/ProductForm`'s closure, because that
+  module's own 469/457 layers rest on the same analysis of `q`-expansions.
+- **rule**: the two-import estimate is what an `import Mathlib` pin costs *when the target's closure
+  is a thin algebraic corner*; it is not a property of `import Mathlib`. Decide by the APIs the pin
+  actually uses and the closure of the module the row will sit above. Corollary for sizing: a row
+  whose premises are all in one already-landed module's closure is a transcription, not a route
+  problem — this one went in with no `#check`-driven substitutions, no v4.34 renames, and no
+  declaration over the 200k edit loop, in one pass.
+- **seen**: 2026-11-01, RS3 §12 (manager's own port, not a dispatch).
+
+## FR-0091 [lean] [port] — `omit … in` **does** parse in this toolchain, so the pin's section-variable spelling is reproducible
+
+- **where**: promotion of the shared `S`-conjugate prelude of
+  `FLTForHuman/ModularCurve/SiegelUnit/ProductForm.lean` (`Thetaform`/`coe_Thetaform`), met while
+  porting the 249 row of [../topics/modularCurve/TOPIC-ready-shelf-3.md](../topics/modularCurve/TOPIC-ready-shelf-3.md)
+  §13.
+- **symptom**: promoting `coe_Thetaform` at the pin's own binder spelling (section variables
+  `{N} [NeZero N] {w : ℤ}`) makes `linter.unusedSectionVars` fire, because the instance is unused in
+  that statement. The pin answers with `omit [NeZero N] in`, and shelf 2's order D recorded
+  (`TOPIC-ready-shelf-2.md`, order D's deviation) that **`omit … in theorem` does not parse** in this
+  toolchain — so the temptation is to split the section or to re-spell the binders explicitly.
+- **measured**: `omit [NeZero N] in theorem coe_Thetaform …` parses and elaborates **silently** at
+  v4.34, and the declaration's statement is then byte-identical to the pin's (checker `ok`, and the
+  module's checked surface grows from 3 to 18 `ok`).
+- **rule**: prefer the pin's `omit … in` over splitting a section; it is statement-preserving by
+  construction, whereas re-spelling the binders explicitly changes the declaration text the checker
+  diffs. Shelf 2's note is now stale for `omit … in theorem` (it may still hold for other
+  `omit … in` positions — re-test rather than assume).
+- **seen**: 2026-11-01, RS3 §13.

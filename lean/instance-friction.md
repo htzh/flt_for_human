@@ -72,6 +72,8 @@ One table row per entry; the long form is a section below the table.
 | IF-001 | search | `ModularCurve/Degree/PlaceDegree.lean` | `Algebra.IsAlgebraic (adjoin K {t}) F` from a local `FiniteDimensional` | timeout in the `deg_eq_one_modularFunctionFieldBar` proof | times out at 20000; instant via `of_finite` | the `Algebra.IsAlgebraic` search itself, over an `adjoin` of a large `coeffEmb` subtype term | name the element (`private abbrev jBar`) **and** pass `Algebra.IsAlgebraic.of_finite _ _` | fixed |
 | IF-002 | application | `ModularCurve/JqIntegralRatios.lean` | applying `mem_intFormRatiosC` to build `jqModC K ∈ intFormRatiosC K Γ` | elaboration exceeds a 300 s wall bound | does not finish; anonymous constructor is instant | unification of the `Subgroup`/`mapGL` coercion and implicit weight `k` in the constructor's type | use the anonymous constructor (pin's form); keep the named one public | workaround |
 | IF-003 | search | `WeierstrassCurve/Isogeny/TwoCurveDescent.lean` | `(E₀⁄(↥K₀)).IsElliptic` (and `(E₀⁄K)`) at the base-change engine boundary | search **fails outright** (`failed to synthesize`), then the surrounding engine calls spin | fails at 20000 and at 3200000 alike; instant via `inferInstanceAs` | the instance is keyed on `W.map f`, but the goal writes `E⁄R` — `WeierstrassCurve.baseChange` is a semireducible `def`, invisible to search at reducible transparency | state the instance in the `⁄` spelling, proved by `inferInstanceAs ((E.map (algebraMap R R)).IsElliptic)` (the pin's `scoped instance`, `S_:3566–3568`) | fixed |
+| IF-004 | search | `ModularCurve/ModularPolynomialCoset.lean` | `Algebra K (LaurentSeries (AlgebraicClosure K))` inside order C's `solution` | a `rfl`-failure on the pin's closing `convert hp using 2` (lhs `(algebraMap L E).comp (algebraMap K L)`, rhs `algebraMap K E`) | no timeout; wrong instance only | `Algebra K (HahnSeries · K)` is a Mathlib diamond and the pin's local `letI` is not transcribable (the `haveILetI` linter) | write the pin's `letI` as a plain `let` — `have`/`let` register local instances, and a `let`-bound instance is zeta-reducible, so the composite *is* defeq to `algebraMap K E` | fixed |
+| IF-005 | search | `ModularCurve/LevelN/GenusFF.lean` | `Module.Free ↥((AlgebraicClosure ℚ)⟮y⟯) (laurentBaseChange …)` inside `main_K`'s `FiniteDimensional` step (the pin's `synthInstance.maxHeartbeats 1600000`, its line 26) | `failed to synthesize` (no `of_divisionRing` in the closure) → after importing `Mathlib.LinearAlgebra.Basis.VectorSpace`, a **deterministic timeout at 20000**; `-DmaxHeartbeats` does not raise the `synthInstance` budget | >20000 at the concrete `adjoin`; **instant** at a variable `E`; hand-supplying the instance fails | the goal's `Module.Free` is keyed on `(SubsemiringClass.toCommSemiring …).toSemiring` while `Module.Free.of_divisionRing _ _`'s is `DivisionRing.toRing.toSemiring` — instance *paths* are data, so no hand-built chain matches; and with the concrete `adjoin` term the search has to unify the whole `IntermediateField` term for every candidate instance | state the fact at a **variable** intermediate field: `private theorem finiteDimensional_of_finrank_pos_intermediate (E : IntermediateField L M) (h : 0 < finrank E M) : FiniteDimensional E M`, then apply it at `E := ℚ̄⟮y⟯` — the search is then keyed on a variable and is instant, and the pin's 6.4M on `main_K` is not needed either | fixed |
 
 **budget** is the cost proxy: the `synthInstance.maxHeartbeats` value at which the
 naive form fails (or the measured seconds, for an instance declaration). Re-measure
@@ -247,6 +249,96 @@ distinct fvar and the check fails with "synthesized type class instance is not d
 equal"; and (ii) to discharge a `∀ [DecidableEq …]` block against a local `Classical.decEq`
 instance, use the pin's `subst` (`Subsingleton.elim` + `subst`) — proof irrelevance is only
 *propositional*, and `clear` is impossible once an earlier `let` depends on the instance.
+
+
+### IF-004 — the `HahnSeries` algebra diamond again, in a *proof*: a local `let`-bound `Algebra K (LaurentSeries L)` is defeq to the composite, `powerSeriesAlgebra` is not
+
+**Where.** `FLTForHuman/ModularCurve/ModularPolynomialCoset.lean`, order C's `solution` (the pin is
+`P2M/Sol/S_…_separable_map_ratFunc_of_natCast_ne_zero.lean`; the row is
+`ModularPolynomialData.separable_map_ratFunc_of_natCast_ne_zero`, RS3 order C).
+
+**The seam.** The pin needs a *specific* spelling of the `K`-algebra on `E := LaurentSeries
+(AlgebraicClosure K)`: it writes
+`letI : Algebra K E := ((algebraMap L E).comp (algebraMap K L)).toAlgebra` and then proves the
+transfer along the transcendental generator `x = qExpand L N (jqModC L)`. Without that pin
+`algebraMap K E` elaborates at `HahnSeries.powerSeriesAlgebra`, which is a *different* (though
+mathematically equal) structure, and the last step
+
+```lean
+  rw [Polynomial.aeval_def] at hp
+  convert hp using 2
+```
+
+fails with "Tactic `rfl` failed: The left-hand side `(algebraMap L (LaurentSeries L)).comp
+(algebraMap K L)` is not definitionally equal to the right-hand side `algebraMap K E`".
+
+**Why `letI` is not available.** `linter.style.haveILetI` (on by default, and the port's gate is
+zero warnings) rejects `haveI`/`letI` whose main goal is a proposition.
+
+**The rule.** Use a plain `let`: Lean 4 registers local instances from `have`/`let`, and a
+`let`-bound instance is zeta-reduced by `whnf`, so it *is* definitionally equal to the composite
+(this is the opposite direction of the note above: `letI`'s *inlining* was what an earlier seam
+needed, and `let`'s *local definition* is what this one needs — both have the property that the
+instance argument of the elaborated term reduces to the caller's term). Diagnostics: with `letI`
+the pin's trailing `try with_reducible_and_instances rfl` is exercised; with `let` it is dead, and
+Lean says so (`linter.unusedTactic` + `linter.unreachableTactic` on that exact tail) — that pair is
+the signal that the local instance was found and unfolded, not that the proof is broken.
+
+**Guard.** `spec/ModularCurveReady3ZoneC.lean` consumes the row's public conclusion (its error
+count is the zone's gate) and the module's own `lake build` is green at the port's caps; the
+headline's axioms are `[propext, Classical.choice, Quot.sound]`.
+
+
+### IF-005 — `Module.Free` at a *concrete* `IntermediateField.adjoin` term: instance paths are data, and one import short
+
+Order B's pin carries `set_option synthInstance.maxHeartbeats 1600000` at module level, which the
+work order forbids transcribing. The one search that needs it is
+
+```lean
+  have hfin : FiniteDimensional ((AlgebraicClosure ℚ)⟮y⟯)
+      (laurentBaseChange (AlgebraicClosure ℚ) (qExpFunctionFieldC ℚ Γ)) := by
+    apply Module.finite_of_finrank_pos
+    rw [hfull]; exact Nat.pos_of_ne_zero Subgroup.FiniteIndex.index_ne_zero
+```
+
+`Module.finite_of_finrank_pos` needs `[Module.Free ↥E FF]`. Measured, in this order:
+
+1. `Module.Free` over a division ring is `Module.Free.of_divisionRing`
+   (`Mathlib/LinearAlgebra/Basis/VectorSpace.lean`), **not in this module's closure**; before the
+   import the search *fails outright* (it has no constructor for a vector space), after it the same
+   goal times out at the default `synthInstance.maxHeartbeats = 20000`.
+2. Supplying the chain by hand does not work, and the reason is worth recording: `Field ↥E`,
+   `Algebra ↥E FF`, `Module ↥E FF`, `DivisionRing ↥E`, `StrongRankCondition ↥E`,
+   `IsTorsionFree ↥E FF` all synthesize quickly at the concrete `E`, but
+   `Module.Free.of_divisionRing _ _` is *rejected* — "has type `@Module.Free ?m ?m' DivisionRing.toRing.toSemiring …`
+   but is expected to have type `@Module.Free ↥E FF (SubsemiringClass.toCommSemiring ↥E).toSemiring …`".
+   The two `Semiring` structures on `↥E` are propositionally but not definitionally equal, and
+   `Module.Free`'s instance arguments are **data**, so there is no way to hand the instance over at
+   this spelling.
+3. The fix is to state the *fact* at a variable intermediate field, where the instance is not a
+   concrete `adjoin` term and the search is instant (measured: silent at 20000):
+
+```lean
+private theorem finiteDimensional_of_finrank_pos_intermediate {L M : Type*} [Field L] [Field M]
+    [Algebra L M] (E : IntermediateField L M) (h : 0 < Module.finrank E M) :
+    FiniteDimensional E M := by
+  apply Module.finite_of_finrank_pos
+  exact h
+```
+
+A `have hfin : FiniteDimensional ↥(adjoin …) FF := finiteDimensional_of_finrank_pos_intermediate _ …`
+in the local context *is* then found by instance search at the call sites
+(`finrank_le_and_natCard_places_le_of_constantFieldExtension_adjoin`,
+`isCurveOver_of_transcendental_of_perfectField`) — verified by an `inferInstance` probe.
+
+**Consequence for pricing.** A pin `synthInstance.maxHeartbeats` bump is not automatically "add an
+explicit instance": when the target is a concrete `adjoin`/`Submodule`/`map` term, the explicit
+instance often cannot be *stated* (instance-path mismatch). Price the general-level restatement
+instead — it is 5 lines and, here, removed the pin's 6.4M `maxHeartbeats` on `main_K` entirely
+(`main_K` elaborates whole inside the 200k edit loop).
+
+**Guard.** `spec/ModularCurveReady3ZoneB.lean` (0 errors) and the module's own `lake build`
+(green); the headline's axioms are `[propext, Classical.choice, Quot.sound]`.
 
 ## Backlog (known heavy spots, not yet written up)
 

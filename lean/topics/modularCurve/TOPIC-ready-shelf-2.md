@@ -101,7 +101,7 @@ question ("what became ready because of the set") answered for SET 10.
 |---|---:|---|
 | `ModularCurve.exists_sum_smul_eq_of_isIntegralQExp_gamma1` | 36 | its only substantive premise is `ModularForm.exists_basis_gamma1_qCoeff_mem_range_ratCast` (the 261), which the port holds only as a `CuspForm` last-name shadow; the corrected read drops the row (§0). The chain is the `ModularForm` Gamma₁ basis theorem, ≈4.8k raw / ≈2.1k `S_` lines — [TOPIC-ready-shelf.md](TOPIC-ready-shelf.md) §8's deferral, unchanged. |
 | `ModularForm.exists_basis_gamma1_qCoeff_mem_range_ratCast` | 261 | it is **on the corrected shelf as a ready row** (261 silo), and it is the chain's head, not a row of this column: a `ModularForm` set of its own if the manager wants the chain, otherwise the 36 stays one edge above it. |
-| `ModularCurve.rep_tateModule_jOne_comm` | 24 | its premises are ported (MC-4's `JOne.galois_smul_heckeAlgOne_smul`) but its *statement* is `TateModule.rep p …`: the pin's `Definitions/Def_EllipticCurve_TateModule.lean` (883 lines / 69 declarations) is unported and the port has no `TateModule.rep` at all; D2's `rationalHeckeRepOne`/`RationalTateModule` are deferred with it. Not statable. It is the padic-Tate-module programme's row ([../deligneSerre/TOPIC-padic-tate-module.md](../deligneSerre/TOPIC-padic-tate-module.md)); its statement's `hcomm` hypothesis is this shelf's 28-line row, so order B removes one hypothesis without making the row statable. |
+| `ModularCurve.rep_tateModule_jOne_comm` | 24 | its premises are ported (MC-4's `JOne.galois_smul_heckeAlgOne_smul`) but its *statement* is `TateModule.rep p …`: the pin's `Definitions/Def_EllipticCurve_TateModule.lean` (883 lines / 69 declarations) is unported and the port has no `TateModule.rep` at all; D2's `rationalHeckeRepOne`/`RationalTateModule` are deferred with it. Not statable. It is the padic-Tate-module programme's row ([TOPIC-padic-tate-module.md](TOPIC-padic-tate-module.md)); its statement's `hcomm` hypothesis is this shelf's 28-line row, so order B removes one hypothesis without making the row statable. |
 
 **The leaves.** `ModularCurve` leaves are **0 / 0**, so the `--include-leaves` read is for the
 column's sake only; the 262 rows / 64,874 lines of other namespaces are named and deferred
@@ -507,7 +507,7 @@ cd ../../lean && python3 spec/gate_scan.py --pin Definitions/Def_ModularCurve_QA
   starts there.
 - **The Tate-module programme** — `Def_EllipticCurve_TateModule` (883 lines / 69 declarations), the
   withheld pair (610), and the false ready `rep_tateModule_jOne_comm` (24); one programme,
-  [../deligneSerre/TOPIC-padic-tate-module.md](../deligneSerre/TOPIC-padic-tate-module.md)'s
+  [TOPIC-padic-tate-module.md](TOPIC-padic-tate-module.md)'s
   T1/T2. Order B removes that row's `hcomm` hypothesis but does not make it statable.
 - **The mod-ℓ / X_HDRModelAtP block** — order C's genus rows are its *first* consumers (265's
   689-line `genusFF_xHFunctionFieldBar_le…`), not its whole; that block is its own programme, gated
@@ -610,3 +610,10 @@ a price.
 variables — 171 priced at a ceiling), FR-0079 (the `LaurentSeries` algebra diamond makes two port
 premises incomposable; the ring-hom bridge), FR-0080 (four v4.34 deprecation renames in the pin's
 `main`).
+
+**Successor (2026-11-01).** [TOPIC-ready-shelf-3.md](TOPIC-ready-shelf-3.md) is that pass. On the
+unchanged tree it re-measures the five-row residue this section predicted — 2,426 silo, corrected,
+plus the unstatable 24 — and cuts it into three orders. Its one revision of this section's reading is
+that the 1,123 row's pin prelude is already written privately in `LevelN/GenusFF.lean` (the pin
+carries the same prelude in both sibling `S_` files), so that row is a 165-line-cheaper insertion
+there and not the new-module work this section's forecast implied.
