@@ -4154,13 +4154,13 @@ PORT_FILES = [
     # Appended last so no earlier last-name match can flip.
     "FLTForHuman/AlgebraicCurve/ResidueTheorem/GeneralFromK.lean",
     # --- The degree-one place layer (`deg_eq_one_modularFunctionFieldBar`) ---
-    # `AlgebraicCurve/Place/DegreeOne.lean` carries the generic
-    # `isAlgebraic_adjoin_of_transcendental` node and the pin's `B2Deg`
-    # `deg_eq_one_of_isAlgebraic_adjoin` (the pin declares the latter publicly in
-    # its `S_` file, so it is matched there); `ModularCurve/Degree/PlaceDegree.lean`
-    # carries the bar-field headline and the pin-private `finiteDimensional_adjoin_jBar`.
+    # `ModularCurve/Degree/PlaceDegree.lean` carries the bar-field headline
+    # `deg_eq_one_modularFunctionFieldBar` and the pin-private
+    # `finiteDimensional_adjoin_jBar`.
+    # `AlgebraicCurve/Place/DegreeOne.lean` used to sit here: it was migrated in
+    # SET 9 (`spec-pin:` wire of its own, `2 ok / 0 mismatch / 0 missing`), which
+    # is also where `Place.isRational_of_isAlgClosed` was added to it.
     # Appended last so no earlier last-name match can flip.
-    "FLTForHuman/AlgebraicCurve/Place/DegreeOne.lean",
     "FLTForHuman/ModularCurve/Degree/PlaceDegree.lean",
     # --- (removed) X1's `FunctionField` vocabulary and the `jqModC` ratio ---
     # `FLTForHuman/ModularCurve/JqIntegralRatios.lean` used to sit here. It now

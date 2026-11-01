@@ -40,10 +40,21 @@ SET 7 adds the file's companion row, `Pic0.torsion.exists_addMonoidHom_eval_eq_p
 `_i` helpers above are its private prelude, and the public class/datum laws and the
 headline are appended below.
 
+**The third subject is the carrier, `DivisorialWeilPairingData`** — the definition gate of the
+nondegeneracy rows (`DivisorialWeilPairingData.toHom_injective_of_divisible` and its siblings).
+The pin states its datum layer (the `degZeroLeft`/`classLeft` block) twice: in
+`Def_AlgebraicCurve_FunctionFieldWeilPairingDivisorial` at the clean names, and in the two `S_`
+files above at an `_i`-suffixed renaming.  The module carries the **clean** spelling throughout,
+because the carrier's `compatible` field is stated there.  The one consequence is the `S_` file's
+own two generalised datum lemmas (`exists_datum_i`, `exists_datum_pair_i`), whose statements name
+the `_i` spelling: they are stated here at the clean one and are `own:` marker rows in
+`spec/decl_markers.tsv`.
+
 spec-pin: Theorems/Thm_AlgebraicCurve_WeilDatum_pairing_eq_of_isPrincipal_sub.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_WeilDatum_pairing_eq_of_isPrincipal_sub.lean
 spec-pin: Theorems/Thm_AlgebraicCurve_Pic0_torsion_exists_addMonoidHom_eval_eq_pairing.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_Pic0_torsion_exists_addMonoidHom_eval_eq_pairing.lean
+spec-pin: Definitions/Def_AlgebraicCurve_FunctionFieldWeilPairingDivisorial.lean
 -/
 import FLTForHuman.AlgebraicCurve.Defs.WeilDatum
 import FLTForHuman.AlgebraicCurve.Defs.PlaceEvaluation
@@ -101,10 +112,17 @@ private theorem isPrincipal_sub_of_mk_eq_i {A B : Divisor.degZero (K := K) (F :=
   rw [hcoe] at hmem
   exact Divisor.mem_principal.mp hmem
 
-private theorem evalFun_one_i (D : Divisor K F) : Divisor.evalFun (1 : F) D = 1 := by
+namespace Divisor
+
+/-- Pin `Divisor.evalFun_one` (`Definitions/Def_AlgebraicCurve_FunctionFieldWeilPairingDivisorial.lean`
+line 17), public in the pin: the evaluation at the constant `1` is `1`.  The carrier's
+`pair_zero_left` consumes it. -/
+theorem evalFun_one (D : Divisor K F) : Divisor.evalFun (1 : F) D = 1 := by
   rw [Divisor.evalFun_def]
   refine Finset.prod_eq_one fun v _ => ?_
   rw [Place.evalAt_one, one_zpow]
+
+end Divisor
 
 private theorem evalFun_algebraMap_of_degree_eq_zero_i {c : K} (hc : c ≠ 0) {D : Divisor K F}
     (hdeg : Divisor.degree D = 0) (hrat : ∀ v ∈ D.support, Place.IsRational v) :
@@ -128,13 +146,13 @@ namespace WeilDatum
 
 variable {n : ℕ}
 
-private theorem isPrincipal_smul_left_i (d : WeilDatum K F n) :
+private theorem isPrincipal_smul_left (d : WeilDatum K F n) :
     Divisor.IsPrincipal ((n : ℤ) • d.D₁) :=
   ⟨d.f₁, d.f₁_ne_zero, fun v => by rw [Finsupp.smul_apply, smul_eq_mul, d.ord_f₁ v]⟩
 
-private theorem isPrincipal_smul_right_i (d : WeilDatum K F n) :
+theorem isPrincipal_smul_right (d : WeilDatum K F n) :
     Divisor.IsPrincipal ((n : ℤ) • d.D₂) :=
-  d.symm.isPrincipal_smul_left_i
+  d.symm.isPrincipal_smul_left
 
 private theorem degree_eq_zero_of_isPrincipal_i [HasPrincipalDivisors K F] {D : Divisor K F}
     (hD : Divisor.IsPrincipal D) : Divisor.degree D = 0 := by
@@ -143,34 +161,34 @@ private theorem degree_eq_zero_of_isPrincipal_i [HasPrincipalDivisors K F] {D : 
   have hDD' : D = D' := Finsupp.ext fun v => by rw [hDv v, hD'v v]
   exact hDD' ▸ hD'deg
 
-private theorem degree_D₁_eq_zero_i [HasPrincipalDivisors K F] (d : WeilDatum K F n)
+theorem degree_D₁_eq_zero [HasPrincipalDivisors K F] (d : WeilDatum K F n)
     (hn : n ≠ 0) : Divisor.degree d.D₁ = 0 := by
-  have h := degree_eq_zero_of_isPrincipal_i d.isPrincipal_smul_left_i
+  have h := degree_eq_zero_of_isPrincipal_i d.isPrincipal_smul_left
   rw [map_zsmul, smul_eq_mul] at h
   exact (mul_eq_zero.mp h).resolve_left (by exact_mod_cast hn)
 
-private theorem degree_D₂_eq_zero_i [HasPrincipalDivisors K F] (d : WeilDatum K F n)
+theorem degree_D₂_eq_zero [HasPrincipalDivisors K F] (d : WeilDatum K F n)
     (hn : n ≠ 0) : Divisor.degree d.D₂ = 0 :=
-  d.symm.degree_D₁_eq_zero_i hn
+  d.symm.degree_D₁_eq_zero hn
 
 section ClassLayer
 
 variable [NeZero n] [HasPrincipalDivisors K F]
 
-private def degZeroLeft_i (d : WeilDatum K F n) : Divisor.degZero (K := K) (F := F) :=
-  ⟨d.D₁, Divisor.mem_degZero.mpr (d.degree_D₁_eq_zero_i (NeZero.ne n))⟩
+def degZeroLeft (d : WeilDatum K F n) : Divisor.degZero (K := K) (F := F) :=
+  ⟨d.D₁, Divisor.mem_degZero.mpr (d.degree_D₁_eq_zero (NeZero.ne n))⟩
 
-private def degZeroRight_i (d : WeilDatum K F n) : Divisor.degZero (K := K) (F := F) :=
-  ⟨d.D₂, Divisor.mem_degZero.mpr (d.degree_D₂_eq_zero_i (NeZero.ne n))⟩
+def degZeroRight (d : WeilDatum K F n) : Divisor.degZero (K := K) (F := F) :=
+  ⟨d.D₂, Divisor.mem_degZero.mpr (d.degree_D₂_eq_zero (NeZero.ne n))⟩
 
-theorem coe_degZeroLeft_i (d : WeilDatum K F n) :
-    (d.degZeroLeft_i : Divisor K F) = d.D₁ := rfl
+theorem coe_degZeroLeft (d : WeilDatum K F n) :
+    (d.degZeroLeft : Divisor K F) = d.D₁ := rfl
 
-theorem coe_degZeroRight_i (d : WeilDatum K F n) :
-    (d.degZeroRight_i : Divisor K F) = d.D₂ := rfl
+theorem coe_degZeroRight (d : WeilDatum K F n) :
+    (d.degZeroRight : Divisor K F) = d.D₂ := rfl
 
 omit [NeZero n] [HasPrincipalDivisors K F] in
-theorem mk_mem_torsion_i (D : Divisor.degZero (K := K) (F := F))
+theorem mk_mem_torsion (D : Divisor.degZero (K := K) (F := F))
     (h : Divisor.IsPrincipal ((n : ℤ) • (D : Divisor K F))) :
     Pic0.mk D ∈ Pic0.torsion K F n := by
   rw [Pic0.mem_torsion]
@@ -188,28 +206,34 @@ theorem mk_mem_torsion_i (D : Divisor.degZero (K := K) (F := F))
   rw [AddSubgroup.mem_addSubgroupOf, hcoe]
   exact Divisor.mem_principal.mpr h
 
-def classLeft_i (d : WeilDatum K F n) : Pic0.torsion K F n :=
-  ⟨Pic0.mk d.degZeroLeft_i, mk_mem_torsion_i d.degZeroLeft_i (by
-    rw [coe_degZeroLeft_i]; exact d.isPrincipal_smul_left_i)⟩
+def classLeft (d : WeilDatum K F n) : Pic0.torsion K F n :=
+  ⟨Pic0.mk d.degZeroLeft, mk_mem_torsion d.degZeroLeft (by
+    rw [coe_degZeroLeft]; exact d.isPrincipal_smul_left)⟩
 
-def classRight_i (d : WeilDatum K F n) : Pic0.torsion K F n :=
-  ⟨Pic0.mk d.degZeroRight_i, mk_mem_torsion_i d.degZeroRight_i (by
-    rw [coe_degZeroRight_i]; exact d.isPrincipal_smul_right_i)⟩
+def classRight (d : WeilDatum K F n) : Pic0.torsion K F n :=
+  ⟨Pic0.mk d.degZeroRight, mk_mem_torsion d.degZeroRight (by
+    rw [coe_degZeroRight]; exact d.isPrincipal_smul_right)⟩
 
-theorem classLeft_symm_i (d : WeilDatum K F n) : d.symm.classLeft_i = d.classRight_i := rfl
+@[simp] theorem coe_classLeft (d : WeilDatum K F n) :
+    (d.classLeft : Pic0 K F) = Pic0.mk d.degZeroLeft := rfl
 
-theorem classRight_symm_i (d : WeilDatum K F n) : d.symm.classRight_i = d.classLeft_i := rfl
+@[simp] theorem coe_classRight (d : WeilDatum K F n) :
+    (d.classRight : Pic0 K F) = Pic0.mk d.degZeroRight := rfl
 
-theorem classLeft_addLeft_i (d d' : WeilDatum K F n) (hD : d.D₂ = d'.D₂) (hf : d.f₂ = d'.f₂) :
-    (d.addLeft d' hD hf).classLeft_i = d.classLeft_i + d'.classLeft_i := by
+theorem classLeft_symm (d : WeilDatum K F n) : d.symm.classLeft = d.classRight := rfl
+
+theorem classRight_symm (d : WeilDatum K F n) : d.symm.classRight = d.classLeft := rfl
+
+theorem classLeft_addLeft (d d' : WeilDatum K F n) (hD : d.D₂ = d'.D₂) (hf : d.f₂ = d'.f₂) :
+    (d.addLeft d' hD hf).classLeft = d.classLeft + d'.classLeft := by
   refine Subtype.ext ?_
-  show Pic0.mk (d.addLeft d' hD hf).degZeroLeft_i
-      = Pic0.mk d.degZeroLeft_i + Pic0.mk d'.degZeroLeft_i
+  show Pic0.mk (d.addLeft d' hD hf).degZeroLeft
+      = Pic0.mk d.degZeroLeft + Pic0.mk d'.degZeroLeft
   rw [← Pic0.mk_add]
   exact congrArg Pic0.mk (Subtype.ext rfl)
 
-theorem classRight_addLeft_i (d d' : WeilDatum K F n) (hD : d.D₂ = d'.D₂) (hf : d.f₂ = d'.f₂) :
-    (d.addLeft d' hD hf).classRight_i = d.classRight_i :=
+theorem classRight_addLeft (d d' : WeilDatum K F n) (hD : d.D₂ = d'.D₂) (hf : d.f₂ = d'.f₂) :
+    (d.addLeft d' hD hf).classRight = d.classRight :=
   rfl
 
 end ClassLayer
@@ -338,7 +362,7 @@ theorem pairing_eq_of_isPrincipal_sub_left_i [NeZero n] [HasPrincipalDivisors K 
     rw [hf₁', Divisor.evalFun_mul hratD₂
       (fun v _ => v.algebraMap_mem' c)
       (fun v hv => v.mem_of_ord_nonneg hw0 (hordwD₂ v hv).ge),
-      evalFun_algebraMap_of_degree_eq_zero_i hc0 (d.degree_D₂_eq_zero_i (NeZero.ne n))
+      evalFun_algebraMap_of_degree_eq_zero_i hc0 (d.degree_D₂_eq_zero (NeZero.ne n))
         hratD₂, one_mul]
   have hpair' : d'.pairing = d''.pairing := by
     show Divisor.evalFun d'.f₁ d'.D₂ / Divisor.evalFun d'.f₂ d'.D₁
@@ -380,7 +404,7 @@ theorem exists_datum_i
         (∀ v ∈ (D : Divisor K F).support, Place.IsRational v) ∧
         (∀ v ∈ (D : Divisor K F).support, v ∉ S))
     (x y : Pic0.torsion K F n) :
-    ∃ d : WeilDatum K F n, d.classLeft_i = x ∧ d.classRight_i = y := by
+    ∃ d : WeilDatum K F n, d.classLeft = x ∧ d.classRight = y := by
   classical
   obtain ⟨D₁, hD₁mk, hD₁rat, -⟩ := hmove x ∅
   obtain ⟨D₂, hD₂mk, hD₂rat, hD₂avoid⟩ := hmove y (D₁ : Divisor K F).support
@@ -418,7 +442,7 @@ theorem exists_datum_pair_i
         (∀ v ∈ (D : Divisor K F).support, v ∉ S))
     (x x' y : Pic0.torsion K F n) :
     ∃ d d' : WeilDatum K F n, d.D₂ = d'.D₂ ∧ d.f₂ = d'.f₂ ∧
-      d.classLeft_i = x ∧ d'.classLeft_i = x' ∧ d.classRight_i = y ∧ d'.classRight_i = y := by
+      d.classLeft = x ∧ d'.classLeft = x' ∧ d.classRight = y ∧ d'.classRight = y := by
   classical
   obtain ⟨D₂, hD₂mk, hD₂rat, -⟩ := hmove y ∅
   obtain ⟨D₁, hD₁mk, hD₁rat, hD₁avoid⟩ := hmove x (D₂ : Divisor K F).support
@@ -484,13 +508,13 @@ theorem WeilDatum.pairing_eq_of_isPrincipal_sub {K F : Type*} [Field K] [Field F
     (hL : Divisor.IsPrincipal (d'.D₁ - d.D₁)) (hR : Divisor.IsPrincipal (d'.D₂ - d.D₂)) :
     d'.pairing = d.pairing := by
   classical
-  obtain ⟨A₁, hA₁mk, hA₁rat, hA₁avoid⟩ := hmove (WeilDatum.classLeft_i d) d.D₂.support
+  obtain ⟨A₁, hA₁mk, hA₁rat, hA₁avoid⟩ := hmove (WeilDatum.classLeft d) d.D₂.support
   obtain ⟨A₂, hA₂mk, hA₂rat, hA₂avoid⟩ :=
-    hmove (WeilDatum.classRight_i d) ((A₁ : Divisor K F).support ∪ d'.D₁.support)
+    hmove (WeilDatum.classRight d) ((A₁ : Divisor K F).support ∪ d'.D₁.support)
   obtain ⟨a₁, ha₁0, ha₁⟩ :=
-    Pic0.torsion.exists_forall_ord_eq_mul (WeilDatum.classLeft_i d) A₁ hA₁mk
+    Pic0.torsion.exists_forall_ord_eq_mul (WeilDatum.classLeft d) A₁ hA₁mk
   obtain ⟨a₂, ha₂0, ha₂⟩ :=
-    Pic0.torsion.exists_forall_ord_eq_mul (WeilDatum.classRight_i d) A₂ hA₂mk
+    Pic0.torsion.exists_forall_ord_eq_mul (WeilDatum.classRight d) A₂ hA₂mk
   set e₁ : WeilDatum K F n :=
     ⟨(A₁ : Divisor K F), d.D₂, a₁, d.f₂, ha₁0, d.f₂_ne_zero, ha₁, d.ord_f₂,
       fun v => by
@@ -530,8 +554,8 @@ theorem WeilDatum.pairing_eq_of_isPrincipal_sub {K F : Type*} [Field K] [Field F
         · exact d'.rational v (Or.inl h1)
         · exact hA₂rat v (Finsupp.mem_support_iff.mpr h2)⟩ with he₃
 
-  have hA₁cl : Pic0.mk A₁ = Pic0.mk (WeilDatum.degZeroLeft_i d) := hA₁mk
-  have hA₂cl : Pic0.mk A₂ = Pic0.mk (WeilDatum.degZeroRight_i d) := hA₂mk
+  have hA₁cl : Pic0.mk A₁ = Pic0.mk (WeilDatum.degZeroLeft d) := hA₁mk
+  have hA₂cl : Pic0.mk A₂ = Pic0.mk (WeilDatum.degZeroRight d) := hA₂mk
   have iL1 : Divisor.IsPrincipal ((A₁ : Divisor K F) - d.D₁) :=
     isPrincipal_sub_of_mk_eq_i hA₁cl
   have iR2 : Divisor.IsPrincipal ((A₂ : Divisor K F) - d.D₂) :=
@@ -587,18 +611,18 @@ theorem Pic0.torsion.exists_addMonoidHom_eval_eq_pairing
     with hpairdef
 
   have compat : ∀ d : WeilDatum K F n,
-      pair (WeilDatum.classLeft_i d) (WeilDatum.classRight_i d) = d.pairing := by
+      pair (WeilDatum.classLeft d) (WeilDatum.classRight d) = d.pairing := by
     intro d
-    have hL' := hd₀L (WeilDatum.classLeft_i d) (WeilDatum.classRight_i d)
-    have hR' := hd₀R (WeilDatum.classLeft_i d) (WeilDatum.classRight_i d)
-    have hmkL : Pic0.mk (WeilDatum.degZeroLeft_i
-          (d₀ (WeilDatum.classLeft_i d) (WeilDatum.classRight_i d)))
-        = Pic0.mk (WeilDatum.degZeroLeft_i d) := congrArg Subtype.val hL'
-    have hmkR : Pic0.mk (WeilDatum.degZeroRight_i
-          (d₀ (WeilDatum.classLeft_i d) (WeilDatum.classRight_i d)))
-        = Pic0.mk (WeilDatum.degZeroRight_i d) := congrArg Subtype.val hR'
+    have hL' := hd₀L (WeilDatum.classLeft d) (WeilDatum.classRight d)
+    have hR' := hd₀R (WeilDatum.classLeft d) (WeilDatum.classRight d)
+    have hmkL : Pic0.mk (WeilDatum.degZeroLeft
+          (d₀ (WeilDatum.classLeft d) (WeilDatum.classRight d)))
+        = Pic0.mk (WeilDatum.degZeroLeft d) := congrArg Subtype.val hL'
+    have hmkR : Pic0.mk (WeilDatum.degZeroRight
+          (d₀ (WeilDatum.classLeft d) (WeilDatum.classRight d)))
+        = Pic0.mk (WeilDatum.degZeroRight d) := congrArg Subtype.val hR'
     exact WeilDatum.pairing_eq_of_isPrincipal_sub hrec hconst hmove d
-      (d₀ (WeilDatum.classLeft_i d) (WeilDatum.classRight_i d))
+      (d₀ (WeilDatum.classLeft d) (WeilDatum.classRight d))
       (isPrincipal_sub_of_mk_eq_i hmkL) (isPrincipal_sub_of_mk_eq_i hmkR)
 
   have pair_ne : ∀ x y : Pic0.torsion K F n, pair x y ≠ 0 := fun x y =>
@@ -609,7 +633,7 @@ theorem Pic0.torsion.exists_addMonoidHom_eval_eq_pairing
     intro x x' y
     obtain ⟨da, da', hD₂, hf₂, hx, hx', hy, hy'⟩ := exists_datum_pair_i hmove x x' y
     have h1 := compat (da.addLeft da' hD₂ hf₂)
-    rw [WeilDatum.classLeft_addLeft_i, WeilDatum.classRight_addLeft_i,
+    rw [WeilDatum.classLeft_addLeft, WeilDatum.classRight_addLeft,
       WeilDatum.addLeft_pairing, hx, hx', hy] at h1
     rw [h1, ← compat da, ← compat da', hx, hx', hy, hy']
 
@@ -619,7 +643,7 @@ theorem Pic0.torsion.exists_addMonoidHom_eval_eq_pairing
     have h1 := compat d
     have h2 := compat d.symm
     rw [hx, hy] at h1
-    rw [WeilDatum.classLeft_symm_i, WeilDatum.classRight_symm_i, hx, hy] at h2
+    rw [WeilDatum.classLeft_symm, WeilDatum.classRight_symm, hx, hy] at h2
     rw [h1, h2, WeilDatum.symm_pairing]
     exact mul_inv_cancel₀ (WeilDatum.pairing_ne_zero d)
 
@@ -636,21 +660,21 @@ theorem Pic0.torsion.exists_addMonoidHom_eval_eq_pairing
           · exact absurd rfl h1
           · exact hD₂rat v (Finsupp.mem_support_iff.mpr h2)⟩ with hdz
     have h1 := compat dz
-    have hclassL : WeilDatum.classLeft_i dz = 0 := by
-      have h0 : WeilDatum.degZeroLeft_i dz = (0 : Divisor.degZero (K := K) (F := F)) :=
+    have hclassL : WeilDatum.classLeft dz = 0 := by
+      have h0 : WeilDatum.degZeroLeft dz = (0 : Divisor.degZero (K := K) (F := F)) :=
         Subtype.ext rfl
       refine Subtype.ext ?_
-      show Pic0.mk (WeilDatum.degZeroLeft_i dz) = ((0 : Pic0.torsion K F n) : Pic0 K F)
+      show Pic0.mk (WeilDatum.degZeroLeft dz) = ((0 : Pic0.torsion K F n) : Pic0 K F)
       rw [h0, Pic0.mk_zero]
       simp
-    have hclassR : WeilDatum.classRight_i dz = y := by
+    have hclassR : WeilDatum.classRight dz = y := by
       refine Subtype.ext ?_
-      show Pic0.mk (WeilDatum.degZeroRight_i dz) = (y : Pic0 K F)
+      show Pic0.mk (WeilDatum.degZeroRight dz) = (y : Pic0 K F)
       rw [← hD₂mk]
       exact congrArg Pic0.mk (Subtype.ext rfl)
     have hpairing : dz.pairing = 1 := by
       show Divisor.evalFun (1 : F) (D₂ : Divisor K F) / Divisor.evalFun f₂ (0 : Divisor K F) = 1
-      rw [evalFun_one_i, Divisor.evalFun_zero, div_one]
+      rw [Divisor.evalFun_one, Divisor.evalFun_zero, div_one]
     rw [hclassL, hclassR, hpairing] at h1
     exact h1
 
@@ -686,18 +710,202 @@ theorem Pic0.torsion.exists_addMonoidHom_eval_eq_pairing
     rw [h, ofMul_mul]
   refine ⟨AddMonoidHom.mk' (fun x => Additive.ofMul (chr x)) hadd, ?_⟩
   rintro d x y ⟨E₁, hE₁d, hE₁mk⟩ ⟨E₂, hE₂d, hE₂mk⟩
-  have hx : x = WeilDatum.classLeft_i d := by
-    have hE : E₁ = WeilDatum.degZeroLeft_i d := Subtype.ext hE₁d
+  have hx : x = WeilDatum.classLeft d := by
+    have hE : E₁ = WeilDatum.degZeroLeft d := Subtype.ext hE₁d
     refine Subtype.ext ?_
-    show (x : Pic0 K F) = Pic0.mk (WeilDatum.degZeroLeft_i d)
+    show (x : Pic0 K F) = Pic0.mk (WeilDatum.degZeroLeft d)
     rw [← hE₁mk, hE]
-  have hy : y = WeilDatum.classRight_i d := by
-    have hE : E₂ = WeilDatum.degZeroRight_i d := Subtype.ext hE₂d
+  have hy : y = WeilDatum.classRight d := by
+    have hE : E₂ = WeilDatum.degZeroRight d := Subtype.ext hE₂d
     refine Subtype.ext ?_
-    show (y : Pic0 K F) = Pic0.mk (WeilDatum.degZeroRight_i d)
+    show (y : Pic0 K F) = Pic0.mk (WeilDatum.degZeroRight d)
     rw [← hE₂mk, hE]
   show pair x y = d.pairing
   rw [hx, hy]
   exact compat d
+
+/-! ## The divisorial Weil pairing data
+
+`DivisorialWeilPairingData K F n` bundles the datum the pairing is built from: a pairing of
+`n`-torsion classes (`pair`), its agreement with the datum pairing of every `WeilDatum`
+(`compatible`), and the moving lemma (`move`) which chooses a degree-zero representative of a class
+with rational support avoiding a prescribed finite set.  From it the two laws the bridge needs are
+proved (`pair_zero_right`, `pair_add_right`), and `toChar`/`toHom` package the pairing as the
+additive character valued hom `Pic0[n] →+ Additive (HomPic0Gm K F n)` on which nondegeneracy is
+stated.
+
+The block is the carrier part of the pin's `Def_AlgebraicCurve_FunctionFieldWeilPairingDivisorial`
+(lines 444–709), at the pin's public names; `Perfect`/`toWeilPairingData` are not here (they need
+`WeilPairingData`, which is the next `Def_` module's gate).
+-/
+
+section Carrier
+
+variable (K F) in
+/-- A divisorial Weil pairing datum: a pairing of `n`-torsion classes compatible with the datum
+pairing, plus the moving lemma.  Pin `DivisorialWeilPairingData`. -/
+structure DivisorialWeilPairingData (n : ℕ) [NeZero n] [HasPrincipalDivisors K F] where
+
+  pair : Pic0.torsion K F n → Pic0.torsion K F n → K
+
+  compatible : ∀ d : WeilDatum K F n, pair d.classLeft d.classRight = d.pairing
+
+  move : ∀ (x : Pic0.torsion K F n) (S : Finset (Place K F)),
+    ∃ D : Divisor.degZero (K := K) (F := F),
+      Pic0.mk D = (x : Pic0 K F) ∧
+      (∀ v ∈ (D : Divisor K F).support, Place.IsRational v) ∧
+      (∀ v ∈ (D : Divisor K F).support, v ∉ S)
+
+namespace DivisorialWeilPairingData
+
+variable {n : ℕ} [NeZero n] [HasPrincipalDivisors K F]
+variable (e : DivisorialWeilPairingData K F n)
+
+omit [NeZero n] [HasPrincipalDivisors K F] in
+/-- A torsion class represented by `D` has a function whose orders are `n` times `D`'s.  Pin
+`DivisorialWeilPairingData.exists_witness`. -/
+theorem exists_witness (x : Pic0.torsion K F n) (D : Divisor.degZero (K := K) (F := F))
+    (hD : Pic0.mk D = (x : Pic0 K F)) :
+    ∃ f : F, f ≠ 0 ∧ ∀ v : Place K F, v.ord f = n * (D : Divisor K F) v := by
+  have hx : (n : ℤ) • (x : Pic0 K F) = 0 := Pic0.mem_torsion.mp x.2
+  have h1 : Pic0.mk ((n : ℤ) • D) = 0 := by
+    have h2 : Pic0.mk ((n : ℤ) • D) = (n : ℤ) • Pic0.mk D := by
+      show QuotientAddGroup.mk ((n : ℤ) • D) = (n : ℤ) • (QuotientAddGroup.mk D)
+      exact QuotientAddGroup.mk_zsmul
+        ((Divisor.principal (K := K) (F := F)).addSubgroupOf
+          (Divisor.degZero (K := K) (F := F))) D (n : ℤ)
+    rw [h2, hD, hx]
+  have h3 : ((n : ℤ) • D : Divisor.degZero (K := K) (F := F)) ∈
+      (Divisor.principal (K := K) (F := F)).addSubgroupOf
+        (Divisor.degZero (K := K) (F := F)) :=
+    (QuotientAddGroup.eq_zero_iff _).mp h1
+  rw [AddSubgroup.mem_addSubgroupOf] at h3
+  have h4 : Divisor.IsPrincipal ((n : ℤ) • (D : Divisor K F)) := Divisor.mem_principal.mp h3
+  obtain ⟨f, hf0, hford⟩ := h4
+  refine ⟨f, hf0, fun v => ?_⟩
+  have := hford v
+  rw [Finsupp.smul_apply, smul_eq_mul] at this
+  exact this.symm
+
+include e in
+/-- A Weil datum exists for any two torsion classes.  Pin
+`DivisorialWeilPairingData.exists_datum`; it is the port's `hmove`-generalised `exists_datum_i` at
+the datum's own `move`. -/
+theorem exists_datum (x y : Pic0.torsion K F n) :
+    ∃ d : WeilDatum K F n, d.classLeft = x ∧ d.classRight = y :=
+  exists_datum_i e.move x y
+
+include e in
+/-- A pair of Weil data exists for `x + x'` and `y` with a shared second half.  Pin
+`DivisorialWeilPairingData.exists_datum_pair`. -/
+theorem exists_datum_pair (x x' y : Pic0.torsion K F n) :
+    ∃ d d' : WeilDatum K F n, d.D₂ = d'.D₂ ∧ d.f₂ = d'.f₂ ∧
+      d.classLeft = x ∧ d'.classLeft = x' ∧ d.classRight = y ∧ d'.classRight = y :=
+  exists_datum_pair_i e.move x x' y
+
+/-- Pin `DivisorialWeilPairingData.pair_ne_zero`. -/
+theorem pair_ne_zero (x y : Pic0.torsion K F n) : e.pair x y ≠ 0 := by
+  obtain ⟨d, hx, hy⟩ := e.exists_datum x y
+  rw [← hx, ← hy, e.compatible d]
+  exact d.pairing_ne_zero
+
+/-- Pin `DivisorialWeilPairingData.pair_add_left`: the pairing is additive in its left argument. -/
+theorem pair_add_left (x x' y : Pic0.torsion K F n) :
+    e.pair (x + x') y = e.pair x y * e.pair x' y := by
+  obtain ⟨d, d', hD₂, hf₂, hx, hx', hy, hy'⟩ := e.exists_datum_pair x x' y
+  have h1 := e.compatible (d.addLeft d' hD₂ hf₂)
+  rw [WeilDatum.classLeft_addLeft, WeilDatum.classRight_addLeft,
+    WeilDatum.addLeft_pairing, hx, hx', hy] at h1
+  rw [h1, ← e.compatible d, ← e.compatible d', hx, hx', hy, hy']
+
+/-- Pin `DivisorialWeilPairingData.pair_mul_pair_swap`: the pairing of the swapped pair is the
+inverse. -/
+theorem pair_mul_pair_swap (x y : Pic0.torsion K F n) :
+    e.pair x y * e.pair y x = 1 := by
+  obtain ⟨d, hx, hy⟩ := e.exists_datum x y
+  have h1 := e.compatible d
+  have h2 := e.compatible d.symm
+  rw [hx, hy] at h1
+  rw [WeilDatum.classLeft_symm, WeilDatum.classRight_symm, hx, hy] at h2
+  rw [h1, h2, WeilDatum.symm_pairing]
+  exact mul_inv_cancel₀ (WeilDatum.pairing_ne_zero d)
+
+/-- Pin `DivisorialWeilPairingData.pair_zero_left`. -/
+theorem pair_zero_left (y : Pic0.torsion K F n) : e.pair 0 y = 1 := by
+  classical
+  obtain ⟨D₂, hD₂mk, hD₂rat, -⟩ := e.move y ∅
+  obtain ⟨f₂, hf₂0, hf₂⟩ := exists_witness y D₂ hD₂mk
+  set d : WeilDatum K F n :=
+    ⟨0, (D₂ : Divisor K F), 1, f₂, one_ne_zero, hf₂0,
+      fun v => by simp [Place.ord_one],
+      hf₂, fun v => Or.inl rfl,
+      fun v hv => by
+        rcases hv with h1 | h2
+        · exact absurd rfl h1
+        · exact hD₂rat v (Finsupp.mem_support_iff.mpr h2)⟩ with hd
+  have h1 := e.compatible d
+  have hclassL : d.classLeft = 0 := by
+    have h0 : d.degZeroLeft = (0 : Divisor.degZero (K := K) (F := F)) := Subtype.ext rfl
+    refine Subtype.ext ?_
+    rw [WeilDatum.coe_classLeft, h0, Pic0.mk_zero]
+    simp
+  have hclassR : d.classRight = y := by
+    refine Subtype.ext ?_
+    show Pic0.mk _ = (y : Pic0 K F)
+    rw [← hD₂mk]
+    exact congrArg Pic0.mk (Subtype.ext rfl)
+  have hpairing : d.pairing = 1 := by
+    show Divisor.evalFun (1 : F) (D₂ : Divisor K F) / Divisor.evalFun f₂ (0 : Divisor K F) = 1
+    rw [Divisor.evalFun_one, Divisor.evalFun_zero, div_one]
+  rw [hclassL, hclassR, hpairing] at h1
+  exact h1
+
+/-- Pin `DivisorialWeilPairingData.pair_zero_right`. -/
+theorem pair_zero_right (x : Pic0.torsion K F n) : e.pair x 0 = 1 := by
+  have h1 := e.pair_mul_pair_swap x 0
+  rw [e.pair_zero_left x, mul_one] at h1
+  exact h1
+
+/-- Pin `DivisorialWeilPairingData.pair_swap_eq_inv`. -/
+theorem pair_swap_eq_inv (x y : Pic0.torsion K F n) : e.pair y x = (e.pair x y)⁻¹ :=
+  eq_inv_of_mul_eq_one_left (e.pair_mul_pair_swap y x)
+
+/-- Pin `DivisorialWeilPairingData.pair_add_right`: additivity in the right argument, from the
+swap. -/
+theorem pair_add_right (x y y' : Pic0.torsion K F n) :
+    e.pair x (y + y') = e.pair x y * e.pair x y' := by
+  calc e.pair x (y + y') = (e.pair (y + y') x)⁻¹ := e.pair_swap_eq_inv (y + y') x
+    _ = (e.pair y x * e.pair y' x)⁻¹ := by rw [e.pair_add_left y y' x]
+    _ = (e.pair y x)⁻¹ * (e.pair y' x)⁻¹ := by rw [mul_inv]
+    _ = e.pair x y * e.pair x y' := by
+        rw [e.pair_swap_eq_inv x y, e.pair_swap_eq_inv x y', inv_inv, inv_inv]
+
+/-- Pin `DivisorialWeilPairingData.toChar`: the pairing is a character in its second argument. -/
+def toChar (x : Pic0.torsion K F n) : HomPic0Gm K F n where
+  toFun y := e.pair x y
+  map_zero_eq_one' := e.pair_zero_right x
+  map_add_eq_mul' y y' := e.pair_add_right x y y'
+
+@[simp] theorem toChar_apply (x y : Pic0.torsion K F n) : e.toChar x y = e.pair x y := rfl
+
+/-- Pin `DivisorialWeilPairingData.toHom`: the pairing as an additive homomorphism into the
+character group. -/
+def toHom : Pic0.torsion K F n →+ Additive (HomPic0Gm K F n) :=
+  AddMonoidHom.mk' (fun x => Additive.ofMul (e.toChar x)) (by
+    intro x x'
+    have h : e.toChar (x + x') = e.toChar x * e.toChar x' := by
+      ext y
+      rw [AddChar.mul_apply]
+      exact e.pair_add_left x x' y
+    show Additive.ofMul (e.toChar (x + x'))
+        = Additive.ofMul (e.toChar x) + Additive.ofMul (e.toChar x')
+    rw [h, ofMul_mul])
+
+@[simp] theorem toHom_apply_apply (x y : Pic0.torsion K F n) :
+    (Additive.toMul (e.toHom x)) y = e.pair x y := rfl
+
+end DivisorialWeilPairingData
+
+end Carrier
 
 end AlgebraicCurve

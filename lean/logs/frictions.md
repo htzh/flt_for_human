@@ -1409,3 +1409,52 @@ round promotes what generalizes.
   rewriting (`N₁` and `Fk` share their carrier; `K₀.map val = K₁`).
 - **seen**: 2026-10-28, MS-6 of ready shelf 1; recorded as the order's one unmet gate in
   [../topics/modularCurve/SET-MS6.md](../topics/modularCurve/SET-MS6.md) §2.
+
+## FR-0075 [tooling] — `port_advise`'s shape tier skips *instance* binders, so a 103-line theorem prices as "already in the port"
+
+- **where**: `tools/deps/port_advise.py`, `shape_of` (the `[` case at `port_advise.py:543`);
+  met scoping `AlgebraicCurve.Place.isRational_of_isAlgClosed`
+  ([../topics/algebraicCurve/SET-9.md](../topics/algebraicCurve/SET-9.md) §0.3).
+- **symptom**: `port_plan` reports `already in the port (vetted) 103 → NET NEW 644` for a four-row
+  set whose row is a 119-line pin file with one 103-line `solution`. The claimed substitute is
+  `AlgebraicCurve.Place.isRational_of_isCurveOver` (`Place/OrdCalculus.lean:110`, 5 lines), whose
+  hypothesis is `[IsCurveOver K F]`; the pin node has no such hypothesis (it has
+  `[Algebra (RatFunc K) F] [IsScalarTower] [FiniteDimensional]` and no characteristic bound), so it
+  is neither a substitute nor a rebuild base.
+- **cause**: `shape_of` builds the key from the *explicit* hypothesis list and **drops every `[...]`
+  binder**, so two theorems that differ only in their instance hypotheses have the same shape. This
+  is the exact inverse of FR-0041: there a port theorem with *weaker* hypotheses was invisible to
+  the shape tier; here a port theorem with *stronger* ones masks the pin node.
+- **fix**: do not believe `port_plan`'s `already in the port` column for a row whose hypotheses are
+  instance binders — read the pin statement against the claimed port copy (`port_advise` prints the
+  claim's `-> module`, so it is one `grep`). A row priced at 0 net with a `prem` count and a
+  `twin_scan` `relative` verdict is the tell: both mean "read the two statements".
+- **seen**: 2026-10-31, scoping SET 9 of the `AlgebraicCurve` column
+  (`python3 port_advise.py --nodes AlgebraicCurve.Place.isRational_of_isAlgClosed`, then
+  `port_plan.py --json`). The same row is also the second live FR-0047 name shadow
+  (`AlgebraicCurve.RationalFunctionField.isRational_of_isAlgClosed`, ported, ℙ¹-only): the graph's
+  last-name tier reads the general node ported, `--selfcheck` cannot see it, and the row was on no
+  shelf and in no brief until this pass.
+
+## FR-0076 [checker] — a pin declaration with an explicit universe suffix (`…divisible.{u, v}`) is unindexable, so the row needs a marker
+
+- **where**: `spec/lean_parser.py`'s `DECL_RE` (name class `[\w.'ₐ]+`), consumed by
+  `spec/statement_db.py`'s `parse_file`; met porting
+  `AlgebraicCurve.DivisorialWeilPairingData.toHom_injective_of_divisible` in SET 9
+  ([../topics/algebraicCurve/SET-9.md](../topics/algebraicCurve/SET-9.md) §1.1).
+- **symptom**: `check_port` reports the row `MISSING` with the hint "identical statement at
+  `S_…_toHom_injective_of_divisible.lean:484`" — the text *is* in the wire, but no tier finds it.
+- **cause**: the pin's wrapper spells the declaration `…toHom_injective_of_divisible.{u, v}`. The
+  name regex eats the `.` before `{` and stops, so the parsed name is `…divisible.` and its *last
+  name* (everything after the final dot) is the empty string. `Wire` skips rows with an empty last
+  name, so the pin's own `Thm_`/`S_` rows are invisible to the name tiers, to the stage/part-label
+  tiers and to `by_hash`. Any pin declaration with an explicit universe suffix behaves this way.
+- **workaround**: a marker row. The marker's **key must be the port declaration's parsed name,
+  trailing dot included** — `AlgebraicCurve.…toHom_injective_of_divisible.` — otherwise it is
+  reported as a *stale marker* and the row stays `MISSING` (the first attempt keyed it without the
+  dot; that is the tell).
+- **fix** (not done: it invalidates the 472 MB statement corpus, which is keyed by these names):
+  strip a trailing `.` from the written name in `parse_file` and rebuild the corpus; then such rows
+  index normally and the marker disappears.
+- **seen**: 2026-10-31, SET 9's PAIR row; `git grep -n '\.\{u, v\}' P2M/Sol` shows the family is
+  small but not empty.
