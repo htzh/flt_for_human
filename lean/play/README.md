@@ -62,6 +62,25 @@ worksheet that lies is worse than no worksheet.
 name it talks about, live `example`s for every claim it makes, and the questions
 answered in place. Your editor's infoview is the medium.
 
+*Notation is a name too.* The reader links a backticked `Ω[F⁄K]` and `ℤᵐ⁰` to
+`KaehlerDifferential` and `WithZero`, but the expansion is still worth spelling out
+once in prose: Zone B of
+[`PlacesAndDifferentials.lean`](PlacesAndDifferentials.lean) names
+`KaehlerDifferential K F` beside the notation and `#check`s it, so the declaration is
+findable without knowing the notation at all. The same zone now goes one level down
+and exposes the *construction* — `Algebra.TensorProduct.lmul'`, the diagonal ideal,
+`I ⧸ I²`, `Ideal.toCotangent` — because a name locates a declaration, whereas only
+the definition explains why the object is intrinsic to the ring map. The same zone now
+*computes* the Leibniz rule of `D` in the tensor product instead of quoting it: the
+defect between `D (a * b)` and `b • D a + a • D b` is `D a · D b`, a product of two
+elements of `I`, hence `0` in `I ⧸ I²`. Three lines — distribute, cancel, quote
+`I · I = I²` — and that is the one sentence which mathlib's `convert!`/`ring_nf` in the
+`leibniz'` field of `KaehlerDifferential.D` is doing. It also derives `d x ≠ 0` for a
+transcendental `x`, where the port's proof is a basis construction: `Ω[K[X]⁄K] ≅ K[X]`
+by the formal derivative (`d X ↦ 1`), and every step from `K[X]` to `F` is a base change
+along a formally étale map (localisation, separable extension), so `d x` stays the
+generator and the basis is that base change written as an object.
+
 **R5 — Playback, not new mathematics.** A worksheet restates, unfolds and
 explains what is already ported. It does not prove new theorems and is not a
 verification artifact; anything genuinely new goes into `FLTForHuman/` through
