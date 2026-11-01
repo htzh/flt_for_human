@@ -516,15 +516,17 @@ end Export
 
 end AlgebraicCurve
 
+universe u v
+
 /-- **The divisorial pairing is injective when `Pic⁰` is divisible.**  Statement from
 `Theorems/Thm_AlgebraicCurve_DivisorialWeilPairingData_toHom_injective_of_divisible.lean`; the
 pin's `solution`: pick `f` with `ord f = n · D` and no `n`-th root, form the Kummer cover
 `L = F(h)`, and read the pairing at the two-place class `(τ • w₀) − w₀`. -/
--- The pin spells this declaration `…toHom_injective_of_divisible.{u, v}`, and the checker's parser
--- reads that universe suffix as a name ending in `.` (so the pin row's last name is empty and the
--- content tier cannot see it).  The marker reproduces the pin's spelling verbatim and lives in
--- `spec/decl_markers.tsv`.
-theorem AlgebraicCurve.DivisorialWeilPairingData.toHom_injective_of_divisible.{u, v}
+-- The universes come from the enclosing `universe u v` rather than from a `.{u, v}` suffix on the
+-- name: the pin spells the suffix, but the checker's parser reads `…divisible.{u, v}` as a name
+-- ending in `.` (empty last name, invisible to every tier — FR-0076), while the elaborated
+-- declaration is the same either way.
+theorem AlgebraicCurve.DivisorialWeilPairingData.toHom_injective_of_divisible
     {K : Type u} {F : Type v} [Field K] [Field F] [Algebra K F] [IsAlgClosed K] [CharZero K]
     [Algebra (RatFunc K) F] [IsScalarTower K (RatFunc K) F] [FiniteDimensional (RatFunc K) F]
     [HasPrincipalDivisors K F] {n : ℕ} [NeZero n]

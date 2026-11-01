@@ -1458,3 +1458,26 @@ round promotes what generalizes.
   index normally and the marker disappears.
 - **seen**: 2026-10-31, SET 9's PAIR row; `git grep -n '\.\{u, v\}' P2M/Sol` shows the family is
   small but not empty.
+
+## FR-0077 [checker] — the `.{u, v}` row: the `pin:` marker and the frontier disagree, so the port drops the suffix and takes an `own:`
+
+- **where**: `FLTForHuman/AlgebraicCurve/Pic0/DivisorialPairing.lean`, the headline
+  `DivisorialWeilPairingData.toHom_injective_of_divisible`; supersedes FR-0076's *workaround* (its
+  diagnosis stands).  Met reviewing SET 9
+  ([../topics/algebraicCurve/SET-9.md](../topics/algebraicCurve/SET-9.md) §1.2).
+- **symptom**: two green instruments do not compose.  With the pin's spelling
+  `…toHom_injective_of_divisible.{u, v}` on the port declaration, `check_port` is `1 ok` through a
+  `pin:` marker, but `frontier.py --selfcheck` **FAILS** (`source node not covered by the name
+  scan`) — the frontier's own name scan reads `…divisible.`, so the node is in `F` only through its
+  `Thm_` source row.  Dropping the suffix (universes from `universe u v`) makes `--selfcheck` PASS
+  and the name tier see it, but then `check_port` reports `MISSING`, and a `pin:` marker gives
+  `MISMATCH`: the pin's stored *statement text* begins `theorem …divisible.{u, v}`, so a clean
+  statement cannot hash to it.
+- **rule**: prefer the reading the *shelf* depends on — drop the explicit universe suffix and take
+  one `own:` row whose reason says the statement was hand-diffed and why no tier can see it.  A
+  `--selfcheck` FAIL is worse than one undiffed statement: it is a standing lie about `F`, and every
+  later `needed` figure is quoted next to it.  Re-run **both** instruments after a landing that
+  touches a declaration's name.
+- **fix** for the tool (not done; it invalidates the statement corpus): strip the trailing `.` (and
+  the `{...}` suffix) from a parsed name and from the statement text, then rebuild the corpus.
+- **seen**: 2026-10-31, SET 9's PAIR row, the review after the worker's order.

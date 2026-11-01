@@ -320,7 +320,7 @@ re-run, the axioms re-probed, the consumer zone re-elaborated.
 | ELL | `IsCurveOver/ConstantFieldExtensionSpan.lean` (+137, 1808 → 1945) | 36 → **39 ok** / 0 / 0 | silent, 26 s (module at the project cap; the pre-existing FR-0048 offender keeps the edit loop at 2M) | clean |
 | RAT | `Place/DegreeOne.lean` (+120, 188 → 308) | 2 → **3 ok** / 0 / 0 | silent, 4.4 s | clean |
 | REC | **new** `WeilExchange/WeilReciprocity.lean` (127) | **1 ok** / 0 / 0 | silent, 3.0 s | clean |
-| PAIR | **new** `Pic0/DivisorialPairing.lean` (540) | **1 ok** / 0 / 0 (marker, §1.2 below) | silent, 8.0 s | clean |
+| PAIR | **new** `Pic0/DivisorialPairing.lean` (540) | **1 own** / 0 / 0 (marker, below) | silent, 8.0 s | clean |
 | consumer | `spec/AlgebraicCurveSet9Consumer.lean` (Zones A/B/C) | **0 errors, 0 warnings** | — | — |
 
 **What the set consumed**: 4 rows / 866 silo; 866 net new math lines from the `S_` files (the
@@ -328,8 +328,7 @@ instrument's 747 plus RAT's falsely-substituted 103, §0.3) plus the 183-line ca
 relabel — **≈1,050 net new math lines**; the four modules carry **+924 source lines** including
 docstrings, statements and wires; **two new modules, three inserts, ten wire lines** (nine plus the
 `Def_` gate wire), **one 16-name relabel with privacy taken from the pin, one promotion**
-(`Divisor.evalFun_one`), **one legacy migration** (`Place/DegreeOne.lean`, §1.1), **two `own:`
-marker rows**, **one `pin:` marker row**, 0 new `Def_` modules.
+(`Divisor.evalFun_one`), **one legacy migration** (`Place/DegreeOne.lean`, §1.1), **three `own:` marker rows**, 0 new `Def_` modules.
 
 **The read it leaves** (the recipe §7 answer, measured, no forecast left): the plain instrument read
 and the corrected read now **coincide**, because both shadows became true positives:
@@ -364,11 +363,18 @@ proof that the two nodes are genuinely ported: the flags have retired.
   `∀ w, w.IsRational` shape the engine actually has.  Nothing was promoted; the pin's public
   `Place.evalAt_smul` and its four siblings are still unported and are a **carry-forward for the set
   that ports the Galois block** (`pair_smul` and the MC pairing rows want them).
-- **PAIR's headline carries a marker because the checker cannot index it** (FR-0076): the pin spells
-  it `…toHom_injective_of_divisible.{u, v}`, the corpus parser reads the name as `…divisible.`, and
-  a row with an empty last name is invisible to every tier.  The marker lives in
-  `spec/decl_markers.tsv` and **its key must carry the trailing dot** — keyed without it, the row
-  reads `MISSING` and the marker as stale (that was the first attempt).
+- **PAIR's headline carries an `own:` marker because no machine tier can diff it** (FR-0076): the
+  pin spells it `…toHom_injective_of_divisible.{u, v}`, and the corpus parser reads that suffix as a
+  name ending in `.` — empty last name (so the *pin* row is invisible to every tier) and part of the
+  pin's statement text (so a clean-spelled port statement cannot hash to it).  The two routes do not
+  compose: keeping `.{u, v}` on the port declaration passes the checker through a `pin:` marker but
+  makes `frontier.py --selfcheck` **FAIL** (the frontier's own name scan reads `…divisible.`, so the
+  source-tier node is not covered by the name tier — it passes today only because the `Thm_` source
+  tier carries it); dropping the suffix (universes from `universe u v`) makes `--selfcheck` **PASS**
+  and the frontier see the declaration, at the cost of one undiffed statement.  The set took the
+  second route: the declaration is at the clean name and the marker is `own:` with the statement
+  hand-diffed against the wrapper.  Either route is a workaround; the fix is the parser plus a
+  corpus rebuild (FR-0076).
 - **FR-0033 recurred at review**: after the worker's build the ELL module's `.olean` was absent
   while its `.hash`/`.trace` said built, so the axioms probe could not even import it.  An explicit
   `lake build` of the module produced it (26 s).  A `.hash` is not an `.olean` — the review gate is

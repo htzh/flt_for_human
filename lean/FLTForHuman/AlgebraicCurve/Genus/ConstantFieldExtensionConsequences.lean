@@ -24,6 +24,16 @@ two helpers) says the pole-filtered part of `F` is spanned by the `x`-powers tim
 and its `-ord x` sum as the finrank, using `PrincipalDivisors/PoleDivisor` for the pole
 divisor.
 
+A third consequence of the same setting sits here (SET 10): the **genus is preserved by an
+algebraically closed constant field extension**, `genusFF K F = genusFF K' F'`, proved as the two
+inequalities.  `le_genusFF_…` reads both sides as the `γ` of the Riemann index theorem, takes the
+Stichtenoth divisor `D₀` at which the genus is reached, lifts it along the unique lift of places and
+uses the invariance of `ell` on the mapped divisor; `genusFF_le_…` is the mirror, with
+`exists_indexOfSpecialty_mapDomain_eq_zero_…` transporting the vanishing of the index of specialty.
+The two `S_` files of the pair both open with the same `constantsAreBase` prelude, which the pin
+states at the `∃ x` shape: here it is the private adapter `constantsAreBase` over the public engine
+`constantsAreBase_of_isAlgClosed_of_transcendental`.
+
 spec-pin: Theorems/Thm_AlgebraicCurve_exists_ell_nsmul_eq_of_isAlgClosed_of_transcendental.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_exists_ell_nsmul_eq_of_isAlgClosed_of_transcendental.lean
 spec-pin: Theorems/Thm_AlgebraicCurve_degree_poleDivisor_eq_finrank_adjoin_of_isAlgClosed_of_transcendental.lean
@@ -32,6 +42,12 @@ spec-pin: Theorems/Thm_AlgebraicCurve_exists_forall_mem_span_pow_mul_of_forall_o
 spec-pin: P2M/Sol/S_AlgebraicCurve_exists_forall_mem_span_pow_mul_of_forall_ord_nonneg.lean
 spec-pin: Theorems/Thm_AlgebraicCurve_exists_finset_sum_neg_ord_eq_finrank_of_isAlgClosed.lean
 spec-pin: P2M/Sol/S_AlgebraicCurve_exists_finset_sum_neg_ord_eq_finrank_of_isAlgClosed.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_le_genusFF_of_constantFieldExtension_of_isAlgClosed.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_le_genusFF_of_constantFieldExtension_of_isAlgClosed.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_genusFF_le_of_constantFieldExtension_of_isAlgClosed.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_genusFF_le_of_constantFieldExtension_of_isAlgClosed.lean
+spec-pin: Theorems/Thm_AlgebraicCurve_genusFF_eq_of_constantFieldExtension_of_isAlgClosed.lean
+spec-pin: P2M/Sol/S_AlgebraicCurve_genusFF_eq_of_constantFieldExtension_of_isAlgClosed.lean
 -/
 import FLTForHuman.AlgebraicCurve.Genus.ConstantFieldExtension
 import FLTForHuman.AlgebraicCurve.Genus.DegreeIdentity
@@ -300,5 +316,226 @@ theorem exists_finset_sum_neg_ord_eq_finrank_of_isAlgClosed
     rw [Finsupp.mem_support_iff, hD P] at hP
     have : P.ord x < 0 := by by_contra h'; exact hP (max_eq_left (by omega))
     rw [max_eq_right (by omega)]
+
+/-! ## The genus is preserved by an algebraically closed constant extension
+
+`genusFF K F` is `dim_K H¹(0)` (`Defs/Repartitions.lean`).  Over an algebraically closed constant
+field and a finite `RatFunc K`-model, the Riemann index theorem reads it as the numerical genus `γ`,
+and the two inequalities below show that a constant extension `F → F'` neither drops nor raises it.
+The `eq` corollary is their `le_antisymm`. -/
+
+/-- The `constantsAreBase` prelude both `S_` files of the pair open with, at the pin's `∃ x` shape,
+over the public engine `constantsAreBase_of_isAlgClosed_of_transcendental`. -/
+private theorem constantsAreBase {K F : Type*} [Field K] [Field F] [Algebra K F]
+    [IsAlgClosed K] [IsCurveOver K F]
+    (hfg : ∃ x : F, Transcendental K x ∧
+      FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F) :
+    ConstantsAreBase K F := by
+  obtain ⟨x, hxt, hxfd⟩ := hfg
+  haveI := hxfd
+  exact constantsAreBase_of_isAlgClosed_of_transcendental x hxt
+
+/-- **The genus does not drop under an algebraically closed constant extension.**  Statement from
+`Theorems/Thm_AlgebraicCurve_le_genusFF_of_constantFieldExtension_of_isAlgClosed.lean`; proof after
+the pin's `S_` file: read both genera as the `γ` of `exists_genus_riemannIndex_of_isCurveOver`, take
+the Stichtenoth divisor `D₀` at which the `K`-side reaches its genus, lift it along the unique lift of
+places, and compare the index of specialty of the mapped divisor (its degree and its `ell` are the
+`K`-side ones). -/
+theorem le_genusFF_of_constantFieldExtension_of_isAlgClosed (K F K' F' : Type*)
+    [Field K] [Field F] [Field K'] [Field F'] [Algebra K F] [Algebra K' F']
+    [Algebra K K'] [Algebra F F'] [Algebra K F'] [IsScalarTower K K' F'] [IsScalarTower K F F']
+    [IsAlgClosed K] [IsAlgClosed K']
+    (hfg : ∃ x : F, Transcendental K x ∧ FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F)
+    (hfg' : ∃ x : F', Transcendental K' x ∧
+      FiniteDimensional (IntermediateField.adjoin K' ({x} : Set F')) F')
+    [IsCurveOver K F] [IsCurveOver K' F']
+    (hgen : IntermediateField.adjoin K' (Set.range (algebraMap F F')) = ⊤) :
+    genusFF K F ≤ genusFF K' F' := by
+  classical
+
+  obtain ⟨x, hxt, hxfd⟩ := id hfg
+  obtain ⟨x', hxt', hxfd'⟩ := id hfg'
+  haveI : Algebra.EssFiniteType K F :=
+    essFiniteType_of_transcendental_of_finiteDimensional hxt hxfd
+  haveI : Algebra.EssFiniteType K' F' :=
+    essFiniteType_of_transcendental_of_finiteDimensional hxt' hxfd'
+  have hCAB : ConstantsAreBase K F := constantsAreBase hfg
+  have hCAB' : ConstantsAreBase K' F' := constantsAreBase hfg'
+  haveI : HasPrincipalDivisors K F := IsCurveOver.hasPrincipalDivisors
+  haveI : HasPrincipalDivisors K' F' := IsCurveOver.hasPrincipalDivisors
+
+  obtain ⟨γ, hγ⟩ := exists_genus_riemannIndex_of_isCurveOver (K := K) (F := F) hCAB
+  obtain ⟨γ', hγ'⟩ := exists_genus_riemannIndex_of_isCurveOver (K := K') (F := F') hCAB'
+  have hγeq : γ = (genusFF K F : ℤ) := by
+    have h0 := (hγ 0).2
+    rw [show Divisor.degree (0 : Divisor K F) = 0 from map_zero _,
+      ell_zero_eq_one_of_constantsAreBase hCAB,
+      indexOfSpecialty_eq_finrank_H1 (K := K) (F := F) 0] at h0
+    unfold genusFF; push_cast at h0 ⊢; linarith
+  have hγeq' : γ' = (genusFF K' F' : ℤ) := by
+    have h0 := (hγ' 0).2
+    rw [show Divisor.degree (0 : Divisor K' F') = 0 from map_zero _,
+      ell_zero_eq_one_of_constantsAreBase hCAB',
+      indexOfSpecialty_eq_finrank_H1 (K := K') (F := F') 0] at h0
+    unfold genusFF; push_cast at h0 ⊢; linarith
+
+  obtain ⟨hne, hfd0, γ₀, D₀, hD₀⟩ := stichtenothGenusExists_of_isCurveOver (K := K) (F := F) hCAB
+  haveI : Nonempty (Place K F) := hne
+  haveI : FiniteDimensional K ↥(LSpace (0 : Divisor K F)) := hfd0
+  have hi0 : indexOfSpecialty D₀ = 0 := indexOfSpecialty_eq_zero_of_genusReached hD₀
+  have hkey : Divisor.degree D₀ - (ell D₀ : ℤ) = γ - 1 := by
+    have := (hγ D₀).2; rw [hi0] at this; push_cast at this; linarith
+
+  have hX := fun P =>
+    Place.exists_comap_algebraMap_eq_of_constantFieldExtension_of_isAlgClosed
+      K F K' F' hfg hfg' hgen P
+  choose lift hlift_comap hlift_ord hlift_uniq using hX
+  have hlift_inj : Function.Injective lift := fun P Q h => by
+    have hP : (lift P).toValuationSubring.comap (algebraMap F F') = P.toValuationSubring :=
+      hlift_comap P
+    have hQ : (lift P).toValuationSubring.comap (algebraMap F F') = Q.toValuationSubring := by
+      rw [h]; exact hlift_comap Q
+    exact Place.ext (hP.symm.trans hQ)
+  have hlift_new : ∀ v' : Place K' F', (∀ v, lift v ≠ v') →
+      ∀ v : Place K F, v'.toValuationSubring.comap (algebraMap F F') ≠ v.toValuationSubring := by
+    intro v' hnv v hcomap
+    exact hnv v ((hlift_uniq v v' hcomap).symm)
+  haveI : ∀ v : Place K F, Module.Finite K v.ResidueField := fun v => IsCurveOver.finiteResidue v
+  haveI : ∀ v' : Place K' F', Module.Finite K' v'.ResidueField :=
+    fun v' => IsCurveOver.finiteResidue v'
+
+  set D₀' : Divisor K' F' := Finsupp.mapDomain lift D₀ with hD₀'def
+  have hdegEq : Divisor.degree D₀' = Divisor.degree D₀ := by
+    rw [Divisor.degree_eq_sum_support, Divisor.degree_eq_sum_support, hD₀'def,
+      Finsupp.mapDomain_support_of_injective hlift_inj,
+      Finset.sum_image (fun a _ b _ h => hlift_inj h)]
+    refine Finset.sum_congr rfl fun v _ => ?_
+    rw [Finsupp.mapDomain_apply_of_injective hlift_inj,
+      show ((lift v).deg : ℤ) = 1 from by
+        exact_mod_cast Place.deg_eq_one_of_isAlgClosed_of_finite (lift v),
+      show ((v.deg : ℤ)) = 1 from by exact_mod_cast Place.deg_eq_one_of_isAlgClosed_of_finite v]
+  haveI : FiniteDimensional K ↥(riemannRochSpace D₀) := hD₀.finite
+  have hellEq : ell (K := K') D₀' = ell (K := K) D₀ := by
+    rw [hD₀'def]
+    exact ell_mapDomain_eq_of_constantFieldExtension_of_isAlgClosed K F K' F' hfg hfg' hgen
+      lift hlift_ord hlift_inj hlift_new D₀
+
+  have hbound : Divisor.degree D₀' - (ell (K := K') D₀' : ℤ) ≤ γ' - 1 := by
+    have hIF := (hγ' D₀').2
+    have hnn : (0:ℤ) ≤ (indexOfSpecialty (K := K') D₀' : ℤ) := Int.natCast_nonneg _
+    linarith
+  rw [hdegEq, hellEq, hkey] at hbound
+  have hγle : γ ≤ γ' := by linarith
+  rw [hγeq, hγeq'] at hγle
+  exact_mod_cast hγle
+
+/-- **The genus does not rise under an algebraically closed constant extension.**  Statement from
+`Theorems/Thm_AlgebraicCurve_genusFF_le_of_constantFieldExtension_of_isAlgClosed.lean`; proof after
+the pin's `S_` file, the mirror of the previous row:
+`exists_indexOfSpecialty_mapDomain_eq_zero_…` gives a `K`-divisor whose image has vanishing index of
+specialty, and the two degree-`ell` identities at it force `γ' ≤ γ`. -/
+theorem genusFF_le_of_constantFieldExtension_of_isAlgClosed (K F K' F' : Type*)
+    [Field K] [Field F] [Field K'] [Field F'] [Algebra K F] [Algebra K' F']
+    [Algebra K K'] [Algebra F F'] [Algebra K F'] [IsScalarTower K K' F'] [IsScalarTower K F F']
+    [IsAlgClosed K] [IsAlgClosed K']
+    (hfg : ∃ x : F, Transcendental K x ∧ FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F)
+    (hfg' : ∃ x : F', Transcendental K' x ∧
+      FiniteDimensional (IntermediateField.adjoin K' ({x} : Set F')) F')
+    [IsCurveOver K F] [IsCurveOver K' F']
+    (hgen : IntermediateField.adjoin K' (Set.range (algebraMap F F')) = ⊤) :
+    genusFF K' F' ≤ genusFF K F := by
+  classical
+
+  obtain ⟨x, hxt, hxfd⟩ := id hfg
+  obtain ⟨x', hxt', hxfd'⟩ := id hfg'
+  haveI : Algebra.EssFiniteType K F :=
+    essFiniteType_of_transcendental_of_finiteDimensional hxt hxfd
+  haveI : Algebra.EssFiniteType K' F' :=
+    essFiniteType_of_transcendental_of_finiteDimensional hxt' hxfd'
+  have hCAB : ConstantsAreBase K F := constantsAreBase hfg
+  have hCAB' : ConstantsAreBase K' F' := constantsAreBase hfg'
+  haveI : HasPrincipalDivisors K F := IsCurveOver.hasPrincipalDivisors
+  haveI : HasPrincipalDivisors K' F' := IsCurveOver.hasPrincipalDivisors
+
+  obtain ⟨γ, hγ⟩ := exists_genus_riemannIndex_of_isCurveOver (K := K) (F := F) hCAB
+  obtain ⟨γ', hγ'⟩ := exists_genus_riemannIndex_of_isCurveOver (K := K') (F := F') hCAB'
+  have hγeq : γ = (genusFF K F : ℤ) := by
+    have h0 := (hγ 0).2
+    rw [show Divisor.degree (0 : Divisor K F) = 0 from map_zero _,
+      ell_zero_eq_one_of_constantsAreBase hCAB,
+      indexOfSpecialty_eq_finrank_H1 (K := K) (F := F) 0] at h0
+    unfold genusFF; push_cast at h0 ⊢; linarith
+  have hγeq' : γ' = (genusFF K' F' : ℤ) := by
+    have h0 := (hγ' 0).2
+    rw [show Divisor.degree (0 : Divisor K' F') = 0 from map_zero _,
+      ell_zero_eq_one_of_constantsAreBase hCAB',
+      indexOfSpecialty_eq_finrank_H1 (K := K') (F := F') 0] at h0
+    unfold genusFF; push_cast at h0 ⊢; linarith
+
+  have hX := fun P =>
+    Place.exists_comap_algebraMap_eq_of_constantFieldExtension_of_isAlgClosed
+      K F K' F' hfg hfg' hgen P
+  choose lift hlift_comap hlift_ord hlift_uniq using hX
+  have hlift_inj : Function.Injective lift := fun P Q h => by
+    have hP := hlift_comap P; have hQ := h ▸ hlift_comap Q
+    exact Place.ext (hP.symm.trans hQ)
+  have hlift_new : ∀ v' : Place K' F', (∀ v, lift v ≠ v') →
+      ∀ v : Place K F, v'.toValuationSubring.comap (algebraMap F F') ≠ v.toValuationSubring :=
+    fun v' hnv v hcomap => hnv v ((hlift_uniq v v' hcomap).symm)
+  haveI : ∀ v : Place K F, Module.Finite K v.ResidueField := fun v => IsCurveOver.finiteResidue v
+  haveI : ∀ v' : Place K' F', Module.Finite K' v'.ResidueField :=
+    fun v' => IsCurveOver.finiteResidue v'
+
+  obtain ⟨D, hiD'⟩ :=
+    exists_indexOfSpecialty_mapDomain_eq_zero_of_constantFieldExtension_of_isAlgClosed
+      K F K' F' hfg hfg' hgen lift hlift_ord hlift_inj
+  set D' : Divisor K' F' := Finsupp.mapDomain lift D with hD'def
+
+  have hdegEq : Divisor.degree D' = Divisor.degree D := by
+    rw [Divisor.degree_eq_sum_support, Divisor.degree_eq_sum_support, hD'def,
+      Finsupp.mapDomain_support_of_injective hlift_inj,
+      Finset.sum_image (fun a _ b _ h => hlift_inj h)]
+    refine Finset.sum_congr rfl fun v _ => ?_
+    rw [Finsupp.mapDomain_apply_of_injective hlift_inj,
+      show ((lift v).deg : ℤ) = 1 from by
+        exact_mod_cast Place.deg_eq_one_of_isAlgClosed_of_finite (lift v),
+      show ((v.deg : ℤ)) = 1 from by exact_mod_cast Place.deg_eq_one_of_isAlgClosed_of_finite v]
+
+  obtain ⟨hne, hfd0, γ₀, D₀, hD₀⟩ := stichtenothGenusExists_of_isCurveOver (K := K) (F := F) hCAB
+  haveI : FiniteDimensional K ↥(LSpace (0 : Divisor K F)) := hfd0
+  haveI hfdD : FiniteDimensional K ↥(riemannRochSpace D) := finiteDimensional_lSpace D
+  have hellEq : ell (K := K') D' = ell (K := K) D := by
+    rw [hD'def]
+    exact ell_mapDomain_eq_of_constantFieldExtension_of_isAlgClosed K F K' F' hfg hfg' hgen
+      lift hlift_ord hlift_inj hlift_new D
+
+  have hiD : (0:ℤ) ≤ γ - γ' := by
+    have h1 := (hγ' D').2
+    rw [hiD', Nat.cast_zero] at h1
+    have h2 : (ell (K := K') D' : ℤ) = Divisor.degree D' + 1 - γ' := by linarith
+    rw [hdegEq, hellEq] at h2
+    have h3 := (hγ D).2
+    have hnn : (0:ℤ) ≤ (indexOfSpecialty (K := K) D : ℤ) := Int.natCast_nonneg _
+    linarith
+  have hγle : γ' ≤ γ := by linarith
+  rw [hγeq, hγeq'] at hγle
+  exact_mod_cast hγle
+
+/-- **The genus is invariant under an algebraically closed constant extension.**  Statement from
+`Theorems/Thm_AlgebraicCurve_genusFF_eq_of_constantFieldExtension_of_isAlgClosed.lean`; it is the
+`Nat.le_antisymm` of the two rows above, in the pin's order. -/
+theorem genusFF_eq_of_constantFieldExtension_of_isAlgClosed (K F K' F' : Type*)
+    [Field K] [Field F] [Field K'] [Field F'] [Algebra K F] [Algebra K' F']
+    [Algebra K K'] [Algebra F F'] [Algebra K F'] [IsScalarTower K K' F'] [IsScalarTower K F F']
+    [IsAlgClosed K] [IsAlgClosed K']
+    (hfg : ∃ x : F, Transcendental K x ∧ FiniteDimensional (IntermediateField.adjoin K ({x} : Set F)) F)
+    (hfg' : ∃ x : F', Transcendental K' x ∧
+      FiniteDimensional (IntermediateField.adjoin K' ({x} : Set F')) F')
+    [IsCurveOver K F] [IsCurveOver K' F']
+    (hgen : IntermediateField.adjoin K' (Set.range (algebraMap F F')) = ⊤) :
+    genusFF K' F' = genusFF K F :=
+  Nat.le_antisymm
+    (genusFF_le_of_constantFieldExtension_of_isAlgClosed K F K' F' hfg hfg' hgen)
+    (le_genusFF_of_constantFieldExtension_of_isAlgClosed K F K' F' hfg hfg' hgen)
 
 end AlgebraicCurve
