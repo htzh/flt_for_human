@@ -76,6 +76,19 @@
          text-transform:uppercase; letter-spacing:.04em; color:var(--new);
          background:var(--newbg); border:1px solid #f2d9c2; border-radius:999px; padding:0 7px; }
   footer { padding:0 20px 60px; color:var(--muted); font-size:.88rem; }
+  @media (max-width: 640px) {
+    header { padding: 26px 16px 22px; }
+    header h1 { font-size: 1.5rem; }
+    main { padding: 14px 12px 32px; }
+    footer { padding: 0 16px 40px; }
+    section { padding: 14px 14px; }
+    .series > summary { padding: 14px; }
+    .series-body, .revised { padding-left: 14px; padding-right: 14px; }
+    .btn { padding: 10px 14px; }          /* comfortable tap targets */
+    .group > summary { padding: 14px 4px; }
+    .notes li { padding-top: 2px; padding-bottom: 2px; }
+    code, li, p { overflow-wrap: anywhere; }
+  }
 </style>
 </head>
 <body>
