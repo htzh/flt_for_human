@@ -22,9 +22,10 @@ Seven headlines, one theory: the base-change dictionary for
 
 The seven rows share the 95-line `linearIndependent_coeffMap`/`coeffMap_mem`
 prelude, written once here in `ModularCurve.QExpAutBaseChange` and used by both
-the 468 and the 314 blocks.  `coeffMap_intSeriesC` is *not* restated: the port
-already has it, public, in `ModularCurve/X1/DiamondCorrespondence.lean`; the
-general-`φ` form the two blocks need is a `private` helper here.
+the 468 and the 314 blocks.  `coeffMap_intSeriesC` is stated here in the
+general-`φ` form the blocks need, public at the pin's name; the `ℚ → ℂ`
+specialisation is the port's public copy in `X1/DiamondCorrespondence.lean`
+(imported, not restated).
 
 The pin's `set_option`s (`autoImplicit`, the linters, `synthInstance.maxHeartbeats
 1600000`) and its `attribute [-simp] ModularCurve.qExpandAlgHomC_apply
@@ -58,6 +59,7 @@ spec-pin: Theorems/Thm_ModularCurve_laurentBaseChange_qExpFunctionFieldC_eq.lean
 spec-pin: P2M/Sol/S_ModularCurve_laurentBaseChange_qExpFunctionFieldC_eq.lean
 spec-pin: Theorems/Thm_ModularCurve_linearIndependent_coeffMap_comp_of_linearIndependent.lean
 spec-pin: P2M/Sol/S_ModularCurve_linearIndependent_coeffMap_comp_of_linearIndependent.lean
+spec-pin: P2M/Sol/S_ModularCurve_genusFF_qExpFunctionFieldC_eq_of_ringHom.lean
 -/
 
 import FLTForHuman.ModularCurve.X1.DiamondCorrespondence
@@ -88,10 +90,10 @@ theorem coeff_smul' {L : Type*} [Field L] (r : L) (x : LaurentSeries L) (n : ℤ
     (r • x).coeff n = r * x.coeff n := by
   rw [Algebra.smul_def, algebraMap_laurentSeries_eq_single, HahnSeries.coeff_single_zero_mul]
 
-/-- The general-`φ` form of `coeffMap_intSeriesC` (the port's public witness in
-`X1/DiamondCorrespondence.lean` is the `ℚ → ℂ` specialisation; it is imported, not
-restated). -/
-private theorem coeffMap_intSeriesC_gen (p : PowerSeries ℤ) :
+/-- The general-`φ` form of `coeffMap_intSeriesC`, public at the pin's name.  The
+`ℚ → ℂ` specialisation is the port's public copy in `X1/DiamondCorrespondence.lean`;
+it is imported, not restated. -/
+theorem coeffMap_intSeriesC (p : PowerSeries ℤ) :
     coeffMap φ (intSeriesC K₀ p) = intSeriesC K p := by
   rw [intSeriesC, intSeriesC, coeffMap_ofPowerSeries, ← RingHom.comp_apply (PowerSeries.map φ),
     ← PowerSeries.map_comp, RingHom.ext_int (φ.comp (Int.castRingHom K₀)) (Int.castRingHom K)]
@@ -99,7 +101,7 @@ private theorem coeffMap_intSeriesC_gen (p : PowerSeries ℤ) :
 include φ in
 theorem intSeriesC_ne_zero_iff (p : PowerSeries ℤ) :
     intSeriesC K p ≠ 0 ↔ intSeriesC K₀ p ≠ 0 := by
-  rw [← coeffMap_intSeriesC_gen φ]
+  rw [← coeffMap_intSeriesC φ]
   refine ⟨fun h h0 => h (by rw [h0, map_zero]), fun h h0 => h ?_⟩
   exact coeffMap_injective φ.injective (h0.trans (map_zero _).symm)
 
@@ -114,10 +116,10 @@ theorem intFormRatiosC_eq_image :
   · rintro ⟨k, f, g, pf, pg, hf, hg, hg0, rfl⟩
     refine ⟨intSeriesC K₀ pf / intSeriesC K₀ pg,
       ⟨k, f, g, pf, pg, hf, hg, (intSeriesC_ne_zero_iff φ pg).mp hg0, rfl⟩, ?_⟩
-    rw [map_div₀, coeffMap_intSeriesC_gen, coeffMap_intSeriesC_gen]
+    rw [map_div₀, coeffMap_intSeriesC, coeffMap_intSeriesC]
   · rintro ⟨x, ⟨k, f, g, pf, pg, hf, hg, hg0, rfl⟩, rfl⟩
     refine ⟨k, f, g, pf, pg, hf, hg, (intSeriesC_ne_zero_iff φ pg).mpr hg0, ?_⟩
-    rw [map_div₀, coeffMap_intSeriesC_gen, coeffMap_intSeriesC_gen]
+    rw [map_div₀, coeffMap_intSeriesC, coeffMap_intSeriesC]
 
 theorem coeffMap_mem {x : LaurentSeries K₀} (hx : x ∈ qExpFunctionFieldC K₀ Γ) :
     coeffMap φ x ∈ qExpFunctionFieldC K Γ := by

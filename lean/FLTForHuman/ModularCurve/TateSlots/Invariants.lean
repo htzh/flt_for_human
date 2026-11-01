@@ -49,6 +49,8 @@
   `E₄_cube_sub_E₆_sq_ne_zero` is a pin-public statement whose port copy
   (`Discriminant.lean`'s `E4cube_ne_E6sq`) is `private` and has a different
   statement; it is transcribed here.
+  `ρ_ne_one` is a pin-public statement of the pin's `SpecialRamification`
+  file and is public here too.
 
   No wrapper.  The first `S_` file ends in the pair `ToricFourier.main` /
   root-level `solution` (637:593, 637:620), whose two statements are the same
@@ -67,6 +69,7 @@
   spec-pin: P2M/Sol/S_ModularCurve_exists_smul_eq_of_E4_cube_div_discriminant_eq.lean
   spec-pin: Theorems/Thm_ModularCurve_meromorphicOrderAt_E4_cube_div_discriminant_sub_eq_card_stabilizer_div_two.lean
   spec-pin: P2M/Sol/S_ModularCurve_meromorphicOrderAt_E4_cube_div_discriminant_sub_eq_card_stabilizer_div_two.lean
+spec-pin: P2M/Sol/S_ModularCurve_LevelN_exists_place_ord_jGen_le_two_three_level.lean
 -/
 import FLTForHuman.Elliptic.PeriodPair.InvariantsTorsion
 import FLTForHuman.Elliptic.PeriodPair.Discriminant
@@ -1049,7 +1052,7 @@ lemma denom_TinvS_ρ : denom (↑(ModularGroup.T⁻¹ * ModularGroup.S) : GL (Fi
   rw [h10, h11]
   simp
 
-private lemma ρ_ne_one : (ρ : ℂ) ≠ 1 := by
+lemma ρ_ne_one : (ρ : ℂ) ≠ 1 := by
   intro h
   have := congrArg Complex.im h
   rw [UpperHalfPlane.coe_im] at this

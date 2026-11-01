@@ -1481,3 +1481,89 @@ round promotes what generalizes.
 - **fix** for the tool (not done; it invalidates the statement corpus): strip the trailing `.` (and
   the `{...}` suffix) from a parsed name and from the statement text, then rebuild the corpus.
 - **seen**: 2026-10-31, SET 9's PAIR row, the review after the worker's order.
+
+## FR-0078 [tooling] — `port_advise`'s shape tier does not lift the *pin* side's section variables, so a port copy with explicit binders is invisible
+
+- **where**: `tools/deps/port_advise.py`, `shape_of` (the `SECTION_DECL` drop at `:545`); met scoping
+  ready shelf 2 of the `ModularCurve` column
+  ([../topics/modularCurve/TOPIC-ready-shelf-2.md](../topics/modularCurve/TOPIC-ready-shelf-2.md) §3.1).
+- **symptom**: for the pin row
+  `ModularCurve.transcendental_and_finiteDimensional_adjoin_laurentBaseChange_qExpFunctionFieldC_of_coe_eq_jqModC`
+  (171 lines), `port_advise` reports *none — every target declaration is new to the port* and
+  `port_plan` prices it at **148 net (0 already in the port)**, although the port holds the row's
+  own engine `ModularCurve.laurentBaseChange_qExpFunctionFieldC_eq` (`X1/CoeffMap.lean:250`) at the
+  same statement, plus `BCEqProof.image_intFormRatiosC` (`:219`), `BCEqProof.coeffEmb_mem_adjoin`
+  (`:235`), `coeffEmb_injective` (`Defs/Laurent.lean:367`) and the three `coeffEmb_*` variants. The
+  row is an assembly of ≈60–80 net, not 148.
+- **cause**: the pin declaration states its binders as file-level `variable`s
+  (`variable (K : Type*) [Field K] [Algebra ℚ K]`, `variable (Γ)`), so
+  `statement_db.parse_file`'s statement text begins at the colon —
+  `: laurentBaseChange K (qExpFunctionFieldC ℚ Γ) = qExpFunctionFieldC K Γ` — and `K`/`Γ` occur
+  **free**. `shape_of` builds its hypothesis list from the parsed binder block only; a free
+  section variable is never bound, so the pin's shape has hypotheses `[]` and its conclusion
+  mentions `K`, where the port's inline-binder copy has hypotheses `["Γ : Subgroup SL(2,ℤ)"]` and
+  mentions `L`. The docstring's normalisation covers "a section variable written *into* the binder
+  block" (the port side); it does not lift the pin side's free variables into one. The byte tier
+  fails the same way: it compares the raw statement texts, and the pin's has no binder block.
+- **rule**: for a row whose pin `S_` file writes its binders under `variable`, do not accept the
+  substitute section, the dedup count or the net figure unread — open the pin proof's first lines,
+  find the named engine, and look for it in the port by *name* (the port's copies usually carry the
+  same name in a different namespace). Here the hand read is what prices the set (§3.1).
+- **fix** (not done): in `shape_of`, bind every free variable of the statement after the
+  alpha-renaming, on both sides, and compare; the same lift makes the byte tier comparable. The cost
+  is a rebuild of the pin shape cache (`build/pin-shapes.tsv.gz`); the port side needs no corpus
+  change.
+- **seen**: 2026-10-31, scoping ready shelf 2 of the `ModularCurve` column.
+
+## FR-0079 [lean] [port] — the `LaurentSeries` algebra diamond makes two port premises incomposable; the fix is a ring-hom statement, not an `AlgHom` transport
+
+- **where**: `FLTForHuman/ModularCurve/LevelN/FieldGalois.lean`'s `exists_algHom_laurentSeries_qExpansion`
+  (producer) versus `FLTForHuman/AlgebraicCurve/Place/LaurentSeriesModel.lean`'s
+  `Place.exists_ord_mul_eq_order_of_algHom_laurentSeries` (consumer); met porting the
+  `ModularCurve` row `LevelN.exists_place_ord_jGen_le_two_three_level`
+  ([../topics/modularCurve/TOPIC-ready-shelf-2.md](../topics/modularCurve/TOPIC-ready-shelf-2.md) §5.7,
+  [../topics/modularCurve/WORKORDER-RS2-ready-shelf2.md](../topics/modularCurve/WORKORDER-RS2-ready-shelf2.md) §2).
+- **symptom**: the producer's `E : K →ₐ[ℂ] LaurentSeries ℂ` is elaborated at
+  `HahnSeries.powerSeriesAlgebra`; the consumer's `ι` is at `HahnSeries.instAlgebra`
+  (`LaurentSeriesModel` pins it with `attribute [local instance 2000]`). `E` therefore cannot be
+  passed: every spelling of the transport (`AlgHom.mk`, `{toRingHom := … with …}`, an explicit
+  `@AlgHom … instAlgebra` ascription, a `local instance` pin) dies on *synthesized type class
+  instance is not definitionally equal to expression inferred by typing rules*.
+- **cause**: `Algebra K (HahnSeries Γ K)` is a Mathlib diamond — both `HahnSeries.instAlgebra`
+  (constants via `C`) and `HahnSeries.powerSeriesAlgebra` (through `PowerSeries`) apply, and
+  resolution picks by import order / local priority. The port now has three spellings in
+  circulation (`X1/CoeffMap.lean`'s `Algebra.toSMul`/`toModule` pin, FR-0068;
+  `LaurentSeriesModel`'s `instAlgebra` pin; the `FieldGalois`/`QExpBridge` default), so an `AlgHom`
+  crossing two modules is only well typed when the two chose the same one. Pinning a spelling
+  file-wide does not fix a composition, it moves the breakage: `FieldGalois` with the
+  `instAlgebra` pin flips `QExpBridge`'s mixed spellings, and a consumer's pin breaks its uses of
+  `E` (both were tried and reverted).
+- **rule**: do not transport an `AlgHom` across the two spellings, and do not pin either one
+  file-wide to make a composition typecheck. State the consumer for a **ring hom**
+  `f : F →+* LaurentSeries K` plus the constants identity `∀ c, f (algebraMap K F c) =
+  HahnSeries.C c` — that statement mentions no `LaurentSeries`-side algebra instance — and pin the
+  `HahnSeries ℚ`-side instance (`instAlgebra`, which the ram-bound dictionary uses) inside that
+  glue module. Landed as
+  `FLTForHuman/AlgebraicCurve/Place/LaurentSeriesRingHom.lean`,
+  `AlgebraicCurve.Place.exists_ord_mul_eq_order_of_ringHom` (`own:`, 1 own / 0 / 0, build green in
+  2.1 s, silent).
+- **seen**: 2026-10-31, RS2 order D: the worker's first attempt (the whole prelude compiled, only
+  the cusp dictionary step failed, nine transports tried) and the manager's bridge.
+
+## FR-0080 [lean] — four v4.34 deprecation renames in the pin's `main` block: `if_neg`/`if_pos`/`tendsto_finset_prod`
+
+- **where**: `FLTForHuman/ModularCurve/SiegelUnit/Integrality.lean`'s appended `SExpPi` block,
+  transcribed from `P2M/Sol/S_ModularCurve_SiegelUnit_exists_isIntegral_hasSum_prod_siegelFun_pow.lean`
+  (`main`, the pin's ≈200 lines); met porting the MC row
+  `SiegelUnit.exists_isIntegral_hasSum_prod_siegelFun_pow`
+  ([../topics/modularCurve/TOPIC-ready-shelf-2.md](../topics/modularCurve/TOPIC-ready-shelf-2.md) §12,
+  [../topics/modularCurve/WORKORDER-RS2-ready-shelf2.md](../topics/modularCurve/WORKORDER-RS2-ready-shelf2.md) §3).
+- **symptom**: the pin's proof rewrites with four names that are deprecated in the port's mathlib
+  (`v4.34.0`): `if_neg` → `ite_eq_right`, `if_pos` → `ite_eq_left`, `tendsto_finset_prod` →
+  `tendsto_finsetProd` (twice). Each is a deprecation **warning**, so the zero-warning gate fails
+  even though the proof elaborates.
+- **rule**: replace on transcription — `if_neg h` ⇒ `ite_eq_right (h := h)` (and the `if_pos`
+  dual), `tendsto_finset_prod` ⇒ `tendsto_finsetProd`; the semantics are unchanged and the
+  statements are unaffected. The pin files' `attribute`/`p2m_*` walls are still not transcribed.
+- **seen**: 2026-10-31, RS2 order A (the four renames were the order's only statement-preserving
+  deviation; the block then compiles silently at a 20k heartbeat cap).

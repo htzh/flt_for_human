@@ -49,11 +49,17 @@
 
   Reference (public mirror, pinned):
   <https://github.com/anthropics/fermats-last-theorem/blob/aa2d8b3/P2M/Sol/S_ModularCurve_fibrePoly_phiTwo_j_eq_prod_veluQuotient2_j.lean>
+
+  spec-pin: Theorems/Thm_ModularCurve_fibrePoly_phiTwo_j_eq_prod_veluQuotient2_j.lean
+  spec-pin: P2M/Sol/S_ModularCurve_fibrePoly_phiTwo_j_eq_prod_veluQuotient2_j.lean
+  spec-pin: Theorems/Thm_ModularCurve_ModularPolynomialData_fibrePoly_j_eq_prod_veluQuotient2_j.lean
+  spec-pin: P2M/Sol/S_ModularCurve_ModularPolynomialData_fibrePoly_j_eq_prod_veluQuotient2_j.lean
 -/
 import FLTForHuman.ModularCurve.Defs.ClassicalModularPolynomials
 import FLTForHuman.ModularCurve.Defs.FibrePoly
 import FLTForHuman.WeierstrassCurve.Velu.Defs
 import FLTForHuman.WeierstrassCurve.Velu.OrderTwo
+import FLTForHuman.ModularCurve.ModularPolynomialLevelTwo
 import Mathlib.Algebra.BigOperators.Fin
 import Mathlib.Algebra.Polynomial.Degree.SmallDegree
 import Mathlib.Algebra.Polynomial.Roots
@@ -309,6 +315,28 @@ theorem fibrePoly_phiTwo_j_eq_prod_veluQuotient2_j
       ∏ i, (X - C (@WeierstrassCurve.j K _ (W.veluQuotient2 (P i).1 (P i).2)
         ⟨isUnit_iff_ne_zero.mpr (hΔ i)⟩)) :=
   VeluTwoSym.main h2 W hι P hP hPeq hPgy hΔ
+
+/-! ## The level-two modular polynomial's own fibre
+
+`Φ₂` is `ModularPolynomialData.Φ` at `N = 2` (`phi_eq_phiTwo`), so the fibre row above
+transfers to the modular polynomial itself: for three distinct order-two points of an
+elliptic curve over an algebraically closed field of characteristic not two,
+`fibrePoly data.Φ W.j` is the product of `(X - C (j (W/⟨P i⟩)))`.  This is the pin's
+two-step proof, and it is the hypothesis that the pin's Tate-module row consumes. -/
+
+/-- The fibre of `Φ₂ = data.Φ` at `j(W)` is the product of the `j`-invariants of the
+three order-two Vélu quotients. -/
+theorem ModularPolynomialData.fibrePoly_j_eq_prod_veluQuotient2_j
+    {K : Type*} [Field K] [IsAlgClosed K] [DecidableEq K] (h2 : (2 : K) ≠ 0)
+    (data : ModularPolynomialData 2) (W : WeierstrassCurve K) [W.IsElliptic]
+    {ι : Type*} [Fintype ι] (hι : Fintype.card ι = 3) (P : ι → K × K) (hP : Function.Injective P)
+    (hPeq : ∀ i, W.toAffine.Equation (P i).1 (P i).2) (hPgy : ∀ i, W.veluGy (P i).1 (P i).2 = 0)
+    (hΔ : ∀ i, (W.veluQuotient2 (P i).1 (P i).2).Δ ≠ 0) :
+    fibrePoly data.Φ W.j =
+      ∏ i, (X - C (@WeierstrassCurve.j K _ (W.veluQuotient2 (P i).1 (P i).2)
+        ⟨isUnit_iff_ne_zero.mpr (hΔ i)⟩)) := by
+  rw [ModularCurve.ModularPolynomialData.phi_eq_phiTwo data]
+  exact ModularCurve.fibrePoly_phiTwo_j_eq_prod_veluQuotient2_j h2 W hι P hP hPeq hPgy hΔ
 
 end ModularCurve
 
