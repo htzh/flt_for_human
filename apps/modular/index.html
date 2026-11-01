@@ -64,6 +64,28 @@
   a { color: var(--accent); }
   sup { font-size: .72em; }
   .rec { font-family: var(--mono); font-size: .86rem; }
+  /* ---- small screens: phones held upright ---- */
+  select { max-width: 100%; }
+  @media (max-width: 640px) {
+    header { padding: 22px 16px 18px; }
+    header h1 { font-size: 1.4rem; }
+    main { padding: 12px 12px 60px; }
+    footer { padding: 0 16px 40px; }
+    section { padding: 14px 14px; margin: 12px 0; }
+    /* 16px inputs stop iOS Safari from zooming the page on focus */
+    input[type=text], select, input[type=number] { font-size: 16px; padding: 8px 10px; min-height: 40px; }
+    input[type=text] { width: 76px; }
+    .field:has(select) { flex: 1 1 100%; }
+    .field select { width: 100%; }
+    button { min-height: 44px; padding: 9px 18px; flex: 1 1 auto; }
+    .eq { display: block; font-size: .92rem; overflow-x: auto; white-space: nowrap; }
+    table { font-size: .82rem; }
+    th, td { padding: 5px 6px; }
+    td .mono, td a { overflow-wrap: anywhere; }
+    .kv { grid-template-columns: 1fr; gap: 0; }
+    .kv .k { margin-top: 6px; }
+    .kv > * { overflow-wrap: anywhere; min-width: 0; }
+  }
 </style>
 </head>
 <body>
