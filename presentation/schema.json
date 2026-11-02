@@ -1,0 +1,641 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/htzh/flt_for_human/presentation/schema.json",
+  "title": "FLT semi-formal presentation",
+  "description": "A mathematics-first presentation of a Lean module: definitions and statements are Lean (exhibited by #check/#print in the generated sheet); proof bodies are semi-formal (goal, hypotheses, steps, citations). Narrative text is plain Unicode mathematics, not LaTeX.",
+  "type": "object",
+  "required": [
+    "format",
+    "subject",
+    "module",
+    "presentation_of",
+    "source",
+    "worksheet",
+    "conventions",
+    "definitions",
+    "premises",
+    "declarations",
+    "sections"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "format": {
+      "const": "flt-semiformal/1",
+      "description": "Format version. Bump only on a breaking change."
+    },
+    "subject": {
+      "type": "string",
+      "minLength": 1,
+      "description": "One line naming the mathematical subject."
+    },
+    "module": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The Lean module being presented, e.g. FLTForHuman.ModularCurve.FunctionFieldGeneration.Capstone."
+    },
+    "presentation_of": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Path of the presented Lean source file, relative to the repository root."
+    },
+    "source": {
+      "$ref": "#/$defs/source"
+    },
+    "worksheet": {
+      "$ref": "#/$defs/worksheet"
+    },
+    "conventions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/convention"
+      }
+    },
+    "definitions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/definition"
+      }
+    },
+    "premises": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/premise"
+      }
+    },
+    "declarations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/declaration"
+      }
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/section"
+      }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "port_file",
+        "flt_pin",
+        "flt_upstream"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "port_file": {
+          "type": "string",
+          "description": "Tracked path of the presented port file."
+        },
+        "port_math_note": {
+          "type": "string",
+          "description": "Tracked math note with the mathematical account, if any."
+        },
+        "flt_pin": {
+          "type": "string",
+          "description": "Pinned FLT commit sha."
+        },
+        "flt_upstream": {
+          "type": "string",
+          "description": "GitHub owner/repo of the pinned FLT source."
+        },
+        "flt_files": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Pinned FLT files the module transcribes."
+        }
+      }
+    },
+    "worksheet": {
+      "type": "object",
+      "required": [
+        "output",
+        "import",
+        "title",
+        "tagline",
+        "subject",
+        "intro"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "output": {
+          "type": "string",
+          "description": "Path of the generated Lean worksheet, relative to the repository root."
+        },
+        "import": {
+          "type": "string",
+          "description": "The single Lean import of the generated sheet."
+        },
+        "opens": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "scoped": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "boolean",
+              "string",
+              "number"
+            ]
+          }
+        },
+        "title": {
+          "type": "string"
+        },
+        "tagline": {
+          "type": "string"
+        },
+        "subject": {
+          "type": "string"
+        },
+        "reads": {
+          "type": "string"
+        },
+        "pin": {
+          "type": "string"
+        },
+        "check": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string"
+        },
+        "intro": {
+          "type": "string"
+        },
+        "source_json": {
+          "type": "string",
+          "description": "Tracked path of this JSON document (printed in the generated header)."
+        }
+      }
+    },
+    "convention": {
+      "type": "object",
+      "required": [
+        "id",
+        "symbol",
+        "math"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "symbol": {
+          "type": "string",
+          "minLength": 1
+        },
+        "math": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lean": {
+          "type": "string"
+        }
+      }
+    },
+    "definition": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "kind",
+        "math"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Fully qualified Lean name."
+        },
+        "kind": {
+          "enum": [
+            "def",
+            "abbrev",
+            "structure",
+            "inductive",
+            "instance"
+          ]
+        },
+        "lean": {
+          "type": "string",
+          "description": "Lean source of the definition, for reading."
+        },
+        "math": {
+          "type": "string",
+          "minLength": 1
+        },
+        "note": {
+          "type": "string"
+        },
+        "file": {
+          "type": "string"
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "heading": {
+          "type": "string",
+          "description": "Short heading shown in the generated sheet."
+        },
+        "render": {
+          "enum": [
+            "print",
+            "check",
+            "none"
+          ],
+          "default": "print",
+          "description": "How the sheet exhibits the definition: #print, #check, or nothing (the statement is exhibited elsewhere)."
+        }
+      }
+    },
+    "premise": {
+      "type": "object",
+      "required": [
+        "id",
+        "group",
+        "label",
+        "name",
+        "kind",
+        "math"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "group": {
+          "enum": [
+            "port",
+            "mathlib"
+          ]
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Short citation label used in the proofs."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": [
+            "theorem",
+            "mathlib",
+            "def",
+            "instance"
+          ]
+        },
+        "lean": {
+          "type": "string"
+        },
+        "math": {
+          "type": "string",
+          "minLength": 1
+        },
+        "note": {
+          "type": "string"
+        },
+        "file": {
+          "type": "string"
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "pin": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "description": "Public URL of the declaration (used for mathlib)."
+        }
+      }
+    },
+    "hypothesis": {
+      "type": "object",
+      "required": [
+        "id",
+        "kind",
+        "lean",
+        "math"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "kind": {
+          "enum": [
+            "parameter",
+            "instance",
+            "assumption"
+          ]
+        },
+        "lean": {
+          "type": "string",
+          "minLength": 1
+        },
+        "math": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "citation": {
+      "type": "object",
+      "required": [
+        "kind",
+        "ref"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "hypothesis",
+            "premise",
+            "step",
+            "definition",
+            "declaration",
+            "trivial",
+            "computation",
+            "goal"
+          ]
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "math": {
+          "type": "string"
+        }
+      }
+    },
+    "requirement": {
+      "type": "object",
+      "required": [
+        "what",
+        "met_by"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "what": {
+          "type": "string",
+          "minLength": 1
+        },
+        "met_by": {
+          "$ref": "#/$defs/citation"
+        }
+      }
+    },
+    "step": {
+      "type": "object",
+      "required": [
+        "id",
+        "kind",
+        "claim"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "kind": {
+          "enum": [
+            "goal",
+            "unpack",
+            "claim",
+            "construct",
+            "calculate",
+            "reduce",
+            "close"
+          ]
+        },
+        "claim": {
+          "type": "string",
+          "minLength": 1
+        },
+        "math": {
+          "type": "string"
+        },
+        "why": {
+          "type": "string"
+        },
+        "cites": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/citation"
+          }
+        },
+        "requires": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/requirement"
+          }
+        },
+        "lean": {
+          "type": "string",
+          "description": "Optional closed Lean form of the claim, for a #check."
+        }
+      }
+    },
+    "proof": {
+      "type": "object",
+      "required": [
+        "goal",
+        "strategy",
+        "steps",
+        "conclusion"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "goal": {
+          "type": "string",
+          "minLength": 1
+        },
+        "strategy": {
+          "type": "string",
+          "minLength": 1
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/step"
+          }
+        },
+        "conclusion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "regeneration": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Hints for an LLM or human regenerating a Lean proof from this presentation."
+        },
+        "formal_notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Formal detours: Lean plumbing with no mathematical content."
+        }
+      }
+    },
+    "declaration": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "kind",
+        "heading",
+        "lean",
+        "math_statement",
+        "role",
+        "hypotheses",
+        "proof"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": [
+            "theorem",
+            "lemma",
+            "corollary",
+            "assembly",
+            "bridge"
+          ]
+        },
+        "heading": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lean": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Verbatim Lean statement (with proof body omitted), for reading."
+        },
+        "math_statement": {
+          "type": "string",
+          "minLength": 1
+        },
+        "role": {
+          "type": "string",
+          "minLength": 1
+        },
+        "private": {
+          "type": "boolean",
+          "default": false,
+          "description": "True when the declaration is private to its module and cannot be #check'ed elsewhere."
+        },
+        "print": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use #print (showing the proof term) instead of #check."
+        },
+        "lean_goal": {
+          "type": "string",
+          "description": "Closed Lean proposition exhibiting the statement of a private declaration."
+        },
+        "hypotheses": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/hypothesis"
+          }
+        },
+        "proof": {
+          "$ref": "#/$defs/proof"
+        },
+        "provenance": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "section": {
+      "type": "object",
+      "required": [
+        "id",
+        "title",
+        "tagline",
+        "prose",
+        "definitions",
+        "declarations"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Za-z0-9]*$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tagline": {
+          "type": "string"
+        },
+        "prose": {
+          "type": "string"
+        },
+        "definitions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "declarations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "premise_groups": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "port",
+              "mathlib"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

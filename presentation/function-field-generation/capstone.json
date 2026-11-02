@@ -1,0 +1,2325 @@
+{
+  "format": "flt-semiformal/1",
+  "subject": "Function field generation for X₀(N) — the unconditional capstone",
+  "module": "FLTForHuman.ModularCurve.FunctionFieldGeneration.Capstone",
+  "presentation_of": "lean/FLTForHuman/ModularCurve/FunctionFieldGeneration/Capstone.lean",
+  "source": {
+    "port_file": "lean/FLTForHuman/ModularCurve/FunctionFieldGeneration/Capstone.lean",
+    "port_math_note": "math/010-function-field-generation.md",
+    "flt_pin": "aa2d8b3",
+    "flt_upstream": "anthropics/fermats-last-theorem",
+    "flt_files": [
+      "Theorems/Thm_ModularCurve_functionFieldGeneration.lean",
+      "Theorems/Thm_ModularCurve_modularFunctionField_eq_full.lean",
+      "Theorems/Thm_ModularCurve_finrank_adjoin_jqN_eq_dedekindPsi.lean",
+      "Theorems/Thm_ModularCurve_relfinrank_full_eq_dedekindPsi.lean",
+      "Theorems/Thm_ModularCurve_exists_monic_evalAtJ_jqN_eq_zero.lean",
+      "Theorems/Thm_ModularCurve_exists_phiIrreducible_of_finrank_eq.lean",
+      "Theorems/Thm_ModularCurve_exists_phiIrreducible.lean",
+      "Theorems/Thm_ModularCurve_nonempty_modularPolynomialData.lean",
+      "P2M/Sol/S_ModularCurve_functionFieldGeneration.lean"
+    ]
+  },
+  "worksheet": {
+    "output": "lean/presentation/FunctionFieldGenerationCapstone.lean",
+    "source_json": "presentation/function-field-generation/capstone.json",
+    "import": "FLTForHuman.ModularCurve.FunctionFieldGeneration.Capstone",
+    "opens": [
+      "Polynomial",
+      "HahnSeries",
+      "IntermediateField",
+      "ModularCurve"
+    ],
+    "scoped": [
+      "IntermediateField"
+    ],
+    "options": {
+      "autoImplicit": false
+    },
+    "title": "the function-field generation capstone",
+    "tagline": "the unconditional theorem, and the four statements the rest of FLT consumes",
+    "subject": "the function field of X₀(N): F_N^full = ℚ(j(q), j(q^N)), and the degree ψ(N) of the modular equation",
+    "reads": "the port module FLTForHuman/ModularCurve/FunctionFieldGeneration/Capstone.lean and its dependencies (Spine, Descent, DegreeStep, Nonmembership, Generation, SlotProduct); math/010-function-field-generation.md is the mathematical account",
+    "pin": "FLT anthropics/fermats-last-theorem@aa2d8b3 — Theorems/Thm_ModularCurve_functionFieldGeneration.lean line 8, and the S_ModularCurve_functionFieldGeneration.lean assembly (lines 614–700)",
+    "check": "cd lean && lake env lean presentation/FunctionFieldGenerationCapstone.lean",
+    "status": "generated",
+    "date": "2026-11-01",
+    "intro": "The capstone of the function-field-generation segment, presented mathematics-first. Every definition and statement here is Lean, and is exhibited by `#check` or `#print`; every proof body is a semi-formal argument: what is to be proved, what each hypothesis supplies, and which proven theorem or earlier step meets each premise. Narratives live in comments. The source of this sheet is presentation/function-field-generation/capstone.json."
+  },
+  "conventions": [
+    {
+      "id": "laurent",
+      "symbol": "ℚ((q))",
+      "math": "The field of Laurent series over ℚ. It is the single ambient field in which every function of the theorem lives; there is no upper half-plane and no analytic continuation anywhere.",
+      "lean": "LaurentSeries ℚ"
+    },
+    {
+      "id": "jq",
+      "symbol": "j(q)",
+      "math": "The classical j-invariant, as the explicit Laurent series q⁻¹ + 744 + 196884 q + ⋯ ∈ ℚ((q)).",
+      "lean": "ModularCurve.jq"
+    },
+    {
+      "id": "jqn",
+      "symbol": "j(q^N)",
+      "math": "The nome substitution q ↦ q^N applied to j(q): every exponent is multiplied by N. In Lean this is qExpand ℚ N jq, abbreviated jqN N.",
+      "lean": "ModularCurve.jqN"
+    },
+    {
+      "id": "FN",
+      "symbol": "F_N",
+      "math": "The two-generator field ℚ(j(q), j(q^N)) ⊂ ℚ((q)).",
+      "lean": "ModularCurve.modularFunctionField"
+    },
+    {
+      "id": "FNfull",
+      "symbol": "F_N^full",
+      "math": "The full divisor field ℚ(j(q^d) : d ∣ N) ⊂ ℚ((q)). This is the field the formalization takes as the function field of X₀(N).",
+      "lean": "ModularCurve.modularFunctionFieldFull"
+    },
+    {
+      "id": "psi",
+      "symbol": "ψ(N)",
+      "math": "The Dedekind psi function Σ_{d ∣ N, d squarefree} N/d = N ∏_{p ∣ N}(1 + 1/p): the index [SL₂(ℤ) : Γ₀(N)], hence the degree of the cover X₀(N) → X(1) and the Y-degree of the modular equation Φ_N.",
+      "lean": "ModularCurve.dedekindPsi"
+    },
+    {
+      "id": "PhiN",
+      "symbol": "Φ_N",
+      "math": "The modular polynomial: Φ_N ∈ ℤ[j][Y], monic in Y, of Y-degree ψ(N), vanishing at (X, Y) = (j(q), j(q^N)). Lean packages it with its three facts as ModularPolynomialData N.",
+      "lean": "ModularCurve.ModularPolynomialData"
+    },
+    {
+      "id": "rel",
+      "symbol": "[L : K]",
+      "math": "The relative degree of a field extension K ⊆ L, with K the base field. In Lean: IntermediateField.relfinrank K L, or Module.finrank K L for a simple extension.",
+      "lean": "IntermediateField.relfinrank"
+    },
+    {
+      "id": "integral",
+      "symbol": "integral over ℤ[j]",
+      "math": "x is integral over ℤ[j(q)] when there is a monic P ∈ ℤ[j(q)][Y] with P(x) = 0. This is exactly the existence of a monic annihilator, which is what Lean's IsIntegral unpacks to.",
+      "lean": "IsIntegral"
+    },
+    {
+      "id": "tightgen",
+      "symbol": "Tight, Gen, Hall",
+      "math": "Tight d: [ℚ(j)(j(q^d)) : ℚ(j)] = ψ(d). Gen d: F_d = F_d^full. Hall N: for every d ∣ N, both Tight d and Gen d.",
+      "lean": "ModularCurve.Tight, ModularCurve.Gen, ModularCurve.Hall"
+    },
+    {
+      "id": "TS",
+      "symbol": "j(u q^e)",
+      "math": "The composed substitution q ↦ u q^e, for a unit u in a coefficient field K: qExpand K e (qTwist u (coeffEmb K j(q))). It is the nome form of the affine map τ ↦ eτ + (const) and is named TS K e u in the port.",
+      "lean": "ModularCurve.qExpand, ModularCurve.qTwist, ModularCurve.coeffEmb"
+    }
+  ],
+  "definitions": [
+    {
+      "id": "qexpand",
+      "name": "ModularCurve.qExpand",
+      "kind": "def",
+      "lean": "def qExpand (R : Type*) [CommRing R] (N : ℕ) [NeZero N] :\n    LaurentSeries R →+* LaurentSeries R",
+      "math": "The substitution q ↦ q^N on Laurent series: a monomial q^k becomes q^{Nk}, coefficients unchanged. It is a ring endomorphism, and it is injective because N ≠ 0.",
+      "file": "lean/FLTForHuman/ModularCurve/Defs/Laurent.lean",
+      "line": 80,
+      "heading": "`qExpand` — the q ↦ q^N substitution"
+    },
+    {
+      "id": "qtwist",
+      "name": "ModularCurve.qTwist",
+      "kind": "def",
+      "lean": "def qTwist {R : Type*} [CommRing R] (u : Rˣ) : LaurentSeries R →+* LaurentSeries R",
+      "math": "The rescaling q ↦ u q for a unit u: the coefficient of q^k is multiplied by u^k. Composed with qExpand e it is the substitution q ↦ u q^e, which the port writes TS K e u; this is the nome form of τ ↦ eτ + (const).",
+      "file": "lean/FLTForHuman/ModularCurve/Defs/Twist.lean",
+      "line": 54,
+      "heading": "`qTwist` — the q ↦ u q rescaling"
+    },
+    {
+      "id": "coeffemb",
+      "name": "ModularCurve.coeffEmb",
+      "kind": "def",
+      "lean": "def coeffEmb (L : Type*) [Field L] [Algebra ℚ L] : LaurentSeries ℚ →+* LaurentSeries L",
+      "math": "The coefficient extension ℚ → K applied termwise to a Laurent series: the stand-in for 'base change to a field containing the roots of unity'.",
+      "file": "lean/FLTForHuman/ModularCurve/Defs/Laurent.lean",
+      "line": 268,
+      "heading": "`coeffEmb` — coefficient extension"
+    },
+    {
+      "id": "jq",
+      "name": "ModularCurve.jq",
+      "kind": "def",
+      "lean": "def jq : LaurentSeries ℚ := HahnSeries.single (-1 : ℤ) 1 * HahnSeries.ofPowerSeries ℤ ℚ jNumQ",
+      "math": "j(q) = q⁻¹ · (1 + 744 q + 196884 q² + ⋯), the j-invariant as a Laurent series over ℚ. It has a simple pole at q = 0 with residue 1; that single fact is the source of transcendence and of the triangularity arguments used in the segment.",
+      "file": "lean/FLTForHuman/ModularCurve/Defs/Jq.lean",
+      "line": 111,
+      "heading": "`jq` — the j-invariant as a Laurent series"
+    },
+    {
+      "id": "jqn",
+      "name": "ModularCurve.jqN",
+      "kind": "def",
+      "lean": "def jqN (N : ℕ) [NeZero N] : LaurentSeries ℚ := qExpand ℚ N jq",
+      "math": "j(q^N) := qExpand ℚ N j(q): the nome substitution q ↦ q^N applied to j(q).",
+      "file": "lean/FLTForHuman/ModularCurve/Defs/Jq.lean",
+      "line": 194,
+      "heading": "`jqN` — the substitution j(q^N)"
+    },
+    {
+      "id": "evalatj",
+      "name": "ModularCurve.evalAtJ",
+      "kind": "def",
+      "lean": "def evalAtJ : Polynomial ℤ →+* LaurentSeries ℚ := (Polynomial.aeval (R := ℤ) jq).toRingHom",
+      "math": "Evaluation of an integer polynomial at j(q): the ring hom ℤ[X] → ℚ((q)), X ↦ j(q). For a two-variable modular polynomial Φ ∈ ℤ[X][Y], the outer evaluation is done with this map as the coefficient map and Y ↦ j(q^N): that is Φ.eval₂ evalAtJ (jqN N).",
+      "file": "lean/FLTForHuman/ModularCurve/Defs/Jq.lean",
+      "line": 209,
+      "heading": "`evalAtJ` — integer polynomial evaluation at j(q)"
+    },
+    {
+      "id": "evalatjgen",
+      "name": "ModularCurve.evalAtJGen",
+      "kind": "def",
+      "lean": "def evalAtJGen : Polynomial ℤ →+* ℚ⟮jq⟯ := Polynomial.eval₂RingHom (Int.castRingHom ℚ⟮jq⟯) jGen",
+      "math": "The same evaluation X ↦ j(q), but valued in ℚ(j) rather than in ℚ((q)). It presents ℤ[j(q)] as a subring of ℚ(j(q)); it is injective because j(q) is transcendental, and ℚ(j(q)) is its fraction field.",
+      "file": "lean/FLTForHuman/ModularCurve/Defs/Fields.lean",
+      "line": 94,
+      "heading": "`evalAtJGen` — evaluation into ℚ(j)"
+    },
+    {
+      "id": "mff",
+      "name": "ModularCurve.modularFunctionField",
+      "kind": "def",
+      "lean": "def modularFunctionField (N : ℕ) [NeZero N] : IntermediateField ℚ (LaurentSeries ℚ) := IntermediateField.adjoin ℚ {jq, qExpand ℚ N jq}",
+      "math": "F_N := ℚ(j(q), j(q^N)), the two-generator field of the theorem.",
+      "file": "lean/FLTForHuman/ModularCurve/Defs/Fields.lean",
+      "line": 42,
+      "heading": "`modularFunctionField` — the two-generator field F_N"
+    },
+    {
+      "id": "mfffull",
+      "name": "ModularCurve.modularFunctionFieldFull",
+      "kind": "def",
+      "lean": "def modularFunctionFieldFull (N : ℕ) [NeZero N] : IntermediateField ℚ (LaurentSeries ℚ) :=\n  IntermediateField.adjoin ℚ (divisorExpansions N)",
+      "math": "F_N^full := ℚ(j(q^d) : d ∣ N), the field generated by the divisor substitutions. The inclusion F_N ⊆ F_N^full is immediate (d = 1 and d = N); the theorem is the reverse inclusion.",
+      "file": "lean/FLTForHuman/ModularCurve/Defs/Fields.lean",
+      "line": 137,
+      "heading": "`modularFunctionFieldFull` — the divisor field F_N^full"
+    },
+    {
+      "id": "dedekindpsi",
+      "name": "ModularCurve.dedekindPsi",
+      "kind": "def",
+      "lean": "def dedekindPsi (N : ℕ) : ℕ",
+      "math": "ψ(N) = Σ_{d ∣ N, d squarefree} N/d = N ∏_{p ∣ N}(1 + 1/p), the Dedekind psi function: the index of Γ₀(N) in SL₂(ℤ), the degree of X₀(N) → X(1), and the Y-degree of the modular equation Φ_N.",
+      "file": "lean/FLTForHuman/ModularCurve/Defs/DedekindPsi.lean",
+      "line": 28,
+      "heading": "`dedekindPsi` — the Dedekind psi function"
+    },
+    {
+      "id": "modpoly",
+      "name": "ModularCurve.ModularPolynomialData",
+      "kind": "structure",
+      "lean": "structure ModularPolynomialData (N : ℕ) [NeZero N] where\n  Φ : Polynomial (Polynomial ℤ)\n  monic : Φ.Monic\n  natDegree_eq : Φ.natDegree = dedekindPsi N\n  eval_eq_zero : Φ.eval₂ evalAtJ (jqN N) = 0",
+      "math": "A modular polynomial datum at level N: Φ ∈ ℤ[X][Y] (outer variable Y, coefficients in ℤ[X] = ℤ[j]), monic in Y, of Y-degree ψ(N), and vanishing at X = j(q), Y = j(q^N).",
+      "file": "lean/FLTForHuman/ModularCurve/Defs/Polynomial.lean",
+      "line": 35,
+      "heading": "`ModularPolynomialData` — the modular polynomial datum"
+    },
+    {
+      "id": "toadjoin",
+      "name": "ModularCurve.ModularPolynomialData.toAdjoin",
+      "kind": "def",
+      "lean": "def ModularPolynomialData.toAdjoin {N : ℕ} [NeZero N] (data : ModularPolynomialData N) :\n    Polynomial ℚ⟮jq⟯ := data.Φ.map evalAtJGen",
+      "math": "The transport of Φ into ℚ(j)[Y]: evaluate every integer coefficient polynomial in ℤ[X] at j(q). This is the polynomial whose irreducibility over ℚ(j) is the content of PhiIrreducible.",
+      "file": "lean/FLTForHuman/ModularCurve/Defs/Fields.lean",
+      "line": 116,
+      "heading": "`toAdjoin` — transporting Φ into ℚ(j)[Y]"
+    },
+    {
+      "id": "phiirred",
+      "name": "ModularCurve.PhiIrreducible",
+      "kind": "def",
+      "lean": "def PhiIrreducible (data : ModularPolynomialData N) : Prop := Irreducible data.toAdjoin",
+      "math": "The transported modular polynomial is irreducible over ℚ(j).",
+      "file": "lean/FLTForHuman/ModularCurve/Defs/PhiGen.lean",
+      "line": 121,
+      "heading": "`PhiIrreducible` — irreducibility over ℚ(j)"
+    },
+    {
+      "id": "ffg",
+      "name": "ModularCurve.FunctionFieldGeneration",
+      "kind": "def",
+      "lean": "def FunctionFieldGeneration (M : ℕ) [NeZero M] : Prop :=\n  ∀ d : ℕ, d ∣ M → ∀ (_ : NeZero d), qExpand ℚ d jq ∈\n    IntermediateField.adjoin ℚ {jq, qExpand ℚ M jq}",
+      "math": "FunctionFieldGeneration N: for every divisor d ∣ N, the series j(q^d) lies in the field ℚ(j(q), j(q^N)). This is the pointwise form of F_N^full = F_N.",
+      "file": "lean/FLTForHuman/ModularCurve/FunctionFieldGeneration/Target.lean",
+      "line": 31,
+      "heading": "`FunctionFieldGeneration` — the pointwise target"
+    },
+    {
+      "id": "tight",
+      "name": "ModularCurve.Tight",
+      "kind": "abbrev",
+      "lean": "abbrev Tight (d : ℕ) [NeZero d] : Prop :=\n  Module.finrank ℚ⟮jq⟯ (IntermediateField.adjoin ℚ⟮jq⟯ ({jqN d} : Set (LaurentSeries ℚ))) = dedekindPsi d",
+      "math": "Tight d: the relative degree [ℚ(j)(j(q^d)) : ℚ(j)] equals ψ(d).",
+      "file": "lean/FLTForHuman/ModularCurve/Defs/Fields.lean",
+      "line": 224,
+      "heading": "`Tight` — the degree invariant"
+    },
+    {
+      "id": "gen",
+      "name": "ModularCurve.Gen",
+      "kind": "abbrev",
+      "lean": "abbrev Gen (d : ℕ) [NeZero d] : Prop := modularFunctionField d = modularFunctionFieldFull d",
+      "math": "Gen d: the two-generator field is already the full divisor field, F_d = F_d^full.",
+      "file": "lean/FLTForHuman/ModularCurve/Defs/Fields.lean",
+      "line": 229,
+      "heading": "`Gen` — the generation invariant"
+    },
+    {
+      "id": "hall",
+      "name": "ModularCurve.Hall",
+      "kind": "abbrev",
+      "lean": "abbrev Hall (N : ℕ) : Prop := ∀ d : ℕ, d ∣ N → ∀ [NeZero d], Tight d ∧ Gen d",
+      "math": "Hall N: the strong-induction hypothesis at N — both invariants hold at every divisor of N.",
+      "file": "lean/FLTForHuman/ModularCurve/Defs/Fields.lean",
+      "line": 233,
+      "heading": "`Hall` — the strong-induction bundle"
+    },
+    {
+      "id": "inputs",
+      "name": "ModularCurve.Inputs",
+      "kind": "structure",
+      "lean": "structure Inputs where\n  full_eq_adjoin_full_div_prime : …\n  jqN_prime_not_mem_full : …\n  jqN_pow_not_mem_adjoin_full : …\n  minpoly_jqN_map_eq_prod_slots : …\n  modularFunctionField_eq_full_of : …\n  jqN_div_mem_modularFunctionField : …\n  relfinrank_full_eq_mul : …",
+      "math": "The seven significant statements of the segment, bundled as the hypotheses of the strong induction: two generation statements, two non-membership statements, the slot product, the one-prime reduction of Gen, and the prime-power degree step.",
+      "file": "lean/FLTForHuman/ModularCurve/FunctionFieldGeneration/Spine.lean",
+      "line": 112,
+      "heading": "`Inputs` — the seven significant statements",
+      "render": "check",
+      "note": "The seven field types are exhibited one by one, through the theorems that discharge them, in the reference zone; this entry only fixes the name and the shape of the bundle."
+    },
+    {
+      "id": "phiAtSeed",
+      "name": "ModularCurve.phiAtSeed",
+      "kind": "def",
+      "lean": "def phiAtSeed {R : Type*} [CommRing R] {n : ℕ} [NeZero n]\n    (data : ModularPolynomialData n) (x : R) : Polynomial R :=\n  data.Φ.map (Polynomial.eval₂RingHom (Int.castRingHom R) x)",
+      "math": "Φ(x, Y): the modular polynomial with its X-variable evaluated at x. At x = j(q^a) this is the monic polynomial in Y whose root is j(q^{an}).",
+      "file": "lean/FLTForHuman/ModularCurve/Defs/PhiAtSlot.lean",
+      "line": 146,
+      "heading": "`phiAtSeed` — Φ evaluated at X = x"
+    }
+  ],
+  "premises": [
+    {
+      "id": "hall_all",
+      "group": "port",
+      "label": "hall_all",
+      "name": "ModularCurve.hall_all",
+      "kind": "theorem",
+      "lean": "theorem hall_all (h : Inputs) : ∀ N : ℕ, N ≠ 0 → Hall N",
+      "math": "From the seven inputs, Tight and Gen hold at every divisor of every N ≠ 0. This is the strong induction over the divisor lattice: the generation half walks down the divisors one prime at a time, and the degree half multiplies the tower law along prime-power levels.",
+      "note": "Its hypothesis is exactly `Inputs`; the proof is math/010 §7. The two halves are interdependent: Gen d needs Gen and the degree facts at proper divisors, Tight d needs Tight below and Gen d just proved.",
+      "file": "lean/FLTForHuman/ModularCurve/FunctionFieldGeneration/Spine.lean",
+      "line": 311,
+      "pin": "P2M/Sol/S_ModularCurve_functionFieldGeneration.lean#614-700"
+    },
+    {
+      "id": "ffg_of",
+      "group": "port",
+      "label": "functionFieldGeneration_of",
+      "name": "ModularCurve.functionFieldGeneration_of",
+      "kind": "theorem",
+      "lean": "theorem functionFieldGeneration_of (h : Inputs) (N : ℕ) [NeZero N] : FunctionFieldGeneration N",
+      "math": "From the seven inputs, FunctionFieldGeneration N for every N ≠ 0. It is the packaged composition of `hall_all` at d = N with the collapse equivalence.",
+      "file": "lean/FLTForHuman/ModularCurve/FunctionFieldGeneration/Spine.lean",
+      "line": 392
+    },
+    {
+      "id": "ffg_iff",
+      "group": "port",
+      "label": "iff_full_eq",
+      "name": "ModularCurve.functionFieldGeneration_iff_full_eq",
+      "kind": "theorem",
+      "lean": "theorem functionFieldGeneration_iff_full_eq (N : ℕ) [NeZero N] :\n    FunctionFieldGeneration N ↔ modularFunctionFieldFull N = modularFunctionField N",
+      "math": "The pointwise generation statement is equivalent to the field equality F_N^full = F_N. The forward direction says the field generated by all j(q^d) is contained in ℚ(j(q), j(q^N)); the reverse says every j(q^d) is among its generators.",
+      "note": "The right-hand side is written with F_N^full on the left. `Gen N` is the opposite orientation, F_N = F_N^full, so a proof must use `.symm` — this is the one place where the capstone's one-liners are orientation-sensitive.",
+      "file": "lean/FLTForHuman/ModularCurve/FunctionFieldGeneration/Collapse.lean",
+      "line": 35,
+      "pin": "P2M/Sol/S_ModularCurve_functionFieldGeneration_iff_full_eq.lean#11-21"
+    },
+    {
+      "id": "relfinrank_mff",
+      "group": "port",
+      "label": "relfinrank_modularFunctionField",
+      "name": "ModularCurve.relfinrank_modularFunctionField",
+      "kind": "theorem",
+      "lean": "theorem relfinrank_modularFunctionField (N : ℕ) [NeZero N] :\n    IntermediateField.relfinrank ℚ⟮jq⟯ (modularFunctionField N) =\n    Module.finrank ℚ⟮jq⟯ (IntermediateField.adjoin ℚ⟮jq⟯ ({jqN N} : Set (LaurentSeries ℚ)))",
+      "math": "The relative degree [F_N : ℚ(j)] is the degree of the simple extension ℚ(j)(j(q^N)). Equivalently: adjoining the single element j(q^N) to ℚ(j) gives F_N, so the relative degree is the degree of j(q^N) over ℚ(j).",
+      "file": "lean/FLTForHuman/ModularCurve/Defs/Fields.lean",
+      "line": 73,
+      "pin": "Theorems/Thm_ModularCurve_relfinrank_modularFunctionField.lean"
+    },
+    {
+      "id": "full_eq_adjoin",
+      "group": "port",
+      "label": "full_eq_adjoin_full_div_prime",
+      "name": "ModularCurve.full_eq_adjoin_full_div_prime",
+      "kind": "theorem",
+      "lean": "theorem full_eq_adjoin_full_div_prime (M : ℕ) [NeZero M] (p : ℕ)\n    [hp : Fact (Nat.Prime p)] (a : ℕ) (hpM : ¬ p ∣ M) :\n    modularFunctionFieldFull (M * p ^ (a + 1)) =\n      IntermediateField.adjoin ℚ\n        (insert (jqN (p ^ (a + 1))) (modularFunctionFieldFull (M * p ^ a) : Set (LaurentSeries ℚ)))",
+      "math": "For p ∤ M, the full field at M p^{a+1} is generated over the full field at M p^a by the single new series j(q^{p^{a+1}}). This is the generation half of one prime-power step (T18).",
+      "note": "Proof: the inclusion ⊇ is immediate because both generators divide M p^{a+1}. For ⊆, take j(q^d) with d ∣ M p^{a+1}. If d ∣ M p^a it is already in the lower field; otherwise d = m p^{a+1} with m ∣ M, p ∤ m. If m = 1 it is the new generator; if m > 1 pick a prime q ∣ m, q ≠ p, and apply the two-prime descent: j(q^{d/p}) is in the target by inspection and j(q^{d/q}) by strong induction, and the unique common root of Φ_p and Φ_q forces j(q^d) in the target.",
+      "file": "lean/FLTForHuman/ModularCurve/FunctionFieldGeneration/Generation.lean",
+      "line": 297,
+      "pin": "Theorems/Thm_ModularCurve_full_eq_adjoin_full_div_prime.lean"
+    },
+    {
+      "id": "prime_not_mem",
+      "group": "port",
+      "label": "jqN_prime_not_mem_full",
+      "name": "ModularCurve.jqN_prime_not_mem_full",
+      "kind": "theorem",
+      "lean": "theorem jqN_prime_not_mem_full (M : ℕ) [NeZero M] (p : ℕ)\n    [hp : Fact (Nat.Prime p)] (hpM : ¬ p ∣ M) (hall : Hall M) :\n    jqN p ∉ modularFunctionFieldFull M",
+      "math": "For p ∤ M and Hall M, j(q^p) is not in the full field at M. This is one of the two non-membership inputs of the degree half (T19).",
+      "note": "Proof: if j(q^p) were in F_M^full, then by Gen M it would lie in ℚ(j)(j(q^M)), say j(q^p) = g(j(q^M)) with deg g < ψ(M). Evaluating g at the ψ(M) distinct slots of the minimal polynomial of j(q^M) shows g is constant there; a polynomial of degree < ψ(M) constant on ψ(M) points has its value in ℚ(j). Then j(q^p) ∈ ℚ(j), contradicting the prime-level degree [ℚ(j)(j(q^p)) : ℚ(j)] = p + 1. The theorem states the hypothesis as the expanded conjunction ∀ d ∣ M, Tight d ∧ Gen d; that is definitionally `Hall M`, because Hall is an abbreviation, which is why `inputs` can fill the field with it.",
+      "file": "lean/FLTForHuman/ModularCurve/FunctionFieldGeneration/SlotProduct.lean",
+      "line": 1590,
+      "pin": "Theorems/Thm_ModularCurve_jqN_prime_not_mem_full.lean"
+    },
+    {
+      "id": "pow_not_mem",
+      "group": "port",
+      "label": "jqN_pow_not_mem_adjoin_full",
+      "name": "ModularCurve.jqN_pow_not_mem_adjoin_full",
+      "kind": "theorem",
+      "lean": "theorem jqN_pow_not_mem_adjoin_full (M : ℕ) [NeZero M] (p : ℕ)\n    [hp : Fact (Nat.Prime p)] (a : ℕ)\n    (hF : jqN p ∉ modularFunctionFieldFull M) :\n    jqN (p ^ (a + 2)) ∉ IntermediateField.adjoin ℚ\n      ((modularFunctionFieldFull M : Set (LaurentSeries ℚ))\n        ∪ {x : LaurentSeries ℚ | ∃ i : ℕ, i ≤ a + 1 ∧ x = jqN (p ^ i)})",
+      "math": "If j(q^p) is not in F_M^full, then j(q^{p^{a+2}}) is not in the field generated by F_M^full together with the earlier p-power series j(q^p), …, j(q^{p^{a+1}}). This is the prime-power non-membership tower (T17).",
+      "note": "Proof: build the tower of intermediate fields and a compatible family of ℚ-algebra homs σ_i whose images lie in a shrinking qExpand range. The modular equation Φ_p has both j(q^{p^{a+2}}) and j(q^{p^a}) as roots of Φ_p(j(q^{p^{a+1}}), Y); pushing it through σ forces the two to be the same root, and injectivity of σ gives equality of the two series, contradicted by the q^{-(p^a)} coefficient (1 versus 0).",
+      "file": "lean/FLTForHuman/ModularCurve/FunctionFieldGeneration/Nonmembership.lean",
+      "line": 615,
+      "pin": "Theorems/Thm_ModularCurve_jqN_pow_not_mem_adjoin_full.lean"
+    },
+    {
+      "id": "slot_product",
+      "group": "port",
+      "label": "minpoly_jqN_map_eq_prod_slots",
+      "name": "ModularCurve.minpoly_jqN_map_eq_prod_slots",
+      "kind": "theorem",
+      "lean": "theorem minpoly_jqN_map_eq_prod_slots {K : Type*} [Field K] [Algebra ℚ K]\n    (M : ℕ) [NeZero M] (ζ : Kˣ) (hζ : IsPrimitiveRoot (ζ : K) M) (hall : Hall M) :\n    (minpoly ℚ⟮jq⟯ (jqN M)).map (((coeffEmb K).comp (qExpand ℚ M)).comp\n      (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)))\n    = ∏ a ∈ M.divisors, ∏ b ∈ (Finset.range (M / a)).filter\n        (fun b => Nat.gcd (Nat.gcd a b) (M / a) = 1),\n      (Polynomial.X - Polynomial.C (if h : a = 0 then 0 else\n        qExpand K (a * a) (qTwist (ζ ^ (b * a)) (coeffEmb K jq))))",
+      "math": "The slot description of the conjugates: after the coefficient substitution q ↦ q^M, the minimal polynomial of j(q^M) over ℚ(j) is the product of the linear factors Y − j(ζ^{ab} q^{a²}), over a ∣ M and 0 ≤ b < M/a with gcd(gcd(a,b), M/a) = 1. The pairs number ψ(M).",
+      "note": "Proof (T19): iterate the prime-level splitting Φ_p(j(u^p q^{pe}), Y) = (Y − j(u^{p²}q^{p²e})) ∏_b (Y − j(u ζ_p^b q^e)) over the prime factorization of M. The exponent a² and the root of unity ζ^{ab} are the coset data.",
+      "file": "lean/FLTForHuman/ModularCurve/FunctionFieldGeneration/SlotProduct.lean",
+      "line": 1246,
+      "pin": "Theorems/Thm_ModularCurve_minpoly_jqN_map_eq_prod_slots.lean"
+    },
+    {
+      "id": "gen_reduction",
+      "group": "port",
+      "label": "modularFunctionField_eq_full_of",
+      "name": "ModularCurve.modularFunctionField_eq_full_of",
+      "kind": "theorem",
+      "lean": "theorem modularFunctionField_eq_full_of (N : ℕ) [NeZero N]\n    (hstep : ∀ (M : ℕ) [NeZero M] (p : ℕ), p.Prime → M * p = N →\n      jqN M ∈ modularFunctionField N)\n    (hgen : ∀ (M : ℕ) [NeZero M] (p : ℕ), p.Prime → M * p = N →\n      modularFunctionField M = modularFunctionFieldFull M) :\n    modularFunctionField N = modularFunctionFieldFull N",
+      "math": "The one-prime reduction of Gen N: if every factorization N = M·p with p prime has j(q^M) ∈ F_N and Gen M, then F_N = F_N^full.",
+      "note": "Proof: the reverse inclusion is modularFunctionField_le_full. For the forward one, take j(q^d) with d ∣ N, d ≠ N, write N = d·m, pick a prime p ∣ m and m = p·m′. Then N = (d m′)·p, so j(q^{d m′}) ∈ F_N by hstep and Gen(d m′) is hgen; hence j(q^d) ∈ F_{d m′} ⊆ F_N.",
+      "file": "lean/FLTForHuman/ModularCurve/FunctionFieldGeneration/Descent.lean",
+      "line": 220,
+      "pin": "Theorems/Thm_ModularCurve_modularFunctionField_eq_full_of.lean"
+    },
+    {
+      "id": "one_prime_descent",
+      "group": "port",
+      "label": "jqN_div_mem_modularFunctionField",
+      "name": "ModularCurve.jqN_div_mem_modularFunctionField",
+      "kind": "theorem",
+      "lean": "theorem jqN_div_mem_modularFunctionField (M : ℕ) [NeZero M] (p : ℕ)\n    [hp : Fact (Nat.Prime p)] {K : Type*} [Field K] [Algebra ℚ K] (ζ : Kˣ)\n    (hζ : IsPrimitiveRoot (ζ : K) (M * p))\n    (htw : ∀ y, Polynomial.eval y (minpoly ℚ⟮jq⟯ (jqN M)).map ⋯ = 0 →\n      ∀ w : Kˣ, y = qExpand K (M * p * M) (qTwist w (coeffEmb K jq)) → w = 1)\n    (hsp : ∀ y, Polynomial.eval y (minpoly ℚ⟮jq⟯ (jqN M)).map ⋯ = 0 →\n      y ≠ coeffEmb K (qExpand ℚ (M * p) (jqN (M * p * p)))) :\n    jqN M ∈ modularFunctionField (M * p)",
+      "math": "Descent by one prime: under the two slot hypotheses htw and hsp, j(q^M) lies in ℚ(j(q), j(q^{Mp})). The hypotheses say: a common root of the pushed minimal polynomial that has the shape j(w q^{M²p}) has w = 1 (htw), and the extra root j(q^{M²p³}) is not a common root (hsp).",
+      "note": "Proof (T15): the unique-common-root principle. Take A = Φ_p(j(q^{Mp}), Y) and B = the push of minpoly_ℚ(j)(j(q^M)) into F = ℚ(j(q), j(q^{Mp})); x₀ = j(q^M) is a common root by the modular equation and by symmetry. The slot description lists all roots, and htw/hsp leave x₀ as the only common one. Hence x₀ ∈ F. The tail strips the coefficient extension by injectivity of coeffEmb and qExpand. The `lean` field abbreviates the two slot hypotheses with ⋯; the sheet's `#check` is the full type.",
+      "file": "lean/FLTForHuman/ModularCurve/FunctionFieldGeneration/Descent.lean",
+      "line": 74,
+      "pin": "Theorems/Thm_ModularCurve_jqN_div_mem_modularFunctionField.lean"
+    },
+    {
+      "id": "degree_step",
+      "group": "port",
+      "label": "relfinrank_full_eq_mul",
+      "name": "ModularCurve.relfinrank_full_eq_mul",
+      "kind": "theorem",
+      "lean": "theorem relfinrank_full_eq_mul (M : ℕ) [NeZero M] (p : ℕ) [hp : Fact (Nat.Prime p)] (a : ℕ)\n    (hup : modularFunctionFieldFull (M * p ^ (a + 1)) =\n      IntermediateField.adjoin ℚ (insert (jqN (p ^ (a + 1)))\n        (modularFunctionFieldFull (M * p ^ a) : Set (LaurentSeries ℚ))))\n    (hnm : jqN (p ^ (a + 1)) ∉ modularFunctionFieldFull (M * p ^ a)) :\n    IntermediateField.relfinrank (modularFunctionFieldFull (M * p ^ a))\n      (modularFunctionFieldFull (M * p ^ (a + 1))) = if a = 0 then p + 1 else p",
+      "math": "The relative degree of one full prime-power step is p + 1 for the first step (a = 0) and p for later steps. This is the degree half of the induction (T16).",
+      "note": "Proof: by the tower equality the step is a simple extension, so w1_relfinrank_insert reduces to the degree of j(q^{p^{a+1}}) over the lower field. For a = 0 that degree is p + 1 (the degree of Φ_p; irreducibility from a transitive automorphism cycling the p + 1 roots). For a ≥ 1, Φ_p(j(q^{p^{a+1}}), Y) already has the root j(q^{p^a}) in the lower field, so it factors as (Y − j(q^{p^a}))·P with deg P = p, and P is irreducible by a coefficient automorphism argument.",
+      "file": "lean/FLTForHuman/ModularCurve/FunctionFieldGeneration/DegreeStep.lean",
+      "line": 433,
+      "pin": "Theorems/Thm_ModularCurve_relfinrank_full_eq_mul.lean"
+    },
+    {
+      "id": "exists_phi_irred_symm",
+      "group": "port",
+      "label": "exists_phiIrreducible_evalSymm",
+      "name": "ModularCurve.exists_phiIrreducible_evalSymm",
+      "kind": "theorem",
+      "lean": "theorem exists_phiIrreducible_evalSymm (ℓ : ℕ) [hℓ : Fact (Nat.Prime ℓ)] :\n    ∃ data : ModularPolynomialData ℓ, PhiIrreducible data ∧ EvalSymm data.Φ",
+      "math": "At every prime ℓ there is a modular polynomial datum at level ℓ whose Φ is symmetric in its two variables (and irreducible). Only monicity and the vanishing at (j(q), j(q^ℓ)) are used by the integrality proof; symmetry is used by the descent and the slot product.",
+      "note": "This is the classical prime-level splitting input, read as an existence statement: Φ_ℓ(j(u^ℓ q^{ℓe}), Y) = (Y − j(u^{ℓ²}q^{ℓ²e})) ∏_{b<ℓ}(Y − j(u ζ_ℓ^b q^e)). The proof is in ModularPolynomialProperties.lean (T12).",
+      "file": "lean/FLTForHuman/ModularCurve/ModularPolynomialProperties.lean",
+      "line": 138,
+      "pin": "Theorems/Thm_ModularCurve_exists_phiIrreducible_evalSymm.lean"
+    },
+    {
+      "id": "evalAtJGen_injective",
+      "group": "port",
+      "label": "evalAtJGen_injective",
+      "name": "ModularCurve.evalAtJGen_injective",
+      "kind": "theorem",
+      "lean": "theorem evalAtJGen_injective : Function.Injective (evalAtJGen : Polynomial ℤ →+* ↥ℚ⟮jq⟯)",
+      "math": "Evaluation ℤ[X] → ℚ(j), X ↦ j(q), is injective: j(q) is transcendental over ℚ. This is what lets ℤ[j] be identified with a subring of ℚ(j).",
+      "note": "The port proves it from the q^{-natDegree} coefficient of p(j(q)) being the leading coefficient of p — the simple-pole triangularity — and uses it to transport injectivity from the Laurent series into ℚ(j).",
+      "file": "lean/FLTForHuman/ModularCurve/ModularPolynomialIrreducible.lean",
+      "line": 106
+    },
+    {
+      "id": "algebraMap_comp",
+      "group": "port",
+      "label": "algebraMap_comp_evalAtJGen",
+      "name": "ModularCurve.algebraMap_comp_evalAtJGen",
+      "kind": "theorem",
+      "lean": "theorem algebraMap_comp_evalAtJGen :\n    (algebraMap ℚ⟮jq⟯ (LaurentSeries ℚ)).comp evalAtJGen = evalAtJ",
+      "math": "The inclusion ℚ(j) ↪ ℚ((q)) composed with the evaluation ℤ[X] → ℚ(j) is exactly the evaluation ℤ[X] → ℚ((q)): evaluating at j(q) and then viewing the result as a series is evaluating at j(q) directly.",
+      "file": "lean/FLTForHuman/ModularCurve/Defs/Fields.lean",
+      "line": 100
+    },
+    {
+      "id": "jqN_one",
+      "group": "port",
+      "label": "jqN_one",
+      "name": "ModularCurve.jqN_one",
+      "kind": "theorem",
+      "lean": "theorem jqN_one : jqN 1 = jq",
+      "math": "j(q^1) = j(q).",
+      "file": "lean/FLTForHuman/ModularCurve/Defs/Jq.lean",
+      "line": 197
+    },
+    {
+      "id": "jqN_congr",
+      "group": "port",
+      "label": "jqN_congr",
+      "name": "ModularCurve.jqN_congr",
+      "kind": "theorem",
+      "lean": "theorem jqN_congr {n m : ℕ} [NeZero n] [NeZero m] (h : n = m) : jqN n = jqN m",
+      "math": "j(q^n) depends only on the level n: equal exponents give equal series.",
+      "file": "lean/FLTForHuman/ModularCurve/Defs/Jq.lean",
+      "line": 201
+    },
+    {
+      "id": "evalAtJ_X",
+      "group": "port",
+      "label": "evalAtJ_X",
+      "name": "ModularCurve.evalAtJ_X",
+      "kind": "theorem",
+      "lean": "theorem evalAtJ_X : evalAtJ Polynomial.X = jq",
+      "math": "The polynomial X evaluates to j(q): X is a monic annihilator of j(q).",
+      "file": "lean/FLTForHuman/ModularCurve/Defs/Jq.lean",
+      "line": 211
+    },
+    {
+      "id": "transcendental_jq",
+      "group": "port",
+      "label": "transcendental_jq",
+      "name": "ModularCurve.transcendental_jq",
+      "kind": "theorem",
+      "lean": "theorem transcendental_jq : Transcendental ℚ jq",
+      "math": "j(q) is transcendental over ℚ. The reason is the simple pole at q = 0: a nonzero polynomial relation would have a leading coefficient that fails to vanish at the pole.",
+      "file": "lean/FLTForHuman/ModularCurve/Defs/Jq.lean",
+      "line": 189
+    },
+    {
+      "id": "dedekindPsi_prime",
+      "group": "port",
+      "label": "dedekindPsi_prime",
+      "name": "ModularCurve.dedekindPsi_prime",
+      "kind": "theorem",
+      "lean": "theorem dedekindPsi_prime {p : ℕ} (hp : Nat.Prime p) : dedekindPsi p = p + 1",
+      "math": "ψ(p) = p + 1: the modular equation at a prime has degree p + 1.",
+      "file": "lean/FLTForHuman/ModularCurve/Defs/DedekindPsi.lean",
+      "line": 34
+    },
+    {
+      "id": "phiAtSeed_monic",
+      "group": "port",
+      "label": "phiAtSeed_monic",
+      "name": "ModularCurve.phiAtSeed_monic",
+      "kind": "theorem",
+      "lean": "theorem phiAtSeed_monic (data : ModularPolynomialData n) (x : R) : (phiAtSeed data x).Monic",
+      "math": "Φ(x, Y) is monic in Y, because Φ is monic in Y and evaluation of the X-variable preserves monicity.",
+      "file": "lean/FLTForHuman/ModularCurve/Defs/PhiAtSlot.lean",
+      "line": 161
+    },
+    {
+      "id": "phiAtSeed_map",
+      "group": "port",
+      "label": "phiAtSeed_map",
+      "name": "ModularCurve.phiAtSeed_map",
+      "kind": "theorem",
+      "lean": "theorem phiAtSeed_map (data : ModularPolynomialData n) (x : R) (f : R →+* S) :\n    (phiAtSeed data x).map f = phiAtSeed data (f x)",
+      "math": "Φ(x, Y) is natural in the coefficient ring: pushing the polynomial along a ring map f is the same as evaluating X at f(x) in the target.",
+      "file": "lean/FLTForHuman/ModularCurve/Defs/PhiAtSlot.lean",
+      "line": 151
+    },
+    {
+      "id": "phiAtSeed_jqN_eval",
+      "group": "port",
+      "label": "phiAtSeed_jqN_eval",
+      "name": "ModularCurve.phiAtSeed_jqN_eval",
+      "kind": "theorem",
+      "lean": "theorem phiAtSeed_jqN_eval (n : ℕ) [NeZero n] (data : ModularPolynomialData n)\n    (M : ℕ) [NeZero M] :\n    (phiAtSeed data (jqN M)).eval (jqN (M * n)) = 0",
+      "math": "Φ(j(q^M), j(q^{Mn})) = 0: substituting q ↦ q^M into the modular equation Φ(j(q), j(q^n)) = 0 gives a vanishing at the corresponding pair of levels.",
+      "file": "lean/FLTForHuman/ModularCurve/Defs/PhiAtSlot.lean",
+      "line": 187
+    },
+    {
+      "id": "induction_on_primes",
+      "group": "mathlib",
+      "label": "induction_on_primes",
+      "name": "induction_on_primes",
+      "kind": "mathlib",
+      "lean": "induction_on_primes (zero : motive 0) (one : motive 1)\n    (prime_mul : ∀ p a, p.Prime → motive a → motive (p * a)) : ∀ n, motive n",
+      "math": "Induction on the multiplicative structure of ℕ: the base cases 0 and 1, and a step that multiplies an arbitrary level by a prime.",
+      "line": 84,
+      "url": "https://github.com/leanprover-community/mathlib4/blob/5ed2965/Mathlib/Data/Nat/Factorization/Induction.lean#L84"
+    },
+    {
+      "id": "isIntegral_algebraMap",
+      "group": "mathlib",
+      "label": "isIntegral_algebraMap",
+      "name": "isIntegral_algebraMap",
+      "kind": "mathlib",
+      "lean": "theorem isIntegral_algebraMap {x : R} : IsIntegral R (algebraMap R A x)",
+      "math": "Every element of the image of the base ring is integral; X is its own monic annihilator.",
+      "line": 33,
+      "url": "https://github.com/leanprover-community/mathlib4/blob/5ed2965/Mathlib/RingTheory/IntegralClosure/IsIntegral/Basic.lean#L33"
+    },
+    {
+      "id": "fg_adjoin_singleton",
+      "group": "mathlib",
+      "label": "IsIntegral.fg_adjoin_singleton",
+      "name": "IsIntegral.fg_adjoin_singleton",
+      "kind": "mathlib",
+      "lean": "theorem IsIntegral.fg_adjoin_singleton {x : B} : IsIntegral R x → (Subalgebra.toSubmodule R[x]).FG",
+      "math": "Adjoining a single integral element produces a finitely generated module: if x is integral over R, then R[x] is a finite R-module.",
+      "line": 104,
+      "url": "https://github.com/leanprover-community/mathlib4/blob/5ed2965/Mathlib/RingTheory/IntegralClosure/IsIntegral/Basic.lean#L104"
+    },
+    {
+      "id": "of_mem_of_fg",
+      "group": "mathlib",
+      "label": "IsIntegral.of_mem_of_fg",
+      "name": "IsIntegral.of_mem_of_fg",
+      "kind": "mathlib",
+      "lean": "theorem IsIntegral.of_mem_of_fg (S : Subalgebra R B) (HS : S.toSubmodule.FG) (x : B) (hx : x ∈ S) : IsIntegral R x",
+      "math": "If a subalgebra S is finitely generated as an R-module, every element of S is integral over R.",
+      "line": 81,
+      "url": "https://github.com/leanprover-community/mathlib4/blob/5ed2965/Mathlib/RingTheory/IntegralClosure/Algebra/Basic.lean#L81"
+    },
+    {
+      "id": "isIntegral_algHom_iff",
+      "group": "mathlib",
+      "label": "isIntegral_algHom_iff",
+      "name": "isIntegral_algHom_iff",
+      "kind": "mathlib",
+      "lean": "theorem isIntegral_algHom_iff (f : A →ₐ[R] B) (hf : Function.Injective f) {x : A} : IsIntegral R (f x) ↔ IsIntegral R x",
+      "math": "An injective R-algebra map reflects integrality: x is integral over R exactly when its image is.",
+      "line": 79,
+      "url": "https://github.com/leanprover-community/mathlib4/blob/5ed2965/Mathlib/RingTheory/IntegralClosure/IsIntegral/Basic.lean#L79"
+    },
+    {
+      "id": "isIntegral_trans",
+      "group": "mathlib",
+      "label": "isIntegral_trans",
+      "name": "isIntegral_trans",
+      "kind": "mathlib",
+      "lean": "theorem isIntegral_trans [Algebra.IsIntegral R A] (x : B) (hx : IsIntegral A x) : IsIntegral R x",
+      "math": "Transitivity of integrality: if A is integral over R and x is integral over A, then x is integral over R.",
+      "line": 477,
+      "url": "https://github.com/leanprover-community/mathlib4/blob/5ed2965/Mathlib/RingTheory/IntegralClosure/IsIntegralClosure/Basic.lean#L477"
+    },
+    {
+      "id": "tower_top",
+      "group": "mathlib",
+      "label": "IsIntegral.tower_top",
+      "name": "IsIntegral.tower_top",
+      "kind": "mathlib",
+      "lean": "theorem IsIntegral.tower_top [Algebra A B] [IsScalarTower R A B] {x : B} : IsIntegral R x → IsIntegral A x",
+      "math": "Enlarging the base ring preserves integrality: integral over R implies integral over any R-algebra A in a scalar tower.",
+      "line": 158,
+      "url": "https://github.com/leanprover-community/mathlib4/blob/5ed2965/Mathlib/RingTheory/IntegralClosure/IsIntegral/Basic.lean#L158"
+    },
+    {
+      "id": "minpoly_fractions",
+      "group": "mathlib",
+      "label": "minpoly.isIntegrallyClosed_eq_field_fractions'",
+      "name": "minpoly.isIntegrallyClosed_eq_field_fractions'",
+      "kind": "mathlib",
+      "lean": "theorem minpoly.isIntegrallyClosed_eq_field_fractions' (K : Type*) [Field K]\n    [Algebra R K] [IsFractionRing R K] [IsIntegrallyClosed R] [IsDomain S]\n    [Algebra K S] [IsScalarTower R K S] {s : S} (hs : IsIntegral R s) :\n    minpoly K s = (minpoly R s).map (algebraMap R K)",
+      "math": "Over an integrally closed base ring R with fraction field K, the minimal polynomial over K is the image of the minimal polynomial over R.",
+      "line": 57,
+      "url": "https://github.com/leanprover-community/mathlib4/blob/5ed2965/Mathlib/FieldTheory/Minpoly/IsIntegrallyClosed.lean#L57"
+    },
+    {
+      "id": "minpoly_monic",
+      "group": "mathlib",
+      "label": "minpoly.monic",
+      "name": "minpoly.monic",
+      "kind": "mathlib",
+      "lean": "theorem minpoly.monic {x : B} : IsIntegral A x → (minpoly A x).Monic",
+      "math": "A minimal polynomial of an integral element is monic.",
+      "line": 54,
+      "url": "https://github.com/leanprover-community/mathlib4/blob/5ed2965/Mathlib/FieldTheory/Minpoly/Basic.lean#L54"
+    },
+    {
+      "id": "minpoly_aeval",
+      "group": "mathlib",
+      "label": "minpoly.aeval",
+      "name": "minpoly.aeval",
+      "kind": "mathlib",
+      "lean": "theorem minpoly.aeval (x : B) : aeval x (minpoly A x) = 0",
+      "math": "The defining property of the minimal polynomial: it annihilates its element.",
+      "line": 89,
+      "url": "https://github.com/leanprover-community/mathlib4/blob/5ed2965/Mathlib/FieldTheory/Minpoly/Basic.lean#L89"
+    },
+    {
+      "id": "minpoly_irreducible",
+      "group": "mathlib",
+      "label": "minpoly.irreducible",
+      "name": "minpoly.irreducible",
+      "kind": "mathlib",
+      "lean": "theorem minpoly.irreducible [IsDomain A] [IsDomain B] : IsIntegral A x → Irreducible (minpoly A x)",
+      "math": "The minimal polynomial of an element over a field is irreducible.",
+      "line": 269,
+      "url": "https://github.com/leanprover-community/mathlib4/blob/5ed2965/Mathlib/FieldTheory/Minpoly/Basic.lean#L269"
+    },
+    {
+      "id": "adjoin_finrank",
+      "group": "mathlib",
+      "label": "IntermediateField.adjoin.finrank",
+      "name": "IntermediateField.adjoin.finrank",
+      "kind": "mathlib",
+      "lean": "theorem IntermediateField.adjoin.finrank {x : L} (hx : IsIntegral K x) : Module.finrank K K⟮x⟯ = (minpoly K x).natDegree",
+      "math": "The degree of a simple extension equals the degree of the minimal polynomial: [K(x) : K] = deg(minpoly_K x).",
+      "line": 489,
+      "url": "https://github.com/leanprover-community/mathlib4/blob/5ed2965/Mathlib/FieldTheory/IntermediateField/Adjoin/Basic.lean#L489"
+    },
+    {
+      "id": "integerNormalization_spec",
+      "group": "mathlib",
+      "label": "IsLocalization.integerNormalization_spec",
+      "name": "IsLocalization.integerNormalization_spec",
+      "kind": "mathlib",
+      "lean": "theorem IsLocalization.integerNormalization_spec (M : Submonoid R) (p : S[X]) :\n    ∃ b ∈ M, Polynomial.map (algebraMap R S)\n      (IsLocalization.integerNormalization M p) = b • p",
+      "math": "Denominator clearing: for a localized ring S and a polynomial p over S, some integer multiple of p (by an element b of the localization submonoid) comes from a polynomial over R, namely integerNormalization p.",
+      "line": 53,
+      "url": "https://github.com/leanprover-community/mathlib4/blob/5ed2965/Mathlib/RingTheory/Localization/Integral.lean#L53"
+    },
+    {
+      "id": "mem_adjoin_simple_iff",
+      "group": "mathlib",
+      "label": "IntermediateField.mem_adjoin_simple_iff",
+      "name": "IntermediateField.mem_adjoin_simple_iff",
+      "kind": "mathlib",
+      "lean": "theorem IntermediateField.mem_adjoin_simple_iff {α : E} (x : E) : x ∈ F⟮α⟯ ↔ ∃ r s, x = aeval α r / aeval α s",
+      "math": "Every element of a simple extension F(α) is a quotient of two polynomial expressions in α over F.",
+      "line": 61,
+      "url": "https://github.com/leanprover-community/mathlib4/blob/5ed2965/Mathlib/FieldTheory/IntermediateField/Adjoin/Basic.lean#L61"
+    },
+    {
+      "id": "eval2_eq_eval_map",
+      "group": "mathlib",
+      "label": "Polynomial.eval₂_eq_eval_map",
+      "name": "Polynomial.eval₂_eq_eval_map",
+      "kind": "mathlib",
+      "lean": "theorem Polynomial.eval₂_eq_eval_map (f : R →+* S) {x : S} : p.eval₂ f x = (p.map f).eval x",
+      "math": "Evaluating with a coefficient map f at x is evaluating the mapped polynomial at x.",
+      "line": 565,
+      "url": "https://github.com/leanprover-community/mathlib4/blob/5ed2965/Mathlib/Algebra/Polynomial/Eval/Defs.lean#L565"
+    },
+    {
+      "id": "aeval_def",
+      "group": "mathlib",
+      "label": "Polynomial.aeval_def",
+      "name": "Polynomial.aeval_def",
+      "kind": "mathlib",
+      "lean": "theorem Polynomial.aeval_def (x : A) (p : R[X]) : aeval x p = eval₂ (algebraMap R A) x p",
+      "math": "Algebra evaluation is evaluation with the algebra map as coefficient map.",
+      "line": 273,
+      "url": "https://github.com/leanprover-community/mathlib4/blob/5ed2965/Mathlib/Algebra/Polynomial/AlgebraMap.lean#L273"
+    },
+    {
+      "id": "monic_natDegree_map",
+      "group": "mathlib",
+      "label": "Polynomial.Monic.natDegree_map",
+      "name": "Polynomial.Monic.natDegree_map",
+      "kind": "mathlib",
+      "lean": "theorem Polynomial.Monic.natDegree_map {P : R[X]} (hP : P.Monic) (f : R →+* S) : (P.map f).natDegree = P.natDegree",
+      "math": "Mapping a monic polynomial along a ring hom preserves its degree.",
+      "line": 397,
+      "url": "https://github.com/leanprover-community/mathlib4/blob/5ed2965/Mathlib/Algebra/Polynomial/Monic.lean#L397"
+    }
+  ],
+  "declarations": [
+    {
+      "id": "inputs",
+      "name": "ModularCurve.inputs",
+      "kind": "theorem",
+      "heading": "`inputs` — the seven significant statements, discharged",
+      "lean": "theorem inputs : Inputs where\n  full_eq_adjoin_full_div_prime := full_eq_adjoin_full_div_prime\n  jqN_prime_not_mem_full := jqN_prime_not_mem_full\n  jqN_pow_not_mem_adjoin_full := jqN_pow_not_mem_adjoin_full\n  minpoly_jqN_map_eq_prod_slots := minpoly_jqN_map_eq_prod_slots\n  modularFunctionField_eq_full_of := modularFunctionField_eq_full_of\n  jqN_div_mem_modularFunctionField := jqN_div_mem_modularFunctionField\n  relfinrank_full_eq_mul := relfinrank_full_eq_mul",
+      "math_statement": "The conjunction of the seven statements bundled in `Inputs` holds. Concretely: (1) one new generator per prime power, F_{Mp^{a+1}}^full = ℚ(F_{Mp^a}^full, j(q^{p^{a+1}})) for p ∤ M; (2) j(q^p) ∉ F_M^full for p ∤ M and Hall M; (3) j(q^{p^{a+2}}) ∉ ℚ(F_M^full, j(q^p), …, j(q^{p^{a+1}})) given j(q^p) ∉ F_M^full; (4) the slot product for the conjugates of j(q^M); (5) the one-prime reduction of Gen; (6) descent by one prime, given the two slot hypotheses; (7) the prime-power degree step.",
+      "role": "Turns the conditional capstone into an unconditional one. After T15–T19 there is no assumed statement left in the segment.",
+      "hypotheses": [],
+      "print": true,
+      "proof": {
+        "goal": "Produce a term of type `Inputs`: a proof of each of its seven fields.",
+        "strategy": "There is no mathematical work left. Each field is the conclusion of a theorem already proved, stated with the same binders and hypotheses so that discharging the field is a drop-in replacement. The Lean term is the structure literal that names the seven theorems.",
+        "steps": [
+          {
+            "id": "s1",
+            "kind": "construct",
+            "claim": "The field `full_eq_adjoin_full_div_prime` holds.",
+            "math": "For M ≠ 0, p prime, p ∤ M and a ≥ 0: F_{M p^{a+1}}^full = ℚ(F_{M p^a}^full, j(q^{p^{a+1}})).",
+            "why": "This is T18. The two-prime descent walks d ∣ M p^{a+1}: if d ∣ M p^a the series is already in the lower field; otherwise peel a prime q ≠ p from the M-part, and the unique common root of Φ_p and Φ_q puts j(q^d) in the target. The field type is the theorem's conclusion verbatim, with the same binders and hypotheses, so no premise needs adaptation; the same holds for the remaining six fields.",
+            "cites": [
+              {
+                "kind": "premise",
+                "ref": "full_eq_adjoin"
+              }
+            ]
+          },
+          {
+            "id": "s2",
+            "kind": "construct",
+            "claim": "The field `jqN_prime_not_mem_full` holds.",
+            "math": "For p ∤ M and Hall M: j(q^p) ∉ F_M^full.",
+            "why": "This is T19. If j(q^p) were in F_M^full, Gen M would put it in ℚ(j)(j(q^M)); evaluating at the ψ(M) distinct slots of the minimal polynomial of j(q^M) would force j(q^p) ∈ ℚ(j), contradicting the prime-level degree p + 1.",
+            "cites": [
+              {
+                "kind": "premise",
+                "ref": "prime_not_mem"
+              }
+            ]
+          },
+          {
+            "id": "s3",
+            "kind": "construct",
+            "claim": "The field `jqN_pow_not_mem_adjoin_full` holds.",
+            "math": "Given j(q^p) ∉ F_M^full: j(q^{p^{a+2}}) ∉ ℚ(F_M^full ∪ {j(q^{p^i}) : 0 ≤ i ≤ a + 1}).",
+            "why": "This is T17. The tower of compatible algebra homs and the modular equation Φ_p force j(q^{p^{a+2}}) and j(q^{p^a}) to be the same root; injectivity gives equality of the series, contradicted by the q^{-(p^a)} coefficient.",
+            "cites": [
+              {
+                "kind": "premise",
+                "ref": "pow_not_mem"
+              }
+            ]
+          },
+          {
+            "id": "s4",
+            "kind": "construct",
+            "claim": "The field `minpoly_jqN_map_eq_prod_slots` holds.",
+            "math": "For a field K with a ℚ-algebra structure, a primitive M-th root of unity ζ, and Hall M: the transported minimal polynomial of j(q^M) is the ψ(M)-fold product over the slots (a, b), a ∣ M, 0 ≤ b < M/a, gcd(gcd(a,b), M/a) = 1, of Y − j(ζ^{ab} q^{a²}).",
+            "why": "This is T19. Iterate the prime-level splitting of Φ_p over the prime factorization of M; the exponent a² and the root of unity ζ^{ab} are the coset data.",
+            "cites": [
+              {
+                "kind": "premise",
+                "ref": "slot_product"
+              }
+            ]
+          },
+          {
+            "id": "s5",
+            "kind": "construct",
+            "claim": "The field `modularFunctionField_eq_full_of` holds.",
+            "math": "If for every factorization N = M·p with p prime one has j(q^M) ∈ F_N and Gen M, then F_N = F_N^full.",
+            "why": "This is T15. Take d ∣ N, d ≠ N, write N = d·m, pick a prime p ∣ m and m = p·m′. Then j(q^{d m′}) ∈ F_N and Gen(d m′) give j(q^d) ∈ F_N.",
+            "cites": [
+              {
+                "kind": "premise",
+                "ref": "gen_reduction"
+              }
+            ]
+          },
+          {
+            "id": "s6",
+            "kind": "construct",
+            "claim": "The field `jqN_div_mem_modularFunctionField` holds.",
+            "math": "For p prime, a primitive (Mp)-th root of unity ζ, and the slot hypotheses htw and hsp: j(q^M) ∈ ℚ(j(q), j(q^{Mp})).",
+            "why": "This is T15. The unique-common-root principle applied to A = Φ_p(j(q^{Mp}), Y) and the pushed minimal polynomial of j(q^M); htw and hsp leave j(q^M) as the only common root.",
+            "cites": [
+              {
+                "kind": "premise",
+                "ref": "one_prime_descent"
+              }
+            ]
+          },
+          {
+            "id": "s7",
+            "kind": "construct",
+            "claim": "The field `relfinrank_full_eq_mul` holds.",
+            "math": "Given the tower equality F_{M p^{a+1}}^full = ℚ(F_{M p^a}^full, j(q^{p^{a+1}})) and the non-membership j(q^{p^{a+1}}) ∉ F_{M p^a}^full: [F_{M p^{a+1}}^full : F_{M p^a}^full] = p + 1 if a = 0, else p.",
+            "why": "This is T16. The simple-extension reduction, then the degree p + 1 of the first prime power and the degree p of later ones; ψ(p) = p + 1 is the Dedekind value the induction compares against.",
+            "cites": [
+              {
+                "kind": "premise",
+                "ref": "degree_step"
+              },
+              {
+                "kind": "premise",
+                "ref": "dedekindPsi_prime"
+              }
+            ]
+          },
+          {
+            "id": "s8",
+            "kind": "close",
+            "claim": "The structure literal with these seven proofs is a term of type `Inputs`.",
+            "why": "Lean elaborates each field against its stated type; the seven steps fill exactly those types.",
+            "cites": [
+              {
+                "kind": "step",
+                "ref": "s1"
+              },
+              {
+                "kind": "step",
+                "ref": "s2"
+              },
+              {
+                "kind": "step",
+                "ref": "s3"
+              },
+              {
+                "kind": "step",
+                "ref": "s4"
+              },
+              {
+                "kind": "step",
+                "ref": "s5"
+              },
+              {
+                "kind": "step",
+                "ref": "s6"
+              },
+              {
+                "kind": "step",
+                "ref": "s7"
+              }
+            ]
+          }
+        ],
+        "conclusion": "`inputs : Inputs`.",
+        "regeneration": [
+          "Fill each structure field with the theorem of the same name; do not restate or adapt any type.",
+          "If a field fails to elaborate, the port's statement has drifted from the theorem's — that is a real bug, not a proof obligation.",
+          "The same seven theorems can be passed to `hall_all` directly (FLT's route); the bundle exists so that discharging a field is a one-line change."
+        ],
+        "formal_notes": [
+          "`Inputs` has only proposition-valued fields, so Lean places it in `Prop`; a term of it is a proof of the conjunction.",
+          "Inside the structure literal, the right-hand side of each `field := ...` resolves to the namespace-level theorem of the same name (the field name is not a local variable).",
+          "The assembly has no pin counterpart: FLT's `hall_all` consumes the seven statements directly, without bundling."
+        ]
+      },
+      "provenance": {
+        "flt": "Port assembly only: FLT has no bundled counterpart (hall_all consumes the seven statements directly)."
+      }
+    },
+    {
+      "id": "functionFieldGeneration",
+      "name": "ModularCurve.functionFieldGeneration",
+      "kind": "theorem",
+      "heading": "`functionFieldGeneration` — the theorem, unconditional",
+      "lean": "theorem functionFieldGeneration (N : ℕ) [NeZero N] : FunctionFieldGeneration N",
+      "math_statement": "For every N ≥ 1 and every divisor d ∣ N, the series j(q^d) lies in ℚ(j(q), j(q^N)). Equivalently, F_N^full = F_N: the two-generator model of the function field of X₀(N) is the whole divisor field.",
+      "role": "The segment's target statement, with no hypotheses beyond N ≠ 0.",
+      "hypotheses": [
+        {
+          "id": "N",
+          "kind": "parameter",
+          "lean": "(N : ℕ)",
+          "math": "the level, a natural number"
+        },
+        {
+          "id": "hN",
+          "kind": "instance",
+          "lean": "[NeZero N]",
+          "math": "N ≠ 0. The substitution q ↦ q^N is the zero map at N = 0, so the level must be positive; this is plumbing, not mathematics."
+        }
+      ],
+      "print": true,
+      "proof": {
+        "goal": "For every N ≥ 1 and every divisor d ∣ N, the series j(q^d) lies in the field generated by j(q) and j(q^N). In Lean this is qExpand ℚ d jq ∈ ℚ(jq, qExpand ℚ N jq), and the definition of FunctionFieldGeneration is exactly that ∀-statement.",
+        "strategy": "It is enough to prove the field equality F_N^full = F_N. The strong induction `hall_all` supplies Gen N, which is the equality F_N = F_N^full; the collapse lemma converts between the field equality and the pointwise generation statement.",
+        "steps": [
+          {
+            "id": "s1",
+            "kind": "claim",
+            "claim": "Hall N holds: both invariants hold at every divisor of N.",
+            "math": "For every d ∣ N, Tight d and Gen d.",
+            "why": "`hall_all` applied to the seven inputs at N; the positivity hypothesis N ≠ 0 is the `NeZero N` instance, read as `NeZero.ne N`.",
+            "cites": [
+              {
+                "kind": "premise",
+                "ref": "hall_all"
+              }
+            ],
+            "requires": [
+              {
+                "what": "the seven inputs, bundled",
+                "met_by": {
+                  "kind": "declaration",
+                  "ref": "inputs"
+                }
+              },
+              {
+                "what": "N ≠ 0",
+                "met_by": {
+                  "kind": "hypothesis",
+                  "ref": "hN"
+                }
+              }
+            ]
+          },
+          {
+            "id": "s2",
+            "kind": "claim",
+            "claim": "Gen N: F_N = F_N^full.",
+            "math": "The two-generator field is already the full divisor field at level N.",
+            "why": "Specialize Hall N at d = N, which divides N, and take the second component of the pair.",
+            "cites": [
+              {
+                "kind": "step",
+                "ref": "s1"
+              }
+            ],
+            "requires": [
+              {
+                "what": "N ∣ N",
+                "met_by": {
+                  "kind": "trivial",
+                  "ref": "dvd_rfl",
+                  "math": "every natural number divides itself"
+                }
+              }
+            ]
+          },
+          {
+            "id": "s3",
+            "kind": "claim",
+            "claim": "FunctionFieldGeneration N.",
+            "math": "F_N^full = F_N, i.e. every j(q^d) with d ∣ N is generated by j(q) and j(q^N).",
+            "why": "The equivalence `FunctionFieldGeneration N ↔ F_N^full = F_N` is applied in the direction that needs the field equality; Gen N gives the equality with the two sides reversed, so it is used symmetrically.",
+            "cites": [
+              {
+                "kind": "step",
+                "ref": "s2"
+              },
+              {
+                "kind": "premise",
+                "ref": "ffg_iff"
+              },
+              {
+                "kind": "premise",
+                "ref": "ffg_of",
+                "math": "the packaged form of s1–s3, which the module's body calls"
+              }
+            ],
+            "requires": [
+              {
+                "what": "F_N^full = F_N (the right-hand side of the equivalence)",
+                "met_by": {
+                  "kind": "step",
+                  "ref": "s2",
+                  "math": "Gen N is F_N = F_N^full; take `.symm`"
+                }
+              }
+            ]
+          }
+        ],
+        "conclusion": "`FunctionFieldGeneration N`, and with N arbitrary, the theorem.",
+        "regeneration": [
+          "Get Hall N from `hall_all inputs N (NeZero.ne N)`.",
+          "Specialize at d = N to obtain Gen N, i.e. modularFunctionField N = modularFunctionFieldFull N.",
+          "Apply `functionFieldGeneration_iff_full_eq N` in the `.mpr` direction to the symmetric equality.",
+          "The module's own proof calls the packaged `functionFieldGeneration_of inputs N`, which is definitionally this composition.",
+          "Orientation matters: `Gen` is F_N = F_N^full, while the equivalence's right side is F_N^full = F_N."
+        ],
+        "formal_notes": [
+          "The body is `functionFieldGeneration_of inputs N`; `#print` shows it as `fun N [NeZero N] => functionFieldGeneration_of inputs N`.",
+          "`functionFieldGeneration_of` is `(functionFieldGeneration_iff_full_eq N).mpr (hall_all h N (NeZero.ne N) N dvd_rfl).2.symm`."
+        ]
+      },
+      "provenance": {
+        "flt": "Statement: Theorems/Thm_ModularCurve_functionFieldGeneration.lean; assembly: P2M/Sol/S_ModularCurve_functionFieldGeneration.lean node 728–732."
+      }
+    },
+    {
+      "id": "modularFunctionField_eq_full",
+      "name": "ModularCurve.modularFunctionField_eq_full",
+      "kind": "corollary",
+      "heading": "`modularFunctionField_eq_full` — the field equality",
+      "lean": "theorem modularFunctionField_eq_full (N : ℕ) [NeZero N] :\n    modularFunctionField N = modularFunctionFieldFull N",
+      "math_statement": "For every N ≥ 1, F_N = F_N^full: the two-generator field is the whole divisor field.",
+      "role": "The field-form corollary consumed by the rest of the modular-curve development.",
+      "hypotheses": [
+        {
+          "id": "N",
+          "kind": "parameter",
+          "lean": "(N : ℕ)",
+          "math": "the level"
+        },
+        {
+          "id": "hN",
+          "kind": "instance",
+          "lean": "[NeZero N]",
+          "math": "N ≠ 0"
+        }
+      ],
+      "print": true,
+      "proof": {
+        "goal": "F_N = F_N^full.",
+        "strategy": "Read the second component of Hall N at d = N.",
+        "steps": [
+          {
+            "id": "s1",
+            "kind": "claim",
+            "claim": "Hall N.",
+            "why": "`hall_all` at the seven inputs and N ≠ 0.",
+            "cites": [
+              {
+                "kind": "premise",
+                "ref": "hall_all"
+              }
+            ],
+            "requires": [
+              {
+                "what": "the seven inputs",
+                "met_by": {
+                  "kind": "declaration",
+                  "ref": "inputs"
+                }
+              },
+              {
+                "what": "N ≠ 0",
+                "met_by": {
+                  "kind": "hypothesis",
+                  "ref": "hN"
+                }
+              }
+            ]
+          },
+          {
+            "id": "s2",
+            "kind": "close",
+            "claim": "Gen N, which is the goal.",
+            "why": "Specialize s1 at d = N and take the second component.",
+            "cites": [
+              {
+                "kind": "step",
+                "ref": "s1"
+              }
+            ],
+            "requires": [
+              {
+                "what": "N ∣ N",
+                "met_by": {
+                  "kind": "trivial",
+                  "ref": "dvd_rfl"
+                }
+              }
+            ]
+          }
+        ],
+        "conclusion": "`modularFunctionField N = modularFunctionFieldFull N`.",
+        "regeneration": [
+          "This is `(hall_all inputs N (NeZero.ne N) N dvd_rfl).2`.",
+          "No unfolding is needed: Gen is an abbreviation for exactly this equality."
+        ],
+        "formal_notes": [
+          "`hall_all` returns `Tight N ∧ Gen N`; `.2` is the equality, in the orientation F_N = F_N^full."
+        ]
+      },
+      "provenance": {
+        "flt": "Theorems/Thm_ModularCurve_modularFunctionField_eq_full.lean; FLT corollary node 713–721."
+      }
+    },
+    {
+      "id": "finrank_adjoin_jqN_eq_dedekindPsi",
+      "name": "ModularCurve.finrank_adjoin_jqN_eq_dedekindPsi",
+      "kind": "corollary",
+      "heading": "`finrank_adjoin_jqN_eq_dedekindPsi` — the degree of the modular equation",
+      "lean": "theorem finrank_adjoin_jqN_eq_dedekindPsi (N : ℕ) [NeZero N] :\n    Module.finrank (IntermediateField.adjoin ℚ ({jq} : Set (LaurentSeries ℚ)))\n      (IntermediateField.adjoin (IntermediateField.adjoin ℚ ({jq} : Set (LaurentSeries ℚ)))\n        ({jqN N} : Set (LaurentSeries ℚ))) = dedekindPsi N",
+      "math_statement": "For every N ≥ 1, [ℚ(j)(j(q^N)) : ℚ(j)] = ψ(N): the modular equation at level N has full degree — the minimal polynomial of j(q^N) over ℚ(j) has degree ψ(N).",
+      "role": "The degree half of Tight, exported for consumers.",
+      "hypotheses": [
+        {
+          "id": "N",
+          "kind": "parameter",
+          "lean": "(N : ℕ)",
+          "math": "the level"
+        },
+        {
+          "id": "hN",
+          "kind": "instance",
+          "lean": "[NeZero N]",
+          "math": "N ≠ 0"
+        }
+      ],
+      "print": true,
+      "proof": {
+        "goal": "[ℚ(j)(j(q^N)) : ℚ(j)] = ψ(N).",
+        "strategy": "It is the definition of Tight N, the first component of Hall N at d = N.",
+        "steps": [
+          {
+            "id": "s1",
+            "kind": "claim",
+            "claim": "Hall N.",
+            "why": "`hall_all` at the seven inputs.",
+            "cites": [
+              {
+                "kind": "premise",
+                "ref": "hall_all"
+              }
+            ],
+            "requires": [
+              {
+                "what": "the seven inputs",
+                "met_by": {
+                  "kind": "declaration",
+                  "ref": "inputs"
+                }
+              },
+              {
+                "what": "N ≠ 0",
+                "met_by": {
+                  "kind": "hypothesis",
+                  "ref": "hN"
+                }
+              }
+            ]
+          },
+          {
+            "id": "s2",
+            "kind": "close",
+            "claim": "Tight N, which is the goal.",
+            "why": "Specialize at d = N and take the first component; Tight is an abbreviation for exactly this finrank equality.",
+            "cites": [
+              {
+                "kind": "step",
+                "ref": "s1"
+              },
+              {
+                "kind": "definition",
+                "ref": "tight"
+              }
+            ],
+            "requires": [
+              {
+                "what": "N ∣ N",
+                "met_by": {
+                  "kind": "trivial",
+                  "ref": "dvd_rfl"
+                }
+              }
+            ]
+          }
+        ],
+        "conclusion": "`Module.finrank ℚ⟮jq⟯ (adjoin ℚ⟮jq⟯ {jqN N}) = dedekindPsi N`.",
+        "regeneration": [
+          "This is `(hall_all inputs N (NeZero.ne N) N dvd_rfl).1`.",
+          "Tight d is the finrank of the simple extension adjoin ℚ⟮jq⟯ {jqN d}; the goal is syntactically that definition."
+        ],
+        "formal_notes": [
+          "Tight uses Module.finrank over ℚ⟮jq⟯ (not relfinrank): the adjoin is a simple extension, so the two notions agree."
+        ]
+      },
+      "provenance": {
+        "flt": "Theorems/Thm_ModularCurve_finrank_adjoin_jqN_eq_dedekindPsi.lean; FLT corollary node 722–727."
+      }
+    },
+    {
+      "id": "relfinrank_full_eq_dedekindPsi",
+      "name": "ModularCurve.relfinrank_full_eq_dedekindPsi",
+      "kind": "corollary",
+      "heading": "`relfinrank_full_eq_dedekindPsi` — the degree of the full field",
+      "lean": "theorem relfinrank_full_eq_dedekindPsi (N : ℕ) [NeZero N] :\n    IntermediateField.relfinrank (IntermediateField.adjoin ℚ ({jq} : Set (LaurentSeries ℚ)))\n      (modularFunctionFieldFull N) = dedekindPsi N",
+      "math_statement": "For every N ≥ 1, [F_N^full : ℚ(j)] = ψ(N).",
+      "role": "The relative degree of the divisor field, the number the Hecke-correspondence argument matches ranks against.",
+      "hypotheses": [
+        {
+          "id": "N",
+          "kind": "parameter",
+          "lean": "(N : ℕ)",
+          "math": "the level"
+        },
+        {
+          "id": "hN",
+          "kind": "instance",
+          "lean": "[NeZero N]",
+          "math": "N ≠ 0"
+        }
+      ],
+      "print": false,
+      "proof": {
+        "goal": "[F_N^full : ℚ(j)] = ψ(N).",
+        "strategy": "Replace F_N^full by F_N (the field equality), then replace the relative degree of F_N by the degree of the simple extension ℚ(j)(j(q^N)), and finish with Tight.",
+        "steps": [
+          {
+            "id": "s1",
+            "kind": "reduce",
+            "claim": "It suffices to show [F_N : ℚ(j)] = ψ(N).",
+            "math": "The left field may be replaced by F_N because F_N^full = F_N.",
+            "why": "The field equality of the previous corollary, used in the direction that rewrites F_N^full to F_N.",
+            "cites": [
+              {
+                "kind": "declaration",
+                "ref": "modularFunctionField_eq_full"
+              }
+            ]
+          },
+          {
+            "id": "s2",
+            "kind": "claim",
+            "claim": "[F_N : ℚ(j)] = [ℚ(j)(j(q^N)) : ℚ(j)].",
+            "math": "Adjoining j(q^N) to ℚ(j) gives exactly F_N.",
+            "why": "The bridge `relfinrank_modularFunctionField`: F_N is the adjoin of j(q^N) over ℚ(j), and relative degree equals the dimension of the simple extension.",
+            "cites": [
+              {
+                "kind": "premise",
+                "ref": "relfinrank_mff"
+              }
+            ],
+            "requires": [
+              {
+                "what": "N ≠ 0",
+                "met_by": {
+                  "kind": "hypothesis",
+                  "ref": "hN"
+                }
+              }
+            ]
+          },
+          {
+            "id": "s3",
+            "kind": "claim",
+            "claim": "[ℚ(j)(j(q^N)) : ℚ(j)] = ψ(N).",
+            "math": "Tight N.",
+            "why": "The previous corollary, `finrank_adjoin_jqN_eq_dedekindPsi N`.",
+            "cites": [
+              {
+                "kind": "declaration",
+                "ref": "finrank_adjoin_jqN_eq_dedekindPsi"
+              }
+            ]
+          }
+        ],
+        "conclusion": "[F_N^full : ℚ(j)] = ψ(N).",
+        "regeneration": [
+          "Rewrite with `← modularFunctionField_eq_full N` (the arrow points from F_N to F_N^full, so `←` replaces F_N^full by F_N).",
+          "Rewrite with `relfinrank_modularFunctionField N` to turn the relative degree into the finrank of the simple extension.",
+          "Close with `finrank_adjoin_jqN_eq_dedekindPsi N`."
+        ],
+        "formal_notes": [
+          "The first rewrite is orientation-sensitive: `modularFunctionField_eq_full N` is F_N = F_N^full, and the goal contains F_N^full.",
+          "`#print` shows the elaborated proof as nested `Eq.mpr`/`congrArg` terms; the mathematical content is the three rewrites above."
+        ]
+      },
+      "provenance": {
+        "flt": "Theorems/Thm_ModularCurve_relfinrank_full_eq_dedekindPsi.lean; FLT corollary node 739–749."
+      }
+    },
+    {
+      "id": "coe_evalAtJGen",
+      "name": "ModularCurve.coe_evalAtJGen",
+      "kind": "bridge",
+      "private": true,
+      "heading": "`coe_evalAtJGen` — the ℚ(j) ↪ ℚ((q)) bridge",
+      "lean": "private theorem coe_evalAtJGen (g : Polynomial ℤ) :\n    ((evalAtJGen g : ℚ⟮jq⟯) : LaurentSeries ℚ) = evalAtJ g",
+      "lean_goal": "fun (g : Polynomial ℤ) =>\n  (((evalAtJGen g : ℚ⟮jq⟯) : LaurentSeries ℚ) = evalAtJ g : Prop)",
+      "math_statement": "For every integer polynomial g, viewing its value in ℚ(j) as a Laurent series gives the same series as evaluating g directly at j(q).",
+      "role": "A formal bridge used by the fraction-field argument: it lets an equality proved in ℚ(j) be checked in ℚ((q)).",
+      "hypotheses": [
+        {
+          "id": "g",
+          "kind": "parameter",
+          "lean": "(g : Polynomial ℤ)",
+          "math": "an integer polynomial"
+        }
+      ],
+      "proof": {
+        "goal": "The two evaluations of g agree after the inclusion ℚ(j) ⊂ ℚ((q)).",
+        "strategy": "Apply the ring-hom equality `algebraMap_comp_evalAtJGen` to g.",
+        "steps": [
+          {
+            "id": "s1",
+            "kind": "close",
+            "claim": "The composite (inclusion ∘ evalAtJGen) equals evalAtJ.",
+            "why": "`algebraMap_comp_evalAtJGen` is exactly that equality of ring homs; evaluating both sides at g is `RingHom.congr_fun`.",
+            "cites": [
+              {
+                "kind": "premise",
+                "ref": "algebraMap_comp"
+              }
+            ]
+          }
+        ],
+        "conclusion": "The claimed equality of Laurent series.",
+        "regeneration": [
+          "This is `RingHom.congr_fun algebraMap_comp_evalAtJGen g`.",
+          "It carries no mathematical content: it is the coherence of the two evaluations."
+        ],
+        "formal_notes": [
+          "The theorem is `private` to Capstone.lean; the sheet exhibits its statement through a `#check` of the proposition rather than of the name."
+        ]
+      },
+      "provenance": {
+        "flt": "Port bridge; no pin counterpart (the pin inlines the composite in the fraction-ring computation)."
+      }
+    },
+    {
+      "id": "aeval_map_intCast",
+      "name": "ModularCurve.aeval_map_intCast",
+      "kind": "bridge",
+      "private": true,
+      "heading": "`aeval_map_intCast` — integer and rational evaluation agree",
+      "lean": "private theorem aeval_map_intCast (g : Polynomial ℤ) :\n    Polynomial.aeval jq (g.map (algebraMap ℤ ℚ)) = evalAtJ g",
+      "lean_goal": "fun (g : Polynomial ℤ) =>\n  (Polynomial.aeval jq (g.map (algebraMap ℤ ℚ)) = evalAtJ g : Prop)",
+      "math_statement": "Mathlib's ℚ-algebra evaluation of the coefficient-extended polynomial g.map (ℤ → ℚ) at j(q) is the same as the integer evaluation evalAtJ g.",
+      "role": "Bridges mathlib's ℚ-algebra API and the port's integer-coefficient evaluation; used to move integer-normalised polynomials between the two worlds.",
+      "hypotheses": [
+        {
+          "id": "g",
+          "kind": "parameter",
+          "lean": "(g : Polynomial ℤ)",
+          "math": "an integer polynomial"
+        }
+      ],
+      "proof": {
+        "goal": "aeval jq (g.map (ℤ → ℚ)) = evalAtJ g.",
+        "strategy": "Unfold aeval to eval₂, push the coefficient map through, and note the two maps ℤ → ℚ((q)) agree on integers.",
+        "steps": [
+          {
+            "id": "s1",
+            "kind": "calculate",
+            "claim": "aeval jq (g.map (ℤ → ℚ)) = (g.map (ℤ → ℚ)).eval₂ (algebraMap ℚ ℚ((q))) jq.",
+            "math": "Definition of algebra evaluation.",
+            "cites": [
+              {
+                "kind": "premise",
+                "ref": "aeval_def"
+              }
+            ]
+          },
+          {
+            "id": "s2",
+            "kind": "calculate",
+            "claim": "That equals g.eval₂ ((algebraMap ℚ ℚ((q))) ∘ (ℤ → ℚ)) jq.",
+            "math": "Evaluation with a composite coefficient map is evaluation of the mapped polynomial.",
+            "cites": [
+              {
+                "kind": "premise",
+                "ref": "eval2_eq_eval_map"
+              }
+            ]
+          },
+          {
+            "id": "s3",
+            "kind": "close",
+            "claim": "The composite coefficient map is evalAtJ.",
+            "why": "Both are ring homs ℤ → ℚ((q)); they agree on ℤ, so they agree (`RingHom.ext_int`).",
+            "cites": [
+              {
+                "kind": "trivial",
+                "ref": "RingHom.ext_int",
+                "math": "two ring homs out of ℤ agree if they agree on 1"
+              }
+            ]
+          }
+        ],
+        "conclusion": "aeval jq (g.map (algebraMap ℤ ℚ)) = evalAtJ g.",
+        "regeneration": [
+          "Unfold aeval, use `Polynomial.eval₂_map`, then close the ring-hom equality with `RingHom.ext_int`.",
+          "The equality is the formal statement that changing coefficients from ℤ to ℚ does not change the value at a ℚ-algebra element."
+        ],
+        "formal_notes": [
+          "`private` to Capstone.lean; exhibited as a proposition."
+        ]
+      },
+      "provenance": {
+        "flt": "Port bridge; no pin counterpart."
+      }
+    },
+    {
+      "id": "evalAtJ_C",
+      "name": "ModularCurve.evalAtJ_C",
+      "kind": "bridge",
+      "private": true,
+      "heading": "`evalAtJ_C` — constants evaluate to constants",
+      "lean": "private theorem evalAtJ_C (b : ℤ) : evalAtJ (Polynomial.C b) = (b : LaurentSeries ℚ)",
+      "lean_goal": "fun (b : ℤ) => (evalAtJ (Polynomial.C b) = (b : LaurentSeries ℚ) : Prop)",
+      "math_statement": "evalAtJ sends the constant polynomial b to the constant series b.",
+      "role": "Used in the fraction-ring computation to identify integer scalar factors after denominator clearing.",
+      "hypotheses": [
+        {
+          "id": "b",
+          "kind": "parameter",
+          "lean": "(b : ℤ)",
+          "math": "an integer"
+        }
+      ],
+      "proof": {
+        "goal": "evalAtJ (C b) = b.",
+        "strategy": "evalAtJ is a ring hom, so it preserves constants; `simp` with its definition.",
+        "steps": [
+          {
+            "id": "s1",
+            "kind": "close",
+            "claim": "evalAtJ (C b) = b.",
+            "why": "evalAtJ is the ring hom induced by aeval at jq; a ring hom sends the constant polynomial to the image of b.",
+            "cites": [
+              {
+                "kind": "definition",
+                "ref": "evalatj"
+              }
+            ]
+          }
+        ],
+        "conclusion": "The claimed equality.",
+        "regeneration": [
+          "`simp [evalAtJ]`."
+        ],
+        "formal_notes": [
+          "`private` to Capstone.lean; exhibited as a proposition."
+        ]
+      },
+      "provenance": {
+        "flt": "Port bridge; no pin counterpart."
+      }
+    },
+    {
+      "id": "exists_monic_evalAtJ_jqN_eq_zero",
+      "name": "ModularCurve.exists_monic_evalAtJ_jqN_eq_zero",
+      "kind": "theorem",
+      "heading": "`exists_monic_evalAtJ_jqN_eq_zero` — integrality of j(q^N)",
+      "lean": "theorem exists_monic_evalAtJ_jqN_eq_zero (N : ℕ) [NeZero N] :\n    ∃ P : Polynomial (Polynomial ℤ), P.Monic ∧ P.eval₂ evalAtJ (jqN N) = 0",
+      "math_statement": "For every N ≥ 1 there is a monic P ∈ ℤ[X][Y] with P(j(q), j(q^N)) = 0. In other words, j(q^N) is integral over ℤ[j(q)].",
+      "role": "Supplies the monic annihilator — the integrality half of the modular polynomial — from the prime-level modular equation.",
+      "hypotheses": [
+        {
+          "id": "N",
+          "kind": "parameter",
+          "lean": "(N : ℕ)",
+          "math": "the level"
+        },
+        {
+          "id": "hN",
+          "kind": "instance",
+          "lean": "[NeZero N]",
+          "math": "N ≠ 0"
+        }
+      ],
+      "print": false,
+      "proof": {
+        "goal": "Find a monic P ∈ ℤ[j][Y] with P(j(q), j(q^N)) = 0.",
+        "strategy": "Induct on the multiplicative structure of N. The level N = 1 is j(q) itself; the level N = 0 is excluded. The prime step uses the modular equation: for p prime, Φ_p(j(q^a), Y) is a monic polynomial over ℤ[j][j(q^a)] with root j(q^{ap}), and ℤ[j][j(q^a)] is integral over ℤ[j]; integrality is transitive.",
+        "steps": [
+          {
+            "id": "s0",
+            "kind": "reduce",
+            "claim": "It is enough to prove IsIntegral (Polynomial ℤ) (jqN n) for every n with NeZero n.",
+            "math": "Integrality of j(q^n) over ℤ[j] is exactly the existence of a monic annihilator.",
+            "why": "`IsIntegral` unfolds to the existential of a monic polynomial; under the algebra structure evalAtJ.toAlgebra, the algebra map is evalAtJ, and the evaluation is eval₂ evalAtJ.",
+            "cites": [
+              {
+                "kind": "definition",
+                "ref": "evalatj"
+              },
+              {
+                "kind": "trivial",
+                "ref": "IsIntegral",
+                "math": "∃ P, P.Monic ∧ P.eval₂ (algebraMap R S) x = 0"
+              }
+            ]
+          },
+          {
+            "id": "s1",
+            "kind": "reduce",
+            "claim": "It is enough to prove the base cases 0 and 1 and the prime-multiplication step.",
+            "math": "Every positive integer is reached from 1 by repeated multiplication by primes; the induction is on the multiplicative structure of ℕ.",
+            "why": "`induction_on_primes` with motive `fun n => NeZero n → IsIntegral (jqN n)`.",
+            "cites": [
+              {
+                "kind": "premise",
+                "ref": "induction_on_primes"
+              }
+            ],
+            "requires": [
+              {
+                "what": "the case n = 0",
+                "met_by": {
+                  "kind": "step",
+                  "ref": "s2"
+                }
+              },
+              {
+                "what": "the case n = 1",
+                "met_by": {
+                  "kind": "step",
+                  "ref": "s3"
+                }
+              },
+              {
+                "what": "the prime-multiplication step",
+                "met_by": {
+                  "kind": "step",
+                  "ref": "s9"
+                }
+              }
+            ]
+          },
+          {
+            "id": "s2",
+            "kind": "close",
+            "claim": "The case n = 0 is vacuous.",
+            "math": "There is no level 0.",
+            "why": "NeZero 0 supplies 0 ≠ 0, a contradiction.",
+            "cites": [
+              {
+                "kind": "trivial",
+                "ref": "NeZero 0",
+                "math": "the instance carries the field out : 0 ≠ 0"
+              }
+            ]
+          },
+          {
+            "id": "s3",
+            "kind": "claim",
+            "claim": "The case n = 1 holds, with P = X.",
+            "math": "j(q^1) = j(q), and j(q) is the value of the polynomial X.",
+            "why": "jqN 1 = jq, and evalAtJ X = jq. The monic annihilator is the polynomial X over ℤ[X]; this is `isIntegral_algebraMap` for the algebra-map element X.",
+            "cites": [
+              {
+                "kind": "premise",
+                "ref": "jqN_one"
+              },
+              {
+                "kind": "premise",
+                "ref": "evalAtJ_X"
+              },
+              {
+                "kind": "premise",
+                "ref": "isIntegral_algebraMap"
+              }
+            ]
+          },
+          {
+            "id": "s4",
+            "kind": "claim",
+            "claim": "Prime step, hypothesis: j(q^a) is integral over ℤ[j].",
+            "math": "The induction hypothesis at the level a.",
+            "why": "This is the `ih` argument supplied by the `induction_on_primes` step (s1); the NeZero a instance is derived from NeZero (p·a). It is the standing assumption of the whole prime case."
+          },
+          {
+            "id": "s5",
+            "kind": "construct",
+            "claim": "Take a modular polynomial datum at p: Φ_p monic, Φ_p(j(q), j(q^p)) = 0.",
+            "math": "At a prime p, the modular polynomial exists, is monic, and vanishes at (j(q), j(q^p)).",
+            "why": "`exists_phiIrreducible_evalSymm p`; only monicity and the vanishing are used here (irreducibility and symmetry are needed elsewhere).",
+            "cites": [
+              {
+                "kind": "premise",
+                "ref": "exists_phi_irred_symm"
+              }
+            ]
+          },
+          {
+            "id": "s6",
+            "kind": "claim",
+            "claim": "A := ℤ[j][j(q^a)] is an integral extension of ℤ[j].",
+            "math": "A is the subalgebra generated by j(q^a). Since j(q^a) is integral, A is a finitely generated ℤ[j]-module, so every element of A is integral over ℤ[j].",
+            "why": "`IsIntegral.fg_adjoin_singleton` makes A finitely generated as a module; `IsIntegral.of_mem_of_fg` then gives integrality of each element. Finally `isIntegral_algHom_iff` transports along the injective inclusion A ↪ ℚ((q)), producing `Algebra.IsIntegral ℤ[j] A`.",
+            "cites": [
+              {
+                "kind": "premise",
+                "ref": "fg_adjoin_singleton"
+              },
+              {
+                "kind": "premise",
+                "ref": "of_mem_of_fg"
+              },
+              {
+                "kind": "premise",
+                "ref": "isIntegral_algHom_iff"
+              }
+            ],
+            "requires": [
+              {
+                "what": "j(q^a) is integral over ℤ[j]",
+                "met_by": {
+                  "kind": "step",
+                  "ref": "s4"
+                }
+              }
+            ]
+          },
+          {
+            "id": "s7",
+            "kind": "claim",
+            "claim": "j(q^{ap}) is a root of the monic polynomial Φ_p(j(q^a), Y) over A.",
+            "math": "Φ_p(j(q^a), j(q^{ap})) = 0.",
+            "why": "Substitute q ↦ q^a into Φ_p(j(q), j(q^p)) = 0. In Lean, `phiAtSeed_jqN_eval p data a` gives the vanishing in ℚ((q)), and `phiAtSeed_map` identifies the evaluation over A with it.",
+            "cites": [
+              {
+                "kind": "premise",
+                "ref": "phiAtSeed_jqN_eval"
+              },
+              {
+                "kind": "premise",
+                "ref": "phiAtSeed_map"
+              },
+              {
+                "kind": "premise",
+                "ref": "phiAtSeed_monic"
+              }
+            ],
+            "requires": [
+              {
+                "what": "the datum at p",
+                "met_by": {
+                  "kind": "step",
+                  "ref": "s5"
+                }
+              },
+              {
+                "what": "the level a",
+                "met_by": {
+                  "kind": "step",
+                  "ref": "s4"
+                }
+              }
+            ]
+          },
+          {
+            "id": "s8",
+            "kind": "claim",
+            "claim": "j(q^{ap}) is integral over ℤ[j].",
+            "math": "Integral over A, and A integral over ℤ[j], so integral over ℤ[j].",
+            "why": "`isIntegral_trans`, with the monic polynomial of s7 over A and the integral extension of s6.",
+            "cites": [
+              {
+                "kind": "premise",
+                "ref": "isIntegral_trans"
+              },
+              {
+                "kind": "step",
+                "ref": "s6"
+              },
+              {
+                "kind": "step",
+                "ref": "s7"
+              }
+            ],
+            "requires": [
+              {
+                "what": "Algebra.IsIntegral ℤ[j] A",
+                "met_by": {
+                  "kind": "step",
+                  "ref": "s6"
+                }
+              },
+              {
+                "what": "IsIntegral A (j(q^{ap}))",
+                "met_by": {
+                  "kind": "step",
+                  "ref": "s7"
+                }
+              }
+            ]
+          },
+          {
+            "id": "s9",
+            "kind": "close",
+            "claim": "The prime step holds: j(q^{pa}) is integral over ℤ[j].",
+            "math": "j(q^{ap}) = j(q^{pa}).",
+            "why": "`jqN_congr` with commutativity of multiplication.",
+            "cites": [
+              {
+                "kind": "premise",
+                "ref": "jqN_congr"
+              },
+              {
+                "kind": "step",
+                "ref": "s8"
+              }
+            ]
+          }
+        ],
+        "conclusion": "By induction, every j(q^n) (n ≠ 0) is integral; unpacking IsIntegral at N gives the monic P.",
+        "regeneration": [
+          "State the stronger form `∀ n, NeZero n → IsIntegral (Polynomial ℤ) (jqN n)` and induct with `induction_on_primes`.",
+          "Case 0 is `absurd rfl h.out`; case 1 is `isIntegral_algebraMap` after rewriting `jqN 1` and `evalAtJ X`.",
+          "In the prime case, let A = Algebra.adjoin (Polynomial ℤ) {jqN a}; get `Algebra.IsIntegral (Polynomial ℤ) A` from `hia.fg_adjoin_singleton`, `IsIntegral.of_mem_of_fg`, and `isIntegral_algHom_iff` along the inclusion into the Laurent series.",
+          "The root is `phiAtSeed data ⟨jqN a, hmem⟩` at `jqN (a * p)`: `phiAtSeed_jqN_eval` in the big field, transported by `phiAtSeed_map`.",
+          "Close with `isIntegral_trans` and rewrite `jqN (a * p)` to `jqN (p * a)` with `jqN_congr (Nat.mul_comm a p)`."
+        ],
+        "formal_notes": [
+          "The two `NeZero` instances in the prime case (for a and for a·p) are built from `NeZero (p·a)`; this is plumbing around the instance arguments.",
+          "`hroot` is stated with `Polynomial.eval₂ (algebraMap A (LaurentSeries ℚ))`; `Polynomial.eval₂_eq_eval_map` plus `phiAtSeed_map` turn the evaluation over A into the evaluation over ℚ((q)).",
+          "`IsIntegral` is not a structure but a def: `⟨P, hP, hval⟩` is exactly its constructor, which is why the outer `obtain` works.",
+          "The datum's irreducibility and symmetry are discarded (`obtain ⟨data, -, -⟩`): integrality needs only monicity and vanishing."
+        ]
+      },
+      "provenance": {
+        "flt": "Theorems/Thm_ModularCurve_exists_monic_evalAtJ_jqN_eq_zero.lean."
+      }
+    },
+    {
+      "id": "exists_phiIrreducible_of_finrank_eq",
+      "name": "ModularCurve.exists_phiIrreducible_of_finrank_eq",
+      "kind": "theorem",
+      "heading": "`exists_phiIrreducible_of_finrank_eq` — from the degree count to an irreducible datum",
+      "lean": "theorem exists_phiIrreducible_of_finrank_eq (N : ℕ) [NeZero N]\n    (h : Module.finrank (IntermediateField.adjoin ℚ ({jq} : Set (LaurentSeries ℚ)))\n      (IntermediateField.adjoin (IntermediateField.adjoin ℚ ({jq} : Set (LaurentSeries ℚ)))\n        ({jqN N} : Set (LaurentSeries ℚ))) = dedekindPsi N) :\n    ∃ data : ModularPolynomialData N, PhiIrreducible data",
+      "math_statement": "Given Tight N — that is, [ℚ(j)(j(q^N)) : ℚ(j)] = ψ(N) — there is a modular polynomial datum at level N whose transport to ℚ(j)[Y] is irreducible. So the degree count produces the irreducible modular polynomial.",
+      "role": "The interface between the degree half of the induction and the irreducibility API consumed by the rest of FLT.",
+      "hypotheses": [
+        {
+          "id": "N",
+          "kind": "parameter",
+          "lean": "(N : ℕ)",
+          "math": "the level"
+        },
+        {
+          "id": "hN",
+          "kind": "instance",
+          "lean": "[NeZero N]",
+          "math": "N ≠ 0"
+        },
+        {
+          "id": "h",
+          "kind": "assumption",
+          "lean": "(h : Module.finrank ℚ⟮jq⟯ (adjoin ℚ⟮jq⟯ {jqN N}) = dedekindPsi N)",
+          "math": "Tight N: the simple extension ℚ(j)(j(q^N)) has degree ψ(N) over ℚ(j)."
+        }
+      ],
+      "print": false,
+      "proof": {
+        "goal": "Produce a modular polynomial datum at level N whose transported polynomial is irreducible over ℚ(j): a monic Φ ∈ ℤ[j][Y] of degree ψ(N) vanishing at (j(q), j(q^N)), with Φ.map(evalAtJGen) irreducible.",
+        "strategy": "Take Φ = minpoly over ℤ[j(q)] of j(q^N). Compare it with the minimal polynomial over ℚ(j(q)), which by the fraction-field structure is Φ with coefficients evaluated at j(q). The degree of the latter is the hypothesis ψ(N); its degree count gives Φ's degree; its irreducibility gives Φ's transported irreducibility.",
+        "steps": [
+          {
+            "id": "s1",
+            "kind": "claim",
+            "claim": "The evaluation ℤ[X] → ℚ(j), X ↦ j(q), is injective.",
+            "math": "j(q) is transcendental over ℚ, so no nonzero integer polynomial vanishes at it.",
+            "why": "Transcendence of j(q), packaged as `evalAtJGen_injective`.",
+            "cites": [
+              {
+                "kind": "premise",
+                "ref": "evalAtJGen_injective"
+              },
+              {
+                "kind": "premise",
+                "ref": "transcendental_jq"
+              }
+            ]
+          },
+          {
+            "id": "s2",
+            "kind": "claim",
+            "claim": "ℚ(j) is the fraction field of ℤ[j].",
+            "math": "Every element z ∈ ℚ(j) is a quotient r/s of two polynomial expressions in j(q) with rational coefficients; clearing denominators of r and s makes them integer polynomials, and the scalar factors cancel in the quotient.",
+            "why": "`mem_adjoin_simple_iff` writes z = aeval jq r / aeval jq s. Apply `integerNormalization_spec` to r and to s: the integer normalisations r′ and s′ satisfy evalAtJ r′ = b_r · aeval jq r and evalAtJ s′ = b_s · aeval jq s. Then z = (b_s · r′)/(b_r · s′), a fraction of integer polynomials. Injectivity from s1 makes the field structure well-defined.",
+            "cites": [
+              {
+                "kind": "premise",
+                "ref": "mem_adjoin_simple_iff"
+              },
+              {
+                "kind": "premise",
+                "ref": "integerNormalization_spec"
+              },
+              {
+                "kind": "premise",
+                "ref": "algebraMap_comp",
+                "math": "evaluated at g; the private helper `coe_evalAtJGen` is this congruence"
+              },
+              {
+                "kind": "step",
+                "ref": "s1"
+              }
+            ],
+            "requires": [
+              {
+                "what": "injectivity of the evaluation",
+                "met_by": {
+                  "kind": "step",
+                  "ref": "s1"
+                }
+              },
+              {
+                "what": "the numerator is a polynomial value",
+                "met_by": {
+                  "kind": "premise",
+                  "ref": "mem_adjoin_simple_iff"
+                }
+              },
+              {
+                "what": "the denominator is a polynomial value",
+                "met_by": {
+                  "kind": "premise",
+                  "ref": "mem_adjoin_simple_iff"
+                }
+              },
+              {
+                "what": "clearing denominators",
+                "met_by": {
+                  "kind": "premise",
+                  "ref": "integerNormalization_spec"
+                }
+              }
+            ]
+          },
+          {
+            "id": "s3",
+            "kind": "claim",
+            "claim": "minpoly_ℚ(j)(j(q^N)) = Φ.map(evalAtJGen), where Φ = minpoly_ℤ[j](j(q^N)).",
+            "math": "Over an integrally closed base ring with fraction field K, the minimal polynomial over K is the image of the minimal polynomial over the base ring. ℤ[j] is a polynomial ring over ℤ, hence integrally closed.",
+            "why": "`minpoly.isIntegrallyClosed_eq_field_fractions'` with the fraction-field structure of s2.",
+            "cites": [
+              {
+                "kind": "premise",
+                "ref": "minpoly_fractions"
+              },
+              {
+                "kind": "step",
+                "ref": "s2"
+              }
+            ],
+            "requires": [
+              {
+                "what": "ℚ(j) is the fraction field of ℤ[j]",
+                "met_by": {
+                  "kind": "step",
+                  "ref": "s2"
+                }
+              },
+              {
+                "what": "j(q^N) is integral over ℤ[j]",
+                "met_by": {
+                  "kind": "declaration",
+                  "ref": "exists_monic_evalAtJ_jqN_eq_zero"
+                }
+              },
+              {
+                "what": "ℤ[j] is integrally closed",
+                "met_by": {
+                  "kind": "trivial",
+                  "ref": "IsIntegrallyClosed (Polynomial ℤ)",
+                  "math": "a polynomial ring over an integrally closed ring is integrally closed"
+                }
+              }
+            ]
+          },
+          {
+            "id": "s4",
+            "kind": "claim",
+            "claim": "natDegree Φ = ψ(N).",
+            "math": "deg Φ = deg(minpoly_ℚ(j)(j(q^N))) because Φ is monic; the latter degree is [ℚ(j)(j(q^N)) : ℚ(j)] by the degree–minimal-polynomial identity; the hypothesis identifies it with ψ(N).",
+            "why": "`Polynomial.Monic.natDegree_map` preserves the degree under the coefficient map; `IntermediateField.adjoin.finrank` identifies the natDegree of the minimal polynomial of j(q^N) over ℚ(j) with the finrank of the simple extension; the hypothesis h is that finrank.",
+            "cites": [
+              {
+                "kind": "premise",
+                "ref": "minpoly_monic"
+              },
+              {
+                "kind": "premise",
+                "ref": "monic_natDegree_map"
+              },
+              {
+                "kind": "premise",
+                "ref": "adjoin_finrank"
+              },
+              {
+                "kind": "step",
+                "ref": "s3"
+              },
+              {
+                "kind": "hypothesis",
+                "ref": "h"
+              }
+            ],
+            "requires": [
+              {
+                "what": "Φ is monic",
+                "met_by": {
+                  "kind": "premise",
+                  "ref": "minpoly_monic"
+                }
+              },
+              {
+                "what": "j(q^N) is integral over ℤ[j]",
+                "met_by": {
+                  "kind": "declaration",
+                  "ref": "exists_monic_evalAtJ_jqN_eq_zero"
+                }
+              },
+              {
+                "what": "hence integral over ℚ(j)",
+                "met_by": {
+                  "kind": "premise",
+                  "ref": "tower_top"
+                }
+              },
+              {
+                "what": "the fraction-field comparison of s3",
+                "met_by": {
+                  "kind": "step",
+                  "ref": "s3"
+                }
+              },
+              {
+                "what": "the hypothesis [ℚ(j)(j(q^N)) : ℚ(j)] = ψ(N)",
+                "met_by": {
+                  "kind": "hypothesis",
+                  "ref": "h"
+                }
+              }
+            ]
+          },
+          {
+            "id": "s5",
+            "kind": "claim",
+            "claim": "Φ evaluates to zero at (j(q), j(q^N)).",
+            "math": "Φ is the minimal polynomial of j(q^N) over ℤ[j], so aeval (j(q^N)) Φ = 0.",
+            "why": "`minpoly.aeval`, then unfold aeval to eval₂ with the algebra map evalAtJ.",
+            "cites": [
+              {
+                "kind": "premise",
+                "ref": "minpoly_aeval"
+              },
+              {
+                "kind": "premise",
+                "ref": "aeval_def"
+              }
+            ]
+          },
+          {
+            "id": "s6",
+            "kind": "construct",
+            "claim": "data := ⟨Φ, monic, degree, vanishing⟩ is a ModularPolynomialData N.",
+            "why": "The structure's four fields are the monicity of minpoly.monic, the degree of s4, and the vanishing of s5.",
+            "cites": [
+              {
+                "kind": "step",
+                "ref": "s4"
+              },
+              {
+                "kind": "step",
+                "ref": "s5"
+              },
+              {
+                "kind": "premise",
+                "ref": "minpoly_monic"
+              }
+            ]
+          },
+          {
+            "id": "s7",
+            "kind": "claim",
+            "claim": "PhiIrreducible data.",
+            "math": "The transport of Φ is minpoly_ℚ(j)(j(q^N)), which is irreducible.",
+            "why": "data.toAdjoin is Φ.map(evalAtJGen), equal to minpoly_ℚ(j)(j(q^N)) by s3; a minimal polynomial of an element over a field is irreducible.",
+            "cites": [
+              {
+                "kind": "step",
+                "ref": "s3"
+              },
+              {
+                "kind": "premise",
+                "ref": "minpoly_irreducible"
+              }
+            ],
+            "requires": [
+              {
+                "what": "j(q^N) is integral over ℤ[j]",
+                "met_by": {
+                  "kind": "declaration",
+                  "ref": "exists_monic_evalAtJ_jqN_eq_zero"
+                }
+              },
+              {
+                "what": "hence integral over ℚ(j)",
+                "met_by": {
+                  "kind": "premise",
+                  "ref": "tower_top"
+                }
+              }
+            ]
+          }
+        ],
+        "conclusion": "∃ data : ModularPolynomialData N, PhiIrreducible data.",
+        "regeneration": [
+          "Install the algebra structures `evalAtJGen.toAlgebra` and `evalAtJ.toAlgebra`, plus the scalar tower between them.",
+          "Build the IsFractionRing instance with the three fields map_units, surj, exists_of_eq; surj is the denominator-clearing argument (integerNormalization for numerator and denominator).",
+          "Get `hx : IsIntegral (Polynomial ℤ) (jqN N)` from the previous theorem and `hxQ := hx.tower_top`.",
+          "Set Φ := minpoly (Polynomial ℤ) (jqN N) and use `minpoly.isIntegrallyClosed_eq_field_fractions'` to identify its image with minpoly over ℚ⟮jq⟯.",
+          "Compute the degree by rewriting the goal with `← hΦm.natDegree_map` and `← hmin`, then close with `h` after `IntermediateField.adjoin.finrank`.",
+          "For the vanishing, unfold `minpoly.aeval` with `Polynomial.aeval_def`.",
+          "Irreducibility is `minpoly.irreducible hxQ` after rewriting the transport with `hmin.symm`."
+        ],
+        "formal_notes": [
+          "The two `letI : Algebra (Polynomial ℤ) …` lines are not decoration: with them, `algebraMap (Polynomial ℤ) ℚ⟮jq⟯` is definitionally `evalAtJGen`, so `minpoly`, `IsIntegral` and `aeval` are taken over the intended algebra structure.",
+          "The IsFractionRing `surj` proof carries an explicit computation (`key`) identifying the fraction with `z` in ℚ((q)); `Subtype.ext` transports it back to ℚ(j). `coe_evalAtJGen` is used as `hcoe` inside that computation.",
+          "`hmin` is an equality of polynomials; `hmin.symm` rewrites `Φ.map evalAtJGen` to `minpoly ℚ⟮jq⟯ (jqN N)`.",
+          "The `rw [IntermediateField.adjoin.finrank hxQ] at h` is what turns the hypothesis h into a statement about the natDegree of the minimal polynomial over ℚ(j).",
+          "`IsIntegrallyClosed (Polynomial ℤ)` is found by typeclass search; no named premise is needed."
+        ]
+      },
+      "provenance": {
+        "flt": "Theorems/Thm_ModularCurve_exists_phiIrreducible_of_finrank_eq.lean."
+      }
+    },
+    {
+      "id": "exists_phiIrreducible",
+      "name": "ModularCurve.exists_phiIrreducible",
+      "kind": "corollary",
+      "heading": "`exists_phiIrreducible` — an irreducible datum at every level",
+      "lean": "theorem exists_phiIrreducible (N : ℕ) [NeZero N] :\n    ∃ data : ModularPolynomialData N, PhiIrreducible data",
+      "math_statement": "For every N ≥ 1 there is a modular polynomial datum at level N whose transport to ℚ(j)[Y] is irreducible.",
+      "role": "The form the rest of FLT consumes.",
+      "hypotheses": [
+        {
+          "id": "N",
+          "kind": "parameter",
+          "lean": "(N : ℕ)",
+          "math": "the level"
+        },
+        {
+          "id": "hN",
+          "kind": "instance",
+          "lean": "[NeZero N]",
+          "math": "N ≠ 0"
+        }
+      ],
+      "print": true,
+      "proof": {
+        "goal": "∃ data : ModularPolynomialData N, PhiIrreducible data.",
+        "strategy": "Apply the previous theorem to the degree count Tight N.",
+        "steps": [
+          {
+            "id": "s1",
+            "kind": "claim",
+            "claim": "Tight N: [ℚ(j)(j(q^N)) : ℚ(j)] = ψ(N).",
+            "why": "`finrank_adjoin_jqN_eq_dedekindPsi N`.",
+            "cites": [
+              {
+                "kind": "declaration",
+                "ref": "finrank_adjoin_jqN_eq_dedekindPsi"
+              }
+            ]
+          },
+          {
+            "id": "s2",
+            "kind": "close",
+            "claim": "∃ data, PhiIrreducible data.",
+            "why": "`exists_phiIrreducible_of_finrank_eq N` applied to s1.",
+            "cites": [
+              {
+                "kind": "declaration",
+                "ref": "exists_phiIrreducible_of_finrank_eq"
+              },
+              {
+                "kind": "step",
+                "ref": "s1"
+              }
+            ],
+            "requires": [
+              {
+                "what": "Tight N",
+                "met_by": {
+                  "kind": "step",
+                  "ref": "s1"
+                }
+              }
+            ]
+          }
+        ],
+        "conclusion": "The existential.",
+        "regeneration": [
+          "This is `exists_phiIrreducible_of_finrank_eq N (finrank_adjoin_jqN_eq_dedekindPsi N)`."
+        ],
+        "formal_notes": [
+          "Both components are public: `#print` shows the one-line body."
+        ]
+      },
+      "provenance": {
+        "flt": "Theorems/Thm_ModularCurve_exists_phiIrreducible.lean."
+      }
+    },
+    {
+      "id": "nonempty_modularPolynomialData",
+      "name": "ModularCurve.nonempty_modularPolynomialData",
+      "kind": "corollary",
+      "heading": "`nonempty_modularPolynomialData` — the datum exists",
+      "lean": "theorem nonempty_modularPolynomialData (N : ℕ) [NeZero N] :\n    Nonempty (ModularPolynomialData N)",
+      "math_statement": "For every N ≥ 1 the type of modular polynomial data at level N is inhabited.",
+      "role": "The pin's `nonempty_modularPolynomialData`; its consumers use only existence, so the port takes the datum from the stronger irreducible statement.",
+      "hypotheses": [
+        {
+          "id": "N",
+          "kind": "parameter",
+          "lean": "(N : ℕ)",
+          "math": "the level"
+        },
+        {
+          "id": "hN",
+          "kind": "instance",
+          "lean": "[NeZero N]",
+          "math": "N ≠ 0"
+        }
+      ],
+      "print": true,
+      "proof": {
+        "goal": "Nonempty (ModularPolynomialData N).",
+        "strategy": "Project the datum out of the irreducible existence statement.",
+        "steps": [
+          {
+            "id": "s1",
+            "kind": "claim",
+            "claim": "There is data with PhiIrreducible data.",
+            "why": "`exists_phiIrreducible N`.",
+            "cites": [
+              {
+                "kind": "declaration",
+                "ref": "exists_phiIrreducible"
+              }
+            ]
+          },
+          {
+            "id": "s2",
+            "kind": "close",
+            "claim": "Nonempty (ModularPolynomialData N).",
+            "why": "Eliminate the existential and keep the datum.",
+            "cites": [
+              {
+                "kind": "step",
+                "ref": "s1"
+              }
+            ]
+          }
+        ],
+        "conclusion": "`Nonempty (ModularPolynomialData N)`.",
+        "regeneration": [
+          "`(exists_phiIrreducible N).elim fun data _ => ⟨data⟩`.",
+          "The pin proves this separately by the same minpoly construction; the port's choice is documented in the declaration's docstring and is safe because the node's consumers use only existence."
+        ],
+        "formal_notes": [
+          "This is a deliberate deviation from the pin: taking the datum from the stronger statement avoids re-deriving the fraction-ring block. The irreducibility is discarded."
+        ]
+      },
+      "provenance": {
+        "flt": "Theorems/Thm_ModularCurve_nonempty_modularPolynomialData.lean; the port derives it from exists_phiIrreducible instead of repeating the minpoly construction."
+      }
+    }
+  ],
+  "sections": [
+    {
+      "id": "A",
+      "title": "the statement, in mathematical form",
+      "tagline": "F_N, F_N^full, and the collapse",
+      "prose": "The theorem is classical: over ℚ, the function field of X₀(N) is generated by the two functions j(q) and j(q^N). The formalization has no Riemann surface; it builds X₀(N) from the divisor field F_N^full, so the theorem is the collapse F_N^full = F_N.\n\nTwo numbers govern the proof. ψ(N) is the degree of the cover X₀(N) → X(1) and the Y-degree of the modular equation Φ_N. The other is the relative degree [ℚ(j)(j(q^N)) : ℚ(j)], which the theorem proves equals ψ(N). Generation and degree are proved together, by one strong induction over the divisor lattice; this presentation starts from the end of that induction (the assembly in Capstone.lean) and then reads the two input-supplying theorems that are proved inside the file.\n\nEverything lives in the single field ℚ((q)) of Laurent series. The substitutions are ring endomorphisms — q ↦ q^N and q ↦ u q^e — not analytic maps, and no analytic continuation is used anywhere.",
+      "definitions": [
+        "qexpand",
+        "qtwist",
+        "coeffemb",
+        "jq",
+        "jqn",
+        "evalatj",
+        "mff",
+        "mfffull",
+        "dedekindpsi",
+        "ffg",
+        "modpoly",
+        "toadjoin",
+        "phiirred"
+      ],
+      "declarations": []
+    },
+    {
+      "id": "B",
+      "title": "the strong induction and its seven inputs",
+      "tagline": "Tight, Gen, Hall, and the bundle of significant statements",
+      "prose": "The induction carries two invariants at every divisor: Tight (the degree of the modular equation at that level is full) and Gen (the two-generator field is already the whole divisor field). Together they form Hall. The engine is `hall_all`, whose hypotheses are the seven significant statements bundled in `Inputs`.\n\nT15–T19 proved all seven. `inputs` is therefore the point where the segment stops assuming anything: it is not a mathematical theorem but the seven proofs assembled. The presentation below records, for each field, what the field says mathematically and which theorem discharges it. The proofs of the seven theorems are elsewhere; what matters here is that their statements are the field statements verbatim, so each discharge is a drop-in replacement rather than an adaptation.",
+      "definitions": [
+        "evalatjgen",
+        "tight",
+        "gen",
+        "hall",
+        "inputs"
+      ],
+      "declarations": [
+        "inputs"
+      ]
+    },
+    {
+      "id": "C",
+      "title": "the capstone and its corollary layer",
+      "tagline": "one induction, four exports",
+      "prose": "With `inputs` in hand the main theorem is a one-liner, and so are the three corollaries the rest of FLT consumes: the field equality, the degree of the modular equation, and the relative degree of the full field. The mathematics is entirely in `hall_all` and in the seven field theorems. What this section presents is the assembly, the orientation of the equalities, and the two bridges that turn `Tight` into a statement about F_N^full.",
+      "definitions": [],
+      "declarations": [
+        "functionFieldGeneration",
+        "modularFunctionField_eq_full",
+        "finrank_adjoin_jqN_eq_dedekindPsi",
+        "relfinrank_full_eq_dedekindPsi"
+      ]
+    },
+    {
+      "id": "D",
+      "title": "integrality — the monic annihilator",
+      "tagline": "the modular equation as a monic polynomial over ℤ[j]",
+      "prose": "Integrality of j(q^N) over ℤ[j(q)] is the existence of the modular equation as a monic polynomial. The proof is an induction on the multiplicative structure of N: at each prime p, the modular polynomial Φ_p supplies a monic annihilator of j(q^{ap}) over ℤ[j][j(q^a)], and integrality is transitive. The only external input is the prime-level existence of Φ_p.\n\nThe three private lemmas at the top of this section are formal bridges, not mathematics: they move a value between ℚ(j) and ℚ((q)), and between integer and rational coefficients. They are stated here because the fraction-field argument in the next section uses them.",
+      "definitions": [
+        "phiAtSeed"
+      ],
+      "declarations": [
+        "coe_evalAtJGen",
+        "aeval_map_intCast",
+        "evalAtJ_C",
+        "exists_monic_evalAtJ_jqN_eq_zero"
+      ]
+    },
+    {
+      "id": "E",
+      "title": "from the degree count to an irreducible datum",
+      "tagline": "two minimal polynomials and a fraction field",
+      "prose": "The last step turns the degree count into an irreducible modular polynomial. The key is to compare two minimal polynomials: over ℤ[j(q)] (where j(q^N) is integral) and over ℚ(j(q)) (its fraction field). The fraction-field structure is the only technical point; after it, the degree computation and irreducibility are consequences of the minimal-polynomial API.\n\nThe three exports differ only in packaging: the construction with its hypothesis, the hypothesis-free existence of an irreducible datum, and the bare existence of a datum. The last one is a deliberate strengthening over the pin's separate proof.",
+      "definitions": [],
+      "declarations": [
+        "exists_phiIrreducible_of_finrank_eq",
+        "exists_phiIrreducible",
+        "nonempty_modularPolynomialData"
+      ]
+    },
+    {
+      "id": "F",
+      "title": "references — the proven statements cited",
+      "tagline": "every citation, with its Lean type",
+      "prose": "The statements the proofs above cite or lean on, grouped by origin. The port group contains the seven `Inputs` fields together with the induction engine and the bridges; the mathlib group contains the generic lemmas the two proof-bearing declarations invoke. `#check` shows the type as the compiler sees it; the gloss under each name says what it means mathematically.",
+      "definitions": [],
+      "declarations": [],
+      "premise_groups": [
+        "port",
+        "mathlib"
+      ]
+    },
+    {
+      "id": "G",
+      "title": "formalization notes — the Lean detours",
+      "tagline": "what is plumbing and what is mathematics",
+      "prose": "Four formal devices recur; none carries mathematical content.\n\n**Instances and positivity.** Every level is a natural number with a `NeZero` instance. The substitution q ↦ q^0 is the zero map, and j(q^0) is not a q-expansion, so the level must be positive. The `NeZero` arguments are discharged by `NeZero.ne` or built from `NeZero (p·a)`; they are not hypotheses of the mathematics.\n\n**`eval₂` versus `aeval`.** The port evaluates integer polynomials with `evalAtJ`, a ring hom ℤ[X] → ℚ((q)). Mathlib's `aeval` uses the algebra structure instead. The bridges `aeval_map_intCast` and `algebraMap_comp_evalAtJGen` make the two agree, and the two `letI := ....toAlgebra` lines in the fraction-field proof install the algebra structures that `minpoly` and `IsIntegral` expect.\n\n**Private helpers.** `coe_evalAtJGen`, `aeval_map_intCast` and `evalAtJ_C` are `private` to Capstone.lean and cannot be `#check`ed from another module. This sheet exhibits their statements as closed Lean propositions (`#check (… : Prop)`), which typecheck against the public API without naming the private declarations.\n\n**Orientation.** The two function fields are equated in both orientations in the sources. `Gen d` is F_d = F_d^full; the collapse equivalence is stated with F_N^full on the left. Rewriting the wrong way is the most common failure mode in this file, so each equality above records which orientation the proof uses.",
+      "definitions": [],
+      "declarations": []
+    }
+  ]
+}
