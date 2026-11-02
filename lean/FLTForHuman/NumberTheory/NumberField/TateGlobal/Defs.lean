@@ -17,7 +17,14 @@
   headlines use, and the later development modules import it rather than each
   re-stating it (playbook §2.3, §3.1, §5).
 
+  One declaration of the pin's `Definitions/Def_AutomorphicForm_HeckeEigenfunction.lean`
+  is homed here too: `uniformizerIdele F v`, the idèle `localUnit v (uniformizerUnit v)`
+  whose norm is `|absNorm v|⁻¹`. It keeps the pin's `AutomorphicForm` namespace (namespace
+  ≠ module: the `NumberField` tree must not import `AutomorphicForm`), and it belongs with
+  `localChar`, whose `localUnit` is the same map.
+
   spec-pin: Definitions/Def_NumberField_TateGlobalZeta.lean
+  spec-pin: Definitions/Def_AutomorphicForm_HeckeEigenfunction.lean
 -/
 import FLTForHuman.NumberTheory.AdelicFourier
 import FLTForHuman.NumberTheory.AdelicVolume
@@ -114,5 +121,18 @@ theorem archLocalChar_apply (χ : (AdeleRing (𝓞 F) F)ˣ →* ℂˣ) (w : Infi
     archLocalChar χ w a = χ (archCentralUnit F w a) := rfl
 
 end NumberField.TateGlobal
+
+namespace AutomorphicForm
+
+section Defs
+
+variable (F : Type) [Field F] [NumberField F]
+
+def uniformizerIdele (v : HeightOneSpectrum (𝓞 F)) : (AdeleRing (𝓞 F) F)ˣ :=
+  Units.map (finIncl (𝓞 F) F) (localUnit (𝓞 F) F v (uniformizerUnit F v))
+
+end Defs
+
+end AutomorphicForm
 
 end

@@ -39,8 +39,16 @@
   the central/slab copies (they are stated over `centreCutSiegelSetAmple`); they are
   written once here, generalised over the set `S` with the two set-specific inputs
   (`hwin`, `hmul`), so each shared name occurs a single time.
+
+  spec-pin: Theorems/Thm_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean   -- comparable copy
+  spec-pin: Theorems/Thm_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre_centreCutSiegelSetAmple.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre_centreCutSiegelSetAmple.lean   -- comparable copy
+  spec-pin: Theorems/Thm_AutomorphicForm_exists_finset_slab_covering_of_coversModCentre.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_exists_finset_slab_covering_of_coversModCentre.lean   -- comparable copy
 -/
 import FLTForHuman.AutomorphicForm.Adelic.IdeleNormDet
+import FLTForHuman.AutomorphicForm.Adelic.IdeleNormDetGlue
 import FLTForHuman.AutomorphicForm.Adelic.Siegel.Covering
 import FLTForHuman.AutomorphicForm.Adelic.WindowedSiegel.CentreCutSiegelSetAmple
 import FLTForHuman.NumberTheory.AdelicModulus
@@ -68,7 +76,6 @@ section DecompositionAndNormalisation
 
 variable (F : Type) [Field F] [NumberField F]
 
--- pin: archDetNorm_mul (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:26)
 private theorem archDetNorm_mul (w : InfinitePlace F) (g h : AdelicGL2 (𝓞 F) F) :
     archDetNorm w (g * h) = archDetNorm w g * archDetNorm w h := by
   unfold archDetNorm
@@ -76,7 +83,6 @@ private theorem archDetNorm_mul (w : InfinitePlace F) (g h : AdelicGL2 (𝓞 F) 
 
 variable {F}
 
--- pin: centralScalar_mul_comm (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:33)
 private theorem centralScalar_mul_comm (z : (AdeleRing (𝓞 F) F)ˣ) (g : AdelicGL2 (𝓞 F) F) :
     centralScalar (𝓞 F) F z * g = g * centralScalar (𝓞 F) F z := by
   have hz : centralScalar (𝓞 F) F z ∈ Subgroup.center (GL (Fin 2) (AdeleRing (𝓞 F) F)) := by
@@ -84,7 +90,6 @@ private theorem centralScalar_mul_comm (z : (AdeleRing (𝓞 F) F)ˣ) (g : Adeli
     exact ⟨z, rfl⟩
   exact (Subgroup.mem_center_iff.mp hz g).symm
 
--- pin: archDetNorm_centralScalar (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:40)
 private theorem archDetNorm_centralScalar (v : InfinitePlace F) (w : (AdeleRing (𝓞 F) F)ˣ) :
     archDetNorm v (centralScalar (𝓞 F) F w)
       = ‖(w : AdeleRing (𝓞 F) F).1 v‖ * ‖(w : AdeleRing (𝓞 F) F).1 v‖ := by
@@ -102,7 +107,6 @@ private theorem archDetNorm_centralScalar (v : InfinitePlace F) (w : (AdeleRing 
   rw [Matrix.det_fin_two, hs, hs, hs, hs]
   simp [norm_mul]
 
--- pin: archDetNorm_centralScalar_mul' (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:57)
 private theorem archDetNorm_centralScalar_mul' (v : InfinitePlace F) (w : (AdeleRing (𝓞 F) F)ˣ)
     (g : AdelicGL2 (𝓞 F) F) :
     archDetNorm v (centralScalar (𝓞 F) F w * g)
@@ -111,7 +115,6 @@ private theorem archDetNorm_centralScalar_mul' (v : InfinitePlace F) (w : (Adele
 
 omit [NumberField F] in
 
--- pin: exists_norm_eq (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:65)
 private theorem exists_norm_eq (v : InfinitePlace F) {r : ℝ} (hr : 0 < r) :
     ∃ a : v.Completion, a ≠ 0 ∧ ‖a‖ = r := by
   rcases InfinitePlace.isReal_or_isComplex v with hv | hv
@@ -137,7 +140,6 @@ private theorem exists_norm_eq (v : InfinitePlace F) {r : ℝ} (hr : 0 < r) :
 
 omit [NumberField F] in
 
--- pin: exists_norm_mul_self_eq (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:90)
 private theorem exists_norm_mul_self_eq (v : InfinitePlace F) {r : ℝ} (hr : 0 < r) :
     ∃ a : v.Completion, a ≠ 0 ∧ ‖a‖ * ‖a‖ = r := by
   obtain ⟨a, ha0, ha⟩ := exists_norm_eq v (Real.sqrt_pos.mpr hr)
@@ -145,33 +147,27 @@ private theorem exists_norm_mul_self_eq (v : InfinitePlace F) {r : ℝ} (hr : 0 
 
 variable (F) in
 
--- pin: archIdele (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:108)
 private def archIdele (a : ∀ v : InfinitePlace F, (v.Completion)ˣ) : (AdeleRing (𝓞 F) F)ˣ where
   val := (fun v => (a v : v.Completion), 1)
   inv := (fun v => ((a v)⁻¹ : (v.Completion)ˣ), 1)
   val_inv := Prod.ext (funext fun v => Units.mul_inv (a v)) (one_mul 1)
   inv_val := Prod.ext (funext fun v => Units.inv_mul (a v)) (one_mul 1)
 
--- pin: archIdele_fst (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:114)
 private theorem archIdele_fst (a : ∀ v : InfinitePlace F, (v.Completion)ˣ) (v : InfinitePlace F) :
     ((archIdele F a : (AdeleRing (𝓞 F) F)ˣ) : AdeleRing (𝓞 F) F).1 v = a v := rfl
 
--- pin: archIdele_snd (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:117)
 private theorem archIdele_snd (a : ∀ v : InfinitePlace F, (v.Completion)ˣ) :
     ((archIdele F a : (AdeleRing (𝓞 F) F)ˣ) : AdeleRing (𝓞 F) F).2 = 1 := rfl
 
--- pin: archIdele_inv_snd (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:120)
 private theorem archIdele_inv_snd (a : ∀ v : InfinitePlace F, (v.Completion)ˣ) :
     (((archIdele F a)⁻¹ : (AdeleRing (𝓞 F) F)ˣ) : AdeleRing (𝓞 F) F).2 = 1 := rfl
 
--- pin: glFin_centralScalar_of_snd_eq_one (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:123)
 private theorem glFin_centralScalar_of_snd_eq_one {w : (AdeleRing (𝓞 F) F)ˣ}
     (hwf : (w : AdeleRing (𝓞 F) F).2 = 1) :
     glFin (𝓞 F) F (centralScalar (𝓞 F) F w) = 1 :=
   glFin_scalar_eq_one F hwf (centralScalar_apply_eq w 0) (centralScalar_apply_ne w (by decide))
     (centralScalar_apply_ne w (by decide)) (centralScalar_apply_eq w 1)
 
--- pin: glFin_centralScalar_mem_finiteIntegralGL2 (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:129)
 private theorem glFin_centralScalar_mem_finiteIntegralGL2 {w : (AdeleRing (𝓞 F) F)ˣ}
     (h₁ : (w : AdeleRing (𝓞 F) F).2 ∈ integralFiniteAdeles (𝓞 F) F)
     (h₂ : ((w⁻¹ : (AdeleRing (𝓞 F) F)ˣ) : AdeleRing (𝓞 F) F).2 ∈ integralFiniteAdeles (𝓞 F) F) :
@@ -193,7 +189,6 @@ private theorem glFin_centralScalar_mem_finiteIntegralGL2 {w : (AdeleRing (𝓞 
     · rw [centralScalar_apply_ne _ h]
       exact zero_mem_integralFiniteAdeles
 
--- pin: centralScalar_mul_mem_centreCutSiegelSet (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:150)
 private theorem centralScalar_mul_mem_centreCutSiegelSet {c u d₁ d₂ : ℝ} {w : (AdeleRing (𝓞 F) F)ˣ}
     (hwK : glFin (𝓞 F) F (centralScalar (𝓞 F) F w) ∈ finiteIntegralGL2 (𝓞 F) F)
     (hwa : ∀ v : InfinitePlace F, (w : AdeleRing (𝓞 F) F).1 v ≠ 0)
@@ -230,7 +225,6 @@ private theorem centralScalar_mul_mem_centreCutSiegelSet {c u d₁ d₂ : ℝ} {
     rw [map_mul, map_mul, xWindowSq_scalar_entries_mul (hwa v) h00 h01 h10 h11]
     exact hwin v
 
--- pin: centralScalar_mul_mem_centreCutSiegelSetAmple (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre_centreCutSiegelSetAmple.lean:189)
 private theorem centralScalar_mul_mem_centreCutSiegelSetAmple {c u d₁ d₂ κ : ℝ} {w : (AdeleRing (𝓞 F) F)ˣ}
     (hwK : glFin (𝓞 F) F (centralScalar (𝓞 F) F w) ∈ finiteIntegralGL2 (𝓞 F) F)
     (hwa : ∀ v : InfinitePlace F, (w : AdeleRing (𝓞 F) F).1 v ≠ 0)
@@ -262,8 +256,6 @@ private theorem centralScalar_mul_mem_centreCutSiegelSetAmple {c u d₁ d₂ κ 
   rw [hkey v, hkey v']
   exact hratio v v'
 
--- pin: exists_centralScalar_mul_mem_archDetNorm_eq (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:186)
--- pin: exists_centralScalar_mul_mem_archDetNorm_eq (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre_centreCutSiegelSetAmple.lean:220)
 private theorem exists_centralScalar_mul_mem_archDetNorm_eq {S : Set (AdelicGL2 (𝓞 F) F)} {d₁ d₂ : ℝ}
     (hwin : ∀ h ∈ S, ∀ v : InfinitePlace F, archDetNorm v h ∈ Set.Icc d₁ d₂)
     (hmul : ∀ (w : (AdeleRing (𝓞 F) F)ˣ),
@@ -295,8 +287,6 @@ private theorem exists_centralScalar_mul_mem_archDetNorm_eq {S : Set (AdelicGL2 
   · rw [hdet v]
     exact ⟨(hwindow v).1.trans (hwindow v).2, le_rfl⟩
 
--- pin: pointShape (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:210)
--- pin: pointShape (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre_centreCutSiegelSetAmple.lean:244)
 private theorem pointShape {S : Set (AdelicGL2 (𝓞 F) F)} {d₁ d₂ : ℝ} {T : Finset (AdelicGL2 (𝓞 F) F)}
     (hwin : ∀ h ∈ S, ∀ v : InfinitePlace F, archDetNorm v h ∈ Set.Icc d₁ d₂)
     (hmul : ∀ (w : (AdeleRing (𝓞 F) F)ˣ),
@@ -320,14 +310,11 @@ private theorem pointShape {S : Set (AdelicGL2 (𝓞 F) F)} {d₁ d₂ : ℝ} {T
   rw [map_mul, ← mul_assoc, ← hrel', mul_assoc, ← centralScalar_mul_comm a x, ← mul_assoc,
     centralScalar_mul_comm a h₀]
 
--- pin: shellIdeles (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:226)
 private def shellIdeles (ρ : ℝ) : Set (AdeleRing (𝓞 F) F)ˣ :=
   {w | ((w : AdeleRing (𝓞 F) F).2 ∈ integralFiniteAdeles (𝓞 F) F ∧
       ((w⁻¹ : (AdeleRing (𝓞 F) F)ˣ) : AdeleRing (𝓞 F) F).2 ∈ integralFiniteAdeles (𝓞 F) F) ∧
     ∀ v : InfinitePlace F, ‖(w : AdeleRing (𝓞 F) F).1 v‖ * ‖(w : AdeleRing (𝓞 F) F).1 v‖ ∈ Set.Icc ρ 1}
 
--- pin: mul_centralScalar_mem_of_mem_shellIdeles (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:231)
--- pin: mul_centralScalar_mem_of_mem_shellIdeles (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre_centreCutSiegelSetAmple.lean:265)
 private theorem mul_centralScalar_mem_of_mem_shellIdeles {S : Set (AdelicGL2 (𝓞 F) F)} {d₁ d₂ ρ : ℝ}
     (hρ : 0 < ρ) (hρd : d₁ ≤ ρ * d₂)
     (hmul : ∀ (w : (AdeleRing (𝓞 F) F)ˣ),
@@ -359,29 +346,24 @@ private theorem mul_centralScalar_mem_of_mem_shellIdeles {S : Set (AdelicGL2 (�
 
 variable (F) in
 
--- pin: ideleNorm_one (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:255)
 private theorem ideleNorm_one : ideleNorm F (1 : (AdeleRing (𝓞 F) F)ˣ) = 1 := by
   simp [ideleNorm]
 
--- pin: ideleNorm_inv (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:258)
 private theorem ideleNorm_inv (x : (AdeleRing (𝓞 F) F)ˣ) : ideleNorm F x⁻¹ = (ideleNorm F x)⁻¹ := by
   have h := ideleNorm_mul x x⁻¹
   rw [mul_inv_cancel, ideleNorm_one] at h
   exact eq_inv_of_mul_eq_one_right h.symm
 
--- pin: archUnitHom_snd (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:263)
 private theorem archUnitHom_snd (w₀ : InfinitePlace F) (t : (w₀.Completion)ˣ) :
     ((archUnitHom w₀ t : (AdeleRing (𝓞 F) F)ˣ) : AdeleRing (𝓞 F) F).2 = 1 := by
   rw [archUnitHom_apply]
   exact archCentralUnit_snd w₀ t
 
--- pin: archUnitHom_fst_self (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:268)
 private theorem archUnitHom_fst_self (w₀ : InfinitePlace F) (t : (w₀.Completion)ˣ) :
     ((archUnitHom w₀ t : (AdeleRing (𝓞 F) F)ˣ) : AdeleRing (𝓞 F) F).1 w₀ = t := by
   rw [archUnitHom_apply]
   exact archCentralUnit_fst_self w₀ t
 
--- pin: archUnitHom_fst_of_ne (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:273)
 private theorem archUnitHom_fst_of_ne (w₀ : InfinitePlace F) (t : (w₀.Completion)ˣ) {v : InfinitePlace F}
     (hv : v ≠ w₀) :
     ((archUnitHom w₀ t : (AdeleRing (𝓞 F) F)ˣ) : AdeleRing (𝓞 F) F).1 v = 1 := by
@@ -390,7 +372,6 @@ private theorem archUnitHom_fst_of_ne (w₀ : InfinitePlace F) (t : (w₀.Comple
 
 omit [NumberField F] in
 
--- pin: norm_mul_self_mem_of_norm_pow_mult_mem (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:297)
 private theorem norm_mul_self_mem_of_norm_pow_mult_mem (v : InfinitePlace F) {b : v.Completion} {s : ℝ}
     (hs₀ : 0 ≤ s) (hs₁ : s ≤ 1) (hb : ‖b‖ ^ v.mult ∈ Set.Icc s 1) :
     ‖b‖ * ‖b‖ ∈ Set.Icc (s * s) 1 := by
@@ -402,14 +383,12 @@ private theorem norm_mul_self_mem_of_norm_pow_mult_mem (v : InfinitePlace F) {b 
 
 variable (F) in
 
--- pin: openShell (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:308)
 private def openShell (σ : ℝ) : Set (AdeleRing (𝓞 F) F)ˣ :=
   {w | (w : AdeleRing (𝓞 F) F).2 ∈ integralFiniteAdeles (𝓞 F) F} ∩
     {w | ((w⁻¹ : (AdeleRing (𝓞 F) F)ˣ) : AdeleRing (𝓞 F) F).2 ∈ integralFiniteAdeles (𝓞 F) F} ∩
     ⋂ v : InfinitePlace F,
       {w | ‖(w : AdeleRing (𝓞 F) F).1 v‖ * ‖(w : AdeleRing (𝓞 F) F).1 v‖ ∈ Set.Ioo σ 1}
 
--- pin: mem_openShell_iff (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:314)
 private theorem mem_openShell_iff {σ : ℝ} {w : (AdeleRing (𝓞 F) F)ˣ} :
     w ∈ openShell F σ ↔
       ((w : AdeleRing (𝓞 F) F).2 ∈ integralFiniteAdeles (𝓞 F) F ∧
@@ -418,7 +397,6 @@ private theorem mem_openShell_iff {σ : ℝ} {w : (AdeleRing (𝓞 F) F)ˣ} :
         ‖(w : AdeleRing (𝓞 F) F).1 v‖ * ‖(w : AdeleRing (𝓞 F) F).1 v‖ ∈ Set.Ioo σ 1 := by
   simp only [openShell, Set.mem_inter_iff, Set.mem_iInter, Set.mem_ofPred_eq]
 
--- pin: isOpen_openShell (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:322)
 private theorem isOpen_openShell (σ : ℝ) : IsOpen (openShell F σ) := by
   unfold openShell
   have hval : Continuous fun w : (AdeleRing (𝓞 F) F)ˣ => (w : AdeleRing (𝓞 F) F) := Units.continuous_val
@@ -431,7 +409,6 @@ private theorem isOpen_openShell (σ : ℝ) : IsOpen (openShell F σ) := by
       (continuous_archEval F v).comp (continuous_fst.comp hval)
     exact isOpen_Ioo.preimage (hv.norm.mul hv.norm)
 
--- pin: exists_mem_openShell (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:334)
 private theorem exists_mem_openShell {σ : ℝ} (hσ₀ : 0 ≤ σ) (hσ₁ : σ < 1) : ∃ s, s ∈ openShell F σ := by
   have hmid : 0 < (σ + 1) / 2 := by linarith
   choose a ha0 ha using fun v : InfinitePlace F => exists_norm_mul_self_eq v hmid
@@ -443,15 +420,8 @@ private theorem exists_mem_openShell {σ : ℝ} (hσ₀ : 0 ≤ σ) (hσ₁ : σ
   · rw [archIdele_fst, Units.val_mk0, ha v]
     exact ⟨by linarith, by linarith⟩
 
--- pin: openShell_subset_shellIdeles (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:345)
-private theorem openShell_subset_shellIdeles (σ : ℝ) : openShell F σ ⊆ shellIdeles (F := F) σ := by
-  intro w hw
-  obtain ⟨hfin, harch⟩ := mem_openShell_iff.mp hw
-  exact ⟨hfin, fun v => Set.Ioo_subset_Icc_self (harch v)⟩
-
 variable (F) in
 
--- pin: exists_finset_normOne_decomposition (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:352)
 private theorem exists_finset_normOne_decomposition {σ : ℝ} (hσ₀ : 0 ≤ σ) (hσ₁ : σ < 1) :
     ∃ K : Finset (AdeleRing (𝓞 F) F)ˣ, ∀ y ∈ normOneIdeles F,
       ∃ a : Fˣ, ∃ v ∈ openShell F σ, ∃ k ∈ K,
@@ -490,7 +460,6 @@ private theorem exists_finset_normOne_decomposition {σ : ℝ} (hσ₀ : 0 ≤ �
   rw [hya, hy']
   ac_rfl
 
--- pin: exists_net (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:390)
 private theorem exists_net {τ m M : ℝ} (hτ₀ : 0 < τ) (hτ₁ : τ < 1) (hm : 0 < m) (hmM : m ≤ M) :
     ∃ J : ℕ, ∀ r : ℝ, r ∈ Set.Icc m M → ∃ j : ℕ, j < J ∧ r / (M * τ ^ j) ∈ Set.Icc τ 1 := by
   have hM : 0 < M := hm.trans_le hmM
@@ -515,7 +484,6 @@ private theorem exists_net {τ m M : ℝ} (hτ₀ : 0 < τ) (hτ₁ : τ < 1) (h
     rw [inv_pow, le_div_iff₀ hr, inv_mul_eq_div, div_le_iff₀ hτj] at hj₁
     exact hj₁
 
--- pin: mul_archUnitHom_mem_shellIdeles (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:414)
 private theorem mul_archUnitHom_mem_shellIdeles {σ τ ρ : ℝ} (hσ₀ : 0 < σ) (hττ : τ * τ = σ) (hτ₀ : 0 < τ)
     (hτ₁ : τ ≤ 1) (hρ : σ * σ = ρ) {v : (AdeleRing (𝓞 F) F)ˣ} (hv : v ∈ openShell F σ)
     (w₀ : InfinitePlace F) {b : (w₀.Completion)ˣ} (hb : ‖(b : w₀.Completion)‖ ^ w₀.mult ∈ Set.Icc τ 1) :
@@ -546,7 +514,6 @@ private theorem mul_archUnitHom_mem_shellIdeles {σ τ ρ : ℝ} (hσ₀ : 0 < �
 
 variable (F) in
 
--- pin: exists_finset_shell_decomposition (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:444)
 private theorem exists_finset_shell_decomposition {ρ : ℝ} (hρ₀ : 0 < ρ) (hρ₁ : ρ < 1) :
     ∀ m M : ℝ, 0 < m → m ≤ M → ∃ N : Finset (AdeleRing (𝓞 F) F)ˣ,
       ∀ z : (AdeleRing (𝓞 F) F)ˣ, ideleNorm F z ∈ Set.Icc m M →
@@ -601,124 +568,27 @@ section BookkeepingAndAssembly
 
 variable {F : Type} [Field F] [NumberField F]
 
--- pin: norm_eq_zpow_of_valued (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:517)
-private theorem norm_eq_zpow_of_valued (v : HeightOneSpectrum (𝓞 F)) {x : v.adicCompletion F} {m : ℤ}
-    (hx : Valued.v x = WithZero.exp m) : ‖x‖ = (Ideal.absNorm v.asIdeal : ℝ) ^ m := by
-  rw [NumberField.FinitePlace.norm_def, hx,
-    show (WithZero.exp m) = ((Multiplicative.ofAdd m : Multiplicative ℤ) : WithZero (Multiplicative ℤ))
-      from rfl,
-    WithZeroMulInt.toNNReal_neg_apply _ WithZero.coe_ne_zero, WithZero.unzero_coe, toAdd_ofAdd,
-    NNReal.coe_zpow, NNReal.coe_natCast]
-
--- pin: valued_det_le_one (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:525)
-private theorem valued_det_le_one (v : HeightOneSpectrum (𝓞 F)) {M : Matrix (Fin 2) (Fin 2) (v.adicCompletion F)}
-    (h : ∀ i j, Valued.v (M i j) ≤ 1) : Valued.v M.det ≤ 1 := by
-  rw [Matrix.det_fin_two]
-  refine (Valuation.map_sub _ _ _).trans (max_le ?_ ?_)
-  · rw [map_mul]; exact mul_le_one' (h 0 0) (h 1 1)
-  · rw [map_mul]; exact mul_le_one' (h 0 1) (h 1 0)
-
--- pin: det_snd_apply (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:532)
-private theorem det_snd_apply (X : AdelicGL2 (𝓞 F) F) (v : HeightOneSpectrum (𝓞 F)) :
-    ((Matrix.GeneralLinearGroup.det X : (AdeleRing (𝓞 F) F)ˣ) : AdeleRing (𝓞 F) F).2 v
-      = ((finComponent (𝓞 F) F v (glFin (𝓞 F) F X) : GL (Fin 2) (v.adicCompletion F)) :
-          Matrix (Fin 2) (Fin 2) (v.adicCompletion F)).det := by
-  rw [Matrix.GeneralLinearGroup.val_det_apply]
-  change ((finAdeleEval (𝓞 F) F v).comp (adeleFin (𝓞 F) F)) (X : Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 F) F)).det = _
-  rw [RingHom.map_det]
-  rfl
-
--- pin: det_fst_apply (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:541)
-private theorem det_fst_apply (X : AdelicGL2 (𝓞 F) F) (w : InfinitePlace F) :
-    ((Matrix.GeneralLinearGroup.det X : (AdeleRing (𝓞 F) F)ˣ) : AdeleRing (𝓞 F) F).1 w
-      = ((archComponent F w (glArch (𝓞 F) F X) : GL (Fin 2) w.Completion) :
-          Matrix (Fin 2) (Fin 2) w.Completion).det := by
-  rw [Matrix.GeneralLinearGroup.val_det_apply]
-  change ((archEval F w).comp (adeleArch (𝓞 F) F)) (X : Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 F) F)).det = _
-  rw [RingHom.map_det]
-  rfl
-
--- pin: valued_det_finComponent_eq_one (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:550)
-private theorem valued_det_finComponent_eq_one (X : AdelicGL2 (𝓞 F) F)
-    (hX : glFin (𝓞 F) F X ∈ finiteIntegralGL2 (𝓞 F) F) (v : HeightOneSpectrum (𝓞 F)) :
-    Valued.v ((finComponent (𝓞 F) F v (glFin (𝓞 F) F X) : GL (Fin 2) (v.adicCompletion F)) :
-        Matrix (Fin 2) (Fin 2) (v.adicCompletion F)).det = 1 := by
-  set A := finComponent (𝓞 F) F v (glFin (𝓞 F) F X) with hA
-  obtain ⟨h1, h2⟩ := mem_finiteIntegralGL2_iff.mp hX
-  have ha : Valued.v (A : Matrix (Fin 2) (Fin 2) (v.adicCompletion F)).det ≤ 1 :=
-    valued_det_le_one v fun i j =>
-      (HeightOneSpectrum.mem_adicCompletionIntegers (𝓞 F) F v).mp (h1 i j v)
-  have hb : Valued.v ((A⁻¹ : GL (Fin 2) (v.adicCompletion F)) : Matrix (Fin 2) (Fin 2) (v.adicCompletion F)).det
-      ≤ 1 := by
-    rw [hA, ← map_inv]
-    exact valued_det_le_one v fun i j =>
-      (HeightOneSpectrum.mem_adicCompletionIntegers (𝓞 F) F v).mp (h2 i j v)
-  have hab : (A : Matrix (Fin 2) (Fin 2) (v.adicCompletion F)).det
-      * ((A⁻¹ : GL (Fin 2) (v.adicCompletion F)) : Matrix (Fin 2) (Fin 2) (v.adicCompletion F)).det = 1 := by
-    rw [← Matrix.det_mul, Units.mul_inv, Matrix.det_one]
-  have hprod : Valued.v (A : Matrix (Fin 2) (Fin 2) (v.adicCompletion F)).det
-      * Valued.v ((A⁻¹ : GL (Fin 2) (v.adicCompletion F)) : Matrix (Fin 2) (Fin 2) (v.adicCompletion F)).det
-        = 1 := by
-    rw [← map_mul, hab, map_one]
-  refine le_antisymm ha ?_
-  calc (1 : WithZero (Multiplicative ℤ))
-      = Valued.v (A : Matrix (Fin 2) (Fin 2) (v.adicCompletion F)).det
-          * Valued.v ((A⁻¹ : GL (Fin 2) (v.adicCompletion F)) :
-              Matrix (Fin 2) (Fin 2) (v.adicCompletion F)).det := hprod.symm
-    _ ≤ Valued.v (A : Matrix (Fin 2) (Fin 2) (v.adicCompletion F)).det * 1 := mul_le_mul_right hb _
-    _ = _ := mul_one _
-
--- pin: ideleNorm_det_eq_prod_archDetNorm_pow (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:579)
-private theorem ideleNorm_det_eq_prod_archDetNorm_pow (X : AdelicGL2 (𝓞 F) F)
-    (hX : glFin (𝓞 F) F X ∈ finiteIntegralGL2 (𝓞 F) F) :
-    ideleNorm F (Matrix.GeneralLinearGroup.det X)
-      = ∏ w : InfinitePlace F, archDetNorm w X ^ w.mult := by
-  have hS := NumberField.AdeleRing.distribHaarChar_eq_prod_norm_pow_mult_mul_finprod_norm F
-    (Matrix.GeneralLinearGroup.det X)
-  have hfin : ∀ v : HeightOneSpectrum (𝓞 F),
-      ‖((Matrix.GeneralLinearGroup.det X : (AdeleRing (𝓞 F) F)ˣ) : AdeleRing (𝓞 F) F).2 v‖ = 1 := by
-    intro v
-    rw [det_snd_apply, norm_eq_zpow_of_valued v (m := 0)
-      (by rw [valued_det_finComponent_eq_one X hX v, WithZero.exp_zero]), zpow_zero]
-  have harch : ∀ w : InfinitePlace F,
-      ‖((Matrix.GeneralLinearGroup.det X : (AdeleRing (𝓞 F) F)ˣ) : AdeleRing (𝓞 F) F).1 w‖
-        = archDetNorm w X := by
-    intro w
-    rw [det_fst_apply]
-    rfl
-  unfold ideleNorm
-  rw [hS, finprod_eq_one_of_forall_eq_one hfin, mul_one]
-  exact Finset.prod_congr rfl fun w _ => by rw [harch w]
-
--- pin: ideleNorm_det_eq_archDetNorm_rat (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:600)
-private theorem ideleNorm_det_eq_archDetNorm_rat (X : AdelicGL2 (𝓞 ℚ) ℚ)
-    (hX : glFin (𝓞 ℚ) ℚ X ∈ finiteIntegralGL2 (𝓞 ℚ) ℚ) :
-    ideleNorm ℚ (Matrix.GeneralLinearGroup.det X) = archDetNorm Rat.infinitePlace X := by
-  rw [ideleNorm_det_eq_prod_archDetNorm_pow X hX, Fintype.prod_subsingleton _ Rat.infinitePlace]
-  unfold InfinitePlace.mult
-  rw [ite_eq_left Rat.isReal_infinitePlace, pow_one]
-
+-- The six declaration glue block of this section (`norm_eq_zpow_of_valued` ...
+-- `ideleNorm_det_eq_prod_archDetNorm_pow`) is shared with the pinned
+-- `ideleNorm_det_eq_prod_archDetNorm_pow_mult` headline and now lives, public, in
+-- `FLTForHuman/AutomorphicForm/Adelic/IdeleNormDetGlue.lean`; it was a private copy here.
 -- `ideleNorm_det_globalPoints` is the public node `AutomorphicForm.ideleNorm_det_globalPoints`
 -- (`FLTForHuman/AutomorphicForm/Adelic/IdeleNormDet.lean`), imported rather than re-derived here.
 
--- pin: det_centralScalar_sq (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:634)
 private theorem det_centralScalar_sq (z : (AdeleRing (𝓞 F) F)ˣ) :
     Matrix.GeneralLinearGroup.det (centralScalar (𝓞 F) F z) = z ^ 2 := by
   rw [show centralScalar (𝓞 F) F = Matrix.GeneralLinearGroup.scalar (Fin 2) from rfl,
     Matrix.GeneralLinearGroup.det_scalar, Fintype.card_fin]
 
--- pin: ideleNorm_pow (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:639)
 private theorem ideleNorm_pow (z : (AdeleRing (𝓞 F) F)ˣ) (n : ℕ) :
     ideleNorm F (z ^ n) = ideleNorm F z ^ n := by
   unfold ideleNorm
   rw [map_pow, NNReal.coe_pow]
 
--- pin: ideleNorm_det_centralScalar (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:644)
 private theorem ideleNorm_det_centralScalar (z : (AdeleRing (𝓞 F) F)ˣ) :
     ideleNorm F (Matrix.GeneralLinearGroup.det (centralScalar (𝓞 F) F z)) = ideleNorm F z ^ 2 := by
   rw [det_centralScalar_sq, ideleNorm_pow]
 
--- pin: ideleNorm_det_globalPoints_mul_mul_centralScalar (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:648)
 private theorem ideleNorm_det_globalPoints_mul_mul_centralScalar (γ : GL (Fin 2) F)
     (g : AdelicGL2 (𝓞 F) F) (z : (AdeleRing (𝓞 F) F)ˣ) :
     ideleNorm F (Matrix.GeneralLinearGroup.det
@@ -727,30 +597,25 @@ private theorem ideleNorm_det_globalPoints_mul_mul_centralScalar (γ : GL (Fin 2
   rw [map_mul, map_mul, ideleNorm_mul, ideleNorm_mul, ideleNorm_det_globalPoints, one_mul,
     ideleNorm_det_centralScalar]
 
--- pin: ideleNorm_det_of_archDetNorm_eq (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:656)
 private theorem ideleNorm_det_of_archDetNorm_eq {h : AdelicGL2 (𝓞 F) F}
     (hh : glFin (𝓞 F) F h ∈ finiteIntegralGL2 (𝓞 F) F) {d : ℝ}
     (hd : ∀ w : InfinitePlace F, archDetNorm w h = d) :
     ideleNorm F (Matrix.GeneralLinearGroup.det h) = ∏ w : InfinitePlace F, d ^ w.mult := by
-  rw [ideleNorm_det_eq_prod_archDetNorm_pow h hh]
+  rw [NumberField.TateGlobal.ideleNorm_det_eq_prod_archDetNorm_pow_mult h hh]
   exact Finset.prod_congr rfl fun w _ => by rw [hd w]
 
--- pin: prod_pow_mult_pos (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:663)
 private theorem prod_pow_mult_pos {d : ℝ} (hd : 0 < d) : 0 < ∏ w : InfinitePlace F, d ^ w.mult :=
   Finset.prod_pos fun _ _ => pow_pos hd _
 
--- pin: glFin_mem_of_mem_centreCutSiegelSet (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:666)
 private theorem glFin_mem_of_mem_centreCutSiegelSet {c u d₁ d₂ : ℝ} {h : AdelicGL2 (𝓞 F) F}
     (hS : h ∈ centreCutSiegelSet F c u d₁ d₂) : glFin (𝓞 F) F h ∈ finiteIntegralGL2 (𝓞 F) F :=
   (mem_centreCutSiegelSet_iff.mp hS).1
 
--- pin: glFin_mem_of_mem_centreCutSiegelSetAmple (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre_centreCutSiegelSetAmple.lean:689)
 private theorem glFin_mem_of_mem_centreCutSiegelSetAmple {c u d₁ d₂ κ : ℝ} {h : AdelicGL2 (𝓞 F) F}
     (hS : h ∈ centreCutSiegelSetAmple F c u d₁ d₂ κ) :
     glFin (𝓞 F) F h ∈ finiteIntegralGL2 (𝓞 F) F :=
   (mem_centreCutSiegelSet_iff.mp hS.1).1
 
--- pin: exists_bounds_ideleNorm_det (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:670)
 private theorem exists_bounds_ideleNorm_det (T : Finset (AdelicGL2 (𝓞 F) F)) :
     ∃ a b : ℝ, 0 < a ∧ a ≤ b ∧
       ∀ x ∈ T, ideleNorm F (Matrix.GeneralLinearGroup.det x) ∈ Icc a b := by
@@ -770,7 +635,6 @@ private theorem exists_bounds_ideleNorm_det (T : Finset (AdelicGL2 (𝓞 F) F)) 
     Finset.mem_insert_of_mem (Finset.mem_image_of_mem _ hx)
   exact ⟨N.min'_le _ hmem, N.le_max' _ hmem⟩
 
--- pin: exists_bounds_ideleNorm_central (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:689)
 private theorem exists_bounds_ideleNorm_central {α β d₂ : ℝ} (hα : 0 < α) (hαβ : α ≤ β) (hd₂ : 0 < d₂)
     (T : Finset (AdelicGL2 (𝓞 F) F)) :
     ∃ m M : ℝ, 0 < m ∧ m ≤ M ∧
@@ -823,7 +687,6 @@ private theorem exists_bounds_ideleNorm_central {α β d₂ : ℝ} (hα : 0 < α
   · rw [hq_eq]
     exact Real.sqrt_le_sqrt hhi
 
--- pin: globalPoints_scalar (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:749)
 private theorem globalPoints_scalar (a : Fˣ) :
     globalPoints (𝓞 F) F (Matrix.GeneralLinearGroup.scalar (Fin 2) a) =
       centralScalar (𝓞 F) F (Units.map (algebraMap F (AdeleRing (𝓞 F) F)).toMonoidHom a) := by
@@ -836,7 +699,6 @@ private theorem globalPoints_scalar (a : Fˣ) :
   · simp [globalPoints, centralScalar, Matrix.GeneralLinearGroup.map, Matrix.GeneralLinearGroup.scalar,
       Matrix.scalar_apply, Matrix.diagonal_apply_ne _ h]
 
--- pin: exists_finset_central_covering_of_point_of_stable_of_decomposition (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:772)
 private theorem exists_finset_central_covering_of_point_of_stable_of_decomposition
     (S : Set (AdelicGL2 (𝓞 F) F)) (T : Finset (AdelicGL2 (𝓞 F) F)) (d₂ : ℝ)
     (W : Set (AdeleRing (𝓞 F) F)ˣ)
@@ -892,8 +754,6 @@ private theorem exists_finset_central_covering_of_point_of_stable_of_decompositi
     mul_assoc (h * centralScalar (𝓞 F) F w') x (centralScalar (𝓞 F) F n), ← hc n x]
 
 
--- pin: exists_finset_central_covering_centreCut_of_point_of_stable_of_decomposition (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:826)
--- pin: exists_finset_central_covering_centreCut_of_point_of_stable_of_decomposition (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre_centreCutSiegelSetAmple.lean:851)
 private theorem exists_finset_central_covering_centreCut_of_point_of_stable_of_decomposition
     (S : Set (AdelicGL2 (𝓞 F) F)) (T : Finset (AdelicGL2 (𝓞 F) F)) (d₂ : ℝ)
     (W : Set (AdeleRing (𝓞 F) F)ˣ)
@@ -919,7 +779,6 @@ section Assembly
 
 variable {F : Type} [Field F] [NumberField F]
 
--- pin: exists_finset_slab_covering_of_point_of_stable_of_engine (S_AutomorphicForm_exists_finset_slab_covering_of_coversModCentre.lean:772)
 private theorem exists_finset_slab_covering_of_point_of_stable_of_engine
     (S : Set (AdelicGL2 (𝓞 F) F)) (T : Finset (AdelicGL2 (𝓞 F) F)) (d₂ : ℝ)
     (W : Set (AdeleRing (𝓞 F) F)ˣ)
@@ -976,7 +835,6 @@ private theorem exists_finset_slab_covering_of_point_of_stable_of_engine
     ← mul_assoc h (centralScalar (𝓞 F) F w') x,
     mul_assoc (h * centralScalar (𝓞 F) F w') x (centralScalar (𝓞 F) F n), ← hc n x]
 
--- pin: exists_finset_slab_covering_centreCut_of_point_of_stable_of_engine (S_AutomorphicForm_exists_finset_slab_covering_of_coversModCentre.lean:828)
 private theorem exists_finset_slab_covering_centreCut_of_point_of_stable_of_engine
     (c u d₁ d₂ : ℝ) (T : Finset (AdelicGL2 (𝓞 F) F)) (W : Set (AdeleRing (𝓞 F) F)ˣ)
     (hP : ∀ g : AdelicGL2 (𝓞 F) F, ∃ (γ : GL (Fin 2) F) (z : (AdeleRing (𝓞 F) F)ˣ)
@@ -996,7 +854,6 @@ private theorem exists_finset_slab_covering_centreCut_of_point_of_stable_of_engi
   exists_finset_slab_covering_of_point_of_stable_of_engine (centreCutSiegelSet F c u d₁ d₂) T d₂ W
     (fun _ hh => glFin_mem_of_mem_centreCutSiegelSet hh) hP hSt hEn hα
 
--- pin: exists_shell_ratio (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:857)
 private theorem exists_shell_ratio {d₁ d₂ : ℝ} (hd : d₁ < d₂) (hd₂ : 0 < d₂) :
     ∃ ρ : ℝ, 0 < ρ ∧ ρ < 1 ∧ d₁ ≤ ρ * d₂ := by
   refine ⟨max d₁ (d₂ / 2) / d₂, div_pos (lt_max_of_lt_right (half_pos hd₂)) hd₂,
@@ -1004,8 +861,6 @@ private theorem exists_shell_ratio {d₁ d₂ : ℝ} (hd : d₁ < d₂) (hd₂ :
   rw [div_mul_cancel₀ _ hd₂.ne']
   exact le_max_left _ _
 
--- pin: central_assembled (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:864)
--- pin: central_assembled (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre_centreCutSiegelSetAmple.lean:891)
 private theorem central_assembled {S : Set (AdelicGL2 (𝓞 F) F)} (d₁ d₂ : ℝ)
     (T : Finset (AdelicGL2 (𝓞 F) F)) (hd : d₁ < d₂)
     (hwin : ∀ h ∈ S, ∀ v : InfinitePlace F, archDetNorm v h ∈ Set.Icc d₁ d₂)
@@ -1034,7 +889,6 @@ private theorem central_assembled {S : Set (AdelicGL2 (𝓞 F) F)} (d₁ d₂ : 
     hSfin hP (fun _ hh hdet _ hw' => mul_centralScalar_mem_of_mem_shellIdeles hρ₀ hρd hmul hh hdet hw')
     (exists_finset_shell_decomposition F hρ₀ hρ₁) hα
 
--- pin: e2a_assembled (S_AutomorphicForm_exists_finset_slab_covering_of_coversModCentre.lean:865)
 private theorem e2a_assembled (c u d₁ d₂ : ℝ) (T : Finset (AdelicGL2 (𝓞 F) F)) (hd : d₁ < d₂)
     (hcov : CoversModCentre F (⋃ x ∈ T, (· * x) '' centreCutSiegelSet F c u d₁ d₂))
     (α β : ℝ) (hα : 0 < α) :
@@ -1060,7 +914,6 @@ end Assembly
 
 namespace Engine
 
--- pin: exists_finset_central_slab_covering_of_coversModCentre (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre.lean:896)
 theorem exists_finset_central_slab_covering_of_coversModCentre
     (F : Type) [Field F] [NumberField F] (c u d₁ d₂ : ℝ) (T : Finset (AdelicGL2 (𝓞 F) F))
     (hd : d₁ < d₂)
@@ -1076,7 +929,6 @@ theorem exists_finset_central_slab_covering_of_coversModCentre
     (fun _ hwK hwa _h hh hdet => centralScalar_mul_mem_centreCutSiegelSet hwK hwa hh hdet)
     (fun _h hh => glFin_mem_of_mem_centreCutSiegelSet hh) hcov α β hα
 
--- pin: exists_finset_central_slab_covering_of_coversModCentre_centreCutSiegelSetAmple (S_AutomorphicForm_exists_finset_central_slab_covering_of_coversModCentre_centreCutSiegelSetAmple.lean:896)
 theorem exists_finset_central_slab_covering_of_coversModCentre_centreCutSiegelSetAmple
     (F : Type) [Field F] [NumberField F] (c u d₁ d₂ κ : ℝ) (T : Finset (AdelicGL2 (𝓞 F) F))
     (hd : d₁ < d₂)
@@ -1099,7 +951,6 @@ theorem exists_finset_central_slab_covering_of_coversModCentre_centreCutSiegelSe
   show h * x * centralScalar (𝓞 F) F n = h * (centralScalar (𝓞 F) F n * x)
   rw [mul_assoc, centralScalar_mul_comm n x]
 
--- pin: exists_finset_slab_covering_of_coversModCentre (S_AutomorphicForm_exists_finset_slab_covering_of_coversModCentre.lean:896)
 theorem exists_finset_slab_covering_of_coversModCentre
     (F : Type) [Field F] [NumberField F] (c u d₁ d₂ : ℝ) (T : Finset (AdelicGL2 (𝓞 F) F))
     (hd : d₁ < d₂)

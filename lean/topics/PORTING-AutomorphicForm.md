@@ -296,6 +296,22 @@ brief's forecast exact, and no new ready row (the set is a premise of ten rows, 
 two remaining premises). The record is its §1.5/§8; the order is
 [automorphicForm/WORKORDER-AF3-proofs.md](automorphicForm/WORKORDER-AF3-proofs.md).
 
+The fourth is **landed** (2026-11-02), ported by the manager in one session:
+[automorphicForm/SET-AF4.md](automorphicForm/SET-AF4.md), the **norm side of the adèle ring** — the
+idèle norm's values on unit idèles, a uniformizer and a determinant, the height's continuity and the
+finite-support norm product: five shelf rows (528 silo → 109 net, 323 lines already in the port) plus
+four declarations of definition ground (`finitePartUnits`, `unitIdeles`/`mem_unitIdeles_iff`,
+`uniformizerIdele`, ≈27 pin lines in three `Def_` modules). It is the first column set whose shelf rows
+are outside the `AutomorphicForm` namespace, chosen by **readiness return** rather than silo. Measured
+after the landing: `needed` **901 / 370,970** (the forecast exact), the AF shelf 37 / 17,312, and
+thirteen rows readied / 11,888 silo — ten of them writable, three carrying a definition gate the
+frontier cannot see (FR-0100). The N3 glue block was promoted out of `Siegel/SlabCovering.lean` (its
+private duplicate deleted) and homed on the `AutomorphicForm` side because its hypothesis is about
+`AdelicGL2`; N5 went beside its engine in `WeylIntegrable/NormProdSum.lean`; and the touched
+`Siegel/SlabCovering.lean` was brought to standards in the same pass (60 `-- pin:` markers → six
+`spec-pin:` wires, two pre-existing dead private lemmas deleted). Its §0.4 records the one
+gate the tools miss (FR-0099).
+
 ## 6. Verification and wiring
 
 - **Checker.** Every port module carries its own `spec-pin:` header; the legacy `PORT_FILES` /

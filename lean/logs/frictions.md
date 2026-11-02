@@ -1988,3 +1988,85 @@ round promotes what generalizes.
   pre-existing dead block in a touched *engine* module is reported and left (the `instructions.md`
   exemption for completeness content), but it must be named.
 - **seen**: 2026-11-02, SET-AF3 §4.6/§1.5.
+
+## FR-0099 [tooling] [method] — the declaration-level gate scan reads the *direct* `Def_` imports, and a definition can reach a row's statement through a `Def_` module's own imports
+
+- **where**: SET-AF4's 49-line row
+  `NumberField.TateGlobal.ideleNorm_eq_one_of_fst_eq_one_of_finitePartUnits_mem_unitIdeles`
+  ([topics/automorphicForm/SET-AF4.md](topics/automorphicForm/SET-AF4.md) §0.4). Its statement is
+  `finitePartUnits … ∈ IsDedekindDomain.FiniteAdeleRing.unitIdeles`.
+- **symptom**: `spec/gate_scan.py --pin Definitions/Def_NumberField_IdeleBox.lean` reports the gate as
+  the single declaration `finitePartUnits` (2 pin lines) and **0 missing** for anything else, and
+  `port_advise --with-defs` lists four `Def_` modules — `HeckeEigenfunction`, `AdelicHeight`,
+  `IdeleBox`, `TateGlobalZeta` — none of which contains `unitIdeles`. Yet `unitIdeles` and
+  `mem_unitIdeles_iff` are **unported** (grepped in the port tree and in mathlib: absent), and the row
+  cannot be written without them. They live in `Def_IsDedekindDomain_FiniteUnitIdeles`, which the row
+  reaches only because `Def_NumberField_IdeleBox` imports it. The real gate is ≈27 pin lines in three
+  modules, not ≈8 in two.
+- **cause**: both tools close over the *wrapper's own* `Definitions/` imports — `gate_scan` over the
+  one `--pin` module's declaration list, `--with-defs` over the wrappers' direct import lines. The
+  pin's `Def_` modules import each other (`IdeleBox` → `FiniteUnitIdelesOutside` →
+  `FiniteUnitIdeles`), so the vocabulary can be two edges away and invisible. This is FR-0049's
+  lesson one level down: the readiness test is premise-based, and the *statement's* vocabulary needs
+  its own read.
+- **fix**: treat `gate_scan` + `--with-defs` as the first cut and hand-read the wrapper's statement for
+  every `Def_`-sounding identifier, grepping each against the port
+  (`grep -rn "def <name>\|theorem <name>\|abbrev <name>" FLTForHuman`); a negative is a gate, and it
+  goes in the manager's def order at the *declaration* level. Here the order is `finitePartUnits`,
+  `unitIdeles`, `mem_unitIdeles_iff`, `uniformizerIdele` — four declarations, three pin modules — and
+  the mis-priced version would have stalled the worker on an unwritable statement.
+- **seen**: 2026-11-02, SET-AF4 §0.4/§4.1.
+
+## FR-0100 [method] [tooling] — the gate of a set's *consumers* needs `gate_scan` too: a `Def_` module can be 29/39 used with **nothing** missing, and a module-level census over-prices the rest
+
+- **where**: SET-AF4's §0.5 consumer table and its §8 re-read
+  ([topics/automorphicForm/SET-AF4.md](topics/automorphicForm/SET-AF4.md)). Four rows the set
+  readies — `isInducedSection_indicator_bottomRow_mul_adelicHeight_cpow` (1,043),
+  `bruhatEisenstein_differentiableOn_re_gt_half_of_entire_family` (624),
+  `exists_flat_isInducedSection_family_eq_of_isInducedSection` (325),
+  `lintegral_rationalCentreUnipotentHaar_comp_heckeGen_mul_centralScalar_conj` (179) — were priced
+  "remaining gate" from the *module-level* import census (the pin `Def_` modules their wrappers import
+  and the port seems to lack).
+- **symptom**: at landing, `gate_scan` showed the table wrong in both directions. `WeylSelectors`
+  (`Def_AutomorphicForm_WeylSelectors`, 39 public declarations) is **29/39 used and 0 missing**, so
+  624 was never gated and lands ready. The two real gates are *larger* than the census's pin-line
+  counts: 325 needs `FnTwist.isSmoothVector_rightTranslationFn_mul` (22 pin lines), 179 needs the three
+  `RationalCentreUnipotentQuotient` declarations (13), not the 4 and 5 claimed.
+- **cause**: exactly FR-0096's over-report, one layer out — here applied to the rows a set *unblocks*
+  rather than to the rows it cuts. A `Def_` module import is module-granular; a row can import it and
+  use nothing (623's case), or use a declaration that was never in the module's census.
+- **rule**: run `gate_scan` for every row whose *writability* the brief asserts, cut rows and consumers
+  alike, and quote two different columns in §8 — **on the ready shelf** (the frontier's premise test,
+  which is blind to definition gates, FR-0049) and **writable** (gate-free). Here the shelf lists all
+  thirteen new rows; only ten are writable. A brief that merges the two columns mis-states what the
+  next dispatch can pick up.
+- **seen**: 2026-11-02, SET-AF4 §0.5/§8.
+
+## FR-0101 [port] [method] — a row whose whole proof block already exists `private` in another module: promote it to a public home and delete the copy in the same touch
+
+- **where**: SET-AF4's N3, `NumberField.TateGlobal.ideleNorm_det_eq_prod_archDetNorm_pow_mult`
+  ([topics/automorphicForm/SET-AF4.md](topics/automorphicForm/SET-AF4.md) §1.5). Its six-declaration
+  glue block was transcribed **private** in `AutomorphicForm/Adelic/Siegel/SlabCovering.lean` (from
+  another pin `S_` file that copies the same block), and the pin's `_pow` helper is
+  statement-identical to its `_pow_mult` headline.
+- **symptom**: `port_advise` prices the row at **0 net new lines** ("already in the port"), which is
+  true only in the hash sense — the statements exist as `private` declarations, so the row cannot be
+  *imported*; a naive transcription writes 93 lines that duplicate a block `dedup` structurally cannot
+  see (it reads public declarations), and the pin's two identical statements would leave a shape
+  cluster inside the new module.
+- **fix**: promote the block to a public home and delete the private copy in the same touch. Here the
+  block's hypothesis names `AdelicGL2`, whose home is `AutomorphicForm/Adelic/Basic`, so the home is on
+  the `AutomorphicForm` side (`AutomorphicForm/Adelic/IdeleNormDetGlue.lean`); `SlabCovering` imports
+  it, loses its `private` copies (−91 lines) and its ℚ specialisation calls the public headline. Keep
+  the block's **headline** at the wrapper's name and drop the pin's identical `_pow` helper. Rebuild
+  the old module's dependents (`SlabCoveringTheorems`) — the direction `AutomorphicForm → NumberTheory`
+  is what decides which side hosts the home.
+- **outcome, and the shelf rule**: `SlabCovering` was brought to standards in the same touch (60
+  markers → six `spec-pin:` wires, checker 3 ok, register 113 → 112 modules). It carried **two**
+  pre-existing dead private declarations — the ℚ specialisation `ideleNorm_det_eq_archDetNorm_rat`
+  (one line from the public general theorem) and the one-line inclusion
+  `openShell_subset_shellIdeles` — and both were **deleted**, not shelved: `move_dead`'s `Reserve/`
+  shelf is for dead declarations that *are* mathematics, and a statement derivable in a line is not.
+  `move_dead --select dead` reads 0 / 0 afterwards. The module's one remaining dedup cluster is the
+  pin's `stable`/`stable + centreCut` two-statement pattern and stays.
+- **seen**: 2026-11-02, SET-AF4 §1.5.
