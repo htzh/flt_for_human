@@ -42,6 +42,7 @@
 -/
 import FLTForHuman.RepTheory.TranslateSpan
 import FLTForHuman.AutomorphicForm.Adelic.ArchKFinite
+import FLTForHuman.AutomorphicForm.Adelic.ArchComponentDictionary
 import FLTForHuman.AutomorphicForm.Adelic.SmoothAutomorphicFn
 import FLTForHuman.NumberTheory.AdelicBox
 import FLTForHuman.NumberTheory.AdelicLevel.Level
@@ -202,11 +203,12 @@ private theorem translatesFinite_archRowIsometrySubgroup (w : InfinitePlace F) (
   obtain ⟨s, hs⟩ := hφ
   exact Exists.intro s fun k hk => hs k hk
 
+-- The archimedean-component injectivity is the shared dictionary lemma of
+-- `ArchComponentDictionary`; this private alias keeps the pin's local name.
+omit [NumberField F] in
 private theorem eq_of_forall_archComponent_eq {k k' : GL (Fin 2) (InfiniteAdeleRing F)}
-    (h : ∀ w : InfinitePlace F, archComponent F w k = archComponent F w k') : k = k' := by
-  have _ := ‹NumberField F›
-  refine Units.ext ((archMatrixPiEquiv F).injective (funext fun w => Matrix.ext fun i j => ?_))
-  exact congrArg (fun m : GL (Fin 2) w.Completion => (m : Matrix (Fin 2) (Fin 2) w.Completion) i j) (h w)
+    (h : ∀ w : InfinitePlace F, archComponent F w k = archComponent F w k') : k = k' :=
+  ext_archComponent (F := F) h
 
 private theorem adelicArchGLInclAt_mul_comm {v w : InfinitePlace F} (hvw : v ≠ w) (a : GL (Fin 2) v.Completion)
     (b : GL (Fin 2) w.Completion) :

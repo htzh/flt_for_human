@@ -101,6 +101,8 @@
   `DenseRange (algebraMap K (v.adicCompletion K))`, not the pin's subring statement, so it
   is not a substitute.  Not reached: the `SeparableSpace` instance :20,
   `ValuationSubring.subtype_inj` :57, the `ValuationSubring` unit helpers :61/:81,
+
+  spec-pin: Definitions/Def_DedekindDomain_Completion_BaseChange.lean
 -/
 import FLTForHuman.AlgebraicCurve.Place.AdicCompletion
 import FLTForHuman.RingTheory.DedekindDomain.IntegralClosure
@@ -120,7 +122,6 @@ section
 
 variable {R S : Type*} [Ring R]
 
--- pin: Subring.toSubmodule (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:17)
 def Subring.toSubmodule (S : Subring R) : Submodule S R where
   __ := S
   smul_mem' x y h := by
@@ -129,7 +130,6 @@ def Subring.toSubmodule (S : Subring R) : Submodule S R where
 
 section
 
--- pin: Pi.semialgHom (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:25)
 def Pi.semialgHom {I : Type*} {R S : Type*} (f : I → Type*) [CommSemiring R] [CommSemiring S]
     (φ : R →+* S) [s : (i : I) → Semiring (f i)] [(i : I) → Algebra S (f i)] {A : Type*}
     [Semiring A] [Algebra R A] (g : (i : I) → A →ₛₐ[φ] f i) :
@@ -137,7 +137,6 @@ def Pi.semialgHom {I : Type*} {R S : Type*} (f : I → Type*) [CommSemiring R] [
   __ := RingHom.pi fun i ↦ (g i).toRingHom
   map_smul' r a := by ext; simp [RingHom.pi]
 
--- pin: Pi.semialgHom_apply (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:33)
 @[simp]
 theorem Pi.semialgHom_apply {I : Type*} {R S : Type*} (f : I → Type*) [CommSemiring R]
     [CommSemiring S]
@@ -146,7 +145,6 @@ theorem Pi.semialgHom_apply {I : Type*} {R S : Type*} (f : I → Type*) [CommSem
     (Pi.semialgHom _ φ g) a i = g i a :=
   rfl
 
--- pin: Pi.semialgHomPi (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:40)
 def Pi.semialgHomPi {I J : Type*} {R S : Type*} (f : I → Type*)
     (g : J → Type*) [CommSemiring R] [CommSemiring S] {φ : R →+* S}
     [(i : I) → Semiring (f i)] [(i : I) → Algebra S (f i)] [(j : J) → Semiring (g j)]
@@ -159,7 +157,6 @@ def Pi.semialgHomPi {I J : Type*} {R S : Type*} (f : I → Type*)
   map_add' x y := funext fun w => by simp [map_add]
   map_smul' k x := funext fun w => (p w).map_smul' k (x (r w))
 
--- pin: Pi.semialgHomPi_apply (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:53)
 @[simp]
 theorem Pi.semialgHomPi_apply {I J : Type*} {R S : Type*} (f : I → Type*)
     (g : J → Type*) [CommSemiring R] [CommSemiring S] {φ : R →+* S}
@@ -168,7 +165,6 @@ theorem Pi.semialgHomPi_apply {I J : Type*} {R S : Type*} (f : I → Type*)
     (a : (j : J) → g j) (i : I) :
     Pi.semialgHomPi _ _ p a i = p i (a (r i)) := rfl
 
--- pin: AlgEquiv.piCongrFiberwise (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:60)
 def AlgEquiv.piCongrFiberwise {α : Type*} {β : Type*} {R : Type*} {γ₁ : α → Type*} {γ₂ : β → Type*}
     {f : α → β} [CommSemiring R] [(a : α) → Semiring (γ₁ a)] [(b : β) → Semiring (γ₂ b)]
     [(a : α) → Algebra R (γ₁ a)] [(b : β) → Algebra R (γ₂ b)]
@@ -184,7 +180,6 @@ open scoped TensorProduct
 variable {R S : Type*} [CommSemiring R] [CommSemiring S] {φ : R →+* S}
     {A B : Type*}
 
--- pin: SemialgHom.baseChange_of_algebraMap (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:76)
 noncomputable
 def SemialgHom.baseChange_of_algebraMap [Semiring A] [Algebra R S] [Algebra R A]
     [Semiring B] [Algebra S B] (ψ : A →ₛₐ[algebraMap R S] B) :
@@ -200,14 +195,12 @@ def SemialgHom.baseChange_of_algebraMap [Semiring A] [Algebra R S] [Algebra R A]
     rw [Algebra.ofId_apply]
     exact Algebra.commutes s (ρ a)
 
--- pin: SemialgHom.baseChange_of_algebraMap_tmul (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:87)
 theorem SemialgHom.baseChange_of_algebraMap_tmul [Semiring A] [Algebra R S] [Algebra R A]
     [Semiring B] [Algebra S B] (ψ : A →ₛₐ[algebraMap R S] B) (s : S) (a : A) :
     ψ.baseChange_of_algebraMap (s ⊗ₜ[R] a) = algebraMap _ _ s * ψ a := by
   simp [SemialgHom.baseChange_of_algebraMap, Algebra.TensorProduct.lift_tmul,
     SemialgHom.toLinearMap_eq_coe, Algebra.ofId_apply]
 
--- pin: SemialgHom.baseChange_of_algebraMap_tmul_right (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:93)
 @[simp]
 theorem SemialgHom.baseChange_of_algebraMap_tmul_right [Semiring A] [Algebra R S] [Algebra R A]
     [Semiring B] [Algebra S B] (ψ : A →ₛₐ[algebraMap R S] B) (a : A) :
@@ -215,7 +208,6 @@ theorem SemialgHom.baseChange_of_algebraMap_tmul_right [Semiring A] [Algebra R S
   simp [SemialgHom.baseChange_of_algebraMap, Algebra.TensorProduct.lift_tmul,
     SemialgHom.toLinearMap_eq_coe, Algebra.ofId_apply]
 
--- pin: SemialgHom.baseChange_of_algebraMap_tmul_left (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:99)
 @[simp]
 theorem SemialgHom.baseChange_of_algebraMap_tmul_left [Semiring A] [Algebra R S] [Algebra R A]
     [Semiring B] [Algebra S B] (ψ : A →ₛₐ[algebraMap R S] B) (s : S) :
@@ -223,7 +215,6 @@ theorem SemialgHom.baseChange_of_algebraMap_tmul_left [Semiring A] [Algebra R S]
   simp [SemialgHom.baseChange_of_algebraMap, Algebra.TensorProduct.lift_tmul,
     SemialgHom.toLinearMap_eq_coe, Algebra.ofId_apply]
 
--- pin: instIsBiscalarBaseChangeOfAlgebraMap (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:106)
 open scoped TensorProduct.RightActions in
 
 instance SemialgHom.instIsBiscalarBaseChangeOfAlgebraMap [Algebra R S] [CommSemiring A]
@@ -242,7 +233,6 @@ instance SemialgHom.instIsBiscalarBaseChangeOfAlgebraMap [Algebra R S] [CommSemi
         ring_nf
       | add x y hx hy => simp_all }
 
--- pin: SemialgHom.baseChangeRightOfAlgebraMap (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:125)
 open scoped TensorProduct.RightActions in
 
 noncomputable
@@ -258,7 +248,6 @@ def SemialgHom.baseChangeRightOfAlgebraMap [Algebra R S] [CommSemiring A] [Algeb
       rw [SemialgHom.baseChange_of_algebraMap_tmul_right, RingHom.algebraMap_toAlgebra]
       rfl }
 
--- pin: SemialgHom.baseChangeRightOfAlgebraMap_apply (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:135)
 open scoped TensorProduct.RightActions in
 @[simp]
 theorem SemialgHom.baseChangeRightOfAlgebraMap_apply [Algebra R S] [CommSemiring A] [Algebra R A]
@@ -267,7 +256,6 @@ theorem SemialgHom.baseChangeRightOfAlgebraMap_apply [Algebra R S] [CommSemiring
     baseChangeRightOfAlgebraMap ψ x = baseChange_of_algebraMap ψ x :=
   rfl
 
--- pin: SemialgHom.baseChangeRightOfAlgebraMap_coe (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:143)
 open scoped TensorProduct.RightActions in
 @[simp]
 theorem SemialgHom.baseChangeRightOfAlgebraMap_coe [Algebra R S] [CommSemiring A] [Algebra R A]
@@ -279,7 +267,6 @@ theorem SemialgHom.baseChangeRightOfAlgebraMap_coe [Algebra R S] [CommSemiring A
 variable (F : Type*) [CommSemiring F] {A : Type*} [Ring A]
     [Algebra F A]
 
--- pin: LinearEquiv.mulLeft (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:152)
 def _root_.LinearEquiv.mulLeft (u : Aˣ) : A ≃ₗ[F] A where
   toFun x := u * x
   invFun y := u⁻¹ * y
@@ -288,13 +275,11 @@ def _root_.LinearEquiv.mulLeft (u : Aˣ) : A ≃ₗ[F] A where
   map_add' x₁ x₂ := left_distrib ↑u x₁ x₂
   map_smul' f x := by simp
 
--- pin: LinearEquiv.coe_mulLeft (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:161)
 @[simp]
 theorem LinearEquiv.coe_mulLeft (u : Aˣ) :
     (LinearEquiv.mulLeft F u : A →ₗ[F] A) = LinearMap.mulLeft F (u : A) :=
   rfl
 
--- pin: LinearEquiv.mulRight (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:165)
 def _root_.LinearEquiv.mulRight (u : Aˣ) : A ≃ₗ[F] A where
   toFun x := x * u
   invFun y := y * u⁻¹
@@ -303,7 +288,6 @@ def _root_.LinearEquiv.mulRight (u : Aˣ) : A ≃ₗ[F] A where
   map_add' x₁ x₂ := right_distrib x₁ x₂ u
   map_smul' f x := by simp
 
--- pin: LinearEquiv.coe_mulRight (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:174)
 @[simp]
 theorem LinearEquiv.coe_mulRight (u : Aˣ) :
     (LinearEquiv.mulRight F u : A →ₗ[F] A) = LinearMap.mulRight F (u : A) :=
@@ -321,7 +305,6 @@ variable {R : Type*} (A : Type*) {B : Type*} {ι : Type*} [CommSemiring R]
 variable [CommSemiring A] [Algebra R A] [Fintype ι]
 variable [CommSemiring B] [Algebra R B]
 
--- pin: Module.Basis.rightBaseChange (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:191)
 noncomputable
 def Module.Basis.rightBaseChange [DecidableEq ι] (b : Module.Basis ι R A) :
     Module.Basis ι B (A ⊗[R] B) where
@@ -336,7 +319,6 @@ def Module.Basis.rightBaseChange [DecidableEq ι] (b : Module.Basis ι R A) :
     let finite : (ι →₀ B) ≃ₗ[B] (ι → B) := Finsupp.linearEquivFunOnFinite B B ι
     comm.symm.trans π |>.trans finite.symm
 
--- pin: Module.Basis.rightBaseChange_repr (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:205)
 @[simp]
 lemma Module.Basis.rightBaseChange_repr [DecidableEq ι] (b : Module.Basis ι R A) (i) (x : B) :
     (b.rightBaseChange A).repr (b i ⊗ₜ x) = Finsupp.single i x := by
@@ -350,7 +332,6 @@ lemma Module.Basis.rightBaseChange_repr [DecidableEq ι] (b : Module.Basis ι R 
   rw [← LinearEquiv.eq_symm_apply]
   simp [rightBaseChange, this]
 
--- pin: Module.Basis.rightBaseChange_apply (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:218)
 @[simp]
 lemma Module.Basis.rightBaseChange_apply [DecidableEq ι] (b : Basis ι R A) (i) :
     b.rightBaseChange A i = b i ⊗ₜ (1 : B) := by
@@ -368,7 +349,6 @@ open scoped TensorProduct.RightActions
 variable {R : Type*} (A : Type*) {B : Type*} [CommRing R]
   [CommSemiring A] [Algebra R A] [CommRing B] [Algebra R B] [Nontrivial B]
 
--- pin: TensorProduct.finrank_rightAlgebra (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:234)
 lemma finrank_rightAlgebra [Module.Finite R A] [Module.Free R A] :
     Module.finrank B (A ⊗[R] B) = Module.finrank R A := by
   have : Nontrivial R := RingHom.domain_nontrivial (algebraMap R B)
@@ -389,7 +369,6 @@ variable {A : Type*} (K : Type*) [CommRing A] [Field K] [Algebra A K] [IsFractio
 
 open Valuation.IsRankOneDiscrete in
 
--- pin: closureAlgebraMapIntegers_eq_prodIntegers (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:252)
 theorem closureAlgebraMapIntegers_eq_prodIntegers {ι : Type*}
     (v : ι → HeightOneSpectrum A)
     (injective : Function.Injective v) :
@@ -423,7 +402,6 @@ theorem closureAlgebraMapIntegers_eq_prodIntegers {ι : Type*}
           (valuedAdicCompletion_surjective K (v w))]
       exact ha w hw
 
--- pin: denseRange_of_prodAlgebraMap (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:285)
 theorem denseRange_of_prodAlgebraMap {ι : Type*} [Finite ι]
     {valuation : ι → HeightOneSpectrum A} (injective : Function.Injective valuation) :
     DenseRange (algebraMap K ((i : ι) → (valuation i).adicCompletion K)) := by
@@ -509,7 +487,6 @@ private theorem isTopologicalAddGroup_withVal_pin (v : HeightOneSpectrum A) :
 
 attribute [local instance] continuousAdd_withVal_pin addMonoidHomClass_withVal_pin isTopologicalAddGroup_withVal_pin
 
--- pin: adicValued.continuous_algebraMap (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:371)
 lemma adicValued.continuous_algebraMap
    (w : HeightOneSpectrum B) (hvw : w.under A = v) :
     Continuous (σ v w) := by
@@ -549,7 +526,6 @@ namespace Extension
 
 variable {v} (w : v.Extension B)
 
--- pin: WithVal.semialgebraMap (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:412)
 @[simps!]
 def _root_.WithVal.semialgebraMap {R S Γ₀ Γ₀' : Type*} [CommRing R]
     [CommRing S] [LinearOrderedCommGroupWithZero Γ₀] [LinearOrderedCommGroupWithZero Γ₀']
@@ -559,13 +535,11 @@ def _root_.WithVal.semialgebraMap {R S Γ₀ Γ₀' : Type*} [CommRing R]
   map_smul' r x := by
     simp [WithVal.algebraMap_left_apply, WithVal.algebraMap_right_apply, Algebra.smul_def]
 
--- pin: adicCompletionSemialgHomCompletion (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:420)
 noncomputable def adicCompletionSemialgHomCompletion :
     (v.valuation K).Completion →ₛₐ[algebraMap K L] (w.1.valuation L).Completion :=
   .restrictScalars (WithVal.semialgebraMap (v.valuation K) (w.1.valuation L)) <|
     UniformSpace.Completion.mapSemialgHom _ <| adicValued.continuous_algebraMap K L v w.1 w.2
 
--- pin: adicCompletionSemialgHom (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:425)
 noncomputable def adicCompletionSemialgHom :
     v.adicCompletion K →ₛₐ[algebraMap K L] w.1.adicCompletion L where
   toFun x := .ofCompletion (adicCompletionSemialgHomCompletion K L w x.toCompletion)
@@ -585,24 +559,20 @@ noncomputable def adicCompletionSemialgHom :
     apply adicCompletion.ext
     simp only [adicCompletion.toCompletion_mul, map_mul]
 
--- pin: adicCompletionSemialgHom_apply (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:444)
 lemma adicCompletionSemialgHom_apply (x : v.adicCompletion K) :
     w.adicCompletionSemialgHom K L x =
       .ofCompletion (adicCompletionSemialgHomCompletion K L w x.toCompletion) := rfl
 
--- pin: toCompletion_adicCompletionSemialgHom (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:448)
 lemma toCompletion_adicCompletionSemialgHom (x : v.adicCompletion K) :
     (w.adicCompletionSemialgHom K L x).toCompletion =
       adicCompletionSemialgHomCompletion K L w x.toCompletion := rfl
 
--- pin: adicCompletionSemialgHom_coe (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:452)
 lemma adicCompletionSemialgHom_coe (x : WithVal (v.valuation K)) :
     w.adicCompletionSemialgHom K L x = algebraMap K L x.ofVal :=
   (w.adicCompletionSemialgHom K L).commutes _
 
 open WithZeroTopology in
 
--- pin: valued_adicCompletionSemialgHom (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:458)
 lemma valued_adicCompletionSemialgHom (x) :
     Valued.v (adicCompletionSemialgHom K L w x) = Valued.v x ^
       (w.1.under A).asIdeal.ramificationIdx' w.1.asIdeal := by
@@ -626,7 +596,6 @@ lemma valued_adicCompletionSemialgHom (x) :
   rw [adicCompletion.valued_ofCompletion, Valued.valuedCompletion_apply]
   rfl
 
--- pin: adicCompletionSemialgHom_image_adicCompletionIntegers (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:480)
 lemma adicCompletionSemialgHom_image_adicCompletionIntegers :
     w.adicCompletionSemialgHom K L '' (v.adicCompletionIntegers K) ⊆
       w.1.adicCompletionIntegers L := by
@@ -636,17 +605,14 @@ lemma adicCompletionSemialgHom_image_adicCompletionIntegers :
   rwa [pow_le_one_iff]
   exact ramificationIdx_ne_zero A B (algebraMap_injective_of_field_isFractionRing A B K L) w.1
 
--- pin: instAlgebraAdicCompletionExtension (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:490)
 noncomputable
 instance : Algebra (v.adicCompletion K) (w.1.adicCompletion L) :=
   (w.adicCompletionSemialgHom K L).toAlgebra
 
--- pin: adicCompletionSemialgHom_continuous (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:493)
 lemma adicCompletionSemialgHom_continuous : Continuous (w.adicCompletionSemialgHom K L) :=
   (adicCompletion.continuous_ofCompletion L w.1).comp
     (UniformSpace.Completion.continuous_extension.comp (adicCompletion.continuous_toCompletion K v))
 
--- pin: instContinuousSMulAdicCompletionExtension (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:497)
 instance : ContinuousSMul (adicCompletion K v) (adicCompletion L w.1) := by
   constructor
   have leftCts := w.adicCompletionSemialgHom_continuous K L
@@ -660,23 +626,19 @@ namespace adicCompletion
 
 variable (B)
 
--- pin: adicCompletion.semialgHomPi (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:544)
 noncomputable def semialgHomPi :
     v.adicCompletion K →ₛₐ[algebraMap K L] ∀ w : v.Extension B, w.1.adicCompletion L :=
   Pi.semialgHom _ _ fun i ↦ i.adicCompletionSemialgHom K L
 
--- pin: adicCompletion.baseChange (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:548)
 noncomputable abbrev baseChange :
     L ⊗[K] adicCompletion K v →ₐ[L] Π w : v.Extension B, w.1.adicCompletion L :=
   (semialgHomPi K L B v).baseChange_of_algebraMap
 
--- pin: adicCompletion.baseChange_tmul_apply (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:552)
 lemma baseChange_tmul_apply (x y w) : baseChange K L B v (x ⊗ₜ y) w =
     (algebraMap _ (w.1.adicCompletion L) x) * (algebraMap _ (w.1.adicCompletion L) y) := rfl
 
 open scoped TensorProduct.RightActions in
 
--- pin: adicCompletion.baseChangeRight (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:557)
 noncomputable abbrev baseChangeRight :
     L ⊗[K] adicCompletion K v →ₐ[adicCompletion K v] Π w : v.Extension B, w.1.adicCompletion L :=
   (semialgHomPi K L B v).baseChangeRightOfAlgebraMap
@@ -706,7 +668,6 @@ noncomputable local instance :
 attribute [local instance 9999] Algebra.toModule in
 open scoped TensorProduct.RightActions in
 
--- pin: adicCompletion.baseChangeRight_surjective (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:583)
 lemma baseChangeRight_surjective [FiniteDimensional K L] :
     Function.Surjective (baseChangeRight K L B v) :=
   letI : Module.Finite (adicCompletion K v) (L ⊗[K] adicCompletion K v) := inferInstance
@@ -730,7 +691,6 @@ lemma baseChangeRight_surjective [FiniteDimensional K L] :
 attribute [local instance 9999] Algebra.toModule in
 open scoped TensorProduct.RightActions in
 
--- pin: adicCompletion.instModuleFinitePi (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:604)
 instance [FiniteDimensional K L] :
     Module.Finite (adicCompletion K v) (Π w : v.Extension B, w.1.adicCompletion L) :=
   letI : Module.Finite (adicCompletion K v) (L ⊗[K] adicCompletion K v) := inferInstance
@@ -738,12 +698,10 @@ instance [FiniteDimensional K L] :
 
 attribute [local instance 9999] Algebra.toModule in
 
--- pin: adicCompletion.instModuleFiniteExtension (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:610)
 instance [FiniteDimensional K L] (w : v.Extension B) :
     Module.Finite (adicCompletion K v) (adicCompletion L w.1) :=
   Module.Finite.of_pi (fun (w : Extension B v) => w.1.adicCompletion L) w
 
--- pin: adicCompletion.instIsModuleTopology (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:614)
 instance instIsModuleTopology [FiniteDimensional K L] (w : v.Extension B) :
     IsModuleTopology (v.adicCompletion K) (w.1.adicCompletion L) := by
   let Kv := adicCompletion K v
@@ -752,7 +710,6 @@ instance instIsModuleTopology [FiniteDimensional K L] (w : v.Extension B) :
     ContinuousLinearEquiv.ofFinrankEq (Module.finrank_fin_fun Kv)
   apply IsModuleTopology.iso iso
 
--- pin: adicCompletion.instIsModuleTopologyPi (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:622)
 instance instIsModuleTopologyPi [FiniteDimensional K L] :
 
     IsModuleTopology (v.adicCompletion K) (Π (w : v.Extension B), w.1.adicCompletion L) := by
@@ -761,7 +718,6 @@ instance instIsModuleTopologyPi [FiniteDimensional K L] :
 
 open scoped TensorProduct.RightActions in
 
--- pin: adicCompletion.baseChangeRight_isOpenQuotientMap (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:630)
 lemma baseChangeRight_isOpenQuotientMap [FiniteDimensional K L] :
     IsOpenQuotientMap (baseChangeRight K L B v) := by
   have : T2Space (L ⊗[K] adicCompletion K v) :=
@@ -781,7 +737,6 @@ open Extension adicCompletion
 
 variable (B)
 
--- pin: HeightOneSpectrum.tensorAdicCompletionIntegersTo (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:649)
 noncomputable def tensorAdicCompletionIntegersTo :
     B ⊗[A] adicCompletionIntegers K v →ₐ[B] L ⊗[K] adicCompletion K v :=
   Algebra.TensorProduct.lift
@@ -790,7 +745,6 @@ noncomputable def tensorAdicCompletionIntegersTo :
     (fun _ _ ↦ .all _ _)
 
 omit [Algebra.IsIntegral A B] [IsDedekindDomain B] [IsFractionRing B L] in
--- pin: tensorAdicCompletionIntegersTo_tmul (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:658)
 @[simp]
 lemma tensorAdicCompletionIntegersTo_tmul (v : HeightOneSpectrum A) (b : B)
     (x : v.adicCompletionIntegers K) : tensorAdicCompletionIntegersTo K L B v (b ⊗ₜ x) =
@@ -800,7 +754,6 @@ lemma tensorAdicCompletionIntegersTo_tmul (v : HeightOneSpectrum A) (b : B)
 omit [Algebra.IsIntegral A B] [IsDedekindDomain B] [IsFractionRing B L] in
 open scoped TensorProduct.RightActions in
 
--- pin: tensorAdicCompletionIntegersTo_range_subset_closure (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:666)
 lemma tensorAdicCompletionIntegersTo_range_subset_closure [FiniteDimensional K L] :
   (tensorAdicCompletionIntegersTo K L B v).range.carrier ⊆
     closure (algebraMap B (L ⊗[K] adicCompletion K v)).range := by
@@ -852,7 +805,6 @@ lemma tensorAdicCompletionIntegersTo_range_subset_closure [FiniteDimensional K L
 open scoped TensorProduct.RightActions in
 omit [Algebra.IsIntegral A B] [IsDedekindDomain B] [IsFractionRing B L]  in
 
--- pin: tensorAdicCompletionIntegersTo_isClopen_range (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:721)
 lemma tensorAdicCompletionIntegersTo_isClopen_range
     [IsIntegralClosure B A L] [FiniteDimensional K L] :
     IsClopen (SetLike.coe (tensorAdicCompletionIntegersTo K L B v).range) := by
@@ -901,7 +853,6 @@ lemma tensorAdicCompletionIntegersTo_isClopen_range
 omit [Algebra.IsIntegral A B] [IsDedekindDomain B] [IsFractionRing B L] in
 open scoped TensorProduct.RightActions in
 
--- pin: range_tensorAdicCompletionIntegersTo_eq_closure_range_algebraMap (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:769)
 lemma range_tensorAdicCompletionIntegersTo_eq_closure_range_algebraMap
     [IsIntegralClosure B A L] [FiniteDimensional K L] :
     Set.range (tensorAdicCompletionIntegersTo K L B v) =
@@ -917,7 +868,6 @@ lemma range_tensorAdicCompletionIntegersTo_eq_closure_range_algebraMap
 
 omit [Algebra A L] [IsScalarTower A B L] in
 
--- pin: pi_adicCompletionIntegers_eq_closure_range_algebraMap (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:784)
 lemma pi_adicCompletionIntegers_eq_closure_range_algebraMap :
     (Set.univ.pi (fun (w : Extension B v) ↦ (w.1.adicCompletionIntegers L).carrier)) =
       closure (Set.range (algebraMap B _)) := by
@@ -929,7 +879,6 @@ lemma pi_adicCompletionIntegers_eq_closure_range_algebraMap :
 
 open scoped TensorProduct.RightActions in
 
--- pin: isClosed_baseChange_image_closure_range_algebraMap (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:795)
 lemma isClosed_baseChange_image_closure_range_algebraMap [FiniteDimensional K L] :
     IsClosed ((baseChange K L B v) ''
         closure (Set.range (algebraMap B (L ⊗[K] adicCompletion K v)))) := by
@@ -946,7 +895,6 @@ lemma isClosed_baseChange_image_closure_range_algebraMap [FiniteDimensional K L]
   rw [← range_tensorAdicCompletionIntegersTo_eq_closure_range_algebraMap]
   rfl
 
--- pin: instMulActionHomClass (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:811)
 instance : MulActionHomClass
     (L ⊗[K] adicCompletion K v →ₐ[L] (w : Extension B v) → adicCompletion L w.1) B
     (L ⊗[K] adicCompletion K v) ((w : Extension B v) → adicCompletion L w.1) where
@@ -956,7 +904,6 @@ instance : MulActionHomClass
 
 open scoped TensorProduct.RightActions in
 
--- pin: range_baseChange_comp_tensorAdicCompletionTo_eq_pi (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:820)
 theorem range_baseChange_comp_tensorAdicCompletionTo_eq_pi [FiniteDimensional K L] :
     Set.range (baseChange K L B v ∘ tensorAdicCompletionIntegersTo K L B v) =
     Set.univ.pi (fun w ↦ (w.1.adicCompletionIntegers L).carrier) := by
@@ -975,30 +922,25 @@ namespace Extension
 
 variable {B} (w : v.Extension B)
 
--- pin: Extension.adicCompletionIntegersRingHom (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:838)
 noncomputable def adicCompletionIntegersRingHom :
     v.adicCompletionIntegers K →+* w.1.adicCompletionIntegers L :=
   RingHom.restrict (w.adicCompletionSemialgHom K L) _ _
     fun x hx ↦ w.adicCompletionSemialgHom_image_adicCompletionIntegers K L ⟨x, hx, rfl⟩
 
--- pin: Extension.instAlgebraAdicCompletionIntegers (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:843)
 noncomputable instance : Algebra (v.adicCompletionIntegers K) (w.1.adicCompletionIntegers L) :=
   (w.adicCompletionIntegersRingHom K L).toAlgebra
 
--- pin: Extension.integer_algebraMap_apply (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:846)
 lemma integer_algebraMap_apply (x : v.adicCompletionIntegers K) :
     algebraMap (v.adicCompletionIntegers K) (w.1.adicCompletionIntegers L) x =
       (w.adicCompletionSemialgHom K L) x.val := rfl
 
 variable {v} in
 
--- pin: Extension.instAlgebraAdicCompletionIntegersAdicCompletion (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:852)
 noncomputable instance : Algebra (v.adicCompletionIntegers K) (w.1.adicCompletion L) :=
   Algebra.compHom (w.1.adicCompletion L) (algebraMap _ (adicCompletion K v))
 
 end Extension
 
--- pin: rightActions_smul_tmul_right (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:1064)
 open scoped TensorProduct.RightActions in
 private lemma rightActions_smul_tmul_right {R S M : Type*} [CommSemiring R]
     [CommSemiring S] [Algebra R S] [AddCommMonoid M] [Module R M] (s : S) (m : M) (t : S) :
@@ -1006,7 +948,6 @@ private lemma rightActions_smul_tmul_right {R S M : Type*} [CommSemiring R]
   rw [TensorProduct.RightActions.smul_def, TensorProduct.comm_tmul, TensorProduct.smul_tmul',
     smul_eq_mul, TensorProduct.comm_symm_tmul]
 
--- pin: rightActions_smul_eq_one_tmul_mul (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:1072)
 open scoped TensorProduct.RightActions in
 private lemma rightActions_smul_eq_one_tmul_mul {R S M : Type*} [CommSemiring R]
     [CommSemiring S] [Algebra R S] [CommSemiring M] [Algebra R M] (s : S) (x : M ⊗[R] S) :
@@ -1016,7 +957,6 @@ private lemma rightActions_smul_eq_one_tmul_mul {R S M : Type*} [CommSemiring R]
   | tmul m t => rw [rightActions_smul_tmul_right, Algebra.TensorProduct.tmul_mul_tmul, one_mul]
 
 open scoped TensorProduct.RightActions in
--- pin: instIsBiscalarTensorAdicCompletionIntegersTo (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:858)
 instance : IsBiscalar B (v.adicCompletionIntegers K) (tensorAdicCompletionIntegersTo K L B v) where
   map_smul₁ _ _ := map_smul ..
   map_smul₂ s x := by
@@ -1031,13 +971,11 @@ instance : IsBiscalar B (v.adicCompletionIntegers K) (tensorAdicCompletionIntege
     simp
 
 attribute [local instance 9999] Algebra.toModule Algebra.toSMul in
--- pin: instIsScalarTowerAdicCompletionIntegers (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:866)
 instance {w : v.Extension B} : IsScalarTower (adicCompletionIntegers K v) (adicCompletion K v)
     (w.1.adicCompletion L) := Submonoid.instIsScalarTowerSubtypeMem (adicCompletionIntegers K v)
 
 open scoped TensorProduct.RightActions in
 
--- pin: tensorAdicCompletionIntegersToPiRight (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:871)
 noncomputable def tensorAdicCompletionIntegersToPiRight :
     B ⊗[A] v.adicCompletionIntegers K →ₐ[v.adicCompletionIntegers K]
         Π w : v.Extension B, w.1.adicCompletion L :=
@@ -1050,14 +988,12 @@ variable (w : v.Extension B)
 
 open scoped TensorProduct.RightActions in
 
--- pin: Extension.tensorAdicCompletionIntegersToAdicCompletion (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:883)
 noncomputable def tensorAdicCompletionIntegersToAdicCompletion :
     B ⊗[A] (adicCompletionIntegers K v) →ₐ[adicCompletionIntegers K v] adicCompletion L w.1 :=
   Pi.evalAlgHom _ _ w |>.comp (tensorAdicCompletionIntegersToPiRight K L B v)
 
 open scoped TensorProduct.RightActions in
 
--- pin: Extension.tensorAdicCompletionIntegersToAdicCompletion_range_eq_integers (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:889)
 lemma tensorAdicCompletionIntegersToAdicCompletion_range_eq_integers [FiniteDimensional K L] :
     Set.range (w.tensorAdicCompletionIntegersToAdicCompletion K L B v) =
       adicCompletionIntegers L w.1 := by
@@ -1089,7 +1025,6 @@ noncomputable local instance : MulAction (v.adicCompletionIntegers K) (v.adicCom
 attribute [local instance 9999] Algebra.toSMul Algebra.toModule in
 open scoped TensorProduct.RightActions in
 
--- pin: Extension.instModuleFiniteAdicCompletionIntegers (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:920)
 noncomputable instance (priority := 1001) [Module.Finite A B] [FiniteDimensional K L] :
     Module.Finite (adicCompletionIntegers K v) (adicCompletionIntegers L w.1) := by
   let integerSubmodule : Submodule (adicCompletionIntegers K v) (adicCompletion L w.1) :=
@@ -1120,12 +1055,10 @@ section RamificationInertia
 
 variable {v} (w : v.Extension B)
 
--- pin: WithZero.ofAdd_neg_ofNat_pow (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:950)
 lemma _root_.WithZero.ofAdd_neg_ofNat_pow (n : ℕ) :
     (WithZero.coe (Multiplicative.ofAdd (-n : ℤ))) = (Multiplicative.ofAdd (-1 : ℤ)) ^ n := by
   rw [← WithZero.coe_pow, ← ofAdd_nsmul, nsmul_eq_mul, Int.mul_neg_one]
 
--- pin: ramificationIdx_eq_ramificationIdx (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:954)
 theorem ramificationIdx_eq_ramificationIdx :
     (v.completionIdeal K).ramificationIdx' (w.1.completionIdeal L) =
       v.asIdeal.ramificationIdx' w.1.asIdeal := by
@@ -1149,7 +1082,6 @@ theorem ramificationIdx_eq_ramificationIdx :
       WithZero.coe_le_coe, w.2, Multiplicative.ofAdd_le] at hcomap
     simp at hcomap
 
--- pin: inertiaDeg_eq_inertiaDeg (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:977)
 theorem inertiaDeg_eq_inertiaDeg :
     Ideal.inertiaDeg w.1.asIdeal A =
       Ideal.inertiaDeg (w.1.completionIdeal L) (adicCompletionIntegers K v) :=
@@ -1201,7 +1133,6 @@ section RamificationInertia
 
 variable {v} (w : v.Extension B)
 
--- pin: ramificationIdx_mul_inertiaDeg_eq_finrank (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:1013)
 theorem ramificationIdx_mul_inertiaDeg_eq_finrank [FiniteDimensional K L] [Module.Finite A B] :
     v.asIdeal.ramificationIdx' w.1.asIdeal * Ideal.inertiaDeg w.1.asIdeal A =
       Module.finrank (adicCompletion K v) (adicCompletion L w.1) :=
@@ -1270,7 +1201,6 @@ local instance : Module.Free (v.adicCompletion K) (adicCompletion L w.1) :=
 
 open scoped TensorProduct.RightActions in
 
--- pin: finrank_tensorProduct_adicCompletion_eq_finrank_pi_adicCompletion (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:1034)
 lemma finrank_tensorProduct_adicCompletion_eq_finrank_pi_adicCompletion :
     Module.finrank (adicCompletion K v) (L ⊗[K] adicCompletion K v) =
       Module.finrank (adicCompletion K v) ((w : Extension B v) → adicCompletion L w.val) :=
@@ -1288,7 +1218,6 @@ lemma finrank_tensorProduct_adicCompletion_eq_finrank_pi_adicCompletion :
 attribute [local instance 9999] Algebra.toModule in
 open scoped TensorProduct.RightActions in
 
--- pin: baseChange_bijective (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:1051)
 theorem baseChange_bijective : Function.Bijective (baseChange K L B v) := by
   change Function.Bijective (baseChangeRight K L B v)
   have hsurj := baseChangeRight_surjective K L B v
@@ -1296,7 +1225,6 @@ theorem baseChange_bijective : Function.Bijective (baseChange K L B v) := by
   have hrank := finrank_tensorProduct_adicCompletion_eq_finrank_pi_adicCompletion K L B v
   rwa [← AlgHom.coe_toLinearMap, LinearMap.injective_iff_surjective_of_finrank_eq_finrank hrank]
 
--- pin: baseChangeAlgEquiv (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:1058)
 noncomputable def baseChangeAlgEquiv :
     L ⊗[K] v.adicCompletion K ≃ₐ[L] Π w : v.Extension B, w.1.adicCompletion L :=
   AlgEquiv.ofBijective (baseChange K L B v) <| baseChange_bijective K L B v
@@ -1304,7 +1232,6 @@ noncomputable def baseChangeAlgEquiv :
 attribute [local instance 9999] Algebra.toModule in
 open scoped TensorProduct.RightActions in
 
--- pin: baseChangeContinuousAlgEquiv (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:1083)
 noncomputable def baseChangeContinuousAlgEquiv :
     L ⊗[K] v.adicCompletion K ≃A[L] Π w : v.Extension B, w.1.adicCompletion L :=
 
@@ -1321,13 +1248,11 @@ noncomputable def baseChangeContinuousAlgEquiv :
   IsModuleTopology.continuousAlgEquivOfIsBiscalar (v.adicCompletion K)
     (baseChangeAlgEquiv K L B v)
 
--- pin: integerBaseChangeLinearEquiv (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:1099)
 noncomputable def integerBaseChangeLinearEquiv :
     B ⊗[A] v.adicCompletion K ≃ₗ[B] ∀ w : v.Extension B, w.1.adicCompletion L :=
   (linearEquivTensorProductModuleLeft A K L B (v.adicCompletion K)).symm.trans
     ((baseChangeAlgEquiv K L B v).toLinearEquiv.restrictScalars B)
 
--- pin: integerBaseChangeLinearEquiv_tmul_apply (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:1105)
 @[simp]
 lemma integerBaseChangeLinearEquiv_tmul_apply (b x) :
     integerBaseChangeLinearEquiv K L B v (b ⊗ₜ[A] x) w =
@@ -1336,7 +1261,6 @@ lemma integerBaseChangeLinearEquiv_tmul_apply (b x) :
     linearEquivTensorProductModuleLeft_symm_tmul]
   rfl
 
--- pin: integerSubmodule (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:1112)
 noncomputable def integerSubmodule (v : HeightOneSpectrum A) : Submodule A (adicCompletion K v) :=
   let s : Submodule (adicCompletionIntegers K v) _ := (adicCompletionIntegers K v).toSubmodule
   s.restrictScalars A
@@ -1349,13 +1273,11 @@ open adicCompletion
 
 variable (B)
 
--- pin: adicCompletionIntegers.tensorCoe (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:1124)
 noncomputable def tensorCoe : B ⊗[A] v.adicCompletionIntegers K →ₗ[B] B ⊗[A] v.adicCompletion K :=
   TensorProduct.AlgebraTensorModule.lTensor _ _
     (Algebra.algHom A (adicCompletionIntegers K v) (adicCompletion K v))
 
 omit [Algebra.IsIntegral A B] [IsDedekindDomain B] in
--- pin: adicCompletionIntegers.tensorCoe_tmul (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:1130)
 @[simp]
 lemma tensorCoe_tmul (b : B) (x : v.adicCompletionIntegers K) :
     tensorCoe K B v (b ⊗ₜ x) = b ⊗ₜ x.val := rfl
@@ -1370,7 +1292,6 @@ variable [FiniteDimensional K L] [Module.Finite A B]
 
 attribute [local instance 9999] SMulCommClass.of_commMonoid TensorProduct.isScalarTower_left
   IsScalarTower.right in
--- pin: integerBaseChangeLinearEquiv_bijOn (Definitions/Def_DedekindDomain_Completion_BaseChange.lean:1143)
 theorem integerBaseChangeLinearEquiv_bijOn (v : HeightOneSpectrum A) :
     Set.BijOn (integerBaseChangeLinearEquiv K L B v)
       (Set.range (adicCompletionIntegers.tensorCoe K B v))

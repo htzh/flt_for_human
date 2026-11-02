@@ -21,6 +21,8 @@
     `IsArchBiFinite.of_factorization`, `IsArchFactorBiFinite` and
     `isArchBiFinite_zero` from `AutomorphicForm/Adelic/IsotypicCuspSpace.lean`.
   * the pin's bare `import Mathlib` is replaced by the explicit imports below.
+
+  spec-pin: Definitions/Def_AutomorphicForm_UnitFactorizableOfType.lean
 -/
 import FLTForHuman.AutomorphicForm.Adelic.LocalOrbitalBase
 import FLTForHuman.AutomorphicForm.Adelic.IsotypicCuspSpace
@@ -36,7 +38,6 @@ section TierRefined
 
 variable (K : Type) [Field K] [NumberField K]
 
--- pin: IsUnitFactorizableOfTypeAt (Definitions/Def_AutomorphicForm_UnitFactorizableOfType.lean:14)
 def IsUnitFactorizableOfTypeAt (tys : ArchTypeFamily K)
     (U : Subgroup (GL (Fin 2) (AdeleRing (𝓞 K) K))) (S : Finset (HeightOneSpectrum (𝓞 K)))
     (f : GL (Fin 2) (AdeleRing (𝓞 K) K) → ℂ) : Prop :=
@@ -44,42 +45,36 @@ def IsUnitFactorizableOfTypeAt (tys : ArchTypeFamily K)
 
 variable {K}
 
--- pin: IsUnitFactorizableOfTypeAt.isUnitFactorizableAt (Definitions/Def_AutomorphicForm_UnitFactorizableOfType.lean:21)
 theorem IsUnitFactorizableOfTypeAt.isUnitFactorizableAt {tys : ArchTypeFamily K}
     {U : Subgroup (GL (Fin 2) (AdeleRing (𝓞 K) K))} {S : Finset (HeightOneSpectrum (𝓞 K))}
     {f : GL (Fin 2) (AdeleRing (𝓞 K) K) → ℂ} (hf : IsUnitFactorizableOfTypeAt K tys U S f) :
     IsUnitFactorizableAt K U S f :=
   hf.1
 
--- pin: IsUnitFactorizableOfTypeAt.isArchBiFinite (Definitions/Def_AutomorphicForm_UnitFactorizableOfType.lean:27)
 theorem IsUnitFactorizableOfTypeAt.isArchBiFinite {tys : ArchTypeFamily K}
     {U : Subgroup (GL (Fin 2) (AdeleRing (𝓞 K) K))} {S : Finset (HeightOneSpectrum (𝓞 K))}
     {f : GL (Fin 2) (AdeleRing (𝓞 K) K) → ℂ} (hf : IsUnitFactorizableOfTypeAt K tys U S f) :
     IsArchBiFinite K tys f :=
   hf.2
 
--- pin: IsUnitFactorizableOfTypeAt.isFactorizableTestFn (Definitions/Def_AutomorphicForm_UnitFactorizableOfType.lean:33)
 theorem IsUnitFactorizableOfTypeAt.isFactorizableTestFn {tys : ArchTypeFamily K}
     {U : Subgroup (GL (Fin 2) (AdeleRing (𝓞 K) K))} {S : Finset (HeightOneSpectrum (𝓞 K))}
     {f : GL (Fin 2) (AdeleRing (𝓞 K) K) → ℂ} (hf : IsUnitFactorizableOfTypeAt K tys U S f) :
     IsFactorizableTestFn K f :=
   hf.1.isFactorizableTestFn K
 
--- pin: IsUnitFactorizableOfTypeAt.mono (Definitions/Def_AutomorphicForm_UnitFactorizableOfType.lean:39)
 theorem IsUnitFactorizableOfTypeAt.mono {tys : ArchTypeFamily K}
     {U V : Subgroup (GL (Fin 2) (AdeleRing (𝓞 K) K))} (hUV : U ≤ V)
     {S : Finset (HeightOneSpectrum (𝓞 K))} {f : GL (Fin 2) (AdeleRing (𝓞 K) K) → ℂ}
     (hf : IsUnitFactorizableOfTypeAt K tys V S f) : IsUnitFactorizableOfTypeAt K tys U S f :=
   ⟨hf.1.mono K hUV, hf.2⟩
 
--- pin: IsUnitFactorizableOfTypeAt.mono_type (Definitions/Def_AutomorphicForm_UnitFactorizableOfType.lean:45)
 theorem IsUnitFactorizableOfTypeAt.mono_type {tys tys' : ArchTypeFamily K}
     (h : tys.IsContainedIn K tys') {U : Subgroup (GL (Fin 2) (AdeleRing (𝓞 K) K))}
     {S : Finset (HeightOneSpectrum (𝓞 K))} {f : GL (Fin 2) (AdeleRing (𝓞 K) K) → ℂ}
     (hf : IsUnitFactorizableOfTypeAt K tys U S f) : IsUnitFactorizableOfTypeAt K tys' U S f :=
   ⟨hf.1, hf.2.mono K h⟩
 
--- pin: IsUnitFactorizableAt.isUnitFactorizableOfTypeAt_of_factorization (Definitions/Def_AutomorphicForm_UnitFactorizableOfType.lean:51)
 theorem IsUnitFactorizableAt.isUnitFactorizableOfTypeAt_of_factorization {tys : ArchTypeFamily K}
     {U : Subgroup (GL (Fin 2) (AdeleRing (𝓞 K) K))} {S : Finset (HeightOneSpectrum (𝓞 K))}
     {f : GL (Fin 2) (AdeleRing (𝓞 K) K) → ℂ} (hf : IsUnitFactorizableAt K U S f)
@@ -90,13 +85,11 @@ theorem IsUnitFactorizableAt.isUnitFactorizableOfTypeAt_of_factorization {tys : 
 
 variable (K)
 
--- pin: isUnitFactorizableOfTypeAt_zero (Definitions/Def_AutomorphicForm_UnitFactorizableOfType.lean:61)
 theorem isUnitFactorizableOfTypeAt_zero (tys : ArchTypeFamily K)
     (U : Subgroup (GL (Fin 2) (AdeleRing (𝓞 K) K))) (S : Finset (HeightOneSpectrum (𝓞 K))) :
     IsUnitFactorizableOfTypeAt K tys U S fun _ => 0 :=
   ⟨isUnitFactorizableAt_zero K U S, isArchBiFinite_zero K tys⟩
 
--- pin: isUnitFactorizableOfTypeAt_mul_indicator_unitFinSet (Definitions/Def_AutomorphicForm_UnitFactorizableOfType.lean:66)
 theorem isUnitFactorizableOfTypeAt_mul_indicator_unitFinSet (tys : ArchTypeFamily K)
     {fa : GL (Fin 2) (InfiniteAdeleRing K) → ℂ} (hfa : IsArchTestFactor K fa)
     (hfa' : IsArchFactorBiFinite K tys fa) {U : Subgroup (GL (Fin 2) (AdeleRing (𝓞 K) K))}

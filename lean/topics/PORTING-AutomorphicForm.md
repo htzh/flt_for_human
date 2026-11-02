@@ -276,10 +276,36 @@ read's one correction on the way in (the general norm-exponent node read as port
 held only the `ℚ` statement; `twin_scan --node` verdict `relative`, FR-0092), and §1.5/§8 the landing
 and its re-read.
 
+The second cluster is **landed** (2026-11-02): [automorphicForm/SET-AF2.md](automorphicForm/SET-AF2.md),
+the **adelic maximal compact subgroup** — the 331-line `Def_AutomorphicForm_AdelicMaximalCompact`
+gate (38 declarations, 37 `ok`) and seven of the eight leaves it gates, in two consumer modules
+(`Adelic/MaximalCompactFactors.lean` 5 `ok`, `Adelic/InducedSectionMaximalCompact.lean` 2 `ok`); 1,562
+pin lines, 1,161 written. Measured after the landing: the corrected read `needed` **910 / 373,361**
+and the AF ready shelf 27 rows / 6,669 silo, three of them new. Its §8 records the shadow the landing
+manufactured (FR-0095).
+
+The third is **landed** (2026-11-02): [automorphicForm/SET-AF3.md](automorphicForm/SET-AF3.md), the
+**admissibility of the archimedean cut and its reproducing kernel** — four rows (998, 459, 222, 184;
+1,863 silo → 1,098 net, of which 642 lines were already in the port) above a two-declaration ground,
+`Adelic/ArchComponentDictionary.lean` (2 `ok`), the dictionary both consumer modules state over; the
+rows are `Adelic/ArchCutSpan.lean` (3 `ok`) and `Adelic/ArchCutReproducer.lean` (1 `ok`), and the
+consumer probe `spec/AutomorphicFormSetAF3Consumer.lean` is two zones at 0 errors. No definition gate:
+the set's six imported `Def_` modules are complete at the declaration level (FR-0096). Measured after
+the landing: `needed` **906 / 371,498** and the AF shelf 25 / 5,487 ready, 82 / 16,598 leaves — the
+brief's forecast exact, and no new ready row (the set is a premise of ten rows, two of them taken to
+two remaining premises). The record is its §1.5/§8; the order is
+[automorphicForm/WORKORDER-AF3-proofs.md](automorphicForm/WORKORDER-AF3-proofs.md).
+
 ## 6. Verification and wiring
 
-- **Checker.** Every port module is in `PORT_FILES` and every pin source in `SOURCES` (appended
-  last, so a bare last-name match cannot flip). The `identical` count is the progress metric;
+- **Checker.** Every port module carries its own `spec-pin:` header; the legacy `PORT_FILES` /
+  `SOURCES` lists are the handover path, not the destination (`spec-pin:` lines in, `PORT_FILES`
+  entry out). The 2026-11-02 sweep did the whole class at once: **32** `Def_` transcriptions that
+  had been wired by per-declaration `-- pin:` markers (684 of them) now carry `spec-pin:` headers,
+  the six that were still listed had their rows retired, and the checker reads **686 ok / 0
+  mismatch / 0 missing / 6 own** over them, the six `own:` rows being statements the pin writes
+  through since-deprecated spellings (`Ideal.inertiaDeg'`, `AlgHom.restrictDomain`) or that are
+  port-own. See [automorphicForm/SET-AF3.md](automorphicForm/SET-AF3.md) §4.5 and FR-0096. The `identical` count is the progress metric;
   a new set's delta must equal its public surface, and pin-private matches verify through the
   dotted fallback and show as `promoted`.
 - **Consumer.** `spec/AutomorphicFormConsumer.lean` carries a real executed zone per level — no

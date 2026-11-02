@@ -30,6 +30,8 @@
     `Mathlib.NumberTheory.RamificationInertia.Basic` is a deprecated module whose content
     is not exported.
   * `Set.coe_setOf` is a deprecated alias for `Set.coe_ofPred`, used in `Extension.finite`.
+
+  spec-pin: Definitions/Def_DedekindDomain_IntegralClosure.lean
 -/
 import Mathlib.RingTheory.RamificationInertia.Basic
 import Mathlib.RingTheory.DedekindDomain.AdicValuation
@@ -61,10 +63,8 @@ variable (v : HeightOneSpectrum A)
 
 variable {A} in
 
--- pin: Extension (Definitions/Def_DedekindDomain_IntegralClosure.lean:20)
 def Extension (v : HeightOneSpectrum A) := {w : HeightOneSpectrum B // w.under A = v}
 
--- pin: mk_count_factors_map (Definitions/Def_DedekindDomain_IntegralClosure.lean:22)
 lemma mk_count_factors_map
     (hAB : Function.Injective (algebraMap A B))
     (w : HeightOneSpectrum B) (I : Ideal A) :
@@ -112,14 +112,12 @@ lemma mk_count_factors_map
       apply hw (((Ideal.isPrime_of_prime hp).isMaximal hp_bot).eq_of_le
         (under A w).2.ne_top H).symm
 
--- pin: ramificationIdx_ne_zero (Definitions/Def_DedekindDomain_IntegralClosure.lean:69)
 lemma ramificationIdx_ne_zero (hAB : Function.Injective (algebraMap A B))
     (w : HeightOneSpectrum B) :
     Ideal.ramificationIdx' (under A w).asIdeal w.asIdeal ≠ 0 :=
   Ideal.IsDedekindDomain.ramificationIdx'_ne_zero
     ((Ideal.map_eq_bot_iff_of_injective hAB).not.mpr (under A w).3) w.2 Ideal.map_comap_le
 
--- pin: intValuation_comap (Definitions/Def_DedekindDomain_IntegralClosure.lean:75)
 lemma intValuation_comap (hAB : Function.Injective (algebraMap A B))
     (w : HeightOneSpectrum B) (x : A) :
     (under A w).intValuation x ^
@@ -140,7 +138,6 @@ lemma intValuation_comap (hAB : Function.Injective (algebraMap A B))
 
 omit [IsIntegralClosure B A L] in
 
--- pin: valuation_comap (Definitions/Def_DedekindDomain_IntegralClosure.lean:92)
 lemma valuation_comap (w : HeightOneSpectrum B) (x : K) :
     (under A w).valuation K x ^
       (Ideal.ramificationIdx' (under A w).asIdeal w.asIdeal) =
@@ -156,7 +153,6 @@ lemma valuation_comap (w : HeightOneSpectrum B) (x : K) :
 include K L in
 omit [IsDedekindDomain A] [IsIntegralClosure B A L]
     [Algebra.IsIntegral A B] [IsDedekindDomain B] [IsFractionRing B L] in
--- pin: isTorsionFree (Definitions/Def_DedekindDomain_IntegralClosure.lean:103)
 lemma isTorsionFree [IsDomain B] : Module.IsTorsionFree A B := by
   have : FaithfulSMul A B := FaithfulSMul.of_field_isFractionRing A B K L
   have : Nontrivial A := (IsFractionRing.nontrivial_iff_nontrivial A K).mpr inferInstance
@@ -165,7 +161,6 @@ lemma isTorsionFree [IsDomain B] : Module.IsTorsionFree A B := by
 include K L in
 omit [IsIntegralClosure B A L] [IsFractionRing B L] in
 
--- pin: Extension.finite (Definitions/Def_DedekindDomain_IntegralClosure.lean:111)
 theorem Extension.finite (v : HeightOneSpectrum A) : Finite (v.Extension B) := by
   have := isTorsionFree A K L B
   rw [Extension, ← Set.coe_ofPred]
@@ -182,7 +177,6 @@ theorem Extension.finite (v : HeightOneSpectrum A) : Finite (v.Extension B) := b
   · intro x hx y hy hxy
     rwa [← @HeightOneSpectrum.ext_iff] at hxy
 
--- pin: Extension.fintype (Definitions/Def_DedekindDomain_IntegralClosure.lean:128)
 @[reducible]
 noncomputable def Extension.fintype : Fintype (Extension B v) :=
   have := Extension.finite A K L B v
@@ -190,20 +184,17 @@ noncomputable def Extension.fintype : Fintype (Extension B v) :=
 
 include K L in
 omit [IsIntegralClosure B A L] [IsFractionRing B L] in
--- pin: preimage_comap_finite (Definitions/Def_DedekindDomain_IntegralClosure.lean:134)
 theorem preimage_comap_finite (S : Set (HeightOneSpectrum A)) (hS : S.Finite) :
     ((under A : HeightOneSpectrum B → HeightOneSpectrum A) ⁻¹' S).Finite := by
   rw [← Set.biUnion_preimage_singleton (under A) S]
   exact Set.Finite.biUnion' hS <| fun v _ ↦ Extension.finite A K L B v
 
--- pin: preimageComapFinset (Definitions/Def_DedekindDomain_IntegralClosure.lean:139)
 noncomputable def preimageComapFinset (S : Finset (HeightOneSpectrum A)) :
     Finset (HeightOneSpectrum B) :=
   Set.Finite.toFinset <| preimage_comap_finite A K L B S S.finite_toSet
 
 omit [IsIntegralClosure B A L] in
 
--- pin: Ideal.sum_ramification_inertia_extensions (Definitions/Def_DedekindDomain_IntegralClosure.lean:145)
 lemma _root_.Ideal.sum_ramification_inertia_extensions [Module.Finite A B] :
     letI := Extension.fintype A K L B v
     ∑ (w : Extension B v), Ideal.ramificationIdx' v.asIdeal w.val.asIdeal
@@ -241,7 +232,6 @@ variable (A K L B : Type*) [CommRing A] [CommRing B] [Algebra A B] [Field K] [Fi
     [Algebra K L] [Algebra A L] [IsScalarTower A B L] [IsScalarTower A K L]
     [IsIntegralClosure B A L] [Algebra.IsAlgebraic K L]
 
--- pin: LinearEquivTensorProduct (Definitions/Def_DedekindDomain_IntegralClosure.lean:188)
 noncomputable def LinearEquivTensorProduct :
     L ≃ₗ[K] K ⊗[A] B :=
   let f := LocalizedModule.equivTensorProduct (nonZeroDivisors A) B
@@ -254,13 +244,11 @@ noncomputable def LinearEquivTensorProduct :
   LinearEquiv.extendScalarsOfIsLocalization (nonZeroDivisors A) K
     <| g.symm.trans (f.restrictScalars A) |>.trans h
 
--- pin: LinearEquivTensorProduct_symm_one_tmul (Definitions/Def_DedekindDomain_IntegralClosure.lean:200)
 lemma LinearEquivTensorProduct_symm_one_tmul (b : B) :
     (LinearEquivTensorProduct A K L B).symm (1 ⊗ₜ b) =
     (algebraMap _ _ b) := by
   simp [LinearEquivTensorProduct]
 
--- pin: LinearEquivTensorProduct_symm_tmul (Definitions/Def_DedekindDomain_IntegralClosure.lean:208)
 lemma LinearEquivTensorProduct_symm_tmul (k : K) (b : B) :
     (LinearEquivTensorProduct A K L B).symm (k ⊗ₜ b) =
     k • (algebraMap _ _ b) := by
@@ -270,7 +258,6 @@ lemma LinearEquivTensorProduct_symm_tmul (k : K) (b : B) :
 
 variable (M : Type*) [AddCommGroup M] [Module K M] [Module A M] [IsScalarTower A K M]
 
--- pin: linearEquivTensorProductModule (Definitions/Def_DedekindDomain_IntegralClosure.lean:217)
 noncomputable def linearEquivTensorProductModule : L ⊗[K] M ≃ₗ[A] B ⊗[A] M :=
   let f₁ : L ⊗[K] M ≃ₗ[A] L ⊗[A] M := IsLocalization.moduleTensorEquiv (nonZeroDivisors A) K L M
     |>.restrictScalars A
@@ -284,7 +271,6 @@ noncomputable def linearEquivTensorProductModule : L ⊗[K] M ≃ₗ[A] B ⊗[A]
     (IsLocalization.moduleLid (nonZeroDivisors A) K M |>.restrictScalars A)
   f₁.trans f₃ |>.trans f₄ |>.trans f₅
 
--- pin: linearEquivTensorProductModuleLeft (Definitions/Def_DedekindDomain_IntegralClosure.lean:230)
 noncomputable def linearEquivTensorProductModuleLeft : L ⊗[K] M ≃ₗ[B] B ⊗[A] M :=
   let f₁ : L ⊗[K] M ≃ₗ[B] L ⊗[A] M :=
     IsLocalization.leftModuleTensorEquiv B (nonZeroDivisors A) K L M
@@ -306,28 +292,23 @@ noncomputable def linearEquivTensorProductModuleLeft : L ⊗[K] M ≃ₗ[B] B �
       (IsLocalization.moduleLid (nonZeroDivisors A) K M |>.restrictScalars A)
   f₁.trans f₃.symm |>.trans f₄ |>.trans f₅
 
--- pin: linearEquivTensorProductModuleLeft_restrictScalars (Definitions/Def_DedekindDomain_IntegralClosure.lean:252)
 lemma linearEquivTensorProductModuleLeft_restrictScalars :
     (linearEquivTensorProductModuleLeft A K L B M).restrictScalars A =
       linearEquivTensorProductModule A K L B M := by
   rfl
 
--- pin: linearEquivTensorProductModule_symm_tmul (Definitions/Def_DedekindDomain_IntegralClosure.lean:257)
 lemma linearEquivTensorProductModule_symm_tmul (b : B) (m : M) :
     (linearEquivTensorProductModule A K L B M).symm (b ⊗ₜ m) = (algebraMap B L b) ⊗ₜ m := by
   simp [linearEquivTensorProductModule, LinearEquivTensorProduct_symm_one_tmul]
 
--- pin: linearEquivTensorProductModule_tmul (Definitions/Def_DedekindDomain_IntegralClosure.lean:261)
 lemma linearEquivTensorProductModule_tmul (b : B) (m : M) :
     (linearEquivTensorProductModule A K L B M) ((algebraMap B L b) ⊗ₜ m) = b ⊗ₜ m := by
   rw [← LinearEquiv.eq_symm_apply, linearEquivTensorProductModule_symm_tmul]
 
--- pin: linearEquivTensorProductModuleLeft_symm_tmul (Definitions/Def_DedekindDomain_IntegralClosure.lean:265)
 lemma linearEquivTensorProductModuleLeft_symm_tmul (b : B) (m : M) :
     (linearEquivTensorProductModuleLeft A K L B M).symm (b ⊗ₜ m) = (algebraMap B L b) ⊗ₜ m := by
   simp [linearEquivTensorProductModuleLeft, LinearEquivTensorProduct_symm_one_tmul]
 
--- pin: linearEquivTensorProductModuleLeft_tmul (Definitions/Def_DedekindDomain_IntegralClosure.lean:269)
 lemma linearEquivTensorProductModuleLeft_tmul (b : B) (m : M) :
     (linearEquivTensorProductModuleLeft A K L B M) ((algebraMap B L b) ⊗ₜ m) = b ⊗ₜ m := by
   rw [← LinearEquiv.eq_symm_apply, linearEquivTensorProductModuleLeft_symm_tmul]
@@ -340,7 +321,6 @@ variable (A K L B : Type*) [CommRing A] [CommRing B] [Algebra A B] [Field K] [Fi
     [IsIntegralClosure B A L] [Algebra.IsAlgebraic K L]
 
 include K in
--- pin: IsIntegralClosure.isLocalizedModule (Definitions/Def_DedekindDomain_IntegralClosure.lean:281)
 lemma _root_.IsIntegralClosure.isLocalizedModule : IsLocalizedModule (nonZeroDivisors A)
     ((Algebra.linearMap B L).restrictScalars A) := by
   have hlocal := IsIntegralClosure.isLocalization A K L B

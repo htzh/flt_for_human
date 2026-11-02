@@ -1902,3 +1902,89 @@ round promotes what generalizes.
   quotes. The *renamed-copy* variant of FR-0047 and this *collision* variant are one rule: the
   corrected read is part of the landing, not of the next scoping.
 - **seen**: 2026-11-02, SET-AF2 §8.
+
+## FR-0096 [tooling] [method] — a module-level gate census over-reports because ported `Def_` modules are wired by `-- pin:` markers, not `spec-pin:` lines; and `gate_scan.py`'s port root is relative to the CWD
+
+- **where**: the SET-AF3 scoping read (§0.3), building the `AutomorphicForm` gate census from the
+  wrappers' `import Definitions.Def_*.lean` lines, then confirming each candidate with
+  `spec/gate_scan.py`.
+- **symptom (a)**: the census reported **ten** pin `Def_` modules as unported —
+  `BorelSubgroup`, `EtaFamily`, `InducedSection`, `WeylIntertwining`, `LocalOrbitalBase`,
+  `TwistedOrbital`, `AdelicFourier`, `TateGlobalZeta`, `TateLocalZeta`,
+  `Mathlib_LinearAlgebra_Countable` — and hence ten rows as "gated". Every one of them is ported:
+  `gate_scan` says **0 missing** for all of them (e.g. `BorelSubgroup` 3/19 used, `TwistedOrbital`
+  10/82 used). The cause is that a ported `Def_` transcription may be wired by `-- pin:` markers in
+  an engine module (the `ArchCasimir`/`ArchInfra` pattern) instead of a `spec-pin:` line, and a
+  ported-set test built from `spec-pin:` + `old_check_stmts.py` alone reads such a module as absent.
+  The error is expensive in the scoping direction: it prices a definition wave that does not exist.
+- **symptom (b)**: run from the repository root instead of `lean/`, `gate_scan.py` reports **every**
+  declaration `MISS` — its `--port-root` default is `FLTForHuman`, a path relative to the CWD, and a
+  missing root silently yields an empty port index. The first run of the census did exactly this and
+  "found" forty missing declarations in the four rows this set cuts.
+- **fix**: use `gate_scan` as the *census*, not just as a confirmation — run it once per imported
+  `Def_` module with the rows that name it, from `lean/`, and treat the module list as a first cut
+  only. A row is gated when `gate_scan` reports missing *declarations*, and the count to quote is the
+  pin lines of those declarations: on this shelf the whole remaining gate is ≤ 44 pin lines per row
+  (`FnTwist.det_centralScalar` 4, `RationalTorusUnipotentQuotient` 15, `IwasawaShellIndex` 44,
+  `UnramifiedWhittaker_HeckeRecursion.placeEmbed` 8, …) — five small definition items, not five
+  modules.
+- **fix (landed, 2026-11-02)**: the whole class was swept, not just the ten rows. **Thirty-two** port
+  modules that transcribed a pin `Def_` module with per-declaration `-- pin:` markers now carry a
+  `spec-pin:` header instead — **684 markers removed, 32 wires added**, the six of them that were
+  still in `PORT_FILES` retired there (`SOURCES` rows kept), and the register fell 139 modules /
+  4,024 declarations → **113 / 3,478**. The checker reads **686 ok, 0 mismatch, 0 missing, 6 own** over
+  the 32; the six `own:` rows are the statements the wire cannot reach (three written through the
+  deprecated `Ideal.inertiaDeg'`, `AlgEquiv.extendScalars` through `AlgHom.restrictDomain` →
+  `AlgHom.domRestrict`, and one port-own `IsBiscalar` instance), each with its reason in
+  `spec/decl_markers.tsv`. The sweep moved no shelf figure (the frontier's ported set is by
+  declaration name) — it moved the *checked surface*, which is what the next set's imports rely on.
+- **seen**: 2026-11-02, SET-AF3 §0.3 and §4.5.
+
+## FR-0097 [port] [method] — a port engine that *merged* two pin lemmas under the stronger one's hypothesis cannot serve the row stated at the weaker one; and a workorder's engine list must be grepped, not inferred
+
+- **where**: SET-AF3's span module
+  ([topics/automorphicForm/SET-AF3.md](topics/automorphicForm/SET-AF3.md) §1.5), rows
+  `finiteDimensional_span_rightTranslate_of_mem_{archCut,archDualCut}Submodule` (459, 222).
+- **symptom (a)**: the pin proves `finiteDimensional_orbitSpan_of_mem_archCutSubmodule` with no
+  continuity hypothesis. The port had *merged* that lemma into
+  `ArchCutProjector.mem_Ecf_of_mem_archCutSubmodule`, whose statement additionally demands
+  `Continuous φ` (the carrier `Ecf` is a submodule of continuous functions). The FD-only statement
+  exists nowhere in the port, so the two rows — which the wrapper states without `Continuous` — could
+  not use the engine, and the workorder's "use the port's per-place lemma" was only half true.
+- **symptom (b)**: the same order listed `ArchCutProjector.placeOrbitSpan_mono_of_mem` among the port
+  engines. It is a **pin declaration of the 459 `S_` file**; the port never had it. The worker caught
+  it by grep and inlined the one-line argument.
+- **cause**: an engine module written for one consumer is shaped by that consumer's hypotheses. A
+  later row stated at the pin's weaker form cannot see the difference: the merged lemma's *last name*
+  is new, so `port_advise`'s name tier does not flag it, and `gate_scan` only reads `Def_` modules.
+- **fix**: when a port engine merges two pin lemmas, check whether the weaker one is a statement any
+  shelf row carries (grep the `S_` files for the missing hypothesis); if it is, keep the weaker form
+  public beside the stronger, or say in the set's brief which route the rows take. And **grep every
+  lemma a workorder lists as available** before issuing it (`grep -rn 'theorem <name>' FLTForHuman`)
+  — the order's engine table is a reading, and a name that occurs in the pin's `S_` file is not a name
+  in the port. Here the miss cost nothing (the worker's shared-envelope route came out shorter than
+  the pin's two inductions), but it could have cost a round.
+- **seen**: 2026-11-02, SET-AF3 §1.5.
+
+## FR-0098 [method] — the post-landing gate is a *checklist*, and `move_dead` is the step easiest to substitute with a proxy: "every helper is used" is not its verdict
+
+- **where**: SET-AF3's landing record (§1.5/§4.6), where the gate list says `dedup.py` / `move_dead.py`
+  and the first pass ran `dedup --within` on the new modules but replaced `move_dead` with a manual
+  reference count of the private helpers (`grep -c` of each name).
+- **symptom**: the manual count answers a *different* question. `move_dead` computes reachability from
+  the module's public API over the whole declaration graph — a private block can reference nothing and
+  still be reported only by the tool; and a block can be referenced by another *dead* block, which the
+  per-name count shows as "used". The proxy also cannot see the closure question the tool exists for
+  (what a dead tail still needs from the live core).
+- **cause (tooling)**: `move_dead.py` has no report-only mode without `--target` (`--source` and
+  `--target` are both required, even with `--dry-run`), so an attempt without a shelf path errors out
+  and is easy to abandon. Pick a scratch target (`lean/Reserve/<set>/<Module>.lean`) — a dry run
+  writes nothing.
+- **fix**: run the three commands and quote their lines: `dedup.py --within --module <m>` (per module),
+  `dedup.py --cross` over the set's modules plus the engines they import (the cross sweep is what
+  catches a repeated engine across the module boundary), and
+  `move_dead.py --source <m> --target lean/Reserve/<set>/<name>.lean --select dead --dry-run` per
+  module — expect `0 declarations, 0 lines`. Record the verdicts in the brief, not a paraphrase. A
+  pre-existing dead block in a touched *engine* module is reported and left (the `instructions.md`
+  exemption for completeness content), but it must be named.
+- **seen**: 2026-11-02, SET-AF3 §4.6/§1.5.

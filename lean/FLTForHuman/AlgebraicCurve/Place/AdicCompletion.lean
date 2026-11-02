@@ -20,6 +20,8 @@
     `intValuation_eq_exp_neg_multiplicity`, and the pin's private
     `IsLocalRing.maximalIdeal_le` is mathlib's; neither is re-derived;
   * the pin's `Set.mem_setOf_eq`/deprecated names are updated per §7.
+
+  spec-pin: Definitions/Def_DedekindDomain_AdicValuation_InlineSpecific.lean
 -/
 import FLTForHuman.AlgebraicCurve.Place.Completion
 import FLTForHuman.Topology.Algebra.Valued.WithZeroMulInt
@@ -44,7 +46,6 @@ section Multiplicative
 
 open scoped WithZero
 
--- pin: exists_ofAdd_natCast_of_le_one (Def_DedekindDomain_AdicValuation_InlineSpecific.lean:95)
 lemma exists_ofAdd_natCast_of_le_one {x : ℤᵐ⁰} (hx : x ≠ 0) (hx' : x ≤ 1) :
     ∃ (k : ℕ), (Multiplicative.ofAdd (-(k : ℤ))) = x := by
   lift x to Multiplicative ℤ using hx
@@ -62,13 +63,11 @@ end Multiplicative
 variable {A : Type*} (K : Type*) [CommRing A] [Field K] [Algebra A K] [IsFractionRing A K]
     [IsDedekindDomain A] (v : HeightOneSpectrum A)
 
--- pin: ne_zero_of_some_le_intValuation (Def_DedekindDomain_AdicValuation_InlineSpecific.lean:118)
 lemma ne_zero_of_some_le_intValuation {a : A} {m : Multiplicative ℤ} (h : m ≤ v.intValuation a)
     : a ≠ 0 := by
   rintro rfl
   simp at h
 
--- pin: emultiplicity_eq_of_valuation_eq_ofAdd (Def_DedekindDomain_AdicValuation_InlineSpecific.lean:123)
 lemma emultiplicity_eq_of_valuation_eq_ofAdd {a : A} {k : ℕ}
     (hv : v.intValuation a = (Multiplicative.ofAdd (-(k : ℤ)))) :
     emultiplicity v.asIdeal (Ideal.span {a}) = k := by
@@ -81,7 +80,6 @@ lemma emultiplicity_eq_of_valuation_eq_ofAdd {a : A} {k : ℕ}
   rw [← hv, UniqueFactorizationMonoid.emultiplicity_eq_count_normalizedFactors v.irreducible hnb,
     Ideal.count_associates_factors_eq hnb v.isPrime v.ne_bot, normalize_eq]
 
--- pin: exists_adicValued_mul_sub_le (Def_DedekindDomain_AdicValuation_InlineSpecific.lean:135)
 lemma exists_adicValued_mul_sub_le {a b : A} {γ : WithZero (Multiplicative ℤ)} (hγ : γ ≠ 0)
     (hle : γ ≤ v.intValuation a)
     (hle' : v.intValuation b ≤ v.intValuation a) :
@@ -114,7 +112,6 @@ lemma exists_adicValued_mul_sub_le {a b : A} {γ : WithZero (Multiplicative ℤ)
 
 open MonoidWithZeroHom in
 
--- pin: exists_adicValued_sub_lt_of_adicValued_le_one (Def_DedekindDomain_AdicValuation_InlineSpecific.lean:167)
 lemma exists_adicValued_sub_lt_of_adicValued_le_one {x : (WithVal (v.valuation K))}
     (γ : ((WithZero (Multiplicative ℤ)))ˣ) (hx : Valued.v x ≤ 1) :
     ∃a, Valued.v ((algebraMap A K a) - (x : v.adicCompletion K)) < γ.val := by
@@ -162,7 +159,6 @@ open scoped WithZero
 
 local notation "vK" => (Valued.v : Valuation (v.adicCompletion K) ℤᵐ⁰)
 
--- pin: instIsRankOneDiscreteAdicCompletion (Def_DedekindDomain_AdicValuation_InlineSpecific.lean:215)
 instance : Valuation.IsRankOneDiscrete vK where
   exists_generator_lt_one' := by
     have h : (v.valuation K).IsRankOneDiscrete := Valuation.IsRankOneDiscrete.mk' (valuation K v)
@@ -171,7 +167,6 @@ instance : Valuation.IsRankOneDiscrete vK where
 
 open Valuation.IsRankOneDiscrete in
 
--- pin: closureAlgebraMapIntegers_eq_integers (Def_DedekindDomain_AdicValuation_InlineSpecific.lean:223)
 theorem closureAlgebraMapIntegers_eq_integers :
     closure (algebraMap A (v.adicCompletion K)).range =
     SetLike.coe (v.adicCompletionIntegers K) := by
@@ -213,7 +208,6 @@ theorem closureAlgebraMapIntegers_eq_integers :
 
 open Valuation.IsRankOneDiscrete in
 
--- pin: denseRange_of_integerAlgebraMap (Def_DedekindDomain_AdicValuation_InlineSpecific.lean:262)
 theorem denseRange_of_integerAlgebraMap :
     DenseRange (algebraMap A (v.adicCompletionIntegers K)) := by
   rw [denseRange_iff_closure_range, Set.eq_univ_iff_forall]
@@ -229,7 +223,6 @@ theorem denseRange_of_integerAlgebraMap :
 
 open Valuation.IsRankOneDiscrete in
 
--- pin: exists_adicValued_sub_lt_of_adicCompletionInteger (Def_DedekindDomain_AdicValuation_InlineSpecific.lean:277)
 theorem exists_adicValued_sub_lt_of_adicCompletionInteger
     (x : v.adicCompletionIntegers K) (γ : ℤᵐ⁰ˣ) :
     ∃a, Valued.v ((algebraMap A K a) - (x : v.adicCompletion K)) < γ.val := by
@@ -254,12 +247,10 @@ theorem exists_adicValued_sub_lt_of_adicCompletionInteger
 
 open IsLocalRing in
 
--- pin: algebraMap_completionIntegers (Def_DedekindDomain_AdicValuation_InlineSpecific.lean:306)
 lemma algebraMap_completionIntegers (x : A) :
     (algebraMap A (v.adicCompletionIntegers K) x) = (algebraMap A (v.adicCompletion K) x) :=
   rfl
 
--- pin: instLiesOverCompletionIdeal (Def_DedekindDomain_AdicValuation_InlineSpecific.lean:310)
 instance : (v.completionIdeal K).LiesOver v.asIdeal := ⟨by
     rw [Ideal.under_def]
     ext x
@@ -268,7 +259,6 @@ instance : (v.completionIdeal K).LiesOver v.asIdeal := ⟨by
 
 open IsLocalRing in
 
--- pin: ResidueFieldToCompletionResidueField (Def_DedekindDomain_AdicValuation_InlineSpecific.lean:318)
 noncomputable def ResidueFieldToCompletionResidueField :
     A ⧸ v.asIdeal →+* ResidueField (v.adicCompletionIntegers K) :=
   Ideal.quotientMap _ (algebraMap _ _) <| le_of_eq Ideal.LiesOver.over
@@ -276,7 +266,6 @@ noncomputable def ResidueFieldToCompletionResidueField :
 set_option backward.isDefEq.respectTransparency false in
 open IsLocalRing in
 
--- pin: ResidueFieldEquivCompletionResidueField (Def_DedekindDomain_AdicValuation_InlineSpecific.lean:325)
 noncomputable def ResidueFieldEquivCompletionResidueField :
     A ⧸ v.asIdeal ≃+* ResidueField (v.adicCompletionIntegers K) := by
   apply RingEquiv.ofBijective (ResidueFieldToCompletionResidueField K v)
@@ -298,7 +287,6 @@ noncomputable def ResidueFieldEquivCompletionResidueField :
 
 attribute [local instance 9999] Algebra.toModule in
 
--- pin: inertiaDeg_asIdeal_completionIdeal (Def_DedekindDomain_AdicValuation_InlineSpecific.lean:345)
 -- Adapted: `Ideal.inertiaDeg'` is `v4.34.0`'s `Ideal.inertiaDeg` (with the same
 -- argument order reversed), and the pin's `Ideal.inertiaDeg'_algebraMap` is the
 -- definition unfolded below.
@@ -312,7 +300,6 @@ theorem inertiaDeg_asIdeal_completionIdeal :
   rw [← f.toLinearEquiv.finrank_eq]
   exact Module.finrank_self _
 
--- pin: exists_forall_adicValued_sub_lt (Def_DedekindDomain_AdicValuation_InlineSpecific.lean:359)
 theorem exists_forall_adicValued_sub_lt {ι : Type*} (s : Finset ι)
     (e : ι → (WithZero (Multiplicative ℤ))ˣ) (valuation : ι → HeightOneSpectrum A)
     (injective : Function.Injective valuation)
@@ -345,7 +332,6 @@ theorem exists_forall_adicValued_sub_lt {ι : Type*} (s : Finset ι)
     add_comm_sub, add_sub, eq_sub_iff_add_eq]
   rfl
 
--- pin: adicCompletion.eq_mul_nonZeroDivisor_inv_adicCompletionIntegers (Def_DedekindDomain_AdicValuation_InlineSpecific.lean:392)
 lemma adicCompletion.eq_mul_nonZeroDivisor_inv_adicCompletionIntegers (v : HeightOneSpectrum A)
     (x : v.adicCompletion K) :
     ∃a ∈ nonZeroDivisors A, ∃b ∈ v.adicCompletionIntegers K, x = (algebraMap A K a)⁻¹ • b := by
@@ -357,7 +343,6 @@ lemma adicCompletion.eq_mul_nonZeroDivisor_inv_adicCompletionIntegers (v : Heigh
   · rw [smul_smul, inv_mul_cancel₀, one_smul]
     exact IsLocalization.to_map_ne_zero_of_mem_nonZeroDivisors K (fun _ ↦ id) hz
 
--- pin: adicCompletion.eq_mul_pi_adicCompletionIntegers (Def_DedekindDomain_AdicValuation_InlineSpecific.lean:403)
 lemma adicCompletion.eq_mul_pi_adicCompletionIntegers {ι : Type*} [Finite ι]
     (valuation : ι → HeightOneSpectrum A) (x : (i : ι) → (valuation i).adicCompletion K) :
       ∃k : K, ∃y ∈ Set.pi Set.univ (fun (i : ι) ↦ ((valuation i).adicCompletionIntegers K).carrier),
@@ -382,13 +367,11 @@ lemma adicCompletion.eq_mul_pi_adicCompletionIntegers {ι : Type*} [Finite ι]
   · rw [smul_smul, inv_mul_cancel₀, one_smul]
     simp [Finset.prod_ne_zero_iff, hz]
 
--- pin: mem_completionIdeal_iff' (Def_DedekindDomain_AdicValuation_InlineSpecific.lean:555)
 lemma mem_completionIdeal_iff' (x : v.adicCompletionIntegers K) :
     x ∈ v.completionIdeal K ↔ Valued.v x.val ≤ ↑(Multiplicative.ofAdd (-(1 : ℤ))) := by
   rw [← Submodule.pow_one (v.completionIdeal K), adicCompletion.mem_completionIdeal_pow,
     Int.natCast_one]
 
--- pin: completionIdeal_ne_bot (Def_DedekindDomain_AdicValuation_InlineSpecific.lean:560)
 lemma completionIdeal_ne_bot : completionIdeal K v ≠ ⊥ := IsDiscreteValuationRing.not_a_field _
 
 end IsDedekindDomain.HeightOneSpectrum

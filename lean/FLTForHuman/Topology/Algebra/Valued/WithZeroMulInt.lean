@@ -15,6 +15,8 @@
   the deprecated `Valued.integer` alias
   `IsLocalRing.instFiniteQuotientIdealHPowNatMaximalIdealOfIsNoetherianRingOfResidueField`,
   so the pin's name is kept and its body delegated.
+
+  spec-pin: Definitions/Def_Mathlib_Topology_Algebra_Valued_WithZeroMulInt.lean
 -/
 import Mathlib.Topology.Algebra.Valued.LocallyCompact
 import Mathlib.Topology.Algebra.Valued.WithZeroMulInt
@@ -40,19 +42,16 @@ namespace Valued.WithZeroMulInt
 
 variable {K : Type*} [Field K] [hv : Valued K ℤᵐ⁰]
 
--- pin: irreducible_valuation_lt_one (Def_Mathlib_Topology_Algebra_Valued_WithZeroMulInt.lean:14)
 theorem irreducible_valuation_lt_one {ϖ : 𝒪[K]} (h : Irreducible ϖ) : v ϖ.1 < 1 := by
   have := mt (Valuation.integer.integers _).isUnit_iff_valuation_eq_one.2 h.not_isUnit
   exact lt_of_le_of_ne (Valuation.mem_integer_iff _ _ |>.1 ϖ.2) this
 
--- pin: irreducible_valuation_le_ofAdd_neg_one (Def_Mathlib_Topology_Algebra_Valued_WithZeroMulInt.lean:18)
 theorem irreducible_valuation_le_ofAdd_neg_one {ϖ : 𝒪[K]} (h : Irreducible ϖ) :
     v ϖ.1 ≤ ofAdd (-1 : ℤ) := by
   letI := (lt_ofAdd_iff (show v ϖ.1 ≠ 0 by simp [h.ne_zero])).1 (irreducible_valuation_lt_one h)
   rw [le_ofAdd_iff (show v ϖ.1 ≠ 0 by simp [h.ne_zero])]
   omega
 
--- pin: mem_maximalIdeal_pow_valuation (Def_Mathlib_Topology_Algebra_Valued_WithZeroMulInt.lean:24)
 theorem mem_maximalIdeal_pow_valuation [IsDiscreteValuationRing 𝒪[K]]
     {x : 𝒪[K]} {n : ℕ} (hx : x ∈ 𝓂[K] ^ n) {ϖ : 𝒪[K]} (h : Irreducible ϖ) :
     v x.val ≤ v ϖ.1 ^ n := by
@@ -63,7 +62,6 @@ theorem mem_maximalIdeal_pow_valuation [IsDiscreteValuationRing 𝒪[K]]
     simp only [hy, Subring.coe_mul, SubmonoidClass.coe_pow, map_mul, map_pow, ge_iff_le]
     exact le_trans (mul_le_of_le_one_right' <| (Valuation.mem_integer_iff _ _).1 y.2) le_rfl
 
--- pin: finite_quotient_maximalIdeal_pow_of_finite_residueField (Def_Mathlib_Topology_Algebra_Valued_WithZeroMulInt.lean:34)
 lemma finite_quotient_maximalIdeal_pow_of_finite_residueField {K Γ₀ : Type*} [Field K]
     [LinearOrderedCommGroupWithZero Γ₀] [Valued K Γ₀] [IsDiscreteValuationRing 𝒪[K]]
     (h : Finite 𝓀[K]) (n : ℕ) :
@@ -83,7 +81,6 @@ lemma finite_quotient_maximalIdeal_pow_of_finite_residueField {K Γ₀ : Type*} 
         (IsDiscreteValuationRing.not_a_field _) n).trans
         (Ideal.powQuotPowSuccEquivMapMkPowSuccPow _ n))
 
--- pin: finite_cover_of_uniformity_basis (Def_Mathlib_Topology_Algebra_Valued_WithZeroMulInt.lean:53)
 theorem finite_cover_of_uniformity_basis [IsDiscreteValuationRing 𝒪[K]] (γ : ℤᵐ⁰ˣ)
     (h : Finite 𝓀[K]) :
     ∃ t : Set K, Set.Finite t ∧
@@ -104,7 +101,6 @@ variable (K)
 
 open Valuation.IsRankOneDiscrete in
 
--- pin: integer_compactSpace (Def_Mathlib_Topology_Algebra_Valued_WithZeroMulInt.lean:73)
 theorem integer_compactSpace [CompleteSpace K] [IsDiscreteValuationRing 𝒪[K]]
     [hv.v.IsRankOneDiscrete] (h : Finite 𝓀[K]) (hsurj : Function.Surjective hv.v) :
     CompactSpace 𝒪[K] where

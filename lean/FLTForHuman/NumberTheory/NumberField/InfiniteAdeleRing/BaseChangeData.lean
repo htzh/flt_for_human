@@ -26,6 +26,8 @@
   The pin pins definitional-equality transparency low and raises its heartbeat budget on
   `tensorPiAlgHom_bijective`.  Neither is transcribed: the proof is re-elaborated under the
   plain 200k cap with no option set anywhere in this file.
+
+  spec-pin: Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean
 -/
 import FLTForHuman.NumberTheory.NumberField.Extension
 import Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
@@ -45,7 +47,6 @@ noncomputable section
 
 variable (K L : Type*) [Field K] [Field L] [Algebra K L]
 
--- pin: evalAlgHom (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:14)
 def evalAlgHom (v : InfinitePlace K) : InfiniteAdeleRing K →ₐ[K] v.Completion where
   toFun x := x v
   map_one' := rfl
@@ -54,11 +55,9 @@ def evalAlgHom (v : InfinitePlace K) : InfiniteAdeleRing K →ₐ[K] v.Completio
   map_add' _ _ := rfl
   commutes' _ := rfl
 
--- pin: evalAlgHom_apply (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:22)
 @[simp] lemma evalAlgHom_apply (v : InfinitePlace K) (x : InfiniteAdeleRing K) :
     evalAlgHom K v x = x v := rfl
 
--- pin: InfinitePlaceData (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:25)
 structure InfinitePlaceData where
 
   placeEquiv (v : InfinitePlace K) :
@@ -67,17 +66,14 @@ structure InfinitePlaceData where
   placeEquiv_one_tmul (v : InfinitePlace K) (l : L) (w : v.Extension L) :
     placeEquiv v ((1 : v.Completion) ⊗ₜ[K] l) w = algebraMap L w.1.Completion l
 
--- pin: tensorPiAlgHom (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:33)
 def tensorPiAlgHom :
     ((InfiniteAdeleRing K) ⊗[K] L) →ₐ[K] ((v : InfinitePlace K) → (v.Completion ⊗[K] L)) :=
   AlgHom.pi fun v => Algebra.TensorProduct.map (evalAlgHom K v) (AlgHom.id K L)
 
--- pin: tensorPiAlgHom_tmul_apply (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:38)
 @[simp] lemma tensorPiAlgHom_tmul_apply (x : InfiniteAdeleRing K) (l : L)
     (v : InfinitePlace K) :
     tensorPiAlgHom K L (x ⊗ₜ[K] l) v = x v ⊗ₜ[K] l := rfl
 
--- pin: tensorPiAlgHom_bijective (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:45)
 theorem tensorPiAlgHom_bijective [NumberField K] :
     Function.Bijective (tensorPiAlgHom K L) := by
   classical
@@ -103,17 +99,14 @@ theorem tensorPiAlgHom_bijective [NumberField K] :
   rw [h]
   exact e.bijective
 
--- pin: tensorPiAlgEquiv (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:74)
 def tensorPiAlgEquiv [NumberField K] :
     ((InfiniteAdeleRing K) ⊗[K] L) ≃ₐ[K] ((v : InfinitePlace K) → (v.Completion ⊗[K] L)) :=
   AlgEquiv.ofBijective (tensorPiAlgHom K L) (tensorPiAlgHom_bijective K L)
 
--- pin: tensorPiAlgEquiv_tmul_apply (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:78)
 @[simp] lemma tensorPiAlgEquiv_tmul_apply [NumberField K] (x : InfiniteAdeleRing K) (l : L)
     (v : InfinitePlace K) :
     tensorPiAlgEquiv K L (x ⊗ₜ[K] l) v = x v ⊗ₜ[K] l := rfl
 
--- pin: collapsePlaces (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:82)
 def collapsePlaces :
     ((v : InfinitePlace K) → ((w : v.Extension L) → w.1.Completion)) ≃+*
       InfiniteAdeleRing L where
@@ -127,13 +120,11 @@ def collapsePlaces :
   map_mul' x y := rfl
   map_add' x y := rfl
 
--- pin: collapsePlaces_apply (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:95)
 @[simp] lemma collapsePlaces_apply
     (x : (v : InfinitePlace K) → ((w : v.Extension L) → w.1.Completion))
     (w : InfinitePlace L) :
     collapsePlaces K L x w = x (w.comap (algebraMap K L)) ⟨w, rfl⟩ := rfl
 
--- pin: algebraMap_infiniteAdeleRing_apply (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:100)
 lemma algebraMap_infiniteAdeleRing_apply (l : L) (w : InfinitePlace L) :
     algebraMap L (InfiniteAdeleRing L) l w = algebraMap L w.Completion l := rfl
 
@@ -147,19 +138,16 @@ section Derived
 
 variable [NumberField K]
 
--- pin: InfinitePlaceData.baseChangeRingEquiv (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:113)
 def baseChangeRingEquiv :
     ((InfiniteAdeleRing K) ⊗[K] L) ≃+* InfiniteAdeleRing L :=
   ((tensorPiAlgEquiv K L).toRingEquiv.trans
     (RingEquiv.piCongrRight fun v => D.placeEquiv v)).trans (collapsePlaces K L)
 
--- pin: InfinitePlaceData.baseChangeRingEquiv_apply (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:118)
 lemma baseChangeRingEquiv_apply (z : (InfiniteAdeleRing K) ⊗[K] L) (w : InfinitePlace L) :
     D.baseChangeRingEquiv z w =
       D.placeEquiv (w.comap (algebraMap K L))
         (tensorPiAlgEquiv K L z (w.comap (algebraMap K L))) ⟨w, rfl⟩ := rfl
 
--- pin: InfinitePlaceData.baseChangeRingEquiv_one_tmul (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:123)
 theorem baseChangeRingEquiv_one_tmul (l : L) :
     D.baseChangeRingEquiv ((1 : InfiniteAdeleRing K) ⊗ₜ[K] l) =
       algebraMap L (InfiniteAdeleRing L) l := by
@@ -170,19 +158,15 @@ theorem baseChangeRingEquiv_one_tmul (l : L) :
   rw [h1, algebraMap_infiniteAdeleRing_apply]
   exact D.placeEquiv_one_tmul (w.comap (algebraMap K L)) l ⟨w, rfl⟩
 
--- pin: InfinitePlaceData.conorm (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:133)
 def conorm : InfiniteAdeleRing K →+* InfiniteAdeleRing L :=
   D.baseChangeRingEquiv.toRingHom.comp Algebra.TensorProduct.includeLeftRingHom
 
--- pin: InfinitePlaceData.conorm_apply (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:136)
 lemma conorm_apply (x : InfiniteAdeleRing K) :
     D.conorm x = D.baseChangeRingEquiv (x ⊗ₜ[K] (1 : L)) := rfl
 
--- pin: InfinitePlaceData.baseChangeRingEquiv_tmul_one (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:139)
 lemma baseChangeRingEquiv_tmul_one (x : InfiniteAdeleRing K) :
     D.baseChangeRingEquiv (x ⊗ₜ[K] (1 : L)) = D.conorm x := rfl
 
--- pin: InfinitePlaceData.conorm_algebraMap (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:142)
 theorem conorm_algebraMap (c : K) :
     D.conorm (algebraMap K (InfiniteAdeleRing K) c) =
       algebraMap L (InfiniteAdeleRing L) (algebraMap K L c) := by
@@ -192,11 +176,9 @@ theorem conorm_algebraMap (c : K) :
       Algebra.algebraMap_eq_smul_one (A := L) c, TensorProduct.smul_tmul]
   rw [conorm_apply, key, D.baseChangeRingEquiv_one_tmul]
 
--- pin: InfinitePlaceData.adeleAlgebra (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:151)
 @[reducible] def adeleAlgebra : Algebra (InfiniteAdeleRing K) (InfiniteAdeleRing L) :=
   D.conorm.toAlgebra
 
--- pin: InfinitePlaceData.baseChangeAlgEquiv (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:154)
 def baseChangeAlgEquiv :
     letI := D.adeleAlgebra
     ((InfiniteAdeleRing K) ⊗[K] L) ≃ₐ[InfiniteAdeleRing K] InfiniteAdeleRing L :=
@@ -207,11 +189,9 @@ def baseChangeAlgEquiv :
     rw [D.baseChangeRingEquiv_tmul_one]
     rfl)
 
--- pin: InfinitePlaceData.baseChangeAlgEquiv_apply (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:164)
 lemma baseChangeAlgEquiv_apply (z : (InfiniteAdeleRing K) ⊗[K] L) :
     D.baseChangeAlgEquiv z = D.baseChangeRingEquiv z := rfl
 
--- pin: InfinitePlaceData.baseChangeAlgEquiv_one_tmul (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:167)
 theorem baseChangeAlgEquiv_one_tmul (l : L) :
     D.baseChangeAlgEquiv ((1 : InfiniteAdeleRing K) ⊗ₜ[K] l) =
       algebraMap L (InfiniteAdeleRing L) l :=
@@ -223,7 +203,6 @@ end InfinitePlaceData
 
 variable (K L)
 
--- pin: BaseChangeData (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:178)
 structure BaseChangeData [NumberField K]
     [Algebra (InfiniteAdeleRing K) (InfiniteAdeleRing L)] where
 
@@ -234,7 +213,6 @@ structure BaseChangeData [NumberField K]
 
 variable {K L}
 
--- pin: BaseChangeData.ofInfinitePlaceData (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:188)
 def BaseChangeData.ofInfinitePlaceData [NumberField K] (D : InfinitePlaceData K L) :
     letI := D.adeleAlgebra
     BaseChangeData K L :=
@@ -246,39 +224,32 @@ section SelfExtension
 
 variable (K)
 
--- pin: uniqueSelfExtension (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:199)
 instance uniqueSelfExtension (v : InfinitePlace K) : Unique (v.Extension K) where
   default := ⟨v, rfl⟩
   uniq w := Subtype.ext w.property
 
--- pin: selfPiEquiv (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:203)
 def selfPiEquiv (v : InfinitePlace K) :
     ((w : v.Extension K) → w.1.Completion) ≃+* v.Completion :=
   RingEquiv.piUnique fun w : v.Extension K => w.1.Completion
 
--- pin: selfPlaceEquiv (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:207)
 def selfPlaceEquiv (v : InfinitePlace K) :
     (v.Completion ⊗[K] K) ≃+* ((w : v.Extension K) → w.1.Completion) :=
   (Algebra.TensorProduct.rid K K v.Completion).toRingEquiv.trans (selfPiEquiv K v).symm
 
--- pin: selfPlaceEquiv_apply_default (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:211)
 lemma selfPlaceEquiv_apply_default (v : InfinitePlace K) (z : v.Completion ⊗[K] K) :
     selfPlaceEquiv K v z (default : v.Extension K) =
       Algebra.TensorProduct.rid K K v.Completion z := rfl
 
--- pin: selfPlaceEquiv_one_tmul (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:215)
 lemma selfPlaceEquiv_one_tmul (v : InfinitePlace K) (l : K) (w : v.Extension K) :
     selfPlaceEquiv K v ((1 : v.Completion) ⊗ₜ[K] l) w = algebraMap K w.1.Completion l := by
   obtain rfl : w = default := Unique.eq_default w
   rw [selfPlaceEquiv_apply_default, Algebra.TensorProduct.rid_tmul]
   exact (Algebra.algebraMap_eq_smul_one l).symm
 
--- pin: selfInfinitePlaceData (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:221)
 def selfInfinitePlaceData : InfinitePlaceData K K where
   placeEquiv := selfPlaceEquiv K
   placeEquiv_one_tmul := selfPlaceEquiv_one_tmul K
 
--- pin: selfBaseChangeData (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:225)
 def selfBaseChangeData [NumberField K] :
     letI := (selfInfinitePlaceData K).adeleAlgebra
     BaseChangeData K K :=
@@ -288,17 +259,14 @@ end SelfExtension
 
 section Gates
 
--- pin: algebraMap_rat_injective (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:234)
 theorem algebraMap_rat_injective :
     Function.Injective (algebraMap ℚ (InfiniteAdeleRing ℚ)) :=
   (algebraMap ℚ (InfiniteAdeleRing ℚ)).injective
 
--- pin: gate_principal_two_ne_three (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:238)
 theorem gate_principal_two_ne_three :
     algebraMap ℚ (InfiniteAdeleRing ℚ) 2 ≠ algebraMap ℚ (InfiniteAdeleRing ℚ) 3 := fun h =>
   (by norm_num : (2 : ℚ) ≠ 3) (algebraMap_rat_injective h)
 
--- pin: gate_baseChangeRingEquiv_separates (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:242)
 theorem gate_baseChangeRingEquiv_separates :
     (selfInfinitePlaceData ℚ).baseChangeRingEquiv ((1 : InfiniteAdeleRing ℚ) ⊗ₜ[ℚ] (2 : ℚ))
       ≠ (selfInfinitePlaceData ℚ).baseChangeRingEquiv
@@ -307,14 +275,12 @@ theorem gate_baseChangeRingEquiv_separates :
     InfinitePlaceData.baseChangeRingEquiv_one_tmul]
   exact gate_principal_two_ne_three
 
--- pin: gate_conorm_self_fixes_principal (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:250)
 theorem gate_conorm_self_fixes_principal (q : ℚ) :
     (selfInfinitePlaceData ℚ).conorm (algebraMap ℚ (InfiniteAdeleRing ℚ) q)
       = algebraMap ℚ (InfiniteAdeleRing ℚ) q := by
   have h := (selfInfinitePlaceData ℚ).conorm_algebraMap q
   rwa [show algebraMap ℚ ℚ q = q from rfl] at h
 
--- pin: gate_conorm_separates (Definitions/Def_NumberField_InfiniteAdeleRing_BaseChangeData.lean:256)
 theorem gate_conorm_separates :
     (selfInfinitePlaceData ℚ).conorm (algebraMap ℚ (InfiniteAdeleRing ℚ) 2)
       ≠ (selfInfinitePlaceData ℚ).conorm (algebraMap ℚ (InfiniteAdeleRing ℚ) 3) := by

@@ -6,13 +6,16 @@
 
   FLT provenance, pinned `aa2d8b3`: `Definitions/Def_CuspForm_PeterssonCoset.lean`,
   the whole 744-line module (56 public declarations, none `private`), restated at
-  the pin's names with a `-- pin:` comment per declaration. The pin's
+  the pin's names; the module's wire is the `spec-pin:` header below, so every
+  declaration is statement-diffed against it. The pin's
   `set_option maxHeartbeats 800000` is not carried (playbook §3.5).
 
   The coset-integral layer here was written twice in the pin — this module and the
   `S_CuspForm_peterssonOn_…` file our `ModularForms/Analytic/PeterssonHecke.lean`
   engine came from — and the engine's 18 statement-identical declarations are the
   ones this module carries at the same statements.
+
+  spec-pin: Definitions/Def_CuspForm_PeterssonCoset.lean
 -/
 import FLTForHuman.AutomorphicForm.UpperHalfPlane.ModularFundamentalDomain
 import FLTForHuman.ModularForms.Analytic.Petersson
@@ -31,12 +34,10 @@ open scoped MatrixGroups ModularForm ComplexConjugate Modular ENNReal Pointwise
 
 namespace CuspForm.PeterssonCoset
 
--- pin: mapGL_apply (Def_CuspForm_PeterssonCoset.lean:14)
 @[simp] theorem mapGL_apply (g : SL(2, ℤ)) (i j : Fin 2) :
     (Matrix.SpecialLinearGroup.mapGL ℝ g : GL (Fin 2) ℝ) i j = ((g i j : ℤ) : ℝ) := by
   simp
 
--- pin: val_mapGL_eq (Def_CuspForm_PeterssonCoset.lean:18)
 theorem val_mapGL_eq (g : SL(2, ℤ)) :
     ((Matrix.SpecialLinearGroup.mapGL ℝ g : GL (Fin 2) ℝ) : Matrix (Fin 2) (Fin 2) ℝ)
       = !![((g 0 0 : ℤ) : ℝ), ((g 0 1 : ℤ) : ℝ); ((g 1 0 : ℤ) : ℝ), ((g 1 1 : ℤ) : ℝ)] := by
@@ -44,7 +45,6 @@ theorem val_mapGL_eq (g : SL(2, ℤ)) :
   rw [mapGL_apply]
   fin_cases i <;> fin_cases j <;> rfl
 
--- pin: mapGL_injective (Def_CuspForm_PeterssonCoset.lean:25)
 theorem mapGL_injective : Function.Injective
     (fun s : SL(2, ℤ) => (Matrix.SpecialLinearGroup.mapGL ℝ s : GL (Fin 2) ℝ)) := by
   intro s t h
@@ -53,17 +53,14 @@ theorem mapGL_injective : Function.Injective
   have := congrArg (fun g : GL (Fin 2) ℝ => (g : Matrix (Fin 2) (Fin 2) ℝ) i j) h
   simpa using this
 
--- pin: det_entries (Def_CuspForm_PeterssonCoset.lean:33)
 theorem det_entries (γ : SL(2, ℤ)) : γ 0 0 * γ 1 1 - γ 0 1 * γ 1 0 = 1 := by
   have h := γ.det_coe
   rwa [Matrix.det_fin_two] at h
 
--- pin: hact (Def_CuspForm_PeterssonCoset.lean:37)
 theorem hact (γ : SL(2, ℤ)) (x : ℍ) :
     γ • x = (Matrix.SpecialLinearGroup.mapGL ℝ γ : GL (Fin 2) ℝ) • x :=
   MulAction.compHom_smul_def _ γ x
 
--- pin: mp_smul_SL (Def_CuspForm_PeterssonCoset.lean:41)
 theorem mp_smul_SL (γ : SL(2, ℤ)) : MeasurePreserving (fun x : ℍ => γ • x) volume volume := by
   have hemb : MeasurableEmbedding (fun w : ℍ => γ • w) :=
     (Homeomorph.smul γ (α := ℍ)).measurableEmbedding
@@ -72,7 +69,6 @@ theorem mp_smul_SL (γ : SL(2, ℤ)) : MeasurePreserving (fun x : ℍ => γ • 
     rw [Measure.map_apply hemb.measurable hs, Set.preimage_smul,
       FLT.HyperbolicMeasure.volume_smul_sl2z]⟩
 
--- pin: mp_smul_GL (Def_CuspForm_PeterssonCoset.lean:49)
 theorem mp_smul_GL (g : GL (Fin 2) ℝ) : MeasurePreserving (fun x : ℍ => g • x) volume volume := by
   have hemb : MeasurableEmbedding (fun w : ℍ => g • w) :=
     (Homeomorph.smul g (α := ℍ)).measurableEmbedding
@@ -81,11 +77,9 @@ theorem mp_smul_GL (g : GL (Fin 2) ℝ) : MeasurePreserving (fun x : ℍ => g �
     rw [Measure.map_apply hemb.measurable hs, Set.preimage_smul,
       FLT.HyperbolicMeasure.volume_smul_gl]⟩
 
--- pin: measurable_smul_SL (Def_CuspForm_PeterssonCoset.lean:57)
 theorem measurable_smul_SL (γ : SL(2, ℤ)) : Measurable (fun x : ℍ => γ • x) :=
   (continuous_const_smul γ).measurable
 
--- pin: measurable_smul_GL (Def_CuspForm_PeterssonCoset.lean:60)
 theorem measurable_smul_GL (g : GL (Fin 2) ℝ) : Measurable (fun x : ℍ => g • x) :=
   (continuous_const_smul g).measurable
 
@@ -93,7 +87,6 @@ section weight
 
 variable (Λ : Subgroup SL(2, ℤ))
 
--- pin: splitEquiv (Def_CuspForm_PeterssonCoset.lean:67)
 def splitEquiv : SL(2, ℤ) ≃ (SL(2, ℤ) ⧸ Λ) × Λ where
   toFun σ := (QuotientGroup.mk σ, ⟨(QuotientGroup.mk σ : SL(2, ℤ) ⧸ Λ).out⁻¹ * σ, by
     rw [← QuotientGroup.eq]; exact QuotientGroup.out_eq' _⟩)
@@ -107,33 +100,27 @@ def splitEquiv : SL(2, ℤ) ≃ (SL(2, ℤ) ⧸ Λ) × Λ where
     simp only [hq]
     rw [inv_mul_cancel_left]
 
--- pin: tsum_SL_eq (Def_CuspForm_PeterssonCoset.lean:80)
 theorem tsum_SL_eq (F : SL(2, ℤ) → ℝ≥0∞) :
     ∑' σ : SL(2, ℤ), F σ = ∑' q : SL(2, ℤ) ⧸ Λ, ∑' h : Λ, F (q.out * (h : SL(2, ℤ))) := by
   rw [← (splitEquiv Λ).symm.tsum_eq, ENNReal.tsum_prod']
   rfl
 
--- pin: tsum_SL_inv (Def_CuspForm_PeterssonCoset.lean:85)
 theorem tsum_SL_inv (F : SL(2, ℤ) → ℝ≥0∞) : ∑' σ : SL(2, ℤ), F σ = ∑' σ : SL(2, ℤ), F σ⁻¹ :=
   ((Equiv.inv SL(2, ℤ)).tsum_eq F).symm
 
--- pin: tsum_Λ_inv (Def_CuspForm_PeterssonCoset.lean:88)
 theorem tsum_Λ_inv (F : Λ → ℝ≥0∞) : ∑' h : Λ, F h = ∑' h : Λ, F h⁻¹ :=
   ((Equiv.inv Λ).tsum_eq F).symm
 
 variable [Fintype (SL(2, ℤ) ⧸ Λ)]
 
--- pin: wt (Def_CuspForm_PeterssonCoset.lean:93)
 def wt (x : ℍ) : ℝ≥0∞ :=
   ∑ q : SL(2, ℤ) ⧸ Λ, (𝒟 : Set ℍ).indicator (fun _ => (1 : ℝ≥0∞)) ((q.out : SL(2, ℤ)) • x)
 
--- pin: measurable_wt (Def_CuspForm_PeterssonCoset.lean:96)
 theorem measurable_wt : Measurable (wt Λ) := by
   refine Finset.measurable_sum _ fun q _ => ?_
   exact (measurable_const.indicator ModularGroup.isClosed_fd.measurableSet).comp
     (measurable_smul_SL _)
 
--- pin: indicator_smul (Def_CuspForm_PeterssonCoset.lean:101)
 theorem indicator_smul (σ : SL(2, ℤ)) (x : ℍ) :
     (𝒟 : Set ℍ).indicator (fun _ => (1 : ℝ≥0∞)) (σ • x)
       = (σ⁻¹ • (𝒟 : Set ℍ)).indicator (fun _ => (1 : ℝ≥0∞)) x := by
@@ -141,7 +128,6 @@ theorem indicator_smul (σ : SL(2, ℤ)) (x : ℍ) :
   · rw [Set.indicator_of_mem h, Set.indicator_of_mem (Set.mem_inv_smul_set_iff.mpr h)]
   · rw [Set.indicator_of_notMem h, Set.indicator_of_notMem (fun h' => h (Set.mem_inv_smul_set_iff.mp h'))]
 
--- pin: tsum_wt_smul (Def_CuspForm_PeterssonCoset.lean:108)
 theorem tsum_wt_smul {x : ℍ} (hx : x ∈ FLT.ModularFundamentalDomain.goodSet) :
     ∑' h : Λ, wt Λ ((h : SL(2, ℤ)) • x) = 2 := by
   calc ∑' h : Λ, wt Λ ((h : SL(2, ℤ)) • x)
@@ -162,13 +148,11 @@ theorem tsum_wt_smul {x : ℍ} (hx : x ∈ FLT.ModularFundamentalDomain.goodSet)
         rw [tsum_SL_inv (fun σ => (σ • (𝒟 : Set ℍ)).indicator (fun _ => (1 : ℝ≥0∞)) x)]
     _ = 2 := FLT.ModularFundamentalDomain.tsum_indicator_smul_fd hx
 
--- pin: ae_tsum_wt_smul (Def_CuspForm_PeterssonCoset.lean:128)
 theorem ae_tsum_wt_smul : ∀ᵐ x : ℍ, ∑' h : Λ, wt Λ ((h : SL(2, ℤ)) • x) = 2 := by
   filter_upwards [measure_eq_zero_iff_ae_notMem.mp FLT.ModularFundamentalDomain.volume_compl_goodSet]
     with x hx
   exact tsum_wt_smul Λ (by simpa using hx)
 
--- pin: tsum_G_eq (Def_CuspForm_PeterssonCoset.lean:133)
 theorem tsum_G_eq (U w : ℍ → ℝ≥0∞) (hUinv : ∀ h ∈ Λ, ∀ x : ℍ, U (h • x) = U x) (x : ℍ)
     (hwt : ∀ q : SL(2, ℤ) ⧸ Λ, ∑' h : Λ, w ((h : SL(2, ℤ)) • (q.out⁻¹ : SL(2, ℤ)) • x) = 2) :
     ∑' σ : SL(2, ℤ), U (σ • x) * w (σ • x)
@@ -194,7 +178,6 @@ theorem tsum_G_eq (U w : ℍ → ℝ≥0∞) (hUinv : ∀ h ∈ Λ, ∀ x : ℍ,
     _ = 2 * ∑ q : SL(2, ℤ) ⧸ Λ, U ((q.out⁻¹ : SL(2, ℤ)) • x) := by
         rw [ENNReal.tsum_mul_right, tsum_fintype, mul_comm]
 
--- pin: weight_lintegral (Def_CuspForm_PeterssonCoset.lean:158)
 theorem weight_lintegral (U w : ℍ → ℝ≥0∞) (hU : Measurable U) (hw : Measurable w)
     (hUinv : ∀ h ∈ Λ, ∀ x : ℍ, U (h • x) = U x)
     (hwt : ∀ᵐ x : ℍ, ∑' h : Λ, w ((h : SL(2, ℤ)) • x) = 2) :
@@ -235,7 +218,6 @@ section cvn
 
 variable (Λ₁ Λ₂ : Subgroup SL(2, ℤ)) [Fintype (SL(2, ℤ) ⧸ Λ₁)] [Fintype (SL(2, ℤ) ⧸ Λ₂)]
 
--- pin: cvn_lintegral (Def_CuspForm_PeterssonCoset.lean:198)
 theorem cvn_lintegral (β : GL (Fin 2) ℝ) (c : Λ₁ ≃ Λ₂)
     (hc : ∀ h : Λ₁, β * (Matrix.SpecialLinearGroup.mapGL ℝ (h : SL(2, ℤ)) : GL (Fin 2) ℝ)
       = (Matrix.SpecialLinearGroup.mapGL ℝ ((c h : Λ₂) : SL(2, ℤ)) : GL (Fin 2) ℝ) * β)
@@ -272,14 +254,11 @@ end cvn
 
 section pairing
 
--- pin: dens (Def_CuspForm_PeterssonCoset.lean:234)
 def dens (k : ℤ) (H : ℍ → ℂ) (x : ℍ) : ℝ := ‖H x‖ ^ 2 * x.im ^ k
 
--- pin: dens_nonneg (Def_CuspForm_PeterssonCoset.lean:236)
 theorem dens_nonneg (k : ℤ) (H : ℍ → ℂ) (x : ℍ) : 0 ≤ dens k H x :=
   mul_nonneg (sq_nonneg _) (zpow_nonneg x.im_pos.le _)
 
--- pin: petersson_self_eq_dens (Def_CuspForm_PeterssonCoset.lean:239)
 theorem petersson_self_eq_dens (k : ℤ) (H : ℍ → ℂ) (x : ℍ) :
     UpperHalfPlane.petersson k H H x = ((dens k H x : ℝ) : ℂ) := by
   unfold UpperHalfPlane.petersson dens
@@ -287,7 +266,6 @@ theorem petersson_self_eq_dens (k : ℤ) (H : ℍ → ℂ) (x : ℍ) :
   push_cast
   ring
 
--- pin: Nice (Def_CuspForm_PeterssonCoset.lean:246)
 structure Nice (Λ : Subgroup SL(2, ℤ)) (k : ℤ) (H : ℍ → ℂ) : Prop where
   cont : Continuous H
   bdd : ∃ C, ∀ x, dens k H x ≤ C
@@ -295,7 +273,6 @@ structure Nice (Λ : Subgroup SL(2, ℤ)) (k : ℤ) (H : ℍ → ℂ) : Prop whe
 
 variable {Λ : Subgroup SL(2, ℤ)} {k : ℤ}
 
--- pin: Nice.add (Def_CuspForm_PeterssonCoset.lean:253)
 theorem Nice.add {F G : ℍ → ℂ} (hF : Nice Λ k F) (hG : Nice Λ k G) : Nice Λ k (F + G) := by
   obtain ⟨C₁, hC₁⟩ := hF.bdd
   obtain ⟨C₂, hC₂⟩ := hG.bdd
@@ -312,7 +289,6 @@ theorem Nice.add {F G : ℍ → ℂ} (hF : Nice Λ k F) (hG : Nice Λ k G) : Nic
     nlinarith [mul_le_mul_of_nonneg_right hn hy]
   · rw [SlashAction.add_slash, hF.inv h hh, hG.inv h hh]
 
--- pin: Nice.smul (Def_CuspForm_PeterssonCoset.lean:269)
 theorem Nice.smul {F : ℍ → ℂ} (hF : Nice Λ k F) (c : ℂ) : Nice Λ k (c • F) := by
   obtain ⟨C, hC⟩ := hF.bdd
   refine ⟨hF.cont.const_smul c, ⟨‖c‖ ^ 2 * C, fun x => ?_⟩, fun h hh => ?_⟩
@@ -325,19 +301,15 @@ theorem Nice.smul {F : ℍ → ℂ} (hF : Nice Λ k F) (c : ℂ) : Nice Λ k (c 
     rw [ModularForm.smul_slash, hF.inv h hh, hσ]
     rfl
 
--- pin: Nice.neg (Def_CuspForm_PeterssonCoset.lean:281)
 theorem Nice.neg {F : ℍ → ℂ} (hF : Nice Λ k F) : Nice Λ k (-F) := by
   have := hF.smul (-1); rwa [neg_one_smul] at this
 
--- pin: Nice.sub (Def_CuspForm_PeterssonCoset.lean:284)
 theorem Nice.sub {F G : ℍ → ℂ} (hF : Nice Λ k F) (hG : Nice Λ k G) : Nice Λ k (F - G) := by
   rw [sub_eq_add_neg]; exact hF.add hG.neg
 
--- pin: Nice.zero (Def_CuspForm_PeterssonCoset.lean:287)
 theorem Nice.zero : Nice Λ k (0 : ℍ → ℂ) :=
   ⟨continuous_const, ⟨0, fun x => by simp [dens]⟩, fun _ _ => SlashAction.zero_slash k _⟩
 
--- pin: Nice.sum (Def_CuspForm_PeterssonCoset.lean:290)
 theorem Nice.sum {ι : Type*} (s : Finset ι) {F : ι → ℍ → ℂ} (hF : ∀ i, Nice Λ k (F i)) :
     Nice Λ k (∑ i ∈ s, F i) := by
   classical
@@ -345,11 +317,9 @@ theorem Nice.sum {ι : Type*} (s : Finset ι) {F : ι → ℍ → ℂ} (hF : ∀
   | empty => rw [Finset.sum_empty]; exact Nice.zero
   | insert a s ha ih => rw [Finset.sum_insert ha]; exact (hF a).add ih
 
--- pin: Nice.mono (Def_CuspForm_PeterssonCoset.lean:297)
 theorem Nice.mono {Λ' : Subgroup SL(2, ℤ)} {F : ℍ → ℂ} (hF : Nice Λ k F) (h : Λ' ≤ Λ) : Nice Λ' k F :=
   ⟨hF.cont, hF.bdd, fun g hg => hF.inv g (h hg)⟩
 
--- pin: Nice.dens_smul (Def_CuspForm_PeterssonCoset.lean:300)
 theorem Nice.dens_smul {F : ℍ → ℂ} (hF : Nice Λ k F) {h : SL(2, ℤ)} (hh : h ∈ Λ) (x : ℍ) :
     dens k F (h • x) = dens k F x := by
   have := UpperHalfPlane.petersson_slash_SL k F F h x
@@ -357,13 +327,11 @@ theorem Nice.dens_smul {F : ℍ → ℂ} (hF : Nice Λ k F) {h : SL(2, ℤ)} (hh
     from rfl, hF.inv h hh, petersson_self_eq_dens, petersson_self_eq_dens] at this
   exact_mod_cast this.symm
 
--- pin: continuous_dens (Def_CuspForm_PeterssonCoset.lean:307)
 theorem continuous_dens {F : ℍ → ℂ} (hF : Continuous F) : Continuous (dens k F) := by
   unfold dens
   refine ((continuous_norm.comp hF).pow 2).mul ?_
   exact (UpperHalfPlane.continuous_im.zpow₀ k fun x => Or.inl (x.im_pos.ne'))
 
--- pin: norm_petersson_le (Def_CuspForm_PeterssonCoset.lean:312)
 theorem norm_petersson_le {F G : ℍ → ℂ} (x : ℍ) :
     ‖UpperHalfPlane.petersson k F G x‖ ≤ (dens k F x + dens k G x) / 2 := by
   unfold UpperHalfPlane.petersson dens
@@ -374,15 +342,12 @@ theorem norm_petersson_le {F G : ℍ → ℂ} (x : ℍ) :
 
 variable (Λ) [Fintype (SL(2, ℤ) ⧸ Λ)]
 
--- pin: cosum (Def_CuspForm_PeterssonCoset.lean:322)
 def cosum (g : GL (Fin 2) ℝ) (Φ : ℍ → ℂ) (x : ℍ) : ℂ :=
   ∑ q : SL(2, ℤ) ⧸ Λ, Φ (g • (q.out⁻¹ : SL(2, ℤ)) • x)
 
--- pin: pair (Def_CuspForm_PeterssonCoset.lean:325)
 def pair (k : ℤ) (F G : ℍ → ℂ) : ℂ :=
   ∫ x in (𝒟 : Set ℍ), cosum Λ 1 (UpperHalfPlane.petersson k F G) x
 
--- pin: integrable_cosum (Def_CuspForm_PeterssonCoset.lean:328)
 theorem integrable_cosum {F G : ℍ → ℂ} (hFc : Continuous F) (hGc : Continuous G)
     (hFb : ∃ C, ∀ x, dens k F x ≤ C) (hGb : ∃ C, ∀ x, dens k G x ≤ C) (g : GL (Fin 2) ℝ) :
     Integrable (cosum Λ g (UpperHalfPlane.petersson k F G)) (volume.restrict (𝒟 : Set ℍ)) := by
@@ -401,7 +366,6 @@ theorem integrable_cosum {F G : ℍ → ℂ} (hFc : Continuous F) (hGc : Continu
   · exact hC₁ _
   · exact hC₂ _
 
--- pin: integral_cosum_self (Def_CuspForm_PeterssonCoset.lean:346)
 theorem integral_cosum_self {Λ₁ : Subgroup SL(2, ℤ)} [Fintype (SL(2, ℤ) ⧸ Λ₁)] (β : GL (Fin 2) ℝ)
     (c : Λ₁ ≃ Λ)
     (hc : ∀ h : Λ₁,
@@ -441,7 +405,6 @@ theorem integral_cosum_self {Λ₁ : Subgroup SL(2, ℤ)} [Fintype (SL(2, ℤ) �
     (fun x => ENNReal.ofReal (dens k H x)) hU (fun h hh x => by simp only [hH.dens_smul hh])
   simpa only [one_smul] using this
 
--- pin: petersson_polarization (Def_CuspForm_PeterssonCoset.lean:385)
 theorem petersson_polarization (F G : ℍ → ℂ) (x : ℍ) :
     UpperHalfPlane.petersson k F G x
       = (4 : ℂ)⁻¹ * (UpperHalfPlane.petersson k (G + F) (G + F) x
@@ -455,7 +418,6 @@ theorem petersson_polarization (F G : ℍ → ℂ) (x : ℍ) :
 
 omit [Fintype (SL(2, ℤ) ⧸ Λ)] in
 
--- pin: integral_cosum_polar (Def_CuspForm_PeterssonCoset.lean:398)
 theorem integral_cosum_polar (Λ' : Subgroup SL(2, ℤ)) [Fintype (SL(2, ℤ) ⧸ Λ')]
     (g : GL (Fin 2) ℝ) {F G : ℍ → ℂ} (hF : Nice Λ k F) (hG : Nice Λ k G) :
     ∫ x in (𝒟 : Set ℍ), cosum Λ' g (UpperHalfPlane.petersson k F G) x
@@ -493,7 +455,6 @@ theorem integral_cosum_polar (Λ' : Subgroup SL(2, ℤ)) [Fintype (SL(2, ℤ) �
   rw [integral_sub iABC iD, integral_sub iAB iC, integral_add iA iB, integral_const_mul,
     integral_const_mul]
 
--- pin: integral_cosum_pair (Def_CuspForm_PeterssonCoset.lean:435)
 theorem integral_cosum_pair {Λ₁ : Subgroup SL(2, ℤ)} [Fintype (SL(2, ℤ) ⧸ Λ₁)] (β : GL (Fin 2) ℝ)
     (c : Λ₁ ≃ Λ)
     (hc : ∀ h : Λ₁,
@@ -506,7 +467,6 @@ theorem integral_cosum_pair {Λ₁ : Subgroup SL(2, ℤ)} [Fintype (SL(2, ℤ) �
     integral_cosum_self Λ β c hc (hG.add hF), integral_cosum_self Λ β c hc (hG.add (hF.smul _)),
     integral_cosum_self Λ β c hc (hG.sub hF), integral_cosum_self Λ β c hc (hG.sub (hF.smul _))]
 
--- pin: pair_slash (Def_CuspForm_PeterssonCoset.lean:447)
 theorem pair_slash {Λ₁ : Subgroup SL(2, ℤ)} [Fintype (SL(2, ℤ) ⧸ Λ₁)] (β : GL (Fin 2) ℝ)
     (hβ : 0 < (β.det : ℝ)) (c : Λ₁ ≃ Λ)
     (hc : ∀ h : Λ₁,
@@ -525,7 +485,6 @@ theorem pair_slash {Λ₁ : Subgroup SL(2, ℤ)} [Fintype (SL(2, ℤ) ⧸ Λ₁)
     rfl
   rw [hpt, integral_const_mul, integral_cosum_pair Λ β c hc hF hG]
 
--- pin: pair_conj_symm (Def_CuspForm_PeterssonCoset.lean:465)
 theorem pair_conj_symm (F G : ℍ → ℂ) : pair Λ k G F = conj (pair Λ k F G) := by
   unfold pair
   rw [← integral_conj]
@@ -534,7 +493,6 @@ theorem pair_conj_symm (F G : ℍ → ℂ) : pair Λ k G F = conj (pair Λ k F G
   simp only [cosum, map_sum]
   exact Finset.sum_congr rfl fun q _ => UpperHalfPlane.petersson_symm k F G _
 
--- pin: pair_smul_left (Def_CuspForm_PeterssonCoset.lean:473)
 theorem pair_smul_left (c : ℂ) (F G : ℍ → ℂ) : pair Λ k (c • F) G = conj c * pair Λ k F G := by
   unfold pair
   rw [← integral_const_mul]
@@ -543,7 +501,6 @@ theorem pair_smul_left (c : ℂ) (F G : ℍ → ℂ) : pair Λ k (c • F) G = c
   refine Finset.sum_congr rfl fun q _ => ?_
   simp only [UpperHalfPlane.petersson, Pi.smul_apply, smul_eq_mul, map_mul]; ring
 
--- pin: pair_smul_right (Def_CuspForm_PeterssonCoset.lean:481)
 theorem pair_smul_right (c : ℂ) (F G : ℍ → ℂ) : pair Λ k F (c • G) = c * pair Λ k F G := by
   unfold pair
   rw [← integral_const_mul]
@@ -552,7 +509,6 @@ theorem pair_smul_right (c : ℂ) (F G : ℍ → ℂ) : pair Λ k F (c • G) = 
   refine Finset.sum_congr rfl fun q _ => ?_
   simp only [UpperHalfPlane.petersson, Pi.smul_apply, smul_eq_mul]; ring
 
--- pin: pair_sum_left (Def_CuspForm_PeterssonCoset.lean:489)
 theorem pair_sum_left {ι : Type*} (s : Finset ι) (F : ι → ℍ → ℂ) (G : ℍ → ℂ)
     (hF : ∀ i, Nice Λ k (F i)) (hG : Nice Λ k G) :
     pair Λ k (∑ i ∈ s, F i) G = ∑ i ∈ s, pair Λ k (F i) G := by
@@ -572,7 +528,6 @@ theorem pair_sum_left {ι : Type*} (s : Finset ι) (F : ι → ℍ → ℂ) (G :
     · have hs : Nice Λ k (∑ i ∈ s, F i) := Nice.sum s hF
       exact integrable_cosum Λ hs.cont hG.cont hs.bdd hG.bdd 1
 
--- pin: pair_sum_right (Def_CuspForm_PeterssonCoset.lean:508)
 theorem pair_sum_right {ι : Type*} (s : Finset ι) (F : ℍ → ℂ) (G : ι → ℍ → ℂ)
     (hF : Nice Λ k F) (hG : ∀ i, Nice Λ k (G i)) :
     pair Λ k F (∑ i ∈ s, G i) = ∑ i ∈ s, pair Λ k F (G i) := by
@@ -585,7 +540,6 @@ section definite
 
 variable (Λ : Subgroup SL(2, ℤ)) [Fintype (SL(2, ℤ) ⧸ Λ)] {k : ℤ}
 
--- pin: pair_self_eq_lintegral (Def_CuspForm_PeterssonCoset.lean:520)
 theorem pair_self_eq_lintegral {F : ℍ → ℂ} (hF : Continuous F) :
     pair Λ k F F = ((∫⁻ x in (𝒟 : Set ℍ), ∑ q : SL(2, ℤ) ⧸ Λ,
         ENNReal.ofReal (dens k F ((q.out⁻¹ : SL(2, ℤ)) • x))).toReal : ℂ) := by
@@ -604,7 +558,6 @@ theorem pair_self_eq_lintegral {F : ℍ → ℂ} (hF : Continuous F) :
   refine lintegral_congr fun x => ?_
   rw [ENNReal.ofReal_sum_of_nonneg fun q _ => dens_nonneg k F _]
 
--- pin: eq_zero_of_pair_self_eq_zero (Def_CuspForm_PeterssonCoset.lean:538)
 theorem eq_zero_of_pair_self_eq_zero {F : ℍ → ℂ} (hF : Nice Λ k F) (h0 : pair Λ k F F = 0) :
     F = 0 := by
   obtain ⟨C, hC⟩ := hF.bdd
@@ -684,12 +637,10 @@ section unfold
 variable (hΛΓ : Λ ≤ Γ'') {ι : Type*} (r : ι → SL(2, ℤ)) (hr : ∀ i, r i ∈ Γ'')
   (hex : ∀ γ ∈ Γ'', ∃ i, r i * γ ∈ Λ) (huniq : ∀ i i', r i * (r i')⁻¹ ∈ Λ → i = i')
 
--- pin: eMap (Def_CuspForm_PeterssonCoset.lean:617)
 def eMap (r : ι → SL(2, ℤ)) (x : (SL(2, ℤ) ⧸ Γ'') × ι) : SL(2, ℤ) ⧸ Λ :=
   QuotientGroup.mk (x.1.out * (r x.2)⁻¹)
 
 include hΛΓ hr hex huniq in
--- pin: eMap_bijective (Def_CuspForm_PeterssonCoset.lean:621)
 theorem eMap_bijective : Function.Bijective (eMap (Γ'' := Γ'') (Λ := Λ) r) := by
   constructor
   · rintro ⟨q, i⟩ ⟨q', i'⟩ h
@@ -723,7 +674,6 @@ variable [Fintype (SL(2, ℤ) ⧸ Γ'')] [Fintype (SL(2, ℤ) ⧸ Λ)] [Fintype 
 
 include hΛΓ hr hex huniq in
 
--- pin: unfold_sum (Def_CuspForm_PeterssonCoset.lean:654)
 theorem unfold_sum {X : Type*} [AddCommMonoid X] (Φ : ℍ → X)
     (hΦ : ∀ h ∈ Λ, ∀ x : ℍ, Φ (h • x) = Φ x) (τ : ℍ) :
     ∑ q' : SL(2, ℤ) ⧸ Λ, Φ ((q'.out⁻¹ : SL(2, ℤ)) • τ)
@@ -741,7 +691,6 @@ end unfold
 
 variable [Fintype (SL(2, ℤ) ⧸ Γ'')] [Fintype (SL(2, ℤ) ⧸ Λ)]
 
--- pin: cosum_eq_relIndex_mul (Def_CuspForm_PeterssonCoset.lean:671)
 set_option linter.style.haveILetI false in
 theorem cosum_eq_relIndex_mul (hle : Λ ≤ Γ'') (Φ : ℍ → ℂ)
     (hΦ : ∀ h ∈ Γ'', ∀ x : ℍ, Φ (h • x) = Φ x) (τ : ℍ) :
@@ -782,7 +731,6 @@ theorem cosum_eq_relIndex_mul (hle : Λ ≤ Γ'') (Φ : ℍ → ℂ)
   congr 1
   rw [Subgroup.relIndex, Subgroup.index_eq_card, Nat.card_eq_fintype_card]
 
--- pin: pair_eq_relIndex_mul (Def_CuspForm_PeterssonCoset.lean:710)
 theorem pair_eq_relIndex_mul (hle : Λ ≤ Γ'') {k : ℤ} {F G : ℍ → ℂ} (hF : Nice Γ'' k F) (hG : Nice Γ'' k G) :
     pair Λ k F G = (Λ.relIndex Γ'' : ℂ) * pair Γ'' k F G := by
   unfold pair
@@ -802,7 +750,6 @@ section indexeq
 
 variable (Λ₁ Λ₂ : Subgroup SL(2, ℤ)) [Fintype (SL(2, ℤ) ⧸ Λ₁)] [Fintype (SL(2, ℤ) ⧸ Λ₂)]
 
--- pin: card_quotient_eq_of_conj (Def_CuspForm_PeterssonCoset.lean:729)
 theorem card_quotient_eq_of_conj (β : GL (Fin 2) ℝ) (c : Λ₁ ≃ Λ₂)
     (hc : ∀ h : Λ₁, β * (Matrix.SpecialLinearGroup.mapGL ℝ (h : SL(2, ℤ)) : GL (Fin 2) ℝ)
       = (Matrix.SpecialLinearGroup.mapGL ℝ ((c h : Λ₂) : SL(2, ℤ)) : GL (Fin 2) ℝ) * β) :

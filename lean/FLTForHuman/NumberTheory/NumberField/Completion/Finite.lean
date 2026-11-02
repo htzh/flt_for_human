@@ -13,6 +13,8 @@
   `ProperSpace` from mathlib's normed-field structure rather than the pin's
   `Valued.WithZeroMulInt` shim), and the pin's public names are exposed here so a
   consumer written against the pin's `attribute [-instance]` lines finds them.
+
+  spec-pin: Definitions/Def_NumberField_Completion_Finite.lean
 -/
 import FLTForHuman.NumberTheory.AdelicHaar.Local
 import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
@@ -28,22 +30,18 @@ namespace NumberField
 
 variable (K : Type*) [Field K] [NumberField K] (v : HeightOneSpectrum (𝓞 K))
 
--- pin: instFiniteResidueFieldAdicCompletionIntegers (Def_NumberField_Completion_Finite.lean:16)
 instance instFiniteResidueFieldAdicCompletionIntegers :
     Finite (ResidueField (v.adicCompletionIntegers K)) :=
   AdelicHaar.finite_residueField_adicCompletionIntegers (𝓞 K) K v
 
--- pin: instCompactSpaceAdicCompletionIntegers (Def_NumberField_Completion_Finite.lean:26)
 instance instCompactSpaceAdicCompletionIntegers : CompactSpace (v.adicCompletionIntegers K) :=
   AdelicHaar.compactSpace_adicCompletionIntegers (𝓞 K) K v
 
--- pin: isCompactAdicCompletionIntegers (Def_NumberField_Completion_Finite.lean:30)
 lemma isCompactAdicCompletionIntegers :
     IsCompact (v.adicCompletionIntegers K : Set (v.adicCompletion K)) := by
   rw [isCompact_iff_compactSpace]
   exact instCompactSpaceAdicCompletionIntegers K v
 
--- pin: isOpenAdicCompletionIntegers (Def_NumberField_Completion_Finite.lean:35)
 lemma isOpenAdicCompletionIntegers :
     IsOpen (v.adicCompletionIntegers K : Set (v.adicCompletion K)) :=
   Valued.isOpen_valuationSubring _
@@ -52,7 +50,6 @@ end NumberField
 
 namespace Rat.adicCompletion
 
--- pin: locallyCompactSpace (Def_NumberField_Completion_Finite.lean:39)
 instance locallyCompactSpace (v : HeightOneSpectrum (𝓞 ℚ)) :
     LocallyCompactSpace (v.adicCompletion ℚ) :=
   inferInstance

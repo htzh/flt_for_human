@@ -36,6 +36,8 @@
   instance argument.  The pin's `haveI`/`letI` tactic uses in proofs are written
   `have`/`let` (v4.34.0's `haveILetI` style linter); the local instances they bind are still
   found by instance search.
+
+  spec-pin: Definitions/Def_M4aHerbrand_ArchSemilocal.lean
 -/
 import FLTForHuman.NumberTheory.NumberField.InfiniteAdeleRing.BaseChangeData
 import Mathlib.NumberTheory.NumberField.Completion.Ramification
@@ -61,13 +63,11 @@ noncomputable section
 
 variable {K L : Type*} [Field K] [NumberField K] [Field L] [NumberField L] [Algebra K L]
 
--- pin: liesOver_of_comap_eq (Definitions/Def_M4aHerbrand_ArchSemilocal.lean:14)
 omit [NumberField K] [NumberField L] in
 theorem liesOver_of_comap_eq {v : InfinitePlace K} {w : InfinitePlace L}
     (h : w.comap (algebraMap K L) = v) : w.1.LiesOver v.1 :=
   ⟨congrArg Subtype.val h⟩
 
--- pin: finiteDimensional_completion (Definitions/Def_M4aHerbrand_ArchSemilocal.lean:19)
 omit [NumberField K] [NumberField L] in
 theorem finiteDimensional_completion (v : InfinitePlace K) (w : InfinitePlace L)
     [w.1.LiesOver v.1] : FiniteDimensional v.Completion w.Completion := by
@@ -77,18 +77,15 @@ theorem finiteDimensional_completion (v : InfinitePlace K) (w : InfinitePlace L)
   · exact FiniteDimensional.of_finrank_pos
       (by rw [IsRamified.finrank_eq_two v h]; norm_num)
 
--- pin: instIsScalarTowerCompletion (Definitions/Def_M4aHerbrand_ArchSemilocal.lean:28)
 omit [NumberField K] [NumberField L] in
 instance instIsScalarTowerCompletion (w : InfinitePlace L) : IsScalarTower K L w.Completion :=
   .of_algebraMap_eq fun _ => rfl
 
--- pin: psiFactor (Definitions/Def_M4aHerbrand_ArchSemilocal.lean:31)
 def psiFactor (v : InfinitePlace K) (w : InfinitePlace L) [w.1.LiesOver v.1] :
     (v.Completion ⊗[K] L) →ₐ[v.Completion] w.Completion :=
   Algebra.TensorProduct.lift (Algebra.ofId v.Completion w.Completion)
     (IsScalarTower.toAlgHom K L w.Completion) (fun _ _ => Commute.all _ _)
 
--- pin: psiFactor_tmul (Definitions/Def_M4aHerbrand_ArchSemilocal.lean:37)
 omit [NumberField K] [NumberField L] in
 @[simp] theorem psiFactor_tmul (v : InfinitePlace K) (w : InfinitePlace L) [w.1.LiesOver v.1]
     (c : v.Completion) (l : L) :
@@ -96,13 +93,11 @@ omit [NumberField K] [NumberField L] in
   simp [psiFactor, Algebra.TensorProduct.lift_tmul, Algebra.ofId_apply,
     IsScalarTower.coe_toAlgHom']
 
--- pin: psiFactor_one_tmul (Definitions/Def_M4aHerbrand_ArchSemilocal.lean:44)
 omit [NumberField K] [NumberField L] in
 theorem psiFactor_one_tmul (v : InfinitePlace K) (w : InfinitePlace L) [w.1.LiesOver v.1] (l : L) :
     psiFactor v w ((1 : v.Completion) ⊗ₜ[K] l) = algebraMap L w.Completion l := by
   rw [psiFactor_tmul, map_one, one_mul]
 
--- pin: nontriviallyNormedCompletion (Definitions/Def_M4aHerbrand_ArchSemilocal.lean:48)
 @[reducible] def nontriviallyNormedCompletion (v : InfinitePlace K) :
     NontriviallyNormedField v.Completion :=
   NontriviallyNormedField.ofNormNeOne (by
@@ -113,7 +108,6 @@ theorem psiFactor_one_tmul (v : InfinitePlace K) (w : InfinitePlace L) [w.1.Lies
     · exact norm_ne_zero_iff.mp (by rw [h2]; norm_num)
     · rw [h2]; norm_num)
 
--- pin: denseRange_algebraMap_completion (Definitions/Def_M4aHerbrand_ArchSemilocal.lean:59)
 omit [NumberField L] in
 theorem denseRange_algebraMap_completion (w : InfinitePlace L) :
     DenseRange (algebraMap L w.Completion) := by
@@ -124,7 +118,6 @@ theorem denseRange_algebraMap_completion (w : InfinitePlace L) :
   exact h.comp (WithAbs.equiv w.1).symm.surjective.denseRange
     (InfinitePlace.Completion.continuous_coe w)
 
--- pin: psiFactor_surjective (Definitions/Def_M4aHerbrand_ArchSemilocal.lean:68)
 theorem psiFactor_surjective (v : InfinitePlace K) (w : InfinitePlace L) [w.1.LiesOver v.1] :
     Function.Surjective (psiFactor v w) := by
   let : NontriviallyNormedField v.Completion := nontriviallyNormedCompletion v
@@ -145,7 +138,6 @@ theorem psiFactor_surjective (v : InfinitePlace K) (w : InfinitePlace L) [w.1.Li
   have : y ∈ (S : Set w.Completion) := htop ▸ Set.mem_univ y
   exact this
 
--- pin: norm_algebraMap_completion (Definitions/Def_M4aHerbrand_ArchSemilocal.lean:89)
 omit [NumberField L] in
 theorem norm_algebraMap_completion (w : InfinitePlace L) (l : L) :
     ‖algebraMap L w.Completion l‖ = w l := by
@@ -153,7 +145,6 @@ theorem norm_algebraMap_completion (w : InfinitePlace L) (l : L) :
   rw [he, Completion.norm_coe]
   rfl
 
--- pin: aux_ker_ne (Definitions/Def_M4aHerbrand_ArchSemilocal.lean:97)
 private theorem aux_ker_ne (v : InfinitePlace K) (w w' : InfinitePlace L)
     [w.1.LiesOver v.1] [w'.1.LiesOver v.1] {x : L} (hx : w x < 1) (hx' : ¬ w' x < 1) :
     RingHom.ker (psiFactor v w) ≠ RingHom.ker (psiFactor v w') := by
@@ -198,7 +189,6 @@ private theorem aux_ker_ne (v : InfinitePlace K) (w w' : InfinitePlace L)
   rw [norm_algebraMap_completion] at h3
   exact hx' h3
 
--- pin: ker_psiFactor_ne (Definitions/Def_M4aHerbrand_ArchSemilocal.lean:141)
 theorem ker_psiFactor_ne (v : InfinitePlace K) (w w' : InfinitePlace L)
     [w.1.LiesOver v.1] [w'.1.LiesOver v.1] (hne : w ≠ w') :
     RingHom.ker (psiFactor v w) ≠ RingHom.ker (psiFactor v w') := by
@@ -210,25 +200,21 @@ theorem ker_psiFactor_ne (v : InfinitePlace K) (w w' : InfinitePlace L)
   · exact aux_ker_ne v w w' h1 (not_lt.mpr h2)
   · exact (aux_ker_ne v w' w h2 (not_lt.mpr h1)).symm
 
--- pin: extLiesOver (Definitions/Def_M4aHerbrand_ArchSemilocal.lean:154)
 omit [NumberField K] [NumberField L] in
 theorem extLiesOver (v : InfinitePlace K) (w : v.Extension L) : w.1.1.LiesOver v.1 :=
   liesOver_of_comap_eq w.2
 
 attribute [local instance] extLiesOver
 
--- pin: psi (Definitions/Def_M4aHerbrand_ArchSemilocal.lean:159)
 def psi (v : InfinitePlace K) :
     (v.Completion ⊗[K] L) →ₐ[v.Completion]
       ((w : v.Extension L) → w.1.Completion) :=
   AlgHom.pi fun w => psiFactor v w.1
 
--- pin: psi_apply (Definitions/Def_M4aHerbrand_ArchSemilocal.lean:165)
 omit [NumberField K] [NumberField L] in
 @[simp] theorem psi_apply (v : InfinitePlace K) (z : v.Completion ⊗[K] L) (w : v.Extension L) :
     psi v z w = psiFactor v w.1 z := rfl
 
--- pin: psi_surjective (Definitions/Def_M4aHerbrand_ArchSemilocal.lean:169)
 theorem psi_surjective (v : InfinitePlace K) : Function.Surjective (psi (K := K) (L := L) v) := by
   classical
   intro y
@@ -262,14 +248,12 @@ theorem psi_surjective (v : InfinitePlace K) : Function.Surjective (psi (K := K)
   rw [psi_apply, hval]
   exact hxw w
 
--- pin: extensionEquivPlacesOver (Definitions/Def_M4aHerbrand_ArchSemilocal.lean:201)
 def extensionEquivPlacesOver (v : InfinitePlace K) : v.Extension L ≃ ↥(v.placesOver L) where
   toFun w := ⟨w.1, liesOver_of_comap_eq w.2⟩
   invFun w := ⟨w.1, by have : w.1.1.LiesOver v.1 := w.2; exact LiesOver.comap_eq w.1 v⟩
   left_inv w := Subtype.ext rfl
   right_inv w := Subtype.ext rfl
 
--- pin: finrank_pi_extension (Definitions/Def_M4aHerbrand_ArchSemilocal.lean:207)
 theorem finrank_pi_extension (v : InfinitePlace K) :
     Module.finrank v.Completion ((w : v.Extension L) → w.1.Completion)
       = Module.finrank K L := by
@@ -293,7 +277,6 @@ theorem finrank_pi_extension (v : InfinitePlace K) :
       right_inv := fun w => Subtype.ext rfl }
   exact Fintype.sum_equiv E _ _ (fun w => (inertiaDeg_eq_finrank v w.1).symm)
 
--- pin: psi_bijective (Definitions/Def_M4aHerbrand_ArchSemilocal.lean:230)
 theorem psi_bijective (v : InfinitePlace K) : Function.Bijective (psi (K := K) (L := L) v) := by
   have : Module.Finite K L := Module.Finite.of_restrictScalars_finite ℚ K L
   have : ∀ w : v.Extension L, FiniteDimensional v.Completion w.1.Completion :=
@@ -311,17 +294,14 @@ theorem psi_bijective (v : InfinitePlace K) : Function.Bijective (psi (K := K) (
     (LinearMap.injective_iff_surjective_of_finrank_eq_finrank hdim).mpr hsurjL
   exact ⟨hinjL, psi_surjective v⟩
 
--- pin: placeEquivAlg (Definitions/Def_M4aHerbrand_ArchSemilocal.lean:247)
 def placeEquivAlg (v : InfinitePlace K) :
     (v.Completion ⊗[K] L) ≃ₐ[v.Completion] ((w : v.Extension L) → w.1.Completion) :=
   AlgEquiv.ofBijective (psi v) (psi_bijective v)
 
--- pin: genuineInfinitePlaceData (Definitions/Def_M4aHerbrand_ArchSemilocal.lean:251)
 def genuineInfinitePlaceData : FLT.InfiniteAdeleBaseChange.InfinitePlaceData K L where
   placeEquiv v := (placeEquivAlg (K := K) (L := L) v).toRingEquiv
   placeEquiv_one_tmul v l w := psiFactor_one_tmul v w.1 l
 
--- pin: continuous_algebraMap_completion (Definitions/Def_M4aHerbrand_ArchSemilocal.lean:256)
 omit [NumberField K] [NumberField L] in
 theorem continuous_algebraMap_completion (v : InfinitePlace K) (w : InfinitePlace L)
     [w.1.LiesOver v.1] : Continuous (algebraMap v.Completion w.Completion) := by
@@ -332,7 +312,6 @@ theorem continuous_algebraMap_completion (v : InfinitePlace K) (w : InfinitePlac
   rw [he]
   exact continuous_id.smul continuous_const
 
--- pin: continuous_conorm (Definitions/Def_M4aHerbrand_ArchSemilocal.lean:266)
 theorem continuous_conorm :
     Continuous (genuineInfinitePlaceData (K := K) (L := L)).conorm := by
   refine continuous_pi fun w => ?_

@@ -26,6 +26,8 @@
   and the port had re-derived it as a public helper in
   `AutomorphicForm/Adelic/TestFnNearIdentity.lean`; it is promoted to this home and
   that module now imports it (playbook §3.1, §5).
+
+  spec-pin: Definitions/Def_NumberField_AdelicBox.lean
 -/
 import FLTForHuman.NumberTheory.AdelicLevel.IdealBall
 import Mathlib.Algebra.Module.ZLattice.Basic
@@ -366,15 +368,12 @@ theorem measurableSet_adelicBox : MeasurableSet (adelicBox K) := by
   exact ((measurableSet_infiniteBox K).preimage h1).inter
     ((AdelicLevel.isClosed_integralFiniteAdeles (𝓞 K) K).measurableSet.preimage h2)
 
--- pin: isClosed_integralFiniteAdeles (Def_NumberField_AdelicBox.lean:339)
 theorem isClosed_integralFiniteAdeles : IsClosed (integralFiniteAdeles (𝓞 K) K) :=
   AdelicLevel.isClosed_integralFiniteAdeles (𝓞 K) K
 
--- pin: isCompact_integralFiniteAdeles (Def_NumberField_AdelicBox.lean:450)
 theorem isCompact_integralFiniteAdeles : IsCompact (integralFiniteAdeles (𝓞 K) K) :=
   AdelicLevel.isCompact_integralFiniteAdeles (𝓞 K) K
 
--- pin: isOpen_integralFiniteAdeles (Def_NumberField_AdelicBox.lean:461)
 theorem isOpen_integralFiniteAdeles : IsOpen (integralFiniteAdeles (𝓞 K) K) :=
   AdelicLevel.isOpen_integralFiniteAdeles (𝓞 K) K
 

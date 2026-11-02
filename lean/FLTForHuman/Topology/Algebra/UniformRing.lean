@@ -12,6 +12,8 @@
   Substitutions against mathlib `v4.34.0`: none — mathlib has no `mapSemialgHom`
   (`SemialgHom` itself is absent), so the pin's three declarations are transcribed
   whole at the pin's names.
+
+  spec-pin: Definitions/Def_Mathlib_Topology_Algebra_UniformRing.lean
 -/
 import Mathlib.Topology.Algebra.UniformRing
 import FLTForHuman.Algebra.Algebra.SemialgHom
@@ -22,7 +24,6 @@ section
 
 namespace UniformSpace.Completion
 
--- pin: mapSemialgHom (Definitions/Def_Mathlib_Topology_Algebra_UniformRing.lean:14)
 noncomputable def mapSemialgHom {α : Type*} [CommRing α] [UniformSpace α]
     [IsTopologicalRing α] [IsUniformAddGroup α] {β : Type*} [UniformSpace β] [CommRing β]
     [IsUniformAddGroup β] [IsTopologicalRing β] (f : α →+* β) (hf : Continuous f) :
@@ -35,14 +36,12 @@ noncomputable def mapSemialgHom {α : Type*} [CommRing α] [UniformSpace α]
     congr
     exact extensionHom_coe _ _ m
 
--- pin: mapSemialgHom_apply (Definitions/Def_Mathlib_Topology_Algebra_UniformRing.lean:26)
 theorem mapSemialgHom_apply {α : Type*} [CommRing α] [UniformSpace α]
     [IsTopologicalRing α] [IsUniformAddGroup α] {β : Type*} [UniformSpace β] [CommRing β]
     [IsUniformAddGroup β] [IsTopologicalRing β] (f : α →+* β) (hf : Continuous f)
     (x : UniformSpace.Completion α) :
     mapSemialgHom f hf x = UniformSpace.Completion.map f x := rfl
 
--- pin: mapSemialgHom_coe (Definitions/Def_Mathlib_Topology_Algebra_UniformRing.lean:32)
 theorem mapSemialgHom_coe {α : Type*} [CommRing α] [UniformSpace α]
     [IsTopologicalRing α] [IsUniformAddGroup α] {β : Type*} [UniformSpace β] [CommRing β]
     [IsUniformAddGroup β] [IsTopologicalRing β] {f : α →+* β} (hf : UniformContinuous f)

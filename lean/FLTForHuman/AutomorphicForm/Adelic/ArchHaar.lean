@@ -20,6 +20,8 @@
   a `def`, so the matrix/`GL₂` instances are supplied through `inferInstanceAs` and
   `Units.isClosedEmbedding_embedProduct.locallyCompactSpace` rather than left to
   unfold the Pi type.
+
+  spec-pin: Definitions/Def_AutomorphicForm_TwistedOrbital.lean
 -/
 import FLTForHuman.NumberTheory.AdelicHaar.Adele
 import Mathlib.Topology.Algebra.Group.Units
@@ -37,10 +39,8 @@ section Borel
 
 variable (R : Type) [CommRing R] [TopologicalSpace R]
 
--- pin: glBorelOf (Definitions/Def_AutomorphicForm_TwistedOrbital.lean:57)
 @[reducible] def glBorelOf : MeasurableSpace (GL (Fin 2) R) := borel _
 
--- pin: borelSpace_glBorelOf (Definitions/Def_AutomorphicForm_TwistedOrbital.lean:59)
 theorem borelSpace_glBorelOf : @BorelSpace (GL (Fin 2) R) _ (glBorelOf R) :=
   @BorelSpace.mk _ _ (glBorelOf R) rfl
 
@@ -50,7 +50,6 @@ section Archimedean
 
 variable (K : Type) [Field K] [NumberField K]
 
--- pin: archHaarK (Definitions/Def_AutomorphicForm_TwistedOrbital.lean:401)
 def archHaarK : @Measure (GL (Fin 2) (InfiniteAdeleRing K)) (glBorelOf (InfiniteAdeleRing K)) := by
   letI := glBorelOf (InfiniteAdeleRing K)
   haveI := borelSpace_glBorelOf (InfiniteAdeleRing K)

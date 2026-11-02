@@ -4854,7 +4854,7 @@ PORT_FILES = [
     "FLTForHuman/AutomorphicForm/Adelic/RightConvNeZeroArch.lean",
     # --- TOPIC-rightConv-comm W1: the adèlic box (and the pin home of
     # `continuous_ringEquiv_mixedSpace`, promoted out of `TestFnNearIdentity`).
-    "FLTForHuman/NumberTheory/AdelicBox.lean",
+    # FLTForHuman/NumberTheory/AdelicBox.lean — wired by its own `spec-pin:` header; its PORT_FILES row was retired.
     # --- TOPIC-rightConv-comm W2: the adèlic centre and the projective quotient.
     "FLTForHuman/NumberTheory/AdelicCentre.lean",
     # --- TOPIC-rightConv-comm W3: the generic measure-theoretic decay engines, homed
@@ -5003,7 +5003,7 @@ PORT_FILES = [
     # whole at `NumberTheory/AdelicHeight.lean` (see SOURCES). One new leaf module; no
     # existing module was edited, so no hub wave is owed. Appended last so no earlier
     # last-name match can flip.
-    "FLTForHuman/NumberTheory/AdelicHeight.lean",
+    # FLTForHuman/NumberTheory/AdelicHeight.lean — wired by its own `spec-pin:` header; its PORT_FILES row was retired.
     # --- WORKORDER-T2: the `GL₂` idele-norm slab headlines (see SOURCES). Two public
     # statements from their pin wrappers; no engine module, no promotion, no existing
     # module edited. Appended last so no earlier last-name match can flip.
@@ -5018,7 +5018,7 @@ PORT_FILES = [
     # instances (see SOURCES). One already-homed leaf module, promoted from tier 3 to
     # tier 1 because the Fujisaki compactness pair consumes
     # `isCompactAdicCompletionIntegers`. No existing module was edited.
-    "FLTForHuman/NumberTheory/NumberField/Completion/Finite.lean",
+    # FLTForHuman/NumberTheory/NumberField/Completion/Finite.lean — wired by its own `spec-pin:` header; its PORT_FILES row was retired.
     # --- TOPIC-compactness-twins, WORKORDER-T3: the two Fujisaki compactness headlines
     # (see SOURCES). They read the public kernels `M4aLocalCFT.FujisakiR1.exists_isCompact_impl`
     # and `M4aLocalCFT.FujisakiC2c.compactSpace_normOneIdeleClass_impl` of the tier-3 engine
@@ -5039,7 +5039,7 @@ PORT_FILES = [
     # vocabulary homed whole, and the shared generic Fourier-decay block. Both are manager-owned
     # leaves; the complex/real engine modules of the two waves stay tier 3. Appended last so no
     # earlier last-name match can flip.
-    "FLTForHuman/AutomorphicForm/Iwasawa/Complex/Basic.lean",
+    # FLTForHuman/AutomorphicForm/Iwasawa/Complex/Basic.lean — wired by its own `spec-pin:` header; its PORT_FILES row was retired.
     "FLTForHuman/MeasureTheory/FourierDecay.lean",
     # --- WORKORDER-I3 (the real Iwasawa engine; see SOURCES): the four public real-place headlines,
     # proved by the tier-3 `AutomorphicForm.RealIwasawa.Engine.*` kernels of
@@ -5157,7 +5157,7 @@ PORT_FILES = [
     # --- The coset-space Petersson definition layer (set P1 of
     # `TOPIC-petersson-coset-and-level-prime-eigenvalue.md`): wired, because it is
     # the definition layer both `norm_sq` leaves consume. Appended last.
-    "FLTForHuman/ModularForms/Analytic/PeterssonCoset.lean",
+    # FLTForHuman/ModularForms/Analytic/PeterssonCoset.lean — wired by its own `spec-pin:` header; its PORT_FILES row was retired.
     # --- Set P2 (`WORKORDER-P2-normsq.md`): the silo, wired whole — its 71 helpers and the
     # headline are all statement-diffed (+72 against the wrapper + `S_` sources above).
     "FLTForHuman/ModularForms/Analytic/NormSqPow.lean",
@@ -5206,7 +5206,7 @@ PORT_FILES = [
     # --- WORKORDER-E1: the local-constants definition layer homed whole from the pin's
     # `Def_LanglandsTunnell_TateLocalConstantsAt` (21 declarations, checked). It is the gate of
     # the `EisensteinGeneral.LocalRam`/`LocalUnr` local-integral set that follows.
-    "FLTForHuman/LanglandsTunnell/TateLocalConstantsAt.lean",
+    # FLTForHuman/LanglandsTunnell/TateLocalConstantsAt.lean — wired by its own `spec-pin:` header; its PORT_FILES row was retired.
     # --- WORKORDER-E1 (Set A): the three `EisensteinGeneral.LocalRam` headlines (+3). The two
     # engines (`EisensteinGeneral/LocalTwisted.lean`, `…/LocalRamShells.lean`) stay tier 3 and are
     # registered in `spec/UNWIRED-PUBLIC.md`.

@@ -22,6 +22,8 @@
 
   Pin: `anthropics/fermats-last-theorem` at `aa2d8b3`;
   https://raw.githubusercontent.com/anthropics/fermats-last-theorem/aa2d8b3/Definitions/Def_AutomorphicForm_ComplexIwasawa.lean
+
+  spec-pin: Definitions/Def_AutomorphicForm_ComplexIwasawa.lean
 -/
 -- The pin's `Mathlib.Data.Complex.Basic` / `Mathlib.Data.Real.Sqrt` are deprecated module paths
 -- in v4.34.0; the declarations are unchanged.
@@ -39,16 +41,12 @@ namespace AutomorphicForm.ComplexIwasawa
 
 variable (g : Matrix (Fin 2) (Fin 2) ℂ)
 
--- pin: botP (Def_AutomorphicForm_ComplexIwasawa.lean:13)
 def botP (z : ℂ) : ℂ := g 0 0 + z * g 1 0
 
--- pin: botQ (Def_AutomorphicForm_ComplexIwasawa.lean:15)
 def botQ (z : ℂ) : ℂ := g 0 1 + z * g 1 1
 
--- pin: radC (Def_AutomorphicForm_ComplexIwasawa.lean:17)
 def radC (z : ℂ) : ℝ := Real.sqrt (Complex.normSq (botP g z) + Complex.normSq (botQ g z))
 
--- pin: kC (Def_AutomorphicForm_ComplexIwasawa.lean:19)
 def kC (z : ℂ) : Matrix (Fin 2) (Fin 2) ℂ :=
   !![conj (botQ g z) / (radC g z : ℂ), -conj (botP g z) / (radC g z : ℂ);
      botP g z / (radC g z : ℂ), botQ g z / (radC g z : ℂ)]

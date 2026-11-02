@@ -34,6 +34,8 @@
   `letI`/`haveI` on `Prop`-valued instances (pin lines 248-263, 386-437) trigger
   `linter.style.haveILetI`; as in `Topology/Algebra/Valued/WithZeroMulInt.lean`, the linter
   is disabled locally rather than weakening the pin's proofs.
+
+  spec-pin: Definitions/Def_Mathlib_IsModuleTopology.lean
 -/
 import Mathlib.Algebra.Algebra.Equiv
 import Mathlib.Algebra.Algebra.Hom
@@ -71,12 +73,10 @@ variable (R : Type*) [Ring R] [TopologicalSpace R]
 /-- A topological module: the scalar action and addition are continuous.  This is the pin's
 `IsTopologicalModule`, which is weaker than mathlib's `IsModuleTopology` (that one asserts
 the topology is *the* module topology). -/
--- pin: IsTopologicalModule (Definitions/Def_Mathlib_IsModuleTopology.lean:10)
 class IsTopologicalModule extends ContinuousSMul R M, ContinuousAdd M
 
 variable [IsTopologicalModule R M]
 
--- pin: Topology.IsInducing.topologicalModule (Definitions/Def_Mathlib_IsModuleTopology.lean:14)
 protected theorem Topology.IsInducing.topologicalModule {F : Type*}
     (R : Type*) [Ring R] [TopologicalSpace R]
     {M : Type*} [AddCommGroup M] [Module R M] [TopologicalSpace M] [IsTopologicalModule R M]
@@ -86,11 +86,9 @@ protected theorem Topology.IsInducing.topologicalModule {F : Type*}
   continuous_smul := (hf.continuousSMul continuous_id (by intro c x; exact map_smul f c x)).continuous_smul
   continuous_add := (hf.continuousAdd ..).continuous_add
 
--- pin: Submodule.instIsTopologicalModuleSubtypeMem (Definitions/Def_Mathlib_IsModuleTopology.lean:23)
 instance Submodule.instIsTopologicalModuleSubtypeMem (S : Submodule R M) : IsTopologicalModule R S
     := IsInducing.subtypeVal.topologicalModule R S.subtypeL
 
--- pin: Pi.instTopologicalModule (Definitions/Def_Mathlib_IsModuleTopology.lean:26)
 instance Pi.instTopologicalModule {ι : Type*} (R : Type*) [Ring R] [TopologicalSpace R]
     {M : ι → Type*} [∀ i, AddCommGroup (M i)] [∀ i, Module R (M i)]
     [∀ i, TopologicalSpace (M i)] [∀ i, IsTopologicalModule R (M i)] :
@@ -102,7 +100,6 @@ end IsTopologicalModuleDep
 
 section
 
--- pin: IsBiscalar (Definitions/Def_Mathlib_IsModuleTopology.lean:37)
 class IsBiscalar (R S : Type*) {A B : Type*} [Semiring R] [Semiring S] [AddCommMonoid A]
     [AddCommMonoid B] [Module R A] [Module R B] [Module S A] [Module S B] (f : A → B) where
   map_smul₁ : ∀ (r : R) (a : A), f (r • a) = r • f a
@@ -114,18 +111,15 @@ variable {A B : Type*} (S' : Type*) {S : Type*}
     [Semiring S'] [Semiring S] [AddCommMonoid A] [AddCommMonoid B] [Module S A]
     [Module S B] [Module S' A] [Module S' B]
 
--- pin: LinearMap.changeScalars (Definitions/Def_Mathlib_IsModuleTopology.lean:48)
 def LinearMap.changeScalars (f : A →ₗ[S] B) [IsBiscalar S S' f] :
     A →ₗ[S'] B where
   __ := f
   map_smul' s x := by simpa using IsBiscalar.map_smul₂ S s x
 
--- pin: LinearMap.changeScalars_apply (Definitions/Def_Mathlib_IsModuleTopology.lean:53)
 theorem LinearMap.changeScalars_apply (f : A →ₗ[S] B) [IsBiscalar S S' f] (a : A) :
     LinearMap.changeScalars S' f a = f a := by
   simp [changeScalars]
 
--- pin: LinearEquiv.changeScalars (Definitions/Def_Mathlib_IsModuleTopology.lean:57)
 def LinearEquiv.changeScalars (f : A ≃ₗ[S] B) [IsBiscalar S S' f] :
     A ≃ₗ[S'] B where
   __ := LinearMap.changeScalars S' f.toLinearMap
@@ -137,7 +131,6 @@ end linear
 
 section algebra
 
--- pin: AlgEquiv.extendScalars (Definitions/Def_Mathlib_IsModuleTopology.lean:69)
 @[simps! apply symm_apply]
 def AlgEquiv.extendScalars {A C D : Type*} (B : Type*) [CommSemiring A] [CommSemiring C]
     [CommSemiring D] [Algebra A C] [Algebra A D] [CommSemiring B] [Algebra A B] [Algebra B C]
@@ -149,7 +142,6 @@ def AlgEquiv.extendScalars {A C D : Type*} (B : Type*) [CommSemiring A] [CommSem
   invFun := f.symm
   commutes' := fun _ => rfl
 
--- pin: IsBiscalar.commutes (Definitions/Def_Mathlib_IsModuleTopology.lean:79)
 theorem IsBiscalar.commutes {S : Type*} (S' : Type*) {A B : Type*} [CommSemiring S']
     [CommSemiring S] [Semiring A] [Semiring B] [Algebra S' A] [Algebra S' B] [Algebra S A]
     [Algebra S B] (f : A →ₐ[S] B) [IsBiscalar S S' f] (s : S') :
@@ -160,18 +152,15 @@ variable {A B : Type*} (S' : Type*) {S : Type*}
     [CommSemiring A] [CommSemiring B] [CommSemiring S'] [CommSemiring S] [Algebra S A]
     [Algebra S B] [Algebra S' A] [Algebra S' B]
 
--- pin: AlgHom.changeScalars (Definitions/Def_Mathlib_IsModuleTopology.lean:89)
 def AlgHom.changeScalars (f : A →ₐ[S] B) [IsBiscalar S S' f] :
     A →ₐ[S'] B where
   __ := f
   commutes' (r : _) := by simp [IsBiscalar.commutes]
 
--- pin: AlgHom.changeScalars_apply (Definitions/Def_Mathlib_IsModuleTopology.lean:94)
 theorem AlgHom.changeScalars_apply (f : A →ₐ[S] B) [IsBiscalar S S' f] (a : A) :
     changeScalars S' f a = f a := by
   simp [changeScalars]
 
--- pin: AlgEquiv.changeScalars (Definitions/Def_Mathlib_IsModuleTopology.lean:98)
 def AlgEquiv.changeScalars (f : A ≃ₐ[S] B) [IsBiscalar S S' f.toAlgHom] :
     A ≃ₐ[S'] B where
   __ := AlgHom.changeScalars S' f.toAlgHom
@@ -200,13 +189,11 @@ end
 
 section
 
--- pin: ModuleTopology.isModuleTopology (Definitions/Def_Mathlib_IsModuleTopology.lean:126)
 theorem ModuleTopology.isModuleTopology (R : Type*) [TopologicalSpace R] (S : Type*) [Add S]
     [SMul R S] : @IsModuleTopology R _ S _ _ (moduleTopology R S) where
   __ := moduleTopology R S
   eq_moduleTopology' := rfl
 
--- pin: ModuleTopology.iff (Definitions/Def_Mathlib_IsModuleTopology.lean:131)
 lemma ModuleTopology.iff (R M : Type*) [Add M] [SMul R M] [TopologicalSpace R]
     [τ : TopologicalSpace M] : IsModuleTopology R M ↔ τ = moduleTopology R M :=
   ⟨fun m ↦ m.eq_moduleTopology', fun a ↦ { eq_moduleTopology' := a }⟩
@@ -223,7 +210,6 @@ variable {A : Type*} [AddCommMonoid A] [Module R A] [aA : TopologicalSpace A] [I
 variable {B : Type*} [AddCommMonoid B] [Module R B] [aB : TopologicalSpace B] [IsModuleTopology R B]
 variable {C : Type*} [AddCommMonoid C] [Module R C] [aC : TopologicalSpace C] [IsModuleTopology R C]
 
--- pin: Module.continuous_bilinear_of_finite_free (Definitions/Def_Mathlib_IsModuleTopology.lean:147)
 theorem Module.continuous_bilinear_of_finite_free [IsTopologicalSemiring R] [Module.Finite R A]
     [Module.Free R A] (bil : A →ₗ[R] B →ₗ[R] C) :
     Continuous (fun ab ↦ bil ab.1 ab.2 : (A × B → C)) := by
@@ -256,7 +242,6 @@ variable [TopologicalSpace D] [IsModuleTopology R D]
 open scoped TensorProduct
 
 include R in
--- pin: topologicalSemiring (Definitions/Def_Mathlib_IsModuleTopology.lean:186)
 lemma topologicalSemiring : IsTopologicalSemiring D where
   continuous_add := (toContinuousAdd R D).1
   continuous_mul := continuous_mul_of_finite R D
@@ -269,7 +254,6 @@ variable (R S : Type*)
   [CommRing R] [TopologicalSpace R]
   [CommRing S] [TopologicalSpace S] [IsTopologicalRing S] [Algebra R S]
 
--- pin: iff_Continuous_algebraMap (Definitions/Def_Mathlib_IsModuleTopology.lean:222)
 lemma iff_Continuous_algebraMap :
     IsTopologicalModule R S ↔ Continuous (algebraMap R S) := by
   refine ⟨fun _ ↦ continuous_algebraMap R S, fun h ↦ ?_⟩
@@ -284,7 +268,6 @@ section trans
 
 variable (R : Type*) [CommRing R] [TopologicalSpace R]
 
--- pin: isTopologicalModule (Definitions/Def_Mathlib_IsModuleTopology.lean:236)
 theorem isTopologicalModule
     (M : Type*) [AddCommGroup M] [TopologicalSpace M] [Module R M]
     [IsModuleTopology R M] : IsTopologicalModule R M where
@@ -295,7 +278,6 @@ variable (S : Type*) [CommRing S] [TopologicalSpace S] [Algebra R S]
 
 variable (M : Type*) [AddCommGroup M] [Module R M] [Module S M] [IsScalarTower R S M]
 
--- pin: Algebra.moduleTopology_le (Definitions/Def_Mathlib_IsModuleTopology.lean:246)
 lemma _root_.Algebra.moduleTopology_le [IsTopologicalModule R S] :
     moduleTopology R M ≤ moduleTopology S M := by
   letI : TopologicalSpace M := moduleTopology S M
@@ -307,7 +289,6 @@ lemma _root_.Algebra.moduleTopology_le [IsTopologicalModule R S] :
     simpa [← algebra_compatible_smul S]
   fun_prop
 
--- pin: moduleTopology.trans (Definitions/Def_Mathlib_IsModuleTopology.lean:257)
 lemma _root_.moduleTopology.trans [IsTopologicalRing R] [Module.Finite R S] [IsModuleTopology R S] :
     moduleTopology R M = moduleTopology S M := by
   have := IsModuleTopology.isTopologicalModule
@@ -333,7 +314,6 @@ lemma _root_.moduleTopology.trans [IsTopologicalRing R] [Module.Finite R S] [IsM
   }
   exact continuous_bilinear_of_finite_left bil
 
--- pin: trans (Definitions/Def_Mathlib_IsModuleTopology.lean:282)
 lemma trans [IsTopologicalRing R] [Module.Finite R S] [IsModuleTopology R S]
     [τ : TopologicalSpace M] :
     IsModuleTopology R M ↔ IsModuleTopology S M := by
@@ -349,7 +329,6 @@ variable (R S : Type*)
 
 open scoped Topology in
 
--- pin: of_continuous_isOpenMap_algebraMap (Definitions/Def_Mathlib_IsModuleTopology.lean:297)
 theorem of_continuous_isOpenMap_algebraMap (hcont : Continuous (algebraMap R S))
     (hopen : IsOpenMap (algebraMap R S)) : IsModuleTopology R S where
   eq_moduleTopology' := by
@@ -398,19 +377,16 @@ variable {R M : Type*} [Ring R] [TopologicalSpace R]
   [AddCommGroup M] [Module R M] [TopologicalSpace M]
   (N : Type*) [AddCommGroup N] [Module R N] [TopologicalSpace N] [IsModuleTopology R N]
 
--- pin: of_isQuotientMap (Definitions/Def_Mathlib_IsModuleTopology.lean:345)
 theorem of_isQuotientMap (f : N →ₗ[R] M) (h : Topology.IsQuotientMap f) : IsModuleTopology R M := by
   rw [iff, eq_coinduced_of_surjective h.surjective, h.eq_coinduced]
 
 variable [ContinuousAdd M] [ContinuousSMul R M]
 
--- pin: of_isOpenMap_surjective (Definitions/Def_Mathlib_IsModuleTopology.lean:350)
 theorem of_isOpenMap_surjective (f : N →ₗ[R] M) (h : IsOpenMap f) (hsurj : Function.Surjective f)
     : IsModuleTopology R M := by
   apply of_isQuotientMap N f
   refine IsOpenQuotientMap.isQuotientMap ⟨hsurj, continuous_of_linearMap f, h⟩
 
--- pin: of_inverse (Definitions/Def_Mathlib_IsModuleTopology.lean:355)
 theorem of_inverse (f : N →ₗ[R] M) (g : M → N) (hc : Continuous g) (hi : Function.LeftInverse f g)
     : IsModuleTopology R M := by
   apply of_isQuotientMap N f
@@ -418,7 +394,6 @@ theorem of_inverse (f : N →ₗ[R] M) (g : M → N) (hc : Continuous g) (hi : F
 
 end quotientMap
 
--- pin: continuousLinearEquiv (Definitions/Def_Mathlib_IsModuleTopology.lean:363)
 @[simps!]
 def continuousLinearEquiv {A B R : Type*} [TopologicalSpace A]
     [TopologicalSpace B] [TopologicalSpace R] [Semiring R] [AddCommMonoid A] [AddCommMonoid B]
@@ -434,7 +409,6 @@ def continuousLinearEquiv {A B R : Type*} [TopologicalSpace A]
     letI := IsModuleTopology.toContinuousAdd
     IsModuleTopology.continuous_of_linearMap e.symm.toLinearMap
 
--- pin: continuousLinearEquivOfIsBiscalar (Definitions/Def_Mathlib_IsModuleTopology.lean:377)
 def continuousLinearEquivOfIsBiscalar {A B : Type*} (S' : Type*) {S : Type*}
     [Semiring S'] [Semiring S] [AddCommMonoid A] [AddCommMonoid B] [Module S A]
     [Module S B] [Module S' A] [Module S' B] [TopologicalSpace A] [TopologicalSpace B]
@@ -451,7 +425,6 @@ def continuousLinearEquivOfIsBiscalar {A B : Type*} (S' : Type*) {S : Type*}
     letI := IsModuleTopology.toContinuousAdd
     exact IsModuleTopology.continuous_of_linearMap _
 
--- pin: continuousAlgEquivOfIsBiscalar (Definitions/Def_Mathlib_IsModuleTopology.lean:393)
 def continuousAlgEquivOfIsBiscalar {A B : Type*} (S' : Type*) {S : Type*}
     [CommSemiring A] [CommSemiring B] [CommSemiring S'] [CommSemiring S]
     [Algebra S A] [Algebra S B] [Algebra S' A] [Algebra S' B] [TopologicalSpace A]
@@ -470,7 +443,6 @@ def continuousAlgEquivOfIsBiscalar {A B : Type*} (S' : Type*) {S : Type*}
     letI := IsModuleTopology.toContinuousAdd
     exact IsModuleTopology.continuous_of_linearMap _
 
--- pin: continuousAlgEquivOfIsBiscalar_apply (Definitions/Def_Mathlib_IsModuleTopology.lean:412)
 @[simp]
 theorem continuousAlgEquivOfIsBiscalar_apply {A B : Type*} (S' : Type*) {S : Type*}
     [CommSemiring A] [CommSemiring B] [CommSemiring S'] [CommSemiring S]
@@ -480,7 +452,6 @@ theorem continuousAlgEquivOfIsBiscalar_apply {A B : Type*} (S' : Type*) {S : Typ
     continuousAlgEquivOfIsBiscalar S' e a = e a :=
   rfl
 
--- pin: continuousAlgEquivOfAlgEquiv (Definitions/Def_Mathlib_IsModuleTopology.lean:420)
 def continuousAlgEquivOfAlgEquiv {A B R : Type*} [TopologicalSpace A]
     [TopologicalSpace B] [TopologicalSpace R] [CommSemiring R] [Semiring A] [Semiring B]
     [Algebra R A] [Algebra R B] [IsModuleTopology R A] [IsModuleTopology R B]
@@ -494,7 +465,6 @@ def continuousAlgEquivOfAlgEquiv {A B R : Type*} [TopologicalSpace A]
     letI := IsModuleTopology.toContinuousAdd
     IsModuleTopology.continuous_of_linearMap e.symm.toLinearMap
 
--- pin: t2Space (Definitions/Def_Mathlib_IsModuleTopology.lean:433)
 theorem t2Space (R : Type*) {M : Type*} [Semiring R] [AddCommGroup M] [Module R M] [Module.Free R M]
     [TopologicalSpace R] [TopologicalSpace M] [T2Space R]
     [ContinuousAdd R] [ContinuousMul R] [IsModuleTopology R M]
@@ -514,7 +484,6 @@ theorem t2Space (R : Type*) {M : Type*} [Semiring R] [AddCommGroup M] [Module R 
   simp [map_eq_zero_iff g DFunLike.coe_injective,
     map_eq_zero_iff f (Module.Free.chooseBasis R M).repr.injective]
 
--- pin: t2Space' (Definitions/Def_Mathlib_IsModuleTopology.lean:452)
 theorem t2Space' {K V : Type*} [Field K] [AddCommGroup V] [Module K V]
     [TopologicalSpace K] [TopologicalSpace V] [T2Space K]
     [ContinuousAdd K] [ContinuousMul K] [mt : IsModuleTopology K V]
@@ -526,7 +495,6 @@ section locally_compact
 variable (R : Type*) [τR : TopologicalSpace R] [Ring R] [IsTopologicalRing R]
 variable {M : Type*} [AddCommGroup M] [Module R M] [TopologicalSpace M] [IsModuleTopology R M]
 
--- pin: locallyCompactSpaceOfFinite (Definitions/Def_Mathlib_IsModuleTopology.lean:463)
 theorem locallyCompactSpaceOfFinite [LocallyCompactSpace R] [Module.Finite R M] :
     LocallyCompactSpace M := by
   obtain ⟨n, φ, hφ⟩ := Module.Finite.exists_fin' R M
@@ -537,7 +505,6 @@ end locally_compact
 
 section ModuleFinite
 
--- pin: Module.Basis.equivFun_homeo (Definitions/Def_Mathlib_IsModuleTopology.lean:482)
 @[simps!]
 noncomputable
 def Module.Basis.equivFun_homeo (K R : Type*) [Field K] [Ring R] [Module K R]
@@ -555,7 +522,6 @@ end ModuleFinite
 
 section SecondCountableTopology
 
--- pin: Module.Finite.secondCountabletopology (Definitions/Def_Mathlib_IsModuleTopology.lean:497)
 lemma _root_.Module.Finite.secondCountabletopology (R M : Type*)
     [CommRing R] [TopologicalSpace R] [IsTopologicalRing R] [SecondCountableTopology R]
     [AddCommGroup M] [Module R M] [Module.Finite R M] [TopologicalSpace M]

@@ -8,8 +8,8 @@
   trivial `σ`.
 
   Transcribed from the pin's `Definitions/Def_AutomorphicForm_SigmaCentralizer.lean` (pinned
-  `aa2d8b3`, 61 lines / 6 declarations), whole and at the pin's names, with a `-- pin:`
-  provenance comment on every declaration.
+  `aa2d8b3`, 61 lines / 6 declarations), whole and at the pin's names; the module's wire is
+  the `spec-pin:` header below, so every declaration is statement-diffed against it.
 
   ## Substitutions against mathlib `v4.34.0`
 
@@ -23,6 +23,8 @@
   `import Mathlib.Tactic.Group` are already explicit.  The pin's implicit-variable option is
   dropped: the package's `lakefile.lean` already sets `autoImplicit` to `false` for the
   whole library and the edit loop passes `-DautoImplicit=false`.
+
+  spec-pin: Definitions/Def_AutomorphicForm_SigmaCentralizer.lean
 -/
 import Mathlib.GroupTheory.Subgroup.Centralizer
 import Mathlib.Tactic.Group
@@ -33,7 +35,6 @@ namespace AutomorphicForm
 
 variable {G : Type*} [Group G]
 
--- pin: sigmaCentralizer (Definitions/Def_AutomorphicForm_SigmaCentralizer.lean:10)
 def sigmaCentralizer (σ : G →* G) (δ : G) : Subgroup G where
   carrier := {t | t * δ * (σ t)⁻¹ = δ}
   one_mem' := by
@@ -56,30 +57,25 @@ def sigmaCentralizer (σ : G →* G) (δ : G) : Subgroup G where
       _ = a⁻¹ * (a * δ) := by rw [h2]
       _ = δ := by group
 
--- pin: mem_sigmaCentralizer_iff (Definitions/Def_AutomorphicForm_SigmaCentralizer.lean:32)
 @[simp] theorem mem_sigmaCentralizer_iff {σ : G →* G} {δ t : G} :
     t ∈ sigmaCentralizer σ δ ↔ t * δ * (σ t)⁻¹ = δ := Iff.rfl
 
--- pin: mem_sigmaCentralizer_iff_fixed (Definitions/Def_AutomorphicForm_SigmaCentralizer.lean:35)
 theorem mem_sigmaCentralizer_iff_fixed {σ : G →* G} {δ t : G} :
     t ∈ sigmaCentralizer σ δ ↔ δ * σ t * δ⁻¹ = t := by
   rw [mem_sigmaCentralizer_iff, mul_inv_eq_iff_eq_mul, mul_inv_eq_iff_eq_mul]
   exact eq_comm
 
--- pin: mem_sigmaCentralizer_iff_inv (Definitions/Def_AutomorphicForm_SigmaCentralizer.lean:40)
 theorem mem_sigmaCentralizer_iff_inv {σ : G →* G} {δ t : G} :
     t ∈ sigmaCentralizer σ δ ↔ t⁻¹ * δ * σ t = δ := by
   rw [mem_sigmaCentralizer_iff, mul_inv_eq_iff_eq_mul, mul_assoc, inv_mul_eq_iff_eq_mul]
   exact eq_comm
 
--- pin: sigmaCentralizer_id (Definitions/Def_AutomorphicForm_SigmaCentralizer.lean:45)
 theorem sigmaCentralizer_id (δ : G) :
     sigmaCentralizer (MonoidHom.id G) δ = Subgroup.centralizer {δ} := by
   ext t
   rw [mem_sigmaCentralizer_iff, Subgroup.mem_centralizer_singleton_iff, MonoidHom.id_apply,
     mul_inv_eq_iff_eq_mul]
 
--- pin: sigmaCentralizer_one_eq_bot (Definitions/Def_AutomorphicForm_SigmaCentralizer.lean:51)
 theorem sigmaCentralizer_one_eq_bot (δ : G) :
     sigmaCentralizer (1 : G →* G) δ = ⊥ := by
   ext t

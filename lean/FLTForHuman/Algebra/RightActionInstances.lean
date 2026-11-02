@@ -35,6 +35,8 @@
   repeat the `TensorProduct` namespace (`Module.TensorProduct.comm`,
   `Algebra.TensorProduct.basis`), so `linter.dupNamespace` is disabled as mathlib does in
   `Mathlib/RingTheory/TensorProduct/Maps.lean`.
+
+  spec-pin: Definitions/Def_Mathlib_RightActionInstances.lean
 -/
 import Mathlib.Algebra.Algebra.Equiv
 import Mathlib.Algebra.Module.LinearMap.Defs
@@ -69,7 +71,6 @@ variable (R S A B M : Type*) [CommSemiring R] [CommSemiring S] [AddCommMonoid M]
 scoped instance : SMul S (M ⊗[R] S) where
   smul s e := TensorProduct.comm _ _ _ (s • (TensorProduct.comm _ _ _ e))
 
--- pin: smul_def (Definitions/Def_Mathlib_RightActionInstances.lean:18)
 @[simp]
 lemma smul_def (r : S) (m : M ⊗[R] S) :
     r • m = (TensorProduct.comm _ _ _).symm (r • (TensorProduct.comm _ _ _ m)) := rfl
@@ -82,7 +83,6 @@ scoped instance : Module S (M ⊗[R] S) where
   add_smul := by simp [add_smul]
   zero_smul := by simp
 
--- pin: Algebra S (B ⊗[R] S) instance (Definitions/Def_Mathlib_RightActionInstances.lean:29)
 --
 -- Deliberately the pin's *explicit* body, not mathlib's `Algebra.TensorProduct.rightAlgebra`:
 -- the pin leaves `smul` implicit, so its `Algebra.toModule` is definitionally the scoped
@@ -112,7 +112,6 @@ scoped instance : Algebra S (B ⊗[R] S) where
         simp_all only [smul_def, AlgHom.toRingHom_eq_coe, RingHom.coe_coe,
           Algebra.TensorProduct.includeRight_apply, smul_add, mul_add]
 
--- pin: algebraMap_eval (Definitions/Def_Mathlib_RightActionInstances.lean:55)
 --
 -- `rfl` under the pin's explicit `Algebra` instance above (`algebraMap = includeRight.toRingHom`).
 -- W1 had substituted this row with mathlib's `Algebra.TensorProduct.right_algebraMap_apply`, which
@@ -120,7 +119,6 @@ scoped instance : Algebra S (B ⊗[R] S) where
 -- own statement valid again and that substitute inapplicable.
 @[simp] lemma algebraMap_eval (s : S) : algebraMap S (B ⊗[R] S) s = 1 ⊗ₜ s := rfl
 
--- pin: Module.TensorProduct.comm (Definitions/Def_Mathlib_RightActionInstances.lean:69)
 noncomputable def Module.TensorProduct.comm : A ⊗[R] M ≃ₗ[A] M ⊗[R] A where
   __ := (_root_.TensorProduct.comm R A M).toAddEquiv
   map_smul' a am := by
@@ -133,11 +131,9 @@ noncomputable def Module.TensorProduct.comm : A ⊗[R] M ≃ₗ[A] M ⊗[R] A wh
         RingHom.id_apply, smul_def, smul_add, map_add]
 
 variable {A N} in
--- pin: Module.TensorProduct.comm_apply_tmul (Definitions/Def_Mathlib_RightActionInstances.lean:83)
 @[simp] lemma Module.TensorProduct.comm_apply_tmul (a : A) (m : M) :
     Module.TensorProduct.comm R A M (a ⊗ₜ m) = m ⊗ₜ a := rfl
 
--- pin: Module.TensorProduct.comm_symm_apply_tmul (Definitions/Def_Mathlib_RightActionInstances.lean:86)
 @[simp] lemma Module.TensorProduct.comm_symm_apply_tmul (m : M) (a : A) :
     (Module.TensorProduct.comm R A M).symm (m ⊗ₜ a) = a ⊗ₜ m := rfl
 
@@ -158,7 +154,6 @@ scoped instance [TopologicalSpace A] [Module.Finite R M] :
 scoped instance [TopologicalSpace A] [Module.Finite R M] :
   IsModuleTopology A (M ⊗[R] A) := ⟨rfl⟩
 
--- pin: LinearMap.baseChange (Definitions/Def_Mathlib_RightActionInstances.lean:107)
 noncomputable abbrev LinearMap.baseChange (R : Type*) [CommRing R]
     (V W : Type*) [AddCommGroup V] [Module R V] [AddCommGroup W] [Module R W]
     (A : Type*) [CommRing A] [Algebra R A]
@@ -167,7 +162,6 @@ noncomputable abbrev LinearMap.baseChange (R : Type*) [CommRing R]
     (_root_.LinearMap.baseChange A φ) ∘ₗ
     (Module.TensorProduct.comm R A V).symm
 
--- pin: LinearMap.baseChange_id (Definitions/Def_Mathlib_RightActionInstances.lean:116)
 @[simp]
 lemma LinearMap.baseChange_id (R : Type*) [CommRing R]
     (V : Type*) [AddCommGroup V] [Module R V]
@@ -176,7 +170,6 @@ lemma LinearMap.baseChange_id (R : Type*) [CommRing R]
   ext
   simp
 
--- pin: LinearMap.baseChange_comp (Definitions/Def_Mathlib_RightActionInstances.lean:123)
 theorem LinearMap.baseChange_comp (R : Type*) [CommRing R]
     (U V W : Type*) [AddCommGroup U] [Module R U] [AddCommGroup V] [Module R V]
     [AddCommGroup W] [Module R W] (A : Type*) [CommRing A] [Algebra R A]
@@ -186,7 +179,6 @@ theorem LinearMap.baseChange_comp (R : Type*) [CommRing R]
   ext
   simp [_root_.LinearMap.baseChange_comp]
 
--- pin: LinearEquiv.baseChange (Definitions/Def_Mathlib_RightActionInstances.lean:135)
 noncomputable abbrev LinearEquiv.baseChange (R : Type*) [CommRing R]
     (V W : Type*) [AddCommGroup V] [Module R V] [AddCommGroup W] [Module R W]
     (A : Type*) [CommRing A] [Algebra R A]
@@ -203,7 +195,6 @@ noncomputable abbrev LinearEquiv.baseChange (R : Type*) [CommRing R]
     change ((LinearMap.baseChange R V W A φ) ∘ₗ (LinearMap.baseChange R W V A φ.symm)) y = _
     simp [LinearMap.baseChange_comp]
 
--- pin: AlgebraMap.baseChange (Definitions/Def_Mathlib_RightActionInstances.lean:151)
 noncomputable def AlgebraMap.baseChange (R : Type*) [CommRing R]
     (B C : Type*) [Ring B] [Algebra R B] [Ring C] [Algebra R C]
     (A : Type*) [CommRing A] [Algebra R A]
@@ -212,7 +203,6 @@ noncomputable def AlgebraMap.baseChange (R : Type*) [CommRing R]
   commutes' a := by
     simp [Algebra.TensorProduct.map_tmul]
 
--- pin: Algebra.TensorProduct.basis (Definitions/Def_Mathlib_RightActionInstances.lean:158)
 def Algebra.TensorProduct.basis {R : Type*} (A : Type*) {M : Type*} {ι : Type*}
     [CommSemiring R] [CommSemiring A] [Algebra R A] [AddCommMonoid M] [Module R M]
     (b : Module.Basis ι R M) :
@@ -228,7 +218,6 @@ variable (R A B M : Type*) [CommRing R]
     [Ring B] [Algebra R B]
     [AddCommGroup M] [Module R M]
 
--- pin: instIsTopologicalAddGroup (Definitions/Def_Mathlib_RightActionInstances.lean:173)
 scoped instance [TopologicalSpace A] [Module.Finite R M] :
     IsTopologicalAddGroup (M ⊗[R] A) := IsModuleTopology.isTopologicalAddGroup A (M ⊗[R] A)
 

@@ -15,6 +15,8 @@
   name.  The only proof change is that mathlib `v4.34.0` registers
   `TensorProduct.inductionOn` (no `zero` alternative) as the induction eliminator, so the
   pin's separate `zero` case in `leftModuleTensorEquiv` is dropped.
+
+  spec-pin: Definitions/Def_Mathlib_RingTheory_Localization_BaseChange.lean
 -/
 import Mathlib.Algebra.Algebra.Equiv
 import Mathlib.LinearAlgebra.TensorProduct.Basic
@@ -34,18 +36,15 @@ variable {R : Type*} [CommSemiring R] (S : Submonoid R)
   (A : Type*) [CommSemiring A] [Algebra R A] [IsLocalization S A]
   (M₁ : Type*) [AddCommMonoid M₁] [Module R M₁] [Module A M₁] [IsScalarTower R A M₁]
 
--- pin: moduleLid_symm_apply (Definitions/Def_Mathlib_RingTheory_Localization_BaseChange.lean:13)
 @[simp]
 lemma moduleLid_symm_apply (m : M₁) : (moduleLid S A M₁).symm m = 1 ⊗ₜ[R] m := rfl
 
 variable (M₂ : Type*) [AddCommMonoid M₂] [Module R M₂] [Module A M₂] [IsScalarTower R A M₂]
 
--- pin: map_moduleTensorEquiv_tmul (Definitions/Def_Mathlib_RingTheory_Localization_BaseChange.lean:18)
 @[simp]
 lemma map_moduleTensorEquiv_tmul (m₁ : M₁) (m₂ : M₂) :
     moduleTensorEquiv S A M₁ M₂ (m₁ ⊗ₜ[A] m₂) = m₁ ⊗ₜ[R] m₂ := rfl
 
--- pin: map_moduleTensorEquiv_symm_tmul (Definitions/Def_Mathlib_RingTheory_Localization_BaseChange.lean:22)
 @[simp]
 lemma map_moduleTensorEquiv_symm_tmul (m₁ : M₁) (m₂ : M₂) :
     (moduleTensorEquiv S A M₁ M₂).symm (m₁ ⊗ₜ[R] m₂) = m₁ ⊗ₜ[A] m₂ := rfl
@@ -65,7 +64,6 @@ variable {A : Type*} [CommSemiring A] (S : Submonoid A)
   (P : Type*) [AddCommMonoid P] [Module K P]
 
 include S in
--- pin: tensorProduct_ext (Definitions/Def_Mathlib_RingTheory_Localization_BaseChange.lean:40)
 theorem tensorProduct_ext {g h : L ⊗[K] M →ₗ[K] P}
     (H : ∀ (x : B) (y : M), g ((algebraMap _ L x) ⊗ₜ[K] y) = h ((algebraMap _ L x) ⊗ₜ[K] y))
     : g = h := by
@@ -76,7 +74,6 @@ theorem tensorProduct_ext {g h : L ⊗[K] M →ₗ[K] P}
   rw [← IsUnit.smul_left_cancel <| map_units K s]
   simpa [← map_smul, TensorProduct.smul_tmul', IsScalarTower.algebraMap_smul K, hl] using H x m
 
--- pin: leftModuleTensorEquiv (Definitions/Def_Mathlib_RingTheory_Localization_BaseChange.lean:51)
 @[simps!]
 noncomputable def leftModuleTensorEquiv {R : Type*} (M' : Type*)
     [Semiring M'] [CommSemiring R] (S : Submonoid R) (A : Type*) [CommSemiring A] [Algebra R A]
@@ -91,7 +88,6 @@ noncomputable def leftModuleTensorEquiv {R : Type*} (M' : Type*)
     | tmul m₁ m₂ => simp [TensorProduct.smul_tmul']
     | add => simp_all
 
--- pin: leftModuleTensorEquiv_restrictScalars_eq (Definitions/Def_Mathlib_RingTheory_Localization_BaseChange.lean:66)
 lemma leftModuleTensorEquiv_restrictScalars_eq {R M' : Type*} [CommSemiring M']
     [CommSemiring R] (S : Submonoid R) (A : Type*) [CommSemiring A] [Algebra R A] [Algebra A M']
     [Algebra M' R] [IsLocalization S A] (M₁ : Type*) (M₂ : Type*) [AddCommMonoid M₁]
