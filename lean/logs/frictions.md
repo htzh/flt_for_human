@@ -2070,3 +2070,171 @@ round promotes what generalizes.
   `move_dead --select dead` reads 0 / 0 afterwards. The module's one remaining dedup cluster is the
   pin's `stable`/`stable + centreCut` two-statement pattern and stays.
 - **seen**: 2026-11-02, SET-AF4 §1.5.
+
+## FR-0102 [tooling] [metadata] — a promoted declaration in a `Def_` module needs the **`Thm_`** wire, and the checker's normaliser does not add binders or strip namespaces
+
+- **where**: SET-AF5's G1/G2, the manager's two promotions into the legacy `Def_` modules
+  `AutomorphicForm/Adelic/ConstantTerm.lean` and `AutomorphicForm/Adelic/RightConvolution.lean`
+  ([topics/automorphicForm/SET-AF5.md](topics/automorphicForm/SET-AF5.md) §1.5).
+- **symptom (a)**: the module was wired with three `spec-pin:` lines — its `Definitions/Def_…` source,
+  the promoted theorem's `P2M/Sol/S_…` copy, and nothing else — and `check_port` reported the new
+  theorem **`MISSING (no match)`**, not a mismatch. An `S_` source's declaration is the `solution`
+  of `P2MW.S_<stem>`, and the checker keys a promoted headline to the **`Theorems/Thm_…`** wrapper
+  (the recipe's migration table writes such modules with a `Thm_` + `S_` pair for exactly this reason).
+  Adding the `Thm_` line turned `MISSING` into `MISMATCH`, i.e. it started diffing.
+- **symptom (b)**: two `MISMATCH`es then, both purely textual:
+  (i) the port wrote `Continuous fun x : R => (unipotentGL2 x : GL (Fin 2) R)` where the wrapper writes
+  `Continuous fun x : R => AutomorphicForm.unipotentGL2 x` — the type ascription *and* the namespace
+  prefix are part of the diff, and the normaliser strips neither;
+  (ii) the port transcribed the lemma with the module's section variables
+  (`variable (K : Type) [Field K] [NumberField K]` in scope, as `rightConv_comp_mul_left` does) where
+  the `S_` file's statement writes them **inline** (`(K : Type) [Field K] [NumberField K] …`). The
+  section-variable form is *not* normalised into the inline one on a `Thm_`/`S_` wire — it is `ok`
+  against a `Def_` source only because the pin's `Def_` file also uses a section variable.
+- **fix**: for a promotion into a `Def_` module, wire **`Definitions/Def_…` + `Theorems/Thm_…` +
+  `P2M/Sol/S_…`**, and write the statement with the *wrapper's* exact text: explicit binder block when
+  the wrapper has one (shadowing the section variable is legal and is what the checker wants), the
+  fully qualified name when the wrapper spells it out, and no type ascription the wrapper does not have.
+- **rule**: the checker is text-first, so a promotion's statement is a *quotation of the wrapper*, not a
+  paraphrase in the module's local style; and `MISSING (no match)` on a declaration you just wrote is a
+  **wire** symptom, not a statement symptom — read the wire before editing the statement.
+- **seen**: 2026-11-02, SET-AF5 §1.5 (three checker runs to get from `MISSING` to `ok`).
+
+## FR-0103 [port] [method] — a "cheap" 28-line leaf can be the pin node of a development the port already wrote **k times**: port the general statement once and delete the copies
+
+- **where**: SET-AF5's G1, `AutomorphicForm.continuous_unipotentGL2`
+  ([topics/automorphicForm/SET-AF5.md](topics/automorphicForm/SET-AF5.md) §1.5). `port_advise` prices
+  the row at **17 net** with **0 substitutions** and **0 already in the port**.
+- **symptom**: both zeroes are true and both are misleading. The pin states the node at a general
+  `CommRing R`; the port held its `R := AdeleRing (𝓞 F) F` instance **three times** —
+  `continuous_unipotentGL2_adele` (`Cusp/SpectrumCarrier.lean`, public, 15 lines),
+  `continuous_unipotentGL2'` (`WeylIntegrable/Assembly.lean`, public, 14, registered in
+  `UNWIRED-PUBLIC`) and `private continuous_unipotentGL2` (`InducedSectionMaximalCompact.lean`, 13).
+  `port_advise` is name-anchored and statement-anchored, so three *specialisations* under two other
+  names and one shadowing name are invisible to it; and the third copy is why the pin node had been
+  reading as **ported** since SET-AF2 (FR-0095's shadow), which is why the row looked free.
+- **fix**: write the general statement in the module that defines the object it is about (here
+  `Adelic/ConstantTerm.lean`, next to `unipotentGL2`), then delete every specialised copy and rewrite
+  its call sites as `(continuous_unipotentGL2 (R := …))` — one term each. 17 lines written, 36 deleted,
+  and the FR-0095 shadow disappears at the root: the pin node is ported by a declaration the checker
+  diffs against its `Thm_` wrapper and reports `ok`, so the `--unport` correction every read since
+  SET-AF2 needed is retired.
+- **rule**: before accepting "0 already in the port" for a leaf, `grep -rn 'theorem <last name>'` and
+  `grep -rn '<last name>'` over the port tree and read what the hits *state*; a hit at a specialised
+  type is a duplicate to delete, not a supply to use. And when the same last name is `private` in one
+  module, that module is the shadow — the cure is a public general statement, never a permanent
+  `--unport`.
+- **seen**: 2026-11-02, SET-AF5 §0.2/§1.5/§8.2.
+
+## FR-0104 [tooling] — `move_dead` reads liveness by dotted-name reference, so a `private abbrev …` used only by `attribute [local instance]` reports as dead
+
+- **where**: SET-AF5's W1, `AutomorphicForm/Adelic/RightConvRegularity.lean`
+  ([topics/automorphicForm/SET-AF5.md](topics/automorphicForm/SET-AF5.md) §1.6). The module keeps the
+  pin's wall verbatim: `private abbrev instNG : NormedAddCommGroup (mixedEmbedding.mixedSpace K) :=
+  inferInstance`, the same for `instNS : NormedSpace ℝ …`, and then
+  `attribute [local instance] instNG` / `instNS`.
+- **symptom**: `move_dead.py --dry-run` reports **2 declarations / 5 lines** dead. Both are
+  load-bearing: the attribute lines are the only *reference*, they name the abbrevs and the proof does
+  not mention either again, so a reference scan finds no use. Acting on the report deletes the local
+  instances and the module stops elaborating (`hasFDerivAt_integral_of_dominated_of_fderiv_le` cannot
+  find the normed structure on the mixed space).
+- **fix**: read the report's declarations before moving them, and treat `attribute`/`local instance` as
+  a use. Here nothing was moved: real dead = 0.
+- **rule**: on a module carrying a pin `local instance`/`attribute` wall (the `instNG`/`instNS`,
+  `letI`/`haveI` class of FR-0036-adjacent transparencies), `move_dead`'s dead list is **advisory**;
+  the gate is "does the module still build after the move", so apply it on a copy (`--copy`) or not at
+  all. A tool that cannot see `attribute` references must not be the last word on dead code.
+- **seen**: 2026-11-02, SET-AF5 §1.6.
+
+## FR-0105 [proof] [drift] — `AdeleRing` is a semireducible `def`, not an `abbrev`, so `rw` cannot key a lemma about it at implicit transparency
+
+- **where**: SET-AF5's W1, the private helpers `glArch_unipotent`/`glFin_unipotent`
+  ([topics/automorphicForm/SET-AF5.md](topics/automorphicForm/SET-AF5.md) §1.6). The pin writes
+  `AdelicLevel.glArch (𝓞 K) K (unipotentGL2 ((a, b) : AdeleRing (𝓞 K) K))` and closes with
+  `rw [AdelicLevel.glArch_apply, unipotentGL2_coe, unipotentGL2_coe]`.
+- **symptom**: the `unipotentGL2_coe` rewrite fails with
+  `Application type mismatch: the argument (a, b) has type InfiniteAdeleRing K × FiniteAdeleRing (𝓞 K) K
+  but is expected to have type AdeleRing (𝓞 K) K`. Cause: mathlib declares
+  `AdeleRing R K := InfiniteAdeleRing K × FiniteAdeleRing R K` as a **`def`** in mathlib's
+  `NumberTheory/NumberField/AdeleRing.lean:50` (semireducible), while `rw`'s keyed matching runs at
+  *implicit* transparency. So `unipotentGL2 ((a, b) : AdeleRing …)` does
+  not key against the `R := `-polymorphic `unipotentGL2_coe`, and `(a, b)` is not accepted where the
+  elaborated type is the `def`'s.
+- **fix**: state the argument with the instance explicit —
+  `unipotentGL2 (R := AdeleRing (𝓞 K) K) (a, b)` — and close by
+  `ext i j; rw [AdelicLevel.gl{Arch,Fin}_apply]; fin_cases i <;> fin_cases j <;> rfl`, i.e. **without**
+  the `_coe` rewrite. Content and statement are unchanged; the downstream rewrites in
+  `archEntries_slice` still key on the two lemmas by name.
+- **rule**: when an upstream `def` stands where the pin's `abbrev` did (a `Type`-level unfolding a
+  proof is expected to rewrite through), either `abbrev` it in the port or give the transcribing proof
+  an explicit-`R` statement that never asks `rw` to see through the `def` — the second is cheaper, safe
+  for a private helper, and is what this landing did. The same class produced the `local instance` transparencies of FR-0104.
+- **seen**: 2026-11-02, SET-AF5 §1.6.
+
+## FR-0106 [method] [tooling] — a set's forecast is its **closure** return, not the sum of its rows' `return`: the set's own consumer is invisible to a per-row scan
+
+- **where**: SET-AF6's §8 forecast ([topics/automorphicForm/SET-AF6.md](topics/automorphicForm/SET-AF6.md)),
+  written before its one worker order was dispatched, and the re-read after it landed.
+- **symptom**: every figure the cut controls came out exact — `needed` **896 / 367,956**, `literal`
+  909 / 371,431, frontier **1,519 / 759,410** — but the ready block missed by **one row / 779 silo**:
+  41 / 22,039 forecast, 42 / 22,818 measured. The set readied **two** rows, not one:
+  `isFactorizableTestFn_leftCasimir_and_rightConv_mem_of_isArchBiFinite_ofChar` (214, visible to both
+  rows' returns) **and** `archCasimirAt_rightConv_of_isFactorizableTestFn_of_continuous_archDerivAt`
+  (**779**), whose unported premise set was *both* of the set's rows. A row that needs the whole set is
+  the set's **consumer**, and it appears in **no** single row's `return`.
+- **cause**: the brief's arithmetic summed `return(R1) + return(R2)`, which by definition only sees rows
+  whose missing set is a singleton. SET-AF4 §8 hit the identical blindness *after* its landing ("a
+  thirteenth row… had no single unported premise, it had several, all inside the set"); SET-AF6 is the
+  same failure **before** it, i.e. the instrument was known to be blind and the forecast still used it.
+- **fix / rule**: forecast with
+  `return(set) = Σ silo of the unported cone rows whose unported premise set ⊆ set`,
+  computed over the set (the same graph query, one predicate changed), and quote the per-row `return`
+  only as the *ranking* aid it is. Two corollaries: a set with a *single* row is the same computation
+  (which is why SET-AF4's earlier forecasts held), and a set whose consumer chain is two deep (A → B → C
+  inside the set) needs the ⊆ form or it undercounts twice.
+- **seen**: 2026-11-02, SET-AF6 §8 (the re-read), with SET-AF4 §8 as the precedent.
+
+## FR-0107 [port] [drift] — a promoted helper's content name can collide with a Mathlib name; and two more v4.34 spellings the arch-derivative rows hit
+
+- **where**: SET-AF6's R1/R2 ([topics/automorphicForm/SET-AF6.md](topics/automorphicForm/SET-AF6.md)
+  §1.6), transcribing pin `aa2d8b3`'s two `S_` files against mathlib `v4.34.0`.
+- **symptom (a), the naming one**: `IsFactorizableTestFn.liftM` (the port's content name for the pin's
+  `e8l5M`) is **ambiguous with `_root_.liftM`** inside a `simp only` list — `simp only` resolves a bare
+  name against the opened namespaces *and* the root, and both exist. The declaration must be written
+  `simp only [IsFactorizableTestFn.liftM, …]`. Nothing is wrong with the promotion; the collision is the
+  price of a content name that is also a common monadic one, and it will hit the next consumer of the
+  engine (SET-AF7).
+- **symptom (b)**: two spellings the pin uses are gone in v4.34 —
+  `by_cases h : p <;> rw [if_pos h]` / `[if_neg h]` are now `ite_eq_left` / `ite_eq_right` (the
+  `if_pos`/`if_neg` aliases are deprecated, so the rewrite fails the `-DwarningAsError`-clean build);
+  and `hasFDerivAt_integral_of_dominated_of_fderiv_le`'s `(x₀ := e₀)` no longer names a binder, so the
+  call takes `(𝕜 := ℝ)` and passes the point positionally (AF5's use of the same lemma already did).
+- **rule**: a *promotion* inherits its own naming risk — before promoting a `private` helper at a
+  content name, grep the root namespace for the same name (`liftM`, `lift`, `map`, `id`); and when a
+  transcribed proof rewrites a *deprecated alias* (`if_pos`, `push_neg`, `Set.mem_setOf_eq`), expect the
+  build to be silent but the rewrite to fail, and check FR-0036's list first.
+- **seen**: 2026-11-02, SET-AF6 §1.6 (deviations 2 and 3).
+
+## FR-0108 [tooling] [method] — cutting a dead declaration by hand from one declaration to the next swallows the sections and variables in between; cut to the end of the **body**
+
+- **where**: SET-AF6's §1.7 triage, the deletion of the pin's dead `l5_continuous_rightConv` (56 lines)
+  from `AutomorphicForm/Adelic/ArchDerivRightConv{,Complex}.lean`
+  ([topics/automorphicForm/SET-AF6.md](topics/automorphicForm/SET-AF6.md) §1.7).
+- **symptom**: the cut was computed as "from the declaration's start line to the *next declaration's*
+  start line", which is correct only when nothing but the body sits between them. Here the next
+  declaration was `private structure TcFamily` **five blocks later**, so the cut also removed
+  `end TestData`, `section EngineBridge`, `open MeasureTheory Metric Set`, `section Engine` and the two
+  `variable` lines (`{X} [MeasurableSpace X] (ν : Measure X)`, `{Y} [NormedAddCommGroup Y] …`). The
+  module then failed 60 lines further down with `Unknown identifier X / Y / ν` (three errors, none of
+  them near the cut), and the repair cost a re-derivation of the section skeleton from the pin.
+- **cause**: exactly the failure `move_dead.py`'s own docstring warns about — *"span ≠ text: `end_line`
+  runs to the next declaration; a section's `end`, `open`, or attribute between them is inside that
+  span. Cut by `body_end`, and never let a moved block contain a column-0
+  `namespace`/`section`/`end`"*; it is the reason the tool computes `body_end` at all.
+- **rule**: hand-cut a dead declaration to the **last line of its body** (the first following column-0
+  line that is a structural keyword — `end`/`section`/`namespace`/`open`/`variable`/`attribute`/a new
+  declaration — and stop *before* it), or, better, let `move_dead` do it: `--select names --names <n>`
+  moves exactly one declaration with its premises. And when a `set_option linter.… false in` line sits
+  immediately above a cut declaration, it belongs to it and goes too — but the same line above the
+  *next* declaration must be re-checked afterwards, since the cut's neighbours shift.
+- **seen**: 2026-11-02, SET-AF6 §1.7 (one repair cycle, both modules).

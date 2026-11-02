@@ -4825,12 +4825,10 @@ PORT_FILES = [
     "FLTForHuman/RepTheory/ContinuousSMulDiscrete.lean",
     "FLTForHuman/AutomorphicForm/Adelic/Basic.lean",
     "FLTForHuman/AutomorphicForm/Adelic/LsXi.lean",
-    "FLTForHuman/AutomorphicForm/Adelic/ConstantTerm.lean",
     # --- PORTING-AutomorphicForm D2: smooth vectors. Appended last.
     "FLTForHuman/RepTheory/SmoothVectors.lean",
     # --- PORTING-AutomorphicForm D4: carrier pins and right convolution. Appended last.
     "FLTForHuman/AutomorphicForm/Adelic/CarrierPins.lean",
-    "FLTForHuman/AutomorphicForm/Adelic/RightConvolution.lean",
     # --- PORTING-AutomorphicForm D5: automorphic / smooth automorphic functions. Appended last.
     "FLTForHuman/AutomorphicForm/Adelic/AutomorphicFn.lean",
     "FLTForHuman/AutomorphicForm/Adelic/SmoothAutomorphicFn.lean",

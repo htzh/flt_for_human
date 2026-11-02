@@ -7,15 +7,27 @@
   translate `g ↦ q ↦ f (u q * g)`, and `IsCuspidalFn` is its vanishing — the
   definition of a cuspidal function that the automorphic layer specializes.
 
-  Transcribed verbatim from `Definitions/Def_AutomorphicForm_ConstantTerm.lean`
-  (pinned `aa2d8b3`). The pin's `import Mathlib` is replaced by the specific
-  modules the file uses; the pin's `private` helper stays `private`.
+  The embedding is continuous in its additive coordinate (`continuous_unipotentGL2`),
+  at the pin's general ring — the statement of the pin's `S_` file, whose three
+  specialised copies in the port's later modules this one replaces.
+
+  Transcribed verbatim from `Definitions/Def_AutomorphicForm_ConstantTerm.lean`,
+  and `continuous_unipotentGL2` from
+  `P2M/Sol/S_AutomorphicForm_continuous_unipotentGL2.lean` (pinned `aa2d8b3`). The
+  pin's `import Mathlib` is replaced by the specific modules the file uses; the
+  pin's `private` helper stays `private`.
+
+  spec-pin: Definitions/Def_AutomorphicForm_ConstantTerm.lean
+  spec-pin: Theorems/Thm_AutomorphicForm_continuous_unipotentGL2.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_continuous_unipotentGL2.lean
 -/
 import Mathlib.LinearAlgebra.Matrix.Notation
 import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Defs
 import Mathlib.MeasureTheory.Integral.Bochner.Basic
 import Mathlib.MeasureTheory.Measure.ProbabilityMeasure
 import Mathlib.Analysis.Complex.Basic
+import Mathlib.Topology.Instances.Matrix
+import Mathlib.Topology.Algebra.Group.Units
 
 set_option autoImplicit false
 
@@ -55,6 +67,27 @@ def unipotentGL2Hom : Multiplicative R →* GL (Fin 2) R where
   map_mul' x y := unipotentGL2_add x.toAdd y.toAdd
 
 end Unipotent
+
+section UnipotentContinuity
+
+/-- The upper unitriangular embedding `x ↦ !![1, x; 0, 1]` is continuous in `x`: both
+matrix entries are affine in `x` and so is the inverse's entry `-x`. -/
+theorem continuous_unipotentGL2 {R : Type*} [CommRing R] [TopologicalSpace R]
+    [ContinuousNeg R] : Continuous fun x : R => AutomorphicForm.unipotentGL2 x := by
+  have hval : Continuous fun x : R =>
+      ((unipotentGL2 x : GL (Fin 2) R) : Matrix (Fin 2) (Fin 2) R) := by
+    refine continuous_matrix fun i j => ?_
+    simp only [unipotentGL2_coe]
+    fin_cases i <;> fin_cases j <;> simp <;> fun_prop
+  refine Units.continuous_iff.2 ⟨hval, ?_⟩
+  have hinv : ∀ x : R,
+      (↑(((unipotentGL2 x : GL (Fin 2) R))⁻¹) : Matrix (Fin 2) (Fin 2) R) = !![1, -x; 0, 1] :=
+    fun x => rfl
+  simp only [hinv]
+  refine continuous_matrix fun i j => ?_
+  fin_cases i <;> fin_cases j <;> simp <;> fun_prop
+
+end UnipotentContinuity
 
 section ConstantTerm
 

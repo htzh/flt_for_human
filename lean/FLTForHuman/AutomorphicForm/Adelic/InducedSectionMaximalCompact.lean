@@ -487,17 +487,6 @@ private theorem mem_borel_of_unit (g : AdelicGL2 (𝓞 F) F) (c : (AdeleRing (�
   rw [← hc, ← mul_assoc, Units.mul_inv, one_mul]
   ring
 
-private theorem continuous_unipotentGL2 :
-    Continuous (fun y : AdeleRing (𝓞 F) F => (unipotentGL2 y : AdelicGL2 (𝓞 F) F)) := by
-  refine Units.continuous_iff.mpr ⟨?_, ?_⟩
-  · refine continuous_pi fun i => continuous_pi fun j => ?_
-    fin_cases i <;> fin_cases j <;> simp [unipotentGL2_coe] <;> fun_prop
-  · have : ∀ y : AdeleRing (𝓞 F) F, (↑((unipotentGL2 y : AdelicGL2 (𝓞 F) F)⁻¹) :
-        Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 F) F)) = !![1, -y; 0, 1] := fun y => rfl
-    simp_rw [this]
-    refine continuous_pi fun i => continuous_pi fun j => ?_
-    fin_cases i <;> fin_cases j <;> simp <;> fun_prop
-
 private theorem entry10_mul_lower (g : AdelicGL2 (𝓞 F) F) (y : AdeleRing (𝓞 F) F) :
     ((g * (adelicWeyl (𝓞 F) F * unipotentGL2 y * adelicWeyl (𝓞 F) F) : AdelicGL2 (𝓞 F) F) :
         Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 F) F)) 1 0 =
@@ -629,7 +618,7 @@ private theorem witness_main (α : (AdeleRing (𝓞 F) F)ˣ →* ℝˣ) (hα : �
   set gy : AdeleRing (𝓞 F) F → AdelicGL2 (𝓞 F) F :=
     fun y => g₁ * (adelicWeyl (𝓞 F) F * unipotentGL2 y * adelicWeyl (𝓞 F) F) with hgydef
   have hgyc : Continuous gy :=
-    continuous_const.mul ((continuous_const.mul (continuous_unipotentGL2 F)).mul continuous_const)
+    continuous_const.mul ((continuous_const.mul (continuous_unipotentGL2 (R := AdeleRing (𝓞 F) F))).mul continuous_const)
   have hWW : adelicWeyl (𝓞 F) F * adelicWeyl (𝓞 F) F = 1 := mul_eq_one_iff_eq_inv.mpr (adelicWeyl_inv F).symm
   have hgy0 : gy 0 = g₁ := by simp only [hgydef, unipotentGL2_zero, mul_one, hWW]
   set V : Set (AdeleRing (𝓞 F) F) := {y | φ (gy y) ≠ 0} with hVdef

@@ -1,52 +1,40 @@
 /-
-  The archimedean **left**-derivative half of the factorizable-test-function chart, copied
-  out of `FLTForHuman.AutomorphicForm.Adelic.FactorizableTestFnArchSmooth` — the declarations
-  its headline does not reach, with the private premises they need.
+  The **left**-derivative half of the archimedean chart for a factorisable test function.
 
-  The FTF1 pair is one development written twice: a left half (the pin's `e8l5*` declarations
-  and `e8leftDeriv`) and a right half (`e8r5*`). Only the right half is on the port's critical
-  path — `AutomorphicForm.IsFactorizableTestFn.isArchSmoothAt_and_archDerivAt_eq_tensor` never
-  reaches a left-derivative declaration, and neither did the pin, whose `solution` calls
-  `e8r5_main` alone. The port carried the left half as the pin's text until 2026-10-23, when
-  the 25 unreachable declarations were cut from the live module and copied here, together with
-  the 43 private chart/lift/multiplier premises they rest on, so that this file imports only
-  the port's public API and never the module they came from (`tools/deps/move_dead.py --copy`).
+  `FactorizableTestFnArchSmooth` proves the right half of the pin's one development: for a real
+  place `w`, `α` is archimedean-smooth and `archDerivAt hw d α` is again a tensor with the same
+  finite factor. This module is the **left** half of the same chart — the pin's `e8l5*` layer and
+  `e8leftDeriv` — which that headline never reaches and which the port therefore did not carry:
+  the matrix multipliers `liftMulR`/`liftMulL`, the chart maps `liftCD`/`liftLD`/`liftPhi'`, the
+  tensor factorisations `lift_factor_lift_mul` / `lift_isFactorizableTestFn_archRealGLAt_mul`, the
+  compact support of the chart, and the **left**-acting derivative `leftDerivFactor` along
+  `archFlowAt` together with `lift_leftDeriv_tensor` (the left derivative of a tensor is again a
+  tensor with the same finite factor).
 
-  What is kept is real mathematics with no consumer: the matrix multipliers `liftMulR`/`liftMulL`
-  and the tensor factorisation `lift_factor_lift_mul` / `lift_isFactorizableTestFn_archRealGLAt_mul`,
-  compact support of the chart (`lift_exists_compact_support`, `lift_hasCompactSupport_Phi'`),
-  the left-acting derivative `leftDerivFactor` along `archFlowAt`, the chart derivative `liftPhi'`
-  and `lift_leftDeriv_tensor` — the statement that the left derivative of a tensor is again a
-  tensor with the same finite factor, which is the mirror of what the headline proves on the
-  right. A consumer that needs the left action (`archDerivAt` under left translation) has to
-  promote the declaration it wants here; nothing else has to change.
+  It exists as a live module because a consumer needs it: SET-AF6's
+  `archDerivAt_rightConv_eq_rightConv_deriv_of_isFactorizableTestFn` differentiates `rightConv` in
+  the **group variable**, which is the left action, and its pin file re-copies this whole layer as
+  `l5*`. Until 2026-10-23 the text was the pin's inside `FactorizableTestFnArchSmooth`; it was then
+  cut to `Reserve/AutomorphicForm/Adelic/FactorizableTestFnArchSmoothDead.lean` as dead — the right
+  headline does not reach it — and on 2026-11-02 it was promoted back, **public**, at the port's
+  content names, with the four declarations that had been lost in an earlier cut restored from the
+  pin: `lift_archFlowAt_inv`, `lift_continuous_cD`, `lift_glFin_archFlowAt` and
+  `lift_isFactorizableTestFn_leftDeriv`.
 
-  The statements are the pin's, verbatim, at the port's content names. The mapping is in the
-  live module's header and in the work order's §9: `E8Ent`→`ArchEntry`, `e8DetSet`→`nonsingEntries`,
-  `e8Inv`→`invEntries`, `e8tc_*`→`chart_*`, `e8l5*`→`lift*` (`e8l5Phi'`→`liftPhi'`,
-  `e8l5MulR`→`liftMulR`, …), `e8r5*`→`flow*`, `e8leftDeriv`→`leftDerivFactor`. They stay `private`,
-  as in the pin.
+  The names are the port's, not the pin's: the rename map is the live module's header
+  (`e8l5*` → `lift*`, `e8tc_*` → `chart_*`, `e8r5*` → `flow*`, `e8leftDeriv` → `leftDerivFactor`).
+  It follows that this module carries **no `spec-pin:` wire**: the checker matches by last name, so
+  a renamed transcription has no pin original to diff against, and the four restored declarations
+  would each need a `pin:` marker. The whole surface is therefore **tier 3** — public, built, and
+  registered in `spec/UNWIRED-PUBLIC.md` — which is the same economy the live module's own 55
+  private declarations represent, made visible instead of hidden.
 
-  Nothing in `FLTForHuman` imports this module and it declares no `spec-pin:` wire: it is a
-  reading shelf in `Reserve`, built so that it stays green, diffed by nothing. Its premises are
-  copies — the live module keeps its own — so if that module's chart is ever reshaped this file
-  does not follow.
-
-  **What is not here.** Four further declarations of this half were cut in an earlier pass, before
-  the shelf existed, so they survive only in the pin: `e8l5_archFlowAt_inv` (`:392`),
-  `e8l5_continuous_cD` (`:427`), `e8l5_glFin_archFlowAt` (`:486`) and
-  `e8l5_isFactorizableTestFn_leftDeriv` (`:541`) — the port's `lift_archFlowAt_inv`,
-  `lift_continuous_cD`, `lift_glFin_archFlowAt`, `lift_isFactorizableTestFn_leftDeriv`. Restore
-  them from the pin under the same rename map if this half is ever taken up. The two mirrors are
-  therefore ragged: this shelf has `lift_exists_compact_support`, `lift_continuous_LD` and
-  `lift_leftDeriv_tensor`, which the complex shelf lost, and lacks `lift_archFlowAt_inv` and
-  `lift_glFin_archFlowAt`, which it kept.
-
-  Pin source (pinned `aa2d8b3`), the `e8l5*`/`e8leftDeriv` layer of
+  Pin source (pinned `aa2d8b3`):
   `P2M/Sol/S_AutomorphicForm_IsFactorizableTestFn_isArchSmoothAt_and_archDerivAt_eq_tensor.lean`
-  (721 lines): `:34`–`:557`, the chart core through `e8l5_leftDeriv_tensor`, minus the `e8r5*`
-  right half and the `solution` twin that the live module carries.
+  `:34`–`:557` — the chart core through `e8l5_leftDeriv_tensor`, minus the `e8r5*` right half (which
+  is the live module) and minus its `solution` (which is the live headline).
 -/
+
 import FLTForHuman.AutomorphicForm.Adelic.ArchDerivCasimir
 import FLTForHuman.AutomorphicForm.Adelic.FactorizableTestFn
 import FLTForHuman.NumberTheory.AdelicLevel.Projections
@@ -69,48 +57,48 @@ open scoped Topology
 
 noncomputable section
 
-private abbrev ArchEntry : Type := Fin 2 → Fin 2 → ℝ
+abbrev ArchEntry : Type := Fin 2 → Fin 2 → ℝ
 
-private abbrev nonsingEntries : Set ArchEntry := {e : ArchEntry | (Matrix.of e).det ≠ 0}
+abbrev nonsingEntries : Set ArchEntry := {e : ArchEntry | (Matrix.of e).det ≠ 0}
 
-private theorem chart_isOpen_nonsingEntries : IsOpen nonsingEntries := by
+theorem chart_isOpen_nonsingEntries : IsOpen nonsingEntries := by
   have h : Continuous fun e : ArchEntry => (Matrix.of e).det := Continuous.matrix_det continuous_id
   exact isOpen_ne_fun h continuous_const
 
 section LiftAnalysis
 
-private def invEntries (e : ArchEntry) : ArchEntry := fun i j => !![e 1 1, -e 0 1; -e 1 0, e 0 0] i j / (Matrix.of e).det
+def invEntries (e : ArchEntry) : ArchEntry := fun i j => !![e 1 1, -e 0 1; -e 1 0, e 0 0] i j / (Matrix.of e).det
 
-private theorem chart_of_invEntries {e : ArchEntry} : Matrix.of (invEntries e) = (Matrix.of e)⁻¹ := by
+theorem chart_of_invEntries {e : ArchEntry} : Matrix.of (invEntries e) = (Matrix.of e)⁻¹ := by
   rw [Matrix.inv_def, Matrix.adjugate_fin_two, Ring.inverse_eq_inv]
   ext i j
   simp only [invEntries, Matrix.of_apply, Matrix.smul_apply, smul_eq_mul, div_eq_inv_mul]
 
-private theorem chart_det_invEntries {e : ArchEntry} (he : (Matrix.of e).det ≠ 0) : (Matrix.of (invEntries e)).det ≠ 0 := by
+theorem chart_det_invEntries {e : ArchEntry} (he : (Matrix.of e).det ≠ 0) : (Matrix.of (invEntries e)).det ≠ 0 := by
   rw [chart_of_invEntries, Matrix.det_nonsing_inv, Ring.inverse_eq_inv]
   exact inv_ne_zero he
 
-private theorem chart_contDiff_entry (i j : Fin 2) : ContDiff ℝ (⊤ : ℕ∞) fun e : ArchEntry => e i j :=
+theorem chart_contDiff_entry (i j : Fin 2) : ContDiff ℝ (⊤ : ℕ∞) fun e : ArchEntry => e i j :=
   (ContinuousLinearMap.proj (R := ℝ) (φ := fun _ : Fin 2 => ℝ) j).contDiff.comp
     (ContinuousLinearMap.proj (R := ℝ) (φ := fun _ : Fin 2 => Fin 2 → ℝ) i).contDiff
 
-private theorem chart_contDiff_det : ContDiff ℝ (⊤ : ℕ∞) fun e : ArchEntry => (Matrix.of e).det := by
+theorem chart_contDiff_det : ContDiff ℝ (⊤ : ℕ∞) fun e : ArchEntry => (Matrix.of e).det := by
   simp only [Matrix.det_fin_two, Matrix.of_apply]
   exact ((chart_contDiff_entry 0 0).mul (chart_contDiff_entry 1 1)).sub ((chart_contDiff_entry 0 1).mul (chart_contDiff_entry 1 0))
 
-private theorem chart_contDiff_adj (i j : Fin 2) :
+theorem chart_contDiff_adj (i j : Fin 2) :
     ContDiff ℝ (⊤ : ℕ∞) fun e : ArchEntry => !![e 1 1, -e 0 1; -e 1 0, e 0 0] i j := by
   fin_cases i <;> fin_cases j <;> simp <;> first | exact chart_contDiff_entry _ _ | exact (chart_contDiff_entry _ _).neg
 
-private theorem chart_contDiffOn_invEntries : ContDiffOn ℝ (⊤ : ℕ∞) invEntries nonsingEntries :=
+theorem chart_contDiffOn_invEntries : ContDiffOn ℝ (⊤ : ℕ∞) invEntries nonsingEntries :=
   contDiffOn_pi.2 fun i => contDiffOn_pi.2 fun j =>
     (chart_contDiff_adj i j).contDiffOn.div chart_contDiff_det.contDiffOn fun _ he => he
 
-private theorem chart_invEntries_mem {e : ArchEntry} (he : e ∈ nonsingEntries) : invEntries e ∈ nonsingEntries := chart_det_invEntries he
+theorem chart_invEntries_mem {e : ArchEntry} (he : e ∈ nonsingEntries) : invEntries e ∈ nonsingEntries := chart_det_invEntries he
 
 variable {K : Type} [Field K] [NumberField K] {w : InfinitePlace K}
 
-private theorem lift_lift_inv (hw : w.IsReal) {e : ArchEntry} (he : (Matrix.of e).det ≠ 0) :
+theorem lift_lift_inv (hw : w.IsReal) {e : ArchEntry} (he : (Matrix.of e).det ≠ 0) :
     (archRealLiftAt hw e : AdelicGL2 (𝓞 K) K)⁻¹ = archRealLiftAt hw (invEntries e) := by
   rw [archRealLiftAt_of_det_ne_zero hw he, archRealLiftAt_of_det_ne_zero hw (chart_det_invEntries he), ← map_inv]
   congr 1
@@ -118,16 +106,16 @@ private theorem lift_lift_inv (hw : w.IsReal) {e : ArchEntry} (he : (Matrix.of e
   rw [Matrix.coe_units_inv]
   exact chart_of_invEntries.symm
 
-private def liftTheta (hw : w.IsReal) (A : Matrix (Fin 2) (Fin 2) ℝ) : Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 K) K) :=
+def liftTheta (hw : w.IsReal) (A : Matrix (Fin 2) (Fin 2) ℝ) : Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 K) K) :=
   Matrix.of fun i j => (archMatrixUpdate K w (A.map (ringEquivRealOfIsReal hw).symm) i j,
     (1 : Matrix (Fin 2) (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 K) K)) i j)
 
-private theorem lift_coe_archRealGLAt (hw : w.IsReal) (m : GL (Fin 2) ℝ) :
+theorem lift_coe_archRealGLAt (hw : w.IsReal) (m : GL (Fin 2) ℝ) :
     ((archRealGLAt hw m : AdelicGL2 (𝓞 K) K) : Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 K) K)) =
       liftTheta hw (m : Matrix (Fin 2) (Fin 2) ℝ) :=
   rfl
 
-private theorem lift_continuous_Theta (hw : w.IsReal) : Continuous (liftTheta (K := K) hw) := by
+theorem lift_continuous_Theta (hw : w.IsReal) : Continuous (liftTheta (K := K) hw) := by
   have hentry : ∀ i j : Fin 2, Continuous fun A : Matrix (Fin 2) (Fin 2) ℝ => A i j := fun i j =>
     (continuous_apply j).comp (continuous_apply i : Continuous fun A : Matrix (Fin 2) (Fin 2) ℝ => A i)
   have hsymm : Continuous fun r : ℝ => (ringEquivRealOfIsReal hw).symm r :=
@@ -141,7 +129,7 @@ private theorem lift_continuous_Theta (hw : w.IsReal) : Continuous (liftTheta (K
   · simp only [archMatrixUpdate_apply_of_ne K w _ i j hv]
     exact continuous_const
 
-private theorem lift_continuousOn_lift (hw : w.IsReal) :
+theorem lift_continuousOn_lift (hw : w.IsReal) :
     ContinuousOn (fun e : ArchEntry => (archRealLiftAt hw e : AdelicGL2 (𝓞 K) K)) nonsingEntries := by
   rw [continuousOn_iff_continuous_domRestrict]
   have hdet : ∀ e : nonsingEntries, (Matrix.of (e : ArchEntry)).det ≠ 0 := fun e => e.2
@@ -170,15 +158,15 @@ section FieldOnly
 
 variable (K : Type) [Field K]
 
-private abbrev liftEntry : Type := Fin 2 → Fin 2 → mixedEmbedding.mixedSpace K
+abbrev liftEntry : Type := Fin 2 → Fin 2 → mixedEmbedding.mixedSpace K
 
-private theorem lift_continuous_ringEquiv : Continuous (InfiniteAdeleRing.ringEquiv_mixedSpace K) := by
+theorem lift_continuous_ringEquiv : Continuous (InfiniteAdeleRing.ringEquiv_mixedSpace K) := by
   refine continuous_prodMk.2 ⟨continuous_pi fun v => ?_, continuous_pi fun v => ?_⟩
   · exact (NumberField.InfinitePlace.Completion.isometry_extensionEmbeddingOfIsReal v.2).continuous.comp
       (continuous_apply _)
   · exact (NumberField.InfinitePlace.Completion.isometry_extensionEmbedding v.1).continuous.comp (continuous_apply _)
 
-private theorem lift_continuous_archEntries : Continuous (archEntries K) := by
+theorem lift_continuous_archEntries : Continuous (archEntries K) := by
   have hval : Continuous fun a : GL (Fin 2) (InfiniteAdeleRing K) =>
       (a.val : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing K)) :=
     Units.continuous_val
@@ -186,28 +174,28 @@ private theorem lift_continuous_archEntries : Continuous (archEntries K) := by
   exact (continuous_apply j).comp
     ((continuous_apply i : Continuous fun m : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing K) => m i).comp hval)
 
-private theorem lift_archEntries_eq_mapMatrix (g : GL (Fin 2) (InfiniteAdeleRing K)) :
+theorem lift_archEntries_eq_mapMatrix (g : GL (Fin 2) (InfiniteAdeleRing K)) :
     (archEntries K g : Matrix (Fin 2) (Fin 2) (mixedEmbedding.mixedSpace K)) =
       (InfiniteAdeleRing.ringEquiv_mixedSpace K).toRingHom.mapMatrix
         (g : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing K)) := by
   funext i j
   rfl
 
-private theorem lift_of_archEntries (g : GL (Fin 2) (InfiniteAdeleRing K)) :
+theorem lift_of_archEntries (g : GL (Fin 2) (InfiniteAdeleRing K)) :
     Matrix.of (archEntries K g) = (InfiniteAdeleRing.ringEquiv_mixedSpace K).toRingHom.mapMatrix
       (g : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing K)) :=
   lift_archEntries_eq_mapMatrix K g
 
-private theorem lift_archEntries_mul (a z : GL (Fin 2) (InfiniteAdeleRing K)) :
+theorem lift_archEntries_mul (a z : GL (Fin 2) (InfiniteAdeleRing K)) :
     Matrix.of (archEntries K (a * z)) = Matrix.of (archEntries K a) * Matrix.of (archEntries K z) := by
   simp only [lift_of_archEntries, Units.val_mul, map_mul]
 
 variable {K}
 
-private def liftSingle (w : InfinitePlace K) (x : w.Completion) : InfiniteAdeleRing K :=
+def liftSingle (w : InfinitePlace K) (x : w.Completion) : InfiniteAdeleRing K :=
   Pi.single (M := fun v : InfinitePlace K => v.Completion) w x
 
-private theorem lift_archMatrixUpdate_entry (w : InfinitePlace K) (m : Matrix (Fin 2) (Fin 2) w.Completion)
+theorem lift_archMatrixUpdate_entry (w : InfinitePlace K) (m : Matrix (Fin 2) (Fin 2) w.Completion)
     (i j : Fin 2) :
     archMatrixUpdate K w m i j = archMatrixUpdate K w 0 i j + liftSingle w (m i j) := by
   funext v
@@ -219,10 +207,10 @@ private theorem lift_archMatrixUpdate_entry (w : InfinitePlace K) (m : Matrix (F
   · rw [archMatrixUpdate_apply_of_ne K w m i j hv, archMatrixUpdate_apply_of_ne K w 0 i j hv, Pi.single_eq_of_ne hv,
       add_zero]
 
-private def liftConst (w : InfinitePlace K) : liftEntry K :=
+def liftConst (w : InfinitePlace K) : liftEntry K :=
   fun i j => InfiniteAdeleRing.ringEquiv_mixedSpace K (archMatrixUpdate K w 0 i j)
 
-private theorem lift_archEntries_archGLIncl (w : InfinitePlace K) (k : GL (Fin 2) w.Completion) (i j : Fin 2) :
+theorem lift_archEntries_archGLIncl (w : InfinitePlace K) (k : GL (Fin 2) w.Completion) (i j : Fin 2) :
     archEntries K (archGLIncl K w k) i j =
       liftConst w i j +
         InfiniteAdeleRing.ringEquiv_mixedSpace K (liftSingle w ((k : Matrix (Fin 2) (Fin 2) w.Completion) i j)) := by
@@ -232,16 +220,16 @@ private theorem lift_archEntries_archGLIncl (w : InfinitePlace K) (k : GL (Fin 2
   rw [lift_archMatrixUpdate_entry, map_add]
   rfl
 
-private def liftAddHom {w : InfinitePlace K} (hw : w.IsReal) : ℝ →+ mixedEmbedding.mixedSpace K :=
+def liftAddHom {w : InfinitePlace K} (hw : w.IsReal) : ℝ →+ mixedEmbedding.mixedSpace K :=
   (InfiniteAdeleRing.ringEquiv_mixedSpace K).toAddMonoidHom.comp
     ((AddMonoidHom.single (f := fun v : InfinitePlace K => v.Completion) w).comp
       (ringEquivRealOfIsReal hw).symm.toAddMonoidHom)
 
-private theorem liftAddHom_apply {w : InfinitePlace K} (hw : w.IsReal) (r : ℝ) :
+theorem liftAddHom_apply {w : InfinitePlace K} (hw : w.IsReal) (r : ℝ) :
     liftAddHom hw r = InfiniteAdeleRing.ringEquiv_mixedSpace K (liftSingle w ((ringEquivRealOfIsReal hw).symm r)) :=
   rfl
 
-private theorem lift_continuous_addHom {w : InfinitePlace K} (hw : w.IsReal) : Continuous (liftAddHom hw) := by
+theorem lift_continuous_addHom {w : InfinitePlace K} (hw : w.IsReal) : Continuous (liftAddHom hw) := by
   have h1 : Continuous fun x : w.Completion => liftSingle w x := continuous_single w
   have h2 : Continuous fun r : ℝ => (ringEquivRealOfIsReal hw).symm r :=
     (isometryEquivRealOfIsReal hw).symm.continuous
@@ -251,15 +239,15 @@ private theorem lift_continuous_addHom {w : InfinitePlace K} (hw : w.IsReal) : C
   rw [h3]
   exact (lift_continuous_ringEquiv K).comp (h1.comp h2)
 
-private def liftLin {w : InfinitePlace K} (hw : w.IsReal) : ℝ →L[ℝ] mixedEmbedding.mixedSpace K :=
+def liftLin {w : InfinitePlace K} (hw : w.IsReal) : ℝ →L[ℝ] mixedEmbedding.mixedSpace K :=
   (liftAddHom hw).toRealLinearMap (lift_continuous_addHom hw)
 
-private def liftLinMat {w : InfinitePlace K} (hw : w.IsReal) : (Fin 2 → Fin 2 → ℝ) →L[ℝ] liftEntry K :=
+def liftLinMat {w : InfinitePlace K} (hw : w.IsReal) : (Fin 2 → Fin 2 → ℝ) →L[ℝ] liftEntry K :=
   ContinuousLinearMap.pi fun i => ContinuousLinearMap.pi fun j =>
     (liftLin hw).comp ((ContinuousLinearMap.proj (R := ℝ) (φ := fun _ : Fin 2 => ℝ) j).comp
       (ContinuousLinearMap.proj (R := ℝ) (φ := fun _ : Fin 2 => Fin 2 → ℝ) i))
 
-private theorem liftLinMat_apply {w : InfinitePlace K} (hw : w.IsReal) (e : Fin 2 → Fin 2 → ℝ) (i j : Fin 2) :
+theorem liftLinMat_apply {w : InfinitePlace K} (hw : w.IsReal) (e : Fin 2 → Fin 2 → ℝ) (i j : Fin 2) :
     liftLinMat hw e i j = liftAddHom hw (e i j) :=
   rfl
 
@@ -269,7 +257,7 @@ section NumberFieldPart
 
 variable {K : Type} [Field K] [NumberField K]
 
-private theorem lift_archEntries_glArch_lift {w : InfinitePlace K} (hw : w.IsReal) {e : Fin 2 → Fin 2 → ℝ}
+theorem lift_archEntries_glArch_lift {w : InfinitePlace K} (hw : w.IsReal) {e : Fin 2 → Fin 2 → ℝ}
     (he : (Matrix.of e).det ≠ 0) :
     archEntries K (glArch (𝓞 K) K (archRealLiftAt hw e)) = liftConst w + liftLinMat hw e := by
   rw [archRealLiftAt_of_det_ne_zero hw he]
@@ -294,16 +282,16 @@ open scoped Pointwise
 
 variable {K : Type} [Field K] [NumberField K] {w : InfinitePlace K}
 
-private theorem lift_glFin_lift (hw : w.IsReal) {e : ArchEntry} (he : (Matrix.of e).det ≠ 0) :
+theorem lift_glFin_lift (hw : w.IsReal) {e : ArchEntry} (he : (Matrix.of e).det ≠ 0) :
     glFin (𝓞 K) K (archRealLiftAt hw e) = 1 := by
   rw [archRealLiftAt_of_det_ne_zero hw he]
   exact glFin_adelicArchGLIncl K _
 
-private theorem lift_glFin_archRealGLAt (hw : w.IsReal) (m : GL (Fin 2) ℝ) :
+theorem lift_glFin_archRealGLAt (hw : w.IsReal) (m : GL (Fin 2) ℝ) :
     glFin (𝓞 K) K (archRealGLAt hw m) = 1 :=
   glFin_adelicArchGLIncl K _
 
-private def liftMulRLin (M : liftEntry K) : liftEntry K →ₗ[ℝ] liftEntry K where
+def liftMulRLin (M : liftEntry K) : liftEntry K →ₗ[ℝ] liftEntry K where
   toFun N := Matrix.of.symm (Matrix.of N * Matrix.of M)
   map_add' N₁ N₂ := by
     show Matrix.of.symm ((Matrix.of N₁ + Matrix.of N₂) * Matrix.of M) =
@@ -315,11 +303,11 @@ private def liftMulRLin (M : liftEntry K) : liftEntry K →ₗ[ℝ] liftEntry K 
     rw [Matrix.smul_mul]
     rfl
 
-private def liftMulR (M : liftEntry K) : liftEntry K →L[ℝ] liftEntry K := LinearMap.toContinuousLinearMap (liftMulRLin M)
+def liftMulR (M : liftEntry K) : liftEntry K →L[ℝ] liftEntry K := LinearMap.toContinuousLinearMap (liftMulRLin M)
 
-private theorem liftMulR_apply (M N : liftEntry K) : liftMulR M N = Matrix.of.symm (Matrix.of N * Matrix.of M) := rfl
+theorem liftMulR_apply (M N : liftEntry K) : liftMulR M N = Matrix.of.symm (Matrix.of N * Matrix.of M) := rfl
 
-private def liftMulRL : liftEntry K →ₗ[ℝ] (liftEntry K →L[ℝ] liftEntry K) where
+def liftMulRL : liftEntry K →ₗ[ℝ] (liftEntry K →L[ℝ] liftEntry K) where
   toFun := liftMulR
   map_add' M₁ M₂ := by
     refine ContinuousLinearMap.ext fun N => ?_
@@ -333,10 +321,10 @@ private def liftMulRL : liftEntry K →ₗ[ℝ] (liftEntry K →L[ℝ] liftEntry
     rw [Matrix.mul_smul]
     rfl
 
-private theorem lift_continuous_mulR : Continuous (liftMulR : liftEntry K → liftEntry K →L[ℝ] liftEntry K) :=
+theorem lift_continuous_mulR : Continuous (liftMulR : liftEntry K → liftEntry K →L[ℝ] liftEntry K) :=
   (liftMulRL (K := K)).continuous_of_finiteDimensional
 
-private def liftMulLLin (A : liftEntry K) : liftEntry K →ₗ[ℝ] liftEntry K where
+def liftMulLLin (A : liftEntry K) : liftEntry K →ₗ[ℝ] liftEntry K where
   toFun N := Matrix.of.symm (Matrix.of A * Matrix.of N)
   map_add' N₁ N₂ := by
     show Matrix.of.symm (Matrix.of A * (Matrix.of N₁ + Matrix.of N₂)) =
@@ -348,11 +336,11 @@ private def liftMulLLin (A : liftEntry K) : liftEntry K →ₗ[ℝ] liftEntry K 
     rw [Matrix.mul_smul]
     rfl
 
-private def liftMulL (A : liftEntry K) : liftEntry K →L[ℝ] liftEntry K := LinearMap.toContinuousLinearMap (liftMulLLin A)
+def liftMulL (A : liftEntry K) : liftEntry K →L[ℝ] liftEntry K := LinearMap.toContinuousLinearMap (liftMulLLin A)
 
-private theorem liftMulL_apply (A N : liftEntry K) : liftMulL A N = Matrix.of.symm (Matrix.of A * Matrix.of N) := rfl
+theorem liftMulL_apply (A N : liftEntry K) : liftMulL A N = Matrix.of.symm (Matrix.of A * Matrix.of N) := rfl
 
-private theorem lift_archEntries_lift_mul (hw : w.IsReal) {e : ArchEntry} (he : (Matrix.of e).det ≠ 0)
+theorem lift_archEntries_lift_mul (hw : w.IsReal) {e : ArchEntry} (he : (Matrix.of e).det ≠ 0)
     (y : AdelicGL2 (𝓞 K) K) :
     archEntries K (glArch (𝓞 K) K (archRealLiftAt hw e * y)) =
       liftMulR (archEntries K (glArch (𝓞 K) K y)) (liftConst w) +
@@ -365,7 +353,7 @@ private theorem lift_archEntries_lift_mul (hw : w.IsReal) {e : ArchEntry} (he : 
   rw [Matrix.add_mul]
   rfl
 
-private theorem lift_factor_lift_mul (hw : w.IsReal) {α : AdelicGL2 (𝓞 K) K → ℂ}
+theorem lift_factor_lift_mul (hw : w.IsReal) {α : AdelicGL2 (𝓞 K) K → ℂ}
     {fa : GL (Fin 2) (InfiniteAdeleRing K) → ℂ} {ff : GL (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 K) K) → ℂ}
     {Φ : liftEntry K → ℂ} (hfa : ∀ z, fa z = Φ (archEntries K z))
     (hα : ∀ g, α g = fa (glArch (𝓞 K) K g) * ff (glFin (𝓞 K) K g)) {e : ArchEntry} (he : (Matrix.of e).det ≠ 0)
@@ -378,7 +366,7 @@ private theorem lift_factor_lift_mul (hw : w.IsReal) {α : AdelicGL2 (𝓞 K) K 
 
 open scoped Classical in
 
-private theorem lift_isFactorizableTestFn_archRealGLAt_mul (hw : w.IsReal) (m : GL (Fin 2) ℝ)
+theorem lift_isFactorizableTestFn_archRealGLAt_mul (hw : w.IsReal) (m : GL (Fin 2) ℝ)
     {α : AdelicGL2 (𝓞 K) K → ℂ} (hα : IsFactorizableTestFn K α) :
     IsFactorizableTestFn K fun y => α (archRealGLAt hw m * y) := by
   obtain ⟨fa, ff, ⟨⟨Φ, hΦ, hfa⟩, hfa_supp⟩, hff, hαeq⟩ := hα
@@ -396,7 +384,7 @@ private theorem lift_isFactorizableTestFn_archRealGLAt_mul (hw : w.IsReal) (m : 
     beta_reduce
     rw [hαeq, map_mul, map_mul, lift_glFin_archRealGLAt hw m, one_mul]
 
-private theorem lift_exists_compact_support (hw : w.IsReal) {α : AdelicGL2 (𝓞 K) K → ℂ} (hα : HasCompactSupport α)
+theorem lift_exists_compact_support (hw : w.IsReal) {α : AdelicGL2 (𝓞 K) K → ℂ} (hα : HasCompactSupport α)
     {S : Set ArchEntry} (hS : IsCompact S) (hSd : S ⊆ nonsingEntries) :
     ∃ C : Set (AdelicGL2 (𝓞 K) K), IsCompact C ∧ ∀ e' ∈ S, ∀ y ∉ C, α (archRealLiftAt hw e' * y) = 0 := by
   have hS' : IsCompact (invEntries '' S) := hS.image_of_continuousOn (chart_contDiffOn_invEntries.continuousOn.mono hSd)
@@ -424,41 +412,41 @@ open scoped Classical
 
 variable {K : Type} [Field K] [NumberField K] {w : InfinitePlace K}
 
-private def leftDerivFactor (hw : w.IsReal) (d : ArchDir) (α : AdelicGL2 (𝓞 K) K → ℂ) : AdelicGL2 (𝓞 K) K → ℂ :=
+def leftDerivFactor (hw : w.IsReal) (d : ArchDir) (α : AdelicGL2 (𝓞 K) K → ℂ) : AdelicGL2 (𝓞 K) K → ℂ :=
   fun y => deriv (fun t : ℝ => α (archFlowAt hw d (-t) * y)) 0
 
-private def liftCurve (d : ArchDir) (t : ℝ) : ArchEntry :=
+def liftCurve (d : ArchDir) (t : ℝ) : ArchEntry :=
   Matrix.of.symm
     (Matrix.of (Matrix.of.symm (1 : Matrix (Fin 2) (Fin 2) ℝ)) * (archFlowMatrix d t : Matrix (Fin 2) (Fin 2) ℝ))
 
-private theorem lift_curve_mem (d : ArchDir) (t : ℝ) : liftCurve d t ∈ nonsingEntries := by
+theorem lift_curve_mem (d : ArchDir) (t : ℝ) : liftCurve d t ∈ nonsingEntries := by
   show (Matrix.of (liftCurve d t)).det ≠ 0
   rw [liftCurve, Equiv.apply_symm_apply, Equiv.apply_symm_apply, one_mul]
   exact ((Matrix.isUnit_iff_isUnit_det _).1 (archFlowMatrix d t).isUnit).ne_zero
 
-private theorem lift_hasDerivAt_curve (d : ArchDir) :
+theorem lift_hasDerivAt_curve (d : ArchDir) :
     HasDerivAt (liftCurve d)
       (Matrix.of.symm (Matrix.of (Matrix.of.symm (1 : Matrix (Fin 2) (Fin 2) ℝ)) * archDirMatrix d)) 0 :=
   hasDerivAt_of_symm_mul_archFlowMatrix _ d
 
-private theorem lift_archFlowAt_eq_lift (hw : w.IsReal) (d : ArchDir) (t : ℝ) :
+theorem lift_archFlowAt_eq_lift (hw : w.IsReal) (d : ArchDir) (t : ℝ) :
     (archFlowAt hw d t : AdelicGL2 (𝓞 K) K) = archRealLiftAt hw (liftCurve d t) := by
   have hdet : (Matrix.of (Matrix.of.symm (1 : Matrix (Fin 2) (Fin 2) ℝ))).det ≠ 0 := by
     rw [Equiv.apply_symm_apply, Matrix.det_one]
     exact one_ne_zero
   rw [liftCurve, ← archRealLiftAt_mul_archRealGLAt hw hdet, archRealLiftAt_of_symm_one, one_mul, archFlowAt]
 
-private def liftM (y : AdelicGL2 (𝓞 K) K) : liftEntry K := archEntries K (glArch (𝓞 K) K y)
+def liftM (y : AdelicGL2 (𝓞 K) K) : liftEntry K := archEntries K (glArch (𝓞 K) K y)
 
-private theorem lift_continuous_M : Continuous (liftM : AdelicGL2 (𝓞 K) K → liftEntry K) := by
+theorem lift_continuous_M : Continuous (liftM : AdelicGL2 (𝓞 K) K → liftEntry K) := by
   show Continuous fun y : AdelicGL2 (𝓞 K) K => archEntries K (glArch (𝓞 K) K y)
   exact (lift_continuous_archEntries K).comp (continuous_glArch (𝓞 K) K)
 
-private def liftCD (w : InfinitePlace K) (y : AdelicGL2 (𝓞 K) K) : liftEntry K := liftMulR (liftM y) (liftConst w)
+def liftCD (w : InfinitePlace K) (y : AdelicGL2 (𝓞 K) K) : liftEntry K := liftMulR (liftM y) (liftConst w)
 
-private def liftLD (hw : w.IsReal) (y : AdelicGL2 (𝓞 K) K) : ArchEntry →L[ℝ] liftEntry K := (liftMulR (liftM y)).comp (liftLinMat hw)
+def liftLD (hw : w.IsReal) (y : AdelicGL2 (𝓞 K) K) : ArchEntry →L[ℝ] liftEntry K := (liftMulR (liftM y)).comp (liftLinMat hw)
 
-private theorem lift_continuous_LD (hw : w.IsReal) : Continuous (liftLD (K := K) hw) := by
+theorem lift_continuous_LD (hw : w.IsReal) : Continuous (liftLD (K := K) hw) := by
   show Continuous fun y : AdelicGL2 (𝓞 K) K => (liftMulR (liftM y)).comp (liftLinMat hw)
   exact (lift_continuous_mulR.comp lift_continuous_M).clm_comp continuous_const
 
@@ -470,28 +458,28 @@ open scoped Classical
 
 variable {K : Type} [Field K] [NumberField K] {w : InfinitePlace K}
 
-private def liftDir (d : ArchDir) : ArchEntry :=
+def liftDir (d : ArchDir) : ArchEntry :=
   (-1 : ℝ) • Matrix.of.symm (Matrix.of (Matrix.of.symm (1 : Matrix (Fin 2) (Fin 2) ℝ)) * archDirMatrix d)
 
-private theorem lift_hasDerivAt_curve_neg (d : ArchDir) : HasDerivAt (fun t : ℝ => liftCurve d (-t)) (liftDir d) 0 := by
+theorem lift_hasDerivAt_curve_neg (d : ArchDir) : HasDerivAt (fun t : ℝ => liftCurve d (-t)) (liftDir d) 0 := by
   have h := lift_hasDerivAt_curve d
   rw [← neg_zero] at h
   exact h.scomp (0 : ℝ) (hasDerivAt_neg (0 : ℝ))
 
-private theorem lift_curve_det (d : ArchDir) (t : ℝ) : (Matrix.of (liftCurve d t)).det ≠ 0 := lift_curve_mem d t
+theorem lift_curve_det (d : ArchDir) (t : ℝ) : (Matrix.of (liftCurve d t)).det ≠ 0 := lift_curve_mem d t
 
-private theorem liftMulR_eq_mulL (N X : liftEntry K) : liftMulR N X = liftMulL X N := rfl
+theorem liftMulR_eq_mulL (N X : liftEntry K) : liftMulR N X = liftMulL X N := rfl
 
-private def liftPhi' (hw : w.IsReal) (d : ArchDir) (Φ : liftEntry K → ℂ) (N : liftEntry K) : ℂ :=
+def liftPhi' (hw : w.IsReal) (d : ArchDir) (Φ : liftEntry K → ℂ) (N : liftEntry K) : ℂ :=
   fderiv ℝ Φ (liftMulL (liftConst w) N + liftMulL (liftLinMat hw (liftCurve d (-0))) N) (liftMulL (liftLinMat hw (liftDir d)) N)
 
-private theorem lift_contDiff_Phi' (hw : w.IsReal) (d : ArchDir) {Φ : liftEntry K → ℂ} (hΦ : ContDiff ℝ (⊤ : ℕ∞) Φ) :
+theorem lift_contDiff_Phi' (hw : w.IsReal) (d : ArchDir) {Φ : liftEntry K → ℂ} (hΦ : ContDiff ℝ (⊤ : ℕ∞) Φ) :
     ContDiff ℝ (⊤ : ℕ∞) (liftPhi' hw d Φ) :=
   ((contDiff_infty_iff_fderiv.1 hΦ).2.comp
     ((liftMulL (liftConst w)).contDiff.add (liftMulL (liftLinMat hw (liftCurve d (-0)))).contDiff)).clm_apply
     (liftMulL (liftLinMat hw (liftDir d))).contDiff
 
-private theorem lift_hasDerivAt_Phi_curve (hw : w.IsReal) (d : ArchDir) {Φ : liftEntry K → ℂ} (hΦ : ContDiff ℝ (⊤ : ℕ∞) Φ)
+theorem lift_hasDerivAt_Phi_curve (hw : w.IsReal) (d : ArchDir) {Φ : liftEntry K → ℂ} (hΦ : ContDiff ℝ (⊤ : ℕ∞) Φ)
     (N : liftEntry K) :
     HasDerivAt (fun t : ℝ => Φ (liftMulR N (liftConst w) + liftMulR N (liftLinMat hw (liftCurve d (-t)))))
       (liftPhi' hw d Φ N) 0 := by
@@ -506,14 +494,14 @@ private theorem lift_hasDerivAt_Phi_curve (hw : w.IsReal) (d : ArchDir) {Φ : li
   simp only [liftPhi', ← liftMulR_eq_mulL]
   exact h4
 
-private theorem lift_fa_lift_mul (hw : w.IsReal) {fa : GL (Fin 2) (InfiniteAdeleRing K) → ℂ} {Φ : liftEntry K → ℂ}
+theorem lift_fa_lift_mul (hw : w.IsReal) {fa : GL (Fin 2) (InfiniteAdeleRing K) → ℂ} {Φ : liftEntry K → ℂ}
     (hfa : ∀ z, fa z = Φ (archEntries K z)) {e : ArchEntry} (he : (Matrix.of e).det ≠ 0)
     (z : GL (Fin 2) (InfiniteAdeleRing K)) :
     fa (glArch (𝓞 K) K (archRealLiftAt hw e) * z) =
       Φ (liftMulR (archEntries K z) (liftConst w) + liftMulR (archEntries K z) (liftLinMat hw e)) := by
   rw [hfa, ← map_add, liftMulR_apply, ← lift_archEntries_glArch_lift hw he, ← lift_archEntries_mul, Equiv.symm_apply_apply]
 
-private theorem lift_leftDeriv_eq (hw : w.IsReal) (d : ArchDir) {α : AdelicGL2 (𝓞 K) K → ℂ}
+theorem lift_leftDeriv_eq (hw : w.IsReal) (d : ArchDir) {α : AdelicGL2 (𝓞 K) K → ℂ}
     {fa : GL (Fin 2) (InfiniteAdeleRing K) → ℂ} {ff : GL (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 K) K) → ℂ}
     {Φ : liftEntry K → ℂ} (hΦ : ContDiff ℝ (⊤ : ℕ∞) Φ) (hfa : ∀ z, fa z = Φ (archEntries K z))
     (hα : ∀ g, α g = fa (glArch (𝓞 K) K g) * ff (glFin (𝓞 K) K g)) (y : AdelicGL2 (𝓞 K) K) :
@@ -528,7 +516,7 @@ private theorem lift_leftDeriv_eq (hw : w.IsReal) (d : ArchDir) {α : AdelicGL2 
   rw [hfun]
   exact ((lift_hasDerivAt_Phi_curve hw d hΦ _).mul_const _).deriv
 
-private theorem lift_hasCompactSupport_Phi' (hw : w.IsReal) (d : ArchDir) {fa : GL (Fin 2) (InfiniteAdeleRing K) → ℂ}
+theorem lift_hasCompactSupport_Phi' (hw : w.IsReal) (d : ArchDir) {fa : GL (Fin 2) (InfiniteAdeleRing K) → ℂ}
     {Φ : liftEntry K → ℂ} (hΦ : ContDiff ℝ (⊤ : ℕ∞) Φ) (hfa : ∀ z, fa z = Φ (archEntries K z))
     (hsupp : HasCompactSupport fa) : HasCompactSupport fun z => liftPhi' hw d Φ (archEntries K z) := by
   refine hsupp.mono' fun z hz => ?_
@@ -563,7 +551,7 @@ private theorem lift_hasCompactSupport_Phi' (hw : w.IsReal) (d : ArchDir) {fa : 
     hev.mono fun t ht => ht
   rw [← hd.deriv, heq.deriv_eq, deriv_const]
 
-private theorem lift_leftDeriv_tensor (hw : w.IsReal) (d : ArchDir) {fa : GL (Fin 2) (InfiniteAdeleRing K) → ℂ}
+theorem lift_leftDeriv_tensor (hw : w.IsReal) (d : ArchDir) {fa : GL (Fin 2) (InfiniteAdeleRing K) → ℂ}
     (hfa : IsArchTestFactor K fa) (ff : GL (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 K) K) → ℂ) :
     ∃ fa' : GL (Fin 2) (InfiniteAdeleRing K) → ℂ, IsArchTestFactor K fa' ∧
       leftDerivFactor hw d (fun z => fa (glArch (𝓞 K) K z) * ff (glFin (𝓞 K) K z)) =
@@ -573,6 +561,30 @@ private theorem lift_leftDeriv_tensor (hw : w.IsReal) (d : ArchDir) {fa : GL (Fi
     ⟨⟨liftPhi' hw d Φ, lift_contDiff_Phi' hw d hΦ, fun _ => rfl⟩, lift_hasCompactSupport_Phi' hw d hΦ hfaΦ hsupp⟩, ?_⟩
   funext y
   exact lift_leftDeriv_eq hw d hΦ hfaΦ (fun _ => rfl) y
+
+/-! ### The four declarations restored from the pin (lost in an earlier cut) -/
+
+theorem lift_archFlowAt_inv (hw : w.IsReal) (d : ArchDir) (t : ℝ) :
+    (archFlowAt hw d t : AdelicGL2 (𝓞 K) K)⁻¹ = archFlowAt hw d (-t) :=
+  inv_eq_of_mul_eq_one_right (by rw [← archFlowAt_add, add_neg_cancel, archFlowAt_zero])
+
+theorem lift_continuous_cD (w : InfinitePlace K) : Continuous (liftCD w) := by
+  show Continuous fun y : AdelicGL2 (𝓞 K) K => liftMulR (liftM y) (liftConst w)
+  exact (lift_continuous_mulR.comp lift_continuous_M).clm_apply continuous_const
+
+theorem lift_glFin_archFlowAt (hw : w.IsReal) (d : ArchDir) (t : ℝ) :
+    glFin (𝓞 K) K (archFlowAt hw d t) = 1 := by
+  rw [lift_archFlowAt_eq_lift]
+  exact lift_glFin_lift hw (lift_curve_det d t)
+
+theorem lift_isFactorizableTestFn_leftDeriv (hw : w.IsReal) (d : ArchDir)
+    {α : AdelicGL2 (𝓞 K) K → ℂ} (hα : IsFactorizableTestFn K α) :
+    IsFactorizableTestFn K (leftDerivFactor hw d α) := by
+  obtain ⟨fa, ff, ⟨⟨Φ, hΦ, hfa⟩, hsupp⟩, hff, hαeq⟩ := hα
+  exact ⟨fun z => liftPhi' hw d Φ (archEntries K z), ff,
+    ⟨⟨liftPhi' hw d Φ, lift_contDiff_Phi' hw d hΦ, fun _ => rfl⟩,
+      lift_hasCompactSupport_Phi' hw d hΦ hfa hsupp⟩, hff,
+    lift_leftDeriv_eq hw d hΦ hfa hαeq⟩
 
 end LeftDerivFactor
 

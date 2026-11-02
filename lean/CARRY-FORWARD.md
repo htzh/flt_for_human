@@ -87,7 +87,13 @@ them either. They were therefore dropped as dead prelude rather than transcribed
 needs them, its own file carries a copy: port them there at the pin's statement. Prices: 2–6 lines
 each.
 
-### The FTF1 left half's nine pre-cut declarations — in the pin only
+### The FTF1 left half's nine pre-cut declarations — in the pin only — **RESOLVED 2026-11-02**
+
+> **Resolved by SET-AF6's manager's layer.** The left halves were promoted out of `Reserve/` into
+> `FLTForHuman/AutomorphicForm/Adelic/FactorizableTestFnArchSmooth{,Complex}Left.lean`, public at the
+> port's content names, and all nine declarations below were restored from the pin there (the four
+> real ones and the five complex ones). `Reserve/AutomorphicForm/Adelic/` is now empty. The record
+> below is kept as written.
 
 On 2026-10-23 the FTF1 left halves moved to
 `Reserve/AutomorphicForm/Adelic/FactorizableTestFnArchSmooth{,Complex}Dead.lean`, but an earlier

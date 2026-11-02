@@ -119,6 +119,7 @@ FLTForHuman/
       FactorizableTestFn.lean
       TestFnTop.lean           -- the continuous/compact-support premise
       TestFnNearIdentity.lean  -- the public shared family prelude (§3)
+      RightConvRegularity.lean -- rightConv's continuity and C^∞ along unipotents (SET-AF5, W1)
       RightConvNeZero.lean     -- the levelOne headline                (T1)
       RightConvNeZeroPrincipal.lean -- the principalLevel headline     (T1)
       RightConvNeZeroArch.lean -- the arch-character headline          (T1)
@@ -236,6 +237,10 @@ The def-import DAG fixes the order; each level is one work order.
 | **A1** | `Adelic/{ArchWeightChar,ArchWeightCharTransport}` (arch-weight-character def layer) | 313 | D7 | landed |
 | **M1** | `AdelicHaar/MulRightInvariant` (right-invariance of the GL₂ Haar measure) | 326 | D1 | landed |
 | **A2** | `Adelic/RightConvNeZeroArch` (the arch-character headline) | — | H1, A1, M1 | landed |
+| **A5** | the right-convolution calculus: `Adelic/ConstantTerm` + `Adelic/RightConvolution` (general engine + translation law, three duplicate copies deleted) | 49 | D0, D4 | landed |
+| **A5w** | `Adelic/RightConvRegularity` (the regularity headline) | 471 | A5, H1 | landed |
+| **A6m** | `Adelic/FactorizableTestFnArchSmooth{,Complex}Left` (the left half of the arch chart, promoted out of `Reserve`, public) | 1,190 | D7 | landed |
+| **A6** | `Adelic/ArchDerivRightConv{,Complex}` (differentiating `rightConv` along an archimedean flow) | 2,494 | A6m, A5w | landed |
 
 Two ordering notes that stay true. `ArchType` lands last among the `Def_*` modules because the
 pin defines `archRowIsometryAt` over the row-isometry subgroup of D6; the port keeps that edge
@@ -311,6 +316,71 @@ private duplicate deleted) and homed on the `AutomorphicForm` side because its h
 `Siegel/SlabCovering.lean` was brought to standards in the same pass (60 `-- pin:` markers → six
 `spec-pin:` wires, two pre-existing dead private lemmas deleted). Its §0.4 records the one
 gate the tools miss (FR-0099).
+
+The fifth is **landed** (2026-11-02):
+[automorphicForm/SET-AF5.md](automorphicForm/SET-AF5.md), the **right-convolution operator's
+calculus** — `rightConv` is continuous and `C^∞` along the unipotent direction for a factorizable test
+function (471 silo / 450 net, `Adelic/RightConvRegularity.lean`, landed in one worker order), on top of two rows
+the manager took: the **general** `continuous_unipotentGL2` (28 silo) and the translation law
+`rightConv_apply_mul_eq_rightConv_comp_inv_mul_apply` (21 silo). Three rows / 520 silo / 481 net, and
+the readiness return is five rows / 7,007 silo — the two archimedean-derivative headlines
+(`archDerivAt{,Complex}_rightConv_eq_rightConv_deriv_of_isFactorizableTestFn`, 1,246 + 1,248) become
+ready, so the chain SET-AF4 deferred is now the column's next set. **The set has no definition gate**
+(all three rows are gate-free at the declaration level, FR-0100/FR-0099), which makes its manager's
+layer pure refactor: the pin states `continuous_unipotentGL2` at a general ring, and the port held
+**three** specialised copies of it in three modules — `continuous_unipotentGL2_adele` (15 lines),
+`continuous_unipotentGL2'` (14) and a `private continuous_unipotentGL2` (13) — so the general statement
+was written once in `Adelic/ConstantTerm.lean` (the module that defines `unipotentGL2`) and all three
+were deleted, 36 lines of specialised proof. That also **closes the FR-0095 name shadow at the root**:
+the pin node is now honestly ported, and the `--unport` correction every read since SET-AF2 needed is
+retired. Both touched hubs were legacy and were migrated in the same touch (§6), and the new proof
+module is 0-importer, so the order is one manager lane plus one worker order
+([automorphicForm/WORKORDER-AF5-rightconv-regularity.md](automorphicForm/WORKORDER-AF5-rightconv-regularity.md)).
+Measured after the manager's layer: `needed` **899 / 370,921**, the AF shelf 42 / 20,957 ready and
+80 / 16,549 leaves. W1 then landed in one worker order — `Adelic/RightConvRegularity.lean`, 530 lines,
+checker 1 ok / 0 / 0, silent 5.6 s, **no mathlib rename needed**, and one measured deviation
+(`AdeleRing` is a semireducible `def`, so `unipotentGL2_coe` cannot key a `rw` at that type; FR-0105).
+Measured after W1, and the brief's forecast was exact to the line: `needed` **898 / 370,450**, the AF
+shelf **42 / 24,319** ready with 80 / 16,549 leaves, `--selfcheck` PASS — with **no `--unport`
+correction anywhere**. That leaves the archimedean-derivative chain (8 leaves / 1,510 silo / 1,001 net)
+with its two headline rows ready as the column's next set. Its §1.5/§1.6 record the two landings and
+§8 the two re-reads.
+
+The sixth is **landed** (2026-11-02):
+[automorphicForm/SET-AF6.md](automorphicForm/SET-AF6.md), **differentiating the right-convolution
+operator along an archimedean flow** — the two triple-conjunction headlines
+(`archDerivAt{,Complex}_rightConv_eq_rightConv_deriv_of_isFactorizableTestFn`, 1,246 + 1,248 silo) that
+SET-AF5's translation law was written for. The set has no definition gate (both rows are gate-free at
+the declaration level), so its manager's layer is the **largest promotion the column has made**: the
+port held the pin's **left**-derivative half of the archimedean chart `private` on the `Reserve` shelf,
+cut there on 2026-10-23 because the *right* headline never reaches a left derivative — and these two
+rows are the consumer its own header predicted ("a consumer that needs the left action has to promote").
+It is now two live public modules,
+`Adelic/FactorizableTestFnArchSmooth{,Complex}Left.lean` (593 + 594 lines, 72 public declarations
+each), with the **nine** declarations an earlier cut had lost restored from the pin (the four real
+and five complex ones `CARRY-FORWARD.md` had recorded as having no home — that entry is now resolved).
+The two `Reserve` shelves are deleted, the two live modules' headers repointed, and the register grew
+112 → 114 modules / 3,474 → 3,618 public declarations. Measured effect on the order: **66 of each
+file's 113 prelude declarations (491 of 1,246 pin lines) become imports**, leaving 47 declarations /
+694 lines to transcribe per file — and because the promotion renames the declarations to the port's
+content names, it does **not** move the shelf figure (`needed` is 898 / 370,450 before and after): a
+promotion's payoff is the order's size, never the read. The set is 2,494 silo / ≈985 net, one worker
+order, R2 being R1 by the vocabulary map
+([automorphicForm/WORKORDER-AF6-archderiv-rightconv.md](automorphicForm/WORKORDER-AF6-archderiv-rightconv.md));
+its §8 carries the re-read. Both proof bodies then landed in one worker order — `ArchDerivRightConv.lean`
+(802) and `ArchDerivRightConvComplex.lean` (808), 41 `private` + 1 headline each, checker 2 ok / 0 / 0,
+silent 7.0 s and 16 s, R2 compiled first try by the pin's vocabulary map, and the promotion's 72 imported
+declarations needed **0** local re-statements. Measured after the landing: `needed` **896 / 367,956**
+(exact), the frontier 1,519 / 759,410 (exact), and the `AutomorphicForm` shelf **42 / 22,818** — one row
+and 779 silo more than forecast, because the set readied a row whose missing premises were *both* of its
+rows and a per-row return cannot see that (FR-0106). That row is
+`archCasimirAt_rightConv_of_isFactorizableTestFn_of_continuous_archDerivAt` (779) — the archDeriv↔Casimir
+bridge, and the natural headline of SET-AF7, which is the eight remaining leaves of the family. The
+landing's dead tail (6 declarations / 109 lines per module, all dead in the pin as well) was triaged
+rather than carried (§1.7): `l5_continuous_rightConv` **deleted** — it is the first conjunct of AF5's
+public headline, so a duplicate — and the other five **shelved** into
+`Reserve/AutomorphicForm/Adelic/ArchDerivRightConv{,Complex}Dead.lean` (172 + 173 lines, 8 declarations
+each with the premises they need), leaving both live modules at 0 dead.
 
 ## 6. Verification and wiring
 

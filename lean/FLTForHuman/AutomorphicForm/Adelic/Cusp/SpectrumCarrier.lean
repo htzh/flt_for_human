@@ -165,20 +165,6 @@ def contMemberSubmodule (Φ₀ : Set (AdelicGL2 (𝓞 F) F)) (ξ : (⊤ : Subgro
   add_mem' := fun ha hb => ⟨(memberSubmodule F Φ₀ ξ).add_mem ha.1 hb.1, ha.2.add hb.2⟩
   smul_mem' := fun c {_} ha => ⟨(memberSubmodule F Φ₀ ξ).smul_mem c ha.1, ha.2.const_smul c⟩
 
-theorem continuous_unipotentGL2_adele :
-    Continuous fun x : AdeleRing (𝓞 F) F => (unipotentGL2 x : AdelicGL2 (𝓞 F) F) := by
-  refine Units.continuous_iff.2 ⟨?_, ?_⟩
-  · refine continuous_matrix fun i j => ?_
-    fin_cases i <;> fin_cases j <;>
-      simp [unipotentGL2] <;> first | exact continuous_const | exact continuous_id
-  · have h : ∀ x : AdeleRing (𝓞 F) F,
-        (((unipotentGL2 x)⁻¹ : AdelicGL2 (𝓞 F) F) : Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 F) F)) = !![1, -x; 0, 1] :=
-      fun x => rfl
-    simp_rw [h]
-    refine continuous_matrix fun i j => ?_
-    fin_cases i <;> fin_cases j <;>
-      simp <;> first | exact continuous_const | exact continuous_id | exact continuous_neg
-
 theorem integrable_constantTermIntegrand_fdPins (Φ₀ : Set (AdelicGL2 (𝓞 F) F))
     {φ : AdelicGL2 (𝓞 F) F → ℂ} (hφ : Continuous φ) (g : AdelicGL2 (𝓞 F) F) :
     letI : MeasurableSpace (AdeleRing (𝓞 F) F) := (fdPins F Φ₀).nS
@@ -189,7 +175,7 @@ theorem integrable_constantTermIntegrand_fdPins (Φ₀ : Set (AdelicGL2 (𝓞 F)
   show Integrable (constantTermIntegrand unipotentGL2 φ g)
     (@ProbabilityTheory.cond _ (adeleBorel (𝓞 F) F) (adelicAddHaar (𝓞 F) F) (adelicBox F))
   have hcont : Continuous (constantTermIntegrand (unipotentGL2 (R := AdeleRing (𝓞 F) F)) φ g) :=
-    hφ.comp ((continuous_unipotentGL2_adele F).mul continuous_const)
+    hφ.comp ((continuous_unipotentGL2 (R := AdeleRing (𝓞 F) F)).mul continuous_const)
   obtain ⟨C, hC, hsub⟩ := exists_isCompact_adelicBox_subset F
   have hint : IntegrableOn (constantTermIntegrand (unipotentGL2 (R := AdeleRing (𝓞 F) F)) φ g) (adelicBox F)
       (adelicAddHaar (𝓞 F) F) :=

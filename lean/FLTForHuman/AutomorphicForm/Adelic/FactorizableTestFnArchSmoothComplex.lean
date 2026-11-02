@@ -24,10 +24,10 @@
 
   **The pin's left half is not here**, exactly as in the real module: the pin wrote this
   development twice (`e8l5*`/`e8leftDeriv` left, `e8r5*` right), only the right one is on the
-  critical path, and the pin's own `solution` reaches `Complex.flow_main` alone. The 24
-  unreachable declarations were cut on 2026-10-23 and are kept, with the private premises they
-  need, on the shelf `Reserve/AutomorphicForm/Adelic/FactorizableTestFnArchSmoothComplexDead.lean`,
-  which imports this port's public API only and which nothing here imports.
+  critical path, and the pin's own `solution` reaches `Complex.flow_main` alone. The left half was
+  cut on 2026-10-23 and promoted back, public, on 2026-11-02 as
+  `FLTForHuman.AutomorphicForm.Adelic.FactorizableTestFnArchSmoothComplexLeft` — import that module
+  for the left action at a complex place.
 
   **Namespace.** The helpers live under `AutomorphicForm.IsFactorizableTestFn.Complex`, a
   sub-namespace of the same subject, because 52 of the real module's 56 last names are shared and

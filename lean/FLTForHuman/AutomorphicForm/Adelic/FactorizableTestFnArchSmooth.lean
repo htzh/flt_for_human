@@ -18,10 +18,10 @@
   **The pin's left half is not here.** The pin wrote the development twice — a left derivative
   (`e8l5*`, `e8leftDeriv`) and a right one (`e8r5*`) — and only the right is on the critical path:
   the headline, and the pin's own `solution`, never reach a left-derivative declaration. That half
-  was dead in the pin as well; on 2026-10-23 it was cut from this module and is kept, with the
-  private premises it needs, on the shelf
-  `Reserve/AutomorphicForm/Adelic/FactorizableTestFnArchSmoothDead.lean`, which imports this
-  port's public API only and which nothing here imports.
+  was cut from this module on 2026-10-23 as dead and promoted back, public, on 2026-11-02 as
+  `FLTForHuman.AutomorphicForm.Adelic.FactorizableTestFnArchSmoothLeft` — the module to import for
+  the left action (`archDerivAt` under left translation), which is what SET-AF6's
+  `archDerivAt_rightConv_eq_rightConv_deriv_of_isFactorizableTestFn` needs.
 
   The engine is the chart of the test factor at `w`, phase by phase (the pin's six sections are
   kept):

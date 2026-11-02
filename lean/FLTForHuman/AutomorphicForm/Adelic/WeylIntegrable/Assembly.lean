@@ -251,18 +251,6 @@ theorem ofReal_rpow_le_domG (a : ℝ) (u : 𝔸) :
   exact ENNReal.le_tsum (f := fun k => idx F k ^ (-a) *
     (slab F Set.univ (latt F k)).indicator (fun u : 𝔸 => ENNReal.ofReal (archWeight F a u.1)) u) k
 
--- pin: continuous_unipotentGL2' (S_AutomorphicForm_bruhatTransversal_summand_norm_summable_of_re_gt_half.lean:2299)
-theorem continuous_unipotentGL2' : Continuous (fun u : 𝔸 => (unipotentGL2 u : AdelicGL2 (𝓞 F) F)) := by
-  have hval : Continuous (fun u : 𝔸 => ((unipotentGL2 u : AdelicGL2 (𝓞 F) F) : Matrix (Fin 2) (Fin 2) 𝔸)) := by
-    refine continuous_matrix fun i j => ?_
-    simp only [unipotentGL2_coe]
-    fin_cases i <;> fin_cases j <;> simp <;> fun_prop
-  have hinv : ∀ u : 𝔸, ((unipotentGL2 u)⁻¹ : AdelicGL2 (𝓞 F) F) = unipotentGL2 (-u) := fun u =>
-    inv_eq_of_mul_eq_one_right (by rw [← unipotentGL2_add, add_neg_cancel, unipotentGL2_zero])
-  refine Units.continuous_iff.2 ⟨hval, ?_⟩
-  simp_rw [hinv]
-  exact hval.comp continuous_neg
-
 -- pin: integrable_weylIntegrand (S_AutomorphicForm_bruhatTransversal_summand_norm_summable_of_re_gt_half.lean:2310)
 theorem integrable_weylIntegrand (α : (𝔸)ˣ →* ℝˣ) (hα : ∀ x, 0 < ((α x : ℝˣ) : ℝ)) (hαΔ : ∀ x, ((α x : ℝˣ) : ℝ) = (distribHaarChar 𝔸 x : ℝ))
     (μc νc : (𝔸)ˣ →* ℂˣ) (hμ : IsUnitaryChar (𝓞 F) F μc) (hν : IsUnitaryChar (𝓞 F) F νc) (s : ℂ) (hs : 1 / 2 < s.re)
@@ -273,7 +261,7 @@ theorem integrable_weylIntegrand (α : (𝔸)ˣ →* ℝˣ) (hα : ∀ x, 0 < ((
   have ha2 : 2 < a := by rw [ha_def]; linarith
 
   have hcont : Continuous fun u : 𝔸 => φ ((adelicWeyl (𝓞 F) F)⁻¹ * unipotentGL2 u * g) :=
-    hφc.comp ((continuous_const.mul (continuous_unipotentGL2' F)).mul continuous_const)
+    hφc.comp ((continuous_const.mul (continuous_unipotentGL2 (R := 𝔸))).mul continuous_const)
   refine ⟨hcont.aestronglyMeasurable, ?_⟩
 
   obtain ⟨B, hB0, hB⟩ := norm_apply_weyl_unipotent_le F α hα μc νc s φ hμ hν hφ hφc g
