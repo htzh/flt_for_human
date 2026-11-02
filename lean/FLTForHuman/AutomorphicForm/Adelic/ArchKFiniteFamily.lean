@@ -210,7 +210,7 @@ private theorem eq_of_forall_archComponent_eq {k k' : GL (Fin 2) (InfiniteAdeleR
     (h : ∀ w : InfinitePlace F, archComponent F w k = archComponent F w k') : k = k' :=
   ext_archComponent (F := F) h
 
-private theorem adelicArchGLInclAt_mul_comm {v w : InfinitePlace F} (hvw : v ≠ w) (a : GL (Fin 2) v.Completion)
+theorem adelicArchGLInclAt_mul_comm {v w : InfinitePlace F} (hvw : v ≠ w) (a : GL (Fin 2) v.Completion)
     (b : GL (Fin 2) w.Completion) :
     adelicArchGLInclAt F v a * adelicArchGLInclAt F w b = adelicArchGLInclAt F w b * adelicArchGLInclAt F v a := by
   have hcomm : archGLIncl F v a * archGLIncl F w b = archGLIncl F w b * archGLIncl F v a := by
@@ -370,7 +370,7 @@ namespace LevelInvariance
 
 variable {G : Type*} [Mul G]
 
-private def RightInvariantOn (S : Set G) (f : G → ℂ) : Prop :=
+def RightInvariantOn (S : Set G) (f : G → ℂ) : Prop :=
   ∀ g : G, ∀ k ∈ S, f (g * k) = f g
 
 private theorem exists_isOpen_subset_exists_forall_rightInvariantOn (S : ℕ → Set G) (u : ℂ → G → ℂ)
@@ -408,7 +408,7 @@ private theorem exists_isOpen_subset_exists_forall_rightInvariantOn (S : ℕ →
 
 variable (F : Type) [Field F] [NumberField F]
 
-private def congrSet (n : ℕ) : Set (AdelicGL2 (𝓞 F) F) :=
+def congrSet (n : ℕ) : Set (AdelicGL2 (𝓞 F) F) :=
   {u | glArch (𝓞 F) F u = 1 ∧ ∀ i j : Fin 2,
     (glFin (𝓞 F) F u : Matrix (Fin 2) (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F)) i j -
         (1 : Matrix (Fin 2) (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F)) i j ∈
@@ -418,11 +418,11 @@ private def congrSet (n : ℕ) : Set (AdelicGL2 (𝓞 F) F) :=
         (1 : Matrix (Fin 2) (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F)) i j ∈
       idealBall (𝓞 F) F (Ideal.span {((n + 1 : ℕ) : 𝓞 F)})}
 
-private theorem idealBound_span_singleton {r : 𝓞 F} (hr : r ≠ 0) (v : IsDedekindDomain.HeightOneSpectrum (𝓞 F)) :
+theorem idealBound_span_singleton {r : 𝓞 F} (hr : r ≠ 0) (v : IsDedekindDomain.HeightOneSpectrum (𝓞 F)) :
     idealBound (𝓞 F) (Ideal.span {r}) v = v.intValuation r := by
   rw [idealBound_of_ne_bot (by rwa [Ne, Ideal.span_singleton_eq_bot]) v, v.intValuation_if_neg hr]
 
-private theorem idealBall_span_mul_subset {a b : 𝓞 F} (ha : a ≠ 0) (hb : b ≠ 0) :
+theorem idealBall_span_mul_subset {a b : 𝓞 F} (ha : a ≠ 0) (hb : b ≠ 0) :
     idealBall (𝓞 F) F (Ideal.span {a * b}) ⊆ idealBall (𝓞 F) F (Ideal.span {a}) := by
   intro x hx v
   have h := hx v
@@ -432,7 +432,7 @@ private theorem idealBall_span_mul_subset {a b : 𝓞 F} (ha : a ≠ 0) (hb : b 
   rw [map_mul]
   exact mul_le_of_le_one_right' (v.intValuation_le_one b)
 
-private theorem eq_zero_of_forall_mem_idealBall (x : IsDedekindDomain.FiniteAdeleRing (𝓞 F) F)
+theorem eq_zero_of_forall_mem_idealBall (x : IsDedekindDomain.FiniteAdeleRing (𝓞 F) F)
     (hx : ∀ m : ℕ, m ≠ 0 → x ∈ idealBall (𝓞 F) F (Ideal.span {(m : 𝓞 F)})) : x = 0 := by
   refine IsDedekindDomain.FiniteAdeleRing.ext F fun v => ?_
   rw [coe_zero_apply]
@@ -455,7 +455,7 @@ private theorem eq_zero_of_forall_mem_idealBall (x : IsDedekindDomain.FiniteAdel
   rw [WithZero.exp_le_exp] at h3
   omega
 
-private theorem exists_idealBall_subset {O : Set (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F)} (hO : IsOpen O)
+theorem exists_idealBall_subset {O : Set (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F)} (hO : IsOpen O)
     (h0 : (0 : IsDedekindDomain.FiniteAdeleRing (𝓞 F) F) ∈ O) :
     ∃ m : ℕ, m ≠ 0 ∧ idealBall (𝓞 F) F (Ideal.span {(m : 𝓞 F)}) ⊆ O := by
   have hS := isCompact_integralFiniteAdeles (𝓞 F) F
@@ -485,18 +485,18 @@ private theorem exists_idealBall_subset {O : Set (IsDedekindDomain.FiniteAdeleRi
       (Nat.cast_ne_zero.mpr (Finset.prod_ne_zero_iff.mpr fun i _ => Nat.succ_ne_zero i)) hx
   exact (Set.disjoint_left.mp hu hxall.1) hxall.2
 
-private noncomputable def liftFin (X : Matrix (Fin 2) (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F)) :
+noncomputable def liftFin (X : Matrix (Fin 2) (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F)) :
     Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 F) F) :=
   Matrix.of fun i j => ((1 : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F)) i j, X i j)
 
-private theorem one_apply_eq (i j : Fin 2) :
+theorem one_apply_eq (i j : Fin 2) :
     (1 : Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 F) F)) i j =
       ((1 : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F)) i j,
         (1 : Matrix (Fin 2) (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F)) i j) := by
   rw [Matrix.one_apply, Matrix.one_apply, Matrix.one_apply]
   split_ifs <;> rfl
 
-private theorem coe_eq_liftFin {u : AdelicGL2 (𝓞 F) F} (hu : glArch (𝓞 F) F u = 1) :
+theorem coe_eq_liftFin {u : AdelicGL2 (𝓞 F) F} (hu : glArch (𝓞 F) F u = 1) :
     (u : Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 F) F)) =
       liftFin F (glFin (𝓞 F) F u : Matrix (Fin 2) (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F)) := by
   refine Matrix.ext fun i j => Prod.ext ?_ ?_
@@ -505,7 +505,7 @@ private theorem coe_eq_liftFin {u : AdelicGL2 (𝓞 F) F} (hu : glArch (𝓞 F) 
     rw [← glArch_apply, hu, Units.val_one]
   · rfl
 
-private theorem exists_forall_liftFin_mem {W : Set (Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 F) F))}
+theorem exists_forall_liftFin_mem {W : Set (Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 F) F))}
     (hW : IsOpen W) (h1 : (1 : Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 F) F)) ∈ W) :
     ∃ m : ℕ, m ≠ 0 ∧ ∀ X : Matrix (Fin 2) (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F),
       (∀ i j, X i j - (1 : Matrix (Fin 2) (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F)) i j ∈
@@ -541,7 +541,7 @@ private theorem exists_forall_liftFin_mem {W : Set (Matrix (Fin 2) (Fin 2) (Adel
       (X i j - (1 : Matrix (Fin 2) (Fin 2) (IsDedekindDomain.FiniteAdeleRing (𝓞 F) F)) i j) ∈ B i j := h
   rwa [add_sub_cancel] at h'
 
-private theorem exists_congrSet_subset {V : Set (AdelicGL2 (𝓞 F) F)} (hV : IsOpen V)
+theorem exists_congrSet_subset {V : Set (AdelicGL2 (𝓞 F) F)} (hV : IsOpen V)
     (h1 : (1 : AdelicGL2 (𝓞 F) F) ∈ V) : ∃ n : ℕ, congrSet F n ⊆ V := by
   obtain ⟨O, hO, hOV⟩ := Units.isInducing_embedProduct.isOpen_iff.mp hV
   have h1O : Units.embedProduct _ (1 : AdelicGL2 (𝓞 F) F) ∈ O := by
@@ -571,7 +571,7 @@ private theorem exists_congrSet_subset {V : Set (AdelicGL2 (𝓞 F) F)} (hV : Is
   rw [← hOV, Set.mem_preimage, Units.embedProduct_apply]
   exact hprod (Set.mk_mem_prod hval hinv)
 
-private theorem exists_rightInvariantOn_congrSet_of_isKfSmooth (f : AdelicGL2 (𝓞 F) F → ℂ)
+theorem exists_rightInvariantOn_congrSet_of_isKfSmooth (f : AdelicGL2 (𝓞 F) F → ℂ)
     (hf : IsKfSmooth F f) : ∃ n : ℕ, RightInvariantOn (congrSet F n) f := by
   have hopen : IsOpen ((MulAction.stabilizer (↥(finiteAdelicGL2Subgroup F))
       (FLT.SmoothVectors.RightTranslationFn.mk f :

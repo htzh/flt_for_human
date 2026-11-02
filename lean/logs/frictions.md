@@ -2238,3 +2238,93 @@ round promotes what generalizes.
   immediately above a cut declaration, it belongs to it and goes too — but the same line above the
   *next* declaration must be re-checked afterwards, since the cut's neighbours shift.
 - **seen**: 2026-11-02, SET-AF6 §1.7 (one repair cycle, both modules).
+
+
+## FR-0109 [method] — mechanical whole-node transcription or composition? Decide it by the port-overlap ratio, in one `port_advise` run
+
+- **where**: two consecutive sets on the cone's two largest ready rows, scoped within an hour of each
+  other: SET-AF7's `bigCell_eq_sum_pureTensor_of_flat_family` (5,407 silo) and SET-AF8's
+  `rightConv_rightTranslate_mem_of_isCuspSubrep` (3,833 silo)
+  ([topics/automorphicForm/SET-AF7.md](topics/automorphicForm/SET-AF7.md),
+  [topics/automorphicForm/SET-AF8.md](topics/automorphicForm/SET-AF8.md)).
+- **symptom**: the two rows look alike (3–5k silo, one headline, a long `private` prelude) and want
+  opposite treatment. bigCell: **612 of 5,365 declaration lines (11%) already in the port**, 0
+  within-file duplicates → a mechanical transcription is right, the prelude is the node's own. The
+  cusp-subrep row: **3,015 of 3,811 (78%) already in the port**, 174 declarations, 183 of the 185
+  matched copies public → a mechanical transcription would *manufacture* ~3,000 lines of duplicates,
+  and the dedup that is supposed to clean them up would miss almost all of them, because the pin's
+  names (`main`, `aux_*`, `tendsto_integral_mul_dconvWith`) have no port twin (FR-0103's name-anchor at
+  six times the scale). The measured nets are 4,753 vs **757**.
+- **cause**: the port has been built in waves whose engines were written for *other* rows and homed
+  where the engine's subject lives (`RepTheory/TypeReproducer`, `RepTheory/ConvolutionLimit`,
+  `Adelic/ArchApproxIdentity/{ArchInfra,EntryBall,Instantiate}`), so a later row can be 78% *supplied*
+  under names that share nothing with its pin text. `port_advise`'s substitution block is the only
+  instrument that sees this, and it must be run **before** choosing a strategy, not after.
+- **rule**: one `port_advise` run decides the strategy for any large row —
+  **overlap ≤ ~20% of declaration lines → mechanical whole-node port** (transcribe the text at the
+  pin's names, keep it `private`, dedup after; SET-AF7);
+  **overlap ≥ ~50% → composition** (import the engine, write only the new declarations, and expect the
+  new part to be a small `aux_*` cluster; SET-AF8);
+  in between, read the substitution list case by case. Either way the *price* is the net, never the
+  silo — 5,407 lines cost 4,753 and 3,833 cost 757.
+- **see also**: FR-0106 (the forecast is the set's closure return, not the sum of row returns) — the
+  same two rows show why the instrument has to be picked for the question.
+- **seen**: 2026-11-02, SET-AF7 §1 and SET-AF8 §1.
+
+### FR-0110 — `move_dead.py`'s reference scanner dropped **capital** Greek letters, so `Φ_snd` read as unreferenced — **fixed 2026-11-02**
+
+- **where**: SET-AF7's `move_dead --apply` on the 5,445-line mechanical transcription of the big-cell
+  node ([topics/automorphicForm/SET-AF7.md](topics/automorphicForm/SET-AF7.md) §5).
+- **symptom**: `move_dead --select dead` reported 18 declarations as unreferenced; four of them
+  (`Φ_snd`, `Φ_snd_sigmaC`, `Φ_snd_apply`, and the bridge `mC_apply` they need) are **used**. Applying
+  the cut broke the module and the four had to be restored by hand — a repair cycle on a green module.
+- **cause, exactly**: the scanner's token regex was
+  `[A-Za-z_\u03b1-\u03c9][\w'.!?\u2080-\u209c]*`. The **tail** is Unicode-aware (`\w`), but the
+  **first character** admitted only ASCII plus *lowercase* Greek (α–ω, U+03B1–U+03C9), so a
+  declaration whose name starts with a **capital** Greek letter — `Φ` is U+03A6 — never tokenised in
+  a reference position: its users were not counted and it was reported dead. Lowercase Greek was fine
+  (`ρR_pos` was *correctly* reported: it is genuinely dead), which is why the failure looks arbitrary.
+  A name referenced only from an `attribute [local instance]` line read dead for the separate reason
+  FR-0104 records (attributes are not declaration bodies).
+- **fix** (this session): the first-character class is now `[^\W\d]` (every Unicode word character
+  except a digit) with an explicit `_\w*` alternative, so capitals and subscripts tokenise. Verified
+  three ways: the same `move_dead --dry-run` on the module now reports **0 declarations / 0 lines**
+  (the 12 real ones were shelved); a synthetic probe with `Φ_used`/`Φ_unused` reports exactly the
+  unused one; and the shelf's 118 copied premises still resolve.
+- **rule that outlives the fix**: `move_dead`'s dead set is a **proposal**, never a fact — and the same
+  standing as `dedup`'s clusters. Before `--apply` on a transcribed module, `grep -c` the reported
+  names against the source (one line, the whole set), and never hand-cut spans (FR-0108). Two tool
+  bugs have now been found this way (FR-0104, this one), both in the *liveness* direction — the
+  direction whose failure mode is a broken module rather than a missed shelf.
+- **see also**: FR-0104 (attribute-only references), FR-0108 (span cutting), playbook §3.8 (the shelf
+  rule).
+- **seen**: 2026-11-02, SET-AF7 §5.
+
+
+## FR-0111 [method] [tooling] — `dedup`'s `shape` tier paired 31 declarations on a 5,000-line transcription and **6 of them did not substitute**: factor the real duplicates out, but test each one at its call site
+
+- **where**: the sharing pass after SET-AF7's landing
+  ([topics/automorphicForm/SET-AF7.md](topics/automorphicForm/SET-AF7.md) §5.1), the big-cell module
+  against the whole `AutomorphicForm/Adelic` tree.
+- **symptom**: `dedup --cross --tier name,shape,body` reported **31 clusters / 414 removable lines**
+  against five port modules. Twenty-five were true duplicates: 13 `ArchKFiniteFamily.LevelInvariance`
+  declarations held `private` (promoted in place, and the checker *verifies* them through its
+  pin-private fallback — that module went 1 ok → 14 ok) and 12 `InducedSectionFlat` ones already
+  public (their copies deleted, the namespace opened). **Six were not**, and each one failed at the
+  call site, not at the name: the port's twin took `(h₁) (h₂)` where the pin's use rewrote with one
+  argument; the pin's `continuous_adelicArchGLInclAt` binds `(F) (w)` *explicitly* while the port's
+  binds `(w)`; the port's `norm_symm_ringEquivRealOfIsReal` takes an `x : ℝ` where the pin feeds a
+  point-free form to `IsRowIsometry.map_ringEquiv`; the port's `adelicWeyl_inv'` lives in
+  `WeylIntegrable` while the pin rewrites bare; and `rTrans` is a three-line spelling of a public def
+  that takes `F` explicitly.
+- **cause**: the `shape` tier normalises binder *spelling* and the conclusion, not the argument
+  *demands* of the call sites (playbook §5's recorded caveat: "`dedup.py --tier shape` ignores
+  instance arguments … verify at the call sites before deleting one"). On a 400-declaration module the
+  caveat is not a footnote: it is a ~20% false-positive rate.
+- **rule**: run the sharing pass **top-down by cluster size** and make each cluster an experiment —
+  substitute, compile, keep it only if the module is still green. Promote what is shared *in the home
+  the mathematics names* (here the engine module, at the pin's names, which also earns checker rows),
+  delete only the copy, and keep trivial helpers private even when a twin exists: a five-line
+  coercion law or a three-line `fun y => ψ (y * g)` does not deserve a public name, and forcing one
+  re-qualifies call sites for nothing.
+- **seen**: 2026-11-02, SET-AF7 §5.1 (5,445 → 5,176 lines; 31 → 6 clusters).

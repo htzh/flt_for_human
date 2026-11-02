@@ -12,13 +12,15 @@
 
   The pin `S_` files are transcribed whole, in the pin's namespace shape: the outer mangled
   `P2MW.S_<stem>` chapters become `AutomorphicForm` (node 1) and
-  `AutomorphicForm.IsInducedSection` (node 2), and the inner `P6B.JE2aFlat` chapters are kept.
+  `AutomorphicForm.IsInducedSection` (node 2), and the inner chapters are
+  `AutomorphicForm.FlatInducedSection` (the pin's task label there was `P6B.JE2aFlat`, which is not a
+  subject: the same label names 11 unrelated pin files).
   Node 1 keeps all of its pin-public helpers (they are the checker's surface); only its
-  one `private` local lemma `coe_mul` stays `private`.
+  one `private` local lemma `coe_mul` stays `private` (trivial; see SET-AF7 §5).
 
   Reuse, do not re-prove (`FLTForHuman/NumberTheory/AdelicHaar/AdelicModulus.lean`, tier 3):
-  `P6B.JE2aFlat.{norm_finComp_eventually_eq_one, finComp_ne_zero, finComp_mul_finComp_inv}`
-  and `P6B.JE2aFlat.hasFiniteMulSupport_norm_finComp`; the pin's four local copies are dropped.
+  `PlaceModulus.{norm_finComp_eventually_eq_one, finComp_ne_zero, finComp_mul_finComp_inv}` and
+  `PlaceModulus.hasFiniteMulSupport_norm_finComp`; the pin's four local copies are dropped.
   `placeModulus` is kept as a local `def` — the pin's explicit product over the places, equal
   to the already-homed copy (and to `ideleNorm`) only by
   `NumberField.AdeleRing.distribHaarChar_eq_prod_norm_pow_mult_mul_finprod_norm`, never
@@ -59,12 +61,11 @@ open AutomorphicForm.WindowedSiegel AutomorphicForm.SiegelCoordinates
 
 namespace AutomorphicForm
 
-section RINHFold_JE2aFlatLocal
+section FlatLocal
 
 noncomputable section
 
-namespace P6B
-namespace JE2aFlat
+namespace FlatInducedSection
 
 section Local
 
@@ -163,18 +164,17 @@ theorem finLocalHeight_mul_integral (g k : GL (Fin 2) K)
 
 end Local
 
-end P6B.JE2aFlat
+end FlatInducedSection
 
 end
 
-end RINHFold_JE2aFlatLocal
+end FlatLocal
 
-section RINHFold_JE2aFlatAdelic
+section FlatAdelic
 
 noncomputable section
 
-namespace P6B
-namespace JE2aFlat
+namespace FlatInducedSection
 
 variable (F : Type) [Field F] [NumberField F]
 
@@ -201,7 +201,7 @@ theorem placeModulus_pos (x : (AdeleRing (𝓞 F) F)ˣ) : 0 < placeModulus F x :
   unfold placeModulus
   refine mul_pos (Finset.prod_pos fun w _ => pow_pos (norm_pos_iff.mpr (archComp_ne_zero x w)) _) ?_
   exact finprod_induction (fun r : ℝ => 0 < r) one_pos (fun _ _ => mul_pos)
-    fun v => norm_pos_iff.mpr (P6B.JE2aFlat.finComp_ne_zero x v)
+    fun v => norm_pos_iff.mpr (PlaceModulus.finComp_ne_zero x v)
 
 -- pin: finHeight_upper_mul (S_AutomorphicForm_isInducedSection_adelicHeight_cpow.lean:190)
 theorem finHeight_upper_mul (s g : GL (Fin 2) (FiniteAdeleRing (𝓞 F) F))
@@ -269,7 +269,7 @@ theorem adelicHeight_borel_mul (b : AdelicGL2 (𝓞 F) F) (hb : b ∈ adelicBore
       = ((b : GL (Fin 2) (AdeleRing (𝓞 F) F)) : Matrix (Fin 2) (Fin 2) (AdeleRing (𝓞 F) F)) 1 1 := rfl
 
   have hfin := finHeight_upper_mul (glFin (𝓞 F) F b) (glFin (𝓞 F) F g)
-    (by rw [glFin_apply, h10]; rfl) (fun v => by rw [glFin_apply, ← hy0]; exact P6B.JE2aFlat.finComp_ne_zero y v)
+    (by rw [glFin_apply, h10]; rfl) (fun v => by rw [glFin_apply, ← hy0]; exact PlaceModulus.finComp_ne_zero y v)
 
   have harch := archHeight_upper_mul (glArch (𝓞 F) F b) (glArch (𝓞 F) F g)
     (by rw [glArch_apply, h10]; rfl) (fun w => by rw [glArch_apply, ← hy0]; exact archComp_ne_zero y w)
@@ -280,10 +280,10 @@ theorem adelicHeight_borel_mul (b : AdelicGL2 (𝓞 F) F) (hb : b ∈ adelicBore
     fun w => norm_ne_zero_iff.mpr (archComp_ne_zero y w)
   have hy2 : (∏ᶠ v : HeightOneSpectrum (𝓞 F), ‖(y : AdeleRing (𝓞 F) F).2 v‖) ≠ 0 :=
     (finprod_induction (fun r : ℝ => 0 < r) one_pos (fun _ _ => mul_pos)
-      fun v => norm_pos_iff.mpr (P6B.JE2aFlat.finComp_ne_zero y v)).ne'
+      fun v => norm_pos_iff.mpr (PlaceModulus.finComp_ne_zero y v)).ne'
   unfold placeModulus
-  rw [finprod_div_distrib (P6B.JE2aFlat.hasFiniteMulSupport_norm_finComp x)
-    (P6B.JE2aFlat.hasFiniteMulSupport_norm_finComp y)]
+  rw [finprod_div_distrib (PlaceModulus.hasFiniteMulSupport_norm_finComp x)
+    (PlaceModulus.hasFiniteMulSupport_norm_finComp y)]
   simp only [div_pow]
   rw [Finset.prod_div_distrib]
   have hA : (∏ w : InfinitePlace F, ‖(y : AdeleRing (𝓞 F) F).1 w‖ ^ w.mult) ≠ 0 :=
@@ -317,18 +317,17 @@ theorem adelicHeight_mul_of_integral_of_rowIsometry (g k : AdelicGL2 (𝓞 F) F)
   unfold adelicHeight
   rw [map_mul, map_mul, archHeight_mul_rowIsometry F _ hka, finHeight_mul_integral _ _ hk hk']
 
-end P6B.JE2aFlat
+end FlatInducedSection
 
 end
 
-end RINHFold_JE2aFlatAdelic
+end FlatAdelic
 
-section RINHFold_JE2aFlatFamily
+section FlatFamily
 
 noncomputable section
 
-namespace P6B
-namespace JE2aFlat
+namespace FlatInducedSection
 
 variable (F : Type) [Field F] [NumberField F]
 
@@ -458,11 +457,11 @@ theorem isInducedSection_flatOne (α : (AdeleRing (𝓞 F) F)ˣ →* ℝˣ) (hα
     ofReal_div_mul_cpow (placeModulus_pos _) (placeModulus_pos _) (adelicHeight_pos g)]
   simp only [etaFst, etaSnd, MonoidHom.mul_apply, MonoidHom.one_apply, one_mul, cpowChar_apply_val, hαmod]
 
-end P6B.JE2aFlat
+end FlatInducedSection
 
 end
 
-end RINHFold_JE2aFlatFamily
+end FlatFamily
 
 open MeasureTheory NumberField NumberField.AdelicHeight AutomorphicForm
 open scoped NNReal
@@ -480,7 +479,7 @@ theorem isInducedSection_adelicHeight_cpow
         (fun g : AdelicGL2 (𝓞 F) F => ((adelicHeight F g : ℝ) : ℂ) ^ (s + 1 / 2)) :=
   ⟨fun x => by rw [MonoidHom.coe_toHomUnits]; exact MeasureTheory.distribHaarChar_pos,
     fun x => by rw [MonoidHom.one_apply, Units.val_one, norm_one],
-    fun hα s => P6B.JE2aFlat.isInducedSection_flatOne _ hα
+    fun hα s => FlatInducedSection.isInducedSection_flatOne _ hα
       (fun x => NumberField.AdeleRing.distribHaarChar_eq_prod_norm_pow_mult_mul_finprod_norm F x) s⟩
 
 -- pin: IsInducedSection.apply_globalPoints_mul_of_mem_borelSubgroup_and_apply_unipotentGL2_mul (S_AutomorphicForm_IsInducedSection_apply_globalPoints_mul_of_mem_borelSubgroup_and_apply_unipotentGL2_mul.lean:15)

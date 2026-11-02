@@ -87,6 +87,50 @@ them either. They were therefore dropped as dead prelude rather than transcribed
 needs them, its own file carries a copy: port them there at the pin's statement. Prices: 2–6 lines
 each.
 
+### The pin's proof-search **task labels** still in the port — a naming pass of its own
+
+The pin nests its generated proofs in task-label namespaces (`P6B`, `JE2aFlat`, `JE2aHMod`, `M4aS4`,
+`M4aP3B`, `RINHFold`). Those are **not subjects**: the same label carries unrelated mathematics in
+different pin files — `P6B.JE2aFlat` is 11 pin `S_` files, from `LocalNewvector_PSCarrier_*` to
+`NumberField_dedekindZeta_ne_zero`; `M4aS4` is 6; `M4aP3B` 19. The port's rule is explicit ("no
+random tokens in names") and it has a precedent: SET-AF4 dropped `P6B.RFCSol` as "a proof-search
+label: keep the names". Five labels survived, either deliberately (the headers of
+`Adelic/InducedSectionFlat.lean` and `NumberTheory/AdelicHaar/AdelicModulus.lean` say the pin
+namespaces are kept) or by inheritance:
+
+**Resolved 2026-11-02** (the instruction was to fix the label that had reached a module under edit,
+and any co-occurring label in the same modules): `P6B.JE2aFlat` → `FlatInducedSection`
+(`AutomorphicForm`, `Adelic/InducedSectionFlat.lean`) and → `PlaceModulus` (`NumberField.AdelicHaar`,
+`NumberTheory/AdelicHaar/AdelicModulus.lean`); `P6B.JE2aHMod` → `ZhatModulus`; the `RINHFold_*` and
+`RHMODFold_*` **section** labels dropped. Four modules edited, all their importers rebuilt and green,
+the checker unchanged. **Still open:** `M4aS4` — it is one namespace spread over
+`AdelicHaar/PlaceMeasure.lean` (29 declarations) and `AdelicHaar/AdelicModulus.lean` (4, which use
+PlaceMeasure's `placeBorel`/`finMeasure` unqualified), so it moves only in a sweep over both, together
+with its ~15 references in `WeylIntegrable/*`, `Iwasawa/Complex/*`, `MeasureTheory/FourierDecay`,
+`Analysis/Calculus/SeminormBound` and the big-cell module's `attribute [local instance]` lines; and
+`M4aP3B`, which is only four docstring references to pin file names.
+
+The table below is the survey as written:
+
+| label | port files | occurrences | what it actually holds there |
+|---|---|---:|---|
+| `P6B.JE2aFlat` | `Adelic/InducedSectionFlat`, `Adelic/BigCellExpansion` (an `open`), `NumberTheory/AdelicHaar/AdelicModulus` | 12 | the flat induced section (34 decls) **and**, in the NumberTheory module, `placeModulus` + the fin-component norm lemmas (5 decls) — two subjects under one label |
+| `P6B.JE2aHMod` | `NumberTheory/AdelicHaar/AdelicModulus` | 19 | the `ẑ`-coset / transversal modulus machinery (46 decls) |
+| `M4aS4` | `NumberTheory/AdelicHaar/{PlaceMeasure,AdelicModulus,ArchModulus}`, `Adelic/WeylIntegrable/{Assembly,LatticeEstimates,UniformBound}`, `Iwasawa/Complex/{Core,Decay}`, `Analysis/Calculus/SeminormBound`, `MeasureTheory/FourierDecay` | 30 | place measures (29 decls in `PlaceMeasure`) **and** transversals (4 decls in `AdelicModulus`) |
+| `M4aP3B` | `Analysis/Calculus/SeminormBound` (`M4aP3B.Rows.UniformSeminorm`), `MeasureTheory/FourierDecay` and `Iwasawa/Complex/{Core,Decay}` (`M4aP3B.FourierDecay`) | 4 | **a source-file reference in a docstring**, not a namespace — drop or repoint |
+| `RINHFold` | `Adelic/InducedSectionFlat` (sections only) | 6 | fold markers, not namespaces |
+
+Proposed map as executed: `P6B.JE2aFlat` (InducedSectionFlat) →
+`AutomorphicForm.FlatInducedSection`; `P6B.JE2aFlat` (AdelicModulus) →
+`NumberField.AdeleRing.PlaceModulus`; `P6B.JE2aHMod` → `NumberField.AdeleRing.ZhatModulus`;
+`M4aS4` (PlaceMeasure) → `NumberField.AdelicHaar.PlaceMeasure`, `M4aS4` (AdelicModulus) →
+`NumberField.AdeleRing.HasTransversal`; `M4aP3B`/`RINHFold` → drop (sections and 4 helpers).
+Two of these pairs **must move together** (`P6B.JE2aFlat` is declared in two modules and
+`InducedSectionFlat` reuses `AdelicModulus`'s copy), so it is all-or-nothing per label —
+a naming sweep, not a set: ~11 files, 3 hub modules (2 and 8 importers), mechanical edits, a
+`dedup`-free pass with only builds to pay. Not done as of 2026-11-02 (SET-AF7 §5 records where it
+was noticed: the new `open AutomorphicForm.P6B.JE2aFlat` in the big-cell module).
+
 ### The FTF1 left half's nine pre-cut declarations — in the pin only — **RESOLVED 2026-11-02**
 
 > **Resolved by SET-AF6's manager's layer.** The left halves were promoted out of `Reserve/` into

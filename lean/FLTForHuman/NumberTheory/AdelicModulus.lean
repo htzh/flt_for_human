@@ -79,7 +79,7 @@ theorem distribHaarChar_eq_prod_norm_pow_mult_mul_finprod_norm
             ‖(a : NumberField.AdeleRing (NumberField.RingOfIntegers F) F).1 w‖ ^ w.mult)
         * ∏ᶠ v : IsDedekindDomain.HeightOneSpectrum (NumberField.RingOfIntegers F),
             ‖(a : NumberField.AdeleRing (NumberField.RingOfIntegers F) F).2 v‖ :=
-  P6B.JE2aHMod.distribHaarChar_eq_placeModulus (P6B.JE2aHMod.hasTransversal F) a
+  ZhatModulus.distribHaarChar_eq_placeModulus (ZhatModulus.hasTransversal F) a
 
 -- pin: distribHaarChar_algebraMap (S_NumberField_AdeleRing_distribHaarChar_algebraMap.lean:65)
 theorem distribHaarChar_algebraMap (F : Type) [Field F] [NumberField F]

@@ -268,7 +268,7 @@ section ArchPlace
 
 variable (F : Type) [Field F] [NumberField F] (w : InfinitePlace F)
 
-private theorem gl_ext {g h : AdelicGL2 (𝓞 F) F} (h₁ : glArch (𝓞 F) F g = glArch (𝓞 F) F h)
+theorem gl_ext {g h : AdelicGL2 (𝓞 F) F} (h₁ : glArch (𝓞 F) F g = glArch (𝓞 F) F h)
     (h₂ : glFin (𝓞 F) F g = glFin (𝓞 F) F h) : g = h := by
   apply Units.ext
   ext i j

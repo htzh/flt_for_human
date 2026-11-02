@@ -1,9 +1,9 @@
 /-
   The modulus character of the adèle ring, computed place by place: the finite-place half.
 
-  `P6B.JE2aFlat.placeModulus` is the explicit product of the local normalised absolute
+  `PlaceModulus.placeModulus` is the explicit product of the local normalised absolute
   values over the infinite places (weighted by the multiplicity `w.mult`) and the
-  height-one primes, evaluated on an idele. The `P6B.JE2aHMod` blocks compute the modulus of
+  height-one primes, evaluated on an idele. The `ZhatModulus` blocks compute the modulus of
   an idele with trivial archimedean component as that product, by counting the index of
   `y • ẑ` in the integral lattice `ẑ = integralFiniteAdeles` — `card_zhat_quot_eq_absNorm`,
   `absNorm_globalIdeal_mul_finprod_norm`, `card_zhat_quot_mul_finprod_norm` — and then
@@ -13,7 +13,11 @@
   Transcribed from
   `S_NumberField_AdeleRing_distribHaarChar_eq_prod_norm_pow_mult_mul_finprod_norm.lean`
   (pinned `aa2d8b3`), the genuinely new blocks: lines 14–72, 74–447, 1011–1101, 1103–1211
-  and 1213–1349, keeping the pin namespaces `P6B.JE2aFlat`, `P6B.JE2aHMod` and `M4aS4`. The
+  and 1213–1349, with the pin's task labels renamed: `P6B.JE2aFlat` → `PlaceModulus` and
+  `P6B.JE2aHMod` → `ZhatModulus` (a label is not a subject: the same `P6B.JE2aFlat` names 11
+  unrelated pin files). `M4aS4` stays — it is one namespace spread over this module and
+  `PlaceMeasure`, and this module's four declarations use that module's `placeBorel`/`finMeasure`
+  unqualified, so it moves only in a sweep over both. The
   pin's `NumberField.AdelicCountability` block (449–585) and its first `M4aS4` block
   (587–1008) are already homed at `AdelicLevel/Countability.lean` and
   `AdelicHaar/PlaceMeasure.lean` and are imported, not re-transcribed; the pin's
@@ -42,10 +46,9 @@ open scoped Pointwise ENNReal NNReal RestrictedProduct
 
 noncomputable section
 
-section RHMODFold_JE2aFlatAdelic
+section ModulusFlat
 
-namespace P6B
-namespace JE2aFlat
+namespace PlaceModulus
 
 variable (F : Type) [Field F] [NumberField F]
 
@@ -97,14 +100,13 @@ theorem hasFiniteMulSupport_norm_finComp (x : (AdeleRing (𝓞 F) F)ˣ) :
     (fun v : HeightOneSpectrum (𝓞 F) => ‖(x : AdeleRing (𝓞 F) F).2 v‖).HasFiniteMulSupport :=
   Filter.eventually_cofinite.mp (norm_finComp_eventually_eq_one x)
 
-end P6B.JE2aFlat
+end PlaceModulus
 
-end RHMODFold_JE2aFlatAdelic
+end ModulusFlat
 
-section RHMODFold_JE2aHMod1
+section ZhatModulusA
 
-namespace P6B
-namespace JE2aHMod
+namespace ZhatModulus
 
 variable (F : Type) [Field F] [NumberField F]
 
@@ -491,9 +493,9 @@ theorem card_zhat_quot_mul_finprod_norm (y : (FiniteAdeleRing (𝓞 F) F)ˣ)
   rw [card_zhat_quot_eq_absNorm F y hy]
   exact absNorm_globalIdeal_mul_finprod_norm F y hy
 
-end P6B.JE2aHMod
+end ZhatModulus
 
-end RHMODFold_JE2aHMod1
+end ZhatModulusA
 
 namespace M4aS4
 
@@ -591,10 +593,9 @@ theorem distribHaarChar_of_fst_eq_one (a : (AdeleRing (𝓞 F) F)ˣ) (ha : (a : 
 
 end M4aS4
 
-section RHMODFold_JE2aHMod1b
+section ZhatModulusB
 
-namespace P6B
-namespace JE2aHMod
+namespace ZhatModulus
 
 variable (F : Type) [Field F] [NumberField F]
 
@@ -679,16 +680,15 @@ theorem hasTransversal (y : (FiniteAdeleRing (𝓞 F) F)ˣ)
           QuotientAddGroup.eq_iff_sub_mem.mp (Quotient.out_eq _).symm
         exact this
 
-end P6B.JE2aHMod
+end ZhatModulus
 
-end RHMODFold_JE2aHMod1b
+end ZhatModulusB
 
-section RHMODFold_JE2aHMod3
+section ZhatModulusC
 
-open M4aS4 P6B.JE2aFlat
+open M4aS4 PlaceModulus
 
-namespace P6B
-namespace JE2aHMod
+namespace ZhatModulus
 
 variable {F : Type} [Field F] [NumberField F]
 
@@ -820,6 +820,6 @@ theorem distribHaarChar_eq_placeModulus
   simp only [archUnit_fst]
   rfl
 
-end P6B.JE2aHMod
+end ZhatModulus
 
-end RHMODFold_JE2aHMod3
+end ZhatModulusC

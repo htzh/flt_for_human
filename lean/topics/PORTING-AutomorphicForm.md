@@ -241,6 +241,8 @@ The def-import DAG fixes the order; each level is one work order.
 | **A5w** | `Adelic/RightConvRegularity` (the regularity headline) | 471 | A5, H1 | landed |
 | **A6m** | `Adelic/FactorizableTestFnArchSmooth{,Complex}Left` (the left half of the arch chart, promoted out of `Reserve`, public) | 1,190 | D7 | landed |
 | **A6** | `Adelic/ArchDerivRightConv{,Complex}` (differentiating `rightConv` along an archimedean flow) | 2,494 | A6m, A5w | landed |
+| **A7** | `Adelic/BigCellExpansion` (the cone's largest node, transcribed mechanically) | 5,407 | A5w | landed |
+| **A8** | `Cusp/RightConvSubrep` (the `RepTheory` ↔ `Cusp` bridge — a **composition** set, 757 net) | 3,833 | A5w | **queued** |
 
 Two ordering notes that stay true. `ArchType` lands last among the `Def_*` modules because the
 pin defines `archRowIsometryAt` over the row-isometry subgroup of D6; the port keeps that edge
@@ -375,7 +377,32 @@ declarations needed **0** local re-statements. Measured after the landing: `need
 and 779 silo more than forecast, because the set readied a row whose missing premises were *both* of its
 rows and a per-row return cannot see that (FR-0106). That row is
 `archCasimirAt_rightConv_of_isFactorizableTestFn_of_continuous_archDerivAt` (779) — the archDeriv↔Casimir
-bridge, and the natural headline of SET-AF7, which is the eight remaining leaves of the family. The
+bridge, and the natural headline of SET-AF7, which is the eight remaining leaves of the family.
+
+The seventh **is landed** (2026-11-02) and it is the column's experiment in *strategy*:
+[automorphicForm/SET-AF7.md](automorphicForm/SET-AF7.md), the cone's largest node
+`bigCell_eq_sum_pureTensor_of_flat_family` — **5,407 silo, 4,753 net, 458 declarations** (457 of them
+`private`) — ported **mechanically** rather than by selection: one module, the pin's text at the pin's
+own inner namespaces, the tooling translated (`p2m_open` → `open`/`open scoped`, `p2m_export`/
+`p2m_reactivate` dropped, `attribute [-…]` shims dropped). The measurement the strategy was chosen on:
+a full elaboration pass is **17 s** for 5,445 lines (~320 lines/s, *cheaper per line* than the
+column's 1,200-line modules), and the mechanical pass left only **16 sites** — all v4.34 drift, none a
+statement change. Landed: `Adelic/BigCellExpansion.lean`, 5,445 lines, 1 public + 463 `private`,
+checker **1 ok / 0 / 0**, axioms clean, **zero warnings**, consumer probe 0 errors; `dedup --cross`
+found 31 clusters (3 fixed by FR-0101 — the pin's `placeBorel`/`placeBorelSpace`/`infMS` are the
+port's `M4aS4.*` verbatim — 28 kept with reasons), and `move_dead` shelved **12 declarations / 150
+lines** of the pin's abandoned real-place Fourier route to
+`Reserve/AutomorphicForm/Adelic/BigCellExpansionDead.lean` (1,749 lines with the 118 premises).
+Measured after the landing: `needed` **895 / 362,549** (−5,407, exact), frontier 1,520 / 764,817, the
+AF shelf 41 / 17,411. Its 31 cross-dedup clusters were then **shared, not just re-triaged** (§5.1): 25 were true duplicates
+— 13 `ArchKFiniteFamily.LevelInvariance` engine lemmas promoted in place to public (which also took
+that module from 1 to **14 checker-verified** declarations) and 12 `InducedSectionFlat` ones already
+public — so the module went **5,445 → 5,176 lines** and 31 → 6 clusters; the 6 that stayed are
+trivial (`rTrans`, 3 lines) or **provably non-substituting** (binder/call-site mismatch, each tested by
+substitution and reverted), which is FR-0111's measured 20% `shape`-tier false-positive rate. Two tool
+frictions came out of the set: FR-0110 (`move_dead`'s scanner dropped capital Greek names —
+**fixed** this session) and the standing FR-0104 (attribute-only references).
+Its §5 is the execution record; the queued eighth set is the *composition* counter-example (§A8). The
 landing's dead tail (6 declarations / 109 lines per module, all dead in the pin as well) was triaged
 rather than carried (§1.7): `l5_continuous_rightConv` **deleted** — it is the first conjunct of AF5's
 public headline, so a duplicate — and the other five **shelved** into
