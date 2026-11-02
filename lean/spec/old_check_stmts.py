@@ -4190,7 +4190,9 @@ PORT_FILES = [
     # The adele-ring topology/Haar layer (the former `AdelicHaar/Topology.lean` stub is
     # absorbed into the three D1 role modules), the level projections, the definitions,
     # and the headline. The pin `S_` helpers are `private` here, so only the
-    # headline is diffed.
+    # headline is diffed. `AutomorphicForm/Adelic/TestFnTop.lean` has moved to
+    # `spec/check_port.py` (its three public declarations are wired by `spec-pin:`;
+    # SET-AF8 promoted `continuous_archEntries`/`continuous_of_isArchTestFactor`).
     "FLTForHuman/NumberTheory/AdelicHaar/Local.lean",
     "FLTForHuman/NumberTheory/AdelicHaar/Adele.lean",
     "FLTForHuman/NumberTheory/AdelicHaar/GeneralLinear.lean",
@@ -4199,7 +4201,6 @@ PORT_FILES = [
     "FLTForHuman/NumberTheory/AdelicLevel/Level.lean",
     "FLTForHuman/NumberTheory/AdelicLevel/HeckeGen.lean",
     "FLTForHuman/AutomorphicForm/Adelic/FactorizableTestFn.lean",
-    "FLTForHuman/AutomorphicForm/Adelic/TestFnTop.lean",
     # The `K(x)` finite-extension `EssFiniteType` headline. Appended last.
     "FLTForHuman/AlgebraicCurve/IsCurveOver/EssFiniteType.lean",
     # --- Principal divisors on a Weierstrass curve (capstone route only) ---

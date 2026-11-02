@@ -15,10 +15,16 @@
 
   Transcribed from
   `P2M/Sol/S_AutomorphicForm_continuous_and_hasCompactSupport_of_isFactorizableTestFn.lean`
-  (pinned `aa2d8b3`); the statement is the `Theorems/` wrapper's. The pin
-  development's helpers are `private` here, so the statement checker diffs only
-  the headline. `open Topology` is the pin's own `p2m_open`, needed because
+  (pinned `aa2d8b3`); the statement is the `Theorems/` wrapper's. The two helpers
+  `continuous_archEntries` and `continuous_of_isArchTestFactor` are public here because
+  the pin declares them public in that source, and the cusp-subrepresentation row
+  (`Cusp/RightConvSubrep.lean`) imports the second one; the rest of the pin
+  development's helpers are `private`, so the statement checker diffs the three public
+  declarations only. `open Topology` is the pin's own `p2m_open`, needed because
   `IsClosedEmbedding`/`IsInducing` live under `Topology` in the current mathlib.
+
+  spec-pin: Theorems/Thm_AutomorphicForm_continuous_and_hasCompactSupport_of_isFactorizableTestFn.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_continuous_and_hasCompactSupport_of_isFactorizableTestFn.lean
 -/
 import FLTForHuman.AutomorphicForm.Adelic.FactorizableTestFn
 import FLTForHuman.NumberTheory.AdelicHaar.GeneralLinear
@@ -45,11 +51,11 @@ private theorem continuous_ringEquiv_mixedSpace :
   · exact (isometry_extensionEmbedding v.1).continuous.comp (continuous_apply _)
 
 omit [NumberField F] in
-private theorem continuous_archEntries : Continuous (archEntries F) :=
+theorem continuous_archEntries : Continuous (archEntries F) :=
   continuous_pi fun i => continuous_pi fun j =>
     (continuous_ringEquiv_mixedSpace F).comp (Units.continuous_val.matrix_elem i j)
 
-private theorem continuous_of_isArchTestFactor
+theorem continuous_of_isArchTestFactor
     {fa : GL (Fin 2) (InfiniteAdeleRing F) → ℂ} (h : IsArchTestFactor F fa) :
     Continuous fa := by
   obtain ⟨⟨Φ, hΦ, hfa⟩, -⟩ := h

@@ -1,10 +1,23 @@
-# SET-AF8 — right convolution stays in the cusp subrepresentation: a **composition** set, queued
+# SET-AF8 — right convolution stays in the cusp subrepresentation: a **composition** set, landed
 
-**Status: queued 2026-11-02, not dispatched.** Scoped from measurements only; no Lean was written for
-it. It is the row SET-AF5's headline was written for, and it is the column's clean test of the *other*
-strategy: this node is **78% already in the port**, so it is a composition set (~840 written lines),
-not a transcription set. Dispatch it with
-[WORKORDER-AF8-cuspsubrep.md](WORKORDER-AF8-cuspsubrep.md) when the column picks it up.
+**Status: LANDED 2026-11-02** — the manager's layer (definition gate, `ConvTransport` refactor, two
+promotions, module skeleton, verified surface) plus one worker dispatch for the 11 remaining proof
+bodies. §5 records the landing and the re-read. Scoped from measurements only; no Lean was written for
+it at scoping time. It is the row SET-AF5's headline was written for, and it is the column's clean test
+of the *other* strategy: this node is **78% already in the port**, so it is a composition set, not a
+transcription set. The order as issued is
+[WORKORDER-AF8-cuspsubrep.md](WORKORDER-AF8-cuspsubrep.md); its §0 records the manager's layer, and
+§5 below records what the worker landed.
+
+**Correction to Appendix B below (measured at dispatch, `port_advise` + a per-declaration statement
+diff).** The file's 224 declarations are 198 byte-identical in the port, 1 shape-identical, 2 with no
+statement twin (`solution`, `exists_contDiff_dconvWith`) and **23 genuinely new** — not 50. The other
+25 of Appendix B's rows are `def`s/`abbrev`s and short lemmas whose statements the comparator cannot
+match (`piE`, `rt`, `Kw`, `Ent`, `muK`, `convDomain`, `convOpOn`, `rowIsometryInclAt₀`,
+`entryBall_mono`, `coeffFun_apply`, …); all of them are already in the port. The manager landed the
+definition layer (`ConvTransport` into `RepTheory/ConvolutionLimit.lean`, the `JoinOfFamilies` section
+in the new module, two promotions in `TestFnTop`), so the dispatch writes **11 declarations / ≈600 pin
+lines**.
 
 ## 0. The row
 
@@ -54,6 +67,10 @@ whole-node port (SET-AF7); ≥ ~50% → composition: import the engine and write
 
 ## 2. What has to be written: 50 declarations / 837 lines
 
+> **Superseded at dispatch — see the status block and §5.** The honest figure is **11 declarations**
+> (one engine theorem, nine private helpers, the headline); Appendix B's other 39 rows are either
+> already in the port under another name or were written by the manager's layer.
+
 A tight cluster, all `aux_*`-prefixed in the pin and all new: the `dconvWith` dominated-convergence
 core, the convolution kernel's existence, the tensor form, the `convOpOn`/`convDomain` glue, the
 row-isometry quantifier, and the 68-line headline. Appendix B is the full list with spans.
@@ -85,7 +102,61 @@ largest first. Two caveats for the worker:
   — the two biggest single imports, i.e. a third of the file arrives by two names. Check their
   statements before relying on them (the pin's `main` may be a weaker/stronger form).
 
-## 5. What it does not do
+## 5. The landing
+
+**Files.** `FLTForHuman/AutomorphicForm/Adelic/Cusp/RightConvSubrep.lean` **471 lines** — the
+manager's `JoinOfFamilies` block (3 declarations) plus the worker's 10: `exists_convKernel`,
+`dconvWith_tensor`, `rightConv_rightTranslate_eq`, `exists_contDiff_dconvWith`,
+`rightConv_mem_archCutSubmodule`, `exists_archTypeFamily_mem_archCutSubmodule_of_mem_cuspKFiniteSubmodule`,
+the three `*_mul_right` factor lemmas, and the headline. `FLTForHuman/RepTheory/ConvolutionLimit.lean`
+**884 lines** — the manager's `ConvTransport` (8 declarations) plus the worker's `section ConvLimit`
+holding `integral_mul_dconvWith` (134 lines). And the new `spec/AutomorphicFormSetAF8Consumer.lean`
+(49 lines, one zone, 0 errors).
+
+**Gates, all green.** `lake env lean` silent on all three files; `flock`/`timeout 280 lake build` on
+the engine **11 s** and on the module **8.7 s**, both silent; `check_port --force` **33 ok / 0 mismatch
+/ 0 missing** on the engine and **1 ok / 0 / 0** on the module; `#print axioms` on the headline
+`[propext, Classical.choice, Quot.sound]`; `dedup --within/--cross` 47 declarations, **0 clusters**;
+`move_dead` **0** dead (one manager-landed declaration, `map_algebraMap_self`, was flagged: it is a
+restatement of `Ideal.map_id` with no consumer in this node's pin file either, i.e. plumbing — the
+manager deleted it, 4 lines, and the module re-verifies 1 ok).
+
+**Two corrections the worker made to the order, both recorded as frictions.** (i) The order's trap §3.3
+was wrong: for `IsFinTestFactor`'s `hff.1 : IsLocallyConstant ff` the pin's
+`hff.1.comp_continuous (continuous_mul_const k)` is the right call and the suggested
+`(hff.1).comp …` does not elaborate — the fix was to *check* `IsLocallyConstant.comp_continuous`
+instead of inferring from `Continuous.comp_continuous` being absent (FR-0113). (ii) The pin's
+`p2m_reactivate "…KAvArch"` is load-bearing: `compactSpace_Kw` and the `muK` probability/Haar facts are
+**scoped** instances of `ArchInfra`, so the module needs one `open scoped ArchInfra` — which no
+`#check`-based surface probe can reveal, because it resolves names, not instance synthesis (FR-0112).
+Two smaller deviations are cosmetic: the headline's `tys` binder is written
+`(tys : AutomorphicForm.ArchTypeFamily F)` (the pin's wrapper and `solution` both spell it qualified;
+the unqualified form fails the checker's textual tier), and `glArch`/`glFin` are qualified.
+
+**The re-read (the recipe's §7), on the landed tree, no `--unport`.** The set consumed **1 node /
+3,833 pin lines** and readies nothing, exactly as its brief forecast:
+
+| figure | before | **after** | Δ |
+|---|---:|---:|---:|
+| `needed [F terminal]` | 895 / 362,549 | **894 / 358,716** | −1 / −3,833 ✓ |
+| `needed [literal]` | 908 / 366,024 | **907 / 362,191** | −1 / −3,833 |
+| frontier F | 1,520 / 764,817 | **1,521 / 768,650** | +1 / +3,833 |
+| ready rows, all namespaces | 70 / 22,755 | 69 / 18,922 | −1 / −3,833 |
+| `AutomorphicForm` ready rows | 41 / 17,411 | **40 / 13,578** | −1 / −3,833 |
+| `AutomorphicForm` leaves | 80 / 16,549 | 80 / 16,549 | — |
+| withheld by the FR-0044 guard | 4 / 831 | 4 / 831 | — |
+| rows that became ready | — | **0** | return 0 |
+
+**The instrument finding this set produced.** Wiring the module's `spec-pin:` lines at *skeleton* time
+(the manager's practice, so the worker can run the checker from its first file) marks the whole pin
+file ported in `frontier.py`'s `sources` tier — `wired_sources()` reads headers, not declarations — so
+a shelf read taken *during* a dispatch under-counts by the in-flight row. Measured: the same read gave
+`894 / 358,716` with the wires and `895 / 362,549` with `--unport AutomorphicForm.rightConv_rightTranslate_mem_of_isCuspSubrep`.
+The corrected read reproduces SET-AF7's post-landing table to the line. Rule: **a scoping read taken
+while a set is in flight `--unport`s the in-flight rows** (FR-0114), and `--selfcheck` does not see
+this direction (it checks the opposite: a `Thm_` source claiming nodes that no declaration covers).
+
+## 6. What it does not do
 
 - **No mechanical transcription of the 3,000 ported lines** (§1) — that is the whole point of the row's
   cheapness.

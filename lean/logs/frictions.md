@@ -2328,3 +2328,66 @@ round promotes what generalizes.
   coercion law or a three-line `fun y => ψ (y * g)` does not deserve a public name, and forcing one
   re-qualifies call sites for nothing.
 - **seen**: 2026-11-02, SET-AF7 §5.1 (5,445 → 5,176 lines; 31 → 6 clusters).
+
+
+## FR-0112 [method] [tooling] — a `#check` surface probe proves that *names* resolve, not that the **instances** the proofs need are synthesizable
+
+- **where**: SET-AF8's manager layer
+  ([topics/automorphicForm/SET-AF8.md](topics/automorphicForm/SET-AF8.md) §0.5), the "verified import
+  surface" probe `tmp/af8-surface.lean` (~90 `#check` lines) handed to the worker as the set's
+  first-line defence.
+- **symptom**: the probe compiles silently, and the module still does not elaborate: the pin's
+  `p2m_reactivate "…KAvArch"` is load-bearing because `compactSpace_Kw` and the `muK`
+  probability/Haar facts are **`open scoped`** instances of `ArchInfra`. The worker found it, added one
+  `open scoped ArchInfra`, and no declaration moved. Every name the probe listed was present.
+- **cause**: `#check` elaborates a term; instance synthesis happens inside a *proof* (or inside a
+  statement whose types carry instances). A probe over `@name` checks the constant, never the
+  resolution of `CompactSpace (Kprod F)` or `IsFiniteMeasure (muK F)`, and a `scoped` instance is
+  invisible unless activated.
+- **rule**: a surface probe carries, in addition to its `#check`s, **one `example` per instance the
+  proofs will need** (`example (F) [Field F] [NumberField F] : CompactSpace (ArchInfra.Kprod F) :=
+  inferInstance`), with the same `opens` the module will use, and at least one `example` whose
+  *statement* is the set's headline. `#check` says "the name exists"; only an `example` says "the
+  module will elaborate".
+- **seen**: 2026-11-02, SET-AF8 (worker report, deviation 1).
+
+
+## FR-0113 [method] — when a name is missing, `#check` the *candidate replacement* too; "the obvious repair" of a pin call is how an order hands a worker a wrong trap
+
+- **where**: WORKORDER-AF8 §3.3, written by the manager from a single failed `#check`, and corrected by
+  the worker at the landing.
+- **symptom**: the order said "`Continuous.comp_continuous` does not exist in this mathlib;
+  `hff.1.comp_continuous (continuous_mul_const k)` is `(hff.1).comp (continuous_mul_const k)`". The
+  first half is true; the second is false, and the pin's spelling was already right — `hff.1` is
+  `IsLocallyConstant ff`, and `IsLocallyConstant.comp_continuous` is the continuity lemma. The
+  suggested repair does not elaborate.
+- **cause**: the manager checked the *absent* name and inferred the replacement from the shape of the
+  call instead of checking it — one `#check @IsLocallyConstant.comp_continuous` (~2 s) would have
+  settled it. An order that states a trap with confidence spends the worker's time twice: once to hit
+  it, once to disprove it.
+- **rule**: a trap is written in one of two forms only — *"`X` is not in the port/mathlib; the port's
+  name is `Y`, `#check` it"* or *"`X` fails here; `Y` elaborates (checked)"*. Never a syntactic
+  repair inferred from a missing name. And a worker may treat a trap as a *claim to verify*, exactly
+  as it treats a pin statement.
+- **seen**: 2026-11-02, SET-AF8 (worker report, deviation 3).
+
+
+## FR-0114 [tooling] — a `spec-pin:` wire marks the whole pin **file** ported, so a module skeleton wired at creation moves `needed` by the in-flight row
+
+- **where**: the AF9 scoping read, taken while SET-AF8 was in flight; the manager had wired the new
+  module's header (its own practice: the worker must be able to run `check_port` from its first file).
+- **symptom**: the read returned `needed 894 / 358,716` and `frontier 1,521 / 768,650` — SET-AF8's
+  *post-landing* arithmetic — while only 8 of the row's 25 declarations existed. `--unport
+  AutomorphicForm.rightConv_rightTranslate_mem_of_isCuspSubrep` restored `895 / 362,549` and
+  `1,520 / 764,817`, i.e. SET-AF7's post-landing table to the line. `--selfcheck` printed PASS: it
+  checks the opposite direction (a `Thm_` source claiming nodes nothing covers).
+- **cause**: `frontier.py`'s `sources` tier reads `spec-pin:` headers (`wired_sources()`), so one wire
+  ports every node of that pin file at once. That is intentional — it is what makes the checker
+  handoff (`spec-pin:` in, `PORT_FILES` out) keep a module on the diffed frontier — but it means the
+  read is **ahead of the tree** during any dispatch whose module is wired before it is finished.
+- **rule**: a scoping read taken during a dispatch passes `--unport <every in-flight row>` and says so
+  in the brief; a read taken after the landing is the instrument's. Quote which of the two produced a
+  figure. Do **not** "fix" this by stripping the wires from a skeleton — the worker needs them to run
+  the checker while it works.
+- **seen**: 2026-11-02, the AF9 scoping read
+  ([topics/automorphicForm/SET-AF9.md](topics/automorphicForm/SET-AF9.md) §0).

@@ -11,6 +11,15 @@
   (`contDiffNat_parametricIntegral_postcompCLM`, `contDiff_parametricIntegral_clm_comp`,
   `contDiff_parametricIntegral_mul`).
 
+  The last section, `ConvTransport`, is the other half of the same operator: a single
+  convolution `convOpOn μ u θ y = ∫ x, u (y * x) * θ x⁻¹ ∂μ`, defined as a linear map on
+  the submodule `convDomain μ u` of the functions for which it is integrable, together
+  with the transport of a `typeSubmodule` through it. It is stated over an arbitrary
+  left-invariant measured group `G` with `MeasurableMul G`, i.e. the same abstraction
+  level as the rest of the file, and it is transcribed from the prelude of
+  `P2M/Sol/S_AutomorphicForm_rightConv_rightTranslate_mem_of_isCuspSubrep.lean` (the
+  `ConvTransport` section of that file), where the cusp-subrepresentation row uses it.
+
   Transcribed from
   `P2M/Sol/S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean:2212–2853`
   (pinned `aa2d8b3`), the `ZetaB` and `Carry4` sections. It mentions neither the adèles
@@ -21,6 +30,7 @@
   the low cap. The pin's `p2m_reactivate` lines are not transcribed.
 
   spec-pin: P2M/Sol/S_AutomorphicForm_exists_isArchTestFactor_isArchFactorBiFinite_tendsto_integral_of_mem_archCutSubmodule.lean
+  spec-pin: P2M/Sol/S_AutomorphicForm_rightConv_rightTranslate_mem_of_isCuspSubrep.lean
 -/
 import FLTForHuman.RepTheory.TypeReproducer
 import Mathlib.Analysis.Calculus.ParametricIntegral
@@ -438,7 +448,7 @@ end
 
 noncomputable section
 
-open Set Filter Function MeasureTheory Matrix
+open Set Filter Function MeasureTheory Matrix AutomorphicForm
 open scoped ENNReal NNReal BigOperators Classical ContDiff
 
 namespace ArchApproxIdentity
@@ -654,6 +664,220 @@ theorem contDiff_parametricIntegral_mul [IsFiniteMeasure μ]
   exact h
 
 end ScalarWeighted
+
+section ConvTransport
+
+variable {H G : Type*} [Group H] [Group G]
+
+theorem conv_integrand_eq (u θ : G → ℂ) (k y x : G) :
+    u (y * k * (k⁻¹ * x)) * θ (k⁻¹ * x)⁻¹ = u (y * x) * θ (x⁻¹ * k) := by
+  rw [mul_assoc, mul_inv_cancel_left, _root_.mul_inv_rev, inv_inv]
+
+variable [MeasurableSpace G] (μ : Measure G) (u : G → ℂ)
+
+def convDomain : Submodule ℂ (G → ℂ) where
+  carrier := {θ | ∀ y : G, Integrable (fun x => u (y * x) * θ x⁻¹) μ}
+  zero_mem' := by
+    intro y
+    simp
+  add_mem' := by
+    intro θ₁ θ₂ h₁ h₂ y
+    have e : (fun x => u (y * x) * (θ₁ + θ₂) x⁻¹) =
+        fun x => u (y * x) * θ₁ x⁻¹ + u (y * x) * θ₂ x⁻¹ :=
+      funext fun x => by simp only [Pi.add_apply, mul_add]
+    rw [e]
+    exact (h₁ y).add (h₂ y)
+  smul_mem' := by
+    intro c θ h y
+    have e : (fun x => u (y * x) * (c • θ) x⁻¹) = fun x => c * (u (y * x) * θ x⁻¹) :=
+      funext fun x => by simp only [Pi.smul_apply, smul_eq_mul, mul_left_comm]
+    rw [e]
+    exact (h y).const_mul c
+
+theorem mem_convDomain_iff (θ : G → ℂ) :
+    θ ∈ convDomain μ u ↔ ∀ y : G, Integrable (fun x => u (y * x) * θ x⁻¹) μ :=
+  Iff.rfl
+
+def convOpOn : convDomain μ u →ₗ[ℂ] (G → ℂ) where
+  toFun θ := fun y => ∫ x, u (y * x) * (θ : G → ℂ) x⁻¹ ∂μ
+  map_add' θ₁ θ₂ := funext fun y => by
+    have h₁ := (mem_convDomain_iff μ u _).mp θ₁.2 y
+    have h₂ := (mem_convDomain_iff μ u _).mp θ₂.2 y
+    show (∫ x, u (y * x) * ((θ₁ : G → ℂ) + (θ₂ : G → ℂ)) x⁻¹ ∂μ) =
+      (∫ x, u (y * x) * (θ₁ : G → ℂ) x⁻¹ ∂μ) + ∫ x, u (y * x) * (θ₂ : G → ℂ) x⁻¹ ∂μ
+    rw [← integral_add h₁ h₂]
+    exact integral_congr_ae (Filter.Eventually.of_forall fun x => by simp only [Pi.add_apply, mul_add])
+  map_smul' c θ := funext fun y => by
+    show (∫ x, u (y * x) * (c • (θ : G → ℂ)) x⁻¹ ∂μ) = c * ∫ x, u (y * x) * (θ : G → ℂ) x⁻¹ ∂μ
+    have e : (∫ x, u (y * x) * (c • (θ : G → ℂ)) x⁻¹ ∂μ) = ∫ x, c * (u (y * x) * (θ : G → ℂ) x⁻¹) ∂μ :=
+      integral_congr_ae (Filter.Eventually.of_forall fun x => by
+        simp only [Pi.smul_apply, smul_eq_mul, mul_left_comm])
+    rw [e]
+    exact integral_const_mul c _
+
+theorem convOpOn_apply (θ : convDomain μ u) (y : G) :
+    convOpOn μ u θ y = ∫ x, u (y * x) * (θ : G → ℂ) x⁻¹ ∂μ :=
+  rfl
+
+variable [MeasurableMul G] [μ.IsMulLeftInvariant]
+
+theorem comp_mul_mem_convDomain {θ : G → ℂ} (hθ : θ ∈ convDomain μ u) (k : G) :
+    (fun x => θ (x * k)) ∈ convDomain μ u := by
+  rw [mem_convDomain_iff] at hθ ⊢
+  intro y
+  refine ((hθ (y * k)).comp_mul_left k⁻¹).congr (Filter.Eventually.of_forall fun x => ?_)
+  exact conv_integrand_eq u θ k y x
+
+theorem convOpOn_comp_mul (θ : convDomain μ u) (k : G)
+    (hk : (fun x => (θ : G → ℂ) (x * k)) ∈ convDomain μ u) (y : G) :
+    convOpOn μ u ⟨fun x => (θ : G → ℂ) (x * k), hk⟩ y = convOpOn μ u θ (y * k) := by
+  simp only [convOpOn_apply]
+  rw [← integral_mul_left_eq_self (fun x => u (y * k * x) * (θ : G → ℂ) x⁻¹) k⁻¹]
+  exact integral_congr_ae (Filter.Eventually.of_forall fun x => (conv_integrand_eq u (θ : G → ℂ) k y x).symm)
+
+theorem convOpOn_mem_iSup_typeSubmodule {J : Type*} {W : J → Type*} [∀ j, AddCommGroup (W j)]
+    [∀ j, Module ℂ (W j)] {ι : H →* G} (hι : Function.Injective ι) (ρ : ∀ j, Representation ℂ H (W j))
+    (θ : convDomain μ u) (hθ : (θ : G → ℂ) ∈ ⨆ j, typeSubmodule ι (ρ j)) :
+    convOpOn μ u θ ∈ ⨆ j, typeSubmodule ι (ρ j) :=
+  mem_iSup_typeSubmodule_of_intertwines ι hι ρ (convDomain μ u)
+    (fun k _ hθ' => comp_mul_mem_convDomain μ u hθ' (ι k)) (convOpOn μ u)
+    (fun k θ' y => convOpOn_comp_mul μ u θ' (ι k) _ y) θ hθ
+
+end ConvTransport
+
+section ConvLimit
+
+variable {H Kc : Type*} [Group H] [TopologicalSpace H] [IsTopologicalGroup H] [MeasurableSpace H] [BorelSpace H]
+variable [Group Kc] [TopologicalSpace Kc] [IsTopologicalGroup Kc] [CompactSpace Kc] [SecondCountableTopology Kc]
+  [MeasurableSpace Kc] [BorelSpace Kc]
+variable {μ : Measure Kc} [IsFiniteMeasure μ] {a : Kc →* H} {ν : Measure H} [IsFiniteMeasureOnCompacts ν]
+  [ν.IsMulLeftInvariant]
+
+theorem integral_mul_dconvWith (ha : Continuous a) {e : Kc → ℂ} (he : Continuous e) {φ : H → ℂ}
+    (hφ : Continuous φ) {f₀ : H → ℂ} (hf₀c : Continuous f₀) (hf₀s : HasCompactSupport f₀)
+    (hνR : ∀ (κ : Kc) (h : H → ℂ), Continuous h → HasCompactSupport h → ∫ y, h (y * a κ) ∂ν = ∫ y, h y ∂ν)
+    (hrepφ : ∀ z : H, ∫ κ, e κ * φ (z * a κ) ∂μ = φ z)
+    (hrepψ : ∀ z : H, ∫ κ, e κ * (∫ y, φ (z * a κ * y) * f₀ y ∂ν) ∂μ = ∫ y, φ (z * y) * f₀ y ∂ν) (x : H) :
+    ∫ y, φ (x * y) * dconvWith μ a e e f₀ y ∂ν = ∫ y, φ (x * y) * f₀ y ∂ν := by
+  have hφx : Continuous fun y : H => φ (x * y) := hφ.comp (continuous_const.mul continuous_id)
+  let Φ : H → ℂ := fun y => ∫ κ, e κ * φ (x * (a κ * y)) ∂μ
+  have hFc : Continuous (Function.uncurry fun (y : H) (κ : Kc) => e κ * φ (x * (a κ * y))) :=
+    (he.comp continuous_snd).mul (hφx.comp ((ha.comp continuous_snd).mul continuous_fst))
+  have key : (∫ y, φ (x * y) * dconvWith μ a e e f₀ y ∂ν) = ∫ y, Φ y * f₀ y ∂ν := by
+    have hψT : ∀ z, f₀ z ≠ 0 → z ∈ tsupport f₀ := fun z hz => subset_tsupport _ (Function.mem_support.mpr hz)
+    let S : Set H := (fun q : (Kc × H) × Kc => a q.1.1 * q.1.2 * a q.2) '' ((Set.univ ×ˢ tsupport f₀) ×ˢ Set.univ)
+    have hS : IsCompact S := isCompact_image_mul_mul ha hf₀s
+    let F : H → Kc × Kc → ℂ := fun y p => φ (x * y) * (e p.1 * e p.2 * f₀ ((a p.1)⁻¹ * y * (a p.2)⁻¹))
+    have hFcont : Continuous (Function.uncurry F) :=
+      (hφx.comp continuous_fst).mul
+        ((((he.comp (continuous_fst.comp continuous_snd)).mul (he.comp (continuous_snd.comp continuous_snd))).mul
+          (hf₀c.comp ((((ha.comp (continuous_fst.comp continuous_snd)).inv).mul continuous_fst).mul
+            (ha.comp (continuous_snd.comp continuous_snd)).inv))))
+    have hFsupp : HasCompactSupport (Function.uncurry F) := by
+      refine HasCompactSupport.intro (hS.prod isCompact_univ) fun q hq => ?_
+      have hy : q.1 ∉ S := fun h => hq ⟨h, Set.mem_univ _⟩
+      have h0 : f₀ ((a q.2.1)⁻¹ * q.1 * (a q.2.2)⁻¹) = 0 := by
+        by_contra h
+        exact hy (mem_image_mul_mul_of_ne hψT h)
+      show φ (x * q.1) * (e q.2.1 * e q.2.2 * f₀ ((a q.2.1)⁻¹ * q.1 * (a q.2.2)⁻¹)) = 0
+      rw [h0, mul_zero, mul_zero]
+    have step1 : (∫ y, φ (x * y) * dconvWith μ a e e f₀ y ∂ν) = ∫ p, ∫ y, F y p ∂ν ∂(μ.prod μ) := by
+      rw [← integral_integral_swap_of_hasCompactSupport (μ := ν) (ν := μ.prod μ) hFcont hFsupp]
+      refine integral_congr_ae (Filter.Eventually.of_forall fun y => ?_)
+      exact (integral_const_mul _ _).symm
+
+    let F' : Kc × Kc → H → ℂ := fun p y => e p.1 * e p.2 * φ (x * (a p.1 * y * a p.2)) * f₀ y
+    have step2 : ∀ p : Kc × Kc, (∫ y, F y p ∂ν) = ∫ y, F' p y ∂ν := by
+      intro p
+      have hsub := integral_mul_shift (a := a) hνR hφx hf₀c hf₀s p.1 p.2
+      calc (∫ y, F y p ∂ν)
+          = ∫ y, (e p.1 * e p.2) * (φ (x * y) * f₀ ((a p.1)⁻¹ * y * (a p.2)⁻¹)) ∂ν := by
+            refine integral_congr_ae (Filter.Eventually.of_forall fun y => ?_)
+            show φ (x * y) * (e p.1 * e p.2 * f₀ ((a p.1)⁻¹ * y * (a p.2)⁻¹)) = _
+            ring
+        _ = e p.1 * e p.2 * ∫ y, φ (x * y) * f₀ ((a p.1)⁻¹ * y * (a p.2)⁻¹) ∂ν :=
+            integral_const_mul _ _
+        _ = e p.1 * e p.2 * ∫ y, φ (x * (a p.1 * y * a p.2)) * f₀ y ∂ν := by rw [hsub]
+        _ = ∫ y, (e p.1 * e p.2) * (φ (x * (a p.1 * y * a p.2)) * f₀ y) ∂ν :=
+            (integral_const_mul _ _).symm
+        _ = ∫ y, F' p y ∂ν := by
+            refine integral_congr_ae (Filter.Eventually.of_forall fun y => ?_)
+            show _ = e p.1 * e p.2 * φ (x * (a p.1 * y * a p.2)) * f₀ y
+            ring
+
+    have hF'cont : Continuous (Function.uncurry F') :=
+      ((((he.comp (continuous_fst.comp continuous_fst)).mul (he.comp (continuous_snd.comp continuous_fst))).mul
+        (hφx.comp ((((ha.comp (continuous_fst.comp continuous_fst))).mul continuous_snd).mul
+          (ha.comp (continuous_snd.comp continuous_fst))))).mul (hf₀c.comp continuous_snd))
+    have hF'supp : HasCompactSupport (Function.uncurry F') := by
+      refine HasCompactSupport.intro (isCompact_univ.prod hf₀s) fun q hq => ?_
+      have hy : q.2 ∉ tsupport f₀ := fun h => hq ⟨Set.mem_univ _, h⟩
+      show e q.1.1 * e q.1.2 * φ (x * (a q.1.1 * q.2 * a q.1.2)) * f₀ q.2 = 0
+      rw [image_eq_zero_of_notMem_tsupport hy, mul_zero]
+    have step3 : (∫ p, ∫ y, F' p y ∂ν ∂(μ.prod μ)) = ∫ y, ∫ p, F' p y ∂(μ.prod μ) ∂ν :=
+      integral_integral_swap_of_hasCompactSupport (μ := μ.prod μ) (ν := ν) hF'cont hF'supp
+
+    have step4 : ∀ y : H, (∫ p, F' p y ∂(μ.prod μ)) = Φ y * f₀ y := by
+      intro y
+      have hGc : Continuous fun p : Kc × Kc => e p.1 * (e p.2 * φ (x * (a p.1 * y * a p.2))) :=
+        (he.comp continuous_fst).mul ((he.comp continuous_snd).mul
+          (hφx.comp (((ha.comp continuous_fst).mul continuous_const).mul (ha.comp continuous_snd))))
+      have hint : Integrable (fun p : Kc × Kc => e p.1 * (e p.2 * φ (x * (a p.1 * y * a p.2)))) (μ.prod μ) :=
+        integrable_of_continuous_prod μ hGc
+      calc (∫ p, F' p y ∂(μ.prod μ))
+          = ∫ p, e p.1 * (e p.2 * φ (x * (a p.1 * y * a p.2))) * f₀ y ∂(μ.prod μ) := by
+            refine integral_congr_ae (Filter.Eventually.of_forall fun p => ?_)
+            show e p.1 * e p.2 * φ (x * (a p.1 * y * a p.2)) * f₀ y = _
+            ring
+        _ = (∫ p, e p.1 * (e p.2 * φ (x * (a p.1 * y * a p.2))) ∂(μ.prod μ)) * f₀ y :=
+            integral_mul_const _ _
+        _ = (∫ κ₁, ∫ κ₂, e κ₁ * (e κ₂ * φ (x * (a κ₁ * y * a κ₂))) ∂μ ∂μ) * f₀ y := by
+            rw [integral_prod _ hint]
+        _ = (∫ κ₁, e κ₁ * φ (x * (a κ₁ * y)) ∂μ) * f₀ y := by
+            congr 1
+            refine integral_congr_ae (Filter.Eventually.of_forall fun κ₁ => ?_)
+            show (∫ κ₂, e κ₁ * (e κ₂ * φ (x * (a κ₁ * y * a κ₂))) ∂μ) = e κ₁ * φ (x * (a κ₁ * y))
+            calc (∫ κ₂, e κ₁ * (e κ₂ * φ (x * (a κ₁ * y * a κ₂))) ∂μ)
+                = e κ₁ * ∫ κ₂, e κ₂ * φ (x * (a κ₁ * y * a κ₂)) ∂μ := integral_const_mul _ _
+              _ = e κ₁ * ∫ κ₂, e κ₂ * φ (x * (a κ₁ * y) * a κ₂) ∂μ := by
+                  congr 1
+                  refine integral_congr_ae (Filter.Eventually.of_forall fun κ₂ => ?_)
+                  show e κ₂ * φ (x * (a κ₁ * y * a κ₂)) = e κ₂ * φ (x * (a κ₁ * y) * a κ₂)
+                  rw [← mul_assoc]
+              _ = e κ₁ * φ (x * (a κ₁ * y)) := by rw [hrepφ (x * (a κ₁ * y))]
+        _ = Φ y * f₀ y := rfl
+
+    calc (∫ y, φ (x * y) * dconvWith μ a e e f₀ y ∂ν)
+        = ∫ p, ∫ y, F y p ∂ν ∂(μ.prod μ) := step1
+      _ = ∫ p, ∫ y, F' p y ∂ν ∂(μ.prod μ) := integral_congr_ae (Filter.Eventually.of_forall step2)
+      _ = ∫ y, ∫ p, F' p y ∂(μ.prod μ) ∂ν := step3
+      _ = ∫ y, Φ y * f₀ y ∂ν := integral_congr_ae (Filter.Eventually.of_forall step4)
+  have hGc : Continuous (Function.uncurry fun (y : H) (κ : Kc) => e κ * φ (x * (a κ * y)) * f₀ y) :=
+    hFc.mul (hf₀c.comp continuous_fst)
+  have hGs : HasCompactSupport (Function.uncurry fun (y : H) (κ : Kc) => e κ * φ (x * (a κ * y)) * f₀ y) := by
+    refine HasCompactSupport.intro (IsCompact.prod hf₀s isCompact_univ) fun q hq => ?_
+    have hy : q.1 ∉ tsupport f₀ := fun h => hq ⟨h, Set.mem_univ _⟩
+    show e q.2 * φ (x * (a q.2 * q.1)) * f₀ q.1 = 0
+    rw [image_eq_zero_of_notMem_tsupport hy, mul_zero]
+  have step5 : (∫ y, Φ y * f₀ y ∂ν) = ∫ κ, e κ * (∫ y, φ (x * a κ * y) * f₀ y ∂ν) ∂μ := by
+    calc (∫ y, Φ y * f₀ y ∂ν)
+        = ∫ y, ∫ κ, e κ * φ (x * (a κ * y)) * f₀ y ∂μ ∂ν := by
+          refine integral_congr_ae (Filter.Eventually.of_forall fun y => ?_)
+          show (∫ κ, e κ * φ (x * (a κ * y)) ∂μ) * f₀ y = _
+          exact (integral_mul_const _ _).symm
+      _ = ∫ κ, ∫ y, e κ * φ (x * (a κ * y)) * f₀ y ∂ν ∂μ :=
+          integral_integral_swap_of_hasCompactSupport (μ := ν) (ν := μ) hGc hGs
+      _ = ∫ κ, e κ * (∫ y, φ (x * a κ * y) * f₀ y ∂ν) ∂μ := by
+          refine integral_congr_ae (Filter.Eventually.of_forall fun κ => ?_)
+          show (∫ y, e κ * φ (x * (a κ * y)) * f₀ y ∂ν) = e κ * ∫ y, φ (x * a κ * y) * f₀ y ∂ν
+          rw [← integral_const_mul]
+          refine integral_congr_ae (Filter.Eventually.of_forall fun y => ?_)
+          show e κ * φ (x * (a κ * y)) * f₀ y = e κ * (φ (x * a κ * y) * f₀ y)
+          simp only [mul_assoc]
+  rw [key, step5]
+  exact hrepψ x
+
+end ConvLimit
 
 end ArchApproxIdentity
 

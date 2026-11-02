@@ -409,6 +409,37 @@ public headline, so a duplicate — and the other five **shelved** into
 `Reserve/AutomorphicForm/Adelic/ArchDerivRightConv{,Complex}Dead.lean` (172 + 173 lines, 8 declarations
 each with the premises they need), leaving both live modules at 0 dead.
 
+The eighth **is landed** (2026-11-02) and it is the composition counter-example to the seventh:
+[automorphicForm/SET-AF8.md](automorphicForm/SET-AF8.md),
+`rightConv_rightTranslate_mem_of_isCuspSubrep` — 3,833 silo of which **3,015 lines were already in the
+port**, so the set is 11 declarations / ≈600 pin lines of work, not the 50 / 837 a name-anchored
+reading suggested. Its manager's layer is the wave's real content: the `Def_` gate measured at **0
+missing** (`gate_scan` over the wrapper and four `Def_` modules), the pin's generic convolution-operator
+block homed into `RepTheory/ConvolutionLimit.lean` (`ConvTransport`, 8 declarations, checker 32 ok), two
+promotions in `TestFnTop` (which also migrated that module off the frozen checker: 3 ok), a module
+skeleton with the pins' `JoinOfFamilies` block, and a `#check` surface probe that verified ~90 imported
+names before the worker started — and which, per FR-0112, could not see the one thing the proofs
+actually needed (a scoped `ArchInfra` instance). Landed: `Cusp/RightConvSubrep.lean` (471 lines, 1 ok /
+0 / 0), `integral_mul_dconvWith` in the engine (884 lines, 33 ok / 0 / 0), consumer zone 0 errors. The
+re-read is exact: `needed` **894 / 358,716**, frontier 1,521 / 768,650, the AF shelf **40 / 13,578**,
+nothing readied (return 0) — and it produced FR-0114: a `spec-pin:` wire on a *skeleton* marks the
+whole pin file ported, so a shelf read taken mid-dispatch must `--unport` the in-flight rows.
+
+The ninth **is scoped, not dispatched** (2026-11-02):
+[automorphicForm/SET-AF9.md](automorphicForm/SET-AF9.md), the set SET-AF6 §9 deferred by name — the
+**archimedean derivative algebra** (`[E, F⁻]` commutators, the character identities, the row-isometry
+invariance — 8 leaves / 1,510 silo) and the **two Casimir rows** it is the bridge into (993 silo; the
+779-line `archCasimirAt_rightConv_of_…` is the headline SET-AF6 §9 pointed at). **10 rows / 2,503
+silo, ≈1,380 lines / 105 declarations of work** (three instruments agree to 2%, and SET-AF6's forecast
+1,001 net agrees with order A's 975 to 2.6%). It is the second composition set in a row — 911 of its
+2,281 declaration lines are already in the port — and it has **no `Def_` node** (6 modules, 0 missing).
+Its homes are the modules that already hold the engines the leaves extend
+(`ArchCasimir{,Complex}.lean`, 0 importers each), whose legacy migration is **measured at one
+hypothesis** (`check_port` on the wired copies: 130 ok / 1 mismatch and 97 ok / 0); the two rows go
+into `ArchDerivRightConv.lean` with one new import. Two orders, sequenced (they share the `ArchCasimir`
+hub): A = the algebra (975), B = the bridge (405).
+
+
 ## 6. Verification and wiring
 
 - **Checker.** Every port module carries its own `spec-pin:` header; the legacy `PORT_FILES` /
