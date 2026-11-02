@@ -1801,3 +1801,55 @@ round promotes what generalizes.
   diffs. Shelf 2's note is now stale for `omit … in theorem` (it may still hold for other
   `omit … in` positions — re-test rather than assume).
 - **seen**: 2026-11-01, RS3 §13.
+
+## FR-0092 [tooling] [method] — a *pre-existing* same-last-name node at a weaker statement hides an unported premise: `twin_scan --node` per premise is the audit, `--unport` prices it
+
+- **where**: the scoping read of SET-AF1
+  ([topics/automorphicForm/SET-AF1.md](topics/automorphicForm/SET-AF1.md) §0.2). The shelf row
+  `AutomorphicForm.CuspidalSpectrum.exists_hasModulus_of_isAutomorphicFnAt_of_continuous` (89 silo)
+  cites `NumberField.TateGlobal.exists_norm_apply_eq_ideleNorm_rpow` (236 silo).
+- **symptom**: `frontier.py --ds --ready` prints the row with `premises = 1`,
+  `premises_unported = 0` — i.e. ready — and `--selfcheck` PASSes; but the port has only
+  `RatIdele.exists_norm_apply_eq_ideleNorm_rpow`, the statement over `ℚ`
+  (`NumberTheory/RatIdele/ClassCharNorm.lean:366`), in a different namespace with a different
+  normalizer (`RatIdele.ρ`). The general number-field node is not ported, so the row cannot be
+  written.
+- **cause**: the same name-anchored reading FR-0047 records, but from the *other* direction. FR-0047
+  is a **landing** shadowing an older general node; here the port has long held a **specialisation**
+  whose last name equals the general pin node's, and neither `--ready` nor `--selfcheck` compares
+  statements against names (the source-tier check is `Thm_` stem → name tier, not statement → name).
+  `twin_scan --node` names the situation precisely: **`relative`** — "same last name, different
+  statement", the verdict it also gives for a genuine binder variant, so it is a *flag to read*, not
+  a verdict to trust.
+- **fix**: in a scoping read, run `twin_scan --node` on **every premise of every row you intend to
+  cut** (0.6 s each; `TWIN-public` = ported at that statement, `new`/`relative` = not) and put the
+  verdict column in the brief. Then price the correction with the recipe's own one-command corrected
+  read — `--unport <the shadowed node>` on the same `frontier.py` invocation. Here it moved
+  `needed` 924 / 375,331 → **925 / 375,567**, dropped the AF row off the ready shelf and put the
+  236-line general node on it (leverage 7 / 42), and the corrected read is what the set is cut from.
+  `--unport` is now doing the work FR-0047's post-landing diff was invented for, before any landing.
+- **seen**: 2026-11-02, SET-AF1 §0.2–§0.3.
+
+## FR-0093 [tooling] — a pin-`private` helper whose statement the port holds publicly is invisible to the prelude count, so the pricing over-counts new lines
+
+- **where**: SET-AF1's B1 module (`NumberField.TateGlobal.exists_norm_apply_eq_ideleNorm_rpow`,
+  [topics/automorphicForm/SET-AF1.md](topics/automorphicForm/SET-AF1.md) §1.5). `twin_scan` priced it
+  `prelude 0/24`, i.e. all 24 declarations of the pin `S_` file as new.
+- **symptom**: the worker (correctly) did not re-prove three of them. Two are pin-`private` helpers
+  whose statements the port already holds **public** — `continuous_archUnitHom`
+  (`NumberField.TateGlobal.continuous_archUnitHom`, `TateGlobal/NormSection.lean:83`) and
+  `ideleNorm_archUnitHom` (`NumberField.TateGlobal.ideleNorm_archUnitHom`,
+  `TateGlobal/ArchNorm.lean:57`) — and the third, `coe_archCentralUnit_eq`, exists only to serve those
+  two proofs. The module landed at 246 lines / **21** declarations.
+- **cause**: the pin keeps both helpers `private`, so they are not graph nodes and `twin_scan --node`
+  cannot be asked about them (`not a theorem node`); the prelude counter compares the pin file's
+  declarations against the port's statements, but the port's copies live under the `TateGlobal`
+  namespace (a rename), and the pin side's section variable is `K` where the port's is `F` — the same
+  pair of obstacles FR-0078 records for the *shape* tier, here on the *statement* tier.
+- **rule**: `prelude n/m` is a lower bound on reuse, and a **pin-`private`** helper is where it is
+  weakest. Price a node with 20+ declarations by reading its `port_advise` *substitute* block against
+  the file (the block that lists what the port already has), not by the prelude ratio; and when a
+  landed module comes out short of its priced declaration count, check first for exactly this (reuse
+  the pricing did not see) before assuming a transcription was dropped. Here the miss was in the safe
+  direction (fewer lines written than priced).
+- **seen**: 2026-11-02, SET-AF1 B1.

@@ -118,31 +118,17 @@ appears its home is beside the public `Eaux` in that module (`:1628`), appended 
 signature with a `pin:` row — the treatment `frickeConj` got. Nothing any pin file uses is missing;
 the entry is here so that a later reader does not mistake the omission for an oversight.
 
-### `Def_AutomorphicForm_CuspidalSpectrumCarrier` — the carrier definition module behind the deferred centre-cut slab bound
+### `Def_AutomorphicForm_CuspidalSpectrumCarrier` — **closed 2026-11-02 (landed and consumed)**
 
-Deferred 2026-10-18 while porting the centre-cut fundamental-domain trio
-([logs/centre-cut-fundamental-domain-trio.md](logs/centre-cut-fundamental-domain-trio.md)).
-The node
-`AutomorphicForm.CuspidalSpectrum.exists_forall_setLIntegral_le_mul_setLIntegral_of_isSlabFundamentalDomain_of_coversModCentre_ample`
-(234 pin lines) is priced `--ready` by `frontier.py`, but its wrapper imports
-`Definitions/Def_AutomorphicForm_CuspidalSpectrumCarrier.lean` (288 lines / 31 declarations:
-`IsSlabFundamentalDomain`, `fdPins`, `HasModulus`, `weight`, `weightedMeasure`, `Carrier`,
-`memberSubmodule`, `cuspMemberSubmodule`, `pairing`, `toCarrier`, `cuspSubcarrier`, `IsLift`, …),
-which the port does not have. The frontier does not walk import-only definitions; this is the
-playbook §4(a) blindness. The module imports only the already-ported
-`Def_AutomorphicForm_CuspidalConstituent` and `Def_NumberField_TateGlobalZeta`, so it is a cheap
-definition wave when the node is scheduled. **Do not schedule the 234 off `--ready` until it
-lands.** The three sibling nodes landed without it:
-`isAutomorphicFnAt_of_isFundamentalDomain_of_isAutomorphicFnAt_of_coversModCentre` and the two
-`exists_measurableSet_isFundamentalDomain_subset_iUnion_…` twins.
-
-The module is imported by more pin `S_` files than the slab bound: the arch-type-span leaf
-`S_AutomorphicForm_CuspidalConstituent_finiteDimensional_span_rightTranslate_of_mem_iSup_archTypeSubmoduleAt`
-imports it and uses **none** of its 31 declarations (2026-10-20,
-[logs/arch-type-span.md](logs/arch-type-span.md)). A pin `import` is a module-granular fact —
-`fltdata.proof_defs` records it that way — so the test for "is this definition module on the
-path" is a declaration-level `grep` over the consumer's `S_` file, not its import block. This
-entry is unchanged: the module is still owed when the 234-line slab bound is scheduled.
+Landed as `FLTForHuman/AutomorphicForm/Adelic/Cusp/SpectrumCarrier.lean` (289 lines, **41 declarations,
+41 `ok`**) with its `Def_AutomorphicForm_CuspidalSpectrumSubrep` sibling (104 lines, 11 `ok`) in
+`Cusp/SpectrumSubrep.lean`, and consumed in the same set: the deferred 234-line slab bound
+(`CuspidalSpectrum.exists_forall_setLIntegral_le_mul_setLIntegral_of_isSlabFundamentalDomain_of_coversModCentre_ample`)
+landed in `Cusp/SpectrumPairing.lean` (`2 ok`), together with five carrier-API rows, the general
+norm-exponent node whose only port copy had been the ℚ statement (FR-0092), and the row the set makes
+ready (`exists_hasModulus_of_isCuspConstituent`, 37). Scope and numbers:
+[topics/automorphicForm/SET-AF1.md](topics/automorphicForm/SET-AF1.md) §1.4–§1.5; the entry is deleted
+because nothing of it is owed.
 
 ### `Def_ModularCurve_EigenformIdeal` — the gate of `omegaRow_T2`'s definition layer
 

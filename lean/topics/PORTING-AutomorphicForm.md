@@ -265,7 +265,16 @@ gets its own hand-walk before an order is cut.
 
 **The ready shelf beyond the pair.** With the definitions and the three headlines landed, the
 remaining `AutomorphicForm` ready rows and their successors become schedulable one cluster at a
-time.
+time. The first cluster is **landed** (2026-11-02): [automorphicForm/SET-AF1.md](automorphicForm/SET-AF1.md),
+the **cuspidal-spectrum carrier** — `Cusp/SpectrumCarrier.lean` (41 declarations, checker 41 `ok`) with
+its `Cusp/SpectrumSubrep.lean` sibling (11 `ok`), the carrier-API module (5 `ok`), the pairing/slab
+module (2 `ok`, which closed the 234-line slab bound the carry-forward register had held since
+2026-10-18) and `NumberTheory/NumberField/TateGlobal/NormExponent.lean` (1 `ok`) — five new modules,
+1,250 lines, no migration. Measured after the landing: `needed` **917 / 374,592** and one new ready
+row (`CuspidalSpectrum.exists_hasModulus_of_isCuspConstituent`, 37). The brief's §0.2 records the
+read's one correction on the way in (the general norm-exponent node read as ported because the port
+held only the `ℚ` statement; `twin_scan --node` verdict `relative`, FR-0092), and §1.5/§8 the landing
+and its re-read.
 
 ## 6. Verification and wiring
 

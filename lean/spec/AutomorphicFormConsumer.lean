@@ -750,38 +750,38 @@ example (R : Type) [CommRing R] [TopologicalSpace R] :
   borelSpace_glBorelOf R
 
 example (F : Type) [Field F] [NumberField F] : (archHaarK F).IsHaarMeasure :=
-  Q09.isHaarMeasure_archHaarK F
+  ArchApproxIdentity.isHaarMeasure_archHaarK F
 
 -- Zone Q-Q1: the adèlic infrastructure — the product Haar `muK` on the row-isometry
 -- product is a probability measure.
-example (F : Type) [Field F] [NumberField F] : Q09AIarch.muK F Set.univ = 1 :=
-  Q09AIarch.muK_univ F
+example (F : Type) [Field F] [NumberField F] : ArchInfra.muK F Set.univ = 1 :=
+  ArchInfra.muK_univ F
 
 -- Zone Q-Q2: the entry map and the ball/bump layer — `archEntries` is the matrix-entry
 -- embedding, and the approximate identity exists in the archimedean factor.
 example (F : Type) [Field F] [NumberField F] (g : GL (Fin 2) (InfiniteAdeleRing F)) :
     archEntries F g =
-      Q09AIarchG.matrixEntries F (g : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F)) :=
-  Q09AIarchG.archEntries_eq F g
+      ArchEntryBall.matrixEntries F (g : Matrix (Fin 2) (Fin 2) (InfiniteAdeleRing F)) :=
+  ArchEntryBall.archEntries_eq F g
 
 example (F : Type) [Field F] [NumberField F] [(archHaarK F).IsHaarMeasure] :
     ∃ ψ : ℕ → GL (Fin 2) (InfiniteAdeleRing F) → ℝ,
       (∀ n, IsArchTestFactor F (fun g => (ψ n g : ℂ)) ∧ Continuous (ψ n) ∧
         HasCompactSupport (ψ n) ∧ (∀ g, 0 ≤ ψ n g) ∧ (∫ g, ψ n g ∂archHaarK F) = 1) ∧
       ∀ U ∈ nhds (1 : GL (Fin 2) (InfiniteAdeleRing F)), ∀ᶠ n in Filter.atTop, tsupport (ψ n) ⊆ U :=
-  Q09AIarchG.exists_approxIdentity F
+  ArchEntryBall.exists_approxIdentity F
 
 -- Zone Q-Q3: the generic type reproducer — the product representation acts componentwise.
 example {H A : Type} [Group H] {W : A → Type} [∀ a, AddCommGroup (W a)] [∀ a, Module ℂ (W a)]
     (ρ : ∀ a, Representation ℂ H (W a)) (k : H) (v : ∀ a, W a) (a : A) :
-    Q09.piRep ρ k v a = ρ a k (v a) :=
-  Q09.piRep_apply ρ k v a
+    ArchApproxIdentity.piRep ρ k v a = ρ a k (v a) :=
+  ArchApproxIdentity.piRep_apply ρ k v a
 
 -- Zone Q-Q4: the generic double-convolution engine — the continuous functions form a
 -- submodule of all functions.
 example {X : Type} [TopologicalSpace X] {u : X → ℂ} :
-    u ∈ Q09.contSubmodule X ↔ Continuous u :=
-  Q09.mem_contSubmodule
+    u ∈ ArchApproxIdentity.contSubmodule X ↔ Continuous u :=
+  ArchApproxIdentity.mem_contSubmodule
 
 -- Zone Q-Q6: the headline, executed at the zero function and a concrete `tys` built from
 -- abstract archimedean representations. The zone forces the façade and the whole
