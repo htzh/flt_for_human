@@ -628,16 +628,18 @@ premise-wave from transcribable; §9 names them.
 ## 9. What this set does not do
 
 - **The 23 `AutomorphicForm` ready rows it does not cut.** Each is named with its reason in
-  Appendix A. Four of them are *definition-gated elsewhere*, by three unported definition modules the
-  AF column still owes: `Def_AutomorphicForm_FnTwist` (104 → `rightTranslate_adjoint_weightedPairing…`
-  433), `Def_AutomorphicForm_AdelicMaximalCompact` (331 → `apply_weylInv_unipotent_mul_archSupportedAt…`
-  360 — the whole `adelicMaximalCompact` vocabulary is absent from the port), and
-  `Def_UnramifiedWhittaker_HeckeRecursion` (55 → `heckeCosetSum_sum_rightConv_translate…` 138 and
-  `sum_whittakerCoefficient_mul_placeEmbed_…` 146, the second also needing
-  `Def_AutomorphicForm_BoundedGenuineCuspRealization` 316). The 360-row's twin
-  `apply_weylInv_unipotent_mul_localWeyl…` (217) shares the
-  `WeylIntertwining`/`EtaFamily`/`InducedSection` closure, which *is* ported — so that pair is not one
-  story after all: only one of the two is gated, and the 217 is ready today.
+  Appendix A. **Four** of them are *definition-gated elsewhere*, by three unported modules the AF
+  column still owes: `Def_AutomorphicForm_FnTwist` (104 → `rightTranslate_adjoint_weightedPairing…`
+  433), `Def_UnramifiedWhittaker_HeckeRecursion` (55 → `heckeCosetSum_sum_rightConv_translate…` 138
+  and `sum_whittakerCoefficient_mul_placeEmbed_…` 146, the second also needing
+  `Def_AutomorphicForm_BoundedGenuineCuspRealization` 316), and that is all. **This list's original
+  fourth entry was wrong**: `apply_weylInv_unipotent_mul_archSupportedAt…` (360) does **not** need
+  `Def_AutomorphicForm_AdelicMaximalCompact` — its wrapper imports the module and neither the wrapper
+  nor the `S_` file uses a single declaration of it (declaration-level grep: 0), the module-granular
+  import the carry-forward register warns about. Its twin `apply_weylInv_unipotent_mul_localWeyl…`
+  (217) shares the `WeylIntertwining`/`EtaFamily`/`InducedSection` closure, which *is* ported — so
+  the pair is two ready rows, and the `adelicMaximalCompact` vocabulary is unported because the
+  **leaves** need it, not this pair (SET-AF2 §0.3 makes the set).
 - **The 91 `AutomorphicForm` leaves / 18,510 silo.** Named row by row in Appendix B, deferred whole.
   Its two coherent clusters — `LocalIntertwining` (7 / 1,295) and `CuspidalConstituent` (6 / 1,288) —
   are the column's next two candidate sets after this one.
@@ -670,7 +672,7 @@ Grouped by subject, each with the reason it stays out.
 | row | silo | gate | why not here |
 |---|---:|---|---|
 | `rightTranslate_adjoint_weightedPairing_of_isLsXiFunction` | 433 | `Def_AutomorphicForm_FnTwist` (104, unported) | adjointness of right translation for the weighted Petersson pairing; it is the *Petersson* story (with the 192 below), and its gate is `fnTwist`/`twistedCentralChar`, a different subject from the carrier |
-| `apply_weylInv_unipotent_mul_archSupportedAt_eq_norm_cpow_mul_apply` | 360 | `Def_AutomorphicForm_AdelicMaximalCompact` (331, unported) | the Weyl–Iwasawa left-translation computation at an archimedean supported section; the gate is the maximal-compact vocabulary |
+| `apply_weylInv_unipotent_mul_archSupportedAt_eq_norm_cpow_mul_apply` | 360 | **none** — corrected by SET-AF2 §0.3: the wrapper *imports* `Def_AutomorphicForm_AdelicMaximalCompact` but neither it nor the `S_` file uses any of its declarations (declaration-level grep: 0), so the import is dead and the row was ready all along | the Weyl–Iwasawa left-translation computation at an archimedean supported section |
 
 **Ready, but a different subject.**
 

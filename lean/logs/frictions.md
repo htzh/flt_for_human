@@ -1853,3 +1853,52 @@ round promotes what generalizes.
   the pricing did not see) before assuming a transcription was dropped. Here the miss was in the safe
   direction (fewer lines written than priced).
 - **seen**: 2026-11-02, SET-AF1 B1.
+
+## FR-0094 [lean] [port] — the `if`/`dif` deprecation family is a fifth v4.34 rename set, and a `TopologicalSpace (Matrix …)` instance does not synthesise inside a term
+
+- **where**: SET-AF2's M2 (`Adelic/InducedSectionMaximalCompact.lean`,
+  [topics/automorphicForm/SET-AF2.md](topics/automorphicForm/SET-AF2.md) §1.6).
+- **symptom (a)**: the pin's `dif_pos` / `dif_neg` / `if_pos` / `if_neg` are deprecated at `v4.34`;
+  thirteen occurrences in the 478-line Weyl/unipotent proof. The `v4.34` names are `dite_eq_left` /
+  `dite_eq_right` / `ite_eq_left` / `ite_eq_right` (the port already uses them in
+  `Analysis/Complex/CircleIntegralResidue.lean` and `Analysis/PowerSeries/EisensteinAlgSeries.lean`).
+  This is a **fifth** deprecation family after FR-0080/FR-0083's `if_pos`/`if_neg` (which were the
+  same names in a different position — check both the `_of_` and the plain forms), `push_neg` (FR-0036)
+  and the `Set` family (`Set.setOf_forall`/`setOf_and`/`mem_setOf_eq` →
+  `Set.ofPred_forall`/`ofPred_and`/`mem_ofPred_eq`, which SET-AF2's gate hit).
+- **symptom (b)**: the pin's `continuous_finComponent_glFin` proof goes through
+  `Units.continuous_val.matrix_elem` entry by entry. In the port that term does not elaborate: the
+  `TopologicalSpace (Matrix (Fin 2) (Fin 2) (v.adicCompletion K))` instance is not synthesised *inside
+  the term*, although `#synth` finds it interactively. Proved instead as
+  `(continuous_finComponent v).comp (continuous_glFin)` — one line, no new import, and it also removes
+  the need for the pin's `attribute [local instance] glBorel` line in that module.
+- **rule**: for (a), grep the pin proof for `if_pos|if_neg|dif_pos|dif_neg` when it has `dite`/`ite`
+  branches and translate to the `…_eq_left`/`…_eq_right` names; for (b), when a pin proof's *term*
+  names a matrix-entry continuity, prefer the port's structural continuities
+  (`continuous_finComponent`, `continuous_glFin`, `continuous_archComponent`, `continuous_glArch`)
+  and only fall back to the entry route with the instance supplied explicitly (`letI := …`).
+- **seen**: 2026-11-02, SET-AF2 M2.
+
+## FR-0095 [tooling] [method] — a large landing *manufactures* last-name shadows: a `private` helper named after an unported pin node moves `needed` and the ready shelf in the wrong direction
+
+- **where**: the post-landing re-read of SET-AF2. The new M2 module proves
+  `private theorem continuous_unipotentGL2`, and the pin has the node
+  `AutomorphicForm.continuous_unipotentGL2` (28 silo, a leaf).
+- **symptom**: the raw re-read reports `needed` **909 / 373,333**, i.e. 1 node / 28 lines *better* than
+  the true figure, and puts **two** rows on the ready shelf
+  (`continuous_rightConv_and_contDiff_of_isFactorizableTestFn`,
+  `isCuspidalFn_isKfSmooth_levelInvariant_isHeckeCosetEigenfunctionAt_rightConv_of_isFactorizableTestFn_of_support_subset`)
+  whose only missing premise is that node — so the shelf over-reports by two and the set looks better
+  than it is. `frontier.py`'s ported set is a set of last-name components **including `private`
+  declarations** (`scan_port_decls(include_private=True)`), so any helper that happens to carry an
+  unported node's last name silently "ports" it. FR-0047 recorded the same mechanism after
+  *renaming*; this is the accidental version, and it is a function of landing size: 45 private
+  declarations in one module is 45 chances to collide.
+- **fix**: after **every** landing, run the read twice — the instrument's and the `--unport` one — and
+  diff the new modules' `private` declaration names against the unported last names
+  (`grep -o 'private theorem [A-Za-z0-9_]*' <new modules>` versus the `needed` last names). Here the
+  correction is one node (`--unport AutomorphicForm.continuous_unipotentGL2`) and it restores both
+  figures: `needed` 910 / 373,361 and the shelf to 27 rows / 6,669 silo, which is what SET-AF2 §8
+  quotes. The *renamed-copy* variant of FR-0047 and this *collision* variant are one rule: the
+  corrected read is part of the landing, not of the next scoping.
+- **seen**: 2026-11-02, SET-AF2 §8.
