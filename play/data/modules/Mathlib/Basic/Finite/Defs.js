@@ -1,0 +1,51 @@
+window.PLAY_MODULES = window.PLAY_MODULES || {};
+window.PLAY_MODULES["Mathlib.Basic.Finite.Defs"] = {
+  "module": "Mathlib.Basic.Finite.Defs",
+  "cards": {
+    "Finite": {
+      "refs": [],
+      "range": {"start":{"line":72,"column":0},"end":{"line":102,"column":40}},
+      "name": "Finite",
+      "module": "Mathlib.Basic.Finite.Defs",
+      "kind": "inductive",
+      "elaborated_type": "Sort u_3 → Prop",
+      "doc": "A type is `Finite` if it is in bijective correspondence to some `Fin n`.\n\nThis is similar to `Fintype`, but `Finite` is a proposition rather than data.\nA particular benefit to this is that `Finite` instances are definitionally equal to one another\n(due to proof irrelevance) rather than being merely propositionally equal,\nand, furthermore, `Finite` instances generally avoid the need for `Decidable` instances.\nOne other notable difference is that `Finite` allows there to be `Finite p` instances\nfor all `p : Prop`, which is not allowed by `Fintype` due to universe constraints.\nAn application of this is that `Finite (x ∈ s → β x)` follows from the general instance for pi\ntypes, assuming `[∀ x, Finite (β x)]`.\nImplementation note: this is a reason `Finite α` is not defined as `Nonempty (Fintype α)`.\n\nEvery `Fintype` instance provides a `Finite` instance via `Finite.of_fintype`.\nConversely, one can noncomputably create a `Fintype` instance from a `Finite` instance\nvia `Fintype.ofFinite`. In a proof one might write\n```lean\n  have := Fintype.ofFinite α\n```\nto obtain such an instance.\n\nDo not write noncomputable `Fintype` instances; instead write `Finite` instances\nand use this `Fintype.ofFinite` interface.\nThe `Fintype` instances should be relied upon to be computable for evaluation purposes.\n\nTheorems should use `Finite` instead of `Fintype`, unless definitions in the theorem statement\nrequire `Fintype`.\nDefinitions should prefer `Finite` as well, unless it is important that the definitions\nare meant to be computable in the reduction or `#eval` sense.\n",
+      "short": "Finite",
+      "signature_source": "class inductive Finite (α : Sort*) : Prop\n  | intro {n : ℕ} : α ≃ Fin n → Finite _",
+      "body_source": "",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/Basic/Finite/Defs.lean",
+      "has_source": true,
+      "has_refs": false
+    },
+    "Infinite": {
+      "refs": [],
+      "range": {"start":{"line":132,"column":0},"end":{"line":136,"column":24}},
+      "name": "Infinite",
+      "module": "Mathlib.Basic.Finite.Defs",
+      "kind": "inductive",
+      "elaborated_type": "Sort u_3 → Prop",
+      "doc": "A type is said to be infinite if it is not finite. Note that `Infinite α` is equivalent to\n`IsEmpty (Fintype α)` or `IsEmpty (Finite α)`. ",
+      "short": "Infinite",
+      "signature_source": "class Infinite (α : Sort*) : Prop where\n  /-- assertion that `α` is `¬Finite` -/\n  not_finite : ¬Finite α",
+      "body_source": "",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/Basic/Finite/Defs.lean",
+      "has_source": true,
+      "has_refs": false
+    },
+    "Set.Finite": {
+      "refs": [{"where":"type","name":"Set","module":"Mathlib.Data.Set.Defs","kind":"def"},{"where":"body","name":"Finite","module":"Mathlib.Basic.Finite.Defs","kind":"inductive"},{"where":"body","name":"Set.Elem","module":"Mathlib.Data.Set.CoeSort","kind":"def"}],
+      "range": {"start":{"line":183,"column":0},"end":{"line":185,"column":51}},
+      "name": "Set.Finite",
+      "module": "Mathlib.Basic.Finite.Defs",
+      "kind": "def",
+      "elaborated_type": "{α : Type u} → Set α → Prop",
+      "doc": "A set is finite if the corresponding `Subtype` is finite,\ni.e., if there exists a natural `n : ℕ` and an equivalence `s ≃ Fin n`. ",
+      "short": "Finite",
+      "signature_source": "protected def Finite (s : Set α) : Prop :=",
+      "body_source": "Finite s",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/Basic/Finite/Defs.lean",
+      "has_source": true,
+      "has_refs": true
+    }
+  }
+};

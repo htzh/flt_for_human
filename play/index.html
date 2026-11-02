@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FLT · Play</title>
+<link id="play-style" rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="index" data-base="">
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><a href="./">FLT <span>play</span></a></div>
+    <div class="searchbox">
+      <input id="search" type="search" autocomplete="off" spellcheck="false"
+             placeholder="search declarations — name, short name, docstring…">
+      <div id="search-results" class="search-results" hidden></div>
+    </div>
+  </div>
+</header>
+<div class="index-layout wrap">
+  <main class="index-main">
+    <h1>Play — reading the FLT port in a browser</h1>
+    <p class="lead">Worksheet reader and one-layer declaration lookup. Pick a subject,
+      read the zones, and click any checked name to see its source declaration,
+      docstring, and the declarations it directly uses. Sugared source first; the
+      elaborated <code>#check</code> view is behind the Type tab.</p>
+    <div id="sheets" class="sheet-grid"></div>
+  </main>
+</div>
+<aside id="cardpanel" class="card-panel" hidden></aside>
+<script>
+/* Load the build's app.js even when a tablet browser cached the old one.
+   version.json is fetched no-store; file:// falls back to a classic script. */
+(function () {
+  var base = document.body.dataset.base || "";
+  var isHttp = /^https?:$/.test(location.protocol);
+  function load(build) {
+    window.PLAY_BUILD = build || "";
+    var css = document.getElementById("play-style");
+    if (css && build) css.href = base + "assets/style.css?v=" + encodeURIComponent(build);
+    var s = document.createElement("script");
+    s.src = base + "assets/app.js" + (build ? "?v=" + encodeURIComponent(build) : "");
+    document.body.appendChild(s);
+  }
+  if (!isHttp || typeof fetch !== "function") { load(""); return; }
+  fetch(base + "version.json?t=" + Date.now(), { cache: "no-store" })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (j) { load(j && j.build ? j.build : ""); })
+    .catch(function () { load(""); });
+})();
+</script>
+</body>
+</html>

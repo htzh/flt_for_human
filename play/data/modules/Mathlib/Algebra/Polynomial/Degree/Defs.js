@@ -1,0 +1,51 @@
+window.PLAY_MODULES = window.PLAY_MODULES || {};
+window.PLAY_MODULES["Mathlib.Algebra.Polynomial.Degree.Defs"] = {
+  "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+  "cards": {
+    "Polynomial.Monic": {
+      "refs": [{"where":"type","name":"Polynomial","module":"Mathlib.Algebra.Polynomial.Basic","kind":"inductive"},{"where":"type","name":"Semiring","module":"Mathlib.Algebra.Ring.Defs","kind":"inductive"},{"where":"body","name":"Polynomial.leadingCoeff","module":"Mathlib.Algebra.Polynomial.Degree.Defs","kind":"def"}],
+      "range": {"start":{"line":59,"column":0},"end":{"line":61,"column":26}},
+      "name": "Polynomial.Monic",
+      "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+      "kind": "def",
+      "elaborated_type": "{R : Type u} → [inst : Semiring R] → Polynomial R → Prop",
+      "doc": "a polynomial is `Monic` if its leading coefficient is 1 ",
+      "short": "Monic",
+      "signature_source": "def Monic (p : R[X]) :=",
+      "body_source": "leadingCoeff p = (1 : R)",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/Algebra/Polynomial/Degree/Defs.lean",
+      "has_source": true,
+      "has_refs": true
+    },
+    "Polynomial.degree": {
+      "refs": [{"where":"type","name":"Polynomial","module":"Mathlib.Algebra.Polynomial.Basic","kind":"inductive"},{"where":"type","name":"Semiring","module":"Mathlib.Algebra.Ring.Defs","kind":"inductive"},{"where":"type","name":"WithBot","module":"Mathlib.Order.TypeTags","kind":"def"},{"where":"type","name":"Nat","module":"Init.Prelude","kind":"inductive"},{"where":"body","name":"Finset.max","module":"Mathlib.Data.Finset.Max","kind":"def"},{"where":"body","name":"Polynomial.support","module":"Mathlib.Algebra.Polynomial.Basic","kind":"def"}],
+      "range": {"start":{"line":45,"column":0},"end":{"line":49,"column":15}},
+      "name": "Polynomial.degree",
+      "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+      "kind": "def",
+      "elaborated_type": "{R : Type u} → [inst : Semiring R] → Polynomial R → WithBot ℕ",
+      "doc": "`degree p` is the degree of the polynomial `p`, i.e. the largest `X`-exponent in `p`.\n`degree p = some n` when `p ≠ 0` and `n` is the highest power of `X` that appears in `p`, otherwise\n`degree 0 = ⊥`. ",
+      "short": "degree",
+      "signature_source": "def degree (p : R[X]) : WithBot ℕ :=",
+      "body_source": "p.support.max",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/Algebra/Polynomial/Degree/Defs.lean",
+      "has_source": true,
+      "has_refs": true
+    },
+    "Polynomial.natDegree": {
+      "refs": [{"where":"type","name":"Polynomial","module":"Mathlib.Algebra.Polynomial.Basic","kind":"inductive"},{"where":"type","name":"Semiring","module":"Mathlib.Algebra.Ring.Defs","kind":"inductive"},{"where":"type","name":"Nat","module":"Init.Prelude","kind":"inductive"},{"where":"body","name":"Polynomial.degree","module":"Mathlib.Algebra.Polynomial.Degree.Defs","kind":"def"},{"where":"body","name":"WithBot.unbotD","module":"Mathlib.Order.WithBot","kind":"def"}],
+      "range": {"start":{"line":51,"column":0},"end":{"line":53,"column":21}},
+      "name": "Polynomial.natDegree",
+      "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+      "kind": "def",
+      "elaborated_type": "{R : Type u} → [inst : Semiring R] → Polynomial R → ℕ",
+      "doc": "`natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. ",
+      "short": "natDegree",
+      "signature_source": "def natDegree (p : R[X]) : ℕ :=",
+      "body_source": "(degree p).unbotD 0",
+      "source_file": "lean/.lake/packages/mathlib/Mathlib/Algebra/Polynomial/Degree/Defs.lean",
+      "has_source": true,
+      "has_refs": true
+    }
+  }
+};

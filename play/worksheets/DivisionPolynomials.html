@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>the division polynomials · FLT play</title>
+<link id="play-style" rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="worksheet" data-base="../" data-slug="DivisionPolynomials">
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><a href="../index.html">FLT <span>play</span></a></div>
+    <div class="searchbox">
+      <input id="search" type="search" autocomplete="off" spellcheck="false"
+             placeholder="search declarations — name, short name, docstring…">
+      <div id="search-results" class="search-results" hidden></div>
+    </div>
+    <button id="zones-toggle" class="ghost" type="button"
+            aria-controls="outline" aria-expanded="true">Hide zones</button>
+  </div>
+</header>
+<div class="layout">
+  <nav id="outline" class="outline"></nav>
+  <main class="article">
+    <div class="ws-head">
+      <h1 id="ws-title">the division polynomials</h1>
+      <p class="tagline" id="ws-tagline"></p>
+      <div class="subject" id="ws-subject"></div>
+      <div class="ws-intro" id="ws-intro"></div>
+      <details class="ws-source">
+        <summary>source &amp; build</summary>
+        <div class="ws-meta" id="ws-meta"></div>
+      </details>
+    </div>
+    <div id="worksheet"></div>
+  </main>
+  <aside id="cardpanel" class="card-panel" hidden></aside>
+</div>
+<script>
+/* Load the build's app.js even when a tablet browser cached the old one.
+   version.json is fetched no-store; file:// falls back to a classic script. */
+(function () {
+  var base = document.body.dataset.base || "";
+  var isHttp = /^https?:$/.test(location.protocol);
+  function load(build) {
+    window.PLAY_BUILD = build || "";
+    var css = document.getElementById("play-style");
+    if (css && build) css.href = base + "assets/style.css?v=" + encodeURIComponent(build);
+    var s = document.createElement("script");
+    s.src = base + "assets/app.js" + (build ? "?v=" + encodeURIComponent(build) : "");
+    document.body.appendChild(s);
+  }
+  if (!isHttp || typeof fetch !== "function") { load(""); return; }
+  fetch(base + "version.json?t=" + Date.now(), { cache: "no-store" })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (j) { load(j && j.build ? j.build : ""); })
+    .catch(function () { load(""); });
+})();
+</script>
+</body>
+</html>
