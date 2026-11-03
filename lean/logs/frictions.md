@@ -2895,3 +2895,46 @@ round promotes what generalizes.
   import the row claimed.
 - **seen**: 2026-11-02, SET-AF14 row 8 (`maj`, written private at the pin's text; the import it justified,
   `RightConvNeZeroArch`, removed, and order B's closure dropped from 3,561 to 3,128 jobs).
+
+## FR-0135 [checker] [tooling] — neither `check_port` nor the frontier sees a headline declared under the wrong *name*: the statement hash and the last name both pass
+
+- **where**: SET-AF16's landing: seven of its eight headlines were declared *inside* their helper
+  namespaces (`AutomorphicForm.LocalIntertwining.ContinuousOnBorel.continuousOn_of_…`) instead of at the
+  pin's names (`AutomorphicForm.continuousOn_of_…`).
+- **symptom**: `spec/check_port.py --force` read **8 / 1 / 15 ok, 0 mismatch / 0 missing**, and the
+  frontier counted all eight as ported — both correct on their own terms, and both blind to the defect:
+  the checker keys on the statement's *text*, and the frontier maps a graph node to a port declaration by
+  its **last** name, which is unchanged. The only instrument that caught it was `#print axioms` on the
+  pin's full names, where seven came back `unknownIdentifier`. A reader following a brief ("the headline
+  is at `AutomorphicForm.<name>`") or a consumer citing the pin's name finds nothing.
+- **cause**: the port's convention — a headline sits at the pin's name, helpers in subject namespaces —
+  is a *naming* rule, and no tool in `spec/` or `tools/deps` checks names against the pin; `check_port`
+  was built to verify statements, and deliberately accepts a port copy under another name (that is the
+  documented false negative of the name-anchored instruments, FR-0128/FR-0133's mirror image).
+- **rule**: after a dispatch, run `#print axioms` on every headline at its **pin-qualified** name; a name
+  that does not resolve is a naming defect, not a missing proof. (`lake` will not report it either: a
+  declaration under another name still builds, and the module is silent.) A `theorem _root_.<absolute name>`
+  declared inside a helper namespace is the cheap repair — the proof keeps its helpers and the
+  declaration gets the pin's name; the consumer's references then need the absolute spelling too.
+- **seen**: 2026-11-02, SET-AF16 (seven headlines; repaired by the manager, then rebuild + checker +
+  axioms + probe + consumer re-run green).
+
+## FR-0136 [tooling] [surface] — the surface gate's `sed` misses `private noncomputable def` (and `private instance`), so the reading under-counts
+
+- **where**: SET-AF17's landing, order C (`RightConvStructurePreservation.lean`, 18 declarations of which 17
+  are `private`): `sed 's/^private theorem /theorem /; s/^private def /def /; s/^private lemma /lemma /'`
+  followed by `check_port --force` read **16 ok**; with `private noncomputable def` also stripped it reads
+  **18 ok**. The two declarations the first pass left private were `sliceFn` and `slice`, both
+  `private noncomputable def`.
+- **symptom**: the set's dropped-`private` reading came out 101 instead of 103, and the two "missing"
+  declarations looked like a checker blind spot (FR-0131's class) until the `sed` was fixed — they were
+  never missing, the gate had simply not made them public for the experiment.
+- **cause**: the recipe's surface gate is written as "drop `private` from the module's declarations" and
+  every set's brief carries the same four-substitution `sed`; Lean's declaration forms include
+  `private noncomputable def`, `private instance`, `private protected theorem`, `private abbrev` and
+  `private opaque`, and a `sed` keyed on `private (theorem|def|lemma)` silently keeps the rest private.
+- **rule**: strip `private` with a pattern that drops the *modifier*, not the keyword after it —
+  e.g. `sed 's/^private //'` on every line that starts with it — and then re-read; or compare the ok count
+  against the declaration count that `dedup.py --within` reports for the module (18 here), which is the
+  cheap cross-check that catches a short reading immediately.
+- **seen**: 2026-11-02, SET-AF17 order C (manager's own first pass; corrected on the second).

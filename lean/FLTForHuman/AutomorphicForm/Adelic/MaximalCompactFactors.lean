@@ -109,24 +109,24 @@ private theorem adelicGL2_ext {g h : AdelicGL2 (𝓞 F) F}
   · exact finEntry_eq h₂ i j
 
 /-- The adelic matrix agreeing with `g` at the finite place `v` and equal to `1` elsewhere. -/
-private def atPlace (v : HeightOneSpectrum (𝓞 F)) (g : GL (Fin 2) (v.adicCompletion F)) :
+def atPlace (v : HeightOneSpectrum (𝓞 F)) (g : GL (Fin 2) (v.adicCompletion F)) :
     AdelicGL2 (𝓞 F) F :=
   finEmbed (𝓞 F) F (localEmbed (𝓞 F) F v g)
 
-private theorem glArch_atPlace (v : HeightOneSpectrum (𝓞 F)) (g : GL (Fin 2) (v.adicCompletion F)) :
+theorem glArch_atPlace (v : HeightOneSpectrum (𝓞 F)) (g : GL (Fin 2) (v.adicCompletion F)) :
     glArch (𝓞 F) F (atPlace v g) = 1 := glArch_finEmbed _ _ _
 
-private theorem finComponent_atPlace_self (v : HeightOneSpectrum (𝓞 F))
+theorem finComponent_atPlace_self (v : HeightOneSpectrum (𝓞 F))
     (g : GL (Fin 2) (v.adicCompletion F)) :
     finComponent (𝓞 F) F v (glFin (𝓞 F) F (atPlace v g)) = g := by
   rw [atPlace, glFin_finEmbed, finComponent_localEmbed_self]
 
-private theorem finComponent_atPlace_of_ne (v : HeightOneSpectrum (𝓞 F))
+theorem finComponent_atPlace_of_ne (v : HeightOneSpectrum (𝓞 F))
     (g : GL (Fin 2) (v.adicCompletion F)) {w : HeightOneSpectrum (𝓞 F)} (hw : w ≠ v) :
     finComponent (𝓞 F) F w (glFin (𝓞 F) F (atPlace v g)) = 1 := by
   rw [atPlace, glFin_finEmbed, finComponent_localEmbed_of_ne _ _ _ _ hw]
 
-private theorem localEmbed_entries_integral (v : HeightOneSpectrum (𝓞 F))
+theorem localEmbed_entries_integral (v : HeightOneSpectrum (𝓞 F))
     (g : GL (Fin 2) (v.adicCompletion F))
     (hg : ∀ i j, (g : Matrix (Fin 2) (Fin 2) (v.adicCompletion F)) i j ∈ v.adicCompletionIntegers F)
     (i j : Fin 2) :
@@ -143,7 +143,7 @@ private theorem localEmbed_entries_integral (v : HeightOneSpectrum (𝓞 F))
     · exact one_mem _
     · exact zero_mem _
 
-private theorem atPlace_mem (v : HeightOneSpectrum (𝓞 F)) {k : AdelicGL2 (𝓞 F) F}
+theorem atPlace_mem (v : HeightOneSpectrum (𝓞 F)) {k : AdelicGL2 (𝓞 F) F}
     (hk : k ∈ adelicMaximalCompact F) :
     atPlace v (finComponent (𝓞 F) F v (glFin (𝓞 F) F k)) ∈ adelicMaximalCompact F := by
   set g := finComponent (𝓞 F) F v (glFin (𝓞 F) F k) with hgdef
